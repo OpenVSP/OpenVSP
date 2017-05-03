@@ -227,7 +227,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     SetFixPointSurfaceNodes();
 
     addOutputText( "Remesh\n" );
-    Remesh();
+    Remesh( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
     SubSurfaceMgr.BuildSingleTagMap();
 
@@ -583,167 +583,6 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
     }
 }
 
-void FeaMeshMgrSingleton::BuildSubSurfIntChains()
-{
-    // Adds FeaSubSurface intersection chains
-    vec2d uw_pnt0;
-    vec2d uw_pnt1;
-    int num_sects = 100; // Number of segments to break subsurface segments up into
-
-    vector< SubSurface* > ss_vec = m_FeaSubSurfVec;
-
-    // Prepare All SubSurfaces for Split
-    for ( int i = 0; i < m_NumFeaSubSurfs; i++ )
-    {
-        ss_vec[i]->CleanUpSplitVec();
-        ss_vec[i]->PrepareSplitVec();
-    }
-
-    for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
-    {
-        Surf* surf = m_SurfVec[s];
-
-        // Split SubSurfs
-        for ( int ss = 0; ss < m_NumFeaSubSurfs; ss++ )
-        {
-            ss_vec[ss]->SplitSegsU( surf->GetSurfCore()->GetMinU() );
-            ss_vec[ss]->SplitSegsU( surf->GetSurfCore()->GetMaxU() );
-            ss_vec[ss]->SplitSegsW( surf->GetSurfCore()->GetMinW() );
-            ss_vec[ss]->SplitSegsW( surf->GetSurfCore()->GetMaxW() );
-
-            vector< SSLineSeg >& segs = ss_vec[ss]->GetSplitSegs();
-            ISegChain* chain = NULL;
-
-            bool new_chain = true;
-            bool is_poly = ss_vec[ss]->GetPolyFlag();
-
-            // Build Intersection Chains
-            for ( int ls = 0; ls < (int)segs.size(); ls++ )
-            {
-                if ( new_chain && chain )
-                {
-                    if ( chain->Valid() )
-                    {
-                        if ( ss_vec[ss]->m_IntersectionCapFlag() )
-                        {
-                            chain->m_SSIntersectIndex = ss; // Identify FeaSubSurfaceIndex
-                        }
-
-                        m_ISegChainList.push_back( chain );
-                    }
-                    else
-                    {
-                        delete chain;
-                        chain = NULL;
-                    }
-                }
-
-                if ( new_chain )
-                {
-                    chain = new ISegChain;
-                    chain->m_SurfA = surf;
-                    chain->m_SurfB = surf;
-                    if ( !is_poly )
-                    {
-                        new_chain = false;
-                    }
-                }
-
-                SSLineSeg l_seg = segs[ls];
-                vec3d lp0, lp1;
-
-                lp0 = l_seg.GetP0();
-                lp1 = l_seg.GetP1();
-                uw_pnt0 = vec2d( lp0.x(), lp0.y() );
-                uw_pnt1 = vec2d( lp1.x(), lp1.y() );
-                double max_u, max_w, tol;
-                double min_u, min_w;
-                tol = 1e-6;
-                min_u = surf->GetSurfCore()->GetMinU();
-                min_w = surf->GetSurfCore()->GetMinW();
-                max_u = surf->GetSurfCore()->GetMaxU();
-                max_w = surf->GetSurfCore()->GetMaxW();
-
-                if ( uw_pnt0[0] < min_u || uw_pnt0[1] < min_w || uw_pnt1[0] < min_u || uw_pnt1[1] < min_w )
-                {
-                    new_chain = true;
-                    continue; // Skip if either point has a value not on this surface
-                }
-                if ( uw_pnt0[0] > max_u || uw_pnt0[1] > max_w || uw_pnt1[0] > max_u || uw_pnt1[1] > max_w )
-                {
-                    new_chain = true;
-                    continue; // Skip if either point has a value not on this surface
-                }
-                if ( ( ( std::abs( uw_pnt0[0] - max_u ) < tol && std::abs( uw_pnt1[0] - max_u ) < tol ) ||
-                    ( std::abs( uw_pnt0[1] - max_w ) < tol && std::abs( uw_pnt1[1] - max_w ) < tol ) ||
-                     ( std::abs( uw_pnt0[0] - min_u ) < tol && std::abs( uw_pnt1[0] - min_u ) < tol ) ||
-                     ( std::abs( uw_pnt0[1] - min_w ) < tol && std::abs( uw_pnt1[1] - min_w ) < tol ) )
-                     && is_poly )
-                {
-                    new_chain = true;
-                    continue; // Skip if both end points are on the same edge of the surface
-                }
-
-                double delta_u = ( uw_pnt1[0] - uw_pnt0[0] ) / num_sects;
-                double delta_w = ( uw_pnt1[1] - uw_pnt0[1] ) / num_sects;
-
-                vector< vec2d > uw_pnts;
-                uw_pnts.resize( num_sects + 1 );
-                uw_pnts[0] = uw_pnt0;
-                uw_pnts[num_sects] = uw_pnt1;
-
-                // Add additional points between the segment endpoints to hopefully make the curve planar with the surface
-                for ( int p = 1; p < num_sects; p++ )
-                {
-                    uw_pnts[p] = vec2d( uw_pnt0[0] + delta_u * p, uw_pnt0[1] + delta_w * p );
-                }
-
-                for ( int p = 1; p < (int)uw_pnts.size(); p++ )
-                {
-                    Puw* puwA0 = new Puw( surf, uw_pnts[p - 1] );
-                    Puw* puwA1 = new Puw( surf, uw_pnts[p] );
-                    Puw* puwB0 = new Puw( surf, uw_pnts[p - 1] );
-                    Puw* puwB1 = new Puw( surf, uw_pnts[p] );
-
-                    m_DelPuwVec.push_back( puwA0 );         // Save to delete later
-                    m_DelPuwVec.push_back( puwA1 );
-                    m_DelPuwVec.push_back( puwB0 );
-                    m_DelPuwVec.push_back( puwB1 );
-
-                    IPnt* p0 = new IPnt( puwA0, puwB0 );
-                    IPnt* p1 = new IPnt( puwA1, puwB1 );
-
-                    m_DelIPntVec.push_back( p0 );           // Save to delete later
-                    m_DelIPntVec.push_back( p1 );
-
-                    p0->CompPnt();
-                    p1->CompPnt();
-
-                    ISeg* seg = new ISeg( surf, surf, p0, p1 );
-                    chain->m_ISegDeque.push_back( seg );
-                }
-            }
-            if ( chain )
-            {
-                if ( chain->Valid() )
-                {
-                    if ( ss_vec[ss]->m_IntersectionCapFlag() )
-                    {
-                        chain->m_SSIntersectIndex = ss; // Identify FeaSubSurfaceIndex
-                    }
-
-                    m_ISegChainList.push_back( chain );
-                }
-                else
-                {
-                    delete chain;
-                    chain = NULL;
-                }
-            }
-        }
-    }
-}
-
 void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
 {
     for ( size_t j = 0; j < m_FixPntSurfIndVec.size(); j++ )
@@ -920,122 +759,16 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
     }
 }
 
-void FeaMeshMgrSingleton::Remesh()
-{
-    char str[256];
-    int total_num_tris = 0;
-    int nsurf = (int)m_SurfVec.size();
-    for ( int i = 0; i < nsurf; ++i )
-    {
-        int num_tris = 0;
-        int num_rev_removed = 0;
 
-        for ( int iter = 0; iter < 10; ++iter )
-        {
-            num_tris = 0;
-            m_SurfVec[i]->GetMesh()->Remesh();
 
-            num_rev_removed = m_SurfVec[i]->GetMesh()->RemoveRevTris();
 
-            num_tris += m_SurfVec[i]->GetMesh()->GetTriList().size();
 
-            sprintf( str, "Surf %d/%d Iter %d/10 Num Tris = %d\n", i + 1, nsurf, iter + 1, num_tris );
-            addOutputText( str );
 
-        }
-        total_num_tris += num_tris;
-
-        if ( num_rev_removed > 0 )
-        {
-            sprintf( str, "%d Reversed tris collapsed in final iteration.\n", num_rev_removed );
-            addOutputText( str );
-        }
-
-        m_SurfVec[i]->GetMesh()->LoadSimpTris();
-        m_SurfVec[i]->GetMesh()->Clear();
-
-        // This is similar to calling m_SurfVec[i]->Subtag( GetSettingsPtr()->GetIntersectSubSurfs() ), but uses FeaSubSurfaces
-        if ( GetSettingsPtr()->GetIntersectSubSurfs() )
-        {
-            vector< SimpTri >& tri_vec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
-            vector< vec2d >& pnts = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
-
-            for ( int t = 0; t < (int)tri_vec.size(); t++ )
-            {
-                SimpTri& tri = tri_vec[t];
-                tri.m_Tags.push_back( m_SurfVec[i]->GetBaseTag() );
-                vec2d center = ( pnts[tri.ind0] + pnts[tri.ind1] + pnts[tri.ind2] ) * 1 / 3.0;
-                vec2d cent2d = center;
-
-                for ( int s = 0; s < m_NumFeaSubSurfs; s++ )
-                {
-                    if ( m_FeaSubSurfVec[s]->Subtag( vec3d( cent2d.x(), cent2d.y(), 0 ) ) && m_SurfVec[i]->GetCompID() >= 0 )
-                    {
-                        tri.m_Tags.push_back( m_FeaSubSurfVec[s]->m_Tag );
                     }
                 }
-                SubSurfaceMgr.m_TagCombos.insert( tri.m_Tags );
             }
         }
-
-        m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
-
-    sprintf( str, "Total Num Tris = %d\n", total_num_tris );
-    addOutputText( str );
-}
-
-void FeaMeshMgrSingleton::SubTagTris()
-{
-    SubSurfaceMgr.ClearTagMaps();
-    map< string, int > tag_map;
-    map< string, set<int> > geom_comp_map;
-    map< int, int >  comp_num_map; // map from an unmerged component number to the surface number of geom
-    int tag_number = 0;
-    int fea_part_cnt = 1;
-
-    for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
-    {
-        Surf* surf = m_SurfVec[i];
-        string geom_id = surf->GetGeomID();
-        string id = geom_id + to_string( (long long)surf->GetUnmergedCompID() );
-        string name;
-
-        geom_comp_map[geom_id].insert( surf->GetUnmergedCompID() );
-
-        comp_num_map[surf->GetUnmergedCompID()] = geom_comp_map[geom_id].size();
-
-        if ( tag_map.find( id ) == tag_map.end() )
-        {
-            tag_number++;
-            tag_map[id] = tag_number;
-
-            Geom* geom_ptr = m_Vehicle->FindGeom( geom_id );
-
-            if ( surf->GetCompID() < 0 )
-            {
-                name = geom_ptr->GetName() + "_FeaPart_" + to_string( fea_part_cnt );
-            }
-            else if ( geom_ptr ) 
-            {
-                name = geom_ptr->GetName() + to_string( (long long)geom_comp_map[geom_id].size() );
-            }
-
-            SubSurfaceMgr.m_CompNames.push_back( name );
-        }
-
-        surf->SetBaseTag( tag_map[id] );
-    }
-
-    // Add FeaSubSurface Tags
-    for ( int i = 0; i < m_NumFeaSubSurfs; i++ )
-    {
-        m_FeaSubSurfVec[i]->m_Tag = tag_number + i + 1;
-        // map tag number to surface name
-        SubSurfaceMgr.m_TagNames[m_FeaSubSurfVec[i]->m_Tag] = m_SSNameVec[i];
-    }
-
-    SubSurfaceMgr.BuildCompNameMap();
 }
 
 void FeaMeshMgrSingleton::TagFeaNodes()

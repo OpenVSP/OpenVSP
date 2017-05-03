@@ -70,10 +70,6 @@ public:
     virtual void CheckFixPointIntersects();
     virtual void BuildFeaMesh();
 
-    virtual void BuildSubSurfIntChains();
-    virtual void SubTagTris();
-    virtual void Remesh();
-
     virtual void TagFeaNodes();
 
     virtual int GetTotalNumSurfs()
