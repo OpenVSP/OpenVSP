@@ -754,22 +754,35 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
     if ( umerge.size() != 0 )
     {
         const int nusect = num_u.size();
+
+        // Build merged version of m_USkip as uskip.
+        vector <bool> uskip( nusect, false );
+        int iusect = 0;
+        for ( int i = 0; i < nusect; i++ )
+        {
+            uskip[i] = m_USkip[iusect];
+            for (int j = 0; j < umerge[i]; j++)
+            {
+                iusect++;
+            }
+        }
+
         if ( nusect != umerge.size() )
         {
             printf( "Error.  num_u does not match umerge.\n" );
         }
-        assert( m_USkip.size() == nusect );
+        assert( uskip.size() == nusect );
 
         int nu = 1;
         for ( int i = 0; i < nusect; i++ )
         {
-            if ( !m_USkip[i] )
+            if ( !uskip[i] )
             {
                 nu += num_u[i] - 1;
             }
         }
 
-        int iusect = 0;
+        iusect = 0;
         double ustart = m_Surface.get_u0();
         double uend = ustart;
 
@@ -790,7 +803,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
 
             double du = uend - ustart;
 
-            if ( !m_USkip[i] )
+            if ( !uskip[i] )
             {
                 for ( int isecttess = 0; isecttess < num_u[i] - 1; ++isecttess )
                 {
@@ -799,7 +812,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
                 }
             }
 
-            if ( !( i == nusect - 1 && m_USkip[i] ) )
+            if ( !( i == nusect - 1 && uskip[i] ) )
             {
                 ustart = uend;
             }
