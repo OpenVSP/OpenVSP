@@ -565,7 +565,39 @@ void CfdMeshMgrSingleton::TransferSubSurfData()
     }
 }
 
+//==== Get vector of SimpleSubSurfaces from geom by ID and surf number ====//
+vector< SimpleSubSurface > CfdMeshMgrSingleton::GetSimpSubSurfs( string comp_id, int surfnum )
+{
+    vector< SimpleSubSurface > ret_vec;
 
+    Geom* geom = m_Vehicle->FindGeom( comp_id );
+    if ( !geom )
+    {
+        return ret_vec;
+    }
+
+    if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
+    {
+        return ret_vec;
+    }
+
+    int imain = geom->GetMainSurfID( surfnum );
+
+    if ( imain < 0 )
+    {
+        return ret_vec;
+    }
+
+    for ( int i = 0; i < m_SimpleSubSurfaceVec.size(); i++ )
+    {
+        if ( imain == m_SimpleSubSurfaceVec[i].m_MainSurfIndx )
+        {
+            ret_vec.push_back( m_SimpleSubSurfaceVec[i] );
+        }
+    }
+
+    return ret_vec;
+}
 
 void CfdMeshMgrSingleton::addOutputText( const string &str, int output_type )
 {
@@ -5535,3 +5567,38 @@ void CfdMeshMgrSingleton::SubTagTris()
     SubSurfaceMgr.BuildCompNameMap();
 }
 
+void CfdMeshMgrSingleton::SetSimpSubSurfTags( int tag_offset )
+{
+    // tag_offset should be the number of total components in mesh
+
+    for ( int i = 0; i < (int)m_SimpleSubSurfaceVec.size(); i++ )
+    {
+        m_SimpleSubSurfaceVec[i].m_Tag = tag_offset + i + 1;
+        // map tag number to surface name
+        SubSurfaceMgr.m_TagNames[m_SimpleSubSurfaceVec[i].m_Tag] = m_SimpleSubSurfaceVec[i].GetName();
+    }
+}
+
+void CfdMeshMgrSingleton::Subtag( Surf* surf )
+{
+    vector< SimpTri >& tri_vec = surf->GetMesh()->GetSimpTriVec();
+    vector< vec2d >& pnts = surf->GetMesh()->GetSimpUWPntVec();
+    vector< SimpleSubSurface > simp_s_surfs = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID() );
+
+    for ( int t = 0; t < (int)tri_vec.size(); t++ )
+    {
+        SimpTri& tri = tri_vec[t];
+        tri.m_Tags.push_back( surf->GetBaseTag() );
+        vec2d center = ( pnts[tri.ind0] + pnts[tri.ind1] + pnts[tri.ind2] ) * 1 / 3.0;
+        vec2d cent2d = center;
+
+        for ( int s = 0; s < (int)simp_s_surfs.size(); s++ )
+        {
+            if ( simp_s_surfs[s].Subtag( vec3d( cent2d.x(), cent2d.y(), 0 ) ) && surf->GetCompID() >= 0 )
+            {
+                tri.m_Tags.push_back( simp_s_surfs[s].m_Tag );
+            }
+        }
+        SubSurfaceMgr.m_TagCombos.insert( tri.m_Tags );
+    }
+}

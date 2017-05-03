@@ -187,6 +187,8 @@ public:
     virtual void GenerateMesh();
 
     virtual void TransferSubSurfData();
+    virtual vector < SimpleSubSurface > GetSimpSubSurfs( string comp_id, int surfnum );
+
     virtual void addOutputText( const string &str, int output_type = VOCAL_OUTPUT );
 
     virtual void GUI_Val( string name, double val );
@@ -311,6 +313,8 @@ public:
     virtual void BuildSubSurfIntChains();
     virtual void BuildTestIntChains();
     virtual void SubTagTris();
+    virtual void SetSimpSubSurfTags( int tag_offset );
+    virtual void Subtag( Surf* surf );
 
     virtual void HighlightNextChain();
 
