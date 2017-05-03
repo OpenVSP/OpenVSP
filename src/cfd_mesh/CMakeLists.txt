@@ -28,6 +28,7 @@ IntersectPatch.cpp
 ISegChain.cpp
 Mesh.cpp
 SCurve.cpp
+SimpleSubSurface.cpp
 Surf.cpp
 SurfCore.cpp
 SurfPatch.cpp
@@ -42,6 +43,7 @@ ISegChain.h
 MapSource.h
 Mesh.h
 SCurve.h
+SimpleSubSurface.h
 Surf.h
 SurfCore.h
 SurfPatch.h
