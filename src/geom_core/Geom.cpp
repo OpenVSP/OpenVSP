@@ -2115,81 +2115,153 @@ void Geom::UpdateDegenDrawObj()
             DrawObj degen_subsurface_draw_obj;
             degen_subsurface_draw_obj.m_GeomChanged = true;
 
-            for ( int k = 0; k < degen_subsurf_vec[j].u.size(); k++ )
+            if ( degen_subsurf_vec[j].typeId == SS_LINE )
             {
-                vec2d uw_index_low, uw_index_high, uw_value_low, uw_value_high, uw_degen_subsurf;
+                if ( degen_subsurf_vec[j].u[0] == degen_subsurf_vec[j].u.back() ) // Constant U
+                {
+                    int u_index_low, u_index_high;
+                    double u_value_low, u_value_high;
 
-                // Check for u or w values outside of the min amd max u and w for the DegenSurface
-                if ( degen_subsurf_vec[j].u[k] < degen_surf.u[0][0] )
-                {
-                    uw_degen_subsurf.set_x( degen_surf.u[0][0] );
-                }
-                else if ( degen_subsurf_vec[j].u[k] > degen_surf.u[degen_surf.u.size() - 1][0] )
-                {
-                    uw_degen_subsurf.set_x( degen_surf.u[degen_surf.u.size() - 1][0] );
-                }
-                else
-                {
-                    uw_degen_subsurf.set_x( degen_subsurf_vec[j].u[k] );
-                }
-
-                if ( degen_subsurf_vec[j].w[k] < degen_surf.w[0][0] )
-                {
-                    uw_degen_subsurf.set_y( degen_surf.w[0][0] );
-                }
-                else if ( degen_subsurf_vec[j].w[k] > degen_surf.w[0][degen_surf.w[0].size() - 1] )
-                {
-                    uw_degen_subsurf.set_y( degen_surf.w[0][degen_surf.w[0].size() - 1] );
-                }
-                else
-                {
-                    uw_degen_subsurf.set_y( degen_subsurf_vec[j].w[k] );
-                }
-
-                // Find the uw indexes and values next to the DegenSubsurface uw value
-                for ( int m = 1; m < degen_surf.u.size(); m++ )
-                {
-                    if ( ( degen_surf.u[m][0] >= uw_degen_subsurf.x() ) && ( degen_surf.u[m - 1][0] <= uw_degen_subsurf.x() ) )
+                    // Find uw indexes and values next to DegenSubSurface const u value
+                    for ( int m = 1; m < degen_surf.u.size(); m++ )
                     {
-                        uw_index_low.set_x( m - 1 );
-                        uw_index_high.set_x( m );
-                        uw_value_low.set_x( degen_surf.u[m - 1][0] );
-                        uw_value_high.set_x( degen_surf.u[m][0] );
-
-                        for ( int m = 1; m < degen_surf.w[0].size(); m++ )
+                        if ( ( degen_surf.u[m][0] >= degen_subsurf_vec[j].u[0] ) && ( degen_surf.u[m - 1][0] <= degen_subsurf_vec[j].u[0] ) )
                         {
-                            if ( ( degen_surf.w[0][m] >= uw_degen_subsurf.y() ) && ( degen_surf.w[0][m - 1] <= uw_degen_subsurf.y() ) )
-                            {
-                                uw_index_low.set_y( m - 1 );
-                                uw_index_high.set_y( m );
-                                uw_value_low.set_y( degen_surf.w[0][m - 1] );
-                                uw_value_high.set_y( degen_surf.w[0][m] );
-                                break;
-                            }
+                            u_index_low = m - 1;
+                            u_index_high = m;
+                            u_value_low = degen_surf.u[m - 1][0];
+                            u_value_high = degen_surf.u[m][0];
+
+                            break;
                         }
-                        break;
+                    }
+
+                    // Linear Interpolation of DegenSurface uw indexes and values to DgenSubsurface uw index
+                    double degen_surf_u_index = u_index_low + ( ( u_index_high - u_index_low ) * ( ( degen_subsurf_vec[j].u[0] - u_value_low ) / ( u_value_high - u_value_low ) ) );
+
+                    for ( int n = 0; n < degen_surf.x[0].size(); n++ )
+                    {
+                        // Interpolation of uw indexes to vec3d coordinates
+                        vec3d uw_pnt_low = degen_surf.x[u_index_low][n];
+                        vec3d uw_pnt_high = degen_surf.x[u_index_high][n];
+
+                        vec3d degen_subsurf_pnt = uw_pnt_low + ( ( degen_surf_u_index - u_index_low ) * ( uw_pnt_high - uw_pnt_low ) );
+
+                        degen_subsurface_draw_obj.m_PntVec.push_back( degen_subsurf_pnt );
                     }
                 }
+                else if ( degen_subsurf_vec[j].w[0] == degen_subsurf_vec[j].w.back() ) // Constant W
+                {
+                    int w_index_low, w_index_high;
+                    double w_value_low, w_value_high;
 
-                // Linear Interpolation of DegenSurface uw indexes and values to DgenSubsurface uw index
-                vec2d degen_subsurf_index;
-                degen_subsurf_index.set_x( uw_index_low.x() + ( ( uw_index_high.x() - uw_index_low.x() ) * ( ( uw_degen_subsurf.x() - uw_value_low.x() ) / ( uw_value_high.x() - uw_value_low.x() ) ) ) );
-                degen_subsurf_index.set_y( uw_index_low.y() + ( ( uw_index_high.y() - uw_index_low.y() ) * ( ( uw_degen_subsurf.y() - uw_value_low.y() ) / ( uw_value_high.y() - uw_value_low.y() ) ) ) );
+                    // Find uw indexes and values next to DegenSubSurface const u value
+                    for ( int m = 1; m < degen_surf.w.size(); m++ )
+                    {
+                        if ( ( degen_surf.w[0][m] >= degen_subsurf_vec[j].w[0] ) && ( degen_surf.w[0][m - 1] <= degen_subsurf_vec[j].w[0] ) )
+                        {
+                            w_index_low = m - 1;
+                            w_index_high = m;
+                            w_value_low = degen_surf.w[0][m - 1];
+                            w_value_high = degen_surf.w[0][m];
 
-                // Bilinear Interpolation of uw indexes to vec3d coordinates
-                vec3d uw_pnt_low_low = degen_surf.x[(int)uw_index_low.x()][(int)uw_index_low.y()];
-                vec3d uw_pnt_low_high = degen_surf.x[(int)uw_index_low.x()][(int)uw_index_high.y()];
-                vec3d uw_pnt_high_high = degen_surf.x[(int)uw_index_high.x()][(int)uw_index_high.y()];
-                vec3d uw_pnt_high_low = degen_surf.x[(int)uw_index_high.x()][(int)uw_index_low.y()];
+                            break;
+                        }
+                    }
 
-                // Horizontal interpolation
-                vec3d uw_mid_low = uw_pnt_low_low + ( ( degen_subsurf_index.x() - uw_index_low.x() ) * ( uw_pnt_high_low - uw_pnt_low_low ) );
-                vec3d uw_mid_high = uw_pnt_low_high + ( ( degen_subsurf_index.x() - uw_index_low.x() ) * ( uw_pnt_high_high - uw_pnt_low_high ) );
+                    // Linear Interpolation of DegenSurface uw indexes and values to DgenSubsurface uw index
+                    double degen_surf_w_index = w_index_low + ( ( w_index_high - w_index_low ) * ( ( degen_subsurf_vec[j].w[0] - w_value_low ) / ( w_value_high - w_value_low ) ) );
 
-                // Vertical interpolation
-                vec3d degen_subsurf_pnt = uw_mid_low + ( ( degen_subsurf_index.y() - uw_index_low.y() ) * ( uw_mid_high - uw_mid_low ) );
+                    for ( int n = 0; n < degen_surf.x.size(); n++ )
+                    {
+                        // Interpolation of uw indexes to vec3d coordinates
+                        vec3d uw_pnt_low = degen_surf.x[n][w_index_low];
+                        vec3d uw_pnt_high = degen_surf.x[n][w_index_high];
 
-                degen_subsurface_draw_obj.m_PntVec.push_back( degen_subsurf_pnt );
+                        vec3d degen_subsurf_pnt = uw_pnt_low + ( ( degen_surf_w_index - w_index_low ) * ( uw_pnt_high - uw_pnt_low ) );
+
+                        degen_subsurface_draw_obj.m_PntVec.push_back( degen_subsurf_pnt );
+                    }
+                }
+            }
+            else
+            {
+                for ( int k = 0; k < degen_subsurf_vec[j].u.size(); k++ )
+                {
+                    vec2d uw_index_low, uw_index_high, uw_value_low, uw_value_high, uw_value_degen_subsurf;
+
+                    // Check for u or w values outside of the min amd max u and w for the DegenSurface
+                    if ( degen_subsurf_vec[j].u[k] < degen_surf.u[0][0] )
+                    {
+                        uw_value_degen_subsurf.set_x( degen_surf.u[0][0] );
+                    }
+                    else if ( degen_subsurf_vec[j].u[k] > degen_surf.u[degen_surf.u.size() - 1][0] )
+                    {
+                        uw_value_degen_subsurf.set_x( degen_surf.u[degen_surf.u.size() - 1][0] );
+                    }
+                    else
+                    {
+                        uw_value_degen_subsurf.set_x( degen_subsurf_vec[j].u[k] );
+                    }
+
+                    if ( degen_subsurf_vec[j].w[k] < degen_surf.w[0][0] )
+                    {
+                        uw_value_degen_subsurf.set_y( degen_surf.w[0][0] );
+                    }
+                    else if ( degen_subsurf_vec[j].w[k] > degen_surf.w[0][degen_surf.w[0].size() - 1] )
+                    {
+                        uw_value_degen_subsurf.set_y( degen_surf.w[0][degen_surf.w[0].size() - 1] );
+                    }
+                    else
+                    {
+                        uw_value_degen_subsurf.set_y( degen_subsurf_vec[j].w[k] );
+                    }
+
+                    // Find the uw indexes and values next to the DegenSubsurface uw value
+                    for ( int m = 1; m < degen_surf.u.size(); m++ )
+                    {
+                        if ( ( degen_surf.u[m][0] >= uw_value_degen_subsurf.x() ) && ( degen_surf.u[m - 1][0] <= uw_value_degen_subsurf.x() ) )
+                        {
+                            uw_index_low.set_x( m - 1 );
+                            uw_index_high.set_x( m );
+                            uw_value_low.set_x( degen_surf.u[m - 1][0] );
+                            uw_value_high.set_x( degen_surf.u[m][0] );
+
+                            for ( int n = 1; n < degen_surf.w[0].size(); n++ )
+                            {
+                                if ( ( degen_surf.w[0][n] >= uw_value_degen_subsurf.y() ) && ( degen_surf.w[0][n - 1] <= uw_value_degen_subsurf.y() ) )
+                                {
+                                    uw_index_low.set_y( n - 1 );
+                                    uw_index_high.set_y( n );
+                                    uw_value_low.set_y( degen_surf.w[0][n - 1] );
+                                    uw_value_high.set_y( degen_surf.w[0][n] );
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+
+                    // Linear Interpolation of DegenSurface uw indexes and values to DgenSubsurface uw index
+                    vec2d degen_subsurf_index;
+                    degen_subsurf_index.set_x( uw_index_low.x() + ( ( uw_index_high.x() - uw_index_low.x() ) * ( ( uw_value_degen_subsurf.x() - uw_value_low.x() ) / ( uw_value_high.x() - uw_value_low.x() ) ) ) );
+                    degen_subsurf_index.set_y( uw_index_low.y() + ( ( uw_index_high.y() - uw_index_low.y() ) * ( ( uw_value_degen_subsurf.y() - uw_value_low.y() ) / ( uw_value_high.y() - uw_value_low.y() ) ) ) );
+
+                    // Bilinear Interpolation of uw indexes to vec3d coordinates
+                    vec3d uw_pnt_low_low = degen_surf.x[(int)uw_index_low.x()][(int)uw_index_low.y()];
+                    vec3d uw_pnt_low_high = degen_surf.x[(int)uw_index_low.x()][(int)uw_index_high.y()];
+                    vec3d uw_pnt_high_high = degen_surf.x[(int)uw_index_high.x()][(int)uw_index_high.y()];
+                    vec3d uw_pnt_high_low = degen_surf.x[(int)uw_index_high.x()][(int)uw_index_low.y()];
+
+                    // Horizontal interpolation
+                    vec3d uw_mid_low = uw_pnt_low_low + ( ( degen_subsurf_index.x() - uw_index_low.x() ) * ( uw_pnt_high_low - uw_pnt_low_low ) );
+                    vec3d uw_mid_high = uw_pnt_low_high + ( ( degen_subsurf_index.x() - uw_index_low.x() ) * ( uw_pnt_high_high - uw_pnt_low_high ) );
+
+                    // Vertical interpolation
+                    vec3d degen_subsurf_pnt = uw_mid_low + ( ( degen_subsurf_index.y() - uw_index_low.y() ) * ( uw_mid_high - uw_mid_low ) );
+
+                    degen_subsurface_draw_obj.m_PntVec.push_back( degen_subsurf_pnt );
+                }
             }
 
             m_DegenSubSurfDrawObj_vec.push_back( degen_subsurface_draw_obj );
