@@ -22,6 +22,7 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
     m_FeaMeshInProgress = false;
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
+    m_FeaMeshStructIndex = -1;
 }
 
 FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
@@ -428,16 +429,6 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             // Check at least one surface intersection cap flag is true
             bool FeaPartCapA = m_FeaPartIntersectCapFlagVec[( *c )->m_SurfA->GetFeaPartIndex()];
             bool FeaPartCapB = m_FeaPartIntersectCapFlagVec[( *c )->m_SurfB->GetFeaPartIndex()];
-
-            //// Check at least one surface intersection cap flag is true
-            //if ( m_FeaMeshStruct->GetFeaPart( ( *c )->m_SurfA->GetFeaPartIndex() ) )
-            //{
-            //    FeaPartCapA = m_FeaMeshStruct->GetFeaPart( ( *c )->m_SurfA->GetFeaPartIndex() )->m_IntersectionCapFlag();
-            //}
-            //if ( m_FeaMeshStruct->GetFeaPart( ( *c )->m_SurfB->GetFeaPartIndex() ) )
-            //{
-            //    FeaPartCapB = m_FeaMeshStruct->GetFeaPart( ( *c )->m_SurfB->GetFeaPartIndex() )->m_IntersectionCapFlag();
-            //}
 
             vector< vec3d > ipntVec;
             vector< vec3d > inormVec;
