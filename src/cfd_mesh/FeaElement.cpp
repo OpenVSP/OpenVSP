@@ -10,6 +10,7 @@
 
 #include "FeaElement.h"
 #include "StructureMgr.h"
+#include "FeaMeshMgr.h"
 
 //////////////////////////////////////////////////////
 //==================== FeaNode =====================//
@@ -221,17 +222,21 @@ double FeaTri::ComputeMass( int property_index )
     double avg_t = 0;
     int mat_index = -1;
 
-    if ( StructureMgr.GetFeaProperty( property_index ) )
+    vector < SimpleFeaProperty > simp_prop_vec = FeaMeshMgr.GetSimplePropertyVec();
+
+    if ( property_index < simp_prop_vec.size() && property_index >= 0 && simp_prop_vec.size() > 0 )
     {
-        avg_t = StructureMgr.GetFeaProperty( property_index )->m_Thickness();
-        mat_index = StructureMgr.GetFeaProperty( property_index )->GetFeaMaterialIndex();
+        avg_t = simp_prop_vec[property_index].m_Thickness;
+        mat_index = simp_prop_vec[property_index].GetSimpFeaMatIndex();
     }
 
     double avg_d = 0;
 
-    if ( StructureMgr.GetFeaMaterial( mat_index ) )
+    vector < SimpleFeaMaterial > simp_mat_vec = FeaMeshMgr.GetSimpleMaterialVec();
+
+    if ( mat_index < simp_mat_vec.size() && mat_index >= 0 && simp_mat_vec.size() > 0 )
     {
-        avg_d = StructureMgr.GetFeaMaterial( mat_index )->m_MassDensity();
+        avg_d = simp_mat_vec[mat_index].m_MassDensity;
     }
 
     //double avg_t = ( m_Corners[0]->m_Thick + m_Corners[1]->m_Thick + m_Corners[2]->m_Thick ) / 3.0;
@@ -301,17 +306,21 @@ double FeaQuad::ComputeMass( int property_index )
     double avg_t = 0;
     int mat_index = -1;
 
-    if ( StructureMgr.GetFeaProperty( property_index ) )
+    vector < SimpleFeaProperty > simp_prop_vec = FeaMeshMgr.GetSimplePropertyVec();
+
+    if ( property_index < simp_prop_vec.size() && property_index >= 0 && simp_prop_vec.size() > 0 )
     {
-        avg_t = StructureMgr.GetFeaProperty( property_index )->m_Thickness();
-        mat_index = StructureMgr.GetFeaProperty( property_index )->GetFeaMaterialIndex();
+        avg_t = simp_prop_vec[property_index].m_Thickness;
+        mat_index = simp_prop_vec[property_index].GetSimpFeaMatIndex();
     }
 
     double avg_d = 0;
 
-    if ( StructureMgr.GetFeaMaterial( mat_index ) )
+    vector < SimpleFeaMaterial > simp_mat_vec = FeaMeshMgr.GetSimpleMaterialVec();
+
+    if ( mat_index < simp_mat_vec.size() && mat_index >= 0 && simp_mat_vec.size() > 0 )
     {
-        avg_d = StructureMgr.GetFeaMaterial( mat_index )->m_MassDensity();
+        avg_d = simp_mat_vec[mat_index].m_MassDensity;
     }
 
     //double avg_t = ( m_Corners[0]->m_Thick + m_Corners[1]->m_Thick +
@@ -383,17 +392,21 @@ double FeaBeam::ComputeMass( int property_index )
     double area = 0;
     int mat_index = -1;
 
-    if ( StructureMgr.GetFeaProperty( property_index ) )
+    vector < SimpleFeaProperty > simp_prop_vec = FeaMeshMgr.GetSimplePropertyVec();
+
+    if ( property_index < simp_prop_vec.size() && property_index >= 0 && simp_prop_vec.size() > 0 )
     {
-        area = StructureMgr.GetFeaProperty( property_index )->m_CrossSecArea();
-        mat_index = StructureMgr.GetFeaProperty( property_index )->GetFeaMaterialIndex();
+        area = simp_prop_vec[property_index].m_CrossSecArea;
+        mat_index = simp_prop_vec[property_index].GetSimpFeaMatIndex();
     }
 
     double avg_d = 0;
 
-    if ( StructureMgr.GetFeaMaterial( mat_index ) )
+    vector < SimpleFeaMaterial > simp_mat_vec = FeaMeshMgr.GetSimpleMaterialVec();
+
+    if ( mat_index < simp_mat_vec.size() && mat_index >= 0 && simp_mat_vec.size() > 0 )
     {
-        avg_d = StructureMgr.GetFeaMaterial( mat_index )->m_MassDensity();
+        avg_d = simp_mat_vec[mat_index].m_MassDensity;
     }
 
     mass = length * area * avg_d;

@@ -60,6 +60,9 @@ void FeaMeshMgrSingleton::CleanUp()
     m_FeaPartPropertyIndexVec.clear();
     m_FeaPartCapPropertyIndexVec.clear();
 
+    m_SimplePropertyVec.clear();
+    m_SimpleMaterialVec.clear();
+
     m_FixPntVec.clear();
     m_FixUWVec.clear();
     m_FixPntFeaPartIndexVec.clear();
@@ -136,6 +139,7 @@ void FeaMeshMgrSingleton::LoadSkins()
 
 void FeaMeshMgrSingleton::TransferFeaData()
 {
+    // Transfer FeaPart Data
     FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
 
     if ( fea_struct )
@@ -155,6 +159,26 @@ void FeaMeshMgrSingleton::TransferFeaData()
             m_FeaPartPropertyIndexVec[i] = fea_part_vec[i]->GetFeaPropertyIndex();
             m_FeaPartCapPropertyIndexVec[i] = fea_part_vec[i]->GetCapFeaPropertyIndex();
         }
+    }
+
+    // Transfer FeaProperty Data
+    vector < FeaProperty* > fea_prop_vec = StructureMgr.GetFeaPropertyVec();
+    m_SimplePropertyVec.resize( fea_prop_vec.size() );
+
+    for ( size_t i = 0; i < fea_prop_vec.size(); i++ )
+    {
+        m_SimplePropertyVec[i] = SimpleFeaProperty();
+        m_SimplePropertyVec[i].CopyFrom( fea_prop_vec[i] );
+    }
+
+    // Transfer FeaMaterial Data
+    vector < FeaMaterial* > fea_mat_vec = StructureMgr.GetFeaMaterialVec();
+    m_SimpleMaterialVec.resize( fea_mat_vec.size() );
+
+    for ( size_t i = 0; i < fea_mat_vec.size(); i++ )
+    {
+        m_SimpleMaterialVec[i] = SimpleFeaMaterial();
+        m_SimpleMaterialVec[i].CopyFrom( fea_mat_vec[i] );
     }
 }
 
@@ -993,22 +1017,18 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         fprintf( fp, "\n" );
         fprintf( fp, "$Properties\n" );
 
-        vector < FeaProperty* > property_vec = StructureMgr.GetFeaPropertyVec();
-
-        for ( unsigned int i = 0; i < property_vec.size(); i++ )
+        for ( unsigned int i = 0; i < m_SimplePropertyVec.size(); i++ )
         {
-            property_vec[i]->WriteNASTRAN( fp, i + 1 );
+            m_SimplePropertyVec[i].WriteNASTRAN( fp, i + 1 );
         }
 
         //==== Materials ====//
         fprintf( fp, "\n" );
         fprintf( fp, "$Materials\n" );
 
-        vector < FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
-
-        for ( unsigned int i = 0; i < material_vec.size(); i++ )
+        for ( unsigned int i = 0; i < m_SimpleMaterialVec.size(); i++ )
         {
-            material_vec[i]->WriteNASTRAN( fp, i + 1 );
+            m_SimpleMaterialVec[i].WriteNASTRAN( fp, i + 1 );
         }
 
         fprintf( fp, "END DATA\n" );
@@ -1063,7 +1083,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 fprintf( fp, "\n" );
                 sprintf( str, "E%s", m_FeaPartNameVec[i].c_str() );
 
-                StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
+                m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
                 fprintf( fp, "\n" );
 
                 if ( m_FeaPartIntersectCapFlagVec[i] )
@@ -1082,7 +1102,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                     fprintf( fp, "\n" );
                     sprintf( str, "E%s_CAP", m_FeaPartNameVec[i].c_str() );
 
-                    StructureMgr.GetFeaProperty( cap_property_id )->WriteCalculix( fp, str );
+                    m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str );
                     fprintf( fp, "\n" );
 
                     // Write Normal Vectors
@@ -1138,7 +1158,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
             fprintf( fp, "\n" );
             sprintf( str, "E%s", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
-            StructureMgr.GetFeaProperty( property_id )->WriteCalculix( fp, str );
+            m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
 
             if ( m_SimpleSubSurfaceVec[i].m_IntersectionCapFlag )
             {
@@ -1157,7 +1177,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 fprintf( fp, "\n" );
                 sprintf( str, "E%s_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
-                StructureMgr.GetFeaProperty( cap_property_id )->WriteCalculix( fp, str );
+                m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str );
                 fprintf( fp, "\n" );
 
                 // Write Normal Vectors
@@ -1224,11 +1244,9 @@ void FeaMeshMgrSingleton::WriteCalculix()
         fprintf( fp, "\n" );
         fprintf( fp, "**Materials\n" );
 
-        vector < FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
-
-        for ( unsigned int i = 0; i < material_vec.size(); i++ )
+        for ( unsigned int i = 0; i < m_SimpleMaterialVec.size(); i++ )
         {
-            material_vec[i]->WriteCalculix( fp, i );
+            m_SimpleMaterialVec[i].WriteCalculix( fp, i );
             fprintf( fp, "\n" );
         }
 

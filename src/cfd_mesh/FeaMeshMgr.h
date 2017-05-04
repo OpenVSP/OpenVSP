@@ -131,6 +131,16 @@ public:
 
     virtual void SetDrawCapFlag( int index, bool flag );
 
+    virtual vector < SimpleFeaProperty > GetSimplePropertyVec()
+    {
+        return m_SimplePropertyVec;
+    }
+
+    virtual vector < SimpleFeaMaterial > GetSimpleMaterialVec()
+    {
+        return m_SimpleMaterialVec;
+    }
+
 protected:
 
     bool m_FeaMeshInProgress;
@@ -164,6 +174,8 @@ protected:
     vector < bool > m_DrawCapFlagVec;
 
     vector< FeaElement* > m_FeaElementVec;
+    vector < SimpleFeaProperty > m_SimplePropertyVec;
+    vector < SimpleFeaMaterial > m_SimpleMaterialVec;
 
     vector< FeaNode* > m_FeaNodeVec;
     vector< vec3d* > m_AllPntVec;
