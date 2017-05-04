@@ -171,7 +171,10 @@ public:
         m_CapFeaPropertyIndex = index;
     }
 
-    virtual vector < VspSurf* > GetFeaPartSurfPtrVec();
+    virtual vector < VspSurf > GetFeaPartSurfVec()
+    {
+        return m_FeaPartSurfVec;
+    }
 
     virtual int GetFeaMaterialIndex();
     virtual void SetFeaMaterialIndex( int index );

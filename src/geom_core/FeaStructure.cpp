@@ -778,19 +778,6 @@ void FeaPart::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool high
     }
 }
 
-vector < VspSurf* > FeaPart::GetFeaPartSurfPtrVec()
-{
-    vector < VspSurf* > ptr_vec;
-    ptr_vec.resize( m_FeaPartSurfVec.size() );
-
-    for ( size_t i = 0; i < m_FeaPartSurfVec.size(); i++ )
-    {
-        ptr_vec[i] = &m_FeaPartSurfVec[i];
-    }
-
-    return ptr_vec;
-}
-
 int FeaPart::GetFeaMaterialIndex()
 {
     FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
@@ -1372,6 +1359,13 @@ FeaFixPoint::FeaFixPoint( string compID, int type ) : FeaPart( compID, type )
 
 void FeaFixPoint::Update()
 {
+    FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
+
+    if ( parent_part )
+    {
+        parent_part->Update(); // Update Parent FeaPart Surface
+    }
+
     UpdateSymmetricSurfs();
     IdentifySplitSurfIndex();
 
@@ -1392,7 +1386,7 @@ void FeaFixPoint::IdentifySplitSurfIndex()
         return;
     }
 
-    vector < VspSurf* > parent_surf_vec = parent_part->GetFeaPartSurfPtrVec();
+    vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
 
     m_SplitSurfIndex.clear();
     m_SplitSurfIndex.resize( parent_surf_vec.size() );
@@ -1402,22 +1396,22 @@ void FeaFixPoint::IdentifySplitSurfIndex()
         // Get U/W values
         vec2d uw = GetUW();
 
-        double parent_Umax = parent_surf_vec[0]->GetUMax();
-        double parent_Wmax = parent_surf_vec[0]->GetWMax();
+        double parent_Umax = parent_surf_vec[0].GetUMax();
+        double parent_Wmax = parent_surf_vec[0].GetWMax();
         double parent_Wmin = 0.0;
         double parent_Umin = 0.0;
 
         // Check if U/W is closed, in which case the minimum and maximum U/W will be at the same point
-        bool closedU = parent_surf_vec[0]->IsClosedU();
-        bool closedW = parent_surf_vec[0]->IsClosedW();
+        bool closedU = parent_surf_vec[0].IsClosedU();
+        bool closedW = parent_surf_vec[0].IsClosedW();
 
         // Check if TMAGIC needs to be considered
-        m_MagicVParent = parent_surf_vec[0]->IsMagicVParm();
+        m_MagicVParent = parent_surf_vec[0].IsMagicVParm();
 
         // Split the parent surface
         vector< XferSurf > tempxfersurfs;
 
-        parent_surf_vec[0]->FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs );
+        parent_surf_vec[0].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs );
 
         for ( size_t j = 0; j < tempxfersurfs.size(); j++ )
         {
@@ -1500,15 +1494,12 @@ vector < vec3d > FeaFixPoint::GetPntVec()
 
     if ( parent_part )
     {
-        vector < VspSurf* > parent_surf_vec = parent_part->GetFeaPartSurfPtrVec();
+        vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
         pnt_vec.resize( parent_surf_vec.size() );
 
         for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
         {
-            if ( parent_surf_vec[i] )
-            {
-                pnt_vec[i] = parent_surf_vec[i]->CompPnt01( m_PosU(), m_PosW() );
-            }
+            pnt_vec[i] = parent_surf_vec[i].CompPnt01( m_PosU(), m_PosW() );
         }
     }
     return pnt_vec;
@@ -1522,12 +1513,12 @@ vec2d FeaFixPoint::GetUW()
 
     if ( parent_part )
     {
-        vector < VspSurf* > parent_surf_vec = parent_part->GetFeaPartSurfPtrVec();
+        vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
 
-        if ( parent_surf_vec[0] ) // Only consider main parent surface (same UW for symmetric copies)
+        if ( parent_surf_vec.size() > 0 ) // Only consider main parent surface (same UW for symmetric copies)
         { 
-            uw.set_x( parent_surf_vec[0]->GetUMax() * m_PosU() );
-            uw.set_y( parent_surf_vec[0]->GetWMax() * m_PosW() );
+            uw.set_x( parent_surf_vec[0].GetUMax() * m_PosU() );
+            uw.set_y( parent_surf_vec[0].GetWMax() * m_PosW() );
         }
     }
     return uw;
@@ -1563,37 +1554,34 @@ void FeaFixPoint::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool 
 
     if ( parent_part )
     {
-        vector < VspSurf* > parent_surf_vec = parent_part->GetFeaPartSurfPtrVec();
+        vector < VspSurf > parent_surf_vec = parent_part->GetFeaPartSurfVec();
 
         for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
         {
             m_FeaPartDO.resize( parent_surf_vec.size() );
 
-            if ( parent_surf_vec[i] )
+            m_FeaPartDO[i].m_PntVec.clear();
+
+            m_FeaPartDO[i].m_GeomID = string( "FeaFixPoint_" + std::to_string( id ) + "_" + std::to_string( i ) );
+            m_FeaPartDO[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+            m_FeaPartDO[i].m_Type = DrawObj::VSP_POINTS;
+            m_FeaPartDO[i].m_PointSize = 8.0;
+
+            if ( highlight )
             {
-                m_FeaPartDO[i].m_PntVec.clear();
-
-                m_FeaPartDO[i].m_GeomID = string( "FeaFixPoint_" + std::to_string( id ) + "_" + std::to_string( i ) );
-                m_FeaPartDO[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-                m_FeaPartDO[i].m_Type = DrawObj::VSP_POINTS;
-                m_FeaPartDO[i].m_PointSize = 8.0;
-
-                if ( highlight )
-                {
-                    m_FeaPartDO[i].m_PointColor = vec3d( 1.0, 0.0, 0.0 );
-                }
-                else
-                {
-                    m_FeaPartDO[i].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
-                }
-
-                vec3d fixpt = parent_surf_vec[i]->CompPnt01( m_PosU(), m_PosW() );
-                m_FeaPartDO[i].m_PntVec.push_back( fixpt );
-
-                m_FeaPartDO[i].m_GeomChanged = true;
-
-                draw_obj_vec.push_back( &m_FeaPartDO[i] );
+                m_FeaPartDO[i].m_PointColor = vec3d( 1.0, 0.0, 0.0 );
             }
+            else
+            {
+                m_FeaPartDO[i].m_PointColor = vec3d( 0.0, 0.0, 0.0 );
+            }
+
+            vec3d fixpt = parent_surf_vec[i].CompPnt01( m_PosU(), m_PosW() );
+            m_FeaPartDO[i].m_PntVec.push_back( fixpt );
+
+            m_FeaPartDO[i].m_GeomChanged = true;
+
+            draw_obj_vec.push_back( &m_FeaPartDO[i] );
         }
     }
 }
