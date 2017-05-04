@@ -50,6 +50,7 @@ FeaStructure::~FeaStructure()
 void FeaStructure::Update()
 {
     UpdateFeaParts();
+    UpdateFeaSubSurfs();
 }
 
 xmlNodePtr FeaStructure::EncodeXml( xmlNodePtr & node )
@@ -325,6 +326,14 @@ void FeaStructure::UpdateFeaParts()
     {
         m_FeaPartVec[i]->UpdateSymmetricSurfs();
         m_FeaPartVec[i]->Update();
+    }
+}
+
+void FeaStructure::UpdateFeaSubSurfs()
+{
+    for ( unsigned int i = 0; i < m_FeaSubSurfVec.size(); i++ )
+    {
+        m_FeaSubSurfVec[i]->Update();
     }
 }
 
@@ -724,7 +733,15 @@ void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid )
     }
 }
 
-void FeaPart::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+void FeaPart::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
+{
+    for ( int i = 0; i < (int)m_FeaPartDO.size(); i++ )
+    {
+        draw_obj_vec.push_back( &m_FeaPartDO[i] );
+    }
+}
+
+void FeaPart::UpdateDrawObjs( int id, bool highlight )
 {
     m_FeaPartDO.clear();
     m_FeaPartDO.resize( m_FeaPartSurfVec.size() );
@@ -773,8 +790,6 @@ void FeaPart::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool high
         }
 
         m_FeaPartDO[j].m_GeomChanged = true;
-
-        draw_obj_vec.push_back( &m_FeaPartDO[j] );
     }
 }
 
@@ -1038,9 +1053,9 @@ void FeaSlice::ComputePlanarSurf()
     }
 }
 
-void FeaSlice::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+void FeaSlice::UpdateDrawObjs( int id, bool highlight )
 {
-    FeaPart::LoadDrawObjs( draw_obj_vec, id, highlight );
+    FeaPart::UpdateDrawObjs( id, highlight );
 }
 
 //////////////////////////////////////////////////////
@@ -1173,9 +1188,9 @@ void FeaSpar::ComputePlanarSurf()
     }
 }
 
-void FeaSpar::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+void FeaSpar::UpdateDrawObjs( int id, bool highlight )
 {
-    FeaPart::LoadDrawObjs( draw_obj_vec, id, highlight );
+    FeaPart::UpdateDrawObjs( id, highlight );
 }
 
 //////////////////////////////////////////////////////
@@ -1334,9 +1349,9 @@ void FeaRib::ComputePlanarSurf()
     }
 }
 
-void FeaRib::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+void FeaRib::UpdateDrawObjs( int id, bool highlight )
 {
-    FeaPart::LoadDrawObjs( draw_obj_vec, id, highlight );
+    FeaPart::UpdateDrawObjs( id, highlight );
 }
 
 ////////////////////////////////////////////////////
@@ -1548,7 +1563,7 @@ xmlNodePtr FeaFixPoint::DecodeXml( xmlNodePtr & node )
     return fea_prt_node;
 }
 
-void FeaFixPoint::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )
+void FeaFixPoint::UpdateDrawObjs( int id, bool highlight )
 {
     FeaPart* parent_part = StructureMgr.GetFeaPart( m_ParentFeaPartID );
 
@@ -1580,8 +1595,6 @@ void FeaFixPoint::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool 
             m_FeaPartDO[i].m_PntVec.push_back( fixpt );
 
             m_FeaPartDO[i].m_GeomChanged = true;
-
-            draw_obj_vec.push_back( &m_FeaPartDO[i] );
         }
     }
 }

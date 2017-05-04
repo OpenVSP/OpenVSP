@@ -1002,6 +1002,11 @@ void Geom::Update( bool fullupdate )
         {
             m_SubSurfVec[i]->Update();
         }
+
+        for ( int i = 0; i < (int)m_FeaStructVec.size(); i++ )
+        {
+            m_FeaStructVec[i]->Update();
+        }
     }
 
     UpdateChildren( fullupdate );

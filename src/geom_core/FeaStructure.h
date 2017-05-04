@@ -69,6 +69,7 @@ public:
     virtual FeaPart* GetFeaSkin( );
     virtual int GetNumFeaSkin();
 
+    virtual void UpdateFeaSubSurfs();
     virtual void RecolorFeaSubSurfs( int active_ind );
     virtual SubSurface* AddFeaSubSurf( int type );
     virtual bool ValidFeaSubSurfInd( int ind );
@@ -141,7 +142,8 @@ public:
 
     virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid );
 
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+    virtual void LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec );
+    virtual void UpdateDrawObjs( int id, bool highlight );
 
     virtual int GetType()
     {
@@ -213,7 +215,7 @@ public:
     virtual void Update();
 
     virtual void ComputePlanarSurf();
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+    virtual void UpdateDrawObjs( int id, bool highlight );
 
     BoolParm m_IncludeTrisFlag;
     IntParm m_OrientationPlane;
@@ -237,7 +239,7 @@ public:
     virtual void Update();
 
     virtual void ComputePlanarSurf();
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+    virtual void UpdateDrawObjs( int id, bool highlight );
 
     Parm m_PerV; // Percent V Location
     Parm m_Theta;
@@ -261,7 +263,7 @@ public:
     virtual void Update();
 
     virtual void ComputePlanarSurf();
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+    virtual void UpdateDrawObjs( int id, bool highlight );
 
     Parm m_PerU; // Percent U Location
     Parm m_Theta;
@@ -288,7 +290,7 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight );
+    virtual void UpdateDrawObjs( int id, bool highlight );
 
     Parm m_PosU;
     Parm m_PosW;
@@ -313,7 +315,7 @@ public:
 
     virtual void BuildSkinSurf();
 
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec, int id, bool highlight )    {}; // Do nothing for skins
+    virtual void UpdateDrawObjs( int id, bool highlight )    {}; // Do nothing for skins
 
 protected:
 

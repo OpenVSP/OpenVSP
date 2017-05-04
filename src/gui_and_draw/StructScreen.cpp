@@ -1091,10 +1091,6 @@ void StructScreen::UpdateFixPointParentChoice()
 
         for ( size_t i = 0; i < feaprt_vec.size(); i++ )
         {
-            if ( !FeaMeshMgr.GetFeaMeshInProgress() )
-            {
-                feaprt_vec[i]->Update();
-            }
 
             if ( !structVec[m_SelectedStructIndex]->FeaPartIsFixPoint( i ) )
             {
@@ -2031,6 +2027,9 @@ bool StructScreen::Update()
                 }
             }
         }
+
+        // Update Draw Objects for FeaParts
+        UpdateDrawObjs();
     }
 
     string massname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::MASS_FILE_NAME );
@@ -2911,19 +2910,54 @@ void StructScreen::OrientWing()
 
 void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
-    if ( IsShown() )
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    if ( IsShown() && veh->GetStructSettingsPtr()->m_DrawFeaPartsFlag() )
     {
         Update(); // Updating right before drawing ensures the correct structure is highlighted
 
-        // Update Draw Objects for FeaParts
-        UpdateDrawObjs( draw_obj_vec );
+        if ( !FeaMeshMgr.GetFeaMeshInProgress() )
+        {
+            if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+            {
+                int k = 0;
 
-        // Update Draw Objects for FeaMesh
-        FeaMeshMgr.LoadDrawObjs( draw_obj_vec );
+                vector < FeaStructure* > totalstructvec = StructureMgr.GetAllFeaStructs();
+
+                FeaStructure* curr_struct = totalstructvec[m_SelectedStructIndex];
+
+                if ( !curr_struct )
+                {
+                    return;
+                }
+                vector < FeaPart* > partvec = curr_struct->GetFeaPartVec();
+
+                for ( unsigned int i = 0; i < (int)partvec.size(); i++ )
+                {
+                    partvec[i]->LoadDrawObjs( draw_obj_vec );
+                }
+
+                vector < SubSurface* > subsurf_vec = curr_struct->GetFeaSubSurfVec();
+                curr_struct->RecolorFeaSubSurfs( m_SelectedSubSurfIndex );
+
+                for ( unsigned int i = 0; i < (int)subsurf_vec.size(); i++ )
+                {
+                    subsurf_vec[i]->LoadDrawObjs( draw_obj_vec );
+                }
+            }
+        }
     }
+
+    // Update Draw Objects for FeaMesh
+    FeaMeshMgr.LoadDrawObjs( draw_obj_vec );
 }
 
-void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
+void StructScreen::UpdateDrawObjs()
 {
     if ( FeaMeshMgr.GetFeaMeshInProgress() == true )
     {
@@ -2959,18 +2993,10 @@ void StructScreen::UpdateDrawObjs( vector< DrawObj* > &draw_obj_vec )
             for ( unsigned int i = 0; i < (int)partvec.size(); i++ )
             {
                 if ( partvec[i] == curr_part )
-                    partvec[i]->LoadDrawObjs( draw_obj_vec, k, true );
+                    partvec[i]->UpdateDrawObjs( k, true );
                 else
-                    partvec[i]->LoadDrawObjs( draw_obj_vec, k, false );
+                    partvec[i]->UpdateDrawObjs( k, false );
                 k++;
-            }
-
-            vector < SubSurface* > subsurf_vec = curr_struct->GetFeaSubSurfVec();
-            curr_struct->RecolorFeaSubSurfs( m_SelectedSubSurfIndex );
-                
-            for ( unsigned int i = 0; i < ( int )subsurf_vec.size(); i++ )
-            {
-                subsurf_vec[i]->LoadDrawObjs( draw_obj_vec );
             }
         }
     }
