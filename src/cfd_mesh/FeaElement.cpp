@@ -399,5 +399,93 @@ double FeaBeam::ComputeMass( int property_index )
     mass = length * area * avg_d;
 
     return mass;
+}
 
+//////////////////////////////////////////////////////
+//=============== SimpleFeaProperty ================//
+//////////////////////////////////////////////////////
+void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop )
+{
+    if ( fea_prop )
+    {
+        m_FeaPropertyType = fea_prop->m_FeaPropertyType.Get();
+        m_Thickness = fea_prop->m_Thickness.Get();
+        m_CrossSecArea = fea_prop->m_CrossSecArea.Get();
+        m_Izz = fea_prop->m_Izz.Get();
+        m_Iyy = fea_prop->m_Iyy.Get();
+        m_Izy = fea_prop->m_Izy.Get();
+        m_Ixx = fea_prop->m_Ixx.Get();
+        m_SimpleFeaMatIndex = fea_prop->GetFeaMaterialIndex();
+
+        FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( m_SimpleFeaMatIndex );
+
+        if ( fea_mat )
+        {
+            m_MaterialName = fea_mat->GetName();
+        }
+    }
+}
+
+void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
+{
+    if ( m_FeaPropertyType == SHELL_PROPERTY )
+    {
+        fprintf( fp, "PSHELL,%d,%d,%f\n", prop_id, m_SimpleFeaMatIndex + 1, m_Thickness );
+    }
+    if ( m_FeaPropertyType == BEAM_PROPERTY )
+    {
+        fprintf( fp, "PBEAM,%d,%d,%f,%f,%f,%f,%f\n", prop_id, m_SimpleFeaMatIndex + 1, m_CrossSecArea, m_Izz, m_Iyy, m_Izy, m_Ixx );
+    }
+}
+
+void SimpleFeaProperty::WriteCalculix( FILE* fp, string ELSET )
+{
+    if ( m_FeaPropertyType == SHELL_PROPERTY )
+    {
+        fprintf( fp, "*SHELL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+        fprintf( fp, "%g\n", m_Thickness );
+    }
+    if ( m_FeaPropertyType == BEAM_PROPERTY )
+    {
+        // Note: *BEAM GENERAL SECTION is supported by Abaqus but not Calculix. Calculix depends on BEAM SECTION properties
+        //  where the cross-section dimensions must be explicitly defined. 
+        fprintf( fp, "*BEAM GENERAL SECTION, SECTION=GENERAL, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+        fprintf( fp, "%g,%g,%g,%g,%g\n", m_CrossSecArea, m_Izz, m_Izy, m_Iyy, m_Ixx );
+    }
+}
+
+//////////////////////////////////////////////////////
+//=============== SimpleFeaMaterial ================//
+//////////////////////////////////////////////////////
+void SimpleFeaMaterial::CopyFrom( FeaMaterial* fea_mat )
+{
+    if ( fea_mat )
+    {
+        m_MassDensity = fea_mat->m_MassDensity.Get();
+        m_ElasticModulus = fea_mat->m_ElasticModulus.Get();
+        m_PoissonRatio = fea_mat->m_PoissonRatio.Get();
+        m_ThermalExpanCoeff = fea_mat->m_ThermalExpanCoeff.Get();
+        m_Name = fea_mat->GetName();
+    }
+}
+
+void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
+{
+    fprintf( fp, "MAT1,%d,%g,%g,%g,%g,%g\n", mat_id, m_ElasticModulus, GetShearModulus(), m_PoissonRatio, m_MassDensity, m_ThermalExpanCoeff );
+}
+
+void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id )
+{
+    fprintf( fp, "*MATERIAL, NAME=%s\n", m_Name.c_str() );
+    fprintf( fp, "*DENSITY\n" );
+    fprintf( fp, "%g\n", m_MassDensity );
+    fprintf( fp, "*ELASTIC, TYPE=ISO\n" );
+    fprintf( fp, "%g,%g\n", m_ElasticModulus, m_PoissonRatio );
+    fprintf( fp, "*EXPANSION, TYPE=ISO\n" );
+    fprintf( fp, "%g\n", m_ThermalExpanCoeff );
+}
+
+double SimpleFeaMaterial::GetShearModulus()
+{
+    return ( m_ElasticModulus / ( 2 * ( m_PoissonRatio + 1 ) ) );
 }

@@ -16,6 +16,7 @@
 #define FEAELEMENT_INCLUDED_
 
 #include "Vec3d.h"
+#include "FeaStructure.h"
 
 using namespace std;
 
@@ -168,6 +169,70 @@ class FeaBeam : public FeaElement
     vec3d m_DispVec; // Vector from end point in the displacement coordinate system at the end point
     int m_ElementIndex;
 };
+
+//=== SimpleFeaProperty ====//
+class SimpleFeaProperty
+{
+    public:
+    SimpleFeaProperty()
+    {
+    };
+    virtual ~SimpleFeaProperty()
+    {
+    };
+
+    virtual void CopyFrom( FeaProperty* fea_prop );
+
+    virtual void WriteNASTRAN( FILE* fp, int id );
+    virtual void WriteCalculix( FILE* fp, string ELSET );
+
+    virtual int GetSimpFeaMatIndex()
+    {
+        return m_SimpleFeaMatIndex;
+    }
+
+    int m_FeaPropertyType;
+    double m_Thickness;
+    double m_CrossSecArea;
+    double m_Izz;
+    double m_Iyy;
+    double m_Izy;
+    double m_Ixx;
+
+    protected:
+
+    int m_SimpleFeaMatIndex;
+    string m_MaterialName;
+};
+
+//=== SimpleFeaMaterial ====//
+class SimpleFeaMaterial
+{
+    public:
+    SimpleFeaMaterial()
+    {
+    };
+    virtual ~SimpleFeaMaterial()
+    {
+    };
+
+    virtual void CopyFrom( FeaMaterial* fea_mat );
+
+    virtual void WriteNASTRAN( FILE* fp, int id );
+    virtual void WriteCalculix( FILE* fp, int id );
+
+    virtual double GetShearModulus();
+
+    double m_MassDensity;
+    double m_ElasticModulus;
+    double m_PoissonRatio;
+    double m_ThermalExpanCoeff;
+
+    protected:
+
+    string m_Name;
+};
+
 
 #endif // !defined(FEAELEMENT_INCLUDED_)
 
