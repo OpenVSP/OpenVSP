@@ -1082,6 +1082,7 @@ void StructScreen::UpdateFixPointParentChoice()
 {
     //==== FixPoint Parent Surf Choice ====//
     m_FixPointParentSurfChoice.ClearItems();
+    m_FixPointParentIDVec.clear();
 
     if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
     {
@@ -1098,6 +1099,7 @@ void StructScreen::UpdateFixPointParentChoice()
             if ( !structVec[m_SelectedStructIndex]->FeaPartIsFixPoint( i ) )
             {
                 m_FixPointParentSurfChoice.AddItem( string( feaprt_vec[i]->GetName() + "_Surf" ) );
+                m_FixPointParentIDVec.push_back( feaprt_vec[i]->GetID() );
             }
         }
 
@@ -2498,7 +2500,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
 
-            FeaPart* parent_feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_FixPointParentSurfChoice.GetVal() );
+            FeaPart* parent_feaprt = StructureMgr.GetFeaPart( m_FixPointParentIDVec[m_FixPointParentSurfChoice.GetVal()] );
             FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
 
             if ( feaprt && parent_feaprt )

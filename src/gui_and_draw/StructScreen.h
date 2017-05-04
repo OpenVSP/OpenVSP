@@ -359,6 +359,7 @@ private:
     string m_SelectedGeomID;
     vector < string > m_GeomIDVec;
     vector < string > m_SubSurfIDVec;
+    vector < string > m_FixPointParentIDVec;
 
     int m_FeaCurrMainSurfIndx;
     int m_SelectedStructIndex;
