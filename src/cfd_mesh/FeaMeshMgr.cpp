@@ -688,6 +688,11 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                     {
                         ( *c )->AddBorderSplit( split_pnt, p1 );
                     }
+
+                    string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexVec[j]];
+                    string message = "\tBorder Intersect Point Set for " + fix_point_name + "\n";
+                    addOutputText( message );
+                    break;
                 }
             }
         }
@@ -697,95 +702,113 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
 void FeaMeshMgrSingleton::CheckFixPointIntersects()
 {
     // Idenitfy and set FeaFixPoints on intersection curves
-    double tol = 0.01;
+    double tol = 1.0e-3;
 
     for ( size_t j = 0; j < m_FixPntSurfIndVec.size(); j++ )
     {
         list< ISegChain* >::iterator c;
         for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
         {
-            if ( !( *c )->m_BorderFlag && m_FixPntSurfIndVec[j].size() == 1 && ( ( *c )->m_SurfA != ( *c )->m_SurfB ) )
+            if ( !( *c )->m_BorderFlag && m_FixPntSurfIndVec[j].size() == 1 )
             {
-                if ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndVec[j][0]] )
+                if ( ( *c )->m_SurfA != ( *c )->m_SurfB ) // Check for intersection between two FeaPart surfaces
                 {
-                    vec2d closest_uw = ( *c )->m_SurfB->ClosestUW( m_FixPntVec[j] );
-                    vec3d closest_pnt = ( *c )->m_SurfB->CompPnt( closest_uw[0], closest_uw[1] );
-
-                    // Compare FeaFixPoint to closest point on other surface
-                    if ( dist( closest_pnt, m_FixPntVec[j] ) <= tol )
+                    if ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndVec[j][0]] )
                     {
-                        Puw* p0 = NULL;
-                        Puw* p1 = NULL;
-                        
-                        if ( ( *c )->m_SurfB->ValidUW( closest_uw ) )
-                        {
-                            p0 = new Puw( ( *c )->m_SurfB, closest_uw );
-                        }
-                        if ( ( *c )->m_SurfA->ValidUW( m_FixUWVec[j] ) )
-                        {
-                            p1 = new Puw( ( *c )->m_SurfA, m_FixUWVec[j] );
-                        }
+                        vec2d closest_uw = ( *c )->m_SurfB->ClosestUW( m_FixPntVec[j] );
+                        vec3d closest_pnt = ( *c )->m_SurfB->CompPnt( closest_uw[0], closest_uw[1] );
 
-                        IPnt* split_pnt = new IPnt( p0, p1 );
-
-                        if ( p0 )
+                        // Compare FeaFixPoint to closest point on other surface
+                        if ( dist( closest_pnt, m_FixPntVec[j] ) <= tol )
                         {
-                            ( *c )->AddBorderSplit( split_pnt, p0 );
-                        }
-                        else if ( p1 )
-                        {
-                            ( *c )->AddBorderSplit( split_pnt, p1 );
-                        }
+                            // Find closest ISeg
+                            int iseg_index = 0;
+                            double closest_dist = FLT_MAX;
 
-                        m_FixPntBorderFlagVec[j] = INTERSECT_FIX_POINT;
-                        m_FixPntVec[j] = closest_pnt; // Set FeaFixPoint to closest point (for node tagging and identification)
+                            for ( size_t m = 0; m < ( *c )->m_ISegDeque.size(); m++ )
+                            {
+                                vec3d Ipnt = ( *c )->m_ISegDeque[m]->m_IPnt[0]->m_Pnt;
+
+                                if ( dist( Ipnt, closest_pnt ) <= closest_dist )
+                                {
+                                    iseg_index = m;
+                                    closest_dist = dist( Ipnt, closest_pnt );
+                                }
+                            }
+
+                            ( *c )->AddSplit( ( *c )->m_SurfA, iseg_index, m_FixUWVec[j] );
+
+                            m_FixPntBorderFlagVec[j] = INTERSECT_FIX_POINT;
+
+                            string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexVec[j]];
+                            string message = "\tIntersection Found for " + fix_point_name + "\n";
+                            addOutputText( message );
+                            break;
+                        }
+                    }
+                    else if ( ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndVec[j][0]] )
+                    {
+                        vec2d closest_uw = ( *c )->m_SurfA->ClosestUW( m_FixPntVec[j] );
+                        vec3d closest_pnt = ( *c )->m_SurfA->CompPnt( closest_uw[0], closest_uw[1] );
+
+                        // Compare FeaFixPoint to closest point on other surface
+                        if ( dist( closest_pnt, m_FixPntVec[j] ) <= tol )
+                        {
+                            int iseg_index = 0;
+                            double closest_dist = FLT_MAX;
+
+                            for ( size_t m = 0; m < ( *c )->m_ISegDeque.size(); m++ )
+                            {
+                                vec3d Ipnt = ( *c )->m_ISegDeque[m]->m_IPnt[0]->m_Pnt;
+
+                                if ( dist( Ipnt, closest_pnt ) <= closest_dist )
+                                {
+                                    iseg_index = m;
+                                    closest_dist = dist( Ipnt, closest_pnt );
+                                }
+                            }
+
+                            ( *c )->AddSplit( ( *c )->m_SurfB, iseg_index, m_FixUWVec[j] );
+
+                            m_FixPntBorderFlagVec[j] = INTERSECT_FIX_POINT;
+
+                            string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexVec[j]];
+                            string message = "\tIntersection Found for " + fix_point_name + "\n";
+                            addOutputText( message );
+                            break;
+                        }
                     }
                 }
-                else if ( ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndVec[j][0]] )
+                else if ( ( *c )->m_SurfA == ( *c )->m_SurfB )
                 {
-                    vec2d closest_uw = ( *c )->m_SurfA->ClosestUW( m_FixPntVec[j] );
-                    vec3d closest_pnt = ( *c )->m_SurfA->CompPnt( closest_uw[0], closest_uw[1] );
+                    int iseg_index = 0;
+                    double closest_dist = FLT_MAX;
 
-                    // Compare FeaFixPoint to closest point on other surface
-                    if ( dist( closest_pnt, m_FixPntVec[j] ) <= tol )
+                    for ( size_t m = 0; m < ( *c )->m_ISegDeque.size(); m++ )
                     {
-                        Puw* p0 = NULL;
-                        Puw* p1 = NULL;
+                        vec3d ipnt0 = ( *c )->m_ISegDeque[m]->m_IPnt[0]->m_Pnt;
+                        vec3d ipnt1 = ( *c )->m_ISegDeque[m]->m_IPnt[1]->m_Pnt;
 
-                        if ( ( *c )->m_SurfA->ValidUW( closest_uw ) )
-                        {
-                            p0 = new Puw( ( *c )->m_SurfA, closest_uw );
-                        }
-                        if ( ( *c )->m_SurfB->ValidUW( m_FixUWVec[j] ) )
-                        {
-                            p1 = new Puw( ( *c )->m_SurfB, m_FixUWVec[j] );
-                        }
+                        // Find perpendicular distance from FeaFixPoint to ISeg
+                        double distance = ( cross( ( m_FixPntVec[j] - ipnt0 ), ( m_FixPntVec[j] - ipnt1 ) ).mag() ) / ( ( ipnt1 - ipnt0).mag() );
 
-                        IPnt* split_pnt = new IPnt( p0, p1 );
+                        if ( distance <= closest_dist )
+                        {
+                            iseg_index = m;
+                            closest_dist = distance;
+                        }
+                    }
 
-                        if ( p0 )
-                        {
-                            ( *c )->AddBorderSplit( split_pnt, p0 );
-                        }
-                        else if ( p1 )
-                        {
-                            ( *c )->AddBorderSplit( split_pnt, p1 );
-                        }
+                    if ( closest_dist < tol )
+                    {
+                        ( *c )->AddSplit( ( *c )->m_SurfA, iseg_index, m_FixUWVec[j] );
 
                         m_FixPntBorderFlagVec[j] = INTERSECT_FIX_POINT;
-                        m_FixPntVec[j] = closest_pnt; // Set FeaFixPoint to closest point (for node tagging and identification)
-                    }
-                }
-            }
-        }
-    }
-}
 
-
-
-
-
-
+                        string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexVec[j]];
+                        string message = "\tIntersection Found for " + fix_point_name + "\n";
+                        addOutputText( message );
+                        break;
                     }
                 }
             }

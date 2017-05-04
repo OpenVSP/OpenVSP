@@ -2666,9 +2666,10 @@ void CfdMeshMgrSingleton::Intersect()
     MergeInteriorChainIPnts();
 
     SetFixPointBorderNodes(); // Only applicable to FEA Mesh
-    CheckFixPointIntersects(); // Only applicable to FEA Mesh
 
     SplitBorderCurves();
+
+    CheckFixPointIntersects(); // Only applicable to FEA Mesh
 
     IntersectSplitChains();
 

@@ -1322,10 +1322,6 @@ bool Mesh::SetFixPoint( vec3d fix_pnt, vec2d fix_uw )
 
     if ( closest_node && m_Surf->ValidUW( fix_uw ) )
     {
-        // Move closest node to fixed point location
-        closest_node->uw = m_Surf->ClosestUW( fix_pnt, fix_uw.x(), fix_uw.y() );
-        closest_node->pnt = m_Surf->CompPnt( closest_node->uw.x(), closest_node->uw.y() );
-
         // Check lengths of connected edges and split if longer than tolerance
         vector < Edge* > check_edge_vec = closest_node->edgeVec;
         bool long_edge = false;
@@ -1343,6 +1339,9 @@ bool Mesh::SetFixPoint( vec3d fix_pnt, vec2d fix_uw )
 
         if ( !long_edge )
         {
+            // Move closest node to fixed point location
+            closest_node->uw = m_Surf->ClosestUW( fix_pnt, fix_uw.x(), fix_uw.y() );
+            closest_node->pnt = m_Surf->CompPnt( closest_node->uw.x(), closest_node->uw.y() );
             closest_node->fixed = true;
             return true;
         }
