@@ -3426,12 +3426,12 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                 max_u = surf->GetSurfCore()->GetMaxU();
                 max_w = surf->GetSurfCore()->GetMaxW();
 
-                if ( uw_pnt0[0] < min_u || uw_pnt0[1] < min_w || uw_pnt1[0] < min_u || uw_pnt1[1] < min_w )
+                if ( uw_pnt0[0] < min_u - FLT_EPSILON || uw_pnt0[1] < min_w - FLT_EPSILON || uw_pnt1[0] < min_u - FLT_EPSILON || uw_pnt1[1] < min_w - FLT_EPSILON )
                 {
                     new_chain = true;
                     continue; // Skip if either point has a value not on this surface
                 }
-                if ( uw_pnt0[0] > max_u || uw_pnt0[1] > max_w || uw_pnt1[0] > max_u || uw_pnt1[1] > max_w )
+                if ( uw_pnt0[0] > max_u + FLT_EPSILON || uw_pnt0[1] > max_w + FLT_EPSILON || uw_pnt1[0] > max_u + FLT_EPSILON || uw_pnt1[1] > max_w + FLT_EPSILON )
                 {
                     new_chain = true;
                     continue; // Skip if either point has a value not on this surface
