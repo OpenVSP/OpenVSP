@@ -2250,28 +2250,17 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if ( device == &m_FeaMeshExportButton )
     {
-        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-        {
-            FeaStructure* curr_struct = structvec[m_SelectedStructIndex];
-            curr_struct->Update();
+        // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
+        FeaMeshMgr.SetFeaMeshInProgress( true );
 
-            // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
-            FeaMeshMgr.SetFeaMeshInProgress( true );
+        // Identify which structure to mesh
+        FeaMeshMgr.SetFeaMeshStructIndex( m_SelectedStructIndex );
 
-            // Identify which structure to mesh
-            FeaMeshMgr.SetFeaMeshStructIndex( m_SelectedStructIndex );
+        m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
 
-            m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
+        m_MonitorProcess.StartThread( feamonitorfun, ( void* ) this );
 
-            m_MonitorProcess.StartThread( feamonitorfun, ( void* ) this );
-
-            veh->GetStructSettingsPtr()->m_DrawMeshFlag = true;
-        }
-        else
-        {
-            AddOutputText( "FeaMesh Failed: Invalid FeaStructure Selection\n" );
-        }
+        veh->GetStructSettingsPtr()->m_DrawMeshFlag = true;
     }
     else if ( device == &m_GeomChoice )
     {
@@ -2281,34 +2270,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         m_FeaCurrMainSurfIndx = m_SurfSel.GetVal();
     }
-    //else if ( device == &m_AddFeaStructButton )
-    //{
-    //    vector < string > activevec = veh->GetActiveGeomVec();
-
-    //    if ( activevec.size() == 0 )
-    //    {
-    //        AddOutputText( "Error: No Geom Selected\n" );
-    //    }
-    //    else if ( activevec.size() > 1 )
-    //    {
-    //        AddOutputText( "Error: Multiple Geoms Selected\n" );
-    //    }
-    //    else
-    //    {
-    //        Geom* currgeom = veh->FindGeom( activevec[0] );
-
-    //        FeaStructure* newstruct = currgeom->AddFeaStruct( true );
-    //        vector < FeaStructure* > structvec = veh->GetAllFeaStructs();
-
-    //        for ( unsigned int i = 0; i < structvec.size(); i++ )
-    //        {
-    //            if ( structvec[i]->GetFeaStructID() == newstruct->GetFeaStructID() )
-    //            {
-    //                m_SelectedStructIndex = i;
-    //            }
-    //        }
-    //    }
-    //}
     else if ( device == &m_AddFeaStructButton )
     {
         Geom* currgeom = veh->FindGeom( m_SelectedGeomID );
