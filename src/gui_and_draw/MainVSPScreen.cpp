@@ -130,6 +130,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_DegenGeomMenuItem.Init( mgr, m_MenuBar, "Analysis/DegenGeom...", ScreenMgr::VSP_DEGEN_GEOM_SCREEN );
     m_VSPAEROMenuItem.Init( mgr, m_MenuBar, "Analysis/VSPAERO...", ScreenMgr::VSP_VSPAERO_SCREEN );
     m_WaveDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Wave Drag...", ScreenMgr::VSP_WAVEDRAG_SCREEN );
+    m_ParasiteDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Parasite Drag...", ScreenMgr::VSP_PARASITE_DRAG_SCREEN );
 
 
     // m_AboutMenuItem.Init( mgr, m_MenuBar, "Help/About...", ScreenMgr:: );

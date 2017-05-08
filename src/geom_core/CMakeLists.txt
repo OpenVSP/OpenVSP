@@ -46,6 +46,7 @@ Link.cpp
 LinkMgr.cpp
 MaterialMgr.cpp
 MeshGeom.cpp
+ParasiteDragMgr.cpp
 Parm.cpp
 ParmContainer.cpp
 ParmMgr.cpp
@@ -109,6 +110,7 @@ Link.h
 LinkMgr.h
 MaterialMgr.h
 MeshGeom.h
+ParasiteDragMgr.h
 Parm.h
 ParmContainer.h
 ParmMgr.h

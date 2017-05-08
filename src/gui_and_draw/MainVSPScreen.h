@@ -122,6 +122,7 @@ protected:
     // ScreenMenuItem m_WingStructMenuItem;
     ScreenMenuItem m_DegenGeomMenuItem;
     ScreenMenuItem m_VSPAEROMenuItem;
+    ScreenMenuItem m_ParasiteDragMenuItem;
 
     // ScreenMenuItem m_AboutMenuItem;
     // ScreenMenuItem m_OnlineHelpMenuItem;

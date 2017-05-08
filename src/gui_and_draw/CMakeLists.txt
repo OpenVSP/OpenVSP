@@ -61,6 +61,7 @@ MaterialEditScreen.cpp
 MenuItem.cpp
 MeshScreen.cpp
 MultTransScreen.cpp
+ParasiteDragScreen.cpp
 ParmDebugScreen.cpp
 ParmLinkScreen.cpp
 ParmScreen.cpp
@@ -124,6 +125,7 @@ MaterialEditScreen.h
 MenuItem.h
 MeshScreen.h
 MultTransScreen.h
+ParasiteDragScreen.h
 ParmDebugScreen.h
 ParmLinkScreen.h
 ParmScreen.h

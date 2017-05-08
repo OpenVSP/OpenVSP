@@ -22,6 +22,7 @@
 #include "LinkMgr.h"
 #include "AdvLinkMgr.h"
 #include "AnalysisMgr.h"
+#include "ParasiteDragMgr.h"
 #include "Quat.h"
 #include "StringUtil.h"
 #include "SubSurfaceMgr.h"
@@ -197,6 +198,7 @@ void Vehicle::Init()
     LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
     LinkMgr.RegisterContainer( VSPAEROMgr.GetID() );
     LinkMgr.RegisterContainer( WaveDragMgr.GetID() );
+    LinkMgr.RegisterContainer( ParasiteDragMgr.GetID() );
 
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
@@ -322,6 +324,7 @@ void Vehicle::Wype()
     FitModelMgr.Renew();
     AnalysisMgr.Renew();
     VarPresetMgr.Renew();
+    ParasiteDragMgr.Renew();
     VSPAEROMgr.Renew();
 }
 

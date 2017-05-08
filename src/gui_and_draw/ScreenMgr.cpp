@@ -30,6 +30,7 @@
 #include "MassPropScreen.h"
 #include "MaterialEditScreen.h"
 #include "SnapToScreen.h"
+#include "ParasiteDragScreen.h"
 #include "ParmDebugScreen.h"
 #include "ParmLinkScreen.h"
 #include "ParmScreen.h"
@@ -178,6 +179,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_MASS_PROP_SCREEN] = new MassPropScreen( this );
     m_ScreenVec[VSP_MATERIAL_EDIT_SCREEN] = new MaterialEditScreen( this );
     m_ScreenVec[VSP_SNAP_TO_SCREEN] = new SnapToScreen( this );
+    m_ScreenVec[VSP_PARASITE_DRAG_SCREEN] = new ParasiteDragScreen( this );
     m_ScreenVec[VSP_PARM_DEBUG_SCREEN] = new ParmDebugScreen( this );
     m_ScreenVec[VSP_PARM_LINK_SCREEN] = new ParmLinkScreen( this );
     m_ScreenVec[VSP_PARM_SCREEN] = new ParmScreen( this );
