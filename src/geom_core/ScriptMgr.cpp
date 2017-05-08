@@ -1062,6 +1062,56 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSPAERO_COMP_REFERENCE_TYPE", "MANUAL_REF", MANUAL_REF );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_COMP_REFERENCE_TYPE", "COMPONENT_REF", COMPONENT_REF );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "FREESTREAM_PD_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FREESTREAM_PD_UNITS", "PD_UNITS_IMPERIAL", PD_UNITS_IMPERIAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FREESTREAM_PD_UNITS", "PD_UNITS_METRIC", PD_UNITS_METRIC );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "VEL_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_FT_S", V_UNIT_FT_S );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_M_S", V_UNIT_M_S );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_MPH", V_UNIT_MPH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_KM_HR", V_UNIT_KM_HR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_KEAS", V_UNIT_KEAS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_KTAS", V_UNIT_KTAS );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "TEMP_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TEMP_UNITS", "TEMP_UNIT_K", TEMP_UNIT_K );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TEMP_UNITS", "TEMP_UNIT_C", TEMP_UNIT_C );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TEMP_UNITS", "TEMP_UNIT_F", TEMP_UNIT_F );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TEMP_UNITS", "TEMP_UNIT_R", TEMP_UNIT_R );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "PRES_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_PSF", PRES_UNIT_PSF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_KPA", PRES_UNIT_KPA );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_INCHHG", PRES_UNIT_INCHHG );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "RHO_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_SLUG_FT3", RHO_UNIT_SLUG_FT3 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_KG_M3", RHO_UNIT_KG_M3 );
+    assert( r >= 0 );
 
 
 }

@@ -379,6 +379,40 @@ enum VSPAERO_REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the referen
                              NUM_REF_TYPES
                            };
 
+enum FREESTREAM_PD_UNITS { PD_UNITS_IMPERIAL = 0,
+                           PD_UNITS_METRIC
+                      }; // Parasite Drag Freestream Units
+
+enum VEL_UNITS { V_UNIT_FT_S = 0,
+                 V_UNIT_M_S,
+                 V_UNIT_MPH,
+                 V_UNIT_KM_HR,
+                 V_UNIT_KEAS,
+                 V_UNIT_KTAS,
+               }; // Velocity Units ENUM
+
+enum TEMP_UNITS { TEMP_UNIT_K = 0,
+                  TEMP_UNIT_C,
+                  TEMP_UNIT_F,
+                  TEMP_UNIT_R,
+                }; // Temp Units ENUM
+
+enum PRES_UNITS { PRES_UNIT_PSF = 0,
+                  PRES_UNIT_PSI,
+                  PRES_UNIT_PA,
+                  PRES_UNIT_KPA,
+                  PRES_UNIT_INCHHG,
+                  PRES_UNIT_MMHG,
+                  PRES_UNIT_MMH20,
+                  PRES_UNIT_MB,
+                  PRES_UNIT_ATM
+                }; // Pres Units ENUM
+
+enum RHO_UNITS { RHO_UNIT_SLUG_FT3 = 0,
+                 RHO_UNIT_KG_M3,
+                 RHO_UNIT_LBF_FT3
+               }; // Rho Units ENUM
+
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)
