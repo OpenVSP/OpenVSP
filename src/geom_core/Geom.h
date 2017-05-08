@@ -594,6 +594,12 @@ public:
     //==== Wake for CFD Mesh ====//
     BoolParm m_WakeActiveFlag;
 
+    //==== Parasite Drag Parms ====//
+    Parm m_PercLam;
+    Parm m_Q;
+    Parm m_Roughness;
+    Parm m_TeTwRatio;
+    Parm m_TawTwRatio;
     //==== Basic Geom XSec Functions - Override ====//
     virtual void CutXSec( int index )               {}
     virtual void CopyXSec( int index )              {}

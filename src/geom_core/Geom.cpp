@@ -834,6 +834,23 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 
     m_GeomProjectVec3d.resize( 3 );
     m_ForceXSecFlag = false;
+
+    // Parasite Drag Parms
+    m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
+    m_PercLam.SetDescript("Percentage Laminar" );
+
+    m_Q.Init("Q", "ParasiteDragProps", this, 1, 0, 3 );
+    m_Q.SetDescript( "Interference Factor" );
+
+    m_Roughness.Init("Roughness", "ParasiteDragProps", this, -1, -1, 10 );
+    m_Roughness.SetDescript( "Roughness Height" );
+
+    m_TeTwRatio.Init("TeTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
+    m_TeTwRatio.SetDescript("Temperature Ratio of Freestream to Wall" );
+
+    m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
+    m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
+
 }
 //==== Destructor ====//
 Geom::~Geom()
