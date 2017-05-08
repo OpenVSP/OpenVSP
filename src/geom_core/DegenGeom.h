@@ -145,6 +145,10 @@ public:
     {
         return degenDisk;
     }
+    vector <DegenStick> getDegenSticks()
+    {
+        return degenSticks;
+    }
 
     void setDegenPoint( DegenPoint degenPoint )
     {

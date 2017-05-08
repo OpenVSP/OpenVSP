@@ -248,6 +248,7 @@ public:
     void CreateDegenGeom( int set );
     vector< DegenGeom > GetDegenGeomVec()    { return m_DegenGeomVec; }
     string WriteDegenGeomFile();
+    void ClearDegenGeom()   { m_DegenGeomVec.clear(); }
 
     CfdMeshSettings* GetCfdSettingsPtr()
     {

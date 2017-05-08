@@ -62,6 +62,9 @@ struct ExcrescenceTableRow
 class ParasiteDragMgrSingleton : public ParmContainer
 {
 public:
+    // ==== ENUMERATORS ==== //
+    enum { MANUAL_REF = 0, COMPONENT_REF, }; // Ref Flag
+
     // Required Refresh function for NEW file
     virtual void Renew();
 
@@ -156,8 +159,13 @@ private:
     vector < int > geo_surfNum;
     vector <double> geo_swet;
     vector <double> geo_lref;
+    vector <double> geo_Roughness;
+    vector <double> geo_TeTwRatio;
+    vector <double> geo_TawTwRatio;
+    vector <double> geo_percLam;
     vector <double> geo_fineRat;
     vector <int> geo_shapeType;
+    vector <double> geo_Q;
 };
 
 #define ParasiteDragMgr ParasiteDragMgrSingleton::getInstance()
