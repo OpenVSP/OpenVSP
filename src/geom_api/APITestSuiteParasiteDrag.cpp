@@ -421,3 +421,35 @@ void APITestSuiteParasiteDrag::TestS3VikingModel()
 
     TEST_ASSERT_DELTA(dat[0], 0.018572, tol);
 }
+
+void APITestSuiteParasiteDrag::TestUSStandardAtmosphere1976()
+{
+    printf( "Starting US Standard Atmosphere 1976 Table Creation. \n" );
+    vsp::WriteAtmosphereCSVFile( "USStandardAtmosphere1976Data.csv", vsp::ATMOS_TYPE_US_STANDARD_1976 );
+    printf( "COMPLETE. \n" );
+}
+
+void APITestSuiteParasiteDrag::TestUSAF1966()
+{
+    printf( "Starting USAF Atmosphere 1966 Table Creation. \n" );
+    vsp::WriteAtmosphereCSVFile( "USAFAtmosphere1966Data.csv", vsp::ATMOS_TYPE_HERRINGTON_1966 );
+    printf( "COMPLETE. \n" );
+}
+
+void APITestSuiteParasiteDrag::TestFormFactorEquations()
+{
+    printf( "Starting Body Form Factor Data Creation. \n" );
+    vsp::WriteBodyFFCSVFile( "BodyFormFactorData.csv" );
+    printf( "COMPLETE. \n" );
+
+    printf( "Starting Wing Form Factor Data Creation. \n" );
+    vsp::WriteWingFFCSVFile( "WingFormFactorData.csv" );
+    printf( "COMPLETE. \n" );
+}
+
+void APITestSuiteParasiteDrag::TestFrictionCoefficientEquations()
+{
+    printf( "Starting Turbulent Friciton Coefficient Data Creation. \n" );
+    vsp::WriteTurbCfCSVFile( "FrictionCoefficientData.csv" );
+    printf( "COMPLETE. \n" );
+}

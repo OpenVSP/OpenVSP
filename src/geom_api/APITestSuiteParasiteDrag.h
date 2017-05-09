@@ -25,6 +25,10 @@ public:
         TEST_ADD( APITestSuiteParasiteDrag::TestChangeOptions );
         TEST_ADD( APITestSuiteParasiteDrag::TestRevertToSimpleModel );
         TEST_ADD( APITestSuiteParasiteDrag::TestS3VikingModel );
+        TEST_ADD( APITestSuiteParasiteDrag::TestUSStandardAtmosphere1976 );
+        TEST_ADD( APITestSuiteParasiteDrag::TestUSAF1966 );
+        TEST_ADD( APITestSuiteParasiteDrag::TestFormFactorEquations );
+        TEST_ADD( APITestSuiteParasiteDrag::TestFrictionCoefficientEquations );
     }
 
 private:
@@ -36,6 +40,10 @@ private:
     void TestChangeOptions();
     void TestRevertToSimpleModel();
     void TestS3VikingModel();
+    void TestUSStandardAtmosphere1976();
+    void TestUSAF1966();
+    void TestFormFactorEquations();
+    void TestFrictionCoefficientEquations();
 
     string m_vspfname_for_parasitedragtests;
 };

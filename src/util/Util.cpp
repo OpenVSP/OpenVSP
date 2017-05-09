@@ -99,3 +99,15 @@ double ceil2scale( double x, double scale )
     }
     return scale * ceil( x / scale );
 }
+
+vector<double> linspace(double a, double b, int n)
+{
+    vector<double> array;
+    double step = (b-a) / (n-1);
+
+    while(a <= b) {
+        array.push_back(a);
+        a += step;
+    }
+    return array;
+}
