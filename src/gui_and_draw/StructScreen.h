@@ -99,6 +99,8 @@ private:
     GroupLayout m_SparEditLayout;
     GroupLayout m_FixPointEditLayout;
     GroupLayout m_SubSurfTabLayout;
+    GroupLayout m_SubSurfButtonLayout;
+    GroupLayout m_SubSurfBrowserLayout;
     GroupLayout m_PropertyTabLayout;
     GroupLayout m_PropertyEditGroup;
     GroupLayout m_MaterialTabLayout;
@@ -230,6 +232,11 @@ private:
     TriggerButton m_DelFeaSubSurfButton;
     TriggerButton m_AddFeaSubSurfButton;
     Choice m_FeaSubSurfChoice;
+
+    TriggerButton m_MoveSSTopButton;
+    TriggerButton m_MoveSSUpButton;
+    TriggerButton m_MoveSSDownButton;
+    TriggerButton m_MoveSSBotButton;
 
     GroupLayout m_FeaSSCommonGroup;
     StringInput m_FeaSubNameInput;

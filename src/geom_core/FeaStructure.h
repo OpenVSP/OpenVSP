@@ -75,6 +75,7 @@ public:
     virtual bool ValidFeaSubSurfInd( int ind );
     virtual void DelFeaSubSurf( int ind );
     virtual SubSurface* GetFeaSubSurf( int ind );
+    virtual void ReorderFeaSubSurf( int ind, int action );
     virtual int NumFeaSubSurfs()
     {
         return m_FeaSubSurfVec.size();

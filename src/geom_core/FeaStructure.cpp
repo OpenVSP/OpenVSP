@@ -308,6 +308,56 @@ SubSurface* FeaStructure::GetFeaSubSurf( int ind )
     return NULL;
 }
 
+void FeaStructure::ReorderFeaSubSurf( int ind, int action )
+{
+    //==== Check SubSurface Index Validity ====//
+    if ( !ValidFeaSubSurfInd( ind ) )
+    {
+        return;
+    }
+
+    vector < SubSurface* > new_ss_vec;
+
+    if ( action == Vehicle::REORDER_MOVE_TOP || action == Vehicle::REORDER_MOVE_BOTTOM )
+    {
+        if ( action == Vehicle::REORDER_MOVE_TOP )
+        {
+            new_ss_vec.push_back( GetFeaSubSurf( ind ) );
+        }
+
+        for ( int i = 0; i < (int)m_FeaSubSurfVec.size(); i++ )
+            if ( m_FeaSubSurfVec[i] != GetFeaSubSurf( ind ) )
+            {
+                new_ss_vec.push_back( m_FeaSubSurfVec[i] );
+            }
+
+        if ( action == Vehicle::REORDER_MOVE_BOTTOM )
+        {
+            new_ss_vec.push_back( GetFeaSubSurf( ind ) );
+        }
+    }
+    else if ( action == Vehicle::REORDER_MOVE_UP || action == Vehicle::REORDER_MOVE_DOWN )
+    {
+        for ( int i = 0; i < (int)m_FeaSubSurfVec.size(); i++ )
+        {
+            if ( i < (int)( m_FeaSubSurfVec.size() - 1 ) &&
+                ( ( action == Vehicle::REORDER_MOVE_DOWN && m_FeaSubSurfVec[i] == GetFeaSubSurf( ind ) ) ||
+                 ( action == Vehicle::REORDER_MOVE_UP   && m_FeaSubSurfVec[i + 1] == GetFeaSubSurf( ind ) ) ) )
+            {
+                new_ss_vec.push_back( m_FeaSubSurfVec[i + 1] );
+                new_ss_vec.push_back( m_FeaSubSurfVec[i] );
+                i++;
+            }
+            else
+            {
+                new_ss_vec.push_back( m_FeaSubSurfVec[i] );
+            }
+        }
+    }
+
+    m_FeaSubSurfVec = new_ss_vec;
+}
+
 bool FeaStructure::ValidFeaPartInd( int ind )
 {
     if ( (int)m_FeaPartVec.size() > 0 && ind >= 0 && ind < (int)m_FeaPartVec.size() )

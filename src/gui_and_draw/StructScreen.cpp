@@ -406,14 +406,36 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_SubSurfTabLayout.AddDividerBox( "Sub-Surface Selection" );
 
-    m_FeaSubSurfBrowser = new Fl_Browser( m_SubSurfTabLayout.GetX(), m_SubSurfTabLayout.GetY(), m_SubSurfTabLayout.GetW(), browser_h );
+    int start_x = m_SubSurfTabLayout.GetX();
+
+    m_SubSurfTabLayout.AddSubGroupLayout( m_SubSurfButtonLayout, 20, browser_h );
+    m_SubSurfTabLayout.AddX( 20 );
+    m_SubSurfTabLayout.AddSubGroupLayout( m_SubSurfBrowserLayout, m_SubSurfTabLayout.GetRemainX(), browser_h );
+    m_SubSurfTabLayout.GetGroup()->resizable( m_SubSurfBrowserLayout.GetGroup() );
+    m_SubSurfTabLayout.AddY( browser_h );
+
+    m_SubSurfButtonLayout.SetSameLineFlag( false );
+    m_SubSurfButtonLayout.SetFitWidthFlag( false );
+
+    m_SubSurfButtonLayout.SetStdHeight( 20 );
+    m_SubSurfButtonLayout.SetButtonWidth( 20 );
+    m_SubSurfButtonLayout.AddButton( m_MoveSSTopButton, "@2<<" );
+    m_SubSurfButtonLayout.AddYGap();
+    m_SubSurfButtonLayout.AddButton( m_MoveSSUpButton, "@2<" );
+    m_SubSurfButtonLayout.AddY( browser_h - 95 - m_SubSurfTabLayout.GetStdHeight() );
+    m_SubSurfButtonLayout.AddResizeBox();
+    m_SubSurfButtonLayout.AddButton( m_MoveSSDownButton, "@2>" );
+    m_SubSurfButtonLayout.AddYGap();
+    m_SubSurfButtonLayout.AddButton( m_MoveSSBotButton, "@2>>" );
+
+    m_FeaSubSurfBrowser = m_SubSurfBrowserLayout.AddFlBrowser( browser_h );
     m_FeaSubSurfBrowser->type( 1 );
     m_FeaSubSurfBrowser->labelfont( 13 );
     m_FeaSubSurfBrowser->labelsize( 12 );
     m_FeaSubSurfBrowser->textsize( 12 );
     m_FeaSubSurfBrowser->callback( staticCB, this );
-    subTabGroup->add( m_FeaSubSurfBrowser );
-    m_SubSurfTabLayout.AddY( browser_h );
+
+    m_SubSurfTabLayout.SetX( start_x );
 
     m_SubSurfTabLayout.SetChoiceButtonWidth( buttonwidth );
 
@@ -2564,6 +2586,42 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             {
                 m_SelectedSubSurfIndex = -1;
             }
+        }
+    }
+    else if ( device == &m_MoveSSUpButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+            structvec[m_SelectedStructIndex]->ReorderFeaSubSurf( m_SelectedSubSurfIndex, Vehicle::REORDER_MOVE_UP );
+            m_SelectedSubSurfIndex--;
+        }
+    }
+    else if ( device == &m_MoveSSDownButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+            structvec[m_SelectedStructIndex]->ReorderFeaSubSurf( m_SelectedSubSurfIndex, Vehicle::REORDER_MOVE_DOWN );
+            m_SelectedSubSurfIndex++;
+        }
+    }
+    else if ( device == &m_MoveSSTopButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+            structvec[m_SelectedStructIndex]->ReorderFeaSubSurf( m_SelectedSubSurfIndex, Vehicle::REORDER_MOVE_TOP );
+            m_SelectedSubSurfIndex = 0;
+        }
+    }
+    else if ( device == &m_MoveSSBotButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+            structvec[m_SelectedStructIndex]->ReorderFeaSubSurf( m_SelectedSubSurfIndex, Vehicle::REORDER_MOVE_BOTTOM );
+            m_SelectedSubSurfIndex = structvec[m_SelectedStructIndex]->NumFeaSubSurfs() - 1;;
         }
     }
     else if ( device == &m_FeaSubNameInput )

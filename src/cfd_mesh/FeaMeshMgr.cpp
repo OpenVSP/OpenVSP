@@ -414,7 +414,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             }
             else if ( tvec[i].m_Tags.size() > 2 )
             {
-                //TODO: Develop Approach for Multiple SubSurfaces Overlap. Current approach is to give priority to first tagged subsurface
+                //Give priority to first tagged subsurface in the event of overlap
                 tri->SetFeaSSIndex( tvec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1 );
             }
 
