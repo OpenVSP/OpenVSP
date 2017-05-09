@@ -134,6 +134,7 @@ public:
     int m_Tag;
     IntParm m_TestType;
     IntParm m_MainSurfIndx;
+    BoolParm m_IncludeFlag; // Flag indicates whether or not to include wetted area of subsurf in parasite drag calcs 
 
 protected:
     string m_CompID; // Component ID used to match Subsurface to a specific geom

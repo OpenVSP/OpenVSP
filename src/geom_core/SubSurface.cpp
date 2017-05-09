@@ -27,6 +27,9 @@ SubSurface::SubSurface( string compID, int type )
 
     m_MainSurfIndx.Init( "MainSurfIndx", "SubSurface", this, -1, -1, 1e12 );
     m_MainSurfIndx.SetDescript( "Surface index for subsurface" );
+
+    m_IncludeFlag.Init("IncludeFlag", "SubSurface", this, true, false, true);
+    m_IncludeFlag.SetDescript("Indicates whether or not to include wetted area of subsurf in parasite drag calcs");
 }
 
 SubSurface::~SubSurface()
