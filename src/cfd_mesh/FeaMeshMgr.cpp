@@ -1685,14 +1685,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             {
                 if ( m_FeaElementVec[j]->GetFeaPartIndex() == cnt && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                 {
-                    // Define normal vec:
-                    vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                    norm.normalize();
                     vec3d center = ( m_FeaElementVec[j]->m_Corners[0]->m_Pnt + m_FeaElementVec[j]->m_Corners[1]->m_Pnt + m_FeaElementVec[j]->m_Corners[2]->m_Pnt ) / 3.0;
-                    vec3d norm_pnt = center + line_length * norm;
-
-                    tri_orient_pnt_vec.push_back( center );
-                    tri_orient_pnt_vec.push_back( norm_pnt );
 
                     // Define orientation vec:
                     FeaTri* tri = dynamic_cast<FeaTri*>( m_FeaElementVec[j] );
@@ -1900,14 +1893,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             {
                 if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i ) && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
                 {
-                    // Define normal vec:
-                    vec3d norm = cross( m_FeaElementVec[j]->m_Corners[1]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt, m_FeaElementVec[j]->m_Corners[2]->m_Pnt - m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
-                    norm.normalize();
                     vec3d center = ( m_FeaElementVec[j]->m_Corners[0]->m_Pnt + m_FeaElementVec[j]->m_Corners[1]->m_Pnt + m_FeaElementVec[j]->m_Corners[2]->m_Pnt ) / 3.0;
-                    vec3d norm_pnt = center + line_length * norm;
-
-                    ss_tri_orient_pnt_vec.push_back( center );
-                    ss_tri_orient_pnt_vec.push_back( norm_pnt );
 
                     // Define orientation vec:
                     FeaTri* tri = dynamic_cast<FeaTri*>( m_FeaElementVec[j] );
