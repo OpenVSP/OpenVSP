@@ -259,6 +259,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     SubSurfaceMgr.BuildSingleTagMap();
 
+    CheckDuplicateSSIntersects();
+
     addOutputText( "Build Fea Mesh\n" );
     BuildFeaMesh();
 
@@ -362,6 +364,64 @@ void FeaMeshMgrSingleton::AddStructureParts()
                         else
                         {
                             m_FixPntBorderFlagVec.push_back( SURFACE_FIX_POINT );
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
+{
+    // Check for SubSurface intersection chains that overlap, which are identified by the same end points.
+    //  This is done to ensure no duplicate beam elements are created along the intersection curve. At this
+    //  time, priority is given to the earlier SubSurface (lower index).
+
+    list< ISegChain* >::iterator c1;
+    list< ISegChain* >::iterator c2;
+    int c1_index = -1;
+    m_FixPntVec;
+    for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); c1++ )
+    {
+        c1_index++;
+        int c2_index = -1;
+
+        if ( !( *c1 )->m_BorderFlag && ( *c1 )->m_SSIntersectIndex >= 0 )
+        {
+            for ( c2 = m_ISegChainList.begin(); c2 != m_ISegChainList.end(); c2++ )
+            {
+                c2_index++;
+
+                if ( !( *c2 )->m_BorderFlag && ( *c2 )->m_SSIntersectIndex >= 0 && c1_index != c2_index )
+                {
+                    if ( ( *c1 )->m_TessVec.size() == ( *c2 )->m_TessVec.size() )
+                    {
+                        bool match = false;
+
+                        if ( dist( ( *c1 )->m_TessVec[0]->m_Pnt, ( *c2 )->m_TessVec[0]->m_Pnt ) <= FLT_EPSILON
+                             && dist( ( *c1 )->m_TessVec.back()->m_Pnt, ( *c2 )->m_TessVec.back()->m_Pnt ) <= FLT_EPSILON )
+                        {
+                            match = true;
+                        }
+                        else if ( dist( ( *c1 )->m_TessVec[0]->m_Pnt, ( *c2 )->m_TessVec.back()->m_Pnt ) <= FLT_EPSILON
+                                  && dist( ( *c1 )->m_TessVec.back()->m_Pnt, ( *c2 )->m_TessVec[0]->m_Pnt ) <= FLT_EPSILON )
+                        {
+                            match = true;
+                        }
+
+                        if ( match )
+                        {
+                            if ( ( *c1 )->m_SSIntersectIndex < ( *c2 )->m_SSIntersectIndex )
+                            {
+                                ( *c2 )->m_BorderFlag = false;
+                                ( *c2 )->m_SSIntersectIndex = -1;
+                            }
+                            else
+                            {
+                                ( *c1 )->m_BorderFlag = false;
+                                ( *c1 )->m_SSIntersectIndex = -1;
+                            }
                         }
                     }
                 }
