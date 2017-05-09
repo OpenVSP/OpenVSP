@@ -77,6 +77,7 @@ IF( NOT VSP_NO_GRAPHICS )
 	../geom_api/APITestSuite.cpp
     ../geom_api/APITestSuiteMassProp.cpp
     ../geom_api/APITestSuiteVSPAERO.cpp
+	../geom_api/APITestSuiteParasiteDrag.cpp
 	../vsp/main.h.in
 	)
 
@@ -117,6 +118,7 @@ apitest_main.cpp
 ../geom_api/APITestSuite.cpp
 ../geom_api/APITestSuiteMassProp.cpp
 ../geom_api/APITestSuiteVSPAERO.cpp
+../geom_api/APITestSuiteParasiteDrag.cpp
 ../vsp/main.h.in
 )
 

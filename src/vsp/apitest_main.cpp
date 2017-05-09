@@ -17,6 +17,7 @@
 #include "APITestSuite.h"
 #include "APITestSuiteMassProp.h"
 #include "APITestSuiteVSPAERO.h"
+#include "APITestSuiteParasiteDrag.h"
 #include "cpptest.h"
 
 
@@ -31,8 +32,9 @@ bool run_tests()
     // Add desired suites to parent suite
     Test::Suite ts;
     ts.add(std::auto_ptr<Test::Suite>(new APITestSuite));    //This line can be copied to add new test suites
-    ts.add(std::auto_ptr<Test::Suite>(new APITestSuiteVSPAERO));
     ts.add(std::auto_ptr<Test::Suite>(new APITestSuiteMassProp));
+    ts.add(std::auto_ptr<Test::Suite>(new APITestSuiteParasiteDrag));
+    ts.add(std::auto_ptr<Test::Suite>(new APITestSuiteVSPAERO));
     
     // Test Suite run parameters
     Test::TextOutput output(Test::TextOutput::Verbose);
