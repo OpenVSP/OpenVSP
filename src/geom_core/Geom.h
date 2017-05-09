@@ -595,7 +595,10 @@ public:
     BoolParm m_WakeActiveFlag;
 
     //==== Parasite Drag Parms ====//
+    IntParm m_FFBodyEqnType;
+    IntParm m_FFWingEqnType;
     Parm m_PercLam;
+    Parm m_FFUser;
     Parm m_Q;
     Parm m_Roughness;
     Parm m_TeTwRatio;

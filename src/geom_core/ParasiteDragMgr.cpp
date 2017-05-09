@@ -171,6 +171,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                 if (j > 0 && geom->GetSurfPtr(j)->GetSurfType() == geom->GetSurfPtr(j - 1)->GetSurfType())
                 {
                     geo_percLam.push_back(geo_percLam[geo_percLam.size() - 1]);
+                    geo_ffIn.push_back(geo_ffIn[geo_ffIn.size() - 1]);
                     geo_Q.push_back(geo_Q[geo_Q.size() - 1]);
                     geo_Roughness.push_back(geo_Roughness[geo_Roughness.size() - 1]);
                     geo_TeTwRatio.push_back(geo_TeTwRatio[geo_TeTwRatio.size() - 1]);
@@ -198,6 +199,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                         geo_surfNum.push_back(0);
                     }
                     geo_percLam.push_back(geom->m_PercLam());
+                    geo_ffIn.push_back(geom->m_FFUser());
                     geo_Q.push_back(geom->m_Q());
                     geo_Roughness.push_back(geom->m_Roughness());
                     geo_TeTwRatio.push_back(geom->m_TeTwRatio());
@@ -206,6 +208,14 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 
                 geo_shapeType.push_back(geom->GetSurfPtr(j)->GetSurfType()); // Form Factor Shape Type
 
+                if (geom->GetSurfPtr(j)->GetSurfType() == vsp::NORMAL_SURF)
+                {
+                    geo_ffType.push_back(geom->m_FFBodyEqnType());
+                }
+                else
+                {
+                    geo_ffType.push_back(geom->m_FFWingEqnType());
+                }
                 geo_geomID.push_back(geom->GetID());
                 geo_subsurfID.push_back("");
 
@@ -219,6 +229,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                 for (int k = 0; k < geom->GetNumTotalSurfs(); ++k)
                 {
                     geo_percLam.push_back(geo_percLam[geo_percLam.size() - 1]); //TODO: Add Perc Lam to SubSurf
+                    geo_ffIn.push_back(geo_ffIn[geo_ffIn.size() - 1]);
                     geo_Q.push_back(geo_Q[geo_Q.size() - 1]); // TODO: Add Q to SubSurf
                     geo_Roughness.push_back(geo_Roughness[geo_Roughness.size() - 1]); //TODO: Add Roughness to SubSurf
                     geo_TeTwRatio.push_back(geo_TeTwRatio[geo_TeTwRatio.size() - 1]);
@@ -227,6 +238,14 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 
                     geo_shapeType.push_back(geom->GetSurfPtr(k)->GetSurfType()); // Form Factor Shape Type
 
+                    if (geom->GetSurfPtr(k)->GetSurfType() == vsp::NORMAL_SURF)
+                    {
+                        geo_ffType.push_back(geom->m_FFBodyEqnType());
+                    }
+                    else
+                    {
+                        geo_ffType.push_back(geom->m_FFWingEqnType());
+                    }
                     geo_geomID.push_back(geom->GetID());
                     geo_subsurfID.push_back(geom->GetSubSurf(j)->GetID());
                     sprintf(str, "[ss] %s_%i", geom->GetSubSurfVec()[j]->GetName().c_str(), k);
@@ -620,6 +639,106 @@ void ParasiteDragMgrSingleton::Calculate_fineRat()
     }
 }
 
+void ParasiteDragMgrSingleton::Calculate_FF()
+{
+    // Initialize Variables
+    vector<double>::const_iterator it;
+    double toc;
+    double fin_rat, longF, Area;
+    vector <double> hVec, wVec;
+    int iSurf = 0;
+
+    for (int i = 0; i < m_RowSize; ++i)
+    {
+        if (!m_DegenGeomVec.empty())
+        { // If DegenGeom Exists Calculate Form Factor
+            if (geo_subsurfID[i].compare("") == 0)
+            {
+                // Grab Degen Sticks for Appropriate Geom
+                vector <DegenStick> degenSticks = m_DegenGeomVec[iSurf].getDegenSticks();
+
+                if (m_DegenGeomVec[iSurf].getType() == DegenGeom::SURFACE_TYPE)
+                { // Wing Type
+
+                    toc = geo_fineRat[i];
+
+                    Calculate_AvgSweep(degenSticks);
+
+                    geo_ffOut.push_back(CalcFFWing(toc, geo_ffType[i], geo_percLam[i], m_Sweep25, m_Sweep50));
+                    if (geo_ffType[i] == vsp::FF_W_JENKINSON_TAIL)
+                    {
+                        geo_Q[i] = 1.2;
+                    }
+                }
+                else if (m_DegenGeomVec[iSurf].getType() == DegenGeom::BODY_TYPE)
+                {
+                    // Get Fine Rat
+                    fin_rat = geo_fineRat[i];
+
+                    // Invert Fineness Ratio
+                    longF = pow(geo_fineRat[i], -1);
+
+                    // Max Cross Sectional Area
+                    Area = *max_element(degenSticks[0].areaTop.begin(), degenSticks[0].areaTop.end());
+
+                    geo_ffOut.push_back(CalcFFBody(longF, geo_ffType[i], geo_lref[i], Area));
+                }
+                else
+                {
+                    --i;
+                }
+                ++iSurf;
+            }
+            else
+            {
+                geo_ffOut.push_back(geo_ffOut[geo_ffOut.size() - 1]);
+                geo_ffName.push_back(geo_ffName[geo_ffName.size() - 1]);
+            }
+        }
+        // Else Push Back Default Val
+        else
+        {
+            geo_ffOut.push_back(-1);
+            geo_ffName.push_back("");
+        }
+    }
+}
+
+void ParasiteDragMgrSingleton::Calculate_AvgSweep(vector<DegenStick> degenSticks)
+{
+    // Find Quarter Chord Using Derived Eqn from Geometry
+    double width, secSweep25, secSweep50, secArea, weighted25Sum = 0, weighted50Sum = 0, totalArea = 0;
+    for (int j = 0; j < degenSticks[0].areaTop.size(); j++)
+    {
+        width = degenSticks[0].areaTop[j] /
+            ((degenSticks[0].perimTop[j] + degenSticks[0].perimTop[j + 1.0]) / 2.0);
+
+        // Section Quarter Chord Sweep
+        secSweep25 = atan(tan(degenSticks[0].sweeple[j] * PI / 180.0) +
+            (0.25 * ((degenSticks[0].chord[j] - degenSticks[0].chord[j + 1.0]) / width))) *
+            180.0 / PI;
+
+        // Section Half Chord Sweep
+        secSweep50 = atan(tan(degenSticks[0].sweeple[j] * PI / 180.0) +
+            (0.50 * ((degenSticks[0].chord[j] - degenSticks[0].chord[j + 1.0]) / width))) *
+            180.0 / PI;
+
+        // Section Area
+        secArea = degenSticks[0].chord[j] * width;
+
+        // Add Weighted Value to Weighted Sum
+        weighted25Sum += secArea*secSweep25;
+        weighted50Sum += secArea*secSweep50;
+
+        // Continue to sum up Total Area
+        totalArea += secArea;
+    }
+
+    // Calculate Sweep @ c/4 & c/2
+    m_Sweep25 = weighted25Sum / totalArea * PI / 180.0; // Into Radians
+    m_Sweep50 = weighted50Sum / totalArea * PI / 180.0; // Into Radians
+}
+
 // ================================== //
 // ====== Iterative Functions ======= //
 // ================================== //
@@ -849,6 +968,207 @@ double ParasiteDragMgrSingleton::CalcLamCf(double ReyIn, int cf_case)
     }
 
     return CfOut;
+}
+
+double ParasiteDragMgrSingleton::CalcFFWing(double toc, int ff_case,
+    double perc_lam = 0, double sweep25 = 0, double sweep50 = 0)
+{
+    // Values recreated using Plot Digitizer and fitted to a 3rd power polynomial
+    double Interval[] = { 0.25, 0.6, 0.8, 0.9 };
+    size_t nint = 4;
+    double ff;
+
+    switch (ff_case)
+    {
+    case vsp::FF_W_MANUAL:
+        ff = 1;
+        break;
+
+    case vsp::FF_W_EDET_CONV:
+        ff = 1.0 + toc*(2.94206 + toc*(7.16974 + toc*(48.8876 +
+            toc*(-1403.02 + toc*(8598.76 + toc*(-15834.3))))));
+        break;
+
+    case vsp::FF_W_EDET_ADV:
+        ff = 1.0 + 4.275 * toc;
+        break;
+
+    case vsp::FF_W_HOERNER:
+        ff = 1.0 + 2.0 * toc + 60.0 * pow(toc, 4.0);
+        break;
+
+    case vsp::FF_W_COVERT:
+        ff = 1.0 + 1.8 * toc + (50.0 * pow(toc, 4.0));
+        break;
+
+    case vsp::FF_W_SHEVELL:
+        double Z;
+        Z = ((2.0 - pow(m_Mach(), 2.0)) * cos(sweep25)) / (sqrt(1.0 -
+            (pow(m_Mach(), 2.0) * pow(cos(sweep25), 2))));
+        ff = 1.0 + (Z * toc) + (100.0 * pow(toc, 4.0));
+        break;
+
+    case vsp::FF_W_KROO:
+        double part1A, part1B, part2A, part2B;
+        part1A = (2.2 * pow(cos(sweep25), 2.0) * toc);
+        part1B = (sqrt(1.0 - (pow(m_Mach(), 2.0) * pow(cos(sweep25), 2.0))));
+        part2A = (4.84 * pow(cos(sweep25), 2.0)* (1.0 + 5.0 * pow(cos(sweep25), 2.0)) * pow(toc, 2.0));
+        part2B = (2.0 * (1.0 - (pow(m_Mach(), 2.0) * pow(cos(sweep25), 2.0))));
+        ff = 1.0 + (part1A / part1B) + (part2A / part2B);
+        break;
+
+    case vsp::FF_W_TORENBEEK:
+        ff = 1.0 + 2.7*toc + 100.0 * pow(toc, 4.0);
+        break;
+
+    case vsp::FF_W_DATCOM:
+        double L, Rls, x, RLS_Low, RLS_High;;
+
+        // L value Decided based on xtrans/c
+        if (perc_lam <= 0.30)
+            L = 2.0;
+        else
+            L = 1.2;
+
+        for (size_t i = 0; i < nint; ++i)
+        {
+            if (m_Mach() <= Interval[0])
+            {
+                Rls = -2.0292 * pow(cos(sweep25), 3.0) + 3.6345 * pow(cos(sweep25), 2.0) - 1.391 * cos(sweep25) + 0.8521;
+            }
+            else if (m_Mach() > Interval[3])
+            {
+                Rls = -1.8316 * pow(cos(sweep25), 3.0) + 3.3944 * pow(cos(sweep25), 2.0) - 1.3596 * cos(sweep25) + 1.1567;
+            }
+            else if (m_Mach() >= Interval[i])
+            {
+                x = (m_Mach() - Interval[i]) / (Interval[i + 1] - Interval[i]);
+                if (i == 0)
+                {
+                    RLS_Low = -2.0292 * pow(cos(sweep25), 3.0) + 3.6345 * pow(cos(sweep25), 2.0) - 1.391 * cos(sweep25) + 0.8521;
+                    RLS_High = -1.9735 * pow(cos(sweep25), 3.0) + 3.4504 * pow(cos(sweep25), 2.0) - 1.186 * cos(sweep25) + 0.858;
+                }
+                else if (i == 1)
+                {
+                    RLS_Low = -1.9735 * pow(cos(sweep25), 3.0) + 3.4504 * pow(cos(sweep25), 2.0) - 1.186 * cos(sweep25) + 0.858;
+                    RLS_High = -1.6538 * pow(cos(sweep25), 3.0) + 2.865 * pow(cos(sweep25), 2.0) - 0.886 * cos(sweep25) + 0.934;
+                }
+                else if (i == 2)
+                {
+                    RLS_Low = -1.6538 * pow(cos(sweep25), 3.0) + 2.865 * pow(cos(sweep25), 2.0) - 0.886 * cos(sweep25) + 0.934;
+                    RLS_High = -1.8316 * pow(cos(sweep25), 3.0) + 3.3944 * pow(cos(sweep25), 2.0) - 1.3596 * cos(sweep25) + 1.1567;
+                }
+
+                Rls = x * (RLS_High - RLS_Low) + RLS_Low;
+            }
+        }
+
+        ff = (1.0 + (L * toc) + 100.0 * pow(toc, 4.0)) * Rls;
+        break;
+
+    case vsp::FF_W_SCHEMENSKY_6_SERIES_AF:
+        ff = 1.0 + (1.44 * toc) + (2.0 * pow(toc, 2.0));
+        break;
+
+    case vsp::FF_W_SCHEMENSKY_4_SERIES_AF:
+        ff = 1.0 + (1.68 * toc) + (3.0 * pow(toc, 2.0));
+        break;
+
+        //case vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF :
+        //    geo_ffName.push_back("Schemensky Supercritical AF");
+        //    // Need Design Camber and Critical Mach #
+        //    double K1, deltaM;
+
+        //    deltaM = m_Mach() - Mcr;
+
+        //    if ( deltaM <= -0.2 )
+        //        K1 = 0.3;
+        //    else if ( deltaM > 0.2 && deltaM < 0.0 )
+        //        K1 = ( 6.7964 * pow( deltaM, 2 ) ) + ( 2.3605 * deltaM ) + 0.5059;
+        //    else if ( deltaM >= 0.0 )
+        //        K1 = 0.5;
+
+        //    ff =  1 + ( K1* C1d ) + ( 1.44 * toc ) + ( 2 * pow( toc, 2 ) ) );
+        //    break;
+
+    case vsp::FF_W_JENKINSON_WING:
+        double Fstar;
+
+        Fstar = 1.0 + (3.3 * toc) - (0.008 * pow(toc, 2.0)) + (27.0 * pow(toc, 3.0));
+
+        ff = ((Fstar - 1.0) * pow(cos(sweep50), 2.0)) + 1.0;
+        break;
+
+    case vsp::FF_W_JENKINSON_TAIL:
+
+        Fstar = 1.0 + 3.52 * toc;
+
+        ff = ((Fstar - 1.0) * pow(cos(sweep50), 2.0)) + 1.0;
+        break;
+
+    default:
+        ff = 0;
+    }
+    return ff;
+}
+
+double ParasiteDragMgrSingleton::CalcFFBody(double longF, double FR, int ff_case, double ref_leng, double max_x_area)
+{
+    double ff;
+    switch (ff_case)
+    {
+    case vsp::FF_B_MANUAL:
+        ff = 1.0;
+        break;
+
+    case vsp::FF_B_SCHEMENSKY_FUSE:
+        ff = 1.0 + (60.0 / pow(FR, 3.0)) + (0.0025 * FR);
+        break;
+
+    case vsp::FF_B_SCHEMENSKY_NACELLE:
+        ff = 1.0 + 0.35 / FR;
+        break;
+
+    case vsp::FF_B_HOERNER_STREAMBODY:
+        ff = 1.0 + (1.5 / pow(longF, 1.5)) +
+            (7.0 / pow(longF, 3.0));
+        break;
+
+    case vsp::FF_B_TORENBEEK:
+        ff = 1.0 + (2.2 / pow(longF, 1.5)) +
+            (3.8 / pow(longF, 3.0));
+        break;
+
+    case vsp::FF_B_SHEVELL:
+        ff = 1.0 + (2.8 / pow(longF, 1.5)) +
+            (3.8 / pow(longF, 3.0));
+        break;
+
+    case vsp::FF_B_JENKINSON_FUSE:
+        double Lambda;
+        Lambda = ref_leng / (pow((4.0 / PI) * max_x_area, 0.5));
+
+        ff = 1.0 + (2.2 / pow(Lambda, 1.5)) -
+            (0.9 / pow(Lambda, 3.0));
+        break;
+
+    case vsp::FF_B_JENKINSON_WING_NACELLE:
+        ff = 1.25;
+        break;
+
+    case vsp::FF_B_JENKINSON_AFT_FUSE_NACELLE:
+        ff = 1.5;
+        break;
+
+    case vsp::FF_B_JOBE:
+        ff = 1.02 + (1.5 / (pow(longF, 1.5))) + (7.0 / (0.6 * pow(longF, 3.0) * (1.0 - pow(m_Mach(), 3.0))));
+        break;
+
+    default:
+        ff = 0.0;
+        break;
+    }
+    return ff;
 }
 
 void ParasiteDragMgrSingleton::SetActiveGeomVec()
@@ -1162,6 +1482,7 @@ void ParasiteDragMgrSingleton::ClearInputVectors()
     geo_label.clear();
     geo_percLam.clear();
     geo_shapeType.clear();
+    geo_ffIn.clear();
     geo_Q.clear();
     geo_Roughness.clear();
     geo_TeTwRatio.clear();
@@ -1176,6 +1497,9 @@ void ParasiteDragMgrSingleton::ClearOutputVectors()
     geo_Re.clear();
     geo_cf.clear();
     geo_fineRat.clear();
+    geo_ffType.clear();
+    geo_ffName.clear();
+    geo_ffOut.clear();
 }
 
 void ParasiteDragMgrSingleton::DeactivateParms()

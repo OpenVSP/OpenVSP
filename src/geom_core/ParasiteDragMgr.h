@@ -97,11 +97,18 @@ public:
     void Calculate_Cf();
     void CalcPartialTurbulence(int i, double lref, double vinf, double kineVisc);
     void Calculate_fineRat();
+    void Calculate_FF();
+    void Calculate_AvgSweep(vector <DegenStick> degenSticks);
 
     // Switch Case Methods For Friction Coefficient Selections
     double CalcTurbCf(double ReyIn, double ref_leng, int cf_case, double roughness_h,
         double gamma, double taw_tw_ratio, double te_tw_ratio);
     double CalcLamCf(double ReyIn, int cf_case);
+
+    // Switch Case Methods for Form Factor Selections
+    double CalcFFWing(double toc, int ff_case, double perc_lam,
+        double sweep25, double sweep50);
+    double CalcFFBody(double longF, double FR, int ff_case, double ref_leng, double max_x_area);
 
     // Setter Methods
     void SetSref(double sref) { m_Sref.Set(sref); }
@@ -183,6 +190,11 @@ private:
     int m_ReynoldsPowerDivisor; // Used to create a fluid reynolds number display
     int m_RowSize;              // Number of rows for main table
 
+    // Form Factor Variables
+    // Some equations used quarter chord and others use half chord sweep angles
+    double m_Sweep25;
+    double m_Sweep50;
+
     // Main Build Up Table Variables
     vector <string> geo_geomID;
     vector <string> geo_subsurfID;
@@ -197,7 +209,11 @@ private:
     vector <double> geo_percLam;
     vector <double> geo_cf;
     vector <double> geo_fineRat;
+    vector <int> geo_ffType;
+    vector <string> geo_ffName;
     vector <int> geo_shapeType;
+    vector <double> geo_ffIn;
+    vector <double> geo_ffOut;
     vector <double> geo_Q;
 };
 

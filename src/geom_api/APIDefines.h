@@ -447,6 +447,34 @@ enum CF_TURB_EQN { CF_TURB_EXPLICIT_FIT_SPALDING = 0,
                    CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH
                  }; // Friction Coefficient Turbulent Eqns ENUM
 
+enum FF_W_EQN { FF_W_MANUAL = 0,
+                FF_W_EDET_CONV,
+                FF_W_EDET_ADV,
+                FF_W_HOERNER,
+                FF_W_COVERT,
+                FF_W_SHEVELL,
+                FF_W_KROO,
+                FF_W_TORENBEEK,
+                FF_W_DATCOM,
+                FF_W_SCHEMENSKY_6_SERIES_AF,
+                FF_W_SCHEMENSKY_4_SERIES_AF,
+                FF_W_JENKINSON_WING,
+                FF_W_JENKINSON_TAIL,
+                FF_W_SCHEMENSKY_SUPERCRITICAL_AF,
+              }; // FF Wing Eqn ENUM
+
+enum FF_B_EQN { FF_B_MANUAL = 0,
+                FF_B_SCHEMENSKY_FUSE,
+                FF_B_SCHEMENSKY_NACELLE,
+                FF_B_HOERNER_STREAMBODY,
+                FF_B_TORENBEEK,
+                FF_B_SHEVELL,
+                FF_B_JENKINSON_FUSE,
+                FF_B_JENKINSON_WING_NACELLE,
+                FF_B_JENKINSON_AFT_FUSE_NACELLE,
+                FF_B_JOBE
+              }; // FF Body Eqn ENUM
+
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)

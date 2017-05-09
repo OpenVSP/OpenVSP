@@ -839,6 +839,15 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
     m_PercLam.SetDescript("Percentage Laminar" );
 
+    m_FFBodyEqnType.Init("FFBodyEqnType", "ParasiteDragProps", this, vsp::FF_B_HOERNER_STREAMBODY, vsp::FF_B_MANUAL, vsp::FF_B_JOBE );
+    m_FFBodyEqnType.SetDescript("Equation that defines the form factor of a body type surface included this Geom");
+
+    m_FFWingEqnType.Init("FFWingEqnType", "ParasiteDragProps", this, vsp::FF_W_HOERNER, vsp::FF_W_MANUAL, vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF );
+    m_FFWingEqnType.SetDescript("Equation that defines the form factor of a wing type surface included this Geom");
+
+    m_FFUser.Init("FFUser", "ParasiteDragProps", this, -1, -1, 10 );
+    m_FFUser.SetDescript( "User Input Form Factor Value" );
+
     m_Q.Init("Q", "ParasiteDragProps", this, 1, 0, 3 );
     m_Q.SetDescript( "Interference Factor" );
 
