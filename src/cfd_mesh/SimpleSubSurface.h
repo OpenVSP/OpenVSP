@@ -54,6 +54,7 @@ public:
     int m_MainSurfIndx;
     bool m_IntersectionCapFlag;
     int m_ControlSurfType;
+    bool m_RemoveSubSurfTrisFlag;
 
 protected:
 

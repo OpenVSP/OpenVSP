@@ -452,7 +452,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSLineGroup.SetFitWidthFlag( false );
     m_FeaSSLineGroup.SetSameLineFlag( true );
-    m_FeaSSLineGroup.AddLabel( "Include Tris", buttonwidth );
+    m_FeaSSLineGroup.AddLabel( "Tag", buttonwidth );
     m_FeaSSLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
     m_FeaSSLineGroup.AddButton( m_FeaSSLineGreaterToggle, "Greater" );
     m_FeaSSLineGroup.AddButton( m_FeaSSLineLessToggle, "Less" );
@@ -469,6 +469,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSLineGroup.SetButtonWidth( buttonwidth );
     m_FeaSSLineGroup.SetChoiceButtonWidth( buttonwidth );
+
+    m_FeaSSLineGroup.AddButton( m_FeaSSLineRemoveTrisToggle, "RemoveSubSurfaceTris" );
 
     m_FeaSSLineGroup.AddChoice( m_FeaSSLinePropertyChoice, "Property" );
 
@@ -502,7 +504,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSRecGroup.SetFitWidthFlag( false );
     m_FeaSSRecGroup.SetSameLineFlag( true );
-    m_FeaSSRecGroup.AddLabel( "Include Tris", buttonwidth );
+    m_FeaSSRecGroup.AddLabel( "Tag", buttonwidth );
     m_FeaSSRecGroup.SetButtonWidth( m_FeaSSRecGroup.GetRemainX() / 3 );
     m_FeaSSRecGroup.AddButton( m_FeaSSRecInsideButton, "Inside" );
     m_FeaSSRecGroup.AddButton( m_FeaSSRecOutsideButton, "Outside" );
@@ -519,6 +521,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSRecGroup.SetButtonWidth( buttonwidth );
     m_FeaSSRecGroup.SetChoiceButtonWidth( buttonwidth );
+
+    m_FeaSSRecGroup.AddButton( m_FeaSSRecRemoveTrisToggle, "RemoveSubSurfaceTris" );
 
     m_FeaSSRecGroup.AddChoice( m_FeaSSRecPropertyChoice, "Property" );
 
@@ -546,7 +550,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSEllGroup.SetFitWidthFlag( false );
     m_FeaSSEllGroup.SetSameLineFlag( true );
-    m_FeaSSEllGroup.AddLabel( "Include Tris", buttonwidth );
+    m_FeaSSEllGroup.AddLabel( "Tag", buttonwidth );
     m_FeaSSEllGroup.SetButtonWidth( m_FeaSSEllGroup.GetRemainX() / 3 );
     m_FeaSSEllGroup.AddButton( m_FeaSSEllInsideButton, "Inside" );
     m_FeaSSEllGroup.AddButton( m_FeaSSEllOutsideButton, "Outside" );
@@ -563,6 +567,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSEllGroup.SetButtonWidth( buttonwidth );
     m_FeaSSEllGroup.SetChoiceButtonWidth( buttonwidth );
+
+    m_FeaSSEllGroup.AddButton( m_FeaSSEllRemoveTrisToggle, "RemoveSubSurfaceTris" );
 
     m_FeaSSEllGroup.AddChoice( m_FeaSSEllPropertyChoice, "Property" );
 
@@ -591,7 +597,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSConGroup.SetFitWidthFlag( false );
     m_FeaSSConGroup.SetSameLineFlag( true );
-    m_FeaSSConGroup.AddLabel( "Include Tris", buttonwidth );
+    m_FeaSSConGroup.AddLabel( "Tag", buttonwidth );
     m_FeaSSConGroup.SetButtonWidth( m_FeaSSConGroup.GetRemainX() / 3 );
     m_FeaSSConGroup.AddButton( m_FeaSSConInsideButton, "Inside" );
     m_FeaSSConGroup.AddButton( m_FeaSSConOutsideButton, "Outside" );
@@ -608,6 +614,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSConGroup.SetButtonWidth( buttonwidth );
     m_FeaSSConGroup.SetChoiceButtonWidth( buttonwidth );
+
+    m_FeaSSConGroup.AddButton( m_FeaSSConRemoveTrisToggle, "RemoveSubSurfaceTris" );
 
     m_FeaSSConGroup.AddChoice( m_FeaSSConPropertyChoice, "Property" );
 
@@ -1787,14 +1795,21 @@ bool StructScreen::Update()
                     m_FeaSSLineTestToggleGroup.Update( ssline->m_TestType.GetID() );
                     m_FeaSSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
                     m_FeaSSLineCapToggle.Update( ssline->m_IntersectionCapFlag.GetID() );
+                    m_FeaSSLineRemoveTrisToggle.Update( ssline->m_RemoveSubSurfTrisFlag.GetID() );
+
+                    m_FeaSSLinePropertyChoice.Activate();
+                    m_FeaSSLineRemoveTrisToggle.Activate();
 
                     if ( ssline->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSLinePropertyChoice.Deactivate();
+                        ssline->m_RemoveSubSurfTrisFlag.Set( false );
+                        m_FeaSSLineRemoveTrisToggle.Deactivate();
                     }
-                    else
+
+                    if ( ssline->m_RemoveSubSurfTrisFlag.Get() )
                     {
-                        m_FeaSSLinePropertyChoice.Activate();
+                        m_FeaSSLinePropertyChoice.Deactivate();
                     }
 
                     if ( ssline->m_IntersectionCapFlag() )
@@ -1820,14 +1835,21 @@ bool StructScreen::Update()
                     m_FeaSSRecWLenSlider.Update( ssrec->m_WLength.GetID() );
                     m_FeaSSRecThetaSlider.Update( ssrec->m_Theta.GetID() );
                     m_FeaSSRecCapToggle.Update( ssrec->m_IntersectionCapFlag.GetID() );
+                    m_FeaSSRecRemoveTrisToggle.Update( ssrec->m_RemoveSubSurfTrisFlag.GetID() );
+
+                    m_FeaSSRecPropertyChoice.Activate();
+                    m_FeaSSRecRemoveTrisToggle.Activate();
 
                     if ( ssrec->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSRecPropertyChoice.Deactivate();
+                        ssrec->m_RemoveSubSurfTrisFlag.Set( false );
+                        m_FeaSSRecRemoveTrisToggle.Deactivate();
                     }
-                    else
+
+                    if ( ssrec->m_RemoveSubSurfTrisFlag.Get() )
                     {
-                        m_FeaSSRecPropertyChoice.Activate();
+                        m_FeaSSRecPropertyChoice.Deactivate();
                     }
 
                     if ( ssrec->m_IntersectionCapFlag() )
@@ -1854,14 +1876,21 @@ bool StructScreen::Update()
                     m_FeaSSEllWLenSlider.Update( ssell->m_WLength.GetID() );
                     m_FeaSSEllThetaSlider.Update( ssell->m_Theta.GetID() );
                     m_FeaSSEllCapToggle.Update( ssell->m_IntersectionCapFlag.GetID() );
+                    m_FeaSSEllRemoveTrisToggle.Update( ssell->m_RemoveSubSurfTrisFlag.GetID() );
+
+                    m_FeaSSEllPropertyChoice.Activate();
+                    m_FeaSSEllRemoveTrisToggle.Activate();
 
                     if ( ssell->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSEllPropertyChoice.Deactivate();
+                        ssell->m_RemoveSubSurfTrisFlag.Set( false );
+                        m_FeaSSEllRemoveTrisToggle.Deactivate();
                     }
-                    else
+
+                    if ( ssell->m_RemoveSubSurfTrisFlag.Get() )
                     {
-                        m_FeaSSEllPropertyChoice.Activate();
+                        m_FeaSSEllPropertyChoice.Deactivate();
                     }
 
                     if ( ssell->m_IntersectionCapFlag() )
@@ -1891,14 +1920,21 @@ bool StructScreen::Update()
                     m_FeaSSConSEConstButton.Update( sscon->m_ConstFlag.GetID() );
                     m_FeaSSConLEFlagButton.Update( sscon->m_LEFlag.GetID() );
                     m_FeaSSConCapToggle.Update( sscon->m_IntersectionCapFlag.GetID() );
+                    m_FeaSSConRemoveTrisToggle.Update( sscon->m_RemoveSubSurfTrisFlag.GetID() );
+
+                    m_FeaSSConPropertyChoice.Activate();
+                    m_FeaSSConRemoveTrisToggle.Activate();
 
                     if ( sscon->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSConPropertyChoice.Deactivate();
+                        sscon->m_RemoveSubSurfTrisFlag.Set( false );
+                        m_FeaSSConRemoveTrisToggle.Deactivate();
                     }
-                    else
+
+                    if ( sscon->m_RemoveSubSurfTrisFlag.Get() )
                     {
-                        m_FeaSSConPropertyChoice.Activate();
+                        m_FeaSSConPropertyChoice.Deactivate();
                     }
 
                     if ( sscon->m_IntersectionCapFlag() )

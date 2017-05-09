@@ -60,6 +60,9 @@ SubSurface::SubSurface( string compID, int type )
     m_IntersectionCapFlag.Init( "IntersectionCapFlag", "FeaPart", this, false, false, true );
     m_IntersectionCapFlag.SetDescript( "Flag to Identify FeaElements at Intersections" );
 
+    m_RemoveSubSurfTrisFlag.Init( "RemoveSubSurfTrisFlag", "SubSurface", this, false, false, true );
+    m_RemoveSubSurfTrisFlag.SetDescript( "Flag to Remove SubSurface Tris after Mesh" );
+
     m_FeaPropertyIndex = 0; // Shell Property Default
     m_CapFeaPropertyIndex = 1; // Beam property default
 }

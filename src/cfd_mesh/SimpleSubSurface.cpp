@@ -43,6 +43,7 @@ void SimpleSubSurface::CopyFrom( SubSurface* ss )
         m_IntersectionCapFlag = ss->m_IntersectionCapFlag.Get();
         m_FeaPropertyIndex = ss->GetFeaPropertyIndex();
         m_CapFeaPropertyIndex = ss->GetCapFeaPropertyIndex();
+        m_RemoveSubSurfTrisFlag = ss->m_RemoveSubSurfTrisFlag.Get();
 
         ss->PrepareSplitVec();
 

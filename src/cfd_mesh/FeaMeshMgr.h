@@ -71,6 +71,7 @@ public:
     virtual void CheckFixPointIntersects();
     virtual void BuildFeaMesh();
 
+    virtual void RemoveSubSurfFeaTris();
     virtual void TagFeaNodes();
 
     virtual int GetTotalNumSurfs()

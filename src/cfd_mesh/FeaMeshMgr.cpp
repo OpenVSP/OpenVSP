@@ -260,6 +260,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Tag Fea Nodes\n" );
     TagFeaNodes();
 
+    RemoveSubSurfFeaTris();
+
     addOutputText( "Exporting Files\n" );
     ExportFeaMesh();
 
@@ -801,6 +803,25 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                         addOutputText( message );
                         break;
                     }
+                }
+            }
+        }
+    }
+}
+
+void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
+{
+    for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+    {
+        for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+        {
+            if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+            {
+                if ( m_SimpleSubSurfaceVec[i].m_RemoveSubSurfTrisFlag )
+                {
+                    delete m_FeaElementVec[j];
+                    m_FeaElementVec.erase( m_FeaElementVec.begin() + j );
+                    j--;
                 }
             }
         }
@@ -1401,7 +1422,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
         {
             string name = m_StructName + ":  " + m_SimpleSubSurfaceVec[i].GetName();
 
-            if ( m_SimpleSubSurfaceVec[i].m_TestType != vsp::NONE )
+            if ( m_SimpleSubSurfaceVec[i].m_TestType != vsp::NONE && !m_SimpleSubSurfaceVec[i].m_RemoveSubSurfTrisFlag )
             {
                 m_DrawBrowserNameVec.push_back( name );
                 m_DrawBrowserPartIndexVec.push_back( m_NumFeaParts + i );

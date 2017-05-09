@@ -247,6 +247,7 @@ private:
     ToggleButton m_FeaSSLineNoneToggle;
     ToggleRadioGroup m_FeaSSLineTestToggleGroup;
 
+    ToggleButton m_FeaSSLineRemoveTrisToggle;
     ToggleButton m_FeaSSLineCapToggle;
     Choice m_FeaSSLineCapPropertyChoice;
 
@@ -263,6 +264,7 @@ private:
     ToggleButton m_FeaSSRecNoneButton;
     ToggleRadioGroup m_FeaSSRecTestToggleGroup;
 
+    ToggleButton m_FeaSSRecRemoveTrisToggle;
     ToggleButton m_FeaSSRecCapToggle;
     Choice m_FeaSSRecCapPropertyChoice;
 
@@ -280,6 +282,7 @@ private:
     ToggleButton m_FeaSSEllNoneButton;
     ToggleRadioGroup m_FeaSSEllTestToggleGroup;
 
+    ToggleButton m_FeaSSEllRemoveTrisToggle;
     ToggleButton m_FeaSSEllCapToggle;
     Choice m_FeaSSEllCapPropertyChoice;
 
@@ -307,6 +310,7 @@ private:
     ToggleRadioGroup m_FeaSSConTestToggleGroup;
     Choice m_FeaSSConSurfTypeChoice;
 
+    ToggleButton m_FeaSSConRemoveTrisToggle;
     ToggleButton m_FeaSSConCapToggle;
     Choice m_FeaSSConCapPropertyChoice;
 
