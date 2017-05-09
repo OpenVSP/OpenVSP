@@ -26,8 +26,12 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     // Initial Values for certain variables
     SetDefaultStruct();
     m_Name = "ParasiteDragSettings";
+    m_FileName = "ParasiteDragBuildUp.csv";
     string groupname = "ParasiteDrag";
+    m_LamCfEqnName = "Blasius";
+    m_TurbCfEqnName = "Blasius Power Law";
     m_RefGeomID = "";
+    m_CurrentExcresIndex = -1;
     m_CompGeomResults = NULL;
 
     // ==== Parm Initialize and Description Setting ==== //
@@ -116,6 +120,9 @@ void ParasiteDragMgrSingleton::Renew()
 
     SetDefaultStruct();
 
+    m_FileName = "ParasiteDragBuildUp.csv";
+    m_LamCfEqnName = "Blasius";
+    m_TurbCfEqnName = "Blasius Power Law";
     m_RefGeomID = "";
 
     m_ExcresType = 0;
@@ -601,6 +608,9 @@ void ParasiteDragMgrSingleton::CalcPartialTurbulence(int i, double lref, double 
         double CfpartTurb = CalcTurbCf(ReLam, geo_lref[i], m_TurbCfEqnType(),
             m_SpecificHeatRatio(), geo_Roughness[i], geo_TawTwRatio[i], geo_TeTwRatio[i]);
 
+        m_TurbCfEqnName = AssignTurbCfEqnName(m_TurbCfEqnType());
+        m_LamCfEqnName = AssignLamCfEqnName(m_LamCfEqnType());
+
         geo_cf.push_back(CffullTurb - (CfpartTurb * LamPerc) +
             (CfpartLam * LamPerc));
     }
@@ -668,7 +678,7 @@ void ParasiteDragMgrSingleton::Calculate_FF()
     // Initialize Variables
     vector<double>::const_iterator it;
     double toc;
-    double fin_rat, longF, Area;
+    double fin_rat, longF, FR, Area;
     vector <double> hVec, wVec;
     int iSurf = 0;
 
@@ -693,6 +703,7 @@ void ParasiteDragMgrSingleton::Calculate_FF()
                     {
                         geo_Q[i] = 1.2;
                     }
+                    geo_ffName.push_back(AssignFFWingEqnName(geo_ffType[i]));
                 }
                 else if (m_DegenGeomVec[iSurf].getType() == DegenGeom::BODY_TYPE)
                 {
@@ -705,7 +716,11 @@ void ParasiteDragMgrSingleton::Calculate_FF()
                     // Max Cross Sectional Area
                     Area = *max_element(degenSticks[0].areaTop.begin(), degenSticks[0].areaTop.end());
 
-                    geo_ffOut.push_back(CalcFFBody(longF, geo_ffType[i], geo_lref[i], Area));
+                    // FR used by Schemensky
+                    FR = geo_lref[i]/ sqrt(Area);
+
+                    geo_ffOut.push_back(CalcFFBody(longF, FR, geo_ffType[i], geo_lref[i], Area));
+                    geo_ffName.push_back(AssignFFBodyEqnName(geo_ffType[i]));
                 }
                 else
                 {
@@ -1173,6 +1188,121 @@ double ParasiteDragMgrSingleton::CalcLamCf(double ReyIn, int cf_case)
     return CfOut;
 }
 
+string ParasiteDragMgrSingleton::AssignTurbCfEqnName(int cf_case)
+{
+    string eqn_name;
+    switch (cf_case)
+    {
+    case vsp::CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE:
+        eqn_name = "Compressible White-Christoph";
+        break;
+
+    case vsp::CF_TURB_SCHLICHTING_PRANDTL:
+        eqn_name = "Schlichting-Prandtl";
+        break;
+
+    case vsp::CF_TURB_SCHLICHTING_COMPRESSIBLE:
+        eqn_name = "Compressible Schlichting";
+        break;
+
+    case vsp::CF_TURB_SCHLICHTING_INCOMPRESSIBLE:
+        eqn_name = "Incompressible Schlichting";
+        break;
+
+    case vsp::CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR:
+        eqn_name = "Schultz-Grunow Schoenherr";
+        break;
+
+    case vsp::CF_TURB_SCHULTZ_GRUNOW_HIGH_RE:
+        eqn_name = "High Reynolds Number Schultz-Grunow";
+        break;
+
+    case vsp::CF_TURB_POWER_LAW_BLASIUS:
+        eqn_name = "Blasius Power Law";
+        break;
+
+    case vsp::CF_TURB_POWER_LAW_PRANDTL_LOW_RE:
+        eqn_name = "Low Reynolds Number Prandtl Power Law";
+        break;
+
+    case vsp::CF_TURB_POWER_LAW_PRANDTL_MEDIUM_RE:
+        eqn_name = "Medium Reynolds Number Prandtl Power Law";
+        break;
+
+    case vsp::CF_TURB_POWER_LAW_PRANDTL_HIGH_RE:
+        eqn_name = "High Reynolds Number Prandtl Power Law";
+        break;
+
+    case vsp::CF_TURB_EXPLICIT_FIT_SPALDING:
+        eqn_name = "Spalding Explicit Empirical Fit";
+        break;
+
+    case vsp::CF_TURB_EXPLICIT_FIT_SPALDING_CHI:
+        eqn_name = "Spalding-Chi Explicit Empirical Fit";
+        break;
+
+    case vsp::CF_TURB_EXPLICIT_FIT_SCHOENHERR:
+        eqn_name = "Schoenherr Explicit Empirical Fit";
+        break;
+
+    case vsp::CF_TURB_IMPLICIT_SCHOENHERR:
+        eqn_name = "Schoenherr Implicit";
+        break;
+
+    case vsp::CF_TURB_IMPLICIT_KARMAN:
+        eqn_name = "Von Karman Implicit";
+        break;
+
+    case vsp::CF_TURB_IMPLICIT_KARMAN_SCHOENHERR:
+        eqn_name = "Karman-Schoenherr Implicit";
+        break;
+
+    case vsp::CF_TURB_ROUGHNESS_WHITE:
+        eqn_name = "White Roughness";
+        break;
+
+    case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL:
+        eqn_name = "Schlichting Local Roughness";
+        break;
+
+    case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG:
+        eqn_name = "Schlichting Avg Roughness";
+        break;
+
+    case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION:
+        m_TurbCfEqnName = "Schlichting Avg Roughness w Flow Correctioin";
+        break;
+
+    case vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH:
+        eqn_name = "White-Christoph w Heat Transfer";
+        break;
+
+    default:
+        eqn_name = "ERROR";
+        break;
+    }
+    return eqn_name;
+}
+
+string ParasiteDragMgrSingleton::AssignLamCfEqnName(int cf_case)
+{
+    string eqn_name;
+    switch (cf_case)
+    {
+    case vsp::CF_LAM_BLASIUS:
+        eqn_name = "Blasius";
+        break;
+
+    case vsp::CF_LAM_BLASIUS_W_HEAT:
+        eqn_name = "Blasius w Heat Transfer";
+        break;
+
+    default:
+        eqn_name = "ERROR";
+    }
+    return eqn_name;
+}
+
 double ParasiteDragMgrSingleton::CalcFFWing(double toc, int ff_case,
     double perc_lam = 0, double sweep25 = 0, double sweep50 = 0)
 {
@@ -1372,6 +1502,125 @@ double ParasiteDragMgrSingleton::CalcFFBody(double longF, double FR, int ff_case
         break;
     }
     return ff;
+}
+
+string ParasiteDragMgrSingleton::AssignFFWingEqnName(int ff_case)
+{
+    string ff_name;
+    switch (ff_case)
+    {
+    case vsp::FF_W_MANUAL:
+        ff_name = "Manual";
+        break;
+
+    case vsp::FF_W_EDET_CONV:
+        ff_name = "EDET Conventional";
+        break;
+
+    case vsp::FF_W_EDET_ADV:
+        ff_name = "EDET Advanced";
+        break;
+
+    case vsp::FF_W_HOERNER:
+        ff_name = "Hoerner";
+        break;
+
+    case vsp::FF_W_COVERT:
+        ff_name = "Covert";
+        break;
+
+    case vsp::FF_W_SHEVELL:
+        ff_name = "Shevell";
+        break;
+
+    case vsp::FF_W_KROO:
+        ff_name = "Kroo";
+        break;
+
+    case vsp::FF_W_TORENBEEK:
+        ff_name = "Torenbeek";
+        break;
+
+    case vsp::FF_W_DATCOM:
+        ff_name = "DATCOM";
+        break;
+
+    case vsp::FF_W_SCHEMENSKY_6_SERIES_AF:
+        ff_name = "Schemensky 6 Series AF";
+        break;
+
+    case vsp::FF_W_SCHEMENSKY_4_SERIES_AF:
+        ff_name = "Schemensky 4 Series AF";
+        break;
+
+        //case vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF :
+        //    ff_name = "Schemensky Supercritical AF");
+        //    break;
+
+    case vsp::FF_W_JENKINSON_WING:
+        ff_name = "Jenkinson Wing";
+        break;
+
+    case vsp::FF_W_JENKINSON_TAIL:
+        ff_name = "Jenkinson Tail";
+        break;
+
+    default:
+        ff_name = "ERROR";
+    }
+    return ff_name;
+}
+
+string ParasiteDragMgrSingleton::AssignFFBodyEqnName(int ff_case)
+{
+    string ff_name;
+    switch (ff_case)
+    {
+    case vsp::FF_B_MANUAL:
+        ff_name = "Manual";
+        break;
+
+    case vsp::FF_B_SCHEMENSKY_FUSE:
+        ff_name = "Schemensky Fuselage";
+        break;
+
+    case vsp::FF_B_SCHEMENSKY_NACELLE:
+        ff_name = "Schemensky Nacelle";
+        break;
+
+    case vsp::FF_B_HOERNER_STREAMBODY:
+        ff_name = "Hoerner Streamlined Body";
+        break;
+
+    case vsp::FF_B_TORENBEEK:
+        ff_name = "Torenbeek";
+        break;
+
+    case vsp::FF_B_SHEVELL:
+        ff_name = "Shevell";
+        break;
+
+    case vsp::FF_B_JENKINSON_FUSE:
+        ff_name = "Jenkinson Fuselage";
+        break;
+
+    case vsp::FF_B_JENKINSON_WING_NACELLE:
+        ff_name = "Jenkinson Wing Nacelle";
+        break;
+
+    case vsp::FF_B_JENKINSON_AFT_FUSE_NACELLE:
+        ff_name = "Jenkinson Aft Fuse Nacelle";
+        break;
+
+    case vsp::FF_B_JOBE:
+        ff_name = "Jobe";
+        break;
+
+    default:
+        ff_name = "ERROR";
+        break;
+    }
+    return ff_name;
 }
 
 void ParasiteDragMgrSingleton::SetActiveGeomVec()
@@ -1711,6 +1960,9 @@ void ParasiteDragMgrSingleton::ConsolidateExcres()
 
 void ParasiteDragMgrSingleton::Update()
 {
+    // Update Filename
+    ParasiteDragMgr.m_FileName = VehicleMgr.GetVehicle()->getExportFileName(vsp::DRAG_BUILD_CSV_TYPE);
+
     UpdateRefWing();
 
     UpdateTempLimits();
@@ -2074,6 +2326,168 @@ void ParasiteDragMgrSingleton::UpdateParmActivity()
     }
 }
 
+void ParasiteDragMgrSingleton::UpdateExportLabels()
+{
+    string deg(1, 176);
+    string squared(1, 178);
+    string cubed(1, 179);
+
+    // Flow Qualities
+    switch (m_AltLengthUnit.Get())
+    {
+    case vsp::PD_UNITS_IMPERIAL:
+        m_RhoLabel = "Density (slug/ft^3)";
+        m_AltLabel = "Altitude (ft)";
+        break;
+
+    case vsp::PD_UNITS_METRIC:
+        m_RhoLabel = "Density (kg/m^3)";
+        m_AltLabel = "Altitude (m)";
+        break;
+    }
+
+    // Length
+    switch (m_LengthUnit.Get())
+    {
+    case vsp::LEN_MM:
+        m_LrefLabel = "L_ref (mm)";
+        m_SrefLabel = "S_ref (mm^2)";
+        m_fLabel = "f (mm^2)";
+        m_SwetLabel = "S_wet (mm^2)";
+        break;
+
+    case vsp::LEN_CM:
+        m_LrefLabel = "L_ref (cm)";
+        m_SrefLabel = "S_ref (cm^2)";
+        m_fLabel = "f (cm^2)";
+        m_SwetLabel = "S_wet (cm^2)";
+        break;
+
+    case vsp::LEN_M:
+        m_LrefLabel = "L_ref (m)";
+        m_SrefLabel = "S_ref (m^2)";
+        m_fLabel = "f (m^2)";
+        m_SwetLabel = "S_wet (m^2)";
+        break;
+
+    case vsp::LEN_IN:
+        m_LrefLabel = "L_ref (in)";
+        m_SrefLabel = "S_ref (in^2)";
+        m_fLabel = "f (in^2)";
+        m_SwetLabel = "S_wet (in^2)";
+        break;
+
+    case vsp::LEN_FT:
+        m_LrefLabel = "L_ref (ft)";
+        m_SrefLabel = "S_ref (ft^2)";
+        m_fLabel = "f (ft^2)";
+        m_SwetLabel = "S_wet (ft^2)";
+        break;
+
+    case vsp::LEN_YD:
+        m_LrefLabel = "L_ref (yd)";
+        m_SrefLabel = "S_ref (yd^2)";
+        m_fLabel = "f (yd^2)";
+        m_SwetLabel = "S_wet (yd^2)";
+        break;
+
+    case vsp::LEN_UNITLESS:
+        m_LrefLabel = "L_ref (LU)";
+        m_SrefLabel = "S_ref (LU^2)";
+        m_fLabel = "f (LU^2)";
+        m_SwetLabel = "S_wet (LU^2)";
+        break;
+    }
+
+    // Vinf
+    switch (m_VinfUnitType.Get())
+    {
+    case vsp::V_UNIT_FT_S:
+        m_VinfLabel = "Vinf (ft/s)";
+        break;
+
+    case vsp::V_UNIT_M_S:
+        m_VinfLabel = "Vinf (m/s)";
+        break;
+
+    case vsp::V_UNIT_KEAS:
+        m_VinfLabel = "Vinf (KEAS)";
+        break;
+
+    case vsp::V_UNIT_KTAS:
+        m_VinfLabel = "Vinf (KTAS)";
+        break;
+
+    case vsp::V_UNIT_MPH:
+        m_VinfLabel = "Vinf (mph)";
+        break;
+
+    case vsp::V_UNIT_KM_HR:
+        m_VinfLabel = "Vinf (km/hr)";
+        break;
+    }
+
+    // Temperature
+    switch (m_TempUnit.Get())
+    {
+    case vsp::TEMP_UNIT_C:
+        m_TempLabel = "Temp (" + deg + "C)";
+        break;
+
+    case vsp::TEMP_UNIT_F:
+        m_TempLabel = "Temp (" + deg + "F)";
+        break;
+
+    case vsp::TEMP_UNIT_K:
+        m_TempLabel = "Temp (K)";
+        break;
+
+    case vsp::TEMP_UNIT_R:
+        m_TempLabel = "Temp (" + deg + "R)";
+        break;
+    }
+
+    // Pressure
+    switch (m_PresUnit())
+    {
+    case vsp::PRES_UNIT_PSF:
+        m_PresLabel = "Pressure (lbf/ft^2)";
+        break;
+
+    case vsp::PRES_UNIT_PSI:
+        m_PresLabel = "Pressure (lbf/in^2)";
+        break;
+
+    case vsp::PRES_UNIT_PA:
+        m_PresLabel = "Pressure (Pa)";
+        break;
+
+    case vsp::PRES_UNIT_KPA:
+        m_PresLabel = "Pressure (kPa)";
+        break;
+
+    case vsp::PRES_UNIT_INCHHG:
+        m_PresLabel = "Pressure (\"Hg)";
+        break;
+
+    case vsp::PRES_UNIT_MMHG:
+        m_PresLabel = "Pressure (mmHg)";
+        break;
+
+    case vsp::PRES_UNIT_MMH20:
+        m_PresLabel = "Pressure (mmH20)";
+        break;
+
+    case vsp::PRES_UNIT_MB:
+        m_PresLabel = "Pressure (mB)";
+        break;
+
+    case vsp::PRES_UNIT_ATM:
+        m_PresLabel = "Pressure (atm)";
+        break;
+    }
+}
+
 void ParasiteDragMgrSingleton::UpdateExcres()
 {
     // Updates Current Excres Value & Updates Excres Values that are a % of Cd_Geom
@@ -2157,6 +2571,92 @@ void ParasiteDragMgrSingleton::UpdateCurrentExcresVal()
         m_ExcresValue.SetLowerUpperLimits(0.0, 10.0);
     }
     m_ExcresValue.Set(m_ExcresRowVec[m_CurrentExcresIndex].Input);
+}
+
+string ParasiteDragMgrSingleton::ExportToCSV()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    // Create Results
+    Results* res = ResultsMgr.CreateResults("Parasite_Drag");
+
+    // Add Results to ResultsMgr
+    UpdateExcres();
+    UpdateExportLabels();
+
+    res->Add(NameValData("Alt_Label", m_AltLabel));
+    res->Add(NameValData("Vinf_Label", m_VinfLabel));
+    res->Add(NameValData("Sref_Label", m_SrefLabel));
+    res->Add(NameValData("Temp_Label", m_TempLabel));
+    res->Add(NameValData("Pres_Label", m_PresLabel));
+    res->Add(NameValData("Rho_Label", m_RhoLabel));
+    res->Add(NameValData("LamCfEqnName", m_LamCfEqnName));
+    res->Add(NameValData("TurbCfEqnName", m_TurbCfEqnName));
+    res->Add(NameValData("Swet_Label", m_SwetLabel));
+    res->Add(NameValData("Lref_Label", m_LrefLabel));
+    res->Add(NameValData("f_Label", m_fLabel));
+
+    // Flow Condition
+    res->Add(NameValData("FC_Mach", m_Mach()));
+    res->Add(NameValData("FC_Alt", m_Hinf.Get()));
+    res->Add(NameValData("FC_Vinf", m_Vinf.Get()));
+    res->Add(NameValData("FC_Sref", m_Sref.Get()));
+    res->Add(NameValData("FC_Temp", m_Temp.Get()));
+    res->Add(NameValData("FC_Pres", m_Pres.Get()));
+    res->Add(NameValData("FC_Rho", m_Rho.Get()));
+
+    // Component Related
+    res->Add(NameValData("Num_Comp", m_RowSize));
+    res->Add(NameValData("Comp_ID", geo_geomID));
+    res->Add(NameValData("Comp_Label", geo_label));
+    res->Add(NameValData("Comp_Swet", geo_swet));
+    res->Add(NameValData("Comp_Lref", geo_lref));
+    res->Add(NameValData("Comp_Re", geo_Re));
+    res->Add(NameValData("Comp_PercLam", geo_percLam));
+    res->Add(NameValData("Comp_Cf", geo_cf));
+    res->Add(NameValData("Comp_FineRat", geo_fineRat));
+    res->Add(NameValData("Comp_FFEqn", geo_ffType));
+    res->Add(NameValData("Comp_FFEqnName", geo_ffName));
+    res->Add(NameValData("Comp_FFIn", geo_ffIn));
+    res->Add(NameValData("Comp_FFOut", geo_ffOut));
+    res->Add(NameValData("Comp_Roughness", geo_Roughness));
+    res->Add(NameValData("Comp_TeTwRatio", geo_TeTwRatio));
+    res->Add(NameValData("Comp_TawTwRatio", geo_TawTwRatio));
+    res->Add(NameValData("Comp_Q", geo_Q));
+    res->Add(NameValData("Comp_f", geo_f));
+    res->Add(NameValData("Comp_Cd", geo_Cd));
+    res->Add(NameValData("Comp_PercTotalCd", geo_percTotalCd));
+    res->Add(NameValData("Comp_SurfNum", geo_surfNum));
+
+    // Excres Related
+    res->Add(NameValData("Num_Excres", (int)m_ExcresRowVec.size()));
+    res->Add(NameValData("Excres_Label", excres_Label));
+    res->Add(NameValData("Excres_Type", excres_Type));
+    res->Add(NameValData("Excres_Input", excres_Input));
+    res->Add(NameValData("Excres_Amount", excres_Amount));
+    res->Add(NameValData("Excres_PercTotalCd", excres_PercTotalCd));
+
+    // Totals
+    res->Add(NameValData("Geom_f_Total", GetGeomfTotal()));
+    res->Add(NameValData("Geom_Cd_Total", GetGeometryCd()));
+    res->Add(NameValData("Geom_Perc_Total", GetGeomPercTotal()));
+    res->Add(NameValData("Excres_f_Total", GetExcresfTotal()));
+    res->Add(NameValData("Excres_Cd_Total", GetTotalExcresCD()));
+    res->Add(NameValData("Excres_Perc_Total", GetExcresPercTotal()));
+    res->Add(NameValData("Total_f_Total", GetfTotal()));
+    res->Add(NameValData("Total_Cd_Total", GetTotalCD()));
+    res->Add(NameValData("Total_Perc_Total", GetPercTotal()));
+
+    string f_name = veh->getExportFileName(vsp::DRAG_BUILD_CSV_TYPE);
+    res->WriteParasiteDragFile(f_name);
+
+    return res->GetID();
+}
+
+string ParasiteDragMgrSingleton::ExportToCSV(const string & file_name)
+{
+    m_FileName = file_name;
+    return ExportToCSV();
 }
 
 // ========================================================== //

@@ -111,11 +111,15 @@ public:
     double CalcTurbCf(double ReyIn, double ref_leng, int cf_case, double roughness_h,
         double gamma, double taw_tw_ratio, double te_tw_ratio);
     double CalcLamCf(double ReyIn, int cf_case);
+    string AssignTurbCfEqnName(int cf_case);
+    string AssignLamCfEqnName(int cf_case);
 
     // Switch Case Methods for Form Factor Selections
     double CalcFFWing(double toc, int ff_case, double perc_lam,
         double sweep25, double sweep50);
     double CalcFFBody(double longF, double FR, int ff_case, double ref_leng, double max_x_area);
+    string AssignFFWingEqnName(int ff_case);
+    string AssignFFBodyEqnName(int ff_case);
 
     // Setter Methods
     void SetSref(double sref) { m_Sref.Set(sref); }
@@ -171,8 +175,13 @@ public:
     void UpdatePres(int newunit);
     void UpdatePercentageCD();
     void UpdateParmActivity();
+    void UpdateExportLabels();
     void UpdateExcres();
     void UpdateCurrentExcresVal();
+
+    // Export Methods
+    string ExportToCSV();
+    string ExportToCSV(const string & file_name);
 
     // General Methods
     void ClearInputVectors();
@@ -226,6 +235,22 @@ public:
     Parm m_KineVisc;
     Parm m_Mach;
     Parm m_ReqL;
+
+    // CSV File Name Default
+    string m_FileName;
+
+    // Labels for Export
+    string m_SwetLabel;
+    string m_LrefLabel;
+    string m_fLabel;
+    string m_AltLabel;
+    string m_VinfLabel;
+    string m_TempLabel;
+    string m_PresLabel;
+    string m_RhoLabel;
+    string m_SrefLabel;
+    string m_TurbCfEqnName;
+    string m_LamCfEqnName;
 
 private:
     ParasiteDragMgrSingleton();
