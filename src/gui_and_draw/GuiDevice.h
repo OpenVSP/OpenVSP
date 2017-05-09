@@ -388,6 +388,7 @@ public:
     virtual ~ToggleRadioGroup()         {}
     virtual void Init( VspScreen* screen );
     virtual void AddButton( Fl_Button* button );
+    virtual void ClearButtons();
     virtual void DeviceCB( Fl_Widget* w );
 
     virtual void SetValMapVec( vector< int > & val_map_vec );
@@ -475,6 +476,11 @@ public:
     virtual void SetOffset( int o )
     {
         m_Offset = o;
+    }
+
+    virtual Fl_Choice* GetFlChoice()
+    {
+        return m_Choice;
     }
 
 

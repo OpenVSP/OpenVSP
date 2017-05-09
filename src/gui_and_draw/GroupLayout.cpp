@@ -1079,7 +1079,8 @@ Fl_Check_Browser* GroupLayout::AddCheckBrowser( int h )
 void GroupLayout::AddLabel( const char* label, int width )
 {
 
-    Fl_Button* button = new Fl_Button( m_X, m_Y, width, m_StdHeight, label );
+    Fl_Button* button = new Fl_Button( m_X, m_Y, width, m_StdHeight );
+    button->copy_label( label );
     button->box( FL_THIN_UP_BOX );
     button->labelfont( 1 );
     button->labelsize( 12 );

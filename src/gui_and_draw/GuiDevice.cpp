@@ -1185,6 +1185,12 @@ void ToggleRadioGroup::AddButton( Fl_Button* button )
     button->callback( StaticDeviceCB, this );
 }
 
+void ToggleRadioGroup::ClearButtons()
+{
+    ClearAllWidgets();
+    m_ButtonVec.clear();
+}
+
 //==== Set Button Value ====//
 void ToggleRadioGroup::SetValAndLimits( Parm* p )
 {
