@@ -860,6 +860,8 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
     m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
 
+    m_GroupedAncestorGen.Init("IncorporatedGen", "ParasiteDragProps", this, 0, 0, 100);
+    m_GroupedAncestorGen.SetDescript("Ancestor Generation that incorporates this geoms Swet");
 
     m_ExpandedListFlag.Init("ExpandedList", "ParasiteDragProps", this, false, false, true);
     m_ExpandedListFlag.SetDescript("Flag to determine whether or not this geom has a collapsed list in parasite drag");

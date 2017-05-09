@@ -603,6 +603,7 @@ public:
     Parm m_Roughness;
     Parm m_TeTwRatio;
     Parm m_TawTwRatio;
+    IntParm m_GroupedAncestorGen;
     BoolParm m_ExpandedListFlag;
 
     //==== Basic Geom XSec Functions - Override ====//

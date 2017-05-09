@@ -183,6 +183,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                 // Custom Geom Check: if surf type is the same, apply same qualities
                 if (j > 0 && geom->GetSurfPtr(j)->GetSurfType() == geom->GetSurfPtr(j - 1)->GetSurfType())
                 {
+                    geo_groupedAncestorGen.push_back(geom->m_GroupedAncestorGen());
                     geo_percLam.push_back(geo_percLam[geo_percLam.size() - 1]);
                     geo_ffIn.push_back(geo_ffIn[geo_ffIn.size() - 1]);
                     geo_Q.push_back(geo_Q[geo_Q.size() - 1]);
@@ -212,6 +213,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                         sprintf(str, "%s", geom->GetName().c_str());
                         geo_surfNum.push_back(0);
                     }
+                    geo_groupedAncestorGen.push_back(geom->m_GroupedAncestorGen());
                     geo_percLam.push_back(geom->m_PercLam());
                     geo_ffIn.push_back(geom->m_FFUser());
                     geo_Q.push_back(geom->m_Q());
@@ -243,6 +245,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
             {
                 for (int k = 0; k < geom->GetNumTotalSurfs(); ++k)
                 {
+                    geo_groupedAncestorGen.push_back(-1);
                     geo_percLam.push_back(geo_percLam[geo_percLam.size() - 1]); //TODO: Add Perc Lam to SubSurf
                     geo_ffIn.push_back(geo_ffIn[geo_ffIn.size() - 1]);
                     geo_Q.push_back(geo_Q[geo_Q.size() - 1]); // TODO: Add Q to SubSurf
@@ -860,6 +863,7 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
     Calculate_Cf();
     Calculate_fineRat();
     Calculate_FF();
+    OverwritePropertiesFromAncestorGeom();
     Calculate_f();
     Calculate_Cd();
 
@@ -871,6 +875,7 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
     ParasiteDragTableRow tempStruct = m_DefaultStruct;
     for (int i = 0; i < m_RowSize; i++)
     {
+        tempStruct.GroupedAncestorGen = geo_groupedAncestorGen[i];
         tempStruct.GeomID = geo_geomID[i];
         tempStruct.SubSurfID = geo_subsurfID[i];
         tempStruct.Label = geo_label[i];
@@ -903,6 +908,32 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
         tempStruct.ExpandedList = geo_expandedList[i];
 
         m_TableRowVec[i] = tempStruct;
+    }
+}
+
+void ParasiteDragMgrSingleton::OverwritePropertiesFromAncestorGeom()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    for (size_t i = 0; i < m_RowSize; ++i)
+    {
+        if (geo_groupedAncestorGen[i] > 0)
+        {
+            for (size_t j = 0; j < m_RowSize; ++j)
+            {
+                if (geo_geomID[j].compare(veh->FindGeom(geo_geomID[i])->GetAncestorID(geo_groupedAncestorGen[i])) == 0 &&
+                    geo_surfNum[j] == 0)
+                {
+                    geo_lref[i] = geo_lref[j];
+                    geo_Re[i] = geo_Re[j];
+                    geo_fineRat[i] = geo_fineRat[j];
+                    geo_ffOut[i] = geo_ffOut[j];
+                    geo_ffType[i] = geo_ffType[j];
+                    geo_percLam[i] = geo_percLam[j];
+                    geo_Q[i] = geo_Q[j];
+                    geo_cf[i] = geo_cf[j];
+                }
+            }
+        }
     }
 }
 
@@ -2080,6 +2111,7 @@ void ParasiteDragMgrSingleton::ClearInputVectors()
 
 void ParasiteDragMgrSingleton::ClearOutputVectors()
 {
+    geo_groupedAncestorGen.clear();
     geo_swet.clear();
     geo_lref.clear();
     geo_Re.clear();
@@ -2092,10 +2124,6 @@ void ParasiteDragMgrSingleton::ClearOutputVectors()
     geo_Cd.clear();
     geo_percTotalCd.clear();
 }
-
-// ========================================================== //
-// ================ Miscellaneous Methods =================== //
-// ========================================================== //
 
 void ParasiteDragMgrSingleton::DeactivateParms()
 {
@@ -2161,6 +2189,54 @@ bool ParasiteDragMgrSingleton::IsSameGeomSet()
 
 bool ParasiteDragMgrSingleton::IsNotZeroLineItem(int index)
 {
+    // IF NOT subsurface
+    // =============
+    // 0th surface (e.g. WingGeom_0)
+    // OR
+    // List is Expanded
+    // OR
+    // is a custom geom (TODO could use work)
+    // =============
+    // AND
+    // =============
+    // Not grouped with ANY ancestors
+    // OR
+    // Any ancestors have expanded lists
+    // OR
+    // Has an expanded list
+    // =============
+    // Else 
+    // =============
+    // Sub surface is included in wetted area
+    // AND
+    // Geom has an expanded list
+
+    // If incorporated, swet is added to choosen ancestor
+    // Main surf will never be a zero line item
+    // Custom types can have several geom types in them
+    // If Geom list is expanded all components use their individual swets
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if (geo_subsurfID[index].compare("") == 0)
+    {
+        if (((geo_surfNum[index] == 0) ||
+            (veh->FindGeom(geo_geomID[index])->m_ExpandedListFlag()) ||
+            (geo_label[index].substr(0, 3).compare("[W]") == 0 || geo_label[index].substr(0, 3).compare("[B]") == 0)) &&
+            (geo_groupedAncestorGen[index] == 0 ||
+            (veh->FindGeom(veh->FindGeom(geo_geomID[index])->GetAncestorID(geo_groupedAncestorGen[index]))->m_ExpandedListFlag()) ||
+                veh->FindGeom(geo_geomID[index])->m_ExpandedListFlag()))
+        {
+            return true;
+        }
+    }
+    else
+    {
+        if (veh->FindGeom(geo_geomID[index])->GetSubSurf(geo_subsurfID[index])->m_IncludeFlag() &&
+            veh->FindGeom(geo_geomID[index])->m_ExpandedListFlag())
+        {
+            return true;
+        }
+    }
+
     return false;
 }
 

@@ -103,6 +103,9 @@ public:
     void Calculate_Cd();
     void Calculate_ALL();
 
+    // Grouped Geom Overwrite methods
+    void OverwritePropertiesFromAncestorGeom();
+
     // Switch Case Methods For Friction Coefficient Selections
     double CalcTurbCf(double ReyIn, double ref_leng, int cf_case, double roughness_h,
         double gamma, double taw_tw_ratio, double te_tw_ratio);
@@ -243,6 +246,7 @@ private:
     vector <string> geo_subsurfID;
     vector <string> geo_label;
     vector < int > geo_surfNum;
+    vector < int > geo_groupedAncestorGen;
     vector < bool > geo_expandedList;
     vector <double> geo_swet;
     vector <double> geo_lref;
