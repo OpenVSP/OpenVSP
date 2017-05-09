@@ -413,6 +413,13 @@ enum RHO_UNITS { RHO_UNIT_SLUG_FT3 = 0,
                  RHO_UNIT_LBF_FT3
                }; // Rho Units ENUM
 
+enum ATMOS_TYPE { ATMOS_TYPE_US_STANDARD_1976 = 0,
+                  ATMOS_TYPE_HERRINGTON_1966,
+                  ATMOS_TYPE_MANUAL_P_R,
+                  ATMOS_TYPE_MANUAL_P_T,
+                  ATMOS_TYPE_MANUAL_R_T,
+                  ATMOS_TYPE_MANUAL_RE_L }; // Flowstream Type
+
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)

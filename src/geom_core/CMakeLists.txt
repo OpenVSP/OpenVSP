@@ -28,6 +28,7 @@ AdvLink.cpp
 AdvLinkMgr.cpp
 Airfoil.cpp
 AnalysisMgr.cpp
+Atmosphere.cpp
 BlankGeom.cpp
 CfdMeshSettings.cpp
 ClippingMgr.cpp
@@ -85,6 +86,7 @@ AdvLink.h
 AdvLinkMgr.h
 Airfoil.h
 AnalysisMgr.h
+Atmosphere.h
 BlankGeom.h
 CfdMeshSettings.h
 ClippingMgr.h

@@ -1113,6 +1113,21 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_KG_M3", RHO_UNIT_KG_M3 );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "ATMOS_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_US_STANDARD_1976", ATMOS_TYPE_US_STANDARD_1976 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_HERRINGTON_1966", ATMOS_TYPE_HERRINGTON_1966 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_MANUAL_P_R", ATMOS_TYPE_MANUAL_P_R );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_mANUAL_P_T", ATMOS_TYPE_MANUAL_P_T );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_MANUAL_R_T", ATMOS_TYPE_MANUAL_R_T );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_MANUAL_RE_L", ATMOS_TYPE_MANUAL_RE_L );
+    assert( r >= 0 );
+
 
 }
 
