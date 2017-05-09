@@ -69,6 +69,7 @@ void FeaMeshMgrSingleton::CleanUp()
     m_FixPntFeaPartIndexVec.clear();
     m_FixPntSurfIndVec.clear();
     m_FixPntBorderFlagVec.clear();
+    m_FixPntMagicVVec.clear();
 
     m_DrawBrowserNameVec.clear();
     m_DrawBrowserPartIndexVec.clear();

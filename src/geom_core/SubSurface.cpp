@@ -57,7 +57,7 @@ SubSurface::SubSurface( string compID, int type )
     m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
     m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
 
-    m_IntersectionCapFlag.Init( "IntersectionCapFlag", "FeaPart", this, false, false, true );
+    m_IntersectionCapFlag.Init( "IntersectionCapFlag", "SubSurface", this, false, false, true );
     m_IntersectionCapFlag.SetDescript( "Flag to Identify FeaElements at Intersections" );
 
     m_RemoveSubSurfTrisFlag.Init( "RemoveSubSurfTrisFlag", "SubSurface", this, false, false, true );

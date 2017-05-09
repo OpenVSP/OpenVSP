@@ -683,10 +683,8 @@ protected:
     bool m_ForceXSecFlag; // Flag to force feature lines at xsecs
 
 //  //==== Structure Parts ====//
-//  int currPartID;
-//  vector< Part* > partVec;
 
-    vector< FeaStructure* > m_FeaStructVec;     // Vector of All FeaStructures
+    vector< FeaStructure* > m_FeaStructVec;     // Vector of FeaStructures for this Geom
     int m_FeaStructCount; // Counter used for creating unique name for structures
 
     //==== CFD Mesh Sources ====//

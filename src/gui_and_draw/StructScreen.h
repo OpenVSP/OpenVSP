@@ -241,12 +241,10 @@ private:
     ToggleButton m_FeaSSLineConstUButton;
     ToggleButton m_FeaSSLineConstWButton;
     ToggleRadioGroup m_FeaSSLineConstToggleGroup;
-
     ToggleButton m_FeaSSLineGreaterToggle;
     ToggleButton m_FeaSSLineLessToggle;
     ToggleButton m_FeaSSLineNoneToggle;
     ToggleRadioGroup m_FeaSSLineTestToggleGroup;
-
     ToggleButton m_FeaSSLineRemoveTrisToggle;
     ToggleButton m_FeaSSLineCapToggle;
     Choice m_FeaSSLineCapPropertyChoice;
@@ -263,7 +261,6 @@ private:
     ToggleButton m_FeaSSRecOutsideButton;
     ToggleButton m_FeaSSRecNoneButton;
     ToggleRadioGroup m_FeaSSRecTestToggleGroup;
-
     ToggleButton m_FeaSSRecRemoveTrisToggle;
     ToggleButton m_FeaSSRecCapToggle;
     Choice m_FeaSSRecCapPropertyChoice;
@@ -281,7 +278,6 @@ private:
     ToggleButton m_FeaSSEllOutsideButton;
     ToggleButton m_FeaSSEllNoneButton;
     ToggleRadioGroup m_FeaSSEllTestToggleGroup;
-
     ToggleButton m_FeaSSEllRemoveTrisToggle;
     ToggleButton m_FeaSSEllCapToggle;
     Choice m_FeaSSEllCapPropertyChoice;
@@ -295,21 +291,16 @@ private:
     SliderAdjRangeInput m_FeaSSConSLenSlider;
     SliderAdjRangeInput m_FeaSSConEFracSlider;
     SliderAdjRangeInput m_FeaSSConELenSlider;
-
     ToggleButton m_FeaSSConSAbsButton;
     ToggleButton m_FeaSSConSRelButton;
     ToggleRadioGroup m_FeaSSConSAbsRelToggleGroup;
-
     ToggleButton m_FeaSSConSEConstButton;
-
     ToggleButton m_FeaSSConLEFlagButton;
-
     ToggleButton m_FeaSSConInsideButton;
     ToggleButton m_FeaSSConOutsideButton;
     ToggleButton m_FeaSSConNoneButton;
     ToggleRadioGroup m_FeaSSConTestToggleGroup;
     Choice m_FeaSSConSurfTypeChoice;
-
     ToggleButton m_FeaSSConRemoveTrisToggle;
     ToggleButton m_FeaSSConCapToggle;
     Choice m_FeaSSConCapPropertyChoice;
