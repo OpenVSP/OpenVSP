@@ -603,6 +603,8 @@ public:
     Parm m_Roughness;
     Parm m_TeTwRatio;
     Parm m_TawTwRatio;
+    BoolParm m_ExpandedListFlag;
+
     //==== Basic Geom XSec Functions - Override ====//
     virtual void CutXSec( int index )               {}
     virtual void CopyXSec( int index )              {}

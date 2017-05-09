@@ -190,6 +190,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                     geo_TeTwRatio.push_back(geo_TeTwRatio[geo_TeTwRatio.size() - 1]);
                     geo_TawTwRatio.push_back(geo_TawTwRatio[geo_TawTwRatio.size() - 1]);
                     geo_surfNum.push_back(j);
+                    geo_expandedList.push_back(false);
                     sprintf(str, "%s_%d", geom->GetName().c_str(), j);
                 }
                 else
@@ -217,6 +218,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                     geo_Roughness.push_back(geom->m_Roughness());
                     geo_TeTwRatio.push_back(geom->m_TeTwRatio());
                     geo_TawTwRatio.push_back(geom->m_TawTwRatio());
+                    geo_expandedList.push_back(geom->m_ExpandedListFlag());
                 }
 
                 geo_shapeType.push_back(geom->GetSurfPtr(j)->GetSurfType()); // Form Factor Shape Type
@@ -248,6 +250,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                     geo_TeTwRatio.push_back(geo_TeTwRatio[geo_TeTwRatio.size() - 1]);
                     geo_TawTwRatio.push_back(geo_TawTwRatio[geo_TawTwRatio.size() - 1]);
                     geo_surfNum.push_back(k);
+                    geo_expandedList.push_back(false);
 
                     geo_shapeType.push_back(geom->GetSurfPtr(k)->GetSurfType()); // Form Factor Shape Type
 
@@ -897,6 +900,7 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
         tempStruct.CD = geo_Cd[i];
         tempStruct.PercTotalCd = geo_percTotalCd[i];
         tempStruct.SurfNum = geo_surfNum[i];
+        tempStruct.ExpandedList = geo_expandedList[i];
 
         m_TableRowVec[i] = tempStruct;
     }
@@ -2071,6 +2075,7 @@ void ParasiteDragMgrSingleton::ClearInputVectors()
     geo_TeTwRatio.clear();
     geo_TawTwRatio.clear();
     geo_surfNum.clear();
+    geo_expandedList.clear();
 }
 
 void ParasiteDragMgrSingleton::ClearOutputVectors()

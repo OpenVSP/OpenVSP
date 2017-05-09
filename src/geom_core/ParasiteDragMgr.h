@@ -243,6 +243,7 @@ private:
     vector <string> geo_subsurfID;
     vector <string> geo_label;
     vector < int > geo_surfNum;
+    vector < bool > geo_expandedList;
     vector <double> geo_swet;
     vector <double> geo_lref;
     vector <double> geo_Re;
