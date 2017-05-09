@@ -45,6 +45,10 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_TempUnit.SetDescript("Temperature Units");
 
     // Air Qualities Parms
+    m_FreestreamType.Init("FreestreamType", groupname, this, vsp::ATMOS_TYPE_US_STANDARD_1976,
+        vsp::ATMOS_TYPE_US_STANDARD_1976, vsp::ATMOS_TYPE_MANUAL_RE_L);
+    m_FreestreamType.SetDescript("Assigns the desired inputs to describe the freestream properties");
+
     m_Mach.Init("Mach", groupname, this, 0.0, 0.0, 1000.0);
     m_Mach.SetDescript("Mach Number for Current Flight Condition");
 
@@ -424,6 +428,71 @@ void ParasiteDragMgrSingleton::CalcReferenceChord(int index)
     }
 }
 
+void ParasiteDragMgrSingleton::Calculate_Re()
+{
+    for (int i = 0; i < m_RowSize; ++i)
+    {
+        if (!m_DegenGeomVec.empty())
+        { // If DegenGeom Exists Calculate Re
+            if (geo_subsurfID[i].compare("") == 0)
+            {
+                ReynoldsNumCalc(i);
+            }
+            else
+            {
+                geo_Re.push_back(geo_Re[geo_Re.size() - 1]);
+            }
+
+        }
+        else
+        { // Else Push Back Default Val
+            geo_Re.push_back(-1);
+        }
+    }
+
+    CalcRePowerDivisor();
+}
+
+void ParasiteDragMgrSingleton::CalcRePowerDivisor()
+{
+    if (!geo_Re.empty())
+    {
+        vector<double>::const_iterator it = max_element(geo_Re.begin(), geo_Re.end());
+        m_ReynoldsPowerDivisor = mag(*it);
+    }
+    else
+    {
+        m_ReynoldsPowerDivisor = 1;
+    }
+}
+
+void ParasiteDragMgrSingleton::ReynoldsNumCalc(int index)
+{
+    double vinf, lref;
+    if (m_FreestreamType() != vsp::ATMOS_TYPE_MANUAL_RE_L)
+    {
+        vinf = m_Vinf();
+        lref = geo_lref[index];
+
+        if (m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL)
+        {
+            vinf = ConvertVelocity(vinf, m_VinfUnitType.Get(), vsp::V_UNIT_FT_S);
+            lref = ConvertLength(lref, m_LengthUnit(), vsp::LEN_FT);
+        }
+        else if (m_AltLengthUnit() == vsp::PD_UNITS_METRIC)
+        {
+            vinf = ConvertVelocity(vinf, m_VinfUnitType.Get(), vsp::V_UNIT_M_S);
+            lref = ConvertLength(lref, m_LengthUnit(), vsp::LEN_M);
+        }
+
+        geo_Re.push_back((vinf * lref) / m_KineVisc());
+    }
+    else
+    { // Any other freestream definition type
+        geo_Re.push_back(m_ReqL() * geo_lref[index]);
+    }
+}
+
 void ParasiteDragMgrSingleton::Calculate_fineRat()
 {
     // Initialize Variables
@@ -496,6 +565,14 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
     }
 }
 
+void ParasiteDragMgrSingleton::SetFreestreamParms()
+{
+    m_Temp.Set(m_Atmos.GetTemp());
+    m_Pres.Set(m_Atmos.GetPres());
+    m_Rho.Set(m_Atmos.GetDensity());
+    m_DynaVisc.Set(m_Atmos.GetDynaVisc());
+}
+
 double ParasiteDragMgrSingleton::GetLrefSigFig()
 {
     double lrefmag;
@@ -528,8 +605,11 @@ void ParasiteDragMgrSingleton::Update()
     UpdateRefWing();
 
     UpdateTempLimits();
+    UpdateAtmos();
 
     UpdateParmActivity();
+
+    SetFreestreamParms();
 }
 
 void ParasiteDragMgrSingleton::UpdateWettedAreaTotals()
@@ -564,9 +644,95 @@ void ParasiteDragMgrSingleton::UpdateRefWing()
     }
 }
 
+void ParasiteDragMgrSingleton::UpdateAtmos()
+{
+    double LqRe;
+    double vinf, temp, pres, rho, dynavisc;
+    vinf = m_Vinf();
+    temp = m_Temp();
+    pres = m_Pres();
+    rho = m_Rho();
+    dynavisc = m_DynaVisc();
+
+    // Determine Which Atmos Variant will Calculate Atmospheric Properties
+    if (m_FreestreamType() == vsp::ATMOS_TYPE_US_STANDARD_1976)
+    {
+        m_Atmos.USStandardAtmosphere1976(m_Hinf(), m_DeltaT(), m_AltLengthUnit(), m_TempUnit.Get(), m_PresUnit());
+        m_Atmos.UpdateMach(vinf, m_SpecificHeatRatio(), m_TempUnit(), m_VinfUnitType());
+    }
+    else if (m_FreestreamType() == vsp::ATMOS_TYPE_HERRINGTON_1966)
+    {
+        m_Atmos.USAF1966(m_Hinf(), m_DeltaT(), m_AltLengthUnit(), m_TempUnit.Get(), m_PresUnit());
+        m_Atmos.UpdateMach(vinf, m_SpecificHeatRatio(), m_TempUnit(), m_VinfUnitType());
+    }
+    else if (m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_R)
+    {
+        m_Atmos.SetManualQualities(vinf, temp, pres, rho, dynavisc, m_SpecificHeatRatio(),
+            m_AltLengthUnit(), m_VinfUnitType(), m_TempUnit(), m_FreestreamType());
+    }
+    else if (m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_T)
+    {
+        m_Atmos.SetManualQualities(vinf, temp, pres, rho, dynavisc, m_SpecificHeatRatio(),
+            m_AltLengthUnit(), m_VinfUnitType(), m_TempUnit(), m_FreestreamType());
+    }
+    else if (m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_R_T)
+    {
+        m_Atmos.SetManualQualities(vinf, temp, pres, rho, dynavisc, m_SpecificHeatRatio(),
+            m_AltLengthUnit(), m_VinfUnitType(), m_TempUnit(), m_FreestreamType());
+    }
+    else if (m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_RE_L)
+    {
+        vinf = m_Atmos.GetMach() * m_Atmos.GetSoundSpeed();
+        UpdateVinf(m_VinfUnitType());
+    }
+
+    if (m_FreestreamType() != vsp::ATMOS_TYPE_MANUAL_RE_L)
+    {
+        m_Hinf.Set(m_Atmos.GetAlt());
+        m_DeltaT.Set(m_Atmos.GetDeltaT());
+        m_Temp.Set(m_Atmos.GetTemp());
+        m_Pres.Set(m_Atmos.GetPres());
+        m_Rho.Set(m_Atmos.GetDensity());
+        m_Mach.Set(m_Atmos.GetMach());
+
+        if (m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL)
+        {
+            vinf = ConvertVelocity(vinf, m_VinfUnitType.Get(), vsp::V_UNIT_FT_S);
+        }
+        else if (m_AltLengthUnit() == vsp::PD_UNITS_METRIC)
+        {
+            vinf = ConvertVelocity(vinf, m_VinfUnitType.Get(), vsp::V_UNIT_M_S);
+        }
+
+        m_KineVisc = m_Atmos.GetDynaVisc() / m_Rho();
+
+        LqRe = m_KineVisc() / vinf;
+
+        if (m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL)
+        {
+            vinf = ConvertLength(LqRe, vsp::LEN_FT, m_LengthUnit());
+        }
+        else if (m_AltLengthUnit() == vsp::PD_UNITS_METRIC)
+        {
+            vinf = ConvertLength(LqRe, vsp::LEN_M, m_LengthUnit());
+        }
+
+        m_ReqL.Set(1.0 / LqRe);
+    }
+}
+
 void ParasiteDragMgrSingleton::UpdateVinf(int newunit)
 {
     double new_vinf;
+    if (m_VinfUnitType() == vsp::V_UNIT_KEAS)
+    {
+        m_Vinf *= sqrt(1.0 / m_Atmos.GetDensityRatio());
+    }
+    new_vinf = ConvertVelocity(m_Vinf(), m_VinfUnitType(), newunit);
+    if (newunit == vsp::V_UNIT_KEAS)
+    {
+        new_vinf /= sqrt(1.0 / m_Atmos.GetDensityRatio());
+    }
     new_vinf = ConvertVelocity(m_Vinf(), m_VinfUnitType(), newunit);
     m_Vinf.Set(new_vinf);
     m_VinfUnitType.Set(newunit);
@@ -643,6 +809,41 @@ void ParasiteDragMgrSingleton::UpdatePres(int newunit)
 
 void ParasiteDragMgrSingleton::UpdateParmActivity()
 {
+    // Activate/Deactivate Appropriate Flow Condition Parameters
+    DeactivateParms();
+
+    if (m_FreestreamType() == vsp::ATMOS_TYPE_US_STANDARD_1976 || m_FreestreamType() == vsp::ATMOS_TYPE_HERRINGTON_1966)
+    {
+        m_Vinf.Activate();
+        m_Hinf.Activate();
+    }
+    else if (m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_R)
+    {
+        m_Vinf.Activate();
+        m_Pres.Activate();
+        m_Rho.Activate();
+        m_SpecificHeatRatio.Activate();
+    }
+    else if (m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_T)
+    {
+        m_Vinf.Activate();
+        m_Temp.Activate();
+        m_Pres.Activate();
+        m_SpecificHeatRatio.Activate();
+    }
+    else if (m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_R_T)
+    {
+        m_Vinf.Activate();
+        m_Temp.Activate();
+        m_Rho.Activate();
+        m_SpecificHeatRatio.Activate();
+    }
+    else if (m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_RE_L)
+    {
+        m_ReqL.Activate();
+        m_Mach.Activate();
+        m_SpecificHeatRatio.Activate();
+    }
 }
 
 // ========================================================== //
@@ -667,6 +868,7 @@ void ParasiteDragMgrSingleton::ClearOutputVectors()
 {
     geo_swet.clear();
     geo_lref.clear();
+    geo_Re.clear();
     geo_fineRat.clear();
 }
 
@@ -675,7 +877,15 @@ void ParasiteDragMgrSingleton::DeactivateParms()
     m_Vinf.Deactivate();
     m_Hinf.Deactivate();
     m_Temp.Deactivate();
+    m_DeltaT.Deactivate();
+    m_Pres.Deactivate();
+    m_Rho.Deactivate();
+    m_SpecificHeatRatio.Deactivate();
+    m_DynaVisc.Deactivate();
+    m_KineVisc.Deactivate();
+    //m_MediumType.Deactivate();
     m_Mach.Deactivate();
+    m_ReqL.Deactivate();
 }
 
 bool ParasiteDragMgrSingleton::IsSameGeomSet()

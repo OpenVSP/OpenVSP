@@ -12,12 +12,12 @@
 
 #include "Geom.h"
 #include "Parm.h"
+#include "Atmosphere.h"
 #include "UnitConversion.h"
 #include "Util.h"
 
 #include <string>
 #include <vector>
-
 
 // Structure containing all main table data
 struct ParasiteDragTableRow
@@ -91,21 +91,27 @@ public:
     void Calculate_Lref();
     void CalcReferenceBodyLength(int index);
     void CalcReferenceChord(int index);
+    void Calculate_Re();
+    void CalcRePowerDivisor();
+    void ReynoldsNumCalc(int index);
     void Calculate_fineRat();
 
     // Setter Methods
     void SetSref(double sref) { m_Sref.Set(sref); }
     void SetActiveGeomVec();
+    void SetFreestreamParms();
 
     // Getter Methods
     vector < ParasiteDragTableRow > GetMainTableVec() { return m_TableRowVec; }
     vector <string> GetPDGeomIDVec() { return m_PDGeomIDVec; }
+    int GetReynoldsDivisor() { return m_ReynoldsPowerDivisor; }
     double GetLrefSigFig(); // For display precision purposes
 
     // Update Methods
     void Update();
     void UpdateWettedAreaTotals();
     void UpdateRefWing();
+    void UpdateAtmos();
     void UpdateVinf(int newunit);
     void UpdateAlt(int newunit);
     void UpdateAltLimits();
@@ -140,6 +146,7 @@ public:
     // Air Qualities Parms
     Parm m_Vinf;
     Parm m_Hinf;
+    IntParm m_FreestreamType;
     Parm m_Temp;
     Parm m_DeltaT;
     Parm m_Pres;
@@ -153,6 +160,8 @@ public:
 private:
     ParasiteDragMgrSingleton();
 
+    Atmosphere m_Atmos; // Atmosphere class contains all atmosphere related qualities
+
     vector < ParasiteDragTableRow > m_TableRowVec;
     ParasiteDragTableRow m_DefaultStruct;
 
@@ -162,6 +171,7 @@ private:
     Results* m_CompGeomResults;
 
     // Miscellaneous Variables
+    int m_ReynoldsPowerDivisor; // Used to create a fluid reynolds number display
     int m_RowSize;              // Number of rows for main table
 
     // Main Build Up Table Variables
@@ -171,6 +181,7 @@ private:
     vector < int > geo_surfNum;
     vector <double> geo_swet;
     vector <double> geo_lref;
+    vector <double> geo_Re;
     vector <double> geo_Roughness;
     vector <double> geo_TeTwRatio;
     vector <double> geo_TawTwRatio;
