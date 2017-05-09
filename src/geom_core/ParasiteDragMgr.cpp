@@ -931,6 +931,26 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
     }
 }
 
+string ParasiteDragMgrSingleton::ComputeBuildUp()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if (veh)
+    {
+        SetupFullCalculation();
+        SetActiveGeomVec();
+        CalcRowSize();
+
+        Update();
+
+        Calculate_ALL();
+
+        UpdateExportLabels();
+
+        return ExportToCSV();
+    }
+    return "";
+}
+
 void ParasiteDragMgrSingleton::OverwritePropertiesFromAncestorGeom()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();

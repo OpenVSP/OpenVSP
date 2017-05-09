@@ -18,6 +18,7 @@
 #include "Util.h"
 #include "DesignVarMgr.h"
 #include "VarPresetMgr.h"
+#include "ParasiteDragMgr.h"
 #include "WingGeom.h"
 #include "PropGeom.h"
 #include "VSPAEROMgr.h"
@@ -3636,6 +3637,24 @@ void PCurveSplit( const string & geom_id, const int & pcurveid, const double & t
 
     return pc->Split( tsplit );
 
+    ErrorMgr.NoError();
+}
+
+//===================================================================//
+//===============    Parasite Drag Tool Functions      ==============//
+//===================================================================//
+
+void AddExcrescence(const std::string &excresName, const int & excresType, const double & excresVal)
+{
+    ParasiteDragMgr.AddExcrescence(excresName,excresType,excresVal);
+
+    ErrorMgr.NoError();
+}
+
+void DeleteExcrescence(const int & index)
+{
+    ParasiteDragMgr.DeleteExcrescence(index);
+    
     ErrorMgr.NoError();
 }
 

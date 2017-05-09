@@ -1963,6 +1963,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void PCurveSplit( const string & in geom_id, const int & in pcurveid, const double & in tsplit )", asFUNCTION( vsp::PCurveSplit ), asCALL_CDECL );
     assert( r >= 0 );
 
+    //=== Register ParasiteDragTool Functions ====//
+    r = se->RegisterGlobalFunction( "void AddExcrescence(const string & in excresName, const int & in excresType, const double & in excresVal)", asFUNCTION( vsp::AddExcrescence ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void DeleteExcrescence(const int & in excresName)", asFUNCTION( vsp::DeleteExcrescence ), asCALL_CDECL );
+    assert( r >= 0 );
+
 }
 
 void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
@@ -2419,6 +2425,17 @@ CScriptArray* ScriptMgrSingleton::PCurveGetValVec( const std::string & geom_id, 
 {
     m_ProxyDoubleArray = vsp::PCurveGetValVec( geom_id, pcurveid );
     return GetProxyDoubleArray();
+}
+
+//==== Parasite Drag Tool Functions ====//
+void ScriptMgrSingleton::AddExcrescence( const std::string & excresName, int excresType, double excresVal)
+{
+    vsp::AddExcrescence(excresName,excresType,excresVal);
+}
+
+void ScriptMgrSingleton::DeleteExcrescence(int index)
+{
+    vsp::DeleteExcrescence(index);
 }
 
 void ScriptMgrSingleton::SetIntAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )

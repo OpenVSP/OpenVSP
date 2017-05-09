@@ -193,6 +193,10 @@ void main()
     string ridmp = ExecAnalysis( "MassProp" );
     PrintResultsExample( ridmp );
     DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
+	
+	// ParasiteDrag
+	string ridpd = ExecAnalysis( "ParasiteDrag" );
+	PrintResultsExample( ridpd );
 
     // PlanarSlice
     array<vec3d> norm = GetVec3dAnalysisInput( "PlanarSlice", "Norm" );

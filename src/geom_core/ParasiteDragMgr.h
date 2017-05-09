@@ -103,6 +103,7 @@ public:
     void Calculate_f();
     void Calculate_Cd();
     void Calculate_ALL();
+    string ComputeBuildUp(); // Used only through API
 
     // Grouped Geom Overwrite methods
     void OverwritePropertiesFromAncestorGeom();

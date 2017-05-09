@@ -194,6 +194,10 @@ private:
     CScriptArray* PCurveGetTVec( const std::string & geom_id, const int & pcurveid );
     CScriptArray* PCurveGetValVec( const std::string & geom_id, const int & pcurveid );
 
+    // ==== Parasite Drag Tool Functions ====//
+    void AddExcrescence(const std::string & excresName, int excresType, double excresVal);
+    void DeleteExcrescence(int index);
+
 };
 
 #define ScriptMgr ScriptMgrSingleton::getInstance()
