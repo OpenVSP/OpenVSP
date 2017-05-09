@@ -1461,11 +1461,7 @@ void StructScreen::UpdateFeaMaterialChoice()
 
 void StructScreen::CloseCallBack( Fl_Widget *w )
 {
-    if ( m_ScreenMgr->GetVehiclePtr() )
-    {
-        m_ScreenMgr->GetVehiclePtr()->GetStructSettingsPtr()->m_DrawFeaPartsFlag.Set( false );
-        m_ScreenMgr->GetVehiclePtr()->GetStructSettingsPtr()->m_DrawMeshFlag.Set( false );
-    }
+    StructureMgr.SetDrawFlagsFalse();
 
     Hide();
 
@@ -1474,11 +1470,6 @@ void StructScreen::CloseCallBack( Fl_Widget *w )
 
 void StructScreen::Show()
 {
-    if ( m_ScreenMgr->GetVehiclePtr() )
-    {
-        m_ScreenMgr->GetVehiclePtr()->GetStructSettingsPtr()->m_DrawFeaPartsFlag.Set( true );
-    }
-
     m_FLTK_Window->show();
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -1644,26 +1635,6 @@ bool StructScreen::Update()
 
     if ( veh )
     {
-        //==== Default Elem Size ====//
-        m_MaxEdgeLen.Update( veh->GetFeaGridDensityPtr()->m_BaseLen.GetID() );
-        m_MinEdgeLen.Update( veh->GetFeaGridDensityPtr()->m_MinLen.GetID() );
-        m_MaxGap.Update( veh->GetFeaGridDensityPtr()->m_MaxGap.GetID() );
-        m_NumCircleSegments.Update( veh->GetFeaGridDensityPtr()->m_NCircSeg.GetID() );
-        m_GrowthRatio.Update( veh->GetFeaGridDensityPtr()->m_GrowRatio.GetID() );
-        m_Rig3dGrowthLimit.Update( veh->GetFeaGridDensityPtr()->m_RigorLimit.GetID() );
-
-        //===== Geometry Control =====//
-        m_IntersectSubsurfaces.Update( veh->GetStructSettingsPtr()->m_IntersectSubSurfs.GetID() );
-        m_HalfMeshButton.Update( veh->GetStructSettingsPtr()->m_HalfMeshFlag.GetID() );
-
-        //===== Display Tab Toggle Update =====//
-        m_DrawFeaPartsButton.Update( veh->GetStructSettingsPtr()->m_DrawFeaPartsFlag.GetID() );
-        m_DrawMeshButton.Update( veh->GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
-        m_ShowBadEdgeTriButton.Update( veh->GetStructSettingsPtr()->m_DrawBadFlag.GetID() );
-        m_ColorElementsButton.Update( veh->GetStructSettingsPtr()->m_ColorTagsFlag.GetID() );
-        m_DrawNodesToggle.Update( veh->GetStructSettingsPtr()->m_DrawNodesFlag.GetID() );
-        m_DrawElementOrientVecToggle.Update( veh->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.GetID() );
-
         //===== Geom Choice Update =====//
         LoadGeomChoice();
 
@@ -1693,11 +1664,50 @@ bool StructScreen::Update()
 
         if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
-            // Update Structure Name
             vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+            //==== Default Elem Size ====//
+            m_MaxEdgeLen.Update( structVec[m_SelectedStructIndex]->GetFeaGridDensityPtr()->m_BaseLen.GetID() );
+            m_MinEdgeLen.Update( structVec[m_SelectedStructIndex]->GetFeaGridDensityPtr()->m_MinLen.GetID() );
+            m_MaxGap.Update( structVec[m_SelectedStructIndex]->GetFeaGridDensityPtr()->m_MaxGap.GetID() );
+            m_NumCircleSegments.Update( structVec[m_SelectedStructIndex]->GetFeaGridDensityPtr()->m_NCircSeg.GetID() );
+            m_GrowthRatio.Update( structVec[m_SelectedStructIndex]->GetFeaGridDensityPtr()->m_GrowRatio.GetID() );
+            m_Rig3dGrowthLimit.Update( structVec[m_SelectedStructIndex]->GetFeaGridDensityPtr()->m_RigorLimit.GetID() );
+
+            //===== Geometry Control =====//
+            m_IntersectSubsurfaces.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_IntersectSubSurfs.GetID() );
+            m_HalfMeshButton.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_HalfMeshFlag.GetID() );
+
+            //===== Display Tab Toggle Update =====//
+            m_DrawFeaPartsButton.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_DrawFeaPartsFlag.GetID() );
+            m_DrawMeshButton.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
+            m_ShowBadEdgeTriButton.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_DrawBadFlag.GetID() );
+            m_ColorElementsButton.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_ColorTagsFlag.GetID() );
+            m_DrawNodesToggle.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_DrawNodesFlag.GetID() );
+            m_DrawElementOrientVecToggle.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.GetID() );
+
+            string massname = structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileName( vsp::MASS_FILE_NAME );
+            m_MassOutput.Update( truncateFileName( massname, 40 ).c_str() );
+            string nastranname = structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME );
+            m_NastOutput.Update( truncateFileName( nastranname, 40 ).c_str() );
+            string calculixname = structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileName( vsp::CALCULIX_FILE_NAME );
+            m_CalcOutput.Update( truncateFileName( calculixname, 40 ).c_str() );
+            string stlname = structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME );
+            m_StlOutput.Update( truncateFileName( stlname, 40 ).c_str() );
+            string gmshname = structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileName( vsp::GMSH_FEA_NAME );
+            m_GmshOutput.Update( truncateFileName( gmshname, 40 ).c_str() );
+
+            //==== Update File Output Flags ====//
+            m_MassFile.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileFlag( vsp::MASS_FILE_NAME )->GetID() );
+            m_NastFile.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileFlag( vsp::NASTRAN_FILE_NAME )->GetID() );
+            m_CalcFile.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileFlag( vsp::CALCULIX_FILE_NAME )->GetID() );
+            m_StlFile.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileFlag( vsp::STL_FEA_NAME )->GetID() );
+            m_GmshFile.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileFlag( vsp::GMSH_FEA_NAME )->GetID() );
+
+            // Update Structure Name
             m_FeaStructNameInput.Update( structVec[m_SelectedStructIndex]->GetFeaStructName() );
 
-            m_NumEvenlySpacedRibsInput.Update( veh->GetStructSettingsPtr()->m_NumEvenlySpacedPart.GetID() );
+            m_NumEvenlySpacedRibsInput.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_NumEvenlySpacedPart.GetID() );
 
             // Update Current FeaPart
             FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
@@ -2090,24 +2100,6 @@ bool StructScreen::Update()
         UpdateDrawObjs();
     }
 
-    string massname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::MASS_FILE_NAME );
-    m_MassOutput.Update( truncateFileName( massname, 40 ).c_str() );
-    string nastranname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME );
-    m_NastOutput.Update( truncateFileName( nastranname, 40 ).c_str() );
-    string calculixname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::CALCULIX_FILE_NAME );
-    m_CalcOutput.Update( truncateFileName( calculixname, 40 ).c_str() );
-    string stlname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME );
-    m_StlOutput.Update( truncateFileName( stlname, 40 ).c_str() );
-    string gmshname = veh->GetStructSettingsPtr()->GetExportFileName( vsp::GMSH_FEA_NAME );
-    m_GmshOutput.Update( truncateFileName( gmshname, 40 ).c_str() );
-
-    //==== Update File Output Flags ====//
-    m_MassFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::MASS_FILE_NAME )->GetID() );
-    m_NastFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::NASTRAN_FILE_NAME )->GetID() );
-    m_CalcFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::CALCULIX_FILE_NAME )->GetID() );
-    m_StlFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::STL_FEA_NAME )->GetID() );
-    m_GmshFile.Update( veh->GetStructSettingsPtr()->GetExportFileFlag( vsp::GMSH_FEA_NAME )->GetID() );
-
     if ( FeaMeshMgr.GetFeaMeshInProgress() )
     {
         m_FeaMeshExportButton.Deactivate();
@@ -2318,7 +2310,12 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
         m_MonitorProcess.StartThread( feamonitorfun, ( void* ) this );
 
-        veh->GetStructSettingsPtr()->m_DrawMeshFlag = true;
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_DrawMeshFlag = true;
+        }
     }
     else if ( device == &m_GeomChoice )
     {
@@ -2399,7 +2396,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( feastruct )
             {
-                feastruct->AddEvenlySpacedRibs( veh->GetStructSettingsPtr()->m_NumEvenlySpacedPart.Get() );
+                feastruct->AddEvenlySpacedRibs( feastruct->GetStructSettingsPtr()->m_NumEvenlySpacedPart.Get() );
             }
         }
     }
@@ -2796,42 +2793,67 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_SelectStlFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .stl file.", "*.stl" );
-        if ( newfile.compare( "" ) != 0 )
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
-            veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::STL_FEA_NAME );
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .stl file.", "*.stl" );
+            if ( newfile.compare( "" ) != 0 )
+            {
+                structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::STL_FEA_NAME );
+            }
         }
     }
     else if ( device == &m_SelectMassFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select mass .dat file.", "*.dat" );
-        if ( newfile.compare( "" ) != 0 )
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
-            veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::MASS_FILE_NAME );
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select mass .dat file.", "*.dat" );
+            if ( newfile.compare( "" ) != 0 )
+            {
+                structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::MASS_FILE_NAME );
+            }
         }
     }
     else if ( device == &m_SelectNastFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASTRAN .dat file.", "*.dat" );
-        if ( newfile.compare( "" ) != 0 )
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
-            veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::NASTRAN_FILE_NAME );
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASTRAN .dat file.", "*.dat" );
+            if ( newfile.compare( "" ) != 0 )
+            {
+                structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::NASTRAN_FILE_NAME );
+            }
         }
     }
     else if ( device == &m_SelectCalcFile  )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix .dat file.", "*.dat" );
-        if ( newfile.compare( "" ) != 0 )
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
-            veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::CALCULIX_FILE_NAME );
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix .dat file.", "*.dat" );
+            if ( newfile.compare( "" ) != 0 )
+            {
+                structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::CALCULIX_FILE_NAME );
+            }
         }
     }
     else if ( device == &m_SelectGmshFile )
     {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .msh file.", "*.msh" );
-        if ( newfile.compare( "" ) != 0 )
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
-            veh->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::GMSH_FEA_NAME );
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .msh file.", "*.msh" );
+            if ( newfile.compare( "" ) != 0 )
+            {
+                structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::GMSH_FEA_NAME );
+            }
         }
     }
 
@@ -2972,24 +2994,23 @@ void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         return;
     }
 
-    if ( IsShown() && veh->GetStructSettingsPtr()->m_DrawFeaPartsFlag() )
+    if ( IsShown() )
     {
         Update(); // Updating right before drawing ensures the correct structure is highlighted
 
-        if ( !FeaMeshMgr.GetFeaMeshInProgress() )
+        if ( !FeaMeshMgr.GetFeaMeshInProgress() && StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
-            if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+            vector < FeaStructure* > totalstructvec = StructureMgr.GetAllFeaStructs();
+
+            FeaStructure* curr_struct = totalstructvec[m_SelectedStructIndex];
+
+            if ( !curr_struct )
             {
-                int k = 0;
+                return;
+            }
 
-                vector < FeaStructure* > totalstructvec = StructureMgr.GetAllFeaStructs();
-
-                FeaStructure* curr_struct = totalstructvec[m_SelectedStructIndex];
-
-                if ( !curr_struct )
-                {
-                    return;
-                }
+            if ( curr_struct->GetStructSettingsPtr()->m_DrawFeaPartsFlag() )
+            {
                 vector < FeaPart* > partvec = curr_struct->GetFeaPartVec();
 
                 for ( unsigned int i = 0; i < (int)partvec.size(); i++ )
@@ -3026,20 +3047,20 @@ void StructScreen::UpdateDrawObjs()
         return;
     }
 
-    if ( veh->GetStructSettingsPtr()->m_DrawFeaPartsFlag() )
+    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        vector < FeaStructure* > totalstructvec = StructureMgr.GetAllFeaStructs();
+
+        FeaStructure* curr_struct = totalstructvec[m_SelectedStructIndex];
+
+        if ( !curr_struct )
+        {
+            return;
+        }
+
+        if ( curr_struct->GetStructSettingsPtr()->m_DrawFeaPartsFlag() )
         {
             int k = 0;
-
-            vector < FeaStructure* > totalstructvec = StructureMgr.GetAllFeaStructs();
-
-            FeaStructure* curr_struct = totalstructvec[m_SelectedStructIndex];
-
-            if ( !curr_struct )
-            {
-                return;
-            }
 
             FeaPart* curr_part = curr_struct->GetFeaPart( m_SelectedPartIndex );
 

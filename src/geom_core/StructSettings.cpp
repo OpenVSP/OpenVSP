@@ -11,8 +11,6 @@
 #include "Vehicle.h"
 #include "VehicleMgr.h"
 #include "Util.h"
-#include "SubSurfaceMgr.h"
-#include "SubSurface.h"
 #include "StructSettings.h"
 #include "ParmMgr.h"
 
@@ -50,6 +48,8 @@ StructSettings::StructSettings() : MeshCommonSettings()
 
     m_DrawElementOrientVecFlag.Init( "DrawElementOrientVecFlag", "FeaPart", this, false, false, true );
     m_DrawElementOrientVecFlag.SetDescript( "Flag to Draw FeaElement Orientation Vectors" );
+
+    ResetExportFileNames();
 }
 
 StructSettings::~StructSettings()

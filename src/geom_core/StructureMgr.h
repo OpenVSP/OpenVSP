@@ -45,6 +45,8 @@ public:
     virtual string GetFeaPartName( const string & id );
     virtual int GetFeaPropertyIndex( const string & FeaPartID );
     virtual int GetFeaMaterialIndex( const string & FeaPartID );
+    virtual void SetDrawFlagsFalse();
+    virtual void ResetExportFileNames( const string & VSP3FileName );
 
     //==== FeaProperty Management ====//
     virtual void AddFeaProperty( FeaProperty* fea_prop )

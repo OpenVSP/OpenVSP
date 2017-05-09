@@ -94,6 +94,10 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
         return false;
     }
 
+    // Save settings
+    m_StructSettingsPtr = fea_struct->GetStructSettingsPtr();
+    m_FeaGridDensityPtr = fea_struct->GetFeaGridDensityPtr();
+
     // Save structure name
     m_StructName = fea_struct->GetFeaStructName();
 
@@ -1464,6 +1468,11 @@ void FeaMeshMgrSingleton::SetDrawCapFlag( int index, bool flag )
 
 void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
+    if ( !GetGridDensityPtr() || !GetStructSettingsPtr() )
+    {
+        return;
+    }
+
     if ( !GetFeaMeshInProgress() && ( m_DrawElementFlagVec.size() == m_NumFeaParts + m_NumFeaSubSurfs ) )
     {
         // FeaParts:

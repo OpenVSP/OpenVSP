@@ -361,7 +361,7 @@ public:
 
     virtual StructSettings* GetStructSettingsPtr()
     {
-        return m_Vehicle->GetStructSettingsPtr();
+        return m_StructSettingsPtr;
     }
     virtual CfdMeshSettings* GetCfdSettingsPtr()
     {
@@ -423,6 +423,8 @@ protected:
 
     vector< vector< vec3d > > debugRayIsect;
 
+    StructSettings* m_StructSettingsPtr;
+    GridDensity* m_FeaGridDensityPtr;
 
     //==== Vector of Surfs that may have a border that lies on Surf A ====//
     map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;

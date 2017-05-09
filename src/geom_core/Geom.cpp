@@ -2509,6 +2509,18 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
                     if ( feastruct )
                     {
                         feastruct->DecodeXml( structnode );
+
+                        xmlNodePtr setting_node = XmlUtil::GetNode( structnode, "StructSettings", 0 );
+                        if ( setting_node )
+                        {
+                            feastruct->GetStructSettingsPtr()->DecodeXml( structnode );
+                        }
+
+                        xmlNodePtr dense_node = XmlUtil::GetNode( structnode, "FEAGridDensity", 0 );
+                        if ( dense_node )
+                        {
+                            feastruct->GetFeaGridDensityPtr()->DecodeXml( structnode );
+                        }
                     }
                 }
             }

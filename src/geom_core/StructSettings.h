@@ -11,9 +11,6 @@
 #if !defined(StructSettings__INCLUDED_)
 #define StructSettings__INCLUDED_
 
-#include "GridDensity.h"
-#include "Vehicle.h"
-
 #include "Vec2d.h"
 #include "Vec3d.h"
 #include "DrawObj.h"

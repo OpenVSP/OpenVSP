@@ -46,17 +46,17 @@ public:
 
     virtual GridDensity* GetGridDensityPtr()
     {
-        return m_Vehicle->GetFeaGridDensityPtr();
+        return m_FeaGridDensityPtr;
     }
 
     virtual StructSettings* GetStructSettingsPtr()
     {
-        return m_Vehicle->GetStructSettingsPtr();
+        return m_StructSettingsPtr;
     }
 
     virtual MeshCommonSettings* GetSettingsPtr()
     {
-        return ( MeshCommonSettings* ) m_Vehicle->GetStructSettingsPtr();
+        return ( MeshCommonSettings* ) m_StructSettingsPtr;
     }
 
     virtual bool LoadSurfaces();

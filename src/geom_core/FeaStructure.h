@@ -25,6 +25,8 @@
 #include "APIDefines.h"
 #include "SubSurface.h"
 #include "Matrix.h"
+#include "StructSettings.h"
+#include "GridDensity.h"
 
 // Forward declaration
 class FeaPart;
@@ -107,6 +109,15 @@ public:
         m_FeaStructName = struct_name;
     }
 
+    virtual StructSettings* GetStructSettingsPtr()
+    {
+        return &m_StructSettings;
+    }
+    virtual GridDensity* GetFeaGridDensityPtr()
+    {
+        return &m_FeaGridDensity;
+    }
+
 protected:
 
     string m_ParentGeomID;
@@ -118,6 +129,9 @@ protected:
     vector < FeaPart* > m_FeaPartVec;
 
     vector < SubSurface* > m_FeaSubSurfVec;
+
+    StructSettings m_StructSettings;
+    FeaGridDensity m_FeaGridDensity;
 
 };
 

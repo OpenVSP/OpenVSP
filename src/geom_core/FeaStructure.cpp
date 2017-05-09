@@ -14,6 +14,7 @@
 #include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "StructureMgr.h"
+#include "LinkMgr.h"
 
 #include <cfloat>
 
@@ -28,6 +29,9 @@ FeaStructure::FeaStructure( string geomID, int surf_index )
 
     m_FeaPartCount = 0;
     m_FeaSubSurfCount = 0;
+
+    LinkMgr.RegisterContainer( m_StructSettings.GetID() );
+    LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
 }
 
 FeaStructure::~FeaStructure()
@@ -74,6 +78,9 @@ xmlNodePtr FeaStructure::EncodeXml( xmlNodePtr & node )
             m_FeaSubSurfVec[i]->EncodeXml( sub_node );
         }
     }
+
+    m_StructSettings.EncodeXml( fea_info );
+    m_FeaGridDensity.EncodeXml( fea_info );
 
     return fea_info;
 }

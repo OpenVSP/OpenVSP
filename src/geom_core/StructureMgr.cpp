@@ -253,6 +253,30 @@ string StructureMgrSingleton::GetFeaPartName( const string & id )
     return name;
 }
 
+void StructureMgrSingleton::SetDrawFlagsFalse()
+{
+    vector < FeaStructure* > struct_vec = GetAllFeaStructs();
+
+    for ( size_t i = 0; i < struct_vec.size(); i++ )
+    {
+        struct_vec[i]->GetStructSettingsPtr()->m_DrawFeaPartsFlag.Set( false );
+        struct_vec[i]->GetStructSettingsPtr()->m_DrawMeshFlag.Set( false );
+        struct_vec[i]->GetStructSettingsPtr()->m_ColorTagsFlag.Set( false );
+        struct_vec[i]->GetStructSettingsPtr()->m_DrawNodesFlag.Set( false );
+        struct_vec[i]->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.Set( false );
+    }
+}
+
+void StructureMgrSingleton::ResetExportFileNames( const string & VSP3FileName )
+{
+    vector < FeaStructure* > struct_vec = GetAllFeaStructs();
+
+    for ( size_t i = 0; i < struct_vec.size(); i++ )
+    {
+        struct_vec[i]->GetStructSettingsPtr()->ResetExportFileNames( VSP3FileName );
+    }
+}
+
 //==== Get FeaProperty Index =====//
 int StructureMgrSingleton::GetFeaPropertyIndex( const string & FeaPartID )
 {

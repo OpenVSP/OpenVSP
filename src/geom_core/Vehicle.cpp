@@ -202,9 +202,7 @@ void Vehicle::Init()
 
     LinkMgr.RegisterContainer( this->GetID() );
     LinkMgr.RegisterContainer( m_CfdSettings.GetID() );
-    LinkMgr.RegisterContainer( m_StructSettings.GetID() );
     LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
-    LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
     LinkMgr.RegisterContainer( VSPAEROMgr.GetID() );
     LinkMgr.RegisterContainer( WaveDragMgr.GetID() );
     LinkMgr.RegisterContainer( ParasiteDragMgr.GetID() );
@@ -344,7 +342,7 @@ void Vehicle::SetVSP3FileName( const string & f_name )
     m_VSP3FileName = f_name;
 
     m_CfdSettings.ResetExportFileNames( m_VSP3FileName );
-    m_StructSettings.ResetExportFileNames( m_VSP3FileName );
+    StructureMgr.ResetExportFileNames( m_VSP3FileName );
     resetExportFileNames();
 }
 
@@ -1413,8 +1411,6 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     VarPresetMgr.EncodeXml( node );
     m_CfdSettings.EncodeXml( node );
     m_CfdGridDensity.EncodeXml( node );
-    m_StructSettings.EncodeXml( node );
-    m_FeaGridDensity.EncodeXml( node );
     StructureMgr.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
     WaveDragMgr.EncodeXml( node );
@@ -1454,8 +1450,6 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     VSPAEROMgr.DecodeXml( node );
     m_CfdSettings.DecodeXml( node );
     m_CfdGridDensity.DecodeXml( node );
-    m_StructSettings.DecodeXml( node );
-    m_FeaGridDensity.DecodeXml( node );
     StructureMgr.DecodeXml( node );
     m_ClippingMgr.DecodeXml( node );
     WaveDragMgr.DecodeXml( node );
