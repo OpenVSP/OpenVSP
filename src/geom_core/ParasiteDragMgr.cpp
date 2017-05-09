@@ -367,6 +367,8 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
             geo_swet.push_back(-1);
         }
     }
+
+    UpdateWettedAreaTotals();
 }
 
 void ParasiteDragMgrSingleton::Calculate_Lref()
@@ -1720,6 +1722,71 @@ void ParasiteDragMgrSingleton::Update()
 
 void ParasiteDragMgrSingleton::UpdateWettedAreaTotals()
 {
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if (!m_DegenGeomVec.empty())
+    {
+        // Subsurfaces Addition First
+        for (size_t i = 0; i < m_RowSize; ++i)
+        {
+            for (size_t j = 0; j < m_RowSize; ++j)
+            {
+                if (i != j) // If not the same geom
+                {
+                    if (geo_subsurfID[i].compare("") == 0 && geo_subsurfID[j].compare("") != 0)
+                    {
+                        if (!veh->FindGeom(geo_geomID[i])->m_ExpandedListFlag() &&
+                            geo_geomID[i].compare(geo_geomID[j]) == 0 &&
+                            veh->FindGeom(geo_geomID[j])->GetSubSurf(geo_subsurfID[j])->m_IncludeFlag() &&
+                            geo_surfNum[i] == 0)
+                        {
+                            geo_swet[i] += geo_swet[j];
+                        }
+                        else if (!veh->FindGeom(geo_geomID[i])->m_ExpandedListFlag() &&
+                            geo_geomID[i].compare(veh->FindGeom(geo_geomID[j])->GetAncestorID(geo_groupedAncestorGen[j])) == 0 &&
+                            veh->FindGeom(geo_geomID[j])->GetSubSurf(geo_subsurfID[j])->m_IncludeFlag() &&
+                            geo_surfNum[i] == 0)
+                        {
+                            geo_swet[i] += geo_swet[j];
+                        }
+                    }
+                }
+            }
+        }
+
+        // Add Geom Surf Wetted Areas
+        for (size_t i = 0; i < m_RowSize; ++i)
+        {
+            for (size_t j = 0; j < m_RowSize; ++j)
+            {
+                if (i != j) // If not the same geom
+                {
+                    if (geo_subsurfID[i].compare("") == 0 && geo_subsurfID[j].compare("") == 0)
+                    {
+                        // IF
+                        // ==========
+                        // Same Geom AND Geom[i] is main surface
+                        // OR
+                        // Not the same Geom AND Ancestor of Geom[j] is Geom[i] AND Geom[i] is 0th surface AND Geom[j] not an expanded list
+                        // OR
+                        // is custom geom (TODO: this could use some work)
+                        // ==========
+                        // AND
+                        // ==========
+                        // Shape types are the same AND Geom[i] is NOT an expanded list
+                        if (((geo_geomID[i].compare(geo_geomID[j]) == 0 && geo_surfNum[i] == 0) ||
+                            (geo_geomID[i].compare(geo_geomID[j]) != 0 &&
+                                geo_geomID[i].compare(veh->FindGeom(geo_geomID[j])->GetAncestorID(geo_groupedAncestorGen[j])) == 0 &&
+                                geo_surfNum[i] == 0 && !veh->FindGeom(geo_geomID[j])->m_ExpandedListFlag()) ||
+                                (geo_label[i].substr(0, 3).compare("[W]") == 0 || geo_label[i].substr(0, 3).compare("[B]") == 0)) &&
+                            (geo_shapeType[i] == geo_shapeType[j] && !geo_expandedList[i]))
+                        {
+                            geo_swet[i] += geo_swet[j];
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void ParasiteDragMgrSingleton::UpdateRefWing()
