@@ -420,6 +420,33 @@ enum ATMOS_TYPE { ATMOS_TYPE_US_STANDARD_1976 = 0,
                   ATMOS_TYPE_MANUAL_R_T,
                   ATMOS_TYPE_MANUAL_RE_L }; // Flowstream Type
 
+enum CF_LAM_EQN { CF_LAM_BLASIUS = 0,
+                  CF_LAM_BLASIUS_W_HEAT,
+                }; // Friction Coefficient Laminar Eqns ENUM
+
+enum CF_TURB_EQN { CF_TURB_EXPLICIT_FIT_SPALDING = 0,
+                   CF_TURB_EXPLICIT_FIT_SPALDING_CHI,
+                   CF_TURB_EXPLICIT_FIT_SCHOENHERR,
+                   CF_TURB_IMPLICIT_KARMAN,
+                   CF_TURB_IMPLICIT_SCHOENHERR,
+                   CF_TURB_IMPLICIT_KARMAN_SCHOENHERR,
+                   CF_TURB_POWER_LAW_BLASIUS,
+                   CF_TURB_POWER_LAW_PRANDTL_LOW_RE,
+                   CF_TURB_POWER_LAW_PRANDTL_MEDIUM_RE,
+                   CF_TURB_POWER_LAW_PRANDTL_HIGH_RE,
+                   CF_TURB_SCHLICHTING_COMPRESSIBLE,
+                   CF_TURB_SCHLICHTING_INCOMPRESSIBLE,
+                   CF_TURB_SCHLICHTING_PRANDTL,
+                   CF_TURB_SCHULTZ_GRUNOW_HIGH_RE,
+                   CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR,
+                   CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE,
+                   CF_TURB_ROUGHNESS_SCHLICHTING_AVG,
+                   CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL,
+                   CF_TURB_ROUGHNESS_WHITE,
+                   CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION,
+                   CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH
+                 }; // Friction Coefficient Turbulent Eqns ENUM
+
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)

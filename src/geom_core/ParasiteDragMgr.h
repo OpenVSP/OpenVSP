@@ -94,7 +94,14 @@ public:
     void Calculate_Re();
     void CalcRePowerDivisor();
     void ReynoldsNumCalc(int index);
+    void Calculate_Cf();
+    void CalcPartialTurbulence(int i, double lref, double vinf, double kineVisc);
     void Calculate_fineRat();
+
+    // Switch Case Methods For Friction Coefficient Selections
+    double CalcTurbCf(double ReyIn, double ref_leng, int cf_case, double roughness_h,
+        double gamma, double taw_tw_ratio, double te_tw_ratio);
+    double CalcLamCf(double ReyIn, int cf_case);
 
     // Setter Methods
     void SetSref(double sref) { m_Sref.Set(sref); }
@@ -136,6 +143,8 @@ public:
     IntParm m_RefFlag;
 
     // Options Parms
+    IntParm m_LamCfEqnType;
+    IntParm m_TurbCfEqnType;
     IntParm m_VinfUnitType;
     IntParm m_AltLengthUnit;
     IntParm m_SetChoice;
@@ -186,6 +195,7 @@ private:
     vector <double> geo_TeTwRatio;
     vector <double> geo_TawTwRatio;
     vector <double> geo_percLam;
+    vector <double> geo_cf;
     vector <double> geo_fineRat;
     vector <int> geo_shapeType;
     vector <double> geo_Q;

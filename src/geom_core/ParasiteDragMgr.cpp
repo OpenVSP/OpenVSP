@@ -16,6 +16,9 @@
 #include "ResultsMgr.h"
 #include "ParasiteDragMgr.h"
 
+#include "eli/mutil/nls/newton_raphson_method.hpp"
+
+#include <numeric>
 
 //==== Constructor ====//
 ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
@@ -34,6 +37,13 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
 
     m_Sref.Init("Sref", groupname, this, 100.0, 0.0, 1e12);
     m_Sref.SetDescript("Reference area");
+
+    m_LamCfEqnType.Init("LamCfEqnType", groupname, this, vsp::CF_LAM_BLASIUS, vsp::CF_LAM_BLASIUS, vsp::CF_LAM_BLASIUS_W_HEAT);
+    m_LamCfEqnType.SetDescript("Laminar Cf Equation Choice");
+
+    m_TurbCfEqnType.Init("TurbCfEqnType", groupname, this, vsp::CF_TURB_POWER_LAW_BLASIUS, vsp::CF_TURB_EXPLICIT_FIT_SPALDING,
+        vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH);
+    m_TurbCfEqnType.SetDescript("Turbulent Cf Equation Choice");
 
     m_AltLengthUnit.Init("AltLengthUnit", groupname, this, vsp::PD_UNITS_IMPERIAL, vsp::PD_UNITS_IMPERIAL, vsp::PD_UNITS_METRIC);
     m_AltLengthUnit.SetDescript("Altitude Units");
@@ -493,6 +503,70 @@ void ParasiteDragMgrSingleton::ReynoldsNumCalc(int index)
     }
 }
 
+void ParasiteDragMgrSingleton::Calculate_Cf()
+{
+    // Initialize Variables
+    double lref, rho, kineVisc, vinf;
+
+    for (int i = 0; i < m_RowSize; ++i)
+    {
+        if (!m_DegenGeomVec.empty())
+        { // If DegenGeom Exists Calculate Cf
+            if (geo_subsurfID[i].compare("") == 0)
+            {
+                vinf = ConvertVelocity(m_Vinf(), m_VinfUnitType.Get(), vsp::V_UNIT_M_S);
+                rho = ConvertDensity(m_Atmos.GetDensity(), m_AltLengthUnit(), vsp::RHO_UNIT_KG_M3); // lb/ft3 to kg/m3
+                lref = ConvertLength(geo_lref[i], m_LengthUnit(), vsp::LEN_M);
+                kineVisc = m_Atmos.GetDynaVisc() / rho;
+
+                if (geo_percLam[i] == 0 || geo_percLam[i] == -1)
+                { // Assume full turbulence
+                    geo_cf.push_back(CalcTurbCf(geo_Re[i], geo_lref[i], m_TurbCfEqnType(),
+                        m_SpecificHeatRatio(), geo_Roughness[i], geo_TawTwRatio[i], geo_TeTwRatio[i]));
+                }
+                else
+                { // Not full turbulence 
+                    CalcPartialTurbulence(i, lref, vinf, kineVisc);
+                }
+            }
+            else
+            {
+                geo_cf.push_back(geo_cf[geo_cf.size() - 1]);
+            }
+        }
+        else
+        { // Else push back default value
+            geo_cf.push_back(-1);
+        }
+    }
+}
+
+void ParasiteDragMgrSingleton::CalcPartialTurbulence(int i, double lref, double vinf, double kineVisc)
+{
+    if (geo_Re[i] != 0)
+    { // Prevent dividing by 0 in some equations
+        double LamPerc = (geo_percLam[i] / 100);
+        double CffullTurb = CalcTurbCf(geo_Re[i], geo_lref[i], m_TurbCfEqnType(),
+            m_SpecificHeatRatio(), geo_Roughness[i], geo_TawTwRatio[i], geo_TeTwRatio[i]);
+        double CffullLam = CalcLamCf(geo_Re[i], m_LamCfEqnType.Get());
+
+        double LamPercRefLen = LamPerc * lref;
+
+        double ReLam = (vinf * LamPercRefLen) / kineVisc;
+
+        double CfpartLam = CalcLamCf(ReLam, m_LamCfEqnType());
+        double CfpartTurb = CalcTurbCf(ReLam, geo_lref[i], m_TurbCfEqnType(),
+            m_SpecificHeatRatio(), geo_Roughness[i], geo_TawTwRatio[i], geo_TeTwRatio[i]);
+
+        geo_cf.push_back(CffullTurb - (CfpartTurb * LamPerc) +
+            (CfpartLam * LamPerc));
+    }
+    else
+    {
+        geo_cf.push_back(0);
+    }
+}
+
 void ParasiteDragMgrSingleton::Calculate_fineRat()
 {
     // Initialize Variables
@@ -544,6 +618,237 @@ void ParasiteDragMgrSingleton::Calculate_fineRat()
             geo_fineRat.push_back(-1);
         }
     }
+}
+
+// ================================== //
+// ====== Iterative Functions ======= //
+// ================================== //
+
+struct Schoenherr_functor
+{
+    double operator()(const double &Cf) const
+    {
+        return (0.242 / (sqrt(Cf) * log10(Re * Cf))) - 1.0;
+    }
+    double Re;
+};
+
+struct Schoenherr_p_functor
+{
+    double operator()(const double &Cf) const
+    {
+        return ((-0.278613 * log(Cf * Re)) - 0.557226) /
+            (pow(Cf, 1.5) * pow(log(Re * Cf), 2.0));
+    }
+    double Re;
+};
+
+struct Karman_functor
+{
+    double operator()(const double &Cf) const
+    {
+        return ((4.15 * log10(Re * Cf) + 1.70) * sqrt(Cf)) - 1.0;
+    }
+    double Re;
+};
+
+struct Karman_p_functor
+{
+    double operator()(const double &Cf) const
+    {
+        return (0.901161 * log(Re * Cf) + 2.65232) / sqrt(Cf);
+    }
+    double Re;
+};
+
+struct Karman_Schoenherr_functor
+{
+    double operator()(const double &Cf) const
+    {
+        return ((4.13 * log10(Re * Cf)) * sqrt(Cf)) - 1.0;
+    }
+    double Re;
+};
+
+struct Karman_Schoenherr_p_functor
+{
+    double operator()(const double &Cf) const
+    {
+        return (0.896818 * log(Re * Cf) + 1.79364) / sqrt(Cf);
+    }
+    double Re;
+};
+
+// ================================== //
+// ================================== //
+// ================================== //
+
+double ParasiteDragMgrSingleton::CalcTurbCf(double ReyIn, double ref_leng, int cf_case,
+    double roughness_h = 0, double gamma = 1.4, double taw_tw_ratio = 0, double te_tw_ratio = 0)
+{
+    double CfOut, CfGuess, f, heightRatio, multiBy;
+    double r = 0.89; // Recovery Factor
+    double n = 0.67; // Viscosity Power-Law Exponent
+
+    eli::mutil::nls::newton_raphson_method < double > nrm;
+
+    if (m_LengthUnit.Get() == vsp::LEN_FT)
+    {
+        multiBy = 12.0;
+    }
+    else if (m_LengthUnit.Get() == vsp::LEN_M)
+    {
+        multiBy = 39.3701;
+    }
+
+    switch (cf_case)
+    {
+    case vsp::CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE:
+        CfOut = 0.42 / pow(log(0.056 * ReyIn), 2.0);
+        break;
+
+    case vsp::CF_TURB_SCHLICHTING_PRANDTL:
+        CfOut = 1 / pow((2 * log10(ReyIn) - 0.65), 2.3);
+        break;
+
+    case vsp::CF_TURB_SCHLICHTING_COMPRESSIBLE:
+        CfOut = 0.455 / pow(log10(ReyIn), 2.58);
+        break;
+
+    case vsp::CF_TURB_SCHLICHTING_INCOMPRESSIBLE:
+        CfOut = 0.472 / pow(log10(ReyIn), 2.5);
+        break;
+
+    case vsp::CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR:
+        CfOut = 0.427 / pow((log10(ReyIn) - 0.407), 2.64);
+        break;
+
+    case vsp::CF_TURB_SCHULTZ_GRUNOW_HIGH_RE:
+        CfOut = 0.37 / pow(log10(ReyIn), 2.584);
+        break;
+
+    case vsp::CF_TURB_POWER_LAW_BLASIUS:
+        CfOut = 0.0592 / pow(ReyIn, 0.2);
+        break;
+
+    case vsp::CF_TURB_POWER_LAW_PRANDTL_LOW_RE:
+        CfOut = 0.074 / pow(ReyIn, 0.2);
+        break;
+
+    case vsp::CF_TURB_POWER_LAW_PRANDTL_MEDIUM_RE:
+        CfOut = 0.027 / pow(ReyIn, 1.0 / 7.0);
+        break;
+
+    case vsp::CF_TURB_POWER_LAW_PRANDTL_HIGH_RE:
+        CfOut = 0.058 / pow(ReyIn, 0.2);
+        break;
+
+    case vsp::CF_TURB_EXPLICIT_FIT_SPALDING:
+        CfOut = 0.455 / pow(log(0.06 * ReyIn), 2.0);
+        break;
+
+    case vsp::CF_TURB_EXPLICIT_FIT_SPALDING_CHI:
+        CfOut = 0.225 / pow(log10(ReyIn), 2.32);
+        break;
+
+    case vsp::CF_TURB_EXPLICIT_FIT_SCHOENHERR:
+        CfOut = pow((1.0 / ((3.46* log10(ReyIn)) - 5.6)), 2.0);
+        break;
+
+    case vsp::CF_TURB_IMPLICIT_SCHOENHERR:
+        Schoenherr_functor sfun;
+        sfun.Re = ReyIn;
+        Schoenherr_p_functor sfunprm;
+        sfunprm.Re = ReyIn;
+
+        CfGuess = pow((1.0 / ((3.46* log10(ReyIn)) - 5.6)), 2.0);
+
+        nrm.set_initial_guess(CfGuess);
+        nrm.find_root(CfOut, sfun, sfunprm, 0.0);
+        break;
+
+    case vsp::CF_TURB_IMPLICIT_KARMAN:
+        Karman_functor kfun;
+        kfun.Re = ReyIn;
+        Karman_p_functor kfunprm;
+        kfunprm.Re = ReyIn;
+
+        CfGuess = 0.455 / pow(log10(ReyIn), 2.58);
+
+        nrm.set_initial_guess(CfGuess);
+        nrm.find_root(CfOut, kfun, kfunprm, 0.0);
+        break;
+
+    case vsp::CF_TURB_IMPLICIT_KARMAN_SCHOENHERR:
+        Karman_Schoenherr_functor ksfun;
+        ksfun.Re = ReyIn;
+        Karman_Schoenherr_p_functor ksfunprm;
+        ksfunprm.Re = ReyIn;
+
+        CfGuess = pow((1.0 / ((3.46* log10(ReyIn)) - 5.6)), 2.0);
+
+        nrm.set_initial_guess(CfGuess);
+        nrm.find_root(CfOut, ksfun, ksfunprm, 0.0);
+        break;
+
+    case vsp::CF_TURB_ROUGHNESS_WHITE:
+        heightRatio = ref_leng / roughness_h;
+        CfOut = pow((1.4 + (3.7 * log10(heightRatio))), -2.0);
+        break;
+
+    case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL:
+        heightRatio = ref_leng / roughness_h;
+        CfOut = pow((1.4 + (3.7 * log10(heightRatio))), -2.0);
+        break;
+
+    case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG:
+        heightRatio = ref_leng / (roughness_h * multiBy);
+        CfOut = pow((1.89 + (1.62 * log10(heightRatio))), -2.5);
+        break;
+
+    case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION:
+        heightRatio = ref_leng / (roughness_h * multiBy);
+        CfOut = pow((1.89 + (1.62 * log10(heightRatio))), -2.5) /
+            (pow((1.0 + ((gamma - 1.0) / 2.0) * m_Mach()), 0.467));
+        break;
+
+    case vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH:
+        f = (1 + (0.22 * r * (((roughness_h * multiBy) - 1.0) / 2.0) *
+            m_Mach() * m_Mach() * te_tw_ratio)) /
+            (1 + (0.3 * (taw_tw_ratio - 1.0)));
+
+        CfOut = (0.451 * f * f * te_tw_ratio) /
+            (log(0.056 * f * pow(te_tw_ratio, 1.0 + n) * ReyIn));
+
+        break;
+
+    default:
+        CfOut = 0;
+        break;
+    }
+
+    return CfOut;
+}
+
+double ParasiteDragMgrSingleton::CalcLamCf(double ReyIn, int cf_case)
+{
+    double CfOut;
+
+    switch (cf_case)
+    {
+    case vsp::CF_LAM_BLASIUS:
+        CfOut = 1.32824 / pow(ReyIn, 0.5);
+        break;
+
+    case vsp::CF_LAM_BLASIUS_W_HEAT:
+        CfOut = 0;
+        break;
+
+    default:
+        CfOut = 0;
+    }
+
+    return CfOut;
 }
 
 void ParasiteDragMgrSingleton::SetActiveGeomVec()
@@ -869,6 +1174,7 @@ void ParasiteDragMgrSingleton::ClearOutputVectors()
     geo_swet.clear();
     geo_lref.clear();
     geo_Re.clear();
+    geo_cf.clear();
     geo_fineRat.clear();
 }
 

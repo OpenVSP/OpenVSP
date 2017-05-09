@@ -1128,6 +1128,58 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_MANUAL_RE_L", ATMOS_TYPE_MANUAL_RE_L );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "CF_LAM_EQN" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_LAM_EQN", "CF_LAM_BLASIUS", CF_LAM_BLASIUS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_LAM_EQN", "CF_LAM_BLASIUS_W_HEAT", CF_LAM_BLASIUS_W_HEAT );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "CF_TURB_EQN" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE", CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_SCHLICHTING_PRANDTL", CF_TURB_SCHLICHTING_PRANDTL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_SCHLICHTING_COMPRESSIBLE", CF_TURB_SCHLICHTING_COMPRESSIBLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_SCHLICHTING_INCOMPRESSIBLE", CF_TURB_SCHLICHTING_INCOMPRESSIBLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_SCHULTZ_GRUNOW_1", CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_SCHULTZ_GRUNOW_2", CF_TURB_SCHULTZ_GRUNOW_HIGH_RE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_POWER_LAW_BLASIUS", CF_TURB_POWER_LAW_BLASIUS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_POWER_LAW_PRANDTL_LOW_RE", CF_TURB_POWER_LAW_PRANDTL_LOW_RE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_POWER_LAW_PRANDTL_MEDIUM_RE", CF_TURB_POWER_LAW_PRANDTL_MEDIUM_RE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_POWER_LAW_PRANDTL_HIGH_RE", CF_TURB_POWER_LAW_PRANDTL_HIGH_RE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_EXPLICIT_FIT_SPALDING", CF_TURB_EXPLICIT_FIT_SPALDING );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_EXPLICIT_FIT_SPALDING_CHI", CF_TURB_EXPLICIT_FIT_SPALDING_CHI );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_EXPLICIT_FIT_SCHOENHERR", CF_TURB_EXPLICIT_FIT_SCHOENHERR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_IMPLICIT_KARMAN", CF_TURB_IMPLICIT_KARMAN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_IMPLICIT_SCHOENHERR", CF_TURB_IMPLICIT_SCHOENHERR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_IMPLICIT_KARMAN_SCHOENHERR", CF_TURB_IMPLICIT_KARMAN_SCHOENHERR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_ROUGHNESS_WHITE", CF_TURB_ROUGHNESS_WHITE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL", CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_ROUGHNESS_SCHLICHTING_AVG", CF_TURB_ROUGHNESS_SCHLICHTING_AVG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION", CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH", CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH );
+    assert( r >= 0 );
+
 
 }
 
