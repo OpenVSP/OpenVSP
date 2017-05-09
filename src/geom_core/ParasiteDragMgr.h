@@ -99,6 +99,9 @@ public:
     void Calculate_fineRat();
     void Calculate_FF();
     void Calculate_AvgSweep(vector <DegenStick> degenSticks);
+    void Calculate_f();
+    void Calculate_Cd();
+    void Calculate_ALL();
 
     // Switch Case Methods For Friction Coefficient Selections
     double CalcTurbCf(double ReyIn, double ref_leng, int cf_case, double roughness_h,
@@ -120,6 +123,9 @@ public:
     vector <string> GetPDGeomIDVec() { return m_PDGeomIDVec; }
     int GetReynoldsDivisor() { return m_ReynoldsPowerDivisor; }
     double GetLrefSigFig(); // For display precision purposes
+    double GetGeomfTotal() { return m_GeomfTotal; }
+    double GetGeomPercTotal() { return m_GeomPercTotal; }
+    double GetGeometryCd();
 
     // Update Methods
     void Update();
@@ -132,6 +138,7 @@ public:
     void UpdateTemp(int newunit);
     void UpdateTempLimits();
     void UpdatePres(int newunit);
+    void UpdatePercentageCD();
     void UpdateParmActivity();
 
     // General Methods
@@ -215,6 +222,13 @@ private:
     vector <double> geo_ffIn;
     vector <double> geo_ffOut;
     vector <double> geo_Q;
+    vector <double> geo_f;
+    vector <double> geo_Cd;
+    vector <double> geo_percTotalCd;
+
+    // Totals
+    double m_GeomfTotal;
+    double m_GeomPercTotal;
 };
 
 #define ParasiteDragMgr ParasiteDragMgrSingleton::getInstance()

@@ -739,6 +739,155 @@ void ParasiteDragMgrSingleton::Calculate_AvgSweep(vector<DegenStick> degenSticks
     m_Sweep50 = weighted50Sum / totalArea * PI / 180.0; // Into Radians
 }
 
+void ParasiteDragMgrSingleton::Calculate_f()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    // Initialize Variables
+    double Q, ff;
+
+    for (int i = 0; i < m_RowSize; ++i)
+    {
+        // If no value input as Q, use 1
+        if (geo_Q[i] != -1)
+        {
+            Q = geo_Q[i];
+        }
+        else
+        {
+            Q = 1;
+        }
+
+        // If no value input as FF, use calculated
+        if (geo_ffIn[i] != -1)
+        {
+            ff = geo_ffIn[i];
+        }
+        else
+        {
+            ff = geo_ffOut[i];
+        }
+
+        if (IsNotZeroLineItem(i))
+        {
+            if (!m_DegenGeomVec.empty())
+            { // If DegenGeom Exists Calculate f
+                geo_f.push_back(geo_swet[i] * Q * geo_cf[i] * ff);
+            }
+            else
+            { // Else Push Back Default Val
+                geo_f.push_back(-1);
+            }
+        }
+        else
+        {
+            if (!m_DegenGeomVec.empty())
+            {
+                geo_f.push_back(0.0);
+            }
+            else
+            {
+                geo_f.push_back(-1);
+            }
+        }
+    }
+}
+
+void ParasiteDragMgrSingleton::Calculate_Cd()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    int iSubSurf = 0;
+
+    for (int i = 0; i < m_RowSize; ++i)
+    {
+        if (IsNotZeroLineItem(i))
+        {
+            if (!m_DegenGeomVec.empty())
+            { // If DegenGeom Exists Calculate CD
+                if (!isnan(geo_f[i]))
+                {
+                    geo_Cd.push_back(geo_f[i] / m_Sref.Get());
+                }
+                else
+                {
+                    geo_Cd.push_back(0.0);
+                }
+            }
+            else
+            { // Else Push Back Default Val
+                geo_Cd.push_back(-1);
+            }
+        }
+        else
+        {
+            if (!m_DegenGeomVec.empty())
+            {
+                geo_Cd.push_back(0.0);
+            }
+            else
+            {
+                geo_Cd.push_back(-1);
+            }
+        }
+    }
+}
+
+void ParasiteDragMgrSingleton::Calculate_ALL()
+{
+    ClearOutputVectors();
+    ClearInputVectors();
+    LoadMainTableUserInputs(); // Load User Input Values
+
+                               // Calculate All Necessary Values
+    Calculate_Swet();
+    Calculate_Lref();
+    Calculate_Re();
+    Calculate_Cf();
+    Calculate_fineRat();
+    Calculate_FF();
+    Calculate_f();
+    Calculate_Cd();
+
+    UpdatePercentageCD();
+
+    InitTableVec(); // Initialize Map Size
+
+    ParasiteDragTableRow tempStruct = m_DefaultStruct;
+    for (int i = 0; i < m_RowSize; i++)
+    {
+        tempStruct.GeomID = geo_geomID[i];
+        tempStruct.SubSurfID = geo_subsurfID[i];
+        tempStruct.Label = geo_label[i];
+        tempStruct.Swet = geo_swet[i];
+        tempStruct.Lref = geo_lref[i];
+        tempStruct.Re = geo_Re[i];
+        tempStruct.PercLam = geo_percLam[i];
+        tempStruct.Cf = geo_cf[i];
+        tempStruct.fineRat = geo_fineRat[i];
+        tempStruct.FFEqnChoice = geo_ffType[i];
+        tempStruct.FFEqnName = geo_ffName[i];
+        tempStruct.Roughness = geo_Roughness[i];
+        tempStruct.TeTwRatio = geo_TeTwRatio[i];
+        tempStruct.TawTwRatio = geo_TawTwRatio[i];
+        tempStruct.GeomShapeType = geo_shapeType[i];
+        tempStruct.SurfNum = geo_surfNum[i];
+        if (geo_ffType[i] == vsp::FF_B_MANUAL || geo_ffType[i] == vsp::FF_W_MANUAL)
+        {
+            tempStruct.FF = geo_ffIn[i];
+        }
+        else
+        {
+            tempStruct.FF = geo_ffOut[i];
+        }
+        tempStruct.Q = geo_Q[i];
+        tempStruct.f = geo_f[i];
+        tempStruct.CD = geo_Cd[i];
+        tempStruct.PercTotalCd = geo_percTotalCd[i];
+        tempStruct.SurfNum = geo_surfNum[i];
+
+        m_TableRowVec[i] = tempStruct;
+    }
+}
+
 // ================================== //
 // ====== Iterative Functions ======= //
 // ================================== //
@@ -1225,6 +1374,19 @@ double ParasiteDragMgrSingleton::GetLrefSigFig()
     }
 }
 
+double ParasiteDragMgrSingleton::GetGeometryCd()
+{
+    double sum = 0;
+    for (int i = 0; i < geo_Cd.size(); i++)
+    {
+        if (geo_Cd[i] > 0.0)
+        {
+            sum += geo_Cd[i];
+        }
+    }
+    return sum;
+}
+
 void ParasiteDragMgrSingleton::Update()
 {
     UpdateRefWing();
@@ -1432,6 +1594,39 @@ void ParasiteDragMgrSingleton::UpdatePres(int newunit)
     m_PresUnit.Set(newunit);
 }
 
+void ParasiteDragMgrSingleton::UpdatePercentageCD()
+{
+    double totalCd0 = GetGeometryCd();
+    double ftotal = 0;
+    double percTotal = 0;
+
+    for (int i = 0; i < geo_Cd.size(); i++)
+    {
+        if (!m_DegenGeomVec.empty())
+        {
+            if (!isnan(geo_f[i]))
+            {
+                geo_percTotalCd.push_back(geo_Cd[i] / totalCd0);
+                percTotal += geo_Cd[i] / totalCd0;
+                ftotal += geo_f[i];
+            }
+            else
+            {
+                geo_percTotalCd.push_back(0.0);
+            }
+        }
+        else
+        {
+            geo_percTotalCd.push_back(0);
+            percTotal += 0;
+        }
+    }
+
+    m_GeomfTotal = ftotal;
+    m_GeomPercTotal = percTotal;
+}
+
+
 void ParasiteDragMgrSingleton::UpdateParmActivity()
 {
     // Activate/Deactivate Appropriate Flow Condition Parameters
@@ -1500,7 +1695,14 @@ void ParasiteDragMgrSingleton::ClearOutputVectors()
     geo_ffType.clear();
     geo_ffName.clear();
     geo_ffOut.clear();
+    geo_f.clear();
+    geo_Cd.clear();
+    geo_percTotalCd.clear();
 }
+
+// ========================================================== //
+// ================ Miscellaneous Methods =================== //
+// ========================================================== //
 
 void ParasiteDragMgrSingleton::DeactivateParms()
 {
