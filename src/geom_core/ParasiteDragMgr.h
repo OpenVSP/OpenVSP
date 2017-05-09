@@ -12,6 +12,7 @@
 
 #include "Geom.h"
 #include "Parm.h"
+#include "UnitConversion.h"
 #include "Util.h"
 
 #include <string>
@@ -105,8 +106,12 @@ public:
     void Update();
     void UpdateWettedAreaTotals();
     void UpdateRefWing();
+    void UpdateVinf(int newunit);
+    void UpdateAlt(int newunit);
     void UpdateAltLimits();
+    void UpdateTemp(int newunit);
     void UpdateTempLimits();
+    void UpdatePres(int newunit);
     void UpdateParmActivity();
 
     // General Methods
@@ -136,7 +141,14 @@ public:
     Parm m_Vinf;
     Parm m_Hinf;
     Parm m_Temp;
+    Parm m_DeltaT;
+    Parm m_Pres;
+    Parm m_Rho;
+    Parm m_DynaVisc;
+    Parm m_SpecificHeatRatio;
+    Parm m_KineVisc;
     Parm m_Mach;
+    Parm m_ReqL;
 
 private:
     ParasiteDragMgrSingleton();

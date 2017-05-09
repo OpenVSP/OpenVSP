@@ -35,18 +35,51 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_Sref.Init("Sref", groupname, this, 100.0, 0.0, 1e12);
     m_Sref.SetDescript("Reference area");
 
+    m_AltLengthUnit.Init("AltLengthUnit", groupname, this, vsp::PD_UNITS_IMPERIAL, vsp::PD_UNITS_IMPERIAL, vsp::PD_UNITS_METRIC);
+    m_AltLengthUnit.SetDescript("Altitude Units");
+
+    m_LengthUnit.Init("LengthUnit", groupname, this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS);
+    m_LengthUnit.SetDescript("Length Units");
+
+    m_TempUnit.Init("TempUnit", groupname, this, vsp::TEMP_UNIT_F, vsp::TEMP_UNIT_K, vsp::TEMP_UNIT_R);
+    m_TempUnit.SetDescript("Temperature Units");
+
     // Air Qualities Parms
     m_Mach.Init("Mach", groupname, this, 0.0, 0.0, 1000.0);
     m_Mach.SetDescript("Mach Number for Current Flight Condition");
 
+    m_ReqL.Init("Re_L", groupname, this, 0.0, 0.0, 1e12);
+    m_ReqL.SetDescript("Reynolds Number Per Unit Length");
+
     m_Temp.Init("Temp", groupname, this, 288.15, -459.67, 1e12);
     m_Temp.SetDescript("Temperature");
+
+    m_Pres.Init("Pres", groupname, this, 2116.221, 1e-4, 1e12);
+    m_Pres.SetDescript("Pressure");
+
+    m_Rho.Init("Density", groupname, this, 0.07647, 1e-12, 1e12);
+    m_Rho.SetDescript("Density");
+
+    m_DynaVisc.Init("DynaVisc", groupname, this, 0.0, 1e-12, 1e12);
+    m_DynaVisc.SetDescript("Dynamic Viscosity for Current Condition");
+
+    m_SpecificHeatRatio.Init("SpecificHeatRatio", groupname, this, 1.4, -1, 1e3);
+    m_SpecificHeatRatio.SetDescript("Specific Heat Ratio");
+
+    //m_MediumType.Init("Medium", groupname, this, Atmosphere::MEDIUM_AIR, Atmosphere::MEDIUM_AIR, Atmosphere::MEDIUM_PURE_WATER);
+    //m_MediumType.SetDescript("Wind Tunnel Medium");
 
     m_Vinf.Init("Vinf", groupname, this, 500.0, 0.0, 1e12);
     m_Vinf.SetDescript("Free Stream Velocity");
 
+    m_VinfUnitType.Init("VinfUnitType", groupname, this, vsp::V_UNIT_FT_S, vsp::V_UNIT_FT_S, vsp::V_UNIT_KTAS);
+    m_VinfUnitType.SetDescript("Units for Freestream Velocity");
+
     m_Hinf.Init("Alt", groupname, this, 20000.0, 0.0, 271823.3);
     m_Hinf.SetDescript("Physical Altitude from Sea Level");
+
+    m_DeltaT.Init("DeltaTemp", groupname, this, 0.0, -1e12, 1e12);
+    m_DeltaT.SetDescript("Delta Temperature from STP");
 }
 
 void ParasiteDragMgrSingleton::Renew()
@@ -531,12 +564,81 @@ void ParasiteDragMgrSingleton::UpdateRefWing()
     }
 }
 
+void ParasiteDragMgrSingleton::UpdateVinf(int newunit)
+{
+    double new_vinf;
+    new_vinf = ConvertVelocity(m_Vinf(), m_VinfUnitType(), newunit);
+    m_Vinf.Set(new_vinf);
+    m_VinfUnitType.Set(newunit);
+}
+
+void ParasiteDragMgrSingleton::UpdateAlt(int newunit)
+{
+    double new_alt;
+    if (newunit == vsp::PD_UNITS_IMPERIAL && m_AltLengthUnit() == vsp::PD_UNITS_METRIC)
+    {
+        new_alt = ConvertLength(m_Hinf(), vsp::LEN_M, vsp::LEN_FT);
+    }
+    else if (newunit == vsp::PD_UNITS_METRIC && m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL)
+    {
+        new_alt = ConvertLength(m_Hinf(), vsp::LEN_FT, vsp::LEN_M);
+    }
+
+    m_Hinf.Set(new_alt);
+    m_AltLengthUnit.Set(newunit);
+}
+
 void ParasiteDragMgrSingleton::UpdateAltLimits()
 {
+    switch (m_AltLengthUnit())
+    {
+    case vsp::PD_UNITS_IMPERIAL:
+        m_Hinf.SetUpperLimit(278385.83);
+        break;
+
+    case vsp::PD_UNITS_METRIC:
+        m_Hinf.SetUpperLimit(84852.0);
+        break;
+
+    default:
+        break;
+    }
+}
+
+void ParasiteDragMgrSingleton::UpdateTemp(int newunit)
+{
+    double new_temp = ConvertTemperature(m_Temp(), m_TempUnit(), newunit);
+    m_Temp.Set(new_temp);
+    m_TempUnit.Set(newunit);
 }
 
 void ParasiteDragMgrSingleton::UpdateTempLimits()
 {
+    switch (m_TempUnit())
+    {
+    case vsp::TEMP_UNIT_C:
+        m_Temp.SetLowerLimit(-273.15);
+        break;
+
+    case vsp::TEMP_UNIT_F:
+        m_Temp.SetLowerLimit(-459.666);
+        break;
+
+    case vsp::TEMP_UNIT_K:
+        m_Temp.SetLowerLimit(0.0);
+        break;
+
+    case vsp::TEMP_UNIT_R:
+        m_Temp.SetLowerLimit(0.0);
+        break;
+    }
+}
+
+void ParasiteDragMgrSingleton::UpdatePres(int newunit)
+{
+    double new_pres = ConvertPressure(m_Pres(), m_PresUnit(), newunit);
+    m_Pres.Set(new_pres);
+    m_PresUnit.Set(newunit);
 }
 
 void ParasiteDragMgrSingleton::UpdateParmActivity()
