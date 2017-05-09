@@ -1234,6 +1234,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_JOBE", FF_B_JOBE );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "EXCRES_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_COUNT", EXCRESCENCE_COUNT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_CD", EXCRESCENCE_CD );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_PERCENT_GEOM", EXCRESCENCE_PERCENT_GEOM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_DRAGAREA", EXCRESCENCE_DRAGAREA );
+    assert( r >= 0 );
 }
 
 //==== Vec3d Constructors ====//

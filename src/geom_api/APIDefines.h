@@ -475,6 +475,12 @@ enum FF_B_EQN { FF_B_MANUAL = 0,
                 FF_B_JOBE
               }; // FF Body Eqn ENUM
 
+enum EXCRES_TYPE { EXCRESCENCE_COUNT = 0,
+                   EXCRESCENCE_CD,
+                   EXCRESCENCE_PERCENT_GEOM,
+                   EXCRESCENCE_MARGIN,
+                   EXCRESCENCE_DRAGAREA,
+                 }; // Excrescence Type ENUM
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)

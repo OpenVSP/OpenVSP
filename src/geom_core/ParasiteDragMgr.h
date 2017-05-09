@@ -117,15 +117,42 @@ public:
     void SetSref(double sref) { m_Sref.Set(sref); }
     void SetActiveGeomVec();
     void SetFreestreamParms();
+    void SetCurrExcresIndex(int val) { m_CurrentExcresIndex = val; }
+    void SetExcresLabel(const string & newLabel);
 
     // Getter Methods
     vector < ParasiteDragTableRow > GetMainTableVec() { return m_TableRowVec; }
+    vector < ExcrescenceTableRow > GetExcresVec() { return m_ExcresRowVec; }
     vector <string> GetPDGeomIDVec() { return m_PDGeomIDVec; }
     int GetReynoldsDivisor() { return m_ReynoldsPowerDivisor; }
     double GetLrefSigFig(); // For display precision purposes
     double GetGeomfTotal() { return m_GeomfTotal; }
     double GetGeomPercTotal() { return m_GeomPercTotal; }
+    double GetExcresfTotal() { return m_ExcresfTotal; }
+    double GetExcresPercTotal() { return m_ExcresPercTotal; }
+    double GetfTotal() { return m_GeomfTotal + m_ExcresfTotal; }
+    double GetPercTotal() { return m_GeomPercTotal + m_ExcresPercTotal; }
+    int GetCurrExcresIndex() { return m_CurrentExcresIndex; }
     double GetGeometryCd();
+    double GetSubTotalCD();
+    double GetTotalCD();
+    vector < string > GetExcresIDs();
+    string GetCurrentExcresLabel();
+    string GetCurrentExcresTypeString();
+    double GetCurrentExcresValue();
+    int GetCurrentExcresType();
+
+    // Excresence Related Functions
+    void AddExcrescence();
+    void AddExcrescence(const std::string &excresName, int excresType, double excresVal);
+    void DeleteExcrescence();
+    void DeleteExcrescence(int index);
+    double CalcPercentageGeomCd(double val);
+    double CalcPercentageTotalCD(double val);
+    double CalcDragAreaCd(double val);
+    double GetSubTotalExcresCd();
+    double GetTotalExcresCD();
+    void ConsolidateExcres();
 
     // Update Methods
     void Update();
@@ -140,6 +167,8 @@ public:
     void UpdatePres(int newunit);
     void UpdatePercentageCD();
     void UpdateParmActivity();
+    void UpdateExcres();
+    void UpdateCurrentExcresVal();
 
     // General Methods
     void ClearInputVectors();
@@ -166,6 +195,12 @@ public:
     IntParm m_TempUnit;
     IntParm m_PresUnit;
 
+    // Excrescence Parm
+    Parm m_ExcresValue;
+    IntParm m_ExcresType;
+    string m_ExcresName;
+    int m_CurrentExcresIndex;
+
     // Air Qualities Parms
     Parm m_Vinf;
     Parm m_Hinf;
@@ -186,6 +221,7 @@ private:
     Atmosphere m_Atmos; // Atmosphere class contains all atmosphere related qualities
 
     vector < ParasiteDragTableRow > m_TableRowVec;
+    vector < ExcrescenceTableRow > m_ExcresRowVec;
     ParasiteDragTableRow m_DefaultStruct;
 
     // Main Table Geom Related Vectors
@@ -226,9 +262,19 @@ private:
     vector <double> geo_Cd;
     vector <double> geo_percTotalCd;
 
+    // Excrescence Vectors
+    vector < string > excres_Label;
+    vector < string > excres_Type;
+    vector < double > excres_Input;
+    vector < double> excres_Amount;
+    vector < double > excres_PercTotalCd;
+
     // Totals
     double m_GeomfTotal;
     double m_GeomPercTotal;
+
+    double m_ExcresfTotal;
+    double m_ExcresPercTotal;
 };
 
 #define ParasiteDragMgr ParasiteDragMgrSingleton::getInstance()
