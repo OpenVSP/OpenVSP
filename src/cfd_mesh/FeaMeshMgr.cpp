@@ -1902,9 +1902,9 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_CapNormDO[cnt].m_Visible = false;
             }
 
-            m_TriOrientationDO[cnt].m_LineColor = m_FeaNodeDO[cnt].m_PointColor;
+            m_TriOrientationDO[cnt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
-            m_CapNormDO[cnt].m_LineColor = m_CapFeaElementDO[cnt].m_LineColor;
+            m_CapNormDO[cnt].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
             vector < vec3d > tri_orient_pnt_vec, cap_norm_pnt_vec;
 
@@ -2110,9 +2110,9 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_SSCapNormDO[i].m_Visible = false;
             }
 
-            m_SSTriOrientationDO[i].m_LineColor = m_SSFeaNodeDO[i].m_PointColor;
+            m_SSTriOrientationDO[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
-            m_SSCapNormDO[i].m_LineColor = m_SSCapFeaElementDO[i].m_LineColor;
+            m_SSCapNormDO[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
             vector < vec3d > ss_tri_orient_pnt_vec, ss_cap_norm_pnt_vec;
 
