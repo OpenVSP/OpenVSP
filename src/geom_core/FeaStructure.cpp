@@ -818,42 +818,59 @@ void FeaPart::UpdateDrawObjs( int id, bool highlight )
 
         m_FeaPartDO[j].m_GeomID = string( "FeaPart_" + std::to_string( id ) + "_" + std::to_string( j ) );
         m_FeaPartDO[j].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-        m_FeaPartDO[j].m_LineWidth = 1.0;
 
         if ( highlight )
         {
             m_FeaPartDO[j].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+            m_FeaPartDO[j].m_LineWidth = 3.0;
         }
         else
         {
             m_FeaPartDO[j].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
+            m_FeaPartDO[j].m_LineWidth = 1.0;
         }
 
-        m_FeaPartDO[j].m_Type = DrawObj::VSP_LINES;
+        m_FeaPartDO[j].m_Type = DrawObj::VSP_WIRE_SHADED_QUADS;
 
         vec3d p00 = m_FeaPartSurfVec[j].CompPnt01( 0, 0 );
         vec3d p10 = m_FeaPartSurfVec[j].CompPnt01( 1, 0 );
         vec3d p11 = m_FeaPartSurfVec[j].CompPnt01( 1, 1 );
         vec3d p01 = m_FeaPartSurfVec[j].CompPnt01( 0, 1 );
 
+        m_FeaPartDO[j].m_PntVec.push_back( p00 );
+        m_FeaPartDO[j].m_PntVec.push_back( p10 );
+        m_FeaPartDO[j].m_PntVec.push_back( p11 );
+        m_FeaPartDO[j].m_PntVec.push_back( p01 );
+
+        // Get new normal
+        vec3d quadnorm = cross( p10 - p00, p01 - p00 );
+        quadnorm.normalize();
+
         for ( int i = 0; i < 4; i++ )
         {
-            double fu = (double)i / 3.0;
-            vec3d p0 = p00 + ( p10 - p00 )*fu;
-            vec3d p1 = p01 + ( p11 - p01 )*fu;
-
-            m_FeaPartDO[j].m_PntVec.push_back( p0 );
-            m_FeaPartDO[j].m_PntVec.push_back( p1 );
+            m_FeaPartDO[j].m_NormVec.push_back(quadnorm);
         }
+
+        // Set plane color to medium glass
         for ( int i = 0; i < 4; i++ )
         {
-            double fw = (double)i / 3.0;
-            vec3d p0 = p00 + ( p01 - p00 )*fw;
-            vec3d p1 = p10 + ( p11 - p10 )*fw;
-
-            m_FeaPartDO[j].m_PntVec.push_back( p0 );
-            m_FeaPartDO[j].m_PntVec.push_back( p1 );
+            m_FeaPartDO[j].m_MaterialInfo.Ambient[i] = 0.2f;
+            m_FeaPartDO[j].m_MaterialInfo.Diffuse[i] = 0.1f;
+            m_FeaPartDO[j].m_MaterialInfo.Specular[i] = 0.7f;
+            m_FeaPartDO[j].m_MaterialInfo.Emission[i] = 0.0f;
         }
+
+        if ( highlight )
+        {
+            m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.67f;
+        }
+        else
+        {
+            m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.33f;
+        }
+
+        m_FeaPartDO[j].m_MaterialInfo.Shininess = 5.0f;
+
 
         m_FeaPartDO[j].m_GeomChanged = true;
     }
