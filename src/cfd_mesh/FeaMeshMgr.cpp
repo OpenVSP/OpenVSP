@@ -259,6 +259,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     SubSurfaceMgr.BuildSingleTagMap();
 
+    CheckSubSurfBorderIntersect();
+
     CheckDuplicateSSIntersects();
 
     addOutputText( "Build Fea Mesh\n" );
@@ -867,6 +869,165 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                         string message = "\tIntersection Found for " + fix_point_name + "\n";
                         addOutputText( message );
                         break;
+                    }
+                }
+            }
+        }
+    }
+}
+
+void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
+{
+    // TODO: Add support for overlapping subsurface edges on a border curve 
+    list< ISegChain* >::iterator c;
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    {
+        if ( ( *c )->m_BorderFlag && ( *c )->m_SurfA->GetCompID() == ( *c )->m_SurfB->GetCompID() )
+        {
+            vec2d uw_pnt0;
+            vec2d uw_pnt1;
+
+            vector < Surf* > surf_vec;
+            surf_vec.resize( 2 );
+            surf_vec[0] = ( *c )->m_SurfA;
+            surf_vec[1] = ( *c )->m_SurfB;
+
+            // Get the total min and max U/W for Surf A and B
+            double tot_max_u = 0.0;
+            double tot_max_w = 0.0;
+            double tot_min_u = FLT_MAX;
+            double tot_min_w = FLT_MAX;
+
+            for ( size_t i = 0; i < surf_vec.size(); i++ )
+            {
+                if ( surf_vec[i]->GetSurfCore()->GetMaxW() > tot_max_w )
+                {
+                    tot_max_w = surf_vec[i]->GetSurfCore()->GetMaxW();
+                }
+                if ( surf_vec[i]->GetSurfCore()->GetMinW() < tot_min_w )
+                {
+                    tot_min_w = surf_vec[i]->GetSurfCore()->GetMinW();
+                }
+                if ( surf_vec[i]->GetSurfCore()->GetMaxU() > tot_max_u )
+                {
+                    tot_max_u = surf_vec[i]->GetSurfCore()->GetMaxU();
+                }
+                if ( surf_vec[i]->GetSurfCore()->GetMinU() < tot_min_u )
+                {
+                    tot_min_u = surf_vec[i]->GetSurfCore()->GetMinU();
+                }
+            }
+
+            for ( size_t i = 0; i < surf_vec.size(); i++ )
+            {
+                Surf* surf = surf_vec[i]; 
+
+                // Get all SubSurfaces for the specified geom
+                vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID() );
+
+                // Split SubSurfs
+                for ( int ss = 0; ss < (int)ss_vec.size(); ss++ )
+                {
+                    if ( ss_vec[ss].m_IntersectionCapFlag ) // Only consider SubSurface if cap intersections is flagged
+                    {
+                        ss_vec[ss].SplitSegsU( surf->GetSurfCore()->GetMinU() );
+                        ss_vec[ss].SplitSegsU( surf->GetSurfCore()->GetMaxU() );
+                        ss_vec[ss].SplitSegsW( surf->GetSurfCore()->GetMinW() );
+                        ss_vec[ss].SplitSegsW( surf->GetSurfCore()->GetMaxW() );
+
+                        vector< SSLineSeg >& segs = ss_vec[ss].GetSplitSegs();
+
+                        bool is_poly = ss_vec[ss].GetPolyFlag();
+
+                        // Build Intersection Chains
+                        for ( int ls = 0; ls < (int)segs.size(); ls++ )
+                        {
+                            SSLineSeg l_seg = segs[ls];
+                            vec3d lp0, lp1;
+
+                            lp0 = l_seg.GetP0();
+                            lp1 = l_seg.GetP1();
+                            uw_pnt0 = vec2d( lp0.x(), lp0.y() );
+                            uw_pnt1 = vec2d( lp1.x(), lp1.y() );
+
+                            // Cap subsurface edge points to within min and max U/W 
+                            if ( uw_pnt0[0] < tot_min_u )
+                            {
+                                uw_pnt0[0] = tot_min_u;
+                            }
+                            if ( uw_pnt1[0] < tot_min_u )
+                            {
+                                uw_pnt1[0] = tot_min_u;
+                            }
+                            if ( uw_pnt0[1] < tot_min_w )
+                            {
+                                uw_pnt0[1] = tot_min_w;
+                            }
+                            if ( uw_pnt1[1] < tot_min_w )
+                            {
+                                uw_pnt1[1] = tot_min_w;
+                            }
+
+                            if ( uw_pnt0[0] > tot_max_u )
+                            {
+                                uw_pnt0[0] = tot_max_u;
+                            }
+                            if ( uw_pnt1[0] > tot_max_u )
+                            {
+                                uw_pnt1[0] = tot_max_u;
+                            }
+                            if ( uw_pnt0[1] > tot_max_w )
+                            {
+                                uw_pnt0[1] = tot_max_w;
+                            }
+                            if ( uw_pnt1[1] > tot_max_w )
+                            {
+                                uw_pnt1[1] = tot_max_w;
+                            }
+
+                            double max_u, max_w, tol;
+                            double min_u, min_w;
+                            tol = 1e-6;
+                            min_u = surf->GetSurfCore()->GetMinU();
+                            min_w = surf->GetSurfCore()->GetMinW();
+                            max_u = surf->GetSurfCore()->GetMaxU();
+                            max_w = surf->GetSurfCore()->GetMaxW();
+
+                            if ( ( ( std::abs( uw_pnt0[0] - max_u ) < tol && std::abs( uw_pnt1[0] - max_u ) < tol ) ||
+                                ( std::abs( uw_pnt0[1] - max_w ) < tol && std::abs( uw_pnt1[1] - max_w ) < tol ) ||
+                                 ( std::abs( uw_pnt0[0] - min_u ) < tol && std::abs( uw_pnt1[0] - min_u ) < tol ) ||
+                                 ( std::abs( uw_pnt0[1] - min_w ) < tol && std::abs( uw_pnt1[1] - min_w ) < tol ) )
+                                    && is_poly )
+                            {
+                                if ( ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Puws[0]->m_UW, uw_pnt0 ) <= FLT_EPSILON
+                                     && dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Puws.back()->m_UW, uw_pnt1 ) <= FLT_EPSILON )
+                                     || ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Puws[0]->m_UW, uw_pnt1 ) <= FLT_EPSILON
+                                     && dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Puws.back()->m_UW, uw_pnt0 ) <= FLT_EPSILON ) )
+                                {
+                                    // The border curve is also a SubSurface intersection curve
+                                    ( *c )->m_SSIntersectIndex = ss;
+                                    ( *c )->m_BorderFlag = false;
+                                    break;
+                                }
+                                else if ( uw_pnt0[0] > min_u - FLT_EPSILON && uw_pnt1[0] > min_u - FLT_EPSILON && uw_pnt0[0] < max_u + FLT_EPSILON && uw_pnt1[0] < max_u + FLT_EPSILON
+                                          && uw_pnt0[1] > min_w - FLT_EPSILON && uw_pnt1[1] > min_w - FLT_EPSILON && uw_pnt0[1] < max_w + FLT_EPSILON && uw_pnt1[1] < max_w + FLT_EPSILON )
+                                {
+                                    vec3d corner0 = surf->CompPnt( uw_pnt0[0], uw_pnt0[1] );
+                                    vec3d corner1 = surf->CompPnt( uw_pnt1[0], uw_pnt1[1] );
+
+                                    if ( ( dist( ( *c )->m_TessVec[0]->m_Pnt, corner0 ) <= FLT_EPSILON
+                                         && dist( ( *c )->m_TessVec.back()->m_Pnt, corner1 ) <= FLT_EPSILON )
+                                            || ( dist( ( *c )->m_TessVec.back()->m_Pnt, corner0 ) <= FLT_EPSILON
+                                         && dist( ( *c )->m_TessVec[0]->m_Pnt, corner1 ) <= FLT_EPSILON ) )
+                                    {
+                                        // The border curve is also a SubSurface intersection curve
+                                        ( *c )->m_SSIntersectIndex = ss;
+                                        ( *c )->m_BorderFlag = false;
+                                        break;
+                                    }
+                                }
+                            }
+                        }
                     }
                 }
             }
