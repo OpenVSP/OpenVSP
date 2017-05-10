@@ -782,7 +782,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                         if ( dist( closest_pnt, m_FixPntVec[j] ) <= tol )
                         {
                             // Find closest ISeg
-                            int iseg_index = 0;
+                            int iseg_index = -1;
                             double closest_dist = FLT_MAX;
 
                             for ( size_t m = 0; m < ( *c )->m_ISegDeque.size(); m++ )
@@ -803,7 +803,6 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                             string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexVec[j]];
                             string message = "\tIntersection Found for " + fix_point_name + "\n";
                             addOutputText( message );
-                            break;
                         }
                     }
                     else if ( ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndVec[j][0]] )
@@ -814,7 +813,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                         // Compare FeaFixPoint to closest point on other surface
                         if ( dist( closest_pnt, m_FixPntVec[j] ) <= tol )
                         {
-                            int iseg_index = 0;
+                            int iseg_index = -1;
                             double closest_dist = FLT_MAX;
 
                             for ( size_t m = 0; m < ( *c )->m_ISegDeque.size(); m++ )
@@ -835,7 +834,6 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                             string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexVec[j]];
                             string message = "\tIntersection Found for " + fix_point_name + "\n";
                             addOutputText( message );
-                            break;
                         }
                     }
                 }
@@ -868,7 +866,6 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                         string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexVec[j]];
                         string message = "\tIntersection Found for " + fix_point_name + "\n";
                         addOutputText( message );
-                        break;
                     }
                 }
             }
