@@ -658,7 +658,7 @@ string GetVSPAERORefWingID()
         return string();
     }
 
-    if ( VSPAEROMgr.m_RefFlag.Get() != vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF )
+    if ( VSPAEROMgr.m_RefFlag.Get() != vsp::COMPONENT_REF )
     {
         return string();
     }
@@ -690,7 +690,7 @@ string SetVSPAERORefWingID( const string & geom_id )
     }
 
     VSPAEROMgr.m_RefGeomID = geom_id;
-    VSPAEROMgr.m_RefFlag = vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF;
+    VSPAEROMgr.m_RefFlag = vsp::COMPONENT_REF;
 
     ErrorMgr.NoError();
 

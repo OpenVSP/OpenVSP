@@ -233,7 +233,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
         int pos = -1;
         switch ( m_AnalysisMethod.Get() )
         {
-        case vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE:
+        case vsp::VORTEX_LATTICE:
             // The base_name is dependent on the DegenFileName
             // TODO extra "_DegenGeom" is added to the m_ModelBase
             m_DegenFileFull = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
@@ -254,7 +254,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 
             break;
 
-        case vsp::VSPAERO_ANALYSIS_METHOD::PANEL:
+        case vsp::PANEL:
             m_CompGeomFileFull = veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE );
 
             m_ModelNameBase = m_CompGeomFileFull;
@@ -322,7 +322,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     }
 
     // Generate *.tri geometry file for Panel method
-    if ( m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL )
+    if ( m_AnalysisMethod.Get() == vsp::PANEL )
     {
         // Cleanup previously created meshGeom IDs created from VSPAEROMgr
         if ( veh->FindGeom( m_LastPanelMeshGeomId ) )
@@ -335,7 +335,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( VSPAEROMgr.m_GeomSet(), halfFlag );
 
         // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
-        veh->WriteTRIFile( m_CompGeomFileFull , vsp::SET_TYPE::SET_SHOWN );
+        veh->WriteTRIFile( m_CompGeomFileFull , vsp::SET_SHOWN );
         WaitForFile( m_CompGeomFileFull );
         if ( !FileExist( m_CompGeomFileFull ) )
         {
@@ -359,7 +359,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ) );
     res->Add( NameValData( "AnalysisMethod", m_AnalysisMethod.Get() ) );
     res->Add( NameValData( "DegenGeomFileName", m_DegenFileFull ) );
-    if ( m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL )
+    if ( m_AnalysisMethod.Get() == vsp::PANEL )
     {
         res->Add( NameValData( "CompGeomFileName", m_CompGeomFileFull ) );
         res->Add( NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId ) );
@@ -595,6 +595,8 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
     {
         return ComputeSolverSingle( logFile );
     }
+
+    return string();
 }
 
 /* ComputeSolverSingle(FILE * logFile)
@@ -1013,11 +1015,11 @@ int VSPAEROMgrSingleton::WaitForFile( string filename )
 
     if ( FileExist( filename ) )
     {
-        return vsp::ERROR_CODE::VSP_OK;
+        return vsp::VSP_OK;
     }
     else
     {
-        return vsp::ERROR_CODE::VSP_FILE_DOES_NOT_EXIST;
+        return vsp::VSP_FILE_DOES_NOT_EXIST;
     }
 }
 
