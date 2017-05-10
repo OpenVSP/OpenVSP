@@ -75,6 +75,7 @@ public:
         VSP_WIRE_TRIS,
         VSP_HIDDEN_TRIS,
         VSP_SHADED_TRIS,
+        VSP_WIRE_SHADED_TRIS,
         VSP_HIDDEN_TRIS_CFD,
         VSP_HIDDEN_QUADS,
         VSP_SETTING,
