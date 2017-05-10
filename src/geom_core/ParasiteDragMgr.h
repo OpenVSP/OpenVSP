@@ -65,6 +65,7 @@ class ParasiteDragMgrSingleton : public ParmContainer
 public:
     // ==== ENUMERATORS ==== //
     enum { MANUAL_REF = 0, COMPONENT_REF, }; // Ref Flag
+    enum { PD_SORT_NONE = 0, PD_SORT_WETTED_AREA, PD_SORT_PERC_CD }; // Sort by
 
     // Required Refresh function for NEW file
     virtual void Renew();
@@ -178,6 +179,11 @@ public:
     void ClearOutputVectors();
 
     // Miscellaneous Methods
+    void SortMap();
+    void SortMapByWettedArea();
+    void SortMapByPercentageCD();
+    void SortMainTableVecByGroupedAncestorGeoms();
+    bool CheckAllTrue( vector < bool > vec );
     void DeactivateParms();
     bool IsSameGeomSet();
     bool IsNotZeroLineItem(int index);
@@ -189,6 +195,7 @@ public:
     IntParm m_RefFlag;
 
     // Options Parms
+    IntParm m_SortByFlag;
     IntParm m_LamCfEqnType;
     IntParm m_TurbCfEqnType;
     IntParm m_VinfUnitType;

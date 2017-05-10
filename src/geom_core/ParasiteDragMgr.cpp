@@ -32,6 +32,9 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
 
     // ==== Parm Initialize and Description Setting ==== //
     // Reference Qualities Parms
+    m_SortByFlag.Init("SortBy", groupname, this, PD_SORT_NONE, PD_SORT_NONE, PD_SORT_PERC_CD);
+    m_SortByFlag.SetDescript("Flag to determine what geometries are sorted by");
+
     m_RefFlag.Init("RefFlag", groupname, this, MANUAL_REF, MANUAL_REF, COMPONENT_REF);
     m_RefFlag.SetDescript("Reference quantity flag");
 
@@ -2190,6 +2193,217 @@ void ParasiteDragMgrSingleton::ClearOutputVectors()
     geo_f.clear();
     geo_Cd.clear();
     geo_percTotalCd.clear();
+}
+
+void ParasiteDragMgrSingleton::SortMap()
+{
+    SortMainTableVecByGroupedAncestorGeoms();
+    switch (m_SortByFlag())
+    {
+    case PD_SORT_NONE:
+        break;
+
+    case PD_SORT_WETTED_AREA:
+        SortMapByWettedArea();
+        break;
+
+    case PD_SORT_PERC_CD:
+        SortMapByPercentageCD();
+        break;
+
+    default:
+        break;
+    }
+}
+
+void ParasiteDragMgrSingleton::SortMapByWettedArea()
+{
+    // Create New Map That Contains Wetted Area Value, Geom ID
+    // Sort this Map
+    // Recreate m_TableRowMap
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    vector < ParasiteDragTableRow > temp;
+    vector < bool > isSorted(m_TableRowVec.size(), false);
+    double cur_max_ind = 0;
+    int i = 0;
+
+    while (!CheckAllTrue(isSorted))
+    {
+        if (!isSorted[i])
+        {
+            // Grabs Current Max Index Based on Unsorted Numbers
+            cur_max_ind = i;
+            for (size_t j = 0; j < m_TableRowVec.size(); ++j)
+            {
+                if (!isSorted[j])
+                {
+                    if (m_TableRowVec[j].Swet > m_TableRowVec[cur_max_ind].Swet)
+                    {
+                        cur_max_ind = j;
+                    }
+                }
+            }
+            isSorted[cur_max_ind] = true;
+            temp.push_back(m_TableRowVec[cur_max_ind]);
+
+            // Immediately pushes back any reflected surfaces behind last MAX
+            for (size_t j = 0; j < m_TableRowVec.size(); ++j)
+            {
+                if (m_TableRowVec[cur_max_ind].GeomID.compare(m_TableRowVec[j].GeomID) == 0 && cur_max_ind != j && !isSorted[j])
+                {
+                    isSorted[j] = true;
+                    temp.push_back(m_TableRowVec[j]);
+                }
+            }
+
+            // Then pushes back any incorporated geoms behind reflected surfaces
+            for (size_t j = 0; j < m_TableRowVec.size(); ++j)
+            {
+                Geom* geom = veh->FindGeom(m_TableRowVec[j].GeomID);
+                if (geom)
+                {
+                    if (m_TableRowVec[cur_max_ind].GeomID.compare(geom->GetAncestorID(m_TableRowVec[j].GroupedAncestorGen)) == 0 && cur_max_ind != j && !isSorted[j])
+                    {
+                        isSorted[j] = true;
+                        temp.push_back(m_TableRowVec[j]);
+                    }
+                }
+            }
+        }
+        if (i != isSorted.size() - 1)
+        {
+            ++i;
+        }
+        else
+        {
+            i = 0;
+        }
+    }
+
+    m_TableRowVec = temp;
+}
+
+void ParasiteDragMgrSingleton::SortMapByPercentageCD()
+{
+    vector < ParasiteDragTableRow > temp;
+    vector < bool > isSorted(m_TableRowVec.size(), false);
+    int cur_max_ind = 0;
+    int i = 0;
+
+    while (!CheckAllTrue(isSorted))
+    {
+        if (!isSorted[i])
+        {
+            // Grabs Current Max Index Based on Unsorted Numbers
+            cur_max_ind = i;
+            for (size_t j = 0; j < m_TableRowVec.size(); ++j)
+            {
+                if (!isSorted[j])
+                {
+                    if (m_TableRowVec[j].PercTotalCd > m_TableRowVec[cur_max_ind].PercTotalCd)
+                    {
+                        cur_max_ind = j;
+                    }
+                }
+            }
+            isSorted[cur_max_ind] = true;
+            temp.push_back(m_TableRowVec[cur_max_ind]);
+
+            // Immediately pushes back any reflected surfaces behind last MAX
+            for (size_t j = 0; j < m_TableRowVec.size(); ++j)
+            {
+                if (m_TableRowVec[cur_max_ind].GeomID.compare(m_TableRowVec[j].GeomID) == 0 && cur_max_ind != j && !isSorted[j])
+                {
+                    isSorted[j] = true;
+                    temp.push_back(m_TableRowVec[j]);
+                }
+            }
+
+            // Then pushes back any incorporated geoms behind reflected surfaces
+            for (size_t j = 0; j < m_TableRowVec.size(); ++j)
+            {
+                Geom* geom = VehicleMgr.GetVehicle()->FindGeom(m_TableRowVec[j].GeomID);
+                if (geom)
+                {
+                    if (m_TableRowVec[cur_max_ind].GeomID.compare(geom->GetAncestorID(m_TableRowVec[j].GroupedAncestorGen)) == 0 && cur_max_ind != j && !isSorted[j])
+                    {
+                        isSorted[j] = true;
+                        temp.push_back(m_TableRowVec[j]);
+                    }
+                }
+            }
+        }
+
+        // Increase until max reached, then go back through to make sure everything is in its place
+        if (i != isSorted.size() - 1)
+        {
+            ++i;
+        }
+        else
+        {
+            i = 0;
+        }
+    }
+
+    m_TableRowVec = temp;
+}
+
+void ParasiteDragMgrSingleton::SortMainTableVecByGroupedAncestorGeoms()
+{
+    // Takes m_TableRowVec
+    // For Each Geom ID Check if other geoms have it as an incorporated ID
+    // If yes, place those below current geom
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    vector < ParasiteDragTableRow > temp;
+    string masterGeomID;
+    vector < bool > isSorted(m_TableRowVec.size(), false);
+
+    for (size_t i = 0; i < m_TableRowVec.size(); ++i)
+    {
+        if (!isSorted[i])
+        {
+            temp.push_back(m_TableRowVec[i]);
+            isSorted[i] = true;
+
+            // Immediately pushes back any reflected surfaces behind last TableRow
+            for (size_t j = 0; j < m_TableRowVec.size(); ++j)
+            {
+                if (m_TableRowVec[i].GeomID.compare(m_TableRowVec[j].GeomID) == 0 && i != j && !isSorted[j])
+                {
+                    isSorted[j] = true;
+                    temp.push_back(m_TableRowVec[j]);
+                }
+            }
+
+            // Then pushes back any incorporated geoms behind reflected surfaces
+            for (size_t j = 0; j < m_TableRowVec.size(); ++j)
+            {
+                masterGeomID = m_TableRowVec[i].GeomID;
+                Geom* geom = veh->FindGeom(m_TableRowVec[j].GeomID);
+                if (geom->GetAncestorID(m_TableRowVec[j].GroupedAncestorGen).compare(masterGeomID) == 0 && !isSorted[j])
+                {
+                    isSorted[j] = true;
+                    temp.push_back(m_TableRowVec[j]);
+
+                    // TODO push back geoms grouped to last grouped geom
+                }
+            }
+        }
+    }
+
+    m_TableRowVec = temp;
+}
+
+bool ParasiteDragMgrSingleton::CheckAllTrue(vector<bool> vec)
+{
+    for (size_t i = 0; i < vec.size(); ++i)
+    {
+        if (!vec[i])
+        {
+            return false;
+        }
+    }
+    return true;
 }
 
 void ParasiteDragMgrSingleton::DeactivateParms()
