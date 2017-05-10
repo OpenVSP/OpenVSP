@@ -1749,12 +1749,12 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() &&
                          GetStructSettingsPtr()->m_ColorTagsFlag.Get() ) // Both are visible.
                     {
-                        m_FeaElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                        m_FeaElementDO[cnt].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
                         m_FeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                     }
                     else if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ) // Mesh only
                     {
-                        m_FeaElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                        m_FeaElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS;
                         m_FeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                     }
                     else // Tags only
@@ -1976,12 +1976,12 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() &&
                      GetStructSettingsPtr()->m_ColorTagsFlag.Get() ) // Both are visible.
                 {
-                    m_SSFeaElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                    m_SSFeaElementDO[cnt].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
                     m_SSFeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
                 else if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ) // Mesh only
                 {
-                    m_SSFeaElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
+                    m_SSFeaElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS;
                     m_SSFeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
                 else // Tags only
