@@ -2581,6 +2581,8 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
         m_VehProjectVec3d.resize( 3 );
 
         // Tesselation adjustment
+        // Tesselation must be an integer -- something rational should be done with either
+        // tessfactor or the places where it is used.
         double tessfactor = m_DXFTessFactor.Get();
 
         for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
