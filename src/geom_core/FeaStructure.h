@@ -314,8 +314,12 @@ public:
     string m_ParentFeaPartID; // Parent FeaPart ID
     bool m_BorderFlag;
     bool m_MagicVParent;
+    bool m_HalfMeshFlag;
 
 protected:
+
+    bool PlaneAtYZero( piecewise_surface_type & surface ) const;
+    bool LessThanY( piecewise_surface_type & surface, double val ) const;
 
 };
 

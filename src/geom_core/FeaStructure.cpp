@@ -382,6 +382,15 @@ void FeaStructure::UpdateFeaParts()
     for ( unsigned int i = 0; i < m_FeaPartVec.size(); i++ )
     {
         m_FeaPartVec[i]->UpdateSymmetricSurfs();
+
+        if ( FeaPartIsFixPoint( i ) )
+        {
+            FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( m_FeaPartVec[i] );
+            assert( fixpt );
+
+            fixpt->m_HalfMeshFlag = m_StructSettings.GetHalfMeshFlag();
+        }
+
         m_FeaPartVec[i]->Update();
     }
 }
@@ -1427,6 +1436,7 @@ FeaFixPoint::FeaFixPoint( string compID, int type ) : FeaPart( compID, type )
     m_CapFeaPropertyIndex = -1; // No property
     m_MagicVParent = false;
     m_BorderFlag = false;
+    m_HalfMeshFlag = false;
 }
 
 void FeaFixPoint::Update()
@@ -1442,6 +1452,72 @@ void FeaFixPoint::Update()
     IdentifySplitSurfIndex();
 
     m_FeaPartSurfVec.clear(); // FeaFixPoints are not a VspSurf
+}
+
+bool FeaFixPoint::PlaneAtYZero( piecewise_surface_type & surface ) const
+{
+    // PlaneAtZero is very similar to the function of the same name in SurfCore. It takes a piecewise surface
+    //  as an input to determine if the surface contains points less than y = 0;
+    double tol = 1.0e-6;
+
+    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+    nupatch = surface.number_u_patches();
+    nvpatch = surface.number_v_patches();
+
+    for ( ip = 0; ip < nupatch; ++ip )
+    {
+        for ( jp = 0; jp < nvpatch; ++jp )
+        {
+            surface_patch_type::index_type icp, jcp;
+            const surface_patch_type *patch = surface.get_patch( ip, jp );
+
+            for ( icp = 0; icp <= patch->degree_u(); ++icp )
+            {
+                for ( jcp = 0; jcp <= patch->degree_v(); ++jcp )
+                {
+                    piecewise_surface_type::point_type cp;
+                    cp = patch->get_control_point( icp, jcp );
+                    if ( std::abs( cp.y() ) > tol )
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
+}
+
+bool FeaFixPoint::LessThanY( piecewise_surface_type & surface, double val ) const
+{
+    // LessThanY is very similar to the function of the same name in SurfCore. It takes a piecewise surface
+    //  as an input to determine if the surface contains points less than y = val;
+    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+    nupatch = surface.number_u_patches();
+    nvpatch = surface.number_v_patches();
+
+    for ( ip = 0; ip < nupatch; ++ip )
+    {
+        for ( jp = 0; jp < nvpatch; ++jp )
+        {
+            surface_patch_type::index_type icp, jcp;
+            const surface_patch_type *patch = surface.get_patch( ip, jp );
+
+            for ( icp = 0; icp <= patch->degree_u(); ++icp )
+            {
+                for ( jcp = 0; jcp <= patch->degree_v(); ++jcp )
+                {
+                    piecewise_surface_type::point_type cp;
+                    cp = patch->get_control_point( icp, jcp );
+                    if ( cp.y() > val )
+                    {
+                        return false;
+                    }
+                }
+            }
+        }
+    }
+    return true;
 }
 
 void FeaFixPoint::IdentifySplitSurfIndex()
@@ -1463,97 +1539,99 @@ void FeaFixPoint::IdentifySplitSurfIndex()
     m_SplitSurfIndex.clear();
     m_SplitSurfIndex.resize( parent_surf_vec.size() );
 
-    if ( parent_surf_vec.size() > 0 )
+    for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
     {
         // Get U/W values
         vec2d uw = GetUW();
 
-        double parent_Umax = parent_surf_vec[0].GetUMax();
-        double parent_Wmax = parent_surf_vec[0].GetWMax();
+        double parent_Umax = parent_surf_vec[i].GetUMax();
+        double parent_Wmax = parent_surf_vec[i].GetWMax();
         double parent_Wmin = 0.0;
         double parent_Umin = 0.0;
 
         // Check if U/W is closed, in which case the minimum and maximum U/W will be at the same point
-        bool closedU = parent_surf_vec[0].IsClosedU();
-        bool closedW = parent_surf_vec[0].IsClosedW();
+        bool closedU = parent_surf_vec[i].IsClosedU();
+        bool closedW = parent_surf_vec[i].IsClosedW();
 
         // Check if TMAGIC needs to be considered
-        m_MagicVParent = parent_surf_vec[0].IsMagicVParm();
+        m_MagicVParent = parent_surf_vec[i].IsMagicVParm();
 
         // Split the parent surface
         vector< XferSurf > tempxfersurfs;
 
-        parent_surf_vec[0].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs );
+        parent_surf_vec[i].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs );
 
-        for ( size_t j = 0; j < tempxfersurfs.size(); j++ )
-        {
-            double umax = tempxfersurfs[j].m_Surface.get_umax();
-            double umin = tempxfersurfs[j].m_Surface.get_u0();
-            double vmax = tempxfersurfs[j].m_Surface.get_vmax();
-            double vmin = tempxfersurfs[j].m_Surface.get_v0();
-
-            if ( m_MagicVParent )
-            {
-                vmax = vmax + TMAGIC;
-                vmin = vmin - TMAGIC;
-            }
-
-            // Check if FeaFixPoint is on XferSurf or border curve. Note: Not all cases of FeaFixPoints on constant UW intersection curves 
-            //  are checked, since a node will always be placed there automatically
-            if ( uw.x() > umin && uw.x() < umax && uw.y() > vmin && uw.y() < vmax ) // FeaFixPoint on surface
-            {
-                m_SplitSurfIndex[0].push_back( j );
-                m_BorderFlag = false;
-            }
-            else if ( ( uw.x() > umin && uw.x() < umax ) && ( uw.y() == vmin || uw.y() == vmax ) ) // FeaFixPoint on constant W border
-            {
-                m_SplitSurfIndex[0].push_back( j );
-                m_BorderFlag = true;
-            }
-            else if ( ( uw.x() == umin || uw.x() == umax ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant U border
-            {
-                m_SplitSurfIndex[0].push_back( j );
-                m_BorderFlag = true;
-            }
-            else if ( ( uw.x() == umin || uw.x() == umax ) && ( uw.y() == vmin || uw.y() == vmax ) ) // FeaFixPoint on constant UW intersection (already a node)
-            {
-                m_SplitSurfIndex[0].push_back( j );
-                m_BorderFlag = true;
-            }
-            else if ( ( closedU && umax == parent_Umax && uw.x() == parent_Umin ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant U border
-            {
-                m_SplitSurfIndex[0].push_back( j );
-                m_BorderFlag = true;
-            }
-            else if ( ( uw.x() > umin && uw.x() < umax ) && ( closedW && vmax == parent_Wmax && uw.y() == parent_Wmin ) ) // FeaFixPoint on constant W border
-            {
-                m_SplitSurfIndex[0].push_back( j );
-                m_BorderFlag = true;
-            }
-            else if ( ( uw.x() > umin && uw.x() < umax ) && ( closedW && vmin == parent_Wmin && uw.y() == parent_Wmax ) ) // FeaFixPoint on constant W border
-            {
-                m_SplitSurfIndex[0].push_back( j );
-                m_BorderFlag = true;
-            }
-            else if ( ( closedU && umin == parent_Umin && uw.y() == parent_Umax ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant W border
-            {
-                m_SplitSurfIndex[0].push_back( j );
-                m_BorderFlag = true;
-            }
-        }
-
-        // Identify symmetric surface indexes:
         int num_split_surfs = tempxfersurfs.size();
 
-        for ( size_t j = 1; j < parent_surf_vec.size(); j++ )
+        for ( size_t j = 0; j < num_split_surfs; j++ )
         {
-            vector < int > symm_index_vec;
-
-            for ( size_t i = 0; i < m_SplitSurfIndex[0].size(); i++ )
+            bool addSurfFlag = true;
+            if ( m_HalfMeshFlag && LessThanY( tempxfersurfs[j].m_Surface, 1e-6 ) )
             {
-                symm_index_vec.push_back( m_SplitSurfIndex[j - 1][i] + num_split_surfs );
+                addSurfFlag = false;
             }
-            m_SplitSurfIndex[j] = symm_index_vec;
+
+            if ( m_HalfMeshFlag && PlaneAtYZero( tempxfersurfs[j].m_Surface ) )
+            {
+                addSurfFlag = false;
+            }
+
+            if ( addSurfFlag )
+            {
+                double umax = tempxfersurfs[j].m_Surface.get_umax();
+                double umin = tempxfersurfs[j].m_Surface.get_u0();
+                double vmax = tempxfersurfs[j].m_Surface.get_vmax();
+                double vmin = tempxfersurfs[j].m_Surface.get_v0();
+
+                if ( m_MagicVParent )
+                {
+                    vmax = vmax + TMAGIC;
+                    vmin = vmin - TMAGIC;
+                }
+
+                // Check if FeaFixPoint is on XferSurf or border curve. Note: Not all cases of FeaFixPoints on constant UW intersection curves 
+                //  are checked, since a node will always be placed there automatically
+                if ( uw.x() > umin && uw.x() < umax && uw.y() > vmin && uw.y() < vmax ) // FeaFixPoint on surface
+                {
+                    m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
+                    m_BorderFlag = false;
+                }
+                else if ( ( uw.x() > umin && uw.x() < umax ) && ( uw.y() == vmin || uw.y() == vmax ) ) // FeaFixPoint on constant W border
+                {
+                    m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
+                    m_BorderFlag = true;
+                }
+                else if ( ( uw.x() == umin || uw.x() == umax ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant U border
+                {
+                    m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
+                    m_BorderFlag = true;
+                }
+                else if ( ( uw.x() == umin || uw.x() == umax ) && ( uw.y() == vmin || uw.y() == vmax ) ) // FeaFixPoint on constant UW intersection (already a node)
+                {
+                    m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
+                    m_BorderFlag = true;
+                }
+                else if ( ( closedU && umax == parent_Umax && uw.x() == parent_Umin ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant U border
+                {
+                    m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
+                    m_BorderFlag = true;
+                }
+                else if ( ( uw.x() > umin && uw.x() < umax ) && ( closedW && vmax == parent_Wmax && uw.y() == parent_Wmin ) ) // FeaFixPoint on constant W border
+                {
+                    m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
+                    m_BorderFlag = true;
+                }
+                else if ( ( uw.x() > umin && uw.x() < umax ) && ( closedW && vmin == parent_Wmin && uw.y() == parent_Wmax ) ) // FeaFixPoint on constant W border
+                {
+                    m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
+                    m_BorderFlag = true;
+                }
+                else if ( ( closedU && umin == parent_Umin && uw.y() == parent_Umax ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant W border
+                {
+                    m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
+                    m_BorderFlag = true;
+                }
+            }
         }
     }
 }
