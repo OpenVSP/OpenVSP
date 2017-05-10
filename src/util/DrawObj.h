@@ -87,6 +87,7 @@ public:
         VSP_CLIP,
         VSP_SHADED_QUADS,
         VSP_WIRE_QUADS,
+        VSP_WIRE_SHADED_QUADS,
     };
 
     /*
