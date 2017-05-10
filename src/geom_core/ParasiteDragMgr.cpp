@@ -2195,6 +2195,62 @@ void ParasiteDragMgrSingleton::ClearOutputVectors()
     geo_percTotalCd.clear();
 }
 
+xmlNodePtr ParasiteDragMgrSingleton::EncodeXml(xmlNodePtr & node)
+{
+    char str[256];
+    xmlNodePtr ParasiteDragnode = xmlNewChild(node, NULL, BAD_CAST"ParasiteDragMgr", NULL);
+
+    ParmContainer::EncodeXml(ParasiteDragnode);
+    XmlUtil::AddStringNode(ParasiteDragnode, "ReferenceGeomID", m_RefGeomID);
+
+    xmlNodePtr ExcresDragnode = xmlNewChild(ParasiteDragnode, NULL, BAD_CAST"Excrescence", NULL);
+
+    XmlUtil::AddIntNode(ExcresDragnode, "NumExcres", m_ExcresRowVec.size());
+
+    for (size_t i = 0; i < m_ExcresRowVec.size(); ++i)
+    {
+        sprintf(str, "Excres_%i", i);
+        xmlNodePtr excresqualnode = xmlNewChild(ExcresDragnode, NULL, BAD_CAST str, NULL);
+
+        XmlUtil::AddStringNode(excresqualnode, "Label", m_ExcresRowVec[i].Label);
+        XmlUtil::AddIntNode(excresqualnode, "Type", m_ExcresRowVec[i].Type);
+        XmlUtil::AddDoubleNode(excresqualnode, "Input", m_ExcresRowVec[i].Input);
+    }
+
+    return ParasiteDragnode;
+}
+
+xmlNodePtr ParasiteDragMgrSingleton::DecodeXml(xmlNodePtr & node)
+{
+    char str[256];
+
+    xmlNodePtr ParasiteDragnode = XmlUtil::GetNode(node, "ParasiteDragMgr", 0);
+
+    int numExcres;
+    if (ParasiteDragnode)
+    {
+        ParmContainer::DecodeXml(ParasiteDragnode);
+        m_RefGeomID = XmlUtil::FindString(ParasiteDragnode, "ReferenceGeomID", m_RefGeomID);
+
+        xmlNodePtr ExcresDragnode = XmlUtil::GetNode(ParasiteDragnode, "Excrescence", 0);
+
+        numExcres = XmlUtil::FindInt(ExcresDragnode, "NumExcres", 0);
+
+        for (int i = 0; i < numExcres; i++)
+        {
+            sprintf(str, "Excres_%i", i);
+            xmlNodePtr excresqualnode = XmlUtil::GetNode(ExcresDragnode, str, 0);
+
+            m_ExcresType.Set(XmlUtil::FindInt(excresqualnode, "Type", 0));
+            m_ExcresValue.Set(XmlUtil::FindDouble(excresqualnode, "Input", 0.0));
+
+            AddExcrescence();
+        }
+    }
+
+    return ParasiteDragnode;
+}
+
 void ParasiteDragMgrSingleton::SortMap()
 {
     SortMainTableVecByGroupedAncestorGeoms();

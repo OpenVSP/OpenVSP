@@ -177,6 +177,8 @@ public:
     // General Methods
     void ClearInputVectors();
     void ClearOutputVectors();
+    virtual xmlNodePtr EncodeXml(xmlNodePtr & node);
+    virtual xmlNodePtr DecodeXml(xmlNodePtr & node);
 
     // Miscellaneous Methods
     void SortMap();
