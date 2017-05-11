@@ -28,6 +28,7 @@ VspAeroControlSurf::VspAeroControlSurf()
 VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 {
     m_Name = "VSPAEROSettings";
+    string groupname = "VSPAERO";
 
     m_GeomSet.Init( "GeomSet", "VSPAERO", this, 0, 0, 12 );
     m_GeomSet.SetDescript( "Geometry set" );
@@ -108,10 +109,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_BatchModeFlag.SetDescript( "Flag to calculate in batch mode" );
     m_BatchModeFlag = true;
 
-    m_ForceNewSetupfile.Init( "ForceNewSetupfile", "VSPAERO", this, 0.0, 0.0, 1.0 );
-    m_ForceNewSetupfile.SetDescript( "Flag to creation of new setup file in ComputeSolver() even if one exists" );
-    m_ForceNewSetupfile = false;
-
     // This sets all the filename members to the appropriate value (for example: empty strings if there is no vehicle)
     UpdateFilenames();
 
@@ -148,6 +145,25 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     // Run the update cycle to complete the setup
     Update();
 
+    // Other Setup Parameters
+    m_Vinf.Init( "Vinf", groupname, this, 100, 0, 1e6 );
+    m_Vinf.SetDescript( "Freestream Velocity Through Disk Component" );
+    m_Rho.Init( "Rho", groupname, this, 0.002377, 0, 1e3 );
+    m_Rho.SetDescript( "Freestream Density" );
+    m_ReCref.Init( "ReCref", groupname, this, 10000000., 0, 1e12 );
+    m_ReCref.SetDescript( "Reynolds Number along Reference Chord" );
+    m_FarDist.Init( "FarDist", groupname, this, 0, 0, 1e6 );
+    m_FarDist.SetDescript( "Far Field Distance for Wake Adaptation" );
+    m_ClMax.Init( "Clmax", groupname, this, 0, 0, 1e3 );
+    m_ClMax.SetDescript( "Cl Max of Aircraft" );
+    m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
+    m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
+    m_MaxTurnAngle.Init( "MaxTurnAngle", groupname, this, 0, 0, 360 );
+    m_MaxTurnAngle.SetDescript( "Max Turning Angle of Aircraft" );
+    m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
+    m_Write2DFEMFlag.SetDescript( "Toggle File Write for 2D FEM" );
+
+    m_Verbose = false;
 }
 
 void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )

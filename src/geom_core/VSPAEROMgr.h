@@ -122,6 +122,14 @@ public:
 class VSPAEROMgrSingleton : public ParmContainer
 {
 public:
+    // Aerodynamic reference area and length
+    enum REF_WING_TYPE
+    {
+        MANUAL_REF = 0,     // manually specify the reference areas and lengths
+        COMPONENT_REF,      // use a particular wing to calculate the reference area and lengths
+        NUM_REF_TYPES,
+    };
+
     static VSPAEROMgrSingleton& getInstance()
     {
         static VSPAEROMgrSingleton instance;
@@ -134,8 +142,11 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    // Update Methods
+    void Renew();
     void Update();
-
+    void UpdateSref();
+    void UpdateSetupParmLimits();
     void UpdateFilenames();
     void UpdateRotorDisks();
     void UpdateControlSurfaceGroups();
@@ -154,6 +165,8 @@ public:
     vector < VspAeroControlSurf > GetUngroupedCSVec()        { return m_UngroupedCS; }
     string GetCurrentCSGGroupName();
     vector <ControlSurfaceGroup* > GetControlSurfaceGroupVec()   { return m_ControlSurfaceGroupVec; }
+
+    // VSP Aero Functionality and Variables
     string ComputeGeometry();
     void CreateSetupFile( FILE * logFile = NULL );
     string ComputeSolver( FILE * logFile = NULL ); // returns a result with a vector of results id's under the name ResultVec
@@ -184,7 +197,8 @@ public:
     void RemoveFromUngrouped( const string & ssid, int reflec_num );
 
 
-    // file names
+
+    // File Names
     string m_ModelNameBase; // this is the name used in the execution string
     string m_DegenFileFull; //degengeom file name WITH .csv file extension
     string m_CompGeomFileFull; //geometry file used for panel method
@@ -196,14 +210,17 @@ public:
 
     IntParm m_GeomSet;
 
+    // Reference Area Parms
     Parm m_Sref;
     Parm m_bref;
     Parm m_cref;
     string m_RefGeomID;
     IntParm m_RefFlag;
+
     BoolParm m_StabilityCalcFlag;
     BoolParm m_BatchModeFlag;
 
+    // Mass Properties Parms
     IntParm m_CGGeomSet;
     IntParm m_NumMassSlice;
     Parm m_Xcg;
@@ -228,6 +245,18 @@ public:
     Parm m_CT;
     Parm m_CP;
 
+    // Other Setup Parameters
+    Parm m_Vinf;
+    Parm m_Rho;
+    Parm m_ReCref;
+    BoolParm m_Symmetry;
+    BoolParm m_Write2DFEMFlag;
+    BoolParm m_ClMaxToggle;
+    Parm m_ClMax;
+    BoolParm m_MaxTurnToggle;
+    Parm m_MaxTurnAngle;
+    BoolParm m_FarDistToggle;
+    Parm m_FarDist;
 
     // Plotwindow settings
     BoolParm m_ConvergenceXMinIsManual;
@@ -290,7 +319,11 @@ private:
     vector < VspAeroControlSurf > m_UngroupedCS;
     vector< ControlSurfaceGroup* > m_ControlSurfaceGroupVec;
 
+    vector < DegenGeom > m_DegenGeomVec;
+
     int m_CurrentRotorDiskIndex;
+
+    bool m_Verbose;
 };
 
 #define VSPAEROMgr VSPAEROMgrSingleton::getInstance()
