@@ -1567,3 +1567,241 @@ int VSPAEROMgrSingleton::ExportResultsToCSV( string fileName )
     return retVal;
 }
 
+
+/*##############################################################################
+#                                                                              #
+#                              RotorDisk                                       #
+#                                                                              #
+##############################################################################*/
+
+RotorDisk::RotorDisk( void ) : ParmContainer()
+{
+    InitDisk();
+}
+
+RotorDisk::RotorDisk( const RotorDisk &RotorDisk )
+{
+
+    m_Name = RotorDisk.m_Name;
+
+    m_IsUsed = RotorDisk.m_IsUsed;
+
+    m_XYZ = RotorDisk.m_XYZ;           // RotorXYZ_
+    m_Normal = RotorDisk.m_Normal;        // RotorNormal_
+
+    m_Diameter = RotorDisk.m_Diameter;       // RotorDiameter_
+    m_HubDiameter = RotorDisk.m_HubDiameter;    // RotorHubDiameter_
+    m_RPM = RotorDisk.m_RPM;       // RotorRPM_
+
+    m_CT = RotorDisk.m_CT;        // Rotor_CT_
+    m_CP = RotorDisk.m_CP;        // Rotor_CP_
+
+    m_ParentGeomId = RotorDisk.m_ParentGeomId;
+    m_ParentGeomSurfNdx = RotorDisk.m_ParentGeomSurfNdx;
+}
+
+// Construct from degenerate geometry
+RotorDisk::RotorDisk( DegenGeom &degenGeom )
+{
+    InitDisk();
+
+    if ( degenGeom.getType() == DegenGeom::DISK_TYPE )
+    {
+        DegenDisk degenDisk = degenGeom.getDegenDisk();
+        
+        m_XYZ = degenDisk.x;
+        m_Normal = degenDisk.nvec*-1;   //definition of normal vector in VSPAERO is -1*nvec of degen geom
+
+        m_Diameter = degenDisk.d;
+
+        m_ParentGeomId = degenGeom.getParentGeom()->GetID().c_str();
+        m_ParentGeomSurfNdx = degenGeom.getSurfNum();
+
+        m_Name.append( degenGeom.getParentGeom()->GetName() );
+        m_Name.append( "_" );
+        m_Name.append( to_string( degenGeom.getSurfNum() ) );
+    }
+}
+
+// Construct from degenerate Disk
+RotorDisk::RotorDisk( const DegenDisk degenDisk, string parentGeomId, unsigned int parentGeomSurfNdx )
+{
+    InitDisk();
+
+    m_XYZ = degenDisk.x;
+    m_Normal = degenDisk.nvec*-1;   //definition of normal vector in VSPAERO is -1*nvec of degen geom
+    m_Diameter = degenDisk.d;
+
+    m_ParentGeomId = parentGeomId;
+    m_ParentGeomSurfNdx = parentGeomSurfNdx;
+
+    m_IsUsed = true;
+}
+
+RotorDisk::~RotorDisk( void )
+{
+
+    // Nothing to do..
+
+}
+
+void RotorDisk::InitDisk()
+{
+    m_Name = "Default";
+    string groupname = "RotorQualities";
+
+    m_IsUsed = true;
+
+    m_XYZ.set_xyz( 0, 0, 0 );           // RotorXYZ_
+    m_Normal.set_xyz( 0, 0, 0 );        // RotorNormal_
+
+    m_Diameter.Init( "Rotor_Diameter", groupname, this, 10.0, 0.0, 1e12 );       // RotorDiameter_
+    m_Diameter.SetDescript( "Rotor Diameter" );
+
+    m_HubDiameter.Init( "Rotor_HubDiameter", groupname, this, 0.0, 0.0, 1e12 );    // RotorHubDiameter_
+    m_HubDiameter.SetDescript( "Rotor Hub Diameter" );
+
+    m_RPM.Init( "Rotor_RPM", groupname, this, 2000.0, 0.0, 1e12 );       // RotorRPM_
+    m_RPM.SetDescript( "Rotor RPM" );
+
+    m_CT.Init( "Rotor_CT", groupname, this, 0.4, 0.0, 1e3);        // Rotor_CT_
+    m_CT.SetDescript( "Rotor Coefficient of Thrust" );
+    
+    m_CP.Init( "Rotor_CP", groupname, this, 0.6, 0.0, 1e3 );        // Rotor_CP_
+    m_CP.SetDescript( "Rotor Coefficient of Power" );
+
+    m_ParentGeomId = "";
+    m_ParentGeomSurfNdx = -1;
+}
+
+void RotorDisk::ParmChanged( Parm* parm_ptr, int type )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+RotorDisk& RotorDisk::operator=( const RotorDisk &RotorDisk )
+{
+
+    m_Name = RotorDisk.m_Name;
+
+    m_XYZ = RotorDisk.m_XYZ;           // RotorXYZ_
+    m_Normal = RotorDisk.m_Normal;        // RotorNormal_
+
+    m_Diameter = RotorDisk.m_Diameter;       // RotorRadius_
+    m_HubDiameter = RotorDisk.m_HubDiameter;    // RotorHubRadius_
+    m_RPM = RotorDisk.m_RPM;       // RotorRPM_
+
+    m_CT = RotorDisk.m_CT;        // Rotor_CT_
+    m_CP = RotorDisk.m_CP;        // Rotor_CP_
+
+    m_ParentGeomId = RotorDisk.m_ParentGeomId;
+    m_ParentGeomSurfNdx = RotorDisk.m_ParentGeomSurfNdx;
+
+    return *this;
+
+}
+
+void RotorDisk::Write_STP_Data( FILE *InputFile )
+{
+
+    // Write out RotorDisk to file
+
+    fprintf( InputFile, "%lf %lf %lf \n", m_XYZ.x(), m_XYZ.y(), m_XYZ.z() );
+
+    fprintf( InputFile, "%lf %lf %lf \n", m_Normal.x(), m_Normal.y(), m_Normal.z() );
+
+    fprintf( InputFile, "%lf \n", m_Diameter() );
+
+    fprintf( InputFile, "%lf \n", m_HubDiameter() );
+
+    fprintf( InputFile, "%lf \n", m_RPM() );
+
+    fprintf( InputFile, "%lf \n", m_CT() );
+
+    fprintf( InputFile, "%lf \n", m_CP() );
+
+}
+
+void RotorDisk::Load_STP_Data( FILE *InputFile )
+{
+
+    // Load in STP file data
+
+    fscanf( InputFile, "%lf %lf %lf \n", &m_XYZ.data()[0], &m_XYZ.data()[1], &m_XYZ.data()[2] );
+
+    fscanf( InputFile, "%lf %lf %lf \n", &m_Normal.data()[0], &m_Normal.data()[1], &m_Normal.data()[2] );
+
+    long float rad;
+    fscanf( InputFile, "%lf \n", &rad );
+    m_Diameter.Set( rad * 2.0 );
+
+    long float hubrad;
+    fscanf( InputFile, "%lf \n", &hubrad );
+    m_HubDiameter.Set( hubrad * 2.0 );
+
+    fscanf( InputFile, "%lf \n", &m_RPM );
+
+    fscanf( InputFile, "%lf \n", &m_CT );
+
+    fscanf( InputFile, "%lf \n", &m_CP );
+
+    // Echo inputs
+
+    printf( "RotorXYZ:       %10.5lf %10.5lf %10.5lf \n", m_XYZ.x(), m_XYZ.y(), m_XYZ.z() );
+
+    printf( "RotorNormal:    %10.5lf %10.5lf %10.5lf \n", m_Normal.x(), m_Normal.y(), m_Normal.z() );
+
+    printf( "RotorRadius:    %10.5f \n", m_Diameter() / 2.0 );
+
+    printf( "RotorHubRadius: %10.5lf \n", m_HubDiameter() / 2.0 );
+
+    printf( "RotorRPM:       %10.5lf \n", m_RPM() );
+
+    printf( "Rotor_CT:       %10.5lf \n", m_CT() );
+
+    printf( "Rotor_CP:       %10.5lf \n", m_CP() );
+
+}
+
+xmlNodePtr RotorDisk::EncodeXml( xmlNodePtr & node )
+{
+    if ( node )
+    {
+        ParmContainer::EncodeXml( node );
+        XmlUtil::AddStringNode( node, "ParentID", m_ParentGeomId.c_str() );
+        XmlUtil::AddIntNode( node, "SurfIndex", m_ParentGeomSurfNdx );
+    }
+
+    return node;
+}
+
+xmlNodePtr RotorDisk::DecodeXml( xmlNodePtr & node )
+{
+    string defstr = "";
+    int defint = 0;
+    if ( node )
+    {
+        ParmContainer::DecodeXml( node );
+        m_ParentGeomId = XmlUtil::FindString( node, "ParentID", defstr );
+        m_ParentGeomSurfNdx = XmlUtil::FindInt( node, "SurfIndex", defint );
+    }
+
+    return node;
+}
+
+void RotorDisk::UpdateParmGroupName()
+{
+    char str[256];
+    sprintf( str, "RotorQualities_%s", m_Name.c_str() );
+    m_Diameter.SetGroupName( str );
+    m_HubDiameter.SetGroupName( str );
+    m_RPM.SetGroupName( str );
+    m_CT.SetGroupName( str );
+    m_CP.SetGroupName( str );
+}
+
