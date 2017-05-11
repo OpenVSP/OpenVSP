@@ -322,6 +322,7 @@ void Vehicle::Wype()
     FitModelMgr.Renew();
     AnalysisMgr.Renew();
     VarPresetMgr.Renew();
+    VSPAEROMgr.Renew();
 }
 
 void Vehicle::SetVSP3FileName( const string & f_name )

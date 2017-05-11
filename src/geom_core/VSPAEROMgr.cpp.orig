@@ -164,22 +164,20 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Rho.SetDescript( "Freestream Density" );
     m_ReCref.Init( "ReCref", groupname, this, 10000000., 0, 1e12 );
     m_ReCref.SetDescript( "Reynolds Number along Reference Chord" );
+    m_FarDist.Init( "FarDist", groupname, this, 0, 0, 1e6 );
+    m_FarDist.SetDescript( "Far Field Distance for Wake Adaptation" );
+    m_ClMax.Init( "Clmax", groupname, this, 0, 0, 1e3 );
+    m_ClMax.SetDescript( "Cl Max of Aircraft" );
     m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
+    m_MaxTurnAngle.Init( "MaxTurnAngle", groupname, this, 0, 0, 360 );
+    m_MaxTurnAngle.SetDescript( "Max Turning Angle of Aircraft" );
     m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
     m_Write2DFEMFlag.SetDescript( "Toggle File Write for 2D FEM" );
-    m_ClMax.Init( "Clmax", groupname, this, -1, 0, 1e3 );
-    m_ClMax.SetDescript( "Cl Max of Aircraft" );
-    m_ClMaxToggle.Init( "ClmaxToggle", groupname, this, false, false, true );
-    m_MaxTurnAngle.Init( "MaxTurnAngle", groupname, this, -1, 0, 360 );
-    m_MaxTurnAngle.SetDescript( "Max Turning Angle of Aircraft" );
-    m_MaxTurnToggle.Init( "MaxTurnToggle", groupname, this, false, false, true );
-    m_FarDist.Init( "FarDist", groupname, this, -1, 0, 1e6 );
-    m_FarDist.SetDescript( "Far Field Distance for Wake Adaptation" );
-    m_FarDistToggle.Init( "FarDistToggle", groupname, this, false, false, true );
 
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
+    m_LastSelectedType = -1;
 
     m_Verbose = false;
 }
@@ -201,30 +199,79 @@ void VSPAEROMgrSingleton::Renew()
     m_ActiveControlSurfaceVec.clear();
     m_RotorDiskVec.clear();
 
-    m_DegenGeomVec.clear();
-
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
+    m_LastSelectedType = -1;
 }
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
+    char str[256];
     xmlNodePtr VSPAEROsetnode = xmlNewChild( node, NULL, BAD_CAST"VSPAEROSettings", NULL );
 
-    ParmContainer::EncodeXml( VSPAEROsetnode );
+    ParmContainer::EncodeXml( VSPAEROsetnode ); // Encode VSPAEROMgr Parms
 
-    XmlUtil::AddStringNode( VSPAEROsetnode, "ReferenceGeomID", m_RefGeomID );
+    // Encode Control Surface Groups using Internal Encode Method
+    XmlUtil::AddIntNode( VSPAEROsetnode, "ControlSurfaceGroupCount", m_ControlSurfaceGroupVec.size() );
+    for ( size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i )
+    {
+        sprintf( str, "Control_Surface_Group_%i", i );
+        xmlNodePtr csgnode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST str, NULL );
+        m_ControlSurfaceGroupVec[i]->EncodeXml( csgnode );
+    }
+
+    // Encode Rotor Disks using Internal Encode Method
+    XmlUtil::AddIntNode( VSPAEROsetnode, "RotorDiskCount", m_RotorDiskVec.size() );
+    for ( size_t i = 0; i < m_RotorDiskVec.size(); ++i )
+    {
+        sprintf( str, "Rotor_%i", i );
+        xmlNodePtr rotornode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST str, NULL );
+        m_RotorDiskVec[i]->EncodeXml( rotornode );
+    }
 
     return VSPAEROsetnode;
 }
 
 xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
 {
+    char str[256];
+    int def = 0;
+    string strdef = "";
+    double dbldef = 0.0;
+
     xmlNodePtr VSPAEROsetnode = XmlUtil::GetNode( node, "VSPAEROSettings", 0 );
     if ( VSPAEROsetnode )
     {
-        ParmContainer::DecodeXml( VSPAEROsetnode );
-        m_RefGeomID   = XmlUtil::FindString( VSPAEROsetnode, "ReferenceGeomID", m_RefGeomID );
+        ParmContainer::DecodeXml( VSPAEROsetnode ); // Decode VSPAEROMgr Parms
+
+        // Decode Control Surface Groups using Internal Decode Method
+        int num_groups = XmlUtil::FindInt(VSPAEROsetnode, "ControlSurfaceGroupCount", def);
+        for (size_t i = 0; i < num_groups; ++i)
+        {
+            sprintf(str, "Control_Surface_Group_%i", i);
+            xmlNodePtr csgnode = XmlUtil::GetNode(VSPAEROsetnode, str, 0);
+            if (csgnode)
+            {
+                AddControlSurfaceGroup();
+                m_ControlSurfaceGroupVec.back()->DecodeXml( csgnode );
+            }
+        }
+
+        UpdateCompleteControlSurfVec();
+        UpdateControlSurfaceGroups(); // Replace Shell SubSurfs with those from CompleteSurfaceVec
+
+        // Decode Rotor Disks using Internal Decode Method
+        int num_rotor = XmlUtil::FindInt( VSPAEROsetnode, "RotorDiskCount", def );
+        m_RotorDiskVec.resize( num_rotor );
+        for (size_t i = 0; i < num_rotor; ++i )
+        {
+            sprintf( str, "Rotor_%i", i );
+            xmlNodePtr rotornode = XmlUtil::GetNode(VSPAEROsetnode, str, 0 );
+            m_RotorDiskVec[i]->InitDisk();
+            m_RotorDiskVec[i]->DecodeXml(rotornode);
+        }
+
+        UpdateRotorDisks();
     }
 
     return VSPAEROsetnode;
@@ -276,45 +323,6 @@ void VSPAEROMgrSingleton::UpdateSref()
         {
             m_RefGeomID = string();
         }
-    }
-}
-
-void VSPAEROMgrSingleton::UpdateSetupParmLimits()
-{
-    if (m_ClMaxToggle())
-    {
-        m_ClMax.SetLowerLimit(0.0);
-        m_ClMax.Activate();
-    }
-    else
-    {
-        m_ClMax.SetLowerLimit(-1.0);
-        m_ClMax.Set(-1.0);
-        m_ClMax.Deactivate();
-    }
-
-    if (m_MaxTurnToggle())
-    {
-        m_MaxTurnAngle.SetLowerLimit(0.0);
-        m_MaxTurnAngle.Activate();
-    }
-    else
-    {
-        m_MaxTurnAngle.SetLowerLimit(-1.0);
-        m_MaxTurnAngle.Set(-1.0);
-        m_MaxTurnAngle.Deactivate();
-    }
-
-    if (m_FarDistToggle())
-    {
-        m_FarDist.SetLowerLimit(0.0);
-        m_FarDist.Activate();
-    }
-    else
-    {
-        m_FarDist.SetLowerLimit(-1.0);
-        m_FarDist.Set(-1.0);
-        m_FarDist.Deactivate();
     }
 }
 
@@ -412,11 +420,11 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
         bool contained = false;
 
         vector < VspSurf > surfvec;
-        vector <string> currgeomvec = veh->GetGeomSet(m_GeomSet());
+        vector< DegenGeom > degenGeomVec = veh->GetDegenGeomVec();
 
-        for (size_t i = 0; i < currgeomvec.size(); ++i)
+        for (size_t i = 0; i < veh->GetGeomVec().size(); ++i)
         {
-            veh->FindGeom(currgeomvec[i])->GetSurfVec(surfvec);
+            veh->FindGeom(veh->GetGeomVec()[i])->GetSurfVec(surfvec);
             for (size_t iSubsurf = 0; iSubsurf < surfvec.size(); ++iSubsurf)
             {
                 contained = false;
@@ -429,13 +437,13 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                         {
                             contained = true;
                             temp.push_back(m_RotorDiskVec[j]);
-                            for (size_t k = 0; k < m_DegenGeomVec.size(); ++k)
+                            for (size_t k = 0; k < degenGeomVec.size(); ++k)
                             {
-                                if (m_DegenGeomVec[k].getParentGeom()->GetID().compare(m_RotorDiskVec[j]->m_ParentGeomId) == 0)
+                                if (degenGeomVec[k].getParentGeom()->GetID().compare(m_RotorDiskVec[j]->m_ParentGeomId) == 0)
                                 {
                                     int indxToSearch = k + temp.back()->m_ParentGeomSurfNdx;
-                                    temp.back()->m_XYZ = m_DegenGeomVec[indxToSearch].getDegenDisk().x;
-                                    temp.back()->m_Normal = m_DegenGeomVec[indxToSearch].getDegenDisk().nvec * -1.0;
+                                    temp.back()->m_XYZ = degenGeomVec[indxToSearch].getDegenDisk().x;
+                                    temp.back()->m_Normal = degenGeomVec[indxToSearch].getDegenDisk().nvec * -1.0;
                                     break;
                                 }
                             }
@@ -697,11 +705,9 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         return string();
     }
 
-    m_DegenGeomVec.clear();
-    veh->CreateDegenGeom( m_GeomSet() );
-    m_DegenGeomVec = veh->GetDegenGeomVec();
+    veh->CreateDegenGeom( VSPAEROMgr.m_GeomSet() );
 
-    // Update information derived from the degenerate geometry
+    //Update information derived from the degenerate geometry
     UpdateRotorDisks();
     UpdateCompleteControlSurfVec();
 
@@ -743,7 +749,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
         // Compute intersected and trimmed geometry
         int halfFlag = 0;
-        m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag );
+        m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( VSPAEROMgr.m_GeomSet(), halfFlag );
 
         // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
         veh->WriteTRIFile( m_CompGeomFileFull , vsp::SET_SHOWN );
@@ -767,7 +773,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
         return string();
     }
-    res->Add( NameValData( "GeometrySet", m_GeomSet() ) );
+    res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ) );
     res->Add( NameValData( "AnalysisMethod", m_AnalysisMethod.Get() ) );
     res->Add( NameValData( "DegenGeomFileName", m_DegenFileFull ) );
     if ( m_AnalysisMethod.Get() == vsp::PANEL )
@@ -798,7 +804,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         return retStr;
     }
 
-    // Clear existing setup file
+    // Clear existing serup file
     if ( FileExist( m_SetupFile ) )
     {
         remove( m_SetupFile.c_str() );
@@ -2252,6 +2258,150 @@ void VSPAEROMgrSingleton::SetCurrentCSGroupName(const string & name)
     }
 }
 
+<<<<<<< HEAD
+=======
+void VSPAEROMgrSingleton::HighlightSelected( int type )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    veh->ClearActiveGeom();
+
+    if ( type == ROTORDISK )
+    {
+        VSPAEROMgr.SetCurrentType( ROTORDISK );
+    }
+    else if ( type == CONTROL_SURFACE )
+    {
+        VSPAEROMgr.SetCurrentType( CONTROL_SURFACE );
+    }
+    else
+    {
+        return;
+    }
+}
+
+void VSPAEROMgrSingleton::LoadDrawObjs( vector < DrawObj* > & draw_obj_vec )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    if ( m_LastSelectedType == ROTORDISK )
+    {
+        UpdateBBox( draw_obj_vec );
+    }
+    else if ( m_LastSelectedType == CONTROL_SURFACE )
+    {
+        UpdateHighlighted( draw_obj_vec );
+    }
+}
+
+void VSPAEROMgrSingleton::UpdateBBox( vector < DrawObj* > & draw_obj_vec )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if (!veh)
+    {
+        return;
+    }
+
+    //==== Load Bounding Box ====//
+    m_BBox.Reset();
+    BndBox bb;
+
+    // If there is no selected rotor size is zero ( like blank geom )
+    // set bbox to zero size
+    if (m_CurrentRotorDiskIndex == -1)
+    {
+        m_BBox.Update(vec3d(0, 0, 0));
+    }
+    else
+    {
+        vector < VspSurf > surf_vec;
+        if ( veh->FindGeom(m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetParentID() ) )
+        {
+            veh->FindGeom(m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetParentID())->GetSurfVec(surf_vec);
+            surf_vec[m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetSurfNum()].GetBoundingBox(bb);
+            m_BBox.Update(bb);
+        }
+        else
+            m_CurrentRotorDiskIndex = -1;
+    }
+
+    //==== Bounding Box ====//
+    m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
+    m_HighlightDrawObj.m_LineWidth = 2.0;
+    m_HighlightDrawObj.m_LineColor = vec3d(1.0, 0., 0.0);
+    m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
+
+    m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+
+    draw_obj_vec.push_back(&m_HighlightDrawObj);
+}
+
+void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    string parentID = "";
+    string ssid = "";
+    int sub_surf_indx;
+    if (m_CurrentCSGroupIndex != -1)
+    {
+        vector < VspAeroControlSurf > cont_surf_vec = m_ActiveControlSurfaceVec;
+        vector < VspAeroControlSurf > cont_surf_vec_ungrouped = m_UngroupedCS;
+        if (m_SelectedGroupedCS.size() == 0 && m_SelectedUngroupedCS.size() == 0)
+        {
+            for (size_t i = 0; i < cont_surf_vec.size(); ++i)
+            {
+                vec3d color(0,1,0); // Green
+                parentID = cont_surf_vec[i].parentGeomId;
+                sub_surf_indx = cont_surf_vec[i].iReflect;
+                ssid = cont_surf_vec[i].SSID;
+                if (veh->FindGeom(parentID))
+                {
+                    if (veh->FindGeom(parentID)->GetSubSurf(ssid))
+                    {
+                        veh->FindGeom(parentID)->GetSubSurf(ssid)->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < m_SelectedGroupedCS.size(); ++i)
+            {
+                vec3d color(0,1,0); // Green
+                parentID = cont_surf_vec[m_SelectedGroupedCS[i]-1].parentGeomId;
+                sub_surf_indx = cont_surf_vec[m_SelectedGroupedCS[i]-1].iReflect;
+                ssid = cont_surf_vec[m_SelectedGroupedCS[i]-1].SSID;
+                if (veh->FindGeom(parentID)->GetSubSurf(ssid))
+                {
+                    veh->FindGeom(parentID)->GetSubSurf(ssid)->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
+                }
+            }
+            for (size_t i = 0; i < m_SelectedUngroupedCS.size(); ++i )
+            {
+                vec3d color(1,0,0); // Red
+                parentID = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i]-1].parentGeomId;
+                sub_surf_indx = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i]-1].iReflect;
+                ssid = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i]-1].SSID;
+                if (veh->FindGeom(parentID)->GetSubSurf(ssid))
+                {
+                    veh->FindGeom(parentID)->GetSubSurf(ssid)->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
+                }
+            }
+        }
+    }
+}
+
+>>>>>>> e587a83... Stuff
 
 /*##############################################################################
 #                                                                              #
