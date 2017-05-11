@@ -195,7 +195,6 @@ public:
 
     IntParm m_AnalysisMethod;
 
-    BoolParm m_ForceNewSetupfile;
     // Rotor Disk Functionality
     void SetCurrentRotorDiskFromParms();
     void SetParmsFromCurrentRotorDisk();

@@ -213,7 +213,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
         {
             switch( current_input_type )
             {
-            case vsp::RES_DATA_TYPE::INT_DATA :
+            case vsp::INT_DATA :
             {
                 vector<int> current_int_val = GetIntInputData( analysis_name, input_names[i_input_name], i_val );
                 for ( unsigned int j_val = 0; j_val < current_int_val.size(); j_val++ )
@@ -222,7 +222,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
                 }
                 break;
             }
-            case vsp::RES_DATA_TYPE::DOUBLE_DATA :
+            case vsp::DOUBLE_DATA :
             {
                 vector<double> current_double_val = GetDoubleInputData( analysis_name, input_names[i_input_name], i_val );
                 for ( unsigned int j_val = 0; j_val < current_double_val.size(); j_val++ )
@@ -231,7 +231,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
                 }
                 break;
             }
-            case vsp::RES_DATA_TYPE::STRING_DATA :
+            case vsp::STRING_DATA :
             {
                 vector<string> current_string_val = GetStringInputData( analysis_name, input_names[i_input_name], i_val );
                 for ( unsigned int j_val = 0; j_val < current_string_val.size(); j_val++ )
@@ -240,7 +240,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
                 }
                 break;
             }
-            case vsp::RES_DATA_TYPE::VEC3D_DATA :
+            case vsp::VEC3D_DATA :
             {
                 vector<vec3d> current_vec3d_val = GetVec3dInputData( analysis_name, input_names[i_input_name], i_val );
                 for ( unsigned int j_val = 0; j_val < current_vec3d_val.size(); j_val++ )
@@ -1090,7 +1090,6 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
         m_Inputs.Add( NameValData( "WakeSkipUntilIter", VSPAEROMgr.m_WakeSkipUntilIter.Get() ) );
         m_Inputs.Add( NameValData( "StabilityCalcFlag", VSPAEROMgr.m_StabilityCalcFlag.Get() ) );
-        m_Inputs.Add( NameValData( "ForceNewSetupfile", VSPAEROMgr.m_ForceNewSetupfile.Get() ) );
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
@@ -1160,7 +1159,7 @@ string VSPAEROSinglePointAnalysis::Execute()
             VSPAEROMgr.m_RefGeomID = nvd->GetString(0);
         }
 
-        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF )
+        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::MANUAL_REF )
         {
             nvd = m_Inputs.FindPtr( "Sref", 0 );
             if ( nvd )
@@ -1178,7 +1177,7 @@ string VSPAEROSinglePointAnalysis::Execute()
                 VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );
             }
         }
-        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF )
+        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
         {
             VSPAEROMgr.Update();
             printf( "Wing Reference Parms: \n" );
@@ -1295,12 +1294,6 @@ string VSPAEROSinglePointAnalysis::Execute()
             VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
         }
 
-        bool forceNewSetupfileOrig   = VSPAEROMgr.m_ForceNewSetupfile.Get();
-        nvd = m_Inputs.FindPtr( "ForceNewSetupfile", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_ForceNewSetupfile.Set( nvd->GetInt(0) );
-        }
 
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
@@ -1340,7 +1333,6 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_WakeSkipUntilIter.Set( wakeSkipUntilIterOrig );
         VSPAEROMgr.m_StabilityCalcFlag.Set( stabilityCalcFlagOrig );
 
-        VSPAEROMgr.m_ForceNewSetupfile.Set( forceNewSetupfileOrig );
     }
 
     return resId;
@@ -1363,7 +1355,8 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "WakeSkipUntilIter", VSPAEROMgr.m_WakeSkipUntilIter.Get() ) );
         m_Inputs.Add( NameValData( "StabilityCalcFlag", VSPAEROMgr.m_StabilityCalcFlag.Get() ) );
         m_Inputs.Add( NameValData( "BatchModeFlag",     VSPAEROMgr.m_BatchModeFlag.Get()     ) );
-        m_Inputs.Add( NameValData( "ForceNewSetupfile", VSPAEROMgr.m_ForceNewSetupfile.Get() ) );
+        m_Inputs.Add( NameValData( "Symmetry",          VSPAEROMgr.m_Symmetry.Get()          ) );
+        m_Inputs.Add( NameValData( "2DFEMFlag",         VSPAEROMgr.m_Write2DFEMFlag.Get()    ) );
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
@@ -1439,7 +1432,7 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_RefGeomID = nvd->GetString(0);
         }
 
-        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF )
+        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::MANUAL_REF )
         {
             nvd = m_Inputs.FindPtr( "Sref", 0 );
             if ( nvd )
@@ -1457,7 +1450,7 @@ string VSPAEROSweepAnalysis::Execute()
                 VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );
             }
         }
-        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF )
+        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
         {
             VSPAEROMgr.Update();
             printf( "Wing Reference Parms: \n" );
@@ -1612,13 +1605,13 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_BatchModeFlag.Set( nvd->GetInt(0) );
         }
 
+        bool symmetryOrig   = VSPAEROMgr.m_Symmetry.Get();
+        nvd = m_Inputs.FindPtr( "Symmetry", 0 );
+        VSPAEROMgr.m_Symmetry.Set( nvd->GetInt(0) );
 
-        bool forceNewSetupfileOrig   = VSPAEROMgr.m_ForceNewSetupfile.Get();
-        nvd = m_Inputs.FindPtr( "ForceNewSetupfile", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_ForceNewSetupfile.Set( nvd->GetInt(0) );
-        }
+        bool write2DFEMOrig   = VSPAEROMgr.m_Write2DFEMFlag.Get();
+        nvd = m_Inputs.FindPtr( "2DFEMFlag", 0 );
+        VSPAEROMgr.m_Write2DFEMFlag.Set( nvd->GetInt(0) );
 
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
@@ -1663,7 +1656,8 @@ string VSPAEROSweepAnalysis::Execute()
 
         VSPAEROMgr.m_BatchModeFlag.Set( BatchModeFlagOrig );
 
-        VSPAEROMgr.m_ForceNewSetupfile.Set( forceNewSetupfileOrig );
+        VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
+        VSPAEROMgr.m_Write2DFEMFlag.Set( write2DFEMOrig );
     }
 
     return resId;
