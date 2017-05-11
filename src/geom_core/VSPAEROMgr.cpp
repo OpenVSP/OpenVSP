@@ -1805,3 +1805,183 @@ void RotorDisk::UpdateParmGroupName()
     m_CP.SetGroupName( str );
 }
 
+
+/*##############################################################################
+#                                                                              #
+#                        ControlSurfaceGroup                                   #
+#                                                                              #
+##############################################################################*/
+
+ControlSurfaceGroup::ControlSurfaceGroup( void ) : ParmContainer()
+{
+    m_Name = "Unnamed Control Group";
+    m_ParentGeomBaseID = "";
+
+    m_IsUsed.Init( "ActiveFlag", "CSGQualities", this, true, false, true );
+    m_IsUsed.SetDescript( "Flag to determine whether or not this group will be used in VSPAero" );
+
+    for (size_t i = 0; i < m_DeflectionGainVec.size(); ++i)
+    {
+        delete m_DeflectionGainVec[i];
+    }
+    m_DeflectionGainVec.clear();
+
+    m_DeflectionAngle.Init( "DeflectionAngle", "CSGQualities", this, 0.0, -1.0e12, 1.0e12 );
+    m_DeflectionAngle.SetDescript( "Angle of deflection for the control group" );
+}
+
+ControlSurfaceGroup::~ControlSurfaceGroup( void )
+{
+    // nothing to do
+}
+
+void ControlSurfaceGroup::ParmChanged( Parm* parm_ptr, int type )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+void ControlSurfaceGroup::Write_STP_Data( FILE *InputFile )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if (!veh)
+    {
+        return;
+    }
+
+    // Write out Control surface group to .vspaero file
+    fprintf( InputFile, "%s\n", m_Name.c_str() );
+
+    // surface names ( Cannot have trailing commas )
+    unsigned int i=0;
+    for ( i = 0; i < m_ControlSurfVec.size()-1; i++ )
+    {
+        fprintf( InputFile, "%s,", m_ControlSurfVec[i].fullName.c_str() );
+    }
+    fprintf( InputFile, "%s\n", m_ControlSurfVec[i++].fullName.c_str() );
+
+    // deflection mixing gains ( Cannot have trailing commas )
+    for ( i = 0; i < m_DeflectionGainVec.size()-1; i++ )
+    {
+        fprintf( InputFile, "%lg, ", m_DeflectionGainVec[i]->Get() );
+    }
+    fprintf( InputFile, "%lg\n", m_DeflectionGainVec[i]->Get() );
+
+    // group deflection angle
+    fprintf( InputFile, "%lg\n", m_DeflectionAngle() );
+
+}
+
+void ControlSurfaceGroup::Load_STP_Data( FILE *InputFile )
+{
+    //TODO - need to write function to load data from .vspaero file
+}
+
+xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
+{
+    char str[256];
+    if (node)
+    {
+        ParmContainer::EncodeXml(node);
+
+        XmlUtil::AddStringNode(node, "ParentGeomBase", m_ParentGeomBaseID.c_str());
+
+        XmlUtil::AddIntNode(node, "NumberOfControlSubSurfaces", m_ControlSurfVec.size());
+        for (size_t i = 0; i < m_ControlSurfVec.size(); ++i)
+        {
+            sprintf(str, "Control_Surface_%i", i );
+            xmlNodePtr csnode = xmlNewChild( node, NULL, BAD_CAST str , NULL );
+            sprintf(str, "SSID%i", i);
+            XmlUtil::AddStringNode(csnode, str, m_ControlSurfVec[i].SSID.c_str());
+            sprintf(str, "iReflect%i", i);
+            XmlUtil::AddIntNode(csnode, str, m_ControlSurfVec[i].iReflect);
+        }
+
+    }
+
+    return node;
+}
+
+xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
+{
+    char str[256];
+    unsigned int nControlSubSurfaces = 0;
+    string ParentGeomID = "GeomID";
+    string SSID = "SSID";
+    bool IsGrouped = false;
+    bool IsUsed = false;
+    int iSubSurf = 0;
+    int iReflect = 0;
+    VspAeroControlSurf newSurf;
+
+    if ( node )
+    {
+        ParmContainer::DecodeXml( node );
+
+        m_ParentGeomBaseID = XmlUtil::FindString(node, "ParentGeomBase", ParentGeomID );
+
+        nControlSubSurfaces = XmlUtil::FindInt( node, "NumberOfControlSubSurfaces", nControlSubSurfaces );
+        for (size_t i = 0; i < nControlSubSurfaces; ++i )
+        {
+            sprintf( str, "Control_Surface_%i", i );
+            xmlNodePtr csnode = XmlUtil::GetNode(node, str, 0);
+            sprintf( str, "SSID%i",i);
+            newSurf.SSID = XmlUtil::FindString( csnode, str, SSID );
+            sprintf(str, "iReflect%i",i);
+            newSurf.iReflect = XmlUtil::FindInt( csnode, str, iReflect );
+            AddSubSurface( newSurf );
+        }
+    }
+
+    return node;
+}
+
+void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
+{
+    // Add deflection gain parm to ControlSurfaceGroup container
+    Parm* p = ParmMgr.CreateParm( PARM_DOUBLE_TYPE );
+    char str[256];
+
+    if ( p )
+    {
+        //  parm name: control_surf->fullName (example: MainWing_Surf1_Aileron)
+        //  group: "CSGQualities"
+        //  initial value: control_surf->deflection_gain
+        sprintf(str, "Surf%i_Gain", control_surf.iReflect );
+        p->Init( str, "CSGQualities", this, 1.0, -1.0e6, 1.0e6 );
+        p->SetDescript( "Deflection gain for the individual sub surface to be used for control mixing and allocation within the control surface group" );
+        m_DeflectionGainVec.push_back( p );
+    }
+
+    m_ControlSurfVec.push_back( control_surf );
+}
+
+void ControlSurfaceGroup::RemoveSubSurface( const string & ssid, int reflec_num )
+{
+    for (size_t i = 0; i < m_ControlSurfVec.size(); ++i)
+    {
+        if ( m_ControlSurfVec[i].SSID.compare( ssid ) == 0 && m_ControlSurfVec[i].iReflect == reflec_num )
+        {
+            m_ControlSurfVec.erase( m_ControlSurfVec.begin() + i);
+            delete m_DeflectionGainVec[i];
+            m_DeflectionGainVec.erase( m_DeflectionGainVec.begin() + i);
+            return;
+        }
+    }
+}
+
+void ControlSurfaceGroup::UpdateParmGroupName()
+{
+    char str[256];
+    sprintf( str, "CSGQualities_%s", m_Name.c_str() );
+    m_IsUsed.SetGroupName( str );
+    m_DeflectionAngle.SetGroupName( str );
+    for (size_t i = 0; i < m_DeflectionGainVec.size(); ++i )
+    {
+        m_DeflectionGainVec[i]->SetGroupName( str );
+    }
+}
