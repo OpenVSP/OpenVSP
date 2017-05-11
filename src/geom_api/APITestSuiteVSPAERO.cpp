@@ -73,6 +73,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     TEST_ASSERT_DELTA( vsp::SetParmVal( parm_id, 0.2 ), 0.2, TEST_TOL );
     parm_id = vsp::GetXSecParm( xsec_id, "ThickChord" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( parm_id, 0.10 ), 0.10, TEST_TOL );
+
     // Add aileron control surface
     string aileron_id = AddSubSurf( wing_id, vsp::SS_CONTROL );
     vsp::SetSubSurfName( wing_id, aileron_id, "Aileron" );
@@ -149,6 +150,32 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     string vspaero_settings_container_id = vsp::FindContainer( "VSPAEROSettings", 0 );
     string xcg_id = vsp::FindParm( vspaero_settings_container_id, "Xcg", "VSPAERO" );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( xcg_id, 0.75 ), 0.75, TEST_TOL );
+    printf( "COMPLETE\n" );
+
+    //==== Auto Group Control Surfaces ====// 
+    printf( "\tGrouping Control Surfaces..." );
+    vsp::AutoGroupVSPAEROControlSurfaces();
+    TEST_ASSERT( vsp::GetNumControlSurfaceGroups() == 3 );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+    printf( "COMPLETE\n" );
+    string control_group_settings_container_id = vsp::FindContainer( "VSPAEROSettings", 0 );   // auto grouping produces parm containers within VSPAEROSettings
+
+    //==== Set Control Surface Group Deflection Angle ====//
+    printf( "\tSetting control surface group deflection angles..." );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+    //  setup asymetric deflection for aileron
+    string deflection_gain_id;
+    // subsurfaces get added to groups with "CSGQualities_[geom_name]_[control_surf_name]"
+    // subsurfaces gain parm name is "Surf[surfndx]_Gain" starting from 0 to NumSymmetricCopies-1
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf0_Gain", "CSGQualities_MainWing_Aileron" );
+    printf("\n\t Deflection Gain ID: %s \n", deflection_gain_id.c_str() );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, 0.8 ), 0.8, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf1_Gain", "CSGQualities_MainWing_Aileron" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, 1.2 ), 1.2, TEST_TOL );
+    //  deflect aileron
+    string deflection_angle_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "CSGQualities_MainWing_Aileron" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( xcg_id, 2 ), 2, TEST_TOL );
     printf( "COMPLETE\n" );
 
     //==== Setup export filenames ====//
@@ -327,9 +354,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointPanel()
     vsp::SetDoubleAnalysisInput( analysis_name, "Beta", beta );
     std::vector< double > mach; mach.push_back( 0.1 );
     vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach );
-    // Case setup
-    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
-    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
+
     // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 2 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
@@ -405,11 +430,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePoint()
     vsp::SetDoubleAnalysisInput( analysis_name, "Beta", beta );
     std::vector< double > mach; mach.push_back( 0.1 );
     vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach );
-    // Case setup
-    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
-    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
-    vsp::Update();
-    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // list inputs, type, and current values
     vsp::PrintAnalysisInputs( analysis_name );
@@ -480,8 +500,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointStab()
     std::vector< double > mach; mach.push_back( 0.4 );
     vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach );
     //     Case Setup
-    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
-    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
     std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
@@ -576,8 +594,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSweep()
     vsp::SetIntAnalysisInput( analysis_name, "MachNpts", mach_npts );
     vsp::Update();
     //     Case Setup
-    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
-    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
     std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
@@ -671,8 +687,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
     std::vector< int > mach_npts; mach_npts.push_back( 2 );
     vsp::SetIntAnalysisInput( analysis_name, "MachNpts", mach_npts );
     //     Case Setup
-    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
-    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
     std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
@@ -804,8 +818,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
 
     // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
-    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
-    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
     std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
@@ -970,8 +982,6 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
 
     // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
-    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
-    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
     std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
@@ -1137,8 +1147,6 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     vsp::SetDoubleAnalysisInput( analysis_name, "MachEnd", mach_end, 0 );
 
     // Reduce wake iteration for speed (force new setup file ensures wake iter setting is re-generated for this test)
-    std::vector< int > force_new_setup_file; force_new_setup_file.push_back( 1 );
-    vsp::SetIntAnalysisInput( analysis_name, "ForceNewSetupfile", force_new_setup_file );
     std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
     std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
