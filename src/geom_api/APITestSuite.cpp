@@ -531,4 +531,5 @@ void APITestSuite::TestSaveLoad()
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf( "\n" );
-}
+}
+
