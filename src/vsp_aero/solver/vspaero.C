@@ -1244,13 +1244,13 @@ void LoadCaseFile(void)
              
              // Control groupname
              
-             fscanf(case_file,"%s\n",ControlSurfaceGroup_[i].Name());
+             fgets( ControlSurfaceGroup_[i].Name(), 200, case_file );
              
              printf("ControlSurfaceGroup_[%d].Name(): %s \n",i,ControlSurfaceGroup_[i].Name());
              
              // List of control surfaces in this group
              
-             fgets(DumChar,200,case_file);
+             fgets(DumChar,300,case_file);
         
              // Determine the number of control surfaces in the group
          
@@ -1274,16 +1274,16 @@ void LoadCaseFile(void)
                 
                 ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(1) = atof(DumChar);
                                                 
-                printf("Control surface(%d) direction %f \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(1));
+                printf("Control surface(%d) direction: %f \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(1));
    
-                // Read in the control surface deflection
-                
-                fgets(DumChar,200,case_file);
-                
-                ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() = atof(DumChar);
-                
-                printf("Control surface(%d) deflection %f \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle());
-                 
+                //// Read in the control surface deflection
+                //
+                //fgets(DumChar,200,case_file);
+                //
+                //ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() = atof(DumChar);
+                //
+                //printf("Control surface(%d) deflection %f \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle());
+                // 
              }
              
              else {
@@ -1332,7 +1332,7 @@ void LoadCaseFile(void)
    
                 while ( Next != NULL ) {
                    
-                    Next = strtok(NULL," ,\n");
+                    Next = strtok(NULL,",\n");
          
                     if ( Next != NULL ) {
                        
@@ -1356,7 +1356,7 @@ void LoadCaseFile(void)
         
                 ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(NumberOfControlSurfaces) = atof(Next);
                 
-                printf("Control surface(%d) direction %f \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(NumberOfControlSurfaces));
+                printf("Control surface(%d) direction: %f \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(NumberOfControlSurfaces));
    
                 while ( Next != NULL ) {
                    
@@ -1373,15 +1373,15 @@ void LoadCaseFile(void)
                     }
                     
                 } 
-                
-                // Finally, read in the control group deflection
-                
-                fscanf(case_file,"%lf\n",&(ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle()));               
-        
-                printf("Control surface(%d) deflection %f \n",NumberOfControlSurfaces,ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle());
                  
-             }          
-             
+             }
+
+             // Finally, read in the control group deflection
+
+             fscanf( case_file, "%lf\n", &(ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle()) );
+
+             printf( "Control group deflection angle: %f \n", ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() );
+
           }
           
        }
