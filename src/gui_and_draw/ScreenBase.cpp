@@ -947,7 +947,7 @@ bool GeomScreen::Update()
 
     //==== SubSurfBrowser ====//
     m_SubSurfBrowser->clear();
-    static int widths[] = { 75, 75, 75 };
+    static int widths[] = { 150, 80, 60 };
     m_SubSurfBrowser->column_widths( widths );
     m_SubSurfBrowser->column_char( ':' );
 
