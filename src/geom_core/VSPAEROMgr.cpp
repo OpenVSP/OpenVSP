@@ -396,139 +396,173 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
 }
 
-/* TODO - finish implementation of generating the setup file from the VSPAEROMgr*/
-void VSPAEROMgrSingleton::CreateSetupFile( FILE * logFile )
+string VSPAEROMgrSingleton::CreateSetupFile()
 {
+    string retStr = string();
+
     UpdateFilenames();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
         fprintf( stderr, "ERROR %d: Unable to get vehicle \n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
-        return;
+        return retStr;
     }
 
-    // Clear existing serup file
+    // Clear existing setup file
     if ( FileExist( m_SetupFile ) )
     {
         remove( m_SetupFile.c_str() );
     }
 
-    vector<string> args;
-    args.push_back( "-setup" );
 
-    args.push_back( "-sref" );
-    args.push_back( StringUtil::double_to_string( m_Sref(), "%f" ) );
-
-    args.push_back( "-bref" );
-    args.push_back( StringUtil::double_to_string( m_bref(), "%f" ) );
-
-    args.push_back( "-cref" );
-    args.push_back( StringUtil::double_to_string( m_cref(), "%f" ) );
-
-    args.push_back( "-cg" );
-    args.push_back( StringUtil::double_to_string( m_Xcg(), "%f" ) );
-    args.push_back( StringUtil::double_to_string( m_Ycg(), "%f" ) );
-    args.push_back( StringUtil::double_to_string( m_Zcg(), "%f" ) );
-
-    // If the GUI is selected for batch calculation write the setup file with
-    // the entire vector of mach alpha and beta points otherwise just write the
-    // starting freestream condition.  This will give the easiest to use setup
-    // file representing the options in the GUI.
-    if ( m_BatchModeFlag.Get() )
+    FILE * case_file = fopen( m_SetupFile.c_str(), "w" );
+    if ( case_file == NULL )
     {
-        vector<double> alphaVec;
-        vector<double> betaVec;
-        vector<double> machVec;
-        GetSweepVectors( alphaVec, betaVec, machVec );
+        fprintf( stderr, "ERROR %d: Unable to create case file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, m_SetupFile.c_str(), __FILE__, __LINE__ );
+        return retStr;
+    }
+    fprintf( case_file, "Sref = %lf \n", m_Sref() );
+    fprintf( case_file, "Cref = %lf \n", m_cref() );
+    fprintf( case_file, "Bref = %lf \n", m_bref() );
+    fprintf( case_file, "X_cg = %lf \n", m_Xcg() );
+    fprintf( case_file, "Y_cg = %lf \n", m_Ycg() );
+    fprintf( case_file, "Z_cg = %lf \n", m_Zcg() );
 
-        //====== Loop over flight conditions and solve ======//
-        // Mach
-        args.push_back( "-mach" );
-        for ( int iMach = 0; iMach < machVec.size(); iMach++ )
-        {
-            args.push_back( StringUtil::double_to_string( machVec[iMach], "%f " ) );
-        }
-        args.push_back( "END" );
+    vector<double> alphaVec;
+    vector<double> betaVec;
+    vector<double> machVec;
+    GetSweepVectors( alphaVec, betaVec, machVec );    
+        
+    if ( !m_BatchModeFlag.Get() )
+    {
+        //truncate the vectors to just the first element
+        machVec.resize( 1 );
+        alphaVec.resize( 1 );
+        betaVec.resize( 1 );
+    }
+    unsigned int i;
+    // Mach vector
+    fprintf( case_file, "Mach = " );
+    for ( i = 0; i < machVec.size() - 1; i++ )
+    {
+        fprintf( case_file, "%lf, ", machVec[i] );
+    }
+    fprintf( case_file, "%lf \n", machVec[i++] );
 
-        // Alpha
-        args.push_back( "-aoa" );
-        for ( int iAlpha = 0; iAlpha < alphaVec.size(); iAlpha++ )
-        {
-            args.push_back( StringUtil::double_to_string( alphaVec[iAlpha], "%f " ) );
-        }
-        args.push_back( "END" );
+    // Alpha vector
+    fprintf( case_file, "AoA = " );
+    for ( i = 0; i < alphaVec.size() - 1; i++ )
+    {
+        fprintf( case_file, "%lf, ", alphaVec[i] );
+    }
+    fprintf( case_file, "%lf \n", alphaVec[i++] );
 
-        // Beta
-        args.push_back( "-beta" );
-        for ( int iBeta = 0; iBeta < betaVec.size(); iBeta++ )
+    // Beta vector
+    fprintf( case_file, "Beta = " );
+    for ( i = 0; i < betaVec.size() - 1; i++ )
+    {
+        fprintf( case_file, "%lf, ", betaVec[i] );
+    }
+    fprintf( case_file, "%lf \n", betaVec[i++] );
+
+    string sym;
+    if ( m_Symmetry() )
+        sym = "Y";
+    else
+        sym = "NO";
+    fprintf( case_file, "Vinf = %lf \n", m_Vinf() );
+    fprintf( case_file, "Rho = %lf \n", m_Rho() );
+    fprintf( case_file, "ReCref = %lf \n", m_ReCref() );
+    fprintf( case_file, "ClMax = %lf \n", m_ClMax() );
+    fprintf( case_file, "MaxTurningAngle = %lf \n", m_MaxTurnAngle() );
+    fprintf( case_file, "Symmetry = %s \n", sym.c_str() );
+    fprintf( case_file, "FarDist = %lf \n", m_FarDist() );
+    fprintf( case_file, "NumWakeNodes = %d \n", -1 );       //TODO add to VSPAEROMgr as parm
+    fprintf( case_file, "WakeIters = %d \n", m_WakeNumIter.Get() );
+
+    // RotorDisks
+    unsigned int numUsedRotors = 0;
+    for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
+    {
+        if ( m_RotorDiskVec[iRotor]->m_IsUsed )
         {
-            args.push_back( StringUtil::double_to_string( betaVec[iBeta], "%f " ) );
+            numUsedRotors++;
         }
-        args.push_back( "END" );
+    }
+    fprintf( case_file, "NumberOfRotors = %d \n", numUsedRotors );           //TODO add to VSPAEROMgr as parm
+    int iPropElement = 0;
+    for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
+    {
+        if ( m_RotorDiskVec[iRotor]->m_IsUsed )
+        {
+            iPropElement++;
+            fprintf( case_file, "PropElement_%d\n", iPropElement );     //read in by, but not used, in vspaero and begins at 1
+            fprintf( case_file, "%d\n", iPropElement );                 //read in by, but not used, in vspaero
+            m_RotorDiskVec[iRotor]->Write_STP_Data( case_file );
+        }
+    }
+
+    // ControlSurfaceGroups
+    unsigned int numUsedCSGs = 0;
+    for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
+    {
+        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() )
+        {
+            numUsedCSGs++;
+        }
+    }
+
+    if ( m_AnalysisMethod.Get() == vsp::PANEL )
+    {
+        // control surfaces are currently not supported for panel method
+        numUsedCSGs = 0;
+        fprintf( case_file, "NumberOfControlGroups = %d \n", numUsedCSGs );
     }
     else
     {
-        args.push_back( "-aoa" );
-        args.push_back( StringUtil::double_to_string( m_AlphaStart(), "%f" ) );
-        args.push_back( "END" );
-
-        args.push_back( "-beta" );
-        args.push_back( StringUtil::double_to_string( m_BetaStart(), "%f" ) );
-        args.push_back( "END" );
-
-        args.push_back( "-mach" );
-        args.push_back( StringUtil::double_to_string( m_MachStart(), "%f" ) );
-        args.push_back( "END" );
+        fprintf( case_file, "NumberOfControlGroups = %d \n", numUsedCSGs );
+        for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
+        {
+            if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() )
+            {
+                m_ControlSurfaceGroupVec[iCSG]->Write_STP_Data( case_file );
+            }
+        }
     }
 
-
-
-    args.push_back( "-wakeiters" );
-    args.push_back( StringUtil::int_to_string( m_WakeNumIter(), "%d" ) );
-
-    args.push_back( m_ModelNameBase );
-
-    //Print out execute command
-    string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
-    if( logFile )
-    {
-        fprintf( logFile, "%s", cmdStr.c_str() );
-    }
-    else
-    {
-        MessageData data;
-        data.m_String = "VSPAEROSolverMessage";
-        data.m_StringVec.push_back( cmdStr );
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
-    }
-
-    // Execute VSPAero
-    m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
-
-    // ==== MonitorSolverProcess ==== //
-    MonitorSolver( logFile );
-
-    // Check if the kill solver flag has been raised, if so clean up and return
-    //  note: we could have exited the IsRunning loop if the process was killed
-    if( m_SolverProcessKill )
-    {
-        m_SolverProcessKill = false;    //reset kill flag
-    }
+    //Finish up by closing the file and making sure that it appears in the file system
+    fclose( case_file );
 
     // Wait until the setup file shows up on the file system
     WaitForFile( m_SetupFile );
+
+    // Add and return a result
+    Results* res = ResultsMgr.CreateResults( "VSPAERO_Setup" );
 
     if ( !FileExist( m_SetupFile ) )
     {
         // shouldn't be able to get here but create a setup file with the correct settings
         fprintf( stderr, "ERROR %d: setup file not found, file %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_SetupFile.c_str(), __FILE__, __LINE__ );
+        retStr = string();
+    }
+    else if ( !res )
+    {
+        fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
+        retStr = string();
+    }
+    else
+    {
+        res->Add( NameValData( "SetupFile", m_SetupFile ) );
+        retStr = res->GetID();
     }
 
     // Send the message to update the screens
     MessageData data;
     data.m_String = "UpdateAllScreens";
     MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+
+    return retStr;
 
 }
 

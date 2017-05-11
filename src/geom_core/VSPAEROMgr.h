@@ -168,7 +168,7 @@ public:
 
     // VSP Aero Functionality and Variables
     string ComputeGeometry();
-    void CreateSetupFile( FILE * logFile = NULL );
+    string CreateSetupFile();                          // natively creates a *.vspaero template setup file
     string ComputeSolver( FILE * logFile = NULL ); // returns a result with a vector of results id's under the name ResultVec
     string ComputeSolverBatch( FILE * logFile = NULL );
     string ComputeSolverSingle( FILE * logFile = NULL );
