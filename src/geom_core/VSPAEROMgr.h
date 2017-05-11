@@ -33,6 +33,50 @@ public:
     unsigned int iReflect;      // mapping index to which reflected sub surface
 };
 
+class RotorDisk : public ParmContainer
+{
+public:
+    // Constructor, Destructor, Copy
+    RotorDisk( void );
+    ~RotorDisk( void );
+    RotorDisk( const RotorDisk &RotorDisk );
+    RotorDisk& operator=( const RotorDisk &RotorDisk );
+
+    RotorDisk( DegenGeom &degenGeom );  //TODO make this argument a const
+    RotorDisk( const DegenDisk degenDisk, string parentGeomId, unsigned int parentGeomSurfNdx );
+    void InitDisk();
+    void ParmChanged( Parm* parm_ptr, int type );
+
+    // Setup File I/O
+    void Write_STP_Data( FILE * InputFile );
+    void Load_STP_Data( FILE * InputFile );
+
+    string GetParentID()                  { return m_ParentGeomId; }
+    unsigned int GetSurfNum()             { return m_ParentGeomSurfNdx; }
+
+    // vsp3 file xml I/O
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    bool m_IsUsed;
+
+    vec3d m_XYZ;           // RotorXYZ_
+    vec3d m_Normal;        // RotorNormal_
+
+    Parm m_Diameter;       // RotorDiameter_
+    Parm m_HubDiameter;    // RotorHubDiameter_
+    Parm m_RPM;          // RotorRPM_
+
+    Parm m_CT;          // Rotor_CT_
+    Parm m_CP;          // Rotor_CP_
+
+    //identifing information for vsp model
+    string m_ParentGeomId;
+    unsigned int m_ParentGeomSurfNdx;
+
+    void UpdateParmGroupName();
+};
+
 //==== VSPAERO Manager ====//
 class VSPAEROMgrSingleton : public ParmContainer
 {
@@ -52,6 +96,13 @@ public:
     void Update();
 
     void UpdateFilenames();
+    void UpdateRotorDisks();
+    // Setter Methods
+    void SetCurrentRotorDiskIndex( int index )              { m_CurrentRotorDiskIndex = index; }
+
+    // Getter Methods
+    int GetCurrentRotorDiskIndex()                          { return m_CurrentRotorDiskIndex; }
+    vector <RotorDisk*> GetRotorDiskVec()                      { return m_RotorDiskVec; };
     string ComputeGeometry();
     void CreateSetupFile( FILE * logFile = NULL );
     string ComputeSolver( FILE * logFile = NULL ); // returns a result with a vector of results id's under the name ResultVec
@@ -66,6 +117,11 @@ public:
     IntParm m_AnalysisMethod;
 
     BoolParm m_ForceNewSetupfile;
+    // Rotor Disk Functionality
+    void SetCurrentRotorDiskFromParms();
+    void SetParmsFromCurrentRotorDisk();
+    bool ValidRotorDiskIndex( int index );
+
 
     // file names
     string m_ModelNameBase; // this is the name used in the execution string
@@ -103,6 +159,13 @@ public:
     IntParm m_WakeNumIter;
     IntParm m_WakeAvgStartIter;
     IntParm m_WakeSkipUntilIter;
+
+    // Disk Element Parms
+    Parm m_Diameter;
+    Parm m_HubDiameter;
+    Parm m_RPM;
+    Parm m_CT;
+    Parm m_CP;
 
 
     // Plotwindow settings
@@ -160,9 +223,11 @@ private:
     VSPAEROMgrSingleton( VSPAEROMgrSingleton const& copy );            // Not Implemented
     VSPAEROMgrSingleton& operator=( VSPAEROMgrSingleton const& copy ); // Not Implemented
 
+    vector< RotorDisk* > m_RotorDiskVec;
     vector< VspAeroControlSurf > m_CompleteControlSurfaceVec;   // list of all control and rectangle sub-surfaces in the model selected as control surfaces
     vector < VspAeroControlSurf > m_ActiveControlSurfaceVec;
     vector < VspAeroControlSurf > m_UngroupedCS;
+    int m_CurrentRotorDiskIndex;
 };
 
 #define VSPAEROMgr VSPAEROMgrSingleton::getInstance()
