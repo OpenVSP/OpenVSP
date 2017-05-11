@@ -148,6 +148,7 @@ public:
     void UpdateSref();
     void UpdateSetupParmLimits();
     void UpdateFilenames();
+    void UpdatePropElemParms();
     void UpdateRotorDisks();
     void UpdateControlSurfaceGroups();
     void CleanCompleteControlSurfVec();
@@ -157,14 +158,18 @@ public:
     // Setter Methods
     void SetCurrentRotorDiskIndex( int index )              { m_CurrentRotorDiskIndex = index; }
     void SetCurrentCSGroupName( const string & name );
+    void SetCurrentCSGroupIndex( int index )                { m_CurrentCSGroupIndex = index; }
 
     // Getter Methods
     int GetCurrentRotorDiskIndex()                          { return m_CurrentRotorDiskIndex; }
     vector <RotorDisk*> GetRotorDiskVec()                      { return m_RotorDiskVec; };
     vector < VspAeroControlSurf > GetActiveCSVec()          { return m_ActiveControlSurfaceVec; }
     vector < VspAeroControlSurf > GetUngroupedCSVec()        { return m_UngroupedCS; }
+    int GetCurrentCSGroupIndex()                            { return m_CurrentCSGroupIndex; }
     string GetCurrentCSGGroupName();
     vector <ControlSurfaceGroup* > GetControlSurfaceGroupVec()   { return m_ControlSurfaceGroupVec; }
+    vector < int > GetSelectedGroupedItems()                { return m_SelectedGroupedCS; }
+    vector < int > GetSelectedUngroupedItems()              { return m_SelectedUngroupedCS; }
 
     // VSP Aero Functionality and Variables
     string ComputeGeometry();
@@ -196,7 +201,11 @@ public:
     void RemoveAllFromCSGroup();
     void RemoveFromUngrouped( const string & ssid, int reflec_num );
 
+    virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id );
 
+
+    vector < int > m_SelectedGroupedCS;
+    vector < int > m_SelectedUngroupedCS;
 
     // File Names
     string m_ModelNameBase; // this is the name used in the execution string
@@ -322,6 +331,7 @@ private:
     vector < DegenGeom > m_DegenGeomVec;
 
     int m_CurrentRotorDiskIndex;
+    int m_CurrentCSGroupIndex;
 
     bool m_Verbose;
 };
