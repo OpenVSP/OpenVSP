@@ -19,6 +19,12 @@
 #include <regex>
 
 //==== Constructor ====//
+VspAeroControlSurf::VspAeroControlSurf()
+{
+    isGrouped = false;
+}
+
+//==== Constructor ====//
 VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 {
     m_Name = "VSPAEROSettings";

@@ -21,6 +21,18 @@
 using std::string;
 using std::vector;
 
+class VspAeroControlSurf
+{
+public:
+    VspAeroControlSurf();
+
+    string fullName;
+    string parentGeomId;
+    string SSID;
+    bool isGrouped;
+    unsigned int iReflect;      // mapping index to which reflected sub surface
+};
+
 //==== VSPAERO Manager ====//
 class VSPAEROMgrSingleton : public ParmContainer
 {
@@ -148,6 +160,9 @@ private:
     VSPAEROMgrSingleton( VSPAEROMgrSingleton const& copy );            // Not Implemented
     VSPAEROMgrSingleton& operator=( VSPAEROMgrSingleton const& copy ); // Not Implemented
 
+    vector< VspAeroControlSurf > m_CompleteControlSurfaceVec;   // list of all control and rectangle sub-surfaces in the model selected as control surfaces
+    vector < VspAeroControlSurf > m_ActiveControlSurfaceVec;
+    vector < VspAeroControlSurf > m_UngroupedCS;
 };
 
 #define VSPAEROMgr VSPAEROMgrSingleton::getInstance()
