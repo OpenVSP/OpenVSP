@@ -209,22 +209,72 @@ void VSPAEROMgrSingleton::Renew()
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
+    char str[256];
     xmlNodePtr VSPAEROsetnode = xmlNewChild( node, NULL, BAD_CAST"VSPAEROSettings", NULL );
 
-    ParmContainer::EncodeXml( VSPAEROsetnode );
+    ParmContainer::EncodeXml( VSPAEROsetnode ); // Encode VSPAEROMgr Parms
 
-    XmlUtil::AddStringNode( VSPAEROsetnode, "ReferenceGeomID", m_RefGeomID );
+    // Encode Control Surface Groups using Internal Encode Method
+    XmlUtil::AddIntNode( VSPAEROsetnode, "ControlSurfaceGroupCount", m_ControlSurfaceGroupVec.size() );
+    for ( size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i )
+    {
+        sprintf( str, "Control_Surface_Group_%i", i );
+        xmlNodePtr csgnode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST str, NULL );
+        m_ControlSurfaceGroupVec[i]->EncodeXml( csgnode );
+    }
+
+    // Encode Rotor Disks using Internal Encode Method
+    XmlUtil::AddIntNode( VSPAEROsetnode, "RotorDiskCount", m_RotorDiskVec.size() );
+    for ( size_t i = 0; i < m_RotorDiskVec.size(); ++i )
+    {
+        sprintf( str, "Rotor_%i", i );
+        xmlNodePtr rotornode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST str, NULL );
+        m_RotorDiskVec[i]->EncodeXml( rotornode );
+    }
 
     return VSPAEROsetnode;
 }
 
 xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
 {
+    char str[256];
+    int def = 0;
+    string strdef = "";
+    double dbldef = 0.0;
+
     xmlNodePtr VSPAEROsetnode = XmlUtil::GetNode( node, "VSPAEROSettings", 0 );
     if ( VSPAEROsetnode )
     {
-        ParmContainer::DecodeXml( VSPAEROsetnode );
-        m_RefGeomID   = XmlUtil::FindString( VSPAEROsetnode, "ReferenceGeomID", m_RefGeomID );
+        ParmContainer::DecodeXml( VSPAEROsetnode ); // Decode VSPAEROMgr Parms
+
+        // Decode Control Surface Groups using Internal Decode Method
+        int num_groups = XmlUtil::FindInt(VSPAEROsetnode, "ControlSurfaceGroupCount", def);
+        for (size_t i = 0; i < num_groups; ++i)
+        {
+            sprintf(str, "Control_Surface_Group_%i", i);
+            xmlNodePtr csgnode = XmlUtil::GetNode(VSPAEROsetnode, str, 0);
+            if (csgnode)
+            {
+                AddControlSurfaceGroup();
+                m_ControlSurfaceGroupVec.back()->DecodeXml( csgnode );
+            }
+        }
+
+        UpdateCompleteControlSurfVec();
+        UpdateControlSurfaceGroups(); // Replace Shell SubSurfs with those from CompleteSurfaceVec
+
+        // Decode Rotor Disks using Internal Decode Method
+        int num_rotor = XmlUtil::FindInt( VSPAEROsetnode, "RotorDiskCount", def );
+        m_RotorDiskVec.resize( num_rotor );
+        for (size_t i = 0; i < num_rotor; ++i )
+        {
+            sprintf( str, "Rotor_%i", i );
+            xmlNodePtr rotornode = XmlUtil::GetNode(VSPAEROsetnode, str, 0 );
+            m_RotorDiskVec[i] = new RotorDisk();
+            m_RotorDiskVec[i]->DecodeXml(rotornode);
+        }
+
+        UpdateRotorDisks();
     }
 
     return VSPAEROsetnode;
