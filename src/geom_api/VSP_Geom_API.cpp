@@ -697,6 +697,17 @@ string SetVSPAERORefWingID( const string & geom_id )
     return VSPAEROMgr.m_RefGeomID;
 }
 
+void AutoGroupVSPAEROControlSurfaces()
+{
+    VSPAEROMgr.Update();
+    VSPAEROMgr.InitControlSurfaceGroups();
+}
+
+int GetNumControlSurfaceGroups()
+{
+    return VSPAEROMgr.GetControlSurfaceGroupVec().size();
+}
+
 //===================================================================//
 //===============       Analysis Functions        ===================//
 //===================================================================//

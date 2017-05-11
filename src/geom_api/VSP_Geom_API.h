@@ -272,6 +272,10 @@ extern std::vector < double > PCurveGetValVec( const std::string & geom_id, cons
 extern void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, const int & indx );
 extern void PCurveSplit( const std::string & geom_id, const int & pcurveid, const double & tsplit );
 
+//======================== VSPAERO Functions ======================//
+extern void AutoGroupVSPAEROControlSurfaces();
+extern int GetNumControlSurfaceGroups();
+
 }           // End vsp namespace
 
 
