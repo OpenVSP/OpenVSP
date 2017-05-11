@@ -122,6 +122,12 @@ public:
 class VSPAEROMgrSingleton : public ParmContainer
 {
 public:
+    // Selected type used for GUI visual aid of the selected rotor or control surface
+    enum SELECTED_TYPE 
+    { 
+        ROTORDISK = 0,      // user has selected a rotor disk
+        CONTROL_SURFACE,    // user has selected a control surface
+    };
     // Aerodynamic reference area and length
     enum REF_WING_TYPE
     {
@@ -155,10 +161,14 @@ public:
     void UpdateCompleteControlSurfVec();         // initializes one group per surface
     void UpdateUngroupedVec();
     void UpdateActiveControlSurfVec();
+    void UpdateBBox( vector < DrawObj* > & draw_obj_vec );
+    void UpdateHighlighted( vector < DrawObj* > & draw_obj_vec );
+
     // Setter Methods
     void SetCurrentRotorDiskIndex( int index )              { m_CurrentRotorDiskIndex = index; }
     void SetCurrentCSGroupName( const string & name );
     void SetCurrentCSGroupIndex( int index )                { m_CurrentCSGroupIndex = index; }
+    void SetCurrentType( int type )                         { m_LastSelectedType = type; }
 
     // Getter Methods
     int GetCurrentRotorDiskIndex()                          { return m_CurrentRotorDiskIndex; }
@@ -203,6 +213,9 @@ public:
 
     virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id );
 
+    // Highlighter Methods and Variables
+    void HighlightSelected( int type );
+    void LoadDrawObjs( vector < DrawObj* > & draw_obj_vec );
 
     vector < int > m_SelectedGroupedCS;
     vector < int > m_SelectedUngroupedCS;
@@ -298,6 +311,12 @@ public:
     ProcessUtil m_SolverProcess;
 
 protected:
+    DrawObj m_HighlightDrawObj;
+
+    BndBox m_BBox;
+
+    int m_LastSelectedType;
+
     string m_LastPanelMeshGeomId;
 
     int WaitForFile( string filename );  // function is used to wait for the result to show up on the file system

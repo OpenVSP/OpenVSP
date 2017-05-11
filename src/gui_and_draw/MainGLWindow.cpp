@@ -31,6 +31,7 @@
 #include "Clipping.h"
 #include "ManageViewScreen.h"
 #include "WaveDragScreen.h"
+#include "VSPAEROScreen.h"
 
 #pragma warning(disable:4244)
 
@@ -328,6 +329,14 @@ void VspGlWindow::update()
         if( WDScreen )
         {
             WDScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects for VSP AERO Screen
+        VSPAEROScreen * AeroScreen = dynamic_cast < VSPAEROScreen* >
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_SCREEN ) );
+        if ( AeroScreen )
+        {
+            AeroScreen->LoadDrawObjs( drawObjs );
         }
 
         // Load Objects to Renderer.

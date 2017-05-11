@@ -85,6 +85,7 @@ public:
     void UpdateControlSurfaceGroupNames();
     void UpdateDeflectionGainScrollGroup();
 
+    void LoadDrawObjs( vector < DrawObj* > & draw_obj_vec );
 
 protected:
 

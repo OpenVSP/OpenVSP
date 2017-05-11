@@ -1357,6 +1357,7 @@ void VSPAEROScreen::PropElemBrowserCallback()
         VSPAEROMgr.SetCurrentRotorDiskIndex( last - 2 ); 
         VSPAEROMgr.SetParmsFromCurrentRotorDisk();
     }
+    VSPAEROMgr.HighlightSelected( VSPAEROMgr.ROTORDISK );
 }
 
 void VSPAEROScreen::SelectPropBrowser( int cur_index )
@@ -1383,6 +1384,7 @@ void VSPAEROScreen::ControlSurfaceGroupBrowserCallback()
             VSPAEROMgr.UpdateActiveControlSurfVec();
         }
     }
+    VSPAEROMgr.HighlightSelected( VSPAEROMgr.CONTROL_SURFACE );
 }
 
 void VSPAEROScreen::SelectControlSurfaceBrowser( int cur_index )
@@ -1452,5 +1454,13 @@ void VSPAEROScreen::SelectGroupedListBrowser( int cur_index )
 
         //==== Position Browser ====//
         m_GroupedCSBrowser->topline( cur_index );
+    }
+}
+
+void VSPAEROScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    if( m_FLTK_Window->visible() )
+    {
+        VSPAEROMgr.LoadDrawObjs( draw_obj_vec );
     }
 }

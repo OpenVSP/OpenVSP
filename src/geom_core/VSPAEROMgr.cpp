@@ -180,6 +180,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
+    m_LastSelectedType = -1;
 
     m_Verbose = false;
 }
@@ -205,6 +206,7 @@ void VSPAEROMgrSingleton::Renew()
 
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
+    m_LastSelectedType = -1;
 }
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
@@ -2299,6 +2301,147 @@ void VSPAEROMgrSingleton::SetCurrentCSGroupName(const string & name)
     if ( m_CurrentCSGroupIndex != -1 )
     {
         m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->SetName( name );
+    }
+}
+
+void VSPAEROMgrSingleton::HighlightSelected( int type )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    veh->ClearActiveGeom();
+
+    if ( type == ROTORDISK )
+    {
+        VSPAEROMgr.SetCurrentType( ROTORDISK );
+    }
+    else if ( type == CONTROL_SURFACE )
+    {
+        VSPAEROMgr.SetCurrentType( CONTROL_SURFACE );
+    }
+    else
+    {
+        return;
+    }
+}
+
+void VSPAEROMgrSingleton::LoadDrawObjs( vector < DrawObj* > & draw_obj_vec )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    if ( m_LastSelectedType == ROTORDISK )
+    {
+        UpdateBBox( draw_obj_vec );
+    }
+    else if ( m_LastSelectedType == CONTROL_SURFACE )
+    {
+        UpdateHighlighted( draw_obj_vec );
+    }
+}
+
+void VSPAEROMgrSingleton::UpdateBBox( vector < DrawObj* > & draw_obj_vec )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if (!veh)
+    {
+        return;
+    }
+
+    //==== Load Bounding Box ====//
+    m_BBox.Reset();
+    BndBox bb;
+
+    // If there is no selected rotor size is zero ( like blank geom )
+    // set bbox to zero size
+    if (m_CurrentRotorDiskIndex == -1)
+    {
+        m_BBox.Update(vec3d(0, 0, 0));
+    }
+    else
+    {
+        vector < VspSurf > surf_vec;
+        if ( veh->FindGeom(m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetParentID() ) )
+        {
+            veh->FindGeom(m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetParentID())->GetSurfVec(surf_vec);
+            surf_vec[m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetSurfNum()].GetBoundingBox(bb);
+            m_BBox.Update(bb);
+        }
+        else
+            m_CurrentRotorDiskIndex = -1;
+    }
+
+    //==== Bounding Box ====//
+    m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
+    m_HighlightDrawObj.m_LineWidth = 2.0;
+    m_HighlightDrawObj.m_LineColor = vec3d(1.0, 0., 0.0);
+    m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
+
+    m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+
+    draw_obj_vec.push_back(&m_HighlightDrawObj);
+}
+
+void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    string parentID = "";
+    string ssid = "";
+    int sub_surf_indx;
+    if (m_CurrentCSGroupIndex != -1)
+    {
+        vector < VspAeroControlSurf > cont_surf_vec = m_ActiveControlSurfaceVec;
+        vector < VspAeroControlSurf > cont_surf_vec_ungrouped = m_UngroupedCS;
+        if (m_SelectedGroupedCS.size() == 0 && m_SelectedUngroupedCS.size() == 0)
+        {
+            for (size_t i = 0; i < cont_surf_vec.size(); ++i)
+            {
+                vec3d color(0,1,0); // Green
+                parentID = cont_surf_vec[i].parentGeomId;
+                sub_surf_indx = cont_surf_vec[i].iReflect;
+                ssid = cont_surf_vec[i].SSID;
+                if (veh->FindGeom(parentID))
+                {
+                    if (veh->FindGeom(parentID)->GetSubSurf(ssid))
+                    {
+                        veh->FindGeom(parentID)->GetSubSurf(ssid)->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (size_t i = 0; i < m_SelectedGroupedCS.size(); ++i)
+            {
+                vec3d color(0,1,0); // Green
+                parentID = cont_surf_vec[m_SelectedGroupedCS[i]-1].parentGeomId;
+                sub_surf_indx = cont_surf_vec[m_SelectedGroupedCS[i]-1].iReflect;
+                ssid = cont_surf_vec[m_SelectedGroupedCS[i]-1].SSID;
+                if (veh->FindGeom(parentID)->GetSubSurf(ssid))
+                {
+                    veh->FindGeom(parentID)->GetSubSurf(ssid)->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
+                }
+            }
+            for (size_t i = 0; i < m_SelectedUngroupedCS.size(); ++i )
+            {
+                vec3d color(1,0,0); // Red
+                parentID = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i]-1].parentGeomId;
+                sub_surf_indx = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i]-1].iReflect;
+                ssid = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i]-1].SSID;
+                if (veh->FindGeom(parentID)->GetSubSurf(ssid))
+                {
+                    veh->FindGeom(parentID)->GetSubSurf(ssid)->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
+                }
+            }
+        }
     }
 }
 
