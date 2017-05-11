@@ -181,6 +181,7 @@ public:
     ParmButton();
     virtual void Init( VspScreen* screen, VspButton* button );
     virtual void Update( const string& parm_id );
+    virtual void UpdateButtonName( const string & name );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetButtonNameUpdate( bool flag )   { m_ButtonNameUpdate = flag; }
 
@@ -558,6 +559,10 @@ public:
     virtual void SetFormat( const char* format )
     {
         m_Input.SetFormat( format );
+    }
+    virtual void SetButtonName( const string & name )
+    {
+        m_ParmButton.UpdateButtonName( name );
     }
     virtual void SetButtonNameUpdate( bool flag )
     {

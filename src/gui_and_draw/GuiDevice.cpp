@@ -863,6 +863,12 @@ void ParmButton::Update( const string& parm_id )
     }
 }
 
+//==== Update Name ====//
+void ParmButton::UpdateButtonName( const string & name )
+{
+    m_Button->copy_label( name.c_str() );
+}
+
 //==== Set Slider Value and Limits =====//
 void ParmButton::SetValAndLimits( Parm* )
 {

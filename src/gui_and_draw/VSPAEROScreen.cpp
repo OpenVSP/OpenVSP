@@ -16,11 +16,16 @@
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
-#define VSPAERO_SCREEN_WIDTH 850
-#define VSPAERO_SCREEN_HEIGHT 750
+#define VSPAERO_SCREEN_WIDTH 610
+#define VSPAERO_SCREEN_HEIGHT 650
+#define VSPAERO_EXECUTE_CONSTANT_HEIGHT 210
 
-VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_WIDTH, VSPAERO_SCREEN_HEIGHT, "VSPAERO" )
+VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_WIDTH,
+    VSPAERO_SCREEN_HEIGHT, "VSPAERO", VSPAERO_EXECUTE_CONSTANT_HEIGHT )
 {
+    m_NumVarAngle = 0;
+    m_NumVarDeflection = 0;
+
     m_FLTK_Window->callback( staticCloseCB, this );
 
     m_SolverPair = make_pair( &VSPAEROMgr, this );  //solverpair type
@@ -29,10 +34,46 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     int window_border_width = 5;
     int group_border_width = 2;
 
-    int total_width = VSPAERO_SCREEN_WIDTH - 2 * window_border_width;
-    int total_height = VSPAERO_SCREEN_HEIGHT - 2 * window_border_width;
-    int row_height = 20;
-    int action_button_height = 0 * row_height; //space reserved for action buttons at the bottom
+    //==== Constant Console Area ====//
+    m_ConstantAreaLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_ConstantAreaLayout.AddY( m_ConstantAreaLayout.GetRemainY()
+        - 10 * m_ConstantAreaLayout.GetStdHeight()
+        - 2 * m_ConstantAreaLayout.GetGapHeight() );
+    m_ConstantAreaLayout.AddX( window_border_width );
+    m_ConstantAreaLayout.AddYGap();
+
+    // Console
+    m_ConstantAreaLayout.AddSubGroupLayout( m_ConsoleLayout, m_ConstantAreaLayout.GetRemainX() - window_border_width,
+        m_ConstantAreaLayout.GetRemainY() );
+
+    m_SolverDisplay = m_ConsoleLayout.AddFlTextDisplay( m_ConsoleLayout.GetRemainY() - 3 * m_ConsoleLayout.GetStdHeight() - window_border_width );
+    m_SolverBuffer = new Fl_Text_Buffer;
+    m_SolverDisplay->buffer( m_SolverBuffer );
+
+    m_ConsoleLayout.SetButtonWidth( m_ConsoleLayout.GetW() / 2 );
+
+    m_ConsoleLayout.SetSameLineFlag( true );
+    m_ConsoleLayout.SetFitWidthFlag( false );
+
+    m_ConsoleLayout.AddButton( m_SolverButton, "Launch Solver" );
+    m_ConsoleLayout.AddButton( m_KillSolverButton, "Kill Solver" );
+
+    m_ConsoleLayout.ForceNewLine();
+
+    m_ConsoleLayout.AddButton( m_PlotButton, "Show Results Mgr" );
+    m_ConsoleLayout.AddButton( m_ViewerButton, "Launch Viewer" );
+
+    m_ConsoleLayout.ForceNewLine();
+
+    m_ConsoleLayout.SetFitWidthFlag( true );
+    m_ConsoleLayout.SetSameLineFlag( false );
+    //m_ExecuteLayout.AddButton( m_ExportResultsToMatlabButton, "Export to *.m" );
+    m_ConsoleLayout.AddButton( m_ExportResultsToCsvButton, "Export to *.csv" );
+    m_ExportResultsToCsvButton.Deactivate();
+
+    // Execute
+    int execute_height = m_ConstantAreaLayout.GetStdHeight();
+    m_ConstantAreaLayout.AddSubGroupLayout( m_ExecuteLayout, m_ConstantAreaLayout.GetW(), execute_height );
 
     //==== Overview Tab ====//
     Fl_Group* overview_tab = AddTab( "Overview" );
@@ -40,227 +81,401 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_OverviewLayout.SetGroupAndScreen( overview_group, this );
 
     // Column layout
-    GroupLayout left_col_layout;
-    int left_col_width = 350 - 2 * group_border_width;
-    int col_height = m_OverviewLayout.GetH() - group_border_width - action_button_height;
-    m_OverviewLayout.AddSubGroupLayout( left_col_layout, left_col_width, col_height );
+    int left_col_width = (m_OverviewLayout.GetW()-window_border_width) / 2;
+    int col_height = m_OverviewLayout.GetH();
+    m_OverviewLayout.AddSubGroupLayout( m_LeftColumnLayout, left_col_width, col_height );
 
-    m_OverviewLayout.AddX( left_col_layout.GetW() + 2 * group_border_width );
+    m_OverviewLayout.AddX( m_LeftColumnLayout.GetW() + window_border_width );
 
-    GroupLayout right_col_layout;
     int right_col_width = m_OverviewLayout.GetRemainX();
-    m_OverviewLayout.AddSubGroupLayout( right_col_layout, right_col_width, col_height );
+    m_OverviewLayout.AddSubGroupLayout( m_RightColumnLayout, right_col_width, col_height );
 
-    m_OverviewLayout.ForceNewLine();
-    m_OverviewLayout.AddY( right_col_layout.GetH() );   //add Y for Execute divider box
+    // Set column YGap Width
+    m_LeftColumnLayout.SetGapHeight( group_border_width );
+    m_RightColumnLayout.SetGapHeight( group_border_width );
 
-    // Case Setup
-    left_col_layout.AddSubGroupLayout( m_GeomLayout, left_col_layout.GetW() - 2 * group_border_width, 8 * row_height );
-    left_col_layout.AddY( m_GeomLayout.GetH() );
+    // Case Setup Layout
+    m_LeftColumnLayout.AddSubGroupLayout( m_CaseSetupLayout,
+        m_LeftColumnLayout.GetW(),
+        4 * m_LeftColumnLayout.GetStdHeight() );
+    m_LeftColumnLayout.AddY( m_CaseSetupLayout.GetH() );
 
-    m_GeomLayout.AddDividerBox( "Case Setup" );
+    m_CaseSetupLayout.AddDividerBox( "Case Setup" );
 
-    m_GeomLayout.SetSameLineFlag( true );
-    m_GeomLayout.SetFitWidthFlag( false );
+    m_CaseSetupLayout.SetSameLineFlag( true );
+    m_CaseSetupLayout.SetFitWidthFlag( false );
 
     // Analysis method radio button group setup
-    m_GeomLayout.SetButtonWidth( m_GeomLayout.GetW() / 2 );
-    m_GeomLayout.AddButton( m_AeroMethodToggleVLM, "Vortex Lattice (VLM)" );
-    m_GeomLayout.AddButton( m_AeroMethodTogglePanel, "Panel Method" );
+    m_CaseSetupLayout.SetButtonWidth( m_CaseSetupLayout.GetW() / 2 );
+    m_CaseSetupLayout.AddButton( m_AeroMethodToggleVLM, "Vortex Lattice (VLM)" );
+    m_CaseSetupLayout.AddButton( m_AeroMethodTogglePanel, "Panel Method" );
 
     m_AeroMethodToggleGroup.Init( this );
     m_AeroMethodToggleGroup.AddButton( m_AeroMethodToggleVLM.GetFlButton() );
     m_AeroMethodToggleGroup.AddButton( m_AeroMethodTogglePanel.GetFlButton() );
 
     vector< int > val_map;
-    val_map.push_back( vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
-    val_map.push_back( vsp::VSPAERO_ANALYSIS_METHOD::PANEL );
+    val_map.push_back( vsp::VORTEX_LATTICE );
+    val_map.push_back( vsp::PANEL );
     m_AeroMethodToggleGroup.SetValMapVec( val_map );
 
-    m_GeomLayout.ForceNewLine();
+    m_CaseSetupLayout.ForceNewLine();
 
-    //  Degengeom output file selection, used for VLM & Panel methods
-    int labelButtonWidth = 60;
-    int fileButtonWidth = 25;
-    int inputWidth = m_GeomLayout.GetW() - labelButtonWidth - fileButtonWidth;
+    m_CaseSetupLayout.InitWidthHeightVals();
+    m_CaseSetupLayout.SetSameLineFlag( false );
+    m_CaseSetupLayout.SetFitWidthFlag( true );
+    m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "Geometry Set:" );
+    m_CaseSetupLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
 
-    m_GeomLayout.SetButtonWidth( labelButtonWidth );
-    m_GeomLayout.SetInputWidth( inputWidth );
-
-    m_GeomLayout.AddOutput( m_DegenFileName, "Degen" );
-
-    m_GeomLayout.SetButtonWidth( fileButtonWidth );
-
-    m_GeomLayout.AddButton( m_DegenFileButton, "..." );
-    m_GeomLayout.ForceNewLine();
-
-    //  CompGeom output file selection, used for Panel method only
-    m_GeomLayout.SetButtonWidth( labelButtonWidth );
-    m_GeomLayout.SetInputWidth( inputWidth );
-
-    m_GeomLayout.AddOutput( m_CompGeomFileName, "Panel" );
-
-    m_GeomLayout.SetButtonWidth( fileButtonWidth );
-
-    m_GeomLayout.AddButton( m_CompGeomFileButton, "..." );
-    m_GeomLayout.ForceNewLine();
-
-    m_GeomLayout.InitWidthHeightVals();
-    m_GeomLayout.SetSameLineFlag( false );
-    m_GeomLayout.SetFitWidthFlag( true );
-    m_GeomLayout.AddChoice( m_GeomSetChoice, "Geometry Set:" );
-    m_GeomLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
-    m_GeomLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
-    m_GeomLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
-
-    left_col_layout.AddY( group_border_width );
-
-    // Wake
-    left_col_layout.AddSubGroupLayout( m_WakeLayout, left_col_layout.GetW() - 2 * group_border_width, 4 * row_height );
-    left_col_layout.AddY( m_WakeLayout.GetH() );
-
-    m_WakeLayout.AddDividerBox( "Wake" );
-    m_WakeLayout.SetSameLineFlag( false );
-    m_WakeLayout.SetFitWidthFlag( true );
-    m_WakeLayout.AddSlider( m_WakeNumIterSlider, "Num It.", 10, "%3.0f" );
-    m_WakeLayout.AddSlider( m_WakeAvgStartIterSlider, "Avg Start It.", 11, "%3.0f" );
-    m_WakeLayout.AddSlider( m_WakeSkipUntilIterSlider, "Skip Until It.", 11, "%3.0f" );
-
-    left_col_layout.AddY( group_border_width );
+    m_LeftColumnLayout.AddYGap();
 
     // Reference Quantities
-    left_col_layout.AddSubGroupLayout( m_RefLayout, left_col_layout.GetW() - 2 * group_border_width, 6 * row_height );
-    left_col_layout.AddY( m_RefLayout.GetH() );
+    m_LeftColumnLayout.AddSubGroupLayout( m_RefLengthLayout,
+        m_LeftColumnLayout.GetW(),
+        6 * m_LeftColumnLayout.GetStdHeight() );
+    m_LeftColumnLayout.AddY( m_RefLengthLayout.GetH() );
 
-    m_RefLayout.AddDividerBox( "Reference Area, Lengths" );
+    m_RefLengthLayout.AddDividerBox( "Reference Area, Lengths" );
 
-    m_RefLayout.SetSameLineFlag( true );
-    m_RefLayout.SetFitWidthFlag( false );
+    m_RefLengthLayout.SetSameLineFlag( true );
+    m_RefLengthLayout.SetFitWidthFlag( false );
 
-    m_RefLayout.SetButtonWidth( m_RefLayout.GetW() / 2 );
+    m_RefLengthLayout.SetButtonWidth( m_RefLengthLayout.GetW() / 2 );
 
-    m_RefLayout.AddButton( m_RefManualToggle, "Manual" );
-    m_RefLayout.AddButton( m_RefChoiceToggle, "From Model" );
-    m_RefLayout.ForceNewLine();
+    m_RefLengthLayout.AddButton( m_RefManualToggle, "Manual" );
+    m_RefLengthLayout.AddButton( m_RefChoiceToggle, "From Model" );
+    m_RefLengthLayout.ForceNewLine();
 
-    m_RefLayout.InitWidthHeightVals();
+    m_RefLengthLayout.InitWidthHeightVals();
 
-    m_RefLayout.SetSameLineFlag( false );
-    m_RefLayout.SetFitWidthFlag( true );
+    m_RefLengthLayout.SetSameLineFlag( false );
+    m_RefLengthLayout.SetFitWidthFlag( true );
 
-    m_RefLayout.AddChoice( m_RefWingChoice, "Ref. Wing" );
+    m_RefLengthLayout.AddChoice( m_RefWingChoice, "Ref. Wing" );
 
-    m_RefLayout.AddSlider( m_SrefSlider, "Sref", 1000.0, "%7.3f" );
-    m_RefLayout.AddSlider( m_brefSlider, "bref", 100.0, "%7.3f" );
-    m_RefLayout.AddSlider( m_crefSlider, "cref", 100.0, "%7.3f" );
+    m_RefLengthLayout.AddSlider( m_SrefSlider, "Sref", 1000.0, "%7.3f" );
+    m_RefLengthLayout.AddSlider( m_brefSlider, "bref", 100.0, "%7.3f" );
+    m_RefLengthLayout.AddSlider( m_crefSlider, "cref", 100.0, "%7.3f" );
 
     m_RefToggle.Init( this );
     m_RefToggle.AddButton( m_RefManualToggle.GetFlButton() );
     m_RefToggle.AddButton( m_RefChoiceToggle.GetFlButton() );
 
-    left_col_layout.AddY( group_border_width );
+    m_LeftColumnLayout.AddYGap();
 
     // CG
-    left_col_layout.AddSubGroupLayout( m_CGLayout, left_col_layout.GetW() - 2 * group_border_width, 6 * row_height );
-    left_col_layout.AddY( m_CGLayout.GetH() );
+    m_LeftColumnLayout.AddSubGroupLayout( m_MomentRefLayout,
+        m_LeftColumnLayout.GetW(),
+        6 * m_LeftColumnLayout.GetStdHeight() );
+    m_LeftColumnLayout.AddY( m_MomentRefLayout.GetH() );
 
-    m_CGLayout.AddDividerBox( "Moment Reference Position" );
+    m_MomentRefLayout.AddDividerBox( "Moment Reference Position" );
 
-    m_CGLayout.SetButtonWidth( 125 );
+    m_MomentRefLayout.SetButtonWidth( 125 );
 
-    m_CGLayout.SetSameLineFlag( true );
-    m_CGLayout.AddChoice( m_CGSetChoice, "Mass Set:",  m_CGLayout.GetButtonWidth() );
-    m_CGLayout.SetFitWidthFlag( false );
-    m_CGLayout.AddButton( m_MassPropButton, "Calc CG" );
-    m_CGLayout.ForceNewLine();
+    m_MomentRefLayout.SetSameLineFlag( true );
+    m_MomentRefLayout.AddChoice( m_CGSetChoice, "Mass Set:",  m_MomentRefLayout.GetButtonWidth() );
+    m_MomentRefLayout.SetFitWidthFlag( false );
+    m_MomentRefLayout.AddButton( m_MassPropButton, "Calc CG" );
+    m_MomentRefLayout.ForceNewLine();
 
-    m_CGLayout.SetSameLineFlag( false );
-    m_CGLayout.SetFitWidthFlag( true );
+    m_MomentRefLayout.SetSameLineFlag( false );
+    m_MomentRefLayout.SetFitWidthFlag( true );
 
-    m_CGLayout.InitWidthHeightVals();
+    m_MomentRefLayout.InitWidthHeightVals();
 
-    m_CGLayout.AddSlider( m_NumSliceSlider, "Num Slices", 100, "%4.0f" );
-    m_CGLayout.AddSlider( m_XcgSlider, "Xref", 100.0, "%7.3f" );
-    m_CGLayout.AddSlider( m_YcgSlider, "Yref", 100.0, "%7.3f" );
-    m_CGLayout.AddSlider( m_ZcgSlider, "Zref", 100.0, "%7.3f" );
+    m_MomentRefLayout.AddSlider( m_NumSliceSlider, "Num Slices", 100, "%4.0f" );
+    m_MomentRefLayout.AddSlider( m_XcgSlider, "Xref", 100.0, "%7.3f" );
+    m_MomentRefLayout.AddSlider( m_YcgSlider, "Yref", 100.0, "%7.3f" );
+    m_MomentRefLayout.AddSlider( m_ZcgSlider, "Zref", 100.0, "%7.3f" );
 
-    left_col_layout.AddY( group_border_width );
+    m_LeftColumnLayout.AddYGap();
 
     // Flow Condition
-    left_col_layout.AddSubGroupLayout( m_FlowLayout, left_col_layout.GetW() - 2 * group_border_width, 4 * row_height );
-    left_col_layout.AddY( m_FlowLayout.GetH() );
+    m_RightColumnLayout.AddSubGroupLayout( m_FlowCondLayout,
+        m_RightColumnLayout.GetW(),
+        4 * m_RightColumnLayout.GetStdHeight() );
+    m_RightColumnLayout.AddY( m_FlowCondLayout.GetH() );
 
-    m_FlowLayout.AddDividerBox( "Flow Condition" );
-    m_FlowLayout.SetSameLineFlag( false );
-    m_FlowLayout.SetFitWidthFlag( true );
+    m_FlowCondLayout.AddDividerBox( "Flow Condition" );
+    m_FlowCondLayout.SetSameLineFlag( false );
+    m_FlowCondLayout.SetFitWidthFlag( true );
 
-    m_FlowLayout.AddInputEvenSpacedVector( m_AlphaStartInput, m_AlphaEndInput, m_AlphaNptsInput, "Alpha", "%7.3f" );
-    m_FlowLayout.AddInputEvenSpacedVector( m_BetaStartInput, m_BetaEndInput, m_BetaNptsInput, "Beta", "%7.3f" );
-    m_FlowLayout.AddInputEvenSpacedVector( m_MachStartInput, m_MachEndInput, m_MachNptsInput, "Mach", "%7.3f" );
+    m_FlowCondLayout.AddInputEvenSpacedVector( m_AlphaStartInput, m_AlphaEndInput, m_AlphaNptsInput, "Alpha", "%7.3f" );
+    m_FlowCondLayout.AddInputEvenSpacedVector( m_BetaStartInput, m_BetaEndInput, m_BetaNptsInput, "Beta", "%7.3f" );
+    m_FlowCondLayout.AddInputEvenSpacedVector( m_MachStartInput, m_MachEndInput, m_MachNptsInput, "Mach", "%7.3f" );
 
-    left_col_layout.AddY( group_border_width );
+    m_RightColumnLayout.AddYGap();
 
-    // Execute
-    left_col_layout.AddSubGroupLayout( m_ExecuteLayout, left_col_layout.GetW() - 2 * group_border_width, 7 * row_height );
-    left_col_layout.AddY( m_ExecuteLayout.GetH() );
+    // Control Surface Angle Layout
+    int deflection_angle_scroll_h = 150;
+    m_RightColumnLayout.AddDividerBox( "Control Group Angles" ); //add the divider box outside the layout so the scroll works properly
 
-    m_ExecuteLayout.AddDividerBox( "Execute" );
+    m_RightColumnLayout.AddSubGroupLayout( m_DeflectionAngleLayout,
+        m_RightColumnLayout.GetW(), 
+        m_RightColumnLayout.GetRemainY() );
 
-    m_ExecuteLayout.AddButton( m_ComputeGeometryButton, "Generate Geometry" ); //This calls VSAERO.ComputeGeometry()
+    m_DeflectionAngleScroll = AddSubScroll( m_DeflectionAngleLayout.GetGroup(), group_border_width );
+    m_DeflectionAngleScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    m_DeflectionAngleScroll->resize( m_DeflectionAngleLayout.GetX(), m_DeflectionAngleLayout.GetY(),
+        m_DeflectionAngleLayout.GetW(), m_DeflectionAngleLayout.GetH() );
 
-    m_ExecuteLayout.SetButtonWidth( m_ExecuteLayout.GetW() / 2 );
+    m_RightColumnLayout.AddY( deflection_angle_scroll_h );
 
-    m_ExecuteLayout.SetSameLineFlag( true );
-    m_ExecuteLayout.SetFitWidthFlag( false );
+    //==== Advanced Controls Tab ====//
+    Fl_Group* advanced_tab = AddTab( "Advanced" );
+    Fl_Group* advanced_group = AddSubGroup( advanced_tab, window_border_width );
 
-    m_ExecuteLayout.AddButton( m_SetupButton, "Create New Setup" );
-    m_ExecuteLayout.AddButton( m_KillSolverSetupButton, "Kill Setup" );
+    m_AdvancedLayout.SetGroupAndScreen( advanced_group, this );
 
-    m_ExecuteLayout.ForceNewLine();
+    m_AdvancedLayout.AddSubGroupLayout( m_AdvancedLeftLayout, 
+        (advanced_group->w()-window_border_width) / 2, 
+        advanced_group->h() );
 
-    m_ExecuteLayout.AddButton( m_SolverButton, "Launch Solver" );
-    m_ExecuteLayout.AddButton( m_KillSolverButton, "Kill Solver" );
+    // Advanced Case Setup Layout
+    m_AdvancedLeftLayout.AddSubGroupLayout( m_AdvancedCaseSetupLayout,
+        m_AdvancedLeftLayout.GetW(),
+        7 * m_AdvancedLeftLayout.GetStdHeight() );
+    m_AdvancedLeftLayout.AddY( m_AdvancedCaseSetupLayout.GetH() );
 
-    m_ExecuteLayout.ForceNewLine();
+    m_AdvancedCaseSetupLayout.AddDividerBox( "Advanced Case Setup" );
+    //  Degengeom output file selection, used for VLM & Panel methods
+    int labelButtonWidth = 60;
+    int fileButtonWidth = 25;
+    int inputWidth = m_AdvancedCaseSetupLayout.GetW() - labelButtonWidth - fileButtonWidth;
+    m_AdvancedCaseSetupLayout.SetFitWidthFlag( false );
+    m_AdvancedCaseSetupLayout.SetSameLineFlag( true );
+    m_AdvancedCaseSetupLayout.SetButtonWidth( labelButtonWidth );
+    m_AdvancedCaseSetupLayout.SetInputWidth( inputWidth );
 
-    m_ExecuteLayout.AddButton( m_PlotButton, "Show Results Mgr" );
-    m_ExecuteLayout.AddButton( m_ViewerButton, "Launch Viewer" );
+    m_AdvancedCaseSetupLayout.AddOutput( m_DegenFileName, "Degen" );
 
-    m_ExecuteLayout.ForceNewLine();
+    m_AdvancedCaseSetupLayout.SetButtonWidth( fileButtonWidth );
 
-    //m_ExecuteLayout.AddButton( m_ExportResultsToMatlabButton, "Export to *.m" );
-    m_ExecuteLayout.AddButton( m_ExportResultsToCsvButton, "Export to *.csv" );
-    m_ExportResultsToCsvButton.Deactivate();
+    m_AdvancedCaseSetupLayout.AddButton( m_DegenFileButton, "..." );
+    m_AdvancedCaseSetupLayout.ForceNewLine();
 
-    // Setup File
-    right_col_layout.AddSubGroupLayout( m_SetupLayout, right_col_layout.GetW() - 2 * group_border_width, right_col_layout.GetH() - 2 * group_border_width );
+    //  CompGeom output file selection, used for Panel method only
+    m_AdvancedCaseSetupLayout.SetButtonWidth( labelButtonWidth );
+    m_AdvancedCaseSetupLayout.SetInputWidth( inputWidth );
 
-    m_SetupDividerBox = m_SetupLayout.AddDividerBox( "Setup File: *.vspaero" );
+    m_AdvancedCaseSetupLayout.AddOutput( m_CompGeomFileName, "Panel" );
 
-    m_SetupEditor = m_SetupLayout.AddFlTextEditor( m_SetupLayout.GetRemainY() - m_SetupLayout.GetStdHeight() );
+    m_AdvancedCaseSetupLayout.SetButtonWidth( fileButtonWidth );
 
-    m_SetupBuffer = new Fl_Text_Buffer;
-    m_SetupEditor->buffer( m_SetupBuffer );
-    m_SetupEditor->textfont( FL_COURIER );
+    m_AdvancedCaseSetupLayout.AddButton( m_CompGeomFileButton, "..." );
+    m_AdvancedCaseSetupLayout.ForceNewLine();
 
-    m_SetupLayout.SetButtonWidth( m_SetupLayout.GetW() / 2 );
-    m_SetupLayout.SetSameLineFlag( true );
-    m_SetupLayout.SetFitWidthFlag( false );
-    m_SetupLayout.AddButton( m_ReadSetup, "Read Setup" );
-    m_SetupLayout.AddButton( m_SaveSetup, "Save Setup" );
+    m_AdvancedCaseSetupLayout.SetFitWidthFlag( true );
+    m_AdvancedCaseSetupLayout.SetSameLineFlag( false );
 
+    m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
+    m_AdvancedCaseSetupLayout.SetInputWidth( 50 );
 
-    //==== Solver Tab ====//
-    Fl_Group* solver_tab = AddTab( "Solver Console" );
-    Fl_Group* solver_group = AddSubGroup( solver_tab, window_border_width );
-    m_SolverLayout.SetGroupAndScreen( solver_group, this );
+    m_AdvancedCaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
+    m_AdvancedCaseSetupLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
+    m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
+    m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
 
-    m_SolverLayout.AddDividerBox( "VSPAERO Solver Console" );
+    // Wake Layout
+    m_AdvancedLeftLayout.AddSubGroupLayout( m_WakeLayout,
+        m_AdvancedLeftLayout.GetW(),
+        4 * m_AdvancedLeftLayout.GetStdHeight() );
+    m_AdvancedLeftLayout.AddY( m_WakeLayout.GetH() );
 
-    m_SolverDisplay = m_SolverLayout.AddFlTextDisplay( m_SolverLayout.GetRemainY() - m_SolverLayout.GetStdHeight() );
-    m_SolverBuffer = new Fl_Text_Buffer;
-    m_SolverDisplay->buffer( m_SolverBuffer );
+    m_WakeLayout.AddDividerBox( "Wake" );
+    m_WakeLayout.AddSlider( m_WakeNumIterSlider, "Num It.", 10, "%3.0f" );
+    m_WakeLayout.AddSlider( m_WakeAvgStartIterSlider, "Avg Start It.", 11, "%3.0f" );
+    m_WakeLayout.AddSlider( m_WakeSkipUntilIterSlider, "Skip Until It.", 11, "%3.0f" );
+    
+    // Other Setup Parms Layout
+    m_AdvancedLeftLayout.AddSubGroupLayout( m_OtherParmsLayout,
+        m_AdvancedLeftLayout.GetW(),
+        8 * m_AdvancedLeftLayout.GetStdHeight() );
+    m_AdvancedLeftLayout.AddY( m_OtherParmsLayout.GetH() );
 
+    int togglewidth = 15;
+    int labelwidth = 120;
+    int inputwidth = 50;
+    m_OtherParmsLayout.AddDividerBox( "Other" );
+    m_OtherParmsLayout.SetSameLineFlag(true);
+    m_OtherParmsLayout.SetFitWidthFlag(false);
+    m_OtherParmsLayout.SetInputWidth(inputwidth);
+    m_OtherParmsLayout.SetSliderWidth( m_OtherParmsLayout.GetW() - inputwidth - togglewidth - labelwidth - 20 );
+    m_OtherParmsLayout.SetButtonWidth(togglewidth);
+    m_OtherParmsLayout.AddButton( m_ClmaxToggle, "" );
+    m_OtherParmsLayout.SetButtonWidth( labelwidth );
+    m_OtherParmsLayout.AddSlider( m_ClmaxSlider, "Clmax", 10, "%2.3f" );
+    m_OtherParmsLayout.ForceNewLine();
+    m_OtherParmsLayout.SetButtonWidth(togglewidth);
+    m_OtherParmsLayout.AddButton( m_MaxTurningToggle, "" );
+    m_OtherParmsLayout.SetButtonWidth( labelwidth );
+    m_OtherParmsLayout.AddSlider( m_MaxTurningSlider, "Max Turning Angle", 100, "%3.3f" );
+    m_OtherParmsLayout.ForceNewLine();
+    m_OtherParmsLayout.SetButtonWidth(togglewidth);
+    m_OtherParmsLayout.AddButton( m_FarDistToggle, "" );
+    m_OtherParmsLayout.SetButtonWidth( labelwidth );
+    m_OtherParmsLayout.AddSlider( m_FarDistSlider, "Far Field Dist", 1e3, "%7.2f" );
+    m_OtherParmsLayout.ForceNewLine();
+    m_OtherParmsLayout.AddYGap();
+
+    //==== Rotor Disk Tab ==== //
+    Fl_Group* rotor_tab = AddTab( "Rotor" );
+    Fl_Group* rotor_group = AddSubGroup( rotor_tab, window_border_width );
+    m_PropGeneralLayout.SetGroupAndScreen( rotor_group, this );
+
+    // Prop General Layout
+    m_PropGeneralLayout.AddDividerBox( "Rotor Disk General Settings" );
+    m_PropGeneralLayout.AddSlider( m_VinfSlider, "Vinf", 100, "%7.2f" );
+    m_PropGeneralLayout.AddSlider( m_RhoSlider, "Rho", 1, "%2.5g" );
+
+    m_PropGeneralLayout.AddYGap();
+
+    // Prop Element Layout
+    int prop_elem_browser_h = 200;
+    m_PropGeneralLayout.AddSubGroupLayout( m_PropElemLayout,
+        m_PropGeneralLayout.GetW(),
+        6 * m_PropGeneralLayout.GetStdHeight() + prop_elem_browser_h );
+    m_PropGeneralLayout.AddY( m_PropElemLayout.GetH() );
+
+    m_PropElemLayout.SetSameLineFlag( false );
+    m_PropElemLayout.SetFitWidthFlag( true );
+
+    m_PropElemLayout.AddDividerBox( "Rotor Disk Element Settings" );
+
+    m_PropElemBrowser = m_PropElemLayout.AddFlBrowser( 0 );
+    m_PropElemBrowser->resize( m_PropElemLayout.GetX(), m_PropElemLayout.GetY(), m_PropElemLayout.GetW(), prop_elem_browser_h );
+    m_PropElemBrowser->type( FL_SELECT_BROWSER );
+    m_PropElemBrowser->labelfont( 13 );
+    m_PropElemBrowser->textsize( 12 );
+    m_PropElemBrowser->callback( staticScreenCB, this );
+
+    m_PropElemLayout.AddY( prop_elem_browser_h );
+
+    int input_width = 60;
+    int XYZ_button_width = 20;
+    int else_button_width = 60;
+    int browser_augment = 40;
+
+    m_PropElemLayout.SetButtonWidth( else_button_width );
+    m_PropElemLayout.SetInputWidth( input_width );
+    m_PropElemLayout.AddOutput( m_PropElemDia, "Dia." );
+    m_PropElemLayout.AddSlider( m_PropElemHubDia, "Hub Dia.", 100, "%3.3f" );
+    m_PropElemLayout.AddSlider( m_PropElemRPM, "RPM", 10000, "%7.2f" );
+    m_PropElemLayout.AddSlider( m_PropElemCT, "CT", 1, "%2.3f" );
+    m_PropElemLayout.AddSlider( m_PropElemCP, "CP", 1, "%2.3f" );
+
+    m_PropGeneralLayout.AddYGap();
+
+    //==== Control Grouping Tab ====//
+    int main_browser_w = 180;
+    int browser_h = 130;
+    int component_browser_w = 200;
+    int browser_h_augment = 20;
+    int main_browser_spacing = 18;
+    int items_browsers_spacing = 2;
+    Fl_Group* cs_grouping_tab = AddTab( "Control Grouping" );
+    Fl_Group* cs_grouping_group = AddSubGroup( cs_grouping_tab, window_border_width );
+    m_ControlSurfaceLayout.SetGroupAndScreen( cs_grouping_group, this );
+    
+    // Grouping Browsers Layout
+    m_ControlSurfaceLayout.AddSubGroupLayout( m_CSGroupingLayout,
+        m_ControlSurfaceLayout.GetW(),
+        5 * m_ControlSurfaceLayout.GetStdHeight() + browser_h );
+    m_ControlSurfaceLayout.AddY( m_CSGroupingLayout.GetH() );
+
+    m_CSGroupingLayout.AddDividerBox( "Control Surface Grouping" );
+    m_CSGroupingLayout.SetButtonWidth( 100 );
+    m_CSGroupingLayout.AddLabel( "User Groups", main_browser_w );
+    m_CSGroupingLayout.AddX( main_browser_spacing );
+    m_CSGroupingLayout.AddLabel( "Available Control Surfaces", component_browser_w );
+    m_CSGroupingLayout.AddX( items_browsers_spacing );
+    m_CSGroupingLayout.AddLabel( " Grouped Control Surfaces", component_browser_w );
+    m_CSGroupingLayout.ForceNewLine();
+    m_CSGroupingLayout.SetSameLineFlag( true );
+    m_CSGroupingLayout.SetFitWidthFlag( false );
+
+    m_CSGroupBrowser = m_CSGroupingLayout.AddFlBrowser( 0 );
+    m_CSGroupBrowser->resize( m_CSGroupingLayout.GetX(), m_CSGroupingLayout.GetY(), main_browser_w, browser_h + browser_h_augment );
+    m_CSGroupBrowser->type( FL_SELECT_BROWSER );
+    m_CSGroupBrowser->labelfont( 13 );
+    m_CSGroupBrowser->textsize( 12 );
+    m_CSGroupBrowser->callback( staticScreenCB, this );
+
+    m_CSGroupingLayout.AddX( main_browser_w );
+    m_CSGroupingLayout.AddX( main_browser_spacing ); // Space Between Main Browser and Available Items Browser
+
+    m_UngroupedCSBrowser = m_CSGroupingLayout.AddFlBrowser( 0 );
+    m_UngroupedCSBrowser->resize( m_CSGroupingLayout.GetX(), m_CSGroupingLayout.GetY(), component_browser_w, browser_h );
+    m_UngroupedCSBrowser->type( FL_MULTI_BROWSER );
+    m_UngroupedCSBrowser->labelfont( 13 );
+    m_UngroupedCSBrowser->textsize( 12 );
+    m_UngroupedCSBrowser->callback( staticScreenCB, this );
+
+    m_CSGroupingLayout.AddX( component_browser_w );
+    m_CSGroupingLayout.AddX( items_browsers_spacing );
+
+    m_GroupedCSBrowser = m_CSGroupingLayout.AddFlBrowser( 0 );
+    m_GroupedCSBrowser->resize( m_CSGroupingLayout.GetX(), m_CSGroupingLayout.GetY(), component_browser_w, browser_h );
+    m_GroupedCSBrowser->type( FL_MULTI_BROWSER );
+    m_GroupedCSBrowser->labelfont( 13 );
+    m_GroupedCSBrowser->textsize( 12 );
+    m_GroupedCSBrowser->callback( staticScreenCB, this );
+
+    m_CSGroupingLayout.ForceNewLine();
+    m_CSGroupingLayout.SetY( m_CSGroupingLayout.GetY() + browser_h - browser_h_augment );
+
+    m_CSGroupingLayout.AddX( main_browser_w );
+    m_CSGroupingLayout.AddX( main_browser_spacing ); // Space Between Main Browser and Available Items Browser
+
+    m_CSGroupingLayout.SetButtonWidth( component_browser_w );
+    m_CSGroupingLayout.AddButton( m_AddSelectedCSButton, "Add Selected" );
+    m_CSGroupingLayout.AddX( items_browsers_spacing );
+    m_CSGroupingLayout.AddButton( m_RemoveSelectedCSButton, "Remove Selected" );
+    m_CSGroupingLayout.ForceNewLine();
+
+    m_CSGroupingLayout.SetButtonWidth( main_browser_w );
+    m_CSGroupingLayout.SetButtonWidth( m_CSGroupingLayout.GetButtonWidth() / 2 );
+    m_CSGroupingLayout.AddButton( m_AddCSGroupButton, "Add" );
+    m_CSGroupingLayout.AddButton( m_RemoveCSGroupButton, "Remove" );
+
+    m_CSGroupingLayout.AddX( main_browser_spacing );
+    m_CSGroupingLayout.SetButtonWidth( component_browser_w );
+    m_CSGroupingLayout.AddButton( m_AddAllCSButton, "Add All" );
+    m_CSGroupingLayout.AddX( items_browsers_spacing );
+    m_CSGroupingLayout.AddButton( m_RemoveAllCSButton, "Remove All" );
+    m_CSGroupingLayout.ForceNewLine();
+    m_CSGroupingLayout.AddYGap();
+
+    m_CSGroupingLayout.SetSameLineFlag( false );
+    m_CSGroupingLayout.SetFitWidthFlag( true );
+
+    m_CSGroupingLayout.AddButton( m_AutoGroupTrigger, "Auto Group Remaining Control Surfaces" );
+
+    m_ControlSurfaceLayout.AddYGap();
+
+    // Control Surface Details Layout
+    m_ControlSurfaceLayout.AddSubGroupLayout( m_CSGroupDetailsLayout,
+        m_ControlSurfaceLayout.GetW(),
+        2* m_ControlSurfaceLayout.GetStdHeight() );
+    m_ControlSurfaceLayout.AddY( m_CSGroupDetailsLayout.GetH() );
+
+    m_CSGroupDetailsLayout.AddDividerBox( "Current Control Surface Group Details" );
+
+    m_CSGroupDetailsLayout.SetButtonWidth( 110 );
+    m_CSGroupDetailsLayout.AddInput( m_GroupEditNameInput, "Group Name" );
+
+    // Deflection Gain Scroll Layout
+    m_ControlSurfaceLayout.AddDividerBox( "Deflection Gain per Surface" );
+
+    m_ControlSurfaceLayout.AddSubGroupLayout( m_CSGroupGainScrollLayout,
+        m_ControlSurfaceLayout.GetW(),
+        m_ControlSurfaceLayout.GetRemainY() );
+
+    m_DeflectionGainScroll = AddSubScroll( m_CSGroupGainScrollLayout.GetGroup(), group_border_width );
+    m_DeflectionGainScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
+    m_DeflectionGainScroll->resize( m_ControlSurfaceLayout.GetX(), m_ControlSurfaceLayout.GetY(),
+        m_CSGroupGainScrollLayout.GetW(), m_CSGroupGainScrollLayout.GetH() );
 
     //==== Viewer Tab ====//
     Fl_Group* viewer_tab = AddTab( "Viewer Console" );
@@ -278,12 +493,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     overview_tab->show();
 
     // Flags to control Kill thread functionality
-    m_SolverSetupThreadIsRunning = false;
     m_SolverThreadIsRunning = false;
-
-    // String to enable detection of degen file name changes
-    m_ModelNameBasePrevious = string();
-
 }
 
 VSPAEROScreen::~VSPAEROScreen()
@@ -296,109 +506,15 @@ bool VSPAEROScreen::Update()
 
     VSPAEROMgr.Update();
 
-    if( veh )
+    if (veh)
     {
-        //check if the degenfile name has changed
-        string t_ModelNameBase = VSPAEROMgr.m_ModelNameBase;  //m_ModelNameBase is built from calling veh->getExportFileName();
-        if( !t_ModelNameBase.empty() && strcmp( m_ModelNameBasePrevious.c_str(), t_ModelNameBase.c_str() ) != 0 )
-        {
-            ReadSetup();
-        }
-        m_ModelNameBasePrevious = t_ModelNameBase;
+        UpdateRefWing();
 
-        // Reference Wing Choice
-        //    find & list all Wing type geometries
-        vector <string> geomVec = veh->GetGeomVec();
+        UpdateSetChoiceLists();
 
-        m_RefWingChoice.ClearItems();
-        m_WingGeomVec.clear();
-        map <string, int> WingCompIDMap;
-        int iwing = 0;
-        for ( int i = 0 ; i < ( int )geomVec.size() ; i++ )
-        {
-            char str[256];
-            Geom* g = veh->FindGeom( geomVec[i] );
-            if ( g )
-            {
-                sprintf( str, "%d_%s", i, g->GetName().c_str() );
+        UpdateCaseSetupDevices();
 
-                if( g->GetType().m_Type == MS_WING_GEOM_TYPE )
-                {
-                    m_RefWingChoice.AddItem( str );
-                    WingCompIDMap[ geomVec[i] ] = iwing;
-                    m_WingGeomVec.push_back( geomVec[i] );
-                    iwing ++;
-                }
-            }
-        }
-        m_RefWingChoice.UpdateItems();
-        //    Update selected value
-        string refGeomID = VSPAEROMgr.m_RefGeomID;
-        if( refGeomID.length() == 0 && m_WingGeomVec.size() > 0 )
-        {
-            // Handle case default case.
-            refGeomID = m_WingGeomVec[0];
-            VSPAEROMgr.m_RefGeomID = refGeomID;
-            // Re-trigger reference quantity update with default component.
-            VSPAEROMgr.Update();
-        }
-        m_RefWingChoice.SetVal( WingCompIDMap[ refGeomID ] );
-
-
-        // Update available set choices
-        m_GeomSetChoice.ClearItems();
-        m_CGSetChoice.ClearItems();
-
-        vector <string> setVec = veh->GetSetNameVec();
-        for ( int iSet = 0; iSet < setVec.size(); iSet++ )
-        {
-            m_GeomSetChoice.AddItem( setVec[iSet] );
-            m_CGSetChoice.AddItem( setVec[iSet] );
-        }
-        m_GeomSetChoice.UpdateItems();
-        m_CGSetChoice.UpdateItems();
-
-        m_GeomSetChoice.SetVal( VSPAEROMgr.m_GeomSet() );
-        m_CGSetChoice.SetVal( VSPAEROMgr.m_CGGeomSet() );
-
-
-        // Case Setup
-        m_AeroMethodToggleGroup.Update( VSPAEROMgr.m_AnalysisMethod.GetID() );
-        switch ( VSPAEROMgr.m_AnalysisMethod.Get() )
-        {
-        case vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE:
-
-            m_DegenFileName.Activate();
-            m_DegenFileButton.Activate();
-
-            m_CompGeomFileName.Deactivate();
-            m_CompGeomFileButton.Deactivate();
-
-            break;
-
-        case vsp::VSPAERO_ANALYSIS_METHOD::PANEL:
-
-            m_DegenFileName.Deactivate();
-            m_DegenFileButton.Deactivate();
-
-            m_CompGeomFileName.Activate();
-            m_CompGeomFileButton.Activate();
-
-            break;
-
-        default:
-            //do nothing; this should not be reachable
-            break;
-        }
-
-        m_DegenFileName.Update( veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE ) );
-        m_CompGeomFileName.Update( veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE ) );
-
-        m_NCPUSlider.Update( VSPAEROMgr.m_NCPU.GetID() );
-        m_StabilityCalcToggle.Update( VSPAEROMgr.m_StabilityCalcFlag.GetID() );
-        m_BatchCalculationToggle.Update( VSPAEROMgr.m_BatchModeFlag.GetID() );
-        //printf("m_SolverProcess.m_ThreadID = %lu\n", m_SolverProcess.m_ThreadID);
-        if( m_SolverThreadIsRunning )
+        if (m_SolverThreadIsRunning)
         {
             m_ComputeGeometryButton.Deactivate();
         }
@@ -407,165 +523,26 @@ bool VSPAEROScreen::Update()
             m_ComputeGeometryButton.Activate();
         }
 
+        UpdateReferenceQuantitiesDevices();
 
-        // Wake Options
-        m_WakeNumIterSlider.Update( VSPAEROMgr.m_WakeNumIter.GetID() );
-        m_WakeAvgStartIterSlider.Update( VSPAEROMgr.m_WakeAvgStartIter.GetID() );
-        m_WakeSkipUntilIterSlider.Update( VSPAEROMgr.m_WakeSkipUntilIter.GetID() );
+        UpdateCGDevices();
 
+        UpdateFlowConditionDevices();
+        UpdateVSPAEROButtons();
 
-        // Reference Quantities
-        m_RefToggle.Update( VSPAEROMgr.m_RefFlag.GetID() );
-        m_SrefSlider.Update( VSPAEROMgr.m_Sref.GetID() );
-        m_brefSlider.Update( VSPAEROMgr.m_bref.GetID() );
-        m_crefSlider.Update( VSPAEROMgr.m_cref.GetID() );
+        UpdateAdvancedTabDevices();
 
+        UpdatePropElemDevices();
 
-        // CG Position
-        m_NumSliceSlider.Update( VSPAEROMgr.m_NumMassSlice.GetID() );
-        m_XcgSlider.Update( VSPAEROMgr.m_Xcg.GetID() );
-        m_YcgSlider.Update( VSPAEROMgr.m_Ycg.GetID() );
-        m_ZcgSlider.Update( VSPAEROMgr.m_Zcg.GetID() );
+        VSPAEROMgr.SetCurrentRotorDiskFromParms();         // Pull Parms to Current Disk
 
+        UpdateOtherSetupParms();
 
-        // Flow Condition
-        // Alpha
-        m_AlphaStartInput.Update( VSPAEROMgr.m_AlphaStart.GetID() );
-        m_AlphaEndInput.Update( VSPAEROMgr.m_AlphaEnd.GetID() );
-        m_AlphaNptsInput.Update( VSPAEROMgr.m_AlphaNpts.GetID() );
-        if ( VSPAEROMgr.m_AlphaNpts.Get() == 1 )
-        {
-            m_AlphaEndInput.Deactivate();
-        }
-        else if ( VSPAEROMgr.m_AlphaNpts.Get() > 1 )
-        {
-            m_AlphaEndInput.Activate();
-        }
-        // Beta
-        m_BetaStartInput.Update( VSPAEROMgr.m_BetaStart.GetID() );
-        m_BetaEndInput.Update( VSPAEROMgr.m_BetaEnd.GetID() );
-        m_BetaNptsInput.Update( VSPAEROMgr.m_BetaNpts.GetID() );
-        if ( VSPAEROMgr.m_BetaNpts.Get() == 1 )
-        {
-            m_BetaEndInput.Deactivate();
-        }
-        else if ( VSPAEROMgr.m_BetaNpts.Get() > 1 )
-        {
-            m_BetaEndInput.Activate();
-        }
-        // Mach
-        m_MachStartInput.Update( VSPAEROMgr.m_MachStart.GetID() );
-        m_MachEndInput.Update( VSPAEROMgr.m_MachEnd.GetID() );
-        m_MachNptsInput.Update( VSPAEROMgr.m_MachNpts.GetID() );
-        if ( VSPAEROMgr.m_MachNpts.Get() == 1 )
-        {
-            m_MachEndInput.Deactivate();
-        }
-        else if ( VSPAEROMgr.m_MachNpts.Get() > 1 )
-        {
-            m_MachEndInput.Activate();
-        }
+        UpdateDeflectionAngleScrollGroup();
+        UpdateDeflectionGainScrollGroup();
 
-        // Create Setup Button
-        if( veh->GetVSPAEROCmd().empty()             ||
-                !FileExist( VSPAEROMgr.m_DegenFileFull ) ||
-                m_SolverThreadIsRunning                  ||
-                m_SolverSetupThreadIsRunning             ||
-                ( ( VSPAEROMgr.m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL ) && ( !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) ) )
-        {
-            m_SetupButton.Deactivate();
-        }
-        else
-        {
-            m_SetupButton.Activate();
-        }
-        // Kill Solver Setup Button
-        if( m_SolverSetupThreadIsRunning )
-        {
-            m_KillSolverSetupButton.Activate();
-        }
-        else
-        {
-            m_KillSolverSetupButton.Deactivate();
-        }
-
-        // Setup Text Display
-        m_SetupDividerBox->copy_label( std::string( "Setup File: " + GetFilename( VSPAEROMgr.m_SetupFile ) ).c_str() );
-        // Read Setup Button
-        if( !FileExist( VSPAEROMgr.m_SetupFile ) )
-        {
-            m_ReadSetup.Deactivate();
-        }
-        else
-        {
-            m_ReadSetup.Activate();
-        }
-        // Save Setup Button
-        if( veh->GetVSPAEROCmd().empty() || m_SolverThreadIsRunning || m_SolverSetupThreadIsRunning )
-        {
-            m_SaveSetup.Deactivate();
-        }
-        else
-        {
-            m_SaveSetup.Activate();
-        }
-
-        // Solver Button
-        if( veh->GetVSPAEROCmd().empty()             ||
-                !FileExist( VSPAEROMgr.m_DegenFileFull ) ||
-                !FileExist( VSPAEROMgr.m_SetupFile )     ||
-                m_SolverThreadIsRunning                  ||
-                ( VSPAEROMgr.m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL && !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) )
-        {
-            m_SolverButton.Deactivate();
-        }
-        else
-        {
-            m_SolverButton.Activate();
-        }
-        // Kill Solver Button
-        if( m_SolverThreadIsRunning )
-        {
-            m_KillSolverButton.Activate();
-        }
-        else
-        {
-            m_KillSolverButton.Deactivate();
-        }
-
-        // Plot Window Button
-        if( veh->GetVSPAEROCmd().empty()             ||
-                !FileExist( VSPAEROMgr.m_DegenFileFull ) ||
-                !FileExist( VSPAEROMgr.m_SetupFile )     ||
-                ( VSPAEROMgr.m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL && !FileExist( VSPAEROMgr.m_CompGeomFileFull ) ) )
-        {
-            m_PlotButton.Deactivate();
-        }
-        else
-        {
-            m_PlotButton.Activate();
-        }
-
-        // Viewer Button
-        if( veh->GetVIEWERCmd().empty() || m_SolverThreadIsRunning || m_ViewerProcess.IsRunning() || !FileExist( VSPAEROMgr.m_AdbFile ) )
-        {
-            m_ViewerButton.Deactivate();
-        }
-        else
-        {
-            m_ViewerButton.Activate();
-        }
-
-        // Export Button
-        if ( ResultsMgr.GetNumResults( "VSPAERO_Wrapper" ) == 0 )
-        {
-            m_ExportResultsToCsvButton.Deactivate();
-        }
-        else
-        {
-            m_ExportResultsToCsvButton.Activate();
-        }
-
+        UpdatePropElemBrowser();
+        UpdateControlSurfaceBrowsers();
     }
 
     m_FLTK_Window->redraw();
@@ -589,6 +566,23 @@ void VSPAEROScreen::Hide()
 
 void VSPAEROScreen::CallBack( Fl_Widget* w )
 {
+    if ( w == m_PropElemBrowser )
+    {
+        PropElemBrowserCallback();
+    }
+    else if ( w == m_CSGroupBrowser )
+    {
+        ControlSurfaceGroupBrowserCallback();
+    }
+    else if ( w == m_UngroupedCSBrowser )
+    {
+        UngroupedCSBrowserCallback();
+    }
+    else if ( w == m_GroupedCSBrowser )
+    {
+        GroupedCSBrowserCallback();
+    }
+
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -660,35 +654,6 @@ void * monitorfun( void *data )
 }
 
 #ifdef WIN32
-DWORD WINAPI solver_setup_thread_fun( LPVOID data )
-#else
-void * solver_setup_thread_fun( void *data )
-#endif
-{
-    solverpair *sp = ( solverpair * ) data;
-
-    VSPAEROMgrSingleton* vsmgr = sp->first;
-    VSPAEROScreen *vsscreen = sp->second;
-
-    if( vsmgr && vsscreen )
-    {
-        vsscreen->m_SolverSetupThreadIsRunning = true;
-
-        // EXECUTE SOLVER
-        vsmgr->CreateSetupFile();
-
-        // Read setup file
-        vsscreen->ReadSetup();
-
-        vsscreen->m_SolverSetupThreadIsRunning = false;
-
-        vsscreen->GetScreenMgr()->SetUpdateFlag( true );
-    }
-
-    return 0;
-}
-
-#ifdef WIN32
 DWORD WINAPI solver_thread_fun( LPVOID data )
 #else
 void * solver_thread_fun( void *data )
@@ -725,44 +690,18 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         //TODO add callback to determine if the setup file text has been edited
 
-        if ( device == &m_SetupButton )
+        if ( device == &m_SolverButton )
         {
-            if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || VSPAEROMgr.IsSolverRunning() )
-            { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
-            else
-            {
-                if ( FileExist( VSPAEROMgr.m_SetupFile ) )
-                {
-                    switch( fl_choice( "Overwrite any existing setup file?", "Cancel", "Abort", "Overwrite" ) )
-                    {
-                    case( 0 ):
-                    case ( 1 ):
-                        break;
-                    case( 2 ):
-                        // Clear the solver console
-                        m_SolverBuffer->text( "" );
-
-                        m_SolverProcess.StartThread( solver_setup_thread_fun, ( void* ) &m_SolverPair );
-                        break;
-                    }
-                }
-                else
-                {
-                    // Clear the solver console
-                    m_SolverBuffer->text( "" );
-
-                    m_SolverProcess.StartThread( solver_setup_thread_fun, ( void* ) &m_SolverPair );
-                }
-            }
-        }
-        else if ( device == &m_SolverButton )
-        {
-            if( veh->GetVSPAEROCmd().empty() || !FileExist( VSPAEROMgr.m_DegenFileFull ) || VSPAEROMgr.IsSolverRunning() )
+            if( veh->GetVSPAEROCmd().empty() || VSPAEROMgr.IsSolverRunning() )
             { /* Do nothing. Should not be reachable, button should be deactivated.*/ }
             else
             {
                 // Clear out previous results
                 VSPAEROMgr.ClearAllPreviousResults();
+
+                VSPAEROMgr.ComputeGeometry();
+
+                VSPAEROMgr.CreateSetupFile();
 
                 // Clear the solver console
                 m_SolverBuffer->text( "" );
@@ -797,10 +736,6 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
 
             }
         }
-        else if( device == &m_KillSolverSetupButton )
-        {
-            VSPAEROMgr.KillSolver();
-        }
         else if( device == &m_KillSolverButton )
         {
             VSPAEROMgr.KillSolver();
@@ -808,14 +743,6 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         else if( device == &m_PlotButton )
         {
             m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
-        }
-        else if( device == &m_SaveSetup )
-        {
-            SaveSetup();
-        }
-        else if( device == &m_ReadSetup )
-        {
-            ReadSetup();
         }
         else if( device == &m_RefWingChoice )
         {
@@ -864,6 +791,38 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                     fl_alert( strBuf );
                 }
             }
+        }
+        else if ( device == &m_GroupEditNameInput )
+        {
+            VSPAEROMgr.SetCurrentCSGroupName( m_GroupEditNameInput.GetString() );
+        }
+        else if ( device == &m_AddCSGroupButton )
+        {
+            VSPAEROMgr.AddControlSurfaceGroup();
+        }
+        else if ( device == &m_RemoveCSGroupButton )
+        {
+            VSPAEROMgr.RemoveControlSurfaceGroup();
+        }
+        else if ( device == &m_AddSelectedCSButton )
+        {
+            VSPAEROMgr.AddSelectedToCSGroup();
+        }
+        else if ( device == &m_AddAllCSButton )
+        {
+            VSPAEROMgr.AddAllToCSGroup();
+        }
+        else if ( device == &m_RemoveSelectedCSButton )
+        {
+            VSPAEROMgr.RemoveSelectedFromCSGroup();
+        }
+        else if ( device == &m_RemoveAllCSButton )
+        {
+            VSPAEROMgr.RemoveAllFromCSGroup();
+        }
+        else if ( device == &m_AutoGroupTrigger )
+        {
+            VSPAEROMgr.InitControlSurfaceGroups();
         }
     }
     m_ScreenMgr->SetUpdateFlag( true );
@@ -923,12 +882,575 @@ Fl_Text_Display* VSPAEROScreen::GetDisplay( int id )
     }
 }
 
-void VSPAEROScreen::ReadSetup()
+void VSPAEROScreen::UpdateRefWing()
 {
-    int loadStatus = m_SetupBuffer->loadfile( VSPAEROMgr.m_SetupFile.c_str() );
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    // Reference Wing Choice
+    //    find & list all Wing type geometries
+    vector <string> geomVec = veh->GetGeomVec();
+
+    m_RefWingChoice.ClearItems();
+    m_WingGeomVec.clear();
+    map <string, int> WingCompIDMap;
+    int iwing = 0;
+    for (int i = 0; i < (int)geomVec.size(); i++)
+    {
+        char str[256];
+        Geom* g = veh->FindGeom(geomVec[i]);
+        if (g)
+        {
+            sprintf(str, "%d_%s", i, g->GetName().c_str());
+
+            if (g->GetType().m_Type == MS_WING_GEOM_TYPE)
+            {
+                m_RefWingChoice.AddItem(str);
+                WingCompIDMap[geomVec[i]] = iwing;
+                m_WingGeomVec.push_back(geomVec[i]);
+                iwing++;
+            }
+        }
+    }
+    m_RefWingChoice.UpdateItems();
+    //    Update selected value
+    string refGeomID = VSPAEROMgr.m_RefGeomID;
+    if (refGeomID.length() == 0 && m_WingGeomVec.size() > 0)
+    {
+        // Handle case default case.
+        refGeomID = m_WingGeomVec[0];
+        VSPAEROMgr.m_RefGeomID = refGeomID;
+        // Re-trigger reference quantity update with default component.
+        VSPAEROMgr.Update();
+    }
+    m_RefWingChoice.SetVal(WingCompIDMap[refGeomID]);
 }
 
-void VSPAEROScreen::SaveSetup()
+void VSPAEROScreen::UpdateSetChoiceLists()
 {
-    m_SetupBuffer->savefile( VSPAEROMgr.m_SetupFile.c_str() );
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    m_GeomSetChoice.ClearItems();
+    m_CGSetChoice.ClearItems();
+
+    vector <string> setVec = veh->GetSetNameVec();
+    for (int iSet = 0; iSet < setVec.size(); iSet++)
+    {
+        m_GeomSetChoice.AddItem(setVec[iSet]);
+        m_CGSetChoice.AddItem(setVec[iSet]);
+    }
+    m_GeomSetChoice.UpdateItems();
+    m_CGSetChoice.UpdateItems();
+
+    m_GeomSetChoice.SetVal(VSPAEROMgr.m_GeomSet());
+    m_CGSetChoice.SetVal(VSPAEROMgr.m_CGGeomSet());
+}
+
+void VSPAEROScreen::UpdateCaseSetupDevices()
+{
+    m_AeroMethodToggleGroup.Update(VSPAEROMgr.m_AnalysisMethod.GetID());
+    switch (VSPAEROMgr.m_AnalysisMethod.Get())
+    {
+    case vsp::VORTEX_LATTICE:
+
+        m_DegenFileName.Activate();
+        m_DegenFileButton.Activate();
+
+        m_CompGeomFileName.Deactivate();
+        m_CompGeomFileButton.Deactivate();
+
+        break;
+
+    case vsp::PANEL:
+
+        m_DegenFileName.Deactivate();
+        m_DegenFileButton.Deactivate();
+
+        m_CompGeomFileName.Activate();
+        m_CompGeomFileButton.Activate();
+
+        break;
+
+    default:
+        //do nothing; this should not be reachable
+        break;
+    }
+    m_StabilityCalcToggle.Update(VSPAEROMgr.m_StabilityCalcFlag.GetID());
+}
+
+void VSPAEROScreen::UpdateReferenceQuantitiesDevices()
+{
+    m_RefToggle.Update(VSPAEROMgr.m_RefFlag.GetID());
+    m_SrefSlider.Update(VSPAEROMgr.m_Sref.GetID());
+    m_brefSlider.Update(VSPAEROMgr.m_bref.GetID());
+    m_crefSlider.Update(VSPAEROMgr.m_cref.GetID());
+}
+
+void VSPAEROScreen::UpdateCGDevices()
+{
+    m_NumSliceSlider.Update(VSPAEROMgr.m_NumMassSlice.GetID());
+    m_XcgSlider.Update(VSPAEROMgr.m_Xcg.GetID());
+    m_YcgSlider.Update(VSPAEROMgr.m_Ycg.GetID());
+    m_ZcgSlider.Update(VSPAEROMgr.m_Zcg.GetID());
+}
+
+void VSPAEROScreen::UpdateAdvancedTabDevices()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    m_DegenFileName.Update(veh->getExportFileName(vsp::DEGEN_GEOM_CSV_TYPE));
+    m_CompGeomFileName.Update(veh->getExportFileName(vsp::VSPAERO_PANEL_TRI_TYPE));
+
+    m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
+    m_BatchCalculationToggle.Update(VSPAEROMgr.m_BatchModeFlag.GetID());
+
+    m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
+
+    // Wake Options
+    m_WakeNumIterSlider.Update(VSPAEROMgr.m_WakeNumIter.GetID());
+    m_WakeAvgStartIterSlider.Update(VSPAEROMgr.m_WakeAvgStartIter.GetID());
+    m_WakeSkipUntilIterSlider.Update(VSPAEROMgr.m_WakeSkipUntilIter.GetID());
+
+    // Other Set Up Parms
+    m_ClmaxToggle.Update( VSPAEROMgr.m_ClMaxToggle.GetID() );
+    m_ClmaxSlider.Update( VSPAEROMgr.m_ClMax.GetID() );
+    m_MaxTurningToggle.Update( VSPAEROMgr.m_MaxTurnToggle.GetID() );
+    m_MaxTurningSlider.Update( VSPAEROMgr.m_MaxTurnAngle.GetID() );
+    m_FarDistToggle.Update( VSPAEROMgr.m_FarDistToggle.GetID() );
+    m_FarDistSlider.Update( VSPAEROMgr.m_FarDist.GetID() );
+
+    VSPAEROMgr.UpdateSetupParmLimits();
+
+    // 2D FEM File
+    m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
+}
+
+void VSPAEROScreen::UpdateFlowConditionDevices()
+{
+    // Alpha
+    m_AlphaStartInput.Update(VSPAEROMgr.m_AlphaStart.GetID());
+    m_AlphaEndInput.Update(VSPAEROMgr.m_AlphaEnd.GetID());
+    m_AlphaNptsInput.Update(VSPAEROMgr.m_AlphaNpts.GetID());
+    if (VSPAEROMgr.m_AlphaNpts.Get() == 1)
+    {
+        m_AlphaEndInput.Deactivate();
+    }
+    else if (VSPAEROMgr.m_AlphaNpts.Get() > 1)
+    {
+        m_AlphaEndInput.Activate();
+    }
+    // Beta
+    m_BetaStartInput.Update(VSPAEROMgr.m_BetaStart.GetID());
+    m_BetaEndInput.Update(VSPAEROMgr.m_BetaEnd.GetID());
+    m_BetaNptsInput.Update(VSPAEROMgr.m_BetaNpts.GetID());
+    if (VSPAEROMgr.m_BetaNpts.Get() == 1)
+    {
+        m_BetaEndInput.Deactivate();
+    }
+    else if (VSPAEROMgr.m_BetaNpts.Get() > 1)
+    {
+        m_BetaEndInput.Activate();
+    }
+    // Mach
+    m_MachStartInput.Update(VSPAEROMgr.m_MachStart.GetID());
+    m_MachEndInput.Update(VSPAEROMgr.m_MachEnd.GetID());
+    m_MachNptsInput.Update(VSPAEROMgr.m_MachNpts.GetID());
+    if (VSPAEROMgr.m_MachNpts.Get() == 1)
+    {
+        m_MachEndInput.Deactivate();
+    }
+    else if (VSPAEROMgr.m_MachNpts.Get() > 1)
+    {
+        m_MachEndInput.Activate();
+    }
+}
+
+void VSPAEROScreen::UpdateVSPAEROButtons()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    // Solver Button
+    if (veh->GetVSPAEROCmd().empty() || m_SolverThreadIsRunning)
+    {
+        m_SolverButton.Deactivate();
+    }
+    else
+    {
+        m_SolverButton.Activate();
+    }
+    // Kill Solver Button
+    if (m_SolverThreadIsRunning)
+    {
+        m_KillSolverButton.Activate();
+    }
+    else
+    {
+        m_KillSolverButton.Deactivate();
+    }
+
+    // Plot Window Button
+    if (veh->GetVSPAEROCmd().empty() || !FileExist(VSPAEROMgr.m_SetupFile))
+    {
+        m_PlotButton.Deactivate();
+    }
+    else
+    {
+        m_PlotButton.Activate();
+    }
+
+    // Viewer Button
+    if (veh->GetVIEWERCmd().empty() || m_SolverThreadIsRunning || m_ViewerProcess.IsRunning() || !FileExist(VSPAEROMgr.m_AdbFile))
+    {
+        m_ViewerButton.Deactivate();
+    }
+    else
+    {
+        m_ViewerButton.Activate();
+    }
+
+    // Export Button
+    if (ResultsMgr.GetNumResults("VSPAERO_Wrapper") == 0)
+    {
+        m_ExportResultsToCsvButton.Deactivate();
+    }
+    else
+    {
+        m_ExportResultsToCsvButton.Activate();
+    }
+}
+
+void VSPAEROScreen::UpdatePropElemDevices()
+{
+    if (VSPAEROMgr.GetCurrentRotorDiskIndex() < 0)
+    {
+        VSPAEROMgr.m_Diameter.Deactivate();
+        VSPAEROMgr.m_HubDiameter.Deactivate();
+        VSPAEROMgr.m_RPM.Deactivate();
+        VSPAEROMgr.m_CP.Deactivate();
+        VSPAEROMgr.m_CT.Deactivate();
+    }
+    else
+    {
+        VSPAEROMgr.m_Diameter.Activate();
+        VSPAEROMgr.m_HubDiameter.Activate();
+        VSPAEROMgr.m_RPM.Activate();
+        VSPAEROMgr.m_CP.Activate();
+        VSPAEROMgr.m_CT.Activate();
+    }
+
+    m_PropElemDia.Update(to_string(VSPAEROMgr.m_Diameter()));
+    VSPAEROMgr.m_HubDiameter.SetUpperLimit(VSPAEROMgr.m_Diameter());
+    m_PropElemHubDia.SetMaxBound(VSPAEROMgr.m_Diameter());
+    m_PropElemHubDia.Update(VSPAEROMgr.m_HubDiameter.GetID());
+    m_PropElemRPM.Update(VSPAEROMgr.m_RPM.GetID());
+    m_PropElemCP.Update(VSPAEROMgr.m_CP.GetID());
+    m_PropElemCT.Update(VSPAEROMgr.m_CT.GetID());
+}
+
+void VSPAEROScreen::UpdatePropElemBrowser()
+{
+    char str[256];
+    m_PropElemBrowser->clear();
+    static int widths[] = { 150, 40, 65, 65, 40, 40 }; // widths for each column
+    m_PropElemBrowser->column_widths(widths);    // assign array to widget
+    m_PropElemBrowser->column_char(':');         // use : as the column character
+
+    sprintf(str, "@b@.NAME:@b@.DIA:@b@.HUB DIA:@b@.RPM:@b@.CP:@b@.CT");
+    m_PropElemBrowser->add(str);
+    for (size_t i = 0; i < VSPAEROMgr.GetRotorDiskVec().size(); ++i)
+    {
+        RotorDisk* curr_rot = VSPAEROMgr.GetRotorDiskVec()[i];
+        if (curr_rot)
+        {
+            sprintf(str, "%s:%4.2f:%4.2f:%6.1f:%4.2f:%4.2f", curr_rot->GetName().c_str(),
+                curr_rot->m_Diameter(), curr_rot->m_HubDiameter(),
+                curr_rot->m_RPM(), curr_rot->m_CP(), curr_rot->m_CT());
+            m_PropElemBrowser->add(str);
+        }
+    }
+    SelectPropBrowser(VSPAEROMgr.GetCurrentRotorDiskIndex() + 2);
+}
+
+void VSPAEROScreen::UpdateControlSurfaceBrowsers()
+{
+    int curr_cs_index = VSPAEROMgr.GetCurrentCSGroupIndex();
+    vector < ControlSurfaceGroup* > cs_group_vec = VSPAEROMgr.GetControlSurfaceGroupVec();
+    m_CSGroupBrowser->clear();
+    for (size_t i = 0; i < cs_group_vec.size(); ++i)
+    {
+        ControlSurfaceGroup* curr_cs_group = cs_group_vec[i];
+        m_CSGroupBrowser->add(curr_cs_group->GetName().c_str());
+        vector < VspAeroControlSurf > sub_surf_vec = VSPAEROMgr.GetActiveCSVec();
+        for (size_t j = 0; j < sub_surf_vec.size(); ++j)
+        {
+            VSPAEROMgr.RemoveFromUngrouped(sub_surf_vec[j].SSID, sub_surf_vec[j].iReflect);
+        }
+    }
+    SelectControlSurfaceBrowser(curr_cs_index + 1);
+
+    m_GroupedCSBrowser->clear();
+    if (VSPAEROMgr.GetCurrentCSGroupIndex() != -1)
+    {
+        vector < VspAeroControlSurf > grouped_cs = VSPAEROMgr.GetActiveCSVec();
+        m_GroupEditNameInput.Update(VSPAEROMgr.GetCurrentCSGGroupName().c_str());
+        for (size_t i = 0; i < grouped_cs.size(); ++i)
+        {
+            m_GroupedCSBrowser->add(grouped_cs[i].fullName.c_str());
+        }
+        for (size_t i = 0; i < VSPAEROMgr.GetSelectedGroupedItems().size(); ++i)
+        {
+            SelectGroupedListBrowser(VSPAEROMgr.GetSelectedGroupedItems()[i]);
+        }
+    }
+    else
+    {
+        m_DeflectionGainScroll->clear();
+        m_GroupEditNameInput.Update("");
+    }
+
+    m_UngroupedCSBrowser->clear();
+    // For loop on a vector of ungrouped control surfaces
+    vector < VspAeroControlSurf > ungrouped_cs = VSPAEROMgr.GetUngroupedCSVec();
+    for (size_t i = 0; i < ungrouped_cs.size(); ++i)
+    {
+        m_UngroupedCSBrowser->add(ungrouped_cs[i].fullName.c_str());
+    }
+    for (size_t i = 0; i < VSPAEROMgr.GetSelectedUngroupedItems().size(); ++i)
+    {
+        SelectUngroupedListBrowser(VSPAEROMgr.GetSelectedUngroupedItems()[i]);
+    }
+}
+
+void VSPAEROScreen::UpdateOtherSetupParms()
+{
+    m_VinfSlider.Update( VSPAEROMgr.m_Vinf.GetID() );
+    m_RhoSlider.Update( VSPAEROMgr.m_Rho.GetID() );
+}
+
+void VSPAEROScreen::UpdateDeflectionAngleScrollGroup()
+{
+    vector < ControlSurfaceGroup* > cs_group_vec = VSPAEROMgr.GetControlSurfaceGroupVec();
+
+    if (cs_group_vec.size() != m_NumVarAngle)
+    {
+        m_DeflectionAngleScroll->clear();
+        m_DeflectionAngleLayout.SetGroup( m_DeflectionAngleScroll );
+        m_DeflectionAngleLayout.InitWidthHeightVals();
+
+        m_DeflectionAngleToggleVec.clear();
+        m_DeflectionAngleSliderVec.clear();
+
+        m_DeflectionAngleToggleVec.resize(cs_group_vec.size());
+        m_DeflectionAngleSliderVec.resize(cs_group_vec.size());
+
+        m_DeflectionAngleLayout.SetFitWidthFlag(false);
+        m_DeflectionAngleLayout.SetSameLineFlag(true);
+        m_DeflectionAngleLayout.SetButtonWidth(10);
+
+        m_DeflectionAngleLayout.SetSliderWidth(50);
+
+        for (size_t i = 0; i < cs_group_vec.size(); ++i)
+        {
+            m_DeflectionAngleLayout.SetButtonWidth(15);
+            m_DeflectionAngleLayout.AddButton(m_DeflectionAngleToggleVec[i], "");
+            m_DeflectionAngleToggleVec[i].Update(cs_group_vec[i]->m_IsUsed.GetID());
+            m_DeflectionAngleLayout.SetButtonWidth(145);
+            m_DeflectionAngleLayout.AddSlider(m_DeflectionAngleSliderVec[i], cs_group_vec[i]->GetName().c_str(), 10, "%3.2f");
+            m_DeflectionAngleSliderVec[i].Update(cs_group_vec[i]->m_DeflectionAngle.GetID());
+            if (!cs_group_vec[i]->m_IsUsed())
+            {
+                m_DeflectionAngleSliderVec[i].Deactivate();
+            }
+            m_DeflectionAngleLayout.ForceNewLine();
+        }
+
+        m_NumVarAngle = cs_group_vec.size();
+    }
+    else
+    {
+        for (size_t i = 0; i < cs_group_vec.size(); ++i)
+        {
+            m_DeflectionAngleToggleVec[i].Update(cs_group_vec[i]->m_IsUsed.GetID());
+            m_DeflectionAngleSliderVec[i].Update(cs_group_vec[i]->m_DeflectionAngle.GetID());
+
+            if (!cs_group_vec[i]->m_IsUsed())
+            {
+                m_DeflectionAngleSliderVec[i].Deactivate();
+            }
+        }
+    }
+    UpdateControlSurfaceGroupNames();
+}
+
+void VSPAEROScreen::UpdateControlSurfaceGroupNames()
+{
+    // Prevent Long Group Names from spilling over passed button limits
+    char str[256];
+    vector < ControlSurfaceGroup* > cs_group_vec = VSPAEROMgr.GetControlSurfaceGroupVec();
+    for (size_t i = 0; i < cs_group_vec.size(); ++i)
+    {
+        if (cs_group_vec[i]->GetName().size() >= 20)
+        {
+            sprintf(str, "%s...", cs_group_vec[i]->GetName().substr(0, 20));
+            m_DeflectionAngleSliderVec[i].SetButtonName(str);
+        }
+        else
+        {
+            m_DeflectionAngleSliderVec[i].SetButtonName(cs_group_vec[i]->GetName().c_str());
+        }
+    }
+}
+
+void VSPAEROScreen::UpdateDeflectionGainScrollGroup()
+{
+    int button_width = 300;
+    int input_width = 60;
+    if ( VSPAEROMgr.GetCurrentCSGroupIndex() != -1 )
+    {
+        ControlSurfaceGroup* cs = VSPAEROMgr.GetControlSurfaceGroupVec()[ VSPAEROMgr.GetCurrentCSGroupIndex() ];
+        vector < VspAeroControlSurf > cs_vec = VSPAEROMgr.GetActiveCSVec();
+
+        if ( cs_vec.size() != m_NumVarDeflection )
+        {
+            m_DeflectionGainScroll->clear();
+            m_CSGroupGainScrollLayout.SetGroup( m_DeflectionGainScroll );
+            m_CSGroupGainScrollLayout.InitWidthHeightVals();
+
+            m_DeflectionGainSliderVec.clear();
+
+            m_DeflectionGainSliderVec.resize( cs_vec.size() );
+
+            m_CSGroupGainScrollLayout.SetFitWidthFlag( true );
+            m_CSGroupGainScrollLayout.SetSameLineFlag( false );
+            m_CSGroupGainScrollLayout.SetButtonWidth( button_width );
+            m_CSGroupGainScrollLayout.SetInputWidth( input_width );
+
+            for ( size_t i = 0; i < cs_vec.size(); ++i )
+            {
+                m_CSGroupGainScrollLayout.AddSlider( m_DeflectionGainSliderVec[i], cs_vec[i].fullName.c_str(), 10, "%3.2f" );
+                m_DeflectionGainSliderVec[i].Update( cs->m_DeflectionGainVec[i]->GetID() );
+            }
+            m_NumVarDeflection = cs_vec.size();
+        }
+        else
+        {
+            for ( size_t i = 0; i < cs_vec.size(); ++i )
+            {
+                m_DeflectionGainSliderVec[i].SetButtonName( cs_vec[i].fullName.c_str() );
+                m_DeflectionGainSliderVec[i].Update( cs->m_DeflectionGainVec[i]->GetID() );
+            }
+        }
+    }
+    else
+    {
+        m_DeflectionGainScroll->clear();
+        m_CSGroupGainScrollLayout.SetGroup( m_DeflectionGainScroll );
+        m_CSGroupGainScrollLayout.InitWidthHeightVals();
+
+        m_DeflectionGainSliderVec.clear();
+
+        m_NumVarDeflection = 0;
+    }
+}
+
+void VSPAEROScreen::PropElemBrowserCallback()
+{
+    //==== Find Last Selected Prop ====//
+    int last = m_PropElemBrowser->value();
+    if ( last >= 2 )
+    {
+        VSPAEROMgr.SetCurrentRotorDiskIndex( last - 2 ); 
+        VSPAEROMgr.SetParmsFromCurrentRotorDisk();
+    }
+}
+
+void VSPAEROScreen::SelectPropBrowser( int cur_index )
+{
+    if ( cur_index > 1 )
+    {
+        //==== Select If Match ====//
+        m_PropElemBrowser->select( cur_index );
+
+        //==== Position Browser ====//
+        m_PropElemBrowser->topline( cur_index );
+    }
+}
+
+void VSPAEROScreen::ControlSurfaceGroupBrowserCallback()
+{
+    int last = m_CSGroupBrowser->value();
+    if ( last >= 1 )
+    {
+        if ( VSPAEROMgr.GetCurrentCSGroupIndex() != last - 1 )
+        {
+            VSPAEROMgr.SetCurrentCSGroupIndex( last - 1 );
+            VSPAEROMgr.m_SelectedGroupedCS.clear();
+            VSPAEROMgr.UpdateActiveControlSurfVec();
+        }
+    }
+}
+
+void VSPAEROScreen::SelectControlSurfaceBrowser( int cur_index )
+{
+    if ( cur_index > 0 )
+    {
+        //==== Select If Match ====//
+        m_CSGroupBrowser->select( cur_index );
+
+        //==== Position Browser ====//
+        m_CSGroupBrowser->topline( cur_index );
+    }
+}
+
+void VSPAEROScreen::UngroupedCSBrowserCallback()
+{
+    vector < int > selected;
+    vector < VspAeroControlSurf > ungrouped_vec = VSPAEROMgr.GetUngroupedCSVec();
+    if ( ungrouped_vec.size() != 0 )
+    {
+        for ( size_t i = 1; i <= m_UngroupedCSBrowser->size(); ++i )
+        {
+            if ( m_UngroupedCSBrowser->selected( i ) )
+            {
+                selected.push_back( i );
+            }
+        }
+    }
+    VSPAEROMgr.m_SelectedUngroupedCS = selected;
+}
+
+void VSPAEROScreen::SelectUngroupedListBrowser( int cur_index )
+{
+    if ( cur_index > 0 )
+    {
+        //==== Select If Match ====//
+        m_UngroupedCSBrowser->select( cur_index );
+
+        //==== Position Browser ====//
+        m_UngroupedCSBrowser->topline( cur_index );
+    }
+}
+
+void VSPAEROScreen::GroupedCSBrowserCallback()
+{
+    vector < int > selected;
+    vector < VspAeroControlSurf > active_item_vec = VSPAEROMgr.GetActiveCSVec();
+    if ( active_item_vec.size() != 0 )
+    {
+        for ( size_t i = 1; i <= m_GroupedCSBrowser->size(); ++i )
+        {
+            if ( m_GroupedCSBrowser->selected( i ) )
+            {
+                selected.push_back( i );
+            }
+        }
+    }
+    VSPAEROMgr.m_SelectedGroupedCS = selected;
+}
+
+void VSPAEROScreen::SelectGroupedListBrowser( int cur_index )
+{
+    if ( cur_index > 0 )
+    {
+        //==== Select If Match ====//
+        m_GroupedCSBrowser->select( cur_index );
+
+        //==== Position Browser ====//
+        m_GroupedCSBrowser->topline( cur_index );
+    }
 }
