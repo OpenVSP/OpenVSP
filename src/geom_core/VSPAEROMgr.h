@@ -77,6 +77,47 @@ public:
     void UpdateParmGroupName();
 };
 
+class ControlSurfaceGroup : public ParmContainer
+{
+public:
+    // Constructor, Destructor, Copy
+
+    ControlSurfaceGroup( void );
+    ~ControlSurfaceGroup( void );
+
+    void ParmChanged( Parm* parm_ptr, int type );
+
+    // Member variables
+
+    string m_GroupName;
+    string m_ParentGeomBaseID;
+
+    BoolParm m_IsUsed;
+
+    vector< Parm* > m_DeflectionGainVec;     // ControlSurface_DeflectionDirection_
+    vector < VspAeroControlSurf > m_ControlSurfVec;
+
+    Parm m_DeflectionAngle;                   // ControlSurface_DeflectionAngle_
+
+    // Setup File I/O
+    void Write_STP_Data( FILE * InputFile );
+    void Load_STP_Data( FILE * InputFile );
+
+    // vsp3 file xml I/O
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    // Subsurface Manipulation
+    void AddSubSurface( VspAeroControlSurf control_surf );
+    void RemoveSubSurface( const string & ssid, int reflec_num );
+
+    // Group Name
+    void SetGroupName( const string & groupname )         { m_GroupName = groupname; }
+    string GetGroupName()                           { return m_GroupName; }
+
+    void UpdateParmGroupName();
+};
+
 //==== VSPAERO Manager ====//
 class VSPAEROMgrSingleton : public ParmContainer
 {
@@ -97,12 +138,22 @@ public:
 
     void UpdateFilenames();
     void UpdateRotorDisks();
+    void UpdateControlSurfaceGroups();
+    void CleanCompleteControlSurfVec();
+    void UpdateCompleteControlSurfVec();         // initializes one group per surface
+    void UpdateUngroupedVec();
+    void UpdateActiveControlSurfVec();
     // Setter Methods
     void SetCurrentRotorDiskIndex( int index )              { m_CurrentRotorDiskIndex = index; }
+    void SetCurrentCSGroupName( const string & name );
 
     // Getter Methods
     int GetCurrentRotorDiskIndex()                          { return m_CurrentRotorDiskIndex; }
     vector <RotorDisk*> GetRotorDiskVec()                      { return m_RotorDiskVec; };
+    vector < VspAeroControlSurf > GetActiveCSVec()          { return m_ActiveControlSurfaceVec; }
+    vector < VspAeroControlSurf > GetUngroupedCSVec()        { return m_UngroupedCS; }
+    string GetCurrentCSGGroupName();
+    vector <ControlSurfaceGroup* > GetControlSurfaceGroupVec()   { return m_ControlSurfaceGroupVec; }
     string ComputeGeometry();
     void CreateSetupFile( FILE * logFile = NULL );
     string ComputeSolver( FILE * logFile = NULL ); // returns a result with a vector of results id's under the name ResultVec
@@ -121,6 +172,16 @@ public:
     void SetCurrentRotorDiskFromParms();
     void SetParmsFromCurrentRotorDisk();
     bool ValidRotorDiskIndex( int index );
+
+    // Control Surface Group Functionality
+    void InitControlSurfaceGroups();        // default initial grouping of control surfaces for VSPAERO
+    void AddControlSurfaceGroup();
+    void RemoveControlSurfaceGroup();
+    void AddSelectedToCSGroup();
+    void AddAllToCSGroup();
+    void RemoveSelectedFromCSGroup();
+    void RemoveAllFromCSGroup();
+    void RemoveFromUngrouped( const string & ssid, int reflec_num );
 
 
     // file names
@@ -227,6 +288,8 @@ private:
     vector< VspAeroControlSurf > m_CompleteControlSurfaceVec;   // list of all control and rectangle sub-surfaces in the model selected as control surfaces
     vector < VspAeroControlSurf > m_ActiveControlSurfaceVec;
     vector < VspAeroControlSurf > m_UngroupedCS;
+    vector< ControlSurfaceGroup* > m_ControlSurfaceGroupVec;
+
     int m_CurrentRotorDiskIndex;
 };
 
