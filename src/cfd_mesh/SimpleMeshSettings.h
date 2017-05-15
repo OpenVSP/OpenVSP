@@ -1,0 +1,205 @@
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
+
+//////////////////////////////////////////////////////////////////////
+// SimpleMeshSettings.h
+// Justin Gravett
+//////////////////////////////////////////////////////////////////////
+
+#if !defined(SIMPLEMESHSETTINGS_SIMPLEMESHSETTINGS__INCLUDED_)
+#define SIMPLEMESHSETTINGS_SIMPLEMESHSETTINGS__INCLUDED_
+
+#include "APIDefines.h"
+#include "Vehicle.h"
+//#include "MeshCommonSettings.h"
+#include "CfdMeshSettings.h"
+#include "StructSettings.h"
+#include "GridDensity.h"
+
+using namespace std;
+
+class SimpleMeshCommonSettings
+{
+public:
+    SimpleMeshCommonSettings();
+    virtual ~SimpleMeshCommonSettings();
+
+    virtual void CopyFrom( MeshCommonSettings* settings );
+
+    bool m_SymSplittingOnFlag;
+
+    bool m_DrawMeshFlag;
+    bool m_DrawBadFlag;
+    bool m_ColorTagsFlag;
+
+    bool m_IntersectSubSurfs;
+
+    bool m_FarMeshFlag;
+    bool m_FarCompFlag;
+    bool m_HalfMeshFlag;
+
+protected:
+
+};
+
+class SimpleCfdMeshSettings : public SimpleMeshCommonSettings
+{
+public:
+    SimpleCfdMeshSettings();
+    virtual ~SimpleCfdMeshSettings();
+
+    virtual void CopyFrom( CfdMeshSettings* settings );
+
+    virtual string GetExportFileName( int type );
+    virtual bool GetExportFileFlag( int type );
+
+    bool m_FarManLocFlag;
+    bool m_FarAbsSizeFlag;
+
+    string m_FarGeomID;
+
+    double m_FarXScale; // Check FractionParm to double is apprpriate data conversion
+    double m_FarYScale;
+    double m_FarZScale;
+
+    double m_FarLength;
+    double m_FarWidth;
+    double m_FarHeight;
+
+    double m_FarXLocation;
+    double m_FarYLocation;
+    double m_FarZLocation;
+
+    double m_WakeScale;
+    double m_WakeAngle;
+
+    bool m_DrawSourceFlag;
+    bool m_DrawFarFlag;
+    bool m_DrawFarPreFlag;
+    bool m_DrawSymmFlag;
+    bool m_DrawWakeFlag;
+
+    int m_SelectedSetIndex;
+
+    bool m_ExportFileFlags[vsp::CFD_NUM_FILE_NAMES];
+    bool m_XYZIntCurveFlag;
+
+protected:
+
+    vector < string > m_ExportFileNames;
+
+};
+
+class SimpleFeaMeshSettings : public SimpleMeshCommonSettings
+{
+public:
+    SimpleFeaMeshSettings();
+    virtual ~SimpleFeaMeshSettings();
+
+    virtual void CopyFrom( StructSettings* settings );
+
+    virtual string GetExportFileName( int type );
+
+    bool m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES];
+    int m_NumEvenlySpacedPart;
+    double m_DrawFeaPartsFlag;
+    double m_DrawNodesFlag;
+    double m_DrawElementOrientVecFlag;
+
+protected:
+
+    vector < string > m_ExportFileNames;
+
+
+};
+
+class SimpleGridDensity
+{
+public:
+
+    SimpleGridDensity();
+    virtual ~SimpleGridDensity();
+
+    virtual void CopyFrom( GridDensity* gd );
+
+    double GetBaseLen( bool farflag = false )
+    {
+        if ( !farflag )
+        {
+            return m_BaseLen;
+        }
+        else
+        {
+            return m_FarMaxLen;
+        }
+    }
+
+    double GetMaxGap( bool farflag = false )
+    {
+        if ( !farflag )
+        {
+            return m_MaxGap;
+        }
+        else
+        {
+            return m_FarMaxGap;
+        }
+    }
+
+    double GetRadFrac( bool farflag );
+    double GetFarRadFrac();
+    double GetTargetLen( vec3d& pos, bool farFlag = false );
+
+    void ClearSources()
+    {
+        m_Sources.clear();    //Deleted in Geom
+    }
+    void AddSource( BaseSimpleSource* s )
+    {
+        m_Sources.push_back( s );
+    }
+    int  GetNumSources()
+    {
+        return m_Sources.size();
+    }
+
+    void ScaleAllSources( double scale );
+
+    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+    void Show( bool flag );
+    void Highlight( BaseSource * source ); // TODO: Update to SimpleSource
+
+    bool m_RigorLimit;
+    double m_BaseLen;
+    double m_FarMaxLen;
+    double m_MinLen;
+    double m_NCircSeg;
+    double m_FarNCircSeg;
+    double m_MaxGap;
+    double m_FarMaxGap;
+    double m_GrowRatio;
+
+protected:
+
+    vector< BaseSimpleSource* > m_Sources;
+
+};
+
+class SimpleCfdGridDensity : public SimpleGridDensity
+{
+public:
+    SimpleCfdGridDensity();
+    virtual ~SimpleCfdGridDensity();
+
+};
+
+class SimpleFeaGridDensity : public SimpleGridDensity
+{
+public:
+    SimpleFeaGridDensity();
+    virtual ~SimpleFeaGridDensity();
+
+};
+
+#endif
