@@ -1461,8 +1461,6 @@ void StructScreen::UpdateFeaMaterialChoice()
 
 void StructScreen::CloseCallBack( Fl_Widget *w )
 {
-    StructureMgr.SetDrawFlagsFalse();
-
     Hide();
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -3027,10 +3025,10 @@ void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
         }
-    }
 
-    // Update Draw Objects for FeaMesh
-    FeaMeshMgr.LoadDrawObjs( draw_obj_vec );
+        // Load Draw Objects for FeaMesh
+        FeaMeshMgr.LoadDrawObjs( draw_obj_vec );
+    }
 }
 
 void StructScreen::UpdateDrawObjs()
