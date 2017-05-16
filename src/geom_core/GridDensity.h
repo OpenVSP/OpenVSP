@@ -442,6 +442,11 @@ public:
         return m_Sources.size();
     }
 
+    vector< BaseSimpleSource* > GetSimpleSourceVec()
+    {
+        return m_Sources;
+    }
+
     void ScaleAllSources( double scale );
 
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
