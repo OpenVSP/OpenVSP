@@ -44,6 +44,7 @@ public:
     BoolParm* GetExportFileFlag( int type );
     void SetAllFileExportFlags( bool flag );
     void SetFileExportFlag( int type, bool flag );
+    vector < string > GetExportFileNames();
 
     BoolParm m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES];
     IntParm m_NumEvenlySpacedPart;

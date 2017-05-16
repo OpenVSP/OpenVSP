@@ -120,3 +120,15 @@ void StructSettings::SetFileExportFlag( int type, bool flag )
     if ( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES )
         m_ExportFileFlags[type] = flag;
 }
+
+vector < string > StructSettings::GetExportFileNames()
+{
+    vector < string > ret_vec;
+
+    for ( size_t i = 0; i < vsp::NUM_FEA_FILE_NAMES; i++ )
+    {
+        ret_vec.push_back( m_ExportFileNames[i] );
+    }
+    return ret_vec;
+}
+

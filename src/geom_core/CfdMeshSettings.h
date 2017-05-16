@@ -78,6 +78,7 @@ public:
     void SetExportFileName( const string &fn, int type );
     void ResetExportFileNames();
     void ResetExportFileNames( string basename );
+    vector < string > GetExportFileNames();
 
     BoolParm* GetExportFileFlag( int type );
     void SetAllFileExportFlags( bool flag );

@@ -163,6 +163,17 @@ void CfdMeshSettings::ResetExportFileNames( string basename )
     }
 }
 
+vector < string > CfdMeshSettings::GetExportFileNames()
+{
+    vector < string > ret_vec;
+
+    for ( size_t i = 0; i < vsp::CFD_NUM_FILE_NAMES; i++ )
+    {
+        ret_vec.push_back( m_ExportFileNames[i] );
+    }
+    return ret_vec;
+}
+
 BoolParm* CfdMeshSettings::GetExportFileFlag( int type )
 {
     assert( type >= 0 && type < vsp::CFD_NUM_FILE_NAMES );
