@@ -886,30 +886,48 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
             surf_vec[0] = ( *c )->m_SurfA;
             surf_vec[1] = ( *c )->m_SurfB;
 
-            // Get the total min and max U/W for Surf A and B
-            double tot_max_u = 0.0;
-            double tot_max_w = 0.0;
-            double tot_min_u = FLT_MAX;
-            double tot_min_w = FLT_MAX;
+            double min_wA = ( *c )->m_SurfA->GetSurfCore()->GetMinW();
+            double min_wB = ( *c )->m_SurfB->GetSurfCore()->GetMinW();
+            double max_wA = ( *c )->m_SurfA->GetSurfCore()->GetMaxW();
+            double max_wB = ( *c )->m_SurfB->GetSurfCore()->GetMaxW();
 
-            for ( size_t i = 0; i < surf_vec.size(); i++ )
+            // Get the total min and max U/W for Surf A and B
+            double tot_max_u = max( ( *c )->m_SurfA->GetSurfCore()->GetMaxU(), ( *c )->m_SurfB->GetSurfCore()->GetMaxU() );
+            double tot_max_w = max( max_wA, max_wB );
+            double tot_min_u = min( ( *c )->m_SurfA->GetSurfCore()->GetMinU(), ( *c )->m_SurfB->GetSurfCore()->GetMinU() );
+            double tot_min_w = min( min_wA, min_wB );
+
+            // Check for closedU and closedW surface
+            bool closedW = false;
+            bool closedU = false;
+            
+            vec3d min_min_A = ( *c )->m_SurfA->CompPnt( ( *c )->m_SurfA->GetSurfCore()->GetMinU(), ( *c )->m_SurfA->GetSurfCore()->GetMinW() );
+            vec3d min_min_B = ( *c )->m_SurfB->CompPnt( ( *c )->m_SurfB->GetSurfCore()->GetMinU(), ( *c )->m_SurfB->GetSurfCore()->GetMinW() );
+            vec3d min_max_A = ( *c )->m_SurfA->CompPnt( ( *c )->m_SurfA->GetSurfCore()->GetMinU(), ( *c )->m_SurfA->GetSurfCore()->GetMaxW() );
+            vec3d min_max_B = ( *c )->m_SurfB->CompPnt( ( *c )->m_SurfB->GetSurfCore()->GetMinU(), ( *c )->m_SurfB->GetSurfCore()->GetMaxW() );
+            vec3d max_min_A = ( *c )->m_SurfA->CompPnt( ( *c )->m_SurfA->GetSurfCore()->GetMaxU(), ( *c )->m_SurfA->GetSurfCore()->GetMinW() );
+            vec3d max_min_B = ( *c )->m_SurfB->CompPnt( ( *c )->m_SurfB->GetSurfCore()->GetMaxU(), ( *c )->m_SurfB->GetSurfCore()->GetMinW() );
+            vec3d max_max_A = ( *c )->m_SurfA->CompPnt( ( *c )->m_SurfA->GetSurfCore()->GetMaxU(), ( *c )->m_SurfA->GetSurfCore()->GetMaxW() );
+            vec3d max_max_B = ( *c )->m_SurfB->CompPnt( ( *c )->m_SurfB->GetSurfCore()->GetMaxU(), ( *c )->m_SurfB->GetSurfCore()->GetMaxW() );
+
+            if ( dist( min_min_A, min_max_B ) <= FLT_EPSILON && dist( max_min_A, max_max_B ) <= FLT_EPSILON )
             {
-                if ( surf_vec[i]->GetSurfCore()->GetMaxW() > tot_max_w )
-                {
-                    tot_max_w = surf_vec[i]->GetSurfCore()->GetMaxW();
-                }
-                if ( surf_vec[i]->GetSurfCore()->GetMinW() < tot_min_w )
-                {
-                    tot_min_w = surf_vec[i]->GetSurfCore()->GetMinW();
-                }
-                if ( surf_vec[i]->GetSurfCore()->GetMaxU() > tot_max_u )
-                {
-                    tot_max_u = surf_vec[i]->GetSurfCore()->GetMaxU();
-                }
-                if ( surf_vec[i]->GetSurfCore()->GetMinU() < tot_min_u )
-                {
-                    tot_min_u = surf_vec[i]->GetSurfCore()->GetMinU();
-                }
+                closedW = true;
+            }
+            if ( dist( min_min_A, max_min_B ) <= FLT_EPSILON && dist( max_max_B, min_max_A ) <= FLT_EPSILON )
+            {
+                closedU = true;
+            }
+
+            // Check for magicV parm
+            bool magicV = false;
+
+            if ( ( ( abs( abs( max_wA - min_wB ) - 2 * TMAGIC ) <= FLT_EPSILON ) )
+                 && ( ( dist( min_max_A, min_min_B ) <= FLT_EPSILON ) && ( dist( max_max_A, max_min_B ) <= FLT_EPSILON ) ) )
+            {
+                magicV = true;
+                tot_min_w -= TMAGIC;
+                tot_max_w += TMAGIC;
             }
 
             for ( size_t i = 0; i < surf_vec.size(); i++ )
@@ -944,37 +962,39 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                             uw_pnt0 = vec2d( lp0.x(), lp0.y() );
                             uw_pnt1 = vec2d( lp1.x(), lp1.y() );
 
-                            // Cap subsurface edge points to within min and max U/W 
-                            if ( uw_pnt0[0] < tot_min_u )
+                            // Cap subsurface edge points to within min and max U/W
+                            if ( uw_pnt0[0] < tot_min_u && closedU )
                             {
                                 uw_pnt0[0] = tot_min_u;
                             }
-                            if ( uw_pnt1[0] < tot_min_u )
-                            {
-                                uw_pnt1[0] = tot_min_u;
-                            }
-                            if ( uw_pnt0[1] < tot_min_w )
-                            {
-                                uw_pnt0[1] = tot_min_w;
-                            }
-                            if ( uw_pnt1[1] < tot_min_w )
-                            {
-                                uw_pnt1[1] = tot_min_w;
-                            }
-
-                            if ( uw_pnt0[0] > tot_max_u )
+                            else if ( uw_pnt0[0] > tot_max_u && closedU )
                             {
                                 uw_pnt0[0] = tot_max_u;
                             }
-                            if ( uw_pnt1[0] > tot_max_u )
+
+                            if ( uw_pnt1[0] < tot_min_u && closedU )
+                            {
+                                uw_pnt1[0] = tot_min_u;
+                            }
+                            else if ( uw_pnt1[0] > tot_max_u && closedU )
                             {
                                 uw_pnt1[0] = tot_max_u;
                             }
-                            if ( uw_pnt0[1] > tot_max_w )
+
+                            if ( uw_pnt0[1] < tot_min_w && closedW )
+                            {
+                                uw_pnt0[1] = tot_min_w;
+                            }
+                            else if ( uw_pnt0[1] > tot_max_w && closedW )
                             {
                                 uw_pnt0[1] = tot_max_w;
                             }
-                            if ( uw_pnt1[1] > tot_max_w )
+
+                            if ( uw_pnt1[1] < tot_min_w && closedW )
+                            {
+                                uw_pnt1[1] = tot_min_w;
+                            }
+                            else if ( uw_pnt1[1] > tot_max_w && closedW )
                             {
                                 uw_pnt1[1] = tot_max_w;
                             }
@@ -986,6 +1006,12 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                             min_w = surf->GetSurfCore()->GetMinW();
                             max_u = surf->GetSurfCore()->GetMaxU();
                             max_w = surf->GetSurfCore()->GetMaxW();
+
+                            if ( magicV )
+                            {
+                                min_w -= TMAGIC;
+                                max_w += TMAGIC;
+                            }
 
                             if ( ( ( std::abs( uw_pnt0[0] - max_u ) < tol && std::abs( uw_pnt1[0] - max_u ) < tol ) ||
                                 ( std::abs( uw_pnt0[1] - max_w ) < tol && std::abs( uw_pnt1[1] - max_w ) < tol ) ||
@@ -1006,13 +1032,53 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                 else if ( uw_pnt0[0] > min_u - FLT_EPSILON && uw_pnt1[0] > min_u - FLT_EPSILON && uw_pnt0[0] < max_u + FLT_EPSILON && uw_pnt1[0] < max_u + FLT_EPSILON
                                           && uw_pnt0[1] > min_w - FLT_EPSILON && uw_pnt1[1] > min_w - FLT_EPSILON && uw_pnt0[1] < max_w + FLT_EPSILON && uw_pnt1[1] < max_w + FLT_EPSILON )
                                 {
+                                    // Reset SSLineSeg points and check again for valid UW
+                                    uw_pnt0 = vec2d( lp0.x(), lp0.y() );
+                                    uw_pnt1 = vec2d( lp1.x(), lp1.y() );
+
+                                    if ( uw_pnt0[0] < surf->GetSurfCore()->GetMinU() )
+                                    {
+                                        uw_pnt0[0] = surf->GetSurfCore()->GetMinU();
+                                    }
+                                    else if ( uw_pnt0[0] > surf->GetSurfCore()->GetMaxU() )
+                                    {
+                                        uw_pnt0[0] = surf->GetSurfCore()->GetMaxU();
+                                    }
+
+                                    if ( uw_pnt1[0] < surf->GetSurfCore()->GetMinU() )
+                                    {
+                                        uw_pnt1[0] = surf->GetSurfCore()->GetMinU();
+                                    }
+                                    else if ( uw_pnt1[0] > surf->GetSurfCore()->GetMaxU() )
+                                    {
+                                        uw_pnt1[0] = surf->GetSurfCore()->GetMaxU();
+                                    }
+
+                                    if ( uw_pnt0[1] < surf->GetSurfCore()->GetMinW() )
+                                    {
+                                        uw_pnt0[1] = surf->GetSurfCore()->GetMinW();
+                                    }
+                                    else if ( uw_pnt0[1] > surf->GetSurfCore()->GetMaxW() )
+                                    {
+                                        uw_pnt0[1] = surf->GetSurfCore()->GetMaxW();
+                                    }
+
+                                    if ( uw_pnt1[1] < surf->GetSurfCore()->GetMinW() )
+                                    {
+                                        uw_pnt1[1] = surf->GetSurfCore()->GetMinW();
+                                    }
+                                    else if ( uw_pnt1[1] > surf->GetSurfCore()->GetMaxW() )
+                                    {
+                                        uw_pnt1[1] = surf->GetSurfCore()->GetMaxW();
+                                    }
+
                                     vec3d corner0 = surf->CompPnt( uw_pnt0[0], uw_pnt0[1] );
                                     vec3d corner1 = surf->CompPnt( uw_pnt1[0], uw_pnt1[1] );
 
                                     if ( ( dist( ( *c )->m_TessVec[0]->m_Pnt, corner0 ) <= FLT_EPSILON
-                                         && dist( ( *c )->m_TessVec.back()->m_Pnt, corner1 ) <= FLT_EPSILON )
+                                            && dist( ( *c )->m_TessVec.back()->m_Pnt, corner1 ) <= FLT_EPSILON )
                                             || ( dist( ( *c )->m_TessVec.back()->m_Pnt, corner0 ) <= FLT_EPSILON
-                                         && dist( ( *c )->m_TessVec[0]->m_Pnt, corner1 ) <= FLT_EPSILON ) )
+                                            && dist( ( *c )->m_TessVec[0]->m_Pnt, corner1 ) <= FLT_EPSILON ) ) 
                                     {
                                         // The border curve is also a SubSurface intersection curve
                                         ( *c )->m_SSIntersectIndex = ss;
