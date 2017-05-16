@@ -166,7 +166,6 @@ protected:
     vector < vec2d > m_FixUWVec; // Vector UW coordinates for FeaFixPoints
     vector < int > m_FixPntFeaPartIndexVec; // Vector of FixPoint FeaPart indexes
     vector < int > m_FixPntBorderFlagVec; // Indicates if the FixPoint lies on a surface, border, or intersection
-    vector < bool > m_FixPntMagicVVec; // Indicates if the parent surface of the FixPoint has MagicV parm
     vector < vector < int > > m_FixPntSurfIndVec; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec
 
     vector < string > m_DrawBrowserNameVec;

@@ -69,7 +69,6 @@ void FeaMeshMgrSingleton::CleanUp()
     m_FixPntFeaPartIndexVec.clear();
     m_FixPntSurfIndVec.clear();
     m_FixPntBorderFlagVec.clear();
-    m_FixPntMagicVVec.clear();
 
     m_DrawBrowserNameVec.clear();
     m_DrawBrowserPartIndexVec.clear();
@@ -357,7 +356,6 @@ void FeaMeshMgrSingleton::AddStructureParts()
                         m_FixUWVec.push_back( uw );
                         m_FixPntSurfIndVec.push_back( surf_index );
                         m_FixPntFeaPartIndexVec.push_back( part_index );
-                        m_FixPntMagicVVec.push_back( fixpnt->m_MagicVParent );
 
                         if ( fixpnt->m_BorderFlag )
                         {
@@ -712,30 +710,19 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                 if ( ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndVec[j][1]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndVec[j][0]] ) ||
                     ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndVec[j][0]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndVec[j][1]] ) )
                 {
-                    if ( m_FixPntMagicVVec[j] )
-                    {
-                        if ( ( m_FixUWVec[j].y() == ( *c )->m_SurfA->GetSurfCore()->GetMaxW() + TMAGIC ) ||
-                            ( m_FixUWVec[j].y() == ( *c )->m_SurfB->GetSurfCore()->GetMaxW() + TMAGIC ) )
-                        {
-                            m_FixUWVec[j].set_y( m_FixUWVec[j].y() - TMAGIC );
-                        }
-                        else if ( ( m_FixUWVec[j].y() == ( *c )->m_SurfA->GetSurfCore()->GetMinW() - TMAGIC ) ||
-                            ( m_FixUWVec[j].y() == ( *c )->m_SurfB->GetSurfCore()->GetMinW() - TMAGIC ) )
-                        {
-                            m_FixUWVec[j].set_y( m_FixUWVec[j].y() + TMAGIC );
-                        }
-                    }
+                    vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( m_FixPntVec[j] );
+                    vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( m_FixPntVec[j] );
 
                     Puw* p0 = NULL;
                     Puw* p1 = NULL;
 
-                    if ( ( *c )->m_SurfA->ValidUW( m_FixUWVec[j] ) )
+                    if ( ( *c )->m_SurfA->ValidUW( closest_uwA ) )
                     {
-                        p0 = new Puw( ( *c )->m_SurfA, m_FixUWVec[j] );
+                        p0 = new Puw( ( *c )->m_SurfA, closest_uwA );
                     }
-                    if ( ( *c )->m_SurfB->ValidUW( m_FixUWVec[j] ) )
+                    if ( ( *c )->m_SurfB->ValidUW( closest_uwB ) )
                     {
-                        p1 = new Puw( ( *c )->m_SurfB, m_FixUWVec[j] );
+                        p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
                     }
 
                     IPnt* split_pnt = new IPnt( p0, p1 );
@@ -752,7 +739,6 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                     string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexVec[j]];
                     string message = "\tBorder Intersect Point Set for " + fix_point_name + "\n";
                     addOutputText( message );
-                    break;
                 }
             }
         }

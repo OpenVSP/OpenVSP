@@ -1451,7 +1451,6 @@ FeaFixPoint::FeaFixPoint( string compID, int type ) : FeaPart( compID, type )
     m_IntersectionCapFlag.Set( false );
     m_FeaPropertyIndex = -1; // No property
     m_CapFeaPropertyIndex = -1; // No property
-    m_MagicVParent = false;
     m_BorderFlag = false;
     m_HalfMeshFlag = false;
 }
@@ -1558,7 +1557,7 @@ void FeaFixPoint::IdentifySplitSurfIndex()
 
     for ( size_t i = 0; i < parent_surf_vec.size(); i++ )
     {
-        // Get U/W values
+        // Get FeaFixPoint U/W values
         vec2d uw = GetUW();
 
         double parent_Umax = parent_surf_vec[i].GetUMax();
@@ -1570,8 +1569,8 @@ void FeaFixPoint::IdentifySplitSurfIndex()
         bool closedU = parent_surf_vec[i].IsClosedU();
         bool closedW = parent_surf_vec[i].IsClosedW();
 
-        // Check if TMAGIC needs to be considered
-        m_MagicVParent = parent_surf_vec[i].IsMagicVParm();
+        // Check if the UW point is on a valid patch (invalid patches are discarded in FetchXFerSurf)
+        bool on_valid_patch = parent_surf_vec[i].OnValidPatch( uw[0], uw[1] );
 
         // Split the parent surface
         vector< XferSurf > tempxfersurfs;
@@ -1600,10 +1599,10 @@ void FeaFixPoint::IdentifySplitSurfIndex()
                 double vmax = tempxfersurfs[j].m_Surface.get_vmax();
                 double vmin = tempxfersurfs[j].m_Surface.get_v0();
 
-                if ( m_MagicVParent )
+                if ( parent_surf_vec[i].IsMagicVParm() && !on_valid_patch )
                 {
-                    vmax = vmax + TMAGIC;
-                    vmin = vmin - TMAGIC;
+                    vmin -= TMAGIC;
+                    vmax += TMAGIC;
                 }
 
                 // Check if FeaFixPoint is on XferSurf or border curve. Note: Not all cases of FeaFixPoints on constant UW intersection curves 
