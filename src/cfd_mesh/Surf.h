@@ -15,7 +15,7 @@
 #include "Vec3d.h"
 
 #include "Mesh.h"
-#include "GridDensity.h"
+#include "SimpleMeshSettings.h"
 #include "SurfPatch.h"
 #include "MapSource.h"
 #include "SurfCore.h"
@@ -75,7 +75,7 @@ public:
 
     void FindBorderCurves();
 
-    void SetGridDensityPtr( GridDensity*  gp )
+    void SetGridDensityPtr( SimpleGridDensity*  gp )
     {
         m_GridDensityPtr = gp;
         m_Mesh.SetGridDensityPtr( gp );
@@ -278,7 +278,7 @@ protected:
 
     vector< SCurve* > m_SCurveVec;
 
-    GridDensity* m_GridDensityPtr;
+    SimpleGridDensity* m_GridDensityPtr;
 
     Mesh m_Mesh;
 

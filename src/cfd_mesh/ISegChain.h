@@ -192,7 +192,7 @@ public:
     void ApplyTess( CfdMeshMgrSingleton *MeshMgr );
 
     void SpreadDensity( );
-    void CalcDensity( GridDensity* grid_den, list< MapSource* > & splitSources );
+    void CalcDensity( SimpleGridDensity* grid_den, list< MapSource* > & splitSources );
     void Tessellate();
     void TessEndPts();
 

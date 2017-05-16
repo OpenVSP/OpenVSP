@@ -192,7 +192,7 @@ double IPntGroup::GroupDistFract( IPntGroup* g, CfdMeshMgrSingleton *MeshMgr )
     double d = GroupDist( g );
     vec3d pnt = m_IPntVec[0]->m_Pnt;
 
-    GridDensity* gdp = MeshMgr->GetGridDensityPtr();
+    SimpleGridDensity* gdp = MeshMgr->GetGridDensityPtr();
 
     double target_dist = gdp->GetTargetLen( pnt );
 
@@ -1270,7 +1270,7 @@ void ISegChain::SpreadDensity( )
     m_ACurve.SpreadDensity( &m_BCurve );
 }
 
-void ISegChain::CalcDensity( GridDensity* grid_den, list< MapSource* > & splitSources )
+void ISegChain::CalcDensity( SimpleGridDensity* grid_den, list< MapSource* > & splitSources )
 {
     m_ACurve.CalcDensity( grid_den, &m_BCurve, splitSources );
 }

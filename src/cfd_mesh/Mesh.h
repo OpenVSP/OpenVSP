@@ -16,7 +16,7 @@
 #include "Tri.h"
 
 class Surf;
-class GridDensity;
+class SimpleGridDensity;
 
 #ifndef WIN32
 #  ifndef NDEBUG
@@ -122,7 +122,7 @@ public:
     {
         m_Surf = sptr;
     }
-    void SetGridDensityPtr ( GridDensity* gptr )
+    void SetGridDensityPtr ( SimpleGridDensity* gptr )
     {
         m_GridDensity = gptr;
     }
@@ -174,7 +174,7 @@ public:
 protected:
 
     Surf* m_Surf;
-    GridDensity* m_GridDensity;
+    SimpleGridDensity* m_GridDensity;
 
     list < Tri* > triList;
     list < Edge* > edgeList;

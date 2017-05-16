@@ -170,7 +170,7 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
             len = min( len, curv_len );
 
             // apply minimum edge length as safety on curvature
-            len = max( len, m_GridDensityPtr->m_MinLen() );
+            len = max( len, m_GridDensityPtr->m_MinLen );
 
             // apply sources
             vec3d p = m_SurfCore.CompPnt( u, w );
@@ -244,7 +244,7 @@ void Surf::WalkMap( int istart, int jstart, int kstart )
 
             double targetstr = m_SrcMap[istart][jstart].m_str +
                     ( m_SrcMap[ icurrent ][ jcurrent ].m_pt - m_SrcMap[istart][jstart].m_pt ).mag() *
-                    (m_GridDensityPtr->m_GrowRatio() - 1.0);
+                    (m_GridDensityPtr->m_GrowRatio - 1.0);
 
             if( m_SrcMap[ icurrent ][ jcurrent ].m_str > targetstr )
             {
@@ -294,7 +294,7 @@ void Surf::WalkMap( int istart, int jstart )
 
         double targetstr = m_SrcMap[istart][jstart].m_str +
                 ( m_SrcMap[ icurrent ][ jcurrent ].m_pt - m_SrcMap[istart][jstart].m_pt ).mag() *
-                (m_GridDensityPtr->m_GrowRatio() - 1.0);
+                (m_GridDensityPtr->m_GrowRatio - 1.0);
 
 
         if( m_SrcMap[ icurrent ][ jcurrent ].m_str > targetstr )
@@ -361,7 +361,7 @@ void Surf::LimitTargetMap()
 
 void Surf::LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap )
 {
-    double grm1 = m_GridDensityPtr->m_GrowRatio() - 1.0;
+    double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
 
     double tmin = min( minmap, es_cloud.sources[0]->m_str );
 
@@ -468,7 +468,7 @@ void Surf::UWtoTargetMapij( double u, double w, int &i, int &j )
 
 void Surf::ApplyES( vec3d uw, double t )
 {
-    double grm1 = m_GridDensityPtr->m_GrowRatio() - 1.0;
+    double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
     int nmapu = m_SrcMap.size();
     int nmapw = m_SrcMap[0].size();
 

@@ -12,7 +12,7 @@
 #define SCURVE_SCURVE__INCLUDED_
 
 #include "Surf.h"
-#include "GridDensity.h"
+#include "SimpleMeshSettings.h"
 #include "BezierCurve.h"
 
 #include "Vec2d.h"
@@ -46,15 +46,15 @@ public:
         return m_Surf;
     }
 
-    double GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u );
+    double GetTargetLen( SimpleGridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u );
 
     void BorderTesselate( );
     void CheapTesselate( );
     void ProjectTessToSurf( SCurve* sca );
     void InterpDistTable( double idouble, double &t, double &u, double &s, double &dsdi );
-    void BuildDistTable( GridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
+    void BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
     void CleanupDistTable();
-    void LimitTarget( GridDensity* grid_den );
+    void LimitTarget( SimpleGridDensity* grid_den );
     void TessEndPts();
     void TessIntegrate();
     void TessRevIntegrate( vector< double > &utess );
@@ -64,7 +64,7 @@ public:
     void SmoothTess();
     void UWTess();
     void SpreadDensity( SCurve* BCurve );
-    void CalcDensity( GridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
+    void CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources );
     void ApplyESSurface( double u, double t );
     void Tesselate();
 

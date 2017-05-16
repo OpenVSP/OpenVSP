@@ -88,7 +88,7 @@ void Mesh::LimitTargetEdgeLength( Node* n )
     el.sort( ShortEdgeTargetLengthCompare );
 
     e = el.begin();
-    double limitlen = ( *e )->target_len * m_GridDensity->m_GrowRatio();
+    double limitlen = ( *e )->target_len * m_GridDensity->m_GrowRatio;
     e++;
 
     for ( ; e != el.end(); e++ )
@@ -103,7 +103,7 @@ void Mesh::LimitTargetEdgeLength( Node* n )
 void Mesh::LimitTargetEdgeLength( Edge* e, Node* notn )
 {
     vector< Edge* >::iterator ne;
-    double growratio = m_GridDensity->m_GrowRatio();
+    double growratio = m_GridDensity->m_GrowRatio;
 
     Node *n = e->OtherNode( notn );
 
@@ -121,7 +121,7 @@ void Mesh::LimitTargetEdgeLength( Edge* e )
 {
     Node *n;
     vector< Edge* >::iterator ne;
-    double growratio = m_GridDensity->m_GrowRatio();
+    double growratio = m_GridDensity->m_GrowRatio;
 
     n = e->n0;
     for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
@@ -149,7 +149,7 @@ void Mesh::LimitTargetEdgeLength()
     Node *n;
     list< Edge* >::iterator e;
     vector< Edge* >::iterator ne;
-    double growratio = m_GridDensity->m_GrowRatio();
+    double growratio = m_GridDensity->m_GrowRatio;
     double limitlen;
 
     edgeList.sort( ShortEdgeTargetLengthCompare );
@@ -1302,7 +1302,7 @@ bool Mesh::SetFixPoint( vec3d fix_pnt, vec2d fix_uw )
 {
     double min_dist = FLT_MAX;
     Node* closest_node = NULL;
-    double tol = m_GridDensity->m_MinLen();
+    double tol = m_GridDensity->m_MinLen;
 
     m_NumFixPointIter++;
 
@@ -1417,7 +1417,7 @@ void Mesh::ComputeTargetEdgeLength( Edge* edge )
 {
     assert( m_GridDensity );
 
-    if( edge->border && edge->m_Length > m_GridDensity->m_MinLen() )
+    if( edge->border && edge->m_Length > m_GridDensity->m_MinLen )
     {
         edge->target_len = edge->m_Length;
     }
