@@ -63,6 +63,7 @@ public:
     virtual void LoadSkins();
     virtual void GenerateFeaMesh();
     virtual void ExportFeaMesh();
+    virtual void TransferMeshSettings();
     virtual void TransferFeaData();
     virtual void TransferSubSurfData();
     virtual void AddStructureParts();

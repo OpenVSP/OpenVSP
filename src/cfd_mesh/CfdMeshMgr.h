@@ -67,6 +67,7 @@
 #include "CfdMeshSettings.h"
 #include "StructSettings.h"
 #include "SimpleSubSurface.h"
+#include "SimpleMeshSettings.h"
 
 #include "Vec2d.h"
 #include "Vec3d.h"
@@ -185,6 +186,8 @@ public:
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
     virtual void GenerateMesh();
+
+    virtual void TransferMeshSettings();
 
     virtual void TransferSubSurfData();
     virtual vector < SimpleSubSurface > GetSimpSubSurfs( string comp_id, int surfnum );
@@ -425,6 +428,10 @@ protected:
 
     StructSettings* m_StructSettingsPtr;
     GridDensity* m_FeaGridDensityPtr;
+    SimpleFeaMeshSettings m_StructSettings;
+    SimpleCfdMeshSettings m_CfdSettings;
+    SimpleGridDensity m_FeaGridDensity;
+    SimpleCfdGridDensity m_CfdGridDensity;
 
     //==== Vector of Surfs that may have a border that lies on Surf A ====//
     map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;

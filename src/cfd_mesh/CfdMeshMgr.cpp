@@ -553,6 +553,15 @@ void CfdMeshMgrSingleton::CleanUp()
     m_SimpleSubSurfaceVec.clear();
 }
 
+void CfdMeshMgrSingleton::TransferMeshSettings()
+{
+    m_CfdSettings = SimpleCfdMeshSettings();
+    m_CfdSettings.CopyFrom( m_Vehicle->GetCfdSettingsPtr() );
+
+    m_CfdGridDensity = SimpleCfdGridDensity();
+    m_CfdGridDensity.CopyFrom( m_Vehicle->GetCfdGridDensityPtr() );
+}
+
 void CfdMeshMgrSingleton::TransferSubSurfData()
 {
     vector < SubSurface* > ss_vec = SubSurfaceMgr.GetSubSurfs();

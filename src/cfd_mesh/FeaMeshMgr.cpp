@@ -142,6 +142,20 @@ void FeaMeshMgrSingleton::LoadSkins()
     }
 }
 
+void FeaMeshMgrSingleton::TransferMeshSettings()
+{
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+
+    if ( fea_struct )
+    {
+        m_StructSettings = SimpleFeaMeshSettings();
+        m_StructSettings.CopyFrom( fea_struct->GetStructSettingsPtr() );
+
+        m_FeaGridDensity = SimpleFeaGridDensity();
+        m_FeaGridDensity.CopyFrom( fea_struct->GetFeaGridDensityPtr() );
+    }
+}
+
 void FeaMeshMgrSingleton::TransferFeaData()
 {
     // Transfer FeaPart Data
@@ -211,6 +225,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 {
     //m_OutStream.clear();
     m_FeaMeshInProgress = true;
+
+    TransferMeshSettings();
 
     addOutputText( "Load Surfaces\n" );
     LoadSurfaces();
