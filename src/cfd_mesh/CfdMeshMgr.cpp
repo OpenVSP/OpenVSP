@@ -5614,3 +5614,18 @@ void CfdMeshMgrSingleton::Subtag( Surf* surf )
         SubSurfaceMgr.m_TagCombos.insert( tri.m_Tags );
     }
 }
+
+void CfdMeshMgrSingleton::UpdateDisplaySettings()
+{
+    if ( GetCfdSettingsPtr() )
+    {
+        GetCfdSettingsPtr()->m_DrawSourceFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawSourceFlag.Get();
+        GetCfdSettingsPtr()->m_DrawFarPreFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawFarPreFlag.Get();
+        GetCfdSettingsPtr()->m_DrawMeshFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
+        GetCfdSettingsPtr()->m_DrawWakeFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawWakeFlag.Get();
+        GetCfdSettingsPtr()->m_DrawSymmFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawSymmFlag.Get();
+        GetCfdSettingsPtr()->m_DrawFarFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawFarFlag.Get();
+        GetCfdSettingsPtr()->m_DrawBadFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawBadFlag.Get();
+        GetCfdSettingsPtr()->m_ColorTagsFlag = m_Vehicle->GetCfdSettingsPtr()->m_ColorTagsFlag.Get();
+    }
+}

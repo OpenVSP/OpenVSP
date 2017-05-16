@@ -2204,3 +2204,17 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         draw_obj_vec.push_back( &m_MeshBadTriDO );
     }
 }
+
+void FeaMeshMgrSingleton::UpdateDisplaySettings()
+{
+    if ( GetStructSettingsPtr() && StructureMgr.GetFeaStruct( m_FeaMeshStructIndex ) )
+    {
+        GetStructSettingsPtr()->m_DrawMeshFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawMeshFlag.Get();
+        GetStructSettingsPtr()->m_DrawBadFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawBadFlag.Get();
+        GetStructSettingsPtr()->m_ColorTagsFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_ColorTagsFlag.Get();
+
+        GetStructSettingsPtr()->m_DrawFeaPartsFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawFeaPartsFlag.Get();
+        GetStructSettingsPtr()->m_DrawNodesFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawNodesFlag.Get();
+        GetStructSettingsPtr()->m_DrawElementOrientVecFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.Get();
+    }
+}

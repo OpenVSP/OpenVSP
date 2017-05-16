@@ -618,6 +618,11 @@ void CfdMeshScreen::UpdateDisplayTab()
     m_ShowFarField.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawFarFlag.GetID() );
     m_ShowBadEdgesAndTriangles.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawBadFlag.GetID() );
     m_ColorTags.Update( m_Vehicle->GetCfdSettingsPtr()->m_ColorTagsFlag.GetID() );
+
+    if ( CfdMeshMgr.GetCfdSettingsPtr() )
+    {
+        CfdMeshMgr.UpdateDisplaySettings();
+    }
 }
 
 void CfdMeshScreen::UpdateOutputTab()

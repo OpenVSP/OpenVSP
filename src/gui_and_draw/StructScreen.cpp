@@ -1684,6 +1684,11 @@ bool StructScreen::Update()
             m_DrawNodesToggle.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_DrawNodesFlag.GetID() );
             m_DrawElementOrientVecToggle.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.GetID() );
 
+            if ( FeaMeshMgr.GetStructSettingsPtr() )
+            {
+                FeaMeshMgr.UpdateDisplaySettings();
+            }
+
             string massname = structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileName( vsp::MASS_FILE_NAME );
             m_MassOutput.Update( truncateFileName( massname, 40 ).c_str() );
             string nastranname = structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME );
