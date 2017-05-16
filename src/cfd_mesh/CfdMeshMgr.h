@@ -61,11 +61,11 @@
 #include "SCurve.h"
 #include "ICurve.h"
 #include "ISegChain.h"
-#include "GridDensity.h"
+//#include "GridDensity.h"
 #include "BezierCurve.h"
 #include "Vehicle.h"
-#include "CfdMeshSettings.h"
-#include "StructSettings.h"
+//#include "CfdMeshSettings.h"
+//#include "StructSettings.h"
 #include "SimpleSubSurface.h"
 #include "SimpleMeshSettings.h"
 
@@ -198,9 +198,9 @@ public:
     virtual void GUI_Val( string name, int val );
     virtual void GUI_Val( string name, string val );
 
-    virtual GridDensity* GetGridDensityPtr()
+    virtual SimpleGridDensity* GetGridDensityPtr()
     {
-        return m_Vehicle->GetCfdGridDensityPtr();
+        return &m_CfdGridDensity;
     }
 
     virtual string GetCurrSourceGeomID()
@@ -362,17 +362,17 @@ public:
 
     stringstream m_OutStream;
 
-    virtual StructSettings* GetStructSettingsPtr()
+    virtual SimpleFeaMeshSettings* GetStructSettingsPtr()
     {
-        return m_StructSettingsPtr;
+        return &m_StructSettings;
     }
-    virtual CfdMeshSettings* GetCfdSettingsPtr()
+    virtual SimpleCfdMeshSettings* GetCfdSettingsPtr()
     {
-        return m_Vehicle->GetCfdSettingsPtr();
+        return &m_CfdSettings;
     }
-    virtual MeshCommonSettings* GetSettingsPtr()
+    virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {
-        return ( MeshCommonSettings* ) m_Vehicle->GetCfdSettingsPtr();
+        return (SimpleMeshCommonSettings* )&m_CfdSettings;
     }
 
     bool GetMeshInProgress()
@@ -426,8 +426,6 @@ protected:
 
     vector< vector< vec3d > > debugRayIsect;
 
-    StructSettings* m_StructSettingsPtr;
-    GridDensity* m_FeaGridDensityPtr;
     SimpleFeaMeshSettings m_StructSettings;
     SimpleCfdMeshSettings m_CfdSettings;
     SimpleGridDensity m_FeaGridDensity;

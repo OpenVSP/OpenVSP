@@ -93,10 +93,6 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
         return false;
     }
 
-    // Save settings
-    m_StructSettingsPtr = fea_struct->GetStructSettingsPtr();
-    m_FeaGridDensityPtr = fea_struct->GetFeaGridDensityPtr();
-
     // Save structure name
     m_StructName = fea_struct->GetFeaStructName();
 
@@ -239,7 +235,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     // Hide all geoms and FeaParts after loading surfaces
     m_Vehicle->HideAll();
-    GetStructSettingsPtr()->m_DrawFeaPartsFlag.Set( false );
+    GetStructSettingsPtr()->m_DrawFeaPartsFlag = false;
 
     TransferFeaData();
     TransferSubSurfData();
@@ -1702,7 +1698,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         m_TriOrientationDO.resize( m_NumFeaParts );
         m_CapNormDO.resize( m_NumFeaParts );
 
-        double line_length = GetGridDensityPtr()->m_MinLen() / 3.0; // Length of orientation vectors
+        double line_length = GetGridDensityPtr()->m_MinLen / 3.0; // Length of orientation vectors
 
         // Calculate constants for color sequence.
         const int ncgrp = 6; // Number of basic colors
@@ -1741,20 +1737,20 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_CapFeaElementDO[cnt].m_Visible = false;
             m_CapFeaElementDO[cnt].m_LineWidth = 3.0;
 
-            if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ||
-                 GetStructSettingsPtr()->m_ColorTagsFlag.Get() )   // At least mesh or tags are visible.
+            if ( GetStructSettingsPtr()->m_DrawMeshFlag ||
+                 GetStructSettingsPtr()->m_ColorTagsFlag )   // At least mesh or tags are visible.
             {
                 m_FeaElementDO[cnt].m_Visible = true;
 
                 if ( !m_FixPointFeaPartFlagVec[cnt] )
                 {
-                    if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() &&
-                         GetStructSettingsPtr()->m_ColorTagsFlag.Get() ) // Both are visible.
+                    if ( GetStructSettingsPtr()->m_DrawMeshFlag &&
+                         GetStructSettingsPtr()->m_ColorTagsFlag ) // Both are visible.
                     {
                         m_FeaElementDO[cnt].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
                         m_FeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                     }
-                    else if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ) // Mesh only
+                    else if ( GetStructSettingsPtr()->m_DrawMeshFlag ) // Mesh only
                     {
                         m_FeaElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS;
                         m_FeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
@@ -1766,7 +1762,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
 
-            if ( GetStructSettingsPtr()->m_ColorTagsFlag.Get() )
+            if ( GetStructSettingsPtr()->m_ColorTagsFlag )
             {
                 // Color sequence -- go around color wheel ncstep times with slight
                 // offset from ncgrp basic colors.
@@ -1808,7 +1804,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             draw_obj_vec.push_back( &m_FeaNodeDO[cnt] );
             draw_obj_vec.push_back( &m_FeaElementDO[cnt] );
 
-            if ( GetStructSettingsPtr()->m_DrawNodesFlag() && m_DrawElementFlagVec[cnt] )
+            if ( GetStructSettingsPtr()->m_DrawNodesFlag && m_DrawElementFlagVec[cnt] )
             {
                 m_FeaNodeDO[cnt].m_Visible = true;
 
@@ -1886,7 +1882,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_CapNormDO[cnt].m_Type = DrawObj::VSP_LINES;
             m_CapNormDO[cnt].m_LineWidth = 1.0;
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawElementFlagVec[cnt] )
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[cnt] )
             {
                 m_TriOrientationDO[cnt].m_Visible = true;
             }
@@ -1895,7 +1891,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_TriOrientationDO[cnt].m_Visible = false;
             }
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawElementFlagVec[cnt] )
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[cnt] )
             {
                 m_CapNormDO[cnt].m_Visible = true;
             }
@@ -1970,18 +1966,18 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_SSCapFeaElementDO[cnt].m_Visible = false;
             m_SSCapFeaElementDO[cnt].m_LineWidth = 3.0;
 
-            if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ||
-                 GetStructSettingsPtr()->m_ColorTagsFlag.Get() )   // At least mesh or tags are visible.
+            if ( GetStructSettingsPtr()->m_DrawMeshFlag ||
+                 GetStructSettingsPtr()->m_ColorTagsFlag )   // At least mesh or tags are visible.
             {
                 m_SSFeaElementDO[cnt].m_Visible = true;
 
-                if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() &&
-                     GetStructSettingsPtr()->m_ColorTagsFlag.Get() ) // Both are visible.
+                if ( GetStructSettingsPtr()->m_DrawMeshFlag &&
+                     GetStructSettingsPtr()->m_ColorTagsFlag ) // Both are visible.
                 {
                     m_SSFeaElementDO[cnt].m_Type = DrawObj::VSP_WIRE_SHADED_TRIS;
                     m_SSFeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
                 }
-                else if ( GetStructSettingsPtr()->m_DrawMeshFlag.Get() ) // Mesh only
+                else if ( GetStructSettingsPtr()->m_DrawMeshFlag ) // Mesh only
                 {
                     m_SSFeaElementDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS;
                     m_SSFeaElementDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
@@ -1992,7 +1988,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
 
-            if ( GetStructSettingsPtr()->m_ColorTagsFlag.Get() )
+            if ( GetStructSettingsPtr()->m_ColorTagsFlag )
             {
                 // Color sequence -- go around color wheel ncstep times with slight
                 // offset from ncgrp basic colors.
@@ -2032,7 +2028,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
-            if ( GetStructSettingsPtr()->m_DrawNodesFlag() && m_DrawElementFlagVec[i] )
+            if ( GetStructSettingsPtr()->m_DrawNodesFlag && m_DrawElementFlagVec[i] )
             {
                 m_SSFeaNodeDO[i].m_Visible = true;
 
@@ -2094,7 +2090,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_SSCapNormDO[i].m_Type = DrawObj::VSP_LINES;
             m_SSCapNormDO[i].m_LineWidth = 1.0;
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawElementFlagVec[i] )
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[i] )
             {
                 m_SSTriOrientationDO[i].m_Visible = true;
             }
@@ -2103,7 +2099,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_SSTriOrientationDO[i].m_Visible = false;
             }
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag() && m_DrawElementFlagVec[i] )
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[i] )
             {
                 m_SSCapNormDO[i].m_Visible = true;
             }
@@ -2169,7 +2165,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         // Render bad edges
         m_MeshBadEdgeDO.m_GeomID = GetID() + "BADEDGE";
         m_MeshBadEdgeDO.m_Type = DrawObj::VSP_LINES;
-        m_MeshBadEdgeDO.m_Visible = GetStructSettingsPtr()->m_DrawBadFlag.Get();
+        m_MeshBadEdgeDO.m_Visible = GetStructSettingsPtr()->m_DrawBadFlag;
         m_MeshBadEdgeDO.m_LineColor = vec3d( 1, 0, 0 );
         m_MeshBadEdgeDO.m_LineWidth = 3.0;
 
@@ -2189,7 +2185,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
         m_MeshBadTriDO.m_GeomID = GetID() + "BADTRI";
         m_MeshBadTriDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-        m_MeshBadTriDO.m_Visible = GetStructSettingsPtr()->m_DrawBadFlag.Get();
+        m_MeshBadTriDO.m_Visible = GetStructSettingsPtr()->m_DrawBadFlag;
         m_MeshBadTriDO.m_LineColor = vec3d( 1, 0, 0 );
         m_MeshBadTriDO.m_LineWidth = 3.0;
 

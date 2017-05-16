@@ -274,7 +274,7 @@ void WakeMgr::AppendWakeSurfs( vector< Surf* > & surf_vec )
 
 void WakeMgr::StretchWakes()
 {
-    double scale = CfdMeshMgr.GetCfdSettingsPtr()->GetWakeScale();
+    double scale = CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale;
     for ( int i = 0 ; i < ( int )m_WakeVec.size() ; i++ )
     {
         for ( int j = 0 ; j < ( int )m_WakeVec[i]->m_SurfVec.size() ; j++ )
@@ -314,7 +314,7 @@ void WakeMgr::Draw()
 
 void WakeMgr::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    double scale = CfdMeshMgr.GetCfdSettingsPtr()->GetWakeScale();
+    double scale = CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale;
     double factor = scale - 1.0;
 
     vector< vec3d > wakeData;
@@ -399,6 +399,8 @@ void CfdMeshMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
 void CfdMeshMgrSingleton::GenerateMesh()
 {
     m_MeshInProgress = true;
+
+    TransferMeshSettings();
 
     addOutputText( "Fetching Bezier Surfaces\n" );
 
@@ -884,7 +886,7 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
         Geom* geom = m_Vehicle->FindGeom( geomVec[g] );
         if ( geom )
         {
-            if ( geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex() ) )
+            if ( geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex ) )
             {
                 geom->UpdateSources();
                 vector< BaseSimpleSource* > sVec = geom->GetCfdMeshSimpSourceVec();
@@ -903,7 +905,7 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
     BndBox box = m_Vehicle->GetBndBox();
     m_WakeMgr.SetStartStretchX( box.GetMax( 0 ) + 0.01 * box.GetLargestDist() );
     m_WakeMgr.SetEndX( box.GetMax( 0 ) + 0.5 * box.GetLargestDist() );
-    m_WakeMgr.SetAngle( GetCfdSettingsPtr()->GetWakeAngle() );
+    m_WakeMgr.SetAngle( GetCfdSettingsPtr()->m_WakeAngle );
 
 }
 
@@ -918,32 +920,32 @@ void CfdMeshMgrSingleton::UpdateDomain()
 
     vec3d xyzc = m_Domain.GetCenter();
 
-    if ( GetCfdSettingsPtr()->GetFarMeshFlag() )
+    if ( GetCfdSettingsPtr()->m_FarMeshFlag )
     {
-        if( !GetCfdSettingsPtr()->GetFarCompFlag() )
+        if( !GetCfdSettingsPtr()->m_FarCompFlag )
         {
-            if ( GetCfdSettingsPtr()->GetFarAbsSizeFlag() )
+            if ( GetCfdSettingsPtr()->m_FarAbsSizeFlag )
             {
-                GetCfdSettingsPtr()->m_FarXScale = GetCfdSettingsPtr()->m_FarLength() / lwh.x();
-                GetCfdSettingsPtr()->m_FarYScale = GetCfdSettingsPtr()->m_FarWidth() / lwh.y();
-                GetCfdSettingsPtr()->m_FarZScale = GetCfdSettingsPtr()->m_FarHeight() / lwh.z();
+                GetCfdSettingsPtr()->m_FarXScale = GetCfdSettingsPtr()->m_FarLength / lwh.x();
+                GetCfdSettingsPtr()->m_FarYScale = GetCfdSettingsPtr()->m_FarWidth / lwh.y();
+                GetCfdSettingsPtr()->m_FarZScale = GetCfdSettingsPtr()->m_FarHeight / lwh.z();
 
-                lwh = vec3d( GetCfdSettingsPtr()->m_FarLength(), GetCfdSettingsPtr()->m_FarWidth(), GetCfdSettingsPtr()->m_FarHeight() );
+                lwh = vec3d( GetCfdSettingsPtr()->m_FarLength, GetCfdSettingsPtr()->m_FarWidth, GetCfdSettingsPtr()->m_FarHeight );
             }
             else
             {
-                lwh.scale_x( GetCfdSettingsPtr()->m_FarXScale() );
-                lwh.scale_y( GetCfdSettingsPtr()->m_FarYScale() );
-                lwh.scale_z( GetCfdSettingsPtr()->m_FarZScale() );
+                lwh.scale_x( GetCfdSettingsPtr()->m_FarXScale );
+                lwh.scale_y( GetCfdSettingsPtr()->m_FarYScale );
+                lwh.scale_z( GetCfdSettingsPtr()->m_FarZScale );
 
                 GetCfdSettingsPtr()->m_FarLength = lwh.x();
                 GetCfdSettingsPtr()->m_FarWidth = lwh.y();
                 GetCfdSettingsPtr()->m_FarHeight = lwh.z();
             }
 
-            if ( GetCfdSettingsPtr()->GetFarManLocFlag() )
+            if ( GetCfdSettingsPtr()->m_FarManLocFlag )
             {
-                vec3d xyz0 = vec3d( GetCfdSettingsPtr()->m_FarXLocation(), GetCfdSettingsPtr()->m_FarYLocation(), GetCfdSettingsPtr()->m_FarZLocation() );
+                vec3d xyz0 = vec3d( GetCfdSettingsPtr()->m_FarXLocation, GetCfdSettingsPtr()->m_FarYLocation, GetCfdSettingsPtr()->m_FarZLocation );
                 xyzc = xyz0;
                 xyzc.v[0] += lwh.v[0] / 2.0;
             }
@@ -971,7 +973,7 @@ void CfdMeshMgrSingleton::UpdateDomain()
         m_Domain.Expand( 1.0 );
     }
 
-    if ( GetCfdSettingsPtr()->GetHalfMeshFlag() )
+    if ( GetCfdSettingsPtr()->m_HalfMeshFlag )
     {
         m_Domain.SetMin( 1, 0.0 );
     }
@@ -984,7 +986,7 @@ void CfdMeshMgrSingleton::AddDefaultSources()
         vector<string> geomVec = m_Vehicle->GetGeomVec();
         for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
         {
-            double base_len = GetGridDensityPtr()->GetBaseLen();
+            double base_len = GetGridDensityPtr()->m_BaseLen;
             Geom* gi = m_Vehicle->FindGeom( geomVec[g] );
             if ( gi )
             {
@@ -1003,25 +1005,25 @@ void CfdMeshMgrSingleton::AddDefaultSourcesCurrGeom()
         return;
     }
 
-    double base_len = GetGridDensityPtr()->GetBaseLen();
+    double base_len = GetGridDensityPtr()->m_BaseLen;
     curr_geom->AddDefaultSources( base_len );
 }
 
 void CfdMeshMgrSingleton::ScaleTriSize( double scale )
 {
-    GetGridDensityPtr()->m_BaseLen = scale * GetGridDensityPtr()->m_BaseLen();
-    GetGridDensityPtr()->m_MinLen = scale * GetGridDensityPtr()->m_MinLen();
-    GetGridDensityPtr()->m_MaxGap = scale * GetGridDensityPtr()->m_MaxGap();
-    GetGridDensityPtr()->m_NCircSeg = GetGridDensityPtr()->m_NCircSeg() / scale;
-    GetGridDensityPtr()->m_FarMaxLen = scale * GetGridDensityPtr()->m_FarMaxLen();
-    GetGridDensityPtr()->m_FarMaxGap = scale * GetGridDensityPtr()->m_FarMaxGap();
-    GetGridDensityPtr()->m_FarNCircSeg = GetGridDensityPtr()->m_FarNCircSeg() / scale;
+    GetGridDensityPtr()->m_BaseLen = scale * GetGridDensityPtr()->m_BaseLen;
+    GetGridDensityPtr()->m_MinLen = scale * GetGridDensityPtr()->m_MinLen;
+    GetGridDensityPtr()->m_MaxGap = scale * GetGridDensityPtr()->m_MaxGap;
+    GetGridDensityPtr()->m_NCircSeg = GetGridDensityPtr()->m_NCircSeg / scale;
+    GetGridDensityPtr()->m_FarMaxLen = scale * GetGridDensityPtr()->m_FarMaxLen;
+    GetGridDensityPtr()->m_FarMaxGap = scale * GetGridDensityPtr()->m_FarMaxGap;
+    GetGridDensityPtr()->m_FarNCircSeg = GetGridDensityPtr()->m_FarNCircSeg / scale;
     GetGridDensityPtr()->ScaleAllSources( scale );
 }
 
 void CfdMeshMgrSingleton::FetchSurfs( vector< XferSurf > &xfersurfs )
 {
-    m_Vehicle->FetchXFerSurfs( GetCfdSettingsPtr()->m_SelectedSetIndex(), xfersurfs );
+    m_Vehicle->FetchXFerSurfs( GetCfdSettingsPtr()->m_SelectedSetIndex, xfersurfs );
 }
 
 void CfdMeshMgrSingleton::LoadSurfs( vector< XferSurf > &xfersurfs )
@@ -1073,12 +1075,12 @@ void CfdMeshMgrSingleton::CleanMergeSurfs()
         Surf* surfPtr = surfs[s];
 
         bool addSurfFlag = true;
-        if ( GetSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->LessThanY( 1e-6 ) )
+        if ( GetSettingsPtr()->m_HalfMeshFlag && surfPtr->GetSurfCore()->LessThanY( 1e-6 ) )
         {
             addSurfFlag = false;
         }
 
-        if ( GetSettingsPtr()->GetHalfMeshFlag() && surfPtr->GetSurfCore()->PlaneAtYZero() )
+        if ( GetSettingsPtr()->m_HalfMeshFlag && surfPtr->GetSurfCore()->PlaneAtYZero() )
         {
             addSurfFlag = false;
         }
@@ -1152,13 +1154,13 @@ void CfdMeshMgrSingleton::BuildDomain()
 
 
     //==== Mark & Change Modes for Component Far Field ====//
-    if ( GetCfdSettingsPtr()->GetFarMeshFlag() )
+    if ( GetCfdSettingsPtr()->m_FarMeshFlag )
     {
-        if ( GetCfdSettingsPtr()->GetFarCompFlag() )
+        if ( GetCfdSettingsPtr()->m_FarCompFlag )
         {
             for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
             {
-                if ( m_SurfVec[i]->GetGeomID() == GetCfdSettingsPtr()->GetFarGeomID() )
+                if ( m_SurfVec[i]->GetGeomID() == GetCfdSettingsPtr()->m_FarGeomID )
                 {
                     m_SurfVec[i]->SetFarFlag( true );
                     m_SurfVec[i]->SetSurfaceCfdType(vsp::CFD_TRANSPARENT);
@@ -1316,7 +1318,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
         }
     }
 
-    if( GetGridDensityPtr()->GetRigorLimit() )
+    if( GetGridDensityPtr()->m_RigorLimit )
     {
         if ( output_type != CfdMeshMgrSingleton::QUIET_OUTPUT )
         {
@@ -1404,7 +1406,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
-        if ( GetSettingsPtr()->GetIntersectSubSurfs() )
+        if ( GetSettingsPtr()->m_IntersectSubSurfs )
         {
             Subtag( m_SurfVec[i] );
         }
@@ -1442,7 +1444,7 @@ void CfdMeshMgrSingleton::RemeshSingleComp( int comp_id, int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
-        if ( GetSettingsPtr()->GetIntersectSubSurfs() )
+        if ( GetSettingsPtr()->m_IntersectSubSurfs )
         {
             Subtag( m_SurfVec[i] );
         }
@@ -1498,7 +1500,7 @@ void CfdMeshMgrSingleton::PrintQual()
 
 void CfdMeshMgrSingleton::ExportFiles()
 {
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get() )
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME ) )
     {
         if ( !m_Vehicle->m_STLMultiSolid() )
         {
@@ -1509,50 +1511,50 @@ void CfdMeshMgrSingleton::ExportFiles()
             WriteTaggedSTL( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME ) );
         }
     }
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME )->Get() )
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_POLY_FILE_NAME ) )
     {
         WriteTetGen( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_POLY_FILE_NAME ) );
     }
 
     string dat_fn;
-    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_DAT_FILE_NAME )->Get() )
+    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_DAT_FILE_NAME ) )
     {
         dat_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_DAT_FILE_NAME );
     }
     string key_fn;
-    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_KEY_FILE_NAME )->Get() )
+    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_KEY_FILE_NAME ) )
     {
         key_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_KEY_FILE_NAME );
     }
     string obj_fn;
-    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_OBJ_FILE_NAME )->Get() )
+    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_OBJ_FILE_NAME ) )
     {
         obj_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_OBJ_FILE_NAME );
     }
     string tri_fn;
-    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TRI_FILE_NAME )->Get() )
+    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TRI_FILE_NAME ) )
     {
         tri_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TRI_FILE_NAME );
     }
     string gmsh_fn;
-    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME )->Get() )
+    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_GMSH_FILE_NAME ) )
     {
         gmsh_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_GMSH_FILE_NAME );
     }
 
     WriteNASCART_Obj_Tri_Gmsh( dat_fn, key_fn, obj_fn, tri_fn, gmsh_fn );
 
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_FACET_FILE_NAME )->Get() )
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_FACET_FILE_NAME ) )
     {
         WriteFacet( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_FACET_FILE_NAME ) );
     }
 
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->Get() )
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME ) )
     {
         WriteSurfsIntCurves( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_SRF_FILE_NAME ) );
     }
 
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME )->Get() )
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME ) )
     {
         SubSurfaceMgr.WriteKeyFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TKEY_FILE_NAME ) );
     }
@@ -1752,11 +1754,11 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
         Geom* geom = m_Vehicle->FindGeom( geomVec[i] );
         if ( geom )
         {
-            if ( geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex() ) )
+            if ( geom->GetSetFlag( GetCfdSettingsPtr()->m_SelectedSetIndex ) )
             {
-                if ( GetCfdSettingsPtr()->GetFarMeshFlag() && GetCfdSettingsPtr()->GetFarCompFlag() )
+                if ( GetCfdSettingsPtr()->m_FarMeshFlag && GetCfdSettingsPtr()->m_FarCompFlag )
                 {
-                    if ( geom->GetID() != GetCfdSettingsPtr()->GetFarGeomID() )
+                    if ( geom->GetID() != GetCfdSettingsPtr()->m_FarGeomID )
                     {
                         geom->GetInteriorPnts( interiorPntVec );
                     }
@@ -1769,7 +1771,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
         }
     }
 
-    if ( GetCfdSettingsPtr()->GetHalfMeshFlag() )
+    if ( GetCfdSettingsPtr()->m_HalfMeshFlag )
     {
         vector< vec3d > tmpPntVec;
         for ( int i = 0 ; i < ( int )interiorPntVec.size() ; i++ )
@@ -2296,7 +2298,7 @@ void CfdMeshMgrSingleton::WriteSurfsIntCurves( const string &filename )
             }
             ipntVec.push_back( border_curves[i]->m_ISegDeque.back()->m_IPnt[1] );
 
-            if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag() )
+            if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag )
             {
                 fprintf( fp, "%d		// Number of Border Points (Au, Aw, Bu, Bw) \n", ( int )ipntVec.size() );
             }
@@ -2310,7 +2312,7 @@ void CfdMeshMgrSingleton::WriteSurfsIntCurves( const string &filename )
                 Puw* pwA = ipntVec[j]->GetPuw( surfA );
                 Puw* pwB = ipntVec[j]->GetPuw( surfB );
 
-                if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag() )
+                if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag )
                 {
                     fprintf( fp, "%d    %16.16lf, %16.16lf, %16.16lf, %16.16lf \n", j,
                              pwA->m_UW.x(), pwA->m_UW.y(), pwB->m_UW.x(), pwB->m_UW.y() );
@@ -2353,7 +2355,7 @@ void CfdMeshMgrSingleton::WriteSurfsIntCurves( const string &filename )
             }
             ipntVec.push_back( intersect_curves[i]->m_ISegDeque.back()->m_IPnt[1] );
 
-            if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag() )
+            if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag )
             {
                 fprintf( fp, "%d		// Number of Intersect Points (Au, Aw, Bu, Bw) \n", ( int )ipntVec.size() );
             }
@@ -2367,7 +2369,7 @@ void CfdMeshMgrSingleton::WriteSurfsIntCurves( const string &filename )
                 Puw* pwA = ipntVec[j]->GetPuw( surfA );
                 Puw* pwB = ipntVec[j]->GetPuw( surfB );
 
-                if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag() )
+                if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag )
                 {
                     fprintf( fp, "%d    %16.16lf, %16.16lf, %16.16lf, %16.16lf \n", j,
                              pwA->m_UW.x(), pwA->m_UW.y(), pwB->m_UW.x(), pwB->m_UW.y() );
@@ -2658,7 +2660,7 @@ void CfdMeshMgrSingleton::BuildCurves()
 void CfdMeshMgrSingleton::Intersect()
 {
 
-    if ( GetCfdSettingsPtr()->GetIntersectSubSurfs() ) BuildSubSurfIntChains();
+    if ( GetSettingsPtr()->m_IntersectSubSurfs ) BuildSubSurfIntChains();
 
     //==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
@@ -2692,9 +2694,9 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
     vec3d innerBottomRight, innerBottomLeft, innerTopRight, innerTopLeft;
     vector<vec3d> corners;
     BndBox vehicleBBox = m_Vehicle->GetBndBox();
-    CfdMeshSettings* settings = GetCfdSettingsPtr();
-    double farXScale = settings->m_FarXScale.Get();
-    double farZScale = settings->m_FarZScale.Get();
+    SimpleCfdMeshSettings* settings = GetCfdSettingsPtr();
+    double farXScale = settings->m_FarXScale;
+    double farZScale = settings->m_FarZScale;
     double min = farXScale;
     double scale = 2.0;
     bool isInside = true;
@@ -2729,7 +2731,7 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
     //Checks to see if inner plane is outside of outer plane
     if ((innerBottomLeft.x() < outerBottomLeft.x() || innerBottomRight.x() > outerBottomRight.x()
             || innerTopLeft.z() > outerTopLeft.z() ||  innerBottomLeft.z() < outerBottomLeft.z())
-        && GetCfdSettingsPtr()->GetFarManLocFlag())
+        && GetCfdSettingsPtr()->m_FarManLocFlag)
     {
         isInside = false;
     }
@@ -2737,8 +2739,8 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
     //Begin making the symmetry planes and rest of the box
     int index = 0;
     vector < vec3d > p0;
-    if (GetCfdSettingsPtr()->GetHalfMeshFlag() &&
-            GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+    if (GetCfdSettingsPtr()->m_HalfMeshFlag &&
+            GetCfdSettingsPtr()->m_SymSplittingOnFlag && isInside)
     {
         p0.resize( 10 );
         p0[index++] = innerBottomRight;
@@ -2760,8 +2762,8 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
     vector < vec3d > p1;
     index = 0;
-    if (GetCfdSettingsPtr()->GetHalfMeshFlag() &&
-        GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+    if (GetCfdSettingsPtr()->m_HalfMeshFlag &&
+        GetCfdSettingsPtr()->m_SymSplittingOnFlag && isInside)
     {
         p1.resize( 10 );
         p1[index++] = innerBottomLeft;
@@ -2783,8 +2785,8 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
     vector < vec3d > p2;
     index = 0;
-    if (GetCfdSettingsPtr()->GetHalfMeshFlag() &&
-        GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+    if (GetCfdSettingsPtr()->m_HalfMeshFlag &&
+        GetCfdSettingsPtr()->m_SymSplittingOnFlag && isInside)
     {
         p2.resize( 10 );
         p2[index++] = innerTopRight;
@@ -2806,8 +2808,8 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
 
     vector < vec3d > p3;
     index = 0;
-    if (GetCfdSettingsPtr()->GetHalfMeshFlag() &&
-        GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+    if (GetCfdSettingsPtr()->m_HalfMeshFlag &&
+        GetCfdSettingsPtr()->m_SymSplittingOnFlag && isInside)
     {
         p3.resize( 10 );
         p3[index++] = innerTopLeft;
@@ -2832,9 +2834,9 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
     int ndomain = 0;
 
     // Half mesh with no outer domain or component outer domain
-    if ( GetCfdSettingsPtr()->GetHalfMeshFlag())
+    if ( GetCfdSettingsPtr()->m_HalfMeshFlag )
     {
-        if (GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+        if (GetCfdSettingsPtr()->m_SymSplittingOnFlag && isInside)
         {
             ndomain = 5;
         }
@@ -2845,9 +2847,9 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
     }
 
     // Box outer domain, half or full mesh.
-    if ( GetCfdSettingsPtr()->GetFarMeshFlag() && !GetCfdSettingsPtr()->GetFarCompFlag())
+    if ( GetCfdSettingsPtr()->m_FarMeshFlag && !GetCfdSettingsPtr()->m_FarCompFlag)
     {
-        if (GetCfdSettingsPtr()->GetSymSplittingOnFlag() && isInside)
+        if (GetCfdSettingsPtr()->m_SymSplittingOnFlag && isInside)
         {
             ndomain = 10;
         }
@@ -2871,20 +2873,20 @@ vector< Surf* > CfdMeshMgrSingleton::CreateDomainSurfs()
         domainSurfs[i]->SetSurfaceCfdType(vsp::CFD_TRANSPARENT);
 
         //If symmetry and plane is inside outer plane
-        if( GetCfdSettingsPtr()->GetSymSplittingOnFlag() &&
-                i < 5 && GetCfdSettingsPtr()->GetHalfMeshFlag() && isInside)
+        if( GetCfdSettingsPtr()->m_SymSplittingOnFlag &&
+                i < 5 && GetCfdSettingsPtr()->m_HalfMeshFlag && isInside)
         {
             domainSurfs[i]->SetSymPlaneFlag( true );
         }
         //If symmetry plane and inside plane is not within outer plane
-        else if (GetCfdSettingsPtr()->GetSymSplittingOnFlag() &&
-                 i < 1 && GetCfdSettingsPtr()->GetHalfMeshFlag() && !isInside)
+        else if (GetCfdSettingsPtr()->m_SymSplittingOnFlag &&
+                 i < 1 && GetCfdSettingsPtr()->m_HalfMeshFlag && !isInside)
         {
             domainSurfs[i]->SetSymPlaneFlag( true );
         }
         //If symmetry splitting is off
-        else if (!GetCfdSettingsPtr()->GetSymSplittingOnFlag() &&
-                 i < 1 && GetCfdSettingsPtr()->GetHalfMeshFlag())
+        else if (!GetCfdSettingsPtr()->m_SymSplittingOnFlag &&
+                 i < 1 && GetCfdSettingsPtr()->m_HalfMeshFlag )
         {
             domainSurfs[i]->SetSymPlaneFlag( true );
         }
@@ -4004,7 +4006,7 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
     // tol_fract previously was compared to the distance between groups as a fraction of the local edge length.
     // However, it currently is simply compared to the distance between groups.
     // Consequently, while a reasonable value was previously 1e-2, a much smaller value is now appropriate.
-    double tol_fract = GetGridDensityPtr()->m_MinLen() / 100.0;
+    double tol_fract = GetGridDensityPtr()->m_MinLen / 100.0;
     MergeIPntGroups( iPntGroupList, tol_fract );
 
     //==== Merge Ipnts In Groups ====//
@@ -4138,7 +4140,7 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
             {
                 // Trim Symmetry plane
                 if ( symPlane && m_SurfVec[b]->GetFarFlag() &&
-                     GetSettingsPtr()->GetFarCompFlag() )
+                     GetSettingsPtr()->m_FarCompFlag )
                 {
                     return true;
                 }
@@ -4238,7 +4240,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         {
             vector< vector< double > > t_vec_vec;
 
-            if ( GetSettingsPtr()->GetSymSplittingOnFlag() )
+            if ( GetSettingsPtr()->m_SymSplittingOnFlag )
             {
                 t_vec_vec.resize( m_NumComps + 10 );  // + 10 to handle possibility of outer domain and symmetry plane.
                 ( *t )->insideSurf.resize(m_NumComps + 10);
@@ -4266,7 +4268,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
                     else if ( m_SurfVec[i]->GetFarFlag() && m_SurfVec[s]->GetSymPlaneFlag() &&
-                              GetSettingsPtr()->GetFarCompFlag() ) // Unless trimming sym plane by outer domain
+                              GetSettingsPtr()->m_FarCompFlag ) // Unless trimming sym plane by outer domain
                     {
                         m_SurfVec[i]->IntersectLineSeg( cp, ep, t_vec_vec[comp_id] );
                     }
@@ -4282,7 +4284,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 if ( c >= 0 && c < ( *t )->insideSurf.size() )
                 {
                     if ( m_SurfVec[s]->GetSymPlaneFlag() && m_SurfVec[i]->GetFarFlag() &&
-                         GetSettingsPtr()->GetFarCompFlag() )
+                         GetSettingsPtr()->m_FarCompFlag )
                     {
                         if ( ( int )( t_vec_vec[c].size() + 1 ) % 2 == 1 ) // +1 Reverse action on sym plane wrt outer boundary.
                         {
@@ -4376,7 +4378,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     }
 
     //==== Check For Half Mesh ====//
-    if ( GetSettingsPtr()->GetHalfMeshFlag() )
+    if ( GetSettingsPtr()->m_HalfMeshFlag )
     {
         for ( s = 0 ; s < ( int )m_SurfVec.size() ; s++ )
         {
@@ -4393,7 +4395,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 }
             }
 
-            if( !GetSettingsPtr()->GetFarMeshFlag() ) // Don't keep symmetry plane.
+            if( !GetSettingsPtr()->m_FarMeshFlag ) // Don't keep symmetry plane.
             {
                 if ( m_SurfVec[s]->GetSymPlaneFlag() )
                 {
@@ -4870,26 +4872,26 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     }
 
     GetGridDensityPtr()->Highlight( GetCurrSource() );
-    GetGridDensityPtr()->Show( GetCfdSettingsPtr()->m_DrawSourceFlag.Get() );
+    GetGridDensityPtr()->Show( GetCfdSettingsPtr()->m_DrawSourceFlag );
     GetGridDensityPtr()->LoadDrawObjs( draw_obj_vec );
 
-    m_WakeMgr.Show( GetCfdSettingsPtr()->m_DrawSourceFlag.Get() );
+    m_WakeMgr.Show( GetCfdSettingsPtr()->m_DrawSourceFlag );
     m_WakeMgr.LoadDrawObjs( draw_obj_vec );
 
-    if( GetCfdSettingsPtr()->m_DrawFarPreFlag.Get() && GetCfdSettingsPtr()->GetFarMeshFlag() )
+    if( GetCfdSettingsPtr()->m_DrawFarPreFlag && GetCfdSettingsPtr()->m_FarMeshFlag )
     {
         UpdateBBoxDO( m_Domain );
     }
-    m_BBoxLineStripDO.m_Visible = GetCfdSettingsPtr()->m_DrawFarPreFlag.Get() && GetCfdSettingsPtr()->GetFarMeshFlag();
+    m_BBoxLineStripDO.m_Visible = GetCfdSettingsPtr()->m_DrawFarPreFlag && GetCfdSettingsPtr()->m_FarMeshFlag;
     draw_obj_vec.push_back( &m_BBoxLineStripDO );
-    m_BBoxLinesDO.m_Visible = GetCfdSettingsPtr()->m_DrawFarPreFlag.Get() && GetCfdSettingsPtr()->GetFarMeshFlag();
+    m_BBoxLinesDO.m_Visible = GetCfdSettingsPtr()->m_DrawFarPreFlag && GetCfdSettingsPtr()->m_FarMeshFlag;
     draw_obj_vec.push_back( &m_BBoxLinesDO );
 
     //Symmetry Splitting
-    m_BBoxLineStripSymSplit.m_Visible = GetCfdSettingsPtr()->m_DrawFarPreFlag.Get()
-                                        && GetCfdSettingsPtr()->GetFarMeshFlag()
-                                        && GetCfdSettingsPtr()->GetSymSplittingOnFlag()
-                                        && !GetCfdSettingsPtr()->GetFarCompFlag();
+    m_BBoxLineStripSymSplit.m_Visible = GetCfdSettingsPtr()->m_DrawFarPreFlag
+                                        && GetCfdSettingsPtr()->m_FarMeshFlag
+                                        && GetCfdSettingsPtr()->m_SymSplittingOnFlag
+                                        && !GetCfdSettingsPtr()->m_FarCompFlag;
     draw_obj_vec.push_back( &m_BBoxLineStripSymSplit );
     m_BBoxLineSymSplit.m_Visible = m_BBoxLineStripSymSplit.m_Visible;
     draw_obj_vec.push_back( &m_BBoxLineSymSplit );
@@ -4918,18 +4920,18 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
         m_TagDO[cnt].m_Type = DrawObj::VSP_SHADED_TRIS;
         m_TagDO[cnt].m_Visible = false;
-        if ( GetCfdSettingsPtr()->m_DrawMeshFlag.Get() ||
-             GetCfdSettingsPtr()->m_ColorTagsFlag.Get() )   // At least mesh or tags are visible.
+        if ( GetCfdSettingsPtr()->m_DrawMeshFlag ||
+             GetCfdSettingsPtr()->m_ColorTagsFlag )   // At least mesh or tags are visible.
         {
             m_TagDO[cnt].m_Visible = true;
 
-            if ( GetCfdSettingsPtr()->m_DrawMeshFlag.Get() &&
-                 GetCfdSettingsPtr()->m_ColorTagsFlag.Get() ) // Both are visible.
+            if ( GetCfdSettingsPtr()->m_DrawMeshFlag &&
+                 GetCfdSettingsPtr()->m_ColorTagsFlag ) // Both are visible.
             {
                 m_TagDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
                 m_TagDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
             }
-            else if ( GetCfdSettingsPtr()->m_DrawMeshFlag.Get() ) // Mesh only
+            else if ( GetCfdSettingsPtr()->m_DrawMeshFlag ) // Mesh only
             {
                 m_TagDO[cnt].m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
                 m_TagDO[cnt].m_LineColor = vec3d( 0.4, 0.4, 0.4 );
@@ -4940,7 +4942,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             }
         }
 
-        if ( GetCfdSettingsPtr()->m_ColorTagsFlag.Get() )
+        if ( GetCfdSettingsPtr()->m_ColorTagsFlag )
         {
             // Color sequence -- go around color wheel ncstep times with slight
             // offset from ncgrp basic colors.
@@ -4977,9 +4979,9 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
         for ( int t = 0 ; t < ( int )m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
         {
-            if ( ( !m_SurfVec[i]->GetWakeFlag() || GetCfdSettingsPtr()->m_DrawWakeFlag.Get() ) &&
-                    ( !m_SurfVec[i]->GetFarFlag() || GetCfdSettingsPtr()->m_DrawFarFlag.Get() ) &&
-                    ( !m_SurfVec[i]->GetSymPlaneFlag() || GetCfdSettingsPtr()->m_DrawSymmFlag.Get() ) )
+            if ( ( !m_SurfVec[i]->GetWakeFlag() || GetCfdSettingsPtr()->m_DrawWakeFlag ) &&
+                    ( !m_SurfVec[i]->GetFarFlag() || GetCfdSettingsPtr()->m_DrawFarFlag ) &&
+                    ( !m_SurfVec[i]->GetSymPlaneFlag() || GetCfdSettingsPtr()->m_DrawSymmFlag ) )
             {
                 SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
                 dmit = tag_dobj_map.find( SubSurfaceMgr.GetTag( stri->m_Tags ) );
@@ -5004,7 +5006,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     // Render bad edges
     m_MeshBadEdgeDO.m_GeomID = GetID() + "BADEDGE";
     m_MeshBadEdgeDO.m_Type = DrawObj::VSP_LINES;
-    m_MeshBadEdgeDO.m_Visible = GetCfdSettingsPtr()->m_DrawBadFlag.Get();
+    m_MeshBadEdgeDO.m_Visible = GetCfdSettingsPtr()->m_DrawBadFlag;
     m_MeshBadEdgeDO.m_LineColor = vec3d( 1, 0, 0 );
     m_MeshBadEdgeDO.m_LineWidth = 3.0;
 
@@ -5024,7 +5026,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     m_MeshBadTriDO.m_GeomID = GetID() + "BADTRI";
     m_MeshBadTriDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-    m_MeshBadTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawBadFlag.Get();
+    m_MeshBadTriDO.m_Visible = GetCfdSettingsPtr()->m_DrawBadFlag;
     m_MeshBadTriDO.m_LineColor = vec3d( 1, 0, 0 );
     m_MeshBadTriDO.m_LineWidth = 3.0;
 
@@ -5352,7 +5354,7 @@ void CfdMeshMgrSingleton::UpdateBBoxDO( BndBox box )
     m_BBoxLinesDO.m_PntVec = lines;
 
     //===== Symmetry Plane Splitting Lines =====//
-    if ( GetCfdSettingsPtr()->GetSymSplittingOnFlag() )
+    if ( GetCfdSettingsPtr()->m_SymSplittingOnFlag )
     {
         UpdateBBoxDOSymSplit( box );
     }
@@ -5366,13 +5368,13 @@ void CfdMeshMgrSingleton::UpdateBBoxDOSymSplit( BndBox box )
     vec3d innerBottomRight, innerBottomLeft, innerTopRight, innerTopLeft;
     vector<vec3d> corners;
     BndBox vehicleBBox = m_Vehicle->GetBndBox();
-    double min = GetCfdSettingsPtr()->m_FarXScale.Get();
+    double min = GetCfdSettingsPtr()->m_FarXScale;
     double scale = 2.0;
 
     //Grab the minimum of the two scales
-    if (GetCfdSettingsPtr()->m_FarZScale.Get() < min)
+    if (GetCfdSettingsPtr()->m_FarZScale < min)
     {
-        min = GetCfdSettingsPtr()->m_FarZScale.Get();
+        min = GetCfdSettingsPtr()->m_FarZScale;
     }
 
     //Makes center plane smaller if outer plane smaller than inner
@@ -5399,7 +5401,7 @@ void CfdMeshMgrSingleton::UpdateBBoxDOSymSplit( BndBox box )
     //Checks to see if inner plane is outside of outer plane
     if (!((innerBottomLeft.x() < outerBottomLeft.x() || innerBottomRight.x() > outerBottomRight.x()
          || innerTopLeft.z() > outerTopLeft.z() ||  innerBottomLeft.z() < outerBottomLeft.z())
-        && GetCfdSettingsPtr()->GetFarManLocFlag()))
+        && GetCfdSettingsPtr()->m_FarManLocFlag))
     {
         //=== Symmetry Plane InnerBox as 'line strips' ===//
         temp = innerBottomLeft;

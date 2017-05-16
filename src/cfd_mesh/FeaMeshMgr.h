@@ -44,19 +44,19 @@ public:
     virtual ~FeaMeshMgrSingleton();
     virtual void CleanUp();
 
-    virtual GridDensity* GetGridDensityPtr()
+    virtual SimpleGridDensity* GetGridDensityPtr()
     {
-        return m_FeaGridDensityPtr;
+        return &m_FeaGridDensity;
     }
 
-    virtual StructSettings* GetStructSettingsPtr()
+    virtual SimpleFeaMeshSettings* GetStructSettingsPtr()
     {
-        return m_StructSettingsPtr;
+        return &m_StructSettings;
     }
 
-    virtual MeshCommonSettings* GetSettingsPtr()
+    virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {
-        return ( MeshCommonSettings* ) m_StructSettingsPtr;
+        return (SimpleMeshCommonSettings* ) &m_StructSettings;
     }
 
     virtual bool LoadSurfaces();
