@@ -233,9 +233,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
         return;
     }
 
-    // Hide all geoms and FeaParts after loading surfaces
+    // Hide all geoms after loading surfaces and settings
     m_Vehicle->HideAll();
-    GetStructSettingsPtr()->m_DrawFeaPartsFlag = false;
 
     TransferFeaData();
     TransferSubSurfData();

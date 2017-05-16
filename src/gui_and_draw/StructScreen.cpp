@@ -2318,6 +2318,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
             structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_DrawMeshFlag = true;
+            structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_DrawFeaPartsFlag = false;
         }
     }
     else if ( device == &m_GeomChoice )
