@@ -963,7 +963,6 @@ void Geom::Update( bool fullupdate )
     if ( fullupdate )
     {
         UpdateDrawObj();
-        UpdateDegenDrawObj();
     }
 
     m_UpdatedParmVec.clear();
@@ -2760,6 +2759,10 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             }
         }
     }
+    else
+    {
+        UpdateDegenDrawObj();
+    }
 
     // Load BoundingBox and Axes
     if ( m_Vehicle->IsGeomActive( m_ID ) )
@@ -2780,11 +2783,6 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
             draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
         }
-    }
-
-    if ( m_DegenSubSurfDrawObj_vec.size() != m_SubSurfVec.size() )
-    {
-        UpdateDegenDrawObj();
     }
 
     if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )

@@ -48,12 +48,6 @@ void SubSurface::ParmChanged( Parm* parm_ptr, int type )
     {
         veh->ParmChanged( parm_ptr, type );
     }
-
-    Geom* geom = veh->FindGeom( m_CompID );
-    if ( geom )
-    {
-        geom->UpdateDegenDrawObj(); // Update DegenSubSurfaces to reflect parm changes
-    }
 }
 
 void SubSurface::SetDisplaySuffix( int num )
