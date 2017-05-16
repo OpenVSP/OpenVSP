@@ -234,6 +234,8 @@ public:
 
     void MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &ptC, const vec3d &ptD );
 
+    bool OnValidPatch( const double &u, const double &w );
+
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
