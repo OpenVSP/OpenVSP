@@ -352,9 +352,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_RibEditLayout.AddChoice( m_RibPropertyChoice, "Property" );
 
-    m_RibPerpendicularEdgeChoice.AddItem( "None" );
-    m_RibPerpendicularEdgeChoice.AddItem( "Leading Edge" );
-    m_RibPerpendicularEdgeChoice.AddItem( "Trailing Edge" );
     m_RibEditLayout.AddChoice( m_RibPerpendicularEdgeChoice, "Perpendicular Edge" );
 
     m_RibEditLayout.AddSlider( m_RibPosSlider, "Position", 1, "%5.3f" );
@@ -1459,6 +1456,67 @@ void StructScreen::UpdateFeaMaterialChoice()
     }
 }
 
+void StructScreen::UpdatePerpendicularRibChoice()
+{
+    //==== Perpendicular Rib Choice ====//
+    m_RibPerpendicularEdgeChoice.ClearItems();
+    m_PerpendicularEdgeVec.clear();
+
+    m_RibPerpendicularEdgeChoice.AddItem( "None" );
+    m_PerpendicularEdgeVec.push_back( "None" );
+    m_RibPerpendicularEdgeChoice.AddItem( "Leading Edge" );
+    m_PerpendicularEdgeVec.push_back( "Leading Edge" );
+    m_RibPerpendicularEdgeChoice.AddItem( "Trailing Edge" );
+    m_PerpendicularEdgeVec.push_back( "Trailing Edge" );
+
+    Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
+
+    if ( veh )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            FeaStructure* curr_struct = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex];
+
+            if ( curr_struct )
+            {
+                vector < FeaPart* > part_vec = curr_struct->GetFeaPartVec();
+
+                for ( size_t i = 1; i < part_vec.size(); i++ )
+                {
+                    if ( part_vec[i]->GetType() == vsp::FEA_SPAR )
+                    {
+                        m_RibPerpendicularEdgeChoice.AddItem( part_vec[i]->GetName() );
+                        m_PerpendicularEdgeVec.push_back( part_vec[i]->GetID() );
+                    }
+                }
+
+                m_RibPerpendicularEdgeChoice.UpdateItems();
+
+                FeaPart* feaprt = curr_struct->GetFeaPart( m_SelectedPartIndex );
+
+                if ( feaprt )
+                {
+                    if ( feaprt->GetType() == vsp::FEA_RIB )
+                    {
+                        FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
+                        assert( rib );
+
+                        for ( size_t k = 0; k < m_PerpendicularEdgeVec.size(); k++ )
+                        {
+                            if ( rib->GetPerpendicularEdgeID() == m_PerpendicularEdgeVec[k] )
+                            {
+                                m_RibPerpendicularEdgeChoice.SetVal( k );
+                                rib->SetPerpendicularEdgeIndex( k );
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void StructScreen::CloseCallBack( Fl_Widget *w )
 {
     Hide();
@@ -1651,6 +1709,9 @@ bool StructScreen::Update()
         //==== Update FeaPart Choice ====//
         UpdateFeaPartChoice();
 
+        //==== Update Perpendicular Rib Choice ====//
+        UpdatePerpendicularRibChoice();
+
         //==== Update FixPoint Parent Surf Choice ====//
         UpdateFixPointParentChoice();
 
@@ -1754,7 +1815,6 @@ bool StructScreen::Update()
                     FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
                     assert( rib );
 
-                    m_RibPerpendicularEdgeChoice.Update( rib->m_PerpendicularEdgeFlag.GetID() );
                     m_RibPosSlider.Update( rib->m_PerU.GetID() );
                     m_RibThetaSlider.Update( rib->m_Theta.GetID() );
                     m_RibCapToggle.Update( rib->m_IntersectionCapFlag.GetID() );
@@ -2511,6 +2571,25 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         for ( unsigned int i = 0; i < draw_cap_flag_vec.size(); i++ )
         {
             FeaMeshMgr.SetDrawCapFlag( i, false );
+        }
+    }
+    else if ( device == &m_RibPerpendicularEdgeChoice )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+            FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
+
+            if ( feaprt )
+            {
+                if ( feaprt->GetType() == vsp::FEA_RIB )
+                {
+                    FeaRib* rib = dynamic_cast< FeaRib* >( feaprt );
+                    assert( rib );
+
+                    rib->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibPerpendicularEdgeChoice.GetVal()] );
+                }
+            }
         }
     }
     else if ( device == &m_FixPointParentSurfChoice )

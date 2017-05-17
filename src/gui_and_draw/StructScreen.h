@@ -44,6 +44,7 @@ public:
     virtual void UpdateFeaPropertyChoice();
     virtual void UpdateFeaMaterialBrowser();
     virtual void UpdateFeaMaterialChoice();
+    virtual void UpdatePerpendicularRibChoice();
 
     virtual void UpdateFeaPartPropertyIndex( Choice* property_choice );
     virtual void UpdateCapPropertyIndex( Choice* property_choice );
@@ -362,6 +363,7 @@ private:
     vector < string > m_GeomIDVec;
     vector < string > m_SubSurfIDVec;
     vector < string > m_FixPointParentIDVec;
+    vector < string > m_PerpendicularEdgeVec;
 
     int m_FeaCurrMainSurfIndx;
     int m_SelectedStructIndex;

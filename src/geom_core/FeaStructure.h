@@ -280,13 +280,31 @@ public:
     virtual void ComputePlanarSurf();
     virtual void UpdateDrawObjs( int id, bool highlight );
 
+    void SetPerpendicularEdgeIndex( int ind )
+    {
+        m_PerpendicularEdgeIndex = ind;
+    }
+    int GetPerpendicularEdgeIndex()
+    {
+        return m_PerpendicularEdgeIndex;
+    }
+
+    void SetPerpendicularEdgeID( string ID )
+    {
+        m_PerpendicularEdgeID = ID;
+    }
+    string GetPerpendicularEdgeID()
+    {
+        return m_PerpendicularEdgeID;
+    }
+
     Parm m_PerU; // Percent U Location
     Parm m_Theta;
 
-    IntParm m_PerpendicularEdgeFlag;
-
 protected:
 
+    int m_PerpendicularEdgeIndex;
+    string m_PerpendicularEdgeID;
 
 };
 

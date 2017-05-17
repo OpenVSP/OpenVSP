@@ -1286,8 +1286,7 @@ FeaRib::FeaRib( string geomID, int type ) : FeaPart( geomID, type )
     m_PerU.SetDescript( "Precent U Location" );
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
 
-    m_PerpendicularEdgeFlag.Init( "PerpendicularEdgeFlag", "FeaRib", this, PERPENDICULAR_NONE, PERPENDICULAR_NONE, PERPENDICULAR_TRAIL_EDGE );
-    m_PerpendicularEdgeFlag.SetDescript( "Flag Indicating Perpendicular Alignment of FeaRib" );
+    m_PerpendicularEdgeIndex = 0;
 }
 
 void FeaRib::Update()
@@ -1372,7 +1371,7 @@ void FeaRib::ComputePlanarSurf()
         double u_edge_out = m_PerU() + 2 * FLT_EPSILON;
         double u_edge_in = m_PerU() - 2 * FLT_EPSILON;
 
-        if ( m_PerpendicularEdgeFlag() == PERPENDICULAR_TRAIL_EDGE )
+        if ( m_PerpendicularEdgeIndex == PERPENDICULAR_TRAIL_EDGE )
         {
             vec3d trail_edge_out, trail_edge_in;
             trail_edge_out = wing_surf.CompPnt01( u_edge_out, v_min );
@@ -1383,7 +1382,7 @@ void FeaRib::ComputePlanarSurf()
 
             alpha = ( PI / 2 ) - acos( dot( lead_edge_dir_vec, chord_dir_vec ) );
         }
-        else if ( m_PerpendicularEdgeFlag() == PERPENDICULAR_LEAD_EDGE )
+        else if ( m_PerpendicularEdgeIndex == PERPENDICULAR_LEAD_EDGE )
         {
             vec3d lead_edge_out, lead_edge_in;
             lead_edge_out = wing_surf.CompPnt01( u_edge_out , v_leading_edge / v_max );
@@ -1393,6 +1392,28 @@ void FeaRib::ComputePlanarSurf()
             trail_edge_dir_vec.normalize();
 
             alpha = ( PI / 2 ) - acos( dot( trail_edge_dir_vec, chord_dir_vec ) );
+        }
+        else if ( m_PerpendicularEdgeIndex > 2 )
+        {
+            FeaPart* part = StructureMgr.GetFeaPart( m_PerpendicularEdgeID );
+
+            if ( part )
+            {
+                VspSurf surf = part->GetFeaPartSurfVec()[0];
+
+                vec3d edge1, edge2;
+                edge1 = surf.CompPnt01( 0.5, 0.0 );
+                edge2 = surf.CompPnt01( 0.5, 1.0 );
+
+                vec3d spar_dir_vec = edge2 - edge1;
+                spar_dir_vec.normalize();
+
+                alpha = ( PI / 2 ) - acos( dot( spar_dir_vec, chord_dir_vec ) );
+            }
+            else
+            {
+                m_PerpendicularEdgeIndex = 0;
+            }
         }
 
         // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
