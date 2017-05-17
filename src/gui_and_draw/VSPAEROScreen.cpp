@@ -1301,7 +1301,7 @@ void VSPAEROScreen::UpdateControlSurfaceGroupNames()
     {
         if (cs_group_vec[i]->GetName().size() >= 20)
         {
-            sprintf(str, "%s...", cs_group_vec[i]->GetName().substr(0, 20));
+            sprintf(str, "%s...", cs_group_vec[i]->GetName().substr(0, 20).c_str());
             m_DeflectionAngleSliderVec[i].SetButtonName(str);
         }
         else
