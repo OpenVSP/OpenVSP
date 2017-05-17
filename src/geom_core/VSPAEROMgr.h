@@ -49,7 +49,6 @@ public:
 
     // Setup File I/O
     void Write_STP_Data( FILE * InputFile );
-    void Load_STP_Data( FILE * InputFile );
 
     string GetParentID()                  { return m_ParentGeomId; }
     unsigned int GetSurfNum()             { return m_ParentGeomSurfNdx; }

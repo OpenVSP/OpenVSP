@@ -2608,47 +2608,6 @@ void RotorDisk::Write_STP_Data( FILE *InputFile )
 
 }
 
-void RotorDisk::Load_STP_Data( FILE *InputFile )
-{
-
-    // Load in STP file data
-
-    fscanf( InputFile, "%lf %lf %lf \n", &m_XYZ.data()[0], &m_XYZ.data()[1], &m_XYZ.data()[2] );
-
-    fscanf( InputFile, "%lf %lf %lf \n", &m_Normal.data()[0], &m_Normal.data()[1], &m_Normal.data()[2] );
-
-    long float rad;
-    fscanf( InputFile, "%lf \n", &rad );
-    m_Diameter.Set( rad * 2.0 );
-
-    long float hubrad;
-    fscanf( InputFile, "%lf \n", &hubrad );
-    m_HubDiameter.Set( hubrad * 2.0 );
-
-    fscanf( InputFile, "%lf \n", &m_RPM );
-
-    fscanf( InputFile, "%lf \n", &m_CT );
-
-    fscanf( InputFile, "%lf \n", &m_CP );
-
-    // Echo inputs
-
-    printf( "RotorXYZ:       %10.5lf %10.5lf %10.5lf \n", m_XYZ.x(), m_XYZ.y(), m_XYZ.z() );
-
-    printf( "RotorNormal:    %10.5lf %10.5lf %10.5lf \n", m_Normal.x(), m_Normal.y(), m_Normal.z() );
-
-    printf( "RotorRadius:    %10.5f \n", m_Diameter() / 2.0 );
-
-    printf( "RotorHubRadius: %10.5lf \n", m_HubDiameter() / 2.0 );
-
-    printf( "RotorRPM:       %10.5lf \n", m_RPM() );
-
-    printf( "Rotor_CT:       %10.5lf \n", m_CT() );
-
-    printf( "Rotor_CP:       %10.5lf \n", m_CP() );
-
-}
-
 xmlNodePtr RotorDisk::EncodeXml( xmlNodePtr & node )
 {
     if ( node )
