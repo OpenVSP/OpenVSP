@@ -549,7 +549,7 @@ void Results::WriteParasiteDragFile( const string & file_name )
         string fLabel = Find("f_Label").GetString(0);
 
         fprintf(file_id, "Component Name,%s,%s,t/c or d/l,FF,FF Eqn Type,Re (1e6),%% Lam,Cf (1e-3),Q (Interference Factor),f,Cd,%% Total \n",
-            SwetLabel.c_str(), LrefLabel.c_str(), fLabel.c_str());
+            SwetLabel.c_str(), LrefLabel.c_str() ); //, fLabel.c_str());
 
         int num_comp = Find("Num_Comp").GetInt(0);
         for (int i = 0; i < num_comp; i++)
