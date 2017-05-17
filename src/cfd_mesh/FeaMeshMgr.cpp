@@ -1956,7 +1956,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_TriOrientationDO[cnt].m_Visible = false;
             }
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[cnt] )
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawCapFlagVec[cnt] )
             {
                 m_CapNormDO[cnt].m_Visible = true;
             }
@@ -2093,7 +2093,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
-            if ( GetStructSettingsPtr()->m_DrawNodesFlag && m_DrawElementFlagVec[i] )
+            if ( GetStructSettingsPtr()->m_DrawNodesFlag && m_DrawElementFlagVec[i + m_NumFeaParts] )
             {
                 m_SSFeaNodeDO[i].m_Visible = true;
 
@@ -2155,7 +2155,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             m_SSCapNormDO[i].m_Type = DrawObj::VSP_LINES;
             m_SSCapNormDO[i].m_LineWidth = 1.0;
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[i] )
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[i +m_NumFeaParts] )
             {
                 m_SSTriOrientationDO[i].m_Visible = true;
             }
@@ -2164,7 +2164,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 m_SSTriOrientationDO[i].m_Visible = false;
             }
 
-            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawElementFlagVec[i] )
+            if ( GetStructSettingsPtr()->m_DrawElementOrientVecFlag && m_DrawCapFlagVec[i + m_NumFeaParts] )
             {
                 m_SSCapNormDO[i].m_Visible = true;
             }
@@ -2199,18 +2199,15 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                     FeaBeam* beam = dynamic_cast<FeaBeam*>( m_FeaElementVec[j] );
                     assert( beam );
 
-                    vec3d norm_pnt = m_FeaElementVec[j]->m_Corners[0]->m_Pnt + line_length * beam->m_DispVec;
+                    vec3d norm_pnt = m_FeaElementVec[j]->m_Mids[0]->m_Pnt + line_length * beam->m_DispVec;
 
-                    ss_cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Corners[0]->m_Pnt );
+                    ss_cap_norm_pnt_vec.push_back( m_FeaElementVec[j]->m_Mids[0]->m_Pnt );
                     ss_cap_norm_pnt_vec.push_back( norm_pnt );
                 }
             }
 
             m_SSTriOrientationDO[i].m_PntVec = ss_tri_orient_pnt_vec;
             m_SSCapNormDO[i].m_PntVec = ss_cap_norm_pnt_vec;
-
-            draw_obj_vec.push_back( &m_SSTriOrientationDO[i] );
-            draw_obj_vec.push_back( &m_SSCapNormDO[i] );
         }
 
         // Add cap and orientation DrawObjs last so they are drawn over surfaces
