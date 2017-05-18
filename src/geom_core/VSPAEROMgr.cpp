@@ -2596,9 +2596,9 @@ void RotorDisk::Write_STP_Data( FILE *InputFile )
 
     fprintf( InputFile, "%lf %lf %lf \n", m_Normal.x(), m_Normal.y(), m_Normal.z() );
 
-    fprintf( InputFile, "%lf \n", m_Diameter() );
+    fprintf( InputFile, "%lf \n", m_Diameter() / 2.0 );
 
-    fprintf( InputFile, "%lf \n", m_HubDiameter() );
+    fprintf( InputFile, "%lf \n", m_HubDiameter() / 2.0 );
 
     fprintf( InputFile, "%lf \n", m_RPM() );
 
