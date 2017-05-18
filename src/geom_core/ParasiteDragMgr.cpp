@@ -842,7 +842,7 @@ void ParasiteDragMgrSingleton::Calculate_Cd()
         {
             if (!m_DegenGeomVec.empty())
             { // If DegenGeom Exists Calculate CD
-                if (!isnan(geo_f[i]))
+                if (! (geo_f[i] != geo_f[i]))
                 {
                     geo_Cd.push_back(geo_f[i] / m_Sref.Get());
                 }
@@ -2265,7 +2265,7 @@ void ParasiteDragMgrSingleton::UpdatePercentageCD()
     {
         if (!m_DegenGeomVec.empty())
         {
-            if (!isnan(geo_f[i]))
+            if (! (geo_f[i] != geo_f[i]))
             {
                 geo_percTotalCd.push_back(geo_Cd[i] / totalCd0);
                 percTotal += geo_Cd[i] / totalCd0;
