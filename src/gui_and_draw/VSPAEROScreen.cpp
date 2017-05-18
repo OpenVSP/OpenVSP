@@ -97,7 +97,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Case Setup Layout
     m_LeftColumnLayout.AddSubGroupLayout( m_CaseSetupLayout,
         m_LeftColumnLayout.GetW(),
-        5 * m_LeftColumnLayout.GetStdHeight() );
+        4 * m_LeftColumnLayout.GetStdHeight() );
     m_LeftColumnLayout.AddY( m_CaseSetupLayout.GetH() );
 
     m_CaseSetupLayout.AddDividerBox( "Case Setup" );
@@ -125,7 +125,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CaseSetupLayout.SetSameLineFlag( false );
     m_CaseSetupLayout.SetFitWidthFlag( true );
     m_CaseSetupLayout.AddChoice( m_GeomSetChoice, "Geometry Set:" );
-    m_CaseSetupLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
 
     m_CaseSetupLayout.AddYGap();
 
@@ -240,7 +239,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Advanced Case Setup Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_AdvancedCaseSetupLayout,
         m_AdvancedLeftLayout.GetW(),
-        7 * m_AdvancedLeftLayout.GetStdHeight() );
+        8 * m_AdvancedLeftLayout.GetStdHeight() );
     m_AdvancedLeftLayout.AddY( m_AdvancedCaseSetupLayout.GetH() );
 
     m_AdvancedCaseSetupLayout.AddDividerBox( "Advanced Case Setup" );
@@ -278,6 +277,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_AdvancedCaseSetupLayout.SetInputWidth( 50 );
 
     m_AdvancedCaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
+    m_AdvancedCaseSetupLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
     m_AdvancedCaseSetupLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
     m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
     m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
