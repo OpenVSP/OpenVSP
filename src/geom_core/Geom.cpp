@@ -2041,21 +2041,14 @@ void Geom::UpdateDegenDrawObj()
                 degen_surf_draw_obj.m_PntVec.push_back( corner3 );
                 degen_surf_draw_obj.m_PntVec.push_back( corner4 );
 
+                norm = degen_surf.nvec[j][k];
+
                 if ( norm.mag() == 0.0 ) // Handle collapsed normal vectors for shading 
                 {
                     vec3d cross1 = corner3 - corner1;
                     vec3d cross2 = corner4 - corner2;
                     norm = cross( cross1, cross2 );
                     norm.normalize();
-                }
-                else
-                {
-                    norm = degen_surf.nvec[j][k];
-                }
-
-                if ( m_SurfVec[i].GetFlipNormal() )
-                {
-                    norm = -1 * norm;
                 }
 
                 // Set Normal Vector
@@ -2096,42 +2089,37 @@ void Geom::UpdateDegenDrawObj()
                     degen_plate_draw_obj.m_PntVec.push_back( corner3 );
                     degen_plate_draw_obj.m_PntVec.push_back( corner4 );
 
-                    if ( norm.mag() == 0.0 ) // Handle collapsed normal vectors for shading 
-                    {
-                        vec3d cross1 = corner3 - corner1;
-                        vec3d cross2 = corner4 - corner2;
-                        norm = cross( cross1, cross2 );
-                        norm.normalize();
-                    }
-                    else
-                    {
-                        norm = degen_plate_vec[j].nPlate[k];
-                    }
-
-                    if ( m_SurfVec[i].GetFlipNormal() )
-                    {
-                        norm = -1 * norm;
-                    }
+                    norm = degen_plate_vec[j].nPlate[k];
 
                     // Set Normal Vectors
                     for ( int m = 0; m < 4; m++ )
                     {
                         degen_plate_draw_obj.m_NormVec.push_back( norm );
-                        degen_camber_plate_draw_obj.m_NormVec.push_back( norm );
                     }
 
                     // Define Cambered Plate Quads
                     vec3d camber_corner1, camber_corner2, camber_corner3, camber_corner4;
+                    vec3d norm1, norm2, norm3, norm4;
 
-                    camber_corner1 = corner1 + ( degen_plate_vec[j].zcamber[k][n] * norm );
-                    camber_corner2 = corner2 + ( degen_plate_vec[j].zcamber[k][n + 1] * norm );
-                    camber_corner3 = corner3 + ( degen_plate_vec[j].zcamber[k + 1][n + 1] * norm );
-                    camber_corner4 = corner4 + ( degen_plate_vec[j].zcamber[k + 1][n] * norm );
+                    norm1 = degen_plate_vec[j].nCamber[k][n];
+                    norm2 = degen_plate_vec[j].nCamber[k][n+1];
+                    norm3 = degen_plate_vec[j].nCamber[k+1][n+1];
+                    norm4 = degen_plate_vec[j].nCamber[k+1][n];
+
+                    camber_corner1 = corner1 + ( degen_plate_vec[j].zcamber[k][n] * norm1 );
+                    camber_corner2 = corner2 + ( degen_plate_vec[j].zcamber[k][n + 1] * norm2);
+                    camber_corner3 = corner3 + ( degen_plate_vec[j].zcamber[k + 1][n + 1] * norm3 );
+                    camber_corner4 = corner4 + ( degen_plate_vec[j].zcamber[k + 1][n] * norm4 );
 
                     degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner1 );
                     degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner2 );
                     degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner3 );
                     degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner4 );
+
+                    degen_camber_plate_draw_obj.m_NormVec.push_back( norm1 );
+                    degen_camber_plate_draw_obj.m_NormVec.push_back( norm2 );
+                    degen_camber_plate_draw_obj.m_NormVec.push_back( norm3 );
+                    degen_camber_plate_draw_obj.m_NormVec.push_back( norm4 );
                 }
             }
 
