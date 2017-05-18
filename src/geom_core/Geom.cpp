@@ -2117,7 +2117,34 @@ void Geom::UpdateDegenDrawObj()
                     degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner4 );
 
                     // Calculate normal for cambered plate shading (camber normal is from DegenGeom is the direction between the top and bottom surface points)
-                    vec3d camber_draw_norm = cross( ( camber_corner2 - corner1 ), ( camber_corner3 - camber_corner1 ) );
+
+                    vec3d u1, u2, v1, v2, u, v;
+
+                    u1 = camber_corner4 - camber_corner1;
+                    u2 = camber_corner3 - camber_corner2;
+
+                    if ( u1.mag() > u2.mag() )
+                    {
+                        u = u1;
+                    }
+                    else
+                    {
+                        u = u2;
+                    }
+
+                    v1 = camber_corner2 - camber_corner1;
+                    v2 = camber_corner3 - camber_corner4;
+
+                    if ( v1.mag() > v2.mag() )
+                    {
+                        v = v1;
+                    }
+                    else
+                    {
+                        v = v2;
+                    }
+
+                    vec3d camber_draw_norm = cross( v, u );
                     camber_draw_norm.normalize();
 
                     if ( m_SurfVec[i].GetFlipNormal() )
