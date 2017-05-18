@@ -152,7 +152,7 @@ void ParasiteDragMgrSingleton::SetDefaultStruct()
     m_DefaultStruct.Q = 1;
     m_DefaultStruct.f = -1;
     m_DefaultStruct.CD = -1;
-    m_DefaultStruct.PercTotalCd = -1;
+    m_DefaultStruct.PercTotalCD = -1;
     m_DefaultStruct.SurfNum = 0;
     m_DefaultStruct.GroupedAncestorGen = 0;
     m_DefaultStruct.ExpandedList = false;
@@ -831,7 +831,7 @@ void ParasiteDragMgrSingleton::Calculate_f()
     }
 }
 
-void ParasiteDragMgrSingleton::Calculate_Cd()
+void ParasiteDragMgrSingleton::Calculate_CD()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
     int iSubSurf = 0;
@@ -844,27 +844,27 @@ void ParasiteDragMgrSingleton::Calculate_Cd()
             { // If DegenGeom Exists Calculate CD
                 if (! (geo_f[i] != geo_f[i]))
                 {
-                    geo_Cd.push_back(geo_f[i] / m_Sref.Get());
+                    geo_CD.push_back(geo_f[i] / m_Sref.Get());
                 }
                 else
                 {
-                    geo_Cd.push_back(0.0);
+                    geo_CD.push_back(0.0);
                 }
             }
             else
             { // Else Push Back Default Val
-                geo_Cd.push_back(-1);
+                geo_CD.push_back(-1);
             }
         }
         else
         {
             if (!m_DegenGeomVec.empty())
             {
-                geo_Cd.push_back(0.0);
+                geo_CD.push_back(0.0);
             }
             else
             {
-                geo_Cd.push_back(-1);
+                geo_CD.push_back(-1);
             }
         }
     }
@@ -885,7 +885,7 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
     Calculate_FF();
     OverwritePropertiesFromAncestorGeom();
     Calculate_f();
-    Calculate_Cd();
+    Calculate_CD();
 
     UpdateExcres();
     UpdatePercentageCD();
@@ -922,8 +922,8 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
         }
         tempStruct.Q = geo_Q[i];
         tempStruct.f = geo_f[i];
-        tempStruct.CD = geo_Cd[i];
-        tempStruct.PercTotalCd = geo_percTotalCd[i];
+        tempStruct.CD = geo_CD[i];
+        tempStruct.PercTotalCD = geo_percTotalCD[i];
         tempStruct.SurfNum = geo_surfNum[i];
         tempStruct.ExpandedList = geo_expandedList[i];
 
@@ -1705,14 +1705,14 @@ double ParasiteDragMgrSingleton::GetLrefSigFig()
     }
 }
 
-double ParasiteDragMgrSingleton::GetGeometryCd()
+double ParasiteDragMgrSingleton::GetGeometryCD()
 {
     double sum = 0;
-    for (int i = 0; i < geo_Cd.size(); i++)
+    for (int i = 0; i < geo_CD.size(); i++)
     {
-        if (geo_Cd[i] > 0.0)
+        if (geo_CD[i] > 0.0)
         {
-            sum += geo_Cd[i];
+            sum += geo_CD[i];
         }
     }
     return sum;
@@ -1720,7 +1720,7 @@ double ParasiteDragMgrSingleton::GetGeometryCd()
 
 double ParasiteDragMgrSingleton::GetSubTotalCD()
 {
-    return GetGeometryCd() + GetSubTotalExcresCd();
+    return GetGeometryCD() + GetSubTotalExcresCD();
 }
 
 double ParasiteDragMgrSingleton::GetTotalCD()
@@ -1729,7 +1729,7 @@ double ParasiteDragMgrSingleton::GetTotalCD()
     {
         if (m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_MARGIN)
         {
-            return GetGeometryCd() + GetTotalExcresCD();
+            return GetGeometryCD() + GetTotalExcresCD();
         }
     }
     return GetSubTotalCD();
@@ -1825,7 +1825,7 @@ void ParasiteDragMgrSingleton::AddExcrescence()
     else if (m_ExcresType() == vsp::EXCRESCENCE_PERCENT_GEOM)
     {
         tempStruct.Amount = 0.0; // Calculated in UpdateExcres()
-        tempStruct.TypeString = "% of Cd_Geom";
+        tempStruct.TypeString = "% of CD_Geom";
     }
     else if (m_ExcresType() == vsp::EXCRESCENCE_MARGIN)
     {
@@ -1842,7 +1842,7 @@ void ParasiteDragMgrSingleton::AddExcrescence()
 
     tempStruct.f = tempStruct.Amount * m_Sref();
 
-    tempStruct.PercTotalCd = 0.0; // Initializing this to 0.0
+    tempStruct.PercTotalCD = 0.0; // Initializing this to 0.0
 
     m_ExcresRowVec.push_back(tempStruct);
 
@@ -1882,13 +1882,13 @@ void ParasiteDragMgrSingleton::DeleteExcrescence(int index)
     DeleteExcrescence();
 }
 
-double ParasiteDragMgrSingleton::CalcPercentageGeomCd(double val)
+double ParasiteDragMgrSingleton::CalcPercentageGeomCD(double val)
 {
     if (!m_DegenGeomVec.empty())
     {
-        if (GetGeometryCd() > 0.0)
+        if (GetGeometryCD() > 0.0)
         {
-            return val / 100.0 * GetGeometryCd();
+            return val / 100.0 * GetGeometryCD();
         }
         else
         {
@@ -1916,7 +1916,7 @@ double ParasiteDragMgrSingleton::CalcPercentageTotalCD(double val)
     return 0;
 }
 
-double ParasiteDragMgrSingleton::CalcDragAreaCd(double val)
+double ParasiteDragMgrSingleton::CalcDragAreaCD(double val)
 {
     if (!m_DegenGeomVec.empty())
     {
@@ -1933,7 +1933,7 @@ double ParasiteDragMgrSingleton::CalcDragAreaCd(double val)
     return 0;
 }
 
-double ParasiteDragMgrSingleton::GetSubTotalExcresCd()
+double ParasiteDragMgrSingleton::GetSubTotalExcresCD()
 {
     double sum = 0;
 
@@ -1966,7 +1966,7 @@ void ParasiteDragMgrSingleton::ConsolidateExcres()
     excres_Type.clear();
     excres_Input.clear();
     excres_Amount.clear();
-    excres_PercTotalCd.clear();
+    excres_PercTotalCD.clear();
     ExcrescenceTableRow excresRowStruct;
     for (size_t i = 0; i < m_ExcresRowVec.size(); ++i)
     {
@@ -1974,7 +1974,7 @@ void ParasiteDragMgrSingleton::ConsolidateExcres()
         excres_Type.push_back(m_ExcresRowVec[i].TypeString.c_str());
         excres_Input.push_back(m_ExcresRowVec[i].Input);
         excres_Amount.push_back(m_ExcresRowVec[i].Amount);
-        excres_PercTotalCd.push_back(m_ExcresRowVec[i].PercTotalCd);
+        excres_PercTotalCD.push_back(m_ExcresRowVec[i].PercTotalCD);
     }
 }
 
@@ -2257,28 +2257,28 @@ void ParasiteDragMgrSingleton::UpdatePres(int newunit)
 
 void ParasiteDragMgrSingleton::UpdatePercentageCD()
 {
-    double totalCd0 = GetTotalCD();
+    double totalCD0 = GetTotalCD();
     double ftotal = 0;
     double percTotal = 0;
 
-    for (int i = 0; i < geo_Cd.size(); i++)
+    for (int i = 0; i < geo_CD.size(); i++)
     {
         if (!m_DegenGeomVec.empty())
         {
             if (! (geo_f[i] != geo_f[i]))
             {
-                geo_percTotalCd.push_back(geo_Cd[i] / totalCd0);
-                percTotal += geo_Cd[i] / totalCd0;
+                geo_percTotalCD.push_back(geo_CD[i] / totalCD0);
+                percTotal += geo_CD[i] / totalCD0;
                 ftotal += geo_f[i];
             }
             else
             {
-                geo_percTotalCd.push_back(0.0);
+                geo_percTotalCD.push_back(0.0);
             }
         }
         else
         {
-            geo_percTotalCd.push_back(0);
+            geo_percTotalCD.push_back(0);
             percTotal += 0;
         }
     }
@@ -2292,13 +2292,13 @@ void ParasiteDragMgrSingleton::UpdatePercentageCD()
     {
         if (!m_DegenGeomVec.empty())
         {
-            m_ExcresRowVec[i].PercTotalCd = m_ExcresRowVec[i].Amount / totalCd0;
-            percTotal += m_ExcresRowVec[i].Amount / totalCd0;
+            m_ExcresRowVec[i].PercTotalCD = m_ExcresRowVec[i].Amount / totalCD0;
+            percTotal += m_ExcresRowVec[i].Amount / totalCD0;
             ftotal += m_ExcresRowVec[i].f;
         }
         else
         {
-            m_ExcresRowVec[i].PercTotalCd = 0.0;
+            m_ExcresRowVec[i].PercTotalCD = 0.0;
         }
     }
 
@@ -2527,7 +2527,7 @@ void ParasiteDragMgrSingleton::UpdateExcres()
             }
             else if (m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_PERCENT_GEOM)
             {
-                m_ExcresRowVec[i].Amount = CalcPercentageGeomCd(m_ExcresValue());
+                m_ExcresRowVec[i].Amount = CalcPercentageGeomCD(m_ExcresValue());
             }
             else if (m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_MARGIN)
             {
@@ -2535,14 +2535,14 @@ void ParasiteDragMgrSingleton::UpdateExcres()
             }
             else if (m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_DRAGAREA)
             {
-                m_ExcresRowVec[i].Amount = CalcDragAreaCd(m_ExcresValue());
+                m_ExcresRowVec[i].Amount = CalcDragAreaCD(m_ExcresValue());
             }
         }
         else
         {
             if (m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_PERCENT_GEOM)
             {
-                m_ExcresRowVec[i].Amount = CalcPercentageGeomCd(m_ExcresRowVec[i].Input);
+                m_ExcresRowVec[i].Amount = CalcPercentageGeomCD(m_ExcresRowVec[i].Input);
             }
             else if (m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_MARGIN)
             {
@@ -2550,7 +2550,7 @@ void ParasiteDragMgrSingleton::UpdateExcres()
             }
             else if (m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_DRAGAREA)
             {
-                m_ExcresRowVec[i].Amount = CalcDragAreaCd(m_ExcresRowVec[i].Input);
+                m_ExcresRowVec[i].Amount = CalcDragAreaCD(m_ExcresRowVec[i].Input);
             }
         }
     }
@@ -2644,8 +2644,8 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     res->Add(NameValData("Comp_TawTwRatio", geo_TawTwRatio));
     res->Add(NameValData("Comp_Q", geo_Q));
     res->Add(NameValData("Comp_f", geo_f));
-    res->Add(NameValData("Comp_Cd", geo_Cd));
-    res->Add(NameValData("Comp_PercTotalCd", geo_percTotalCd));
+    res->Add(NameValData("Comp_CD", geo_CD));
+    res->Add(NameValData("Comp_PercTotalCD", geo_percTotalCD));
     res->Add(NameValData("Comp_SurfNum", geo_surfNum));
 
     // Excres Related
@@ -2654,17 +2654,17 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     res->Add(NameValData("Excres_Type", excres_Type));
     res->Add(NameValData("Excres_Input", excres_Input));
     res->Add(NameValData("Excres_Amount", excres_Amount));
-    res->Add(NameValData("Excres_PercTotalCd", excres_PercTotalCd));
+    res->Add(NameValData("Excres_PercTotalCD", excres_PercTotalCD));
 
     // Totals
     res->Add(NameValData("Geom_f_Total", GetGeomfTotal()));
-    res->Add(NameValData("Geom_Cd_Total", GetGeometryCd()));
+    res->Add(NameValData("Geom_CD_Total", GetGeometryCD()));
     res->Add(NameValData("Geom_Perc_Total", GetGeomPercTotal()));
     res->Add(NameValData("Excres_f_Total", GetExcresfTotal()));
-    res->Add(NameValData("Excres_Cd_Total", GetTotalExcresCD()));
+    res->Add(NameValData("Excres_CD_Total", GetTotalExcresCD()));
     res->Add(NameValData("Excres_Perc_Total", GetExcresPercTotal()));
     res->Add(NameValData("Total_f_Total", GetfTotal()));
-    res->Add(NameValData("Total_Cd_Total", GetTotalCD()));
+    res->Add(NameValData("Total_CD_Total", GetTotalCD()));
     res->Add(NameValData("Total_Perc_Total", GetPercTotal()));
 
     string f_name = veh->getExportFileName(vsp::DRAG_BUILD_CSV_TYPE);
@@ -2711,8 +2711,8 @@ void ParasiteDragMgrSingleton::ClearOutputVectors()
     geo_ffName.clear();
     geo_ffOut.clear();
     geo_f.clear();
-    geo_Cd.clear();
-    geo_percTotalCd.clear();
+    geo_CD.clear();
+    geo_percTotalCD.clear();
 }
 
 xmlNodePtr ParasiteDragMgrSingleton::EncodeXml(xmlNodePtr & node)
@@ -2876,7 +2876,7 @@ void ParasiteDragMgrSingleton::SortMapByPercentageCD()
             {
                 if (!isSorted[j])
                 {
-                    if (m_TableRowVec[j].PercTotalCd > m_TableRowVec[cur_max_ind].PercTotalCd)
+                    if (m_TableRowVec[j].PercTotalCD > m_TableRowVec[cur_max_ind].PercTotalCD)
                     {
                         cur_max_ind = j;
                     }

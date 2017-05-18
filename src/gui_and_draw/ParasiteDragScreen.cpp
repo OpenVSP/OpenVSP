@@ -455,7 +455,7 @@ ParasiteDragScreen::ParasiteDragScreen(ScreenMgr* mgr) : TabScreen(mgr,
     m_ExcrescenceListLayout.AddChoice(m_excresTypeChoice, "Type", 0);
     m_excresTypeChoice.AddItem("Drag Counts");
     m_excresTypeChoice.AddItem("CD");
-    m_excresTypeChoice.AddItem("% of Cd_Geom");
+    m_excresTypeChoice.AddItem("% of CD_Geom");
     m_excresTypeChoice.AddItem("% Margin");
     m_excresTypeChoice.AddItem("Drag Area, D\\/q");
     m_excresTypeChoice.UpdateItems();
@@ -1670,7 +1670,7 @@ void ParasiteDragScreen::AddGeomsToTable()
                 SetupQ(i, rowVec[i].Q);
                 Setupf(i, rowVec[i].f);
                 SetupCD(i, rowVec[i].CD);
-                SetupPercCD(i, rowVec[i].PercTotalCd);
+                SetupPercCD(i, rowVec[i].PercTotalCD);
 
                 m_TableLayout.SetSameLineFlag(false);
                 m_TableLayout.ForceNewLine();
@@ -1698,7 +1698,7 @@ void ParasiteDragScreen::AddGeomsToTable()
                     SetupSubSurfInclude(i, rowVec[i].GeomID, rowVec[i].SubSurfID);
                     Setupf(i, rowVec[i].f);
                     SetupCD(i, rowVec[i].CD);
-                    SetupPercCD(i, rowVec[i].PercTotalCd);
+                    SetupPercCD(i, rowVec[i].PercTotalCD);
 
                     m_TableLayout.SetSameLineFlag(false);
                     m_TableLayout.ForceNewLine();
@@ -2127,7 +2127,7 @@ void ParasiteDragScreen::AddSimpleExcresToTable()
 
         Setupf(i, excresRowVec[i].f);
         SetupCD(i, excresRowVec[i].Amount);
-        SetupPercCD(i, excresRowVec[i].PercTotalCd);
+        SetupPercCD(i, excresRowVec[i].PercTotalCD);
 
         m_TableCompNamesLayout.ForceNewLine();
 
@@ -2172,7 +2172,7 @@ void ParasiteDragScreen::UpdateFinalValues()
     m_GeomfTotal.Update(strs.str());
     strs.str("");
 
-    strs << setprecision(cdprecision) << fixed << ParasiteDragMgr.GetGeometryCd();
+    strs << setprecision(cdprecision) << fixed << ParasiteDragMgr.GetGeometryCD();
     m_GeomCdTotal.Update(strs.str());
     strs.str("");
 

@@ -41,7 +41,7 @@ struct ParasiteDragTableRow
     double Q;
     double f;
     double CD;
-    double PercTotalCd;
+    double PercTotalCD;
     int GroupedAncestorGen;
     int SurfNum;
     bool ExpandedList;
@@ -55,7 +55,7 @@ struct ExcrescenceTableRow
     string TypeString;
     double Input;
     double Amount;
-    double PercTotalCd;
+    double PercTotalCD;
     double f;
 };
 
@@ -101,7 +101,7 @@ public:
     void Calculate_FF();
     void Calculate_AvgSweep(vector <DegenStick> degenSticks);
     void Calculate_f();
-    void Calculate_Cd();
+    void Calculate_CD();
     void Calculate_ALL();
     string ComputeBuildUp(); // Used only through API
 
@@ -142,7 +142,7 @@ public:
     double GetfTotal() { return m_GeomfTotal + m_ExcresfTotal; }
     double GetPercTotal() { return m_GeomPercTotal + m_ExcresPercTotal; }
     int GetCurrExcresIndex() { return m_CurrentExcresIndex; }
-    double GetGeometryCd();
+    double GetGeometryCD();
     double GetSubTotalCD();
     double GetTotalCD();
     vector < string > GetExcresIDs();
@@ -156,10 +156,10 @@ public:
     void AddExcrescence(const std::string &excresName, int excresType, double excresVal);
     void DeleteExcrescence();
     void DeleteExcrescence(int index);
-    double CalcPercentageGeomCd(double val);
+    double CalcPercentageGeomCD(double val);
     double CalcPercentageTotalCD(double val);
-    double CalcDragAreaCd(double val);
-    double GetSubTotalExcresCd();
+    double CalcDragAreaCD(double val);
+    double GetSubTotalExcresCD();
     double GetTotalExcresCD();
     void ConsolidateExcres();
 
@@ -299,15 +299,15 @@ private:
     vector <double> geo_ffOut;
     vector <double> geo_Q;
     vector <double> geo_f;
-    vector <double> geo_Cd;
-    vector <double> geo_percTotalCd;
+    vector <double> geo_CD;
+    vector <double> geo_percTotalCD;
 
     // Excrescence Vectors
     vector < string > excres_Label;
     vector < string > excres_Type;
     vector < double > excres_Input;
     vector < double> excres_Amount;
-    vector < double > excres_PercTotalCd;
+    vector < double > excres_PercTotalCD;
 
     // Totals
     double m_GeomfTotal;
