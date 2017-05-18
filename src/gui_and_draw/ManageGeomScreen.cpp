@@ -409,10 +409,10 @@ void ManageGeomScreen::LoadDisplayChoice()
     vector<string> geom_id_vec = GetActiveGeoms();
     vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
 
-    m_DisplayChoice.AddItem( "Surface" );
-    m_DisplayChoice.AddItem( "DegenSurf" );
-    m_DisplayChoice.AddItem( "DegenPlate" );
-    m_DisplayChoice.AddItem( "DegenCamber" );
+    m_DisplayChoice.AddItem( "Normal" );
+    m_DisplayChoice.AddItem( "Surface Degen" );
+    m_DisplayChoice.AddItem( "Plate Degen" );
+    m_DisplayChoice.AddItem( "Camber Degen" );
 
     bool mult_display_types = false;
 
