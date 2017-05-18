@@ -2523,7 +2523,7 @@ void ParasiteDragMgrSingleton::UpdateExcres()
             }
             else if (m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_COUNT)
             {
-                m_ExcresRowVec[i].Amount = m_ExcresValue() / 10000;
+                m_ExcresRowVec[i].Amount = m_ExcresValue() / 10000.0;
             }
             else if (m_ExcresRowVec[i].Type == vsp::EXCRESCENCE_PERCENT_GEOM)
             {
@@ -2572,23 +2572,23 @@ void ParasiteDragMgrSingleton::UpdateCurrentExcresVal()
     m_ExcresType.Set(m_ExcresRowVec[m_CurrentExcresIndex].Type);
     if (m_ExcresType() == vsp::EXCRESCENCE_CD)
     {
-        m_ExcresValue.SetLowerUpperLimits(0.0, 0.2);
+        m_ExcresValue.SetLowerUpperLimits(0.0, 10.0);
     }
     else if (m_ExcresType() == vsp::EXCRESCENCE_COUNT)
     {
-        m_ExcresValue.SetLowerUpperLimits(0.0, 2000.0);
+        m_ExcresValue.SetLowerUpperLimits(0.0, 100000.0);
     }
     else if (m_ExcresType() == vsp::EXCRESCENCE_PERCENT_GEOM)
     {
-        m_ExcresValue.SetLowerUpperLimits(0.0, 100.0);
+        m_ExcresValue.SetLowerUpperLimits(0.0, 1000.0);
     }
     else if (m_ExcresType() == vsp::EXCRESCENCE_MARGIN)
     {
-        m_ExcresValue.SetLowerUpperLimits(0.0, 100.0);
+        m_ExcresValue.SetLowerUpperLimits(0.0, 1000.0);
     }
     else if (m_ExcresType() == vsp::EXCRESCENCE_DRAGAREA)
     {
-        m_ExcresValue.SetLowerUpperLimits(0.0, 10.0);
+        m_ExcresValue.SetLowerUpperLimits(0.0, 10000.0);
     }
     m_ExcresValue.Set(m_ExcresRowVec[m_CurrentExcresIndex].Input);
 }
