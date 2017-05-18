@@ -2043,14 +2043,6 @@ void Geom::UpdateDegenDrawObj()
 
                 norm = degen_surf.nvec[j][k];
 
-                if ( norm.mag() == 0.0 ) // Handle collapsed normal vectors for shading 
-                {
-                    vec3d cross1 = corner3 - corner1;
-                    vec3d cross2 = corner4 - corner2;
-                    norm = cross( cross1, cross2 );
-                    norm.normalize();
-                }
-
                 // Set Normal Vector
                 for ( int m = 0; m < 4; m++ )
                 {
