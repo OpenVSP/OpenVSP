@@ -1918,19 +1918,7 @@ double ParasiteDragMgrSingleton::CalcPercentageTotalCD(double val)
 
 double ParasiteDragMgrSingleton::CalcDragAreaCD(double val)
 {
-    if (!m_DegenGeomVec.empty())
-    {
-        if (GetGeometryCd() > 0)
-        {
-            return val / m_Sref.Get();
-        }
-        else
-        {
-            return 0;
-        }
-    }
-
-    return 0;
+    return val / m_Sref.Get();
 }
 
 double ParasiteDragMgrSingleton::GetSubTotalExcresCD()
