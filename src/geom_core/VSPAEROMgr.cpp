@@ -2741,6 +2741,8 @@ xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
             xmlNodePtr csnode = xmlNewChild( node, NULL, BAD_CAST str , NULL );
             sprintf(str, "SSID%zu", i);
             XmlUtil::AddStringNode(csnode, str, m_ControlSurfVec[i].SSID.c_str());
+            sprintf(str, "ParentGeomID%zu", i);
+            XmlUtil::AddStringNode(csnode, str, m_ControlSurfVec[i].parentGeomId.c_str());
             sprintf(str, "iReflect%zu", i);
             XmlUtil::AddIntNode(csnode, str, m_ControlSurfVec[i].iReflect);
         }
@@ -2775,6 +2777,8 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
             xmlNodePtr csnode = XmlUtil::GetNode(node, str, 0);
             sprintf( str, "SSID%zu",i);
             newSurf.SSID = XmlUtil::FindString( csnode, str, SSID );
+            sprintf( str, "ParentGeomID%zu", i);
+            newSurf.parentGeomId = XmlUtil::FindString(csnode, str, ParentGeomID );
             sprintf(str, "iReflect%zu",i);
             newSurf.iReflect = XmlUtil::FindInt( csnode, str, iReflect );
             AddSubSurface( newSurf );
