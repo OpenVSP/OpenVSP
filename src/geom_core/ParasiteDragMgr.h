@@ -145,10 +145,7 @@ public:
     double GetGeometryCD();
     double GetSubTotalCD();
     double GetTotalCD();
-    vector < string > GetExcresIDs();        // Function Never Called
     string GetCurrentExcresLabel();
-    string GetCurrentExcresTypeString();     // Function Never Called
-    double GetCurrentExcresValue();          // Function Never Called
     int GetCurrentExcresType();
 
     // Excresence Related Functions
@@ -170,7 +167,6 @@ public:
     void UpdateAtmos();
     void UpdateVinf(int newunit);
     void UpdateAlt(int newunit);
-    void UpdateAltLimits();                   // Function Never Called
     void UpdateTemp(int newunit);
     void UpdateTempLimits();
     void UpdatePres(int newunit);

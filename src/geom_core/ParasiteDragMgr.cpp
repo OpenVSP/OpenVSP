@@ -1735,16 +1735,6 @@ double ParasiteDragMgrSingleton::GetTotalCD()
     return GetSubTotalCD();
 }
 
-vector<string> ParasiteDragMgrSingleton::GetExcresIDs()
-{
-    vector < string > vec;
-    for (size_t i = 0; i < m_ExcresRowVec.size(); ++i)
-    {
-        vec.push_back(m_ExcresRowVec[i].Label);
-    }
-    return vec;
-}
-
 string ParasiteDragMgrSingleton::GetCurrentExcresLabel()
 {
     if (m_CurrentExcresIndex != -1)
@@ -1752,24 +1742,6 @@ string ParasiteDragMgrSingleton::GetCurrentExcresLabel()
         return m_ExcresRowVec[m_CurrentExcresIndex].Label;
     }
     return "";
-}
-
-string ParasiteDragMgrSingleton::GetCurrentExcresTypeString()
-{
-    if (m_CurrentExcresIndex != -1)
-    {
-        return m_ExcresRowVec[m_CurrentExcresIndex].TypeString;
-    }
-    return "";
-}
-
-double ParasiteDragMgrSingleton::GetCurrentExcresValue()
-{
-    if (m_CurrentExcresIndex != -1)
-    {
-        return m_ExcresRowVec[m_CurrentExcresIndex].Input;
-    }
-    return 0;
 }
 
 int ParasiteDragMgrSingleton::GetCurrentExcresType()
@@ -2190,23 +2162,6 @@ void ParasiteDragMgrSingleton::UpdateAlt(int newunit)
 
     m_Hinf.Set(new_alt);
     m_AltLengthUnit.Set(newunit);
-}
-
-void ParasiteDragMgrSingleton::UpdateAltLimits()
-{
-    switch (m_AltLengthUnit())
-    {
-    case vsp::PD_UNITS_IMPERIAL:
-        m_Hinf.SetUpperLimit(278385.83);
-        break;
-
-    case vsp::PD_UNITS_METRIC:
-        m_Hinf.SetUpperLimit(84852.0);
-        break;
-
-    default:
-        break;
-    }
 }
 
 void ParasiteDragMgrSingleton::UpdateTemp(int newunit)
