@@ -20,6 +20,8 @@ public:
     {
         // VSPAERO
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroCreateModel )     //this test just creates the model with various features
+        //  Control Surface Deflection Test
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection )
         //  Vortex Lattice Method Tests
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroComputeGeom )
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePoint )
@@ -40,6 +42,7 @@ private:
     void TestVSPAeroCreateModel();
     //  Vortex Lattice Method Tests
     void TestVSPAeroComputeGeom();        //<--Execute this VSPERO test first
+    void TestVSPAeroControlSurfaceDeflection();
     void TestVSPAeroSinglePoint();
     void TestVSPAeroSinglePointStab();
     void TestVSPAeroSweep();
