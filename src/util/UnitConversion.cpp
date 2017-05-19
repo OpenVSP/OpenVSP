@@ -34,7 +34,7 @@ double ConvertVelocityToM_S(double velocity, int cur_unit)
         break;
 
     case vsp::V_UNIT_KEAS :
-        velocity = velocity * 463.0/900.0;
+        velocity *= 463.0/900.0;
         break;
 
     case vsp::V_UNIT_KTAS :
