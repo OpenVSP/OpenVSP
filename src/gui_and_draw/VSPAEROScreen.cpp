@@ -1335,7 +1335,7 @@ void VSPAEROScreen::UpdateDeflectionGainScrollGroup()
 
             for ( size_t i = 0; i < cs_vec.size(); ++i )
             {
-                m_CSGroupGainScrollLayout.AddSlider( m_DeflectionGainSliderVec[i], cs_vec[i].fullName.c_str(), 10, "%3.2f" );
+                m_CSGroupGainScrollLayout.AddSlider( m_DeflectionGainSliderVec[i], cs_vec[i].fullName.c_str(), 10.0, "%3.2f" );
                 m_DeflectionGainSliderVec[i].Update( cs->m_DeflectionGainVec[i]->GetID() );
             }
             m_NumVarDeflection = cs_vec.size();

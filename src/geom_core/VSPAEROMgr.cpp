@@ -531,25 +531,28 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
 
 void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
 {
-    for (size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i )
+    for (size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i)
     {
-        for (size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
+        for (size_t k = 0; k < m_ControlSurfaceGroupVec[i]->m_ControlSurfVec.size(); ++k)
         {
-            for (size_t k = 0; k < m_ControlSurfaceGroupVec[i]->m_ControlSurfVec.size(); ++k )
+            for (size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j)
             {
                 // If Control Surface ID AND Reflection Number Match - Replace Subsurf within Control Surface Group
-                if ( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 &&
-                    m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
+                if (m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID.compare(m_CompleteControlSurfaceVec[j].SSID) == 0 &&
+                    m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect == m_CompleteControlSurfaceVec[j].iReflect)
                 {
-                    m_ControlSurfaceGroupVec[i]->RemoveSubSurface( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID,
-                        m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect );
-                    m_ControlSurfaceGroupVec[i]->AddSubSurface( m_CompleteControlSurfaceVec[j] );
-                    m_CompleteControlSurfaceVec[j].isGrouped = true;
-                    m_ControlSurfaceGroupVec[i]->UpdateParmGroupName();
+                    m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].fullName = m_CompleteControlSurfaceVec[j].fullName;
                 }
             }
+            // Remove Sub Surfaces with Parent Geoms That No Longer Exist
+            if (!VehicleMgr.GetVehicle()->FindGeom(m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].parentGeomId))
+            {
+                m_ControlSurfaceGroupVec[i]->RemoveSubSurface(m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID,
+                    m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect);
+            }
         }
-        m_ControlSurfaceGroupVec[i]->SetParentContainer( GetID() );
+        m_ControlSurfaceGroupVec[i]->UpdateParmGroupName();
+        m_ControlSurfaceGroupVec[i]->SetParentContainer(GetID());
     }
 }
 
@@ -603,12 +606,13 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                             {
                                 sprintf(str, "%s_Surf%zu_%s", veh->FindGeom(geom_vec[i])->GetName().c_str(), iReflect, sub_surf_vec[j]->GetName().c_str());
                                 m_CompleteControlSurfaceVec[k].fullName = str;
+                                m_CompleteControlSurfaceVec[k].isGrouped = true;
                                 contained = true;
                                 break;
                             }
                         }
 
-                        // If CS and Corresponding Surface Num Do NOT Exist within m_RotorDiskVec
+                        // If CS and Corresponding Surface Num Do NOT Exist within m_CompleteControlSurfaceVec
                         // Create New CS Parm Container
                         if (!contained)
                         {
