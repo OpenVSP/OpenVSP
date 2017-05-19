@@ -542,6 +542,7 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect == m_CompleteControlSurfaceVec[j].iReflect)
                 {
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].fullName = m_CompleteControlSurfaceVec[j].fullName;
+                    m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].isGrouped = true;
                 }
             }
             // Remove Sub Surfaces with Parent Geoms That No Longer Exist
@@ -606,7 +607,6 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                             {
                                 sprintf(str, "%s_Surf%zu_%s", veh->FindGeom(geom_vec[i])->GetName().c_str(), iReflect, sub_surf_vec[j]->GetName().c_str());
                                 m_CompleteControlSurfaceVec[k].fullName = str;
-                                m_CompleteControlSurfaceVec[k].isGrouped = true;
                                 contained = true;
                                 break;
                             }
