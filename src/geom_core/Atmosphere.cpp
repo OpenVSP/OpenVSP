@@ -311,6 +311,10 @@ void Atmosphere::UpdateMach(double vinf, double gamma, int tempunit, int vinfuni
     double T = ConvertTemperature( m_Temp, tempunit, vsp::TEMP_UNIT_K );
     m_SoundSpeed = sqrt(gamma * m_Rspecific * T); // m/s
 
-    vinf = ConvertVelocity(vinf, vinfunit, vsp::V_UNIT_M_S);
-    m_Mach = vinf / m_SoundSpeed;
+    if (vinfunit == vsp::V_UNIT_KEAS)
+    {
+        vinf *= sqrt(1.0 / m_DensityRatio);
+    }
+    double vms = ConvertVelocity(vinf, vinfunit, vsp::V_UNIT_M_S);
+    m_Mach = vms / m_SoundSpeed;
 }

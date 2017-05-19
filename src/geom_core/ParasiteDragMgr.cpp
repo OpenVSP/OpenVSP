@@ -2103,6 +2103,11 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
         m_Rho.Set(m_Atmos.GetDensity());
         m_Mach.Set(m_Atmos.GetMach());
 
+        if (m_VinfUnitType() == vsp::V_UNIT_KEAS) // Convert to KTAS
+        {
+            vinf *= sqrt(1.0 / m_Atmos.GetDensityRatio());
+        }
+
         if (m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL)
         {
             vinf = ConvertVelocity(vinf, m_VinfUnitType.Get(), vsp::V_UNIT_FT_S);
@@ -2134,16 +2139,15 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
 void ParasiteDragMgrSingleton::UpdateVinf(int newunit)
 {
     double new_vinf;
-    if (m_VinfUnitType() == vsp::V_UNIT_KEAS)
+    if (m_VinfUnitType() == vsp::V_UNIT_KEAS) // Convert to KTAS
     {
         m_Vinf *= sqrt(1.0 / m_Atmos.GetDensityRatio());
     }
     new_vinf = ConvertVelocity(m_Vinf(), m_VinfUnitType(), newunit);
-    if (newunit == vsp::V_UNIT_KEAS)
+    if (newunit == vsp::V_UNIT_KEAS) // Convert back to KEAS
     {
         new_vinf /= sqrt(1.0 / m_Atmos.GetDensityRatio());
     }
-    new_vinf = ConvertVelocity(m_Vinf(), m_VinfUnitType(), newunit);
     m_Vinf.Set(new_vinf);
     m_VinfUnitType.Set(newunit);
 }
