@@ -2119,15 +2119,15 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
 
         m_KineVisc = m_Atmos.GetDynaVisc() / m_Rho();
 
-        LqRe = m_KineVisc() / vinf;
+        LqRe = m_KineVisc() / vinf; // Either ft or m
 
         if (m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL)
         {
-            vinf = ConvertLength(LqRe, vsp::LEN_FT, m_LengthUnit());
+            LqRe = ConvertLength(LqRe, vsp::LEN_FT, m_LengthUnit());
         }
         else if (m_AltLengthUnit() == vsp::PD_UNITS_METRIC)
         {
-            vinf = ConvertLength(LqRe, vsp::LEN_M, m_LengthUnit());
+            LqRe = ConvertLength(LqRe, vsp::LEN_M, m_LengthUnit());
         }
 
         m_ReqL.Set(1.0 / LqRe);
