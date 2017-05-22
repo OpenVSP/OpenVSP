@@ -73,16 +73,6 @@ void SubSurface::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
     draw_obj_vec.push_back( &m_SubSurfDO );
 }
 
-void SubSurface::LoadAllColoredDrawObjs( std::vector < DrawObj* > & draw_obj_vec )
-{
-    for ( int i = 0 ; i < ( int )m_DrawObjVec.size() ; i++ )
-    {
-        m_DrawObjVec[i].m_LineColor = vec3d( 0, 1, 0 );
-        m_DrawObjVec[i].m_GeomID = ( m_ID + to_string( ( long long )i ) );
-        draw_obj_vec.push_back( &m_DrawObjVec[i] );
-    }
-}
-
 void SubSurface::LoadPartialColoredDrawObjs( const string & ss_id, int surf_num, std::vector < DrawObj* > & draw_obj_vec, vec3d color )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
@@ -90,19 +80,10 @@ void SubSurface::LoadPartialColoredDrawObjs( const string & ss_id, int surf_num,
     {
         return;
     }
-    Geom* geom = veh->FindGeom( m_CompID );
-    int ncopy = geom->GetSymmIndexs( m_MainSurfIndx() ).size();
 
-    for ( int i = surf_num ; i < ( int )m_DrawObjVec.size() ; i++ )
-    {
-        if( m_DrawObjVec[i].m_GeomID.substr( 0, 10 ) == ss_id  )
-        {
-            m_DrawObjVec[i].m_LineColor = color;
-            m_DrawObjVec[i].m_GeomID = ( m_ID + to_string( ( long long )i ) );
-            draw_obj_vec.push_back( &m_DrawObjVec[i] );
-        }
-        i += ncopy-1;
-    }
+    m_SubSurfHighlightDO[surf_num].m_LineColor = color;
+    m_SubSurfHighlightDO[surf_num].m_GeomID = (m_ID + to_string((long long)surf_num));
+    draw_obj_vec.push_back(&m_SubSurfHighlightDO[surf_num]);
 }
 
 vector< TMesh* > SubSurface::CreateTMeshVec()
@@ -125,6 +106,7 @@ void SubSurface::UpdateDrawObjs()
         return;
     }
     Geom* geom = veh->FindGeom( m_CompID );
+    m_SubSurfHighlightDO.clear();
 
     m_SubSurfDO.m_PntVec.clear();
     m_SubSurfDO.m_GeomID = m_ID + string( "_ss_line" );
@@ -137,8 +119,11 @@ void SubSurface::UpdateDrawObjs()
         geom->GetSurfVec( surf_vec );
         int ncopy = geom->GetNumSymmCopies();
 
+        m_SubSurfHighlightDO.resize( m_LVec.size()*ncopy, DrawObj() );
+        int ind;
         for ( int ls = 0 ; ls < ( int )m_LVec.size() ; ls++ )
         {
+            ind = 0;
             int num_pnts = CompNumDrawPnts( geom );
             int *num_pnts_ptr = NULL;
             if ( num_pnts > 0 )
@@ -156,6 +141,11 @@ void SubSurface::UpdateDrawObjs()
                 vector < vec3d > pts;
                 m_LVec[ls].GetDOPts( &surf_vec[symms[s]], geom, pts, num_pnts_ptr );
                 m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.begin(), pts.begin(), pts.end() );
+
+                m_SubSurfHighlightDO[ind].m_PntVec.insert( m_SubSurfHighlightDO[ind].m_PntVec.begin(), pts.begin(), pts.end());
+                m_SubSurfHighlightDO[ind].m_Type = DrawObj::VSP_LINES;
+                m_SubSurfHighlightDO[ind].m_LineWidth = 5.0;
+                ++ind;
             }
         }
     }

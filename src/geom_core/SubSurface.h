@@ -102,7 +102,6 @@ public:
         return m_PolyPntsVec;
     }
     virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
-    virtual void LoadAllColoredDrawObjs( std::vector < DrawObj * > & draw_obj_vec );
     virtual void LoadPartialColoredDrawObjs( const string & ss_id, int surf_num, std::vector < DrawObj * > & draw_obj_vec, vec3d color );
     virtual void SetUpdateDraw( bool flag )
     {
@@ -139,7 +138,7 @@ public:
 protected:
     string m_CompID; // Component ID used to match Subsurface to a specific geom
     int m_Type; // Type of SubSurface
-    std::vector< DrawObj > m_DrawObjVec;
+    std::vector< DrawObj > m_SubSurfHighlightDO;
     bool m_UpdateDrawFlag;
     DrawObj m_SubSurfDO;
     vector<SSLineSeg> m_LVec; // Line Segment Vector
