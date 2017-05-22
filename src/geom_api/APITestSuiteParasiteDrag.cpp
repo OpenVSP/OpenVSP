@@ -103,7 +103,7 @@ void APITestSuiteParasiteDrag::TestFirstParasiteDragCalc()
     TEST_ASSERT_DELTA( wing_lref, lref[0], geom_tol );
     TEST_ASSERT_DELTA( pod_lref, lref[2], geom_tol );
 
-    vector < double > dat = vsp::GetDoubleResults( results_id, "Total_Cd_Total" );
+    vector < double > dat = vsp::GetDoubleResults( results_id, "Total_CD_Total" );
     TEST_ASSERT_DELTA( first_res, dat[0], pd_tol );
 
     vsp::PrintResults( results_id );                             // Get & Display Results
@@ -186,7 +186,7 @@ void APITestSuiteParasiteDrag::TestSecondParasiteDragCalc()
     printf("COMPLETE\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    vector < double > dat = vsp::GetDoubleResults( results_id, "Total_Cd_Total" );
+    vector < double > dat = vsp::GetDoubleResults( results_id, "Total_CD_Total" );
     TEST_ASSERT( abs(second_res - dat[0]) < tol );
 
     vsp::PrintResults( results_id );                             // Get & Display Results
@@ -232,7 +232,7 @@ void APITestSuiteParasiteDrag::TestChangeOptions()
     printf("COMPLETE\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    vector < double > dat = vsp::GetDoubleResults( results_id, "Total_Cd_Total" );
+    vector < double > dat = vsp::GetDoubleResults( results_id, "Total_CD_Total" );
     TEST_ASSERT( abs(third_res - dat[0]) < tol );
 
     vsp::PrintResults( results_id );                             // Get & Display Results
@@ -416,7 +416,7 @@ void APITestSuiteParasiteDrag::TestS3VikingModel()
 
     string ridpd = vsp::ExecAnalysis("ParasiteDrag");
 
-    vector <double> dat = vsp::GetDoubleResults(ridpd, "Total_Cd_Total", 0);
+    vector <double> dat = vsp::GetDoubleResults(ridpd, "Total_CD_Total", 0);
     double tol = 0.018572*0.10;
 
     TEST_ASSERT_DELTA(dat[0], 0.018572, tol);
