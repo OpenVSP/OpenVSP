@@ -2033,7 +2033,8 @@ void ParasiteDragMgrSingleton::UpdateWettedAreaTotals()
                             (geo_geomID[i].compare(geo_geomID[j]) != 0 &&
                                 geo_geomID[i].compare(veh->FindGeom(geo_geomID[j])->GetAncestorID(geo_groupedAncestorGen[j])) == 0 &&
                                 geo_surfNum[i] == 0 && !veh->FindGeom(geo_geomID[j])->m_ExpandedListFlag()) ||
-                                (geo_label[i].substr(0, 3).compare("[W]") == 0 || geo_label[i].substr(0, 3).compare("[B]") == 0)) &&
+                                (geo_label[i].substr(0, 3).compare("[W]") == 0 || geo_label[i].substr(0, 3).compare("[B]") == 0 &&
+                                    geo_geomID[i].compare(geo_geomID[j]) == 0)) &&
                             (geo_shapeType[i] == geo_shapeType[j] && !geo_expandedList[i]))
                         {
                             geo_swet[i] += geo_swet[j];
