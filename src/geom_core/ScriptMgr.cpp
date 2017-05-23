@@ -1085,6 +1085,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_KTAS", V_UNIT_KTAS );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_MACH", V_UNIT_MACH );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "TEMP_UNITS" );
     assert( r >= 0 );

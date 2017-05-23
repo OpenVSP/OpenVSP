@@ -40,6 +40,9 @@ double ConvertVelocityToM_S(double velocity, int cur_unit)
     case vsp::V_UNIT_KTAS :
         velocity *= 463.0/900.0;
         break;
+        
+    case vsp::V_UNIT_MACH :
+        break;
     }
     return velocity;
 }
@@ -69,6 +72,9 @@ double ConvertVelocityFromM_S(double velocity, int new_unit)
 
     case vsp::V_UNIT_KTAS :
         velocity *= 900.0/463.0;
+        break;
+
+    case vsp::V_UNIT_MACH :
         break;
     }
     return velocity;

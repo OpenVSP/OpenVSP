@@ -93,7 +93,7 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_Vinf.Init("Vinf", groupname, this, 500.0, 0.0, 1e12);
     m_Vinf.SetDescript("Free Stream Velocity");
 
-    m_VinfUnitType.Init("VinfUnitType", groupname, this, vsp::V_UNIT_FT_S, vsp::V_UNIT_FT_S, vsp::V_UNIT_KTAS);
+    m_VinfUnitType.Init("VinfUnitType", groupname, this, vsp::V_UNIT_FT_S, vsp::V_UNIT_FT_S, vsp::V_UNIT_MACH);
     m_VinfUnitType.SetDescript("Units for Freestream Velocity");
 
     m_Hinf.Init("Alt", groupname, this, 20000.0, 0.0, 271823.3);
@@ -2065,13 +2065,27 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
     // Determine Which Atmos Variant will Calculate Atmospheric Properties
     if (m_FreestreamType() == vsp::ATMOS_TYPE_US_STANDARD_1976)
     {
-        m_Atmos.USStandardAtmosphere1976(m_Hinf(), m_DeltaT(), m_AltLengthUnit(), m_TempUnit.Get(), m_PresUnit());
-        m_Atmos.UpdateMach(vinf, m_SpecificHeatRatio(), m_TempUnit(), m_VinfUnitType());
+        m_Atmos.USStandardAtmosphere1976(m_Hinf(), m_DeltaT(), m_AltLengthUnit(), m_TempUnit.Get(), m_PresUnit(), m_SpecificHeatRatio());
+        if (m_VinfUnitType() == vsp::V_UNIT_MACH)
+        {
+            m_Atmos.SetMach(m_Vinf());
+        }
+        else
+        {
+            m_Atmos.UpdateMach(vinf, m_TempUnit(), m_VinfUnitType());
+        }
     }
     else if (m_FreestreamType() == vsp::ATMOS_TYPE_HERRINGTON_1966)
     {
-        m_Atmos.USAF1966(m_Hinf(), m_DeltaT(), m_AltLengthUnit(), m_TempUnit.Get(), m_PresUnit());
-        m_Atmos.UpdateMach(vinf, m_SpecificHeatRatio(), m_TempUnit(), m_VinfUnitType());
+        m_Atmos.USAF1966(m_Hinf(), m_DeltaT(), m_AltLengthUnit(), m_TempUnit.Get(), m_PresUnit(), m_SpecificHeatRatio());
+        if (m_VinfUnitType() == vsp::V_UNIT_MACH)
+        {
+            m_Atmos.UpdateMach(vinf, m_TempUnit(), m_VinfUnitType());
+        }
+        else
+        {
+            m_Atmos.UpdateMach(vinf, m_SpecificHeatRatio(), m_TempUnit());
+        }
     }
     else if (m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_R)
     {
@@ -2103,18 +2117,29 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
         m_Rho.Set(m_Atmos.GetDensity());
         m_Mach.Set(m_Atmos.GetMach());
 
-        if (m_VinfUnitType() == vsp::V_UNIT_KEAS) // Convert to KTAS
+        if (m_VinfUnitType() != vsp::V_UNIT_MACH)
         {
-            vinf *= sqrt(1.0 / m_Atmos.GetDensityRatio());
-        }
+            if (m_VinfUnitType() == vsp::V_UNIT_KEAS) // Convert to KTAS
+            {
+                vinf *= sqrt(1.0 / m_Atmos.GetDensityRatio());
+            }
 
-        if (m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL)
-        {
-            vinf = ConvertVelocity(vinf, m_VinfUnitType.Get(), vsp::V_UNIT_FT_S);
+            if (m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL)
+            {
+                vinf = ConvertVelocity(vinf, m_VinfUnitType.Get(), vsp::V_UNIT_FT_S);
+            }
+            else if (m_AltLengthUnit() == vsp::PD_UNITS_METRIC)
+            {
+                vinf = ConvertVelocity(vinf, m_VinfUnitType.Get(), vsp::V_UNIT_M_S);
+            }
         }
-        else if (m_AltLengthUnit() == vsp::PD_UNITS_METRIC)
+        else
         {
-            vinf = ConvertVelocity(vinf, m_VinfUnitType.Get(), vsp::V_UNIT_M_S);
+            vinf *= m_Atmos.GetSoundSpeed(); // m/s
+            if (m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL)
+            {
+                vinf = ConvertVelocity(vinf, vsp::V_UNIT_M_S, vsp::V_UNIT_FT_S);
+            }
         }
 
         m_KineVisc = m_Atmos.GetDynaVisc() / m_Rho();
@@ -2139,14 +2164,31 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
 void ParasiteDragMgrSingleton::UpdateVinf(int newunit)
 {
     double new_vinf;
-    if (m_VinfUnitType() == vsp::V_UNIT_KEAS) // Convert to KTAS
+    if (newunit != vsp::V_UNIT_MACH)
     {
-        m_Vinf *= sqrt(1.0 / m_Atmos.GetDensityRatio());
+        if (m_VinfUnitType() == vsp::V_UNIT_MACH)
+        {
+            m_Vinf *= m_Atmos.GetSoundSpeed(); // m/s
+            new_vinf = ConvertVelocity(m_Vinf(), vsp::V_UNIT_M_S, newunit);
+        }
+        else if (m_VinfUnitType() == vsp::V_UNIT_KEAS)
+        {
+            m_Vinf *= sqrt(1.0 / m_Atmos.GetDensityRatio());
+            new_vinf = ConvertVelocity(m_Vinf(), m_VinfUnitType(), newunit);         
+        }
+        else if (newunit == vsp::V_UNIT_KEAS)
+        {
+            new_vinf = ConvertVelocity(m_Vinf(), m_VinfUnitType(), newunit);
+            new_vinf /= sqrt(1.0 / m_Atmos.GetDensityRatio());
+        }
+        else
+        {
+            new_vinf = ConvertVelocity(m_Vinf(), m_VinfUnitType(), newunit);
+        }
     }
-    new_vinf = ConvertVelocity(m_Vinf(), m_VinfUnitType(), newunit);
-    if (newunit == vsp::V_UNIT_KEAS) // Convert back to KEAS
+    else
     {
-        new_vinf /= sqrt(1.0 / m_Atmos.GetDensityRatio());
+        new_vinf = m_Atmos.GetMach();
     }
     m_Vinf.Set(new_vinf);
     m_VinfUnitType.Set(newunit);
@@ -2394,6 +2436,9 @@ void ParasiteDragMgrSingleton::UpdateExportLabels()
     case vsp::V_UNIT_KM_HR:
         m_VinfLabel = "Vinf (km/hr)";
         break;
+
+    case vsp::V_UNIT_MACH:
+        m_VinfLabel = "Vinf (Mach)";
     }
 
     // Temperature

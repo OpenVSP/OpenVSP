@@ -390,6 +390,7 @@ enum VEL_UNITS { V_UNIT_FT_S = 0,
                  V_UNIT_KM_HR,
                  V_UNIT_KEAS,
                  V_UNIT_KTAS,
+                 V_UNIT_MACH,
                }; // Velocity Units ENUM
 
 enum TEMP_UNITS { TEMP_UNIT_K = 0,

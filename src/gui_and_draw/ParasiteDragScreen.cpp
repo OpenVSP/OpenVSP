@@ -332,6 +332,7 @@ ParasiteDragScreen::ParasiteDragScreen(ScreenMgr* mgr) : TabScreen(mgr,
     m_VinfUnitChoice.AddItem("km\\/hr");
     m_VinfUnitChoice.AddItem("KEAS");
     m_VinfUnitChoice.AddItem("KTAS");
+    m_VinfUnitChoice.AddItem("Mach");
     m_VinfUnitChoice.UpdateItems();
     m_VinfUnitChoice.SetWidth(choice_list_width);
     m_OptionsLayout.ForceNewLine();

@@ -13,7 +13,7 @@ Atmosphere::~Atmosphere()
 {
 }
 
-void Atmosphere::USStandardAtmosphere1976(double alt, double delta_temp, int altunit, int tempunit, int presunit)
+void Atmosphere::USStandardAtmosphere1976(double alt, double delta_temp, int altunit, int tempunit, int presunit, double gamma)
 {
     static const double arr1[] = { 0.0, 11.0, 20.0, 32.0, 47.0, 51.0, 71.0, 84.852 }; //kilometers
     vector < double > StdAtmosAltSteps (arr1, arr1 + sizeof(arr1) / sizeof(arr1[0]) );
@@ -61,6 +61,7 @@ void Atmosphere::USStandardAtmosphere1976(double alt, double delta_temp, int alt
     }
 
     double rho = P / (m_Rspecific * T); // kg/m3
+    m_SoundSpeed = sqrt(gamma * m_Rspecific * T); // m/s
 
     m_DensityRatio = rho / m_RHO0;
     m_PressureRatio = P / m_P0;
@@ -113,7 +114,7 @@ void Atmosphere::CalcLayerQuantitiesUS1976(double & temp, double & pres, double 
     }
 }
 
-void Atmosphere::USAF1966(double alt, double delta_temp, int altunit, int tempunit, int presunit)
+void Atmosphere::USAF1966(double alt, double delta_temp, int altunit, int tempunit, int presunit, double gamma)
 {
     // Set up Sea Level Constants and Other Constants
     double m_P0 = 29.92126; // "Hg
@@ -156,6 +157,8 @@ void Atmosphere::USAF1966(double alt, double delta_temp, int altunit, int tempun
 
     m_DensityRatio = rho / m_RHO0;
     m_PressureRatio = P / m_P0;
+
+    m_SoundSpeed = sqrt(gamma * m_Rspecific * T); // m/s
 
     // Modeling Dynamic Viscosity
     m_DynamicVisc = DynamicViscosityCalc(T, tempunit, altunit);
@@ -306,10 +309,9 @@ void Atmosphere::SetManualQualities(double & vinf, double & temp, double & pres,
     m_KTAS = m_KEAS * m_DensityRatio;
 }
 
-void Atmosphere::UpdateMach(double vinf, double gamma, int tempunit, int vinfunit)
+void Atmosphere::UpdateMach(double vinf, int tempunit, int vinfunit)
 {
     double T = ConvertTemperature( m_Temp, tempunit, vsp::TEMP_UNIT_K );
-    m_SoundSpeed = sqrt(gamma * m_Rspecific * T); // m/s
 
     if (vinfunit == vsp::V_UNIT_KEAS)
     {
