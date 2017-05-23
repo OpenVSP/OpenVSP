@@ -217,6 +217,15 @@ ParasiteDragScreen::ParasiteDragScreen(ScreenMgr* mgr) : TabScreen(mgr,
     //---- Geometry ----//
     m_OptionsLayout.AddDividerBox("Geometry");
     m_OptionsLayout.AddChoice(m_SetChoice, "Geometry Set: ");
+    m_OptionsLayout.AddChoice(m_ModelLengthUnitChoice, "Model Length Unit");
+    m_ModelLengthUnitChoice.AddItem("mm");
+    m_ModelLengthUnitChoice.AddItem("cm");
+    m_ModelLengthUnitChoice.AddItem("m");
+    m_ModelLengthUnitChoice.AddItem("in");
+    m_ModelLengthUnitChoice.AddItem("ft");
+    m_ModelLengthUnitChoice.AddItem("yd");
+    m_ModelLengthUnitChoice.AddItem("Unitless");
+    m_ModelLengthUnitChoice.UpdateItems();
     m_OptionsLayout.AddYGap();
 
     //---- Table Options ----//
@@ -285,15 +294,6 @@ ParasiteDragScreen::ParasiteDragScreen(ScreenMgr* mgr) : TabScreen(mgr,
     m_OptionsLayout.ForceNewLine();
     m_OptionsLayout.SetFitWidthFlag(true);
     m_OptionsLayout.SetSameLineFlag(false);
-    m_OptionsLayout.AddChoice(m_ModelLengthUnitChoice, "Model Length Unit");
-    m_ModelLengthUnitChoice.AddItem("mm");
-    m_ModelLengthUnitChoice.AddItem("cm");
-    m_ModelLengthUnitChoice.AddItem("m");
-    m_ModelLengthUnitChoice.AddItem("in");
-    m_ModelLengthUnitChoice.AddItem("ft");
-    m_ModelLengthUnitChoice.AddItem("yd");
-    m_ModelLengthUnitChoice.AddItem("Unitless");
-    m_ModelLengthUnitChoice.UpdateItems();
     m_RefToggle.Init(this);
     m_RefToggle.AddButton(m_RefManualToggle.GetFlButton());
     m_RefToggle.AddButton(m_RefChoiceToggle.GetFlButton());
