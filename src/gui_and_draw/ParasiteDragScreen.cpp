@@ -2002,7 +2002,7 @@ void ParasiteDragScreen::SetupHeatTransfer(int index, double tetwratio, double t
 void ParasiteDragScreen::SetupPercLaminar(int index, double perclam)
 {
     ostringstream strs;
-    int precision = 2;
+    int precision = 1;
     m_TableLayout.SetInputWidth(TYPICAL_INPUT_WIDTH - 20);
     m_TableLayout.AddInput(m_percLam[index], "");
     if (perclam != -1)
