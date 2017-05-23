@@ -383,8 +383,9 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
 
 void ParasiteDragMgrSingleton::Calculate_Lref()
 {
-    // Initialize Variables
+    // Initialize Variablse
     int iSurf = 0;
+    string lastID;
 
     for (int i = 0; i < m_RowSize; ++i)
     {
@@ -394,15 +395,23 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
             {
                 if (m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE)
                 {
-                    if (m_DegenGeomVec[iSurf].getType() == DegenGeom::SURFACE_TYPE)
+                    if (lastID.compare(geo_geomID[i]) != 0)
                     {
-                        CalcReferenceChord(iSurf);
+                        if (m_DegenGeomVec[iSurf].getType() == DegenGeom::SURFACE_TYPE)
+                        {
+                            CalcReferenceChord(iSurf);
+                        }
+                        else if (m_DegenGeomVec[iSurf].getType() == DegenGeom::BODY_TYPE)
+                        {
+                            CalcReferenceBodyLength(iSurf);
+                        }
+                        ++iSurf;
+                        lastID = geo_geomID[i];
                     }
-                    else if (m_DegenGeomVec[iSurf].getType() == DegenGeom::BODY_TYPE)
+                    else
                     {
-                        CalcReferenceBodyLength(iSurf);
+                        geo_lref.push_back(geo_lref[geo_lref.size() - 1]);
                     }
-                    ++iSurf;
                 }
                 else
                 {
@@ -1331,6 +1340,8 @@ double ParasiteDragMgrSingleton::CalcFFWing(double toc, int ff_case,
     size_t nint = 4;
     double ff;
 
+    double mach = m_Atmos.GetMach();
+
     switch (ff_case)
     {
     case vsp::FF_W_MANUAL:
@@ -1356,17 +1367,17 @@ double ParasiteDragMgrSingleton::CalcFFWing(double toc, int ff_case,
 
     case vsp::FF_W_SHEVELL:
         double Z;
-        Z = ((2.0 - pow(m_Mach(), 2.0)) * cos(sweep25)) / (sqrt(1.0 -
-            (pow(m_Mach(), 2.0) * pow(cos(sweep25), 2))));
+        Z = ((2.0 - pow(mach, 2.0)) * cos(sweep25)) / (sqrt(1.0 -
+            (pow(mach, 2.0) * pow(cos(sweep25), 2))));
         ff = 1.0 + (Z * toc) + (100.0 * pow(toc, 4.0));
         break;
 
     case vsp::FF_W_KROO:
         double part1A, part1B, part2A, part2B;
         part1A = (2.2 * pow(cos(sweep25), 2.0) * toc);
-        part1B = (sqrt(1.0 - (pow(m_Mach(), 2.0) * pow(cos(sweep25), 2.0))));
+        part1B = (sqrt(1.0 - (pow(mach, 2.0) * pow(cos(sweep25), 2.0))));
         part2A = (4.84 * pow(cos(sweep25), 2.0)* (1.0 + 5.0 * pow(cos(sweep25), 2.0)) * pow(toc, 2.0));
-        part2B = (2.0 * (1.0 - (pow(m_Mach(), 2.0) * pow(cos(sweep25), 2.0))));
+        part2B = (2.0 * (1.0 - (pow(mach, 2.0) * pow(cos(sweep25), 2.0))));
         ff = 1.0 + (part1A / part1B) + (part2A / part2B);
         break;
 
@@ -1378,42 +1389,51 @@ double ParasiteDragMgrSingleton::CalcFFWing(double toc, int ff_case,
         double L, Rls, x, RLS_Low, RLS_High;;
 
         // L value Decided based on xtrans/c
-        if (perc_lam <= 0.30)
+        if (perc_lam <= 30.0)
             L = 2.0;
         else
             L = 1.2;
 
-        for (size_t i = 0; i < nint; ++i)
+        if (mach < Interval[0])
         {
-            if (m_Mach() <= Interval[0])
-            {
-                Rls = -2.0292 * pow(cos(sweep25), 3.0) + 3.6345 * pow(cos(sweep25), 2.0) - 1.391 * cos(sweep25) + 0.8521;
-            }
-            else if (m_Mach() > Interval[3])
-            {
-                Rls = -1.8316 * pow(cos(sweep25), 3.0) + 3.3944 * pow(cos(sweep25), 2.0) - 1.3596 * cos(sweep25) + 1.1567;
-            }
-            else if (m_Mach() >= Interval[i])
-            {
-                x = (m_Mach() - Interval[i]) / (Interval[i + 1] - Interval[i]);
-                if (i == 0)
-                {
-                    RLS_Low = -2.0292 * pow(cos(sweep25), 3.0) + 3.6345 * pow(cos(sweep25), 2.0) - 1.391 * cos(sweep25) + 0.8521;
-                    RLS_High = -1.9735 * pow(cos(sweep25), 3.0) + 3.4504 * pow(cos(sweep25), 2.0) - 1.186 * cos(sweep25) + 0.858;
-                }
-                else if (i == 1)
-                {
-                    RLS_Low = -1.9735 * pow(cos(sweep25), 3.0) + 3.4504 * pow(cos(sweep25), 2.0) - 1.186 * cos(sweep25) + 0.858;
-                    RLS_High = -1.6538 * pow(cos(sweep25), 3.0) + 2.865 * pow(cos(sweep25), 2.0) - 0.886 * cos(sweep25) + 0.934;
-                }
-                else if (i == 2)
-                {
-                    RLS_Low = -1.6538 * pow(cos(sweep25), 3.0) + 2.865 * pow(cos(sweep25), 2.0) - 0.886 * cos(sweep25) + 0.934;
-                    RLS_High = -1.8316 * pow(cos(sweep25), 3.0) + 3.3944 * pow(cos(sweep25), 2.0) - 1.3596 * cos(sweep25) + 1.1567;
-                }
-
-                Rls = x * (RLS_High - RLS_Low) + RLS_Low;
-            }
+            Rls = -2.0292 * pow(cos(sweep25), 3.0) + 3.6345 * pow(cos(sweep25), 2.0) - 1.391 * cos(sweep25) + 0.8521;
+        }
+        else if (mach == Interval[0])
+        {
+            Rls = -2.0292 * pow(cos(sweep25), 3.0) + 3.6345 * pow(cos(sweep25), 2.0) - 1.391 * cos(sweep25) + 0.8521;
+        }
+        else if (mach > Interval[0] && mach < Interval[1])
+        {
+            x = (mach - Interval[0]) / (Interval[1] - Interval[0]);
+            RLS_Low = -2.0292 * pow(cos(sweep25), 3.0) + 3.6345 * pow(cos(sweep25), 2.0) - 1.391 * cos(sweep25) + 0.8521;
+            RLS_High = -1.9735 * pow(cos(sweep25), 3.0) + 3.4504 * pow(cos(sweep25), 2.0) - 1.186 * cos(sweep25) + 0.858;
+            Rls = x * (RLS_High - RLS_Low) + RLS_Low;
+        }
+        else if (mach == Interval[1])
+        {
+            Rls = -1.9735 * pow(cos(sweep25), 3.0) + 3.4504 * pow(cos(sweep25), 2.0) - 1.186 * cos(sweep25) + 0.858;
+        }
+        else if (mach > Interval[1] && mach < Interval[2])
+        {
+            x = (mach - Interval[1]) / (Interval[2] - Interval[1]);
+            RLS_Low = -1.9735 * pow(cos(sweep25), 3.0) + 3.4504 * pow(cos(sweep25), 2.0) - 1.186 * cos(sweep25) + 0.858;
+            RLS_High = -1.6538 * pow(cos(sweep25), 3.0) + 2.865 * pow(cos(sweep25), 2.0) - 0.886 * cos(sweep25) + 0.934;
+            Rls = x * (RLS_High - RLS_Low) + RLS_Low;
+        }
+        else if (mach == Interval[2])
+        {
+            Rls = -1.6538 * pow(cos(sweep25), 3.0) + 2.865 * pow(cos(sweep25), 2.0) - 0.886 * cos(sweep25) + 0.934;
+        }
+        else if (mach > Interval[2] && mach < Interval[3])
+        {
+            x = (mach - Interval[2]) / (Interval[3] - Interval[2]);
+            RLS_Low = -1.6538 * pow(cos(sweep25), 3.0) + 2.865 * pow(cos(sweep25), 2.0) - 0.886 * cos(sweep25) + 0.934;
+            RLS_High = -1.8316 * pow(cos(sweep25), 3.0) + 3.3944 * pow(cos(sweep25), 2.0) - 1.3596 * cos(sweep25) + 1.1567;
+            Rls = x * (RLS_High - RLS_Low) + RLS_Low;
+        }
+        else if (mach >= Interval[3])
+        {
+            Rls = -1.8316 * pow(cos(sweep25), 3.0) + 3.3944 * pow(cos(sweep25), 2.0) - 1.3596 * cos(sweep25) + 1.1567;
         }
 
         ff = (1.0 + (L * toc) + 100.0 * pow(toc, 4.0)) * Rls;
@@ -1468,6 +1488,7 @@ double ParasiteDragMgrSingleton::CalcFFWing(double toc, int ff_case,
 double ParasiteDragMgrSingleton::CalcFFBody(double longF, double FR, int ff_case, double ref_leng, double max_x_area)
 {
     double ff;
+    double mach = m_Atmos.GetMach();
     switch (ff_case)
     {
     case vsp::FF_B_MANUAL:
@@ -1514,7 +1535,7 @@ double ParasiteDragMgrSingleton::CalcFFBody(double longF, double FR, int ff_case
         break;
 
     case vsp::FF_B_JOBE:
-        ff = 1.02 + (1.5 / (pow(longF, 1.5))) + (7.0 / (0.6 * pow(longF, 3.0) * (1.0 - pow(m_Mach(), 3.0))));
+        ff = 1.02 + (1.5 / (pow(longF, 1.5))) + (7.0 / (0.6 * pow(longF, 3.0) * (1.0 - pow(mach, 3.0))));
         break;
 
     default:

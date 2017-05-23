@@ -249,10 +249,10 @@ public:
     string m_TurbCfEqnName;
     string m_LamCfEqnName;
 
+    Atmosphere m_Atmos; // Atmosphere class contains all atmosphere related qualities
+
 private:
     ParasiteDragMgrSingleton();
-
-    Atmosphere m_Atmos; // Atmosphere class contains all atmosphere related qualities
 
     vector < ParasiteDragTableRow > m_TableRowVec;
     vector < ExcrescenceTableRow > m_ExcresRowVec;

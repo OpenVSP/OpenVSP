@@ -3719,7 +3719,7 @@ void WriteBodyFFCSVFile(const std::string & file_name)
     Results* res = ResultsMgr.CreateResults("Body_Form_Factor");
     char str[256];
     vector < double > body_ff_vec, FR, ref_leng, max_x_area;
-    vector < double > dol_array = linspace( 0.01, 0.3, 200 );
+    vector < double > dol_array = linspace( 0.0, 0.3, 200 );
     res->Add(NameValData("D_L", dol_array));
     ref_leng.push_back(10.0);
     max_x_area.push_back( PI * 1.0 * 1.0 );
@@ -3744,11 +3744,12 @@ void WriteWingFFCSVFile(const std::string & file_name)
     Results* res = ResultsMgr.CreateResults("Wing_Form_Factor");
     char str[256];
     vector < double > wing_ff_vec;
-    vector < double > toc_array = linspace( 0.01, 0.3, 200 );
+    vector < double > toc_array = linspace( 0.0, 0.205, 200 );
     vector < double > perc_lam, sweep25, sweep50;
     perc_lam.push_back(0.0);
-    sweep25.push_back(0.0);
-    sweep50.push_back(0.0);
+    sweep25.push_back(30.0 * PI / 180.0);
+    sweep50.push_back(30.0 * PI / 180.0);
+    ParasiteDragMgr.m_Atmos.SetMach(0.8);
     res->Add(NameValData("T_C", toc_array));
     for (size_t wing_ff_case = 0; wing_ff_case < vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF; ++wing_ff_case )
     {
@@ -3768,7 +3769,7 @@ void WriteTurbCfCSVFile(const std::string & file_name)
     Results* res = ResultsMgr.CreateResults("Friction_Coefficient");
     char str[256];
     vector < double > turb_cf_vec, ref_leng;
-    vector < double > ReyIn_array = linspace( 1e5, 1e12, 500 );
+    vector < double > ReyIn_array = logspace( 5, 12, 500 );
     vector < double > roughness, gamma, taw_tw_ratio, te_tw_ratio;
     roughness.push_back(0.01);
     gamma.push_back(1.4);
