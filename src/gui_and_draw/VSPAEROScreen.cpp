@@ -897,24 +897,34 @@ void VSPAEROScreen::UpdateRefWing()
     m_WingGeomVec.clear();
     map <string, int> WingCompIDMap;
     int iwing = 0;
-    for (int i = 0; i < (int)geomVec.size(); i++)
+    
+    if (!VSPAEROMgr.m_RefFlag())
     {
-        char str[256];
-        Geom* g = veh->FindGeom(geomVec[i]);
-        if (g)
+        m_RefWingChoice.Deactivate();
+    }
+    else
+    {
+        m_RefWingChoice.Activate();
+        for (int i = 0; i < (int)geomVec.size(); i++)
         {
-            sprintf(str, "%d_%s", i, g->GetName().c_str());
-
-            if (g->GetType().m_Type == MS_WING_GEOM_TYPE)
+            char str[256];
+            Geom* g = veh->FindGeom(geomVec[i]);
+            if (g)
             {
-                m_RefWingChoice.AddItem(str);
-                WingCompIDMap[geomVec[i]] = iwing;
-                m_WingGeomVec.push_back(geomVec[i]);
-                iwing++;
+                sprintf(str, "%d_%s", i, g->GetName().c_str());
+
+                if (g->GetType().m_Type == MS_WING_GEOM_TYPE)
+                {
+                    m_RefWingChoice.AddItem(str);
+                    WingCompIDMap[geomVec[i]] = iwing;
+                    m_WingGeomVec.push_back(geomVec[i]);
+                    iwing++;
+                }
             }
         }
+        m_RefWingChoice.UpdateItems();
     }
-    m_RefWingChoice.UpdateItems();
+
     //    Update selected value
     string refGeomID = VSPAEROMgr.m_RefGeomID;
     if (refGeomID.length() == 0 && m_WingGeomVec.size() > 0)

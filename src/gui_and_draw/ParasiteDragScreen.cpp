@@ -788,24 +788,32 @@ void ParasiteDragScreen::UpdateSrefChoice()
     // Find Correct Geoms from Active Set
     vector <string> g_IDs = veh->GetGeomSet(ParasiteDragMgr.m_SetChoice());
 
-    for (int i = 0; i < (int)g_IDs.size(); i++)
+    if (!ParasiteDragMgr.m_RefFlag())
     {
-        char str[256];
-        Geom* geom = veh->FindGeom(g_IDs[i]);
-        if (geom)
+        m_RefWingChoice.Deactivate();
+    }
+    else
+    {
+        m_RefWingChoice.Activate();
+        for (int i = 0; i < (int)g_IDs.size(); i++)
         {
-            sprintf(str, "%d_%s", i, geom->GetName().c_str());
-
-            if (geom->GetType().m_Type == MS_WING_GEOM_TYPE)
+            char str[256];
+            Geom* geom = veh->FindGeom(g_IDs[i]);
+            if (geom)
             {
-                m_RefWingChoice.AddItem(str);
-                WingCompIDMap[g_IDs[i]] = iwing;
-                m_WingGeomVec.push_back(g_IDs[i]);
-                iwing++;
+                sprintf(str, "%d_%s", i, geom->GetName().c_str());
+
+                if (geom->GetType().m_Type == MS_WING_GEOM_TYPE)
+                {
+                    m_RefWingChoice.AddItem(str);
+                    WingCompIDMap[g_IDs[i]] = iwing;
+                    m_WingGeomVec.push_back(g_IDs[i]);
+                    iwing++;
+                }
             }
         }
+        m_RefWingChoice.UpdateItems();
     }
-    m_RefWingChoice.UpdateItems();
 
     // Setting the Wing to Pull Reference Area from
     string refGeomID = ParasiteDragMgr.m_RefGeomID;
