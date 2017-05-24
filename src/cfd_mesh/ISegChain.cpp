@@ -862,7 +862,7 @@ void ISegChain::AddBorderSplit( IPnt* ip, Puw* uw )
         vec2d iuw0 = m_ISegDeque[i]->m_IPnt[0]->GetPuw( surfPtr )->m_UW;
         vec2d iuw1 = m_ISegDeque[i]->m_IPnt[1]->GetPuw( surfPtr )->m_UW;
         double u = proj_pnt_on_line_u( iuw0, iuw1, uw->m_UW );
-        if ( u > 0.0 && u < 1.0 )
+        if ( u >= 0.0 && u <= 1.0 )
         {
             vec2d proj = iuw0 + ( iuw1 - iuw0 ) * u;
 
