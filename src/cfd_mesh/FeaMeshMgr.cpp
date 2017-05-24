@@ -406,7 +406,7 @@ void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
 
                 if ( !( *c2 )->m_BorderFlag && ( *c2 )->m_SSIntersectIndex >= 0 && c1_index != c2_index )
                 {
-                    if ( ( *c1 )->m_TessVec.size() == ( *c2 )->m_TessVec.size() )
+                    if ( ( *c1 )->m_TessVec.size() == ( *c2 )->m_TessVec.size() && ( *c1 )->m_SSIntersectIndex != ( *c2 )->m_SSIntersectIndex )
                     {
                         bool match = false;
 
