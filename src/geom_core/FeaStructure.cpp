@@ -966,107 +966,323 @@ void FeaSlice::ComputePlanarSurf()
         vec3d cornerA, cornerB, cornerC, cornerD;
         vec3d theta_rot_axis, alpha_rot_axis;
 
+        vec3d slice_center;
+
         if ( m_OrientationPlane() == XY_PLANE )
         {
-            if ( ( DEG_2_RAD * m_Theta() > atan( del_z / del_x ) ) || ( -1 *DEG_2_RAD * m_Theta() > atan( del_z / del_x ) ) )
+            slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterPerBBoxLocation() );
+        }
+        else if ( m_OrientationPlane() == YZ_PLANE )
+        {
+            slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * m_CenterPerBBoxLocation(), geom_center.y(), geom_center.z() );
+        }
+        else if ( m_OrientationPlane() == XZ_PLANE )
+        {
+            slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterPerBBoxLocation(), geom_center.z() );
+        }
+
+        vec3d offset_vec = slice_center - geom_center;
+        double del_x_plus, del_x_minus, del_y_plus, del_y_minus, del_z_plus, del_z_minus;
+
+        if ( m_OrientationPlane() == XY_PLANE )
+        {
+            double z_off = offset_vec.z();
+
+            if ( m_Theta() >= 0.0 )
             {
-                del_x = del_z / sin( DEG_2_RAD * m_Theta() );
+                if ( DEG_2_RAD * m_Theta() > atan( ( del_z + 2 * z_off ) / del_x ) )
+                {
+                    del_x_minus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                }
+
+                if ( DEG_2_RAD * m_Theta() > atan( ( del_z - 2 * z_off ) / del_x ) )
+                {
+                    del_x_plus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                }
             }
             else
             {
-                del_x = del_x / cos( DEG_2_RAD * m_Theta() );
+                if ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_z + 2 * z_off ) / del_x ) )
+                {
+                    del_x_plus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                }
+
+                if ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_z - 2 * z_off ) / del_x ) )
+                {
+                    del_x_minus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                }
             }
 
-            if ( ( DEG_2_RAD * m_Alpha() > atan( del_z / del_y ) ) || ( -1 * DEG_2_RAD * m_Alpha() > atan( del_z / del_y ) ) )
+            if ( m_Alpha() >= 0.0 )
             {
-                del_y = del_z / sin( DEG_2_RAD * m_Alpha() );
+                if ( DEG_2_RAD * m_Alpha() > atan( ( del_z + 2 * z_off ) / del_y ) )
+                {
+                    del_y_plus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                }
+
+                if ( DEG_2_RAD * m_Alpha() > atan( ( del_z - 2 * z_off ) / del_y ) )
+                {
+                    del_y_minus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                }
             }
             else
             {
-                del_y = del_y / cos( DEG_2_RAD * m_Alpha() );
+                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_z + 2 * z_off ) / del_y ) )
+                {
+                    del_y_minus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                }
+
+                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_z - 2 * z_off ) / del_y ) )
+                {
+                    del_y_plus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                }
             }
 
-            vec3d center_to_A = { -0.5 * del_x, -0.5 * del_y, 0.0 };
-            cornerA = geom_center + center_to_A;
+            vec3d center_to_A = { -0.5 * del_x_minus, -0.5 * del_y_minus, 0.0 };
+            cornerA = slice_center + center_to_A;
 
-            vec3d center_to_B = { -0.5 * del_x, 0.5 * del_y, 0.0 };
-            cornerB = geom_center + center_to_B;
+            vec3d center_to_B = { -0.5 * del_x_minus, 0.5 * del_y_plus, 0.0 };
+            cornerB = slice_center + center_to_B;
 
-            vec3d center_to_C = { 0.5 * del_x, -0.5 * del_y, 0.0 };
-            cornerC = geom_center + center_to_C;
+            vec3d center_to_C = { 0.5 * del_x_plus, -0.5 * del_y_minus, 0.0 };
+            cornerC = slice_center + center_to_C;
 
-            vec3d center_to_D = { 0.5 * del_x, 0.5 * del_y, 0.0 };
-            cornerD = geom_center + center_to_D;
+            vec3d center_to_D = { 0.5 * del_x_plus, 0.5 * del_y_plus, 0.0 };
+            cornerD = slice_center + center_to_D;
 
             theta_rot_axis.set_y( 1.0 ); // y-axis
             alpha_rot_axis.set_x( 1.0 ); // x-axis
         }
         else if ( m_OrientationPlane() == YZ_PLANE )
         {
-            if ( ( DEG_2_RAD * m_Theta() > atan( del_x / del_z ) ) || ( -1 * DEG_2_RAD * m_Theta() > atan( del_x / del_z ) ) )
+            double x_off = offset_vec.x();
+
+            if ( DEG_2_RAD * m_Theta() >= 0.0 )
             {
-                del_z = del_x / sin( DEG_2_RAD * m_Theta() );
+                if ( DEG_2_RAD * m_Theta() > atan( ( del_x + 2 * x_off ) / del_z ) )
+                {
+                    del_z_plus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_Theta() ) );
+                }
+
+                if ( DEG_2_RAD * m_Theta() > atan( ( del_x - 2 * x_off ) / del_z ) )
+                {
+                    del_z_minus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_Theta() ) );
+                }
             }
             else
             {
-                del_z = del_z / cos( DEG_2_RAD * m_Theta() );
+                if ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_x + 2 * x_off ) / del_z ) )
+                {
+                    del_z_minus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_Theta() ) );
+                }
+
+                if ( ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_x - 2 * x_off ) / del_z ) ) )
+                {
+                    del_z_plus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_Theta() ) );
+                }
             }
 
-            if ( ( DEG_2_RAD * m_Alpha() > atan( del_x / del_y ) ) || ( -1 * DEG_2_RAD * m_Alpha() > atan( del_x / del_y ) ) )
+            if ( m_Alpha() >= 0.0 )
             {
-                del_y = del_x / sin( DEG_2_RAD * m_Alpha() );
+                if ( DEG_2_RAD * m_Alpha() > atan( ( del_x + 2 * x_off ) / del_y ) )
+                {
+                    del_y_minus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                }
+
+                if ( DEG_2_RAD * m_Alpha() > atan( ( del_x - 2 * x_off ) / del_y ) )
+                {
+                    del_y_plus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                }
             }
             else
             {
-                del_y = del_y / cos( DEG_2_RAD * m_Alpha() );
+                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_x + 2 * x_off ) / del_y ) )
+                {
+                    del_y_plus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                }
+
+                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_x - 2 * x_off ) / del_y ) )
+                {
+                    del_y_minus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                }
             }
 
-            vec3d center_to_A = { 0.0, -0.5 * del_y, -0.5 * del_z };
-            cornerA = geom_center + center_to_A;
+            vec3d center_to_A = { 0.0, -0.5 * del_y_minus, -0.5 * del_z_minus };
+            cornerA = slice_center + center_to_A;
 
-            vec3d center_to_B = { 0.0, 0.5 * del_y, -0.5 * del_z };
-            cornerB = geom_center + center_to_B;
+            vec3d center_to_B = { 0.0, 0.5 * del_y_plus, -0.5 * del_z_minus };
+            cornerB = slice_center + center_to_B;
 
-            vec3d center_to_C = { 0.0, -0.5 * del_y, 0.5 * del_z };
-            cornerC = geom_center + center_to_C;
+            vec3d center_to_C = { 0.0, -0.5 * del_y_minus, 0.5 * del_z_plus };
+            cornerC = slice_center + center_to_C;
 
-            vec3d center_to_D = { 0.0, 0.5 * del_y, 0.5 * del_z };
-            cornerD = geom_center + center_to_D;
+            vec3d center_to_D = { 0.0, 0.5 * del_y_plus, 0.5 * del_z_plus };
+            cornerD = slice_center + center_to_D;
 
             theta_rot_axis.set_y( 1.0 ); // y-axis
             alpha_rot_axis.set_z( 1.0 ); // z-axis
         }
         else if ( m_OrientationPlane() == XZ_PLANE )
         {
-            if ( ( DEG_2_RAD * m_Theta() > atan( del_y / del_x ) ) || ( -1 * DEG_2_RAD * m_Theta() > atan( del_y / del_x ) ) )
+            double y_off = offset_vec.y();
+
+            if ( DEG_2_RAD * m_Theta() > 0.0 )
             {
-                del_x = del_y / sin( DEG_2_RAD * m_Theta() );
+                if ( DEG_2_RAD * m_Theta() > atan( ( del_y + 2 * y_off ) / del_x ) )
+                {
+                    del_x_plus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                }
+
+                if ( DEG_2_RAD * m_Theta() > atan( ( del_y - 2 * y_off ) / del_x ) )
+                {
+                    del_x_minus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                }
             }
             else
             {
-                del_x = del_x / cos( DEG_2_RAD * m_Theta() );
+                if ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_y + 2 * y_off ) / del_x ) )
+                {
+                    del_x_minus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                }
+
+                if ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_y - 2 * y_off ) / del_x ) )
+                {
+                    del_x_plus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                }
+                else
+                {
+                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                }
             }
 
-            if ( ( DEG_2_RAD * m_Alpha() > atan( del_y / del_z ) ) || ( -1 * DEG_2_RAD * m_Alpha() > atan( del_y / del_z ) ) )
+            if ( m_Alpha() >= 0.0 )
             {
-                del_z = del_y / sin( DEG_2_RAD * m_Alpha() );
+                if ( DEG_2_RAD * m_Alpha() > atan( ( del_y + 2 * y_off ) / del_z ) )
+                {
+                    del_z_minus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_Alpha() ) );
+                }
+
+                if ( DEG_2_RAD * m_Alpha() > atan( ( del_y - 2 * y_off ) / del_z ) )
+                {
+                    del_z_plus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_Alpha() ) );
+                }
             }
             else
             {
-                del_z = del_z / cos( DEG_2_RAD * m_Alpha() );
+                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_y + 2 * y_off ) / del_z ) )
+                {
+                    del_z_plus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_Alpha() ) );
+                }
+
+                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_y - 2 * y_off ) / del_z ) )
+                {
+                    del_z_minus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                }
+                else
+                {
+                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_Alpha() ) );
+                }
             }
 
-            vec3d center_to_A = { -0.5 * del_x, 0.0, -0.5 * del_z };
-            cornerA = geom_center + center_to_A;
+            vec3d center_to_A = { -0.5 * del_x_minus, 0.0, -0.5 * del_z_minus };
+            cornerA = slice_center + center_to_A;
 
-            vec3d center_to_B = { 0.5 * del_x, 0.0, -0.5 * del_z };
-            cornerB = geom_center + center_to_B;
+            vec3d center_to_B = { 0.5 * del_x_plus, 0.0, -0.5 * del_z_minus };
+            cornerB = slice_center + center_to_B;
 
-            vec3d center_to_C = { -0.5 * del_x, 0.0, 0.5 * del_z };
-            cornerC = geom_center + center_to_C;
+            vec3d center_to_C = { -0.5 * del_x_minus, 0.0, 0.5 * del_z_plus };
+            cornerC = slice_center + center_to_C;
 
-            vec3d center_to_D = { 0.5 * del_x, 0.0, 0.5 * del_z };
-            cornerD = geom_center + center_to_D;
+            vec3d center_to_D = { 0.5 * del_x_plus, 0.0, 0.5 * del_z_plus };
+            cornerD = slice_center + center_to_D;
 
             theta_rot_axis.set_z( 1.0 ); // z-axis
             alpha_rot_axis.set_x( 1.0 ); // x-axis
@@ -1086,7 +1302,7 @@ void FeaSlice::ComputePlanarSurf()
         Matrix4d trans_mat_1, trans_mat_2, rot_mat_theta, rot_mat_alpha;
 
         trans_mat_1.loadIdentity();
-        trans_mat_1.translatef( geom_center.x() * -1, geom_center.y() * -1, geom_center.z() * -1 );
+        trans_mat_1.translatef( slice_center.x() * -1, slice_center.y() * -1, slice_center.z() * -1 );
         m_FeaPartSurfVec[0].Transform( trans_mat_1 );
 
         rot_mat_theta.loadIdentity();
@@ -1098,20 +1314,7 @@ void FeaSlice::ComputePlanarSurf()
         m_FeaPartSurfVec[0].Transform( rot_mat_alpha );
 
         trans_mat_2.loadIdentity();
-
-        if ( m_OrientationPlane() == XY_PLANE )
-        {
-            trans_mat_2.translatef( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterPerBBoxLocation() );
-        }
-        else if ( m_OrientationPlane() == YZ_PLANE )
-        {
-            trans_mat_2.translatef( geom_bbox.GetMin( 0 ) + del_x * m_CenterPerBBoxLocation(), geom_center.y(), geom_center.z() );
-        }
-        else if ( m_OrientationPlane() == XZ_PLANE )
-        {
-            trans_mat_2.translatef( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterPerBBoxLocation(), geom_center.z() );
-        }
-
+        trans_mat_2.translatef( slice_center.x(), slice_center.y(), slice_center.z() );
         m_FeaPartSurfVec[0].Transform( trans_mat_2 );
 
         // Using the primary m_FeaPartSurfVec (index 0) as a reference, calculate and transform the symmetric copies
