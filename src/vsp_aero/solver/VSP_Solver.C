@@ -6600,8 +6600,8 @@ void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
 
 void VSP_SOLVER::WriteCaseHeader(FILE *fid)
 {
-    char headerFormatStr[] = "%-20s %12s %-20s\n";
-    char dataFormatStr[] =   "%-20s %12.7lf %-20s\n";
+    char headerFormatStr[] = "%-30s %12s %-20s\n";
+    char dataFormatStr[] =   "%-30s %12.7lf %-20s\n";
     
     fprintf(fid,"***************************************************************************************************************************************************************************************** \n");
     fprintf(fid,"\n");
