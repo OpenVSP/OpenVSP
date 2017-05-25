@@ -542,6 +542,7 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect == m_CompleteControlSurfaceVec[j].iReflect)
                 {
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].fullName = m_CompleteControlSurfaceVec[j].fullName;
+                    m_CompleteControlSurfaceVec[j].isGrouped = true;
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].isGrouped = true;
                 }
             }
