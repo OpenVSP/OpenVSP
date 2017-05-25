@@ -1518,6 +1518,10 @@ double ParasiteDragMgrSingleton::CalcFFBody(double longF, double FR, int ff_case
             (3.8 / pow(longF, 3.0));
         break;
 
+    case vsp::FF_B_COVERT:
+        ff = 1.02 * (1.0 + (1.5/(pow(longF,1.5))) + (7.0/(pow(longF,3.0) * pow((1.0 - pow(mach,3)),0.6))));
+        break;
+
     case vsp::FF_B_JENKINSON_FUSE:
         double Lambda;
         Lambda = ref_leng / (pow((4.0 / PI) * max_x_area, 0.5));
@@ -1532,10 +1536,6 @@ double ParasiteDragMgrSingleton::CalcFFBody(double longF, double FR, int ff_case
 
     case vsp::FF_B_JENKINSON_AFT_FUSE_NACELLE:
         ff = 1.5;
-        break;
-
-    case vsp::FF_B_JOBE:
-        ff = 1.02 + (1.5 / (pow(longF, 1.5))) + (7.0 / (0.6 * pow(longF, 3.0) * (1.0 - pow(mach, 3.0))));
         break;
 
     default:
@@ -1641,6 +1641,10 @@ string ParasiteDragMgrSingleton::AssignFFBodyEqnName(int ff_case)
         ff_name = "Shevell";
         break;
 
+    case vsp::FF_B_COVERT:
+        ff_name = "Covert";
+        break;
+
     case vsp::FF_B_JENKINSON_FUSE:
         ff_name = "Jenkinson Fuselage";
         break;
@@ -1651,10 +1655,6 @@ string ParasiteDragMgrSingleton::AssignFFBodyEqnName(int ff_case)
 
     case vsp::FF_B_JENKINSON_AFT_FUSE_NACELLE:
         ff_name = "Jenkinson Aft Fuse Nacelle";
-        break;
-
-    case vsp::FF_B_JOBE:
-        ff_name = "Jobe";
         break;
 
     default:

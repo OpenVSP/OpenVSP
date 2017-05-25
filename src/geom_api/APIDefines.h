@@ -471,10 +471,10 @@ enum FF_B_EQN { FF_B_MANUAL = 0,
                 FF_B_HOERNER_STREAMBODY,
                 FF_B_TORENBEEK,
                 FF_B_SHEVELL,
+                FF_B_COVERT,
                 FF_B_JENKINSON_FUSE,
                 FF_B_JENKINSON_WING_NACELLE,
                 FF_B_JENKINSON_AFT_FUSE_NACELLE,
-                FF_B_JOBE
               }; // FF Body Eqn ENUM
 
 enum EXCRES_TYPE { EXCRESCENCE_COUNT = 0,

@@ -1902,10 +1902,10 @@ void ParasiteDragScreen::SetupFFType(int index, int shapetype, int eqnchoice)
         m_ffType[index].AddItem("Hoerner Streamlined Body");
         m_ffType[index].AddItem("Torenbeek");
         m_ffType[index].AddItem("Shevell");
+        m_ffType[index].AddItem("Covert");
         m_ffType[index].AddItem("Jenkinson Fuselage");
         m_ffType[index].AddItem("Jenkinson Wing Mounted Nacelle");
         m_ffType[index].AddItem("Jenkinson Aft Fuse Mounted Nacelle");
-        m_ffType[index].AddItem("Jobe");
     }
     else
     {

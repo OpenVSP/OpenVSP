@@ -1227,13 +1227,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_SHEVELL", FF_B_SHEVELL );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_COVERT", FF_B_COVERT );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_JENKINSON_FUSE", FF_B_JENKINSON_FUSE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_JENKINSON_WING_NACELLE", FF_B_JENKINSON_WING_NACELLE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_JENKINSON_AFT_FUSE_NACELLE", FF_B_JENKINSON_AFT_FUSE_NACELLE );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_JOBE", FF_B_JOBE );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "EXCRES_TYPE" );

@@ -3724,7 +3724,7 @@ void WriteBodyFFCSVFile(const std::string & file_name)
     ref_leng.push_back(10.0);
     max_x_area.push_back( PI * 1.0 * 1.0 );
     FR.push_back(ref_leng.back() / sqrt(max_x_area.back()) );
-    for (size_t body_ff_case = 0; body_ff_case <= vsp::FF_B_JOBE; ++body_ff_case )
+    for (size_t body_ff_case = 0; body_ff_case <= vsp::FF_B_JENKINSON_AFT_FUSE_NACELLE; ++body_ff_case )
     {
         for (size_t j = 0; j < dol_array.size(); ++j )
         {
