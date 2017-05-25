@@ -233,6 +233,68 @@ vector < FeaPart* > FeaStructure::AddEvenlySpacedRibs( const int num_rib )
     return m_FeaPartVec;
 }
 
+string FeaStructure::AddSpacedSlices( int orientation )
+{
+    string message;
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh && GetStructSettingsPtr() )
+    {
+        Geom* current_geom = veh->FindGeom( m_ParentGeomID );
+
+        if ( current_geom )
+        {
+            double spacing = GetStructSettingsPtr()->m_MultiSliceSpacing.Get();
+
+            vector< VspSurf > surf_vec;
+            current_geom->GetSurfVec( surf_vec );
+
+            VspSurf current_surf = surf_vec[m_MainSurfIndx];
+
+            BndBox bbox;
+            current_surf.GetBoundingBox( bbox );
+
+            vec3d diag = bbox.GetMax() - bbox.GetMin();
+            double total_length;
+
+            if ( orientation == XY_PLANE )
+            {
+                total_length = diag.z();
+            }
+            else if ( orientation == YZ_PLANE )
+            {
+                total_length = diag.x();
+            }
+            else if ( orientation == XZ_PLANE )
+            {
+                total_length = diag.y();
+            }
+
+            int num_parts = floor( total_length / spacing );
+            double percent_space = spacing / total_length;
+
+            for ( size_t i = 0; i <= num_parts; i++ )
+            {
+                FeaPart* part = AddFeaPart( vsp::FEA_SLICE );
+
+                FeaSlice* slice = dynamic_cast<FeaSlice*>( part );
+
+                if ( slice )
+                {
+                    slice->m_OrientationPlane.Set( orientation );
+                    slice->m_CenterPerBBoxLocation.Set( i * percent_space );
+                    slice->m_IncludeTrisFlag.Set( GetStructSettingsPtr()->m_MultSliceIncludeTrisFlag.Get() );
+                    slice->m_IntersectionCapFlag.Set( GetStructSettingsPtr()->m_MultSliceCapFlag.Get() );
+                    slice->Update();
+                }
+            }
+
+            message = std::to_string( num_parts + 1 ) + " slices added\n";
+        }
+    }
+    return message;
+}
+
 //==== Highlight Active Subsurface ====//
 void FeaStructure::RecolorFeaSubSurfs( int active_ind )
 {

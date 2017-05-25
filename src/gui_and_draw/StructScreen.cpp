@@ -242,6 +242,51 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_StructGeneralGroup.SetGroupAndScreen( AddSubGroup( structTab, 5 ), this );
     m_StructGeneralGroup.SetY( m_StructGroup.GetY() );
 
+    m_StructGeneralGroup.AddDividerBox( "Add Spaced Slices" );
+
+    m_StructGeneralGroup.SetSameLineFlag( true );
+    m_StructGeneralGroup.SetFitWidthFlag( false );
+
+    m_StructGeneralGroup.SetButtonWidth( m_StructGeneralGroup.GetRemainX() / 3 );
+    m_StructGeneralGroup.SetChoiceButtonWidth( m_StructGeneralGroup.GetRemainX() / 3 );
+    m_StructGeneralGroup.SetSliderWidth( m_StructGeneralGroup.GetRemainX() / 3 );
+
+    m_StructGeneralGroup.AddButton( m_MultSliceIncludeTrisToggle, "Include Tris" );
+    m_StructGeneralGroup.AddChoice( m_MultSlicePropChoice, "Tri Property" );
+
+    m_StructGeneralGroup.ForceNewLine();
+
+    m_StructGeneralGroup.AddButton( m_MultSliceCapToggle, "Cap Intersections" );
+    m_StructGeneralGroup.AddChoice( m_MultSliceCapPropChoice, "Cap Property" );
+
+    m_StructGeneralGroup.ForceNewLine();
+
+    m_StructGeneralGroup.SetSameLineFlag( false );
+    m_StructGeneralGroup.SetFitWidthFlag( true );
+
+    m_StructGeneralGroup.AddSlider( m_SpacedPartsInput, "Spacing", 10, "%4.3f" );
+
+    m_StructGeneralGroup.SetSameLineFlag( true );
+    m_StructGeneralGroup.SetFitWidthFlag( false );
+
+    m_StructGeneralGroup.SetButtonWidth( m_StructGeneralGroup.GetRemainX() / 3 );
+    m_StructGeneralGroup.SetChoiceButtonWidth( m_StructGeneralGroup.GetRemainX() / 3 );
+
+    m_MultSliceOrientationChoice.AddItem( "XY Plane" );
+    m_MultSliceOrientationChoice.AddItem( "YZ Plane" );
+    m_MultSliceOrientationChoice.AddItem( "XZ Plane" );
+    m_StructGeneralGroup.AddChoice( m_MultSliceOrientationChoice, "Orientation" );
+
+    m_StructGeneralGroup.SetButtonWidth( m_StructGeneralGroup.GetRemainX() );
+
+    m_StructGeneralGroup.AddButton( m_AddSpacedPartsButton, "Add" );
+    
+    m_StructGeneralGroup.ForceNewLine();
+    m_StructGeneralGroup.AddYGap();
+
+    m_StructGeneralGroup.SetSameLineFlag( false );
+    m_StructGeneralGroup.SetFitWidthFlag( true );
+
     m_StructGeneralGroup.AddDividerBox( "Orientation" );
 
     m_StructGeneralGroup.SetSameLineFlag( true );
@@ -1246,6 +1291,7 @@ void StructScreen::UpdateFeaPropertyChoice()
 {
     //==== Property Choice ====//
     m_SkinPropertyChoice.ClearItems();
+    m_MultSlicePropChoice.ClearItems();
     m_SlicePropertyChoice.ClearItems();
     m_RibPropertyChoice.ClearItems();
     m_SparPropertyChoice.ClearItems();
@@ -1254,6 +1300,7 @@ void StructScreen::UpdateFeaPropertyChoice()
     m_FeaSSEllPropertyChoice.ClearItems();
     m_FeaSSConPropertyChoice.ClearItems();
 
+    m_MultSliceCapPropChoice.ClearItems();
     m_SparCapPropertyChoice.ClearItems();
     m_SliceCapPropertyChoice.ClearItems();
     m_RibCapPropertyChoice.ClearItems();
@@ -1272,6 +1319,7 @@ void StructScreen::UpdateFeaPropertyChoice()
         for ( int i = 0; i < property_vec.size(); ++i )
         {
             m_SkinPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_MultSlicePropChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SlicePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SparPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -1280,6 +1328,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             m_FeaSSEllPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSConPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
+            m_MultSliceCapPropChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SparCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SliceCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -1292,6 +1341,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             if ( property_vec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, 0 );
+                m_MultSlicePropChoice.SetFlag( i, 0 );
                 m_SlicePropertyChoice.SetFlag( i, 0 );
                 m_RibPropertyChoice.SetFlag( i, 0 );
                 m_SparPropertyChoice.SetFlag( i, 0 );
@@ -1300,6 +1350,7 @@ void StructScreen::UpdateFeaPropertyChoice()
                 m_FeaSSEllPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSConPropertyChoice.SetFlag( i, 0 );
 
+                m_MultSliceCapPropChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SparCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SliceCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -1312,6 +1363,7 @@ void StructScreen::UpdateFeaPropertyChoice()
             else if ( property_vec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_MultSlicePropChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SlicePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SparPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -1320,6 +1372,7 @@ void StructScreen::UpdateFeaPropertyChoice()
                 m_FeaSSEllPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSConPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
 
+                m_MultSliceCapPropChoice.SetFlag( i, 0 );
                 m_SparCapPropertyChoice.SetFlag( i, 0 );
                 m_SliceCapPropertyChoice.SetFlag( i, 0 );
                 m_RibCapPropertyChoice.SetFlag( i, 0 );
@@ -1330,7 +1383,9 @@ void StructScreen::UpdateFeaPropertyChoice()
                 m_FeaSSConCapPropertyChoice.SetFlag( i, 0 );
             }
         }
+
         m_SkinPropertyChoice.UpdateItems();
+        m_MultSlicePropChoice.UpdateItems();
         m_SlicePropertyChoice.UpdateItems();
         m_RibPropertyChoice.UpdateItems();
         m_SparPropertyChoice.UpdateItems();
@@ -1339,6 +1394,7 @@ void StructScreen::UpdateFeaPropertyChoice()
         m_FeaSSEllPropertyChoice.UpdateItems();
         m_FeaSSConPropertyChoice.UpdateItems();
 
+        m_MultSliceCapPropChoice.UpdateItems();
         m_SparCapPropertyChoice.UpdateItems();
         m_SliceCapPropertyChoice.UpdateItems();
         m_RibCapPropertyChoice.UpdateItems();
@@ -1357,6 +1413,9 @@ void StructScreen::UpdateFeaPropertyChoice()
             {
                 m_SkinPropertyChoice.SetVal( feaskin->GetFeaPropertyIndex() );
             }
+
+            m_MultSlicePropChoice.SetVal( structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetMultPropertyIndex() );
+            m_MultSliceCapPropChoice.SetVal( structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetMultCapPropertyIndex() );
 
             FeaPart* feaprt = structvec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
 
@@ -1772,6 +1831,28 @@ bool StructScreen::Update()
             m_FeaStructNameInput.Update( structVec[m_SelectedStructIndex]->GetFeaStructName() );
 
             m_NumEvenlySpacedRibsInput.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_NumEvenlySpacedPart.GetID() );
+
+            m_SpacedPartsInput.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultiSliceSpacing.GetID() );
+            m_MultSliceIncludeTrisToggle.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceIncludeTrisFlag.GetID() );
+            m_MultSliceCapToggle.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceCapFlag.GetID() );
+
+            if ( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceIncludeTrisFlag() )
+            {
+                m_MultSlicePropChoice.Activate();
+            }
+            else
+            {
+                m_MultSlicePropChoice.Deactivate();
+            }
+
+            if ( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceCapFlag() )
+            {
+                m_MultSliceCapPropChoice.Activate();
+            }
+            else
+            {
+                m_MultSliceCapPropChoice.Deactivate();
+            }
 
             // Update Current FeaPart
             FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndex );
@@ -2450,6 +2531,21 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
+    else if ( device == &m_AddSpacedPartsButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            FeaStructure* feastruct = structvec[m_SelectedStructIndex];
+
+            if ( feastruct )
+            {
+                string message = feastruct->AddSpacedSlices( m_MultSliceOrientationChoice.GetVal() );
+                AddOutputText( message );
+            }
+        }
+    }
     else if ( device == &m_AddEvenlySpacedRibsButton )
     {
         if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
@@ -2759,6 +2855,30 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             if ( feaskin )
             {
                 feaskin->SetFeaPropertyIndex( m_SkinPropertyChoice.GetVal() );
+            }
+        }
+    }
+    else if ( device == &m_MultSlicePropChoice )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            if ( structvec[m_SelectedStructIndex]->GetStructSettingsPtr() )
+            {
+                structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->SetMultPropertyIndex( m_MultSlicePropChoice.GetVal() );
+            }
+        }
+    }
+    else if ( device == &m_MultSliceCapPropChoice )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            if ( structvec[m_SelectedStructIndex]->GetStructSettingsPtr() )
+            {
+                structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->SetMultCapPropertyIndex( m_MultSliceCapPropChoice.GetVal() );
             }
         }
     }

@@ -48,9 +48,30 @@ public:
 
     BoolParm m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES];
     IntParm m_NumEvenlySpacedPart;
+    Parm m_MultiSliceSpacing;
+    BoolParm m_MultSliceIncludeTrisFlag;
+    BoolParm m_MultSliceCapFlag;
     BoolParm m_DrawFeaPartsFlag;
     BoolParm m_DrawNodesFlag;
     BoolParm m_DrawElementOrientVecFlag;
+
+    virtual int GetMultPropertyIndex()
+    {
+        return m_MultPropertyIndex;
+    }
+    virtual void SetMultPropertyIndex( int index )
+    {
+        m_MultPropertyIndex = index;
+    }
+
+    virtual int GetMultCapPropertyIndex()
+    {
+        return m_MultCapPropertyIndex;
+    }
+    virtual void SetMultCapPropertyIndex( int index )
+    {
+        m_MultCapPropertyIndex = index;
+    }
 
 protected:
 
@@ -59,6 +80,9 @@ protected:
     // default behavior based on the main file name -- and to use the user-set
     // file names.
     string m_ExportFileNames[vsp::NUM_FEA_FILE_NAMES];
+
+    int m_MultPropertyIndex;
+    int m_MultCapPropertyIndex;
 
 };
 

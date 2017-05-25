@@ -175,6 +175,13 @@ private:
     TriggerButton m_OrientWingButton;
 
     // General Functions
+    ToggleButton m_MultSliceIncludeTrisToggle;
+    Choice m_MultSlicePropChoice;
+    ToggleButton m_MultSliceCapToggle;
+    Choice m_MultSliceCapPropChoice;
+    Choice m_MultSliceOrientationChoice;
+    SliderAdjRangeInput m_SpacedPartsInput;
+    TriggerButton m_AddSpacedPartsButton;
     TriggerButton m_OrientFrontButton;
     TriggerButton m_OrientSideButton;
     TriggerButton m_OrientTopButton;

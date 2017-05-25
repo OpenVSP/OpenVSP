@@ -40,6 +40,15 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_NumEvenlySpacedPart.Init( "NumEvenlySpacedPart", "StructSettings", this, 10, 0, 1000 );
     m_NumEvenlySpacedPart.SetDescript( "Number of Evenly Spaced FeaParts to Add" );
 
+    m_MultiSliceSpacing.Init( "MultiSliceSpacing", "StructSettings", this, 20, 1e-8, 1e8 );
+    m_MultiSliceSpacing.SetDescript( "Spacing Between Multiple Added Slices" );
+
+    m_MultSliceIncludeTrisFlag.Init( "MultSliceIncludeTrisFlag", "StructSettings", this, false, false, true );
+    m_MultSliceIncludeTrisFlag.SetDescript( "Flag to Include Interior Tris of Multiple Added Slices" );
+
+    m_MultSliceCapFlag.Init( "MultSliceCapFlag", "StructSettings", this, false, false, true );
+    m_MultSliceCapFlag.SetDescript( "Flag to Cap Intersections of Multiple Added Slices" );
+
     m_DrawFeaPartsFlag.Init( "DrawFeaPartsFlag", "FeaPart", this, true, false, true );
     m_DrawFeaPartsFlag.SetDescript( "Flag to Draw FeaParts" );
 
@@ -50,6 +59,9 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_DrawElementOrientVecFlag.SetDescript( "Flag to Draw FeaElement Orientation Vectors" );
 
     ResetExportFileNames();
+
+    m_MultPropertyIndex = 0;
+    m_MultCapPropertyIndex = 1;
 }
 
 StructSettings::~StructSettings()
