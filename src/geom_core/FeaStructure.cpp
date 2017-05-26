@@ -2045,13 +2045,11 @@ void FeaFixPoint::IdentifySplitSurfIndex()
         bool closedU = parent_surf_vec[i].IsClosedU();
         bool closedW = parent_surf_vec[i].IsClosedW();
 
-        // Check if the UW point is on a valid patch (invalid patches are discarded in FetchXFerSurf)
-        bool on_valid_patch = parent_surf_vec[i].OnValidPatch( uw[0], uw[1] );
-
         // Split the parent surface
         vector< XferSurf > tempxfersurfs;
 
-        parent_surf_vec[i].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs );
+        // Check if the UW point is on a valid patch (invalid patches are discarded in FetchXFerSurf)
+        bool on_valid_patch = parent_surf_vec[i].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs, uw[0], uw[1] );
 
         int num_split_surfs = tempxfersurfs.size();
 
