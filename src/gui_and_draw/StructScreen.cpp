@@ -30,103 +30,20 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
-    Fl_Group* globalTab = AddTab( "Global" );
-    Fl_Group* globalTabGroup = AddSubGroup( globalTab, 5 );
-    Fl_Group* displayTab = AddTab( "Display" );
-    Fl_Group* displayTabGroup = AddSubGroup( displayTab, 5 );
     Fl_Group* structTab = AddTab( "Structure" );
     Fl_Group* structTabGroup = AddSubGroup( structTab, 5 );
     Fl_Group* partTab = AddTab( "Part" );
     Fl_Group* partTabGroup = AddSubGroup( partTab, 5 );
     Fl_Group* subTab = AddTab( "Sub" );
     Fl_Group* subTabGroup = AddSubGroup( subTab, 5 );
-    Fl_Group* propTab = AddTab( "Property" );
-    Fl_Group* propTabGroup = AddSubGroup( propTab, 5 );
     Fl_Group* matTab = AddTab( "Material" );
     Fl_Group* matTabGroup = AddSubGroup( matTab, 5 );
-
-    m_GlobalTabLayout.SetGroupAndScreen( globalTabGroup, this );
-
-    //=== GLOBAL TAB INIT ===//
-
-    m_GlobalTabLayout.AddDividerBox("Global Mesh Control");
-
-    m_GlobalTabLayout.AddYGap();
-
-    m_GlobalTabLayout.SetButtonWidth(175);
-    m_GlobalTabLayout.AddSlider(m_MaxEdgeLen, "Max Edge Len", 1.0, "%7.5f");
-    m_GlobalTabLayout.AddSlider(m_MinEdgeLen, "Min Edge Len", 1.0, "%7.5f");
-    m_GlobalTabLayout.AddSlider(m_MaxGap, "Max Gap", 1.0, "%7.5f");
-    m_GlobalTabLayout.AddSlider(m_NumCircleSegments, "Num Circle Segments", 100.0, "%7.5f");
-    m_GlobalTabLayout.AddSlider(m_GrowthRatio, "Growth Ratio", 2.0, "%7.5f");
-
-    m_GlobalTabLayout.AddYGap();
-    m_GlobalTabLayout.AddButton(m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting");
-    m_GlobalTabLayout.AddYGap();
-
-    m_GlobalTabLayout.SetFitWidthFlag( true );
-    m_GlobalTabLayout.SetSameLineFlag( false );
-
-    m_GlobalTabLayout.AddDividerBox("Geometry Control");
-    m_GlobalTabLayout.AddYGap();
-    m_GlobalTabLayout.AddButton(m_IntersectSubsurfaces, "Intersect Subsurfaces");
-    m_GlobalTabLayout.AddYGap();
-
-    m_GlobalTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
-    m_GlobalTabLayout.AddYGap();
-
-    globalTab->show();
-
-    // TODO: Add more CFD Mesh Export file options?
-
-    m_GlobalTabLayout.AddDividerBox("File Export");
-    m_GlobalTabLayout.AddYGap();
-
-    m_GlobalTabLayout.SetFitWidthFlag( false );
-    m_GlobalTabLayout.SetSameLineFlag( true );
-
-    m_GlobalTabLayout.SetButtonWidth( 75 );
-    m_GlobalTabLayout.SetInputWidth( m_GlobalTabLayout.GetW() - 125 );
-
-    m_GlobalTabLayout.AddButton(m_StlFile, ".stl");
-    m_GlobalTabLayout.AddOutput(m_StlOutput);
-    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
-    m_GlobalTabLayout.AddButton(m_SelectStlFile, "...");
-    m_GlobalTabLayout.ForceNewLine();
-
-    m_GlobalTabLayout.SetButtonWidth( 75 );
-    m_GlobalTabLayout.AddButton( m_GmshFile, ".msh" );
-    m_GlobalTabLayout.AddOutput( m_GmshOutput );
-    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
-    m_GlobalTabLayout.AddButton( m_SelectGmshFile, "..." );
-    m_GlobalTabLayout.ForceNewLine();
-
-    m_GlobalTabLayout.AddYGap();
-
-    m_GlobalTabLayout.SetButtonWidth( 75 );
-    m_GlobalTabLayout.AddButton(m_MassFile, "Mass");
-    m_GlobalTabLayout.AddOutput(m_MassOutput);
-    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
-    m_GlobalTabLayout.AddButton(m_SelectMassFile, "...");
-    m_GlobalTabLayout.ForceNewLine();
-
-    m_GlobalTabLayout.AddYGap();
-
-    m_GlobalTabLayout.SetButtonWidth( 75 );
-    m_GlobalTabLayout.AddButton(m_NastFile, "NASTRAN");
-    m_GlobalTabLayout.AddOutput(m_NastOutput);
-    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
-    m_GlobalTabLayout.AddButton(m_SelectNastFile, "...");
-    m_GlobalTabLayout.ForceNewLine();
-
-    m_GlobalTabLayout.AddYGap();
-
-    m_GlobalTabLayout.SetButtonWidth( 75 );
-    m_GlobalTabLayout.AddButton(m_CalcFile, "Calculix");
-    m_GlobalTabLayout.AddOutput(m_CalcOutput);
-    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
-    m_GlobalTabLayout.AddButton(m_SelectCalcFile, "...");
-    m_GlobalTabLayout.ForceNewLine();
+    Fl_Group* propTab = AddTab( "Property" );
+    Fl_Group* propTabGroup = AddSubGroup( propTab, 5 );
+    Fl_Group* globalTab = AddTab( "Global" );
+    Fl_Group* globalTabGroup = AddSubGroup( globalTab, 5 );
+    Fl_Group* displayTab = AddTab( "Display" );
+    Fl_Group* displayTabGroup = AddSubGroup( displayTab, 5 );
 
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -149,49 +66,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_BorderConsoleLayout.AddButton( m_FeaMeshExportButton, "Mesh and Export" );
 
-    //=== Display Tab ===//
-    m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
-
-    m_DisplayTabLayout.AddDividerBox( "Display" );
-
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_DrawFeaPartsButton, "Draw FeaParts" );
-
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
-
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_ColorElementsButton, "Color Elements" );
-
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
-
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
-
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_ShowBadEdgeTriButton, "Show Bad Edges and Triangles" );
-
-    m_DisplayTabLayout.AddYGap();
-
-    m_DisplayTabLayout.AddDividerBox( "Display FeaElement Sets" );
-
-    m_DrawPartSelectBrowser = m_DisplayTabLayout.AddCheckBrowser( 150 );
-    m_DrawPartSelectBrowser->callback( staticScreenCB, this );
-
-    m_DisplayTabLayout.AddY( 125 );
-    m_DisplayTabLayout.AddYGap();
-
-    m_DisplayTabLayout.SetSameLineFlag( true );
-    m_DisplayTabLayout.SetFitWidthFlag( false );
-
-    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2 );
-
-    m_DisplayTabLayout.AddButton( m_DrawAllButton, "Draw All Elements" );
-    m_DisplayTabLayout.AddButton( m_HideAllButton, "Hide All Elements" );
-    m_DisplayTabLayout.ForceNewLine();
-
     //=== Structures Tab ===//
+    structTab->show();
+
     m_StructureTabLayout.SetGroupAndScreen( structTabGroup, this );
 
     m_StructureTabLayout.AddDividerBox( "Structure Selection" );
@@ -741,6 +618,50 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_FeaSSConGroup.AddButton( m_FeaSSConCapToggle, "Cap Intersections" );
     m_FeaSSConGroup.AddChoice( m_FeaSSConCapPropertyChoice, "Cap Property" );
 
+    //=== Material Tab ===//
+    m_MaterialTabLayout.SetGroupAndScreen( matTabGroup, this );
+
+    m_MaterialTabLayout.AddDividerBox( "Material Selection" );
+
+    m_MaterialEditGroup.SetGroupAndScreen( AddSubGroup( matTabGroup, 5 ), this );
+    m_MaterialEditGroup.SetY( m_MaterialTabLayout.GetY() );
+
+    m_FeaMaterialSelectBrowser = m_MaterialEditGroup.AddFlBrowser( browser_h );
+    m_FeaMaterialSelectBrowser->type( FL_HOLD_BROWSER );
+    m_FeaMaterialSelectBrowser->labelfont( 13 );
+    m_FeaMaterialSelectBrowser->labelsize( 12 );
+    m_FeaMaterialSelectBrowser->textsize( 12 );
+    m_FeaMaterialSelectBrowser->callback( staticScreenCB, this );
+
+    m_MaterialEditGroup.SetSameLineFlag( true );
+    m_MaterialEditGroup.SetFitWidthFlag( false );
+
+    m_MaterialEditGroup.SetButtonWidth( m_MaterialEditGroup.GetRemainX() / 2 );
+
+    m_MaterialEditGroup.AddButton( m_AddFeaMaterialButton, "Add Material" );
+    m_MaterialEditGroup.AddButton( m_DelFeaMaterialButton, "Delete Material" );
+    m_MaterialEditGroup.ForceNewLine();
+
+    m_MaterialEditSubGroup.SetGroupAndScreen( AddSubGroup( matTab, 5 ), this );
+    m_MaterialEditSubGroup.SetY( m_MaterialEditGroup.GetY() );
+
+    m_MaterialEditSubGroup.SetButtonWidth( buttonwidth );
+
+    m_MaterialEditSubGroup.AddYGap();
+
+    m_MaterialEditSubGroup.AddInput( m_FeaMaterialNameInput, "Material Name" );
+
+    m_MaterialEditSubGroup.AddYGap();
+
+    m_MaterialEditSubGroup.AddDividerBox( "Material Properties" );
+
+    m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 1, "%5.3f" );
+    m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "Elestic Modulus", 10e5, "%g" );
+    m_MaterialEditSubGroup.AddSlider( m_MatPoissonSlider, "Poisson Ratio", 1, "%5.3f" );
+    m_MaterialEditSubGroup.AddSlider( m_MatThermalExCoeffSlider, "Thermal Expansion Coeff", 10e-5, "%g" );
+
+    m_MaterialEditSubGroup.AddYGap();
+
     //=== Property Tab ===//
     m_PropertyTabLayout.SetGroupAndScreen( propTabGroup, this );
 
@@ -813,49 +734,128 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_PropertyEditGroup.AddYGap();
 
-    //=== Material Tab ===//
-    m_MaterialTabLayout.SetGroupAndScreen( matTabGroup, this );
 
-    m_MaterialTabLayout.AddDividerBox( "Material Selection" );
+    //=== GLOBAL TAB ===//
+    m_GlobalTabLayout.SetGroupAndScreen( globalTabGroup, this );
 
-    m_MaterialEditGroup.SetGroupAndScreen( AddSubGroup( matTabGroup, 5 ), this );
-    m_MaterialEditGroup.SetY( m_MaterialTabLayout.GetY() );
+    m_GlobalTabLayout.AddDividerBox( "Global Mesh Control" );
 
-    m_FeaMaterialSelectBrowser = m_MaterialEditGroup.AddFlBrowser( browser_h );
-    m_FeaMaterialSelectBrowser->type( FL_HOLD_BROWSER );
-    m_FeaMaterialSelectBrowser->labelfont( 13 );
-    m_FeaMaterialSelectBrowser->labelsize( 12 );
-    m_FeaMaterialSelectBrowser->textsize( 12 );
-    m_FeaMaterialSelectBrowser->callback( staticScreenCB, this );
+    m_GlobalTabLayout.AddYGap();
 
-    m_MaterialEditGroup.SetSameLineFlag( true );
-    m_MaterialEditGroup.SetFitWidthFlag( false );
+    m_GlobalTabLayout.SetButtonWidth( 175 );
+    m_GlobalTabLayout.AddSlider( m_MaxEdgeLen, "Max Edge Len", 1.0, "%7.5f" );
+    m_GlobalTabLayout.AddSlider( m_MinEdgeLen, "Min Edge Len", 1.0, "%7.5f" );
+    m_GlobalTabLayout.AddSlider( m_MaxGap, "Max Gap", 1.0, "%7.5f" );
+    m_GlobalTabLayout.AddSlider( m_NumCircleSegments, "Num Circle Segments", 100.0, "%7.5f" );
+    m_GlobalTabLayout.AddSlider( m_GrowthRatio, "Growth Ratio", 2.0, "%7.5f" );
 
-    m_MaterialEditGroup.SetButtonWidth( m_MaterialEditGroup.GetRemainX() / 2 );
+    m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.AddButton( m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting" );
+    m_GlobalTabLayout.AddYGap();
 
-    m_MaterialEditGroup.AddButton( m_AddFeaMaterialButton, "Add Material" );
-    m_MaterialEditGroup.AddButton( m_DelFeaMaterialButton, "Delete Material" );
-    m_MaterialEditGroup.ForceNewLine();
+    m_GlobalTabLayout.SetFitWidthFlag( true );
+    m_GlobalTabLayout.SetSameLineFlag( false );
 
-    m_MaterialEditSubGroup.SetGroupAndScreen( AddSubGroup( matTab, 5 ), this );
-    m_MaterialEditSubGroup.SetY( m_MaterialEditGroup.GetY() );
+    m_GlobalTabLayout.AddDividerBox( "Geometry Control" );
+    m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.AddButton( m_IntersectSubsurfaces, "Intersect Subsurfaces" );
+    m_GlobalTabLayout.AddYGap();
 
-    m_MaterialEditSubGroup.SetButtonWidth( buttonwidth );
+    m_GlobalTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
+    m_GlobalTabLayout.AddYGap();
 
-    m_MaterialEditSubGroup.AddYGap();
+    // TODO: Add more CFD Mesh Export file options?
 
-    m_MaterialEditSubGroup.AddInput( m_FeaMaterialNameInput, "Material Name" );
+    m_GlobalTabLayout.AddDividerBox( "File Export" );
+    m_GlobalTabLayout.AddYGap();
 
-    m_MaterialEditSubGroup.AddYGap();
+    m_GlobalTabLayout.SetFitWidthFlag( false );
+    m_GlobalTabLayout.SetSameLineFlag( true );
 
-    m_MaterialEditSubGroup.AddDividerBox( "Material Properties" );
+    m_GlobalTabLayout.SetButtonWidth( 75 );
+    m_GlobalTabLayout.SetInputWidth( m_GlobalTabLayout.GetW() - 125 );
 
-    m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 1, "%5.3f" );
-    m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "Elestic Modulus", 10e5, "%g" );
-    m_MaterialEditSubGroup.AddSlider( m_MatPoissonSlider, "Poisson Ratio", 1, "%5.3f" );
-    m_MaterialEditSubGroup.AddSlider( m_MatThermalExCoeffSlider, "Thermal Expansion Coeff", 10e-5, "%g" );
+    m_GlobalTabLayout.AddButton( m_StlFile, ".stl" );
+    m_GlobalTabLayout.AddOutput( m_StlOutput );
+    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
+    m_GlobalTabLayout.AddButton( m_SelectStlFile, "..." );
+    m_GlobalTabLayout.ForceNewLine();
 
-    m_MaterialEditSubGroup.AddYGap();
+    m_GlobalTabLayout.SetButtonWidth( 75 );
+    m_GlobalTabLayout.AddButton( m_GmshFile, ".msh" );
+    m_GlobalTabLayout.AddOutput( m_GmshOutput );
+    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
+    m_GlobalTabLayout.AddButton( m_SelectGmshFile, "..." );
+    m_GlobalTabLayout.ForceNewLine();
+
+    m_GlobalTabLayout.AddYGap();
+
+    m_GlobalTabLayout.SetButtonWidth( 75 );
+    m_GlobalTabLayout.AddButton( m_MassFile, "Mass" );
+    m_GlobalTabLayout.AddOutput( m_MassOutput );
+    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
+    m_GlobalTabLayout.AddButton( m_SelectMassFile, "..." );
+    m_GlobalTabLayout.ForceNewLine();
+
+    m_GlobalTabLayout.AddYGap();
+
+    m_GlobalTabLayout.SetButtonWidth( 75 );
+    m_GlobalTabLayout.AddButton( m_NastFile, "NASTRAN" );
+    m_GlobalTabLayout.AddOutput( m_NastOutput );
+    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
+    m_GlobalTabLayout.AddButton( m_SelectNastFile, "..." );
+    m_GlobalTabLayout.ForceNewLine();
+
+    m_GlobalTabLayout.AddYGap();
+
+    m_GlobalTabLayout.SetButtonWidth( 75 );
+    m_GlobalTabLayout.AddButton( m_CalcFile, "Calculix" );
+    m_GlobalTabLayout.AddOutput( m_CalcOutput );
+    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
+    m_GlobalTabLayout.AddButton( m_SelectCalcFile, "..." );
+    m_GlobalTabLayout.ForceNewLine();
+
+    //=== Display Tab ===//
+    m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
+
+    m_DisplayTabLayout.AddDividerBox( "Display" );
+
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_DrawFeaPartsButton, "Draw FeaParts" );
+
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
+
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_ColorElementsButton, "Color Elements" );
+
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_DrawNodesToggle, "Draw Nodes" );
+
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
+
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_ShowBadEdgeTriButton, "Show Bad Edges and Triangles" );
+
+    m_DisplayTabLayout.AddYGap();
+
+    m_DisplayTabLayout.AddDividerBox( "Display FeaElement Sets" );
+
+    m_DrawPartSelectBrowser = m_DisplayTabLayout.AddCheckBrowser( 150 );
+    m_DrawPartSelectBrowser->callback( staticScreenCB, this );
+
+    m_DisplayTabLayout.AddY( 125 );
+    m_DisplayTabLayout.AddYGap();
+
+    m_DisplayTabLayout.SetSameLineFlag( true );
+    m_DisplayTabLayout.SetFitWidthFlag( false );
+
+    m_DisplayTabLayout.SetButtonWidth( m_DisplayTabLayout.GetW() / 2 );
+
+    m_DisplayTabLayout.AddButton( m_DrawAllButton, "Draw All Elements" );
+    m_DisplayTabLayout.AddButton( m_HideAllButton, "Hide All Elements" );
+    m_DisplayTabLayout.ForceNewLine();
 
     // Set initial values
     m_FeaCurrMainSurfIndx = 0;

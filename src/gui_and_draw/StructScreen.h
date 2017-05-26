@@ -84,10 +84,8 @@ private:
 
     Fl_Text_Buffer m_TextBuffer;
 
-    GroupLayout m_GlobalTabLayout;
     GroupLayout m_ConsoleLayout;
     GroupLayout m_BorderConsoleLayout;
-    GroupLayout m_DisplayTabLayout;
     GroupLayout m_StructureTabLayout;
     GroupLayout m_StructGroup;
     GroupLayout m_StructWingGroup;
@@ -102,10 +100,12 @@ private:
     GroupLayout m_SubSurfTabLayout;
     GroupLayout m_SubSurfButtonLayout;
     GroupLayout m_SubSurfBrowserLayout;
-    GroupLayout m_PropertyTabLayout;
-    GroupLayout m_PropertyEditGroup;
     GroupLayout m_MaterialTabLayout;
     GroupLayout m_MaterialEditGroup;
+    GroupLayout m_PropertyTabLayout;
+    GroupLayout m_PropertyEditGroup;
+    GroupLayout m_GlobalTabLayout;
+    GroupLayout m_DisplayTabLayout;
 
     //===== Console Items =====//
     Fl_Text_Display *m_ConsoleDisplay;
@@ -114,49 +114,8 @@ private:
     ProcessUtil m_FeaMeshProcess;
     ProcessUtil m_MonitorProcess;
 
-    //===== Global Tab Items =====//
-    SliderAdjRangeInput m_MaxEdgeLen;
-    SliderAdjRangeInput m_MinEdgeLen;
-    SliderAdjRangeInput m_MaxGap;
-    SliderAdjRangeInput m_NumCircleSegments;
-    SliderAdjRangeInput m_GrowthRatio;
-
-    ToggleButton m_Rig3dGrowthLimit;
-    ToggleButton m_IntersectSubsurfaces;
-
-    ToggleButton m_HalfMeshButton;
-
-    //===== Output Items =====//
-    ToggleButton m_StlFile;
-    ToggleButton m_GmshFile;
-    ToggleButton m_MassFile;
-    ToggleButton m_NastFile;
-    ToggleButton m_CalcFile;
-
-    TriggerButton m_SelectStlFile;
-    TriggerButton m_SelectGmshFile;
-    TriggerButton m_SelectMassFile;
-    TriggerButton m_SelectNastFile;
-    TriggerButton m_SelectCalcFile;
-
-    StringOutput m_StlOutput;
-    StringOutput m_GmshOutput;
-    StringOutput m_MassOutput;
-    StringOutput m_NastOutput;
-    StringOutput m_CalcOutput;
-
-    //===== Draw Tab Items =====//
-    ToggleButton m_DrawFeaPartsButton;
-    ToggleButton m_DrawMeshButton;
-    ToggleButton m_ColorElementsButton;
-    ToggleButton m_ShowBadEdgeTriButton;
-    ToggleButton m_DrawNodesToggle;
-    ToggleButton m_DrawElementOrientVecToggle;
-
-    Fl_Check_Browser * m_DrawPartSelectBrowser;
-
-    TriggerButton m_DrawAllButton;
-    TriggerButton m_HideAllButton;
+    //===== Common buttons =====//
+    TriggerButton m_FeaMeshExportButton;
 
     //===== Structure Tab Items =====//
     Choice m_GeomChoice;
@@ -320,6 +279,20 @@ private:
     ToggleButton m_FeaSSConCapToggle;
     Choice m_FeaSSConCapPropertyChoice;
 
+    //===== Material Tab =====//
+    TriggerButton m_AddFeaMaterialButton;
+    TriggerButton m_DelFeaMaterialButton;
+
+    Fl_Browser* m_FeaMaterialSelectBrowser;
+
+    GroupLayout m_MaterialEditSubGroup;
+    StringInput m_FeaMaterialNameInput;
+
+    SliderAdjRangeInput m_MatDensitySlider;
+    SliderAdjRangeInput m_MatElasticModSlider;
+    SliderAdjRangeInput m_MatPoissonSlider;
+    SliderAdjRangeInput m_MatThermalExCoeffSlider;
+
     //===== Property Tab =====//
     GroupLayout* m_CurFeaPropDispGroup;
     TriggerButton m_AddFeaPropertyButton;
@@ -348,22 +321,49 @@ private:
     SliderAdjRangeInput m_PropIzySlider;
     SliderAdjRangeInput m_PropIxxSlider;
 
-    //===== Material Tab =====//
-    TriggerButton m_AddFeaMaterialButton;
-    TriggerButton m_DelFeaMaterialButton;
+    //===== Global Tab Items =====//
+    SliderAdjRangeInput m_MaxEdgeLen;
+    SliderAdjRangeInput m_MinEdgeLen;
+    SliderAdjRangeInput m_MaxGap;
+    SliderAdjRangeInput m_NumCircleSegments;
+    SliderAdjRangeInput m_GrowthRatio;
 
-    Fl_Browser* m_FeaMaterialSelectBrowser;
+    ToggleButton m_Rig3dGrowthLimit;
+    ToggleButton m_IntersectSubsurfaces;
 
-    GroupLayout m_MaterialEditSubGroup;
-    StringInput m_FeaMaterialNameInput;
+    ToggleButton m_HalfMeshButton;
 
-    SliderAdjRangeInput m_MatDensitySlider;
-    SliderAdjRangeInput m_MatElasticModSlider;
-    SliderAdjRangeInput m_MatPoissonSlider;
-    SliderAdjRangeInput m_MatThermalExCoeffSlider;
+    //===== Output Items =====//
+    ToggleButton m_StlFile;
+    ToggleButton m_GmshFile;
+    ToggleButton m_MassFile;
+    ToggleButton m_NastFile;
+    ToggleButton m_CalcFile;
 
-    //===== Common buttons =====//
-    TriggerButton m_FeaMeshExportButton;
+    TriggerButton m_SelectStlFile;
+    TriggerButton m_SelectGmshFile;
+    TriggerButton m_SelectMassFile;
+    TriggerButton m_SelectNastFile;
+    TriggerButton m_SelectCalcFile;
+
+    StringOutput m_StlOutput;
+    StringOutput m_GmshOutput;
+    StringOutput m_MassOutput;
+    StringOutput m_NastOutput;
+    StringOutput m_CalcOutput;
+
+    //===== Draw Tab Items =====//
+    ToggleButton m_DrawFeaPartsButton;
+    ToggleButton m_DrawMeshButton;
+    ToggleButton m_ColorElementsButton;
+    ToggleButton m_ShowBadEdgeTriButton;
+    ToggleButton m_DrawNodesToggle;
+    ToggleButton m_DrawElementOrientVecToggle;
+
+    Fl_Check_Browser * m_DrawPartSelectBrowser;
+
+    TriggerButton m_DrawAllButton;
+    TriggerButton m_HideAllButton;
 
     //==== Private Variables ====//
     string m_SelectedGeomID;
