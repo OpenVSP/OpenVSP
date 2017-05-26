@@ -960,17 +960,16 @@ void StructScreen::UpdateFeaPartBrowser()
     //==== FeaPart Browser ====//
     int scroll_pos = m_FeaPartSelectBrowser->position();
     m_FeaPartSelectBrowser->clear();
-    static int widths[] = { 150, 120, 170 };
+    static int widths[] = { 115, 93, 93, 93 };
     m_FeaPartSelectBrowser->column_widths( widths );
     m_FeaPartSelectBrowser->column_char( ':' );
 
     char str[256]; // TODO: Use to_string function
 
-    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.SURFACE" );
+    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.MAT:@b@.PROP" );
     m_FeaPartSelectBrowser->add( str );
 
-    string fea_name, fea_type;
-    int fea_surf_ind;
+    string fea_name, fea_type, fea_mat, fea_prop;
 
     if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
     {
@@ -983,19 +982,21 @@ void StructScreen::UpdateFeaPartBrowser()
             {
                 fea_name = feaprt_vec[i]->GetName();
                 fea_type = FeaPart::GetTypeName( feaprt_vec[i]->GetType() );
-                fea_surf_ind = feaprt_vec[i]->m_MainSurfIndx.Get();
-                if ( feaprt_vec[i]->GetType() == vsp::FEA_FIX_POINT )
-                {
-                    FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( feaprt_vec[i] );
-                    assert( fixpt );
 
-                    string parent_surf = StructureMgr.GetFeaPartName( fixpt->m_ParentFeaPartID );
-                    sprintf( str, "%s:%s:%s", fea_name.c_str(), fea_type.c_str(), parent_surf.c_str() );
-                }
-                else
+                FeaMaterial* mat = StructureMgr.GetFeaMaterial( feaprt_vec[i]->GetFeaMaterialIndex() );
+                if ( mat )
                 {
-                    sprintf( str, "%s:%s:Surf_%d", fea_name.c_str(), fea_type.c_str(), fea_surf_ind );
+                    fea_mat = mat->GetName();
                 }
+
+                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->GetFeaPropertyIndex() );
+                if ( prop )
+                {
+                    fea_prop = prop->GetName();
+                }
+
+                sprintf( str, "%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), fea_mat.c_str(), fea_prop.c_str() );
+
                 m_FeaPartSelectBrowser->add( str );
             }
         }
