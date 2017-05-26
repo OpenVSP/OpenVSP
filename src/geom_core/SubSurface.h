@@ -167,8 +167,7 @@ public:
     Parm m_TeTwRatio;
     Parm m_TawTwRatio;
 
-    BoolParm m_IntersectionCapFlag;
-    BoolParm m_RemoveSubSurfTrisFlag;
+    IntParm m_IncludedElements;
 
 protected:
     string m_CompID; // Component ID used to match Subsurface to a specific geom

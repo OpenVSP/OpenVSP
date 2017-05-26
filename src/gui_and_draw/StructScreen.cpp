@@ -215,6 +215,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_PartTabLayout.AddChoice( m_FeaPartChoice, "Type" );
     m_PartTabLayout.AddButton( m_AddFeaPartButton, "Add Part" );
     m_PartTabLayout.AddButton( m_DelFeaPartButton, "Delete Part" );
+
+    m_PartTabLayout.ForceNewLine();
+
     m_PartTabLayout.ForceNewLine();
 
     m_PartTabLayout.SetSameLineFlag( false );
@@ -225,11 +228,30 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_PartGroup.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
     m_PartGroup.SetY( m_PartTabLayout.GetY() );
 
-    m_PartGroup.SetButtonWidth( buttonwidth );
+    m_PartGroup.SetButtonWidth( m_PartGroup.GetRemainX() / 3 );
+    m_PartGroup.SetInputWidth( m_PartGroup.GetRemainX() / 3 );
+
+    m_PartGroup.SetSameLineFlag( true );
+    m_PartGroup.SetFitWidthFlag( false );
 
     m_PartGroup.AddInput( m_FeaPartNameInput, "Part Name" );
+    m_PartGroup.AddButton( m_EditFeaPartButton, "Edit Part" );
+
+    m_PartGroup.ForceNewLine();
+    //m_PartGroup.AddYGap();
+
+    m_PartGroup.SetButtonWidth( m_PartTabLayout.GetRemainX() / 3 );
+    m_PartGroup.AddButton( m_ShellToggle, "Shell" );
+    m_PartGroup.AddButton( m_CapToggle, "Cap" );
+    m_PartGroup.AddButton( m_ShellCapToggle, "Shell and Cap" );
+
+    m_ShellCapToggleGroup.Init( this );
+    m_ShellCapToggleGroup.AddButton( m_ShellToggle.GetFlButton() );
+    m_ShellCapToggleGroup.AddButton( m_CapToggle.GetFlButton() );
+    m_ShellCapToggleGroup.AddButton( m_ShellCapToggle.GetFlButton() );
+
     m_PartGroup.AddYGap();
-    
+
     m_CurFeaPartDispGroup = NULL;
 
     // Indivdual FeaPart Parameters:
@@ -240,8 +262,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_SliceEditLayout.SetY( start_y );
 
     m_SliceEditLayout.AddDividerBox( "Slice" );
-
-    m_SliceEditLayout.AddButton( m_SliceIncludeTrisToggle, "Include Interior Tris" );
 
     m_SliceEditLayout.SetButtonWidth( buttonwidth );
     m_SliceEditLayout.SetChoiceButtonWidth( buttonwidth );
@@ -259,7 +279,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_SliceEditLayout.AddYGap();
 
-    m_SliceEditLayout.AddButton( m_SliceCapToggle, "Cap Intersections" );
     m_SliceEditLayout.AddChoice( m_SliceCapPropertyChoice, "Cap Property" );
 
     //==== FeaRib ====//
@@ -280,7 +299,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_RibEditLayout.AddYGap();
 
-    m_RibEditLayout.AddButton( m_RibCapToggle, "Cap Intersections" );
     m_RibEditLayout.AddChoice( m_RibCapPropertyChoice, "Cap Property" );
 
     //==== FeaSpar ====//
@@ -299,7 +317,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_SparEditLayout.AddYGap();
 
-    m_SparEditLayout.AddButton( m_SparCapToggle, "Cap Intersections" );
     m_SparEditLayout.AddChoice( m_SparCapPropertyChoice, "Cap Property" );
 
     //==== FeaFixPoint ====//
@@ -410,8 +427,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_FeaSSLineGroup.SetButtonWidth( buttonwidth );
     m_FeaSSLineGroup.SetChoiceButtonWidth( buttonwidth );
 
-    m_FeaSSLineGroup.AddButton( m_FeaSSLineRemoveTrisToggle, "RemoveSubSurfaceTris" );
-
     m_FeaSSLineGroup.AddChoice( m_FeaSSLinePropertyChoice, "Property" );
 
     m_FeaSSLineGroup.SetFitWidthFlag( false );
@@ -433,7 +448,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSLineGroup.AddYGap();
 
-    m_FeaSSLineGroup.AddButton( m_FeaSSLineCapToggle, "Cap Intersections" );
     m_FeaSSLineGroup.AddChoice( m_FeaSSLineCapPropertyChoice, "Cap Property" );
 
     //==== SSRectangle ====//
@@ -462,8 +476,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_FeaSSRecGroup.SetButtonWidth( buttonwidth );
     m_FeaSSRecGroup.SetChoiceButtonWidth( buttonwidth );
 
-    m_FeaSSRecGroup.AddButton( m_FeaSSRecRemoveTrisToggle, "RemoveSubSurfaceTris" );
-
     m_FeaSSRecGroup.AddChoice( m_FeaSSRecPropertyChoice, "Property" );
 
     m_FeaSSRecGroup.SetFitWidthFlag( true );
@@ -479,7 +491,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSRecGroup.AddYGap();
 
-    m_FeaSSRecGroup.AddButton( m_FeaSSRecCapToggle, "Cap Intersections" );
     m_FeaSSRecGroup.AddChoice( m_FeaSSRecCapPropertyChoice, "Cap Property" );
 
     //==== SS_Ellipse ====//
@@ -508,8 +519,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_FeaSSEllGroup.SetButtonWidth( buttonwidth );
     m_FeaSSEllGroup.SetChoiceButtonWidth( buttonwidth );
 
-    m_FeaSSEllGroup.AddButton( m_FeaSSEllRemoveTrisToggle, "RemoveSubSurfaceTris" );
-
     m_FeaSSEllGroup.AddChoice( m_FeaSSEllPropertyChoice, "Property" );
 
     m_FeaSSEllGroup.SetFitWidthFlag( true );
@@ -526,7 +535,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSEllGroup.AddYGap();
 
-    m_FeaSSEllGroup.AddButton( m_FeaSSEllCapToggle, "Cap Intersections" );
     m_FeaSSEllGroup.AddChoice( m_FeaSSEllCapPropertyChoice, "Cap Property" );
 
     //===== SSControl ====//
@@ -554,8 +562,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSConGroup.SetButtonWidth( buttonwidth );
     m_FeaSSConGroup.SetChoiceButtonWidth( buttonwidth );
-
-    m_FeaSSConGroup.AddButton( m_FeaSSConRemoveTrisToggle, "RemoveSubSurfaceTris" );
 
     m_FeaSSConGroup.AddChoice( m_FeaSSConPropertyChoice, "Property" );
 
@@ -614,7 +620,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_FeaSSConGroup.AddYGap();
 
-    m_FeaSSConGroup.AddButton( m_FeaSSConCapToggle, "Cap Intersections" );
     m_FeaSSConGroup.AddChoice( m_FeaSSConCapPropertyChoice, "Cap Property" );
 
     //=== Material Tab ===//
@@ -1852,10 +1857,8 @@ bool StructScreen::Update()
             m_NumEvenlySpacedRibsInput.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_NumEvenlySpacedPart.GetID() );
 
             m_SpacedPartsInput.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultiSliceSpacing.GetID() );
-            m_MultSliceIncludeTrisToggle.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceIncludeTrisFlag.GetID() );
-            m_MultSliceCapToggle.Update( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceCapFlag.GetID() );
 
-            if ( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceIncludeTrisFlag() )
+            if ( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceIncludedElements() == TRIS || structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceIncludedElements() == BOTH_ELEMENTS )
             {
                 m_MultSlicePropChoice.Activate();
             }
@@ -1864,7 +1867,7 @@ bool StructScreen::Update()
                 m_MultSlicePropChoice.Deactivate();
             }
 
-            if ( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceCapFlag() )
+            if ( structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceIncludedElements() == BEAM || structVec[m_SelectedStructIndex]->GetStructSettingsPtr()->m_MultSliceIncludedElements() == BOTH_ELEMENTS )
             {
                 m_MultSliceCapPropChoice.Activate();
             }
@@ -1880,28 +1883,28 @@ bool StructScreen::Update()
                 if ( feaprt )
                 {
                     m_FeaPartNameInput.Update( feaprt->GetName() );
+                    m_ShellCapToggleGroup.Update( feaprt->m_IncludedElements.GetID() );
+
                     if ( feaprt->GetType() == vsp::FEA_SLICE )
                     {
                         FeaSlice* slice = dynamic_cast<FeaSlice*>( feaprt );
                         assert( slice );
 
-                        m_SliceIncludeTrisToggle.Update( slice->m_IncludeTrisFlag.GetID() );
                         m_SliceOrientationChoice.Update( slice->m_OrientationPlane.GetID() );
                         m_SliceCenterLocSlider.Update( slice->m_CenterPerBBoxLocation.GetID() );
                         m_SliceThetaSlider.Update( slice->m_Theta.GetID() );
                         m_SliceAlphaSlider.Update( slice->m_Alpha.GetID() );
-                        m_SliceCapToggle.Update( slice->m_IntersectionCapFlag.GetID() );
 
-                        if ( !slice->m_IncludeTrisFlag() )
-                        {
-                            m_SlicePropertyChoice.Deactivate();
-                        }
-                        else
+                        if ( slice->m_IncludedElements() == TRIS || slice->m_IncludedElements() == BOTH_ELEMENTS )
                         {
                             m_SlicePropertyChoice.Activate();
                         }
+                        else
+                        {
+                            m_SlicePropertyChoice.Deactivate();
+                        }
 
-                        if ( slice->m_IntersectionCapFlag() )
+                        if ( slice->m_IncludedElements() == BEAM || slice->m_IncludedElements() == BOTH_ELEMENTS )
                         {
                             m_SliceCapPropertyChoice.Activate();
                         }
@@ -1919,9 +1922,8 @@ bool StructScreen::Update()
 
                         m_RibPosSlider.Update( rib->m_PerU.GetID() );
                         m_RibThetaSlider.Update( rib->m_Theta.GetID() );
-                        m_RibCapToggle.Update( rib->m_IntersectionCapFlag.GetID() );
 
-                        if ( rib->m_IntersectionCapFlag() )
+                        if ( rib->m_IncludedElements() == BEAM || rib->m_IncludedElements() == BOTH_ELEMENTS )
                         {
                             m_RibCapPropertyChoice.Activate();
                         }
@@ -1939,9 +1941,8 @@ bool StructScreen::Update()
 
                         m_SparPosSlider.Update( spar->m_PerV.GetID() );
                         m_SparThetaSlider.Update( spar->m_Theta.GetID() );
-                        m_SparCapToggle.Update( spar->m_IntersectionCapFlag.GetID() );
 
-                        if ( spar->m_IntersectionCapFlag() )
+                        if ( spar->m_IncludedElements() == BEAM || spar->m_IncludedElements() == BOTH_ELEMENTS )
                         {
                             m_SparCapPropertyChoice.Activate();
                         }
@@ -1996,25 +1997,24 @@ bool StructScreen::Update()
                     m_FeaSSLineConstToggleGroup.Update( ssline->m_ConstType.GetID() );
                     m_FeaSSLineTestToggleGroup.Update( ssline->m_TestType.GetID() );
                     m_FeaSSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
-                    m_FeaSSLineCapToggle.Update( ssline->m_IntersectionCapFlag.GetID() );
-                    m_FeaSSLineRemoveTrisToggle.Update( ssline->m_RemoveSubSurfTrisFlag.GetID() );
 
                     m_FeaSSLinePropertyChoice.Activate();
-                    m_FeaSSLineRemoveTrisToggle.Activate();
 
                     if ( ssline->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSLinePropertyChoice.Deactivate();
-                        ssline->m_RemoveSubSurfTrisFlag.Set( false );
-                        m_FeaSSLineRemoveTrisToggle.Deactivate();
                     }
 
-                    if ( ssline->m_RemoveSubSurfTrisFlag.Get() )
+                    if ( ssline->m_IncludedElements() == TRIS || ssline->m_IncludedElements() == BOTH_ELEMENTS )
+                    {
+                        m_FeaSSLinePropertyChoice.Activate();
+                    }
+                    else
                     {
                         m_FeaSSLinePropertyChoice.Deactivate();
                     }
 
-                    if ( ssline->m_IntersectionCapFlag() )
+                    if ( ssline->m_IncludedElements() == BEAM || ssline->m_IncludedElements() == BOTH_ELEMENTS )
                     {
                         m_FeaSSLineCapPropertyChoice.Activate();
                     }
@@ -2036,25 +2036,24 @@ bool StructScreen::Update()
                     m_FeaSSRecULenSlider.Update( ssrec->m_ULength.GetID() );
                     m_FeaSSRecWLenSlider.Update( ssrec->m_WLength.GetID() );
                     m_FeaSSRecThetaSlider.Update( ssrec->m_Theta.GetID() );
-                    m_FeaSSRecCapToggle.Update( ssrec->m_IntersectionCapFlag.GetID() );
-                    m_FeaSSRecRemoveTrisToggle.Update( ssrec->m_RemoveSubSurfTrisFlag.GetID() );
 
                     m_FeaSSRecPropertyChoice.Activate();
-                    m_FeaSSRecRemoveTrisToggle.Activate();
 
                     if ( ssrec->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSRecPropertyChoice.Deactivate();
-                        ssrec->m_RemoveSubSurfTrisFlag.Set( false );
-                        m_FeaSSRecRemoveTrisToggle.Deactivate();
                     }
 
-                    if ( ssrec->m_RemoveSubSurfTrisFlag.Get() )
+                    if ( ssrec->m_IncludedElements() == TRIS || ssrec->m_IncludedElements() == BOTH_ELEMENTS )
+                    {
+                        m_FeaSSRecPropertyChoice.Activate();
+                    }
+                    else
                     {
                         m_FeaSSRecPropertyChoice.Deactivate();
                     }
 
-                    if ( ssrec->m_IntersectionCapFlag() )
+                    if ( ssrec->m_IncludedElements() == BEAM || ssrec->m_IncludedElements() == BOTH_ELEMENTS )
                     {
                         m_FeaSSRecCapPropertyChoice.Activate();
                     }
@@ -2077,25 +2076,24 @@ bool StructScreen::Update()
                     m_FeaSSEllULenSlider.Update( ssell->m_ULength.GetID() );
                     m_FeaSSEllWLenSlider.Update( ssell->m_WLength.GetID() );
                     m_FeaSSEllThetaSlider.Update( ssell->m_Theta.GetID() );
-                    m_FeaSSEllCapToggle.Update( ssell->m_IntersectionCapFlag.GetID() );
-                    m_FeaSSEllRemoveTrisToggle.Update( ssell->m_RemoveSubSurfTrisFlag.GetID() );
 
                     m_FeaSSEllPropertyChoice.Activate();
-                    m_FeaSSEllRemoveTrisToggle.Activate();
 
                     if ( ssell->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSEllPropertyChoice.Deactivate();
-                        ssell->m_RemoveSubSurfTrisFlag.Set( false );
-                        m_FeaSSEllRemoveTrisToggle.Deactivate();
                     }
 
-                    if ( ssell->m_RemoveSubSurfTrisFlag.Get() )
+                    if ( ssell->m_IncludedElements() == TRIS || ssell->m_IncludedElements() == BOTH_ELEMENTS )
+                    {
+                        m_FeaSSEllPropertyChoice.Activate();
+                    }
+                    else
                     {
                         m_FeaSSEllPropertyChoice.Deactivate();
                     }
 
-                    if ( ssell->m_IntersectionCapFlag() )
+                    if ( ssell->m_IncludedElements() == BEAM || ssell->m_IncludedElements() == BOTH_ELEMENTS )
                     {
                         m_FeaSSEllCapPropertyChoice.Activate();
                     }
@@ -2121,25 +2119,24 @@ bool StructScreen::Update()
                     m_FeaSSConSAbsRelToggleGroup.Update( sscon->m_AbsRelFlag.GetID() );
                     m_FeaSSConSEConstButton.Update( sscon->m_ConstFlag.GetID() );
                     m_FeaSSConLEFlagButton.Update( sscon->m_LEFlag.GetID() );
-                    m_FeaSSConCapToggle.Update( sscon->m_IntersectionCapFlag.GetID() );
-                    m_FeaSSConRemoveTrisToggle.Update( sscon->m_RemoveSubSurfTrisFlag.GetID() );
 
                     m_FeaSSConPropertyChoice.Activate();
-                    m_FeaSSConRemoveTrisToggle.Activate();
 
                     if ( sscon->m_TestType() == vsp::NONE )
                     {
                         m_FeaSSConPropertyChoice.Deactivate();
-                        sscon->m_RemoveSubSurfTrisFlag.Set( false );
-                        m_FeaSSConRemoveTrisToggle.Deactivate();
                     }
 
-                    if ( sscon->m_RemoveSubSurfTrisFlag.Get() )
+                    if ( sscon->m_IncludedElements() == TRIS || sscon->m_IncludedElements() == BOTH_ELEMENTS )
+                    {
+                        m_FeaSSConPropertyChoice.Activate();
+                    }
+                    else
                     {
                         m_FeaSSConPropertyChoice.Deactivate();
                     }
 
-                    if ( sscon->m_IntersectionCapFlag() )
+                    if ( sscon->m_IncludedElements() == BEAM || sscon->m_IncludedElements() == BOTH_ELEMENTS )
                     {
                         m_FeaSSConCapPropertyChoice.Activate();
                     }
@@ -2626,6 +2623,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 feaprt->SetName( m_FeaPartNameInput.GetString() );
             }
         }
+    }
+    else if ( device == &m_EditFeaPartButton )
+    {
+        // Open Edit FeaPart Screen
     }
     else if ( device == &m_FeaPartChoice )
     {

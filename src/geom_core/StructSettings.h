@@ -49,8 +49,7 @@ public:
     BoolParm m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES];
     IntParm m_NumEvenlySpacedPart;
     Parm m_MultiSliceSpacing;
-    BoolParm m_MultSliceIncludeTrisFlag;
-    BoolParm m_MultSliceCapFlag;
+    IntParm m_MultSliceIncludedElements;
     BoolParm m_DrawFeaPartsFlag;
     BoolParm m_DrawNodesFlag;
     BoolParm m_DrawElementOrientVecFlag;

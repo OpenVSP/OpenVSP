@@ -40,10 +40,9 @@ void SimpleSubSurface::CopyFrom( SubSurface* ss )
         m_Tag = ss->m_Tag;
         m_TestType = ss->m_TestType.Get();
         m_MainSurfIndx = ss->m_MainSurfIndx.Get();
-        m_IntersectionCapFlag = ss->m_IntersectionCapFlag.Get();
+        m_IncludedElements = ss->m_IncludedElements.Get();
         m_FeaPropertyIndex = ss->GetFeaPropertyIndex();
         m_CapFeaPropertyIndex = ss->GetCapFeaPropertyIndex();
-        m_RemoveSubSurfTrisFlag = ss->m_RemoveSubSurfTrisFlag.Get();
 
         ss->PrepareSplitVec();
 

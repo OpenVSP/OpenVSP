@@ -136,6 +136,11 @@ protected:
 
 };
 
+enum
+{
+    TRIS, BEAM, BOTH_ELEMENTS
+};
+
 class FeaPart : public ParmContainer
 {
 public:
@@ -198,7 +203,7 @@ public:
     virtual void SetFeaMaterialIndex( int index );
 
     IntParm m_MainSurfIndx;
-    BoolParm m_IntersectionCapFlag;
+    IntParm m_IncludedElements;
 
 protected:
 
@@ -233,7 +238,6 @@ public:
     virtual void ComputePlanarSurf();
     virtual void UpdateDrawObjs( int id, bool highlight );
 
-    BoolParm m_IncludeTrisFlag;
     IntParm m_OrientationPlane;
     Parm m_CenterPerBBoxLocation;
     Parm m_Theta;

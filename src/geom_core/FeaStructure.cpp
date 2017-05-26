@@ -283,8 +283,7 @@ string FeaStructure::AddSpacedSlices( int orientation )
                 {
                     slice->m_OrientationPlane.Set( orientation );
                     slice->m_CenterPerBBoxLocation.Set( i * percent_space );
-                    slice->m_IncludeTrisFlag.Set( GetStructSettingsPtr()->m_MultSliceIncludeTrisFlag.Get() );
-                    slice->m_IntersectionCapFlag.Set( GetStructSettingsPtr()->m_MultSliceCapFlag.Get() );
+                    slice->m_IncludedElements.Set( GetStructSettingsPtr()->m_MultSliceIncludedElements.Get() );
                     slice->Update();
                 }
             }
@@ -623,8 +622,8 @@ FeaPart::FeaPart( string geomID, int type )
     m_MainSurfIndx.Init( "MainSurfIndx", "FeaPart", this, -1, -1, 1e12 );
     m_MainSurfIndx.SetDescript( "Surface Index for FeaPart" );
 
-    m_IntersectionCapFlag.Init( "IntersectionCapFlag", "FeaPart", this, false, false, true );
-    m_IntersectionCapFlag.SetDescript( "Flag to Identify FeaElements at Intersections" );
+    m_IncludedElements.Init( "IncludedElements", "FeaPart", this, TRIS, TRIS, BOTH_ELEMENTS );
+    m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the FeaPart" );
 
     m_FeaPropertyIndex = 0; // Shell property default
     m_CapFeaPropertyIndex = 1; // Beam property default
@@ -968,9 +967,6 @@ void FeaPart::SetFeaMaterialIndex( int index )
 
 FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_IncludeTrisFlag.Init( "IncludeTrisFlag", "FeaFullDepth", this, true, false, true );
-    m_IncludeTrisFlag.SetDescript( "Flag to Include Interior Tris" );
-
     m_OrientationPlane.Init( "OrientationPlane", "FeaFullDepth", this, XY_PLANE, XY_PLANE, XZ_PLANE );
     m_OrientationPlane.SetDescript( "Plane the FeaFullDepth Part will be Parallel to" );
 
@@ -1006,7 +1002,7 @@ void FeaSlice::ComputePlanarSurf()
 
         m_FeaPartSurfVec[0] = VspSurf();
 
-        if ( m_IncludeTrisFlag() )
+        if ( m_IncludedElements() == TRIS || m_IncludedElements() == BOTH_ELEMENTS )
         {
             m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
         }
@@ -1924,7 +1920,6 @@ FeaFixPoint::FeaFixPoint( string compID, int type ) : FeaPart( compID, type )
     m_PosW.Init( "PosW", "FeaFixPoint", this, 0.0, 0.0, 1.0 );
     m_PosW.SetDescript( "Precent W Location" );
 
-    m_IntersectionCapFlag.Set( false );
     m_FeaPropertyIndex = -1; // No property
     m_CapFeaPropertyIndex = -1; // No property
     m_BorderFlag = false;

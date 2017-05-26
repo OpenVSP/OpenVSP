@@ -52,9 +52,8 @@ public:
     int m_Tag;
     int m_TestType;
     int m_MainSurfIndx;
-    bool m_IntersectionCapFlag;
+    int m_IncludedElements;
     int m_ControlSurfType;
-    bool m_RemoveSubSurfTrisFlag;
 
 protected:
 

@@ -3492,7 +3492,7 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                     {
                         if ( chain->Valid() )
                         {
-                            if ( ss_vec[ss].m_IntersectionCapFlag )
+                            if ( ss_vec[ss].m_IncludedElements == BEAM || ss_vec[ss].m_IncludedElements == BOTH_ELEMENTS )
                             {
                                 chain->m_SSIntersectIndex = ss; // Identify FeaSubSurfaceIndex
                             }
@@ -3595,7 +3595,7 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                 {
                     if ( chain->Valid() )
                     {
-                        if ( ss_vec[ss].m_IntersectionCapFlag )
+                        if ( ss_vec[ss].m_IncludedElements == BEAM || ss_vec[ss].m_IncludedElements == BOTH_ELEMENTS )
                         {
                             chain->m_SSIntersectIndex = ss; // Identify FeaSubSurfaceIndex
                         }

@@ -146,46 +146,38 @@ private:
     TriggerButton m_OrientTopButton;
 
     //===== FeaPart Tab Items =====//
-
     Fl_Browser * m_FeaPartSelectBrowser;
 
     Choice m_FeaPartChoice;
     Choice m_SurfSel;
     StringInput m_FeaPartNameInput;
-
+    TriggerButton m_EditFeaPartButton;
     TriggerButton m_AddFeaPartButton;
     TriggerButton m_DelFeaPartButton;
+    ToggleButton m_ShellToggle;
+    ToggleButton m_CapToggle;
+    ToggleButton m_ShellCapToggle;
+    ToggleRadioGroup m_ShellCapToggleGroup;
 
     //===== Slice =====//
-    ToggleButton m_SliceIncludeTrisToggle;
-
     Choice m_SlicePropertyChoice;
-
     Choice m_SliceOrientationChoice;
     SliderAdjRangeInput m_SliceCenterLocSlider;
     SliderAdjRangeInput m_SliceThetaSlider;
     SliderAdjRangeInput m_SliceAlphaSlider;
-
-    ToggleButton m_SliceCapToggle;
     Choice m_SliceCapPropertyChoice;
 
     //===== Rib =====//
     Choice m_RibPropertyChoice;
-
     Choice m_RibPerpendicularEdgeChoice;
     SliderAdjRangeInput m_RibPosSlider;
     SliderAdjRangeInput m_RibThetaSlider;
-
-    ToggleButton m_RibCapToggle;
     Choice m_RibCapPropertyChoice;
 
     //===== Spar =====//
     Choice m_SparPropertyChoice;
-
     SliderAdjRangeInput m_SparPosSlider;
     SliderAdjRangeInput m_SparThetaSlider;
-
-    ToggleButton m_SparCapToggle;
     Choice m_SparCapPropertyChoice;
 
     //===== Fix Point =====//
@@ -219,8 +211,6 @@ private:
     ToggleButton m_FeaSSLineLessToggle;
     ToggleButton m_FeaSSLineNoneToggle;
     ToggleRadioGroup m_FeaSSLineTestToggleGroup;
-    ToggleButton m_FeaSSLineRemoveTrisToggle;
-    ToggleButton m_FeaSSLineCapToggle;
     Choice m_FeaSSLineCapPropertyChoice;
 
     // SS_Rectangle
@@ -235,8 +225,6 @@ private:
     ToggleButton m_FeaSSRecOutsideButton;
     ToggleButton m_FeaSSRecNoneButton;
     ToggleRadioGroup m_FeaSSRecTestToggleGroup;
-    ToggleButton m_FeaSSRecRemoveTrisToggle;
-    ToggleButton m_FeaSSRecCapToggle;
     Choice m_FeaSSRecCapPropertyChoice;
 
     // SS_Ellipse
@@ -252,8 +240,6 @@ private:
     ToggleButton m_FeaSSEllOutsideButton;
     ToggleButton m_FeaSSEllNoneButton;
     ToggleRadioGroup m_FeaSSEllTestToggleGroup;
-    ToggleButton m_FeaSSEllRemoveTrisToggle;
-    ToggleButton m_FeaSSEllCapToggle;
     Choice m_FeaSSEllCapPropertyChoice;
 
     // SS_Control
@@ -275,8 +261,6 @@ private:
     ToggleButton m_FeaSSConNoneButton;
     ToggleRadioGroup m_FeaSSConTestToggleGroup;
     Choice m_FeaSSConSurfTypeChoice;
-    ToggleButton m_FeaSSConRemoveTrisToggle;
-    ToggleButton m_FeaSSConCapToggle;
     Choice m_FeaSSConCapPropertyChoice;
 
     //===== Material Tab =====//

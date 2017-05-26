@@ -161,7 +161,7 @@ protected:
 
     vector < string > m_FeaPartNameVec;
     vector < int > m_FeaPartTypeVec;
-    vector < bool > m_FeaPartIntersectCapFlagVec;
+    vector < int > m_FeaPartIncludedElementsVec;
     vector < int > m_FeaPartPropertyIndexVec;
     vector < int > m_FeaPartCapPropertyIndexVec;
 

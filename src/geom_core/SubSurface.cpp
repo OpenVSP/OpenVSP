@@ -63,6 +63,9 @@ SubSurface::SubSurface( string compID, int type )
     m_RemoveSubSurfTrisFlag.Init( "RemoveSubSurfTrisFlag", "SubSurface", this, false, false, true );
     m_RemoveSubSurfTrisFlag.SetDescript( "Flag to Remove SubSurface Tris after Mesh" );
 
+    m_IncludedElements.Init( "IncludedElements", "SubSurface", this, TRIS, TRIS, BOTH_ELEMENTS );
+    m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the SubSurface" );
+
     m_FeaPropertyIndex = 0; // Shell Property Default
     m_CapFeaPropertyIndex = 1; // Beam property default
 }

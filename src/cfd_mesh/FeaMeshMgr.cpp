@@ -57,7 +57,7 @@ void FeaMeshMgrSingleton::CleanUp()
 
     m_FeaPartNameVec.clear();
     m_FeaPartTypeVec.clear();
-    m_FeaPartIntersectCapFlagVec.clear();
+    m_FeaPartIncludedElementsVec.clear();
     m_FeaPartPropertyIndexVec.clear();
     m_FeaPartCapPropertyIndexVec.clear();
 
@@ -162,7 +162,7 @@ void FeaMeshMgrSingleton::TransferFeaData()
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
         m_FeaPartNameVec.resize( m_NumFeaParts );
         m_FeaPartTypeVec.resize( m_NumFeaParts );
-        m_FeaPartIntersectCapFlagVec.resize( m_NumFeaParts );
+        m_FeaPartIncludedElementsVec.resize( m_NumFeaParts );
         m_FeaPartPropertyIndexVec.resize( m_NumFeaParts );
         m_FeaPartCapPropertyIndexVec.resize( m_NumFeaParts );
 
@@ -170,7 +170,7 @@ void FeaMeshMgrSingleton::TransferFeaData()
         {
             m_FeaPartNameVec[i] = fea_part_vec[i]->GetName();
             m_FeaPartTypeVec[i] = fea_part_vec[i]->GetType();
-            m_FeaPartIntersectCapFlagVec[i] = fea_part_vec[i]->m_IntersectionCapFlag.Get();
+            m_FeaPartIncludedElementsVec[i] = fea_part_vec[i]->m_IncludedElements.Get();
             m_FeaPartPropertyIndexVec[i] = fea_part_vec[i]->GetFeaPropertyIndex();
             m_FeaPartCapPropertyIndexVec[i] = fea_part_vec[i]->GetCapFeaPropertyIndex();
         }
@@ -505,8 +505,8 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         if ( !( *c )->m_BorderFlag ) // Only include intersection curves
         {
             // Check at least one surface intersection cap flag is true
-            bool FeaPartCapA = m_FeaPartIntersectCapFlagVec[( *c )->m_SurfA->GetFeaPartIndex()];
-            bool FeaPartCapB = m_FeaPartIntersectCapFlagVec[( *c )->m_SurfB->GetFeaPartIndex()];
+            int FeaPartCapA = m_FeaPartIncludedElementsVec[( *c )->m_SurfA->GetFeaPartIndex()];
+            int FeaPartCapB = m_FeaPartIncludedElementsVec[( *c )->m_SurfB->GetFeaPartIndex()];
 
             vector< vec3d > ipntVec;
             vector< vec3d > inormVec;
@@ -515,16 +515,16 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             int FeaPartIndex = -1;
 
             // Check if one surface is a skin and one is an FeaPart (m_CompID = -9999)
-            if ( ( FeaPartCapA || FeaPartCapB ) && ( ( ( *c )->m_SurfA->GetCompID() < 0 && ( *c )->m_SurfB->GetCompID() >= 0 ) || ( ( *c )->m_SurfB->GetCompID() < 0 && ( *c )->m_SurfA->GetCompID() >= 0 ) ) )
+            if ( ( ( FeaPartCapA == BEAM || FeaPartCapA == BOTH_ELEMENTS ) || ( FeaPartCapB == BEAM || FeaPartCapB == BOTH_ELEMENTS ) ) && ( ( ( *c )->m_SurfA->GetCompID() < 0 && ( *c )->m_SurfB->GetCompID() >= 0 ) || ( ( *c )->m_SurfB->GetCompID() < 0 && ( *c )->m_SurfA->GetCompID() >= 0 ) ) )
             {
                 vec3d center;
 
-                if ( ( *c )->m_SurfA->GetCompID() < 0 && FeaPartCapA )
+                if ( ( *c )->m_SurfA->GetCompID() < 0 && ( FeaPartCapA == BEAM || FeaPartCapA == BOTH_ELEMENTS ) )
                 {
                     FeaPartIndex = ( *c )->m_SurfA->GetFeaPartIndex();
                     center = ( *c )->m_SurfA->GetBBox().GetCenter();
                 }
-                else if ( ( *c )->m_SurfB->GetCompID() < 0 && FeaPartCapB )
+                else if ( ( *c )->m_SurfB->GetCompID() < 0 && ( FeaPartCapB == BEAM || FeaPartCapB == BOTH_ELEMENTS ) )
                 {
                     FeaPartIndex = ( *c )->m_SurfB->GetFeaPartIndex();
                     center = ( *c )->m_SurfB->GetBBox().GetCenter();
@@ -981,7 +981,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                 // Split SubSurfs
                 for ( int ss = 0; ss < (int)ss_vec.size(); ss++ )
                 {
-                    if ( ss_vec[ss].m_IntersectionCapFlag ) // Only consider SubSurface if cap intersections is flagged
+                    if ( ss_vec[ss].m_IncludedElements == BEAM || ss_vec[ss].m_IncludedElements == BOTH_ELEMENTS ) // Only consider SubSurface if cap intersections is flagged
                     {
                         ss_vec[ss].SplitSegsU( surf->GetSurfCore()->GetMinU() );
                         ss_vec[ss].SplitSegsU( surf->GetSurfCore()->GetMaxU() );
@@ -1144,7 +1144,7 @@ void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
         {
             if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
             {
-                if ( m_SimpleSubSurfaceVec[i].m_RemoveSubSurfTrisFlag )
+                if ( m_SimpleSubSurfaceVec[i].m_IncludedElements != TRIS && m_SimpleSubSurfaceVec[i].m_IncludedElements != BOTH_ELEMENTS )
                 {
                     delete m_FeaElementVec[j];
                     m_FeaElementVec.erase( m_FeaElementVec.begin() + j );
@@ -1448,7 +1448,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
                 fprintf( fp, "\n" );
 
-                if ( m_FeaPartIntersectCapFlagVec[i] )
+                if ( m_FeaPartIncludedElementsVec[i] == BEAM || m_FeaPartIncludedElementsVec[i] == BOTH_ELEMENTS )
                 {
                     fprintf( fp, "*ELEMENT, TYPE=B31, ELSET=E%s_CAP\n", m_FeaPartNameVec[i].c_str() );
 
@@ -1522,7 +1522,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
             m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
 
-            if ( m_SimpleSubSurfaceVec[i].m_IntersectionCapFlag )
+            if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == BOTH_ELEMENTS )
             {
                 fprintf( fp, "\n" );
                 fprintf( fp, "*ELEMENT, TYPE=B31, ELSET=E%s_CAP\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
@@ -1703,18 +1703,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
         {
             string name = m_StructName + ":  " + m_FeaPartNameVec[i];
 
-            if ( m_FeaPartTypeVec[i] == vsp::FEA_SLICE )
-            {
-                FeaSlice* slice = dynamic_cast<FeaSlice*>( fea_part_vec[i] );
-                assert( slice );
-
-                if ( slice->m_IncludeTrisFlag() )
-                {
-                    m_DrawBrowserNameVec.push_back( name );
-                    m_DrawBrowserPartIndexVec.push_back( i );
-                }
-            }
-            else
+            if ( fea_part_vec[i]->m_IncludedElements() == TRIS || fea_part_vec[i]->m_IncludedElements() == BOTH_ELEMENTS )
             {
                 m_DrawBrowserNameVec.push_back( name );
                 m_DrawBrowserPartIndexVec.push_back( i );
@@ -1731,7 +1720,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
 
             m_DrawElementFlagVec.push_back( true );
 
-            if ( m_FeaPartIntersectCapFlagVec[i] )
+            if ( m_FeaPartIncludedElementsVec[i] == BEAM || m_FeaPartIncludedElementsVec[i] == BOTH_ELEMENTS )
             {
                 name += "_CAP";
                 m_DrawBrowserNameVec.push_back( name );
@@ -1749,7 +1738,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
         {
             string name = m_StructName + ":  " + m_SimpleSubSurfaceVec[i].GetName();
 
-            if ( m_SimpleSubSurfaceVec[i].m_TestType != vsp::NONE && !m_SimpleSubSurfaceVec[i].m_RemoveSubSurfTrisFlag )
+            if ( m_SimpleSubSurfaceVec[i].m_TestType != vsp::NONE && ( m_SimpleSubSurfaceVec[i].m_IncludedElements == TRIS || m_SimpleSubSurfaceVec[i].m_IncludedElements == BOTH_ELEMENTS ) )
             {
                 m_DrawBrowserNameVec.push_back( name );
                 m_DrawBrowserPartIndexVec.push_back( m_NumFeaParts + i );
@@ -1757,7 +1746,7 @@ void FeaMeshMgrSingleton::TransferDrawObjData()
 
             m_DrawElementFlagVec.push_back( true );
 
-            if ( m_SimpleSubSurfaceVec[i].m_IntersectionCapFlag )
+            if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == BOTH_ELEMENTS )
             {
                 name += "_CAP";
                 m_DrawBrowserNameVec.push_back( name );
