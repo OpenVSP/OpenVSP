@@ -374,7 +374,7 @@ private:
 
     int m_FeaCurrMainSurfIndx;
     int m_SelectedStructIndex;
-    int m_SelectedPartIndex;
+    vector < int > m_SelectedPartIndexVec;
     int m_SelectedSubSurfIndex;
     int m_SelectedFeaPartChoice;
     int m_SelectedSubSurfChoice;
