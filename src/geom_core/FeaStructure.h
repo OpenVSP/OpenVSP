@@ -73,7 +73,7 @@ public:
     virtual int GetNumFeaSkin();
 
     virtual void UpdateFeaSubSurfs();
-    virtual void RecolorFeaSubSurfs( int active_ind );
+    virtual void RecolorFeaSubSurfs( vector < int > active_ind_vec );
     virtual SubSurface* AddFeaSubSurf( int type );
     virtual bool ValidFeaSubSurfInd( int ind );
     virtual void DelFeaSubSurf( int ind );

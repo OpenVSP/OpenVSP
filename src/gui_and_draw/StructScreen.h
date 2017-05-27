@@ -28,18 +28,15 @@ public:
     virtual ~StructScreen();
 
     virtual void FeaPartDispGroup( GroupLayout* group );
-    virtual void FeaSubSurfDispGroup( GroupLayout* group );
     virtual void FeaPropertyDispGroup( GroupLayout* group );
 
     virtual void LoadGeomChoice();
     virtual void UpdateStructBrowser();
     virtual void UpdateFeaPartBrowser();
     virtual void UpdateDrawPartBrowser();
-    virtual void UpdateFeaSubSurfBrowser();
     virtual void UpdateMainSurfChoice();
     virtual void UpdateFeaPartChoice();
     virtual void UpdateFixPointParentChoice();
-    virtual void UpdateSubSurfChoice();
     virtual void UpdateFeaPropertyBrowser();
     virtual void UpdateFeaPropertyChoice();
     virtual void UpdateFeaMaterialBrowser();
@@ -48,8 +45,6 @@ public:
 
     virtual void UpdateFeaPartPropertyIndex( Choice* property_choice );
     virtual void UpdateCapPropertyIndex( Choice* property_choice );
-    virtual void UpdateFeaSubSurfPropertyIndex( Choice* property_choice );
-    virtual void UpdateFeaSubSurfCapPropertyIndex( Choice* property_choice );
 
     virtual void OrientWing();
     virtual void OrientStructure( VSPGraphic::Common::VSPenum type );
@@ -185,20 +180,12 @@ private:
     SliderAdjRangeInput m_FixPointULocSlider;
     SliderAdjRangeInput m_FixPointWLocSlider;
 
-    //===== SubSurface Tab =====//
-    GroupLayout* m_CurFeaSubDispGroup;
-    Fl_Browser* m_FeaSubSurfBrowser;
-    TriggerButton m_DelFeaSubSurfButton;
-    TriggerButton m_AddFeaSubSurfButton;
-    Choice m_FeaSubSurfChoice;
+    //===== SubSurfaces =====//
 
-    TriggerButton m_MoveSSTopButton;
-    TriggerButton m_MoveSSUpButton;
-    TriggerButton m_MoveSSDownButton;
-    TriggerButton m_MoveSSBotButton;
-
-    GroupLayout m_FeaSSCommonGroup;
-    StringInput m_FeaSubNameInput;
+    //TriggerButton m_MoveSSTopButton;
+    //TriggerButton m_MoveSSUpButton;
+    //TriggerButton m_MoveSSDownButton;
+    //TriggerButton m_MoveSSBotButton;
 
     // SS_Line
     GroupLayout m_FeaSSLineGroup;
@@ -359,11 +346,10 @@ private:
     int m_FeaCurrMainSurfIndx;
     int m_SelectedStructIndex;
     vector < int > m_SelectedPartIndexVec;
-    int m_SelectedSubSurfIndex;
     int m_SelectedFeaPartChoice;
-    int m_SelectedSubSurfChoice;
     int m_SelectedMaterialIndex;
     int m_SelectedPropertyIndex;
+    int m_NumFeaPartChoices;
 };
 
 #endif
