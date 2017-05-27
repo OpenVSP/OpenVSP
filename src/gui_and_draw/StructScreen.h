@@ -27,7 +27,7 @@ public:
     StructScreen( ScreenMgr* mgr );
     virtual ~StructScreen();
 
-    virtual void FeaPartDispGroup( GroupLayout* group );
+    virtual void FeaStructDispGroup( GroupLayout* group );
     virtual void FeaPropertyDispGroup( GroupLayout* group );
 
     virtual void LoadGeomChoice();
@@ -36,15 +36,13 @@ public:
     virtual void UpdateDrawPartBrowser();
     virtual void UpdateMainSurfChoice();
     virtual void UpdateFeaPartChoice();
-    virtual void UpdateFixPointParentChoice();
     virtual void UpdateFeaPropertyBrowser();
     virtual void UpdateFeaPropertyChoice();
     virtual void UpdateFeaMaterialBrowser();
     virtual void UpdateFeaMaterialChoice();
-    virtual void UpdatePerpendicularRibChoice();
 
-    virtual void UpdateFeaPartPropertyIndex( Choice* property_choice );
-    virtual void UpdateCapPropertyIndex( Choice* property_choice );
+    virtual void UpdateGenPropertyIndex( Choice* property_choice );
+    virtual void UpdateGenCapPropertyIndex( Choice* property_choice );
 
     virtual void OrientWing();
     virtual void OrientStructure( VSPGraphic::Common::VSPenum type );
@@ -86,15 +84,7 @@ private:
     GroupLayout m_StructWingGroup;
     GroupLayout m_StructGeneralGroup;
     GroupLayout m_PartTabLayout;
-    GroupLayout* m_CurFeaPartDispGroup;
     GroupLayout m_PartGroup;
-    GroupLayout m_SliceEditLayout;
-    GroupLayout m_RibEditLayout;
-    GroupLayout m_SparEditLayout;
-    GroupLayout m_FixPointEditLayout;
-    GroupLayout m_SubSurfTabLayout;
-    GroupLayout m_SubSurfButtonLayout;
-    GroupLayout m_SubSurfBrowserLayout;
     GroupLayout m_MaterialTabLayout;
     GroupLayout m_MaterialEditGroup;
     GroupLayout m_PropertyTabLayout;
@@ -114,6 +104,7 @@ private:
 
     //===== Structure Tab Items =====//
     Choice m_GeomChoice;
+    Choice m_SurfSel;
     TriggerButton m_AddFeaStructButton;
     TriggerButton m_DelFeaStructButton;
 
@@ -144,7 +135,6 @@ private:
     Fl_Browser * m_FeaPartSelectBrowser;
 
     Choice m_FeaPartChoice;
-    Choice m_SurfSel;
     StringInput m_FeaPartNameInput;
     TriggerButton m_EditFeaPartButton;
     TriggerButton m_AddFeaPartButton;
@@ -154,101 +144,8 @@ private:
     ToggleButton m_ShellCapToggle;
     ToggleRadioGroup m_ShellCapToggleGroup;
 
-    //===== Slice =====//
-    Choice m_SlicePropertyChoice;
-    Choice m_SliceOrientationChoice;
-    SliderAdjRangeInput m_SliceCenterLocSlider;
-    SliderAdjRangeInput m_SliceThetaSlider;
-    SliderAdjRangeInput m_SliceAlphaSlider;
-    Choice m_SliceCapPropertyChoice;
-
-    //===== Rib =====//
-    Choice m_RibPropertyChoice;
-    Choice m_RibPerpendicularEdgeChoice;
-    SliderAdjRangeInput m_RibPosSlider;
-    SliderAdjRangeInput m_RibThetaSlider;
-    Choice m_RibCapPropertyChoice;
-
-    //===== Spar =====//
-    Choice m_SparPropertyChoice;
-    SliderAdjRangeInput m_SparPosSlider;
-    SliderAdjRangeInput m_SparThetaSlider;
-    Choice m_SparCapPropertyChoice;
-
-    //===== Fix Point =====//
-    Choice m_FixPointParentSurfChoice;
-    SliderAdjRangeInput m_FixPointULocSlider;
-    SliderAdjRangeInput m_FixPointWLocSlider;
-
-    //===== SubSurfaces =====//
-
-    //TriggerButton m_MoveSSTopButton;
-    //TriggerButton m_MoveSSUpButton;
-    //TriggerButton m_MoveSSDownButton;
-    //TriggerButton m_MoveSSBotButton;
-
-    // SS_Line
-    GroupLayout m_FeaSSLineGroup;
-    Choice m_FeaSSLinePropertyChoice;
-    SliderInput m_FeaSSLineConstSlider; // Either Constant U or W
-    ToggleButton m_FeaSSLineConstUButton;
-    ToggleButton m_FeaSSLineConstWButton;
-    ToggleRadioGroup m_FeaSSLineConstToggleGroup;
-    ToggleButton m_FeaSSLineGreaterToggle;
-    ToggleButton m_FeaSSLineLessToggle;
-    ToggleButton m_FeaSSLineNoneToggle;
-    ToggleRadioGroup m_FeaSSLineTestToggleGroup;
-    Choice m_FeaSSLineCapPropertyChoice;
-
-    // SS_Rectangle
-    GroupLayout m_FeaSSRecGroup;
-    Choice m_FeaSSRecPropertyChoice;
-    SliderAdjRangeInput m_FeaSSRecCentUSlider;
-    SliderAdjRangeInput m_FeaSSRecCentWSlider;
-    SliderAdjRangeInput m_FeaSSRecULenSlider;
-    SliderAdjRangeInput m_FeaSSRecWLenSlider;
-    SliderAdjRangeInput m_FeaSSRecThetaSlider;
-    ToggleButton m_FeaSSRecInsideButton;
-    ToggleButton m_FeaSSRecOutsideButton;
-    ToggleButton m_FeaSSRecNoneButton;
-    ToggleRadioGroup m_FeaSSRecTestToggleGroup;
-    Choice m_FeaSSRecCapPropertyChoice;
-
-    // SS_Ellipse
-    GroupLayout m_FeaSSEllGroup;
-    Choice m_FeaSSEllPropertyChoice;
-    SliderAdjRangeInput m_FeaSSEllCentUSlider;
-    SliderAdjRangeInput m_FeaSSEllCentWSlider;
-    SliderAdjRangeInput m_FeaSSEllULenSlider;
-    SliderAdjRangeInput m_FeaSSEllWLenSlider;
-    SliderAdjRangeInput m_FeaSSEllTessSlider;
-    SliderAdjRangeInput m_FeaSSEllThetaSlider;
-    ToggleButton m_FeaSSEllInsideButton;
-    ToggleButton m_FeaSSEllOutsideButton;
-    ToggleButton m_FeaSSEllNoneButton;
-    ToggleRadioGroup m_FeaSSEllTestToggleGroup;
-    Choice m_FeaSSEllCapPropertyChoice;
-
-    // SS_Control
-    GroupLayout m_FeaSSConGroup;
-    Choice m_FeaSSConPropertyChoice;
-    SliderAdjRangeInput m_FeaSSConUSSlider;
-    SliderAdjRangeInput m_FeaSSConUESlider;
-    SliderAdjRangeInput m_FeaSSConSFracSlider;
-    SliderAdjRangeInput m_FeaSSConSLenSlider;
-    SliderAdjRangeInput m_FeaSSConEFracSlider;
-    SliderAdjRangeInput m_FeaSSConELenSlider;
-    ToggleButton m_FeaSSConSAbsButton;
-    ToggleButton m_FeaSSConSRelButton;
-    ToggleRadioGroup m_FeaSSConSAbsRelToggleGroup;
-    ToggleButton m_FeaSSConSEConstButton;
-    ToggleButton m_FeaSSConLEFlagButton;
-    ToggleButton m_FeaSSConInsideButton;
-    ToggleButton m_FeaSSConOutsideButton;
-    ToggleButton m_FeaSSConNoneButton;
-    ToggleRadioGroup m_FeaSSConTestToggleGroup;
-    Choice m_FeaSSConSurfTypeChoice;
-    Choice m_FeaSSConCapPropertyChoice;
+    Choice m_GenPropertyChoice;
+    Choice m_GenCapPropertyChoice;
 
     //===== Material Tab =====//
     TriggerButton m_AddFeaMaterialButton;

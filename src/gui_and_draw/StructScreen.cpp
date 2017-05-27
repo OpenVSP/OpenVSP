@@ -15,6 +15,7 @@
 #include "GraphicEngine.h"
 #include "Display.h"
 #include "Camera.h"
+#include "FeaPartEditScreen.h"
 
 using namespace vsp;
 
@@ -248,346 +249,18 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_PartGroup.ForceNewLine();
     m_PartGroup.AddYGap();
 
-    m_CurFeaPartDispGroup = NULL;
+    m_PartGroup.SetSameLineFlag( false );
+    m_PartGroup.SetFitWidthFlag( true );
 
-    // Indivdual FeaPart Parameters:
-    int start_y = m_PartGroup.GetY();
+    //==== General FeaPart Parameters ====//
+    m_PartGroup.AddDividerBox( "General" );
 
-    //==== FeaSlice ====//
-    m_SliceEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-    m_SliceEditLayout.SetY( start_y );
+    m_PartGroup.SetButtonWidth( buttonwidth );
+    m_PartGroup.SetChoiceButtonWidth( buttonwidth );
 
-    m_SliceEditLayout.AddDividerBox( "Slice" );
+    m_PartGroup.AddChoice( m_GenPropertyChoice, "Property" );
 
-    m_SliceEditLayout.SetButtonWidth( buttonwidth );
-    m_SliceEditLayout.SetChoiceButtonWidth( buttonwidth );
-
-    m_SliceEditLayout.AddChoice( m_SlicePropertyChoice, "Property" );
-
-    m_SliceOrientationChoice.AddItem( "XY Plane" );
-    m_SliceOrientationChoice.AddItem( "YZ Plane" );
-    m_SliceOrientationChoice.AddItem( "XZ Plane" );
-    m_SliceEditLayout.AddChoice( m_SliceOrientationChoice, "Orientation" );
-
-    m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, "Position", 1, "%5.3f" );
-    m_SliceEditLayout.AddSlider( m_SliceThetaSlider, "Theta", 25, "%5.3f" );
-    m_SliceEditLayout.AddSlider( m_SliceAlphaSlider, "Alpha", 25, "%5.3f" );
-
-    m_SliceEditLayout.AddYGap();
-
-    m_SliceEditLayout.AddChoice( m_SliceCapPropertyChoice, "Cap Property" );
-
-    //==== FeaRib ====//
-    m_RibEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-    m_RibEditLayout.SetY( start_y );
-
-    m_RibEditLayout.AddDividerBox( "Rib" );
-
-    m_RibEditLayout.SetButtonWidth( buttonwidth );
-    m_RibEditLayout.SetChoiceButtonWidth( buttonwidth );
-
-    m_RibEditLayout.AddChoice( m_RibPropertyChoice, "Property" );
-
-    m_RibEditLayout.AddChoice( m_RibPerpendicularEdgeChoice, "Perpendicular Edge" );
-
-    m_RibEditLayout.AddSlider( m_RibPosSlider, "Position", 1, "%5.3f" );
-    m_RibEditLayout.AddSlider( m_RibThetaSlider, "Theta", 25, "%5.3f" );
-
-    m_RibEditLayout.AddYGap();
-
-    m_RibEditLayout.AddChoice( m_RibCapPropertyChoice, "Cap Property" );
-
-    //==== FeaSpar ====//
-    m_SparEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-    m_SparEditLayout.SetY( start_y );
-
-    m_SparEditLayout.AddDividerBox( "Spar" );
-
-    m_SparEditLayout.SetButtonWidth( buttonwidth );
-    m_SparEditLayout.SetChoiceButtonWidth( buttonwidth );
-
-    m_SparEditLayout.AddChoice( m_SparPropertyChoice, "Property" );
-
-    m_SparEditLayout.AddSlider( m_SparPosSlider, "Position", 1, "%5.3f" );
-    m_SparEditLayout.AddSlider( m_SparThetaSlider, "Theta", 25, "%5.3f" );
-
-    m_SparEditLayout.AddYGap();
-
-    m_SparEditLayout.AddChoice( m_SparCapPropertyChoice, "Cap Property" );
-
-    //==== FeaFixPoint ====//
-    m_FixPointEditLayout.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-
-    m_FixPointEditLayout.SetY( start_y );
-
-    m_FixPointEditLayout.AddDividerBox( "Fixed Point" );
-
-    m_FixPointEditLayout.SetChoiceButtonWidth( buttonwidth );
-    m_FixPointEditLayout.SetButtonWidth( buttonwidth );
-
-    m_FixPointEditLayout.AddChoice( m_FixPointParentSurfChoice, "Parent Surface" );
-
-    m_FixPointEditLayout.AddSlider( m_FixPointULocSlider, "U Location", 1, "%5.3f" );
-    m_FixPointEditLayout.AddSlider( m_FixPointWLocSlider, "W Location", 1, "%5.3f" );
-
-    //=== SubSurface Tab ===//
-    //m_CurFeaSubDispGroup = NULL;
-
-
-
-    //int start_x = m_SubSurfTabLayout.GetX();
-
-    //m_SubSurfTabLayout.AddSubGroupLayout( m_SubSurfButtonLayout, 20, browser_h );
-    //m_SubSurfTabLayout.AddX( 20 );
-    //m_SubSurfTabLayout.AddSubGroupLayout( m_SubSurfBrowserLayout, m_SubSurfTabLayout.GetRemainX(), browser_h );
-    //m_SubSurfTabLayout.GetGroup()->resizable( m_SubSurfBrowserLayout.GetGroup() );
-    //m_SubSurfTabLayout.AddY( browser_h );
-
-    //m_SubSurfButtonLayout.SetSameLineFlag( false );
-    //m_SubSurfButtonLayout.SetFitWidthFlag( false );
-
-    //m_SubSurfButtonLayout.SetStdHeight( 20 );
-    //m_SubSurfButtonLayout.SetButtonWidth( 20 );
-    //m_SubSurfButtonLayout.AddButton( m_MoveSSTopButton, "@2<<" );
-    //m_SubSurfButtonLayout.AddYGap();
-    //m_SubSurfButtonLayout.AddButton( m_MoveSSUpButton, "@2<" );
-    //m_SubSurfButtonLayout.AddY( browser_h - 95 - m_SubSurfTabLayout.GetStdHeight() );
-    //m_SubSurfButtonLayout.AddResizeBox();
-    //m_SubSurfButtonLayout.AddButton( m_MoveSSDownButton, "@2>" );
-    //m_SubSurfButtonLayout.AddYGap();
-    //m_SubSurfButtonLayout.AddButton( m_MoveSSBotButton, "@2>>" );
-
-    //m_FeaSubSurfBrowser = m_SubSurfBrowserLayout.AddFlBrowser( browser_h );
-    //m_FeaSubSurfBrowser->type( 1 );
-    //m_FeaSubSurfBrowser->labelfont( 13 );
-    //m_FeaSubSurfBrowser->labelsize( 12 );
-    //m_FeaSubSurfBrowser->textsize( 12 );
-    //m_FeaSubSurfBrowser->callback( staticCB, this );
-
-    //m_SubSurfTabLayout.SetX( start_x );
-
-    //m_SubSurfTabLayout.SetChoiceButtonWidth( buttonwidth );
-
-    //==== SSLine ====//
-    m_FeaSSLineGroup.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-    m_FeaSSLineGroup.SetY( start_y );
-
-    m_FeaSSLineGroup.AddDividerBox( "Line Sub-Surface" );
-
-    m_FeaSSLineGroup.SetFitWidthFlag( false );
-    m_FeaSSLineGroup.SetSameLineFlag( true );
-    m_FeaSSLineGroup.AddLabel( "Tag", buttonwidth );
-    m_FeaSSLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
-    m_FeaSSLineGroup.AddButton( m_FeaSSLineGreaterToggle, "Greater" );
-    m_FeaSSLineGroup.AddButton( m_FeaSSLineLessToggle, "Less" );
-    m_FeaSSLineGroup.AddButton( m_FeaSSLineNoneToggle, "None" );
-
-    m_FeaSSLineTestToggleGroup.Init( this );
-    m_FeaSSLineTestToggleGroup.AddButton( m_FeaSSLineGreaterToggle.GetFlButton() );
-    m_FeaSSLineTestToggleGroup.AddButton( m_FeaSSLineLessToggle.GetFlButton() );
-    m_FeaSSLineTestToggleGroup.AddButton( m_FeaSSLineNoneToggle.GetFlButton() );
-
-    m_FeaSSLineGroup.ForceNewLine();
-    m_FeaSSLineGroup.SetFitWidthFlag( true );
-    m_FeaSSLineGroup.SetSameLineFlag( false );
-
-    m_FeaSSLineGroup.SetButtonWidth( buttonwidth );
-    m_FeaSSLineGroup.SetChoiceButtonWidth( buttonwidth );
-
-    m_FeaSSLineGroup.AddChoice( m_FeaSSLinePropertyChoice, "Property" );
-
-    m_FeaSSLineGroup.SetFitWidthFlag( false );
-    m_FeaSSLineGroup.SetSameLineFlag( true );
-    m_FeaSSLineGroup.AddLabel( "Line Type", buttonwidth );
-    m_FeaSSLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 2 );
-    m_FeaSSLineGroup.AddButton( m_FeaSSLineConstUButton, "U" );
-    m_FeaSSLineGroup.AddButton( m_FeaSSLineConstWButton, "W" );
-
-    m_FeaSSLineConstToggleGroup.Init( this );
-    m_FeaSSLineConstToggleGroup.AddButton( m_FeaSSLineConstUButton.GetFlButton() );
-    m_FeaSSLineConstToggleGroup.AddButton( m_FeaSSLineConstWButton.GetFlButton() );
-
-    m_FeaSSLineGroup.SetFitWidthFlag( true );
-    m_FeaSSLineGroup.SetSameLineFlag( false );
-    m_FeaSSLineGroup.ForceNewLine();
-    m_FeaSSLineGroup.SetButtonWidth( buttonwidth );
-    m_FeaSSLineGroup.AddSlider( m_FeaSSLineConstSlider, "Value", 1, "%5.4f" );
-
-    m_FeaSSLineGroup.AddYGap();
-
-    m_FeaSSLineGroup.AddChoice( m_FeaSSLineCapPropertyChoice, "Cap Property" );
-
-    //==== SSRectangle ====//
-    m_FeaSSRecGroup.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-    m_FeaSSRecGroup.SetY( start_y );
-
-    m_FeaSSRecGroup.AddDividerBox( "Rectangle Sub-Surface" );
-
-    m_FeaSSRecGroup.SetFitWidthFlag( false );
-    m_FeaSSRecGroup.SetSameLineFlag( true );
-    m_FeaSSRecGroup.AddLabel( "Tag", buttonwidth );
-    m_FeaSSRecGroup.SetButtonWidth( m_FeaSSRecGroup.GetRemainX() / 3 );
-    m_FeaSSRecGroup.AddButton( m_FeaSSRecInsideButton, "Inside" );
-    m_FeaSSRecGroup.AddButton( m_FeaSSRecOutsideButton, "Outside" );
-    m_FeaSSRecGroup.AddButton( m_FeaSSRecNoneButton, "None" );
-
-    m_FeaSSRecTestToggleGroup.Init( this );
-    m_FeaSSRecTestToggleGroup.AddButton( m_FeaSSRecInsideButton.GetFlButton() );
-    m_FeaSSRecTestToggleGroup.AddButton( m_FeaSSRecOutsideButton.GetFlButton() );
-    m_FeaSSRecTestToggleGroup.AddButton( m_FeaSSRecNoneButton.GetFlButton() );
-
-    m_FeaSSRecGroup.ForceNewLine();
-    m_FeaSSRecGroup.SetFitWidthFlag( true );
-    m_FeaSSRecGroup.SetSameLineFlag( false );
-
-    m_FeaSSRecGroup.SetButtonWidth( buttonwidth );
-    m_FeaSSRecGroup.SetChoiceButtonWidth( buttonwidth );
-
-    m_FeaSSRecGroup.AddChoice( m_FeaSSRecPropertyChoice, "Property" );
-
-    m_FeaSSRecGroup.SetFitWidthFlag( true );
-    m_FeaSSRecGroup.SetSameLineFlag( false );
-
-    m_FeaSSRecGroup.SetButtonWidth( buttonwidth );
-
-    m_FeaSSRecGroup.AddSlider( m_FeaSSRecCentUSlider, "Center U", 1, "%5.4f" );
-    m_FeaSSRecGroup.AddSlider( m_FeaSSRecCentWSlider, "Center W", 1, "%5.4f" );
-    m_FeaSSRecGroup.AddSlider( m_FeaSSRecULenSlider, "U Length", 1, "%5.4f" );
-    m_FeaSSRecGroup.AddSlider( m_FeaSSRecWLenSlider, "W Length", 1, "%5.4f" );
-    m_FeaSSRecGroup.AddSlider( m_FeaSSRecThetaSlider, "Theta", 25, "%5.4f" );
-
-    m_FeaSSRecGroup.AddYGap();
-
-    m_FeaSSRecGroup.AddChoice( m_FeaSSRecCapPropertyChoice, "Cap Property" );
-
-    //==== SS_Ellipse ====//
-    m_FeaSSEllGroup.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-    m_FeaSSEllGroup.SetY( start_y );
-
-    m_FeaSSEllGroup.AddDividerBox( "Ellipse Sub-Surface" );
-
-    m_FeaSSEllGroup.SetFitWidthFlag( false );
-    m_FeaSSEllGroup.SetSameLineFlag( true );
-    m_FeaSSEllGroup.AddLabel( "Tag", buttonwidth );
-    m_FeaSSEllGroup.SetButtonWidth( m_FeaSSEllGroup.GetRemainX() / 3 );
-    m_FeaSSEllGroup.AddButton( m_FeaSSEllInsideButton, "Inside" );
-    m_FeaSSEllGroup.AddButton( m_FeaSSEllOutsideButton, "Outside" );
-    m_FeaSSEllGroup.AddButton( m_FeaSSEllNoneButton, "None" );
-
-    m_FeaSSEllTestToggleGroup.Init( this );
-    m_FeaSSEllTestToggleGroup.AddButton( m_FeaSSEllInsideButton.GetFlButton() );
-    m_FeaSSEllTestToggleGroup.AddButton( m_FeaSSEllOutsideButton.GetFlButton() );
-    m_FeaSSEllTestToggleGroup.AddButton( m_FeaSSEllNoneButton.GetFlButton() );
-
-    m_FeaSSEllGroup.ForceNewLine();
-    m_FeaSSEllGroup.SetFitWidthFlag( true );
-    m_FeaSSEllGroup.SetSameLineFlag( false );
-
-    m_FeaSSEllGroup.SetButtonWidth( buttonwidth );
-    m_FeaSSEllGroup.SetChoiceButtonWidth( buttonwidth );
-
-    m_FeaSSEllGroup.AddChoice( m_FeaSSEllPropertyChoice, "Property" );
-
-    m_FeaSSEllGroup.SetFitWidthFlag( true );
-    m_FeaSSEllGroup.SetSameLineFlag( false );
-
-    m_FeaSSEllGroup.SetButtonWidth( buttonwidth );
-
-    m_FeaSSEllGroup.AddSlider( m_FeaSSEllTessSlider, "Num Points", 100, "%5.0f" );
-    m_FeaSSEllGroup.AddSlider( m_FeaSSEllCentUSlider, "Center U", 1, "%5.4f" );
-    m_FeaSSEllGroup.AddSlider( m_FeaSSEllCentWSlider, "Center W", 1, "%5.4f" );
-    m_FeaSSEllGroup.AddSlider( m_FeaSSEllULenSlider, "U Length", 1, "%5.4f" );
-    m_FeaSSEllGroup.AddSlider( m_FeaSSEllWLenSlider, "W Length", 1, "%5.4f" );
-    m_FeaSSEllGroup.AddSlider( m_FeaSSEllThetaSlider, "Theta", 25, "%5.4f" );
-
-    m_FeaSSEllGroup.AddYGap();
-
-    m_FeaSSEllGroup.AddChoice( m_FeaSSEllCapPropertyChoice, "Cap Property" );
-
-    //===== SSControl ====//
-    m_FeaSSConGroup.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-    m_FeaSSConGroup.SetY( start_y );
-
-    m_FeaSSConGroup.AddDividerBox( "Control Sub-Surface" );
-
-    m_FeaSSConGroup.SetFitWidthFlag( false );
-    m_FeaSSConGroup.SetSameLineFlag( true );
-    m_FeaSSConGroup.AddLabel( "Tag", buttonwidth );
-    m_FeaSSConGroup.SetButtonWidth( m_FeaSSConGroup.GetRemainX() / 3 );
-    m_FeaSSConGroup.AddButton( m_FeaSSConInsideButton, "Inside" );
-    m_FeaSSConGroup.AddButton( m_FeaSSConOutsideButton, "Outside" );
-    m_FeaSSConGroup.AddButton( m_FeaSSConNoneButton, "None" );
-
-    m_FeaSSConTestToggleGroup.Init( this );
-    m_FeaSSConTestToggleGroup.AddButton( m_FeaSSConInsideButton.GetFlButton() );
-    m_FeaSSConTestToggleGroup.AddButton( m_FeaSSConOutsideButton.GetFlButton() );
-    m_FeaSSConTestToggleGroup.AddButton( m_FeaSSConNoneButton.GetFlButton() );
-
-    m_FeaSSConGroup.ForceNewLine();
-    m_FeaSSConGroup.SetFitWidthFlag( true );
-    m_FeaSSConGroup.SetSameLineFlag( false );
-
-    m_FeaSSConGroup.SetButtonWidth( buttonwidth );
-    m_FeaSSConGroup.SetChoiceButtonWidth( buttonwidth );
-
-    m_FeaSSConGroup.AddChoice( m_FeaSSConPropertyChoice, "Property" );
-
-    m_FeaSSConGroup.SetFitWidthFlag( false );
-    m_FeaSSConGroup.SetSameLineFlag( true );
-
-    m_FeaSSConGroup.SetChoiceButtonWidth( buttonwidth );
-
-    m_FeaSSConSurfTypeChoice.AddItem( "Upper" );
-    m_FeaSSConSurfTypeChoice.AddItem( "Lower" );
-    m_FeaSSConSurfTypeChoice.AddItem( "Both" );
-    m_FeaSSConGroup.AddChoice( m_FeaSSConSurfTypeChoice, "Upper/Lower", buttonwidth );
-
-    m_FeaSSConGroup.SetButtonWidth( m_FeaSSConGroup.GetRemainX() );
-
-    m_FeaSSConGroup.AddButton( m_FeaSSConLEFlagButton, "Leading Edge" );
-
-    m_FeaSSConGroup.SetFitWidthFlag( true );
-    m_FeaSSConGroup.SetSameLineFlag( false );
-    m_FeaSSConGroup.ForceNewLine();
-
-    m_FeaSSConGroup.AddYGap();
-    m_FeaSSConGroup.AddDividerBox( "Spanwise" );
-
-    m_FeaSSConGroup.SetButtonWidth( buttonwidth );
-
-    m_FeaSSConGroup.AddSlider( m_FeaSSConUSSlider, "Start U", 1, "%5.4f" );
-    m_FeaSSConGroup.AddSlider( m_FeaSSConUESlider, "End U", 1, "%5.4f" );
-
-    m_FeaSSConGroup.AddYGap();
-    m_FeaSSConGroup.AddDividerBox( "Chordwise" );
-
-    m_FeaSSConGroup.SetFitWidthFlag( false );
-    m_FeaSSConGroup.SetSameLineFlag( true );
-
-    m_FeaSSConGroup.SetButtonWidth( m_FeaSSConGroup.GetW() / 3 );
-
-    m_FeaSSConGroup.AddButton( m_FeaSSConSAbsButton, "Length" );
-    m_FeaSSConGroup.AddButton( m_FeaSSConSRelButton, "Length/C" );
-    m_FeaSSConGroup.AddButton( m_FeaSSConSEConstButton, "Constant" );
-
-    m_FeaSSConGroup.SetFitWidthFlag( true );
-    m_FeaSSConGroup.SetSameLineFlag( false );
-    m_FeaSSConGroup.ForceNewLine();
-
-    m_FeaSSConSAbsRelToggleGroup.Init( this );
-    m_FeaSSConSAbsRelToggleGroup.AddButton( m_FeaSSConSAbsButton.GetFlButton() );
-    m_FeaSSConSAbsRelToggleGroup.AddButton( m_FeaSSConSRelButton.GetFlButton() );
-
-    m_FeaSSConGroup.SetButtonWidth( buttonwidth );
-
-    m_FeaSSConGroup.AddSlider( m_FeaSSConSLenSlider, "Start Length", 10.0, "%5.4f" );
-    m_FeaSSConGroup.AddSlider( m_FeaSSConSFracSlider, "Start Length/C", 1.0, "%5.4f" );
-    m_FeaSSConGroup.AddSlider( m_FeaSSConELenSlider, "End Length", 10.0, "%5.4f" );
-    m_FeaSSConGroup.AddSlider( m_FeaSSConEFracSlider, "End Length/C", 1.0, "%5.4f" );
-
-    m_FeaSSConGroup.AddYGap();
-
-    m_FeaSSConGroup.AddChoice( m_FeaSSConCapPropertyChoice, "Cap Property" );
+    m_PartGroup.AddChoice( m_GenCapPropertyChoice, "Cap Property" );
 
     //=== Material Tab ===//
     m_MaterialTabLayout.SetGroupAndScreen( matTabGroup, this );
@@ -1119,65 +792,6 @@ void StructScreen::UpdateFeaPartChoice()
     }
 }
 
-void StructScreen::UpdateFixPointParentChoice()
-{
-    //==== FixPoint Parent Surf Choice ====//
-    m_FixPointParentSurfChoice.ClearItems();
-    m_FixPointParentIDVec.clear();
-
-    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-    {
-        vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
-        vector<FeaPart*> feaprt_vec = structVec[m_SelectedStructIndex]->GetFeaPartVec();
-
-        for ( size_t i = 0; i < feaprt_vec.size(); i++ )
-        {
-
-            if ( !structVec[m_SelectedStructIndex]->FeaPartIsFixPoint( i ) )
-            {
-                m_FixPointParentSurfChoice.AddItem( string( feaprt_vec[i]->GetName() + "_Surf" ) );
-                m_FixPointParentIDVec.push_back( feaprt_vec[i]->GetID() );
-            }
-        }
-
-        m_FixPointParentSurfChoice.UpdateItems();
-
-        if ( m_SelectedPartIndexVec.size() == 1 )
-        {
-            FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndexVec[0] );
-
-            if ( feaprt )
-            {
-                if ( feaprt->GetType() == vsp::FEA_FIX_POINT )
-                {
-                    FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( feaprt );
-                    assert( fixpt );
-
-                    FeaPart* parent_feaprt = StructureMgr.GetFeaPart( fixpt->m_ParentFeaPartID );
-
-                    if ( parent_feaprt )
-                    {
-                        int parent_index = structVec[m_SelectedStructIndex]->GetFeaPartIndex( parent_feaprt );
-
-                        if ( structVec[m_SelectedStructIndex]->ValidFeaPartInd( parent_index ) )
-                        {
-                            m_FixPointParentSurfChoice.SetVal( parent_index );
-                        }
-                    }
-                    else
-                    {
-                        // Set skin as parent surface if undefined
-                        if ( structVec[m_SelectedStructIndex]->GetFeaSkin() )
-                        {
-                            fixpt->m_ParentFeaPartID = structVec[m_SelectedStructIndex]->GetFeaSkin()->GetID();
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 void StructScreen::UpdateFeaPropertyBrowser()
 {
     //==== FeaPart Browser ====//
@@ -1220,24 +834,11 @@ void StructScreen::UpdateFeaPropertyChoice()
     //==== Property Choice ====//
     m_SkinPropertyChoice.ClearItems();
     m_MultSlicePropChoice.ClearItems();
-    m_SlicePropertyChoice.ClearItems();
-    m_RibPropertyChoice.ClearItems();
-    m_SparPropertyChoice.ClearItems();
-    m_FeaSSLinePropertyChoice.ClearItems();
-    m_FeaSSRecPropertyChoice.ClearItems();
-    m_FeaSSEllPropertyChoice.ClearItems();
-    m_FeaSSConPropertyChoice.ClearItems();
+    m_GenPropertyChoice.ClearItems();
 
     m_MultSliceCapPropChoice.ClearItems();
-    m_SparCapPropertyChoice.ClearItems();
-    m_SliceCapPropertyChoice.ClearItems();
-    m_RibCapPropertyChoice.ClearItems();
-
-    m_FeaSSLineCapPropertyChoice.ClearItems();
-    m_FeaSSRecCapPropertyChoice.ClearItems();
-    m_FeaSSEllCapPropertyChoice.ClearItems();
-    m_FeaSSConCapPropertyChoice.ClearItems();
-
+    m_GenCapPropertyChoice.ClearItems();
+ 
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
     if ( veh )
@@ -1248,89 +849,30 @@ void StructScreen::UpdateFeaPropertyChoice()
         {
             m_SkinPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_MultSlicePropChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_SlicePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_RibPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_SparPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSLinePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSRecPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSEllPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSConPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_GenPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
             m_MultSliceCapPropChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_SparCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_SliceCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_RibCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-
-            m_FeaSSLineCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSRecCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSEllCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_FeaSSConCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
             if ( property_vec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, 0 );
                 m_MultSlicePropChoice.SetFlag( i, 0 );
-                m_SlicePropertyChoice.SetFlag( i, 0 );
-                m_RibPropertyChoice.SetFlag( i, 0 );
-                m_SparPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSLinePropertyChoice.SetFlag( i, 0 );
-                m_FeaSSRecPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSEllPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSConPropertyChoice.SetFlag( i, 0 );
 
                 m_MultSliceCapPropChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_SparCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_SliceCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_RibCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-
-                m_FeaSSLineCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSRecCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSEllCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSConCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
             }
             else if ( property_vec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_MultSlicePropChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_SlicePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_RibPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_SparPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSLinePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSRecPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSEllPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_FeaSSConPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
 
                 m_MultSliceCapPropChoice.SetFlag( i, 0 );
-                m_SparCapPropertyChoice.SetFlag( i, 0 );
-                m_SliceCapPropertyChoice.SetFlag( i, 0 );
-                m_RibCapPropertyChoice.SetFlag( i, 0 );
-
-                m_FeaSSLineCapPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSRecCapPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSEllCapPropertyChoice.SetFlag( i, 0 );
-                m_FeaSSConCapPropertyChoice.SetFlag( i, 0 );
             }
         }
 
         m_SkinPropertyChoice.UpdateItems();
         m_MultSlicePropChoice.UpdateItems();
-        m_SlicePropertyChoice.UpdateItems();
-        m_RibPropertyChoice.UpdateItems();
-        m_SparPropertyChoice.UpdateItems();
-        m_FeaSSLinePropertyChoice.UpdateItems();
-        m_FeaSSRecPropertyChoice.UpdateItems();
-        m_FeaSSEllPropertyChoice.UpdateItems();
-        m_FeaSSConPropertyChoice.UpdateItems();
 
         m_MultSliceCapPropChoice.UpdateItems();
-        m_SparCapPropertyChoice.UpdateItems();
-        m_SliceCapPropertyChoice.UpdateItems();
-        m_RibCapPropertyChoice.UpdateItems();
-
-        m_FeaSSLineCapPropertyChoice.UpdateItems();
-        m_FeaSSRecCapPropertyChoice.UpdateItems();
-        m_FeaSSEllCapPropertyChoice.UpdateItems();
-        m_FeaSSConCapPropertyChoice.UpdateItems();
 
         if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
@@ -1344,44 +886,6 @@ void StructScreen::UpdateFeaPropertyChoice()
 
             m_MultSlicePropChoice.SetVal( structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetMultPropertyIndex() );
             m_MultSliceCapPropChoice.SetVal( structvec[m_SelectedStructIndex]->GetStructSettingsPtr()->GetMultCapPropertyIndex() );
-
-            if ( m_SelectedPartIndexVec.size() == 1 )
-            {
-                if ( m_SelectedPartIndexVec[0] < structvec[m_SelectedStructIndex]->NumFeaParts() )
-                {
-                    FeaPart* feaprt = structvec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndexVec[0] );
-
-                    if ( feaprt )
-                    {
-                        // Update all FeaPart Property Choices ( Only Selected Part Visible )
-                        m_SlicePropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-                        m_RibPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-                        m_SparPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-
-                        m_SparCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
-                        m_SliceCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
-                        m_RibCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
-                    }
-                }
-                else if ( m_SelectedPartIndexVec[0] >= structvec[m_SelectedStructIndex]->NumFeaParts() )
-                {
-                    SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[m_SelectedStructIndex]->NumFeaParts() );
-
-                    if ( subsurf )
-                    {
-                        // Update all FeaSubSurface Property Choices ( Only Selected Part Visible )
-                        m_FeaSSLinePropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
-                        m_FeaSSRecPropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
-                        m_FeaSSEllPropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
-                        m_FeaSSConPropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
-
-                        m_FeaSSLineCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
-                        m_FeaSSRecCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
-                        m_FeaSSEllCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
-                        m_FeaSSConCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
-                    }
-                }
-            }
         }
     }
 }
@@ -1451,70 +955,6 @@ void StructScreen::UpdateFeaMaterialChoice()
     }
 }
 
-void StructScreen::UpdatePerpendicularRibChoice()
-{
-    //==== Perpendicular Rib Choice ====//
-    m_RibPerpendicularEdgeChoice.ClearItems();
-    m_PerpendicularEdgeVec.clear();
-
-    m_RibPerpendicularEdgeChoice.AddItem( "None" );
-    m_PerpendicularEdgeVec.push_back( "None" );
-    m_RibPerpendicularEdgeChoice.AddItem( "Leading Edge" );
-    m_PerpendicularEdgeVec.push_back( "Leading Edge" );
-    m_RibPerpendicularEdgeChoice.AddItem( "Trailing Edge" );
-    m_PerpendicularEdgeVec.push_back( "Trailing Edge" );
-
-    Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
-
-    if ( veh )
-    {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-        {
-            FeaStructure* curr_struct = StructureMgr.GetAllFeaStructs()[m_SelectedStructIndex];
-
-            if ( curr_struct )
-            {
-                vector < FeaPart* > part_vec = curr_struct->GetFeaPartVec();
-
-                for ( size_t i = 1; i < part_vec.size(); i++ )
-                {
-                    if ( part_vec[i]->GetType() == vsp::FEA_SPAR )
-                    {
-                        m_RibPerpendicularEdgeChoice.AddItem( part_vec[i]->GetName() );
-                        m_PerpendicularEdgeVec.push_back( part_vec[i]->GetID() );
-                    }
-                }
-
-                m_RibPerpendicularEdgeChoice.UpdateItems();
-
-                if ( m_SelectedPartIndexVec.size() == 1 )
-                {
-                    FeaPart* feaprt = curr_struct->GetFeaPart( m_SelectedPartIndexVec[0] );
-
-                    if ( feaprt )
-                    {
-                        if ( feaprt->GetType() == vsp::FEA_RIB )
-                        {
-                            FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
-                            assert( rib );
-
-                            for ( size_t k = 0; k < m_PerpendicularEdgeVec.size(); k++ )
-                            {
-                                if ( rib->GetPerpendicularEdgeID() == m_PerpendicularEdgeVec[k] )
-                                {
-                                    m_RibPerpendicularEdgeChoice.SetVal( k );
-                                    rib->SetPerpendicularEdgeIndex( k );
-                                    break;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-}
-
 void StructScreen::CloseCallBack( Fl_Widget *w )
 {
     Hide();
@@ -1529,12 +969,92 @@ void StructScreen::Show()
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void StructScreen::FeaPartDispGroup( GroupLayout* group )
+void StructScreen::FeaPropertyDispGroup( GroupLayout* group )
 {
-    if ( m_CurFeaPartDispGroup == group && group )
+    if ( m_CurFeaPropDispGroup == group && group )
     {
         return;
     }
+
+    m_FeaPropertyShellGroup.Hide();
+    m_FeaPropertyBeamGroup.Hide();
+    m_FeaPropertyCommonGroup.Hide();
+
+    m_CurFeaPropDispGroup = group;
+
+    if ( group )
+    {
+        group->Show();
+        m_FeaPropertyCommonGroup.Show(); // Always show the Common Group if any other subsurface group is being displayed.
+    }
+}
+
+void StructScreen::UpdateGenPropertyIndex( Choice* property_choice )
+{
+    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+    {
+        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+        for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
+        {
+            if ( m_SelectedPartIndexVec[i] < structvec[m_SelectedStructIndex]->NumFeaParts() )
+            {
+                FeaPart* feaprt = structvec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndexVec[i] );
+
+                if ( feaprt )
+                {
+                    feaprt->SetFeaPropertyIndex( property_choice->GetVal() );
+                }
+            }
+            else if ( m_SelectedPartIndexVec[0] >= structvec[m_SelectedStructIndex]->NumFeaParts() )
+            {
+                SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedPartIndexVec[i] - structvec[m_SelectedStructIndex]->NumFeaParts() );
+
+                if ( subsurf )
+                {
+                    subsurf->SetFeaPropertyIndex( property_choice->GetVal() );
+                }
+            }
+        }
+    }
+}
+
+void StructScreen::UpdateGenCapPropertyIndex( Choice* property_choice )
+{
+    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
+    {
+        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+        for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
+        {
+            if ( m_SelectedPartIndexVec[i] < structvec[m_SelectedStructIndex]->NumFeaParts() )
+            {
+                FeaPart* feaprt = structvec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndexVec[i] );
+
+                if ( feaprt )
+                {
+                    feaprt->SetCapFeaPropertyIndex( property_choice->GetVal() );
+                }
+            }
+            else if ( m_SelectedPartIndexVec[i] >= structvec[m_SelectedStructIndex]->NumFeaParts() )
+            {
+                SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedPartIndexVec[i] - structvec[m_SelectedStructIndex]->NumFeaParts() );
+
+                if ( subsurf )
+                {
+                    subsurf->SetCapFeaPropertyIndex( property_choice->GetVal() );
+                }
+            }
+        }
+    }
+}
+
+void StructScreen::FeaStructDispGroup( GroupLayout* group )
+{
+    //if ( m_CurFeaPartDispGroup == group && group )
+    //{
+    //    return;
+    //}
 
     if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
     {
@@ -1570,155 +1090,25 @@ void StructScreen::FeaPartDispGroup( GroupLayout* group )
         m_StructGeneralGroup.Hide();
     }
 
-    m_SliceEditLayout.Hide();
-    m_RibEditLayout.Hide();
-    m_SparEditLayout.Hide();
-    m_FixPointEditLayout.Hide();
-    m_PartGroup.Hide();
+    //m_SliceEditLayout.Hide();
+    //m_RibEditLayout.Hide();
+    //m_SparEditLayout.Hide();
+    //m_FixPointEditLayout.Hide();
+    //m_PartGroup.Hide();
 
-    m_FeaSSLineGroup.Hide();
-    m_FeaSSRecGroup.Hide();
-    m_FeaSSEllGroup.Hide();
-    m_FeaSSConGroup.Hide();
+    //m_FeaSSLineGroup.Hide();
+    //m_FeaSSRecGroup.Hide();
+    //m_FeaSSEllGroup.Hide();
+    //m_FeaSSConGroup.Hide();
 
-    m_CurFeaPartDispGroup = group;
+    //m_CurFeaPartDispGroup = group;
 
-    if ( group )
-    {
-        group->Show();
-        m_PartGroup.Show(); // Always show the Part Group if any other FeaPart is being displayed.
-    }
+    //if ( group )
+    //{
+    //    group->Show();
+    //    m_PartGroup.Show(); // Always show the Part Group if any other FeaPart is being displayed.
+    //}
 }
-
-//void StructScreen::FeaSubSurfDispGroup( GroupLayout* group )
-//{
-//    if ( m_CurFeaSubDispGroup == group && group )
-//    {
-//        return;
-//    }
-//
-//    m_FeaSSLineGroup.Hide();
-//    m_FeaSSRecGroup.Hide();
-//    m_FeaSSCommonGroup.Hide();
-//    m_FeaSSEllGroup.Hide();
-//    m_FeaSSConGroup.Hide();
-//
-//    m_CurFeaSubDispGroup = group;
-//
-//    if ( group )
-//    {
-//        group->Show();
-//        m_FeaSSCommonGroup.Show(); // Always show the Common Group if any other subsurface group is being displayed.
-//    }
-//}
-
-void StructScreen::FeaPropertyDispGroup( GroupLayout* group )
-{
-    if ( m_CurFeaPropDispGroup == group && group )
-    {
-        return;
-    }
-
-    m_FeaPropertyShellGroup.Hide();
-    m_FeaPropertyBeamGroup.Hide();
-    m_FeaPropertyCommonGroup.Hide();
-
-    m_CurFeaPropDispGroup = group;
-
-    if ( group )
-    {
-        group->Show();
-        m_FeaPropertyCommonGroup.Show(); // Always show the Common Group if any other subsurface group is being displayed.
-    }
-}
-
-void StructScreen::UpdateFeaPartPropertyIndex( Choice* property_choice )
-{
-    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-    {
-        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
-        if ( m_SelectedPartIndexVec.size() == 1 )
-        {
-            if ( m_SelectedPartIndexVec[0] < structvec[m_SelectedStructIndex]->NumFeaParts() )
-            {
-                FeaPart* feaprt = structvec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndexVec[0] );
-
-                if ( feaprt )
-                {
-                    feaprt->SetFeaPropertyIndex( property_choice->GetVal() );
-                }
-            }
-            else if ( m_SelectedPartIndexVec[0] >= structvec[m_SelectedStructIndex]->NumFeaParts() )
-            {
-                SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[m_SelectedStructIndex]->NumFeaParts() );
-
-                if ( subsurf )
-                {
-                    subsurf->SetFeaPropertyIndex( property_choice->GetVal() );
-                }
-            }
-        }
-    }
-}
-
-void StructScreen::UpdateCapPropertyIndex( Choice* property_choice )
-{
-    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-    {
-        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-
-        if ( m_SelectedPartIndexVec.size() == 1 )
-        {
-            if ( m_SelectedPartIndexVec[0] < structvec[m_SelectedStructIndex]->NumFeaParts() )
-            {
-                FeaPart* feaprt = structvec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndexVec[0] );
-
-                if ( feaprt )
-                {
-                    feaprt->SetCapFeaPropertyIndex( property_choice->GetVal() );
-                }
-            }
-            else if ( m_SelectedPartIndexVec[0] >= structvec[m_SelectedStructIndex]->NumFeaParts() )
-            {
-                SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[m_SelectedStructIndex]->NumFeaParts() );
-
-                if ( subsurf )
-                {
-                    subsurf->SetCapFeaPropertyIndex( property_choice->GetVal() );
-                }
-            }
-        }
-    }
-}
-
-//void StructScreen::UpdateFeaSubSurfPropertyIndex( Choice* property_choice )
-//{
-//    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-//    {
-//        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-//        SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedSubSurfIndex );
-//
-//        if ( subsurf )
-//        {
-//            subsurf->SetFeaPropertyIndex( property_choice->GetVal() );
-//        }
-//    }
-//}
-//
-//void StructScreen::UpdateFeaSubSurfCapPropertyIndex( Choice* property_choice )
-//{
-//    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-//    {
-//        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-//        SubSurface* subsurf = structvec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedSubSurfIndex );
-//
-//        if ( subsurf )
-//        {
-//            subsurf->SetCapFeaPropertyIndex( property_choice->GetVal() );
-//        }
-//    }
-//}
 
 bool StructScreen::Update()
 {
@@ -1726,7 +1116,7 @@ bool StructScreen::Update()
 
     if ( veh )
     {
-        FeaPartDispGroup( NULL ); // Hide all initially
+        FeaStructDispGroup( NULL ); // Hide all initially
 
         //===== Geom Choice Update =====//
         LoadGeomChoice();
@@ -1746,11 +1136,6 @@ bool StructScreen::Update()
         //==== Update FeaPart Choice ====//
         UpdateFeaPartChoice();
 
-        //==== Update Perpendicular Rib Choice ====//
-        UpdatePerpendicularRibChoice();
-
-        //==== Update FixPoint Parent Surf Choice ====//
-        UpdateFixPointParentChoice();
 
         if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
         {
@@ -1824,391 +1209,90 @@ bool StructScreen::Update()
                 m_MultSliceCapPropChoice.Deactivate();
             }
 
-            // Update Current FeaPart
-            if ( m_SelectedPartIndexVec.size() == 1 )
+            //===== FeaProperty Update =====//
+            UpdateFeaPropertyBrowser();
+            UpdateFeaPropertyChoice();
+
+            if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
             {
-                if ( m_SelectedPartIndexVec[0] < structVec[m_SelectedStructIndex]->NumFeaParts() )
+                FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[m_SelectedPropertyIndex];
+                if ( fea_prop )
                 {
-                    FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndexVec[0] );
-                    if ( feaprt )
+                    m_FeaPropertyNameInput.Update( fea_prop->GetName() );
+
+                    if ( fea_prop->m_FeaPropertyType() == SHELL_PROPERTY )
                     {
-                        m_FeaPartNameInput.Update( feaprt->GetName() );
-                        m_ShellCapToggleGroup.Update( feaprt->m_IncludedElements.GetID() );
+                        m_PropThickSlider.Update( fea_prop->m_Thickness.GetID() );
 
-                        if ( feaprt->GetType() == vsp::FEA_SLICE )
-                        {
-                            FeaSlice* slice = dynamic_cast<FeaSlice*>( feaprt );
-                            assert( slice );
-
-                            m_SliceOrientationChoice.Update( slice->m_OrientationPlane.GetID() );
-                            m_SliceCenterLocSlider.Update( slice->m_CenterPerBBoxLocation.GetID() );
-                            m_SliceThetaSlider.Update( slice->m_Theta.GetID() );
-                            m_SliceAlphaSlider.Update( slice->m_Alpha.GetID() );
-
-                            if ( slice->m_IncludedElements() == TRIS || slice->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_SlicePropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_SlicePropertyChoice.Deactivate();
-                            }
-
-                            if ( slice->m_IncludedElements() == BEAM || slice->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_SliceCapPropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_SliceCapPropertyChoice.Deactivate();
-                            }
-
-                            FeaPartDispGroup( &m_SliceEditLayout );
-                        }
-                        else if ( feaprt->GetType() == vsp::FEA_RIB )
-                        {
-                            FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
-                            assert( rib );
-
-                            m_RibPosSlider.Update( rib->m_PerU.GetID() );
-                            m_RibThetaSlider.Update( rib->m_Theta.GetID() );
-
-                            if ( rib->m_IncludedElements() == BEAM || rib->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_RibCapPropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_RibCapPropertyChoice.Deactivate();
-                            }
-
-                            FeaPartDispGroup( &m_RibEditLayout );
-                        }
-                        else if ( feaprt->GetType() == vsp::FEA_SPAR )
-                        {
-                            FeaSpar* spar = dynamic_cast<FeaSpar*>( feaprt );
-                            assert( spar );
-
-                            m_SparPosSlider.Update( spar->m_PerV.GetID() );
-                            m_SparThetaSlider.Update( spar->m_Theta.GetID() );
-
-                            if ( spar->m_IncludedElements() == BEAM || spar->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_SparCapPropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_SparCapPropertyChoice.Deactivate();
-                            }
-
-                            FeaPartDispGroup( &m_SparEditLayout );
-                        }
-                        else if ( feaprt->GetType() == vsp::FEA_FIX_POINT )
-                        {
-                            FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( feaprt );
-                            assert( fixpt );
-
-                            m_FixPointULocSlider.Update( fixpt->m_PosU.GetID() );
-                            m_FixPointWLocSlider.Update( fixpt->m_PosW.GetID() );
-
-                            FeaPartDispGroup( &m_FixPointEditLayout );
-                        }
-                        else
-                        {
-                            FeaPartDispGroup( NULL );
-                        }
-
-                        // Do not update FeaParts if mesh is in progress
-                        if ( FeaMeshMgr.GetFeaMeshInProgress() == false )
-                        {
-                            structVec[m_SelectedStructIndex]->Update();
-                        }
+                        FeaPropertyDispGroup( &m_FeaPropertyShellGroup );
                     }
-                    else
+                    else if ( fea_prop->m_FeaPropertyType() == BEAM_PROPERTY )
                     {
-                        FeaPartDispGroup( NULL );
+                        m_PropAreaSlider.Update( fea_prop->m_CrossSecArea.GetID() );
+                        m_PropIzzSlider.Update( fea_prop->m_Izz.GetID() );
+                        m_PropIyySlider.Update( fea_prop->m_Iyy.GetID() );
+                        m_PropIzySlider.Update( fea_prop->m_Izy.GetID() );
+                        m_PropIxxSlider.Update( fea_prop->m_Ixx.GetID() );
+
+                        FeaPropertyDispGroup( &m_FeaPropertyBeamGroup );
                     }
                 }
-                else if ( m_SelectedPartIndexVec[0] >= structVec[m_SelectedStructIndex]->NumFeaParts() )
+                else
                 {
-                    //===== SubSurface =====//
-                    SubSurface* subsurf = structVec[m_SelectedStructIndex]->GetFeaSubSurf( m_SelectedPartIndexVec[0] - structVec[m_SelectedStructIndex]->NumFeaParts() );
-                    if ( subsurf )
-                    {
-                        m_FeaPartNameInput.Update( subsurf->GetName() );
-                        m_ShellCapToggleGroup.Update( subsurf->m_IncludedElements.GetID() );
-
-                        if ( subsurf->GetType() == vsp::SS_LINE )
-                        {
-                            SSLine* ssline = dynamic_cast<SSLine*>( subsurf );
-                            assert( ssline );
-
-                            m_FeaSSLineConstToggleGroup.Update( ssline->m_ConstType.GetID() );
-                            m_FeaSSLineTestToggleGroup.Update( ssline->m_TestType.GetID() );
-                            m_FeaSSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
-
-                            m_FeaSSLinePropertyChoice.Activate();
-
-                            if ( ssline->m_TestType() == vsp::NONE )
-                            {
-                                m_FeaSSLinePropertyChoice.Deactivate();
-                            }
-
-                            if ( ssline->m_IncludedElements() == TRIS || ssline->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_FeaSSLinePropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_FeaSSLinePropertyChoice.Deactivate();
-                            }
-
-                            if ( ssline->m_IncludedElements() == BEAM || ssline->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_FeaSSLineCapPropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_FeaSSLineCapPropertyChoice.Deactivate();
-                            }
-
-                            FeaPartDispGroup( &m_FeaSSLineGroup );
-                        }
-                        else if ( subsurf->GetType() == vsp::SS_RECTANGLE )
-                        {
-                            SSRectangle* ssrec = dynamic_cast<SSRectangle*>( subsurf );
-                            assert( subsurf );
-
-                            m_FeaSSRecTestToggleGroup.Update( ssrec->m_TestType.GetID() );
-                            m_FeaSSRecCentUSlider.Update( ssrec->m_CenterU.GetID() );
-                            m_FeaSSRecCentWSlider.Update( ssrec->m_CenterW.GetID() );
-                            m_FeaSSRecULenSlider.Update( ssrec->m_ULength.GetID() );
-                            m_FeaSSRecWLenSlider.Update( ssrec->m_WLength.GetID() );
-                            m_FeaSSRecThetaSlider.Update( ssrec->m_Theta.GetID() );
-
-                            m_FeaSSRecPropertyChoice.Activate();
-
-                            if ( ssrec->m_TestType() == vsp::NONE )
-                            {
-                                m_FeaSSRecPropertyChoice.Deactivate();
-                            }
-
-                            if ( ssrec->m_IncludedElements() == TRIS || ssrec->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_FeaSSRecPropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_FeaSSRecPropertyChoice.Deactivate();
-                            }
-
-                            if ( ssrec->m_IncludedElements() == BEAM || ssrec->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_FeaSSRecCapPropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_FeaSSRecCapPropertyChoice.Deactivate();
-                            }
-
-                            FeaPartDispGroup( &m_FeaSSRecGroup );
-                        }
-                        else if ( subsurf->GetType() == vsp::SS_ELLIPSE )
-                        {
-                            SSEllipse* ssell = dynamic_cast<SSEllipse*>( subsurf );
-                            assert( ssell );
-
-                            m_FeaSSEllTestToggleGroup.Update( ssell->m_TestType.GetID() );
-                            m_FeaSSEllTessSlider.Update( ssell->m_Tess.GetID() );
-                            m_FeaSSEllCentUSlider.Update( ssell->m_CenterU.GetID() );
-                            m_FeaSSEllCentWSlider.Update( ssell->m_CenterW.GetID() );
-                            m_FeaSSEllULenSlider.Update( ssell->m_ULength.GetID() );
-                            m_FeaSSEllWLenSlider.Update( ssell->m_WLength.GetID() );
-                            m_FeaSSEllThetaSlider.Update( ssell->m_Theta.GetID() );
-
-                            m_FeaSSEllPropertyChoice.Activate();
-
-                            if ( ssell->m_TestType() == vsp::NONE )
-                            {
-                                m_FeaSSEllPropertyChoice.Deactivate();
-                            }
-
-                            if ( ssell->m_IncludedElements() == TRIS || ssell->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_FeaSSEllPropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_FeaSSEllPropertyChoice.Deactivate();
-                            }
-
-                            if ( ssell->m_IncludedElements() == BEAM || ssell->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_FeaSSEllCapPropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_FeaSSEllCapPropertyChoice.Deactivate();
-                            }
-
-                            FeaPartDispGroup( &m_FeaSSEllGroup );
-                        }
-                        else if ( subsurf->GetType() == vsp::SS_CONTROL )
-                        {
-                            SSControlSurf* sscon = dynamic_cast<SSControlSurf*>( subsurf );
-                            assert( sscon );
-
-                            m_FeaSSConTestToggleGroup.Update( sscon->m_TestType.GetID() );
-                            m_FeaSSConUESlider.Update( sscon->m_UEnd.GetID() );
-                            m_FeaSSConUSSlider.Update( sscon->m_UStart.GetID() );
-                            m_FeaSSConSFracSlider.Update( sscon->m_StartLenFrac.GetID() );
-                            m_FeaSSConSLenSlider.Update( sscon->m_StartLength.GetID() );
-                            m_FeaSSConEFracSlider.Update( sscon->m_EndLenFrac.GetID() );
-                            m_FeaSSConELenSlider.Update( sscon->m_EndLength.GetID() );
-                            m_FeaSSConSAbsRelToggleGroup.Update( sscon->m_AbsRelFlag.GetID() );
-                            m_FeaSSConSEConstButton.Update( sscon->m_ConstFlag.GetID() );
-                            m_FeaSSConLEFlagButton.Update( sscon->m_LEFlag.GetID() );
-
-                            m_FeaSSConPropertyChoice.Activate();
-
-                            if ( sscon->m_TestType() == vsp::NONE )
-                            {
-                                m_FeaSSConPropertyChoice.Deactivate();
-                            }
-
-                            if ( sscon->m_IncludedElements() == TRIS || sscon->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_FeaSSConPropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_FeaSSConPropertyChoice.Deactivate();
-                            }
-
-                            if ( sscon->m_IncludedElements() == BEAM || sscon->m_IncludedElements() == BOTH_ELEMENTS )
-                            {
-                                m_FeaSSConCapPropertyChoice.Activate();
-                            }
-                            else
-                            {
-                                m_FeaSSConCapPropertyChoice.Deactivate();
-                            }
-
-                            m_FeaSSConSFracSlider.Deactivate();
-                            m_FeaSSConSLenSlider.Deactivate();
-                            m_FeaSSConEFracSlider.Deactivate();
-                            m_FeaSSConELenSlider.Deactivate();
-
-                            if ( sscon->m_AbsRelFlag() == ABS )
-                            {
-                                m_FeaSSConSLenSlider.Activate();
-
-                                if ( !sscon->m_ConstFlag() )
-                                {
-                                    m_FeaSSConELenSlider.Activate();
-                                }
-                            }
-                            else
-                            {
-                                m_FeaSSConSFracSlider.Activate();
-
-                                if ( !sscon->m_ConstFlag() )
-                                {
-                                    m_FeaSSConEFracSlider.Activate();
-                                }
-                            }
-
-                            m_FeaSSConSurfTypeChoice.Update( sscon->m_SurfType.GetID() );
-                            FeaPartDispGroup( &m_FeaSSConGroup );
-                        }
-                    }
-                }
-            }
-        }
-
-        //===== FeaProperty Update =====//
-        UpdateFeaPropertyBrowser();
-        UpdateFeaPropertyChoice();
-
-        if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
-        {
-            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[m_SelectedPropertyIndex];
-            if ( fea_prop )
-            {
-                m_FeaPropertyNameInput.Update( fea_prop->GetName() );
-
-                if ( fea_prop->m_FeaPropertyType() == SHELL_PROPERTY )
-                {
-                    m_PropThickSlider.Update( fea_prop->m_Thickness.GetID() );
-
-                    FeaPropertyDispGroup( &m_FeaPropertyShellGroup );
-                }
-                else if ( fea_prop->m_FeaPropertyType() == BEAM_PROPERTY )
-                {
-                    m_PropAreaSlider.Update( fea_prop->m_CrossSecArea.GetID() );
-                    m_PropIzzSlider.Update( fea_prop->m_Izz.GetID() );
-                    m_PropIyySlider.Update( fea_prop->m_Iyy.GetID() );
-                    m_PropIzySlider.Update( fea_prop->m_Izy.GetID() );
-                    m_PropIxxSlider.Update( fea_prop->m_Ixx.GetID() );
-
-                    FeaPropertyDispGroup( &m_FeaPropertyBeamGroup );
+                    FeaPropertyDispGroup( NULL );
                 }
             }
             else
             {
                 FeaPropertyDispGroup( NULL );
             }
-        }
-        else
-        {
-            FeaPropertyDispGroup( NULL );
-        }
 
-        //===== FeaMaterial Update =====//
-        UpdateFeaMaterialBrowser();
-        UpdateFeaMaterialChoice();
+            //===== FeaMaterial Update =====//
+            UpdateFeaMaterialBrowser();
+            UpdateFeaMaterialChoice();
 
-        if ( StructureMgr.ValidFeaMaterialInd( m_SelectedMaterialIndex ) )
-        {
-            FeaMaterial* fea_mat = StructureMgr.GetFeaMaterialVec()[m_SelectedMaterialIndex];
-            if ( fea_mat )
+            if ( StructureMgr.ValidFeaMaterialInd( m_SelectedMaterialIndex ) )
             {
-                m_FeaMaterialNameInput.Update( fea_mat->GetName() );
-                m_MatDensitySlider.Update( fea_mat->m_MassDensity.GetID() );
-                m_MatElasticModSlider.Update( fea_mat->m_ElasticModulus.GetID() );
-                m_MatPoissonSlider.Update( fea_mat->m_PoissonRatio.GetID() );
-                m_MatThermalExCoeffSlider.Update( fea_mat->m_ThermalExpanCoeff.GetID() );
+                FeaMaterial* fea_mat = StructureMgr.GetFeaMaterialVec()[m_SelectedMaterialIndex];
+                if ( fea_mat )
+                {
+                    m_FeaMaterialNameInput.Update( fea_mat->GetName() );
+                    m_MatDensitySlider.Update( fea_mat->m_MassDensity.GetID() );
+                    m_MatElasticModSlider.Update( fea_mat->m_ElasticModulus.GetID() );
+                    m_MatPoissonSlider.Update( fea_mat->m_PoissonRatio.GetID() );
+                    m_MatThermalExCoeffSlider.Update( fea_mat->m_ThermalExpanCoeff.GetID() );
 
-                if ( fea_mat->m_UserFeaMaterial )
-                {
-                    m_FeaMaterialNameInput.Activate();
-                    m_MatDensitySlider.Activate();
-                    m_MatElasticModSlider.Activate();
-                    m_MatPoissonSlider.Activate();
-                    m_MatThermalExCoeffSlider.Activate();
-                }
-                else
-                {
-                    m_FeaMaterialNameInput.Deactivate();
-                    m_MatDensitySlider.Deactivate();
-                    m_MatElasticModSlider.Deactivate();
-                    m_MatPoissonSlider.Deactivate();
-                    m_MatThermalExCoeffSlider.Deactivate();
+                    if ( fea_mat->m_UserFeaMaterial )
+                    {
+                        m_FeaMaterialNameInput.Activate();
+                        m_MatDensitySlider.Activate();
+                        m_MatElasticModSlider.Activate();
+                        m_MatPoissonSlider.Activate();
+                        m_MatThermalExCoeffSlider.Activate();
+                    }
+                    else
+                    {
+                        m_FeaMaterialNameInput.Deactivate();
+                        m_MatDensitySlider.Deactivate();
+                        m_MatElasticModSlider.Deactivate();
+                        m_MatPoissonSlider.Deactivate();
+                        m_MatThermalExCoeffSlider.Deactivate();
+                    }
                 }
             }
         }
 
         // Update Draw Objects for FeaParts
         UpdateDrawObjs();
-    }
 
-    if ( FeaMeshMgr.GetFeaMeshInProgress() )
-    {
-        m_FeaMeshExportButton.Deactivate();
-    }
-    else
-    {
-        m_FeaMeshExportButton.Activate();
+        if ( FeaMeshMgr.GetFeaMeshInProgress() )
+        {
+            m_FeaMeshExportButton.Deactivate();
+        }
+        else
+        {
+            m_FeaMeshExportButton.Activate();
+        }
     }
 
     return true;
@@ -2572,7 +1656,16 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_EditFeaPartButton )
     {
-        // Open Edit FeaPart Screen
+        if ( m_SelectedPartIndexVec.size() == 1 )
+        {
+            StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
+
+            m_ScreenMgr->ShowScreen( ScreenMgr::VSP_FEA_PART_EDIT_SCREEN );
+        }
+        else
+        {
+            AddOutputText( "Error: Select A Single FEA Part\n" );
+        }
     }
     else if ( device == &m_FeaPartChoice )
     {
@@ -2702,54 +1795,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             FeaMeshMgr.SetDrawCapFlag( i, false );
         }
     }
-    else if ( device == &m_RibPerpendicularEdgeChoice )
-    {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-        {
-            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
-
-            if ( m_SelectedPartIndexVec.size() == 1 )
-            {
-                FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndexVec[0] );
-
-                if ( feaprt )
-                {
-                    if ( feaprt->GetType() == vsp::FEA_RIB )
-                    {
-                        FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
-                        assert( rib );
-
-                        rib->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibPerpendicularEdgeChoice.GetVal()] );
-                    }
-                }
-            }
-        }
-    }
-    else if ( device == &m_FixPointParentSurfChoice )
-    {
-        if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-        {
-            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
-
-            FeaPart* parent_feaprt = StructureMgr.GetFeaPart( m_FixPointParentIDVec[m_FixPointParentSurfChoice.GetVal()] );
-
-            if ( m_SelectedPartIndexVec.size() == 1 )
-            {
-                FeaPart* feaprt = structVec[m_SelectedStructIndex]->GetFeaPart( m_SelectedPartIndexVec[0] );
-
-                if ( feaprt && parent_feaprt )
-                {
-                    if ( feaprt->GetType() == vsp::FEA_FIX_POINT )
-                    {
-                        FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( feaprt );
-                        assert( fixpt );
-
-                        fixpt->m_ParentFeaPartID = parent_feaprt->GetID();
-                    }
-                }
-            }
-        }
-    }
     //else if ( device == &m_MoveSSUpButton )
     //{
     //    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
@@ -2855,61 +1900,13 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
-    else if ( device == &m_SlicePropertyChoice )
+    else if ( device == &m_GenPropertyChoice )
     {
-        UpdateFeaPartPropertyIndex( &m_SlicePropertyChoice );
+        UpdateGenPropertyIndex( &m_GenPropertyChoice );
     }
-    else if ( device == &m_SliceCapPropertyChoice )
+    else if ( device == &m_GenCapPropertyChoice )
     {
-        UpdateCapPropertyIndex( &m_SliceCapPropertyChoice );
-    }
-    else if ( device == &m_RibPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_RibPropertyChoice );
-    }
-    else if ( device == &m_RibCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_RibCapPropertyChoice );
-    }
-    else if ( device == &m_SparPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_SparPropertyChoice );
-    }
-    else if ( device == &m_SparCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_SparCapPropertyChoice );
-    }
-    else if ( device == &m_FeaSSLinePropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_FeaSSLinePropertyChoice );
-    }
-    else if ( device == &m_FeaSSRecPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_FeaSSRecPropertyChoice );
-    }
-    else if ( device == &m_FeaSSEllPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_FeaSSEllPropertyChoice );
-    }
-    else if ( device == &m_FeaSSConPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_FeaSSConPropertyChoice );
-    }
-    else if ( device == &m_FeaSSLineCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_FeaSSLineCapPropertyChoice );
-    }
-    else if ( device == &m_FeaSSRecCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_FeaSSRecCapPropertyChoice );
-    }
-    else if ( device == &m_FeaSSEllCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_FeaSSEllCapPropertyChoice );
-    }
-    else if ( device == &m_FeaSSConCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_FeaSSConCapPropertyChoice );
+        UpdateGenCapPropertyIndex( &m_GenCapPropertyChoice );
     }
     else if ( device == &m_AddFeaMaterialButton )
     {
