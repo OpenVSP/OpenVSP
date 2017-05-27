@@ -241,7 +241,6 @@ private:
     vector < string > m_PerpendicularEdgeVec;
 
     int m_FeaCurrMainSurfIndx;
-    int m_SelectedStructIndex;
     vector < int > m_SelectedPartIndexVec;
     int m_SelectedFeaPartChoice;
     int m_SelectedMaterialIndex;
