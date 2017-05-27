@@ -87,6 +87,23 @@ public:
         return m_FeaMaterialVec.size();
     }
 
+    virtual void SetCurrStructIndex( int ind )
+    {
+        m_CurrStructIndex = ind;
+    }
+    virtual int GetCurrStructIndex()
+    {
+        return m_CurrStructIndex;
+    }
+
+    virtual void SetCurrPartIndex( int ind )
+    {
+        m_CurrPartIndex = ind;
+    }
+    virtual int GetCurrPartIndex()
+    {
+        return m_CurrPartIndex;
+    }
 
 protected:
 
@@ -96,6 +113,8 @@ protected:
     vector < FeaMaterial* > m_FeaMaterialVec;
     int m_FeaMatCount;
 
+    int m_CurrStructIndex;
+    int m_CurrPartIndex;
 };
 
 #define StructureMgr StructureMgrSingleton::getInstance()

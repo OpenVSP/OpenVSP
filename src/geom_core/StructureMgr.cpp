@@ -20,6 +20,9 @@ StructureMgrSingleton::StructureMgrSingleton()
 
     m_FeaPropertyCount = 0;
     m_FeaMatCount = 0;
+
+    m_CurrStructIndex = -1;
+    m_CurrPartIndex = -1;
 }
 
 StructureMgrSingleton::~StructureMgrSingleton()
@@ -47,6 +50,8 @@ xmlNodePtr StructureMgrSingleton::EncodeXml( xmlNodePtr & node )
         }
     }
 
+    XmlUtil::AddIntNode( structmgr_node, "CurrStructIndex", m_CurrStructIndex );
+
     return structmgr_node;
 }
 
@@ -56,6 +61,8 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
 
     if ( structmgr_node )
     {
+        m_CurrStructIndex = XmlUtil::FindInt( structmgr_node, "CurrStructIndex", 0 );
+
         int num_prop = XmlUtil::GetNumNames( structmgr_node, "FeaPropertyInfo" );
 
         for ( unsigned int i = 0; i < num_prop; i++ )
