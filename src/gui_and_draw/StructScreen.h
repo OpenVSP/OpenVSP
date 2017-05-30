@@ -85,6 +85,8 @@ private:
     GroupLayout m_StructGeneralGroup;
     GroupLayout m_PartTabLayout;
     GroupLayout m_PartGroup;
+    GroupLayout m_MovePartButtonLayout;
+    GroupLayout m_FeaPartBrowserLayout;
     GroupLayout m_MaterialTabLayout;
     GroupLayout m_MaterialEditGroup;
     GroupLayout m_PropertyTabLayout;
@@ -131,6 +133,11 @@ private:
 
     //===== FeaPart Tab Items =====//
     Fl_Browser * m_FeaPartSelectBrowser;
+
+    TriggerButton m_MovePrtUpButton;
+    TriggerButton m_MovePrtDownButton;
+    TriggerButton m_MovePrtTopButton;
+    TriggerButton m_MovePrtBotButton;
 
     Choice m_FeaPartChoice;
     StringInput m_FeaPartNameInput;

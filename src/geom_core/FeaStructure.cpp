@@ -193,6 +193,56 @@ void FeaStructure::DelFeaPart( int ind )
     }
 }
 
+void FeaStructure::ReorderFeaPart( int ind, int action )
+{
+    //==== Check SubSurface Index Validity ====//
+    if ( !ValidFeaPartInd( ind ) )
+    {
+        return;
+    }
+
+    vector < FeaPart* > new_prt_vec;
+
+    if ( action == Vehicle::REORDER_MOVE_TOP || action == Vehicle::REORDER_MOVE_BOTTOM )
+    {
+        if ( action == Vehicle::REORDER_MOVE_TOP )
+        {
+            new_prt_vec.push_back( GetFeaPart( ind ) );
+        }
+
+        for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
+            if ( m_FeaPartVec[i] != GetFeaPart( ind ) )
+            {
+                new_prt_vec.push_back( m_FeaPartVec[i] );
+            }
+
+        if ( action == Vehicle::REORDER_MOVE_BOTTOM )
+        {
+            new_prt_vec.push_back( GetFeaPart( ind ) );
+        }
+    }
+    else if ( action == Vehicle::REORDER_MOVE_UP || action == Vehicle::REORDER_MOVE_DOWN )
+    {
+        for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
+        {
+            if ( i < (int)( m_FeaPartVec.size() - 1 ) &&
+                ( ( action == Vehicle::REORDER_MOVE_DOWN && m_FeaPartVec[i] == GetFeaPart( ind ) ) ||
+                 ( action == Vehicle::REORDER_MOVE_UP   && m_FeaPartVec[i + 1] == GetFeaPart( ind ) ) ) )
+            {
+                new_prt_vec.push_back( m_FeaPartVec[i + 1] );
+                new_prt_vec.push_back( m_FeaPartVec[i] );
+                i++;
+            }
+            else
+            {
+                new_prt_vec.push_back( m_FeaPartVec[i] );
+            }
+        }
+    }
+
+    m_FeaPartVec = new_prt_vec;
+}
+
 vector < FeaPart* > FeaStructure::AddEvenlySpacedRibs( const int num_rib )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();

@@ -196,12 +196,43 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_PartTabLayout.AddDividerBox( "FEA Part Selection" );
 
-    m_FeaPartSelectBrowser = m_PartTabLayout.AddFlBrowser( browser_h );
+    int start_x = m_PartTabLayout.GetX();
+    int start_y = m_PartTabLayout.GetY();
+
+    m_PartTabLayout.AddSubGroupLayout( m_MovePartButtonLayout, m_PartTabLayout.GetRemainX(), browser_h );
+    m_PartTabLayout.GetGroup()->resizable( m_MovePartButtonLayout.GetGroup() );
+    m_PartTabLayout.AddY( browser_h );
+
+    m_MovePartButtonLayout.SetSameLineFlag( false );
+    m_MovePartButtonLayout.SetFitWidthFlag( false );
+
+    m_MovePartButtonLayout.SetStdHeight( 20 );
+    m_MovePartButtonLayout.SetButtonWidth( 20 );
+    m_MovePartButtonLayout.AddButton( m_MovePrtTopButton, "@2<<" );
+    m_MovePartButtonLayout.AddYGap();
+    m_MovePartButtonLayout.AddButton( m_MovePrtUpButton, "@2<" );
+    m_MovePartButtonLayout.AddY( browser_h - 95 - m_PartTabLayout.GetStdHeight() );
+    m_MovePartButtonLayout.AddResizeBox();
+    m_MovePartButtonLayout.AddButton( m_MovePrtDownButton, "@2>" );
+    m_MovePartButtonLayout.AddYGap();
+    m_MovePartButtonLayout.AddButton( m_MovePrtBotButton, "@2>>" );
+
+    m_PartTabLayout.SetY( start_y );
+    m_PartTabLayout.AddX( 20 );
+    m_PartTabLayout.SetFitWidthFlag( true );
+
+    m_PartTabLayout.AddSubGroupLayout( m_FeaPartBrowserLayout, m_PartTabLayout.GetRemainX(), browser_h );
+    m_PartTabLayout.GetGroup()->resizable( m_FeaPartBrowserLayout.GetGroup() );
+    m_PartTabLayout.AddY( browser_h );
+
+    m_FeaPartSelectBrowser = m_FeaPartBrowserLayout.AddFlBrowser( browser_h );
     m_FeaPartSelectBrowser->type( FL_MULTI_BROWSER );
     m_FeaPartSelectBrowser->labelfont( 13 );
     m_FeaPartSelectBrowser->labelsize( 12 );
     m_FeaPartSelectBrowser->textsize( 12 );
     m_FeaPartSelectBrowser->callback( staticScreenCB, this );
+
+    m_PartTabLayout.SetX( start_x );
 
     m_PartTabLayout.SetSameLineFlag( true );
     m_PartTabLayout.SetFitWidthFlag( false );
@@ -2001,42 +2032,94 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             FeaMeshMgr.SetDrawCapFlag( i, false );
         }
     }
-    //else if ( device == &m_MoveSSUpButton )
-    //{
-    //    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-    //    {
-    //        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-    //        structvec[m_SelectedStructIndex]->ReorderFeaSubSurf( m_SelectedSubSurfIndex, Vehicle::REORDER_MOVE_UP );
-    //        m_SelectedSubSurfIndex--;
-    //    }
-    //}
-    //else if ( device == &m_MoveSSDownButton )
-    //{
-    //    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-    //    {
-    //        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-    //        structvec[m_SelectedStructIndex]->ReorderFeaSubSurf( m_SelectedSubSurfIndex, Vehicle::REORDER_MOVE_DOWN );
-    //        m_SelectedSubSurfIndex++;
-    //    }
-    //}
-    //else if ( device == &m_MoveSSTopButton )
-    //{
-    //    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-    //    {
-    //        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-    //        structvec[m_SelectedStructIndex]->ReorderFeaSubSurf( m_SelectedSubSurfIndex, Vehicle::REORDER_MOVE_TOP );
-    //        m_SelectedSubSurfIndex = 0;
-    //    }
-    //}
-    //else if ( device == &m_MoveSSBotButton )
-    //{
-    //    if ( StructureMgr.ValidTotalFeaStructInd( m_SelectedStructIndex ) )
-    //    {
-    //        vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-    //        structvec[m_SelectedStructIndex]->ReorderFeaSubSurf( m_SelectedSubSurfIndex, Vehicle::REORDER_MOVE_BOTTOM );
-    //        m_SelectedSubSurfIndex = structvec[m_SelectedStructIndex]->NumFeaSubSurfs() - 1;;
-    //    }
-    //}
+    else if ( device == &m_MovePrtUpButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) && m_SelectedPartIndexVec.size() == 1 )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], Vehicle::REORDER_MOVE_UP );
+
+                if ( m_SelectedPartIndexVec[0] != 0 )
+                {
+                    m_SelectedPartIndexVec[0]--;
+                }
+            }
+            else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts(), Vehicle::REORDER_MOVE_UP );
+
+                if ( m_SelectedPartIndexVec[0] != structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                {
+                    m_SelectedPartIndexVec[0]--;
+                }
+            }
+        }
+    }
+    else if ( device == &m_MovePrtDownButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) && m_SelectedPartIndexVec.size() == 1 )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], Vehicle::REORDER_MOVE_DOWN );
+
+                if ( m_SelectedPartIndexVec[0] != structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() - 1 )
+                {
+                    m_SelectedPartIndexVec[0]++;
+                }
+            }
+            else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts(), Vehicle::REORDER_MOVE_DOWN );
+
+                if ( m_SelectedPartIndexVec[0] != structvec[StructureMgr.GetCurrStructIndex()]->NumFeaSubSurfs() + structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() - 1 )
+                {
+                    m_SelectedPartIndexVec[0]++;
+                }
+            }
+        }
+    }
+    else if ( device == &m_MovePrtTopButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) && m_SelectedPartIndexVec.size() == 1 )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], Vehicle::REORDER_MOVE_TOP );
+                m_SelectedPartIndexVec[0] = 0;
+            }
+            else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts(), Vehicle::REORDER_MOVE_TOP );
+                m_SelectedPartIndexVec[0] = structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts();
+            }
+        }
+    }
+    else if ( device == &m_MovePrtBotButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) && m_SelectedPartIndexVec.size() == 1 )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], Vehicle::REORDER_MOVE_BOTTOM );
+                m_SelectedPartIndexVec[0] = structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() - 1;
+            }
+            else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts(), Vehicle::REORDER_MOVE_BOTTOM );
+                m_SelectedPartIndexVec[0] = structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() + structvec[StructureMgr.GetCurrStructIndex()]->NumFeaSubSurfs() - 1;
+            }
+        }
+    }
     else if ( device == &m_AddFeaPropertyButton )
     {
         StructureMgr.AddFeaProperty( m_FeaPropertyType.GetVal() );

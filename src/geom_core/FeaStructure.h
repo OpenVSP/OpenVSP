@@ -50,6 +50,7 @@ public:
     virtual FeaPart* AddFeaPart( int type );
     virtual bool ValidFeaPartInd( int ind );
     virtual void DelFeaPart( int ind );
+    virtual void ReorderFeaPart( int ind, int action );
     virtual void UpdateFeaParts();
     virtual FeaPart* GetFeaPart( int ind );
     virtual string GetFeaPartName( int ind );
