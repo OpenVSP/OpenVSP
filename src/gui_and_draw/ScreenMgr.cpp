@@ -16,6 +16,7 @@
 #include "DesignVarScreen.h"
 #include "DXFOptionsScreen.h"
 #include "ExportScreen.h"
+#include "FeaPartEditScreen.h"
 #include "FitModelScreen.h"
 #include "IGESOptionsScreen.h"
 #include "ImportScreen.h"
@@ -178,6 +179,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_DESIGN_VAR_SCREEN] = new DesignVarScreen( this );
     m_ScreenVec[VSP_DXF_OPTIONS_SCREEN] = new DXFOptionsScreen( this);
     m_ScreenVec[VSP_EXPORT_SCREEN] = new ExportScreen( this );
+    m_ScreenVec[VSP_FEA_PART_EDIT_SCREEN] = new FeaPartEditScreen( this );
     m_ScreenVec[VSP_FIT_MODEL_SCREEN] = new FitModelScreen( this );
     m_ScreenVec[VSP_IGES_OPTIONS_SCREEN] = new IGESOptionsScreen( this );
     m_ScreenVec[VSP_IMPORT_SCREEN] = new ImportScreen( this );

@@ -37,6 +37,7 @@ public:
            VSP_DESIGN_VAR_SCREEN,
            VSP_DXF_OPTIONS_SCREEN,
            VSP_EXPORT_SCREEN,
+           VSP_FEA_PART_EDIT_SCREEN,
            VSP_FIT_MODEL_SCREEN,
            VSP_IGES_OPTIONS_SCREEN,
            VSP_IMPORT_SCREEN,
