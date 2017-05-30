@@ -1567,6 +1567,15 @@ void StructScreen::CallBack( Fl_Widget* w )
                         }
                     }
                 }
+
+                if ( Fl::event_clicks() != 0 )
+                {
+                    if ( m_SelectedPartIndexVec.size() == 1 )
+                    {
+                        StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
+                        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_FEA_PART_EDIT_SCREEN );
+                    }
+                }
             }
         }
         else if ( w == m_StructureSelectBrowser )
