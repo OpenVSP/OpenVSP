@@ -111,7 +111,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_StructGroup.SetChoiceButtonWidth( buttonwidth );
 
     m_StructGroup.AddInput( m_FeaStructNameInput, "Struct Name" );
-    m_StructGroup.AddChoice( m_SkinPropertyChoice, "Skin Property" );
 
     m_StructGroup.AddYGap();
 
@@ -619,26 +618,23 @@ void StructScreen::UpdateFeaPartBrowser()
 
         for ( int i = 0; i < (int)feaprt_vec.size(); i++ )
         {
-            if ( feaprt_vec[i]->GetType() != vsp::FEA_SKIN ) // Do not add skins to list of FeaParts
+            fea_name = feaprt_vec[i]->GetName();
+            fea_type = FeaPart::GetTypeName( feaprt_vec[i]->GetType() );
+
+            FeaMaterial* mat = StructureMgr.GetFeaMaterial( feaprt_vec[i]->GetFeaMaterialIndex() );
+            if ( mat )
             {
-                fea_name = feaprt_vec[i]->GetName();
-                fea_type = FeaPart::GetTypeName( feaprt_vec[i]->GetType() );
-
-                FeaMaterial* mat = StructureMgr.GetFeaMaterial( feaprt_vec[i]->GetFeaMaterialIndex() );
-                if ( mat )
-                {
-                    fea_mat = mat->GetName();
-                }
-
-                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->GetFeaPropertyIndex() );
-                if ( prop )
-                {
-                    fea_prop = prop->GetName();
-                }
-
-                sprintf( str, "%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), fea_mat.c_str(), fea_prop.c_str() );
-                m_FeaPartSelectBrowser->add( str );
+                fea_mat = mat->GetName();
             }
+
+            FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->GetFeaPropertyIndex() );
+            if ( prop )
+            {
+                fea_prop = prop->GetName();
+            }
+
+            sprintf( str, "%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), fea_mat.c_str(), fea_prop.c_str() );
+            m_FeaPartSelectBrowser->add( str );
         }
 
         vector<SubSurface*> subsurf_vec = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaSubSurfVec();
@@ -669,9 +665,7 @@ void StructScreen::UpdateFeaPartBrowser()
             if ( structVec[StructureMgr.GetCurrStructIndex()]->ValidFeaPartInd( m_SelectedPartIndexVec[i] ) ||
                  structVec[StructureMgr.GetCurrStructIndex()]->ValidFeaSubSurfInd( m_SelectedPartIndexVec[i] - structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() ) )
             {
-                // Check number of skins, which should be always equal to 1 unless the skin has not been initialized
-                int num_skin = structVec[StructureMgr.GetCurrStructIndex()]->GetNumFeaSkin();
-                m_FeaPartSelectBrowser->select( m_SelectedPartIndexVec[i] + 2 - num_skin );
+                m_FeaPartSelectBrowser->select( m_SelectedPartIndexVec[i] + 2 );
             }
         }
     }
@@ -837,7 +831,6 @@ void StructScreen::UpdateFeaPropertyBrowser()
 void StructScreen::UpdateFeaPropertyChoice()
 {
     //==== Property Choice ====//
-    m_SkinPropertyChoice.ClearItems();
     m_MultSlicePropChoice.ClearItems();
     m_GenPropertyChoice.ClearItems();
     m_MultSliceCapPropChoice.ClearItems();
@@ -853,7 +846,6 @@ void StructScreen::UpdateFeaPropertyChoice()
 
         for ( int i = 0; i < property_vec.size(); ++i )
         {
-            m_SkinPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_MultSlicePropChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_GenPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_MultSliceCapPropChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -861,7 +853,6 @@ void StructScreen::UpdateFeaPropertyChoice()
 
             if ( property_vec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
             {
-                m_SkinPropertyChoice.SetFlag( i, 0 );
                 m_MultSlicePropChoice.SetFlag( i, 0 );
                 m_GenPropertyChoice.SetFlag( i, 0 );
                 m_MultSliceCapPropChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -869,7 +860,6 @@ void StructScreen::UpdateFeaPropertyChoice()
             }
             else if ( property_vec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
             {
-                m_SkinPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_MultSlicePropChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_GenPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_MultSliceCapPropChoice.SetFlag( i, 0 );
@@ -877,7 +867,6 @@ void StructScreen::UpdateFeaPropertyChoice()
             }
         }
 
-        m_SkinPropertyChoice.UpdateItems();
         m_MultSlicePropChoice.UpdateItems();
         m_GenPropertyChoice.UpdateItems();
         m_MultSliceCapPropChoice.UpdateItems();
@@ -886,12 +875,6 @@ void StructScreen::UpdateFeaPropertyChoice()
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-            FeaPart* feaskin = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaSkin();
-
-            if ( feaskin )
-            {
-                m_SkinPropertyChoice.SetVal( feaskin->GetFeaPropertyIndex() );
-            }
 
             m_MultSlicePropChoice.SetVal( structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->GetMultPropertyIndex() );
             m_MultSliceCapPropChoice.SetVal( structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->GetMultCapPropertyIndex() );
@@ -1419,6 +1402,16 @@ bool StructScreen::Update()
                     {
                         m_FeaPartNameInput.Update( prt->GetName() );
                         m_ShellCapToggleGroup.Update( prt->m_IncludedElements.GetID() );
+                        if ( prt->GetType() == vsp::FEA_SKIN )
+                        {
+                            m_DrawFeaPartButton.Deactivate();
+                            m_ShellCapToggleGroup.Deactivate();
+                        }
+                        else
+                        {
+                            m_DrawFeaPartButton.Activate();
+                            m_ShellCapToggleGroup.Activate();
+                        }
 
                         if ( prt->m_IncludedElements() == TRIS )
                         {
@@ -1508,16 +1501,13 @@ void StructScreen::CallBack( Fl_Widget* w )
             {
                 vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
 
-                // Check number of skins, which should be always equal to 1 unless the skin has not been initialized
-                int num_skin = structVec[StructureMgr.GetCurrStructIndex()]->GetNumFeaSkin();
-
                 m_SelectedPartIndexVec.clear();
 
                 for ( size_t i = 2; i <= m_FeaPartSelectBrowser->size(); i++ )
                 {
                     if ( m_FeaPartSelectBrowser->selected( i ) )
                     {
-                        m_SelectedPartIndexVec.push_back( i - 2 + num_skin );
+                        m_SelectedPartIndexVec.push_back( i - 2 );
                     }
                 }
 
@@ -1885,15 +1875,15 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 }
                 else
                 {
-                    if ( m_FeaPartChoice.GetVal() - m_NumFeaSliceChoices == vsp::FEA_RIB )
+                    if ( m_FeaPartChoice.GetVal() - m_NumFeaSliceChoices + 1 == vsp::FEA_RIB )
                     {
                         feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_RIB );
                     }
-                    else if ( m_FeaPartChoice.GetVal() - m_NumFeaSliceChoices == vsp::FEA_SPAR )
+                    else if ( m_FeaPartChoice.GetVal() - m_NumFeaSliceChoices + 1 == vsp::FEA_SPAR )
                     {
                         feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_SPAR );
                     }
-                    else if ( m_FeaPartChoice.GetVal() - m_NumFeaSliceChoices == vsp::FEA_FIX_POINT )
+                    else if ( m_FeaPartChoice.GetVal() - m_NumFeaSliceChoices + 1 == vsp::FEA_FIX_POINT )
                     {
                         feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_FIX_POINT );
                     }
@@ -1944,25 +1934,42 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            while ( m_SelectedPartIndexVec.size() > 0 )
+            if ( m_SelectedPartIndexVec.size() > 0 )
             {
-                if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
                 {
-                    structvec[StructureMgr.GetCurrStructIndex()]->DelFeaPart( m_SelectedPartIndexVec[0] );
-                }
-                else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
-                {
-                    structvec[StructureMgr.GetCurrStructIndex()]->DelFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
-                }
+                    FeaPart* prt = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( m_SelectedPartIndexVec[i] );
 
-                vector < int > temp_index_vec;
-
-                for ( size_t j = 1; j < m_SelectedPartIndexVec.size(); j++ )
-                {
-                    temp_index_vec.push_back( m_SelectedPartIndexVec[j] - 1 );
+                    if ( prt )
+                    {
+                        if ( prt->GetType() == vsp::FEA_SKIN )
+                        {
+                            m_SelectedPartIndexVec.erase( m_SelectedPartIndexVec.begin() + i ); // Do not include FeaSkin
+                            break;
+                        }
+                    }
                 }
 
-                m_SelectedPartIndexVec = temp_index_vec;
+                while ( m_SelectedPartIndexVec.size() > 0 )
+                {
+                    if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                    {
+                        structvec[StructureMgr.GetCurrStructIndex()]->DelFeaPart( m_SelectedPartIndexVec[0] );
+                    }
+                    else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                    {
+                        structvec[StructureMgr.GetCurrStructIndex()]->DelFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
+                    }
+
+                    vector < int > temp_index_vec;
+
+                    for ( size_t j = 1; j < m_SelectedPartIndexVec.size(); j++ )
+                    {
+                        temp_index_vec.push_back( m_SelectedPartIndexVec[j] - 1 );
+                    }
+
+                    m_SelectedPartIndexVec = temp_index_vec;
+                }
             }
         }
     }
@@ -2059,19 +2066,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             if ( fea_prop )
             {
                 fea_prop->SetName( m_FeaPropertyNameInput.GetString() );
-            }
-        }
-    }
-    else if ( device == &m_SkinPropertyChoice )
-    {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
-        {
-            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
-            FeaPart* feaskin = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaSkin();
-
-            if ( feaskin )
-            {
-                feaskin->SetFeaPropertyIndex( m_SkinPropertyChoice.GetVal() );
             }
         }
     }

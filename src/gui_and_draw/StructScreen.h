@@ -112,8 +112,6 @@ private:
 
     StringInput m_FeaStructNameInput;
 
-    Choice m_SkinPropertyChoice;
-
     // Wing Functions
     SliderAdjRangeInput m_NumEvenlySpacedRibsInput;
     TriggerButton m_AddEvenlySpacedRibsButton;
