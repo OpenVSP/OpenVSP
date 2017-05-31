@@ -762,8 +762,8 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     for ( size_t iControlSurf = 0; iControlSurf < m_CompleteControlSurfaceVec.size(); iControlSurf++ )
     {
         string tParentGeomId = m_CompleteControlSurfaceVec[iControlSurf].parentGeomId;
-        int tSubSurfNdx = m_CompleteControlSurfaceVec[iControlSurf].iReflect;
-        string tNumPointsId = veh->FindGeom( tParentGeomId )->GetSubSurf( tSubSurfNdx )->FindParm( "Tess_Num", "SS_Control" );
+        string tSubSurfId = m_CompleteControlSurfaceVec[iControlSurf].SSID.substr(0,10);
+        string tNumPointsId = veh->FindGeom( tParentGeomId )->GetSubSurf( tSubSurfId )->FindParm( "Tess_Num", "SS_Control" );
         IntParm* tNumPointsParm = (IntParm*)ParmMgr.FindParm( tNumPointsId );
         if ( tNumPointsParm && tNumPointsParm->Get()!=1 )
         {
@@ -773,7 +773,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
             fprintf( stderr, "WARNING: Temporarily setting Control_Surf NumPoints = 1 for VSPAERO compatible DegenGeom generation.\n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
             fprintf( stderr, "\tGeom: %s\n\tControl_Surf: %s\n\tNumPoints = %d\n",
                 veh->FindGeom( tParentGeomId )->GetName().c_str(),
-                veh->FindGeom( tParentGeomId )->GetSubSurf( tSubSurfNdx )->GetName().c_str(),
+                veh->FindGeom( tParentGeomId )->GetSubSurf( tSubSurfId )->GetName().c_str(),
                 ((IntParm*)tNumPointsParm)->Get() );
         }
     }
