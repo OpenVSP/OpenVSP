@@ -163,6 +163,8 @@ public:
     // Update Methods
     void Update();
     void UpdateWettedAreaTotals();
+    bool ShouldAddSubSurfToMasterGeom(const size_t &i, const size_t &j);
+    bool ShouldAddGeomToMasterGeom(const size_t &i, const size_t &j);
     void UpdateRefWing();
     void UpdateAtmos();
     void UpdateVinf(int newunit);
