@@ -62,8 +62,8 @@ void APITestSuiteParasiteDrag::TestParasiteDragCreateModel()
 
 void APITestSuiteParasiteDrag::TestFirstParasiteDragCalc()
 {
-    double pd_tol = 0.00001;
     double first_res = 0.00387;
+    double pd_tol = first_res*0.02;
 
     double geom_tol = 0.01;
     double wing_swet = 74.96;
@@ -95,13 +95,28 @@ void APITestSuiteParasiteDrag::TestFirstParasiteDragCalc()
     printf("COMPLETE\n");
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
+    // Find Index Via Name
+    vector < string > labelnamevec = vsp::GetStringResults( results_id, "Comp_Label" );
+    int wingindex, podindex;
+    for (size_t i = 0; i < labelnamevec.size(); ++i)
+    {
+        if (labelnamevec[i].compare("MainWing") == 0)
+        {
+            wingindex = i;
+        }
+        else if (labelnamevec[i].compare("PodGeom") == 0)
+        {
+            podindex = i;
+        }
+    }
+
     vector < double > swet = vsp::GetDoubleResults( results_id, "Comp_Swet" );
-    TEST_ASSERT_DELTA( wing_swet, swet[0], geom_tol );
-    TEST_ASSERT_DELTA( pod_swet, swet[2], geom_tol );
+    TEST_ASSERT_DELTA( wing_swet, swet[wingindex], geom_tol );
+    TEST_ASSERT_DELTA( pod_swet, swet[podindex], geom_tol );
 
     vector < double > lref = vsp::GetDoubleResults( results_id, "Comp_Lref" );
-    TEST_ASSERT_DELTA( wing_lref, lref[0], geom_tol );
-    TEST_ASSERT_DELTA( pod_lref, lref[2], geom_tol );
+    TEST_ASSERT_DELTA( wing_lref, lref[wingindex], geom_tol );
+    TEST_ASSERT_DELTA( pod_lref, lref[podindex], geom_tol );
 
     vector < double > dat = vsp::GetDoubleResults( results_id, "Total_CD_Total" );
     TEST_ASSERT_DELTA( first_res, dat[0], pd_tol );
@@ -177,8 +192,8 @@ void APITestSuiteParasiteDrag::TestAddExcrescence()
 
 void APITestSuiteParasiteDrag::TestSecondParasiteDragCalc()
 {
-    double tol = 0.00001;
     double second_res = 0.00491;
+    double tol = second_res*0.02;
 
     // Execute
     printf("\tExecuting...\n");
