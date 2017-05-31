@@ -201,7 +201,8 @@ public:
     void DeactivateParms();
     bool IsSameGeomSet();
     bool IsNotZeroLineItem(int index);
-    void RefreshDegenGeom();
+    void RefreshBaseDataVectors();
+    bool HasSameNames();
 
     // Reference Qualities Parms
     Parm m_Sref;
@@ -282,6 +283,7 @@ private:
     vector <bool> geo_masterRow;
     vector <string> geo_geomID;
     vector <string> geo_subsurfID;
+    vector <string> geo_name;
     vector <string> geo_label;
     vector < int > geo_surfNum;
     vector < int > geo_groupedAncestorGen;

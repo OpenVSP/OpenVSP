@@ -741,7 +741,7 @@ void ParasiteDragScreen::UpdateSetChoice()
     m_SetChoice.UpdateItems();
     m_SetChoice.SetVal(ParasiteDragMgr.m_SetChoice());
 
-    ParasiteDragMgr.RefreshDegenGeom();
+    ParasiteDragMgr.RefreshBaseDataVectors();
 }
 
 void ParasiteDragScreen::UpdateChoiceDevices()

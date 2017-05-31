@@ -2888,6 +2888,7 @@ void ParasiteDragMgrSingleton::ClearInputVectors()
     geo_masterRow.clear();
     geo_geomID.clear();
     geo_subsurfID.clear();
+    geo_name.clear();
     geo_label.clear();
     geo_percLam.clear();
     geo_shapeType.clear();
@@ -3203,6 +3204,7 @@ bool ParasiteDragMgrSingleton::IsSameGeomSet()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    // Create New Vector of IDs to Compare
     vector <string> newIDVec = veh->GetGeomSet(m_SetChoice());
     vector < string > newVecToCompare;
     for (int i = 0; i < newIDVec.size(); i++)
@@ -3218,6 +3220,7 @@ bool ParasiteDragMgrSingleton::IsSameGeomSet()
         }
     }
 
+    // Create Row Size to Compare
     int temprowsize = 0;
     for (int i = 0; i < newVecToCompare.size(); i++)
     {
@@ -3231,11 +3234,37 @@ bool ParasiteDragMgrSingleton::IsSameGeomSet()
                 {
                     ++temprowsize;
                 }
+
+                // Subsurfaces are essentially seperate geometries and as such get their own master row
+                if (geom->GetSubSurfVec()[j]->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT)
+                {
+                    ++temprowsize;
+                }
             }
         }
     }
 
-    if (temprowsize == m_RowSize && newVecToCompare == m_PDGeomIDVec)
+    // Compare IDs
+    bool isSameGeomVec = true;
+    for (size_t i = 0; i < newVecToCompare.size(); ++i)
+    {
+        bool exists = false;
+        for (size_t j = 0; j < m_PDGeomIDVec.size(); ++j)
+        {
+            if (newVecToCompare[i].compare(m_PDGeomIDVec[j]) == 0)
+            {
+                exists = true;
+                break;
+            }
+        }
+        if (!exists)
+        {
+            isSameGeomVec = false;
+            break;
+        }
+    }
+
+    if (temprowsize == m_RowSize - m_PDGeomIDVec.size() && isSameGeomVec) // Subtract Number of Master Rows Added
     {
         return true;
     }
@@ -3286,17 +3315,52 @@ bool ParasiteDragMgrSingleton::IsNotZeroLineItem(int index)
     return false;
 }
 
-void ParasiteDragMgrSingleton::RefreshDegenGeom()
+void ParasiteDragMgrSingleton::RefreshBaseDataVectors()
 {    // Check For Similarity in Geom Set
-    if (!IsSameGeomSet())
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if (!IsSameGeomSet() || !HasSameNames())
     {
         // Reset Geo Vecs & Clear Degen Geom
-        VehicleMgr.GetVehicle()->ClearDegenGeom();
+        veh->ClearDegenGeom();
         m_DegenGeomVec.clear();
+
         ClearInputVectors();
         ClearOutputVectors();
 
         // Set New Active Geom Vec
         SetActiveGeomVec();
     }
+}
+
+bool ParasiteDragMgrSingleton::HasSameNames()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    // Compare Names (If names have changed, Comp Geom Tags are incorrect)
+    vector < bool > sameName(geo_name.size(), false);
+    if (geo_name.size() > 0)
+    {
+        for (size_t i = 0; i < m_PDGeomIDVec.size(); ++i)
+        {
+            for (size_t j = 0; j < geo_name.size(); ++j)
+            {
+                if (veh->FindGeom(m_PDGeomIDVec[i])->GetName().compare(geo_name[j]) == 0)
+                {
+                    sameName[j] = true;
+                }
+                for (size_t k = 0; k < veh->FindGeom(m_PDGeomIDVec[i])->GetSubSurfVec().size(); ++k)
+                {
+                    if (veh->FindGeom(m_PDGeomIDVec[i])->GetSubSurfVec()[k]->GetName().compare(geo_name[j]) == 0)
+                    {
+                        sameName[j] = true;
+                    }
+                }
+            }
+        }
+
+        if (!CheckAllTrue(sameName))
+        {
+            return false;
+        }
+    }
+    return true;
 }
