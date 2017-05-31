@@ -1321,6 +1321,8 @@ void StructScreen::CallBack( Fl_Widget* w )
 
                 if ( m_SelectedPartIndexVec.size() == 1 )
                 {
+                    StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
+
                     if ( m_SelectedPartIndexVec[0] < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
                     {
                         FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( m_SelectedPartIndexVec[0] );
