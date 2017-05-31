@@ -31,6 +31,14 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 
     int start_y = m_GenLayout.GetY();
 
     //==== FeaSlice ====//
+    m_GenLayout.AddSubGroupLayout( m_SkinEditLayout, m_GenLayout.GetW(), m_GenLayout.GetH() );
+    m_SkinEditLayout.SetY( start_y );
+
+    m_SkinEditLayout.AddDividerBox( "Skin" );
+
+    m_SkinEditLayout.AddButton( m_RemoveSkinTrisToggle, "Remove Skin Tris" );
+
+    //==== FeaSlice ====//
     m_GenLayout.AddSubGroupLayout( m_SliceEditLayout, m_GenLayout.GetW(), m_GenLayout.GetH() );
     m_SliceEditLayout.SetY( start_y );
 
@@ -364,7 +372,16 @@ bool FeaPartEditScreen::Update()
                 {
                     m_FeaPartNameInput.Update( feaprt->GetName() );
 
-                    if ( feaprt->GetType() == vsp::FEA_SLICE )
+                    if ( feaprt->GetType() == vsp::FEA_SKIN )
+                    {
+                        FeaSkin* skin = dynamic_cast<FeaSkin*>( feaprt );
+                        assert( skin );
+
+                        m_RemoveSkinTrisToggle.Update( skin->m_RemoveSkinTrisFlag.GetID() );
+
+                        FeaPartDispGroup( &m_SkinEditLayout );
+                    }
+                    else if ( feaprt->GetType() == vsp::FEA_SLICE )
                     {
                         FeaSlice* slice = dynamic_cast<FeaSlice*>( feaprt );
                         assert( slice );
@@ -1091,6 +1108,7 @@ void FeaPartEditScreen::FeaPartDispGroup( GroupLayout* group )
         return;
     }
 
+    m_SliceEditLayout.Hide();
     m_SliceEditLayout.Hide();
     m_RibEditLayout.Hide();
     m_SparEditLayout.Hide();

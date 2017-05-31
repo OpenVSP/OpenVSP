@@ -35,6 +35,7 @@ private:
 
     GroupLayout m_GenLayout;
     GroupLayout* m_CurFeaPartDispGroup;
+    GroupLayout m_SkinEditLayout;
     GroupLayout m_SliceEditLayout;
     GroupLayout m_RibEditLayout;
     GroupLayout m_SparEditLayout;
@@ -54,6 +55,9 @@ private:
     ToggleButton m_CapToggle;
     ToggleButton m_ShellCapToggle;
     ToggleRadioGroup m_ShellCapToggleGroup;
+
+    //===== Skin =====//
+    ToggleButton m_RemoveSkinTrisToggle;
 
     //===== Slice =====//
     Choice m_SlicePropertyChoice;

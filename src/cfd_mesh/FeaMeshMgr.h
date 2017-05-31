@@ -74,6 +74,7 @@ public:
     virtual void CheckSubSurfBorderIntersect();
     virtual void CheckDuplicateSSIntersects();
     virtual void RemoveSubSurfFeaTris();
+    virtual void RemoveSkinTris();
     virtual void TagFeaNodes();
 
     virtual int GetTotalNumSurfs()
@@ -158,6 +159,8 @@ protected:
     int m_NumFeaParts;
     int m_NumFeaSubSurfs;
     int m_NumFeaFixPoints;
+
+    bool m_RemoveSkinTris;
 
     vector < string > m_FeaPartNameVec;
     vector < int > m_FeaPartTypeVec;

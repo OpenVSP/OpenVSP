@@ -362,6 +362,8 @@ public:
 
     virtual void UpdateDrawObjs( int id, bool highlight )    {}; // Do nothing for skins
 
+    BoolParm m_RemoveSkinTrisFlag;
+
 protected:
 
 

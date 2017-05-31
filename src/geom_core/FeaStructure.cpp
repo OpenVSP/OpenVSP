@@ -2297,6 +2297,9 @@ FeaSkin::FeaSkin( string geomID, int type ) : FeaPart( geomID, type )
 {
     m_IncludedElements.Set( TRIS );
     m_DrawFeaPartFlag.Set( false );
+
+    m_RemoveSkinTrisFlag.Init( "RemoveSkinTrisFlag", "FeaSkin", this, false, false, true );
+    m_RemoveSkinTrisFlag.SetDescript( "Flag to Remove Skin Triangles" );
 }
 
 void FeaSkin::Update()
