@@ -847,7 +847,7 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_FFWingEqnType.Init("FFWingEqnType", "ParasiteDragProps", this, vsp::FF_W_HOERNER, vsp::FF_W_MANUAL, vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF );
     m_FFWingEqnType.SetDescript("Equation that defines the form factor of a wing type surface included this Geom");
 
-    m_FFUser.Init("FFUser", "ParasiteDragProps", this, -1, -1, 10 );
+    m_FFUser.Init("FFUser", "ParasiteDragProps", this, 1, -1, 10 );
     m_FFUser.SetDescript( "User Input Form Factor Value" );
 
     m_Q.Init("Q", "ParasiteDragProps", this, 1, 0, 3 );

@@ -966,7 +966,7 @@ void ParasiteDragMgrSingleton::Calculate_f()
         }
 
         // If no value input as FF, use calculated
-        if (geo_ffIn[i] != -1)
+        if (geo_ffType[i] == vsp::FF_B_MANUAL || geo_ffType[i] == vsp::FF_W_MANUAL )
         {
             ff = geo_ffIn[i];
         }
