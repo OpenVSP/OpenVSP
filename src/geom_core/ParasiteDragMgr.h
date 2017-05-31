@@ -22,6 +22,7 @@
 // Structure containing all main table data
 struct ParasiteDragTableRow
 {
+    bool MasterRow;
     string GeomID;
     string SubSurfID;
     string Label;
@@ -275,6 +276,7 @@ private:
     double m_Sweep50;
 
     // Main Build Up Table Variables
+    vector <bool> geo_masterRow;
     vector <string> geo_geomID;
     vector <string> geo_subsurfID;
     vector <string> geo_label;
