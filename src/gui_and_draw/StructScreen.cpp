@@ -1116,6 +1116,77 @@ bool StructScreen::Update()
         //==== Update FeaPart Choice ====//
         UpdateFeaPartChoice();
 
+        //===== FeaProperty Update =====//
+        UpdateFeaPropertyBrowser();
+        UpdateFeaPropertyChoice();
+
+        if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
+        {
+            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[m_SelectedPropertyIndex];
+            if ( fea_prop )
+            {
+                m_FeaPropertyNameInput.Update( fea_prop->GetName() );
+
+                if ( fea_prop->m_FeaPropertyType() == SHELL_PROPERTY )
+                {
+                    m_PropThickSlider.Update( fea_prop->m_Thickness.GetID() );
+
+                    FeaPropertyDispGroup( &m_FeaPropertyShellGroup );
+                }
+                else if ( fea_prop->m_FeaPropertyType() == BEAM_PROPERTY )
+                {
+                    m_PropAreaSlider.Update( fea_prop->m_CrossSecArea.GetID() );
+                    m_PropIzzSlider.Update( fea_prop->m_Izz.GetID() );
+                    m_PropIyySlider.Update( fea_prop->m_Iyy.GetID() );
+                    m_PropIzySlider.Update( fea_prop->m_Izy.GetID() );
+                    m_PropIxxSlider.Update( fea_prop->m_Ixx.GetID() );
+
+                    FeaPropertyDispGroup( &m_FeaPropertyBeamGroup );
+                }
+            }
+            else
+            {
+                FeaPropertyDispGroup( NULL );
+            }
+        }
+        else
+        {
+            FeaPropertyDispGroup( NULL );
+        }
+
+        //===== FeaMaterial Update =====//
+        UpdateFeaMaterialBrowser();
+        UpdateFeaMaterialChoice();
+
+        if ( StructureMgr.ValidFeaMaterialInd( m_SelectedMaterialIndex ) )
+        {
+            FeaMaterial* fea_mat = StructureMgr.GetFeaMaterialVec()[m_SelectedMaterialIndex];
+            if ( fea_mat )
+            {
+                m_FeaMaterialNameInput.Update( fea_mat->GetName() );
+                m_MatDensitySlider.Update( fea_mat->m_MassDensity.GetID() );
+                m_MatElasticModSlider.Update( fea_mat->m_ElasticModulus.GetID() );
+                m_MatPoissonSlider.Update( fea_mat->m_PoissonRatio.GetID() );
+                m_MatThermalExCoeffSlider.Update( fea_mat->m_ThermalExpanCoeff.GetID() );
+
+                if ( fea_mat->m_UserFeaMaterial )
+                {
+                    m_FeaMaterialNameInput.Activate();
+                    m_MatDensitySlider.Activate();
+                    m_MatElasticModSlider.Activate();
+                    m_MatPoissonSlider.Activate();
+                    m_MatThermalExCoeffSlider.Activate();
+                }
+                else
+                {
+                m_FeaMaterialNameInput.Deactivate();
+                m_MatDensitySlider.Deactivate();
+                m_MatElasticModSlider.Deactivate();
+                m_MatPoissonSlider.Deactivate();
+                m_MatThermalExCoeffSlider.Deactivate();
+                }
+            }
+        }
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
         {
@@ -1172,95 +1243,82 @@ bool StructScreen::Update()
 
             m_SpacedPartsInput.Update( curr_struct->GetStructSettingsPtr()->m_MultiSliceSpacing.GetID() );
 
-            if ( curr_struct->GetStructSettingsPtr()->m_MultSliceIncludedElements() == TRIS || curr_struct->GetStructSettingsPtr()->m_MultSliceIncludedElements() == BOTH_ELEMENTS )
+            if ( curr_struct->GetStructSettingsPtr()->m_MultSliceIncludedElements() == BOTH_ELEMENTS )
             {
                 m_MultSlicePropChoice.Activate();
-            }
-            else
-            {
-                m_MultSlicePropChoice.Deactivate();
-            }
-
-            if ( curr_struct->GetStructSettingsPtr()->m_MultSliceIncludedElements() == BEAM || curr_struct->GetStructSettingsPtr()->m_MultSliceIncludedElements() == BOTH_ELEMENTS )
-            {
                 m_MultSliceCapPropChoice.Activate();
             }
-            else
+            else if ( curr_struct->GetStructSettingsPtr()->m_MultSliceIncludedElements() == TRIS )
             {
+                m_MultSlicePropChoice.Activate();
                 m_MultSliceCapPropChoice.Deactivate();
             }
-
-            //===== FeaProperty Update =====//
-            UpdateFeaPropertyBrowser();
-            UpdateFeaPropertyChoice();
-
-            if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
+            else if ( curr_struct->GetStructSettingsPtr()->m_MultSliceIncludedElements() == BEAM )
             {
-                FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[m_SelectedPropertyIndex];
-                if ( fea_prop )
-                {
-                    m_FeaPropertyNameInput.Update( fea_prop->GetName() );
+                m_MultSlicePropChoice.Deactivate();
+                m_MultSliceCapPropChoice.Activate();
+            }
 
-                    if ( fea_prop->m_FeaPropertyType() == SHELL_PROPERTY )
-                    {
-                        m_PropThickSlider.Update( fea_prop->m_Thickness.GetID() );
-
-                        FeaPropertyDispGroup( &m_FeaPropertyShellGroup );
-                    }
-                    else if ( fea_prop->m_FeaPropertyType() == BEAM_PROPERTY )
-                    {
-                        m_PropAreaSlider.Update( fea_prop->m_CrossSecArea.GetID() );
-                        m_PropIzzSlider.Update( fea_prop->m_Izz.GetID() );
-                        m_PropIyySlider.Update( fea_prop->m_Iyy.GetID() );
-                        m_PropIzySlider.Update( fea_prop->m_Izy.GetID() );
-                        m_PropIxxSlider.Update( fea_prop->m_Ixx.GetID() );
-
-                        FeaPropertyDispGroup( &m_FeaPropertyBeamGroup );
-                    }
-                }
-                else
-                {
-                    FeaPropertyDispGroup( NULL );
-                }
+            if ( m_SelectedPartIndexVec.size() > 0 )
+            {
+                FeaStructDispGroup( &m_PartGroup );
+                m_GenPropertyChoice.Activate();
+                m_GenCapPropertyChoice.Activate();
             }
             else
             {
-                FeaPropertyDispGroup( NULL );
+                FeaStructDispGroup( NULL );
             }
 
-            //===== FeaMaterial Update =====//
-            UpdateFeaMaterialBrowser();
-            UpdateFeaMaterialChoice();
-
-            if ( StructureMgr.ValidFeaMaterialInd( m_SelectedMaterialIndex ) )
+            if ( m_SelectedPartIndexVec.size() == 1 )
             {
-                FeaMaterial* fea_mat = StructureMgr.GetFeaMaterialVec()[m_SelectedMaterialIndex];
-                if ( fea_mat )
+                if ( m_SelectedPartIndexVec[0] < curr_struct->NumFeaParts() )
                 {
-                    m_FeaMaterialNameInput.Update( fea_mat->GetName() );
-                    m_MatDensitySlider.Update( fea_mat->m_MassDensity.GetID() );
-                    m_MatElasticModSlider.Update( fea_mat->m_ElasticModulus.GetID() );
-                    m_MatPoissonSlider.Update( fea_mat->m_PoissonRatio.GetID() );
-                    m_MatThermalExCoeffSlider.Update( fea_mat->m_ThermalExpanCoeff.GetID() );
+                    FeaPart* prt = curr_struct->GetFeaPart( m_SelectedPartIndexVec[0] );
 
-                    if ( fea_mat->m_UserFeaMaterial )
+                    if ( prt )
                     {
-                        m_FeaMaterialNameInput.Activate();
-                        m_MatDensitySlider.Activate();
-                        m_MatElasticModSlider.Activate();
-                        m_MatPoissonSlider.Activate();
-                        m_MatThermalExCoeffSlider.Activate();
+                        m_FeaPartNameInput.Update( prt->GetName() );
+                        m_ShellCapToggleGroup.Update( prt->m_IncludedElements.GetID() );
+
+                        if ( prt->m_IncludedElements() == TRIS )
+                        {
+                            m_GenPropertyChoice.Activate();
+                            m_GenCapPropertyChoice.Deactivate();
+                        }
+                        else if ( prt->m_IncludedElements() == BEAM )
+                        {
+                            m_GenPropertyChoice.Deactivate();
+                            m_GenCapPropertyChoice.Activate();
+                        }
                     }
-                    else
+                }
+                else if ( m_SelectedPartIndexVec[0] >= curr_struct->NumFeaParts() )
+                {
+                    SubSurface* subsurf = curr_struct->GetFeaSubSurf( m_SelectedPartIndexVec[0] - curr_struct->NumFeaParts() );
+
+                    if ( subsurf )
                     {
-                        m_FeaMaterialNameInput.Deactivate();
-                        m_MatDensitySlider.Deactivate();
-                        m_MatElasticModSlider.Deactivate();
-                        m_MatPoissonSlider.Deactivate();
-                        m_MatThermalExCoeffSlider.Deactivate();
+                        m_FeaPartNameInput.Update( subsurf->GetName() );
+                        m_ShellCapToggleGroup.Update( subsurf->m_IncludedElements.GetID() );
+
+                        if ( subsurf->m_IncludedElements() == TRIS )
+                        {
+                            m_GenPropertyChoice.Activate();
+                            m_GenCapPropertyChoice.Deactivate();
+                        }
+                        else if ( subsurf->m_IncludedElements() == BEAM )
+                        {
+                            m_GenPropertyChoice.Deactivate();
+                            m_GenCapPropertyChoice.Activate();
+                        }
                     }
                 }
             }
+        }
+        else
+        {
+            FeaStructDispGroup( NULL );
         }
 
         // Update Draw Objects for FeaParts
