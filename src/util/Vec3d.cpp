@@ -1122,13 +1122,13 @@ double pointLineDistSquared( vec3d& X0, vec3d& X1, vec3d& X2, double* t )
 
     double denom = dist_squared( X2, X1 );
 
-    if ( denom < 0.000000001 )
+    if ( denom < 1e-9 ) // was 1e-9
     {
         *t = 0.0;
     }
     else
     {
-        *t = -dot( X10, X21 ) / dist_squared( X2, X1 );
+        *t = -dot( X10, X21 ) / denom;
     }
 
     vec3d Xon = X1 + X21 * ( *t );
@@ -1149,13 +1149,11 @@ double pointSegDistSquared( vec3d& p, vec3d& sp0, vec3d& sp1, double* t )
     if ( *t < 0 )
     {
         *t = 0;
-        vec3d vec = p - sp0;
         dSqr = dist_squared( p, sp0 );
     }
     else if ( *t > 1 )
     {
         *t = 1;
-        vec3d vec = p - sp1;
         dSqr = dist_squared( p, sp1 );
     }
 
