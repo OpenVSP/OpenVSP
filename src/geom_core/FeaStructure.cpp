@@ -2295,7 +2295,7 @@ void FeaFixPoint::UpdateDrawObjs( int id, bool highlight )
 
 FeaSkin::FeaSkin( string geomID, int type ) : FeaPart( geomID, type )
 {
-
+    m_IncludedElements.Set( TRIS );
     m_DrawFeaPartFlag.Set( false );
 }
 

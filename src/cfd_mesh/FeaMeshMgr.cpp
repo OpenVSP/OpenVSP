@@ -219,7 +219,6 @@ void FeaMeshMgrSingleton::TransferSubSurfData()
 
 void FeaMeshMgrSingleton::GenerateFeaMesh()
 {
-    //m_OutStream.clear();
     m_FeaMeshInProgress = true;
 
     TransferMeshSettings();
@@ -423,7 +422,7 @@ void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
 
                         if ( match )
                         {
-                            if ( ( *c1 )->m_SSIntersectIndex < ( *c2 )->m_SSIntersectIndex )
+                            if ( ( *c1 )->m_SSIntersectIndex < ( *c2 )->m_SSIntersectIndex ) // Priority given to lower SubSurface index
                             {
                                 ( *c2 )->m_BorderFlag = false;
                                 ( *c2 )->m_SSIntersectIndex = -1;
@@ -1115,6 +1114,8 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
 
                                     vec3d corner0 = surf->CompPnt( uw_pnt0[0], uw_pnt0[1] );
                                     vec3d corner1 = surf->CompPnt( uw_pnt1[0], uw_pnt1[1] );
+
+                                    //TODO: Need to identify if the subsurface edge/border curve has been split by another subsurface
 
                                     if ( ( dist( ( *c )->m_TessVec[0]->m_Pnt, corner0 ) <= FLT_EPSILON
                                             && dist( ( *c )->m_TessVec.back()->m_Pnt, corner1 ) <= FLT_EPSILON )
