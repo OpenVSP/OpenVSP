@@ -1220,13 +1220,27 @@ void ParasiteDragScreen::GuiDeviceCallBack(GuiDevice* device)
         {
             if (device == &m_ffType[i])
             {
-                if (rowVec[i].GeomShapeType == vsp::NORMAL_SURF)
+                if (rowVec[i].SubSurfID.compare("") == 0)
                 {
-                    vptr->FindGeom(rowVec[i].GeomID)->m_FFBodyEqnType.Set(m_ffType[i].GetVal());
+                    if (rowVec[i].GeomShapeType == vsp::NORMAL_SURF)
+                    {
+                        vptr->FindGeom(rowVec[i].GeomID)->m_FFBodyEqnType.Set(m_ffType[i].GetVal());
+                    }
+                    else if (rowVec[i].GeomShapeType == vsp::WING_SURF)
+                    {
+                        vptr->FindGeom(rowVec[i].GeomID)->m_FFWingEqnType.Set(m_ffType[i].GetVal());
+                    }
                 }
-                else if (rowVec[i].GeomShapeType == vsp::WING_SURF)
+                else
                 {
-                    vptr->FindGeom(rowVec[i].GeomID)->m_FFWingEqnType.Set(m_ffType[i].GetVal());
+                    if (rowVec[i].GeomShapeType == vsp::NORMAL_SURF)
+                    {
+                        vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_FFBodyEqnType.Set(m_ffType[i].GetVal());
+                    }
+                    else if (rowVec[i].GeomShapeType == vsp::WING_SURF)
+                    {
+                        vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_FFWingEqnType.Set(m_ffType[i].GetVal());
+                    }
                 }
             }
             if (device == &m_grouped[i])
@@ -1235,46 +1249,80 @@ void ParasiteDragScreen::GuiDeviceCallBack(GuiDevice* device)
             }
             if (device == &m_labels[i])
             {
-                if (vptr->FindGeom(rowVec[i].GeomID)->GetNumSymmCopies() > 1 || vptr->FindGeom(rowVec[i].GeomID)->GetSubSurfVec().size() > 0 ||
-                    vptr->FindGeom(rowVec[i].GeomID)->GetType().m_Type == CUSTOM_GEOM_TYPE)
-                {
-                    bool expandflag = vptr->FindGeom(rowVec[i].GeomID)->m_ExpandedListFlag();
-                    vptr->FindGeom(rowVec[i].GeomID)->m_ExpandedListFlag.Set(!expandflag);
-                }
+                bool expandflag = vptr->FindGeom(rowVec[i].GeomID)->m_ExpandedListFlag();
+                vptr->FindGeom(rowVec[i].GeomID)->m_ExpandedListFlag.Set(!expandflag);
             }
             if (device == &m_subsurfinclude[i])
             {
-                bool includeflag = vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_IncludeFlag();
-                vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_IncludeFlag.Set(!includeflag);
+                vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_IncludeType.Set(m_subsurfinclude[i].GetVal());
             }
             if (device == &m_ffIn[i])
             {
-                try
+                if (rowVec[i].SubSurfID.compare("") == 0)
                 {
-                    vptr->FindGeom(rowVec[i].GeomID)->m_FFUser.Set(stod(m_ffIn[i].GetString()));
+                    try
+                    {
+                        vptr->FindGeom(rowVec[i].GeomID)->m_FFUser.Set(stod(m_ffIn[i].GetString()));
+                    }
+                    catch (const std::exception&)
+                    {
+                    }
                 }
-                catch (const std::exception&)
+                else
                 {
+                    try
+                    {
+                        vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_FFUser.Set(stod(m_ffIn[i].GetString()));
+                    }
+                    catch (const std::exception&)
+                    {
+                    }
                 }
             }
             if (device == &m_percLam[i])
             {
-                try
+                if (rowVec[i].SubSurfID.compare("") == 0)
                 {
-                    vptr->FindGeom(rowVec[i].GeomID)->m_PercLam.Set(stod(m_percLam[i].GetString()));
+                    try
+                    {
+                        vptr->FindGeom(rowVec[i].GeomID)->m_PercLam.Set(stod(m_percLam[i].GetString()));
+                    }
+                    catch (const std::exception&)
+                    {
+                    }
                 }
-                catch (const std::exception&)
+                else
                 {
+                    try
+                    {
+                        vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_PercLam.Set(stod(m_percLam[i].GetString()));
+                    }
+                    catch (const std::exception&)
+                    {
+                    }
                 }
             }
             if (device == &m_Q[i])
             {
-                try
+                if (rowVec[i].SubSurfID.compare("") == 0)
                 {
-                    vptr->FindGeom(rowVec[i].GeomID)->m_Q.Set(stod(m_Q[i].GetString()));
+                    try
+                    {
+                        vptr->FindGeom(rowVec[i].GeomID)->m_Q.Set(stod(m_Q[i].GetString()));
+                    }
+                    catch (const std::exception&)
+                    {
+                    }
                 }
-                catch (const std::exception&)
+                else
                 {
+                    try
+                    {
+                        vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_Q.Set(stod(m_Q[i].GetString()));
+                    }
+                    catch (const std::exception&)
+                    {
+                    }
                 }
             }
         }
@@ -1703,9 +1751,24 @@ void ParasiteDragScreen::AddGeomsToTable()
             }
             else
             {
-                if (veh->FindGeom(rowVec[i].GeomID)->m_ExpandedListFlag())
+                int subsurfflag = 1;
+                if (veh->FindGeom(rowVec[i].GeomID)->m_ExpandedListFlag() ||
+                    veh->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT)
                 {
                     SetupSubSurfInclude(i, rowVec[i].GeomID, rowVec[i].SubSurfID);
+                    if (veh->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT)
+                    {
+                        SetupFFType(i, rowVec[i].GeomShapeType, rowVec[i].FFEqnChoice);
+                        SetupFFValue(i, rowVec[i].FF, rowVec[i].FFEqnChoice);
+                        SetupLref(i, rowVec[i].Lref);
+                        SetupFineRat(i, rowVec[i].fineRat);
+                        SetupReyNum(i, rowVec[i].Re);
+                        SetupRoughness(i, rowVec[i].Roughness);
+                        SetupHeatTransfer(i, rowVec[i].TeTwRatio, rowVec[i].TawTwRatio);
+                        SetupPercLaminar(i, rowVec[i].PercLam);
+                        SetupCf(i, rowVec[i].Cf);
+                        SetupQ(i, rowVec[i].Q);
+                    }
                     Setupf(i, rowVec[i].f);
                     SetupCD(i, rowVec[i].CD);
                     SetupPercCD(i, rowVec[i].PercTotalCD);
@@ -2086,10 +2149,11 @@ void ParasiteDragScreen::SetupSubSurfInclude(int index, const string geomid, con
     m_TableLayout.AddChoice(m_subsurfinclude[index], "");
     m_subsurfinclude[index].ClearItems();
 
-    m_subsurfinclude[index].AddItem("IGNORE");
-    m_subsurfinclude[index].AddItem("INCLUDE");
+    m_subsurfinclude[index].AddItem("Treat as Parent");
+    m_subsurfinclude[index].AddItem("Separate Treatment");
+    m_subsurfinclude[index].AddItem("Zero Drag");
     m_subsurfinclude[index].UpdateItems();
-    m_subsurfinclude[index].SetVal(veh->FindGeom(geomid)->GetSubSurf(subsurfid)->m_IncludeFlag());
+    m_subsurfinclude[index].SetVal(veh->FindGeom(geomid)->GetSubSurf(subsurfid)->m_IncludeType());
 }
 
 void ParasiteDragScreen::SetupExcresType(int index, const string type)
