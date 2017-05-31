@@ -153,6 +153,9 @@ private:
     Choice m_GenMaterialChoice;
     Choice m_GenCapPropertyChoice;
     Choice m_GenCapMaterialChoice;
+    ToggleButton m_ShowFeaPartButton;
+    ToggleButton m_HideFeaPartButton;
+    ToggleRadioGroup m_DispFeaPartGroup;
 
     //===== Material Tab =====//
     TriggerButton m_AddFeaMaterialButton;
@@ -228,7 +231,6 @@ private:
     StringOutput m_CalcOutput;
 
     //===== Draw Tab Items =====//
-    ToggleButton m_DrawFeaPartsButton;
     ToggleButton m_DrawMeshButton;
     ToggleButton m_ColorElementsButton;
     ToggleButton m_ShowBadEdgeTriButton;

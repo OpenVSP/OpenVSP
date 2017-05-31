@@ -148,6 +148,19 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
     return node;
 }
 
+void FeaStructure::SetDrawFlag( bool flag )
+{
+    for ( size_t i = 0; i < m_FeaPartVec.size(); i++ )
+    {
+        m_FeaPartVec[i]->m_DrawFeaPartFlag.Set( flag );
+    }
+
+    for ( size_t i = 0; i < m_FeaSubSurfVec.size(); i++ )
+    {
+        m_FeaSubSurfVec[i]->m_DrawFeaPartFlag.Set( flag );
+    }
+}
+
 FeaPart* FeaStructure::AddFeaPart( int type )
 {
     FeaPart* feaprt = new FeaPart( m_ParentGeomID, type );
@@ -678,6 +691,9 @@ FeaPart::FeaPart( string geomID, int type )
 
     m_IncludedElements.Init( "IncludedElements", "FeaPart", this, TRIS, TRIS, BOTH_ELEMENTS );
     m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the FeaPart" );
+
+    m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "FeaPart", this, true, false, true );
+    m_DrawFeaPartFlag.SetDescript( "Flag to Draw FeaPart" );
 
     m_FeaPropertyIndex = 0; // Shell property default
     m_CapFeaPropertyIndex = 1; // Beam property default
@@ -2280,6 +2296,7 @@ void FeaFixPoint::UpdateDrawObjs( int id, bool highlight )
 FeaSkin::FeaSkin( string geomID, int type ) : FeaPart( geomID, type )
 {
 
+    m_DrawFeaPartFlag.Set( false );
 }
 
 void FeaSkin::Update()

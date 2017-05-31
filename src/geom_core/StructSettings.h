@@ -50,7 +50,6 @@ public:
     IntParm m_NumEvenlySpacedPart;
     Parm m_MultiSliceSpacing;
     IntParm m_MultSliceIncludedElements;
-    BoolParm m_DrawFeaPartsFlag;
     BoolParm m_DrawNodesFlag;
     BoolParm m_DrawElementOrientVecFlag;
 

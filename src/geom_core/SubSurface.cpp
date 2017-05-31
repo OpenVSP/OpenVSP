@@ -66,6 +66,9 @@ SubSurface::SubSurface( string compID, int type )
     m_IncludedElements.Init( "IncludedElements", "SubSurface", this, TRIS, TRIS, BOTH_ELEMENTS );
     m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the SubSurface" );
 
+    m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "SubSurface", this, true, false, true );
+    m_DrawFeaPartFlag.SetDescript( "Flag to Draw FEA SubSurface" );
+
     m_FeaPropertyIndex = 0; // Shell Property Default
     m_CapFeaPropertyIndex = 1; // Beam property default
 }

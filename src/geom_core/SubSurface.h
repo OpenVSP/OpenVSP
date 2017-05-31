@@ -168,6 +168,7 @@ public:
     Parm m_TawTwRatio;
 
     IntParm m_IncludedElements;
+    BoolParm m_DrawFeaPartFlag;
 
 protected:
     string m_CompID; // Component ID used to match Subsurface to a specific geom

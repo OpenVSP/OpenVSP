@@ -46,9 +46,6 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_MultSliceIncludedElements.Init( "MultSliceIncludedElements", "StructSettings", this, TRIS, TRIS, BOTH_ELEMENTS );
     m_MultSliceIncludedElements.SetDescript( "Indicates the FeaElements to be Included for the Added Slices" );
 
-    m_DrawFeaPartsFlag.Init( "DrawFeaPartsFlag", "FeaPart", this, true, false, true );
-    m_DrawFeaPartsFlag.SetDescript( "Flag to Draw FeaParts" );
-
     m_DrawNodesFlag.Init( "DrawNodesFlag", "FeaPart", this, false, false, true );
     m_DrawNodesFlag.SetDescript( "Flag to Draw FeaNodes" );
 

@@ -43,6 +43,8 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void SetDrawFlag( bool flag );
+
     virtual void AddFeaPart( FeaPart* fea_part )
     {
         m_FeaPartVec.push_back( fea_part );
@@ -205,6 +207,7 @@ public:
 
     IntParm m_MainSurfIndx;
     IntParm m_IncludedElements;
+    BoolParm m_DrawFeaPartFlag;
 
 protected:
 

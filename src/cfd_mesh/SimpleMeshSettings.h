@@ -103,7 +103,6 @@ public:
 
     bool m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES];
     int m_NumEvenlySpacedPart;
-    double m_DrawFeaPartsFlag;
     double m_DrawNodesFlag;
     double m_DrawElementOrientVecFlag;
 

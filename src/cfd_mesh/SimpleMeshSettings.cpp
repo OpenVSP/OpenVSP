@@ -128,7 +128,6 @@ void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
 {
     m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES] = settings->m_ExportFileFlags;
     int m_NumEvenlySpacedPart = settings->m_NumEvenlySpacedPart.Get();
-    double m_DrawFeaPartsFlag = settings->m_DrawFeaPartsFlag.Get();
     double m_DrawNodesFlag = settings->m_DrawNodesFlag.Get();
     double m_DrawElementOrientVecFlag = settings->m_DrawElementOrientVecFlag.Get();
 

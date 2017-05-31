@@ -16,6 +16,7 @@
 #include "Display.h"
 #include "Camera.h"
 #include "FeaPartEditScreen.h"
+#include "ParmMgr.h"
 
 using namespace vsp;
 
@@ -293,6 +294,19 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_PartGroup.AddChoice( m_GenCapPropertyChoice, "Cap Property" );
     m_PartGroup.AddChoice( m_GenCapMaterialChoice, "Cap Material" );
+    m_PartGroup.AddYGap();
+
+    m_PartGroup.SetSameLineFlag( true );
+    m_PartGroup.SetFitWidthFlag( false );
+
+    m_PartGroup.SetButtonWidth( m_PartGroup.GetRemainX() / 2 );
+
+    m_PartGroup.AddButton( m_ShowFeaPartButton, "Show" );
+    m_PartGroup.AddButton( m_HideFeaPartButton, "Hide" );
+
+    m_DispFeaPartGroup.Init( this );
+    m_DispFeaPartGroup.AddButton( m_HideFeaPartButton.GetFlButton() );
+    m_DispFeaPartGroup.AddButton( m_ShowFeaPartButton.GetFlButton() );
 
     //=== Material Tab ===//
     m_MaterialTabLayout.SetGroupAndScreen( matTabGroup, this );
@@ -494,9 +508,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
 
     m_DisplayTabLayout.AddDividerBox( "Display" );
-
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_DrawFeaPartsButton, "Draw FeaParts" );
 
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_DrawMeshButton, "Draw Mesh" );
@@ -1359,7 +1370,6 @@ bool StructScreen::Update()
             m_HalfMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.GetID() );
 
             //===== Display Tab Toggle Update =====//
-            m_DrawFeaPartsButton.Update( curr_struct->GetStructSettingsPtr()->m_DrawFeaPartsFlag.GetID() );
             m_DrawMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
             m_ShowBadEdgeTriButton.Update( curr_struct->GetStructSettingsPtr()->m_DrawBadFlag.GetID() );
             m_ColorElementsButton.Update( curr_struct->GetStructSettingsPtr()->m_ColorTagsFlag.GetID() );
@@ -1417,6 +1427,7 @@ bool StructScreen::Update()
                 FeaStructDispGroup( &m_PartGroup );
                 m_GenPropertyChoice.Activate();
                 m_GenCapPropertyChoice.Activate();
+                m_DispFeaPartGroup.Activate();
             }
             else
             {
@@ -1433,14 +1444,16 @@ bool StructScreen::Update()
                     {
                         m_FeaPartNameInput.Update( prt->GetName() );
                         m_ShellCapToggleGroup.Update( prt->m_IncludedElements.GetID() );
+                        m_DispFeaPartGroup.Update( prt->m_DrawFeaPartFlag.GetID() );
+
                         if ( prt->GetType() == vsp::FEA_SKIN )
                         {
-                            m_DrawFeaPartButton.Deactivate();
+                            m_DispFeaPartGroup.Deactivate();
                             m_ShellCapToggleGroup.Deactivate();
                         }
                         else
                         {
-                            m_DrawFeaPartButton.Activate();
+                            m_DispFeaPartGroup.Activate();
                             m_ShellCapToggleGroup.Activate();
                         }
 
@@ -1464,6 +1477,7 @@ bool StructScreen::Update()
                     {
                         m_FeaPartNameInput.Update( subsurf->GetName() );
                         m_ShellCapToggleGroup.Update( subsurf->m_IncludedElements.GetID() );
+                        m_DispFeaPartGroup.Update( subsurf->m_DrawFeaPartFlag.GetID() );
 
                         if ( subsurf->m_IncludedElements() == TRIS )
                         {
@@ -1721,7 +1735,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
             structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->m_DrawMeshFlag = true;
-            structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->m_DrawFeaPartsFlag = false;
+            structvec[StructureMgr.GetCurrStructIndex()]->SetDrawFlag( false );
         }
     }
     else if ( device == &m_GeomChoice )
@@ -2009,6 +2023,46 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                     }
 
                     m_SelectedPartIndexVec = temp_index_vec;
+                }
+            }
+        }
+    }
+    else if ( device == &m_DispFeaPartGroup )
+    {
+        string curr_parm_id = m_DispFeaPartGroup.GetParmID();
+        Parm* curr_parm = ParmMgr.FindParm( curr_parm_id );
+        bool curr_val = curr_parm->Get();
+
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) && m_SelectedPartIndexVec.size() > 1 )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
+            {
+                if ( m_SelectedPartIndexVec[i] < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                {
+                    FeaPart* prt = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( m_SelectedPartIndexVec[i] );
+
+                    if ( prt )
+                    {
+                        if ( prt->GetType() != vsp::FEA_SKIN )
+                        {
+                            prt->m_DrawFeaPartFlag.Set( curr_val );
+                        }
+                        else
+                        {
+                            prt->m_DrawFeaPartFlag.Set( true );
+                        }
+                    }
+                }
+                else if ( m_SelectedPartIndexVec[i] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                {
+                    SubSurface* ssurf = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaSubSurf( m_SelectedPartIndexVec[i] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
+
+                    if ( ssurf )
+                    {
+                        ssurf->m_DrawFeaPartFlag.Set( curr_val );
+                    }
                 }
             }
         }
@@ -2467,29 +2521,32 @@ void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 return;
             }
 
-            if ( curr_struct->GetStructSettingsPtr()->m_DrawFeaPartsFlag() )
-            {
-                vector < FeaPart* > partvec = curr_struct->GetFeaPartVec();
+            vector < FeaPart* > partvec = curr_struct->GetFeaPartVec();
 
-                for ( unsigned int i = 0; i < (int)partvec.size(); i++ )
+            for ( unsigned int i = 0; i < (int)partvec.size(); i++ )
+            {
+                if ( partvec[i]->m_DrawFeaPartFlag() )
                 {
                     partvec[i]->LoadDrawObjs( draw_obj_vec );
                 }
+            }
 
-                vector < SubSurface* > subsurf_vec = curr_struct->GetFeaSubSurfVec();
-                vector < int > active_index_vec;
+            vector < SubSurface* > subsurf_vec = curr_struct->GetFeaSubSurfVec();
+            vector < int > active_index_vec;
 
-                for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
+            for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
+            {
+                if ( m_SelectedPartIndexVec[i] >= curr_struct->NumFeaParts() )
                 {
-                    if ( m_SelectedPartIndexVec[i] >= curr_struct->NumFeaParts() )
-                    {
-                        active_index_vec.push_back( m_SelectedPartIndexVec[i] - curr_struct->NumFeaParts() );
-                    }
+                    active_index_vec.push_back( m_SelectedPartIndexVec[i] - curr_struct->NumFeaParts() );
                 }
+            }
 
-                curr_struct->RecolorFeaSubSurfs( active_index_vec );
+            curr_struct->RecolorFeaSubSurfs( active_index_vec );
 
-                for ( unsigned int i = 0; i < (int)subsurf_vec.size(); i++ )
+            for ( unsigned int i = 0; i < (int)subsurf_vec.size(); i++ )
+            {
+                if ( subsurf_vec[i]->m_DrawFeaPartFlag() )
                 {
                     subsurf_vec[i]->LoadDrawObjs( draw_obj_vec );
                 }
@@ -2526,31 +2583,31 @@ void StructScreen::UpdateDrawObjs()
             return;
         }
 
-        if ( curr_struct->GetStructSettingsPtr()->m_DrawFeaPartsFlag() )
+        int k = 0;
+
+        vector < FeaPart* > curr_part_vec;
+
+        for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
         {
-            int k = 0;
+            curr_part_vec.push_back( curr_struct->GetFeaPart( m_SelectedPartIndexVec[i] ) );
+        }
 
-            vector < FeaPart* > curr_part_vec;
+        vector < FeaPart* > partvec = curr_struct->GetFeaPartVec();
 
-            for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
+        for ( unsigned int i = 0; i < (int)partvec.size(); i++ )
+        {
+            bool match = false;
+
+            for ( size_t j = 0; j < curr_part_vec.size(); j++ )
             {
-                curr_part_vec.push_back( curr_struct->GetFeaPart( m_SelectedPartIndexVec[i] ) );
+                if ( partvec[i] == curr_part_vec[j] )
+                {
+                    match = true;
+                }
             }
 
-            vector < FeaPart* > partvec = curr_struct->GetFeaPartVec();
-
-            for ( unsigned int i = 0; i < (int)partvec.size(); i++ )
+            if ( partvec[i]->m_DrawFeaPartFlag() )
             {
-                bool match = false;
-
-                for ( size_t j = 0; j < curr_part_vec.size(); j++ )
-                {
-                    if ( partvec[i] == curr_part_vec[j] )
-                    {
-                        match = true;
-                    }
-                }
-
                 partvec[i]->UpdateDrawObjs( k, match );
                 k++;
             }
