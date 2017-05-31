@@ -450,6 +450,6 @@ void APITestSuiteParasiteDrag::TestFormFactorEquations()
 void APITestSuiteParasiteDrag::TestFrictionCoefficientEquations()
 {
     printf( "Starting Turbulent Friciton Coefficient Data Creation. \n" );
-    vsp::WriteTurbCfCSVFile( "matlab\\FrictionCoefficientData.csv" );
+    vsp::WriteCfEqnCSVFile( "matlab\\FrictionCoefficientData.csv" );
     printf( "COMPLETE. \n" );
 }

@@ -1319,11 +1319,11 @@ string ParasiteDragMgrSingleton::AssignLamCfEqnName(int cf_case)
     switch (cf_case)
     {
     case vsp::CF_LAM_BLASIUS:
-        eqn_name = "Blasius";
+        eqn_name = "Laminar Blasius";
         break;
 
     case vsp::CF_LAM_BLASIUS_W_HEAT:
-        eqn_name = "Blasius w Heat Transfer";
+        eqn_name = "Laminar Blasius w Heat Transfer";
         break;
 
     default:

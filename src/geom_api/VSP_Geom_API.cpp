@@ -3764,19 +3764,19 @@ void WriteWingFFCSVFile(const std::string & file_name)
     res->WriteCSVFile( file_name );
 }
 
-void WriteTurbCfCSVFile(const std::string & file_name)
+void WriteCfEqnCSVFile(const std::string & file_name)
 {
     Results* res = ResultsMgr.CreateResults("Friction_Coefficient");
     char str[256];
-    vector < double > turb_cf_vec, ref_leng;
-    vector < double > ReyIn_array = logspace( 5, 12, 500 );
+    vector < double > lam_cf_vec, turb_cf_vec, ref_leng;
+    vector < double > ReyIn_array = logspace( 3, 10, 500 );
     vector < double > roughness, gamma, taw_tw_ratio, te_tw_ratio;
     roughness.push_back(0.01);
     gamma.push_back(1.4);
     taw_tw_ratio.push_back(1.0);
     te_tw_ratio.push_back(1.0);
-    res->Add(NameValData("ReyIn", ReyIn_array));
     ref_leng.push_back(1.0);
+    
     for (size_t cf_case = 0; cf_case <= vsp::CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE; ++cf_case )
     {
         for (size_t j = 0; j < ReyIn_array.size(); ++j )
@@ -3787,6 +3787,19 @@ void WriteTurbCfCSVFile(const std::string & file_name)
         res->Add(NameValData(str, turb_cf_vec));
         turb_cf_vec.clear();
     }
+
+    for (size_t cf_case = 0; cf_case < vsp::CF_LAM_BLASIUS_W_HEAT; ++cf_case)
+    {
+        for (size_t i = 0; i < ReyIn_array.size(); ++i)
+        {
+            lam_cf_vec.push_back(ParasiteDragMgr.CalcLamCf(ReyIn_array[i], cf_case));
+        }
+        sprintf( str, "%s", ParasiteDragMgr.AssignLamCfEqnName( cf_case ).c_str());
+        res->Add(NameValData(str, lam_cf_vec));
+        lam_cf_vec.clear();
+    }
+
+    res->Add(NameValData("ReyIn", ReyIn_array));
     res->Add(NameValData("Ref_Leng", ref_leng));
     res->WriteCSVFile( file_name );
 }
