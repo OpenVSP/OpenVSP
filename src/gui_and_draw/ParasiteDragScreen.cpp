@@ -1447,11 +1447,6 @@ void ParasiteDragScreen::UpdateIncorporateDropDowns()
                 }
                 m_grouped[i].UpdateItems();
                 m_grouped[i].SetVal(rowVec[i].GroupedAncestorGen);
-
-                if (m_grouped[i].GetItems().size() == 1)
-                {
-                    m_grouped[i].Deactivate();
-                }
             }
         }
     }
@@ -1588,6 +1583,7 @@ void ParasiteDragScreen::DeactivateRow(int index, int grayFlag)
     {
         m_swet[index].Deactivate();
         m_lref[index].Deactivate();
+        m_grouped[index].Deactivate();
         m_Re[index].Deactivate();
         m_Roughness[index].Deactivate();
         m_TeTwRatio[index].Deactivate();
@@ -1688,6 +1684,11 @@ void ParasiteDragScreen::AddGeomsToTable()
                 m_ConstantViewLayout.ForceNewLine();
 
                 DeactivateRow(i, grayFlag);
+
+                if (rowVec[i].MasterRow)
+                {
+                    m_grouped[i].Activate();
+                }
                 lastID = rowVec[i].GeomID;
                 lastShape = rowVec[i].GeomShapeType;
 
@@ -1744,10 +1745,19 @@ void ParasiteDragScreen::GetTableFlags(int index, const string &lastID, const st
     {
         if (rowVec[index].SubSurfID.compare("") != 0) // If this row is a subsurface
         {
-            skipFlag = !veh->FindGeom(rowVec[index].GeomID)->m_ExpandedListFlag();
+            if (veh->FindGeom(rowVec[index].GeomID)->GetSubSurf(rowVec[index].SubSurfID)->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT &&
+                rowVec[index].MasterRow)
+            {
+                skipFlag = 0;
+            }
+            else
+            {
+                skipFlag = !veh->FindGeom(rowVec[index].GeomID)->m_ExpandedListFlag();
+            }
             subsurfFlag = 1;
             // Gray out any rows that aren't the master subsurface
-            if (rowVec[index].SurfNum == 0)
+            if (rowVec[index].MasterRow ||
+                (rowVec[index].SurfNum == 0 && veh->FindGeom(rowVec[index].GeomID)->GetSubSurf(rowVec[index].SubSurfID)->m_IncludeType() != vsp::SS_INC_SEPARATE_TREATMENT))
             {
                 grayFlag = 0;
             }
@@ -1756,7 +1766,7 @@ void ParasiteDragScreen::GetTableFlags(int index, const string &lastID, const st
                 grayFlag = 1;
             }
         }
-        else if (rowVec[index].GroupedAncestorGen > 0 && rowVec[index].SurfNum == 0)
+        else if (rowVec[index].GroupedAncestorGen > 0 && rowVec[index].MasterRow)
         {
             skipFlag = 0;
             grayFlag = 1;
@@ -1795,42 +1805,28 @@ string ParasiteDragScreen::GetComponentTableLabel(int subsurfFlag, const string 
 
     if (!subsurfFlag)
     {
-        if (lastID != rowVec[index].GeomID && veh->FindGeom(rowVec[index].GeomID)->GetNumTotalSurfs() == 1 && 
-            veh->FindGeom(rowVec[index].GeomID)->GetSubSurfVec().size() == 0)
+        if (rowVec[index].MasterRow)
         {
-            sprintf(str, "%s", rowVec[index].Label.c_str()); // single item, no copies (e.g. fuselage w/ no children)
-        }
-        else
-        {
-            if (!veh->FindGeom(rowVec[index].GeomID)->m_ExpandedListFlag() && rowVec[index].SurfNum == 0)
+            if (veh->FindGeom(rowVec[index].GeomID)->GetType().m_Type == CUSTOM_GEOM_TYPE)
             {
-                if (veh->FindGeom(rowVec[index].GeomID)->GetType().m_Type == CUSTOM_GEOM_TYPE)
-                {
-                    sprintf(str, "(+) %s", rowVec[index].Label.c_str());
-                }
-                else
-                {
-                    // item with children, or reflections and NOT expanded list
-                    sprintf(str, "(+) %s", veh->FindGeom(rowVec[index].GeomID)->GetName().c_str());
-                }
+                sprintf(str, "(+) %s", rowVec[index].Label.c_str());
             }
             else
             {
-                // Expanded List
-                if (rowVec[index].SurfNum == 0)
+                if (rowVec[index].ExpandedList)
                 {
-                    sprintf(str, "@2> %s_%i", rowVec[index].Label.c_str(), rowVec[index].SurfNum); // Surf 0 of Expanded List
-                }
-                else if (rowVec[index].GeomShapeType != rowVec[index - 1].GeomShapeType &&
-                    veh->FindGeom(rowVec[index].GeomID)->m_ExpandedListFlag())
-                {
-                    sprintf(str, "%s_%i", rowVec[index].Label.c_str(), rowVec[index].SurfNum);
+                    sprintf(str, "@2> %s", rowVec[index].Label.c_str());
                 }
                 else
                 {
-                    sprintf(str, "%s", rowVec[index].Label.c_str()); // All other Surfaces (not including subsurfaces)
+                    sprintf(str, "(+) %s", veh->FindGeom(rowVec[index].GeomID)->GetName().c_str());
                 }
             }
+        }
+        else
+        {
+            // Expanded List
+            sprintf(str, "%s", rowVec[index].Label.c_str()); // All other Surfaces (not including subsurfaces)
         }
     }
     else
