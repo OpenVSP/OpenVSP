@@ -483,6 +483,11 @@ enum EXCRES_TYPE { EXCRESCENCE_COUNT = 0,
                    EXCRESCENCE_MARGIN,
                    EXCRESCENCE_DRAGAREA,
                  }; // Excrescence Type ENUM
+
+enum SUBSURF_INCLUDE { SS_INC_TREAT_AS_PARENT,
+                       SS_INC_SEPARATE_TREATMENT,
+                       SS_INC_ZERO_DRAG,
+                     };
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)

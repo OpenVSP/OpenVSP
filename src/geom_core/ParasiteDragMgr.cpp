@@ -427,6 +427,12 @@ int ParasiteDragMgrSingleton::CalcRowSize()
                 {
                     ++m_RowSize;
                 }
+                
+                // Subsurfaces are essentially seperate geometries and as such get their own master row
+                if (geom->GetSubSurfVec()[j]->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT)
+                {
+                    ++m_RowSize;
+                }
             }
         }
     }
@@ -674,7 +680,8 @@ void ParasiteDragMgrSingleton::Calculate_Cf()
     {
         if (!m_DegenGeomVec.empty())
         { // If DegenGeom Exists Calculate Cf
-            if (geo_subsurfID[i].compare("") == 0)
+            if (geo_subsurfID[i].compare("") == 0 ||
+                VehicleMgr.GetVehicle()->FindGeom(geo_geomID[i])->GetSubSurf(geo_subsurfID[i])->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT)
             {
                 vinf = ConvertVelocity(m_Vinf(), m_VinfUnitType.Get(), vsp::V_UNIT_M_S);
                 rho = ConvertDensity(m_Atmos.GetDensity(), m_AltLengthUnit(), vsp::RHO_UNIT_KG_M3); // lb/ft3 to kg/m3

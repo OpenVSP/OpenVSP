@@ -28,8 +28,33 @@ SubSurface::SubSurface( string compID, int type )
     m_MainSurfIndx.Init( "MainSurfIndx", "SubSurface", this, -1, -1, 1e12 );
     m_MainSurfIndx.SetDescript( "Surface index for subsurface" );
 
-    m_IncludeFlag.Init("IncludeFlag", "SubSurface", this, true, false, true);
-    m_IncludeFlag.SetDescript("Indicates whether or not to include wetted area of subsurf in parasite drag calcs");
+    m_IncludeType.Init("IncludeFlag", "SubSurface", this, vsp::SS_INC_TREAT_AS_PARENT, vsp::SS_INC_TREAT_AS_PARENT, vsp::SS_INC_ZERO_DRAG);
+    m_IncludeType.SetDescript("Indicates whether or not to include wetted area of subsurf in parasite drag calcs");
+
+    // Parasite Drag Parms
+    m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
+    m_PercLam.SetDescript("Percentage Laminar" );
+
+    m_FFBodyEqnType.Init("FFBodyEqnType", "ParasiteDragProps", this, vsp::FF_B_HOERNER_STREAMBODY, vsp::FF_B_MANUAL, vsp::FF_B_JENKINSON_AFT_FUSE_NACELLE );
+    m_FFBodyEqnType.SetDescript("Equation that defines the form factor of a body type surface included this Geom");
+
+    m_FFWingEqnType.Init("FFWingEqnType", "ParasiteDragProps", this, vsp::FF_W_HOERNER, vsp::FF_W_MANUAL, vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF );
+    m_FFWingEqnType.SetDescript("Equation that defines the form factor of a wing type surface included this Geom");
+
+    m_FFUser.Init("FFUser", "ParasiteDragProps", this, 1, -1, 10 );
+    m_FFUser.SetDescript( "User Input Form Factor Value" );
+
+    m_Q.Init("Q", "ParasiteDragProps", this, 1, 0, 3 );
+    m_Q.SetDescript( "Interference Factor" );
+
+    m_Roughness.Init("Roughness", "ParasiteDragProps", this, -1, -1, 10 );
+    m_Roughness.SetDescript( "Roughness Height" );
+
+    m_TeTwRatio.Init("TeTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
+    m_TeTwRatio.SetDescript("Temperature Ratio of Freestream to Wall" );
+
+    m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
+    m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
 }
 
 SubSurface::~SubSurface()
