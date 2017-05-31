@@ -2476,7 +2476,6 @@ void ParasiteDragMgrSingleton::UpdatePercentageCD()
         else
         {
             geo_percTotalCD.push_back(0);
-            percTotal += 0;
         }
     }
 
@@ -2501,6 +2500,37 @@ void ParasiteDragMgrSingleton::UpdatePercentageCD()
 
     m_ExcresfTotal = ftotal;
     m_ExcresPercTotal = percTotal;
+
+    UpdateMasterPercCD();
+}
+
+void ParasiteDragMgrSingleton::UpdateMasterPercCD()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if (!m_DegenGeomVec.empty())
+    {
+        for (size_t i = 0; i < m_RowSize; ++i)
+        {
+            for (size_t j = 0; j < m_RowSize; ++j)
+            {
+                if (ShouldAddSubSurfToMasterGeom(i, j))
+                {
+                    geo_percTotalCD[i] += geo_percTotalCD[j];
+                }
+            }
+        }
+
+        for (size_t i = 0; i < m_RowSize; ++i)
+        {
+            for (size_t j = 0; j < m_RowSize; ++j)
+            {
+                if (ShouldAddGeomToMasterGeom(i, j))
+                {
+                    geo_percTotalCD[i] += geo_percTotalCD[j];
+                }
+            }
+        }
+    }
 }
 
 
