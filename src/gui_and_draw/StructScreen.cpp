@@ -259,8 +259,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_PartGroup.SetChoiceButtonWidth( buttonwidth );
 
     m_PartGroup.AddChoice( m_GenPropertyChoice, "Property" );
+    m_PartGroup.AddChoice( m_GenMaterialChoice, "Material" );
 
     m_PartGroup.AddChoice( m_GenCapPropertyChoice, "Cap Property" );
+    m_PartGroup.AddChoice( m_GenCapMaterialChoice, "Cap Material" );
 
     //=== Material Tab ===//
     m_MaterialTabLayout.SetGroupAndScreen( matTabGroup, this );
@@ -377,7 +379,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_FeaPropertyBeamGroup.AddSlider( m_PropIxxSlider, "Ixx", 100, "%5.3f" );
 
     m_PropertyEditGroup.AddYGap();
-
 
     //=== GLOBAL TAB ===//
     m_GlobalTabLayout.SetGroupAndScreen( globalTabGroup, this );
@@ -839,10 +840,11 @@ void StructScreen::UpdateFeaPropertyChoice()
     m_SkinPropertyChoice.ClearItems();
     m_MultSlicePropChoice.ClearItems();
     m_GenPropertyChoice.ClearItems();
-
     m_MultSliceCapPropChoice.ClearItems();
     m_GenCapPropertyChoice.ClearItems();
- 
+
+    // TODO: Support Selection and application of multiple properties
+
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
     if ( veh )
@@ -854,29 +856,32 @@ void StructScreen::UpdateFeaPropertyChoice()
             m_SkinPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_MultSlicePropChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_GenPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-
             m_MultSliceCapPropChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_GenCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
             if ( property_vec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, 0 );
                 m_MultSlicePropChoice.SetFlag( i, 0 );
-
+                m_GenPropertyChoice.SetFlag( i, 0 );
                 m_MultSliceCapPropChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_GenCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
             }
             else if ( property_vec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
             {
                 m_SkinPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_MultSlicePropChoice.SetFlag( i, FL_MENU_INACTIVE );
-
+                m_GenPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_MultSliceCapPropChoice.SetFlag( i, 0 );
+                m_GenCapPropertyChoice.SetFlag( i, 0 );
             }
         }
 
         m_SkinPropertyChoice.UpdateItems();
         m_MultSlicePropChoice.UpdateItems();
-
+        m_GenPropertyChoice.UpdateItems();
         m_MultSliceCapPropChoice.UpdateItems();
+        m_GenCapPropertyChoice.UpdateItems();
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
         {
@@ -890,6 +895,106 @@ void StructScreen::UpdateFeaPropertyChoice()
 
             m_MultSlicePropChoice.SetVal( structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->GetMultPropertyIndex() );
             m_MultSliceCapPropChoice.SetVal( structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->GetMultCapPropertyIndex() );
+
+            if ( m_SelectedPartIndexVec.size() == 1 )
+            {
+                if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                {
+                    FeaPart* feaprt = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( m_SelectedPartIndexVec[0] );
+
+                    if ( feaprt )
+                    {
+                        m_GenPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
+                        m_GenCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
+                    }
+                }
+                else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                {
+                    SubSurface* subsurf = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
+
+                    if ( subsurf )
+                    {
+                        m_GenPropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
+                        m_GenCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
+                    }
+                }
+            }
+            else if ( m_SelectedPartIndexVec.size() > 1 )
+            {
+                int prop_index, cap_index;
+                bool mult_prop = false;
+                bool mult_cap_prop = false;
+
+                for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
+                {
+                    if ( m_SelectedPartIndexVec[i] < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                    {
+                        FeaPart* feaprt = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( m_SelectedPartIndexVec[i] );
+
+                        if ( feaprt )
+                        {
+                            if ( i == 0 )
+                            {
+                                prop_index = feaprt->GetFeaPropertyIndex();
+                                cap_index = feaprt->GetCapFeaPropertyIndex();
+                            }
+
+                            if ( feaprt->GetFeaPropertyIndex() != prop_index )
+                            {
+                                mult_prop = true;
+                            }
+                            if ( feaprt->GetCapFeaPropertyIndex() != cap_index )
+                            {
+                                mult_cap_prop = true;
+                            }
+                        }
+                    }
+                    else if ( m_SelectedPartIndexVec[i] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                    {
+                        SubSurface* subsurf = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaSubSurf( m_SelectedPartIndexVec[i] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
+
+                        if ( subsurf )
+                        {
+                            if ( i == 0 )
+                            {
+                                prop_index = subsurf->GetFeaPropertyIndex();
+                                cap_index = subsurf->GetCapFeaPropertyIndex();
+                            }
+
+                            if ( subsurf->GetFeaPropertyIndex() != prop_index )
+                            {
+                                mult_prop = true;
+                            }
+                            if ( subsurf->GetCapFeaPropertyIndex() != cap_index )
+                            {
+                                mult_cap_prop = true;
+                            }
+                        }
+                    }
+                }
+
+                if ( mult_prop )
+                {
+                    m_GenPropertyChoice.AddItem( "Multiple" );
+                    m_GenPropertyChoice.UpdateItems();
+                    m_GenPropertyChoice.SetVal( m_GenPropertyChoice.GetItems().size() - 1 );
+                }
+                else
+                {
+                    m_GenPropertyChoice.SetVal( prop_index );
+                }
+
+                if ( mult_cap_prop )
+                {
+                    m_GenCapPropertyChoice.AddItem( "Multiple" );
+                    m_GenCapPropertyChoice.UpdateItems();
+                    m_GenCapPropertyChoice.SetVal( m_GenCapPropertyChoice.GetItems().size() - 1 );
+                }
+                else
+                {
+                    m_GenCapPropertyChoice.SetVal( cap_index );
+                }
+            }
         }
     }
 }
@@ -930,6 +1035,10 @@ void StructScreen::UpdateFeaMaterialChoice()
     //==== Material Choice ====//
     m_FeaShellMaterialChoice.ClearItems();
     m_FeaBeamMaterialChoice.ClearItems();
+    m_GenMaterialChoice.ClearItems();
+    m_GenCapMaterialChoice.ClearItems();
+
+    // TODO: Support Selection and application of multiple materials
 
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -941,9 +1050,13 @@ void StructScreen::UpdateFeaMaterialChoice()
         {
             m_FeaShellMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
             m_FeaBeamMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
+            m_GenMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
+            m_GenCapMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
         }
         m_FeaShellMaterialChoice.UpdateItems();
         m_FeaBeamMaterialChoice.UpdateItems();
+        m_GenMaterialChoice.UpdateItems();
+        m_GenCapMaterialChoice.UpdateItems();
 
         if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
         {
@@ -995,6 +1108,13 @@ void StructScreen::FeaPropertyDispGroup( GroupLayout* group )
 
 void StructScreen::UpdateGenPropertyIndex( Choice* property_choice )
 {
+    FeaProperty* prop = StructureMgr.GetFeaProperty( property_choice->GetVal() );
+
+    if ( prop->m_FeaPropertyType() != SHELL_PROPERTY || !StructureMgr.ValidFeaPropertyInd( property_choice->GetVal() ) )
+    {
+        return;
+    }
+
     if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
     {
         vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
@@ -1007,7 +1127,10 @@ void StructScreen::UpdateGenPropertyIndex( Choice* property_choice )
 
                 if ( feaprt )
                 {
-                    feaprt->SetFeaPropertyIndex( property_choice->GetVal() );
+                    if ( feaprt->m_IncludedElements() == TRIS || feaprt->m_IncludedElements() == BOTH_ELEMENTS )
+                    {
+                        feaprt->SetFeaPropertyIndex( property_choice->GetVal() );
+                    }
                 }
             }
             else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -1016,7 +1139,10 @@ void StructScreen::UpdateGenPropertyIndex( Choice* property_choice )
 
                 if ( subsurf )
                 {
-                    subsurf->SetFeaPropertyIndex( property_choice->GetVal() );
+                    if ( subsurf->m_IncludedElements() == TRIS || subsurf->m_IncludedElements() == BOTH_ELEMENTS )
+                    {
+                        subsurf->SetFeaPropertyIndex( property_choice->GetVal() );
+                    }
                 }
             }
         }
@@ -1025,6 +1151,13 @@ void StructScreen::UpdateGenPropertyIndex( Choice* property_choice )
 
 void StructScreen::UpdateGenCapPropertyIndex( Choice* property_choice )
 {
+    FeaProperty* prop = StructureMgr.GetFeaProperty( property_choice->GetVal() );
+
+    if ( prop->m_FeaPropertyType() != BEAM_PROPERTY || !StructureMgr.ValidFeaPropertyInd( property_choice->GetVal() ) )
+    {
+        return;
+    }
+
     if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
     {
         vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
@@ -1037,7 +1170,10 @@ void StructScreen::UpdateGenCapPropertyIndex( Choice* property_choice )
 
                 if ( feaprt )
                 {
-                    feaprt->SetCapFeaPropertyIndex( property_choice->GetVal() );
+                    if ( feaprt->m_IncludedElements() == BEAM || feaprt->m_IncludedElements() == BOTH_ELEMENTS )
+                    {
+                        feaprt->SetCapFeaPropertyIndex( property_choice->GetVal() );
+                    }
                 }
             }
             else if ( m_SelectedPartIndexVec[i] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -1046,7 +1182,10 @@ void StructScreen::UpdateGenCapPropertyIndex( Choice* property_choice )
 
                 if ( subsurf )
                 {
-                    subsurf->SetCapFeaPropertyIndex( property_choice->GetVal() );
+                    if ( subsurf->m_IncludedElements() == BEAM || subsurf->m_IncludedElements() == BOTH_ELEMENTS )
+                    {
+                        subsurf->SetCapFeaPropertyIndex( property_choice->GetVal() );
+                    }
                 }
             }
         }

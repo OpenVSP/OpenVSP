@@ -145,7 +145,9 @@ private:
     ToggleRadioGroup m_ShellCapToggleGroup;
 
     Choice m_GenPropertyChoice;
+    Choice m_GenMaterialChoice;
     Choice m_GenCapPropertyChoice;
+    Choice m_GenCapMaterialChoice;
 
     //===== Material Tab =====//
     TriggerButton m_AddFeaMaterialButton;
