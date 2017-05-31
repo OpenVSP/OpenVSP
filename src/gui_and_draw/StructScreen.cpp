@@ -1444,6 +1444,7 @@ bool StructScreen::Update()
                 m_FeaPartNameInput.Deactivate();
                 m_EditFeaPartButton.Deactivate();
                 m_DispFeaPartGroup.Activate();
+                m_ShellCapToggleGroup.Activate();
             }
             else
             {
@@ -2077,6 +2078,46 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                     if ( ssurf )
                     {
                         ssurf->m_DrawFeaPartFlag.Set( curr_val );
+                    }
+                }
+            }
+        }
+    }
+    else if ( device == &m_ShellCapToggleGroup )
+    {
+        string curr_parm_id = m_ShellCapToggleGroup.GetParmID();
+        Parm* curr_parm = ParmMgr.FindParm( curr_parm_id );
+        int curr_val = curr_parm->Get();
+
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) && m_SelectedPartIndexVec.size() > 1 )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            for ( size_t i = 0; i < m_SelectedPartIndexVec.size(); i++ )
+            {
+                if ( m_SelectedPartIndexVec[i] < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                {
+                    FeaPart* prt = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( m_SelectedPartIndexVec[i] );
+
+                    if ( prt )
+                    {
+                        if ( prt->GetType() != vsp::FEA_SKIN )
+                        {
+                            prt->m_IncludedElements.Set( curr_val );
+                        }
+                        else
+                        {
+                            prt->m_IncludedElements.Set( TRIS );
+                        }
+                    }
+                }
+                else if ( m_SelectedPartIndexVec[i] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+                {
+                    SubSurface* ssurf = structvec[StructureMgr.GetCurrStructIndex()]->GetFeaSubSurf( m_SelectedPartIndexVec[i] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
+
+                    if ( ssurf )
+                    {
+                        ssurf->m_IncludedElements.Set( curr_val );
                     }
                 }
             }
