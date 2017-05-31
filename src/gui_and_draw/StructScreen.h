@@ -104,6 +104,8 @@ private:
     //===== Common buttons =====//
     TriggerButton m_FeaMeshExportButton;
 
+    GroupLayout* m_CurrDispGroup;
+
     //===== Structure Tab Items =====//
     Choice m_GeomChoice;
     Choice m_SurfSel;
@@ -150,9 +152,10 @@ private:
     ToggleRadioGroup m_ShellCapToggleGroup;
 
     Choice m_GenPropertyChoice;
-    Choice m_GenMaterialChoice;
+    //Choice m_GenMaterialChoice;
     Choice m_GenCapPropertyChoice;
-    Choice m_GenCapMaterialChoice;
+    //Choice m_GenCapMaterialChoice;
+
     ToggleButton m_ShowFeaPartButton;
     ToggleButton m_HideFeaPartButton;
     ToggleRadioGroup m_DispFeaPartGroup;

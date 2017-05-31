@@ -73,6 +73,15 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_StructureTabLayout.AddDividerBox( "Structure Selection" );
 
+    int browser_h = 100;
+
+    m_StructureSelectBrowser = m_StructureTabLayout.AddFlBrowser( browser_h );
+    m_StructureSelectBrowser->type( FL_HOLD_BROWSER );
+    m_StructureSelectBrowser->labelfont( 13 );
+    m_StructureSelectBrowser->labelsize( 12 );
+    m_StructureSelectBrowser->textsize( 12 );
+    m_StructureSelectBrowser->callback( staticScreenCB, this );
+
     int buttonwidth = m_StructureTabLayout.GetButtonWidth();
 
     m_StructureTabLayout.SetChoiceButtonWidth( buttonwidth );
@@ -83,28 +92,19 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_StructureTabLayout.AddChoice( m_GeomChoice, "Geom" );
     m_StructureTabLayout.AddChoice( m_SurfSel, "Surface" );
+
     m_StructureTabLayout.ForceNewLine();
 
-    m_StructureTabLayout.SetSameLineFlag( false );
-    m_StructureTabLayout.SetFitWidthFlag( true );
+    m_StructureTabLayout.SetButtonWidth( m_StructureTabLayout.GetRemainX() / 2 );
 
     m_StructureTabLayout.AddButton( m_AddFeaStructButton, "Add Structure" );
+    m_StructureTabLayout.AddButton( m_DelFeaStructButton, "Delete Structure" );
+
+    m_StructureTabLayout.ForceNewLine();
+    m_StructureTabLayout.AddYGap();
 
     m_StructGroup.SetGroupAndScreen( AddSubGroup( structTab, 5 ), this );
     m_StructGroup.SetY( m_StructureTabLayout.GetY() );
-
-    int browser_h = 100;
-
-    m_StructureSelectBrowser = m_StructGroup.AddFlBrowser( browser_h );
-    m_StructureSelectBrowser->type( FL_HOLD_BROWSER );
-    m_StructureSelectBrowser->labelfont( 13 );
-    m_StructureSelectBrowser->labelsize( 12 );
-    m_StructureSelectBrowser->textsize( 12 );
-    m_StructureSelectBrowser->callback( staticScreenCB, this );
-
-    m_StructGroup.AddButton( m_DelFeaStructButton, "Delete Structure" );
-
-    m_StructGroup.AddYGap();
 
     buttonwidth *= 2;
 
@@ -253,8 +253,12 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
 
     m_PartTabLayout.AddYGap();
 
+    //==== General FeaPart Parameters ====//
+
     m_PartGroup.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
     m_PartGroup.SetY( m_PartTabLayout.GetY() );
+
+    m_PartGroup.AddDividerBox( "General" );
 
     m_PartGroup.SetButtonWidth( m_PartGroup.GetRemainX() / 3 );
     m_PartGroup.SetInputWidth( m_PartGroup.GetRemainX() / 3 );
@@ -277,23 +281,21 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_ShellCapToggleGroup.AddButton( m_CapToggle.GetFlButton() );
     m_ShellCapToggleGroup.AddButton( m_ShellCapToggle.GetFlButton() );
 
-    m_PartGroup.ForceNewLine();
-    m_PartGroup.AddYGap();
-
     m_PartGroup.SetSameLineFlag( false );
     m_PartGroup.SetFitWidthFlag( true );
 
-    //==== General FeaPart Parameters ====//
-    m_PartGroup.AddDividerBox( "General" );
+    m_PartGroup.ForceNewLine();
+    m_PartGroup.AddYGap();
 
-    m_PartGroup.SetButtonWidth( buttonwidth );
-    m_PartGroup.SetChoiceButtonWidth( buttonwidth );
+    m_PartGroup.SetSliderWidth( m_PartGroup.GetRemainX() / 2 );
+    m_PartGroup.SetChoiceButtonWidth( m_PartGroup.GetRemainX() / 2 );
 
     m_PartGroup.AddChoice( m_GenPropertyChoice, "Property" );
-    m_PartGroup.AddChoice( m_GenMaterialChoice, "Material" );
+    //m_PartGroup.AddChoice( m_GenMaterialChoice, "Material" );
 
     m_PartGroup.AddChoice( m_GenCapPropertyChoice, "Cap Property" );
-    m_PartGroup.AddChoice( m_GenCapMaterialChoice, "Cap Material" );
+    //m_PartGroup.AddChoice( m_GenCapMaterialChoice, "Cap Material" );
+
     m_PartGroup.AddYGap();
 
     m_PartGroup.SetSameLineFlag( true );
@@ -548,6 +550,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 625, "FEA Me
     m_SelectedFeaPartChoice = 0;
     m_SelectedMaterialIndex = -1;
     m_SelectedPropertyIndex = -1;
+    m_CurrDispGroup = NULL;
 }
 
 StructScreen::~StructScreen()
@@ -1060,8 +1063,8 @@ void StructScreen::UpdateFeaMaterialChoice()
     //==== Material Choice ====//
     m_FeaShellMaterialChoice.ClearItems();
     m_FeaBeamMaterialChoice.ClearItems();
-    m_GenMaterialChoice.ClearItems();
-    m_GenCapMaterialChoice.ClearItems();
+    //m_GenMaterialChoice.ClearItems();
+    //m_GenCapMaterialChoice.ClearItems();
 
     // TODO: Support Selection and application of multiple materials
 
@@ -1075,13 +1078,13 @@ void StructScreen::UpdateFeaMaterialChoice()
         {
             m_FeaShellMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
             m_FeaBeamMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
-            m_GenMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
-            m_GenCapMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
+            //m_GenMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
+            //m_GenCapMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
         }
         m_FeaShellMaterialChoice.UpdateItems();
         m_FeaBeamMaterialChoice.UpdateItems();
-        m_GenMaterialChoice.UpdateItems();
-        m_GenCapMaterialChoice.UpdateItems();
+        //m_GenMaterialChoice.UpdateItems();
+        //m_GenCapMaterialChoice.UpdateItems();
 
         if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
         {
@@ -1219,6 +1222,16 @@ void StructScreen::UpdateGenCapPropertyIndex( Choice* property_choice )
 
 void StructScreen::FeaStructDispGroup( GroupLayout* group )
 {
+    if ( m_CurrDispGroup == group && group )
+    {
+        return;
+    }
+
+    m_StructGroup.Hide();
+    m_PartGroup.Hide();
+    m_StructGeneralGroup.Hide();
+    m_StructWingGroup.Hide();
+
     if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
     {
         m_StructGroup.Show();
@@ -1246,11 +1259,12 @@ void StructScreen::FeaStructDispGroup( GroupLayout* group )
             }
         }
     }
-    else
+
+    m_CurrDispGroup = group;
+
+    if ( group )
     {
-        m_StructGroup.Hide();
-        m_StructWingGroup.Hide();
-        m_StructGeneralGroup.Hide();
+        group->Show();
     }
 }
 
@@ -1427,6 +1441,8 @@ bool StructScreen::Update()
                 FeaStructDispGroup( &m_PartGroup );
                 m_GenPropertyChoice.Activate();
                 m_GenCapPropertyChoice.Activate();
+                m_FeaPartNameInput.Deactivate();
+                m_EditFeaPartButton.Deactivate();
                 m_DispFeaPartGroup.Activate();
             }
             else
@@ -1436,6 +1452,9 @@ bool StructScreen::Update()
 
             if ( m_SelectedPartIndexVec.size() == 1 )
             {
+                m_FeaPartNameInput.Activate();
+                m_EditFeaPartButton.Activate();
+
                 if ( m_SelectedPartIndexVec[0] < curr_struct->NumFeaParts() )
                 {
                     FeaPart* prt = curr_struct->GetFeaPart( m_SelectedPartIndexVec[0] );
@@ -1492,10 +1511,6 @@ bool StructScreen::Update()
                     }
                 }
             }
-        }
-        else
-        {
-            FeaStructDispGroup( NULL );
         }
 
         // Update Draw Objects for FeaParts
