@@ -25,8 +25,8 @@ using namespace std;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 #define DRAG_TAB_WIDTH 310          // width of the tab group
-#define DRAG_TABLE_WIDTH 460        // width of the drag build-up table
-#define DRAG_TABLE_PERSISTENT_WIDTH 195 // width of persistent sectino of drag table
+#define DRAG_TABLE_WIDTH 470        // width of the drag build-up table
+#define DRAG_TABLE_PERSISTENT_WIDTH 180 // width of persistent sectino of drag table
 #define TOTAL_WINDOW_HEIGHT 560     // Entire Window Height
 #define EXECUTE_LAYOUT_HEIGHT 65    // height needed for dividerbox and two buttons
 #define TYPICAL_INPUT_WIDTH 70      // input width for most table cells
@@ -75,9 +75,9 @@ ParasiteDragScreen::ParasiteDragScreen(ScreenMgr* mgr) : TabScreen(mgr,
     m_OutputsLayout.AddX(m_OptionsLayout.GetW() + 10);
 
     // Set up Slot for Component Label Layout in top left corner of Persistent Space to the Right
-    m_OutputsLayout.AddSubGroupLayout(m_ComponentLabelLayout, TYPICAL_INPUT_WIDTH*2, m_OutputsLayout.GetStdHeight());
+    m_OutputsLayout.AddSubGroupLayout(m_ComponentLabelLayout, TYPICAL_INPUT_WIDTH*2 + 20, m_OutputsLayout.GetStdHeight());
     Fl_Group* componentlabel_group = new Fl_Group(m_OutputsLayout.GetX(), m_OutputsLayout.GetY(),
-        TYPICAL_INPUT_WIDTH*2, m_OutputsLayout.GetStdHeight());
+        TYPICAL_INPUT_WIDTH*2 + 20, m_OutputsLayout.GetStdHeight());
     m_FLTK_Window->add(componentlabel_group);
     m_ComponentLabelLayout.SetGroupAndScreen(componentlabel_group, this);
 
@@ -87,9 +87,9 @@ ParasiteDragScreen::ParasiteDragScreen(ScreenMgr* mgr) : TabScreen(mgr,
     m_OutputsLayout.AddX(m_ComponentLabelLayout.GetW());
 
     // Set up Table Labels Layout in Persistent Space to the Right
-    m_OutputsLayout.AddSubGroupLayout(m_MainTableLabelsLayout, DRAG_TABLE_WIDTH - TYPICAL_INPUT_WIDTH*2, m_OutputsLayout.GetStdHeight());
+    m_OutputsLayout.AddSubGroupLayout(m_MainTableLabelsLayout, DRAG_TABLE_WIDTH - m_ComponentLabelLayout.GetW(), m_OutputsLayout.GetStdHeight());
     Fl_Group* dragmaintablelabels_group = new Fl_Group(m_OutputsLayout.GetX(), m_OutputsLayout.GetY(),
-        DRAG_TABLE_WIDTH - TYPICAL_INPUT_WIDTH*2, m_OutputsLayout.GetStdHeight());
+        DRAG_TABLE_WIDTH - m_ComponentLabelLayout.GetW(), m_OutputsLayout.GetStdHeight());
     m_FLTK_Window->add(dragmaintablelabels_group);
     m_MainTableLabelsLayout.SetGroupAndScreen(dragmaintablelabels_group, this);
 
@@ -112,9 +112,9 @@ ParasiteDragScreen::ParasiteDragScreen(ScreenMgr* mgr) : TabScreen(mgr,
     m_OutputsLayout.AddX(-(m_MainTableLabelsLayout.GetW() + m_ComponentLabelLayout.GetW()));
 
     // Set up Table Labels Layout in Persistent Space to the Right
-    m_OutputsLayout.AddSubGroupLayout(m_TableCompNamesLayout, TYPICAL_INPUT_WIDTH*2, m_OutputsLayout.GetStdHeight());
+    m_OutputsLayout.AddSubGroupLayout(m_TableCompNamesLayout, TYPICAL_INPUT_WIDTH*2 + 20, m_OutputsLayout.GetStdHeight());
     Fl_Group* comptablelabels_group = new Fl_Group(m_OutputsLayout.GetX(), m_OutputsLayout.GetY(),
-        TYPICAL_INPUT_WIDTH*2, m_OutputsLayout.GetH());
+        TYPICAL_INPUT_WIDTH*2 + 20, m_OutputsLayout.GetH());
     m_FLTK_Window->add(comptablelabels_group);
     m_TableCompNamesLayout.SetGroupAndScreen(comptablelabels_group, this);
 
@@ -128,9 +128,9 @@ ParasiteDragScreen::ParasiteDragScreen(ScreenMgr* mgr) : TabScreen(mgr,
     m_OutputsLayout.AddX(m_TableCompNamesLayout.GetW());
 
     // Set up Table Layout in Persistent Space to the Right
-    m_OutputsLayout.AddSubGroupLayout(m_TableLayout, DRAG_TABLE_WIDTH - TYPICAL_INPUT_WIDTH*2, layoutHeight);
+    m_OutputsLayout.AddSubGroupLayout(m_TableLayout, DRAG_TABLE_WIDTH - m_TableCompNamesLayout.GetW(), layoutHeight);
     Fl_Group* dragtable_group = new Fl_Group(m_OutputsLayout.GetX(), m_OutputsLayout.GetY(),
-        DRAG_TABLE_WIDTH - TYPICAL_INPUT_WIDTH*2, m_OutputsLayout.GetH());
+        DRAG_TABLE_WIDTH - m_TableCompNamesLayout.GetW(), m_OutputsLayout.GetH());
     m_FLTK_Window->add(dragtable_group);
     m_TableLayout.SetGroupAndScreen(dragtable_group, this);
 
@@ -1347,7 +1347,7 @@ void ParasiteDragScreen::RebuildBuildUpTableLabels()
     m_ConstantTableLabelsLayout.SetSameLineFlag(true);
     m_ConstantTableLabelsLayout.SetButtonWidth(TYPICAL_INPUT_WIDTH);
 
-    m_ComponentLabelLayout.SetButtonWidth(TYPICAL_INPUT_WIDTH*2);
+    m_ComponentLabelLayout.SetButtonWidth(TYPICAL_INPUT_WIDTH*2 + 20);
     m_ComponentLabelLayout.AddButton(m_CompLabel, "Component");
     m_CompLabel.GetFlButton()->labelcolor(FL_BLACK);
     m_CompLabel.GetFlButton()->copy_tooltip("Geometry Name");
@@ -1902,7 +1902,7 @@ string ParasiteDragScreen::GetComponentTableLabel(int subsurfFlag, const string 
 
 void ParasiteDragScreen::SetupRowLabel(int subsurfFlag, const string &lastID, int index)
 {
-    m_TableCompNamesLayout.SetButtonWidth(TYPICAL_INPUT_WIDTH*2);
+    m_TableCompNamesLayout.SetButtonWidth(TYPICAL_INPUT_WIDTH*2 + 20);
     string label = GetComponentTableLabel(subsurfFlag, lastID, index);
     m_TableCompNamesLayout.AddButton(m_labels[index], label.c_str());
     m_labels[index].GetFlButton()->align(Fl_Align(132 | FL_ALIGN_INSIDE));
@@ -2215,7 +2215,7 @@ void ParasiteDragScreen::RebuildExcresTableLabels()
     m_TableLayout.SetSameLineFlag(true);
     m_TableLayout.SetFitWidthFlag(false);
 
-    m_TableCompNamesLayout.AddLabel("Excrescence", TYPICAL_INPUT_WIDTH*2 - 15);
+    m_TableCompNamesLayout.AddLabel("Excrescence", TYPICAL_INPUT_WIDTH*2 + 20 - m_MainTableCompNamesScrollGroup->scrollbar.w());
     m_TableLayout.AddLabel("Type", TYPICAL_INPUT_WIDTH + 45);
     m_TableLayout.AddLabel("Input", TYPICAL_INPUT_WIDTH);
 
