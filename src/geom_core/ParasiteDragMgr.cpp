@@ -500,32 +500,26 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
     {
         if (!m_DegenGeomVec.empty())
         { // If DegenGeom Exists Calculate Lref
-            if (geo_subsurfID[i].compare("") == 0)
+            if (geo_masterRow[i])
             {
-                if (m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE)
+                if (geo_subsurfID[i].compare("") == 0)
                 {
-                    if (lastID.compare(geo_geomID[i]) != 0)
+                    if (m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE)
                     {
-                        if (m_DegenGeomVec[iSurf].getType() == DegenGeom::SURFACE_TYPE)
-                        {
-                            CalcReferenceChord(iSurf);
-                        }
-                        else if (m_DegenGeomVec[iSurf].getType() == DegenGeom::BODY_TYPE)
-                        {
-                            CalcReferenceBodyLength(iSurf);
-                        }
-                        ++iSurf;
+                        geo_lref.push_back(CalcReferenceLength(iSurf));
+
                         lastID = geo_geomID[i];
                     }
                     else
                     {
-                        geo_lref.push_back(geo_lref[geo_lref.size() - 1]);
+                        --i;
                     }
+                    iSurf += VehicleMgr.GetVehicle()->FindGeom(geo_geomID[i])->GetNumSymmCopies();
                 }
                 else
                 {
-                    --i;
-                    ++iSurf;
+                    geo_lref.push_back(CalcReferenceLength(iSurf-1));
+                    lastID = geo_geomID[i];
                 }
             }
             else
@@ -540,8 +534,40 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
     }
 }
 
+double ParasiteDragMgrSingleton::CalcReferenceLength(int index)
+{
+    double lref;
+    if (m_DegenGeomVec[index].getType() == DegenGeom::BODY_TYPE)
+    {
+        lref = CalcReferenceBodyLength(index);
+
+        if (lref <= 1e-6)
+        {
+            lref = CalcReferenceChord(index);
+        }
+    }
+    else if (m_DegenGeomVec[index].getType() == DegenGeom::SURFACE_TYPE)
+    {
+        lref = CalcReferenceChord(index);
+
+        if (lref <= 1e-6)
+        {
+            lref = CalcReferenceBodyLength(index);
+        }
+    }
+
+    if (lref <= 1e-6)
+    {
+        return 1.0;
+    }
+    else
+    {
+        return lref;
+    }
+}
+
 // Use Bounding Box to approximate x directional length
-void ParasiteDragMgrSingleton::CalcReferenceBodyLength(int index)
+double ParasiteDragMgrSingleton::CalcReferenceBodyLength(int index)
 {
     // TODO: Improve Reference Length Calculations
     double delta_x, delta_y, delta_z, lref;
@@ -551,25 +577,11 @@ void ParasiteDragMgrSingleton::CalcReferenceBodyLength(int index)
     delta_z = abs(m_DegenStick[0].xle.front().z() - m_DegenStick[0].xle.back().z());
     lref = sqrt( pow(delta_x,2.0) + pow(delta_y,2.0) + pow(delta_z,2.0) );
 
-    if (lref <= 1e-6) // Is it basically zero?
-    {
-        // Attempt to use chord from DegenGeom
-        CalcReferenceChord(index);
-    }
-
-    // If STILL 0
-    if (lref <= 1e-6)
-    {
-        geo_lref.push_back(1.0);
-    }
-    else
-    {
-        geo_lref.push_back(lref);
-    }
+    return lref;
 }
 
 // Use weighted average to approximate reference chord
-void ParasiteDragMgrSingleton::CalcReferenceChord(int index)
+double ParasiteDragMgrSingleton::CalcReferenceChord(int index)
 {
     // TODO: Improve Reference Length Calculations
     vector <DegenStick> m_DegenStick = m_DegenGeomVec[index].getDegenSticks();
@@ -587,23 +599,8 @@ void ParasiteDragMgrSingleton::CalcReferenceChord(int index)
 
         weightedChordSum += m_DegenStick[0].chord[j] * secArea;
     }
-    double lref = weightedChordSum / totalArea;
 
-    if (lref <= 1e-6) // Is it basically zero?
-    {
-        // Attempt to use chord from DegenGeom
-        CalcReferenceBodyLength(index);
-    }
-
-    // If STILL 0
-    if (lref <= 1e-6)
-    {
-        geo_lref.push_back(1.0);
-    }
-    else
-    {
-        geo_lref.push_back(lref);
-    }
+    return weightedChordSum / totalArea;
 }
 
 void ParasiteDragMgrSingleton::Calculate_Re()
@@ -741,43 +738,29 @@ void ParasiteDragMgrSingleton::CalcPartialTurbulence(int i, double lref, double 
 
 void ParasiteDragMgrSingleton::Calculate_fineRat()
 {
-    // Initialize Variables
-    vector<double>::const_iterator it;
-    double max_xsecarea, dia;
     int iSurf = 0;
 
     for (int i = 0; i < m_RowSize; ++i)
     {
         if (!m_DegenGeomVec.empty())
         { // If DegenGeom Exists Calculate Fineness Ratio
-            if (geo_subsurfID[i].compare("") == 0)
+            if (geo_masterRow[i])
             {
-                // Grab Degen Sticks for Appropriate Geom
-                vector <DegenStick> degenSticks = m_DegenGeomVec[iSurf].getDegenSticks();
-
-                if (m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE)
+                if (geo_subsurfID[i].compare("") == 0)
                 {
-                    if (m_DegenGeomVec[iSurf].getType() == DegenGeom::SURFACE_TYPE)
-                    { // Wing Type
-                        it = max_element(degenSticks[0].toc.begin(), degenSticks[0].toc.end());
-                        geo_fineRat.push_back(*it);
-                    }
-                    else if (m_DegenGeomVec[iSurf].getType() == DegenGeom::BODY_TYPE)
+                    if (m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE)
                     {
-                        it = max_element(degenSticks[0].sectarea.begin(), degenSticks[0].sectarea.end());
-                        max_xsecarea = *it;
-
-                        // Use Max X-Sectional Area to find "Nominal" Diameter
-                        dia = 2 * sqrt((max_xsecarea / (PI)));
-
-                        geo_fineRat.push_back(dia / geo_lref[i]);
+                        geo_fineRat.push_back(CalculateFinessRatio(iSurf, i));
                     }
-                    ++iSurf;
+                    else
+                    {
+                        --i;
+                    }
+                    iSurf += VehicleMgr.GetVehicle()->FindGeom(geo_geomID[i])->GetNumSymmCopies();
                 }
                 else
                 {
-                    --i;
-                    ++iSurf;
+                    geo_fineRat.push_back(CalculateFinessRatio(iSurf-1, i));
                 }
             }
             else
@@ -792,64 +775,86 @@ void ParasiteDragMgrSingleton::Calculate_fineRat()
     }
 }
 
-void ParasiteDragMgrSingleton::Calculate_FF()
+double ParasiteDragMgrSingleton::CalculateFinessRatio(int isurf, int irow)
 {
     // Initialize Variables
     vector<double>::const_iterator it;
-    double toc;
-    double fin_rat, longF, FR, Area;
-    vector <double> hVec, wVec;
+    double max_xsecarea, dia;
+    double finerat;
+
+    // Grab Degen Sticks for Appropriate Geom
+    vector <DegenStick> degenSticks = m_DegenGeomVec[isurf].getDegenSticks();
+
+    if (m_DegenGeomVec[isurf].getType() == DegenGeom::SURFACE_TYPE)
+    { // Wing Type
+        it = max_element(degenSticks[0].toc.begin(), degenSticks[0].toc.end());
+        finerat = *it;
+    }
+    else if (m_DegenGeomVec[isurf].getType() == DegenGeom::BODY_TYPE)
+    {
+        it = max_element(degenSticks[0].sectarea.begin(), degenSticks[0].sectarea.end());
+        max_xsecarea = *it;
+
+        // Use Max X-Sectional Area to find "Nominal" Diameter
+        dia = 2 * sqrt((max_xsecarea / (PI)));
+
+        finerat = dia / geo_lref[irow];
+    }
+
+    return finerat;
+}
+
+void ParasiteDragMgrSingleton::Calculate_FF()
+{
     int iSurf = 0;
 
     for (int i = 0; i < m_RowSize; ++i)
     {
         if (!m_DegenGeomVec.empty())
         { // If DegenGeom Exists Calculate Form Factor
-            if (geo_subsurfID[i].compare("") == 0)
+            if (geo_masterRow[i])
             {
-                // Grab Degen Sticks for Appropriate Geom
-                vector <DegenStick> degenSticks = m_DegenGeomVec[iSurf].getDegenSticks();
-
-                if (m_DegenGeomVec[iSurf].getType() == DegenGeom::SURFACE_TYPE)
-                { // Wing Type
-
-                    toc = geo_fineRat[i];
-
-                    Calculate_AvgSweep(degenSticks);
-
-                    geo_ffOut.push_back(CalcFFWing(toc, geo_ffType[i], geo_percLam[i], m_Sweep25, m_Sweep50));
-                    if (geo_ffType[i] == vsp::FF_W_JENKINSON_TAIL)
-                    {
-                        geo_Q[i] = 1.2;
-                    }
-                    geo_ffName.push_back(AssignFFWingEqnName(geo_ffType[i]));
-                }
-                else if (m_DegenGeomVec[iSurf].getType() == DegenGeom::BODY_TYPE)
+                if (geo_subsurfID[i].compare("") == 0)
                 {
-                    // Get Fine Rat
-                    fin_rat = geo_fineRat[i];
+                    if (m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE)
+                    {
+                        geo_ffOut.push_back(CalculateFormFactor(iSurf, i));
 
-                    // Invert Fineness Ratio
-                    longF = pow(geo_fineRat[i], -1);
-
-                    // Max Cross Sectional Area
-                    Area = *max_element(degenSticks[0].areaTop.begin(), degenSticks[0].areaTop.end());
-
-                    // FR used by Schemensky
-                    FR = geo_lref[i]/ sqrt(Area);
-
-                    geo_ffOut.push_back(CalcFFBody(longF, FR, geo_ffType[i], geo_lref[i], Area));
-                    geo_ffName.push_back(AssignFFBodyEqnName(geo_ffType[i]));
+                        if (m_DegenGeomVec[iSurf].getType() == DegenGeom::SURFACE_TYPE)
+                        {
+                            geo_ffName.push_back(AssignFFWingEqnName(geo_ffType[i]));
+                        }
+                        else
+                        {
+                            geo_ffName.push_back(AssignFFBodyEqnName(geo_ffType[i]));
+                        }
+                    }
+                    else
+                    {
+                        --i;
+                    }
+                    iSurf += VehicleMgr.GetVehicle()->FindGeom(geo_geomID[i])->GetNumSymmCopies();
                 }
                 else
                 {
-                    --i;
+                    geo_ffOut.push_back(CalculateFormFactor(iSurf-1, i));
+                    if (m_DegenGeomVec[iSurf].getType() == DegenGeom::SURFACE_TYPE)
+                    {
+                        geo_ffName.push_back(AssignFFWingEqnName(geo_ffType[i]));
+                    }
+                    else
+                    {
+                        geo_ffName.push_back(AssignFFBodyEqnName(geo_ffType[i]));
+                    }
                 }
-                ++iSurf;
             }
             else
             {
                 geo_ffOut.push_back(geo_ffOut[geo_ffOut.size() - 1]);
+                if (geo_ffType[i] == vsp::FF_W_JENKINSON_TAIL)
+                {
+                    geo_Q[i] = 1.2;
+                }
                 geo_ffName.push_back(geo_ffName[geo_ffName.size() - 1]);
             }
         }
@@ -860,6 +865,51 @@ void ParasiteDragMgrSingleton::Calculate_FF()
             geo_ffName.push_back("");
         }
     }
+}
+
+double ParasiteDragMgrSingleton::CalculateFormFactor(int isurf, int irow)
+{
+    // Initialize Variables
+    vector<double>::const_iterator it;
+    double toc;
+    double fin_rat, longF, FR, Area;
+    vector <double> hVec, wVec;
+    double formfactor;
+
+    // Grab Degen Sticks for Appropriate Geom
+    vector <DegenStick> degenSticks = m_DegenGeomVec[isurf].getDegenSticks();
+
+    if (m_DegenGeomVec[isurf].getType() == DegenGeom::SURFACE_TYPE)
+    { // Wing Type
+
+        toc = geo_fineRat[irow];
+
+        Calculate_AvgSweep(degenSticks);
+
+        formfactor = CalcFFWing(toc, geo_ffType[irow], geo_percLam[irow], m_Sweep25, m_Sweep50);
+        if (geo_ffType[irow] == vsp::FF_W_JENKINSON_TAIL)
+        {
+            geo_Q[irow] = 1.2;
+        }
+    }
+    else if (m_DegenGeomVec[isurf].getType() == DegenGeom::BODY_TYPE)
+    {
+        // Get Fine Rat
+        fin_rat = geo_fineRat[irow];
+
+        // Invert Fineness Ratio
+        longF = pow(geo_fineRat[irow], -1);
+
+        // Max Cross Sectional Area
+        Area = *max_element(degenSticks[0].areaTop.begin(), degenSticks[0].areaTop.end());
+
+        // FR used by Schemensky
+        FR = geo_lref[irow] / sqrt(Area);
+
+        formfactor = CalcFFBody(longF, FR, geo_ffType[irow], geo_lref[irow], Area);
+    }
+
+    return formfactor;
 }
 
 void ParasiteDragMgrSingleton::Calculate_AvgSweep(vector<DegenStick> degenSticks)
