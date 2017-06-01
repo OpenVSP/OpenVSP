@@ -2378,8 +2378,6 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
     }
 }
 
-// Check logic on this routine.  Second if-block has no consequence as new_vinf is
-// always recalculated immediately after.
 void ParasiteDragMgrSingleton::UpdateVinf(int newunit)
 {
     double new_vinf;
