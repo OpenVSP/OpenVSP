@@ -838,7 +838,7 @@ void ParasiteDragMgrSingleton::Calculate_FF()
                 else
                 {
                     geo_ffOut.push_back(CalculateFormFactor(iSurf-1, i));
-                    if (m_DegenGeomVec[iSurf].getType() == DegenGeom::SURFACE_TYPE)
+                    if (m_DegenGeomVec[iSurf-1].getType() == DegenGeom::SURFACE_TYPE)
                     {
                         geo_ffName.push_back(AssignFFWingEqnName(geo_ffType[i]));
                     }
