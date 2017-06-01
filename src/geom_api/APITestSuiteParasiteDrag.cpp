@@ -294,6 +294,89 @@ void APITestSuiteParasiteDrag::TestRevertToSimpleModel()
     TestFirstParasiteDragCalc();
 }
 
+void APITestSuiteParasiteDrag::TestGeometryGrouping()
+{
+    printf("APITestSuiteParasiteDrag::TestGeometryGrouping()\n");
+
+    // make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    printf("\tAdding FUSELAGE (Fuse)\n");
+    string fuse_id = vsp::AddGeom("FUSELAGE");
+    vsp::SetGeomName( fuse_id, "Fuse" );
+    TEST_ASSERT( fuse_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  fuse_id, "Length", "Design", 15.0 ), 15.0, TEST_TOL);
+
+    printf("\tAdding POD (Gear Pod)\n");
+    string pod_id = vsp::AddGeom("POD", fuse_id);
+    vsp::SetGeomName( pod_id, "Gear Pod" );
+    TEST_ASSERT( pod_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "Z_Rel_Location", "XForm", -1.0 ), -1.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "X_Rel_Location", "XForm", 5.0 ), 5.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "Length", "Design", 5.0 ), 5.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "FineRatio", "Design", 5.0 ), 5.0, TEST_TOL);
+
+    // Group Gear Pod w/ Fuse
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "IncorporatedGen", "ParasiteDragProps", 1.0 ), 1.0, TEST_TOL);
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Setup export filenames ====//
+    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    string name = "apitest_TestParasiteDragGeometryGrouping.vsp3";
+    printf("\tSetting export name: %s\n", name.c_str());
+    vsp::SetVSP3FileName( name );  // this still needs to be done even if a call to WriteVSPFile is made
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Save Vehicle to File ====//
+    printf("\tSaving vehicle file to: %s ...\n", name.c_str());
+    vsp::WriteVSPFile( vsp::GetVSPFileName(), vsp::SET_ALL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("COMPLETE\n");
+
+    // Execute
+    printf("\tExecuting...\n");
+    string results_id = vsp::ExecAnalysis("ParasiteDrag");
+    printf("COMPLETE\n");
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+                                                                 // Find Index Via Name
+    vector < string > labelnamevec = vsp::GetStringResults( results_id, "Comp_Label" );
+    int fuseindex, podindex;
+    for (size_t i = 0; i < labelnamevec.size(); ++i)
+    {
+        if (labelnamevec[i].compare("Fuse") == 0)
+        {
+            fuseindex = i;
+        }
+        else if (labelnamevec[i].compare("Gear Pod") == 0)
+        {
+            podindex = i;
+        }
+    }
+
+    // Check for Appropriate CD and Added Swet
+    double cd_tol = 0.00001;
+    double swet_tol = 0.01;
+    double pod_cd = 0.0;
+    double pod_swet = 9.56;
+    double fuse_swet = 102.20;
+    vector < double > cd = vsp::GetDoubleResults( results_id, "Comp_CD" );
+    TEST_ASSERT_DELTA( pod_cd, cd[podindex], cd_tol );
+    vector < double > swet = vsp::GetDoubleResults( results_id, "Comp_Swet" );
+    TEST_ASSERT_DELTA( pod_swet + fuse_swet, swet[fuseindex], swet_tol );
+
+    vsp::PrintResults( results_id );                             // Get & Display Results
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("\n");
+}
+
 void APITestSuiteParasiteDrag::TestS3VikingModel()
 {
     vsp::VSPRenew();

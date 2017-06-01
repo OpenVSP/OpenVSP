@@ -29,6 +29,7 @@ public:
         TEST_ADD( APITestSuiteParasiteDrag::TestUSAF1966 );
         TEST_ADD( APITestSuiteParasiteDrag::TestFormFactorEquations );
         TEST_ADD( APITestSuiteParasiteDrag::TestFrictionCoefficientEquations );
+        TEST_ADD( APITestSuiteParasiteDrag::TestGeometryGrouping );
     }
 
 private:
@@ -39,6 +40,7 @@ private:
     void TestSecondParasiteDragCalc();
     void TestChangeOptions();
     void TestRevertToSimpleModel();
+    void TestGeometryGrouping();
     void TestS3VikingModel();
     void TestUSStandardAtmosphere1976();
     void TestUSAF1966();
