@@ -294,6 +294,109 @@ void APITestSuiteParasiteDrag::TestRevertToSimpleModel()
     TestFirstParasiteDragCalc();
 }
 
+void APITestSuiteParasiteDrag::TestSubSurfaceHandling()
+{
+    printf("APITestSuiteParasiteDrag::TestSubSurfaceHandling()\n");
+
+    // make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    printf("\tAdding WING (Main)\n");
+    string wing_id = vsp::AddGeom( "WING");
+    vsp::SetGeomName( wing_id, "MainWing" );
+    TEST_ASSERT( wing_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  wing_id, "TotalSpan", "WingGeom", 17.0 ), 17.0, TEST_TOL);
+
+    printf("\tAdding SUBSURFACE (Outside Aileron)\n");
+    string outside_ailerson_ssid = vsp::AddSubSurf(wing_id, vsp::SS_CONTROL);
+    vsp::SetSubSurfName(wing_id, outside_ailerson_ssid, "Outside Aileron");
+    TEST_ASSERT( outside_ailerson_ssid.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "UStart", "SS_Control_1", 0.52 ), 0.52, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "UEnd", "SS_Control_1", 0.65 ), 0.65, TEST_TOL);
+
+    printf("\tAdding SUBSURFACE (Inside Aileron)\n");
+    string inside_aileron_ssid = vsp::AddSubSurf(wing_id, vsp::SS_CONTROL);
+    vsp::SetSubSurfName(wing_id, inside_aileron_ssid, "Inside Aileron");
+    TEST_ASSERT( inside_aileron_ssid.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "UStart", "SS_Control_2", 0.4 ), 0.4, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "UEnd", "SS_Control_2", 0.5 ), 0.5, TEST_TOL);
+
+    printf("\tAdding WING (Tail)\n");
+    string tail_id = vsp::AddGeom( "WING");
+    vsp::SetGeomName( tail_id, "Tail" );
+    TEST_ASSERT( tail_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  tail_id, "TotalSpan", "WingGeom", 9.0 ), 9.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  tail_id, "X_Rel_Location", "XForm", 5.0 ), 5.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  tail_id, "TotalChord", "WingGeom", 1.5 ), 1.5, TEST_TOL);
+
+    printf("\tAdding SUBSURFACE (Elevator)\n");
+    string elevator_ssid = vsp::AddSubSurf(tail_id, vsp::SS_CONTROL);
+    vsp::SetSubSurfName(tail_id, elevator_ssid, "Elevator");
+    TEST_ASSERT( elevator_ssid.c_str() != NULL );
+
+    // Convert Sub Surfaces to all forms of sub surface drag types
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "IncludeFlag", "SubSurface_1", vsp::SS_INC_ZERO_DRAG), vsp::SS_INC_ZERO_DRAG, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( tail_id, "IncludeFlag", "SubSurface_1", vsp::SS_INC_SEPARATE_TREATMENT), vsp::SS_INC_SEPARATE_TREATMENT, TEST_TOL);
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Setup export filenames ====//
+    // Execution of one of these methods is required to propperly set the export filenames for creation of vspaero input files and execution commands
+    string name = "apitest_TestParasiteDragSubSurfaceHandling.vsp3";
+    printf("\tSetting export name: %s\n", name.c_str());
+    vsp::SetVSP3FileName( name );  // this still needs to be done even if a call to WriteVSPFile is made
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Save Vehicle to File ====//
+    printf("\tSaving vehicle file to: %s ...\n", name.c_str());
+    vsp::WriteVSPFile( vsp::GetVSPFileName(), vsp::SET_ALL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("COMPLETE\n");
+
+    // Execute
+    printf("\tExecuting...\n");
+    string results_id = vsp::ExecAnalysis("ParasiteDrag");
+    printf("COMPLETE\n");
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // Find Index Via Name
+    vector < string > labelnamevec = vsp::GetStringResults( results_id, "Comp_Label" );
+    int outsideaileronindex, insideaileronindex, elevatorindex;
+    for (size_t i = 0; i < labelnamevec.size(); ++i)
+    {
+        if (labelnamevec[i].compare("[ss] Outside Aileron_0") == 0)
+        {
+            outsideaileronindex = i;
+        }
+        else if (labelnamevec[i].compare("[ss] Inside Aileron_0") == 0)
+        {
+            insideaileronindex = i;
+        }
+        else if (labelnamevec[i].compare("[ss] Elevator") == 0)
+        {
+            elevatorindex = i;
+        }
+    }
+
+    // Check for Appropriate CD
+    double cd_tol = 0.00001;
+    double outside_aileron_cd = 0.0;
+    double inside_aileron_cd = 0.00013;
+    double elevator_cd = 0.00015;
+    vector < double > cd = vsp::GetDoubleResults( results_id, "Comp_CD" );
+    TEST_ASSERT_DELTA( outside_aileron_cd, cd[outsideaileronindex], cd_tol );
+    TEST_ASSERT_DELTA( inside_aileron_cd, cd[insideaileronindex], cd_tol );
+    TEST_ASSERT_DELTA( elevator_cd, cd[elevatorindex], cd_tol );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("\n");
+}
+
 void APITestSuiteParasiteDrag::TestGeometryGrouping()
 {
     printf("APITestSuiteParasiteDrag::TestGeometryGrouping()\n");
