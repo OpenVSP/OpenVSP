@@ -80,7 +80,7 @@ void APITestSuiteParasiteDrag::TestFirstParasiteDragCalc()
     vsp::ReadVSPFile( m_vspfname_for_parasitedragtests );
     if ( m_vspfname_for_parasitedragtests == string() )
     {
-        TEST_FAIL("m_vspfname_for_parasitedragtests = NULL, need to run: APITestSuite::TestFirstParasiteDragCalc");
+        TEST_FAIL("m_vspfname_for_parasitedragtests = NULL, need to run: APITestSuite::TestParasiteDragCreateModel");
         return;
     }
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
