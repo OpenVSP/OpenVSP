@@ -646,7 +646,20 @@ void ParasiteDragMgrSingleton::ReynoldsNumCalc(int index)
     double vinf, lref;
     if (m_FreestreamType() != vsp::ATMOS_TYPE_MANUAL_RE_L)
     {
-        vinf = m_Vinf();
+        if (m_VinfUnitType() == vsp::V_UNIT_MACH)
+        {
+            double soundspeed = m_Atmos.GetSoundSpeed();
+            soundspeed = ConvertVelocity(soundspeed, vsp::V_UNIT_M_S, m_VinfUnitType());
+            vinf = m_Vinf() * soundspeed;
+        }
+        else if (m_VinfUnitType() == vsp::V_UNIT_KEAS)
+        {
+            vinf = m_Vinf() * sqrt(1.0 / m_Atmos.GetDensityRatio());       
+        }
+        else
+        {
+            vinf = m_Vinf();
+        }
         lref = geo_lref[index];
 
         if (m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL)
