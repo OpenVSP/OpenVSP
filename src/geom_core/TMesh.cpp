@@ -2082,7 +2082,7 @@ void TTri::TriangulateSplit( int flattenAxis )
     }
 }
 
-int TTri::OnEdge( vec3d & p, TEdge* e, double onEdgeTol, double * t )
+int TTri::OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t )
 {
     //==== Make Sure Not Duplicate Points ====//
     if ( dist( p, e->m_N0->m_Pnt ) < onEdgeTol )
