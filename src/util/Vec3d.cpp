@@ -1115,7 +1115,7 @@ double nearSegSeg( const vec3d& L0, const vec3d& L1, const vec3d& S0, const vec3
 }
 
 
-double pointLineDistSquared( vec3d& X0, vec3d& X1, vec3d& X2, double* t )
+double pointLineDistSquared( const vec3d& X0, const vec3d& X1, const vec3d& X2, double* t )
 {
     vec3d X10 = X1 - X0;
     vec3d X21 = X2 - X1;
@@ -1142,7 +1142,7 @@ vec3d point_on_line( const vec3d & lp0, const vec3d & lp1, const double & t )
     return lp0 + s10 * t;
 }
 
-double pointSegDistSquared( vec3d& p, vec3d& sp0, vec3d& sp1, double* t )
+double pointSegDistSquared( const vec3d& p, const vec3d& sp0, const vec3d& sp1, double* t )
 {
     double dSqr = pointLineDistSquared( p, sp0, sp1, t );
 
