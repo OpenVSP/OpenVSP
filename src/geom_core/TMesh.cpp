@@ -1468,11 +1468,14 @@ bool TTri::MatchEdge( TNode* n0, TNode* n1, TNode* nA, TNode* nB, double tol )
     return false;
 }
 
+// was 1e-5
+#define ON_EDGE_TOL 1e-5
+
 //==== Split A Triangle Along Edges in ISectEdges Vec =====//
 void TTri::SplitTri()
 {
     int i, j;
-    double onEdgeTol = 1e-5; // was 1e-5
+    double onEdgeTol = ON_EDGE_TOL; // was 1e-5
     double uvMinTol  = 1e-3; // was 1e-3
     double uvMaxTol  = 1.0 - uvMinTol;
 
