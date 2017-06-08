@@ -36,6 +36,8 @@ public:
     virtual bool Subtag( TTri* tri ) const;
     virtual bool Subtag( const vec3d & center ) const;
     virtual TMesh* CreateTMesh();
+    virtual void AddToTMesh( TMesh* tmesh );
+
     virtual void SetSP0( vec3d pnt )
     {
         m_SP0 = pnt;

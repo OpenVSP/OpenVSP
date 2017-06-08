@@ -545,12 +545,21 @@ vec3d SSLineSeg::CompPnt( VspSurf* surf, vec3d uw_pnt ) const
 
 TMesh* SSLineSeg::CreateTMesh()
 {
+    TMesh* tmesh = new TMesh();
+
+    AddToTMesh( tmesh );
+
+    return tmesh;
+}
+
+void SSLineSeg::AddToTMesh( TMesh* tmesh )
+{
+
     int num_cut_lines = 0;
     int num_z_lines = 0;
 
     double tol = 1.0e-6;
 
-    TMesh* tmesh = new TMesh();
 
     vec3d dc = m_line / ( num_cut_lines + 1.0 );
     vec3d dz = vec3d( 0, 0, 2.0 ) / ( num_z_lines + 1 );
@@ -608,7 +617,6 @@ TMesh* SSLineSeg::CreateTMesh()
             }
         }
     }
-    return tmesh;
 }
 
 //////////////////////////////////////////////////////
