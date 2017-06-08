@@ -114,10 +114,12 @@ void SubSurface::LoadPartialColoredDrawObjs( const string & ss_id, int surf_num,
 vector< TMesh* > SubSurface::CreateTMeshVec()
 {
     vector<TMesh*> tmesh_vec;
-    tmesh_vec.resize( m_LVec.size() );
+    tmesh_vec.resize(1);
+    tmesh_vec[0] =  new TMesh();
+
     for ( int ls = 0 ; ls < ( int ) m_LVec.size() ; ls++ )
     {
-        tmesh_vec[ls] = m_LVec[ls].CreateTMesh();
+        m_LVec[ls].AddToTMesh( tmesh_vec[0] );
     }
 
     return tmesh_vec;
