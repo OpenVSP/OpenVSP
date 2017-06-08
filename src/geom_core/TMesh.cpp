@@ -1493,6 +1493,7 @@ void TTri::SplitTri()
             if ( DupEdge( m_ISectEdgeVec[i], noDupVec[j], onEdgeTol ) )
             {
                 dupFlag = 1;
+                break;
             }
         }
 
