@@ -127,6 +127,24 @@ double Airfoil::EstimateThick()
 
     crv.split( c1, c2, tmid );  // Split at LE
     c2.reverse();
+    c2.set_t0( c1.get_t0() );
+
+    vector < double > pmap;
+    c1.get_pmap( pmap );
+
+    vector < double > pmap2;
+    c2.get_pmap( pmap2 );
+
+    pmap.insert( pmap.end(), pmap2.begin(), pmap2.end() );
+    std::sort( pmap.begin(), pmap.end() );
+    auto pmit = std::unique( pmap.begin(), pmap.end() );
+    pmap.erase( pmit, pmap.end() );
+
+    for( int i = 0; i < pmap.size(); i++ )
+    {
+        c1.split( pmap[i] );
+        c2.split( pmap[i] );
+    }
 
     c1.scale( -1.0 );
     c3.sum( c1, c2 );
