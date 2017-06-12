@@ -300,14 +300,14 @@ xmlNodePtr XSecCurve::EncodeXml(  xmlNodePtr & node  )
 //==== Copy From ====//
 void XSecCurve::CopyFrom( XSecCurve* from_crv )
 {
-    ParmMgr.ResetRemapID();
+    string lastreset = ParmMgr.ResetRemapID();
     xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Geometry" );
 
     from_crv->EncodeXml( root );
     DecodeXml( root );
 
     xmlFreeNode( root );
-    ParmMgr.ResetRemapID();
+    ParmMgr.ResetRemapID( lastreset );
 }
 
 //==== Compute Area ====//
