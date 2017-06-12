@@ -597,7 +597,7 @@ double ParasiteDragMgrSingleton::CalcReferenceChord(int index)
 
         totalArea += secArea;
 
-        weightedChordSum += m_DegenStick[0].chord[j] * secArea;
+        weightedChordSum += ((0.5 * (m_DegenStick[0].chord[j] + m_DegenStick[0].chord[j + 1])) * secArea);
     }
 
     return weightedChordSum / totalArea;
