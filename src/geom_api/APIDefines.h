@@ -33,7 +33,8 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_AMBIGUOUS_SUBSURF,
                     VSP_INVALID_VARPRESET_SETNAME,
                     VSP_INVALID_VARPRESET_GROUPNAME,
-                    VSP_CONFORMAL_PARENT_UNSUPPORTED
+                    VSP_CONFORMAL_PARENT_UNSUPPORTED,
+                    VSP_UNEXPECTED_RESET_REMAP_ID
                 };
 
 enum SYM_FLAG {  SYM_XY = ( 1 << 0 ),

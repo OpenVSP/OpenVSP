@@ -43,6 +43,7 @@ private:
     unordered_map< string, ParmContainer* > m_ParmContainerMap;     // ID->Parm Container Map
 
     unordered_map< string, string > m_IDRemap;                      // oldID->newID Map
+    string m_LastReset;
 
     int m_NumParmChanges;
     int m_ChangeCnt;
@@ -72,7 +73,7 @@ public:
 
     string ForceRemapID( const string & oldID, int size );
     string RemapID( const string & oldID, const string & suggestID = "" );
-    void ResetRemapID();
+    string ResetRemapID( const string & lastReset = "" );
 
     void SetActiveParm( string id )         { m_ActiveParmID = id; }
     Parm* GetActiveParm()                   { return FindParm( m_ActiveParmID ); }
