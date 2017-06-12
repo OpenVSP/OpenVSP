@@ -2149,7 +2149,7 @@ void ParasiteDragScreen::SetupSubSurfInclude(int index, const string geomid, con
     m_TableLayout.AddChoice(m_subsurfinclude[index], "");
     m_subsurfinclude[index].ClearItems();
 
-    m_subsurfinclude[index].AddItem("Treat as Parent");
+    m_subsurfinclude[index].AddItem("Same as Parent");
     m_subsurfinclude[index].AddItem("Separate Treatment");
     m_subsurfinclude[index].AddItem("Zero Drag");
     m_subsurfinclude[index].UpdateItems();
