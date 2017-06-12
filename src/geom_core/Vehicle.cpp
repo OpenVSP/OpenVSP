@@ -1431,7 +1431,6 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
                 }
             }
         }
-        Update();
     }
 
     LinkMgr.DecodeXml( node );
@@ -1535,12 +1534,12 @@ int Vehicle::ReadXMLFile( const string & file_name )
     //==== Decode Vehicle from document ====//
     DecodeXml( root );
 
-    Update();
-
     //===== Free Doc =====//
     xmlFreeDoc( doc );
 
     ParmMgr.ResetRemapID( lastreset );
+
+    Update();
 
     return 0;
 }
