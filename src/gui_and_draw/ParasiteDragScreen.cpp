@@ -1254,7 +1254,22 @@ void ParasiteDragScreen::GuiDeviceCallBack(GuiDevice* device)
             }
             if (device == &m_subsurfinclude[i])
             {
-                vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_IncludeType.Set(m_subsurfinclude[i].GetVal());
+                if (m_subsurfinclude[i].GetVal() == vsp::SS_INC_SEPARATE_TREATMENT && ParasiteDragMgr.IsCaclualted())
+                {
+                    vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_IncludeType.Set(m_subsurfinclude[i].GetVal());
+                    UpdateSetChoice();
+                    RebuildBuildUpTable();
+                    ParasiteDragMgr.RenewDegenGeomVec();
+                }
+
+                if (vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT &&
+                    ParasiteDragMgr.IsCaclualted())
+                {
+                    vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_IncludeType.Set(m_subsurfinclude[i].GetVal());
+                    UpdateSetChoice();
+                    RebuildBuildUpTable();
+                    ParasiteDragMgr.RenewDegenGeomVec();
+                }
             }
             if (device == &m_ffIn[i])
             {

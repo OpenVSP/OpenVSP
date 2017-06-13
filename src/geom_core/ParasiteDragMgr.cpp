@@ -3373,6 +3373,19 @@ void ParasiteDragMgrSingleton::RefreshBaseDataVectors()
     }
 }
 
+void ParasiteDragMgrSingleton::RenewDegenGeomVec()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    veh->CreateDegenGeom(m_SetChoice());
+    string meshID = veh->CompGeomAndFlatten(m_SetChoice(), 0);
+    veh->DeleteGeom(meshID);
+    veh->ShowOnlySet(m_SetChoice());
+
+    // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
+    m_DegenGeomVec = veh->GetDegenGeomVec();
+}
+
 bool ParasiteDragMgrSingleton::HasSameNames()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
@@ -3402,6 +3415,15 @@ bool ParasiteDragMgrSingleton::HasSameNames()
         {
             return false;
         }
+    }
+    return true;
+}
+
+bool ParasiteDragMgrSingleton::IsCaclualted()
+{
+    if (m_DegenGeomVec.empty())
+    {
+        return false;
     }
     return true;
 }

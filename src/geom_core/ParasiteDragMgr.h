@@ -203,7 +203,9 @@ public:
     bool IsSameGeomSet();
     bool IsNotZeroLineItem(int index);
     void RefreshBaseDataVectors();
+    void RenewDegenGeomVec();
     bool HasSameNames();
+    bool IsCaclualted();
 
     // Reference Qualities Parms
     Parm m_Sref;
