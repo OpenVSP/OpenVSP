@@ -775,11 +775,14 @@ string VSPAEROMgrSingleton::ComputeGeometry()
                 veh->FindGeom( tParentGeomId )->GetName().c_str(),
                 veh->FindGeom( tParentGeomId )->GetSubSurf( tSubSurfId )->GetName().c_str(),
                 ((IntParm*)tNumPointsParm)->Get() );
+
+            tNumPointsParm->Set( 1 );
+            veh->FindGeom( tParentGeomId )->Update();
         }
     }
 
     m_DegenGeomVec.clear();
-    veh->CreateDegenGeom( VSPAEROMgr.m_GeomSet() );
+    veh->CreateDegenGeom( m_GeomSet() );
     m_DegenGeomVec = veh->GetDegenGeomVec();
 
     // Reset ControlSurf NumPoints
