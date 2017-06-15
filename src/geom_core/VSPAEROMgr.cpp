@@ -1480,7 +1480,7 @@ void VSPAEROMgrSingleton::MonitorSolver( FILE * logFile )
     while ( runflag || nread > 0 )
     {
         m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-        if( nread > 0 )
+        if( nread > 0 && nread != (unsigned long) -1 )
         {
             if ( buf )
             {
