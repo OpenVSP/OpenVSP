@@ -448,36 +448,41 @@ void APITestSuiteMassProp::TestCylindricalShell()
     string stack_id = vsp::AddGeom( "STACK" );
 
     //  Change Type of All XSec to Circle 
-    vsp::CutXSec( stack_id, 2 );
     vsp::CutXSec( stack_id, 3 );
     string stackxsurf_id = vsp::GetXSecSurf( stack_id, 0 );
     vsp::ChangeXSecShape( stackxsurf_id, 0, vsp::XS_CIRCLE );
     vsp::ChangeXSecShape( stackxsurf_id, 1, vsp::XS_CIRCLE );
     vsp::ChangeXSecShape( stackxsurf_id, 2, vsp::XS_CIRCLE );
+    vsp::ChangeXSecShape( stackxsurf_id, 3, vsp::XS_CIRCLE );
 
     //  Get XSec IDs:
     string xsec_id0 = vsp::GetXSec( stackxsurf_id, 0 );
     string xsec_id1 = vsp::GetXSec( stackxsurf_id, 1 );
     string xsec_id2 = vsp::GetXSec( stackxsurf_id, 2 );
+    string xsec_id3 = vsp::GetXSec( stackxsurf_id, 3 );
 
     //  Set Radius to 2:
     double radius = 2;
     string dia_id0 = vsp::GetXSecParm( xsec_id0, "Circle_Diameter" );
     string dia_id1 = vsp::GetXSecParm( xsec_id1, "Circle_Diameter" );
     string dia_id2 = vsp::GetXSecParm( xsec_id2, "Circle_Diameter" );
+    string dia_id3 = vsp::GetXSecParm( xsec_id3, "Circle_Diameter" );
 
-    TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id0, radius * 2 ), radius * 2, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id0, 0 ), 0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id1, radius * 2 ), radius * 2, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id2, radius * 2 ), radius * 2, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id3, 0 ), 0, TEST_TOL );
 
     //  Set Beginning and End of Cylinder 
     double length = 12;
     string xloc_id0 = vsp::GetXSecParm( xsec_id0, "XDelta" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id0, 0.0 ), 0.0, TEST_TOL );
     string xloc_id1 = vsp::GetXSecParm( xsec_id1, "XDelta" );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id1, length ), length, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id1, 0.0 ), 0.0, TEST_TOL );
     string xloc_id2 = vsp::GetXSecParm( xsec_id2, "XDelta" );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id2, 0.0 ), 0.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id2, length ), length, TEST_TOL );
+    string xloc_id3 = vsp::GetXSecParm( xsec_id3, "XDelta" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id3, 0.0 ), 0.0, TEST_TOL );
 
     //  Straighten Cylinder:
     string sym_id0 = vsp::GetXSecParm( xsec_id0, "AllSym" );
@@ -498,6 +503,12 @@ void APITestSuiteMassProp::TestCylindricalShell()
     TEST_ASSERT_DELTA( vsp::SetParmVal( Lstrength_id2, 0 ), 0, TEST_TOL );
     string Rstrength_id2 = vsp::GetXSecParm( xsec_id2, "TopRStrength" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( Rstrength_id2, 0 ), 0, TEST_TOL );
+    string sym_id3 = vsp::GetXSecParm( xsec_id3, "AllSym" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( sym_id3, 1 ), 1, TEST_TOL );
+    string Lstrength_id3 = vsp::GetXSecParm( xsec_id3, "TopLStrength" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( Lstrength_id3, 0 ), 0, TEST_TOL );
+    string Rstrength_id3 = vsp::GetXSecParm( xsec_id3, "TopRStrength" );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( Rstrength_id3, 0 ), 0, TEST_TOL );
 
     //  Set Thin Shell Flag:
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Shell_Flag", "Mass_Props", 1 ), 1, TEST_TOL );
@@ -514,12 +525,19 @@ void APITestSuiteMassProp::TestCylindricalShell()
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Tess_W", "Shape", 73 ), 73, TEST_TOL );
 
     //==== Analytical Mass Properties ====//
-    double pi = 3.14159265359;
-    double SA = 2 * pi * radius * length;
-    double mass = rho_A * SA;
-    double I_xx = mass * pow( radius, 2 );
+    double diskSA = PI * pow( radius, 2.0 );
+    double diskMass = rho_A * diskSA;
+    double shellSA = 2.0 * PI * radius * length;
+    double shellMass = rho_A * shellSA;
+    double diskIxx = diskMass * pow( radius, 2.0 ) / 2.0;
+    double diskIyy = diskMass * pow( radius, 2.0 ) / 4.0 + diskMass * pow( ( length / 2.0 ), 2.0);
+    double shellIxx = shellMass * pow( radius, 2.0 );
+    double shellIyy = shellMass * pow( radius, 2.0 ) / 2.0 + shellMass * pow( length, 2.0 ) / 12.0;
+    double shellIzz = shellIyy;
+    double mass = shellMass + (2.0 * diskMass);
+    double I_xx = shellIxx + (2.0 * diskIxx);
     double I_xy = 0;
-    double I_yy = mass * pow( radius, 2 ) / 2 + mass * pow( length, 2 ) / 12;
+    double I_yy = shellIyy + (2.0 * diskIyy);
     double I_yz = 0;
     double I_zz = I_yy;
     double I_xz = 0;
@@ -601,7 +619,7 @@ void APITestSuiteMassProp::TestCylindricalShell()
     printf( "   Cylinder_Iyz: %7.3f \n", I_yz );
     printf( "   Cylinder_Izz: %7.3f \n", I_zz );
     printf( "   Cylinder Mass: %7.3f \n", mass );
-    printf( "   Cylinder Surface Area: %7.3f \n", SA );
+    printf( "   Cylinder Surface Area: %7.3f \n", shellSA );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -972,25 +990,30 @@ void APITestSuiteMassProp::TestShellCone()
 
     //  Change Type of Middle XSec to Circle and Ends to Points
     vsp::CutXSec( stack_id, 2 );
-    vsp::CutXSec( stack_id, 3 );
     string stackxsurf_id = vsp::GetXSecSurf( stack_id, 0 );
     vsp::ChangeXSecShape( stackxsurf_id, 0, vsp::XS_POINT );
     vsp::ChangeXSecShape( stackxsurf_id, 1, vsp::XS_CIRCLE );
+    vsp::ChangeXSecShape( stackxsurf_id, 3, vsp::XS_CIRCLE );
 
     //  Get XSec IDs:
     string xsec_id0 = vsp::GetXSec( stackxsurf_id, 0 );
     string xsec_id1 = vsp::GetXSec( stackxsurf_id, 1 );
+    string xsec_id2 = vsp::GetXSec( stackxsurf_id, 3 );
 
     //  Set Radius to 2:
     double radius = 2;
     string dia_id1 = vsp::GetXSecParm( xsec_id1, "Circle_Diameter" );
+    string dia_id2 = vsp::GetXSecParm( xsec_id2, "Circle_Diameter" );
 
     vsp::SetParmVal( dia_id1, radius * 2 );
+    vsp::SetParmVal( dia_id2, 0 );
 
     //  Set Beginning and End of Cone 
     double length = 12;
     string xloc_id1 = vsp::GetXSecParm( xsec_id1, "XDelta" );
     vsp::SetParmVal( xloc_id1, length );
+    string xloc_id2 = vsp::GetXSecParm( xsec_id2, "XDelta" );
+    vsp::SetParmVal( xloc_id2, 0 );
 
     //  Straighten Cone:
     string sym_id0 = vsp::GetXSecParm( xsec_id0, "AllSym" );
@@ -1005,6 +1028,12 @@ void APITestSuiteMassProp::TestShellCone()
     vsp::SetParmVal( Lstrength_id1, 0 );
     string Rstrength_id1 = vsp::GetXSecParm( xsec_id1, "TopRStrength" );
     vsp::SetParmVal( Rstrength_id1, 0 );
+    string sym_id2 = vsp::GetXSecParm( xsec_id2, "AllSym" );
+    vsp::SetParmVal( sym_id2, 1 );
+    string Lstrength_id2 = vsp::GetXSecParm( xsec_id2, "TopLStrength" );
+    vsp::SetParmVal( Lstrength_id2, 0 );
+    string Rstrength_id2 = vsp::GetXSecParm( xsec_id2, "TopRStrength" );
+    vsp::SetParmVal( Rstrength_id2, 0 );
 
     //   Open End of Cone
     vsp::CutXSec( stack_id, 2 );
@@ -1030,18 +1059,25 @@ void APITestSuiteMassProp::TestShellCone()
     vsp::SetParmVal( xutess_id1, 20 );
 
     //==== Analytical Mass Properties ====//
-    double pi = 3.14159265359;
-    double SA = pi * sqrt( pow( length, 2 ) + pow( radius, 2 ) );
-    double mass = rho_A * SA;
-    double I_xx = mass * pow( radius, 2 ) / 2;
+    double diskSA = PI * pow( radius, 2.0 );
+    double shellSA = PI * radius * sqrt( pow( length, 2.0 ) + pow( radius, 2.0 ) );
+    double SA = diskSA + shellSA;
+    double diskMass = rho_A * diskSA;
+    double shellMass = rho_A * shellSA;
+    double shellIxx = shellMass * pow( radius, 2 ) / 2;
+    double shellIyy = ( shellMass * pow( radius, 2 ) / 4 ) + ( shellMass * pow( length, 2 ) / 18 ) + shellMass * pow(( 3 * length / 4 - 8.564 ), 2);
+    double diskIxx = diskMass * pow( radius, 2 ) / 2;
+    double diskIyy = diskMass * pow( radius, 2 ) / 4 + diskMass * pow( 3.436, 2 );
+    double mass = diskMass + shellMass;
+    double I_xx = shellIxx + diskIxx;
     double I_xy = 0;
-    double I_yy = ( mass * pow( radius, 2 ) / 4 ) + ( mass * pow( length, 2 ) / 6 );
+    double I_yy = shellIyy + diskIyy;
     double I_yz = 0;
     double I_zz = I_yy;
     double I_xz = 0;
     double Cz = 0;
     double Cy = 0;
-    double Cx = 3 * length / 4;
+    double Cx = (3 * length / 4) - 0.436;
 
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
