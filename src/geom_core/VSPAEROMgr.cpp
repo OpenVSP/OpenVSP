@@ -767,11 +767,8 @@ string VSPAEROMgrSingleton::ComputeGeometry()
             tNumPointsParmIdValVec.push_back( std::make_pair(tNumPointsId, tNumPointsParm->Get()) );
 
             // Send warning message to user
-            fprintf( stderr, "WARNING: Temporarily setting Control_Surf NumPoints = 1 for VSPAERO compatible DegenGeom generation.\n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
-            fprintf( stderr, "\tGeom: %s\n\tControl_Surf: %s\n\tNumPoints = %d\n",
-                veh->FindGeom( tParentGeomId )->GetName().c_str(),
-                veh->FindGeom( tParentGeomId )->GetSubSurf( tSubSurfId )->GetName().c_str(),
-                ((IntParm*)tNumPointsParm)->Get() );
+            fprintf( stderr, "NOTE: Temporarily setting Control_Surf NumPoints = 1 for VSPAERO compatible DegenGeom generation for Control_Surf: %s.\n",
+                veh->FindGeom( tParentGeomId )->GetSubSurf( tSubSurfId )->GetName().c_str() );
 
             tNumPointsParm->Set( 1 );
             veh->FindGeom( tParentGeomId )->Update();
