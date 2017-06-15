@@ -86,7 +86,6 @@ public:
     void UpdateDeflectionGainScrollGroup();
 
     void DisplayDegenCamberPreview();
-    void ResetDegenCamberPreview();
 
     void LoadDrawObjs( vector < DrawObj* > & draw_obj_vec );
 

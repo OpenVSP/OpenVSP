@@ -740,13 +740,6 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
         }
-        else if ( device == &m_AeroMethodToggleGroup )
-        {
-            if ( VSPAEROMgr.m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL )
-            {
-                ResetDegenCamberPreview();
-            }
-        }
         else if ( device == &m_PreviewDegenButton )
         {
             DisplayDegenCamberPreview();
@@ -1516,38 +1509,16 @@ void VSPAEROScreen::DisplayDegenCamberPreview()
 
             geom_vec[i]->m_GuiDraw.SetDrawType( GeomGuiDraw::GEOM_DRAW_SHADE );
             geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( true );
+            geom_vec[i]->SetSetFlag( vsp::SET_SHOWN, true );
+            geom_vec[i]->SetSetFlag( vsp::SET_NOT_SHOWN, false );
         }
         else
         {
-            // Do not show geoms not in VSPAEROMgr.m_GeomSet() (hiding will move it to the "No Show" set)
-            geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_BEZIER );
-            geom_vec[i]->m_GuiDraw.SetDrawType( GeomGuiDraw::GEOM_DRAW_NONE );
-            geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( false );
-            geom_vec[i]->m_GuiDraw.SetDispFeatureFlag( false );
+            // Do not show geoms not in VSPAEROMgr.m_GeomSet()
+            geom_vec[i]->SetSetFlag( vsp::SET_SHOWN, false );
+            geom_vec[i]->SetSetFlag( vsp::SET_NOT_SHOWN, true );
         }
 
-        // Update Main VSP Screen to display DegenGeom previews
-        VspScreen* main = m_ScreenMgr->GetScreen( ScreenMgr::VSP_MAIN_SCREEN );
-        main->Update();
     }
-}
-
-void VSPAEROScreen::ResetDegenCamberPreview()
-{
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    if ( !veh )
-    {
-        return;
-    }
-
-    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec( false ) );
-    for ( size_t i = 0; i < (int)geom_vec.size(); i++ )
-    {
-        geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( true );
-        geom_vec[i]->m_GuiDraw.SetDispFeatureFlag( true );
-        geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_BEZIER );
-        geom_vec[i]->m_GuiDraw.SetDrawType( GeomGuiDraw::GEOM_DRAW_WIRE );
-        geom_vec[i]->Update();
-    }
+    m_ScreenMgr->SetUpdateFlag( true );
 }
