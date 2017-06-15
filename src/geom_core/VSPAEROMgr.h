@@ -193,7 +193,6 @@ public:
     int ExportResultsToCSV( string fileName );
 
     IntParm m_AnalysisMethod;
-    BoolParm m_DegenPreviewFlag;
 
     // Rotor Disk Functionality
     void SetCurrentRotorDiskFromParms();

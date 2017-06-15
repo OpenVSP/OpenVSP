@@ -40,9 +40,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_AnalysisMethod.Init( "AnalysisMethod", groupname, this, vsp::VORTEX_LATTICE, vsp::VORTEX_LATTICE, vsp::PANEL );
     m_AnalysisMethod.SetDescript( "Analysis method: 0=VLM, 1=Panel" );
 
-    m_DegenPreviewFlag.Init( "DegenPreviewFlag", groupname, this, false, false, true );
-    m_DegenPreviewFlag.SetDescript( "Flag to display DegenGeom preview" );
-
     m_LastPanelMeshGeomId = string();
 
     m_Sref.Init( "Sref", groupname, this, 100.0, 0.0, 1e12 );

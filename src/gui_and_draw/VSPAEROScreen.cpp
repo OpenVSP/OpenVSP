@@ -749,10 +749,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if ( device == &m_PreviewDegenButton )
         {
-            if ( !VSPAEROMgr.m_DegenPreviewFlag() )
-            {
-                ResetDegenCamberPreview();
-            }
+            DisplayDegenCamberPreview();
         }
         else if( device == &m_RefWingChoice )
         {
@@ -959,7 +956,6 @@ void VSPAEROScreen::UpdateSetChoiceLists()
 
 void VSPAEROScreen::UpdateCaseSetupDevices()
 {
-    m_PreviewDegenButton.Update(VSPAEROMgr.m_DegenPreviewFlag.GetID());
     m_AeroMethodToggleGroup.Update(VSPAEROMgr.m_AnalysisMethod.GetID());
     switch (VSPAEROMgr.m_AnalysisMethod.Get())
     {
@@ -978,7 +974,6 @@ void VSPAEROScreen::UpdateCaseSetupDevices()
 
         m_DegenFileName.Deactivate();
         m_DegenFileButton.Deactivate();
-        VSPAEROMgr.m_DegenPreviewFlag.Set(false);
         m_PreviewDegenButton.Deactivate();
 
         m_CompGeomFileName.Activate();
@@ -989,12 +984,6 @@ void VSPAEROScreen::UpdateCaseSetupDevices()
     default:
         //do nothing; this should not be reachable
         break;
-    }
-    m_StabilityCalcToggle.Update(VSPAEROMgr.m_StabilityCalcFlag.GetID());
-
-    if (VSPAEROMgr.m_DegenPreviewFlag())
-    {
-        DisplayDegenCamberPreview();
     }
 }
 

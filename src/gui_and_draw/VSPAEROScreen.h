@@ -120,7 +120,7 @@ protected:
     Choice m_GeomSetChoice;
     // Additional options
     ToggleButton m_StabilityCalcToggle;
-    ToggleButton m_PreviewDegenButton;
+    TriggerButton m_PreviewDegenButton;
 
     // Ref Length Layout
     // Reference lengths & areas
