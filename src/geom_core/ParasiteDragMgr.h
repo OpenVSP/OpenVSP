@@ -197,6 +197,8 @@ public:
     void SortMap();
     void SortMapByWettedArea();
     void SortMapByPercentageCD();
+    void SortGeometryByPercTotalCD();
+    void SortExcresByPercTotalCD();
     void SortMainTableVecByGroupedAncestorGeoms();
     bool CheckAllTrue( vector < bool > vec );
     void DeactivateParms();

@@ -3104,6 +3104,12 @@ void ParasiteDragMgrSingleton::SortMapByWettedArea()
 
 void ParasiteDragMgrSingleton::SortMapByPercentageCD()
 {
+    SortGeometryByPercTotalCD();
+    SortExcresByPercTotalCD();
+}
+
+void ParasiteDragMgrSingleton::SortGeometryByPercTotalCD()
+{
     vector < ParasiteDragTableRow > temp;
     vector < bool > isSorted(m_TableRowVec.size(), false);
     int cur_max_ind = 0;
@@ -3165,6 +3171,47 @@ void ParasiteDragMgrSingleton::SortMapByPercentageCD()
     }
 
     m_TableRowVec = temp;
+}
+
+void ParasiteDragMgrSingleton::SortExcresByPercTotalCD()
+{
+    vector < ExcrescenceTableRow > tempExcres;
+    vector < bool > isSortedExcres(m_ExcresRowVec.size(), false);
+    int cur_max_ind = 0;
+    int i = 0;
+
+    while (!CheckAllTrue(isSortedExcres))
+    {
+        if (!isSortedExcres[i])
+        {
+            // Grabs Current Max Index Based on Unsorted Numbers
+            cur_max_ind = i;
+            for (size_t j = 0; j < m_ExcresRowVec.size(); ++j)
+            {
+                if (!isSortedExcres[j])
+                {
+                    if (m_ExcresRowVec[j].PercTotalCD > m_ExcresRowVec[cur_max_ind].PercTotalCD)
+                    {
+                        cur_max_ind = j;
+                    }
+                }
+            }
+            isSortedExcres[cur_max_ind] = true;
+            tempExcres.push_back(m_ExcresRowVec[cur_max_ind]);
+        }
+
+        // Increase until max reached, then go back through to make sure everything is in its place
+        if (i != isSortedExcres.size() - 1)
+        {
+            ++i;
+        }
+        else
+        {
+            i = 0;
+        }
+    }
+
+    m_ExcresRowVec = tempExcres;
 }
 
 void ParasiteDragMgrSingleton::SortMainTableVecByGroupedAncestorGeoms()
