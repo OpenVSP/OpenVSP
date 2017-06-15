@@ -1011,8 +1011,17 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
 
     m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
     m_BatchCalculationToggle.Update(VSPAEROMgr.m_BatchModeFlag.GetID());
-
+    if (VSPAEROMgr.m_Symmetry())
+    {
+        m_StabilityCalcToggle.Deactivate();
+        VSPAEROMgr.m_StabilityCalcFlag.Set(false);
+    }
+    else
+    {
+        m_StabilityCalcToggle.Update(VSPAEROMgr.m_StabilityCalcFlag.GetID());
+    }
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
+    m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
 
     // Wake Options
     m_WakeNumIterSlider.Update(VSPAEROMgr.m_WakeNumIter.GetID());
@@ -1028,9 +1037,6 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_FarDistSlider.Update( VSPAEROMgr.m_FarDist.GetID() );
 
     VSPAEROMgr.UpdateSetupParmLimits();
-
-    // 2D FEM File
-    m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
 }
 
 void VSPAEROScreen::UpdateFlowConditionDevices()

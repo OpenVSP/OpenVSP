@@ -119,7 +119,6 @@ protected:
     ToggleRadioGroup m_AeroMethodToggleGroup;
     Choice m_GeomSetChoice;
     // Additional options
-    ToggleButton m_StabilityCalcToggle;
     TriggerButton m_PreviewDegenButton;
 
     // Ref Length Layout
@@ -171,7 +170,10 @@ protected:
     StringOutput m_CompGeomFileName;
     TriggerButton m_CompGeomFileButton;
     SliderAdjRangeInput m_NCPUSlider;
+    ToggleButton m_StabilityCalcToggle;
     ToggleButton m_BatchCalculationToggle;
+    ToggleButton m_SymmetryToggle;
+    ToggleButton m_Write2DFEMToggle;
 
     // Wake calculation options
     SliderAdjRangeInput m_WakeNumIterSlider;
@@ -179,16 +181,12 @@ protected:
     SliderAdjRangeInput m_WakeSkipUntilIterSlider;
 
     // Other Setup Parms Setup
-    ToggleButton m_SymmetryToggle;
     ToggleButton m_ClmaxToggle;
     ToggleButton m_MaxTurningToggle;
     ToggleButton m_FarDistToggle;
     SliderAdjRangeInput m_ClmaxSlider;
     SliderAdjRangeInput m_MaxTurningSlider;
     SliderAdjRangeInput m_FarDistSlider;
-
-    // 2D FEM File Write
-    ToggleButton m_Write2DFEMToggle;
 
     //==== Rotor Disk Tab ====//
     GroupLayout m_PropGeneralLayout;
