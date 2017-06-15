@@ -536,7 +536,7 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
 
 double ParasiteDragMgrSingleton::CalcReferenceLength(int index)
 {
-    double lref;
+    double lref = 0;
     if (m_DegenGeomVec[index].getType() == DegenGeom::BODY_TYPE)
     {
         lref = CalcReferenceBodyLength(index);
@@ -793,7 +793,7 @@ double ParasiteDragMgrSingleton::CalculateFinessRatio(int isurf, int irow)
     // Initialize Variables
     vector<double>::const_iterator it;
     double max_xsecarea, dia;
-    double finerat;
+    double finerat = 1.0;
 
     // Grab Degen Sticks for Appropriate Geom
     vector <DegenStick> degenSticks = m_DegenGeomVec[isurf].getDegenSticks();
@@ -887,7 +887,7 @@ double ParasiteDragMgrSingleton::CalculateFormFactor(int isurf, int irow)
     double toc;
     double fin_rat, longF, FR, Area;
     vector <double> hVec, wVec;
-    double formfactor;
+    double formfactor = 1.0;
 
     // Grab Degen Sticks for Appropriate Geom
     vector <DegenStick> degenSticks = m_DegenGeomVec[isurf].getDegenSticks();
@@ -1226,7 +1226,7 @@ struct Karman_Schoenherr_p_functor
 double ParasiteDragMgrSingleton::CalcTurbCf(double ReyIn, double ref_leng, int cf_case,
     double roughness_h = 0, double gamma = 1.4, double taw_tw_ratio = 0, double te_tw_ratio = 0)
 {
-    double CfOut, CfGuess, f, heightRatio, multiBy;
+    double CfOut, CfGuess, f, heightRatio, multiBy = 1.0;
     double r = 0.89; // Recovery Factor
     double n = 0.67; // Viscosity Power-Law Exponent
 
@@ -1873,7 +1873,7 @@ void ParasiteDragMgrSingleton::SetExcresLabel(const string & newLabel)
     }
 }
 
-double ParasiteDragMgrSingleton::GetLrefSigFig()
+int ParasiteDragMgrSingleton::GetLrefSigFig()
 {
     double lrefmag;
     if (!geo_lref.empty())
@@ -2235,8 +2235,8 @@ bool ParasiteDragMgrSingleton::ShouldAddGeomToMasterGeom(const size_t &i, const 
             return ((geo_geomID[i].compare(geo_geomID[j]) == 0) ||
                 (geo_geomID[i].compare(geo_geomID[j]) != 0 &&
                     geo_geomID[i].compare(veh->FindGeom(geo_geomID[j])->GetAncestorID(geo_groupedAncestorGen[j])) == 0) ||
-                    (geo_label[i].substr(0, 3).compare("[W]") == 0 || geo_label[i].substr(0, 3).compare("[B]") == 0 &&
-                        geo_geomID[i].compare(geo_geomID[j]) == 0)) &&
+                    ((geo_label[i].substr(0, 3).compare("[W]") == 0 || geo_label[i].substr(0, 3).compare("[B]") == 0) &&
+                        (geo_geomID[i].compare(geo_geomID[j]) == 0))) &&
                         (geo_shapeType[i] == geo_shapeType[j]);
         }
     }
@@ -2413,7 +2413,7 @@ void ParasiteDragMgrSingleton::UpdateVinf(int newunit)
 
 void ParasiteDragMgrSingleton::UpdateAlt(int newunit)
 {
-    double new_alt;
+    double new_alt = m_Hinf();
     if (newunit == vsp::PD_UNITS_IMPERIAL && m_AltLengthUnit() == vsp::PD_UNITS_METRIC)
     {
         new_alt = ConvertLength(m_Hinf(), vsp::LEN_M, vsp::LEN_FT);

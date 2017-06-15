@@ -891,7 +891,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
     }
     else
     {
-        surface_index_type i, j, nu;
+        surface_index_type nu;
         double umin;
 
         const int nusect = num_u.size();
@@ -1984,7 +1984,6 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol,
             continue;
         }
 
-        piecewise_surface_type::index_type ip, jp;
         piecewise_surface_type::index_type nupatch, nvpatch;
         piecewise_surface_type::index_type maxu, maxv;
         piecewise_surface_type::index_type nupts, nvpts;

@@ -305,7 +305,7 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
 
     // Check for within 5% of v3.11 Rolling Moment
     string history_id = vsp::FindLatestResultsID("VSPAERO_History");
-    double roll_mom_tol = abs(0.05 * vsp::GetDoubleResults(history_id, "CMx")[0]);
+    double roll_mom_tol = std::abs(0.05 * vsp::GetDoubleResults(history_id, "CMx")[0]);
     TEST_ASSERT_DELTA(vsp::GetDoubleResults(history_id, "CMx")[0], -0.01010, roll_mom_tol);
 
     /// ==== Test Symmetric Deflection ==== ///

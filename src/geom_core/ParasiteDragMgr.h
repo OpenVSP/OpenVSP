@@ -138,7 +138,7 @@ public:
     vector < ExcrescenceTableRow > GetExcresVec() { return m_ExcresRowVec; }
     vector <string> GetPDGeomIDVec() { return m_PDGeomIDVec; }
     int GetReynoldsDivisor() { return m_ReynoldsPowerDivisor; }
-    double GetLrefSigFig(); // For display precision purposes
+    int GetLrefSigFig(); // For display precision purposes
     double GetGeomfTotal() { return m_GeomfTotal; }
     double GetGeomPercTotal() { return m_GeomPercTotal; }
     double GetExcresfTotal() { return m_ExcresfTotal; }

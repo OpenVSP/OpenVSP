@@ -202,7 +202,7 @@ void APITestSuiteParasiteDrag::TestSecondParasiteDragCalc()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vector < double > dat = vsp::GetDoubleResults( results_id, "Total_CD_Total" );
-    TEST_ASSERT( abs(second_res - dat[0]) < tol );
+    TEST_ASSERT( std::abs(second_res - dat[0]) < tol );
 
                                                                  // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -246,7 +246,7 @@ void APITestSuiteParasiteDrag::TestChangeOptions()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vector < double > dat = vsp::GetDoubleResults( results_id, "Total_CD_Total" );
-    TEST_ASSERT( abs(third_res - dat[0]) < tol );
+    TEST_ASSERT( std::abs(third_res - dat[0]) < tol );
 
                                                                  // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -361,7 +361,7 @@ void APITestSuiteParasiteDrag::TestSubSurfaceHandling()
 
     // Find Index Via Name
     vector < string > labelnamevec = vsp::GetStringResults( results_id, "Comp_Label" );
-    int outsideaileronindex, insideaileronindex, elevatorindex;
+    int outsideaileronindex = 0, insideaileronindex = 0, elevatorindex = 0;
     for (size_t i = 0; i < labelnamevec.size(); ++i)
     {
         if (labelnamevec[i].compare("[ss] Outside Aileron_0") == 0)
@@ -445,7 +445,7 @@ void APITestSuiteParasiteDrag::TestGeometryGrouping()
 
                                                                  // Find Index Via Name
     vector < string > labelnamevec = vsp::GetStringResults( results_id, "Comp_Label" );
-    int fuseindex, podindex;
+    int fuseindex = 0, podindex = 0;
     for (size_t i = 0; i < labelnamevec.size(); ++i)
     {
         if (labelnamevec[i].compare("Fuse") == 0)
