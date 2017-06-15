@@ -62,13 +62,13 @@ void APITestSuiteParasiteDrag::TestParasiteDragCreateModel()
 
 void APITestSuiteParasiteDrag::TestFirstParasiteDragCalc()
 {
-    double first_res = 0.00387;
+    double first_res = 0.00392;
     double pd_tol = first_res*0.02;
 
     double geom_tol = 0.01;
     double wing_swet = 74.96;
     double pod_swet = 60.81;
-    double wing_lref = 3.09;
+    double wing_lref = 2.79;
     double pod_lref = 14.50;
 
     // make sure setup works
@@ -192,7 +192,7 @@ void APITestSuiteParasiteDrag::TestAddExcrescence()
 
 void APITestSuiteParasiteDrag::TestSecondParasiteDragCalc()
 {
-    double second_res = 0.00491;
+    double second_res = 0.00497;
     double tol = second_res*0.02;
 
     // Execute
@@ -203,8 +203,6 @@ void APITestSuiteParasiteDrag::TestSecondParasiteDragCalc()
 
     vector < double > dat = vsp::GetDoubleResults( results_id, "Total_CD_Total" );
     TEST_ASSERT( abs(second_res - dat[0]) < tol );
-
-    vsp::PrintResults( results_id );                             // Get & Display Results
 
                                                                  // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -239,7 +237,7 @@ void APITestSuiteParasiteDrag::TestChangeOptions()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     double tol = 0.00001;
-    double third_res = 0.01512;
+    double third_res = 0.01528;
 
     // Execute
     printf("\tExecuting...\n");
@@ -249,8 +247,6 @@ void APITestSuiteParasiteDrag::TestChangeOptions()
 
     vector < double > dat = vsp::GetDoubleResults( results_id, "Total_CD_Total" );
     TEST_ASSERT( abs(third_res - dat[0]) < tol );
-
-    vsp::PrintResults( results_id );                             // Get & Display Results
 
                                                                  // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -473,8 +469,6 @@ void APITestSuiteParasiteDrag::TestGeometryGrouping()
     vector < double > swet = vsp::GetDoubleResults( results_id, "Comp_Swet" );
     TEST_ASSERT_DELTA( pod_swet + fuse_swet, swet[fuseindex], swet_tol );
 
-    vsp::PrintResults( results_id );                             // Get & Display Results
-
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf("\n");
@@ -486,10 +480,6 @@ void APITestSuiteParasiteDrag::TestS3VikingModel()
 
     vsp::SetVSP3FileName( "S3VikingModel.vsp3" );  // this still needs to be done even if a call to WriteVSPFile is made
     vsp::Update();
-    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-
-    //==== Save Vehicle to File ====//
-    vsp::WriteVSPFile( vsp::GetVSPFileName(), vsp::SET_ALL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     double test_tol = 0.0001;
@@ -615,10 +605,14 @@ void APITestSuiteParasiteDrag::TestS3VikingModel()
     vsp::AddExcrescence("Percentage Example", vsp::EXCRESCENCE_PERCENT_GEOM, 5);
     vsp::DeleteExcrescence(2);
 
+    //==== Save Vehicle to File ====//
+    vsp::WriteVSPFile( vsp::GetVSPFileName(), vsp::SET_ALL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
     string ridpd = vsp::ExecAnalysis("ParasiteDrag");
 
     vector <double> dat = vsp::GetDoubleResults(ridpd, "Total_CD_Total", 0);
-    double tol = 0.018572*0.10;
+    double tol = 0.01799*0.10;
 
     TEST_ASSERT_DELTA(dat[0], 0.018572, tol);
 }
