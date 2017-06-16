@@ -1278,6 +1278,10 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                     RebuildBuildUpTable();
                     ParasiteDragMgr.RenewDegenGeomVec();
                 }
+                else
+                {
+                    vptr->FindGeom(rowVec[i].GeomID)->GetSubSurf(rowVec[i].SubSurfID)->m_IncludeType.Set(m_subsurfinclude[i].GetVal());
+                }
             }
             if ( device == &m_ffIn[i] )
             {
