@@ -62,6 +62,10 @@ private:
     // UV Centroid
     
     double UVc_[2];
+    
+    // Camber at centroid
+    
+    double Camber_;
 
     // Solution data
     
@@ -158,6 +162,8 @@ public:
     double &NyCamber(void) { return NormalCamber_[1]; };
     double &NzCamber(void) { return NormalCamber_[2]; };
     double *NormalCamber(void) { return NormalCamber_; };
+    
+    double &Camber(void) { return Camber_; };
     
     double &Xc(void) { return XYZc_[0]; };
     double &Yc(void) { return XYZc_[1]; };

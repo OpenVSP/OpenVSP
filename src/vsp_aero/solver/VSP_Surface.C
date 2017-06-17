@@ -157,6 +157,10 @@ void VSP_SURFACE::SizeFlatPlateLists(int NumI, int NumJ)
 
     u_plate_  = new double[NumPlateI_*NumPlateJ_ + 1];
     v_plate_ = new double[NumPlateI_*NumPlateJ_ + 1];
+
+    Camber_ = new double[NumPlateI_*NumPlateJ_ + 1];
+    
+    zero_double_array(Camber_, NumPlateI_*NumPlateJ_);
                 
 }
 
@@ -989,8 +993,10 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
 {
  
     int i, j, NumI, NumJ, Wing, Done, SubSurfIsTyped, HingeNode[2];
-    double DumFloat, zCamber, Vec[3], VecQC_1[3], VecQC_2[3], Mag, HingeVec[3];
-    double x1, y1, z1, x2, y2, z2, ArcLength, Chord, up[4], wp[4], xyz[3];
+    int NumberOfControlSurfaceNodes, FoundHingeLineData;
+    double DumFloat, Vec[3], VecQC_1[3], VecQC_2[3], Mag, HingeVec[3];
+    double x1, y1, z1, x2, y2, z2, ArcLength, Chord, up, wp, xyz[3];
+    double u1, u2, w1, w2, ulist[3], wlist[3];
     char DumChar[2000], Stuff[2000], LastSubSurf[2000], Comma[2000], *Next;
 
     // Save the component name
@@ -1093,7 +1099,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                  &x_plate(i,j),
                  &y_plate(i,j),
                  &z_plate(i,j),
-                 &zCamber,
+                 &Camber(i,j),
                  &DumFloat,
                  &Nx_plate(i,j),
                  &Ny_plate(i,j),
@@ -1102,9 +1108,9 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                  &DumFloat,
                  &v_plate(i,j));
          
-          x_plate(i,j) += zCamber * Nx_plate(i,j);
-          y_plate(i,j) += zCamber * Ny_plate(i,j);
-          z_plate(i,j) += zCamber * Nz_plate(i,j);
+          x_plate(i,j) += Camber(i,j) * Nx_plate(i,j);
+          y_plate(i,j) += Camber(i,j) * Ny_plate(i,j);
+          z_plate(i,j) += Camber(i,j) * Nz_plate(i,j);
                       
           if ( Verbose_ ) printf("Plate xyz: %lf %lf %lf %lf %lf %lf %s \n",
                                   x_plate(i,j),
@@ -1219,10 +1225,10 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                    
                    // Save control surface name
                    
-                   sprintf(ControlSurface_[NumberOfControlSurfaces_].Name(),"%s\0",Next); 
-                   sprintf( ControlSurface_[NumberOfControlSurfaces_].ShortName(), "%s\0", Next );
+                   sprintf(ControlSurface_[NumberOfControlSurfaces_].ShortName(),"%s\0",Next); // Short name
+                   sprintf(ControlSurface_[NumberOfControlSurfaces_].Name(),"%s\0",Next);      // Name and FullName assumed the same unless we find subsurface information below... 
                    
-                   // Save the control surface type, and type name
+                   // Save the control surface type name, type, and full name if they exist
                    
                    if ( SubSurfIsTyped ) {
                       
@@ -1231,129 +1237,200 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                    
                       Next = strtok(NULL,Comma);
                       sscanf(Next,"%d",&ControlSurface_[NumberOfControlSurfaces_].Type());
-                      
+
                       // Use the unique fullName for the subsurface name if found
-                      Next = strtok( NULL, ",\n" );
-                      if ( Next ) sprintf( ControlSurface_[NumberOfControlSurfaces_].Name(), "%s\0", Next );
+
+                      Next = strtok(NULL,Comma);
+                      if ( Next ) sscanf(Next,"%s",ControlSurface_[NumberOfControlSurfaces_].Name());
+                                            
                    }
-                   
+         
                    if ( Verbose_ ) printf( "Control Surface Info:\n" );
                    if ( Verbose_ ) printf( "\t      Name: %s \n", ControlSurface_[NumberOfControlSurfaces_].Name() );
                    if ( Verbose_ ) printf( "\t ShortName: %s \n", ControlSurface_[NumberOfControlSurfaces_].ShortName() );
                    if ( Verbose_ ) printf( "\t  TypeName: %s \n", ControlSurface_[NumberOfControlSurfaces_].TypeName() );
                    if ( Verbose_ ) printf( "\t      Type: %d \n", ControlSurface_[NumberOfControlSurfaces_].Type() );
-                   
-                   // Skip past these lines:
-
-                   fgets(DumChar,1000,VSP_Degen_File);          // # testType
-                   fgets(DumChar,1000,VSP_Degen_File);          // 0
-                   fgets(DumChar,1000,VSP_Degen_File);          // # DegenGeom Type, nPts
-
-                   // Read in number of boundary points
-
-                   fgets(DumChar,1000,VSP_Degen_File);          // SUBSURF_BNDY, 5
-                   unsigned int nSubSurfBndyPts = 5;            // Set to default of 5 in case the SUBSURF_BNDY key is not found
-                   if ( strstr( DumChar, "SUBSURF_BNDY" ) )
-                   {
-                       Next = strtok( DumChar, Comma );
-                       sscanf( Next, "%d", nSubSurfBndyPts );
-                   }
-
-                   // Skip past these lines:
-
-                   fgets(DumChar,1000,VSP_Degen_File);          // # u, w,
-
-                   // Read u,w table skipping the last point since this is a duplicate point
-
-                   for ( unsigned int iPt = 0; iPt < nSubSurfBndyPts-1; iPt++ )
-                   {
-                       fgets( DumChar, 1000, VSP_Degen_File ); sscanf( DumChar, "%lf, %lf", &(up[iPt]), &(wp[iPt]) ); if ( Verbose_ ) printf( "up,wp: %lf %lf \n", up[iPt], wp[iPt] );
-                   }
-                   fgets(DumChar,1000,VSP_Degen_File);          // Skip the last point since it's a repeat of the first point
-                   
-                   // If control surface definition is on the upper surface, transform to the lower surface
-                   
-                   for ( unsigned int iPt = 0; iPt < nSubSurfBndyPts - 1; iPt++ )
-                   {
-                       if ( wp[iPt] > 2. ) wp[iPt] = 4. - wp[iPt];
-                   }
-                   
-                   // Bounding box for control surface
-                   
-                   ControlSurface_[NumberOfControlSurfaces_].u_min() = MIN4(up[0],up[1],up[2],up[3]);
-                   ControlSurface_[NumberOfControlSurfaces_].u_max() = MAX4(up[0],up[1],up[2],up[3]);
-                   ControlSurface_[NumberOfControlSurfaces_].v_min() = MIN4(wp[0],wp[1],wp[2],wp[3]);
-                   ControlSurface_[NumberOfControlSurfaces_].v_max() = MAX4(wp[0],wp[1],wp[2],wp[3]);
-                   
-                   // XYZ coordinates of control surface box
-   
-                   Interpolate_XYZ_From_UV(up[0],wp[0],xyz);
-                   
-                   ControlSurface_[NumberOfControlSurfaces_].Node_1(0) = xyz[0];
-                   ControlSurface_[NumberOfControlSurfaces_].Node_1(1) = xyz[1];
-                   ControlSurface_[NumberOfControlSurfaces_].Node_1(2) = xyz[2];
-                           
-                   Interpolate_XYZ_From_UV(up[1],wp[1],xyz);
-                   
-                   ControlSurface_[NumberOfControlSurfaces_].Node_2(0) = xyz[0];
-                   ControlSurface_[NumberOfControlSurfaces_].Node_2(1) = xyz[1];
-                   ControlSurface_[NumberOfControlSurfaces_].Node_2(2) = xyz[2];
-               
-                   Interpolate_XYZ_From_UV(up[2],wp[2],xyz);
-                   
-                   ControlSurface_[NumberOfControlSurfaces_].Node_3(0) = xyz[0];
-                   ControlSurface_[NumberOfControlSurfaces_].Node_3(1) = xyz[1];
-                   ControlSurface_[NumberOfControlSurfaces_].Node_3(2) = xyz[2];
-                 
-                   Interpolate_XYZ_From_UV(up[3],wp[3],xyz);
-                   
-                   ControlSurface_[NumberOfControlSurfaces_].Node_4(0) = xyz[0];
-                   ControlSurface_[NumberOfControlSurfaces_].Node_4(1) = xyz[1];
-                   ControlSurface_[NumberOfControlSurfaces_].Node_4(2) = xyz[2];
-                   
-                   // Determine hinge line
-              
-                   LocateHingeLine(up, wp, HingeNode);
-                                                             
-                   // Hinge point 1
-                   
-                   Interpolate_XYZ_From_UV(up[HingeNode[0]],wp[HingeNode[0]],xyz);
-                   
-                   HingeVec[0] = -xyz[0];
-                   HingeVec[1] = -xyz[1];
-                   HingeVec[2] = -xyz[2];
         
-                   ControlSurface_[NumberOfControlSurfaces_].HingeNode_1(0) = xyz[0];
-                   ControlSurface_[NumberOfControlSurfaces_].HingeNode_1(1) = xyz[1];
-                   ControlSurface_[NumberOfControlSurfaces_].HingeNode_1(2) = xyz[2];
-             
-                   if ( Verbose_ ) printf("Hinge Point 1: %lf %lf %lf \n",xyz[0],xyz[1],xyz[2]);
+                   fgets(DumChar,1000,VSP_Degen_File);
+                   fgets(DumChar,1000,VSP_Degen_File);
+                   fgets(DumChar,1000,VSP_Degen_File);
+                   fgets(DumChar,1000,VSP_Degen_File);
                    
-                   // Hinge point 2
+                   sscanf(DumChar,"%s%d\n",Stuff,&NumberOfControlSurfaceNodes);
+         
+                   ControlSurface_[NumberOfControlSurfaces_].SizeNodeList(NumberOfControlSurfaceNodes);
                    
-                   Interpolate_XYZ_From_UV(up[HingeNode[1]],wp[HingeNode[1]],xyz);
+                   fgets(DumChar,1000,VSP_Degen_File);
                    
-                   ControlSurface_[NumberOfControlSurfaces_].HingeNode_2(0) = xyz[0];
-                   ControlSurface_[NumberOfControlSurfaces_].HingeNode_2(1) = xyz[1];
-                   ControlSurface_[NumberOfControlSurfaces_].HingeNode_2(2) = xyz[2];
+                   ControlSurface_[NumberOfControlSurfaces_].u_min() =  1.e9;
+                   ControlSurface_[NumberOfControlSurfaces_].u_max() = -1.e9;
+                   ControlSurface_[NumberOfControlSurfaces_].v_min() =  1.e9;
+                   ControlSurface_[NumberOfControlSurfaces_].v_max() = -1.e9;
+          
+                   for ( i = 1 ; i <= NumberOfControlSurfaceNodes ; i++ ) {
+                      
+                      fgets(DumChar,1000,VSP_Degen_File); sscanf(DumChar,"%lf, %lf",&up,&wp); if ( Verbose_ ) printf("up,wp: %lf %lf \n",up,wp);
+                      
+                      // If control surface definition is on the upper surface, transform to the lower surface
+
+                      if ( wp > 2. ) wp = 4. - wp;
+                      
+                      // Store UV coordinates
+                      
+                      ControlSurface_[NumberOfControlSurfaces_].UV_Node(i)[0] = up;
+                      ControlSurface_[NumberOfControlSurfaces_].UV_Node(i)[1] = wp;
+                      
+                      // Store XYZ coordinates
+                      
+                      Interpolate_XYZ_From_UV(up,wp,xyz);
+                      
+                      ControlSurface_[NumberOfControlSurfaces_].XYZ_Node(i)[0] = xyz[0];
+                      ControlSurface_[NumberOfControlSurfaces_].XYZ_Node(i)[1] = xyz[1];
+                      ControlSurface_[NumberOfControlSurfaces_].XYZ_Node(i)[2] = xyz[2];   
+                      
+                      // Bounding box for control surface
+                      
+                      ControlSurface_[NumberOfControlSurfaces_].u_min() = MIN(ControlSurface_[NumberOfControlSurfaces_].u_min(), up);
+                      ControlSurface_[NumberOfControlSurfaces_].u_max() = MAX(ControlSurface_[NumberOfControlSurfaces_].u_max(), up);
+                      ControlSurface_[NumberOfControlSurfaces_].v_min() = MIN(ControlSurface_[NumberOfControlSurfaces_].v_min(), wp);
+                      ControlSurface_[NumberOfControlSurfaces_].v_max() = MAX(ControlSurface_[NumberOfControlSurfaces_].v_max(), wp);
+                           
+                                    
+                   }
+
+                   fgets(DumChar,1000,VSP_Degen_File);
                    
-                   if ( Verbose_ ) printf("Hinge Point 2: %lf %lf %lf \n",xyz[0],xyz[1],xyz[2]);
+                   // Read in hinge line data... it's given to use explicitly
                    
-                   HingeVec[0] += xyz[0];
-                   HingeVec[1] += xyz[1];
-                   HingeVec[2] += xyz[2];
-                                   
-                   // Hinge Vector
+                   if ( SubSurfIsTyped ) {
+                      
+                      FoundHingeLineData = 0;
+                      
+                      while ( !FoundHingeLineData ) {
+                         
+                         fgets(DumChar,1000,VSP_Degen_File);
+                         
+                         if ( Verbose_ ) printf("DumChar: %s \n",DumChar);
+       
+                         if ( strstr(DumChar,"HINGELINE") != NULL ) {
+                            
+                            fgets(DumChar,1000,VSP_Degen_File);
+                            fgets(DumChar,1000,VSP_Degen_File);
+                            
+                            sscanf(DumChar,"%lf, %lf, %lf, %lf",&u1, &u1, &w1, &w2);
+                            
+                            if ( w1 > 2. ) w1 = 4. - w1;
+                            if ( w2 > 2. ) w2 = 4. - w2;
+                            
+                            // Node 1
+                            
+                            Interpolate_XYZ_From_UV(u1,w1,xyz);
+                            
+                            HingeVec[0] = -xyz[0];
+                            HingeVec[1] = -xyz[1];
+                            HingeVec[2] = -xyz[2];
+                 
+                            ControlSurface_[NumberOfControlSurfaces_].HingeNode_1(0) = xyz[0];
+                            ControlSurface_[NumberOfControlSurfaces_].HingeNode_1(1) = xyz[1];
+                            ControlSurface_[NumberOfControlSurfaces_].HingeNode_1(2) = xyz[2];
+                      
+                            if ( Verbose_ ) printf("Hinge Point 1: %lf %lf %lf \n",xyz[0],xyz[1],xyz[2]);                            
+                            
+                            // Node 2
+
+                            Interpolate_XYZ_From_UV(u2,w2,xyz);
+                            
+                            HingeVec[0] += xyz[0];
+                            HingeVec[1] += xyz[1];
+                            HingeVec[2] += xyz[2];
+                 
+                            ControlSurface_[NumberOfControlSurfaces_].HingeNode_2(0) = xyz[0];
+                            ControlSurface_[NumberOfControlSurfaces_].HingeNode_2(1) = xyz[1];
+                            ControlSurface_[NumberOfControlSurfaces_].HingeNode_2(2) = xyz[2];
+                      
+                            if ( Verbose_ ) printf("Hinge Point 1: %lf %lf %lf \n",xyz[0],xyz[1],xyz[2]);      
+                                            
+                            // Hinge Vector
+                            
+                            Mag = sqrt(vector_dot(HingeVec,HingeVec));
+                            
+                            HingeVec[0] /= Mag;
+                            HingeVec[1] /= Mag;
+                            HingeVec[2] /= Mag;        
+            
+                            ControlSurface_[NumberOfControlSurfaces_].HingeVec(0) = HingeVec[0];
+                            ControlSurface_[NumberOfControlSurfaces_].HingeVec(1) = HingeVec[1];
+                            ControlSurface_[NumberOfControlSurfaces_].HingeVec(2) = HingeVec[2];
+                                                                              
+                            FoundHingeLineData = 1;
+                            
+                         }
+                         
+                      }
+                       
+                   }
                    
-                   Mag = sqrt(vector_dot(HingeVec,HingeVec));
+                   // Calculate hinge line based on control surface definition - it was a simple box
                    
-                   HingeVec[0] /= Mag;
-                   HingeVec[1] /= Mag;
-                   HingeVec[2] /= Mag;        
-   
-                   ControlSurface_[NumberOfControlSurfaces_].HingeVec(0) = HingeVec[0];
-                   ControlSurface_[NumberOfControlSurfaces_].HingeVec(1) = HingeVec[1];
-                   ControlSurface_[NumberOfControlSurfaces_].HingeVec(2) = HingeVec[2];
+                   else {
+                      
+                      // Determine hinge line
+                      
+                      ulist[0] = ControlSurface_[NumberOfControlSurfaces_].UV_Node(1)[0];
+                      wlist[0] = ControlSurface_[NumberOfControlSurfaces_].UV_Node(1)[1];
+
+                      ulist[1] = ControlSurface_[NumberOfControlSurfaces_].UV_Node(2)[0];
+                      wlist[1] = ControlSurface_[NumberOfControlSurfaces_].UV_Node(2)[1];
+
+                      ulist[2] = ControlSurface_[NumberOfControlSurfaces_].UV_Node(3)[0];
+                      wlist[2] = ControlSurface_[NumberOfControlSurfaces_].UV_Node(3)[1];
+                      
+                      ulist[3] = ControlSurface_[NumberOfControlSurfaces_].UV_Node(4)[0];
+                      wlist[3] = ControlSurface_[NumberOfControlSurfaces_].UV_Node(4)[1];
+                                                                                   
+                      LocateHingeLine(ulist, wlist, HingeNode);
+                                                                
+                      // Hinge point 1
+                      
+                      Interpolate_XYZ_From_UV(ulist[HingeNode[0]],wlist[HingeNode[0]],xyz);
+                      
+                      HingeVec[0] = -xyz[0];
+                      HingeVec[1] = -xyz[1];
+                      HingeVec[2] = -xyz[2];
+           
+                      ControlSurface_[NumberOfControlSurfaces_].HingeNode_1(0) = xyz[0];
+                      ControlSurface_[NumberOfControlSurfaces_].HingeNode_1(1) = xyz[1];
+                      ControlSurface_[NumberOfControlSurfaces_].HingeNode_1(2) = xyz[2];
+                
+                      if ( Verbose_ ) printf("Hinge Point 1: %lf %lf %lf \n",xyz[0],xyz[1],xyz[2]);
+                      
+                      // Hinge point 2
+                      
+                      Interpolate_XYZ_From_UV(ulist[HingeNode[1]],wlist[HingeNode[1]],xyz);
+                      
+                      ControlSurface_[NumberOfControlSurfaces_].HingeNode_2(0) = xyz[0];
+                      ControlSurface_[NumberOfControlSurfaces_].HingeNode_2(1) = xyz[1];
+                      ControlSurface_[NumberOfControlSurfaces_].HingeNode_2(2) = xyz[2];
+                      
+                      if ( Verbose_ ) printf("Hinge Point 2: %lf %lf %lf \n",xyz[0],xyz[1],xyz[2]);
+                      
+                      HingeVec[0] += xyz[0];
+                      HingeVec[1] += xyz[1];
+                      HingeVec[2] += xyz[2];
+                                      
+                      // Hinge Vector
+                      
+                      Mag = sqrt(vector_dot(HingeVec,HingeVec));
+                      
+                      HingeVec[0] /= Mag;
+                      HingeVec[1] /= Mag;
+                      HingeVec[2] /= Mag;        
+      
+                      ControlSurface_[NumberOfControlSurfaces_].HingeVec(0) = HingeVec[0];
+                      ControlSurface_[NumberOfControlSurfaces_].HingeVec(1) = HingeVec[1];
+                      ControlSurface_[NumberOfControlSurfaces_].HingeVec(2) = HingeVec[2];
+                      
+                   }
                               
                 }
                 
@@ -1553,7 +1630,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_SURFACE::LocateHingeLine(const double *up, const double *wp, int *HingeNode)
+void VSP_SURFACE::LocateHingeLine(double *up, double *wp, int *HingeNode)
 {
 
     int i, Done, Iter, Node[4], iTemp;
@@ -2175,6 +2252,8 @@ void VSP_SURFACE ::CheckForDegenerateSpanSections(void)
     
        Distance /= NumPlateJ_;
 
+       Distance = sqrt(Distance);
+
        // Calculate local chord
        
        j = 1;
@@ -2222,6 +2301,8 @@ void VSP_SURFACE ::CheckForDegenerateSpanSections(void)
        }
     
        Distance /= NumPlateJ_;
+       
+       Distance = sqrt(Distance);
 
        // Calculate local chord
        
@@ -2244,10 +2325,12 @@ void VSP_SURFACE ::CheckForDegenerateSpanSections(void)
        if ( Distance <= Tolerance * LocalChord_[i] ) {
         
           if ( Verbose_ ) printf("Span sections %d and %d are the same... located at y: %lf \n",i,i-1,y_plate(i,1)); fflush(NULL);
-          
+
           BadSpanSection[i] = 1;
           
           NumBadSpanSections++;
+          
+          fflush(NULL);exit(1);
           
        }
         
@@ -2417,7 +2500,7 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
 {
  
     int i, j, n, nk, NumNodes, NumTris, node1, node2, node3, node4, Flipped;
-    double vec1[3], vec2[3], vec3[3], normal[3], mag;
+    double vec1[3], vec2[3], vec3[3], normal[3], mag, zCamber;
     double x1, y1, z1, x2, y2, z2, Vec[3], VecQC_1[3], VecQC_2[3];
     double Chord, ArcLength;
         
@@ -2535,13 +2618,17 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
           normal[0] = ( Nx_plate(i,j) + Nx_plate(i+1,j) + Nx_plate(i+1,j+1) ) / 3.;
           normal[1] = ( Ny_plate(i,j) + Ny_plate(i+1,j) + Ny_plate(i+1,j+1) ) / 3.;
           normal[2] = ( Nz_plate(i,j) + Nz_plate(i+1,j) + Nz_plate(i+1,j+1) ) / 3.;
-          
+
           mag = sqrt(vector_dot(normal,normal));
           
           normal[0] /= mag;
           normal[1] /= mag;
           normal[2] /= mag;
           
+          // Camber
+          
+          zCamber = ( Camber(i,j) + Camber(i+1,j) + Camber(i+1,j+1) ) / 3.;
+                    
           // Connectivity
           
           Grid().TriList(n).Node1() = node1;
@@ -2554,6 +2641,10 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
           Grid().TriList(n).NyCamber() = normal[1];
           Grid().TriList(n).NzCamber() = normal[2];
           
+          // Camber
+          
+          Grid().TriList(n).Camber() = zCamber;
+                    
           // Surface ID
           
           Grid().TriList(n).SurfaceID() = SurfaceID;
@@ -2595,7 +2686,7 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
              Grid().TriList(n).Node3() = node1;
              
              if ( Verbose_ ) printf("Case 1---> \n");
-             if ( Verbose_ ) printf("vec3: %f %f %f \n",vec3[0],vec3[1],vec3[2]);
+             if ( Verbose_ ) printf("vec3:vec3: %f %f %f \n",vec3[0],vec3[1],vec3[2]);
              if ( Verbose_ ) printf("Normal: %f %f %f \n",normal[0],normal[1],normal[2]);
              
              Flipped = 1;
@@ -2623,6 +2714,10 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
           normal[1] /= mag;
           normal[2] /= mag;
           
+          // Camber
+          
+          zCamber = ( Camber(i,j) + Camber(i+1,j+1) + Camber(i,j+1) ) / 3.;
+                                     
           // Connectivity
           
           Grid().TriList(n).Node1() = node1;
@@ -2634,6 +2729,10 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
           Grid().TriList(n).NxCamber() = normal[0];
           Grid().TriList(n).NyCamber() = normal[1];
           Grid().TriList(n).NzCamber() = normal[2];
+          
+          // Camber
+          
+          Grid().TriList(n).Camber() = zCamber;
           
           // Surface ID
           
@@ -2816,6 +2915,8 @@ void VSP_SURFACE::CreateBodyTriMesh(int SurfaceID)
     
     Distance /= NumPlateJ_;
     
+    Distance = sqrt(Distance);
+    
     NoseIsClosed_ = 0;
     
     if ( Distance <= Tolerance ) NoseIsClosed_ = 1;
@@ -2835,6 +2936,8 @@ void VSP_SURFACE::CreateBodyTriMesh(int SurfaceID)
     }
        
     Distance /= NumPlateJ_;
+    
+    Distance = sqrt(Distance);
 
     TailIsClosed_ = 0;
 

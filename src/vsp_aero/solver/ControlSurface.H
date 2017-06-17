@@ -37,6 +37,9 @@ private:
     // Control surface name
     
     char Name_[2000];
+    
+    // Control surface short name
+    
     char ShortName_[2000];
     
     // List of affected vortex loops
@@ -51,11 +54,10 @@ private:
     
     // XYZ coordinates of control surface box
     
-    double Node_1_[3];
-    double Node_2_[3];
-    double Node_3_[3];
-    double Node_4_[3];
-    
+    int NumberOfNodes_;
+    double **UV_NodeList_;
+    double **XYZ_NodeList_;
+
     // Hinge line
     
     double HingeNode_1_[3];
@@ -75,9 +77,9 @@ public:
     CONTROL_SURFACE(const CONTROL_SURFACE &ControlSurface);
     CONTROL_SURFACE& operator=(const CONTROL_SURFACE &ControlSurface);
     
-    // Size the list
+    // Size the loop list
     
-    void SizeList(int NumberOfLoops);
+    void SizeLoopList(int NumberOfLoops);
     
     // Control surface bounding box
     
@@ -94,10 +96,23 @@ public:
 
     // XYZ coordinates
     
-    double &Node_1(int i) { return Node_1_[i]; };
-    double &Node_2(int i) { return Node_2_[i]; };
-    double &Node_3(int i) { return Node_3_[i]; };
-    double &Node_4(int i) { return Node_4_[i]; };
+    void SizeNodeList(int NumberOfNodes);
+    
+    int NumberOfNodes(void) { return NumberOfNodes_; };
+    
+    double *XYZ_Node(int i) { return XYZ_NodeList_[i]; };
+    
+    double &XYZ_Node_1(int i) { return XYZ_NodeList_[1][i]; };
+    double &XYZ_Node_2(int i) { return XYZ_NodeList_[2][i]; };
+    double &XYZ_Node_3(int i) { return XYZ_NodeList_[3][i]; };
+    double &XYZ_Node_4(int i) { return XYZ_NodeList_[4][i]; };
+    
+    double *UV_Node(int i) { return UV_NodeList_[i]; };
+    
+    double &UV_Node_1(int i) { return UV_NodeList_[1][i]; };
+    double &UV_Node_2(int i) { return UV_NodeList_[2][i]; };
+    double &UV_Node_3(int i) { return UV_NodeList_[3][i]; };
+    double &UV_Node_4(int i) { return UV_NodeList_[4][i]; };    
 
     // Hinge line  
     
@@ -116,8 +131,10 @@ public:
     // Name
     
     char *Name(void) { return Name_; };
-
-    char *ShortName( void ) { return ShortName_; };
+    
+    // Short name
+    
+    char *ShortName(void) { return ShortName_; };    
     
     // TypeName
     

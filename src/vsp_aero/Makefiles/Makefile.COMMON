@@ -14,6 +14,7 @@ SHELL = /bin/sh
 
 VSPAERO_DIR      	= ../solver
 VIEWER_DIR      	= ../viewer
+SLICER_DIR      	= ../slicer
 
 # WHERE THIS MAKEFILE IS LOCATED
 
@@ -23,3 +24,4 @@ EXEDIR = ./
 
 VSPAERO_EXE      	= vspaero
 VIEWER_EXE      	= vspviewer
+SLICER_EXE		= vspslicer

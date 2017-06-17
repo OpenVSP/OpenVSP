@@ -35,8 +35,22 @@ private:
     int NumberOfLevels_;
     
     int NumberOfTrailingVortices_;
-
-    double *Gamma_;
+    
+    int NumberOfStartingVortices_;
+    
+    int NumberOfSubVortices_;
+    
+    int TimeAccurate_;
+    
+    double Vinf_;
+    
+    double TimeStep_;
+    
+    double MaxConvectedDistance_;
+    
+    double **TrailingGamma_;
+    
+    double **StartingGamma_;
     
     VORTEX_TRAIL *TrailingVortexList_;
     
@@ -75,6 +89,10 @@ private:
     
     VORTEX_SHEET *Child1_;
     VORTEX_SHEET *Child2_;
+    
+    // Startup vortices for this vortex sheet    
+        
+    VSP_EDGE *StartingVortexList_;
 
     // Set up the vortex sheets
 
@@ -91,6 +109,10 @@ private:
     
     void InjectCirculation(void);
 
+    void StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, double xyz_p[3], double dq[3]);
+
+    int Evaluate_;
+    
 public:
 
     // Constructor, Destructor, Copy
@@ -109,6 +131,10 @@ public:
         
     // Trailing vortices
     
+    int NumberOfSubVortices(void) { return NumberOfSubVortices_; };
+    
+    int NumberOfStartingVortices(void) { return NumberOfStartingVortices_; };
+    
     void SizeTrailingVortexList(int NumberOfTrailingVortices);
     
     int NumberOfTrailingVortices(void) { return NumberOfTrailingVortices_; };
@@ -125,16 +151,34 @@ public:
     // Vortex sheet children
     
     void SetupChildren(VORTEX_SHEET &Child1, VORTEX_SHEET &Child2) { Child1_ = &Child1 ; Child2_ = &Child2; ThereAreChildren_ = 2; };
-    void SetupChildren(VORTEX_SHEET &Child1)                       { Child1_ = &Child1 ;                    ThereAreChildren_ = 1; };
+    void SetupChildren(VORTEX_SHEET &Child1)                       { Child1_ = &Child1 ; Child2_ = NULL;    ThereAreChildren_ = 1; };
 
     int &ThereAreChildren(void) { return ThereAreChildren_; };
     
     VORTEX_SHEET &Child1(void) { return *Child1_; };
     VORTEX_SHEET &Child2(void) { return *Child2_; };
     
+    // Starting vortex list
+    
+    VSP_EDGE &StartingVortexList(int i) { return StartingVortexList_[i]; };
+    
     // Level for this vortex sheet
     
     int &Level(void) { return Level_; };
+    
+    // Evaluation flag... for agglomeration multipole routine
+    
+    int &Evaluate(void) { return Evaluate_; };    
+    
+    // Time accurate data
+    
+    int &TimeAccurate(void) { return TimeAccurate_; };
+    
+    double &Vinf(void) { return Vinf_; };
+    
+    double &TimeStep(void) { return TimeStep_; };
+    
+    double &MaxConvectedDistance(void) { return MaxConvectedDistance_; };
     
     // Induced velocity from this vortex sheet
     
@@ -143,14 +187,18 @@ public:
     int &IsPeriodic(void) { return IsPeriodic_; };
 
     int FarAway(double xyz_p[3]);
+        
+    void SaveVortexState(void);
     
-    void UpdateVortexStrengths(void);
+    void UpdateVortexStrengths(int UpdateType);
     
     void InducedVelocity(double xyz_p[3], double q[3]);
     
     void InducedVelocity(double xyz_p[3], double q[3], double xyz_te[3]);
     
     void InducedKuttaVelocity(double xyz_p[3], double q[3]);    
+    
+    double StartingGamma(int i, int j) { return StartingGamma_[i][j]; };
 
 };
 

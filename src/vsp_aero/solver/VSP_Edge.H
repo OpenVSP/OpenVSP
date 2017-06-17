@@ -71,9 +71,11 @@ private:
     int EdgeWasUsedForLoop_;
     
     double Sigma_;
+    double S_;
     double Length_;
     double Forces_[3];
     double Trefftz_Forces_[3];
+    double Unsteady_Forces_[3];
     
     // Vortex solution data
     
@@ -92,7 +94,7 @@ private:
     QUAT InverseQuat_;
     QUAT VecA_, VecB_;
 
-    // Edge coefficients
+    // Edge nodes - true geometry (camber line, or actual)
     
     double X1_;
     double Y1_;
@@ -102,14 +104,23 @@ private:
     double Y2_;
     double Z2_;
 
+    // Edge centroid
+    
     double XYZc_[3];
+
     VSP_NODE VortexCentroid_;
+
+    // Edge direction vector
     
     double Vec_[3];
+    
+    // Distance tolerances for velocity evaluations
    
     double Tolerance_1_;
     double Tolerance_2_;
     double Tolerance_4_;
+    
+    // Local grid spacing estimate
 
     double LocalSpacing_;
     
@@ -128,6 +139,10 @@ private:
     // Circulation strength
     
     double Gamma_;
+    
+    // Edge matrix coefficients
+    
+    double EdgeCoef_[2];
 
     // Setup routines
     
@@ -180,9 +195,10 @@ public:
     int &VortexLoop1(void) { return VortexLoop1_; };
     int &VortexLoop2(void) { return VortexLoop2_; };
 
-    // Edge Sigma, and length
+    // Edge Sigma, S, and length
     
     double &Sigma(void) { return Sigma_; };
+    double &S(void) { return S_; };
     double &Length(void) { return Length_; };
     
     int &EdgeType(void) { return EdgeType_; };
@@ -235,6 +251,10 @@ public:
     
     double &Gamma(void) { return Gamma_; };
     
+    // Access to the edge matrix coefficients
+
+    double &EdgeCoef(int i) { return EdgeCoef_[i]; };
+    
     // Access to the forces
     
     double &Fx(void) { return Forces_[0]; };
@@ -244,6 +264,10 @@ public:
     double &Trefftz_Fx(void) { return Trefftz_Forces_[0]; };
     double &Trefftz_Fy(void) { return Trefftz_Forces_[1]; };
     double &Trefftz_Fz(void) { return Trefftz_Forces_[2]; };
+    
+    double &Unsteady_Fx(void) { return Unsteady_Forces_[0]; };
+    double &Unsteady_Fy(void) { return Unsteady_Forces_[1]; };
+    double &Unsteady_Fz(void) { return Unsteady_Forces_[2]; };    
     
     // Access to local spacing
     
@@ -264,7 +288,9 @@ public:
     double Xc(void) { return XYZc_[0]; };
     double Yc(void) { return XYZc_[1]; };
     double Zc(void) { return XYZc_[2]; };
+    
     double *xyz_c(void) { return XYZc_; };
+    
     VSP_NODE &VortexCentroid(void) { return VortexCentroid_; };
 
     // Vortex unit vector

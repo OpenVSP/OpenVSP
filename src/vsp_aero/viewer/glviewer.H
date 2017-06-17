@@ -4,7 +4,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
-
 #include <sys/stat.h>
 
 #ifndef WIN32
@@ -40,8 +39,7 @@
 #include "utils.H"
 #include "glf.H"
 #include "binaryio.H"
-#include "viewerUI.h"
-//#include "tiffio.h"
+#include "viewerUI.H"
 #include "TagList.H"
 #include "TagListGroup.H"
 #include "surfIDs.H"
@@ -265,7 +263,10 @@ private:
     // Control Surface data
     
     int NumberOfControlSurfaces;
+    int *ControlSurfaceLoop;
     CONTROL_SURFACE *ControlSurface;
+    
+    void RotateControlSurfaceNode( float xyz[3], int ConSurf );
 
     // Adjust center of geometry for better rotations
 
@@ -362,6 +363,8 @@ private:
     
     int DrawControlSurfacesIsOn;
     
+    int DrawControlSurfacesDeflectedIsOn;
+    
     // Panel Group
 
     int DrawSurfaceRegionsIsOn;
@@ -422,10 +425,8 @@ private:
     void DrawControlSurfaces(void);
 
     void DrawShadedSolution(float *Function, float FMin, float FMax);
-    void DrawShadedSolution(int   *Function, float FMin, float FMax);
 
     void DrawShadedSolutionPerTri(float *Function, float FMin, float FMax);
-    void DrawShadedSolutionPerTri(int   *Function, float FMin, float FMax);
 
     void DrawShadedSolutionPerNode(float *Function, float FMin, float FMax);
 
@@ -578,9 +579,11 @@ public:
     void DrawWakesWasPicked(void)                   { ToggleFlag(DrawWakesIsOn,                                 "DrawWakesIs");     };
     void DrawRotorsWasPicked(void)                  { ToggleFlag(DrawPropulsionElementsIsOn,                    "DrawPropulsionElementsIs");     };
     
-    void DraControlSurfacesWasPicked(void)          { ToggleFlag(DrawControlSurfacesIsOn,                       "DrawControlSurfacesIsOn");     };
-
-    void DrawWakesToInfinityWasPicked(void)         { ToggleFlag(DrawWakesToInfinityIsOn,                       "DrawWakesToInfinityIsOn");     };
+    void DrawControlSurfacesWasPicked(void)          { ToggleFlag(DrawControlSurfacesIsOn,                       "DrawControlSurfacesIsOn");     };
+    
+    void DrawControlSurfacesDeflectedWasPicked(void) { ToggleFlag(DrawControlSurfacesDeflectedIsOn,              "DrawControlSurfacesDeflectedIsOn");     };
+    
+    void DrawWakesToInfinityWasPicked(void)          { ToggleFlag(DrawWakesToInfinityIsOn,                       "DrawWakesToInfinityIsOn");     };
     
     // ADB Menu
 

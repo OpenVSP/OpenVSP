@@ -1086,6 +1086,10 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        CoarseGrid().LoopList(i).NyCamber() = 0.;
        CoarseGrid().LoopList(i).NzCamber() = 0.;
        
+       // Camber
+       
+       CoarseGrid().LoopList(i).Camber() = 0.;
+       
        // Centroid
        
        CoarseGrid().LoopList(i).Xc() = 0.;
@@ -1143,6 +1147,10 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        CoarseGrid().LoopList(Next).NyCamber() += Area*FineGrid().LoopList(i).NyCamber();
        CoarseGrid().LoopList(Next).NzCamber() += Area*FineGrid().LoopList(i).NzCamber();
        
+       // Camber
+       
+       CoarseGrid().LoopList(Next).Camber() += Area*FineGrid().LoopList(i).Camber();
+
        // Centroid
        
        CoarseGrid().LoopList(Next).Xc() += Area*FineGrid().LoopList(i).Xc();
@@ -1200,6 +1208,10 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        CoarseGrid().LoopList(i).NxCamber() /= Area;
        CoarseGrid().LoopList(i).NyCamber() /= Area;
        CoarseGrid().LoopList(i).NzCamber() /= Area;
+       
+       // Camber
+       
+       CoarseGrid().LoopList(i).Camber() /= Area;   
        
        // Centroid
        

@@ -735,7 +735,6 @@ void VSP_GRID::CalculateUpwindEdges(void)
  
    int j, k,  Edge, Node1, Node2, TotalUpwind;
    double xVec[3], Vec[3], *Flux, TotalFlux, LoopNormal[3], Normal[3], Mag;
-   double Xb, Yb, Zb;
    
    // Loop over triangles and determine which nodes, and then edges are upwind
    
@@ -790,7 +789,7 @@ void VSP_GRID::CalculateUpwindEdges(void)
        }
 
        // Create weighting
-       
+
        for ( j = 1 ; j <= LoopList(k).NumberOfEdges() ; j++ ) {
 
           Flux[j] /= TotalFlux;
@@ -836,22 +835,10 @@ void VSP_GRID::CalculateUpwindEdges(void)
        delete [] Flux;
 
        // Calculate reference length for this loop
-//djk       
+  
        LoopList(k).Length() = sqrt(LoopList(k).Area());
-       
-    //   LoopList(k).Length() = sqrt(LoopList(k).BoundBox().Length_Squared)/sqrt(3.);
-       
-   //    LoopList(k).Length() = MAX3(LoopList(k).BoundBox().x_max - LoopList(k).BoundBox().x_min,
-    //                               LoopList(k).BoundBox().y_max - LoopList(k).BoundBox().y_min,
-   //                               LoopList(k).BoundBox().z_max - LoopList(k).BoundBox().z_min );
-       
-
-       Xb = 0.5*( LoopList(k).BoundBox().x_max + LoopList(k).BoundBox().x_min );
-       Yb = 0.5*( LoopList(k).BoundBox().y_max + LoopList(k).BoundBox().y_min );
-       Zb = 0.5*( LoopList(k).BoundBox().z_max + LoopList(k).BoundBox().z_min );
 
     } 
-
 
 }
 

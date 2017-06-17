@@ -29,6 +29,14 @@ CONTROL_SURFACE::CONTROL_SURFACE(void)
     
     u_min_ = u_max_ = 0.;
     v_min_ = v_max_ = 0.;
+    
+    // Node list
+    
+    NumberOfNodes_ = 0;
+    
+    XYZ_NodeList_ = NULL;
+    
+     UV_NodeList_ = NULL;
 
     // Hinge line
     
@@ -60,11 +68,50 @@ CONTROL_SURFACE::CONTROL_SURFACE(const CONTROL_SURFACE &ControlSurface)
 
 /*##############################################################################
 #                                                                              #
-#                             CONTROL_SURFACE SizeList                         #
+#                          CONTROL_SURFACE SizeNodeList                        #
 #                                                                              #
 ##############################################################################*/
 
-void CONTROL_SURFACE::SizeList(int NumberOfLoops)
+void CONTROL_SURFACE::SizeNodeList(int NumberOfNodes)
+{
+
+    int i;
+    
+    if ( NumberOfNodes_ != 0 ) {
+       
+       for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
+          
+          delete [] XYZ_NodeList_[i];
+          delete []  UV_NodeList_[i];
+          
+       }
+       
+       delete [] XYZ_NodeList_;
+       delete []  UV_NodeList_;
+       
+    } 
+           
+    NumberOfNodes_ = NumberOfNodes;
+
+    XYZ_NodeList_ = new double*[NumberOfNodes + 1];
+     UV_NodeList_ = new double*[NumberOfNodes + 1];
+    
+    for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
+       
+       XYZ_NodeList_[i] = new double[3];
+        UV_NodeList_[i] = new double[3];
+       
+    }
+  
+}
+
+/*##############################################################################
+#                                                                              #
+#                        CONTROL_SURFACE SizeLoopList                          #
+#                                                                              #
+##############################################################################*/
+
+void CONTROL_SURFACE::SizeLoopList(int NumberOfLoops)
 {
 
     NumberOfLoops_ = NumberOfLoops;
@@ -91,9 +138,10 @@ CONTROL_SURFACE& CONTROL_SURFACE::operator=(const CONTROL_SURFACE &ControlSurfac
     NumberOfLoops_ = ControlSurface.NumberOfLoops_;
     
     sprintf(TypeName_,"%s",ControlSurface.TypeName_);
+    
     Type_ = ControlSurface.Type_;
 
-    SizeList(NumberOfLoops_);
+    SizeLoopList(NumberOfLoops_);
 
     for ( i = 1 ; i <= NumberOfLoops_ ; i ++ ) {
        
@@ -108,22 +156,17 @@ CONTROL_SURFACE& CONTROL_SURFACE::operator=(const CONTROL_SURFACE &ControlSurfac
     
     // XYZ coordinates of control surface box
     
-    Node_1_[0] = ControlSurface.Node_1_[0];
-    Node_1_[1] = ControlSurface.Node_1_[1];
-    Node_1_[2] = ControlSurface.Node_1_[2];
+    for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
     
-    Node_2_[0] = ControlSurface.Node_2_[0];
-    Node_2_[1] = ControlSurface.Node_2_[1];
-    Node_2_[2] = ControlSurface.Node_2_[2];
+       XYZ_NodeList_[i][0] = ControlSurface. XYZ_NodeList_[i][0];
+       XYZ_NodeList_[i][1] = ControlSurface. XYZ_NodeList_[i][1];
+       XYZ_NodeList_[i][1] = ControlSurface. XYZ_NodeList_[i][2];
+
+        UV_NodeList_[i][0] =   ControlSurface.UV_NodeList_[i][0];
+        UV_NodeList_[i][1] =   ControlSurface.UV_NodeList_[i][1];
         
-    Node_3_[0] = ControlSurface.Node_3_[0];
-    Node_3_[1] = ControlSurface.Node_3_[1];
-    Node_3_[2] = ControlSurface.Node_3_[2];
-    
-    Node_4_[0] = ControlSurface.Node_4_[0];
-    Node_4_[1] = ControlSurface.Node_4_[1];
-    Node_4_[2] = ControlSurface.Node_4_[2];
-            
+    }
+
     // Hinge line
     
     HingeNode_1_[0] = ControlSurface.HingeNode_1_[0];
@@ -171,7 +214,7 @@ void CONTROL_SURFACE::RotateNormal(double *Normal)
     // Build quaternion about this hinge vector
 
     Quat.FormRotationQuat(HingeVec_,DeflectionAngle_);
-   
+
     InvQuat = Quat;
    
     InvQuat.FormInverse();   
@@ -201,16 +244,52 @@ void CONTROL_SURFACE::RotateNormal(double *Normal)
 int CONTROL_SURFACE::TriInside(double *UV) 
 {
   
+    int i, j, Intersect;
+    double Uint;
+ 
+    // Check bounding box
+    
     if ( UV[0] >= u_min_ && UV[0] <= u_max_ ) {
 
-       if ( UV[1] >= v_min_ && UV[1] <= v_max_ ) return 1;
+       if ( UV[1] >= v_min_ && UV[1] <= v_max_ ) {
+          
+          // Simple box... we are inside
+          
+          if ( NumberOfNodes_ == 5 ) {
+             
+             return 1;
+             
+          }
+          
+          // More complex polygon, so must do further checking
+          
+          else {
+          
+             Intersect = 0;
+             
+             for ( i = 1 ; i < NumberOfNodes_ ; i++ ) {
+                
+                j = i + 1;
+                
+                if ( UV_NodeList_[i][1] > UV[1] != UV_NodeList_[j][1] > UV[1] ) {
+                   
+                   Uint = ( UV_NodeList_[j][0] - UV[0] ) * ( UV[1] - UV_NodeList_[i][1] ) / ( UV_NodeList_[j][1] - UV_NodeList_[i][1] ) + UV_NodeList_[i][0];
+                   
+                   if ( UV[0] < Uint ) Intersect = !Intersect;
+                   
+                }
+                
+             }
+ 
+             return Intersect;
+             
+          }
+          
+       }
 
     }
     
     return 0;
   
 }
-
-
-
 

@@ -112,13 +112,17 @@ private:
     double *Ny_plate_;
     double *Nz_plate_;
     
+    // Camber 
+    
+    double *Camber_;
+    
     // Control surface subsurface bouding boxes
     
     int MaxNumberOfControlSurfaces_;
     int NumberOfControlSurfaces_;
     CONTROL_SURFACE *ControlSurface_;
     
-    void LocateHingeLine(const double *up, const double *wp, int *HingeNode);
+    void LocateHingeLine(double *up, double *wp, int *HingeNode);
 
     // Initialize
     
@@ -149,9 +153,11 @@ private:
     double &Nx_plate(int i) { return Nx_plate_[i]; };
     double &Ny_plate(int i) { return Ny_plate_[i]; };
     double &Nz_plate(int i) { return Nz_plate_[i]; };
-
+    
     double &u_plate(int i) { return u_plate_[i]; };
     double &v_plate(int i) { return v_plate_[i]; };
+    
+    double &Camber(int i) { return Camber_[i]; };
          
     double &x_plate(int i, int j) { return x_plate_[(i-1)*NumPlateJ_ + j]; };
     double &y_plate(int i, int j) { return y_plate_[(i-1)*NumPlateJ_ + j]; };
@@ -163,6 +169,8 @@ private:
     
     double &u_plate(int i, int j) { return u_plate_[(i-1)*NumPlateJ_ + j]; };
     double &v_plate(int i, int j) { return v_plate_[(i-1)*NumPlateJ_ + j]; };
+    
+    double &Camber(int i, int j) { return Camber_[(i-1)*NumPlateJ_ + j]; };
 
     // Original leading and trailing edge locations
     

@@ -251,7 +251,7 @@ void QUAT::FormRotationQuat(double *Vec, double Theta)
 #                                                                              #
 ##############################################################################*/
 
-void QUAT::FormRotationQuat_f(float *Vec, float Theta)
+void QUAT::FormRotationQuat(float *Vec, float Theta)
 {
 
     int i;
