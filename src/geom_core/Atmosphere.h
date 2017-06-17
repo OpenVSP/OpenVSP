@@ -13,17 +13,17 @@ public:
     virtual ~Atmosphere();
 
     // US Standard Atmosphere 1976 Methods
-    void USStandardAtmosphere1976(double alt, double delta_temp, int altunit,
-        int tempunit, int presunit, double gamma = 1.4);
+    void USStandardAtmosphere1976( double alt, double delta_temp, int altunit,
+                                   int tempunit, int presunit, double gamma = 1.4 );
     void CalcIsothermalLayerUS1976( double & temp, double & pres, double alt, double previous_alt_step,
-        double G0, double M0, double R0 );
+                                    double G0, double M0, double R0 );
     void CalcGradientLayerUS1976( double & temp, double & pres, double alt, double previous_alt_step,
-        double temp_grad, double G0, double M0, double R0 );
+                                  double temp_grad, double G0, double M0, double R0 );
     void CalcLayerQuantitiesUS1976( double & temp, double & pres, double alt, double previous_alt_step, double temp_grad );
 
     // US Air Force 1966
-    void USAF1966(double alt, double delta_temp, int altunit,
-        int tempunit, int presunit, double gamma = 1.4);
+    void USAF1966( double alt, double delta_temp, int altunit,
+                   int tempunit, int presunit, double gamma = 1.4 );
 
     // TODO: Add Other Atmosphere Models
     // International Standard Model (ISA)
@@ -31,13 +31,13 @@ public:
     // CIRA
     // NRL MSISE00
 
-    void SetManualQualities(double & vinf, double & temp, double & pres, double & rho,
-        double & dynavisc, double gamma, int altunit, int vinfunit, int tempunit, int flowstream);
-    void SetMach(double mach) { m_Mach = mach; }
+    void SetManualQualities( double & vinf, double & temp, double & pres, double & rho,
+                             double & dynavisc, double gamma, int altunit, int vinfunit, int tempunit, int flowstream );
+    void SetMach( double mach ) { m_Mach = mach; }
 
     void UpdateMach( double vinf, int tempunit, int vinfunit );
 
-    double DynamicViscosityCalc(double T, int tempunit, int altunit);
+    double DynamicViscosityCalc( double T, int tempunit, int altunit );
 
     double GetAlt() { return m_Hinf; }
     double GetDeltaT() { return m_DeltaT; }
