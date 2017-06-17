@@ -36,7 +36,7 @@ void TestSolidCylinder()
     int length = 12;
     SetParmVal(  fus_id, "Length", "Design", length );
 
-    // Change Type of Middle XSec to Circle and Ends to Points 
+    // Change Type of Middle XSec to Circle and Ends to Points
     CutXSec( fus_id, 2 );
     string fusxsurf_id = GetXSecSurf( fus_id, 0 );
     ChangeXSecShape( fusxsurf_id, 0, XS_POINT );
@@ -97,7 +97,7 @@ void TestSolidCylinder()
     // Increase W Tesselation:
     SetParmVal( fus_id, "Tess_W", "Shape", 97 );
 
-    //==== Analytical Mass Properties ====//    
+    //==== Analytical Mass Properties ====//
     double pi = 3.14159265359;
     double I_xx = pi * pow( radius, 4 ) * rho * length / 2;
     double I_xy = 0;
@@ -113,12 +113,12 @@ void TestSolidCylinder()
 
     Update();
 
-    Print( "Cylinder Radius: ", false);
-    Print( radius, true);
-    Print( "Cylinder Length: ", false);
-    Print( length, true);
-    Print( "Cylinder Density: ", false);
-    Print( rho, true);
+    Print( "Cylinder Radius: ", false );
+    Print( radius, true );
+    Print( "Cylinder Length: ", false );
+    Print( length, true );
+    Print( "Cylinder Density: ", false );
+    Print( rho, true );
     Print ( "" );
 
     //==== Save Vehicle to File ====//
@@ -169,7 +169,7 @@ void TestThickWallCylinder()
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = AddGeom( "STACK" );
 
-    // Change Type of All XSec to Circle 
+    // Change Type of All XSec to Circle
     string stackxsurf_id = GetXSecSurf( stack_id, 0 );
     ChangeXSecShape( stackxsurf_id, 0, XS_CIRCLE );
     ChangeXSecShape( stackxsurf_id, 1, XS_CIRCLE );
@@ -192,7 +192,7 @@ void TestThickWallCylinder()
     string dia_id0 = GetXSecParm( xsec_id0, "Circle_Diameter" );
     string dia_id3 = GetXSecParm( xsec_id3, "Circle_Diameter" );
     string dia_id4 = GetXSecParm( xsec_id4, "Circle_Diameter" );
-    
+
     SetParmVal( dia_id0, r_in * 2 );
     SetParmVal( dia_id3, r_in * 2 );
     SetParmVal( dia_id4, r_in * 2 );
@@ -256,7 +256,7 @@ void TestThickWallCylinder()
     double pi = 3.14159265359;
     double I_xx = ( pi * rho * length / 2 ) * ( pow( R_out, 4 ) - pow( r_in, 4 ) );
     double I_xy = 0;
-    double I_yy = ( pi * rho * length / 12 )* ( 3 * ( pow( R_out, 4 ) - pow( r_in, 4 ) ) + pow( length, 2 ) * ( pow( R_out, 2 ) - pow( r_in, 2 ) ) );
+    double I_yy = ( pi * rho * length / 12 ) * ( 3 * ( pow( R_out, 4 ) - pow( r_in, 4 ) ) + pow( length, 2 ) * ( pow( R_out, 2 ) - pow( r_in, 2 ) ) );
     double I_yz = 0;
     double I_zz = I_yy;
     double I_xz = 0;
@@ -268,14 +268,14 @@ void TestThickWallCylinder()
 
     Update();
 
-    Print( "Cylinder Outer Radius: ", false);
-    Print( R_out, true);
-    Print( "Cylinder Inner Radius: ", false);
-    Print( r_in, true);
-    Print( "Cylinder Length: ", false);
-    Print( length, true);
-    Print( "Cylinder Density: ", false);
-    Print( rho, true);
+    Print( "Cylinder Outer Radius: ", false );
+    Print( R_out, true );
+    Print( "Cylinder Inner Radius: ", false );
+    Print( r_in, true );
+    Print( "Cylinder Length: ", false );
+    Print( length, true );
+    Print( "Cylinder Density: ", false );
+    Print( rho, true );
     Print ( "" );
 
     //==== Save Vehicle to File ====//
@@ -326,7 +326,7 @@ void TestCylindricalShell()
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = AddGeom( "STACK" );
 
-    // Change Type of All XSec to Circle 
+    // Change Type of All XSec to Circle
     CutXSec( stack_id, 2 );
     CutXSec( stack_id, 3 );
     string stackxsurf_id = GetXSecSurf( stack_id, 0 );
@@ -349,7 +349,7 @@ void TestCylindricalShell()
     SetParmVal( dia_id1, radius * 2 );
     SetParmVal( dia_id2, radius * 2 );
 
-    // Set Beginning and End of Cylinder 
+    // Set Beginning and End of Cylinder
     int length = 12;
     string xloc_id0 = GetXSecParm( xsec_id0, "XDelta" );
     SetParmVal( xloc_id0, 0.0 );
@@ -392,7 +392,7 @@ void TestCylindricalShell()
     // Increase W Tesselation:
     SetParmVal( stack_id, "Tess_W", "Shape", 73 );
 
-    //==== Analytical Mass Properties ====//    
+    //==== Analytical Mass Properties ====//
     double pi = 3.14159265359;
     double SA = 2 * pi * radius * length;
     double mass = rho_A * SA;
@@ -408,14 +408,14 @@ void TestCylindricalShell()
 
     Update();
 
-    Print( "Cylinder Radius: ", false);
-    Print( radius, true);
-    Print( "Cylinder Length: ", false);
-    Print( length, true);
-    Print( "Cylinder Density: ", false);
-    Print( rho, true);
-    Print( "Cylinder Area Density: ", false);
-    Print( rho_A, true);
+    Print( "Cylinder Radius: ", false );
+    Print( radius, true );
+    Print( "Cylinder Length: ", false );
+    Print( length, true );
+    Print( "Cylinder Density: ", false );
+    Print( rho, true );
+    Print( "Cylinder Area Density: ", false );
+    Print( rho_A, true );
     Print ( "" );
 
     //==== Save Vehicle to File ====//
@@ -432,7 +432,7 @@ void TestCylindricalShell()
     PrintResults( ridmp );
     DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
 
-    Print( string( "\n-->Analytical Mass Properties:\n" ) );    
+    Print( string( "\n-->Analytical Mass Properties:\n" ) );
 
     Print( "Cylinder_CG: ", false );
     Print( Cx, false );
@@ -443,7 +443,7 @@ void TestCylindricalShell()
     Print( "Cylinder_Ixy: ", false );
     Print( I_xy, true );
     Print( "Cylinder_Ixz: ", false );
-    Print( I_xz, true );    
+    Print( I_xz, true );
     Print( "Cylinder_Iyy: ", false );
     Print( I_yy, true );
     Print( "Cylinder_Iyz: ", false );
@@ -485,7 +485,7 @@ void TestSphere()
 
     SetParmVal( dia_id1, radius * 2 );
 
-    // Set Beginning and End of Sphere 
+    // Set Beginning and End of Sphere
     string xloc_id0 = GetXSecParm( xsec_id0, "XDelta" );
     SetParmVal( xloc_id0, 0.0 );
     string xloc_id1 = GetXSecParm( xsec_id1, "XDelta" );
@@ -553,10 +553,10 @@ void TestSphere()
 
     Update();
 
-    Print( "Sphere Radius: ", false);
-    Print( radius, true);
-    Print( "Sphere Density: ", false);
-    Print( rho, true);
+    Print( "Sphere Radius: ", false );
+    Print( radius, true );
+    Print( "Sphere Density: ", false );
+    Print( rho, true );
     Print ( "" );
 
     //==== Save Vehicle to File ====//
@@ -626,7 +626,7 @@ void TestSolidCone()
 
     SetParmVal( dia_id1, radius * 2 );
 
-    // Set Beginning and End of Cone 
+    // Set Beginning and End of Cone
     int length = 12;
     string xloc_id1 = GetXSecParm( xsec_id1, "XDelta" );
     SetParmVal( xloc_id1, length );
@@ -660,7 +660,7 @@ void TestSolidCone()
     // Increase W Tesselation:
     SetParmVal( stack_id, "Tess_W", "Shape", 73 );
 
-    // Increase U Tesselation 
+    // Increase U Tesselation
     string xutess_id0 = GetXSecParm( xsec_id0, "SectTess_U" );
     SetParmVal( xutess_id0, 20 );
     string xutess_id1 = GetXSecParm( xsec_id1, "SectTess_U" );
@@ -757,7 +757,7 @@ void TestShellCone()
 
     SetParmVal( dia_id1, radius * 2 );
 
-    // Set Beginning and End of Cone 
+    // Set Beginning and End of Cone
     int length = 12;
     string xloc_id1 = GetXSecParm( xsec_id1, "XDelta" );
     SetParmVal( xloc_id1, length );
@@ -778,7 +778,7 @@ void TestShellCone()
 
     // Open End of Cone
     CutXSec( stack_id, 2 );
-    
+
     // Set Thin Shell Flag:
     SetParmVal( stack_id, "Shell_Flag", "Mass_Props", 1 );
 
@@ -793,7 +793,7 @@ void TestShellCone()
     // Increase W Tesselation:
     SetParmVal( stack_id, "Tess_W", "Shape", 73 );
 
-    // Increase U Tesselation 
+    // Increase U Tesselation
     string xutess_id0 = GetXSecParm( xsec_id0, "SectTess_U" );
     SetParmVal( xutess_id0, 20 );
     string xutess_id1 = GetXSecParm( xsec_id1, "SectTess_U" );
@@ -872,7 +872,7 @@ void TestRectangularPrism()
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = AddGeom( "STACK" );
 
-    // Change Type of Middle XSec to Rounded Rectangles and Ends to Points 
+    // Change Type of Middle XSec to Rounded Rectangles and Ends to Points
     CutXSec( stack_id, 2 );
     string stackxsurf_id = GetXSecSurf( stack_id, 0 );
     ChangeXSecShape( stackxsurf_id, 0, XS_POINT );
@@ -951,7 +951,7 @@ void TestRectangularPrism()
     // Increase W Tesselation:
     SetParmVal( stack_id, "Tess_W", "Shape", 81 );
 
-    // Increase U Tesselation 
+    // Increase U Tesselation
     string xutess_id0 = GetXSecParm( xsec_id0, "SectTess_U" );
     SetParmVal( xutess_id0, 20 );
     string xutess_id1 = GetXSecParm( xsec_id1, "SectTess_U" );
@@ -977,14 +977,14 @@ void TestRectangularPrism()
 
     Update();
 
-    Print( "Rectangular Prism Height: ", false);
-    Print( height, true);
-    Print( "Rectangular Prism Width: ", false);
-    Print( width, true);
-    Print( "Rectangular Prism Length: ", false);
-    Print( length, true);
-    Print( "Rectangular Prism Density: ", false);
-    Print( rho, true);
+    Print( "Rectangular Prism Height: ", false );
+    Print( height, true );
+    Print( "Rectangular Prism Width: ", false );
+    Print( width, true );
+    Print( "Rectangular Prism Length: ", false );
+    Print( length, true );
+    Print( "Rectangular Prism Density: ", false );
+    Print( rho, true );
     Print ( "" );
 
     //==== Save Vehicle to File ====//

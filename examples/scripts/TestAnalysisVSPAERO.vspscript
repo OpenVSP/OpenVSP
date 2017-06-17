@@ -2,7 +2,7 @@ void main()
 {
     Print( string( "Begin VSPAERO Test Analysis" ) );
     Print( string( "" ) );
-    
+
     TestAll();
 
     //==== Check For API Errors ====//
@@ -12,7 +12,7 @@ void main()
         Print( err.GetErrorString() );
     }
 
-    Print( string( "End VSPAERO Test Analysis" ) );		
+    Print( string( "End VSPAERO Test Analysis" ) );
 }
 
 void TestAll()
@@ -51,14 +51,14 @@ void GenerateGeom()
     SetParmVal( wing_id, "TotalArea", "WingGeom", 25 );
 
     string subsurf_id = AddSubSurf( wing_id, SS_CONTROL, 0 );
-    
+
     Update();
 
     //==== Setup export filenames ====//
     string fname_vspaerotests = "TestVSPAero.vsp3";
 
     //==== Save Vehicle to File ====//
-    Print("-->Saving vehicle file to: ", false );
+    Print( "-->Saving vehicle file to: ", false );
     Print( fname_vspaerotests, true );
     Print( "" );
     WriteVSPFile( fname_vspaerotests, SET_ALL );
@@ -79,12 +79,12 @@ void TestVSPAeroComputeGeom()
     Print( analysis_name );
 
     // Set defaults
-    SetAnalysisInputDefaults(analysis_name);
+    SetAnalysisInputDefaults( analysis_name );
 
     // Analysis method
-    array< int > analysis_method = GetIntAnalysisInput(analysis_name,"AnalysisMethod");
+    array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
     analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
-    SetIntAnalysisInput(analysis_name, "AnalysisMethod", analysis_method);
+    SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
 
     // list inputs, type, and current values
     PrintAnalysisInputs( analysis_name );
@@ -106,19 +106,19 @@ void TestVSPAeroComputeGeomPanel()
 
     //open the file created in GenerateGeom
     string fname_vspaerotests = "TestVSPAero.vsp3";
-    ReadVSPFile( fname_vspaerotests );  // Sets VSP3 file name    
+    ReadVSPFile( fname_vspaerotests );  // Sets VSP3 file name
 
     //==== Analysis: VSPAero Compute Geometry ====//
     string analysis_name = "VSPAEROComputeGeometry";
     Print( analysis_name );
 
     // Set defaults
-    SetAnalysisInputDefaults(analysis_name);
+    SetAnalysisInputDefaults( analysis_name );
 
     // Set to panel method
-    array< int > analysis_method = GetIntAnalysisInput(analysis_name,"AnalysisMethod");
+    array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
     analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::PANEL );
-    SetIntAnalysisInput(analysis_name, "AnalysisMethod", analysis_method);
+    SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
 
     // list inputs, type, and current values
     PrintAnalysisInputs( analysis_name );
@@ -166,7 +166,7 @@ void TestVSPAeroSharpTrailingEdge()
     // Increase W Tesselation:
     SetParmVal( wing_id, "Tess_W", "Shape", 69 );
 
-    // Increase U Tesselation 
+    // Increase U Tesselation
     string xutess_id1 = GetXSecParm( xsec_id1, "SectTess_U" );
     SetParmVal( xutess_id1, 16 );
 
@@ -204,25 +204,25 @@ void TestVSPAeroSharpTrailingEdge()
 
     //==== Analysis: VSPAero Single Point ====//
     // Set defaults
-    SetAnalysisInputDefaults(analysis_name);
+    SetAnalysisInputDefaults( analysis_name );
 
     // Reference geometry set
-    array< int > geom_set; 
+    array< int > geom_set;
     geom_set.push_back( 0 );
     SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
-    array< int > ref_flag; 
-    ref_flag.push_back(1);
-    SetIntAnalysisInput(analysis_name, "RefFlag", ref_flag, 0);
+    array< int > ref_flag;
+    ref_flag.push_back( 1 );
+    SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag, 0 );
     array< string > wid = FindGeomsWithName( "WingGeom" );
-    SetStringAnalysisInput(analysis_name, "WingID", wid, 0);
+    SetStringAnalysisInput( analysis_name, "WingID", wid, 0 );
 
     // Freestream Parameters
-    array< double > alpha; 
-    alpha.push_back(0.0);
-    SetDoubleAnalysisInput(analysis_name, "Alpha", alpha, 0);
-    array< double > mach; 
-    mach.push_back(0.1);
-    SetDoubleAnalysisInput(analysis_name, "Mach", mach, 0);
+    array< double > alpha;
+    alpha.push_back( 0.0 );
+    SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
+    array< double > mach;
+    mach.push_back( 0.1 );
+    SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
 
     Update();
 
@@ -239,7 +239,7 @@ void TestVSPAeroSharpTrailingEdge()
     PrintResults( rid );
 
     array<string> results_names = GetAllDataNames( rid );
-    array<string>res_id = GetStringResults( rid, results_names[0] ,0 );
+    array<string>res_id = GetStringResults( rid, results_names[0] , 0 );
 
     array<double> CL = GetDoubleResults( res_id[0], "CL", 0 );
     array<double> cl = GetDoubleResults( res_id[1], "cl", 0 );
@@ -280,7 +280,7 @@ void TestVSPAeroBluntTrailingEdge()
     string wingxsurf_id = GetXSecSurf( wing_id, 0 );
     string xsec_id0 = GetXSec( wingxsurf_id, 0 );
     string xsec_id1 = GetXSec( wingxsurf_id, 1 );
-    
+
     // Set Root and Tip Chord to 3:
     SetDriverGroup( wing_id, 1, AREA_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
     SetParmVal( wing_id, "Root_Chord", "XSec_1", 3.0 );
@@ -304,7 +304,7 @@ void TestVSPAeroBluntTrailingEdge()
     // Increase W Tesselation:
     SetParmVal( wing_id, "Tess_W", "Shape", 69 );
 
-    // Increase U Tesselation 
+    // Increase U Tesselation
     string xutess_id1 = GetXSecParm( xsec_id1, "SectTess_U" );
     SetParmVal( xutess_id1, 16 );
 
@@ -342,26 +342,26 @@ void TestVSPAeroBluntTrailingEdge()
 
     //==== Analysis: VSPAero Single Point ====//
     // Set defaults
-    SetAnalysisInputDefaults(analysis_name);
+    SetAnalysisInputDefaults( analysis_name );
 
     // Reference geometry set
-    array< int > geom_set; 
+    array< int > geom_set;
     geom_set.push_back( 0 );
     SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
-    array< int > ref_flag; 
-    ref_flag.push_back(1);
-    SetIntAnalysisInput(analysis_name, "RefFlag", ref_flag, 0);
-    
+    array< int > ref_flag;
+    ref_flag.push_back( 1 );
+    SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag, 0 );
+
     array< string > wid = FindGeomsWithName( "WingGeom" );
-    SetStringAnalysisInput(analysis_name, "WingID", wid, 0);
+    SetStringAnalysisInput( analysis_name, "WingID", wid, 0 );
 
     // Freestream Parameters
-    array< double > alpha; 
-    alpha.push_back(0.0);
-    SetDoubleAnalysisInput(analysis_name, "Alpha", alpha, 0);
-    array< double > mach; 
-    mach.push_back(0.1);
-    SetDoubleAnalysisInput(analysis_name, "Mach", mach, 0);
+    array< double > alpha;
+    alpha.push_back( 0.0 );
+    SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
+    array< double > mach;
+    mach.push_back( 0.1 );
+    SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
 
     Update();
 
@@ -378,7 +378,7 @@ void TestVSPAeroBluntTrailingEdge()
     PrintResults( rid );
 
     array<string> results_names = GetAllDataNames( rid );
-    array<string>res_id = GetStringResults( rid, results_names[0] ,0 );
+    array<string>res_id = GetStringResults( rid, results_names[0] , 0 );
 
     array<double> CL = GetDoubleResults( res_id[0], "CL", 0 );
     array<double> cl = GetDoubleResults( res_id[1], "cl", 0 );

@@ -1,195 +1,195 @@
 
 void main()
 {
-	string wing = AddGeom( "WING", "" );				// Add Wing
-	SetGeomName( wing, "Wing" );
+    string wing = AddGeom( "WING", "" );                // Add Wing
+    SetGeomName( wing, "Wing" );
     string fuse = AddGeom( "FUSELAGE", "" );             // Add Fuselage
-	SetGeomName( fuse, "Fuse" );
-	//string pylon = AddGeom( "WING", "" );				// Pylon
-	//SetGeomName( pylon, "Pylon" );
-	//string duct = AddGeom( "STACK", "" );				// Add Duct
-	//SetGeomName( duct, "Duct" );
-	string htail = AddGeom( "WING", "" );				// Add H-Tail
-	SetGeomName( htail, "H-Tail" );
-	string vtail = AddGeom( "WING", "" );				// Add V-Tail
-	SetGeomName( vtail, "V-Tail" );
+    SetGeomName( fuse, "Fuse" );
+    //string pylon = AddGeom( "WING", "" );             // Pylon
+    //SetGeomName( pylon, "Pylon" );
+    //string duct = AddGeom( "STACK", "" );             // Add Duct
+    //SetGeomName( duct, "Duct" );
+    string htail = AddGeom( "WING", "" );               // Add H-Tail
+    SetGeomName( htail, "H-Tail" );
+    string vtail = AddGeom( "WING", "" );               // Add V-Tail
+    SetGeomName( vtail, "V-Tail" );
 
-	// === Fuse ==== //
-	// Editing of Fuse Sections	
-	SetParmVal( fuse, "Ellipse_Height", "XSecCurve_1", 4.5 );
-	SetParmVal( fuse, "Ellipse_Width", "XSecCurve_1", 6.0 );
-	
-	InsertXSec( fuse, 1, XS_GENERAL_FUSE );
-	SetParmVal( fuse, "Height", "XSecCurve_2", 8.0 );
-	SetParmVal( fuse, "Width", "XSecCurve_2", 7.167 );
-	SetParmVal( fuse, "TopStr", "XSecCurve_2", 0.05 );
-	SetParmVal( fuse, "BotStr", "XSecCurve_2", 1.83 );
-	SetParmVal( fuse, "UpStr", "XSecCurve_2", 1.83 );
-	SetParmVal( fuse, "LowStr", "XSecCurve_2", 1.5 );
-	
-	CopyXSec( fuse, 2 );
-	PasteXSec( fuse, 3 );
-	PasteXSec( fuse, 4 );
-	
-	// Placement of Fuse Sections
-	SetParmVal( fuse, "ZLocPercent", "XSec_0", -0.05 );
-	
-	SetParmVal( fuse, "XLocPercent", "XSec_1", 0.10 );
-	SetParmVal( fuse, "ZLocPercent", "XSec_1", -0.035 );
-	
-	SetParmVal( fuse, "ZLocPercent", "XSec_2", 0.0 );
-	SetParmVal( fuse, "XLocPercent", "XSec_2", 0.20 );
-	
-	SetParmVal( fuse, "XLocPercent", "XSec_3", 0.40 );
-	
-	SetParmVal( fuse, "XLocPercent", "XSec_4", 0.55 );
-	
-	SetParmVal( fuse, "ZLocPercent", "XSec_5", 0.03 );
-	
-	SetParmVal( fuse, "Length", "Design", 49.4 );
-	
-	// ==== Wing ==== //
-	SetDriverGroup( wing, 1, SPAN_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
-	SetParmVal( wing, "X_Rel_Location", "XForm", 15.0 );
-	SetParmVal( wing, "Z_Rel_Location", "XForm", 3.0 );
-	SetParmVal( wing, "Y_Rel_Rotation", "XForm", 2.0 );
-	SetParmVal( wing, "Span", "XSec_1", 34.016 );
-	SetParmVal( wing, "Root_Chord", "XSec_1", 14.08 );
-	SetParmVal( wing, "Tip_Chord", "XSec_1", 3.5 );
-	SetParmVal( wing, "Sweep", "XSec_1", 15.0 );
-	SetParmVal( wing, "Sweep_Location", "XSec_1", 0.25 );
-	SetParmVal( wing, "ThickChord", "XSecCurve_0", 0.163 );
-	SetParmVal( wing, "ThickChord", "XSecCurve_1", 0.139 );
-	
-	// ==== "Duct" ==== //
-	//SetParmVal( duct, "X_Rel_Location", "XForm", 14.0 );
-	//SetParmVal( duct, "Y_Rel_Location", "XForm", 7.83 );
-	//SetParmVal( duct, "Z_Rel_Location", "XForm", -1.9 );
-	//SetParmVal( duct, "Y_Rel_Rotation", "XForm", -2.0 );
-	//SetParmVal( duct, "Sym_Planar_Flag", "Sym", SYM_XZ );
-	
-	//string ductXsecsurf = GetXSecSurf( duct, 0 );
-	
-	//InsertXSec( duct, 0, XS_CIRCLE );
-	
-	//SetParmVal( duct, "XDelta", "XSec_1", 0.0 );
-	//SetParmVal( duct, "XDelta", "XSec_2", 4.4 );
-	//SetParmVal( duct, "XDelta", "XSec_3", 0.0 );
-	//SetParmVal( duct, "XDelta", "XSec_4", 7.6 );
-	//SetParmVal( duct, "ZDelta", "XSec_4", 0.5 );
-	//SetParmVal( duct, "XDelta", "XSec_5", 0.0 );
-	
-	//SetParmVal( duct, "Circle_Diameter", "XSecCurve_1", 4.0 );
-	
-	//CopyXSec( duct, 1 );
-	//PasteXSec( duct, 2 );
-	//PasteXSec( duct, 3 );
-	//PasteXSec( duct, 4 );
-	
-	//SetParmVal( duct, "Circle_Diameter", "XSecCurve_3", 3.0 );
-	//SetParmVal( duct, "Circle_Diameter", "XSecCurve_4", 2.5 );
-	
-	// ==== Pylon ==== //
-	
-	//SetParmVal( pylon, "X_Rel_Location", "XForm", 14.0 );
-	//SetParmVal( pylon, "Y_Rel_Location", "XForm", 7.83 );
-	//SetParmVal( pylon, "Z_Rel_Location", "XForm", -0.2 );
-	//SetParmVal( pylon, "X_Rel_Rotation", "XForm", 90.0 );
-	
-	//SetParmVal( pylon, "Span", "XSec_1", 2.8 );
-	//SetParmVal( pylon, "Root_Chord", "XSec_1", 10.5 );
-	//SetParmVal( pylon, "Tip_Chord", "XSec_1", 6.0 );
-	//SetParmVal( pylon, "Sweep", "XSec_1", 60.0 );
-	
-	//SetParmVal( pylon, "ThickChord", "XSecCurve_0", 0.05 );
-	//SetParmVal( pylon, "ThickChord", "XSecCurve_1", 0.05 );
-	
-	// ==== H-Tail ==== //
-	SetParmVal( htail, "X_Rel_Location", "XForm", 40.0 );
-	SetParmVal( htail, "Z_Rel_Location", "XForm", 4.0 );
-	SetParmVal( htail, "Sweep", "XSec_1", 20.0 );
-	SetParmVal( htail, "Sweep_Location", "XSec_1", 0.25 );
-	SetParmVal( htail, "Dihedral", "XSec_1", 5 );
-	SetParmVal( htail, "Span", "XSec_1", 13.5 );
-	SetParmVal( htail, "Root_Chord", "XSec_1", 9.308 );
-	SetParmVal( htail, "Tip_Chord", "XSec_1", 4.025 );
-	SetParmVal( htail, "ThickChord", "XSecCurve_0", 0.10 );
-	
-	// ==== V-Tail ==== //
-	SetParmVal( vtail, "X_Rel_Location", "XForm", 35.0 );
-	SetParmVal( vtail, "Z_Rel_Location", "XForm", 4.0 );
-	SetParmVal( vtail, "X_Rel_Rotation", "XForm", 90.0 );
-	SetParmVal( vtail, "Sym_Planar_Flag", "Sym", 0 );
-	SetParmVal( vtail, "Span", "XSec_1", 13.6 );
-	SetParmVal( vtail, "Sweep", "XSec_1", 38.5 );
-	SetParmVal( vtail, "Sweep_Location", "XSec_1", 0.25 );
-	SetParmVal( vtail, "Root_Chord", "XSec_1", 13.208 );
-	SetParmVal( vtail, "Tip_Chord", "XSec_1", 4.917 );
-	//SetParmVal( vtail, "ThickChord", "XSecCurve_0", 0.12 );
-	
-	
-	Update();
-	
-	// ==== Set Parasite Drag Settings ==== //
-	string PDcon = FindContainer( "ParasiteDragSettings", 0 );
-	string groupname = "ParasiteDrag";
-	
-	array<string> fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" );
-	fileNameInput[0] = "ParasiteDragExample";
-	SetStringAnalysisInput( "ParasiteDrag", "FileName", fileNameInput );
-	
-	array<int> vinfUnitInput = GetIntAnalysisInput( "ParasiteDrag", "VelocityUnit" );
-	vinfUnitInput[0] = V_UNIT_FT_S;
-	SetIntAnalysisInput( "ParasiteDrag", "VelocityUnit", vinfUnitInput );
-	
-	array<double> vinfFCinput = GetDoubleAnalysisInput( "ParasiteDrag", "Vinf" );
-	vinfFCinput[0] = 629;
-	SetDoubleAnalysisInput( "ParasiteDrag", "Vinf", vinfFCinput );
-	
-	array<double> altInput = GetDoubleAnalysisInput( "ParasiteDrag", "Altitude" );
-	altInput[0] = 40000;
-	SetDoubleAnalysisInput( "ParasiteDrag", "Altitude", altInput );
-	
-	array<double> srefInput = GetDoubleAnalysisInput( "ParasiteDrag", "Sref" );
-	srefInput[0] = 598.0;
-	SetDoubleAnalysisInput( "ParasiteDrag", "Sref", srefInput );
-	
-	array<int> turbcfEqnChoiceInput = GetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice" );
-	turbcfEqnChoiceInput[0] = CF_TURB_IMPLICIT_KARMAN_SCHOENHERR;
-	SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", turbcfEqnChoiceInput );
+    // === Fuse ==== //
+    // Editing of Fuse Sections
+    SetParmVal( fuse, "Ellipse_Height", "XSecCurve_1", 4.5 );
+    SetParmVal( fuse, "Ellipse_Width", "XSecCurve_1", 6.0 );
 
-	string FFEqnChoice;
-	SetParmVal( wing, "FFWingEqnType", "ParasiteDragProps", FF_W_DATCOM );
-	//SetParmVal( pylon, "FFUser", "ParasiteDragProps", 1.13 );
-	//SetParmVal( duct, "FFUser", "ParasiteDragProps", 1.12 );
-	SetParmVal( fuse, "FFBodyEqnType", "ParasiteDragProps", FF_B_SCHEMENSKY_BODY );
-	SetParmVal( htail, "FFWingEqnType", "ParasiteDragProps", FF_W_JENKINSON_TAIL );
-	SetParmVal( vtail, "FFWingEqnType", "ParasiteDragProps", FF_W_JENKINSON_TAIL );
-	
-	string excresVal = FindParm( PDcon, "ExcresVal", groupname );
-	string excresType = FindParm( PDcon, "ExcresType", groupname );
-	
-	// AddExcrescence( "Name", TypeOfExcrescence, Value )
-	AddExcrescence( "Miscellaneous", EXCRESCENCE_COUNT, 8.5 );
-	AddExcrescence( "Cowl Boattail", EXCRESCENCE_CD, 0.0003 );
-	
-	AddExcrescence( "Percentage Example", EXCRESCENCE_PERCENT_GEOM, 5 );
-	DeleteExcrescence( 2 ); // Last Index
-	
-	string ridpd = ExecAnalysis( "ParasiteDrag" );
-	
-	array<double>@ dat = GetDoubleResults( ridpd, "Total_Cd_Total", 0 );
-	double tol = 0.018572 * 0.15;
-	if ( abs(dat[0] - 0.018572) >= tol )		Print( "---> Error: S-3 Viking Friction Coefficient Mismatch" );
-	
-	
-	//==== Check For API Errors ====//
-	while ( GetNumTotalErrors() > 0 ) 
-	{
-		ErrorObj err = PopLastError();
-		Print( err.GetErrorString() );
-	}
-	
-	
-	Print( "\n\n\n" );
+    InsertXSec( fuse, 1, XS_GENERAL_FUSE );
+    SetParmVal( fuse, "Height", "XSecCurve_2", 8.0 );
+    SetParmVal( fuse, "Width", "XSecCurve_2", 7.167 );
+    SetParmVal( fuse, "TopStr", "XSecCurve_2", 0.05 );
+    SetParmVal( fuse, "BotStr", "XSecCurve_2", 1.83 );
+    SetParmVal( fuse, "UpStr", "XSecCurve_2", 1.83 );
+    SetParmVal( fuse, "LowStr", "XSecCurve_2", 1.5 );
+
+    CopyXSec( fuse, 2 );
+    PasteXSec( fuse, 3 );
+    PasteXSec( fuse, 4 );
+
+    // Placement of Fuse Sections
+    SetParmVal( fuse, "ZLocPercent", "XSec_0", -0.05 );
+
+    SetParmVal( fuse, "XLocPercent", "XSec_1", 0.10 );
+    SetParmVal( fuse, "ZLocPercent", "XSec_1", -0.035 );
+
+    SetParmVal( fuse, "ZLocPercent", "XSec_2", 0.0 );
+    SetParmVal( fuse, "XLocPercent", "XSec_2", 0.20 );
+
+    SetParmVal( fuse, "XLocPercent", "XSec_3", 0.40 );
+
+    SetParmVal( fuse, "XLocPercent", "XSec_4", 0.55 );
+
+    SetParmVal( fuse, "ZLocPercent", "XSec_5", 0.03 );
+
+    SetParmVal( fuse, "Length", "Design", 49.4 );
+
+    // ==== Wing ==== //
+    SetDriverGroup( wing, 1, SPAN_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
+    SetParmVal( wing, "X_Rel_Location", "XForm", 15.0 );
+    SetParmVal( wing, "Z_Rel_Location", "XForm", 3.0 );
+    SetParmVal( wing, "Y_Rel_Rotation", "XForm", 2.0 );
+    SetParmVal( wing, "Span", "XSec_1", 34.016 );
+    SetParmVal( wing, "Root_Chord", "XSec_1", 14.08 );
+    SetParmVal( wing, "Tip_Chord", "XSec_1", 3.5 );
+    SetParmVal( wing, "Sweep", "XSec_1", 15.0 );
+    SetParmVal( wing, "Sweep_Location", "XSec_1", 0.25 );
+    SetParmVal( wing, "ThickChord", "XSecCurve_0", 0.163 );
+    SetParmVal( wing, "ThickChord", "XSecCurve_1", 0.139 );
+
+    // ==== "Duct" ==== //
+    //SetParmVal( duct, "X_Rel_Location", "XForm", 14.0 );
+    //SetParmVal( duct, "Y_Rel_Location", "XForm", 7.83 );
+    //SetParmVal( duct, "Z_Rel_Location", "XForm", -1.9 );
+    //SetParmVal( duct, "Y_Rel_Rotation", "XForm", -2.0 );
+    //SetParmVal( duct, "Sym_Planar_Flag", "Sym", SYM_XZ );
+
+    //string ductXsecsurf = GetXSecSurf( duct, 0 );
+
+    //InsertXSec( duct, 0, XS_CIRCLE );
+
+    //SetParmVal( duct, "XDelta", "XSec_1", 0.0 );
+    //SetParmVal( duct, "XDelta", "XSec_2", 4.4 );
+    //SetParmVal( duct, "XDelta", "XSec_3", 0.0 );
+    //SetParmVal( duct, "XDelta", "XSec_4", 7.6 );
+    //SetParmVal( duct, "ZDelta", "XSec_4", 0.5 );
+    //SetParmVal( duct, "XDelta", "XSec_5", 0.0 );
+
+    //SetParmVal( duct, "Circle_Diameter", "XSecCurve_1", 4.0 );
+
+    //CopyXSec( duct, 1 );
+    //PasteXSec( duct, 2 );
+    //PasteXSec( duct, 3 );
+    //PasteXSec( duct, 4 );
+
+    //SetParmVal( duct, "Circle_Diameter", "XSecCurve_3", 3.0 );
+    //SetParmVal( duct, "Circle_Diameter", "XSecCurve_4", 2.5 );
+
+    // ==== Pylon ==== //
+
+    //SetParmVal( pylon, "X_Rel_Location", "XForm", 14.0 );
+    //SetParmVal( pylon, "Y_Rel_Location", "XForm", 7.83 );
+    //SetParmVal( pylon, "Z_Rel_Location", "XForm", -0.2 );
+    //SetParmVal( pylon, "X_Rel_Rotation", "XForm", 90.0 );
+
+    //SetParmVal( pylon, "Span", "XSec_1", 2.8 );
+    //SetParmVal( pylon, "Root_Chord", "XSec_1", 10.5 );
+    //SetParmVal( pylon, "Tip_Chord", "XSec_1", 6.0 );
+    //SetParmVal( pylon, "Sweep", "XSec_1", 60.0 );
+
+    //SetParmVal( pylon, "ThickChord", "XSecCurve_0", 0.05 );
+    //SetParmVal( pylon, "ThickChord", "XSecCurve_1", 0.05 );
+
+    // ==== H-Tail ==== //
+    SetParmVal( htail, "X_Rel_Location", "XForm", 40.0 );
+    SetParmVal( htail, "Z_Rel_Location", "XForm", 4.0 );
+    SetParmVal( htail, "Sweep", "XSec_1", 20.0 );
+    SetParmVal( htail, "Sweep_Location", "XSec_1", 0.25 );
+    SetParmVal( htail, "Dihedral", "XSec_1", 5 );
+    SetParmVal( htail, "Span", "XSec_1", 13.5 );
+    SetParmVal( htail, "Root_Chord", "XSec_1", 9.308 );
+    SetParmVal( htail, "Tip_Chord", "XSec_1", 4.025 );
+    SetParmVal( htail, "ThickChord", "XSecCurve_0", 0.10 );
+
+    // ==== V-Tail ==== //
+    SetParmVal( vtail, "X_Rel_Location", "XForm", 35.0 );
+    SetParmVal( vtail, "Z_Rel_Location", "XForm", 4.0 );
+    SetParmVal( vtail, "X_Rel_Rotation", "XForm", 90.0 );
+    SetParmVal( vtail, "Sym_Planar_Flag", "Sym", 0 );
+    SetParmVal( vtail, "Span", "XSec_1", 13.6 );
+    SetParmVal( vtail, "Sweep", "XSec_1", 38.5 );
+    SetParmVal( vtail, "Sweep_Location", "XSec_1", 0.25 );
+    SetParmVal( vtail, "Root_Chord", "XSec_1", 13.208 );
+    SetParmVal( vtail, "Tip_Chord", "XSec_1", 4.917 );
+    //SetParmVal( vtail, "ThickChord", "XSecCurve_0", 0.12 );
+
+
+    Update();
+
+    // ==== Set Parasite Drag Settings ==== //
+    string PDcon = FindContainer( "ParasiteDragSettings", 0 );
+    string groupname = "ParasiteDrag";
+
+    array<string> fileNameInput = GetStringAnalysisInput( "ParasiteDrag", "FileName" );
+    fileNameInput[0] = "ParasiteDragExample";
+    SetStringAnalysisInput( "ParasiteDrag", "FileName", fileNameInput );
+
+    array<int> vinfUnitInput = GetIntAnalysisInput( "ParasiteDrag", "VelocityUnit" );
+    vinfUnitInput[0] = V_UNIT_FT_S;
+    SetIntAnalysisInput( "ParasiteDrag", "VelocityUnit", vinfUnitInput );
+
+    array<double> vinfFCinput = GetDoubleAnalysisInput( "ParasiteDrag", "Vinf" );
+    vinfFCinput[0] = 629;
+    SetDoubleAnalysisInput( "ParasiteDrag", "Vinf", vinfFCinput );
+
+    array<double> altInput = GetDoubleAnalysisInput( "ParasiteDrag", "Altitude" );
+    altInput[0] = 40000;
+    SetDoubleAnalysisInput( "ParasiteDrag", "Altitude", altInput );
+
+    array<double> srefInput = GetDoubleAnalysisInput( "ParasiteDrag", "Sref" );
+    srefInput[0] = 598.0;
+    SetDoubleAnalysisInput( "ParasiteDrag", "Sref", srefInput );
+
+    array<int> turbcfEqnChoiceInput = GetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice" );
+    turbcfEqnChoiceInput[0] = CF_TURB_IMPLICIT_KARMAN_SCHOENHERR;
+    SetIntAnalysisInput( "ParasiteDrag", "TurbCfEqnChoice", turbcfEqnChoiceInput );
+
+    string FFEqnChoice;
+    SetParmVal( wing, "FFWingEqnType", "ParasiteDragProps", FF_W_DATCOM );
+    //SetParmVal( pylon, "FFUser", "ParasiteDragProps", 1.13 );
+    //SetParmVal( duct, "FFUser", "ParasiteDragProps", 1.12 );
+    SetParmVal( fuse, "FFBodyEqnType", "ParasiteDragProps", FF_B_SCHEMENSKY_BODY );
+    SetParmVal( htail, "FFWingEqnType", "ParasiteDragProps", FF_W_JENKINSON_TAIL );
+    SetParmVal( vtail, "FFWingEqnType", "ParasiteDragProps", FF_W_JENKINSON_TAIL );
+
+    string excresVal = FindParm( PDcon, "ExcresVal", groupname );
+    string excresType = FindParm( PDcon, "ExcresType", groupname );
+
+    // AddExcrescence( "Name", TypeOfExcrescence, Value )
+    AddExcrescence( "Miscellaneous", EXCRESCENCE_COUNT, 8.5 );
+    AddExcrescence( "Cowl Boattail", EXCRESCENCE_CD, 0.0003 );
+
+    AddExcrescence( "Percentage Example", EXCRESCENCE_PERCENT_GEOM, 5 );
+    DeleteExcrescence( 2 ); // Last Index
+
+    string ridpd = ExecAnalysis( "ParasiteDrag" );
+
+    array<double>@ dat = GetDoubleResults( ridpd, "Total_Cd_Total", 0 );
+    double tol = 0.018572 * 0.15;
+    if ( abs( dat[0] - 0.018572 ) >= tol )        { Print( "---> Error: S-3 Viking Friction Coefficient Mismatch" ); }
+
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+
+
+    Print( "\n\n\n" );
 }

@@ -35,7 +35,7 @@ void TestSaveLoad()
     ClearVSPModel();
 
     //==== Read Geometry From File ====//
-    Print( string( "--->Reading model from: " ) + fname + string( "\n") );
+    Print( string( "--->Reading model from: " ) + fname + string( "\n" ) );
     ReadVSPFile( fname );
 
 }

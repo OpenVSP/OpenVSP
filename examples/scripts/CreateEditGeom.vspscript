@@ -2,12 +2,12 @@
 void main()
 {
     string fid = AddGeom( "TransportFuse", "" );             // Add Fuselage
-    string len_id = GetParm( fid, "Length", "Design" );		 // Get the Parm ID string
-    SetParmVal( len_id, 30.0 );								 // Set the Parm Value
+    string len_id = GetParm( fid, "Length", "Design" );      // Get the Parm ID string
+    SetParmVal( len_id, 30.0 );                              // Set the Parm Value
     SetParmVal( fid, "Diameter", "Design", 4.0 );
 
     string wid = AddGeom( "WING", "" );                     // Add Wing
-    SetParmVal( wid, "Span", "XSec_1", 15.0 );				// Set val given geom id, parm name and group
+    SetParmVal( wid, "Span", "XSec_1", 15.0 );              // Set val given geom id, parm name and group
     SetParmVal( wid, "Root_Chord", "XSec_1", 10.0 );
     SetParmVal( wid, "Tip_Chord", "XSec_1", 3.0 );
     SetParmVal( wid, "Sweep", "XSec_1", 45.0 );
@@ -15,11 +15,11 @@ void main()
 
     Update();
 
-	//==== Check For API Errors ====//
-	while ( GetNumTotalErrors() > 0 )
-	{
-		ErrorObj err = PopLastError();
-		Print( err.GetErrorString() );
-	}
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
 
 }

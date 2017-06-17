@@ -100,7 +100,7 @@ void PrintResultsExample( string results )
                 for ( int m = 0; m < int( dat.size() ); m++ )
                 {
                     Print( dat[m], false );
-                Print( "" );
+                    Print( "" );
                 }
             }
         }
@@ -148,7 +148,7 @@ void PrintResultsExample( string results )
             Print( "Unrecognized type." );
         }
     }
-    Print("");
+    Print( "" );
 }
 
 
@@ -193,10 +193,10 @@ void main()
     string ridmp = ExecAnalysis( "MassProp" );
     PrintResultsExample( ridmp );
     DeleteGeomVec( GetStringResults( ridmp, "Mesh_GeomID" ) );
-	
-	// ParasiteDrag
-	string ridpd = ExecAnalysis( "ParasiteDrag" );
-	PrintResultsExample( ridpd );
+
+    // ParasiteDrag
+    string ridpd = ExecAnalysis( "ParasiteDrag" );
+    PrintResultsExample( ridpd );
 
     // PlanarSlice
     array<vec3d> norm = GetVec3dAnalysisInput( "PlanarSlice", "Norm" );
@@ -223,19 +223,19 @@ void main()
     // EmintonLord
     int npt = 21;
     array<double> x_vec = GetDoubleAnalysisInput( "EmintonLord", "X_vec" );
-    x_vec.resize(npt);
+    x_vec.resize( npt );
 
     array<double> area_vec = GetDoubleAnalysisInput( "EmintonLord", "Area_vec" );
-    area_vec.resize(npt);
+    area_vec.resize( npt );
 
     for ( int i = 0; i < npt; i++ )
     {
         double xi = i * 1.0 / ( npt - 1 );
         x_vec[i] = xi * 5;
-        area_vec[i] = sin(xi*3.14159)*sin(xi*3.14159);
+        area_vec[i] = sin( xi * 3.14159 ) * sin( xi * 3.14159 );
     }
     area_vec[0] = 0;
-    area_vec[npt-1] = 0;
+    area_vec[npt - 1] = 0;
 
     SetDoubleAnalysisInput( "EmintonLord", "X_vec", x_vec );
     SetDoubleAnalysisInput( "EmintonLord", "Area_vec", area_vec );

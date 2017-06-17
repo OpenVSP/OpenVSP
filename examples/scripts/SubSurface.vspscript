@@ -14,12 +14,12 @@ void main()
 
     Update();
 
-	//==== Check For API Errors ====//
-	while ( GetNumTotalErrors() > 0 )
-	{
-		ErrorObj err = PopLastError();
-		Print( err.GetErrorString() );
-	}
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
 
 
 }
