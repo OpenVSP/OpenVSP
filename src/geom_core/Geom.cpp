@@ -2007,7 +2007,7 @@ void Geom::UpdateDrawObj()
 
 void Geom::UpdateDegenDrawObj()
 {
-    //=== DegenGeom ===// 
+    //=== DegenGeom ===//
     vector< DegenGeom > DegenGeomVec; // Vector of geom in degenerate representation
     CreateDegenGeomPreview( DegenGeomVec );
 

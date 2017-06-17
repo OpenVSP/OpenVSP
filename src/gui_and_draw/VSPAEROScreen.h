@@ -68,7 +68,7 @@ public:
 
     // Solver thread kill flags (these must be public because they are accessed by the thread)
     bool m_SolverThreadIsRunning;
-    
+
     void UpdateRefWing();
     void UpdateSetChoiceLists();
     void UpdateCaseSetupDevices();

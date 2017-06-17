@@ -135,7 +135,7 @@ public:
     int m_Tag;
     IntParm m_TestType;
     IntParm m_MainSurfIndx;
-    IntParm m_IncludeType; // Flag indicates whether or not to include wetted area of subsurf in parasite drag calcs 
+    IntParm m_IncludeType; // Flag indicates whether or not to include wetted area of subsurf in parasite drag calcs
 
     // Parasite Drag Parms
     IntParm m_FFBodyEqnType;

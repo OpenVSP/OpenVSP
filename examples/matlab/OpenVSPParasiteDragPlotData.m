@@ -25,7 +25,7 @@ pres_ratio = csvread( File_Name, 6, 1, [6 1 6 31] );
 rho_ratio = csvread( File_Name, 7, 1, [7 1 7 31] );
 temp = csvread( File_Name, 8, 1, [8 1 8 31] );
 
-% Plot Data 
+% Plot Data
 g = figure(1);
 plot( temp, alt/1000, 'LineWidth', 2 );
 hold on
@@ -91,7 +91,7 @@ while tline ~= -1
     for j = 2:length(data{1,1})
         numbers(j-1) = str2double(cell2mat(data{1,1}(j)));
     end
-    
+
     if strcmpi(name, 'ReyIn')
         ReyIn = numbers;
     elseif strcmpi(name, 'Ref_Leng')
@@ -156,7 +156,7 @@ while tline ~= -1
     for j = 2:length(data{1,1})
         numbers(j-1) = str2double(cell2mat(data{1,1}(j)));
     end
-    
+
     if strcmpi(name, 'D_L')
         D_L = numbers;
     elseif strcmpi(name, 'Ref_Leng')
@@ -221,7 +221,7 @@ while tline ~= -1
     for j = 2:length(data{1,1})
         numbers(j-1) = str2double(cell2mat(data{1,1}(j)));
     end
-    
+
     if strcmpi(name, 'T_C')
         D_L = numbers;
     elseif strcmpi(name, 'Manual')

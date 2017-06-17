@@ -435,7 +435,7 @@ void ManageGeomScreen::LoadDisplayChoice()
     }
     else if ( mult_display_types )
     {
-        m_DisplayChoice.SetVal( 4 ); // Set to "Multiple" 
+        m_DisplayChoice.SetVal( 4 ); // Set to "Multiple"
     }
     else
     {

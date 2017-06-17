@@ -168,7 +168,7 @@ public:
     }
 protected:
 
-    int m_DisplayType; // Either Bezier Surface, Degen Surface, Degen Plate, or Degen Cambered Plate 
+    int m_DisplayType; // Either Bezier Surface, Degen Surface, Degen Plate, or Degen Cambered Plate
     int  m_DrawType;
 
     bool m_NoShowFlag;

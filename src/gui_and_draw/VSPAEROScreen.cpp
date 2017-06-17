@@ -216,7 +216,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_RightColumnLayout.AddDividerBox( "Control Group Angles" ); //add the divider box outside the layout so the scroll works properly
 
     m_RightColumnLayout.AddSubGroupLayout( m_DeflectionAngleLayout,
-        m_RightColumnLayout.GetW(), 
+        m_RightColumnLayout.GetW(),
         m_RightColumnLayout.GetRemainY() );
 
     m_DeflectionAngleScroll = AddSubScroll( m_DeflectionAngleLayout.GetGroup(), group_border_width );
@@ -232,8 +232,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedLayout.SetGroupAndScreen( advanced_group, this );
 
-    m_AdvancedLayout.AddSubGroupLayout( m_AdvancedLeftLayout, 
-        (advanced_group->w()-window_border_width) / 2, 
+    m_AdvancedLayout.AddSubGroupLayout( m_AdvancedLeftLayout,
+        (advanced_group->w()-window_border_width) / 2,
         advanced_group->h() );
 
     // Advanced Case Setup Layout
@@ -292,7 +292,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_WakeLayout.AddSlider( m_WakeNumIterSlider, "Num It.", 10, "%3.0f" );
     m_WakeLayout.AddSlider( m_WakeAvgStartIterSlider, "Avg Start It.", 11, "%3.0f" );
     m_WakeLayout.AddSlider( m_WakeSkipUntilIterSlider, "Skip Until It.", 11, "%3.0f" );
-    
+
     // Other Setup Parms Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_OtherParmsLayout,
         m_AdvancedLeftLayout.GetW(),
@@ -382,7 +382,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     Fl_Group* cs_grouping_tab = AddTab( "Control Grouping" );
     Fl_Group* cs_grouping_group = AddSubGroup( cs_grouping_tab, window_border_width );
     m_ControlSurfaceLayout.SetGroupAndScreen( cs_grouping_group, this );
-    
+
     // Grouping Browsers Layout
     m_ControlSurfaceLayout.AddSubGroupLayout( m_CSGroupingLayout,
         m_ControlSurfaceLayout.GetW(),
@@ -887,7 +887,7 @@ void VSPAEROScreen::UpdateRefWing()
     m_WingGeomVec.clear();
     map <string, int> WingCompIDMap;
     int iwing = 0;
-    
+
     if (!VSPAEROMgr.m_RefFlag())
     {
         m_RefWingChoice.Deactivate();
@@ -1365,7 +1365,7 @@ void VSPAEROScreen::PropElemBrowserCallback()
     int last = m_PropElemBrowser->value();
     if ( last >= 2 )
     {
-        VSPAEROMgr.SetCurrentRotorDiskIndex( last - 2 ); 
+        VSPAEROMgr.SetCurrentRotorDiskIndex( last - 2 );
         VSPAEROMgr.SetParmsFromCurrentRotorDisk();
     }
     VSPAEROMgr.HighlightSelected( VSPAEROMgr.ROTORDISK );

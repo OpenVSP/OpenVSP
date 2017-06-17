@@ -675,9 +675,9 @@ void VSPAEROMgrSingleton::AddLinkableParms( vector < string > & linkable_parm_ve
 //  The initial grouping collects all surface copies of the subsurface into a single group.
 //  For example if a wing is defined with an aileron and that wing is symetrical about the
 //  xz plane there will be a surface copy of the master wing surface as well as a copy of
-//  the subsurface. The two subsurfaces may get deflected differently during analysis 
+//  the subsurface. The two subsurfaces may get deflected differently during analysis
 //  routines and can be identified uniquely by the control_surf.fullname.
-//  The initial grouping routine implemented here finds all copies of that subsurface 
+//  The initial grouping routine implemented here finds all copies of that subsurface
 //  that have the same sub surf ID and places them into a single control group.
 void VSPAEROMgrSingleton::InitControlSurfaceGroups()
 {
@@ -694,7 +694,7 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
 
         // Has CS been placed into init group?
         // --> No create group with any reflected groups
-        // --> Yes Skip 
+        // --> Yes Skip
         for (size_t j = 0; j < m_ControlSurfaceGroupVec.size(); ++j)
         {
             if (m_ControlSurfaceGroupVec[j]->m_ControlSurfVec.size() > 0)
@@ -905,8 +905,8 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     vector<double> alphaVec;
     vector<double> betaVec;
     vector<double> machVec;
-    GetSweepVectors( alphaVec, betaVec, machVec );    
-        
+    GetSweepVectors( alphaVec, betaVec, machVec );
+
     if ( !m_BatchModeFlag.Get() )
     {
         //truncate the vectors to just the first element
@@ -2518,7 +2518,7 @@ RotorDisk::RotorDisk( DegenGeom &degenGeom )
     if ( degenGeom.getType() == DegenGeom::DISK_TYPE )
     {
         DegenDisk degenDisk = degenGeom.getDegenDisk();
-        
+
         m_XYZ = degenDisk.x;
         m_Normal = degenDisk.nvec*-1;   //definition of normal vector in VSPAERO is -1*nvec of degen geom
 
@@ -2576,7 +2576,7 @@ void RotorDisk::InitDisk()
 
     m_CT.Init( "Rotor_CT", groupname, this, 0.4, 0.0, 1e3);        // Rotor_CT_
     m_CT.SetDescript( "Rotor Coefficient of Thrust" );
-    
+
     m_CP.Init( "Rotor_CP", groupname, this, 0.6, 0.0, 1e3 );        // Rotor_CP_
     m_CP.SetDescript( "Rotor Coefficient of Power" );
 

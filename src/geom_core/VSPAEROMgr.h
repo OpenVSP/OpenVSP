@@ -122,8 +122,8 @@ class VSPAEROMgrSingleton : public ParmContainer
 {
 public:
     // Selected type used for GUI visual aid of the selected rotor or control surface
-    enum SELECTED_TYPE 
-    { 
+    enum SELECTED_TYPE
+    {
         ROTORDISK = 0,      // user has selected a rotor disk
         CONTROL_SURFACE,    // user has selected a control surface
     };
