@@ -15,8 +15,8 @@
 //==== Test Geometry Creation ====//
 void APITestSuite::CheckSetup()
 {
-    
-    printf("APITestSuite::CheckSetup()\n");
+
+    printf( "APITestSuite::CheckSetup()\n" );
     vsp::VSPCheckSetup();
     if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
     {
@@ -26,7 +26,7 @@ void APITestSuite::CheckSetup()
 //==== Test Geometry Creation ====//
 void APITestSuite::CreateGeometry()
 {
-    printf("APITestSuite::CreateGeometry()\n");
+    printf( "APITestSuite::CreateGeometry()\n" );
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -35,28 +35,28 @@ void APITestSuite::CreateGeometry()
     TEST_ASSERT( types.size() != 0 );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf("\t[geom_id]\t[geom_name]\n");
-    for (unsigned int i_geom_type = 0; i_geom_type<types.size(); i_geom_type++ )
+    printf( "\t[geom_id]\t[geom_name]\n" );
+    for ( unsigned int i_geom_type = 0; i_geom_type < types.size(); i_geom_type++ )
     {
         //==== Create geometry =====//
         string geom_id = vsp::AddGeom( types[i_geom_type] );
-        printf("\t%s", geom_id.c_str());
+        printf( "\t%s", geom_id.c_str() );
         TEST_ASSERT( geom_id.c_str() != NULL );
         TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
         //==== Set Name ====//
         string geom_name = string( "TestGeom_" ) + types[i_geom_type];
         vsp::SetGeomName( geom_id, geom_name );
-        printf("\t%s\n", geom_name.c_str());
+        printf( "\t%s\n", geom_name.c_str() );
         TEST_ASSERT( vsp::GetGeomName( geom_id ) == geom_name )
         TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
         //==== Check to make sure it got added to the list ====//
         vector<string> geoms = vsp::FindGeoms();
-        TEST_ASSERT( geoms.size() == i_geom_type+1 );
+        TEST_ASSERT( geoms.size() == i_geom_type + 1 );
         TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     }
-    printf("\n");
+    printf( "\n" );
 
     //==== Save Vehicle to File ====//
     string fname = "apitest_CreateGeometry.vsp3";
@@ -66,7 +66,7 @@ void APITestSuite::CreateGeometry()
 
 void APITestSuite::ChangePodParams()
 {
-    printf("APITestSuite::ChangePodParams()\n");
+    printf( "APITestSuite::ChangePodParams()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
@@ -92,22 +92,22 @@ void APITestSuite::ChangePodParams()
 
     //==== Change Finess Ratio with ONE step method: SetParmValUpdate()
     double finess_val = 10;
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "FineRatio", "Design", finess_val ), finess_val, TEST_TOL) ;
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "FineRatio", "Design", finess_val ), finess_val, TEST_TOL ) ;
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Change X Location  with ONE step method: SetParmValUpdate()
     double x_loc_val = 3.0;
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", x_loc_val ), x_loc_val, TEST_TOL) ;
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", x_loc_val ), x_loc_val, TEST_TOL ) ;
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Change Y Location  with ONE step method: SetParmValUpdate()
     double y_loc_val = 1.0;
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Y_Rel_Location", "XForm", y_loc_val ), y_loc_val, TEST_TOL) ;
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Y_Rel_Location", "XForm", y_loc_val ), y_loc_val, TEST_TOL ) ;
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Change Z Location  with ONE step method: SetParmValUpdate()
     double z_loc_val = 4.2;
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Z_Rel_Location", "XForm", z_loc_val ), z_loc_val, TEST_TOL) ;
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Z_Rel_Location", "XForm", z_loc_val ), z_loc_val, TEST_TOL ) ;
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Change Symmetry =====//
@@ -124,7 +124,7 @@ void APITestSuite::ChangePodParams()
 //==== Use Case 1 =====//
 void APITestSuite::CopyPasteGeometry()
 {
-    printf("APITestSuite::CopyPasteGeometry()\n");
+    printf( "APITestSuite::CopyPasteGeometry()\n" );
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -147,10 +147,10 @@ void APITestSuite::CopyPasteGeometry()
     string pod_name = "Pod";
     vsp::SetGeomName( first_pod_id, pod_name );
     //    test that the parameters got set within the TEST_TOL tolerance
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  first_pod_id, "Length", "Design", 7.0 ), 7.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "FineRatio", "Design", 10.0 ), 10.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "X_Rel_Location", "XForm", 3.0 ), 3.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "Y_Rel_Location", "XForm", 1.0 ), 1.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  first_pod_id, "Length", "Design", 7.0 ), 7.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "FineRatio", "Design", 10.0 ), 10.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "X_Rel_Location", "XForm", 3.0 ), 3.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( first_pod_id, "Y_Rel_Location", "XForm", 1.0 ), 1.0, TEST_TOL );
     vsp::SetParmValUpdate( first_pod_id, "Sym_Planar_Flag", "Sym", vsp::SYM_XZ  );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -164,10 +164,10 @@ void APITestSuite::CopyPasteGeometry()
     // set name of second pod to something unique
     vsp::SetGeomName( second_pod_id, "Second_Pod" );    // change the name of the second pod to something more descriptive
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    
+
     //==== Change Second Pod Parameters (name, y location, z location, symetry) ====//
-    TEST_ASSERT_DELTA( vsp::SetParmVal( second_pod_id, "Y_Rel_Location", "XForm", 0.0 ), 0.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmVal( second_pod_id, "Z_Rel_Location", "XForm", 1.0 ), 1.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmVal( second_pod_id, "Y_Rel_Location", "XForm", 0.0 ), 0.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( second_pod_id, "Z_Rel_Location", "XForm", 1.0 ), 1.0, TEST_TOL );
     vsp::SetParmVal( second_pod_id, "Sym_Planar_Flag", "Sym", 0 );    // no symetry
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -175,7 +175,7 @@ void APITestSuite::CopyPasteGeometry()
     TEST_ASSERT_DELTA( vsp::GetParmVal( first_pod_id, "Length", "Design"  ), vsp::GetParmVal( second_pod_id, "Length", "Design" ), TEST_TOL );
     TEST_ASSERT_DELTA( vsp::GetParmVal( first_pod_id, "FineRatio", "Design" ), vsp::GetParmVal( second_pod_id, "FineRatio", "Design" ), TEST_TOL );
     TEST_ASSERT_DELTA( vsp::GetParmVal( first_pod_id, "X_Rel_Location", "XForm" ), vsp::GetParmVal( second_pod_id, "X_Rel_Location", "XForm" ), TEST_TOL );
-    
+
     //==== Save Vehicle to File ====//
     string fname = "apitest_CopyPasteGeometry.vsp3";
     vsp::WriteVSPFile( fname );
@@ -186,41 +186,41 @@ void APITestSuite::CopyPasteGeometry()
 // Test of analysis manager
 void APITestSuite::CheckAnalysisMgr()
 {
-    printf("APITestSuite::CheckAnalysisMgr()\n");
-    unsigned int n_analysis = (unsigned int)vsp::GetNumAnalysis();
+    printf( "APITestSuite::CheckAnalysisMgr()\n" );
+    unsigned int n_analysis = ( unsigned int )vsp::GetNumAnalysis();
     std::vector < std::string > analysis_names = vsp::ListAnalysis();
-    printf("    Analyses found: %d\n",n_analysis);
-    printf("\t[analysis_name]\n");
-    printf("\t\t%-20s%s\t%s\n","[input_name]","[type]","[#]");
-    for ( unsigned int i_analysis = 0; i_analysis<n_analysis; i_analysis++)
+    printf( "    Analyses found: %d\n", n_analysis );
+    printf( "\t[analysis_name]\n" );
+    printf( "\t\t%-20s%s\t%s\n", "[input_name]", "[type]", "[#]" );
+    for ( unsigned int i_analysis = 0; i_analysis < n_analysis; i_analysis++ )
     {
         // print out name
-        printf("\t%s\n",analysis_names[i_analysis].c_str());
+        printf( "\t%s\n", analysis_names[i_analysis].c_str() );
 
         // get input names
         vector < string > input_names = vsp::GetAnalysisInputNames( analysis_names[i_analysis] );
-        for ( unsigned int i_input_name = 0; i_input_name<input_names.size(); i_input_name++)
+        for ( unsigned int i_input_name = 0; i_input_name < input_names.size(); i_input_name++ )
         {
-            int current_input_type = vsp::GetAnalysisInputType(analysis_names[i_analysis],input_names[i_input_name]);
-            int current_input_num_data = vsp::GetNumAnalysisInputData(analysis_names[i_analysis],input_names[i_input_name]);
+            int current_input_type = vsp::GetAnalysisInputType( analysis_names[i_analysis], input_names[i_input_name] );
+            int current_input_num_data = vsp::GetNumAnalysisInputData( analysis_names[i_analysis], input_names[i_input_name] );
 
             // print out name and type enumeration
-            printf("\t\t%-20s%d\t\t%d",input_names[i_input_name].c_str(), current_input_type, current_input_num_data);
+            printf( "\t\t%-20s%d\t\t%d", input_names[i_input_name].c_str(), current_input_type, current_input_num_data );
 
             // ASSERT if an invalid type is found
-            TEST_ASSERT( current_input_type!= vsp::INVALID_TYPE);
+            TEST_ASSERT( current_input_type != vsp::INVALID_TYPE );
 
-            printf("\n");
+            printf( "\n" );
         }
 
     }
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf("\n");
+    printf( "\n" );
 }
 
 void APITestSuite::TestAnalysesWithPod()
 {
-    printf("APITestSuite::TestAnalysesWithPod()\n");
+    printf( "APITestSuite::TestAnalysesWithPod()\n" );
 
     // make sure setup works
     vsp::VSPCheckSetup();
@@ -228,7 +228,7 @@ void APITestSuite::TestAnalysesWithPod()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Add Pod Geom and set some parameters =====//
-    string pod_id = vsp::AddGeom( "POD");
+    string pod_id = vsp::AddGeom( "POD" );
     TEST_ASSERT( pod_id.c_str() != NULL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -236,10 +236,10 @@ void APITestSuite::TestAnalysesWithPod()
     string pod_name = "Pod_Test";
     vsp::SetGeomName( pod_id, pod_name );
     //    test that the parameters got set within the TEST_TOL tolerance
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "Length", "Design", 7.0 ), 7.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "FineRatio", "Design", 10.0 ), 10.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", 3.0 ), 3.0, TEST_TOL);
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Y_Rel_Location", "XForm", 1.0 ), 1.0, TEST_TOL);
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(  pod_id, "Length", "Design", 7.0 ), 7.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "FineRatio", "Design", 10.0 ), 10.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", 3.0 ), 3.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Y_Rel_Location", "XForm", 1.0 ), 1.0, TEST_TOL );
     vsp::SetParmValUpdate( pod_id, "Sym_Planar_Flag", "Sym", vsp::SYM_XZ  );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -251,22 +251,22 @@ void APITestSuite::TestAnalysesWithPod()
 
     //==== Analysis: CompGeom ====//
     string analysis_name = "CompGeom";
-    printf("\t%s\n",analysis_name.c_str());
+    printf( "\t%s\n", analysis_name.c_str() );
 
     // Set defaults
-    vsp::SetAnalysisInputDefaults(analysis_name);
+    vsp::SetAnalysisInputDefaults( analysis_name );
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs(analysis_name);
+    vsp::PrintAnalysisInputs( analysis_name );
 
     // Execute
-    printf("\n\t\tExecuting...");
-    string results_id = vsp::ExecAnalysis(analysis_name);
-    printf("COMPLETE\n\n");
+    printf( "\n\t\tExecuting..." );
+    string results_id = vsp::ExecAnalysis( analysis_name );
+    printf( "COMPLETE\n\n" );
 
     // Get & Display Results
 
-    vsp::PrintResults(results_id);
+    vsp::PrintResults( results_id );
 
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
@@ -385,7 +385,7 @@ void APITestSuite::TestSVGExport()
     //==== Test Default 4 View SVG Export =====//
     ExportFile( "TestSVG_4View_API.svg", vsp::SET_ALL, vsp::EXPORT_SVG );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf("--> 4 View SVG Export Saved To: TestSVG_4View_API.svg \n" );
+    printf( "--> 4 View SVG Export Saved To: TestSVG_4View_API.svg \n" );
 
     //==== 1 View SVG Export ====//
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "ViewType", "SVGSettings" ), vsp::VIEW_1 ), vsp::VIEW_1, TEST_TOL );
@@ -396,7 +396,7 @@ void APITestSuite::TestSVGExport()
 
     ExportFile( "TestSVG_1View_API.svg", vsp::SET_ALL, vsp::EXPORT_SVG );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf("--> 1 View SVG Export Saved To: TestSVG_1View_API.svg \n" );
+    printf( "--> 1 View SVG Export Saved To: TestSVG_1View_API.svg \n" );
 
     //==== 2 Horizontal View SVG Export ====//
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "ViewType", "SVGSettings" ), vsp::VIEW_2HOR ), vsp::VIEW_2HOR, TEST_TOL );
@@ -407,7 +407,7 @@ void APITestSuite::TestSVGExport()
 
     ExportFile( "TestSVG_2HView_API.svg", vsp::SET_ALL, vsp::EXPORT_SVG );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf("--> 2 Horizontal View SVG Export Saved To: TestSVG_2HView_API.svg \n" );
+    printf( "--> 2 Horizontal View SVG Export Saved To: TestSVG_2HView_API.svg \n" );
 
     //==== 2 Vertical View SVG Export ====//
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( geom_id, "ViewType", "SVGSettings" ), vsp::VIEW_2VER ), vsp::VIEW_2VER, TEST_TOL );
@@ -418,7 +418,7 @@ void APITestSuite::TestSVGExport()
 
     ExportFile( "TestSVG_2VView_API.svg", vsp::SET_ALL, vsp::EXPORT_SVG );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf("--> 2 Vertical View SVG Export Saved To: TestSVG_2VView_API.svg \n" );
+    printf( "--> 2 Vertical View SVG Export Saved To: TestSVG_2VView_API.svg \n" );
 
     //==== Open Each SVG File In A Viewer To Verify ====//
     printf( "-> COMPLETE: Open Each SVG File In A SVG Viewer To Verify \n" );
@@ -469,7 +469,7 @@ void APITestSuite::TestFacetExport()
 
     ExportFile( "TestMeshGeomFacet_API.facet", vsp::SET_ALL, vsp::EXPORT_FACET );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    
+
     printf( "COMPLETE\n" );
 
     // Final check for errors
@@ -515,7 +515,7 @@ void APITestSuite::TestSaveLoad()
     vsp::ErrorMgr.PopErrorAndPrint( stdout );
 
     //==== Read Geometry From File ====//
-    printf( "Reading model from: %s\n",fname.c_str() );
+    printf( "Reading model from: %s\n", fname.c_str() );
     vsp::ReadVSPFile( fname );
     vsp::ErrorMgr.PopErrorAndPrint( stdout );
 

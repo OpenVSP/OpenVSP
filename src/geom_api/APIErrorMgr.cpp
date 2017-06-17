@@ -27,7 +27,7 @@ ErrorObj::ErrorObj( ERROR_CODE err_code, const string & err_str )
     m_ErrorString = err_str;
 }
 
-ErrorObj::ErrorObj(const ErrorObj& from)
+ErrorObj::ErrorObj( const ErrorObj& from )
 {
     m_ErrorCode = from.m_ErrorCode;
     m_ErrorString = from.m_ErrorString;
@@ -134,6 +134,6 @@ void ErrorMgrSingleton::MessageCallback( const MessageBase* from, const MessageD
 {
     if ( data.m_String == string( "Error" ) )
     {
-        AddError( (ERROR_CODE) data.m_IntVec[0], data.m_StringVec[0] );
+        AddError( ( ERROR_CODE ) data.m_IntVec[0], data.m_StringVec[0] );
     }
 }

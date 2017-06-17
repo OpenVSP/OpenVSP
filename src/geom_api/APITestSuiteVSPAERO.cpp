@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 // APITestSuiteVSPAero.cpp: Unit tests for geom_api
-// 
+//
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -152,7 +152,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( xcg_id, 0.75 ), 0.75, TEST_TOL );
     printf( "COMPLETE\n" );
 
-    //==== Auto Group Control Surfaces ====// 
+    //==== Auto Group Control Surfaces ====//
     printf( "\tGrouping Control Surfaces..." );
     vsp::AutoGroupVSPAEROControlSurfaces();
     TEST_ASSERT( vsp::GetNumControlSurfaceGroups() == 3 );
@@ -169,7 +169,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     // subsurfaces get added to groups with "CSGQualities_[geom_name]_[control_surf_name]"
     // subsurfaces gain parm name is "Surf[surfndx]_Gain" starting from 0 to NumSymmetricCopies-1
     deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf0_Gain", "CSGQualities_MainWing_Aileron" );
-    printf("\n\t Deflection Gain ID: %s \n", deflection_gain_id.c_str() );
+    printf( "\n\t Deflection Gain ID: %s \n", deflection_gain_id.c_str() );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, 0.8 ), 0.8, TEST_TOL );
     deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf1_Gain", "CSGQualities_MainWing_Aileron" );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, 1.2 ), 1.2, TEST_TOL );
@@ -259,7 +259,7 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-                                                                 //open the file created in TestVSPAeroCreateModel
+    //open the file created in TestVSPAeroCreateModel
     vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
     if ( m_vspfname_for_vspaerotests == string() )
     {
@@ -281,13 +281,13 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     // Edit Control Surface Group Angle and Contained Control Surface Gains
     string csg_id = vsp::FindContainer( "VSPAEROSettings", 0 );
     TEST_ASSERT( csg_id.c_str() != NULL );
-    string deflection_angle_id = vsp::FindParm(csg_id, "DeflectionAngle", "CSGQualities_MainWing_Aileron");
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(deflection_angle_id, 1.0), 1.0, TEST_TOL );
-    string surf0_gain_id = vsp::FindParm(csg_id, "Surf0_Gain", "CSGQualities_MainWing_Aileron");
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(surf0_gain_id, 2.0), 2.0, TEST_TOL );
-    string surf1_gain_id = vsp::FindParm(csg_id, "Surf1_Gain", "CSGQualities_MainWing_Aileron");
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(surf1_gain_id, 2.0), 2.0, TEST_TOL );
-    
+    string deflection_angle_id = vsp::FindParm( csg_id, "DeflectionAngle", "CSGQualities_MainWing_Aileron" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_angle_id, 1.0 ), 1.0, TEST_TOL );
+    string surf0_gain_id = vsp::FindParm( csg_id, "Surf0_Gain", "CSGQualities_MainWing_Aileron" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( surf0_gain_id, 2.0 ), 2.0, TEST_TOL );
+    string surf1_gain_id = vsp::FindParm( csg_id, "Surf1_Gain", "CSGQualities_MainWing_Aileron" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( surf1_gain_id, 2.0 ), 2.0, TEST_TOL );
+
     //==== Analysis: VSPAero Compute Geometry ====//
     string analysis_name = "VSPAEROSinglePoint";
     printf( "\t%s\n", analysis_name.c_str() );
@@ -298,34 +298,34 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
     // Execute
     printf( "\n\t\tExecuting..." );
     vector <int> num_wake_iter;
-    num_wake_iter.push_back(1);
-    vsp::SetIntAnalysisInput(analysis_name, "WakeNumIter", num_wake_iter);
+    num_wake_iter.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", num_wake_iter );
     string results_id = vsp::ExecAnalysis( analysis_name );
     printf( "COMPLETE\n\n" );
 
     // Check for within 5% of v3.11 Rolling Moment
-    string history_id = vsp::FindLatestResultsID("VSPAERO_History");
-    double roll_mom_tol = std::abs(0.05 * vsp::GetDoubleResults(history_id, "CMx")[0]);
-    TEST_ASSERT_DELTA(vsp::GetDoubleResults(history_id, "CMx")[0], -0.01010, roll_mom_tol);
+    string history_id = vsp::FindLatestResultsID( "VSPAERO_History" );
+    double roll_mom_tol = std::abs( 0.05 * vsp::GetDoubleResults( history_id, "CMx" )[0] );
+    TEST_ASSERT_DELTA( vsp::GetDoubleResults( history_id, "CMx" )[0], -0.01010, roll_mom_tol );
 
     /// ==== Test Symmetric Deflection ==== ///
     // Edit Control Surface Group Angle and Contained Control Surface Gains
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(deflection_angle_id, 1.0), 1.0, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(surf0_gain_id, 1.0), 1.0, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate(surf1_gain_id, -1.0), -1.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_angle_id, 1.0 ), 1.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( surf0_gain_id, 1.0 ), 1.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( surf1_gain_id, -1.0 ), -1.0, TEST_TOL );
 
     // Set defaults
     vsp::SetAnalysisInputDefaults( analysis_name );
 
     // Execute
     printf( "\n\t\tExecuting..." );
-    vsp::SetIntAnalysisInput(analysis_name, "WakeNumIter", num_wake_iter);
+    vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", num_wake_iter );
     results_id = vsp::ExecAnalysis( analysis_name );
     printf( "COMPLETE\n\n" );
 
     // Check for within 5% of v3.11 Rolling Moment
-    history_id = vsp::FindLatestResultsID("VSPAERO_History");
-    TEST_ASSERT_DELTA(vsp::GetDoubleResults(history_id, "CMx")[0], 0.0, TEST_TOL);
+    history_id = vsp::FindLatestResultsID( "VSPAERO_History" );
+    TEST_ASSERT_DELTA( vsp::GetDoubleResults( history_id, "CMx" )[0], 0.0, TEST_TOL );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -795,8 +795,8 @@ void APITestSuiteVSPAERO::TestVSPAeroSweepBatch()
 
 void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
 {
-    printf("APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()\n");
-    
+    printf( "APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()\n" );
+
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
@@ -804,7 +804,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
 
     //==== Analysis: VSPAero Single Point ====//
     string analysis_name = "VSPAEROSinglePoint";
-    printf("\t%s\n",analysis_name.c_str());
+    printf( "\t%s\n", analysis_name.c_str() );
 
     //==== Create Symmetric Airfoil Wing Geometry ====//
     printf( "--> Generating Geometries\n" );
@@ -830,9 +830,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     TEST_ASSERT_DELTA( vsp::SetParmVal( xsweep_id1, 0.0 ), 0.0, TEST_TOL );
 
     //  Increase W Tesselation:
-    TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Tess_W", "Shape", 69 ), calcTessWCheckVal(69), TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Tess_W", "Shape", 69 ), calcTessWCheckVal( 69 ), TEST_TOL );
 
-    //  Increase U Tesselation 
+    //  Increase U Tesselation
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id1, 16 ), 16, TEST_TOL );
     string xrtcluster_id1 = vsp::GetXSecParm( xsec_id1, "InCluster" );
@@ -859,7 +859,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
 
     //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
     string compgeom_name = "VSPAEROComputeGeometry";
-    printf( "\t%s\n",compgeom_name.c_str() );
+    printf( "\t%s\n", compgeom_name.c_str() );
 
     // Set defaults
     vsp::SetAnalysisInputDefaults( compgeom_name );
@@ -880,20 +880,20 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     vsp::SetAnalysisInputDefaults( analysis_name );
 
     // Reference geometry set
-    vector< int > geom_set; 
+    vector< int > geom_set;
     geom_set.push_back( 0 );
     vsp::SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
-    vector< int > ref_flag; 
+    vector< int > ref_flag;
     ref_flag.push_back( vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF );
-    vsp::SetIntAnalysisInput(analysis_name, "RefFlag", ref_flag, 0);
+    vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag, 0 );
     vector< string > wid = vsp::FindGeomsWithName( "WingGeom" );
-    vsp::SetStringAnalysisInput(analysis_name, "WingID", wid, 0);
+    vsp::SetStringAnalysisInput( analysis_name, "WingID", wid, 0 );
 
     // Freestream Parameters
-    vector< double > alpha; 
+    vector< double > alpha;
     alpha.push_back( 0.0 );
     vsp::SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
-    vector< double > mach; 
+    vector< double > mach;
     mach.push_back( 0.1 );
     vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
 
@@ -917,9 +917,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
 
     // Get & Display Results
     vsp::PrintResults( results_id );
-    
+
     vector<string> results_names = vsp::GetAllDataNames( results_id );
-    vector<string>res_id = vsp::GetStringResults( results_id, results_names[0] ,0 );
+    vector<string>res_id = vsp::GetStringResults( results_id, results_names[0] , 0 );
 
     vector<double> CL = vsp::GetDoubleResults( res_id[0], "CL", 0 );
     vector<double> cl = vsp::GetDoubleResults( res_id[1], "cl", 0 );
@@ -928,14 +928,14 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     for ( unsigned int i = 0; i < CL.size(); i++ )
     {
         TEST_ASSERT_DELTA( CL[i], 0.0, TEST_TOL );
-        printf("%7.3f", CL[i] );
+        printf( "%7.3f", CL[i] );
     }
     printf( "\n" );
     printf( "   cl: " );
     for ( unsigned int i = 0; i < cl.size(); i++ )
     {
         TEST_ASSERT_DELTA( cl[i], 0.0, TEST_TOL );
-        printf("%7.3f", cl[i] );
+        printf( "%7.3f", cl[i] );
     }
     printf( "\n" );
 
@@ -946,8 +946,8 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
 
 void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
 {
-    printf("APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()\n");
-    
+    printf( "APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()\n" );
+
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
@@ -955,7 +955,7 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
 
     //==== Analysis: VSPAero Single Point ====//
     string analysis_name = "VSPAEROSinglePoint";
-    printf("\t%s\n",analysis_name.c_str());
+    printf( "\t%s\n", analysis_name.c_str() );
 
     //==== Create Symmetric Airfoil Wing Geometry ====//
     printf( "--> Generating Geometries\n" );
@@ -994,9 +994,9 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //  Increase W Tesselation:
-    TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Tess_W", "Shape", 69 ), calcTessWCheckVal(69), TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Tess_W", "Shape", 69 ), calcTessWCheckVal( 69 ), TEST_TOL );
 
-    //  Increase U Tesselation 
+    //  Increase U Tesselation
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id1, 16 ), 16, TEST_TOL );
     string xrtcluster_id1 = vsp::GetXSecParm( xsec_id1, "InCluster" );
@@ -1023,7 +1023,7 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
 
     //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
     string compgeom_name = "VSPAEROComputeGeometry";
-    printf( "\t%s\n",compgeom_name.c_str() );
+    printf( "\t%s\n", compgeom_name.c_str() );
 
     // Set defaults
     vsp::SetAnalysisInputDefaults( compgeom_name );
@@ -1044,20 +1044,20 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     vsp::SetAnalysisInputDefaults( analysis_name );
 
     // Reference geometry set
-    vector< int > geom_set; 
+    vector< int > geom_set;
     geom_set.push_back( 0 );
     vsp::SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
-    vector< int > ref_flag; 
+    vector< int > ref_flag;
     ref_flag.push_back( vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF );
-    vsp::SetIntAnalysisInput(analysis_name, "RefFlag", ref_flag, 0);
+    vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag, 0 );
     vector< string > wid = vsp::FindGeomsWithName( "WingGeom" );
-    vsp::SetStringAnalysisInput(analysis_name, "WingID", wid, 0);
+    vsp::SetStringAnalysisInput( analysis_name, "WingID", wid, 0 );
 
     // Freestream Parameters
-    vector< double > alpha; 
+    vector< double > alpha;
     alpha.push_back( 0.0 );
     vsp::SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
-    vector< double > mach; 
+    vector< double > mach;
     mach.push_back( 0.1 );
     vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
 
@@ -1081,9 +1081,9 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
 
     // Get & Display Results
     vsp::PrintResults( results_id );
-    
+
     vector<string> results_names = vsp::GetAllDataNames( results_id );
-    vector<string>res_id = vsp::GetStringResults( results_id, results_names[0] ,0 );
+    vector<string>res_id = vsp::GetStringResults( results_id, results_names[0] , 0 );
 
     vector<double> CL = vsp::GetDoubleResults( res_id[0], "CL", 0 );
     vector<double> cl = vsp::GetDoubleResults( res_id[1], "cl", 0 );
@@ -1092,14 +1092,14 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     for ( unsigned int i = 0; i < CL.size(); i++ )
     {
         TEST_ASSERT_DELTA( CL[i], 0.0, TEST_TOL );
-        printf("%7.3f", CL[i] );
+        printf( "%7.3f", CL[i] );
     }
     printf( "\n" );
     printf( "   cl: " );
     for ( unsigned int i = 0; i < cl.size(); i++ )
     {
         TEST_ASSERT_DELTA( cl[i], 0.0, TEST_TOL );
-        printf("%7.3f", cl[i] );
+        printf( "%7.3f", cl[i] );
     }
     printf( "\n" );
 
@@ -1110,8 +1110,8 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
 
 void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
 {
-    printf("APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()\n");
-    
+    printf( "APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()\n" );
+
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
@@ -1119,7 +1119,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
 
     //==== Analysis: VSPAero Sweep ====//
     string analysis_name = "VSPAEROSweep";
-    printf("\t%s\n",analysis_name.c_str());
+    printf( "\t%s\n", analysis_name.c_str() );
 
     //==== Create Delta Wing Geometry ====//
     printf( "--> Generating Geometry\n" );
@@ -1148,11 +1148,11 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //  Increase W Tesselation:
-    TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Tess_W", "Shape", 69 ), calcTessWCheckVal(69), TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Tess_W", "Shape", 69 ), calcTessWCheckVal( 69 ), TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "TECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
 
-    //  Increase U Tesselation 
+    //  Increase U Tesselation
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id1, 16 ), 16, TEST_TOL );
     string xrtcluster_id1 = vsp::GetXSecParm( xsec_id1, "InCluster" );
@@ -1179,7 +1179,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
 
     //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
     string compgeom_name = "VSPAEROComputeGeometry";
-    printf( "\t%s\n",compgeom_name.c_str() );
+    printf( "\t%s\n", compgeom_name.c_str() );
 
     // Set defaults
     vsp::SetAnalysisInputDefaults( compgeom_name );
@@ -1200,29 +1200,29 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     vsp::SetAnalysisInputDefaults( analysis_name );
 
     // Reference geometry set
-    vector< int > geom_set; 
+    vector< int > geom_set;
     geom_set.push_back( 0 );
     vsp::SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
-    vector< int > ref_flag; 
+    vector< int > ref_flag;
     ref_flag.push_back( vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF );
-    vsp::SetIntAnalysisInput(analysis_name, "RefFlag", ref_flag, 0);
+    vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag, 0 );
     vector< string > wid = vsp::FindGeomsWithName( "WingGeom" );
-    vsp::SetStringAnalysisInput(analysis_name, "WingID", wid, 0);
+    vsp::SetStringAnalysisInput( analysis_name, "WingID", wid, 0 );
 
     // Freestream Parameters
-    vector< double > alpha_start; 
+    vector< double > alpha_start;
     alpha_start.push_back( 1 );
     vsp::SetDoubleAnalysisInput( analysis_name, "AlphaStart", alpha_start, 0 );
-    vector< int > alpha_npts; 
+    vector< int > alpha_npts;
     alpha_npts.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "AlphaNpts", alpha_npts, 0 );
-    vector< double > mach_start; 
+    vector< double > mach_start;
     mach_start.push_back( 1.2 );
     vsp::SetDoubleAnalysisInput( analysis_name, "MachStart", mach_start, 0 );
-    vector< int > mach_npts; 
+    vector< int > mach_npts;
     mach_npts.push_back( 8 );
     vsp::SetIntAnalysisInput( analysis_name, "MachNpts", mach_npts, 0 );
-    vector< double > mach_end; 
+    vector< double > mach_end;
     mach_end.push_back( 4.4 );
     vsp::SetDoubleAnalysisInput( analysis_name, "MachEnd", mach_end, 0 );
 
@@ -1231,10 +1231,10 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
     std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeSkipUntilIter", wakeSkipUntilIter );
-    
+
     // Set Batch Mode
-    vector< int > batch_mode_flag; batch_mode_flag.push_back(1);
-    vsp::SetIntAnalysisInput(analysis_name, "BatchModeFlag", batch_mode_flag, 0);
+    vector< int > batch_mode_flag; batch_mode_flag.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "BatchModeFlag", batch_mode_flag, 0 );
 
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -1261,5 +1261,5 @@ double  APITestSuiteVSPAERO::calcTessWCheckVal( double t_tess_w )
     double t_mult = 4;
     double t_shift = 1;
 
-    return t_mult*std::ceil( ( t_tess_w - t_shift ) / t_mult ) + t_shift;
+    return t_mult * std::ceil( ( t_tess_w - t_shift ) / t_mult ) + t_shift;
 }

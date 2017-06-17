@@ -16,7 +16,7 @@
 
 //Default tolerance to use for tests.  Most calculations are done as doubles and choosing single precision FLT_MIN gives some allowance for precision stackup in calculations
 #define TEST_TOL FLT_MIN
- 
+
 double APITestSuiteMassProp::GetTol( double val )
 {
     double TOL;
@@ -26,7 +26,7 @@ double APITestSuiteMassProp::GetTol( double val )
         TOL = val * 0.005;
     }
     else if ( val == 0 )
-    { 
+    {
         TOL = 0.1;
     }
 
@@ -42,7 +42,7 @@ double APITestSuiteMassProp::GetCGTol( double val, double mass )
         TOL = val * 0.001;
     }
     else if ( val == 0 )
-    { 
+    {
         TOL = 0.005 * mass;
     }
 
@@ -58,7 +58,7 @@ double APITestSuiteMassProp::GetInertiaTol( double val, double mass )
         TOL = val * 0.01;
     }
     else if ( val == 0 )
-    { 
+    {
         TOL = 0.005 * mass;
     }
 
@@ -67,7 +67,7 @@ double APITestSuiteMassProp::GetInertiaTol( double val, double mass )
 
 void APITestSuiteMassProp::TestSolidCylinder()
 {
-    printf("APITestSuiteMassProp::TestSolidCylinder()\n");
+    printf( "APITestSuiteMassProp::TestSolidCylinder()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
@@ -82,8 +82,8 @@ void APITestSuiteMassProp::TestSolidCylinder()
     //  Adjust Fuselage length to 12:
     double length = 12;
     TEST_ASSERT_DELTA( vsp::SetParmVal( fus_id, "Length", "Design", length ), length, TEST_TOL );
-    
-    //  Change Type of Middle XSec to Circle and Ends to Points 
+
+    //  Change Type of Middle XSec to Circle and Ends to Points
     vsp::CutXSec( fus_id, 2 );
     string fusxsurf_id = vsp::GetXSecSurf( fus_id, 0 );
     vsp::ChangeXSecShape( fusxsurf_id, 0, vsp::XS_POINT );
@@ -180,7 +180,7 @@ void APITestSuiteMassProp::TestSolidCylinder()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf("COMPLETE\n");
+    printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
@@ -226,14 +226,14 @@ void APITestSuiteMassProp::TestSolidCylinder()
 
     printf( "-->Analytical Mass Properties:\n" );
     printf( "   Cylinder_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
-    printf( "   Cylinder_Ixx: %7.3f \n", I_xx);
-    printf( "   Cylinder_Ixy: %7.3f \n", I_xy);
-    printf( "   Cylinder_Ixz: %7.3f \n", I_xz);
-    printf( "   Cylinder_Iyy: %7.3f \n", I_yy);
-    printf( "   Cylinder_Iyz: %7.3f \n", I_yz);
-    printf( "   Cylinder_Izz: %7.3f \n", I_zz);
-    printf( "   Cylinder Mass: %7.3f \n", mass);
-    printf( "   Cylinder Volume: %7.3f \n", volume);
+    printf( "   Cylinder_Ixx: %7.3f \n", I_xx );
+    printf( "   Cylinder_Ixy: %7.3f \n", I_xy );
+    printf( "   Cylinder_Ixz: %7.3f \n", I_xz );
+    printf( "   Cylinder_Iyy: %7.3f \n", I_yy );
+    printf( "   Cylinder_Iyz: %7.3f \n", I_yz );
+    printf( "   Cylinder_Izz: %7.3f \n", I_zz );
+    printf( "   Cylinder Mass: %7.3f \n", mass );
+    printf( "   Cylinder Volume: %7.3f \n", volume );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -242,7 +242,7 @@ void APITestSuiteMassProp::TestSolidCylinder()
 
 void APITestSuiteMassProp::TestThickWallCylinder()
 {
-    printf("APITestSuiteMassProp::TestThickWallCylinder()\n");
+    printf( "APITestSuiteMassProp::TestThickWallCylinder()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
@@ -253,7 +253,7 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = vsp::AddGeom( "STACK" );
 
-    //  Change Type of All XSec to Circle 
+    //  Change Type of All XSec to Circle
     string stackxsurf_id = vsp::GetXSecSurf( stack_id, 0 );
     vsp::ChangeXSecShape( stackxsurf_id, 0, vsp::XS_CIRCLE );
     vsp::ChangeXSecShape( stackxsurf_id, 1, vsp::XS_CIRCLE );
@@ -341,7 +341,7 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     double pi = 3.14159265359;
     double I_xx = ( pi * rho * length / 2 ) * ( pow( R_out, 4 ) - pow( r_in, 4 ) );
     double I_xy = 0;
-    double I_yy = ( pi * rho * length / 12 )* ( 3 * ( pow( R_out, 4 ) - pow( r_in, 4 ) ) + pow( length, 2 ) * ( pow( R_out, 2 ) - pow( r_in, 2 ) ) );
+    double I_yy = ( pi * rho * length / 12 ) * ( 3 * ( pow( R_out, 4 ) - pow( r_in, 4 ) ) + pow( length, 2 ) * ( pow( R_out, 2 ) - pow( r_in, 2 ) ) );
     double I_yz = 0;
     double I_zz = I_yy;
     double I_xz = 0;
@@ -374,7 +374,7 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf("COMPLETE\n");
+    printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
@@ -420,14 +420,14 @@ void APITestSuiteMassProp::TestThickWallCylinder()
 
     printf( "-->Analytical Mass Properties:\n" );
     printf( "   Cylinder_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
-    printf( "   Cylinder_Ixx: %7.3f \n", I_xx);
-    printf( "   Cylinder_Ixy: %7.3f \n", I_xy);
-    printf( "   Cylinder_Ixz: %7.3f \n", I_xz);
-    printf( "   Cylinder_Iyy: %7.3f \n", I_yy);
-    printf( "   Cylinder_Iyz: %7.3f \n", I_yz);
-    printf( "   Cylinder_Izz: %7.3f \n", I_zz);
-    printf( "   Cylinder Mass: %7.3f \n", mass);
-    printf( "   Cylinder Volume: %7.3f \n", volume);
+    printf( "   Cylinder_Ixx: %7.3f \n", I_xx );
+    printf( "   Cylinder_Ixy: %7.3f \n", I_xy );
+    printf( "   Cylinder_Ixz: %7.3f \n", I_xz );
+    printf( "   Cylinder_Iyy: %7.3f \n", I_yy );
+    printf( "   Cylinder_Iyz: %7.3f \n", I_yz );
+    printf( "   Cylinder_Izz: %7.3f \n", I_zz );
+    printf( "   Cylinder Mass: %7.3f \n", mass );
+    printf( "   Cylinder Volume: %7.3f \n", volume );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -436,7 +436,7 @@ void APITestSuiteMassProp::TestThickWallCylinder()
 
 void APITestSuiteMassProp::TestCylindricalShell()
 {
-    printf("APITestSuiteMassProp::TestCylindricalShell()\n");
+    printf( "APITestSuiteMassProp::TestCylindricalShell()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
@@ -447,7 +447,7 @@ void APITestSuiteMassProp::TestCylindricalShell()
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = vsp::AddGeom( "STACK" );
 
-    //  Change Type of All XSec to Circle 
+    //  Change Type of All XSec to Circle
     vsp::CutXSec( stack_id, 3 );
     string stackxsurf_id = vsp::GetXSecSurf( stack_id, 0 );
     vsp::ChangeXSecShape( stackxsurf_id, 0, vsp::XS_CIRCLE );
@@ -473,7 +473,7 @@ void APITestSuiteMassProp::TestCylindricalShell()
     TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id2, radius * 2 ), radius * 2, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id3, 0 ), 0, TEST_TOL );
 
-    //  Set Beginning and End of Cylinder 
+    //  Set Beginning and End of Cylinder
     double length = 12;
     string xloc_id0 = vsp::GetXSecParm( xsec_id0, "XDelta" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id0, 0.0 ), 0.0, TEST_TOL );
@@ -530,14 +530,14 @@ void APITestSuiteMassProp::TestCylindricalShell()
     double shellSA = 2.0 * PI * radius * length;
     double shellMass = rho_A * shellSA;
     double diskIxx = diskMass * pow( radius, 2.0 ) / 2.0;
-    double diskIyy = diskMass * pow( radius, 2.0 ) / 4.0 + diskMass * pow( ( length / 2.0 ), 2.0);
+    double diskIyy = diskMass * pow( radius, 2.0 ) / 4.0 + diskMass * pow( ( length / 2.0 ), 2.0 );
     double shellIxx = shellMass * pow( radius, 2.0 );
     double shellIyy = shellMass * pow( radius, 2.0 ) / 2.0 + shellMass * pow( length, 2.0 ) / 12.0;
     double shellIzz = shellIyy;
-    double mass = shellMass + (2.0 * diskMass);
-    double I_xx = shellIxx + (2.0 * diskIxx);
+    double mass = shellMass + ( 2.0 * diskMass );
+    double I_xx = shellIxx + ( 2.0 * diskIxx );
     double I_xy = 0;
-    double I_yy = shellIyy + (2.0 * diskIyy);
+    double I_yy = shellIyy + ( 2.0 * diskIyy );
     double I_yz = 0;
     double I_zz = I_yy;
     double I_xz = 0;
@@ -568,7 +568,7 @@ void APITestSuiteMassProp::TestCylindricalShell()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf("COMPLETE\n");
+    printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
@@ -628,7 +628,7 @@ void APITestSuiteMassProp::TestCylindricalShell()
 
 void APITestSuiteMassProp::TestSphere()
 {
-    printf("APITestSuiteMassProp::TestSphere()\n");
+    printf( "APITestSuiteMassProp::TestSphere()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
@@ -658,7 +658,7 @@ void APITestSuiteMassProp::TestSphere()
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id1, radius * 2 ), radius * 2, TEST_TOL );
 
-    //  Set Beginning and End of Sphere 
+    //  Set Beginning and End of Sphere
     string xloc_id0 = vsp::GetXSecParm( xsec_id0, "XDelta" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id0, 0.0 ), 0.0, TEST_TOL );
     string xloc_id1 = vsp::GetXSecParm( xsec_id1, "XDelta" );
@@ -666,7 +666,7 @@ void APITestSuiteMassProp::TestSphere()
     string xloc_id2 = vsp::GetXSecParm( xsec_id2, "XDelta" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id2, radius ), radius, TEST_TOL );
 
-    //  Increase U Tesselation 
+    //  Increase U Tesselation
     string xutess_id0 = vsp::GetXSecParm( xsec_id0, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id0, 20 ), 20, TEST_TOL );
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
@@ -745,7 +745,7 @@ void APITestSuiteMassProp::TestSphere()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf("COMPLETE\n");
+    printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
@@ -807,7 +807,7 @@ void APITestSuiteMassProp::TestSphere()
 
 void APITestSuiteMassProp::TestSolidCone()
 {
-    printf("APITestSuiteMassProp::TestSolidCone()\n");
+    printf( "APITestSuiteMassProp::TestSolidCone()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
@@ -837,7 +837,7 @@ void APITestSuiteMassProp::TestSolidCone()
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( dia_id1, radius * 2 ), radius * 2, TEST_TOL );
 
-    //  Set Beginning and End of Cone 
+    //  Set Beginning and End of Cone
     double length = 12;
     string xloc_id1 = vsp::GetXSecParm( xsec_id1, "XDelta" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id1, length ), length, TEST_TOL );
@@ -871,7 +871,7 @@ void APITestSuiteMassProp::TestSolidCone()
     //  Increase W Tesselation:
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Tess_W", "Shape", 73 ), 73, TEST_TOL )
 
-    //  Increase U Tesselation 
+    //  Increase U Tesselation
     string xutess_id0 = vsp::GetXSecParm( xsec_id0, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id0, 20 ), 20, TEST_TOL );
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
@@ -915,7 +915,7 @@ void APITestSuiteMassProp::TestSolidCone()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf("COMPLETE\n");
+    printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
@@ -977,7 +977,7 @@ void APITestSuiteMassProp::TestSolidCone()
 
 void APITestSuiteMassProp::TestShellCone()
 {
-    printf("APITestSuiteMassProp::TestShellCone()\n");
+    printf( "APITestSuiteMassProp::TestShellCone()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
@@ -1008,7 +1008,7 @@ void APITestSuiteMassProp::TestShellCone()
     vsp::SetParmVal( dia_id1, radius * 2 );
     vsp::SetParmVal( dia_id2, 0 );
 
-    //  Set Beginning and End of Cone 
+    //  Set Beginning and End of Cone
     double length = 12;
     string xloc_id1 = vsp::GetXSecParm( xsec_id1, "XDelta" );
     vsp::SetParmVal( xloc_id1, length );
@@ -1052,7 +1052,7 @@ void APITestSuiteMassProp::TestShellCone()
     //  Increase W Tesselation:
     vsp::SetParmVal( stack_id, "Tess_W", "Shape", 73 );
 
-    //  Increase U Tesselation 
+    //  Increase U Tesselation
     string xutess_id0 = vsp::GetXSecParm( xsec_id0, "SectTess_U" );
     vsp::SetParmVal( xutess_id0, 20 );
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
@@ -1065,7 +1065,7 @@ void APITestSuiteMassProp::TestShellCone()
     double diskMass = rho_A * diskSA;
     double shellMass = rho_A * shellSA;
     double shellIxx = shellMass * pow( radius, 2 ) / 2;
-    double shellIyy = ( shellMass * pow( radius, 2 ) / 4 ) + ( shellMass * pow( length, 2 ) / 18 ) + shellMass * pow(( 3 * length / 4 - 8.564 ), 2);
+    double shellIyy = ( shellMass * pow( radius, 2 ) / 4 ) + ( shellMass * pow( length, 2 ) / 18 ) + shellMass * pow( ( 3 * length / 4 - 8.564 ), 2 );
     double diskIxx = diskMass * pow( radius, 2 ) / 2;
     double diskIyy = diskMass * pow( radius, 2 ) / 4 + diskMass * pow( 3.436, 2 );
     double mass = diskMass + shellMass;
@@ -1077,7 +1077,7 @@ void APITestSuiteMassProp::TestShellCone()
     double I_xz = 0;
     double Cz = 0;
     double Cy = 0;
-    double Cx = (3 * length / 4) - 0.436;
+    double Cx = ( 3 * length / 4 ) - 0.436;
 
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -1102,7 +1102,7 @@ void APITestSuiteMassProp::TestShellCone()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf("COMPLETE\n");
+    printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
@@ -1162,7 +1162,7 @@ void APITestSuiteMassProp::TestShellCone()
 
 void APITestSuiteMassProp::TestRectangularPrism()
 {
-    printf("APITestSuiteMassProp::TestRectangularPrism()\n");
+    printf( "APITestSuiteMassProp::TestRectangularPrism()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
@@ -1173,7 +1173,7 @@ void APITestSuiteMassProp::TestRectangularPrism()
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = vsp::AddGeom( "STACK" );
 
-    //  Change Type of Middle XSec to Rounded Rectangles and Ends to Points 
+    //  Change Type of Middle XSec to Rounded Rectangles and Ends to Points
     vsp::CutXSec( stack_id, 2 );
     string stackxsurf_id = vsp::GetXSecSurf( stack_id, 0 );
     vsp::ChangeXSecShape( stackxsurf_id, 0, vsp::XS_POINT );
@@ -1252,7 +1252,7 @@ void APITestSuiteMassProp::TestRectangularPrism()
     //  Increase W Tesselation:
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Tess_W", "Shape", 81 ), 81, TEST_TOL );
 
-    //  Increase U Tesselation 
+    //  Increase U Tesselation
     string xutess_id0 = vsp::GetXSecParm( xsec_id0, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id0, 20 ), 20, TEST_TOL );
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
@@ -1299,7 +1299,7 @@ void APITestSuiteMassProp::TestRectangularPrism()
     //==== Execute Mass Properties Analysis ====//
     printf( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf("COMPLETE\n");
+    printf( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );

@@ -38,14 +38,14 @@ enum ERROR_CODE {   VSP_OK,
                 };
 
 enum SYM_FLAG {  SYM_XY = ( 1 << 0 ),
-        SYM_XZ = ( 1 << 1 ),
-        SYM_YZ = ( 1 << 2 ),
-        SYM_ROT_X = ( 1 << 3 ),
-        SYM_ROT_Y = ( 1 << 4 ),
-        SYM_ROT_Z = ( 1 << 5 ),
-        SYM_PLANAR_TYPES = 3,
-        SYM_NUM_TYPES = 6
-     }; // Symmetry Flags
+                 SYM_XZ = ( 1 << 1 ),
+                 SYM_YZ = ( 1 << 2 ),
+                 SYM_ROT_X = ( 1 << 3 ),
+                 SYM_ROT_Y = ( 1 << 4 ),
+                 SYM_ROT_Z = ( 1 << 5 ),
+                 SYM_PLANAR_TYPES = 3,
+                 SYM_NUM_TYPES = 6
+              }; // Symmetry Flags
 
 enum XSEC_TYPE { XSEC_FUSE,
                  XSEC_STACK,
@@ -67,7 +67,7 @@ enum LEN_UNITS { LEN_MM,
                  LEN_FT,
                  LEN_YD,
                  LEN_UNITLESS
-};
+               };
 
 enum DIMENSION_SET { SET_3D,
                      SET_2D,
@@ -80,34 +80,34 @@ enum VIEW_TYPE { VIEW_LEFT,
                  VIEW_FRONT,
                  VIEW_REAR,
                  VIEW_NONE
-};
+               };
 
 enum VIEW_SHIFT { LEFT,
                   RIGHT,
                   UP,
                   DOWN,
-};
+                };
 
 enum VIEW_NUM { VIEW_1,
                 VIEW_2HOR,
                 VIEW_2VER,
                 VIEW_4,
-};
+              };
 
 enum VIEW_ROT { ROT_0,
                 ROT_90,
                 ROT_180,
                 ROT_270,
-};
+              };
 
 enum SCALE_FLAG { MANUAL,
                   REFERENCE,
                   NOSCALE
-};
+                };
 
 enum ANG_UNITS { ANG_RAD,
                  ANG_DEG
-};
+               };
 
 enum XSEC_WIDTH_SHIFT { XS_SHIFT_LE = 0,
                         XS_SHIFT_MID = 1,
@@ -129,7 +129,7 @@ enum XSEC_CRV_TYPE {XS_POINT,
                     XS_FILE_AIRFOIL,
                     XS_CST_AIRFOIL,
                     XS_NUM_TYPES
-               };
+                   };
 
 
 enum XSEC_CLOSE_TYPE { CLOSE_NONE,
@@ -138,21 +138,22 @@ enum XSEC_CLOSE_TYPE { CLOSE_NONE,
                        CLOSE_SKEWBOTH,
                        CLOSE_EXTRAP,
                        CLOSE_NUM_TYPES
-};
+                     };
 
 enum XSEC_TRIM_TYPE { TRIM_NONE,
                       TRIM_X,
                       TRIM_THICK,
                       TRIM_NUM_TYPES
-};
+                    };
 
 enum ABS_REL_FLAG { ABS,
                     REL
-};
+                  };
 
 enum XSEC_SIDES_TYPE {  XSEC_BOTH_SIDES,
                         XSEC_LEFT_SIDE,
-                        XSEC_RIGHT_SIDE };
+                        XSEC_RIGHT_SIDE
+                     };
 
 enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_NASCART,
@@ -237,7 +238,7 @@ enum CFD_MESH_EXPORT_TYPE { CFD_STL_FILE_NAME,
                             CFD_TKEY_FILE_NAME,
                             CFD_FACET_FILE_NAME,
                             CFD_NUM_FILE_NAMES,
-                        };
+                          };
 
 enum CFD_CONTROL_TYPE {     CFD_MIN_EDGE_LEN,
                             CFD_MAX_EDGE_LEN,
@@ -265,7 +266,7 @@ enum CFD_CONTROL_TYPE {     CFD_MIN_EDGE_LEN,
                             CFD_WAKE_SCALE,
                             CFD_WAKE_ANGLE,
                             CFD_SRF_XYZ_FLAG,
-};
+                      };
 
 enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
                             LINE_SOURCE,
@@ -275,7 +276,7 @@ enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
 
 enum XDDM_QUANTITY_TYPE { XDDM_VAR,
                           XDDM_CONST,
-};
+                        };
 
 
 enum VSP_SURF_TYPE { NORMAL_SURF,
@@ -283,23 +284,24 @@ enum VSP_SURF_TYPE { NORMAL_SURF,
                      DISK_SURF,
                      PROP_SURF,
                      NUM_SURF_TYPES,
-               };
+                   };
 
 enum VSP_SURF_CFD_TYPE { CFD_NORMAL,
                          CFD_NEGATIVE,
                          CFD_TRANSPARENT,
                          CFD_NUM_TYPES,
-                };
+                       };
 
 enum SUBSURF_TYPE { SS_LINE,
                     SS_RECTANGLE,
                     SS_ELLIPSE,
                     SS_CONTROL,
-                    SS_NUM_TYPES };
+                    SS_NUM_TYPES
+                  };
 
 enum SUBSURF_INOUT { INSIDE,
                      OUTSIDE
-};
+                   };
 
 enum WING_DRIVERS { AR_WSECT_DRIVER,
                     SPAN_WSECT_DRIVER,
@@ -383,7 +385,7 @@ enum VSPAERO_REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the referen
 
 enum FREESTREAM_PD_UNITS { PD_UNITS_IMPERIAL = 0,
                            PD_UNITS_METRIC
-                      }; // Parasite Drag Freestream Units
+                         }; // Parasite Drag Freestream Units
 
 enum VEL_UNITS { V_UNIT_FT_S = 0,
                  V_UNIT_M_S,
@@ -421,7 +423,8 @@ enum ATMOS_TYPE { ATMOS_TYPE_US_STANDARD_1976 = 0,
                   ATMOS_TYPE_MANUAL_P_R,
                   ATMOS_TYPE_MANUAL_P_T,
                   ATMOS_TYPE_MANUAL_R_T,
-                  ATMOS_TYPE_MANUAL_RE_L }; // Flowstream Type
+                  ATMOS_TYPE_MANUAL_RE_L
+                }; // Flowstream Type
 
 enum CF_LAM_EQN { CF_LAM_BLASIUS = 0,
                   CF_LAM_BLASIUS_W_HEAT,

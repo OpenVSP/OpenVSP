@@ -34,7 +34,7 @@ public:
         TEST_ADD( APITestSuite::TestSVGExport )
         TEST_ADD( APITestSuite::TestFacetExport )
         // Save and Load
-        TEST_ADD( APITestSuite::TestSaveLoad)
+        TEST_ADD( APITestSuite::TestSaveLoad )
     }
 
 private:
