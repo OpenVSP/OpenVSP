@@ -19,20 +19,20 @@ class ParasiteDragScreen;
 class ParasiteDragScreen : public TabScreen
 {
 public:
-    ParasiteDragScreen(ScreenMgr* mgr);
+    ParasiteDragScreen( ScreenMgr* mgr );
     virtual ~ParasiteDragScreen();
 
     void Show();
     void Hide();
     bool Update();
 
-    void CallBack(Fl_Widget *w);
-    static void staticScreenCB(Fl_Widget *w, void* data)
+    void CallBack( Fl_Widget *w );
+    static void staticScreenCB( Fl_Widget *w, void* data )
     {
-        ((ParasiteDragScreen*)data)->CallBack(w);
+        ( ( ParasiteDragScreen* )data )->CallBack( w );
     }
 
-    virtual void GuiDeviceCallBack(GuiDevice* device);
+    virtual void GuiDeviceCallBack( GuiDevice* device );
 
     int main_XScrollPosition;
     int main_YScrollPosition;
@@ -41,7 +41,7 @@ protected:
     //==== Screen Functions ====//
     // Browser Callback
     void ExresBrowserCallback();
-    void SelectExcresBrowser(int index);
+    void SelectExcresBrowser( int index );
 
     // General Functions
     void UpdateTableLabels();
@@ -70,33 +70,33 @@ protected:
     void RebuildExcresTableLabels();
     void AddSimpleExcresToTable();
     void ClearGUIElements();
-    void DeactivateRow(int index, int grayFlag);
-    void ResizeDeviceVectors(int geomSize, int excresSize);
+    void DeactivateRow( int index, int grayFlag );
+    void ResizeDeviceVectors( int geomSize, int excresSize );
     void UpdateFinalValues();
 
-    void GetTableFlags(int index, const string &lastID, const string &lastIncorporatedID, int lastShape,
-        int &skipFlag, int &subsurfFlag, int &grayFlag);
-    string GetComponentTableLabel(int subsurfFlag, const string &lastID, int index);
+    void GetTableFlags( int index, const string &lastID, const string &lastIncorporatedID, int lastShape,
+                        int &skipFlag, int &subsurfFlag, int &grayFlag );
+    string GetComponentTableLabel( int subsurfFlag, const string &lastID, int index );
 
-    void SetupRowLabel(int subsurfFlag, const string &lastID, int index);
-    void SetupSwet(int index, double swet);
-    void SetupLref(int index, double lref);
-    void SetupFineRat(int index, double finerat);
-    void SetupFFType(int index, int shapetype, int eqnchoice);
-    void SetupFFValue(int index, double formfactor, int eqnchoice);
-    void SetupReyNum(int index, double reynum );
-    void SetupRoughness(int index, double roughness);
-    void SetupHeatTransfer(int index, double tetwratio, double tawtwratio);
-    void SetupPercLaminar(int index, double perclam);
-    void SetupCf(int index, double cf);
-    void SetupQ(int index, double Q);
-    void Setupf(int index, double f);
-    void SetupCD(int index, double CD);
-    void SetupPercCD(int index, double percCD);
-    void SetupSubSurfInclude(int index, const string geomid, const string subsurfid);
+    void SetupRowLabel( int subsurfFlag, const string &lastID, int index );
+    void SetupSwet( int index, double swet );
+    void SetupLref( int index, double lref );
+    void SetupFineRat( int index, double finerat );
+    void SetupFFType( int index, int shapetype, int eqnchoice );
+    void SetupFFValue( int index, double formfactor, int eqnchoice );
+    void SetupReyNum( int index, double reynum );
+    void SetupRoughness( int index, double roughness );
+    void SetupHeatTransfer( int index, double tetwratio, double tawtwratio );
+    void SetupPercLaminar( int index, double perclam );
+    void SetupCf( int index, double cf );
+    void SetupQ( int index, double Q );
+    void Setupf( int index, double f );
+    void SetupCD( int index, double CD );
+    void SetupPercCD( int index, double percCD );
+    void SetupSubSurfInclude( int index, const string geomid, const string subsurfid );
 
-    void SetupExcresType(int index, const string type);
-    void SetupExcresInput(int index, double input);
+    void SetupExcresType( int index, const string type );
+    void SetupExcresInput( int index, double input );
 
     // Screen Variables
     vector < string > m_WingGeomVec;

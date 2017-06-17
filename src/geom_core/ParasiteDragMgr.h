@@ -80,7 +80,7 @@ public:
         static ParasiteDragMgrSingleton instance;
         return instance;
     }
-    virtual void ParmChanged(Parm* parm_ptr, int type); // Required for extensions of ParmContainers
+    virtual void ParmChanged( Parm* parm_ptr, int type ); // Required for extensions of ParmContainers
 
     // Main Table Related Functions
     void InitTableVec(); // Initialize all table rows to default struct
@@ -91,19 +91,19 @@ public:
     int CalcRowSize();
     void Calculate_Swet();
     void Calculate_Lref();
-    double CalcReferenceLength(int index);
-    double CalcReferenceBodyLength(int index);
-    double CalcReferenceChord(int index);
+    double CalcReferenceLength( int index );
+    double CalcReferenceBodyLength( int index );
+    double CalcReferenceChord( int index );
     void Calculate_Re();
     void CalcRePowerDivisor();
-    void ReynoldsNumCalc(int index);
+    void ReynoldsNumCalc( int index );
     void Calculate_Cf();
-    void CalcPartialTurbulence(int i, double lref, double vinf, double kineVisc);
+    void CalcPartialTurbulence( int i, double lref, double vinf, double kineVisc );
     void Calculate_fineRat();
-    double CalculateFinessRatio(int isurf, int irow);
+    double CalculateFinessRatio( int isurf, int irow );
     void Calculate_FF();
-    double CalculateFormFactor(int isurf, int irow);
-    void Calculate_AvgSweep(vector <DegenStick> degenSticks);
+    double CalculateFormFactor( int isurf, int irow );
+    void Calculate_AvgSweep( vector <DegenStick> degenSticks );
     void Calculate_f();
     void Calculate_CD();
     void Calculate_ALL();
@@ -113,39 +113,78 @@ public:
     void OverwritePropertiesFromAncestorGeom();
 
     // Switch Case Methods For Friction Coefficient Selections
-    double CalcTurbCf(double ReyIn, double ref_leng, int cf_case, double roughness_h,
-        double gamma, double taw_tw_ratio, double te_tw_ratio);
-    double CalcLamCf(double ReyIn, int cf_case);
-    string AssignTurbCfEqnName(int cf_case);
-    string AssignLamCfEqnName(int cf_case);
+    double CalcTurbCf( double ReyIn, double ref_leng, int cf_case, double roughness_h,
+                       double gamma, double taw_tw_ratio, double te_tw_ratio );
+    double CalcLamCf( double ReyIn, int cf_case );
+    string AssignTurbCfEqnName( int cf_case );
+    string AssignLamCfEqnName( int cf_case );
 
     // Switch Case Methods for Form Factor Selections
-    double CalcFFWing(double toc, int ff_case, double perc_lam,
-        double sweep25, double sweep50);
-    double CalcFFBody(double longF, double FR, int ff_case, double ref_leng, double max_x_area);
-    string AssignFFWingEqnName(int ff_case);
-    string AssignFFBodyEqnName(int ff_case);
+    double CalcFFWing( double toc, int ff_case, double perc_lam,
+                       double sweep25, double sweep50 );
+    double CalcFFBody( double longF, double FR, int ff_case, double ref_leng, double max_x_area );
+    string AssignFFWingEqnName( int ff_case );
+    string AssignFFBodyEqnName( int ff_case );
 
     // Setter Methods
-    void SetSref(double sref) { m_Sref.Set(sref); }
+    void SetSref( double sref )
+    {
+        m_Sref.Set( sref );
+    }
     void SetActiveGeomVec();
     void SetFreestreamParms();
-    void SetCurrExcresIndex(int val) { m_CurrentExcresIndex = val; }
-    void SetExcresLabel(const string & newLabel);
+    void SetCurrExcresIndex( int val )
+    {
+        m_CurrentExcresIndex = val;
+    }
+    void SetExcresLabel( const string & newLabel );
 
     // Getter Methods
-    vector < ParasiteDragTableRow > GetMainTableVec() { return m_TableRowVec; }
-    vector < ExcrescenceTableRow > GetExcresVec() { return m_ExcresRowVec; }
-    vector <string> GetPDGeomIDVec() { return m_PDGeomIDVec; }
-    int GetReynoldsDivisor() { return m_ReynoldsPowerDivisor; }
+    vector < ParasiteDragTableRow > GetMainTableVec()
+    {
+        return m_TableRowVec;
+    }
+    vector < ExcrescenceTableRow > GetExcresVec()
+    {
+        return m_ExcresRowVec;
+    }
+    vector <string> GetPDGeomIDVec()
+    {
+        return m_PDGeomIDVec;
+    }
+    int GetReynoldsDivisor()
+    {
+        return m_ReynoldsPowerDivisor;
+    }
     int GetLrefSigFig(); // For display precision purposes
-    double GetGeomfTotal() { return m_GeomfTotal; }
-    double GetGeomPercTotal() { return m_GeomPercTotal; }
-    double GetExcresfTotal() { return m_ExcresfTotal; }
-    double GetExcresPercTotal() { return m_ExcresPercTotal; }
-    double GetfTotal() { return m_GeomfTotal + m_ExcresfTotal; }
-    double GetPercTotal() { return m_GeomPercTotal + m_ExcresPercTotal; }
-    int GetCurrExcresIndex() { return m_CurrentExcresIndex; }
+    double GetGeomfTotal()
+    {
+        return m_GeomfTotal;
+    }
+    double GetGeomPercTotal()
+    {
+        return m_GeomPercTotal;
+    }
+    double GetExcresfTotal()
+    {
+        return m_ExcresfTotal;
+    }
+    double GetExcresPercTotal()
+    {
+        return m_ExcresPercTotal;
+    }
+    double GetfTotal()
+    {
+        return m_GeomfTotal + m_ExcresfTotal;
+    }
+    double GetPercTotal()
+    {
+        return m_GeomPercTotal + m_ExcresPercTotal;
+    }
+    int GetCurrExcresIndex()
+    {
+        return m_CurrentExcresIndex;
+    }
     double GetGeometryCD();
     double GetSubTotalCD();
     double GetTotalCD();
@@ -154,12 +193,12 @@ public:
 
     // Excresence Related Functions
     void AddExcrescence();
-    void AddExcrescence(const std::string &excresName, int excresType, double excresVal);
+    void AddExcrescence( const std::string &excresName, int excresType, double excresVal );
     void DeleteExcrescence();
-    void DeleteExcrescence(int index);
-    double CalcPercentageGeomCD(double val);
-    double CalcPercentageTotalCD(double val);
-    double CalcDragAreaCD(double val);
+    void DeleteExcrescence( int index );
+    double CalcPercentageGeomCD( double val );
+    double CalcPercentageTotalCD( double val );
+    double CalcDragAreaCD( double val );
     double GetSubTotalExcresCD();
     double GetTotalExcresCD();
     void ConsolidateExcres();
@@ -167,15 +206,15 @@ public:
     // Update Methods
     void Update();
     void UpdateWettedAreaTotals();
-    bool ShouldAddSubSurfToMasterGeom(const size_t &i, const size_t &j);
-    bool ShouldAddGeomToMasterGeom(const size_t &i, const size_t &j);
+    bool ShouldAddSubSurfToMasterGeom( const size_t &i, const size_t &j );
+    bool ShouldAddGeomToMasterGeom( const size_t &i, const size_t &j );
     void UpdateRefWing();
     void UpdateAtmos();
-    void UpdateVinf(int newunit);
-    void UpdateAlt(int newunit);
-    void UpdateTemp(int newunit);
+    void UpdateVinf( int newunit );
+    void UpdateAlt( int newunit );
+    void UpdateTemp( int newunit );
     void UpdateTempLimits();
-    void UpdatePres(int newunit);
+    void UpdatePres( int newunit );
     void UpdatePercentageCD();
     void UpdateMasterPercCD();
     void UpdateParmActivity();
@@ -185,13 +224,13 @@ public:
 
     // Export Methods
     string ExportToCSV();
-    string ExportToCSV(const string & file_name);
+    string ExportToCSV( const string & file_name );
 
     // General Methods
     void ClearInputVectors();
     void ClearOutputVectors();
-    virtual xmlNodePtr EncodeXml(xmlNodePtr & node);
-    virtual xmlNodePtr DecodeXml(xmlNodePtr & node);
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     // Miscellaneous Methods
     void SortMap();
@@ -203,7 +242,7 @@ public:
     bool CheckAllTrue( vector < bool > vec );
     void DeactivateParms();
     bool IsSameGeomSet();
-    bool IsNotZeroLineItem(int index);
+    bool IsNotZeroLineItem( int index );
     void RefreshBaseDataVectors();
     void RenewDegenGeomVec();
     bool HasSameNames();
