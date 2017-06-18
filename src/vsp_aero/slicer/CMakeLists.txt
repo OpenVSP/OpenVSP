@@ -26,3 +26,4 @@ utils.H
 TARGET_LINK_LIBRARIES(vspslicer
 )
 
+INSTALL( TARGETS vspslicer RUNTIME DESTINATION . )
