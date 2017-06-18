@@ -1920,7 +1920,7 @@ string ParasiteDragScreen::GetComponentTableLabel( int subsurfFlag, const string
         sprintf( str, "%s", rowVec[index].Label.c_str() ); // is subsurface
     }
 
-    return str;
+    return string( str );
 }
 
 void ParasiteDragScreen::SetupRowLabel( int subsurfFlag, const string &lastID, int index )

@@ -604,7 +604,7 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                             if (m_CompleteControlSurfaceVec[k].SSID.compare(sub_surf_vec[j]->GetID()) == 0 && m_CompleteControlSurfaceVec[k].iReflect == iReflect)
                             {
                                 sprintf(str, "%s_Surf%zu_%s", veh->FindGeom(geom_vec[i])->GetName().c_str(), iReflect, sub_surf_vec[j]->GetName().c_str());
-                                m_CompleteControlSurfaceVec[k].fullName = str;
+                                m_CompleteControlSurfaceVec[k].fullName = string( str );
                                 contained = true;
                                 break;
                             }
@@ -616,7 +616,7 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                         {
                             newSurf.SSID = sub_surf_vec[j]->GetID();
                             sprintf(str, "%s_Surf%zu_%s", veh->FindGeom(geom_vec[i])->GetName().c_str(), iReflect, sub_surf_vec[j]->GetName().c_str());
-                            newSurf.fullName = str;
+                            newSurf.fullName = string( str );
                             newSurf.parentGeomId = sub_surf_vec[j]->GetParentContainer();
                             newSurf.iReflect = iReflect;
 

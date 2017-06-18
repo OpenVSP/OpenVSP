@@ -1992,7 +1992,7 @@ void ParasiteDragMgrSingleton::AddExcrescence()
     if ( m_ExcresName.empty() )
     {
         sprintf( str, "EXCRES_%lu", m_ExcresRowVec.size() );
-        tempStruct.Label = str;
+        tempStruct.Label = string( str );
     }
     else
     {
