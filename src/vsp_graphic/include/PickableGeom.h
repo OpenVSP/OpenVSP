@@ -14,17 +14,17 @@ public:
     /*!
     * Constructor.
     */
-	PickableGeom(Renderable * source);
+    PickableGeom(Renderable * source);
     /*!
     * Destructor.
     */
-	virtual ~PickableGeom();
+    virtual ~PickableGeom();
 
 public:
     /*!
     * Overrides from Pickable.  Update unique color ids.
     */
-	virtual void update();
+    virtual void update();
 
 protected:
     /*!
@@ -34,7 +34,7 @@ protected:
     /*!
     * Draw.
     */
-	virtual void _draw();
+    virtual void _draw();
 };
 }
 #endif

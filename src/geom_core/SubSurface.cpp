@@ -283,7 +283,7 @@ void SubSurface::SplitSegsU( const double & u )
 {
     for ( int i = 0; i < m_SplitLVec.size(); i++ )
     {
-	    SplitSegsU( u, m_SplitLVec[i] );
+        SplitSegsU( u, m_SplitLVec[i] );
     }
 }
 

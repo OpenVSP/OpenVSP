@@ -22,14 +22,14 @@ public:
     virtual ~ColorCoder();
 
 public:
-	/*!
-	* Return the static instance of ColorCoder.
-	*/
-	static ColorCoder & getInstance()
-	{
-		static ColorCoder instance;
-		return instance;
-	}
+    /*!
+    * Return the static instance of ColorCoder.
+    */
+    static ColorCoder & getInstance()
+    {
+        static ColorCoder instance;
+        return instance;
+    }
 
 public:
     /*!

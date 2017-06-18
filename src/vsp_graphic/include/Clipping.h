@@ -16,7 +16,7 @@ public:
     /*!
     * Constructor.
     */
-	ClipPlane();
+    ClipPlane();
     /*!
     * Destructor.
     */
@@ -65,7 +65,7 @@ public:
     /*!
     * Constructor.
     */
-	Clipping();
+    Clipping();
     /*!
     * Destructor.
     */

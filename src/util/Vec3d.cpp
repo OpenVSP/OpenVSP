@@ -232,39 +232,39 @@ void vec3d::normalize()
 
 int vec3d::major_comp() const
 {
-	int i = 0;
-	double c = std::abs( v[i] );
+    int i = 0;
+    double c = std::abs( v[i] );
 
-	if( std::abs(v[1]) > c )
-	{
-		i = 1;
-		c = std::abs( v[i] );
-	}
+    if( std::abs(v[1]) > c )
+    {
+        i = 1;
+        c = std::abs( v[i] );
+    }
 
-	if( std::abs(v[2]) > c )
-	{
-		i = 2;
-	}
-	return i;
+    if( std::abs(v[2]) > c )
+    {
+        i = 2;
+    }
+    return i;
 }
 
 int vec3d::minor_comp() const
 {
-	int i = 0;
-	double c = std::abs( v[i] );
+    int i = 0;
+    double c = std::abs( v[i] );
 
-	if( std::abs(v[1]) < c )
-	{
-		i = 1;
-		c = std::abs( v[i] );
-	}
+    if( std::abs(v[1]) < c )
+    {
+        i = 1;
+        c = std::abs( v[i] );
+    }
 
-	if( std::abs(v[2]) < c )
-	{
-		i = 2;
-		c = std::abs( v[i] );
-	}
-	return i;
+    if( std::abs(v[2]) < c )
+    {
+        i = 2;
+        c = std::abs( v[i] );
+    }
+    return i;
 }
 
 //******* Dot Product:  x = a.dot(b) ******//

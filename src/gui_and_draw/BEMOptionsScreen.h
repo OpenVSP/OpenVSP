@@ -18,7 +18,7 @@
 class BEMOptionsScreen : public BasicScreen
 {
 public:
-	BEMOptionsScreen( ScreenMgr* mgr );
+    BEMOptionsScreen( ScreenMgr* mgr );
     virtual ~BEMOptionsScreen();
 
     void Show();

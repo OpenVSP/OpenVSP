@@ -2570,7 +2570,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
                 if ( negnorm > 0 && posnorm > 0 )
                 {
                     // Subsurf mesh direction is ambiguous. Set flag to true, advance count.
-                	ambflag = 1;
+                    ambflag = 1;
                     ambcount += 1;
                 }
                 else if ( negnorm > 0 )

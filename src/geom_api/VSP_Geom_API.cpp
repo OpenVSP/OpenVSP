@@ -1159,7 +1159,7 @@ void WriteResultsCSVFile( const string & id, const string & file_name )
 
 void PrintResults( const string &results_id )
 {
-	ResultsMgr.PrintResults( results_id );
+    ResultsMgr.PrintResults( results_id );
 }
 
 //===================================================================//
@@ -3496,7 +3496,7 @@ vector < double > PCurveGetTVec( const string & geom_id, const int & pcurveid )
 {
     vector < double > retvec;
 
-	Vehicle* veh = GetVehicle();
+    Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {

@@ -503,11 +503,11 @@ string BEMAnalysis::Execute()
 
         if ( geom )
         {
-        	PropGeom* pgeom = dynamic_cast < PropGeom* > ( geom );
-        	if ( pgeom )
-        	{
-        		res = pgeom->BuildBEMResults();
-        	}
+            PropGeom* pgeom = dynamic_cast < PropGeom* > ( geom );
+            if ( pgeom )
+            {
+                res = pgeom->BuildBEMResults();
+            }
         }
     }
 

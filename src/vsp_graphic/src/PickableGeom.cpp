@@ -12,12 +12,12 @@ PickableGeom::PickableGeom(Renderable * source) : Pickable(source)
 }
 PickableGeom::~PickableGeom()
 {
-	_delColorBlock();
+    _delColorBlock();
 }
 
 void PickableGeom::update()
 {
-	_genColorBlock(true);
+    _genColorBlock(true);
 }
 
 void PickableGeom::_predraw()
@@ -38,25 +38,25 @@ void PickableGeom::_predraw()
 
 void PickableGeom::_draw()
 {
-	if(_rSource->getPrimType() == Common::VSP_QUADS &&_rSource->getEBufferFlag())
-	{
-		ElementBuffer * eBuffer = _rSource->getEBuffer();
-		VertexBuffer * vBuffer = _rSource->getVBuffer();
+    if(_rSource->getPrimType() == Common::VSP_QUADS &&_rSource->getEBufferFlag())
+    {
+        ElementBuffer * eBuffer = _rSource->getEBuffer();
+        VertexBuffer * vBuffer = _rSource->getVBuffer();
 
-		if(_highlighted)
-		{
-			glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+        if(_highlighted)
+        {
+            glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
 
             glColor3f(1.0f, 0.0f, 0.0f);
 
-			eBuffer->bind();
-			vBuffer->drawElem(GL_QUADS, eBuffer->getElemSize(), (void*)0);
-			eBuffer->unbind();
-		}
+            eBuffer->bind();
+            vBuffer->drawElem(GL_QUADS, eBuffer->getElemSize(), (void*)0);
+            eBuffer->unbind();
+        }
 
-		// Reset highlights so highlighted point turns off
-		// after mouse moved away.
-		_highlighted = false;
-	}
+        // Reset highlights so highlighted point turns off
+        // after mouse moved away.
+        _highlighted = false;
+    }
 }
 }
