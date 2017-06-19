@@ -11,8 +11,9 @@
 #include "FeaPartEditScreen.h"
 #include "StructureMgr.h"
 #include "SubSurface.h"
+#include "FeaMeshMgr.h"
 
-FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 365, "FEA Part Edit" )
+FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 365, "FEA Part Edit" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -463,12 +464,6 @@ bool FeaPartEditScreen::Update()
                     {
                         FeaPartDispGroup( NULL );
                     }
-
-                    //// Do not update FeaParts if mesh is in progress
-                    //if ( FeaMeshMgr.GetFeaMeshInProgress() == false )
-                    //{
-                    //    structVec[m_SelectedStructIndex]->Update();
-                    //}
                 }
                 else
                 {
@@ -665,6 +660,16 @@ bool FeaPartEditScreen::Update()
                         FeaPartDispGroup( &m_FeaSSConGroup );
                     }
                 }
+                else
+                {
+                    FeaPartDispGroup( NULL );
+                }
+            }
+
+            // Update FeaParts and SubSurfaces if FeaMesh is not in progress
+            if ( !FeaMeshMgr.GetFeaMeshInProgress() )
+            {
+                structVec[StructureMgr.GetCurrStructIndex()]->Update();
             }
         }
     }
@@ -814,17 +819,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
         }
     }
 
-    if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
-    {
-        vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
-
-        Geom* geom = veh->FindGeom( structVec[StructureMgr.GetCurrStructIndex()]->GetParentGeomID() );
-
-        if ( geom )
-        {
-            geom->ForceUpdate();
-        }
-    }
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void FeaPartEditScreen::CloseCallBack( Fl_Widget *w )
