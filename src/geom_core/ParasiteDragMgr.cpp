@@ -148,7 +148,6 @@ void ParasiteDragMgrSingleton::SetDefaultStruct()
     m_DefaultStruct.fineRat = -1;
     m_DefaultStruct.GeomShapeType = 0;
     m_DefaultStruct.FFEqnChoice = 0;
-    m_DefaultStruct.FFEqnName = "";
     m_DefaultStruct.FF = -1;
     m_DefaultStruct.Q = 1;
     m_DefaultStruct.f = -1;
@@ -937,9 +936,6 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
     }
     else if ( m_DegenGeomVec[isurf].getType() == DegenGeom::BODY_TYPE )
     {
-        // Get Fine Rat
-        fin_rat = m_geo_fineRat[irow];
-
         // Invert Fineness Ratio
         longF = pow( m_geo_fineRat[irow], -1 );
 
@@ -1119,7 +1115,6 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
         tempStruct.Cf = m_geo_cf[i];
         tempStruct.fineRat = m_geo_fineRat[i];
         tempStruct.FFEqnChoice = m_geo_ffType[i];
-        tempStruct.FFEqnName = m_geo_ffName[i];
         tempStruct.Roughness = m_geo_Roughness[i];
         tempStruct.TeTwRatio = m_geo_TeTwRatio[i];
         tempStruct.TawTwRatio = m_geo_TawTwRatio[i];

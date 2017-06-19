@@ -37,7 +37,6 @@ struct ParasiteDragTableRow
     double fineRat;
     int GeomShapeType;
     int FFEqnChoice;
-    string FFEqnName;
     double FF;
     double Q;
     double f;
