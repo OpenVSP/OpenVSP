@@ -186,6 +186,11 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
     string lastSSID = "";
     Vehicle *veh = VehicleMgr.GetVehicle();
 
+    if ( !veh )
+    {
+        return;
+    }
+
     for ( int i = 0; i < m_PDGeomIDVec.size(); i++ )
     {
         geom = veh->FindGeom( m_PDGeomIDVec[i] );
@@ -459,9 +464,9 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
             Geom* geom = veh->FindGeom( geo_geomID[i] );
             if (geom)
             {
-            // If DegenGeom Exists Pull Swet
-            if ( !geo_masterRow[i] )
-            {
+                // If DegenGeom Exists Pull Swet
+                if ( !geo_masterRow[i] )
+                {
                     vector < string > tagnamevec = m_CompGeomResults->Find( "Tag_Name" ).GetStringData();
                     if ( geo_subsurfID[i].compare( "" ) == 0 )
                     {
@@ -909,7 +914,7 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
     // Initialize Variables
     vector<double>::const_iterator it;
     double toc;
-    double fin_rat, longF, FR, Area;
+    double longF, FR, Area;
     vector <double> hVec, wVec;
     double formfactor = 1.0;
 
@@ -987,7 +992,6 @@ void ParasiteDragMgrSingleton::Calculate_AvgSweep( vector<DegenStick> degenStick
 
 void ParasiteDragMgrSingleton::Calculate_f()
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
     // Initialize Variables
     double Q, ff;
 
@@ -1042,9 +1046,6 @@ void ParasiteDragMgrSingleton::Calculate_f()
 
 void ParasiteDragMgrSingleton::Calculate_CD()
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    int iSubSurf = 0;
-
     for ( int i = 0; i < m_RowSize; ++i )
     {
         if ( IsNotZeroLineItem( i ) )
@@ -1166,23 +1167,30 @@ string ParasiteDragMgrSingleton::ComputeBuildUp()
 void ParasiteDragMgrSingleton::OverwritePropertiesFromAncestorGeom()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
-    for ( size_t i = 0; i < m_RowSize; ++i )
+    if ( veh )
     {
-        if ( geo_groupedAncestorGen[i] > 0 )
+        for ( size_t i = 0; i < m_RowSize; ++i )
         {
-            for ( size_t j = 0; j < m_RowSize; ++j )
+            Geom *geom = veh->FindGeom( geo_geomID[i] );
+            if ( geom )
             {
-                if ( geo_geomID[j].compare( veh->FindGeom( geo_geomID[i] )->GetAncestorID( geo_groupedAncestorGen[i] ) ) == 0 &&
-                        geo_surfNum[j] == 0 )
+                if ( geo_groupedAncestorGen[i] > 0 )
                 {
-                    geo_lref[i] = geo_lref[j];
-                    geo_Re[i] = geo_Re[j];
-                    geo_fineRat[i] = geo_fineRat[j];
-                    geo_ffOut[i] = geo_ffOut[j];
-                    geo_ffType[i] = geo_ffType[j];
-                    geo_percLam[i] = geo_percLam[j];
-                    geo_Q[i] = geo_Q[j];
-                    geo_cf[i] = geo_cf[j];
+                    for ( size_t j = 0; j < m_RowSize; ++j )
+                    {
+                        if ( geo_geomID[j].compare( geom->GetAncestorID( geo_groupedAncestorGen[i] ) ) == 0 &&
+                                geo_surfNum[j] == 0 )
+                        {
+                            geo_lref[i] = geo_lref[j];
+                            geo_Re[i] = geo_Re[j];
+                            geo_fineRat[i] = geo_fineRat[j];
+                            geo_ffOut[i] = geo_ffOut[j];
+                            geo_ffType[i] = geo_ffType[j];
+                            geo_percLam[i] = geo_percLam[j];
+                            geo_Q[i] = geo_Q[j];
+                            geo_cf[i] = geo_cf[j];
+                        }
+                    }
                 }
             }
         }
@@ -1540,7 +1548,6 @@ double ParasiteDragMgrSingleton::CalcFFWing( double toc, int ff_case,
 {
     // Values recreated using Plot Digitizer and fitted to a 3rd power polynomial
     double Interval[] = { 0.25, 0.6, 0.8, 0.9 };
-    size_t nint = 4;
     double ff;
 
     double mach = m_Atmos.GetMach();
@@ -1870,17 +1877,24 @@ string ParasiteDragMgrSingleton::AssignFFBodyEqnName( int ff_case )
 void ParasiteDragMgrSingleton::SetActiveGeomVec()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
-    vector <string> geomVec = veh->GetGeomSet( m_SetChoice() );
 
-    m_PDGeomIDVec.clear();
-    for ( int i = 0; i < geomVec.size(); i++ )
+    if ( veh )
     {
-        Geom* geom = veh->FindGeom( geomVec[i] );
-        if ( geom->GetType().m_Type != HINGE_GEOM_TYPE && geom->GetType().m_Type != BLANK_GEOM_TYPE )
+        vector <string> geomVec = veh->GetGeomSet( m_SetChoice() );
+
+        m_PDGeomIDVec.clear();
+        for ( int i = 0; i < geomVec.size(); i++ )
         {
-            if ( geom->GetSurfPtr( 0 )->GetSurfType() != vsp::DISK_SURF )
+            Geom* geom = veh->FindGeom( geomVec[i] );
+            if ( geom )
             {
-                m_PDGeomIDVec.push_back( geomVec[i] );
+                if ( geom->GetType().m_Type != HINGE_GEOM_TYPE && geom->GetType().m_Type != BLANK_GEOM_TYPE )
+                {
+                    if ( geom->GetSurfPtr( 0 )->GetSurfType() != vsp::DISK_SURF )
+                    {
+                        m_PDGeomIDVec.push_back(geomVec[i]);
+                    }
+                }
             }
         }
     }
@@ -1968,7 +1982,7 @@ string ParasiteDragMgrSingleton::GetCurrentExcresLabel()
     {
         return m_ExcresRowVec[m_CurrentExcresIndex].Label;
     }
-    return "";
+    return string();
 }
 
 int ParasiteDragMgrSingleton::GetCurrentExcresType()
@@ -2184,7 +2198,6 @@ void ParasiteDragMgrSingleton::Update()
 
 void ParasiteDragMgrSingleton::UpdateWettedAreaTotals()
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !m_DegenGeomVec.empty() )
     {
         // Subsurfaces Addition First
@@ -2228,23 +2241,26 @@ void ParasiteDragMgrSingleton::UpdateWettedAreaTotals()
 bool ParasiteDragMgrSingleton::ShouldAddSubSurfToMasterGeom( const size_t &i, const size_t &j )
 {
     Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( i != j ) // If not the same geom
+    if ( veh )
     {
-        if ( geo_masterRow[i] && geo_subsurfID[j].compare( "" ) != 0 )
+        if ( i != j ) // If not the same geom
         {
-            Geom* geom = veh->FindGeom( geo_geomID[j] );
-            if (geom)
+            if ( geo_masterRow[i] && geo_subsurfID[j].compare( "" ) != 0 )
             {
-                return ( ( geo_geomID[i].compare( geo_geomID[j] ) == 0 &&
-                        geom->GetSubSurf( geo_subsurfID[j] )->m_IncludeType() == vsp::SS_INC_TREAT_AS_PARENT ) ||
-                        ( geo_geomID[i].compare( geom->GetAncestorID( geo_groupedAncestorGen[j] ) ) == 0 &&
-                        geom->GetSubSurf( geo_subsurfID[j] )->m_IncludeType() == vsp::SS_INC_TREAT_AS_PARENT ) ||
-                        ( geom->GetSubSurf( geo_subsurfID[j] )->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT &&
-                        geo_subsurfID[i].compare( geo_subsurfID[j] ) == 0 ) );
-            }
-            else
-            {
-                return false;
+                Geom *geom = veh->FindGeom(geo_geomID[j]);
+                if (geom)
+                {
+                    return ((geo_geomID[i].compare(geo_geomID[j]) == 0 &&
+                             geom->GetSubSurf(geo_subsurfID[j])->m_IncludeType() == vsp::SS_INC_TREAT_AS_PARENT) ||
+                            (geo_geomID[i].compare(geom->GetAncestorID(geo_groupedAncestorGen[j])) == 0 &&
+                             geom->GetSubSurf(geo_subsurfID[j])->m_IncludeType() == vsp::SS_INC_TREAT_AS_PARENT) ||
+                            (geom->GetSubSurf(geo_subsurfID[j])->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT &&
+                             geo_subsurfID[i].compare(geo_subsurfID[j]) == 0));
+                }
+                else
+                {
+                    return false;
+                }
             }
         }
     }
@@ -2254,6 +2270,19 @@ bool ParasiteDragMgrSingleton::ShouldAddSubSurfToMasterGeom( const size_t &i, co
 bool ParasiteDragMgrSingleton::ShouldAddGeomToMasterGeom( const size_t &i, const size_t &j )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return false;
+    }
+
+    Geom *geom = veh->FindGeom( geo_geomID[j] );
+
+    if ( !geom )
+    {
+        return false;
+    }
+
     // IF
     // ==========
     // Same Geom AND Geom[i] is main surface
@@ -2271,7 +2300,7 @@ bool ParasiteDragMgrSingleton::ShouldAddGeomToMasterGeom( const size_t &i, const
         {
             return ( ( geo_geomID[i].compare( geo_geomID[j] ) == 0 ) ||
                      ( geo_geomID[i].compare( geo_geomID[j] ) != 0 &&
-                       geo_geomID[i].compare( veh->FindGeom( geo_geomID[j] )->GetAncestorID( geo_groupedAncestorGen[j] ) ) == 0 ) ||
+                       geo_geomID[i].compare( geom->GetAncestorID( geo_groupedAncestorGen[j] ) ) == 0 ) ||
                      ( ( geo_label[i].substr( 0, 3 ).compare( "[W]" ) == 0 || geo_label[i].substr( 0, 3 ).compare( "[B]" ) == 0 ) &&
                        ( geo_geomID[i].compare( geo_geomID[j] ) == 0 ) ) ) &&
                    ( geo_shapeType[i] == geo_shapeType[j] );
@@ -2297,10 +2326,13 @@ void ParasiteDragMgrSingleton::UpdateRefWing()
         {
             if ( refgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
             {
-                WingGeom* refwing = ( WingGeom* )refgeom;
-                m_Sref.Set( refwing->m_TotalArea() );
+                WingGeom* refwing = dynamic_cast < WingGeom* > ( refgeom );
 
-                m_Sref.Deactivate();
+                if ( refwing )
+                {
+                    m_Sref.Set( refwing->m_TotalArea() );
+                    m_Sref.Deactivate();
+                }
             }
         }
         else
@@ -2556,7 +2588,6 @@ void ParasiteDragMgrSingleton::UpdatePercentageCD()
 
 void ParasiteDragMgrSingleton::UpdateMasterPercCD()
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !m_DegenGeomVec.empty() )
     {
         for ( size_t i = 0; i < m_RowSize; ++i )
@@ -2877,8 +2908,18 @@ string ParasiteDragMgrSingleton::ExportToCSV()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    if ( !veh )
+    {
+        return string();
+    }
+
     // Create Results
     Results* res = ResultsMgr.CreateResults( "Parasite_Drag" );
+
+    if ( !res )
+    {
+        return string();
+    }
 
     // Add Results to ResultsMgr
     UpdateExcres();
@@ -3080,6 +3121,12 @@ void ParasiteDragMgrSingleton::SortMapByWettedArea()
     // Sort this Map
     // Recreate m_TableRowMap
     Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
     vector < ParasiteDragTableRow > temp;
     vector < bool > isSorted( m_TableRowVec.size(), false );
     double cur_max_ind = 0;
@@ -3259,6 +3306,12 @@ void ParasiteDragMgrSingleton::SortMainTableVecByGroupedAncestorGeoms()
     // For Each Geom ID Check if other geoms have it as an incorporated ID
     // If yes, place those below current geom
     Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
     vector < ParasiteDragTableRow > temp;
     string masterGeomID;
     vector < bool > isSorted( m_TableRowVec.size(), false );
@@ -3285,12 +3338,15 @@ void ParasiteDragMgrSingleton::SortMainTableVecByGroupedAncestorGeoms()
             {
                 masterGeomID = m_TableRowVec[i].GeomID;
                 Geom* geom = veh->FindGeom( m_TableRowVec[j].GeomID );
-                if ( geom->GetAncestorID( m_TableRowVec[j].GroupedAncestorGen ).compare( masterGeomID ) == 0 && !isSorted[j] )
+                if ( geom )
                 {
-                    isSorted[j] = true;
-                    temp.push_back( m_TableRowVec[j] );
+                    if ( geom->GetAncestorID( m_TableRowVec[j].GroupedAncestorGen ).compare( masterGeomID ) == 0 && !isSorted[j] )
+                    {
+                        isSorted[j] = true;
+                        temp.push_back(m_TableRowVec[j]);
 
-                    // TODO push back geoms grouped to last grouped geom
+                        // TODO push back geoms grouped to last grouped geom
+                    }
                 }
             }
         }
@@ -3331,14 +3387,19 @@ bool ParasiteDragMgrSingleton::IsSameGeomSet()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    if ( !veh )
+    {
+        return false;
+    }
+
     // Create New Vector of IDs to Compare
     vector <string> newIDVec = veh->GetGeomSet( m_SetChoice() );
     vector < string > newVecToCompare;
     for ( int i = 0; i < newIDVec.size(); i++ )
     {
         Geom* geom = veh->FindGeom( newIDVec[i] );
-        if (geom)
-            {
+        if ( geom )
+        {
             if ( geom->GetType().m_Type != MESH_GEOM_TYPE &&
                     geom->GetType().m_Type != BLANK_GEOM_TYPE &&
                     geom->GetType().m_Type != HINGE_GEOM_TYPE )
@@ -3431,6 +3492,12 @@ bool ParasiteDragMgrSingleton::IsNotZeroLineItem( int index )
     // Custom types can have several geom types in them
     // If Geom list is expanded all components use their individual swets
     Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return false;
+    }
+
     if ( geo_subsurfID[index].compare( "" ) == 0 )
     {
         if ( geo_groupedAncestorGen[index] == 0 )
@@ -3441,7 +3508,7 @@ bool ParasiteDragMgrSingleton::IsNotZeroLineItem( int index )
     else
     {
         Geom* geom = veh->FindGeom( geo_geomID[index] );
-        if (geom)
+        if ( geom )
         {
             if ( geom->GetSubSurf( geo_subsurfID[index] )->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT ||
                     ( geom->GetSubSurf( geo_subsurfID[index] )->m_IncludeType() != vsp::SS_INC_ZERO_DRAG ) )
@@ -3462,6 +3529,11 @@ void ParasiteDragMgrSingleton::RefreshBaseDataVectors()
 {
     // Check For Similarity in Geom Set
     Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
     if ( !IsSameGeomSet() || !HasSameNames() )
     {
         // Reset Geo Vecs & Clear Degen Geom
@@ -3480,18 +3552,26 @@ void ParasiteDragMgrSingleton::RenewDegenGeomVec()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
-    veh->CreateDegenGeom( m_SetChoice() );
-    string meshID = veh->CompGeomAndFlatten( m_SetChoice(), 0 );
-    veh->DeleteGeom( meshID );
-    veh->ShowOnlySet( m_SetChoice() );
+    if ( veh )
+    {
+        veh->CreateDegenGeom(m_SetChoice());
+        string meshID = veh->CompGeomAndFlatten(m_SetChoice(), 0);
+        veh->DeleteGeom(meshID);
+        veh->ShowOnlySet(m_SetChoice());
 
-    // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
-    m_DegenGeomVec = veh->GetDegenGeomVec();
+        // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
+        m_DegenGeomVec = veh->GetDegenGeomVec();
+    }
 }
 
 bool ParasiteDragMgrSingleton::HasSameNames()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return false;
+    }
+
     // Compare Names (If names have changed, Comp Geom Tags are incorrect)
     vector < bool > sameName( geo_name.size(), false );
     if ( geo_name.size() > 0 )
@@ -3499,7 +3579,7 @@ bool ParasiteDragMgrSingleton::HasSameNames()
         for ( size_t i = 0; i < m_PDGeomIDVec.size(); ++i )
         {
             Geom* geom = veh->FindGeom( m_PDGeomIDVec[i] );
-            if (geom)
+            if ( geom )
             {
                 for ( size_t j = 0; j < geo_name.size(); ++j )
                 {
