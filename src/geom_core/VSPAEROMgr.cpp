@@ -581,51 +581,58 @@ void VSPAEROMgrSingleton::CleanCompleteControlSurfVec()
 void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
-    vector< string > geom_vec = veh->GetGeomVec();
-    char str[256];
-    VspAeroControlSurf newSurf;
-
     if (veh)
     {
-        for (size_t i = 0; i < geom_vec.size(); ++i)
+        vector< string > geom_vec = veh->GetGeomVec();
+		for (size_t i = 0; i < geom_vec.size(); ++i)
         {
-            vector < SubSurface* > sub_surf_vec = veh->FindGeom(geom_vec[i])->GetSubSurfVec();
-
-            for (size_t j = 0; j < sub_surf_vec.size(); ++j)
-            {
-                for (size_t iReflect = 0; iReflect < veh->FindGeom(geom_vec[i])->GetNumSymmCopies(); ++iReflect)
+			Geom *g =  veh->FindGeom(geom_vec[i]);
+			if ( g )
+			{
+                vector < SubSurface* > sub_surf_vec = g->GetSubSurfVec();
+                for (size_t j = 0; j < sub_surf_vec.size(); ++j)
                 {
-                    bool contained = false;
-                    if (sub_surf_vec[j]->GetType() == vsp::SS_CONTROL || sub_surf_vec[j]->GetType() == vsp::SS_RECTANGLE)
-                    {
-                        for (size_t k = 0; k < m_CompleteControlSurfaceVec.size(); ++k)
+                    SubSurface *ssurf = sub_surf_vec[j];
+					if ( ssurf )
+					{
+                        for (size_t iReflect = 0; iReflect < g->GetNumSymmCopies(); ++iReflect)
                         {
-                            // If CS and Corresponding Surface Num Already Exists within m_CompleteControlSurfaceVec
-                            if (m_CompleteControlSurfaceVec[k].SSID.compare(sub_surf_vec[j]->GetID()) == 0 && m_CompleteControlSurfaceVec[k].iReflect == iReflect)
+                            bool contained = false;
+                            if ( ssurf->GetType() == vsp::SS_CONTROL || ssurf->GetType() == vsp::SS_RECTANGLE)
                             {
-                                sprintf(str, "%s_Surf%zu_%s", veh->FindGeom(geom_vec[i])->GetName().c_str(), iReflect, sub_surf_vec[j]->GetName().c_str());
-                                m_CompleteControlSurfaceVec[k].fullName = string( str );
-                                contained = true;
-                                break;
+                                for (size_t k = 0; k < m_CompleteControlSurfaceVec.size(); ++k)
+                                {
+                                    // If CS and Corresponding Surface Num Already Exists within m_CompleteControlSurfaceVec
+                                    if (m_CompleteControlSurfaceVec[k].SSID.compare( ssurf->GetID()) == 0 && m_CompleteControlSurfaceVec[k].iReflect == iReflect)
+                                    {
+                                        char str[256];
+                                        sprintf(str, "%s_Surf%zu_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str());
+                                        m_CompleteControlSurfaceVec[k].fullName = string( str );
+                                        contained = true;
+                                        break;
+                                    }
+                                }
+
+                                // If CS and Corresponding Surface Num Do NOT Exist within m_CompleteControlSurfaceVec
+                                // Create New CS Parm Container
+                                if (!contained)
+                                {
+                                    VspAeroControlSurf newSurf;
+                                    newSurf.SSID = ssurf->GetID();
+                                    char str[256];
+                                    sprintf(str, "%s_Surf%zu_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str());
+                                    newSurf.fullName = string( str );
+                                    newSurf.parentGeomId = ssurf->GetParentContainer();
+                                    newSurf.iReflect = iReflect;
+
+                                    m_CompleteControlSurfaceVec.push_back(newSurf);
+                                }
                             }
-                        }
-
-                        // If CS and Corresponding Surface Num Do NOT Exist within m_CompleteControlSurfaceVec
-                        // Create New CS Parm Container
-                        if (!contained)
-                        {
-                            newSurf.SSID = sub_surf_vec[j]->GetID();
-                            sprintf(str, "%s_Surf%zu_%s", veh->FindGeom(geom_vec[i])->GetName().c_str(), iReflect, sub_surf_vec[j]->GetName().c_str());
-                            newSurf.fullName = string( str );
-                            newSurf.parentGeomId = sub_surf_vec[j]->GetParentContainer();
-                            newSurf.iReflect = iReflect;
-
-                            m_CompleteControlSurfaceVec.push_back(newSurf);
                         }
                     }
                 }
             }
-        }
+		}
 
         CleanCompleteControlSurfVec();
     }
