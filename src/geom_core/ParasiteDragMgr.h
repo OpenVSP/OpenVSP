@@ -324,39 +324,39 @@ private:
     double m_Sweep50;
 
     // Main Build Up Table Variables
-    vector <bool> geo_masterRow;
-    vector <string> geo_geomID;
-    vector <string> geo_subsurfID;
-    vector <string> geo_name;
-    vector <string> geo_label;
-    vector < int > geo_surfNum;
-    vector < int > geo_groupedAncestorGen;
-    vector < bool > geo_expandedList;
-    vector <double> geo_swet;
-    vector <double> geo_lref;
-    vector <double> geo_Re;
-    vector <double> geo_Roughness;
-    vector <double> geo_TeTwRatio;
-    vector <double> geo_TawTwRatio;
-    vector <double> geo_percLam;
-    vector <double> geo_cf;
-    vector <double> geo_fineRat;
-    vector <int> geo_ffType;
-    vector <string> geo_ffName;
-    vector <int> geo_shapeType;
-    vector <double> geo_ffIn;
-    vector <double> geo_ffOut;
-    vector <double> geo_Q;
-    vector <double> geo_f;
-    vector <double> geo_CD;
-    vector <double> geo_percTotalCD;
+    vector <bool> m_geo_masterRow;
+    vector <string> m_geo_geomID;
+    vector <string> m_geo_subsurfID;
+    vector <string> m_geo_name;
+    vector <string> m_geo_label;
+    vector < int > m_geo_surfNum;
+    vector < int > m_geo_groupedAncestorGen;
+    vector < bool > m_geo_expandedList;
+    vector <double> m_geo_swet;
+    vector <double> m_geo_lref;
+    vector <double> m_geo_Re;
+    vector <double> m_geo_Roughness;
+    vector <double> m_geo_TeTwRatio;
+    vector <double> m_geo_TawTwRatio;
+    vector <double> m_geo_percLam;
+    vector <double> m_geo_cf;
+    vector <double> m_geo_fineRat;
+    vector <int> m_geo_ffType;
+    vector <string> m_geo_ffName;
+    vector <int> m_geo_shapeType;
+    vector <double> m_geo_ffIn;
+    vector <double> m_geo_ffOut;
+    vector <double> m_geo_Q;
+    vector <double> m_geo_f;
+    vector <double> m_geo_CD;
+    vector <double> m_geo_percTotalCD;
 
     // Excrescence Vectors
-    vector < string > excres_Label;
-    vector < string > excres_Type;
-    vector < double > excres_Input;
-    vector < double> excres_Amount;
-    vector < double > excres_PercTotalCD;
+    vector < string > m_excres_Label;
+    vector < string > m_excres_Type;
+    vector < double > m_excres_Input;
+    vector < double> m_excres_Amount;
+    vector < double > m_excres_PercTotalCD;
 
     // Totals
     double m_GeomfTotal;
