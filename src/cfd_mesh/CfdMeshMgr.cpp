@@ -3474,7 +3474,7 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
             ss_vec[ss].SplitSegsW( surf->GetSurfCore()->GetMinW() );
             ss_vec[ss].SplitSegsW( surf->GetSurfCore()->GetMaxW() );
 
-            vector < vector< SSLineSeg > >& segsvec = ss_vec[ss]->GetSplitSegs();
+            vector < vector< SSLineSeg > >& segsvec = ss_vec[ss].GetSplitSegs();
 
             for ( int i = 0; i < segsvec.size(); i++ )
             {
@@ -3483,7 +3483,7 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                 ISegChain* chain = NULL;
 
                 bool new_chain = true;
-                bool is_poly = ss_vec[ss]->GetPolyFlag();
+                bool is_poly = ss_vec[ss].GetPolyFlag();
 
                 // Build Intersection Chains
                 for ( int ls = 0; ls < ( int )segs.size(); ls++ )

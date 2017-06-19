@@ -47,7 +47,7 @@ void SimpleSubSurface::CopyFrom( SubSurface* ss )
         ss->PrepareSplitVec();
 
         m_SplitLVec = ss->GetSplitSegs();
-        m_LVec = m_SplitLVec;
+        m_LVec = m_SplitLVec[0];
 
         m_PolyPntsReadyFlag = false;
         m_FirstSplit = true;
@@ -65,15 +65,31 @@ void SimpleSubSurface::CopyFrom( SubSurface* ss )
 
 void SimpleSubSurface::SplitSegsU( const double & u )
 {
+    for ( int i = 0; i < m_SplitLVec.size(); i++ )
+    {
+        SplitSegsU( u, m_SplitLVec[i] );
+    }
+}
+
+void SimpleSubSurface::SplitSegsW( const double & w )
+{
+    for ( int i = 0; i < m_SplitLVec.size(); i++ )
+    {
+        SplitSegsW( w, m_SplitLVec[i] );
+    }
+}
+
+void SimpleSubSurface::SplitSegsU( const double & u, vector<SSLineSeg> &splitvec )
+{
     double tol = 1e-10;
-    int num_l_segs = m_SplitLVec.size();
+    int num_l_segs = splitvec.size();
     int num_splits = 0;
     bool reorder = false;
     vector<SSLineSeg> new_lsegs;
     vector<int> inds;
     for ( int i = 0; i < num_l_segs; i++ )
     {
-        SSLineSeg& seg = m_SplitLVec[i];
+        SSLineSeg& seg = splitvec[i];
         vec3d p0 = seg.GetP0();
         vec3d p1 = seg.GetP1();
 
@@ -100,19 +116,19 @@ void SimpleSubSurface::SplitSegsU( const double & u )
 
     for ( int i = 0; i < (int)inds.size(); i++ )
     {
-        m_SplitLVec.insert( m_SplitLVec.begin() + inds[i], new_lsegs[i] );
+        splitvec.insert( splitvec.begin() + inds[i], new_lsegs[i] );
     }
 
     if ( reorder )
     {
-        ReorderSplitSegs( inds[0] );
+        ReorderSplitSegs( inds[0], splitvec );
     }
 }
 
-void SimpleSubSurface::SplitSegsW( const double & w )
+void SimpleSubSurface::SplitSegsW( const double & w, vector<SSLineSeg> &splitvec )
 {
     double tol = 1e-10;
-    int num_l_segs = m_SplitLVec.size();
+    int num_l_segs = splitvec.size();
     int num_splits = 0;
     bool reorder = false;
     vector<SSLineSeg> new_lsegs;
@@ -120,7 +136,7 @@ void SimpleSubSurface::SplitSegsW( const double & w )
     for ( int i = 0; i < num_l_segs; i++ )
     {
 
-        SSLineSeg& seg = m_SplitLVec[i];
+        SSLineSeg& seg = splitvec[i];
         vec3d p0 = seg.GetP0();
         vec3d p1 = seg.GetP1();
 
@@ -147,38 +163,38 @@ void SimpleSubSurface::SplitSegsW( const double & w )
 
     for ( int i = 0; i < (int)inds.size(); i++ )
     {
-        m_SplitLVec.insert( m_SplitLVec.begin() + inds[i], new_lsegs[i] );
+        splitvec.insert( splitvec.begin() + inds[i], new_lsegs[i] );
     }
 
     if ( reorder )
     {
-        ReorderSplitSegs( inds[0] );
+        ReorderSplitSegs( inds[0], splitvec );
     }
 }
 
-void SimpleSubSurface::ReorderSplitSegs( int ind )
+void SimpleSubSurface::ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec )
 {
-    if ( ind < 0 || ind >( int )m_SplitLVec.size() - 1 )
+    if ( ind < 0 || ind >( int )splitvec.size() - 1 )
     {
         return;
     }
 
     vector<SSLineSeg> ret_vec;
-    ret_vec.resize( m_SplitLVec.size() );
+    ret_vec.resize( splitvec.size() );
 
     int cnt = 0;
-    for ( int i = ind; i < (int)m_SplitLVec.size(); i++ )
+    for ( int i = ind; i < (int)splitvec.size(); i++ )
     {
-        ret_vec[cnt] = m_SplitLVec[i];
+        ret_vec[cnt] = splitvec[i];
         cnt++;
     }
     for ( int i = 0; i < ind; i++ )
     {
-        ret_vec[cnt] = m_SplitLVec[i];
+        ret_vec[cnt] = splitvec[i];
         cnt++;
     }
 
-    m_SplitLVec = ret_vec;
+    splitvec = ret_vec;
 }
 
 bool SimpleSubSurface::Subtag( const vec3d & center )

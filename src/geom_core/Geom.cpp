@@ -867,10 +867,9 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_GroupedAncestorGen.SetDescript("Ancestor Generation that incorporates this geoms Swet");
 
     m_ExpandedListFlag.Init("ExpandedList", "ParasiteDragProps", this, false, false, true);
-    m_ExpandedListFlag.SetDescript("Flag to determine whether or not this geom has a collapsed list in parasite drag")
+    m_ExpandedListFlag.SetDescript("Flag to determine whether or not this geom has a collapsed list in parasite drag");
 
     m_FeaStructCount = 0;
-;
 }
 //==== Destructor ====//
 Geom::~Geom()

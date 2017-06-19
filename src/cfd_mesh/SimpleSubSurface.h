@@ -24,11 +24,13 @@ public:
 
     virtual void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
     virtual void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
-    virtual void ReorderSplitSegs( int ind );
+    virtual void SplitSegsU( const double & u, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant U value
+    virtual void SplitSegsW( const double & w, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant W value
+    virtual void ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec );
     virtual bool Subtag( const vec3d & center );
     virtual void UpdatePolygonPnts( bool ss_con_both = true );
 
-    virtual std::vector< SSLineSeg >& GetSplitSegs()
+    virtual std::vector< std::vector< SSLineSeg > >& GetSplitSegs()
     {
         return m_SplitLVec;
     }
@@ -63,7 +65,7 @@ protected:
     int m_Type; // Type of SimpleSubSurface
 
     vector< SSLineSeg > m_LVec; // Line Segment Vector
-    vector< SSLineSeg > m_SplitLVec; // Split Line Vector
+    vector< vector<SSLineSeg> > m_SplitLVec; // Split Line Vector
 
     int m_FeaPropertyIndex;
     int m_CapFeaPropertyIndex;
