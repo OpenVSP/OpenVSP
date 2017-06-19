@@ -474,6 +474,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                 contained = false;
                 if (surfvec[iSubsurf].GetSurfType() == vsp::DISK_SURF)
                 {
+                    Geom* geom = veh->FindGeom(veh->GetGeomVec()[i]);
                     for (size_t j = 0; j < m_RotorDiskVec.size(); ++j)
                     {
                         // If Rotor Disk and Corresponding Surface Num Already Exists within m_RotorDiskVec
@@ -491,7 +492,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                                     break;
                                 }
                             }
-                            sprintf(str, "%s_%u", veh->FindGeom(m_RotorDiskVec[j]->m_ParentGeomId)->GetName().c_str(), iSubsurf);
+                            sprintf(str, "%s_%u", geom->GetName().c_str(), iSubsurf);
                             temp.back()->SetName(str);
                         }
                     }
@@ -504,11 +505,11 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                         temp.push_back(rotor);
                         temp.back()->m_ParentGeomId = veh->GetGeomVec()[i];
                         temp.back()->m_ParentGeomSurfNdx = iSubsurf;
-                        sprintf(str, "%s_%u", veh->FindGeom(veh->GetGeomVec()[i])->GetName().c_str(), iSubsurf);
+                        sprintf(str, "%s_%u", geom->GetName().c_str(), iSubsurf);
                         temp.back()->SetName(str);
                     }
 
-                    string dia_id = veh->FindGeom(veh->GetGeomVec()[i])->FindParm("Diameter", "Design");
+                    string dia_id = geom->FindParm("Diameter", "Design");
                     temp.back()->m_Diameter.Set( ParmMgr.FindParm(dia_id)->Get() );
                     if (temp.back()->m_HubDiameter() > temp.back()->m_Diameter())
                     {
@@ -564,12 +565,13 @@ void VSPAEROMgrSingleton::CleanCompleteControlSurfVec()
         // Clean Out No Longer Existing Control Surfaces (Due to Geom Changes)
         for (size_t i = 0; i < m_CompleteControlSurfaceVec.size(); ++i)
         {
-            if (!veh->FindGeom(m_CompleteControlSurfaceVec[i].parentGeomId))
+            Geom* geom = veh->FindGeom(m_CompleteControlSurfaceVec[i].parentGeomId);
+            if (!geom)
             {
                 m_CompleteControlSurfaceVec.erase(m_CompleteControlSurfaceVec.begin() + i);
                 --i;
             }
-            else if (!veh->FindGeom(m_CompleteControlSurfaceVec[i].parentGeomId)->GetSubSurf(m_CompleteControlSurfaceVec[i].SSID))
+            else if (!geom->GetSubSurf(m_CompleteControlSurfaceVec[i].SSID))
             {
                 m_CompleteControlSurfaceVec.erase(m_CompleteControlSurfaceVec.begin() + i);
                 --i;
@@ -584,17 +586,17 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
     if (veh)
     {
         vector< string > geom_vec = veh->GetGeomVec();
-		for (size_t i = 0; i < geom_vec.size(); ++i)
+        for ( size_t i = 0; i < geom_vec.size(); ++i )
         {
-			Geom *g =  veh->FindGeom(geom_vec[i]);
-			if ( g )
-			{
+            Geom *g = veh->FindGeom( geom_vec[i] );
+            if ( g )
+            {
                 vector < SubSurface* > sub_surf_vec = g->GetSubSurfVec();
                 for (size_t j = 0; j < sub_surf_vec.size(); ++j)
                 {
                     SubSurface *ssurf = sub_surf_vec[j];
-					if ( ssurf )
-					{
+                    if ( ssurf )
+                    {
                         for (size_t iReflect = 0; iReflect < g->GetNumSymmCopies(); ++iReflect)
                         {
                             bool contained = false;
@@ -730,20 +732,24 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
 
         if ( !exists ) // Create New Control Surface Group
         {
-            csg = new ControlSurfaceGroup;
-            csg->AddSubSurface( m_UngroupedCS[i] );
-            sprintf( str, "%s_%s", veh->FindGeom( m_UngroupedCS[i].parentGeomId )->GetName().c_str(),
-                veh->FindGeom( m_UngroupedCS[i].parentGeomId )->GetSubSurf(m_UngroupedCS[i].SSID)->GetName().c_str() );
-            csg->SetName( str );
-            csg->m_ParentGeomBaseID = m_UngroupedCS[i].parentGeomId;
-            csg->UpdateParmGroupName();
-            csg->SetParentContainer( GetID() );
-            m_ControlSurfaceGroupVec.push_back( csg );
-            for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
+            Geom* geom = veh->FindGeom( m_UngroupedCS[i].parentGeomId );
+            if (geom)
             {
-                if ( m_UngroupedCS[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
+                csg = new ControlSurfaceGroup;
+                csg->AddSubSurface( m_UngroupedCS[i] );
+                sprintf( str, "%s_%s", geom->GetName().c_str(),
+                    geom->GetSubSurf(m_UngroupedCS[i].SSID)->GetName().c_str() );
+                csg->SetName( str );
+                csg->m_ParentGeomBaseID = m_UngroupedCS[i].parentGeomId;
+                csg->UpdateParmGroupName();
+                csg->SetParentContainer( GetID() );
+                m_ControlSurfaceGroupVec.push_back( csg );
+                for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
                 {
-                    m_CompleteControlSurfaceVec[j].isGrouped = true;
+                    if ( m_UngroupedCS[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
+                    {
+                        m_CompleteControlSurfaceVec[j].isGrouped = true;
+                    }
                 }
             }
         }
@@ -765,9 +771,9 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     vector<std::pair<string,int>> tNumPointsParmIdValVec;
     for ( size_t iControlSurf = 0; iControlSurf < m_CompleteControlSurfaceVec.size(); iControlSurf++ )
     {
-        string tParentGeomId = m_CompleteControlSurfaceVec[iControlSurf].parentGeomId;
+        Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[iControlSurf].parentGeomId );
         string tSubSurfId = m_CompleteControlSurfaceVec[iControlSurf].SSID.substr(0,10);
-        string tNumPointsId = veh->FindGeom( tParentGeomId )->GetSubSurf( tSubSurfId )->FindParm( "Tess_Num", "SS_Control" );
+        string tNumPointsId = geom->GetSubSurf( tSubSurfId )->FindParm( "Tess_Num", "SS_Control" );
         IntParm* tNumPointsParm = (IntParm*)ParmMgr.FindParm( tNumPointsId );
         if ( tNumPointsParm && tNumPointsParm->Get()!=1 )
         {
@@ -775,10 +781,10 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
             // Send warning message to user
             fprintf( stderr, "NOTE: Temporarily setting Control_Surf NumPoints = 1 for VSPAERO compatible DegenGeom generation for Control_Surf: %s.\n",
-                veh->FindGeom( tParentGeomId )->GetSubSurf( tSubSurfId )->GetName().c_str() );
+                geom->GetSubSurf( tSubSurfId )->GetName().c_str() );
 
             tNumPointsParm->Set( 1 );
-            veh->FindGeom( tParentGeomId )->Update();
+            geom->Update();
         }
     }
 
@@ -2402,9 +2408,10 @@ void VSPAEROMgrSingleton::UpdateBBox( vector < DrawObj* > & draw_obj_vec )
     else
     {
         vector < VspSurf > surf_vec;
-        if ( veh->FindGeom(m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetParentID() ) )
+        Geom* geom = veh->FindGeom(m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetParentID() );
+        if ( geom )
         {
-            veh->FindGeom(m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetParentID())->GetSurfVec(surf_vec);
+            geom->GetSurfVec(surf_vec);
             surf_vec[m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetSurfNum()].GetBoundingBox(bb);
             m_BBox.Update(bb);
         }
@@ -2447,11 +2454,13 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
                 parentID = cont_surf_vec[i].parentGeomId;
                 sub_surf_indx = cont_surf_vec[i].iReflect;
                 ssid = cont_surf_vec[i].SSID;
-                if (veh->FindGeom(parentID))
+                Geom* geom = veh->FindGeom(parentID);
+                if (geom)
                 {
-                    if (veh->FindGeom(parentID)->GetSubSurf(ssid))
+                    SubSurface* subsurf = geom->GetSubSurf(ssid);
+                    if (subsurf)
                     {
-                        veh->FindGeom(parentID)->GetSubSurf(ssid)->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
+                        subsurf->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
                     }
                 }
             }
@@ -2464,9 +2473,11 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
                 parentID = cont_surf_vec[m_SelectedGroupedCS[i]-1].parentGeomId;
                 sub_surf_indx = cont_surf_vec[m_SelectedGroupedCS[i]-1].iReflect;
                 ssid = cont_surf_vec[m_SelectedGroupedCS[i]-1].SSID;
-                if (veh->FindGeom(parentID)->GetSubSurf(ssid))
+                Geom* geom = veh->FindGeom(parentID);
+                SubSurface* subsurf = geom->GetSubSurf(ssid);
+                if (subsurf)
                 {
-                    veh->FindGeom(parentID)->GetSubSurf(ssid)->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
+                    subsurf->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
                 }
             }
             for (size_t i = 0; i < m_SelectedUngroupedCS.size(); ++i )
@@ -2475,9 +2486,11 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
                 parentID = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i]-1].parentGeomId;
                 sub_surf_indx = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i]-1].iReflect;
                 ssid = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i]-1].SSID;
-                if (veh->FindGeom(parentID)->GetSubSurf(ssid))
+                Geom* geom = veh->FindGeom(parentID);
+                SubSurface* subsurf = geom->GetSubSurf(ssid);
+                if (subsurf)
                 {
-                    veh->FindGeom(parentID)->GetSubSurf(ssid)->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
+                    subsurf->LoadPartialColoredDrawObjs(ssid, sub_surf_indx, draw_obj_vec, color);
                 }
             }
         }

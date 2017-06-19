@@ -456,30 +456,38 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
     {
         if ( !m_DegenGeomVec.empty() )
         {
+            Geom* geom = veh->FindGeom( geo_geomID[i] );
+            if (geom)
+            {
             // If DegenGeom Exists Pull Swet
             if ( !geo_masterRow[i] )
             {
-                vector < string > tagnamevec = m_CompGeomResults->Find( "Tag_Name" ).GetStringData();
-                if ( geo_subsurfID[i].compare( "" ) == 0 )
-                {
-                    sprintf( str, "%s%i", veh->FindGeom( geo_geomID[i] )->GetName().c_str(), geo_surfNum[i] );
-                    newstr = str;
-                    searchIndex = vector_find_val( tagnamevec, newstr );
-                    geo_swet.push_back( m_CompGeomResults->Find( "Tag_Wet_Area" ).GetDouble( searchIndex ) );
-                    ++iSurf;
+                    vector < string > tagnamevec = m_CompGeomResults->Find( "Tag_Name" ).GetStringData();
+                    if ( geo_subsurfID[i].compare( "" ) == 0 )
+                    {
+                        sprintf( str, "%s%i", geom->GetName().c_str(), geo_surfNum[i] );
+                        newstr = str;
+                        searchIndex = vector_find_val( tagnamevec, newstr );
+                        geo_swet.push_back( m_CompGeomResults->Find( "Tag_Wet_Area" ).GetDouble( searchIndex ) );
+                        ++iSurf;
+                    }
+                    else
+                    {
+                        sprintf( str, "%s%i,%s", geom->GetName().c_str(), geo_surfNum[i],
+                             geom->GetSubSurf( geo_subsurfID[i] )->GetName().c_str() );
+                        newstr = str;
+                        searchIndex = vector_find_val( tagnamevec, newstr );
+                        geo_swet.push_back( m_CompGeomResults->Find( "Tag_Wet_Area" ).GetDouble( searchIndex ) );
+                    }
                 }
                 else
                 {
-                    sprintf( str, "%s%i,%s", veh->FindGeom( geo_geomID[i] )->GetName().c_str(), geo_surfNum[i],
-                             veh->FindGeom( geo_geomID[i] )->GetSubSurf( geo_subsurfID[i] )->GetName().c_str() );
-                    newstr = str;
-                    searchIndex = vector_find_val( tagnamevec, newstr );
-                    geo_swet.push_back( m_CompGeomResults->Find( "Tag_Wet_Area" ).GetDouble( searchIndex ) );
+                    geo_swet.push_back( 0.0 ); // Master Geom Swet is 0 until updated by UpdateWettedAreaTotals()
                 }
             }
             else
             {
-                geo_swet.push_back( 0.0 ); // Master Geom Swet is 0 until updated by UpdateWettedAreaTotals()
+                geo_swet.push_back( 0.0 );
             }
         }
         else
@@ -2224,12 +2232,20 @@ bool ParasiteDragMgrSingleton::ShouldAddSubSurfToMasterGeom( const size_t &i, co
     {
         if ( geo_masterRow[i] && geo_subsurfID[j].compare( "" ) != 0 )
         {
-            return ( ( geo_geomID[i].compare( geo_geomID[j] ) == 0 &&
-                       veh->FindGeom( geo_geomID[j] )->GetSubSurf( geo_subsurfID[j] )->m_IncludeType() == vsp::SS_INC_TREAT_AS_PARENT ) ||
-                     ( geo_geomID[i].compare( veh->FindGeom( geo_geomID[j] )->GetAncestorID( geo_groupedAncestorGen[j] ) ) == 0 &&
-                       veh->FindGeom( geo_geomID[j] )->GetSubSurf( geo_subsurfID[j] )->m_IncludeType() == vsp::SS_INC_TREAT_AS_PARENT ) ||
-                     ( veh->FindGeom( geo_geomID[j] )->GetSubSurf( geo_subsurfID[j] )->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT &&
-                       geo_subsurfID[i].compare( geo_subsurfID[j] ) == 0 ) );
+            Geom* geom = veh->FindGeom( geo_geomID[j] );
+            if (geom)
+            {
+                return ( ( geo_geomID[i].compare( geo_geomID[j] ) == 0 &&
+                        geom->GetSubSurf( geo_subsurfID[j] )->m_IncludeType() == vsp::SS_INC_TREAT_AS_PARENT ) ||
+                        ( geo_geomID[i].compare( geom->GetAncestorID( geo_groupedAncestorGen[j] ) ) == 0 &&
+                        geom->GetSubSurf( geo_subsurfID[j] )->m_IncludeType() == vsp::SS_INC_TREAT_AS_PARENT ) ||
+                        ( geom->GetSubSurf( geo_subsurfID[j] )->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT &&
+                        geo_subsurfID[i].compare( geo_subsurfID[j] ) == 0 ) );
+            }
+            else
+            {
+                return false;
+            }
         }
     }
     return false;
@@ -3320,14 +3336,22 @@ bool ParasiteDragMgrSingleton::IsSameGeomSet()
     vector < string > newVecToCompare;
     for ( int i = 0; i < newIDVec.size(); i++ )
     {
-        if ( veh->FindGeom( newIDVec[i] )->GetType().m_Type != MESH_GEOM_TYPE &&
-                veh->FindGeom( newIDVec[i] )->GetType().m_Type != BLANK_GEOM_TYPE &&
-                veh->FindGeom( newIDVec[i] )->GetType().m_Type != HINGE_GEOM_TYPE )
-        {
-            if ( veh->FindGeom( newIDVec[i] )->GetSurfPtr( 0 )->GetSurfType() != vsp::DISK_SURF )
+        Geom* geom = veh->FindGeom( newIDVec[i] );
+        if (geom)
             {
-                newVecToCompare.push_back( newIDVec[i] );
+            if ( geom->GetType().m_Type != MESH_GEOM_TYPE &&
+                    geom->GetType().m_Type != BLANK_GEOM_TYPE &&
+                    geom->GetType().m_Type != HINGE_GEOM_TYPE )
+            {
+                if ( geom->GetSurfPtr( 0 )->GetSurfType() != vsp::DISK_SURF )
+                {
+                    newVecToCompare.push_back( newIDVec[i] );
+                }
             }
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -3416,10 +3440,18 @@ bool ParasiteDragMgrSingleton::IsNotZeroLineItem( int index )
     }
     else
     {
-        if ( veh->FindGeom( geo_geomID[index] )->GetSubSurf( geo_subsurfID[index] )->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT ||
-                ( veh->FindGeom( geo_geomID[index] )->GetSubSurf( geo_subsurfID[index] )->m_IncludeType() != vsp::SS_INC_ZERO_DRAG ) )
+        Geom* geom = veh->FindGeom( geo_geomID[index] );
+        if (geom)
         {
-            return true;
+            if ( geom->GetSubSurf( geo_subsurfID[index] )->m_IncludeType() == vsp::SS_INC_SEPARATE_TREATMENT ||
+                    ( geom->GetSubSurf( geo_subsurfID[index] )->m_IncludeType() != vsp::SS_INC_ZERO_DRAG ) )
+            {
+                return true;
+            }
+        }
+        else
+        {
+            return false;
         }
     }
 
@@ -3466,19 +3498,27 @@ bool ParasiteDragMgrSingleton::HasSameNames()
     {
         for ( size_t i = 0; i < m_PDGeomIDVec.size(); ++i )
         {
-            for ( size_t j = 0; j < geo_name.size(); ++j )
+            Geom* geom = veh->FindGeom( m_PDGeomIDVec[i] );
+            if (geom)
             {
-                if ( veh->FindGeom( m_PDGeomIDVec[i] )->GetName().compare( geo_name[j] ) == 0 )
+                for ( size_t j = 0; j < geo_name.size(); ++j )
                 {
-                    sameName[j] = true;
-                }
-                for ( size_t k = 0; k < veh->FindGeom( m_PDGeomIDVec[i] )->GetSubSurfVec().size(); ++k )
-                {
-                    if ( veh->FindGeom( m_PDGeomIDVec[i] )->GetSubSurfVec()[k]->GetName().compare( geo_name[j] ) == 0 )
+                    if ( geom->GetName().compare( geo_name[j] ) == 0 )
                     {
                         sameName[j] = true;
                     }
+                    for ( size_t k = 0; k < geom->GetSubSurfVec().size(); ++k )
+                    {
+                        if ( geom->GetSubSurfVec()[k]->GetName().compare( geo_name[j] ) == 0 )
+                        {
+                        sameName[j] = true;
+                        }
+                    }
                 }
+            }
+            else
+            {
+                return false;
             }
         }
 
