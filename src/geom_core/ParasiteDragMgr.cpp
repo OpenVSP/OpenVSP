@@ -2995,7 +2995,7 @@ xmlNodePtr ParasiteDragMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     for ( size_t i = 0; i < m_ExcresRowVec.size(); ++i )
     {
-        sprintf( str, "Excres_%zu", i );
+        sprintf( str, "Excres_%u", i );
         xmlNodePtr excresqualnode = xmlNewChild( ExcresDragnode, NULL, BAD_CAST str, NULL );
 
         XmlUtil::AddStringNode( excresqualnode, "Label", m_ExcresRowVec[i].Label );

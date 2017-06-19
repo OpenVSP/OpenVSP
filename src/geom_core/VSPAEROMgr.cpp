@@ -220,7 +220,7 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
     XmlUtil::AddIntNode( VSPAEROsetnode, "ControlSurfaceGroupCount", m_ControlSurfaceGroupVec.size() );
     for ( size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i )
     {
-        sprintf( str, "Control_Surface_Group_%zu", i );
+        sprintf( str, "Control_Surface_Group_%u", i );
         xmlNodePtr csgnode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST str, NULL );
         m_ControlSurfaceGroupVec[i]->EncodeXml( csgnode );
     }
@@ -229,7 +229,7 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
     XmlUtil::AddIntNode( VSPAEROsetnode, "RotorDiskCount", m_RotorDiskVec.size() );
     for ( size_t i = 0; i < m_RotorDiskVec.size(); ++i )
     {
-        sprintf( str, "Rotor_%zu", i );
+        sprintf( str, "Rotor_%u", i );
         xmlNodePtr rotornode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST str, NULL );
         m_RotorDiskVec[i]->EncodeXml( rotornode );
     }
@@ -253,7 +253,7 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
         int num_groups = XmlUtil::FindInt(VSPAEROsetnode, "ControlSurfaceGroupCount", def);
         for (size_t i = 0; i < num_groups; ++i)
         {
-            sprintf(str, "Control_Surface_Group_%zu", i);
+            sprintf(str, "Control_Surface_Group_%u", i);
             xmlNodePtr csgnode = XmlUtil::GetNode(VSPAEROsetnode, str, 0);
             if (csgnode)
             {
@@ -270,7 +270,7 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
         m_RotorDiskVec.resize( num_rotor );
         for (size_t i = 0; i < num_rotor; ++i )
         {
-            sprintf( str, "Rotor_%zu", i );
+            sprintf( str, "Rotor_%u", i );
             xmlNodePtr rotornode = XmlUtil::GetNode(VSPAEROsetnode, str, 0 );
             m_RotorDiskVec[i] = new RotorDisk();
             m_RotorDiskVec[i]->DecodeXml(rotornode);
@@ -491,7 +491,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                                     break;
                                 }
                             }
-                            sprintf(str, "%s_%zu", veh->FindGeom(m_RotorDiskVec[j]->m_ParentGeomId)->GetName().c_str(), iSubsurf);
+                            sprintf(str, "%s_%u", veh->FindGeom(m_RotorDiskVec[j]->m_ParentGeomId)->GetName().c_str(), iSubsurf);
                             temp.back()->SetName(str);
                         }
                     }
@@ -504,7 +504,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                         temp.push_back(rotor);
                         temp.back()->m_ParentGeomId = veh->GetGeomVec()[i];
                         temp.back()->m_ParentGeomSurfNdx = iSubsurf;
-                        sprintf(str, "%s_%zu", veh->FindGeom(veh->GetGeomVec()[i])->GetName().c_str(), iSubsurf);
+                        sprintf(str, "%s_%u", veh->FindGeom(veh->GetGeomVec()[i])->GetName().c_str(), iSubsurf);
                         temp.back()->SetName(str);
                     }
 
@@ -606,7 +606,7 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                                     if (m_CompleteControlSurfaceVec[k].SSID.compare( ssurf->GetID()) == 0 && m_CompleteControlSurfaceVec[k].iReflect == iReflect)
                                     {
                                         char str[256];
-                                        sprintf(str, "%s_Surf%zu_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str());
+                                        sprintf(str, "%s_Surf%u_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str());
                                         m_CompleteControlSurfaceVec[k].fullName = string( str );
                                         contained = true;
                                         break;
@@ -620,7 +620,7 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                                     VspAeroControlSurf newSurf;
                                     newSurf.SSID = ssurf->GetID();
                                     char str[256];
-                                    sprintf(str, "%s_Surf%zu_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str());
+                                    sprintf(str, "%s_Surf%u_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str());
                                     newSurf.fullName = string( str );
                                     newSurf.parentGeomId = ssurf->GetParentContainer();
                                     newSurf.iReflect = iReflect;
@@ -2769,13 +2769,13 @@ xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
         XmlUtil::AddIntNode(node, "NumberOfControlSubSurfaces", m_ControlSurfVec.size());
         for (size_t i = 0; i < m_ControlSurfVec.size(); ++i)
         {
-            sprintf(str, "Control_Surface_%zu", i );
+            sprintf(str, "Control_Surface_%u", i );
             xmlNodePtr csnode = xmlNewChild( node, NULL, BAD_CAST str , NULL );
-            sprintf(str, "SSID%zu", i);
+            sprintf(str, "SSID%u", i);
             XmlUtil::AddStringNode(csnode, str, m_ControlSurfVec[i].SSID.c_str());
-            sprintf(str, "ParentGeomID%zu", i);
+            sprintf(str, "ParentGeomID%u", i);
             XmlUtil::AddStringNode(csnode, str, m_ControlSurfVec[i].parentGeomId.c_str());
-            sprintf(str, "iReflect%zu", i);
+            sprintf(str, "iReflect%u", i);
             XmlUtil::AddIntNode(csnode, str, m_ControlSurfVec[i].iReflect);
         }
 
@@ -2805,13 +2805,13 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
         nControlSubSurfaces = XmlUtil::FindInt( node, "NumberOfControlSubSurfaces", nControlSubSurfaces );
         for (size_t i = 0; i < nControlSubSurfaces; ++i )
         {
-            sprintf( str, "Control_Surface_%zu", i );
+            sprintf( str, "Control_Surface_%u", i );
             xmlNodePtr csnode = XmlUtil::GetNode(node, str, 0);
-            sprintf( str, "SSID%zu",i);
+            sprintf( str, "SSID%u",i);
             newSurf.SSID = XmlUtil::FindString( csnode, str, SSID );
-            sprintf( str, "ParentGeomID%zu", i);
+            sprintf( str, "ParentGeomID%u", i);
             newSurf.parentGeomId = XmlUtil::FindString(csnode, str, ParentGeomID );
-            sprintf(str, "iReflect%zu",i);
+            sprintf(str, "iReflect%u",i);
             newSurf.iReflect = XmlUtil::FindInt( csnode, str, iReflect );
             AddSubSurface( newSurf );
         }
