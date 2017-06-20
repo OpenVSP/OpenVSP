@@ -91,7 +91,7 @@ private:
     GroupLayout m_MaterialEditGroup;
     GroupLayout m_PropertyTabLayout;
     GroupLayout m_PropertyEditGroup;
-    GroupLayout m_GlobalTabLayout;
+    GroupLayout m_MeshTabLayout;
     GroupLayout m_DisplayTabLayout;
 
     //===== Console Items =====//
@@ -202,7 +202,7 @@ private:
     SliderAdjRangeInput m_PropIzySlider;
     SliderAdjRangeInput m_PropIxxSlider;
 
-    //===== Global Tab Items =====//
+    //===== Mesh Tab Items =====//
     SliderAdjRangeInput m_MaxEdgeLen;
     SliderAdjRangeInput m_MinEdgeLen;
     SliderAdjRangeInput m_MaxGap;

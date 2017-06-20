@@ -40,8 +40,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     Fl_Group* matTabGroup = AddSubGroup( matTab, 5 );
     Fl_Group* propTab = AddTab( "Property" );
     Fl_Group* propTabGroup = AddSubGroup( propTab, 5 );
-    Fl_Group* globalTab = AddTab( "Global" );
-    Fl_Group* globalTabGroup = AddSubGroup( globalTab, 5 );
+    Fl_Group* meshTab = AddTab( "Mesh" );
+    Fl_Group* meshTabGroup = AddSubGroup( meshTab, 5 );
     Fl_Group* displayTab = AddTab( "Display" );
     Fl_Group* displayTabGroup = AddSubGroup( displayTab, 5 );
 
@@ -435,85 +435,85 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_PropertyEditGroup.AddYGap();
 
-    //=== GLOBAL TAB ===//
-    m_GlobalTabLayout.SetGroupAndScreen( globalTabGroup, this );
+    //=== MESH TAB ===//
+    m_MeshTabLayout.SetGroupAndScreen( meshTabGroup, this );
 
-    m_GlobalTabLayout.AddDividerBox( "Global Mesh Control" );
+    m_MeshTabLayout.AddDividerBox( "Mesh Control" );
 
-    m_GlobalTabLayout.AddYGap();
+    m_MeshTabLayout.AddYGap();
 
-    m_GlobalTabLayout.SetButtonWidth( 175 );
-    m_GlobalTabLayout.AddSlider( m_MaxEdgeLen, "Max Edge Len", 1.0, "%7.5f" );
-    m_GlobalTabLayout.AddSlider( m_MinEdgeLen, "Min Edge Len", 1.0, "%7.5f" );
-    m_GlobalTabLayout.AddSlider( m_MaxGap, "Max Gap", 1.0, "%7.5f" );
-    m_GlobalTabLayout.AddSlider( m_NumCircleSegments, "Num Circle Segments", 100.0, "%7.5f" );
-    m_GlobalTabLayout.AddSlider( m_GrowthRatio, "Growth Ratio", 2.0, "%7.5f" );
+    m_MeshTabLayout.SetButtonWidth( 175 );
+    m_MeshTabLayout.AddSlider( m_MaxEdgeLen, "Max Edge Len", 1.0, "%7.5f" );
+    m_MeshTabLayout.AddSlider( m_MinEdgeLen, "Min Edge Len", 1.0, "%7.5f" );
+    m_MeshTabLayout.AddSlider( m_MaxGap, "Max Gap", 1.0, "%7.5f" );
+    m_MeshTabLayout.AddSlider( m_NumCircleSegments, "Num Circle Segments", 100.0, "%7.5f" );
+    m_MeshTabLayout.AddSlider( m_GrowthRatio, "Growth Ratio", 2.0, "%7.5f" );
 
-    m_GlobalTabLayout.AddYGap();
-    m_GlobalTabLayout.AddButton( m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting" );
-    m_GlobalTabLayout.AddYGap();
+    m_MeshTabLayout.AddYGap();
+    m_MeshTabLayout.AddButton( m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting" );
+    m_MeshTabLayout.AddYGap();
 
-    m_GlobalTabLayout.SetFitWidthFlag( true );
-    m_GlobalTabLayout.SetSameLineFlag( false );
+    m_MeshTabLayout.SetFitWidthFlag( true );
+    m_MeshTabLayout.SetSameLineFlag( false );
 
-    m_GlobalTabLayout.AddDividerBox( "Geometry Control" );
-    m_GlobalTabLayout.AddYGap();
-    m_GlobalTabLayout.AddButton( m_IntersectSubsurfaces, "Intersect Subsurfaces" );
-    m_GlobalTabLayout.AddYGap();
+    m_MeshTabLayout.AddDividerBox( "Geometry Control" );
+    m_MeshTabLayout.AddYGap();
+    m_MeshTabLayout.AddButton( m_IntersectSubsurfaces, "Intersect Subsurfaces" );
+    m_MeshTabLayout.AddYGap();
 
-    m_GlobalTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
-    m_GlobalTabLayout.AddYGap();
+    m_MeshTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
+    m_MeshTabLayout.AddYGap();
 
     // TODO: Add more CFD Mesh Export file options?
 
-    m_GlobalTabLayout.AddDividerBox( "File Export" );
-    m_GlobalTabLayout.AddYGap();
+    m_MeshTabLayout.AddDividerBox( "File Export" );
+    m_MeshTabLayout.AddYGap();
 
-    m_GlobalTabLayout.SetFitWidthFlag( false );
-    m_GlobalTabLayout.SetSameLineFlag( true );
+    m_MeshTabLayout.SetFitWidthFlag( false );
+    m_MeshTabLayout.SetSameLineFlag( true );
 
-    m_GlobalTabLayout.SetButtonWidth( 75 );
-    m_GlobalTabLayout.SetInputWidth( m_GlobalTabLayout.GetW() - 125 );
+    m_MeshTabLayout.SetButtonWidth( 75 );
+    m_MeshTabLayout.SetInputWidth( m_MeshTabLayout.GetW() - 125 );
 
-    m_GlobalTabLayout.AddButton( m_StlFile, ".stl" );
-    m_GlobalTabLayout.AddOutput( m_StlOutput );
-    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
-    m_GlobalTabLayout.AddButton( m_SelectStlFile, "..." );
-    m_GlobalTabLayout.ForceNewLine();
+    m_MeshTabLayout.AddButton( m_StlFile, ".stl" );
+    m_MeshTabLayout.AddOutput( m_StlOutput );
+    m_MeshTabLayout.SetButtonWidth( m_MeshTabLayout.GetRemainX() );
+    m_MeshTabLayout.AddButton( m_SelectStlFile, "..." );
+    m_MeshTabLayout.ForceNewLine();
 
-    m_GlobalTabLayout.SetButtonWidth( 75 );
-    m_GlobalTabLayout.AddButton( m_GmshFile, ".msh" );
-    m_GlobalTabLayout.AddOutput( m_GmshOutput );
-    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
-    m_GlobalTabLayout.AddButton( m_SelectGmshFile, "..." );
-    m_GlobalTabLayout.ForceNewLine();
+    m_MeshTabLayout.SetButtonWidth( 75 );
+    m_MeshTabLayout.AddButton( m_GmshFile, ".msh" );
+    m_MeshTabLayout.AddOutput( m_GmshOutput );
+    m_MeshTabLayout.SetButtonWidth( m_MeshTabLayout.GetRemainX() );
+    m_MeshTabLayout.AddButton( m_SelectGmshFile, "..." );
+    m_MeshTabLayout.ForceNewLine();
 
-    m_GlobalTabLayout.AddYGap();
+    m_MeshTabLayout.AddYGap();
 
-    m_GlobalTabLayout.SetButtonWidth( 75 );
-    m_GlobalTabLayout.AddButton( m_MassFile, "Mass" );
-    m_GlobalTabLayout.AddOutput( m_MassOutput );
-    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
-    m_GlobalTabLayout.AddButton( m_SelectMassFile, "..." );
-    m_GlobalTabLayout.ForceNewLine();
+    m_MeshTabLayout.SetButtonWidth( 75 );
+    m_MeshTabLayout.AddButton( m_MassFile, "Mass" );
+    m_MeshTabLayout.AddOutput( m_MassOutput );
+    m_MeshTabLayout.SetButtonWidth( m_MeshTabLayout.GetRemainX() );
+    m_MeshTabLayout.AddButton( m_SelectMassFile, "..." );
+    m_MeshTabLayout.ForceNewLine();
 
-    m_GlobalTabLayout.AddYGap();
+    m_MeshTabLayout.AddYGap();
 
-    m_GlobalTabLayout.SetButtonWidth( 75 );
-    m_GlobalTabLayout.AddButton( m_NastFile, "NASTRAN" );
-    m_GlobalTabLayout.AddOutput( m_NastOutput );
-    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
-    m_GlobalTabLayout.AddButton( m_SelectNastFile, "..." );
-    m_GlobalTabLayout.ForceNewLine();
+    m_MeshTabLayout.SetButtonWidth( 75 );
+    m_MeshTabLayout.AddButton( m_NastFile, "NASTRAN" );
+    m_MeshTabLayout.AddOutput( m_NastOutput );
+    m_MeshTabLayout.SetButtonWidth( m_MeshTabLayout.GetRemainX() );
+    m_MeshTabLayout.AddButton( m_SelectNastFile, "..." );
+    m_MeshTabLayout.ForceNewLine();
 
-    m_GlobalTabLayout.AddYGap();
+    m_MeshTabLayout.AddYGap();
 
-    m_GlobalTabLayout.SetButtonWidth( 75 );
-    m_GlobalTabLayout.AddButton( m_CalcFile, "Calculix" );
-    m_GlobalTabLayout.AddOutput( m_CalcOutput );
-    m_GlobalTabLayout.SetButtonWidth( m_GlobalTabLayout.GetRemainX() );
-    m_GlobalTabLayout.AddButton( m_SelectCalcFile, "..." );
-    m_GlobalTabLayout.ForceNewLine();
+    m_MeshTabLayout.SetButtonWidth( 75 );
+    m_MeshTabLayout.AddButton( m_CalcFile, "Calculix" );
+    m_MeshTabLayout.AddOutput( m_CalcOutput );
+    m_MeshTabLayout.SetButtonWidth( m_MeshTabLayout.GetRemainX() );
+    m_MeshTabLayout.AddButton( m_SelectCalcFile, "..." );
+    m_MeshTabLayout.ForceNewLine();
 
     //=== Display Tab ===//
     m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
