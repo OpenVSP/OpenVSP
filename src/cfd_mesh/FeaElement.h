@@ -99,7 +99,7 @@ class FeaElement
 
     enum
     {
-        FEA_TRI_6, FEA_QUAD_8, FEA_BEAM
+        FEA_TRI_6, FEA_QUAD_8, FEA_BEAM, FEA_POINT_MASS
     };
     vector< FeaNode* > m_Corners;
     vector< FeaNode* > m_Mids;
@@ -168,6 +168,25 @@ class FeaBeam : public FeaElement
 
     vec3d m_DispVec; // Vector from end point in the displacement coordinate system at the end point
     int m_ElementIndex;
+};
+
+//=== Point Mass Element ====//
+class FeaPointMass : public FeaElement
+{
+public:
+    FeaPointMass()    {};
+    virtual ~FeaPointMass()    {};
+
+    virtual void Create( vec3d & p0, double mass );
+    virtual void WriteCalculix( FILE* fp, int id );
+    virtual void WriteNASTRAN( FILE* fp, int id, int property_index );
+    virtual void WriteGmsh( FILE* fp, int id, int fea_part_index )    {};
+    virtual double ComputeMass( int property_index )    
+    {
+        return m_Mass;
+    };
+
+    double m_Mass;
 };
 
 //=== SimpleFeaProperty ====//

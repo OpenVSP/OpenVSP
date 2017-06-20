@@ -1987,8 +1987,15 @@ FeaFixPoint::FeaFixPoint( string compID, int type ) : FeaPart( compID, type )
 {
     m_PosU.Init( "PosU", "FeaFixPoint", this, 0.0, 0.0, 1.0 );
     m_PosU.SetDescript( "Precent U Location" );
+
     m_PosW.Init( "PosW", "FeaFixPoint", this, 0.0, 0.0, 1.0 );
     m_PosW.SetDescript( "Precent W Location" );
+
+    m_FixPointMassFlag.Init( "FixPointMassFlag", "FeaFixPoint", this, false, false, true );
+    m_FixPointMassFlag.SetDescript( "Flag to Include Mass of FeaFixPoint" );
+
+    m_FixPointMass.Init( "FixPointMass", "FeaFixPoint", this, 0.0, 0.0, 1e12 );
+    m_FixPointMass.SetDescript( "FeaFixPoint Mass Value" );
 
     m_FeaPropertyIndex = -1; // No property
     m_CapFeaPropertyIndex = -1; // No property

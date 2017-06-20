@@ -415,6 +415,33 @@ double FeaBeam::ComputeMass( int property_index )
 }
 
 //////////////////////////////////////////////////////
+//================ FeaPointMass ====================//
+//////////////////////////////////////////////////////
+
+void FeaPointMass::Create( vec3d & p0, double mass )
+{
+    m_ElementType = FEA_POINT_MASS;
+
+    DeleteAllNodes();
+
+    m_Corners.push_back( new FeaNode( p0 ) );
+
+    m_Mass = mass;
+}
+
+void FeaPointMass::WriteCalculix( FILE* fp, int id )
+{
+    fprintf( fp, "%d,%d\n", id, m_Corners[0]->GetIndex() );
+}
+
+void FeaPointMass::WriteNASTRAN( FILE* fp, int id, int property_index )
+{
+    // Note: property_index ignored
+
+    fprintf( fp, "CONM2,%d,%d, ,%f\n", id, m_Corners[0]->GetIndex(), m_Mass );
+}
+
+//////////////////////////////////////////////////////
 //=============== SimpleFeaProperty ================//
 //////////////////////////////////////////////////////
 void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop )
