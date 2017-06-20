@@ -84,6 +84,8 @@ private:
     Choice m_FixPointParentSurfChoice;
     SliderAdjRangeInput m_FixPointULocSlider;
     SliderAdjRangeInput m_FixPointWLocSlider;
+    ToggleButton m_FixPointMassToggle;
+    SliderAdjRangeInput m_FixPointMassSlider;
 
     //===== SubSurfaces =====//
 

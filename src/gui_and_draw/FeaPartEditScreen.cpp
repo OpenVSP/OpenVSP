@@ -115,6 +115,21 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FixPointEditLayout.AddSlider( m_FixPointULocSlider, "U Location", 1, "%5.3f" );
     m_FixPointEditLayout.AddSlider( m_FixPointWLocSlider, "W Location", 1, "%5.3f" );
 
+    m_FixPointEditLayout.AddYGap();
+
+    m_FixPointEditLayout.SetSameLineFlag( true );
+    m_FixPointEditLayout.SetFitWidthFlag( false );
+
+    m_FixPointEditLayout.SetButtonWidth( m_FixPointEditLayout.GetRemainX() / 17 );
+
+    m_FixPointEditLayout.AddButton( m_FixPointMassToggle, "" );
+
+    m_FixPointEditLayout.SetFitWidthFlag( true );
+
+    m_FixPointEditLayout.SetButtonWidth( ( m_FixPointEditLayout.GetRemainX() / 3 ) - ( m_FixPointEditLayout.GetRemainX() / 17 ) );
+
+    m_FixPointEditLayout.AddSlider( m_FixPointMassSlider, "Mass", 100, "%5.3f" );
+
     //=== SubSurfaces ===//
 
     //==== SSLine ====//
@@ -457,6 +472,17 @@ bool FeaPartEditScreen::Update()
 
                         m_FixPointULocSlider.Update( fixpt->m_PosU.GetID() );
                         m_FixPointWLocSlider.Update( fixpt->m_PosW.GetID() );
+                        m_FixPointMassToggle.Update( fixpt->m_FixPointMassFlag.GetID() );
+                        m_FixPointMassSlider.Update( fixpt->m_FixPointMass.GetID() );
+
+                        if ( fixpt->m_FixPointMassFlag() )
+                        {
+                            m_FixPointMassSlider.Activate();
+                        }
+                        else
+                        {
+                            m_FixPointMassSlider.Deactivate();
+                        }
 
                         FeaPartDispGroup( &m_FixPointEditLayout );
                     }
