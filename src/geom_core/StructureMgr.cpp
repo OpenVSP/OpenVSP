@@ -303,7 +303,7 @@ FeaProperty* StructureMgrSingleton::AddFeaProperty( int property_type )
 
     if ( feaprop )
     {
-        feaprop->SetName( string( "FEA_PROPERTY_" + std::to_string( m_FeaPropertyCount ) ) );
+        feaprop->SetName( string( "PROPERTY_" + std::to_string( m_FeaPropertyCount ) ) );
         feaprop->m_FeaPropertyType.Set( property_type );
         feaprop->m_UserFeaProperty = true;
         m_FeaPropertyVec.push_back( feaprop );
@@ -382,7 +382,7 @@ FeaMaterial* StructureMgrSingleton::AddFeaMaterial()
 
     if ( feamat )
     {
-        feamat->SetName( string( "FEA_MATERIAL_" + std::to_string( m_FeaMatCount ) ) );
+        feamat->SetName( string( "MATERIAL_" + std::to_string( m_FeaMatCount ) ) );
         feamat->m_UserFeaMaterial = true;
         m_FeaMaterialVec.push_back( feamat );
         m_FeaMatCount++;

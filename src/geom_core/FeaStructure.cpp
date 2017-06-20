@@ -168,22 +168,22 @@ FeaPart* FeaStructure::AddFeaPart( int type )
     if ( type == vsp::FEA_SLICE )
     {
         feaprt = new FeaSlice( m_ParentGeomID );
-        feaprt->SetName( string( "FEA_SLICE_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "SLICE_" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_RIB )
     {
         feaprt = new FeaRib( m_ParentGeomID );
-        feaprt->SetName( string( "FEA_RIB_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "RIB_" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_SPAR )
     {
         feaprt = new FeaSpar( m_ParentGeomID );
-        feaprt->SetName( string( "FEA_SPAR_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "SPAR_" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_FIX_POINT )
     {
         feaprt = new FeaFixPoint( m_ParentGeomID );
-        feaprt->SetName( string( "FEA_FIX_POINT_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "FIX_POINT_" + std::to_string( m_FeaPartCount ) ) );
     }
 
     if ( feaprt )
@@ -384,22 +384,22 @@ SubSurface* FeaStructure::AddFeaSubSurf( int type )
     if ( type == vsp::SS_LINE )
     {
         ssurf = new SSLine( m_ParentGeomID );
-        ssurf->SetName( string( "FEA_SS_LINE_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SS_LINE_" + to_string( m_FeaSubSurfCount ) ) );
     }
     else if ( type == vsp::SS_RECTANGLE )
     {
         ssurf = new SSRectangle( m_ParentGeomID );
-        ssurf->SetName( string( "FEA_SS_RECT_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SS_RECT_" + to_string( m_FeaSubSurfCount ) ) );
     }
     else if ( type == vsp::SS_ELLIPSE )
     {
         ssurf = new SSEllipse( m_ParentGeomID );
-        ssurf->SetName( string( "FEA_SS_ELLIP_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SS_ELLIP_" + to_string( m_FeaSubSurfCount ) ) );
     }
     else if ( type == vsp::SS_CONTROL )
     {
         ssurf = new SSControlSurf( m_ParentGeomID );
-        ssurf->SetName( string( "FEA_SS_CONT_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SS_CONT_" + to_string( m_FeaSubSurfCount ) ) );
     }
 
     if ( ssurf )
@@ -547,7 +547,7 @@ vector < FeaPart* > FeaStructure::InitFeaSkin()
 
             if ( feaskin )
             {
-                feaskin->SetName( string( "FEA_SKIN_" + std::to_string( m_FeaPartCount ) ) );
+                feaskin->SetName( string( "SKIN_" + std::to_string( m_FeaPartCount ) ) );
                 feaskin->m_MainSurfIndx.Set( m_MainSurfIndx );
                 
                 feaskin->UpdateSymmetricSurfs();
@@ -895,27 +895,27 @@ string FeaPart::GetTypeName( int type )
 {
     if ( type == vsp::FEA_SLICE )
     {
-        return string( "FeaSlice" );
+        return string( "Slice" );
     }
     if ( type == vsp::FEA_RIB )
     {
-        return string( "FeaRib" );
+        return string( "Rib" );
     }
     if ( type == vsp::FEA_SPAR )
     {
-        return string( "FeaSpar" );
+        return string( "Spar" );
     }
     if ( type == vsp::FEA_FIX_POINT )
     {
-        return string( "FeaFixPoint" );
+        return string( "FixPoint" );
     }
     if ( type == vsp::FEA_SUB_SURF )
     {
-        return string( "FeaSubSurf" );
+        return string( "SubSurf" );
     }
     if ( type == vsp::FEA_SKIN )
     {
-        return string( "FeaSkin" );
+        return string( "Skin" );
     }
 
     return string( "NONE" );
