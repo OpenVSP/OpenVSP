@@ -300,10 +300,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_PartGroup.SetChoiceButtonWidth( m_PartGroup.GetRemainX() / 2 );
 
     m_PartGroup.AddChoice( m_GenPropertyChoice, "Property" );
-    //m_PartGroup.AddChoice( m_GenMaterialChoice, "Material" );
 
     m_PartGroup.AddChoice( m_GenCapPropertyChoice, "Cap Property" );
-    //m_PartGroup.AddChoice( m_GenCapMaterialChoice, "Cap Material" );
 
     m_PartGroup.AddYGap();
 
@@ -1078,10 +1076,6 @@ void StructScreen::UpdateFeaMaterialChoice()
     //==== Material Choice ====//
     m_FeaShellMaterialChoice.ClearItems();
     m_FeaBeamMaterialChoice.ClearItems();
-    //m_GenMaterialChoice.ClearItems();
-    //m_GenCapMaterialChoice.ClearItems();
-
-    // TODO: Support Selection and application of multiple materials
 
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -1093,13 +1087,9 @@ void StructScreen::UpdateFeaMaterialChoice()
         {
             m_FeaShellMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
             m_FeaBeamMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
-            //m_GenMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
-            //m_GenCapMaterialChoice.AddItem( string( material_vec[i]->GetName() ) );
         }
         m_FeaShellMaterialChoice.UpdateItems();
         m_FeaBeamMaterialChoice.UpdateItems();
-        //m_GenMaterialChoice.UpdateItems();
-        //m_GenCapMaterialChoice.UpdateItems();
 
         if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
         {
