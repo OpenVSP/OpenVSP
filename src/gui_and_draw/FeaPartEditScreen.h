@@ -30,6 +30,7 @@ public:
     virtual void UpdateFixPointParentChoice();
     virtual void UpdateFeaPartPropertyIndex( Choice* property_choice );
     virtual void UpdateCapPropertyIndex( Choice* property_choice );
+    virtual void UpdateUnitLabels();
 
 private:
 
@@ -86,6 +87,7 @@ private:
     SliderAdjRangeInput m_FixPointWLocSlider;
     ToggleButton m_FixPointMassToggle;
     SliderAdjRangeInput m_FixPointMassSlider;
+    TriggerButton m_FixPointMassUnit;
 
     //===== SubSurfaces =====//
 

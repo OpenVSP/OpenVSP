@@ -124,11 +124,16 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_FixPointEditLayout.AddButton( m_FixPointMassToggle, "" );
 
-    m_FixPointEditLayout.SetFitWidthFlag( true );
+    m_FixPointEditLayout.SetButtonWidth( ( m_FixPointEditLayout.GetW() / 3 ) - ( m_FixPointEditLayout.GetRemainX() / 16 ) );
+    m_FixPointEditLayout.SetSliderWidth( m_FixPointEditLayout.GetW() / 3 );
+    m_FixPointEditLayout.SetInputWidth(  m_FixPointEditLayout.GetRemainX() / 6 );
 
-    m_FixPointEditLayout.SetButtonWidth( ( m_FixPointEditLayout.GetRemainX() / 3 ) - ( m_FixPointEditLayout.GetRemainX() / 17 ) );
+    m_FixPointEditLayout.AddSlider( m_FixPointMassSlider, "Mass", 100.0, "%5.3g" );
 
-    m_FixPointEditLayout.AddSlider( m_FixPointMassSlider, "Mass", 100, "%5.3f" );
+    m_FixPointEditLayout.AddButton( m_FixPointMassUnit, "" );
+    m_FixPointMassUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_FixPointMassUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_FixPointMassUnit.SetWidth( ( m_FixPointEditLayout.GetW() / 8 ) - 3 );
 
     //=== SubSurfaces ===//
 
@@ -376,6 +381,8 @@ bool FeaPartEditScreen::Update()
         //===== FeaProperty Update =====//
         UpdateFeaPropertyChoice();
 
+        UpdateUnitLabels();
+
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
         {
             vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
@@ -478,10 +485,12 @@ bool FeaPartEditScreen::Update()
                         if ( fixpt->m_FixPointMassFlag() )
                         {
                             m_FixPointMassSlider.Activate();
+                            m_FixPointMassUnit.Activate();
                         }
                         else
                         {
                             m_FixPointMassSlider.Deactivate();
+                            m_FixPointMassUnit.Deactivate();
                         }
 
                         FeaPartDispGroup( &m_FixPointEditLayout );
@@ -1199,5 +1208,40 @@ void FeaPartEditScreen::UpdateCapPropertyIndex( Choice* property_choice )
                 subsurf->SetCapFeaPropertyIndex( property_choice->GetVal() );
             }
         }
+    }
+}
+
+void FeaPartEditScreen::UpdateUnitLabels()
+{
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    if ( veh )
+    {
+        string mass_unit;
+
+        switch ( veh->m_StructMassUnit() )
+        {
+        case vsp::MASS_UNIT_G:
+        mass_unit = "g";
+        break;
+
+        case vsp::MASS_UNIT_KG:
+        mass_unit = "kg";
+        break;
+
+        case vsp::MASS_UNIT_TONNE:
+        mass_unit = "t"; // or Mg/
+        break;
+
+        case vsp::MASS_UNIT_LB:
+        mass_unit = "lb";
+        break;
+
+        case vsp::MASS_UNIT_SLUG:
+        mass_unit = "slug";
+        break;
+        }
+
+        m_FixPointMassUnit.GetFlButton()->copy_label( mass_unit.c_str() );
     }
 }

@@ -44,6 +44,8 @@ public:
     virtual void UpdateGenPropertyIndex( Choice* property_choice );
     virtual void UpdateGenCapPropertyIndex( Choice* property_choice );
 
+    virtual void UpdateUnitLabels();
+
     virtual void OrientWing();
     virtual void OrientStructure( VSPGraphic::Common::VSPenum type );
 
@@ -107,6 +109,8 @@ private:
     GroupLayout* m_CurrDispGroup;
 
     //===== Structure Tab Items =====//
+    Choice m_LengthUnitChoice;
+    Choice m_MassUnitChoice;
     Choice m_GeomChoice;
     Choice m_SurfSel;
     TriggerButton m_AddFeaStructButton;
@@ -170,9 +174,13 @@ private:
     StringInput m_FeaMaterialNameInput;
 
     SliderAdjRangeInput m_MatDensitySlider;
+    TriggerButton m_MatDensityUnit;
     SliderAdjRangeInput m_MatElasticModSlider;
+    TriggerButton m_MatElasticModUnit;
     SliderAdjRangeInput m_MatPoissonSlider;
+    TriggerButton m_MatPoissonUnit;
     SliderAdjRangeInput m_MatThermalExCoeffSlider;
+    Choice m_MatThermalExCoeffUnit;
 
     //===== Property Tab =====//
     GroupLayout* m_CurFeaPropDispGroup;
@@ -191,16 +199,22 @@ private:
 
     Choice m_FeaShellMaterialChoice;
     SliderAdjRangeInput m_PropThickSlider;
+    TriggerButton m_PropThickUnit;
 
     // Beam Property
     GroupLayout m_FeaPropertyBeamGroup;
 
     Choice m_FeaBeamMaterialChoice;
     SliderAdjRangeInput m_PropAreaSlider;
+    TriggerButton m_PropAreaUnit;
     SliderAdjRangeInput m_PropIzzSlider;
+    TriggerButton m_PropIzzUnit;
     SliderAdjRangeInput m_PropIyySlider;
+    TriggerButton m_PropIyyUnit;
     SliderAdjRangeInput m_PropIzySlider;
+    TriggerButton m_PropIzyUnit;
     SliderAdjRangeInput m_PropIxxSlider;
+    TriggerButton m_PropIxxUnit;
 
     //===== Mesh Tab Items =====//
     SliderAdjRangeInput m_MaxEdgeLen;

@@ -71,6 +71,34 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_StructureTabLayout.SetGroupAndScreen( structTabGroup, this );
 
+    m_StructureTabLayout.AddDividerBox( "General" );
+
+    m_StructureTabLayout.SetSameLineFlag( true );
+    m_StructureTabLayout.SetFitWidthFlag( false );
+    m_StructureTabLayout.SetChoiceButtonWidth( m_StructureTabLayout.GetRemainX() / 4 );
+    m_StructureTabLayout.SetSliderWidth( m_StructureTabLayout.GetRemainX() / 4 );
+
+    m_LengthUnitChoice.AddItem( "MM" );
+    m_LengthUnitChoice.AddItem( "CM" );
+    m_LengthUnitChoice.AddItem( "M" );
+    m_LengthUnitChoice.AddItem( "IN" );
+    m_LengthUnitChoice.AddItem( "FT" );
+    m_LengthUnitChoice.AddItem( "YD" );
+    m_StructureTabLayout.AddChoice( m_LengthUnitChoice, "Length Units" );
+
+    m_MassUnitChoice.AddItem( "G" );
+    m_MassUnitChoice.AddItem( "KG" );
+    m_MassUnitChoice.AddItem( "TONNE" );
+    m_MassUnitChoice.AddItem( "LB" );
+    m_MassUnitChoice.AddItem( "SLUG" );
+    m_StructureTabLayout.AddChoice( m_MassUnitChoice, "Mass Units" );
+
+    m_StructureTabLayout.SetSameLineFlag( false );
+    m_StructureTabLayout.SetFitWidthFlag( true );
+
+    m_StructureTabLayout.ForceNewLine();
+    m_StructureTabLayout.AddYGap();
+
     m_StructureTabLayout.AddDividerBox( "Structure Selection" );
 
     int browser_h = 100;
@@ -354,11 +382,50 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_MaterialEditSubGroup.AddDividerBox( "Material Properties" );
 
-    m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 1, "%5.3f" );
-    m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "Elestic Modulus", 10e5, "%g" );
-    m_MaterialEditSubGroup.AddSlider( m_MatPoissonSlider, "Poisson Ratio", 1, "%5.3f" );
-    m_MaterialEditSubGroup.AddSlider( m_MatThermalExCoeffSlider, "Thermal Expansion Coeff", 10e-5, "%g" );
+    m_MaterialEditSubGroup.SetSameLineFlag( true );
+    m_MaterialEditSubGroup.SetFitWidthFlag( false );
 
+    m_MaterialEditSubGroup.SetButtonWidth( buttonwidth );
+    m_MaterialEditSubGroup.SetSliderWidth( 7 * m_MaterialEditSubGroup.GetW() / 24 );
+    m_MaterialEditSubGroup.SetInputWidth( m_MaterialEditSubGroup.GetW() / 6 );
+
+    m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 0.001, "%5.3g" );
+    m_MaterialEditSubGroup.AddButton( m_MatDensityUnit, "" );
+    m_MatDensityUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_MatDensityUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_MatDensityUnit.SetWidth( m_MaterialEditSubGroup.GetW() / 7 );
+
+    m_MaterialEditSubGroup.ForceNewLine();
+
+    m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "Elastic Modulus", 10e5, "%5.3g" );
+    m_MaterialEditSubGroup.AddButton( m_MatElasticModUnit, "" );
+    m_MatElasticModUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_MatElasticModUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_MatElasticModUnit.SetWidth( m_MaterialEditSubGroup.GetW() / 7 );
+
+    m_MaterialEditSubGroup.ForceNewLine();
+
+    m_MaterialEditSubGroup.AddSlider( m_MatPoissonSlider, "Poisson Ratio", 1, "%5.3g" );
+    m_MaterialEditSubGroup.AddButton( m_MatPoissonUnit, "" );
+    m_MatPoissonUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_MatPoissonUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_MatPoissonUnit.SetWidth( m_MaterialEditSubGroup.GetW() / 7 );
+
+    m_MaterialEditSubGroup.ForceNewLine();
+
+    m_MaterialEditSubGroup.AddSlider( m_MatThermalExCoeffSlider, "Thermal Expan Coeff", 10e-5, "%5.3g" );
+
+    string deg( 1, 176 );
+    m_MaterialEditSubGroup.SetChoiceButtonWidth( 0 );
+    m_MaterialEditSubGroup.SetSliderWidth( m_MaterialEditSubGroup.GetW() / 7 );
+
+    m_MatThermalExCoeffUnit.AddItem( "1\\/K" );
+    m_MatThermalExCoeffUnit.AddItem( "1\\/" + deg +"C" );
+    m_MatThermalExCoeffUnit.AddItem( "1\\/" + deg + "F" );
+    m_MatThermalExCoeffUnit.AddItem( "1\\/R" );
+    m_MaterialEditSubGroup.AddChoice( m_MatThermalExCoeffUnit, "" );
+
+    m_MaterialEditSubGroup.ForceNewLine();
     m_MaterialEditSubGroup.AddYGap();
 
     //=== Property Tab ===//
@@ -413,7 +480,20 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_FeaPropertyShellGroup.AddChoice( m_FeaShellMaterialChoice, "Material" );
 
-    m_FeaPropertyShellGroup.AddSlider( m_PropThickSlider, "Thickness", 1, "%5.3f" );
+    m_FeaPropertyShellGroup.SetSameLineFlag( true );
+    m_FeaPropertyShellGroup.SetFitWidthFlag( false );
+
+    m_FeaPropertyShellGroup.SetButtonWidth( buttonwidth );
+    m_FeaPropertyShellGroup.SetSliderWidth( m_FeaPropertyShellGroup.GetW() / 3 );
+    m_FeaPropertyShellGroup.SetInputWidth( m_FeaPropertyShellGroup.GetW() / 6 );
+
+    m_FeaPropertyShellGroup.AddSlider( m_PropThickSlider, "Thickness", 100.0, "%5.3g" );
+    m_FeaPropertyShellGroup.AddButton( m_PropThickUnit, "" );
+    m_PropThickUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropThickUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_PropThickUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
+
+    m_FeaPropertyShellGroup.ForceNewLine();
 
     m_FeaPropertyBeamGroup.SetGroupAndScreen( AddSubGroup( propTab, 5 ), this );
     m_FeaPropertyBeamGroup.SetY( m_FeaPropertyCommonGroup.GetY() );
@@ -425,12 +505,52 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_FeaPropertyBeamGroup.AddChoice( m_FeaBeamMaterialChoice, "Material" );
 
-    m_FeaPropertyBeamGroup.AddSlider( m_PropAreaSlider, "Cross-Sectional Area", 1, "%5.3f" );
-    m_FeaPropertyBeamGroup.AddSlider( m_PropIzzSlider, "Izz", 100, "%5.3f" );
-    m_FeaPropertyBeamGroup.AddSlider( m_PropIyySlider, "Iyy", 100, "%5.3f" );
-    m_FeaPropertyBeamGroup.AddSlider( m_PropIzySlider, "Izy", 100, "%5.3f" );
-    m_FeaPropertyBeamGroup.AddSlider( m_PropIxxSlider, "Ixx", 100, "%5.3f" );
+    m_FeaPropertyBeamGroup.SetSameLineFlag( true );
+    m_FeaPropertyBeamGroup.SetFitWidthFlag( false );
 
+    m_FeaPropertyBeamGroup.SetButtonWidth( buttonwidth );
+    m_FeaPropertyBeamGroup.SetSliderWidth( m_FeaPropertyBeamGroup.GetW() / 3 );
+    m_FeaPropertyBeamGroup.SetInputWidth( m_FeaPropertyBeamGroup.GetW() / 6 );
+
+    m_FeaPropertyBeamGroup.AddSlider( m_PropAreaSlider, "Cross-Sect Area", 100.0, "%5.3g" );
+    m_FeaPropertyBeamGroup.AddButton( m_PropAreaUnit, "" );
+    m_PropAreaUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropAreaUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_PropAreaUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
+
+    m_FeaPropertyBeamGroup.ForceNewLine();
+
+    m_FeaPropertyBeamGroup.AddSlider( m_PropIzzSlider, "Izz", 100.0, "%5.3g" );
+    m_FeaPropertyBeamGroup.AddButton( m_PropIzzUnit, "" );
+    m_PropIzzUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropIzzUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_PropIzzUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
+
+    m_FeaPropertyBeamGroup.ForceNewLine();
+
+    m_FeaPropertyBeamGroup.AddSlider( m_PropIyySlider, "Iyy", 100.0, "%5.3g" );
+    m_FeaPropertyBeamGroup.AddButton( m_PropIyyUnit, "" );
+    m_PropIyyUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropIyyUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_PropIyyUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
+
+    m_FeaPropertyBeamGroup.ForceNewLine();
+
+    m_FeaPropertyBeamGroup.AddSlider( m_PropIzySlider, "Izy", 100.0, "%5.3g" );
+    m_FeaPropertyBeamGroup.AddButton( m_PropIzyUnit, "" );
+    m_PropIzyUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropIzyUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_PropIzyUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
+
+    m_FeaPropertyBeamGroup.ForceNewLine();
+
+    m_FeaPropertyBeamGroup.AddSlider( m_PropIxxSlider, "Ixx", 100.0, "%5.3g" );
+    m_FeaPropertyBeamGroup.AddButton( m_PropIxxUnit, "" );
+    m_PropIxxUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PropIxxUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_PropIxxUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
+
+    m_FeaPropertyBeamGroup.ForceNewLine();
     m_PropertyEditGroup.AddYGap();
 
     //=== MESH TAB ===//
@@ -1273,6 +1393,108 @@ void StructScreen::FeaStructDispGroup( GroupLayout* group )
     }
 }
 
+void StructScreen::UpdateUnitLabels()
+{
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    if ( veh )
+    {
+        string squared( 1, 178 );
+        string cubed( 1, 179 );
+        string thick_unit, area_unit, area_moment_inertia_unit, young_mod_unit, density_unit;
+
+        switch ( veh->m_StructMassUnit() )
+        {
+        case vsp::MASS_UNIT_G:
+            young_mod_unit = "mN/";
+            density_unit = "g/";
+            break;
+
+        case vsp::MASS_UNIT_KG:
+            young_mod_unit = "N/";
+            density_unit = "kg/";
+            break;
+
+        case vsp::MASS_UNIT_TONNE:
+            young_mod_unit = "MN/";
+            density_unit = "t/"; // or Mg/
+            break;
+
+        case vsp::MASS_UNIT_LB:
+            young_mod_unit = "lb/";
+            density_unit = "lb/";
+            break;
+
+        case vsp::MASS_UNIT_SLUG:
+            young_mod_unit = "slug/";
+            density_unit = "slug/";
+            break;
+        }
+
+        switch ( veh->m_StructLenUnit() )
+        {
+        case vsp::LEN_MM:
+            thick_unit = "mm";
+            area_unit = "mm" + squared;
+            area_moment_inertia_unit = "mm^4";
+            young_mod_unit += "mm" + squared;
+            density_unit += "mm" + cubed;
+            break;
+
+        case vsp::LEN_CM:
+            thick_unit = "cm";
+            area_unit = "cm" + squared;
+            area_moment_inertia_unit = "cm^4";
+            young_mod_unit += "cm" + squared;
+            density_unit += "cm" + cubed;
+            break;
+
+        case vsp::LEN_M:
+            thick_unit = "m";
+            area_unit = "m" + squared;
+            area_moment_inertia_unit = "m^4";
+            young_mod_unit += "m" + squared;
+            density_unit += "m" + cubed;
+            break;
+
+        case vsp::LEN_IN:
+            thick_unit = "in";
+            area_unit = "in" + squared;
+            area_moment_inertia_unit = "in^4";
+            young_mod_unit += "in" + squared;
+            density_unit += "in" + cubed;
+            break;
+
+        case vsp::LEN_FT:
+            thick_unit = "ft";
+            area_unit = "ft" + squared;
+            area_moment_inertia_unit = "ft^4";
+            young_mod_unit += "ft" + squared;
+            density_unit += "ft" + cubed;
+            break;
+
+        case vsp::LEN_YD:
+            thick_unit = "yd";
+            area_unit = "yd" + squared;
+            area_moment_inertia_unit = "yd^{4}";
+            young_mod_unit += "yd" + squared;
+            density_unit += "yd" + cubed;
+            break;
+        }
+
+        m_MatDensityUnit.GetFlButton()->copy_label( density_unit.c_str() );
+        m_MatElasticModUnit.GetFlButton()->copy_label( young_mod_unit.c_str() );
+
+        m_PropThickUnit.GetFlButton()->copy_label( thick_unit.c_str() );
+
+        m_PropAreaUnit.GetFlButton()->copy_label( area_unit.c_str() );
+        m_PropIzzUnit.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
+        m_PropIyyUnit.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
+        m_PropIzyUnit.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
+        m_PropIxxUnit.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
+    }
+}
+
 bool StructScreen::Update()
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
@@ -1280,6 +1502,10 @@ bool StructScreen::Update()
     if ( veh )
     {
         FeaStructDispGroup( NULL ); // Hide all initially
+
+        m_LengthUnitChoice.Update( veh->m_StructLenUnit.GetID() );
+        m_MassUnitChoice.Update( veh->m_StructMassUnit.GetID() );
+        m_MatThermalExCoeffUnit.Update( veh->m_StructTempUnit.GetID() );
 
         //===== Geom Choice Update =====//
         LoadGeomChoice();
@@ -1340,6 +1566,8 @@ bool StructScreen::Update()
         //===== FeaMaterial Update =====//
         UpdateFeaMaterialBrowser();
         UpdateFeaMaterialChoice();
+
+        UpdateUnitLabels();
 
         if ( StructureMgr.ValidFeaMaterialInd( m_SelectedMaterialIndex ) )
         {
@@ -1765,6 +1993,18 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->m_DrawMeshFlag = true;
             structvec[StructureMgr.GetCurrStructIndex()]->SetDrawFlag( false );
         }
+    }
+    else if ( device == &m_LengthUnitChoice )
+    {
+        StructureMgr.UpdateLengthUnit( m_LengthUnitChoice.GetVal() );
+    }
+    else if ( device == &m_MassUnitChoice )
+    {
+        StructureMgr.UpdateMassUnit( m_MassUnitChoice.GetVal() );
+    }
+    else if ( device == &m_MatThermalExCoeffUnit )
+    {
+        StructureMgr.UpdateTempUnit( m_MatThermalExCoeffUnit.GetVal() );
     }
     else if ( device == &m_GeomChoice )
     {
