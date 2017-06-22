@@ -94,11 +94,11 @@ double ConvertLengthToM( double length, int cur_unit )
     switch ( cur_unit )
     {
     case vsp::LEN_MM:
-        length *= 1000;
+        length *= 0.001;
         break;
 
     case vsp::LEN_CM:
-        length *= 100;
+        length *= 0.01;
         break;
 
     case vsp::LEN_M:
@@ -127,11 +127,11 @@ double ConvertLengthFromM( double length, int new_unit )
     switch ( new_unit )
     {
     case vsp::LEN_MM:
-        length /= 1000;
+        length /= 0.001;
         break;
 
     case vsp::LEN_CM:
-        length /= 100;
+        length /= 0.01;
         break;
 
     case vsp::LEN_M:
