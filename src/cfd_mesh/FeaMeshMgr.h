@@ -169,13 +169,13 @@ protected:
     vector < int > m_FeaPartCapPropertyIndexVec;
 
     // The following vectors are mapped to FeaFixPoint count index
-    map < int, vector < vec3d > > m_FixPntVec; // Vector 3D coordinates for FeaFixPoints 
-    map < int, vector < vec2d > > m_FixUWVec; // Vector UW coordinates for FeaFixPoints
-    map < int, vector < int > > m_FixPntFeaPartIndexVec; // Vector of FixPoint FeaPart indexes
-    map < int, vector < int > > m_FixPntBorderFlagVec; // Indicates if the FixPoint lies on a surface, border, or intersection
-    map < int, vector < vector < int > > > m_FixPntSurfIndVec; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec
-    map < int, vector < bool > > m_FixPointMassFlagVec;
-    map < int, vector < double > > m_FixPointMassVec;
+    map < int, vector < vec3d > > m_FixPntMap; // Vector 3D coordinates for FeaFixPoints 
+    map < int, vector < vec2d > > m_FixUWMap; // Vector UW coordinates for FeaFixPoints
+    map < int, vector < int > > m_FixPntFeaPartIndexMap; // Vector of FixPoint FeaPart indexes
+    map < int, vector < int > > m_FixPntBorderFlagMap; // Indicates if the FixPoint lies on a surface, border, or intersection
+    map < int, vector < vector < int > > > m_FixPntSurfIndMap; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec
+    map < int, vector < bool > > m_FixPointMassFlagMap;
+    map < int, vector < double > > m_FixPointMassMap;
 
     vector < string > m_DrawBrowserNameVec;
     vector < int > m_DrawBrowserPartIndexVec;
