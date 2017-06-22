@@ -9,7 +9,7 @@
 
 #include "APIDefines.h"
 #include "UnitConversion.h"
-
+#include <math.h>
 
 //==================================//
 //=========== Velocity =============//
@@ -161,6 +161,24 @@ double ConvertLength( double length, int cur_unit, int new_unit )
     return ConvertLengthFromM( len_m, new_unit );
 }
 
+double ConvertLength2( double length, int cur_unit, int new_unit )
+{
+    double len_m = ConvertLengthToM( sqrt( length ), cur_unit ); // convert input length unit^2 to m
+    return pow( ConvertLengthFromM( len_m, new_unit ), 2 );
+}
+
+double ConvertLength3( double length, int cur_unit, int new_unit )
+{
+    double len_m = ConvertLengthToM( pow( length, 1.0 / 3 ), cur_unit ); // convert input length unit^3 to m
+    return pow( ConvertLengthFromM( len_m, new_unit ), 3 );
+}
+
+double ConvertLength4( double length, int cur_unit, int new_unit )
+{
+    double len_m = ConvertLengthToM( pow( length, 1.0 / 4 ), cur_unit ); // convert input length unit^4 to m
+    return pow( ConvertLengthFromM( len_m, new_unit ), 4 );
+}
+
 //==================================//
 //========== Temperature ===========//
 //==================================//
@@ -213,6 +231,58 @@ double ConvertTemperature( double temp, int cur_unit, int new_unit )
     double temp_k = ConvertTemperatureToK( temp, cur_unit );
     return ConvertTemperatureFromK( temp_k, new_unit );
 }
+
+//=======================================//
+//==== Thermal Expansion Coefficient ====//
+//=======================================//
+double ConvertThermalExpanCoeffToMetric( double temp, int cur_unit )
+{
+    switch ( cur_unit )
+    {
+    case vsp::TEMP_UNIT_K:
+        break;
+
+    case vsp::TEMP_UNIT_C:
+        break;
+
+    case vsp::TEMP_UNIT_F:
+        temp *= ( 9.0 / 5.0 );
+        break;
+
+    case vsp::TEMP_UNIT_R:
+        temp *= ( 9.0 / 5.0 );
+        break;
+    }
+    return temp;
+}
+
+double ConvertThermalExpanCoeffFromMetric( double temp, int new_unit )
+{
+    switch ( new_unit )
+    {
+    case vsp::TEMP_UNIT_K:
+    break;
+
+    case vsp::TEMP_UNIT_C:
+    break;
+
+    case vsp::TEMP_UNIT_F:
+    temp *= ( 5.0 / 9.0 );
+    break;
+
+    case vsp::TEMP_UNIT_R:
+    temp *= ( 5.0 / 9.0 );
+    break;
+    }
+    return temp;
+}
+
+double ConvertThermalExpanCoeff( double temp, int cur_unit, int new_unit )
+{
+    double temp_metric = ConvertThermalExpanCoeffToMetric( temp, cur_unit );
+    return ConvertThermalExpanCoeffFromMetric( temp_metric, new_unit );
+}
+
 
 //==================================//
 //=========== Pressure =============//
@@ -429,6 +499,67 @@ double ConvertDynaVis( double dynavis, int cur_unit, int new_unit )
 {
     double dynavis_kg_m_s = ConvertDynaVisToKG_M_S( dynavis, cur_unit );
     return ConvertDynaVisFromKG_M_S( dynavis_kg_m_s, new_unit );
+}
+
+//==================================//
+//===== Mass =====//
+//==================================//
+double ConvertMassToKG( double mass, int cur_unit )
+{
+    switch ( cur_unit )
+    {
+    case vsp::MASS_UNIT_G:
+        mass *= 0.001;
+        break;
+
+    case vsp::MASS_UNIT_KG:
+        break;
+
+    case vsp::MASS_UNIT_TONNE:
+        mass *= 1000;
+        break;
+
+    case vsp::MASS_UNIT_LB:
+        mass *= 0.4535923699997481;
+        break;
+
+    case vsp::MASS_UNIT_SLUG:
+        mass *= 14.593902999991704;
+        break;
+    }
+    return mass;
+}
+
+double ConvertMassFromKG( double mass, int new_unit )
+{
+    switch ( new_unit )
+    {
+    case vsp::MASS_UNIT_G:
+        mass /= 0.001;
+        break;
+
+    case vsp::MASS_UNIT_KG:
+        break;
+
+    case vsp::MASS_UNIT_TONNE:
+        mass /= 1000;
+        break;
+
+    case vsp::MASS_UNIT_LB:
+        mass /= 0.4535923699997481;
+        break;
+
+    case vsp::MASS_UNIT_SLUG:
+        mass /= 14.593902999991704;
+        break;
+    }
+    return mass;
+}
+
+double ConvertMass( double mass, int cur_unit, int new_unit )
+{
+    double mass_kg = ConvertMassToKG( mass, cur_unit );
+    return ConvertMassFromKG( mass_kg, new_unit );
 }
 
 std::string LenUnitName( int len_unit )

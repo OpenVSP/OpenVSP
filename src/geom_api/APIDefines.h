@@ -458,6 +458,13 @@ enum TEMP_UNITS { TEMP_UNIT_K = 0,
                   TEMP_UNIT_R,
                 }; // Temp Units ENUM
 
+enum MASS_UNIT { MASS_UNIT_G = 0,
+                 MASS_UNIT_KG,
+                 MASS_UNIT_TONNE,
+                 MASS_UNIT_LB,
+                 MASS_UNIT_SLUG
+               }; // Mass Units ENUM
+
 enum PRES_UNITS { PRES_UNIT_PSF = 0,
                   PRES_UNIT_PSI,
                   PRES_UNIT_PA,

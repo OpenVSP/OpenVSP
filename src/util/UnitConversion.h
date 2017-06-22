@@ -21,11 +21,19 @@ double ConvertVelocity( double velocity, int cur_unit, int new_unit );
 double ConvertLengthToM( double length, int cur_unit );
 double ConvertLengthFromM( double length, int new_unit );
 double ConvertLength( double length, int cur_unit, int new_unit );
+double ConvertLength2( double length, int cur_unit, int new_unit );
+double ConvertLength3( double length, int cur_unit, int new_unit );
+double ConvertLength4( double length, int cur_unit, int new_unit );
 
 // Temperature
 double ConvertTemperatureToK( double temp, int cur_unit );
 double ConvertTemperatureFromK( double temp, int new_unit );
 double ConvertTemperature( double temp, int cur_unit, int new_unit );
+
+// Thermal Expansion Coefficient
+double ConvertThermalExpanCoeffToMetric( double temp, int cur_unit );
+double ConvertThermalExpanCoeffFromMetric( double temp, int new_unit );
+double ConvertThermalExpanCoeff( double temp, int cur_unit, int new_unit );
 
 // Pressure
 double ConvertPressureToPSF( double pres, int cur_unit );
@@ -46,6 +54,11 @@ double ConvertKineVis( double kinevis, int cur_unit, int new_unit );
 double ConvertDynaVisToKG_M_S( double dynavis, int cur_unit );
 double ConvertDynaVisFromKG_M_S( double dynavis, int new_unit );
 double ConvertDynaVis( double dynavis, int cur_unit, int new_unit );
+
+// Mass
+double ConvertMassToKG( double mass, int cur_unit );
+double ConvertMassFromKG( double mass, int new_unit );
+double ConvertMass( double mass, int cur_unit, int new_unit );
 
 std::string LenUnitName( int len_unit );
 
