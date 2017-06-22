@@ -182,8 +182,14 @@ FeaPart* FeaStructure::AddFeaPart( int type )
     }
     else if ( type == vsp::FEA_FIX_POINT )
     {
-        feaprt = new FeaFixPoint( m_ParentGeomID );
-        feaprt->SetName( string( "FIX_POINT_" + std::to_string( m_FeaPartCount ) ) );
+        // Initially define the FeaFixPoint on the skin surface
+        FeaPart* skin = GetFeaSkin();
+
+        if ( skin )
+        {
+            feaprt = new FeaFixPoint( m_ParentGeomID, skin->GetID() );
+            feaprt->SetName( string( "FIX_POINT_" + std::to_string( m_FeaPartCount ) ) );
+        }
     }
 
     if ( feaprt )
@@ -1983,8 +1989,10 @@ void FeaRib::UpdateDrawObjs( int id, bool highlight )
 //================= FeaFixPoint ==================//
 ////////////////////////////////////////////////////
 
-FeaFixPoint::FeaFixPoint( string compID, int type ) : FeaPart( compID, type )
+FeaFixPoint::FeaFixPoint( string compID, string partID, int type ) : FeaPart( compID, type )
 {
+    m_ParentFeaPartID = partID;
+
     m_PosU.Init( "PosU", "FeaFixPoint", this, 0.0, 0.0, 1.0 );
     m_PosU.SetDescript( "Precent U Location" );
 

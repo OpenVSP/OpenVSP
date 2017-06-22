@@ -321,7 +321,7 @@ class FeaFixPoint : public FeaPart
 {
 public:
 
-    FeaFixPoint( string geomID, int type = vsp::FEA_FIX_POINT );
+    FeaFixPoint( string geomID, string partID, int type = vsp::FEA_FIX_POINT );
     virtual ~FeaFixPoint()    {};
 
     virtual void Update();
@@ -340,7 +340,7 @@ public:
     Parm m_FixPointMass;
 
     vector< vector < int > > m_SplitSurfIndex; // Identifies which surface FixPoint lies on after calling FetchFeaXFerSurf for each parent surface
-    string m_ParentFeaPartID; // Parent FeaPart ID
+    string m_ParentFeaPartID; // Parent FeaPart ID (FeaFixPoint is located on this surface)
     bool m_BorderFlag;
     bool m_HalfMeshFlag;
 
