@@ -70,6 +70,8 @@ void FeaMeshMgrSingleton::CleanUp()
     m_FixPntFeaPartIndexVec.clear();
     m_FixPntSurfIndVec.clear();
     m_FixPntBorderFlagVec.clear();
+    m_FixPointMassFlagVec.clear();
+    m_FixPointMassVec.clear();
 
     m_DrawBrowserNameVec.clear();
     m_DrawBrowserPartIndexVec.clear();
@@ -375,6 +377,9 @@ void FeaMeshMgrSingleton::AddStructureParts()
                         m_FixPntSurfIndVec.push_back( surf_index );
                         m_FixPntFeaPartIndexVec.push_back( part_index );
 
+                        m_FixPointMassFlagVec.push_back( fixpnt->m_FixPointMassFlag.Get() );
+                        m_FixPointMassVec.push_back( fixpnt->m_FixPointMass.Get() );
+
                         if ( fixpnt->m_BorderFlag )
                         {
                             m_FixPntBorderFlagVec.push_back( BORDER_FIX_POINT );
@@ -646,6 +651,27 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
                 fprintf( fp, "\tFeaPartName: %s, Mass_Tris = %f, Mass_Beams = %f\n", name.c_str(), tri_mass, beam_mass );
                 m_TotalMass += tri_mass + beam_mass;
+            }
+        }
+
+        // Add point masses
+        for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
+        {
+            if ( m_FixPointMassFlagVec[i] )
+            {
+                double pnt_mass = 0;
+                string name = m_FeaPartNameVec[m_FixPntFeaPartIndexVec[i]];
+
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                {
+                    if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == m_FixPntFeaPartIndexVec[i] && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                    {
+                        pnt_mass = m_FeaElementVec[j]->ComputeMass( -1 ); // property ID ignored for point masses
+                    }
+                }
+
+                fprintf( fp, "\tFeaPartName: %s, Mass = %f\n", name.c_str(), pnt_mass );
+                m_TotalMass += pnt_mass;
             }
         }
 
@@ -1218,15 +1244,6 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         m_FeaNodeVec[i]->m_Tags.clear();
         int ind = FindPntIndex( m_FeaNodeVec[i]->m_Pnt, m_AllPntVec, m_IndMap );
         m_FeaNodeVec[i]->m_Index = m_PntShift[ind] + 1;
-
-        for ( size_t j = 0; j < m_FixPntVec.size(); j++ )
-        {
-            if ( dist( m_FeaNodeVec[i]->m_Pnt, m_FixPntVec[j] ) <= FLT_EPSILON )
-            {
-                m_FeaNodeVec[i]->AddTag( m_FixPntFeaPartIndexVec[j] );
-                m_FeaNodeVec[i]->m_FixedPointFlag = true;
-            }
-        }
     }
 
     // Tag FeaPart Nodes with FeaPart Index
@@ -1266,6 +1283,31 @@ void FeaMeshMgrSingleton::TagFeaNodes()
         {
             int ind = FindPntIndex( temp_nVec[j]->m_Pnt, m_AllPntVec, m_IndMap );
             m_FeaNodeVec[ind]->AddTag( i + m_NumFeaParts );
+        }
+    }
+
+    //==== Tag FeaFixPoints and Build Point Masses ====//
+    for ( size_t j = 0; j < m_NumFeaFixPoints; j++ )
+    {
+        for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+        {
+            // Compare the distance between node and fixed point, but only use nodes that have been tagged to an FeaPart
+            if ( ( dist( m_FeaNodeVec[i]->m_Pnt, m_FixPntVec[j] ) <= FLT_EPSILON ) && ( m_FeaNodeVec[i]->m_Tags.size() > 0 ) )
+            {
+                m_FeaNodeVec[i]->AddTag( m_FixPntFeaPartIndexVec[j] );
+                m_FeaNodeVec[i]->m_FixedPointFlag = true;
+
+                // Create mass element if mass flag is true
+                if ( m_FixPointMassFlagVec[j] )
+                {
+                    FeaPointMass* mass = new FeaPointMass;
+                    mass->Create( m_FeaNodeVec[i]->m_Pnt, m_FixPointMassVec[j] );
+                    mass->SetFeaPartIndex( m_FixPntFeaPartIndexVec[j] );
+
+                    m_FeaElementVec.push_back( mass );
+                }
+                break;
+            }
         }
     }
 }
@@ -1309,6 +1351,25 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
         }
 
+        // Write FeaFixPoints
+        for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
+        {
+            if ( m_FixPointMassFlagVec[i] )
+            {
+                fprintf( fp, "\n" );
+                fprintf( fp, "$%s\n", m_FeaPartNameVec[m_FixPntFeaPartIndexVec[i]].c_str() );
+
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                {
+                    if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == m_FixPntFeaPartIndexVec[i] && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                    {
+                        elem_id++;
+                        m_FeaElementVec[j]->WriteNASTRAN( fp, elem_id, -1 ); // property ID ignored for Point Masses
+                    }
+                }
+            }
+        }
+
         // Write FeaSubSurfaces
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
@@ -1336,6 +1397,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
         }
 
+        // FeaPart Nodes
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
@@ -1356,6 +1418,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
         }
 
+        // SubSurface Nodes
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
             fprintf( fp, "\n" );
@@ -1373,6 +1436,25 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
         }
 
+        // FixedPoint Nodes
+        for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
+        {
+            fprintf( fp, "\n" );
+            fprintf( fp, "$FixedPoints\n" );
+
+            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            {
+                if ( m_PntShift[j] >= 0 )
+                {
+                    if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag )
+                    {
+                        m_FeaNodeVec[j]->WriteNASTRAN( fp );
+                    }
+                }
+            }
+        }
+
+        // Intersection Nodes
         fprintf( fp, "\n" );
         fprintf( fp, "$Intersections\n" );
 
@@ -1381,20 +1463,6 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             if ( m_PntShift[j] >= 0 )
             {
                 if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && !m_FeaNodeVec[j]->m_FixedPointFlag )
-                {
-                    m_FeaNodeVec[j]->WriteNASTRAN( fp );
-                }
-            }
-        }
-
-        fprintf( fp, "\n" );
-        fprintf( fp, "$FixedPoints\n" );
-
-        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-        {
-            if ( m_PntShift[j] >= 0 )
-            {
-                if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag )
                 {
                     m_FeaNodeVec[j]->WriteNASTRAN( fp );
                 }
@@ -1522,6 +1590,46 @@ void FeaMeshMgrSingleton::WriteCalculix()
             }
         }
 
+        //==== Write Fixed Points ====//
+        for ( size_t i = 0; i < m_NumFeaFixPoints; i++ )
+        {
+            fprintf( fp, "**%s\n", m_FeaPartNameVec[m_FixPntFeaPartIndexVec[i]].c_str() );
+            fprintf( fp, "*NODE, NSET=N%s\n", m_FeaPartNameVec[m_FixPntFeaPartIndexVec[i]].c_str() );
+
+            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            {
+                if ( m_PntShift[j] >= 0 )
+                {
+                    if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag && m_FeaNodeVec[j]->HasTag( m_FixPntFeaPartIndexVec[i] ) )
+                    {
+                        m_FeaNodeVec[j]->WriteCalculix( fp );
+                    }
+                }
+            }
+
+            if ( m_FixPointMassFlagVec[i] )
+            {
+                fprintf( fp, "\n" );
+                fprintf( fp, "*ELEMENT, TYPE=MASS, ELSET=E%s\n", m_FeaPartNameVec[m_FixPntFeaPartIndexVec[i]].c_str() );
+
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                {
+                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == m_FixPntFeaPartIndexVec[i] && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                    {
+                        elem_id++;
+                        m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                    }
+                }
+
+                fprintf( fp, "\n" );
+
+                fprintf( fp, "*MASS, ELSET=E%s\n", m_FeaPartNameVec[m_FixPntFeaPartIndexVec[i]].c_str() );
+                fprintf( fp, "%f\n", m_FixPointMassVec[i] );
+            }
+
+            fprintf( fp, "\n" );
+        }
+
         //==== Write SubSurfaces ====//
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
@@ -1605,22 +1713,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
             if ( m_PntShift[j] >= 0 )
             {
                 if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && !m_FeaNodeVec[j]->m_FixedPointFlag )
-                {
-                    m_FeaNodeVec[j]->WriteCalculix( fp );
-                }
-            }
-        }
-        fprintf( fp, "\n" );
-
-        //==== Fixed Point Nodes ====//
-        fprintf( fp, "**Fixed Points\n" );
-        fprintf( fp, "*NODE, NSET=FixedPoints\n" );
-
-        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-        {
-            if ( m_PntShift[j] >= 0 )
-            {
-                if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag )
                 {
                     m_FeaNodeVec[j]->WriteCalculix( fp );
                 }

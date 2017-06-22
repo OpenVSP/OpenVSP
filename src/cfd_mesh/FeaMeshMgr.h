@@ -173,6 +173,8 @@ protected:
     vector < int > m_FixPntFeaPartIndexVec; // Vector of FixPoint FeaPart indexes
     vector < int > m_FixPntBorderFlagVec; // Indicates if the FixPoint lies on a surface, border, or intersection
     vector < vector < int > > m_FixPntSurfIndVec; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec
+    vector < bool > m_FixPointMassFlagVec;
+    vector < double > m_FixPointMassVec;
 
     vector < string > m_DrawBrowserNameVec;
     vector < int > m_DrawBrowserPartIndexVec;
