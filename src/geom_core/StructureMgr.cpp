@@ -11,7 +11,7 @@
 #include "StructureMgr.h"
 #include "VehicleMgr.h"
 #include "Vehicle.h"
-
+#include "UnitConversion.h"
 
 StructureMgrSingleton::StructureMgrSingleton()
 {
@@ -267,6 +267,89 @@ void StructureMgrSingleton::ResetExportFileNames( const string & VSP3FileName )
     for ( size_t i = 0; i < struct_vec.size(); i++ )
     {
         struct_vec[i]->GetStructSettingsPtr()->ResetExportFileNames( VSP3FileName );
+    }
+}
+
+void StructureMgrSingleton::UpdateLengthUnit( int new_unit )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        // Update FeaProperty Units
+        for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
+        {
+            if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
+            {
+                m_FeaPropertyVec[i]->m_Thickness.Set( ConvertLength( m_FeaPropertyVec[i]->m_Thickness.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
+            }
+            else if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
+            {
+                m_FeaPropertyVec[i]->m_CrossSecArea.Set( ConvertLength2( m_FeaPropertyVec[i]->m_CrossSecArea.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
+                m_FeaPropertyVec[i]->m_Ixx.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Ixx.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
+                m_FeaPropertyVec[i]->m_Iyy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Iyy.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
+                m_FeaPropertyVec[i]->m_Izy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izy.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
+                m_FeaPropertyVec[i]->m_Izz.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izz.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
+            }
+        }
+
+        // Update FeaMaterial Units
+        for ( size_t i = 0; i < m_FeaMaterialVec.size(); i++ )
+        {
+            m_FeaMaterialVec[i]->m_ElasticModulus.Set( 1 / ConvertLength2( ( 1 / m_FeaMaterialVec[i]->m_ElasticModulus.Get() ), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
+            m_FeaMaterialVec[i]->m_MassDensity.Set( 1 / ConvertLength3( ( 1 / m_FeaMaterialVec[i]->m_MassDensity.Get() ), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
+        }
+    }
+}
+
+void StructureMgrSingleton::UpdateMassUnit( int new_unit )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        // Update FeaMaterial Units
+        for ( size_t i = 0; i < m_FeaMaterialVec.size(); i++ )
+        {
+            m_FeaMaterialVec[i]->m_ElasticModulus.Set( ConvertMass( m_FeaMaterialVec[i]->m_ElasticModulus.Get(), veh->m_StructMassUnit.GetLastVal(), new_unit ) );
+            m_FeaMaterialVec[i]->m_MassDensity.Set( ConvertMass( m_FeaMaterialVec[i]->m_MassDensity.Get(), veh->m_StructMassUnit.GetLastVal(), new_unit ) );
+        }
+
+        // Update Point Mass Units
+        vector < FeaStructure* > struct_vec = GetAllFeaStructs();
+
+        for ( size_t i = 0; i < struct_vec.size(); i++ )
+        {
+            vector < FeaPart* > prt_vec = struct_vec[i]->GetFeaPartVec();
+
+            for ( size_t j = 0; j < prt_vec.size(); j++ )
+            {
+                if ( prt_vec[j]->GetType() == vsp::FEA_FIX_POINT )
+                {
+                    FeaFixPoint* fix_pnt = dynamic_cast<FeaFixPoint*>( prt_vec[j] );
+                    assert( fix_pnt );
+
+                    if ( fix_pnt->m_FixPointMassFlag() )
+                    {
+                        fix_pnt->m_FixPointMass.Set( ConvertMass( fix_pnt->m_FixPointMass.Get(), veh->m_StructMassUnit.GetLastVal(), new_unit ) );
+                    }
+                }
+            }
+        }
+    }
+}
+
+void StructureMgrSingleton::UpdateTempUnit( int new_unit )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        // Update FeaMaterial Units
+        for ( size_t i = 0; i < m_FeaMaterialVec.size(); i++ )
+        {
+            m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Get(), veh->m_StructTempUnit.GetLastVal(), new_unit ) );
+        }
     }
 }
 

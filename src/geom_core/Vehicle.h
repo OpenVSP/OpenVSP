@@ -358,6 +358,10 @@ public:
     IntParm m_MeasureLenUnit;
 
 
+    IntParm m_StructLenUnit;
+    IntParm m_StructMassUnit;
+    IntParm m_StructTempUnit;
+
 protected:
 
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs
