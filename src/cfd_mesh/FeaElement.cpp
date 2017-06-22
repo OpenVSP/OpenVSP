@@ -371,6 +371,7 @@ void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index )
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(),
              m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
 }
+
 void FeaBeam::WriteGmsh( FILE* fp, int id, int fea_part_index )
 {
     // 2 node line line (1)

@@ -376,7 +376,6 @@ void FeaMeshMgrSingleton::AddStructureParts()
                         m_FixUWVec.push_back( uw );
                         m_FixPntSurfIndVec.push_back( surf_index );
                         m_FixPntFeaPartIndexVec.push_back( part_index );
-
                         m_FixPointMassFlagVec.push_back( fixpnt->m_FixPointMassFlag.Get() );
                         m_FixPointMassVec.push_back( fixpnt->m_FixPointMass.Get() );
 
@@ -404,7 +403,7 @@ void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
     list< ISegChain* >::iterator c1;
     list< ISegChain* >::iterator c2;
     int c1_index = -1;
-    m_FixPntVec;
+
     for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); c1++ )
     {
         c1_index++;
@@ -496,7 +495,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             if ( tvec[i].m_Tags.size() == 2 )
             {
                 // First index of m_Tags is the parent surface. Second index is subsurface index which begins 
-                //  from the last FeaPart surface index (FeaFixPoints are not tagged)
+                //  from the last FeaPart surface index (FeaFixPoints are not tagged; they are not surfaces)
                 tri->SetFeaSSIndex( tvec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1 );
             }
             else if ( tvec[i].m_Tags.size() > 2 )
@@ -527,7 +526,8 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             int FeaPartIndex = -1;
 
             // Check if one surface is a skin and one is an FeaPart (m_CompID = -9999)
-            if ( ( ( FeaPartCapA == BEAM || FeaPartCapA == BOTH_ELEMENTS ) || ( FeaPartCapB == BEAM || FeaPartCapB == BOTH_ELEMENTS ) ) && ( ( ( *c )->m_SurfA->GetCompID() < 0 && ( *c )->m_SurfB->GetCompID() >= 0 ) || ( ( *c )->m_SurfB->GetCompID() < 0 && ( *c )->m_SurfA->GetCompID() >= 0 ) ) )
+            if ( ( ( FeaPartCapA == BEAM || FeaPartCapA == BOTH_ELEMENTS ) || ( FeaPartCapB == BEAM || FeaPartCapB == BOTH_ELEMENTS ) ) && 
+                ( ( ( *c )->m_SurfA->GetCompID() < 0 && ( *c )->m_SurfB->GetCompID() >= 0 ) || ( ( *c )->m_SurfB->GetCompID() < 0 && ( *c )->m_SurfA->GetCompID() >= 0 ) ) )
             {
                 vec3d center;
 
@@ -1185,7 +1185,7 @@ void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
         {
             if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
             {
-                if ( m_SimpleSubSurfaceVec[i].m_IncludedElements != TRIS && m_SimpleSubSurfaceVec[i].m_IncludedElements != BOTH_ELEMENTS )
+                if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == BEAM )
                 {
                     delete m_FeaElementVec[j];
                     m_FeaElementVec.erase( m_FeaElementVec.begin() + j );
