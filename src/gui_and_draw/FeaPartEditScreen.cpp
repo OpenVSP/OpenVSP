@@ -39,6 +39,10 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SkinEditLayout.AddButton( m_RemoveSkinTrisToggle, "Remove Skin Tris" );
 
+    m_SkinEditLayout.AddYGap();
+
+    m_SkinEditLayout.AddChoice( m_SkinPropertyChoice, "Property" );
+
     //==== FeaSlice ====//
     m_GenLayout.AddSubGroupLayout( m_SliceEditLayout, m_GenLayout.GetW(), m_GenLayout.GetH() );
     m_SliceEditLayout.SetY( start_y );
@@ -47,8 +51,6 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SliceEditLayout.SetButtonWidth( m_SliceEditLayout.GetRemainX() / 3 );
     m_SliceEditLayout.SetChoiceButtonWidth( m_SliceEditLayout.GetRemainX() / 3 );
-
-    m_SliceEditLayout.AddChoice( m_SlicePropertyChoice, "Property" );
 
     m_SliceOrientationChoice.AddItem( "XY Plane" );
     m_SliceOrientationChoice.AddItem( "YZ Plane" );
@@ -61,6 +63,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SliceEditLayout.AddYGap();
 
+    m_SliceEditLayout.AddChoice( m_SlicePropertyChoice, "Property" );
     m_SliceEditLayout.AddChoice( m_SliceCapPropertyChoice, "Cap Property" );
 
     //==== FeaRib ====//
@@ -72,8 +75,6 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_RibEditLayout.SetButtonWidth( m_RibEditLayout.GetRemainX() / 3 );
     m_RibEditLayout.SetChoiceButtonWidth( m_RibEditLayout.GetRemainX() / 3 );
 
-    m_RibEditLayout.AddChoice( m_RibPropertyChoice, "Property" );
-
     m_RibEditLayout.AddChoice( m_RibPerpendicularEdgeChoice, "Perpendicular Edge" );
 
     m_RibEditLayout.AddSlider( m_RibPosSlider, "Position", 1, "%5.3f" );
@@ -81,6 +82,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_RibEditLayout.AddYGap();
 
+    m_RibEditLayout.AddChoice( m_RibPropertyChoice, "Property" );
     m_RibEditLayout.AddChoice( m_RibCapPropertyChoice, "Cap Property" );
 
     //==== FeaSpar ====//
@@ -92,13 +94,12 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 3 );
     m_SparEditLayout.SetChoiceButtonWidth( m_SparEditLayout.GetRemainX() / 3 );
 
-    m_SparEditLayout.AddChoice( m_SparPropertyChoice, "Property" );
-
     m_SparEditLayout.AddSlider( m_SparPosSlider, "Position", 1, "%5.3f" );
     m_SparEditLayout.AddSlider( m_SparThetaSlider, "Theta", 25, "%5.3f" );
 
     m_SparEditLayout.AddYGap();
 
+    m_SparEditLayout.AddChoice( m_SparPropertyChoice, "Property" );
     m_SparEditLayout.AddChoice( m_SparCapPropertyChoice, "Cap Property" );
 
     //==== FeaFixPoint ====//
@@ -157,16 +158,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FeaSSLineTestToggleGroup.AddButton( m_FeaSSLineNoneToggle.GetFlButton() );
 
     m_FeaSSLineGroup.ForceNewLine();
-    m_FeaSSLineGroup.SetFitWidthFlag( true );
-    m_FeaSSLineGroup.SetSameLineFlag( false );
 
-    m_FeaSSLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
-    m_FeaSSLineGroup.SetChoiceButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
-
-    m_FeaSSLineGroup.AddChoice( m_FeaSSLinePropertyChoice, "Property" );
-
-    m_FeaSSLineGroup.SetFitWidthFlag( false );
-    m_FeaSSLineGroup.SetSameLineFlag( true );
     m_FeaSSLineGroup.AddLabel( "Line Type", m_FeaSSLineGroup.GetRemainX() / 3 );
     m_FeaSSLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 2 );
     m_FeaSSLineGroup.AddButton( m_FeaSSLineConstUButton, "U" );
@@ -176,14 +168,19 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FeaSSLineConstToggleGroup.AddButton( m_FeaSSLineConstUButton.GetFlButton() );
     m_FeaSSLineConstToggleGroup.AddButton( m_FeaSSLineConstWButton.GetFlButton() );
 
+    m_FeaSSLineGroup.ForceNewLine();
     m_FeaSSLineGroup.SetFitWidthFlag( true );
     m_FeaSSLineGroup.SetSameLineFlag( false );
-    m_FeaSSLineGroup.ForceNewLine();
+
+    m_FeaSSLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
+    m_FeaSSLineGroup.SetChoiceButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
+
     m_FeaSSLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
     m_FeaSSLineGroup.AddSlider( m_FeaSSLineConstSlider, "Value", 1, "%5.4f" );
 
     m_FeaSSLineGroup.AddYGap();
 
+    m_FeaSSLineGroup.AddChoice( m_FeaSSLinePropertyChoice, "Property" );
     m_FeaSSLineGroup.AddChoice( m_FeaSSLineCapPropertyChoice, "Cap Property" );
 
     //==== SSRectangle ====//
@@ -212,13 +209,6 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FeaSSRecGroup.SetButtonWidth( m_FeaSSRecGroup.GetRemainX() / 3 );
     m_FeaSSRecGroup.SetChoiceButtonWidth( m_FeaSSRecGroup.GetRemainX() / 3 );
 
-    m_FeaSSRecGroup.AddChoice( m_FeaSSRecPropertyChoice, "Property" );
-
-    m_FeaSSRecGroup.SetFitWidthFlag( true );
-    m_FeaSSRecGroup.SetSameLineFlag( false );
-
-    m_FeaSSRecGroup.SetButtonWidth( m_FeaSSRecGroup.GetRemainX() / 3 );
-
     m_FeaSSRecGroup.AddSlider( m_FeaSSRecCentUSlider, "Center U", 1, "%5.4f" );
     m_FeaSSRecGroup.AddSlider( m_FeaSSRecCentWSlider, "Center W", 1, "%5.4f" );
     m_FeaSSRecGroup.AddSlider( m_FeaSSRecULenSlider, "U Length", 1, "%5.4f" );
@@ -227,6 +217,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_FeaSSRecGroup.AddYGap();
 
+    m_FeaSSRecGroup.AddChoice( m_FeaSSRecPropertyChoice, "Property" );
     m_FeaSSRecGroup.AddChoice( m_FeaSSRecCapPropertyChoice, "Cap Property" );
 
     //==== SS_Ellipse ====//
@@ -255,13 +246,6 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FeaSSEllGroup.SetButtonWidth( m_FeaSSEllGroup.GetRemainX() / 3 );
     m_FeaSSEllGroup.SetChoiceButtonWidth( m_FeaSSEllGroup.GetRemainX() / 3 );
 
-    m_FeaSSEllGroup.AddChoice( m_FeaSSEllPropertyChoice, "Property" );
-
-    m_FeaSSEllGroup.SetFitWidthFlag( true );
-    m_FeaSSEllGroup.SetSameLineFlag( false );
-
-    m_FeaSSEllGroup.SetButtonWidth( m_FeaSSEllGroup.GetRemainX() / 3 );
-
     m_FeaSSEllGroup.AddSlider( m_FeaSSEllTessSlider, "Num Points", 100, "%5.0f" );
     m_FeaSSEllGroup.AddSlider( m_FeaSSEllCentUSlider, "Center U", 1, "%5.4f" );
     m_FeaSSEllGroup.AddSlider( m_FeaSSEllCentWSlider, "Center W", 1, "%5.4f" );
@@ -271,6 +255,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_FeaSSEllGroup.AddYGap();
 
+    m_FeaSSEllGroup.AddChoice( m_FeaSSEllPropertyChoice, "Property" );
     m_FeaSSEllGroup.AddChoice( m_FeaSSEllCapPropertyChoice, "Cap Property" );
 
     //===== SSControl ====//
@@ -293,16 +278,6 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FeaSSConTestToggleGroup.AddButton( m_FeaSSConNoneButton.GetFlButton() );
 
     m_FeaSSConGroup.ForceNewLine();
-    m_FeaSSConGroup.SetFitWidthFlag( true );
-    m_FeaSSConGroup.SetSameLineFlag( false );
-
-    m_FeaSSConGroup.SetButtonWidth( m_FeaSSConGroup.GetRemainX() / 3 );
-    m_FeaSSConGroup.SetChoiceButtonWidth( m_FeaSSConGroup.GetRemainX() / 3 );
-
-    m_FeaSSConGroup.AddChoice( m_FeaSSConPropertyChoice, "Property" );
-
-    m_FeaSSConGroup.SetFitWidthFlag( false );
-    m_FeaSSConGroup.SetSameLineFlag( true );
 
     m_FeaSSConGroup.SetChoiceButtonWidth( m_FeaSSConGroup.GetRemainX() / 3 );
 
@@ -356,6 +331,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_FeaSSConGroup.AddYGap();
 
+    m_FeaSSConGroup.AddChoice( m_FeaSSConPropertyChoice, "Property" );
     m_FeaSSConGroup.AddChoice( m_FeaSSConCapPropertyChoice, "Cap Property" );
 
 }
@@ -749,6 +725,10 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
+    else if ( device == &m_SkinPropertyChoice )
+    {
+        UpdateFeaPartPropertyIndex( &m_SkinPropertyChoice );
+    }
     else if ( device == &m_SlicePropertyChoice )
     {
         UpdateFeaPartPropertyIndex( &m_SlicePropertyChoice );
@@ -867,6 +847,7 @@ void FeaPartEditScreen::CloseCallBack( Fl_Widget *w )
 void FeaPartEditScreen::UpdateFeaPropertyChoice()
 {
     //==== Property Choice ====//
+    m_SkinPropertyChoice.ClearItems();
     m_SlicePropertyChoice.ClearItems();
     m_RibPropertyChoice.ClearItems();
     m_SparPropertyChoice.ClearItems();
@@ -892,6 +873,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
 
         for ( int i = 0; i < property_vec.size(); ++i )
         {
+            m_SkinPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SlicePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SparPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -911,6 +893,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
 
             if ( property_vec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
             {
+                m_SkinPropertyChoice.SetFlag( i, 0 );
                 m_SlicePropertyChoice.SetFlag( i, 0 );
                 m_RibPropertyChoice.SetFlag( i, 0 );
                 m_SparPropertyChoice.SetFlag( i, 0 );
@@ -930,6 +913,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
             }
             else if ( property_vec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
             {
+                m_SkinPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SlicePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SparPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -949,6 +933,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
             }
         }
 
+        m_SkinPropertyChoice.UpdateItems();
         m_SlicePropertyChoice.UpdateItems();
         m_RibPropertyChoice.UpdateItems();
         m_SparPropertyChoice.UpdateItems();
@@ -977,6 +962,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 if ( feaprt )
                 {
                     // Update all FeaPart Property Choices ( Only Selected Part Visible )
+                    m_SkinPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                     m_SlicePropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                     m_RibPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                     m_SparPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
@@ -1138,6 +1124,7 @@ void FeaPartEditScreen::FeaPartDispGroup( GroupLayout* group )
         return;
     }
 
+    m_SkinEditLayout.Hide();
     m_SliceEditLayout.Hide();
     m_SliceEditLayout.Hide();
     m_RibEditLayout.Hide();

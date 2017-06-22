@@ -59,6 +59,7 @@ private:
 
     //===== Skin =====//
     ToggleButton m_RemoveSkinTrisToggle;
+    Choice m_SkinPropertyChoice;
 
     //===== Slice =====//
     Choice m_SlicePropertyChoice;
