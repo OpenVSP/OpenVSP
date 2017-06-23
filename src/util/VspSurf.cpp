@@ -1725,11 +1725,6 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
 
-    if( !m_FlipNormal )
-    {
-        s.reverse_v();
-    }
-
     if ( trimte && m_MagicVParm )
     {
         piecewise_surface_type s1, s2;
@@ -1756,6 +1751,11 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     for ( int isurf = 0; isurf < surfvec.size(); isurf++ )
     {
         s = surfvec[isurf];
+
+        if( !m_FlipNormal )
+        {
+            s.reverse_v();
+        }
 
         // Don't export degenerate split patches
         if ( splitsurf && !CheckValidPatch( s ) )
@@ -1946,11 +1946,6 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol,
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
 
-    if( !m_FlipNormal )
-    {
-        s.reverse_v();
-    }
-
     if ( trimTE && m_MagicVParm )
     {
         piecewise_surface_type s1, s2;
@@ -1977,6 +1972,11 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol,
     for ( int is = 0; is < surfvec.size(); is++ )
     {
         s = surfvec[is];
+
+        if( !m_FlipNormal )
+        {
+            s.reverse_v();
+        }
 
         // Don't export degenerate split patches
         if ( splitsurf && !CheckValidPatch( s ) )
