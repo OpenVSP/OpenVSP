@@ -574,15 +574,15 @@ void Results::WriteParasiteDragFile( const string & file_name )
             double Cf = Find("Comp_Cf").GetDouble(i);
             double Q = Find("Comp_Q").GetDouble(i);
             double f = Find("Comp_f").GetDouble(i);
-            double Cd = Find("Comp_Cd").GetDouble(i);
-            double PercTotalCd = Find("Comp_PercTotalCd").GetDouble(i);
+            double CD = Find("Comp_CD").GetDouble(i);
+            double PercTotalCD = Find("Comp_PercTotalCD").GetDouble(i);
 
             fprintf(file_id, "%s,", label.c_str());
             fprintf(file_id, "%f, %f, %f,", swet, lref, fineRat);
             fprintf(file_id, "%f, %s,", FF, FFEqnName.c_str());
             fprintf(file_id, "%f, %f,", Re, PercLam);
             fprintf(file_id, "%f, %f,", Cf, Q);
-            fprintf(file_id, "%f, %f, %f \n", f, Cd, PercTotalCd);
+            fprintf(file_id, "%f, %f, %f \n", f, CD, PercTotalCD);
 
         }
 
@@ -603,13 +603,13 @@ void Results::WriteParasiteDragFile( const string & file_name )
         }
 
         double geomftotal = Find("Geom_f_Total").GetDouble(0);
-        double geomcdtotal = Find("Geom_Cd_Total").GetDouble(0);
+        double geomcdtotal = Find("Geom_CD_Total").GetDouble(0);
         double geomperctotal = Find("Geom_Perc_Total").GetDouble(0);
         double excresftotal = Find("Excres_f_Total").GetDouble(0);
-        double excrescdtotal = Find("Excres_Cd_Total").GetDouble(0);
+        double excrescdtotal = Find("Excres_CD_Total").GetDouble(0);
         double excresperctotal = Find("Excres_Perc_Total").GetDouble(0);
         double totalftotal = Find("Total_f_Total").GetDouble(0);
-        double totalcdtotal = Find("Total_Cd_Total").GetDouble(0);
+        double totalcdtotal = Find("Total_CD_Total").GetDouble(0);
         double totalperctotal = Find("Total_Perc_Total").GetDouble(0);
 
         fprintf(file_id, "\n");
