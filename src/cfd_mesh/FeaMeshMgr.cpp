@@ -958,8 +958,20 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
 
 void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
 {
-    // TODO: Add support for overlapping subsurface edges on a border curve 
+    // Collect split points
+    vector < vec3d > split_pnt_vec;
+    vector < vec2d > split_uw_vec;
     list< ISegChain* >::iterator c;
+
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    {
+        for ( size_t i = 0; i < ( *c )->m_SplitVec.size(); i++ )
+        {
+            split_pnt_vec.push_back( ( *c )->m_SplitVec[i]->m_Pnt );
+            split_uw_vec.push_back( ( *c )->m_SplitVec[i]->m_UW );
+        }
+    }
+
     for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
     {
         if ( ( *c )->m_BorderFlag && ( *c )->m_SurfA->GetCompID() == ( *c )->m_SurfB->GetCompID() )
@@ -1038,7 +1050,6 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                         bool is_poly = ss_vec[ss].GetPolyFlag();
 
                         // Build Intersection Chains
-
                         for ( int i = 0; i < segsvec.size(); i++ )
                         {
                             vector< SSLineSeg >& segs = segsvec[i];
@@ -1090,6 +1101,24 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                     uw_pnt1[1] = tot_max_w;
                                 }
 
+                                // Check for constant u/w curve
+                                vector < vec3d > uw_curve = ( *c )->m_ACurve.GetUWTessPnts();
+                                bool const_u_curve = true;
+                                bool const_w_curve = true;
+
+                                for ( size_t uw = 0; uw < uw_curve.size() - 1; uw++ )
+                                {
+                                    if ( abs( uw_curve[uw][0] - uw_curve.back()[0] ) > FLT_EPSILON )
+                                    {
+                                        const_u_curve = false;
+                                    }
+                                    if ( abs( uw_curve[uw][1] - uw_curve.back()[1] ) > FLT_EPSILON )
+                                    {
+                                        const_w_curve = false;
+                                    }
+                                }
+
+                                // Get limits of surface edges
                                 double max_u, max_w, tol;
                                 double min_u, min_w;
                                 tol = 1e-6;
@@ -1166,8 +1195,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                         vec3d corner0 = surf->CompPnt( uw_pnt0[0], uw_pnt0[1] );
                                         vec3d corner1 = surf->CompPnt( uw_pnt1[0], uw_pnt1[1] );
 
-                                        //TODO: Need to identify if the subsurface edge/border curve has been split by another subsurface
-
+                                        // Check if the subsurface edge matched the ISegChain
                                         if ( ( dist( ( *c )->m_TessVec[0]->m_Pnt, corner0 ) <= FLT_EPSILON
                                              && dist( ( *c )->m_TessVec.back()->m_Pnt, corner1 ) <= FLT_EPSILON )
                                                 || ( dist( ( *c )->m_TessVec.back()->m_Pnt, corner0 ) <= FLT_EPSILON
@@ -1177,6 +1205,108 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                             ( *c )->m_SSIntersectIndex = ss;
                                             ( *c )->m_BorderFlag = false;
                                             break;
+                                        }
+
+                                        if ( ( const_u_curve && abs( uw_pnt0[0] - uw_pnt1[0] ) <= FLT_EPSILON ) ||
+                                            ( const_w_curve && abs( uw_pnt0[1] - uw_pnt1[1] ) <= FLT_EPSILON ) )
+                                        {
+                                            // Check if a split point lies on subsurface edge
+                                            for ( size_t k = 0; k < split_pnt_vec.size(); k++ )
+                                            {
+                                                if ( ( dist( corner0, corner1 ) > FLT_EPSILON ) && ( *c )->m_SSIntersectIndex < 0 )
+                                                {
+                                                    bool split_on_ss_edge = false;
+
+                                                    // Check if the split point lies on the subsurface edge
+                                                    if ( const_w_curve && ( split_uw_vec[k][1] - uw_pnt0[1] <= FLT_EPSILON ) &&
+                                                        ( ( split_uw_vec[k][0] >= uw_pnt0[0] && split_uw_vec[k][0] <= uw_pnt1[0] ) ||
+                                                            ( split_uw_vec[k][0] >= uw_pnt1[0] && split_uw_vec[k][0] <= uw_pnt0[0] ) ) )
+                                                    {
+                                                        split_on_ss_edge = true;
+                                                    }
+                                                    else if ( const_u_curve && ( split_uw_vec[k][0] - uw_pnt0[0] <= FLT_EPSILON ) &&
+                                                        ( ( split_uw_vec[k][1] >= uw_pnt0[1] && split_uw_vec[k][1] <= uw_pnt1[1] ) ||
+                                                            ( split_uw_vec[k][1] >= uw_pnt1[1] && split_uw_vec[k][1] <= uw_pnt0[1] ) ) )
+                                                    {
+                                                        split_on_ss_edge = true;
+                                                    }
+
+                                                    if ( split_on_ss_edge )
+                                                    {
+                                                        if ( ( dist( ( *c )->m_TessVec[0]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
+                                                             && dist( ( *c )->m_TessVec.back()->m_Pnt, corner1 ) <= FLT_EPSILON
+                                                             && abs( dist( ( *c )->m_TessVec[0]->m_Pnt, corner0 ) ) > FLT_EPSILON )
+                                                             || ( dist( ( *c )->m_TessVec.back()->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
+                                                             && dist( ( *c )->m_TessVec[0]->m_Pnt, corner1 ) <= FLT_EPSILON
+                                                             && abs( dist( ( *c )->m_TessVec.back()->m_Pnt, corner0 ) ) > FLT_EPSILON ) )
+                                                        {
+                                                            // The border curve is also a SubSurface intersection curve
+                                                            ( *c )->m_SSIntersectIndex = ss;
+                                                            ( *c )->m_BorderFlag = false;
+                                                            break;
+                                                        }
+                                                        else if ( ( dist( ( *c )->m_TessVec[0]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
+                                                                  && dist( ( *c )->m_TessVec.back()->m_Pnt, corner0 ) <= FLT_EPSILON
+                                                                  && abs( dist( ( *c )->m_TessVec[0]->m_Pnt, corner1 ) ) > FLT_EPSILON )
+                                                             || ( dist( ( *c )->m_TessVec.back()->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
+                                                                  && dist( ( *c )->m_TessVec[0]->m_Pnt, corner0 ) <= FLT_EPSILON
+                                                                  && abs( dist( ( *c )->m_TessVec.back()->m_Pnt, corner1 ) ) > FLT_EPSILON ) )
+                                                        {
+                                                            // The border curve is also a SubSurface intersection curve
+                                                            ( *c )->m_SSIntersectIndex = ss;
+                                                            ( *c )->m_BorderFlag = false;
+                                                            break;
+                                                        }
+                                                    }
+
+                                                    // Check if the subsurface edge is split by more than one point
+                                                    for ( size_t n = 0; n < split_pnt_vec.size(); n++ )
+                                                    {
+                                                        split_on_ss_edge = false;
+
+                                                        if ( const_w_curve && ( split_uw_vec[n][1] - uw_pnt0[1] <= FLT_EPSILON ) &&
+                                                            ( ( ( split_uw_vec[k][0] >= uw_pnt0[0] && split_uw_vec[k][0] <= uw_pnt1[0] ) ||
+                                                                ( split_uw_vec[k][0] >= uw_pnt1[0] && split_uw_vec[k][0] <= uw_pnt0[0] ) ) &&
+                                                             ( ( split_uw_vec[n][0] >= uw_pnt0[0] && split_uw_vec[n][0] <= uw_pnt1[0] ) ||
+                                                             ( split_uw_vec[n][0] >= uw_pnt1[0] && split_uw_vec[n][0] <= uw_pnt0[0] ) ) ) )
+                                                        {
+                                                            split_on_ss_edge = true;
+                                                        }
+                                                        else if ( const_u_curve && ( split_uw_vec[n][0] - uw_pnt0[0] <= FLT_EPSILON ) &&
+                                                            ( ( ( split_uw_vec[k][1] >= uw_pnt0[1] && split_uw_vec[k][1] <= uw_pnt1[1] ) ||
+                                                                ( split_uw_vec[k][1] >= uw_pnt1[1] && split_uw_vec[k][1] <= uw_pnt0[1] ) ) &&
+                                                                  ( ( split_uw_vec[n][1] >= uw_pnt0[1] && split_uw_vec[n][1] <= uw_pnt1[1] ) ||
+                                                                  ( split_uw_vec[n][1] >= uw_pnt1[1] && split_uw_vec[n][1] <= uw_pnt0[1] ) ) ) )
+                                                        {
+                                                            split_on_ss_edge = true;
+                                                        }
+
+                                                        if ( split_on_ss_edge && n != k )
+                                                        {
+                                                            if ( ( dist( ( *c )->m_TessVec[0]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
+                                                                 && dist( ( *c )->m_TessVec.back()->m_Pnt, split_pnt_vec[n] ) <= FLT_EPSILON )
+                                                                    || ( dist( ( *c )->m_TessVec.back()->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
+                                                                 && dist( ( *c )->m_TessVec[0]->m_Pnt, split_pnt_vec[n] ) <= FLT_EPSILON ) )
+                                                            {
+                                                                // The border curve is also a SubSurface intersection curve
+                                                                ( *c )->m_SSIntersectIndex = ss;
+                                                                ( *c )->m_BorderFlag = false;
+                                                                break;
+                                                            }
+                                                            else if ( ( dist( ( *c )->m_TessVec[0]->m_Pnt, split_pnt_vec[n] ) <= FLT_EPSILON
+                                                                      && dist( ( *c )->m_TessVec.back()->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON )
+                                                                    || ( dist( ( *c )->m_TessVec.back()->m_Pnt, split_pnt_vec[n] ) <= FLT_EPSILON
+                                                                      && dist( ( *c )->m_TessVec[0]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON ) )
+                                                            {
+                                                                // The border curve is also a SubSurface intersection curve
+                                                                ( *c )->m_SSIntersectIndex = ss;
+                                                                ( *c )->m_BorderFlag = false;
+                                                                break;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
                                 }
