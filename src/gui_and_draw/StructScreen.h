@@ -104,6 +104,7 @@ private:
     ProcessUtil m_MonitorProcess;
 
     //===== Common buttons =====//
+    StringOutput m_CurrStructOutput;
     TriggerButton m_FeaMeshExportButton;
 
     GroupLayout* m_CurrDispGroup;

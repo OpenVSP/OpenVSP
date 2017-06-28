@@ -64,6 +64,13 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_BorderConsoleLayout.AddYGap();
 
+    m_BorderConsoleLayout.SetSameLineFlag( true );
+    m_BorderConsoleLayout.SetFitWidthFlag( false );
+
+    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 3 );
+    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 3 );
+
+    m_BorderConsoleLayout.AddOutput( m_CurrStructOutput, "Current Structure" );
     m_BorderConsoleLayout.AddButton( m_FeaMeshExportButton, "Mesh and Export" );
 
     //=== Structures Tab ===//
@@ -1602,6 +1609,8 @@ bool StructScreen::Update()
             vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
             FeaStructure* curr_struct = structVec[StructureMgr.GetCurrStructIndex()];
 
+            m_CurrStructOutput.Update( curr_struct->GetFeaStructName() );
+
             //==== Default Elem Size ====//
             m_MaxEdgeLen.Update( curr_struct->GetFeaGridDensityPtr()->m_BaseLen.GetID() );
             m_MinEdgeLen.Update( curr_struct->GetFeaGridDensityPtr()->m_MinLen.GetID() );
@@ -1748,6 +1757,10 @@ bool StructScreen::Update()
                     }
                 }
             }
+        }
+        else
+        {
+            m_CurrStructOutput.Update( "" );
         }
 
         // Update Draw Objects for FeaParts
