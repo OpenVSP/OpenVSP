@@ -36,6 +36,7 @@ StructSettings::StructSettings() : MeshCommonSettings()
     SetFarCompFlag( false );
     SetFarMeshFlag( false );
     SetSymSplittingOnFlag( false );
+    SetIntersectSubSurfs( true );
 
     m_NumEvenlySpacedPart.Init( "NumEvenlySpacedPart", "StructSettings", this, 10, 0, 1000 );
     m_NumEvenlySpacedPart.SetDescript( "Number of Evenly Spaced FeaParts to Add" );

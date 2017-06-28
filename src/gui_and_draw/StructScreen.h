@@ -224,7 +224,6 @@ private:
     SliderAdjRangeInput m_GrowthRatio;
 
     ToggleButton m_Rig3dGrowthLimit;
-    ToggleButton m_IntersectSubsurfaces;
 
     ToggleButton m_HalfMeshButton;
 

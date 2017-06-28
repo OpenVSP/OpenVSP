@@ -582,14 +582,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MeshTabLayout.AddButton( m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting" );
     m_MeshTabLayout.AddYGap();
 
-    m_MeshTabLayout.SetFitWidthFlag( true );
-    m_MeshTabLayout.SetSameLineFlag( false );
-
-    m_MeshTabLayout.AddDividerBox( "Geometry Control" );
-    m_MeshTabLayout.AddYGap();
-    m_MeshTabLayout.AddButton( m_IntersectSubsurfaces, "Intersect Subsurfaces" );
-    m_MeshTabLayout.AddYGap();
-
     m_MeshTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
     m_MeshTabLayout.AddYGap();
 
@@ -1622,7 +1614,6 @@ bool StructScreen::Update()
             m_Rig3dGrowthLimit.Update( curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.GetID() );
 
             //===== Geometry Control =====//
-            m_IntersectSubsurfaces.Update( curr_struct->GetStructSettingsPtr()->m_IntersectSubSurfs.GetID() );
             m_HalfMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.GetID() );
 
             //===== Display Tab Toggle Update =====//
