@@ -779,16 +779,16 @@ void StructScreen::UpdateFeaPartBrowser()
     //==== FeaPart Browser ====//
     int scroll_pos = m_FeaPartSelectBrowser->position();
     m_FeaPartSelectBrowser->clear();
-    static int widths[] = { 110, 90, 90, 90 };
+    static int widths[] = { 85, 65, 45, 85, 35, 85 };
     m_FeaPartSelectBrowser->column_widths( widths );
     m_FeaPartSelectBrowser->column_char( ':' );
 
     char str[256];
 
-    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.MAT:@b@.PROP" );
+    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.SHELL:@b@.PROPERTY:@b@.CAP:@b@.PROPERTY" );
     m_FeaPartSelectBrowser->add( str );
 
-    string fea_name, fea_type, fea_mat, fea_prop;
+    string fea_name, fea_type, shell, shell_prop, cap, cap_prop;
 
     if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
     {
@@ -800,25 +800,47 @@ void StructScreen::UpdateFeaPartBrowser()
             fea_name = feaprt_vec[i]->GetName();
             fea_type = FeaPart::GetTypeName( feaprt_vec[i]->GetType() );
 
-            FeaMaterial* mat = StructureMgr.GetFeaMaterial( feaprt_vec[i]->GetFeaMaterialIndex() );
-            if ( mat )
+            if ( feaprt_vec[i]->m_IncludedElements() == TRIS || feaprt_vec[i]->m_IncludedElements() == BOTH_ELEMENTS )
             {
-                fea_mat = mat->GetName();
+                shell = "     X";
+
+                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->GetFeaPropertyIndex() );
+                if ( prop )
+                {
+                    shell_prop = prop->GetName();
+                }
+            }
+            else
+            {
+                shell = "";
+                shell_prop = "N/A";
             }
 
-            FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->GetFeaPropertyIndex() );
-            if ( prop )
+            if ( feaprt_vec[i]->m_IncludedElements() == BEAM || feaprt_vec[i]->m_IncludedElements() == BOTH_ELEMENTS )
             {
-                fea_prop = prop->GetName();
+                cap = "   X";
+
+                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->GetCapFeaPropertyIndex() );
+                if ( prop )
+                {
+                    cap_prop = prop->GetName();
+                }
+            }
+            else
+            {
+                cap = "";
+                cap_prop = "N/A";
             }
 
             if ( feaprt_vec[i]->GetType() == vsp::FEA_FIX_POINT )
             {
-                fea_mat = "N/A";
-                fea_prop = "N/A";
+                shell = "";
+                shell_prop = "N/A";
+                cap = "";
+                cap_prop = "N/A";
             }
 
-            sprintf( str, "%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), fea_mat.c_str(), fea_prop.c_str() );
+            sprintf( str, "%s:%s:%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), shell.c_str(), shell_prop.c_str(), cap.c_str(), cap_prop.c_str() );
             m_FeaPartSelectBrowser->add( str );
         }
 
@@ -829,19 +851,39 @@ void StructScreen::UpdateFeaPartBrowser()
             fea_name = subsurf_vec[i]->GetName();
             fea_type = SubSurface::GetTypeName( subsurf_vec[i]->GetType() );
 
-            FeaMaterial* mat = StructureMgr.GetFeaMaterial( subsurf_vec[i]->GetFeaMaterialIndex() );
-            if ( mat )
+            if ( subsurf_vec[i]->m_IncludedElements() == TRIS || subsurf_vec[i]->m_IncludedElements() == BOTH_ELEMENTS )
             {
-                fea_mat = mat->GetName();
+                shell = "     X";
+
+                FeaProperty* prop = StructureMgr.GetFeaProperty( subsurf_vec[i]->GetFeaPropertyIndex() );
+                if ( prop )
+                {
+                    shell_prop = prop->GetName();
+                }
+            }
+            else
+            {
+                shell = "";
+                shell_prop = "N/A";
             }
 
-            FeaProperty* prop = StructureMgr.GetFeaProperty( subsurf_vec[i]->GetFeaPropertyIndex() );
-            if ( prop )
+            if ( subsurf_vec[i]->m_IncludedElements() == BEAM || subsurf_vec[i]->m_IncludedElements() == BOTH_ELEMENTS )
             {
-                fea_prop = prop->GetName();
+                cap = "   X";
+
+                FeaProperty* prop = StructureMgr.GetFeaProperty( subsurf_vec[i]->GetCapFeaPropertyIndex() );
+                if ( prop )
+                {
+                    cap_prop = prop->GetName();
+                }
+            }
+            else
+            {
+                cap = "";
+                cap_prop = "N/A";
             }
 
-            sprintf( str, "%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), fea_mat.c_str(), fea_prop.c_str() );
+            sprintf( str, "%s:%s:%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), shell.c_str(), shell_prop.c_str(), cap.c_str(), cap_prop.c_str() );
             m_FeaPartSelectBrowser->add( str );
         }
 
