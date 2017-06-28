@@ -249,7 +249,6 @@ private:
     //===== Draw Tab Items =====//
     ToggleButton m_DrawMeshButton;
     ToggleButton m_ColorElementsButton;
-    ToggleButton m_ShowBadEdgeTriButton;
     ToggleButton m_DrawNodesToggle;
     ToggleButton m_DrawElementOrientVecToggle;
 

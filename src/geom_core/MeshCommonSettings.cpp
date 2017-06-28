@@ -26,7 +26,6 @@ MeshCommonSettings::~MeshCommonSettings()
 void MeshCommonSettings::InitCommonParms()
 {
     m_DrawMeshFlag.Init( "DrawMeshFlag", "DrawMesh", this, true, 0, 1 );
-    m_DrawBadFlag.Init( "DrawBadElementsFlag", "DrawMesh", this, true, 0, 1 );
     m_ColorTagsFlag.Init( "ColorTagsFlag", "DrawMesh", this, true, 0, 1 );
 
     m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );

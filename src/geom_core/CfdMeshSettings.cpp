@@ -26,6 +26,7 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
     m_DrawFarFlag.Init( "DrawFarField", "DrawMesh", this, true, 0, 1 );
     m_DrawFarPreFlag.Init( "DrawFarFieldPreview", "DrawMesh", this, true, 0, 1 );
     m_DrawSymmFlag.Init( "DrawSymmetryPlane", "DrawMesh", this, true, 0, 1 );
+    m_DrawBadFlag.Init( "DrawBadElementsFlag", "DrawMesh", this, true, 0, 1 );
     m_DrawWakeFlag.Init( "DrawWake", "DrawMesh", this, true, 0, 1 );
 
     m_FarManLocFlag.Init( "FarManualLoc", "FarField", this, false, 0, 1 );

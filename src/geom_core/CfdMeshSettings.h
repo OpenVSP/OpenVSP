@@ -108,6 +108,7 @@ public:
     BoolParm m_DrawFarFlag;
     BoolParm m_DrawFarPreFlag;
     BoolParm m_DrawSymmFlag;
+    BoolParm m_DrawBadFlag;
     BoolParm m_DrawWakeFlag;
 
     IntParm m_SelectedSetIndex;

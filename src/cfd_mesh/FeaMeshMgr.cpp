@@ -2527,47 +2527,6 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             draw_obj_vec.push_back( &m_SSTriOrientationDO[i] );
             draw_obj_vec.push_back( &m_SSCapNormDO[i] );
         }
-
-        // Render bad edges
-        m_MeshBadEdgeDO.m_GeomID = GetID() + "BADEDGE";
-        m_MeshBadEdgeDO.m_Type = DrawObj::VSP_LINES;
-        m_MeshBadEdgeDO.m_Visible = GetStructSettingsPtr()->m_DrawBadFlag;
-        m_MeshBadEdgeDO.m_LineColor = vec3d( 1, 0, 0 );
-        m_MeshBadEdgeDO.m_LineWidth = 3.0;
-
-        vector< vec3d > badEdgeData;
-
-        vector< Edge* >::iterator e;
-        for ( e = m_BadEdges.begin(); e != m_BadEdges.end(); e++ )
-        {
-            badEdgeData.push_back( ( *e )->n0->pnt );
-            badEdgeData.push_back( ( *e )->n1->pnt );
-        }
-        m_MeshBadEdgeDO.m_PntVec = badEdgeData;
-        // Normal Vec is not required, load placeholder.
-        m_MeshBadEdgeDO.m_NormVec = badEdgeData;
-
-        draw_obj_vec.push_back( &m_MeshBadEdgeDO );
-
-        m_MeshBadTriDO.m_GeomID = GetID() + "BADTRI";
-        m_MeshBadTriDO.m_Type = DrawObj::VSP_HIDDEN_TRIS_CFD;
-        m_MeshBadTriDO.m_Visible = GetStructSettingsPtr()->m_DrawBadFlag;
-        m_MeshBadTriDO.m_LineColor = vec3d( 1, 0, 0 );
-        m_MeshBadTriDO.m_LineWidth = 3.0;
-
-        vector< vec3d > badTriData;
-        vector< Tri* >::iterator t;
-        for ( t = m_BadTris.begin(); t != m_BadTris.end(); t++ )
-        {
-            badTriData.push_back( ( *t )->n0->pnt );
-            badTriData.push_back( ( *t )->n1->pnt );
-            badTriData.push_back( ( *t )->n2->pnt );
-        }
-        m_MeshBadTriDO.m_PntVec = badTriData;
-        // Normal Vec is not required, load placeholder.
-        m_MeshBadTriDO.m_NormVec = badTriData;
-
-        draw_obj_vec.push_back( &m_MeshBadTriDO );
     }
 }
 

@@ -654,9 +654,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_DisplayTabLayout.AddButton( m_DrawElementOrientVecToggle, "Draw Element Orientation Vectors" );
 
     m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton( m_ShowBadEdgeTriButton, "Show Bad Edges and Triangles" );
-
-    m_DisplayTabLayout.AddYGap();
 
     m_DisplayTabLayout.AddDividerBox( "Display FeaElement Sets" );
 
@@ -1618,7 +1615,6 @@ bool StructScreen::Update()
 
             //===== Display Tab Toggle Update =====//
             m_DrawMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );
-            m_ShowBadEdgeTriButton.Update( curr_struct->GetStructSettingsPtr()->m_DrawBadFlag.GetID() );
             m_ColorElementsButton.Update( curr_struct->GetStructSettingsPtr()->m_ColorTagsFlag.GetID() );
             m_DrawNodesToggle.Update( curr_struct->GetStructSettingsPtr()->m_DrawNodesFlag.GetID() );
             m_DrawElementOrientVecToggle.Update( curr_struct->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.GetID() );
