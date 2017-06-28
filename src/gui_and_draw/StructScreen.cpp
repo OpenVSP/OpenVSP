@@ -1024,16 +1024,16 @@ void StructScreen::UpdateFeaPropertyBrowser()
     int scroll_pos = m_FeaPropertySelectBrowser->position();
     m_FeaPropertySelectBrowser->clear();
 
-    static int widths[] = { 200, 190 };
+    static int widths[] = { 160, 120, 120 };
     m_FeaPropertySelectBrowser->column_widths( widths );
     m_FeaPropertySelectBrowser->column_char( ':' );
 
     char str[256]; // TODO: Use to_string function
 
-    sprintf( str, "@b@.NAME:@b@.TYPE:" );
+    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.MATERIAL:" );
     m_FeaPropertySelectBrowser->add( str );
 
-    string prop_name, prop_type;
+    string prop_name, prop_type, prop_mat;
 
     vector< FeaProperty* > property_vec = StructureMgr.GetFeaPropertyVec();
 
@@ -1042,7 +1042,13 @@ void StructScreen::UpdateFeaPropertyBrowser()
         prop_name = property_vec[i]->GetName();
         prop_type = property_vec[i]->GetTypeName();
 
-        sprintf( str, "%s:%s:", prop_name.c_str(), prop_type.c_str() );
+        FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( property_vec[i]->GetFeaMaterialIndex() );
+        if ( fea_mat )
+        {
+            prop_mat = fea_mat->GetName();
+        }
+
+        sprintf( str, "%s:%s:%s:", prop_name.c_str(), prop_type.c_str(), prop_mat.c_str() );
 
         m_FeaPropertySelectBrowser->add( str );
     }
