@@ -1532,6 +1532,8 @@ void LoadCaseFile(void)
 
        if ( strstr(DumChar,"UnsteadyAnalysisType") != NULL ) {
 
+           DoUnsteadyAnalysis_ = 1;
+
           printf("Unsteady analysis data: \n");
               
           sscanf(DumChar,"UnsteadyAnalysisType = %s \n",&AnalysisType);
@@ -1541,36 +1543,41 @@ void LoadCaseFile(void)
           if ( strcmp(AnalysisType,"P_ANALYSIS"  ) == 0 ) {
              
              UnsteadyAnalysisType_ = P_ANALYSIS;
+             StabControlRun_ = 2;
              
           }
           
           else if ( strcmp(AnalysisType,"Q_ANALYSIS"  ) == 0 ) {
              
              UnsteadyAnalysisType_ = Q_ANALYSIS;
+             StabControlRun_ = 3;
              
           }
           
           else if ( strcmp(AnalysisType,"R_ANALYSIS"  ) == 0 ) {
              
              UnsteadyAnalysisType_ = R_ANALYSIS;
+             StabControlRun_ = 4;
              
           }                    
           
           else if ( strcmp(AnalysisType,"HEAVE"  ) == 0 ) {
              
              UnsteadyAnalysisType_ = HEAVE_ANALYSIS;
+             // TODO: Insert StabControlRun_ Number
              
           }
           
           else if ( strcmp(AnalysisType,"IMPULSE") == 0 ) {
              
              UnsteadyAnalysisType_ = IMPULSE_ANALYSIS;
-             
+             // TODO: Insert StabControlRun_ Number
+
           }
           
           else { 
              
-             printf("Uknown unsteady analysis type: %s \n",AnalysisType);
+             printf("Unknown unsteady analysis type: %s \n",AnalysisType);
              
           }
                                                            
@@ -2457,26 +2464,31 @@ void UnsteadyStabilityAndControlSolve(void)
                 CMz_damp *= Cref_ / Bref_;      
                 
              }  
+
+             if ( StabControlRun_ != 1 )
+             {
+                 fprintf(StabFile, "# Name \t\t Value \n");
+             }
                  
              // Roll analysis
              
              if ( StabControlRun_ == 2 ) {
          
-                fprintf(StabFile,"CFx_p %12.7f \n", CFx_damp);
-                fprintf(StabFile,"CFy_p %12.7f \n", CFy_damp);
-                fprintf(StabFile,"CFz_p %12.7f \n", CFz_damp);
+                fprintf(StabFile,"CFx_p \t\t %12.7f \n", CFx_damp);
+                fprintf(StabFile,"CFy_p \t\t %12.7f \n", CFy_damp);
+                fprintf(StabFile,"CFz_p \t\t %12.7f \n", CFz_damp);
             
-                fprintf(StabFile,"CMx_p %12.7f \n", CMx_damp);
-                fprintf(StabFile,"CMy_p %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMz_p %12.7f \n", CMz_damp);
+                fprintf(StabFile,"CMx_p \t\t %12.7f \n", CMx_damp);
+                fprintf(StabFile,"CMy_p \t\t %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMz_p \t\t %12.7f \n", CMz_damp);
             
-                fprintf(StabFile," CL_p %12.7f \n", CL_damp);
-                fprintf(StabFile," CD_p %12.7f \n", CD_damp);
-                fprintf(StabFile," CS_p %12.7f \n", CS_damp);
+                fprintf(StabFile," CL_p \t\t %12.7f \n", CL_damp);
+                fprintf(StabFile," CD_p \t\t %12.7f \n", CD_damp);
+                fprintf(StabFile," CS_p \t\t %12.7f \n", CS_damp);
           
-                fprintf(StabFile,"CMl_p %12.7f \n",-CMx_damp);
-                fprintf(StabFile,"CMm_p %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMn_p %12.7f \n",-CMz_damp);
+                fprintf(StabFile,"CMl_p \t\t %12.7f \n",-CMx_damp);
+                fprintf(StabFile,"CMm_p \t\t %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMn_p \t\t %12.7f \n",-CMz_damp);
                 
              }
              
@@ -2484,21 +2496,21 @@ void UnsteadyStabilityAndControlSolve(void)
              
              if ( StabControlRun_ == 3 ) {
          
-                fprintf(StabFile,"CFx_(q + alpha_dot) %12.7f \n", CFx_damp);
-                fprintf(StabFile,"CFy_(q + alpha_dot) %12.7f \n", CFy_damp);
-                fprintf(StabFile,"CFz_(q + alpha_dot) %12.7f \n", CFz_damp);
+                fprintf(StabFile,"CFx_(q + alpha_dot) \t\t %12.7f \n", CFx_damp);
+                fprintf(StabFile,"CFy_(q + alpha_dot) \t\t %12.7f \n", CFy_damp);
+                fprintf(StabFile,"CFz_(q + alpha_dot) \t\t %12.7f \n", CFz_damp);
             
-                fprintf(StabFile,"CMx_(q + alpha_dot) %12.7f \n", CMx_damp);
-                fprintf(StabFile,"CMy_(q + alpha_dot) %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMz_(q + alpha_dot) %12.7f \n", CMz_damp);
+                fprintf(StabFile,"CMx_(q + alpha_dot) \t\t %12.7f \n", CMx_damp);
+                fprintf(StabFile,"CMy_(q + alpha_dot) \t\t %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMz_(q + alpha_dot) \t\t %12.7f \n", CMz_damp);
             
-                fprintf(StabFile," CL_(q + alpha_dot) %12.7f \n", CL_damp);
-                fprintf(StabFile," CD_(q + alpha_dot) %12.7f \n", CD_damp);
-                fprintf(StabFile," CS_(q + alpha_dot) %12.7f \n", CS_damp);
+                fprintf(StabFile," CL_(q + alpha_dot) \t\t %12.7f \n", CL_damp);
+                fprintf(StabFile," CD_(q + alpha_dot) \t\t %12.7f \n", CD_damp);
+                fprintf(StabFile," CS_(q + alpha_dot) \t\t %12.7f \n", CS_damp);
           
-                fprintf(StabFile,"CMl_(q + alpha_dot) %12.7f \n",-CMx_damp);
-                fprintf(StabFile,"CMm_(q + alpha_dot) %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMn_(q + alpha_dot) %12.7f \n",-CMz_damp);
+                fprintf(StabFile,"CMl_(q + alpha_dot) \t\t %12.7f \n",-CMx_damp);
+                fprintf(StabFile,"CMm_(q + alpha_dot) \t\t %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMn_(q + alpha_dot) \t\t %12.7f \n",-CMz_damp);
                 
              }
                          
@@ -2506,21 +2518,21 @@ void UnsteadyStabilityAndControlSolve(void)
              
              if ( StabControlRun_ == 4 ) {
          
-                fprintf(StabFile,"CFx_(r - beta_dot) %12.7f \n", CFx_damp);
-                fprintf(StabFile,"CFy_(r - beta_dot) %12.7f \n", CFy_damp);
-                fprintf(StabFile,"CFz_(r - beta_dot) %12.7f \n", CFz_damp);
+                fprintf(StabFile,"CFx_(r - beta_dot) \t\t %12.7f \n", CFx_damp);
+                fprintf(StabFile,"CFy_(r - beta_dot) \t\t %12.7f \n", CFy_damp);
+                fprintf(StabFile,"CFz_(r - beta_dot) \t\t %12.7f \n", CFz_damp);
             
-                fprintf(StabFile,"CMx_(r - beta_dot) %12.7f \n", CMx_damp);
-                fprintf(StabFile,"CMy_(r - beta_dot) %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMz_(r - beta_dot) %12.7f \n", CMz_damp);
+                fprintf(StabFile,"CMx_(r - beta_dot) \t\t %12.7f \n", CMx_damp);
+                fprintf(StabFile,"CMy_(r - beta_dot) \t\t %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMz_(r - beta_dot) \t\t %12.7f \n", CMz_damp);
             
-                fprintf(StabFile," CL_(r - beta_dot) %12.7f \n", CL_damp);
-                fprintf(StabFile," CD_(r - beta_dot) %12.7f \n", CD_damp);
-                fprintf(StabFile," CS_(r - beta_dot) %12.7f \n", CS_damp);
+                fprintf(StabFile," CL_(r - beta_dot) \t\t %12.7f \n", CL_damp);
+                fprintf(StabFile," CD_(r - beta_dot) \t\t %12.7f \n", CD_damp);
+                fprintf(StabFile," CS_(r - beta_dot) \t\t %12.7f \n", CS_damp);
           
-                fprintf(StabFile,"CMl_(r - beta_dot) %12.7f \n",-CMx_damp);
-                fprintf(StabFile,"CMm_(r - beta_dot) %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMn_(r - beta_dot) %12.7f \n",-CMz_damp);
+                fprintf(StabFile,"CMl_(r - beta_dot) \t\t %12.7f \n",-CMx_damp);
+                fprintf(StabFile,"CMm_(r - beta_dot) \t\t %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMn_(r - beta_dot) \t\t %12.7f \n",-CMz_damp);
                 
              }  
              

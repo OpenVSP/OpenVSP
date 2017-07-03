@@ -237,7 +237,6 @@ public:
     string m_RefGeomID;
     IntParm m_RefFlag;
 
-    BoolParm m_StabilityCalcFlag;
     BoolParm m_BatchModeFlag;
 
     // Mass Properties Parms
@@ -277,6 +276,10 @@ public:
     Parm m_MaxTurnAngle;
     BoolParm m_FarDistToggle;
     Parm m_FarDist;
+
+    // Unsteady
+    BoolParm m_StabilityCalcFlag;
+    IntParm m_StabilityType;
 
     // Plotwindow settings
     BoolParm m_ConvergenceXMinIsManual;

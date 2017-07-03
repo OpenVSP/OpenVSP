@@ -105,9 +105,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_WakeSkipUntilIter.Init( "WakeSkipUntilIter", groupname, this, 0, 0, 255 );
     m_WakeSkipUntilIter.SetDescript( "Iteration at which to START calculating the wake. Default=0 --> Wake calculated on each iteration" );
 
-    m_StabilityCalcFlag.Init( "StabilityCalcFlag", groupname, this, false, false, true );
-    m_StabilityCalcFlag.SetDescript( "Flag to calculate stability derivatives" );
-
     m_BatchModeFlag.Init( "BatchModeFlag", groupname, this, true, false, true );
     m_BatchModeFlag.SetDescript( "Flag to calculate in batch mode" );
     m_BatchModeFlag = true;
@@ -177,6 +174,13 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_FarDist.Init( "FarDist", groupname, this, -1, 0, 1e6 );
     m_FarDist.SetDescript( "Far Field Distance for Wake Adaptation" );
     m_FarDistToggle.Init( "FarDistToggle", groupname, this, false, false, true );
+
+    // Unsteady
+    m_StabilityCalcFlag.Init( "StabilityCalcFlag", groupname, this, false, false, true );
+    m_StabilityCalcFlag.SetDescript( "Flag to calculate stability derivatives" );
+
+    m_StabilityType.Init( "UnsteadyType", groupname, this, vsp::STABILITY_DEFAULT, vsp::STABILITY_DEFAULT, vsp::STABILITY_IMPULSE);
+    m_StabilityType.SetDescript( "Unsteady Calculation Type" );
 
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
@@ -1014,6 +1018,44 @@ string VSPAEROMgrSingleton::CreateSetupFile()
             {
                 m_ControlSurfaceGroupVec[iCSG]->Write_STP_Data( case_file );
             }
+        }
+    }
+
+
+    // Unsteady Setup
+    if (m_StabilityCalcFlag())
+    {
+        string AnalysisType = "";
+        if (m_StabilityType() != vsp::STABILITY_DEFAULT)
+        {
+            switch (m_StabilityType())
+            {
+            case vsp::STABILITY_P_ANALYSIS:
+                AnalysisType = "P_ANALYSIS";
+                break;
+
+            case vsp::STABILITY_Q_ANALYSIS:
+                AnalysisType = "Q_ANALYSIS";
+                break;
+
+            case vsp::STABILITY_R_ANALYSIS:
+                AnalysisType = "R_ANALYSIS";
+                break;
+
+            // === To Be Implemented ===
+            //case vsp::STABILITY_HEAVE:
+            //    AnalysisType = "HEAVE";
+            //    break;
+
+            //case vsp::STABILITY_IMPULSE:
+            //    AnalysisType = "IMPULSE";
+            //    break;
+
+            default:
+                AnalysisType = "";
+            }
+            fprintf( case_file, "UnsteadyAnalysisType = %s \n", AnalysisType.c_str() );
+
         }
     }
 
@@ -1908,7 +1950,6 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
             // Parse if this is not a comment line
             if ( res && strncmp( data_string_array[0].c_str(), "#", 1 ) != 0 )
             {
-
                 //================ Table Data ================//
                 // Checks for table header format
                 if ( ( data_string_array.size() != table_column_names.size() ) || ( table_column_names.size() == 0 ) )
@@ -1948,20 +1989,43 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
                 }
                 else
                 {
-                    //This is a continuation of the current table and add this row to the results manager
-                    for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
+                    if (m_StabilityType() == vsp::STABILITY_DEFAULT)
                     {
-                        //attempt to read a double if that fails then treat it as a string result
-                        double temp_val = 0;
-                        int result = 0;
-                        result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
-                        if ( result == 1 )
+                        //This is a continuation of the current table and add this row to the results manager
+                        for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
                         {
-                            res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], temp_val ) );
+                            //attempt to read a double if that fails then treat it as a string result
+                            double temp_val = 0;
+                            int result = 0;
+                            result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
+                            if ( result == 1 )
+                            {
+                                res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], temp_val ) );
+                            }
+                            else
+                            {
+                                res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], data_string_array[i_field] ) );
+                            }
                         }
-                        else
+                    }
+                    else
+                    {
+                        // TODO: Add if for stability calcs other than stability if NOT StabilityType = 0
+                        //This is a continuation of the current table and add this row to the results manager
+                        for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
                         {
-                            res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], data_string_array[i_field] ) );
+                            //attempt to read a double if that fails then treat it as a string result
+                            double temp_val = 0;
+                            int result = 0;
+                            result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
+                            if ( result == 1 )
+                            {
+                                res->Add( NameValData( data_string_array[0], temp_val ) );
+                            }
+                            else
+                            {
+                                res->Add( NameValData( data_string_array[0], data_string_array[i_field] ) );
+                            }
                         }
                     }
                 } //end new table check

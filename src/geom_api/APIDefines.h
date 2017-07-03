@@ -384,6 +384,14 @@ enum VSPAERO_REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the referen
                              NUM_REF_TYPES
                            };
 
+enum VSPAERO_STABILITY_TYPE { STABILITY_DEFAULT = 0,
+                             STABILITY_P_ANALYSIS,
+                             STABILITY_Q_ANALYSIS,
+                             STABILITY_R_ANALYSIS,
+                             STABILITY_HEAVE, // TODO: Implement with later VSPAERO version
+                             STABILITY_IMPULSE, // TODO: Implement with later VSPAERO version
+                           };
+
 enum FREESTREAM_PD_UNITS { PD_UNITS_IMPERIAL = 0,
                            PD_UNITS_METRIC
                          }; // Parasite Drag Freestream Units

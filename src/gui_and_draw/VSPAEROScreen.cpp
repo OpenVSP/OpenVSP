@@ -236,6 +236,11 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
         (advanced_group->w()-window_border_width) / 2,
         advanced_group->h() );
 
+    m_AdvancedLayout.AddX( m_AdvancedLeftLayout.GetW() + window_border_width );
+    m_AdvancedLayout.AddSubGroupLayout( m_AdvancedRightLayout,
+        (advanced_group->w()-window_border_width) / 2,
+        advanced_group->h() );
+
     // Advanced Case Setup Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_AdvancedCaseSetupLayout,
         m_AdvancedLeftLayout.GetW(),
@@ -277,7 +282,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_AdvancedCaseSetupLayout.SetInputWidth( 50 );
 
     m_AdvancedCaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
-    m_AdvancedCaseSetupLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
     m_AdvancedCaseSetupLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
     m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
     m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
@@ -323,6 +327,23 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_OtherParmsLayout.AddSlider( m_FarDistSlider, "Far Field Dist", 1e3, "%7.2f" );
     m_OtherParmsLayout.ForceNewLine();
     m_OtherParmsLayout.AddYGap();
+
+    // Unsteady Setup
+    int button_width = 130;
+    m_AdvancedRightLayout.AddSubGroupLayout( m_UnsteadyLayout,
+        m_AdvancedRightLayout.GetW(),
+        m_AdvancedRightLayout.GetH());
+    m_UnsteadyLayout.SetButtonWidth( button_width );
+    m_UnsteadyLayout.AddDividerBox( "Unsteady" );
+    m_UnsteadyLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
+    m_UnsteadyLayout.AddChoice( m_StabilityTypeChoice, "Type" );
+    m_StabilityTypeChoice.AddItem( "Stability" );
+    m_StabilityTypeChoice.AddItem( "P Analysis" );
+    m_StabilityTypeChoice.AddItem( "Q Analysis" );
+    m_StabilityTypeChoice.AddItem( "R Analysis" );
+    //m_StabilityTypeChoice.AddItem( "Heave" ); // To Be Implemented
+    //m_StabilityTypeChoice.AddItem( "Impulse" ); // To Be Implemented
+    m_StabilityTypeChoice.UpdateItems();
 
     //==== Rotor Disk Tab ==== //
     Fl_Group* rotor_tab = AddTab( "Rotor" );
@@ -702,14 +723,21 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                 // Clear the solver console
                 m_SolverBuffer->text( "" );
 
-                //Show the plot screen
-                m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
-
-                VSPAEROPlotScreen * vspapscreen = ( VSPAEROPlotScreen * )m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_PLOT_SCREEN );
-                if( vspapscreen )
+                //Show the plot screen (if not unsteady analysis)
+                if (VSPAEROMgr.m_StabilityType() != 1 && VSPAEROMgr.m_AnalysisMethod() == vsp::PANEL)
                 {
-                    vspapscreen->SetDefaultView();
-                    vspapscreen->Update();
+                    m_ScreenMgr->m_ShowPlotScreenOnce = false;
+                }
+                else
+                {
+                    m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
+
+                    VSPAEROPlotScreen * vspapscreen = ( VSPAEROPlotScreen * )m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_PLOT_SCREEN );
+                    if( vspapscreen )
+                    {
+                        vspapscreen->SetDefaultView();
+                        vspapscreen->Update();
+                    }
                 }
 
                 m_SolverProcess.StartThread( solver_thread_fun, ( void* ) &m_SolverPair );
@@ -785,6 +813,10 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                     fl_alert( "File export failed\nFile: %s", fileName.c_str() );
                 }
             }
+        }
+        else if ( device == &m_StabilityTypeChoice )
+        {
+            VSPAEROMgr.m_StabilityType = m_StabilityTypeChoice.GetVal();
         }
         else if ( device == &m_GroupEditNameInput )
         {
@@ -1004,15 +1036,6 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
 
     m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
     m_BatchCalculationToggle.Update(VSPAEROMgr.m_BatchModeFlag.GetID());
-    if (VSPAEROMgr.m_Symmetry())
-    {
-        m_StabilityCalcToggle.Deactivate();
-        VSPAEROMgr.m_StabilityCalcFlag.Set(false);
-    }
-    else
-    {
-        m_StabilityCalcToggle.Update(VSPAEROMgr.m_StabilityCalcFlag.GetID());
-    }
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
     m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
 
@@ -1028,6 +1051,26 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_MaxTurningSlider.Update( VSPAEROMgr.m_MaxTurnAngle.GetID() );
     m_FarDistToggle.Update( VSPAEROMgr.m_FarDistToggle.GetID() );
     m_FarDistSlider.Update( VSPAEROMgr.m_FarDist.GetID() );
+
+    // Stability
+    if (VSPAEROMgr.m_Symmetry())
+    {
+        m_StabilityCalcToggle.Deactivate();
+        VSPAEROMgr.m_StabilityCalcFlag.Set(false);
+    }
+    else
+    {
+        m_StabilityCalcToggle.Update(VSPAEROMgr.m_StabilityCalcFlag.GetID());
+    }
+
+    if (!VSPAEROMgr.m_StabilityCalcFlag())
+    {
+        m_StabilityTypeChoice.Deactivate();
+    }
+    else
+    {
+        m_StabilityTypeChoice.Activate();
+    }
 
     VSPAEROMgr.UpdateSetupParmLimits();
 }

@@ -160,6 +160,7 @@ protected:
     GroupLayout m_AdvancedCaseSetupLayout;
     GroupLayout m_WakeLayout;
     GroupLayout m_OtherParmsLayout;
+    GroupLayout m_UnsteadyLayout;
 
     // Advanced Case Setup Layout
     //  Degengeom (VLM & Panel)
@@ -169,7 +170,6 @@ protected:
     StringOutput m_CompGeomFileName;
     TriggerButton m_CompGeomFileButton;
     SliderAdjRangeInput m_NCPUSlider;
-    ToggleButton m_StabilityCalcToggle;
     ToggleButton m_BatchCalculationToggle;
     ToggleButton m_SymmetryToggle;
     ToggleButton m_Write2DFEMToggle;
@@ -186,6 +186,10 @@ protected:
     SliderAdjRangeInput m_ClmaxSlider;
     SliderAdjRangeInput m_MaxTurningSlider;
     SliderAdjRangeInput m_FarDistSlider;
+
+    // Unsteady Setup
+    ToggleButton m_StabilityCalcToggle;
+    Choice m_StabilityTypeChoice;
 
     //==== Rotor Disk Tab ====//
     GroupLayout m_PropGeneralLayout;
