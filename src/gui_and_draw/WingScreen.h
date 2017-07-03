@@ -227,6 +227,15 @@ protected:
     CheckButton m_CSTContLERadButton;
     CheckButton m_CSTEqArcLenButton;
 
+    GroupLayout m_VKTGroup;
+    SliderAdjRangeInput m_VKTChordSlider;
+    SliderAdjRangeInput m_VKTEpsilonSlider;
+    SliderAdjRangeInput m_VKTKappaSlider;
+    SliderAdjRangeInput m_VKTTauSlider;
+
+    TriggerButton m_VKTFitCSTButton;
+    Counter m_VKTDegreeCounter;
+
     // Overall planform tab
     GroupLayout m_ModifyLayout;
 

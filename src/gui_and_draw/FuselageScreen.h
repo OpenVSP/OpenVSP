@@ -163,7 +163,13 @@ protected:
     CheckButton m_CSTInvertButton;
     CheckButton m_CSTContLERadButton;
     CheckButton m_CSTEqArcLenButton;
-    
+
+    GroupLayout m_VKTGroup;
+    SliderAdjRangeInput m_VKTChordSlider;
+    SliderAdjRangeInput m_VKTEpsilonSlider;
+    SliderAdjRangeInput m_VKTKappaSlider;
+    SliderAdjRangeInput m_VKTTauSlider;
+
     GroupLayout* m_CurrDisplayGroup;
     void DisplayGroup( GroupLayout* group );
 

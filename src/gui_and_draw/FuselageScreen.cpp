@@ -91,6 +91,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_XSecTypeChoice.AddItem( "BEZIER" );
     m_XSecTypeChoice.AddItem( "AF_FILE" );
     m_XSecTypeChoice.AddItem( "CST_AIRFOIL" );
+    m_XSecTypeChoice.AddItem( "KARMAN_TREFFTZ" );
 
     m_XSecLayout.SetSameLineFlag( true );
     m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:", m_XSecLayout.GetButtonWidth() );
@@ -296,7 +297,17 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_CSTLowCoeffScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
     m_CSTLowCoeffScroll->box( FL_BORDER_BOX );
     m_CSTLowCoeffLayout.SetGroupAndScreen( m_CSTLowCoeffScroll, this );
-    
+
+    //==== VKT AF ====//
+    m_VKTGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_VKTGroup.SetY( start_y );
+    m_VKTGroup.AddYGap();
+    m_VKTGroup.AddSlider( m_VKTChordSlider, "Chord", 10, "%7.3f" );
+    m_VKTGroup.AddYGap();
+    m_VKTGroup.AddSlider( m_VKTEpsilonSlider, "Epsilon", 1, "%7.5f" );
+    m_VKTGroup.AddSlider( m_VKTKappaSlider, "Kappa", 1, "%7.5f" );
+    m_VKTGroup.AddSlider( m_VKTTauSlider, "Tau", 10, "%7.5f" );
+
     DisplayGroup( &m_PointGroup );
 
 }
@@ -592,6 +603,17 @@ bool FuselageScreen::Update()
                     m_LowCoeffSliderVec[0].Deactivate();
                 }
             }
+            else if ( xsc->GetType() == XS_VKT_AIRFOIL )
+            {
+                DisplayGroup( &m_VKTGroup );
+                VKTAirfoil* vkt_xs = dynamic_cast< VKTAirfoil* >( xsc );
+                assert( vkt_xs );
+
+                m_VKTChordSlider.Update( vkt_xs->m_Chord.GetID() );
+                m_VKTEpsilonSlider.Update( vkt_xs->m_Epsilon.GetID() );
+                m_VKTKappaSlider.Update( vkt_xs->m_Kappa.GetID() );
+                m_VKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
+            }
         }
     }
     return true;
@@ -616,7 +638,8 @@ void FuselageScreen::DisplayGroup( GroupLayout* group )
     m_FuseFileGroup.Hide();
     m_AfFileGroup.Hide();
     m_CSTAirfoilGroup.Hide();
-    
+    m_VKTGroup.Hide();
+
     m_CurrDisplayGroup = group;
 
     if ( group )

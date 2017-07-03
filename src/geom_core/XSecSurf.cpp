@@ -168,6 +168,10 @@ XSecCurve* XSecSurf::CreateXSecCurve( int type )
     {
         xscrv_ptr = new CSTAirfoil( );
     }
+    else if ( type == XS_VKT_AIRFOIL )
+    {
+        xscrv_ptr = new VKTAirfoil( );
+    }
 
     return xscrv_ptr;
 }

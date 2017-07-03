@@ -232,6 +232,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_AfTypeChoice.AddItem( "BEZIER" );
     m_AfTypeChoice.AddItem( "AF_FILE" );
     m_AfTypeChoice.AddItem( "CST_AIRFOIL" );
+    m_AfTypeChoice.AddItem( "KARMAN_TREFFTZ" );
 
     m_AfLayout.SetChoiceButtonWidth( 85 );
     m_AfLayout.SetButtonWidth( 40 );
@@ -467,6 +468,24 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_CSTLowCoeffScroll->box( FL_BORDER_BOX );
     m_CSTLowCoeffLayout.SetGroupAndScreen( m_CSTLowCoeffScroll, this );
 
+
+    //==== VKT AF ====//
+    m_VKTGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
+    m_VKTGroup.SetY( start_y );
+    m_VKTGroup.AddYGap();
+    m_VKTGroup.AddSlider( m_VKTChordSlider, "Chord", 10, "%7.3f" );
+    m_VKTGroup.AddYGap();
+    m_VKTGroup.AddSlider( m_VKTEpsilonSlider, "Epsilon", 1, "%7.5f" );
+    m_VKTGroup.AddSlider( m_VKTKappaSlider, "Kappa", 1, "%7.5f" );
+    m_VKTGroup.AddSlider( m_VKTTauSlider, "Tau", 10, "%7.5f" );
+    m_VKTGroup.AddYGap();
+    m_VKTGroup.SetSameLineFlag( true );
+    m_VKTGroup.SetFitWidthFlag( false );
+    m_VKTGroup.SetButtonWidth( 125 );
+    m_VKTGroup.AddButton( m_VKTFitCSTButton, "Fit CST" );
+    m_VKTGroup.InitWidthHeightVals();
+    m_VKTGroup.SetFitWidthFlag( true );
+    m_VKTGroup.AddCounter( m_VKTDegreeCounter, "Degree", 125 );
 
     DisplayGroup( &m_PointGroup );
 
@@ -1036,6 +1055,18 @@ bool WingScreen::Update()
                     m_LowCoeffSliderVec[0].Deactivate();
                 }
             }
+            else if ( xsc->GetType() == XS_VKT_AIRFOIL )
+            {
+                DisplayGroup( &m_VKTGroup );
+                VKTAirfoil* vkt_xs = dynamic_cast< VKTAirfoil* >( xsc );
+                assert( vkt_xs );
+
+                m_VKTChordSlider.Update( vkt_xs->m_Chord.GetID() );
+                m_VKTEpsilonSlider.Update( vkt_xs->m_Epsilon.GetID() );
+                m_VKTKappaSlider.Update( vkt_xs->m_Kappa.GetID() );
+                m_VKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
+                m_VKTDegreeCounter.Update( vkt_xs->m_FitDegree.GetID() );
+            }
 
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
             m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
@@ -1304,6 +1335,7 @@ void WingScreen::DisplayGroup( GroupLayout* group )
     m_FuseFileGroup.Hide();
     m_AfFileGroup.Hide();
     m_CSTAirfoilGroup.Hide();
+    m_VKTGroup.Hide();
 
     m_CurrDisplayGroup = group;
 
@@ -1529,7 +1561,8 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( ( gui_device == &m_FourFitCSTButton ) ||
               ( gui_device == &m_SixFitCSTButton ) ||
-              ( gui_device == &m_AfFileFitCSTButton ) )
+              ( gui_device == &m_AfFileFitCSTButton ) ||
+              ( gui_device == &m_VKTFitCSTButton ) )
     {
         int xsid = wing_ptr->GetActiveAirfoilIndex();
         XSec* xs = wing_ptr->GetXSec( xsid );
