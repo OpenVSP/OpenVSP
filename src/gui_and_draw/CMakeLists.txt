@@ -37,6 +37,7 @@ CustomScreen.cpp
 DegenGeomScreen.cpp
 DesignVarScreen.cpp
 DXFOptionsScreen.cpp
+EllipsoidScreen.cpp
 ExportScreen.cpp
 FeaStructScreen.cpp
 FitModelScreen.cpp
@@ -102,6 +103,7 @@ DegenGeomScreen.h
 DesignVarScreen.h
 DXFOptionsScreen.h
 ExportScreen.h
+EllipsoidScreen.h
 FeaStructScreen.h
 FitModelScreen.h
 FuselageScreen.h
