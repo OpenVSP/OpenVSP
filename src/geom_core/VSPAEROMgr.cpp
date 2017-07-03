@@ -161,6 +161,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Rho.SetDescript( "Freestream Density" );
     m_ReCref.Init( "ReCref", groupname, this, 10000000., 0, 1e12 );
     m_ReCref.SetDescript( "Reynolds Number along Reference Chord" );
+    m_JacobiPrecondition.Init( "JacobiPrecondition", groupname, this, false, false, true);
+    m_JacobiPrecondition.SetDescript( "Activate Jacobi Preconditioner");
     m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
     m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
@@ -1021,6 +1023,12 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         }
     }
 
+    // Preconditioner
+
+    if (m_JacobiPrecondition())
+    {
+        fprintf( case_file, "PreconditionerType = %s \n", "JACOBI" );
+    }
 
     // Unsteady Setup
     if (m_StabilityCalcFlag())

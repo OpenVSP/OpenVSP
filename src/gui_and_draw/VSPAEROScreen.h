@@ -173,6 +173,7 @@ protected:
     ToggleButton m_BatchCalculationToggle;
     ToggleButton m_SymmetryToggle;
     ToggleButton m_Write2DFEMToggle;
+    ToggleButton m_JacobiPreconditionToggle;
 
     // Wake calculation options
     SliderAdjRangeInput m_WakeNumIterSlider;

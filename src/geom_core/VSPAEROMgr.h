@@ -268,6 +268,7 @@ public:
     Parm m_Vinf;
     Parm m_Rho;
     Parm m_ReCref;
+    BoolParm m_JacobiPrecondition;
     BoolParm m_Symmetry;
     BoolParm m_Write2DFEMFlag;
     BoolParm m_ClMaxToggle;

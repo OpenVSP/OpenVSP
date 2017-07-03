@@ -945,7 +945,7 @@ void LoadCaseFile(void)
     double x,y,z, DumDouble;
     FILE *case_file;
     char file_name_w_ext[2000], DumChar[2000], DumChar2[2000], Comma[2000], *Next;
-    char SymmetryFlag[2000], AnalysisType[2000];
+    char SymmetryFlag[2000], AnalysisType[2000], PreconditionerType[2000];
     
     // Delimiters
     
@@ -1518,6 +1518,27 @@ void LoadCaseFile(void)
        
        }
        
+    }
+
+    // Load in Preconditioner data
+    rewind(case_file);
+
+    Done = 0;
+
+    while (!Done && fgets(DumChar, 200, case_file) != NULL) {
+
+        if (strstr(DumChar, "Preconditioner") != NULL) {
+
+            sscanf(DumChar, "Preconditioner = %s \n", &PreconditionerType);
+
+            if (strcmp(PreconditionerType, "JACOBI") == 0) {
+
+                VSP_VLM().Preconditioner() = JACOBI;
+
+            }
+
+        }
+
     }
     
     // Load in unsteady aero data
