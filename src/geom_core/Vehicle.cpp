@@ -13,6 +13,7 @@
 #include "MeshGeom.h"
 #include "ConformalGeom.h"
 #include "CustomGeom.h"
+#include "EllipsoidGeom.h"
 #include "PtCloudGeom.h"
 #include "PropGeom.h"
 #include "HingeGeom.h"
@@ -181,6 +182,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( MS_WING_GEOM_TYPE, "WING", true ) );
     m_GeomTypeVec.push_back( GeomType( STACK_GEOM_TYPE, "STACK", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
+    m_GeomTypeVec.push_back( GeomType( ELLIPSOID_GEOM_TYPE, "ELLIPSOID", true ) );
     m_GeomTypeVec.push_back( GeomType( PROP_GEOM_TYPE, "PROP", true ) );
     m_GeomTypeVec.push_back( GeomType( HINGE_GEOM_TYPE, "HINGE", true ) );
     m_GeomTypeVec.push_back( GeomType( CONFORMAL_GEOM_TYPE, "CONFORMAL", true ) );
@@ -514,9 +516,13 @@ string Vehicle::CreateGeom( const GeomType & type )
     {
         new_geom = new HingeGeom( this );
     }
-    else if ( type.m_Type == CONFORMAL_GEOM_TYPE )
+    else if ( type.m_Name == "Conformal" || type.m_Name == "CONFORMAL" )
     {
         new_geom = new ConformalGeom( this );
+    }
+    else if ( type.m_Name == "Ellipsoid" || type.m_Name == "ELLIPSOID" )
+    {
+        new_geom = new EllipsoidGeom( this );
     }
 
     if ( !new_geom )

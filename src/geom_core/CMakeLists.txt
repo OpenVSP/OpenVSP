@@ -36,6 +36,7 @@ ConformalGeom.cpp
 CustomGeom.cpp
 DegenGeom.cpp
 DesignVarMgr.cpp
+EllipsoidGeom.cpp
 FitModelMgr.cpp
 FuselageGeom.cpp
 Geom.cpp
@@ -97,6 +98,7 @@ CustomGeom.h
 DegenGeom.h
 DesignVarMgr.h
 DragFactors.h
+EllipsoidGeom.h
 FitModelMgr.h
 FuselageGeom.h
 Geom.h
