@@ -358,9 +358,7 @@ public:
     IntParm m_MeasureLenUnit;
 
 
-    IntParm m_StructLenUnit;
-    IntParm m_StructMassUnit;
-    IntParm m_StructTempUnit;
+    IntParm m_StructUnit;
 
 protected:
 

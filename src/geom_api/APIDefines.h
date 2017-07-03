@@ -330,13 +330,19 @@ enum SUBSURF_INOUT { INSIDE,
                      NONE
 };
 
-enum FEA_STRUCT_TYPE { FEA_SLICE,
+enum FEA_STRUCT_TYPE { FEA_SLICE = 0,
                        FEA_RIB,
                        FEA_SPAR,
                        FEA_FIX_POINT,
                        FEA_SUB_SURF,
                        FEA_SKIN,
                        FEA_NUM_TYPES };
+
+enum FEA_UNIT_TYPE { SI_UNIT = 0, // m, kg
+                     CGS_UNIT, // cm, g
+                     MPA_UNIT, // mm, tonne
+                     BFT_UNIT, // ft, slug
+                     BIN_UNIT }; // in, lbf*sec^2/in
 
 enum WING_DRIVERS { AR_WSECT_DRIVER,
                     SPAN_WSECT_DRIVER,
@@ -461,14 +467,17 @@ enum TEMP_UNITS { TEMP_UNIT_K = 0,
 enum MASS_UNIT { MASS_UNIT_G = 0,
                  MASS_UNIT_KG,
                  MASS_UNIT_TONNE,
-                 MASS_UNIT_LB,
-                 MASS_UNIT_SLUG
+                 MASS_UNIT_LBM,
+                 MASS_UNIT_SLUG,
+                 MASS_LBFSEC2IN // lbf*sec^2/in
                }; // Mass Units ENUM
 
 enum PRES_UNITS { PRES_UNIT_PSF = 0,
                   PRES_UNIT_PSI,
+                  PRES_UNIT_BA,
                   PRES_UNIT_PA,
                   PRES_UNIT_KPA,
+                  PRES_UNIT_MPA,
                   PRES_UNIT_INCHHG,
                   PRES_UNIT_MMHG,
                   PRES_UNIT_MMH20,
@@ -477,8 +486,11 @@ enum PRES_UNITS { PRES_UNIT_PSF = 0,
                 }; // Pres Units ENUM
 
 enum RHO_UNITS { RHO_UNIT_SLUG_FT3 = 0,
+                 RHO_UNIT_G_CM3,
                  RHO_UNIT_KG_M3,
-                 RHO_UNIT_LBF_FT3
+                 RHO_UNIT_TONNE_MM3,
+                 RHO_UNIT_LBF_FT3,
+                 RHO_UNIT_LBFSEC2_IN4
                }; // Rho Units ENUM
 
 enum ATMOS_TYPE { ATMOS_TYPE_US_STANDARD_1976 = 0,

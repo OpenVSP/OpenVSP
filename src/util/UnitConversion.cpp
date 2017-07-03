@@ -239,17 +239,20 @@ double ConvertThermalExpanCoeffToMetric( double temp, int cur_unit )
 {
     switch ( cur_unit )
     {
-    case vsp::TEMP_UNIT_K:
+    case vsp::SI_UNIT:
         break;
 
-    case vsp::TEMP_UNIT_C:
+    case vsp::CGS_UNIT:
         break;
 
-    case vsp::TEMP_UNIT_F:
+    case vsp::MPA_UNIT:
+    break;
+
+    case vsp::BFT_UNIT:
         temp *= ( 9.0 / 5.0 );
         break;
 
-    case vsp::TEMP_UNIT_R:
+    case vsp::BIN_UNIT:
         temp *= ( 9.0 / 5.0 );
         break;
     }
@@ -260,17 +263,20 @@ double ConvertThermalExpanCoeffFromMetric( double temp, int new_unit )
 {
     switch ( new_unit )
     {
-    case vsp::TEMP_UNIT_K:
+    case vsp::SI_UNIT:
     break;
 
-    case vsp::TEMP_UNIT_C:
+    case vsp::CGS_UNIT:
     break;
 
-    case vsp::TEMP_UNIT_F:
+    case vsp::MPA_UNIT:
+    break;
+
+    case vsp::BFT_UNIT:
     temp *= ( 5.0 / 9.0 );
     break;
 
-    case vsp::TEMP_UNIT_R:
+    case vsp::BIN_UNIT:
     temp *= ( 5.0 / 9.0 );
     break;
     }
@@ -298,12 +304,20 @@ double ConvertPressureToPSF( double pres, int cur_unit )
         pres *= 144;
         break;
 
+    case vsp::PRES_UNIT_BA:
+        pres *= 0.0020885433788371;
+        break;
+
     case vsp::PRES_UNIT_PA:
         pres *= 0.02088543;
         break;
 
     case vsp::PRES_UNIT_KPA:
         pres *= 20.88543;
+        break;
+
+    case vsp::PRES_UNIT_MPA:
+        pres *= 20885.434273;
         break;
 
     case vsp::PRES_UNIT_INCHHG:
@@ -340,12 +354,20 @@ double ConvertPressureFromPSF( double pres, int new_unit )
         pres /= 144;
         break;
 
+    case vsp::PRES_UNIT_BA:
+        pres /= 0.0020885433788371;
+        break;
+
     case vsp::PRES_UNIT_PA:
         pres /= 0.02088543;
         break;
 
     case vsp::PRES_UNIT_KPA:
         pres /= 20.88543;
+        break;
+
+    case vsp::PRES_UNIT_MPA:
+        pres /= 20885.434273;
         break;
 
     case vsp::PRES_UNIT_INCHHG:
@@ -391,8 +413,20 @@ double ConvertDensityToSLUG_FT3( double density, int cur_unit )
         density /= 32.174;
         break;
 
+    case vsp::RHO_UNIT_G_CM3:
+        density /= 515378.8183932;
+        break;
+
     case vsp::RHO_UNIT_KG_M3:
         density /= 515.379;
+        break;
+
+    case vsp::RHO_UNIT_TONNE_MM3:
+        density /= 5.15379e-10;
+        break;
+
+    case vsp::RHO_UNIT_LBFSEC2_IN4:
+        density /= 0.0000482253086;
         break;
     }
     return density;
@@ -409,8 +443,21 @@ double ConvertDensityFromSLUG_FT3( double density, int new_unit )
         density *= 32.174;
         break;
 
+    case vsp::RHO_UNIT_G_CM3:
+        density *= 515378.8183932;
+        break;
+
     case vsp::RHO_UNIT_KG_M3:
         density *= 515.379;
+        break;
+
+    case vsp::RHO_UNIT_TONNE_MM3:
+        density *= 5.15379e-10;
+        break;
+
+    case vsp::RHO_UNIT_LBFSEC2_IN4:
+        density *= 0.0000482253086;
+        break;
     }
     return density;
 }
@@ -519,12 +566,16 @@ double ConvertMassToKG( double mass, int cur_unit )
         mass *= 1000;
         break;
 
-    case vsp::MASS_UNIT_LB:
+    case vsp::MASS_UNIT_LBM:
         mass *= 0.4535923699997481;
         break;
 
     case vsp::MASS_UNIT_SLUG:
         mass *= 14.593902999991704;
+        break;
+
+    case vsp::MASS_LBFSEC2IN:
+        mass *= 175.126835;
         break;
     }
     return mass;
@@ -545,12 +596,16 @@ double ConvertMassFromKG( double mass, int new_unit )
         mass /= 1000;
         break;
 
-    case vsp::MASS_UNIT_LB:
+    case vsp::MASS_UNIT_LBM:
         mass /= 0.4535923699997481;
         break;
 
     case vsp::MASS_UNIT_SLUG:
         mass /= 14.593902999991704;
+        break;
+
+    case vsp::MASS_LBFSEC2IN:
+        mass /= 175.126835;
         break;
     }
     return mass;

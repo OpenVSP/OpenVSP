@@ -270,85 +270,250 @@ void StructureMgrSingleton::ResetExportFileNames( const string & VSP3FileName )
     }
 }
 
-void StructureMgrSingleton::UpdateLengthUnit( int new_unit )
+void StructureMgrSingleton::UpdateStructUnit( int new_unit )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     if ( veh )
     {
+        // Update FeaMaterial Units
+        for ( size_t i = 0; i < m_FeaMaterialVec.size(); i++ )
+        {
+            int density_unit_new, density_unit_old;
+
+            switch ( new_unit )
+            {
+            case vsp::SI_UNIT:
+            density_unit_new = vsp::RHO_UNIT_KG_M3;
+            break;
+
+            case vsp::CGS_UNIT:
+            density_unit_new = vsp::RHO_UNIT_G_CM3;
+            break;
+
+            case vsp::MPA_UNIT:
+            density_unit_new = vsp::RHO_UNIT_TONNE_MM3;
+            break;
+
+            case vsp::BFT_UNIT:
+            density_unit_new = vsp::RHO_UNIT_SLUG_FT3;
+            break;
+
+            case vsp::BIN_UNIT:
+            density_unit_new = vsp::RHO_UNIT_LBFSEC2_IN4;
+            break;
+            }
+
+            switch ( (int)veh->m_StructUnit.GetLastVal() )
+            {
+            case vsp::SI_UNIT:
+            density_unit_old = vsp::RHO_UNIT_KG_M3;
+            break;
+
+            case vsp::CGS_UNIT:
+            density_unit_old = vsp::RHO_UNIT_G_CM3;
+            break;
+
+            case vsp::MPA_UNIT:
+            density_unit_old = vsp::RHO_UNIT_TONNE_MM3;
+            break;
+
+            case vsp::BFT_UNIT:
+            density_unit_old = vsp::RHO_UNIT_SLUG_FT3;
+            break;
+
+            case vsp::BIN_UNIT:
+            density_unit_old = vsp::RHO_UNIT_LBFSEC2_IN4;
+            break;
+            }
+
+            int pressure_unit_new, pressure_unit_old;
+
+            switch ( new_unit )
+            {
+            case vsp::SI_UNIT:
+            pressure_unit_new = vsp::PRES_UNIT_PA;
+            break;
+
+            case vsp::CGS_UNIT:
+            pressure_unit_new = vsp::PRES_UNIT_BA;
+            break;
+
+            case vsp::MPA_UNIT:
+            pressure_unit_new = vsp::PRES_UNIT_MPA;
+            break;
+
+            case vsp::BFT_UNIT:
+            pressure_unit_new = vsp::PRES_UNIT_PSF;
+            break;
+
+            case vsp::BIN_UNIT:
+            pressure_unit_new = vsp::PRES_UNIT_PSI;
+            break;
+            }
+
+            switch ( (int)veh->m_StructUnit.GetLastVal() )
+            {
+            case vsp::SI_UNIT:
+            pressure_unit_old = vsp::PRES_UNIT_PA;
+            break;
+
+            case vsp::CGS_UNIT:
+            pressure_unit_old = vsp::PRES_UNIT_BA;
+            break;
+
+            case vsp::MPA_UNIT:
+            pressure_unit_old = vsp::PRES_UNIT_MPA;
+            break;
+
+            case vsp::BFT_UNIT:
+            pressure_unit_old = vsp::PRES_UNIT_PSF;
+            break;
+
+            case vsp::BIN_UNIT:
+            pressure_unit_old = vsp::PRES_UNIT_PSI;
+            break;
+            }
+
+            m_FeaMaterialVec[i]->m_MassDensity.Set( ConvertDensity( m_FeaMaterialVec[i]->m_MassDensity.Get(), density_unit_old, density_unit_new ) );
+            m_FeaMaterialVec[i]->m_ElasticModulus.Set( ConvertPressure( m_FeaMaterialVec[i]->m_ElasticModulus.Get(), pressure_unit_old, pressure_unit_new ) );
+            m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Get(), veh->m_StructUnit.GetLastVal(), new_unit ) );
+        }
+
         // Update FeaProperty Units
         for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
         {
+            int length_unit_new, length_unit_old;
+
+            switch ( new_unit )
+            {
+            case vsp::SI_UNIT:
+            length_unit_new = vsp::LEN_M;
+            break;
+
+            case vsp::CGS_UNIT:
+            length_unit_new = vsp::LEN_CM;
+            break;
+
+            case vsp::MPA_UNIT:
+            length_unit_new = vsp::LEN_MM;
+            break;
+
+            case vsp::BFT_UNIT:
+            length_unit_new = vsp::LEN_FT;
+            break;
+
+            case vsp::BIN_UNIT:
+            length_unit_new = vsp::LEN_IN;
+            break;
+            }
+
+            switch ( (int)veh->m_StructUnit.GetLastVal() )
+            {
+            case vsp::SI_UNIT:
+            length_unit_old = vsp::LEN_M;
+            break;
+
+            case vsp::CGS_UNIT:
+            length_unit_old = vsp::LEN_CM;
+            break;
+
+            case vsp::MPA_UNIT:
+            length_unit_old = vsp::LEN_MM;
+            break;
+
+            case vsp::BFT_UNIT:
+            length_unit_old = vsp::LEN_FT;
+            break;
+
+            case vsp::BIN_UNIT:
+            length_unit_old = vsp::LEN_IN;
+            break;
+            }
+
             if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
             {
-                m_FeaPropertyVec[i]->m_Thickness.Set( ConvertLength( m_FeaPropertyVec[i]->m_Thickness.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
+                m_FeaPropertyVec[i]->m_Thickness.Set( ConvertLength( m_FeaPropertyVec[i]->m_Thickness.Get(), length_unit_old, length_unit_new ) );
             }
             else if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
             {
-                m_FeaPropertyVec[i]->m_CrossSecArea.Set( ConvertLength2( m_FeaPropertyVec[i]->m_CrossSecArea.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
-                m_FeaPropertyVec[i]->m_Ixx.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Ixx.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
-                m_FeaPropertyVec[i]->m_Iyy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Iyy.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
-                m_FeaPropertyVec[i]->m_Izy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izy.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
-                m_FeaPropertyVec[i]->m_Izz.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izz.Get(), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
+                m_FeaPropertyVec[i]->m_CrossSecArea.Set( ConvertLength2( m_FeaPropertyVec[i]->m_CrossSecArea.Get(), length_unit_old, length_unit_new ) );
+                m_FeaPropertyVec[i]->m_Ixx.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Ixx.Get(), length_unit_old, length_unit_new ) );
+                m_FeaPropertyVec[i]->m_Iyy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Iyy.Get(), length_unit_old, length_unit_new ) );
+                m_FeaPropertyVec[i]->m_Izy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izy.Get(), length_unit_old, length_unit_new ) );
+                m_FeaPropertyVec[i]->m_Izz.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izz.Get(), length_unit_old, length_unit_new ) );
             }
-        }
-
-        // Update FeaMaterial Units
-        for ( size_t i = 0; i < m_FeaMaterialVec.size(); i++ )
-        {
-            m_FeaMaterialVec[i]->m_ElasticModulus.Set( 1 / ConvertLength2( ( 1 / m_FeaMaterialVec[i]->m_ElasticModulus.Get() ), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
-            m_FeaMaterialVec[i]->m_MassDensity.Set( 1 / ConvertLength3( ( 1 / m_FeaMaterialVec[i]->m_MassDensity.Get() ), veh->m_StructLenUnit.GetLastVal(), new_unit ) );
-        }
-    }
-}
-
-void StructureMgrSingleton::UpdateMassUnit( int new_unit )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        // Update FeaMaterial Units
-        for ( size_t i = 0; i < m_FeaMaterialVec.size(); i++ )
-        {
-            m_FeaMaterialVec[i]->m_ElasticModulus.Set( ConvertMass( m_FeaMaterialVec[i]->m_ElasticModulus.Get(), veh->m_StructMassUnit.GetLastVal(), new_unit ) );
-            m_FeaMaterialVec[i]->m_MassDensity.Set( ConvertMass( m_FeaMaterialVec[i]->m_MassDensity.Get(), veh->m_StructMassUnit.GetLastVal(), new_unit ) );
         }
 
         // Update Point Mass Units
         vector < FeaStructure* > struct_vec = GetAllFeaStructs();
-
+        
         for ( size_t i = 0; i < struct_vec.size(); i++ )
         {
             vector < FeaPart* > prt_vec = struct_vec[i]->GetFeaPartVec();
-
+        
             for ( size_t j = 0; j < prt_vec.size(); j++ )
             {
                 if ( prt_vec[j]->GetType() == vsp::FEA_FIX_POINT )
                 {
                     FeaFixPoint* fix_pnt = dynamic_cast<FeaFixPoint*>( prt_vec[j] );
                     assert( fix_pnt );
-
+        
                     if ( fix_pnt->m_FixPointMassFlag() )
                     {
-                        fix_pnt->m_FixPointMass.Set( ConvertMass( fix_pnt->m_FixPointMass.Get(), veh->m_StructMassUnit.GetLastVal(), new_unit ) );
+
+                        int mass_unit_new, mass_unit_old;
+
+                        switch ( new_unit )
+                        {
+                        case vsp::SI_UNIT:
+                        mass_unit_new = vsp::MASS_UNIT_KG;
+                        break;
+
+                        case vsp::CGS_UNIT:
+                        mass_unit_new = vsp::MASS_UNIT_G;
+                        break;
+
+                        case vsp::MPA_UNIT:
+                        mass_unit_new = vsp::MASS_UNIT_TONNE;
+                        break;
+
+                        case vsp::BFT_UNIT:
+                        mass_unit_new = vsp::MASS_UNIT_SLUG;
+                        break;
+
+                        case vsp::BIN_UNIT:
+                        mass_unit_new = vsp::MASS_LBFSEC2IN;
+                        break;
+                        }
+
+                        switch ( (int)veh->m_StructUnit.GetLastVal() )
+                        {
+                        case vsp::SI_UNIT:
+                        mass_unit_old = vsp::MASS_UNIT_KG;
+                        break;
+
+                        case vsp::CGS_UNIT:
+                        mass_unit_old = vsp::MASS_UNIT_G;
+                        break;
+
+                        case vsp::MPA_UNIT:
+                        mass_unit_old = vsp::MASS_UNIT_TONNE;
+                        break;
+
+                        case vsp::BFT_UNIT:
+                        mass_unit_old = vsp::MASS_UNIT_SLUG;
+                        break;
+
+                        case vsp::BIN_UNIT:
+                        mass_unit_old = vsp::MASS_LBFSEC2IN;
+                        break;
+                        }
+
+                        fix_pnt->m_FixPointMass.Set( ConvertMass( fix_pnt->m_FixPointMass.Get(), mass_unit_old, mass_unit_new ) );
                     }
                 }
             }
-        }
-    }
-}
-
-void StructureMgrSingleton::UpdateTempUnit( int new_unit )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        // Update FeaMaterial Units
-        for ( size_t i = 0; i < m_FeaMaterialVec.size(); i++ )
-        {
-            m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Get(), veh->m_StructTempUnit.GetLastVal(), new_unit ) );
         }
     }
 }

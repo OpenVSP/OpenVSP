@@ -110,8 +110,7 @@ private:
     GroupLayout* m_CurrDispGroup;
 
     //===== Structure Tab Items =====//
-    Choice m_LengthUnitChoice;
-    Choice m_MassUnitChoice;
+    Choice m_StructUnitChoice;
     Choice m_GeomChoice;
     Choice m_SurfSel;
     TriggerButton m_AddFeaStructButton;
@@ -179,9 +178,8 @@ private:
     SliderAdjRangeInput m_MatElasticModSlider;
     TriggerButton m_MatElasticModUnit;
     SliderAdjRangeInput m_MatPoissonSlider;
-    TriggerButton m_MatPoissonUnit;
     SliderAdjRangeInput m_MatThermalExCoeffSlider;
-    Choice m_MatThermalExCoeffUnit;
+    TriggerButton m_MatThermalExCoeffUnit;
 
     //===== Property Tab =====//
     GroupLayout* m_CurFeaPropDispGroup;

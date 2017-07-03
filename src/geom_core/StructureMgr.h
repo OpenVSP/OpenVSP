@@ -47,9 +47,7 @@ public:
     virtual int GetFeaMaterialIndex( const string & FeaPartID );
     virtual void ResetExportFileNames( const string & VSP3FileName );
 
-    virtual void UpdateLengthUnit( int new_unit );
-    virtual void UpdateMassUnit( int new_unit );
-    virtual void UpdateTempUnit( int new_unit );
+    virtual void UpdateStructUnit( int new_unit );
 
     //==== FeaProperty Management ====//
     virtual void AddFeaProperty( FeaProperty* fea_prop )

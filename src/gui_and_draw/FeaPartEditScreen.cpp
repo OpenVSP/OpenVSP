@@ -126,7 +126,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FixPointEditLayout.AddButton( m_FixPointMassToggle, "" );
 
     m_FixPointEditLayout.SetButtonWidth( ( m_FixPointEditLayout.GetW() / 3 ) - ( m_FixPointEditLayout.GetRemainX() / 16 ) );
-    m_FixPointEditLayout.SetSliderWidth( m_FixPointEditLayout.GetW() / 3 );
+    m_FixPointEditLayout.SetSliderWidth( m_FixPointEditLayout.GetW() / 4 );
     m_FixPointEditLayout.SetInputWidth(  m_FixPointEditLayout.GetRemainX() / 6 );
 
     m_FixPointEditLayout.AddSlider( m_FixPointMassSlider, "Mass", 100.0, "%5.3g" );
@@ -134,7 +134,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FixPointEditLayout.AddButton( m_FixPointMassUnit, "" );
     m_FixPointMassUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_FixPointMassUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_FixPointMassUnit.SetWidth( ( m_FixPointEditLayout.GetW() / 8 ) - 3 );
+    m_FixPointMassUnit.SetWidth( ( m_FixPointEditLayout.GetW() / 5 ) );
 
     //=== SubSurfaces ===//
 
@@ -1205,27 +1205,28 @@ void FeaPartEditScreen::UpdateUnitLabels()
     if ( veh )
     {
         string mass_unit;
+        string squared( 1, 178 );
 
-        switch ( veh->m_StructMassUnit() )
+        switch ( veh->m_StructUnit() )
         {
-        case vsp::MASS_UNIT_G:
-        mass_unit = "g";
-        break;
-
-        case vsp::MASS_UNIT_KG:
+        case vsp::SI_UNIT:
         mass_unit = "kg";
         break;
 
-        case vsp::MASS_UNIT_TONNE:
-        mass_unit = "t"; // or Mg/
+        case vsp::CGS_UNIT:
+        mass_unit = "g";
         break;
 
-        case vsp::MASS_UNIT_LB:
-        mass_unit = "lb";
+        case vsp::MPA_UNIT:
+        mass_unit = "tonne"; // or Mg/
         break;
 
-        case vsp::MASS_UNIT_SLUG:
+        case vsp::BFT_UNIT:
         mass_unit = "slug";
+        break;
+
+        case vsp::BIN_UNIT:
+        mass_unit = "lbf*sec" + squared + "/in";
         break;
         }
 

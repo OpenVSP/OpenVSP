@@ -82,23 +82,17 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_StructureTabLayout.SetSameLineFlag( true );
     m_StructureTabLayout.SetFitWidthFlag( false );
-    m_StructureTabLayout.SetChoiceButtonWidth( m_StructureTabLayout.GetRemainX() / 4 );
-    m_StructureTabLayout.SetSliderWidth( m_StructureTabLayout.GetRemainX() / 4 );
+    m_StructureTabLayout.SetChoiceButtonWidth( m_StructureTabLayout.GetRemainX() / 2 );
+    m_StructureTabLayout.SetSliderWidth( m_StructureTabLayout.GetRemainX() / 2 );
 
-    m_LengthUnitChoice.AddItem( "MM" );
-    m_LengthUnitChoice.AddItem( "CM" );
-    m_LengthUnitChoice.AddItem( "M" );
-    m_LengthUnitChoice.AddItem( "IN" );
-    m_LengthUnitChoice.AddItem( "FT" );
-    m_LengthUnitChoice.AddItem( "YD" );
-    m_StructureTabLayout.AddChoice( m_LengthUnitChoice, "Length Units" );
-
-    m_MassUnitChoice.AddItem( "G" );
-    m_MassUnitChoice.AddItem( "KG" );
-    m_MassUnitChoice.AddItem( "TONNE" );
-    m_MassUnitChoice.AddItem( "LB" );
-    m_MassUnitChoice.AddItem( "SLUG" );
-    m_StructureTabLayout.AddChoice( m_MassUnitChoice, "Mass Units" );
+    m_StructUnitChoice.AddItem( "SI (kg, m)" );
+    m_StructUnitChoice.AddItem( "CGS (g, cm)" );
+    m_StructUnitChoice.AddItem( "MPA (tonne, mm)" );
+    m_StructUnitChoice.AddItem( "BFT (slug, ft)" );
+    string squared( 1, 178 );
+    string bin_name = "BIN (lbf*sec" + squared + "\\/in, in)";
+    m_StructUnitChoice.AddItem( bin_name );
+    m_StructureTabLayout.AddChoice( m_StructUnitChoice, "Unit System (Mass, Length)" );
 
     m_StructureTabLayout.SetSameLineFlag( false );
     m_StructureTabLayout.SetFitWidthFlag( true );
@@ -404,44 +398,36 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MaterialEditSubGroup.SetFitWidthFlag( false );
 
     m_MaterialEditSubGroup.SetButtonWidth( buttonwidth );
-    m_MaterialEditSubGroup.SetSliderWidth( 7 * m_MaterialEditSubGroup.GetW() / 24 );
+    m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
     m_MaterialEditSubGroup.SetInputWidth( m_MaterialEditSubGroup.GetW() / 6 );
 
     m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 0.001, "%5.3g" );
     m_MaterialEditSubGroup.AddButton( m_MatDensityUnit, "" );
     m_MatDensityUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_MatDensityUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_MatDensityUnit.SetWidth( m_MaterialEditSubGroup.GetW() / 7 );
+    m_MatDensityUnit.SetWidth( ( m_MaterialEditSubGroup.GetW() / 5 ) - 7 );
 
     m_MaterialEditSubGroup.ForceNewLine();
+    m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
 
     m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "Elastic Modulus", 10e5, "%5.3g" );
     m_MaterialEditSubGroup.AddButton( m_MatElasticModUnit, "" );
     m_MatElasticModUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_MatElasticModUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_MatElasticModUnit.SetWidth( m_MaterialEditSubGroup.GetW() / 7 );
+    m_MatElasticModUnit.SetWidth( ( m_MaterialEditSubGroup.GetW() / 5 ) - 7 );
 
     m_MaterialEditSubGroup.ForceNewLine();
+    m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
 
     m_MaterialEditSubGroup.AddSlider( m_MatPoissonSlider, "Poisson Ratio", 1, "%5.3g" );
-    m_MaterialEditSubGroup.AddButton( m_MatPoissonUnit, "" );
-    m_MatPoissonUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_MatPoissonUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_MatPoissonUnit.SetWidth( m_MaterialEditSubGroup.GetW() / 7 );
 
     m_MaterialEditSubGroup.ForceNewLine();
 
     m_MaterialEditSubGroup.AddSlider( m_MatThermalExCoeffSlider, "Thermal Expan Coeff", 10e-5, "%5.3g" );
-
-    string deg( 1, 176 );
-    m_MaterialEditSubGroup.SetChoiceButtonWidth( 0 );
-    m_MaterialEditSubGroup.SetSliderWidth( m_MaterialEditSubGroup.GetW() / 7 );
-
-    m_MatThermalExCoeffUnit.AddItem( "1\\/K" );
-    m_MatThermalExCoeffUnit.AddItem( "1\\/" + deg +"C" );
-    m_MatThermalExCoeffUnit.AddItem( "1\\/" + deg + "F" );
-    m_MatThermalExCoeffUnit.AddItem( "1\\/R" );
-    m_MaterialEditSubGroup.AddChoice( m_MatThermalExCoeffUnit, "" );
+    m_MaterialEditSubGroup.AddButton( m_MatThermalExCoeffUnit, "" );
+    m_MatThermalExCoeffUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_MatThermalExCoeffUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_MatThermalExCoeffUnit.SetWidth( ( m_MaterialEditSubGroup.GetW() / 5 ) - 7 );
 
     m_MaterialEditSubGroup.ForceNewLine();
     m_MaterialEditSubGroup.AddYGap();
@@ -1454,89 +1440,59 @@ void StructScreen::UpdateUnitLabels()
     {
         string squared( 1, 178 );
         string cubed( 1, 179 );
-        string thick_unit, area_unit, area_moment_inertia_unit, young_mod_unit, density_unit;
+        string thick_unit, area_unit, area_moment_inertia_unit, young_mod_unit, density_unit, temp_unit;
 
-        switch ( veh->m_StructMassUnit() )
+        switch ( veh->m_StructUnit() )
         {
-        case vsp::MASS_UNIT_G:
-            young_mod_unit = "mN/";
-            density_unit = "g/";
-            break;
+        case vsp::SI_UNIT:
+        density_unit = "kg/m" + cubed;
+        thick_unit = "m";
+        area_unit = "m" + squared;
+        area_moment_inertia_unit = "m^4";
+        young_mod_unit = "Pa";
+        temp_unit = "1/K";
+        break;
 
-        case vsp::MASS_UNIT_KG:
-            young_mod_unit = "N/";
-            density_unit = "kg/";
-            break;
+        case vsp::CGS_UNIT:
+        density_unit = "g/cm" + cubed;
+        thick_unit = "cm";
+        area_unit = "cm" + squared;
+        area_moment_inertia_unit = "cm^4";
+        young_mod_unit = "Ba";
+        temp_unit = "1/K";
+        break;
 
-        case vsp::MASS_UNIT_TONNE:
-            young_mod_unit = "MN/";
-            density_unit = "t/"; // or Mg/
-            break;
+        case vsp::MPA_UNIT:
+        density_unit = "t/mm" + cubed; // or Mg/
+        thick_unit = "mm";
+        area_unit = "mm" + squared;
+        area_moment_inertia_unit = "mm^4";
+        young_mod_unit = "MPa";
+        temp_unit = "1/K";
+        break;
 
-        case vsp::MASS_UNIT_LB:
-            young_mod_unit = "lb/";
-            density_unit = "lb/";
-            break;
+        case vsp::BFT_UNIT:
+        density_unit = "slug/ft" + cubed;
+        thick_unit = "ft";
+        area_unit = "ft" + squared;
+        area_moment_inertia_unit = "ft^4";
+        young_mod_unit = "lbf/ft" + squared;
+        temp_unit = "1/R";
+        break;
 
-        case vsp::MASS_UNIT_SLUG:
-            young_mod_unit = "slug/";
-            density_unit = "slug/";
-            break;
-        }
-
-        switch ( veh->m_StructLenUnit() )
-        {
-        case vsp::LEN_MM:
-            thick_unit = "mm";
-            area_unit = "mm" + squared;
-            area_moment_inertia_unit = "mm^4";
-            young_mod_unit += "mm" + squared;
-            density_unit += "mm" + cubed;
-            break;
-
-        case vsp::LEN_CM:
-            thick_unit = "cm";
-            area_unit = "cm" + squared;
-            area_moment_inertia_unit = "cm^4";
-            young_mod_unit += "cm" + squared;
-            density_unit += "cm" + cubed;
-            break;
-
-        case vsp::LEN_M:
-            thick_unit = "m";
-            area_unit = "m" + squared;
-            area_moment_inertia_unit = "m^4";
-            young_mod_unit += "m" + squared;
-            density_unit += "m" + cubed;
-            break;
-
-        case vsp::LEN_IN:
-            thick_unit = "in";
-            area_unit = "in" + squared;
-            area_moment_inertia_unit = "in^4";
-            young_mod_unit += "in" + squared;
-            density_unit += "in" + cubed;
-            break;
-
-        case vsp::LEN_FT:
-            thick_unit = "ft";
-            area_unit = "ft" + squared;
-            area_moment_inertia_unit = "ft^4";
-            young_mod_unit += "ft" + squared;
-            density_unit += "ft" + cubed;
-            break;
-
-        case vsp::LEN_YD:
-            thick_unit = "yd";
-            area_unit = "yd" + squared;
-            area_moment_inertia_unit = "yd^{4}";
-            young_mod_unit += "yd" + squared;
-            density_unit += "yd" + cubed;
-            break;
+        case vsp::BIN_UNIT:
+        density_unit = "lbf*sec" + squared + "/in^4";
+        thick_unit = "in";
+        area_unit = "in" + squared;
+        area_moment_inertia_unit = "in^4";
+        young_mod_unit = "psi";
+        temp_unit = "1/R";
+        break;
         }
 
         m_MatDensityUnit.GetFlButton()->copy_label( density_unit.c_str() );
         m_MatElasticModUnit.GetFlButton()->copy_label( young_mod_unit.c_str() );
+        m_MatThermalExCoeffUnit.GetFlButton()->copy_label( temp_unit.c_str() );
 
         m_PropThickUnit.GetFlButton()->copy_label( thick_unit.c_str() );
 
@@ -1556,9 +1512,7 @@ bool StructScreen::Update()
     {
         FeaStructDispGroup( NULL ); // Hide all initially
 
-        m_LengthUnitChoice.Update( veh->m_StructLenUnit.GetID() );
-        m_MassUnitChoice.Update( veh->m_StructMassUnit.GetID() );
-        m_MatThermalExCoeffUnit.Update( veh->m_StructTempUnit.GetID() );
+        m_StructUnitChoice.Update( veh->m_StructUnit.GetID() );
 
         //===== Geom Choice Update =====//
         LoadGeomChoice();
@@ -2051,17 +2005,9 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             structvec[StructureMgr.GetCurrStructIndex()]->SetDrawFlag( false );
         }
     }
-    else if ( device == &m_LengthUnitChoice )
+    else if ( device == &m_StructUnitChoice )
     {
-        StructureMgr.UpdateLengthUnit( m_LengthUnitChoice.GetVal() );
-    }
-    else if ( device == &m_MassUnitChoice )
-    {
-        StructureMgr.UpdateMassUnit( m_MassUnitChoice.GetVal() );
-    }
-    else if ( device == &m_MatThermalExCoeffUnit )
-    {
-        StructureMgr.UpdateTempUnit( m_MatThermalExCoeffUnit.GetVal() );
+        StructureMgr.UpdateStructUnit( m_StructUnitChoice.GetVal() );
     }
     else if ( device == &m_GeomChoice )
     {
