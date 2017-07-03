@@ -2591,13 +2591,13 @@ void RotorDisk::InitDisk()
     m_HubDiameter.Init( "Rotor_HubDiameter", groupname, this, 0.0, 0.0, 1e12 );    // RotorHubDiameter_
     m_HubDiameter.SetDescript( "Rotor Hub Diameter" );
 
-    m_RPM.Init( "Rotor_RPM", groupname, this, 2000.0, 0.0, 1e12 );       // RotorRPM_
+    m_RPM.Init( "Rotor_RPM", groupname, this, 2000.0, -1e12, 1e12 );       // RotorRPM_
     m_RPM.SetDescript( "Rotor RPM" );
 
-    m_CT.Init( "Rotor_CT", groupname, this, 0.4, 0.0, 1e3);        // Rotor_CT_
+    m_CT.Init( "Rotor_CT", groupname, this, 0.4, -1e3, 1e3);        // Rotor_CT_
     m_CT.SetDescript( "Rotor Coefficient of Thrust" );
 
-    m_CP.Init( "Rotor_CP", groupname, this, 0.6, 0.0, 1e3 );        // Rotor_CP_
+    m_CP.Init( "Rotor_CP", groupname, this, 0.6, -1e3, 1e3 );        // Rotor_CP_
     m_CP.SetDescript( "Rotor Coefficient of Power" );
 
     m_ParentGeomId = "";
