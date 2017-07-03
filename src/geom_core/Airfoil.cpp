@@ -149,6 +149,7 @@ double Airfoil::EstimateThick()
     c1.scale( -1.0 );
     c3.sum( c1, c2 );
 
+    c1.clear(); // Clear before re-using c1
     c1.square( c3 );
 
     typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
