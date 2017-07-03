@@ -212,6 +212,17 @@ public:
     int GetNumSectU() const;
     int GetNumSectW() const;
 
+    void Offset( vec3d offvec );
+    void OffsetX( double x );
+    void OffsetY( double y );
+    void OffsetZ( double Z );
+
+    void Scale( double s );
+
+    void ScaleX( double s );
+    void ScaleY( double s );
+    void ScaleZ( double s );
+
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;

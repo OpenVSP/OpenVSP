@@ -2051,3 +2051,49 @@ void VspSurf::IGESKnots( int deg, int npatch, vector< double > &knot )
         knot.push_back( 1.0 * npatch );
     }
 }
+
+void VspSurf::Offset( vec3d offvec )
+{
+    threed_point_type p;
+    p << offvec.x(), offvec.y(), offvec.z();
+
+    m_Surface.translate( p );
+}
+
+void VspSurf::OffsetX( double x )
+{
+    vec3d off( x, 0, 0 );
+    Offset( off );
+}
+
+void VspSurf::OffsetY( double y )
+{
+    vec3d off( 0, y, 0 );
+    Offset( off );
+}
+
+void VspSurf::OffsetZ( double z )
+{
+    vec3d off( 0, 0, z );
+    Offset( off );
+}
+
+void VspSurf::Scale( double s )
+{
+    m_Surface.scale( s );
+}
+
+void VspSurf::ScaleX( double s )
+{
+    m_Surface.scale_x( s );
+}
+
+void VspSurf::ScaleY( double s )
+{
+    m_Surface.scale_y( s );
+}
+
+void VspSurf::ScaleZ( double s )
+{
+    m_Surface.scale_z( s );
+}
