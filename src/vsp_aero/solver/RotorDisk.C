@@ -294,11 +294,17 @@ void ROTOR_DISK::Velocity(double xyz[3], double q[5])
    
     Term1 = 0.;
     
-    if ( r > 0. && alpha > 0. ) Term1 = ABS(z)*(1./alpha - 1.)/(2.*r);
-    
+    if ( r > 0. && alpha > 0. ) Term1 = ABS(z)*(1./alpha - alpha)/(2.*r);
+
     Term2 = r*f/(2.*RotorRadius_);
     
     Velocity_R = Vh * ( Term1 - Term2 );
+    
+    if ( z == 0. && r > RotorRadius_ ) {
+       
+       Velocity_R = 0.5 * Vh * ( sqrt(1.-pow(RotorRadius_/r,2.)) - r/RotorRadius_*asin(RotorRadius_/r) );
+       
+    }       
 
     // Axial velocity
    
@@ -313,7 +319,7 @@ void ROTOR_DISK::Velocity(double xyz[3], double q[5])
        Velocity_X = Vh*( alpha + z*f/RotorRadius_ );
        
     }
-   
+
     // Angular velocity
     
     Omega = ABS(RotorRPM_) * 2. * PI / 60.;
