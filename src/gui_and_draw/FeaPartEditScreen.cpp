@@ -499,29 +499,25 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSLineTestToggleGroup.Update( ssline->m_TestType.GetID() );
                         m_FeaSSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
 
-                        m_FeaSSLinePropertyChoice.Activate();
+                        if ( ssline->m_IncludedElements() == BEAM )
+                        {
+                            m_FeaSSLineCapPropertyChoice.Activate();
+                            m_FeaSSLinePropertyChoice.Deactivate();
+                        }
+                        else if ( ssline->m_IncludedElements() == TRIS )
+                        {
+                            m_FeaSSLineCapPropertyChoice.Deactivate();
+                            m_FeaSSLinePropertyChoice.Activate();
+                        }
+                        else if ( ssline->m_IncludedElements() == BOTH_ELEMENTS )
+                        {
+                            m_FeaSSLineCapPropertyChoice.Activate();
+                            m_FeaSSLinePropertyChoice.Activate();
+                        }
 
                         if ( ssline->m_TestType() == vsp::NONE )
                         {
                             m_FeaSSLinePropertyChoice.Deactivate();
-                        }
-
-                        if ( ssline->m_IncludedElements() == TRIS || ssline->m_IncludedElements() == BOTH_ELEMENTS )
-                        {
-                            m_FeaSSLinePropertyChoice.Activate();
-                        }
-                        else
-                        {
-                            m_FeaSSLinePropertyChoice.Deactivate();
-                        }
-
-                        if ( ssline->m_IncludedElements() == BEAM || ssline->m_IncludedElements() == BOTH_ELEMENTS )
-                        {
-                            m_FeaSSLineCapPropertyChoice.Activate();
-                        }
-                        else
-                        {
-                            m_FeaSSLineCapPropertyChoice.Deactivate();
                         }
 
                         FeaPartDispGroup( &m_FeaSSLineGroup );
@@ -543,6 +539,7 @@ bool FeaPartEditScreen::Update()
                             m_FeaSSRecCapPropertyChoice.Activate();
                             m_FeaSSRecPropertyChoice.Deactivate();
                             m_FeaSSRecTestToggleGroup.Deactivate();
+                            ssrec->m_TestType.Set( vsp::INSIDE ); // Inside tris must be set to be removed. Skin tris are saved/removed using FeaSkin parms
                         }
                         else if ( ssrec->m_IncludedElements() == TRIS  )
                         {
@@ -582,6 +579,7 @@ bool FeaPartEditScreen::Update()
                             m_FeaSSEllCapPropertyChoice.Activate();
                             m_FeaSSEllPropertyChoice.Deactivate();
                             m_FeaSSEllTestToggleGroup.Deactivate();
+                            ssell->m_TestType.Set( vsp::INSIDE ); // Inside tris must be set to be removed. Skin tris are saved/removed using FeaSkin parms
                         }
                         else if ( ssell->m_IncludedElements() == TRIS )
                         {
@@ -624,6 +622,7 @@ bool FeaPartEditScreen::Update()
                             m_FeaSSConCapPropertyChoice.Activate();
                             m_FeaSSConPropertyChoice.Deactivate();
                             m_FeaSSConTestToggleGroup.Deactivate();
+                            sscon->m_TestType.Set( vsp::INSIDE ); // Inside tris must be set to be removed. Skin tris are saved/removed using FeaSkin parms
                         }
                         else if ( sscon->m_IncludedElements() == TRIS )
                         {
