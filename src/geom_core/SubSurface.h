@@ -95,6 +95,10 @@ public:
     {
         return m_SplitLVec;
     }
+    virtual std::vector< SSLineSeg >& GetLVec()
+    {
+        return m_LVec;
+    }
     virtual bool GetPolyFlag()
     {
         return m_PolyFlag;

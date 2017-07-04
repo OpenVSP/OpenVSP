@@ -47,9 +47,9 @@ void SimpleSubSurface::CopyFrom( SubSurface* ss )
         ss->PrepareSplitVec();
 
         m_SplitLVec = ss->GetSplitSegs();
-        m_LVec = m_SplitLVec[0];
 
         m_PolyPntsReadyFlag = false;
+        m_LVec = ss->GetLVec();
         m_FirstSplit = true;
         m_PolyFlag = ss->GetPolyFlag();
 
