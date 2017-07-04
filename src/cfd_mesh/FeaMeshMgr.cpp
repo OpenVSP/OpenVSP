@@ -974,7 +974,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
 
     for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
     {
-        if ( ( *c )->m_BorderFlag && ( *c )->m_SurfA->GetCompID() == ( *c )->m_SurfB->GetCompID() )
+        if ( ( *c )->m_BorderFlag && ( *c )->m_SurfA->GetCompID() == ( *c )->m_SurfB->GetCompID() && ( *c )->m_SSIntersectIndex < 0 )
         {
             vec2d uw_pnt0;
             vec2d uw_pnt1;
@@ -1218,13 +1218,13 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                                     bool split_on_ss_edge = false;
 
                                                     // Check if the split point lies on the subsurface edge
-                                                    if ( const_w_curve && ( split_uw_vec[k][1] - uw_pnt0[1] <= FLT_EPSILON ) &&
+                                                    if ( const_w_curve && abs( ( split_uw_vec[k][1] - uw_pnt0[1] ) <= FLT_EPSILON ) &&
                                                         ( ( split_uw_vec[k][0] >= uw_pnt0[0] && split_uw_vec[k][0] <= uw_pnt1[0] ) ||
                                                             ( split_uw_vec[k][0] >= uw_pnt1[0] && split_uw_vec[k][0] <= uw_pnt0[0] ) ) )
                                                     {
                                                         split_on_ss_edge = true;
                                                     }
-                                                    else if ( const_u_curve && ( split_uw_vec[k][0] - uw_pnt0[0] <= FLT_EPSILON ) &&
+                                                    else if ( const_u_curve && abs( ( split_uw_vec[k][0] - uw_pnt0[0] ) <= FLT_EPSILON ) &&
                                                         ( ( split_uw_vec[k][1] >= uw_pnt0[1] && split_uw_vec[k][1] <= uw_pnt1[1] ) ||
                                                             ( split_uw_vec[k][1] >= uw_pnt1[1] && split_uw_vec[k][1] <= uw_pnt0[1] ) ) )
                                                     {
@@ -1264,7 +1264,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                                     {
                                                         split_on_ss_edge = false;
 
-                                                        if ( const_w_curve && ( split_uw_vec[n][1] - uw_pnt0[1] <= FLT_EPSILON ) &&
+                                                        if ( const_w_curve && ( abs( split_uw_vec[n][1] - uw_pnt0[1] ) <= FLT_EPSILON ) &&
                                                             ( ( ( split_uw_vec[k][0] >= uw_pnt0[0] && split_uw_vec[k][0] <= uw_pnt1[0] ) ||
                                                                 ( split_uw_vec[k][0] >= uw_pnt1[0] && split_uw_vec[k][0] <= uw_pnt0[0] ) ) &&
                                                              ( ( split_uw_vec[n][0] >= uw_pnt0[0] && split_uw_vec[n][0] <= uw_pnt1[0] ) ||
@@ -1272,7 +1272,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                                         {
                                                             split_on_ss_edge = true;
                                                         }
-                                                        else if ( const_u_curve && ( split_uw_vec[n][0] - uw_pnt0[0] <= FLT_EPSILON ) &&
+                                                        else if ( const_u_curve && ( abs( split_uw_vec[n][0] - uw_pnt0[0] ) <= FLT_EPSILON ) &&
                                                             ( ( ( split_uw_vec[k][1] >= uw_pnt0[1] && split_uw_vec[k][1] <= uw_pnt1[1] ) ||
                                                                 ( split_uw_vec[k][1] >= uw_pnt1[1] && split_uw_vec[k][1] <= uw_pnt0[1] ) ) &&
                                                                   ( ( split_uw_vec[n][1] >= uw_pnt0[1] && split_uw_vec[n][1] <= uw_pnt1[1] ) ||
