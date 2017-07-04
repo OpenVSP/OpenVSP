@@ -28,7 +28,6 @@ public:
     virtual void SplitSegsW( const double & w, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant W value
     virtual void ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec );
     virtual bool Subtag( const vec3d & center );
-    virtual void UpdatePolygonPnts( bool ss_con_both = true );
 
     virtual std::vector< std::vector< SSLineSeg > >& GetSplitSegs()
     {
@@ -55,7 +54,6 @@ public:
     int m_TestType;
     int m_MainSurfIndx;
     int m_IncludedElements;
-    int m_ControlSurfType;
 
 protected:
 
@@ -74,7 +72,6 @@ protected:
     bool m_PolyPntsReadyFlag;
     bool m_FirstSplit;
     bool m_PolyFlag; // Flag to indicate if the SimpleSubSurface is a Polygon ( this affects how it is treated in CFDMesh )
-
 };
 
 #endif

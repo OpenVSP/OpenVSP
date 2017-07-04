@@ -22,7 +22,6 @@ SimpleSubSurface::SimpleSubSurface()
     m_PolyPntsReadyFlag = false;
     m_FirstSplit = true;
     m_PolyFlag = true;
-    m_ControlSurfType = -1;
 }
 
 SimpleSubSurface::~SimpleSubSurface()
@@ -45,21 +44,14 @@ void SimpleSubSurface::CopyFrom( SubSurface* ss )
         m_CapFeaPropertyIndex = ss->GetCapFeaPropertyIndex();
 
         ss->PrepareSplitVec();
-
         m_SplitLVec = ss->GetSplitSegs();
-
-        m_PolyPntsReadyFlag = false;
         m_LVec = ss->GetLVec();
         m_FirstSplit = true;
+
+        ss->UpdatePolygonPnts();
+        m_PolyPntsVec = ss->GetPolyPntsVec();
+        m_PolyPntsReadyFlag = true;
         m_PolyFlag = ss->GetPolyFlag();
-
-        if ( m_Type == vsp::SS_CONTROL )
-        {
-            SSControlSurf* ss_con = dynamic_cast<SSControlSurf*>( ss );
-            assert( ss_con );
-
-            m_ControlSurfType = ss_con->m_SurfType.Get();
-        }
     }
 }
 
@@ -205,8 +197,6 @@ bool SimpleSubSurface::Subtag( const vec3d & center )
     }
     else
     {
-        UpdatePolygonPnts(); // Update polygon vector
-
         if ( m_TestType == vsp::NONE )
         {
             return false;
@@ -237,76 +227,5 @@ bool SimpleSubSurface::Subtag( const vec3d & center )
         }
 
         return false;
-    }
-}
-
-void SimpleSubSurface::UpdatePolygonPnts( bool ss_con_both )
-{
-    if ( m_PolyPntsReadyFlag )
-    {
-        return;
-    }
-
-    if ( m_Type == vsp::SS_CONTROL && ss_con_both )
-    {
-        if ( m_ControlSurfType == SSControlSurf::SS_CONTROL_SUBTYPE::UPPER_SURF || m_ControlSurfType == SSControlSurf::SS_CONTROL_SUBTYPE::LOWER_SURF )
-        {
-            UpdatePolygonPnts( false );
-
-            vec3d pnt = m_LVec[0].GetP0();
-            m_PolyPntsVec[0].push_back( vec2d( pnt.x(), pnt.y() ) );
-            return;
-        }
-
-        m_PolyPntsVec.resize( 2 );
-
-        int last_ind = 0;
-        int start_ind = 0;
-        for ( int i = 0; i < (int)m_PolyPntsVec.size(); i++ )
-        {
-            m_PolyPntsVec[i].clear();
-
-            if ( i == 0 )
-            {
-                last_ind = 3;
-            }
-            if ( i == 1 )
-            {
-                last_ind = 6;
-            }
-
-            vec3d pnt;
-            for ( int ls = start_ind; ls < last_ind; ls++ )
-            {
-                pnt = m_LVec[ls].GetP0();
-                m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
-            }
-            pnt = m_LVec[last_ind - 1].GetP1();
-            m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
-            pnt = m_LVec[start_ind].GetP0();
-            m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
-
-            start_ind = last_ind;
-        }
-
-        m_PolyPntsReadyFlag = true;
-    }
-    else
-    {
-        m_PolyPntsVec.resize( 1 );
-
-        m_PolyPntsVec[0].clear();
-
-        int last_ind = m_LVec.size() - 1;
-        vec3d pnt;
-        for ( int ls = 0; ls < last_ind + 1; ls++ )
-        {
-            pnt = m_LVec[ls].GetP0();
-            m_PolyPntsVec[0].push_back( vec2d( pnt.x(), pnt.y() ) );
-        }
-        pnt = m_LVec[last_ind].GetP1();
-        m_PolyPntsVec[0].push_back( vec2d( pnt.x(), pnt.y() ) );
-
-        m_PolyPntsReadyFlag = true;
     }
 }
