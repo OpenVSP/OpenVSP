@@ -3071,32 +3071,32 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             switch ( m_GuiDraw.GetDrawType() )
             {
             case GeomGuiDraw::GEOM_DRAW_WIRE:
-                m_DegenCamberPlateDrawObj_vec[i].m_LineWidth = 1.0;
-                m_DegenCamberPlateDrawObj_vec[i].m_LineColor = lineColor;
-                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
-                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                m_DegenPlateDrawObj_vec[i].m_LineWidth = 1.0;
+                m_DegenPlateDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
             case GeomGuiDraw::GEOM_DRAW_HIDDEN:
-                m_DegenCamberPlateDrawObj_vec[i].m_LineColor = lineColor;
-                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
-                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                m_DegenPlateDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
             case GeomGuiDraw::GEOM_DRAW_SHADE:
-                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
-                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
             case GeomGuiDraw::GEOM_DRAW_NONE:
-                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
-                m_DegenCamberPlateDrawObj_vec[i].m_Visible = false;
-                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                m_DegenPlateDrawObj_vec[i].m_Visible = false;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
             case GeomGuiDraw::GEOM_DRAW_TEXTURE:
-                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
-                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
             }
         }
