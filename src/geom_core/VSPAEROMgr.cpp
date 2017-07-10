@@ -281,8 +281,6 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
             m_RotorDiskVec[i] = new RotorDisk();
             m_RotorDiskVec[i]->DecodeXml(rotornode);
         }
-
-        UpdateRotorDisks();
     }
 
     return VSPAEROsetnode;
@@ -2736,6 +2734,7 @@ xmlNodePtr RotorDisk::EncodeXml( xmlNodePtr & node )
         ParmContainer::EncodeXml( node );
         XmlUtil::AddStringNode( node, "ParentID", m_ParentGeomId.c_str() );
         XmlUtil::AddIntNode( node, "SurfIndex", m_ParentGeomSurfNdx );
+        XmlUtil::AddStringNode( node, "GroupName", m_Name.c_str() );
     }
 
     return node;
@@ -2747,9 +2746,11 @@ xmlNodePtr RotorDisk::DecodeXml( xmlNodePtr & node )
     int defint = 0;
     if ( node )
     {
-        ParmContainer::DecodeXml( node );
         m_ParentGeomId = XmlUtil::FindString( node, "ParentID", defstr );
         m_ParentGeomSurfNdx = XmlUtil::FindInt( node, "SurfIndex", defint );
+        m_Name = XmlUtil::FindString( node, "GroupName", defstr );
+        UpdateParmGroupName();
+        ParmContainer::DecodeXml( node );
     }
 
     return node;
@@ -2851,6 +2852,8 @@ xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
 
         XmlUtil::AddStringNode(node, "ParentGeomBase", m_ParentGeomBaseID.c_str());
 
+        XmlUtil::AddStringNode(node, "GroupName", m_Name.c_str());
+
         XmlUtil::AddIntNode(node, "NumberOfControlSubSurfaces", m_ControlSurfVec.size());
         for (size_t i = 0; i < m_ControlSurfVec.size(); ++i)
         {
@@ -2873,6 +2876,7 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
 {
     char str[256];
     unsigned int nControlSubSurfaces = 0;
+    string GroupName = "";
     string ParentGeomID = "GeomID";
     string SSID = "SSID";
     bool IsGrouped = false;
@@ -2883,8 +2887,6 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
 
     if ( node )
     {
-        ParmContainer::DecodeXml( node );
-
         m_ParentGeomBaseID = XmlUtil::FindString(node, "ParentGeomBase", ParentGeomID );
 
         nControlSubSurfaces = XmlUtil::FindInt( node, "NumberOfControlSubSurfaces", nControlSubSurfaces );
@@ -2900,6 +2902,10 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
             newSurf.iReflect = XmlUtil::FindInt( csnode, str, iReflect );
             AddSubSurface( newSurf );
         }
+
+        m_Name = XmlUtil::FindString(node, "GroupName", GroupName);
+        UpdateParmGroupName();
+        ParmContainer::DecodeXml( node );
     }
 
     return node;
