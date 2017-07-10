@@ -514,6 +514,7 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
     {
         if ( !m_DegenGeomVec.empty() )
         {
+            Geom* geom = VehicleMgr.GetVehicle()->FindGeom(m_geo_geomID[i]);
             // If DegenGeom Exists Calculate Lref
             if ( m_geo_masterRow[i] )
             {
@@ -524,12 +525,31 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
                         m_geo_lref.push_back( CalcReferenceLength( iSurf ) );
 
                         lastID = m_geo_geomID[i];
+
+                        Geom* geom = VehicleMgr.GetVehicle()->FindGeom(m_geo_geomID[i]);
+                        if (geom)
+                        {
+                            if (geom->GetType().m_Type != PROP_GEOM_TYPE)
+                            {
+                                iSurf += geom->GetNumSymmCopies();
+                            }
+                            else
+                            {
+                                string numBladesID = geom->FindParm("NumBlade", "Design");
+                                IntParm* tNumBladeParm = (IntParm*)ParmMgr.FindParm(numBladesID);
+                                if (tNumBladeParm)
+                                {
+                                    iSurf += tNumBladeParm->Get() * geom->GetNumSymmCopies();
+                                }
+                            }
+                        }
                     }
                     else
                     {
                         --i;
+                        iSurf += geom->GetNumSymmCopies();
+                        
                     }
-                    iSurf += VehicleMgr.GetVehicle()->FindGeom( m_geo_geomID[i] )->GetNumSymmCopies();
                 }
                 else
                 {
