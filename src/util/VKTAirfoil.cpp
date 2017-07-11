@@ -9,21 +9,21 @@ typedef std::complex< double > doublec;
 
 doublec cmplx_potential( doublec zeta, double alpha, double beta, double a, doublec mu )
 {
-    doublec i = 1i;
+    doublec i(0,1);
 
-    doublec cmplx_potentialresult = zeta * exp( -1i * alpha ) +
+    doublec cmplx_potentialresult = zeta * exp( -i * alpha ) +
                                     i * 2.0 * a * sin( alpha + beta ) * log( zeta - mu ) +
-                                    a * a * exp( 1i * alpha ) / ( zeta - mu );
+                                    a * a * exp( i * alpha ) / ( zeta - mu );
     return cmplx_potentialresult;
 }
 
 doublec cmplx_velocity( doublec zeta, double alpha, double beta, double a, doublec mu )
 {
-    doublec i = 1i;
+    doublec i(0,1);
 
-    doublec cmplx_velocityresult = exp( -1i * alpha ) +
+    doublec cmplx_velocityresult = exp( -i * alpha ) +
                                    i * 2.0 * a * sin( alpha + beta ) / ( zeta - mu ) -
-                                   a * a * exp( 1i * alpha ) / ( ( zeta - mu ) * ( zeta - mu ) );
+                                   a * a * exp( i * alpha ) / ( ( zeta - mu ) * ( zeta - mu ) );
     return cmplx_velocityresult;
 }
 
@@ -40,7 +40,7 @@ vec3d vkt_airfoil_point( double theta, double epsilon, double kappa, double tau 
 {
     vec3d p;
 
-    doublec i = 1i;
+    doublec i(0,1);
 
     double ell = 0.25;
 
