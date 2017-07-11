@@ -519,7 +519,6 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                     {
                         temp.back()->m_HubDiameter.Set(temp.back()->m_Diameter());
                     }
-                    temp.back()->UpdateParmGroupName();
                 }
             }
         }
@@ -555,7 +554,6 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect);
             }
         }
-        m_ControlSurfaceGroupVec[i]->UpdateParmGroupName();
         m_ControlSurfaceGroupVec[i]->SetParentContainer(GetID());
     }
 }
@@ -718,7 +716,6 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                 {
                     csg = m_ControlSurfaceGroupVec[j];
                     csg->AddSubSurface(m_UngroupedCS[i]);
-                    csg->UpdateParmGroupName();
                     csg->SetParentContainer(GetID());
                     m_ControlSurfaceGroupVec.back() = csg;
                     for (size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j)
@@ -745,7 +742,6 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                     geom->GetSubSurf(m_UngroupedCS[i].SSID)->GetName().c_str() );
                 csg->SetName( str );
                 csg->m_ParentGeomBaseID = m_UngroupedCS[i].parentGeomId;
-                csg->UpdateParmGroupName();
                 csg->SetParentContainer( GetID() );
                 m_ControlSurfaceGroupVec.push_back( csg );
                 for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
@@ -2749,27 +2745,11 @@ xmlNodePtr RotorDisk::DecodeXml( xmlNodePtr & node )
         m_ParentGeomId = XmlUtil::FindString( node, "ParentID", defstr );
         m_ParentGeomSurfNdx = XmlUtil::FindInt( node, "SurfIndex", defint );
         m_Name = XmlUtil::FindString( node, "GroupName", defstr );
-        UpdateParmGroupName();
         ParmContainer::DecodeXml( node );
     }
 
     return node;
 }
-
-void RotorDisk::UpdateParmGroupName()
-{
-    char str[256];
-    string namestr;
-    namestr = "RotorQualities_" + m_Name;
-    StringUtil::chance_space_to_underscore( namestr );
-    sprintf( str, "%s", namestr.c_str() );
-    m_Diameter.SetGroupName( str );
-    m_HubDiameter.SetGroupName( str );
-    m_RPM.SetGroupName( str );
-    m_CT.SetGroupName( str );
-    m_CP.SetGroupName( str );
-}
-
 
 /*##############################################################################
 #                                                                              #
@@ -2782,11 +2762,12 @@ ControlSurfaceGroup::ControlSurfaceGroup( void ) : ParmContainer()
     m_Name = "Unnamed Control Group";
     m_ParentGeomBaseID = "";
 
-    m_IsUsed.Init( "ActiveFlag", "CSGQualities", this, true, false, true );
+    m_GroupName = "CSGQualities";
+
+    m_IsUsed.Init( "ActiveFlag", m_GroupName, this, true, false, true );
     m_IsUsed.SetDescript( "Flag to determine whether or not this group will be used in VSPAero" );
 
-
-    m_DeflectionAngle.Init( "DeflectionAngle", "CSGQualities", this, 0.0, -1.0e12, 1.0e12 );
+    m_DeflectionAngle.Init( "DeflectionAngle", m_GroupName, this, 0.0, -1.0e12, 1.0e12 );
     m_DeflectionAngle.SetDescript( "Angle of deflection for the control group" );
 }
 
@@ -2850,21 +2831,16 @@ xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
 
         XmlUtil::AddStringNode(node, "ParentGeomBase", m_ParentGeomBaseID.c_str());
 
-        XmlUtil::AddStringNode(node, "GroupName", m_Name.c_str());
-
         XmlUtil::AddIntNode(node, "NumberOfControlSubSurfaces", m_ControlSurfVec.size());
         for (size_t i = 0; i < m_ControlSurfVec.size(); ++i)
         {
             sprintf(str, "Control_Surface_%u", i );
             xmlNodePtr csnode = xmlNewChild( node, NULL, BAD_CAST str , NULL );
-            sprintf(str, "SSID%u", i);
-            XmlUtil::AddStringNode(csnode, str, m_ControlSurfVec[i].SSID.c_str());
-            sprintf(str, "ParentGeomID%u", i);
-            XmlUtil::AddStringNode(csnode, str, m_ControlSurfVec[i].parentGeomId.c_str());
-            sprintf(str, "iReflect%u", i);
-            XmlUtil::AddIntNode(csnode, str, m_ControlSurfVec[i].iReflect);
-        }
 
+            XmlUtil::AddStringNode(csnode, "SSID", m_ControlSurfVec[i].SSID.c_str());
+            XmlUtil::AddStringNode(csnode, "ParentGeomID", m_ControlSurfVec[i].parentGeomId.c_str());
+            XmlUtil::AddIntNode(csnode, "iReflect", m_ControlSurfVec[i].iReflect);
+        }
     }
 
     return node;
@@ -2874,17 +2850,17 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
 {
     char str[256];
     unsigned int nControlSubSurfaces = 0;
-    string GroupName = "";
-    string ParentGeomID = "GeomID";
-    string SSID = "SSID";
-    bool IsGrouped = false;
-    bool IsUsed = false;
-    int iSubSurf = 0;
+    string GroupName;
+    string ParentGeomID;
+    string SSID;
+
     int iReflect = 0;
     VspAeroControlSurf newSurf;
 
     if ( node )
     {
+        ParmContainer::DecodeXml( node );
+
         m_ParentGeomBaseID = XmlUtil::FindString(node, "ParentGeomBase", ParentGeomID );
 
         nControlSubSurfaces = XmlUtil::FindInt( node, "NumberOfControlSubSurfaces", nControlSubSurfaces );
@@ -2892,18 +2868,12 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
         {
             sprintf( str, "Control_Surface_%u", i );
             xmlNodePtr csnode = XmlUtil::GetNode(node, str, 0);
-            sprintf( str, "SSID%u",i);
-            newSurf.SSID = XmlUtil::FindString( csnode, str, SSID );
-            sprintf( str, "ParentGeomID%u", i);
-            newSurf.parentGeomId = XmlUtil::FindString(csnode, str, ParentGeomID );
-            sprintf(str, "iReflect%u",i);
-            newSurf.iReflect = XmlUtil::FindInt( csnode, str, iReflect );
+
+            newSurf.SSID = XmlUtil::FindString( csnode, "SSID", SSID );
+            newSurf.parentGeomId = XmlUtil::FindString(csnode, "ParentGeomID", ParentGeomID );
+            newSurf.iReflect = XmlUtil::FindInt( csnode, "iReflect", iReflect );
             AddSubSurface( newSurf );
         }
-
-        m_Name = XmlUtil::FindString(node, "GroupName", GroupName);
-        UpdateParmGroupName();
-        ParmContainer::DecodeXml( node );
     }
 
     return node;
@@ -2940,20 +2910,5 @@ void ControlSurfaceGroup::RemoveSubSurface( const string & ssid, int reflec_num 
             m_DeflectionGainVec.erase( m_DeflectionGainVec.begin() + i);
             return;
         }
-    }
-}
-
-void ControlSurfaceGroup::UpdateParmGroupName()
-{
-    char str[256];
-    string namestr;
-    namestr = "CSGQualities_" + m_Name;
-    StringUtil::chance_space_to_underscore( namestr );
-    sprintf( str, "%s", namestr.c_str() );
-    m_IsUsed.SetGroupName( str );
-    m_DeflectionAngle.SetGroupName( str );
-    for (size_t i = 0; i < m_DeflectionGainVec.size(); ++i )
-    {
-        m_DeflectionGainVec[i]->SetGroupName( str );
     }
 }

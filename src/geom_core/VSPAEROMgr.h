@@ -73,7 +73,6 @@ public:
     string m_ParentGeomId;
     unsigned int m_ParentGeomSurfNdx;
 
-    void UpdateParmGroupName();
 };
 
 class ControlSurfaceGroup : public ParmContainer
@@ -93,7 +92,7 @@ public:
 
     BoolParm m_IsUsed;
 
-    vector< Parm* > m_DeflectionGainVec;     // ControlSurface_DeflectionDirection_
+    vector < Parm* > m_DeflectionGainVec;     // ControlSurface_DeflectionDirection_
     vector < VspAeroControlSurf > m_ControlSurfVec;
 
     Parm m_DeflectionAngle;                   // ControlSurface_DeflectionAngle_
@@ -110,11 +109,6 @@ public:
     void AddSubSurface( VspAeroControlSurf control_surf );
     void RemoveSubSurface( const string & ssid, int reflec_num );
 
-    // Group Name
-    void SetGroupName( const string & groupname )         { m_GroupName = groupname; }
-    string GetGroupName()                           { return m_GroupName; }
-
-    void UpdateParmGroupName();
 };
 
 //==== VSPAERO Manager ====//
