@@ -2759,7 +2759,10 @@ xmlNodePtr RotorDisk::DecodeXml( xmlNodePtr & node )
 void RotorDisk::UpdateParmGroupName()
 {
     char str[256];
-    sprintf( str, "RotorQualities_%s", m_Name.c_str() );
+    string namestr;
+    namestr = "RotorQualities_" + m_Name;
+    StringUtil::chance_space_to_underscore( namestr );
+    sprintf( str, "%s", namestr.c_str() );
     m_Diameter.SetGroupName( str );
     m_HubDiameter.SetGroupName( str );
     m_RPM.SetGroupName( str );
@@ -2948,7 +2951,10 @@ void ControlSurfaceGroup::RemoveSubSurface( const string & ssid, int reflec_num 
 void ControlSurfaceGroup::UpdateParmGroupName()
 {
     char str[256];
-    sprintf( str, "CSGQualities_%s", m_Name.c_str() );
+    string namestr;
+    namestr = "CSGQualities_" + m_Name;
+    StringUtil::chance_space_to_underscore( namestr );
+    sprintf( str, "%s", namestr.c_str() );
     m_IsUsed.SetGroupName( str );
     m_DeflectionAngle.SetGroupName( str );
     for (size_t i = 0; i < m_DeflectionGainVec.size(); ++i )
