@@ -2785,11 +2785,6 @@ ControlSurfaceGroup::ControlSurfaceGroup( void ) : ParmContainer()
     m_IsUsed.Init( "ActiveFlag", "CSGQualities", this, true, false, true );
     m_IsUsed.SetDescript( "Flag to determine whether or not this group will be used in VSPAero" );
 
-    for (size_t i = 0; i < m_DeflectionGainVec.size(); ++i)
-    {
-        delete m_DeflectionGainVec[i];
-    }
-    m_DeflectionGainVec.clear();
 
     m_DeflectionAngle.Init( "DeflectionAngle", "CSGQualities", this, 0.0, -1.0e12, 1.0e12 );
     m_DeflectionAngle.SetDescript( "Angle of deflection for the control group" );
