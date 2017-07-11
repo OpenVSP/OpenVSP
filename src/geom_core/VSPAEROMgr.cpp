@@ -2794,23 +2794,31 @@ void ControlSurfaceGroup::Write_STP_Data( FILE *InputFile )
         return;
     }
 
+    string nospacename;
+
     // Write out Control surface group to .vspaero file
-    fprintf( InputFile, "%s\n", m_Name.c_str() );
+    nospacename = m_Name;
+    StringUtil::chance_space_to_underscore( nospacename );
+    fprintf( InputFile, "%s\n", nospacename.c_str() );
 
     // surface names ( Cannot have trailing commas )
     unsigned int i=0;
     for ( i = 0; i < m_ControlSurfVec.size()-1; i++ )
     {
-        fprintf( InputFile, "%s,", m_ControlSurfVec[i].fullName.c_str() );
+        nospacename = m_ControlSurfVec[i].fullName;
+        StringUtil::chance_space_to_underscore( nospacename );
+        fprintf( InputFile, "%s,", nospacename.c_str() );
     }
-    fprintf( InputFile, "%s\n", m_ControlSurfVec[i++].fullName.c_str() );
+    nospacename = m_ControlSurfVec[i++].fullName;
+    StringUtil::chance_space_to_underscore( nospacename );
+    fprintf( InputFile, "%s\n", nospacename.c_str() );
 
     // deflection mixing gains ( Cannot have trailing commas )
     for ( i = 0; i < m_DeflectionGainVec.size()-1; i++ )
     {
         fprintf( InputFile, "%lg, ", m_DeflectionGainVec[i]->Get() );
     }
-    fprintf( InputFile, "%lg\n", m_DeflectionGainVec[i]->Get() );
+    fprintf( InputFile, "%lg\n", m_DeflectionGainVec[i++]->Get() );
 
     // group deflection angle
     fprintf( InputFile, "%lg\n", m_DeflectionAngle() );
@@ -2859,8 +2867,6 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
 
     if ( node )
     {
-        ParmContainer::DecodeXml( node );
-
         m_ParentGeomBaseID = XmlUtil::FindString(node, "ParentGeomBase", ParentGeomID );
 
         nControlSubSurfaces = XmlUtil::FindInt( node, "NumberOfControlSubSurfaces", nControlSubSurfaces );
@@ -2874,6 +2880,8 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
             newSurf.iReflect = XmlUtil::FindInt( csnode, "iReflect", iReflect );
             AddSubSurface( newSurf );
         }
+
+        ParmContainer::DecodeXml( node );
     }
 
     return node;
@@ -2891,7 +2899,7 @@ void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
         //  group: "CSGQualities"
         //  initial value: control_surf->deflection_gain
         sprintf(str, "Surf%i_Gain", control_surf.iReflect );
-        p->Init( str, "CSGQualities", this, 1.0, -1.0e6, 1.0e6 );
+        p->Init( str, m_GroupName, this, 1.0, -1.0e6, 1.0e6 );
         p->SetDescript( "Deflection gain for the individual sub surface to be used for control mixing and allocation within the control surface group" );
         m_DeflectionGainVec.push_back( p );
     }

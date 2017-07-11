@@ -1,6 +1,7 @@
 #include "DegenGeom.h"
 #include "Geom.h"
 #include "WriteMatlab.h"
+#include "StringUtil.h"
 
 #include "Vehicle.h"
 #include "VehicleMgr.h"
@@ -968,11 +969,13 @@ void DegenGeom::write_degenGeomDiskCsv_file( FILE* file_id )
 
 void DegenGeom::write_degenSubSurfCsv_file( FILE* file_id, int isubsurf )
 {
+    string nospacename = degenSubSurfs[isubsurf].fullName;
+    StringUtil::chance_space_to_underscore( nospacename );
     fprintf( file_id, "# DegenGeom Type, name, typeName, typeId, fullname\n" );
     fprintf( file_id, "SUBSURF,%s,%s,%d,%s\n", degenSubSurfs[isubsurf].name.c_str(),
                                                degenSubSurfs[isubsurf].typeName.c_str(),
                                                degenSubSurfs[isubsurf].typeId,
-                                               degenSubSurfs[isubsurf].fullName.c_str() );
+                                               nospacename.c_str() );
 
     fprintf( file_id, "# testType\n" );
     fprintf( file_id, "%d\n", \

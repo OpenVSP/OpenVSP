@@ -15,6 +15,7 @@
 #include "Geom.h"
 #include "Parm.h"
 #include "ProcessUtil.h"
+#include "StringUtil.h"
 
 #include <vector>
 #include <string>
