@@ -217,7 +217,6 @@ void VSPAEROMgrSingleton::Renew()
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
-    char str[256];
     xmlNodePtr VSPAEROsetnode = xmlNewChild( node, NULL, BAD_CAST"VSPAEROSettings", NULL );
 
     ParmContainer::EncodeXml( VSPAEROsetnode ); // Encode VSPAEROMgr Parms
@@ -226,8 +225,7 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
     XmlUtil::AddIntNode( VSPAEROsetnode, "ControlSurfaceGroupCount", m_ControlSurfaceGroupVec.size() );
     for ( size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i )
     {
-        sprintf( str, "Control_Surface_Group_%u", i );
-        xmlNodePtr csgnode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST str, NULL );
+        xmlNodePtr csgnode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "Control_Surface_Group", NULL );
         m_ControlSurfaceGroupVec[i]->EncodeXml( csgnode );
     }
 
@@ -235,8 +233,7 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
     XmlUtil::AddIntNode( VSPAEROsetnode, "RotorDiskCount", m_RotorDiskVec.size() );
     for ( size_t i = 0; i < m_RotorDiskVec.size(); ++i )
     {
-        sprintf( str, "Rotor_%u", i );
-        xmlNodePtr rotornode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST str, NULL );
+        xmlNodePtr rotornode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "Rotor", NULL );
         m_RotorDiskVec[i]->EncodeXml( rotornode );
     }
 
@@ -245,22 +242,16 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
 
 xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
 {
-    char str[256];
-    int def = 0;
-    string strdef = "";
-    double dbldef = 0.0;
-
     xmlNodePtr VSPAEROsetnode = XmlUtil::GetNode( node, "VSPAEROSettings", 0 );
     if ( VSPAEROsetnode )
     {
         ParmContainer::DecodeXml( VSPAEROsetnode ); // Decode VSPAEROMgr Parms
 
         // Decode Control Surface Groups using Internal Decode Method
-        int num_groups = XmlUtil::FindInt(VSPAEROsetnode, "ControlSurfaceGroupCount", def);
+        int num_groups = XmlUtil::FindInt( VSPAEROsetnode, "ControlSurfaceGroupCount", 0 );
         for (size_t i = 0; i < num_groups; ++i)
         {
-            sprintf(str, "Control_Surface_Group_%u", i);
-            xmlNodePtr csgnode = XmlUtil::GetNode(VSPAEROsetnode, str, 0);
+            xmlNodePtr csgnode = XmlUtil::GetNode( VSPAEROsetnode, "Control_Surface_Group", i );
             if (csgnode)
             {
                 AddControlSurfaceGroup();
@@ -272,14 +263,13 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
         UpdateControlSurfaceGroups(); // Replace Shell SubSurfs with those from CompleteSurfaceVec
 
         // Decode Rotor Disks using Internal Decode Method
-        int num_rotor = XmlUtil::FindInt( VSPAEROsetnode, "RotorDiskCount", def );
+        int num_rotor = XmlUtil::FindInt( VSPAEROsetnode, "RotorDiskCount", 0 );
         m_RotorDiskVec.resize( num_rotor );
         for (size_t i = 0; i < num_rotor; ++i )
         {
-            sprintf( str, "Rotor_%u", i );
-            xmlNodePtr rotornode = XmlUtil::GetNode(VSPAEROsetnode, str, 0 );
+            xmlNodePtr rotornode = XmlUtil::GetNode( VSPAEROsetnode, "Rotor", i );
             m_RotorDiskVec[i] = new RotorDisk();
-            m_RotorDiskVec[i]->DecodeXml(rotornode);
+            m_RotorDiskVec[i]->DecodeXml( rotornode );
         }
     }
 
@@ -2835,20 +2825,19 @@ xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
     char str[256];
     if (node)
     {
-        ParmContainer::EncodeXml(node);
-
         XmlUtil::AddStringNode(node, "ParentGeomBase", m_ParentGeomBaseID.c_str());
 
         XmlUtil::AddIntNode(node, "NumberOfControlSubSurfaces", m_ControlSurfVec.size());
         for (size_t i = 0; i < m_ControlSurfVec.size(); ++i)
         {
-            sprintf(str, "Control_Surface_%u", i );
-            xmlNodePtr csnode = xmlNewChild( node, NULL, BAD_CAST str , NULL );
+            xmlNodePtr csnode = xmlNewChild( node, NULL, BAD_CAST "Control_Surface" , NULL );
 
             XmlUtil::AddStringNode(csnode, "SSID", m_ControlSurfVec[i].SSID.c_str());
             XmlUtil::AddStringNode(csnode, "ParentGeomID", m_ControlSurfVec[i].parentGeomId.c_str());
             XmlUtil::AddIntNode(csnode, "iReflect", m_ControlSurfVec[i].iReflect);
         }
+
+        ParmContainer::EncodeXml(node);
     }
 
     return node;
@@ -2856,7 +2845,6 @@ xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
 
 xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
 {
-    char str[256];
     unsigned int nControlSubSurfaces = 0;
     string GroupName;
     string ParentGeomID;
@@ -2872,8 +2860,7 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
         nControlSubSurfaces = XmlUtil::FindInt( node, "NumberOfControlSubSurfaces", nControlSubSurfaces );
         for (size_t i = 0; i < nControlSubSurfaces; ++i )
         {
-            sprintf( str, "Control_Surface_%u", i );
-            xmlNodePtr csnode = XmlUtil::GetNode(node, str, 0);
+            xmlNodePtr csnode = XmlUtil::GetNode(node, "Control_Surface", i);
 
             newSurf.SSID = XmlUtil::FindString( csnode, "SSID", SSID );
             newSurf.parentGeomId = XmlUtil::FindString(csnode, "ParentGeomID", ParentGeomID );
@@ -2898,7 +2885,7 @@ void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
         //  parm name: control_surf->fullName (example: MainWing_Surf1_Aileron)
         //  group: "CSGQualities"
         //  initial value: control_surf->deflection_gain
-        sprintf(str, "Surf%i_Gain", control_surf.iReflect );
+        sprintf( str, "Surf_%s_%i_Gain", control_surf.SSID.c_str(), control_surf.iReflect );
         p->Init( str, m_GroupName, this, 1.0, -1.0e6, 1.0e6 );
         p->SetDescript( "Deflection gain for the individual sub surface to be used for control mixing and allocation within the control surface group" );
         m_DeflectionGainVec.push_back( p );
