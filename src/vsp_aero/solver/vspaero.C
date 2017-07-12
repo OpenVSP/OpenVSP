@@ -1602,25 +1602,46 @@ void LoadCaseFile(void)
              
           }
                                                            
-          fscanf(case_file,"ReducedFrequency = %lf \n",&ReducedFrequency_);
+          fgets(DumChar,200,case_file);
+          if (strstr(DumChar, "ReducedFrequency") != NULL)
+          {
+            fscanf(case_file,"ReducedFrequency = %lf \n",&ReducedFrequency_);
           
-          printf("ReducedFrequency: %lf \n",ReducedFrequency_);
+            printf("ReducedFrequency: %lf \n",ReducedFrequency_);
+            fgets(DumChar,200,case_file); // Only proceed if the proceeding line is found
+          }
           
-          fscanf(case_file,"NumberOfTimeSteps = %d \n",&NumberOfTimeSteps_);
+          if (strstr(DumChar, "NumberOfTimeSteps") != NULL)
+          {
+            fscanf(case_file,"NumberOfTimeSteps = %d \n",&NumberOfTimeSteps_);
           
-          printf("NumberOfTimeSteps: %d \n",NumberOfTimeSteps_);
+            printf("NumberOfTimeSteps: %d \n",NumberOfTimeSteps_);
+            fgets(DumChar,200,case_file);
+          }
           
-          fscanf(case_file,"NumberOfTimeSamples = %d \n",&NumberOfTimeSamples_);
+          if (strstr(DumChar, "NumberOfTimeSamples") != NULL)
+          {
+            fscanf(case_file,"NumberOfTimeSamples = %d \n",&NumberOfTimeSamples_);
           
-          printf("NumberOfTimeSamples: %d \n",NumberOfTimeSamples_);
+            printf("NumberOfTimeSamples: %d \n",NumberOfTimeSamples_);
+            fgets(DumChar,200,case_file);
+          }
           
-          fscanf(case_file,"UnsteadyAngleMax = %lf \n",&UnsteadyAngleMax_);
+          if (strstr(DumChar, "UnsteadyAngleMax") != NULL)
+          {
+            fscanf(case_file,"UnsteadyAngleMax = %lf \n",&UnsteadyAngleMax_);
           
-          printf("UnsteadyAngleMax: %lf \n",UnsteadyAngleMax_);
+            printf("UnsteadyAngleMax: %lf \n",UnsteadyAngleMax_);
+            fgets(DumChar,200,case_file);
+          }
           
-          fscanf(case_file,"UnsteadyHMax = %lf \n",&UnsteadyHMax_);
+          if (strstr(DumChar, "UnsteadyHMax") != NULL)
+          {
+            fscanf(case_file,"UnsteadyHMax = %lf \n",&UnsteadyHMax_);
           
-          printf("UnsteadyHMax: %f \n",UnsteadyHMax_);
+            printf("UnsteadyHMax: %f \n",UnsteadyHMax_);
+            fgets(DumChar,200,case_file); 
+          }
           
           VSP_VLM().TimeAnalysisType()    = UnsteadyAnalysisType_;
           VSP_VLM().NumberOfTimeSteps()   = NumberOfTimeSteps_;
