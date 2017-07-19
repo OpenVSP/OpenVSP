@@ -1355,6 +1355,338 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     printf( "\n" );
 }
 
+void APITestSuiteVSPAERO::TestVSPAeroCreateFunctionalityModel()
+{
+    printf( "APITestSuiteVSPAERO::TestVSPAeroCreateFunctionalityModel()\n" );
+
+    // make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Add Wing Geom and set some parameters =====//
+    printf( "\tAdding WING (MainWing)..." );
+    string wing_id = vsp::AddGeom( "WING" );
+    vsp::SetGeomName( wing_id, "MainWing" );
+    TEST_ASSERT( wing_id.c_str() != NULL );
+
+    // Add aileron control surfaces
+    string aileron1_id = AddSubSurf( wing_id, vsp::SS_CONTROL );
+    vsp::SetSubSurfName( wing_id, aileron1_id, "Inner Aileron" );
+    TEST_ASSERT( aileron1_id.c_str() != NULL );
+    string tessstart = vsp::GetParm( wing_id, "UStart", "SS_Control_1");
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( tessstart, 0.35 ), 0.35, TEST_TOL );
+    string tessend = vsp::GetParm( wing_id, "UEnd", "SS_Control_1" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( tessend, 0.45 ), 0.45, TEST_TOL );
+
+    string aileron2_id = AddSubSurf( wing_id, vsp::SS_CONTROL );
+    vsp::SetSubSurfName( wing_id, aileron2_id, "Outer Aileron" );
+    TEST_ASSERT( aileron2_id.c_str() != NULL );
+    tessstart = vsp::GetParm( wing_id, "UStart", "SS_Control_2");
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( tessstart, 0.47 ), 0.47, TEST_TOL );
+    tessend = vsp::GetParm( wing_id, "UEnd", "SS_Control_2");
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( tessend, 0.6 ), 0.6, TEST_TOL );
+
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    //==== Add Horizontal tail and set some parameters =====//
+    printf( "\tAdding WING (Horiz)..." );
+    string horiz_id = vsp::AddGeom( "WING" );
+    vsp::SetGeomName( horiz_id, "Tail" );
+    TEST_ASSERT( horiz_id.c_str() != NULL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "TotalArea", "WingGeom", 10.0 ), 10.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "X_Rel_Location", "XForm", 8.5 ), 8.5, TEST_TOL );
+
+    // Add elevator control surface
+    string elevator_id = AddSubSurf( horiz_id, vsp::SS_CONTROL );
+    vsp::SetSubSurfName( horiz_id, elevator_id, "Elevator" );
+    TEST_ASSERT( elevator_id.c_str() != NULL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    /// TODO
+    //==== Add Inner Disk and set some parameters ====//
+    //==== Add Outer Disk and set some parameters ====//
+
+    //==== Auto Group Control Surfaces ====//
+    printf( "\tGrouping Control Surfaces..." );
+    vsp::AutoGroupVSPAEROControlSurfaces();
+    TEST_ASSERT( vsp::GetNumControlSurfaceGroups() == 3 );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+    printf( "COMPLETE\n" );
+    string control_group_settings_container_id = vsp::FindContainer( "VSPAEROSettings", 0 );   // auto grouping produces parm containers within VSPAEROSettings
+
+    //==== Set Control Surface Group Deflection Angle ====//
+    printf( "\tSetting control surface group deflection angles..." );
+    string deflection_gain_id, deflection_angle_id;
+    // subsurfaces get added to groups with "ControlSurfaceGroup_[index]"
+    // subsurfaces gain parm name is "Surf_[surfid]_[surfndx]_Gain" starting from 0 to NumSymmetricCopies-1
+    
+    double gain0 = 0.1;
+    double angle0 = 1.0;
+    double gain1 = 0.2;
+    double angle1 = 2.0;
+    double gain2 = 0.3;
+    double angle2 = 3.0;
+
+    // ControlSurfaceGroup_0
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron1_id + "_0_Gain", "ControlSurfaceGroup_0" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, gain0 ), gain0, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron1_id + "_1_Gain", "ControlSurfaceGroup_0" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, -gain0 ), -gain0, TEST_TOL );
+    //  deflect inside aileron
+    deflection_angle_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_0" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_angle_id, angle0 ), angle0, TEST_TOL );
+
+    // ControlSurfaceGroup_1
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron2_id + "_0_Gain", "ControlSurfaceGroup_1" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, gain1 ), gain1, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron2_id + "_1_Gain", "ControlSurfaceGroup_1" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, -gain1 ), -gain1, TEST_TOL );
+    //  deflect inside aileron
+    deflection_angle_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_1" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_angle_id, angle1 ), angle1, TEST_TOL );
+
+    // ControlSurfaceGroup_2
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + elevator_id + "_0_Gain", "ControlSurfaceGroup_2" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, gain2 ), gain2, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + elevator_id + "_1_Gain", "ControlSurfaceGroup_2" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, -gain2 ), -gain2, TEST_TOL );
+    //  deflect inside aileron
+    deflection_angle_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_2" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_angle_id, angle2 ), angle2, TEST_TOL );
+
+    printf("COMPLETE. \n");
+
+    //==== Setup export filenames ====//
+    m_vspfname_for_vspaerofunctionalitytests = "apitest_TestVSPAeroFunctionality.vsp3";
+    printf( "\tSetting export name: %s...", m_vspfname_for_vspaerofunctionalitytests.c_str() );
+    vsp::SetVSP3FileName( m_vspfname_for_vspaerofunctionalitytests );  // this still needs to be done even if a call to WriteVSPFile is made
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    //==== Final vehicle update ====//
+    printf( "\tVehicle update..." );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    //==== Save Vehicle to File ====//
+    printf( "\tSaving vehicle file to: %s ...", m_vspfname_for_vspaerofunctionalitytests.c_str() );
+    vsp::WriteVSPFile( vsp::GetVSPFileName(), vsp::SET_ALL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    printf( "COMPLETE\n\n" );
+}
+
+void APITestSuiteVSPAERO::TestVSPAeroReadControlSurfaceGroupsFromFile()
+{
+    printf( "APITestSuiteVSPAERO::TestVSPAeroReadControlSurfaceGroupsFromFile()\n" );
+
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //open the file created in TestVSPAeroCreateModel
+    printf("\tLoading File...");
+    vsp::ReadVSPFile( m_vspfname_for_vspaerofunctionalitytests );
+    if ( m_vspfname_for_vspaerofunctionalitytests == string() )
+    {
+        TEST_FAIL( "m_vspfname_for_vspaerofunctionalitytests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        return;
+    }
+    if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
+    {
+        TEST_FAIL( "m_vspfname_for_vspaerofunctionalitytests failed to open" );
+        return;
+    }
+    printf("COMPLETE.\n");
+
+    //==== Find Control Surface Group Parm Containers ====//
+    string deflection_gain_id, deflection_angle_id;
+    string control_group_settings_container_id = vsp::FindContainer( "VSPAEROSettings", 0 );   // auto grouping produces parm containers within VSPAEROSettings
+
+    // Find All Control Surface IDs to be used in Gain Parm Names
+    printf("\tFinding All Geometry IDs...\n");
+    string wing_id = vsp::FindGeom( "MainWing", 0 );
+    if (!wing_id.empty())
+    {
+        printf("\t\tMainWing Found.\n");
+    }
+    string aileron1_id = vsp::GetSubSurf( wing_id, 0 );
+    if (!aileron1_id.empty())
+    {
+        printf("\t\tInner Aileron Found.\n");
+    }
+    string aileron2_id = vsp::GetSubSurf( wing_id, 1 );
+    if (!aileron2_id.empty())
+    {
+        printf("\t\tOuter Aileron Found.\n");
+    }
+    string horiz_id = vsp::FindGeom( "Tail", 0 );
+    if (!horiz_id.empty())
+    {
+        printf("\t\tTail Found.\n");
+    }
+    string elevator_id = vsp::GetSubSurf( horiz_id, 0 );
+    if (!elevator_id.empty())
+    {
+        printf("\t\tElevator Found.\n");
+    }
+    printf("\tCOMPLETE.\n");
+
+    double gain0 = 0.1;
+    double angle0 = 1.0;
+    double gain1 = 0.2;
+    double angle1 = 2.0;
+    double gain2 = 0.3;
+    double angle2 = 3.0;
+
+    // ControlSurfaceGroup_0
+    printf("\tChecking All Parms for ControlSurfaceGroup_0...");
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron1_id + "_0_Gain", "ControlSurfaceGroup_0");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), gain0, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron1_id + "_1_Gain", "ControlSurfaceGroup_0");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), -gain0, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_0");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), angle0, TEST_TOL );
+    printf("COMPLETE.\n");
+
+    // ControlSurfaceGroup_1
+    printf("\tChecking All Parms for ControlSurfaceGroup_1...");
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron2_id + "_0_Gain", "ControlSurfaceGroup_1");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), gain1, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron2_id + "_1_Gain", "ControlSurfaceGroup_1");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), -gain1, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_1");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), angle1, TEST_TOL );
+    printf("COMPLETE.\n");
+
+    // ControlSurfaceGroup_2
+    printf("\tChecking All Parms for ControlSurfaceGroup_2...");
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + elevator_id + "_0_Gain", "ControlSurfaceGroup_2");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), gain2, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + elevator_id + "_1_Gain", "ControlSurfaceGroup_2");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), -gain2, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_2");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), angle2, TEST_TOL );
+    printf("COMPLETE.\n");
+
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    printf( "COMPLETE\n\n" );
+}
+
+void APITestSuiteVSPAERO::TestVSPAeroReadRotorDisksFromFile()
+{
+    // TODO - Need to Figure Out how to put Disks into basic files
+}
+
+void APITestSuiteVSPAERO::TestVSPAeroParmContainersAccessibleAfterSave()
+{
+    printf( "APITestSuiteVSPAERO::TestVSPAeroParmContainersAccessibleAfterSave()\n" );
+
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //open the file created in TestVSPAeroCreateFunctionalityModel
+    printf("\tLoading File...");
+    vsp::ReadVSPFile( m_vspfname_for_vspaerofunctionalitytests );
+    if ( m_vspfname_for_vspaerofunctionalitytests == string() )
+    {
+        TEST_FAIL( "m_vspfname_for_vspaerofunctionalitytests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        return;
+    }
+    if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
+    {
+        TEST_FAIL( "m_vspfname_for_vspaerofunctionalitytests failed to open" );
+        return;
+    }
+    printf("COMPLETE.\n");
+
+    //==== Save Vehicle to File ====//
+    printf( "\tSaving vehicle file to: %s ...", m_vspfname_for_vspaerofunctionalitytests.c_str() );
+    vsp::WriteVSPFile( vsp::GetVSPFileName(), vsp::SET_ALL );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+    //==== Check if ParmContainers are still accessible ====//
+    string deflection_gain_id, deflection_angle_id;
+    string control_group_settings_container_id = vsp::FindContainer( "VSPAEROSettings", 0 );   // auto grouping produces parm containers within VSPAEROSettings
+
+    // Find All Control Surface IDs to be used in Gain Parm Names
+    printf("\tFinding All Geometry IDs...\n");
+    string wing_id = vsp::FindGeom( "MainWing", 0 );
+    if (!wing_id.empty())
+    {
+        printf("\t\tMainWing Found.\n");
+    }
+    string aileron1_id = vsp::GetSubSurf( wing_id, 0 );
+    if (!aileron1_id.empty())
+    {
+        printf("\t\tInner Aileron Found.\n");
+    }
+    string aileron2_id = vsp::GetSubSurf( wing_id, 1 );
+    if (!aileron2_id.empty())
+    {
+        printf("\t\tOuter Aileron Found.\n");
+    }
+    string horiz_id = vsp::FindGeom( "Tail", 0 );
+    if (!horiz_id.empty())
+    {
+        printf("\t\tTail Found.\n");
+    }
+    string elevator_id = vsp::GetSubSurf( horiz_id, 0 );
+    if (!elevator_id.empty())
+    {
+        printf("\t\tElevator Found.\n");
+    }
+    printf("\tCOMPLETE.\n");
+
+    double gain0 = 0.1;
+    double angle0 = 1.0;
+    double gain1 = 0.2;
+    double angle1 = 2.0;
+    double gain2 = 0.3;
+    double angle2 = 3.0;
+
+    // ControlSurfaceGroup_0
+    printf("\tChecking All Parms for ControlSurfaceGroup_0...");
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron1_id + "_0_Gain", "ControlSurfaceGroup_0");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), gain0, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron1_id + "_1_Gain", "ControlSurfaceGroup_0");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), -gain0, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_0");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), angle0, TEST_TOL );
+    printf("COMPLETE.\n");
+
+    // ControlSurfaceGroup_1
+    printf("\tChecking All Parms for ControlSurfaceGroup_1...");
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron2_id + "_0_Gain", "ControlSurfaceGroup_1");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), gain1, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron2_id + "_1_Gain", "ControlSurfaceGroup_1");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), -gain1, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_1");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), angle1, TEST_TOL );
+    printf("COMPLETE.\n");
+
+    // ControlSurfaceGroup_2
+    printf("\tChecking All Parms for ControlSurfaceGroup_2...");
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + elevator_id + "_0_Gain", "ControlSurfaceGroup_2");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), gain2, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + elevator_id + "_1_Gain", "ControlSurfaceGroup_2");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), -gain2, TEST_TOL );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_2");
+    TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), angle2, TEST_TOL );
+    printf("COMPLETE.\n");
+}
+
 double  APITestSuiteVSPAERO::calcTessWCheckVal( double t_tess_w )
 {
     double t_mult = 4;

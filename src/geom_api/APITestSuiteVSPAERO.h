@@ -36,6 +36,11 @@ public:
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge );
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge );
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing );
+        // Functionality Tests
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroCreateFunctionalityModel );
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroReadControlSurfaceGroupsFromFile );
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroReadRotorDisksFromFile );
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroParmContainersAccessibleAfterSave );
     }
 
 private:
@@ -56,10 +61,16 @@ private:
     void TestVSPAeroSharpTrailingEdge();
     void TestVSPAeroBluntTrailingEdge();
     void TestVSPAeroSupersonicDeltaWing();
+    // Functionality Tests
+    void TestVSPAeroCreateFunctionalityModel();
+    void TestVSPAeroReadControlSurfaceGroupsFromFile();
+    void TestVSPAeroReadRotorDisksFromFile();
+    void TestVSPAeroParmContainersAccessibleAfterSave();
 
     double calcTessWCheckVal( double t_tess_w );
 
     string m_vspfname_for_vspaerotests;
+    string m_vspfname_for_vspaerofunctionalitytests;
 };
 
 #endif // !defined(VSPAPITESTSUITEVSPAERO__INCLUDED_)
