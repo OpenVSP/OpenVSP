@@ -161,10 +161,6 @@ void Vehicle::Init()
     SetVSP3FileName( "Unnamed.vsp3" );
     m_FileOpenVersion = -1;
 
-    //==== Update VSPAero Mgr ====//
-    // must do this after the SetVSP3FileName()
-    VSPAEROMgr.Update();
-
     //==== Load Default Set Names =====//
     m_SetNameVec.push_back( "All" );        // SET_ALL
     m_SetNameVec.push_back( "Shown" );      // SET_SHOWN
