@@ -130,13 +130,14 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     printf( "COMPLETE\n" );
 
     //==== Add Pod and set some parameters =====//
-    printf( "\tAdding POD\n" );
+    printf( "\tAdding POD..." );
     string pod_id = vsp::AddGeom( "POD" );
     TEST_ASSERT( pod_id.c_str() != NULL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Length", "Design", 14.5 ), 14.5, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", -3.0 ), -3.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "Tess_U", "Shape", 15 ), 15, TEST_TOL ); //lengthwise tesselation
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "Tess_W", "Shape", 15 ), calcTessWCheckVal( 15 ), TEST_TOL ); //radial tesselation
+    printf( "COMPLETE\n" );
 
     //==== Set VSPAERO Reference lengths & areas ====//
     printf( "\tSetting reference wing..." );
@@ -149,7 +150,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     printf( "\tSetting reference position..." );
     string vspaero_settings_container_id = vsp::FindContainer( "VSPAEROSettings", 0 );
     string xcg_id = vsp::FindParm( vspaero_settings_container_id, "Xcg", "VSPAERO" );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( xcg_id, 0.75 ), 0.75, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( xcg_id, 2 ), 2, TEST_TOL );
     printf( "COMPLETE\n" );
 
     //==== Auto Group Control Surfaces ====//
@@ -168,14 +169,13 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     string deflection_gain_id;
     // subsurfaces get added to groups with "CSGQualities_[geom_name]_[control_surf_name]"
     // subsurfaces gain parm name is "Surf[surfndx]_Gain" starting from 0 to NumSymmetricCopies-1
-    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf0_Gain", "CSGQualities_MainWing_Aileron" );
-    printf( "\n\t Deflection Gain ID: %s \n", deflection_gain_id.c_str() );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron_id + "_0_Gain", "ControlSurfaceGroup_0" );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, 0.8 ), 0.8, TEST_TOL );
-    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf1_Gain", "CSGQualities_MainWing_Aileron" );
+    deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "Surf_" + aileron_id + "_1_Gain", "ControlSurfaceGroup_0" );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_gain_id, 1.2 ), 1.2, TEST_TOL );
     //  deflect aileron
-    string deflection_angle_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "CSGQualities_MainWing_Aileron" );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( xcg_id, 2 ), 2, TEST_TOL );
+    string deflection_angle_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_0" );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_angle_id, 1.0 ), 1.0, TEST_TOL );
     printf( "COMPLETE\n" );
 
     //==== Setup export filenames ====//
@@ -200,7 +200,7 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf( "\n" );
+    printf( "COMPLETE\n" );
 }
 
 void APITestSuiteVSPAERO::TestVSPAeroComputeGeom()
@@ -272,41 +272,60 @@ void APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection()
         return;
     }
 
-    printf( "\n\t\tExecuting..." );
+    printf( "\t\tExecuting Comp Geom..." );
     vsp::ExecAnalysis( "VSPAEROComputeGeometry" );
     printf( "COMPLETE\n\n" );
 
+    // Find All Control Surface IDs to be used in Gain Parm Names
+    printf("\tFinding All Necessary Geometry IDs...\n");
+    string wing_id = vsp::FindGeom( "MainWing", 0 );
+    if (!wing_id.empty())
+    {
+        printf("\t\tMainWing Found.\n");
+    }
+    string aileron_id = vsp::GetSubSurf( wing_id, 0 );
+    if (!aileron_id.empty())
+    {
+        printf("\t\tAileron Found.\n");
+    }
+    printf("\tCOMPLETE.\n");
 
     /// ==== Test Asymmetric Deflection ==== ///
     // Edit Control Surface Group Angle and Contained Control Surface Gains
+    printf("\tEditing Aileron Control Surface Deflection Gains and Angle...");
     string csg_id = vsp::FindContainer( "VSPAEROSettings", 0 );
     TEST_ASSERT( csg_id.c_str() != NULL );
-    string deflection_angle_id = vsp::FindParm( csg_id, "DeflectionAngle", "CSGQualities_MainWing_Aileron" );
+    string deflection_angle_id = vsp::FindParm( csg_id, "DeflectionAngle", "ControlSurfaceGroup_0" );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( deflection_angle_id, 1.0 ), 1.0, TEST_TOL );
-    string surf0_gain_id = vsp::FindParm( csg_id, "Surf0_Gain", "CSGQualities_MainWing_Aileron" );
+    string surf0_gain_id = vsp::FindParm( csg_id, "Surf_" + aileron_id + "_0_Gain", "ControlSurfaceGroup_0" );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( surf0_gain_id, 2.0 ), 2.0, TEST_TOL );
-    string surf1_gain_id = vsp::FindParm( csg_id, "Surf1_Gain", "CSGQualities_MainWing_Aileron" );
+    string surf1_gain_id = vsp::FindParm( csg_id, "Surf_" + aileron_id + "_1_Gain", "ControlSurfaceGroup_0" );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( surf1_gain_id, 2.0 ), 2.0, TEST_TOL );
+    printf("COMPLETE\n");
 
     //==== Analysis: VSPAero Compute Geometry ====//
     string analysis_name = "VSPAEROSinglePoint";
-    printf( "\t%s\n", analysis_name.c_str() );
+    printf( "\tAnalysis: %s\n", analysis_name.c_str() );
 
     // Set defaults
+    printf("\tSetting Defaults...");
     vsp::SetAnalysisInputDefaults( analysis_name );
+    printf("COMPLETE\n");
 
     // Execute
-    printf( "\n\t\tExecuting..." );
+    printf( "\tExecuting..." );
     vector <int> num_wake_iter;
     num_wake_iter.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", num_wake_iter );
     string results_id = vsp::ExecAnalysis( analysis_name );
-    printf( "COMPLETE\n\n" );
+    printf( "COMPLETE\n" );
 
-    // Check for within 5% of v3.11 Rolling Moment
+    // Check for within 5% of v3.13 Rolling Moment
+    /// old cmx = -0.01010 // Version Checked VSP 3.11 | VSPAERO 3.1
+    double current_cmx = -0.00882; // Version Last Checked VSP 3.13 | VSPAERO 4.1
     string history_id = vsp::FindLatestResultsID( "VSPAERO_History" );
     double roll_mom_tol = std::abs( 0.05 * vsp::GetDoubleResults( history_id, "CMx" )[0] );
-    TEST_ASSERT_DELTA( vsp::GetDoubleResults( history_id, "CMx" )[0], -0.01010, roll_mom_tol );
+    TEST_ASSERT_DELTA( vsp::GetDoubleResults( history_id, "CMx" )[0], current_cmx, roll_mom_tol );
 
     /// ==== Test Symmetric Deflection ==== ///
     // Edit Control Surface Group Angle and Contained Control Surface Gains
