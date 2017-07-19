@@ -26,6 +26,7 @@ public:
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroComputeGeom )
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePoint )
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePointStab )
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePointUnsteady );
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSweep )
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSweepBatch )
         //  Panel Method Tests
@@ -45,6 +46,7 @@ private:
     void TestVSPAeroControlSurfaceDeflection();
     void TestVSPAeroSinglePoint();
     void TestVSPAeroSinglePointStab();
+    void TestVSPAeroSinglePointUnsteady();
     void TestVSPAeroSweep();
     void TestVSPAeroSweepBatch();
     //  Panel Method Tests

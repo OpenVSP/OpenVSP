@@ -606,6 +606,86 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointStab()
     printf( "\n" );
 }
 
+void APITestSuiteVSPAERO::TestVSPAeroSinglePointUnsteady()
+{
+    printf( "APITestSuiteVSPAERO::TestVSPAeroSinglePointUnsteady()\n" );
+
+    // make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //open the file created in TestVSPAeroCreateModel
+    printf("\tReading in file...");
+    vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
+    if ( m_vspfname_for_vspaerotests == string() )
+    {
+        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeom" );
+        return;
+    }
+    if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
+    {
+        TEST_FAIL( "m_vspfname_for_vspaerotests failed to open" );
+        return;
+    }
+    printf("COMPLETE\n");
+
+    //==== Analysis: VSPAERO Single Point  stabilityFlag = TRUE ====//
+    string analysis_name = "VSPAEROSinglePoint";
+    printf( "\tAnalysis Type: %s\n", analysis_name.c_str() );
+    // Set defaults
+    vsp::SetAnalysisInputDefaults( analysis_name );
+
+    printf("\tChanging Analysis Inputs...");
+    // Change some input values
+    //    Analysis method
+    std::vector< int > analysis_method; analysis_method.push_back( vsp::VORTEX_LATTICE );
+    vsp::SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method, 0 );
+    //    Reference geometry set
+    std::vector< int > geom_set; geom_set.push_back( 0 );
+    vsp::SetIntAnalysisInput( analysis_name, "GeomSet", geom_set );
+    //    Reference areas, lengths
+    std::vector< double > sref; sref.push_back( 10 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "Sref", sref );
+    std::vector< double > bref; bref.push_back( 17 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "bref", bref );
+    std::vector< double > cref; cref.push_back( 3 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "cref", cref );
+    std::vector< int > ref_flag; ref_flag.push_back( 3 );
+    vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag );
+    //    freestream parameters
+    std::vector< double > alpha; alpha.push_back( 4.0 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "Alpha", alpha );
+    std::vector< double > beta; beta.push_back( -3.0 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "Beta", beta );
+    std::vector< double > mach; mach.push_back( 0.4 );
+    vsp::SetDoubleAnalysisInput( analysis_name, "Mach", mach );
+    //     Case Setup
+    std::vector< int > wakeNumIter; wakeNumIter.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeNumIter", wakeNumIter );
+    std::vector< int > wakeSkipUntilIter; wakeSkipUntilIter.push_back( 2 );
+    vsp::SetIntAnalysisInput( analysis_name, "WakeSkipUntilIter", wakeSkipUntilIter );
+    std::vector< int > stabilityCalcFlag; stabilityCalcFlag.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "StabilityCalcFlag", stabilityCalcFlag );
+    std::vector< int> stabilityCalcType; stabilityCalcType.push_back( vsp::STABILITY_P_ANALYSIS );
+    vsp::SetIntAnalysisInput( analysis_name, "StabilityCalcType", stabilityCalcType );
+    std::vector< int > jacobiPrecondition; jacobiPrecondition.push_back( 1 );
+    vsp::SetIntAnalysisInput( analysis_name, "JacobiPrecondition", jacobiPrecondition );
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf("COMPLETE\n");
+
+    // Execute
+    printf( "\tExecuting..." );
+    string results_id = vsp::ExecAnalysis( analysis_name );
+    printf( "COMPLETE\n" );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "\n" );
+}
+
 void APITestSuiteVSPAERO::TestVSPAeroSweep()
 {
     printf( "APITestSuiteVSPAERO::TestVSPAeroSweep()\n" );

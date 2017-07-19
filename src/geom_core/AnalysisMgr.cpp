@@ -1096,6 +1096,8 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
         m_Inputs.Add( NameValData( "WakeSkipUntilIter", VSPAEROMgr.m_WakeSkipUntilIter.Get() ) );
         m_Inputs.Add( NameValData( "StabilityCalcFlag", VSPAEROMgr.m_StabilityCalcFlag.Get() ) );
+        m_Inputs.Add( NameValData( "StabilityCalcType", VSPAEROMgr.m_StabilityType.Get()     ) );
+        m_Inputs.Add( NameValData( "JacobiPrecondition",VSPAEROMgr.m_JacobiPrecondition.Get()) );
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
