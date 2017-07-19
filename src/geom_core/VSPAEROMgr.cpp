@@ -191,9 +191,20 @@ void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
 
 void VSPAEROMgrSingleton::Renew()
 {
+    for(size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i)
+    {
+        delete m_ControlSurfaceGroupVec[i];
+        m_ControlSurfaceGroupVec.erase( m_ControlSurfaceGroupVec.begin() + i );
+    }
     m_ControlSurfaceGroupVec.clear();
     m_CompleteControlSurfaceVec.clear();
     m_ActiveControlSurfaceVec.clear();
+
+    for(size_t i = 0; i < m_RotorDiskVec.size(); ++i)
+    {
+        delete m_RotorDiskVec[i];
+        m_RotorDiskVec.erase( m_RotorDiskVec.begin() + i );
+    }
     m_RotorDiskVec.clear();
 
     m_DegenGeomVec.clear();
@@ -2529,77 +2540,6 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
 
 RotorDisk::RotorDisk( void ) : ParmContainer()
 {
-    InitDisk();
-}
-
-RotorDisk::RotorDisk( const RotorDisk &RotorDisk )
-{
-
-    m_Name = RotorDisk.m_Name;
-
-    m_IsUsed = RotorDisk.m_IsUsed;
-
-    m_XYZ = RotorDisk.m_XYZ;           // RotorXYZ_
-    m_Normal = RotorDisk.m_Normal;        // RotorNormal_
-
-    m_Diameter = RotorDisk.m_Diameter;       // RotorDiameter_
-    m_HubDiameter = RotorDisk.m_HubDiameter;    // RotorHubDiameter_
-    m_RPM = RotorDisk.m_RPM;       // RotorRPM_
-
-    m_CT = RotorDisk.m_CT;        // Rotor_CT_
-    m_CP = RotorDisk.m_CP;        // Rotor_CP_
-
-    m_ParentGeomId = RotorDisk.m_ParentGeomId;
-    m_ParentGeomSurfNdx = RotorDisk.m_ParentGeomSurfNdx;
-}
-
-// Construct from degenerate geometry
-RotorDisk::RotorDisk( DegenGeom &degenGeom )
-{
-    InitDisk();
-
-    if ( degenGeom.getType() == DegenGeom::DISK_TYPE )
-    {
-        DegenDisk degenDisk = degenGeom.getDegenDisk();
-
-        m_XYZ = degenDisk.x;
-        m_Normal = degenDisk.nvec * -1; //definition of normal vector in VSPAERO is -1*nvec of degen geom
-
-        m_Diameter = degenDisk.d;
-
-        m_ParentGeomId = degenGeom.getParentGeom()->GetID().c_str();
-        m_ParentGeomSurfNdx = degenGeom.getSurfNum();
-
-        m_Name.append( degenGeom.getParentGeom()->GetName() );
-        m_Name.append( "_" );
-        m_Name.append( to_string( degenGeom.getSurfNum() ) );
-    }
-}
-
-// Construct from degenerate Disk
-RotorDisk::RotorDisk( const DegenDisk degenDisk, string parentGeomId, unsigned int parentGeomSurfNdx )
-{
-    InitDisk();
-
-    m_XYZ = degenDisk.x;
-    m_Normal = degenDisk.nvec * -1; //definition of normal vector in VSPAERO is -1*nvec of degen geom
-    m_Diameter = degenDisk.d;
-
-    m_ParentGeomId = parentGeomId;
-    m_ParentGeomSurfNdx = parentGeomSurfNdx;
-
-    m_IsUsed = true;
-}
-
-RotorDisk::~RotorDisk( void )
-{
-
-    // Nothing to do..
-
-}
-
-void RotorDisk::InitDisk()
-{
     m_Name = "Default";
     m_GroupName = "Rotor";
 
@@ -2625,6 +2565,11 @@ void RotorDisk::InitDisk()
 
     m_ParentGeomId = "";
     m_ParentGeomSurfNdx = -1;
+}
+
+
+RotorDisk::~RotorDisk( void )
+{
 }
 
 void RotorDisk::ParmChanged( Parm* parm_ptr, int type )
@@ -2742,7 +2687,6 @@ ControlSurfaceGroup::ControlSurfaceGroup( void ) : ParmContainer()
 
 ControlSurfaceGroup::~ControlSurfaceGroup( void )
 {
-    // nothing to do
 }
 
 void ControlSurfaceGroup::ParmChanged( Parm* parm_ptr, int type )
@@ -2846,7 +2790,7 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
             AddSubSurface( newSurf );
         }
 
-        ParmContainer::DecodeXml( node );
+        ParmContainer::DecodeXml( node ); // Comes after AddSubSurface() to prevent overwriting of newly initialized Parms
     }
 
     return node;
@@ -2861,7 +2805,7 @@ void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
     if ( p )
     {
         //  parm name: control_surf->fullName (example: MainWing_Surf1_Aileron)
-        //  group: "CSGQualities"
+        //  group: "ControlSurfaceGroup"
         //  initial value: control_surf->deflection_gain
         sprintf( str, "Surf_%s_%i_Gain", control_surf.SSID.c_str(), control_surf.iReflect );
         p->Init( str, m_GroupName, this, 1.0, -1.0e6, 1.0e6 );

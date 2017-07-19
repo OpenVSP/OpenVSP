@@ -40,12 +40,8 @@ public:
     // Constructor, Destructor, Copy
     RotorDisk( void );
     ~RotorDisk( void );
-    RotorDisk( const RotorDisk &RotorDisk );
     RotorDisk& operator=( const RotorDisk &RotorDisk );
 
-    RotorDisk( DegenGeom &degenGeom );  //TODO make this argument a const
-    RotorDisk( const DegenDisk degenDisk, string parentGeomId, unsigned int parentGeomSurfNdx );
-    void InitDisk();
     void ParmChanged( Parm* parm_ptr, int type );
 
     // Setup File I/O
