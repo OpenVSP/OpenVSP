@@ -152,6 +152,8 @@ public:
     xmlNodePtr EncodeXml( xmlNodePtr & node, int set );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    xmlNodePtr DecodeXmlGeomsOnly( xmlNodePtr & node );
+
     enum { REORDER_MOVE_UP, REORDER_MOVE_DOWN, REORDER_MOVE_TOP, REORDER_MOVE_BOTTOM };
 
     bool ExistMesh( int set );
@@ -159,6 +161,7 @@ public:
     vector < string > GetPtCloudGeoms();
 
     int ReadXMLFile( const string & file_name );
+    int ReadXMLFileGeomsOnly( const string & file_name );
 
     void SetVSP3FileName( const string & f_name );
     string GetVSP3FileName()                                { return m_VSP3FileName; }

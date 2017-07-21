@@ -338,7 +338,7 @@ void MainVSPScreen::ActionCB( void * data )
         string openfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Insert VSP File", "*.vsp3" );
         if ( openfile.compare( "" ) != 0 )
         {
-            VehicleMgr.GetVehicle()->ReadXMLFile( openfile );
+            VehicleMgr.GetVehicle()->ReadXMLFileGeomsOnly( openfile );
         }
     }
     // else if ( data == &m_SetTempDirMenuItem )

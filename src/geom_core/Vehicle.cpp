@@ -1404,7 +1404,54 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
         // Decode label information.
         getVGuiDraw()->getLabelMgr()->DecodeXml( vehicle_node );
 
-        MaterialMgr.DecodeXml( node );
+    }
+
+    // 'GeomsOnly' is a euphamism for those entities we want to read when 'inserting' a file.
+    // It is mostly the Geoms, but also materials, presets, links, and advanced links.
+    DecodeXmlGeomsOnly( node );
+
+    VSPAEROMgr.DecodeXml( node );
+    m_CfdSettings.DecodeXml( node );
+    m_CfdGridDensity.DecodeXml( node );
+    m_FeaGridDensity.DecodeXml( node );
+    m_ClippingMgr.DecodeXml( node );
+    WaveDragMgr.DecodeXml( node );
+    ParasiteDragMgr.DecodeXml( node );
+
+    xmlNodePtr setnamenode = XmlUtil::GetNode( node, "SetNames", 0 );
+    if ( setnamenode )
+    {
+        int num = XmlUtil::GetNumNames( setnamenode, "Set" );
+
+        for ( int i = 0; i < num; i++ )
+        {
+            xmlNodePtr namenode = XmlUtil::GetNode( setnamenode, "Set", i );
+            if ( namenode )
+            {
+                string name = XmlUtil::ExtractString( namenode );
+                SetSetName( i, name );
+            }
+        }
+    }
+
+    return vehicle_node;
+}
+
+// DecodeXmlGeomsOnly is a stripped down version of DecodeXml.
+//
+// It is called directly when we 'insert' instead of 'open' a file.  It skips a lot of the auxilary information
+// contained in the vsp3 file -- instead deferring to that already in the main file.  It attempts to insert
+// all the geometry as well as links & advanced links from the file.
+//
+// To prevent code duplication, it is also called from DecodeXml
+//
+xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
+{
+    MaterialMgr.DecodeXml( node );
+
+    xmlNodePtr vehicle_node = XmlUtil::GetNode( node, "Vehicle", 0 );
+    if ( vehicle_node )
+    {
 
         int num = XmlUtil::GetNumNames( vehicle_node, "Geom" );
         for ( int i = 0 ; i < num ; i++ )
@@ -1437,34 +1484,10 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
 
     LinkMgr.DecodeXml( node );
     AdvLinkMgr.DecodeXml( node );
-    VSPAEROMgr.DecodeXml( node );
     VarPresetMgr.DecodeXml( node );
-    m_CfdSettings.DecodeXml( node );
-    m_CfdGridDensity.DecodeXml( node );
-    m_FeaGridDensity.DecodeXml( node );
-    m_ClippingMgr.DecodeXml( node );
-    WaveDragMgr.DecodeXml( node );
-    ParasiteDragMgr.DecodeXml( node );
-
-    xmlNodePtr setnamenode = XmlUtil::GetNode( node, "SetNames", 0 );
-    if ( setnamenode )
-    {
-        int num = XmlUtil::GetNumNames( setnamenode, "Set" );
-
-        for ( int i = 0; i < num; i++ )
-        {
-            xmlNodePtr namenode = XmlUtil::GetNode( setnamenode, "Set", i );
-            if ( namenode )
-            {
-                string name = XmlUtil::ExtractString( namenode );
-                SetSetName( i, name );
-            }
-        }
-    }
 
     return vehicle_node;
 }
-
 
 //==== Write File ====//
 bool Vehicle::WriteXMLFile( const string & file_name, int set )
@@ -1535,6 +1558,63 @@ int Vehicle::ReadXMLFile( const string & file_name )
 
     //==== Decode Vehicle from document ====//
     DecodeXml( root );
+
+    //===== Free Doc =====//
+    xmlFreeDoc( doc );
+
+    ParmMgr.ResetRemapID( lastreset );
+
+    Update();
+
+    return 0;
+}
+
+//==== Read File ====//
+int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
+{
+    string lastreset = ParmMgr.ResetRemapID();
+
+    //==== Read Xml File ====//
+    xmlDocPtr doc;
+
+    LIBXML_TEST_VERSION
+    xmlKeepBlanksDefault( 0 );
+
+    //==== Build an XML tree from a the file ====//
+    doc = xmlParseFile( file_name.c_str() );
+    if ( doc == NULL )
+    {
+        fprintf( stderr, "could not parse XML document\n" );
+        return 1;
+    }
+
+    xmlNodePtr root = xmlDocGetRootElement( doc );
+    if ( root == NULL )
+    {
+        fprintf( stderr, "empty document\n" );
+        xmlFreeDoc( doc );
+        return 2;
+    }
+
+    if ( xmlStrcmp( root->name, ( const xmlChar * )"Vsp_Geometry" ) )
+    {
+        fprintf( stderr, "document of the wrong type, Vsp Geometry not found\n" );
+        xmlFreeDoc( doc );
+        return 3;
+    }
+
+    //==== Find Version Number ====//
+    m_FileOpenVersion = XmlUtil::FindInt( root, "Version", 0 );
+
+    if ( m_FileOpenVersion < MIN_FILE_VER )
+    {
+        fprintf( stderr, "document version not supported \n");
+        xmlFreeDoc( doc );
+        return 4;
+    }
+
+    //==== Decode Vehicle from document ====//
+    DecodeXmlGeomsOnly( root );
 
     //===== Free Doc =====//
     xmlFreeDoc( doc );

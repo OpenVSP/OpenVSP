@@ -219,7 +219,7 @@ void InsertVSPFile( const string & file_name, const string & parent  )
         veh->ClearActiveGeom();
     }
 
-    int err = veh->ReadXMLFile( file_name );
+    int err = veh->ReadXMLFileGeomsOnly( file_name );
     if( err != 0 )
     {
         ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "InsertVSPFile::Error"  );
