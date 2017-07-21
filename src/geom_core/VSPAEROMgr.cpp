@@ -142,18 +142,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_SweepYMin.Init( "m_SweepYMin", groupname, this, -1, -1e12, 1e12 );
     m_SweepYMax.Init( "m_SweepYMax", groupname, this, 1, -1e12, 1e12 );
 
-    // Disk Element Parms
-    m_Diameter.Init( "Diameter", groupname, this, 10.0, 0.0, 1e6 );
-    m_Diameter.SetDescript( "Diameter of Disk Geom Set in Geom Window" );
-    m_HubDiameter.Init( "HubDiameter", groupname, this, 0.0, 0.0, 1e6 );
-    m_HubDiameter.SetDescript( "Hub Diameter with Max Diameter at Disk Diameter" );
-    m_RPM.Init( "RPM", groupname, this, 2000.0, -1e12, 1e12 );
-    m_RPM.SetDescript( "RPM of Disk Element" );
-    m_CT.Init( "CT", groupname, this, 0.4, 0.0, 1e2 );
-    m_CT.SetDescript( "Coefficiect of Thrust" );
-    m_CP.Init( "CP", groupname, this, 0.6, 0.0, 1e2 );
-    m_CP.SetDescript( "Coefficient of Power" );
-
     // Other Setup Parameters
     m_Vinf.Init( "Vinf", groupname, this, 100, 0, 1e6 );
     m_Vinf.SetDescript( "Freestream Velocity Through Disk Component" );
@@ -259,19 +247,21 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
             }
         }
 
-        UpdateCompleteControlSurfVec();
-        UpdateControlSurfaceGroups(); // Replace Shell SubSurfs with those from CompleteSurfaceVec
-
         // Decode Rotor Disks using Internal Decode Method
         int num_rotor = XmlUtil::FindInt( VSPAEROsetnode, "RotorDiskCount", 0 );
-        m_RotorDiskVec.resize( num_rotor );
         for ( size_t i = 0; i < num_rotor; ++i )
         {
             xmlNodePtr rotornode = XmlUtil::GetNode( VSPAEROsetnode, "Rotor", i );
-            m_RotorDiskVec[i] = new RotorDisk();
-            m_RotorDiskVec[i]->DecodeXml( rotornode );
+            if ( rotornode )
+            {
+                AddRotorDisk();
+                m_RotorDiskVec.back()->DecodeXml( rotornode );
+            }
         }
     }
+
+    UpdateControlSurfaceGroupSuffix();
+    UpdateRotorDiskSuffix();
 
     return VSPAEROsetnode;
 }
@@ -430,18 +420,6 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     }
 }
 
-void VSPAEROMgrSingleton::UpdatePropElemParms()
-{
-    if ( ValidRotorDiskIndex( m_CurrentRotorDiskIndex ) )
-    {
-        m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_Diameter = m_Diameter();
-        m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_HubDiameter = m_HubDiameter();
-        m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_RPM = m_RPM();
-        m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_CT = m_CT();
-        m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_CP = m_CP();
-    }
-}
-
 void VSPAEROMgrSingleton::UpdateRotorDisks()
 {
     Vehicle * veh = VehicleMgr.GetVehicle();
@@ -449,65 +427,63 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
 
     if ( veh )
     {
-        if ( ValidRotorDiskIndex( m_CurrentRotorDiskIndex ) )
-        {
-            SetCurrentRotorDiskFromParms();
-        }
-
         vector < RotorDisk* > temp;
         bool contained = false;
 
-        vector < VspSurf > surfvec;
         vector <string> currgeomvec = veh->GetGeomSet( m_GeomSet() );
 
         for ( size_t i = 0; i < currgeomvec.size(); ++i )
         {
-            veh->FindGeom( currgeomvec[i] )->GetSurfVec( surfvec );
-            for ( size_t iSubsurf = 0; iSubsurf < surfvec.size(); ++iSubsurf )
+            Geom* geom = veh->FindGeom(currgeomvec[i]);
+            if (geom)
             {
-                contained = false;
-                if ( surfvec[iSubsurf].GetSurfType() == vsp::DISK_SURF )
+                vector < VspSurf > surfvec;
+                geom->GetSurfVec(surfvec);
+                for (size_t iSubsurf = 0; iSubsurf < geom->GetNumTotalSurfs(); ++iSubsurf)
                 {
-                    Geom* geom = veh->FindGeom( veh->GetGeomVec()[i] );
-                    for ( size_t j = 0; j < m_RotorDiskVec.size(); ++j )
+                    contained = false;
+                    if (surfvec[iSubsurf].GetSurfType() == vsp::DISK_SURF)
                     {
-                        // If Rotor Disk and Corresponding Surface Num Already Exists within m_RotorDiskVec
-                        if ( m_RotorDiskVec[j]->m_ParentGeomId == veh->GetGeomVec()[i] && m_RotorDiskVec[j]->GetSurfNum() == iSubsurf )
+                        for (size_t j = 0; j < m_RotorDiskVec.size(); ++j)
                         {
-                            contained = true;
-                            temp.push_back( m_RotorDiskVec[j] );
-                            for ( size_t k = 0; k < m_DegenGeomVec.size(); ++k )
+                            // If Rotor Disk and Corresponding Surface Num Already Exists within m_RotorDiskVec
+                            if (m_RotorDiskVec[j]->m_ParentGeomId == veh->GetGeomVec()[i] && m_RotorDiskVec[j]->GetSurfNum() == iSubsurf)
                             {
-                                if ( m_DegenGeomVec[k].getParentGeom()->GetID().compare( m_RotorDiskVec[j]->m_ParentGeomId ) == 0 )
+                                contained = true;
+                                temp.push_back(m_RotorDiskVec[j]);
+                                for (size_t k = 0; k < m_DegenGeomVec.size(); ++k)
                                 {
-                                    int indxToSearch = k + temp.back()->m_ParentGeomSurfNdx;
-                                    temp.back()->m_XYZ = m_DegenGeomVec[indxToSearch].getDegenDisk().x;
-                                    temp.back()->m_Normal = m_DegenGeomVec[indxToSearch].getDegenDisk().nvec * -1.0;
-                                    break;
+                                    if (m_DegenGeomVec[k].getParentGeom()->GetID().compare(m_RotorDiskVec[j]->m_ParentGeomId) == 0)
+                                    {
+                                        int indxToSearch = k + temp.back()->m_ParentGeomSurfNdx;
+                                        temp.back()->m_XYZ = m_DegenGeomVec[indxToSearch].getDegenDisk().x;
+                                        temp.back()->m_Normal = m_DegenGeomVec[indxToSearch].getDegenDisk().nvec * -1.0;
+                                        break;
+                                    }
                                 }
+                                sprintf(str, "%s_%u", geom->GetName().c_str(), iSubsurf);
+                                temp.back()->SetName(str);
                             }
-                            sprintf( str, "%s_%u", geom->GetName().c_str(), iSubsurf );
-                            temp.back()->SetName( str );
                         }
-                    }
 
-                    // If Rotor Disk and Corresponding Surface Num Do NOT Exist within m_RotorDiskVec
-                    // Create New Rotor Disk Parm Container
-                    if ( !contained )
-                    {
-                        RotorDisk *rotor = new RotorDisk();
-                        temp.push_back( rotor );
-                        temp.back()->m_ParentGeomId = veh->GetGeomVec()[i];
-                        temp.back()->m_ParentGeomSurfNdx = iSubsurf;
-                        sprintf( str, "%s_%u", geom->GetName().c_str(), iSubsurf );
-                        temp.back()->SetName( str );
-                    }
+                        // If Rotor Disk and Corresponding Surface Num Do NOT Exist within m_RotorDiskVec
+                        // Create New Rotor Disk Parm Container
+                        if (!contained)
+                        {
+                            RotorDisk *rotor = new RotorDisk();
+                            temp.push_back(rotor);
+                            temp.back()->m_ParentGeomId = veh->GetGeomVec()[i];
+                            temp.back()->m_ParentGeomSurfNdx = iSubsurf;
+                            sprintf(str, "%s_%u", geom->GetName().c_str(), iSubsurf);
+                            temp.back()->SetName(str);
+                        }
 
-                    string dia_id = geom->FindParm( "Diameter", "Design" );
-                    temp.back()->m_Diameter.Set( ParmMgr.FindParm( dia_id )->Get() );
-                    if ( temp.back()->m_HubDiameter() > temp.back()->m_Diameter() )
-                    {
-                        temp.back()->m_HubDiameter.Set( temp.back()->m_Diameter() );
+                        string dia_id = geom->FindParm("Diameter", "Design");
+                        temp.back()->m_Diameter.Set(ParmMgr.FindParm(dia_id)->Get());
+                        if (temp.back()->m_HubDiameter() > temp.back()->m_Diameter())
+                        {
+                            temp.back()->m_HubDiameter.Set(temp.back()->m_Diameter());
+                        }
                     }
                 }
             }
@@ -515,9 +491,9 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
 
         m_RotorDiskVec.clear();
         m_RotorDiskVec = temp;
-
-        SetParmsFromCurrentRotorDisk();
     }
+
+    UpdateRotorDiskSuffix();
 }
 
 void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
@@ -544,8 +520,8 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
                         m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect );
             }
         }
-        m_ControlSurfaceGroupVec[i]->SetParentContainer( GetID() );
     }
+    UpdateControlSurfaceGroupSuffix();
 }
 
 void VSPAEROMgrSingleton::CleanCompleteControlSurfVec()
@@ -706,7 +682,6 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                 {
                     csg = m_ControlSurfaceGroupVec[j];
                     csg->AddSubSurface( m_UngroupedCS[i] );
-                    csg->SetParentContainer( GetID() );
                     m_ControlSurfaceGroupVec.back() = csg;
                     for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
                     {
@@ -732,7 +707,6 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                          geom->GetSubSurf( m_UngroupedCS[i].SSID )->GetName().c_str() );
                 csg->SetName( str );
                 csg->m_ParentGeomBaseID = m_UngroupedCS[i].parentGeomId;
-                csg->SetParentContainer( GetID() );
                 m_ControlSurfaceGroupVec.push_back( csg );
                 for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
                 {
@@ -746,6 +720,7 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
     }
 
     UpdateUngroupedVec();
+    UpdateControlSurfaceGroupSuffix();
 }
 
 string VSPAEROMgrSingleton::ComputeGeometry()
@@ -2186,39 +2161,11 @@ int VSPAEROMgrSingleton::ExportResultsToCSV( string fileName )
     return WaitForFile( fileName );
 }
 
-void VSPAEROMgrSingleton::SetCurrentRotorDiskFromParms()
+void VSPAEROMgrSingleton::AddRotorDisk()
 {
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( ValidRotorDiskIndex( m_CurrentRotorDiskIndex ) )
-    {
-        if ( m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_HubDiameter() > m_Diameter() )
-        {
-            m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_HubDiameter = m_Diameter();
-            m_HubDiameter.Set( m_Diameter() );
-            m_HubDiameter.SetUpperLimit( m_Diameter() );
-        }
-        else
-        {
-            m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_HubDiameter = m_HubDiameter();
-        }
-        m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_RPM = m_RPM();
-        m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_CP = m_CP();
-        m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_CT = m_CT();
-    }
-}
-void VSPAEROMgrSingleton::SetParmsFromCurrentRotorDisk()
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( ValidRotorDiskIndex( m_CurrentRotorDiskIndex ) )
-    {
-        m_Diameter = m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_Diameter();
-
-        m_HubDiameter = m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_HubDiameter();
-        m_RPM = m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_RPM();
-        m_CT = m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_CT();
-        m_CP = m_RotorDiskVec[ m_CurrentRotorDiskIndex ]->m_CP();
-    }
+    RotorDisk* new_rd = new RotorDisk;
+    new_rd->SetParentContainer( GetID() );
+    m_RotorDiskVec.push_back( new_rd );
 }
 
 bool VSPAEROMgrSingleton::ValidRotorDiskIndex( int index )
@@ -2229,6 +2176,15 @@ bool VSPAEROMgrSingleton::ValidRotorDiskIndex( int index )
     }
 
     return false;
+}
+
+void VSPAEROMgrSingleton::UpdateRotorDiskSuffix()
+{
+    for (int i = 0 ; i < (int) m_RotorDiskVec.size(); ++i)
+    {
+        m_RotorDiskVec[i]->SetParentContainer( GetID() );
+        m_RotorDiskVec[i]->SetGroupDisplaySuffix( i );
+    }
 }
 
 void VSPAEROMgrSingleton::RemoveFromUngrouped( const string & ssid, int reflec_num )
@@ -2243,9 +2199,19 @@ void VSPAEROMgrSingleton::RemoveFromUngrouped( const string & ssid, int reflec_n
     }
 }
 
+void VSPAEROMgrSingleton::UpdateControlSurfaceGroupSuffix()
+{
+    for (int i = 0 ; i < (int) m_ControlSurfaceGroupVec.size(); ++i)
+    {
+        m_ControlSurfaceGroupVec[i]->SetParentContainer( GetID() );
+        m_ControlSurfaceGroupVec[i]->SetGroupDisplaySuffix( i );
+    }
+}
+
 void VSPAEROMgrSingleton::AddControlSurfaceGroup()
 {
     ControlSurfaceGroup* new_cs = new ControlSurfaceGroup;
+    new_cs->SetParentContainer( GetID() );
     m_ControlSurfaceGroupVec.push_back( new_cs );
 
     m_CurrentCSGroupIndex = m_ControlSurfaceGroupVec.size() - 1;
@@ -2283,6 +2249,7 @@ void VSPAEROMgrSingleton::RemoveControlSurfaceGroup()
     }
     m_SelectedGroupedCS.clear();
     UpdateActiveControlSurfVec();
+    UpdateControlSurfaceGroupSuffix();
 }
 
 void VSPAEROMgrSingleton::AddSelectedToCSGroup()
@@ -2634,26 +2601,26 @@ RotorDisk::~RotorDisk( void )
 void RotorDisk::InitDisk()
 {
     m_Name = "Default";
-    string groupname = "RotorQualities";
+    m_GroupName = "Rotor";
 
     m_IsUsed = true;
 
     m_XYZ.set_xyz( 0, 0, 0 );           // RotorXYZ_
     m_Normal.set_xyz( 0, 0, 0 );        // RotorNormal_
 
-    m_Diameter.Init( "Rotor_Diameter", groupname, this, 10.0, 0.0, 1e12 );       // RotorDiameter_
+    m_Diameter.Init( "RotorDiameter", m_GroupName, this, 10.0, 0.0, 1e12 );       // RotorDiameter_
     m_Diameter.SetDescript( "Rotor Diameter" );
 
-    m_HubDiameter.Init( "Rotor_HubDiameter", groupname, this, 0.0, 0.0, 1e12 );    // RotorHubDiameter_
+    m_HubDiameter.Init( "RotorHubDiameter", m_GroupName, this, 0.0, 0.0, 1e12 );    // RotorHubDiameter_
     m_HubDiameter.SetDescript( "Rotor Hub Diameter" );
 
-    m_RPM.Init( "Rotor_RPM", groupname, this, 2000.0, -1e12, 1e12 );       // RotorRPM_
+    m_RPM.Init( "RotorRPM", m_GroupName, this, 2000.0, -1e12, 1e12 );       // RotorRPM_
     m_RPM.SetDescript( "Rotor RPM" );
 
-    m_CT.Init( "Rotor_CT", groupname, this, 0.4, -1e3, 1e3 );       // Rotor_CT_
+    m_CT.Init( "RotorCT", m_GroupName, this, 0.4, -1e3, 1e3 );       // Rotor_CT_
     m_CT.SetDescript( "Rotor Coefficient of Thrust" );
 
-    m_CP.Init( "Rotor_CP", groupname, this, 0.6, -1e3, 1e3 );        // Rotor_CP_
+    m_CP.Init( "RotorCP", m_GroupName, this, 0.6, -1e3, 1e3 );        // Rotor_CP_
     m_CP.SetDescript( "Rotor Coefficient of Power" );
 
     m_ParentGeomId = "";
@@ -2720,7 +2687,6 @@ xmlNodePtr RotorDisk::EncodeXml( xmlNodePtr & node )
         ParmContainer::EncodeXml( node );
         XmlUtil::AddStringNode( node, "ParentID", m_ParentGeomId.c_str() );
         XmlUtil::AddIntNode( node, "SurfIndex", m_ParentGeomSurfNdx );
-        XmlUtil::AddStringNode( node, "GroupName", m_Name.c_str() );
     }
 
     return node;
@@ -2732,13 +2698,26 @@ xmlNodePtr RotorDisk::DecodeXml( xmlNodePtr & node )
     int defint = 0;
     if ( node )
     {
+        ParmContainer::DecodeXml( node );
         m_ParentGeomId = XmlUtil::FindString( node, "ParentID", defstr );
         m_ParentGeomSurfNdx = XmlUtil::FindInt( node, "SurfIndex", defint );
-        m_Name = XmlUtil::FindString( node, "GroupName", defstr );
-        ParmContainer::DecodeXml( node );
     }
 
     return node;
+}
+
+void RotorDisk::SetGroupDisplaySuffix(int num)
+{
+    m_GroupSuffix = num;
+    //==== Assign Group Suffix To All Parms ====//
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->SetGroupDisplaySuffix( num );
+        }
+    }
 }
 
 /*##############################################################################
@@ -2752,7 +2731,7 @@ ControlSurfaceGroup::ControlSurfaceGroup( void ) : ParmContainer()
     m_Name = "Unnamed Control Group";
     m_ParentGeomBaseID = "";
 
-    m_GroupName = "CSGQualities";
+    m_GroupName = "ControlSurfaceGroup";
 
     m_IsUsed.Init( "ActiveFlag", m_GroupName, this, true, false, true );
     m_IsUsed.SetDescript( "Flag to determine whether or not this group will be used in VSPAero" );
@@ -2822,7 +2801,6 @@ void ControlSurfaceGroup::Load_STP_Data( FILE *InputFile )
 
 xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
 {
-    char str[256];
     if ( node )
     {
         XmlUtil::AddStringNode( node, "ParentGeomBase", m_ParentGeomBaseID.c_str() );
@@ -2904,6 +2882,20 @@ void ControlSurfaceGroup::RemoveSubSurface( const string & ssid, int reflec_num 
             delete m_DeflectionGainVec[i];
             m_DeflectionGainVec.erase( m_DeflectionGainVec.begin() + i );
             return;
+        }
+    }
+}
+
+void ControlSurfaceGroup::SetGroupDisplaySuffix( int num )
+{
+    m_GroupSuffix = num;
+    //==== Assign Group Suffix To All Parms ====//
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->SetGroupDisplaySuffix( num );
         }
     }
 }

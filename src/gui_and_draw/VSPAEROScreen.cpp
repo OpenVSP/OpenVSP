@@ -552,8 +552,6 @@ bool VSPAEROScreen::Update()
 
         UpdatePropElemDevices();
 
-        VSPAEROMgr.SetCurrentRotorDiskFromParms();         // Pull Parms to Current Disk
-
         UpdateOtherSetupParms();
 
         UpdateDeflectionAngleScrollGroup();
@@ -1172,48 +1170,43 @@ void VSPAEROScreen::UpdateVSPAEROButtons()
 
 void VSPAEROScreen::UpdatePropElemDevices()
 {
-    if (VSPAEROMgr.GetCurrentRotorDiskIndex() < 0)
+    vector < RotorDisk* > rotordiskvec = VSPAEROMgr.GetRotorDiskVec();
+    int index = VSPAEROMgr.GetCurrentRotorDiskIndex();
+    if (index >= 0)
     {
-        VSPAEROMgr.m_Diameter.Deactivate();
-        VSPAEROMgr.m_HubDiameter.Deactivate();
-        VSPAEROMgr.m_RPM.Deactivate();
-        VSPAEROMgr.m_CP.Deactivate();
-        VSPAEROMgr.m_CT.Deactivate();
-    }
-    else
-    {
-        VSPAEROMgr.m_Diameter.Activate();
-        VSPAEROMgr.m_HubDiameter.Activate();
-        VSPAEROMgr.m_RPM.Activate();
-        VSPAEROMgr.m_CP.Activate();
-        VSPAEROMgr.m_CT.Activate();
-    }
+        rotordiskvec[ index ]->m_Diameter.Activate();
+        rotordiskvec[ index ]->m_HubDiameter.Activate();
+        rotordiskvec[ index ]->m_RPM.Activate();
+        rotordiskvec[ index ]->m_CP.Activate();
+        rotordiskvec[ index ]->m_CT.Activate();
 
-    m_PropElemDia.Update(to_string(VSPAEROMgr.m_Diameter()));
-    VSPAEROMgr.m_HubDiameter.SetUpperLimit(VSPAEROMgr.m_Diameter());
-    m_PropElemHubDia.SetMaxBound(VSPAEROMgr.m_Diameter());
-    m_PropElemHubDia.Update(VSPAEROMgr.m_HubDiameter.GetID());
-    m_PropElemRPM.Update(VSPAEROMgr.m_RPM.GetID());
-    m_PropElemCP.Update(VSPAEROMgr.m_CP.GetID());
-    m_PropElemCT.Update(VSPAEROMgr.m_CT.GetID());
+        m_PropElemDia.Update(to_string(rotordiskvec[ index ]->m_Diameter()));
+        rotordiskvec[ index ]->m_HubDiameter.SetUpperLimit( rotordiskvec[ index ]->m_Diameter() );
+        m_PropElemHubDia.SetMaxBound( rotordiskvec[ index ]->m_Diameter() );
+        m_PropElemHubDia.Update( rotordiskvec[ index ]->m_HubDiameter.GetID() );
+        m_PropElemRPM.Update( rotordiskvec[ index ]->m_RPM.GetID());
+        m_PropElemCP.Update( rotordiskvec[ index ]->m_CP.GetID());
+        m_PropElemCT.Update( rotordiskvec[ index ]->m_CT.GetID());
+    }
 }
 
 void VSPAEROScreen::UpdatePropElemBrowser()
 {
     char str[256];
     m_PropElemBrowser->clear();
-    static int widths[] = { 150, 40, 65, 65, 40, 40 }; // widths for each column
+    static int widths[] = { 35, 150, 40, 65, 65, 40, 40 }; // widths for each column
     m_PropElemBrowser->column_widths(widths);    // assign array to widget
     m_PropElemBrowser->column_char(':');         // use : as the column character
 
-    sprintf(str, "@b@.NAME:@b@.DIA:@b@.HUB DIA:@b@.RPM:@b@.CP:@b@.CT");
+    sprintf(str, "@b@.INDX:@b@.NAME:@b@.DIA:@b@.HUB DIA:@b@.RPM:@b@.CP:@b@.CT");
     m_PropElemBrowser->add(str);
     for (size_t i = 0; i < VSPAEROMgr.GetRotorDiskVec().size(); ++i)
     {
         RotorDisk* curr_rot = VSPAEROMgr.GetRotorDiskVec()[i];
         if (curr_rot)
         {
-            sprintf(str, "%s:%4.2f:%4.2f:%6.1f:%4.2f:%4.2f", curr_rot->GetName().c_str(),
+            sprintf(str, "%i:%s:%4.2f:%4.2f:%6.1f:%4.2f:%4.2f", curr_rot->m_GroupSuffix,
+                curr_rot->GetName().c_str(),
                 curr_rot->m_Diameter(), curr_rot->m_HubDiameter(),
                 curr_rot->m_RPM(), curr_rot->m_CP(), curr_rot->m_CT());
             m_PropElemBrowser->add(str);
@@ -1224,13 +1217,18 @@ void VSPAEROScreen::UpdatePropElemBrowser()
 
 void VSPAEROScreen::UpdateControlSurfaceBrowsers()
 {
+    char str[256];
     int curr_cs_index = VSPAEROMgr.GetCurrentCSGroupIndex();
     vector < ControlSurfaceGroup* > cs_group_vec = VSPAEROMgr.GetControlSurfaceGroupVec();
     m_CSGroupBrowser->clear();
     for (size_t i = 0; i < cs_group_vec.size(); ++i)
     {
         ControlSurfaceGroup* curr_cs_group = cs_group_vec[i];
-        m_CSGroupBrowser->add(curr_cs_group->GetName().c_str());
+        if (curr_cs_group)
+        {
+            sprintf( str, "%i %s", curr_cs_group->m_GroupSuffix, curr_cs_group->GetName().c_str());
+            m_CSGroupBrowser->add( str );
+        }
         vector < VspAeroControlSurf > sub_surf_vec = VSPAEROMgr.GetActiveCSVec();
         for (size_t j = 0; j < sub_surf_vec.size(); ++j)
         {
@@ -1411,7 +1409,6 @@ void VSPAEROScreen::PropElemBrowserCallback()
     if ( last >= 2 )
     {
         VSPAEROMgr.SetCurrentRotorDiskIndex( last - 2 );
-        VSPAEROMgr.SetParmsFromCurrentRotorDisk();
     }
     VSPAEROMgr.HighlightSelected( VSPAEROMgr.ROTORDISK );
 }

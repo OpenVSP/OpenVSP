@@ -58,6 +58,9 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    string m_GroupName;
+    int m_GroupSuffix;
+
     bool m_IsUsed;
 
     vec3d m_XYZ;           // RotorXYZ_
@@ -73,6 +76,8 @@ public:
     //identifing information for vsp model
     string m_ParentGeomId;
     unsigned int m_ParentGeomSurfNdx;
+
+    void SetGroupDisplaySuffix( int num );
 
 };
 
@@ -90,6 +95,8 @@ public:
 
     string m_GroupName;
     string m_ParentGeomBaseID;
+
+    int m_GroupSuffix;
 
     BoolParm m_IsUsed;
 
@@ -109,6 +116,8 @@ public:
     // Subsurface Manipulation
     void AddSubSurface( VspAeroControlSurf control_surf );
     void RemoveSubSurface( const string & ssid, int reflec_num );
+
+    void SetGroupDisplaySuffix( int num );
 
 };
 
@@ -148,7 +157,6 @@ public:
     void UpdateSref();
     void UpdateSetupParmLimits();
     void UpdateFilenames();
-    void UpdatePropElemParms();
     void UpdateRotorDisks();
     void UpdateControlSurfaceGroups();
     void CleanCompleteControlSurfVec();
@@ -190,9 +198,9 @@ public:
     IntParm m_AnalysisMethod;
 
     // Rotor Disk Functionality
-    void SetCurrentRotorDiskFromParms();
-    void SetParmsFromCurrentRotorDisk();
+    void AddRotorDisk();
     bool ValidRotorDiskIndex( int index );
+    void UpdateRotorDiskSuffix();
 
     // Control Surface Group Functionality
     void InitControlSurfaceGroups();        // default initial grouping of control surfaces for VSPAERO
@@ -203,6 +211,7 @@ public:
     void RemoveSelectedFromCSGroup();
     void RemoveAllFromCSGroup();
     void RemoveFromUngrouped( const string & ssid, int reflec_num );
+    void UpdateControlSurfaceGroupSuffix();
 
     virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id );
 
@@ -251,13 +260,6 @@ public:
     IntParm m_WakeNumIter;
     IntParm m_WakeAvgStartIter;
     IntParm m_WakeSkipUntilIter;
-
-    // Disk Element Parms
-    Parm m_Diameter;
-    Parm m_HubDiameter;
-    Parm m_RPM;
-    Parm m_CT;
-    Parm m_CP;
 
     // Other Setup Parameters
     Parm m_Vinf;
