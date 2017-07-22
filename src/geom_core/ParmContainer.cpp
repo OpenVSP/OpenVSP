@@ -156,6 +156,7 @@ xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
     xmlNodePtr gnode;
 
     LoadGroupParmVec( m_ParmVec, false );
+    ParmMgr.IncNumParmChanges();
 
     map< string, vector< string > >::iterator groupIter;
     for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; groupIter++ )
@@ -200,6 +201,7 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
     xmlNodePtr gnode;
 
     LoadGroupParmVec( m_ParmVec, false );
+    ParmMgr.IncNumParmChanges();
 
     map< string, vector< string > >::iterator groupIter;
     for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; groupIter++ )

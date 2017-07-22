@@ -78,6 +78,7 @@ public:
     void SetActiveParm( string id )         { m_ActiveParmID = id; }
     Parm* GetActiveParm()                   { return FindParm( m_ActiveParmID ); }
     int GetNumParmChanges()                 { return m_NumParmChanges; }
+    void IncNumParmChanges()                { m_NumParmChanges++; }
     int GetChangeCnt()                      { m_ChangeCnt++; return m_ChangeCnt; }
 
     Parm* CreateParm( int type );
