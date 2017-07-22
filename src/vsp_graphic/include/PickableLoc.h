@@ -15,27 +15,27 @@ public:
     /*!
     * Constructor.
     */
-	PickableLoc();
+    PickableLoc();
     /*!
     * Destructor.
     */
-	virtual ~PickableLoc();
+    virtual ~PickableLoc();
 
 public:
     /*!
     * Override from Pickable.
     */
-	virtual void update();
+    virtual void update();
 
 protected:
     /*!
     * Render preprocessing.
     */
-	virtual void _predraw();
+    virtual void _predraw();
     /*!
     * Draw.
     */
-	virtual void _draw();
+    virtual void _draw();
 };
 }
 #endif

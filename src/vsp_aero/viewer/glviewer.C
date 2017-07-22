@@ -181,6 +181,8 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
     
     DrawControlSurfacesIsOn = 0;
     
+    DrawControlSurfacesDeflectedIsOn = 0;
+    
     // Load in the first solution to begin with
     
     UserSelectedSolutionCase_ = 1;
@@ -244,10 +246,7 @@ void GL_VIEWER::LoadInitialData(char *name)
 
     // Determine if an adb file exists
     
-    if (strstr(file_name,".adb") )    
-        sprintf(file_name_w_ext,"%s",file_name);
-    else
-        sprintf(file_name_w_ext,"%s.adb",file_name);
+    sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) != NULL ) {
      
@@ -401,7 +400,7 @@ void GL_VIEWER::LoadMeshData(void)
 {
 
     char file_name_w_ext[2000], DumChar[1000], GridName[1000];
-    int i, k, DumInt, Level, Edge;
+    int i, j, k, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes;
     int TotNum, i_size, f_size, c_size;
     float DumFloat;
     FILE *adb_file, *madb_file;
@@ -419,10 +418,7 @@ void GL_VIEWER::LoadMeshData(void)
 
     // Open the aerothermal data base file
 
-    if (strstr(file_name,".adb") )    
-        sprintf(file_name_w_ext,"%s",file_name);
-    else
-        sprintf(file_name_w_ext,"%s.adb",file_name);
+    sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) == NULL ) {
 
@@ -671,25 +667,81 @@ void GL_VIEWER::LoadMeshData(void)
     
     ControlSurface = new CONTROL_SURFACE[NumberOfControlSurfaces + 1];
     
-    for ( i = 1 ; i <= NumberOfControlSurfaces; i++ ) {
-
-       BIO.fread(&(ControlSurface[i].Node1[0]), f_size, 1, adb_file); ControlSurface[i].Node1[0] -= GeometryXShift;      
-       BIO.fread(&(ControlSurface[i].Node1[1]), f_size, 1, adb_file); ControlSurface[i].Node1[1] -= GeometryYShift;       
-       BIO.fread(&(ControlSurface[i].Node1[2]), f_size, 1, adb_file); ControlSurface[i].Node1[2] -= GeometryZShift;            
-                 
-       BIO.fread(&(ControlSurface[i].Node2[0]), f_size, 1, adb_file); ControlSurface[i].Node2[0] -= GeometryXShift;       
-       BIO.fread(&(ControlSurface[i].Node2[1]), f_size, 1, adb_file); ControlSurface[i].Node2[1] -= GeometryYShift;  
-       BIO.fread(&(ControlSurface[i].Node2[2]), f_size, 1, adb_file); ControlSurface[i].Node2[2] -= GeometryZShift;    
-
-       BIO.fread(&(ControlSurface[i].Node3[0]), f_size, 1, adb_file); ControlSurface[i].Node3[0] -= GeometryXShift;       
-       BIO.fread(&(ControlSurface[i].Node3[1]), f_size, 1, adb_file); ControlSurface[i].Node3[1] -= GeometryYShift;  
-       BIO.fread(&(ControlSurface[i].Node3[2]), f_size, 1, adb_file); ControlSurface[i].Node3[2] -= GeometryZShift;    
+    for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
        
-       BIO.fread(&(ControlSurface[i].Node4[0]), f_size, 1, adb_file); ControlSurface[i].Node4[0] -= GeometryXShift;       
-       BIO.fread(&(ControlSurface[i].Node4[1]), f_size, 1, adb_file); ControlSurface[i].Node4[1] -= GeometryYShift;  
-       BIO.fread(&(ControlSurface[i].Node4[2]), f_size, 1, adb_file); ControlSurface[i].Node4[2] -= GeometryZShift;    
-                     
-    }       
+       BIO.fread(&(NumberOfControlSurfaceNodes), i_size, 1, adb_file);       
+       
+       ControlSurface[i].NumberOfNodes = NumberOfControlSurfaceNodes;
+       
+       ControlSurface[i].NodeList = new float*[NumberOfControlSurfaceNodes + 1];
+       
+       printf("NumberOfControlSurfaceNodes: %d \n",NumberOfControlSurfaceNodes);
+       
+       for ( j = 1 ; j <= NumberOfControlSurfaceNodes ; j++ ) {
+          
+          ControlSurface[i].NodeList[j] = new float[3];
+          
+       }
+       
+       for ( j = 1 ; j <= NumberOfControlSurfaceNodes ; j++ ) {
+
+          BIO.fread(&(ControlSurface[i].NodeList[j][0]), f_size, 1, adb_file); ControlSurface[i].NodeList[j][0] -= GeometryXShift;      
+          BIO.fread(&(ControlSurface[i].NodeList[j][1]), f_size, 1, adb_file); ControlSurface[i].NodeList[j][1] -= GeometryYShift;       
+          BIO.fread(&(ControlSurface[i].NodeList[j][2]), f_size, 1, adb_file); ControlSurface[i].NodeList[j][2] -= GeometryZShift;  
+          
+       }          
+       
+       // Hinge nodes and vector
+       
+       BIO.fread(&(ControlSurface[i].HingeNode1[0]), f_size, 1, adb_file); ControlSurface[i].HingeNode1[0] -= GeometryXShift;      
+       BIO.fread(&(ControlSurface[i].HingeNode1[1]), f_size, 1, adb_file); ControlSurface[i].HingeNode1[1] -= GeometryYShift;       
+       BIO.fread(&(ControlSurface[i].HingeNode1[2]), f_size, 1, adb_file); ControlSurface[i].HingeNode1[2] -= GeometryZShift;            
+                        
+       BIO.fread(&(ControlSurface[i].HingeNode2[0]), f_size, 1, adb_file); ControlSurface[i].HingeNode2[0] -= GeometryXShift;      
+       BIO.fread(&(ControlSurface[i].HingeNode2[1]), f_size, 1, adb_file); ControlSurface[i].HingeNode2[1] -= GeometryYShift;       
+       BIO.fread(&(ControlSurface[i].HingeNode2[2]), f_size, 1, adb_file); ControlSurface[i].HingeNode2[2] -= GeometryZShift;  
+       
+       BIO.fread(&(ControlSurface[i].HingeVec[0]), f_size, 1, adb_file);   
+       BIO.fread(&(ControlSurface[i].HingeVec[1]), f_size, 1, adb_file);    
+       BIO.fread(&(ControlSurface[i].HingeVec[2]), f_size, 1, adb_file);
+              
+       // Affected loops
+       
+       BIO.fread(&(ControlSurface[i].NumberOfLoops), i_size, 1, adb_file);
+       
+       ControlSurface[i].LoopList = new int[ControlSurface[i].NumberOfLoops + 1];
+       
+       for ( p = 1 ; p <= ControlSurface[i].NumberOfLoops ; p++ ) {
+          
+          BIO.fread(&(ControlSurface[i].LoopList[p]), i_size, 1, adb_file);
+          
+       }          
+       
+       // Zero out control surface deflection
+       
+       ControlSurface[i].DeflectionAngle = 0.;
+                            
+    }     
+    
+    // Mark all the loops on a control surface
+    
+    ControlSurfaceLoop = new int[NumberOfTris + 1];
+    
+    for ( j = 1 ; j <= NumberOfTris ; j++ ) {
+        
+       ControlSurfaceLoop[j] = 0;
+        
+    }
+    
+    for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
+       
+       for ( j = 1 ; j <= ControlSurface[i].NumberOfLoops ; j++ ) {
+
+          ControlSurfaceLoop[ControlSurface[i].LoopList[j]] = i;
+
+       }       
+       
+    }          
     
     // Store the current location in the file
 
@@ -731,10 +783,7 @@ void GL_VIEWER::LoadSolutionCaseList(void)
     
     // Open the solution case list
 
-    if (strstr(file_name,".adb") )    
-        sprintf(file_name_w_ext,"%s.cases",file_name);
-    else
-        sprintf(file_name_w_ext,"%s.adb.cases",file_name);
+    sprintf(file_name_w_ext,"%s.adb.cases",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"r")) == NULL ) {
 
@@ -768,7 +817,7 @@ void GL_VIEWER::LoadSolutionCaseList(void)
        fgets(ADBCaseList_[i].CommentLine,200,adb_file);
         
     }
-        
+
     fclose(adb_file); 
    
 }
@@ -824,10 +873,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
 
     // Open the aerothermal data base file
 
-    if (strstr(file_name,".adb") )    
-        sprintf(file_name_w_ext,"%s",file_name);
-    else
-        sprintf(file_name_w_ext,"%s.adb",file_name);
+    sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) == NULL ) {
 
@@ -913,13 +959,53 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
        CurrentChoiceBeta  = 1;
        
     }
+    
+    // Read in any control surface deflection data
 
+    for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
+
+       BIO.fread(&(ControlSurface[i].DeflectionAngle), f_size, 1, adb_file); 
+       
+       printf("ControlSurface[%d].DeflectionAngle: %f \n",i,ControlSurface[i].DeflectionAngle);
+  
+    }       
+    
     // Close the adb file
 
     fclose(adb_file);
 
 }
 
+/*##############################################################################
+#                                                                              #
+#                               GL_VIEWER LoadCaseFile                         #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::RotateControlSurfaceNode( float xyz[3], int ConSurf )
+{
+
+    QUAT Quat, InvQuat, Vec;
+   
+    // Rotate point about control surface hinge line
+
+    Quat.FormRotationQuat_f((float*)ControlSurface[ConSurf].HingeVec,(float)ControlSurface[ConSurf].DeflectionAngle);
+
+    InvQuat = Quat;
+
+    InvQuat.FormInverse(); 
+
+    Vec(0) = xyz[0] - ControlSurface[ConSurf].HingeNode1[0];
+    Vec(1) = xyz[1] - ControlSurface[ConSurf].HingeNode1[1];
+    Vec(2) = xyz[2] - ControlSurface[ConSurf].HingeNode1[2];
+    
+    Vec = Quat * Vec * InvQuat;
+    
+    xyz[0] = Vec(0) + ControlSurface[ConSurf].HingeNode1[0];
+    xyz[1] = Vec(1) + ControlSurface[ConSurf].HingeNode1[1];
+    xyz[2] = Vec(2) + ControlSurface[ConSurf].HingeNode1[2];
+ 
+}
 
 /*##############################################################################
 #                                                                              #
@@ -1564,7 +1650,7 @@ void GL_VIEWER::SetSolutionMin(float MinVal)
 
     int i;
 
-    if ( DrawCpIsOn) CpMin = MinVal;
+    if ( DrawCpIsOn ) CpMin = MinVal;
 
 }
 
@@ -2681,7 +2767,7 @@ void GL_VIEWER::DrawWireFrame(void)
 {
 
     int j, node1, node2, node3, SurfaceID, SurfID;
-    float vec[3], rgb[3];
+    float vec1[3], vec2[3], vec3[3], rgb[3];
 
     // Draw triangles as wire frames
 
@@ -2710,29 +2796,37 @@ void GL_VIEWER::DrawWireFrame(void)
        
        if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
+          node1 = TriList[j].node1;
+          node2 = TriList[j].node2;
+          node3 = TriList[j].node3;
+          
+          vec1[0] = NodeList[node1].x;
+          vec1[1] = NodeList[node1].y;
+          vec1[2] = NodeList[node1].z;
+
+          vec2[0] = NodeList[node2].x;
+          vec2[1] = NodeList[node2].y;
+          vec2[2] = NodeList[node2].z;
+
+          vec3[0] = NodeList[node3].x;
+          vec3[1] = NodeList[node3].y;
+          vec3[2] = NodeList[node3].z;             
+          
+          if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+
+             RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+             RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+             RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+          
+          }     
+
           glBegin(GL_TRIANGLES);
    
-             node1 = TriList[j].node1;
-             node2 = TriList[j].node2;
-             node3 = TriList[j].node3;
-   
-             vec[0] = NodeList[node1].x;
-             vec[1] = NodeList[node1].y;
-             vec[2] = NodeList[node1].z;
-   
-             glVertex3fv(vec);
-   
-             vec[0] = NodeList[node2].x;
-             vec[1] = NodeList[node2].y;
-             vec[2] = NodeList[node2].z;
-   
-             glVertex3fv(vec);
-   
-             vec[0] = NodeList[node3].x;
-             vec[1] = NodeList[node3].y;
-             vec[2] = NodeList[node3].z;
-   
-             glVertex3fv(vec);
+             glVertex3fv(vec1);
+
+             glVertex3fv(vec2);
+
+             glVertex3fv(vec3);
    
           glEnd();
 
@@ -2849,7 +2943,7 @@ void GL_VIEWER::DrawCoarseMeshEdgesForLevel(int Level)
 
 /*##############################################################################
 #                                                                              #
-#                              GL_VIEWER DrawWireFrame                         #
+#                GL_VIEWER DrawCoarseMeshNodesForLevel                         #
 #                                                                              #
 ##############################################################################*/
 
@@ -2958,7 +3052,7 @@ void GL_VIEWER::DrawWakes(void)
 void GL_VIEWER::DrawControlSurfaces(void)
 {
 
-    int j, node1, node2, node3, SurfaceID, SurfID;
+    int j, k, node1, node2, node3, SurfaceID, SurfID;
     float vec[3], rgb[3];
 
     // Draw triangles as wire frames
@@ -2981,12 +3075,12 @@ void GL_VIEWER::DrawControlSurfaces(void)
     for ( j = 1 ; j <= NumberOfControlSurfaces; j++ ) {
 
        glBegin(GL_LINE_STRIP);
-
-          glVertex3fv(ControlSurface[j].Node1);
-          glVertex3fv(ControlSurface[j].Node2);
-          glVertex3fv(ControlSurface[j].Node3);
-          glVertex3fv(ControlSurface[j].Node4);
-          glVertex3fv(ControlSurface[j].Node1);
+       
+          for ( k = 1 ; k <= ControlSurface[j].NumberOfNodes ; k++ ) {
+             
+             glVertex3fv(ControlSurface[j].NodeList[k]);
+   
+          }       
 
        glEnd();
           
@@ -3159,7 +3253,7 @@ void GL_VIEWER::DrawShadedSurface(void)
 
     int j, node1, node2, node3, LastTri, LastCon, LastSurface;
     int LastMaterialType, SurfaceID, SurfID;
-    float vec[3], rgb[4], LastEmissivity;
+    float vec1[3], vec2[3], vec3[3], rgb[4], LastEmissivity;
 
     GLfloat ambient1[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
     GLfloat ambient2[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
@@ -3248,63 +3342,59 @@ void GL_VIEWER::DrawShadedSurface(void)
 
        if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
+          node1 = TriList[j].node1;
+          node2 = TriList[j].node2;
+          node3 = TriList[j].node3;
+          
+          vec1[0] = NodeList[node1].x;
+          vec1[1] = NodeList[node1].y;
+          vec1[2] = NodeList[node1].z;
+
+          vec2[0] = NodeList[node2].x;
+          vec2[1] = NodeList[node2].y;
+          vec2[2] = NodeList[node2].z;
+
+          vec3[0] = NodeList[node3].x;
+          vec3[1] = NodeList[node3].y;
+          vec3[2] = NodeList[node3].z;             
+          
+          if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+
+             RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+             RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+             RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+          
+          }   
+          
           if ( !DrawSmoothShadeIsOn ) {
    
              glBegin(GL_TRIANGLES);
    
                 glNormal3f( Nx[j], Ny[j], Nz[j] );
-   
-                node1 = TriList[j].node1;
-                node2 = TriList[j].node2;
-                node3 = TriList[j].node3;
-   
-                vec[0] = NodeList[node1].x;
-                vec[1] = NodeList[node1].y;
-                vec[2] = NodeList[node1].z;
-   
-                glVertex3fv(vec);
-   
-                vec[0] = NodeList[node2].x;
-                vec[1] = NodeList[node2].y;
-                vec[2] = NodeList[node2].z;
-   
-                glVertex3fv(vec);
-   
-                vec[0] = NodeList[node3].x;
-                vec[1] = NodeList[node3].y;
-                vec[2] = NodeList[node3].z;
-   
-                glVertex3fv(vec);
+  
+                glVertex3fv(vec1);
+
+                glVertex3fv(vec2);
+
+                glVertex3fv(vec3);
    
              glEnd();
    
              if ( DrawReflectedGeometryIsOn ) {
 
+                vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
+
                 glBegin(GL_TRIANGLES);
    
                    glNormal3f( Nx[j], -Ny[j], Nz[j] );
+
+                   glVertex3fv(vec1);
    
-                   node1 = TriList[j].node1;
-                   node2 = TriList[j].node2;
-                   node3 = TriList[j].node3;
+                   glVertex3fv(vec2);
    
-                   vec[0] =  NodeList[node1].x;
-                   vec[1] = -(NodeList[node1].y + GeometryYShift) - GeometryYShift;
-                   vec[2] =  NodeList[node1].z;
-   
-                   glVertex3fv(vec);
-   
-                   vec[0] =  NodeList[node2].x;
-                   vec[1] = -(NodeList[node2].y + GeometryYShift) - GeometryYShift;
-                   vec[2] =  NodeList[node2].z;
-   
-                   glVertex3fv(vec);
-   
-                   vec[0] =  NodeList[node3].x;
-                   vec[1] = -(NodeList[node3].y + GeometryYShift) - GeometryYShift;
-                   vec[2] =  NodeList[node3].z;
-   
-                   glVertex3fv(vec);
+                   glVertex3fv(vec3);
    
                 glEnd();
    
@@ -3314,63 +3404,52 @@ void GL_VIEWER::DrawShadedSurface(void)
    
           else {
 
+             node1 = TriList[j].node1;
+             node2 = TriList[j].node2;
+             node3 = TriList[j].node3;
+             
+             vec1[0] = NodeList[node1].x;
+             vec1[1] = NodeList[node1].y;
+             vec1[2] = NodeList[node1].z;
+   
+             vec2[0] = NodeList[node2].x;
+             vec2[1] = NodeList[node2].y;
+             vec2[2] = NodeList[node2].z;
+   
+             vec3[0] = NodeList[node3].x;
+             vec3[1] = NodeList[node3].y;
+             vec3[2] = NodeList[node3].z;       
+          
              glBegin(GL_TRIANGLES);
    
-                node1 = TriList[j].node1;
-                node2 = TriList[j].node2;
-                node3 = TriList[j].node3;
-   
-                vec[0] = NodeList[node1].x;
-                vec[1] = NodeList[node1].y;
-                vec[2] = NodeList[node1].z;
-   
                 glNormal3f( Nodal_Nx[node1], Nodal_Ny[node1], Nodal_Nz[node1] );
-                glVertex3fv(vec);
-   
-                vec[0] = NodeList[node2].x;
-                vec[1] = NodeList[node2].y;
-                vec[2] = NodeList[node2].z;
+                glVertex3fv(vec1);
    
                 glNormal3f( Nodal_Nx[node2], Nodal_Ny[node2], Nodal_Nz[node2] );
-                glVertex3fv(vec);
-   
-                vec[0] = NodeList[node3].x;
-                vec[1] = NodeList[node3].y;
-                vec[2] = NodeList[node3].z;
+                glVertex3fv(vec2);
    
                 glNormal3f( Nodal_Nx[node3], Nodal_Ny[node3], Nodal_Nz[node3] );
-                glVertex3fv(vec);
+                glVertex3fv(vec3);
    
              glEnd();
    
              if ( DrawReflectedGeometryIsOn ) {
 
+                vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
+                
                 glBegin(GL_TRIANGLES);
-   
-                   node1 = TriList[j].node1;
-                   node2 = TriList[j].node2;
-                   node3 = TriList[j].node3;
-   
-                   vec[0] =  NodeList[node1].x;
-                   vec[1] = -(NodeList[node1].y + GeometryYShift) - GeometryYShift;
-                   vec[2] =  NodeList[node1].z;
-   
+
                    glNormal3f( Nodal_Nx[node1], -Nodal_Ny[node1], Nodal_Nz[node1] );
-                   glVertex3fv(vec);
-   
-                   vec[0] = NodeList[node2].x;
-                   vec[1] = -(NodeList[node2].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node2].z;
+                   glVertex3fv(vec1);
    
                    glNormal3f( Nodal_Nx[node2], -Nodal_Ny[node2], Nodal_Nz[node2] );
-                   glVertex3fv(vec);
-   
-                   vec[0] = NodeList[node3].x;
-                   vec[1] = -(NodeList[node3].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node3].z;
+                   glVertex3fv(vec2);
+  
    
                    glNormal3f( Nodal_Nx[node3], -Nodal_Ny[node3], Nodal_Nz[node3] );
-                   glVertex3fv(vec);
+                   glVertex3fv(vec3);
    
                 glEnd();
    
@@ -3434,18 +3513,18 @@ void GL_VIEWER::DrawShadedSolution(float *Function, float FMin, float FMax)
 
              Area = TriList[i].area;
 
-	         TempNodalArray[node1] += Function[i] * Area;
-	         TempNodalArray[node2] += Function[i] * Area;
-	         TempNodalArray[node3] += Function[i] * Area;
+	          TempNodalArray[node1] += Function[i] * Area;
+	          TempNodalArray[node2] += Function[i] * Area;
+	          TempNodalArray[node3] += Function[i] * Area;
 
-	         TempTotalArea[node1] += Area;
-	         TempTotalArea[node2] += Area;
-	         TempTotalArea[node3] += Area;
+	          TempTotalArea[node1] += Area;
+	          TempTotalArea[node2] += Area;
+	          TempTotalArea[node3] += Area;
 
-	      }
+          }
 
-	      NodalMin = 1.e9;
-	      NodalMax = -NodalMin;
+	       NodalMin = 1.e9;
+	       NodalMax = -NodalMin;
 
           for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
 
@@ -3470,23 +3549,9 @@ void GL_VIEWER::DrawShadedSolution(float *Function, float FMin, float FMax)
 
 	   }
 
-//	   DrawShadedSolutionPerNode(TempNodalArray, NodalMin, NodalMax);
-       DrawShadedSolutionPerNode(TempNodalArray, FMin, FMax);
+      DrawShadedSolutionPerNode(TempNodalArray, FMin, FMax);
 
 	}
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                    GL_VIEWER DrawShadedSolution                              #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::DrawShadedSolution(int *Function, float FMin, float FMax)
-{
-
-    DrawShadedSolutionPerTri(Function, FMin, FMax);
 
 }
 
@@ -3500,7 +3565,7 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
 {
 
     int j, node1, node2, node3, SurfaceID, SurfID;
-    float vec[3], rgb[4], per;
+    float vec1[3], vec2[3], vec3[3], rgb[4], per;
 
     // Draw triangles as function shaded surface
 
@@ -3546,28 +3611,36 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
              glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
              glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
              glColor3fv(rgb);
+             
+             vec1[0] = NodeList[node1].x;
+             vec1[1] = NodeList[node1].y;
+             vec1[2] = NodeList[node1].z;
+
+             vec2[0] = NodeList[node2].x;
+             vec2[1] = NodeList[node2].y;
+             vec2[2] = NodeList[node2].z;
+
+             vec3[0] = NodeList[node3].x;
+             vec3[1] = NodeList[node3].y;
+             vec3[2] = NodeList[node3].z;             
+             
+             if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+   
+                RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+             
+             }       
    
              glBegin(GL_TRIANGLES);
    
                 if ( !DrawFlatShadedIsOn ) glNormal3f( Nx[j], Ny[j], Nz[j] );
    
-                vec[0] = NodeList[node1].x;
-                vec[1] = NodeList[node1].y;
-                vec[2] = NodeList[node1].z;
+                glVertex3fv(vec1);
    
-                glVertex3fv(vec);
+                glVertex3fv(vec2);
    
-                vec[0] = NodeList[node2].x;
-                vec[1] = NodeList[node2].y;
-                vec[2] = NodeList[node2].z;
-   
-                glVertex3fv(vec);
-   
-                vec[0] = NodeList[node3].x;
-                vec[1] = NodeList[node3].y;
-                vec[2] = NodeList[node3].z;
-   
-                glVertex3fv(vec);
+                glVertex3fv(vec3);
    
              glEnd();
    
@@ -3575,29 +3648,21 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
    
                 glBegin(GL_TRIANGLES);
    
-                   glNormal3f( Nx[j], -Ny[j], Nz[j] );
+                   if ( !DrawFlatShadedIsOn ) glNormal3f( Nx[j], -Ny[j], Nz[j] );
    
                    node1 = TriList[j].node1;
                    node2 = TriList[j].node2;
                    node3 = TriList[j].node3;
    
-                   vec[0] = NodeList[node1].x;
-                   vec[1] = -(NodeList[node1].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node1].z;
+                   vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                   vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                   vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
    
-                   glVertex3fv(vec);
+                   glVertex3fv(vec1);
    
-                   vec[0] = NodeList[node2].x;
-                   vec[1] = -(NodeList[node2].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node2].z;
+                   glVertex3fv(vec2);
    
-                   glVertex3fv(vec);
-   
-                   vec[0] = NodeList[node3].x;
-                   vec[1] = -(NodeList[node3].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node3].z;
-   
-                   glVertex3fv(vec);
+                   glVertex3fv(vec3);
    
                 glEnd();
    
@@ -3644,28 +3709,36 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
              glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
              glColor3fv(rgb);
    
+             vec1[0] = NodeList[node1].x;
+             vec1[1] = NodeList[node1].y;
+             vec1[2] = NodeList[node1].z;
+
+             vec2[0] = NodeList[node2].x;
+             vec2[1] = NodeList[node2].y;
+             vec2[2] = NodeList[node2].z;
+
+             vec3[0] = NodeList[node3].x;
+             vec3[1] = NodeList[node3].y;
+             vec3[2] = NodeList[node3].z;             
+             
+             if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+   
+                RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+             
+             }       
+                
              glBegin(GL_TRIANGLES);
-   
-                vec[0] = NodeList[node1].x;
-                vec[1] = NodeList[node1].y;
-                vec[2] = NodeList[node1].z;
-   
+
                 glNormal3f( Nodal_Nx[node1], Nodal_Ny[node1], Nodal_Nz[node1] );
-                glVertex3fv(vec);
-   
-                vec[0] = NodeList[node2].x;
-                vec[1] = NodeList[node2].y;
-                vec[2] = NodeList[node2].z;
-   
+                glVertex3fv(vec1);
+
                 glNormal3f( Nodal_Nx[node2], Nodal_Ny[node2], Nodal_Nz[node2] );
-                glVertex3fv(vec);
-   
-                vec[0] = NodeList[node3].x;
-                vec[1] = NodeList[node3].y;
-                vec[2] = NodeList[node3].z;
-   
+                glVertex3fv(vec2);
+
                 glNormal3f( Nodal_Nx[node3], Nodal_Ny[node3], Nodal_Nz[node3] );
-                glVertex3fv(vec);
+                glVertex3fv(vec3);
    
              glEnd();
    
@@ -3673,238 +3746,24 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
    
                 glBegin(GL_TRIANGLES);
    
-                   vec[0] = NodeList[node1].x;
-                   vec[1] = -(NodeList[node1].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node1].z;
-   
+                   vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                   vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                   vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
+           
                    glNormal3f( Nodal_Nx[node1], -Nodal_Ny[node1], Nodal_Nz[node1] );
-                   glVertex3fv(vec);
-   
-                   vec[0] = NodeList[node2].x;
-                   vec[1] = -(NodeList[node2].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node2].z;
+                   glVertex3fv(vec1);
    
                    glNormal3f( Nodal_Nx[node2], -Nodal_Ny[node2], Nodal_Nz[node2] );
-                   glVertex3fv(vec);
-   
-                   vec[0] = NodeList[node3].x;
-                   vec[1] = -(NodeList[node3].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node3].z;
+                   glVertex3fv(vec2);
    
                    glNormal3f( Nodal_Nx[node3], -Nodal_Ny[node3], Nodal_Nz[node3] );
-                   glVertex3fv(vec);
+                   glVertex3fv(vec3);
    
                 glEnd();
    
              }
 
            }
-
-	   }
-
-    }
-
-    glDisable(GL_POLYGON_OFFSET_FILL);
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                         GL_VIEWER DrawShadedSolutionPerTri                   #
-#                                                                              #
-##############################################################################*/
-
-void GL_VIEWER::DrawShadedSolutionPerTri(int *Function, float FMin, float FMax)
-{
-
-    int j, node1, node2, node3;
-    float vec[3], rgb[4], per;
-
-    // Draw triangles as function shaded surface
-
-    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
-    glEnable(GL_POLYGON_OFFSET_FILL);
-    glPolygonOffset(1.,0.);
-
-    // Draw the surface triangles
-
-    rgb[3] = 1.;
-
-    if ( !DrawSmoothShadeIsOn ) {
-
-       for ( j = 1 ; j <= NumberOfTris; j++ ) {
-
-          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[j]) == 2 ) {
-
-             node1 = TriList[j].node1;
-             node2 = TriList[j].node2;
-             node3 = TriList[j].node3;
-   
-             if ( FMax != FMin ) {
-   
-                per = (Function[j] - FMin)/(FMax - FMin);
-   
-             }
-   
-             else {
-   
-                per = 1.;
-   
-             }
-   
-             percent_to_rgb(per, rgb, 0);
-   
-             glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
-             glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
-             glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
-             glColor3fv(rgb);
-   
-             glBegin(GL_TRIANGLES);
-   
-                glNormal3f( Nx[j], Ny[j], Nz[j] );
-   
-                vec[0] = NodeList[node1].x;
-                vec[1] = NodeList[node1].y;
-                vec[2] = NodeList[node1].z;
-   
-                glVertex3fv(vec);
-   
-                vec[0] = NodeList[node2].x;
-                vec[1] = NodeList[node2].y;
-                vec[2] = NodeList[node2].z;
-   
-                glVertex3fv(vec);
-   
-                vec[0] = NodeList[node3].x;
-                vec[1] = NodeList[node3].y;
-                vec[2] = NodeList[node3].z;
-   
-                glVertex3fv(vec);
-   
-             glEnd();
-   
-             if ( DrawReflectedGeometryIsOn ) {
-   
-                glBegin(GL_TRIANGLES);
-   
-                   glNormal3f( Nx[j], -Ny[j], Nz[j] );
-   
-                   node1 = TriList[j].node1;
-                   node2 = TriList[j].node2;
-                   node3 = TriList[j].node3;
-   
-                   vec[0] = NodeList[node1].x;
-                   vec[1] = -(NodeList[node1].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node1].z;
-   
-                   glVertex3fv(vec);
-   
-                   vec[0] = NodeList[node2].x;
-                   vec[1] = -(NodeList[node2].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node2].z;
-   
-                   glVertex3fv(vec);
-   
-                   vec[0] = NodeList[node3].x;
-                   vec[1] = -(NodeList[node3].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node3].z;
-   
-                   glVertex3fv(vec);
-   
-                glEnd();
-   
-             }
-
-          }
-
-       }
-
-    }
-
-    else {
-
-       for ( j = 1 ; j <= NumberOfTris; j++ ) {
-
-          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[j]) == 2 ) {
-
-             node1 = TriList[j].node1;
-             node2 = TriList[j].node2;
-             node3 = TriList[j].node3;
-   
-             if ( FMax != FMin ) {
-   
-                per = (Function[j] - FMin)/(FMax - FMin);
-   
-             }
-   
-             else {
-   
-                per = 1.;
-   
-             }
-   
-             percent_to_rgb(per, rgb, 0);
-   
-             glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
-             glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
-             glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
-             glColor3fv(rgb);
-   
-             glBegin(GL_TRIANGLES);
-   
-                vec[0] = NodeList[node1].x;
-                vec[1] = NodeList[node1].y;
-                vec[2] = NodeList[node1].z;
-   
-                glNormal3f( Nodal_Nx[node1], Nodal_Ny[node1], Nodal_Nz[node1] );
-                glVertex3fv(vec);
-   
-                vec[0] = NodeList[node2].x;
-                vec[1] = NodeList[node2].y;
-                vec[2] = NodeList[node2].z;
-   
-                glNormal3f( Nodal_Nx[node2], Nodal_Ny[node2], Nodal_Nz[node2] );
-                glVertex3fv(vec);
-   
-                vec[0] = NodeList[node3].x;
-                vec[1] = NodeList[node3].y;
-                vec[2] = NodeList[node3].z;
-   
-                glNormal3f( Nodal_Nx[node3], Nodal_Ny[node3], Nodal_Nz[node3] );
-                glVertex3fv(vec);
-   
-             glEnd();
-   
-             if ( DrawReflectedGeometryIsOn ) {
-   
-                glBegin(GL_TRIANGLES);
-   
-                   vec[0] = NodeList[node1].x;
-                   vec[1] = -(NodeList[node1].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node1].z;
-   
-                   glNormal3f( Nodal_Nx[node1], -Nodal_Ny[node1], Nodal_Nz[node1] );
-                   glVertex3fv(vec);
-   
-                   vec[0] = NodeList[node2].x;
-                   vec[1] = -(NodeList[node2].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node2].z;
-   
-                   glNormal3f( Nodal_Nx[node2], -Nodal_Ny[node2], Nodal_Nz[node2] );
-                   glVertex3fv(vec);
-   
-                   vec[0] = NodeList[node3].x;
-                   vec[1] = -(NodeList[node3].y + GeometryYShift) - GeometryYShift;
-                   vec[2] = NodeList[node3].z;
-   
-                   glNormal3f( Nodal_Nx[node3], -Nodal_Ny[node3], Nodal_Nz[node3] );
-                   glVertex3fv(vec);
-   
-                glEnd();
-   
-             }
-
-          }
 
 	   }
 
@@ -3924,7 +3783,7 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
 {
 
     int j, k, node[3], SurfaceID, SurfID;
-    float vec[3], rgb[4], per;
+    float vec1[3], vec2[3], vec3[3], rgb[4], per;
 
     // Draw triangles as function shaded surface
 
@@ -3952,15 +3811,31 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
              node[1] = TriList[j].node2;
              node[2] = TriList[j].node3;
    
+             vec1[0] = NodeList[node[0]].x;
+             vec1[1] = NodeList[node[0]].y;
+             vec1[2] = NodeList[node[0]].z;
+
+             vec2[0] = NodeList[node[1]].x;
+             vec2[1] = NodeList[node[1]].y;
+             vec2[2] = NodeList[node[1]].z;
+
+             vec3[0] = NodeList[node[2]].x;
+             vec3[1] = NodeList[node[2]].y;
+             vec3[2] = NodeList[node[2]].z;             
+             
+             if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
+   
+                RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+             
+             }       
+                
              glBegin(GL_TRIANGLES);
    
                 glNormal3f( Nx[j], Ny[j], Nz[j] );
    
                 for ( k = 0 ; k <= 2 ; k++ ) {
-   
-                   vec[0] = NodeList[node[k]].x;
-                   vec[1] = NodeList[node[k]].y;
-                   vec[2] = NodeList[node[k]].z;
    
                    if ( FMax != FMin ) {
    
@@ -3981,7 +3856,9 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
                    glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
                    glColor3fv(rgb);
    
-                   glVertex3fv(vec);
+                   if ( k == 0 ) glVertex3fv(vec1);
+                   if ( k == 1 ) glVertex3fv(vec2);
+                   if ( k == 2 ) glVertex3fv(vec3);
    
                 }
    
@@ -3995,9 +3872,9 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
    
                    for ( k = 0 ; k <= 2 ; k++ ) {
    
-                      vec[0] =   NodeList[node[k]].x;
-                      vec[1] = -(NodeList[node[k]].y + GeometryYShift) - GeometryYShift;
-                      vec[2] =   NodeList[node[k]].z;
+                      if ( k == 0 ) vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                      if ( k == 1 ) vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                      if ( k == 2 ) vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
    
                       if ( FMax != FMin ) {
    
@@ -4018,7 +3895,9 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
                       glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
                       glColor3fv(rgb);
    
-                      glVertex3fv(vec);
+                      if ( k == 0 ) glVertex3fv(vec1);
+                      if ( k == 1 ) glVertex3fv(vec2);
+                      if ( k == 2 ) glVertex3fv(vec3);
    
                    }
    
@@ -4047,15 +3926,31 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
              node[0] = TriList[j].node1;
              node[1] = TriList[j].node2;
              node[2] = TriList[j].node3;
+             
+             vec1[0] = NodeList[node[0]].x;
+             vec1[1] = NodeList[node[0]].y;
+             vec1[2] = NodeList[node[0]].z;
+
+             vec2[0] = NodeList[node[1]].x;
+             vec2[1] = NodeList[node[1]].y;
+             vec2[2] = NodeList[node[1]].z;
+
+             vec3[0] = NodeList[node[2]].x;
+             vec3[1] = NodeList[node[2]].y;
+             vec3[2] = NodeList[node[2]].z;             
+             
+             if ( DrawControlSurfacesDeflectedIsOn && ControlSurfaceLoop[j] != 0 ) {
    
+                RotateControlSurfaceNode( vec1, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec2, ControlSurfaceLoop[j] );
+                RotateControlSurfaceNode( vec3, ControlSurfaceLoop[j] );
+             
+             }       
+                     
              glBegin(GL_TRIANGLES);
    
                 for ( k = 0 ; k <= 2 ; k++ ) {
-   
-                   vec[0] = NodeList[node[k]].x;
-                   vec[1] = NodeList[node[k]].y;
-                   vec[2] = NodeList[node[k]].z;
-   
+
                    if ( FMax != FMin ) {
    
                       per = (Function[node[k]] - FMin)/(FMax - FMin);
@@ -4077,8 +3972,10 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
    
                    glNormal3f( Nodal_Nx[node[k]], Nodal_Ny[node[k]], Nodal_Nz[node[k]] );
    
-                   glVertex3fv(vec);
-   
+                   if ( k == 0 ) glVertex3fv(vec1);
+                   if ( k == 1 ) glVertex3fv(vec2);
+                   if ( k == 2 ) glVertex3fv(vec3);   
+                   
                 }
    
              glEnd();
@@ -4089,9 +3986,9 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
    
                    for ( k = 0 ; k <= 2 ; k++ ) {
    
-                      vec[0] =   NodeList[node[k]].x;
-                      vec[1] = -(NodeList[node[k]].y + GeometryYShift) - GeometryYShift;
-                      vec[2] =   NodeList[node[k]].z;
+                      if ( k == 0 ) vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+                      if ( k == 1 ) vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+                      if ( k == 2 ) vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
    
                       if ( FMax != FMin ) {
    
@@ -4114,8 +4011,10 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
    
                       glNormal3f( Nodal_Nx[node[k]], Nodal_Ny[node[k]], Nodal_Nz[node[k]] );
    
-                      glVertex3fv(vec);
-   
+                      if ( k == 0 ) glVertex3fv(vec1);
+                      if ( k == 1 ) glVertex3fv(vec2);
+                      if ( k == 2 ) glVertex3fv(vec3);  
+                      
                    }
    
                 glEnd();

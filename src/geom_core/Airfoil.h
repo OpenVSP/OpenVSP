@@ -298,4 +298,23 @@ protected:
 };
 
 
+//==========================================================================//
+//=====================  Karman-Trefftz Airfoil   ==========================//
+//==========================================================================//
+
+class VKTAirfoil : public Airfoil
+{
+public:
+
+    VKTAirfoil( );
+
+    virtual void Update();
+
+    virtual void OffsetCurve( double offset_val );
+
+    Parm m_Epsilon;
+    Parm m_Kappa;
+    Parm m_Tau;
+};
+
 #endif // !defined(AIRFOIL__INCLUDED_)

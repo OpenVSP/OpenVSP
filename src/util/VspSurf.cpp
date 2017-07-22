@@ -23,6 +23,7 @@
 #include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
 #include "eli/geom/surface/piecewise_multicap_surface_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
+#include "eli/geom/intersect/distance_angle_surface.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
@@ -189,6 +190,72 @@ double VspSurf::FindNearest01( double &u, double &w, const vec3d &pt, const doub
     w = w / GetWMax();
 
     return dist;
+}
+
+void VspSurf::FindDistanceAngle( double &u, double &w, const vec3d &pt, const vec3d &dir, const double &d, const double &theta, const double &u0, const double &w0 ) const
+{
+    surface_point_type p, dr;
+    p << pt.x(), pt.y(), pt.z();
+    dr << dir.x(), dir.y(), dir.z();
+
+    double dot = cos( theta );
+
+    double wllim, wulim;
+    if ( w0 < 2.0 )
+    {
+        wllim = 0.0 + TMAGIC;
+        wulim = 2.0 - TMAGIC;
+    }
+    else
+    {
+        wllim = 2.0 + TMAGIC;
+        wulim = 4.0 - TMAGIC;
+    }
+
+    double wguess = w0;
+    if ( wguess <= wllim )
+    {
+        wguess = wllim + 1e-6;
+    }
+    else if ( wguess >= wulim )
+    {
+        wguess = wulim - 1e-6;
+    }
+
+    double umin = m_Surface.get_u0();
+    double umax = m_Surface.get_umax();
+    double uguess = u0;
+    if ( uguess <= umin )
+    {
+        uguess = umin + 1e-6;
+    }
+    else if ( uguess >= umax )
+    {
+        uguess = umax - 1e-6;
+    }
+
+    int retval;
+    eli::geom::intersect::distance_angle( u, w, m_Surface, p, dr, d*d, dot, uguess, wguess, wllim, wulim, retval );
+}
+
+void VspSurf::GuessDistanceAngle( double &du, double &dw, const vec3d &udir, const vec3d & wdir, const double &d, const double &theta ) const
+{
+    if ( udir.mag() < 1e-6 )
+    {
+        dw = d / wdir.mag();
+        du = 0;
+    }
+    else
+    {
+        double k = dot( wdir, udir ) / dot( udir, udir );
+        vec3d wproju = udir * k;
+        vec3d ndir = wdir - wproju;
+
+        double dn = sin ( theta ) / ndir.mag();
+        dw = d * dn;
+
+        du = d * ( cos( theta ) / udir.mag() - k * dn );
+    }
 }
 
 void VspSurf::GetUConstCurve( VspCurve &c, const double &u ) const
@@ -754,22 +821,35 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
     if ( umerge.size() != 0 )
     {
         const int nusect = num_u.size();
+
+        // Build merged version of m_USkip as uskip.
+        vector <bool> uskip( nusect, false );
+        int iusect = 0;
+        for ( int i = 0; i < nusect; i++ )
+        {
+            uskip[i] = m_USkip[iusect];
+            for (int j = 0; j < umerge[i]; j++)
+            {
+                iusect++;
+            }
+        }
+
         if ( nusect != umerge.size() )
         {
             printf( "Error.  num_u does not match umerge.\n" );
         }
-        assert( m_USkip.size() == nusect );
+        assert( uskip.size() == nusect );
 
         int nu = 1;
         for ( int i = 0; i < nusect; i++ )
         {
-            if ( !m_USkip[i] )
+            if ( !uskip[i] )
             {
                 nu += num_u[i] - 1;
             }
         }
 
-        int iusect = 0;
+        iusect = 0;
         double ustart = m_Surface.get_u0();
         double uend = ustart;
 
@@ -790,7 +870,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
 
             double du = uend - ustart;
 
-            if ( !m_USkip[i] )
+            if ( !uskip[i] )
             {
                 for ( int isecttess = 0; isecttess < num_u[i] - 1; ++isecttess )
                 {
@@ -799,7 +879,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
                 }
             }
 
-            if ( !( i == nusect - 1 && m_USkip[i] ) )
+            if ( !( i == nusect - 1 && uskip[i] ) )
             {
                 ustart = uend;
             }
@@ -811,7 +891,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
     }
     else
     {
-        surface_index_type i, j, nu;
+        surface_index_type nu;
         double umin;
 
         const int nusect = num_u.size();
@@ -1645,11 +1725,6 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
 
-    if( !m_FlipNormal )
-    {
-        s.reverse_v();
-    }
-
     if ( trimte && m_MagicVParm )
     {
         piecewise_surface_type s1, s2;
@@ -1676,6 +1751,11 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
     for ( int isurf = 0; isurf < surfvec.size(); isurf++ )
     {
         s = surfvec[isurf];
+
+        if( !m_FlipNormal )
+        {
+            s.reverse_v();
+        }
 
         // Don't export degenerate split patches
         if ( splitsurf && !CheckValidPatch( s ) )
@@ -1866,11 +1946,6 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol,
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
 
-    if( !m_FlipNormal )
-    {
-        s.reverse_v();
-    }
-
     if ( trimTE && m_MagicVParm )
     {
         piecewise_surface_type s1, s2;
@@ -1898,13 +1973,17 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol,
     {
         s = surfvec[is];
 
+        if( !m_FlipNormal )
+        {
+            s.reverse_v();
+        }
+
         // Don't export degenerate split patches
         if ( splitsurf && !CheckValidPatch( s ) )
         {
             continue;
         }
 
-        piecewise_surface_type::index_type ip, jp;
         piecewise_surface_type::index_type nupatch, nvpatch;
         piecewise_surface_type::index_type maxu, maxv;
         piecewise_surface_type::index_type nupts, nvpts;
@@ -1971,4 +2050,50 @@ void VspSurf::IGESKnots( int deg, int npatch, vector< double > &knot )
     {
         knot.push_back( 1.0 * npatch );
     }
+}
+
+void VspSurf::Offset( vec3d offvec )
+{
+    threed_point_type p;
+    p << offvec.x(), offvec.y(), offvec.z();
+
+    m_Surface.translate( p );
+}
+
+void VspSurf::OffsetX( double x )
+{
+    vec3d off( x, 0, 0 );
+    Offset( off );
+}
+
+void VspSurf::OffsetY( double y )
+{
+    vec3d off( 0, y, 0 );
+    Offset( off );
+}
+
+void VspSurf::OffsetZ( double z )
+{
+    vec3d off( 0, 0, z );
+    Offset( off );
+}
+
+void VspSurf::Scale( double s )
+{
+    m_Surface.scale( s );
+}
+
+void VspSurf::ScaleX( double s )
+{
+    m_Surface.scale_x( s );
+}
+
+void VspSurf::ScaleY( double s )
+{
+    m_Surface.scale_y( s );
+}
+
+void VspSurf::ScaleZ( double s )
+{
+    m_Surface.scale_z( s );
 }

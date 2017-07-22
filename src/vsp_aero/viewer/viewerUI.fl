@@ -7,8 +7,8 @@ class viewerUI {open
   Function {viewerUI()} {open
   } {
     Fl_Window mainWindow {
-      label {VSPAERO Viewer 3.1} open
-      private xywh {630 364 1160 710} type Double labelsize 12 align 0 resizable visible
+      label {VSPAERO Viewer 4.1} open selected
+      private xywh {634 394 1160 710} type Double labelsize 12 align 0 resizable visible
     } {
       Fl_Group {} {open
         xywh {0 2 1162 710} box FLAT_BOX labeltype ENGRAVED_LABEL
@@ -20,7 +20,7 @@ class viewerUI {open
             xywh {2 30 861 677} box PLASTIC_UP_BOX color 4 selection_color 69
           }
           Fl_Box glviewer {
-            label {This is the glviewer} selected
+            label {This is the glviewer}
             xywh {7 35 850 665} box FLAT_BOX color 23
             code0 {\#include "glviewer.H"}
             code1 {\#include "GL_VIEWER.forward.declaration.H"}
@@ -254,14 +254,20 @@ glviewer->redraw();}
 glviewer->redraw();}
           xywh {15 15 100 20} type Radio divider
         }
+        MenuItem ADBMenuPickWireFrame {
+          label Triangulation
+          callback {glviewer->DrawWireFrameWasPicked();
+glviewer->redraw();}
+          xywh {55 55 100 20} type Toggle
+        }
         MenuItem ADBMenuPickCoarseMesh {
-          label Mesh
+          label {Computational Mesh}
           callback {glviewer->DrawCoarseMeshWasPicked();
 glviewer->redraw();}
           xywh {45 45 100 20} type Toggle
         }
         MenuItem ADBMenuPickWakes {
-          label Wakes
+          label {Trailing Wakes}
           callback {glviewer->DrawWakesWasPicked();
 glviewer->redraw();}
           xywh {25 25 100 20} type Toggle
@@ -274,7 +280,7 @@ glviewer->redraw();}
         }
         MenuItem ADBMenuPickControlSurfaces {
           label {Control Surfaces}
-          callback {glviewer->DraControlSurfacesWasPicked();
+          callback {glviewer->DrawControlSurfacesWasPicked();
 glviewer->redraw();}
           xywh {45 45 100 20} type Toggle
         }
@@ -345,6 +351,13 @@ glviewer->redraw();}
           callback {glviewer->DrawWakesToInfinityWasPicked();
 glviewer->redraw();}
           xywh {50 50 100 20} type Toggle divider
+          code0 {\#include "ContourLevel.h"}
+        }
+        MenuItem OptionsMenuDrawControlSurfacesDeflected {
+          label {Draw Control Surfaces Deflected}
+          callback {glviewer->DrawControlSurfacesDeflectedWasPicked();
+glviewer->redraw();}
+          xywh {60 60 100 20} type Toggle divider
           code0 {\#include "ContourLevel.h"}
         }
       }

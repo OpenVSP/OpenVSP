@@ -37,6 +37,7 @@ CustomScreen.cpp
 DegenGeomScreen.cpp
 DesignVarScreen.cpp
 DXFOptionsScreen.cpp
+EllipsoidScreen.cpp
 ExportScreen.cpp
 FeaStructScreen.cpp
 FitModelScreen.cpp
@@ -61,6 +62,7 @@ MaterialEditScreen.cpp
 MenuItem.cpp
 MeshScreen.cpp
 MultTransScreen.cpp
+ParasiteDragScreen.cpp
 ParmDebugScreen.cpp
 ParmLinkScreen.cpp
 ParmScreen.cpp
@@ -101,6 +103,7 @@ DegenGeomScreen.h
 DesignVarScreen.h
 DXFOptionsScreen.h
 ExportScreen.h
+EllipsoidScreen.h
 FeaStructScreen.h
 FitModelScreen.h
 FuselageScreen.h
@@ -124,6 +127,7 @@ MaterialEditScreen.h
 MenuItem.h
 MeshScreen.h
 MultTransScreen.h
+ParasiteDragScreen.h
 ParmDebugScreen.h
 ParmLinkScreen.h
 ParmScreen.h

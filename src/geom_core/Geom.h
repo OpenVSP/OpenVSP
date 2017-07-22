@@ -48,7 +48,8 @@ class XSecSurf;
 //
 enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_GEOM_TYPE,
        MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE,
-       PT_CLOUD_GEOM_TYPE, PROP_GEOM_TYPE, HINGE_GEOM_TYPE, CONFORMAL_GEOM_TYPE, NUM_GEOM_TYPE,
+       PT_CLOUD_GEOM_TYPE, PROP_GEOM_TYPE, HINGE_GEOM_TYPE, CONFORMAL_GEOM_TYPE,
+       ELLIPSOID_GEOM_TYPE, NUM_GEOM_TYPE
      };
 
 class GeomType
@@ -56,7 +57,7 @@ class GeomType
 public:
 
     GeomType();
-    GeomType( int id, string name, bool fixed_flag = false, string module_name = string()  );
+    GeomType( int id, string name, bool fixed_flag = false, string module_name = string(), string display_type = string() );
     ~GeomType();
 
     void CopyFrom( const GeomType & t );
@@ -67,6 +68,7 @@ public:
 
     string m_GeomID;
     string m_ModuleName;
+    string m_DisplayName;
 
 };
 
@@ -79,7 +81,18 @@ public:
     GeomGuiDraw();
     virtual ~GeomGuiDraw();
 
+    enum { DISPLAY_BEZIER, DISPLAY_DEGEN_SURF, DISPLAY_DEGEN_PLATE, DISPLAY_DEGEN_CAMBER };
+
     enum { GEOM_DRAW_WIRE, GEOM_DRAW_HIDDEN, GEOM_DRAW_SHADE, GEOM_DRAW_TEXTURE, GEOM_DRAW_NONE };
+
+    void SetDisplayType( int t )
+    {
+        m_DisplayType = t;
+    }
+    int GetDisplayType()
+    {
+        return m_DisplayType;
+    }
 
     void SetDrawType( int t )
     {
@@ -156,6 +169,7 @@ public:
     }
 protected:
 
+    int m_DisplayType; // Either Bezier Surface, Degen Surface, Degen Plate, or Degen Cambered Plate
     int  m_DrawType;
 
     bool m_NoShowFlag;
@@ -461,6 +475,7 @@ public:
 
     //===== Degenerate Geometry =====//
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs);
+    virtual void CreateDegenGeomPreview( vector<DegenGeom> &dgs );
 
     IntParm m_TessU;
     LimIntParm m_TessW;
@@ -581,6 +596,18 @@ public:
     //==== Wake for CFD Mesh ====//
     BoolParm m_WakeActiveFlag;
 
+    //==== Parasite Drag Parms ====//
+    IntParm m_FFBodyEqnType;
+    IntParm m_FFWingEqnType;
+    Parm m_PercLam;
+    Parm m_FFUser;
+    Parm m_Q;
+    Parm m_Roughness;
+    Parm m_TeTwRatio;
+    Parm m_TawTwRatio;
+    IntParm m_GroupedAncestorGen;
+    BoolParm m_ExpandedListFlag;
+
     //==== Basic Geom XSec Functions - Override ====//
     virtual void CutXSec( int index )               {}
     virtual void CopyXSec( int index )              {}
@@ -594,6 +621,8 @@ public:
     void WriteProjectionLinesSVG( xmlNodePtr root, const BndBox &dxfbox );
 
     virtual void OffsetXSecs( double off )          {}
+
+    virtual void UpdateDegenDrawObj();
 
 protected:
 
@@ -623,6 +652,10 @@ protected:
     vector<DrawObj> m_FeatureDrawObj_vec;
     DrawObj m_HighlightDrawObj;
     vector<DrawObj> m_AxisDrawObj_vec;
+    vector<DrawObj> m_DegenPlateDrawObj_vec;
+    vector<DrawObj> m_DegenSurfDrawObj_vec;
+    vector<DrawObj> m_DegenCamberPlateDrawObj_vec;
+    vector<DrawObj> m_DegenSubSurfDrawObj_vec;
 
     BndBox m_BBox;
 

@@ -22,37 +22,37 @@ public:
     * Constructor.
     * source - Render source.
     */
-	PickablePnts(Renderable * source);
+    PickablePnts(Renderable * source);
     /*!
     * Destructor.
     */
-	virtual ~PickablePnts();
+    virtual ~PickablePnts();
 
 public:
     /*!
     * Process picked id.  If id is picked, return true.
     */
-	virtual bool processPickingResult(unsigned int pickedId);
+    virtual bool processPickingResult(unsigned int pickedId);
 
 public:
-	/*!
-	* Get highlighted buffer index.  If nothing is highlighted, return 0xffffffff.
-	*/
-	std::vector< int > getIndex();
+    /*!
+    * Get highlighted buffer index.  If nothing is highlighted, return 0xffffffff.
+    */
+    std::vector< int > getIndex();
 
-	virtual void reset();
+    virtual void reset();
 
 public:
     /*!
     * Overrides Pickable.  Update unique color ids.
     */
-	virtual void update();
+    virtual void update();
 
 public:
     /*!
     * Adjust the range of picking.
     */
-	void setPickRange(float range);
+    void setPickRange(float range);
     /*!
     * Adjust the size of point.
     */
@@ -68,11 +68,11 @@ protected:
     /*!
     * Overrides Pickable. Render preprocessing.
     */
-	virtual void _predraw();
+    virtual void _predraw();
     /*!
     * Overrides Pickable. Draw highlighted point.
     */
-	virtual void _draw();
+    virtual void _draw();
 
 private:
     float _pickRange;

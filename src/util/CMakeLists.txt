@@ -30,10 +30,12 @@ STEPutil.cpp
 StlHelper.cpp
 StringUtil.cpp
 SuperEllipse.cpp
+UnitConversion.cpp
 Util.cpp
 UtilTestSuite.cpp
 Vec2d.cpp
 Vec3d.cpp
+VKTAirfoil.cpp
 Vsp1DCurve.cpp
 VspCurve.cpp
 VspSurf.cpp
@@ -55,11 +57,13 @@ STEPutil.h
 StreamUtil.h
 StringUtil.h
 SuperEllipse.h
+UnitConversion.h
 Util.h
 UtilTestSuite.h
 UsingCpp11.h
 Vec2d.h
 Vec3d.h
+VKTAirfoil.h
 Vsp1DCurve.h
 VspCurve.h
 VspSurf.h

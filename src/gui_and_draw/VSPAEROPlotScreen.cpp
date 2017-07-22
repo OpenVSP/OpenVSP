@@ -334,10 +334,10 @@ void VSPAEROPlotScreen::SetDefaultView()
 
     switch ( VSPAEROMgr.m_AnalysisMethod.Get() )
     {
-    case vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE:
+    case vsp::VORTEX_LATTICE:
         m_LoadDistTab->show();
         break;
-    case vsp::VSPAERO_ANALYSIS_METHOD::PANEL:
+    case vsp::PANEL:
         m_ConvergenceTab->show();
         //m_LoadDistTab->hide();
         break;
@@ -366,7 +366,7 @@ bool VSPAEROPlotScreen::Update()
     if ( res )
     {
         // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
-        if ( res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE )
+        if ( res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VORTEX_LATTICE )
         {
             m_LoadDistTab->activate();
         }
@@ -777,7 +777,7 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
         if( res )
         {
             // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
-            if ( res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE )
+            if ( res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VORTEX_LATTICE )
             {
                 char strbuf[1024];
                 ConstructFlowConditionString( strbuf, res, false );
@@ -955,7 +955,7 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
     if( res )
     {
         // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
-        if ( res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE )
+        if ( res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VORTEX_LATTICE )
         {
             vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
             for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )

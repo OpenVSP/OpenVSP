@@ -647,6 +647,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_CST_AIRFOIL", XS_CST_AIRFOIL );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_VKT_AIRFOIL", XS_VKT_AIRFOIL );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "XSEC_CLOSE_TYPE" );
     assert( r >= 0 );
@@ -1062,8 +1064,190 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSPAERO_COMP_REFERENCE_TYPE", "MANUAL_REF", MANUAL_REF );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_COMP_REFERENCE_TYPE", "COMPONENT_REF", COMPONENT_REF );
+    assert( r >= 0 );
 
+    r = se->RegisterEnum( "FREESTREAM_PD_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FREESTREAM_PD_UNITS", "PD_UNITS_IMPERIAL", PD_UNITS_IMPERIAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FREESTREAM_PD_UNITS", "PD_UNITS_METRIC", PD_UNITS_METRIC );
+    assert( r >= 0 );
 
+    r = se->RegisterEnum( "VEL_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_FT_S", V_UNIT_FT_S );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_M_S", V_UNIT_M_S );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_MPH", V_UNIT_MPH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_KM_HR", V_UNIT_KM_HR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_KEAS", V_UNIT_KEAS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_KTAS", V_UNIT_KTAS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VEL_UNITS", "V_UNIT_MACH", V_UNIT_MACH );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "TEMP_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TEMP_UNITS", "TEMP_UNIT_K", TEMP_UNIT_K );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TEMP_UNITS", "TEMP_UNIT_C", TEMP_UNIT_C );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TEMP_UNITS", "TEMP_UNIT_F", TEMP_UNIT_F );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "TEMP_UNITS", "TEMP_UNIT_R", TEMP_UNIT_R );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "PRES_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_PSF", PRES_UNIT_PSF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_KPA", PRES_UNIT_KPA );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_INCHHG", PRES_UNIT_INCHHG );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "RHO_UNITS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_SLUG_FT3", RHO_UNIT_SLUG_FT3 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_KG_M3", RHO_UNIT_KG_M3 );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "ATMOS_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_US_STANDARD_1976", ATMOS_TYPE_US_STANDARD_1976 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_HERRINGTON_1966", ATMOS_TYPE_HERRINGTON_1966 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_MANUAL_P_R", ATMOS_TYPE_MANUAL_P_R );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_mANUAL_P_T", ATMOS_TYPE_MANUAL_P_T );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_MANUAL_R_T", ATMOS_TYPE_MANUAL_R_T );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_MANUAL_RE_L", ATMOS_TYPE_MANUAL_RE_L );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "CF_LAM_EQN" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_LAM_EQN", "CF_LAM_BLASIUS", CF_LAM_BLASIUS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_LAM_EQN", "CF_LAM_BLASIUS_W_HEAT", CF_LAM_BLASIUS_W_HEAT );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "CF_TURB_EQN" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE", CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_SCHLICHTING_PRANDTL", CF_TURB_SCHLICHTING_PRANDTL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_SCHLICHTING_COMPRESSIBLE", CF_TURB_SCHLICHTING_COMPRESSIBLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_SCHLICHTING_INCOMPRESSIBLE", CF_TURB_SCHLICHTING_INCOMPRESSIBLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_SCHULTZ_GRUNOW_1", CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_SCHULTZ_GRUNOW_2", CF_TURB_SCHULTZ_GRUNOW_HIGH_RE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_POWER_LAW_BLASIUS", CF_TURB_POWER_LAW_BLASIUS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_POWER_LAW_PRANDTL_LOW_RE", CF_TURB_POWER_LAW_PRANDTL_LOW_RE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_POWER_LAW_PRANDTL_MEDIUM_RE", CF_TURB_POWER_LAW_PRANDTL_MEDIUM_RE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_POWER_LAW_PRANDTL_HIGH_RE", CF_TURB_POWER_LAW_PRANDTL_HIGH_RE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_EXPLICIT_FIT_SPALDING", CF_TURB_EXPLICIT_FIT_SPALDING );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_EXPLICIT_FIT_SPALDING_CHI", CF_TURB_EXPLICIT_FIT_SPALDING_CHI );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_EXPLICIT_FIT_SCHOENHERR", CF_TURB_EXPLICIT_FIT_SCHOENHERR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_IMPLICIT_KARMAN", CF_TURB_IMPLICIT_KARMAN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_IMPLICIT_SCHOENHERR", CF_TURB_IMPLICIT_SCHOENHERR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_IMPLICIT_KARMAN_SCHOENHERR", CF_TURB_IMPLICIT_KARMAN_SCHOENHERR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_ROUGHNESS_WHITE", CF_TURB_ROUGHNESS_WHITE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL", CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_ROUGHNESS_SCHLICHTING_AVG", CF_TURB_ROUGHNESS_SCHLICHTING_AVG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION", CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH", CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "FF_W_EQN" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_MANUAL", FF_W_MANUAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_EDET_CONV", FF_W_EDET_CONV );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_EDET_ADV", FF_W_EDET_ADV );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_HOERNER", FF_W_HOERNER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_COVERT", FF_W_COVERT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_WILLIAMS", FF_W_SHEVELL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_KROO", FF_W_KROO );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_TORENBEEK", FF_W_TORENBEEK );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_DATCOM", FF_W_DATCOM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_SCHEMENSKY_6_SERIES_AF", FF_W_SCHEMENSKY_6_SERIES_AF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_SCHEMENSKY_4_SERIES_AF", FF_W_SCHEMENSKY_4_SERIES_AF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_SCHEMENSKY_SUPERCRITICAL_AF", FF_W_SCHEMENSKY_SUPERCRITICAL_AF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_JENKINSON_WING", FF_W_JENKINSON_WING );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_JENKINSON_TAIL", FF_W_JENKINSON_TAIL );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "FF_B_EQN" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_MANUAL", FF_B_MANUAL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_SCHEMENSKY_BODY", FF_B_SCHEMENSKY_FUSE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_SCHEMENSKY_NACELLE", FF_B_SCHEMENSKY_NACELLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_HOERNER_STREAMBODY", FF_B_HOERNER_STREAMBODY );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_TORENBEEK", FF_B_TORENBEEK );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_SHEVELL", FF_B_SHEVELL );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_COVERT", FF_B_COVERT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_JENKINSON_FUSE", FF_B_JENKINSON_FUSE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_JENKINSON_WING_NACELLE", FF_B_JENKINSON_WING_NACELLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FF_B_EQN", "FF_B_JENKINSON_AFT_FUSE_NACELLE", FF_B_JENKINSON_AFT_FUSE_NACELLE );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "EXCRES_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_COUNT", EXCRESCENCE_COUNT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_CD", EXCRESCENCE_CD );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_PERCENT_GEOM", EXCRESCENCE_PERCENT_GEOM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_DRAGAREA", EXCRESCENCE_DRAGAREA );
+    assert( r >= 0 );
 }
 
 //==== Vec3d Constructors ====//
@@ -1783,6 +1967,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void PCurveSplit( const string & in geom_id, const int & in pcurveid, const double & in tsplit )", asFUNCTION( vsp::PCurveSplit ), asCALL_CDECL );
     assert( r >= 0 );
 
+    //=== Register ParasiteDragTool Functions ====//
+    r = se->RegisterGlobalFunction( "void AddExcrescence(const string & in excresName, const int & in excresType, const double & in excresVal)", asFUNCTION( vsp::AddExcrescence ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void DeleteExcrescence(const int & in excresName)", asFUNCTION( vsp::DeleteExcrescence ), asCALL_CDECL );
+    assert( r >= 0 );
+
 }
 
 void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
@@ -2239,6 +2429,17 @@ CScriptArray* ScriptMgrSingleton::PCurveGetValVec( const std::string & geom_id, 
 {
     m_ProxyDoubleArray = vsp::PCurveGetValVec( geom_id, pcurveid );
     return GetProxyDoubleArray();
+}
+
+//==== Parasite Drag Tool Functions ====//
+void ScriptMgrSingleton::AddExcrescence( const std::string & excresName, int excresType, double excresVal)
+{
+    vsp::AddExcrescence(excresName,excresType,excresVal);
+}
+
+void ScriptMgrSingleton::DeleteExcrescence(int index)
+{
+    vsp::DeleteExcrescence(index);
 }
 
 void ScriptMgrSingleton::SetIntAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )

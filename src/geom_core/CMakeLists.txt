@@ -28,6 +28,7 @@ AdvLink.cpp
 AdvLinkMgr.cpp
 Airfoil.cpp
 AnalysisMgr.cpp
+Atmosphere.cpp
 BlankGeom.cpp
 CfdMeshSettings.cpp
 ClippingMgr.cpp
@@ -35,6 +36,7 @@ ConformalGeom.cpp
 CustomGeom.cpp
 DegenGeom.cpp
 DesignVarMgr.cpp
+EllipsoidGeom.cpp
 FitModelMgr.cpp
 FuselageGeom.cpp
 Geom.cpp
@@ -46,6 +48,7 @@ Link.cpp
 LinkMgr.cpp
 MaterialMgr.cpp
 MeshGeom.cpp
+ParasiteDragMgr.cpp
 Parm.cpp
 ParmContainer.cpp
 ParmMgr.cpp
@@ -84,6 +87,7 @@ AdvLink.h
 AdvLinkMgr.h
 Airfoil.h
 AnalysisMgr.h
+Atmosphere.h
 BlankGeom.h
 CfdMeshSettings.h
 ClippingMgr.h
@@ -94,6 +98,7 @@ CustomGeom.h
 DegenGeom.h
 DesignVarMgr.h
 DragFactors.h
+EllipsoidGeom.h
 FitModelMgr.h
 FuselageGeom.h
 Geom.h
@@ -109,6 +114,7 @@ Link.h
 LinkMgr.h
 MaterialMgr.h
 MeshGeom.h
+ParasiteDragMgr.h
 Parm.h
 ParmContainer.h
 ParmMgr.h

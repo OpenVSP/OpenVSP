@@ -17,17 +17,28 @@
 #include "Vortex_Trail.H"
 #include "Vortex_Sheet.H"
 #include "RotorDisk.H"
+#include "ControlSurfaceGroup.H"
 #include "VSPAERO_OMP.H"
 #include "time.H"
+#include "quat.H"
 
 #define SOLVER_JACOBI 1
 #define SOLVER_GMRES  2
+
+#define JACOBI 1
+#define SSOR   2
 
 #define SYM_X 1
 #define SYM_Y 2
 #define SYM_Z 3
 
 #define FORCE_AVERAGE 1
+
+#define IMPULSE_ANALYSIS 1
+#define HEAVE_ANALYSIS   2
+#define P_ANALYSIS       3
+#define Q_ANALYSIS       4
+#define R_ANALYSIS       5
 
 // Small class for stack list
 
@@ -45,8 +56,6 @@ public:
 class VSP_SOLVER {
 
 private:
-
-    friend class VSP_MGSOLVER;
 
     // Filename
     
@@ -95,13 +104,33 @@ private:
     int NumberOfRotors_;
     
     ROTOR_DISK *RotorDisk_;
-    
+
+    // Control Surface Group information (used for case header)
+
+    int NumberOfControlGroups_;
+    CONTROL_SURFACE_GROUP *ControlSurfaceGroup_;
+
     // Velocity survey points
     
     int NumberofSurveyPoints_;
     VSP_NODE *SurveyPointList_;    
     
     // Solver routines and data
+    
+    int TimeAnalysisType_;
+    int TimeAccurate_;
+    int NumberOfTimeSteps_;
+    int NumberOfTimeSamples_;
+    int Time_;
+    double TimeStep_;
+    double CurrentTime_;
+    
+    double ReducedFrequency_;
+    double Unsteady_AngleRate_; // Rad/s
+    double Unsteady_Angle_;     // Rad
+    double Unsteady_AngleMax_;  // Rad    
+    double Unsteady_H_;
+    double Unsteady_HMax_;
 
     double FreeStreamVelocity_[3];
     double WakeAngle_[3];
@@ -114,6 +143,8 @@ private:
     double RotationalRate_[3];
     
     double **LocalFreeStreamVelocity_;
+    double **UnsteadyTrailingWakeVelocity_;
+    double **LocalBodySurfaceVelocity_;
     
     int NumberOfSurfaceVortexEdges_;
     int NumberOfTrailingVortexEdges_;
@@ -124,18 +155,23 @@ private:
     int CurrentWakeIteration_;
     
     int DoSymmetryPlaneSolve_;
+    
+    int Preconditioner_;
 
     double *Gamma_;
+    double *GammaNM1_;
+    double *GammaNM2_;
     double *RightHandSide_;
     double *Residual_;
     double *Diagonal_;
-    double *GammaOld_;
+    double MaxDiagonal_;
     double *Delta_;
     double JacobiRelaxationFactor_;
     double L2Residual_;
     
     double AngleOfAttack_;
     double AngleOfBeta_;
+    double AngleZero_;
     double Mach_;
     double Vinf_;
     double Density_;
@@ -165,7 +201,17 @@ private:
     double CMx_[2];
     double CMy_[2];
     double CMz_[2];
-
+    
+    double *CL_Unsteady_;
+    double *CD_Unsteady_;
+    double *CS_Unsteady_;    
+    double *CFx_Unsteady_;
+    double *CFy_Unsteady_;
+    double *CFz_Unsteady_;
+    double *CMx_Unsteady_;
+    double *CMy_Unsteady_;
+    double *CMz_Unsteady_;
+    
     double MaxTurningAngle_;
     double Clmax_2d_;
     double CDo_;
@@ -281,6 +327,8 @@ private:
     void ApplyGivensRotation(double c, double s, int k, double *g);
 
     void CalculateVelocities(void);
+    
+    void CalculateRightHandSide(void);
        
     // Setup stuff
     
@@ -310,7 +358,6 @@ private:
     STACK_ENTRY *LoopStackList_;    
         
     int SolverType_;
-    int FirstTimeSolve_;    
     int DoRestart_;
     int SaveRestartFile_;
     
@@ -352,6 +399,10 @@ private:
     
     void WriteOutAerothermalDatabaseGeometry(void);
     void WriteOutAerothermalDatabaseSolution(void);
+    
+    // Unsteady routines
+    
+    void SaveVortexState(void);
 
 public:
 
@@ -366,7 +417,7 @@ public:
     VSP_SOLVER& operator=(const VSP_SOLVER &Solver_);
 
     // Solver routines
-    
+
     int ModelType(void) { return ModelType_; };
     
     int &NoWakeIteration(void) { return NoWakeIteration_; };
@@ -389,6 +440,10 @@ public:
 
     void SetNumberOfRotors(int NumberOfRotors) { NumberOfRotors_ = NumberOfRotors; RotorDisk_ = new ROTOR_DISK[NumberOfRotors_ + 1]; };
     ROTOR_DISK &RotorDisk(int i) { return RotorDisk_[i]; };
+
+    // Control Surface Group information (used for case header)
+    void SetControlSurfaceGroup( CONTROL_SURFACE_GROUP * csg, int NumberOfControlGroups ) { ControlSurfaceGroup_ = csg; NumberOfControlGroups_ = NumberOfControlGroups;  };
+    CONTROL_SURFACE_GROUP &ControlSurfaceGroup( int i ) { return ControlSurfaceGroup_[i]; };
     
     void DoSymmetryPlaneSolve(int Direction) { DoSymmetryPlaneSolve_ = VSPGeom_.DoSymmetryPlaneSolve() = Direction; };
 
@@ -427,6 +482,16 @@ public:
     double CMy(void) { return CMy_[ForceType_]; };
     double CMz(void) { return CMz_[ForceType_]; };
     
+    double  CL_Unsteady(int i) { return  CL_Unsteady_[i]; };
+    double  CD_Unsteady(int i) { return  CD_Unsteady_[i]; };
+    double  CS_Unsteady(int i) { return  CS_Unsteady_[i]; };   
+    double CFx_Unsteady(int i) { return CFx_Unsteady_[i]; };
+    double CFy_Unsteady(int i) { return CFy_Unsteady_[i]; };
+    double CFz_Unsteady(int i) { return CFz_Unsteady_[i]; };
+    double CMx_Unsteady(int i) { return CMx_Unsteady_[i]; };
+    double CMy_Unsteady(int i) { return CMy_Unsteady_[i]; };
+    double CMz_Unsteady(int i) { return CMz_Unsteady_[i]; }; 
+    
     // Zero lift drag
 
     double CDo(void) { return CDo_; };
@@ -459,10 +524,22 @@ public:
     // Wake update 
     
     void UpdateWakeLocations(void);
- 
+    
+    // Convect wake vorticity along streamlines
+    
+    void ConvectWakeVorticity(void);
+    
+    // Calculate the body surface velocities
+    
+    void CalculateSurfaceMotion(void);
+
     // Update the local values of the circulation strengths for each vortex egde
     
-    void UpdateVortexEdgeStrengths(int Level);
+    void UpdateVortexEdgeStrengths(int Level, int UpdateType);
+    
+    // Zero out vortex strengths
+    
+    void ZeroVortexState(void);
     
     // Calculate Residual
     
@@ -476,6 +553,7 @@ public:
     void CalculatePressureForces(void);
     void CalculateTrefftzForces(void);
     void CalculateKuttaJukowskiForces(void);
+    void CalculateUnsteadyForces(void);    
     void IntegrateForcesAndMoments(void);
     void CalculateDeltaCPs(void);
     void CalculateSurfacePressures(void);
@@ -517,6 +595,22 @@ public:
     int &LoadFEMDeformation(void) { return LoadDeformationFile_; };
     
     int &Write2DFEMFile(void) { return Write2DFEMFile_; };
+    
+    // Unsteady analysis
+    
+    int &TimeAnalysisType(void) { return TimeAnalysisType_; };
+    int &TimeAccurate(void) { return TimeAccurate_; };
+    int &NumberOfTimeSteps(void) { return NumberOfTimeSteps_; };
+    int &NumberOfTimeSamples(void) { return NumberOfTimeSamples_; };
+    
+    double &ReducedFrequency(void) { return ReducedFrequency_; };
+    double Unsteady_AngleRate(void) { return Unsteady_AngleRate_; };
+    double &Unsteady_AngleMax(void) { return Unsteady_AngleMax_; };
+    double &Unsteady_HMax(void) { return Unsteady_HMax_; };
+    
+    // Over ride default edge by edge ssor preconditioner
+    
+    int &Preconditioner(void ) { return Preconditioner_; };
     
     // User case string
     

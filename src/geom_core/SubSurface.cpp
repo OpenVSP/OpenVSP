@@ -27,6 +27,34 @@ SubSurface::SubSurface( string compID, int type )
 
     m_MainSurfIndx.Init( "MainSurfIndx", "SubSurface", this, -1, -1, 1e12 );
     m_MainSurfIndx.SetDescript( "Surface index for subsurface" );
+
+    m_IncludeType.Init("IncludeFlag", "SubSurface", this, vsp::SS_INC_TREAT_AS_PARENT, vsp::SS_INC_TREAT_AS_PARENT, vsp::SS_INC_ZERO_DRAG);
+    m_IncludeType.SetDescript("Indicates whether or not to include wetted area of subsurf in parasite drag calcs");
+
+    // Parasite Drag Parms
+    m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
+    m_PercLam.SetDescript("Percentage Laminar" );
+
+    m_FFBodyEqnType.Init("FFBodyEqnType", "ParasiteDragProps", this, vsp::FF_B_HOERNER_STREAMBODY, vsp::FF_B_MANUAL, vsp::FF_B_JENKINSON_AFT_FUSE_NACELLE );
+    m_FFBodyEqnType.SetDescript("Equation that defines the form factor of a body type surface included this Geom");
+
+    m_FFWingEqnType.Init("FFWingEqnType", "ParasiteDragProps", this, vsp::FF_W_HOERNER, vsp::FF_W_MANUAL, vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF );
+    m_FFWingEqnType.SetDescript("Equation that defines the form factor of a wing type surface included this Geom");
+
+    m_FFUser.Init("FFUser", "ParasiteDragProps", this, 1, -1, 10 );
+    m_FFUser.SetDescript( "User Input Form Factor Value" );
+
+    m_Q.Init("Q", "ParasiteDragProps", this, 1, 0, 3 );
+    m_Q.SetDescript( "Interference Factor" );
+
+    m_Roughness.Init("Roughness", "ParasiteDragProps", this, -1, -1, 10 );
+    m_Roughness.SetDescript( "Roughness Height" );
+
+    m_TeTwRatio.Init("TeTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
+    m_TeTwRatio.SetDescript("Temperature Ratio of Freestream to Wall" );
+
+    m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
+    m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
 }
 
 SubSurface::~SubSurface()
@@ -65,21 +93,33 @@ void SubSurface::SetDisplaySuffix( int num )
 
 void SubSurface::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
 {
-    for ( int i = 0 ; i < ( int )m_DrawObjVec.size() ; i++ )
+    m_SubSurfDO.m_LineColor = m_LineColor;
+
+    draw_obj_vec.push_back( &m_SubSurfDO );
+}
+
+void SubSurface::LoadPartialColoredDrawObjs( const string & ss_id, int surf_num, std::vector < DrawObj* > & draw_obj_vec, vec3d color )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
     {
-        m_DrawObjVec[i].m_LineColor = m_LineColor;
-        m_DrawObjVec[i].m_GeomID = ( m_ID + to_string( ( long long )i ) );
-        draw_obj_vec.push_back( &m_DrawObjVec[i] );
+        return;
     }
+
+    m_SubSurfHighlightDO[surf_num].m_LineColor = color;
+    m_SubSurfHighlightDO[surf_num].m_GeomID = (m_ID + to_string((long long)surf_num));
+    draw_obj_vec.push_back(&m_SubSurfHighlightDO[surf_num]);
 }
 
 vector< TMesh* > SubSurface::CreateTMeshVec()
 {
     vector<TMesh*> tmesh_vec;
-    tmesh_vec.resize( m_LVec.size() );
+    tmesh_vec.resize(1);
+    tmesh_vec[0] =  new TMesh();
+
     for ( int ls = 0 ; ls < ( int ) m_LVec.size() ; ls++ )
     {
-        tmesh_vec[ls] = m_LVec[ls].CreateTMesh();
+        m_LVec[ls].AddToTMesh( tmesh_vec[0] );
     }
 
     return tmesh_vec;
@@ -93,17 +133,24 @@ void SubSurface::UpdateDrawObjs()
         return;
     }
     Geom* geom = veh->FindGeom( m_CompID );
-    m_DrawObjVec.clear();
+    m_SubSurfHighlightDO.clear();
+
+    m_SubSurfDO.m_PntVec.clear();
+    m_SubSurfDO.m_GeomID = m_ID + string( "_ss_line" );
+    m_SubSurfDO.m_LineWidth = 3.0;
+    m_SubSurfDO.m_Type = DrawObj::VSP_LINES;
+
     if ( geom )
     {
         vector< VspSurf > surf_vec;
         geom->GetSurfVec( surf_vec );
         int ncopy = geom->GetNumSymmCopies();
 
-        m_DrawObjVec.resize( m_LVec.size()*ncopy, DrawObj() );
-        int ind = 0;
+        m_SubSurfHighlightDO.resize( m_LVec.size()*ncopy, DrawObj() );
+        int ind;
         for ( int ls = 0 ; ls < ( int )m_LVec.size() ; ls++ )
         {
+            ind = 0;
             int num_pnts = CompNumDrawPnts( geom );
             int *num_pnts_ptr = NULL;
             if ( num_pnts > 0 )
@@ -118,11 +165,18 @@ void SubSurface::UpdateDrawObjs()
 
             for ( int s = 0 ; s < ncopy ; s++ )
             {
-                m_LVec[ls].UpdateDrawObj( &surf_vec[symms[s]], geom, m_DrawObjVec[ind], num_pnts_ptr );
-                ind++;
+                vector < vec3d > pts;
+                m_LVec[ls].GetDOPts( &surf_vec[symms[s]], geom, pts, num_pnts_ptr );
+                m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.begin(), pts.begin(), pts.end() );
+
+                m_SubSurfHighlightDO[ind].m_PntVec.insert( m_SubSurfHighlightDO[ind].m_PntVec.begin(), pts.begin(), pts.end());
+                m_SubSurfHighlightDO[ind].m_Type = DrawObj::VSP_LINES;
+                m_SubSurfHighlightDO[ind].m_LineWidth = 5.0;
+                ++ind;
             }
         }
     }
+    m_SubSurfDO.m_GeomChanged = true;
 }
 
 void SubSurface::Update()
@@ -225,36 +279,33 @@ bool SubSurface::Subtag( TTri* tri )
     return Subtag( center );
 }
 
-
-void SubSurface::SplitSegs( const vector<int> & split_u, const vector<int> & split_w )
+void SubSurface::SplitSegsU( const double & u )
 {
-    // Method to Split subsurfaces for CFDMesh surfs
-    CleanUpSplitVec();
-
-    PrepareSplitVec();
-
-    for ( int ui = 0 ; ui < ( int )split_u.size() ; ui++ )
+    for ( int i = 0; i < m_SplitLVec.size(); i++ )
     {
-        SplitSegsU( split_u[ui] );
-    }
-
-    for ( int wi = 0 ; wi < ( int )split_w.size() ; wi++ )
-    {
-        SplitSegsW( split_w[wi] );
+        SplitSegsU( u, m_SplitLVec[i] );
     }
 }
 
-void SubSurface::SplitSegsU( const double & u )
+void SubSurface::SplitSegsW( const double & w )
+{
+    for ( int i = 0; i < m_SplitLVec.size(); i++ )
+    {
+        SplitSegsW( w, m_SplitLVec[i] );
+    }
+}
+
+void SubSurface::SplitSegsU( const double & u, vector<SSLineSeg> &splitvec )
 {
     double tol = 1e-10;
-    int num_l_segs = m_SplitLVec.size();
+    int num_l_segs = splitvec.size();
     int num_splits = 0;
     bool reorder = false;
     vector<SSLineSeg> new_lsegs;
     vector<int> inds;
     for ( int i = 0 ; i < num_l_segs ; i++ )
     {
-        SSLineSeg& seg = m_SplitLVec[i];
+        SSLineSeg& seg = splitvec[i];
         vec3d p0 = seg.GetP0();
         vec3d p1 = seg.GetP1();
 
@@ -281,19 +332,19 @@ void SubSurface::SplitSegsU( const double & u )
 
     for ( int i = 0; i < ( int )inds.size() ; i++ )
     {
-        m_SplitLVec.insert( m_SplitLVec.begin() + inds[i], new_lsegs[i] );
+        splitvec.insert( splitvec.begin() + inds[i], new_lsegs[i] );
     }
 
     if ( reorder )
     {
-        ReorderSplitSegs( inds[0] );
+        ReorderSplitSegs( inds[0], splitvec );
     }
 }
 
-void SubSurface::SplitSegsW( const double & w )
+void SubSurface::SplitSegsW( const double & w, vector<SSLineSeg> &splitvec )
 {
     double tol = 1e-10;
-    int num_l_segs = m_SplitLVec.size();
+    int num_l_segs = splitvec.size();
     int num_splits = 0;
     bool reorder = false;
     vector<SSLineSeg> new_lsegs;
@@ -301,7 +352,7 @@ void SubSurface::SplitSegsW( const double & w )
     for ( int i = 0 ; i < num_l_segs ; i++ )
     {
 
-        SSLineSeg& seg = m_SplitLVec[i];
+        SSLineSeg& seg = splitvec[i];
         vec3d p0 = seg.GetP0();
         vec3d p1 = seg.GetP1();
 
@@ -328,50 +379,45 @@ void SubSurface::SplitSegsW( const double & w )
 
     for ( int i = 0; i < ( int )inds.size() ; i++ )
     {
-        m_SplitLVec.insert( m_SplitLVec.begin() + inds[i], new_lsegs[i] );
+        splitvec.insert( splitvec.begin() + inds[i], new_lsegs[i] );
     }
 
     if ( reorder )
     {
-        ReorderSplitSegs( inds[0] );
+        ReorderSplitSegs( inds[0], splitvec );
     }
 }
 
-void SubSurface::ReorderSplitSegs( int ind )
+void SubSurface::ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec )
 {
-    if ( ind < 0 || ind > ( int )m_SplitLVec.size() - 1 )
+    if ( ind < 0 || ind > ( int )splitvec.size() - 1 )
     {
         return;
     }
 
     vector<SSLineSeg> ret_vec;
-    ret_vec.resize( m_SplitLVec.size() );
+    ret_vec.resize( splitvec.size() );
 
     int cnt = 0;
-    for ( int i = ind ; i < ( int )m_SplitLVec.size() ; i++ )
+    for ( int i = ind ; i < ( int )splitvec.size() ; i++ )
     {
-        ret_vec[cnt] = m_SplitLVec[i];
+        ret_vec[cnt] = splitvec[i];
         cnt++;
     }
     for ( int i = 0 ; i < ind ; i++ )
     {
-        ret_vec[cnt] = m_SplitLVec[i];
+        ret_vec[cnt] = splitvec[i];
         cnt++;
     }
 
-    m_SplitLVec = ret_vec;
-}
-
-void SubSurface::CleanUpSplitVec()
-{
-    m_SplitLVec.clear();
+    splitvec = ret_vec;
 }
 
 void SubSurface::PrepareSplitVec()
 {
-    CleanUpSplitVec();
+    m_SplitLVec.clear();
     m_FirstSplit = true;
-    m_SplitLVec = m_LVec;
+    m_SplitLVec.push_back( m_LVec );
 }
 
 //////////////////////////////////////////////////////
@@ -442,13 +488,8 @@ int SSLineSeg::CompNumDrawPnts( VspSurf* surf, Geom* geom )
     return ( int )( ( avg_num_secs ) * ( avg_tess - 1 ) );
 }
 
-void SSLineSeg::UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, const int *num_pnts_ptr )
+void SSLineSeg::GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, const int *num_pnts_ptr )
 {
-    if ( !surf || !geom )
-    {
-        return;
-    }
-
     int num_pnts;
     if ( num_pnts_ptr )
     {
@@ -459,25 +500,18 @@ void SSLineSeg::UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, con
         num_pnts = CompNumDrawPnts( surf, geom );
     }
 
-    if ( num_pnts <=0 )
+    pts.resize( 2 * num_pnts );
+
+    vec3d pprev = CompPnt( surf, m_P0 );
+    vec3d p = pprev;
+    for ( int i = 0 ; i < num_pnts ; i ++ )
     {
-        draw_obj.m_PntVec.clear();
-        return;
+        vec3d uw = ( m_P0 + m_line * ( ( double )i / ( num_pnts - 1 ) ) );
+        p = CompPnt( surf, uw );
+        pts[2*i] = pprev;
+        pts[2*i+1] = p;
+        pprev = p;
     }
-
-    draw_obj.m_PntVec.resize( num_pnts + 1 );
-
-
-    for ( int i = 0; i <= num_pnts; i++ )
-    {
-        vec3d uw = ( m_P0 + m_line * ( (double)i / num_pnts ) );
-        draw_obj.m_PntVec[i] = CompPnt( surf, uw );
-    }
-
-    draw_obj.m_LineWidth = 3.0;
-    draw_obj.m_LineColor = vec3d( 177.0 / 255, 1, 58.0 / 255 );
-    draw_obj.m_Type = DrawObj::VSP_LINE_STRIP;
-    draw_obj.m_GeomChanged = true;
 }
 
 vec3d SSLineSeg::CompPnt( VspSurf* surf, vec3d uw_pnt ) const
@@ -513,10 +547,21 @@ vec3d SSLineSeg::CompPnt( VspSurf* surf, vec3d uw_pnt ) const
 
 TMesh* SSLineSeg::CreateTMesh()
 {
+    TMesh* tmesh = new TMesh();
+
+    AddToTMesh( tmesh );
+
+    return tmesh;
+}
+
+void SSLineSeg::AddToTMesh( TMesh* tmesh )
+{
+
     int num_cut_lines = 0;
     int num_z_lines = 0;
 
-    TMesh* tmesh = new TMesh();
+    double tol = 1.0e-6;
+
 
     vec3d dc = m_line / ( num_cut_lines + 1.0 );
     vec3d dz = vec3d( 0, 0, 2.0 ) / ( num_z_lines + 1 );
@@ -557,7 +602,7 @@ TMesh* SSLineSeg::CreateTMesh()
             d01 = v0 - v1;
             d20 = v2 - v0;
 
-            if ( d21.mag() > 0.000001 && d01.mag() > 0.000001 && d20.mag() > 0.000001 )
+            if ( d21.mag() > tol && d01.mag() > tol && d20.mag() > tol )
             {
                 norm = cross( d21, d01 );
                 norm.normalize();
@@ -566,7 +611,7 @@ TMesh* SSLineSeg::CreateTMesh()
 
             d03 = v0 - v3;
             d23 = v2 - v3;
-            if ( d03.mag() > 0.000001 && d23.mag() > 0.000001 && d20.mag() > 0.000001 )
+            if ( d03.mag() > tol && d23.mag() > tol && d20.mag() > tol )
             {
                 norm = cross( d03, d23 );
                 norm.normalize();
@@ -574,7 +619,6 @@ TMesh* SSLineSeg::CreateTMesh()
             }
         }
     }
-    return tmesh;
 }
 
 //////////////////////////////////////////////////////
@@ -589,7 +633,7 @@ SSLine::SSLine( string comp_id, int type ) : SubSurface( comp_id, type )
     m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::LT );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
 
-    m_LVec.push_back( SSLineSeg() );
+    m_LVec.resize( 1 );
 }
 
 SSLine::~SSLine()
@@ -672,11 +716,7 @@ SSRectangle::SSRectangle( string comp_id, int type ) : SubSurface( comp_id, type
     m_TestType.Init( "Test_Type", "SS_Rectangle", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
-    // Each Rectangle will always have 4 line segments
-    for ( int i = 0; i < 4 ; i++ )
-    {
-        m_LVec.push_back( SSLineSeg() );
-    }
+    m_LVec.resize(4);
 }
 
 //===== Destructor =====//
@@ -765,35 +805,9 @@ SSEllipse::~SSEllipse()
 
 }
 
-// Resize LVec if Tessellation has changed
-void SSEllipse::UpdateLVecSize()
-{
-    // Do nothing if already the correct size
-    if ( m_LVec.size() == m_Tess() )
-    {
-        return;
-    }
-
-    // If too few more line segments
-    if ( ( int )m_LVec.size() < m_Tess() )
-    {
-        for ( int i = m_LVec.size() ; i < m_Tess() ; i++ )
-        {
-            m_LVec.push_back( SSLineSeg() );
-        }
-    }
-    else if ( ( int )m_LVec.size() > m_Tess() )
-    {
-        // if too many line segments delete extra ones
-
-        m_LVec.erase( m_LVec.begin() + m_Tess(), m_LVec.begin() + m_LVec.size() );
-    }
-}
 // Main Update Routine
 void SSEllipse::Update()
 {
-    UpdateLVecSize();
-
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( !geom )
     {
@@ -801,6 +815,7 @@ void SSEllipse::Update()
     }
 
     int num_pnts = m_Tess();
+    m_LVec.resize( num_pnts );
 
     vec3d center;
 
@@ -842,6 +857,9 @@ void SSEllipse::Update()
 
 SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, type )
 {
+    m_Tess.Init( "Tess_Num", "SS_Control", this, 15, 1, 1000 );
+    m_Tess.SetDescript( " Number of points to discretize edges" );
+
     m_StartLenFrac.Init( "Length_C_Start", "SS_Control", this, 0.25, 0, 1 );
     m_StartLenFrac.SetDescript( "Specifies control surface width as fraction of chord" );
 
@@ -875,10 +893,27 @@ SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, ty
     m_LEFlag.Init( "LE_Flag", "SS_Control", this, false, 0, 1 );
     m_LEFlag.SetDescript( "Flag to determine whether control surface is on the leading/trailing edge." );
 
+    m_StartAngle.Init( "StartAngle", "SS_Control", this, 90, 0, 180 );
+    m_StartAngle.SetDescript( "Angle that control surface start meets leading/trailing edge." );
+
+    m_EndAngle.Init( "EndAngle", "SS_Control", this, 90, 0, 180 );
+    m_EndAngle.SetDescript( "Angle that control surface end meets leading/trailing edge." );
+
+    m_StartAngleFlag.Init( "StartAngleFlag", "SS_Control", this, false, 0, 1 );
+    m_StartAngleFlag.SetDescript( "Flag to determine whether to set control surface start angle." );
+
+    m_EndAngleFlag.Init( "EndAngleFlag", "SS_Control", this, false, 0, 1 );
+    m_EndAngleFlag.SetDescript( "Flag to determine whether to set control surface end angle." );
+
+    m_SameAngleFlag.Init( "SameAngleFlag", "SS_Control", this, true, 0, 1 );
+    m_SameAngleFlag.SetDescript( "Flag to set control surface start/end angles equal." );
+
     for ( int i = 0; i < 3; i++ )
     {
         m_LVec.push_back( SSLineSeg() );
     }
+
+    m_PolyFlag = false;
 }
 
 //==== Destructor ====//
@@ -893,8 +928,13 @@ void SSControlSurf::Update()
     // Build Control Surface as a rectangle with the points counter clockwise
 
     vec3d c_uws_upper, c_uws_lower, c_uwe_upper, c_uwe_lower;
-    vector< vec3d > pnt_vec;
-    double u, w;
+
+    vec3d c_uwm_upper, c_uwm_lower;
+
+    vec3d c_uws1_upper, c_uws1_lower, c_uwe1_upper, c_uwe1_lower;
+    vec3d c_uw1_upper, c_uw1_lower;
+    vec3d c_uws2_upper, c_uws2_lower, c_uwe2_upper, c_uwe2_lower;
+    vec3d c_uw2_upper, c_uw2_lower;
 
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( !geom ) { return; }
@@ -902,8 +942,8 @@ void SSControlSurf::Update()
     VspSurf* surf = geom->GetSurfPtr();
     if ( !surf ) { return; }
 
-    m_UWStart.clear();
-    m_UWEnd.clear();
+    m_UWStart01.clear();
+    m_UWEnd01.clear();
 
     VspCurve startcrv;
     surf->GetU01ConstCurve( startcrv, m_UStart() );
@@ -912,6 +952,10 @@ void SSControlSurf::Update()
 
     double vmin = c.get_parameter_min(); // Really must be 0.0
     double vmax = c.get_parameter_max(); // Really should be 4.0
+
+    double umax = surf->GetUMax();
+    double umin = 0.0;
+    double ucs = m_UStart() * umax;
 
     double vle = ( vmin + vmax ) * 0.5;
 
@@ -950,6 +994,11 @@ void SSControlSurf::Update()
         }
     }
 
+    if ( m_SameAngleFlag() && m_EndAngleFlag() && m_StartAngleFlag() )
+    {
+        m_EndAngle = m_StartAngle();
+    }
+
     curve_point_type telow, teup;
     telow = c.f( vtelow );
     teup = c.f( vteup );
@@ -958,38 +1007,170 @@ void SSControlSurf::Update()
     lelow = c.f( vlelow );
     leup = c.f( vleup );
 
-    piecewise_curve_type clow, cup;
-    c.split( clow, cup, vle );
-
-
-    double vlow, vup;
+    double u, v;
 
     if ( m_SurfType() != LOWER_SURF )
     {
         if ( !m_LEFlag() )
         {
-            eli::geom::intersect::specified_distance( vup, cup, teup, d );
+            if ( m_StartAngleFlag() )
+            {
+                vec3d udir = surf->CompTanU( ucs, vteup );
+                vec3d vdir;
+                vdir = ( le - te ) / 2.0; // reverse direction
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_StartAngle() * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, teup, udir, d, m_StartAngle() * PI / 180.0, ucs + du, vteup - dv ); // reverse v
+                c_uws_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, teup, udir, d / 3.0, m_StartAngle() * PI / 180.0, ucs + du / 3.0, vteup - dv / 3.0 ); // reverse v
+                c_uws1_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, teup, udir, 2.0 * d / 3.0, m_StartAngle() * PI / 180.0, ucs + 2.0 * du / 3.0, vteup - 2.0 * dv / 3.0 ); // reverse v
+                c_uws2_upper = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, cup, teup, d );
+                c_uws_upper = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, teup, d / 3.0 );
+                c_uws1_upper = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, teup, 2.0 * d / 3.0 );
+                c_uws2_upper = vec3d( m_UStart(), v / vmax, 0 );
+            }
         }
         else
         {
-            eli::geom::intersect::specified_distance( vup, cup, leup, d );
+            if ( m_StartAngleFlag() )
+            {
+                vec3d udir = surf->CompTanU( ucs, vleup );
+                vec3d vdir;
+                vdir = ( te - le ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_StartAngle() * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, leup, udir, d, m_StartAngle() * PI / 180.0, ucs + du, vleup + dv );
+                c_uws_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, leup, udir, d / 3.0, m_StartAngle() * PI / 180.0, ucs + du / 3.0, vleup + dv / 3.0 );
+                c_uws1_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, leup, udir, 2.0 * d / 3.0, m_StartAngle() * PI / 180.0, ucs + 2.0 * du / 3.0, vleup + 2.0 * dv / 3.0 );
+                c_uws2_upper = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, cup, leup, d );
+                c_uws_upper = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, leup, d / 3.0 );
+                c_uws1_upper = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, leup, 2.0 * d / 3.0 );
+                c_uws2_upper = vec3d( m_UStart(), v / vmax, 0 );
+            }
         }
-        c_uws_upper = vec3d( m_UStart(), vup / vmax, 0 );
-        m_UWStart.push_back( c_uws_upper );
+        m_UWStart01.push_back( c_uws_upper );
     }
 
     if ( m_SurfType() != UPPER_SURF )
     {
         if ( !m_LEFlag() )
         {
-            eli::geom::intersect::specified_distance( vlow, clow, telow, d );
+            if ( m_StartAngleFlag() )
+            {
+                vec3d udir = surf->CompTanU( ucs, vtelow );
+                vec3d vdir;
+                vdir = ( le - te ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_StartAngle() * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, telow, udir, d, m_StartAngle() * PI / 180.0, ucs + du, vtelow + dv );
+                c_uws_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, telow, udir, d / 3.0, m_StartAngle() * PI / 180.0, ucs + du / 3.0, vtelow + dv / 3.0 );
+                c_uws1_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, telow, udir, 2.0 * d / 3.0, m_StartAngle() * PI / 180.0, ucs + 2.0 * du / 3.0, vtelow + 2.0 * dv / 3.0 );
+                c_uws2_lower = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, clow, telow, d );
+                c_uws_lower = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, telow, d / 3.0 );
+                c_uws1_lower = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, telow, 2.0 * d / 3.0);
+                c_uws2_lower = vec3d( m_UStart(), v / vmax, 0 );
+            }
         }
         else
         {
-            eli::geom::intersect::specified_distance( vlow, clow, lelow, d );
+            if ( m_StartAngleFlag() )
+            {
+                vec3d udir = surf->CompTanU( ucs, vlelow );
+                vec3d vdir;
+                vdir = ( te - le ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_StartAngle() * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, lelow, udir, d, m_StartAngle() * PI / 180.0, ucs + du, vlelow - dv );
+                c_uws_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, lelow, udir, d / 3.0, m_StartAngle() * PI / 180.0, ucs + du / 3.0, vlelow - dv / 3.0 );
+                c_uws1_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, lelow, udir, 2.0 * d / 3.0, m_StartAngle() * PI / 180.0, ucs + 2.0 * du / 3.0, vlelow - 2.0 * dv / 3.0 );
+                c_uws2_lower = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, clow, lelow, d );
+                c_uws_lower = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, lelow, d / 3.0 );
+                c_uws1_lower = vec3d( m_UStart(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, lelow, 2.0 * d / 3.0 );
+                c_uws2_lower = vec3d( m_UStart(), v / vmax, 0 );
+            }
         }
-        c_uws_lower = vec3d( m_UStart(), vlow / vmax, 0 );
-        m_UWStart.push_back( c_uws_lower );
+        m_UWStart01.push_back( c_uws_lower );
+    }
+
+    if ( !m_StartAngleFlag() )
+    {
+        if ( m_LEFlag() )
+        {
+            vec3d udir = surf->CompTanU( ucs, vleup );
+            udir.normalize();
+            vec3d vdir;
+            vdir = ( te - le ) / 2.0;
+            vdir.normalize();
+            m_StartAngle = acos( dot( udir, vdir ) ) * 180.0 / PI;
+        }
+        else
+        {
+            vec3d udir = surf->CompTanU( ucs, vtelow );
+            udir.normalize();
+            vec3d vdir;
+            vdir = ( le - te ) / 2.0;
+            vdir.normalize();
+            m_StartAngle = acos( dot( udir, vdir ) ) * 180.0 / PI;
+        }
     }
 
     VspCurve endcrv;
@@ -1018,67 +1199,519 @@ void SSControlSurf::Update()
     lelow = c.f( vlelow );
     leup = c.f( vleup );
 
-    c.split( clow, cup, vle );
+    ucs = m_UEnd() * umax;
 
     if ( m_SurfType() != LOWER_SURF )
     {
         if ( !m_LEFlag() )
         {
-            eli::geom::intersect::specified_distance( vup, cup, teup, d );
+            if ( m_EndAngleFlag() )
+            {
+                vec3d udir = surf->CompTanU( ucs, vteup );
+                vec3d vdir;
+                vdir = ( le - te ) / 2.0; // reverse direction
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_EndAngle() * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, teup, udir, d, m_EndAngle() * PI / 180.0, ucs + du, vteup - dv ); // reverse v
+                c_uwe_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, teup, udir, d / 3.0, m_EndAngle() * PI / 180.0, ucs + du / 3.0, vteup - dv / 3.0 ); // reverse v
+                c_uwe1_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, teup, udir, 2.0 * d / 3.0, m_EndAngle() * PI / 180.0, ucs + 2.0 * du / 3.0, vteup - 2.0 * dv / 3.0 ); // reverse v
+                c_uwe2_upper = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, cup, teup, d );
+                c_uwe_upper = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, teup, d / 3.0 );
+                c_uwe1_upper = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, teup, 2.0 * d / 3.0 );
+                c_uwe2_upper = vec3d( m_UEnd(), v / vmax, 0 );
+            }
         }
         else
         {
-            eli::geom::intersect::specified_distance( vup, cup, leup, d );
+            if ( m_EndAngleFlag() )
+            {
+                vec3d udir = surf->CompTanU( ucs, vleup );
+                vec3d vdir;
+                vdir = ( te - le ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_EndAngle() * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, leup, udir, d, m_EndAngle() * PI / 180.0, ucs + du, vleup + dv );
+                c_uwe_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, leup, udir, d / 3.0, m_EndAngle() * PI / 180.0, ucs + du / 3.0, vleup + dv / 3.0 );
+                c_uwe1_upper = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, leup, udir, 2.0 * d / 3.0, m_EndAngle() * PI / 180.0, ucs + 2.0 * du / 3.0, vleup + 2.0 * dv / 3.0 );
+                c_uwe2_upper = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, cup, leup, d );
+                c_uwe_upper = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, leup, d / 3.0 );
+                c_uwe1_upper = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, cup, leup, 2.0 * d / 3.0 );
+                c_uwe2_upper = vec3d( m_UEnd(), v / vmax, 0 );
+            }
         }
-        c_uwe_upper = vec3d( m_UEnd(), vup / vmax, 0 );
-        m_UWEnd.push_back( c_uwe_upper );
+        m_UWEnd01.push_back( c_uwe_upper );
     }
 
     if ( m_SurfType() != UPPER_SURF )
     {
         if ( !m_LEFlag() )
         {
-            eli::geom::intersect::specified_distance( vlow, clow, telow, d );
+            if ( m_EndAngleFlag() )
+            {
+                vec3d udir = surf->CompTanU( ucs, vtelow );
+                vec3d vdir;
+                vdir = ( le - te ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_EndAngle() * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, telow, udir, d, m_EndAngle() * PI / 180.0, ucs + du, vtelow + dv );
+                c_uwe_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, telow, udir, d / 3.0, m_EndAngle() * PI / 180.0, ucs + du / 3.0, vtelow + dv / 3.0 );
+                c_uwe1_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, telow, udir, 2.0 * d / 3.0, m_EndAngle() * PI / 180.0, ucs + 2.0 * du / 3.0, vtelow + 2.0 * dv / 3.0 );
+                c_uwe2_lower = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, clow, telow, d );
+                c_uwe_lower = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, telow, d / 3.0 );
+                c_uwe1_lower = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, telow, 2.0 * d / 3.0 );
+                c_uwe2_lower = vec3d( m_UEnd(), v / vmax, 0 );
+            }
         }
         else
         {
-            eli::geom::intersect::specified_distance( vlow, clow, lelow, d );
+            if ( m_EndAngleFlag() )
+            {
+                vec3d udir = surf->CompTanU( ucs, vlelow );
+                vec3d vdir;
+                vdir = ( te - le ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, m_EndAngle() * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, lelow, udir, d, m_EndAngle() * PI / 180.0, ucs + du, vlelow - dv );
+                c_uwe_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, lelow, udir, d / 3.0, m_EndAngle() * PI / 180.0, ucs + du / 3.0, vlelow - dv / 3.0 );
+                c_uwe1_lower = vec3d( u / umax, v / vmax, 0 );
+
+                surf->FindDistanceAngle( u, v, lelow, udir, 2.0 * d / 3.0, m_EndAngle() * PI / 180.0, ucs + 2.0 * du / 3.0, vlelow - 2.0 * dv / 3.0 );
+                c_uwe2_lower = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, clow, lelow, d );
+                c_uwe_lower = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, lelow, d / 3.0 );
+                c_uwe1_lower = vec3d( m_UEnd(), v / vmax, 0 );
+
+                eli::geom::intersect::specified_distance( v, clow, lelow, 2.0 * d / 3.0 );
+                c_uwe2_lower = vec3d( m_UEnd(), v / vmax, 0 );
+            }
         }
-        c_uwe_lower = vec3d( m_UEnd(), vlow / vmax, 0 );
-        m_UWEnd.push_back( c_uwe_lower );
+        m_UWEnd01.push_back( c_uwe_lower );
     }
 
-    // Build Control Surface
+    if ( !m_EndAngleFlag() )
+    {
+        if ( m_LEFlag() )
+        {
+            vec3d udir = surf->CompTanU( ucs, vleup );
+            udir.normalize();
+            vec3d vdir;
+            vdir = ( te - le ) / 2.0;
+            vdir.normalize();
+            m_EndAngle = acos( dot( udir, vdir ) ) * 180.0 / PI;
+        }
+        else
+        {
+            vec3d udir = surf->CompTanU( ucs, vtelow );
+            udir.normalize();
+            vec3d vdir;
+            vdir = ( le - te ) / 2.0;
+            vdir.normalize();
+            m_EndAngle = acos( dot( udir, vdir ) ) * 180.0 / PI;
+        }
+    }
 
+    // Terrible hack to place middle points.
+    c_uw1_upper = c_uws_upper + ( c_uwe_upper - c_uws_upper ) / 3.0;
+    c_uw1_lower = c_uws_lower + ( c_uwe_lower - c_uws_lower ) / 3.0;
+
+    c_uw2_upper = c_uws_upper + 2.0 * ( c_uwe_upper - c_uws_upper ) / 3.0;
+    c_uw2_lower = c_uws_lower + 2.0 * ( c_uwe_lower - c_uws_lower ) / 3.0;
+
+    // Now do a better job as needed.
+
+    bool midangleflag = true;
+    if ( !m_StartAngleFlag() && !m_EndAngleFlag() )
+    {
+        midangleflag = false;
+    }
+
+    double midangle;
+    double umid;
+
+    double angle1 = m_StartAngle() + ( m_EndAngle() - m_StartAngle() ) / 3.0;
+    double u1 = m_UStart() + ( m_UEnd() - m_UStart() ) / 3.0;
+
+    double angle2 = m_StartAngle() + 2.0 * ( m_EndAngle() - m_StartAngle() ) / 3.0;
+    double u2 = m_UStart() + 2.0 * ( m_UEnd() - m_UStart() ) / 3.0;
+
+    VspCurve crv1;
+    surf->GetU01ConstCurve( crv1, u1 );
+    VspCurve crv2;
+    surf->GetU01ConstCurve( crv2, u2 );
+
+    double d1;
+    double d2;
+
+    if ( midangleflag )
+    {
+        double ts = m_StartLength() * sin( m_StartAngle() * PI / 180.0 );
+        double te = m_EndLength() * sin( m_EndAngle() * PI / 180.0 );
+        d = 0.5 * ( ts + te ) / sin( midangle * PI / 180.0 );
+
+        if ( angle1 < 1e-6 )
+        {
+            d1 = 0.0;
+        }
+        else
+        {
+            d1 = ( ts + ( te - ts ) / 3.0   ) / sin( angle1 * PI / 180.0 );
+        }
+
+        if ( angle2 < 1e-6 )
+        {
+            d2 = 0.0;
+        }
+        else
+        {
+            d2 = ( ts + 2.0 * ( te - ts ) / 3.0 ) / sin( angle2 * PI / 180.0 );
+        }
+    }
+    else
+    {
+        d = 0.5 * ( m_StartLength() + m_EndLength() );
+        d1 = m_StartLength() + ( m_EndLength() - m_StartLength() ) / 3.0;
+        d2 = m_StartLength() + 2.0 * ( m_EndLength() - m_StartLength() ) / 3.0;
+    }
+
+    c = crv1.GetCurve();
+    umid = u1;
+    d = d1;
+    midangle = angle1;
+
+    te = c.f( vmin );
+    le = c.f( vle );
+
+    telow = c.f( vtelow );
+    teup = c.f( vteup );
+    lelow = c.f( vlelow );
+    leup = c.f( vleup );
+
+    ucs = umid * umax;
+
+    if ( m_SurfType() != LOWER_SURF )
+    {
+        if ( !m_LEFlag() )
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vteup );
+                vec3d vdir;
+                vdir = ( le - te ) / 2.0; // reverse direction
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, teup, udir, d, midangle * PI / 180.0, ucs + du, vteup - dv ); // reverse v
+                c_uwm_upper = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, cup, teup, d );
+                c_uwm_upper = vec3d( umid, v / vmax, 0 );
+            }
+        }
+        else
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vleup );
+                vec3d vdir;
+                vdir = ( te - le ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, leup, udir, d, midangle * PI / 180.0, ucs + du, vleup + dv );
+                c_uwm_upper = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, cup, leup, d );
+                c_uwm_upper = vec3d( umid, v / vmax, 0 );
+            }
+        }
+    }
+
+    if ( m_SurfType() != UPPER_SURF )
+    {
+        if ( !m_LEFlag() )
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vtelow );
+                vec3d vdir;
+                vdir = ( le - te ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, telow, udir, d, midangle * PI / 180.0, ucs + du, vtelow + dv );
+                c_uwm_lower = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, clow, telow, d );
+                c_uwm_lower = vec3d( umid, v / vmax, 0 );
+            }
+        }
+        else
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vlelow );
+                vec3d vdir;
+                vdir = ( te - le ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, lelow, udir, d, midangle * PI / 180.0, ucs + du, vlelow - dv );
+                c_uwm_lower = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, clow, lelow, d );
+                c_uwm_lower = vec3d( umid, v / vmax, 0 );
+            }
+        }
+    }
+
+    c_uw1_upper = c_uwm_upper;
+    c_uw1_lower = c_uwm_lower;
+
+    //////////////////////////// Repeat Block
+
+    c = crv2.GetCurve();
+    umid = u2;
+    d = d2;
+    midangle = angle2;
+
+    te = c.f( vmin );
+    le = c.f( vle );
+
+    telow = c.f( vtelow );
+    teup = c.f( vteup );
+    lelow = c.f( vlelow );
+    leup = c.f( vleup );
+
+    ucs = umid * umax;
+
+    if ( m_SurfType() != LOWER_SURF )
+    {
+        if ( !m_LEFlag() )
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vteup );
+                vec3d vdir;
+                vdir = ( le - te ) / 2.0; // reverse direction
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, teup, udir, d, midangle * PI / 180.0, ucs + du, vteup - dv ); // reverse v
+                c_uwm_upper = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, cup, teup, d );
+                c_uwm_upper = vec3d( umid, v / vmax, 0 );
+            }
+        }
+        else
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vleup );
+                vec3d vdir;
+                vdir = ( te - le ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, leup, udir, d, midangle * PI / 180.0, ucs + du, vleup + dv );
+                c_uwm_upper = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, cup, leup, d );
+                c_uwm_upper = vec3d( umid, v / vmax, 0 );
+            }
+        }
+    }
+
+    if ( m_SurfType() != UPPER_SURF )
+    {
+        if ( !m_LEFlag() )
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vtelow );
+                vec3d vdir;
+                vdir = ( le - te ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, telow, udir, d, midangle * PI / 180.0, ucs + du, vtelow + dv );
+                c_uwm_lower = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, clow, telow, d );
+                c_uwm_lower = vec3d( umid, v / vmax, 0 );
+            }
+        }
+        else
+        {
+            if ( midangleflag )
+            {
+                vec3d udir = surf->CompTanU( ucs, vlelow );
+                vec3d vdir;
+                vdir = ( te - le ) / 2.0;
+                double du, dv;
+                surf->GuessDistanceAngle( du, dv, udir, vdir, d, midangle * PI / 180.0 );
+                udir.normalize();
+                surf->FindDistanceAngle( u, v, lelow, udir, d, midangle * PI / 180.0, ucs + du, vlelow - dv );
+                c_uwm_lower = vec3d( u / umax, v / vmax, 0 );
+            }
+            else
+            {
+                piecewise_curve_type clow, cup;
+                c.split( clow, cup, vle );
+                eli::geom::intersect::specified_distance( v, clow, lelow, d );
+                c_uwm_lower = vec3d( umid, v / vmax, 0 );
+            }
+        }
+    }
+
+    c_uw2_upper = c_uwm_upper;
+    c_uw2_lower = c_uwm_lower;
+
+    //////////////////////////// Repeat Block
+
+
+
+    // Build Control Surface
+    vector< vec3d > up_pnt_vec;
+    vector< vec3d > low_pnt_vec;
+
+
+    up_pnt_vec.reserve( 13 );
+    low_pnt_vec.reserve( 13 );
     if ( !m_LEFlag() )
     {
         if ( m_SurfType() == UPPER_SURF )
         {
-            pnt_vec.resize( 4 );
-            pnt_vec[0] = vec3d( m_UStart(), 1, 0 );
-            pnt_vec[1] = c_uws_upper;
-            pnt_vec[2] = c_uwe_upper;
-            pnt_vec[3] = vec3d( m_UEnd(), 1, 0 );
+            up_pnt_vec.push_back( vec3d( m_UStart(), 1, 0 ) );
+            up_pnt_vec.push_back( c_uws1_upper );
+            up_pnt_vec.push_back( c_uws2_upper );
+            up_pnt_vec.push_back( c_uws_upper );
+            up_pnt_vec.push_back( c_uw1_upper );
+            up_pnt_vec.push_back( c_uw2_upper );
+            up_pnt_vec.push_back( c_uwe_upper );
+            up_pnt_vec.push_back( c_uwe2_upper );
+            up_pnt_vec.push_back( c_uwe1_upper );
+            up_pnt_vec.push_back( vec3d( m_UEnd(), 1, 0 ) );
         }
         else if ( m_SurfType() == LOWER_SURF )
         {
-            pnt_vec.resize( 4 );
-            pnt_vec[0] = vec3d( m_UStart(), 0, 0 );
-            pnt_vec[1] = c_uws_lower;
-            pnt_vec[2] = c_uwe_lower;
-            pnt_vec[3] = vec3d( m_UEnd(), 0, 0 );
+            low_pnt_vec.push_back( vec3d( m_UStart(), 0, 0 ) );
+            low_pnt_vec.push_back( c_uws1_lower );
+            low_pnt_vec.push_back( c_uws2_lower );
+            low_pnt_vec.push_back( c_uws_lower );
+            low_pnt_vec.push_back( c_uw1_lower );
+            low_pnt_vec.push_back( c_uw2_lower );
+            low_pnt_vec.push_back( c_uwe_lower );
+            low_pnt_vec.push_back( c_uwe2_lower );
+            low_pnt_vec.push_back( c_uwe1_lower );
+            low_pnt_vec.push_back( vec3d( m_UEnd(), 0, 0 ) );
         }
         else
         {
-            pnt_vec.resize( 8 );
-            pnt_vec[0] = vec3d( m_UStart(), 1, 0 );
-            pnt_vec[1] = c_uws_upper;
-            pnt_vec[2] = c_uwe_upper;
-            pnt_vec[3] = vec3d( m_UEnd(), 1, 0 );
-            pnt_vec[4] = vec3d( m_UEnd(), 0, 0 );
-            pnt_vec[5] = c_uwe_lower;
-            pnt_vec[6] = c_uws_lower;
-            pnt_vec[7] = vec3d( m_UStart(), 0, 0 );
+            up_pnt_vec.push_back( vec3d( m_UStart(), 1, 0 ) );
+            up_pnt_vec.push_back( c_uws1_upper );
+            up_pnt_vec.push_back( c_uws2_upper );
+            up_pnt_vec.push_back( c_uws_upper );
+            up_pnt_vec.push_back( c_uw1_upper );
+            up_pnt_vec.push_back( c_uw2_upper );
+            up_pnt_vec.push_back( c_uwe_upper );
+            up_pnt_vec.push_back( c_uwe2_upper );
+            up_pnt_vec.push_back( c_uwe1_upper );
+            up_pnt_vec.push_back( vec3d( m_UEnd(), 1, 0 ) );
+
+            low_pnt_vec.push_back( vec3d( m_UEnd(), 0, 0 ) );
+            low_pnt_vec.push_back( c_uwe1_lower );
+            low_pnt_vec.push_back( c_uwe2_lower );
+            low_pnt_vec.push_back( c_uwe_lower );
+            low_pnt_vec.push_back( c_uw2_lower );
+            low_pnt_vec.push_back( c_uw1_lower );
+            low_pnt_vec.push_back( c_uws_lower );
+            low_pnt_vec.push_back( c_uws2_lower );
+            low_pnt_vec.push_back( c_uws1_lower );
+            low_pnt_vec.push_back( vec3d( m_UStart(), 0, 0 ) );
         }
         //  pnt_vec[3] = pnt_vec[0];
     }
@@ -1086,58 +1719,106 @@ void SSControlSurf::Update()
     {
         if ( m_SurfType() == UPPER_SURF )
         {
-            pnt_vec.resize( 5 );
-            pnt_vec[0] = vec3d( m_UEnd(), 0.5, 0 );
-            pnt_vec[1] = c_uwe_upper;
-            pnt_vec[2] = c_uws_upper;
-            pnt_vec[3] = vec3d( m_UStart(), 0.5, 0 );
-            pnt_vec[4] = pnt_vec[0];
+            up_pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            up_pnt_vec.push_back( c_uwe1_upper );
+            up_pnt_vec.push_back( c_uwe2_upper );
+            up_pnt_vec.push_back( c_uwe_upper );
+            up_pnt_vec.push_back( c_uw2_upper );
+            up_pnt_vec.push_back( c_uw1_upper );
+            up_pnt_vec.push_back( c_uws_upper );
+            up_pnt_vec.push_back( c_uws2_upper );
+            up_pnt_vec.push_back( c_uws1_upper );
+            up_pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            up_pnt_vec.push_back( vec3d( m_UStart() + ( m_UEnd() - m_UStart() ) / 3.0, 0.5, 0 ) );
+            up_pnt_vec.push_back( vec3d( m_UStart() + 2.0 * ( m_UEnd() - m_UStart() ) / 3.0, 0.5, 0 ) );
+            up_pnt_vec.push_back( up_pnt_vec[0] );
         }
         else if ( m_SurfType() == LOWER_SURF )
         {
-            pnt_vec.resize( 5 );
-            pnt_vec[3] = vec3d( m_UEnd(), 0.5, 0 );
-            pnt_vec[2] = c_uwe_lower;
-            pnt_vec[1] = c_uws_lower;
-            pnt_vec[0] = vec3d( m_UStart(), 0.5, 0 );
-            pnt_vec[4] = pnt_vec[0];
+            low_pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            low_pnt_vec.push_back( c_uwe1_lower );
+            low_pnt_vec.push_back( c_uwe2_lower );
+            low_pnt_vec.push_back( c_uwe_lower );
+            low_pnt_vec.push_back( c_uw2_lower );
+            low_pnt_vec.push_back( c_uw1_lower );
+            low_pnt_vec.push_back( c_uws_lower );
+            low_pnt_vec.push_back( c_uws2_lower );
+            low_pnt_vec.push_back( c_uws1_lower );
+            low_pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            low_pnt_vec.push_back( vec3d( m_UStart() + ( m_UEnd() + m_UStart() ) / 3.0, 0.5, 0 ) );
+            low_pnt_vec.push_back( vec3d( m_UStart() + 2.0 * ( m_UEnd() + m_UStart() ) / 3.0, 0.5, 0 ) );
+            low_pnt_vec.push_back( low_pnt_vec[0] );
         }
         else
         {
-            pnt_vec.resize( 8 );
-            pnt_vec[0] = vec3d( m_UEnd(), 0.5, 0 );
-            pnt_vec[1] = c_uwe_upper;
-            pnt_vec[2] = c_uws_upper;
-            pnt_vec[3] = vec3d( m_UStart(), 0.5, 0 );
-            pnt_vec[4] = vec3d( m_UStart(), 0.5, 0 );
-            pnt_vec[5] = c_uws_lower;
-            pnt_vec[6] = c_uwe_lower;
-            pnt_vec[7] = vec3d( m_UEnd(), 0.5, 0 );
+            up_pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
+            up_pnt_vec.push_back( c_uwe1_upper );
+            up_pnt_vec.push_back( c_uwe2_upper );
+            up_pnt_vec.push_back( c_uwe_upper );
+            up_pnt_vec.push_back( c_uw2_upper );
+            up_pnt_vec.push_back( c_uw1_upper );
+            up_pnt_vec.push_back( c_uws_upper );
+            up_pnt_vec.push_back( c_uws2_upper );
+            up_pnt_vec.push_back( c_uws1_upper );
+            up_pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+
+            low_pnt_vec.push_back( vec3d( m_UStart(), 0.5, 0 ) );
+            low_pnt_vec.push_back( c_uws1_lower );
+            low_pnt_vec.push_back( c_uws2_lower );
+            low_pnt_vec.push_back( c_uws_lower );
+            low_pnt_vec.push_back( c_uw1_lower );
+            low_pnt_vec.push_back( c_uw2_lower );
+            low_pnt_vec.push_back( c_uwe_lower );
+            low_pnt_vec.push_back( c_uwe2_lower );
+            low_pnt_vec.push_back( c_uwe1_lower );
+            low_pnt_vec.push_back( vec3d( m_UEnd(), 0.5, 0 ) );
         }
         //  pnt_vec[3] = pnt_vec[0];
     }
 
-    int pind = 0;
-    int num_segs = pnt_vec.size() - 1;
 
-    if ( m_SurfType() == BOTH_SURF )
+    if ( !up_pnt_vec.empty() )
     {
-        num_segs--;
+        RefVec( up_pnt_vec, m_Tess() );
     }
 
-
-    m_LVec.resize( num_segs );
-
-    for ( int i = 0; i < num_segs; i++ )
+    if ( !low_pnt_vec.empty() )
     {
-        if ( m_SurfType() == BOTH_SURF && i == 3 )
+        RefVec( low_pnt_vec, m_Tess() );
+    }
+
+    m_LVec.clear();
+
+    if ( !up_pnt_vec.empty() )
+    {
+        for ( int i = 0; i < up_pnt_vec.size() - 1; i++ )
         {
-            pind++;
+            m_LVec.push_back( SSLineSeg() );
+            m_LVec.back().SetSP0( up_pnt_vec[i] );
+            m_LVec.back().SetSP1( up_pnt_vec[i+1] );
+            m_LVec.back().Update( geom );
         }
-        m_LVec[i].SetSP0( pnt_vec[pind] );
-        pind++;
-        m_LVec[i].SetSP1( pnt_vec[pind] );
-        m_LVec[i].Update( geom );
+    }
+
+    m_SepIndex = m_LVec.size();
+
+    if ( !low_pnt_vec.empty() )
+    {
+        for ( int i = 0; i < low_pnt_vec.size() - 1; i++ )
+        {
+            m_LVec.push_back( SSLineSeg() );
+            m_LVec.back().SetSP0( low_pnt_vec[i] );
+            m_LVec.back().SetSP1( low_pnt_vec[i+1] );
+            m_LVec.back().Update( geom );
+        }
+    }
+
+    m_UWStart.resize( m_UWStart01.size() );
+    m_UWEnd.resize( m_UWStart01.size() );
+    for ( int i = 0; i < m_UWStart01.size(); i++ )
+    {
+        m_UWStart[i] = vec3d( m_UWStart01[i].x() * umax, m_UWStart01[i].y() * vmax, 0.0 );
+        m_UWEnd[i] = vec3d( m_UWEnd01[i].x() * umax, m_UWEnd01[i].y() * vmax, 0.0 );
     }
 
     SubSurface::Update();
@@ -1186,7 +1867,7 @@ void SSControlSurf::UpdateDrawObjs()
         vector < int > symms = geom->GetSymmIndexs( isurf );
         assert( ncopy == symms.size() );
 
-        int npt = m_UWStart.size();
+        int npt = m_UWStart01.size();
 
         for ( int s = 0 ; s < ncopy ; s++ )
         {
@@ -1195,8 +1876,8 @@ void SSControlSurf::UpdateDrawObjs()
             vec3d pst, pend;
             for ( int i = 0; i < npt; i++ )
             {
-                pst = pst + surf->CompPnt01( m_UWStart[i].x(), m_UWStart[i].y() );
-                pend = pend + surf->CompPnt01( m_UWEnd[i].x(), m_UWEnd[i].y() );
+                pst = pst + surf->CompPnt01( m_UWStart01[i].x(), m_UWStart01[i].y() );
+                pend = pend + surf->CompPnt01( m_UWEnd01[i].x(), m_UWEnd01[i].y() );
             }
             pst = pst / ( 1.0 * npt );
             pend = pend / ( 1.0 * npt );
@@ -1225,6 +1906,39 @@ void SSControlSurf::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
     draw_obj_vec.push_back( &m_ArrowDO );
 }
 
+void SSControlSurf::RefVec( vector < vec3d > &pt_vec, int nref )
+{
+    vector < vec3d > pnt_ref;
+
+    int nseg = ( pt_vec.size() - 1 ) / 3;
+    pnt_ref.reserve( nref * nseg + 1 );
+
+    vector < double > parm(4,0);
+//    parm[1] = 0.5; parm[2] = 1.0;
+    parm[1] = 1.0/3.0; parm[2] = 2.0/3.0; parm[3] = 1.0;
+
+    VspCurve crv;
+    for ( int iseg = 0; iseg < nseg; iseg++ )
+    {
+        int ifirst = iseg * 3;
+
+        vector < vec3d > pts;
+        pts.insert( pts.begin(), pt_vec.begin() + ifirst, pt_vec.begin() + ifirst + 4 );
+
+        crv.InterpolatePCHIP( pts, parm, false );
+
+        for ( int iref = 0; iref < nref; iref++ )
+        {
+            double p = iref * 1.0 / ( 1.0 * nref );
+            pnt_ref.push_back( crv.CompPnt( p ) );
+        }
+    }
+    pnt_ref.push_back( crv.CompPnt( 1.0 ) );
+
+    pt_vec = pnt_ref;
+}
+
+
 void SSControlSurf::UpdatePolygonPnts()
 {
     if ( m_PolyPntsReadyFlag )
@@ -1242,28 +1956,51 @@ void SSControlSurf::UpdatePolygonPnts()
 
     m_PolyPntsVec.resize( 2 );
 
-    int last_ind = 0;
-    int start_ind = 0;
-    for ( int i = 0; i < ( int )m_PolyPntsVec.size(); i++ )
+    vec3d pnt;
+    int ipp = 0;
+    m_PolyPntsVec[ipp].clear();
+    for ( int i = 0; i < m_SepIndex; i++ )
     {
-        m_PolyPntsVec[i].clear();
-
-        if ( i == 0 ) { last_ind = 3; }
-        if ( i == 1 ) { last_ind = 6; }
-
-        vec3d pnt;
-        for ( int ls = start_ind; ls < last_ind; ls++ )
-        {
-            pnt = m_LVec[ls].GetP0();
-            m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
-        }
-        pnt = m_LVec[last_ind - 1].GetP1();
-        m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
-        pnt = m_LVec[start_ind].GetP0();
-        m_PolyPntsVec[i].push_back( vec2d( pnt.x(), pnt.y() ) );
-
-        start_ind = last_ind;
+        pnt = m_LVec[i].GetP0();
+        m_PolyPntsVec[ipp].push_back( vec2d( pnt.x(), pnt.y() ) );
     }
+    pnt = m_LVec[ m_SepIndex - 1 ].GetP1();
+    m_PolyPntsVec[ipp].push_back( vec2d( pnt.x(), pnt.y() ) );
+    m_PolyPntsVec[ipp].push_back( m_PolyPntsVec[ipp][0] );
+
+    ipp = 1;
+    m_PolyPntsVec[ipp].clear();
+    for ( int i = m_SepIndex; i < m_LVec.size(); i++ )
+    {
+        pnt = m_LVec[i].GetP0();
+        m_PolyPntsVec[ipp].push_back( vec2d( pnt.x(), pnt.y() ) );
+    }
+    pnt = m_LVec[ m_LVec.size() - 1 ].GetP1();
+    m_PolyPntsVec[ipp].push_back( vec2d( pnt.x(), pnt.y() ) );
+    m_PolyPntsVec[ipp].push_back( m_PolyPntsVec[ipp][0] );
 
     m_PolyPntsReadyFlag = true;
+}
+
+void SSControlSurf::PrepareSplitVec()
+{
+    m_SplitLVec.clear();
+    m_FirstSplit = true;
+
+    vector<SSLineSeg> grp;
+    grp.reserve( m_Tess() );
+
+    int cnt = 0;
+    for ( int i = 0; i < m_LVec.size(); i++ )
+    {
+        grp.push_back( m_LVec[i] );
+        cnt++;
+
+        if ( cnt >= m_Tess() )
+        {
+            m_SplitLVec.push_back( grp );
+            grp.clear();
+            cnt = 0;
+        }
+    }
 }

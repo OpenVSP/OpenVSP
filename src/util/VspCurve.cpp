@@ -1117,7 +1117,7 @@ bool VspCurve::IsEqual( const VspCurve & crv )
 
 void VspCurve::GetBoundingBox( BndBox &bb ) const
 {
-	curve_bounding_box_type bbx;
+    curve_bounding_box_type bbx;
     vec3d v3min, v3max;
 
     m_Curve.get_bounding_box( bbx );

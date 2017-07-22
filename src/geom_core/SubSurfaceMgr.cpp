@@ -149,7 +149,6 @@ void SubSurfaceMgrSingleton::PrepareToSplit()
 
     for ( int i = 0 ; i < ( int )sub_surfs.size() ; i++ )
     {
-        sub_surfs[i]->CleanUpSplitVec();
         sub_surfs[i]->PrepareSplitVec();
     }
 }

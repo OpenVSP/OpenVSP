@@ -272,6 +272,20 @@ extern std::vector < double > PCurveGetValVec( const std::string & geom_id, cons
 extern void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, const int & indx );
 extern void PCurveSplit( const std::string & geom_id, const int & pcurveid, const double & tsplit );
 
+//======================== VSPAERO Functions ======================//
+extern void AutoGroupVSPAEROControlSurfaces();
+extern int GetNumControlSurfaceGroups();
+
+//======================== Parasite Drag Tool Functions ======================//
+extern void AddExcrescence(const std::string & excresName, const int & excresType, const double & excresVal);
+extern void DeleteExcrescence(const int & index);
+extern void WriteAtmosphereCSVFile( const std::string & file_name, const int atmos_type );
+extern void CalcAtmosphere( const double & alt, const double & delta_temp, const int & atmos_type,
+    double & temp, double & pres, double & pres_ratio, double & rho_ratio );
+extern void WriteBodyFFCSVFile( const std::string & file_name );
+extern void WriteWingFFCSVFile( const std::string & file_name );
+extern void WriteCfEqnCSVFile( const std::string & file_name );
+
 }           // End vsp namespace
 
 

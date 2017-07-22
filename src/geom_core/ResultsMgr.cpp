@@ -510,6 +510,117 @@ void Results::WriteDragBuildFile( const string & file_name )
     }
 }
 
+void Results::WriteParasiteDragFile( const string & file_name )
+{
+    FILE* file_id = fopen(file_name.c_str(), "w");
+
+    if (file_id)
+    {
+        fprintf(file_id, "PARASITE DRAG BUILD UP DATA \n\n");
+
+        string AltLabel = Find("Alt_Label").GetString(0);
+        string VinfLabel = Find("Vinf_Label").GetString(0);
+        string SrefLabel = Find("Sref_Label").GetString(0);
+        double mach = Find("FC_Mach").GetDouble(0);
+        double hinf = Find("FC_Alt").GetDouble(0);
+        double vinf = Find("FC_Vinf").GetDouble(0);
+        double sref = Find("FC_Sref").GetDouble(0);
+        fprintf(file_id, "Mach, %s, %s, %s\n", AltLabel.c_str(), VinfLabel.c_str(), SrefLabel.c_str());
+        fprintf(file_id, "%f, %f, %f, %f \n\n", mach, hinf, vinf, sref);
+
+        string TempLabel = Find("Temp_Label").GetString(0);
+        string PresLabel = Find("Pres_Label").GetString(0);
+        string RhoLabel = Find("Rho_Label").GetString(0);
+        double temp = Find("FC_Temp").GetDouble(0);
+        double pres = Find("FC_Pres").GetDouble(0);
+        double rho = Find("FC_Rho").GetDouble(0);
+        string lamcfeqnname = Find("LamCfEqnName").GetString(0);
+        string turbcfeqnname = Find("TurbCfEqnName").GetString(0);
+
+        fprintf(file_id, "%s, %s, %s \n", TempLabel.c_str(), PresLabel.c_str(), RhoLabel.c_str());
+        fprintf(file_id, "%f, %f, %f \n\n", temp, pres, rho);
+        fprintf(file_id, "Lam Cf Eqn, Turb Cf Eqn \n");
+        fprintf(file_id, "%s, %s \n", lamcfeqnname.c_str(), turbcfeqnname.c_str());
+
+        fprintf(file_id, "\n");
+
+        string SwetLabel = Find("Swet_Label").GetString(0);
+        string LrefLabel = Find("Lref_Label").GetString(0);
+        string fLabel = Find("f_Label").GetString(0);
+
+        fprintf(file_id, "Component Name,%s,%s,t/c or d/l,FF,FF Eqn Type,Re (1e6),%% Lam,Cf (1e-3),Q (Interference Factor),f,Cd,%% Total \n",
+            SwetLabel.c_str(), LrefLabel.c_str() ); //, fLabel.c_str());
+
+        int num_comp = Find("Num_Comp").GetInt(0);
+        for (int i = 0; i < num_comp; i++)
+        {
+            string label = Find("Comp_Label").GetString(i);
+            double swet = Find("Comp_Swet").GetDouble(i);
+            double lref = Find("Comp_Lref").GetDouble(i);
+            double fineRat = Find("Comp_FineRat").GetDouble(i);
+            int FFType = Find("Comp_FFEqn").GetInt(i);
+            double FF = 0;
+            if (FFType == vsp::FF_B_MANUAL || FFType == vsp::FF_W_MANUAL)
+            {
+                FF = Find("Comp_FFIn").GetDouble(i);
+            }
+            else
+            {
+                FF = Find("Comp_FFOut").GetDouble(i);
+            }
+            string FFEqnName = Find("Comp_FFEqnName").GetString(i);
+            double Re = Find("Comp_Re").GetDouble(i);
+            double PercLam = Find("Comp_PercLam").GetDouble(i);
+            double Cf = Find("Comp_Cf").GetDouble(i);
+            double Q = Find("Comp_Q").GetDouble(i);
+            double f = Find("Comp_f").GetDouble(i);
+            double CD = Find("Comp_CD").GetDouble(i);
+            double PercTotalCD = Find("Comp_PercTotalCD").GetDouble(i);
+
+            fprintf(file_id, "%s,", label.c_str());
+            fprintf(file_id, "%f, %f, %f,", swet, lref, fineRat);
+            fprintf(file_id, "%f, %s,", FF, FFEqnName.c_str());
+            fprintf(file_id, "%f, %f,", Re, PercLam);
+            fprintf(file_id, "%f, %f,", Cf, Q);
+            fprintf(file_id, "%f, %f, %f \n", f, CD, PercTotalCD);
+
+        }
+
+        fprintf(file_id, "\n");
+        fprintf(file_id, "%s \n", "Excrescences");
+
+        int num_excres = Find("Num_Excres").GetInt(0);
+        for (int i = 0; i < num_excres; i++)
+        {
+            string label = Find("Excres_Label").GetString(i);
+            string type = Find("Excres_Type").GetString(i);
+            double input = Find("Excres_Input").GetDouble(i);
+            double amount = Find("Excres_Amount").GetDouble(i);
+            double perctotalcd = Find("Excres_PercTotalCd").GetDouble(i);
+
+            fprintf(file_id, " %s, %s, %f, , , , , , , , , %f, %f \n",
+                label.c_str(), type.c_str(), input, amount, perctotalcd);
+        }
+
+        double geomftotal = Find("Geom_f_Total").GetDouble(0);
+        double geomcdtotal = Find("Geom_CD_Total").GetDouble(0);
+        double geomperctotal = Find("Geom_Perc_Total").GetDouble(0);
+        double excresftotal = Find("Excres_f_Total").GetDouble(0);
+        double excrescdtotal = Find("Excres_CD_Total").GetDouble(0);
+        double excresperctotal = Find("Excres_Perc_Total").GetDouble(0);
+        double totalftotal = Find("Total_f_Total").GetDouble(0);
+        double totalcdtotal = Find("Total_CD_Total").GetDouble(0);
+        double totalperctotal = Find("Total_Perc_Total").GetDouble(0);
+
+        fprintf(file_id, "\n");
+        fprintf(file_id, " , , , , , , , , , %s, %f, %f, %f \n", "Geometry Sub-Total:", geomftotal, geomcdtotal, geomperctotal);
+        fprintf(file_id, " , , , , , , , , , %s, %f, %f, %f \n", "Excrescence Sub-Total:", excresftotal, excrescdtotal, excresperctotal);
+        fprintf(file_id, " , , , , , , , , , %s, %f, %f, %f \n", "Totals:", totalftotal, totalcdtotal, totalperctotal);
+
+        fclose(file_id);
+    }
+}
+
 void Results::WriteSliceFile( const string & file_name )
 {
     FILE* fid = fopen( file_name.c_str(), "w" );

@@ -20,6 +20,7 @@ ParmMgrSingleton::ParmMgrSingleton()
     m_NumParmChanges = 0;
     m_ChangeCnt = 0;
     m_LastUndoFlag = false;
+    m_LastReset = "";
 }
 
 //==== Add Parm To Map ====//
@@ -265,9 +266,22 @@ string ParmMgrSingleton::RemapID( const string & oldID, const string & suggestID
     return newID;
 }
 
-void ParmMgrSingleton::ResetRemapID()
+string ParmMgrSingleton::ResetRemapID( const string & lastReset )
 {
+    if ( lastReset != "" && lastReset != m_LastReset )
+    {
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+        errMsgData.m_IntVec.push_back( vsp::VSP_UNEXPECTED_RESET_REMAP_ID );
+        errMsgData.m_StringVec.push_back( "Error:  Unexpected intermediate ResetRemapID." );
+
+        MessageMgr::getInstance().SendAll( errMsgData );
+    }
+
     m_IDRemap.clear();
+
+    m_LastReset = GenerateID( 3 );
+    return m_LastReset;
 }
 
 //==== Get Names For Parm Given ID ====//

@@ -14,6 +14,7 @@
 #include "PropGeom.h"
 
 #include "VSPAEROMgr.h"
+#include "ParasiteDragMgr.h"
 
 void RWCollection::Clear()
 {
@@ -213,7 +214,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
         {
             switch( current_input_type )
             {
-            case vsp::RES_DATA_TYPE::INT_DATA :
+            case vsp::INT_DATA :
             {
                 vector<int> current_int_val = GetIntInputData( analysis_name, input_names[i_input_name], i_val );
                 for ( unsigned int j_val = 0; j_val < current_int_val.size(); j_val++ )
@@ -222,7 +223,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
                 }
                 break;
             }
-            case vsp::RES_DATA_TYPE::DOUBLE_DATA :
+            case vsp::DOUBLE_DATA :
             {
                 vector<double> current_double_val = GetDoubleInputData( analysis_name, input_names[i_input_name], i_val );
                 for ( unsigned int j_val = 0; j_val < current_double_val.size(); j_val++ )
@@ -231,7 +232,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
                 }
                 break;
             }
-            case vsp::RES_DATA_TYPE::STRING_DATA :
+            case vsp::STRING_DATA :
             {
                 vector<string> current_string_val = GetStringInputData( analysis_name, input_names[i_input_name], i_val );
                 for ( unsigned int j_val = 0; j_val < current_string_val.size(); j_val++ )
@@ -240,7 +241,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
                 }
                 break;
             }
-            case vsp::RES_DATA_TYPE::VEC3D_DATA :
+            case vsp::VEC3D_DATA :
             {
                 vector<vec3d> current_vec3d_val = GetVec3dInputData( analysis_name, input_names[i_input_name], i_val );
                 for ( unsigned int j_val = 0; j_val < current_vec3d_val.size(); j_val++ )
@@ -457,6 +458,11 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     VSPAEROSweepAnalysis *vsasa = new VSPAEROSweepAnalysis();
 
     RegisterAnalysis( "VSPAEROSweep", vsasa );
+
+
+    ParasiteDragFullAnalysis *vspdbu = new ParasiteDragFullAnalysis();
+
+    RegisterAnalysis( "ParasiteDrag", vspdbu );
 }
 
 //======================================================================================//
@@ -497,11 +503,11 @@ string BEMAnalysis::Execute()
 
         if ( geom )
         {
-        	PropGeom* pgeom = dynamic_cast < PropGeom* > ( geom );
-        	if ( pgeom )
-        	{
-        		res = pgeom->BuildBEMResults();
-        	}
+            PropGeom* pgeom = dynamic_cast < PropGeom* > ( geom );
+            if ( pgeom )
+            {
+                res = pgeom->BuildBEMResults();
+            }
         }
     }
 
@@ -1090,7 +1096,8 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "WakeAvgStartIter",  VSPAEROMgr.m_WakeAvgStartIter.Get()  ) );
         m_Inputs.Add( NameValData( "WakeSkipUntilIter", VSPAEROMgr.m_WakeSkipUntilIter.Get() ) );
         m_Inputs.Add( NameValData( "StabilityCalcFlag", VSPAEROMgr.m_StabilityCalcFlag.Get() ) );
-        m_Inputs.Add( NameValData( "ForceNewSetupfile", VSPAEROMgr.m_ForceNewSetupfile.Get() ) );
+        m_Inputs.Add( NameValData( "StabilityCalcType", VSPAEROMgr.m_StabilityType.Get()     ) );
+        m_Inputs.Add( NameValData( "JacobiPrecondition",VSPAEROMgr.m_JacobiPrecondition.Get()) );
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
@@ -1160,7 +1167,7 @@ string VSPAEROSinglePointAnalysis::Execute()
             VSPAEROMgr.m_RefGeomID = nvd->GetString(0);
         }
 
-        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF )
+        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::MANUAL_REF )
         {
             nvd = m_Inputs.FindPtr( "Sref", 0 );
             if ( nvd )
@@ -1178,7 +1185,7 @@ string VSPAEROSinglePointAnalysis::Execute()
                 VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );
             }
         }
-        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF )
+        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
         {
             VSPAEROMgr.Update();
             printf( "Wing Reference Parms: \n" );
@@ -1295,12 +1302,6 @@ string VSPAEROSinglePointAnalysis::Execute()
             VSPAEROMgr.m_StabilityCalcFlag.Set( nvd->GetInt(0) );
         }
 
-        bool forceNewSetupfileOrig   = VSPAEROMgr.m_ForceNewSetupfile.Get();
-        nvd = m_Inputs.FindPtr( "ForceNewSetupfile", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_ForceNewSetupfile.Set( nvd->GetInt(0) );
-        }
 
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
@@ -1340,7 +1341,6 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_WakeSkipUntilIter.Set( wakeSkipUntilIterOrig );
         VSPAEROMgr.m_StabilityCalcFlag.Set( stabilityCalcFlagOrig );
 
-        VSPAEROMgr.m_ForceNewSetupfile.Set( forceNewSetupfileOrig );
     }
 
     return resId;
@@ -1363,7 +1363,8 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "WakeSkipUntilIter", VSPAEROMgr.m_WakeSkipUntilIter.Get() ) );
         m_Inputs.Add( NameValData( "StabilityCalcFlag", VSPAEROMgr.m_StabilityCalcFlag.Get() ) );
         m_Inputs.Add( NameValData( "BatchModeFlag",     VSPAEROMgr.m_BatchModeFlag.Get()     ) );
-        m_Inputs.Add( NameValData( "ForceNewSetupfile", VSPAEROMgr.m_ForceNewSetupfile.Get() ) );
+        m_Inputs.Add( NameValData( "Symmetry",          VSPAEROMgr.m_Symmetry.Get()          ) );
+        m_Inputs.Add( NameValData( "2DFEMFlag",         VSPAEROMgr.m_Write2DFEMFlag.Get()    ) );
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
@@ -1439,7 +1440,7 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_RefGeomID = nvd->GetString(0);
         }
 
-        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF )
+        if ( VSPAEROMgr.m_RefFlag.Get() == vsp::MANUAL_REF )
         {
             nvd = m_Inputs.FindPtr( "Sref", 0 );
             if ( nvd )
@@ -1457,7 +1458,7 @@ string VSPAEROSweepAnalysis::Execute()
                 VSPAEROMgr.m_cref.Set( nvd->GetDouble(0) );
             }
         }
-        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF )
+        else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
         {
             VSPAEROMgr.Update();
             printf( "Wing Reference Parms: \n" );
@@ -1612,13 +1613,13 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_BatchModeFlag.Set( nvd->GetInt(0) );
         }
 
+        bool symmetryOrig   = VSPAEROMgr.m_Symmetry.Get();
+        nvd = m_Inputs.FindPtr( "Symmetry", 0 );
+        VSPAEROMgr.m_Symmetry.Set( nvd->GetInt(0) );
 
-        bool forceNewSetupfileOrig   = VSPAEROMgr.m_ForceNewSetupfile.Get();
-        nvd = m_Inputs.FindPtr( "ForceNewSetupfile", 0 );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_ForceNewSetupfile.Set( nvd->GetInt(0) );
-        }
+        bool write2DFEMOrig   = VSPAEROMgr.m_Write2DFEMFlag.Get();
+        nvd = m_Inputs.FindPtr( "2DFEMFlag", 0 );
+        VSPAEROMgr.m_Write2DFEMFlag.Set( nvd->GetInt(0) );
 
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
@@ -1663,8 +1664,162 @@ string VSPAEROSweepAnalysis::Execute()
 
         VSPAEROMgr.m_BatchModeFlag.Set( BatchModeFlagOrig );
 
-        VSPAEROMgr.m_ForceNewSetupfile.Set( forceNewSetupfileOrig );
+        VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
+        VSPAEROMgr.m_Write2DFEMFlag.Set( write2DFEMOrig );
     }
 
     return resId;
+}
+
+//======================================================================================//
+//============================== Parasite Drag =========================================//
+//======================================================================================//
+
+void ParasiteDragFullAnalysis::SetDefaults()
+{
+    // the default values use exactly what is setup in the VSPAEROMgr
+    m_Inputs.Clear();
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        // File Name
+        m_Inputs.Add( NameValData( "FileName",          ParasiteDragMgr.m_FileName ) );
+
+        // Geometry to Degen
+        m_Inputs.Add( NameValData( "GeomSet",           ParasiteDragMgr.m_SetChoice.Get() ) );
+
+        // Friction Coefficient Eqn Choice
+        m_Inputs.Add( NameValData( "LamCfEqnChoice",    ParasiteDragMgr.m_LamCfEqnType.Get() ) );
+        m_Inputs.Add( NameValData( "TurbCfEqnChoice",   ParasiteDragMgr.m_TurbCfEqnType.Get() ) );
+
+        // Unit Choice
+        m_Inputs.Add( NameValData( "LengthUnit",        ParasiteDragMgr.m_LengthUnit.Get() ) );
+        m_Inputs.Add( NameValData( "VelocityUnit",      ParasiteDragMgr.m_VinfUnitType.Get() ) );
+        m_Inputs.Add( NameValData( "TempUnit",          ParasiteDragMgr.m_TempUnit.Get() ) );
+
+        // Freestream Props
+        m_Inputs.Add( NameValData( "FreestreamPropChoice", ParasiteDragMgr.m_FreestreamType.Get() ) );
+        m_Inputs.Add( NameValData( "Vinf",                 ParasiteDragMgr.m_Vinf.Get() ) );
+        m_Inputs.Add( NameValData( "Altitude",             ParasiteDragMgr.m_Hinf.Get() ) );
+        m_Inputs.Add( NameValData( "DeltaTemp",            ParasiteDragMgr.m_DeltaT.Get() ) );
+        m_Inputs.Add( NameValData( "Temperature",          ParasiteDragMgr.m_Temp.Get() ) );
+        m_Inputs.Add( NameValData( "Pressure",             ParasiteDragMgr.m_Pres.Get() ) );
+        m_Inputs.Add( NameValData( "Density",              ParasiteDragMgr.m_Rho.Get() ) );
+        //m_Inputs.Add( NameValData( "Medium",               ParasiteDragMgr.m_MediumType.Get() ) );
+
+        // Reference Area
+        m_Inputs.Add( NameValData( "RefFlag", ParasiteDragMgr.m_RefFlag.Get() ) );
+        m_Inputs.Add( NameValData( "Sref",    ParasiteDragMgr.m_Sref.Get() ) );
+    }
+    else
+    {
+        // TODO Throw an error here
+        printf("ERROR - trying to set defaults without a vehicle: void ParasiteDragFullAnalysis::SetDefaults()\n");
+    }
+}
+
+string ParasiteDragFullAnalysis::Execute()
+{
+    string res_id;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        NameValData *nvd = NULL;
+
+        // File Name
+        string fileNameOrig = ParasiteDragMgr.m_FileName;
+        nvd = m_Inputs.FindPtr( "FileName", 0 );
+        ParasiteDragMgr.m_FileName = nvd->GetString(0);
+
+        // Geometry Set Choice
+        int geomSetOrig = ParasiteDragMgr.m_SetChoice.Get();
+        nvd = m_Inputs.FindPtr( "GeomSet", 0 );
+        ParasiteDragMgr.m_SetChoice.Set( nvd->GetInt(0) );
+
+        // Friction Coefficient Eqn Choice
+        int lamCfEqnChoiceOrig = ParasiteDragMgr.m_LamCfEqnType.Get();
+        int turbCfEqnChoiceOrig = ParasiteDragMgr.m_TurbCfEqnType.Get();
+        nvd = m_Inputs.FindPtr( "LamCfEqnChoice", 0 );
+        ParasiteDragMgr.m_LamCfEqnType.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "TurbCfEqnChoice", 0 );
+        ParasiteDragMgr.m_TurbCfEqnType.Set( nvd->GetInt(0) );
+
+        // Unit Choice
+        int lengthUnitChoiceOrig = ParasiteDragMgr.m_LengthUnit.Get();
+        int velocityUnitChoiceOrig = ParasiteDragMgr.m_VinfUnitType.Get();
+        int tempUnitChoiceOrig = ParasiteDragMgr.m_TempUnit.Get();
+        nvd = m_Inputs.FindPtr( "LengthUnit", 0 );
+        ParasiteDragMgr.m_LengthUnit.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "VelocityUnit", 0 );
+        ParasiteDragMgr.m_VinfUnitType.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "TempUnit", 0 );
+        ParasiteDragMgr.m_TempUnit.Set( nvd->GetInt(0) );
+
+        // Freestream Props
+        int freestreamPropChoiceOrig = ParasiteDragMgr.m_FreestreamType.Get();
+        double vinfOrig = ParasiteDragMgr.m_Vinf.Get();
+        double altOrig = ParasiteDragMgr.m_Hinf.Get();
+        double deltaTempOrig = ParasiteDragMgr.m_DeltaT.Get();
+        double tempOrig = ParasiteDragMgr.m_Temp.Get();
+        double presOrig = ParasiteDragMgr.m_Pres.Get();
+        double densOrig = ParasiteDragMgr.m_Rho.Get();
+        //int mediumChoiceOrig = ParasiteDragMgr.m_MediumType.Get();
+        nvd = m_Inputs.FindPtr( "FreestreamPropChoice", 0 );
+        ParasiteDragMgr.m_FreestreamType.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "Vinf", 0 );
+        ParasiteDragMgr.m_Vinf.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "Altitude", 0 );
+        ParasiteDragMgr.m_Hinf.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "DeltaTemp", 0 );
+        ParasiteDragMgr.m_DeltaT.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "Temperature", 0 );
+        ParasiteDragMgr.m_Temp.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "Pressure", 0 );
+        ParasiteDragMgr.m_Pres.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "Density", 0 );
+        ParasiteDragMgr.m_Rho.Set( nvd->GetDouble(0) );
+        nvd = m_Inputs.FindPtr( "Medium", 0 );
+        //ParasiteDragMgr.m_MediumType.Set( nvd->GetInt(0) );
+
+        // Reference Area
+        int refFlagOrig = ParasiteDragMgr.m_RefFlag.Get();
+        double srefOrig = ParasiteDragMgr.m_Sref.Get();
+        nvd = m_Inputs.FindPtr( "RefFlag", 0 );
+        ParasiteDragMgr.m_RefFlag.Set( nvd->GetInt(0) );
+        nvd = m_Inputs.FindPtr( "Sref", 0 );
+        ParasiteDragMgr.m_Sref.Set( nvd->GetDouble(0) );
+
+        // Execute analysis
+        res_id = ParasiteDragMgr.ComputeBuildUp();
+
+        // ==== Restore original values that were overwritten by analysis inputs ==== //
+        // Geometry Set
+        ParasiteDragMgr.m_SetChoice.Set( geomSetOrig );
+
+        // Friction Coefficient Equations
+        ParasiteDragMgr.m_LamCfEqnType.Set( lamCfEqnChoiceOrig );
+        ParasiteDragMgr.m_TurbCfEqnType.Set( turbCfEqnChoiceOrig );
+
+        // Unit Choices
+        ParasiteDragMgr.m_LengthUnit.Set( lengthUnitChoiceOrig );
+        ParasiteDragMgr.m_VinfUnitType.Set( velocityUnitChoiceOrig );
+        ParasiteDragMgr.m_TempUnit.Set( tempUnitChoiceOrig );
+
+        // Freestream Props
+        ParasiteDragMgr.m_FreestreamType.Set( freestreamPropChoiceOrig );
+        ParasiteDragMgr.m_Vinf.Set( vinfOrig );
+        ParasiteDragMgr.m_Hinf.Set( altOrig );
+        ParasiteDragMgr.m_DeltaT.Set( deltaTempOrig );
+        ParasiteDragMgr.m_Temp.Set( tempOrig );
+        ParasiteDragMgr.m_Pres.Set( presOrig );
+        ParasiteDragMgr.m_Rho.Set( densOrig );
+        //ParasiteDragMgr.m_MediumType.Set( mediumChoiceOrig );
+
+        // Reference Area
+        ParasiteDragMgr.m_RefFlag.Set( refFlagOrig );
+        ParasiteDragMgr.m_Sref.Set( srefOrig );
+    }
+
+    return res_id;
 }

@@ -12,6 +12,7 @@
 #include "ParmMgr.h"
 #include "StringUtil.h"
 #include <float.h>
+#include "VKTAirfoil.h"
 
 using std::string;
 using namespace vsp;
@@ -127,10 +128,29 @@ double Airfoil::EstimateThick()
 
     crv.split( c1, c2, tmid );  // Split at LE
     c2.reverse();
+    c2.set_t0( c1.get_t0() );
+
+    vector < double > pmap;
+    c1.get_pmap( pmap );
+
+    vector < double > pmap2;
+    c2.get_pmap( pmap2 );
+
+    pmap.insert( pmap.end(), pmap2.begin(), pmap2.end() );
+    std::sort( pmap.begin(), pmap.end() );
+    auto pmit = std::unique( pmap.begin(), pmap.end() );
+    pmap.erase( pmit, pmap.end() );
+
+    for( int i = 0; i < pmap.size(); i++ )
+    {
+        c1.split( pmap[i] );
+        c2.split( pmap[i] );
+    }
 
     c1.scale( -1.0 );
     c3.sum( c1, c2 );
 
+    c1.clear(); // Clear before re-using c1
     c1.square( c3 );
 
     typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
@@ -1491,6 +1511,110 @@ void CSTAirfoil::CheckLERad()
 }
 
 void CSTAirfoil::OffsetCurve( double offset_val )
+{
+    double t = EstimateThick();
+    double c = m_Chord();
+
+    double offset_c = c - 2.0*offset_val;
+    m_Chord = offset_c;
+
+    double offset_t = t - 2.0 * offset_val;
+
+    if ( offset_t < 0 )
+    {
+        offset_t = 0;
+    }
+
+    m_yscale = ( offset_t / offset_c ) / ( t / c );
+}
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+//==== Constructor ====//
+VKTAirfoil::VKTAirfoil( ) : Airfoil( )
+{
+    m_Type = XS_VKT_AIRFOIL;
+
+    m_Epsilon.Init( "Epsilon", m_GroupName, this, 0.1, 0.0, 10.0 );
+    m_Kappa.Init( "Kappa", m_GroupName, this, 0.1, -5.0, 5.0 );
+    m_Tau.Init( "Tau", m_GroupName, this, 10.0, 0.0, 180.0 );
+}
+
+//==== Update ====//
+void VKTAirfoil::Update()
+{
+    int npts = 101;
+
+    vector< vec3d > pnts( npts );
+
+    int ile = 0;
+    double dmax = -1.0;
+    // Evaluate points and track furthest from TE as surrogate for LE.
+    // Would be better to identify LE as tightest curvature or similar.
+    for ( int i = 0; i < npts - 1; i++ )
+    {
+        // Clockwise from TE
+        double theta = 2.0 * PI * (1.0 - i * 1.0 / ( npts - 1 ) );
+        pnts[i] = vkt_airfoil_point( theta, m_Epsilon(), m_Kappa(), m_Tau() * PI / 180.0 );
+
+        double d = dist( pnts[i], pnts[0] );
+        if ( d > dmax )
+        {
+            dmax = d;
+            ile = i;
+        }
+    }
+    pnts[npts-1] = pnts[0]; // Ensure closure
+
+    // Shift and scale airfoil such that xle=0 and xte=1.
+    double scale = pnts[ 0 ].x() - pnts[ ile ].x();
+    double xshift = pnts[ ile ].x();
+
+    for ( int i = 0; i < npts; i++ )
+    {
+        pnts[i].offset_x( -xshift );
+        pnts[i] = pnts[i] / scale;
+    }
+
+    vector< double > arclen;
+
+    arclen.resize( npts );
+    arclen[0] = 0.0;
+
+    for ( int i = 1 ; i < npts ; i++ )
+    {
+        double ds = dist( pnts[i], pnts[i-1] );
+        if ( ds < 1e-8 )
+        {
+            ds = 1.0/npts;
+        }
+        arclen[i] = arclen[i-1] + ds;
+    }
+
+    double lenlower = arclen[ile];
+    double lenupper = arclen[npts-1] - lenlower;
+
+    double lowerscale = 2.0/lenlower;
+    int i;
+    for ( i = 0; i < ile; i++ )
+    {
+        arclen[i] = arclen[i] * lowerscale;
+    }
+
+    double upperscale = 2.0/lenupper;
+    for ( ; i < npts; i++ )
+    {
+        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
+    }
+
+    m_Curve.InterpolatePCHIP( pnts, arclen, false );
+
+    Airfoil::Update();
+}
+
+void VKTAirfoil::OffsetCurve( double offset_val )
 {
     double t = EstimateThick();
     double c = m_Chord();

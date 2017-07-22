@@ -232,39 +232,39 @@ void vec3d::normalize()
 
 int vec3d::major_comp() const
 {
-	int i = 0;
-	double c = std::abs( v[i] );
+    int i = 0;
+    double c = std::abs( v[i] );
 
-	if( std::abs(v[1]) > c )
-	{
-		i = 1;
-		c = std::abs( v[i] );
-	}
+    if( std::abs(v[1]) > c )
+    {
+        i = 1;
+        c = std::abs( v[i] );
+    }
 
-	if( std::abs(v[2]) > c )
-	{
-		i = 2;
-	}
-	return i;
+    if( std::abs(v[2]) > c )
+    {
+        i = 2;
+    }
+    return i;
 }
 
 int vec3d::minor_comp() const
 {
-	int i = 0;
-	double c = std::abs( v[i] );
+    int i = 0;
+    double c = std::abs( v[i] );
 
-	if( std::abs(v[1]) < c )
-	{
-		i = 1;
-		c = std::abs( v[i] );
-	}
+    if( std::abs(v[1]) < c )
+    {
+        i = 1;
+        c = std::abs( v[i] );
+    }
 
-	if( std::abs(v[2]) < c )
-	{
-		i = 2;
-		c = std::abs( v[i] );
-	}
-	return i;
+    if( std::abs(v[2]) < c )
+    {
+        i = 2;
+        c = std::abs( v[i] );
+    }
+    return i;
 }
 
 //******* Dot Product:  x = a.dot(b) ******//
@@ -1115,20 +1115,20 @@ double nearSegSeg( const vec3d& L0, const vec3d& L1, const vec3d& S0, const vec3
 }
 
 
-double pointLineDistSquared( vec3d& X0, vec3d& X1, vec3d& X2, double* t )
+double pointLineDistSquared( const vec3d& X0, const vec3d& X1, const vec3d& X2, double* t )
 {
     vec3d X10 = X1 - X0;
     vec3d X21 = X2 - X1;
 
     double denom = dist_squared( X2, X1 );
 
-    if ( denom < 0.000000001 )
+    if ( denom < 1e-9 ) // was 1e-9
     {
         *t = 0.0;
     }
     else
     {
-        *t = -dot( X10, X21 ) / dist_squared( X2, X1 );
+        *t = -dot( X10, X21 ) / denom;
     }
 
     vec3d Xon = X1 + X21 * ( *t );
@@ -1142,20 +1142,18 @@ vec3d point_on_line( const vec3d & lp0, const vec3d & lp1, const double & t )
     return lp0 + s10 * t;
 }
 
-double pointSegDistSquared( vec3d& p, vec3d& sp0, vec3d& sp1, double* t )
+double pointSegDistSquared( const vec3d& p, const vec3d& sp0, const vec3d& sp1, double* t )
 {
     double dSqr = pointLineDistSquared( p, sp0, sp1, t );
 
     if ( *t < 0 )
     {
         *t = 0;
-        vec3d vec = p - sp0;
         dSqr = dist_squared( p, sp0 );
     }
     else if ( *t > 1 )
     {
         *t = 1;
-        vec3d vec = p - sp1;
         dSqr = dist_squared( p, sp1 );
     }
 

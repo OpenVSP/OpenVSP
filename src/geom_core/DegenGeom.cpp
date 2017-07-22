@@ -1,6 +1,10 @@
 #include "DegenGeom.h"
 #include "Geom.h"
 #include "WriteMatlab.h"
+#include "StringUtil.h"
+
+#include "Vehicle.h"
+#include "VehicleMgr.h"
 
 void DegenGeom::build_trans_mat( vec3d x, vec3d y, vec3d z, const vec3d &p, Matrix4d &mat, Matrix4d &invmat )
 {
@@ -674,16 +678,32 @@ void DegenGeom::createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool
     degenDisk.d = 2.0 * r;
 }
 
-void DegenGeom::addDegenSubSurf( SubSurface *ssurf )
+void DegenGeom::addDegenSubSurf( SubSurface *ssurf, int surfIndx )
 {
     ssurf->UpdatePolygonPnts();
 
     std::vector< std::vector< vec2d > > ppvec = ssurf->GetPolyPntsVec();
 
+    Vehicle * veh;
+    Geom * ssurfParentGeom;
+    string ssurfParentGeomId = "";
+    string ssurfParentName = "";
+    veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        ssurfParentGeomId = ssurf->GetCompID();
+        ssurfParentGeom = veh->FindGeom( ssurfParentGeomId );
+        if ( ssurfParentGeom )
+        {
+            ssurfParentName = ssurfParentGeom->GetName();
+        }
+    }
+
     for ( int i = 0; i < ppvec.size(); i++ )
     {
         DegenSubSurf dgss;
         dgss.name = ssurf->GetName();
+        dgss.fullName = ssurfParentName + "_Surf" + std::to_string( surfIndx ) + "_" + dgss.name;
         dgss.typeName = ssurf->GetTypeName(ssurf->GetType());
         dgss.typeId = (vsp::SUBSURF_TYPE)ssurf->GetType();
         dgss.testType = ssurf->m_TestType();
@@ -701,6 +721,30 @@ void DegenGeom::addDegenSubSurf( SubSurface *ssurf )
 
         degenSubSurfs.push_back( dgss );
     }
+}
+
+void DegenGeom::addDegenHingeLine( SSControlSurf *csurf )
+{
+    DegenHingeLine dghl;
+
+    dghl.name = csurf->GetName();
+
+    int npt = csurf->m_UWStart.size();
+
+    dghl.uStart.resize( npt );
+    dghl.uEnd.resize( npt );
+    dghl.wStart.resize( npt );
+    dghl.wEnd.resize( npt );
+
+    for ( int i = 0; i < npt; i++ )
+    {
+        dghl.uStart[i] = csurf->m_UWStart[i].x();
+        dghl.uEnd[i] = csurf->m_UWEnd[i].x();
+        dghl.wStart[i] = csurf->m_UWStart[i].y();
+        dghl.wEnd[i] = csurf->m_UWEnd[i].y();
+    }
+
+    degenHingeLines.push_back( dghl );
 }
 
 string DegenGeom::makeCsvFmt( int n, bool newline )
@@ -925,10 +969,13 @@ void DegenGeom::write_degenGeomDiskCsv_file( FILE* file_id )
 
 void DegenGeom::write_degenSubSurfCsv_file( FILE* file_id, int isubsurf )
 {
-    fprintf( file_id, "# DegenGeom Type, name, typeName, typeId\n" );
-    fprintf( file_id, "SUBSURF,%s,%s,%d\n", degenSubSurfs[isubsurf].name.c_str(),
-                                            degenSubSurfs[isubsurf].typeName.c_str(),
-                                            degenSubSurfs[isubsurf].typeId );
+    string nospacename = degenSubSurfs[isubsurf].fullName;
+    StringUtil::chance_space_to_underscore( nospacename );
+    fprintf( file_id, "# DegenGeom Type, name, typeName, typeId, fullname\n" );
+    fprintf( file_id, "SUBSURF,%s,%s,%d,%s\n", degenSubSurfs[isubsurf].name.c_str(),
+                                               degenSubSurfs[isubsurf].typeName.c_str(),
+                                               degenSubSurfs[isubsurf].typeId,
+                                               nospacename.c_str() );
 
     fprintf( file_id, "# testType\n" );
     fprintf( file_id, "%d\n", \
@@ -947,22 +994,43 @@ void DegenGeom::write_degenSubSurfCsv_file( FILE* file_id, int isubsurf )
     }
 }
 
+void DegenGeom::write_degenHingeLineCsv_file( FILE* file_id, int ihingeline )
+{
+    int n = degenHingeLines[ihingeline].uStart.size();
+
+    fprintf( file_id, "# DegenGeom Type, name, nPts\n" );
+    fprintf( file_id, "HINGELINE,%s, %d\n", degenHingeLines[ihingeline].name.c_str(), n );
+
+    fprintf( file_id, "# uStart,uEnd,wStart,wEnd\n" );
+    for ( int i = 0; i < n; i++ )
+    {
+        fprintf( file_id, makeCsvFmt( 4 ).c_str(), \
+                degenHingeLines[ihingeline].uStart[i], \
+                degenHingeLines[ihingeline].uEnd[i], \
+                degenHingeLines[ihingeline].wStart[i], \
+                degenHingeLines[ihingeline].wEnd[i] );
+    }
+}
+
 void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
 {
     int nxsecs = num_xsecs;
 
     if( type == SURFACE_TYPE )
     {
-        fprintf( file_id, "\nLIFTING_SURFACE,%s,%d\n", name.c_str(),getSurfNum() );
+        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\nLIFTING_SURFACE,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
     }
     else if( type == DISK_TYPE )
     {
-        fprintf( file_id, "\nDISK,%s\n", name.c_str() );
+        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\nDISK,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
         write_degenGeomDiskCsv_file( file_id );
     }
     else
     {
-        fprintf( file_id, "\nBODY,%s\n", name.c_str() );
+        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\nBODY,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
     }
 
     write_degenGeomSurfCsv_file( file_id, nxsecs );
@@ -991,6 +1059,11 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
     for ( int i = 0; i < degenSubSurfs.size(); i++ )
     {
         write_degenSubSurfCsv_file( file_id, i );
+    }
+
+    for ( int i = 0; i < degenHingeLines.size(); i++ )
+    {
+        write_degenHingeLineCsv_file( file_id, i );
     }
 }
 
@@ -1113,12 +1186,31 @@ void DegenGeom::write_degenSubSurfM_file( FILE* file_id, int isubsurf )
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).name = '%s';\n", isubsurf + 1, degenSubSurfs[isubsurf].name.c_str() );
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).typeName = %d;\n", isubsurf + 1, degenSubSurfs[isubsurf].testType );
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).typeId = %d;\n", isubsurf + 1, degenSubSurfs[isubsurf].testType );
+    fprintf( file_id, "\ndegenGeom(end).subsurf(%d).fullName = '%s';\n", isubsurf + 1, degenSubSurfs[isubsurf].fullName.c_str() );
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).testType = %d;\n", isubsurf + 1, degenSubSurfs[isubsurf].testType );
 
     int n = degenSubSurfs[isubsurf].u.size();
 
     writeVecDouble.write( file_id, degenSubSurfs[isubsurf].u,        basename + "u",        n );
     writeVecDouble.write( file_id, degenSubSurfs[isubsurf].w,        basename + "w",        n );
+}
+
+void DegenGeom::write_degenHingeLineM_file( FILE* file_id, int ihingeline )
+{
+    char num[80];
+    sprintf( num, "degenGeom(end).hingeline(%d).", ihingeline + 1 );
+    string basename = string( num );
+
+    WriteVecDoubleM writeVecDouble;
+
+    fprintf( file_id, "\ndegenGeom(end).hingeline(%d).name = '%s';\n", ihingeline + 1, degenHingeLines[ihingeline].name.c_str() );
+
+    int n = degenHingeLines[ihingeline].uStart.size();
+
+    writeVecDouble.write( file_id, degenHingeLines[ihingeline].uStart,        basename + "uStart",        n );
+    writeVecDouble.write( file_id, degenHingeLines[ihingeline].uEnd,          basename + "uEnd",          n );
+    writeVecDouble.write( file_id, degenHingeLines[ihingeline].wStart,        basename + "wStart",        n );
+    writeVecDouble.write( file_id, degenHingeLines[ihingeline].wEnd,          basename + "wEnd",          n );
 }
 
 void DegenGeom::write_degenGeomM_file( FILE* file_id )
@@ -1168,5 +1260,10 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
     for ( int i = 0; i < degenSubSurfs.size(); i++ )
     {
         write_degenSubSurfM_file( file_id, i );
+    }
+
+    for ( int i = 0; i < degenHingeLines.size(); i++ )
+    {
+        write_degenHingeLineM_file( file_id, i );
     }
 }

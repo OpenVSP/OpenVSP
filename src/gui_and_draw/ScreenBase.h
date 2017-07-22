@@ -309,11 +309,11 @@ public:
 
     // SS_Control
     GroupLayout m_SSConGroup;
-    SliderInput m_SSConUSSlider;
-    SliderInput m_SSConUESlider;
-    SliderInput m_SSConSFracSlider;
+    SliderAdjRangeInput m_SSConUSSlider;
+    SliderAdjRangeInput m_SSConUESlider;
+    SliderAdjRangeInput m_SSConSFracSlider;
     SliderAdjRangeInput m_SSConSLenSlider;
-    SliderInput m_SSConEFracSlider;
+    SliderAdjRangeInput m_SSConEFracSlider;
     SliderAdjRangeInput m_SSConELenSlider;
 
     ToggleButton m_SSConSAbsButton;
@@ -328,6 +328,14 @@ public:
     ToggleButton m_SSConOutsideButton;
     ToggleRadioGroup m_SSConTestToggleGroup;
     Choice m_SSConSurfTypeChoice;
+
+    SliderAdjRangeInput m_SSConSAngleSlider;
+    SliderAdjRangeInput m_SSConEAngleSlider;
+    ToggleButton m_SSConSAngleButton;
+    ToggleButton m_SSConEAngleButton;
+    ToggleButton m_SSConSameAngleButton;
+
+    SliderInput m_SSConTessSlider;
 
 protected:
     bool m_RotActive;

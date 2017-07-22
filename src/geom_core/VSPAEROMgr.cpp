@@ -7,9 +7,13 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include "APIDefines.h"
+#include "LinkMgr.h"
 #include "MeshGeom.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
+#include "Vehicle.h"
+#include "VehicleMgr.h"
 #include "VSPAEROMgr.h"
 #include "WingGeom.h"
 
@@ -19,92 +23,91 @@
 #include <regex>
 
 //==== Constructor ====//
+VspAeroControlSurf::VspAeroControlSurf()
+{
+    isGrouped = false;
+}
+
+//==== Constructor ====//
 VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 {
     m_Name = "VSPAEROSettings";
+    string groupname = "VSPAERO";
 
-    m_GeomSet.Init( "GeomSet", "VSPAERO", this, 0, 0, 12 );
+    m_GeomSet.Init( "GeomSet", groupname, this, 0, 0, 12 );
     m_GeomSet.SetDescript( "Geometry set" );
 
-    m_AnalysisMethod.Init( "AnalysisMethod", "VSPAERO", this, vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE, vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE, vsp::VSPAERO_ANALYSIS_METHOD::PANEL );
+    m_AnalysisMethod.Init( "AnalysisMethod", groupname, this, vsp::VORTEX_LATTICE, vsp::VORTEX_LATTICE, vsp::PANEL );
     m_AnalysisMethod.SetDescript( "Analysis method: 0=VLM, 1=Panel" );
 
     m_LastPanelMeshGeomId = string();
 
-    m_Sref.Init( "Sref", "VSPAERO", this, 100.0, 0.0, 1e12 );
+    m_Sref.Init( "Sref", groupname, this, 100.0, 0.0, 1e12 );
     m_Sref.SetDescript( "Reference area" );
 
-    m_bref.Init( "bref", "VSPAERO", this, 1.0, 0.0, 1e6 );
+    m_bref.Init( "bref", groupname, this, 1.0, 0.0, 1e6 );
     m_bref.SetDescript( "Reference span" );
 
-    m_cref.Init( "cref", "VSPAERO", this, 1.0, 0.0, 1e6 );
+    m_cref.Init( "cref", groupname, this, 1.0, 0.0, 1e6 );
     m_cref.SetDescript( "Reference chord" );
 
-    m_RefFlag.Init( "RefFlag", "VSPAERO", this, vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF, 0, vsp::VSPAERO_REF_WING_TYPE::NUM_REF_TYPES - 1 );
+    m_RefFlag.Init( "RefFlag", groupname, this, vsp::MANUAL_REF, 0, vsp::NUM_REF_TYPES - 1 );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
-    m_CGGeomSet.Init( "MassSet", "VSPAERO", this, 0, 0, 12 );
+    m_CGGeomSet.Init( "MassSet", groupname, this, 0, 0, 12 );
     m_CGGeomSet.SetDescript( "Mass property set" );
 
-    m_NumMassSlice.Init( "NumMassSlice", "VSPAERO", this, 10, 10, 200 );
+    m_NumMassSlice.Init( "NumMassSlice", groupname, this, 10, 10, 200 );
     m_NumMassSlice.SetDescript( "Number of mass property slices" );
 
-    m_Xcg.Init( "Xcg", "VSPAERO", this, 0.0, -1.0e12, 1.0e12 );
+    m_Xcg.Init( "Xcg", groupname, this, 0.0, -1.0e12, 1.0e12 );
     m_Xcg.SetDescript( "X Center of Gravity" );
 
-    m_Ycg.Init( "Ycg", "VSPAERO", this, 0.0, -1.0e12, 1.0e12 );
+    m_Ycg.Init( "Ycg", groupname, this, 0.0, -1.0e12, 1.0e12 );
     m_Ycg.SetDescript( "Y Center of Gravity" );
 
-    m_Zcg.Init( "Zcg", "VSPAERO", this, 0.0, -1.0e12, 1.0e12 );
+    m_Zcg.Init( "Zcg", groupname, this, 0.0, -1.0e12, 1.0e12 );
     m_Zcg.SetDescript( "Z Center of Gravity" );
 
 
     // Flow Condition
-    m_AlphaStart.Init( "AlphaStart", "VSPAERO", this, 1.0, -180, 180 );
+    m_AlphaStart.Init( "AlphaStart", groupname, this, 1.0, -180, 180 );
     m_AlphaStart.SetDescript( "Angle of attack (Start)" );
-    m_AlphaEnd.Init( "AlphaEnd", "VSPAERO", this, 10.0, -180, 180 );
+    m_AlphaEnd.Init( "AlphaEnd", groupname, this, 10.0, -180, 180 );
     m_AlphaEnd.SetDescript( "Angle of attack (End)" );
-    m_AlphaNpts.Init( "AlphaNpts", "VSPAERO", this, 3, 1, 100 );
+    m_AlphaNpts.Init( "AlphaNpts", groupname, this, 3, 1, 100 );
     m_AlphaNpts.SetDescript( "Angle of attack (Num Points)" );
 
-    m_BetaStart.Init( "BetaStart", "VSPAERO", this, 0.0, -180, 180 );
+    m_BetaStart.Init( "BetaStart", groupname, this, 0.0, -180, 180 );
     m_BetaStart.SetDescript( "Angle of sideslip (Start)" );
-    m_BetaEnd.Init( "BetaEnd", "VSPAERO", this, 0.0, -180, 180 );
+    m_BetaEnd.Init( "BetaEnd", groupname, this, 0.0, -180, 180 );
     m_BetaEnd.SetDescript( "Angle of sideslip (End)" );
-    m_BetaNpts.Init( "BetaNpts", "VSPAERO", this, 1, 1, 100 );
+    m_BetaNpts.Init( "BetaNpts", groupname, this, 1, 1, 100 );
     m_BetaNpts.SetDescript( "Angle of sideslip (Num Points)" );
 
-    m_MachStart.Init( "MachStart", "VSPAERO", this, 0.0, 0.0, 5.0 );
+    m_MachStart.Init( "MachStart", groupname, this, 0.0, 0.0, 5.0 );
     m_MachStart.SetDescript( "Freestream Mach number (Start)" );
-    m_MachEnd.Init( "MachEnd", "VSPAERO", this, 0.0, 0.0, 5.0 );
+    m_MachEnd.Init( "MachEnd", groupname, this, 0.0, 0.0, 5.0 );
     m_MachEnd.SetDescript( "Freestream Mach number (End)" );
-    m_MachNpts.Init( "MachNpts", "VSPAERO", this, 1, 1, 100 );
+    m_MachNpts.Init( "MachNpts", groupname, this, 1, 1, 100 );
     m_MachNpts.SetDescript( "Freestream Mach number (Num Points)" );
 
 
     // Case Setup
-    m_NCPU.Init( "NCPU", "VSPAERO", this, 4, 1, 255 );
+    m_NCPU.Init( "NCPU", groupname, this, 4, 1, 255 );
     m_NCPU.SetDescript( "Number of processors to use" );
 
     //    wake parameters
-    m_WakeNumIter.Init( "WakeNumIter", "VSPAERO", this, 5, 1, 255 );
+    m_WakeNumIter.Init( "WakeNumIter", groupname, this, 5, 1, 255 );
     m_WakeNumIter.SetDescript( "Number of wake iterations to execute, Default = 5" );
-    m_WakeAvgStartIter.Init( "WakeAvgStartIter", "VSPAERO", this, 0, 0, 255 );
+    m_WakeAvgStartIter.Init( "WakeAvgStartIter", groupname, this, 0, 0, 255 );
     m_WakeAvgStartIter.SetDescript( "Iteration at which to START averaging the wake. Default=0 --> No wake averaging" );
-    m_WakeSkipUntilIter.Init( "WakeSkipUntilIter", "VSPAERO", this, 0, 0, 255 );
+    m_WakeSkipUntilIter.Init( "WakeSkipUntilIter", groupname, this, 0, 0, 255 );
     m_WakeSkipUntilIter.SetDescript( "Iteration at which to START calculating the wake. Default=0 --> Wake calculated on each iteration" );
 
-    m_StabilityCalcFlag.Init( "StabilityCalcFlag", "VSPAERO", this, 0.0, 0.0, 1.0 );
-    m_StabilityCalcFlag.SetDescript( "Flag to calculate stability derivatives" );
-    m_StabilityCalcFlag = false;
-
-    m_BatchModeFlag.Init( "BatchModeFlag", "VSPAERO", this, true, false, true );
+    m_BatchModeFlag.Init( "BatchModeFlag", groupname, this, true, false, true );
     m_BatchModeFlag.SetDescript( "Flag to calculate in batch mode" );
     m_BatchModeFlag = true;
-
-    m_ForceNewSetupfile.Init( "ForceNewSetupfile", "VSPAERO", this, 0.0, 0.0, 1.0 );
-    m_ForceNewSetupfile.SetDescript( "Flag to creation of new setup file in ComputeSolver() even if one exists" );
-    m_ForceNewSetupfile = false;
 
     // This sets all the filename members to the appropriate value (for example: empty strings if there is no vehicle)
     UpdateFilenames();
@@ -112,36 +115,68 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_SolverProcessKill = false;
 
     // Plot limits
-    m_ConvergenceXMinIsManual.Init( "m_ConvergenceXMinIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_ConvergenceXMaxIsManual.Init( "m_ConvergenceXMaxIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_ConvergenceYMinIsManual.Init( "m_ConvergenceYMinIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_ConvergenceYMaxIsManual.Init( "m_ConvergenceYMaxIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_ConvergenceXMin.Init( "m_ConvergenceXMin", "VSPAERO", this, -1, -1e12, 1e12 );
-    m_ConvergenceXMax.Init( "m_ConvergenceXMax", "VSPAERO", this, 1, -1e12, 1e12 );
-    m_ConvergenceYMin.Init( "m_ConvergenceYMin", "VSPAERO", this, -1, -1e12, 1e12 );
-    m_ConvergenceYMax.Init( "m_ConvergenceYMax", "VSPAERO", this, 1, -1e12, 1e12 );
+    m_ConvergenceXMinIsManual.Init( "m_ConvergenceXMinIsManual", groupname, this, 0, 0, 1 );
+    m_ConvergenceXMaxIsManual.Init( "m_ConvergenceXMaxIsManual", groupname, this, 0, 0, 1 );
+    m_ConvergenceYMinIsManual.Init( "m_ConvergenceYMinIsManual", groupname, this, 0, 0, 1 );
+    m_ConvergenceYMaxIsManual.Init( "m_ConvergenceYMaxIsManual", groupname, this, 0, 0, 1 );
+    m_ConvergenceXMin.Init( "m_ConvergenceXMin", groupname, this, -1, -1e12, 1e12 );
+    m_ConvergenceXMax.Init( "m_ConvergenceXMax", groupname, this, 1, -1e12, 1e12 );
+    m_ConvergenceYMin.Init( "m_ConvergenceYMin", groupname, this, -1, -1e12, 1e12 );
+    m_ConvergenceYMax.Init( "m_ConvergenceYMax", groupname, this, 1, -1e12, 1e12 );
 
-    m_LoadDistXMinIsManual.Init( "m_LoadDistXMinIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_LoadDistXMaxIsManual.Init( "m_LoadDistXMaxIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_LoadDistYMinIsManual.Init( "m_LoadDistYMinIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_LoadDistYMaxIsManual.Init( "m_LoadDistYMaxIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_LoadDistXMin.Init( "m_LoadDistXMin", "VSPAERO", this, -1, -1e12, 1e12 );
-    m_LoadDistXMax.Init( "m_LoadDistXMax", "VSPAERO", this, 1, -1e12, 1e12 );
-    m_LoadDistYMin.Init( "m_LoadDistYMin", "VSPAERO", this, -1, -1e12, 1e12 );
-    m_LoadDistYMax.Init( "m_LoadDistYMax", "VSPAERO", this, 1, -1e12, 1e12 );
+    m_LoadDistXMinIsManual.Init( "m_LoadDistXMinIsManual", groupname, this, 0, 0, 1 );
+    m_LoadDistXMaxIsManual.Init( "m_LoadDistXMaxIsManual", groupname, this, 0, 0, 1 );
+    m_LoadDistYMinIsManual.Init( "m_LoadDistYMinIsManual", groupname, this, 0, 0, 1 );
+    m_LoadDistYMaxIsManual.Init( "m_LoadDistYMaxIsManual", groupname, this, 0, 0, 1 );
+    m_LoadDistXMin.Init( "m_LoadDistXMin", groupname, this, -1, -1e12, 1e12 );
+    m_LoadDistXMax.Init( "m_LoadDistXMax", groupname, this, 1, -1e12, 1e12 );
+    m_LoadDistYMin.Init( "m_LoadDistYMin", groupname, this, -1, -1e12, 1e12 );
+    m_LoadDistYMax.Init( "m_LoadDistYMax", groupname, this, 1, -1e12, 1e12 );
 
-    m_SweepXMinIsManual.Init( "m_SweepXMinIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_SweepXMaxIsManual.Init( "m_SweepXMaxIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_SweepYMinIsManual.Init( "m_SweepYMinIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_SweepYMaxIsManual.Init( "m_SweepYMaxIsManual", "VSPAERO", this, 0, 0, 1 );
-    m_SweepXMin.Init( "m_SweepXMin", "VSPAERO", this, -1, -1e12, 1e12 );
-    m_SweepXMax.Init( "m_SweepXMax", "VSPAERO", this, 1, -1e12, 1e12 );
-    m_SweepYMin.Init( "m_SweepYMin", "VSPAERO", this, -1, -1e12, 1e12 );
-    m_SweepYMax.Init( "m_SweepYMax", "VSPAERO", this, 1, -1e12, 1e12 );
+    m_SweepXMinIsManual.Init( "m_SweepXMinIsManual", groupname, this, 0, 0, 1 );
+    m_SweepXMaxIsManual.Init( "m_SweepXMaxIsManual", groupname, this, 0, 0, 1 );
+    m_SweepYMinIsManual.Init( "m_SweepYMinIsManual", groupname, this, 0, 0, 1 );
+    m_SweepYMaxIsManual.Init( "m_SweepYMaxIsManual", groupname, this, 0, 0, 1 );
+    m_SweepXMin.Init( "m_SweepXMin", groupname, this, -1, -1e12, 1e12 );
+    m_SweepXMax.Init( "m_SweepXMax", groupname, this, 1, -1e12, 1e12 );
+    m_SweepYMin.Init( "m_SweepYMin", groupname, this, -1, -1e12, 1e12 );
+    m_SweepYMax.Init( "m_SweepYMax", groupname, this, 1, -1e12, 1e12 );
 
-    // Run the update cycle to complete the setup
-    Update();
+    // Other Setup Parameters
+    m_Vinf.Init( "Vinf", groupname, this, 100, 0, 1e6 );
+    m_Vinf.SetDescript( "Freestream Velocity Through Disk Component" );
+    m_Rho.Init( "Rho", groupname, this, 0.002377, 0, 1e3 );
+    m_Rho.SetDescript( "Freestream Density" );
+    m_ReCref.Init( "ReCref", groupname, this, 10000000., 0, 1e12 );
+    m_ReCref.SetDescript( "Reynolds Number along Reference Chord" );
+    m_JacobiPrecondition.Init( "JacobiPrecondition", groupname, this, false, false, true );
+    m_JacobiPrecondition.SetDescript( "Activate Jacobi Preconditioner" );
+    m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
+    m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
+    m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
+    m_Write2DFEMFlag.SetDescript( "Toggle File Write for 2D FEM" );
+    m_ClMax.Init( "Clmax", groupname, this, -1, 0, 1e3 );
+    m_ClMax.SetDescript( "Cl Max of Aircraft" );
+    m_ClMaxToggle.Init( "ClmaxToggle", groupname, this, false, false, true );
+    m_MaxTurnAngle.Init( "MaxTurnAngle", groupname, this, -1, 0, 360 );
+    m_MaxTurnAngle.SetDescript( "Max Turning Angle of Aircraft" );
+    m_MaxTurnToggle.Init( "MaxTurnToggle", groupname, this, false, false, true );
+    m_FarDist.Init( "FarDist", groupname, this, -1, 0, 1e6 );
+    m_FarDist.SetDescript( "Far Field Distance for Wake Adaptation" );
+    m_FarDistToggle.Init( "FarDistToggle", groupname, this, false, false, true );
 
+    // Unsteady
+    m_StabilityCalcFlag.Init( "StabilityCalcFlag", groupname, this, false, false, true );
+    m_StabilityCalcFlag.SetDescript( "Flag to calculate stability derivatives" );
+
+    m_StabilityType.Init( "UnsteadyType", groupname, this, vsp::STABILITY_DEFAULT, vsp::STABILITY_DEFAULT, vsp::STABILITY_IMPULSE );
+    m_StabilityType.SetDescript( "Unsteady Calculation Type" );
+
+    m_CurrentCSGroupIndex = -1;
+    m_CurrentRotorDiskIndex = -1;
+    m_LastSelectedType = -1;
+
+    m_Verbose = false;
 }
 
 void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
@@ -154,14 +189,52 @@ void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
     }
 }
 
+void VSPAEROMgrSingleton::Renew()
+{
+    for(size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i)
+    {
+        delete m_ControlSurfaceGroupVec[i];
+        m_ControlSurfaceGroupVec.erase( m_ControlSurfaceGroupVec.begin() + i );
+    }
+    m_ControlSurfaceGroupVec.clear();
+    m_CompleteControlSurfaceVec.clear();
+    m_ActiveControlSurfaceVec.clear();
+
+    for(size_t i = 0; i < m_RotorDiskVec.size(); ++i)
+    {
+        delete m_RotorDiskVec[i];
+        m_RotorDiskVec.erase( m_RotorDiskVec.begin() + i );
+    }
+    m_RotorDiskVec.clear();
+
+    m_DegenGeomVec.clear();
+
+    m_CurrentCSGroupIndex = -1;
+    m_CurrentRotorDiskIndex = -1;
+    m_LastSelectedType = -1;
+}
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr VSPAEROsetnode = xmlNewChild( node, NULL, BAD_CAST"VSPAEROSettings", NULL );
 
-    ParmContainer::EncodeXml( VSPAEROsetnode );
+    ParmContainer::EncodeXml( VSPAEROsetnode ); // Encode VSPAEROMgr Parms
 
-    XmlUtil::AddStringNode( VSPAEROsetnode, "ReferenceGeomID", m_RefGeomID );
+    // Encode Control Surface Groups using Internal Encode Method
+    XmlUtil::AddIntNode( VSPAEROsetnode, "ControlSurfaceGroupCount", m_ControlSurfaceGroupVec.size() );
+    for ( size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i )
+    {
+        xmlNodePtr csgnode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "Control_Surface_Group", NULL );
+        m_ControlSurfaceGroupVec[i]->EncodeXml( csgnode );
+    }
+
+    // Encode Rotor Disks using Internal Encode Method
+    XmlUtil::AddIntNode( VSPAEROsetnode, "RotorDiskCount", m_RotorDiskVec.size() );
+    for ( size_t i = 0; i < m_RotorDiskVec.size(); ++i )
+    {
+        xmlNodePtr rotornode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "Rotor", NULL );
+        m_RotorDiskVec[i]->EncodeXml( rotornode );
+    }
 
     return VSPAEROsetnode;
 }
@@ -171,9 +244,35 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
     xmlNodePtr VSPAEROsetnode = XmlUtil::GetNode( node, "VSPAEROSettings", 0 );
     if ( VSPAEROsetnode )
     {
-        ParmContainer::DecodeXml( VSPAEROsetnode );
-        m_RefGeomID   = XmlUtil::FindString( VSPAEROsetnode, "ReferenceGeomID", m_RefGeomID );
+        ParmContainer::DecodeXml( VSPAEROsetnode ); // Decode VSPAEROMgr Parms
+
+        // Decode Control Surface Groups using Internal Decode Method
+        int num_groups = XmlUtil::FindInt( VSPAEROsetnode, "ControlSurfaceGroupCount", 0 );
+        for ( size_t i = 0; i < num_groups; ++i )
+        {
+            xmlNodePtr csgnode = XmlUtil::GetNode( VSPAEROsetnode, "Control_Surface_Group", i );
+            if ( csgnode )
+            {
+                AddControlSurfaceGroup();
+                m_ControlSurfaceGroupVec.back()->DecodeXml( csgnode );
+            }
+        }
+
+        // Decode Rotor Disks using Internal Decode Method
+        int num_rotor = XmlUtil::FindInt( VSPAEROsetnode, "RotorDiskCount", 0 );
+        for ( size_t i = 0; i < num_rotor; ++i )
+        {
+            xmlNodePtr rotornode = XmlUtil::GetNode( VSPAEROsetnode, "Rotor", i );
+            if ( rotornode )
+            {
+                AddRotorDisk();
+                m_RotorDiskVec.back()->DecodeXml( rotornode );
+            }
+        }
     }
+
+    UpdateControlSurfaceGroupSuffix();
+    UpdateRotorDiskSuffix();
 
     return VSPAEROsetnode;
 }
@@ -181,7 +280,22 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
 
 void VSPAEROMgrSingleton::Update()
 {
-    if( m_RefFlag() == vsp::VSPAERO_REF_WING_TYPE::MANUAL_REF )
+    UpdateSref();
+
+    UpdateFilenames();
+
+    UpdateRotorDisks();
+
+    UpdateCompleteControlSurfVec();
+    UpdateUngroupedVec();
+    UpdateActiveControlSurfVec();
+
+    UpdateControlSurfaceGroups();
+}
+
+void VSPAEROMgrSingleton::UpdateSref()
+{
+    if( m_RefFlag() == vsp::MANUAL_REF )
     {
         m_Sref.Activate();
         m_bref.Activate();
@@ -210,8 +324,45 @@ void VSPAEROMgrSingleton::Update()
             m_RefGeomID = string();
         }
     }
+}
 
-    UpdateFilenames();
+void VSPAEROMgrSingleton::UpdateSetupParmLimits()
+{
+    if ( m_ClMaxToggle() )
+    {
+        m_ClMax.SetLowerLimit( 0.0 );
+        m_ClMax.Activate();
+    }
+    else
+    {
+        m_ClMax.SetLowerLimit( -1.0 );
+        m_ClMax.Set( -1.0 );
+        m_ClMax.Deactivate();
+    }
+
+    if ( m_MaxTurnToggle() )
+    {
+        m_MaxTurnAngle.SetLowerLimit( 0.0 );
+        m_MaxTurnAngle.Activate();
+    }
+    else
+    {
+        m_MaxTurnAngle.SetLowerLimit( -1.0 );
+        m_MaxTurnAngle.Set( -1.0 );
+        m_MaxTurnAngle.Deactivate();
+    }
+
+    if ( m_FarDistToggle() )
+    {
+        m_FarDist.SetLowerLimit( 0.0 );
+        m_FarDist.Activate();
+    }
+    else
+    {
+        m_FarDist.SetLowerLimit( -1.0 );
+        m_FarDist.Set( -1.0 );
+        m_FarDist.Deactivate();
+    }
 }
 
 void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
@@ -233,7 +384,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
         int pos = -1;
         switch ( m_AnalysisMethod.Get() )
         {
-        case vsp::VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE:
+        case vsp::VORTEX_LATTICE:
             // The base_name is dependent on the DegenFileName
             // TODO extra "_DegenGeom" is added to the m_ModelBase
             m_DegenFileFull = veh->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
@@ -254,7 +405,7 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 
             break;
 
-        case vsp::VSPAERO_ANALYSIS_METHOD::PANEL:
+        case vsp::PANEL:
             m_CompGeomFileFull = veh->getExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE );
 
             m_ModelNameBase = m_CompGeomFileFull;
@@ -277,9 +428,310 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             // TODO print out an error here
             break;
         }
+    }
+}
 
+void VSPAEROMgrSingleton::UpdateRotorDisks()
+{
+    Vehicle * veh = VehicleMgr.GetVehicle();
+    char str[256];
+
+    if ( veh )
+    {
+        vector < RotorDisk* > temp;
+        bool contained = false;
+
+        vector <string> currgeomvec = veh->GetGeomSet( m_GeomSet() );
+
+        for ( size_t i = 0; i < currgeomvec.size(); ++i )
+        {
+            Geom* geom = veh->FindGeom(currgeomvec[i]);
+            if (geom)
+            {
+                vector < VspSurf > surfvec;
+                geom->GetSurfVec(surfvec);
+                for (size_t iSubsurf = 0; iSubsurf < geom->GetNumTotalSurfs(); ++iSubsurf)
+                {
+                    contained = false;
+                    if (surfvec[iSubsurf].GetSurfType() == vsp::DISK_SURF)
+                    {
+                        for (size_t j = 0; j < m_RotorDiskVec.size(); ++j)
+                        {
+                            // If Rotor Disk and Corresponding Surface Num Already Exists within m_RotorDiskVec
+                            if (m_RotorDiskVec[j]->m_ParentGeomId == veh->GetGeomVec()[i] && m_RotorDiskVec[j]->GetSurfNum() == iSubsurf)
+                            {
+                                contained = true;
+                                temp.push_back(m_RotorDiskVec[j]);
+                                for (size_t k = 0; k < m_DegenGeomVec.size(); ++k)
+                                {
+                                    if (m_DegenGeomVec[k].getParentGeom()->GetID().compare(m_RotorDiskVec[j]->m_ParentGeomId) == 0)
+                                    {
+                                        int indxToSearch = k + temp.back()->m_ParentGeomSurfNdx;
+                                        temp.back()->m_XYZ = m_DegenGeomVec[indxToSearch].getDegenDisk().x;
+                                        temp.back()->m_Normal = m_DegenGeomVec[indxToSearch].getDegenDisk().nvec * -1.0;
+                                        break;
+                                    }
+                                }
+                                sprintf(str, "%s_%u", geom->GetName().c_str(), iSubsurf);
+                                temp.back()->SetName(str);
+                            }
+                        }
+
+                        // If Rotor Disk and Corresponding Surface Num Do NOT Exist within m_RotorDiskVec
+                        // Create New Rotor Disk Parm Container
+                        if (!contained)
+                        {
+                            RotorDisk *rotor = new RotorDisk();
+                            temp.push_back(rotor);
+                            temp.back()->m_ParentGeomId = veh->GetGeomVec()[i];
+                            temp.back()->m_ParentGeomSurfNdx = iSubsurf;
+                            sprintf(str, "%s_%u", geom->GetName().c_str(), iSubsurf);
+                            temp.back()->SetName(str);
+                        }
+
+                        string dia_id = geom->FindParm("Diameter", "Design");
+                        temp.back()->m_Diameter.Set(ParmMgr.FindParm(dia_id)->Get());
+                        if (temp.back()->m_HubDiameter() > temp.back()->m_Diameter())
+                        {
+                            temp.back()->m_HubDiameter.Set(temp.back()->m_Diameter());
+                        }
+                    }
+                }
+            }
+        }
+
+        m_RotorDiskVec.clear();
+        m_RotorDiskVec = temp;
     }
 
+    UpdateRotorDiskSuffix();
+}
+
+void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
+{
+    for ( size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i )
+    {
+        for ( size_t k = 0; k < m_ControlSurfaceGroupVec[i]->m_ControlSurfVec.size(); ++k )
+        {
+            for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
+            {
+                // If Control Surface ID AND Reflection Number Match - Replace Subsurf within Control Surface Group
+                if ( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 &&
+                        m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
+                {
+                    m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].fullName = m_CompleteControlSurfaceVec[j].fullName;
+                    m_CompleteControlSurfaceVec[j].isGrouped = true;
+                    m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].isGrouped = true;
+                }
+            }
+            // Remove Sub Surfaces with Parent Geoms That No Longer Exist
+            if ( !VehicleMgr.GetVehicle()->FindGeom( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].parentGeomId ) )
+            {
+                m_ControlSurfaceGroupVec[i]->RemoveSubSurface( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID,
+                        m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect );
+            }
+        }
+    }
+    UpdateControlSurfaceGroupSuffix();
+}
+
+void VSPAEROMgrSingleton::CleanCompleteControlSurfVec()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        // Clean Out No Longer Existing Control Surfaces (Due to Geom Changes)
+        for ( size_t i = 0; i < m_CompleteControlSurfaceVec.size(); ++i )
+        {
+            Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[i].parentGeomId );
+            if ( !geom )
+            {
+                m_CompleteControlSurfaceVec.erase( m_CompleteControlSurfaceVec.begin() + i );
+                --i;
+            }
+            else if ( !geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID ) )
+            {
+                m_CompleteControlSurfaceVec.erase( m_CompleteControlSurfaceVec.begin() + i );
+                --i;
+            }
+        }
+    }
+}
+
+void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        vector< string > geom_vec = veh->GetGeomVec();
+        for ( size_t i = 0; i < geom_vec.size(); ++i )
+        {
+            Geom *g = veh->FindGeom( geom_vec[i] );
+            if ( g )
+            {
+                vector < SubSurface* > sub_surf_vec = g->GetSubSurfVec();
+                for ( size_t j = 0; j < sub_surf_vec.size(); ++j )
+                {
+                    SubSurface *ssurf = sub_surf_vec[j];
+                    if ( ssurf )
+                    {
+                        for ( size_t iReflect = 0; iReflect < g->GetNumSymmCopies(); ++iReflect )
+                        {
+                            bool contained = false;
+                            if ( ssurf->GetType() == vsp::SS_CONTROL || ssurf->GetType() == vsp::SS_RECTANGLE )
+                            {
+                                for ( size_t k = 0; k < m_CompleteControlSurfaceVec.size(); ++k )
+                                {
+                                    // If CS and Corresponding Surface Num Already Exists within m_CompleteControlSurfaceVec
+                                    if ( m_CompleteControlSurfaceVec[k].SSID.compare( ssurf->GetID() ) == 0 && m_CompleteControlSurfaceVec[k].iReflect == iReflect )
+                                    {
+                                        char str[256];
+                                        sprintf( str, "%s_Surf%u_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
+                                        m_CompleteControlSurfaceVec[k].fullName = string( str );
+                                        contained = true;
+                                        break;
+                                    }
+                                }
+
+                                // If CS and Corresponding Surface Num Do NOT Exist within m_CompleteControlSurfaceVec
+                                // Create New CS Parm Container
+                                if ( !contained )
+                                {
+                                    VspAeroControlSurf newSurf;
+                                    newSurf.SSID = ssurf->GetID();
+                                    char str[256];
+                                    sprintf( str, "%s_Surf%u_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
+                                    newSurf.fullName = string( str );
+                                    newSurf.parentGeomId = ssurf->GetParentContainer();
+                                    newSurf.iReflect = iReflect;
+
+                                    m_CompleteControlSurfaceVec.push_back( newSurf );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        CleanCompleteControlSurfVec();
+    }
+}
+
+void VSPAEROMgrSingleton::UpdateUngroupedVec()
+{
+    m_UngroupedCS.clear();
+    for ( size_t i = 0; i < m_CompleteControlSurfaceVec.size(); ++i )
+    {
+        if ( !m_CompleteControlSurfaceVec[i].isGrouped )
+        {
+            m_UngroupedCS.push_back( m_CompleteControlSurfaceVec[i] );
+        }
+    }
+}
+
+void VSPAEROMgrSingleton::UpdateActiveControlSurfVec()
+{
+    m_ActiveControlSurfaceVec.clear();
+    if ( m_CurrentCSGroupIndex != -1 )
+    {
+        vector < VspAeroControlSurf > sub_surf_vec = m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->m_ControlSurfVec;
+        for ( size_t j = 0; j < sub_surf_vec.size(); ++j )
+        {
+            m_ActiveControlSurfaceVec.push_back( sub_surf_vec[j] );
+        }
+    }
+}
+
+void VSPAEROMgrSingleton::AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id )
+{
+    ParmContainer::AddLinkableParms( linkable_parm_vec );
+
+    for ( size_t i = 0; i < m_ControlSurfaceGroupVec.size(); ++i )
+    {
+        m_ControlSurfaceGroupVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
+    }
+
+    for ( size_t i = 0; i < m_RotorDiskVec.size(); ++i )
+    {
+        m_RotorDiskVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
+    }
+}
+
+// InitControlSurfaceGroups - creates the initial default grouping for the control surfaces
+//  The initial grouping collects all surface copies of the subsurface into a single group.
+//  For example if a wing is defined with an aileron and that wing is symetrical about the
+//  xz plane there will be a surface copy of the master wing surface as well as a copy of
+//  the subsurface. The two subsurfaces may get deflected differently during analysis
+//  routines and can be identified uniquely by the control_surf.fullname.
+//  The initial grouping routine implemented here finds all copies of that subsurface
+//  that have the same sub surf ID and places them into a single control group.
+void VSPAEROMgrSingleton::InitControlSurfaceGroups()
+{
+    Vehicle * veh = VehicleMgr.GetVehicle();
+    ControlSurfaceGroup * csg;
+    char str [256];
+    bool exists = false;
+
+    for ( size_t i = 0 ; i < m_UngroupedCS.size(); ++i )
+    {
+        // Construct a default group name
+        string curr_csg_id = m_UngroupedCS[i].parentGeomId + "_" + m_UngroupedCS[i].SSID;
+        exists = false;
+
+        // Has CS been placed into init group?
+        // --> No create group with any reflected groups
+        // --> Yes Skip
+        for ( size_t j = 0; j < m_ControlSurfaceGroupVec.size(); ++j )
+        {
+            if ( m_ControlSurfaceGroupVec[j]->m_ControlSurfVec.size() > 0 )
+            {
+                sprintf( str, "%s_%s", m_ControlSurfaceGroupVec[j]->m_ParentGeomBaseID.c_str(),
+                         m_ControlSurfaceGroupVec[j]->m_ControlSurfVec[0].SSID.c_str() );
+                if ( curr_csg_id == str ) // Update Existing Control Surface Group
+                {
+                    csg = m_ControlSurfaceGroupVec[j];
+                    csg->AddSubSurface( m_UngroupedCS[i] );
+                    m_ControlSurfaceGroupVec.back() = csg;
+                    for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
+                    {
+                        if ( m_UngroupedCS[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
+                        {
+                            m_CompleteControlSurfaceVec[j].isGrouped = true;
+                        }
+                    }
+                    exists = true;
+                    break;
+                }
+            }
+        }
+
+        if ( !exists ) // Create New Control Surface Group
+        {
+            Geom* geom = veh->FindGeom( m_UngroupedCS[i].parentGeomId );
+            if ( geom )
+            {
+                csg = new ControlSurfaceGroup;
+                csg->AddSubSurface( m_UngroupedCS[i] );
+                sprintf( str, "%s_%s", geom->GetName().c_str(),
+                         geom->GetSubSurf( m_UngroupedCS[i].SSID )->GetName().c_str() );
+                csg->SetName( str );
+                csg->m_ParentGeomBaseID = m_UngroupedCS[i].parentGeomId;
+                m_ControlSurfaceGroupVec.push_back( csg );
+                for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
+                {
+                    if ( m_UngroupedCS[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
+                    {
+                        m_CompleteControlSurfaceVec[j].isGrouped = true;
+                    }
+                }
+            }
+        }
+    }
+
+    UpdateUngroupedVec();
+    UpdateControlSurfaceGroupSuffix();
 }
 
 string VSPAEROMgrSingleton::ComputeGeometry()
@@ -291,8 +743,40 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         return string();
     }
 
-    veh->CreateDegenGeom( VSPAEROMgr.m_GeomSet() );
+    // Loop through control sub surfaces and set NumPoints to 1 before generating degengeom
+    vector<std::pair<string, int>> tNumPointsParmIdValVec;
+    for ( size_t iControlSurf = 0; iControlSurf < m_CompleteControlSurfaceVec.size(); iControlSurf++ )
+    {
+        Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[iControlSurf].parentGeomId );
+        string tSubSurfId = m_CompleteControlSurfaceVec[iControlSurf].SSID.substr( 0, 10 );
+        string tNumPointsId = geom->GetSubSurf( tSubSurfId )->FindParm( "Tess_Num", "SS_Control" );
+        IntParm* tNumPointsParm = ( IntParm* )ParmMgr.FindParm( tNumPointsId );
+        if ( tNumPointsParm && tNumPointsParm->Get() != 1 )
+        {
+            tNumPointsParmIdValVec.push_back( std::make_pair( tNumPointsId, tNumPointsParm->Get() ) );
 
+            // Send warning message to user
+            fprintf( stderr, "NOTE: Temporarily setting Control_Surf NumPoints = 1 for VSPAERO compatible DegenGeom generation for Control_Surf: %s.\n",
+                     geom->GetSubSurf( tSubSurfId )->GetName().c_str() );
+
+            tNumPointsParm->Set( 1 );
+            geom->Update();
+        }
+    }
+
+    m_DegenGeomVec.clear();
+    veh->CreateDegenGeom( m_GeomSet() );
+    m_DegenGeomVec = veh->GetDegenGeomVec();
+
+    // Reset ControlSurf NumPoints
+    for ( size_t i = 0; i < tNumPointsParmIdValVec.size(); i++ )
+    {
+        ParmMgr.FindParm( tNumPointsParmIdValVec[i].first )->Set( tNumPointsParmIdValVec[i].second );
+    }
+
+    //Update information derived from the degenerate geometry
+    UpdateRotorDisks();
+    UpdateCompleteControlSurfVec();
 
     // record original values
     bool exptMfile_orig = veh->getExportDegenGeomMFile();
@@ -322,7 +806,7 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     }
 
     // Generate *.tri geometry file for Panel method
-    if ( m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL )
+    if ( m_AnalysisMethod.Get() == vsp::PANEL )
     {
         // Cleanup previously created meshGeom IDs created from VSPAEROMgr
         if ( veh->FindGeom( m_LastPanelMeshGeomId ) )
@@ -332,10 +816,10 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
         // Compute intersected and trimmed geometry
         int halfFlag = 0;
-        m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( VSPAEROMgr.m_GeomSet(), halfFlag );
+        m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag );
 
         // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
-        veh->WriteTRIFile( m_CompGeomFileFull , vsp::SET_TYPE::SET_SHOWN );
+        veh->WriteTRIFile( m_CompGeomFileFull , vsp::SET_SHOWN );
         WaitForFile( m_CompGeomFileFull );
         if ( !FileExist( m_CompGeomFileFull ) )
         {
@@ -356,10 +840,10 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
         return string();
     }
-    res->Add( NameValData( "GeometrySet", VSPAEROMgr.m_GeomSet() ) );
+    res->Add( NameValData( "GeometrySet", m_GeomSet() ) );
     res->Add( NameValData( "AnalysisMethod", m_AnalysisMethod.Get() ) );
     res->Add( NameValData( "DegenGeomFileName", m_DegenFileFull ) );
-    if ( m_AnalysisMethod.Get() == vsp::VSPAERO_ANALYSIS_METHOD::PANEL )
+    if ( m_AnalysisMethod.Get() == vsp::PANEL )
     {
         res->Add( NameValData( "CompGeomFileName", m_CompGeomFileFull ) );
         res->Add( NameValData( "Mesh_GeomID", m_LastPanelMeshGeomId ) );
@@ -374,139 +858,217 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
 }
 
-/* TODO - finish implementation of generating the setup file from the VSPAEROMgr*/
-void VSPAEROMgrSingleton::CreateSetupFile( FILE * logFile )
+string VSPAEROMgrSingleton::CreateSetupFile()
 {
+    string retStr = string();
+
     UpdateFilenames();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
         fprintf( stderr, "ERROR %d: Unable to get vehicle \n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
-        return;
+        return retStr;
     }
 
-    // Clear existing serup file
+    // Clear existing setup file
     if ( FileExist( m_SetupFile ) )
     {
         remove( m_SetupFile.c_str() );
     }
 
-    vector<string> args;
-    args.push_back( "-setup" );
 
-    args.push_back( "-sref" );
-    args.push_back( StringUtil::double_to_string( m_Sref(), "%f" ) );
-
-    args.push_back( "-bref" );
-    args.push_back( StringUtil::double_to_string( m_bref(), "%f" ) );
-
-    args.push_back( "-cref" );
-    args.push_back( StringUtil::double_to_string( m_cref(), "%f" ) );
-
-    args.push_back( "-cg" );
-    args.push_back( StringUtil::double_to_string( m_Xcg(), "%f" ) );
-    args.push_back( StringUtil::double_to_string( m_Ycg(), "%f" ) );
-    args.push_back( StringUtil::double_to_string( m_Zcg(), "%f" ) );
-
-    // If the GUI is selected for batch calculation write the setup file with
-    // the entire vector of mach alpha and beta points otherwise just write the
-    // starting freestream condition.  This will give the easiest to use setup
-    // file representing the options in the GUI.
-    if ( m_BatchModeFlag.Get() )
+    FILE * case_file = fopen( m_SetupFile.c_str(), "w" );
+    if ( case_file == NULL )
     {
-        vector<double> alphaVec;
-        vector<double> betaVec;
-        vector<double> machVec;
-        GetSweepVectors( alphaVec, betaVec, machVec );
+        fprintf( stderr, "ERROR %d: Unable to create case file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, m_SetupFile.c_str(), __FILE__, __LINE__ );
+        return retStr;
+    }
+    fprintf( case_file, "Sref = %lf \n", m_Sref() );
+    fprintf( case_file, "Cref = %lf \n", m_cref() );
+    fprintf( case_file, "Bref = %lf \n", m_bref() );
+    fprintf( case_file, "X_cg = %lf \n", m_Xcg() );
+    fprintf( case_file, "Y_cg = %lf \n", m_Ycg() );
+    fprintf( case_file, "Z_cg = %lf \n", m_Zcg() );
 
-        //====== Loop over flight conditions and solve ======//
-        // Mach
-        args.push_back( "-mach" );
-        for ( int iMach = 0; iMach < machVec.size(); iMach++ )
-        {
-            args.push_back( StringUtil::double_to_string( machVec[iMach], "%f " ) );
-        }
-        args.push_back( "END" );
+    vector<double> alphaVec;
+    vector<double> betaVec;
+    vector<double> machVec;
+    GetSweepVectors( alphaVec, betaVec, machVec );
 
-        // Alpha
-        args.push_back( "-aoa" );
-        for ( int iAlpha = 0; iAlpha < alphaVec.size(); iAlpha++ )
-        {
-            args.push_back( StringUtil::double_to_string( alphaVec[iAlpha], "%f " ) );
-        }
-        args.push_back( "END" );
+    if ( !m_BatchModeFlag.Get() )
+    {
+        //truncate the vectors to just the first element
+        machVec.resize( 1 );
+        alphaVec.resize( 1 );
+        betaVec.resize( 1 );
+    }
+    unsigned int i;
+    // Mach vector
+    fprintf( case_file, "Mach = " );
+    for ( i = 0; i < machVec.size() - 1; i++ )
+    {
+        fprintf( case_file, "%lf, ", machVec[i] );
+    }
+    fprintf( case_file, "%lf \n", machVec[i++] );
 
-        // Beta
-        args.push_back( "-beta" );
-        for ( int iBeta = 0; iBeta < betaVec.size(); iBeta++ )
+    // Alpha vector
+    fprintf( case_file, "AoA = " );
+    for ( i = 0; i < alphaVec.size() - 1; i++ )
+    {
+        fprintf( case_file, "%lf, ", alphaVec[i] );
+    }
+    fprintf( case_file, "%lf \n", alphaVec[i++] );
+
+    // Beta vector
+    fprintf( case_file, "Beta = " );
+    for ( i = 0; i < betaVec.size() - 1; i++ )
+    {
+        fprintf( case_file, "%lf, ", betaVec[i] );
+    }
+    fprintf( case_file, "%lf \n", betaVec[i++] );
+
+    string sym;
+    if ( m_Symmetry() )
+    { sym = "Y"; }
+    else
+    { sym = "NO"; }
+    fprintf( case_file, "Vinf = %lf \n", m_Vinf() );
+    fprintf( case_file, "Rho = %lf \n", m_Rho() );
+    fprintf( case_file, "ReCref = %lf \n", m_ReCref() );
+    fprintf( case_file, "ClMax = %lf \n", m_ClMax() );
+    fprintf( case_file, "MaxTurningAngle = %lf \n", m_MaxTurnAngle() );
+    fprintf( case_file, "Symmetry = %s \n", sym.c_str() );
+    fprintf( case_file, "FarDist = %lf \n", m_FarDist() );
+    fprintf( case_file, "NumWakeNodes = %d \n", -1 );       //TODO add to VSPAEROMgr as parm
+    fprintf( case_file, "WakeIters = %d \n", m_WakeNumIter.Get() );
+
+    // RotorDisks
+    unsigned int numUsedRotors = 0;
+    for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
+    {
+        if ( m_RotorDiskVec[iRotor]->m_IsUsed )
         {
-            args.push_back( StringUtil::double_to_string( betaVec[iBeta], "%f " ) );
+            numUsedRotors++;
         }
-        args.push_back( "END" );
+    }
+    fprintf( case_file, "NumberOfRotors = %d \n", numUsedRotors );           //TODO add to VSPAEROMgr as parm
+    int iPropElement = 0;
+    for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
+    {
+        if ( m_RotorDiskVec[iRotor]->m_IsUsed )
+        {
+            iPropElement++;
+            fprintf( case_file, "PropElement_%d\n", iPropElement );     //read in by, but not used, in vspaero and begins at 1
+            fprintf( case_file, "%d\n", iPropElement );                 //read in by, but not used, in vspaero
+            m_RotorDiskVec[iRotor]->Write_STP_Data( case_file );
+        }
+    }
+
+    // ControlSurfaceGroups
+    unsigned int numUsedCSGs = 0;
+    for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
+    {
+        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() )
+        {
+            numUsedCSGs++;
+        }
+    }
+
+    if ( m_AnalysisMethod.Get() == vsp::PANEL )
+    {
+        // control surfaces are currently not supported for panel method
+        numUsedCSGs = 0;
+        fprintf( case_file, "NumberOfControlGroups = %d \n", numUsedCSGs );
     }
     else
     {
-        args.push_back( "-aoa" );
-        args.push_back( StringUtil::double_to_string( m_AlphaStart(), "%f" ) );
-        args.push_back( "END" );
-
-        args.push_back( "-beta" );
-        args.push_back( StringUtil::double_to_string( m_BetaStart(), "%f" ) );
-        args.push_back( "END" );
-
-        args.push_back( "-mach" );
-        args.push_back( StringUtil::double_to_string( m_MachStart(), "%f" ) );
-        args.push_back( "END" );
+        fprintf( case_file, "NumberOfControlGroups = %d \n", numUsedCSGs );
+        for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
+        {
+            if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() )
+            {
+                m_ControlSurfaceGroupVec[iCSG]->Write_STP_Data( case_file );
+            }
+        }
     }
 
+    // Preconditioner
 
-
-    args.push_back( "-wakeiters" );
-    args.push_back( StringUtil::int_to_string( m_WakeNumIter(), "%d" ) );
-
-    args.push_back( m_ModelNameBase );
-
-    //Print out execute command
-    string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
-    if( logFile )
+    if ( m_JacobiPrecondition() )
     {
-        fprintf( logFile, "%s", cmdStr.c_str() );
+        fprintf( case_file, "PreconditionerType = %s \n", "JACOBI" );
     }
-    else
+
+    // Unsteady Setup
+    if ( m_StabilityCalcFlag() )
     {
-        MessageData data;
-        data.m_String = "VSPAEROSolverMessage";
-        data.m_StringVec.push_back( cmdStr );
-        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        string AnalysisType = "";
+        if ( m_StabilityType() != vsp::STABILITY_DEFAULT )
+        {
+            switch ( m_StabilityType() )
+            {
+            case vsp::STABILITY_P_ANALYSIS:
+                AnalysisType = "P_ANALYSIS";
+                break;
+
+            case vsp::STABILITY_Q_ANALYSIS:
+                AnalysisType = "Q_ANALYSIS";
+                break;
+
+            case vsp::STABILITY_R_ANALYSIS:
+                AnalysisType = "R_ANALYSIS";
+                break;
+
+            // === To Be Implemented ===
+            //case vsp::STABILITY_HEAVE:
+            //    AnalysisType = "HEAVE";
+            //    break;
+
+            //case vsp::STABILITY_IMPULSE:
+            //    AnalysisType = "IMPULSE";
+            //    break;
+
+            default:
+                AnalysisType = "";
+            }
+            fprintf( case_file, "UnsteadyAnalysisType = %s \n", AnalysisType.c_str() );
+
+        }
     }
 
-    // Execute VSPAero
-    m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
-
-    // ==== MonitorSolverProcess ==== //
-    MonitorSolver( logFile );
-
-    // Check if the kill solver flag has been raised, if so clean up and return
-    //  note: we could have exited the IsRunning loop if the process was killed
-    if( m_SolverProcessKill )
-    {
-        m_SolverProcessKill = false;    //reset kill flag
-    }
+    //Finish up by closing the file and making sure that it appears in the file system
+    fclose( case_file );
 
     // Wait until the setup file shows up on the file system
     WaitForFile( m_SetupFile );
+
+    // Add and return a result
+    Results* res = ResultsMgr.CreateResults( "VSPAERO_Setup" );
 
     if ( !FileExist( m_SetupFile ) )
     {
         // shouldn't be able to get here but create a setup file with the correct settings
         fprintf( stderr, "ERROR %d: setup file not found, file %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_SetupFile.c_str(), __FILE__, __LINE__ );
+        retStr = string();
+    }
+    else if ( !res )
+    {
+        fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
+        retStr = string();
+    }
+    else
+    {
+        res->Add( NameValData( "SetupFile", m_SetupFile ) );
+        retStr = res->GetID();
     }
 
     // Send the message to update the screens
     MessageData data;
     data.m_String = "UpdateAllScreens";
     MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+
+    return retStr;
 
 }
 
@@ -595,6 +1157,8 @@ string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
     {
         return ComputeSolverSingle( logFile );
     }
+
+    return string();
 }
 
 /* ComputeSolverSingle(FILE * logFile)
@@ -624,20 +1188,14 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 
 
         //====== Modify/Update the setup file ======//
-        if ( !FileExist( m_SetupFile ) || m_ForceNewSetupfile.Get() )
-        {
-            // if the setup file doesn't exist, create one with the current settings
-            // TODO output a warning to the user that we are creating a default file
-            CreateSetupFile();
-        }
+        CreateSetupFile();
 
+        //====== Loop over flight conditions and solve ======//
         vector<double> alphaVec;
         vector<double> betaVec;
         vector<double> machVec;
         GetSweepVectors( alphaVec, betaVec, machVec );
 
-        //====== Loop over flight conditions and solve ======//
-        // TODO make this into a case list with a single loop
         for ( int iAlpha = 0; iAlpha < alphaVec.size(); iAlpha++ )
         {
             //Set current alpha value
@@ -700,6 +1258,11 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                         // No wake for first N iterations
                         args.push_back( "-nowake" );
                         args.push_back( StringUtil::int_to_string( wakeSkipUntilIter, "%d" ) );
+                    }
+
+                    if( m_Write2DFEMFlag() )
+                    {
+                        args.push_back( "-write2dfem" );
                     }
 
                     // Add model file name
@@ -797,12 +1360,10 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
 
         //====== Modify/Update the setup file ======//
-        if ( !FileExist( m_SetupFile ) || m_ForceNewSetupfile.Get() )
-        {
-            // if the setup file doesn't exist, create one with the current settings
-            // TODO output a warning to the user that we are creating a default file
-            CreateSetupFile();
-        }
+        if ( m_Verbose ) { printf( "Writing vspaero setup file: %s\n", m_SetupFile.c_str() ); }
+        // if the setup file doesn't exist, create one with the current settings
+        // TODO output a warning to the user that we are creating a default file
+        CreateSetupFile();
 
         vector<double> alphaVec;
         vector<double> betaVec;
@@ -855,11 +1416,13 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         // Set number of openmp threads
         args.push_back( "-omp" );
         args.push_back( StringUtil::int_to_string( m_NCPU.Get(), "%d" ) );
+
         // Set stability run arguments
         if ( stabilityFlag )
         {
             args.push_back( "-stab" );
         }
+
         // Force averaging startign at wake iteration N
         if( wakeAvgStartIter >= 1 )
         {
@@ -871,6 +1434,11 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             // No wake for first N iterations
             args.push_back( "-nowake" );
             args.push_back( StringUtil::int_to_string( wakeSkipUntilIter, "%d" ) );
+        }
+
+        if( m_Write2DFEMFlag() )
+        {
+            args.push_back( "-write2dfem" );
         }
 
         // Add model file name
@@ -945,7 +1513,7 @@ void VSPAEROMgrSingleton::MonitorSolver( FILE * logFile )
     while ( runflag || nread > 0 )
     {
         m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-        if( nread > 0 )
+        if( nread > 0 && nread != ( unsigned long ) - 1 )
         {
             if ( buf )
             {
@@ -1013,11 +1581,11 @@ int VSPAEROMgrSingleton::WaitForFile( string filename )
 
     if ( FileExist( filename ) )
     {
-        return vsp::ERROR_CODE::VSP_OK;
+        return vsp::VSP_OK;
     }
     else
     {
-        return vsp::ERROR_CODE::VSP_FILE_DOES_NOT_EXIST;
+        return vsp::VSP_FILE_DOES_NOT_EXIST;
     }
 }
 
@@ -1360,7 +1928,6 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
             // Parse if this is not a comment line
             if ( res && strncmp( data_string_array[0].c_str(), "#", 1 ) != 0 )
             {
-
                 //================ Table Data ================//
                 // Checks for table header format
                 if ( ( data_string_array.size() != table_column_names.size() ) || ( table_column_names.size() == 0 ) )
@@ -1368,23 +1935,75 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
                     //Indicator that the data table has changed or has not been initialized.
                     table_column_names.clear();
                     table_column_names = data_string_array;
+
+                    // map control group names to full control surface group names
+                    int i_field_offset = -1;
+                    for ( unsigned int i_field = 0; i_field < data_string_array.size(); i_field++ )
+                    {
+                        if ( strstr( table_column_names[i_field].c_str(), "ConGrp_" ) )
+                        {
+                            //  Set field offset based on the first ConGrp_ found
+                            if ( i_field_offset == -1 )
+                            {
+                                i_field_offset = i_field;
+                            }
+
+                            if ( m_Verbose ) { printf( "\tMapping table col name to CSG name: \n" ); }
+                            if ( m_Verbose ) { printf( "\ti_field = %d --> i_field_offset = %d\n", i_field, i_field - i_field_offset ); }
+                            if ( ( i_field - i_field_offset ) < m_ControlSurfaceGroupVec.size() )
+                            {
+                                if ( m_Verbose ) { printf( "\t%s --> %s\n", table_column_names[i_field].c_str(), m_ControlSurfaceGroupVec[i_field - i_field_offset]->GetName().c_str() ); }
+                                table_column_names[i_field] = m_ControlSurfaceGroupVec[i_field - i_field_offset]->GetName();
+                            }
+                            else
+                            {
+                                printf( "\tERROR (i_field - i_field_offset) > m_ControlSurfaceGroupVec.size()\n" );
+                                printf( "\t      (  %d    -    %d         ) >            %lu             \n", i_field, i_field_offset, m_ControlSurfaceGroupVec.size() );
+                            }
+
+                        }
+                    }
+
                 }
                 else
                 {
-                    //This is a continuation of the current table and add this row to the results manager
-                    for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
+                    if ( m_StabilityType() == vsp::STABILITY_DEFAULT )
                     {
-                        //attempt to read a double if that fails then treat it as a string result
-                        double temp_val = 0;
-                        int result = 0;
-                        result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
-                        if ( result == 1 )
+                        //This is a continuation of the current table and add this row to the results manager
+                        for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
                         {
-                            res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], temp_val ) );
+                            //attempt to read a double if that fails then treat it as a string result
+                            double temp_val = 0;
+                            int result = 0;
+                            result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
+                            if ( result == 1 )
+                            {
+                                res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], temp_val ) );
+                            }
+                            else
+                            {
+                                res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], data_string_array[i_field] ) );
+                            }
                         }
-                        else
+                    }
+                    else
+                    {
+                        // TODO: Add if for stability calcs other than stability if NOT StabilityType = 0
+                        //This is a continuation of the current table and add this row to the results manager
+                        for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
                         {
-                            res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], data_string_array[i_field] ) );
+                            //attempt to read a double if that fails then treat it as a string result
+                            double temp_val = 0;
+                            int result = 0;
+                            result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
+                            if ( result == 1 )
+                            {
+                                res->Add( NameValData( data_string_array[0], temp_val ) );
+                            }
+                            else
+                            {
+                                res->Add( NameValData( data_string_array[0], data_string_array[i_field] ) );
+                            }
                         }
                     }
                 } //end new table check
@@ -1518,28 +2137,709 @@ int VSPAEROMgrSingleton::ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::V
 }
 
 //Export Results to CSV
-//  Return Values:
-//  -1 = INVALID Result ID
-//  0 = Success
-// TODO make return values into enum
 int VSPAEROMgrSingleton::ExportResultsToCSV( string fileName )
 {
-    int retVal;
+    int retVal = vsp::VSP_FILE_WRITE_FAILURE;
 
     // Get the results
     string resId = ResultsMgr.FindLatestResultsID( "VSPAERO_Wrapper" );
-    if ( resId != string() )
+    if ( resId == string() )
     {
-        // Get all the child results
-        vector <string> resIdVector = ResultsMgr.GetStringResults( resId, "ResultsVec" );
-        retVal = ResultsMgr.WriteCSVFile( fileName, resIdVector );
+        retVal = vsp::VSP_CANT_FIND_NAME;
+        fprintf( stderr, "ERROR %d: Unable to find ""VSPAERO_Wrapper"" result \n\tFile: %s \tLine:%d\n", retVal, __FILE__, __LINE__ );
+        return retVal;
+    }
+
+    Results* resptr = ResultsMgr.FindResultsPtr( resId );
+    if ( !resptr )
+    {
+        retVal = vsp::VSP_INVALID_PTR;
+        fprintf( stderr, "ERROR %d: Unable to get pointer to ""VSPAERO_Wrapper"" result \n\tFile: %s \tLine:%d\n", retVal, __FILE__, __LINE__ );
+        return retVal;
+    }
+
+    // Get all the child results and write out to csv using a vector of results
+    vector <string> resIdVector = ResultsMgr.GetStringResults( resId, "ResultsVec" );
+    if ( resIdVector.size() == 0 )
+    {
+        fprintf( stderr, "WARNING %d: ""VSPAERO_Wrapper"" result contains no child results \n\tFile: %s \tLine:%d\n", retVal, __FILE__, __LINE__ );
+    }
+
+    // Export to CSV file
+    retVal = ResultsMgr.WriteCSVFile( fileName, resIdVector );
+
+    // Check that the file made it to the file system and return status
+    return WaitForFile( fileName );
+}
+
+void VSPAEROMgrSingleton::AddRotorDisk()
+{
+    RotorDisk* new_rd = new RotorDisk;
+    new_rd->SetParentContainer( GetID() );
+    m_RotorDiskVec.push_back( new_rd );
+}
+
+bool VSPAEROMgrSingleton::ValidRotorDiskIndex( int index )
+{
+    if ( ( index >= 0 ) && ( index < m_RotorDiskVec.size() ) && m_RotorDiskVec.size() > 0 )
+    {
+        return true;
+    }
+
+    return false;
+}
+
+void VSPAEROMgrSingleton::UpdateRotorDiskSuffix()
+{
+    for (int i = 0 ; i < (int) m_RotorDiskVec.size(); ++i)
+    {
+        m_RotorDiskVec[i]->SetParentContainer( GetID() );
+        m_RotorDiskVec[i]->SetGroupDisplaySuffix( i );
+    }
+}
+
+void VSPAEROMgrSingleton::RemoveFromUngrouped( const string & ssid, int reflec_num )
+{
+    for ( size_t i = 0; i < m_UngroupedCS.size(); ++i )
+    {
+        if ( m_UngroupedCS[i].SSID.compare( ssid ) == 0 && m_UngroupedCS[i].iReflect == reflec_num )
+        {
+            m_UngroupedCS.erase( m_UngroupedCS.begin() + i );
+            break;
+        }
+    }
+}
+
+void VSPAEROMgrSingleton::UpdateControlSurfaceGroupSuffix()
+{
+    for (int i = 0 ; i < (int) m_ControlSurfaceGroupVec.size(); ++i)
+    {
+        m_ControlSurfaceGroupVec[i]->SetParentContainer( GetID() );
+        m_ControlSurfaceGroupVec[i]->SetGroupDisplaySuffix( i );
+    }
+}
+
+void VSPAEROMgrSingleton::AddControlSurfaceGroup()
+{
+    ControlSurfaceGroup* new_cs = new ControlSurfaceGroup;
+    new_cs->SetParentContainer( GetID() );
+    m_ControlSurfaceGroupVec.push_back( new_cs );
+
+    m_CurrentCSGroupIndex = m_ControlSurfaceGroupVec.size() - 1;
+
+    m_SelectedGroupedCS.clear();
+    UpdateActiveControlSurfVec();
+}
+
+void VSPAEROMgrSingleton::RemoveControlSurfaceGroup()
+{
+    if ( m_CurrentCSGroupIndex != -1 )
+    {
+        for ( size_t i = 0; i < m_ActiveControlSurfaceVec.size(); ++i )
+        {
+            for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
+            {
+                if ( m_CompleteControlSurfaceVec[j].SSID.compare( m_ActiveControlSurfaceVec[i].SSID ) == 0 )
+                {
+                    m_CompleteControlSurfaceVec[j].isGrouped = false;
+                }
+            }
+        }
+
+        delete m_ControlSurfaceGroupVec[m_CurrentCSGroupIndex];
+        m_ControlSurfaceGroupVec.erase( m_ControlSurfaceGroupVec.begin() + m_CurrentCSGroupIndex );
+
+        if ( m_ControlSurfaceGroupVec.size() > 0 )
+        {
+            m_CurrentCSGroupIndex = 0;
+        }
+        else
+        {
+            m_CurrentCSGroupIndex = -1;
+        }
+    }
+    m_SelectedGroupedCS.clear();
+    UpdateActiveControlSurfVec();
+    UpdateControlSurfaceGroupSuffix();
+}
+
+void VSPAEROMgrSingleton::AddSelectedToCSGroup()
+{
+    vector < int > selected = m_SelectedUngroupedCS;
+    if ( m_CurrentCSGroupIndex != -1 )
+    {
+        for ( size_t i = 0; i < selected.size(); ++i )
+        {
+
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( m_UngroupedCS[ selected[ i ] - 1 ] );
+            for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
+            {
+                if ( m_UngroupedCS[selected[i] - 1].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
+                {
+                    if ( m_UngroupedCS[selected[i] - 1].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
+                    {
+                        m_CompleteControlSurfaceVec[ j ].isGrouped = true;
+                    }
+                }
+            }
+        }
+    }
+    m_SelectedUngroupedCS.clear();
+    m_SelectedGroupedCS.clear();
+    UpdateActiveControlSurfVec();
+}
+
+void VSPAEROMgrSingleton::AddAllToCSGroup()
+{
+    if ( m_CurrentCSGroupIndex != -1 )
+    {
+        for ( size_t i = 0; i < m_UngroupedCS.size(); ++i )
+        {
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( m_UngroupedCS[ i ] );
+            for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
+            {
+                if ( m_UngroupedCS[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
+                {
+                    if ( m_UngroupedCS[i].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
+                    {
+                        m_CompleteControlSurfaceVec[ j ].isGrouped = true;
+                    }
+                }
+            }
+        }
+    }
+    m_SelectedUngroupedCS.clear();
+    m_SelectedGroupedCS.clear();
+    UpdateActiveControlSurfVec();
+}
+
+void VSPAEROMgrSingleton::RemoveSelectedFromCSGroup()
+{
+    vector < int > selected = m_SelectedGroupedCS;
+    if ( m_CurrentCSGroupIndex != -1 )
+    {
+        for ( size_t i = 0; i < selected.size(); ++i )
+        {
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( m_ActiveControlSurfaceVec[selected[i] - 1].SSID,
+                    m_ActiveControlSurfaceVec[selected[i] - 1].iReflect );
+            for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
+            {
+                if ( m_ActiveControlSurfaceVec[selected[i] - 1].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
+                {
+                    if ( m_ActiveControlSurfaceVec[selected[i] - 1].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
+                    {
+                        m_CompleteControlSurfaceVec[ j ].isGrouped = false;
+                    }
+                }
+            }
+        }
+    }
+    m_SelectedGroupedCS.clear();
+    UpdateUngroupedVec();
+    UpdateActiveControlSurfVec();
+}
+
+void VSPAEROMgrSingleton::RemoveAllFromCSGroup()
+{
+    if ( m_CurrentCSGroupIndex != -1 )
+    {
+        for ( size_t i = 0; i < m_ActiveControlSurfaceVec.size(); ++i )
+        {
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->RemoveSubSurface( m_ActiveControlSurfaceVec[i].SSID, m_ActiveControlSurfaceVec[i].iReflect );
+            for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
+            {
+                if ( m_ActiveControlSurfaceVec[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
+                {
+                    if ( m_ActiveControlSurfaceVec[i].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
+                    {
+                        m_CompleteControlSurfaceVec[ j ].isGrouped = false;
+                    }
+                }
+            }
+        }
+    }
+    m_SelectedGroupedCS.clear();
+    UpdateUngroupedVec();
+    UpdateActiveControlSurfVec();
+}
+
+string VSPAEROMgrSingleton::GetCurrentCSGGroupName()
+{
+    if ( m_CurrentCSGroupIndex != -1 )
+    {
+        return m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->GetName();
     }
     else
     {
-        fprintf( stderr, "ERROR %d: Unable to get VSPAERO_Wrapper result \n\tFile: %s \tLine:%d\n", vsp::VSP_CANT_FIND_NAME, __FILE__, __LINE__ );
-        retVal = vsp::VSP_CANT_FIND_NAME; //failure
+        return "";
     }
-
-    return retVal;
 }
 
+void VSPAEROMgrSingleton::SetCurrentCSGroupName( const string & name )
+{
+    if ( m_CurrentCSGroupIndex != -1 )
+    {
+        m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->SetName( name );
+    }
+}
+
+void VSPAEROMgrSingleton::HighlightSelected( int type )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    veh->ClearActiveGeom();
+
+    if ( type == ROTORDISK )
+    {
+        VSPAEROMgr.SetCurrentType( ROTORDISK );
+    }
+    else if ( type == CONTROL_SURFACE )
+    {
+        VSPAEROMgr.SetCurrentType( CONTROL_SURFACE );
+    }
+    else
+    {
+        return;
+    }
+}
+
+void VSPAEROMgrSingleton::LoadDrawObjs( vector < DrawObj* > & draw_obj_vec )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    if ( m_LastSelectedType == ROTORDISK )
+    {
+        UpdateBBox( draw_obj_vec );
+    }
+    else if ( m_LastSelectedType == CONTROL_SURFACE )
+    {
+        UpdateHighlighted( draw_obj_vec );
+    }
+}
+
+void VSPAEROMgrSingleton::UpdateBBox( vector < DrawObj* > & draw_obj_vec )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    //==== Load Bounding Box ====//
+    m_BBox.Reset();
+    BndBox bb;
+
+    // If there is no selected rotor size is zero ( like blank geom )
+    // set bbox to zero size
+    if ( m_CurrentRotorDiskIndex == -1 )
+    {
+        m_BBox.Update( vec3d( 0, 0, 0 ) );
+    }
+    else
+    {
+        vector < VspSurf > surf_vec;
+        Geom* geom = veh->FindGeom( m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetParentID() );
+        if ( geom )
+        {
+            geom->GetSurfVec( surf_vec );
+            surf_vec[m_RotorDiskVec[m_CurrentRotorDiskIndex]->GetSurfNum()].GetBoundingBox( bb );
+            m_BBox.Update( bb );
+        }
+        else
+        { m_CurrentRotorDiskIndex = -1; }
+    }
+
+    //==== Bounding Box ====//
+    m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
+    m_HighlightDrawObj.m_LineWidth = 2.0;
+    m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
+    m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
+
+    m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+
+    draw_obj_vec.push_back( &m_HighlightDrawObj );
+}
+
+void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    string parentID = "";
+    string ssid = "";
+    int sub_surf_indx;
+    if ( m_CurrentCSGroupIndex != -1 )
+    {
+        vector < VspAeroControlSurf > cont_surf_vec = m_ActiveControlSurfaceVec;
+        vector < VspAeroControlSurf > cont_surf_vec_ungrouped = m_UngroupedCS;
+        if ( m_SelectedGroupedCS.size() == 0 && m_SelectedUngroupedCS.size() == 0 )
+        {
+            for ( size_t i = 0; i < cont_surf_vec.size(); ++i )
+            {
+                vec3d color( 0, 1, 0 ); // Green
+                parentID = cont_surf_vec[i].parentGeomId;
+                sub_surf_indx = cont_surf_vec[i].iReflect;
+                ssid = cont_surf_vec[i].SSID;
+                Geom* geom = veh->FindGeom( parentID );
+                if ( geom )
+                {
+                    SubSurface* subsurf = geom->GetSubSurf( ssid );
+                    if ( subsurf )
+                    {
+                        subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
+                    }
+                }
+            }
+        }
+        else
+        {
+            for ( size_t i = 0; i < m_SelectedGroupedCS.size(); ++i )
+            {
+                vec3d color( 0, 1, 0 ); // Green
+                parentID = cont_surf_vec[m_SelectedGroupedCS[i] - 1].parentGeomId;
+                sub_surf_indx = cont_surf_vec[m_SelectedGroupedCS[i] - 1].iReflect;
+                ssid = cont_surf_vec[m_SelectedGroupedCS[i] - 1].SSID;
+                Geom* geom = veh->FindGeom( parentID );
+                SubSurface* subsurf = geom->GetSubSurf( ssid );
+                if ( subsurf )
+                {
+                    subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
+                }
+            }
+            for ( size_t i = 0; i < m_SelectedUngroupedCS.size(); ++i )
+            {
+                vec3d color( 1, 0, 0 ); // Red
+                parentID = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].parentGeomId;
+                sub_surf_indx = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].iReflect;
+                ssid = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].SSID;
+                Geom* geom = veh->FindGeom( parentID );
+                SubSurface* subsurf = geom->GetSubSurf( ssid );
+                if ( subsurf )
+                {
+                    subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
+                }
+            }
+        }
+    }
+}
+
+
+/*##############################################################################
+#                                                                              #
+#                              RotorDisk                                       #
+#                                                                              #
+##############################################################################*/
+
+RotorDisk::RotorDisk( void ) : ParmContainer()
+{
+    m_Name = "Default";
+    m_GroupName = "Rotor";
+
+    m_IsUsed = true;
+
+    m_XYZ.set_xyz( 0, 0, 0 );           // RotorXYZ_
+    m_Normal.set_xyz( 0, 0, 0 );        // RotorNormal_
+
+    m_Diameter.Init( "RotorDiameter", m_GroupName, this, 10.0, 0.0, 1e12 );       // RotorDiameter_
+    m_Diameter.SetDescript( "Rotor Diameter" );
+
+    m_HubDiameter.Init( "RotorHubDiameter", m_GroupName, this, 0.0, 0.0, 1e12 );    // RotorHubDiameter_
+    m_HubDiameter.SetDescript( "Rotor Hub Diameter" );
+
+    m_RPM.Init( "RotorRPM", m_GroupName, this, 2000.0, -1e12, 1e12 );       // RotorRPM_
+    m_RPM.SetDescript( "Rotor RPM" );
+
+    m_CT.Init( "RotorCT", m_GroupName, this, 0.4, -1e3, 1e3 );       // Rotor_CT_
+    m_CT.SetDescript( "Rotor Coefficient of Thrust" );
+
+    m_CP.Init( "RotorCP", m_GroupName, this, 0.6, -1e3, 1e3 );        // Rotor_CP_
+    m_CP.SetDescript( "Rotor Coefficient of Power" );
+
+    m_ParentGeomId = "";
+    m_ParentGeomSurfNdx = -1;
+}
+
+
+RotorDisk::~RotorDisk( void )
+{
+}
+
+void RotorDisk::ParmChanged( Parm* parm_ptr, int type )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+RotorDisk& RotorDisk::operator=( const RotorDisk &RotorDisk )
+{
+
+    m_Name = RotorDisk.m_Name;
+
+    m_XYZ = RotorDisk.m_XYZ;           // RotorXYZ_
+    m_Normal = RotorDisk.m_Normal;        // RotorNormal_
+
+    m_Diameter = RotorDisk.m_Diameter;       // RotorRadius_
+    m_HubDiameter = RotorDisk.m_HubDiameter;    // RotorHubRadius_
+    m_RPM = RotorDisk.m_RPM;       // RotorRPM_
+
+    m_CT = RotorDisk.m_CT;        // Rotor_CT_
+    m_CP = RotorDisk.m_CP;        // Rotor_CP_
+
+    m_ParentGeomId = RotorDisk.m_ParentGeomId;
+    m_ParentGeomSurfNdx = RotorDisk.m_ParentGeomSurfNdx;
+
+    return *this;
+
+}
+
+void RotorDisk::Write_STP_Data( FILE *InputFile )
+{
+
+    // Write out RotorDisk to file
+
+    fprintf( InputFile, "%lf %lf %lf \n", m_XYZ.x(), m_XYZ.y(), m_XYZ.z() );
+
+    fprintf( InputFile, "%lf %lf %lf \n", m_Normal.x(), m_Normal.y(), m_Normal.z() );
+
+    fprintf( InputFile, "%lf \n", m_Diameter() / 2.0 );
+
+    fprintf( InputFile, "%lf \n", m_HubDiameter() / 2.0 );
+
+    fprintf( InputFile, "%lf \n", m_RPM() );
+
+    fprintf( InputFile, "%lf \n", m_CT() );
+
+    fprintf( InputFile, "%lf \n", m_CP() );
+
+}
+
+xmlNodePtr RotorDisk::EncodeXml( xmlNodePtr & node )
+{
+    if ( node )
+    {
+        ParmContainer::EncodeXml( node );
+        XmlUtil::AddStringNode( node, "ParentID", m_ParentGeomId.c_str() );
+        XmlUtil::AddIntNode( node, "SurfIndex", m_ParentGeomSurfNdx );
+    }
+
+    return node;
+}
+
+xmlNodePtr RotorDisk::DecodeXml( xmlNodePtr & node )
+{
+    string defstr = "";
+    int defint = 0;
+    if ( node )
+    {
+        ParmContainer::DecodeXml( node );
+        m_ParentGeomId = XmlUtil::FindString( node, "ParentID", defstr );
+        m_ParentGeomSurfNdx = XmlUtil::FindInt( node, "SurfIndex", defint );
+    }
+
+    return node;
+}
+
+void RotorDisk::SetGroupDisplaySuffix(int num)
+{
+    m_GroupSuffix = num;
+    //==== Assign Group Suffix To All Parms ====//
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->SetGroupDisplaySuffix( num );
+        }
+    }
+}
+
+/*##############################################################################
+#                                                                              #
+#                        ControlSurfaceGroup                                   #
+#                                                                              #
+##############################################################################*/
+
+ControlSurfaceGroup::ControlSurfaceGroup( void ) : ParmContainer()
+{
+    m_Name = "Unnamed Control Group";
+    m_ParentGeomBaseID = "";
+
+    m_GroupName = "ControlSurfaceGroup";
+
+    m_IsUsed.Init( "ActiveFlag", m_GroupName, this, true, false, true );
+    m_IsUsed.SetDescript( "Flag to determine whether or not this group will be used in VSPAero" );
+
+    m_DeflectionAngle.Init( "DeflectionAngle", m_GroupName, this, 0.0, -1.0e12, 1.0e12 );
+    m_DeflectionAngle.SetDescript( "Angle of deflection for the control group" );
+}
+
+ControlSurfaceGroup::~ControlSurfaceGroup( void )
+{
+}
+
+void ControlSurfaceGroup::ParmChanged( Parm* parm_ptr, int type )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+void ControlSurfaceGroup::Write_STP_Data( FILE *InputFile )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    string nospacename;
+
+    // Write out Control surface group to .vspaero file
+    nospacename = m_Name;
+    StringUtil::chance_space_to_underscore( nospacename );
+    fprintf( InputFile, "%s\n", nospacename.c_str() );
+
+    // surface names ( Cannot have trailing commas )
+    unsigned int i = 0;
+    for ( i = 0; i < m_ControlSurfVec.size() - 1; i++ )
+    {
+        nospacename = m_ControlSurfVec[i].fullName;
+        StringUtil::chance_space_to_underscore( nospacename );
+        fprintf( InputFile, "%s,", nospacename.c_str() );
+    }
+    nospacename = m_ControlSurfVec[i++].fullName;
+    StringUtil::chance_space_to_underscore( nospacename );
+    fprintf( InputFile, "%s\n", nospacename.c_str() );
+
+    // deflection mixing gains ( Cannot have trailing commas )
+    for ( i = 0; i < m_DeflectionGainVec.size() - 1; i++ )
+    {
+        fprintf( InputFile, "%lg, ", m_DeflectionGainVec[i]->Get() );
+    }
+    fprintf( InputFile, "%lg\n", m_DeflectionGainVec[i++]->Get() );
+
+    // group deflection angle
+    fprintf( InputFile, "%lg\n", m_DeflectionAngle() );
+
+}
+
+void ControlSurfaceGroup::Load_STP_Data( FILE *InputFile )
+{
+    //TODO - need to write function to load data from .vspaero file
+}
+
+xmlNodePtr ControlSurfaceGroup::EncodeXml( xmlNodePtr & node )
+{
+    if ( node )
+    {
+        XmlUtil::AddStringNode( node, "ParentGeomBase", m_ParentGeomBaseID.c_str() );
+
+        XmlUtil::AddIntNode( node, "NumberOfControlSubSurfaces", m_ControlSurfVec.size() );
+        for ( size_t i = 0; i < m_ControlSurfVec.size(); ++i )
+        {
+            xmlNodePtr csnode = xmlNewChild( node, NULL, BAD_CAST "Control_Surface" , NULL );
+
+            XmlUtil::AddStringNode( csnode, "SSID", m_ControlSurfVec[i].SSID.c_str() );
+            XmlUtil::AddStringNode( csnode, "ParentGeomID", m_ControlSurfVec[i].parentGeomId.c_str() );
+            XmlUtil::AddIntNode( csnode, "iReflect", m_ControlSurfVec[i].iReflect );
+        }
+
+        ParmContainer::EncodeXml( node );
+    }
+
+    return node;
+}
+
+xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
+{
+    unsigned int nControlSubSurfaces = 0;
+    string GroupName;
+    string ParentGeomID;
+    string SSID;
+
+    int iReflect = 0;
+    VspAeroControlSurf newSurf;
+
+    if ( node )
+    {
+        m_ParentGeomBaseID = XmlUtil::FindString( node, "ParentGeomBase", ParentGeomID );
+
+        nControlSubSurfaces = XmlUtil::FindInt( node, "NumberOfControlSubSurfaces", nControlSubSurfaces );
+        for ( size_t i = 0; i < nControlSubSurfaces; ++i )
+        {
+            xmlNodePtr csnode = XmlUtil::GetNode( node, "Control_Surface", i );
+
+            newSurf.SSID = XmlUtil::FindString( csnode, "SSID", SSID );
+            newSurf.parentGeomId = XmlUtil::FindString( csnode, "ParentGeomID", ParentGeomID );
+            newSurf.iReflect = XmlUtil::FindInt( csnode, "iReflect", iReflect );
+            AddSubSurface( newSurf );
+        }
+
+        ParmContainer::DecodeXml( node ); // Comes after AddSubSurface() to prevent overwriting of newly initialized Parms
+    }
+
+    return node;
+}
+
+void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
+{
+    // Add deflection gain parm to ControlSurfaceGroup container
+    Parm* p = ParmMgr.CreateParm( PARM_DOUBLE_TYPE );
+    char str[256];
+
+    if ( p )
+    {
+        //  parm name: control_surf->fullName (example: MainWing_Surf1_Aileron)
+        //  group: "ControlSurfaceGroup"
+        //  initial value: control_surf->deflection_gain
+        sprintf( str, "Surf_%s_%i_Gain", control_surf.SSID.c_str(), control_surf.iReflect );
+        p->Init( str, m_GroupName, this, 1.0, -1.0e6, 1.0e6 );
+        p->SetDescript( "Deflection gain for the individual sub surface to be used for control mixing and allocation within the control surface group" );
+        m_DeflectionGainVec.push_back( p );
+    }
+
+    m_ControlSurfVec.push_back( control_surf );
+}
+
+void ControlSurfaceGroup::RemoveSubSurface( const string & ssid, int reflec_num )
+{
+    for ( size_t i = 0; i < m_ControlSurfVec.size(); ++i )
+    {
+        if ( m_ControlSurfVec[i].SSID.compare( ssid ) == 0 && m_ControlSurfVec[i].iReflect == reflec_num )
+        {
+            m_ControlSurfVec.erase( m_ControlSurfVec.begin() + i );
+            delete m_DeflectionGainVec[i];
+            m_DeflectionGainVec.erase( m_DeflectionGainVec.begin() + i );
+            return;
+        }
+    }
+}
+
+void ControlSurfaceGroup::SetGroupDisplaySuffix( int num )
+{
+    m_GroupSuffix = num;
+    //==== Assign Group Suffix To All Parms ====//
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            p->SetGroupDisplaySuffix( num );
+        }
+    }
+}

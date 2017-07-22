@@ -3,7 +3,7 @@
 void main()
 {
     //==== Add Wing ====//
-    string wid = AddGeom( "WING", "");
+    string wid = AddGeom( "WING", "" );
 
     //===== Insert A Couple More Sections =====//
     InsertXSec( wid, 1, XS_FOUR_SERIES );
@@ -43,11 +43,11 @@ void main()
     Update();
 
 
-	//==== Check For API Errors ====//
-	while ( GetNumTotalErrors() > 0 )
-	{
-		ErrorObj err = PopLastError();
-		Print( err.GetErrorString() );
-	}
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
 
 }

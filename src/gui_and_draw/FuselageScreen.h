@@ -28,6 +28,8 @@ public:
 
     virtual void CallBack( Fl_Widget *w );
     virtual void GuiDeviceCallBack( GuiDevice* d );
+    
+    virtual void RebuildCSTGroup( CSTAirfoil* cst_xs );
 
 protected:
 
@@ -135,6 +137,38 @@ protected:
     StringOutput m_AfFileNameOutput;
     CheckButton m_AfFileInvertButton;
     SliderAdjRangeInput m_AfFileChordSlider;
+    
+    GroupLayout m_CSTAirfoilGroup;
+
+    SliderAdjRangeInput m_CSTChordSlider;
+    
+    TriggerButton m_UpDemoteButton;
+    StringOutput m_UpDegreeOutput;
+    TriggerButton m_UpPromoteButton;
+
+    Fl_Scroll* m_CSTUpCoeffScroll;
+    GroupLayout m_CSTUpCoeffLayout;
+
+    TriggerButton m_LowDemoteButton;
+    StringOutput m_LowDegreeOutput;
+    TriggerButton m_LowPromoteButton;
+
+    vector < SliderAdjRangeInput > m_UpCoeffSliderVec;
+
+    Fl_Scroll* m_CSTLowCoeffScroll;
+    GroupLayout m_CSTLowCoeffLayout;
+
+    vector < SliderAdjRangeInput > m_LowCoeffSliderVec;
+
+    CheckButton m_CSTInvertButton;
+    CheckButton m_CSTContLERadButton;
+    CheckButton m_CSTEqArcLenButton;
+
+    GroupLayout m_VKTGroup;
+    SliderAdjRangeInput m_VKTChordSlider;
+    SliderAdjRangeInput m_VKTEpsilonSlider;
+    SliderAdjRangeInput m_VKTKappaSlider;
+    SliderAdjRangeInput m_VKTTauSlider;
 
     GroupLayout* m_CurrDisplayGroup;
     void DisplayGroup( GroupLayout* group );

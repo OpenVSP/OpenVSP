@@ -13,6 +13,7 @@
 #include "MeshGeom.h"
 #include "ConformalGeom.h"
 #include "CustomGeom.h"
+#include "EllipsoidGeom.h"
 #include "PtCloudGeom.h"
 #include "PropGeom.h"
 #include "HingeGeom.h"
@@ -22,6 +23,7 @@
 #include "LinkMgr.h"
 #include "AdvLinkMgr.h"
 #include "AnalysisMgr.h"
+#include "ParasiteDragMgr.h"
 #include "Quat.h"
 #include "StringUtil.h"
 #include "SubSurfaceMgr.h"
@@ -159,10 +161,6 @@ void Vehicle::Init()
     SetVSP3FileName( "Unnamed.vsp3" );
     m_FileOpenVersion = -1;
 
-    //==== Update VSPAero Mgr ====//
-    // must do this after the SetVSP3FileName()
-    VSPAEROMgr.Update();
-
     //==== Load Default Set Names =====//
     m_SetNameVec.push_back( "All" );        // SET_ALL
     m_SetNameVec.push_back( "Shown" );      // SET_SHOWN
@@ -180,6 +178,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( MS_WING_GEOM_TYPE, "WING", true ) );
     m_GeomTypeVec.push_back( GeomType( STACK_GEOM_TYPE, "STACK", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
+    m_GeomTypeVec.push_back( GeomType( ELLIPSOID_GEOM_TYPE, "ELLIPSOID", true ) );
     m_GeomTypeVec.push_back( GeomType( PROP_GEOM_TYPE, "PROP", true ) );
     m_GeomTypeVec.push_back( GeomType( HINGE_GEOM_TYPE, "HINGE", true ) );
     m_GeomTypeVec.push_back( GeomType( CONFORMAL_GEOM_TYPE, "CONFORMAL", true ) );
@@ -197,6 +196,7 @@ void Vehicle::Init()
     LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
     LinkMgr.RegisterContainer( VSPAEROMgr.GetID() );
     LinkMgr.RegisterContainer( WaveDragMgr.GetID() );
+    LinkMgr.RegisterContainer( ParasiteDragMgr.GetID() );
 
     m_IxxIyyIzz = vec3d( 0, 0, 0 );
     m_IxyIxzIyz = vec3d( 0, 0, 0 );
@@ -322,6 +322,8 @@ void Vehicle::Wype()
     FitModelMgr.Renew();
     AnalysisMgr.Renew();
     VarPresetMgr.Renew();
+    ParasiteDragMgr.Renew();
+    VSPAEROMgr.Renew();
 }
 
 void Vehicle::SetVSP3FileName( const string & f_name )
@@ -510,9 +512,13 @@ string Vehicle::CreateGeom( const GeomType & type )
     {
         new_geom = new HingeGeom( this );
     }
-    else if ( type.m_Type == CONFORMAL_GEOM_TYPE )
+    else if ( type.m_Name == "Conformal" || type.m_Name == "CONFORMAL" )
     {
         new_geom = new ConformalGeom( this );
+    }
+    else if ( type.m_Name == "Ellipsoid" || type.m_Name == "ELLIPSOID" )
+    {
+        new_geom = new EllipsoidGeom( this );
     }
 
     if ( !new_geom )
@@ -554,7 +560,7 @@ string Vehicle::AddGeom( const GeomType & type )
         if ( type.m_Type == CUSTOM_GEOM_TYPE )
         {
             add_geom->SetType( type );
-            CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName );
+            CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName, type.m_DisplayName );
 //            add_geom->Update();
         }
         //==== Update Conformal After Attachment to Parent ====//
@@ -1032,7 +1038,7 @@ void Vehicle::PasteClipboard()
 //==== Copy Geoms In Vec - Create New IDs But Keep Parent/Child ====//
 vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
 {
-    ParmMgr.ResetRemapID();
+    string lastreset = ParmMgr.ResetRemapID();
 
     //==== Create New Geoms ====//
     vector< string > created_id_vec;
@@ -1055,7 +1061,7 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
         }
     }
 
-    ParmMgr.ResetRemapID();
+    ParmMgr.ResetRemapID( lastreset );
 
     // Scan through and look for parents & children outside copied vector
     // These have nonexistant ID's because the remap created a new unique
@@ -1266,7 +1272,7 @@ void Vehicle::AddType( const string & geom_id )
     Geom* gptr = FindGeom( geom_id );
     if ( gptr && gptr->GetType().m_Type != CUSTOM_GEOM_TYPE )
     {
-        GeomType type( gptr->GetType().m_Type, gptr->GetName(), false, gptr->GetType().m_ModuleName );
+        GeomType type( gptr->GetType().m_Type, gptr->GetName(), false, gptr->GetType().m_ModuleName, gptr->GetType().m_DisplayName );
 
         //===== Create Geom ====//
         GeomType t = gptr->GetType();
@@ -1371,6 +1377,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     m_FeaGridDensity.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
     WaveDragMgr.EncodeXml( node );
+    ParasiteDragMgr.EncodeXml( node );
 
     xmlNodePtr setnamenode = xmlNewChild( node, NULL, BAD_CAST"SetNames", NULL );
     if ( setnamenode )
@@ -1397,7 +1404,54 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
         // Decode label information.
         getVGuiDraw()->getLabelMgr()->DecodeXml( vehicle_node );
 
-        MaterialMgr.DecodeXml( node );
+    }
+
+    // 'GeomsOnly' is a euphamism for those entities we want to read when 'inserting' a file.
+    // It is mostly the Geoms, but also materials, presets, links, and advanced links.
+    DecodeXmlGeomsOnly( node );
+
+    VSPAEROMgr.DecodeXml( node );
+    m_CfdSettings.DecodeXml( node );
+    m_CfdGridDensity.DecodeXml( node );
+    m_FeaGridDensity.DecodeXml( node );
+    m_ClippingMgr.DecodeXml( node );
+    WaveDragMgr.DecodeXml( node );
+    ParasiteDragMgr.DecodeXml( node );
+
+    xmlNodePtr setnamenode = XmlUtil::GetNode( node, "SetNames", 0 );
+    if ( setnamenode )
+    {
+        int num = XmlUtil::GetNumNames( setnamenode, "Set" );
+
+        for ( int i = 0; i < num; i++ )
+        {
+            xmlNodePtr namenode = XmlUtil::GetNode( setnamenode, "Set", i );
+            if ( namenode )
+            {
+                string name = XmlUtil::ExtractString( namenode );
+                SetSetName( i, name );
+            }
+        }
+    }
+
+    return vehicle_node;
+}
+
+// DecodeXmlGeomsOnly is a stripped down version of DecodeXml.
+//
+// It is called directly when we 'insert' instead of 'open' a file.  It skips a lot of the auxilary information
+// contained in the vsp3 file -- instead deferring to that already in the main file.  It attempts to insert
+// all the geometry as well as links & advanced links from the file.
+//
+// To prevent code duplication, it is also called from DecodeXml
+//
+xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
+{
+    MaterialMgr.DecodeXml( node );
+
+    xmlNodePtr vehicle_node = XmlUtil::GetNode( node, "Vehicle", 0 );
+    if ( vehicle_node )
+    {
 
         int num = XmlUtil::GetNumNames( vehicle_node, "Geom" );
         for ( int i = 0 ; i < num ; i++ )
@@ -1426,38 +1480,14 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
                 }
             }
         }
-        Update();
     }
 
     LinkMgr.DecodeXml( node );
     AdvLinkMgr.DecodeXml( node );
-    VSPAEROMgr.DecodeXml( node );
     VarPresetMgr.DecodeXml( node );
-    m_CfdSettings.DecodeXml( node );
-    m_CfdGridDensity.DecodeXml( node );
-    m_FeaGridDensity.DecodeXml( node );
-    m_ClippingMgr.DecodeXml( node );
-    WaveDragMgr.DecodeXml( node );
-
-    xmlNodePtr setnamenode = XmlUtil::GetNode( node, "SetNames", 0 );
-    if ( setnamenode )
-    {
-        int num = XmlUtil::GetNumNames( setnamenode, "Set" );
-
-        for ( int i = 0; i < num; i++ )
-        {
-            xmlNodePtr namenode = XmlUtil::GetNode( setnamenode, "Set", i );
-            if ( namenode )
-            {
-                string name = XmlUtil::ExtractString( namenode );
-                SetSetName( i, name );
-            }
-        }
-    }
 
     return vehicle_node;
 }
-
 
 //==== Write File ====//
 bool Vehicle::WriteXMLFile( const string & file_name, int set )
@@ -1485,7 +1515,7 @@ bool Vehicle::WriteXMLFile( const string & file_name, int set )
 //==== Read File ====//
 int Vehicle::ReadXMLFile( const string & file_name )
 {
-    ParmMgr.ResetRemapID();
+    string lastreset = ParmMgr.ResetRemapID();
 
     //==== Read Xml File ====//
     xmlDocPtr doc;
@@ -1529,12 +1559,69 @@ int Vehicle::ReadXMLFile( const string & file_name )
     //==== Decode Vehicle from document ====//
     DecodeXml( root );
 
+    //===== Free Doc =====//
+    xmlFreeDoc( doc );
+
+    ParmMgr.ResetRemapID( lastreset );
+
     Update();
+
+    return 0;
+}
+
+//==== Read File ====//
+int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
+{
+    string lastreset = ParmMgr.ResetRemapID();
+
+    //==== Read Xml File ====//
+    xmlDocPtr doc;
+
+    LIBXML_TEST_VERSION
+    xmlKeepBlanksDefault( 0 );
+
+    //==== Build an XML tree from a the file ====//
+    doc = xmlParseFile( file_name.c_str() );
+    if ( doc == NULL )
+    {
+        fprintf( stderr, "could not parse XML document\n" );
+        return 1;
+    }
+
+    xmlNodePtr root = xmlDocGetRootElement( doc );
+    if ( root == NULL )
+    {
+        fprintf( stderr, "empty document\n" );
+        xmlFreeDoc( doc );
+        return 2;
+    }
+
+    if ( xmlStrcmp( root->name, ( const xmlChar * )"Vsp_Geometry" ) )
+    {
+        fprintf( stderr, "document of the wrong type, Vsp Geometry not found\n" );
+        xmlFreeDoc( doc );
+        return 3;
+    }
+
+    //==== Find Version Number ====//
+    m_FileOpenVersion = XmlUtil::FindInt( root, "Version", 0 );
+
+    if ( m_FileOpenVersion < MIN_FILE_VER )
+    {
+        fprintf( stderr, "document version not supported \n");
+        xmlFreeDoc( doc );
+        return 4;
+    }
+
+    //==== Decode Vehicle from document ====//
+    DecodeXmlGeomsOnly( root );
 
     //===== Free Doc =====//
     xmlFreeDoc( doc );
 
-    ParmMgr.ResetRemapID();
+    ParmMgr.ResetRemapID( lastreset );
+
+    Update();
 
     return 0;
 }
@@ -2581,6 +2668,8 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
         m_VehProjectVec3d.resize( 3 );
 
         // Tesselation adjustment
+        // Tesselation must be an integer -- something rational should be done with either
+        // tessfactor or the places where it is used.
         double tessfactor = m_DXFTessFactor.Get();
 
         for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -2988,23 +3077,23 @@ void Vehicle::WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox
 
     string vehiclelayer = "VehicleProjection";
 
-    if ( m_DXF2D3DFlag() == vsp::DIMENSION_SET::SET_2D )
+    if ( m_DXF2D3DFlag() == vsp::SET_2D )
     {
-        if ( m_DXF2DView() == vsp::VIEW_NUM::VIEW_1 )
+        if ( m_DXF2DView() == vsp::VIEW_1 )
         {
             vector < vector < vec3d > > projectionvec = GetVehProjectionLines( m_DXF4View1(), to_orgin );
             FeatureLinesManipulate( projectionvec, m_DXF4View1(), m_DXF4View1_rot(), shiftvec );
             WriteDXFPolylines2D( file_name, projectionvec, vehiclelayer, color, m_ColorCount );
             m_ColorCount++;
         }
-        else if ( m_DXF2DView() == vsp::VIEW_NUM::VIEW_2HOR )
+        else if ( m_DXF2DView() == vsp::VIEW_2HOR )
         {
             vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_DXF4View1(), to_orgin );
 
             if ( projectionvec1.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec1, m_DXF4View1(), m_DXF4View1_rot(), shiftvec );
-                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_DXF4View1_rot(), 0 );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::LEFT, m_DXF4View1_rot(), 0 );
                 string vehiclelayer_v1 = vehiclelayer + "_v1";
 
                 WriteDXFPolylines2D( file_name, projectionvec1, vehiclelayer_v1, color, m_ColorCount );
@@ -3016,21 +3105,21 @@ void Vehicle::WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox
             if ( projectionvec2.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec2, m_DXF4View2(), m_DXF4View2_rot(), shiftvec );
-                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_DXF4View2_rot(), 0 );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::RIGHT, m_DXF4View2_rot(), 0 );
                 string vehiclelayer_v2 = vehiclelayer + "_v2";
 
                 WriteDXFPolylines2D( file_name, projectionvec2, vehiclelayer_v2, color, m_ColorCount );
                 m_ColorCount++;
             }
         }
-        else if ( m_DXF2DView() == vsp::VIEW_NUM::VIEW_2VER )
+        else if ( m_DXF2DView() == vsp::VIEW_2VER )
         {
             vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_DXF4View1(), to_orgin );
 
             if ( projectionvec1.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec1, m_DXF4View1(), m_DXF4View1_rot(), shiftvec );
-                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_DXF4View1_rot(), 0 );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::UP, m_DXF4View1_rot(), 0 );
                 string vehiclelayer_v1 = vehiclelayer + "_v1";
 
                 WriteDXFPolylines2D( file_name, projectionvec1, vehiclelayer_v1, color, m_ColorCount );
@@ -3042,22 +3131,22 @@ void Vehicle::WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox
             if ( projectionvec3.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec3, m_DXF4View3(), m_DXF4View3_rot(), shiftvec );
-                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_DXF4View3_rot(), 0 );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::DOWN, m_DXF4View3_rot(), 0 );
                 string vehiclelayer_v2 = vehiclelayer + "_v2";
 
                 WriteDXFPolylines2D( file_name, projectionvec3, vehiclelayer_v2, color, m_ColorCount );
                 m_ColorCount++;
             }
         }
-        else if ( m_DXF2DView() == vsp::VIEW_NUM::VIEW_4 )
+        else if ( m_DXF2DView() == vsp::VIEW_4 )
         {
             vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_DXF4View1(), to_orgin );
 
             if ( projectionvec1.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec1, m_DXF4View1(), m_DXF4View1_rot(), shiftvec );
-                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_DXF4View1_rot(), m_DXF4View2_rot() );
-                FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT, m_DXF4View1_rot(), m_DXF4View3_rot() );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::UP, m_DXF4View1_rot(), m_DXF4View2_rot() );
+                FeatureLinesShift( projectionvec1, shiftvec, vsp::LEFT, m_DXF4View1_rot(), m_DXF4View3_rot() );
                 string vehiclelayer_v1 = vehiclelayer + "_v1";
 
                 WriteDXFPolylines2D( file_name, projectionvec1, vehiclelayer_v1, color, m_ColorCount );
@@ -3069,8 +3158,8 @@ void Vehicle::WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox
             if ( projectionvec2.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec2, m_DXF4View2(), m_DXF4View2_rot(), shiftvec );
-                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::UP, m_DXF4View2_rot(), m_DXF4View1_rot() );
-                FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_DXF4View2_rot(), m_DXF4View4_rot() );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::UP, m_DXF4View2_rot(), m_DXF4View1_rot() );
+                FeatureLinesShift( projectionvec2, shiftvec, vsp::RIGHT, m_DXF4View2_rot(), m_DXF4View4_rot() );
                 string vehiclelayer_v2 = vehiclelayer + "_v2";
 
                 WriteDXFPolylines2D( file_name, projectionvec2, vehiclelayer_v2, color, m_ColorCount );
@@ -3082,8 +3171,8 @@ void Vehicle::WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox
             if ( projectionvec3.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec3, m_DXF4View3(), m_DXF4View3_rot(), shiftvec );
-                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_DXF4View3_rot(), m_DXF4View4_rot() );
-                FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::LEFT, m_DXF4View3_rot(), m_DXF4View1_rot() );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::DOWN, m_DXF4View3_rot(), m_DXF4View4_rot() );
+                FeatureLinesShift( projectionvec3, shiftvec, vsp::LEFT, m_DXF4View3_rot(), m_DXF4View1_rot() );
                 string vehiclelayer_v3 = vehiclelayer + "_v3";
 
                 WriteDXFPolylines2D( file_name, projectionvec3, vehiclelayer_v3, color, m_ColorCount );
@@ -3095,8 +3184,8 @@ void Vehicle::WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox
             if ( projectionvec4.size() > 0 )
             {
                 FeatureLinesManipulate( projectionvec4, m_DXF4View4(), m_DXF4View4_rot(), shiftvec );
-                FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::DOWN, m_DXF4View4_rot(), m_DXF4View3_rot() );
-                FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_DXF4View4_rot(), m_DXF4View2_rot() );
+                FeatureLinesShift( projectionvec4, shiftvec, vsp::DOWN, m_DXF4View4_rot(), m_DXF4View3_rot() );
+                FeatureLinesShift( projectionvec4, shiftvec, vsp::RIGHT, m_DXF4View4_rot(), m_DXF4View2_rot() );
                 string vehiclelayer_v4 = vehiclelayer + "_v4";
 
                 WriteDXFPolylines2D( file_name, projectionvec4, vehiclelayer_v4, color, m_ColorCount );
@@ -3114,60 +3203,60 @@ void Vehicle::WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox 
     // Shift the vehicle bounding box to align with the +x, +y, +z axes at the orgin
     vec3d to_orgin = GetVecToOrgin( svgbox );
 
-    if ( m_SVGView() == vsp::VIEW_NUM::VIEW_1 )
+    if ( m_SVGView() == vsp::VIEW_1 )
     {
         vector < vector < vec3d > > projectionvec = GetVehProjectionLines( m_SVGView1(), to_orgin );
         FeatureLinesManipulate( projectionvec, m_SVGView1(), m_SVGView1_rot(), shiftvec );
         WriteSVGPolylines2D( root, projectionvec, svgbox );
     }
-    else if ( m_SVGView() == vsp::VIEW_NUM::VIEW_2HOR )
+    else if ( m_SVGView() == vsp::VIEW_2HOR )
     {
         vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_SVGView1(), to_orgin );
         FeatureLinesManipulate( projectionvec1, m_SVGView1(), m_SVGView1_rot(), shiftvec );
-        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT,m_SVGView1_rot(), 0 );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::LEFT,m_SVGView1_rot(), 0 );
         WriteSVGPolylines2D( root, projectionvec1, svgbox );
 
         vector < vector < vec3d > > projectionvec2 = GetVehProjectionLines( m_SVGView2(), to_orgin );
         FeatureLinesManipulate( projectionvec2, m_SVGView2(), m_SVGView2_rot(), shiftvec );
-        FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_SVGView2_rot(), 0 );
+        FeatureLinesShift( projectionvec2, shiftvec, vsp::RIGHT, m_SVGView2_rot(), 0 );
         WriteSVGPolylines2D( root, projectionvec2, svgbox );
     }
     else if ( m_SVGView() == vsp::VIEW_NUM::VIEW_2VER )
     {
         vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_SVGView1(), to_orgin );
         FeatureLinesManipulate( projectionvec1, m_SVGView1(), m_SVGView1_rot(), shiftvec );
-        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_SVGView1_rot(), 0 );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::UP, m_SVGView1_rot(), 0 );
         WriteSVGPolylines2D( root, projectionvec1, svgbox );
 
         vector < vector < vec3d > > projectionvec3 = GetVehProjectionLines( m_SVGView3(), to_orgin );
         FeatureLinesManipulate( projectionvec3, m_SVGView3(), m_SVGView3_rot(), shiftvec );
-        FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_SVGView3_rot(), 0 );
+        FeatureLinesShift( projectionvec3, shiftvec, vsp::DOWN, m_SVGView3_rot(), 0 );
         WriteSVGPolylines2D( root, projectionvec3, svgbox );
     }
     else if ( m_SVGView() == vsp::VIEW_NUM::VIEW_4 )
     {
         vector < vector < vec3d > > projectionvec1 = GetVehProjectionLines( m_SVGView1(), to_orgin );
         FeatureLinesManipulate( projectionvec1, m_SVGView1(), m_SVGView1_rot(), shiftvec );
-        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::UP, m_SVGView1_rot(), m_SVGView2_rot() );
-        FeatureLinesShift( projectionvec1, shiftvec, vsp::VIEW_SHIFT::LEFT,m_SVGView1_rot(), m_SVGView3_rot() );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::UP, m_SVGView1_rot(), m_SVGView2_rot() );
+        FeatureLinesShift( projectionvec1, shiftvec, vsp::LEFT,m_SVGView1_rot(), m_SVGView3_rot() );
         WriteSVGPolylines2D( root, projectionvec1, svgbox );
 
         vector < vector < vec3d > > projectionvec2 = GetVehProjectionLines( m_SVGView2(), to_orgin );
         FeatureLinesManipulate( projectionvec2, m_SVGView2(), m_SVGView2_rot(), shiftvec );
-        FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::UP, m_SVGView2_rot(), m_SVGView1_rot() );
-        FeatureLinesShift( projectionvec2, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_SVGView2_rot(), m_SVGView4_rot() );
+        FeatureLinesShift( projectionvec2, shiftvec, vsp::UP, m_SVGView2_rot(), m_SVGView1_rot() );
+        FeatureLinesShift( projectionvec2, shiftvec, vsp::RIGHT, m_SVGView2_rot(), m_SVGView4_rot() );
         WriteSVGPolylines2D( root, projectionvec2, svgbox );
 
         vector < vector < vec3d > > projectionvec3 = GetVehProjectionLines( m_SVGView3(), to_orgin );
         FeatureLinesManipulate( projectionvec3, m_SVGView3(), m_SVGView3_rot(), shiftvec );
-        FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::DOWN, m_SVGView3_rot(), m_SVGView4_rot() );
-        FeatureLinesShift( projectionvec3, shiftvec, vsp::VIEW_SHIFT::LEFT, m_SVGView3_rot(), m_SVGView1_rot() );
+        FeatureLinesShift( projectionvec3, shiftvec, vsp::DOWN, m_SVGView3_rot(), m_SVGView4_rot() );
+        FeatureLinesShift( projectionvec3, shiftvec, vsp::LEFT, m_SVGView3_rot(), m_SVGView1_rot() );
         WriteSVGPolylines2D( root, projectionvec3, svgbox );
 
         vector < vector < vec3d > > projectionvec4 = GetVehProjectionLines( m_SVGView4(), to_orgin );
         FeatureLinesManipulate( projectionvec4, m_SVGView4(), m_SVGView4_rot(), shiftvec );
-        FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::DOWN, m_SVGView4_rot(), m_SVGView3_rot() );
-        FeatureLinesShift( projectionvec4, shiftvec, vsp::VIEW_SHIFT::RIGHT, m_SVGView4_rot(), m_SVGView2_rot() );
+        FeatureLinesShift( projectionvec4, shiftvec, vsp::DOWN, m_SVGView4_rot(), m_SVGView3_rot() );
+        FeatureLinesShift( projectionvec4, shiftvec, vsp::RIGHT, m_SVGView4_rot(), m_SVGView2_rot() );
         WriteSVGPolylines2D( root, projectionvec4, svgbox );
     }
 }
@@ -3176,15 +3265,15 @@ vector< vector < vec3d > > Vehicle::GetVehProjectionLines( int view, vec3d offse
 {
     vector < vector < vec3d > > PathVec;
 
-    if ( view == vsp::VIEW_TYPE::VIEW_LEFT || view == vsp::VIEW_TYPE::VIEW_RIGHT )
+    if ( view == vsp::VIEW_LEFT || view == vsp::VIEW_RIGHT )
     {
         PathVec = m_VehProjectVec3d[vsp::Y_DIR];
     }
-    else if ( view == vsp::VIEW_TYPE::VIEW_FRONT || view == vsp::VIEW_TYPE::VIEW_REAR )
+    else if ( view == vsp::VIEW_FRONT || view == vsp::VIEW_REAR )
     {
         PathVec = m_VehProjectVec3d[vsp::X_DIR];
     }
-    else if ( view == vsp::VIEW_TYPE::VIEW_TOP || view == vsp::VIEW_TYPE::VIEW_BOTTOM )
+    else if ( view == vsp::VIEW_TOP || view == vsp::VIEW_BOTTOM )
     {
         PathVec = m_VehProjectVec3d[vsp::Z_DIR];
     }
@@ -3306,6 +3395,10 @@ string Vehicle::getExportFileName( int type )
     {
         doreturn = true;
     }
+    else if ( type == DRAG_BUILD_CSV_TYPE )
+    {
+        doreturn = true;
+    }
 
     if( doreturn )
     {
@@ -3366,6 +3459,10 @@ void Vehicle::setExportFileName( int type, string f_name )
     {
         doset = true;
     }
+    else if ( type == DRAG_BUILD_CSV_TYPE )
+    {
+        doset = true;
+    }
 
     if( doset )
     {
@@ -3375,8 +3472,8 @@ void Vehicle::setExportFileName( int type, string f_name )
 
 void Vehicle::resetExportFileNames()
 {
-    const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_DragBuild.tsv", "_AwaveSlice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m", "_ProjArea.csv", "_WaveDrag.txt", ".tri" };
-    const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, DRAG_BUILD_TSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE, PROJ_AREA_CSV_TYPE, WAVE_DRAG_TXT_TYPE, VSPAERO_PANEL_TRI_TYPE };
+    const char *suffix[] = {"_CompGeom.txt", "_CompGeom.csv", "_DragBuild.tsv", "_AwaveSlice.txt", "_MassProps.txt", "_DegenGeom.csv", "_DegenGeom.m", "_ProjArea.csv", "_WaveDrag.txt", ".tri", "_ParasiteBuildUp.csv" };
+    const int types[] = { COMP_GEOM_TXT_TYPE, COMP_GEOM_CSV_TYPE, DRAG_BUILD_TSV_TYPE, SLICE_TXT_TYPE, MASS_PROP_TXT_TYPE, DEGEN_GEOM_CSV_TYPE, DEGEN_GEOM_M_TYPE, PROJ_AREA_CSV_TYPE, WAVE_DRAG_TXT_TYPE, VSPAERO_PANEL_TRI_TYPE, DRAG_BUILD_CSV_TYPE };
     const int ntype = ( sizeof(types) / sizeof(types[0]) );
     int pos;
 
@@ -3684,7 +3781,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
 
 string Vehicle::ImportV2File( const string & file_name )
 {
-    ParmMgr.ResetRemapID();
+    string lastreset = ParmMgr.ResetRemapID();
 
     //==== Read Xml File ====//
     xmlDocPtr doc;
@@ -3833,7 +3930,7 @@ string Vehicle::ImportV2File( const string & file_name )
     //===== Free Doc =====//
     xmlFreeDoc( doc );
 
-    ParmMgr.ResetRemapID();
+    ParmMgr.ResetRemapID( lastreset );
 
     // The import routine has set the appropriate coordinate system values and
     // rel/abs flags. Therefore, the ignore absolute coordinate flag should

@@ -215,7 +215,6 @@ void QUAT::FormInverse(void)
 
 }
 
-
 /*##############################################################################
 #                                                                              #
 #                         QUAT FormRotationQuat                                #
@@ -227,6 +226,36 @@ void QUAT::FormRotationQuat(double *Vec, double Theta)
 
     int i;
     double Dot, SinHalfTheta;
+    QUAT Quat;
+
+    // Create the pure part along the normalized vector
+
+    Dot = sqrt(vector_dot(Vec,Vec));
+
+    SinHalfTheta = sin(0.5*Theta);
+
+    for ( i = 0 ; i <= 2 ; i++ ) {
+
+       (*this)(i) = Vec[i] * SinHalfTheta / Dot;
+
+    }
+
+    (*this)(3) = cos(0.5*Theta);
+
+}
+
+
+/*##############################################################################
+#                                                                              #
+#                         QUAT FormRotationQuat                                #
+#                                                                              #
+##############################################################################*/
+
+void QUAT::FormRotationQuat_f(float *Vec, float Theta)
+{
+
+    int i;
+    float Dot, SinHalfTheta;
     QUAT Quat;
 
     // Create the pure part along the normalized vector

@@ -18,6 +18,7 @@
 #include "Util.h"
 #include "DesignVarMgr.h"
 #include "VarPresetMgr.h"
+#include "ParasiteDragMgr.h"
 #include "WingGeom.h"
 #include "PropGeom.h"
 #include "VSPAEROMgr.h"
@@ -218,7 +219,7 @@ void InsertVSPFile( const string & file_name, const string & parent  )
         veh->ClearActiveGeom();
     }
 
-    int err = veh->ReadXMLFile( file_name );
+    int err = veh->ReadXMLFileGeomsOnly( file_name );
     if( err != 0 )
     {
         ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "InsertVSPFile::Error"  );
@@ -658,7 +659,7 @@ string GetVSPAERORefWingID()
         return string();
     }
 
-    if ( VSPAEROMgr.m_RefFlag.Get() != vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF )
+    if ( VSPAEROMgr.m_RefFlag.Get() != vsp::COMPONENT_REF )
     {
         return string();
     }
@@ -690,11 +691,22 @@ string SetVSPAERORefWingID( const string & geom_id )
     }
 
     VSPAEROMgr.m_RefGeomID = geom_id;
-    VSPAEROMgr.m_RefFlag = vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF;
+    VSPAEROMgr.m_RefFlag = vsp::COMPONENT_REF;
 
     ErrorMgr.NoError();
 
     return VSPAEROMgr.m_RefGeomID;
+}
+
+void AutoGroupVSPAEROControlSurfaces()
+{
+    VSPAEROMgr.Update();
+    VSPAEROMgr.InitControlSurfaceGroups();
+}
+
+int GetNumControlSurfaceGroups()
+{
+    return VSPAEROMgr.GetControlSurfaceGroupVec().size();
 }
 
 //===================================================================//
@@ -1147,7 +1159,7 @@ void WriteResultsCSVFile( const string & id, const string & file_name )
 
 void PrintResults( const string &results_id )
 {
-	ResultsMgr.PrintResults( results_id );
+    ResultsMgr.PrintResults( results_id );
 }
 
 //===================================================================//
@@ -3484,7 +3496,7 @@ vector < double > PCurveGetTVec( const string & geom_id, const int & pcurveid )
 {
     vector < double > retvec;
 
-	Vehicle* veh = GetVehicle();
+    Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
@@ -3626,6 +3638,170 @@ void PCurveSplit( const string & geom_id, const int & pcurveid, const double & t
     return pc->Split( tsplit );
 
     ErrorMgr.NoError();
+}
+
+//===================================================================//
+//===============    Parasite Drag Tool Functions      ==============//
+//===================================================================//
+
+void AddExcrescence(const std::string &excresName, const int & excresType, const double & excresVal)
+{
+    ParasiteDragMgr.AddExcrescence(excresName,excresType,excresVal);
+
+    ErrorMgr.NoError();
+}
+
+void DeleteExcrescence(const int & index)
+{
+    ParasiteDragMgr.DeleteExcrescence(index);
+
+    ErrorMgr.NoError();
+}
+
+void WriteAtmosphereCSVFile(const std::string & file_name, const int atmos_type)
+{
+    const static double arr[] = {0.0, 5000.0, 10000.0, 10999.0, 11001.0, 15000.0, 19999.0, 20000.0,
+    20001.0, 25000.0, 30000.0, 31999.0, 32001.0, 35000.0, 40000.0, 45000.0, 46999.0, 47001.0, 50000.0,
+    50999.0, 51001.0, 55000.0, 60000.0, 65000.0, 70000.0, 70999.0, 71001.0, 75000.0, 80000.0, 84851.0,
+    84853.0, 85000.0, 90000.0}; //meters
+    vector < double > AltTestPoints (arr, arr + sizeof(arr) / sizeof(arr[0]) );
+
+    double temp, pres, pres_ratio, rho_ratio;
+    vector < double > temp_vec, pres_vec, pres_ratio_vec, rho_ratio_vec;
+
+    for (size_t i = 0; i < AltTestPoints.size(); ++i )
+    {
+        vsp::CalcAtmosphere( AltTestPoints[i], 0.0, atmos_type,
+            temp, pres, pres_ratio, rho_ratio );
+        temp_vec.push_back( temp );
+        pres_vec.push_back( pres );
+        pres_ratio_vec.push_back( pres_ratio );
+        rho_ratio_vec.push_back( rho_ratio );
+    }
+    Results* res = ResultsMgr.CreateResults("Atmosphere");
+    res->Add(NameValData("Alt", AltTestPoints));
+    res->Add(NameValData("Temp", temp_vec));
+    res->Add(NameValData("Pres", pres_vec));
+    res->Add(NameValData("Pres_Ratio", pres_ratio_vec));
+    res->Add(NameValData("Rho_Ratio", rho_ratio_vec));
+    res->WriteCSVFile( file_name );
+}
+
+void CalcAtmosphere(const double & alt, const double & delta_temp, const int & atmos_type,
+    double & temp, double & pres, double & pres_ratio, double & rho_ratio )
+{
+    Atmosphere atmos;
+
+    switch(atmos_type)
+    {
+    case vsp::ATMOS_TYPE_US_STANDARD_1976:
+        atmos.USStandardAtmosphere1976( alt, delta_temp, vsp::PD_UNITS_METRIC, vsp::TEMP_UNIT_K, vsp::PRES_UNIT_KPA);
+        break;
+
+    case vsp::ATMOS_TYPE_HERRINGTON_1966:
+        atmos.USAF1966( alt, delta_temp, vsp::PD_UNITS_METRIC, vsp::TEMP_UNIT_K, vsp::PRES_UNIT_KPA);
+        break;
+
+    default:
+        break;
+    }
+
+    temp = atmos.GetTemp();
+    pres = atmos.GetPres();
+    pres_ratio = atmos.GetPressureRatio();
+    rho_ratio = atmos.GetDensityRatio();
+
+    ErrorMgr.NoError();
+}
+
+void WriteBodyFFCSVFile(const std::string & file_name)
+{
+    Results* res = ResultsMgr.CreateResults("Body_Form_Factor");
+    char str[256];
+    vector < double > body_ff_vec, FR, ref_leng, max_x_area;
+    vector < double > dol_array = linspace( 0.0, 0.3, 200 );
+    res->Add(NameValData("D_L", dol_array));
+    ref_leng.push_back(10.0);
+    max_x_area.push_back( PI * 1.0 * 1.0 );
+    FR.push_back(ref_leng.back() / sqrt(max_x_area.back()) );
+    for (size_t body_ff_case = 0; body_ff_case <= vsp::FF_B_JENKINSON_AFT_FUSE_NACELLE; ++body_ff_case )
+    {
+        for (size_t j = 0; j < dol_array.size(); ++j )
+        {
+            body_ff_vec.push_back( ParasiteDragMgr.CalcFFBody( 1.0/dol_array[j], FR[0], body_ff_case, ref_leng[0], max_x_area[0] ) );
+        }
+        sprintf( str, "%s", ParasiteDragMgr.AssignFFBodyEqnName( body_ff_case ).c_str());
+        res->Add(NameValData(str, body_ff_vec));
+        body_ff_vec.clear();
+    }
+    res->Add(NameValData("Ref_Leng", ref_leng));
+    res->Add(NameValData("Max_X_Area", max_x_area));
+    res->WriteCSVFile( file_name );
+}
+
+void WriteWingFFCSVFile(const std::string & file_name)
+{
+    Results* res = ResultsMgr.CreateResults("Wing_Form_Factor");
+    char str[256];
+    vector < double > wing_ff_vec;
+    vector < double > toc_array = linspace( 0.0, 0.205, 200 );
+    vector < double > perc_lam, sweep25, sweep50;
+    perc_lam.push_back(0.0);
+    sweep25.push_back(30.0 * PI / 180.0);
+    sweep50.push_back(30.0 * PI / 180.0);
+    ParasiteDragMgr.m_Atmos.SetMach(0.8);
+    res->Add(NameValData("T_C", toc_array));
+    for (size_t wing_ff_case = 0; wing_ff_case < vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF; ++wing_ff_case )
+    {
+        for (size_t j = 0; j < toc_array.size(); ++j )
+        {
+            wing_ff_vec.push_back( ParasiteDragMgr.CalcFFWing( toc_array[j], wing_ff_case, perc_lam[0], sweep25[0], sweep50[0]) );
+        }
+        sprintf( str, "%s", ParasiteDragMgr.AssignFFWingEqnName( wing_ff_case ).c_str());
+        res->Add(NameValData(str, wing_ff_vec));
+        wing_ff_vec.clear();
+    }
+    res->WriteCSVFile( file_name );
+}
+
+void WriteCfEqnCSVFile(const std::string & file_name)
+{
+    Results* res = ResultsMgr.CreateResults("Friction_Coefficient");
+    char str[256];
+    vector < double > lam_cf_vec, turb_cf_vec, ref_leng;
+    vector < double > ReyIn_array = logspace( 3, 10, 500 );
+    vector < double > roughness, gamma, taw_tw_ratio, te_tw_ratio;
+    roughness.push_back(0.01);
+    gamma.push_back(1.4);
+    taw_tw_ratio.push_back(1.0);
+    te_tw_ratio.push_back(1.0);
+    ref_leng.push_back(1.0);
+
+    for (size_t cf_case = 0; cf_case <= vsp::CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE; ++cf_case )
+    {
+        for (size_t j = 0; j < ReyIn_array.size(); ++j )
+        {
+            turb_cf_vec.push_back( ParasiteDragMgr.CalcTurbCf( ReyIn_array[j], ref_leng[0], cf_case, roughness[0], gamma[0], taw_tw_ratio[0], te_tw_ratio[0]) );
+        }
+        sprintf( str, "%s", ParasiteDragMgr.AssignTurbCfEqnName( cf_case ).c_str());
+        res->Add(NameValData(str, turb_cf_vec));
+        turb_cf_vec.clear();
+    }
+
+    for (size_t cf_case = 0; cf_case < vsp::CF_LAM_BLASIUS_W_HEAT; ++cf_case)
+    {
+        for (size_t i = 0; i < ReyIn_array.size(); ++i)
+        {
+            lam_cf_vec.push_back(ParasiteDragMgr.CalcLamCf(ReyIn_array[i], cf_case));
+        }
+        sprintf( str, "%s", ParasiteDragMgr.AssignLamCfEqnName( cf_case ).c_str());
+        res->Add(NameValData(str, lam_cf_vec));
+        lam_cf_vec.clear();
+    }
+
+    res->Add(NameValData("ReyIn", ReyIn_array));
+    res->Add(NameValData("Ref_Leng", ref_leng));
+    res->WriteCSVFile( file_name );
 }
 
 //============================================================================//

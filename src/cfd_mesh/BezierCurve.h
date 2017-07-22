@@ -75,6 +75,8 @@ public:
 
     void GetBBox( BndBox &box );
 
+    void GetControlPoints( vector< vec3d > &pnts_out );
+
     piecewise_curve_type GetCurve() const
     {
         return m_Curve;

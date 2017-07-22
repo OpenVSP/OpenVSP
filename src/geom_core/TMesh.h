@@ -322,7 +322,7 @@ public:
 
     virtual void BuildPermEdges();
 
-    virtual int OnEdge( vec3d & p, TEdge* e, double onEdgeTol, double * t = NULL );
+    virtual int OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t = NULL );
     virtual vec3d CompPnt( const vec3d & uw_pnt );
 
     int m_InteriorFlag;

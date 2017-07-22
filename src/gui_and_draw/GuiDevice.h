@@ -181,6 +181,7 @@ public:
     ParmButton();
     virtual void Init( VspScreen* screen, VspButton* button );
     virtual void Update( const string& parm_id );
+    virtual void UpdateButtonName( const string & name );
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetButtonNameUpdate( bool flag )   { m_ButtonNameUpdate = flag; }
 
@@ -387,6 +388,7 @@ public:
     virtual ~ToggleRadioGroup()         {}
     virtual void Init( VspScreen* screen );
     virtual void AddButton( Fl_Button* button );
+    virtual void ClearButtons();
     virtual void DeviceCB( Fl_Widget* w );
 
     virtual void SetValMapVec( vector< int > & val_map_vec );
@@ -476,6 +478,11 @@ public:
         m_Offset = o;
     }
 
+    virtual Fl_Choice* GetFlChoice()
+    {
+        return m_Choice;
+    }
+
 
 protected:
 
@@ -558,6 +565,10 @@ public:
     virtual void SetFormat( const char* format )
     {
         m_Input.SetFormat( format );
+    }
+    virtual void SetButtonName( const string & name )
+    {
+        m_ParmButton.UpdateButtonName( name );
     }
     virtual void SetButtonNameUpdate( bool flag )
     {

@@ -156,6 +156,7 @@ xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
     xmlNodePtr gnode;
 
     LoadGroupParmVec( m_ParmVec, false );
+    ParmMgr.IncNumParmChanges();
 
     map< string, vector< string > >::iterator groupIter;
     for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; groupIter++ )
@@ -169,7 +170,10 @@ xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
             for ( parmIter = groupIter->second.begin(); parmIter != groupIter->second.end(); parmIter++ )
             {
                 Parm* p = ParmMgr.FindParm( ( *parmIter ) );
-                p->EncodeXml( gnode );
+                if ( p )
+                {
+                    p->EncodeXml(gnode);
+                }
             }
         }
     }
@@ -197,6 +201,7 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
     xmlNodePtr gnode;
 
     LoadGroupParmVec( m_ParmVec, false );
+    ParmMgr.IncNumParmChanges();
 
     map< string, vector< string > >::iterator groupIter;
     for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; groupIter++ )
@@ -213,13 +218,6 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
                 if ( p )
                 {
                     p->DecodeXml( gnode );
-                }
-                else
-                {
-                    fprintf( stderr, "ERROR: Parm* p = ParmMgr.FindParm( ( *parmIter ) ); \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
-                    parmIter--;
-                    p = ParmMgr.FindParm( (*parmIter) );
-                    if ( p ) fprintf( stderr, "\t Last successful parm: %s\n", p->GetName().c_str());
                 }
             }
         }

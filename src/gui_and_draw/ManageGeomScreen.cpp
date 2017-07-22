@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 625, "Geom Browser" )
+ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 645, "Geom Browser" )
 {
     m_VehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
@@ -96,6 +96,10 @@ ManageGeomScreen::ManageGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 235, 62
 
     m_RightLayout.AddYGap();
     m_RightLayout.AddDividerBox( "Surface" );
+
+    m_RightLayout.SetChoiceButtonWidth( 0 );
+    m_RightLayout.AddChoice( m_DisplayChoice, "" );
+
     m_RightLayout.AddButton( m_WireGeomButton, "Wire" );
     m_RightLayout.AddButton( m_HiddenGeomButton, "Hidden" );
     m_RightLayout.AddButton( m_ShadeGeomButton, "Shade" );
@@ -139,6 +143,7 @@ bool ManageGeomScreen::Update()
         LoadActiveGeomOutput();
         LoadSetChoice();
         LoadTypeChoice();
+        LoadDisplayChoice();
         UpdateDrawType();
     }
 
@@ -396,6 +401,48 @@ void ManageGeomScreen::AddGeom()
     }
 }
 
+//==== Load Display Choice ====//
+void ManageGeomScreen::LoadDisplayChoice()
+{
+    m_DisplayChoice.ClearItems();
+
+    vector<string> geom_id_vec = GetActiveGeoms();
+    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+
+    m_DisplayChoice.AddItem( "Normal" );
+    m_DisplayChoice.AddItem( "Surface Degen" );
+    m_DisplayChoice.AddItem( "Plate Degen" );
+    m_DisplayChoice.AddItem( "Camber Degen" );
+
+    bool mult_display_types = false;
+
+    // Check for multiple display types
+    for ( unsigned int i = 0; i < geom_vec.size(); i++ )
+    {
+        if ( geom_vec[i]->m_GuiDraw.GetDisplayType() != geom_vec[0]->m_GuiDraw.GetDisplayType() )
+        {
+            m_DisplayChoice.AddItem( "Multiple" );
+            mult_display_types = true;
+            break;
+        }
+    }
+
+    m_DisplayChoice.UpdateItems();
+
+    if ( !mult_display_types && geom_vec.size() >= 1 )
+    {
+        m_DisplayChoice.SetVal( geom_vec[0]->m_GuiDraw.GetDisplayType() );
+    }
+    else if ( mult_display_types )
+    {
+        m_DisplayChoice.SetVal( 4 ); // Set to "Multiple"
+    }
+    else
+    {
+        m_DisplayChoice.SetVal( 0 ); // Default to "Surface"
+    }
+}
+
 //==== Item in Geom Browser Was Selected ====//
 void ManageGeomScreen::GeomBrowserCallback()
 {
@@ -548,6 +595,22 @@ vector< string > ManageGeomScreen::GetActiveGeoms()
     return geom_id_vec;
 }
 
+void ManageGeomScreen::SetGeomDisplayChoice( int type )
+{
+    vector<string> geom_id_vec = GetActiveGeoms();
+    //==== Set Display Type ====//
+    vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( geom_id_vec );
+    for ( int i = 0; i < (int)geom_vec.size(); i++ )
+    {
+        if ( geom_vec[i] && type != 4 )
+        {
+            geom_vec[i]->m_GuiDraw.SetDisplayType( type );
+        }
+    }
+
+    m_VehiclePtr->Update();
+}
+
 void ManageGeomScreen::SetGeomDisplayType( int type )
 {
     vector<string> geom_id_vec = GetActiveGeoms();
@@ -624,6 +687,7 @@ void ManageGeomScreen::CreateScreens()
     m_GeomScreenVec[HINGE_GEOM_SCREEN] = new HingeScreen( m_ScreenMgr );
     m_GeomScreenVec[MULT_GEOM_SCREEN] = new MultTransScreen( m_ScreenMgr );
     m_GeomScreenVec[CONFORMAL_SCREEN] = new ConformalScreen( m_ScreenMgr );
+    m_GeomScreenVec[ELLIPSOID_GEOM_SCREEN] = new EllipsoidScreen( m_ScreenMgr );
 
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {
@@ -737,6 +801,10 @@ void ManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_PasteButton )
     {
         m_VehiclePtr->PasteClipboard();
+    }
+    else if ( device == &m_DisplayChoice )
+    {
+        SetGeomDisplayChoice( m_DisplayChoice.GetVal() );
     }
     else if ( device == &m_WireGeomButton )
     {

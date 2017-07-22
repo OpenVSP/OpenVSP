@@ -7,6 +7,7 @@
 all:
 	@cd $(VSPAERO_DIR)      		; make -f MAKE_VSPAERO $(VSPAERO_OPT)
 	@cd $(VIEWER_DIR)     	 		; make -f MAKE_VIEWER  $(VIEWER_OPT)
+	@cd $(SLICER_DIR)     	 		; make -f MAKE_SLICER  $(SLICER_OPT)
 	
 	@echo '     '
 	@echo '     '

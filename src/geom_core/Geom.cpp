@@ -26,12 +26,13 @@ GeomType::GeomType()
 }
 
 //==== Constructor ====//
-GeomType::GeomType( int id, string name, bool fixed_flag, string module_name )
+GeomType::GeomType( int id, string name, bool fixed_flag, string module_name, string display_name )
 {
     m_Type = id;
     m_Name = name;
     m_FixedFlag = fixed_flag;
     m_ModuleName = module_name;
+    m_DisplayName = display_name;
 }
 
 //==== Destructor ====//
@@ -45,6 +46,7 @@ void GeomType::CopyFrom( const GeomType & t )
     m_Name = t.m_Name;
     m_FixedFlag = t.m_FixedFlag;
     m_ModuleName = t.m_ModuleName;
+    m_DisplayName = t.m_DisplayName;
     m_GeomID = t.m_GeomID;
 }
 
@@ -58,6 +60,7 @@ void GeomType::CopyFrom( const GeomType & t )
 //==== Constructor ====//
 GeomGuiDraw::GeomGuiDraw()
 {
+    m_DisplayType = DISPLAY_BEZIER;
     m_DrawType = GEOM_DRAW_WIRE;
     m_NoShowFlag = false;
     m_DisplayChildrenFlag = true;
@@ -833,6 +836,37 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 
     m_GeomProjectVec3d.resize( 3 );
     m_ForceXSecFlag = false;
+
+    // Parasite Drag Parms
+    m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
+    m_PercLam.SetDescript("Percentage Laminar" );
+
+    m_FFBodyEqnType.Init("FFBodyEqnType", "ParasiteDragProps", this, vsp::FF_B_HOERNER_STREAMBODY, vsp::FF_B_MANUAL, vsp::FF_B_JENKINSON_AFT_FUSE_NACELLE );
+    m_FFBodyEqnType.SetDescript("Equation that defines the form factor of a body type surface included this Geom");
+
+    m_FFWingEqnType.Init("FFWingEqnType", "ParasiteDragProps", this, vsp::FF_W_HOERNER, vsp::FF_W_MANUAL, vsp::FF_W_SCHEMENSKY_SUPERCRITICAL_AF );
+    m_FFWingEqnType.SetDescript("Equation that defines the form factor of a wing type surface included this Geom");
+
+    m_FFUser.Init("FFUser", "ParasiteDragProps", this, 1, -1, 10 );
+    m_FFUser.SetDescript( "User Input Form Factor Value" );
+
+    m_Q.Init("Q", "ParasiteDragProps", this, 1, 0, 3 );
+    m_Q.SetDescript( "Interference Factor" );
+
+    m_Roughness.Init("Roughness", "ParasiteDragProps", this, -1, -1, 10 );
+    m_Roughness.SetDescript( "Roughness Height" );
+
+    m_TeTwRatio.Init("TeTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
+    m_TeTwRatio.SetDescript("Temperature Ratio of Freestream to Wall" );
+
+    m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
+    m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
+
+    m_GroupedAncestorGen.Init("IncorporatedGen", "ParasiteDragProps", this, 0, 0, 100);
+    m_GroupedAncestorGen.SetDescript("Ancestor Generation that incorporates this geoms Swet");
+
+    m_ExpandedListFlag.Init("ExpandedList", "ParasiteDragProps", this, false, false, true);
+    m_ExpandedListFlag.SetDescript("Flag to determine whether or not this geom has a collapsed list in parasite drag");
 }
 //==== Destructor ====//
 Geom::~Geom()
@@ -1969,7 +2003,318 @@ void Geom::UpdateDrawObj()
         m_AxisDrawObj_vec[i].m_LineColor = c;
         m_AxisDrawObj_vec[i].m_GeomChanged = true;
     }
+}
 
+void Geom::UpdateDegenDrawObj()
+{
+    //=== DegenGeom ===//
+    vector< DegenGeom > DegenGeomVec; // Vector of geom in degenerate representation
+    CreateDegenGeomPreview( DegenGeomVec );
+
+    m_DegenSurfDrawObj_vec.clear();
+    m_DegenPlateDrawObj_vec.clear();
+    m_DegenCamberPlateDrawObj_vec.clear();
+    m_DegenSubSurfDrawObj_vec.clear();
+
+    for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
+    {
+        //=== Degen Surface ===//
+        DegenSurface degen_surf = DegenGeomVec[i].getDegenSurf();
+
+        DrawObj degen_surf_draw_obj;
+        degen_surf_draw_obj.m_GeomChanged = true;
+
+        for ( int j = 0; j < degen_surf.x.size() - 1; j++ )
+        {
+            for ( int k = 0; k < degen_surf.x[j].size() - 1; k++ )
+            {
+                // Define Quads
+                vec3d corner1, corner2, corner3, corner4, norm;
+
+                corner1 = degen_surf.x[j][k];
+                corner2 = degen_surf.x[j + 1][k];
+                corner3 = degen_surf.x[j + 1][k + 1];
+                corner4 = degen_surf.x[j][k + 1];
+
+                degen_surf_draw_obj.m_PntVec.push_back( corner1 );
+                degen_surf_draw_obj.m_PntVec.push_back( corner2 );
+                degen_surf_draw_obj.m_PntVec.push_back( corner3 );
+                degen_surf_draw_obj.m_PntVec.push_back( corner4 );
+
+                norm = degen_surf.nvec[j][k];
+
+                // Set Normal Vector
+                for ( int m = 0; m < 4; m++ )
+                {
+                    degen_surf_draw_obj.m_NormVec.push_back( norm );
+                }
+            }
+        }
+
+        m_DegenSurfDrawObj_vec.push_back( degen_surf_draw_obj );
+
+        //=== Degen Plate and Cambered Plate ===//
+        vector < DegenPlate > degen_plate_vec = DegenGeomVec[i].getDegenPlates();
+
+        for ( int j = 0; j < degen_plate_vec.size(); j++ )
+        {
+            DrawObj degen_plate_draw_obj;
+            DrawObj degen_camber_plate_draw_obj;
+
+            degen_plate_draw_obj.m_GeomChanged = true;
+            degen_camber_plate_draw_obj.m_GeomChanged = true;
+
+            for ( int k = 0; k < degen_plate_vec[j].x.size() - 1; k++ )
+            {
+                for ( int n = 0; n < degen_plate_vec[j].x[k].size() - 1; n++ )
+                {
+                    // Define Plate Quads
+                    vec3d corner1, corner2, corner3, corner4, norm;
+
+                    corner1 = degen_plate_vec[j].x[k][n];
+                    corner2 = degen_plate_vec[j].x[k][n + 1];
+                    corner3 = degen_plate_vec[j].x[k + 1][n + 1];
+                    corner4 = degen_plate_vec[j].x[k + 1][n];
+
+                    degen_plate_draw_obj.m_PntVec.push_back( corner1 );
+                    degen_plate_draw_obj.m_PntVec.push_back( corner2 );
+                    degen_plate_draw_obj.m_PntVec.push_back( corner3 );
+                    degen_plate_draw_obj.m_PntVec.push_back( corner4 );
+
+                    norm = degen_plate_vec[j].nPlate[k];
+
+                    // Set Normal Vectors
+                    for ( int m = 0; m < 4; m++ )
+                    {
+                        degen_plate_draw_obj.m_NormVec.push_back( norm );
+                    }
+
+                    // Define Cambered Plate Quads
+                    vec3d camber_corner1, camber_corner2, camber_corner3, camber_corner4;
+                    vec3d norm1, norm2, norm3, norm4;
+
+                    norm1 = degen_plate_vec[j].nCamber[k][n];
+                    norm2 = degen_plate_vec[j].nCamber[k][n+1];
+                    norm3 = degen_plate_vec[j].nCamber[k+1][n+1];
+                    norm4 = degen_plate_vec[j].nCamber[k+1][n];
+
+                    camber_corner1 = corner1 + ( degen_plate_vec[j].zcamber[k][n] * norm1 );
+                    camber_corner2 = corner2 + ( degen_plate_vec[j].zcamber[k][n + 1] * norm2);
+                    camber_corner3 = corner3 + ( degen_plate_vec[j].zcamber[k + 1][n + 1] * norm3 );
+                    camber_corner4 = corner4 + ( degen_plate_vec[j].zcamber[k + 1][n] * norm4 );
+
+                    degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner1 );
+                    degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner2 );
+                    degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner3 );
+                    degen_camber_plate_draw_obj.m_PntVec.push_back( camber_corner4 );
+
+                    // Calculate normal for cambered plate shading (camber normal is from DegenGeom is the direction between the top and bottom surface points)
+
+                    vec3d u1, u2, v1, v2, u, v;
+
+                    u1 = camber_corner4 - camber_corner1;
+                    u2 = camber_corner3 - camber_corner2;
+
+                    if ( u1.mag() > u2.mag() )
+                    {
+                        u = u1;
+                    }
+                    else
+                    {
+                        u = u2;
+                    }
+
+                    v1 = camber_corner2 - camber_corner1;
+                    v2 = camber_corner3 - camber_corner4;
+
+                    if ( v1.mag() > v2.mag() )
+                    {
+                        v = v1;
+                    }
+                    else
+                    {
+                        v = v2;
+                    }
+
+                    vec3d camber_draw_norm = cross( v, u );
+                    camber_draw_norm.normalize();
+
+                    if ( m_SurfVec[i].GetFlipNormal() )
+                    {
+                        camber_draw_norm = -1 * camber_draw_norm;
+                    }
+
+                    for ( int m = 0; m < 4; m++ )
+                    {
+                        degen_camber_plate_draw_obj.m_NormVec.push_back( camber_draw_norm );
+                    }
+                }
+            }
+
+            m_DegenPlateDrawObj_vec.push_back( degen_plate_draw_obj );
+            m_DegenCamberPlateDrawObj_vec.push_back( degen_camber_plate_draw_obj );
+        }
+
+        //=== Degen SubSurface ===//
+        vector < DegenSubSurf > degen_subsurf_vec = DegenGeomVec[i].getDegenSubSurfs();
+
+        for ( int j = 0; j < degen_subsurf_vec.size(); j++ )
+        {
+            DrawObj degen_subsurface_draw_obj;
+            degen_subsurface_draw_obj.m_GeomChanged = true;
+
+            if ( degen_subsurf_vec[j].typeId == SS_LINE )
+            {
+                if ( degen_subsurf_vec[j].u[0] == degen_subsurf_vec[j].u.back() ) // Constant U
+                {
+                    int u_index_low, u_index_high;
+                    double u_value_low, u_value_high;
+
+                    // Find uw indexes and values next to DegenSubSurface const u value
+                    for ( int m = 1; m < degen_surf.u.size(); m++ )
+                    {
+                        if ( ( degen_surf.u[m][0] >= degen_subsurf_vec[j].u[0] ) && ( degen_surf.u[m - 1][0] <= degen_subsurf_vec[j].u[0] ) )
+                        {
+                            u_index_low = m - 1;
+                            u_index_high = m;
+                            u_value_low = degen_surf.u[m - 1][0];
+                            u_value_high = degen_surf.u[m][0];
+
+                            break;
+                        }
+                    }
+
+                    // Linear Interpolation of DegenSurface uw indexes and values to DgenSubsurface uw index
+                    double degen_surf_u_index = u_index_low + ( ( u_index_high - u_index_low ) * ( ( degen_subsurf_vec[j].u[0] - u_value_low ) / ( u_value_high - u_value_low ) ) );
+
+                    for ( int n = 0; n < degen_surf.x[0].size(); n++ )
+                    {
+                        // Interpolation of uw indexes to vec3d coordinates
+                        vec3d uw_pnt_low = degen_surf.x[u_index_low][n];
+                        vec3d uw_pnt_high = degen_surf.x[u_index_high][n];
+
+                        vec3d degen_subsurf_pnt = uw_pnt_low + ( ( degen_surf_u_index - u_index_low ) * ( uw_pnt_high - uw_pnt_low ) );
+
+                        degen_subsurface_draw_obj.m_PntVec.push_back( degen_subsurf_pnt );
+                    }
+                }
+                else if ( degen_subsurf_vec[j].w[0] == degen_subsurf_vec[j].w.back() ) // Constant W
+                {
+                    int w_index_low, w_index_high;
+                    double w_value_low, w_value_high;
+
+                    // Find uw indexes and values next to DegenSubSurface const u value
+                    for ( int m = 1; m < degen_surf.w.size(); m++ )
+                    {
+                        if ( ( degen_surf.w[0][m] >= degen_subsurf_vec[j].w[0] ) && ( degen_surf.w[0][m - 1] <= degen_subsurf_vec[j].w[0] ) )
+                        {
+                            w_index_low = m - 1;
+                            w_index_high = m;
+                            w_value_low = degen_surf.w[0][m - 1];
+                            w_value_high = degen_surf.w[0][m];
+
+                            break;
+                        }
+                    }
+
+                    // Linear Interpolation of DegenSurface uw indexes and values to DgenSubsurface uw index
+                    double degen_surf_w_index = w_index_low + ( ( w_index_high - w_index_low ) * ( ( degen_subsurf_vec[j].w[0] - w_value_low ) / ( w_value_high - w_value_low ) ) );
+
+                    for ( int n = 0; n < degen_surf.x.size(); n++ )
+                    {
+                        // Interpolation of uw indexes to vec3d coordinates
+                        vec3d uw_pnt_low = degen_surf.x[n][w_index_low];
+                        vec3d uw_pnt_high = degen_surf.x[n][w_index_high];
+
+                        vec3d degen_subsurf_pnt = uw_pnt_low + ( ( degen_surf_w_index - w_index_low ) * ( uw_pnt_high - uw_pnt_low ) );
+
+                        degen_subsurface_draw_obj.m_PntVec.push_back( degen_subsurf_pnt );
+                    }
+                }
+            }
+            else
+            {
+                for ( int k = 0; k < degen_subsurf_vec[j].u.size(); k++ )
+                {
+                    vec2d uw_index_low, uw_index_high, uw_value_low, uw_value_high, uw_value_degen_subsurf;
+
+                    // Check for u or w values outside of the min amd max u and w for the DegenSurface
+                    if ( degen_subsurf_vec[j].u[k] < degen_surf.u[0][0] )
+                    {
+                        uw_value_degen_subsurf.set_x( degen_surf.u[0][0] );
+                    }
+                    else if ( degen_subsurf_vec[j].u[k] > degen_surf.u[degen_surf.u.size() - 1][0] )
+                    {
+                        uw_value_degen_subsurf.set_x( degen_surf.u[degen_surf.u.size() - 1][0] );
+                    }
+                    else
+                    {
+                        uw_value_degen_subsurf.set_x( degen_subsurf_vec[j].u[k] );
+                    }
+
+                    if ( degen_subsurf_vec[j].w[k] < degen_surf.w[0][0] )
+                    {
+                        uw_value_degen_subsurf.set_y( degen_surf.w[0][0] );
+                    }
+                    else if ( degen_subsurf_vec[j].w[k] > degen_surf.w[0][degen_surf.w[0].size() - 1] )
+                    {
+                        uw_value_degen_subsurf.set_y( degen_surf.w[0][degen_surf.w[0].size() - 1] );
+                    }
+                    else
+                    {
+                        uw_value_degen_subsurf.set_y( degen_subsurf_vec[j].w[k] );
+                    }
+
+                    // Find the uw indexes and values next to the DegenSubsurface uw value
+                    for ( int m = 1; m < degen_surf.u.size(); m++ )
+                    {
+                        if ( ( degen_surf.u[m][0] >= uw_value_degen_subsurf.x() ) && ( degen_surf.u[m - 1][0] <= uw_value_degen_subsurf.x() ) )
+                        {
+                            uw_index_low.set_x( m - 1 );
+                            uw_index_high.set_x( m );
+                            uw_value_low.set_x( degen_surf.u[m - 1][0] );
+                            uw_value_high.set_x( degen_surf.u[m][0] );
+
+                            for ( int n = 1; n < degen_surf.w[0].size(); n++ )
+                            {
+                                if ( ( degen_surf.w[0][n] >= uw_value_degen_subsurf.y() ) && ( degen_surf.w[0][n - 1] <= uw_value_degen_subsurf.y() ) )
+                                {
+                                    uw_index_low.set_y( n - 1 );
+                                    uw_index_high.set_y( n );
+                                    uw_value_low.set_y( degen_surf.w[0][n - 1] );
+                                    uw_value_high.set_y( degen_surf.w[0][n] );
+                                    break;
+                                }
+                            }
+                            break;
+                        }
+                    }
+
+                    // Linear Interpolation of DegenSurface uw indexes and values to DgenSubsurface uw index
+                    vec2d degen_subsurf_index;
+                    degen_subsurf_index.set_x( uw_index_low.x() + ( ( uw_index_high.x() - uw_index_low.x() ) * ( ( uw_value_degen_subsurf.x() - uw_value_low.x() ) / ( uw_value_high.x() - uw_value_low.x() ) ) ) );
+                    degen_subsurf_index.set_y( uw_index_low.y() + ( ( uw_index_high.y() - uw_index_low.y() ) * ( ( uw_value_degen_subsurf.y() - uw_value_low.y() ) / ( uw_value_high.y() - uw_value_low.y() ) ) ) );
+
+                    // Bilinear Interpolation of uw indexes to vec3d coordinates
+                    vec3d uw_pnt_low_low = degen_surf.x[(int)uw_index_low.x()][(int)uw_index_low.y()];
+                    vec3d uw_pnt_low_high = degen_surf.x[(int)uw_index_low.x()][(int)uw_index_high.y()];
+                    vec3d uw_pnt_high_high = degen_surf.x[(int)uw_index_high.x()][(int)uw_index_high.y()];
+                    vec3d uw_pnt_high_low = degen_surf.x[(int)uw_index_high.x()][(int)uw_index_low.y()];
+
+                    // Horizontal interpolation
+                    vec3d uw_mid_low = uw_pnt_low_low + ( ( degen_subsurf_index.x() - uw_index_low.x() ) * ( uw_pnt_high_low - uw_pnt_low_low ) );
+                    vec3d uw_mid_high = uw_pnt_low_high + ( ( degen_subsurf_index.x() - uw_index_low.x() ) * ( uw_pnt_high_high - uw_pnt_low_high ) );
+
+                    // Vertical interpolation
+                    vec3d degen_subsurf_pnt = uw_mid_low + ( ( degen_subsurf_index.y() - uw_index_low.y() ) * ( uw_mid_high - uw_mid_low ) );
+
+                    degen_subsurface_draw_obj.m_PntVec.push_back( degen_subsurf_pnt );
+                }
+            }
+
+            m_DegenSubSurfDrawObj_vec.push_back( degen_subsurface_draw_obj );
+        }
+    }
 }
 
 //==== Encode Data Into XML Data Struct ====//
@@ -2379,88 +2724,96 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     char str[256];
 
-    for ( int i = 0 ; i < ( int )m_WireShadeDrawObj_vec.size() ; i++ )
+    if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
     {
-        // Symmetry drawObjs have same m_ID. Make them unique by adding index
-        // at the end of m_ID.
-        sprintf( str, "_%d", i );
-        m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
-        m_WireShadeDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
-
-        // Set Render Destination to Main VSP Window.
-        m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-
-        Material * material = m_GuiDraw.getMaterial();
-
-        for ( int j = 0; j < 4; j++ )
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
-
-        for ( int j = 0; j < 4; j++ )
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
-
-        for ( int j = 0; j < 4; j++ )
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
-
-        for ( int j = 0; j < 4; j++ )
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
-
-        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
-
-        vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
-            m_GuiDraw.GetWireColor().y() / 255.0,
-            m_GuiDraw.GetWireColor().z() / 255.0 );
-
-        switch( m_GuiDraw.GetDrawType() )
+        for ( int i = 0; i < (int)m_WireShadeDrawObj_vec.size(); i++ )
         {
-        case GeomGuiDraw::GEOM_DRAW_WIRE:
-            m_WireShadeDrawObj_vec[i].m_LineWidth = 1.0;
-            m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_MESH;
-            draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
-            break;
+            // Symmetry drawObjs have same m_ID. Make them unique by adding index
+            // at the end of m_ID.
+            sprintf( str, "_%d", i );
+            m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
+            m_WireShadeDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
 
-        case GeomGuiDraw::GEOM_DRAW_HIDDEN:
-            m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_MESH;
-            draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
-            break;
+            // Set Render Destination to Main VSP Window.
+            m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
-        case GeomGuiDraw::GEOM_DRAW_SHADE:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
-            draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
-            break;
+            Material * material = m_GuiDraw.getMaterial();
 
-        case GeomGuiDraw::GEOM_DRAW_NONE:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
-            m_WireShadeDrawObj_vec[i].m_Visible = false;
-            draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
-            break;
+            for ( int j = 0; j < 4; j++ )
+                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
 
-        case GeomGuiDraw::GEOM_DRAW_TEXTURE:
-            m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_TEXTURED_MESH;
+            for ( int j = 0; j < 4; j++ )
+                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
 
-            // Reload texture infos.
-            m_WireShadeDrawObj_vec[i].m_TextureInfos.clear();
-            vector<Texture*> texList = m_GuiDraw.getTextureMgr()->FindTextureVec( m_GuiDraw.getTextureMgr()->GetTextureVec() );
-            for( int j = 0; j < ( int )texList.size(); j++ )
+            for ( int j = 0; j < 4; j++ )
+                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
+
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
+
+            vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                m_GuiDraw.GetWireColor().y() / 255.0,
+                m_GuiDraw.GetWireColor().z() / 255.0 );
+
+            switch ( m_GuiDraw.GetDrawType() )
             {
-                DrawObj::TextureInfo info;
-                info.FileName = texList[j]->m_FileName;
-                info.UScale = ( float )texList[j]->m_UScale.Get();
-                info.WScale = ( float )texList[j]->m_WScale.Get();
-                info.U = ( float )texList[j]->m_U.Get();
-                info.W = ( float )texList[j]->m_W.Get();
-                info.Transparency = ( float )texList[j]->m_Transparency.Get();
-                info.UFlip = texList[j]->m_FlipU.Get();
-                info.WFlip = texList[j]->m_FlipW.Get();
-                info.ID = texList[j]->GetID();
-                m_WireShadeDrawObj_vec[i].m_TextureInfos.push_back( info );
+            case GeomGuiDraw::GEOM_DRAW_WIRE:
+                m_WireShadeDrawObj_vec[i].m_LineWidth = 1.0;
+                m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
+                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_MESH;
+                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+                m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
+                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_MESH;
+                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_SHADE:
+                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
+                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_NONE:
+                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
+                m_WireShadeDrawObj_vec[i].m_Visible = false;
+                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+                m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_TEXTURED_MESH;
+
+                // Reload texture infos.
+                m_WireShadeDrawObj_vec[i].m_TextureInfos.clear();
+                vector<Texture*> texList = m_GuiDraw.getTextureMgr()->FindTextureVec( m_GuiDraw.getTextureMgr()->GetTextureVec() );
+                for ( int j = 0; j < (int)texList.size(); j++ )
+                {
+                    DrawObj::TextureInfo info;
+                    info.FileName = texList[j]->m_FileName;
+                    info.UScale = (float)texList[j]->m_UScale.Get();
+                    info.WScale = (float)texList[j]->m_WScale.Get();
+                    info.U = (float)texList[j]->m_U.Get();
+                    info.W = (float)texList[j]->m_W.Get();
+                    info.Transparency = (float)texList[j]->m_Transparency.Get();
+                    info.UFlip = texList[j]->m_FlipU.Get();
+                    info.WFlip = texList[j]->m_FlipW.Get();
+                    info.ID = texList[j]->GetID();
+                    m_WireShadeDrawObj_vec[i].m_TextureInfos.push_back( info );
+                }
+                draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
+                break;
             }
-            draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
-            break;
         }
     }
+    else
+    {
+        UpdateDegenDrawObj();
+    }
 
+    // Load BoundingBox and Axes
     if ( m_Vehicle->IsGeomActive( m_ID ) )
     {
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -2479,31 +2832,242 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_AxisDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
             draw_obj_vec.push_back( &m_AxisDrawObj_vec[i] );
         }
-
     }
 
-    // Load Feature Lines
-    if ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() )
+    if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
     {
-        for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+        // Load Feature Lines
+        if ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() )
         {
-            m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-            sprintf( str, "_%d", i );
-            m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
-            m_FeatureDrawObj_vec[i].m_LineWidth = 1.0;
-            m_FeatureDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
-            m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
-            draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+            for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
+            {
+                m_FeatureDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+                sprintf( str, "_%d", i );
+                m_FeatureDrawObj_vec[i].m_GeomID = m_ID + "Feature_" + str;
+                m_FeatureDrawObj_vec[i].m_LineWidth = 1.0;
+                m_FeatureDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+                m_FeatureDrawObj_vec[i].m_Type = DrawObj::VSP_LINES;
+                draw_obj_vec.push_back( &m_FeatureDrawObj_vec[i] );
+            }
+        }
+
+        // Load Subsurfaces
+        RecolorSubSurfs( SubSurfaceMgr.GetCurrSurfInd() );
+        if ( m_GuiDraw.GetDispSubSurfFlag() && !m_GuiDraw.GetNoShowFlag() )
+        {
+            for ( int i = 0; i < (int)m_SubSurfVec.size(); i++ )
+            {
+                m_SubSurfVec[i]->LoadDrawObjs( draw_obj_vec );
+            }
+        }
+    }
+    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_SURF )
+    {
+        // Load DegenGeom
+        for ( int i = 0; i < m_DegenSurfDrawObj_vec.size(); i++ )
+        {
+            m_DegenSurfDrawObj_vec[i].m_GeomID = m_ID + "Degen_Surf_" + std::to_string( i );
+            m_DegenSurfDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
+
+            // Set Render Destination to Main VSP Window.
+            m_DegenSurfDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+            Material * material = m_GuiDraw.getMaterial();
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
+
+            m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
+
+            vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                                        m_GuiDraw.GetWireColor().y() / 255.0,
+                                        m_GuiDraw.GetWireColor().z() / 255.0 );
+
+            switch ( m_GuiDraw.GetDrawType() )
+            {
+            case GeomGuiDraw::GEOM_DRAW_WIRE:
+                m_DegenSurfDrawObj_vec[i].m_LineWidth = 1.0;
+                m_DegenSurfDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+                m_DegenSurfDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_SHADE:
+                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_NONE:
+                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                m_DegenSurfDrawObj_vec[i].m_Visible = false;
+                draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+                m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
+                break;
+            }
+        }
+    }
+    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_PLATE )
+    {
+        for ( int i = 0; i < m_DegenPlateDrawObj_vec.size(); i++ )
+        {
+            m_DegenPlateDrawObj_vec[i].m_GeomID = m_ID + "Degen_Plate_" + std::to_string( i );
+            m_DegenPlateDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
+
+            // Set Render Destination to Main VSP Window.
+            m_DegenPlateDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+            Material * material = m_GuiDraw.getMaterial();
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
+
+            m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
+
+            vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                                        m_GuiDraw.GetWireColor().y() / 255.0,
+                                        m_GuiDraw.GetWireColor().z() / 255.0 );
+
+            switch ( m_GuiDraw.GetDrawType() )
+            {
+            case GeomGuiDraw::GEOM_DRAW_WIRE:
+                m_DegenPlateDrawObj_vec[i].m_LineWidth = 1.0;
+                m_DegenPlateDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+                m_DegenPlateDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_SHADE:
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_NONE:
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                m_DegenPlateDrawObj_vec[i].m_Visible = false;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+                m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
+                break;
+            }
+        }
+    }
+    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_CAMBER )
+    {
+        for ( int i = 0; i < m_DegenCamberPlateDrawObj_vec.size(); i++ )
+        {
+            m_DegenCamberPlateDrawObj_vec[i].m_GeomID = m_ID + "Degen_Camber_Plate_" + std::to_string( i );
+            m_DegenCamberPlateDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
+
+            // Set Render Destination to Main VSP Window.
+            m_DegenCamberPlateDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+            Material * material = m_GuiDraw.getMaterial();
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
+
+            for ( int j = 0; j < 4; j++ )
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
+
+            m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
+
+            vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                                        m_GuiDraw.GetWireColor().y() / 255.0,
+                                        m_GuiDraw.GetWireColor().z() / 255.0 );
+
+            switch ( m_GuiDraw.GetDrawType() )
+            {
+            case GeomGuiDraw::GEOM_DRAW_WIRE:
+                m_DegenCamberPlateDrawObj_vec[i].m_LineWidth = 1.0;
+                m_DegenCamberPlateDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+                m_DegenCamberPlateDrawObj_vec[i].m_LineColor = lineColor;
+                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
+                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_SHADE:
+                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_NONE:
+                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
+                m_DegenCamberPlateDrawObj_vec[i].m_Visible = false;
+                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                break;
+
+            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+                m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
+                draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
+                break;
+            }
         }
     }
 
-    // Load Subsurfaces
-    RecolorSubSurfs( SubSurfaceMgr.GetCurrSurfInd() );
-    if ( m_GuiDraw.GetDispSubSurfFlag() && !m_GuiDraw.GetNoShowFlag() )
+    if ( m_GuiDraw.GetDispSubSurfFlag() && m_GuiDraw.GetDisplayType() != GeomGuiDraw::DISPLAY_BEZIER )
     {
-        for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
+        for ( int i = 0; i < m_DegenSubSurfDrawObj_vec.size(); i++ )
         {
-            m_SubSurfVec[i]->LoadDrawObjs( draw_obj_vec );
+            m_DegenSubSurfDrawObj_vec[i].m_GeomID = m_ID + "Degen_SubSurf_" + std::to_string( i );
+            m_DegenSubSurfDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
+
+            // Set Render Destination to Main VSP Window.
+            m_DegenSubSurfDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+            m_DegenSubSurfDrawObj_vec[i].m_LineWidth = 2.0;
+            m_DegenSubSurfDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+
+            m_DegenSubSurfDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
+
+            draw_obj_vec.push_back( &m_DegenSubSurfDrawObj_vec[i] );
         }
     }
 }
@@ -2595,15 +3159,95 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
             degenGeom.createBodyDegenStick( pnts, uwpnts );
         }
 
+        // degenerate subsurfaces
         for ( int j = 0; j < m_SubSurfVec.size(); j++ )
         {
             if ( m_SurfIndxVec[i] == m_SubSurfVec[j]->m_MainSurfIndx() )
             {
-                degenGeom.addDegenSubSurf( m_SubSurfVec[j] );
+                degenGeom.addDegenSubSurf( m_SubSurfVec[j], i );    //TODO is there a way to eliminate having to send in the surf index "i"
+
+                SSControlSurf *csurf = dynamic_cast < SSControlSurf* > ( m_SubSurfVec[j] );
+                if ( csurf )
+                {
+                    degenGeom.addDegenHingeLine( csurf );
+                }
             }
         }
 
         dgs.push_back(degenGeom);
+    }
+}
+
+//==== Create Degenerate Geometry Preview ====//
+void Geom::CreateDegenGeomPreview( vector<DegenGeom> &dgs )
+{
+    // This function is similar to CreateDegenGeom, but has been simplified to generate only the
+    // required degen plate,surface, and subsurface for updating the preview DrawObj vectors
+
+    vector< vector< vec3d > > pnts;
+    vector< vector< vec3d > > nrms;
+    vector< vector< vec3d > > uwpnts;
+
+    for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
+    {
+        m_SurfVec[i].ResetUWSkip();
+        if ( m_CapUMinSuccess[m_SurfIndxVec[i]] )
+        {
+            m_SurfVec[i].SetUSkipFirst( true );
+        }
+        if ( m_CapUMaxSuccess[m_SurfIndxVec[i]] )
+        {
+            m_SurfVec[i].SetUSkipLast( true );
+        }
+        if ( m_CapWMinSuccess[m_SurfIndxVec[i]] )
+        {
+            m_SurfVec[i].SetWSkipFirst( true );
+        }
+        if ( m_CapWMaxSuccess[m_SurfIndxVec[i]] )
+        {
+            m_SurfVec[i].SetWSkipLast( true );
+        }
+
+        //==== Tesselate Surface ====//
+        UpdateTesselate( i, pnts, nrms, uwpnts, true );
+        m_SurfVec[i].ResetUWSkip();
+
+        DegenGeom degenGeom;
+        degenGeom.setParentGeom( this );
+        degenGeom.setSurfNum( i );
+
+        degenGeom.setNumXSecs( pnts.size() );
+        degenGeom.setNumPnts( pnts[0].size() );
+        degenGeom.setName( GetName() );
+
+        degenGeom.createDegenSurface( pnts, uwpnts, m_SurfVec[i].GetFlipNormal() );
+
+        if ( m_SurfVec[i].GetSurfType() == vsp::WING_SURF )
+        {
+            degenGeom.setType( DegenGeom::SURFACE_TYPE );
+
+            degenGeom.createSurfDegenPlate( pnts, uwpnts );
+        }
+        else if ( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
+        {
+            degenGeom.setType( DegenGeom::DISK_TYPE );
+        }
+        else
+        {
+            degenGeom.setType( DegenGeom::BODY_TYPE );
+
+            degenGeom.createBodyDegenPlate( pnts, uwpnts );
+        }
+
+        for ( int j = 0; j < m_SubSurfVec.size(); j++ )
+        {
+            if ( m_SurfIndxVec[i] == m_SubSurfVec[j]->m_MainSurfIndx() )
+            {
+                degenGeom.addDegenSubSurf( m_SubSurfVec[j], i );
+            }
+        }
+
+        dgs.push_back( degenGeom );
     }
 }
 
@@ -3485,7 +4129,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     Geom::LoadDrawObjs( draw_obj_vec );
 
 
-    if ( m_Vehicle->IsGeomActive( m_ID ) )
+    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
     {
         char str[256];
 

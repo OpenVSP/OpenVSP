@@ -36,6 +36,8 @@ public:
     virtual bool Subtag( TTri* tri ) const;
     virtual bool Subtag( const vec3d & center ) const;
     virtual TMesh* CreateTMesh();
+    virtual void AddToTMesh( TMesh* tmesh );
+
     virtual void SetSP0( vec3d pnt )
     {
         m_SP0 = pnt;
@@ -60,7 +62,7 @@ public:
     {
         return m_P1;
     }
-    virtual void UpdateDrawObj( VspSurf* surf, Geom* geom, DrawObj& draw_obj, const int *num_pnts_ptr );
+    virtual void GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, const int *num_pnts_ptr );
     virtual int CompNumDrawPnts( VspSurf* surf, Geom* geom );
 
 protected:
@@ -89,7 +91,7 @@ public:
     {
         return m_CompID;
     }
-    virtual std::vector< SSLineSeg >& GetSplitSegs()
+    virtual std::vector< std::vector< SSLineSeg > >& GetSplitSegs()
     {
         return m_SplitLVec;
     }
@@ -102,6 +104,11 @@ public:
         return m_PolyPntsVec;
     }
     virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
+    virtual void LoadPartialColoredDrawObjs( const string & ss_id, int surf_num, std::vector < DrawObj * > & draw_obj_vec, vec3d color );
+    virtual void SetUpdateDraw( bool flag )
+    {
+        m_UpdateDrawFlag = flag;
+    }
 
     virtual void SetLineColor( vec3d color )
     {
@@ -116,10 +123,10 @@ public:
     virtual void UpdatePolygonPnts();
     virtual std::vector< TMesh* > CreateTMeshVec(); // Method to create a TMeshVector
     virtual void UpdateDrawObjs(); // Method to create lines to draw
-    virtual void SplitSegs( const vector<int> & split_u, const vector<int> & split_w ); // Split line segments for CfdMesh surfaces
     virtual void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
     virtual void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
-    virtual void CleanUpSplitVec();
+    virtual void SplitSegsU( const double & u, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant U value
+    virtual void SplitSegsW( const double & w, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant W value
     virtual void PrepareSplitVec();
     virtual void SetDisplaySuffix( int num );
     // Save, Load
@@ -128,13 +135,26 @@ public:
     int m_Tag;
     IntParm m_TestType;
     IntParm m_MainSurfIndx;
+    IntParm m_IncludeType; // Flag indicates whether or not to include wetted area of subsurf in parasite drag calcs
+
+    // Parasite Drag Parms
+    IntParm m_FFBodyEqnType;
+    IntParm m_FFWingEqnType;
+    Parm m_PercLam;
+    Parm m_FFUser;
+    Parm m_Q;
+    Parm m_Roughness;
+    Parm m_TeTwRatio;
+    Parm m_TawTwRatio;
 
 protected:
     string m_CompID; // Component ID used to match Subsurface to a specific geom
     int m_Type; // Type of SubSurface
-    std::vector< DrawObj > m_DrawObjVec;
+    std::vector< DrawObj > m_SubSurfHighlightDO;
+    bool m_UpdateDrawFlag;
+    DrawObj m_SubSurfDO;
     vector<SSLineSeg> m_LVec; // Line Segment Vector
-    vector<SSLineSeg> m_SplitLVec; // Split Line Vector
+    vector< vector<SSLineSeg> > m_SplitLVec; // Split Line Vector
     vec3d m_LineColor; // Line Color Displayed when drawn on screen
 
     //std::vector< vec2d > m_PolyPnts;
@@ -147,7 +167,7 @@ protected:
     {
         return -1;
     }
-    virtual void ReorderSplitSegs( int ind );
+    virtual void ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec );
 
 };
 
@@ -203,7 +223,6 @@ public:
     IntParm m_Tess; // Number of line segments to break shape into
 
     virtual void Update();
-    virtual void UpdateLVecSize();
 
 };
 
@@ -215,8 +234,11 @@ public:
     virtual void Update();
     virtual void UpdateDrawObjs();
     virtual void LoadDrawObjs( std::vector< DrawObj* >& draw_obj_vec );
+    virtual void PrepareSplitVec();
 
     enum SS_CONTROL_SUBTYPE { UPPER_SURF, LOWER_SURF, BOTH_SURF };
+
+    IntParm m_Tess; // Number of line segments to break shape into
 
     Parm m_UStart; // U Starting location for control surface
     Parm m_UEnd;   // U End location for control surface
@@ -224,18 +246,34 @@ public:
     Parm m_EndLenFrac; // Percent chord that the control surface should occupy
     Parm m_StartLength; // Dimensional distance for control surface
     Parm m_EndLength; // Dimensional distance for control surface
+
+    Parm m_StartAngle;
+    Parm m_EndAngle;
+
+    BoolParm m_StartAngleFlag;
+    BoolParm m_EndAngleFlag;
+    BoolParm m_SameAngleFlag;
+
     IntParm m_AbsRelFlag; // Flag to identify whether fractional or absolute should be used.
     BoolParm m_ConstFlag; // Flag to identify if start/end parameters are equal.
     BoolParm m_LEFlag; // Flag to indicate leading/trailing edge control surface.
     IntParm m_SurfType; // Defines if the control surface is on the upper/lower or both surfaces of the wing
     virtual void UpdatePolygonPnts();
 
-protected:
-
     vector < vec3d > m_UWStart;
     vector < vec3d > m_UWEnd;
+
+protected:
+
+    vector < vec3d > m_UWStart01;
+    vector < vec3d > m_UWEnd01;
     DrawObj m_HingeDO;
     DrawObj m_ArrowDO;
+
+    int m_SepIndex;
+
+    void RefVec( vector < vec3d > &pt_vec, int nref );
+
 };
 
 #endif

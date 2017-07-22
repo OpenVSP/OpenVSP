@@ -3378,16 +3378,119 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
             ss_vec[ss]->SplitSegsW( surf->GetSurfCore()->GetMinW() );
             ss_vec[ss]->SplitSegsW( surf->GetSurfCore()->GetMaxW() );
 
-            vector< SSLineSeg >& segs = ss_vec[ss]->GetSplitSegs();
-            ISegChain* chain = NULL;
+            vector < vector< SSLineSeg > >& segsvec = ss_vec[ss]->GetSplitSegs();
 
-            bool new_chain = true;
-            bool is_poly = ss_vec[ss]->GetPolyFlag();
-
-            // Build Intersection Chains
-            for ( int ls = 0; ls < ( int )segs.size(); ls++ )
+            for ( int i = 0; i < segsvec.size(); i++ )
             {
-                if ( new_chain && chain )
+                vector< SSLineSeg >& segs = segsvec[i];
+
+                ISegChain* chain = NULL;
+
+                bool new_chain = true;
+                bool is_poly = ss_vec[ss]->GetPolyFlag();
+
+                // Build Intersection Chains
+                for ( int ls = 0; ls < ( int )segs.size(); ls++ )
+                {
+                    if ( new_chain && chain )
+                    {
+                        if ( chain->Valid() )
+                        {
+                            m_ISegChainList.push_back( chain );
+                        }
+                        else
+                        {
+                            delete chain;
+                            chain = NULL;
+                        }
+                    }
+
+                    if ( new_chain )
+                    {
+                        chain = new ISegChain;
+                        chain->m_SurfA = surf;
+                        chain->m_SurfB = surf;
+                        if ( !is_poly )
+                        {
+                            new_chain = false;
+                        }
+                    }
+
+                    SSLineSeg l_seg = segs[ls];
+                    vec3d lp0, lp1;
+
+                    lp0 = l_seg.GetP0();
+                    lp1 = l_seg.GetP1();
+                    uw_pnt0 = vec2d( lp0.x(), lp0.y() );
+                    uw_pnt1 = vec2d( lp1.x(), lp1.y() );
+                    double max_u, max_w, tol;
+                    double min_u, min_w;
+                    tol = 1e-6;
+                    min_u = surf->GetSurfCore()->GetMinU();
+                    min_w = surf->GetSurfCore()->GetMinW();
+                    max_u = surf->GetSurfCore()->GetMaxU();
+                    max_w = surf->GetSurfCore()->GetMaxW();
+
+                    if ( uw_pnt0[0] < min_u - FLT_EPSILON || uw_pnt0[1] < min_w - FLT_EPSILON || uw_pnt1[0] < min_u - FLT_EPSILON || uw_pnt1[1] < min_w - FLT_EPSILON )
+                    {
+                        new_chain = true;
+                        continue; // Skip if either point has a value not on this surface
+                    }
+                    if ( uw_pnt0[0] > max_u + FLT_EPSILON || uw_pnt0[1] > max_w + FLT_EPSILON || uw_pnt1[0] > max_u + FLT_EPSILON || uw_pnt1[1] > max_w + FLT_EPSILON )
+                    {
+                        new_chain = true;
+                        continue; // Skip if either point has a value not on this surface
+                    }
+                    if ( ((std::abs( uw_pnt0[0]-max_u ) < tol && std::abs( uw_pnt1[0]-max_u ) < tol) ||
+                            (std::abs( uw_pnt0[1]-max_w ) < tol && std::abs( uw_pnt1[1]-max_w ) < tol) ||
+                            (std::abs( uw_pnt0[0]-min_u ) < tol && std::abs( uw_pnt1[0]-min_u ) < tol) ||
+                            (std::abs( uw_pnt0[1]-min_w ) < tol && std::abs( uw_pnt1[1]-min_w ) < tol))
+                            && is_poly  )
+                    {
+                        new_chain = true;
+                        continue; // Skip if both end points are on the same edge of the surface
+                    }
+
+                    double delta_u = ( uw_pnt1[0] - uw_pnt0[0] ) / num_sects;
+                    double delta_w = ( uw_pnt1[1] - uw_pnt0[1] ) / num_sects;
+
+                    vector< vec2d > uw_pnts;
+                    uw_pnts.resize( num_sects + 1 );
+                    uw_pnts[0] = uw_pnt0;
+                    uw_pnts[num_sects] = uw_pnt1;
+
+                    // Add additional points between the segment endpoints to hopefully make the curve planar with the surface
+                    for ( int p = 1 ; p < num_sects ; p++ )
+                    {
+                        uw_pnts[p] = vec2d( uw_pnt0[0] + delta_u * p, uw_pnt0[1] + delta_w * p );
+                    }
+
+                    for ( int p = 1 ; p < ( int ) uw_pnts.size() ; p++ )
+                    {
+                        Puw* puwA0 = new Puw( surf, uw_pnts[p - 1] );
+                        Puw* puwA1 = new Puw( surf, uw_pnts[p] );
+                        Puw* puwB0 = new Puw( surf, uw_pnts[p - 1] );
+                        Puw* puwB1 = new Puw( surf, uw_pnts[p] );
+
+                        m_DelPuwVec.push_back( puwA0 );         // Save to delete later
+                        m_DelPuwVec.push_back( puwA1 );
+                        m_DelPuwVec.push_back( puwB0 );
+                        m_DelPuwVec.push_back( puwB1 );
+
+                        IPnt* p0 = new IPnt( puwA0, puwB0 );
+                        IPnt* p1 = new IPnt( puwA1, puwB1 );
+
+                        m_DelIPntVec.push_back( p0 );           // Save to delete later
+                        m_DelIPntVec.push_back( p1 );
+
+                        p0->CompPnt();
+                        p1->CompPnt();
+
+                        ISeg* seg = new ISeg( surf, surf, p0, p1 );
+                        chain->m_ISegDeque.push_back( seg );
+                    }
+                }
+                if ( chain )
                 {
                     if ( chain->Valid() )
                     {
@@ -3398,103 +3501,6 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
                         delete chain;
                         chain = NULL;
                     }
-                }
-
-                if ( new_chain )
-                {
-                    chain = new ISegChain;
-                    chain->m_SurfA = surf;
-                    chain->m_SurfB = surf;
-                    if ( !is_poly )
-                    {
-                        new_chain = false;
-                    }
-                }
-
-                SSLineSeg l_seg = segs[ls];
-                vec3d lp0, lp1;
-
-                lp0 = l_seg.GetP0();
-                lp1 = l_seg.GetP1();
-                uw_pnt0 = vec2d( lp0.x(), lp0.y() );
-                uw_pnt1 = vec2d( lp1.x(), lp1.y() );
-                double max_u, max_w, tol;
-                double min_u, min_w;
-                tol = 1e-6;
-                min_u = surf->GetSurfCore()->GetMinU();
-                min_w = surf->GetSurfCore()->GetMinW();
-                max_u = surf->GetSurfCore()->GetMaxU();
-                max_w = surf->GetSurfCore()->GetMaxW();
-
-                if ( uw_pnt0[0] < min_u || uw_pnt0[1] < min_w || uw_pnt1[0] < min_u || uw_pnt1[1] < min_w )
-                {
-                    new_chain = true;
-                    continue; // Skip if either point has a value not on this surface
-                }
-                if ( uw_pnt0[0] > max_u || uw_pnt0[1] > max_w || uw_pnt1[0] > max_u || uw_pnt1[1] > max_w )
-                {
-                    new_chain = true;
-                    continue; // Skip if either point has a value not on this surface
-                }
-                if ( ((std::abs( uw_pnt0[0]-max_u ) < tol && std::abs( uw_pnt1[0]-max_u ) < tol) ||
-                     (std::abs( uw_pnt0[1]-max_w ) < tol && std::abs( uw_pnt1[1]-max_w ) < tol) ||
-                     (std::abs( uw_pnt0[0]-min_u ) < tol && std::abs( uw_pnt1[0]-min_u ) < tol) ||
-                     (std::abs( uw_pnt0[1]-min_w ) < tol && std::abs( uw_pnt1[1]-min_w ) < tol))
-                     && is_poly  )
-                {
-                    new_chain = true;
-                    continue; // Skip if both end points are on the same edge of the surface
-                }
-
-                double delta_u = ( uw_pnt1[0] - uw_pnt0[0] ) / num_sects;
-                double delta_w = ( uw_pnt1[1] - uw_pnt0[1] ) / num_sects;
-
-                vector< vec2d > uw_pnts;
-                uw_pnts.resize( num_sects + 1 );
-                uw_pnts[0] = uw_pnt0;
-                uw_pnts[num_sects] = uw_pnt1;
-
-                // Add additional points between the segment endpoints to hopefully make the curve planar with the surface
-                for ( int p = 1 ; p < num_sects ; p++ )
-                {
-                    uw_pnts[p] = vec2d( uw_pnt0[0] + delta_u * p, uw_pnt0[1] + delta_w * p );
-                }
-
-                for ( int p = 1 ; p < ( int ) uw_pnts.size() ; p++ )
-                {
-                    Puw* puwA0 = new Puw( surf, uw_pnts[p - 1] );
-                    Puw* puwA1 = new Puw( surf, uw_pnts[p] );
-                    Puw* puwB0 = new Puw( surf, uw_pnts[p - 1] );
-                    Puw* puwB1 = new Puw( surf, uw_pnts[p] );
-
-                    m_DelPuwVec.push_back( puwA0 );         // Save to delete later
-                    m_DelPuwVec.push_back( puwA1 );
-                    m_DelPuwVec.push_back( puwB0 );
-                    m_DelPuwVec.push_back( puwB1 );
-
-                    IPnt* p0 = new IPnt( puwA0, puwB0 );
-                    IPnt* p1 = new IPnt( puwA1, puwB1 );
-
-                    m_DelIPntVec.push_back( p0 );           // Save to delete later
-                    m_DelIPntVec.push_back( p1 );
-
-                    p0->CompPnt();
-                    p1->CompPnt();
-
-                    ISeg* seg = new ISeg( surf, surf, p0, p1 );
-                    chain->m_ISegDeque.push_back( seg );
-                }
-            }
-            if ( chain )
-            {
-                if ( chain->Valid() )
-                {
-                    m_ISegChainList.push_back( chain );
-                }
-                else
-                {
-                    delete chain;
-                    chain = NULL;
                 }
             }
         }
@@ -4806,6 +4812,60 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     m_MeshBadTriDO.m_NormVec = badTriData;
 
     draw_obj_vec.push_back( &m_MeshBadTriDO );
+
+//    // Draw ISegChains
+//    m_ISegChainDO.m_GeomID = GetID() + "ISEGCHAIN";
+//    m_ISegChainDO.m_Type = DrawObj::VSP_LINES;
+//    m_ISegChainDO.m_Visible = true;
+//    m_ISegChainDO.m_LineColor = vec3d( 0, 0, 1 );
+//    m_ISegChainDO.m_LineWidth = 3.0;
+//
+//    m_ISegChainPtsDO.m_GeomID = GetID() + "ISEGCHAINPTS";
+//    m_ISegChainPtsDO.m_Type = DrawObj::VSP_POINTS;
+//    m_ISegChainPtsDO.m_Visible = true;
+//    m_ISegChainPtsDO.m_PointColor = vec3d( 0, 0, 0 );
+//    m_ISegChainPtsDO.m_PointSize = 10.0;
+//
+//
+//    m_ISegChainDO.m_PntVec.clear();
+//    m_ISegChainPtsDO.m_PntVec.clear();
+//    list< ISegChain* >::iterator c;
+//    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+//    {
+//        if ( true )
+//        {
+//            m_ISegChainPtsDO.m_PntVec.push_back( (*c)->m_TessVec[0]->m_Pnt );
+//            for ( int j = 1 ; j < ( int )( *c )->m_TessVec.size() ; j++ )
+//            {
+//                m_ISegChainDO.m_PntVec.push_back( (*c)->m_TessVec[j-1]->m_Pnt );
+//                m_ISegChainDO.m_PntVec.push_back( (*c)->m_TessVec[j]->m_Pnt );
+//                m_ISegChainPtsDO.m_PntVec.push_back( (*c)->m_TessVec[j]->m_Pnt );
+//            }
+//
+//        }
+//        else
+//        {
+//            Bezier_curve xyzcrvA = (*c)->m_ACurve.GetUWCrv();
+//            xyzcrvA.UWCurveToXYZCurve( (*c)->m_ACurve.GetSurf() );
+//            vector< vec3d > ptvec;
+//            xyzcrvA.GetControlPoints(ptvec);
+//
+//            m_ISegChainPtsDO.m_PntVec.insert( m_ISegChainPtsDO.m_PntVec.begin(), ptvec.begin(), ptvec.end() );
+//
+//            for ( int j = 1; j < ptvec.size(); j++ )
+//            {
+//                m_ISegChainDO.m_PntVec.push_back( ptvec[j-1] );
+//                m_ISegChainDO.m_PntVec.push_back( ptvec[j] );
+//            }
+//        }
+//    }
+//
+//    // Normal Vec is not required, load placeholder.
+//    m_ISegChainDO.m_NormVec = m_ISegChainDO.m_PntVec;
+//    m_ISegChainPtsDO.m_NormVec = m_ISegChainPtsDO.m_PntVec;
+//
+//    draw_obj_vec.push_back( &m_ISegChainDO );
+//    draw_obj_vec.push_back( &m_ISegChainPtsDO );
 }
 
 /*

@@ -138,6 +138,8 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
     XYZc_[1]               = VSPTri.XYZc_[1];
     XYZc_[2]               = VSPTri.XYZc_[2];
     
+    Camber_                = VSPTri.Camber_;
+    
     UVc_[0]                = VSPTri.UVc_[0];
     UVc_[1]                = VSPTri.UVc_[1];
 

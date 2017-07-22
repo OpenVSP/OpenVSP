@@ -35,17 +35,41 @@ void VORTEX_TRAIL::init(void)
     Mach_ = 0.;
   
     Verbose_ = 1;
-    
+
+    NumberOfLevels_ = 0;
+        
     VortexEdgeList_ = NULL;
     
     VortexEdgeVelocity_ = NULL;
+    
+    NumberOfSubVortices_ = NULL;
     
     S_ = NULL;
     
     NodeList_ = NULL;
     
     Tolerance_ = 1.e-6;
+    
+    Evaluate_ = 0;
+    
+    TimeAccurate_ = 0;
+    
+    NumberofExactShiftPoints_ = 0;
+    
+    ConvectType_ = 0;
+    
+    TimeStep_ = 0.;
+    
+    Vinf_ = 0.;
+    
+    Gamma_ = NULL;
+    
+    GammaNew_ = NULL;
+    
+    GammaSave_ = NULL;
 
+    MaxConvectedDistance_ = 1.e12;
+            
 }
 
 /*##############################################################################
@@ -89,6 +113,12 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
 
     VortexEdgeList_ = new VSP_EDGE*[NumberOfLevels_ + 1];
     
+    Gamma_     = new double[NumberOfSubVortices() + 5];
+    
+    GammaNew_  = new double[NumberOfSubVortices() + 5];
+    
+    GammaSave_ = new double[NumberOfSubVortices() + 5];
+            
     for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
      
        NumberOfSubVortices_[Level] = Trailing_Vortex.NumberOfSubVortices_[Level];
@@ -125,7 +155,11 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
 
     Mach_ = Trailing_Vortex.Mach_;
 
-    Gamma_ = Trailing_Vortex.Gamma_;
+    for ( i = 1 ; i <= NumberOfSubVortices() + 2 ; i++ ) {
+       
+       Gamma_[i] = Trailing_Vortex.Gamma_[i];
+       
+    }
 
     Length_ = Trailing_Vortex.Length_;
     
@@ -145,6 +179,12 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
        
     }
     
+    TimeAccurate_ = Trailing_Vortex.TimeAccurate_;
+    
+    TimeStep_ = Trailing_Vortex.TimeStep_;
+    
+    Vinf_ = Trailing_Vortex.Vinf_;
+    
     return *this;
 
 }
@@ -157,7 +197,42 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
 
 VORTEX_TRAIL::~VORTEX_TRAIL(void)
 {
+
+    int i, Level;
+
+    for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
+
+       if ( VortexEdgeList_[Level] != NULL ) delete [] VortexEdgeList_[Level];
  
+    }
+
+    if ( VortexEdgeList_ != NULL ) delete [] VortexEdgeList_;
+
+    if ( Gamma_          != NULL ) delete [] Gamma_;
+
+    if ( GammaNew_       != NULL ) delete [] GammaNew_;
+
+    if ( GammaSave_      != NULL ) delete [] GammaSave_;
+
+    if ( NumberOfSubVortices_ != NULL ) { 
+       
+       if ( NumberOfSubVortices() != 0 ) {
+          
+          for ( i = 1 ; i <= NumberOfSubVortices() + 2 ; i++ ) {
+        
+            if ( VortexEdgeVelocity_[i] != NULL ) delete [] VortexEdgeVelocity_[i];
+      
+          }    
+          
+       }
+       
+    }
+
+    if ( VortexEdgeVelocity_ != NULL ) delete [] VortexEdgeVelocity_;
+
+    if ( S_ != NULL ) delete [] S_;
+
+    if ( NodeList_ != NULL ) delete [] NodeList_;
 
 }
 
@@ -171,7 +246,7 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
 {
 
     int i, j, k, m, Level, Done;
-    double Vec[3], Theta, DTheta;
+    double Vec[3], Theta, DTheta, Ds, Eps;
     VSP_NODE NodeA, NodeB;
     
     FarDist_ = FarDist;   
@@ -244,7 +319,9 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
     TE_Node_.y() = Node1.y();
     TE_Node_.z() = Node1.z();
     
-    Vec[0] = Node2.x() - Node1.x();
+    // Node 2 is the far down stream point... basically 'infinity'
+    
+    Vec[0] = Node2.x() - Node1.x();  
     Vec[1] = Node2.y() - Node1.y();
     Vec[2] = Node2.z() - Node1.z();
 
@@ -257,7 +334,7 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
     // Create node spacing out along vortex line
    
     NumberOfNodes_ = NumberOfSubVortices() + 2;
-    
+
     DTheta = 0.5*PI / NumberOfSubVortices();
 
     for ( i = 1 ; i <= NumberOfNodes_ - 1 ; i++ ) {
@@ -267,15 +344,44 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
        S_[i] = FarDist*(1.-cos(Theta));
 
     }
-    
+
     S_[NumberOfNodes_] = Length_ - FarDist;
+
+    // Modify the trailing wake spacing for time accurate analysis... 
+
+    if ( TimeAccurate_ ) {
+       
+       for ( j = 2 ; j <= NumberOfNodes_ ; j++ ) {
+          
+          Ds = S_[j] - S_[j-1];
+
+          if ( Ds < TimeStep_ * Vinf_ ) NumberofExactShiftPoints_ = j;
+          
+       }
+       
+       NumberofExactShiftPoints_ = MAX(32, NumberofExactShiftPoints_);
+
+       for ( j = 2 ; j <= NumberofExactShiftPoints_ ; j++ ) {
+                 
+          Eps = (j-1) * TimeStep_ * Vinf_ - S_[j];
+          
+          for ( i = j ; i <= NumberOfNodes_ ; i++ ) {
+           
+             S_[i] += Eps;
+      
+          }   
+          
+       }    
+       
+    }    
+    
 
     for ( i = 1 ; i <= NumberOfNodes_  ; i++ ) {
 
        NodeList_[i].x() = TE_Node_.x() + Vec[0]*S_[i];
        NodeList_[i].y() = TE_Node_.y() + Vec[1]*S_[i];
        NodeList_[i].z() = TE_Node_.z() + Vec[2]*S_[i];
-
+       
     }    
 
     // Now merge vortices to create course grids
@@ -307,6 +413,8 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
           VortexEdgeList(Level)[j].IsTrailingEdge() = 0;
           
           VortexEdgeList(Level)[j].Sigma() = Sigma_;
+          
+          VortexEdgeList(Level)[j].S() = S_[i];
       
           VortexEdgeList(Level)[j].Setup(NodeA, NodeB);
    
@@ -344,7 +452,27 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
        m *= 2;
        
     }     
-   
+    
+    // Gamma arrays
+    
+    if (     Gamma_ != NULL ) delete [] Gamma_;
+    
+    if (  GammaNew_ != NULL ) delete [] GammaNew_;
+    
+    if ( GammaSave_ != NULL ) delete [] GammaSave_ ;
+        
+    Gamma_     = new double[NumberOfSubVortices() + 5];
+    
+    GammaNew_  = new double[NumberOfSubVortices() + 5];
+    
+    GammaSave_ = new double[NumberOfSubVortices() + 5];
+    
+    zero_double_array(Gamma_,     NumberOfSubVortices() + 2);
+    
+    zero_double_array(GammaNew_,  NumberOfSubVortices() + 2);
+    
+    zero_double_array(GammaSave_, NumberOfSubVortices() + 2);
+
 }
 
 /*##############################################################################
@@ -361,6 +489,8 @@ void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3])
    double Vec1[3], Vec2[3], Radius;
 
    // Update the vortex strengths for all of the sub vortex elements
+   // This has to be here... since the wake agglomeration routine, 
+   // at the vortex sheet level, may change gamma
    
    UpdateGamma();
  
@@ -406,6 +536,9 @@ void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3])
    q[1] += Fact*dq[1];
    q[2] += Fact*dq[2];
 
+   // Uncomment below to make things 2D
+   //q[0] = q[1] = q[2] = 0.;
+ 
 }
 
 /*##############################################################################
@@ -426,7 +559,7 @@ void VORTEX_TRAIL::CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, double xy
               + SQR(VortexEdge.Zc() - xyz_p[2]) );
                  
    Ratio = Dist / VortexEdge.Length();
-
+  
    // If faraway, evalulate at this level
  
    if ( !VortexEdge.ThereAreChildren() || Ratio >= FarAway ) {
@@ -475,18 +608,57 @@ void VORTEX_TRAIL::UpdateGamma(void)
 {
  
    int i, Level;
+   double time1, time2;
 
-   for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
-    
-      for ( i = 1 ; i <= NumberOfSubVortices(Level) + 1 ; i++ ) {
+   if ( !TimeAccurate_ ) {
+
+      for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
        
-         // Initialize each subvortex
-         
-         VortexEdgeList(Level)[i].Gamma() = Gamma_;
-         
-         VortexEdgeList(Level)[i].Mach() = Mach_;
+         for ( i = 1 ; i <= NumberOfSubVortices(Level) + 1 ; i++ ) {
+             
+            // Initialize each subvortex
 
+            VortexEdgeList(Level)[i].Gamma() = Gamma_[0];
+
+            VortexEdgeList(Level)[i].Mach() = Mach_;
+
+         }
+         
       }
+      
+   }
+   
+   else {
+      
+      // Initialize the first level
+      
+      Level = 1;
+        
+      for ( i = 1 ; i <= NumberOfSubVortices(Level) + 1 ; i++ ) {
+
+         VortexEdgeList(Level)[i].Gamma() = Gamma_[i];
+
+         VortexEdgeList(Level)[i].Mach() = Mach_;
+            
+      }
+                  
+      for ( Level = 2 ; Level <= NumberOfLevels_ ; Level++ ) {
+       
+         for ( i = 1 ; i <= NumberOfSubVortices(Level) ; i++ ) {
+
+            // Initialize each subvortex and coarser level... agglomerate the vorticity
+ 
+            VortexEdgeList(Level)[i].Gamma() = 0.5*(VortexEdgeList(Level)[i].Child1().Gamma() + VortexEdgeList(Level)[i].Child2().Gamma());
+        
+            VortexEdgeList(Level)[i].Mach() = Mach_;
+
+         }
+
+         VortexEdgeList(Level)[NumberOfSubVortices(Level) + 1].Gamma() = Gamma_[NumberOfSubVortices(1) + 1];
+     
+         VortexEdgeList(Level)[NumberOfSubVortices(Level) + 1].Mach() = Mach_;
+
+      }      
       
    }
 
@@ -519,21 +691,15 @@ void VORTEX_TRAIL::UpdateLocation(void)
         V[i] = VortexEdgeVelocity(i)[1];
         W[i] = VortexEdgeVelocity(i)[2];
         
-        if ( S_[i] <= 0.25*Sigma_ ) {
+        if ( S_[i] <= 0.25*Sigma_  ) {
          
            U[i] = TEVec_[0];
            V[i] = TEVec_[1];
            W[i] = TEVec_[2];
            
         }
-        
+
     }
-    
-    // Smooth the velocity... currently not reliable
-    
-   // SmoothVelocity(U);
-   // SmoothVelocity(V);
-   // SmoothVelocity(W);
  
     NodeList_[1].x() = TE_Node_.x();
     NodeList_[1].y() = TE_Node_.y(); 
@@ -567,24 +733,8 @@ void VORTEX_TRAIL::UpdateLocation(void)
     
     Smooth(); 
     
-/*
-    Level = 1;
+    // Update trailing vortex shape
     
-    for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
-    
-       NodeA.x() = NodeList_[i  ].x();
-       NodeA.y() = NodeList_[i  ].y();
-       NodeA.z() = NodeList_[i  ].z();
-       
-       NodeB.x() = NodeList_[i+1].x();
-       NodeB.y() = NodeList_[i+1].y();
-       NodeB.z() = NodeList_[i+1].z();
-
-       VortexEdgeList(Level)[i].Setup(NodeA, NodeB);   
-       
-    }     
-*/
-
     m = 1;
     
     for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
@@ -622,28 +772,295 @@ void VORTEX_TRAIL::UpdateLocation(void)
        m *= 2;
        
     }
-    
-    // Calculate lengths 
- /*   
-    double Length;
-    
-    for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
-
-       Length = 0.;
-       
-       for ( i = 1 ; i <= NumberOfSubVortices(Level) ; i++ ) {
-        
-          Length += VortexEdgeList(Level)[i].Length();
-          
-       }
-       
-       printf("Level: %d --> Length: %lf \n",Level,Length);
-       
-    } */
       
     delete [] U;
     delete [] V;
     delete [] W;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                        VORTEX_TRAIL SaveVortexState                          #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_TRAIL::SaveVortexState(void)
+{
+   
+    int i;
+    
+    for ( i = 0 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+       
+       GammaSave_[i] = Gamma_[i];
+       
+    }    
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                        VORTEX_TRAIL ConvectWakeVorticity                     #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_TRAIL::ConvectWakeVorticity(int ConvectType)
+{
+ 
+    int i;
+    double dS, CFL, Fact;
+
+    // Set convection type
+    
+    ConvectType_ = ConvectType;
+  
+    // Convect vorticity down stream along streamlines
+    
+    zero_double_array(GammaNew_, NumberOfSubVortices() + 2);
+    
+    // Just convecting the implicit portion of the wake
+    
+    if ( ConvectType_ == IMPLICIT_WAKE_GAMMAS ) {
+       
+       // Zero out everything except trailing edge ( j = 0) vorticity
+             
+       for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+       
+          Gamma_[i] = 0.;
+       
+       }
+               
+    }
+    
+    // Just convecting the explicit portion of the wake
+    
+    else if ( ConvectType_ == EXPLICIT_WAKE_GAMMAS ) {
+  
+       for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+       
+          Gamma_[i] = GammaSave_[i];
+       
+       }
+       
+       Gamma_[0] = 0.;
+                            
+    }
+    
+    // Convect and use the entire trailing wake
+    
+    else if ( ConvectType_ == ALL_WAKE_GAMMAS ) {
+
+       for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+       
+          Gamma_[i] = GammaSave_[i];
+       
+       }
+
+    }
+    
+    else {
+       
+       printf("Unknown convection option! \n");
+       
+       exit(1);
+       
+    }
+   
+    // Exact shift
+        
+    for ( i = 1 ; i <= NumberofExactShiftPoints_ ; i++ ) {
+       
+       GammaNew_[i] = Gamma_[i-1];
+       
+    }
+   
+    // Integrate rest of wake
+
+    for ( i = NumberofExactShiftPoints_ + 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+
+        dS = S_[i] - S_[i-1];
+
+        CFL = TimeStep_ / dS;
+        
+        // First order upwind
+        
+        if (1|| i < 2 ) {
+        
+           GammaNew_[i] = (Gamma_[i] + CFL * GammaNew_[i-1])/(1. + CFL);
+           
+        }
+        
+        // Second order upwind
+        
+        else {
+           
+           GammaNew_[i] = (Gamma_[i] + 0.5*CFL * (4.*GammaNew_[i-1] - GammaNew_[i-2]))/(1. + 1.5*CFL);
+
+        }
+
+    }
+
+    // Update gamma
+    
+    for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+       
+       Gamma_[i] = GammaNew_[i];
+
+    }
+    
+    // Don't let errors from upwind scheme propagate further than
+    // physically possible
+          
+    for ( i = 2 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+
+       if ( S_[i] > MaxConvectedDistance_ ) Gamma_[i] = 0.;
+
+    }    
+    
+    // Do a weighted update for final trailing vortex
+   
+    i = NumberOfSubVortices() + 1;
+    
+    if ( S_[i] <= MaxConvectedDistance_ ) {
+       
+       Fact = ( MaxConvectedDistance_ - S_[i] ) / ( S_[i+1] - S_[i] );
+       
+      Gamma_[i] = Fact * GammaNew_[i];
+       
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                        VORTEX_TRAIL ConvectWakeVorticity                     #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_TRAIL::ConvectWakeVorticityOld(int ConvectType)
+{
+ 
+    int i;
+    double dS, CFL, Temp, Fact;
+  
+    // Convect vorticity down stream along streamlines
+    
+    zero_double_array(GammaNew_, NumberOfSubVortices() + 2);
+    
+    // Just convecting the implicit portion of the wake
+    
+    if ( ConvectType == IMPLICIT_WAKE_GAMMAS ) {
+       
+       Temp = Gamma_[1];
+      
+       for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+       
+          Gamma_[i] = 0.;
+       
+       }
+       
+       Gamma_[0] = Temp;
+           
+    }
+    
+    // Just convecting the explicit portion of the wake
+    
+    else if ( ConvectType == EXPLICIT_WAKE_GAMMAS ) {
+  
+       for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+       
+          Gamma_[i] = GammaSave_[i];
+       
+       }
+       
+       Gamma_[0] = 0.;
+                     
+    }
+    
+    // Convect and use the entire trailing wake
+    
+    else if ( ConvectType == ALL_WAKE_GAMMAS ) {
+       
+       Temp = Gamma_[1];
+              
+       for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+       
+          Gamma_[i] = GammaSave_[i];
+       
+       }
+       
+       Gamma_[0] = Temp;
+       
+    }
+    
+    else {
+       
+       printf("Unknown convection option! \n");
+       
+       exit(1);
+       
+    }
+    
+    // Exact shift
+    
+    GammaNew_[1] = Gamma_[0];
+    
+    for ( i = 1 ; i <= NumberofExactShiftPoints_ ; i++ ) {
+       
+       GammaNew_[i] = Gamma_[i-1];
+       
+    }
+    
+    // Integrate rest of wake
+    
+    for ( i = NumberofExactShiftPoints_ + 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+
+        dS = S_[i] - S_[i-1];
+
+        CFL = TimeStep_ / dS;
+        
+        // First order upwind
+        
+        if ( i < 2 ) {
+        
+           GammaNew_[i] = (Gamma_[i] + CFL * GammaNew_[i-1])/(1. + CFL);
+           
+        }
+        
+        // Second order upwind
+        
+        else {
+           
+           GammaNew_[i] = (Gamma_[i] + 0.5*CFL * (4.*GammaNew_[i-1] - GammaNew_[i-2]))/(1. + 1.5*CFL);
+
+        }
+
+    }
+
+    // Update gamma
+    
+    for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+       
+       Gamma_[i] = GammaNew_[i];
+       
+       // Don't let errors from upwind scheme propagate further than
+       // physically possible
+       
+       if ( S_[i] > MaxConvectedDistance_ ) Gamma_[i] = 0.;
+
+    }
+    
+    // Do a weighted update for final trailing vortex
+   
+    i = NumberOfSubVortices() + 1;
+    
+    if ( S_[i] <= MaxConvectedDistance_ ) {
+       
+       Fact = ( S_[i] - MaxConvectedDistance_ ) / ( S_[i+1] - S_[i] );
+       
+       Gamma_[i] = Fact * GammaNew_[i];
+       
+    }
 
 }
 
@@ -907,7 +1324,7 @@ void VORTEX_TRAIL::Smooth(void)
 void VORTEX_TRAIL::WriteToFile(FILE *adb_file)
 {
  
-    int i, n, i_size, c_size, f_size;
+    int i, n, Done, i_size, c_size, f_size;
     float x, y, z;
     VSP_NODE NodeA, NodeB;
     
@@ -930,13 +1347,31 @@ void VORTEX_TRAIL::WriteToFile(FILE *adb_file)
     
     n = NumberOfSubVortices() + 2;
     
+    Done = 0;
+    
+    if ( TimeAccurate_ ) {
+       
+       i = 1;
+       
+       while ( i <= NumberOfSubVortices() + 1 && !Done ) {
+          
+          if ( S_[i] > MaxConvectedDistance_ ) Done = 1;
+          
+          i++;
+          
+       }
+       
+       n = i;
+       
+    }
+     
     fwrite(&(n), i_size, 1, adb_file);
     
     fwrite(&(x), f_size, 1, adb_file);
     fwrite(&(y), f_size, 1, adb_file);
     fwrite(&(z), f_size, 1, adb_file);
 
-    for ( i = 1 ; i <= NumberOfSubVortices() + 1; i++ ) {
+    for ( i = 1 ; i <= n - 1 ; i++ ) {
 
        x = NodeList_[i+1].x();
        y = NodeList_[i+1].y();

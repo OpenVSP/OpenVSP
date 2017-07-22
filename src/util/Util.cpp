@@ -99,3 +99,28 @@ double ceil2scale( double x, double scale )
     }
     return scale * ceil( x / scale );
 }
+
+vector<double> logspace(double a, double b, double n)
+{
+    std::vector<double> linarray = linspace(a,b, n);
+    std::vector<double> logarray;
+    for(size_t i = 0; i < linarray.size(); ++i)
+    {
+        double a = pow(10.0, linarray[i]);
+        logarray.push_back(a);
+    }
+    return logarray;
+}
+
+vector<double> linspace(double a, double b, double n)
+{
+    vector<double> linarray;
+    double step = (b-a) / (n-1.0);
+
+    while(a <= b)
+    {
+        linarray.push_back(a);
+        a += step;
+    }
+    return linarray;
+}

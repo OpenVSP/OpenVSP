@@ -37,7 +37,7 @@ void TestFacet()
     Print( string( "---> Computing MeshGeom..." ), false );
 
     ExportFile( "TestMeshGeomFacet.facet", SET_ALL, EXPORT_FACET );
-    
+
     Print( string( "COMPLETE \n" ) );
 
 }

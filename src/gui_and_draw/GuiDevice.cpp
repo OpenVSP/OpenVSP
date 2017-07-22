@@ -863,6 +863,12 @@ void ParmButton::Update( const string& parm_id )
     }
 }
 
+//==== Update Name ====//
+void ParmButton::UpdateButtonName( const string & name )
+{
+    m_Button->copy_label( name.c_str() );
+}
+
 //==== Set Slider Value and Limits =====//
 void ParmButton::SetValAndLimits( Parm* )
 {
@@ -1179,6 +1185,12 @@ void ToggleRadioGroup::AddButton( Fl_Button* button )
     button->callback( StaticDeviceCB, this );
 }
 
+void ToggleRadioGroup::ClearButtons()
+{
+    ClearAllWidgets();
+    m_ButtonVec.clear();
+}
+
 //==== Set Button Value ====//
 void ToggleRadioGroup::SetValAndLimits( Parm* p )
 {
@@ -1407,6 +1419,11 @@ void Choice::SetValAndLimits( Parm* p )
 
     IntParm* iparm = dynamic_cast< IntParm* >( p );
     assert( iparm );
+    if ( !iparm )
+    {
+        return;
+    }
+
     int val = iparm->Get();
 
     m_Choice->value( val - m_Offset );

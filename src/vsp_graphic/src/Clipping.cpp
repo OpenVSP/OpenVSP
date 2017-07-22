@@ -74,9 +74,9 @@ void ClipPlane::seticlip( int indx )
 
 Clipping::Clipping()
 {
-	_cplanes.resize( 6 );
+    _cplanes.resize( 6 );
 
-	for( int i = 0; i < (int)_cplanes.size(); i++ )
+    for( int i = 0; i < (int)_cplanes.size(); i++ )
     {
         _cplanes[i].seticlip( i );
     }

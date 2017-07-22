@@ -59,7 +59,8 @@ clean   :
 	@echo '     '
 	@echo ' *** Removing executables, object files... '
 	@echo '     '
-	@cd $(CBAERO_DIR)       	     ; rm -rf *.o
+	@cd $(VSPAERO_DIR)       	     ; rm -rf *.o
+	@cd $(VIEWER_DIR)       	     ; rm -rf *.o
 	@cd ../bin           ; rm -rf $(CBAERO_EXE)      	$(CBAERO_EXE).exe      	      	
 	
 	

@@ -55,7 +55,7 @@ public:
     void Init()                                         {}
 
     //==== Init Geom ====//
-    void InitGeom( const string& id, const string& module_name );
+    void InitGeom( const string& id, const string& module_name, const string& display_name );
     void SetCurrCustomGeom( const string& id )            { m_CurrGeom = id; }
     string GetCurrCustomGeom()                            { return m_CurrGeom; }
 
@@ -176,6 +176,8 @@ public:
     void InitGeom( );
     void SetScriptModuleName( const string& name )      { m_ScriptModuleName = name; }
     string GetScriptModuleName()                        { return m_ScriptModuleName; }
+    void SetDisplayName( const string& name )      { m_DisplayName = name; }
+    string GetDisplayName()                        { return m_DisplayName; }
 
     //==== Add a Parm Return ID ====//
     string AddParm( int type, const string & name, const string & group );
@@ -226,6 +228,7 @@ protected:
 
     bool m_InitGeomFlag;
     string m_ScriptModuleName;
+    string m_DisplayName;
 
     vector< Parm* > m_ParmVec;              // Storage For Pointers
     vector< GuiDef > m_GuiDefVec;           // Gui Definition

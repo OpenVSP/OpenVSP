@@ -41,6 +41,7 @@ public:
     virtual void AddParm( const string & id );
     virtual void RemoveParm( const string & id );
 
+    virtual string GetParentContainer()             { return m_ParentContainer; }
     virtual ParmContainer* GetParentContainerPtr();
 
     virtual void SetLateUpdateFlag( bool flag )     { m_LateUpdateFlag = flag; }

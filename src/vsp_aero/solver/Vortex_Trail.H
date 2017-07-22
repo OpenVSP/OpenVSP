@@ -13,7 +13,12 @@
 #include <math.h>
 #include <assert.h>
 #include "utils.H"
+#include "time.H"
 #include "VSP_Edge.H"
+
+#define IMPLICIT_WAKE_GAMMAS 1
+#define EXPLICIT_WAKE_GAMMAS 2
+#define      ALL_WAKE_GAMMAS 3 
 
 // Definition of the VORTEX_TRAIL class
 
@@ -78,13 +83,17 @@ private:
     // Circulation strength
     
     int Evaluate_;
-
-    double Gamma_;
-
-    // Update gamma values for sub vortices
+    int TimeAccurate_;
+    int NumberofExactShiftPoints_;
+    int ConvectType_;
     
-    void UpdateGamma(void);
-
+    double TimeStep_;
+    double Vinf_;
+    double MaxConvectedDistance_;
+    double *Gamma_;
+    double *GammaNew_;
+    double *GammaSave_;
+    
     // Smooth out the trailing wake shape
     
     void Smooth(void);
@@ -106,6 +115,10 @@ public:
     // Copy function
 
     VORTEX_TRAIL& operator=(const VORTEX_TRAIL &Trailing_Vortex);
+    
+    // Time accurate flag
+    
+    int &TimeAccurate(void) { return TimeAccurate_; };
     
     // Accesss to Vortex edge data
 
@@ -136,8 +149,14 @@ public:
     int &Evaluate(void) { return Evaluate_; };
     
     // Circulation strength
+
+    double &Gamma(void) { return Gamma_[0]; };
     
-    double &Gamma(void) { return Gamma_; };
+    double &Gamma(int i) {  return Gamma_[i]; };
+    
+    // Update gamma values for sub vortices
+    
+    void UpdateGamma(void);    
      
     // Trailing edge node
     
@@ -153,9 +172,17 @@ public:
     
     int NumberOfSubVortices(void) { return NumberOfSubVortices_[1]; };
     
+    // Access to each vortex edge on the finest level
+    
+    VSP_EDGE &VortexEdge(int i) { return VortexEdgeList_[1][i]; };
+    
     // Centroid of each sub vortex
     
     double *xyz_c(int i) { return VortexEdgeList_[1][i].xyz_c(); };
+    
+    // Wake points list
+    
+    double S(int i) { return S_[i]; };
     
     // Velocity for each sub vortex
     
@@ -174,7 +201,20 @@ public:
     double *VortexEdgeVelocity(int i) { return VortexEdgeVelocity_[i]; };
     
     void UpdateLocation(void);     
-   
+    
+    void ConvectWakeVorticity(int ConvectType);
+    void ConvectWakeVorticityOld(int ConvectType);
+    
+    // Unsteady analysis
+    
+    double &TimeStep(void) { return TimeStep_; };
+    
+    double &Vinf(void) { return Vinf_; };
+
+    double &MaxConvectedDistance(void) { return MaxConvectedDistance_; };
+
+    void SaveVortexState(void);
+
     void WriteToFile(FILE *adb_file);
 
 };

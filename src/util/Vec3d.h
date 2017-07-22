@@ -243,8 +243,8 @@ public:
     friend double dist3D_Segment_to_Segment( vec3d& S1P0, vec3d& S1P1, vec3d& S2P0, vec3d& S2P1,
             double* Lt, vec3d* Ln, double* St, vec3d* Sn );
     friend double nearSegSeg( const vec3d& L0, const vec3d& L1, const vec3d& S0, const vec3d& S1, double* Lt, vec3d* Ln, double* St,  vec3d* Sn );
-    friend double pointLineDistSquared( vec3d & p, vec3d& lp0, vec3d& lp1, double* t );
-    friend double pointSegDistSquared( vec3d& p, vec3d& sp0, vec3d& sp1, double* t );
+    friend double pointLineDistSquared( const vec3d & p, const vec3d& lp0, const vec3d& lp1, double* t );
+    friend double pointSegDistSquared( const vec3d& p, const vec3d& sp0, const vec3d& sp1, double* t );
     friend vec3d  point_on_line( const vec3d & lp0, const vec3d & lp1, const double & t );
 
     friend vec2d MapToPlane( const vec3d & p, const vec3d & planeOrig, const vec3d & planeVec1, const vec3d & planeVec2 );

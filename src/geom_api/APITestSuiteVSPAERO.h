@@ -4,7 +4,7 @@
 //
 
 // APITestSuiteVSPAERO.h: Unit tests for geom_api
-// 
+//
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -20,10 +20,13 @@ public:
     {
         // VSPAERO
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroCreateModel )     //this test just creates the model with various features
+        //  Control Surface Deflection Test
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroControlSurfaceDeflection )
         //  Vortex Lattice Method Tests
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroComputeGeom )
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePoint )
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePointStab )
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSinglePointUnsteady );
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSweep )
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSweepBatch )
         //  Panel Method Tests
@@ -33,6 +36,11 @@ public:
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge );
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge );
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing );
+        // Functionality Tests
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroCreateFunctionalityModel );
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroReadControlSurfaceGroupsFromFile );
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroReadRotorDisksFromFile );
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroParmContainersAccessibleAfterSave );
     }
 
 private:
@@ -40,8 +48,10 @@ private:
     void TestVSPAeroCreateModel();
     //  Vortex Lattice Method Tests
     void TestVSPAeroComputeGeom();        //<--Execute this VSPERO test first
+    void TestVSPAeroControlSurfaceDeflection();
     void TestVSPAeroSinglePoint();
     void TestVSPAeroSinglePointStab();
+    void TestVSPAeroSinglePointUnsteady();
     void TestVSPAeroSweep();
     void TestVSPAeroSweepBatch();
     //  Panel Method Tests
@@ -51,10 +61,16 @@ private:
     void TestVSPAeroSharpTrailingEdge();
     void TestVSPAeroBluntTrailingEdge();
     void TestVSPAeroSupersonicDeltaWing();
+    // Functionality Tests
+    void TestVSPAeroCreateFunctionalityModel();
+    void TestVSPAeroReadControlSurfaceGroupsFromFile();
+    void TestVSPAeroReadRotorDisksFromFile();
+    void TestVSPAeroParmContainersAccessibleAfterSave();
 
     double calcTessWCheckVal( double t_tess_w );
 
     string m_vspfname_for_vspaerotests;
+    string m_vspfname_for_vspaerofunctionalitytests;
 };
 
 #endif // !defined(VSPAPITESTSUITEVSPAERO__INCLUDED_)

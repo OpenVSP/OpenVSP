@@ -72,8 +72,10 @@ void VSP_EDGE::init(void)
     
     Sigma_ = 0.;
     Length_ = 0.;
-    Forces_[0] = Forces_[1] = Forces_[2] = 0.;
-    Trefftz_Forces_[0] = Trefftz_Forces_[1] = Trefftz_Forces_[2] = 0.;
+    
+             Forces_[0] =          Forces_[1] =          Forces_[2] = 0.;
+     Trefftz_Forces_[0] =  Trefftz_Forces_[1] =  Trefftz_Forces_[2] = 0.;
+    Unsteady_Forces_[0] = Unsteady_Forces_[1] = Unsteady_Forces_[2] = 0.;
     
     Verbose_ = 0;
  
@@ -650,25 +652,19 @@ double VSP_EDGE::GeneralizedPrincipalPartOfDownWash(void)
     Beta_2 = 1. - SQR(Mach_);
     
     Mag = MAX(MIN(Vec_[0],1.),-1.);
-    
+
     Theta = 0.5*PI - acos(Mag);
     
     T = tan(Theta);
- 
-//    printf("Mag, Theta, T: %lf %lf %lf \n",Mag,Theta,T);
-    
+
     Arg = -Beta_2 - T*T;
    
     Ws = 0.;
-    
-////printf("LocalSpacing_: %lf \n",LocalSpacing_);
-////printf("Length_: %lf \n",Length_);
 
     if ( Mach_ > 1. && Arg > 0. ) Ws = 0.50*sqrt(Arg)*cos(Theta)/LocalSpacing_;
     
- //    if ( Mach_ > 1. && T > 0. ) Ws = 0.5*sqrt( -Beta_2 );  
- //   if ( Mach_ > 1. ) Ws = 0.5*sqrt( -Beta_2 )/Length_;  
-      
+    Ws *= MAX(1.,pow(2./Mach_,2.));
+
     return Ws;
     
 }

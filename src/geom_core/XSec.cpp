@@ -191,7 +191,7 @@ Matrix4d* XSec::GetTransform()
 //==== Copy From XSec ====//
 void XSec::CopyFrom( XSec* xs )
 {
-    ParmMgr.ResetRemapID();
+    string lastreset = ParmMgr.ResetRemapID();
     xmlNodePtr root = xmlNewNode( NULL, ( const xmlChar * )"Vsp_Geometry" );
     if ( xs->GetType() == GetType() && xs->GetXSecCurve()->GetType() == GetXSecCurve()->GetType() )
     {
@@ -206,7 +206,7 @@ void XSec::CopyFrom( XSec* xs )
         m_XSCurve->SetWidthHeight( xs->GetXSecCurve()->GetWidth(), xs->GetXSecCurve()->GetHeight() );
     }
     xmlFreeNode( root );
-    ParmMgr.ResetRemapID();
+    ParmMgr.ResetRemapID( lastreset );
 }
 
 //==== Encode XML ====//
