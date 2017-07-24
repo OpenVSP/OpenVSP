@@ -23,6 +23,8 @@ StructureMgrSingleton::StructureMgrSingleton()
 
     m_CurrStructIndex = -1;
     m_CurrPartIndex = -1;
+
+    m_FeaSliceOrientationIndex = 0;
 }
 
 StructureMgrSingleton::~StructureMgrSingleton()

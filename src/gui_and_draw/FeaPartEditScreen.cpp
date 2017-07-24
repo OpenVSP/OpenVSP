@@ -728,6 +728,10 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         UpdateFeaPartPropertyIndex( &m_SkinPropertyChoice );
     }
+    else if ( device == &m_SliceOrientationChoice )
+    {
+        StructureMgr.SetFeaSliceOrientIndex( m_SliceOrientationChoice.GetVal() );
+    }
     else if ( device == &m_SlicePropertyChoice )
     {
         UpdateFeaPartPropertyIndex( &m_SlicePropertyChoice );

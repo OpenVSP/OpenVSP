@@ -107,6 +107,15 @@ public:
         return m_CurrPartIndex;
     }
 
+    virtual void SetFeaSliceOrientIndex( int ind )
+    {
+        m_FeaSliceOrientationIndex = ind;
+    }
+    virtual int GetFeaSliceOrientIndex()
+    {
+        return m_FeaSliceOrientationIndex;
+    }
+
 protected:
 
     vector < FeaProperty* > m_FeaPropertyVec;
@@ -117,6 +126,8 @@ protected:
 
     int m_CurrStructIndex;
     int m_CurrPartIndex;
+
+    int m_FeaSliceOrientationIndex; // Identifies the default orientation for FeaSlices; 0: XY_PLANE, 1: YZ_PLANE, 2: XZ_PLANE
 };
 
 #define StructureMgr StructureMgrSingleton::getInstance()

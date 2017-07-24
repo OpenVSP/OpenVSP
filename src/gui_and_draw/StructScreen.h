@@ -269,7 +269,6 @@ private:
     int m_SelectedMaterialIndex;
     int m_SelectedPropertyIndex;
     int m_NumFeaPartChoices;
-    int m_NumFeaSliceChoices;
 };
 
 #endif
