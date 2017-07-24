@@ -168,17 +168,17 @@ FeaPart* FeaStructure::AddFeaPart( int type )
     if ( type == vsp::FEA_SLICE )
     {
         feaprt = new FeaSlice( m_ParentGeomID );
-        feaprt->SetName( string( "SLICE_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "Slice_" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_RIB )
     {
         feaprt = new FeaRib( m_ParentGeomID );
-        feaprt->SetName( string( "RIB_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "Rib_" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_SPAR )
     {
         feaprt = new FeaSpar( m_ParentGeomID );
-        feaprt->SetName( string( "SPAR_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "Spar_" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_FIX_POINT )
     {
@@ -188,7 +188,7 @@ FeaPart* FeaStructure::AddFeaPart( int type )
         if ( skin )
         {
             feaprt = new FeaFixPoint( m_ParentGeomID, skin->GetID() );
-            feaprt->SetName( string( "FIX_POINT_" + std::to_string( m_FeaPartCount ) ) );
+            feaprt->SetName( string( "FixPoint_" + std::to_string( m_FeaPartCount ) ) );
         }
     }
 
@@ -553,7 +553,7 @@ vector < FeaPart* > FeaStructure::InitFeaSkin()
 
             if ( feaskin )
             {
-                feaskin->SetName( string( "SKIN_" + std::to_string( m_FeaPartCount ) ) );
+                feaskin->SetName( string( "Skin" ) );
                 feaskin->m_MainSurfIndx.Set( m_MainSurfIndx );
                 
                 feaskin->UpdateSymmetricSurfs();
