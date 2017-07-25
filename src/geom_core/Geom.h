@@ -412,6 +412,11 @@ public:
     virtual bool CompRotCoordSys( const double &u, const double &w, Matrix4d &rotmat );
     virtual bool CompTransCoordSys( const double &u, const double &w, Matrix4d &transmat );
 
+    virtual vector < Matrix4d > GetFeaTransMatVec()
+    {
+        return m_FeaTransMatVec;
+    }
+
     //==== XSec Surfs ====//
     virtual int GetNumXSecSurfs()
     {
@@ -664,6 +669,7 @@ protected:
     vector<VspSurf> m_SurfVec;
     vector<int> m_SurfIndxVec;
     vector< vector< int > > m_SurfSymmMap;
+    vector< Matrix4d > m_FeaTransMatVec; // Vector of transformation matrixes
     vector<DrawObj> m_WireShadeDrawObj_vec;
     vector<DrawObj> m_FeatureDrawObj_vec;
     DrawObj m_HighlightDrawObj;

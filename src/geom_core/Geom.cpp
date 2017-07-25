@@ -1380,11 +1380,20 @@ void Geom::UpdateSymmAttach()
         }
     }
 
-    //==== Apply Transformations ====//
+    Matrix4d retrun_relTrans = relTrans;
+    retrun_relTrans.affineInverse();
+
+    m_FeaTransMatVec.clear();
+    m_FeaTransMatVec.resize( num_surf );
+
+    //==== Save Transformation Matrix and Apply Transformations ====//
     for ( int i = 0 ; i < num_surf ; i++ )
     {
         transMats[i].postMult( symmOriginMat.data() );
         m_SurfVec[i].Transform( transMats[i] ); // Apply total transformation to main surfaces
+
+        m_FeaTransMatVec[i] = transMats[i];
+        m_FeaTransMatVec[i].matMult( retrun_relTrans.data() ); // m_FeaTransMatVec does not inclde the relTrans matrix
     }
 }
 
