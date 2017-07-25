@@ -158,9 +158,8 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual void UpdateSymmetricSurfs();
-
-    vector < Matrix4d > CalculateSymmetricTransform();
+    virtual void UpdateSymmParts();
+    virtual void UpdateSymmIndex();
 
     static string GetTypeName( int type );
 
