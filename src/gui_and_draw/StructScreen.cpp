@@ -1435,6 +1435,7 @@ void StructScreen::UpdateUnitLabels()
     {
         string squared( 1, 178 );
         string cubed( 1, 179 );
+        string deg( 1, 176 );
         string thick_unit, area_unit, area_moment_inertia_unit, young_mod_unit, density_unit, temp_unit;
 
         switch ( veh->m_StructUnit() )
@@ -1472,7 +1473,7 @@ void StructScreen::UpdateUnitLabels()
         area_unit = "ft" + squared;
         area_moment_inertia_unit = "ft^4";
         young_mod_unit = "lbf/ft" + squared;
-        temp_unit = "1/R";
+        temp_unit = "1/" + deg + "R";
         break;
 
         case vsp::BIN_UNIT:
@@ -1481,7 +1482,7 @@ void StructScreen::UpdateUnitLabels()
         area_unit = "in" + squared;
         area_moment_inertia_unit = "in^4";
         young_mod_unit = "psi";
-        temp_unit = "1/R";
+        temp_unit = "1/" + deg + "R";
         break;
         }
 
