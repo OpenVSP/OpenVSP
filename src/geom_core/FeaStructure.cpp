@@ -2181,22 +2181,22 @@ void FeaFixPoint::IdentifySplitSurfIndex()
                     m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
                     m_BorderFlag = true;
                 }
-                else if ( ( closedU && umax == parent_Umax && uw.x() == parent_Umin ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant U border
+                else if ( ( closedU && umax == parent_Umax && uw.x() == parent_Umin ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant closedU border 
                 {
                     m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
                     m_BorderFlag = true;
                 }
-                else if ( ( uw.x() > umin && uw.x() < umax ) && ( closedW && vmax == parent_Wmax && uw.y() == parent_Wmin ) ) // FeaFixPoint on constant W border
+                else if ( ( closedU && umin == parent_Umin && uw.y() == parent_Umax ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant closedU border
                 {
                     m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
                     m_BorderFlag = true;
                 }
-                else if ( ( uw.x() > umin && uw.x() < umax ) && ( closedW && vmin == parent_Wmin && uw.y() == parent_Wmax ) ) // FeaFixPoint on constant W border
+                else if ( ( uw.x() > umin && uw.x() < umax ) && ( closedW && vmax == parent_Wmax && uw.y() == parent_Wmin ) ) // FeaFixPoint on constant closedW border
                 {
                     m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
                     m_BorderFlag = true;
                 }
-                else if ( ( closedU && umin == parent_Umin && uw.y() == parent_Umax ) && ( uw.y() > vmin && uw.y() < vmax ) ) // FeaFixPoint on constant W border
+                else if ( ( uw.x() > umin && uw.x() < umax ) && ( closedW && vmin == parent_Wmin && uw.y() == parent_Wmax ) ) // FeaFixPoint on constant closedW border
                 {
                     m_SplitSurfIndex[i].push_back( j + i * num_split_surfs );
                     m_BorderFlag = true;
