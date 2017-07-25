@@ -378,6 +378,15 @@ bool FeaPartEditScreen::Update()
 
                         m_RemoveSkinTrisToggle.Update( skin->m_RemoveSkinTrisFlag.GetID() );
 
+                        if ( skin->m_RemoveSkinTrisFlag() )
+                        {
+                            m_SkinPropertyChoice.Deactivate();
+                        }
+                        else
+                        {
+                            m_SkinPropertyChoice.Activate();
+                        }
+
                         FeaPartDispGroup( &m_SkinEditLayout );
                     }
                     else if ( feaprt->GetType() == vsp::FEA_SLICE )

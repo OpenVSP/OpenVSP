@@ -825,6 +825,17 @@ void StructScreen::UpdateFeaPartBrowser()
                 cap = "";
                 cap_prop = "N/A";
             }
+            else if ( feaprt_vec[i]->GetType() == vsp::FEA_SKIN )
+            {
+                FeaSkin* skin = dynamic_cast<FeaSkin*>( feaprt_vec[i] );
+                assert( skin );
+
+                if ( skin->m_RemoveSkinTrisFlag() )
+                {
+                    shell = "";
+                    shell_prop = "N/A";
+                }
+            }
 
             sprintf( str, "%s:%s:%s:%s:%s:%s:", fea_name.c_str(), fea_type.c_str(), shell.c_str(), shell_prop.c_str(), cap.c_str(), cap_prop.c_str() );
             m_FeaPartSelectBrowser->add( str );
@@ -1702,17 +1713,6 @@ bool StructScreen::Update()
                         m_ShellCapToggleGroup.Update( prt->m_IncludedElements.GetID() );
                         m_DispFeaPartGroup.Update( prt->m_DrawFeaPartFlag.GetID() );
 
-                        if ( prt->GetType() == vsp::FEA_SKIN )
-                        {
-                            m_DispFeaPartGroup.Deactivate();
-                            m_ShellCapToggleGroup.Deactivate();
-                        }
-                        else
-                        {
-                            m_DispFeaPartGroup.Activate();
-                            m_ShellCapToggleGroup.Activate();
-                        }
-
                         if ( prt->m_IncludedElements() == TRIS )
                         {
                             m_GenPropertyChoice.Activate();
@@ -1729,6 +1729,28 @@ bool StructScreen::Update()
                             m_GenPropertyChoice.Deactivate();
                             m_GenCapPropertyChoice.Deactivate();
                             m_ShellCapToggleGroup.Deactivate();
+                        }
+                        else if ( prt->GetType() == vsp::FEA_SKIN )
+                        {
+                            m_DispFeaPartGroup.Deactivate();
+                            m_ShellCapToggleGroup.Deactivate();
+
+                            FeaSkin* skin = dynamic_cast<FeaSkin*>( prt );
+                            assert( skin );
+
+                            if ( skin->m_RemoveSkinTrisFlag() )
+                            {
+                                m_GenPropertyChoice.Deactivate();
+                            }
+                            else
+                            {
+                                m_GenPropertyChoice.Activate();
+                            }
+                        }
+                        else
+                        {
+                            m_DispFeaPartGroup.Activate();
+                            m_ShellCapToggleGroup.Activate();
                         }
                     }
                 }
