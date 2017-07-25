@@ -692,7 +692,7 @@ void StructScreen::LoadGeomChoice()
         int icomp = 0;
         for ( int i = 0; i < (int)geom_vec.size(); ++i )
         {
-            string disp_geom_name = std::to_string( i ) + "_" + geom_vec[i]->GetName();
+            string disp_geom_name = std::to_string( icomp + 1 ) + ". " + geom_vec[i]->GetName();
             int geom_type = geom_vec[i]->GetType().m_Type;
 
             if ( geom_type != BLANK_GEOM_TYPE && geom_type != PT_CLOUD_GEOM_TYPE && geom_type != HINGE_GEOM_TYPE && geom_type != MESH_GEOM_TYPE )
