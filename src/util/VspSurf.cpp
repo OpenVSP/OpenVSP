@@ -1864,8 +1864,11 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
     }
 }
 
-bool VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const double &u, const double &w )
+bool VspSurf::CheckandFetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const double &u, const double &w )
 {
+    // CheckandFetchXFerSurf is similar to FetchXFerSurf, but also returns a bool indicating whether or not an input UW point 
+    //  lies on a valid patch. A valid patch is one that is passses CheckValidPatch.
+
     bool on_valid_patch = true;
 
     vector < piecewise_surface_type > surfvec;

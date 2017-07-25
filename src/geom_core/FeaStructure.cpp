@@ -2129,7 +2129,7 @@ void FeaFixPoint::IdentifySplitSurfIndex()
         vector< XferSurf > tempxfersurfs;
 
         // Check if the UW point is on a valid patch (invalid patches are discarded in FetchXFerSurf)
-        bool on_valid_patch = parent_surf_vec[i].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs, uw[0], uw[1] );
+        bool on_valid_patch = parent_surf_vec[i].CheckandFetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs, uw[0], uw[1] );
 
         int num_split_surfs = tempxfersurfs.size();
 

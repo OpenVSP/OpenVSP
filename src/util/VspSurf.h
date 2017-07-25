@@ -150,7 +150,7 @@ public:
     bool CapWMin(int capType);
     bool CapWMax(int capType);
     void FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs );
-    bool FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const double &u, const double &w );
+    bool CheckandFetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const double &u, const double &w );
 
     void ResetUWSkip();
     void FlagDuplicate( VspSurf *othersurf );
