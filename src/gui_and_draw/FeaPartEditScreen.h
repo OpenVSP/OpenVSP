@@ -64,6 +64,7 @@ private:
     //===== Slice =====//
     Choice m_SlicePropertyChoice;
     Choice m_SliceOrientationChoice;
+    Choice m_SlicePosTypeChoice;
     SliderAdjRangeInput m_SliceCenterLocSlider;
     SliderAdjRangeInput m_SliceThetaSlider;
     SliderAdjRangeInput m_SliceAlphaSlider;

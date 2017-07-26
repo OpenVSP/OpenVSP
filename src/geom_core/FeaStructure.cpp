@@ -351,7 +351,16 @@ string FeaStructure::AddSpacedSlices( int orientation )
                 if ( slice )
                 {
                     slice->m_OrientationPlane.Set( orientation );
-                    slice->m_CenterPerBBoxLocation.Set( i * percent_space );
+
+                    if ( slice->m_LocationParmType() == PERCENT )
+                    {
+                        slice->m_CenterLocation.Set( i * percent_space );
+                    }
+                    else
+                    {
+                        // TODO: Add Support for DIST_BBOX
+                    }
+
                     slice->m_IncludedElements.Set( GetStructSettingsPtr()->m_MultSliceIncludedElements.Get() );
                     slice->Update();
                 }
@@ -955,11 +964,14 @@ FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
     m_OrientationPlane.Init( "OrientationPlane", "FeaFullDepth", this, XY_PLANE, XY_PLANE, XZ_PLANE );
     m_OrientationPlane.SetDescript( "Plane the FeaFullDepth Part will be Parallel to" );
 
-    m_CenterPerBBoxLocation.Init( "CenterPerBBoxLocation", "FeaFullDepth", this, 0.5, 0.0, 1.0 );
-    m_CenterPerBBoxLocation.SetDescript( "The Location of the Center of the FeaFullDepth Part as a Percentage of the Total Bounding Box" );
+    m_CenterLocation.Init( "", "FeaSlice", this, 0.5, 0.0, 1e12 ); // Note: The parm name was appearing in the GUI, so is undefined here
+    m_CenterLocation.SetDescript( "The Location of the Center of the FeaSlice Part as a Percentage or Length of the Total Bounding Box" );
+
 
     m_Theta.Init( "Theta", "FeaFullDepth", this, 0.0, -90.0, 90.0 );
     m_Alpha.Init( "Alpha", "FeaFullDepth", this, 0.0, -90.0, 90.0 );
+    m_LocationParmType.Init( "LocationParmType", "FeaSlice", this, PERCENT, PERCENT, LENGTH );
+    m_LocationParmType.SetDescript( "Type of Location Parm Definition: Percent or Length of Total BBox" );
 }
 
 void FeaSlice::Update()
@@ -1012,15 +1024,48 @@ void FeaSlice::ComputePlanarSurf()
 
         if ( m_OrientationPlane() == XY_PLANE )
         {
-            slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterPerBBoxLocation() );
+            if ( m_LocationParmType() == PERCENT )
+            {
+                m_CenterLocation.SetUpperLimit( 1.0 );
+
+                slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterLocation() );
+            }
+            else if( m_LocationParmType() == LENGTH )
+            {
+                m_CenterLocation.SetUpperLimit( del_z );
+
+                slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + m_CenterLocation() );
+            }
         }
         else if ( m_OrientationPlane() == YZ_PLANE )
         {
-            slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * m_CenterPerBBoxLocation(), geom_center.y(), geom_center.z() );
+            if ( m_LocationParmType() == PERCENT )
+            {
+                m_CenterLocation.SetUpperLimit( 1.0 );
+
+                slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * m_CenterLocation(), geom_center.y(), geom_center.z() );
+            }
+            else if ( m_LocationParmType() == LENGTH )
+            {
+                m_CenterLocation.SetUpperLimit( del_x );
+
+                slice_center = vec3d( geom_bbox.GetMin( 0 ) + m_CenterLocation(), geom_center.y(), geom_center.z() );
+            }
         }
         else if ( m_OrientationPlane() == XZ_PLANE )
         {
-            slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterPerBBoxLocation(), geom_center.z() );
+            if ( m_LocationParmType() == PERCENT )
+            {
+                m_CenterLocation.SetUpperLimit( 1.0 );
+
+                slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterLocation(), geom_center.z() );
+            }
+            else if ( m_LocationParmType() == LENGTH )
+            {
+                m_CenterLocation.SetUpperLimit( del_y );
+
+                slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + m_CenterLocation(), geom_center.z() );
+            }
         }
 
         vec3d offset_vec = slice_center - geom_center;

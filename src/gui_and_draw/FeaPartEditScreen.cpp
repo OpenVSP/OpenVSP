@@ -57,7 +57,32 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SliceOrientationChoice.AddItem( "XZ Plane" );
     m_SliceEditLayout.AddChoice( m_SliceOrientationChoice, "Orientation" );
 
-    m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, "Position", 1, "%5.3f" );
+    m_SliceEditLayout.SetSameLineFlag( true );
+    m_SliceEditLayout.SetFitWidthFlag( false );
+
+    int button_width = m_SliceEditLayout.GetButtonWidth();
+    int slider_width = m_SliceEditLayout.GetSliderWidth();
+
+    m_SliceEditLayout.SetSliderWidth( button_width );
+    m_SliceEditLayout.SetButtonWidth( 0 );
+    m_SliceEditLayout.SetChoiceButtonWidth( 0 );
+
+    m_SlicePosTypeChoice.AddItem( "Percent" );
+    m_SlicePosTypeChoice.AddItem( "Distance" );
+    m_SliceEditLayout.AddChoice( m_SlicePosTypeChoice, "" );
+
+    m_SliceEditLayout.SetSliderWidth( slider_width + 17 );
+
+    m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, "", 0.5, "%5.3f" );
+
+    m_SliceEditLayout.ForceNewLine();
+    m_SliceEditLayout.SetSameLineFlag( false );
+    m_SliceEditLayout.SetFitWidthFlag( true );
+
+    m_SliceEditLayout.InitWidthHeightVals();
+
+    m_SliceEditLayout.SetButtonWidth( button_width );
+
     m_SliceEditLayout.AddSlider( m_SliceThetaSlider, "Theta", 25, "%5.3f" );
     m_SliceEditLayout.AddSlider( m_SliceAlphaSlider, "Alpha", 25, "%5.3f" );
 
@@ -395,7 +420,8 @@ bool FeaPartEditScreen::Update()
                         assert( slice );
 
                         m_SliceOrientationChoice.Update( slice->m_OrientationPlane.GetID() );
-                        m_SliceCenterLocSlider.Update( slice->m_CenterPerBBoxLocation.GetID() );
+                        m_SlicePosTypeChoice.Update( slice->m_LocationParmType.GetID() );
+                        m_SliceCenterLocSlider.Update( slice->m_CenterLocation.GetID() );
                         m_SliceThetaSlider.Update( slice->m_Theta.GetID() );
                         m_SliceAlphaSlider.Update( slice->m_Alpha.GetID() );
 

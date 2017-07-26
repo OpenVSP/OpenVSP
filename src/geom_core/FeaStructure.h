@@ -229,6 +229,11 @@ enum
     XY_PLANE, YZ_PLANE, XZ_PLANE
 };
 
+enum
+{
+    PERCENT, LENGTH
+};
+
 class FeaSlice : public FeaPart
 {
 public:
@@ -242,9 +247,10 @@ public:
     virtual void UpdateDrawObjs( int id, bool highlight );
 
     IntParm m_OrientationPlane;
-    Parm m_CenterPerBBoxLocation;
+    Parm m_CenterLocation;
     Parm m_Theta;
     Parm m_Alpha;
+    IntParm m_LocationParmType;
 };
 
 enum
