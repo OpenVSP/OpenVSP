@@ -260,7 +260,7 @@ enum
     PARALLEL_NONE, PARALLEL_LEAD_EDGE, PARALLEL_TRAIL_EDGE
 };
 
-class FeaSpar : public FeaPart
+class FeaSpar : public FeaSlice
 {
 public:
 
@@ -272,7 +272,6 @@ public:
     virtual void ComputePlanarSurf();
     virtual void UpdateDrawObjs( int id, bool highlight );
 
-    Parm m_PerV; // Percent V Location
     Parm m_Theta;
 
 protected:
@@ -284,7 +283,7 @@ enum
     PERPENDICULAR_NONE, PERPENDICULAR_LEAD_EDGE, PERPENDICULAR_TRAIL_EDGE
 };
 
-class FeaRib : public FeaPart
+class FeaRib : public FeaSlice
 {
 public:
 
@@ -314,7 +313,6 @@ public:
         return m_PerpendicularEdgeID;
     }
 
-    Parm m_PerU; // Percent U Location
     Parm m_Theta;
 
 protected:

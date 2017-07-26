@@ -494,7 +494,7 @@ bool FeaPartEditScreen::Update()
                         FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
                         assert( rib );
 
-                        m_RibPosSlider.Update( rib->m_PerU.GetID() );
+                        m_RibPosSlider.Update( rib->m_CenterLocation.GetID() );
                         m_RibThetaSlider.Update( rib->m_Theta.GetID() );
 
                         if ( rib->m_IncludedElements() == BEAM || rib->m_IncludedElements() == BOTH_ELEMENTS )
@@ -513,7 +513,7 @@ bool FeaPartEditScreen::Update()
                         FeaSpar* spar = dynamic_cast<FeaSpar*>( feaprt );
                         assert( spar );
 
-                        m_SparPosSlider.Update( spar->m_PerV.GetID() );
+                        m_SparPosSlider.Update( spar->m_CenterLocation.GetID() );
                         m_SparThetaSlider.Update( spar->m_Theta.GetID() );
 
                         if ( spar->m_IncludedElements() == BEAM || spar->m_IncludedElements() == BOTH_ELEMENTS )

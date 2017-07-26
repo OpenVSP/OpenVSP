@@ -293,7 +293,7 @@ vector < FeaPart* > FeaStructure::AddEvenlySpacedRibs( const int num_rib )
 
                 if ( rib )
                 {
-                    rib->m_PerU.Set( ( u_start + i * u_step ) / u_max );
+                    rib->m_CenterLocation.Set( ( u_start + i * u_step ) / u_max );
                     rib->Update();
                 }
             }
@@ -1421,10 +1421,8 @@ void FeaSlice::UpdateDrawObjs( int id, bool highlight )
 //===================== FeaSpar ====================//
 //////////////////////////////////////////////////////
 
-FeaSpar::FeaSpar( string geomID, int type ) : FeaPart( geomID, type )
+FeaSpar::FeaSpar( string geomID, int type ) : FeaSlice( geomID, type )
 {
-    m_PerV.Init( "PerV", "FeaSpar", this, 0.5, 0.0, 1.0 );
-    m_PerV.SetDescript( "Precent V Location" );
     m_Theta.Init( "Theta", "FeaSpar", this, 0.0, -90.0, 90.0 );
 
 }
@@ -1635,10 +1633,8 @@ void FeaSpar::UpdateDrawObjs( int id, bool highlight )
 //===================== FeaRib =====================//
 //////////////////////////////////////////////////////
 
-FeaRib::FeaRib( string geomID, int type ) : FeaPart( geomID, type )
+FeaRib::FeaRib( string geomID, int type ) : FeaSlice( geomID, type )
 {
-    m_PerU.Init( "PerU", "FeaRib", this, 0.5, 0.0, 1.0 );
-    m_PerU.SetDescript( "Precent U Location" );
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
 
     m_PerpendicularEdgeIndex = 0;
