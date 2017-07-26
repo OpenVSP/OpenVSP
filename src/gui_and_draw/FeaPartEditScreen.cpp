@@ -788,6 +788,10 @@ bool FeaPartEditScreen::Update()
                 structVec[StructureMgr.GetCurrStructIndex()]->Update();
             }
         }
+        else
+        {
+            FeaPartDispGroup( NULL );
+        }
     }
 
     return true;
