@@ -119,6 +119,7 @@ public:
     void SetInputWidth( int w )         { m_InputWidth = w; }
     int GetInputWidth()                 { return m_InputWidth; }
     void SetSliderWidth( int w )        { m_SliderWidth = w; }
+    int GetSliderWidth()                { return m_SliderWidth; }
     int GetCanvasWidth()                { return m_CanvasWidth; }
     void SetCanvasWdith( int w )        { m_CanvasWidth = w; }
     int GetCanvasHeight()               { return m_CanvasHeight; }
