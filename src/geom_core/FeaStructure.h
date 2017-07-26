@@ -248,8 +248,10 @@ public:
 
     IntParm m_OrientationPlane;
     Parm m_CenterLocation;
-    Parm m_Theta;
-    Parm m_Alpha;
+    IntParm m_RotationAxis;
+    Parm m_XRot;
+    Parm m_YRot;
+    Parm m_ZRot;
     IntParm m_LocationParmType;
 };
 

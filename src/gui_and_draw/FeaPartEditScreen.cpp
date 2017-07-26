@@ -76,15 +76,32 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, "", 0.5, "%5.3f" );
 
     m_SliceEditLayout.ForceNewLine();
-    m_SliceEditLayout.SetSameLineFlag( false );
-    m_SliceEditLayout.SetFitWidthFlag( true );
+    m_SliceEditLayout.AddYGap();
 
     m_SliceEditLayout.InitWidthHeightVals();
 
+    m_SliceEditLayout.AddLabel( "Rotation Axis", m_SliceEditLayout.GetRemainX() / 3 );
+
+    m_SliceEditLayout.SetButtonWidth( m_SliceEditLayout.GetRemainX() / 3 );
+
+    m_SliceEditLayout.AddButton( m_SliceXAxisToggle, "X Axis" );
+    m_SliceEditLayout.AddButton( m_SliceYAxisToggle, "Y Axis" );
+    m_SliceEditLayout.AddButton( m_SliceZAxisToggle, "Z Axis" );
+
+    m_SliceRotAxisToggleGroup.Init( this );
+    m_SliceRotAxisToggleGroup.AddButton( m_SliceXAxisToggle.GetFlButton() );
+    m_SliceRotAxisToggleGroup.AddButton( m_SliceYAxisToggle.GetFlButton() );
+    m_SliceRotAxisToggleGroup.AddButton( m_SliceZAxisToggle.GetFlButton() );
+
+    m_SliceEditLayout.ForceNewLine();
+    m_SliceEditLayout.SetSameLineFlag( false );
+    m_SliceEditLayout.SetFitWidthFlag( true );
+
     m_SliceEditLayout.SetButtonWidth( button_width );
 
-    m_SliceEditLayout.AddSlider( m_SliceThetaSlider, "Theta", 25, "%5.3f" );
-    m_SliceEditLayout.AddSlider( m_SliceAlphaSlider, "Alpha", 25, "%5.3f" );
+    m_SliceEditLayout.AddSlider( m_SliceXRotSlider, "XRot", 25, "%5.3f" );
+    m_SliceEditLayout.AddSlider( m_SliceYRotSlider, "YRot", 25, "%5.3f" );
+    m_SliceEditLayout.AddSlider( m_SliceZRotSlider, "ZRot", 25, "%5.3f" );
 
     m_SliceEditLayout.AddYGap();
 
@@ -422,8 +439,35 @@ bool FeaPartEditScreen::Update()
                         m_SliceOrientationChoice.Update( slice->m_OrientationPlane.GetID() );
                         m_SlicePosTypeChoice.Update( slice->m_LocationParmType.GetID() );
                         m_SliceCenterLocSlider.Update( slice->m_CenterLocation.GetID() );
-                        m_SliceThetaSlider.Update( slice->m_Theta.GetID() );
-                        m_SliceAlphaSlider.Update( slice->m_Alpha.GetID() );
+                        m_SliceRotAxisToggleGroup.Update( slice->m_RotationAxis.GetID() );
+                        m_SliceXRotSlider.Update( slice->m_XRot.GetID() );
+                        m_SliceYRotSlider.Update( slice->m_YRot.GetID() );
+                        m_SliceZRotSlider.Update( slice->m_ZRot.GetID() );
+
+                        if ( slice->m_RotationAxis() == vsp::X_DIR )
+                        {
+                            m_SliceXRotSlider.Activate();
+                            m_SliceYRotSlider.Deactivate();
+                            m_SliceZRotSlider.Deactivate();
+                            slice->m_YRot.Set( 0.0 );
+                            slice->m_ZRot.Set( 0.0 );
+                        }
+                        else if ( slice->m_RotationAxis() == vsp::Y_DIR )
+                        {
+                            m_SliceXRotSlider.Deactivate();
+                            m_SliceYRotSlider.Activate();
+                            m_SliceZRotSlider.Deactivate();
+                            slice->m_XRot.Set( 0.0 );
+                            slice->m_ZRot.Set( 0.0 );
+                        }
+                        else if ( slice->m_RotationAxis() == vsp::Z_DIR )
+                        {
+                            m_SliceXRotSlider.Deactivate();
+                            m_SliceYRotSlider.Deactivate();
+                            m_SliceZRotSlider.Activate();
+                            slice->m_XRot.Set( 0.0 );
+                            slice->m_YRot.Set( 0.0 );
+                        }
 
                         if ( slice->m_IncludedElements() == TRIS || slice->m_IncludedElements() == BOTH_ELEMENTS )
                         {

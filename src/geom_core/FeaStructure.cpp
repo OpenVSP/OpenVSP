@@ -967,9 +967,11 @@ FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
     m_CenterLocation.Init( "", "FeaSlice", this, 0.5, 0.0, 1e12 ); // Note: The parm name was appearing in the GUI, so is undefined here
     m_CenterLocation.SetDescript( "The Location of the Center of the FeaSlice Part as a Percentage or Length of the Total Bounding Box" );
 
+    m_RotationAxis.Init( "RotationAxis", "FeaSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
+    m_XRot.Init( "XRot", "FeaSlice", this, 0.0, -90.0, 90.0 );
+    m_YRot.Init( "YRot", "FeaSlice", this, 0.0, -90.0, 90.0 );
+    m_ZRot.Init( "ZRot", "FeaSlice", this, 0.0, -90.0, 90.0 );
 
-    m_Theta.Init( "Theta", "FeaFullDepth", this, 0.0, -90.0, 90.0 );
-    m_Alpha.Init( "Alpha", "FeaFullDepth", this, 0.0, -90.0, 90.0 );
     m_LocationParmType.Init( "LocationParmType", "FeaSlice", this, PERCENT, PERCENT, LENGTH );
     m_LocationParmType.SetDescript( "Type of Location Parm Definition: Percent or Length of Total BBox" );
 }
@@ -1018,7 +1020,12 @@ void FeaSlice::ComputePlanarSurf()
 
         // Identify corners of the plane and rotation axis
         vec3d cornerA, cornerB, cornerC, cornerD;
-        vec3d theta_rot_axis, alpha_rot_axis;
+        vec3d x_rot_axis, y_rot_axis, z_rot_axis;
+
+        // Rotational direction follows right-hand rule
+        x_rot_axis.set_x( -1.0 ); // x-axis
+        y_rot_axis.set_y( -1.0 ); // y-axis
+        z_rot_axis.set_z( -1.0 ); // z-axis
 
         vec3d slice_center;
 
@@ -1075,85 +1082,85 @@ void FeaSlice::ComputePlanarSurf()
         {
             double z_off = offset_vec.z();
 
-            if ( m_Theta() >= 0.0 )
+            if ( DEG_2_RAD * m_YRot() <= 0.0 )
             {
-                if ( DEG_2_RAD * m_Theta() > atan( ( del_z + 2 * z_off ) / del_x ) )
+                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / del_x ) )
                 {
-                    del_x_minus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_x_minus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
                 }
                 else
                 {
-                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_YRot() ) );
                 }
 
-                if ( DEG_2_RAD * m_Theta() > atan( ( del_z - 2 * z_off ) / del_x ) )
+                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / del_x ) )
                 {
-                    del_x_plus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_x_plus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
                 }
                 else
                 {
-                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_YRot() ) );
                 }
             }
             else
             {
-                if ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_z + 2 * z_off ) / del_x ) )
+                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / del_x ) )
                 {
-                    del_x_plus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_x_plus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
                 }
                 else
                 {
-                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_YRot() ) );
                 }
 
-                if ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_z - 2 * z_off ) / del_x ) )
+                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / del_x ) )
                 {
-                    del_x_minus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_x_minus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
                 }
                 else
                 {
-                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_YRot() ) );
                 }
             }
 
-            if ( m_Alpha() >= 0.0 )
+            if ( DEG_2_RAD * m_XRot() <= 0.0 )
             {
-                if ( DEG_2_RAD * m_Alpha() > atan( ( del_z + 2 * z_off ) / del_y ) )
+                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / del_y ) )
                 {
-                    del_y_plus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_y_plus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
                 }
                 else
                 {
-                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_XRot() ) );
                 }
 
-                if ( DEG_2_RAD * m_Alpha() > atan( ( del_z - 2 * z_off ) / del_y ) )
+                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / del_y ) )
                 {
-                    del_y_minus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_y_minus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
                 }
                 else
                 {
-                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_XRot() ) );
                 }
             }
             else
             {
-                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_z + 2 * z_off ) / del_y ) )
+                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / del_y ) )
                 {
-                    del_y_minus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_y_minus = abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
                 }
                 else
                 {
-                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_XRot() ) );
                 }
 
-                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_z - 2 * z_off ) / del_y ) )
+                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / del_y ) )
                 {
-                    del_y_plus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_y_plus = abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
                 }
                 else
                 {
-                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_XRot() ) );
                 }
             }
 
@@ -1168,93 +1175,90 @@ void FeaSlice::ComputePlanarSurf()
 
             vec3d center_to_D = { 0.5 * del_x_plus, 0.5 * del_y_plus, 0.0 };
             cornerD = slice_center + center_to_D;
-
-            theta_rot_axis.set_y( 1.0 ); // y-axis
-            alpha_rot_axis.set_x( 1.0 ); // x-axis
         }
         else if ( m_OrientationPlane() == YZ_PLANE )
         {
             double x_off = offset_vec.x();
 
-            if ( DEG_2_RAD * m_Theta() >= 0.0 )
+            if ( DEG_2_RAD * m_YRot() <= 0.0 )
             {
-                if ( DEG_2_RAD * m_Theta() > atan( ( del_x + 2 * x_off ) / del_z ) )
+                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / del_z ) )
                 {
-                    del_z_plus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_z_plus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
                 }
                 else
                 {
-                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_Theta() ) );
+                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_YRot() ) );
                 }
 
-                if ( DEG_2_RAD * m_Theta() > atan( ( del_x - 2 * x_off ) / del_z ) )
+                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / del_z ) )
                 {
-                    del_z_minus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_z_minus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
                 }
                 else
                 {
-                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_Theta() ) );
+                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_YRot() ) );
                 }
             }
             else
             {
-                if ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_x + 2 * x_off ) / del_z ) )
+                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / del_z ) )
                 {
-                    del_z_minus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_z_minus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
                 }
                 else
                 {
-                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_Theta() ) );
+                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_YRot() ) );
                 }
 
-                if ( ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_x - 2 * x_off ) / del_z ) ) )
+                if ( ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / del_z ) ) )
                 {
-                    del_z_plus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_z_plus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
                 }
                 else
                 {
-                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_Theta() ) );
+                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_YRot() ) );
                 }
             }
 
-            if ( m_Alpha() >= 0.0 )
+            if ( DEG_2_RAD * m_ZRot() <= 0.0 )
             {
-                if ( DEG_2_RAD * m_Alpha() > atan( ( del_x + 2 * x_off ) / del_y ) )
+                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / del_y ) )
                 {
-                    del_y_minus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_y_minus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                 }
                 else
                 {
-                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_ZRot() ) );
                 }
 
-                if ( DEG_2_RAD * m_Alpha() > atan( ( del_x - 2 * x_off ) / del_y ) )
+                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / del_y ) )
                 {
-                    del_y_plus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_y_plus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                 }
                 else
                 {
-                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_ZRot() ) );
                 }
             }
             else
             {
-                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_x + 2 * x_off ) / del_y ) )
+                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / del_y ) )
                 {
-                    del_y_plus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_y_plus = abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                 }
                 else
                 {
-                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_y_plus = abs( del_y / cos( DEG_2_RAD * m_ZRot() ) );
                 }
 
-                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_x - 2 * x_off ) / del_y ) )
+                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / del_y ) )
                 {
-                    del_y_minus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_y_minus = abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                 }
                 else
                 {
-                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_y_minus = abs( del_y / cos( DEG_2_RAD * m_ZRot() ) );
                 }
             }
 
@@ -1269,93 +1273,90 @@ void FeaSlice::ComputePlanarSurf()
 
             vec3d center_to_D = { 0.0, 0.5 * del_y_plus, 0.5 * del_z_plus };
             cornerD = slice_center + center_to_D;
-
-            theta_rot_axis.set_y( 1.0 ); // y-axis
-            alpha_rot_axis.set_z( 1.0 ); // z-axis
         }
         else if ( m_OrientationPlane() == XZ_PLANE )
         {
             double y_off = offset_vec.y();
 
-            if ( DEG_2_RAD * m_Theta() > 0.0 )
+            if ( DEG_2_RAD * m_ZRot() <= 0.0 )
             {
-                if ( DEG_2_RAD * m_Theta() > atan( ( del_y + 2 * y_off ) / del_x ) )
+                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / del_x ) )
                 {
-                    del_x_plus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_x_plus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                 }
                 else
                 {
-                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_ZRot() ) );
                 }
 
-                if ( DEG_2_RAD * m_Theta() > atan( ( del_y - 2 * y_off ) / del_x ) )
+                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / del_x ) )
                 {
-                    del_x_minus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_x_minus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                 }
                 else
                 {
-                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_ZRot() ) );
                 }
             }
             else
             {
-                if ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_y + 2 * y_off ) / del_x ) )
+                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / del_x ) )
                 {
-                    del_x_minus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_x_minus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                 }
                 else
                 {
-                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                    del_x_minus = abs( del_x / cos( DEG_2_RAD * m_ZRot() ) );
                 }
 
-                if ( abs( DEG_2_RAD * m_Theta() ) > atan( ( del_y - 2 * y_off ) / del_x ) )
+                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / del_x ) )
                 {
-                    del_x_plus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_Theta() ) );
+                    del_x_plus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
                 }
                 else
                 {
-                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_Theta() ) );
+                    del_x_plus = abs( del_x / cos( DEG_2_RAD * m_ZRot() ) );
                 }
             }
 
-            if ( m_Alpha() >= 0.0 )
+            if ( DEG_2_RAD * m_XRot() <= 0.0 )
             {
-                if ( DEG_2_RAD * m_Alpha() > atan( ( del_y + 2 * y_off ) / del_z ) )
+                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / del_z ) )
                 {
-                    del_z_minus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_z_minus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
                 }
                 else
                 {
-                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_XRot() ) );
                 }
 
-                if ( DEG_2_RAD * m_Alpha() > atan( ( del_y - 2 * y_off ) / del_z ) )
+                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / del_z ) )
                 {
-                    del_z_plus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_z_plus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
                 }
                 else
                 {
-                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_XRot() ) );
                 }
             }
             else
             {
-                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_y + 2 * y_off ) / del_z ) )
+                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / del_z ) )
                 {
-                    del_z_plus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_z_plus = abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
                 }
                 else
                 {
-                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_z_plus = abs( del_z / cos( DEG_2_RAD * m_XRot() ) );
                 }
 
-                if ( abs( DEG_2_RAD * m_Alpha() ) > atan( ( del_y - 2 * y_off ) / del_z ) )
+                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / del_z ) )
                 {
-                    del_z_minus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_Alpha() ) );
+                    del_z_minus = abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
                 }
                 else
                 {
-                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_Alpha() ) );
+                    del_z_minus = abs( del_z / cos( DEG_2_RAD * m_XRot() ) );
                 }
             }
 
@@ -1370,39 +1371,38 @@ void FeaSlice::ComputePlanarSurf()
 
             vec3d center_to_D = { 0.5 * del_x_plus, 0.0, 0.5 * del_z_plus };
             cornerD = slice_center + center_to_D;
-
-            theta_rot_axis.set_z( 1.0 ); // z-axis
-            alpha_rot_axis.set_x( 1.0 ); // x-axis
         }
 
         // Make Planar Surface
         m_FeaPartSurfVec[0].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
 
-        if ( m_FeaPartSurfVec[0].GetFlipNormal() != current_surf.GetFlipNormal() )
-        {
-            m_FeaPartSurfVec[0].FlipNormal();
-            theta_rot_axis = -1 * theta_rot_axis;
-            alpha_rot_axis = -1 * alpha_rot_axis;
-        }
-
         // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
-        Matrix4d trans_mat_1, trans_mat_2, rot_mat_theta, rot_mat_alpha;
+        Matrix4d trans_mat_1, trans_mat_2, rot_mat_x, rot_mat_y, rot_mat_z;
 
         trans_mat_1.loadIdentity();
         trans_mat_1.translatef( slice_center.x() * -1, slice_center.y() * -1, slice_center.z() * -1 );
         m_FeaPartSurfVec[0].Transform( trans_mat_1 );
 
-        rot_mat_theta.loadIdentity();
-        rot_mat_theta.rotate( DEG_2_RAD * m_Theta(), theta_rot_axis );
-        m_FeaPartSurfVec[0].Transform( rot_mat_theta );
+        rot_mat_x.loadIdentity();
+        rot_mat_x.rotate( DEG_2_RAD * m_XRot(), x_rot_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat_x );
 
-        rot_mat_alpha.loadIdentity();
-        rot_mat_alpha.rotate( DEG_2_RAD * m_Alpha(), alpha_rot_axis );
-        m_FeaPartSurfVec[0].Transform( rot_mat_alpha );
+        rot_mat_y.loadIdentity();
+        rot_mat_y.rotate( DEG_2_RAD * m_YRot(), y_rot_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat_y );
+
+        rot_mat_z.loadIdentity();
+        rot_mat_z.rotate( DEG_2_RAD * m_ZRot(), z_rot_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat_z );
 
         trans_mat_2.loadIdentity();
         trans_mat_2.translatef( slice_center.x(), slice_center.y(), slice_center.z() );
         m_FeaPartSurfVec[0].Transform( trans_mat_2 );
+
+        if ( m_FeaPartSurfVec[0].GetFlipNormal() != current_surf.GetFlipNormal() )
+        {
+            m_FeaPartSurfVec[0].FlipNormal();
+        }
 
         // Using the primary m_FeaPartSurfVec (index 0) as a reference, calculate and transform the symmetric copies
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )

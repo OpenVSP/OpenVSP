@@ -66,8 +66,13 @@ private:
     Choice m_SliceOrientationChoice;
     Choice m_SlicePosTypeChoice;
     SliderAdjRangeInput m_SliceCenterLocSlider;
-    SliderAdjRangeInput m_SliceThetaSlider;
-    SliderAdjRangeInput m_SliceAlphaSlider;
+    ToggleButton m_SliceXAxisToggle;
+    ToggleButton m_SliceYAxisToggle;
+    ToggleButton m_SliceZAxisToggle;
+    ToggleRadioGroup m_SliceRotAxisToggleGroup;
+    SliderAdjRangeInput m_SliceXRotSlider;
+    SliderAdjRangeInput m_SliceYRotSlider;
+    SliderAdjRangeInput m_SliceZRotSlider;
     Choice m_SliceCapPropertyChoice;
 
     //===== Rib =====//
