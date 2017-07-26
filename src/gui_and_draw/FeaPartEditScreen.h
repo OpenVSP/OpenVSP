@@ -78,6 +78,7 @@ private:
     //===== Rib =====//
     Choice m_RibPropertyChoice;
     Choice m_RibPerpendicularEdgeChoice;
+    Choice m_RibPosTypeChoice;
     SliderAdjRangeInput m_RibPosSlider;
     SliderAdjRangeInput m_RibThetaSlider;
     Choice m_RibCapPropertyChoice;

@@ -117,9 +117,35 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_RibEditLayout.SetButtonWidth( m_RibEditLayout.GetRemainX() / 3 );
     m_RibEditLayout.SetChoiceButtonWidth( m_RibEditLayout.GetRemainX() / 3 );
 
-    m_RibEditLayout.AddChoice( m_RibPerpendicularEdgeChoice, "Perpendicular Edge" );
+    m_RibEditLayout.AddChoice( m_RibPerpendicularEdgeChoice, "Edge Normal" );
 
-    m_RibEditLayout.AddSlider( m_RibPosSlider, "Position", 1, "%5.3f" );
+    m_RibEditLayout.SetSameLineFlag( true );
+    m_RibEditLayout.SetFitWidthFlag( false );
+
+    button_width = m_RibEditLayout.GetButtonWidth();
+    slider_width = m_RibEditLayout.GetSliderWidth();
+
+    m_RibEditLayout.SetSliderWidth( button_width );
+    m_RibEditLayout.SetButtonWidth( 0 );
+    m_RibEditLayout.SetChoiceButtonWidth( 0 );
+
+    m_RibPosTypeChoice.AddItem( "Percent Span" );
+    m_RibPosTypeChoice.AddItem( "Length Span" );
+    m_RibEditLayout.AddChoice( m_RibPosTypeChoice, "" );
+
+    m_RibEditLayout.SetSliderWidth( slider_width + 17 );
+
+    m_RibEditLayout.AddSlider( m_RibPosSlider, "", 0.5, "%5.3f" );
+
+    m_RibEditLayout.ForceNewLine();
+    m_RibEditLayout.AddYGap();
+
+    m_RibEditLayout.InitWidthHeightVals();
+    m_RibEditLayout.SetSameLineFlag( false );
+    m_RibEditLayout.SetFitWidthFlag( true );
+
+    m_RibEditLayout.SetButtonWidth( button_width );
+
     m_RibEditLayout.AddSlider( m_RibThetaSlider, "Theta", 25, "%5.3f" );
 
     m_RibEditLayout.AddYGap();
@@ -494,6 +520,7 @@ bool FeaPartEditScreen::Update()
                         FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
                         assert( rib );
 
+                        m_RibPosTypeChoice.Update( rib->m_LocationParmType.GetID() );
                         m_RibPosSlider.Update( rib->m_CenterLocation.GetID() );
                         m_RibThetaSlider.Update( rib->m_Theta.GetID() );
 

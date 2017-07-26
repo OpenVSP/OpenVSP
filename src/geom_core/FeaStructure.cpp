@@ -15,6 +15,7 @@
 #include "ParmMgr.h"
 #include "StructureMgr.h"
 #include "LinkMgr.h"
+#include "WingGeom.h"
 
 #include <cfloat>
 
@@ -1660,6 +1661,8 @@ void FeaRib::ComputePlanarSurf()
 
         m_FeaPartSurfVec[0] = VspSurf();
         m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
+        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
+        assert( wing );
 
         vector< VspSurf > surf_vec;
         current_wing->GetSurfVec( surf_vec );
@@ -1668,8 +1671,69 @@ void FeaRib::ComputePlanarSurf()
         BndBox wing_bbox;
         wing_surf.GetBoundingBox( wing_bbox );
 
+        int num_wing_sec = wing->NumXSec();
+
+        vector < double > wing_sec_span_vec; // Vector of Span lengths for each wing section (first section has no length)
+        wing_sec_span_vec.push_back( 0.0 );
+
+        int u_max = wing_surf.GetUMax();
+        double u_step = 1.0 / u_max;
+
+        // Init values:
+        double span_0 = 0.0;
+        double span_f = 0.0;
+        double u_0 = u_step;
+        double u_f = u_step;
+        double per_u = 0.0;
+        int curr_sec_ind = -1;
+
+        // Determine current wing section:
+        for ( size_t i = 1; i < num_wing_sec; i++ )
+        {
+            WingSect* wing_sec = wing->GetWingSect( i );
+
+            if ( wing_sec )
+            {
+                span_f += wing_sec->m_Span();
+                u_f += u_step;
+                wing_sec_span_vec.push_back( span_f - span_0 );
+
+                if ( m_LocationParmType() == LENGTH )
+                {
+                    if ( m_CenterLocation() >= span_0 &&  m_CenterLocation() <= span_f )
+                    {
+                        curr_sec_ind = i;
+                    }
+                }
+                else if ( m_LocationParmType() == PERCENT )
+                {
+                    if ( m_CenterLocation() >= u_0 &&  m_CenterLocation() <= u_f )
+                    {
+                        curr_sec_ind = i;
+                    }
+                }
+
+                span_0 = span_f;
+                u_0 = u_f;
+            }
+        }
+
+        if ( m_LocationParmType() == PERCENT )
+        {
+            m_CenterLocation.SetLowerLimit( u_step );
+            m_CenterLocation.SetUpperLimit( u_step * ( u_max - 1 ) );
+
+            per_u = m_CenterLocation();
+        }
+        else if ( m_LocationParmType() == LENGTH )
+        {
+            m_CenterLocation.SetLowerLimit( 0.0 );
+            m_CenterLocation.SetUpperLimit( span_f );
+
+            per_u = curr_sec_ind * u_step + ( ( m_CenterLocation() - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
+        }
         VspCurve constant_u_curve;
-        wing_surf.GetU01ConstCurve( constant_u_curve, m_PerU() );
+        wing_surf.GetU01ConstCurve( constant_u_curve, per_u );
 
         piecewise_curve_type u_curve = constant_u_curve.GetCurve();
 
@@ -1699,8 +1763,8 @@ void FeaRib::ComputePlanarSurf()
         vec3d center = ( trail_edge + lead_edge ) / 2;
 
         double alpha = 0.0;
-        double u_edge_out = m_PerU() + 2 * FLT_EPSILON;
-        double u_edge_in = m_PerU() - 2 * FLT_EPSILON;
+        double u_edge_out = per_u + 2 * FLT_EPSILON;
+        double u_edge_in = per_u - 2 * FLT_EPSILON;
 
         if ( m_PerpendicularEdgeIndex == PERPENDICULAR_TRAIL_EDGE )
         {
