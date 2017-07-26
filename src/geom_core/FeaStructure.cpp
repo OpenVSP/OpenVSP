@@ -957,13 +957,13 @@ void FeaPart::SetFeaMaterialIndex( int index )
 }
 
 //////////////////////////////////////////////////////
-//================== FeaFullDepth ==================//
+//==================== FeaSlice ====================//
 //////////////////////////////////////////////////////
 
 FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_OrientationPlane.Init( "OrientationPlane", "FeaFullDepth", this, XY_PLANE, XY_PLANE, XZ_PLANE );
-    m_OrientationPlane.SetDescript( "Plane the FeaFullDepth Part will be Parallel to" );
+    m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, XY_PLANE, XY_PLANE, XZ_PLANE );
+    m_OrientationPlane.SetDescript( "Plane the FeaSlice Part will be Parallel to" );
 
     m_CenterLocation.Init( "", "FeaSlice", this, 0.5, 0.0, 1e12 ); // Note: The parm name was appearing in the GUI, so is undefined here
     m_CenterLocation.SetDescript( "The Location of the Center of the FeaSlice Part as a Percentage or Length of the Total Bounding Box" );
@@ -1405,7 +1405,7 @@ void FeaSlice::ComputePlanarSurf()
             m_FeaPartSurfVec[0].FlipNormal();
         }
 
-        // Using the primary m_FeaPartSurfVec (index 0) as a reference, calculate and transform the symmetric copies
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
         {
             m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
@@ -1617,7 +1617,7 @@ void FeaSpar::ComputePlanarSurf()
             m_FeaPartSurfVec[0].FlipNormal();
         }
 
-        // Using the primary m_FeaPartSurfVec (index 0) as a reference, calculate and transform the symmetric copies
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
         {
             m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
@@ -1941,7 +1941,7 @@ void FeaRib::ComputePlanarSurf()
             m_FeaPartSurfVec[0].FlipNormal();
         }
 
-        // Using the primary m_FeaPartSurfVec (index 0) as a reference, calculate and transform the symmetric copies
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
         {
             m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
