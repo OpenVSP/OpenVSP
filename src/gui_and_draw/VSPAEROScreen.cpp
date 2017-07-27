@@ -1172,7 +1172,7 @@ void VSPAEROScreen::UpdatePropElemDevices()
 {
     vector < RotorDisk* > rotordiskvec = VSPAEROMgr.GetRotorDiskVec();
     int index = VSPAEROMgr.GetCurrentRotorDiskIndex();
-    if (index >= 0)
+    if (index >= 0 && index < rotordiskvec.size())
     {
         rotordiskvec[ index ]->m_Diameter.Activate();
         rotordiskvec[ index ]->m_HubDiameter.Activate();
@@ -1187,6 +1187,11 @@ void VSPAEROScreen::UpdatePropElemDevices()
         m_PropElemRPM.Update( rotordiskvec[ index ]->m_RPM.GetID());
         m_PropElemCP.Update( rotordiskvec[ index ]->m_CP.GetID());
         m_PropElemCT.Update( rotordiskvec[ index ]->m_CT.GetID());
+    }
+
+    if (index > rotordiskvec.size())
+    {
+        VSPAEROMgr.SetCurrentRotorDiskIndex( -1 );
     }
 }
 
