@@ -852,6 +852,11 @@ void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid )
     {
         // CFD_STRUCTURE and CFD_STIFFENER type surfaces have m_CompID starting at -9999
         m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), compid, xfersurfs );
+
+        if ( m_FeaPartType == vsp::FEA_SKIN )
+        {
+            compid++; // Symmetric copies of skin surface are assigned a different compid for intersecting
+        }
     }
 }
 
