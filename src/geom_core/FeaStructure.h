@@ -273,6 +273,8 @@ public:
     virtual void UpdateDrawObjs( int id, bool highlight );
 
     Parm m_Theta;
+    BoolParm m_LimitSparToSectionFlag;
+    IntParm m_CurrWingSection;
 
 protected:
 

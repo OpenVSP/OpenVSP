@@ -159,10 +159,47 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SparEditLayout.AddDividerBox( "Spar" );
 
-    m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 3 );
-    m_SparEditLayout.SetChoiceButtonWidth( m_SparEditLayout.GetRemainX() / 3 );
+    m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 2 );
 
-    m_SparEditLayout.AddSlider( m_SparPosSlider, "Position", 1, "%5.3f" );
+    int input_width = m_SparEditLayout.GetInputWidth();
+
+    m_SparEditLayout.SetSameLineFlag( true );
+    m_SparEditLayout.SetFitWidthFlag( false );
+
+    m_SparEditLayout.AddButton( m_SparSectionLimitToggle, "Limit Spar to Section" );
+
+    m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 4 );
+    m_SparEditLayout.SetInputWidth( m_SparEditLayout.GetRemainX() / 5 );
+
+    m_SparEditLayout.AddIndexSelector( m_SparSectIndexSelector );
+
+    m_SparEditLayout.ForceNewLine();
+
+    button_width = m_SparEditLayout.GetRemainX() / 3;
+    slider_width = m_SparEditLayout.GetSliderWidth();
+
+    m_SparEditLayout.SetSliderWidth( button_width );
+    m_SparEditLayout.SetInputWidth( input_width );
+    m_SparEditLayout.SetButtonWidth( 0 );
+    m_SparEditLayout.SetChoiceButtonWidth( 0 );
+
+    m_SparPosTypeChoice.AddItem( "Per Chord" );
+    m_SparPosTypeChoice.AddItem( "Dist Avg Chord" );
+    m_SparEditLayout.AddChoice( m_SparPosTypeChoice, "" );
+
+    m_SparEditLayout.SetSliderWidth( slider_width + 17 );
+
+    m_SparEditLayout.AddSlider( m_SparPosSlider, "", 0.5, "%5.3f" );
+
+    m_SparEditLayout.ForceNewLine();
+    m_SparEditLayout.AddYGap();
+
+    m_SparEditLayout.InitWidthHeightVals();
+    m_SparEditLayout.SetSameLineFlag( false );
+    m_SparEditLayout.SetFitWidthFlag( true );
+
+    m_SparEditLayout.SetButtonWidth( button_width );
+
     m_SparEditLayout.AddSlider( m_SparThetaSlider, "Theta", 25, "%5.3f" );
 
     m_SparEditLayout.AddYGap();
@@ -539,6 +576,19 @@ bool FeaPartEditScreen::Update()
                     {
                         FeaSpar* spar = dynamic_cast<FeaSpar*>( feaprt );
                         assert( spar );
+
+                        m_SparPosTypeChoice.Update( spar->m_LocationParmType.GetID() );
+                        m_SparSectionLimitToggle.Update( spar->m_LimitSparToSectionFlag.GetID() );
+                        m_SparSectIndexSelector.Update( spar->m_CurrWingSection.GetID() );
+
+                        if ( spar->m_LimitSparToSectionFlag() )
+                        {
+                            m_SparSectIndexSelector.Activate();
+                        }
+                        else
+                        {
+                            m_SparSectIndexSelector.Deactivate();
+                        }
 
                         m_SparPosSlider.Update( spar->m_CenterLocation.GetID() );
                         m_SparThetaSlider.Update( spar->m_Theta.GetID() );

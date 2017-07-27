@@ -1426,6 +1426,12 @@ FeaSpar::FeaSpar( string geomID, int type ) : FeaSlice( geomID, type )
 {
     m_Theta.Init( "Theta", "FeaSpar", this, 0.0, -90.0, 90.0 );
 
+    m_LimitSparToSectionFlag.Init( "LimitSparToSectionFlag", "FeaSpar", this, false, false, true );
+    m_LimitSparToSectionFlag.SetDescript( "Flag to Limit Spar Length to Wing Section" );
+
+    m_CurrWingSection.Init( "CurrWingSection", "FeaSpar", this, 1, 1, 1000 );
+    m_CurrWingSection.SetDescript( "Current Wing Section to Limit Spar Length to" );
+
 }
 
 void FeaSpar::Update()
@@ -1446,8 +1452,19 @@ void FeaSpar::ComputePlanarSurf()
             return;
         }
 
-        m_FeaPartSurfVec[0] = VspSurf();
-        m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
+        m_FeaPartSurfVec[0] = VspSurf(); // Create primary VspSurf
+
+        if ( m_IncludedElements() == TRIS || m_IncludedElements() == BOTH_ELEMENTS )
+        {
+            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
+        }
+        else
+        {
+            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
+        }
+
+        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
+        assert( wing );
 
         vector< VspSurf > surf_vec;
         current_wing->GetSurfVec( surf_vec );
@@ -1456,20 +1473,77 @@ void FeaSpar::ComputePlanarSurf()
         BndBox wing_bbox;
         wing_surf.GetBoundingBox( wing_bbox );
 
+        int num_wing_sec = wing->NumXSec();
+        int u_max = wing_surf.GetUMax();
+        double u_step = 1.0 / u_max;
+
+        // Init values:
+        double u_0 = u_step;
+        double u_f = u_step * num_wing_sec;
+        int curr_sec_ind = -1;
+
+        m_CurrWingSection.SetUpperLimit( num_wing_sec - 1 );
+
+        double u_sec_min, u_sec_max, per_v, chord_length;
+
+        if ( m_LimitSparToSectionFlag() )
+        {
+            WingSect* wing_sec = wing->GetWingSect( m_CurrWingSection() );
+
+            if ( wing_sec )
+            {
+                chord_length = wing_sec->m_AvgChord();
+            }
+
+            u_sec_min = ( m_CurrWingSection() * u_step );
+            u_sec_max = u_sec_min + u_step;
+        }
+        else
+        {
+            chord_length = wing->m_TotalChord();
+            u_sec_min = u_step;
+            u_sec_max = u_f;
+        }
+
+        if ( m_LocationParmType() == PERCENT )
+        {
+            m_CenterLocation.SetUpperLimit( 1.0 );
+
+            per_v = m_CenterLocation();
+        }
+        else if ( m_LocationParmType() == LENGTH )
+        {
+            m_CenterLocation.SetUpperLimit( chord_length );
+
+            per_v = m_CenterLocation() / chord_length;
+        }
+
         VspCurve constant_v_curve;
-        wing_surf.GetW01ConstCurve( constant_v_curve, m_PerV() );
+        wing_surf.GetW01ConstCurve( constant_v_curve, per_v );
 
         piecewise_curve_type v_curve = constant_v_curve.GetCurve();
 
-        double u_min = v_curve.get_parameter_min();
-        double u_max = v_curve.get_parameter_max();
-
         vec3d inside_edge, outside_edge;
-        inside_edge = v_curve.f( u_min );
-        outside_edge = v_curve.f( u_max );
+
+        if ( m_LimitSparToSectionFlag() )
+        {
+            VspCurve constant_v_curve_top;
+            wing_surf.GetW01ConstCurve( constant_v_curve_top, 1.0 - per_v );
+
+            piecewise_curve_type v_curve_top = constant_v_curve_top.GetCurve();
+
+            // Use center of chord for inner/outer edge vectors
+            inside_edge = ( v_curve_top.f( u_sec_min * u_max ) + v_curve.f( u_sec_min * u_max ) ) / 2;
+            outside_edge = ( v_curve_top.f( u_sec_max * u_max ) + v_curve.f( u_sec_max * u_max ) ) / 2;
+        }
+        else
+        {
+            inside_edge = v_curve.f( 0.0 );
+            outside_edge = v_curve.f( u_max );
+        }
 
         VspCurve constant_u_curve;
-        wing_surf.GetU01ConstCurve( constant_u_curve, 0.5 );
+        wing_surf.GetU01ConstCurve( constant_u_curve, ( u_sec_min + u_sec_max ) / 2 );
 
         piecewise_curve_type u_curve = constant_u_curve.GetCurve();
 
@@ -1498,10 +1572,10 @@ void FeaSpar::ComputePlanarSurf()
         vec3d center_to_outer_edge = outside_edge - center;
         center_to_outer_edge.normalize();
 
-        vec3d min_trail_edge = wing_surf.CompPnt( 0.0, 0.0 );
-        vec3d min_lead_edge = wing_surf.CompPnt( 0.0, v_leading_edge );
-        vec3d max_trail_edge = wing_surf.CompPnt( wing_surf.GetUMax(), 0.0 );
-        vec3d max_lead_edge = wing_surf.CompPnt( wing_surf.GetUMax(), v_leading_edge );
+        vec3d min_trail_edge = wing_surf.CompPnt( u_sec_min * u_max, 0.0 );
+        vec3d min_lead_edge = wing_surf.CompPnt( u_sec_min * u_max, v_leading_edge );
+        vec3d max_trail_edge = wing_surf.CompPnt( u_sec_max * u_max, 0.0 );
+        vec3d max_lead_edge = wing_surf.CompPnt( u_sec_max * u_max, v_leading_edge );
 
         vec3d trail_edge_vec = max_trail_edge - min_trail_edge;
         trail_edge_vec.normalize();

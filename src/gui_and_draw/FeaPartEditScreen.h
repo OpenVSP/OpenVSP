@@ -85,7 +85,10 @@ private:
 
     //===== Spar =====//
     Choice m_SparPropertyChoice;
+    Choice m_SparPosTypeChoice;
     SliderAdjRangeInput m_SparPosSlider;
+    ToggleButton m_SparSectionLimitToggle;
+    IndexSelector m_SparSectIndexSelector;
     SliderAdjRangeInput m_SparThetaSlider;
     Choice m_SparCapPropertyChoice;
 
