@@ -1491,6 +1491,7 @@ void FeaSpar::ComputePlanarSurf()
 
         double u_sec_min, u_sec_max, per_v, chord_length;
 
+        // Determine U limits of spar
         if ( m_LimitSparToSectionFlag() )
         {
             WingSect* wing_sec = wing->GetWingSect( m_CurrWingSection() );
@@ -1510,6 +1511,7 @@ void FeaSpar::ComputePlanarSurf()
             u_sec_max = u_f;
         }
 
+        // Set parm limits and convert to percent V if parameterized by chord length value
         if ( m_LocationParmType() == PERCENT )
         {
             m_CenterLocation.SetUpperLimit( 1.0 );
@@ -1569,29 +1571,29 @@ void FeaSpar::ComputePlanarSurf()
 
         double height = 0.5 * wing_bbox.GetSmallestDist();
 
-        vec3d center = ( inside_edge + outside_edge ) / 2;
+        vec3d center = ( inside_edge + outside_edge ) / 2; // center of spar
 
-        vec3d center_to_inner_edge = center - inside_edge; // flip?
-        center_to_inner_edge.normalize();
-
+        vec3d center_to_inner_edge = center - inside_edge;
         vec3d center_to_outer_edge = outside_edge - center;
+
+        center_to_inner_edge.normalize();
         center_to_outer_edge.normalize();
 
+        // Wing corner points:
         vec3d min_trail_edge = wing_surf.CompPnt( u_sec_min * u_max, 0.0 );
         vec3d min_lead_edge = wing_surf.CompPnt( u_sec_min * u_max, v_leading_edge );
         vec3d max_trail_edge = wing_surf.CompPnt( u_sec_max * u_max, 0.0 );
         vec3d max_lead_edge = wing_surf.CompPnt( u_sec_max * u_max, v_leading_edge );
 
+        // Wing edge vectors (assumes linearity)
         vec3d trail_edge_vec = max_trail_edge - min_trail_edge;
-        trail_edge_vec.normalize();
-
         vec3d lead_edge_vec = max_lead_edge - min_lead_edge;
-        lead_edge_vec.normalize();
-
         vec3d inner_edge_vec = min_trail_edge - min_lead_edge;
-        inner_edge_vec.normalize();
-
         vec3d outer_edge_vec = max_trail_edge - max_lead_edge;
+
+        trail_edge_vec.normalize();
+        lead_edge_vec.normalize();
+        inner_edge_vec.normalize();
         outer_edge_vec.normalize();
 
         // Determine angle between center and corner points
@@ -1605,17 +1607,21 @@ void FeaSpar::ComputePlanarSurf()
         center_to_le_out_vec.normalize();
         center_to_te_out_vec.normalize();
 
-        double alpha_0 = PI / 2 + signed_angle( inner_edge_vec, center_to_outer_edge, wing_z_axis ); // Initial rotation
+        // Normal vector to wing chord line
+        vec3d normal_vec = cross( inner_edge_vec, lead_edge_vec );
+        normal_vec.normalize();
 
-        double max_angle_inner_le = PI - signed_angle( center_to_le_in_vec, center_to_inner_edge, wing_z_axis );
-        double max_angle_inner_te = -1 * PI - signed_angle( center_to_te_in_vec, center_to_inner_edge, wing_z_axis );
-        double max_angle_outer_le = -1 * signed_angle( center_to_le_out_vec, center_to_outer_edge, wing_z_axis );
-        double max_angle_outer_te = -1 * signed_angle( center_to_te_out_vec, center_to_outer_edge, wing_z_axis );
+        double alpha_0 = ( PI / 2 ) - signed_angle( inner_edge_vec, center_to_outer_edge, normal_vec ); // Initial rotation
+        double theta = DEG_2_RAD * m_Theta(); // User defined angle converted to Rad
 
-        double beta_te = signed_angle( center_to_outer_edge, trail_edge_vec, wing_z_axis );
-        double beta_le = signed_angle( lead_edge_vec, center_to_inner_edge, wing_z_axis );
+        // Get maximum angles for spar to intersect wing edges
+        double max_angle_inner_le = PI + signed_angle( center_to_le_in_vec, center_to_inner_edge, normal_vec );
+        double max_angle_inner_te = -1 * PI + signed_angle( center_to_te_in_vec, center_to_inner_edge, normal_vec );
+        double max_angle_outer_le = signed_angle( center_to_le_out_vec, center_to_outer_edge, normal_vec );
+        double max_angle_outer_te = signed_angle( center_to_te_out_vec, center_to_outer_edge, normal_vec );
 
-        double theta = DEG_2_RAD * m_Theta();
+        double beta_te = -1 * signed_angle( center_to_outer_edge, trail_edge_vec, normal_vec ); // Angle between spar and trailing edge
+        double beta_le = -1 * signed_angle( lead_edge_vec, center_to_inner_edge, normal_vec ); // Angle between spar and leading edge
 
         double length_spar_in, length_spar_out, perp_dist;
 
@@ -1670,8 +1676,8 @@ void FeaSpar::ComputePlanarSurf()
         }
 
         // Apply Rodrigues' Rotation Formula
-        vec3d spar_vec_in = center_to_inner_edge * cos( theta ) + cross( wing_z_axis, center_to_inner_edge ) * sin( theta ) + wing_z_axis * dot( wing_z_axis, center_to_inner_edge ) * ( 1 - cos( theta ) );
-        vec3d spar_vec_out = center_to_outer_edge * cos( theta ) + cross( wing_z_axis, center_to_outer_edge ) * sin( theta ) + wing_z_axis * dot( wing_z_axis, center_to_outer_edge ) * ( 1 - cos( theta ) );
+        vec3d spar_vec_in = center_to_inner_edge * cos( theta ) + cross( center_to_inner_edge, normal_vec ) * sin( theta ) + normal_vec * dot( center_to_inner_edge, normal_vec ) * ( 1 - cos( theta ) );
+        vec3d spar_vec_out = center_to_outer_edge * cos( theta ) + cross( center_to_outer_edge, normal_vec ) * sin( theta ) + normal_vec * dot( center_to_outer_edge, normal_vec ) * ( 1 - cos( theta ) );
 
         spar_vec_in.normalize();
         spar_vec_out.normalize();
