@@ -73,7 +73,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SliceEditLayout.SetSliderWidth( slider_width + 17 );
 
-    m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, "", 0.5, "%5.3f" );
+    m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, "", 50, "%5.3f" );
 
     m_SliceEditLayout.ForceNewLine();
     m_SliceEditLayout.AddYGap();
@@ -134,8 +134,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_RibEditLayout.AddChoice( m_RibPosTypeChoice, "" );
 
     m_RibEditLayout.SetSliderWidth( slider_width + 17 );
+    m_RibEditLayout.AddSlider( m_RibPosSlider, "", 50, "%5.3f" );
 
-    m_RibEditLayout.AddSlider( m_RibPosSlider, "", 0.5, "%5.3f" );
 
     m_RibEditLayout.ForceNewLine();
     m_RibEditLayout.AddYGap();
@@ -189,7 +189,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SparEditLayout.SetSliderWidth( slider_width + 17 );
 
-    m_SparEditLayout.AddSlider( m_SparPosSlider, "", 0.5, "%5.3f" );
+    m_SparEditLayout.AddSlider( m_SparPosSlider, "", 50, "%5.3f" );
 
     m_SparEditLayout.ForceNewLine();
     m_SparEditLayout.AddYGap();

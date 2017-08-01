@@ -970,7 +970,7 @@ FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
     m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, XY_PLANE, XY_PLANE, XZ_PLANE );
     m_OrientationPlane.SetDescript( "Plane the FeaSlice Part will be Parallel to" );
 
-    m_CenterLocation.Init( "", "FeaSlice", this, 0.5, 0.0, 1e12 ); // Note: The parm name was appearing in the GUI, so is undefined here
+    m_CenterLocation.Init( "", "FeaSlice", this, 50, 0.0, 1e12 ); // Note: The parm name was appearing in the GUI, so is undefined here
     m_CenterLocation.SetDescript( "The Location of the Center of the FeaSlice Part as a Percentage or Length of the Total Bounding Box" );
 
     m_RotationAxis.Init( "RotationAxis", "FeaSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
@@ -1039,9 +1039,9 @@ void FeaSlice::ComputePlanarSurf()
         {
             if ( m_LocationParmType() == PERCENT )
             {
-                m_CenterLocation.SetUpperLimit( 1.0 );
+                m_CenterLocation.SetUpperLimit( 100 );
 
-                slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterLocation() );
+                slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterLocation() / 100 );
             }
             else if( m_LocationParmType() == LENGTH )
             {
@@ -1054,9 +1054,9 @@ void FeaSlice::ComputePlanarSurf()
         {
             if ( m_LocationParmType() == PERCENT )
             {
-                m_CenterLocation.SetUpperLimit( 1.0 );
+                m_CenterLocation.SetUpperLimit( 100 );
 
-                slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * m_CenterLocation(), geom_center.y(), geom_center.z() );
+                slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * m_CenterLocation() / 100, geom_center.y(), geom_center.z() );
             }
             else if ( m_LocationParmType() == LENGTH )
             {
@@ -1069,9 +1069,9 @@ void FeaSlice::ComputePlanarSurf()
         {
             if ( m_LocationParmType() == PERCENT )
             {
-                m_CenterLocation.SetUpperLimit( 1.0 );
+                m_CenterLocation.SetUpperLimit( 100 );
 
-                slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterLocation(), geom_center.z() );
+                slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterLocation() / 100, geom_center.z() );
             }
             else if ( m_LocationParmType() == LENGTH )
             {
@@ -1514,15 +1514,15 @@ void FeaSpar::ComputePlanarSurf()
         // Set parm limits and convert to percent V if parameterized by chord length value
         if ( m_LocationParmType() == PERCENT )
         {
-            m_CenterLocation.SetUpperLimit( 1.0 );
+            m_CenterLocation.SetUpperLimit( 100 );
 
-            per_v = m_CenterLocation();
+            per_v = m_CenterLocation() / 200;
         }
         else if ( m_LocationParmType() == LENGTH )
         {
             m_CenterLocation.SetUpperLimit( chord_length );
 
-            per_v = m_CenterLocation() / chord_length;
+            per_v = m_CenterLocation() / ( 2 * chord_length );
         }
 
         VspCurve constant_v_curve;
@@ -1801,7 +1801,7 @@ void FeaRib::ComputePlanarSurf()
                 }
                 else if ( m_LocationParmType() == PERCENT )
                 {
-                    if ( m_CenterLocation() >= u_0 &&  m_CenterLocation() <= u_f )
+                    if ( m_CenterLocation() / 100 >= u_0 &&  m_CenterLocation() / 100 <= u_f )
                     {
                         curr_sec_ind = i;
                     }
@@ -1815,14 +1815,14 @@ void FeaRib::ComputePlanarSurf()
         // Set parm limits and convert to percent U if parameterized by span length value
         if ( m_LocationParmType() == PERCENT )
         {
-            m_CenterLocation.SetLowerLimit( u_step );
-            m_CenterLocation.SetUpperLimit( u_step * ( u_max - 1 ) );
+            m_CenterLocation.SetUpperLimit( 100 );
 
-            per_u = m_CenterLocation();
+            double u_range = ( u_step * ( u_max - 1 ) ) - u_step;
+
+            per_u = u_step + ( m_CenterLocation() / 100 ) * u_range;
         }
         else if ( m_LocationParmType() == LENGTH )
         {
-            m_CenterLocation.SetLowerLimit( 0.0 );
             m_CenterLocation.SetUpperLimit( span_f );
 
             per_u = curr_sec_ind * u_step + ( ( m_CenterLocation() - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
