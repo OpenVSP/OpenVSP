@@ -970,7 +970,7 @@ FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
     m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, XY_PLANE, XY_PLANE, XZ_PLANE );
     m_OrientationPlane.SetDescript( "Plane the FeaSlice Part will be Parallel to" );
 
-    m_CenterLocation.Init( "", "FeaSlice", this, 50, 0.0, 1e12 ); // Note: The parm name was appearing in the GUI, so is undefined here
+    m_CenterLocation.Init( "Center Location", "FeaSlice", this, 50, 0.0, 1e12 );
     m_CenterLocation.SetDescript( "The Location of the Center of the FeaSlice Part as a Percentage or Length of the Total Bounding Box" );
 
     m_RotationAxis.Init( "RotationAxis", "FeaSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );

@@ -73,7 +73,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SliceEditLayout.SetSliderWidth( slider_width - 5 );
 
-    m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, "", 50, "%5.3f" );
+    m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, " ", 50, "%5.3f" );
 
     m_SliceEditLayout.AddButton( m_SlicePosUnit, "" );
     m_SlicePosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -140,7 +140,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_RibEditLayout.SetSliderWidth( slider_width - 5 );
 
-    m_RibEditLayout.AddSlider( m_RibPosSlider, "", 50, "%5.3f" );
+    m_RibEditLayout.AddSlider( m_RibPosSlider, " ", 50, "%5.3f" );
 
     m_RibEditLayout.AddButton( m_RibPosUnit, "" );
     m_RibPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -199,7 +199,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SparEditLayout.SetSliderWidth( slider_width - 5 );
 
-    m_SparEditLayout.AddSlider( m_SparPosSlider, "", 50, "%5.3f" );
+    m_SparEditLayout.AddSlider( m_SparPosSlider, " ", 50, "%5.3f" );
 
     m_SparEditLayout.AddButton( m_SparPosUnit, "" );
     m_SparPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
