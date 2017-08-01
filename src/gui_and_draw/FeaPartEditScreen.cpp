@@ -67,13 +67,18 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SliceEditLayout.SetButtonWidth( 0 );
     m_SliceEditLayout.SetChoiceButtonWidth( 0 );
 
-    m_SlicePosTypeChoice.AddItem( "Percent" );
-    m_SlicePosTypeChoice.AddItem( "Distance" );
+    m_SlicePosTypeChoice.AddItem( "% BBox" );
+    m_SlicePosTypeChoice.AddItem( "Dist BBox" );
     m_SliceEditLayout.AddChoice( m_SlicePosTypeChoice, "" );
 
-    m_SliceEditLayout.SetSliderWidth( slider_width + 17 );
+    m_SliceEditLayout.SetSliderWidth( slider_width - 5 );
 
     m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, "", 50, "%5.3f" );
+
+    m_SliceEditLayout.AddButton( m_SlicePosUnit, "" );
+    m_SlicePosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_SlicePosUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_SlicePosUnit.SetWidth( m_SliceEditLayout.GetRemainX() );
 
     m_SliceEditLayout.ForceNewLine();
     m_SliceEditLayout.AddYGap();
@@ -129,13 +134,18 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_RibEditLayout.SetButtonWidth( 0 );
     m_RibEditLayout.SetChoiceButtonWidth( 0 );
 
-    m_RibPosTypeChoice.AddItem( "Percent Span" );
-    m_RibPosTypeChoice.AddItem( "Length Span" );
+    m_RibPosTypeChoice.AddItem( "% Span" );
+    m_RibPosTypeChoice.AddItem( "Dist Span" );
     m_RibEditLayout.AddChoice( m_RibPosTypeChoice, "" );
 
-    m_RibEditLayout.SetSliderWidth( slider_width + 17 );
+    m_RibEditLayout.SetSliderWidth( slider_width - 5 );
+
     m_RibEditLayout.AddSlider( m_RibPosSlider, "", 50, "%5.3f" );
 
+    m_RibEditLayout.AddButton( m_RibPosUnit, "" );
+    m_RibPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_RibPosUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_RibPosUnit.SetWidth( m_RibEditLayout.GetRemainX() );
 
     m_RibEditLayout.ForceNewLine();
     m_RibEditLayout.AddYGap();
@@ -146,7 +156,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_RibEditLayout.SetButtonWidth( button_width );
 
-    m_RibEditLayout.AddSlider( m_RibThetaSlider, "Theta", 25, "%5.3f" );
+    m_RibEditLayout.AddSlider( m_RibThetaSlider, "Rotation", 25, "%5.3f" );
 
     m_RibEditLayout.AddYGap();
 
@@ -183,13 +193,18 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SparEditLayout.SetButtonWidth( 0 );
     m_SparEditLayout.SetChoiceButtonWidth( 0 );
 
-    m_SparPosTypeChoice.AddItem( "Per Chord" );
-    m_SparPosTypeChoice.AddItem( "Dist Avg Chord" );
+    m_SparPosTypeChoice.AddItem( "% Chord" );
+    m_SparPosTypeChoice.AddItem( "Dist Chord" );
     m_SparEditLayout.AddChoice( m_SparPosTypeChoice, "" );
 
-    m_SparEditLayout.SetSliderWidth( slider_width + 17 );
+    m_SparEditLayout.SetSliderWidth( slider_width - 5 );
 
     m_SparEditLayout.AddSlider( m_SparPosSlider, "", 50, "%5.3f" );
+
+    m_SparEditLayout.AddButton( m_SparPosUnit, "" );
+    m_SparPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_SparPosUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_SparPosUnit.SetWidth( m_SparEditLayout.GetRemainX() );
 
     m_SparEditLayout.ForceNewLine();
     m_SparEditLayout.AddYGap();
@@ -200,7 +215,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SparEditLayout.SetButtonWidth( button_width );
 
-    m_SparEditLayout.AddSlider( m_SparThetaSlider, "Theta", 25, "%5.3f" );
+    m_SparEditLayout.AddSlider( m_SparThetaSlider, "Rotation", 25, "%5.3f" );
 
     m_SparEditLayout.AddYGap();
 
@@ -1367,32 +1382,68 @@ void FeaPartEditScreen::UpdateUnitLabels()
 
     if ( veh )
     {
-        string mass_unit;
+        string mass_unit, dist_unit;
         string squared( 1, 178 );
 
         switch ( veh->m_StructUnit() )
         {
         case vsp::SI_UNIT:
         mass_unit = "kg";
+        dist_unit = "m";
         break;
 
         case vsp::CGS_UNIT:
         mass_unit = "g";
+        dist_unit = "cm";
         break;
 
         case vsp::MPA_UNIT:
         mass_unit = "tonne"; // or Mg/
+        dist_unit = "mm";
         break;
 
         case vsp::BFT_UNIT:
         mass_unit = "slug";
+        dist_unit = "ft";
         break;
 
         case vsp::BIN_UNIT:
         mass_unit = "lbf*sec" + squared + "/in";
+        dist_unit = "in";
         break;
         }
 
         m_FixPointMassUnit.GetFlButton()->copy_label( mass_unit.c_str() );
+
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        {
+            vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+                if ( feaprt )
+                {
+                    if ( feaprt->GetType() == vsp::FEA_SLICE || feaprt->GetType() == vsp::FEA_RIB || feaprt->GetType() == vsp::FEA_SPAR )
+                    {
+                        FeaSlice* slice = dynamic_cast<FeaSlice*>( feaprt );
+                        assert( slice );
+
+                        if ( slice->m_LocationParmType() == LENGTH )
+                        {
+                            m_SlicePosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                            m_SparPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                            m_RibPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                        }
+                        else if( slice->m_LocationParmType() == PERCENT )
+                        {
+                            m_SlicePosUnit.GetFlButton()->copy_label( "%" );
+                            m_SparPosUnit.GetFlButton()->copy_label( "%" );
+                            m_RibPosUnit.GetFlButton()->copy_label( "%" );
+                        }
+                    }
+                }
+            }
+        }
     }
 }

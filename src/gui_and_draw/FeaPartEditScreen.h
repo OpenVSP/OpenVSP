@@ -66,6 +66,7 @@ private:
     Choice m_SliceOrientationChoice;
     Choice m_SlicePosTypeChoice;
     SliderAdjRangeInput m_SliceCenterLocSlider;
+    TriggerButton m_SlicePosUnit;
     ToggleButton m_SliceXAxisToggle;
     ToggleButton m_SliceYAxisToggle;
     ToggleButton m_SliceZAxisToggle;
@@ -80,6 +81,7 @@ private:
     Choice m_RibPerpendicularEdgeChoice;
     Choice m_RibPosTypeChoice;
     SliderAdjRangeInput m_RibPosSlider;
+    TriggerButton m_RibPosUnit;
     SliderAdjRangeInput m_RibThetaSlider;
     Choice m_RibCapPropertyChoice;
 
@@ -87,6 +89,7 @@ private:
     Choice m_SparPropertyChoice;
     Choice m_SparPosTypeChoice;
     SliderAdjRangeInput m_SparPosSlider;
+    TriggerButton m_SparPosUnit;
     ToggleButton m_SparSectionLimitToggle;
     IndexSelector m_SparSectIndexSelector;
     SliderAdjRangeInput m_SparThetaSlider;
