@@ -1678,35 +1678,34 @@ void ApplyControlDeflections()
         for ( j = 1; j <= ControlSurfaceGroup_[i].NumberOfControlSurfaces(); j++ )
         {
 
+            printf( "Searching for control surface: %s in control surface group: %s...",
+                ControlSurfaceGroup_[i].ControlSurface_Name( j ),
+                ControlSurfaceGroup_[i].Name() );
             Found = 0;
 
-            while ( k <= VSP_VLM().VSPGeom().NumberOfSurfaces() && !Found )
+            for (k = 1; k <= VSP_VLM().VSPGeom().NumberOfSurfaces(); ++k)
             {
-
-                for ( p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface( k ).NumberOfControlSurfaces(); p++ )
+                for (p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces(); p++)
                 {
 
-                    if ( strcmp( ControlSurfaceGroup_[i].ControlSurface_Name( j ), VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).Name() ) == 0 )
+                    if (strcmp(ControlSurfaceGroup_[i].ControlSurface_Name(j), VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).Name()) == 0)
                     {
 
                         Found = 1;
-
-                        VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection( j ) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
+                        printf("Found!\n");
+                        VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
+                        break;
 
                     }
 
                 }
-
-                k++;
 
             }
 
             // Print out error report
             if ( !Found )
             {
-                printf( "Could not find control surface: %s in control surface group: %s \n",
-                    ControlSurfaceGroup_[i].ControlSurface_Name( j ),
-                    ControlSurfaceGroup_[i].Name() );
+                printf( "Could not find control surface.\n");
 
                 // print out names of all known surfaces
                 printf( "Known control surfaces:\n" );
@@ -2075,31 +2074,32 @@ void StabilityAndControlSolve(void)
                 
                 for ( j = 1 ; j <= ControlSurfaceGroup_[i].NumberOfControlSurfaces() ; j++ ) {
                   
-                   Found = 0;
-         
-                   while ( k <= VSP_VLM().VSPGeom().NumberOfSurfaces() && !Found ) {
-                     
-                      for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
-              
-                         if ( strcmp(ControlSurfaceGroup_[i].ControlSurface_Name(j), VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).Name()) == 0 ) {
-                  
-                            Found = 1;
-                           
-                            VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * (ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() + Delta_Control_) * TORAD;
-           
-                         }
-                        
-                      }
-                     
-                      k++;
-                     
-                   }
+                    printf( "Searching for control surface: %s in control surface group: %s...",
+                        ControlSurfaceGroup_[i].ControlSurface_Name( j ),
+                        ControlSurfaceGroup_[i].Name() );
+                    Found = 0;
+
+                    for (k = 1; k <= VSP_VLM().VSPGeom().NumberOfSurfaces(); ++k)
+                    {
+                        for (p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces(); p++)
+                        {
+                            if (strcmp(ControlSurfaceGroup_[i].ControlSurface_Name(j), VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).Name()) == 0)
+                            {
+
+                                Found = 1;
+                                printf("Found!\n");
+                                VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * (ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() + Delta_Control_) * TORAD;
+                                break;
+
+                            }
+
+                        }
+
+                    }
                   
                    if ( !Found ) {
                       
-                      printf("Could not find control surface: %s in control surface group: %s \n",
-                              ControlSurfaceGroup_[i].ControlSurface_Name(j),
-                              ControlSurfaceGroup_[i].Name()); fflush(NULL);
+                       printf( "Could not find control surface.\n"); fflush(NULL);
                               
                       exit(1);
                       
