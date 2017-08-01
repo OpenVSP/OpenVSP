@@ -743,36 +743,9 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         return string();
     }
 
-    // Loop through control sub surfaces and set NumPoints to 1 before generating degengeom
-    vector<std::pair<string, int>> tNumPointsParmIdValVec;
-    for ( size_t iControlSurf = 0; iControlSurf < m_CompleteControlSurfaceVec.size(); iControlSurf++ )
-    {
-        Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[iControlSurf].parentGeomId );
-        string tSubSurfId = m_CompleteControlSurfaceVec[iControlSurf].SSID.substr( 0, 10 );
-        string tNumPointsId = geom->GetSubSurf( tSubSurfId )->FindParm( "Tess_Num", "SS_Control" );
-        IntParm* tNumPointsParm = ( IntParm* )ParmMgr.FindParm( tNumPointsId );
-        if ( tNumPointsParm && tNumPointsParm->Get() != 1 )
-        {
-            tNumPointsParmIdValVec.push_back( std::make_pair( tNumPointsId, tNumPointsParm->Get() ) );
-
-            // Send warning message to user
-            fprintf( stderr, "NOTE: Temporarily setting Control_Surf NumPoints = 1 for VSPAERO compatible DegenGeom generation for Control_Surf: %s.\n",
-                     geom->GetSubSurf( tSubSurfId )->GetName().c_str() );
-
-            tNumPointsParm->Set( 1 );
-            geom->Update();
-        }
-    }
-
     m_DegenGeomVec.clear();
     veh->CreateDegenGeom( m_GeomSet() );
     m_DegenGeomVec = veh->GetDegenGeomVec();
-
-    // Reset ControlSurf NumPoints
-    for ( size_t i = 0; i < tNumPointsParmIdValVec.size(); i++ )
-    {
-        ParmMgr.FindParm( tNumPointsParmIdValVec[i].first )->Set( tNumPointsParmIdValVec[i].second );
-    }
 
     //Update information derived from the degenerate geometry
     UpdateRotorDisks();
