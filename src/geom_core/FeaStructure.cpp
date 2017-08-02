@@ -717,6 +717,12 @@ FeaPart::FeaPart( string geomID, int type )
     m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "FeaPart", this, true, false, true );
     m_DrawFeaPartFlag.SetDescript( "Flag to Draw FeaPart" );
 
+    m_LocationParmType.Init( "LocationParmType", "FeaPart", this, PERCENT, PERCENT, LENGTH );
+    m_LocationParmType.SetDescript( "Type of Location Parm Definition: Percent or Length of Total BBox" );
+
+    m_CenterLocation.Init( "CenterLocation", "FeaPart", this, 50, 0.0, 1e12 );
+    m_CenterLocation.SetDescript( "The Location of the Center of the FeaPart as Parameterized as a Percentage or Length" );
+
     m_FeaPropertyIndex = 0; // Shell property default
     m_CapFeaPropertyIndex = 1; // Beam property default
 }
@@ -970,16 +976,10 @@ FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
     m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, XY_PLANE, XY_PLANE, XZ_PLANE );
     m_OrientationPlane.SetDescript( "Plane the FeaSlice Part will be Parallel to" );
 
-    m_CenterLocation.Init( "Center Location", "FeaSlice", this, 50, 0.0, 1e12 );
-    m_CenterLocation.SetDescript( "The Location of the Center of the FeaSlice Part as a Percentage or Length of the Total Bounding Box" );
-
     m_RotationAxis.Init( "RotationAxis", "FeaSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
     m_XRot.Init( "XRot", "FeaSlice", this, 0.0, -90.0, 90.0 );
     m_YRot.Init( "YRot", "FeaSlice", this, 0.0, -90.0, 90.0 );
     m_ZRot.Init( "ZRot", "FeaSlice", this, 0.0, -90.0, 90.0 );
-
-    m_LocationParmType.Init( "LocationParmType", "FeaSlice", this, PERCENT, PERCENT, LENGTH );
-    m_LocationParmType.SetDescript( "Type of Location Parm Definition: Percent or Length of Total BBox" );
 }
 
 void FeaSlice::Update()

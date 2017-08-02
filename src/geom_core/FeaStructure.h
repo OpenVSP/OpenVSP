@@ -144,6 +144,11 @@ enum
     TRIS, BEAM, BOTH_ELEMENTS
 };
 
+enum
+{
+    PERCENT, LENGTH
+};
+
 class FeaPart : public ParmContainer
 {
 public:
@@ -207,6 +212,8 @@ public:
     IntParm m_MainSurfIndx;
     IntParm m_IncludedElements;
     BoolParm m_DrawFeaPartFlag;
+    IntParm m_LocationParmType;
+    Parm m_CenterLocation;
 
 protected:
 
@@ -229,11 +236,6 @@ enum
     XY_PLANE, YZ_PLANE, XZ_PLANE
 };
 
-enum
-{
-    PERCENT, LENGTH
-};
-
 class FeaSlice : public FeaPart
 {
 public:
@@ -247,12 +249,10 @@ public:
     virtual void UpdateDrawObjs( int id, bool highlight );
 
     IntParm m_OrientationPlane;
-    Parm m_CenterLocation;
     IntParm m_RotationAxis;
     Parm m_XRot;
     Parm m_YRot;
     Parm m_ZRot;
-    IntParm m_LocationParmType;
 };
 
 enum
