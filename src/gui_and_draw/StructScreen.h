@@ -120,21 +120,9 @@ private:
 
     StringInput m_FeaStructNameInput;
 
-    //// Wing Functions
-    //SliderAdjRangeInput m_NumEvenlySpacedRibsInput;
-    //TriggerButton m_AddEvenlySpacedRibsButton;
+    // Orientation
     TriggerButton m_OrientWingButton;
 
-    //// General Functions
-    //ToggleButton m_MultShellToggle;
-    //ToggleButton m_MultCapToggle;
-    //ToggleButton m_MultShellCapToggle;
-    //ToggleRadioGroup m_MultShellCapToggleGroup;
-    //Choice m_MultPartPropChoice;
-    //Choice m_MultPartCapPropChoice;
-    //Choice m_MultPartTypeChoice;
-    //SliderAdjRangeInput m_SpacedPartsInput;
-    //TriggerButton m_AddSpacedPartsButton;
     TriggerButton m_OrientFrontButton;
     TriggerButton m_OrientSideButton;
     TriggerButton m_OrientTopButton;

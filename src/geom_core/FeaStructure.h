@@ -66,8 +66,6 @@ public:
         return m_FeaPartVec.size();
     }
 
-    virtual vector< FeaPart* > AddEvenlySpacedRibs( const int num_rib );
-    virtual string AddSpacedSlices( int orientation );
     virtual bool FeaPartIsFixPoint( int ind );
     virtual int GetNumFeaFixPoints();
 
