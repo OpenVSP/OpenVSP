@@ -1899,6 +1899,16 @@ void FeaRib::ComputePlanarSurf()
             }
         }
 
+        if ( isnan( length_rib_le ) || isinf( length_rib_le ) )
+        {
+            length_rib_le = length_rib_0;
+        }
+
+        if ( isnan( length_rib_te ) || isinf( length_rib_te ) )
+        {
+            length_rib_te = length_rib_0;
+        }
+
         // Apply Rodrigues' Rotation Formula
         vec3d rib_vec_te = center_to_trail_edge * cos( theta + alpha ) + cross( center_to_trail_edge, normal_vec ) * sin( theta + alpha ) + normal_vec * dot( center_to_trail_edge, normal_vec) * ( 1 - cos( theta + alpha ) );
         vec3d rib_vec_le = center_to_lead_edge * cos( theta + alpha ) + cross( center_to_lead_edge, normal_vec ) * sin( theta + alpha ) + normal_vec * dot( center_to_lead_edge, normal_vec ) * ( 1 - cos( theta + alpha ) );
