@@ -547,22 +547,20 @@ bool FeaPartEditScreen::Update()
                             slice->m_YRot.Set( 0.0 );
                         }
 
-                        if ( slice->m_IncludedElements() == TRIS || slice->m_IncludedElements() == BOTH_ELEMENTS )
+                        if ( slice->m_IncludedElements() == BOTH_ELEMENTS )
                         {
                             m_SlicePropertyChoice.Activate();
-                        }
-                        else
-                        {
-                            m_SlicePropertyChoice.Deactivate();
-                        }
-
-                        if ( slice->m_IncludedElements() == BEAM || slice->m_IncludedElements() == BOTH_ELEMENTS )
-                        {
                             m_SliceCapPropertyChoice.Activate();
                         }
-                        else
+                        else if ( slice->m_IncludedElements() == TRIS )
                         {
+                            m_SlicePropertyChoice.Activate();
                             m_SliceCapPropertyChoice.Deactivate();
+                        }
+                        else if ( slice->m_IncludedElements() == BEAM )
+                        {
+                            m_SlicePropertyChoice.Deactivate();
+                            m_SliceCapPropertyChoice.Activate();
                         }
 
                         FeaPartDispGroup( &m_SliceEditLayout );
@@ -576,13 +574,20 @@ bool FeaPartEditScreen::Update()
                         m_RibPosSlider.Update( rib->m_CenterLocation.GetID() );
                         m_RibThetaSlider.Update( rib->m_Theta.GetID() );
 
-                        if ( rib->m_IncludedElements() == BEAM || rib->m_IncludedElements() == BOTH_ELEMENTS )
+                        if ( rib->m_IncludedElements() == BOTH_ELEMENTS )
                         {
+                            m_RibPropertyChoice.Activate();
                             m_RibCapPropertyChoice.Activate();
                         }
-                        else
+                        else if ( rib->m_IncludedElements() == TRIS )
                         {
+                            m_RibPropertyChoice.Activate();
                             m_RibCapPropertyChoice.Deactivate();
+                        }
+                        else if ( rib->m_IncludedElements() == BEAM )
+                        {
+                            m_RibPropertyChoice.Deactivate();
+                            m_RibCapPropertyChoice.Activate();
                         }
 
                         FeaPartDispGroup( &m_RibEditLayout );
@@ -608,13 +613,20 @@ bool FeaPartEditScreen::Update()
                         m_SparPosSlider.Update( spar->m_CenterLocation.GetID() );
                         m_SparThetaSlider.Update( spar->m_Theta.GetID() );
 
-                        if ( spar->m_IncludedElements() == BEAM || spar->m_IncludedElements() == BOTH_ELEMENTS )
+                        if ( spar->m_IncludedElements() == BOTH_ELEMENTS )
                         {
+                            m_SparPropertyChoice.Activate();
                             m_SparCapPropertyChoice.Activate();
                         }
-                        else
+                        else if ( spar->m_IncludedElements() == TRIS )
                         {
+                            m_SparPropertyChoice.Activate();
                             m_SparCapPropertyChoice.Deactivate();
+                        }
+                        else if ( spar->m_IncludedElements() == BEAM )
+                        {
+                            m_SparPropertyChoice.Deactivate();
+                            m_SparCapPropertyChoice.Activate();
                         }
 
                         FeaPartDispGroup( &m_SparEditLayout );
