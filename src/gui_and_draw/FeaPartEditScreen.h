@@ -41,6 +41,7 @@ private:
     GroupLayout m_RibEditLayout;
     GroupLayout m_SparEditLayout;
     GroupLayout m_FixPointEditLayout;
+    GroupLayout m_BulkheadEditLayout;
     GroupLayout m_RibArrayEditLayout;
     GroupLayout m_FeaSSLineGroup;
     GroupLayout m_FeaSSRecGroup;
@@ -103,6 +104,26 @@ private:
     ToggleButton m_FixPointMassToggle;
     SliderAdjRangeInput m_FixPointMassSlider;
     TriggerButton m_FixPointMassUnit;
+
+    //===== Bulkhead =====//
+    Choice m_BHPropertyChoice;
+    //Choice m_BHPosTypeChoice;
+    SliderAdjRangeInput m_BHARadSlider;
+    SliderAdjRangeInput m_BHBRadSlider;
+    SliderAdjRangeInput m_BHCRadSlider;
+    TriggerButton m_BHARadUnit;
+    TriggerButton m_BHBRadUnit;
+    TriggerButton m_BHCRadUnit;
+    SliderAdjRangeInput m_BHXSlider;
+    SliderAdjRangeInput m_BHYSlider;
+    SliderAdjRangeInput m_BHZSlider;
+    TriggerButton m_BHXUnit;
+    TriggerButton m_BHYUnit;
+    TriggerButton m_BHZUnit;
+    SliderAdjRangeInput m_BHXRotSlider;
+    SliderAdjRangeInput m_BHYRotSlider;
+    SliderAdjRangeInput m_BHZRotSlider;
+    Choice m_BHCapPropertyChoice;
 
     //===== RibArray =====//
     Choice m_RibArrayPropertyChoice;
