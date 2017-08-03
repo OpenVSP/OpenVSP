@@ -207,6 +207,11 @@ public:
     virtual int GetFeaMaterialIndex();
     virtual void SetFeaMaterialIndex( int index );
 
+    virtual vector < DrawObj > GetDrawObjVec()
+    {
+        return m_FeaPartDO;
+    }
+
     IntParm m_MainSurfIndx;
     IntParm m_IncludedElements;
     BoolParm m_DrawFeaPartFlag;
@@ -370,6 +375,35 @@ public:
     virtual void UpdateDrawObjs( int id, bool highlight )    {}; // Do nothing for skins
 
     BoolParm m_RemoveSkinTrisFlag;
+
+protected:
+
+
+};
+
+class FeaBulkhead : public FeaPart
+{
+public:
+
+    FeaBulkhead( string geomID, int type = vsp::FEA_BULKHEAD );
+    virtual ~FeaBulkhead()    {};
+
+    virtual void Update();
+
+    virtual void BuildBulkheadSurf();
+    virtual vec3d GetDefaultCenter();
+
+    virtual void UpdateDrawObjs( int id, bool highlight );
+
+    Parm m_Aradius;
+    Parm m_Bradius;
+    Parm m_Cradius;
+    Parm m_XLoc;
+    Parm m_YLoc;
+    Parm m_ZLoc;
+    Parm m_XRot;
+    Parm m_YRot;
+    Parm m_ZRot;
 
 protected:
 

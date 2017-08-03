@@ -192,6 +192,11 @@ FeaPart* FeaStructure::AddFeaPart( int type )
             feaprt->SetName( string( "FixPoint_" + std::to_string( m_FeaPartCount ) ) );
         }
     }
+    else if ( type == vsp::FEA_BULKHEAD )
+    {
+        feaprt = new FeaBulkhead( m_ParentGeomID );
+        feaprt->SetName( string( "Bulkhead_" + std::to_string( m_FeaPartCount ) ) );
+    }
     else if ( type == vsp::FEA_RIB_ARRAY )
     {
         feaprt = new FeaRibArray( m_ParentGeomID );
@@ -749,6 +754,10 @@ string FeaPart::GetTypeName( int type )
     if ( type == vsp::FEA_RIB_ARRAY )
     {
         return string( "RibArray" );
+    }
+    if ( type == vsp::FEA_BULKHEAD )
+    {
+        return string( "Bulkhead" );
     }
 
     return string( "NONE" );
@@ -2319,6 +2328,262 @@ void FeaSkin::BuildSkinSurf()
 }
 
 ////////////////////////////////////////////////////
+//================= FeaBulkhead ==================//
+////////////////////////////////////////////////////
+
+FeaBulkhead::FeaBulkhead( string geomID, int type ) : FeaPart( geomID, type )
+{
+    vec3d center = GetDefaultCenter();
+
+    m_Aradius.Init( "A_Radius", "FeaBulkhead", this, 1.0, 0.0, 1.0e12 );
+    m_Aradius.SetDescript( "A (x) Radius of Bulkhead" );
+
+    m_Bradius.Init( "B_Radius", "FeaBulkhead", this, 1.0, 0.0, 1.0e12 );
+    m_Bradius.SetDescript( "B (y) Radius of Bulkhead" );
+
+    m_Cradius.Init( "C_Radius", "FeaBulkhead", this, 1.0, 0.0, 1.0e12 );
+    m_Cradius.SetDescript( "C (z) Radius of Bulkhead" );
+
+    m_XLoc.Init( "X_Location", "FeaBulkhead", this, center.x(), -1.0e12, 1.0e12 );
+    m_XLoc.SetDescript( "Global X Location" );
+
+    m_YLoc.Init( "Y_Location", "FeaBulkhead", this, center.y(), -1.0e12, 1.0e12 );
+    m_YLoc.SetDescript( "Global Y Location" );
+
+    m_ZLoc.Init( "Z_Location", "FeaBulkhead", this, center.z(), -1.0e12, 1.0e12 );
+    m_ZLoc.SetDescript( "Global Z Location" );
+
+    m_XRot.Init( "X_Rotation", "FeaBulkhead", this, 0.0, -180, 180 );
+    m_XRot.SetDescript( "Global X Rotation" );
+
+    m_YRot.Init( "Y_Rotation", "FeaBulkhead", this, 0.0, -180, 180 );
+    m_YRot.SetDescript( "Global Y Rotation" );
+
+    m_ZRot.Init( "Z_Rotation", "FeaBulkhead", this, 0.0, -180, 180 );
+    m_ZRot.SetDescript( "Global Z Rotation" );
+}
+
+void FeaBulkhead::Update()
+{
+    BuildBulkheadSurf();
+}
+
+typedef eli::geom::curve::piecewise_ellipse_creator<double, 3, curve_tolerance_type> piecewise_bulkhead_creator;
+
+void FeaBulkhead::BuildBulkheadSurf()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* curr_geom = veh->FindGeom( m_ParentGeomID );
+
+        if ( !curr_geom || m_FeaPartSurfVec.size() == 0 )
+        {
+            return;
+        }
+
+        m_FeaPartSurfVec[0] = VspSurf(); // Create primary VspSurf
+
+        if ( m_IncludedElements() == TRIS || m_IncludedElements() == BOTH_ELEMENTS )
+        {
+            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
+        }
+        else
+        {
+            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
+        }
+
+        // Build unit circle
+        piecewise_curve_type c, c1, c2;
+        piecewise_bulkhead_creator pbc( 4 );
+        curve_point_type origin, normal;
+
+        origin << 0, 0, 0;
+        normal << 0, 1, 0;
+
+        pbc.set_origin( origin );
+        pbc.set_x_axis_radius( 1.0 );
+        pbc.set_y_axis_radius( 1.0 );
+
+        // set circle params, make sure that entire curve goes from 0 to 4
+        pbc.set_t0( 0 );
+        pbc.set_segment_dt( 1, 0 );
+        pbc.set_segment_dt( 1, 1 );
+        pbc.set_segment_dt( 1, 2 );
+        pbc.set_segment_dt( 1, 3 );
+
+        pbc.create( c );
+
+        c.split( c1, c2, 1.0 ); // Create half sphere
+
+        VspCurve stringer;
+        stringer.SetCurve( c1 );
+
+        // Revolve to unit sphere
+        m_FeaPartSurfVec[0].CreateBodyRevolution( stringer );
+
+        // Scale to ellipsoid
+        m_FeaPartSurfVec[0].ScaleX( m_Aradius() );
+        m_FeaPartSurfVec[0].ScaleY( m_Bradius() );
+        m_FeaPartSurfVec[0].ScaleZ( m_Cradius() );
+
+        // Rotate at orgin and then translate to final location
+        Matrix4d rot_mat_x, rot_mat_y, rot_mat_z;
+        vec3d x_axis, y_axis, z_axis;
+
+        x_axis.set_x( 1.0 );
+        y_axis.set_y( 1.0 );
+        z_axis.set_z( 1.0 );
+
+        rot_mat_x.loadIdentity();
+        rot_mat_x.rotate( DEG_2_RAD * m_XRot(), x_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat_x );
+
+        rot_mat_y.loadIdentity();
+        rot_mat_y.rotate( DEG_2_RAD * m_YRot(), y_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat_y );
+
+        rot_mat_z.loadIdentity();
+        rot_mat_z.rotate( DEG_2_RAD * m_ZRot(), z_axis );
+        m_FeaPartSurfVec[0].Transform( rot_mat_z );
+
+        m_FeaPartSurfVec[0].OffsetX( m_XLoc() );
+        m_FeaPartSurfVec[0].OffsetY( m_YLoc() );
+        m_FeaPartSurfVec[0].OffsetZ( m_ZLoc() );
+
+        m_FeaPartSurfVec[0].BuildFeatureLines();
+
+        // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
+        for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
+        {
+            m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
+        }
+    }
+}
+
+vec3d FeaBulkhead::GetDefaultCenter()
+{
+    // This function determines the default center location of a bulkhead at (u,w) = (0,0) on the parent surface
+
+    vec3d center;
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* curr_geom = veh->FindGeom( m_ParentGeomID );
+
+        if ( curr_geom )
+        {
+            vector< VspSurf > surf_vec;
+            curr_geom->GetSurfVec( surf_vec );
+            VspSurf parent_surf = surf_vec[m_MainSurfIndx()];
+            center = parent_surf.CompPnt01( 0, 0 );
+        }
+    }
+
+    return center;
+}
+
+void FeaBulkhead::UpdateDrawObjs( int id, bool highlight )
+{
+    // Two DrawObjs per Bulkhead surface: index j correcponds to the surface (quads) and 
+    //  j + 1 corresponds to the cross section feature line at u_max 
+
+    m_FeaPartDO.clear();
+    m_FeaPartDO.resize( 2 * m_FeaPartSurfVec.size() );
+
+    for ( size_t j = 0; j < 2 * m_FeaPartSurfVec.size(); j += 2 )
+    {
+        m_FeaPartDO[j].m_GeomID = string( m_Name + "_" + std::to_string( id ) + "_" + std::to_string( j ) );
+        m_FeaPartDO[j].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        m_FeaPartDO[j + 1].m_GeomID = string( m_Name + "_" + std::to_string( id ) + "_" + std::to_string( j + 1 ) );
+        m_FeaPartDO[j + 1].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        if ( highlight )
+        {
+            m_FeaPartDO[j].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+            m_FeaPartDO[j].m_LineWidth = 3.0;
+            m_FeaPartDO[j + 1].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+            m_FeaPartDO[j + 1].m_LineWidth = 3.0;
+        }
+        else
+        {
+            m_FeaPartDO[j].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
+            m_FeaPartDO[j].m_LineWidth = 1.0;
+            m_FeaPartDO[j + 1].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
+            m_FeaPartDO[j + 1].m_LineWidth = 1.0;
+        }
+
+        // Tesselate the surface (can adjust num_u and num_v tesselation for smoothness) 
+        vector < vector < vec3d > > pnts, norms, uw;
+        m_FeaPartSurfVec[j / 2].Tesselate( 10, 18, pnts, norms, uw, 3, false );
+
+        // Define quads for bulkhead surface
+        m_FeaPartDO[j].m_Type = DrawObj::VSP_SHADED_QUADS;
+
+        for ( size_t i = 0; i < pnts.size() - 1; i++ )
+        {
+            for ( size_t k = 0; k < pnts[i].size() - 1; k++ )
+            {
+                // Define quads
+                vec3d corner1, corner2, corner3, corner4, norm;
+
+                corner1 = pnts[i][k];
+                corner2 = pnts[i + 1][k];
+                corner3 = pnts[i + 1][k + 1];
+                corner4 = pnts[i][k + 1];
+
+                m_FeaPartDO[j].m_PntVec.push_back( corner1 );
+                m_FeaPartDO[j].m_PntVec.push_back( corner2 );
+                m_FeaPartDO[j].m_PntVec.push_back( corner3 );
+                m_FeaPartDO[j].m_PntVec.push_back( corner4 );
+
+                norm = norms[i][k];
+
+                // Set normal vector
+                for ( int m = 0; m < 4; m++ )
+                {
+                    m_FeaPartDO[j].m_NormVec.push_back( norm );
+                }
+            }
+        }
+
+        // Set plane color to medium glass
+        for ( size_t i = 0; i < 4; i++ )
+        {
+            m_FeaPartDO[j].m_MaterialInfo.Ambient[i] = 0.2f;
+            m_FeaPartDO[j].m_MaterialInfo.Diffuse[i] = 0.1f;
+            m_FeaPartDO[j].m_MaterialInfo.Specular[i] = 0.7f;
+            m_FeaPartDO[j].m_MaterialInfo.Emission[i] = 0.0f;
+        }
+
+        if ( highlight )
+        {
+            m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.67f;
+        }
+        else
+        {
+            m_FeaPartDO[j].m_MaterialInfo.Diffuse[3] = 0.33f;
+        }
+
+        m_FeaPartDO[j].m_MaterialInfo.Shininess = 5.0f;
+
+        // Add points for bulkhead cross section at u_max
+        m_FeaPartDO[j + 1].m_Type = DrawObj::VSP_LINE_LOOP;
+
+        for ( size_t i = 0; i < pnts[pnts.size() - 1].size(); i++ )
+        {
+            m_FeaPartDO[j + 1].m_PntVec.push_back( pnts[pnts.size() - 1][i] );
+        }
+
+        m_FeaPartDO[j].m_GeomChanged = true;
+        m_FeaPartDO[j + 1].m_GeomChanged = true;
+    }
+}
+
 ////////////////////////////////////////////////////
 //================= FeaRibArray ==================//
 ////////////////////////////////////////////////////
