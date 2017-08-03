@@ -256,6 +256,62 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FixPointMassUnit.GetFlButton()->labelcolor( FL_BLACK );
     m_FixPointMassUnit.SetWidth( ( m_FixPointEditLayout.GetW() / 5 ) );
 
+    //==== FeaRibArray ====//
+    m_GenLayout.AddSubGroupLayout( m_RibArrayEditLayout, m_GenLayout.GetW(), m_GenLayout.GetH() );
+    m_RibArrayEditLayout.SetY( start_y );
+
+    m_RibArrayEditLayout.AddDividerBox( "RibArray" );
+
+    m_RibArrayEditLayout.AddChoice( m_RibArrayPerpEdgeChoice, "Edge Normal" );
+
+    m_RibArrayEditLayout.AddYGap();
+
+    m_RibArrayPosTypeChoice.AddItem( "% Span" );
+    m_RibArrayPosTypeChoice.AddItem( "Dist Span" );
+    m_RibArrayEditLayout.AddChoice( m_RibArrayPosTypeChoice, "Parameterization" );
+
+    m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() / 3 );
+
+    m_RibArrayEditLayout.SetSameLineFlag( true );
+    m_RibArrayEditLayout.SetFitWidthFlag( false );
+
+    button_width = m_RibArrayEditLayout.GetButtonWidth();
+    slider_width = m_RibArrayEditLayout.GetSliderWidth();
+
+    m_RibArrayEditLayout.SetSliderWidth( slider_width - 5 );
+
+    m_RibArrayEditLayout.AddSlider( m_RibArrayStartLocSlider, "Start Location", 50, "%5.3f" );
+
+    m_RibArrayEditLayout.AddButton( m_RibArrayStartLocUnit, " " );
+    m_RibArrayStartLocUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_RibArrayStartLocUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_RibArrayStartLocUnit.SetWidth( m_RibArrayEditLayout.GetW() / 14 );
+
+    m_RibArrayEditLayout.ForceNewLine();
+
+    m_RibArrayEditLayout.AddSlider( m_RibArraySpacingSlider, "Spacing", 50, "%5.3f" );
+
+    m_RibArrayEditLayout.AddButton( m_RibArrayPosUnit, " " );
+    m_RibArrayPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_RibArrayPosUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_RibArrayPosUnit.SetWidth( m_RibArrayEditLayout.GetW() / 14 );
+
+    m_RibArrayEditLayout.ForceNewLine();
+    m_RibArrayEditLayout.AddYGap();
+
+    m_RibArrayEditLayout.InitWidthHeightVals();
+    m_RibArrayEditLayout.SetSameLineFlag( false );
+    m_RibArrayEditLayout.SetFitWidthFlag( true );
+
+    m_RibArrayEditLayout.SetButtonWidth( button_width );
+
+    m_RibArrayEditLayout.AddSlider( m_RibArrayThetaSlider, "Rotation", 25, "%5.3f" );
+
+    m_RibArrayEditLayout.AddYGap();
+
+    m_RibArrayEditLayout.AddChoice( m_RibArrayPropertyChoice, "Property" );
+    m_RibArrayEditLayout.AddChoice( m_RibArrayCapPropertyChoice, "Cap Property" );
+
     //=== SubSurfaces ===//
 
     //==== SSLine ====//
@@ -654,6 +710,34 @@ bool FeaPartEditScreen::Update()
 
                         FeaPartDispGroup( &m_FixPointEditLayout );
                     }
+                    else if ( feaprt->GetType() == vsp::FEA_RIB_ARRAY )
+                    {
+                        FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( feaprt );
+                        assert( rib_array );
+
+                        m_RibArrayPosTypeChoice.Update( rib_array->m_LocationParmType.GetID() );
+                        m_RibArrayStartLocSlider.Update( rib_array->m_StartLocation.GetID() );
+                        m_RibArraySpacingSlider.Update( rib_array->m_RibSpacing.GetID() );
+                        m_RibArrayThetaSlider.Update( rib_array->m_Theta.GetID() );
+
+                        if ( rib_array->m_IncludedElements() == BOTH_ELEMENTS )
+                        {
+                            m_RibArrayPropertyChoice.Activate();
+                            m_RibArrayCapPropertyChoice.Activate();
+                        }
+                        else if ( rib_array->m_IncludedElements() == TRIS )
+                        {
+                            m_RibArrayPropertyChoice.Activate();
+                            m_RibArrayCapPropertyChoice.Deactivate();
+                        }
+                        else if ( rib_array->m_IncludedElements() == BEAM )
+                        {
+                            m_RibArrayPropertyChoice.Deactivate();
+                            m_RibArrayCapPropertyChoice.Activate();
+                        }
+
+                        FeaPartDispGroup( &m_RibArrayEditLayout );
+                    }
                     else
                     {
                         FeaPartDispGroup( NULL );
@@ -943,6 +1027,14 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         UpdateCapPropertyIndex( &m_SparCapPropertyChoice );
     }
+    else if ( device == &m_RibArrayPropertyChoice )
+    {
+        UpdateFeaPartPropertyIndex( &m_RibArrayPropertyChoice );
+    }
+    else if ( device == &m_RibArrayCapPropertyChoice )
+    {
+        UpdateCapPropertyIndex( &m_RibArrayCapPropertyChoice );
+    }
     else if ( device == &m_FeaSSLinePropertyChoice )
     {
         UpdateFeaPartPropertyIndex( &m_FeaSSLinePropertyChoice );
@@ -1023,6 +1115,29 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
+    else if ( device == &m_RibArrayPerpEdgeChoice )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        {
+            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+
+                if ( feaprt )
+                {
+                    if ( feaprt->GetType() == vsp::FEA_RIB_ARRAY )
+                    {
+                        FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( feaprt );
+                        assert( rib_array );
+
+                        rib_array->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibArrayPerpEdgeChoice.GetVal()] );
+                    }
+                }
+            }
+        }
+    }
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -1041,6 +1156,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
     m_SlicePropertyChoice.ClearItems();
     m_RibPropertyChoice.ClearItems();
     m_SparPropertyChoice.ClearItems();
+    m_RibArrayPropertyChoice.ClearItems();
     m_FeaSSLinePropertyChoice.ClearItems();
     m_FeaSSRecPropertyChoice.ClearItems();
     m_FeaSSEllPropertyChoice.ClearItems();
@@ -1049,6 +1165,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
     m_SparCapPropertyChoice.ClearItems();
     m_SliceCapPropertyChoice.ClearItems();
     m_RibCapPropertyChoice.ClearItems();
+    m_RibArrayCapPropertyChoice.ClearItems();
 
     m_FeaSSLineCapPropertyChoice.ClearItems();
     m_FeaSSRecCapPropertyChoice.ClearItems();
@@ -1067,6 +1184,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
             m_SlicePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SparPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_RibArrayPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSLinePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSRecPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSEllPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -1075,6 +1193,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
             m_SparCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SliceCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_RibArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
             m_FeaSSLineCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSRecCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -1087,6 +1206,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_SlicePropertyChoice.SetFlag( i, 0 );
                 m_RibPropertyChoice.SetFlag( i, 0 );
                 m_SparPropertyChoice.SetFlag( i, 0 );
+                m_RibArrayPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSLinePropertyChoice.SetFlag( i, 0 );
                 m_FeaSSRecPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSEllPropertyChoice.SetFlag( i, 0 );
@@ -1095,6 +1215,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_SparCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SliceCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_RibArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
 
                 m_FeaSSLineCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSRecCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -1107,6 +1228,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_SlicePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SparPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_RibArrayPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSLinePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSRecPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSEllPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -1115,6 +1237,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_SparCapPropertyChoice.SetFlag( i, 0 );
                 m_SliceCapPropertyChoice.SetFlag( i, 0 );
                 m_RibCapPropertyChoice.SetFlag( i, 0 );
+                m_RibArrayCapPropertyChoice.SetFlag( i, 0 );
 
                 m_FeaSSLineCapPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSRecCapPropertyChoice.SetFlag( i, 0 );
@@ -1127,6 +1250,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
         m_SlicePropertyChoice.UpdateItems();
         m_RibPropertyChoice.UpdateItems();
         m_SparPropertyChoice.UpdateItems();
+        m_RibArrayPropertyChoice.UpdateItems();
         m_FeaSSLinePropertyChoice.UpdateItems();
         m_FeaSSRecPropertyChoice.UpdateItems();
         m_FeaSSEllPropertyChoice.UpdateItems();
@@ -1135,6 +1259,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
         m_SparCapPropertyChoice.UpdateItems();
         m_SliceCapPropertyChoice.UpdateItems();
         m_RibCapPropertyChoice.UpdateItems();
+        m_RibArrayCapPropertyChoice.UpdateItems();
 
         m_FeaSSLineCapPropertyChoice.UpdateItems();
         m_FeaSSRecCapPropertyChoice.UpdateItems();
@@ -1156,10 +1281,12 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                     m_SlicePropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                     m_RibPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                     m_SparPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
+                    m_RibArrayPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
 
                     m_SparCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
                     m_SliceCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
                     m_RibCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
+                    m_RibArrayCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
                 }
             }
             else if ( StructureMgr.GetCurrPartIndex() >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -1247,13 +1374,17 @@ void FeaPartEditScreen::UpdatePerpendicularRibChoice()
 {
     //==== Perpendicular Rib Choice ====//
     m_RibPerpendicularEdgeChoice.ClearItems();
+    m_RibArrayPerpEdgeChoice.ClearItems();
     m_PerpendicularEdgeVec.clear();
 
     m_RibPerpendicularEdgeChoice.AddItem( "None" );
+    m_RibArrayPerpEdgeChoice.AddItem( "None" );
     m_PerpendicularEdgeVec.push_back( "None" );
     m_RibPerpendicularEdgeChoice.AddItem( "Leading Edge" );
+    m_RibArrayPerpEdgeChoice.AddItem( "Leading Edge" );
     m_PerpendicularEdgeVec.push_back( "Leading Edge" );
     m_RibPerpendicularEdgeChoice.AddItem( "Trailing Edge" );
+    m_RibArrayPerpEdgeChoice.AddItem( "Trailing Edge" );
     m_PerpendicularEdgeVec.push_back( "Trailing Edge" );
 
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
@@ -1273,11 +1404,13 @@ void FeaPartEditScreen::UpdatePerpendicularRibChoice()
                     if ( part_vec[i]->GetType() == vsp::FEA_SPAR )
                     {
                         m_RibPerpendicularEdgeChoice.AddItem( part_vec[i]->GetName() );
+                        m_RibArrayPerpEdgeChoice.AddItem( part_vec[i]->GetName() );
                         m_PerpendicularEdgeVec.push_back( part_vec[i]->GetID() );
                     }
                 }
 
                 m_RibPerpendicularEdgeChoice.UpdateItems();
+                m_RibArrayPerpEdgeChoice.UpdateItems();
 
                 if ( StructureMgr.GetCurrPartIndex() < curr_struct->NumFeaParts() )
                 {
@@ -1296,6 +1429,21 @@ void FeaPartEditScreen::UpdatePerpendicularRibChoice()
                                 {
                                     m_RibPerpendicularEdgeChoice.SetVal( k );
                                     rib->SetPerpendicularEdgeIndex( k );
+                                    break;
+                                }
+                            }
+                        }
+                        else if ( feaprt->GetType() == vsp::FEA_RIB_ARRAY )
+                        {
+                            FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( feaprt );
+                            assert( rib_array );
+
+                            for ( size_t k = 0; k < m_PerpendicularEdgeVec.size(); k++ )
+                            {
+                                if ( rib_array->GetPerpendicularEdgeID() == m_PerpendicularEdgeVec[k] )
+                                {
+                                    m_RibArrayPerpEdgeChoice.SetVal( k );
+                                    rib_array->SetPerpendicularEdgeIndex( k );
                                     break;
                                 }
                             }
@@ -1320,6 +1468,7 @@ void FeaPartEditScreen::FeaPartDispGroup( GroupLayout* group )
     m_RibEditLayout.Hide();
     m_SparEditLayout.Hide();
     m_FixPointEditLayout.Hide();
+    m_RibArrayEditLayout.Hide();
 
     m_FeaSSLineGroup.Hide();
     m_FeaSSRecGroup.Hide();
@@ -1436,22 +1585,23 @@ void FeaPartEditScreen::UpdateUnitLabels()
                 FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
                 if ( feaprt )
                 {
-                    if ( feaprt->GetType() == vsp::FEA_SLICE || feaprt->GetType() == vsp::FEA_RIB || feaprt->GetType() == vsp::FEA_SPAR )
+                    if ( feaprt->GetType() == vsp::FEA_SLICE || feaprt->GetType() == vsp::FEA_RIB || feaprt->GetType() == vsp::FEA_SPAR || feaprt->GetType() == vsp::FEA_RIB_ARRAY ) // TODO: Switch to different check
                     {
-                        FeaSlice* slice = dynamic_cast<FeaSlice*>( feaprt );
-                        assert( slice );
-
-                        if ( slice->m_LocationParmType() == LENGTH )
+                        if ( feaprt->m_LocationParmType() == LENGTH )
                         {
                             m_SlicePosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                             m_SparPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                             m_RibPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                            m_RibArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                            m_RibArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                         }
-                        else if( slice->m_LocationParmType() == PERCENT )
+                        else if( feaprt->m_LocationParmType() == PERCENT )
                         {
                             m_SlicePosUnit.GetFlButton()->copy_label( "%" );
                             m_SparPosUnit.GetFlButton()->copy_label( "%" );
                             m_RibPosUnit.GetFlButton()->copy_label( "%" );
+                            m_RibArrayStartLocUnit.GetFlButton()->copy_label( "%" );
+                            m_RibArrayPosUnit.GetFlButton()->copy_label( "%" );
                         }
                     }
                 }

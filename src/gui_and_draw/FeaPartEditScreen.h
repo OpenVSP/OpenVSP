@@ -41,6 +41,7 @@ private:
     GroupLayout m_RibEditLayout;
     GroupLayout m_SparEditLayout;
     GroupLayout m_FixPointEditLayout;
+    GroupLayout m_RibArrayEditLayout;
     GroupLayout m_FeaSSLineGroup;
     GroupLayout m_FeaSSRecGroup;
     GroupLayout m_FeaSSEllGroup;
@@ -102,6 +103,19 @@ private:
     ToggleButton m_FixPointMassToggle;
     SliderAdjRangeInput m_FixPointMassSlider;
     TriggerButton m_FixPointMassUnit;
+
+    //===== RibArray =====//
+    Choice m_RibArrayPropertyChoice;
+    Choice m_RibArrayPerpEdgeChoice;
+    Choice m_RibArrayPosTypeChoice;
+    SliderAdjRangeInput m_RibArrayStartLocSlider;
+    TriggerButton m_RibArrayStartLocUnit;
+    SliderAdjRangeInput m_RibArrayEndLocSlider;
+    TriggerButton m_RibArrayEndLocUnit;
+    SliderAdjRangeInput m_RibArraySpacingSlider;
+    TriggerButton m_RibArrayPosUnit;
+    SliderAdjRangeInput m_RibArrayThetaSlider;
+    Choice m_RibArrayCapPropertyChoice;
 
     //===== SubSurfaces =====//
 

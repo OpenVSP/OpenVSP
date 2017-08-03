@@ -915,30 +915,30 @@ void StructScreen::UpdateFeaPartChoice()
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ) );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB_ARRAY ) );
 
                     if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
                     {
                         m_FeaPartChoice.SetFlag( 1, 0 ); // FEA_RIB
                         m_FeaPartChoice.SetFlag( 2, 0 ); // FEA_SPAR
+                        m_FeaPartChoice.SetFlag( 4, 0 ); // FEA_RIB_ARRAY
                     }
                     else
                     {
                         m_FeaPartChoice.SetFlag( 1, FL_MENU_INACTIVE );
                         m_FeaPartChoice.SetFlag( 2, FL_MENU_INACTIVE );
+                        m_FeaPartChoice.SetFlag( 4, FL_MENU_INACTIVE );
                     }
 
-                    m_NumFeaPartChoices = 4;
+                    m_NumFeaPartChoices = 5;
 
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
 
-                    int nchoice = 3;
-
                     if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
                     {
                         m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ) );
-                        nchoice++;
                     }
 
                     m_FeaPartChoice.UpdateItems();
@@ -2094,6 +2094,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 else if ( m_FeaPartChoice.GetVal() == vsp::FEA_FIX_POINT )
                 {
                     feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_FIX_POINT );
+                }
+                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_RIB_ARRAY )
+                {
+                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_RIB_ARRAY );
                 }
 
                 if ( feaprt )
