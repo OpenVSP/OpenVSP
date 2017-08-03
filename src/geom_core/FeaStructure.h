@@ -376,6 +376,55 @@ protected:
 
 };
 
+class FeaRibArray : public FeaPart
+{
+public:
+
+    FeaRibArray( string geomID, int type = vsp::FEA_RIB_ARRAY );
+    virtual ~FeaRibArray();
+
+    virtual void Update();
+    virtual void CreateFeaRibArray();
+
+    virtual FeaRib* AddFeaRib( double center_location );
+
+    virtual void UpdateDrawObjs( int id, bool highlight );
+
+    virtual vector < FeaRib* > GetFeaRibArray()
+    {
+        return m_FeaRibArray;
+    }
+
+    void SetPerpendicularEdgeIndex( int ind )
+    {
+        m_PerpendicularEdgeIndex = ind;
+    }
+    int GetPerpendicularEdgeIndex()
+    {
+        return m_PerpendicularEdgeIndex;
+    }
+
+    void SetPerpendicularEdgeID( string ID )
+    {
+        m_PerpendicularEdgeID = ID;
+    }
+    string GetPerpendicularEdgeID()
+    {
+        return m_PerpendicularEdgeID;
+    }
+
+    Parm m_RibSpacing;
+    Parm m_StartLocation;
+    Parm m_Theta;
+
+protected:
+
+    vector < FeaRib* > m_FeaRibArray;
+
+    int m_PerpendicularEdgeIndex;
+    string m_PerpendicularEdgeID;
+};
+
 enum
 {
     SHELL_PROPERTY, BEAM_PROPERTY,
