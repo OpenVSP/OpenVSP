@@ -773,7 +773,7 @@ void FeaPart::UpdateDrawObjs( int id, bool highlight )
     {
         m_FeaPartDO[j].m_PntVec.clear();
 
-        m_FeaPartDO[j].m_GeomID = string( "FeaPart_" + std::to_string( id ) + "_" + std::to_string( j ) );
+        m_FeaPartDO[j].m_GeomID = string( m_Name + "_" + std::to_string( id ) + "_" + std::to_string( j ) );
         m_FeaPartDO[j].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
         if ( highlight )
