@@ -1182,3 +1182,49 @@ double ConformalSpine::GetSpineLength() const
 
     return length;
 }
+
+//==== Find U Given Length AlongSpine ====//
+double ConformalSpine::FindUGivenLengthAlongSpine( double length ) const
+{
+    double u = 0;
+
+    if ( m_UVec.size() < 2 || length < 0 || length > GetSpineLength() )
+    {
+        return u;
+    }
+
+    // Init values
+    double length_0 = 0;
+    double length_1 = 0;
+    double u_0 = m_UVec[0];
+    double u_1 = 0;
+
+    for ( size_t j = 1; j < m_CenterVec.size(); j++ )
+    {
+        length_1 = length_0 + dist( m_CenterVec[j - 1], m_CenterVec[j] );
+        u_0 = m_UVec[j - 1];
+        u_1 = m_UVec[j];
+
+        if ( length >= length_0 && length <= length_1 )
+        {
+            if ( abs( length_0 - length ) <= FLT_EPSILON )
+            {
+                u = u_0;
+            }
+            else if ( abs( length_1 - length ) <= FLT_EPSILON )
+            {
+                u = u_1;
+            }
+            else
+            {
+                // Linear interpolation
+                u = u_0 + ( length - length_0 ) * ( ( u_1 - u_0 ) / ( length_1 - length_0 ) );
+            }
+            return u;
+        }
+        else
+        {
+            length_0 = length_1;
+        }
+    }
+}
