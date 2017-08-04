@@ -1166,3 +1166,19 @@ vec3d ConformalSpine::FindCenterGivenU( double u ) const
     return center;
 }
 
+double ConformalSpine::GetSpineLength() const
+{
+    double length = 0;
+
+    if ( m_CenterVec.size() < 2 )
+    {
+        return length;
+    }
+
+    for ( size_t i = 1; i < m_CenterVec.size(); i++ )
+    {
+        length += dist( m_CenterVec[i - 1], m_CenterVec[i] );
+    }
+
+    return length;
+}
