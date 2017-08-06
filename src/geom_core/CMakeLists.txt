@@ -30,6 +30,7 @@ Airfoil.cpp
 AnalysisMgr.cpp
 Atmosphere.cpp
 BlankGeom.cpp
+BORGeom.cpp
 CfdMeshSettings.cpp
 ClippingMgr.cpp
 ConformalGeom.cpp
@@ -89,6 +90,7 @@ Airfoil.h
 AnalysisMgr.h
 Atmosphere.h
 BlankGeom.h
+BORGeom.h
 CfdMeshSettings.h
 ClippingMgr.h
 Color.h

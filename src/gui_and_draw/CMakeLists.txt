@@ -29,6 +29,7 @@ ADD_LIBRARY(gui_and_draw
 AdvLinkScreen.cpp
 BlankScreen.cpp
 BEMOptionsScreen.cpp
+BORScreen.cpp
 CfdMeshScreen.cpp
 ClippingScreen.cpp
 CompGeomScreen.cpp
@@ -94,6 +95,7 @@ WingScreen.cpp
 AdvLinkScreen.h
 BlankScreen.h
 BEMOptionsScreen.h
+BORScreen.h
 CfdMeshScreen.h
 ClippingScreen.h
 CompGeomScreen.h

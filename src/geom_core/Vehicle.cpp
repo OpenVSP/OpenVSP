@@ -10,6 +10,7 @@
 #include "FuselageGeom.h"
 #include "WingGeom.h"
 #include "BlankGeom.h"
+#include "BORGeom.h"
 #include "MeshGeom.h"
 #include "ConformalGeom.h"
 #include "CustomGeom.h"
@@ -179,6 +180,7 @@ void Vehicle::Init()
     m_GeomTypeVec.push_back( GeomType( STACK_GEOM_TYPE, "STACK", true ) );
     m_GeomTypeVec.push_back( GeomType( BLANK_GEOM_TYPE, "BLANK", true ) );
     m_GeomTypeVec.push_back( GeomType( ELLIPSOID_GEOM_TYPE, "ELLIPSOID", true ) );
+    m_GeomTypeVec.push_back( GeomType( BOR_GEOM_TYPE, "BODYOFREVOLUTION", true ) );
     m_GeomTypeVec.push_back( GeomType( PROP_GEOM_TYPE, "PROP", true ) );
     m_GeomTypeVec.push_back( GeomType( HINGE_GEOM_TYPE, "HINGE", true ) );
     m_GeomTypeVec.push_back( GeomType( CONFORMAL_GEOM_TYPE, "CONFORMAL", true ) );
@@ -519,6 +521,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     else if ( type.m_Name == "Ellipsoid" || type.m_Name == "ELLIPSOID" )
     {
         new_geom = new EllipsoidGeom( this );
+    }
+    else if ( type.m_Name == "BodyOfRevolution" || type.m_Name == "BODYOFREVOLUTION" )
+    {
+        new_geom = new BORGeom( this );
     }
 
     if ( !new_geom )
