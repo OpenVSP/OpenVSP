@@ -87,12 +87,13 @@ public:
 
     virtual string GetName();
 
+    static XSecCurve* CreateXSecCurve( int type );
+
 protected:
 
     virtual void ChangeID( string id );
 
     XSec* CreateXSec( int type );
-    XSecCurve* CreateXSecCurve( int type );
 
     vector< XSec* > m_XSecPtrVec;
     deque< string > m_XSecIDDeque;
