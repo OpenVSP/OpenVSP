@@ -416,18 +416,16 @@ public:
     virtual ~FeaRibArray();
 
     virtual void Update();
+    virtual void CalcNumRibs();
     virtual void CreateFeaRibArray();
 
-    virtual FeaRib* AddFeaRib( double center_location );
+    virtual FeaRib* AddFeaRib( double center_location, int ind );
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
-    virtual vector < FeaRib* > GetFeaRibArray()
+    virtual int GetNumRibs()
     {
-        return m_FeaRibArray;
-    }
-
-    {
+        return m_NumRibs;
     }
 
     void SetPerpendicularEdgeID( string ID )
@@ -445,7 +443,7 @@ public:
 
 protected:
 
-    vector < FeaRib* > m_FeaRibArray;
+    int m_NumRibs;
 
     string m_PerpendicularEdgeID;
 };

@@ -2852,48 +2852,27 @@ FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
 
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
 
-    m_PerpendicularEdgeIndex = 0;
+    m_NumRibs = 0;
 }
 
 FeaRibArray::~FeaRibArray()
 {
-    for ( size_t i = 0; i < m_FeaRibArray.size(); i++ )
-    {
-        delete m_FeaRibArray[i];
-    }
+
 }
 
 void FeaRibArray::Update()
 {
+    CalcNumRibs();
+
     m_FeaPartSurfVec.clear();
+    m_FeaPartSurfVec.resize( m_SymmIndexVec.size() * m_NumRibs );
 
     CreateFeaRibArray();
-
-    for ( size_t i = 0; i < m_FeaRibArray.size(); i++ )
-    {
-        m_FeaRibArray[i]->UpdateSymmIndex();
-        m_FeaRibArray[i]->Update();
-        m_FeaRibArray[i]->UpdateSymmParts();
-
-        // Add rib surfaces:
-        vector < VspSurf > rib_surf_vec = m_FeaRibArray[i]->GetFeaPartSurfVec();
-
-        for ( size_t j = 0; j < rib_surf_vec.size(); j++ )
-        {
-            m_FeaPartSurfVec.push_back( rib_surf_vec[j] );
-        }
-    }
 }
 
-void FeaRibArray::CreateFeaRibArray()
-{
-    // Delete FeaRibs
-    for ( size_t i = 0; i < m_FeaRibArray.size(); i++ )
-    {
-        delete m_FeaRibArray[i];
-    }
-    m_FeaRibArray.clear();
 
+void FeaRibArray::CalcNumRibs()
+{
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     if ( veh )
@@ -2908,33 +2887,102 @@ void FeaRibArray::CreateFeaRibArray()
         WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
         assert( wing );
 
-        int num_ribs;
+        int num_wing_sec = wing->NumXSec();
+
+        // Init values:
+        double span_f = 0.0;
+
+        // Determine wing span:
+        for ( size_t i = 1; i < num_wing_sec; i++ )
+        {
+            WingSect* wing_sec = wing->GetWingSect( i );
+
+            if ( wing_sec )
+            {
+                span_f += wing_sec->m_Span();
+            }
+        }
 
         if ( m_LocationParmType() == PERCENT )
         {
             m_StartLocation.SetUpperLimit( 100 );
-            m_RibSpacing.SetLowerLimit( 1 ); // Limit to 100 ribs (potential memory allocation errors otherwise)
-            m_RibSpacing.SetUpperLimit( 100 );
+            m_RibSpacing.SetLowerUpperLimits( 1, 100 ); // Limit to 100 ribs (potential memory allocation errors otherwise)
 
-            num_ribs = 1 + ( int )floor( ( 100 - m_StartLocation() ) / m_RibSpacing() );
+            m_NumRibs = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_RibSpacing() );
         }
         else if ( m_LocationParmType() == LENGTH )
         {
-            m_StartLocation.SetUpperLimit( wing->m_TotalSpan() );
-            m_RibSpacing.SetLowerLimit( wing->m_TotalSpan() / 100 ); // Limit to 100 ribs (potential memory allocation errors otherwise)
-            m_RibSpacing.SetUpperLimit( wing->m_TotalSpan() );
+            m_StartLocation.SetUpperLimit( span_f );
+            m_RibSpacing.SetLowerUpperLimits( ( span_f - m_StartLocation() ) / 100, span_f - m_StartLocation() ); // Limit to 100 ribs (potential memory allocation errors otherwise)
 
-            num_ribs = 1 + (int)floor( ( wing->m_TotalSpan() - m_StartLocation() ) / m_RibSpacing() );
-        }
-
-        for ( size_t i = 0; i < num_ribs; i++ )
-        {
-            AddFeaRib( m_StartLocation() + i * m_RibSpacing() );
+            m_NumRibs = 1 + (int)floor( ( span_f - m_StartLocation() ) / m_RibSpacing() );
         }
     }
 }
 
-FeaRib* FeaRibArray::AddFeaRib( double center_location )
+void FeaRibArray::CreateFeaRibArray()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* current_wing = veh->FindGeom( m_ParentGeomID );
+
+        if ( !current_wing )
+        {
+            return;
+        }
+
+        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
+        assert( wing );
+
+        vector< VspSurf > surf_vec;
+        current_wing->GetSurfVec( surf_vec );
+        VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
+
+        BndBox wing_bbox;
+        wing_surf.GetBoundingBox( wing_bbox );
+
+        for ( size_t i = 0; i < m_NumRibs; i++ )
+        {
+            // Update Rib Center
+            m_CenterLocation.Set( m_StartLocation() + i * m_RibSpacing() );
+
+            double rotation = GetRibTotalRotation( DEG_2_RAD * m_Theta(), m_PerpendicularEdgeID );
+
+            VspSurf main_rib_surf = ComputeRibSurf( rotation );
+
+            m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_rib_surf;
+
+            if ( m_FeaPartSurfVec[m_SymmIndexVec.size() * i].GetFlipNormal() != wing_surf.GetFlipNormal() )
+            {
+                m_FeaPartSurfVec[m_SymmIndexVec.size() * i].FlipNormal();
+            }
+
+            // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copiesvto be transformed 
+            for ( size_t j = 1; j < m_SymmIndexVec.size(); j++ )
+            {
+                m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j] = m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j - 1];
+            }
+
+            // Get Symmetric Translation Matrix
+            vector<Matrix4d> transMats = current_wing->GetFeaTransMatVec();
+
+            //==== Apply Transformations ====//
+            for ( size_t j = 1; j < m_SymmIndexVec.size(); j++ )
+            {
+                m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].Transform( transMats[j] ); // Apply total transformation to main FeaPart surface
+
+                if ( surf_vec[j].GetFlipNormal() != m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].GetFlipNormal() )
+                {
+                    m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].FlipNormal();
+                }
+            }
+        }
+    }
+}
+
+FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
 {
     FeaRib* fearib = new FeaRib( m_ParentGeomID );
 
@@ -2947,11 +2995,12 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location )
         fearib->SetCapFeaPropertyIndex( m_CapFeaPropertyIndex );
         fearib->m_Theta.Set( m_Theta() );
         fearib->SetPerpendicularEdgeID( m_PerpendicularEdgeID );
-        fearib->SetPerpendicularEdgeIndex( m_PerpendicularEdgeIndex );
 
-        fearib->SetName( string( m_Name + "_Rib_" + std::to_string( m_FeaRibArray.size() ) ) );
+        fearib->SetName( string( m_Name + "_Rib_" + std::to_string( ind ) ) );
 
-        m_FeaRibArray.push_back( fearib );
+        fearib->UpdateSymmIndex();
+        fearib->Update();
+        fearib->UpdateSymmParts();
     }
 
     return fearib;
@@ -2959,18 +3008,7 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location )
 
 void FeaRibArray::UpdateDrawObjs( int id, bool highlight )
 {
-    m_FeaPartDO.clear();
-
-    for ( size_t i = 0; i < m_FeaRibArray.size(); i++ )
-    {
-        m_FeaRibArray[i]->UpdateDrawObjs( id, highlight );
-        vector < DrawObj > draw_obj_vec = m_FeaRibArray[i]->GetDrawObjVec();
-
-        for ( size_t j = 0; j < draw_obj_vec.size(); j++ )
-        {
-            m_FeaPartDO.push_back( draw_obj_vec[j] );
-        }
-    }
+    FeaPart::UpdateDrawObjs( id, highlight );
 }
 
 //================= FeaProperty ==================//
