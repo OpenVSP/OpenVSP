@@ -680,29 +680,55 @@ void StructureMgrSingleton::InitFeaMaterials()
 {
     // Reference: http://www.matweb.com/search/datasheet.aspx?bassnum=MA0001
 
-    FeaMaterial* aluminum = new FeaMaterial();
+    FeaMaterial* aluminum_7075_T6 = new FeaMaterial();
 
-    if ( aluminum )
+    if ( aluminum_7075_T6 )
     {
-        aluminum->SetName( "Aluminum" );
-        aluminum->m_MassDensity.Set( 0.0975 ); // lb/in^3
-        aluminum->m_ElasticModulus.Set( 10.2e6 ); // psi
-        aluminum->m_PoissonRatio.Set( 0.33 );
-        aluminum->m_ThermalExpanCoeff.Set( 1.33e-5 ); // in/(in-°F)
-        aluminum->m_UserFeaMaterial = false;
-        AddFeaMaterial( aluminum );
+        aluminum_7075_T6->SetName( "Aluminum 7075-T6" );
+        aluminum_7075_T6->m_MassDensity.Set( 0.102 ); // lb/in^3
+        aluminum_7075_T6->m_ElasticModulus.Set( 10.6e6 ); // psi
+        aluminum_7075_T6->m_PoissonRatio.Set( 0.33 );
+        aluminum_7075_T6->m_ThermalExpanCoeff.Set( 13.1e-6 ); // in/(in-°F)
+        aluminum_7075_T6->m_UserFeaMaterial = false;
+        AddFeaMaterial( aluminum_7075_T6 );
     }
 
-    FeaMaterial* steel = new FeaMaterial();
+    FeaMaterial* aluminum_2024_T3 = new FeaMaterial();
 
-    if ( steel )
+    if ( aluminum_2024_T3 )
     {
-        steel->SetName( "Steel" );
-        steel->m_MassDensity.Set( 0.284 ); // lb/in^3
-        steel->m_ElasticModulus.Set( 29.0e6 ); // psi
-        steel->m_PoissonRatio.Set( 0.30 );
-        steel->m_ThermalExpanCoeff.Set( 6.67e-6 ); // in/(in-°F)
-        steel->m_UserFeaMaterial = false;
-        AddFeaMaterial( steel );
+        aluminum_2024_T3->SetName( "Aluminum 2024-T3" );
+        aluminum_2024_T3->m_MassDensity.Set( 0.100 ); // lb/in^3
+        aluminum_2024_T3->m_ElasticModulus.Set( 10.4e6 ); // psi
+        aluminum_2024_T3->m_PoissonRatio.Set( 0.33 );
+        aluminum_2024_T3->m_ThermalExpanCoeff.Set( 12.9e-6 ); // in/(in-°F)
+        aluminum_2024_T3->m_UserFeaMaterial = false;
+        AddFeaMaterial( aluminum_2024_T3 );
+    }
+
+    FeaMaterial* Ti_6Al_4V = new FeaMaterial();
+
+    if ( Ti_6Al_4V )
+    {
+        Ti_6Al_4V->SetName( "Titanium Ti-6Al-4V" );
+        Ti_6Al_4V->m_MassDensity.Set( 0.160 ); // lb/in^3
+        Ti_6Al_4V->m_ElasticModulus.Set( 16.51e6 ); // psi
+        Ti_6Al_4V->m_PoissonRatio.Set( 0.342 );
+        Ti_6Al_4V->m_ThermalExpanCoeff.Set( 5.11e-6 ); // in/(in-°F)
+        Ti_6Al_4V->m_UserFeaMaterial = false;
+        AddFeaMaterial( Ti_6Al_4V );
+    }
+
+    FeaMaterial* steel_4130 = new FeaMaterial();
+
+    if ( steel_4130 )
+    {
+        steel_4130->SetName( "AISI 4130 Steel" );
+        steel_4130->m_MassDensity.Set( 0.284 ); // lb/in^3
+        steel_4130->m_ElasticModulus.Set( 29.7e6 ); // psi
+        steel_4130->m_PoissonRatio.Set( 0.29 );
+        steel_4130->m_ThermalExpanCoeff.Set( 7.61e-6 ); // in/(in-°F)
+        steel_4130->m_UserFeaMaterial = false;
+        AddFeaMaterial( steel_4130 );
     }
 }
