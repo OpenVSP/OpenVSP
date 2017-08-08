@@ -847,6 +847,112 @@ double FeaPart::GetRibPerU( )
 
     return per_u;
 }
+
+double FeaPart::GetRibTotalRotation( double initial_rotation, string perp_edge_ID )
+{
+    double total_rot = 0;
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* current_wing = veh->FindGeom( m_ParentGeomID );
+
+        if ( current_wing )
+        {
+            vector< VspSurf > surf_vec;
+            current_wing->GetSurfVec( surf_vec );
+            VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
+
+            double per_u = GetRibPerU();
+
+            // Find initial rotation (alpha) to perpendicular edge or spar
+            double alpha = 0.0;
+            double u_edge_out = per_u + 2 * FLT_EPSILON;
+            double u_edge_in = per_u - 2 * FLT_EPSILON;
+
+            VspCurve constant_u_curve;
+            wing_surf.GetU01ConstCurve( constant_u_curve, per_u );
+
+            piecewise_curve_type u_curve = constant_u_curve.GetCurve();
+
+            double v_min = u_curve.get_parameter_min(); // Really must be 0.0
+            double v_max = u_curve.get_parameter_max(); // Really should be 4.0
+            double v_leading_edge = ( v_min + v_max ) * 0.5;
+
+            vec3d trail_edge, lead_edge;
+            trail_edge = u_curve.f( v_min );
+            lead_edge = u_curve.f( v_leading_edge );
+
+            vec3d chord_dir_vec = trail_edge - lead_edge;
+            chord_dir_vec.normalize();
+
+            // Wing corner points:
+            vec3d min_trail_edge = wing_surf.CompPnt( 0.0, 0.0 );
+            vec3d min_lead_edge = wing_surf.CompPnt( 0.0, v_leading_edge );
+
+            // Wing edge vectors (assumes linearity)
+            vec3d lead_edge_vec = lead_edge - min_lead_edge;
+            vec3d inner_edge_vec = min_trail_edge - min_lead_edge;
+
+            lead_edge_vec.normalize();
+            inner_edge_vec.normalize();
+
+            // Normal vector to wing chord line
+            vec3d normal_vec = cross( inner_edge_vec, lead_edge_vec );
+            normal_vec.normalize();
+
+            if ( strcmp( perp_edge_ID.c_str(), "Trailing Edge" ) == 0 )
+            {
+                vec3d trail_edge_out, trail_edge_in;
+                trail_edge_out = wing_surf.CompPnt01( u_edge_out, v_min );
+                trail_edge_in = wing_surf.CompPnt01( u_edge_in, v_min );
+
+                vec3d trail_edge_dir_vec = trail_edge_out - trail_edge_in;
+                trail_edge_dir_vec.normalize();
+
+                alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, trail_edge_dir_vec, normal_vec );
+            }
+            else if ( strcmp( perp_edge_ID.c_str(), "Leading Edge" ) == 0 )
+            {
+                vec3d lead_edge_out, lead_edge_in;
+                lead_edge_out = wing_surf.CompPnt01( u_edge_out, v_leading_edge / v_max );
+                lead_edge_in = wing_surf.CompPnt01( u_edge_in, v_leading_edge / v_max );
+
+                vec3d lead_edge_dir_vec = lead_edge_out - lead_edge_in;
+                lead_edge_dir_vec.normalize();
+
+                alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, lead_edge_dir_vec, normal_vec );
+            }
+            else if ( strcmp( perp_edge_ID.c_str(), "None" ) == 0 )
+            {
+                alpha = 0;
+            }
+            else 
+            {
+                FeaPart* part = StructureMgr.GetFeaPart( perp_edge_ID );
+
+                if ( part )
+                {
+                    VspSurf surf = part->GetFeaPartSurfVec()[0];
+
+                    vec3d edge1, edge2;
+                    edge1 = surf.CompPnt01( 0.5, 0.0 );
+                    edge2 = surf.CompPnt01( 0.5, 1.0 );
+
+                    vec3d spar_dir_vec = edge2 - edge1;
+                    spar_dir_vec.normalize();
+
+                    alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, spar_dir_vec, normal_vec );
+                }
+            }
+
+            total_rot = alpha + initial_rotation;
+        }
+    }
+
+    return total_rot;
+}
 }
 
 void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid )
@@ -1719,8 +1825,6 @@ void FeaSpar::UpdateDrawObjs( int id, bool highlight )
 FeaRib::FeaRib( string geomID, int type ) : FeaSlice( geomID, type )
 {
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
-
-    m_PerpendicularEdgeIndex = 0;
 }
 
 void FeaRib::Update()

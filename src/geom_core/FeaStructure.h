@@ -167,6 +167,7 @@ public:
     static string GetTypeName( int type );
 
     virtual double GetRibPerU( );
+    virtual double GetRibTotalRotation( double initial_rotation, string perp_edge_ID );
     virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid );
 
     virtual void LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec );
@@ -301,14 +302,6 @@ public:
     virtual void ComputePlanarSurf();
     virtual void UpdateDrawObjs( int id, bool highlight );
 
-    void SetPerpendicularEdgeIndex( int ind )
-    {
-        m_PerpendicularEdgeIndex = ind;
-    }
-    int GetPerpendicularEdgeIndex()
-    {
-        return m_PerpendicularEdgeIndex;
-    }
 
     void SetPerpendicularEdgeID( string ID )
     {
@@ -323,7 +316,6 @@ public:
 
 protected:
 
-    int m_PerpendicularEdgeIndex;
     string m_PerpendicularEdgeID;
 
 };
@@ -430,13 +422,7 @@ public:
         return m_FeaRibArray;
     }
 
-    void SetPerpendicularEdgeIndex( int ind )
     {
-        m_PerpendicularEdgeIndex = ind;
-    }
-    int GetPerpendicularEdgeIndex()
-    {
-        return m_PerpendicularEdgeIndex;
     }
 
     void SetPerpendicularEdgeID( string ID )
@@ -456,7 +442,6 @@ protected:
 
     vector < FeaRib* > m_FeaRibArray;
 
-    int m_PerpendicularEdgeIndex;
     string m_PerpendicularEdgeID;
 };
 

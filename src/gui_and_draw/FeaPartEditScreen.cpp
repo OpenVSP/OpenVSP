@@ -1564,7 +1564,6 @@ void FeaPartEditScreen::UpdatePerpendicularRibChoice()
                                 if ( rib->GetPerpendicularEdgeID() == m_PerpendicularEdgeVec[k] )
                                 {
                                     m_RibPerpendicularEdgeChoice.SetVal( k );
-                                    rib->SetPerpendicularEdgeIndex( k );
                                     break;
                                 }
                             }
@@ -1579,7 +1578,6 @@ void FeaPartEditScreen::UpdatePerpendicularRibChoice()
                                 if ( rib_array->GetPerpendicularEdgeID() == m_PerpendicularEdgeVec[k] )
                                 {
                                     m_RibArrayPerpEdgeChoice.SetVal( k );
-                                    rib_array->SetPerpendicularEdgeIndex( k );
                                     break;
                                 }
                             }
