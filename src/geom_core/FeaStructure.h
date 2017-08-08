@@ -168,6 +168,8 @@ public:
 
     virtual double GetRibPerU( );
     virtual double GetRibTotalRotation( double initial_rotation, string perp_edge_ID );
+    virtual VspSurf ComputeRibSurf( double rotation );
+
     virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid );
 
     virtual void LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec );
@@ -302,9 +304,9 @@ public:
 
     virtual void Update();
 
-    virtual void ComputePlanarSurf();
-    virtual void UpdateDrawObjs( int id, bool highlight );
+    virtual void UpdateParmLimits();
 
+    virtual void UpdateDrawObjs( int id, bool highlight );
 
     void SetPerpendicularEdgeID( string ID )
     {
