@@ -537,6 +537,35 @@ int FeaStructure::GetNumFeaFixPoints()
     return fix_point_count;
 }
 
+void FeaStructure::IndividualizeRibArray( int rib_array_ind )
+{
+    if ( !ValidFeaPartInd( rib_array_ind ) )
+    {
+        return;
+    }
+
+    FeaPart* prt = m_FeaPartVec[rib_array_ind];
+
+    if ( !prt )
+    {
+        return;
+    }
+
+    if ( prt->GetType() == vsp::FEA_RIB_ARRAY )
+    {
+        FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( prt );
+        assert( rib_array );
+
+        for ( size_t i = 0; i < rib_array->GetNumRibs(); i++ )
+        {
+            FeaRib* rib = rib_array->AddFeaRib( rib_array->m_StartLocation() + i * rib_array->m_RibSpacing(), i );
+            AddFeaPart( rib );
+        }
+
+        DelFeaPart( rib_array_ind );
+    }
+}
+
 FeaPart* FeaStructure::GetFeaSkin()
 {
     for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )

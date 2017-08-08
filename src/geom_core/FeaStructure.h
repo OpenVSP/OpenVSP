@@ -69,6 +69,8 @@ public:
     virtual bool FeaPartIsFixPoint( int ind );
     virtual int GetNumFeaFixPoints();
 
+    virtual void IndividualizeRibArray( int rib_array_ind );
+
     virtual vector< FeaPart* > InitFeaSkin( );
     virtual FeaPart* GetFeaSkin( );
     virtual int GetNumFeaSkin();

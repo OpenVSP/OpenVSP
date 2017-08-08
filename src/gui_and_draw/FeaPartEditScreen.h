@@ -137,6 +137,7 @@ private:
     TriggerButton m_RibArrayPosUnit;
     SliderAdjRangeInput m_RibArrayThetaSlider;
     Choice m_RibArrayCapPropertyChoice;
+    TriggerButton m_IndividualizeRibArrayButton;
 
     //===== SubSurfaces =====//
 

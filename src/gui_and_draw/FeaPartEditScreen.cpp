@@ -395,6 +395,10 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_RibArrayEditLayout.AddChoice( m_RibArrayPropertyChoice, "Property" );
     m_RibArrayEditLayout.AddChoice( m_RibArrayCapPropertyChoice, "Cap Property" );
 
+    m_RibArrayEditLayout.AddYGap();
+
+    m_RibArrayEditLayout.AddButton( m_IndividualizeRibArrayButton, "Individualize Rib Array" );
+
     //=== SubSurfaces ===//
 
     //==== SSLine ====//
@@ -1260,6 +1264,27 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                         assert( rib_array );
 
                         rib_array->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibArrayPerpEdgeChoice.GetVal()] );
+                    }
+                }
+            }
+        }
+    }
+    else if ( device == &m_IndividualizeRibArrayButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        {
+            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+
+                if ( feaprt )
+                {
+                    if ( feaprt->GetType() == vsp::FEA_RIB_ARRAY )
+                    {
+                        structVec[StructureMgr.GetCurrStructIndex()]->IndividualizeRibArray( StructureMgr.GetCurrPartIndex() );
+                        StructureMgr.SetCurrPartIndex( structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() - 1 );
                     }
                 }
             }
