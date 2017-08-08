@@ -763,6 +763,92 @@ string FeaPart::GetTypeName( int type )
     return string( "NONE" );
 }
 
+double FeaPart::GetRibPerU( )
+{
+    double per_u = 0;
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* current_wing = veh->FindGeom( m_ParentGeomID );
+
+        if ( current_wing )
+        {
+
+            WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
+            assert( wing );
+
+            vector< VspSurf > surf_vec;
+            current_wing->GetSurfVec( surf_vec );
+            VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
+
+            BndBox wing_bbox;
+            wing_surf.GetBoundingBox( wing_bbox );
+
+            int num_wing_sec = wing->NumXSec();
+
+            vector < double > wing_sec_span_vec; // Vector of Span lengths for each wing section (first section has no length)
+            wing_sec_span_vec.push_back( 0.0 );
+
+            double u_max = wing_surf.GetUMax();
+            double u_step = 1.0 / u_max;
+
+            // Init values:
+            double span_0 = 0.0;
+            double span_f = 0.0;
+            double u_0 = u_step;
+            double u_f = u_step;
+            int curr_sec_ind = -1;
+
+            // Determine current wing section:
+            for ( size_t i = 1; i < num_wing_sec; i++ )
+            {
+                WingSect* wing_sec = wing->GetWingSect( i );
+
+                if ( wing_sec )
+                {
+                    span_f += wing_sec->m_Span();
+                    u_f += u_step;
+                    wing_sec_span_vec.push_back( span_f - span_0 );
+
+                    if ( m_LocationParmType() == LENGTH )
+                    {
+                        if ( m_CenterLocation() >= span_0 && m_CenterLocation() <= span_f )
+                        {
+                            curr_sec_ind = i;
+                        }
+                    }
+                    else if ( m_LocationParmType() == PERCENT )
+                    {
+                        if ( m_CenterLocation() / 100 >= u_0 && m_CenterLocation() / 100 <= u_f )
+                        {
+                            curr_sec_ind = i;
+                        }
+                    }
+
+                    span_0 = span_f;
+                    u_0 = u_f;
+                }
+            }
+
+            // Set parm limits and convert to percent U if parameterized by span length value
+            if ( m_LocationParmType() == PERCENT )
+            {
+                double u_range = ( u_step * ( u_max - 1 ) ) - u_step;
+
+                per_u = u_step + ( m_CenterLocation() / 100 ) * u_range;
+            }
+            else if ( m_LocationParmType() == LENGTH )
+            {
+                per_u = curr_sec_ind * u_step + ( ( m_CenterLocation() - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
+            }
+        }
+    }
+
+    return per_u;
+}
+}
+
 void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid )
 {
     for ( int p = 0; p < m_FeaPartSurfVec.size(); p++ )

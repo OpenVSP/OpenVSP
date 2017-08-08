@@ -166,6 +166,7 @@ public:
 
     static string GetTypeName( int type );
 
+    virtual double GetRibPerU( );
     virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid );
 
     virtual void LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec );
