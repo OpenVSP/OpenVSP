@@ -77,6 +77,10 @@ private:
     SliderAdjRangeInput m_SliceYRotSlider;
     SliderAdjRangeInput m_SliceZRotSlider;
     Choice m_SliceCapPropertyChoice;
+    ToggleButton m_SliceShellToggle;
+    ToggleButton m_SliceCapToggle;
+    ToggleButton m_SliceShellCapToggle;
+    ToggleRadioGroup m_SliceShellCapToggleGroup;
 
     //===== Rib =====//
     Choice m_RibPropertyChoice;
@@ -86,6 +90,10 @@ private:
     TriggerButton m_RibPosUnit;
     SliderAdjRangeInput m_RibThetaSlider;
     Choice m_RibCapPropertyChoice;
+    ToggleButton m_RibShellToggle;
+    ToggleButton m_RibCapToggle;
+    ToggleButton m_RibShellCapToggle;
+    ToggleRadioGroup m_RibShellCapToggleGroup;
 
     //===== Spar =====//
     Choice m_SparPropertyChoice;
@@ -96,6 +104,10 @@ private:
     IndexSelector m_SparSectIndexSelector;
     SliderAdjRangeInput m_SparThetaSlider;
     Choice m_SparCapPropertyChoice;
+    ToggleButton m_SparShellToggle;
+    ToggleButton m_SparCapToggle;
+    ToggleButton m_SparShellCapToggle;
+    ToggleRadioGroup m_SparShellCapToggleGroup;
 
     //===== Fix Point =====//
     Choice m_FixPointParentSurfChoice;
@@ -124,6 +136,10 @@ private:
     SliderAdjRangeInput m_BHYRotSlider;
     SliderAdjRangeInput m_BHZRotSlider;
     Choice m_BHCapPropertyChoice;
+    ToggleButton m_BulkheadShellToggle;
+    ToggleButton m_BulkheadCapToggle;
+    ToggleButton m_BulkheadShellCapToggle;
+    ToggleRadioGroup m_BulkheadShellCapToggleGroup;
 
     //===== RibArray =====//
     Choice m_RibArrayPropertyChoice;
@@ -138,6 +154,10 @@ private:
     SliderAdjRangeInput m_RibArrayThetaSlider;
     Choice m_RibArrayCapPropertyChoice;
     TriggerButton m_IndividualizeRibArrayButton;
+    ToggleButton m_RibArrayShellToggle;
+    ToggleButton m_RibArrayCapToggle;
+    ToggleButton m_RibArrayShellCapToggle;
+    ToggleRadioGroup m_RibArrayShellCapToggleGroup;
 
     //===== SubSurfaces =====//
 
@@ -152,6 +172,10 @@ private:
     ToggleButton m_FeaSSLineNoneToggle;
     ToggleRadioGroup m_FeaSSLineTestToggleGroup;
     Choice m_FeaSSLineCapPropertyChoice;
+    ToggleButton m_FeaSSLineShellToggle;
+    ToggleButton m_FeaSSLineCapToggle;
+    ToggleButton m_FeaSSLineShellCapToggle;
+    ToggleRadioGroup m_FeaSSLineShellCapToggleGroup;
 
     // SS_Rectangle
     Choice m_FeaSSRecPropertyChoice;
@@ -165,6 +189,10 @@ private:
     ToggleButton m_FeaSSRecNoneButton;
     ToggleRadioGroup m_FeaSSRecTestToggleGroup;
     Choice m_FeaSSRecCapPropertyChoice;
+    ToggleButton m_FeaSSRecShellToggle;
+    ToggleButton m_FeaSSRecCapToggle;
+    ToggleButton m_FeaSSRecShellCapToggle;
+    ToggleRadioGroup m_FeaSSRecShellCapToggleGroup;
 
     // SS_Ellipse
     Choice m_FeaSSEllPropertyChoice;
@@ -179,6 +207,10 @@ private:
     ToggleButton m_FeaSSEllNoneButton;
     ToggleRadioGroup m_FeaSSEllTestToggleGroup;
     Choice m_FeaSSEllCapPropertyChoice;
+    ToggleButton m_FeaSSEllShellToggle;
+    ToggleButton m_FeaSSEllCapToggle;
+    ToggleButton m_FeaSSEllShellCapToggle;
+    ToggleRadioGroup m_FeaSSEllShellCapToggleGroup;
 
     // SS_Control
     Choice m_FeaSSConPropertyChoice;
@@ -199,6 +231,10 @@ private:
     ToggleRadioGroup m_FeaSSConTestToggleGroup;
     Choice m_FeaSSConSurfTypeChoice;
     Choice m_FeaSSConCapPropertyChoice;
+    ToggleButton m_FeaSSConShellToggle;
+    ToggleButton m_FeaSSConCapToggle;
+    ToggleButton m_FeaSSConShellCapToggle;
+    ToggleRadioGroup m_FeaSSConShellCapToggleGroup;
 
     vector < string > m_FixPointParentIDVec;
     vector < string > m_PerpendicularEdgeVec;

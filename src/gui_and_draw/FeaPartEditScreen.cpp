@@ -113,6 +113,23 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SliceEditLayout.AddYGap();
 
+    m_SliceEditLayout.SetSameLineFlag( true );
+    m_SliceEditLayout.SetFitWidthFlag( false );
+
+    m_SliceEditLayout.SetButtonWidth( m_SliceEditLayout.GetRemainX() / 3 );
+    m_SliceEditLayout.AddButton( m_SliceShellToggle, "Shell" );
+    m_SliceEditLayout.AddButton( m_SliceCapToggle, "Cap" );
+    m_SliceEditLayout.AddButton( m_SliceShellCapToggle, "Shell and Cap" );
+
+    m_SliceShellCapToggleGroup.Init( this );
+    m_SliceShellCapToggleGroup.AddButton( m_SliceShellToggle.GetFlButton() );
+    m_SliceShellCapToggleGroup.AddButton( m_SliceCapToggle.GetFlButton() );
+    m_SliceShellCapToggleGroup.AddButton( m_SliceShellCapToggle.GetFlButton() );
+
+    m_SliceEditLayout.SetSameLineFlag( false );
+    m_SliceEditLayout.SetFitWidthFlag( true );
+    m_SliceEditLayout.ForceNewLine();
+
     m_SliceEditLayout.AddChoice( m_SlicePropertyChoice, "Property" );
     m_SliceEditLayout.AddChoice( m_SliceCapPropertyChoice, "Cap Property" );
 
@@ -162,6 +179,23 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_RibEditLayout.AddSlider( m_RibThetaSlider, "Rotation", 25, "%5.3f" );
 
     m_RibEditLayout.AddYGap();
+
+    m_RibEditLayout.SetSameLineFlag( true );
+    m_RibEditLayout.SetFitWidthFlag( false );
+
+    m_RibEditLayout.SetButtonWidth( m_RibEditLayout.GetRemainX() / 3 );
+    m_RibEditLayout.AddButton( m_RibShellToggle, "Shell" );
+    m_RibEditLayout.AddButton( m_RibCapToggle, "Cap" );
+    m_RibEditLayout.AddButton( m_RibShellCapToggle, "Shell and Cap" );
+
+    m_RibShellCapToggleGroup.Init( this );
+    m_RibShellCapToggleGroup.AddButton( m_RibShellToggle.GetFlButton() );
+    m_RibShellCapToggleGroup.AddButton( m_RibCapToggle.GetFlButton() );
+    m_RibShellCapToggleGroup.AddButton( m_RibShellCapToggle.GetFlButton() );
+
+    m_RibEditLayout.ForceNewLine();
+    m_RibEditLayout.SetSameLineFlag( false );
+    m_RibEditLayout.SetFitWidthFlag( true );
 
     m_RibEditLayout.AddChoice( m_RibPropertyChoice, "Property" );
     m_RibEditLayout.AddChoice( m_RibCapPropertyChoice, "Cap Property" );
@@ -221,6 +255,23 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SparEditLayout.AddSlider( m_SparThetaSlider, "Rotation", 25, "%5.3f" );
 
     m_SparEditLayout.AddYGap();
+
+    m_SparEditLayout.SetSameLineFlag( true );
+    m_SparEditLayout.SetFitWidthFlag( false );
+
+    m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 3 );
+    m_SparEditLayout.AddButton( m_SparShellToggle, "Shell" );
+    m_SparEditLayout.AddButton( m_SparCapToggle, "Cap" );
+    m_SparEditLayout.AddButton( m_SparShellCapToggle, "Shell and Cap" );
+
+    m_SparShellCapToggleGroup.Init( this );
+    m_SparShellCapToggleGroup.AddButton( m_SparShellToggle.GetFlButton() );
+    m_SparShellCapToggleGroup.AddButton( m_SparCapToggle.GetFlButton() );
+    m_SparShellCapToggleGroup.AddButton( m_SparShellCapToggle.GetFlButton() );
+
+    m_SparEditLayout.SetSameLineFlag( false );
+    m_SparEditLayout.SetFitWidthFlag( true );
+    m_SparEditLayout.ForceNewLine();
 
     m_SparEditLayout.AddChoice( m_SparPropertyChoice, "Property" );
     m_SparEditLayout.AddChoice( m_SparCapPropertyChoice, "Cap Property" );
@@ -336,6 +387,23 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_BulkheadEditLayout.AddYGap();
 
+    m_BulkheadEditLayout.SetSameLineFlag( true );
+    m_BulkheadEditLayout.SetFitWidthFlag( false );
+
+    m_BulkheadEditLayout.SetButtonWidth( m_BulkheadEditLayout.GetRemainX() / 3 );
+    m_BulkheadEditLayout.AddButton( m_BulkheadShellToggle, "Shell" );
+    m_BulkheadEditLayout.AddButton( m_BulkheadCapToggle, "Cap" );
+    m_BulkheadEditLayout.AddButton( m_BulkheadShellCapToggle, "Shell and Cap" );
+
+    m_BulkheadShellCapToggleGroup.Init( this );
+    m_BulkheadShellCapToggleGroup.AddButton( m_BulkheadShellToggle.GetFlButton() );
+    m_BulkheadShellCapToggleGroup.AddButton( m_BulkheadCapToggle.GetFlButton() );
+    m_BulkheadShellCapToggleGroup.AddButton( m_BulkheadShellCapToggle.GetFlButton() );
+
+    m_BulkheadEditLayout.SetSameLineFlag( false );
+    m_BulkheadEditLayout.SetFitWidthFlag( true );
+    m_BulkheadEditLayout.ForceNewLine();
+
     m_BulkheadEditLayout.AddChoice( m_BHPropertyChoice, "Property" );
     m_BulkheadEditLayout.AddChoice( m_BHCapPropertyChoice, "Cap Property" );
 
@@ -392,6 +460,23 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_RibArrayEditLayout.AddYGap();
 
+    m_RibArrayEditLayout.SetSameLineFlag( true );
+    m_RibArrayEditLayout.SetFitWidthFlag( false );
+
+    m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() / 3 );
+    m_RibArrayEditLayout.AddButton( m_RibArrayShellToggle, "Shell" );
+    m_RibArrayEditLayout.AddButton( m_RibArrayCapToggle, "Cap" );
+    m_RibArrayEditLayout.AddButton( m_RibArrayShellCapToggle, "Shell and Cap" );
+
+    m_RibArrayShellCapToggleGroup.Init( this );
+    m_RibArrayShellCapToggleGroup.AddButton( m_RibArrayShellToggle.GetFlButton() );
+    m_RibArrayShellCapToggleGroup.AddButton( m_RibArrayCapToggle.GetFlButton() );
+    m_RibArrayShellCapToggleGroup.AddButton( m_RibArrayShellCapToggle.GetFlButton() );
+
+    m_RibArrayEditLayout.SetSameLineFlag( false );
+    m_RibArrayEditLayout.SetFitWidthFlag( true );
+    m_RibArrayEditLayout.ForceNewLine();
+
     m_RibArrayEditLayout.AddChoice( m_RibArrayPropertyChoice, "Property" );
     m_RibArrayEditLayout.AddChoice( m_RibArrayCapPropertyChoice, "Cap Property" );
 
@@ -443,6 +528,23 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_FeaSSLineGroup.AddYGap();
 
+    m_FeaSSLineGroup.SetSameLineFlag( true );
+    m_FeaSSLineGroup.SetFitWidthFlag( false );
+
+    m_FeaSSLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
+    m_FeaSSLineGroup.AddButton( m_FeaSSLineShellToggle, "Shell" );
+    m_FeaSSLineGroup.AddButton( m_FeaSSLineCapToggle, "Cap" );
+    m_FeaSSLineGroup.AddButton( m_FeaSSLineShellCapToggle, "Shell and Cap" );
+
+    m_FeaSSLineShellCapToggleGroup.Init( this );
+    m_FeaSSLineShellCapToggleGroup.AddButton( m_FeaSSLineShellToggle.GetFlButton() );
+    m_FeaSSLineShellCapToggleGroup.AddButton( m_FeaSSLineCapToggle.GetFlButton() );
+    m_FeaSSLineShellCapToggleGroup.AddButton( m_FeaSSLineShellCapToggle.GetFlButton() );
+
+    m_FeaSSLineGroup.SetSameLineFlag( false );
+    m_FeaSSLineGroup.SetFitWidthFlag( true );
+    m_FeaSSLineGroup.ForceNewLine();
+
     m_FeaSSLineGroup.AddChoice( m_FeaSSLinePropertyChoice, "Property" );
     m_FeaSSLineGroup.AddChoice( m_FeaSSLineCapPropertyChoice, "Cap Property" );
 
@@ -479,6 +581,23 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FeaSSRecGroup.AddSlider( m_FeaSSRecThetaSlider, "Theta", 25, "%5.4f" );
 
     m_FeaSSRecGroup.AddYGap();
+
+    m_FeaSSRecGroup.SetSameLineFlag( true );
+    m_FeaSSRecGroup.SetFitWidthFlag( false );
+
+    m_FeaSSRecGroup.SetButtonWidth( m_FeaSSRecGroup.GetRemainX() / 3 );
+    m_FeaSSRecGroup.AddButton( m_FeaSSRecShellToggle, "Shell" );
+    m_FeaSSRecGroup.AddButton( m_FeaSSRecCapToggle, "Cap" );
+    m_FeaSSRecGroup.AddButton( m_FeaSSRecShellCapToggle, "Shell and Cap" );
+
+    m_FeaSSRecShellCapToggleGroup.Init( this );
+    m_FeaSSRecShellCapToggleGroup.AddButton( m_FeaSSRecShellToggle.GetFlButton() );
+    m_FeaSSRecShellCapToggleGroup.AddButton( m_FeaSSRecCapToggle.GetFlButton() );
+    m_FeaSSRecShellCapToggleGroup.AddButton( m_FeaSSRecShellCapToggle.GetFlButton() );
+
+    m_FeaSSRecGroup.SetSameLineFlag( false );
+    m_FeaSSRecGroup.SetFitWidthFlag( true );
+    m_FeaSSRecGroup.ForceNewLine();
 
     m_FeaSSRecGroup.AddChoice( m_FeaSSRecPropertyChoice, "Property" );
     m_FeaSSRecGroup.AddChoice( m_FeaSSRecCapPropertyChoice, "Cap Property" );
@@ -517,6 +636,23 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FeaSSEllGroup.AddSlider( m_FeaSSEllThetaSlider, "Theta", 25, "%5.4f" );
 
     m_FeaSSEllGroup.AddYGap();
+
+    m_FeaSSEllGroup.SetSameLineFlag( true );
+    m_FeaSSEllGroup.SetFitWidthFlag( false );
+
+    m_FeaSSEllGroup.SetButtonWidth( m_FeaSSEllGroup.GetRemainX() / 3 );
+    m_FeaSSEllGroup.AddButton( m_FeaSSEllShellToggle, "Shell" );
+    m_FeaSSEllGroup.AddButton( m_FeaSSEllCapToggle, "Cap" );
+    m_FeaSSEllGroup.AddButton( m_FeaSSEllShellCapToggle, "Shell and Cap" );
+
+    m_FeaSSEllShellCapToggleGroup.Init( this );
+    m_FeaSSEllShellCapToggleGroup.AddButton( m_FeaSSEllShellToggle.GetFlButton() );
+    m_FeaSSEllShellCapToggleGroup.AddButton( m_FeaSSEllCapToggle.GetFlButton() );
+    m_FeaSSEllShellCapToggleGroup.AddButton( m_FeaSSEllShellCapToggle.GetFlButton() );
+
+    m_FeaSSEllGroup.SetSameLineFlag( false );
+    m_FeaSSEllGroup.SetFitWidthFlag( true );
+    m_FeaSSEllGroup.ForceNewLine();
 
     m_FeaSSEllGroup.AddChoice( m_FeaSSEllPropertyChoice, "Property" );
     m_FeaSSEllGroup.AddChoice( m_FeaSSEllCapPropertyChoice, "Cap Property" );
@@ -594,6 +730,23 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_FeaSSConGroup.AddYGap();
 
+    m_FeaSSConGroup.SetSameLineFlag( true );
+    m_FeaSSConGroup.SetFitWidthFlag( false );
+
+    m_FeaSSConGroup.SetButtonWidth( m_FeaSSConGroup.GetRemainX() / 3 );
+    m_FeaSSConGroup.AddButton( m_FeaSSConShellToggle, "Shell" );
+    m_FeaSSConGroup.AddButton( m_FeaSSConCapToggle, "Cap" );
+    m_FeaSSConGroup.AddButton( m_FeaSSConShellCapToggle, "Shell and Cap" );
+
+    m_FeaSSConShellCapToggleGroup.Init( this );
+    m_FeaSSConShellCapToggleGroup.AddButton( m_FeaSSConShellToggle.GetFlButton() );
+    m_FeaSSConShellCapToggleGroup.AddButton( m_FeaSSConCapToggle.GetFlButton() );
+    m_FeaSSConShellCapToggleGroup.AddButton( m_FeaSSConShellCapToggle.GetFlButton() );
+
+    m_FeaSSConGroup.SetSameLineFlag( false );
+    m_FeaSSConGroup.SetFitWidthFlag( true );
+    m_FeaSSConGroup.ForceNewLine();
+
     m_FeaSSConGroup.AddChoice( m_FeaSSConPropertyChoice, "Property" );
     m_FeaSSConGroup.AddChoice( m_FeaSSConCapPropertyChoice, "Cap Property" );
 
@@ -664,6 +817,7 @@ bool FeaPartEditScreen::Update()
                         m_SliceXRotSlider.Update( slice->m_XRot.GetID() );
                         m_SliceYRotSlider.Update( slice->m_YRot.GetID() );
                         m_SliceZRotSlider.Update( slice->m_ZRot.GetID() );
+                        m_SliceShellCapToggleGroup.Update( slice->m_IncludedElements.GetID() );
 
                         if ( slice->m_RotationAxis() == vsp::X_DIR )
                         {
@@ -716,6 +870,7 @@ bool FeaPartEditScreen::Update()
                         m_RibPosTypeChoice.Update( rib->m_LocationParmType.GetID() );
                         m_RibPosSlider.Update( rib->m_CenterLocation.GetID() );
                         m_RibThetaSlider.Update( rib->m_Theta.GetID() );
+                        m_RibShellCapToggleGroup.Update( rib->m_IncludedElements.GetID() );
 
                         if ( rib->m_IncludedElements() == BOTH_ELEMENTS )
                         {
@@ -755,6 +910,7 @@ bool FeaPartEditScreen::Update()
 
                         m_SparPosSlider.Update( spar->m_CenterLocation.GetID() );
                         m_SparThetaSlider.Update( spar->m_Theta.GetID() );
+                        m_SparShellCapToggleGroup.Update( spar->m_IncludedElements.GetID() );
 
                         if ( spar->m_IncludedElements() == BOTH_ELEMENTS )
                         {
@@ -815,6 +971,8 @@ bool FeaPartEditScreen::Update()
                         m_BHYRotSlider.Update( bulkhead->m_YRot.GetID() );
                         m_BHZRotSlider.Update( bulkhead->m_ZRot.GetID() );
 
+                        m_BulkheadShellCapToggleGroup.Update( bulkhead->m_IncludedElements.GetID() );
+
                         if ( bulkhead->m_IncludedElements() == BOTH_ELEMENTS )
                         {
                             m_BHPropertyChoice.Activate();
@@ -842,6 +1000,7 @@ bool FeaPartEditScreen::Update()
                         m_RibArrayStartLocSlider.Update( rib_array->m_StartLocation.GetID() );
                         m_RibArraySpacingSlider.Update( rib_array->m_RibSpacing.GetID() );
                         m_RibArrayThetaSlider.Update( rib_array->m_Theta.GetID() );
+                        m_RibArrayShellCapToggleGroup.Update( rib_array->m_IncludedElements.GetID() );
 
                         if ( rib_array->m_IncludedElements() == BOTH_ELEMENTS )
                         {
@@ -888,6 +1047,7 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSLineConstToggleGroup.Update( ssline->m_ConstType.GetID() );
                         m_FeaSSLineTestToggleGroup.Update( ssline->m_TestType.GetID() );
                         m_FeaSSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
+                        m_FeaSSLineShellCapToggleGroup.Update( ssline->m_IncludedElements.GetID() );
 
                         if ( ssline->m_IncludedElements() == BEAM )
                         {
@@ -923,6 +1083,7 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSRecULenSlider.Update( ssrec->m_ULength.GetID() );
                         m_FeaSSRecWLenSlider.Update( ssrec->m_WLength.GetID() );
                         m_FeaSSRecThetaSlider.Update( ssrec->m_Theta.GetID() );
+                        m_FeaSSRecShellCapToggleGroup.Update( ssrec->m_IncludedElements.GetID() );
 
                         if ( ssrec->m_IncludedElements() == BEAM )
                         {
@@ -963,6 +1124,7 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSEllULenSlider.Update( ssell->m_ULength.GetID() );
                         m_FeaSSEllWLenSlider.Update( ssell->m_WLength.GetID() );
                         m_FeaSSEllThetaSlider.Update( ssell->m_Theta.GetID() );
+                        m_FeaSSEllShellCapToggleGroup.Update( ssell->m_IncludedElements.GetID() );
 
                         if ( ssell->m_IncludedElements() == BEAM )
                         {
@@ -1006,6 +1168,7 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSConSAbsRelToggleGroup.Update( sscon->m_AbsRelFlag.GetID() );
                         m_FeaSSConSEConstButton.Update( sscon->m_ConstFlag.GetID() );
                         m_FeaSSConLEFlagButton.Update( sscon->m_LEFlag.GetID() );
+                        m_FeaSSConShellCapToggleGroup.Update( sscon->m_IncludedElements.GetID() );
 
                         if ( sscon->m_IncludedElements() == BEAM )
                         {
