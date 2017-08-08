@@ -756,6 +756,14 @@ FeaPartEditScreen::~FeaPartEditScreen()
 {
 }
 
+void FeaPartEditScreen::Show()
+{
+    if ( Update() )
+    {
+        m_FLTK_Window->show();
+    }
+}
+
 bool FeaPartEditScreen::Update()
 {
     assert( m_ScreenMgr );
@@ -1022,12 +1030,14 @@ bool FeaPartEditScreen::Update()
                     }
                     else
                     {
-                        FeaPartDispGroup( NULL );
+                        Hide();
+                        return false;
                     }
                 }
                 else
                 {
-                    FeaPartDispGroup( NULL );
+                    Hide();
+                    return false;
                 }
             }
             else if ( StructureMgr.GetCurrPartIndex() >= structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -1222,11 +1232,22 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSConSurfTypeChoice.Update( sscon->m_SurfType.GetID() );
                         FeaPartDispGroup( &m_FeaSSConGroup );
                     }
+                    else
+                    {
+                        Hide();
+                        return false;
+                    }
                 }
                 else
                 {
-                    FeaPartDispGroup( NULL );
+                    Hide();
+                    return false;
                 }
+            }
+            else
+            {
+                Hide();
+                return false;
             }
 
             // Update FeaParts and SubSurfaces if FeaMesh is not in progress
@@ -1237,7 +1258,8 @@ bool FeaPartEditScreen::Update()
         }
         else
         {
-            FeaPartDispGroup( NULL );
+            Hide();
+            return false;
         }
     }
 

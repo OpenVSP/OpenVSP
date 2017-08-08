@@ -1670,6 +1670,10 @@ bool StructScreen::Update()
                             m_ShellCapToggleGroup.Activate();
                         }
                     }
+                    else
+                    {
+                        FeaStructDispGroup( NULL );
+                    }
                 }
                 else if ( m_SelectedPartIndexVec[0] >= curr_struct->NumFeaParts() )
                 {
@@ -1692,6 +1696,14 @@ bool StructScreen::Update()
                             m_GenCapPropertyChoice.Activate();
                         }
                     }
+                    else
+                    {
+                        FeaStructDispGroup( NULL );
+                    }
+                }
+                else
+                {
+                    FeaStructDispGroup( NULL );
                 }
             }
         }
@@ -2244,7 +2256,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         string curr_parm_id = m_ShellCapToggleGroup.GetParmID();
         Parm* curr_parm = ParmMgr.FindParm( curr_parm_id );
-        int curr_val = curr_parm->Get();
+        double curr_val = curr_parm->Get();
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) && m_SelectedPartIndexVec.size() > 1 )
         {
@@ -2697,8 +2709,6 @@ void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     if ( IsShown() )
     {
-        Update(); // Updating right before drawing ensures the correct structure is highlighted
-
         if ( !FeaMeshMgr.GetFeaMeshInProgress() && StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
         {
             vector < FeaStructure* > totalstructvec = StructureMgr.GetAllFeaStructs();
@@ -2709,6 +2719,8 @@ void StructScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
             {
                 return;
             }
+
+            Update(); // Updating right before drawing ensures the structure is up to date
 
             vector < FeaPart* > partvec = curr_struct->GetFeaPartVec();
 

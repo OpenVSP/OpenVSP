@@ -20,6 +20,7 @@ public:
     FeaPartEditScreen( ScreenMgr* mgr );
     virtual ~FeaPartEditScreen();
     virtual bool Update();
+    virtual void Show();
     virtual void GuiDeviceCallBack( GuiDevice* device );
     virtual void CloseCallBack( Fl_Widget *w );
 
