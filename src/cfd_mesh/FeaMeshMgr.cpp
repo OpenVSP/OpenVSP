@@ -1700,7 +1700,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
                 if ( m_FeaPartIncludedElementsVec[i] == BEAM || m_FeaPartIncludedElementsVec[i] == BOTH_ELEMENTS )
                 {
-                    fprintf( fp, "*ELEMENT, TYPE=B31, ELSET=E%s_CAP\n", m_FeaPartNameVec[i].c_str() );
+                    fprintf( fp, "*ELEMENT, TYPE=B32, ELSET=E%s_CAP\n", m_FeaPartNameVec[i].c_str() );
 
                     for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                     {
@@ -1815,7 +1815,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
             if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == BOTH_ELEMENTS )
             {
                 fprintf( fp, "\n" );
-                fprintf( fp, "*ELEMENT, TYPE=B31, ELSET=E%s_CAP\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+                fprintf( fp, "*ELEMENT, TYPE=B32, ELSET=E%s_CAP\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {

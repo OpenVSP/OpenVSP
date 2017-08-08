@@ -354,8 +354,8 @@ void FeaBeam::Create( vec3d & p0, vec3d & p1, vec3d & norm )
 
 void FeaBeam::WriteCalculix( FILE* fp, int id )
 {
-    fprintf( fp, "%d,%d,%d\n", id,
-             m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex() );
+    fprintf( fp, "%d,%d,%d,%d\n", id,
+             m_Corners[0]->GetIndex(), m_Mids[0]->GetIndex(), m_Corners[1]->GetIndex() );
 
     m_ElementIndex = id; // Save element index 
 }
