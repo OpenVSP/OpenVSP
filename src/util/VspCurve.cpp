@@ -59,6 +59,43 @@ void VspCurve::Split( double u )
     m_Curve.split( u );
 }
 
+// Shift curve parameter to start curve at u
+// Assumes u is between umin, umax
+void VspCurve::Spin( double u )
+{
+    double umin, umax;
+    umax = m_Curve.get_parameter_max();
+    umin = m_Curve.get_parameter_min();
+
+    if ( u <= umin || u >= umax )
+    {
+        return;
+    }
+
+    piecewise_curve_type c1, c2;
+    m_Curve.split( c1, c2, u );
+
+    c1.set_t0( umin + umax - u );  // This is likely unneeded
+    c2.set_t0( umin );
+
+    c2.push_back( c1 );
+    c2.set_tmax( umax ); // Should be redundant, but set in case of floating point error accumulation.
+    m_Curve = c2;
+}
+
+// Shift curve parameter to start curve at u
+// Negative u will shift the other way.
+void VspCurve::Spin01( double u )
+{
+    // Force u positive by wrapping around.
+    if ( u < 0 )
+    {
+        u = 1.0 + u;
+    }
+
+    Spin( u * m_Curve.get_tmax()  );
+}
+
 //==== Append Curve To Existing Curve ====//
 void VspCurve::Append( VspCurve & input_crv )
 {

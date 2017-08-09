@@ -39,6 +39,9 @@ public:
     void Split( double u );
     void Append( VspCurve & input_crv ); // Append Curve
 
+    void Spin( double u );
+    void Spin01( double u );
+
     bool IsClosed() const;
 
     void RoundJoint( double rad, int i );
