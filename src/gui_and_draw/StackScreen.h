@@ -54,6 +54,7 @@ protected:
     SliderAdjRangeInput m_XSecXRotSlider;
     SliderAdjRangeInput m_XSecYRotSlider;
     SliderAdjRangeInput m_XSecZRotSlider;
+    SliderAdjRangeInput m_XSecSpinSlider;
 
     Choice m_XSecTypeChoice;
     TriggerButton m_ShowXSecButton;

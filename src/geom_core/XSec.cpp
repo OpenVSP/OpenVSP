@@ -1887,6 +1887,9 @@ StackXSec::StackXSec( XSecCurve *xsc ) : SkinXSec( xsc)
     m_ZCenterRot.Init( "m_ZCenterRot", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
     m_ZCenterRot.SetDescript( "Z Center Of Rotation" );
 
+    m_Spin.Init( "Spin", m_GroupName, this, 0.0, -1.0, 1.0 );
+    m_Spin.SetDescript( "Shift curve parameterization" );
+
     SetV2DefaultBehavior();
 
 }
@@ -1919,6 +1922,8 @@ void StackXSec::Update()
 
     //==== Apply Transform ====//
     m_TransformedCurve = baseCurve;
+
+    m_TransformedCurve.Spin01( m_Spin() );
 
     m_Transform.loadIdentity();
 

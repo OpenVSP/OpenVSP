@@ -338,6 +338,8 @@ public:
     Parm m_YDelta;
     Parm m_ZDelta;
 
+    Parm m_Spin;
+
     Parm m_XRotate;
     Parm m_YRotate;
     Parm m_ZRotate;
