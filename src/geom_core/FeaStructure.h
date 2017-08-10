@@ -149,6 +149,11 @@ enum
     PERCENT, LENGTH
 };
 
+enum
+{
+    XY_BODY, YZ_BODY, XZ_BODY, XY_ABS, YZ_ABS, XZ_ABS
+};
+
 class FeaPart : public ParmContainer
 {
 public:
@@ -171,6 +176,9 @@ public:
     virtual double GetRibPerU( );
     virtual double GetRibTotalRotation( double initial_rotation, string perp_edge_ID );
     virtual VspSurf ComputeRibSurf( double rotation );
+
+    virtual bool RefFrameIsBody( int orientation_plane );
+    virtual VspSurf ComputeSliceSurf( int orientation_plane, double x_rot, double y_rot, double z_rot );
 
     virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid );
 
@@ -240,11 +248,6 @@ protected:
     vector < DrawObj > m_FeaPartDO;
 };
 
-enum
-{
-    XY_BODY, YZ_BODY, XZ_BODY, XY_ABS, YZ_ABS, XZ_ABS
-};
-
 class FeaSlice : public FeaPart
 {
 public:
@@ -255,9 +258,6 @@ public:
     virtual void Update();
     virtual void UpdateParmLimits();
 
-    virtual bool RefFrameIsBody();
-
-    virtual VspSurf ComputeSliceSurf();
     virtual void UpdateDrawObjs( int id, bool highlight );
 
     IntParm m_OrientationPlane;

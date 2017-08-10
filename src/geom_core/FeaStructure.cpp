@@ -1208,6 +1208,435 @@ void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid )
         }
     }
 }
+bool FeaPart::RefFrameIsBody( int orientation_plane )
+{
+    if ( orientation_plane == XY_BODY || orientation_plane == YZ_BODY || orientation_plane == XZ_BODY )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+VspSurf FeaPart::ComputeSliceSurf( int orientation_plane, double x_rot, double y_rot, double z_rot )
+{
+    VspSurf slice_surf;
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* current_geom = veh->FindGeom( m_ParentGeomID );
+        if ( !current_geom )
+        {
+            return slice_surf;
+        }
+
+        vector< VspSurf > surf_vec;
+        current_geom->GetSurfVec( surf_vec );
+        VspSurf current_surf = surf_vec[m_MainSurfIndx()];
+
+        slice_surf = VspSurf(); // Create primary VspSurf
+
+        if ( m_IncludedElements() == TRIS || m_IncludedElements() == BOTH_ELEMENTS )
+        {
+            slice_surf.SetSurfCfdType( vsp::CFD_STRUCTURE );
+        }
+        else
+        {
+            slice_surf.SetSurfCfdType( vsp::CFD_STIFFENER );
+        }
+
+        // Determine BndBox dimensions prior to rotating and translating
+        Matrix4d model_matrix = current_geom->getModelMatrix();
+        model_matrix.affineInverse();
+
+        VspSurf orig_surf = current_surf;
+        orig_surf.Transform( model_matrix );
+
+        double u_max = current_surf.GetUMax();
+
+        vec3d slice_center, geom_center, cornerA, cornerB, cornerC, cornerD, x_axis, y_axis, z_axis,
+            center_to_A, center_to_B, center_to_C, center_to_D;
+        double del_x_plus, del_x_minus, del_y_plus, del_y_minus, del_z_plus, del_z_minus, max_length, del_x, del_y, del_z;
+
+        x_axis.set_x( 1.0 );
+        y_axis.set_y( 1.0 );
+        z_axis.set_z( 1.0 );
+
+        BndBox geom_bbox;
+
+        if ( RefFrameIsBody( orientation_plane ) )
+        {
+            orig_surf.GetBoundingBox( geom_bbox );
+        }
+        else
+        {
+            current_surf.GetBoundingBox( geom_bbox );
+        }
+
+        geom_center = geom_bbox.GetCenter();
+        del_x = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
+        del_y = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
+        del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
+
+        if ( orientation_plane == YZ_BODY )
+        {
+            // Build conformal spine from parent geom
+            ConformalSpine cs;
+            cs.Build( current_surf );
+
+            double spine_length = cs.GetSpineLength();
+
+            double per_u;
+
+            // TODO: Add percent U along spine parameterization
+            if ( m_LocationParmType() == PERCENT )
+            {
+                double length_on_spine = ( m_CenterLocation() / 100 ) * spine_length;
+                per_u = cs.FindUGivenLengthAlongSpine( length_on_spine ) / u_max;
+            }
+            else if ( m_LocationParmType() == LENGTH )
+            {
+                per_u = cs.FindUGivenLengthAlongSpine( m_CenterLocation() ) / u_max;
+            }
+
+            slice_center = cs.FindCenterGivenU( per_u * u_max );
+
+            // Use small change in u along spline to get x axis of geom at center point
+            double delta_u;
+
+            if ( per_u < ( 1.0 - 2 * FLT_EPSILON ) )
+            {
+                delta_u = ( per_u * u_max ) + ( 2 * FLT_EPSILON );
+            }
+            else
+            {
+                delta_u = ( per_u * u_max ) - ( 2 * FLT_EPSILON );
+            }
+
+            vec3d delta_u_center = cs.FindCenterGivenU( delta_u );
+
+            x_axis = delta_u_center - slice_center;
+            x_axis.normalize();
+
+            vec3d surf_pnt1 = current_surf.CompPnt01( per_u, 0.0 );
+            vec3d surf_pnt2 = current_surf.CompPnt01( per_u, 0.5 );
+
+            z_axis = surf_pnt1 - surf_pnt2;
+            z_axis.normalize();
+
+            y_axis = cross( x_axis, z_axis );
+            y_axis.normalize();
+
+            VspCurve u_curve;
+            current_surf.GetU01ConstCurve( u_curve, per_u );
+
+            BndBox xsec_box;
+            u_curve.GetBoundingBox( xsec_box );
+            max_length = xsec_box.GetLargestDist() + 2 * FLT_EPSILON;
+
+            // TODO: Improve initial size and resize after rotations
+
+            // TODO: Improve 45 deg assumption
+            vec3d y_prime = max_length * y_axis * cos( PI / 4 ) + max_length * z_axis * sin( PI / 4 );
+            vec3d z_prime = max_length * -1 * y_axis * sin( PI / 4 ) + max_length * z_axis * cos( PI / 4 );
+
+            cornerA = slice_center + y_prime;
+            cornerB = slice_center - z_prime;
+            cornerC = slice_center + z_prime;
+            cornerD = slice_center - y_prime;
+        }
+        else
+        {
+            // Increase size slighlty to avoid tangency errors in FeaMeshMgr
+            del_x_minus = 2 * FLT_EPSILON;
+            del_x_plus = 2 * FLT_EPSILON;
+            del_y_minus = 2 * FLT_EPSILON;
+            del_y_plus = 2 * FLT_EPSILON;
+            del_z_minus = 2 * FLT_EPSILON;
+            del_z_plus = 2 * FLT_EPSILON;
+
+            if ( orientation_plane == YZ_ABS )
+            {
+                if ( m_LocationParmType() == PERCENT )
+                {
+                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * m_CenterLocation() / 100, geom_center.y(), geom_center.z() );
+                }
+                else if ( m_LocationParmType() == LENGTH )
+                {
+                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + m_CenterLocation(), geom_center.y(), geom_center.z() );
+                }
+
+                double x_off = ( slice_center - geom_center ).x();
+
+                // Resize for Y rotation
+                if ( abs( DEG_2_RAD * y_rot ) > atan( ( del_x + 2 * x_off ) / del_z ) )
+                {
+                    del_z_plus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * y_rot ) );
+                }
+                else
+                {
+                    del_z_plus += abs( del_z / cos( DEG_2_RAD * y_rot ) );
+                }
+
+                if ( abs( DEG_2_RAD * y_rot ) > atan( ( del_x - 2 * x_off ) / del_z ) )
+                {
+                    del_z_minus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * y_rot ) );
+                }
+                else
+                {
+                    del_z_minus += abs( del_z / cos( DEG_2_RAD * y_rot ) );
+                }
+
+                // Resize for Z rotation
+                if ( abs( DEG_2_RAD * z_rot ) > atan( ( del_x + 2 * x_off ) / del_y ) )
+                {
+                    del_y_minus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * z_rot ) );
+                }
+                else
+                {
+                    del_y_minus += abs( del_y / cos( DEG_2_RAD * z_rot ) );
+                }
+
+                if ( abs( DEG_2_RAD * z_rot ) > atan( ( del_x - 2 * x_off ) / del_y ) )
+                {
+                    del_y_plus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * z_rot ) );
+                }
+                else
+                {
+                    del_y_plus += abs( del_y / cos( DEG_2_RAD * z_rot ) );
+                }
+
+                // swap _plus and _minus if negative rotation
+                if ( y_rot < 0.0 )
+                {
+                    double temp = del_z_plus;
+                    del_z_plus = del_z_minus;
+                    del_z_minus = temp;
+                }
+
+                if ( z_rot < 0.0 )
+                {
+                    double temp = del_y_plus;
+                    del_y_plus = del_y_minus;
+                    del_y_minus = temp;
+                }
+
+                center_to_A.set_y( -0.5 * del_y_minus );
+                center_to_A.set_z( -0.5 * del_z_minus );
+
+                center_to_B.set_y( 0.5 * del_y_plus );
+                center_to_B.set_z( -0.5 * del_z_minus );
+
+                center_to_C.set_y( -0.5 * del_y_minus );
+                center_to_C.set_z( 0.5 * del_z_plus );
+
+                center_to_D.set_y( 0.5 * del_y_plus );
+                center_to_D.set_z( 0.5 * del_z_plus );
+            }
+            else if ( orientation_plane == XY_BODY || orientation_plane == XY_ABS )
+            {
+                if ( m_LocationParmType() == PERCENT )
+                {
+                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterLocation() / 100 );
+                }
+                else if ( m_LocationParmType() == LENGTH )
+                {
+                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + m_CenterLocation() );
+                }
+
+                double z_off = ( slice_center - geom_center ).z();
+
+                // Resize for Y rotation
+                if ( abs( DEG_2_RAD * y_rot ) > atan( ( del_z + 2 * z_off ) / del_x ) )
+                {
+                    del_x_minus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * y_rot ) );
+                }
+                else
+                {
+                    del_x_minus += abs( del_x / cos( DEG_2_RAD * y_rot ) );
+                }
+
+                if ( abs( DEG_2_RAD * y_rot ) > atan( ( del_z - 2 * z_off ) / del_x ) )
+                {
+                    del_x_plus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * y_rot ) );
+                }
+                else
+                {
+                    del_x_plus += abs( del_x / cos( DEG_2_RAD * y_rot ) );
+                }
+
+                double test1 = atan( ( del_z + 2 * z_off ) / del_y );
+
+                // Resize for X rotation
+                if ( abs( DEG_2_RAD * x_rot ) > atan( ( del_z + 2 * z_off ) / del_y ) )
+                {
+                    del_y_plus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * x_rot ) );
+                }
+                else
+                {
+                    del_y_plus += abs( del_y / cos( DEG_2_RAD * x_rot ) );
+                }
+
+                if ( abs( DEG_2_RAD * x_rot ) > atan( ( del_z - 2 * z_off ) / del_y ) )
+                {
+                    del_y_minus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * x_rot ) );
+                }
+                else
+                {
+                    del_y_minus += abs( del_y / cos( DEG_2_RAD * x_rot ) );
+                }
+
+                // swap _plus and _minus if negative rotation
+                if ( y_rot < 0.0 )
+                {
+                    double temp = del_x_plus;
+                    del_x_plus = del_x_minus;
+                    del_x_minus = temp;
+                }
+
+                if ( x_rot < 0.0 )
+                {
+                    double temp = del_y_plus;
+                    del_y_plus = del_y_minus;
+                    del_y_minus = temp;
+                }
+
+                center_to_A.set_x( -0.5 * del_x_minus );
+                center_to_A.set_y( -0.5 * del_y_minus );
+
+                center_to_B.set_x( -0.5 * del_x_minus );
+                center_to_B.set_y( 0.5 * del_y_plus );
+
+                center_to_C.set_x( 0.5 * del_x_plus );
+                center_to_C.set_y( -0.5 * del_y_minus );
+
+                center_to_D.set_x( 0.5 * del_x_plus );
+                center_to_D.set_y( 0.5 * del_y_plus );
+            }
+            else if ( orientation_plane == XZ_BODY || orientation_plane == XZ_ABS )
+            {
+                if ( m_LocationParmType() == PERCENT )
+                {
+                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterLocation() / 100, geom_center.z() );
+                }
+                else if ( m_LocationParmType() == LENGTH )
+                {
+                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + m_CenterLocation(), geom_center.z() );
+                }
+
+                double y_off = ( slice_center - geom_center ).y();
+
+                // Resize for Z rotation
+                if ( abs( DEG_2_RAD * z_rot ) > atan( ( del_y + 2 * y_off ) / del_x ) )
+                {
+                    del_x_plus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * z_rot ) );
+                }
+                else
+                {
+                    del_x_plus += abs( del_x / cos( DEG_2_RAD * z_rot ) );
+                }
+
+                if ( abs( DEG_2_RAD * z_rot ) > atan( ( del_y - 2 * y_off ) / del_x ) )
+                {
+                    del_x_minus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * z_rot ) );
+                }
+                else
+                {
+                    del_x_minus += abs( del_x / cos( DEG_2_RAD * z_rot ) );
+                }
+
+                // Resize for X rotation
+                if ( abs( DEG_2_RAD * x_rot ) > atan( ( del_y + 2 * y_off ) / del_z ) )
+                {
+                    del_z_minus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * x_rot ) );
+                }
+                else
+                {
+                    del_z_minus += abs( del_z / cos( DEG_2_RAD * x_rot ) );
+                }
+
+                if ( abs( DEG_2_RAD * x_rot ) > atan( ( del_y - 2 * y_off ) / del_z ) )
+                {
+                    del_z_plus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * x_rot ) );
+                }
+                else
+                {
+                    del_z_plus += abs( del_z / cos( DEG_2_RAD * x_rot ) );
+                }
+
+                // swap _plus and _minus if negative rotation
+                if ( z_rot < 0.0 )
+                {
+                    double temp = del_x_plus;
+                    del_x_plus = del_x_minus;
+                    del_x_minus = temp;
+                }
+
+                if ( x_rot < 0.0 )
+                {
+                    double temp = del_z_plus;
+                    del_z_plus = del_z_minus;
+                    del_z_minus = temp;
+                }
+
+                center_to_A.set_x( -0.5 * del_x_minus );
+                center_to_A.set_z( -0.5 * del_z_minus );
+
+                center_to_B.set_x( 0.5 * del_x_plus );
+                center_to_B.set_z( -0.5 * del_z_minus );
+
+                center_to_C.set_x( -0.5 * del_x_minus );
+                center_to_C.set_z( 0.5 * del_z_plus );
+
+                center_to_D.set_x( 0.5 * del_x_plus );
+                center_to_D.set_z( 0.5 * del_z_plus );
+            }
+
+            cornerA = slice_center + center_to_A;
+            cornerB = slice_center + center_to_B;
+            cornerC = slice_center + center_to_C;
+            cornerD = slice_center + center_to_D;
+        }
+
+        // Make Planar Surface
+        slice_surf.MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+
+        // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
+        Matrix4d trans_mat_1, trans_mat_2, rot_mat_x, rot_mat_y, rot_mat_z;
+
+        trans_mat_1.loadIdentity();
+        trans_mat_1.translatef( slice_center.x() * -1, slice_center.y() * -1, slice_center.z() * -1 );
+        slice_surf.Transform( trans_mat_1 );
+
+        rot_mat_x.loadIdentity();
+        rot_mat_x.rotate( DEG_2_RAD * x_rot, x_axis );
+        slice_surf.Transform( rot_mat_x );
+
+        rot_mat_y.loadIdentity();
+        rot_mat_y.rotate( DEG_2_RAD * y_rot, y_axis );
+        slice_surf.Transform( rot_mat_y );
+
+        rot_mat_z.loadIdentity();
+        rot_mat_z.rotate( DEG_2_RAD * z_rot, z_axis );
+        slice_surf.Transform( rot_mat_z );
+
+        trans_mat_2.loadIdentity();
+        trans_mat_2.translatef( slice_center.x(), slice_center.y(), slice_center.z() );
+        slice_surf.Transform( trans_mat_2 );
+
+        if ( orientation_plane == XY_BODY || orientation_plane == XZ_BODY )
+        {
+            // Transform to body coordinate frame
+            model_matrix.affineInverse();
+            slice_surf.Transform( model_matrix );
+        }
+    }
+
+    return slice_surf;
+}
 
 void FeaPart::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
 {
@@ -1332,7 +1761,7 @@ void FeaSlice::Update()
     // Must call UpdateSymmIndex before
     if ( m_FeaPartSurfVec.size() > 0 )
     {
-        m_FeaPartSurfVec[0] = ComputeSliceSurf();
+        m_FeaPartSurfVec[0] = ComputeSliceSurf( m_OrientationPlane(), m_XRot(), m_YRot(), m_ZRot() );
 
         // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
@@ -1410,437 +1839,6 @@ void FeaSlice::UpdateParmLimits()
             }
         }
     }
-}
-
-bool FeaSlice::RefFrameIsBody()
-{
-    if ( m_OrientationPlane() == XY_BODY || m_OrientationPlane() == YZ_BODY || m_OrientationPlane() == XZ_BODY )
-    {
-        return true;
-    }
-    else
-    {
-        return false;
-    }
-}
-
-VspSurf FeaSlice::ComputeSliceSurf()
-{
-    VspSurf slice_surf;
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        Geom* current_geom = veh->FindGeom( m_ParentGeomID );
-        if ( !current_geom )
-        {
-            return slice_surf;
-        }
-
-        vector< VspSurf > surf_vec;
-        current_geom->GetSurfVec( surf_vec );
-        VspSurf current_surf = surf_vec[m_MainSurfIndx()];
-
-        slice_surf = VspSurf(); // Create primary VspSurf
-
-        if ( m_IncludedElements() == TRIS || m_IncludedElements() == BOTH_ELEMENTS )
-        {
-            slice_surf.SetSurfCfdType( vsp::CFD_STRUCTURE );
-        }
-        else
-        {
-            slice_surf.SetSurfCfdType( vsp::CFD_STIFFENER );
-        }
-
-        // Determine BndBox dimensions prior to rotating and translating
-        Matrix4d model_matrix = current_geom->getModelMatrix();
-        model_matrix.affineInverse(); 
-
-        VspSurf orig_surf = current_surf;
-        orig_surf.Transform( model_matrix );
-
-        double u_max = current_surf.GetUMax();
-
-        vec3d slice_center, geom_center, cornerA, cornerB, cornerC, cornerD, x_axis, y_axis, z_axis, 
-            center_to_A, center_to_B, center_to_C, center_to_D;
-        double del_x_plus, del_x_minus, del_y_plus, del_y_minus, del_z_plus, del_z_minus, max_length, del_x, del_y, del_z;
-
-        x_axis.set_x( 1.0 );
-        y_axis.set_y( 1.0 );
-        z_axis.set_z( 1.0 );
-
-        BndBox geom_bbox;
-
-        if ( RefFrameIsBody() )
-        {
-            orig_surf.GetBoundingBox( geom_bbox );
-        }
-        else
-        {
-            current_surf.GetBoundingBox( geom_bbox );
-        }
-
-        geom_center = geom_bbox.GetCenter();
-        del_x = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
-        del_y = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
-        del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
-
-        if ( m_OrientationPlane() == YZ_BODY )
-        {
-            // Build conformal spine from parent geom
-            ConformalSpine cs;
-            cs.Build( current_surf );
-
-            double spine_length = cs.GetSpineLength();
-
-            double per_u;
-
-            // TODO: Add percent U along spine parameterization
-            if ( m_LocationParmType() == PERCENT )
-            {
-                double length_on_spine = ( m_CenterLocation() / 100 ) * spine_length;
-                per_u = cs.FindUGivenLengthAlongSpine( length_on_spine ) / u_max;
-            }
-            else if ( m_LocationParmType() == LENGTH )
-            {
-                per_u = cs.FindUGivenLengthAlongSpine( m_CenterLocation() ) / u_max;
-            }
-
-            slice_center = cs.FindCenterGivenU( per_u * u_max );
-
-            // Use small change in u along spline to get x axis of geom at center point
-            double delta_u;
-
-            if ( per_u < ( 1.0 - 2 * FLT_EPSILON ) )
-            {
-                delta_u = ( per_u * u_max ) + ( 2 * FLT_EPSILON );
-            }
-            else
-            {
-                delta_u = ( per_u * u_max ) - ( 2 * FLT_EPSILON );
-            }
-
-            vec3d delta_u_center = cs.FindCenterGivenU( delta_u );
-
-            x_axis = delta_u_center - slice_center;
-            x_axis.normalize();
-
-            vec3d surf_pnt1 = current_surf.CompPnt01( per_u, 0.0 );
-            vec3d surf_pnt2 = current_surf.CompPnt01( per_u, 0.5 );
-
-            z_axis = surf_pnt1 - surf_pnt2;
-            z_axis.normalize();
-
-            y_axis = cross( x_axis, z_axis );
-            y_axis.normalize();
-
-            VspCurve u_curve;
-            current_surf.GetU01ConstCurve( u_curve, per_u );
-
-            BndBox xsec_box;
-            u_curve.GetBoundingBox( xsec_box );
-            max_length = xsec_box.GetLargestDist() * ( sqrt(2.0) / 2 ) + 2 * FLT_EPSILON;
-            //max_length = xsec_box.GetLargestDist();
-
-            // TODO: Improve initial size and resize after rotations
-
-            // TODO: Improve 45 deg assumption
-            vec3d y_prime = max_length * y_axis * cos( PI / 4 ) + max_length * z_axis * sin( PI / 4 );
-            vec3d z_prime = max_length * -1 * y_axis * sin( PI / 4 ) + max_length * z_axis * cos( PI / 4 );
-
-            cornerA = slice_center + y_prime;
-            cornerB = slice_center - z_prime;
-            cornerC = slice_center + z_prime;
-            cornerD = slice_center - y_prime;
-        }
-        else
-        {
-            // Increase size slighlty to avoid tangency errors in FeaMeshMgr
-            del_x_minus = 2 * FLT_EPSILON;
-            del_x_plus = 2 * FLT_EPSILON;
-            del_y_minus = 2 * FLT_EPSILON;
-            del_y_plus = 2 * FLT_EPSILON;
-            del_z_minus = 2 * FLT_EPSILON;
-            del_z_plus = 2 * FLT_EPSILON;
-
-            if ( m_OrientationPlane() == YZ_ABS )
-            {
-                if ( m_LocationParmType() == PERCENT )
-                {
-                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * m_CenterLocation() / 100, geom_center.y(), geom_center.z() );
-                }
-                else if ( m_LocationParmType() == LENGTH )
-                {
-                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + m_CenterLocation(), geom_center.y(), geom_center.z() );
-                }
-
-                double x_off = ( slice_center - geom_center ).x();
-
-                // Resize for Y rotation
-                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / del_z ) )
-                {
-                    del_z_plus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
-                }
-                else
-                {
-                    del_z_plus += abs( del_z / cos( DEG_2_RAD * m_YRot() ) );
-                }
-
-                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / del_z ) )
-                {
-                    del_z_minus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
-                }
-                else
-                {
-                    del_z_minus += abs( del_z / cos( DEG_2_RAD * m_YRot() ) );
-                }
-
-                // Resize for Z rotation
-                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / del_y ) )
-                {
-                    del_y_minus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
-                }
-                else
-                {
-                    del_y_minus += abs( del_y / cos( DEG_2_RAD * m_ZRot() ) );
-                }
-
-                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / del_y ) )
-                {
-                    del_y_plus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
-                }
-                else
-                {
-                    del_y_plus += abs( del_y / cos( DEG_2_RAD * m_ZRot() ) );
-                }
-
-                // swap _plus and _minus if negative rotation
-                if ( m_YRot() < 0.0 )
-                {
-                    double temp = del_z_plus;
-                    del_z_plus = del_z_minus;
-                    del_z_minus = temp;
-                }
-
-                if ( m_ZRot() < 0.0 )
-                {
-                    double temp = del_y_plus;
-                    del_y_plus = del_y_minus;
-                    del_y_minus = temp;
-                }
-
-                center_to_A.set_y( -0.5 * del_y_minus );
-                center_to_A.set_z( -0.5 * del_z_minus );
-
-                center_to_B.set_y( 0.5 * del_y_plus );
-                center_to_B.set_z( -0.5 * del_z_minus );
-
-                center_to_C.set_y( -0.5 * del_y_minus );
-                center_to_C.set_z( 0.5 * del_z_plus );
-
-                center_to_D.set_y( 0.5 * del_y_plus );
-                center_to_D.set_z( 0.5 * del_z_plus );
-            }
-            else if ( m_OrientationPlane() == XY_BODY || m_OrientationPlane() == XY_ABS )
-            {
-                if ( m_LocationParmType() == PERCENT )
-                {
-                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterLocation() / 100 );
-                }
-                else if ( m_LocationParmType() == LENGTH )
-                {
-                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + m_CenterLocation() );
-                }
-
-                double z_off = ( slice_center - geom_center ).z();
-
-                // Resize for Y rotation
-                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / del_x ) )
-                {
-                    del_x_minus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
-                }
-                else
-                {
-                    del_x_minus += abs( del_x / cos( DEG_2_RAD * m_YRot() ) );
-                }
-
-                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / del_x ) )
-                {
-                    del_x_plus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
-                }
-                else
-                {
-                    del_x_plus += abs( del_x / cos( DEG_2_RAD * m_YRot() ) );
-                }
-
-                double test1 = atan( ( del_z + 2 * z_off ) / del_y );
-
-                // Resize for X rotation
-                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / del_y ) )
-                {
-                    del_y_plus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
-                }
-                else
-                {
-                    del_y_plus += abs( del_y / cos( DEG_2_RAD * m_XRot() ) );
-                }
-
-                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / del_y ) )
-                {
-                    del_y_minus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
-                }
-                else
-                {
-                    del_y_minus += abs( del_y / cos( DEG_2_RAD * m_XRot() ) );
-                }
-
-                // swap _plus and _minus if negative rotation
-                if ( m_YRot() < 0.0 )
-                {
-                    double temp = del_x_plus;
-                    del_x_plus = del_x_minus;
-                    del_x_minus = temp;
-                }
-
-                if ( m_XRot() < 0.0 )
-                {
-                    double temp = del_y_plus;
-                    del_y_plus = del_y_minus;
-                    del_y_minus = temp;
-                }
-
-                center_to_A.set_x( -0.5 * del_x_minus );
-                center_to_A.set_y( -0.5 * del_y_minus );
-
-                center_to_B.set_x( -0.5 * del_x_minus );
-                center_to_B.set_y( 0.5 * del_y_plus );
-
-                center_to_C.set_x( 0.5 * del_x_plus );
-                center_to_C.set_y( -0.5 * del_y_minus );
-
-                center_to_D.set_x( 0.5 * del_x_plus );
-                center_to_D.set_y( 0.5 * del_y_plus );
-            }
-            else if ( m_OrientationPlane() == XZ_BODY || m_OrientationPlane() == XZ_ABS )
-            {
-                if ( m_LocationParmType() == PERCENT )
-                {
-                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterLocation() / 100, geom_center.z() );
-                }
-                else if ( m_LocationParmType() == LENGTH )
-                {
-                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + m_CenterLocation(), geom_center.z() );
-                }
-
-                double y_off = ( slice_center - geom_center ).y();
-
-                // Resize for Z rotation
-                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / del_x ) )
-                {
-                    del_x_plus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
-                }
-                else
-                {
-                    del_x_plus += abs( del_x / cos( DEG_2_RAD * m_ZRot() ) );
-                }
-
-                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / del_x ) )
-                {
-                    del_x_minus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
-                }
-                else
-                {
-                    del_x_minus += abs( del_x / cos( DEG_2_RAD * m_ZRot() ) );
-                }
-
-                // Resize for X rotation
-                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / del_z ) )
-                {
-                    del_z_minus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
-                }
-                else
-                {
-                    del_z_minus += abs( del_z / cos( DEG_2_RAD * m_XRot() ) );
-                }
-
-                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / del_z ) )
-                {
-                    del_z_plus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
-                }
-                else
-                {
-                    del_z_plus += abs( del_z / cos( DEG_2_RAD * m_XRot() ) );
-                }
-
-                // swap _plus and _minus if negative rotation
-                if ( m_ZRot() < 0.0 )
-                {
-                    double temp = del_x_plus;
-                    del_x_plus = del_x_minus;
-                    del_x_minus = temp;
-                }
-
-                if ( m_XRot() < 0.0 )
-                {
-                    double temp = del_z_plus;
-                    del_z_plus = del_z_minus;
-                    del_z_minus = temp;
-                }
-
-                center_to_A.set_x( -0.5 * del_x_minus );
-                center_to_A.set_z( -0.5 * del_z_minus );
-
-                center_to_B.set_x( 0.5 * del_x_plus );
-                center_to_B.set_z( -0.5 * del_z_minus );
-
-                center_to_C.set_x( -0.5 * del_x_minus );
-                center_to_C.set_z( 0.5 * del_z_plus );
-
-                center_to_D.set_x( 0.5 * del_x_plus );
-                center_to_D.set_z( 0.5 * del_z_plus );
-            }
-
-            cornerA = slice_center + center_to_A;
-            cornerB = slice_center + center_to_B;
-            cornerC = slice_center + center_to_C;
-            cornerD = slice_center + center_to_D;
-        }
-
-        // Make Planar Surface
-        slice_surf.MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
-
-        // Translate to the origin, rotate, and translate back to m_CenterPerBBoxLocation
-        Matrix4d trans_mat_1, trans_mat_2, rot_mat_x, rot_mat_y, rot_mat_z;
-
-        trans_mat_1.loadIdentity();
-        trans_mat_1.translatef( slice_center.x() * -1, slice_center.y() * -1, slice_center.z() * -1 );
-        slice_surf.Transform( trans_mat_1 );
-
-        rot_mat_x.loadIdentity();
-        rot_mat_x.rotate( DEG_2_RAD * m_XRot(), x_axis );
-        slice_surf.Transform( rot_mat_x );
-
-        rot_mat_y.loadIdentity();
-        rot_mat_y.rotate( DEG_2_RAD * m_YRot(), y_axis );
-        slice_surf.Transform( rot_mat_y );
-
-        rot_mat_z.loadIdentity();
-        rot_mat_z.rotate( DEG_2_RAD * m_ZRot(), z_axis );
-        slice_surf.Transform( rot_mat_z );
-
-        trans_mat_2.loadIdentity();
-        trans_mat_2.translatef( slice_center.x(), slice_center.y(), slice_center.z() );
-        slice_surf.Transform( trans_mat_2 );
-
-        if ( m_OrientationPlane() == XY_BODY || m_OrientationPlane() == XZ_BODY )
-        {
-            // Transform to body coordinate frame
-            model_matrix.affineInverse();
-            slice_surf.Transform( model_matrix );
-        }
-    }
-
-    return slice_surf;
 }
 
 void FeaSlice::UpdateDrawObjs( int id, bool highlight )
