@@ -917,6 +917,7 @@ void StructScreen::UpdateFeaPartChoice()
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_BULKHEAD ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB_ARRAY ) );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_STIFFENER_ARRAY ) );
 
                     if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
                     {
@@ -940,7 +941,7 @@ void StructScreen::UpdateFeaPartChoice()
                         m_FeaPartChoice.SetFlag( 4, FL_MENU_INACTIVE );
                     }
 
-                    m_NumFeaPartChoices = 6;
+                    m_NumFeaPartChoices = 7;
 
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
@@ -1664,6 +1665,11 @@ bool StructScreen::Update()
                                 m_GenPropertyChoice.Activate();
                             }
                         }
+                        else if ( prt->GetType() == vsp::FEA_STIFFENER_ARRAY )
+                        {
+                            m_GenPropertyChoice.Deactivate();
+                            m_ShellCapToggleGroup.Deactivate();
+                        }
                         else
                         {
                             m_DispFeaPartGroup.Activate();
@@ -2124,6 +2130,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 else if ( m_FeaPartChoice.GetVal() == vsp::FEA_RIB_ARRAY )
                 {
                     feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_RIB_ARRAY );
+                }
+                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_STIFFENER_ARRAY )
+                {
+                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_STIFFENER_ARRAY );
                 }
 
                 if ( feaprt )

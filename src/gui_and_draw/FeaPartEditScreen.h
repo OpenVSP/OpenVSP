@@ -44,6 +44,7 @@ private:
     GroupLayout m_FixPointEditLayout;
     GroupLayout m_BulkheadEditLayout;
     GroupLayout m_RibArrayEditLayout;
+    GroupLayout m_StiffenerArrayEditLayout;
     GroupLayout m_FeaSSLineGroup;
     GroupLayout m_FeaSSRecGroup;
     GroupLayout m_FeaSSEllGroup;
@@ -159,6 +160,14 @@ private:
     ToggleButton m_RibArrayCapToggle;
     ToggleButton m_RibArrayShellCapToggle;
     ToggleRadioGroup m_RibArrayShellCapToggleGroup;
+
+    //===== StiffenerArray =====//
+    Choice m_StiffenerArrayPosTypeChoice;
+    SliderAdjRangeInput m_StiffenerArrayStartLocSlider;
+    TriggerButton m_StiffenerArrayStartLocUnit;
+    SliderAdjRangeInput m_StiffenerArraySpacingSlider;
+    TriggerButton m_StiffenerArrayPosUnit;
+    Choice m_StiffenerArrayCapPropertyChoice;
 
     //===== SubSurfaces =====//
 
