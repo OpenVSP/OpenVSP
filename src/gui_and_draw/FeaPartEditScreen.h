@@ -29,8 +29,8 @@ public:
     virtual void UpdateFeaPropertyChoice();
     virtual void UpdatePerpendicularRibChoice();
     virtual void UpdateFixPointParentChoice();
-    virtual void UpdateFeaPartPropertyIndex( Choice* property_choice );
-    virtual void UpdateCapPropertyIndex( Choice* property_choice );
+    virtual void SetFeaPartPropertyIndex( Choice* property_choice );
+    virtual void SetCapPropertyIndex( Choice* property_choice );
     virtual void UpdateUnitLabels();
 
 private:

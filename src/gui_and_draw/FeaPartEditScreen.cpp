@@ -130,6 +130,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SliceEditLayout.SetSameLineFlag( false );
     m_SliceEditLayout.SetFitWidthFlag( true );
     m_SliceEditLayout.ForceNewLine();
+    m_SliceEditLayout.SetChoiceButtonWidth( m_SliceEditLayout.GetRemainX() / 3 );
 
     m_SliceEditLayout.AddChoice( m_SlicePropertyChoice, "Property" );
     m_SliceEditLayout.AddChoice( m_SliceCapPropertyChoice, "Cap Property" );
@@ -197,6 +198,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_RibEditLayout.ForceNewLine();
     m_RibEditLayout.SetSameLineFlag( false );
     m_RibEditLayout.SetFitWidthFlag( true );
+    m_RibEditLayout.SetChoiceButtonWidth( m_RibEditLayout.GetRemainX() / 3 );
 
     m_RibEditLayout.AddChoice( m_RibPropertyChoice, "Property" );
     m_RibEditLayout.AddChoice( m_RibCapPropertyChoice, "Cap Property" );
@@ -273,6 +275,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SparEditLayout.SetSameLineFlag( false );
     m_SparEditLayout.SetFitWidthFlag( true );
     m_SparEditLayout.ForceNewLine();
+    m_SparEditLayout.SetChoiceButtonWidth( m_SparEditLayout.GetRemainX() / 3 );
 
     m_SparEditLayout.AddChoice( m_SparPropertyChoice, "Property" );
     m_SparEditLayout.AddChoice( m_SparCapPropertyChoice, "Cap Property" );
@@ -404,6 +407,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_BulkheadEditLayout.SetSameLineFlag( false );
     m_BulkheadEditLayout.SetFitWidthFlag( true );
     m_BulkheadEditLayout.ForceNewLine();
+    m_BulkheadEditLayout.SetChoiceButtonWidth( m_BulkheadEditLayout.GetRemainX() / 3 );
 
     m_BulkheadEditLayout.AddChoice( m_BHPropertyChoice, "Property" );
     m_BulkheadEditLayout.AddChoice( m_BHCapPropertyChoice, "Cap Property" );
@@ -487,6 +491,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_RibArrayEditLayout.SetSameLineFlag( false );
     m_RibArrayEditLayout.SetFitWidthFlag( true );
     m_RibArrayEditLayout.ForceNewLine();
+    m_RibArrayEditLayout.SetChoiceButtonWidth( m_RibArrayEditLayout.GetRemainX() / 3 );
 
     m_RibArrayEditLayout.AddChoice( m_RibArrayPropertyChoice, "Property" );
     m_RibArrayEditLayout.AddChoice( m_RibArrayCapPropertyChoice, "Cap Property" );
@@ -500,6 +505,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_StiffenerArrayEditLayout.SetY( start_y );
 
     m_StiffenerArrayEditLayout.AddDividerBox( "StiffenerArray" );
+
+    m_StiffenerArrayEditLayout.SetChoiceButtonWidth( m_StiffenerArrayEditLayout.GetRemainX() / 3 );
 
     m_StiffenerArrayPosTypeChoice.AddItem( "% Span" );
     m_StiffenerArrayPosTypeChoice.AddItem( "Dist Span" );
@@ -602,7 +609,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_FeaSSLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
     m_FeaSSLineGroup.AddButton( m_FeaSSLineShellToggle, "Shell" );
-    m_FeaSSLineGroup.AddButton( m_FeaSSLineCapToggle, "Cap" );
+    m_FeaSSLineGroup.AddButton( m_FeaSSLineCapToggle, "Cap (no tris)" );
     m_FeaSSLineGroup.AddButton( m_FeaSSLineShellCapToggle, "Shell and Cap" );
 
     m_FeaSSLineShellCapToggleGroup.Init( this );
@@ -656,7 +663,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_FeaSSRecGroup.SetButtonWidth( m_FeaSSRecGroup.GetRemainX() / 3 );
     m_FeaSSRecGroup.AddButton( m_FeaSSRecShellToggle, "Shell" );
-    m_FeaSSRecGroup.AddButton( m_FeaSSRecCapToggle, "Cap" );
+    m_FeaSSRecGroup.AddButton( m_FeaSSRecCapToggle, "Cap (no tris)" );
     m_FeaSSRecGroup.AddButton( m_FeaSSRecShellCapToggle, "Shell and Cap" );
 
     m_FeaSSRecShellCapToggleGroup.Init( this );
@@ -711,7 +718,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_FeaSSEllGroup.SetButtonWidth( m_FeaSSEllGroup.GetRemainX() / 3 );
     m_FeaSSEllGroup.AddButton( m_FeaSSEllShellToggle, "Shell" );
-    m_FeaSSEllGroup.AddButton( m_FeaSSEllCapToggle, "Cap" );
+    m_FeaSSEllGroup.AddButton( m_FeaSSEllCapToggle, "Cap (no tris)" );
     m_FeaSSEllGroup.AddButton( m_FeaSSEllShellCapToggle, "Shell and Cap" );
 
     m_FeaSSEllShellCapToggleGroup.Init( this );
@@ -804,7 +811,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_FeaSSConGroup.SetButtonWidth( m_FeaSSConGroup.GetRemainX() / 3 );
     m_FeaSSConGroup.AddButton( m_FeaSSConShellToggle, "Shell" );
-    m_FeaSSConGroup.AddButton( m_FeaSSConCapToggle, "Cap" );
+    m_FeaSSConGroup.AddButton( m_FeaSSConCapToggle, "Cap (no tris)" );
     m_FeaSSConGroup.AddButton( m_FeaSSConShellCapToggle, "Shell and Cap" );
 
     m_FeaSSConShellCapToggleGroup.Init( this );
@@ -1437,93 +1444,27 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
-    else if ( device == &m_SkinPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_SkinPropertyChoice );
-    }
     else if ( device == &m_SliceOrientationChoice )
     {
         StructureMgr.SetFeaSliceOrientIndex( m_SliceOrientationChoice.GetVal() );
     }
-    else if ( device == &m_SlicePropertyChoice )
+    else if ( device == &m_SkinPropertyChoice || device == &m_SlicePropertyChoice || device == &m_RibPropertyChoice || device == &m_SparPropertyChoice
+              || device == &m_BHPropertyChoice || device == &m_RibArrayPropertyChoice || device == &m_FeaSSLinePropertyChoice || device == &m_FeaSSRecPropertyChoice
+              || device == &m_FeaSSEllPropertyChoice || device == &m_FeaSSConPropertyChoice )
     {
-        UpdateFeaPartPropertyIndex( &m_SlicePropertyChoice );
+        Choice* selected_choice = dynamic_cast<Choice*>( device );
+        assert( selected_choice );
+
+        SetFeaPartPropertyIndex( selected_choice );
     }
-    else if ( device == &m_SliceCapPropertyChoice )
+    else if ( device == &m_SliceCapPropertyChoice || device == &m_RibCapPropertyChoice || device == &m_SparCapPropertyChoice || device == &m_BHCapPropertyChoice
+              || device == &m_RibArrayCapPropertyChoice || device == &m_StiffenerArrayCapPropertyChoice || device == &m_FeaSSLineCapPropertyChoice 
+              || device == &m_FeaSSRecCapPropertyChoice || device == &m_FeaSSEllCapPropertyChoice || device == &m_FeaSSConCapPropertyChoice || device == &m_FeaSSLineArrayCapPropertyChoice )
     {
-        UpdateCapPropertyIndex( &m_SliceCapPropertyChoice );
-    }
-    else if ( device == &m_RibPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_RibPropertyChoice );
-    }
-    else if ( device == &m_RibCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_RibCapPropertyChoice );
-    }
-    else if ( device == &m_SparPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_SparPropertyChoice );
-    }
-    else if ( device == &m_SparCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_SparCapPropertyChoice );
-    }
-    else if ( device == &m_BHPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_BHPropertyChoice );
-    }
-    else if ( device == &m_BHCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_BHCapPropertyChoice );
-    }
-    else if ( device == &m_RibArrayPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_RibArrayPropertyChoice );
-    }
-    else if ( device == &m_RibArrayCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_RibArrayCapPropertyChoice );
-    }
-    else if ( device == &m_StiffenerArrayCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_StiffenerArrayCapPropertyChoice );
-    }
-    else if ( device == &m_FeaSSLinePropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_FeaSSLinePropertyChoice );
-    }
-    else if ( device == &m_FeaSSRecPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_FeaSSRecPropertyChoice );
-    }
-    else if ( device == &m_FeaSSEllPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_FeaSSEllPropertyChoice );
-    }
-    else if ( device == &m_FeaSSConPropertyChoice )
-    {
-        UpdateFeaPartPropertyIndex( &m_FeaSSConPropertyChoice );
-    }
-    else if ( device == &m_FeaSSLineCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_FeaSSLineCapPropertyChoice );
-    }
-    else if ( device == &m_FeaSSRecCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_FeaSSRecCapPropertyChoice );
-    }
-    else if ( device == &m_FeaSSEllCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_FeaSSEllCapPropertyChoice );
-    }
-    else if ( device == &m_FeaSSConCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_FeaSSConCapPropertyChoice );
-    }
-    else if ( device == &m_FeaSSLineArrayCapPropertyChoice )
-    {
-        UpdateCapPropertyIndex( &m_FeaSSLineArrayCapPropertyChoice );
+        Choice* selected_choice = dynamic_cast<Choice*>( device );
+        assert( selected_choice );
+
+        SetCapPropertyIndex( selected_choice );
     }
     else if ( device == &m_RibPerpendicularEdgeChoice )
     {
@@ -2006,7 +1947,7 @@ void FeaPartEditScreen::FeaPartDispGroup( GroupLayout* group )
     }
 }
 
-void FeaPartEditScreen::UpdateFeaPartPropertyIndex( Choice* property_choice )
+void FeaPartEditScreen::SetFeaPartPropertyIndex( Choice* property_choice )
 {
     if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
     {
@@ -2033,7 +1974,7 @@ void FeaPartEditScreen::UpdateFeaPartPropertyIndex( Choice* property_choice )
     }
 }
 
-void FeaPartEditScreen::UpdateCapPropertyIndex( Choice* property_choice )
+void FeaPartEditScreen::SetCapPropertyIndex( Choice* property_choice )
 {
     if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
     {
