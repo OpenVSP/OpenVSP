@@ -49,6 +49,7 @@ private:
     GroupLayout m_FeaSSRecGroup;
     GroupLayout m_FeaSSEllGroup;
     GroupLayout m_FeaSSConGroup;
+    GroupLayout m_FeaSSLineArrayGroup;
 
     //===== FeaPart Tab Items =====//
 
@@ -173,7 +174,7 @@ private:
 
     // SS_Line
     Choice m_FeaSSLinePropertyChoice;
-    SliderInput m_FeaSSLineConstSlider; // Either Constant U or W
+    SliderAdjRangeInput m_FeaSSLineConstSlider; // Either Constant U or W
     ToggleButton m_FeaSSLineConstUButton;
     ToggleButton m_FeaSSLineConstWButton;
     ToggleRadioGroup m_FeaSSLineConstToggleGroup;
@@ -248,6 +249,14 @@ private:
 
     vector < string > m_FixPointParentIDVec;
     vector < string > m_PerpendicularEdgeVec;
+
+    //===== SSLineArray =====//
+    SliderAdjRangeInput m_FeaSSLineArraySpacingSlider;
+    SliderAdjRangeInput m_FeaSSLineArrayStartLocSlider;
+    ToggleButton m_FeaSSLineArrayConstUButton;
+    ToggleButton m_FeaSSLineArrayConstWButton;
+    ToggleRadioGroup m_FeaSSLineArrayConstToggleGroup;
+    Choice m_FeaSSLineArrayCapPropertyChoice;
 
 };
 
