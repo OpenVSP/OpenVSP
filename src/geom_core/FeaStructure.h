@@ -176,12 +176,12 @@ public:
 
     static string GetTypeName( int type );
 
-    virtual double GetRibPerU( );
-    virtual double GetRibTotalRotation( double initial_rotation, string perp_edge_ID );
-    virtual VspSurf ComputeRibSurf( double rotation );
+    virtual double GetRibPerU( double center_location );
+    virtual double GetRibTotalRotation( double center_location, double initial_rotation, string perp_edge_ID );
+    virtual VspSurf ComputeRibSurf( double center_location, double rotation );
 
     virtual bool RefFrameIsBody( int orientation_plane );
-    virtual VspSurf ComputeSliceSurf( int orientation_plane, double x_rot, double y_rot, double z_rot );
+    virtual VspSurf ComputeSliceSurf( double center_location, int orientation_plane, double x_rot, double y_rot, double z_rot );
 
     virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid );
 

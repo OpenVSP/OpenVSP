@@ -849,7 +849,7 @@ string FeaPart::GetTypeName( int type )
     return string( "NONE" );
 }
 
-double FeaPart::GetRibPerU( )
+double FeaPart::GetRibPerU( double center_location )
 {
     double per_u = 0;
     Vehicle* veh = VehicleMgr.GetVehicle();
@@ -899,14 +899,14 @@ double FeaPart::GetRibPerU( )
 
                     if ( m_LocationParmType() == LENGTH )
                     {
-                        if ( m_CenterLocation() >= span_0 && m_CenterLocation() <= span_f )
+                        if ( center_location >= span_0 && center_location <= span_f )
                         {
                             curr_sec_ind = i;
                         }
                     }
                     else if ( m_LocationParmType() == PERCENT )
                     {
-                        if ( m_CenterLocation() / 100 >= u_0 && m_CenterLocation() / 100 <= u_f )
+                        if ( center_location / 100 >= u_0 && center_location / 100 <= u_f )
                         {
                             curr_sec_ind = i;
                         }
@@ -922,11 +922,11 @@ double FeaPart::GetRibPerU( )
             {
                 double u_range = ( u_step * ( u_max - 1 ) ) - u_step;
 
-                per_u = u_step + ( m_CenterLocation() / 100 ) * u_range;
+                per_u = u_step + ( center_location / 100 ) * u_range;
             }
             else if ( m_LocationParmType() == LENGTH )
             {
-                per_u = curr_sec_ind * u_step + ( ( m_CenterLocation() - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
+                per_u = curr_sec_ind * u_step + ( ( center_location - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
             }
         }
     }
@@ -934,7 +934,7 @@ double FeaPart::GetRibPerU( )
     return per_u;
 }
 
-double FeaPart::GetRibTotalRotation( double initial_rotation, string perp_edge_ID )
+double FeaPart::GetRibTotalRotation( double center_location, double initial_rotation, string perp_edge_ID )
 {
     double total_rot = 0;
 
@@ -950,7 +950,7 @@ double FeaPart::GetRibTotalRotation( double initial_rotation, string perp_edge_I
             current_wing->GetSurfVec( surf_vec );
             VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
 
-            double per_u = GetRibPerU();
+            double per_u = GetRibPerU( center_location );
 
             // Find initial rotation (alpha) to perpendicular edge or spar
             double alpha = 0.0;
@@ -1040,7 +1040,7 @@ double FeaPart::GetRibTotalRotation( double initial_rotation, string perp_edge_I
     return total_rot;
 }
 
-VspSurf FeaPart::ComputeRibSurf( double rotation )
+VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
 {
     VspSurf rib_surf;
     Vehicle* veh = VehicleMgr.GetVehicle();
@@ -1080,7 +1080,7 @@ VspSurf FeaPart::ComputeRibSurf( double rotation )
         double span_f = 0.0;
 
         // Get center location as percent of U
-        double per_u = GetRibPerU( );
+        double per_u = GetRibPerU( center_location );
 
         VspCurve constant_u_curve;
         wing_surf.GetU01ConstCurve( constant_u_curve, per_u );
@@ -1263,7 +1263,7 @@ bool FeaPart::RefFrameIsBody( int orientation_plane )
     }
 }
 
-VspSurf FeaPart::ComputeSliceSurf( int orientation_plane, double x_rot, double y_rot, double z_rot )
+VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane, double x_rot, double y_rot, double z_rot )
 {
     VspSurf slice_surf;
     Vehicle* veh = VehicleMgr.GetVehicle();
@@ -1337,12 +1337,12 @@ VspSurf FeaPart::ComputeSliceSurf( int orientation_plane, double x_rot, double y
             // TODO: Add percent U along spine parameterization
             if ( m_LocationParmType() == PERCENT )
             {
-                double length_on_spine = ( m_CenterLocation() / 100 ) * spine_length;
+                double length_on_spine = ( center_location / 100 ) * spine_length;
                 per_u = cs.FindUGivenLengthAlongSpine( length_on_spine ) / u_max;
             }
             else if ( m_LocationParmType() == LENGTH )
             {
-                per_u = cs.FindUGivenLengthAlongSpine( m_CenterLocation() ) / u_max;
+                per_u = cs.FindUGivenLengthAlongSpine( center_location ) / u_max;
             }
 
             slice_center = cs.FindCenterGivenU( per_u * u_max );
@@ -1405,11 +1405,11 @@ VspSurf FeaPart::ComputeSliceSurf( int orientation_plane, double x_rot, double y
             {
                 if ( m_LocationParmType() == PERCENT )
                 {
-                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * m_CenterLocation() / 100, geom_center.y(), geom_center.z() );
+                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * center_location / 100, geom_center.y(), geom_center.z() );
                 }
                 else if ( m_LocationParmType() == LENGTH )
                 {
-                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + m_CenterLocation(), geom_center.y(), geom_center.z() );
+                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + center_location, geom_center.y(), geom_center.z() );
                 }
 
                 double x_off = ( slice_center - geom_center ).x();
@@ -1483,11 +1483,11 @@ VspSurf FeaPart::ComputeSliceSurf( int orientation_plane, double x_rot, double y
             {
                 if ( m_LocationParmType() == PERCENT )
                 {
-                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_CenterLocation() / 100 );
+                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * center_location / 100 );
                 }
                 else if ( m_LocationParmType() == LENGTH )
                 {
-                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + m_CenterLocation() );
+                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + center_location );
                 }
 
                 double z_off = ( slice_center - geom_center ).z();
@@ -1563,11 +1563,11 @@ VspSurf FeaPart::ComputeSliceSurf( int orientation_plane, double x_rot, double y
             {
                 if ( m_LocationParmType() == PERCENT )
                 {
-                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_CenterLocation() / 100, geom_center.z() );
+                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * center_location / 100, geom_center.z() );
                 }
                 else if ( m_LocationParmType() == LENGTH )
                 {
-                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + m_CenterLocation(), geom_center.z() );
+                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + center_location, geom_center.z() );
                 }
 
                 double y_off = ( slice_center - geom_center ).y();
@@ -1813,7 +1813,7 @@ void FeaSlice::Update()
     // Must call UpdateSymmIndex before
     if ( m_FeaPartSurfVec.size() > 0 )
     {
-        m_FeaPartSurfVec[0] = ComputeSliceSurf( m_OrientationPlane(), m_XRot(), m_YRot(), m_ZRot() );
+        m_FeaPartSurfVec[0] = ComputeSliceSurf( m_CenterLocation(), m_OrientationPlane(), m_XRot(), m_YRot(), m_ZRot() );
 
         // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
@@ -2207,8 +2207,8 @@ void FeaRib::Update()
     // Must call UpdateSymmIndex before
     if ( m_FeaPartSurfVec.size() > 0 )
     {
-        double rotation = GetRibTotalRotation( DEG_2_RAD * m_Theta(), m_PerpendicularEdgeID );
-        m_FeaPartSurfVec[0] = ComputeRibSurf( rotation );
+        double rotation = GetRibTotalRotation( m_CenterLocation(), DEG_2_RAD * m_Theta(), m_PerpendicularEdgeID );
+        m_FeaPartSurfVec[0] = ComputeRibSurf( m_CenterLocation(), rotation );
 
         // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
@@ -2966,12 +2966,13 @@ void FeaRibArray::CreateFeaRibArray()
 
         for ( size_t i = 0; i < m_NumRibs; i++ )
         {
+            double dir = 1;
             // Update Rib Center
-            m_CenterLocation.Set( m_StartLocation() + i * m_RibSpacing() );
+            double center_location =  m_StartLocation() + dir * i * m_RibSpacing();
 
-            double rotation = GetRibTotalRotation( DEG_2_RAD * m_Theta(), m_PerpendicularEdgeID );
+            double rotation = GetRibTotalRotation( center_location, DEG_2_RAD * m_Theta(), m_PerpendicularEdgeID );
 
-            VspSurf main_rib_surf = ComputeRibSurf( rotation );
+            VspSurf main_rib_surf = ComputeRibSurf( center_location, rotation );
 
             m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_rib_surf;
 
@@ -3118,11 +3119,12 @@ void FeaStiffenerArray::CreateFeaStiffenerArray()
 
         for ( size_t i = 0; i < m_NumStiffeners; i++ )
         {
+            double dir = 1.0;
             // Update Slice Center
-            m_CenterLocation.Set( m_StartLocation() + i * m_StiffenerSpacing() );
+            double center_location = m_StartLocation() + dir * i * m_StiffenerSpacing();
 
             int orientation_place = CONST_U;
-            VspSurf main_slice_surf = ComputeSliceSurf( orientation_place, 0.0, 0.0, 0.0 );
+            VspSurf main_slice_surf = ComputeSliceSurf( center_location, orientation_place, 0.0, 0.0, 0.0 );
 
             m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_slice_surf;
 
