@@ -589,6 +589,34 @@ void FeaStructure::IndividualizeRibArray( int rib_array_ind )
         DelFeaPart( rib_array_ind );
     }
 }
+void FeaStructure::IndividualizeStiffenerArray( int stiffener_array_ind )
+{
+    if ( !ValidFeaPartInd( stiffener_array_ind ) )
+    {
+        return;
+    }
+
+    FeaPart* prt = m_FeaPartVec[stiffener_array_ind];
+
+    if ( !prt )
+    {
+        return;
+    }
+
+    if ( prt->GetType() == vsp::FEA_STIFFENER_ARRAY )
+    {
+        FeaStiffenerArray* stiffener_array = dynamic_cast<FeaStiffenerArray*>( prt );
+        assert( stiffener_array );
+
+        for ( size_t i = 0; i < stiffener_array->GetNumStiffeners(); i++ )
+        {
+            FeaSlice* slice = stiffener_array->AddFeaSlice( stiffener_array->m_StartLocation() + i * stiffener_array->m_StiffenerSpacing(), i );
+            AddFeaPart( slice );
+        }
+
+        DelFeaPart( stiffener_array_ind );
+    }
+}
 
 FeaPart* FeaStructure::GetFeaSkin()
 {
@@ -3144,6 +3172,29 @@ void FeaStiffenerArray::CreateFeaStiffenerArray()
             }
         }
     }
+}
+
+FeaSlice* FeaStiffenerArray::AddFeaSlice( double center_location, int ind )
+{
+    FeaSlice* slice = new FeaSlice( m_ParentGeomID );
+
+    if ( slice )
+    {
+        slice->m_IncludedElements.Set( m_IncludedElements() );
+        slice->m_CenterLocation.Set( center_location );
+        slice->m_OrientationPlane.Set( CONST_U );
+        slice->m_LocationParmType.Set( m_LocationParmType() );
+        slice->SetFeaPropertyIndex( m_FeaPropertyIndex );
+        slice->SetCapFeaPropertyIndex( m_CapFeaPropertyIndex );
+
+        slice->SetName( string( m_Name + "_Slice_" + std::to_string( ind ) ) );
+
+        slice->UpdateSymmIndex();
+        slice->Update();
+        slice->UpdateSymmParts();
+    }
+
+    return slice;
 }
 
 void FeaStiffenerArray::UpdateDrawObjs( int id, bool highlight )

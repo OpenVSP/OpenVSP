@@ -72,6 +72,7 @@ public:
     virtual bool FeaPartIsArray( int ind );
 
     virtual void IndividualizeRibArray( int rib_array_ind );
+    virtual void IndividualizeStiffenerArray( int stiffener_array_ind );
 
     virtual vector< FeaPart* > InitFeaSkin( );
     virtual FeaPart* GetFeaSkin( );
@@ -462,6 +463,8 @@ public:
     virtual void Update();
     virtual void CreateFeaStiffenerArray();
     virtual void CalcNumStiffeners();
+
+    virtual FeaSlice* AddFeaSlice( double center_location, int ind );
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 

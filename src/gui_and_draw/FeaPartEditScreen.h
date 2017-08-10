@@ -169,6 +169,7 @@ private:
     SliderAdjRangeInput m_StiffenerArraySpacingSlider;
     TriggerButton m_StiffenerArrayPosUnit;
     Choice m_StiffenerArrayCapPropertyChoice;
+    TriggerButton m_IndividualizeStiffenerArrayButton;
 
     //===== SubSurfaces =====//
 

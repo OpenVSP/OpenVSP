@@ -529,6 +529,10 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_StiffenerArrayEditLayout.AddChoice( m_StiffenerArrayCapPropertyChoice, "Cap Property" );
 
+    m_StiffenerArrayEditLayout.AddYGap();
+
+    m_StiffenerArrayEditLayout.AddButton( m_IndividualizeStiffenerArrayButton, "Individualize Stiffener Array" );
+
     //=== SubSurfaces ===//
 
     //==== SSLine ====//
@@ -1574,6 +1578,27 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     if ( feaprt->GetType() == vsp::FEA_RIB_ARRAY )
                     {
                         structVec[StructureMgr.GetCurrStructIndex()]->IndividualizeRibArray( StructureMgr.GetCurrPartIndex() );
+                        StructureMgr.SetCurrPartIndex( structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() - 1 );
+                    }
+                }
+            }
+        }
+    }
+    else if ( device == &m_IndividualizeStiffenerArrayButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        {
+            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+
+                if ( feaprt )
+                {
+                    if ( feaprt->GetType() == vsp::FEA_STIFFENER_ARRAY )
+                    {
+                        structVec[StructureMgr.GetCurrStructIndex()]->IndividualizeStiffenerArray( StructureMgr.GetCurrPartIndex() );
                         StructureMgr.SetCurrPartIndex( structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() - 1 );
                     }
                 }
