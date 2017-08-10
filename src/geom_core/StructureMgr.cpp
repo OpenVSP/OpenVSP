@@ -24,7 +24,7 @@ StructureMgrSingleton::StructureMgrSingleton()
     m_CurrStructIndex = -1;
     m_CurrPartIndex = -1;
 
-    m_FeaSliceOrientationIndex = 0;
+    m_FeaSliceOrientationIndex = 1; // Default to XY Plane
 }
 
 StructureMgrSingleton::~StructureMgrSingleton()

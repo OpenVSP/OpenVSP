@@ -52,9 +52,12 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SliceEditLayout.SetButtonWidth( m_SliceEditLayout.GetRemainX() / 3 );
     m_SliceEditLayout.SetChoiceButtonWidth( m_SliceEditLayout.GetRemainX() / 3 );
 
-    m_SliceOrientationChoice.AddItem( "XY Plane" );
-    m_SliceOrientationChoice.AddItem( "YZ Plane" );
-    m_SliceOrientationChoice.AddItem( "XZ Plane" );
+    m_SliceOrientationChoice.AddItem( "XY_Body" );
+    m_SliceOrientationChoice.AddItem( "YZ_Body" );
+    m_SliceOrientationChoice.AddItem( "XZ_Body" );
+    m_SliceOrientationChoice.AddItem( "XY_Abs" );
+    m_SliceOrientationChoice.AddItem( "YZ_Abs" );
+    m_SliceOrientationChoice.AddItem( "XZ_Abs" );
     m_SliceEditLayout.AddChoice( m_SliceOrientationChoice, "Orientation" );
 
     m_SliceEditLayout.SetSameLineFlag( true );
@@ -67,8 +70,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SliceEditLayout.SetButtonWidth( 0 );
     m_SliceEditLayout.SetChoiceButtonWidth( 0 );
 
-    m_SlicePosTypeChoice.AddItem( "% BBox" );
-    m_SlicePosTypeChoice.AddItem( "Dist BBox" );
+    m_SlicePosTypeChoice.AddItem( "Percent" );
+    m_SlicePosTypeChoice.AddItem( "Distance" );
     m_SliceEditLayout.AddChoice( m_SlicePosTypeChoice, "" );
 
     m_SliceEditLayout.SetSliderWidth( slider_width - 5 );

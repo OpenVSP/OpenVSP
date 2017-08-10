@@ -238,7 +238,7 @@ protected:
 
 enum
 {
-    XY_PLANE, YZ_PLANE, XZ_PLANE
+    XY_BODY, YZ_BODY, XZ_BODY, XY_ABS, YZ_ABS, XZ_ABS
 };
 
 class FeaSlice : public FeaPart
@@ -249,8 +249,11 @@ public:
     virtual ~FeaSlice()    {};
 
     virtual void Update();
+    virtual void UpdateParmLimits();
 
-    virtual void ComputePlanarSurf();
+    virtual bool RefFrameIsBody();
+
+    virtual VspSurf ComputeSliceSurf();
     virtual void UpdateDrawObjs( int id, bool highlight );
 
     IntParm m_OrientationPlane;
