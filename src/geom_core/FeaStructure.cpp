@@ -306,22 +306,27 @@ SubSurface* FeaStructure::AddFeaSubSurf( int type )
     if ( type == vsp::SS_LINE )
     {
         ssurf = new SSLine( m_ParentGeomID );
-        ssurf->SetName( string( "SS_LINE_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SSLINE_" + to_string( m_FeaSubSurfCount ) ) );
     }
     else if ( type == vsp::SS_RECTANGLE )
     {
         ssurf = new SSRectangle( m_ParentGeomID );
-        ssurf->SetName( string( "SS_RECT_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SSRect_" + to_string( m_FeaSubSurfCount ) ) );
     }
     else if ( type == vsp::SS_ELLIPSE )
     {
         ssurf = new SSEllipse( m_ParentGeomID );
-        ssurf->SetName( string( "SS_ELLIP_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SSEllipse_" + to_string( m_FeaSubSurfCount ) ) );
     }
     else if ( type == vsp::SS_CONTROL )
     {
         ssurf = new SSControlSurf( m_ParentGeomID );
-        ssurf->SetName( string( "SS_CONT_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SSConSurf_" + to_string( m_FeaSubSurfCount ) ) );
+    }
+    else if ( type == vsp::SS_LINE_ARRAY )
+    {
+        ssurf = new SSLineArray( m_ParentGeomID );
+        ssurf->SetName( string( "SSLineArray_" + to_string( m_FeaSubSurfCount ) ) );
     }
 
     if ( ssurf )

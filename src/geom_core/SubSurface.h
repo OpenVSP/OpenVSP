@@ -305,4 +305,35 @@ protected:
 
 };
 
+class SSLineArray : public SubSurface
+{
+    // Array of Const U or Const W Lines used to define beam elements for FeaMesh
+    public:
+
+    SSLineArray( string compID, int type = vsp::SS_LINE_ARRAY );
+    virtual ~SSLineArray();
+
+    enum
+    {
+        CONST_U, CONST_W
+    };
+
+
+    //virtual bool Subtag( TTri* tri );
+    //virtual bool Subtag( const vec3d & center );
+
+    virtual void Update();
+
+    virtual void CalcNumLines();
+
+    IntParm m_ConstType; // Either constant u or constant w line
+    Parm m_Spacing; // Spacing (U or W) between each constant line
+    Parm m_StartLocation; // Location of first constant line
+
+    protected:
+    virtual int CompNumDrawPnts( Geom* geom ); // Remove?
+
+    int m_NumLines;
+};
+
 #endif

@@ -208,6 +208,10 @@ std::string SubSurface::GetTypeName( int type )
     {
         return string( "Control_Surf" );
     }
+    if ( type == vsp::SS_LINE_ARRAY )
+    {
+        return string( "Line_Array" );
+    }
     return string( "NONE" );
 }
 
@@ -2030,3 +2034,117 @@ void SSControlSurf::PrepareSplitVec()
         }
     }
 }
+
+//////////////////////////////////////////////////////
+//================== SSLineArray ===================//
+//////////////////////////////////////////////////////
+
+SSLineArray::SSLineArray( string comp_id, int type ) : SubSurface( comp_id, type )
+{
+    m_ConstType.Init( "Const_Line_Type", "SSLineArray", this, CONST_U, CONST_U, CONST_W );
+
+    m_Spacing.Init( "Spacing", "SSLineArray", this, 0.5, 0.0, 1.0 );
+
+    m_StartLocation.Init( "StartLocation", "SSLineArray", this, 0.0, 0.0, 1.0 );
+
+    m_TestType = SSLineSeg::NO; // TODO: Verify this assumption
+
+    m_IncludedElements.Set( BEAM );
+
+    m_NumLines = 0;
+}
+
+SSLineArray::~SSLineArray()
+{
+}
+
+void SSLineArray::Update()
+{
+    CalcNumLines();
+
+    m_LVec.resize( m_NumLines );
+
+    for ( size_t i = 0; i < m_NumLines; i++ )
+    {
+        double const_val = m_StartLocation() + i * m_Spacing();
+
+        if ( m_ConstType() == CONST_U )
+        {
+            m_LVec[i].SetSP0( vec3d( const_val, 1, 0 ) );
+            m_LVec[i].SetSP1( vec3d( const_val, 0, 0 ) );
+        }
+        else if ( m_ConstType() == CONST_W )
+        {
+            m_LVec[i].SetSP0( vec3d( 0, const_val, 0 ) );
+            m_LVec[i].SetSP1( vec3d( 1, const_val, 0 ) );
+        }
+
+        m_LVec[i].m_TestType = m_TestType();
+
+        Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
+
+        if ( !geom )
+        {
+            return;
+        }
+
+        m_LVec[i].Update( geom );
+    }
+
+    SubSurface::Update();
+}
+
+void SSLineArray::CalcNumLines()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* current_geom = veh->FindGeom( m_CompID );
+
+        if ( !current_geom )
+        {
+            return;
+        }
+
+        vector< VspSurf > surf_vec;
+        current_geom->GetSurfVec( surf_vec );
+        VspSurf current_surf = surf_vec[m_MainSurfIndx()];
+
+        double min_spacing = ( 1 - m_StartLocation() ) / 100;
+
+        m_Spacing.SetLowerUpperLimits( min_spacing, 1.0 ); // Limit to 100 lines
+
+        m_NumLines = 1 + (int)floor( ( 1.0 - m_StartLocation() ) / m_Spacing() );
+    }
+}
+
+int SSLineArray::CompNumDrawPnts( Geom* geom )
+{
+    VspSurf* surf = geom->GetSurfPtr();
+    if ( !surf )
+    {
+        return 0;
+    }
+
+    if ( m_ConstType() == CONST_W )
+    {
+        return (int)( surf->GetUMax() * ( geom->m_TessU() - 2 ) );
+    }
+    else if ( m_ConstType() == CONST_U )
+    {
+        return (int)( surf->GetWMax() * ( geom->m_TessW() - 4 ) );
+    }
+
+    return -1;
+}
+
+//bool SSLineArray::Subtag( TTri* tri )
+//{
+//    return m_LVec[0].Subtag( tri );
+//}
+//
+//bool SSLineArray::Subtag( const vec3d & center )
+//{
+//    return m_LVec[0].Subtag( center );
+//}
