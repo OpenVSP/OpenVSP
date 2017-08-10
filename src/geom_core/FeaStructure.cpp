@@ -1863,44 +1863,6 @@ void FeaSlice::UpdateParmLimits()
 void FeaSlice::UpdateDrawObjs( int id, bool highlight )
 {
     FeaPart::UpdateDrawObjs( id, highlight );
-
-    // Draw spine for debugging
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        Geom* current_geom = veh->FindGeom( m_ParentGeomID );
-        if ( current_geom )
-        {
-            DrawObj spineDO;
-
-            spineDO.m_GeomID = string( m_Name + "_Spine_" + std::to_string( id ) );
-            spineDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-
-            if ( highlight )
-            {
-                spineDO.m_LineColor = vec3d( 1.0, 0.0, 0.0 );
-                spineDO.m_LineWidth = 3.0;
-            }
-            else
-            {
-                spineDO.m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
-                spineDO.m_LineWidth = 1.0;
-            }
-
-            vector< VspSurf > surf_vec;
-            current_geom->GetSurfVec( surf_vec );
-            VspSurf current_surf = surf_vec[m_MainSurfIndx()];
-
-            ConformalSpine cs;
-            cs.Build( current_surf );
-
-            spineDO.m_Type = DrawObj::VSP_LINES;
-            spineDO.m_PntVec = cs.GetCenterVec();
-
-            m_FeaPartDO.push_back( spineDO );
-        }
-    }
 }
 
 //////////////////////////////////////////////////////
