@@ -69,6 +69,8 @@ public:
     virtual bool FeaPartIsFixPoint( int ind );
     virtual int GetNumFeaFixPoints();
 
+    virtual bool FeaPartIsArray( int ind );
+
     virtual void IndividualizeRibArray( int rib_array_ind );
 
     virtual vector< FeaPart* > InitFeaSkin( );
@@ -448,6 +450,33 @@ protected:
     int m_NumRibs;
 
     string m_PerpendicularEdgeID;
+};
+
+class FeaStiffenerArray : public FeaPart
+{
+public:
+
+    FeaStiffenerArray( string geomID, int type = vsp::FEA_STIFFENER_ARRAY );
+    virtual ~FeaStiffenerArray()    {};
+
+    virtual void Update();
+    virtual void CreateFeaStiffenerArray();
+    virtual void CalcNumStiffeners();
+
+    virtual void UpdateDrawObjs( int id, bool highlight );
+
+    virtual int GetNumStiffeners()
+    {
+        return m_NumStiffeners;
+    }
+
+    Parm m_StiffenerSpacing;
+    Parm m_StartLocation;
+
+protected:
+
+    int m_NumStiffeners;
+
 };
 
 enum

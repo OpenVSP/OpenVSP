@@ -203,6 +203,11 @@ FeaPart* FeaStructure::AddFeaPart( int type )
         feaprt = new FeaRibArray( m_ParentGeomID );
         feaprt->SetName( string( "RibArray_" + std::to_string( m_FeaPartCount ) ) );
     }
+    else if ( type == vsp::FEA_STIFFENER_ARRAY )
+    {
+        feaprt = new FeaStiffenerArray( m_ParentGeomID );
+        feaprt->SetName( string( "StiffenerArray_" + std::to_string( m_FeaPartCount ) ) );
+    }
 
     if ( feaprt )
     {
@@ -426,23 +431,22 @@ void FeaStructure::UpdateFeaParts()
 {
     for ( unsigned int i = 0; i < m_FeaPartVec.size(); i++ )
     {
-        if ( m_FeaPartVec[i]->GetType() != vsp::FEA_RIB_ARRAY )
-        {
-            m_FeaPartVec[i]->UpdateSymmIndex();
-        }
+        m_FeaPartVec[i]->UpdateSymmIndex();
 
         if ( FeaPartIsFixPoint( i ) )
         {
             FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( m_FeaPartVec[i] );
             assert( fixpt );
 
+            // Store HalfMeshFlag setting
             fixpt->m_HalfMeshFlag = m_StructSettings.GetHalfMeshFlag();
         }
 
         m_FeaPartVec[i]->Update();
 
-        if ( !FeaPartIsFixPoint( i ) && m_FeaPartVec[i]->GetType() != vsp::FEA_RIB_ARRAY )
+        if ( !FeaPartIsFixPoint( i ) && !FeaPartIsArray( i ) )
         {
+            // Symmetric FixedPoints and Arrays are updated in their respective Update functions
             m_FeaPartVec[i]->UpdateSymmParts();
         }
     }
@@ -535,6 +539,21 @@ int FeaStructure::GetNumFeaFixPoints()
         }
     }
     return fix_point_count;
+}
+
+bool FeaStructure::FeaPartIsArray( int ind )
+{
+    bool array = false;
+    FeaPart* fea_part = GetFeaPart( ind );
+
+    if ( fea_part )
+    {
+        if ( fea_part->GetType() == vsp::FEA_RIB_ARRAY || fea_part->GetType() == vsp::FEA_STIFFENER_ARRAY )
+        {
+            array = true;
+        }
+    }
+    return array;
 }
 
 void FeaStructure::IndividualizeRibArray( int rib_array_ind )
@@ -788,6 +807,10 @@ string FeaPart::GetTypeName( int type )
     if ( type == vsp::FEA_BULKHEAD )
     {
         return string( "Bulkhead" );
+    }
+    if ( type == vsp::FEA_STIFFENER_ARRAY )
+    {
+        return string( "StiffenerArray" );
     }
 
     return string( "NONE" );
@@ -3034,6 +3057,134 @@ void FeaRibArray::UpdateDrawObjs( int id, bool highlight )
     FeaPart::UpdateDrawObjs( id, highlight );
 }
 
+////////////////////////////////////////////////////
+//================= FeaStiffenerArray ==================//
+////////////////////////////////////////////////////
+
+FeaStiffenerArray::FeaStiffenerArray( string geomID, int type ) : FeaPart( geomID, type )
+{
+    m_StiffenerSpacing.Init( "StiffenerSpacing", "FeaStiffenerArray", this, 50, 1, 1e12 );
+    m_StiffenerSpacing.SetDescript( "Spacing Between Stiffeners in Array, Parameterized by Percent or Length" );
+
+    m_StartLocation.Init( "StartLocation", "FeaStiffenerArray", this, 0.0, 0.0, 1e12 );
+    m_StartLocation.SetDescript( "Starting Location for Primary Stiffener" );
+
+    m_IncludedElements.Set( BEAM );
+
+    m_NumStiffeners = 0;
+}
+
+void FeaStiffenerArray::Update()
+{
+    CalcNumStiffeners();
+
+    m_FeaPartSurfVec.clear(); 
+    m_FeaPartSurfVec.resize( m_SymmIndexVec.size() * m_NumStiffeners );
+
+    CreateFeaStiffenerArray();
+}
+
+void FeaStiffenerArray::CalcNumStiffeners()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* current_geom = veh->FindGeom( m_ParentGeomID );
+
+        if ( !current_geom )
+        {
+            return;
+        }
+
+        vector< VspSurf > surf_vec;
+        current_geom->GetSurfVec( surf_vec );
+        VspSurf current_surf = surf_vec[m_MainSurfIndx()];
+
+        // Build conformal spine from parent geom
+        ConformalSpine cs;
+        cs.Build( current_surf );
+
+        double spine_length = cs.GetSpineLength();
+
+        if ( m_LocationParmType() == PERCENT )
+        {
+            m_StartLocation.SetUpperLimit( 100 );
+            m_StiffenerSpacing.SetLowerUpperLimits( 1, 100 ); // Limit to 100 stiffeners (potential memory allocation errors otherwise)
+
+            m_NumStiffeners = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_StiffenerSpacing() );
+        }
+        else if ( m_LocationParmType() == LENGTH )
+        {
+            m_StartLocation.SetUpperLimit( spine_length );
+            m_StiffenerSpacing.SetLowerUpperLimits( spine_length / 100, spine_length ); // Limit to 100 ribs (potential memory allocation errors otherwise)
+
+            m_NumStiffeners = 1 + (int)floor( ( spine_length - m_StartLocation() ) / m_StiffenerSpacing() );
+        }
+    }
+}
+
+void FeaStiffenerArray::CreateFeaStiffenerArray()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* current_geom = veh->FindGeom( m_ParentGeomID );
+
+        if ( !current_geom )
+        {
+            return;
+        }
+
+        vector< VspSurf > surf_vec;
+        current_geom->GetSurfVec( surf_vec );
+        VspSurf current_surf = surf_vec[m_MainSurfIndx()];
+
+        for ( size_t i = 0; i < m_NumStiffeners; i++ )
+        {
+            // Update Slice Center
+            m_CenterLocation.Set( m_StartLocation() + i * m_StiffenerSpacing() );
+
+            int orientation_place = CONST_U;
+            VspSurf main_slice_surf = ComputeSliceSurf( orientation_place, 0.0, 0.0, 0.0 );
+
+            m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_slice_surf;
+
+            if ( m_FeaPartSurfVec[m_SymmIndexVec.size() * i].GetFlipNormal() != current_surf.GetFlipNormal() )
+            {
+                m_FeaPartSurfVec[m_SymmIndexVec.size() * i].FlipNormal();
+            }
+
+            // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copiesvto be transformed 
+            for ( size_t j = 1; j < m_SymmIndexVec.size(); j++ )
+            {
+                m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j] = m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j - 1];
+            }
+
+            // Get Symmetric Translation Matrix
+            vector<Matrix4d> transMats = current_geom->GetFeaTransMatVec();
+
+            //==== Apply Transformations ====//
+            for ( size_t j = 1; j < m_SymmIndexVec.size(); j++ )
+            {
+                m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].Transform( transMats[j] ); // Apply total transformation to main FeaPart surface
+
+                if ( surf_vec[j].GetFlipNormal() != m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].GetFlipNormal() )
+                {
+                    m_FeaPartSurfVec[m_SymmIndexVec.size() * i + j].FlipNormal();
+                }
+            }
+        }
+    }
+}
+
+void FeaStiffenerArray::UpdateDrawObjs( int id, bool highlight )
+{
+    FeaPart::UpdateDrawObjs( id, highlight );
+}
+
+////////////////////////////////////////////////////
 //================= FeaProperty ==================//
 ////////////////////////////////////////////////////
 
