@@ -394,7 +394,6 @@ public:
     virtual void Update();
 
     virtual void BuildBulkheadSurf();
-    virtual vec3d GetDefaultCenter();
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 

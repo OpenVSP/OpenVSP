@@ -2628,8 +2628,6 @@ void FeaSkin::BuildSkinSurf()
 
 FeaBulkhead::FeaBulkhead( string geomID, int type ) : FeaPart( geomID, type )
 {
-    vec3d center = GetDefaultCenter();
-
     m_Aradius.Init( "A_Radius", "FeaBulkhead", this, 1.0, 0.0, 1.0e12 );
     m_Aradius.SetDescript( "A (x) Radius of Bulkhead" );
 
@@ -2639,23 +2637,23 @@ FeaBulkhead::FeaBulkhead( string geomID, int type ) : FeaPart( geomID, type )
     m_Cradius.Init( "C_Radius", "FeaBulkhead", this, 1.0, 0.0, 1.0e12 );
     m_Cradius.SetDescript( "C (z) Radius of Bulkhead" );
 
-    m_XLoc.Init( "X_Location", "FeaBulkhead", this, center.x(), -1.0e12, 1.0e12 );
-    m_XLoc.SetDescript( "Global X Location" );
+    m_XLoc.Init( "X_Location", "FeaBulkhead", this, 0.0, -1.0e12, 1.0e12 );
+    m_XLoc.SetDescript( "Location Along Body X Axis" );
 
-    m_YLoc.Init( "Y_Location", "FeaBulkhead", this, center.y(), -1.0e12, 1.0e12 );
-    m_YLoc.SetDescript( "Global Y Location" );
+    m_YLoc.Init( "Y_Location", "FeaBulkhead", this, 0.0, -1.0e12, 1.0e12 );
+    m_YLoc.SetDescript( "Location Along Body Y Axis" );
 
-    m_ZLoc.Init( "Z_Location", "FeaBulkhead", this, center.z(), -1.0e12, 1.0e12 );
-    m_ZLoc.SetDescript( "Global Z Location" );
+    m_ZLoc.Init( "Z_Location", "FeaBulkhead", this, 0.0, -1.0e12, 1.0e12 );
+    m_ZLoc.SetDescript( "Location Along Body Z Axis" );
 
     m_XRot.Init( "X_Rotation", "FeaBulkhead", this, 0.0, -180, 180 );
-    m_XRot.SetDescript( "Global X Rotation" );
+    m_XRot.SetDescript( "Rotation About Body X Axis" );
 
     m_YRot.Init( "Y_Rotation", "FeaBulkhead", this, 0.0, -180, 180 );
-    m_YRot.SetDescript( "Global Y Rotation" );
+    m_YRot.SetDescript( "Rotation About Body Y Axis" );
 
     m_ZRot.Init( "Z_Rotation", "FeaBulkhead", this, 0.0, -180, 180 );
-    m_ZRot.SetDescript( "Global Z Rotation" );
+    m_ZRot.SetDescript( "Rotation About Body Z Axis" );
 }
 
 void FeaBulkhead::Update()
@@ -2718,6 +2716,8 @@ void FeaBulkhead::BuildBulkheadSurf()
         // Revolve to unit sphere
         m_FeaPartSurfVec[0].CreateBodyRevolution( stringer );
 
+        //m_FeaPartSurfVec[0].OffsetX( -1.0 ); // Offset by radius
+
         // Scale to ellipsoid
         m_FeaPartSurfVec[0].ScaleX( m_Aradius() );
         m_FeaPartSurfVec[0].ScaleY( m_Bradius() );
@@ -2747,6 +2747,10 @@ void FeaBulkhead::BuildBulkheadSurf()
         m_FeaPartSurfVec[0].OffsetY( m_YLoc() );
         m_FeaPartSurfVec[0].OffsetZ( m_ZLoc() );
 
+        // Transform to parent geom body coordinate frame
+        Matrix4d model_matrix = curr_geom->getModelMatrix();
+        m_FeaPartSurfVec[0].Transform( model_matrix );
+
         m_FeaPartSurfVec[0].BuildFeatureLines();
 
         // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
@@ -2755,30 +2759,6 @@ void FeaBulkhead::BuildBulkheadSurf()
             m_FeaPartSurfVec[j] = m_FeaPartSurfVec[j - 1];
         }
     }
-}
-
-vec3d FeaBulkhead::GetDefaultCenter()
-{
-    // This function determines the default center location of a bulkhead at (u,w) = (0,0) on the parent surface
-
-    vec3d center;
-
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        Geom* curr_geom = veh->FindGeom( m_ParentGeomID );
-
-        if ( curr_geom )
-        {
-            vector< VspSurf > surf_vec;
-            curr_geom->GetSurfVec( surf_vec );
-            VspSurf parent_surf = surf_vec[m_MainSurfIndx()];
-            center = parent_surf.CompPnt01( 0, 0 );
-        }
-    }
-
-    return center;
 }
 
 void FeaBulkhead::UpdateDrawObjs( int id, bool highlight )
