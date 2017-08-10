@@ -1268,7 +1268,7 @@ VspSurf FeaPart::ComputeSliceSurf( int orientation_plane, double x_rot, double y
         del_y = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
         del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
 
-        if ( orientation_plane == YZ_BODY )
+        if ( orientation_plane == CONST_U )
         {
             // Build conformal spine from parent geom
             ConformalSpine cs;
@@ -1345,7 +1345,7 @@ VspSurf FeaPart::ComputeSliceSurf( int orientation_plane, double x_rot, double y
             del_z_minus = 2 * FLT_EPSILON;
             del_z_plus = 2 * FLT_EPSILON;
 
-            if ( orientation_plane == YZ_ABS )
+            if ( orientation_plane == YZ_BODY || orientation_plane == YZ_ABS )
             {
                 if ( m_LocationParmType() == PERCENT )
                 {
@@ -1614,7 +1614,7 @@ VspSurf FeaPart::ComputeSliceSurf( int orientation_plane, double x_rot, double y
         trans_mat_2.translatef( slice_center.x(), slice_center.y(), slice_center.z() );
         slice_surf.Transform( trans_mat_2 );
 
-        if ( orientation_plane == XY_BODY || orientation_plane == XZ_BODY )
+        if ( RefFrameIsBody( orientation_plane ) )
         {
             // Transform to body coordinate frame
             model_matrix.affineInverse();
@@ -1741,7 +1741,7 @@ void FeaPart::SetFeaMaterialIndex( int index )
 
 FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, YZ_BODY, XY_BODY, XZ_ABS );
+    m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, YZ_BODY, XY_BODY, CONST_U );
     m_OrientationPlane.SetDescript( "Plane the FeaSlice Part will be Parallel to (Body or Absolute Reference Frame)" );
 
     m_RotationAxis.Init( "RotationAxis", "FeaSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );

@@ -151,7 +151,7 @@ enum
 
 enum
 {
-    XY_BODY, YZ_BODY, XZ_BODY, XY_ABS, YZ_ABS, XZ_ABS
+    XY_BODY, YZ_BODY, XZ_BODY, XY_ABS, YZ_ABS, XZ_ABS, CONST_U
 };
 
 class FeaPart : public ParmContainer

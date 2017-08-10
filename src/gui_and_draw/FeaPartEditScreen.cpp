@@ -58,6 +58,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SliceOrientationChoice.AddItem( "XY_Abs" );
     m_SliceOrientationChoice.AddItem( "YZ_Abs" );
     m_SliceOrientationChoice.AddItem( "XZ_Abs" );
+    m_SliceOrientationChoice.AddItem( "Const_U" );
     m_SliceEditLayout.AddChoice( m_SliceOrientationChoice, "Orientation" );
 
     m_SliceEditLayout.SetSameLineFlag( true );
