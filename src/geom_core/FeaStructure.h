@@ -442,6 +442,7 @@ public:
     }
 
     Parm m_RibSpacing;
+    BoolParm m_PositiveDirectionFlag;
     Parm m_StartLocation;
     Parm m_Theta;
 
@@ -473,6 +474,7 @@ public:
     }
 
     Parm m_StiffenerSpacing;
+    BoolParm m_PositiveDirectionFlag;
     Parm m_StartLocation;
 
 protected:

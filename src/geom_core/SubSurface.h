@@ -318,17 +318,14 @@ class SSLineArray : public SubSurface
         CONST_U, CONST_W
     };
 
-
-    //virtual bool Subtag( TTri* tri );
-    //virtual bool Subtag( const vec3d & center );
-
     virtual void Update();
 
     virtual void CalcNumLines();
 
-    IntParm m_ConstType; // Either constant u or constant w line
+    IntParm m_ConstType;
+    BoolParm m_PositiveDirectionFlag;
     Parm m_Spacing; // Spacing (U or W) between each constant line
-    Parm m_StartLocation; // Location of first constant line
+    Parm m_StartLocation;
 
     protected:
     virtual int CompNumDrawPnts( Geom* geom ); // Remove?

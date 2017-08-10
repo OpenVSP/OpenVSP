@@ -148,6 +148,9 @@ private:
     Choice m_RibArrayPropertyChoice;
     Choice m_RibArrayPerpEdgeChoice;
     Choice m_RibArrayPosTypeChoice;
+    ToggleButton m_RibArrayPosDirToggle;
+    ToggleButton m_RibArrayNegDirToggle;
+    ToggleRadioGroup m_RibArrayPosNegDirToggleGroup;
     SliderAdjRangeInput m_RibArrayStartLocSlider;
     TriggerButton m_RibArrayStartLocUnit;
     SliderAdjRangeInput m_RibArrayEndLocSlider;
@@ -164,6 +167,9 @@ private:
 
     //===== StiffenerArray =====//
     Choice m_StiffenerArrayPosTypeChoice;
+    ToggleButton m_StiffenerArrayPosDirToggle;
+    ToggleButton m_StiffenerArrayNegDirToggle;
+    ToggleRadioGroup m_StiffenerArrayPosNegDirToggleGroup;
     SliderAdjRangeInput m_StiffenerArrayStartLocSlider;
     TriggerButton m_StiffenerArrayStartLocUnit;
     SliderAdjRangeInput m_StiffenerArraySpacingSlider;
@@ -258,6 +264,9 @@ private:
     ToggleButton m_FeaSSLineArrayConstWButton;
     ToggleRadioGroup m_FeaSSLineArrayConstToggleGroup;
     Choice m_FeaSSLineArrayCapPropertyChoice;
+    ToggleButton m_FeaSSLineArrayNegDirToggle;
+    ToggleButton m_FeaSSLineArrayPosDirToggle;
+    ToggleRadioGroup m_FeaSSLineArrayPosNegDirToggleGroup;
 
 };
 

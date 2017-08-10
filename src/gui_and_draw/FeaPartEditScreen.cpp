@@ -427,6 +427,16 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_RibArrayEditLayout.SetSameLineFlag( true );
     m_RibArrayEditLayout.SetFitWidthFlag( false );
 
+    m_RibArrayEditLayout.AddLabel( "Direction", m_RibArrayEditLayout.GetRemainX() / 3 );
+    m_RibArrayEditLayout.AddButton( m_RibArrayNegDirToggle, "Negative" );
+    m_RibArrayEditLayout.AddButton( m_RibArrayPosDirToggle, "Positive" );
+
+    m_RibArrayPosNegDirToggleGroup.Init( this );
+    m_RibArrayPosNegDirToggleGroup.AddButton( m_RibArrayNegDirToggle.GetFlButton() );
+    m_RibArrayPosNegDirToggleGroup.AddButton( m_RibArrayPosDirToggle.GetFlButton() );
+
+    m_RibArrayEditLayout.ForceNewLine();
+
     button_width = m_RibArrayEditLayout.GetButtonWidth();
     slider_width = m_RibArrayEditLayout.GetSliderWidth();
 
@@ -499,6 +509,16 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_StiffenerArrayEditLayout.SetSameLineFlag( true );
     m_StiffenerArrayEditLayout.SetFitWidthFlag( false );
+
+    m_StiffenerArrayEditLayout.AddLabel( "Direction", m_StiffenerArrayEditLayout.GetRemainX() / 3 );
+    m_StiffenerArrayEditLayout.AddButton( m_StiffenerArrayNegDirToggle, "Negative" );
+    m_StiffenerArrayEditLayout.AddButton( m_StiffenerArrayPosDirToggle, "Positive" );
+
+    m_StiffenerArrayPosNegDirToggleGroup.Init( this );
+    m_StiffenerArrayPosNegDirToggleGroup.AddButton( m_StiffenerArrayNegDirToggle.GetFlButton() );
+    m_StiffenerArrayPosNegDirToggleGroup.AddButton( m_StiffenerArrayPosDirToggle.GetFlButton() );
+
+    m_StiffenerArrayEditLayout.ForceNewLine();
 
     button_width = m_StiffenerArrayEditLayout.GetButtonWidth();
     slider_width = m_StiffenerArrayEditLayout.GetSliderWidth();
@@ -818,10 +838,20 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FeaSSLineArrayConstToggleGroup.AddButton( m_FeaSSLineArrayConstWButton.GetFlButton() );
 
     m_FeaSSLineArrayGroup.ForceNewLine();
-    m_FeaSSLineArrayGroup.SetSameLineFlag( false );
-    m_FeaSSLineArrayGroup.SetFitWidthFlag( true );
 
     m_FeaSSLineArrayGroup.SetButtonWidth( m_FeaSSLineArrayGroup.GetRemainX() / 3 );
+
+    m_FeaSSLineArrayGroup.AddLabel( "Direction", m_FeaSSLineArrayGroup.GetRemainX() / 3 );
+    m_FeaSSLineArrayGroup.AddButton( m_FeaSSLineArrayNegDirToggle, "Negative" );
+    m_FeaSSLineArrayGroup.AddButton( m_FeaSSLineArrayPosDirToggle, "Positive" );
+
+    m_FeaSSLineArrayPosNegDirToggleGroup.Init( this );
+    m_FeaSSLineArrayPosNegDirToggleGroup.AddButton( m_FeaSSLineArrayNegDirToggle.GetFlButton() );
+    m_FeaSSLineArrayPosNegDirToggleGroup.AddButton( m_FeaSSLineArrayPosDirToggle.GetFlButton() );
+
+    m_FeaSSLineArrayGroup.ForceNewLine();
+    m_FeaSSLineArrayGroup.SetSameLineFlag( false );
+    m_FeaSSLineArrayGroup.SetFitWidthFlag( true );
 
     m_FeaSSLineArrayGroup.AddSlider( m_FeaSSLineArraySpacingSlider, "Spacing", 1, "%5.4f" );
     m_FeaSSLineArrayGroup.AddSlider( m_FeaSSLineArrayStartLocSlider, "Start Location", 1, "%5.4f" );
@@ -1088,6 +1118,7 @@ bool FeaPartEditScreen::Update()
                         m_RibArraySpacingSlider.Update( rib_array->m_RibSpacing.GetID() );
                         m_RibArrayThetaSlider.Update( rib_array->m_Theta.GetID() );
                         m_RibArrayShellCapToggleGroup.Update( rib_array->m_IncludedElements.GetID() );
+                        m_RibArrayPosNegDirToggleGroup.Update( rib_array->m_PositiveDirectionFlag.GetID() );
 
                         if ( rib_array->m_IncludedElements() == BOTH_ELEMENTS )
                         {
@@ -1115,6 +1146,7 @@ bool FeaPartEditScreen::Update()
                         m_StiffenerArrayPosTypeChoice.Update( stiffener_array->m_LocationParmType.GetID() );
                         m_StiffenerArrayStartLocSlider.Update( stiffener_array->m_StartLocation.GetID() );
                         m_StiffenerArraySpacingSlider.Update( stiffener_array->m_StiffenerSpacing.GetID() );
+                        m_StiffenerArrayPosNegDirToggleGroup.Update( stiffener_array->m_PositiveDirectionFlag.GetID() );
 
                         FeaPartDispGroup( &m_StiffenerArrayEditLayout );
                     }
@@ -1328,6 +1360,7 @@ bool FeaPartEditScreen::Update()
                         assert( sslinearray );
 
                         m_FeaSSLineArrayConstToggleGroup.Update( sslinearray->m_ConstType.GetID() );
+                        m_FeaSSLineArrayPosNegDirToggleGroup.Update( sslinearray->m_PositiveDirectionFlag.GetID() );
                         m_FeaSSLineArraySpacingSlider.Update( sslinearray->m_Spacing.GetID() );
                         m_FeaSSLineArrayStartLocSlider.Update( sslinearray->m_StartLocation.GetID() );
 
@@ -1578,7 +1611,6 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     if ( feaprt->GetType() == vsp::FEA_RIB_ARRAY )
                     {
                         structVec[StructureMgr.GetCurrStructIndex()]->IndividualizeRibArray( StructureMgr.GetCurrPartIndex() );
-                        StructureMgr.SetCurrPartIndex( structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() - 1 );
                     }
                 }
             }
@@ -1599,7 +1631,6 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     if ( feaprt->GetType() == vsp::FEA_STIFFENER_ARRAY )
                     {
                         structVec[StructureMgr.GetCurrStructIndex()]->IndividualizeStiffenerArray( StructureMgr.GetCurrPartIndex() );
-                        StructureMgr.SetCurrPartIndex( structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() - 1 );
                     }
                 }
             }

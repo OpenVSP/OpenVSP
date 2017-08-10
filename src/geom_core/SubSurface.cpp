@@ -2042,13 +2042,19 @@ void SSControlSurf::PrepareSplitVec()
 SSLineArray::SSLineArray( string comp_id, int type ) : SubSurface( comp_id, type )
 {
     m_ConstType.Init( "Const_Line_Type", "SSLineArray", this, CONST_U, CONST_U, CONST_W );
+    m_ConstType.SetDescript( "Either Constant U or Constant W SSLines" );
+
+    m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "SSLineArray", this, true, false, true );
+    m_PositiveDirectionFlag.SetDescript( "Flag to Increment SSLines in Positive or Negative Direction" );
 
     m_Spacing.Init( "Spacing", "SSLineArray", this, 0.5, 0.0, 1.0 );
+    m_Spacing.SetDescript( "Spacing Between SSLines in Array" );
 
     m_StartLocation.Init( "StartLocation", "SSLineArray", this, 0.0, 0.0, 1.0 );
+    m_StartLocation.SetDescript( "Location of First SSLine in Array" );
 
-    m_TestType = SSLineSeg::NO; // TODO: Verify this assumption
-
+    // Set to only Beam elements (cap) with no tags (tris)
+    m_TestType = SSLineSeg::NO;
     m_IncludedElements.Set( BEAM );
 
     m_NumLines = 0;
@@ -2066,7 +2072,13 @@ void SSLineArray::Update()
 
     for ( size_t i = 0; i < m_NumLines; i++ )
     {
-        double const_val = m_StartLocation() + i * m_Spacing();
+        double dir = 1;
+        if ( !m_PositiveDirectionFlag() )
+        {
+            dir = -1;
+        }
+
+        double const_val = m_StartLocation() + dir * i * m_Spacing();
 
         if ( m_ConstType() == CONST_U )
         {
@@ -2111,11 +2123,16 @@ void SSLineArray::CalcNumLines()
         current_geom->GetSurfVec( surf_vec );
         VspSurf current_surf = surf_vec[m_MainSurfIndx()];
 
-        double min_spacing = ( 1 - m_StartLocation() ) / 100;
-
-        m_Spacing.SetLowerUpperLimits( min_spacing, 1.0 ); // Limit to 100 lines
-
-        m_NumLines = 1 + (int)floor( ( 1.0 - m_StartLocation() ) / m_Spacing() );
+        if ( m_PositiveDirectionFlag() )
+        {
+            m_Spacing.SetLowerUpperLimits( ( 1 - m_StartLocation() ) / 100, 1.0 ); // Limit to 100 lines
+            m_NumLines = 1 + (int)floor( ( 1.0 - m_StartLocation() ) / m_Spacing() );
+        }
+        else
+        {
+            m_Spacing.SetLowerUpperLimits( m_StartLocation() / 100, 1.0 ); // Limit to 100 lines
+            m_NumLines = 1 + (int)floor( m_StartLocation() / m_Spacing() );
+        }
     }
 }
 
@@ -2138,13 +2155,3 @@ int SSLineArray::CompNumDrawPnts( Geom* geom )
 
     return -1;
 }
-
-//bool SSLineArray::Subtag( TTri* tri )
-//{
-//    return m_LVec[0].Subtag( tri );
-//}
-//
-//bool SSLineArray::Subtag( const vec3d & center )
-//{
-//    return m_LVec[0].Subtag( center );
-//}

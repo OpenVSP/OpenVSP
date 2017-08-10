@@ -2868,6 +2868,9 @@ FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
     m_RibSpacing.Init( "RibSpacing", "FeaRibArray", this, 50, 1, 1e12 );
     m_RibSpacing.SetDescript( "Spacing Between Ribs in Array, Parameterized by Percent or Length" );
 
+    m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaRibArray", this, true, false, true );
+    m_PositiveDirectionFlag.SetDescript( "Flag to Increment RibArray in Positive or Negative Direction" );
+
     m_StartLocation.Init( "StartLocation", "FeaRibArray", this, 0.0, 0.0, 1e12 );
     m_StartLocation.SetDescript( "Starting Location for Primary Rib" );
 
@@ -2926,17 +2929,34 @@ void FeaRibArray::CalcNumRibs()
 
         if ( m_LocationParmType() == PERCENT )
         {
-            m_StartLocation.SetUpperLimit( 100 );
-            m_RibSpacing.SetLowerUpperLimits( 1, 100 ); // Limit to 100 ribs (potential memory allocation errors otherwise)
+            m_StartLocation.SetUpperLimit( 100 ); 
+            m_RibSpacing.SetLowerUpperLimits( 1, 100 ); // Limit to 100 ribs
 
-            m_NumRibs = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_RibSpacing() );
+            if ( m_PositiveDirectionFlag() )
+            {
+                //m_RibSpacing.SetLowerUpperLimits( 1 + ( 100 - m_StartLocation() ) / 100, 100 ); // Limit to 100 ribs 
+                m_NumRibs = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_RibSpacing() );
+            }
+            else
+            {
+                //m_RibSpacing.SetLowerUpperLimits( 1 + ( m_StartLocation() / 100 ), 100 ); // Limit to 100 ribs 
+                m_NumRibs = 1 + (int)floor( ( m_StartLocation() ) / m_RibSpacing() );
+            }
         }
         else if ( m_LocationParmType() == LENGTH )
         {
             m_StartLocation.SetUpperLimit( span_f );
-            m_RibSpacing.SetLowerUpperLimits( ( span_f - m_StartLocation() ) / 100, span_f - m_StartLocation() ); // Limit to 100 ribs (potential memory allocation errors otherwise)
 
-            m_NumRibs = 1 + (int)floor( ( span_f - m_StartLocation() ) / m_RibSpacing() );
+            if ( m_PositiveDirectionFlag() )
+            {
+                m_RibSpacing.SetLowerUpperLimits( ( span_f - m_StartLocation() ) / 100, span_f - m_StartLocation() ); // Limit to 100 ribs 
+                m_NumRibs = 1 + (int)floor( ( span_f - m_StartLocation() ) / m_RibSpacing() );
+            }
+            else
+            {
+                m_RibSpacing.SetLowerUpperLimits( m_StartLocation() / 100, m_StartLocation() ); // Limit to 100 ribs 
+                m_NumRibs = 1 + (int)floor( m_StartLocation() / m_RibSpacing() );
+            }
         }
     }
 }
@@ -2967,6 +2987,11 @@ void FeaRibArray::CreateFeaRibArray()
         for ( size_t i = 0; i < m_NumRibs; i++ )
         {
             double dir = 1;
+            if ( !m_PositiveDirectionFlag() )
+            {
+                dir = -1;
+            }
+
             // Update Rib Center
             double center_location =  m_StartLocation() + dir * i * m_RibSpacing();
 
@@ -3042,6 +3067,9 @@ FeaStiffenerArray::FeaStiffenerArray( string geomID, int type ) : FeaPart( geomI
     m_StiffenerSpacing.Init( "StiffenerSpacing", "FeaStiffenerArray", this, 50, 1, 1e12 );
     m_StiffenerSpacing.SetDescript( "Spacing Between Stiffeners in Array, Parameterized by Percent or Length" );
 
+    m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaStiffenerArray", this, true, false, true );
+    m_PositiveDirectionFlag.SetDescript( "Flag to Increment StiffenerArray in Positive or Negative Direction" );
+
     m_StartLocation.Init( "StartLocation", "FeaStiffenerArray", this, 0.0, 0.0, 1e12 );
     m_StartLocation.SetDescript( "Starting Location for Primary Stiffener" );
 
@@ -3086,16 +3114,31 @@ void FeaStiffenerArray::CalcNumStiffeners()
         if ( m_LocationParmType() == PERCENT )
         {
             m_StartLocation.SetUpperLimit( 100 );
-            m_StiffenerSpacing.SetLowerUpperLimits( 1, 100 ); // Limit to 100 stiffeners (potential memory allocation errors otherwise)
+            m_StiffenerSpacing.SetLowerUpperLimits( 1, 100 ); // Limit to 100 stiffeners
 
-            m_NumStiffeners = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_StiffenerSpacing() );
+            if ( m_PositiveDirectionFlag() )
+            {
+                m_NumStiffeners = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_StiffenerSpacing() );
+            }
+            else
+            {
+                m_NumStiffeners = 1 + (int)floor( ( m_StartLocation() ) / m_StiffenerSpacing() );
+            }
         }
         else if ( m_LocationParmType() == LENGTH )
         {
             m_StartLocation.SetUpperLimit( spine_length );
-            m_StiffenerSpacing.SetLowerUpperLimits( spine_length / 100, spine_length ); // Limit to 100 ribs (potential memory allocation errors otherwise)
 
-            m_NumStiffeners = 1 + (int)floor( ( spine_length - m_StartLocation() ) / m_StiffenerSpacing() );
+            if ( m_PositiveDirectionFlag() )
+            {
+                m_StiffenerSpacing.SetLowerUpperLimits( spine_length / 100, spine_length ); // Limit to 100 stiffeners
+                m_NumStiffeners = 1 + (int)floor( ( spine_length - m_StartLocation() ) / m_StiffenerSpacing() );
+            }
+            else
+            {
+                //m_StiffenerSpacing.SetLowerUpperLimits( spine_length / 100, m_StartLocation() ); // Limit to 100 stiffeners 
+                m_NumStiffeners = 1 + (int)floor( spine_length / m_StiffenerSpacing() );
+            }
         }
     }
 }
@@ -3120,6 +3163,11 @@ void FeaStiffenerArray::CreateFeaStiffenerArray()
         for ( size_t i = 0; i < m_NumStiffeners; i++ )
         {
             double dir = 1.0;
+            if ( !m_PositiveDirectionFlag() )
+            {
+                dir = -1;
+            }
+
             // Update Slice Center
             double center_location = m_StartLocation() + dir * i * m_StiffenerSpacing();
 
