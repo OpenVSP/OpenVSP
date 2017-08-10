@@ -1195,19 +1195,6 @@ VspSurf FeaPart::ComputeRibSurf( double rotation )
     return rib_surf;
 }
 
-void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid )
-{
-    for ( int p = 0; p < m_FeaPartSurfVec.size(); p++ )
-    {
-        // CFD_STRUCTURE and CFD_STIFFENER type surfaces have m_CompID starting at -9999
-        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), compid, xfersurfs );
-
-        if ( m_FeaPartType == vsp::FEA_SKIN )
-        {
-            compid++; // Symmetric copies of skin surface are assigned a different compid for intersecting
-        }
-    }
-}
 bool FeaPart::RefFrameIsBody( int orientation_plane )
 {
     if ( orientation_plane == XY_BODY || orientation_plane == YZ_BODY || orientation_plane == XZ_BODY )
@@ -1636,6 +1623,15 @@ VspSurf FeaPart::ComputeSliceSurf( int orientation_plane, double x_rot, double y
     }
 
     return slice_surf;
+}
+
+void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid )
+{
+    for ( int p = 0; p < m_FeaPartSurfVec.size(); p++ )
+    {
+        // CFD_STRUCTURE and CFD_STIFFENER type surfaces have m_CompID starting at -9999
+        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), compid, xfersurfs );
+    }
 }
 
 void FeaPart::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
