@@ -1129,7 +1129,7 @@ VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
         vec3d center_to_lead_edge = center - lead_edge;
         center_to_lead_edge.normalize();
 
-        double length_rib_0 = dist( trail_edge, lead_edge ) / 2; // Rib half length before rotations
+        double length_rib_0 = ( dist( trail_edge, lead_edge ) / 2 ) + 2 * FLT_EPSILON; // Rib half length before rotations, slightly oversized
 
         // Normal vector to wing chord line
         vec3d normal_vec = cross( inner_edge_vec, lead_edge_vec );
@@ -1232,7 +1232,7 @@ VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
         // Identify corners of the plane
         vec3d cornerA, cornerB, cornerC, cornerD;
 
-        double height = 0.5 * wing_bbox.GetSmallestDist();
+        double height = 0.5 * wing_bbox.GetSmallestDist() + 2 * FLT_EPSILON; // Height of Rib, slightly oversized
 
         cornerA = trail_edge_f + ( height * wing_z_axis );
         cornerB = trail_edge_f - ( height * wing_z_axis );
@@ -2044,7 +2044,7 @@ void FeaSpar::ComputePlanarSurf()
         vec3d wing_z_axis = trail_edge_up - trail_edge_low;
         wing_z_axis.normalize();
 
-        double height = 0.5 * wing_bbox.GetSmallestDist();
+        double height = 0.5 * wing_bbox.GetSmallestDist() + 2 * FLT_EPSILON; // Height of spar, slightly oversized
 
         vec3d center = ( inside_edge + outside_edge ) / 2; // center of spar
 
