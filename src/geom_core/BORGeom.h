@@ -28,8 +28,9 @@ public:
 
     virtual void OffsetXSecs( double off );
 
-    virtual void SetXSecCurve( XSecCurve* xs_crv );
-    virtual void SetXSecCurve( int type );
+    virtual void SetXSecCurveType( int type );
+
+    XSecCurve* GetXSecCurve()       { return m_XSCurve; }
 
     Parm m_Diameter;
     Parm m_Length;

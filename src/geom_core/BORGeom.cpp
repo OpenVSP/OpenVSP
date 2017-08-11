@@ -33,7 +33,7 @@ BORGeom::BORGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Xoff = 0.0;
 
     m_XSCurve = NULL;
-    SetXSecCurve( vsp::XS_CIRCLE );
+    SetXSecCurveType( vsp::XS_CIRCLE );
 
 }
 
@@ -94,20 +94,28 @@ void BORGeom::OffsetXSecs( double off )
 {
 }
 
-
-
-void BORGeom::SetXSecCurve( XSecCurve* xs_crv )
+void BORGeom::SetXSecCurveType( int type )
 {
+    double w = 1;
+    double h = 1;
+
     if ( m_XSCurve )
     {
+        if ( type == m_XSCurve->GetType() )
+        {
+            return;
+        }
+
+        w = m_XSCurve->GetWidth();
+        h = m_XSCurve->GetHeight();
+
         delete m_XSCurve;
     }
 
-    m_XSCurve = xs_crv;
+    m_XSCurve = XSecSurf::CreateXSecCurve( type ) ;
     m_XSCurve->SetParentContainer( m_ID );
-}
 
-void BORGeom::SetXSecCurve( int type )
-{
-    SetXSecCurve( XSecSurf::CreateXSecCurve( type ) );
+    m_XSCurve->SetWidthHeight( w, h );
+
+    Update();
 }
