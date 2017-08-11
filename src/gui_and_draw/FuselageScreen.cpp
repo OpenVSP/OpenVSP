@@ -179,7 +179,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.AddButton( m_FourInvertButton, "Invert Airfoil" );
 
-    //==== Sex Series AF ====//
+    //==== Six Series AF ====//
     m_SixSeriesGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
     m_SixSeriesGroup.SetY( start_y );
     m_SixSeriesGroup.AddYGap();
