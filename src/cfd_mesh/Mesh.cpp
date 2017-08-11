@@ -263,13 +263,15 @@ void Mesh::CondenseSimpTris()
         reMap.push_back( CheckDupOrAdd( simpTriVec[i].ind2, indMap, simpPntVec ) );
     }
 
-    //==== Reduce Point Vec ====//
+    //==== Reduce Point and UW Vec ====//
     vector< vec3d > rePntVec;
+    vector < vec2d > reUWVec;
     for ( int i = 0 ; i < ( int )reMap.size() ; i++ )
     {
         if ( i == reMap[i] )
         {
             rePntVec.push_back( simpPntVec[reMap[i]] );
+            reUWVec.push_back( simpUWPntVec[reMap[i]] );
             reMap[i] = rePntVec.size() - 1;
         }
         else
@@ -280,6 +282,7 @@ void Mesh::CondenseSimpTris()
     }
 
     simpPntVec = rePntVec;
+    simpUWPntVec = reUWVec;
     for ( int i = 0 ; i < ( int )simpTriVec.size() ; i++ )
     {
         simpTriVec[i].ind0 = reMap[3 * i];
