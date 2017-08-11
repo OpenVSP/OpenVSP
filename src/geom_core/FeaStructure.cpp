@@ -1167,55 +1167,101 @@ VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
         {
             if ( rotation <= max_angle_inner_le )
             {
-                perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
-                length_rib_le = abs( perp_dist / sin( rotation ) );
+                if ( abs( sin( rotation ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_rib_le = length_rib_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
+                    length_rib_le = abs( perp_dist / sin( rotation ) );
+                }
             }
             else
             {
-                length_rib_le = abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
+                if ( abs( sin( phi_le ) ) <= FLT_EPSILON )
+                {
+                    length_rib_le = length_rib_0;
+                }
+                else
+                {
+                    length_rib_le = abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
+                }
             }
 
             if ( rotation <= max_angle_outer_te )
             {
-                perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
-                length_rib_te = abs( perp_dist / sin( rotation ) );
+                if ( abs( sin( rotation ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_rib_te = length_rib_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
+                    length_rib_te = abs( perp_dist / sin( rotation ) );
+                }
             }
             else
             {
-                length_rib_te = abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
+                if ( abs( sin( phi_te ) ) <= FLT_EPSILON )
+                {
+                    length_rib_te = length_rib_0;
+                }
+                else
+                {
+                    length_rib_te = abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
+                }
             }
         }
         else
         {
             if ( rotation >= max_angle_inner_te )
             {
-                perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
-                length_rib_te = abs( perp_dist / sin( rotation ) );
+                if ( abs( sin( rotation ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_rib_te = length_rib_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
+                    length_rib_te = abs( perp_dist / sin( rotation ) );
+                }
             }
             else
             {
-                length_rib_te = abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
+                if ( abs( sin( phi_te ) ) <= FLT_EPSILON )
+                {
+                    length_rib_te = length_rib_0;
+                }
+                else
+                {
+                    length_rib_te = abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
+                }
             }
 
             if ( rotation >= max_angle_outer_le )
             {
-                perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
-                length_rib_le = abs( perp_dist / sin( rotation ) );
+                if ( abs( sin( rotation ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_rib_le = length_rib_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
+                    length_rib_le = abs( perp_dist / sin( rotation ) );
+                }
             }
             else
             {
-                length_rib_le = abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
+                if ( abs( sin( phi_le ) ) <= FLT_EPSILON )
+                {
+                    length_rib_le = length_rib_0;
+                }
+                else
+                {
+                    length_rib_le = abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
+                }
             }
-        }
-
-        if ( isnan( length_rib_le ) || isinf( length_rib_le ) )
-        {
-            length_rib_le = length_rib_0;
-        }
-
-        if ( isnan( length_rib_te ) || isinf( length_rib_te ) )
-        {
-            length_rib_te = length_rib_0;
         }
 
         // Apply Rodrigues' Rotation Formula
