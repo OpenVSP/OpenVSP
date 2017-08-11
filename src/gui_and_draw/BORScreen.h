@@ -30,9 +30,8 @@ public:
 protected:
 
     GroupLayout m_DesignLayout;
-    SliderAdjRangeInput m_ARadiusSlider;
-    SliderAdjRangeInput m_BRadiusSlider;
-    SliderAdjRangeInput m_CRadiusSlider;
+    SliderAdjRangeInput m_DiameterSlider;
+    SliderAdjRangeInput m_LengthSlider;
 };
 
 

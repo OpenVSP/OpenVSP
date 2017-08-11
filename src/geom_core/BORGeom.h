@@ -28,14 +28,19 @@ public:
 
     virtual void OffsetXSecs( double off );
 
-    Parm m_Aradius;
-    Parm m_Bradius;
-    Parm m_Cradius;
+    virtual void SetXSecCurve( XSecCurve* xs_crv );
+    virtual void SetXSecCurve( int type );
+
+    Parm m_Diameter;
+    Parm m_Length;
 
 protected:
     virtual void UpdateSurf();
 
     double m_Xoff;
+
+    XSecCurve *m_XSCurve;
+
 };
 
 

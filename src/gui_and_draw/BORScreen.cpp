@@ -21,9 +21,8 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "BOR" )
     m_DesignLayout.AddDividerBox( "Design" );
 
     //==== Design ====//
-    m_DesignLayout.AddSlider( m_ARadiusSlider, "A Radius", 10, "%7.3f" );
-    m_DesignLayout.AddSlider( m_BRadiusSlider, "B Radius", 10, "%7.3f" );
-    m_DesignLayout.AddSlider( m_CRadiusSlider, "C Radius", 10, "%7.3f" );
+    m_DesignLayout.AddSlider( m_DiameterSlider, "Diameter", 10, "%7.3f" );
+    m_DesignLayout.AddSlider( m_LengthSlider, "Length", 10, "%7.3f" );
 
     m_DesignLayout.AddYGap();
 
@@ -56,9 +55,8 @@ bool BORScreen::Update()
     //==== Update BOR Specific Parms ====//
     BORGeom* bor_ptr = dynamic_cast< BORGeom* >( geom_ptr );
     assert( bor_ptr );
-    m_ARadiusSlider.Update( bor_ptr->m_Aradius.GetID() );
-    m_BRadiusSlider.Update( bor_ptr->m_Bradius.GetID() );
-    m_CRadiusSlider.Update( bor_ptr->m_Cradius.GetID() );
+    m_DiameterSlider.Update( bor_ptr->m_Diameter.GetID() );
+    m_LengthSlider.Update( bor_ptr->m_Length.GetID() );
 
     return true;
 }
