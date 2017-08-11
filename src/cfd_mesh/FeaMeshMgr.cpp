@@ -12,6 +12,7 @@
 #include "APIDefines.h"
 #include "SubSurfaceMgr.h"
 #include "StructureMgr.h"
+#include "PntNodeMerge.h"
 
 //=============================================================//
 //=============================================================//
@@ -457,58 +458,162 @@ void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
 
 void FeaMeshMgrSingleton::BuildFeaMesh()
 {
-    // Build FeaTris
+    //==== Collect All Nodes and Tris ====//
+    vector < vec2d > all_uw_vec;
+    vector < int > uw_surf_ind_vec; // Vector of surface index for each UW point
+    vector < vec3d > all_pnt_vec;
+    vector < SimpTri > all_tri_vec;
+    vector < int > tri_surf_ind_vec; // Vector of surface index for each SimpTri
+
     for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
     {
-        vector < vec2d > uwvec = m_SurfVec[s]->GetMesh()->GetSimpUWPntVec();
-        vector < vec3d >pvec = m_SurfVec[s]->GetMesh()->GetSimpPntVec();
-        vector < SimpTri > tvec = m_SurfVec[s]->GetMesh()->GetSimpTriVec();
+        vector < vec2d > uw_vec_curr = m_SurfVec[s]->GetMesh()->GetSimpUWPntVec();
+        vector < vec3d > pnt_vec_curr = m_SurfVec[s]->GetMesh()->GetSimpPntVec();
+        vector < SimpTri > tri_vec_curr = m_SurfVec[s]->GetMesh()->GetSimpTriVec();
 
-        for ( int i = 0; i < (int)tvec.size(); i++ )
+        for ( size_t i = 0; i < tri_vec_curr.size(); i++ )
         {
-            // Determine tangent u-direction for orientation vector at tri midpoint
-            vec2d uw0 = uwvec[tvec[i].ind0];
-            vec2d uw1 = uwvec[tvec[i].ind1];
-            vec2d uw2 = uwvec[tvec[i].ind2];
+            // Offset SimpTri indexes 
+            tri_vec_curr[i].ind0 += all_pnt_vec.size();
+            tri_vec_curr[i].ind1 += all_pnt_vec.size();
+            tri_vec_curr[i].ind2 += all_pnt_vec.size();
 
-            vec2d avg_uw = ( uw0 + uw1 + uw2 ) / 3.0;
-
-            vec3d pnt0 = pvec[tvec[i].ind0];
-            vec3d pnt1 = pvec[tvec[i].ind1];
-            vec3d pnt2 = pvec[tvec[i].ind2];
-
-            vec3d avg_pnt = ( pnt0 + pnt1 + pnt2 ) / 3.0;
-
-            vec2d closest_uw = m_SurfVec[s]->ClosestUW( avg_pnt, avg_uw[0], avg_uw[1] );
-
-            vec3d orient_vec;
-
-            if ( m_SurfVec[s]->ValidUW( closest_uw ) )
-            {
-                orient_vec = m_SurfVec[s]->GetSurfCore()->CompTanU( closest_uw[0], closest_uw[1] );
-            }
-
-            orient_vec.normalize();
-
-            FeaTri* tri = new FeaTri;
-            tri->Create( pvec[tvec[i].ind0], pvec[tvec[i].ind1], pvec[tvec[i].ind2], orient_vec );
-            tri->SetFeaPartIndex( m_SurfVec[s]->GetFeaPartIndex() );
-
-            // Check for subsurface:
-            if ( tvec[i].m_Tags.size() == 2 )
-            {
-                // First index of m_Tags is the parent surface. Second index is subsurface index which begins 
-                //  from the last FeaPart surface index (FeaFixPoints are not tagged; they are not surfaces)
-                tri->SetFeaSSIndex( tvec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1 );
-            }
-            else if ( tvec[i].m_Tags.size() > 2 )
-            {
-                //Give priority to first tagged subsurface in the event of overlap
-                tri->SetFeaSSIndex( tvec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1 );
-            }
-
-            m_FeaElementVec.push_back( tri );
+            all_tri_vec.push_back( tri_vec_curr[i] );
+            tri_surf_ind_vec.push_back( s );
         }
+
+        for ( size_t i = 0; i < pnt_vec_curr.size(); i++ )
+        {
+            all_pnt_vec.push_back( pnt_vec_curr[i] );
+            all_uw_vec.push_back( uw_vec_curr[i] );
+            uw_surf_ind_vec.push_back( s );
+        }
+    }
+
+    if ( all_pnt_vec.size() == 0 )
+    {
+        m_FeaMeshInProgress = false;
+        return;
+    }
+
+    //==== Build Map ====//
+    PntNodeCloud pnCloud;
+    pnCloud.AddPntNodes( all_pnt_vec );
+
+    //==== Compute Tol ====//
+    BndBox bb = m_Vehicle->GetBndBox();
+    double tol = bb.GetLargestDist() * 1.0e-10;
+
+    //==== Use NanoFlann to Find Close Points and Group ====//
+    IndexPntNodes( pnCloud, tol );
+
+    //==== Load Used Nodes ====//
+    vector < vec3d > node_vec;
+    vector < vec2d > new_uw_vec;
+    vector < int > index_vec;
+    vector < int > new_uw_surf_ind_vec;
+    node_vec.reserve( pnCloud.m_NumUsedPts );
+    new_uw_vec.reserve( pnCloud.m_NumUsedPts );
+    index_vec.reserve( pnCloud.m_NumUsedPts );
+    new_uw_surf_ind_vec.reserve( pnCloud.m_NumUsedPts );
+
+    for ( size_t i = 0; i < (int)all_pnt_vec.size(); i++ )
+    {
+        if ( pnCloud.UsedNode( i ) )
+        {
+            node_vec.push_back( all_pnt_vec[i] );
+            new_uw_vec.push_back( all_uw_vec[i] );
+            new_uw_surf_ind_vec.push_back( uw_surf_ind_vec[i] );
+        }
+    }
+
+    //==== Set Adjusted Node IDs ====//
+    for ( size_t i = 0; i < (int)all_pnt_vec.size(); i++ )
+    {
+        index_vec.push_back( pnCloud.GetNodeUsedIndex( i ) );
+    }
+
+    for ( size_t i = 0; i < index_vec.size(); i++ )
+    {
+        for ( size_t j = 0; j < all_tri_vec.size(); j++ )
+        {
+            if ( all_tri_vec[j].ind0 == i && all_tri_vec[j].ind0 != index_vec[i] )
+            {
+                all_tri_vec[j].ind0 = index_vec[i];
+            }
+
+            if ( all_tri_vec[j].ind1 == i && all_tri_vec[j].ind1 != index_vec[i] )
+            {
+                all_tri_vec[j].ind1 = index_vec[i];
+            }
+
+            if ( all_tri_vec[j].ind2 == i && all_tri_vec[j].ind2 != index_vec[i] )
+            {
+                all_tri_vec[j].ind2 = index_vec[i];
+            }
+        }
+    }
+
+    // Build FeaTris
+    for ( int i = 0; i < (int)all_tri_vec.size(); i++ )
+    {
+        vec3d pnt0 = node_vec[all_tri_vec[i].ind0];
+        vec3d pnt1 = node_vec[all_tri_vec[i].ind1];
+        vec3d pnt2 = node_vec[all_tri_vec[i].ind2];
+
+        vec3d avg_pnt = ( pnt0 + pnt1 + pnt2 ) / 3.0;
+
+        // Determine initial guess for uw near SimpTri center (uw points defining SimpTri can be from different surfaces after adjustments) 
+        vec2d uw_guess;
+
+        if ( tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_tri_vec[i].ind0] )
+        {
+            uw_guess = new_uw_vec[all_tri_vec[i].ind0];
+        }
+        else if ( tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_tri_vec[i].ind1] )
+        {
+            uw_guess = new_uw_vec[all_tri_vec[i].ind1];
+        }
+        else if ( tri_surf_ind_vec[i] == new_uw_surf_ind_vec[all_tri_vec[i].ind2] )
+        {
+            uw_guess = new_uw_vec[all_tri_vec[i].ind2];
+        }
+        else
+        {
+            uw_guess.set_x( m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->GetMidU() );
+            uw_guess.set_y( m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->GetMidW() );
+        }
+
+        vec2d closest_uw = m_SurfVec[tri_surf_ind_vec[i]]->ClosestUW( avg_pnt, uw_guess[0], uw_guess[1] );
+
+        // Determine tangent u-direction for orientation vector at tri midpoint
+        vec3d orient_vec;
+
+        if ( m_SurfVec[tri_surf_ind_vec[i]]->ValidUW( closest_uw ) )
+        {
+            orient_vec = m_SurfVec[tri_surf_ind_vec[i]]->GetSurfCore()->CompTanU( closest_uw[0], closest_uw[1] );
+        }
+
+        orient_vec.normalize();
+
+        FeaTri* tri = new FeaTri;
+        tri->Create( node_vec[all_tri_vec[i].ind0], node_vec[all_tri_vec[i].ind1], node_vec[all_tri_vec[i].ind2], orient_vec );
+        tri->SetFeaPartIndex( m_SurfVec[tri_surf_ind_vec[i]]->GetFeaPartIndex() );
+
+        // Check for subsurface:
+        if ( all_tri_vec[i].m_Tags.size() == 2 )
+        {
+            // First index of m_Tags is the parent surface. Second index is subsurface index which begins 
+            //  from the last FeaPart surface index (FeaFixPoints are not tagged; they are not surfaces)
+            tri->SetFeaSSIndex( all_tri_vec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1 );
+        }
+        else if ( all_tri_vec[i].m_Tags.size() > 2 )
+        {
+            //Give priority to first tagged subsurface in the event of overlap
+            tri->SetFeaSSIndex( all_tri_vec[i].m_Tags[1] - ( m_NumFeaParts - m_NumFeaFixPoints ) - 1 );
+        }
+
+        m_FeaElementVec.push_back( tri );
     }
 
     // Build FeaBeam Intersections
