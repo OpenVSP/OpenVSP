@@ -13,7 +13,7 @@
 #include "ParmMgr.h"
 #include "StlHelper.h"
 #include "FuselageGeom.h"
-
+#include "BORGeom.h"
 #include "Vehicle.h"
 
 #include "eli/geom/curve/length.hpp"
@@ -244,6 +244,15 @@ void XSecCurve::Update()
     if ( xs )
     {
         if ( xs->GetType() == XSEC_WING || xs->GetType() == XSEC_PROP )
+        {
+            wingtype = true;
+        }
+    }
+    else
+    {
+        BORGeom* bg = dynamic_cast< BORGeom* > (pc);
+
+        if ( bg )
         {
             wingtype = true;
         }
