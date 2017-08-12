@@ -10,6 +10,7 @@
 #include "LinkMgr.h"
 #include "Vehicle.h"
 #include "APIDefines.h"
+#include "VspCurve.h"
 
 typedef eli::geom::curve::piecewise_ellipse_creator<double, 3, curve_tolerance_type> piecewise_ellipse_creator;
 
@@ -29,6 +30,12 @@ BORGeom::BORGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_Length.Init( "Length", "Design", this, 1.0, 0.0, 1.0e12 );
     m_Length.SetDescript( "Length of BOR" );
+
+    m_LECluster.Init( "LECluster", m_Name, this, 0.25, 1e-4, 10.0 );
+    m_LECluster.SetDescript( "LE Tess Cluster Control" );
+
+    m_TECluster.Init( "TECluster", m_Name, this, 0.25, 1e-4, 10.0 );
+    m_TECluster.SetDescript( "TE Tess Cluster Control" );
 
     m_Xoff = 0.0;
 
@@ -61,12 +68,19 @@ void BORGeom::UpdateSurf()
     stringer.OffsetY( m_Diameter() );
 
     // Revolve to unit sphere
-    m_MainSurfVec[0].CreateBodyRevolution( stringer );
+    m_MainSurfVec[0].CreateBodyRevolution( stringer, true );
+
+    m_MainSurfVec[0].SwapUWDirections();
+    m_MainSurfVec[0].ReverseWDirection();
 
     // Shift so nose is at origin
     m_MainSurfVec[0].OffsetX( m_Xoff );
 
-    m_MainSurfVec[0].SetMagicVParm( false );
+    m_MainSurfVec[0].SetSurfType( vsp::WING_SURF );
+    m_MainSurfVec[0].SetMagicVParm( true );
+
+    m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
+
 }
 
 //==== Compute Rotation Center ====//
@@ -118,4 +132,41 @@ void BORGeom::SetXSecCurveType( int type )
     m_XSCurve->SetWidthHeight( w, h );
 
     Update();
+}
+
+void BORGeom::UpdateDrawObj()
+{
+    Geom::UpdateDrawObj();
+
+
+    double w = m_XSCurve->GetWidth();
+
+    Matrix4d mat;
+    XSecSurf::GetBasicTransformation( vsp::Z_DIR, vsp::X_DIR, vsp::XS_SHIFT_MID, false, 1.0, mat );
+
+    mat.scale( 1.0/w );
+    VspCurve crv = m_XSCurve->GetCurve();
+    crv.Transform( mat );
+
+    vector< vec3d > pts;
+    crv.TessAdapt( pts, 1e-4, 10 );
+
+    m_CurrentXSecDrawObj.m_PntVec = pts;
+    m_CurrentXSecDrawObj.m_LineWidth = 3;
+    m_CurrentXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 0.0 );
+    m_CurrentXSecDrawObj.m_Type = DrawObj::VSP_LINES;
+    m_CurrentXSecDrawObj.m_GeomChanged = true;
+
+}
+
+void BORGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    Geom::LoadDrawObjs( draw_obj_vec );
+
+    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    {
+        m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
+        m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";
+        draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
+    }
 }

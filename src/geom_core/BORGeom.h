@@ -32,16 +32,24 @@ public:
 
     XSecCurve* GetXSecCurve()       { return m_XSCurve; }
 
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+
     Parm m_Diameter;
     Parm m_Length;
 
+    Parm m_LECluster;
+    Parm m_TECluster;
+
 protected:
     virtual void UpdateSurf();
+
+    virtual void UpdateDrawObj();
 
     double m_Xoff;
 
     XSecCurve *m_XSCurve;
 
+    DrawObj m_CurrentXSecDrawObj;
 };
 
 

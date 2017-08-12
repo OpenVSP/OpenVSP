@@ -36,6 +36,10 @@ protected:
     SliderAdjRangeInput m_BORDiameterSlider;
     SliderAdjRangeInput m_LengthSlider;
 
+    SliderAdjRangeInput m_CapTessSlider;
+
+    SliderAdjRangeInput m_LEClusterSlider;
+    SliderAdjRangeInput m_TEClusterSlider;
 
     GroupLayout m_XSecLayout;
 
@@ -150,6 +154,55 @@ protected:
     SliderAdjRangeInput m_VKTEpsilonSlider;
     SliderAdjRangeInput m_VKTKappaSlider;
     SliderAdjRangeInput m_VKTTauSlider;
+
+    // Modify tab
+    GroupLayout m_ModifyLayout;
+
+    Choice m_TECloseChoice;
+    ToggleButton m_TECloseABSButton;
+    ToggleButton m_TECloseRELButton;
+    ToggleRadioGroup m_TECloseGroup;
+
+    SliderAdjRange2Input m_CloseTEThickSlider;
+
+    Choice m_TETrimChoice;
+    ToggleButton m_TETrimABSButton;
+    ToggleButton m_TETrimRELButton;
+    ToggleRadioGroup m_TETrimGroup;
+
+    SliderAdjRange2Input m_TrimTEXSlider;
+    SliderAdjRange2Input m_TrimTEThickSlider;
+
+    Choice m_TECapChoice;
+    SliderAdjRangeInput m_TECapLengthSlider;
+    SliderAdjRangeInput m_TECapOffsetSlider;
+    SliderAdjRangeInput m_TECapStrengthSlider;
+
+    Choice m_LECloseChoice;
+    ToggleButton m_LECloseABSButton;
+    ToggleButton m_LECloseRELButton;
+    ToggleRadioGroup m_LECloseGroup;
+
+    SliderAdjRange2Input m_CloseLEThickSlider;
+
+    Choice m_LETrimChoice;
+    ToggleButton m_LETrimABSButton;
+    ToggleButton m_LETrimRELButton;
+    ToggleRadioGroup m_LETrimGroup;
+
+    SliderAdjRange2Input m_TrimLEXSlider;
+    SliderAdjRange2Input m_TrimLEThickSlider;
+
+    Choice m_LECapChoice;
+    SliderAdjRangeInput m_LECapLengthSlider;
+    SliderAdjRangeInput m_LECapOffsetSlider;
+    SliderAdjRangeInput m_LECapStrengthSlider;
+
+    SliderAdjRangeInput m_AFThetaSlider;
+    SliderAdjRangeInput m_AFScaleSlider;
+    SliderAdjRangeInput m_AFDeltaXSlider;
+    SliderAdjRangeInput m_AFDeltaYSlider;
+    SliderAdjRangeInput m_AFShiftLESlider;
 
     GroupLayout* m_CurrDisplayGroup;
     void DisplayGroup( GroupLayout* group );

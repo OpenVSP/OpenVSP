@@ -12,7 +12,7 @@
 
 
 //==== Constructor ====//
-BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "BOR" )
+BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
@@ -25,6 +25,13 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "BOR" )
     m_DesignLayout.AddSlider( m_LengthSlider, "Length", 10, "%7.3f" );
 
     m_DesignLayout.AddYGap();
+
+    m_DesignLayout.AddDividerBox( "Tessellation Control" );
+    m_DesignLayout.AddSlider( m_LEClusterSlider, "LE Clustering", 1, "%6.5f" );
+    m_DesignLayout.AddSlider( m_TEClusterSlider, "TE Clustering", 1, "%6.5f" );
+
+
+    m_DesignLayout.AddSlider( m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
 
 
     //==== XSec ====//
@@ -272,7 +279,181 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "BOR" )
 
     DisplayGroup( &m_PointGroup );
 
+    //==== Modify ====//
 
+    Fl_Group* modify_tab = AddTab( "Modify" );
+    Fl_Group* modify_group = AddSubGroup( modify_tab, 5 );
+
+    m_ModifyLayout.SetButtonWidth( 70 );
+
+    m_ModifyLayout.SetGroupAndScreen( modify_group, this );
+    m_ModifyLayout.AddDividerBox( "Airfoil Section" );
+
+    m_ModifyLayout.AddYGap();
+
+    m_ModifyLayout.InitWidthHeightVals();
+    m_ModifyLayout.AddDividerBox( "Shift, Rotate, & Scale" );
+
+    m_ModifyLayout.AddSlider( m_AFDeltaXSlider, "Delta X/C", 1, "%7.3f" );
+    m_ModifyLayout.AddSlider( m_AFDeltaYSlider, "Delta Y/C", 1, "%7.3f" );
+    m_ModifyLayout.AddSlider( m_AFThetaSlider, "Theta", 20, "%7.3f" );
+    m_ModifyLayout.AddSlider( m_AFScaleSlider, "Scale", 1, "%7.3f" );
+    m_ModifyLayout.AddSlider( m_AFShiftLESlider, "Shift LE", 1, "%7.3f" );
+
+    m_ModifyLayout.SetChoiceButtonWidth( 74 );
+
+    m_ModifyLayout.AddYGap();
+
+    m_ModifyLayout.AddDividerBox( "Leading Edge" );
+    m_LECapChoice.AddItem( "FLAT" );
+    m_LECapChoice.AddItem( "ROUND" );
+    m_LECapChoice.AddItem( "EDGE" );
+    m_LECapChoice.AddItem( "SHARP" );
+    m_LECapChoice.SetOffset( vsp::FLAT_END_CAP );
+
+    m_ModifyLayout.AddChoice( m_LECapChoice, "Cap" );
+
+    m_ModifyLayout.AddSlider( m_LECapLengthSlider, "Length", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_LECapOffsetSlider, "Offset", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_LECapStrengthSlider, "Strength", 10.0, "%6.5f" );
+
+    m_LECloseChoice.AddItem( "NONE" );
+    m_LECloseChoice.AddItem( "SKEW LOWER" );
+    m_LECloseChoice.AddItem( "SKEW UPPER" );
+    m_LECloseChoice.AddItem( "SKEW BOTH" );
+
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( true );
+
+    m_ModifyLayout.AddYGap();
+
+    m_ModifyLayout.AddChoice( m_LECloseChoice, "Closure:", m_ModifyLayout.GetButtonWidth() * 2 );
+
+    m_ModifyLayout.SetFitWidthFlag( false );
+    m_ModifyLayout.AddButton( m_LECloseABSButton, "Abs" );
+    m_ModifyLayout.AddButton( m_LECloseRELButton, "Rel" );
+
+    m_LECloseGroup.Init( this );
+    m_LECloseGroup.AddButton( m_LECloseABSButton.GetFlButton() );
+    m_LECloseGroup.AddButton( m_LECloseRELButton.GetFlButton() );
+
+    vector< int > close_val_map;
+    close_val_map.push_back( vsp::ABS );
+    close_val_map.push_back( vsp::REL );
+    m_LECloseGroup.SetValMapVec( close_val_map );
+
+    m_ModifyLayout.ForceNewLine();
+
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( false );
+
+    m_ModifyLayout.AddSlider( m_CloseLEThickSlider, "T", 10.0, "%6.5f" );
+
+    m_ModifyLayout.AddYGap();
+
+    m_LETrimChoice.AddItem( "NONE" );
+    m_LETrimChoice.AddItem( "X" );
+    m_LETrimChoice.AddItem( "THICK" );
+
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( true );
+
+    m_ModifyLayout.AddChoice( m_LETrimChoice, "Trim:", m_ModifyLayout.GetButtonWidth() * 2 );
+
+    m_ModifyLayout.SetFitWidthFlag( false );
+    m_ModifyLayout.AddButton( m_LETrimABSButton, "Abs" );
+    m_ModifyLayout.AddButton( m_LETrimRELButton, "Rel" );
+
+    m_LETrimGroup.Init( this );
+    m_LETrimGroup.AddButton( m_LETrimABSButton.GetFlButton() );
+    m_LETrimGroup.AddButton( m_LETrimRELButton.GetFlButton() );
+
+    vector< int > trim_val_map;
+    trim_val_map.push_back( vsp::ABS );
+    trim_val_map.push_back( vsp::REL );
+    m_LETrimGroup.SetValMapVec( trim_val_map );
+
+    m_ModifyLayout.ForceNewLine();
+
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( false );
+
+    m_ModifyLayout.AddSlider( m_TrimLEXSlider, "X", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TrimLEThickSlider, "T", 10.0, "%6.5f" );
+
+    m_ModifyLayout.AddYGap();
+
+    m_ModifyLayout.AddDividerBox( "Trailing Edge" );
+    m_TECapChoice.AddItem( "FLAT" );
+    m_TECapChoice.AddItem( "ROUND" );
+    m_TECapChoice.AddItem( "EDGE" );
+    m_TECapChoice.AddItem( "SHARP" );
+    m_TECapChoice.SetOffset( vsp::FLAT_END_CAP );
+
+    m_ModifyLayout.AddChoice( m_TECapChoice, "Cap:" );
+
+    m_ModifyLayout.AddSlider( m_TECapLengthSlider, "Length", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TECapOffsetSlider, "Offset", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TECapStrengthSlider, "Strength", 10.0, "%6.5f" );
+
+    m_TECloseChoice.AddItem( "NONE" );
+    m_TECloseChoice.AddItem( "SKEW LOWER" );
+    m_TECloseChoice.AddItem( "SKEW UPPER" );
+    m_TECloseChoice.AddItem( "SKEW BOTH" );
+    m_TECloseChoice.AddItem( "EXTRAPOLATE" );
+
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( true );
+
+    m_ModifyLayout.AddYGap();
+
+    m_ModifyLayout.AddChoice( m_TECloseChoice, "Closure:", m_ModifyLayout.GetButtonWidth() * 2 );
+
+    m_ModifyLayout.SetFitWidthFlag( false );
+    m_ModifyLayout.AddButton( m_TECloseABSButton, "Abs" );
+    m_ModifyLayout.AddButton( m_TECloseRELButton, "Rel" );
+
+    m_TECloseGroup.Init( this );
+    m_TECloseGroup.AddButton( m_TECloseABSButton.GetFlButton() );
+    m_TECloseGroup.AddButton( m_TECloseRELButton.GetFlButton() );
+
+    m_TECloseGroup.SetValMapVec( close_val_map );
+
+    m_ModifyLayout.ForceNewLine();
+
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( false );
+
+    m_ModifyLayout.AddSlider( m_CloseTEThickSlider, "T", 10.0, "%6.5f" );
+
+    m_ModifyLayout.AddYGap();
+
+    m_TETrimChoice.AddItem( "NONE" );
+    m_TETrimChoice.AddItem( "X" );
+    m_TETrimChoice.AddItem( "THICK" );
+
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( true );
+
+    m_ModifyLayout.AddChoice( m_TETrimChoice, "Trim:", m_ModifyLayout.GetButtonWidth() * 2 );
+
+    m_ModifyLayout.SetFitWidthFlag( false );
+    m_ModifyLayout.AddButton( m_TETrimABSButton, "Abs" );
+    m_ModifyLayout.AddButton( m_TETrimRELButton, "Rel" );
+
+    m_TETrimGroup.Init( this );
+    m_TETrimGroup.AddButton( m_TETrimABSButton.GetFlButton() );
+    m_TETrimGroup.AddButton( m_TETrimRELButton.GetFlButton() );
+
+    m_TETrimGroup.SetValMapVec( trim_val_map );
+
+    m_ModifyLayout.ForceNewLine();
+
+    m_ModifyLayout.SetFitWidthFlag( true );
+    m_ModifyLayout.SetSameLineFlag( false );
+
+    m_ModifyLayout.AddSlider( m_TrimTEXSlider, "X", 10.0, "%6.5f" );
+    m_ModifyLayout.AddSlider( m_TrimTEThickSlider, "T", 10.0, "%6.5f" );
 
 }
 
@@ -306,6 +487,10 @@ bool BORScreen::Update()
     m_BORDiameterSlider.Update( bor_ptr->m_Diameter.GetID() );
     m_LengthSlider.Update( bor_ptr->m_Length.GetID() );
 
+    m_LEClusterSlider.Update( bor_ptr->m_LECluster.GetID() );
+    m_TEClusterSlider.Update( bor_ptr->m_TECluster.GetID() );
+
+    m_CapTessSlider.Update( bor_ptr->m_CapUMinTess.GetID() );
 
     XSecCurve* xsc = bor_ptr->GetXSecCurve();
     if ( xsc )
@@ -512,6 +697,251 @@ bool BORScreen::Update()
             m_VKTKappaSlider.Update( vkt_xs->m_Kappa.GetID() );
             m_VKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
         }
+
+        m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
+        m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
+
+        if ( xsc->m_TECloseType() != vsp::CLOSE_NONE )
+        {
+            m_TECloseABSButton.Activate();
+            m_TECloseRELButton.Activate();
+            m_CloseTEThickSlider.Activate();
+
+            if ( xsc->m_TECloseAbsRel() == vsp::ABS )
+            {
+                xsc->m_TECloseThick.Activate();
+                xsc->m_TECloseThickChord.Deactivate();
+            }
+            else
+            {
+                xsc->m_TECloseThick.Deactivate();
+                xsc->m_TECloseThickChord.Activate();
+            }
+        }
+        else
+        {
+            m_TECloseABSButton.Deactivate();
+            m_TECloseRELButton.Deactivate();
+            m_CloseTEThickSlider.Deactivate();
+            xsc->m_TECloseThick.Deactivate();
+            xsc->m_TECloseThickChord.Deactivate();
+        }
+
+        if ( xsc->m_TECloseAbsRel() == vsp::ABS )
+        {
+            m_CloseTEThickSlider.Update( 1, xsc->m_TECloseThick.GetID(), xsc->m_TECloseThickChord.GetID() );
+        }
+        else
+        {
+            m_CloseTEThickSlider.Update( 2, xsc->m_TECloseThick.GetID(), xsc->m_TECloseThickChord.GetID() );
+        }
+
+        m_LECloseChoice.Update( xsc->m_LECloseType.GetID() );
+        m_LECloseGroup.Update( xsc->m_LECloseAbsRel.GetID() );
+
+        if ( xsc->m_LECloseType() != vsp::CLOSE_NONE )
+        {
+            m_LECloseABSButton.Activate();
+            m_LECloseRELButton.Activate();
+            m_CloseLEThickSlider.Activate();
+
+            if ( xsc->m_LECloseAbsRel() == vsp::ABS )
+            {
+                xsc->m_LECloseThick.Activate();
+                xsc->m_LECloseThickChord.Deactivate();
+            }
+            else
+            {
+                xsc->m_LECloseThick.Deactivate();
+                xsc->m_LECloseThickChord.Activate();
+            }
+        }
+        else
+        {
+            m_LECloseABSButton.Deactivate();
+            m_LECloseRELButton.Deactivate();
+            m_CloseLEThickSlider.Deactivate();
+            xsc->m_LECloseThick.Deactivate();
+            xsc->m_LECloseThickChord.Deactivate();
+        }
+
+        if ( xsc->m_LECloseAbsRel() == vsp::ABS )
+        {
+            m_CloseLEThickSlider.Update( 1, xsc->m_LECloseThick.GetID(), xsc->m_LECloseThickChord.GetID() );
+        }
+        else
+        {
+            m_CloseLEThickSlider.Update( 2, xsc->m_LECloseThick.GetID(), xsc->m_LECloseThickChord.GetID() );
+        }
+
+        m_TETrimChoice.Update( xsc->m_TETrimType.GetID() );
+        m_TETrimGroup.Update( xsc->m_TETrimAbsRel.GetID() );
+
+        m_TrimTEXSlider.Deactivate();
+        m_TrimTEThickSlider.Deactivate();
+        m_TETrimABSButton.Deactivate();
+        m_TETrimRELButton.Deactivate();
+
+        xsc->m_TETrimX.Deactivate();
+        xsc->m_TETrimXChord.Deactivate();
+        xsc->m_TETrimThickChord.Deactivate();
+        xsc->m_TETrimThick.Deactivate();
+
+        if ( xsc->m_TETrimType() != vsp::TRIM_NONE )
+        {
+            m_TETrimABSButton.Activate();
+            m_TETrimRELButton.Activate();
+        }
+
+        if ( xsc->m_TETrimType() == vsp::TRIM_X )
+        {
+            if ( xsc->m_TETrimAbsRel() == vsp::ABS )
+            {
+                xsc->m_TETrimX.Activate();
+            }
+            else
+            {
+                xsc->m_TETrimXChord.Activate();
+            }
+        }
+        else if ( xsc->m_TETrimType() == vsp::TRIM_THICK )
+        {
+            if ( xsc->m_TETrimAbsRel() == vsp::ABS )
+            {
+                xsc->m_TETrimThick.Activate();
+            }
+            else
+            {
+                xsc->m_TETrimThickChord.Activate();
+            }
+        }
+
+        if ( xsc->m_TETrimAbsRel() == vsp::ABS )
+        {
+            m_TrimTEXSlider.Update( 1, xsc->m_TETrimX.GetID(), xsc->m_TETrimXChord.GetID() );
+            m_TrimTEThickSlider.Update( 1, xsc->m_TETrimThick.GetID(), xsc->m_TETrimThickChord.GetID() );
+        }
+        else
+        {
+            m_TrimTEXSlider.Update( 2, xsc->m_TETrimX.GetID(), xsc->m_TETrimXChord.GetID() );
+            m_TrimTEThickSlider.Update( 2, xsc->m_TETrimThick.GetID(), xsc->m_TETrimThickChord.GetID() );
+        }
+
+        m_LETrimChoice.Update( xsc->m_LETrimType.GetID() );
+        m_LETrimGroup.Update( xsc->m_LETrimAbsRel.GetID() );
+
+        m_TrimLEXSlider.Deactivate();
+        m_TrimLEThickSlider.Deactivate();
+        m_LETrimABSButton.Deactivate();
+        m_LETrimRELButton.Deactivate();
+
+        xsc->m_LETrimX.Deactivate();
+        xsc->m_LETrimXChord.Deactivate();
+        xsc->m_LETrimThickChord.Deactivate();
+        xsc->m_LETrimThick.Deactivate();
+
+        if ( xsc->m_LETrimType() != vsp::TRIM_NONE )
+        {
+            m_LETrimABSButton.Activate();
+            m_LETrimRELButton.Activate();
+        }
+
+        if ( xsc->m_LETrimType() == vsp::TRIM_X )
+        {
+            if ( xsc->m_LETrimAbsRel() == vsp::ABS )
+            {
+                xsc->m_LETrimX.Activate();
+            }
+            else
+            {
+                xsc->m_LETrimXChord.Activate();
+            }
+        }
+        else if ( xsc->m_LETrimType() == vsp::TRIM_THICK )
+        {
+            if ( xsc->m_LETrimAbsRel() == vsp::ABS )
+            {
+                xsc->m_LETrimThick.Activate();
+            }
+            else
+            {
+                xsc->m_LETrimThickChord.Activate();
+            }
+        }
+
+        if ( xsc->m_LETrimAbsRel() == vsp::ABS )
+        {
+            m_TrimLEXSlider.Update( 1, xsc->m_LETrimX.GetID(), xsc->m_LETrimXChord.GetID() );
+            m_TrimLEThickSlider.Update( 1, xsc->m_LETrimThick.GetID(), xsc->m_LETrimThickChord.GetID() );
+        }
+        else
+        {
+            m_TrimLEXSlider.Update( 2, xsc->m_LETrimX.GetID(), xsc->m_LETrimXChord.GetID() );
+            m_TrimLEThickSlider.Update( 2, xsc->m_LETrimThick.GetID(), xsc->m_LETrimThickChord.GetID() );
+        }
+
+        m_TECapChoice.Update( xsc->m_TECapType.GetID() );
+
+        m_TECapLengthSlider.Update( xsc->m_TECapLength.GetID() );
+        m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
+        m_TECapStrengthSlider.Update( xsc->m_TECapStrength.GetID() );
+
+        m_TECapLengthSlider.Deactivate();
+        m_TECapOffsetSlider.Deactivate();
+        m_TECapStrengthSlider.Deactivate();
+
+        switch( xsc->m_TECapType() ){
+            case vsp::FLAT_END_CAP:
+                break;
+            case vsp::ROUND_END_CAP:
+                m_TECapLengthSlider.Activate();
+                m_TECapOffsetSlider.Activate();
+                break;
+            case vsp::EDGE_END_CAP:
+                m_TECapLengthSlider.Activate();
+                m_TECapOffsetSlider.Activate();
+                break;
+            case vsp::SHARP_END_CAP:
+                m_TECapLengthSlider.Activate();
+                m_TECapOffsetSlider.Activate();
+                m_TECapStrengthSlider.Activate();
+                break;
+        }
+
+        m_LECapChoice.Update( xsc->m_LECapType.GetID() );
+
+        m_LECapLengthSlider.Update( xsc->m_LECapLength.GetID() );
+        m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
+        m_LECapStrengthSlider.Update( xsc->m_LECapStrength.GetID() );
+
+        m_LECapLengthSlider.Deactivate();
+        m_LECapOffsetSlider.Deactivate();
+        m_LECapStrengthSlider.Deactivate();
+
+        switch( xsc->m_LECapType() ){
+            case vsp::FLAT_END_CAP:
+                break;
+            case vsp::ROUND_END_CAP:
+                m_LECapLengthSlider.Activate();
+                m_LECapOffsetSlider.Activate();
+                break;
+            case vsp::EDGE_END_CAP:
+                m_LECapLengthSlider.Activate();
+                m_LECapOffsetSlider.Activate();
+                break;
+            case vsp::SHARP_END_CAP:
+                m_LECapLengthSlider.Activate();
+                m_LECapOffsetSlider.Activate();
+                m_LECapStrengthSlider.Activate();
+                break;
+        }
+
+        m_AFThetaSlider.Update( xsc->m_Theta.GetID() );
+        m_AFScaleSlider.Update( xsc->m_Scale.GetID() );
+        m_AFDeltaXSlider.Update( xsc->m_DeltaX.GetID() );
+        m_AFDeltaYSlider.Update( xsc->m_DeltaY.GetID() );
+        m_AFShiftLESlider.Update( xsc->m_ShiftLE.GetID() );
+
     }
 
     return true;
@@ -532,6 +962,10 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         int t = m_XSecTypeChoice.GetVal();
         bor_ptr->SetXSecCurveType( t );
+    }
+    else if ( gui_device == &m_ShowXSecButton )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_XSEC_SCREEN );
     }
 
     GeomScreen::GuiDeviceCallBack( gui_device );
