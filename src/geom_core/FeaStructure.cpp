@@ -2005,90 +2005,96 @@ void FeaSpar::ComputePlanarSurf()
         wing_surf.GetBoundingBox( wing_bbox );
 
         int num_wing_sec = wing->NumXSec();
-        int u_max = wing_surf.GetUMax();
-        double u_step = 1.0 / u_max;
-
-        // Init values:
-        double u_0 = u_step;
-        double u_f = u_step * num_wing_sec;
-        int curr_sec_ind = -1;
+        int U_max = wing_surf.GetUMax();
 
         m_CurrWingSection.SetUpperLimit( num_wing_sec - 1 );
 
-        double u_sec_min, u_sec_max, per_v, chord_length;
+        double U_sec_min, U_sec_max, per_v;
 
         // Determine U limits of spar
         if ( m_LimitSparToSectionFlag() )
         {
-            WingSect* wing_sec = wing->GetWingSect( m_CurrWingSection() );
-
-            if ( wing_sec )
+            if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
             {
-                chord_length = wing_sec->m_AvgChord();
+                U_sec_min = ( m_CurrWingSection() - 1 );
+            }
+            else
+            {
+                U_sec_min = m_CurrWingSection();
             }
 
-            u_sec_min = ( m_CurrWingSection() * u_step );
-            u_sec_max = u_sec_min + u_step;
+            U_sec_max = U_sec_min + 1;
         }
         else
         {
-            chord_length = wing->m_TotalChord();
-            u_sec_min = u_step;
-            u_sec_max = u_f;
+            if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
+            {
+                U_sec_min = 0;
+            }
+            else
+            {
+                U_sec_min = 1;
+            }
+            if ( wing->m_CapUMaxOption() == vsp::NO_END_CAP )
+            {
+                U_sec_max = U_max;
+            }
+            else
+            {
+                U_sec_max = U_max - 1;
+            }
         }
 
-        // Set parm limits and convert to percent V if parameterized by chord length value
+        double u_mid = ( ( U_sec_min + U_sec_max ) / 2 ) / U_max;
+
+        vec3d chord_line = wing_surf.CompPnt01( u_mid, 0.5 ) - wing_surf.CompPnt01( u_mid, 0.0 ); // average chord vector
+        double chord_length = dist( wing_surf.CompPnt01( u_mid, 0.5 ), wing_surf.CompPnt01( u_mid, 0.0 ) ); // average chord length
+
+        // Set parm limits and convert to percent V
         if ( m_LocationParmType() == PERCENT )
         {
             m_CenterLocation.SetUpperLimit( 100 );
 
-            per_v = m_CenterLocation() / 200;
+            per_v = m_CenterLocation() / 100;
         }
         else if ( m_LocationParmType() == LENGTH )
         {
             m_CenterLocation.SetUpperLimit( chord_length );
 
-            per_v = m_CenterLocation() / ( 2 * chord_length );
+            per_v = m_CenterLocation() / chord_length;
         }
-
-        VspCurve constant_v_curve;
-        wing_surf.GetW01ConstCurve( constant_v_curve, per_v );
-
-        piecewise_curve_type v_curve = constant_v_curve.GetCurve();
-
-        vec3d inside_edge, outside_edge;
-
-        if ( m_LimitSparToSectionFlag() )
-        {
-            VspCurve constant_v_curve_top;
-            wing_surf.GetW01ConstCurve( constant_v_curve_top, 1.0 - per_v );
-
-            piecewise_curve_type v_curve_top = constant_v_curve_top.GetCurve();
-
-            // Use center of chord for inner/outer edge vectors
-            inside_edge = ( v_curve_top.f( u_sec_min * u_max ) + v_curve.f( u_sec_min * u_max ) ) / 2;
-            outside_edge = ( v_curve_top.f( u_sec_max * u_max ) + v_curve.f( u_sec_max * u_max ) ) / 2;
-        }
-        else
-        {
-            inside_edge = v_curve.f( 0.0 );
-            outside_edge = v_curve.f( u_max );
-        }
-
-        double length_spar_0 = dist( inside_edge, outside_edge ) / 2; // Initial spar half length
 
         VspCurve constant_u_curve;
-        wing_surf.GetU01ConstCurve( constant_u_curve, ( u_sec_min + u_sec_max ) / 2 );
+        wing_surf.GetU01ConstCurve( constant_u_curve, u_mid );
 
         piecewise_curve_type u_curve = constant_u_curve.GetCurve();
 
-        double v_min = u_curve.get_parameter_min(); // Really must be 0.0
-        double v_max = u_curve.get_parameter_max(); // Really should be 4.0
-        double v_leading_edge = ( v_min + v_max ) * 0.5;
+        double V_min = u_curve.get_parameter_min(); // Really must be 0.0
+        double V_max = u_curve.get_parameter_max(); // Really should be 4.0
+        double V_leading_edge = ( V_min + V_max ) * 0.5;
+
+        // Wing corner points:
+        vec3d min_trail_edge = wing_surf.CompPnt( U_sec_min, 0.0 );
+        vec3d min_lead_edge = wing_surf.CompPnt( U_sec_min, V_leading_edge );
+        vec3d max_trail_edge = wing_surf.CompPnt( U_sec_max, 0.0 );
+        vec3d max_lead_edge = wing_surf.CompPnt( U_sec_max, V_leading_edge );
+
+        // Determine inner edge and outer edge spar points before rotations
+        vec3d inside_edge_vec = min_lead_edge - min_trail_edge;
+        double inside_edge_length = inside_edge_vec.mag();
+        inside_edge_vec.normalize();
+        vec3d inside_edge_pnt = min_lead_edge - ( per_v * inside_edge_length ) * inside_edge_vec;
+
+        vec3d outside_edge_vec = max_lead_edge - max_trail_edge;
+        double outside_edge_length = outside_edge_vec.mag();
+        outside_edge_vec.normalize();
+        vec3d outside_edge_pnt = max_lead_edge - ( per_v * outside_edge_length ) * outside_edge_vec;
+
+        double length_spar_0 = dist( inside_edge_pnt, outside_edge_pnt ) / 2; // Initial spar half length
 
         // Find two points slightly above and below the trailing edge
-        double v_trail_edge_low = v_min + 2 * TMAGIC;
-        double v_trail_edge_up = v_max - 2 * TMAGIC;
+        double v_trail_edge_low = V_min + 2 * TMAGIC;
+        double v_trail_edge_up = V_max - 2 * TMAGIC;
 
         vec3d trail_edge_up, trail_edge_low;
         trail_edge_up = u_curve.f( v_trail_edge_low );
@@ -2099,19 +2105,13 @@ void FeaSpar::ComputePlanarSurf()
 
         double height = 0.5 * wing_bbox.GetSmallestDist() + 2 * FLT_EPSILON; // Height of spar, slightly oversized
 
-        vec3d center = ( inside_edge + outside_edge ) / 2; // center of spar
+        vec3d center = ( inside_edge_pnt + outside_edge_pnt ) / 2; // center of spar
 
-        vec3d center_to_inner_edge = center - inside_edge;
-        vec3d center_to_outer_edge = outside_edge - center;
+        vec3d center_to_inner_edge = inside_edge_pnt - center;
+        vec3d center_to_outer_edge = outside_edge_pnt - center;
 
         center_to_inner_edge.normalize();
         center_to_outer_edge.normalize();
-
-        // Wing corner points:
-        vec3d min_trail_edge = wing_surf.CompPnt( u_sec_min * u_max, 0.0 );
-        vec3d min_lead_edge = wing_surf.CompPnt( u_sec_min * u_max, v_leading_edge );
-        vec3d max_trail_edge = wing_surf.CompPnt( u_sec_max * u_max, 0.0 );
-        vec3d max_lead_edge = wing_surf.CompPnt( u_sec_max * u_max, v_leading_edge );
 
         // Wing edge vectors (assumes linearity)
         vec3d trail_edge_vec = max_trail_edge - min_trail_edge;
@@ -2153,13 +2153,13 @@ void FeaSpar::ComputePlanarSurf()
         double theta = DEG_2_RAD * m_Theta(); // User defined angle converted to Rad
 
         // Get maximum angles for spar to intersect wing edges
-        double max_angle_inner_le = PI + signed_angle( center_to_le_in_vec, center_to_inner_edge, normal_vec );
-        double max_angle_inner_te = -1 * PI + signed_angle( center_to_te_in_vec, center_to_inner_edge, normal_vec );
+        double max_angle_inner_le = -1 * signed_angle( center_to_inner_edge, center_to_le_in_vec, normal_vec );
+        double max_angle_inner_te = -1 * signed_angle( center_to_inner_edge, center_to_te_in_vec, normal_vec );
         double max_angle_outer_le = signed_angle( center_to_le_out_vec, center_to_outer_edge, normal_vec );
         double max_angle_outer_te = signed_angle( center_to_te_out_vec, center_to_outer_edge, normal_vec );
 
         double beta_te = -1 * signed_angle( center_to_outer_edge, trail_edge_vec, normal_vec ); // Angle between spar and trailing edge
-        double beta_le = -1 * signed_angle( lead_edge_vec, center_to_inner_edge, normal_vec ); // Angle between spar and leading edge
+        double beta_le = -1 * PI + signed_angle( center_to_inner_edge, lead_edge_vec, normal_vec ); // Angle between spar and leading edge
 
         double length_spar_in, length_spar_out, perp_dist;
 
@@ -2277,7 +2277,7 @@ void FeaSpar::ComputePlanarSurf()
         spar_vec_out.normalize();
 
         // Calculate final end points
-        vec3d inside_edge_f = center - length_spar_in * spar_vec_in;
+        vec3d inside_edge_f = center + length_spar_in * spar_vec_in;
         vec3d outside_edge_f = center + length_spar_out * spar_vec_out;
 
         // Identify corners of the plane
