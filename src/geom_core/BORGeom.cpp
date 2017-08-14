@@ -113,6 +113,8 @@ void BORGeom::SetXSecCurveType( int type )
     double w = 1;
     double h = 1;
 
+    XSecCurve *oldXSCurve = NULL;
+
     if ( m_XSCurve )
     {
         if ( type == m_XSCurve->GetType() )
@@ -123,11 +125,17 @@ void BORGeom::SetXSecCurveType( int type )
         w = m_XSCurve->GetWidth();
         h = m_XSCurve->GetHeight();
 
-        delete m_XSCurve;
+        oldXSCurve = m_XSCurve;
     }
 
     m_XSCurve = XSecSurf::CreateXSecCurve( type ) ;
     m_XSCurve->SetParentContainer( m_ID );
+
+    if ( oldXSCurve )
+    {
+        m_XSCurve->CopyFrom( oldXSCurve );
+        delete oldXSCurve;
+    }
 
     m_XSCurve->SetWidthHeight( w, h );
 
