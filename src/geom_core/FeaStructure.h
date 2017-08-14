@@ -311,6 +311,9 @@ public:
 
     virtual void UpdateParmLimits();
 
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
     virtual void UpdateDrawObjs( int id, bool highlight );
 
     void SetPerpendicularEdgeID( string ID )
@@ -424,6 +427,9 @@ public:
     virtual void CreateFeaRibArray();
 
     virtual FeaRib* AddFeaRib( double center_location, int ind );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 

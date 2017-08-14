@@ -2307,6 +2307,31 @@ void FeaRib::UpdateParmLimits()
     }
 }
 
+xmlNodePtr FeaRib::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr fea_prt_node = FeaPart::EncodeXml( node );
+
+    if ( fea_prt_node )
+    {
+        XmlUtil::AddStringNode( fea_prt_node, "PerpendicularEdgeID", m_PerpendicularEdgeID );
+    }
+
+    return fea_prt_node;
+}
+
+xmlNodePtr FeaRib::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr fea_prt_node = FeaPart::DecodeXml( node );
+
+    if ( fea_prt_node )
+    {
+        m_PerpendicularEdgeID = XmlUtil::FindString( fea_prt_node, "PerpendicularEdgeID", m_PerpendicularEdgeID );
+    }
+
+    return fea_prt_node;
+}
+
+
 void FeaRib::UpdateDrawObjs( int id, bool highlight )
 {
     FeaPart::UpdateDrawObjs( id, highlight );
@@ -3097,6 +3122,30 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
     }
 
     return fearib;
+}
+
+xmlNodePtr FeaRibArray::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr fea_prt_node = FeaPart::EncodeXml( node );
+
+    if ( fea_prt_node )
+    {
+        XmlUtil::AddStringNode( fea_prt_node, "PerpendicularEdgeID", m_PerpendicularEdgeID );
+    }
+
+    return fea_prt_node;
+}
+
+xmlNodePtr FeaRibArray::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr fea_prt_node = FeaPart::DecodeXml( node );
+
+    if ( fea_prt_node )
+    {
+        m_PerpendicularEdgeID = XmlUtil::FindString( fea_prt_node, "PerpendicularEdgeID", m_PerpendicularEdgeID );
+    }
+
+    return fea_prt_node;
 }
 
 void FeaRibArray::UpdateDrawObjs( int id, bool highlight )
