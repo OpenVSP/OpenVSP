@@ -1800,6 +1800,10 @@ void StructScreen::CallBack( Fl_Widget* w )
                         }
                     }
                 }
+                else
+                {
+                    StructureMgr.SetCurrPartIndex( -1 );
+                }
 
                 if ( Fl::event_clicks() != 0 ) // Indicates a double click
                 {
@@ -2202,6 +2206,8 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                     }
                 }
 
+                int first_selection = m_SelectedPartIndexVec[0];
+
                 while ( m_SelectedPartIndexVec.size() > 0 )
                 {
                     if ( m_SelectedPartIndexVec[0] < structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -2221,6 +2227,13 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                     }
 
                     m_SelectedPartIndexVec = temp_index_vec;
+                }
+
+                if ( structvec[StructureMgr.GetCurrStructIndex()]->ValidFeaPartInd( first_selection - 1 ) )
+                {
+                    m_SelectedPartIndexVec.clear();
+                    m_SelectedPartIndexVec.push_back( first_selection - 1 );
+                    StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
                 }
             }
         }
@@ -2433,11 +2446,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             StructureMgr.DeleteFeaProperty( m_SelectedPropertyIndex );
 
             m_SelectedPropertyIndex -= 1;
-
-            if ( !StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
-            {
-                m_SelectedPropertyIndex = -1;
-            }
+        }
+        else
+        {
+            m_SelectedPropertyIndex = -1;
         }
     }
     else if ( device == &m_FeaPropertyNameInput )
@@ -2473,11 +2485,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             StructureMgr.DeleteFeaMaterial( m_SelectedMaterialIndex );
 
             m_SelectedMaterialIndex -= 1;
-
-            if ( !StructureMgr.ValidFeaMaterialInd( m_SelectedMaterialIndex ) )
-            {
-                m_SelectedMaterialIndex = -1;
-            }
+        }
+        else
+        {
+            m_SelectedMaterialIndex = -1;
         }
     }
     else if ( device == &m_FeaMaterialNameInput )
