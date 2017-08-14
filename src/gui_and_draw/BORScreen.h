@@ -34,6 +34,7 @@ protected:
 
     GroupLayout m_DesignLayout;
     SliderAdjRangeInput m_BORDiameterSlider;
+    SliderAdjRangeInput m_AngleSlider;
 
     SliderAdjRangeInput m_CapTessSlider;
 

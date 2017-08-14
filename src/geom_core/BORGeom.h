@@ -36,6 +36,8 @@ public:
 
     Parm m_Diameter;
 
+    Parm m_Angle;
+
     Parm m_LECluster;
     Parm m_TECluster;
 
