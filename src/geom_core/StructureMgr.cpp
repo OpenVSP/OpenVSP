@@ -38,10 +38,7 @@ xmlNodePtr StructureMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     for ( int i = 0; i < (int)m_FeaPropertyVec.size(); i++ )
     {
-        if ( m_FeaPropertyVec[i]->m_UserFeaProperty )
-        {
-            m_FeaPropertyVec[i]->EncodeXml( structmgr_node );
-        }
+        m_FeaPropertyVec[i]->EncodeXml( structmgr_node );
     }
 
     for ( int i = 0; i < (int)m_FeaMaterialVec.size(); i++ )
@@ -106,6 +103,8 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
         }
     }
 
+    InitFeaProperties();
+
     return node;
 }
 
@@ -113,7 +112,6 @@ void StructureMgrSingleton::Renew()
 {
     Wype();
     InitFeaMaterials();
-    InitFeaProperties();
 }
 
 void StructureMgrSingleton::Wype()
@@ -600,9 +598,26 @@ FeaProperty* StructureMgrSingleton::GetFeaProperty( int index )
 
 void StructureMgrSingleton::InitFeaProperties()
 {
+    // Check for existence of shell or beam property
+    bool shell_prop = false;
+    bool beam_prop = false;
+
+    for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
+    {
+        if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
+        {
+            shell_prop = true;
+        }
+        else if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
+        {
+            beam_prop = true;
+        }
+    }
+
+    // Add default shell and beam property if none currently
     FeaProperty* default_shell = new FeaProperty();
 
-    if ( default_shell )
+    if ( default_shell && !shell_prop )
     {
         default_shell->SetName( "Default_Shell" );
         default_shell->SetFeaMaterialIndex( 0 ); // aluminum
@@ -614,7 +629,7 @@ void StructureMgrSingleton::InitFeaProperties()
 
     FeaProperty* default_beam = new FeaProperty();
 
-    if ( default_beam )
+    if ( default_beam && !beam_prop )
     {
         default_beam->SetName( "Default_Beam" );
         default_beam->SetFeaMaterialIndex( 0 ); // aluminum
