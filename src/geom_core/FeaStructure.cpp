@@ -1074,11 +1074,6 @@ VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
         BndBox wing_bbox;
         wing_surf.GetBoundingBox( wing_bbox );
 
-        int num_wing_sec = wing->NumXSec();
-
-        // Init values:
-        double span_f = 0.0;
-
         // Get center location as percent of U
         double per_u = GetRibPerU( center_location );
 
@@ -1115,13 +1110,15 @@ VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
         vec3d max_lead_edge = wing_surf.CompPnt( wing_surf.GetUMax(), v_leading_edge );
 
         // Wing edge vectors (assumes linearity)
-        vec3d trail_edge_vec = trail_edge - min_trail_edge;
-        vec3d lead_edge_vec = lead_edge - min_lead_edge;
-        vec3d inner_edge_vec = min_trail_edge - min_lead_edge;
+        vec3d trail_edge_vec = max_trail_edge - min_trail_edge;
+        vec3d lead_edge_vec = max_lead_edge - min_lead_edge;
+        vec3d inner_edge_vec = min_lead_edge - min_trail_edge;
+        vec3d outer_edge_vec = max_lead_edge - min_trail_edge;
 
         trail_edge_vec.normalize();
         lead_edge_vec.normalize();
         inner_edge_vec.normalize();
+        outer_edge_vec.normalize();
 
         vec3d center_to_trail_edge = trail_edge - center;
         center_to_trail_edge.normalize();
@@ -1132,7 +1129,17 @@ VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
         double length_rib_0 = ( dist( trail_edge, lead_edge ) / 2 ) + 2 * FLT_EPSILON; // Rib half length before rotations, slightly oversized
 
         // Normal vector to wing chord line
-        vec3d normal_vec = cross( inner_edge_vec, lead_edge_vec );
+        vec3d normal_vec;
+        
+        if ( inner_edge_vec.mag() >= FLT_EPSILON )
+        {
+            normal_vec = cross( lead_edge_vec, inner_edge_vec );
+        }
+        else
+        {
+            normal_vec = cross( lead_edge_vec, outer_edge_vec );
+        }
+
         normal_vec.normalize();
 
         // Determine angle between center and corner points
@@ -1149,12 +1156,10 @@ VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
         // Get maximum angles for rib to intersect wing edges
         double max_angle_inner_le = -PI + signed_angle( center_to_le_min_vec, center_to_lead_edge, normal_vec );
         double max_angle_inner_te = signed_angle( center_to_te_min_vec, center_to_trail_edge, normal_vec );
-        double max_angle_outer_le = PI + signed_angle( center_to_le_max_vec, center_to_lead_edge, normal_vec );
+        double max_angle_outer_le = PI - signed_angle( center_to_lead_edge, center_to_le_max_vec, normal_vec );
         double max_angle_outer_te = signed_angle( center_to_te_max_vec, center_to_trail_edge, normal_vec );
 
-        //double theta = DEG_2_RAD * m_Theta(); // User defined angle converted to Rad
-
-        double sweep_te = -1 * signed_angle( trail_edge_vec, center_to_trail_edge, normal_vec ); // Trailing edge sweep
+        double sweep_te = -1* signed_angle( trail_edge_vec, center_to_trail_edge, normal_vec ); // Trailing edge sweep
         double sweep_le = -1 * signed_angle( lead_edge_vec, center_to_lead_edge, normal_vec ); // Leading edge sweep
 
         double phi_te = PI - ( rotation + sweep_te ); // Total angle for trailing edge side of rib
