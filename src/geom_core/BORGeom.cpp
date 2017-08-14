@@ -28,9 +28,6 @@ BORGeom::BORGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Diameter.Init( "Diameter", "Design", this, 1.0, 0.0, 1.0e12 );
     m_Diameter.SetDescript( "Diameter of BOR" );
 
-    m_Length.Init( "Length", "Design", this, 1.0, 0.0, 1.0e12 );
-    m_Length.SetDescript( "Length of BOR" );
-
     m_LECluster.Init( "LECluster", m_Name, this, 0.25, 1e-4, 10.0 );
     m_LECluster.SetDescript( "LE Tess Cluster Control" );
 
@@ -63,8 +60,6 @@ void BORGeom::UpdateSurf()
 
     stringer = m_XSCurve->GetCurve();
 
-    stringer.Scale( m_Length() );
-
     stringer.OffsetY( m_Diameter() );
 
     // Revolve to unit sphere
@@ -86,7 +81,7 @@ void BORGeom::UpdateSurf()
 //==== Compute Rotation Center ====//
 void BORGeom::ComputeCenter()
 {
-    m_Center.set_x( m_Length() * m_Origin() );
+    m_Center.set_x( m_XSCurve->GetWidth() * m_Origin() );
 }
 
 //==== Scale ====//
@@ -95,7 +90,8 @@ void BORGeom::Scale()
     double currentScale = m_Scale() / m_LastScale();
 
     m_Diameter *= currentScale;
-    m_Length *= currentScale;
+
+    m_XSCurve->SetScale( currentScale );
 
     m_LastScale = m_Scale();
 }

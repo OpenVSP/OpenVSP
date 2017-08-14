@@ -22,7 +22,6 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
 
     //==== Design ====//
     m_DesignLayout.AddSlider( m_BORDiameterSlider, "Diameter", 10, "%7.3f" );
-    m_DesignLayout.AddSlider( m_LengthSlider, "Length", 10, "%7.3f" );
 
     m_DesignLayout.AddYGap();
 
@@ -485,7 +484,6 @@ bool BORScreen::Update()
     BORGeom* bor_ptr = dynamic_cast< BORGeom* >( geom_ptr );
     assert( bor_ptr );
     m_BORDiameterSlider.Update( bor_ptr->m_Diameter.GetID() );
-    m_LengthSlider.Update( bor_ptr->m_Length.GetID() );
 
     m_LEClusterSlider.Update( bor_ptr->m_LECluster.GetID() );
     m_TEClusterSlider.Update( bor_ptr->m_TECluster.GetID() );

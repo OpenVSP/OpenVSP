@@ -35,7 +35,6 @@ public:
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     Parm m_Diameter;
-    Parm m_Length;
 
     Parm m_LECluster;
     Parm m_TECluster;
