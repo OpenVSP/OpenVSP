@@ -2075,6 +2075,8 @@ void FeaSpar::ComputePlanarSurf()
             outside_edge = v_curve.f( u_max );
         }
 
+        double length_spar_0 = dist( inside_edge, outside_edge ) / 2; // Initial spar half length
+
         VspCurve constant_u_curve;
         wing_surf.GetU01ConstCurve( constant_u_curve, ( u_sec_min + u_sec_max ) / 2 );
 
@@ -2134,7 +2136,17 @@ void FeaSpar::ComputePlanarSurf()
         center_to_te_out_vec.normalize();
 
         // Normal vector to wing chord line
-        vec3d normal_vec = cross( inner_edge_vec, lead_edge_vec );
+        vec3d normal_vec;
+
+        if ( abs( inner_edge_vec.mag() - 1.0 ) <= FLT_EPSILON )
+        {
+            normal_vec = cross( inner_edge_vec, lead_edge_vec );
+        }
+        else
+        {
+            normal_vec = cross( outer_edge_vec, lead_edge_vec );
+        }
+
         normal_vec.normalize();
 
         double alpha_0 = ( PI / 2 ) - signed_angle( inner_edge_vec, center_to_outer_edge, normal_vec ); // Initial rotation
@@ -2156,48 +2168,104 @@ void FeaSpar::ComputePlanarSurf()
         {
             if ( theta > max_angle_inner_le )
             {
-                perp_dist = cross( ( center - max_lead_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - max_lead_edge ).mag();
-                length_spar_in = abs( perp_dist / sin( theta + beta_le ) );
+                if ( abs( sin( theta + beta_le ) ) <= FLT_EPSILON || ( min_lead_edge - max_lead_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_spar_in = length_spar_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - max_lead_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - max_lead_edge ).mag();
+                    length_spar_in = abs( perp_dist / sin( theta + beta_le ) );
+                }
             }
             else
             {
-                perp_dist = cross( ( center - min_lead_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - min_lead_edge ).mag();
-                length_spar_in = abs( perp_dist / cos( theta + alpha_0 ) );
+                if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( min_trail_edge - min_lead_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_spar_in = length_spar_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - min_lead_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - min_lead_edge ).mag();
+                    length_spar_in = abs( perp_dist / cos( theta + alpha_0 ) );
+                }
             }
 
             if ( theta > max_angle_outer_te )
             {
-                perp_dist = cross( ( center - max_trail_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - max_trail_edge ).mag();
-                length_spar_out = abs( perp_dist / sin( theta - beta_te ) );
+                if ( abs( sin( theta - beta_te ) ) <= FLT_EPSILON || ( min_trail_edge - max_trail_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_spar_out = length_spar_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - max_trail_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - max_trail_edge ).mag();
+                    length_spar_out = abs( perp_dist / sin( theta - beta_te ) );
+                }
             }
             else
             {
-                perp_dist = cross( ( center - max_lead_edge ), ( center - max_trail_edge ) ).mag() / ( max_trail_edge - max_lead_edge ).mag();
-                length_spar_out = abs( perp_dist / cos( theta + alpha_0 ) );
+                if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( max_trail_edge - max_lead_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_spar_out = length_spar_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - max_lead_edge ), ( center - max_trail_edge ) ).mag() / ( max_trail_edge - max_lead_edge ).mag();
+                    length_spar_out = abs( perp_dist / cos( theta + alpha_0 ) );
+                }
             }
         }
         else
         {
             if ( theta < max_angle_inner_te )
             {
-                perp_dist = cross( ( center - max_trail_edge ), ( center - min_trail_edge ) ).mag() / ( max_trail_edge - min_trail_edge ).mag();
-                length_spar_in = abs( perp_dist / sin( theta - beta_te ) );
+                if ( abs( sin( theta - beta_te ) ) <= FLT_EPSILON || ( max_trail_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_spar_in = length_spar_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - max_trail_edge ), ( center - min_trail_edge ) ).mag() / ( max_trail_edge - min_trail_edge ).mag();
+                    length_spar_in = abs( perp_dist / sin( theta - beta_te ) );
+                }
             }
             else
             {
-                perp_dist = cross( ( center - min_lead_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - min_lead_edge ).mag();
-                length_spar_in = abs( perp_dist / cos( theta + alpha_0 ) );
+                if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( min_trail_edge - min_lead_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_spar_in = length_spar_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - min_lead_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - min_lead_edge ).mag();
+                    length_spar_in = abs( perp_dist / cos( theta + alpha_0 ) );
+                }
             }
 
             if ( theta < max_angle_outer_le )
             {
-                perp_dist = cross( ( center - max_lead_edge ), ( center - min_lead_edge ) ).mag() / ( max_lead_edge - min_lead_edge ).mag();
-                length_spar_out = abs( perp_dist / sin( theta + beta_le ) );
+                if ( abs( sin( theta + beta_le ) ) <= FLT_EPSILON || ( max_lead_edge - min_lead_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_spar_out = length_spar_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - max_lead_edge ), ( center - min_lead_edge ) ).mag() / ( max_lead_edge - min_lead_edge ).mag();
+                    length_spar_out = abs( perp_dist / sin( theta + beta_le ) );
+                }
             }
             else
             {
-                perp_dist = cross( ( center - max_lead_edge ), ( center - max_trail_edge ) ).mag() / ( max_trail_edge - max_lead_edge ).mag();
-                length_spar_out = abs( perp_dist / cos( theta + alpha_0 ) );
+                if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( max_trail_edge - max_lead_edge ).mag() <= FLT_EPSILON )
+                {
+                    length_spar_out = length_spar_0;
+                }
+                else
+                {
+                    perp_dist = cross( ( center - max_lead_edge ), ( center - max_trail_edge ) ).mag() / ( max_trail_edge - max_lead_edge ).mag();
+                    length_spar_out = abs( perp_dist / cos( theta + alpha_0 ) );
+                }
             }
         }
 
