@@ -178,3 +178,49 @@ void BORGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
     }
 }
+
+//==== Encode XML ====//
+xmlNodePtr BORGeom::EncodeXml(  xmlNodePtr & node  )
+{
+    Geom::EncodeXml( node );
+
+    xmlNodePtr xscrv_node = xmlNewChild( node, NULL, BAD_CAST "XSecCurve", NULL );
+    if ( xscrv_node )
+    {
+        m_XSCurve->EncodeXml( xscrv_node );
+    }
+
+    return xscrv_node;
+}
+
+//==== Decode XML ====//
+xmlNodePtr BORGeom::DecodeXml(  xmlNodePtr & node  )
+{
+    Geom::DecodeXml( node );
+
+    xmlNodePtr xscrv_node = XmlUtil::GetNode( node, "XSecCurve", 0 );
+    if ( xscrv_node )
+    {
+
+        xmlNodePtr xscrv_node2 = XmlUtil::GetNode( xscrv_node, "XSecCurve", 0 );
+        if ( xscrv_node2 )
+        {
+
+            int xsc_type = XmlUtil::FindInt( xscrv_node2, "Type", vsp::XS_CIRCLE );
+
+            if ( m_XSCurve )
+            {
+                if ( m_XSCurve->GetType() != xsc_type )
+                {
+                    delete m_XSCurve;
+
+                    m_XSCurve = XSecSurf::CreateXSecCurve( xsc_type );
+                    m_XSCurve->SetParentContainer( m_ID );
+                }
+            }
+        }
+
+        m_XSCurve->DecodeXml( xscrv_node );
+    }
+    return xscrv_node;
+}
