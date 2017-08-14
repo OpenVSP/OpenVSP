@@ -31,6 +31,9 @@ BORGeom::BORGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Angle.Init( "Angle", "Design", this, 0.0, -180.0, 180.0 );
     m_Angle.SetDescript( "Section angle");
 
+    m_Mode.Init( "Mode", "Design", this, vsp::BOR_FLOWTHROUGH, vsp::BOR_FLOWTHROUGH, vsp::BOR_NUM_MODES-1 );
+    m_Mode.SetDescript( "Mode control, flowthrough, upper, or lower surface" );
+
     m_LECluster.Init( "LECluster", m_Name, this, 0.25, 1e-4, 10.0 );
     m_LECluster.SetDescript( "LE Tess Cluster Control" );
 
@@ -63,14 +66,45 @@ void BORGeom::UpdateSurf()
 
     stringer = m_XSCurve->GetCurve();
 
-    stringer.RotateZ( m_Angle() * PI / 180.0 );
-    stringer.OffsetY( m_Diameter() );
+    if ( m_Mode() == vsp::BOR_FLOWTHROUGH )
+    {
+        stringer.RotateZ(m_Angle() * PI / 180.0);
+        stringer.OffsetY(m_Diameter());
+    }
+    else if ( m_Mode() == vsp::BOR_LOWER || m_Mode() == vsp::BOR_UPPER )
+    {
+        piecewise_curve_type c, c1, c2;
+        double tmin, tmax, tsplit;
+
+        c = stringer.GetCurve();
+        tmin = c.get_parameter_min();
+        tmax = c.get_parameter_max();
+        tsplit = ( tmin + tmax ) * 0.5;
+        c.split( c1, c2, tsplit );
+
+        if ( m_Mode() == vsp::BOR_LOWER )
+        {
+            c1.set_t0( tmin );
+            c1.scale_y( -1.0 );
+            stringer.SetCurve( c1 );
+        }
+        else if ( m_Mode() == vsp::BOR_UPPER )
+        {
+            c2.reverse();
+            c2.set_t0( tmin );
+            stringer.SetCurve( c2 );
+        }
+    }
 
     // Revolve to unit sphere
     m_MainSurfVec[0].CreateBodyRevolution( stringer, true );
 
     m_MainSurfVec[0].SwapUWDirections();
-    m_MainSurfVec[0].ReverseWDirection();
+
+    if ( m_Mode() == vsp::BOR_FLOWTHROUGH )
+    {
+        m_MainSurfVec[0].FlipNormal();
+    }
 
     // Shift so nose is at origin
     m_MainSurfVec[0].OffsetX( m_Xoff );

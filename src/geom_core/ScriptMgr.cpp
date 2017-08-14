@@ -676,6 +676,17 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "XSEC_TRIM_TYPE", "TRIM_NUM_TYPES", TRIM_NUM_TYPES );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "BOR_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "BOR_MODE", "BOR_FLOWTHROUGH", BOR_FLOWTHROUGH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "BOR_MODE", "BOR_UPPER", BOR_UPPER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "BOR_MODE", "BOR_LOWER", BOR_LOWER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "BOR_MODE", "BOR_NUM_MODES", BOR_NUM_MODES );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "ABS_REL_FLAG" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ABS_REL_FLAG", "ABS", ABS );

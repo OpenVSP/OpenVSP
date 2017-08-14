@@ -44,6 +44,8 @@ public:
     Parm m_LECluster;
     Parm m_TECluster;
 
+    IntParm m_Mode;
+
 protected:
     virtual void UpdateSurf();
 

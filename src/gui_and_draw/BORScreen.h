@@ -36,6 +36,9 @@ protected:
     SliderAdjRangeInput m_BORDiameterSlider;
     SliderAdjRangeInput m_AngleSlider;
 
+    Choice m_ModeChoice;
+
+
     SliderAdjRangeInput m_CapTessSlider;
 
     SliderAdjRangeInput m_LEClusterSlider;

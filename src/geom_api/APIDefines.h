@@ -147,6 +147,12 @@ enum XSEC_TRIM_TYPE { TRIM_NONE,
                       TRIM_NUM_TYPES
                     };
 
+enum BOR_MODE { BOR_FLOWTHROUGH,
+                BOR_UPPER,
+                BOR_LOWER,
+                BOR_NUM_MODES
+              };
+
 enum ABS_REL_FLAG { ABS,
                     REL
                   };

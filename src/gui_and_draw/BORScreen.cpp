@@ -21,6 +21,15 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
     m_DesignLayout.AddDividerBox( "Design" );
 
     //==== Design ====//
+
+    m_ModeChoice.AddItem( "Flowthrough" );
+    m_ModeChoice.AddItem( "Upper" );
+    m_ModeChoice.AddItem( "Lower" );
+    m_DesignLayout.AddChoice( m_ModeChoice, "Mode" );
+
+    m_DesignLayout.AddYGap();
+
+    m_DesignLayout.AddDividerBox( "Flowthrough Control" );
     m_DesignLayout.AddSlider( m_BORDiameterSlider, "Diameter", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_AngleSlider, "Angle", 10, "%7.3f" );
 
@@ -484,8 +493,22 @@ bool BORScreen::Update()
     //==== Update BOR Specific Parms ====//
     BORGeom* bor_ptr = dynamic_cast< BORGeom* >( geom_ptr );
     assert( bor_ptr );
+
+    m_ModeChoice.Update( bor_ptr->m_Mode.GetID() );
+
     m_BORDiameterSlider.Update( bor_ptr->m_Diameter.GetID() );
     m_AngleSlider.Update( bor_ptr->m_Angle.GetID() );
+
+    if ( bor_ptr->m_Mode() == vsp::BOR_FLOWTHROUGH )
+    {
+        m_BORDiameterSlider.Activate();
+        m_AngleSlider.Activate();
+    }
+    else
+    {
+        m_BORDiameterSlider.Deactivate();
+        m_AngleSlider.Deactivate();
+    }
 
     m_LEClusterSlider.Update( bor_ptr->m_LECluster.GetID() );
     m_TEClusterSlider.Update( bor_ptr->m_TECluster.GetID() );
