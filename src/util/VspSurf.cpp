@@ -1422,10 +1422,18 @@ void VspSurf::BuildFeatureLines( bool force_xsec_flag)
         }
         else
         {
-            m_WFeature.push_back( vmin + TMAGIC );
-            m_WFeature.push_back( vmid - TMAGIC );
-            m_WFeature.push_back( vmid + TMAGIC );
-            m_WFeature.push_back( vmax - TMAGIC );
+            if ( IsHalfBOR() )
+            {
+                m_WFeature.push_back(vmin + TMAGIC);
+                m_WFeature.push_back(vmax - TMAGIC);
+            }
+            else
+            {
+                m_WFeature.push_back(vmin + TMAGIC);
+                m_WFeature.push_back(vmid - TMAGIC);
+                m_WFeature.push_back(vmid + TMAGIC);
+                m_WFeature.push_back(vmax - TMAGIC);
+            }
         }
 
         // Sort feature parameters
