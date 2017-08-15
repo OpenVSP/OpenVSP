@@ -103,7 +103,12 @@ void BORGeom::UpdateSurf()
 
     if ( m_Mode() == vsp::BOR_FLOWTHROUGH )
     {
+        m_MainSurfVec[0].SetHalfBOR( false );
         m_MainSurfVec[0].FlipNormal();
+    }
+    else
+    {
+        m_MainSurfVec[0].SetHalfBOR( true );
     }
 
     // Shift so nose is at origin
