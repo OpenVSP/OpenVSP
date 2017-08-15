@@ -39,6 +39,7 @@ VspSurf::VspSurf()
 {
     m_FlipNormal = false;
     m_MagicVParm = false;
+    m_HalfBOR = false;
     m_SurfType = vsp::NORMAL_SURF;
     m_SurfCfdType = vsp::CFD_NORMAL;
     m_SkinType = SKIN_NONE;

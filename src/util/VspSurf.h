@@ -88,6 +88,9 @@ public:
     bool IsMagicVParm() const { return m_MagicVParm; }
     void SetMagicVParm( bool t ) { m_MagicVParm = t; }
 
+    bool IsHalfBOR() const { return m_HalfBOR; }
+    void SetHalfBOR( bool t ) { m_HalfBOR = t; }
+
     int GetSurfType() { return m_SurfType; }
     void SetSurfType( int type ) { m_SurfType = type; }
 
@@ -234,6 +237,7 @@ protected:
 
     bool m_FlipNormal;
     bool m_MagicVParm;
+    bool m_HalfBOR;
     int m_SurfType;
     int m_SurfCfdType;
     piecewise_surface_type m_Surface;
