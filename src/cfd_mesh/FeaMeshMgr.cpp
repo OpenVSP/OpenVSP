@@ -1786,22 +1786,26 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 }
 
                 fprintf( fp, "\n" );
-                fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=E%s\n", m_FeaPartNameVec[i].c_str() );
 
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+                if ( m_FeaPartIncludedElementsVec[i] == TRIS || m_FeaPartIncludedElementsVec[i] == BOTH_ELEMENTS )
                 {
-                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                    fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=E%s\n", m_FeaPartNameVec[i].c_str() );
+
+                    for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                     {
-                        elem_id++;
-                        m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                        if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
+                        {
+                            elem_id++;
+                            m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                        }
                     }
+
+                    fprintf( fp, "\n" );
+                    sprintf( str, "E%s", m_FeaPartNameVec[i].c_str() );
+
+                    m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
+                    fprintf( fp, "\n" );
                 }
-
-                fprintf( fp, "\n" );
-                sprintf( str, "E%s", m_FeaPartNameVec[i].c_str() );
-
-                m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
-                fprintf( fp, "\n" );
 
                 if ( m_FeaPartIncludedElementsVec[i] == BEAM || m_FeaPartIncludedElementsVec[i] == BOTH_ELEMENTS )
                 {
@@ -1901,21 +1905,25 @@ void FeaMeshMgrSingleton::WriteCalculix()
             }
 
             fprintf( fp, "\n" );
-            fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=E%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
-            for ( int j = 0; j < m_FeaElementVec.size(); j++ )
+            if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == TRIS || m_SimpleSubSurfaceVec[i].m_IncludedElements == BOTH_ELEMENTS )
             {
-                if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+                fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=E%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+
+                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
-                    elem_id++;
-                    m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                    if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 )
+                    {
+                        elem_id++;
+                        m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
+                    }
                 }
+
+                fprintf( fp, "\n" );
+                sprintf( str, "E%s", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+
+                m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
             }
-
-            fprintf( fp, "\n" );
-            sprintf( str, "E%s", m_SimpleSubSurfaceVec[i].GetName().c_str() );
-
-            m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
 
             if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == BOTH_ELEMENTS )
             {
