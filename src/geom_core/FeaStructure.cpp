@@ -872,15 +872,26 @@ double FeaPart::GetRibPerU( double center_location )
             vector < double > wing_sec_span_vec; // Vector of Span lengths for each wing section (first section has no length)
             wing_sec_span_vec.push_back( 0.0 );
 
-            double u_max = wing_surf.GetUMax();
-            double u_step = 1.0 / u_max;
+            double U_max = wing_surf.GetUMax();
 
             // Init values:
             double span_0 = 0.0;
             double span_f = 0.0;
-            double u_0 = u_step;
-            double u_f = u_step;
+            double U_0, U_f;
             int curr_sec_ind = -1;
+
+            // Get total span
+            double span = 0.0;
+
+            for ( size_t i = 1; i < num_wing_sec; i++ )
+            {
+                WingSect* wing_sec = wing->GetWingSect( i );
+
+                if ( wing_sec )
+                {
+                    span += wing_sec->m_Span();
+                }
+            }
 
             // Determine current wing section:
             for ( size_t i = 1; i < num_wing_sec; i++ )
@@ -890,7 +901,6 @@ double FeaPart::GetRibPerU( double center_location )
                 if ( wing_sec )
                 {
                     span_f += wing_sec->m_Span();
-                    u_f += u_step;
                     wing_sec_span_vec.push_back( span_f - span_0 );
 
                     if ( m_LocationParmType() == LENGTH )
@@ -902,27 +912,37 @@ double FeaPart::GetRibPerU( double center_location )
                     }
                     else if ( m_LocationParmType() == PERCENT )
                     {
-                        if ( center_location / 100 >= u_0 && center_location / 100 <= u_f )
+                        if ( ( ( center_location / 100 ) * span ) >= span_0 && ( ( center_location / 100 ) * span ) <= span_f )
                         {
                             curr_sec_ind = i;
                         }
                     }
 
                     span_0 = span_f;
-                    u_0 = u_f;
                 }
             }
+
+            if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
+            {
+                U_0 = ( curr_sec_ind - 1 );
+            }
+            else
+            {
+                U_0 = curr_sec_ind;
+            }
+
+            U_f = U_0 + 1;
+
+            double u_step = ( U_f - U_0 ) / U_max;
 
             // Set parm limits and convert to percent U if parameterized by span length value
             if ( m_LocationParmType() == PERCENT )
             {
-                double u_range = ( u_step * ( u_max - 1 ) ) - u_step;
-
-                per_u = u_step + ( center_location / 100 ) * u_range;
+                per_u = U_0 / U_max + ( ( ( ( center_location / 100 ) * span ) - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
             }
             else if ( m_LocationParmType() == LENGTH )
             {
-                per_u = curr_sec_ind * u_step + ( ( center_location - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
+                per_u = U_0 / U_max + ( ( center_location - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
             }
         }
     }
