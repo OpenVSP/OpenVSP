@@ -952,7 +952,91 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
 
     double tol = 1e-8;
 
-    if ( IsMagicVParm() ) // V uses 'Magic' values for things like blunted TE.
+    // This case applies to wings, propellers, and flowthrough bodies of revolution
+    if ( IsMagicVParm() && !IsHalfBOR() ) // V uses 'Magic' values for things like blunted TE.
+    {
+        vmin += TMAGIC;
+        vmax -= TMAGIC;
+
+        vle = ( vmin + vmax ) * 0.5;
+        vlelow = vle - TMAGIC;
+        vleup = vle + TMAGIC;
+
+        vtess.resize(nv);
+        int jle = ( nv - 1 ) / 2;
+        int j = 0;
+        if ( degen )
+        {
+            vtess[j] = vabsmin;
+            j++;
+        }
+        for ( ; j < jle; ++j )
+        {
+            vtess[j] = vmin + ( vlelow - vmin ) * Cluster( 2.0 * static_cast<double>( j ) / ( nv - 1 ), m_TECluster, m_LECluster );
+        }
+        if ( degen )
+        {
+            vtess[j] = vle;
+            j++;
+        }
+        for ( ; j < nv; ++j )
+        {
+            vtess[j] = vleup + ( vmax - vleup ) * ( 1.0 - Cluster( 1.0 - 2.0 * static_cast<double>( j - jle ) / ( nv - 1 ), m_TECluster, m_LECluster ));
+        }
+        if ( degen )
+        {
+            vtess[ nv - 1 ] = vabsmax;
+        }
+
+        if ( degen ) // DegenGeom, don't tessellate blunt TE or LE.
+        {
+            return;
+        }
+
+        piecewise_curve_type c1, c2;
+        m_Surface.get_vconst_curve( c1, vmin );
+        m_Surface.get_vconst_curve( c2, vmin + TMAGIC );
+
+        // Note: piecewise_curve_type::abouteq test is based on distance squared.
+        if ( !c1.abouteq( c2, tol * tol ) ) // V Min edge is not repeated.
+        {
+            for ( j = 0; j < n_cap; j++ )
+            {
+                vtess.push_back( vabsmin + TMAGIC * j / (n_cap -1) );
+            }
+        }
+
+        m_Surface.get_vconst_curve( c1, vmax );
+        m_Surface.get_vconst_curve( c2, vmax - TMAGIC );
+
+        if ( !c1.abouteq( c2, tol * tol ) ) // V Max edge is not repeated.
+        {
+            for ( j = 0; j < n_cap; j++ )
+            {
+                vtess.push_back( vmax + TMAGIC * j / (n_cap -1) );
+            }
+        }
+
+        m_Surface.get_vconst_curve( c1, vlelow );
+        m_Surface.get_vconst_curve( c2, vleup );
+
+        if ( !c1.abouteq( c2, tol * tol ) ) // Leading edge is not repeated.
+        {
+            for ( j = 0; j < n_cap * 2 - 1; j++ )
+            {
+                vtess.push_back( vlelow + TMAGIC * j / (n_cap -1) );
+            }
+        }
+
+        // Sort parameters
+        std::sort( vtess.begin(), vtess.end() );
+
+        // Remove duplicate parameters
+        vector < double >::iterator sit;
+        sit=std::unique( vtess.begin(), vtess.end() );
+        vtess.resize( distance( vtess.begin(), sit ) );
+    }
+    else if ( IsMagicVParm() && IsHalfBOR() ) // This case applies to upper/lower bodies of revolution
     {
         vmin += TMAGIC;
         vmax -= TMAGIC;
