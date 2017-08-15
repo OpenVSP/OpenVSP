@@ -994,8 +994,8 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
         }
 
         piecewise_curve_type c1, c2;
-        m_Surface.get_vconst_curve( c1, vmin );
-        m_Surface.get_vconst_curve( c2, vmin + TMAGIC );
+        m_Surface.get_vconst_curve( c1, vabsmin );
+        m_Surface.get_vconst_curve( c2, vmin );
 
         // Note: piecewise_curve_type::abouteq test is based on distance squared.
         if ( !c1.abouteq( c2, tol * tol ) ) // V Min edge is not repeated.
@@ -1006,8 +1006,8 @@ void VspSurf::MakeVTess( int num_v, std::vector<double> &vtess, const int &n_cap
             }
         }
 
-        m_Surface.get_vconst_curve( c1, vmax );
-        m_Surface.get_vconst_curve( c2, vmax - TMAGIC );
+        m_Surface.get_vconst_curve( c1, vabsmax );
+        m_Surface.get_vconst_curve( c2, vmax );
 
         if ( !c1.abouteq( c2, tol * tol ) ) // V Max edge is not repeated.
         {
