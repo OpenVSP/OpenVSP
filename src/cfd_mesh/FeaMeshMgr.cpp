@@ -715,7 +715,24 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             for ( int j = 1; j < (int)ipntVec.size(); j++ )
             {
                 FeaBeam* beam = new FeaBeam;
-                beam->Create( ipntVec[j - 1], ipntVec[j], inormVec[j - 1] );
+
+                vec3d start_pnt = ipntVec[j - 1];
+                vec3d end_pnt = ipntVec[j];
+
+                // Use node point if close to beam endpoints (avoids tolerance errors in BuildIndMap and FindPntInd)
+                for ( size_t k = 0; k < node_vec.size(); k++ )
+                {
+                    if ( dist( node_vec[k], start_pnt ) <= FLT_EPSILON )
+                    {
+                        start_pnt = node_vec[k];
+                    }
+                    else if ( dist( node_vec[k], end_pnt ) <= FLT_EPSILON )
+                    {
+                        end_pnt = node_vec[k];
+                    }
+                }
+
+                beam->Create( start_pnt, end_pnt, inormVec[j - 1] );
                 beam->SetFeaPartIndex( FeaPartIndex );
                 beam->SetFeaSSIndex( ssindexVec[j] );
                 m_FeaElementVec.push_back( beam );
@@ -1469,6 +1486,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
 {
     //==== Collect All FeaNodes ====//
     m_FeaNodeVec.clear();
+
     for ( int i = 0; i < (int)m_FeaElementVec.size(); i++ )
     {
         m_FeaElementVec[i]->LoadNodes( m_FeaNodeVec );
