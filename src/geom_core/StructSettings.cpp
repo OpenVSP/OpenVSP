@@ -25,11 +25,11 @@ StructSettings::StructSettings() : MeshCommonSettings()
 {
     m_Name = "StructSettings";
 
-    m_ExportFileFlags[ vsp::MASS_FILE_NAME ].Init( "MASS_Export", "ExportFEA", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::NASTRAN_FILE_NAME ].Init( "NASTRAN_Export", "ExportFEA", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::CALCULIX_FILE_NAME ].Init( "CALCULIX_Export", "ExportFEA", this, true, 0, 1 );
-    m_ExportFileFlags[ vsp::STL_FEA_NAME ].Init( "STL_Export", "ExportFEA", this, true, 0, 1 );
-    m_ExportFileFlags[vsp::GMSH_FEA_NAME].Init( "GMSH_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_MASS_FILE_NAME ].Init( "MASS_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_NASTRAN_FILE_NAME ].Init( "NASTRAN_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_CALCULIX_FILE_NAME ].Init( "CALCULIX_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_STL_FILE_NAME ].Init( "STL_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[vsp::FEA_GMSH_FILE_NAME].Init( "GMSH_Export", "ExportFEA", this, true, 0, 1 );
 
     InitCommonParms();
 
@@ -65,7 +65,7 @@ StructSettings::~StructSettings()
 
 string StructSettings::GetExportFileName( int type )
 {
-    if ( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES )
+    if ( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES )
     {
         return m_ExportFileNames[type];
     }
@@ -75,7 +75,7 @@ string StructSettings::GetExportFileName( int type )
 
 void StructSettings::SetExportFileName( const string &fn, int type )
 {
-    if ( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES )
+    if ( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES )
     {
         m_ExportFileNames[type] = fn;
     }
@@ -95,7 +95,7 @@ void StructSettings::ResetExportFileNames( string basename )
     int pos;
     const char *suffix[] = {"_mass.dat", "_NASTRAN.dat", "_calculix.dat", ".stl", ".msh" };
 
-    for ( int i = 0 ; i < vsp::NUM_FEA_FILE_NAMES ; i++ )
+    for ( int i = 0 ; i < vsp::FEA_NUM_FILE_NAMES; i++ )
     {
         m_ExportFileNames[i] = basename;
         pos = m_ExportFileNames[i].find( ".vsp3" );
@@ -109,14 +109,14 @@ void StructSettings::ResetExportFileNames( string basename )
 
 BoolParm* StructSettings::GetExportFileFlag( int type )
 {
-    assert( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES );
+    assert( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES );
 
     return &m_ExportFileFlags[type];
 }
 
 void StructSettings::SetAllFileExportFlags( bool flag )
 {
-    for ( int i = 0 ; i < vsp::NUM_FEA_FILE_NAMES ; i++ )
+    for ( int i = 0 ; i < vsp::FEA_NUM_FILE_NAMES; i++ )
     {
         m_ExportFileFlags[i] = flag;
     }
@@ -124,7 +124,7 @@ void StructSettings::SetAllFileExportFlags( bool flag )
 
 void StructSettings::SetFileExportFlag( int type, bool flag )
 {
-    if ( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES )
+    if ( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES )
         m_ExportFileFlags[type] = flag;
 }
 
@@ -132,7 +132,7 @@ vector < string > StructSettings::GetExportFileNames()
 {
     vector < string > ret_vec;
 
-    for ( size_t i = 0; i < vsp::NUM_FEA_FILE_NAMES; i++ )
+    for ( size_t i = 0; i < vsp::FEA_NUM_FILE_NAMES; i++ )
     {
         ret_vec.push_back( m_ExportFileNames[i] );
     }

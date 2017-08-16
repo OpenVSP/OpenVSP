@@ -101,7 +101,7 @@ public:
 
     virtual string GetExportFileName( int type );
 
-    bool m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES];
+    bool m_ExportFileFlags[vsp::FEA_NUM_FILE_NAMES];
     int m_NumEvenlySpacedPart;
     double m_DrawNodesFlag;
     double m_DrawElementOrientVecFlag;

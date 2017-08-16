@@ -301,9 +301,9 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
 void FeaMeshMgrSingleton::ExportFeaMesh()
 {
-    WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME ) );
+    WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ) );
     WriteCalculix();
-    WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME ) );
+    WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME ) );
     WriteGmsh();
 
     ComputeWriteMass();
@@ -745,7 +745,7 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 {
     m_TotalMass = 0.0;
 
-    FILE* fp = fopen( GetStructSettingsPtr()->GetExportFileName( vsp::MASS_FILE_NAME ).c_str(), "w" );
+    FILE* fp = fopen( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_MASS_FILE_NAME ).c_str(), "w" );
     if ( fp )
     {
         fprintf( fp, "FeaStruct_Name: %s\n", m_StructName.c_str() );
@@ -1774,7 +1774,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
 void FeaMeshMgrSingleton::WriteCalculix()
 {
-    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::CALCULIX_FILE_NAME );
+    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
     if ( fp )
     {
@@ -2023,7 +2023,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
 void FeaMeshMgrSingleton::WriteGmsh()
 {
-    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::GMSH_FEA_NAME );
+    string fn = GetStructSettingsPtr()->GetExportFileName( vsp::FEA_GMSH_FILE_NAME );
     FILE* fp = fopen( fn.c_str(), "w" );
     if ( fp )
     {

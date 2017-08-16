@@ -1579,23 +1579,23 @@ bool StructScreen::Update()
                 FeaMeshMgr.UpdateDisplaySettings();
             }
 
-            string massname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::MASS_FILE_NAME );
+            string massname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_MASS_FILE_NAME );
             m_MassOutput.Update( truncateFileName( massname, 40 ).c_str() );
-            string nastranname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::NASTRAN_FILE_NAME );
+            string nastranname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME );
             m_NastOutput.Update( truncateFileName( nastranname, 40 ).c_str() );
-            string calculixname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::CALCULIX_FILE_NAME );
+            string calculixname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME );
             m_CalcOutput.Update( truncateFileName( calculixname, 40 ).c_str() );
-            string stlname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::STL_FEA_NAME );
+            string stlname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME );
             m_StlOutput.Update( truncateFileName( stlname, 40 ).c_str() );
-            string gmshname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::GMSH_FEA_NAME );
+            string gmshname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_GMSH_FILE_NAME );
             m_GmshOutput.Update( truncateFileName( gmshname, 40 ).c_str() );
 
             //==== Update File Output Flags ====//
-            m_MassFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::MASS_FILE_NAME )->GetID() );
-            m_NastFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::NASTRAN_FILE_NAME )->GetID() );
-            m_CalcFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::CALCULIX_FILE_NAME )->GetID() );
-            m_StlFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::STL_FEA_NAME )->GetID() );
-            m_GmshFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::GMSH_FEA_NAME )->GetID() );
+            m_MassFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME )->GetID() );
+            m_NastFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME )->GetID() );
+            m_CalcFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME )->GetID() );
+            m_StlFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME )->GetID() );
+            m_GmshFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME )->GetID() );
 
             // Update Structure Name
             m_FeaStructNameInput.Update( curr_struct->GetFeaStructName() );
@@ -2543,7 +2543,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .stl file.", "*.stl" );
             if ( newfile.compare( "" ) != 0 )
             {
-                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::STL_FEA_NAME );
+                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_STL_FILE_NAME );
             }
         }
     }
@@ -2556,7 +2556,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select mass .dat file.", "*.dat" );
             if ( newfile.compare( "" ) != 0 )
             {
-                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::MASS_FILE_NAME );
+                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_MASS_FILE_NAME );
             }
         }
     }
@@ -2569,7 +2569,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASTRAN .dat file.", "*.dat" );
             if ( newfile.compare( "" ) != 0 )
             {
-                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::NASTRAN_FILE_NAME );
+                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_NASTRAN_FILE_NAME );
             }
         }
     }
@@ -2582,7 +2582,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Calculix .dat file.", "*.dat" );
             if ( newfile.compare( "" ) != 0 )
             {
-                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::CALCULIX_FILE_NAME );
+                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_CALCULIX_FILE_NAME );
             }
         }
     }
@@ -2595,7 +2595,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .msh file.", "*.msh" );
             if ( newfile.compare( "" ) != 0 )
             {
-                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::GMSH_FEA_NAME );
+                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_GMSH_FILE_NAME );
             }
         }
     }

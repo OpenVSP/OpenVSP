@@ -126,7 +126,7 @@ SimpleFeaMeshSettings::~SimpleFeaMeshSettings()
 
 void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
 {
-    m_ExportFileFlags[vsp::NUM_FEA_FILE_NAMES] = settings->m_ExportFileFlags;
+    m_ExportFileFlags[vsp::FEA_NUM_FILE_NAMES] = settings->m_ExportFileFlags;
     m_NumEvenlySpacedPart = settings->m_NumEvenlySpacedPart.Get();
     m_DrawNodesFlag = settings->m_DrawNodesFlag.Get();
     m_DrawElementOrientVecFlag = settings->m_DrawElementOrientVecFlag.Get();
@@ -138,7 +138,7 @@ void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
 
 string SimpleFeaMeshSettings::GetExportFileName( int type )
 {
-    if ( type >= 0 && type < vsp::NUM_FEA_FILE_NAMES )
+    if ( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES )
     {
         return m_ExportFileNames[type];
     }
