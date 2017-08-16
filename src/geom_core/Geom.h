@@ -485,9 +485,14 @@ public:
     {
         return m_FeaStructVec;
     }
-    FeaStructure* AddFeaStruct( bool initskin, int surf_index );
-    void DeleteFeaStruct( int index );
-    bool ValidGeomFeaStructInd( int index );
+    virtual FeaStructure* AddFeaStruct( bool initskin, int surf_index );
+    virtual FeaStructure* GetFeaStruct( int fea_struct_ind );
+    virtual void DeleteFeaStruct( int index );
+    virtual bool ValidGeomFeaStructInd( int index );
+    virtual int NumGeomFeaStructs()
+    {
+        return m_FeaStructVec.size();
+    }
 
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};

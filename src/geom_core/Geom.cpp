@@ -4121,6 +4121,15 @@ FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
     return feastruct;
 }
 
+FeaStructure* Geom::GetFeaStruct( int fea_struct_ind )
+{
+    if ( ValidGeomFeaStructInd( fea_struct_ind ) )
+    {
+        return m_FeaStructVec[fea_struct_ind];
+    }
+    return NULL;
+}
+
 //==== Delete FeaStructure =====//
 void Geom::DeleteFeaStruct( int index )
 {
