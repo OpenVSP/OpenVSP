@@ -341,7 +341,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
     m_MaterialEditSubGroup.SetInputWidth( m_MaterialEditSubGroup.GetW() / 6 );
 
-    m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 0.001, "%5.3g" );
+    m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 1, "%5.3g" );
     m_MaterialEditSubGroup.AddButton( m_MatDensityUnit, "" );
     m_MatDensityUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_MatDensityUnit.GetFlButton()->labelcolor( FL_BLACK );
@@ -1710,6 +1710,12 @@ bool StructScreen::Update()
                 {
                     FeaStructDispGroup( NULL );
                 }
+            }
+
+            // Update FeaParts and SubSurfaces if FeaMesh is not in progress
+            if ( !FeaMeshMgr.GetFeaMeshInProgress() )
+            {
+                structVec[StructureMgr.GetCurrStructIndex()]->Update();
             }
         }
         else

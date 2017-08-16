@@ -98,6 +98,8 @@ private:
     ToggleButton m_RibShellCapToggle;
     ToggleRadioGroup m_RibShellCapToggleGroup;
 
+    vector < string > m_PerpendicularEdgeVec;
+
     //===== Spar =====//
     Choice m_SparPropertyChoice;
     Choice m_SparPosTypeChoice;
@@ -119,6 +121,8 @@ private:
     ToggleButton m_FixPointMassToggle;
     SliderAdjRangeInput m_FixPointMassSlider;
     TriggerButton m_FixPointMassUnit;
+
+    vector < string > m_FixPointParentIDVec;
 
     //===== Dome =====//
     Choice m_DomePropertyChoice;
@@ -252,9 +256,6 @@ private:
     ToggleButton m_FeaSSConCapToggle;
     ToggleButton m_FeaSSConShellCapToggle;
     ToggleRadioGroup m_FeaSSConShellCapToggleGroup;
-
-    vector < string > m_FixPointParentIDVec;
-    vector < string > m_PerpendicularEdgeVec;
     SliderAdjRangeInput m_FeaSSConSAngleSlider;
     SliderAdjRangeInput m_FeaSSConEAngleSlider;
     ToggleButton m_FeaSSConSAngleButton;
@@ -272,7 +273,6 @@ private:
     ToggleButton m_FeaSSLineArrayNegDirToggle;
     ToggleButton m_FeaSSLineArrayPosDirToggle;
     ToggleRadioGroup m_FeaSSLineArrayPosNegDirToggleGroup;
-
 };
 
 #endif // !defined(FEAPARTEDITSCREEN__INCLUDED_)

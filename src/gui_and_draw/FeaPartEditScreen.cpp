@@ -508,8 +508,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_StiffenerArrayEditLayout.SetChoiceButtonWidth( m_StiffenerArrayEditLayout.GetRemainX() / 3 );
 
-    m_StiffenerArrayPosTypeChoice.AddItem( "% Span" );
-    m_StiffenerArrayPosTypeChoice.AddItem( "Dist Span" );
+    m_StiffenerArrayPosTypeChoice.AddItem( "% Spine" );
+    m_StiffenerArrayPosTypeChoice.AddItem( "Dist Spine" );
     m_StiffenerArrayEditLayout.AddChoice( m_StiffenerArrayPosTypeChoice, "Parameterization" );
 
     m_StiffenerArrayEditLayout.SetButtonWidth( m_StiffenerArrayEditLayout.GetRemainX() / 3 );
@@ -902,6 +902,19 @@ void FeaPartEditScreen::Show()
 bool FeaPartEditScreen::Update()
 {
     assert( m_ScreenMgr );
+
+    // Close the screen if StructScreen is not open
+    VspScreen* struct_screen = m_ScreenMgr->GetScreen( ScreenMgr::VSP_STRUCT_SCREEN );
+    if ( !struct_screen )
+    {
+        Hide();
+        return false;
+    }
+    else if ( !struct_screen->IsShown() )
+    {
+        Hide();
+        return false;
+    }
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -1443,12 +1456,6 @@ bool FeaPartEditScreen::Update()
             {
                 Hide();
                 return false;
-            }
-
-            // Update FeaParts and SubSurfaces if FeaMesh is not in progress
-            if ( !FeaMeshMgr.GetFeaMeshInProgress() )
-            {
-                structVec[StructureMgr.GetCurrStructIndex()]->Update();
             }
         }
         else
