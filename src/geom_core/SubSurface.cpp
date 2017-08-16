@@ -213,7 +213,7 @@ std::string SubSurface::GetTypeName( int type )
     }
     if ( type == vsp::SS_LINE_ARRAY )
     {
-        return string( "Line_Array" );
+        return string( "LineArray" );
     }
     return string( "NONE" );
 }
@@ -2042,16 +2042,16 @@ void SSControlSurf::PrepareSplitVec()
 
 SSLineArray::SSLineArray( string comp_id, int type ) : SubSurface( comp_id, type )
 {
-    m_ConstType.Init( "Const_Line_Type", "SSLineArray", this, CONST_U, CONST_U, CONST_W );
+    m_ConstType.Init( "ConstLineType", "SS_LineArray", this, CONST_U, CONST_U, CONST_W );
     m_ConstType.SetDescript( "Either Constant U or Constant W SSLines" );
 
-    m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "SSLineArray", this, true, false, true );
+    m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "SS_LineArray", this, true, false, true );
     m_PositiveDirectionFlag.SetDescript( "Flag to Increment SSLines in Positive or Negative Direction" );
 
-    m_Spacing.Init( "Spacing", "SSLineArray", this, 0.5, 0.0, 1.0 );
+    m_Spacing.Init( "Spacing", "SS_LineArray", this, 0.5, 0.0, 1.0 );
     m_Spacing.SetDescript( "Spacing Between SSLines in Array" );
 
-    m_StartLocation.Init( "StartLocation", "SSLineArray", this, 0.0, 0.0, 1.0 );
+    m_StartLocation.Init( "StartLocation", "SS_LineArray", this, 0.0, 0.0, 1.0 );
     m_StartLocation.SetDescript( "Location of First SSLine in Array" );
 
     // Set to only Beam elements (cap) with no tags (tris)
