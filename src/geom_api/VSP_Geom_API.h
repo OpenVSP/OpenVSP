@@ -157,6 +157,16 @@ extern int GetNumSubSurf( const std::string & geom_id );
 extern int GetSubSurfType( const std::string & sub_id );
 extern std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id );
 
+extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int surfindex = 0 );
+extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_id );
+extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_id, int type );
+extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_id, int type );
+extern std::string AddFeaMaterial();
+extern std::string AddFeaProperty( int property_type = 0 );
+extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_id, int type, double val );
+extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_id, int file_type, const string & file_name );
+extern void ComputeFeaMesh( const std::string & geom_id, int fea_struct_id, int file_type );
+
 extern void CutXSec( const std::string & geom_id, int index );
 extern void CopyXSec( const std::string & geom_id, int index );
 extern void PasteXSec( const std::string & geom_id, int index );
