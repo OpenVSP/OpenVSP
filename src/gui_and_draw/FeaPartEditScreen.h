@@ -256,6 +256,12 @@ private:
 
     vector < string > m_FixPointParentIDVec;
     vector < string > m_PerpendicularEdgeVec;
+    SliderAdjRangeInput m_FeaSSConSAngleSlider;
+    SliderAdjRangeInput m_FeaSSConEAngleSlider;
+    ToggleButton m_FeaSSConSAngleButton;
+    ToggleButton m_FeaSSConEAngleButton;
+    ToggleButton m_FeaSSConSameAngleButton;
+    SliderInput m_FeaSSConTessSlider;
 
     //===== SSLineArray =====//
     SliderAdjRangeInput m_FeaSSLineArraySpacingSlider;

@@ -13,7 +13,7 @@
 #include "SubSurface.h"
 #include "FeaMeshMgr.h"
 
-FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 365, "FEA Part Edit" )
+FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 460, "FEA Part Edit" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -805,6 +805,25 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FeaSSConGroup.AddSlider( m_FeaSSConEFracSlider, "End Length/C", 1.0, "%5.4f" );
 
     m_FeaSSConGroup.AddYGap();
+    m_FeaSSConGroup.AddDividerBox( "Surface End Angle" );
+
+    m_FeaSSConGroup.SetSameLineFlag( true );
+    m_FeaSSConGroup.SetFitWidthFlag( false );
+
+    m_FeaSSConGroup.AddButton( m_FeaSSConSAngleButton, "Start" );
+    m_FeaSSConGroup.AddButton( m_FeaSSConEAngleButton, "End" );
+    m_FeaSSConGroup.AddButton( m_FeaSSConSameAngleButton, "Same Angle" );
+
+    m_FeaSSConGroup.SetSameLineFlag( false );
+    m_FeaSSConGroup.SetFitWidthFlag( true );
+    m_FeaSSConGroup.ForceNewLine();
+
+    m_FeaSSConGroup.AddSlider( m_FeaSSConSAngleSlider, "Start Angle", 10.0, "%5.4f" );
+    m_FeaSSConGroup.AddSlider( m_FeaSSConEAngleSlider, "End Angle", 10.0, "%5.4f" );
+
+    m_FeaSSConGroup.AddSlider( m_FeaSSConTessSlider, "Num Points", 100, "%5.0f" );
+
+    m_FeaSSConGroup.AddYGap();
 
     m_FeaSSConGroup.SetSameLineFlag( true );
     m_FeaSSConGroup.SetFitWidthFlag( false );
@@ -1308,6 +1327,12 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSConSEConstButton.Update( sscon->m_ConstFlag.GetID() );
                         m_FeaSSConLEFlagButton.Update( sscon->m_LEFlag.GetID() );
                         m_FeaSSConShellCapToggleGroup.Update( sscon->m_IncludedElements.GetID() );
+                        m_FeaSSConSAngleButton.Update( sscon->m_StartAngleFlag.GetID() );
+                        m_FeaSSConEAngleButton.Update( sscon->m_EndAngleFlag.GetID() );
+                        m_FeaSSConSAngleSlider.Update( sscon->m_StartAngle.GetID() );
+                        m_FeaSSConEAngleSlider.Update( sscon->m_EndAngle.GetID() );
+
+                        m_FeaSSConTessSlider.Update( sscon->m_Tess.GetID() );
 
                         if ( sscon->m_IncludedElements() == BEAM )
                         {
@@ -1334,8 +1359,38 @@ bool FeaPartEditScreen::Update()
                             m_FeaSSConPropertyChoice.Deactivate();
                         }
 
+                        if ( sscon->m_StartAngleFlag() )
+                        {
+                            m_FeaSSConSAngleSlider.Activate();
+                        }
+                        else
+                        {
+                            m_FeaSSConSAngleSlider.Deactivate();
+                        }
+
+                        m_FeaSSConSameAngleButton.Update( sscon->m_SameAngleFlag.GetID() );
+
+                        if ( sscon->m_StartAngleFlag() && sscon->m_EndAngleFlag() )
+                        {
+                            m_FeaSSConSameAngleButton.Activate();
+                        }
+                        else
+                        {
+                            m_FeaSSConSameAngleButton.Deactivate();
+                        }
+
+                        if ( sscon->m_EndAngleFlag() && ( !sscon->m_SameAngleFlag() || ( !sscon->m_StartAngleFlag() && sscon->m_SameAngleFlag() ) ) )
+                        {
+                            m_FeaSSConEAngleSlider.Activate();
+                        }
+                        else
+                        {
+                            m_FeaSSConEAngleSlider.Deactivate();
+                        }
+
                         m_FeaSSConSFracSlider.Deactivate();
                         m_FeaSSConSLenSlider.Deactivate();
+
                         m_FeaSSConEFracSlider.Deactivate();
                         m_FeaSSConELenSlider.Deactivate();
 
