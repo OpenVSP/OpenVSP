@@ -22,6 +22,8 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
 
     //==== Design ====//
 
+    m_DesignLayout.SetButtonWidth( 80 );
+
     m_ModeChoice.AddItem( "Flowthrough" );
     m_ModeChoice.AddItem( "Upper" );
     m_ModeChoice.AddItem( "Lower" );
@@ -32,6 +34,19 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
     m_DesignLayout.AddDividerBox( "Flowthrough Control" );
     m_DesignLayout.AddSlider( m_BORDiameterSlider, "Diameter", 10, "%7.3f" );
     m_DesignLayout.AddSlider( m_AngleSlider, "Angle", 10, "%7.3f" );
+
+    m_DesignLayout.AddYGap();
+
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.AddOutput( m_A0Output, "A0" );
+    m_DesignLayout.AddOutput( m_AeOutput, "Ae" );
+
+    m_DesignLayout.SetSameLineFlag( true );
+    m_DesignLayout.AddOutput( m_AminOutput, "Amin", m_DesignLayout.GetW() / 2 );
+    m_DesignLayout.AddOutput( m_AminWOutput, "Amin W", m_DesignLayout.GetW() / 2 );
+    m_DesignLayout.ForceNewLine();
+
+    m_DesignLayout.SetSameLineFlag( false );
 
     m_DesignLayout.AddYGap();
 
@@ -494,6 +509,19 @@ bool BORScreen::Update()
     BORGeom* bor_ptr = dynamic_cast< BORGeom* >( geom_ptr );
     assert( bor_ptr );
 
+    char str[255];
+    sprintf( str, "%6.2f", bor_ptr->m_A0() );
+    m_A0Output.Update( string( str ) );
+
+    sprintf( str, "%6.2f", bor_ptr->m_Amin() );
+    m_AminOutput.Update( string( str ) );
+
+    sprintf( str, "%6.2f", bor_ptr->m_AminW() );
+    m_AminWOutput.Update( string( str ) );
+
+    sprintf( str, "%6.2f", bor_ptr->m_Ae() );
+    m_AeOutput.Update( string( str ) );
+
     m_ModeChoice.Update( bor_ptr->m_Mode.GetID() );
 
     m_BORDiameterSlider.Update( bor_ptr->m_Diameter.GetID() );
@@ -503,11 +531,21 @@ bool BORScreen::Update()
     {
         m_BORDiameterSlider.Activate();
         m_AngleSlider.Activate();
+
+        m_A0Output.Activate();
+        m_AeOutput.Activate();
+        m_AminOutput.Activate();
+        m_AminWOutput.Activate();
     }
     else
     {
         m_BORDiameterSlider.Deactivate();
         m_AngleSlider.Deactivate();
+
+        m_A0Output.Deactivate();
+        m_AeOutput.Deactivate();
+        m_AminOutput.Deactivate();
+        m_AminWOutput.Deactivate();
     }
 
     m_LEClusterSlider.Update( bor_ptr->m_LECluster.GetID() );

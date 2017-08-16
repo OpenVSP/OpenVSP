@@ -40,6 +40,18 @@ BORGeom::BORGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_TECluster.Init( "TECluster", m_Name, this, 0.25, 1e-4, 10.0 );
     m_TECluster.SetDescript( "TE Tess Cluster Control" );
 
+    m_A0.Init( "A0", "Design", this, 1.0, -1.0e12, 1.0e12 );
+    m_A0.SetDescript( "Area of BOR leading edge" );
+
+    m_Ae.Init( "Ae", "Design", this, 1.0, -1.0e12, 1.0e12 );
+    m_Ae.SetDescript( "Area of BOR trailing edge" );
+
+    m_Amin.Init( "Amin", "Design", this, 1.0, -1.0e12, 1.0e12 );
+    m_Amin.SetDescript( "Minimum area of BOR" );
+
+    m_AminW.Init( "AminW", "Design", this, 0.5, 0.0, 1.0 );
+    m_AminW.SetDescript( "W parameter for minimum area" );
+
     m_Xoff = 0.0;
 
     m_XSCurve = NULL;
@@ -70,6 +82,21 @@ void BORGeom::UpdateSurf()
     {
         stringer.RotateZ(m_Angle() * PI / 180.0);
         stringer.OffsetY(m_Diameter());
+
+        double r = stringer.CompPnt01( 0.0 ).y();
+        m_Ae.Set( PI * r * r );
+        m_Ae.Deactivate();
+
+        double tmin;
+        r = stringer.FindMinimumDimension( tmin, vsp::Y_DIR );
+        m_AminW.Set( tmin / 4.0 );
+        m_AminW.Deactivate();
+        m_Amin.Set( PI * r * r );
+        m_Amin.Deactivate();
+
+        r = stringer.CompPnt01( 0.5 ).y();
+        m_A0.Set( PI * r * r );
+        m_A0.Deactivate();
     }
     else if ( m_Mode() == vsp::BOR_LOWER || m_Mode() == vsp::BOR_UPPER )
     {
@@ -94,6 +121,18 @@ void BORGeom::UpdateSurf()
             c2.set_t0( tmin );
             stringer.SetCurve( c2 );
         }
+
+        m_Ae.Set( 0.0 );
+        m_Ae.Deactivate();
+
+        m_A0.Set( 0.0 );
+        m_A0.Deactivate();
+
+        m_Amin.Set( 0.0 );
+        m_Amin.Deactivate();
+
+        m_AminW.Set( 0.0 );
+        m_AminW.Deactivate();
     }
 
     // Revolve to unit sphere

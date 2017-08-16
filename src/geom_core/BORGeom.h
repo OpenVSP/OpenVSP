@@ -46,6 +46,11 @@ public:
 
     IntParm m_Mode;
 
+    Parm m_A0;
+    Parm m_Ae;
+    Parm m_Amin;
+    Parm m_AminW;
+
 protected:
     virtual void UpdateSurf();
 
