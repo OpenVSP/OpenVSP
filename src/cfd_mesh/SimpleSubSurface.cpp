@@ -40,8 +40,8 @@ void SimpleSubSurface::CopyFrom( SubSurface* ss )
         m_TestType = ss->m_TestType.Get();
         m_MainSurfIndx = ss->m_MainSurfIndx.Get();
         m_IncludedElements = ss->m_IncludedElements.Get();
-        m_FeaPropertyIndex = ss->GetFeaPropertyIndex();
-        m_CapFeaPropertyIndex = ss->GetCapFeaPropertyIndex();
+        m_FeaPropertyIndex = ss->m_FeaPropertyIndex();
+        m_CapFeaPropertyIndex = ss->m_CapFeaPropertyIndex();
 
         ss->PrepareSplitVec();
         m_SplitLVec = ss->GetSplitSegs();

@@ -456,7 +456,7 @@ void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop )
         m_Iyy = fea_prop->m_Iyy.Get();
         m_Izy = fea_prop->m_Izy.Get();
         m_Ixx = fea_prop->m_Ixx.Get();
-        m_SimpleFeaMatIndex = fea_prop->GetFeaMaterialIndex();
+        m_SimpleFeaMatIndex = fea_prop->m_FeaMaterialIndex();
 
         FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( m_SimpleFeaMatIndex );
 

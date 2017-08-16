@@ -180,8 +180,8 @@ void FeaMeshMgrSingleton::TransferFeaData()
             m_FeaPartNameVec[i] = fea_part_vec[i]->GetName();
             m_FeaPartTypeVec[i] = fea_part_vec[i]->GetType();
             m_FeaPartIncludedElementsVec[i] = fea_part_vec[i]->m_IncludedElements.Get();
-            m_FeaPartPropertyIndexVec[i] = fea_part_vec[i]->GetFeaPropertyIndex();
-            m_FeaPartCapPropertyIndexVec[i] = fea_part_vec[i]->GetCapFeaPropertyIndex();
+            m_FeaPartPropertyIndexVec[i] = fea_part_vec[i]->m_FeaPropertyIndex();
+            m_FeaPartCapPropertyIndexVec[i] = fea_part_vec[i]->m_CapFeaPropertyIndex();
         }
     }
 

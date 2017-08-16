@@ -730,7 +730,7 @@ void StructScreen::UpdateFeaPartBrowser()
             {
                 shell = "     X";
 
-                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->GetFeaPropertyIndex() );
+                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->m_FeaPropertyIndex() );
                 if ( prop )
                 {
                     shell_prop = prop->GetName();
@@ -746,7 +746,7 @@ void StructScreen::UpdateFeaPartBrowser()
             {
                 cap = "   X";
 
-                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->GetCapFeaPropertyIndex() );
+                FeaProperty* prop = StructureMgr.GetFeaProperty( feaprt_vec[i]->m_CapFeaPropertyIndex() );
                 if ( prop )
                 {
                     cap_prop = prop->GetName();
@@ -792,7 +792,7 @@ void StructScreen::UpdateFeaPartBrowser()
             {
                 shell = "     X";
 
-                FeaProperty* prop = StructureMgr.GetFeaProperty( subsurf_vec[i]->GetFeaPropertyIndex() );
+                FeaProperty* prop = StructureMgr.GetFeaProperty( subsurf_vec[i]->m_FeaPropertyIndex() );
                 if ( prop )
                 {
                     shell_prop = prop->GetName();
@@ -808,7 +808,7 @@ void StructScreen::UpdateFeaPartBrowser()
             {
                 cap = "   X";
 
-                FeaProperty* prop = StructureMgr.GetFeaProperty( subsurf_vec[i]->GetCapFeaPropertyIndex() );
+                FeaProperty* prop = StructureMgr.GetFeaProperty( subsurf_vec[i]->m_CapFeaPropertyIndex() );
                 if ( prop )
                 {
                     cap_prop = prop->GetName();
@@ -984,7 +984,7 @@ void StructScreen::UpdateFeaPropertyBrowser()
         prop_name = property_vec[i]->GetName();
         prop_type = property_vec[i]->GetTypeName();
 
-        FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( property_vec[i]->GetFeaMaterialIndex() );
+        FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( property_vec[i]->m_FeaMaterialIndex() );
         if ( fea_mat )
         {
             prop_mat = fea_mat->GetName();
@@ -1047,8 +1047,8 @@ void StructScreen::UpdateFeaPropertyChoice()
 
                     if ( feaprt )
                     {
-                        m_GenPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-                        m_GenCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
+                        m_GenPropertyChoice.SetVal( feaprt->m_FeaPropertyIndex() );
+                        m_GenCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
                     }
                 }
                 else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -1057,8 +1057,8 @@ void StructScreen::UpdateFeaPropertyChoice()
 
                     if ( subsurf )
                     {
-                        m_GenPropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
-                        m_GenCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
+                        m_GenPropertyChoice.SetVal( subsurf->m_FeaPropertyIndex() );
+                        m_GenCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
                     }
                 }
             }
@@ -1078,15 +1078,15 @@ void StructScreen::UpdateFeaPropertyChoice()
                         {
                             if ( i == 0 )
                             {
-                                prop_index = feaprt->GetFeaPropertyIndex();
-                                cap_index = feaprt->GetCapFeaPropertyIndex();
+                                prop_index = feaprt->m_FeaPropertyIndex();
+                                cap_index = feaprt->m_CapFeaPropertyIndex();
                             }
 
-                            if ( feaprt->GetFeaPropertyIndex() != prop_index )
+                            if ( feaprt->m_FeaPropertyIndex() != prop_index )
                             {
                                 mult_prop = true;
                             }
-                            if ( feaprt->GetCapFeaPropertyIndex() != cap_index )
+                            if ( feaprt->m_CapFeaPropertyIndex() != cap_index )
                             {
                                 mult_cap_prop = true;
                             }
@@ -1100,15 +1100,15 @@ void StructScreen::UpdateFeaPropertyChoice()
                         {
                             if ( i == 0 )
                             {
-                                prop_index = subsurf->GetFeaPropertyIndex();
-                                cap_index = subsurf->GetCapFeaPropertyIndex();
+                                prop_index = subsurf->m_FeaPropertyIndex();
+                                cap_index = subsurf->m_CapFeaPropertyIndex();
                             }
 
-                            if ( subsurf->GetFeaPropertyIndex() != prop_index )
+                            if ( subsurf->m_FeaPropertyIndex() != prop_index )
                             {
                                 mult_prop = true;
                             }
-                            if ( subsurf->GetCapFeaPropertyIndex() != cap_index )
+                            if ( subsurf->m_CapFeaPropertyIndex() != cap_index )
                             {
                                 mult_cap_prop = true;
                             }
@@ -1200,8 +1200,8 @@ void StructScreen::UpdateFeaMaterialChoice()
             if ( fea_prop )
             {
                 // Update all FeaPart Material Choices ( Only Selected Property Visible )
-                m_FeaShellMaterialChoice.SetVal( fea_prop->GetFeaMaterialIndex() );
-                m_FeaBeamMaterialChoice.SetVal( fea_prop->GetFeaMaterialIndex() );
+                m_FeaShellMaterialChoice.SetVal( fea_prop->m_FeaMaterialIndex() );
+                m_FeaBeamMaterialChoice.SetVal( fea_prop->m_FeaMaterialIndex() );
             }
         }
     }
@@ -1264,7 +1264,7 @@ void StructScreen::UpdateGenPropertyIndex( Choice* property_choice )
                 {
                     if ( ( feaprt->m_IncludedElements() == TRIS || feaprt->m_IncludedElements() == BOTH_ELEMENTS ) && feaprt->GetType() != vsp::FEA_FIX_POINT )
                     {
-                        feaprt->SetFeaPropertyIndex( property_choice->GetVal() );
+                        feaprt->m_FeaPropertyIndex.Set( property_choice->GetVal() );
                     }
                 }
             }
@@ -1276,7 +1276,7 @@ void StructScreen::UpdateGenPropertyIndex( Choice* property_choice )
                 {
                     if ( subsurf->m_IncludedElements() == TRIS || subsurf->m_IncludedElements() == BOTH_ELEMENTS )
                     {
-                        subsurf->SetFeaPropertyIndex( property_choice->GetVal() );
+                        subsurf->m_FeaPropertyIndex.Set( property_choice->GetVal() );
                     }
                 }
             }
@@ -1307,7 +1307,7 @@ void StructScreen::UpdateGenCapPropertyIndex( Choice* property_choice )
                 {
                     if ( ( feaprt->m_IncludedElements() == BEAM || feaprt->m_IncludedElements() == BOTH_ELEMENTS ) && feaprt->GetType() != vsp::FEA_FIX_POINT )
                     {
-                        feaprt->SetCapFeaPropertyIndex( property_choice->GetVal() );
+                        feaprt->m_CapFeaPropertyIndex.Set( property_choice->GetVal() );
                     }
                 }
             }
@@ -1319,7 +1319,7 @@ void StructScreen::UpdateGenCapPropertyIndex( Choice* property_choice )
                 {
                     if ( subsurf->m_IncludedElements() == BEAM || subsurf->m_IncludedElements() == BOTH_ELEMENTS )
                     {
-                        subsurf->SetCapFeaPropertyIndex( property_choice->GetVal() );
+                        subsurf->m_CapFeaPropertyIndex.Set( property_choice->GetVal() );
                     }
                 }
             }
@@ -2518,7 +2518,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( fea_prop )
             {
-                fea_prop->SetFeaMaterialIndex( m_FeaShellMaterialChoice.GetVal() );
+                fea_prop->m_FeaMaterialIndex.Set( m_FeaShellMaterialChoice.GetVal() );
             }
         }
     }
@@ -2530,7 +2530,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( fea_prop )
             {
-                fea_prop->SetFeaMaterialIndex( m_FeaBeamMaterialChoice.GetVal() );
+                fea_prop->m_FeaMaterialIndex.Set( m_FeaBeamMaterialChoice.GetVal() );
             }
         }
     }

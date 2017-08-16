@@ -1797,19 +1797,19 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 if ( feaprt )
                 {
                     // Update all FeaPart Property Choices ( Only Selected Part Visible )
-                    m_SkinPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-                    m_SlicePropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-                    m_RibPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-                    m_SparPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-                    m_DomePropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-                    m_RibArrayPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
+                    m_SkinPropertyChoice.SetVal( feaprt->m_FeaPropertyIndex() );
+                    m_SlicePropertyChoice.SetVal( feaprt->m_FeaPropertyIndex() );
+                    m_RibPropertyChoice.SetVal( feaprt->m_FeaPropertyIndex() );
+                    m_SparPropertyChoice.SetVal( feaprt->m_FeaPropertyIndex() );
+                    m_DomePropertyChoice.SetVal( feaprt->m_FeaPropertyIndex() );
+                    m_RibArrayPropertyChoice.SetVal( feaprt->m_FeaPropertyIndex() );
 
-                    m_SparCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
-                    m_SliceCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
-                    m_RibCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
-                    m_DomeCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
-                    m_RibArrayCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
-                    m_StiffenerArrayCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
+                    m_SparCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
+                    m_SliceCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
+                    m_RibCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
+                    m_DomeCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
+                    m_RibArrayCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
+                    m_StiffenerArrayCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
                 }
             }
             else if ( StructureMgr.GetCurrPartIndex() >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -1819,16 +1819,16 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 if ( subsurf )
                 {
                     // Update all FeaSubSurface Property Choices ( Only Selected Part Visible )
-                    m_FeaSSLinePropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
-                    m_FeaSSRecPropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
-                    m_FeaSSEllPropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
-                    m_FeaSSConPropertyChoice.SetVal( subsurf->GetFeaPropertyIndex() );
+                    m_FeaSSLinePropertyChoice.SetVal( subsurf->m_FeaPropertyIndex() );
+                    m_FeaSSRecPropertyChoice.SetVal( subsurf->m_FeaPropertyIndex() );
+                    m_FeaSSEllPropertyChoice.SetVal( subsurf->m_FeaPropertyIndex() );
+                    m_FeaSSConPropertyChoice.SetVal( subsurf->m_FeaPropertyIndex() );
 
-                    m_FeaSSLineCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
-                    m_FeaSSRecCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
-                    m_FeaSSEllCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
-                    m_FeaSSConCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
-                    m_FeaSSLineArrayCapPropertyChoice.SetVal( subsurf->GetCapFeaPropertyIndex() );
+                    m_FeaSSLineCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
+                    m_FeaSSRecCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
+                    m_FeaSSEllCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
+                    m_FeaSSConCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
+                    m_FeaSSLineArrayCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
                 }
             }
         }
@@ -2020,7 +2020,7 @@ void FeaPartEditScreen::SetFeaPartPropertyIndex( Choice* property_choice )
 
             if ( feaprt )
             {
-                feaprt->SetFeaPropertyIndex( property_choice->GetVal() );
+                feaprt->m_FeaPropertyIndex.Set( property_choice->GetVal() );
             }
         }
         else if ( StructureMgr.GetCurrPartIndex() >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -2029,7 +2029,7 @@ void FeaPartEditScreen::SetFeaPartPropertyIndex( Choice* property_choice )
 
             if ( subsurf )
             {
-                subsurf->SetFeaPropertyIndex( property_choice->GetVal() );
+                subsurf->m_FeaPropertyIndex.Set( property_choice->GetVal() );
             }
         }
     }
@@ -2047,7 +2047,7 @@ void FeaPartEditScreen::SetCapPropertyIndex( Choice* property_choice )
 
             if ( feaprt )
             {
-                feaprt->SetCapFeaPropertyIndex( property_choice->GetVal() );
+                feaprt->m_CapFeaPropertyIndex.Set( property_choice->GetVal() );
             }
         }
         else if ( StructureMgr.GetCurrPartIndex() >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -2056,7 +2056,7 @@ void FeaPartEditScreen::SetCapPropertyIndex( Choice* property_choice )
 
             if ( subsurf )
             {
-                subsurf->SetCapFeaPropertyIndex( property_choice->GetVal() );
+                subsurf->m_CapFeaPropertyIndex.Set( property_choice->GetVal() );
             }
         }
     }

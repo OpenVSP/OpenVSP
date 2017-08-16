@@ -525,7 +525,7 @@ int StructureMgrSingleton::GetFeaPropertyIndex( const string & FeaPartID )
 
     if ( fea_part )
     {
-        return fea_part->GetFeaPropertyIndex();
+        return fea_part->m_FeaPropertyIndex();
     }
 
     return -1; // indicates an error
@@ -620,7 +620,7 @@ void StructureMgrSingleton::InitFeaProperties()
     if ( default_shell && !shell_prop )
     {
         default_shell->SetName( "Default_Shell" );
-        default_shell->SetFeaMaterialIndex( 0 ); // aluminum
+        default_shell->m_FeaMaterialIndex.Set( 0 ); // aluminum
         default_shell->m_FeaPropertyType.Set( SHELL_PROPERTY );
         default_shell->m_UserFeaProperty = false;
 
@@ -632,7 +632,7 @@ void StructureMgrSingleton::InitFeaProperties()
     if ( default_beam && !beam_prop )
     {
         default_beam->SetName( "Default_Beam" );
-        default_beam->SetFeaMaterialIndex( 0 ); // aluminum
+        default_beam->m_FeaMaterialIndex.Set( 0 ); // aluminum
         default_beam->m_FeaPropertyType.Set( BEAM_PROPERTY );
         default_beam->m_UserFeaProperty = false;
 

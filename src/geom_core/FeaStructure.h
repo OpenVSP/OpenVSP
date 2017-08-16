@@ -198,24 +198,6 @@ public:
         return m_ParentGeomID;
     }
 
-    virtual int GetFeaPropertyIndex()
-    {
-        return m_FeaPropertyIndex;
-    }
-    virtual void SetFeaPropertyIndex( int index )
-    {
-        m_FeaPropertyIndex = index;
-    }
-
-    virtual int GetCapFeaPropertyIndex()
-    {
-        return m_CapFeaPropertyIndex;
-    }
-    virtual void SetCapFeaPropertyIndex( int index )
-    {
-        m_CapFeaPropertyIndex = index;
-    }
-
     virtual vector < VspSurf > GetFeaPartSurfVec()
     {
         return m_FeaPartSurfVec;
@@ -234,15 +216,14 @@ public:
     BoolParm m_DrawFeaPartFlag;
     IntParm m_LocationParmType;
     Parm m_CenterLocation;
+    IntParm m_FeaPropertyIndex;
+    IntParm m_CapFeaPropertyIndex;
 
 protected:
 
     int m_FeaPartType;
 
     string m_ParentGeomID;
-
-    int m_FeaPropertyIndex;
-    int m_CapFeaPropertyIndex;
 
     vector < int > m_SymmIndexVec;
 
@@ -511,15 +492,6 @@ public:
     virtual void WriteNASTRAN( FILE* fp, int prop_id );
     virtual void WriteCalculix( FILE* fp, string ELSET );
 
-    virtual int GetFeaMaterialIndex()
-    {
-        return m_FeaMaterialIndex;
-    }
-    virtual void SetFeaMaterialIndex( int index )
-    {
-        m_FeaMaterialIndex = index;
-    }
-
     IntParm m_FeaPropertyType;
     Parm m_Thickness;
     Parm m_CrossSecArea;
@@ -527,12 +499,11 @@ public:
     Parm m_Iyy;
     Parm m_Izy;
     Parm m_Ixx;
+    IntParm m_FeaMaterialIndex;
 
     bool m_UserFeaProperty;
 
 protected:
-
-    int m_FeaMaterialIndex;
 };
 
 class FeaMaterial : public ParmContainer

@@ -63,8 +63,11 @@ SubSurface::SubSurface( string compID, int type )
     m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "SubSurface", this, true, false, true );
     m_DrawFeaPartFlag.SetDescript( "Flag to Draw FEA SubSurface" );
 
-    m_FeaPropertyIndex = 0; // Shell Property Default
-    m_CapFeaPropertyIndex = 1; // Beam property default
+    m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaPart", this, 0, 0, 1e12 );; // Shell property default
+    m_FeaPropertyIndex.SetDescript( "FeaPropertyIndex for Shell Elements" );
+
+    m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaPart", this, 1, 0, 1e12 );; // Beam property default
+    m_CapFeaPropertyIndex.SetDescript( "FeaPropertyIndex for Beam (Cap) Elements" );
 }
 
 SubSurface::~SubSurface()
@@ -223,8 +226,6 @@ xmlNodePtr SubSurface::EncodeXml( xmlNodePtr & node )
 
     xmlNodePtr ss_info = xmlNewChild( node, NULL, BAD_CAST "SubSurfaceInfo", NULL );
     XmlUtil::AddIntNode( ss_info, "Type", m_Type );
-    XmlUtil::AddIntNode( ss_info, "FeaPropertyIndex", m_FeaPropertyIndex );
-    XmlUtil::AddIntNode( ss_info, "CapFeaPropertyIndex", m_CapFeaPropertyIndex );
 
     return ss_info;
 }
@@ -262,16 +263,16 @@ bool SubSurface::Subtag( const vec3d & center )
 
 int SubSurface::GetFeaMaterialIndex()
 {
-    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
+    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex() );
 
-    return fea_prop->GetFeaMaterialIndex();
+    return fea_prop->m_FeaMaterialIndex();
 }
 
 void SubSurface::SetFeaMaterialIndex( int index )
 {
-    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
+    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex() );
 
-    fea_prop->SetFeaMaterialIndex( index );
+    fea_prop->m_FeaMaterialIndex.Set( index );
 }
 
 //==================================//

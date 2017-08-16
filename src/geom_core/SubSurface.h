@@ -136,23 +136,6 @@ public:
     // Save, Load
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
 
-    virtual int GetFeaPropertyIndex()
-    {
-        return m_FeaPropertyIndex;
-    }
-    virtual void SetFeaPropertyIndex( int index )
-    {
-        m_FeaPropertyIndex = index;
-    }
-    virtual int GetCapFeaPropertyIndex()
-    {
-        return m_CapFeaPropertyIndex;
-    }
-    virtual void SetCapFeaPropertyIndex( int index )
-    {
-        m_CapFeaPropertyIndex = index;
-    }
-
     virtual int GetFeaMaterialIndex();
     virtual void SetFeaMaterialIndex( int index );
 
@@ -173,6 +156,8 @@ public:
 
     IntParm m_IncludedElements;
     BoolParm m_DrawFeaPartFlag;
+    IntParm m_FeaPropertyIndex;
+    IntParm m_CapFeaPropertyIndex;
 
 protected:
     string m_CompID; // Component ID used to match Subsurface to a specific geom
@@ -183,9 +168,6 @@ protected:
     vector<SSLineSeg> m_LVec; // Line Segment Vector
     vector< vector<SSLineSeg> > m_SplitLVec; // Split Line Vector
     vec3d m_LineColor; // Line Color Displayed when drawn on screen
-
-    int m_FeaPropertyIndex;
-    int m_CapFeaPropertyIndex;
 
     //std::vector< vec2d > m_PolyPnts;
     std::vector< std::vector< vec2d > > m_PolyPntsVec;

@@ -98,26 +98,16 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
         if ( part_info )
         {
             int type = XmlUtil::FindInt( part_info, "FeaPartType", 0 );
-            int prop_index = XmlUtil::FindInt( part_info, "FeaPropertyIndex", 0 );
-            int cap_prop_index = XmlUtil::FindInt( part_info, "CapFeaPropertyIndex", 0 );
 
             if ( type != vsp::FEA_SKIN )
             {
                 FeaPart* feapart = AddFeaPart( type );
-
-                feapart->SetFeaPropertyIndex( prop_index );
-                feapart->SetCapFeaPropertyIndex( cap_prop_index );
-
                 feapart->DecodeXml( part_info );
             }
             else
             {
                 FeaPart* feaskin = new FeaSkin( m_ParentGeomID );
                 feaskin->DecodeXml( part_info );
-
-                feaskin->SetFeaPropertyIndex( prop_index );
-                feaskin->SetCapFeaPropertyIndex( cap_prop_index );
-
                 m_FeaPartVec.push_back( feaskin );
             }
         }
@@ -134,14 +124,11 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
             if ( ss_info_node )
             {
                 int type = XmlUtil::FindInt( ss_info_node, "Type", vsp::SS_LINE );
-                int prop_index = XmlUtil::FindInt( ss_info_node, "FeaPropertyIndex", 0 );
 
                 SubSurface* ssurf = AddFeaSubSurf( type );
                 if ( ssurf )
                 {
                     ssurf->DecodeXml( ss_node );
-
-                    ssurf->SetFeaPropertyIndex( prop_index );
                 }
             }
         }
@@ -652,7 +639,7 @@ int FeaStructure::GetFeaPropertyIndex( int fea_part_ind )
         FeaPart* fea_part = GetFeaPart( fea_part_ind );
         if ( fea_part )
         {
-            return fea_part->GetFeaPropertyIndex();
+            return fea_part->m_FeaPropertyIndex();
         }
     }
     return -1; // indicates an error
@@ -666,7 +653,7 @@ int FeaStructure::GetCapFeaPropertyIndex( int fea_part_ind )
         FeaPart* fea_part = GetFeaPart( fea_part_ind );
         if ( fea_part )
         {
-            return fea_part->GetCapFeaPropertyIndex();
+            return fea_part->m_CapFeaPropertyIndex();
         }
     }
     return -1; // indicates an error
@@ -708,8 +695,11 @@ FeaPart::FeaPart( string geomID, int type )
     m_CenterLocation.Init( "CenterLocation", "FeaPart", this, 50, 0.0, 1e12 );
     m_CenterLocation.SetDescript( "The Location of the Center of the FeaPart as Parameterized as a Percentage or Length" );
 
-    m_FeaPropertyIndex = 0; // Shell property default
-    m_CapFeaPropertyIndex = 1; // Beam property default
+    m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaPart", this, 0, 0, 1e12 );; // Shell property default
+    m_FeaPropertyIndex.SetDescript( "FeaPropertyIndex for Shell Elements" );
+
+    m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaPart", this, 1, 0, 1e12 );; // Beam property default
+    m_CapFeaPropertyIndex.SetDescript( "FeaPropertyIndex for Beam (Cap) Elements" );
 }
 
 FeaPart::~FeaPart()
@@ -737,8 +727,6 @@ xmlNodePtr FeaPart::EncodeXml( xmlNodePtr & node )
     xmlNodePtr part_info = xmlNewChild( node, NULL, BAD_CAST "FeaPartInfo", NULL );
 
     XmlUtil::AddIntNode( part_info, "FeaPartType", m_FeaPartType );
-    XmlUtil::AddIntNode( part_info, "FeaPropertyIndex", m_FeaPropertyIndex );
-    XmlUtil::AddIntNode( part_info, "CapFeaPropertyIndex", m_CapFeaPropertyIndex );
 
     return ParmContainer::EncodeXml( part_info );
 }
@@ -1836,11 +1824,11 @@ void FeaPart::UpdateDrawObjs( int id, bool highlight )
 
 int FeaPart::GetFeaMaterialIndex()
 {
-    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
+    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex() );
 
     if ( fea_prop )
     {
-        return fea_prop->GetFeaMaterialIndex();
+        return fea_prop->m_FeaMaterialIndex();
     }
     else
     {
@@ -1850,11 +1838,11 @@ int FeaPart::GetFeaMaterialIndex()
 
 void FeaPart::SetFeaMaterialIndex( int index )
 {
-    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex );
+    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex() );
 
     if ( fea_prop )
     {
-        fea_prop->SetFeaMaterialIndex( index );
+        fea_prop->m_FeaMaterialIndex.Set( index );
     }
 }
 
@@ -3201,8 +3189,8 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
         fearib->m_IncludedElements.Set( m_IncludedElements() );
         fearib->m_CenterLocation.Set( center_location );
         fearib->m_LocationParmType.Set( m_LocationParmType() );
-        fearib->SetFeaPropertyIndex( m_FeaPropertyIndex );
-        fearib->SetCapFeaPropertyIndex( m_CapFeaPropertyIndex );
+        fearib->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
+        fearib->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
         fearib->m_Theta.Set( m_Theta() );
         fearib->SetPerpendicularEdgeID( m_PerpendicularEdgeID );
 
@@ -3401,8 +3389,8 @@ FeaSlice* FeaStiffenerArray::AddFeaSlice( double center_location, int ind )
         slice->m_CenterLocation.Set( center_location );
         slice->m_OrientationPlane.Set( CONST_U );
         slice->m_LocationParmType.Set( m_LocationParmType() );
-        slice->SetFeaPropertyIndex( m_FeaPropertyIndex );
-        slice->SetCapFeaPropertyIndex( m_CapFeaPropertyIndex );
+        slice->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
+        slice->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
 
         slice->SetName( string( m_Name + "_Slice_" + std::to_string( ind ) ) );
 
@@ -3446,7 +3434,8 @@ FeaProperty::FeaProperty() : ParmContainer()
     m_Ixx.Init( "Izz", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
     m_Ixx.SetDescript( "Torsional Constant About FeaElement Neutral Axis (J)" );
 
-    m_FeaMaterialIndex = 0;
+    m_FeaMaterialIndex.Init( "FeaMaterialIndex", "FeaProperty", this, 0, 0, 1e12 );
+    m_FeaMaterialIndex.SetDescript( "FeaMaterial Index for FeaProperty" );
 }
 
 FeaProperty::~FeaProperty()
@@ -3470,16 +3459,12 @@ xmlNodePtr FeaProperty::EncodeXml( xmlNodePtr & node )
 
     ParmContainer::EncodeXml( prop_info );
 
-    XmlUtil::AddIntNode( prop_info, "FeaMaterialIndex", m_FeaMaterialIndex );
-
     return prop_info;
 }
 
 xmlNodePtr FeaProperty::DecodeXml( xmlNodePtr & node )
 {
     ParmContainer::DecodeXml( node );
-
-    m_FeaMaterialIndex = XmlUtil::FindInt( node, "FeaMaterialIndex", m_FeaMaterialIndex );
 
     return node;
 }
@@ -3502,17 +3487,17 @@ void FeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
 {
     if ( m_FeaPropertyType() == SHELL_PROPERTY )
     {
-        fprintf( fp, "PSHELL,%d,%d,%f\n", prop_id, m_FeaMaterialIndex + 1, m_Thickness() );
+        fprintf( fp, "PSHELL,%d,%d,%f\n", prop_id, m_FeaMaterialIndex() + 1, m_Thickness() );
     }
     if ( m_FeaPropertyType() == BEAM_PROPERTY )
     {
-        fprintf( fp, "PBEAM,%d,%d,%f,%f,%f,%f,%f\n", prop_id, m_FeaMaterialIndex + 1, m_CrossSecArea(), m_Izz(), m_Iyy(), m_Izy(), m_Ixx() );
+        fprintf( fp, "PBEAM,%d,%d,%f,%f,%f,%f,%f\n", prop_id, m_FeaMaterialIndex() + 1, m_CrossSecArea(), m_Izz(), m_Iyy(), m_Izy(), m_Ixx() );
     }
 }
 
 void FeaProperty::WriteCalculix( FILE* fp, string ELSET )
 {
-    FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( m_FeaMaterialIndex );
+    FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( m_FeaMaterialIndex() );
 
     if ( fea_mat )
     {
