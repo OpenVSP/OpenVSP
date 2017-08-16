@@ -143,7 +143,8 @@ Vehicle::Vehicle()
     m_StructMassUnit.SetDescript( "Mass Units for FEA Structures" );
     m_StructTempUnit.Init( "StructTempUnit", "FeaStructure", this, vsp::TEMP_UNIT_F, vsp::TEMP_UNIT_K, vsp::TEMP_UNIT_R );
     m_StructTempUnit.SetDescript( "Temperature Units for FEA Structures" );
-    m_StructUnit.Init( "StructUnit", "FeaStructure", this, vsp::LEN_IN, vsp::SI_UNIT, vsp::BIN_UNIT );
+    m_StructUnit.Init( "StructUnit", "FeaStructure", this, vsp::BFT_UNIT, vsp::SI_UNIT, vsp::BIN_UNIT );
+
     m_StructUnit.SetDescript( "Unit System for FEA Structures" );
 
     // Initialize the group transformations object
