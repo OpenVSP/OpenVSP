@@ -34,10 +34,10 @@ BORGeom::BORGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Mode.Init( "Mode", "Design", this, vsp::BOR_FLOWTHROUGH, vsp::BOR_FLOWTHROUGH, vsp::BOR_NUM_MODES-1 );
     m_Mode.SetDescript( "Mode control, flowthrough, upper, or lower surface" );
 
-    m_LECluster.Init( "LECluster", m_Name, this, 0.25, 1e-4, 10.0 );
+    m_LECluster.Init( "LECluster", "Design", this, 0.25, 1e-4, 10.0 );
     m_LECluster.SetDescript( "LE Tess Cluster Control" );
 
-    m_TECluster.Init( "TECluster", m_Name, this, 0.25, 1e-4, 10.0 );
+    m_TECluster.Init( "TECluster", "Design", this, 0.25, 1e-4, 10.0 );
     m_TECluster.SetDescript( "TE Tess Cluster Control" );
 
     m_A0.Init( "A0", "Design", this, 1.0, -1.0e12, 1.0e12 );
