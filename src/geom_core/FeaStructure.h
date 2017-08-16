@@ -387,16 +387,16 @@ protected:
 
 };
 
-class FeaBulkhead : public FeaPart
+class FeaDome : public FeaPart
 {
 public:
 
-    FeaBulkhead( string geomID, int type = vsp::FEA_BULKHEAD );
-    virtual ~FeaBulkhead()    {};
+    FeaDome( string geomID, int type = vsp::FEA_DOME );
+    virtual ~FeaDome()    {};
 
     virtual void Update();
 
-    virtual void BuildBulkheadSurf();
+    virtual void BuildDomeSurf();
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 

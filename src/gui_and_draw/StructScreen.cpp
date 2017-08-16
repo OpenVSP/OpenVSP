@@ -915,7 +915,7 @@ void StructScreen::UpdateFeaPartChoice()
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_SPAR ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_FIX_POINT ) );
-                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_BULKHEAD ) );
+                    m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_DOME ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_RIB_ARRAY ) );
                     m_FeaPartChoice.AddItem( FeaPart::GetTypeName( vsp::FEA_STIFFENER_ARRAY ) );
 
@@ -942,7 +942,7 @@ void StructScreen::UpdateFeaPartChoice()
 
                     if ( currgeom->GetType().m_Type == FUSELAGE_GEOM_TYPE || currgeom->GetType().m_Type == POD_GEOM_TYPE || currgeom->GetType().m_Type == STACK_GEOM_TYPE ) //TODO: Improve
                     {
-                        m_FeaPartChoice.SetFlag( 4, 0 ); // FEA_BULKHEAD
+                        m_FeaPartChoice.SetFlag( 4, 0 ); // FEA_DOME
                     }
                     else
                     {
@@ -2126,9 +2126,9 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 {
                     feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_FIX_POINT );
                 }
-                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_BULKHEAD )
+                else if ( m_FeaPartChoice.GetVal() == vsp::FEA_DOME )
                 {
-                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_BULKHEAD );
+                    feaprt = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaPart( vsp::FEA_DOME );
                 }
                 else if ( m_FeaPartChoice.GetVal() == vsp::FEA_RIB_ARRAY )
                 {

@@ -193,10 +193,10 @@ FeaPart* FeaStructure::AddFeaPart( int type )
             feaprt->SetName( string( "FixPoint_" + std::to_string( m_FeaPartCount ) ) );
         }
     }
-    else if ( type == vsp::FEA_BULKHEAD )
+    else if ( type == vsp::FEA_DOME )
     {
-        feaprt = new FeaBulkhead( m_ParentGeomID );
-        feaprt->SetName( string( "Bulkhead_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt = new FeaDome( m_ParentGeomID );
+        feaprt->SetName( string( "Dome_" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_RIB_ARRAY )
     {
@@ -825,10 +825,6 @@ string FeaPart::GetTypeName( int type )
     {
         return string( "FixPoint" );
     }
-    if ( type == vsp::FEA_SUB_SURF )
-    {
-        return string( "SubSurf" );
-    }
     if ( type == vsp::FEA_SKIN )
     {
         return string( "Skin" );
@@ -837,9 +833,9 @@ string FeaPart::GetTypeName( int type )
     {
         return string( "RibArray" );
     }
-    if ( type == vsp::FEA_BULKHEAD )
+    if ( type == vsp::FEA_DOME )
     {
-        return string( "Bulkhead" );
+        return string( "Dome" );
     }
     if ( type == vsp::FEA_STIFFENER_ARRAY )
     {
@@ -2767,47 +2763,47 @@ void FeaSkin::BuildSkinSurf()
 }
 
 ////////////////////////////////////////////////////
-//================= FeaBulkhead ==================//
+//================= FeaDome ==================//
 ////////////////////////////////////////////////////
 
-FeaBulkhead::FeaBulkhead( string geomID, int type ) : FeaPart( geomID, type )
+FeaDome::FeaDome( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_Aradius.Init( "A_Radius", "FeaBulkhead", this, 1.0, 0.0, 1.0e12 );
-    m_Aradius.SetDescript( "A (x) Radius of Bulkhead" );
+    m_Aradius.Init( "A_Radius", "FeaDome", this, 1.0, 0.0, 1.0e12 );
+    m_Aradius.SetDescript( "A (x) Radius of Dome" );
 
-    m_Bradius.Init( "B_Radius", "FeaBulkhead", this, 1.0, 0.0, 1.0e12 );
-    m_Bradius.SetDescript( "B (y) Radius of Bulkhead" );
+    m_Bradius.Init( "B_Radius", "FeaDome", this, 1.0, 0.0, 1.0e12 );
+    m_Bradius.SetDescript( "B (y) Radius of Dome" );
 
-    m_Cradius.Init( "C_Radius", "FeaBulkhead", this, 1.0, 0.0, 1.0e12 );
-    m_Cradius.SetDescript( "C (z) Radius of Bulkhead" );
+    m_Cradius.Init( "C_Radius", "FeaDome", this, 1.0, 0.0, 1.0e12 );
+    m_Cradius.SetDescript( "C (z) Radius of Dome" );
 
-    m_XLoc.Init( "X_Location", "FeaBulkhead", this, 0.0, -1.0e12, 1.0e12 );
+    m_XLoc.Init( "X_Location", "FeaDome", this, 0.0, -1.0e12, 1.0e12 );
     m_XLoc.SetDescript( "Location Along Body X Axis" );
 
-    m_YLoc.Init( "Y_Location", "FeaBulkhead", this, 0.0, -1.0e12, 1.0e12 );
+    m_YLoc.Init( "Y_Location", "FeaDome", this, 0.0, -1.0e12, 1.0e12 );
     m_YLoc.SetDescript( "Location Along Body Y Axis" );
 
-    m_ZLoc.Init( "Z_Location", "FeaBulkhead", this, 0.0, -1.0e12, 1.0e12 );
+    m_ZLoc.Init( "Z_Location", "FeaDome", this, 0.0, -1.0e12, 1.0e12 );
     m_ZLoc.SetDescript( "Location Along Body Z Axis" );
 
-    m_XRot.Init( "X_Rotation", "FeaBulkhead", this, 0.0, -180, 180 );
+    m_XRot.Init( "X_Rotation", "FeaDome", this, 0.0, -180, 180 );
     m_XRot.SetDescript( "Rotation About Body X Axis" );
 
-    m_YRot.Init( "Y_Rotation", "FeaBulkhead", this, 0.0, -180, 180 );
+    m_YRot.Init( "Y_Rotation", "FeaDome", this, 0.0, -180, 180 );
     m_YRot.SetDescript( "Rotation About Body Y Axis" );
 
-    m_ZRot.Init( "Z_Rotation", "FeaBulkhead", this, 0.0, -180, 180 );
+    m_ZRot.Init( "Z_Rotation", "FeaDome", this, 0.0, -180, 180 );
     m_ZRot.SetDescript( "Rotation About Body Z Axis" );
 }
 
-void FeaBulkhead::Update()
+void FeaDome::Update()
 {
-    BuildBulkheadSurf();
+    BuildDomeSurf();
 }
 
 typedef eli::geom::curve::piecewise_ellipse_creator<double, 3, curve_tolerance_type> piecewise_bulkhead_creator;
 
-void FeaBulkhead::BuildBulkheadSurf()
+void FeaDome::BuildDomeSurf()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -2905,9 +2901,9 @@ void FeaBulkhead::BuildBulkheadSurf()
     }
 }
 
-void FeaBulkhead::UpdateDrawObjs( int id, bool highlight )
+void FeaDome::UpdateDrawObjs( int id, bool highlight )
 {
-    // Two DrawObjs per Bulkhead surface: index j correcponds to the surface (quads) and 
+    // Two DrawObjs per Dome surface: index j correcponds to the surface (quads) and 
     //  j + 1 corresponds to the cross section feature line at u_max 
 
     m_FeaPartDO.clear();

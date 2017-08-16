@@ -314,103 +314,103 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FixPointMassUnit.GetFlButton()->labelcolor( FL_BLACK );
     m_FixPointMassUnit.SetWidth( ( m_FixPointEditLayout.GetW() / 5 ) );
 
-    //==== FeaBulkhead ====//
-    m_GenLayout.AddSubGroupLayout( m_BulkheadEditLayout, m_GenLayout.GetW(), m_GenLayout.GetH() );
-    m_BulkheadEditLayout.SetY( start_y );
+    //==== FeaDome ====//
+    m_GenLayout.AddSubGroupLayout( m_DomeEditLayout, m_GenLayout.GetW(), m_GenLayout.GetH() );
+    m_DomeEditLayout.SetY( start_y );
 
-    m_BulkheadEditLayout.AddDividerBox( "Bulkhead" );
+    m_DomeEditLayout.AddDividerBox( "Dome" );
 
-    m_BulkheadEditLayout.SetSameLineFlag( true );
-    m_BulkheadEditLayout.SetFitWidthFlag( false );
+    m_DomeEditLayout.SetSameLineFlag( true );
+    m_DomeEditLayout.SetFitWidthFlag( false );
 
-    m_BulkheadEditLayout.SetButtonWidth( m_BulkheadEditLayout.GetRemainX() / 3 );
-    m_BulkheadEditLayout.SetSliderWidth( m_BulkheadEditLayout.GetSliderWidth() - 5 );
+    m_DomeEditLayout.SetButtonWidth( m_DomeEditLayout.GetRemainX() / 3 );
+    m_DomeEditLayout.SetSliderWidth( m_DomeEditLayout.GetSliderWidth() - 5 );
 
-    m_BulkheadEditLayout.AddSlider( m_BHARadSlider, "A Radius", 10, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeARadSlider, "A Radius", 10, "%5.3f" );
 
-    m_BulkheadEditLayout.AddButton( m_BHARadUnit, " " );
-    m_BHARadUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_BHARadUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_BHARadUnit.SetWidth( m_BulkheadEditLayout.GetW() / 14 );
+    m_DomeEditLayout.AddButton( m_DomeARadUnit, " " );
+    m_DomeARadUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_DomeARadUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_DomeARadUnit.SetWidth( m_DomeEditLayout.GetW() / 14 );
 
-    m_BulkheadEditLayout.ForceNewLine();
+    m_DomeEditLayout.ForceNewLine();
 
-    m_BulkheadEditLayout.AddSlider( m_BHBRadSlider, "B Radius", 10, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeBRadSlider, "B Radius", 10, "%5.3f" );
 
-    m_BulkheadEditLayout.AddButton( m_BHBRadUnit, " " );
-    m_BHBRadUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_BHBRadUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_BHBRadUnit.SetWidth( m_BulkheadEditLayout.GetW() / 14 );
+    m_DomeEditLayout.AddButton( m_DomeBRadUnit, " " );
+    m_DomeBRadUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_DomeBRadUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_DomeBRadUnit.SetWidth( m_DomeEditLayout.GetW() / 14 );
 
-    m_BulkheadEditLayout.ForceNewLine();
+    m_DomeEditLayout.ForceNewLine();
 
-    m_BulkheadEditLayout.AddSlider( m_BHCRadSlider, "C Radius", 10, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeCRadSlider, "C Radius", 10, "%5.3f" );
 
-    m_BulkheadEditLayout.AddButton( m_BHCRadUnit, " " );
-    m_BHCRadUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_BHCRadUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_BHCRadUnit.SetWidth( m_BulkheadEditLayout.GetW() / 14 );
+    m_DomeEditLayout.AddButton( m_DomeCRadUnit, " " );
+    m_DomeCRadUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_DomeCRadUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_DomeCRadUnit.SetWidth( m_DomeEditLayout.GetW() / 14 );
 
-    m_BulkheadEditLayout.ForceNewLine();
-    m_BulkheadEditLayout.AddYGap();
+    m_DomeEditLayout.ForceNewLine();
+    m_DomeEditLayout.AddYGap();
 
-    m_BulkheadEditLayout.AddSlider( m_BHXSlider, "XLoc", 50, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeXSlider, "XLoc", 50, "%5.3f" );
 
-    m_BulkheadEditLayout.AddButton( m_BHXUnit, " " );
-    m_BHXUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_BHXUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_BHXUnit.SetWidth( m_BulkheadEditLayout.GetW() / 14 );
+    m_DomeEditLayout.AddButton( m_DomeXUnit, " " );
+    m_DomeXUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_DomeXUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_DomeXUnit.SetWidth( m_DomeEditLayout.GetW() / 14 );
 
-    m_BulkheadEditLayout.ForceNewLine();
+    m_DomeEditLayout.ForceNewLine();
 
-    m_BulkheadEditLayout.AddSlider( m_BHYSlider, "YLoc", 50, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeYSlider, "YLoc", 50, "%5.3f" );
 
-    m_BulkheadEditLayout.AddButton( m_BHYUnit, " " );
-    m_BHYUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_BHYUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_BHYUnit.SetWidth( m_BulkheadEditLayout.GetW() / 14 );
+    m_DomeEditLayout.AddButton( m_DomeYUnit, " " );
+    m_DomeYUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_DomeYUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_DomeYUnit.SetWidth( m_DomeEditLayout.GetW() / 14 );
 
-    m_BulkheadEditLayout.ForceNewLine();
+    m_DomeEditLayout.ForceNewLine();
 
-    m_BulkheadEditLayout.AddSlider( m_BHZSlider, "ZLoc", 50, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeZSlider, "ZLoc", 50, "%5.3f" );
 
-    m_BulkheadEditLayout.AddButton( m_BHZUnit, " " );
-    m_BHZUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_BHZUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_BHZUnit.SetWidth( m_BulkheadEditLayout.GetW() / 14 );
+    m_DomeEditLayout.AddButton( m_DomeZUnit, " " );
+    m_DomeZUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_DomeZUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_DomeZUnit.SetWidth( m_DomeEditLayout.GetW() / 14 );
 
-    m_BulkheadEditLayout.ForceNewLine();
-    m_BulkheadEditLayout.AddYGap();
+    m_DomeEditLayout.ForceNewLine();
+    m_DomeEditLayout.AddYGap();
 
-    m_BulkheadEditLayout.SetSameLineFlag( false );
-    m_BulkheadEditLayout.SetFitWidthFlag( true );
+    m_DomeEditLayout.SetSameLineFlag( false );
+    m_DomeEditLayout.SetFitWidthFlag( true );
 
-    m_BulkheadEditLayout.AddSlider( m_BHXRotSlider, "XRot", 25, "%5.3f" );
-    m_BulkheadEditLayout.AddSlider( m_BHYRotSlider, "YRot", 25, "%5.3f" );
-    m_BulkheadEditLayout.AddSlider( m_BHZRotSlider, "ZRot", 25, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeXRotSlider, "XRot", 25, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeYRotSlider, "YRot", 25, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeZRotSlider, "ZRot", 25, "%5.3f" );
 
-    m_BulkheadEditLayout.AddYGap();
+    m_DomeEditLayout.AddYGap();
 
-    m_BulkheadEditLayout.SetSameLineFlag( true );
-    m_BulkheadEditLayout.SetFitWidthFlag( false );
+    m_DomeEditLayout.SetSameLineFlag( true );
+    m_DomeEditLayout.SetFitWidthFlag( false );
 
-    m_BulkheadEditLayout.SetButtonWidth( m_BulkheadEditLayout.GetRemainX() / 3 );
-    m_BulkheadEditLayout.AddButton( m_BulkheadShellToggle, "Shell" );
-    m_BulkheadEditLayout.AddButton( m_BulkheadCapToggle, "Cap" );
-    m_BulkheadEditLayout.AddButton( m_BulkheadShellCapToggle, "Shell and Cap" );
+    m_DomeEditLayout.SetButtonWidth( m_DomeEditLayout.GetRemainX() / 3 );
+    m_DomeEditLayout.AddButton( m_DomeShellToggle, "Shell" );
+    m_DomeEditLayout.AddButton( m_DomeCapToggle, "Cap" );
+    m_DomeEditLayout.AddButton( m_DomeShellCapToggle, "Shell and Cap" );
 
-    m_BulkheadShellCapToggleGroup.Init( this );
-    m_BulkheadShellCapToggleGroup.AddButton( m_BulkheadShellToggle.GetFlButton() );
-    m_BulkheadShellCapToggleGroup.AddButton( m_BulkheadCapToggle.GetFlButton() );
-    m_BulkheadShellCapToggleGroup.AddButton( m_BulkheadShellCapToggle.GetFlButton() );
+    m_DomeShellCapToggleGroup.Init( this );
+    m_DomeShellCapToggleGroup.AddButton( m_DomeShellToggle.GetFlButton() );
+    m_DomeShellCapToggleGroup.AddButton( m_DomeCapToggle.GetFlButton() );
+    m_DomeShellCapToggleGroup.AddButton( m_DomeShellCapToggle.GetFlButton() );
 
-    m_BulkheadEditLayout.SetSameLineFlag( false );
-    m_BulkheadEditLayout.SetFitWidthFlag( true );
-    m_BulkheadEditLayout.ForceNewLine();
-    m_BulkheadEditLayout.SetChoiceButtonWidth( m_BulkheadEditLayout.GetRemainX() / 3 );
+    m_DomeEditLayout.SetSameLineFlag( false );
+    m_DomeEditLayout.SetFitWidthFlag( true );
+    m_DomeEditLayout.ForceNewLine();
+    m_DomeEditLayout.SetChoiceButtonWidth( m_DomeEditLayout.GetRemainX() / 3 );
 
-    m_BulkheadEditLayout.AddChoice( m_BHPropertyChoice, "Property" );
-    m_BulkheadEditLayout.AddChoice( m_BHCapPropertyChoice, "Cap Property" );
+    m_DomeEditLayout.AddChoice( m_DomePropertyChoice, "Property" );
+    m_DomeEditLayout.AddChoice( m_DomeCapPropertyChoice, "Cap Property" );
 
     //==== FeaRibArray ====//
     m_GenLayout.AddSubGroupLayout( m_RibArrayEditLayout, m_GenLayout.GetW(), m_GenLayout.GetH() );
@@ -1096,43 +1096,42 @@ bool FeaPartEditScreen::Update()
 
                         FeaPartDispGroup( &m_FixPointEditLayout );
                     }
-                    else if ( feaprt->GetType() == vsp::FEA_BULKHEAD )
+                    else if ( feaprt->GetType() == vsp::FEA_DOME )
                     {
-                        FeaBulkhead* bulkhead = dynamic_cast<FeaBulkhead*>( feaprt );
-                        assert( bulkhead );
+                        FeaDome* dome = dynamic_cast<FeaDome*>( feaprt );
+                        assert( dome );
 
-                        //m_SlicePosTypeChoice.Update( slice->m_LocationParmType.GetID() );
-                        m_BHARadSlider.Update( bulkhead->m_Aradius.GetID() );
-                        m_BHBRadSlider.Update( bulkhead->m_Bradius.GetID() );
-                        m_BHCRadSlider.Update( bulkhead->m_Cradius.GetID() );
+                        m_DomeARadSlider.Update( dome->m_Aradius.GetID() );
+                        m_DomeBRadSlider.Update( dome->m_Bradius.GetID() );
+                        m_DomeCRadSlider.Update( dome->m_Cradius.GetID() );
 
-                        m_BHXSlider.Update( bulkhead->m_XLoc.GetID() );
-                        m_BHYSlider.Update( bulkhead->m_YLoc.GetID() );
-                        m_BHZSlider.Update( bulkhead->m_ZLoc.GetID() );
+                        m_DomeXSlider.Update( dome->m_XLoc.GetID() );
+                        m_DomeYSlider.Update( dome->m_YLoc.GetID() );
+                        m_DomeZSlider.Update( dome->m_ZLoc.GetID() );
 
-                        m_BHXRotSlider.Update( bulkhead->m_XRot.GetID() );
-                        m_BHYRotSlider.Update( bulkhead->m_YRot.GetID() );
-                        m_BHZRotSlider.Update( bulkhead->m_ZRot.GetID() );
+                        m_DomeXRotSlider.Update( dome->m_XRot.GetID() );
+                        m_DomeYRotSlider.Update( dome->m_YRot.GetID() );
+                        m_DomeZRotSlider.Update( dome->m_ZRot.GetID() );
 
-                        m_BulkheadShellCapToggleGroup.Update( bulkhead->m_IncludedElements.GetID() );
+                        m_DomeShellCapToggleGroup.Update( dome->m_IncludedElements.GetID() );
 
-                        if ( bulkhead->m_IncludedElements() == BOTH_ELEMENTS )
+                        if ( dome->m_IncludedElements() == BOTH_ELEMENTS )
                         {
-                            m_BHPropertyChoice.Activate();
-                            m_BHCapPropertyChoice.Activate();
+                            m_DomePropertyChoice.Activate();
+                            m_DomeCapPropertyChoice.Activate();
                         }
-                        else if ( bulkhead->m_IncludedElements() == TRIS )
+                        else if ( dome->m_IncludedElements() == TRIS )
                         {
-                            m_BHPropertyChoice.Activate();
-                            m_BHCapPropertyChoice.Deactivate();
+                            m_DomePropertyChoice.Activate();
+                            m_DomeCapPropertyChoice.Deactivate();
                         }
-                        else if ( bulkhead->m_IncludedElements() == BEAM )
+                        else if ( dome->m_IncludedElements() == BEAM )
                         {
-                            m_BHPropertyChoice.Deactivate();
-                            m_BHCapPropertyChoice.Activate();
+                            m_DomePropertyChoice.Deactivate();
+                            m_DomeCapPropertyChoice.Activate();
                         }
 
-                        FeaPartDispGroup( &m_BulkheadEditLayout );
+                        FeaPartDispGroup( &m_DomeEditLayout );
                     }
                     else if ( feaprt->GetType() == vsp::FEA_RIB_ARRAY )
                     {
@@ -1504,7 +1503,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
         StructureMgr.SetFeaSliceOrientIndex( m_SliceOrientationChoice.GetVal() );
     }
     else if ( device == &m_SkinPropertyChoice || device == &m_SlicePropertyChoice || device == &m_RibPropertyChoice || device == &m_SparPropertyChoice
-              || device == &m_BHPropertyChoice || device == &m_RibArrayPropertyChoice || device == &m_FeaSSLinePropertyChoice || device == &m_FeaSSRecPropertyChoice
+              || device == &m_DomePropertyChoice || device == &m_RibArrayPropertyChoice || device == &m_FeaSSLinePropertyChoice || device == &m_FeaSSRecPropertyChoice
               || device == &m_FeaSSEllPropertyChoice || device == &m_FeaSSConPropertyChoice )
     {
         Choice* selected_choice = dynamic_cast<Choice*>( device );
@@ -1512,7 +1511,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
         SetFeaPartPropertyIndex( selected_choice );
     }
-    else if ( device == &m_SliceCapPropertyChoice || device == &m_RibCapPropertyChoice || device == &m_SparCapPropertyChoice || device == &m_BHCapPropertyChoice
+    else if ( device == &m_SliceCapPropertyChoice || device == &m_RibCapPropertyChoice || device == &m_SparCapPropertyChoice || device == &m_DomeCapPropertyChoice
               || device == &m_RibArrayCapPropertyChoice || device == &m_StiffenerArrayCapPropertyChoice || device == &m_FeaSSLineCapPropertyChoice 
               || device == &m_FeaSSRecCapPropertyChoice || device == &m_FeaSSEllCapPropertyChoice || device == &m_FeaSSConCapPropertyChoice || device == &m_FeaSSLineArrayCapPropertyChoice )
     {
@@ -1650,7 +1649,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
     m_SlicePropertyChoice.ClearItems();
     m_RibPropertyChoice.ClearItems();
     m_SparPropertyChoice.ClearItems();
-    m_BHPropertyChoice.ClearItems();
+    m_DomePropertyChoice.ClearItems();
     m_RibArrayPropertyChoice.ClearItems();
     m_FeaSSLinePropertyChoice.ClearItems();
     m_FeaSSRecPropertyChoice.ClearItems();
@@ -1660,7 +1659,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
     m_SparCapPropertyChoice.ClearItems();
     m_SliceCapPropertyChoice.ClearItems();
     m_RibCapPropertyChoice.ClearItems();
-    m_BHCapPropertyChoice.ClearItems();
+    m_DomeCapPropertyChoice.ClearItems();
     m_RibArrayCapPropertyChoice.ClearItems();
     m_StiffenerArrayCapPropertyChoice.ClearItems();
 
@@ -1682,7 +1681,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
             m_SlicePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SparPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_BHPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_DomePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibArrayPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSLinePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSRecPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -1692,7 +1691,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
             m_SparCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_SliceCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_BHCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_DomeCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_StiffenerArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
@@ -1708,7 +1707,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_SlicePropertyChoice.SetFlag( i, 0 );
                 m_RibPropertyChoice.SetFlag( i, 0 );
                 m_SparPropertyChoice.SetFlag( i, 0 );
-                m_BHPropertyChoice.SetFlag( i, 0 );
+                m_DomePropertyChoice.SetFlag( i, 0 );
                 m_RibArrayPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSLinePropertyChoice.SetFlag( i, 0 );
                 m_FeaSSRecPropertyChoice.SetFlag( i, 0 );
@@ -1718,7 +1717,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_SparCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SliceCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_BHCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_DomeCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_StiffenerArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
 
@@ -1734,7 +1733,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_SlicePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SparPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_BHPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_DomePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibArrayPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSLinePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSRecPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -1744,7 +1743,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_SparCapPropertyChoice.SetFlag( i, 0 );
                 m_SliceCapPropertyChoice.SetFlag( i, 0 );
                 m_RibCapPropertyChoice.SetFlag( i, 0 );
-                m_BHCapPropertyChoice.SetFlag( i, 0 );
+                m_DomeCapPropertyChoice.SetFlag( i, 0 );
                 m_RibArrayCapPropertyChoice.SetFlag( i, 0 );
                 m_StiffenerArrayCapPropertyChoice.SetFlag( i, 0 );
 
@@ -1760,7 +1759,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
         m_SlicePropertyChoice.UpdateItems();
         m_RibPropertyChoice.UpdateItems();
         m_SparPropertyChoice.UpdateItems();
-        m_BHPropertyChoice.UpdateItems();
+        m_DomePropertyChoice.UpdateItems();
         m_RibArrayPropertyChoice.UpdateItems();
         m_FeaSSLinePropertyChoice.UpdateItems();
         m_FeaSSRecPropertyChoice.UpdateItems();
@@ -1770,7 +1769,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
         m_SparCapPropertyChoice.UpdateItems();
         m_SliceCapPropertyChoice.UpdateItems();
         m_RibCapPropertyChoice.UpdateItems();
-        m_BHCapPropertyChoice.UpdateItems();
+        m_DomeCapPropertyChoice.UpdateItems();
         m_RibArrayCapPropertyChoice.UpdateItems();
         m_StiffenerArrayCapPropertyChoice.UpdateItems();
 
@@ -1795,13 +1794,13 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                     m_SlicePropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                     m_RibPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                     m_SparPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
-                    m_BHPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
+                    m_DomePropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
                     m_RibArrayPropertyChoice.SetVal( feaprt->GetFeaPropertyIndex() );
 
                     m_SparCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
                     m_SliceCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
                     m_RibCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
-                    m_BHCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
+                    m_DomeCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
                     m_RibArrayCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
                     m_StiffenerArrayCapPropertyChoice.SetVal( feaprt->GetCapFeaPropertyIndex() );
                 }
@@ -1984,7 +1983,7 @@ void FeaPartEditScreen::FeaPartDispGroup( GroupLayout* group )
     m_RibEditLayout.Hide();
     m_SparEditLayout.Hide();
     m_FixPointEditLayout.Hide();
-    m_BulkheadEditLayout.Hide();
+    m_DomeEditLayout.Hide();
     m_RibArrayEditLayout.Hide();
     m_StiffenerArrayEditLayout.Hide();
 
@@ -2095,12 +2094,12 @@ void FeaPartEditScreen::UpdateUnitLabels()
 
         m_FixPointMassUnit.GetFlButton()->copy_label( mass_unit.c_str() );
 
-        m_BHARadUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-        m_BHBRadUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-        m_BHCRadUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-        m_BHXUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-        m_BHYUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-        m_BHZUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+        m_DomeARadUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+        m_DomeBRadUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+        m_DomeCRadUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+        m_DomeXUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+        m_DomeYUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+        m_DomeZUnit.GetFlButton()->copy_label( dist_unit.c_str() );
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
         {

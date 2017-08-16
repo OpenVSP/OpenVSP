@@ -335,10 +335,9 @@ enum FEA_STRUCT_TYPE { FEA_SLICE = 0,
                        FEA_RIB,
                        FEA_SPAR,
                        FEA_FIX_POINT,
-                       FEA_BULKHEAD,
+                       FEA_DOME,
                        FEA_RIB_ARRAY,
                        FEA_STIFFENER_ARRAY,
-                       FEA_SUB_SURF,
                        FEA_SKIN,
                        FEA_NUM_TYPES };
 

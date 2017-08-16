@@ -42,7 +42,7 @@ private:
     GroupLayout m_RibEditLayout;
     GroupLayout m_SparEditLayout;
     GroupLayout m_FixPointEditLayout;
-    GroupLayout m_BulkheadEditLayout;
+    GroupLayout m_DomeEditLayout;
     GroupLayout m_RibArrayEditLayout;
     GroupLayout m_StiffenerArrayEditLayout;
     GroupLayout m_FeaSSLineGroup;
@@ -120,29 +120,28 @@ private:
     SliderAdjRangeInput m_FixPointMassSlider;
     TriggerButton m_FixPointMassUnit;
 
-    //===== Bulkhead =====//
-    Choice m_BHPropertyChoice;
-    //Choice m_BHPosTypeChoice;
-    SliderAdjRangeInput m_BHARadSlider;
-    SliderAdjRangeInput m_BHBRadSlider;
-    SliderAdjRangeInput m_BHCRadSlider;
-    TriggerButton m_BHARadUnit;
-    TriggerButton m_BHBRadUnit;
-    TriggerButton m_BHCRadUnit;
-    SliderAdjRangeInput m_BHXSlider;
-    SliderAdjRangeInput m_BHYSlider;
-    SliderAdjRangeInput m_BHZSlider;
-    TriggerButton m_BHXUnit;
-    TriggerButton m_BHYUnit;
-    TriggerButton m_BHZUnit;
-    SliderAdjRangeInput m_BHXRotSlider;
-    SliderAdjRangeInput m_BHYRotSlider;
-    SliderAdjRangeInput m_BHZRotSlider;
-    Choice m_BHCapPropertyChoice;
-    ToggleButton m_BulkheadShellToggle;
-    ToggleButton m_BulkheadCapToggle;
-    ToggleButton m_BulkheadShellCapToggle;
-    ToggleRadioGroup m_BulkheadShellCapToggleGroup;
+    //===== Dome =====//
+    Choice m_DomePropertyChoice;
+    SliderAdjRangeInput m_DomeARadSlider;
+    SliderAdjRangeInput m_DomeBRadSlider;
+    SliderAdjRangeInput m_DomeCRadSlider;
+    TriggerButton m_DomeARadUnit;
+    TriggerButton m_DomeBRadUnit;
+    TriggerButton m_DomeCRadUnit;
+    SliderAdjRangeInput m_DomeXSlider;
+    SliderAdjRangeInput m_DomeYSlider;
+    SliderAdjRangeInput m_DomeZSlider;
+    TriggerButton m_DomeXUnit;
+    TriggerButton m_DomeYUnit;
+    TriggerButton m_DomeZUnit;
+    SliderAdjRangeInput m_DomeXRotSlider;
+    SliderAdjRangeInput m_DomeYRotSlider;
+    SliderAdjRangeInput m_DomeZRotSlider;
+    Choice m_DomeCapPropertyChoice;
+    ToggleButton m_DomeShellToggle;
+    ToggleButton m_DomeCapToggle;
+    ToggleButton m_DomeShellCapToggle;
+    ToggleRadioGroup m_DomeShellCapToggleGroup;
 
     //===== RibArray =====//
     Choice m_RibArrayPropertyChoice;
