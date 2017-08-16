@@ -184,6 +184,9 @@ void BORGeom::AddDefaultSources( double base_len )
 
 void BORGeom::OffsetXSecs( double off )
 {
+    m_XSCurve->OffsetCurve( off );
+
+    m_Xoff = off;
 }
 
 void BORGeom::SetXSecCurveType( int type )
