@@ -510,16 +510,16 @@ bool BORScreen::Update()
     assert( bor_ptr );
 
     char str[255];
-    sprintf( str, "%6.2f", bor_ptr->m_A0() );
+    sprintf( str, "%6.5g", bor_ptr->m_A0() );
     m_A0Output.Update( string( str ) );
 
-    sprintf( str, "%6.2f", bor_ptr->m_Amin() );
+    sprintf( str, "%6.5g", bor_ptr->m_Amin() );
     m_AminOutput.Update( string( str ) );
 
-    sprintf( str, "%6.2f", bor_ptr->m_AminW() );
+    sprintf( str, "%6.5g", bor_ptr->m_AminW() );
     m_AminWOutput.Update( string( str ) );
 
-    sprintf( str, "%6.2f", bor_ptr->m_Ae() );
+    sprintf( str, "%6.5g", bor_ptr->m_Ae() );
     m_AeOutput.Update( string( str ) );
 
     m_ModeChoice.Update( bor_ptr->m_Mode.GetID() );
