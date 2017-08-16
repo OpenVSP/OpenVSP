@@ -191,7 +191,7 @@ int StructureMgrSingleton::NumFeaStructures()
     return struct_vec.size();
 }
 
-int StructureMgrSingleton::GetFeaStructIndex( FeaStructure* fea_struct )
+int StructureMgrSingleton::GetTotFeaStructIndex( FeaStructure* fea_struct )
 {
     vector < FeaStructure* > fea_struct_vec = GetAllFeaStructs();
 

@@ -1988,7 +1988,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( newstruct )
             {
-                StructureMgr.SetCurrStructIndex( StructureMgr.GetFeaStructIndex( newstruct ) );
+                StructureMgr.SetCurrStructIndex( StructureMgr.GetTotFeaStructIndex( newstruct ) );
             }
         }
     }
