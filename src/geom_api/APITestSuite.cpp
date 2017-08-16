@@ -533,3 +533,131 @@ void APITestSuite::TestSaveLoad()
     printf( "\n" );
 }
 
+void APITestSuite::TestFEAMesh()
+{
+    printf( "APITestSuite::TestFEAMesh()\n" );
+
+    // Make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Add Pod Geometry ====//
+    printf( "\tAdding Geometry and Creating FeaStructure\n" );
+    string pod_id = vsp::AddGeom( "POD" );
+    TEST_ASSERT( pod_id.c_str() != NULL );
+
+    double length = 15.0;
+
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", 5.0 ), 5.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Rotation", "XForm", 90 ), 90, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Length", "Design", length ), length, TEST_TOL );
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Set Structure Units ====//
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( pod_id, "StructUnit", "FeaStructure" ), vsp::BFT_UNIT ), vsp::BFT_UNIT, TEST_TOL );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = vsp::AddFeaStruct( pod_id );
+    TEST_ASSERT( struct_ind != -1 );
+
+    //==== Create FeaMaterial ====//
+    string mat_id = vsp::AddFeaMaterial();
+    TEST_ASSERT( mat_id.c_str() != NULL );
+
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( mat_id, "MassDensity", "FeaMaterial" ), 0.016 ), 0.016, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( mat_id, "ElasticModulus", "FeaMaterial" ), 2.0e6 ), 2.0e6, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( mat_id, "PoissonsRatio", "FeaMaterial" ), 0.4 ), 0.4, TEST_TOL );
+
+    //==== Create FeaProperty ====//
+    string prop_id = vsp::AddFeaProperty();
+    TEST_ASSERT( prop_id.c_str() != NULL );
+
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( prop_id, "FeaMaterialIndex", "FeaProperty" ), 4 ), 4, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( prop_id, "Thickness", "FeaProperty" ), 0.01 ), 0.01, TEST_TOL );
+
+    //==== Adjust FeaMeshSettings ====//
+    vsp::SetFeaMeshVal( pod_id, struct_ind, vsp::CFD_MAX_EDGE_LEN, 0.75 );
+    vsp::SetFeaMeshVal( pod_id, struct_ind, vsp::CFD_MIN_EDGE_LEN, 0.2 );
+
+    //==== Add Floor ====//
+    string floor_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_SLICE );
+    TEST_ASSERT( floor_id.c_str() != NULL );
+
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( floor_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( floor_id, "CenterLocation", "FeaPart" ), 34 ), 34, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( floor_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::XZ_BODY ), vsp::FEA_SLICE_TYPE::XZ_BODY, TEST_TOL ); // XZ_BODY
+
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( floor_id, "FeaPropertyIndex", "FeaPart" ), 2 ), 2, TEST_TOL );
+
+    //==== Add Bulkead ====//
+    string bulkhead_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_SLICE );
+    TEST_ASSERT( bulkhead_id.c_str() != NULL );
+
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "CenterLocation", "FeaPart" ), 15 ), 15, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::CONST_U ), vsp::FEA_SLICE_TYPE::CONST_U, TEST_TOL );
+
+    //==== Add Dome ====//
+    string dome_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_DOME );
+    TEST_ASSERT( dome_id.c_str() != NULL );
+
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( dome_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( dome_id, "X_Location", "FeaDome" ), 0.7 * length ), 0.7 * length, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( dome_id, "A_Radius", "FeaDome" ), 1.5 ), 1.5, TEST_TOL );
+
+    //==== Add Stiffener ====//
+    string stiffener_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_SLICE );
+    TEST_ASSERT( stiffener_id.c_str() != NULL );
+
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "CenterLocation", "FeaPart" ), 45 ), 45, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::CONST_U ), vsp::FEA_SLICE_TYPE::CONST_U, TEST_TOL );
+
+    //==== Add LineArray ====//
+    string line_array_id = vsp::AddFeaSubSurf( pod_id, struct_ind, vsp::SS_LINE_ARRAY );
+    TEST_ASSERT( line_array_id.c_str() != NULL );
+
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( line_array_id, "ConstLineType", "SS_LineArray" ), 1 ), 1, TEST_TOL ); // Constant W
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( line_array_id, "Spacing", "SS_LineArray" ), 0.25 ), 0.25, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( line_array_id, "StartLocation", "SS_LineArray" ), 0.125 ), 0.125, TEST_TOL );
+
+    //==== Add Hole ====//
+    string hole_id = vsp::AddFeaSubSurf( pod_id, struct_ind, vsp::SS_RECTANGLE );
+    TEST_ASSERT( hole_id.c_str() != NULL );
+
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "IncludedElements", "SS_Rectangle" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "Center_U", "SS_Rectangle" ), 0.65 ), 0.65, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "Center_W", "SS_Rectangle" ), 0.5 ), 0.5, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "U_Length", "SS_Rectangle" ), 0.1 ), 0.1, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "W_Length", "SS_Rectangle" ), 0.1 ), 0.1, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "Test_Type", "SS_Rectangle" ), vsp::INSIDE ), vsp::INSIDE, TEST_TOL );
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //==== Save Vehicle to File ====//
+    string fname = "apitest_FEAMesh.vsp3";
+    vsp::WriteVSPFile( fname );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    string print_str = "\tVehicle Saved to " + fname + " \n";
+    printf( print_str.c_str() );
+
+    //=== Set Export File Name ===//
+    string export_name = "apitest_FEAMesh_calculix.dat";
+    vsp::SetFeaMeshFileName( pod_id, struct_ind, vsp::FEA_CALCULIX_FILE_NAME, export_name );
+    print_str = "\tExport File Name Set to " + export_name + " \n";
+    printf( print_str.c_str() );
+
+    //==== Generate FEA Mesh and Export ====//
+    printf( "\tGenerating FEA Mesh\n" );
+    vsp::ComputeFeaMesh( pod_id, struct_ind, vsp::FEA_CALCULIX_FILE_NAME );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "\n" );
+
+    printf( "COMPLETE\n" );
+}

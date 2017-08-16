@@ -35,6 +35,8 @@ public:
         TEST_ADD( APITestSuite::TestFacetExport )
         // Save and Load
         TEST_ADD( APITestSuite::TestSaveLoad )
+        // FEA Mesh
+        TEST_ADD( APITestSuite::TestFEAMesh )
     }
 
 private:
@@ -53,6 +55,8 @@ private:
     void TestFacetExport();
     // Save and Load
     void TestSaveLoad();
+    // FEA Mesh
+    void TestFEAMesh();
 };
 
 #endif // !defined(VSPAPITESTSUITE__INCLUDED_)
