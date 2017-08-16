@@ -99,7 +99,7 @@ class FeaElement
 
     enum
     {
-        FEA_TRI_6, FEA_QUAD_8, FEA_BEAM, FEA_POINT_MASS
+        FEA_TRI_6, FEA_BEAM, FEA_POINT_MASS, FEA_QUAD_8
     };
     vector< FeaNode* > m_Corners;
     vector< FeaNode* > m_Mids;
