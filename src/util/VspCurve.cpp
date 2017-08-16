@@ -20,6 +20,7 @@
 #include "eli/geom/curve/piecewise_creator.hpp"
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 #include "eli/geom/intersect/specified_thickness_curve.hpp"
+#include "eli/geom/intersect/minimum_dimension_curve.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;
@@ -819,6 +820,20 @@ double VspCurve::FindNearest01( double &u, const vec3d &pt, const double &u0 ) c
     u = u / m_Curve.get_tmax();
 
     return dist;
+}
+
+double VspCurve::FindMinimumDimension( double &u, const int &idim, const double &u0 ) const
+{
+    double r = eli::geom::intersect::minimum_dimension( u, m_Curve, idim, u0 );
+
+    return r;
+}
+
+double VspCurve::FindMinimumDimension( double &u, const int &idim ) const
+{
+    double r = eli::geom::intersect::minimum_dimension( u, m_Curve, idim );
+
+    return r;
 }
 
 //===== Compute Point  =====//

@@ -77,6 +77,9 @@ public:
     double FindNearest01( double &u, const vec3d &pt ) const;
     double FindNearest01( double &u, const vec3d &pt, const double &u0 ) const;
 
+    double FindMinimumDimension( double &u, const int &idim, const double &u0 ) const;
+    double FindMinimumDimension( double &u, const int &idim ) const;
+
     //===== Bezier Funcs ====//
     vec3d CompPnt( double u );
     vec3d CompTan( double u );
