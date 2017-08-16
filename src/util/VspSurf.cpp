@@ -1764,6 +1764,7 @@ void VspSurf::ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &p
     }
 
     allPntVec.clear();
+    allPntVec.reserve( nupts * nvpts );
 
     for( ip = 0; ip < nupatch; ++ip )
     {
@@ -1777,12 +1778,14 @@ void VspSurf::ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &p
             patch->promote_v_to( maxv );
 
             for( icp = 0; icp <= maxu; ++icp )
+            {
                 for( jcp = 0; jcp <= maxv; ++jcp )
                 {
                     surface_patch_type::point_type p = patch->get_control_point( icp, jcp );
                     ptindxs[ ip * maxu + icp ][ jp * maxv + jcp ] = allPntVec.size();
                     allPntVec.push_back( vec3d( p[0], p[1], p[2] ) );
                 }
+            }
         }
     }
 }
