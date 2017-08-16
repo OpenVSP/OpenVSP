@@ -57,7 +57,7 @@ SubSurface::SubSurface( string compID, int type )
     m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
     m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
 
-    m_IncludedElements.Init( "IncludedElements", "SubSurface", this, TRIS, TRIS, BOTH_ELEMENTS );
+    m_IncludedElements.Init( "IncludedElements", "SubSurface", this, vsp::FEA_SHELL, vsp::FEA_SHELL, vsp::FEA_SHELL_AND_BEAM );
     m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the SubSurface" );
 
     m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "SubSurface", this, true, false, true );
@@ -2056,7 +2056,7 @@ SSLineArray::SSLineArray( string comp_id, int type ) : SubSurface( comp_id, type
 
     // Set to only Beam elements (cap) with no tags (tris)
     m_TestType = SSLineSeg::NO;
-    m_IncludedElements.Set( BEAM );
+    m_IncludedElements.Set( vsp::FEA_BEAM );
 
     m_NumLines = 0;
 }

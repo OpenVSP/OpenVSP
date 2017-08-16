@@ -431,11 +431,11 @@ void StructureMgrSingleton::UpdateStructUnit( int new_unit )
             break;
             }
 
-            if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
+            if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
             {
                 m_FeaPropertyVec[i]->m_Thickness.Set( ConvertLength( m_FeaPropertyVec[i]->m_Thickness.Get(), length_unit_old, length_unit_new ) );
             }
-            else if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
+            else if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
             {
                 m_FeaPropertyVec[i]->m_CrossSecArea.Set( ConvertLength2( m_FeaPropertyVec[i]->m_CrossSecArea.Get(), length_unit_old, length_unit_new ) );
                 m_FeaPropertyVec[i]->m_Ixx.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Ixx.Get(), length_unit_old, length_unit_new ) );
@@ -604,11 +604,11 @@ void StructureMgrSingleton::InitFeaProperties()
 
     for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
     {
-        if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
+        if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
         {
             shell_prop = true;
         }
-        else if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
+        else if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
         {
             beam_prop = true;
         }
@@ -621,7 +621,7 @@ void StructureMgrSingleton::InitFeaProperties()
     {
         default_shell->SetName( "Default_Shell" );
         default_shell->m_FeaMaterialIndex.Set( 0 ); // aluminum
-        default_shell->m_FeaPropertyType.Set( SHELL_PROPERTY );
+        default_shell->m_FeaPropertyType.Set( vsp::FEA_SHELL );
         default_shell->m_UserFeaProperty = false;
 
         AddFeaProperty( default_shell );
@@ -633,7 +633,7 @@ void StructureMgrSingleton::InitFeaProperties()
     {
         default_beam->SetName( "Default_Beam" );
         default_beam->m_FeaMaterialIndex.Set( 0 ); // aluminum
-        default_beam->m_FeaPropertyType.Set( BEAM_PROPERTY );
+        default_beam->m_FeaPropertyType.Set( vsp::FEA_BEAM );
         default_beam->m_UserFeaProperty = false;
 
         AddFeaProperty( default_beam );

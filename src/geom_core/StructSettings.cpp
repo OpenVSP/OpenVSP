@@ -44,7 +44,7 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_MultiSliceSpacing.Init( "MultiSliceSpacing", "StructSettings", this, 20, 1e-8, 1e8 );
     m_MultiSliceSpacing.SetDescript( "Spacing Between Multiple Added Slices" );
 
-    m_MultSliceIncludedElements.Init( "MultSliceIncludedElements", "StructSettings", this, TRIS, TRIS, BOTH_ELEMENTS );
+    m_MultSliceIncludedElements.Init( "MultSliceIncludedElements", "StructSettings", this, vsp::FEA_SHELL, vsp::FEA_SHELL, vsp::FEA_SHELL_AND_BEAM );
     m_MultSliceIncludedElements.SetDescript( "Indicates the FeaElements to be Included for the Added Slices" );
 
     m_DrawNodesFlag.Init( "DrawNodesFlag", "StructSettings", this, false, false, true );

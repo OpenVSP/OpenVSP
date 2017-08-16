@@ -726,7 +726,7 @@ void StructScreen::UpdateFeaPartBrowser()
             fea_name = feaprt_vec[i]->GetName();
             fea_type = FeaPart::GetTypeName( feaprt_vec[i]->GetType() );
 
-            if ( feaprt_vec[i]->m_IncludedElements() == TRIS || feaprt_vec[i]->m_IncludedElements() == BOTH_ELEMENTS )
+            if ( feaprt_vec[i]->m_IncludedElements() == vsp::FEA_SHELL || feaprt_vec[i]->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
             {
                 shell = "     X";
 
@@ -742,7 +742,7 @@ void StructScreen::UpdateFeaPartBrowser()
                 shell_prop = "N/A";
             }
 
-            if ( feaprt_vec[i]->m_IncludedElements() == BEAM || feaprt_vec[i]->m_IncludedElements() == BOTH_ELEMENTS )
+            if ( feaprt_vec[i]->m_IncludedElements() == vsp::FEA_BEAM || feaprt_vec[i]->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
             {
                 cap = "   X";
 
@@ -788,7 +788,7 @@ void StructScreen::UpdateFeaPartBrowser()
             fea_name = subsurf_vec[i]->GetName();
             fea_type = SubSurface::GetTypeName( subsurf_vec[i]->GetType() );
 
-            if ( subsurf_vec[i]->m_IncludedElements() == TRIS || subsurf_vec[i]->m_IncludedElements() == BOTH_ELEMENTS )
+            if ( subsurf_vec[i]->m_IncludedElements() == vsp::FEA_SHELL || subsurf_vec[i]->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
             {
                 shell = "     X";
 
@@ -804,7 +804,7 @@ void StructScreen::UpdateFeaPartBrowser()
                 shell_prop = "N/A";
             }
 
-            if ( subsurf_vec[i]->m_IncludedElements() == BEAM || subsurf_vec[i]->m_IncludedElements() == BOTH_ELEMENTS )
+            if ( subsurf_vec[i]->m_IncludedElements() == vsp::FEA_BEAM || subsurf_vec[i]->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
             {
                 cap = "   X";
 
@@ -1020,12 +1020,12 @@ void StructScreen::UpdateFeaPropertyChoice()
             m_GenPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_GenCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
-            if ( property_vec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
+            if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
             {
                 m_GenPropertyChoice.SetFlag( i, 0 );
                 m_GenCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
             }
-            else if ( property_vec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
+            else if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
             {
                 m_GenPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_GenCapPropertyChoice.SetFlag( i, 0 );
@@ -1245,7 +1245,7 @@ void StructScreen::UpdateGenPropertyIndex( Choice* property_choice )
 {
     FeaProperty* prop = StructureMgr.GetFeaProperty( property_choice->GetVal() );
 
-    if ( prop->m_FeaPropertyType() != SHELL_PROPERTY || !StructureMgr.ValidFeaPropertyInd( property_choice->GetVal() ) )
+    if ( prop->m_FeaPropertyType() != vsp::FEA_SHELL || !StructureMgr.ValidFeaPropertyInd( property_choice->GetVal() ) )
     {
         return;
     }
@@ -1262,7 +1262,7 @@ void StructScreen::UpdateGenPropertyIndex( Choice* property_choice )
 
                 if ( feaprt )
                 {
-                    if ( ( feaprt->m_IncludedElements() == TRIS || feaprt->m_IncludedElements() == BOTH_ELEMENTS ) && feaprt->GetType() != vsp::FEA_FIX_POINT )
+                    if ( ( feaprt->m_IncludedElements() == vsp::FEA_SHELL || feaprt->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM ) && feaprt->GetType() != vsp::FEA_FIX_POINT )
                     {
                         feaprt->m_FeaPropertyIndex.Set( property_choice->GetVal() );
                     }
@@ -1274,7 +1274,7 @@ void StructScreen::UpdateGenPropertyIndex( Choice* property_choice )
 
                 if ( subsurf )
                 {
-                    if ( subsurf->m_IncludedElements() == TRIS || subsurf->m_IncludedElements() == BOTH_ELEMENTS )
+                    if ( subsurf->m_IncludedElements() == vsp::FEA_SHELL || subsurf->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                     {
                         subsurf->m_FeaPropertyIndex.Set( property_choice->GetVal() );
                     }
@@ -1288,7 +1288,7 @@ void StructScreen::UpdateGenCapPropertyIndex( Choice* property_choice )
 {
     FeaProperty* prop = StructureMgr.GetFeaProperty( property_choice->GetVal() );
 
-    if ( prop->m_FeaPropertyType() != BEAM_PROPERTY || !StructureMgr.ValidFeaPropertyInd( property_choice->GetVal() ) )
+    if ( prop->m_FeaPropertyType() != vsp::FEA_BEAM || !StructureMgr.ValidFeaPropertyInd( property_choice->GetVal() ) )
     {
         return;
     }
@@ -1305,7 +1305,7 @@ void StructScreen::UpdateGenCapPropertyIndex( Choice* property_choice )
 
                 if ( feaprt )
                 {
-                    if ( ( feaprt->m_IncludedElements() == BEAM || feaprt->m_IncludedElements() == BOTH_ELEMENTS ) && feaprt->GetType() != vsp::FEA_FIX_POINT )
+                    if ( ( feaprt->m_IncludedElements() == vsp::FEA_BEAM || feaprt->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM ) && feaprt->GetType() != vsp::FEA_FIX_POINT )
                     {
                         feaprt->m_CapFeaPropertyIndex.Set( property_choice->GetVal() );
                     }
@@ -1317,7 +1317,7 @@ void StructScreen::UpdateGenCapPropertyIndex( Choice* property_choice )
 
                 if ( subsurf )
                 {
-                    if ( subsurf->m_IncludedElements() == BEAM || subsurf->m_IncludedElements() == BOTH_ELEMENTS )
+                    if ( subsurf->m_IncludedElements() == vsp::FEA_BEAM || subsurf->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                     {
                         subsurf->m_CapFeaPropertyIndex.Set( property_choice->GetVal() );
                     }
@@ -1487,13 +1487,13 @@ bool StructScreen::Update()
             {
                 m_FeaPropertyNameInput.Update( fea_prop->GetName() );
 
-                if ( fea_prop->m_FeaPropertyType() == SHELL_PROPERTY )
+                if ( fea_prop->m_FeaPropertyType() == vsp::FEA_SHELL )
                 {
                     m_PropThickSlider.Update( fea_prop->m_Thickness.GetID() );
 
                     FeaPropertyDispGroup( &m_FeaPropertyShellGroup );
                 }
-                else if ( fea_prop->m_FeaPropertyType() == BEAM_PROPERTY )
+                else if ( fea_prop->m_FeaPropertyType() == vsp::FEA_BEAM )
                 {
                     m_PropAreaSlider.Update( fea_prop->m_CrossSecArea.GetID() );
                     m_PropIzzSlider.Update( fea_prop->m_Izz.GetID() );
@@ -1630,12 +1630,12 @@ bool StructScreen::Update()
                         m_ShellCapToggleGroup.Update( prt->m_IncludedElements.GetID() );
                         m_DispFeaPartGroup.Update( prt->m_DrawFeaPartFlag.GetID() );
 
-                        if ( prt->m_IncludedElements() == TRIS )
+                        if ( prt->m_IncludedElements() == vsp::FEA_SHELL )
                         {
                             m_GenPropertyChoice.Activate();
                             m_GenCapPropertyChoice.Deactivate();
                         }
-                        else if ( prt->m_IncludedElements() == BEAM )
+                        else if ( prt->m_IncludedElements() == vsp::FEA_BEAM )
                         {
                             m_GenPropertyChoice.Deactivate();
                             m_GenCapPropertyChoice.Activate();
@@ -1690,12 +1690,12 @@ bool StructScreen::Update()
                         m_ShellCapToggleGroup.Update( subsurf->m_IncludedElements.GetID() );
                         m_DispFeaPartGroup.Update( subsurf->m_DrawFeaPartFlag.GetID() );
 
-                        if ( subsurf->m_IncludedElements() == TRIS )
+                        if ( subsurf->m_IncludedElements() == vsp::FEA_SHELL )
                         {
                             m_GenPropertyChoice.Activate();
                             m_GenCapPropertyChoice.Deactivate();
                         }
-                        else if ( subsurf->m_IncludedElements() == BEAM )
+                        else if ( subsurf->m_IncludedElements() == vsp::FEA_BEAM )
                         {
                             m_GenPropertyChoice.Deactivate();
                             m_GenCapPropertyChoice.Activate();
@@ -2308,7 +2308,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                         }
                         else
                         {
-                            prt->m_IncludedElements.Set( TRIS );
+                            prt->m_IncludedElements.Set( vsp::FEA_SHELL );
                         }
                     }
                 }

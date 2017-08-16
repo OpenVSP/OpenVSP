@@ -1000,17 +1000,17 @@ bool FeaPartEditScreen::Update()
                             slice->m_YRot.Set( 0.0 );
                         }
 
-                        if ( slice->m_IncludedElements() == BOTH_ELEMENTS )
+                        if ( slice->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                         {
                             m_SlicePropertyChoice.Activate();
                             m_SliceCapPropertyChoice.Activate();
                         }
-                        else if ( slice->m_IncludedElements() == TRIS )
+                        else if ( slice->m_IncludedElements() == vsp::FEA_SHELL )
                         {
                             m_SlicePropertyChoice.Activate();
                             m_SliceCapPropertyChoice.Deactivate();
                         }
-                        else if ( slice->m_IncludedElements() == BEAM )
+                        else if ( slice->m_IncludedElements() == vsp::FEA_BEAM )
                         {
                             m_SlicePropertyChoice.Deactivate();
                             m_SliceCapPropertyChoice.Activate();
@@ -1028,17 +1028,17 @@ bool FeaPartEditScreen::Update()
                         m_RibThetaSlider.Update( rib->m_Theta.GetID() );
                         m_RibShellCapToggleGroup.Update( rib->m_IncludedElements.GetID() );
 
-                        if ( rib->m_IncludedElements() == BOTH_ELEMENTS )
+                        if ( rib->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                         {
                             m_RibPropertyChoice.Activate();
                             m_RibCapPropertyChoice.Activate();
                         }
-                        else if ( rib->m_IncludedElements() == TRIS )
+                        else if ( rib->m_IncludedElements() == vsp::FEA_SHELL )
                         {
                             m_RibPropertyChoice.Activate();
                             m_RibCapPropertyChoice.Deactivate();
                         }
-                        else if ( rib->m_IncludedElements() == BEAM )
+                        else if ( rib->m_IncludedElements() == vsp::FEA_BEAM )
                         {
                             m_RibPropertyChoice.Deactivate();
                             m_RibCapPropertyChoice.Activate();
@@ -1068,17 +1068,17 @@ bool FeaPartEditScreen::Update()
                         m_SparThetaSlider.Update( spar->m_Theta.GetID() );
                         m_SparShellCapToggleGroup.Update( spar->m_IncludedElements.GetID() );
 
-                        if ( spar->m_IncludedElements() == BOTH_ELEMENTS )
+                        if ( spar->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                         {
                             m_SparPropertyChoice.Activate();
                             m_SparCapPropertyChoice.Activate();
                         }
-                        else if ( spar->m_IncludedElements() == TRIS )
+                        else if ( spar->m_IncludedElements() == vsp::FEA_SHELL )
                         {
                             m_SparPropertyChoice.Activate();
                             m_SparCapPropertyChoice.Deactivate();
                         }
-                        else if ( spar->m_IncludedElements() == BEAM )
+                        else if ( spar->m_IncludedElements() == vsp::FEA_BEAM )
                         {
                             m_SparPropertyChoice.Deactivate();
                             m_SparCapPropertyChoice.Activate();
@@ -1128,17 +1128,17 @@ bool FeaPartEditScreen::Update()
 
                         m_DomeShellCapToggleGroup.Update( dome->m_IncludedElements.GetID() );
 
-                        if ( dome->m_IncludedElements() == BOTH_ELEMENTS )
+                        if ( dome->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                         {
                             m_DomePropertyChoice.Activate();
                             m_DomeCapPropertyChoice.Activate();
                         }
-                        else if ( dome->m_IncludedElements() == TRIS )
+                        else if ( dome->m_IncludedElements() == vsp::FEA_SHELL )
                         {
                             m_DomePropertyChoice.Activate();
                             m_DomeCapPropertyChoice.Deactivate();
                         }
-                        else if ( dome->m_IncludedElements() == BEAM )
+                        else if ( dome->m_IncludedElements() == vsp::FEA_BEAM )
                         {
                             m_DomePropertyChoice.Deactivate();
                             m_DomeCapPropertyChoice.Activate();
@@ -1158,17 +1158,17 @@ bool FeaPartEditScreen::Update()
                         m_RibArrayShellCapToggleGroup.Update( rib_array->m_IncludedElements.GetID() );
                         m_RibArrayPosNegDirToggleGroup.Update( rib_array->m_PositiveDirectionFlag.GetID() );
 
-                        if ( rib_array->m_IncludedElements() == BOTH_ELEMENTS )
+                        if ( rib_array->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                         {
                             m_RibArrayPropertyChoice.Activate();
                             m_RibArrayCapPropertyChoice.Activate();
                         }
-                        else if ( rib_array->m_IncludedElements() == TRIS )
+                        else if ( rib_array->m_IncludedElements() == vsp::FEA_SHELL )
                         {
                             m_RibArrayPropertyChoice.Activate();
                             m_RibArrayCapPropertyChoice.Deactivate();
                         }
-                        else if ( rib_array->m_IncludedElements() == BEAM )
+                        else if ( rib_array->m_IncludedElements() == vsp::FEA_BEAM )
                         {
                             m_RibArrayPropertyChoice.Deactivate();
                             m_RibArrayCapPropertyChoice.Activate();
@@ -1219,17 +1219,17 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSLineConstSlider.Update( ssline->m_ConstVal.GetID() );
                         m_FeaSSLineShellCapToggleGroup.Update( ssline->m_IncludedElements.GetID() );
 
-                        if ( ssline->m_IncludedElements() == BEAM )
+                        if ( ssline->m_IncludedElements() == vsp::FEA_BEAM )
                         {
                             m_FeaSSLineCapPropertyChoice.Activate();
                             m_FeaSSLinePropertyChoice.Deactivate();
                         }
-                        else if ( ssline->m_IncludedElements() == TRIS )
+                        else if ( ssline->m_IncludedElements() == vsp::FEA_SHELL )
                         {
                             m_FeaSSLineCapPropertyChoice.Deactivate();
                             m_FeaSSLinePropertyChoice.Activate();
                         }
-                        else if ( ssline->m_IncludedElements() == BOTH_ELEMENTS )
+                        else if ( ssline->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                         {
                             m_FeaSSLineCapPropertyChoice.Activate();
                             m_FeaSSLinePropertyChoice.Activate();
@@ -1255,20 +1255,20 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSRecThetaSlider.Update( ssrec->m_Theta.GetID() );
                         m_FeaSSRecShellCapToggleGroup.Update( ssrec->m_IncludedElements.GetID() );
 
-                        if ( ssrec->m_IncludedElements() == BEAM )
+                        if ( ssrec->m_IncludedElements() == vsp::FEA_BEAM )
                         {
                             m_FeaSSRecCapPropertyChoice.Activate();
                             m_FeaSSRecPropertyChoice.Deactivate();
                             m_FeaSSRecTestToggleGroup.Deactivate();
                             ssrec->m_TestType.Set( vsp::INSIDE ); // Inside tris must be set to be removed. Skin tris are saved/removed using FeaSkin parms
                         }
-                        else if ( ssrec->m_IncludedElements() == TRIS  )
+                        else if ( ssrec->m_IncludedElements() == vsp::FEA_SHELL )
                         {
                             m_FeaSSRecCapPropertyChoice.Deactivate();
                             m_FeaSSRecPropertyChoice.Activate();
                             m_FeaSSRecTestToggleGroup.Activate();
                         }
-                        else if ( ssrec->m_IncludedElements() == BOTH_ELEMENTS )
+                        else if ( ssrec->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                         {
                             m_FeaSSRecCapPropertyChoice.Activate();
                             m_FeaSSRecPropertyChoice.Activate();
@@ -1296,20 +1296,20 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSEllThetaSlider.Update( ssell->m_Theta.GetID() );
                         m_FeaSSEllShellCapToggleGroup.Update( ssell->m_IncludedElements.GetID() );
 
-                        if ( ssell->m_IncludedElements() == BEAM )
+                        if ( ssell->m_IncludedElements() == vsp::FEA_BEAM )
                         {
                             m_FeaSSEllCapPropertyChoice.Activate();
                             m_FeaSSEllPropertyChoice.Deactivate();
                             m_FeaSSEllTestToggleGroup.Deactivate();
                             ssell->m_TestType.Set( vsp::INSIDE ); // Inside tris must be set to be removed. Skin tris are saved/removed using FeaSkin parms
                         }
-                        else if ( ssell->m_IncludedElements() == TRIS )
+                        else if ( ssell->m_IncludedElements() == vsp::FEA_SHELL )
                         {
                             m_FeaSSEllCapPropertyChoice.Deactivate();
                             m_FeaSSEllPropertyChoice.Activate();
                             m_FeaSSEllTestToggleGroup.Activate();
                         }
-                        else if ( ssell->m_IncludedElements() == BOTH_ELEMENTS )
+                        else if ( ssell->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                         {
                             m_FeaSSEllCapPropertyChoice.Activate();
                             m_FeaSSEllPropertyChoice.Activate();
@@ -1346,20 +1346,20 @@ bool FeaPartEditScreen::Update()
 
                         m_FeaSSConTessSlider.Update( sscon->m_Tess.GetID() );
 
-                        if ( sscon->m_IncludedElements() == BEAM )
+                        if ( sscon->m_IncludedElements() == vsp::FEA_BEAM )
                         {
                             m_FeaSSConCapPropertyChoice.Activate();
                             m_FeaSSConPropertyChoice.Deactivate();
                             m_FeaSSConTestToggleGroup.Deactivate();
                             sscon->m_TestType.Set( vsp::INSIDE ); // Inside tris must be set to be removed. Skin tris are saved/removed using FeaSkin parms
                         }
-                        else if ( sscon->m_IncludedElements() == TRIS )
+                        else if ( sscon->m_IncludedElements() == vsp::FEA_SHELL )
                         {
                             m_FeaSSConCapPropertyChoice.Deactivate();
                             m_FeaSSConPropertyChoice.Activate();
                             m_FeaSSConTestToggleGroup.Activate();
                         }
-                        else if ( sscon->m_IncludedElements() == BOTH_ELEMENTS )
+                        else if ( sscon->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                         {
                             m_FeaSSConCapPropertyChoice.Activate();
                             m_FeaSSConPropertyChoice.Activate();
@@ -1708,7 +1708,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
             m_FeaSSConCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSLineArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
-            if ( property_vec[i]->m_FeaPropertyType() == SHELL_PROPERTY )
+            if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
             {
                 m_SkinPropertyChoice.SetFlag( i, 0 );
                 m_SlicePropertyChoice.SetFlag( i, 0 );
@@ -1734,7 +1734,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_FeaSSConCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSLineArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
             }
-            else if ( property_vec[i]->m_FeaPropertyType() == BEAM_PROPERTY )
+            else if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
             {
                 m_SkinPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_SlicePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );

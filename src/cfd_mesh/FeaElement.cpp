@@ -469,11 +469,11 @@ void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop )
 
 void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
 {
-    if ( m_FeaPropertyType == SHELL_PROPERTY )
+    if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
         fprintf( fp, "PSHELL,%d,%d,%f\n", prop_id, m_SimpleFeaMatIndex + 1, m_Thickness );
     }
-    if ( m_FeaPropertyType == BEAM_PROPERTY )
+    if ( m_FeaPropertyType == vsp::FEA_BEAM )
     {
         fprintf( fp, "PBEAM,%d,%d,%f,%f,%f,%f,%f\n", prop_id, m_SimpleFeaMatIndex + 1, m_CrossSecArea, m_Izz, m_Iyy, m_Izy, m_Ixx );
     }
@@ -481,12 +481,12 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
 
 void SimpleFeaProperty::WriteCalculix( FILE* fp, string ELSET )
 {
-    if ( m_FeaPropertyType == SHELL_PROPERTY )
+    if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
         fprintf( fp, "*SHELL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
         fprintf( fp, "%g\n", m_Thickness );
     }
-    if ( m_FeaPropertyType == BEAM_PROPERTY )
+    if ( m_FeaPropertyType == vsp::FEA_BEAM )
     {
         // Note: *BEAM GENERAL SECTION is supported by Abaqus but not Calculix. Calculix depends on BEAM SECTION properties
         //  where the cross-section dimensions must be explicitly defined. 

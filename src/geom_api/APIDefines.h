@@ -331,15 +331,27 @@ enum SUBSURF_INOUT { INSIDE,
                      NONE
 };
 
-enum FEA_STRUCT_TYPE { FEA_SLICE = 0,
-                       FEA_RIB,
-                       FEA_SPAR,
-                       FEA_FIX_POINT,
-                       FEA_DOME,
-                       FEA_RIB_ARRAY,
-                       FEA_STIFFENER_ARRAY,
-                       FEA_SKIN,
-                       FEA_NUM_TYPES };
+enum FEA_PART_TYPE { FEA_SLICE = 0,
+                     FEA_RIB,
+                     FEA_SPAR,
+                     FEA_FIX_POINT,
+                     FEA_DOME,
+                     FEA_RIB_ARRAY,
+                     FEA_STIFFENER_ARRAY,
+                     FEA_SKIN,
+                     FEA_NUM_TYPES };
+
+enum FEA_PART_ELEMENT_TYPE { FEA_SHELL = 0,
+                             FEA_BEAM,
+                             FEA_SHELL_AND_BEAM };
+
+enum FEA_SLICE_TYPE { XY_BODY = 0,
+                      YZ_BODY,
+                      XZ_BODY,
+                      XY_ABS,
+                      YZ_ABS,
+                      XZ_ABS,
+                      CONST_U };
 
 enum FEA_UNIT_TYPE { SI_UNIT = 0, // m, kg
                      CGS_UNIT, // cm, g

@@ -683,7 +683,7 @@ FeaPart::FeaPart( string geomID, int type )
     m_MainSurfIndx.Init( "MainSurfIndx", "FeaPart", this, -1, -1, 1e12 );
     m_MainSurfIndx.SetDescript( "Surface Index for FeaPart" );
 
-    m_IncludedElements.Init( "IncludedElements", "FeaPart", this, TRIS, TRIS, BOTH_ELEMENTS );
+    m_IncludedElements.Init( "IncludedElements", "FeaPart", this, vsp::FEA_SHELL, vsp::FEA_SHELL, vsp::FEA_SHELL_AND_BEAM );
     m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the FeaPart" );
 
     m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "FeaPart", this, true, false, true );
@@ -1059,7 +1059,7 @@ VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
         }
         rib_surf = VspSurf(); // Create primary VspSurf
 
-        if ( m_IncludedElements() == TRIS || m_IncludedElements() == BOTH_ELEMENTS )
+        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
         {
             rib_surf.SetSurfCfdType( vsp::CFD_STRUCTURE );
         }
@@ -1308,7 +1308,7 @@ VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
 
 bool FeaPart::RefFrameIsBody( int orientation_plane )
 {
-    if ( orientation_plane == XY_BODY || orientation_plane == YZ_BODY || orientation_plane == XZ_BODY )
+    if ( orientation_plane == vsp::XY_BODY || orientation_plane == vsp::YZ_BODY || orientation_plane == vsp::XZ_BODY )
     {
         return true;
     }
@@ -1337,7 +1337,7 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
 
         slice_surf = VspSurf(); // Create primary VspSurf
 
-        if ( m_IncludedElements() == TRIS || m_IncludedElements() == BOTH_ELEMENTS )
+        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
         {
             slice_surf.SetSurfCfdType( vsp::CFD_STRUCTURE );
         }
@@ -1379,7 +1379,7 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
         del_y = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
         del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
 
-        if ( orientation_plane == CONST_U )
+        if ( orientation_plane == vsp::CONST_U )
         {
             // Build conformal spine from parent geom
             ConformalSpine cs;
@@ -1456,7 +1456,7 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
             del_z_minus = 2 * FLT_EPSILON;
             del_z_plus = 2 * FLT_EPSILON;
 
-            if ( orientation_plane == YZ_BODY || orientation_plane == YZ_ABS )
+            if ( orientation_plane == vsp::YZ_BODY || orientation_plane == vsp::YZ_ABS )
             {
                 if ( m_LocationParmType() == PERCENT )
                 {
@@ -1534,7 +1534,7 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
                 center_to_D.set_y( 0.5 * del_y_plus );
                 center_to_D.set_z( 0.5 * del_z_plus );
             }
-            else if ( orientation_plane == XY_BODY || orientation_plane == XY_ABS )
+            else if ( orientation_plane == vsp::XY_BODY || orientation_plane == vsp::XY_ABS )
             {
                 if ( m_LocationParmType() == PERCENT )
                 {
@@ -1614,7 +1614,7 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
                 center_to_D.set_x( 0.5 * del_x_plus );
                 center_to_D.set_y( 0.5 * del_y_plus );
             }
-            else if ( orientation_plane == XZ_BODY || orientation_plane == XZ_ABS )
+            else if ( orientation_plane == vsp::XZ_BODY || orientation_plane == vsp::XZ_ABS )
             {
                 if ( m_LocationParmType() == PERCENT )
                 {
@@ -1852,7 +1852,7 @@ void FeaPart::SetFeaMaterialIndex( int index )
 
 FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, YZ_BODY, XY_BODY, CONST_U );
+    m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, vsp::YZ_BODY, vsp::XY_BODY, vsp::CONST_U );
     m_OrientationPlane.SetDescript( "Plane the FeaSlice Part will be Parallel to (Body or Absolute Reference Frame)" );
 
     m_RotationAxis.Init( "RotationAxis", "FeaSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
@@ -1919,28 +1919,28 @@ void FeaSlice::UpdateParmLimits()
         {
             switch ( m_OrientationPlane() )
             {
-            case YZ_BODY:
+            case vsp::YZ_BODY:
             // TODO: Add percent U along spine parameterization
             m_CenterLocation.SetUpperLimit( cs.GetSpineLength() );
             break;
 
-            case XY_BODY:
+            case vsp::XY_BODY:
             m_CenterLocation.SetUpperLimit( orig_bbox.GetMax( 2 ) - orig_bbox.GetMin( 2 ) );
             break;
 
-            case XZ_BODY:
+            case vsp::XZ_BODY:
             m_CenterLocation.SetUpperLimit( orig_bbox.GetMax( 1 ) - orig_bbox.GetMin( 1 ) );
             break;
 
-            case XY_ABS:
+            case vsp::XY_ABS:
             m_CenterLocation.SetUpperLimit( curr_bbox.GetMax( 2 ) - curr_bbox.GetMin( 2 ) );
             break;
 
-            case YZ_ABS:
+            case vsp::YZ_ABS:
             m_CenterLocation.SetUpperLimit( curr_bbox.GetMax( 0 ) - curr_bbox.GetMin( 0 ) );
             break;
 
-            case XZ_ABS:
+            case vsp::XZ_ABS:
             m_CenterLocation.SetUpperLimit( curr_bbox.GetMax( 1 ) - curr_bbox.GetMin( 1 ) );
             break;
             }
@@ -1989,7 +1989,7 @@ void FeaSpar::ComputePlanarSurf()
 
         m_FeaPartSurfVec[0] = VspSurf(); // Create primary VspSurf
 
-        if ( m_IncludedElements() == TRIS || m_IncludedElements() == BOTH_ELEMENTS )
+        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
         {
             m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
         }
@@ -2735,7 +2735,7 @@ void FeaFixPoint::UpdateDrawObjs( int id, bool highlight )
 
 FeaSkin::FeaSkin( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_IncludedElements.Set( TRIS );
+    m_IncludedElements.Set( vsp::FEA_SHELL );
     m_DrawFeaPartFlag.Set( false );
 
     m_RemoveSkinTrisFlag.Init( "RemoveSkinTrisFlag", "FeaSkin", this, false, false, true );
@@ -2829,7 +2829,7 @@ void FeaDome::BuildDomeSurf()
 
         m_FeaPartSurfVec[0] = VspSurf(); // Create primary VspSurf
 
-        if ( m_IncludedElements() == TRIS || m_IncludedElements() == BOTH_ELEMENTS )
+        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
         {
             m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
         }
@@ -3248,7 +3248,7 @@ FeaStiffenerArray::FeaStiffenerArray( string geomID, int type ) : FeaPart( geomI
     m_StartLocation.Init( "StartLocation", "FeaStiffenerArray", this, 0.0, 0.0, 1e12 );
     m_StartLocation.SetDescript( "Starting Location for Primary Stiffener" );
 
-    m_IncludedElements.Set( BEAM );
+    m_IncludedElements.Set( vsp::FEA_BEAM );
 
     m_NumStiffeners = 0;
 }
@@ -3346,7 +3346,7 @@ void FeaStiffenerArray::CreateFeaStiffenerArray()
             // Update Slice Center
             double center_location = m_StartLocation() + dir * i * m_StiffenerSpacing();
 
-            int orientation_place = CONST_U;
+            int orientation_place = vsp::CONST_U;
             VspSurf main_slice_surf = ComputeSliceSurf( center_location, orientation_place, 0.0, 0.0, 0.0 );
 
             m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_slice_surf;
@@ -3387,7 +3387,7 @@ FeaSlice* FeaStiffenerArray::AddFeaSlice( double center_location, int ind )
     {
         slice->m_IncludedElements.Set( m_IncludedElements() );
         slice->m_CenterLocation.Set( center_location );
-        slice->m_OrientationPlane.Set( CONST_U );
+        slice->m_OrientationPlane.Set( vsp::CONST_U );
         slice->m_LocationParmType.Set( m_LocationParmType() );
         slice->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         slice->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
@@ -3413,7 +3413,7 @@ void FeaStiffenerArray::UpdateDrawObjs( int id, bool highlight )
 
 FeaProperty::FeaProperty() : ParmContainer()
 {
-    m_FeaPropertyType.Init( "FeaPropertyType", "FeaProperty", this, SHELL_PROPERTY, SHELL_PROPERTY, BEAM_PROPERTY );
+    m_FeaPropertyType.Init( "FeaPropertyType", "FeaProperty", this, vsp::FEA_SHELL, vsp::FEA_SHELL, vsp::FEA_BEAM );
     m_FeaPropertyType.SetDescript( "FeaElement Property Type" );
 
     m_Thickness.Init( "Thickness", "FeaProperty", this, 0.1, 0.0, 1.0e12 );
@@ -3471,11 +3471,11 @@ xmlNodePtr FeaProperty::DecodeXml( xmlNodePtr & node )
 
 string FeaProperty::GetTypeName( )
 {
-    if ( m_FeaPropertyType() == SHELL_PROPERTY )
+    if ( m_FeaPropertyType() == vsp::FEA_SHELL )
     {
         return string( "Shell" );
     }
-    if ( m_FeaPropertyType() == BEAM_PROPERTY )
+    if ( m_FeaPropertyType() == vsp::FEA_BEAM )
     {
         return string( "Beam" );
     }
@@ -3485,11 +3485,11 @@ string FeaProperty::GetTypeName( )
 
 void FeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
 {
-    if ( m_FeaPropertyType() == SHELL_PROPERTY )
+    if ( m_FeaPropertyType() == vsp::FEA_SHELL )
     {
         fprintf( fp, "PSHELL,%d,%d,%f\n", prop_id, m_FeaMaterialIndex() + 1, m_Thickness() );
     }
-    if ( m_FeaPropertyType() == BEAM_PROPERTY )
+    if ( m_FeaPropertyType() == vsp::FEA_BEAM )
     {
         fprintf( fp, "PBEAM,%d,%d,%f,%f,%f,%f,%f\n", prop_id, m_FeaMaterialIndex() + 1, m_CrossSecArea(), m_Izz(), m_Iyy(), m_Izy(), m_Ixx() );
     }
@@ -3501,12 +3501,12 @@ void FeaProperty::WriteCalculix( FILE* fp, string ELSET )
 
     if ( fea_mat )
     {
-        if ( m_FeaPropertyType() == SHELL_PROPERTY )
+        if ( m_FeaPropertyType() == vsp::FEA_SHELL )
         {
             fprintf( fp, "*SHELL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
             fprintf( fp, "%g\n", m_Thickness() );
         }
-        if ( m_FeaPropertyType() == BEAM_PROPERTY )
+        if ( m_FeaPropertyType() == vsp::FEA_BEAM )
         {
             // Note: *BEAM GENERAL SECTION is supported by Abaqus but not Calculix. Calculix depends on BEAM SECTION properties
             //  where the cross-section dimensions must be explicitly defined. 

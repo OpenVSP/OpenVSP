@@ -144,17 +144,7 @@ protected:
 
 enum
 {
-    TRIS, BEAM, BOTH_ELEMENTS
-};
-
-enum
-{
     PERCENT, LENGTH
-};
-
-enum
-{
-    XY_BODY, YZ_BODY, XZ_BODY, XY_ABS, YZ_ABS, XZ_ABS, CONST_U
 };
 
 class FeaPart : public ParmContainer
@@ -468,11 +458,6 @@ protected:
 
     int m_NumStiffeners;
 
-};
-
-enum
-{
-    SHELL_PROPERTY, BEAM_PROPERTY,
 };
 
 class FeaProperty : public ParmContainer
