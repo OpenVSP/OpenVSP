@@ -1629,6 +1629,8 @@ bool StructScreen::Update()
                         m_FeaPartNameInput.Update( prt->GetName() );
                         m_ShellCapToggleGroup.Update( prt->m_IncludedElements.GetID() );
                         m_DispFeaPartGroup.Update( prt->m_DrawFeaPartFlag.GetID() );
+                        m_DispFeaPartGroup.Activate();
+                        m_ShellCapToggleGroup.Activate();
 
                         if ( prt->m_IncludedElements() == vsp::FEA_SHELL )
                         {
@@ -1699,6 +1701,15 @@ bool StructScreen::Update()
                         {
                             m_GenPropertyChoice.Deactivate();
                             m_GenCapPropertyChoice.Activate();
+                        }
+
+                        if ( subsurf->GetType() == vsp::SS_LINE_ARRAY )
+                        {
+                            m_ShellCapToggleGroup.Deactivate();
+                        }
+                        else
+                        {
+                            m_ShellCapToggleGroup.Activate();
                         }
                     }
                     else
@@ -2302,13 +2313,13 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
                     if ( prt )
                     {
-                        if ( prt->GetType() != vsp::FEA_SKIN )
-                        {
-                            prt->m_IncludedElements.Set( curr_val );
-                        }
-                        else
+                        if ( prt->GetType() == vsp::FEA_SKIN )
                         {
                             prt->m_IncludedElements.Set( vsp::FEA_SHELL );
+                        }
+                        else if ( prt->GetType() != vsp::FEA_FIX_POINT )
+                        {
+                            prt->m_IncludedElements.Set( curr_val );
                         }
                     }
                 }
@@ -2318,7 +2329,14 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
                     if ( ssurf )
                     {
-                        ssurf->m_IncludedElements.Set( curr_val );
+                        if ( ssurf->GetType() == vsp::SS_LINE_ARRAY  )
+                        {
+                            ssurf->m_IncludedElements.Set( vsp::FEA_BEAM );
+                        }
+                        else
+                        {
+                            ssurf->m_IncludedElements.Set( curr_val );
+                        }
                     }
                 }
             }
@@ -2365,6 +2383,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 if ( m_SelectedPartIndexVec[0] != 0 )
                 {
                     m_SelectedPartIndexVec[0]--;
+                    StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
                 }
             }
             else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -2374,6 +2393,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 if ( m_SelectedPartIndexVec[0] != structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
                 {
                     m_SelectedPartIndexVec[0]--;
+                    StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
                 }
             }
         }
@@ -2391,6 +2411,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 if ( m_SelectedPartIndexVec[0] != structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() - 1 )
                 {
                     m_SelectedPartIndexVec[0]++;
+                    StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
                 }
             }
             else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -2400,6 +2421,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 if ( m_SelectedPartIndexVec[0] != structvec[StructureMgr.GetCurrStructIndex()]->NumFeaSubSurfs() + structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() - 1 )
                 {
                     m_SelectedPartIndexVec[0]++;
+                    StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
                 }
             }
         }
@@ -2414,11 +2436,13 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             {
                 structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], Vehicle::REORDER_MOVE_TOP );
                 m_SelectedPartIndexVec[0] = 0;
+                StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
             }
             else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
             {
                 structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts(), Vehicle::REORDER_MOVE_TOP );
                 m_SelectedPartIndexVec[0] = structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts();
+                StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
             }
         }
     }
@@ -2432,11 +2456,13 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             {
                 structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaPart( m_SelectedPartIndexVec[0], Vehicle::REORDER_MOVE_BOTTOM );
                 m_SelectedPartIndexVec[0] = structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() - 1;
+                StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
             }
             else if ( m_SelectedPartIndexVec[0] >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
             {
                 structvec[StructureMgr.GetCurrStructIndex()]->ReorderFeaSubSurf( m_SelectedPartIndexVec[0] - structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts(), Vehicle::REORDER_MOVE_BOTTOM );
                 m_SelectedPartIndexVec[0] = structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() + structvec[StructureMgr.GetCurrStructIndex()]->NumFeaSubSurfs() - 1;
+                StructureMgr.SetCurrPartIndex( m_SelectedPartIndexVec[0] );
             }
         }
     }
