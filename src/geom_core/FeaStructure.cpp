@@ -3081,16 +3081,15 @@ void FeaRibArray::CalcNumRibs()
         if ( m_LocationParmType() == PERCENT )
         {
             m_StartLocation.SetUpperLimit( 100 ); 
-            m_RibSpacing.SetLowerUpperLimits( 1, 100 ); // Limit to 100 ribs
 
             if ( m_PositiveDirectionFlag() )
             {
-                //m_RibSpacing.SetLowerUpperLimits( 1 + ( 100 - m_StartLocation() ) / 100, 100 ); // Limit to 100 ribs 
+                m_RibSpacing.SetLowerUpperLimits( ( 100 - m_StartLocation() ) / 100, 100 ); // Limit to 100 ribs 
                 m_NumRibs = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_RibSpacing() );
             }
             else
             {
-                //m_RibSpacing.SetLowerUpperLimits( 1 + ( m_StartLocation() / 100 ), 100 ); // Limit to 100 ribs 
+                m_RibSpacing.SetLowerUpperLimits( m_StartLocation() / 100, 100 ); // Limit to 100 ribs 
                 m_NumRibs = 1 + (int)floor( ( m_StartLocation() ) / m_RibSpacing() );
             }
         }
@@ -3100,12 +3099,12 @@ void FeaRibArray::CalcNumRibs()
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_RibSpacing.SetLowerUpperLimits( ( span_f - m_StartLocation() ) / 100, span_f - m_StartLocation() ); // Limit to 100 ribs 
+                m_RibSpacing.SetLowerUpperLimits( ( span_f - m_StartLocation() ) / 100, span_f ); // Limit to 100 ribs 
                 m_NumRibs = 1 + (int)floor( ( span_f - m_StartLocation() ) / m_RibSpacing() );
             }
             else
             {
-                m_RibSpacing.SetLowerUpperLimits( m_StartLocation() / 100, m_StartLocation() ); // Limit to 100 ribs 
+                m_RibSpacing.SetLowerUpperLimits( m_StartLocation() / 100, span_f ); // Limit to 100 ribs 
                 m_NumRibs = 1 + (int)floor( m_StartLocation() / m_RibSpacing() );
             }
         }
