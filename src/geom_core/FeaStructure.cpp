@@ -190,10 +190,10 @@ FeaPart* FeaStructure::AddFeaPart( int type )
         feaprt = new FeaRibArray( m_ParentGeomID );
         feaprt->SetName( string( "RibArray_" + std::to_string( m_FeaPartCount ) ) );
     }
-    else if ( type == vsp::FEA_STIFFENER_ARRAY )
+    else if ( type == vsp::FEA_SLICE_ARRAY )
     {
-        feaprt = new FeaStiffenerArray( m_ParentGeomID );
-        feaprt->SetName( string( "StiffenerArray_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt = new FeaSliceArray( m_ParentGeomID );
+        feaprt->SetName( string( "SliceArray_" + std::to_string( m_FeaPartCount ) ) );
     }
 
     if ( feaprt )
@@ -540,7 +540,7 @@ bool FeaStructure::FeaPartIsArray( int ind )
 
     if ( fea_part )
     {
-        if ( fea_part->GetType() == vsp::FEA_RIB_ARRAY || fea_part->GetType() == vsp::FEA_STIFFENER_ARRAY )
+        if ( fea_part->GetType() == vsp::FEA_RIB_ARRAY || fea_part->GetType() == vsp::FEA_SLICE_ARRAY )
         {
             array = true;
         }
@@ -576,7 +576,7 @@ void FeaStructure::IndividualizeRibArray( int rib_array_ind )
         DelFeaPart( rib_array_ind );
     }
 }
-void FeaStructure::IndividualizeStiffenerArray( int stiffener_array_ind )
+void FeaStructure::IndividualizeSliceArray( int stiffener_array_ind )
 {
     if ( !ValidFeaPartInd( stiffener_array_ind ) )
     {
@@ -590,14 +590,14 @@ void FeaStructure::IndividualizeStiffenerArray( int stiffener_array_ind )
         return;
     }
 
-    if ( prt->GetType() == vsp::FEA_STIFFENER_ARRAY )
+    if ( prt->GetType() == vsp::FEA_SLICE_ARRAY )
     {
-        FeaStiffenerArray* stiffener_array = dynamic_cast<FeaStiffenerArray*>( prt );
-        assert( stiffener_array );
+        FeaSliceArray* slice_array = dynamic_cast<FeaSliceArray*>( prt );
+        assert( slice_array );
 
-        for ( size_t i = 0; i < stiffener_array->GetNumStiffeners(); i++ )
+        for ( size_t i = 0; i < slice_array->GetNumSlices(); i++ )
         {
-            FeaSlice* slice = stiffener_array->AddFeaSlice( stiffener_array->m_StartLocation() + i * stiffener_array->m_StiffenerSpacing(), i );
+            FeaSlice* slice = slice_array->AddFeaSlice( slice_array->m_StartLocation() + i * slice_array->m_SliceSpacing(), i );
             AddFeaPart( slice );
         }
 
@@ -825,9 +825,9 @@ string FeaPart::GetTypeName( int type )
     {
         return string( "Dome" );
     }
-    if ( type == vsp::FEA_STIFFENER_ARRAY )
+    if ( type == vsp::FEA_SLICE_ARRAY )
     {
-        return string( "StiffenerArray" );
+        return string( "SliceArray" );
     }
 
     return string( "NONE" );
@@ -3234,36 +3234,36 @@ void FeaRibArray::UpdateDrawObjs( int id, bool highlight )
 }
 
 ////////////////////////////////////////////////////
-//================= FeaStiffenerArray ==================//
+//================= FeaSliceArray ==================//
 ////////////////////////////////////////////////////
 
-FeaStiffenerArray::FeaStiffenerArray( string geomID, int type ) : FeaPart( geomID, type )
+FeaSliceArray::FeaSliceArray( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_StiffenerSpacing.Init( "StiffenerSpacing", "FeaStiffenerArray", this, 50, 1, 1e12 );
-    m_StiffenerSpacing.SetDescript( "Spacing Between Stiffeners in Array, Parameterized by Percent or Length" );
+    m_SliceSpacing.Init( "SliceSpacing", "FeaSliceArray", this, 50, 1, 1e12 );
+    m_SliceSpacing.SetDescript( "Spacing Between Slices in Array, Parameterized by Percent or Length" );
 
-    m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaStiffenerArray", this, true, false, true );
-    m_PositiveDirectionFlag.SetDescript( "Flag to Increment StiffenerArray in Positive or Negative Direction" );
+    m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaSliceArray", this, true, false, true );
+    m_PositiveDirectionFlag.SetDescript( "Flag to Increment SliceArray in Positive or Negative Direction" );
 
-    m_StartLocation.Init( "StartLocation", "FeaStiffenerArray", this, 0.0, 0.0, 1e12 );
+    m_StartLocation.Init( "StartLocation", "FeaSliceArray", this, 0.0, 0.0, 1e12 );
     m_StartLocation.SetDescript( "Starting Location for Primary Stiffener" );
 
     m_IncludedElements.Set( vsp::FEA_BEAM );
 
-    m_NumStiffeners = 0;
+    m_NumSlices = 0;
 }
 
-void FeaStiffenerArray::Update()
+void FeaSliceArray::Update()
 {
-    CalcNumStiffeners();
+    CalcNumSlices();
 
     m_FeaPartSurfVec.clear(); 
-    m_FeaPartSurfVec.resize( m_SymmIndexVec.size() * m_NumStiffeners );
+    m_FeaPartSurfVec.resize( m_SymmIndexVec.size() * m_NumSlices );
 
-    CreateFeaStiffenerArray();
+    CreateFeaSliceArray();
 }
 
-void FeaStiffenerArray::CalcNumStiffeners()
+void FeaSliceArray::CalcNumSlices()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -3289,15 +3289,15 @@ void FeaStiffenerArray::CalcNumStiffeners()
         if ( m_LocationParmType() == PERCENT )
         {
             m_StartLocation.SetUpperLimit( 100 );
-            m_StiffenerSpacing.SetLowerUpperLimits( 1, 100 ); // Limit to 100 stiffeners
+            m_SliceSpacing.SetLowerUpperLimits( 1, 100 ); // Limit to 100 stiffeners
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_NumStiffeners = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_StiffenerSpacing() );
+                m_NumSlices = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_SliceSpacing() );
             }
             else
             {
-                m_NumStiffeners = 1 + (int)floor( ( m_StartLocation() ) / m_StiffenerSpacing() );
+                m_NumSlices = 1 + (int)floor( ( m_StartLocation() ) / m_SliceSpacing() );
             }
         }
         else if ( m_LocationParmType() == LENGTH )
@@ -3306,19 +3306,19 @@ void FeaStiffenerArray::CalcNumStiffeners()
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_StiffenerSpacing.SetLowerUpperLimits( spine_length / 100, spine_length ); // Limit to 100 stiffeners
-                m_NumStiffeners = 1 + (int)floor( ( spine_length - m_StartLocation() ) / m_StiffenerSpacing() );
+                m_SliceSpacing.SetLowerUpperLimits( spine_length / 100, spine_length ); // Limit to 100 stiffeners
+                m_NumSlices = 1 + (int)floor( ( spine_length - m_StartLocation() ) / m_SliceSpacing() );
             }
             else
             {
                 //m_StiffenerSpacing.SetLowerUpperLimits( spine_length / 100, m_StartLocation() ); // Limit to 100 stiffeners 
-                m_NumStiffeners = 1 + (int)floor( spine_length / m_StiffenerSpacing() );
+                m_NumSlices = 1 + (int)floor( spine_length / m_SliceSpacing() );
             }
         }
     }
 }
 
-void FeaStiffenerArray::CreateFeaStiffenerArray()
+void FeaSliceArray::CreateFeaSliceArray()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
@@ -3335,7 +3335,7 @@ void FeaStiffenerArray::CreateFeaStiffenerArray()
         current_geom->GetSurfVec( surf_vec );
         VspSurf current_surf = surf_vec[m_MainSurfIndx()];
 
-        for ( size_t i = 0; i < m_NumStiffeners; i++ )
+        for ( size_t i = 0; i < m_NumSlices; i++ )
         {
             double dir = 1.0;
             if ( !m_PositiveDirectionFlag() )
@@ -3344,7 +3344,7 @@ void FeaStiffenerArray::CreateFeaStiffenerArray()
             }
 
             // Update Slice Center
-            double center_location = m_StartLocation() + dir * i * m_StiffenerSpacing();
+            double center_location = m_StartLocation() + dir * i * m_SliceSpacing();
 
             int orientation_place = vsp::CONST_U;
             VspSurf main_slice_surf = ComputeSliceSurf( center_location, orientation_place, 0.0, 0.0, 0.0 );
@@ -3379,7 +3379,7 @@ void FeaStiffenerArray::CreateFeaStiffenerArray()
     }
 }
 
-FeaSlice* FeaStiffenerArray::AddFeaSlice( double center_location, int ind )
+FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
 {
     FeaSlice* slice = new FeaSlice( m_ParentGeomID );
 
@@ -3402,7 +3402,7 @@ FeaSlice* FeaStiffenerArray::AddFeaSlice( double center_location, int ind )
     return slice;
 }
 
-void FeaStiffenerArray::UpdateDrawObjs( int id, bool highlight )
+void FeaSliceArray::UpdateDrawObjs( int id, bool highlight )
 {
     FeaPart::UpdateDrawObjs( id, highlight );
 }

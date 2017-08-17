@@ -337,7 +337,7 @@ enum FEA_PART_TYPE { FEA_SLICE = 0,
                      FEA_FIX_POINT,
                      FEA_DOME,
                      FEA_RIB_ARRAY,
-                     FEA_STIFFENER_ARRAY,
+                     FEA_SLICE_ARRAY,
                      FEA_SKIN,
                      FEA_NUM_TYPES };
 

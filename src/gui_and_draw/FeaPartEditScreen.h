@@ -44,7 +44,7 @@ private:
     GroupLayout m_FixPointEditLayout;
     GroupLayout m_DomeEditLayout;
     GroupLayout m_RibArrayEditLayout;
-    GroupLayout m_StiffenerArrayEditLayout;
+    GroupLayout m_SliceArrayEditLayout;
     GroupLayout m_FeaSSLineGroup;
     GroupLayout m_FeaSSRecGroup;
     GroupLayout m_FeaSSEllGroup;
@@ -168,17 +168,17 @@ private:
     ToggleButton m_RibArrayShellCapToggle;
     ToggleRadioGroup m_RibArrayShellCapToggleGroup;
 
-    //===== StiffenerArray =====//
-    Choice m_StiffenerArrayPosTypeChoice;
-    ToggleButton m_StiffenerArrayPosDirToggle;
-    ToggleButton m_StiffenerArrayNegDirToggle;
-    ToggleRadioGroup m_StiffenerArrayPosNegDirToggleGroup;
-    SliderAdjRangeInput m_StiffenerArrayStartLocSlider;
-    TriggerButton m_StiffenerArrayStartLocUnit;
-    SliderAdjRangeInput m_StiffenerArraySpacingSlider;
-    TriggerButton m_StiffenerArrayPosUnit;
-    Choice m_StiffenerArrayCapPropertyChoice;
-    TriggerButton m_IndividualizeStiffenerArrayButton;
+    //===== SliceArray =====//
+    Choice m_SliceArrayPosTypeChoice;
+    ToggleButton m_SliceArrayPosDirToggle;
+    ToggleButton m_SliceArrayNegDirToggle;
+    ToggleRadioGroup m_SliceArrayPosNegDirToggleGroup;
+    SliderAdjRangeInput m_SliceArrayStartLocSlider;
+    TriggerButton m_SliceArrayStartLocUnit;
+    SliderAdjRangeInput m_SliceArraySpacingSlider;
+    TriggerButton m_SliceArrayPosUnit;
+    Choice m_SliceArrayCapPropertyChoice;
+    TriggerButton m_IndividualizeSliceArrayButton;
 
     //===== SubSurfaces =====//
 

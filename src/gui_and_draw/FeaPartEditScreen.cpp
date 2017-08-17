@@ -500,65 +500,65 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_RibArrayEditLayout.AddButton( m_IndividualizeRibArrayButton, "Individualize Rib Array" );
 
-    //==== FeaStiffenerArray ====//
-    m_GenLayout.AddSubGroupLayout( m_StiffenerArrayEditLayout, m_GenLayout.GetW(), m_GenLayout.GetH() );
-    m_StiffenerArrayEditLayout.SetY( start_y );
+    //==== FeaSliceArray ====//
+    m_GenLayout.AddSubGroupLayout( m_SliceArrayEditLayout, m_GenLayout.GetW(), m_GenLayout.GetH() );
+    m_SliceArrayEditLayout.SetY( start_y );
 
-    m_StiffenerArrayEditLayout.AddDividerBox( "StiffenerArray" );
+    m_SliceArrayEditLayout.AddDividerBox( "SliceArray" );
 
-    m_StiffenerArrayEditLayout.SetChoiceButtonWidth( m_StiffenerArrayEditLayout.GetRemainX() / 3 );
+    m_SliceArrayEditLayout.SetChoiceButtonWidth( m_SliceArrayEditLayout.GetRemainX() / 3 );
 
-    m_StiffenerArrayPosTypeChoice.AddItem( "% Spine" );
-    m_StiffenerArrayPosTypeChoice.AddItem( "Dist Spine" );
-    m_StiffenerArrayEditLayout.AddChoice( m_StiffenerArrayPosTypeChoice, "Parameterization" );
+    m_SliceArrayPosTypeChoice.AddItem( "% Spine" );
+    m_SliceArrayPosTypeChoice.AddItem( "Dist Spine" );
+    m_SliceArrayEditLayout.AddChoice( m_SliceArrayPosTypeChoice, "Parameterization" );
 
-    m_StiffenerArrayEditLayout.SetButtonWidth( m_StiffenerArrayEditLayout.GetRemainX() / 3 );
+    m_SliceArrayEditLayout.SetButtonWidth( m_SliceArrayEditLayout.GetRemainX() / 3 );
 
-    m_StiffenerArrayEditLayout.SetSameLineFlag( true );
-    m_StiffenerArrayEditLayout.SetFitWidthFlag( false );
+    m_SliceArrayEditLayout.SetSameLineFlag( true );
+    m_SliceArrayEditLayout.SetFitWidthFlag( false );
 
-    m_StiffenerArrayEditLayout.AddLabel( "Direction", m_StiffenerArrayEditLayout.GetRemainX() / 3 );
-    m_StiffenerArrayEditLayout.AddButton( m_StiffenerArrayNegDirToggle, "Negative" );
-    m_StiffenerArrayEditLayout.AddButton( m_StiffenerArrayPosDirToggle, "Positive" );
+    m_SliceArrayEditLayout.AddLabel( "Direction", m_SliceArrayEditLayout.GetRemainX() / 3 );
+    m_SliceArrayEditLayout.AddButton( m_SliceArrayNegDirToggle, "Negative" );
+    m_SliceArrayEditLayout.AddButton( m_SliceArrayPosDirToggle, "Positive" );
 
-    m_StiffenerArrayPosNegDirToggleGroup.Init( this );
-    m_StiffenerArrayPosNegDirToggleGroup.AddButton( m_StiffenerArrayNegDirToggle.GetFlButton() );
-    m_StiffenerArrayPosNegDirToggleGroup.AddButton( m_StiffenerArrayPosDirToggle.GetFlButton() );
+    m_SliceArrayPosNegDirToggleGroup.Init( this );
+    m_SliceArrayPosNegDirToggleGroup.AddButton( m_SliceArrayNegDirToggle.GetFlButton() );
+    m_SliceArrayPosNegDirToggleGroup.AddButton( m_SliceArrayPosDirToggle.GetFlButton() );
 
-    m_StiffenerArrayEditLayout.ForceNewLine();
+    m_SliceArrayEditLayout.ForceNewLine();
 
-    button_width = m_StiffenerArrayEditLayout.GetButtonWidth();
-    slider_width = m_StiffenerArrayEditLayout.GetSliderWidth();
+    button_width = m_SliceArrayEditLayout.GetButtonWidth();
+    slider_width = m_SliceArrayEditLayout.GetSliderWidth();
 
-    m_StiffenerArrayEditLayout.SetSliderWidth( slider_width - 5 );
+    m_SliceArrayEditLayout.SetSliderWidth( slider_width - 5 );
 
-    m_StiffenerArrayEditLayout.AddSlider( m_StiffenerArrayStartLocSlider, "Start Location", 50, "%5.3f" );
+    m_SliceArrayEditLayout.AddSlider( m_SliceArrayStartLocSlider, "Start Location", 50, "%5.3f" );
 
-    m_StiffenerArrayEditLayout.AddButton( m_StiffenerArrayStartLocUnit, " " );
-    m_StiffenerArrayStartLocUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_StiffenerArrayStartLocUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_StiffenerArrayStartLocUnit.SetWidth( m_StiffenerArrayEditLayout.GetW() / 14 );
+    m_SliceArrayEditLayout.AddButton( m_SliceArrayStartLocUnit, " " );
+    m_SliceArrayStartLocUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_SliceArrayStartLocUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_SliceArrayStartLocUnit.SetWidth( m_SliceArrayEditLayout.GetW() / 14 );
 
-    m_StiffenerArrayEditLayout.ForceNewLine();
+    m_SliceArrayEditLayout.ForceNewLine();
 
-    m_StiffenerArrayEditLayout.AddSlider( m_StiffenerArraySpacingSlider, "Spacing", 50, "%5.3f" );
+    m_SliceArrayEditLayout.AddSlider( m_SliceArraySpacingSlider, "Spacing", 50, "%5.3f" );
 
-    m_StiffenerArrayEditLayout.AddButton( m_StiffenerArrayPosUnit, " " );
-    m_StiffenerArrayPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_StiffenerArrayPosUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_StiffenerArrayPosUnit.SetWidth( m_StiffenerArrayEditLayout.GetW() / 14 );
+    m_SliceArrayEditLayout.AddButton( m_SliceArrayPosUnit, " " );
+    m_SliceArrayPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_SliceArrayPosUnit.GetFlButton()->labelcolor( FL_BLACK );
+    m_SliceArrayPosUnit.SetWidth( m_SliceArrayEditLayout.GetW() / 14 );
 
-    m_StiffenerArrayEditLayout.ForceNewLine();
-    m_StiffenerArrayEditLayout.AddYGap();
+    m_SliceArrayEditLayout.ForceNewLine();
+    m_SliceArrayEditLayout.AddYGap();
 
-    m_StiffenerArrayEditLayout.SetSameLineFlag( false );
-    m_StiffenerArrayEditLayout.SetFitWidthFlag( true );
+    m_SliceArrayEditLayout.SetSameLineFlag( false );
+    m_SliceArrayEditLayout.SetFitWidthFlag( true );
 
-    m_StiffenerArrayEditLayout.AddChoice( m_StiffenerArrayCapPropertyChoice, "Cap Property" );
+    m_SliceArrayEditLayout.AddChoice( m_SliceArrayCapPropertyChoice, "Cap Property" );
 
-    m_StiffenerArrayEditLayout.AddYGap();
+    m_SliceArrayEditLayout.AddYGap();
 
-    m_StiffenerArrayEditLayout.AddButton( m_IndividualizeStiffenerArrayButton, "Individualize Stiffener Array" );
+    m_SliceArrayEditLayout.AddButton( m_IndividualizeSliceArrayButton, "Individualize Slice Array" );
 
     //=== SubSurfaces ===//
 
@@ -1176,17 +1176,17 @@ bool FeaPartEditScreen::Update()
 
                         FeaPartDispGroup( &m_RibArrayEditLayout );
                     }
-                    else if ( feaprt->GetType() == vsp::FEA_STIFFENER_ARRAY )
+                    else if ( feaprt->GetType() == vsp::FEA_SLICE_ARRAY )
                     {
-                        FeaStiffenerArray* stiffener_array = dynamic_cast<FeaStiffenerArray*>( feaprt );
-                        assert( stiffener_array );
+                        FeaSliceArray* slice_array = dynamic_cast<FeaSliceArray*>( feaprt );
+                        assert( slice_array );
 
-                        m_StiffenerArrayPosTypeChoice.Update( stiffener_array->m_LocationParmType.GetID() );
-                        m_StiffenerArrayStartLocSlider.Update( stiffener_array->m_StartLocation.GetID() );
-                        m_StiffenerArraySpacingSlider.Update( stiffener_array->m_StiffenerSpacing.GetID() );
-                        m_StiffenerArrayPosNegDirToggleGroup.Update( stiffener_array->m_PositiveDirectionFlag.GetID() );
+                        m_SliceArrayPosTypeChoice.Update( slice_array->m_LocationParmType.GetID() );
+                        m_SliceArrayStartLocSlider.Update( slice_array->m_StartLocation.GetID() );
+                        m_SliceArraySpacingSlider.Update( slice_array->m_SliceSpacing.GetID() );
+                        m_SliceArrayPosNegDirToggleGroup.Update( slice_array->m_PositiveDirectionFlag.GetID() );
 
-                        FeaPartDispGroup( &m_StiffenerArrayEditLayout );
+                        FeaPartDispGroup( &m_SliceArrayEditLayout );
                     }
                     else
                     {
@@ -1519,7 +1519,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
         SetFeaPartPropertyIndex( selected_choice );
     }
     else if ( device == &m_SliceCapPropertyChoice || device == &m_RibCapPropertyChoice || device == &m_SparCapPropertyChoice || device == &m_DomeCapPropertyChoice
-              || device == &m_RibArrayCapPropertyChoice || device == &m_StiffenerArrayCapPropertyChoice || device == &m_FeaSSLineCapPropertyChoice 
+              || device == &m_RibArrayCapPropertyChoice || device == &m_SliceArrayCapPropertyChoice || device == &m_FeaSSLineCapPropertyChoice
               || device == &m_FeaSSRecCapPropertyChoice || device == &m_FeaSSEllCapPropertyChoice || device == &m_FeaSSConCapPropertyChoice || device == &m_FeaSSLineArrayCapPropertyChoice )
     {
         Choice* selected_choice = dynamic_cast<Choice*>( device );
@@ -1618,7 +1618,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
-    else if ( device == &m_IndividualizeStiffenerArrayButton )
+    else if ( device == &m_IndividualizeSliceArrayButton )
     {
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
         {
@@ -1630,9 +1630,9 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 if ( feaprt )
                 {
-                    if ( feaprt->GetType() == vsp::FEA_STIFFENER_ARRAY )
+                    if ( feaprt->GetType() == vsp::FEA_SLICE_ARRAY )
                     {
-                        structVec[StructureMgr.GetCurrStructIndex()]->IndividualizeStiffenerArray( StructureMgr.GetCurrPartIndex() );
+                        structVec[StructureMgr.GetCurrStructIndex()]->IndividualizeSliceArray( StructureMgr.GetCurrPartIndex() );
                     }
                 }
             }
@@ -1668,7 +1668,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
     m_RibCapPropertyChoice.ClearItems();
     m_DomeCapPropertyChoice.ClearItems();
     m_RibArrayCapPropertyChoice.ClearItems();
-    m_StiffenerArrayCapPropertyChoice.ClearItems();
+    m_SliceArrayCapPropertyChoice.ClearItems();
 
     m_FeaSSLineCapPropertyChoice.ClearItems();
     m_FeaSSRecCapPropertyChoice.ClearItems();
@@ -1700,7 +1700,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
             m_RibCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_DomeCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_RibArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
-            m_StiffenerArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_SliceArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
             m_FeaSSLineCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSRecCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -1726,7 +1726,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_RibCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_DomeCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_RibArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
-                m_StiffenerArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_SliceArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
 
                 m_FeaSSLineCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSRecCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -1752,7 +1752,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_RibCapPropertyChoice.SetFlag( i, 0 );
                 m_DomeCapPropertyChoice.SetFlag( i, 0 );
                 m_RibArrayCapPropertyChoice.SetFlag( i, 0 );
-                m_StiffenerArrayCapPropertyChoice.SetFlag( i, 0 );
+                m_SliceArrayCapPropertyChoice.SetFlag( i, 0 );
 
                 m_FeaSSLineCapPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSRecCapPropertyChoice.SetFlag( i, 0 );
@@ -1778,7 +1778,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
         m_RibCapPropertyChoice.UpdateItems();
         m_DomeCapPropertyChoice.UpdateItems();
         m_RibArrayCapPropertyChoice.UpdateItems();
-        m_StiffenerArrayCapPropertyChoice.UpdateItems();
+        m_SliceArrayCapPropertyChoice.UpdateItems();
 
         m_FeaSSLineCapPropertyChoice.UpdateItems();
         m_FeaSSRecCapPropertyChoice.UpdateItems();
@@ -1809,7 +1809,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                     m_RibCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
                     m_DomeCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
                     m_RibArrayCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
-                    m_StiffenerArrayCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
+                    m_SliceArrayCapPropertyChoice.SetVal( feaprt->m_CapFeaPropertyIndex() );
                 }
             }
             else if ( StructureMgr.GetCurrPartIndex() >= structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -1992,7 +1992,7 @@ void FeaPartEditScreen::FeaPartDispGroup( GroupLayout* group )
     m_FixPointEditLayout.Hide();
     m_DomeEditLayout.Hide();
     m_RibArrayEditLayout.Hide();
-    m_StiffenerArrayEditLayout.Hide();
+    m_SliceArrayEditLayout.Hide();
 
     m_FeaSSLineGroup.Hide();
     m_FeaSSRecGroup.Hide();
@@ -2117,7 +2117,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
                 FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
                 if ( feaprt )
                 {
-                    if ( feaprt->GetType() == vsp::FEA_SLICE || feaprt->GetType() == vsp::FEA_RIB || feaprt->GetType() == vsp::FEA_SPAR || feaprt->GetType() == vsp::FEA_RIB_ARRAY || feaprt->GetType() == vsp::FEA_STIFFENER_ARRAY ) // TODO: Switch to different check
+                    if ( feaprt->GetType() == vsp::FEA_SLICE || feaprt->GetType() == vsp::FEA_RIB || feaprt->GetType() == vsp::FEA_SPAR || feaprt->GetType() == vsp::FEA_RIB_ARRAY || feaprt->GetType() == vsp::FEA_SLICE_ARRAY ) // TODO: Switch to different check
                     {
                         if ( feaprt->m_LocationParmType() == LENGTH )
                         {
@@ -2126,8 +2126,8 @@ void FeaPartEditScreen::UpdateUnitLabels()
                             m_RibPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                             m_RibArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                             m_RibArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                            m_StiffenerArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                            m_StiffenerArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                            m_SliceArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                            m_SliceArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                         }
                         else if( feaprt->m_LocationParmType() == PERCENT )
                         {
@@ -2136,8 +2136,8 @@ void FeaPartEditScreen::UpdateUnitLabels()
                             m_RibPosUnit.GetFlButton()->copy_label( "%" );
                             m_RibArrayStartLocUnit.GetFlButton()->copy_label( "%" );
                             m_RibArrayPosUnit.GetFlButton()->copy_label( "%" );
-                            m_StiffenerArrayStartLocUnit.GetFlButton()->copy_label( "%" );
-                            m_StiffenerArrayPosUnit.GetFlButton()->copy_label( "%" );
+                            m_SliceArrayStartLocUnit.GetFlButton()->copy_label( "%" );
+                            m_SliceArrayPosUnit.GetFlButton()->copy_label( "%" );
                         }
                     }
                 }

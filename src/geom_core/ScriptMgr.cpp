@@ -978,7 +978,7 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_PART_TYPE", "FEA_RIB_ARRAY", FEA_RIB_ARRAY );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_PART_TYPE", "FEA_STIFFENER_ARRAY", FEA_STIFFENER_ARRAY );
+    r = se->RegisterEnumValue( "FEA_PART_TYPE", "FEA_SLICE_ARRAY", FEA_SLICE_ARRAY );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_PART_TYPE", "FEA_SKIN", FEA_SKIN );
     assert( r >= 0 );

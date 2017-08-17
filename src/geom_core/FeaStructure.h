@@ -72,7 +72,7 @@ public:
     virtual bool FeaPartIsArray( int ind );
 
     virtual void IndividualizeRibArray( int rib_array_ind );
-    virtual void IndividualizeStiffenerArray( int stiffener_array_ind );
+    virtual void IndividualizeSliceArray( int slice_array_ind );
 
     virtual vector< FeaPart* > InitFeaSkin( );
     virtual FeaPart* GetFeaSkin( );
@@ -430,33 +430,33 @@ protected:
     string m_PerpendicularEdgeID;
 };
 
-class FeaStiffenerArray : public FeaPart
+class FeaSliceArray : public FeaPart
 {
 public:
 
-    FeaStiffenerArray( string geomID, int type = vsp::FEA_STIFFENER_ARRAY );
-    virtual ~FeaStiffenerArray()    {};
+    FeaSliceArray( string geomID, int type = vsp::FEA_SLICE_ARRAY );
+    virtual ~FeaSliceArray()    {};
 
     virtual void Update();
-    virtual void CreateFeaStiffenerArray();
-    virtual void CalcNumStiffeners();
+    virtual void CreateFeaSliceArray();
+    virtual void CalcNumSlices();
 
     virtual FeaSlice* AddFeaSlice( double center_location, int ind );
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
-    virtual int GetNumStiffeners()
+    virtual int GetNumSlices()
     {
-        return m_NumStiffeners;
+        return m_NumSlices;
     }
 
-    Parm m_StiffenerSpacing;
+    Parm m_SliceSpacing;
     BoolParm m_PositiveDirectionFlag;
     Parm m_StartLocation;
 
 protected:
 
-    int m_NumStiffeners;
+    int m_NumSlices;
 
 };
 
