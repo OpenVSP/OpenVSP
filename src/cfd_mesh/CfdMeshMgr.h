@@ -190,7 +190,7 @@ public:
     virtual void TransferMeshSettings();
 
     virtual void TransferSubSurfData();
-    virtual vector < SimpleSubSurface > GetSimpSubSurfs( string comp_id, int surfnum );
+    virtual vector < SimpleSubSurface > GetSimpSubSurfs( string geom_id, int surfnum, int comp_id );
 
     virtual void addOutputText( const string &str, int output_type = VOCAL_OUTPUT );
 

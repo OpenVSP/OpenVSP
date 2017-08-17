@@ -577,11 +577,17 @@ void CfdMeshMgrSingleton::TransferSubSurfData()
 }
 
 //==== Get vector of SimpleSubSurfaces from geom by ID and surf number ====//
-vector< SimpleSubSurface > CfdMeshMgrSingleton::GetSimpSubSurfs( string comp_id, int surfnum )
+vector< SimpleSubSurface > CfdMeshMgrSingleton::GetSimpSubSurfs( string geom_id, int surfnum, int comp_id )
 {
     vector< SimpleSubSurface > ret_vec;
 
-    Geom* geom = m_Vehicle->FindGeom( comp_id );
+    // m_CompID < 0 indicates an FeaPart surface. SubSurfaces on FeaParts is not supported at this time 
+    if ( comp_id < 0 )
+    {
+        return ret_vec;
+    }
+
+    Geom* geom = m_Vehicle->FindGeom( geom_id );
     if ( !geom )
     {
         return ret_vec;
@@ -3464,7 +3470,7 @@ void CfdMeshMgrSingleton::BuildSubSurfIntChains()
         Surf* surf = m_SurfVec[s];
 
         // Get all SubSurfaces for the specified geom
-        vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID() );
+        vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID(), surf->GetCompID() );
 
         // Split SubSurfs
         for ( int ss = 0 ; ss < ( int ) ss_vec.size(); ss++ )
@@ -5594,7 +5600,7 @@ void CfdMeshMgrSingleton::Subtag( Surf* surf )
 {
     vector< SimpTri >& tri_vec = surf->GetMesh()->GetSimpTriVec();
     vector< vec2d >& pnts = surf->GetMesh()->GetSimpUWPntVec();
-    vector< SimpleSubSurface > simp_s_surfs = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID() );
+    vector< SimpleSubSurface > simp_s_surfs = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID() , surf->GetCompID() );
 
     for ( int t = 0; t < (int)tri_vec.size(); t++ )
     {
