@@ -689,10 +689,10 @@ FeaPart::FeaPart( string geomID, int type )
     m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "FeaPart", this, true, false, true );
     m_DrawFeaPartFlag.SetDescript( "Flag to Draw FeaPart" );
 
-    m_LocationParmType.Init( "LocationParmType", "FeaPart", this, PERCENT, PERCENT, LENGTH );
+    m_LocationParmType.Init( "LocationParmType", "FeaPart", this, FRACTION, FRACTION, LENGTH );
     m_LocationParmType.SetDescript( "Type of Location Parm Definition: Percent or Length of Total BBox" );
 
-    m_CenterLocation.Init( "CenterLocation", "FeaPart", this, 50, 0.0, 1e12 );
+    m_CenterLocation.Init( "CenterLocation", "FeaPart", this, 0.5, 0.0, 1e12 );
     m_CenterLocation.SetDescript( "The Location of the Center of the FeaPart as Parameterized as a Percentage or Length" );
 
     m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaPart", this, 0, 0, 1e12 );; // Shell property default
@@ -898,9 +898,9 @@ double FeaPart::GetRibPerU( double center_location )
                             curr_sec_ind = i;
                         }
                     }
-                    else if ( m_LocationParmType() == PERCENT )
+                    else if ( m_LocationParmType() == FRACTION )
                     {
-                        if ( ( ( center_location / 100 ) * span ) >= span_0 && ( ( center_location / 100 ) * span ) <= span_f )
+                        if ( ( ( center_location ) * span ) >= span_0 && ( ( center_location ) * span ) <= span_f )
                         {
                             curr_sec_ind = i;
                         }
@@ -924,9 +924,9 @@ double FeaPart::GetRibPerU( double center_location )
             double u_step = ( U_f - U_0 ) / U_max;
 
             // Set parm limits and convert to percent U if parameterized by span length value
-            if ( m_LocationParmType() == PERCENT )
+            if ( m_LocationParmType() == FRACTION )
             {
-                per_u = U_0 / U_max + ( ( ( ( center_location / 100 ) * span ) - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
+                per_u = U_0 / U_max + ( ( ( center_location * span ) - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
             }
             else if ( m_LocationParmType() == LENGTH )
             {
@@ -1390,9 +1390,9 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
             double per_u;
 
             // TODO: Add percent U along spine parameterization
-            if ( m_LocationParmType() == PERCENT )
+            if ( m_LocationParmType() == FRACTION )
             {
-                double length_on_spine = ( center_location / 100 ) * spine_length;
+                double length_on_spine = center_location * spine_length;
                 per_u = cs.FindUGivenLengthAlongSpine( length_on_spine ) / u_max;
             }
             else if ( m_LocationParmType() == LENGTH )
@@ -1458,9 +1458,9 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
 
             if ( orientation_plane == vsp::YZ_BODY || orientation_plane == vsp::YZ_ABS )
             {
-                if ( m_LocationParmType() == PERCENT )
+                if ( m_LocationParmType() == FRACTION )
                 {
-                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * center_location / 100, geom_center.y(), geom_center.z() );
+                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * center_location, geom_center.y(), geom_center.z() );
                 }
                 else if ( m_LocationParmType() == LENGTH )
                 {
@@ -1536,9 +1536,9 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
             }
             else if ( orientation_plane == vsp::XY_BODY || orientation_plane == vsp::XY_ABS )
             {
-                if ( m_LocationParmType() == PERCENT )
+                if ( m_LocationParmType() == FRACTION )
                 {
-                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * center_location / 100 );
+                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * center_location );
                 }
                 else if ( m_LocationParmType() == LENGTH )
                 {
@@ -1616,9 +1616,9 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
             }
             else if ( orientation_plane == vsp::XZ_BODY || orientation_plane == vsp::XZ_ABS )
             {
-                if ( m_LocationParmType() == PERCENT )
+                if ( m_LocationParmType() == FRACTION )
                 {
-                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * center_location / 100, geom_center.z() );
+                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * center_location, geom_center.z() );
                 }
                 else if ( m_LocationParmType() == LENGTH )
                 {
@@ -1911,9 +1911,9 @@ void FeaSlice::UpdateParmLimits()
         ConformalSpine cs;
         cs.Build( current_surf );
 
-        if ( m_LocationParmType() == PERCENT )
+        if ( m_LocationParmType() == FRACTION )
         {
-            m_CenterLocation.SetUpperLimit( 100 );
+            m_CenterLocation.SetUpperLimit( 1 );
         }
         else if ( m_LocationParmType() == LENGTH )
         {
@@ -2055,11 +2055,11 @@ void FeaSpar::ComputePlanarSurf()
         double chord_length = dist( wing_surf.CompPnt01( u_mid, 0.5 ), wing_surf.CompPnt01( u_mid, 0.0 ) ); // average chord length
 
         // Set parm limits and convert to percent V
-        if ( m_LocationParmType() == PERCENT )
+        if ( m_LocationParmType() == FRACTION )
         {
-            m_CenterLocation.SetUpperLimit( 100 );
+            m_CenterLocation.SetUpperLimit( 1 );
 
-            per_v = m_CenterLocation() / 100;
+            per_v = m_CenterLocation();
         }
         else if ( m_LocationParmType() == LENGTH )
         {
@@ -2376,9 +2376,9 @@ void FeaRib::UpdateParmLimits()
         }
 
         // Set parm limits
-        if ( m_LocationParmType() == PERCENT )
+        if ( m_LocationParmType() == FRACTION )
         {
-            m_CenterLocation.SetUpperLimit( 100 );
+            m_CenterLocation.SetUpperLimit( 1 );
         }
         else if ( m_LocationParmType() == LENGTH )
         {
@@ -3016,7 +3016,7 @@ void FeaDome::UpdateDrawObjs( int id, bool highlight )
 
 FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_RibSpacing.Init( "RibSpacing", "FeaRibArray", this, 50, 1, 1e12 );
+    m_RibSpacing.Init( "RibSpacing", "FeaRibArray", this, 0.5, 0, 1e12 );
     m_RibSpacing.SetDescript( "Spacing Between Ribs in Array, Parameterized by Percent or Length" );
 
     m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaRibArray", this, true, false, true );
@@ -3078,18 +3078,18 @@ void FeaRibArray::CalcNumRibs()
             }
         }
 
-        if ( m_LocationParmType() == PERCENT )
+        if ( m_LocationParmType() == FRACTION )
         {
-            m_StartLocation.SetUpperLimit( 100 ); 
+            m_StartLocation.SetUpperLimit( 1 ); 
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_RibSpacing.SetLowerUpperLimits( ( 100 - m_StartLocation() ) / 100, 100 ); // Limit to 100 ribs 
-                m_NumRibs = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_RibSpacing() );
+                m_RibSpacing.SetLowerUpperLimits( ( 1 - m_StartLocation() ) / 100, 1 ); // Limit to 100 ribs 
+                m_NumRibs = 1 + (int)floor( ( 1 - m_StartLocation() ) / m_RibSpacing() );
             }
             else
             {
-                m_RibSpacing.SetLowerUpperLimits( m_StartLocation() / 100, 100 ); // Limit to 100 ribs 
+                m_RibSpacing.SetLowerUpperLimits( m_StartLocation() / 100, 1 ); // Limit to 100 ribs 
                 m_NumRibs = 1 + (int)floor( ( m_StartLocation() ) / m_RibSpacing() );
             }
         }
@@ -3238,7 +3238,7 @@ void FeaRibArray::UpdateDrawObjs( int id, bool highlight )
 
 FeaSliceArray::FeaSliceArray( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_SliceSpacing.Init( "SliceSpacing", "FeaSliceArray", this, 50, 1, 1e12 );
+    m_SliceSpacing.Init( "SliceSpacing", "FeaSliceArray", this, 0.5, 0, 1e12 );
     m_SliceSpacing.SetDescript( "Spacing Between Slices in Array, Parameterized by Percent or Length" );
 
     m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaSliceArray", this, true, false, true );
@@ -3326,18 +3326,18 @@ void FeaSliceArray::CalcNumSlices()
             double perp_dist = cs.GetSpineLength();
         }
 
-        if ( m_LocationParmType() == PERCENT )
+        if ( m_LocationParmType() == FRACTION )
         {
-            m_StartLocation.SetUpperLimit( 100 );
+            m_StartLocation.SetUpperLimit( 1 );
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_SliceSpacing.SetLowerUpperLimits( ( 100 - m_StartLocation() ) / 100, 100 ); // Limit to 100 slices
-                m_NumSlices = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_SliceSpacing() );
+                m_SliceSpacing.SetLowerUpperLimits( ( 1 - m_StartLocation() ) / 100, 1.0 ); // Limit to 100 slices
+                m_NumSlices = 1 + (int)floor( ( 1 - m_StartLocation() ) / m_SliceSpacing() );
             }
             else
             {
-                m_SliceSpacing.SetLowerUpperLimits( m_StartLocation() / 100, 100 ); // Limit to 100 slices
+                m_SliceSpacing.SetLowerUpperLimits( m_StartLocation() / 100, 1.0 ); // Limit to 100 slices
                 m_NumSlices = 1 + (int)floor( ( m_StartLocation() ) / m_SliceSpacing() );
             }
         }

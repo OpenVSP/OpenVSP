@@ -71,13 +71,13 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SliceEditLayout.SetButtonWidth( 0 );
     m_SliceEditLayout.SetChoiceButtonWidth( 0 );
 
-    m_SlicePosTypeChoice.AddItem( "Percent" );
+    m_SlicePosTypeChoice.AddItem( "Fraction" );
     m_SlicePosTypeChoice.AddItem( "Distance" );
     m_SliceEditLayout.AddChoice( m_SlicePosTypeChoice, "" );
 
     m_SliceEditLayout.SetSliderWidth( slider_width - 5 );
 
-    m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, " ", 50, "%5.3f" );
+    m_SliceEditLayout.AddSlider( m_SliceCenterLocSlider, " ", 0.5, "%5.3f" );
 
     m_SliceEditLayout.AddButton( m_SlicePosUnit, "" );
     m_SlicePosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -156,13 +156,13 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_RibEditLayout.SetButtonWidth( 0 );
     m_RibEditLayout.SetChoiceButtonWidth( 0 );
 
-    m_RibPosTypeChoice.AddItem( "% Span" );
-    m_RibPosTypeChoice.AddItem( "Dist Span" );
+    m_RibPosTypeChoice.AddItem( "Fraction Span" );
+    m_RibPosTypeChoice.AddItem( "Distance Span" );
     m_RibEditLayout.AddChoice( m_RibPosTypeChoice, "" );
 
     m_RibEditLayout.SetSliderWidth( slider_width - 5 );
 
-    m_RibEditLayout.AddSlider( m_RibPosSlider, " ", 50, "%5.3f" );
+    m_RibEditLayout.AddSlider( m_RibPosSlider, " ", 0.5, "%5.3f" );
 
     m_RibEditLayout.AddButton( m_RibPosUnit, "" );
     m_RibPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -233,13 +233,13 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SparEditLayout.SetButtonWidth( 0 );
     m_SparEditLayout.SetChoiceButtonWidth( 0 );
 
-    m_SparPosTypeChoice.AddItem( "% Chord" );
-    m_SparPosTypeChoice.AddItem( "Dist Chord" );
+    m_SparPosTypeChoice.AddItem( "Fraction Chord" );
+    m_SparPosTypeChoice.AddItem( "Distance Chord" );
     m_SparEditLayout.AddChoice( m_SparPosTypeChoice, "" );
 
     m_SparEditLayout.SetSliderWidth( slider_width - 5 );
 
-    m_SparEditLayout.AddSlider( m_SparPosSlider, " ", 50, "%5.3f" );
+    m_SparEditLayout.AddSlider( m_SparPosSlider, " ", 0.5, "%5.3f" );
 
     m_SparEditLayout.AddButton( m_SparPosUnit, "" );
     m_SparPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -422,8 +422,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_RibArrayEditLayout.AddYGap();
 
-    m_RibArrayPosTypeChoice.AddItem( "% Span" );
-    m_RibArrayPosTypeChoice.AddItem( "Dist Span" );
+    m_RibArrayPosTypeChoice.AddItem( "Fraction Span" );
+    m_RibArrayPosTypeChoice.AddItem( "Distance Span" );
     m_RibArrayEditLayout.AddChoice( m_RibArrayPosTypeChoice, "Parameterization" );
 
     m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() / 3 );
@@ -446,7 +446,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_RibArrayEditLayout.SetSliderWidth( slider_width - 5 );
 
-    m_RibArrayEditLayout.AddSlider( m_RibArrayStartLocSlider, "Start Location", 50, "%5.3f" );
+    m_RibArrayEditLayout.AddSlider( m_RibArrayStartLocSlider, "Start Location", 0.5, "%5.3f" );
 
     m_RibArrayEditLayout.AddButton( m_RibArrayStartLocUnit, " " );
     m_RibArrayStartLocUnit.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -455,7 +455,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_RibArrayEditLayout.ForceNewLine();
 
-    m_RibArrayEditLayout.AddSlider( m_RibArraySpacingSlider, "Spacing", 50, "%5.3f" );
+    m_RibArrayEditLayout.AddSlider( m_RibArraySpacingSlider, "Spacing", 0.5, "%5.3f" );
 
     m_RibArrayEditLayout.AddButton( m_RibArrayPosUnit, " " );
     m_RibArrayPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -518,7 +518,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_SliceArrayOrientationChoice.AddItem( "Const_U" );
     m_SliceArrayEditLayout.AddChoice( m_SliceArrayOrientationChoice, "Orientation" );
 
-    m_SliceArrayPosTypeChoice.AddItem( "Percent" );
+    m_SliceArrayPosTypeChoice.AddItem( "Fraction" );
     m_SliceArrayPosTypeChoice.AddItem( "Distance" );
     m_SliceArrayEditLayout.AddChoice( m_SliceArrayPosTypeChoice, "Parameterization" );
 
@@ -542,7 +542,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SliceArrayEditLayout.SetSliderWidth( slider_width - 5 );
 
-    m_SliceArrayEditLayout.AddSlider( m_SliceArrayStartLocSlider, "Start Location", 50, "%5.3f" );
+    m_SliceArrayEditLayout.AddSlider( m_SliceArrayStartLocSlider, "Start Location", 0.5, "%5.3f" );
 
     m_SliceArrayEditLayout.AddButton( m_SliceArrayStartLocUnit, " " );
     m_SliceArrayStartLocUnit.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -551,7 +551,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_SliceArrayEditLayout.ForceNewLine();
 
-    m_SliceArrayEditLayout.AddSlider( m_SliceArraySpacingSlider, "Spacing", 50, "%5.3f" );
+    m_SliceArrayEditLayout.AddSlider( m_SliceArraySpacingSlider, "Spacing", 0.5, "%5.3f" );
 
     m_SliceArrayEditLayout.AddButton( m_SliceArrayPosUnit, " " );
     m_SliceArrayPosUnit.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -936,8 +936,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
     m_FeaSSLineArrayGroup.SetSameLineFlag( false );
     m_FeaSSLineArrayGroup.SetFitWidthFlag( true );
 
-    m_FeaSSLineArrayGroup.AddSlider( m_FeaSSLineArraySpacingSlider, "Spacing", 1, "%5.4f" );
-    m_FeaSSLineArrayGroup.AddSlider( m_FeaSSLineArrayStartLocSlider, "Start Location", 1, "%5.4f" );
+    m_FeaSSLineArrayGroup.AddSlider( m_FeaSSLineArraySpacingSlider, "Spacing", 0.5, "%5.4f" );
+    m_FeaSSLineArrayGroup.AddSlider( m_FeaSSLineArrayStartLocSlider, "Start Location", 0.5, "%5.4f" );
 
     m_FeaSSLineArrayGroup.AddYGap();
 
@@ -2239,15 +2239,15 @@ void FeaPartEditScreen::UpdateUnitLabels()
                             m_SliceArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                             m_SliceArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                         }
-                        else if( feaprt->m_LocationParmType() == PERCENT )
+                        else if( feaprt->m_LocationParmType() == FRACTION )
                         {
-                            m_SlicePosUnit.GetFlButton()->copy_label( "%" );
-                            m_SparPosUnit.GetFlButton()->copy_label( "%" );
-                            m_RibPosUnit.GetFlButton()->copy_label( "%" );
-                            m_RibArrayStartLocUnit.GetFlButton()->copy_label( "%" );
-                            m_RibArrayPosUnit.GetFlButton()->copy_label( "%" );
-                            m_SliceArrayStartLocUnit.GetFlButton()->copy_label( "%" );
-                            m_SliceArrayPosUnit.GetFlButton()->copy_label( "%" );
+                            m_SlicePosUnit.GetFlButton()->copy_label( " " );
+                            m_SparPosUnit.GetFlButton()->copy_label( " " );
+                            m_RibPosUnit.GetFlButton()->copy_label( " " );
+                            m_RibArrayStartLocUnit.GetFlButton()->copy_label( " " );
+                            m_RibArrayPosUnit.GetFlButton()->copy_label( " " );
+                            m_SliceArrayStartLocUnit.GetFlButton()->copy_label( " " );
+                            m_SliceArrayPosUnit.GetFlButton()->copy_label( " " );
                         }
                     }
                 }

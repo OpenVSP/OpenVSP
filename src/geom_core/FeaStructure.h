@@ -144,7 +144,7 @@ protected:
 
 enum
 {
-    PERCENT, LENGTH
+    FRACTION, LENGTH
 };
 
 class FeaPart : public ParmContainer
