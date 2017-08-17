@@ -1666,11 +1666,6 @@ bool StructScreen::Update()
                                 m_GenPropertyChoice.Activate();
                             }
                         }
-                        else if ( prt->GetType() == vsp::FEA_SLICE_ARRAY )
-                        {
-                            m_GenPropertyChoice.Deactivate();
-                            m_ShellCapToggleGroup.Deactivate();
-                        }
                     }
                     else
                     {

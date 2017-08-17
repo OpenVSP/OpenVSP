@@ -453,6 +453,11 @@ public:
     Parm m_SliceSpacing;
     BoolParm m_PositiveDirectionFlag;
     Parm m_StartLocation;
+    IntParm m_OrientationPlane;
+    IntParm m_RotationAxis;
+    Parm m_XRot;
+    Parm m_YRot;
+    Parm m_ZRot;
 
 protected:
 

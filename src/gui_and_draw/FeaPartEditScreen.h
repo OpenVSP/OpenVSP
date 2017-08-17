@@ -169,6 +169,7 @@ private:
     ToggleRadioGroup m_RibArrayShellCapToggleGroup;
 
     //===== SliceArray =====//
+    Choice m_SliceArrayOrientationChoice;
     Choice m_SliceArrayPosTypeChoice;
     ToggleButton m_SliceArrayPosDirToggle;
     ToggleButton m_SliceArrayNegDirToggle;
@@ -177,6 +178,18 @@ private:
     TriggerButton m_SliceArrayStartLocUnit;
     SliderAdjRangeInput m_SliceArraySpacingSlider;
     TriggerButton m_SliceArrayPosUnit;
+    ToggleButton m_SliceArrayXAxisToggle;
+    ToggleButton m_SliceArrayYAxisToggle;
+    ToggleButton m_SliceArrayZAxisToggle;
+    ToggleRadioGroup m_SliceArrayRotAxisToggleGroup;
+    SliderAdjRangeInput m_SliceArrayXRotSlider;
+    SliderAdjRangeInput m_SliceArrayYRotSlider;
+    SliderAdjRangeInput m_SliceArrayZRotSlider;
+    ToggleButton m_SliceArrayShellToggle;
+    ToggleButton m_SliceArrayCapToggle;
+    ToggleButton m_SliceArrayShellCapToggle;
+    ToggleRadioGroup m_SliceArrayShellCapToggleGroup;
+    Choice m_SliceArrayPropertyChoice;
     Choice m_SliceArrayCapPropertyChoice;
     TriggerButton m_IndividualizeSliceArrayButton;
 

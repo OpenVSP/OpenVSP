@@ -3248,7 +3248,13 @@ FeaSliceArray::FeaSliceArray( string geomID, int type ) : FeaPart( geomID, type 
     m_StartLocation.Init( "StartLocation", "FeaSliceArray", this, 0.0, 0.0, 1e12 );
     m_StartLocation.SetDescript( "Starting Location for Primary Stiffener" );
 
-    m_IncludedElements.Set( vsp::FEA_BEAM );
+    m_OrientationPlane.Init( "OrientationPlane", "FeaSliceArray", this, vsp::YZ_BODY, vsp::XY_BODY, vsp::CONST_U );
+    m_OrientationPlane.SetDescript( "Plane the FeaSliceArray will be Parallel to (Body or Absolute Reference Frame)" );
+
+    m_RotationAxis.Init( "RotationAxis", "FeaSliceArray", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
+    m_XRot.Init( "XRot", "FeaSliceArray", this, 0.0, -90.0, 90.0 );
+    m_YRot.Init( "YRot", "FeaSliceArray", this, 0.0, -90.0, 90.0 );
+    m_ZRot.Init( "ZRot", "FeaSliceArray", this, 0.0, -90.0, 90.0 );
 
     m_NumSlices = 0;
 }
@@ -3280,39 +3286,75 @@ void FeaSliceArray::CalcNumSlices()
         current_geom->GetSurfVec( surf_vec );
         VspSurf current_surf = surf_vec[m_MainSurfIndx()];
 
-        // Build conformal spine from parent geom
-        ConformalSpine cs;
-        cs.Build( current_surf );
+        // Determine BndBox dimensions prior to rotating and translating
+        Matrix4d model_matrix = current_geom->getModelMatrix();
+        model_matrix.affineInverse();
 
-        double spine_length = cs.GetSpineLength();
+        VspSurf orig_surf = current_surf;
+        orig_surf.Transform( model_matrix );
+
+        BndBox geom_bbox;
+
+        if ( RefFrameIsBody( m_OrientationPlane() ) )
+        {
+            orig_surf.GetBoundingBox( geom_bbox );
+        }
+        else
+        {
+            current_surf.GetBoundingBox( geom_bbox );
+        }
+
+        double perp_dist; // Total distance perpendicular to the FeaSlice plane
+
+        if ( m_OrientationPlane() == vsp::XY_BODY || m_OrientationPlane() == vsp::XY_ABS )
+        {
+            perp_dist = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
+        }
+        else if ( m_OrientationPlane() == vsp::YZ_BODY || m_OrientationPlane() == vsp::YZ_ABS )
+        {
+            perp_dist = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
+        }
+        else if ( m_OrientationPlane() == vsp::XZ_BODY || m_OrientationPlane() == vsp::XZ_ABS )
+        {
+            perp_dist = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
+        }
+        else if ( m_OrientationPlane() == vsp::CONST_U )
+        {
+            // Build conformal spine from parent geom
+            ConformalSpine cs;
+            cs.Build( current_surf );
+
+            double perp_dist = cs.GetSpineLength();
+        }
 
         if ( m_LocationParmType() == PERCENT )
         {
             m_StartLocation.SetUpperLimit( 100 );
-            m_SliceSpacing.SetLowerUpperLimits( 1, 100 ); // Limit to 100 stiffeners
 
             if ( m_PositiveDirectionFlag() )
             {
+                m_SliceSpacing.SetLowerUpperLimits( ( 100 - m_StartLocation() ) / 100, 100 ); // Limit to 100 slices
                 m_NumSlices = 1 + (int)floor( ( 100 - m_StartLocation() ) / m_SliceSpacing() );
             }
             else
             {
+                m_SliceSpacing.SetLowerUpperLimits( m_StartLocation() / 100, 100 ); // Limit to 100 slices
                 m_NumSlices = 1 + (int)floor( ( m_StartLocation() ) / m_SliceSpacing() );
             }
         }
         else if ( m_LocationParmType() == LENGTH )
         {
-            m_StartLocation.SetUpperLimit( spine_length );
+            m_StartLocation.SetUpperLimit( perp_dist );
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_SliceSpacing.SetLowerUpperLimits( spine_length / 100, spine_length ); // Limit to 100 stiffeners
-                m_NumSlices = 1 + (int)floor( ( spine_length - m_StartLocation() ) / m_SliceSpacing() );
+                m_SliceSpacing.SetLowerUpperLimits( ( perp_dist - m_StartLocation() ) / 100, perp_dist ); // Limit to 100 slices
+                m_NumSlices = 1 + (int)floor( ( perp_dist - m_StartLocation() ) / m_SliceSpacing() );
             }
             else
             {
-                //m_StiffenerSpacing.SetLowerUpperLimits( spine_length / 100, m_StartLocation() ); // Limit to 100 stiffeners 
-                m_NumSlices = 1 + (int)floor( spine_length / m_SliceSpacing() );
+                m_SliceSpacing.SetLowerUpperLimits( m_StartLocation() / 100, perp_dist ); // Limit to 100 slices 
+                m_NumSlices = 1 + (int)floor( perp_dist / m_SliceSpacing() );
             }
         }
     }
@@ -3346,8 +3388,7 @@ void FeaSliceArray::CreateFeaSliceArray()
             // Update Slice Center
             double center_location = m_StartLocation() + dir * i * m_SliceSpacing();
 
-            int orientation_place = vsp::CONST_U;
-            VspSurf main_slice_surf = ComputeSliceSurf( center_location, orientation_place, 0.0, 0.0, 0.0 );
+            VspSurf main_slice_surf = ComputeSliceSurf( center_location, m_OrientationPlane(), m_XRot(), m_YRot(), m_ZRot() );
 
             m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_slice_surf;
 
