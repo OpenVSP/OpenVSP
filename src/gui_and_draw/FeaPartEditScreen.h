@@ -295,6 +295,7 @@ private:
     ToggleButton m_FeaSSLineArrayNegDirToggle;
     ToggleButton m_FeaSSLineArrayPosDirToggle;
     ToggleRadioGroup m_FeaSSLineArrayPosNegDirToggleGroup;
+    TriggerButton m_IndividualizeSSLineArrayButton;
 };
 
 #endif // !defined(FEAPARTEDITSCREEN__INCLUDED_)

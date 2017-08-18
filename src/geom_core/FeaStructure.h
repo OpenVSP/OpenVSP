@@ -73,6 +73,7 @@ public:
 
     virtual void IndividualizeRibArray( int rib_array_ind );
     virtual void IndividualizeSliceArray( int slice_array_ind );
+    virtual void IndividualizeSSLineArray( int ssline_array_ind );
 
     virtual vector< FeaPart* > InitFeaSkin( );
     virtual FeaPart* GetFeaSkin( );
@@ -92,6 +93,10 @@ public:
     virtual vector< SubSurface* > GetFeaSubSurfVec()
     {
         return m_FeaSubSurfVec;
+    }
+    virtual void AddFeaSubSurf( SubSurface* sub_surf )
+    {
+        m_FeaSubSurfVec.push_back( sub_surf );
     }
 
     virtual int GetFeaPropertyIndex( int fea_part_ind );

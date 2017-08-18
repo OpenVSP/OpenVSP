@@ -304,6 +304,13 @@ class SSLineArray : public SubSurface
 
     virtual void CalcNumLines();
 
+    virtual SSLine* AddSSLine( double location, int ind );
+
+    virtual int GetNumLines()
+    {
+        return m_NumLines;
+    }
+
     IntParm m_ConstType;
     BoolParm m_PositiveDirectionFlag;
     Parm m_Spacing; // Spacing (U or W) between each constant line

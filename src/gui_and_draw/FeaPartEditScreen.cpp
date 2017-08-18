@@ -993,6 +993,10 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_FeaSSLineArrayGroup.AddYGap();
 
+    m_FeaSSLineArrayGroup.AddButton( m_IndividualizeSSLineArrayButton, "Individualize SSLine Array" );
+
+    m_FeaSSLineArrayGroup.AddYGap();
+
     m_FeaSSLineArrayGroup.AddDividerBox( "Elements" );
 
     m_FeaSSLineArrayGroup.AddChoice( m_FeaSSLineArrayCapPropertyChoice, "Cap Property" );
@@ -1866,6 +1870,26 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
                     if ( feaprt->GetType() == vsp::FEA_SLICE_ARRAY )
                     {
                         structVec[StructureMgr.GetCurrStructIndex()]->IndividualizeSliceArray( StructureMgr.GetCurrPartIndex() );
+                    }
+                }
+            }
+        }
+    }
+    else if ( device == &m_IndividualizeSSLineArrayButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        {
+            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+            if ( StructureMgr.GetCurrPartIndex() >= structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            {
+                SubSurface* subsurf = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaSubSurf( StructureMgr.GetCurrPartIndex() - structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
+                
+                if ( subsurf )
+                {
+                    if ( subsurf->GetType() == vsp::SS_LINE_ARRAY )
+                    {
+                        structVec[StructureMgr.GetCurrStructIndex()]->IndividualizeSSLineArray( StructureMgr.GetCurrPartIndex() - structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
                     }
                 }
             }

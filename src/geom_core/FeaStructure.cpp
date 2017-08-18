@@ -587,6 +587,7 @@ void FeaStructure::IndividualizeRibArray( int rib_array_ind )
         DelFeaPart( rib_array_ind );
     }
 }
+
 void FeaStructure::IndividualizeSliceArray( int stiffener_array_ind )
 {
     if ( !ValidFeaPartInd( stiffener_array_ind ) )
@@ -624,6 +625,37 @@ void FeaStructure::IndividualizeSliceArray( int stiffener_array_ind )
         }
 
         DelFeaPart( stiffener_array_ind );
+    }
+}
+
+void FeaStructure::IndividualizeSSLineArray( int ssline_array_ind )
+{
+    if ( !ValidFeaSubSurfInd( ssline_array_ind ) )
+    {
+        return;
+    }
+
+    SubSurface* sub_surf = m_FeaSubSurfVec[ssline_array_ind];
+
+    if ( !sub_surf )
+    {
+        return;
+    }
+
+    if ( sub_surf->GetType() == vsp::SS_LINE_ARRAY )
+    {
+        SSLineArray* ssline_array = dynamic_cast<SSLineArray*>( sub_surf );
+        assert( ssline_array );
+
+        for ( size_t i = 0; i < ssline_array->GetNumLines(); i++ )
+        {
+            double center_location = ssline_array->m_StartLocation() + i * ssline_array->m_Spacing();
+
+            SSLine* ssline = ssline_array->AddSSLine( center_location, i );
+            AddFeaSubSurf( ssline );
+        }
+
+        DelFeaSubSurf( ssline_array_ind );
     }
 }
 

@@ -2137,6 +2137,27 @@ void SSLineArray::CalcNumLines()
     }
 }
 
+SSLine* SSLineArray::AddSSLine( double location, int ind )
+{
+    SSLine* ssline = new SSLine( m_CompID );
+
+    if ( ssline )
+    {
+        ssline->m_IncludedElements.Set( m_IncludedElements() );
+        ssline->m_ConstType.Set( m_ConstType() );
+        ssline->m_ConstVal.Set( location );
+        ssline->m_TestType.Set( m_TestType() );
+        ssline->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
+        ssline->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
+
+        ssline->SetName( string( m_Name + "_SSLine_" + std::to_string( ind ) ) );
+
+        ssline->Update();
+    }
+
+    return ssline;
+}
+
 int SSLineArray::CompNumDrawPnts( Geom* geom )
 {
     VspSurf* surf = geom->GetSurfPtr();
