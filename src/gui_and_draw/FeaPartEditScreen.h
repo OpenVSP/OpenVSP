@@ -69,8 +69,10 @@ private:
     //===== Slice =====//
     Choice m_SlicePropertyChoice;
     Choice m_SliceOrientationChoice;
-    Choice m_SlicePosTypeChoice;
-    SliderAdjRangeInput m_SliceCenterLocSlider;
+    ToggleButton m_SlicePosRelToggle;
+    ToggleButton m_SlicePosAbsToggle;
+    ToggleRadioGroup m_SlicePosTypeToggleGroup;
+    SliderAdjRange2Input m_SliceCenterLocSlider;
     TriggerButton m_SlicePosUnit;
     ToggleButton m_SliceXAxisToggle;
     ToggleButton m_SliceYAxisToggle;
@@ -88,8 +90,10 @@ private:
     //===== Rib =====//
     Choice m_RibPropertyChoice;
     Choice m_RibPerpendicularEdgeChoice;
-    Choice m_RibPosTypeChoice;
-    SliderAdjRangeInput m_RibPosSlider;
+    ToggleButton m_RibPosRelToggle;
+    ToggleButton m_RibPosAbsToggle;
+    ToggleRadioGroup m_RibPosTypeToggleGroup;
+    SliderAdjRange2Input m_RibPosSlider;
     TriggerButton m_RibPosUnit;
     SliderAdjRangeInput m_RibThetaSlider;
     Choice m_RibCapPropertyChoice;
@@ -102,8 +106,10 @@ private:
 
     //===== Spar =====//
     Choice m_SparPropertyChoice;
-    Choice m_SparPosTypeChoice;
-    SliderAdjRangeInput m_SparPosSlider;
+    ToggleButton m_SparPosRelToggle;
+    ToggleButton m_SparPosAbsToggle;
+    ToggleRadioGroup m_SparPosTypeToggleGroup;
+    SliderAdjRange2Input m_SparPosSlider;
     TriggerButton m_SparPosUnit;
     ToggleButton m_SparSectionLimitToggle;
     IndexSelector m_SparSectIndexSelector;
@@ -151,15 +157,15 @@ private:
     //===== RibArray =====//
     Choice m_RibArrayPropertyChoice;
     Choice m_RibArrayPerpEdgeChoice;
-    Choice m_RibArrayPosTypeChoice;
+    ToggleButton m_RibArrayPosRelToggle;
+    ToggleButton m_RibArrayPosAbsToggle;
+    ToggleRadioGroup m_RibArrayPosTypeToggleGroup;
     ToggleButton m_RibArrayPosDirToggle;
     ToggleButton m_RibArrayNegDirToggle;
     ToggleRadioGroup m_RibArrayPosNegDirToggleGroup;
-    SliderAdjRangeInput m_RibArrayStartLocSlider;
+    SliderAdjRange2Input m_RibArrayStartLocSlider;
     TriggerButton m_RibArrayStartLocUnit;
-    SliderAdjRangeInput m_RibArrayEndLocSlider;
-    TriggerButton m_RibArrayEndLocUnit;
-    SliderAdjRangeInput m_RibArraySpacingSlider;
+    SliderAdjRange2Input m_RibArraySpacingSlider;
     TriggerButton m_RibArrayPosUnit;
     SliderAdjRangeInput m_RibArrayThetaSlider;
     Choice m_RibArrayCapPropertyChoice;
@@ -171,13 +177,15 @@ private:
 
     //===== SliceArray =====//
     Choice m_SliceArrayOrientationChoice;
-    Choice m_SliceArrayPosTypeChoice;
+    ToggleButton m_SliceArrayPosRelToggle;
+    ToggleButton m_SliceArrayPosAbsToggle;
+    ToggleRadioGroup m_SliceArrayPosTypeToggleGroup;
     ToggleButton m_SliceArrayPosDirToggle;
     ToggleButton m_SliceArrayNegDirToggle;
     ToggleRadioGroup m_SliceArrayPosNegDirToggleGroup;
-    SliderAdjRangeInput m_SliceArrayStartLocSlider;
+    SliderAdjRange2Input m_SliceArrayStartLocSlider;
     TriggerButton m_SliceArrayStartLocUnit;
-    SliderAdjRangeInput m_SliceArraySpacingSlider;
+    SliderAdjRange2Input m_SliceArraySpacingSlider;
     TriggerButton m_SliceArrayPosUnit;
     ToggleButton m_SliceArrayXAxisToggle;
     ToggleButton m_SliceArrayYAxisToggle;
