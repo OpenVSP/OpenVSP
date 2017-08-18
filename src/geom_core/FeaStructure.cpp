@@ -3016,7 +3016,7 @@ void FeaDome::UpdateDrawObjs( int id, bool highlight )
 
 FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_RibSpacing.Init( "RibSpacing", "FeaRibArray", this, 0.5, 0, 1e12 );
+    m_RibSpacing.Init( "RibSpacing", "FeaRibArray", this, 0.2, 0, 1e12 );
     m_RibSpacing.SetDescript( "Spacing Between Ribs in Array, Parameterized by Percent or Length" );
 
     m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaRibArray", this, true, false, true );
@@ -3238,7 +3238,7 @@ void FeaRibArray::UpdateDrawObjs( int id, bool highlight )
 
 FeaSliceArray::FeaSliceArray( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_SliceSpacing.Init( "SliceSpacing", "FeaSliceArray", this, 0.5, 0, 1e12 );
+    m_SliceSpacing.Init( "SliceSpacing", "FeaSliceArray", this, 0.2, 0, 1e12 );
     m_SliceSpacing.SetDescript( "Spacing Between Slices in Array, Parameterized by Percent or Length" );
 
     m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaSliceArray", this, true, false, true );

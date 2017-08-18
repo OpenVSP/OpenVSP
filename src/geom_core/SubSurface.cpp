@@ -2048,7 +2048,7 @@ SSLineArray::SSLineArray( string comp_id, int type ) : SubSurface( comp_id, type
     m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "SS_LineArray", this, true, false, true );
     m_PositiveDirectionFlag.SetDescript( "Flag to Increment SSLines in Positive or Negative Direction" );
 
-    m_Spacing.Init( "Spacing", "SS_LineArray", this, 0.5, 0.0, 1.0 );
+    m_Spacing.Init( "Spacing", "SS_LineArray", this, 0.2, 0.0, 1.0 );
     m_Spacing.SetDescript( "Spacing Between SSLines in Array" );
 
     m_StartLocation.Init( "StartLocation", "SS_LineArray", this, 0.0, 0.0, 1.0 );
