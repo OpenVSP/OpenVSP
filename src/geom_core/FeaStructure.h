@@ -491,8 +491,6 @@ public:
     Parm m_Ixx;
     IntParm m_FeaMaterialIndex;
 
-    bool m_UserFeaProperty;
-
 protected:
 };
 

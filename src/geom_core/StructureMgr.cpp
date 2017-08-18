@@ -75,7 +75,6 @@ xmlNodePtr StructureMgrSingleton::DecodeXml( xmlNodePtr & node )
                 if ( fea_prop )
                 {
                     fea_prop->DecodeXml( prop_info );
-                    fea_prop->m_UserFeaProperty = true;
 
                     AddFeaProperty( fea_prop );
                 }
@@ -553,7 +552,6 @@ FeaProperty* StructureMgrSingleton::AddFeaProperty( int property_type )
     {
         feaprop->SetName( string( "PROPERTY_" + std::to_string( m_FeaPropertyCount ) ) );
         feaprop->m_FeaPropertyType.Set( property_type );
-        feaprop->m_UserFeaProperty = true;
         m_FeaPropertyVec.push_back( feaprop );
         m_FeaPropertyCount++;
     }
@@ -564,8 +562,33 @@ FeaProperty* StructureMgrSingleton::AddFeaProperty( int property_type )
 //==== Delete FeaProperty =====//
 void StructureMgrSingleton::DeleteFeaProperty( int index )
 {
-    if ( !ValidFeaPropertyInd( index ) || !m_FeaPropertyVec[index]->m_UserFeaProperty )
+    if ( !ValidFeaPropertyInd( index ) )
         return;
+
+    // Check if FeaProperty is only one of it's type
+    int shell_cnt = 0;
+    int beam_cnt = 0;
+
+    for ( size_t i = 0; i  < m_FeaPropertyVec.size(); i++ )
+    {
+        if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
+        {
+            shell_cnt++;
+        }
+        else if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
+        {
+            beam_cnt++;
+        }
+    }
+
+    if ( m_FeaPropertyVec[index]->m_FeaPropertyType() == vsp::FEA_SHELL && shell_cnt <= 1 )
+    {
+        return;
+    }
+    else if ( m_FeaPropertyVec[index]->m_FeaPropertyType() == vsp::FEA_BEAM && beam_cnt <= 1 )
+    {
+        return;
+    }
 
     delete m_FeaPropertyVec[index];
     m_FeaPropertyVec.erase( m_FeaPropertyVec.begin() + index );
@@ -622,7 +645,6 @@ void StructureMgrSingleton::InitFeaProperties()
         default_shell->SetName( "Default_Shell" );
         default_shell->m_FeaMaterialIndex.Set( 0 ); // aluminum
         default_shell->m_FeaPropertyType.Set( vsp::FEA_SHELL );
-        default_shell->m_UserFeaProperty = false;
 
         AddFeaProperty( default_shell );
     }
@@ -634,7 +656,6 @@ void StructureMgrSingleton::InitFeaProperties()
         default_beam->SetName( "Default_Beam" );
         default_beam->m_FeaMaterialIndex.Set( 0 ); // aluminum
         default_beam->m_FeaPropertyType.Set( vsp::FEA_BEAM );
-        default_beam->m_UserFeaProperty = false;
 
         AddFeaProperty( default_beam );
     }

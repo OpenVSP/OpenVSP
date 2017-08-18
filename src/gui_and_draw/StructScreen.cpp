@@ -1989,6 +1989,8 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( newstruct )
             {
+                StructureMgr.InitFeaProperties(); // Add default FeaProperties if none available
+
                 StructureMgr.SetCurrStructIndex( StructureMgr.GetTotFeaStructIndex( newstruct ) );
             }
         }
