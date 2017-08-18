@@ -142,11 +142,6 @@ protected:
 
 };
 
-enum
-{
-    FRACTION, LENGTH
-};
-
 class FeaPart : public ParmContainer
 {
 public:
@@ -166,12 +161,12 @@ public:
 
     static string GetTypeName( int type );
 
-    virtual double GetRibPerU( double center_location );
-    virtual double GetRibTotalRotation( double center_location, double initial_rotation, string perp_edge_ID );
-    virtual VspSurf ComputeRibSurf( double center_location, double rotation );
+    virtual double GetRibPerU( double rel_center_location );
+    virtual double GetRibTotalRotation( double rel_center_location, double initial_rotation, string perp_edge_ID );
+    virtual VspSurf ComputeRibSurf( double rel_center_location, double rotation );
 
     virtual bool RefFrameIsBody( int orientation_plane );
-    virtual VspSurf ComputeSliceSurf( double center_location, int orientation_plane, double x_rot, double y_rot, double z_rot );
+    virtual VspSurf ComputeSliceSurf( double rel_center_location, int orientation_plane, double x_rot, double y_rot, double z_rot );
 
     virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid );
 
@@ -204,8 +199,9 @@ public:
     IntParm m_MainSurfIndx;
     IntParm m_IncludedElements;
     BoolParm m_DrawFeaPartFlag;
-    IntParm m_LocationParmType;
-    Parm m_CenterLocation;
+    IntParm m_AbsRelParmFlag;
+    Parm m_AbsCenterLocation;
+    Parm m_RelCenterLocation;
     IntParm m_FeaPropertyIndex;
     IntParm m_CapFeaPropertyIndex;
 
@@ -254,6 +250,7 @@ public:
     virtual ~FeaSpar()    {};
 
     virtual void Update();
+    virtual void UpdateParms();
 
     virtual void ComputePlanarSurf();
     virtual void UpdateDrawObjs( int id, bool highlight );
@@ -419,9 +416,11 @@ public:
         return m_PerpendicularEdgeID;
     }
 
-    Parm m_RibSpacing;
+    Parm m_RibAbsSpacing;
+    Parm m_RibRelSpacing;
     BoolParm m_PositiveDirectionFlag;
-    Parm m_StartLocation;
+    Parm m_AbsStartLocation;
+    Parm m_RelStartLocation;
     Parm m_Theta;
 
 protected:
@@ -451,9 +450,11 @@ public:
         return m_NumSlices;
     }
 
-    Parm m_SliceSpacing;
+    Parm m_SliceAbsSpacing;
+    Parm m_SliceRelSpacing;
     BoolParm m_PositiveDirectionFlag;
-    Parm m_StartLocation;
+    Parm m_AbsStartLocation;
+    Parm m_RelStartLocation;
     IntParm m_OrientationPlane;
     IntParm m_RotationAxis;
     Parm m_XRot;

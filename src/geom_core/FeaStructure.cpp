@@ -569,7 +569,18 @@ void FeaStructure::IndividualizeRibArray( int rib_array_ind )
 
         for ( size_t i = 0; i < rib_array->GetNumRibs(); i++ )
         {
-            FeaRib* rib = rib_array->AddFeaRib( rib_array->m_StartLocation() + i * rib_array->m_RibSpacing(), i );
+            double center_location;
+
+            if ( rib_array->m_AbsRelParmFlag() == vsp::REL )
+            {
+                center_location = rib_array->m_RelStartLocation() + i * rib_array->m_RibRelSpacing();
+            }
+            else if ( rib_array->m_AbsRelParmFlag() == vsp::ABS )
+            {
+                center_location = rib_array->m_AbsStartLocation() + i * rib_array->m_RibAbsSpacing();
+            }
+
+            FeaRib* rib = rib_array->AddFeaRib( center_location, i );
             AddFeaPart( rib );
         }
 
@@ -597,7 +608,18 @@ void FeaStructure::IndividualizeSliceArray( int stiffener_array_ind )
 
         for ( size_t i = 0; i < slice_array->GetNumSlices(); i++ )
         {
-            FeaSlice* slice = slice_array->AddFeaSlice( slice_array->m_StartLocation() + i * slice_array->m_SliceSpacing(), i );
+            double center_location;
+
+            if ( slice_array->m_AbsRelParmFlag() == vsp::REL )
+            {
+                center_location = slice_array->m_RelStartLocation() + i * slice_array->m_SliceRelSpacing();
+            }
+            else if ( slice_array->m_AbsRelParmFlag() == vsp::ABS )
+            {
+                center_location = slice_array->m_AbsStartLocation() + i * slice_array->m_SliceAbsSpacing();
+            }
+
+            FeaSlice* slice = slice_array->AddFeaSlice( center_location, i );
             AddFeaPart( slice );
         }
 
@@ -689,11 +711,14 @@ FeaPart::FeaPart( string geomID, int type )
     m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "FeaPart", this, true, false, true );
     m_DrawFeaPartFlag.SetDescript( "Flag to Draw FeaPart" );
 
-    m_LocationParmType.Init( "LocationParmType", "FeaPart", this, FRACTION, FRACTION, LENGTH );
-    m_LocationParmType.SetDescript( "Type of Location Parm Definition: Percent or Length of Total BBox" );
+    m_AbsRelParmFlag.Init( "AbsRelParmFlag", "FeaPart", this, vsp::REL, vsp::ABS, vsp::REL );
+    m_AbsRelParmFlag.SetDescript( "Parameterization of Center Location as Absolute or Relative" );
 
-    m_CenterLocation.Init( "CenterLocation", "FeaPart", this, 0.5, 0.0, 1e12 );
-    m_CenterLocation.SetDescript( "The Location of the Center of the FeaPart as Parameterized as a Percentage or Length" );
+    m_AbsCenterLocation.Init( "AbsCenterLocation", "FeaPart", this, 0.0, 0.0, 1e12 );
+    m_AbsCenterLocation.SetDescript( "The Absolute Location of the Center of the FeaPart" );
+
+    m_RelCenterLocation.Init( "RelCenterLocation", "FeaPart", this, 0.5, 0.0, 1.0 );
+    m_RelCenterLocation.SetDescript( "The Relative Location of the Center of the FeaPart" );
 
     m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaPart", this, 0, 0, 1e12 );; // Shell property default
     m_FeaPropertyIndex.SetDescript( "FeaPropertyIndex for Shell Elements" );
@@ -833,7 +858,7 @@ string FeaPart::GetTypeName( int type )
     return string( "NONE" );
 }
 
-double FeaPart::GetRibPerU( double center_location )
+double FeaPart::GetRibPerU( double rel_center_location )
 {
     double per_u = 0;
     Vehicle* veh = VehicleMgr.GetVehicle();
@@ -891,19 +916,9 @@ double FeaPart::GetRibPerU( double center_location )
                     span_f += wing_sec->m_Span();
                     wing_sec_span_vec.push_back( span_f - span_0 );
 
-                    if ( m_LocationParmType() == LENGTH )
+                    if ( rel_center_location >= span_0 && rel_center_location <= span_f )
                     {
-                        if ( center_location >= span_0 && center_location <= span_f )
-                        {
-                            curr_sec_ind = i;
-                        }
-                    }
-                    else if ( m_LocationParmType() == FRACTION )
-                    {
-                        if ( ( ( center_location ) * span ) >= span_0 && ( ( center_location ) * span ) <= span_f )
-                        {
-                            curr_sec_ind = i;
-                        }
+                        curr_sec_ind = i;
                     }
 
                     span_0 = span_f;
@@ -923,22 +938,14 @@ double FeaPart::GetRibPerU( double center_location )
 
             double u_step = ( U_f - U_0 ) / U_max;
 
-            // Set parm limits and convert to percent U if parameterized by span length value
-            if ( m_LocationParmType() == FRACTION )
-            {
-                per_u = U_0 / U_max + ( ( ( center_location * span ) - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
-            }
-            else if ( m_LocationParmType() == LENGTH )
-            {
-                per_u = U_0 / U_max + ( ( center_location - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
-            }
+            per_u = U_0 / U_max + ( ( ( rel_center_location * span ) - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
         }
     }
 
     return per_u;
 }
 
-double FeaPart::GetRibTotalRotation( double center_location, double initial_rotation, string perp_edge_ID )
+double FeaPart::GetRibTotalRotation( double rel_center_location, double initial_rotation, string perp_edge_ID )
 {
     double total_rot = 0;
 
@@ -954,7 +961,7 @@ double FeaPart::GetRibTotalRotation( double center_location, double initial_rota
             current_wing->GetSurfVec( surf_vec );
             VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
 
-            double per_u = GetRibPerU( center_location );
+            double per_u = GetRibPerU( rel_center_location );
 
             // Find initial rotation (alpha) to perpendicular edge or spar
             double alpha = 0.0;
@@ -1044,7 +1051,7 @@ double FeaPart::GetRibTotalRotation( double center_location, double initial_rota
     return total_rot;
 }
 
-VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
+VspSurf FeaPart::ComputeRibSurf( double rel_center_location, double rotation )
 {
     VspSurf rib_surf;
     Vehicle* veh = VehicleMgr.GetVehicle();
@@ -1079,7 +1086,7 @@ VspSurf FeaPart::ComputeRibSurf( double center_location, double rotation )
         wing_surf.GetBoundingBox( wing_bbox );
 
         // Get center location as percent of U
-        double per_u = GetRibPerU( center_location );
+        double per_u = GetRibPerU( rel_center_location );
 
         VspCurve constant_u_curve;
         wing_surf.GetU01ConstCurve( constant_u_curve, per_u );
@@ -1318,7 +1325,7 @@ bool FeaPart::RefFrameIsBody( int orientation_plane )
     }
 }
 
-VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane, double x_rot, double y_rot, double z_rot )
+VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_plane, double x_rot, double y_rot, double z_rot )
 {
     VspSurf slice_surf;
     Vehicle* veh = VehicleMgr.GetVehicle();
@@ -1387,18 +1394,8 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
 
             double spine_length = cs.GetSpineLength();
 
-            double per_u;
-
-            // TODO: Add percent U along spine parameterization
-            if ( m_LocationParmType() == FRACTION )
-            {
-                double length_on_spine = center_location * spine_length;
-                per_u = cs.FindUGivenLengthAlongSpine( length_on_spine ) / u_max;
-            }
-            else if ( m_LocationParmType() == LENGTH )
-            {
-                per_u = cs.FindUGivenLengthAlongSpine( center_location ) / u_max;
-            }
+            double length_on_spine = rel_center_location * spine_length;
+            double per_u = cs.FindUGivenLengthAlongSpine( length_on_spine ) / u_max;
 
             slice_center = cs.FindCenterGivenU( per_u * u_max );
 
@@ -1458,14 +1455,7 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
 
             if ( orientation_plane == vsp::YZ_BODY || orientation_plane == vsp::YZ_ABS )
             {
-                if ( m_LocationParmType() == FRACTION )
-                {
-                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * center_location, geom_center.y(), geom_center.z() );
-                }
-                else if ( m_LocationParmType() == LENGTH )
-                {
-                    slice_center = vec3d( geom_bbox.GetMin( 0 ) + center_location, geom_center.y(), geom_center.z() );
-                }
+                slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * rel_center_location, geom_center.y(), geom_center.z() );
 
                 double x_off = ( slice_center - geom_center ).x();
 
@@ -1536,14 +1526,8 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
             }
             else if ( orientation_plane == vsp::XY_BODY || orientation_plane == vsp::XY_ABS )
             {
-                if ( m_LocationParmType() == FRACTION )
-                {
-                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * center_location );
-                }
-                else if ( m_LocationParmType() == LENGTH )
-                {
-                    slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + center_location );
-                }
+
+                slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * rel_center_location );
 
                 double z_off = ( slice_center - geom_center ).z();
 
@@ -1616,14 +1600,7 @@ VspSurf FeaPart::ComputeSliceSurf( double center_location, int orientation_plane
             }
             else if ( orientation_plane == vsp::XZ_BODY || orientation_plane == vsp::XZ_ABS )
             {
-                if ( m_LocationParmType() == FRACTION )
-                {
-                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * center_location, geom_center.z() );
-                }
-                else if ( m_LocationParmType() == LENGTH )
-                {
-                    slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + center_location, geom_center.z() );
-                }
+                slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * rel_center_location, geom_center.z() );
 
                 double y_off = ( slice_center - geom_center ).y();
 
@@ -1868,7 +1845,7 @@ void FeaSlice::Update()
     // Must call UpdateSymmIndex before
     if ( m_FeaPartSurfVec.size() > 0 )
     {
-        m_FeaPartSurfVec[0] = ComputeSliceSurf( m_CenterLocation(), m_OrientationPlane(), m_XRot(), m_YRot(), m_ZRot() );
+        m_FeaPartSurfVec[0] = ComputeSliceSurf( m_RelCenterLocation(), m_OrientationPlane(), m_XRot(), m_YRot(), m_ZRot() );
 
         // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
@@ -1902,48 +1879,49 @@ void FeaSlice::UpdateParmLimits()
         VspSurf orig_surf = current_surf;
         orig_surf.Transform( model_matrix );
 
-        BndBox orig_bbox;
-        orig_surf.GetBoundingBox( orig_bbox );
+        BndBox geom_bbox;
 
-        BndBox curr_bbox;
-        current_surf.GetBoundingBox( curr_bbox );
-
-        ConformalSpine cs;
-        cs.Build( current_surf );
-
-        if ( m_LocationParmType() == FRACTION )
+        if ( RefFrameIsBody( m_OrientationPlane() ) )
         {
-            m_CenterLocation.SetUpperLimit( 1 );
+            orig_surf.GetBoundingBox( geom_bbox );
         }
-        else if ( m_LocationParmType() == LENGTH )
+        else
         {
-            switch ( m_OrientationPlane() )
-            {
-            case vsp::YZ_BODY:
-            // TODO: Add percent U along spine parameterization
-            m_CenterLocation.SetUpperLimit( cs.GetSpineLength() );
-            break;
+            current_surf.GetBoundingBox( geom_bbox );
+        }
 
-            case vsp::XY_BODY:
-            m_CenterLocation.SetUpperLimit( orig_bbox.GetMax( 2 ) - orig_bbox.GetMin( 2 ) );
-            break;
+        double perp_dist; // Total distance perpendicular to the FeaSlice plane
 
-            case vsp::XZ_BODY:
-            m_CenterLocation.SetUpperLimit( orig_bbox.GetMax( 1 ) - orig_bbox.GetMin( 1 ) );
-            break;
+        if ( m_OrientationPlane() == vsp::XY_BODY || m_OrientationPlane() == vsp::XY_ABS )
+        {
+            perp_dist = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
+        }
+        else if ( m_OrientationPlane() == vsp::YZ_BODY || m_OrientationPlane() == vsp::YZ_ABS )
+        {
+            perp_dist = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
+        }
+        else if ( m_OrientationPlane() == vsp::XZ_BODY || m_OrientationPlane() == vsp::XZ_ABS )
+        {
+            perp_dist = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
+        }
+        else if ( m_OrientationPlane() == vsp::CONST_U )
+        {
+            // Build conformal spine from parent geom
+            ConformalSpine cs;
+            cs.Build( current_surf );
 
-            case vsp::XY_ABS:
-            m_CenterLocation.SetUpperLimit( curr_bbox.GetMax( 2 ) - curr_bbox.GetMin( 2 ) );
-            break;
+            perp_dist = cs.GetSpineLength();
+        }
 
-            case vsp::YZ_ABS:
-            m_CenterLocation.SetUpperLimit( curr_bbox.GetMax( 0 ) - curr_bbox.GetMin( 0 ) );
-            break;
-
-            case vsp::XZ_ABS:
-            m_CenterLocation.SetUpperLimit( curr_bbox.GetMax( 1 ) - curr_bbox.GetMin( 1 ) );
-            break;
-            }
+        // Set Parm limits and values
+        if ( m_AbsRelParmFlag() == vsp::REL )
+        {
+            m_AbsCenterLocation.Set( m_RelCenterLocation() * perp_dist );
+        }
+        else if ( m_AbsRelParmFlag() == vsp::ABS )
+        {
+            m_AbsCenterLocation.SetUpperLimit( perp_dist );
+            m_RelCenterLocation.Set( m_AbsCenterLocation() / perp_dist );
         }
     }
 }
@@ -1966,12 +1944,89 @@ FeaSpar::FeaSpar( string geomID, int type ) : FeaSlice( geomID, type )
 
     m_CurrWingSection.Init( "CurrWingSection", "FeaSpar", this, 1, 1, 1000 );
     m_CurrWingSection.SetDescript( "Current Wing Section to Limit Spar Length to" );
-
 }
 
 void FeaSpar::Update()
 {
+    UpdateParms();
     ComputePlanarSurf();
+}
+
+void FeaSpar::UpdateParms()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* current_wing = veh->FindGeom( m_ParentGeomID );
+
+        if ( !current_wing || m_FeaPartSurfVec.size() == 0 )
+        {
+            return;
+        }
+
+        WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
+        assert( wing );
+
+        vector< VspSurf > surf_vec;
+        current_wing->GetSurfVec( surf_vec );
+        VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
+
+        int num_wing_sec = wing->NumXSec();
+        int U_max = wing_surf.GetUMax();
+
+        m_CurrWingSection.SetUpperLimit( num_wing_sec - 1 );
+
+        double U_sec_min, U_sec_max;
+
+        // Determine U limits of spar
+        if ( m_LimitSparToSectionFlag() )
+        {
+            if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
+            {
+                U_sec_min = ( m_CurrWingSection() - 1 );
+            }
+            else
+            {
+                U_sec_min = m_CurrWingSection();
+            }
+
+            U_sec_max = U_sec_min + 1;
+        }
+        else
+        {
+            if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
+            {
+                U_sec_min = 0;
+            }
+            else
+            {
+                U_sec_min = 1;
+            }
+            if ( wing->m_CapUMaxOption() == vsp::NO_END_CAP )
+            {
+                U_sec_max = U_max;
+            }
+            else
+            {
+                U_sec_max = U_max - 1;
+            }
+        }
+
+        double u_mid = ( ( U_sec_min + U_sec_max ) / 2 ) / U_max;
+
+        double chord_length = dist( wing_surf.CompPnt01( u_mid, 0.5 ), wing_surf.CompPnt01( u_mid, 0.0 ) ); // average chord length
+
+        if ( m_AbsRelParmFlag() == vsp::REL )
+        {
+            m_AbsCenterLocation.Set( m_RelCenterLocation() * chord_length );
+        }
+        else if ( m_AbsRelParmFlag() == vsp::ABS )
+        {
+            m_AbsCenterLocation.SetUpperLimit( chord_length );
+            m_RelCenterLocation.Set( m_AbsCenterLocation() / chord_length );
+        }
+    }
 }
 
 void FeaSpar::ComputePlanarSurf()
@@ -2013,7 +2068,7 @@ void FeaSpar::ComputePlanarSurf()
 
         m_CurrWingSection.SetUpperLimit( num_wing_sec - 1 );
 
-        double U_sec_min, U_sec_max, per_v;
+        double U_sec_min, U_sec_max;
 
         // Determine U limits of spar
         if ( m_LimitSparToSectionFlag() )
@@ -2051,23 +2106,6 @@ void FeaSpar::ComputePlanarSurf()
 
         double u_mid = ( ( U_sec_min + U_sec_max ) / 2 ) / U_max;
 
-        vec3d chord_line = wing_surf.CompPnt01( u_mid, 0.5 ) - wing_surf.CompPnt01( u_mid, 0.0 ); // average chord vector
-        double chord_length = dist( wing_surf.CompPnt01( u_mid, 0.5 ), wing_surf.CompPnt01( u_mid, 0.0 ) ); // average chord length
-
-        // Set parm limits and convert to percent V
-        if ( m_LocationParmType() == FRACTION )
-        {
-            m_CenterLocation.SetUpperLimit( 1 );
-
-            per_v = m_CenterLocation();
-        }
-        else if ( m_LocationParmType() == LENGTH )
-        {
-            m_CenterLocation.SetUpperLimit( chord_length );
-
-            per_v = m_CenterLocation() / chord_length;
-        }
-
         VspCurve constant_u_curve;
         wing_surf.GetU01ConstCurve( constant_u_curve, u_mid );
 
@@ -2087,12 +2125,12 @@ void FeaSpar::ComputePlanarSurf()
         vec3d inside_edge_vec = min_lead_edge - min_trail_edge;
         double inside_edge_length = inside_edge_vec.mag();
         inside_edge_vec.normalize();
-        vec3d inside_edge_pnt = min_lead_edge - ( per_v * inside_edge_length ) * inside_edge_vec;
+        vec3d inside_edge_pnt = min_lead_edge - ( m_RelCenterLocation() * inside_edge_length ) * inside_edge_vec;
 
         vec3d outside_edge_vec = max_lead_edge - max_trail_edge;
         double outside_edge_length = outside_edge_vec.mag();
         outside_edge_vec.normalize();
-        vec3d outside_edge_pnt = max_lead_edge - ( per_v * outside_edge_length ) * outside_edge_vec;
+        vec3d outside_edge_pnt = max_lead_edge - ( m_RelCenterLocation() * outside_edge_length ) * outside_edge_vec;
 
         double length_spar_0 = dist( inside_edge_pnt, outside_edge_pnt ) / 2; // Initial spar half length
 
@@ -2333,8 +2371,8 @@ void FeaRib::Update()
     // Must call UpdateSymmIndex before
     if ( m_FeaPartSurfVec.size() > 0 )
     {
-        double rotation = GetRibTotalRotation( m_CenterLocation(), DEG_2_RAD * m_Theta(), m_PerpendicularEdgeID );
-        m_FeaPartSurfVec[0] = ComputeRibSurf( m_CenterLocation(), rotation );
+        double rotation = GetRibTotalRotation( m_RelCenterLocation(), DEG_2_RAD * m_Theta(), m_PerpendicularEdgeID );
+        m_FeaPartSurfVec[0] = ComputeRibSurf( m_RelCenterLocation(), rotation );
 
         // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
         for ( unsigned int j = 1; j < m_SymmIndexVec.size(); j++ )
@@ -2375,14 +2413,17 @@ void FeaRib::UpdateParmLimits()
             }
         }
 
-        // Set parm limits
-        if ( m_LocationParmType() == FRACTION )
+        // Set parm limits and values
+        m_RelCenterLocation.SetUpperLimit( span );
+
+        if ( m_AbsRelParmFlag() == vsp::REL )
         {
-            m_CenterLocation.SetUpperLimit( 1 );
+            m_AbsCenterLocation.Set( span * m_RelCenterLocation() );
         }
-        else if ( m_LocationParmType() == LENGTH )
+        else if ( m_AbsRelParmFlag() == vsp::ABS )
         {
-            m_CenterLocation.SetUpperLimit( span );
+            m_AbsCenterLocation.SetUpperLimit( span );
+            m_RelCenterLocation.Set( m_AbsCenterLocation() / span );
         }
     }
 }
@@ -3025,14 +3066,20 @@ void FeaDome::UpdateDrawObjs( int id, bool highlight )
 
 FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_RibSpacing.Init( "RibSpacing", "FeaRibArray", this, 0.2, 0, 1e12 );
-    m_RibSpacing.SetDescript( "Spacing Between Ribs in Array, Parameterized by Percent or Length" );
+    m_RibAbsSpacing.Init( "RibAbsSpacing", "FeaRibArray", this, 0.1, 0, 1e12 );
+    m_RibAbsSpacing.SetDescript( "Absolute Spacing Between Ribs in Array" );
+
+    m_RibRelSpacing.Init( "RibRelSpacing", "FeaRibArray", this, 0.2, 0, 1e12 );
+    m_RibRelSpacing.SetDescript( "Relative Spacing Between Ribs in Array" );
 
     m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaRibArray", this, true, false, true );
     m_PositiveDirectionFlag.SetDescript( "Flag to Increment RibArray in Positive or Negative Direction" );
 
-    m_StartLocation.Init( "StartLocation", "FeaRibArray", this, 0.0, 0.0, 1e12 );
-    m_StartLocation.SetDescript( "Starting Location for Primary Rib" );
+    m_AbsStartLocation.Init( "AbsStartLocation", "FeaRibArray", this, 0.0, 0.0, 1e12 );
+    m_AbsStartLocation.SetDescript( "Absolute Starting Location for Primary Rib" );
+
+    m_RelStartLocation.Init( "RelStartLocation", "FeaRibArray", this, 0.0, 0.0, 1e12 );
+    m_RelStartLocation.SetDescript( "Relative Starting Location for Primary Rib" );
 
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
 
@@ -3087,34 +3134,37 @@ void FeaRibArray::CalcNumRibs()
             }
         }
 
-        if ( m_LocationParmType() == FRACTION )
+        // Calculate number of ribs and update Parm limits and values
+        if ( m_AbsRelParmFlag() == vsp::REL )
         {
-            m_StartLocation.SetUpperLimit( 1 ); 
+            m_AbsStartLocation.Set( m_RelStartLocation() * span_f );
+            m_RibAbsSpacing.Set( m_RibRelSpacing() * span_f );
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_RibSpacing.SetLowerUpperLimits( ( 1 - m_StartLocation() ) / 100, 1 ); // Limit to 100 ribs 
-                m_NumRibs = 1 + (int)floor( ( 1 - m_StartLocation() ) / m_RibSpacing() );
+                m_RibRelSpacing.SetLowerUpperLimits( ( 1 - m_RelStartLocation() ) / 100, 1.0 ); // Limit to 100 ribs
+                m_NumRibs = 1 + (int)floor( ( 1 - m_RelStartLocation() ) / m_RibRelSpacing() );
             }
             else
             {
-                m_RibSpacing.SetLowerUpperLimits( m_StartLocation() / 100, 1 ); // Limit to 100 ribs 
-                m_NumRibs = 1 + (int)floor( ( m_StartLocation() ) / m_RibSpacing() );
+                m_RibRelSpacing.SetLowerUpperLimits( m_RelStartLocation() / 100, 1.0 ); // Limit to 100 ribs
+                m_NumRibs = 1 + (int)floor( ( m_RelStartLocation() ) / m_RibRelSpacing() );
             }
         }
-        else if ( m_LocationParmType() == LENGTH )
+        else if ( m_AbsRelParmFlag() == vsp::ABS )
         {
-            m_StartLocation.SetUpperLimit( span_f );
+            m_RelStartLocation.Set( m_AbsStartLocation() / span_f );
+            m_RibRelSpacing.Set( m_RibAbsSpacing() / span_f );
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_RibSpacing.SetLowerUpperLimits( ( span_f - m_StartLocation() ) / 100, span_f ); // Limit to 100 ribs 
-                m_NumRibs = 1 + (int)floor( ( span_f - m_StartLocation() ) / m_RibSpacing() );
+                m_RibAbsSpacing.SetLowerUpperLimits( ( span_f - m_AbsStartLocation() ) / 100, span_f ); // Limit to 100 ribs
+                m_NumRibs = 1 + (int)floor( ( span_f - m_AbsStartLocation() ) / m_RibAbsSpacing() );
             }
             else
             {
-                m_RibSpacing.SetLowerUpperLimits( m_StartLocation() / 100, span_f ); // Limit to 100 ribs 
-                m_NumRibs = 1 + (int)floor( m_StartLocation() / m_RibSpacing() );
+                m_RibAbsSpacing.SetLowerUpperLimits( m_AbsStartLocation() / 100, span_f ); // Limit to 100 ribs 
+                m_NumRibs = 1 + (int)floor( span_f / m_RibAbsSpacing() );
             }
         }
     }
@@ -3151,12 +3201,12 @@ void FeaRibArray::CreateFeaRibArray()
                 dir = -1;
             }
 
-            // Update Rib Center
-            double center_location =  m_StartLocation() + dir * i * m_RibSpacing();
+            // Update Rib Relative Center Location
+            double rel_center_location =  m_RelStartLocation() + dir * i * m_RibRelSpacing();
 
-            double rotation = GetRibTotalRotation( center_location, DEG_2_RAD * m_Theta(), m_PerpendicularEdgeID );
+            double rotation = GetRibTotalRotation( rel_center_location, DEG_2_RAD * m_Theta(), m_PerpendicularEdgeID );
 
-            VspSurf main_rib_surf = ComputeRibSurf( center_location, rotation );
+            VspSurf main_rib_surf = ComputeRibSurf( rel_center_location, rotation );
 
             m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_rib_surf;
 
@@ -3195,8 +3245,17 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
     if ( fearib )
     {
         fearib->m_IncludedElements.Set( m_IncludedElements() );
-        fearib->m_CenterLocation.Set( center_location );
-        fearib->m_LocationParmType.Set( m_LocationParmType() );
+
+        if ( m_AbsRelParmFlag() == vsp::REL )
+        {
+            fearib->m_RelCenterLocation.Set( center_location );
+        }
+        else if ( m_AbsRelParmFlag() == vsp::ABS )
+        {
+            fearib->m_AbsCenterLocation.Set( center_location );
+        }
+
+        fearib->m_AbsRelParmFlag.Set( m_AbsRelParmFlag() );
         fearib->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         fearib->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
         fearib->m_Theta.Set( m_Theta() );
@@ -3247,14 +3306,20 @@ void FeaRibArray::UpdateDrawObjs( int id, bool highlight )
 
 FeaSliceArray::FeaSliceArray( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_SliceSpacing.Init( "SliceSpacing", "FeaSliceArray", this, 0.2, 0, 1e12 );
-    m_SliceSpacing.SetDescript( "Spacing Between Slices in Array, Parameterized by Percent or Length" );
+    m_SliceAbsSpacing.Init( "SliceAbsSpacing", "FeaSliceArray", this, 0.2, 0, 1e12 );
+    m_SliceAbsSpacing.SetDescript( "Absolute Spacing Between Slices in Array" );
+
+    m_SliceRelSpacing.Init( "SliceRelSpacing", "FeaSliceArray", this, 0.2, 0, 1e12 );
+    m_SliceRelSpacing.SetDescript( "Relative Spacing Between Slices in Array" );
 
     m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaSliceArray", this, true, false, true );
     m_PositiveDirectionFlag.SetDescript( "Flag to Increment SliceArray in Positive or Negative Direction" );
 
-    m_StartLocation.Init( "StartLocation", "FeaSliceArray", this, 0.0, 0.0, 1e12 );
-    m_StartLocation.SetDescript( "Starting Location for Primary Stiffener" );
+    m_AbsStartLocation.Init( "AbsStartLocation", "FeaSliceArray", this, 0.0, 0.0, 1e12 );
+    m_AbsStartLocation.SetDescript( "Absolute Starting Location for Primary Stiffener" );
+
+    m_RelStartLocation.Init( "RelStartLocation", "FeaSliceArray", this, 0.0, 0.0, 1e12 );
+    m_RelStartLocation.SetDescript( "Relative Starting Location for Primary Stiffener" );
 
     m_OrientationPlane.Init( "OrientationPlane", "FeaSliceArray", this, vsp::YZ_BODY, vsp::XY_BODY, vsp::CONST_U );
     m_OrientationPlane.SetDescript( "Plane the FeaSliceArray will be Parallel to (Body or Absolute Reference Frame)" );
@@ -3332,37 +3397,40 @@ void FeaSliceArray::CalcNumSlices()
             ConformalSpine cs;
             cs.Build( current_surf );
 
-            double perp_dist = cs.GetSpineLength();
+            perp_dist = cs.GetSpineLength();
         }
 
-        if ( m_LocationParmType() == FRACTION )
+        //Calculate number of slices and update Parm limits and values
+        if ( m_AbsRelParmFlag() == vsp::REL )
         {
-            m_StartLocation.SetUpperLimit( 1 );
+            m_AbsStartLocation.Set( m_RelStartLocation() * perp_dist );
+            m_SliceAbsSpacing.Set( m_SliceRelSpacing() * perp_dist );
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_SliceSpacing.SetLowerUpperLimits( ( 1 - m_StartLocation() ) / 100, 1.0 ); // Limit to 100 slices
-                m_NumSlices = 1 + (int)floor( ( 1 - m_StartLocation() ) / m_SliceSpacing() );
+                m_SliceRelSpacing.SetLowerUpperLimits( ( 1 - m_RelStartLocation() ) / 100, 1.0 ); // Limit to 100 slices
+                m_NumSlices = 1 + (int)floor( ( 1 - m_RelStartLocation() ) / m_SliceRelSpacing() );
             }
             else
             {
-                m_SliceSpacing.SetLowerUpperLimits( m_StartLocation() / 100, 1.0 ); // Limit to 100 slices
-                m_NumSlices = 1 + (int)floor( ( m_StartLocation() ) / m_SliceSpacing() );
+                m_SliceRelSpacing.SetLowerUpperLimits( m_RelStartLocation() / 100, 1.0 ); // Limit to 100 slices
+                m_NumSlices = 1 + (int)floor( ( m_RelStartLocation() ) / m_SliceRelSpacing() );
             }
         }
-        else if ( m_LocationParmType() == LENGTH )
+        else if ( m_AbsRelParmFlag() == vsp::ABS )
         {
-            m_StartLocation.SetUpperLimit( perp_dist );
+            m_RelStartLocation.Set( m_AbsStartLocation() / perp_dist );
+            m_SliceRelSpacing.Set( m_SliceAbsSpacing() / perp_dist );
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_SliceSpacing.SetLowerUpperLimits( ( perp_dist - m_StartLocation() ) / 100, perp_dist ); // Limit to 100 slices
-                m_NumSlices = 1 + (int)floor( ( perp_dist - m_StartLocation() ) / m_SliceSpacing() );
+                m_SliceAbsSpacing.SetLowerUpperLimits( ( perp_dist - m_AbsStartLocation() ) / 100, perp_dist ); // Limit to 100 slices
+                m_NumSlices = 1 + (int)floor( ( perp_dist - m_AbsStartLocation() ) / m_SliceAbsSpacing() );
             }
             else
             {
-                m_SliceSpacing.SetLowerUpperLimits( m_StartLocation() / 100, perp_dist ); // Limit to 100 slices 
-                m_NumSlices = 1 + (int)floor( perp_dist / m_SliceSpacing() );
+                m_SliceAbsSpacing.SetLowerUpperLimits( m_AbsStartLocation() / 100, perp_dist ); // Limit to 100 slices 
+                m_NumSlices = 1 + (int)floor( perp_dist / m_SliceAbsSpacing() );
             }
         }
     }
@@ -3393,10 +3461,10 @@ void FeaSliceArray::CreateFeaSliceArray()
                 dir = -1;
             }
 
-            // Update Slice Center
-            double center_location = m_StartLocation() + dir * i * m_SliceSpacing();
+            // Update Slice Relative Center Location
+            double rel_center_location = m_RelStartLocation() + dir * i * m_SliceRelSpacing();
 
-            VspSurf main_slice_surf = ComputeSliceSurf( center_location, m_OrientationPlane(), m_XRot(), m_YRot(), m_ZRot() );
+            VspSurf main_slice_surf = ComputeSliceSurf( rel_center_location, m_OrientationPlane(), m_XRot(), m_YRot(), m_ZRot() );
 
             m_FeaPartSurfVec[i * m_SymmIndexVec.size()] = main_slice_surf;
 
@@ -3435,9 +3503,18 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
     if ( slice )
     {
         slice->m_IncludedElements.Set( m_IncludedElements() );
-        slice->m_CenterLocation.Set( center_location );
+
+        if ( m_AbsRelParmFlag() == vsp::REL )
+        {
+            slice->m_RelCenterLocation.Set( center_location );
+        }
+        else if ( m_AbsRelParmFlag() == vsp::ABS )
+        {
+            slice->m_AbsCenterLocation.Set( center_location );
+        }
+
         slice->m_OrientationPlane.Set( vsp::CONST_U );
-        slice->m_LocationParmType.Set( m_LocationParmType() );
+        slice->m_AbsRelParmFlag.Set( m_AbsRelParmFlag() );
         slice->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         slice->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
 
