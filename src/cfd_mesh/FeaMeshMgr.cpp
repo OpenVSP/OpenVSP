@@ -1112,24 +1112,16 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                 }
             }
 
-            vec2d uw_pnt0;
-            vec2d uw_pnt1;
-
             vector < Surf* > surf_vec;
             surf_vec.resize( 2 );
             surf_vec[0] = ( *c )->m_SurfA;
             surf_vec[1] = ( *c )->m_SurfB;
 
-            double min_wA = ( *c )->m_SurfA->GetSurfCore()->GetMinW();
-            double min_wB = ( *c )->m_SurfB->GetSurfCore()->GetMinW();
-            double max_wA = ( *c )->m_SurfA->GetSurfCore()->GetMaxW();
-            double max_wB = ( *c )->m_SurfB->GetSurfCore()->GetMaxW();
-
             // Get the total min and max U/W for Surf A and B
             double tot_max_u = max( ( *c )->m_SurfA->GetSurfCore()->GetMaxU(), ( *c )->m_SurfB->GetSurfCore()->GetMaxU() );
-            double tot_max_w = max( max_wA, max_wB );
+            double tot_max_w = max( ( *c )->m_SurfA->GetSurfCore()->GetMaxW(), ( *c )->m_SurfB->GetSurfCore()->GetMaxW() );
             double tot_min_u = min( ( *c )->m_SurfA->GetSurfCore()->GetMinU(), ( *c )->m_SurfB->GetSurfCore()->GetMinU() );
-            double tot_min_w = min( min_wA, min_wB );
+            double tot_min_w = min( ( *c )->m_SurfA->GetSurfCore()->GetMinW(), ( *c )->m_SurfB->GetSurfCore()->GetMinW() );
 
             // Check for closedU and closedW surface
             bool closedW = false;
@@ -1156,7 +1148,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
             // Check for magicV parm
             bool magicV = false;
 
-            if ( ( ( abs( abs( max_wA - min_wB ) - 2 * TMAGIC ) <= FLT_EPSILON ) )
+            if ( ( ( abs( abs( ( *c )->m_SurfA->GetSurfCore()->GetMaxW() - ( *c )->m_SurfB->GetSurfCore()->GetMinW() ) - 2 * TMAGIC ) <= FLT_EPSILON ) )
                  && ( ( dist( min_max_A, min_min_B ) <= FLT_EPSILON ) && ( dist( max_max_A, max_min_B ) <= FLT_EPSILON ) ) )
             {
                 magicV = true;
@@ -1166,41 +1158,37 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
 
             for ( size_t i = 0; i < surf_vec.size(); i++ )
             {
-                Surf* surf = surf_vec[i]; 
-
                 // Get all SubSurfaces for the specified geom
-                vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID(), surf->GetCompID() );
+                vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surf_vec[i]->GetGeomID(), surf_vec[i]->GetMainSurfID(), surf_vec[i]->GetCompID() );
 
-                // Split SubSurfs
                 for ( int ss = 0; ss < (int)ss_vec.size(); ss++ )
                 {
                     if ( ss_vec[ss].m_IncludedElements == vsp::FEA_BEAM || ss_vec[ss].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM ) // Only consider SubSurface if cap intersections is flagged
                     {
-                        ss_vec[ss].SplitSegsU( surf->GetSurfCore()->GetMinU() );
-                        ss_vec[ss].SplitSegsU( surf->GetSurfCore()->GetMaxU() );
-                        ss_vec[ss].SplitSegsW( surf->GetSurfCore()->GetMinW() );
-                        ss_vec[ss].SplitSegsW( surf->GetSurfCore()->GetMaxW() );
+                        // Split SubSurfs
+                        ss_vec[ss].SplitSegsU( surf_vec[i]->GetSurfCore()->GetMinU() );
+                        ss_vec[ss].SplitSegsU( surf_vec[i]->GetSurfCore()->GetMaxU() );
+                        ss_vec[ss].SplitSegsW( surf_vec[i]->GetSurfCore()->GetMinW() );
+                        ss_vec[ss].SplitSegsW( surf_vec[i]->GetSurfCore()->GetMaxW() );
 
                         vector < vector< SSLineSeg > >& segsvec = ss_vec[ss].GetSplitSegs();
 
-                        bool is_poly = ss_vec[ss].GetPolyFlag();
-
                         // Build Intersection Chains
-                        for ( int i = 0; i < segsvec.size(); i++ )
+                        for ( int j = 0; j < segsvec.size(); j++ )
                         {
-                            vector< SSLineSeg >& segs = segsvec[i];
+                            vector< SSLineSeg >& segs = segsvec[j];
 
                             for ( int ls = 0; ls < (int)segs.size(); ls++ )
                             {
-                                SSLineSeg l_seg = segs[ls];
                                 vec3d lp0, lp1;
+                                vec2d uw_pnt0, uw_pnt1;
 
-                                lp0 = l_seg.GetP0();
-                                lp1 = l_seg.GetP1();
+                                lp0 = segs[ls].GetP0();
+                                lp1 = segs[ls].GetP1();
                                 uw_pnt0 = vec2d( lp0.x(), lp0.y() );
                                 uw_pnt1 = vec2d( lp1.x(), lp1.y() );
 
-                                // Cap subsurface edge points to within min and max U/W
+                                // Cap subsurface edge points to within min and max U/W.
                                 if ( uw_pnt0[0] < tot_min_u && closedU )
                                 {
                                     uw_pnt0[0] = tot_min_u;
@@ -1255,13 +1243,11 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                 }
 
                                 // Get limits of surface edges
-                                double max_u, max_w, tol;
-                                double min_u, min_w;
-                                tol = 1e-6;
-                                min_u = surf->GetSurfCore()->GetMinU();
-                                min_w = surf->GetSurfCore()->GetMinW();
-                                max_u = surf->GetSurfCore()->GetMaxU();
-                                max_w = surf->GetSurfCore()->GetMaxW();
+                                double tol = 1e-6;
+                                double min_u = surf_vec[i]->GetSurfCore()->GetMinU();
+                                double min_w = surf_vec[i]->GetSurfCore()->GetMinW();
+                                double max_u = surf_vec[i]->GetSurfCore()->GetMaxU();
+                                double max_w = surf_vec[i]->GetSurfCore()->GetMaxW();
 
                                 if ( magicV )
                                 {
@@ -1273,14 +1259,14 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                     ( std::abs( uw_pnt0[1] - max_w ) < tol && std::abs( uw_pnt1[1] - max_w ) < tol ) ||
                                      ( std::abs( uw_pnt0[0] - min_u ) < tol && std::abs( uw_pnt1[0] - min_u ) < tol ) ||
                                      ( std::abs( uw_pnt0[1] - min_w ) < tol && std::abs( uw_pnt1[1] - min_w ) < tol ) )
-                                        && is_poly )
+                                        && ss_vec[ss].GetPolyFlag() )
                                 {
                                     if ( ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Puws[0]->m_UW, uw_pnt0 ) <= FLT_EPSILON
                                          && dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Puws.back()->m_UW, uw_pnt1 ) <= FLT_EPSILON )
                                          || ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Puws[0]->m_UW, uw_pnt1 ) <= FLT_EPSILON
                                          && dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Puws.back()->m_UW, uw_pnt0 ) <= FLT_EPSILON ) )
                                     {
-                                        // The border curve is also a SubSurface intersection curve
+                                        // The border curve is also a SubSurface intersection curve, and has not been split by other curves
                                         ( *c )->m_SSIntersectIndex = ss;
                                         ( *c )->m_BorderFlag = false;
                                         break;
@@ -1292,44 +1278,44 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                         uw_pnt0 = vec2d( lp0.x(), lp0.y() );
                                         uw_pnt1 = vec2d( lp1.x(), lp1.y() );
 
-                                        if ( uw_pnt0[0] < surf->GetSurfCore()->GetMinU() )
+                                        if ( uw_pnt0[0] < surf_vec[i]->GetSurfCore()->GetMinU() )
                                         {
-                                            uw_pnt0[0] = surf->GetSurfCore()->GetMinU();
+                                            uw_pnt0[0] = surf_vec[i]->GetSurfCore()->GetMinU();
                                         }
-                                        else if ( uw_pnt0[0] > surf->GetSurfCore()->GetMaxU() )
+                                        else if ( uw_pnt0[0] > surf_vec[i]->GetSurfCore()->GetMaxU() )
                                         {
-                                            uw_pnt0[0] = surf->GetSurfCore()->GetMaxU();
-                                        }
-
-                                        if ( uw_pnt1[0] < surf->GetSurfCore()->GetMinU() )
-                                        {
-                                            uw_pnt1[0] = surf->GetSurfCore()->GetMinU();
-                                        }
-                                        else if ( uw_pnt1[0] > surf->GetSurfCore()->GetMaxU() )
-                                        {
-                                            uw_pnt1[0] = surf->GetSurfCore()->GetMaxU();
+                                            uw_pnt0[0] = surf_vec[i]->GetSurfCore()->GetMaxU();
                                         }
 
-                                        if ( uw_pnt0[1] < surf->GetSurfCore()->GetMinW() )
+                                        if ( uw_pnt1[0] < surf_vec[i]->GetSurfCore()->GetMinU() )
                                         {
-                                            uw_pnt0[1] = surf->GetSurfCore()->GetMinW();
+                                            uw_pnt1[0] = surf_vec[i]->GetSurfCore()->GetMinU();
                                         }
-                                        else if ( uw_pnt0[1] > surf->GetSurfCore()->GetMaxW() )
+                                        else if ( uw_pnt1[0] > surf_vec[i]->GetSurfCore()->GetMaxU() )
                                         {
-                                            uw_pnt0[1] = surf->GetSurfCore()->GetMaxW();
-                                        }
-
-                                        if ( uw_pnt1[1] < surf->GetSurfCore()->GetMinW() )
-                                        {
-                                            uw_pnt1[1] = surf->GetSurfCore()->GetMinW();
-                                        }
-                                        else if ( uw_pnt1[1] > surf->GetSurfCore()->GetMaxW() )
-                                        {
-                                            uw_pnt1[1] = surf->GetSurfCore()->GetMaxW();
+                                            uw_pnt1[0] = surf_vec[i]->GetSurfCore()->GetMaxU();
                                         }
 
-                                        vec3d corner0 = surf->CompPnt( uw_pnt0[0], uw_pnt0[1] );
-                                        vec3d corner1 = surf->CompPnt( uw_pnt1[0], uw_pnt1[1] );
+                                        if ( uw_pnt0[1] < surf_vec[i]->GetSurfCore()->GetMinW() )
+                                        {
+                                            uw_pnt0[1] = surf_vec[i]->GetSurfCore()->GetMinW();
+                                        }
+                                        else if ( uw_pnt0[1] > surf_vec[i]->GetSurfCore()->GetMaxW() )
+                                        {
+                                            uw_pnt0[1] = surf_vec[i]->GetSurfCore()->GetMaxW();
+                                        }
+
+                                        if ( uw_pnt1[1] < surf_vec[i]->GetSurfCore()->GetMinW() )
+                                        {
+                                            uw_pnt1[1] = surf_vec[i]->GetSurfCore()->GetMinW();
+                                        }
+                                        else if ( uw_pnt1[1] > surf_vec[i]->GetSurfCore()->GetMaxW() )
+                                        {
+                                            uw_pnt1[1] = surf_vec[i]->GetSurfCore()->GetMaxW();
+                                        }
+
+                                        vec3d corner0 = surf_vec[i]->CompPnt( uw_pnt0[0], uw_pnt0[1] );
+                                        vec3d corner1 = surf_vec[i]->CompPnt( uw_pnt1[0], uw_pnt1[1] );
 
                                         // Check if the subsurface edge matched the ISegChain
                                         if ( ( dist( ( *c )->m_TessVec[0]->m_Pnt, corner0 ) <= FLT_EPSILON
@@ -1337,108 +1323,107 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                                 || ( dist( ( *c )->m_TessVec.back()->m_Pnt, corner0 ) <= FLT_EPSILON
                                              && dist( ( *c )->m_TessVec[0]->m_Pnt, corner1 ) <= FLT_EPSILON ) )
                                         {
-                                            // The border curve is also a SubSurface intersection curve
+                                            // The border curve is also a SubSurface intersection curve. The SubSurface edge may exceed the U/W limits of the parent surface
                                             ( *c )->m_SSIntersectIndex = ss;
                                             ( *c )->m_BorderFlag = false;
                                             break;
                                         }
 
-                                        if ( ( const_u_curve && abs( uw_pnt0[0] - uw_pnt1[0] ) <= FLT_EPSILON ) ||
-                                            ( const_w_curve && abs( uw_pnt0[1] - uw_pnt1[1] ) <= FLT_EPSILON ) )
+                                        // Check that the endpoints of the subsurface edge are not equal and the edge is a constant U or W curve
+                                        if ( (dist( corner0, corner1 ) > FLT_EPSILON ) && 
+                                            ( ( const_u_curve && abs( uw_pnt0[0] - uw_pnt1[0] ) <= FLT_EPSILON ) ||
+                                            ( const_w_curve && abs( uw_pnt0[1] - uw_pnt1[1] ) <= FLT_EPSILON ) ) )
                                         {
                                             // Check if a split point lies on subsurface edge
                                             for ( size_t k = 0; k < split_pnt_vec.size(); k++ )
                                             {
-                                                if ( ( dist( corner0, corner1 ) > FLT_EPSILON ) && ( *c )->m_SSIntersectIndex < 0 )
+                                                bool split_on_ss_edge = false;
+
+                                                // Check if the split point lies on the subsurface edge 
+                                                if ( const_w_curve && ( ( abs( split_uw_vec[k][1] - uw_pnt0[1] ) <= FLT_EPSILON ) || ( closedW && ( abs( 0.0 - uw_pnt0[1] ) <= FLT_EPSILON ) ) ) &&
+                                                    ( ( split_uw_vec[k][0] >= uw_pnt0[0] && split_uw_vec[k][0] <= uw_pnt1[0] ) ||
+                                                        ( split_uw_vec[k][0] >= uw_pnt1[0] && split_uw_vec[k][0] <= uw_pnt0[0] ) ) )
                                                 {
-                                                    bool split_on_ss_edge = false;
+                                                    split_on_ss_edge = true;
+                                                }
+                                                else if ( const_u_curve && ( ( abs( split_uw_vec[k][0] - uw_pnt0[0] ) <= FLT_EPSILON ) || ( closedU && ( abs( 0.0 - uw_pnt0[0] ) <= FLT_EPSILON ) ) ) &&
+                                                    ( ( split_uw_vec[k][1] >= uw_pnt0[1] && split_uw_vec[k][1] <= uw_pnt1[1] ) ||
+                                                        ( split_uw_vec[k][1] >= uw_pnt1[1] && split_uw_vec[k][1] <= uw_pnt0[1] ) ) )
+                                                {
+                                                    split_on_ss_edge = true;
+                                                }
 
-                                                    // Check if the split point lies on the subsurface edge
-                                                    if ( const_w_curve && ( ( abs( split_uw_vec[k][1] - uw_pnt0[1] ) <= FLT_EPSILON ) || ( closedW && ( abs( 0.0 - uw_pnt0[1] ) <= FLT_EPSILON ) ) ) &&
-                                                        ( ( split_uw_vec[k][0] >= uw_pnt0[0] && split_uw_vec[k][0] <= uw_pnt1[0] ) ||
-                                                            ( split_uw_vec[k][0] >= uw_pnt1[0] && split_uw_vec[k][0] <= uw_pnt0[0] ) ) )
+                                                if ( split_on_ss_edge )
+                                                {
+                                                    if ( ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
+                                                            && dist( ( *c )->m_TessVec.back()->m_Pnt, corner1 ) <= FLT_EPSILON
+                                                            && dist( ( *c )->m_TessVec[0]->m_Pnt, corner0 ) > FLT_EPSILON )
+                                                            || ( dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
+                                                            && dist( ( *c )->m_TessVec[0]->m_Pnt, corner1 ) <= FLT_EPSILON
+                                                            && dist( ( *c )->m_TessVec.back()->m_Pnt, corner0 ) > FLT_EPSILON ) )
+                                                    {
+                                                        // The border curve is also a SubSurface intersection curve and has been split
+                                                        ( *c )->m_SSIntersectIndex = ss;
+                                                        ( *c )->m_BorderFlag = false;
+                                                        break;
+                                                    }
+                                                    else if ( ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
+                                                                && dist( ( *c )->m_TessVec.back()->m_Pnt, corner0 ) <= FLT_EPSILON
+                                                                && dist( ( *c )->m_TessVec[0]->m_Pnt, corner1 ) > FLT_EPSILON )
+                                                            || ( dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
+                                                                && dist( ( *c )->m_TessVec[0]->m_Pnt, corner0 ) <= FLT_EPSILON
+                                                                && dist( ( *c )->m_TessVec.back()->m_Pnt, corner1 ) > FLT_EPSILON ) )
+                                                    {
+                                                        // The border curve is also a SubSurface intersection curve and has been split
+                                                        ( *c )->m_SSIntersectIndex = ss;
+                                                        ( *c )->m_BorderFlag = false;
+                                                        break;
+                                                    }
+                                                }
+
+                                                // Check if the subsurface edge is split by more than one point
+                                                for ( size_t n = 0; n < split_pnt_vec.size(); n++ )
+                                                {
+                                                    split_on_ss_edge = false;
+
+                                                    if ( const_w_curve && ( ( abs( split_uw_vec[n][1] - uw_pnt0[1] ) <= FLT_EPSILON ) || ( closedW && ( abs( 0.0 - uw_pnt0[1] ) <= FLT_EPSILON ) ) ) &&
+                                                        ( ( ( split_uw_vec[k][0] >= uw_pnt0[0] && split_uw_vec[k][0] <= uw_pnt1[0] ) ||
+                                                            ( split_uw_vec[k][0] >= uw_pnt1[0] && split_uw_vec[k][0] <= uw_pnt0[0] ) ) &&
+                                                            ( ( split_uw_vec[n][0] >= uw_pnt0[0] && split_uw_vec[n][0] <= uw_pnt1[0] ) ||
+                                                            ( split_uw_vec[n][0] >= uw_pnt1[0] && split_uw_vec[n][0] <= uw_pnt0[0] ) ) ) )
                                                     {
                                                         split_on_ss_edge = true;
                                                     }
-                                                    else if ( const_u_curve && ( ( abs( split_uw_vec[k][0] - uw_pnt0[0] ) <= FLT_EPSILON ) || ( closedU && ( abs( 0.0 - uw_pnt0[0] ) <= FLT_EPSILON ) ) ) &&
-                                                        ( ( split_uw_vec[k][1] >= uw_pnt0[1] && split_uw_vec[k][1] <= uw_pnt1[1] ) ||
-                                                            ( split_uw_vec[k][1] >= uw_pnt1[1] && split_uw_vec[k][1] <= uw_pnt0[1] ) ) )
+                                                    else if ( const_u_curve && ( ( abs( split_uw_vec[n][0] - uw_pnt0[0] ) <= FLT_EPSILON ) || ( closedU && ( abs( 0.0 - uw_pnt0[0] ) <= FLT_EPSILON ) ) ) &&
+                                                        ( ( ( split_uw_vec[k][1] >= uw_pnt0[1] && split_uw_vec[k][1] <= uw_pnt1[1] ) ||
+                                                            ( split_uw_vec[k][1] >= uw_pnt1[1] && split_uw_vec[k][1] <= uw_pnt0[1] ) ) &&
+                                                                ( ( split_uw_vec[n][1] >= uw_pnt0[1] && split_uw_vec[n][1] <= uw_pnt1[1] ) ||
+                                                                ( split_uw_vec[n][1] >= uw_pnt1[1] && split_uw_vec[n][1] <= uw_pnt0[1] ) ) ) )
                                                     {
                                                         split_on_ss_edge = true;
                                                     }
 
-                                                    if ( split_on_ss_edge )
+                                                    if ( split_on_ss_edge && n != k )
                                                     {
                                                         if ( ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
-                                                             && dist( ( *c )->m_TessVec.back()->m_Pnt, corner1 ) <= FLT_EPSILON
-                                                             && dist( ( *c )->m_TessVec[0]->m_Pnt, corner0 ) > FLT_EPSILON )
-                                                             || ( dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
-                                                             && dist( ( *c )->m_TessVec[0]->m_Pnt, corner1 ) <= FLT_EPSILON
-                                                             && dist( ( *c )->m_TessVec.back()->m_Pnt, corner0 ) > FLT_EPSILON ) )
+                                                                && dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[n] ) <= FLT_EPSILON )
+                                                                || ( dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
+                                                                && dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt, split_pnt_vec[n] ) <= 2 * FLT_EPSILON ) )
                                                         {
-                                                            // The border curve is also a SubSurface intersection curve
+                                                            // The border curve is also a SubSurface intersection curve and has been split
                                                             ( *c )->m_SSIntersectIndex = ss;
                                                             ( *c )->m_BorderFlag = false;
                                                             break;
                                                         }
-                                                        else if ( ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
-                                                                  && dist( ( *c )->m_TessVec.back()->m_Pnt, corner0 ) <= FLT_EPSILON
-                                                                  && dist( ( *c )->m_TessVec[0]->m_Pnt, corner1 ) > FLT_EPSILON )
-                                                             || ( dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
-                                                                  && dist( ( *c )->m_TessVec[0]->m_Pnt, corner0 ) <= FLT_EPSILON
-                                                                  && dist( ( *c )->m_TessVec.back()->m_Pnt, corner1 ) > FLT_EPSILON ) )
+                                                        else if ( ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt, split_pnt_vec[n] ) <= FLT_EPSILON
+                                                                    && dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON )
+                                                                || ( dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[n] ) <= FLT_EPSILON
+                                                                    && dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON ) )
                                                         {
-                                                            // The border curve is also a SubSurface intersection curve
+                                                            // The border curve is also a SubSurface intersection curve and has been split
                                                             ( *c )->m_SSIntersectIndex = ss;
                                                             ( *c )->m_BorderFlag = false;
                                                             break;
-                                                        }
-                                                    }
-
-                                                    // Check if the subsurface edge is split by more than one point
-                                                    for ( size_t n = 0; n < split_pnt_vec.size(); n++ )
-                                                    {
-                                                        split_on_ss_edge = false;
-
-                                                        if ( const_w_curve && ( ( abs( split_uw_vec[n][1] - uw_pnt0[1] ) <= FLT_EPSILON ) || ( closedW && ( abs( 0.0 - uw_pnt0[1] ) <= FLT_EPSILON ) ) ) &&
-                                                            ( ( ( split_uw_vec[k][0] >= uw_pnt0[0] && split_uw_vec[k][0] <= uw_pnt1[0] ) ||
-                                                                ( split_uw_vec[k][0] >= uw_pnt1[0] && split_uw_vec[k][0] <= uw_pnt0[0] ) ) &&
-                                                             ( ( split_uw_vec[n][0] >= uw_pnt0[0] && split_uw_vec[n][0] <= uw_pnt1[0] ) ||
-                                                             ( split_uw_vec[n][0] >= uw_pnt1[0] && split_uw_vec[n][0] <= uw_pnt0[0] ) ) ) )
-                                                        {
-                                                            split_on_ss_edge = true;
-                                                        }
-                                                        else if ( const_u_curve && ( ( abs( split_uw_vec[n][0] - uw_pnt0[0] ) <= FLT_EPSILON ) || ( closedU && ( abs( 0.0 - uw_pnt0[0] ) <= FLT_EPSILON ) ) ) &&
-                                                            ( ( ( split_uw_vec[k][1] >= uw_pnt0[1] && split_uw_vec[k][1] <= uw_pnt1[1] ) ||
-                                                                ( split_uw_vec[k][1] >= uw_pnt1[1] && split_uw_vec[k][1] <= uw_pnt0[1] ) ) &&
-                                                                  ( ( split_uw_vec[n][1] >= uw_pnt0[1] && split_uw_vec[n][1] <= uw_pnt1[1] ) ||
-                                                                  ( split_uw_vec[n][1] >= uw_pnt1[1] && split_uw_vec[n][1] <= uw_pnt0[1] ) ) ) )
-                                                        {
-                                                            split_on_ss_edge = true;
-                                                        }
-
-                                                        if ( split_on_ss_edge && n != k )
-                                                        {
-                                                            if ( ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
-                                                                 && dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[n] ) <= FLT_EPSILON )
-                                                                    || ( dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON
-                                                                 && dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt, split_pnt_vec[n] ) <= 2 * FLT_EPSILON ) )
-                                                            {
-                                                                // The border curve is also a SubSurface intersection curve
-                                                                ( *c )->m_SSIntersectIndex = ss;
-                                                                ( *c )->m_BorderFlag = false;
-                                                                break;
-                                                            }
-                                                            else if ( ( dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt, split_pnt_vec[n] ) <= FLT_EPSILON
-                                                                      && dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON )
-                                                                    || ( dist( ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, split_pnt_vec[n] ) <= FLT_EPSILON
-                                                                      && dist( ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt, split_pnt_vec[k] ) <= FLT_EPSILON ) )
-                                                            {
-                                                                // The border curve is also a SubSurface intersection curve
-                                                                ( *c )->m_SSIntersectIndex = ss;
-                                                                ( *c )->m_BorderFlag = false;
-                                                                break;
-                                                            }
                                                         }
                                                     }
                                                 }
