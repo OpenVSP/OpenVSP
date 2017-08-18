@@ -320,6 +320,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 
 
     m_DomeEditLayout.AddDividerBox( "Dome" );
 
+    m_DomeEditLayout.AddButton( m_DomeFlipDirButton, "Flip Direction" );
+
     m_DomeEditLayout.SetSameLineFlag( true );
     m_DomeEditLayout.SetFitWidthFlag( false );
 
@@ -1171,6 +1173,7 @@ bool FeaPartEditScreen::Update()
                         FeaDome* dome = dynamic_cast<FeaDome*>( feaprt );
                         assert( dome );
 
+                        m_DomeFlipDirButton.Update( dome->m_FlipDirectionFlag.GetID() );
                         m_DomeARadSlider.Update( dome->m_Aradius.GetID() );
                         m_DomeBRadSlider.Update( dome->m_Bradius.GetID() );
                         m_DomeCRadSlider.Update( dome->m_Cradius.GetID() );

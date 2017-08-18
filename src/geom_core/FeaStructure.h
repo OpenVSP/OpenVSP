@@ -380,6 +380,7 @@ public:
     Parm m_XRot;
     Parm m_YRot;
     Parm m_ZRot;
+    BoolParm m_FlipDirectionFlag;
 
 protected:
 

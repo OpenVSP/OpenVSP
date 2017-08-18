@@ -2805,6 +2805,9 @@ FeaDome::FeaDome( string geomID, int type ) : FeaPart( geomID, type )
 
     m_ZRot.Init( "Z_Rotation", "FeaDome", this, 0.0, -180, 180 );
     m_ZRot.SetDescript( "Rotation About Body Z Axis" );
+
+    m_FlipDirectionFlag.Init( "FlipDirectionFlag", "FeaDome", this, false, false, true );
+    m_FlipDirectionFlag.SetDescript( "Flag to Flip the Direction of the FeaDome" );
 }
 
 void FeaDome::Update()
@@ -2812,7 +2815,7 @@ void FeaDome::Update()
     BuildDomeSurf();
 }
 
-typedef eli::geom::curve::piecewise_ellipse_creator<double, 3, curve_tolerance_type> piecewise_bulkhead_creator;
+typedef eli::geom::curve::piecewise_ellipse_creator<double, 3, curve_tolerance_type> piecewise_dome_creator;
 
 void FeaDome::BuildDomeSurf()
 {
@@ -2840,7 +2843,7 @@ void FeaDome::BuildDomeSurf()
 
         // Build unit circle
         piecewise_curve_type c, c1, c2;
-        piecewise_bulkhead_creator pbc( 4 );
+        piecewise_dome_creator pbc( 4 );
         curve_point_type origin, normal;
 
         origin << 0, 0, 0;
@@ -2863,6 +2866,12 @@ void FeaDome::BuildDomeSurf()
 
         VspCurve stringer;
         stringer.SetCurve( c1 );
+
+        if ( m_FlipDirectionFlag() )
+        {
+            stringer.ReflectYZ();
+            //stringer.OffsetX( 1.0 );
+        }
 
         // Revolve to unit sphere
         m_FeaPartSurfVec[0].CreateBodyRevolution( stringer );
