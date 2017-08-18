@@ -82,7 +82,7 @@ public:
 
     int m_SelectedSetIndex;
 
-    bool m_ExportFileFlags[vsp::CFD_NUM_FILE_NAMES];
+    vector < bool > m_ExportFileFlags;
     bool m_XYZIntCurveFlag;
 
 protected:
@@ -101,7 +101,7 @@ public:
 
     virtual string GetExportFileName( int type );
 
-    bool m_ExportFileFlags[vsp::FEA_NUM_FILE_NAMES];
+    vector < bool > m_ExportFileFlags;
     int m_NumEvenlySpacedPart;
     double m_DrawNodesFlag;
     double m_DrawElementOrientVecFlag;

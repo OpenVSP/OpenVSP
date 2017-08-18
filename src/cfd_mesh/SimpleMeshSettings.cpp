@@ -85,7 +85,14 @@ void SimpleCfdMeshSettings::CopyFrom( CfdMeshSettings* settings )
 
     m_SelectedSetIndex = settings->m_SelectedSetIndex.Get();
 
-    m_ExportFileFlags[vsp::CFD_NUM_FILE_NAMES] = settings->m_ExportFileFlags;
+    m_ExportFileFlags.clear();
+    m_ExportFileFlags.resize( vsp::CFD_NUM_FILE_NAMES );
+
+    for ( size_t i = 0; i < vsp::CFD_NUM_FILE_NAMES; i++ )
+    {
+        m_ExportFileFlags[i] = settings->m_ExportFileFlags[i].Get();
+    }
+
     m_XYZIntCurveFlag = settings->m_XYZIntCurveFlag.Get();
 
     m_ExportFileNames = settings->GetExportFileNames();
@@ -126,7 +133,14 @@ SimpleFeaMeshSettings::~SimpleFeaMeshSettings()
 
 void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
 {
-    m_ExportFileFlags[vsp::FEA_NUM_FILE_NAMES] = settings->m_ExportFileFlags;
+    m_ExportFileFlags.clear();
+    m_ExportFileFlags.resize( vsp::FEA_NUM_FILE_NAMES );
+
+    for ( size_t i = 0; i < vsp::FEA_NUM_FILE_NAMES; i++ )
+    {
+        m_ExportFileFlags[i] = settings->m_ExportFileFlags[i].Get();
+    }
+
     m_NumEvenlySpacedPart = settings->m_NumEvenlySpacedPart.Get();
     m_DrawNodesFlag = settings->m_DrawNodesFlag.Get();
     m_DrawElementOrientVecFlag = settings->m_DrawElementOrientVecFlag.Get();
