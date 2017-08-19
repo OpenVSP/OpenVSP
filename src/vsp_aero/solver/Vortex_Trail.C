@@ -100,9 +100,14 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
 
     int i, Level;
     
+    // Verbose mode
+    
+    Verbose_ = Trailing_Vortex.Verbose_;
+        
     // Wing and edge, or trailing node this vortex belongs to
     
     Wing_ = Trailing_Vortex.Wing_;
+    
     Node_ = Trailing_Vortex.Node_;
     
     // List of trailing vortices
@@ -112,13 +117,7 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
     NumberOfSubVortices_ = new int[NumberOfLevels_ + 1];
 
     VortexEdgeList_ = new VSP_EDGE*[NumberOfLevels_ + 1];
-    
-    Gamma_     = new double[NumberOfSubVortices() + 5];
-    
-    GammaNew_  = new double[NumberOfSubVortices() + 5];
-    
-    GammaSave_ = new double[NumberOfSubVortices() + 5];
-            
+                
     for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
      
        NumberOfSubVortices_[Level] = Trailing_Vortex.NumberOfSubVortices_[Level];
@@ -136,12 +135,18 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
        }
 
     }
+    
+    Gamma_     = new double[NumberOfSubVortices() + 5];
+    
+    GammaNew_  = new double[NumberOfSubVortices() + 5];
+    
+    GammaSave_ = new double[NumberOfSubVortices() + 5];    
   
     VortexEdgeVelocity_ = new double*[NumberOfSubVortices() + 3];
 
     for ( i = 1 ; i <= NumberOfSubVortices() + 2 ; i++ ) {
      
-      VortexEdgeVelocity_[i] = new double[3];
+      VortexEdgeVelocity_[i] = new double[6];
       
       VortexEdgeVelocity_[i][0] = Trailing_Vortex.VortexEdgeVelocity_[i][0];
       VortexEdgeVelocity_[i][1] = Trailing_Vortex.VortexEdgeVelocity_[i][1];
@@ -154,12 +159,24 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
     FreeStreamVelocity_[2] = Trailing_Vortex.FreeStreamVelocity_[2];
 
     Mach_ = Trailing_Vortex.Mach_;
+    
+    Sigma_ = Trailing_Vortex.Sigma_;
+    
+    Tolerance_ = Trailing_Vortex.Tolerance_;
+    
+    TEVec_[0] = Trailing_Vortex.TEVec_[0];
+    TEVec_[1] = Trailing_Vortex.TEVec_[1];
+    TEVec_[2] = Trailing_Vortex.TEVec_[2];
 
-    for ( i = 1 ; i <= NumberOfSubVortices() + 2 ; i++ ) {
+    for ( i = 1 ; i <= NumberOfSubVortices() + 4 ; i++ ) {
        
-       Gamma_[i] = Trailing_Vortex.Gamma_[i];
+       Gamma_[i]     = Trailing_Vortex.Gamma_[i];
+       GammaNew_[i]  = Trailing_Vortex.GammaNew_[i];
+       GammaSave_[i] = Trailing_Vortex.GammaSave_[i];
        
     }
+    
+    NumberOfNodes_ = Trailing_Vortex.NumberOfNodes_;
 
     Length_ = Trailing_Vortex.Length_;
     
@@ -179,6 +196,12 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
        
     }
     
+    Evaluate_ = Trailing_Vortex.Evaluate_;
+    
+    NumberofExactShiftPoints_ = Trailing_Vortex.NumberofExactShiftPoints_;
+
+    ConvectType_ = Trailing_Vortex.ConvectType_;
+
     TimeAccurate_ = Trailing_Vortex.TimeAccurate_;
     
     TimeStep_ = Trailing_Vortex.TimeStep_;
@@ -203,6 +226,8 @@ VORTEX_TRAIL::~VORTEX_TRAIL(void)
     for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
 
        if ( VortexEdgeList_[Level] != NULL ) delete [] VortexEdgeList_[Level];
+    
+       VortexEdgeList_[Level] = NULL;
  
     }
 
@@ -309,7 +334,7 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
     
     for ( i = 1 ; i <= NumberOfSubVortices() + 2 ; i++ ) {
      
-      VortexEdgeVelocity_[i] = new double[6];
+       VortexEdgeVelocity_[i] = new double[6];
      
     }
     
@@ -375,7 +400,6 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
        
     }    
     
-
     for ( i = 1 ; i <= NumberOfNodes_  ; i++ ) {
 
        NodeList_[i].x() = TE_Node_.x() + Vec[0]*S_[i];
@@ -467,11 +491,11 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
     
     GammaSave_ = new double[NumberOfSubVortices() + 5];
     
-    zero_double_array(Gamma_,     NumberOfSubVortices() + 2);
+    zero_double_array(Gamma_,     NumberOfSubVortices() + 4);
     
-    zero_double_array(GammaNew_,  NumberOfSubVortices() + 2);
+    zero_double_array(GammaNew_,  NumberOfSubVortices() + 4);
     
-    zero_double_array(GammaSave_, NumberOfSubVortices() + 2);
+    zero_double_array(GammaSave_, NumberOfSubVortices() + 4);
 
 }
 

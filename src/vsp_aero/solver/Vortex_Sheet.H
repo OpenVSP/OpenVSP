@@ -44,6 +44,8 @@ private:
     
     double Vinf_;
     
+    double FreeStreamVelocity_[3];
+    
     double TimeStep_;
     
     double MaxConvectedDistance_;
@@ -53,7 +55,7 @@ private:
     double **StartingGamma_;
     
     VORTEX_TRAIL *TrailingVortexList_;
-    
+
     // Agglomerated trailing vortex list
     
     int NumberOfAgglomeratedTrailingVortices_;
@@ -175,6 +177,8 @@ public:
     int &TimeAccurate(void) { return TimeAccurate_; };
     
     double &Vinf(void) { return Vinf_; };
+    
+    double &FreeStreamVelocity(int i) { return FreeStreamVelocity_[i]; };
     
     double &TimeStep(void) { return TimeStep_; };
     

@@ -365,6 +365,12 @@ private:
     
     int DrawControlSurfacesDeflectedIsOn;
     
+    int DrawXPlaneIsOn;
+    
+    int DrawYPlaneIsOn;
+    
+    int DrawZPlaneIsOn;
+    
     // Panel Group
 
     int DrawSurfaceRegionsIsOn;
@@ -436,9 +442,9 @@ private:
     void DrawLegend(void);
     void DrawLabel(void);
     void DrawCGLabel(void);
-    void DrawCGMarker();
-    void DrawAxes();
-
+    void DrawCGMarker(void);
+    void DrawAxes(void);
+    void DrawSymmetryPlane(void);
     
     void DrawCurrentSelectedComGeomRegions(void);
 
@@ -584,6 +590,12 @@ public:
     void DrawControlSurfacesDeflectedWasPicked(void) { ToggleFlag(DrawControlSurfacesDeflectedIsOn,              "DrawControlSurfacesDeflectedIsOn");     };
     
     void DrawWakesToInfinityWasPicked(void)          { ToggleFlag(DrawWakesToInfinityIsOn,                       "DrawWakesToInfinityIsOn");     };
+    
+    void DrawXPlaneWasPicked(void)                   { ToggleFlag(DrawXPlaneIsOn,                       "DrawXPlaneIsOn");     };
+    
+    void DrawYPlaneWasPicked(void)                   { ToggleFlag(DrawYPlaneIsOn,                       "DrawYPlaneIsOn");     };
+
+    void DrawZPlaneWasPicked(void)                   { ToggleFlag(DrawZPlaneIsOn,                       "DrawZPlaneIsOn");     };
     
     // ADB Menu
 

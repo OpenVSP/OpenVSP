@@ -1631,8 +1631,8 @@ void GL_VIEWER::FindSolutionMinMax(void)
     }
     
     else {
-       
-       CpMin = CpMinSoln;
+
+       CpMin = MAX(Avg - 2. * StdDev, CpMinActual);
        CpMax = CpMaxSoln;
        
     }
@@ -2254,6 +2254,12 @@ void GL_VIEWER::Draw(void)
     GLfloat ambient1[] = { 1.0f*Brightness, 1.0f*Brightness, 1.0f*Brightness, 1.0f };
     GLfloat ambient2[] = { 1.0f*Brightness, 1.0f*Brightness, 1.0f*Brightness, 1.0f };
    
+ //   GLfloat ambient1[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
+ //   GLfloat ambient2[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
+
+    GLfloat ambient3[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
+    GLfloat ambient4[] = { 2.0f*Brightness, 2.0f*Brightness, 2.0f*Brightness, 1.0f };
+       
     // Enable Lighting
 
     glEnable(GL_LIGHTING);
@@ -2368,6 +2374,8 @@ void GL_VIEWER::Draw(void)
           if ( DrawAxesIsOn               ) DrawAxes();
 
           if ( DrawControlSurfacesIsOn    ) DrawControlSurfaces();
+          
+
           
        }
 
@@ -2829,7 +2837,25 @@ void GL_VIEWER::DrawWireFrame(void)
              glVertex3fv(vec3);
    
           glEnd();
+          
+          if ( DrawReflectedGeometryIsOn ) {
 
+             vec1[1] = -(vec1[1] + GeometryYShift) - GeometryYShift;
+             vec2[1] = -(vec2[1] + GeometryYShift) - GeometryYShift;
+             vec3[1] = -(vec3[1] + GeometryYShift) - GeometryYShift;
+
+             glBegin(GL_TRIANGLES);
+
+                glVertex3fv(vec1);
+
+                glVertex3fv(vec2);
+
+                glVertex3fv(vec3);
+
+             glEnd();
+   
+		     }
+        
        }
 
     }
@@ -2911,24 +2937,51 @@ void GL_VIEWER::DrawCoarseMeshEdgesForLevel(int Level)
          
       if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfaceID]) == 2 ) {
 
+       glBegin(GL_LINES);
+
+          node1 = CoarseEdgeList[Level][j].node1;
+          node2 = CoarseEdgeList[Level][j].node2;
+
+          vec[0] = CoarseNodeList[Level][node1].x;
+          vec[1] = CoarseNodeList[Level][node1].y;
+          vec[2] = CoarseNodeList[Level][node1].z;
+
+          glVertex3fv(vec);
+
+          vec[0] = CoarseNodeList[Level][node2].x;
+          vec[1] = CoarseNodeList[Level][node2].y;
+          vec[2] = CoarseNodeList[Level][node2].z;
+
+          glVertex3fv(vec);
+
+       glEnd();
+       
+       if ( DrawReflectedGeometryIsOn ) {
+
           glBegin(GL_LINES);
-   
+
              node1 = CoarseEdgeList[Level][j].node1;
              node2 = CoarseEdgeList[Level][j].node2;
 
              vec[0] = CoarseNodeList[Level][node1].x;
              vec[1] = CoarseNodeList[Level][node1].y;
              vec[2] = CoarseNodeList[Level][node1].z;
-   
+             
+             vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+             
              glVertex3fv(vec);
-   
+
              vec[0] = CoarseNodeList[Level][node2].x;
              vec[1] = CoarseNodeList[Level][node2].y;
              vec[2] = CoarseNodeList[Level][node2].z;
-   
-             glVertex3fv(vec);
-   
+             
+             vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+             
+             glVertex3fv(vec);                
+          
           glEnd();
+
+        }          
           
       }
 
@@ -2974,7 +3027,19 @@ void GL_VIEWER::DrawCoarseMeshNodesForLevel(int Level)
           glVertex3fv(vec);
 
        glEnd();
+       
+       if ( DrawReflectedGeometryIsOn ) {
 
+          glBegin(GL_POINTS);
+
+             vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+ 
+             glVertex3fv(vec);                
+          
+          glEnd();
+
+        }   
+   
     }
     
     glEnable(GL_LIGHTING);
@@ -3031,6 +3096,26 @@ void GL_VIEWER::DrawWakes(void)
              }
              
           glEnd();
+          
+          if ( DrawReflectedGeometryIsOn ) {
+   
+             glBegin(GL_LINE_STRIP);
+              
+                for ( j = 1 ; j <= NumberNodes; j++ ) {
+
+                   vec[0] = XWake_[i][j];
+                   vec[1] = YWake_[i][j];
+                   vec[2] = ZWake_[i][j];
+                
+                   vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+                
+                   glVertex3fv(vec);
+   
+                }
+             
+             glEnd();
+   
+           }             
               
        }
 
@@ -3263,20 +3348,20 @@ void GL_VIEWER::DrawShadedSurface(void)
 
     // Modify lighting for just simple shaded surface... brighten up things some
 
-    glEnable(GL_LIGHTING);
+/*    glEnable(GL_LIGHTING);
     glEnable(GL_LIGHT0);
     glEnable(GL_LIGHT1);
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
     glLightfv(GL_LIGHT0,GL_DIFFUSE,ambient3);
     glLightfv(GL_LIGHT1,GL_DIFFUSE,ambient4);
-
+*/
     glShadeModel(GL_SMOOTH);
 
     // Draw triangles as shaded surface
 
-    rgb[0] = 0.5;
-    rgb[1] = 0.5;
-    rgb[2] = 0.5;
+    rgb[0] = 0.9;
+    rgb[1] = 0.9;
+    rgb[2] = 0.9;
     rgb[3] = 1.;
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
@@ -3324,9 +3409,9 @@ void GL_VIEWER::DrawShadedSurface(void)
 
           if ( LastTri != SRF_TRI ) {
 
-             rgb[0] = 0.55;
-             rgb[1] = 0.55;
-             rgb[2] = 0.55;
+             rgb[0] = 0.9;
+             rgb[1] = 0.9;
+             rgb[2] = 0.9;
              rgb[3] = 1.00;
 
              glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
@@ -3460,6 +3545,8 @@ void GL_VIEWER::DrawShadedSurface(void)
        }
 
     }
+
+    if ( DrawXPlaneIsOn || DrawYPlaneIsOn || DrawZPlaneIsOn ) DrawSymmetryPlane();
 
     glDisable(GL_POLYGON_OFFSET_FILL);
 
@@ -3769,6 +3856,8 @@ void GL_VIEWER::DrawShadedSolutionPerTri(float *Function, float FMin, float FMax
 
     }
 
+    if ( DrawXPlaneIsOn || DrawYPlaneIsOn || DrawZPlaneIsOn ) DrawSymmetryPlane();
+
     glDisable(GL_POLYGON_OFFSET_FILL);
 
 }
@@ -4027,6 +4116,8 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
 
     }
 
+    if ( DrawXPlaneIsOn || DrawYPlaneIsOn || DrawZPlaneIsOn ) DrawSymmetryPlane();
+
     glDisable(GL_POLYGON_OFFSET_FILL);
 
 }
@@ -4081,6 +4172,11 @@ void GL_VIEWER::DrawRotorSurfacesShaded(void)
     rgb[1] = 0.2;
     rgb[2] = 0.5;
     rgb[3] = 0.5;
+    
+    rgb[0] = 0.7;
+    rgb[1] = 0.3;
+    rgb[2] = 0.7;
+    rgb[3] = 0.5;    
     
     glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
     glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
@@ -4304,7 +4400,7 @@ void GL_VIEWER::DrawRotorSurfacesShaded(void)
 #                                                                              #
 ##############################################################################*/
 
-void GL_VIEWER::DrawCGMarker()
+void GL_VIEWER::DrawCGMarker(void)
 {
 
     static float zero[3]  = { 0.0,    0.0,   0.0};
@@ -4429,6 +4525,207 @@ void GL_VIEWER::DrawCGMarker()
 
 }
 
+/*##############################################################################
+#                                                                              #
+#                         GL_VIEWER DrawSymmetryPlane                          #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::DrawSymmetryPlane(void)
+{
+
+    float Scale, InvScale, dalpha, alpha;
+
+    int i, j, node1, node2, node3, LastTri, LastCon, LastSurface;
+    int LastMaterialType, SurfaceID, SurfID;
+    float vec1[3], vec2[3], vec3[3], vec4[3], Normal[3], rgb[4], LastEmissivity;
+    float xyz1[3], xyz2[3];
+
+    glTranslatef( Xcg - GeometryXShift,
+                  Ycg - GeometryYShift,
+                  Zcg - GeometryZShift);
+
+    // Draw triangles as shaded surface
+
+    rgb[0] = 0.7;
+    rgb[1] = 0.7;
+    rgb[2] = 0.7;
+    rgb[3] = 1.;
+
+    glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
+
+    glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
+    glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
+    glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
+    glColor3fv(rgb);
+
+    if ( DrawXPlaneIsOn ) {
+       
+       vec1[0] =         0;
+       vec1[1] = -ViewSize;
+       vec1[2] =  ViewSize;
+       
+       vec2[0] =         0;
+       vec2[1] = -ViewSize;
+       vec2[2] = -ViewSize;
+       
+       vec3[0] =         0;
+       vec3[1] =  ViewSize;
+       vec3[2] = -ViewSize;
+       
+       vec4[0] =         0;
+       vec4[1] =  ViewSize;
+       vec4[2] =  ViewSize;
+       
+       Normal[0] = 1.;
+       Normal[1] = 0.;
+       Normal[2] = 0.;
+       
+    }
+
+    else if ( DrawYPlaneIsOn ) {
+       
+       vec1[0] = -ViewSize;
+       vec1[1] =        0.;
+       vec1[2] =  ViewSize;
+       
+       vec2[0] =  ViewSize;
+       vec2[1] =        0.;
+       vec2[2] =  ViewSize;
+       
+       vec3[0] =  ViewSize;
+       vec3[1] =        0.;
+       vec3[2] = -ViewSize;
+       
+       vec4[0] = -ViewSize;
+       vec4[1] =        0.;
+       vec4[2] = -ViewSize;
+       
+       Normal[0] = 0.;
+       Normal[1] = 1.;
+       Normal[2] = 0.;
+       
+    }
+        
+    else if ( DrawZPlaneIsOn ) {
+       
+       vec1[0] = -ViewSize;
+       vec1[1] = -ViewSize;
+       vec1[2] =         0.;
+       
+       vec2[0] = -ViewSize;
+       vec2[1] =  ViewSize;
+       vec2[2] =        0.;
+       
+       vec3[0] =  ViewSize;
+       vec3[1] =  ViewSize;
+       vec3[2] =        0.;
+       
+       vec4[0] =  ViewSize;
+       vec4[1] = -ViewSize;
+       vec4[2] =        0.;
+       
+       Normal[0] = 0.;
+       Normal[1] = 0.;
+       Normal[2] = 1.;
+       
+    }
+                
+    // Draw the plane
+              
+    glBegin(GL_TRIANGLES);
+
+       glNormal3f( Normal[0], Normal[1], Normal[2] );
+
+       glVertex3fv(vec1);
+
+       glVertex3fv(vec2);
+
+       glVertex3fv(vec3);
+       
+    glEnd();       
+    
+    glBegin(GL_TRIANGLES);
+       
+       glNormal3f( Normal[0], Normal[1], Normal[2] );
+
+       glVertex3fv(vec3);
+
+       glVertex3fv(vec4);
+
+       glVertex3fv(vec1);       
+
+    glEnd();
+    
+    // Draw some grid lines
+   
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    glLineWidth(5.);
+    glDisable(GL_LIGHTING);    
+
+    rgb[0] = 0.;
+    rgb[1] = 0.;
+    rgb[2] = 0.;
+    rgb[3] = 1.;
+    
+    glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
+    glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
+    glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
+    glColor3fv(rgb);    
+        
+    int NumLines = 5;
+    
+    dalpha = 1./(NumLines-1);
+    
+    for ( i = 1 ; i <= NumLines ;  i++ ) {
+    
+       alpha = (i-1)*dalpha;
+       
+       xyz1[0] = vec1[0] + alpha*(vec2[0] - vec1[0]);
+       xyz1[1] = vec1[1] + alpha*(vec2[1] - vec1[1]);
+       xyz1[2] = vec1[2] + alpha*(vec2[2] - vec1[2]);
+       
+       xyz2[0] = vec4[0] + alpha*(vec3[0] - vec4[0]);
+       xyz2[1] = vec4[1] + alpha*(vec3[1] - vec4[1]);
+       xyz2[2] = vec4[2] + alpha*(vec3[2] - vec4[2]);
+
+       glBegin(GL_LINES);
+       
+          glVertex3fv(xyz1);
+          glVertex3fv(xyz2);
+          
+       glEnd();
+       
+    }
+    
+    for ( i = 1 ; i <= NumLines ;  i++ ) {
+    
+       alpha = (i-1)*dalpha;
+       
+       xyz1[0] = vec1[0] + alpha*(vec4[0] - vec1[0]);
+       xyz1[1] = vec1[1] + alpha*(vec4[1] - vec1[1]);
+       xyz1[2] = vec1[2] + alpha*(vec4[2] - vec1[2]);
+       
+       xyz2[0] = vec2[0] + alpha*(vec3[0] - vec2[0]);
+       xyz2[1] = vec2[1] + alpha*(vec3[1] - vec2[1]);
+       xyz2[2] = vec2[2] + alpha*(vec3[2] - vec2[2]);
+
+       glBegin(GL_LINES);
+       
+          glVertex3fv(xyz1);
+          glVertex3fv(xyz2);
+          
+       glEnd();
+       
+    }    
+    
+    glEnable(GL_LIGHTING);
+
+    glTranslatef( -Xcg + GeometryXShift,
+                  -Ycg + GeometryYShift,
+                  -Zcg + GeometryZShift);     
+  
+}
 
 /*##############################################################################
 #                                                                              #
@@ -4436,7 +4733,7 @@ void GL_VIEWER::DrawCGMarker()
 #                                                                              #
 ##############################################################################*/
 
-void GL_VIEWER::DrawAxes()
+void GL_VIEWER::DrawAxes(void)
 {
 
     static float zero[3]  = { 0.0,   0.0,   0.0};

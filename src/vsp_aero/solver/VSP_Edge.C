@@ -41,9 +41,7 @@ void VSP_EDGE::init(void)
     Mach_ = 0.;
     
     Verbose_ = 1;
-    
-    ThereAreChildren_ = 0;
-    
+        
     Child1_ = Child2_ = NULL;
     
     Node1_ = 0;
@@ -210,14 +208,30 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     Vec_[0] = VSPEdge.Vec_[0];
     Vec_[1] = VSPEdge.Vec_[1];
     Vec_[2] = VSPEdge.Vec_[2];
+    
+    Sigma_ = VSPEdge.Sigma_;
 
     Length_ = VSPEdge.Length_;
+    
+    LocalSpacing_ = VSPEdge.LocalSpacing_;
 
+    Mach_ = VSPEdge.Mach_;
+    
     // Tolerances
     
     Tolerance_1_ = VSPEdge.Tolerance_1_;
     Tolerance_2_ = VSPEdge.Tolerance_2_;
     Tolerance_4_ = VSPEdge.Tolerance_4_;
+    
+    // Children
+
+    Child1_ = VSPEdge.Child1_;
+    Child2_ = VSPEdge.Child2_;
+    
+    // Edge coefs
+    
+    EdgeCoef_[0] = VSPEdge.EdgeCoef_[0];
+    EdgeCoef_[1] = VSPEdge.EdgeCoef_[1];
     
     return *this;
     
@@ -233,6 +247,8 @@ VSP_EDGE::~VSP_EDGE(void)
 {
 
    // Nothing to do...
+   
+   printf("edge destructor... \n");fflush(NULL);
    
 }
 

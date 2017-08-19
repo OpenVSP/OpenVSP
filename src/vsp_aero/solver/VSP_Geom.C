@@ -34,6 +34,12 @@ void VSP_GEOM::init(void)
     
     LoadDeformationFile_ = 0;
     
+    DoGroundEffectsAnalysis_ = 0;
+    
+    VehicleRotationAngleVector_[0] = 0.;    
+    VehicleRotationAngleVector_[1] = 0.;    
+    VehicleRotationAngleVector_[2] = 0.;    
+    
 }
 
 /*##############################################################################
@@ -130,6 +136,8 @@ int VSP_GEOM::ReadFile(char *FileName)
               
     }
     
+    printf("NumberOfSurfaces_: %d \n",NumberOfSurfaces_);    
+
     // Load in FEM analysis data
     
     if ( LoadDeformationFile_ ) LoadFEMDeformationData(FileName);
@@ -215,7 +223,23 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
     NumberOfSurfaces_       = 1;
     
     VSP_Surface_ = new VSP_SURFACE[NumberOfSurfaces_ + 1];
+
+    // If this is a ground effects analysis, set flag
     
+    if ( DoGroundEffectsAnalysis_ ) {
+
+       VSP_Surface(1).DoGroundEffectsAnalysis() = 1;
+      
+       VSP_Surface(1).GroundEffectsRotationAngle() = VehicleRotationAngleVector(1);
+      
+       VSP_Surface(1).GroundEffectsCGLocation(0) = VehicleRotationAxisLocation(0);
+       VSP_Surface(1).GroundEffectsCGLocation(1) = VehicleRotationAxisLocation(1);
+       VSP_Surface(1).GroundEffectsCGLocation(2) = VehicleRotationAxisLocation(2);
+
+       VSP_Surface(1).GroundEffectsHeightAboveGround() = HeightAboveGround();
+
+    }
+        
     // Read in the wing data
 
     sprintf(Name,"CART3D");
@@ -616,6 +640,26 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
 
     VSP_Surface_ = new VSP_SURFACE[NumberOfSurfaces_ + 1];
     
+    // If this is a ground effects analysis, set flag
+    
+    if ( DoGroundEffectsAnalysis_ ) {
+    
+       for ( i = 1 ; i <= NumberOfSurfaces_ ; i++ ) {
+         
+          VSP_Surface(i).DoGroundEffectsAnalysis() = 1;
+         
+          VSP_Surface(i).GroundEffectsRotationAngle() = VehicleRotationAngleVector(1);
+         
+          VSP_Surface(i).GroundEffectsCGLocation(0) = VehicleRotationAxisLocation(0);
+          VSP_Surface(i).GroundEffectsCGLocation(1) = VehicleRotationAxisLocation(1);
+          VSP_Surface(i).GroundEffectsCGLocation(2) = VehicleRotationAxisLocation(2);
+
+          VSP_Surface(i).GroundEffectsHeightAboveGround() = HeightAboveGround();
+         
+       }
+      
+    }
+ 
     // Read in the wing data
     
     Surface = 0;
@@ -900,9 +944,9 @@ void VSP_GEOM::MeshGeom(void)
           
              Grid().KuttaNode(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().KuttaNode(i) + NodeOffSet;
              
-             Grid().WingSurface(NumberOfKuttaNodes) = Surface;
+             Grid().WingSurfaceForKuttaNode(NumberOfKuttaNodes) = Surface;
              
-             Grid().WingSurfaceIsPeriodic(NumberOfKuttaNodes) = 0;
+             Grid().WingSurfaceForKuttaNodeIsPeriodic(NumberOfKuttaNodes) = 0;
    
              Grid().WakeTrailingEdgeX(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WakeTrailingEdgeX(i);
              Grid().WakeTrailingEdgeY(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WakeTrailingEdgeY(i);
@@ -914,9 +958,9 @@ void VSP_GEOM::MeshGeom(void)
              
              Grid().KuttaNode(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().KuttaNode(i) + NodeOffSet;
              
-             Grid().WingSurface(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WingSurface(i);
+             Grid().WingSurfaceForKuttaNode(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WingSurfaceForKuttaNode(i);
              
-             Grid().WingSurfaceIsPeriodic(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WingSurfaceIsPeriodic(i);
+             Grid().WingSurfaceForKuttaNodeIsPeriodic(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WingSurfaceForKuttaNodeIsPeriodic(i);
    
              Grid().WakeTrailingEdgeX(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WakeTrailingEdgeX(i);
              Grid().WakeTrailingEdgeY(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WakeTrailingEdgeY(i);

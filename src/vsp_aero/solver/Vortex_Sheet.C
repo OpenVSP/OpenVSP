@@ -138,17 +138,17 @@ VORTEX_SHEET::~VORTEX_SHEET(void)
     if ( StartingVortexList_ != NULL ) delete [] StartingVortexList_;
 
     for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
-   
+
        if ( VortexSheetListForLevel_[Level] != NULL ) delete [] VortexSheetListForLevel_[Level];
 
        if ( TrailingVortexListForLevel_[Level] != NULL ) delete [] TrailingVortexListForLevel_[Level];
-  
+
     }
-   
+
     if ( VortexSheetListForLevel_ != NULL ) delete [] VortexSheetListForLevel_;
-       
+
     if ( TrailingVortexListForLevel_ != NULL ) delete [] TrailingVortexListForLevel_;
-       
+
 }
 
 /*##############################################################################
@@ -161,7 +161,7 @@ void VORTEX_SHEET::SizeTrailingVortexList(int NumberOfTrailingVortices)
 {
       
     int i, Level;
-   
+
     // Clear up old stuff
 
     if ( NumberOfTrailingVortices_ != 0 ) {
@@ -224,7 +224,7 @@ void VORTEX_SHEET::SetupVortexSheets(void)
     int i;
     
     // Closed vortex sheet (likely a nacelle... )
-    
+
     if ( IsPeriodic_ ) {
        
        SetupCircularVortexSheets();
@@ -241,7 +241,7 @@ void VORTEX_SHEET::SetupVortexSheets(void)
     
     // Size gamma list
 
-    for ( i = 0 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+    for ( i = 0 ; i <= NumberOfTrailingVortices_ + 1 ; i++ ) {
 
        // Trailing and starting gammas
        
@@ -471,7 +471,7 @@ void VORTEX_SHEET::SetupCircularVortexSheets(void)
     VSP_NODE NodeA, NodeB;
 
     // Make trailing vortex list periodic
- 
+
     TrailingVortexList_[NumberOfTrailingVortices_ + 1] = TrailingVortexList_[1];
        
     // Determine the number of vortex sheets at each level
@@ -495,9 +495,7 @@ void VORTEX_SHEET::SetupCircularVortexSheets(void)
        Level++;
 
     }
-    
-//    if ( k < 4 ) Level--;
-    
+
     NumberOfLevels_ = Level;
 
     // Size the vortex sheet list
@@ -556,7 +554,7 @@ void VORTEX_SHEET::SetupCircularVortexSheets(void)
        
        j -= m;
        
-       if ( j != NumberOfTrailingVortices_  + 1) {
+       if ( j != NumberOfTrailingVortices_ + 1 ) {
           
           j = NumberOfTrailingVortices_ + 1;
           
@@ -658,6 +656,8 @@ void VORTEX_SHEET::SetupCircularVortexSheets(void)
 
     NumberOfSubVortices_ = VortexSheetListForLevel_[1][1].NumberOfSubVortices();       
  
+    fflush(NULL);
+        
 }
 
 /*##############################################################################
@@ -669,16 +669,20 @@ void VORTEX_SHEET::SetupCircularVortexSheets(void)
 void VORTEX_SHEET::SaveVortexState(void)
 {
 
-    int i;
+    int i, NumberOfTrailingVortices;
     
     // Save the current trailing vortex state
     
-    for ( i = 1 ; i <= NumberOfTrailingVortices_  ; i++ ) {
+    NumberOfTrailingVortices = NumberOfTrailingVortices_;
+    
+    if ( IsPeriodic_ ) NumberOfTrailingVortices++;
+    
+    for ( i = 1 ; i <= NumberOfTrailingVortices  ; i++ ) {
        
        TrailingVortexList_[i].SaveVortexState();
 
-    }    
-   
+    }   
+
 }
 
 /*##############################################################################
@@ -690,22 +694,26 @@ void VORTEX_SHEET::SaveVortexState(void)
 void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
 {
 
-    int i, j;
+    int i, j, NumberOfTrailingVortices;
     
     // Update strengths along entire trailing wake
     
+    NumberOfTrailingVortices = NumberOfTrailingVortices_;
+    
+    if ( IsPeriodic_ ) NumberOfTrailingVortices++;
+        
     if ( !TimeAccurate_ ) {
 
        // Steady state... trailing edge value convected to infinity
        
-       for ( i = 1 ; i <= NumberOfTrailingVortices_  ; i++ ) {
-          
+       for ( i = 1 ; i <= NumberOfTrailingVortices ; i++ ) {
+      
           for ( j = 0 ; j <= NumberOfSubVortices() + 1 ; j++ ) {
    
              TrailingVortexList_[i].Gamma(j) = TrailingVortexList_[i].Gamma();
    
           }
-                    
+          
        }
        
     }
@@ -716,7 +724,7 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
         
        // Time accurate... so convect trailing edge value one time step
        
-       for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+       for ( i = 1 ; i <= NumberOfTrailingVortices ; i++ ) {
           
           TrailingVortexList_[i].MaxConvectedDistance() = MaxConvectedDistance_;
           
@@ -728,7 +736,7 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
     
     // Make a copy of the circulation strengths
 
-    for ( i = 1 ; i <= NumberOfTrailingVortices_  ; i++ ) {
+    for ( i = 1 ; i <= NumberOfTrailingVortices  ; i++ ) {
 
        for ( j = 0 ; j <= NumberOfSubVortices() + 1 ; j++ ) {
 
@@ -737,12 +745,12 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
        }
 
     } 
-        
+     
     if ( TimeAccurate_ ) {
                  
        // Zero out starting vortices
        
-       for ( i = 0 ; i <= NumberOfTrailingVortices_  ; i++ ) {
+       for ( i = 0 ; i <= NumberOfTrailingVortices  ; i++ ) {
           
           for ( j = 0 ; j <= NumberOfSubVortices() ; j++ ) {
    
@@ -754,7 +762,7 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
      
        // Integrate along span to calculate starting vortices strengths
    
-       for ( i = 1 ; i <= NumberOfTrailingVortices_  ; i++ ) {
+       for ( i = 1 ; i <= NumberOfTrailingVortices  ; i++ ) {
           
           for ( j = 1 ; j <= NumberOfSubVortices() + 1 ; j++ ) {
    
@@ -766,7 +774,7 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
        
        // Now calculate delta-gammas
        
-       for ( i = 1 ; i <= NumberOfTrailingVortices_  ; i++ ) {
+       for ( i = 1 ; i <= NumberOfTrailingVortices  ; i++ ) {
           
           for ( j = 1 ; j < NumberOfSubVortices() + 1 ; j++ ) {
    
@@ -789,29 +797,34 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
 void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3])
 {
 
-    int i, j, k;
+    int i, j, k, NumberOfTrailingVortices;
     double U, V, W, dq[3];
     double TotalTime;
     VORTEX_TRAIL *TrailingVortex;
     VORTEX_SHEET *VortexSheet;
- 
+
+
     // Zero evaluation level and initialize trailing and shed vortex gammas
+
+    NumberOfTrailingVortices = NumberOfTrailingVortices_;
     
+    if ( IsPeriodic_ ) NumberOfTrailingVortices++;
+   
     if ( !TimeAccurate_ ) {
        
-       for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+       for ( i = 1 ; i <= NumberOfTrailingVortices ; i++ ) {
    
           TrailingVortexList_[i].Evaluate() = 1;
      
           TrailingVortexList_[i].Gamma() = TrailingGamma_[i][0];
   
        }   
-       
+  
     } 
 
     else {
        
-       for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+       for ( i = 1 ; i <= NumberOfTrailingVortices ; i++ ) {
    
           TrailingVortexList_[i].Evaluate() = 1;
           
@@ -823,7 +836,7 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3])
           
        }    
            
-       for ( i = 1 ; i <= NumberOfTrailingVortices_ - 1 ; i++ ) {
+       for ( i = 1 ; i <= NumberOfTrailingVortices - 1 ; i++ ) {
           
           for ( j = 1 ; j <= NumberOfSubVortices() ; j++ ) {
    
@@ -841,7 +854,7 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3])
     if ( IsPeriodic_ ) {
        
        for ( j = 0 ; j <= NumberOfSubVortices() + 1 ; j++ ) {
-       
+     
           TrailingVortexList_[                            1].Gamma(j) = 0.5 * TrailingGamma_[1][j];
        
           TrailingVortexList_[NumberOfTrailingVortices_ + 1].Gamma(j) = 0.5 * TrailingGamma_[1][j];
@@ -851,7 +864,7 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3])
     }
 
     // Agglomerate the trailing vortices .. we start at the coarsest level
-    
+ 
     if ( NumberOfTrailingVortices_ >= 4 ) {
 
        for ( i = 1 ; i <= NumberOfVortexSheetsForLevel_[NumberOfLevels_] ; i++ ) {
@@ -868,10 +881,10 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3])
 
     NumberOfAgglomeratedTrailingVortices_ = 0;
     
-    for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+    for ( i = 1 ; i <= NumberOfTrailingVortices ; i++ ) {
 
        if ( TrailingVortexList_[i].Evaluate() ) {
-          
+      
           AgglomeratedTrailingVortexList_[++NumberOfAgglomeratedTrailingVortices_] = &TrailingVortexList_[i];
           
        }
@@ -978,7 +991,7 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3], double xyz_te[3
     
     if ( IsPeriodic_ ) {
        
-       for ( j = 1 ; j <= NumberOfSubVortices() + 1 ; j++ ) {
+       for ( j = 0 ; j <= NumberOfSubVortices() + 1 ; j++ ) {
        
           TrailingVortexList_[                            1].Gamma(j) = 0.5 * TrailingGamma_[1][j];
        
@@ -1081,7 +1094,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
 {
 
     int i, j;
-    double U, V, W, xyz_k[3], dq[3], Dist;
+    double U, V, W, Vec[3], xyz_k[3], dq[3], Mag;
     VORTEX_TRAIL *TrailingVortex;
     VORTEX_SHEET *VortexSheet;
 
@@ -1120,7 +1133,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
     
     if ( IsPeriodic_ ) {
        
-       for ( j = 1 ; j <= NumberOfSubVortices() + 1 ; j++ ) {
+       for ( j = 0 ; j <= NumberOfSubVortices() + 1 ; j++ ) {
        
           TrailingVortexList_[                            1].Gamma(j) = 0.5 * TrailingGamma_[1][j];
        
@@ -1162,22 +1175,44 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
     
     q[0] = q[1] = q[2] = U = V = W = 0.;
 
-#pragma omp parallel for reduction(+:U,V,W) private(dq,xyz_k,TrailingVortex)      
+#pragma omp parallel for reduction(+:U,V,W) private(dq,xyz_k,TrailingVortex,Vec)      
     for ( i = 1 ; i <= NumberOfAgglomeratedTrailingVortices_ ; i++ ) {
 
        TrailingVortex = AgglomeratedTrailingVortexList_[i];
+       
+       // Distance from point to TE
+       
+       Vec[0] = TrailingVortex->TE_Node().x() - xyz_p[0];
+       Vec[1] = TrailingVortex->TE_Node().y() - xyz_p[1];
+       Vec[2] = TrailingVortex->TE_Node().z() - xyz_p[2];
+       
+       Mag = vector_dot(Vec,FreeStreamVelocity_); 
        
        // Shift the x location to the wing trailing edge of this trailing vortex
        
        xyz_k[0] = TrailingVortex->TE_Node().x();
        xyz_k[1] = xyz_p[1];
        xyz_k[2] = xyz_p[2];
-  
+ 
+       xyz_k[0] = xyz_p[0] + Mag * FreeStreamVelocity_[0];
+       xyz_k[1] = xyz_p[1] + Mag * FreeStreamVelocity_[1];
+       xyz_k[2] = xyz_p[2] + Mag * FreeStreamVelocity_[2];
+
        TrailingVortex->InducedVelocity(xyz_k,dq);
        
-       U += dq[0];
-       V += dq[1];
-       W += dq[2];
+       Vec[0] = TrailingVortex->TE_Node().x() - xyz_k[0];
+       Vec[1] = TrailingVortex->TE_Node().y() - xyz_k[1];
+       Vec[2] = TrailingVortex->TE_Node().z() - xyz_k[2];
+       
+       Mag = vector_dot(Vec,Vec); 
+              
+       if (1|| Mag > 0.01*TrailingVortex->Sigma() ) {
+                 
+          U += dq[0];
+          V += dq[1];
+          W += dq[2];
+          
+       }
 
     } 
     
@@ -1437,7 +1472,7 @@ int VORTEX_SHEET::FarAway(double xyz_[3])
 {
 
     double Distance;
-    
+
     Distance = sqrt( pow(xyz_[1] - MidSpan_[1],2.) 
                    + pow(xyz_[2] - MidSpan_[2],2.) );
                    

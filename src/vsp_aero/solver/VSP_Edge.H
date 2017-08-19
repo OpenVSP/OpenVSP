@@ -64,7 +64,6 @@ private:
     int CourseGridEdge_;
     int FineGridEdge_;
     
-    int ThereAreChildren_;
     VSP_EDGE *Child1_;
     VSP_EDGE *Child2_;
     
@@ -87,12 +86,6 @@ private:
     int DegenBody_;
     int Cart3DSurface_;
     int Node_;
-
-    // Rotation Quaternions
-    
-    QUAT Quat_;
-    QUAT InverseQuat_;
-    QUAT VecA_, VecB_;
 
     // Edge nodes - true geometry (camber line, or actual)
     

@@ -43,6 +43,7 @@ double FarDist_;
 double ReducedFrequency_;
 double UnsteadyAngleMax_;
 double UnsteadyHMax_;     
+double HeightAboveGround_;
 
 #define MAXRUNCASES 1000
 
@@ -125,28 +126,29 @@ double dCMn_wrt[MAXRUNCASES];
 
 FILE *StabFile;
 
-int WakeIterations_       = 0;
-int NumberOfRotors_       = 0;
-int NumStabCases_         = 7;
-int NumberOfThreads_      = 1;
-int StabControlRun_       = 0;
-int SetFreeStream_        = 0;
-int SaveRestartFile_      = 0;
-int DoRestartRun_         = 0;
-int DoSymmetry_           = 0;
-int SetFarDist_           = 0;
-int Symmetry_             = 0;
-int NumberOfWakeNodes_    = 0;
-int DumpGeom_             = 0;
-int ForceAveragingIter_   = 0;
-int NoWakeIteration_      = 0;
-int NumberofSurveyPoints_ = 0;
-int LoadFEMDeformation_   = 0;
-int Write2DFEMFile_       = 0;
-int DoUnsteadyAnalysis_   = 0;
-int UnsteadyAnalysisType_ = 0;
-int NumberOfTimeSteps_    = 0;
-int NumberOfTimeSamples_  = 0;
+int WakeIterations_          = 0;
+int NumberOfRotors_          = 0;
+int NumStabCases_            = 7;
+int NumberOfThreads_         = 1;
+int StabControlRun_          = 0;
+int SetFreeStream_           = 0;
+int SaveRestartFile_         = 0;
+int DoRestartRun_            = 0;
+int DoSymmetry_              = 0;
+int SetFarDist_              = 0;
+int Symmetry_                = 0;
+int NumberOfWakeNodes_       = 0;
+int DumpGeom_                = 0;
+int ForceAveragingIter_      = 0;
+int NoWakeIteration_         = 0;
+int NumberofSurveyPoints_    = 0;
+int LoadFEMDeformation_      = 0;
+int DoGroundEffectsAnalysis_ = 0;
+int Write2DFEMFile_          = 0;
+int DoUnsteadyAnalysis_      = 0;
+int UnsteadyAnalysisType_    = 0;
+int NumberOfTimeSteps_       = 0;
+int NumberOfTimeSamples_     = 0;
 
 // Prototypes
 
@@ -185,7 +187,7 @@ int main(int argc, char **argv)
 
     // Output a header
 
-    printf("VSPAERO v.4.1 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
+    printf("VSPAERO v.4.1.1 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
     printf("\n\n\n\n");
     
 #ifdef VSPAERO_OPENMP
@@ -209,6 +211,28 @@ int main(int argc, char **argv)
     
     if ( LoadFEMDeformation_ ) VSP_VLM().LoadFEMDeformation() = 1;
     
+    // Do ground effects analysis
+    
+    if ( DoGroundEffectsAnalysis_ ) {
+       
+       VSP_VLM().DoGroundEffectsAnalysis() = 1;
+       
+       VSP_VLM().VehicleRotationAngleVector(0) = 0.;
+       VSP_VLM().VehicleRotationAngleVector(1) = -AoAList_[1];
+       VSP_VLM().VehicleRotationAngleVector(2) = 0.;
+       
+       VSP_VLM().VehicleRotationAxisLocation(0) = Xcg_;
+       VSP_VLM().VehicleRotationAxisLocation(1) = Ycg_;
+       VSP_VLM().VehicleRotationAxisLocation(2) = Zcg_;  
+       
+       VSP_VLM().HeightAboveGround() = HeightAboveGround_;
+       
+       NumberOfAoAs_ = 1;
+       
+       AoAList_[1] = 0.;
+    
+    }
+    
     // Write out 2D FEM file
     
     if ( Write2DFEMFile_ ) VSP_VLM().Write2DFEMFile() = 1;
@@ -220,7 +244,7 @@ int main(int argc, char **argv)
     // Solve
     
     VSP_VLM().Setup();
-    
+               
     // Force farfield distance for wake adaption
     
     if ( SetFarDist_ ) VSP_VLM().SetFarFieldDist(FarDist_);
@@ -281,23 +305,24 @@ int main(int argc, char **argv)
 
 void PrintUsageHelp()
 {
-       printf("VSPAERO v.4.1 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
+       printf("VSPAERO v.4.1.1 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
        printf("\n\n\n\n");
 
        printf("Usage: vspaero [options] <FileName>\n");
        printf("\n\n");
        printf("Options: \n");
-       printf(" -omp <N>        Use 'N' processes.\n");
-       printf(" -stab           Calculate stability derivatives.\n");
-       printf(" -fs <M> END <A> END <B> END        Set/Override freestream Mach, Alpha, and Beta. note: M, A, and B are space delimited lists.\n");
-       printf(" -save           Save restart file.\n");
-       printf(" -restart        Restart analysis.\n");
-       printf(" -geom           Process and write geometry without solving.\n");
-       printf(" -avg <N>        Force averaging startign at wake iteration N.\n");
-       printf(" -nowake <N>     No wake for first N iterations.\n");
-       printf(" -fem            Load in FEM deformation file.\n");
-       printf(" -write2dfem     Write out 2D FEM load file.\n");
-       printf(" -setup          Write template *.vspaero file, can specify parameters below:\n");
+       printf(" -omp <N>           Use 'N' processes.\n");
+       printf(" -stab              Calculate stability derivatives.\n");
+       printf(" -fs <M> END <A> END <B> END     Set/Override freestream Mach, Alpha, and Beta. note: M, A, and B are space delimited lists.\n");
+       printf(" -save              Save restart file.\n");
+       printf(" -restart           Restart analysis.\n");
+       printf(" -geom              Process and write geometry without solving.\n");
+       printf(" -avg <N>           Force averaging startign at wake iteration N.\n");
+       printf(" -nowake <N>        No wake for first N iterations.\n");
+       printf(" -fem               Load in FEM deformation file.\n");
+       printf(" -write2dfem        Write out 2D FEM load file.\n");
+       printf(" -groundheight <H>  Do ground effects analysis with cg set to <H> height above the ground. \n");
+       printf(" -setup             Write template *.vspaero file, can specify parameters below:\n");
        printf("     -sref  <S>        Reference area S.\n");
        printf("     -bref  <b>        Reference span b.\n");
        printf("     -cref  <c>        Reference chord c.\n");
@@ -487,7 +512,15 @@ void ParseInput(int argc, char *argv[])
 
           LoadFEMDeformation_ = 1;
           
-       }    
+       }
+       
+       else if ( strcmp(argv[i],"-groundheight") == 0 ) {
+       
+          DoGroundEffectsAnalysis_ = 1;
+          
+          HeightAboveGround_ = atof(argv[++i]);
+          
+       }   
        
        else if ( strcmp(argv[i],"-write2dfem") == 0 ) {
           
@@ -767,7 +800,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
              
           }
           
-       }              
+       }       
        
        fprintf(case_file,"NumberOfRotors = %d \n",NumberOfUsedRotors);
        
@@ -783,7 +816,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
           }
           
        }
-       
+        
        delete [] RotorIsUsed;
        
     }
@@ -942,11 +975,12 @@ void LoadCaseFile(void)
 {
 
     int i, j, NumberOfControlSurfaces, Done;
-    double x,y,z, DumDouble;
+    double x,y,z, DumDouble, HingeVec[3], RotAngle, DeltaHeight;
     FILE *case_file;
     char file_name_w_ext[2000], DumChar[2000], DumChar2[2000], Comma[2000], *Next;
-    char SymmetryFlag[2000], AnalysisType[2000], PreconditionerType[2000];
-    
+    char SymmetryFlag[2000], AnalysisType[2000];
+    QUAT Quat, InvQuat, Vec;
+
     // Delimiters
     
     sprintf(Comma,",");
@@ -1486,6 +1520,52 @@ void LoadCaseFile(void)
        
     }
     
+    // Adjust rotors for ground effects calculation
+
+    if ( DoGroundEffectsAnalysis_ ) {
+           
+       RotAngle = AoAList_[1] * TORAD;
+       
+       DeltaHeight = HeightAboveGround_ - Zcg_;
+       
+       HingeVec[0] = 0.;
+       HingeVec[1] = 1.;
+       HingeVec[2] = 0.;
+           
+       Quat.FormRotationQuat(HingeVec,RotAngle);
+   
+       InvQuat = Quat;
+      
+       InvQuat.FormInverse();   
+
+       for ( i = 1 ; i <= NumberOfRotors_ ; i++ ) {
+          
+          // Rotate rotors and shift in z
+          
+          x = VSP_VLM().RotorDisk(i).XYZ(0);
+          y = VSP_VLM().RotorDisk(i).XYZ(1);
+          z = VSP_VLM().RotorDisk(i).XYZ(2);
+
+          VSP_VLM().RotorDisk(i).XYZ(0) = (x - Xcg_)*cos(RotAngle) - (z - Zcg_)*sin(RotAngle) + Xcg_;
+          VSP_VLM().RotorDisk(i).XYZ(1) = y;
+          VSP_VLM().RotorDisk(i).XYZ(2) = (x - Xcg_)*sin(RotAngle) + (z - Zcg_)*cos(RotAngle) + Zcg_ + DeltaHeight;    
+     
+          // Rotate rotors to align with free stream
+          
+          Vec(0) = VSP_VLM().RotorDisk(i).Normal(0);
+          Vec(1) = VSP_VLM().RotorDisk(i).Normal(1);
+          Vec(2) = VSP_VLM().RotorDisk(i).Normal(2);
+       
+          Vec = Quat * Vec * InvQuat;
+       
+          VSP_VLM().RotorDisk(i).Normal(0) = Vec(0);
+          VSP_VLM().RotorDisk(i).Normal(1) = Vec(1); 
+          VSP_VLM().RotorDisk(i).Normal(2) = Vec(2); 
+          
+       }
+                    
+    }
+        
     // Load in the velocity survey data
     
     rewind(case_file);
@@ -1519,27 +1599,6 @@ void LoadCaseFile(void)
        }
        
     }
-
-    // Load in Preconditioner data
-    rewind(case_file);
-
-    Done = 0;
-
-    while (!Done && fgets(DumChar, 200, case_file) != NULL) {
-
-        if (strstr(DumChar, "Preconditioner") != NULL) {
-
-            sscanf(DumChar, "Preconditioner = %s \n", &PreconditionerType);
-
-            if (strcmp(PreconditionerType, "JACOBI") == 0) {
-
-                VSP_VLM().Preconditioner() = JACOBI;
-
-            }
-
-        }
-
-    }
     
     // Load in unsteady aero data
     
@@ -1553,8 +1612,6 @@ void LoadCaseFile(void)
 
        if ( strstr(DumChar,"UnsteadyAnalysisType") != NULL ) {
 
-           DoUnsteadyAnalysis_ = 1;
-
           printf("Unsteady analysis data: \n");
               
           sscanf(DumChar,"UnsteadyAnalysisType = %s \n",&AnalysisType);
@@ -1564,84 +1621,58 @@ void LoadCaseFile(void)
           if ( strcmp(AnalysisType,"P_ANALYSIS"  ) == 0 ) {
              
              UnsteadyAnalysisType_ = P_ANALYSIS;
-             StabControlRun_ = 2;
              
           }
           
           else if ( strcmp(AnalysisType,"Q_ANALYSIS"  ) == 0 ) {
              
              UnsteadyAnalysisType_ = Q_ANALYSIS;
-             StabControlRun_ = 3;
              
           }
           
           else if ( strcmp(AnalysisType,"R_ANALYSIS"  ) == 0 ) {
              
              UnsteadyAnalysisType_ = R_ANALYSIS;
-             StabControlRun_ = 4;
              
           }                    
           
           else if ( strcmp(AnalysisType,"HEAVE"  ) == 0 ) {
              
              UnsteadyAnalysisType_ = HEAVE_ANALYSIS;
-             // TODO: Insert StabControlRun_ Number
              
           }
           
           else if ( strcmp(AnalysisType,"IMPULSE") == 0 ) {
              
              UnsteadyAnalysisType_ = IMPULSE_ANALYSIS;
-             // TODO: Insert StabControlRun_ Number
-
+             
           }
           
           else { 
              
-             printf("Unknown unsteady analysis type: %s \n",AnalysisType);
+             printf("Uknown unsteady analysis type: %s \n",AnalysisType);
              
           }
                                                            
-          fgets(DumChar,200,case_file);
-          if (strstr(DumChar, "ReducedFrequency") != NULL)
-          {
-            fscanf(case_file,"ReducedFrequency = %lf \n",&ReducedFrequency_);
+          fscanf(case_file,"ReducedFrequency = %lf \n",&ReducedFrequency_);
           
-            printf("ReducedFrequency: %lf \n",ReducedFrequency_);
-            fgets(DumChar,200,case_file); // Only proceed if the proceeding line is found
-          }
+          printf("ReducedFrequency: %lf \n",ReducedFrequency_);
           
-          if (strstr(DumChar, "NumberOfTimeSteps") != NULL)
-          {
-            fscanf(case_file,"NumberOfTimeSteps = %d \n",&NumberOfTimeSteps_);
+          fscanf(case_file,"NumberOfTimeSteps = %d \n",&NumberOfTimeSteps_);
           
-            printf("NumberOfTimeSteps: %d \n",NumberOfTimeSteps_);
-            fgets(DumChar,200,case_file);
-          }
+          printf("NumberOfTimeSteps: %d \n",NumberOfTimeSteps_);
           
-          if (strstr(DumChar, "NumberOfTimeSamples") != NULL)
-          {
-            fscanf(case_file,"NumberOfTimeSamples = %d \n",&NumberOfTimeSamples_);
+          fscanf(case_file,"NumberOfTimeSamples = %d \n",&NumberOfTimeSamples_);
           
-            printf("NumberOfTimeSamples: %d \n",NumberOfTimeSamples_);
-            fgets(DumChar,200,case_file);
-          }
+          printf("NumberOfTimeSamples: %d \n",NumberOfTimeSamples_);
           
-          if (strstr(DumChar, "UnsteadyAngleMax") != NULL)
-          {
-            fscanf(case_file,"UnsteadyAngleMax = %lf \n",&UnsteadyAngleMax_);
+          fscanf(case_file,"UnsteadyAngleMax = %lf \n",&UnsteadyAngleMax_);
           
-            printf("UnsteadyAngleMax: %lf \n",UnsteadyAngleMax_);
-            fgets(DumChar,200,case_file);
-          }
+          printf("UnsteadyAngleMax: %lf \n",UnsteadyAngleMax_);
           
-          if (strstr(DumChar, "UnsteadyHMax") != NULL)
-          {
-            fscanf(case_file,"UnsteadyHMax = %lf \n",&UnsteadyHMax_);
+          fscanf(case_file,"UnsteadyHMax = %lf \n",&UnsteadyHMax_);
           
-            printf("UnsteadyHMax: %f \n",UnsteadyHMax_);
-            fgets(DumChar,200,case_file); 
-          }
+          printf("UnsteadyHMax: %f \n",UnsteadyHMax_);
           
           VSP_VLM().TimeAnalysisType()    = UnsteadyAnalysisType_;
           VSP_VLM().NumberOfTimeSteps()   = NumberOfTimeSteps_;
@@ -1678,34 +1709,35 @@ void ApplyControlDeflections()
         for ( j = 1; j <= ControlSurfaceGroup_[i].NumberOfControlSurfaces(); j++ )
         {
 
-            printf( "Searching for control surface: %s in control surface group: %s...",
-                ControlSurfaceGroup_[i].ControlSurface_Name( j ),
-                ControlSurfaceGroup_[i].Name() );
             Found = 0;
 
-            for (k = 1; k <= VSP_VLM().VSPGeom().NumberOfSurfaces(); ++k)
+            while ( k <= VSP_VLM().VSPGeom().NumberOfSurfaces() && !Found )
             {
-                for (p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces(); p++)
+
+                for ( p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface( k ).NumberOfControlSurfaces(); p++ )
                 {
 
-                    if (strcmp(ControlSurfaceGroup_[i].ControlSurface_Name(j), VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).Name()) == 0)
+                    if ( strcmp( ControlSurfaceGroup_[i].ControlSurface_Name( j ), VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).Name() ) == 0 )
                     {
 
                         Found = 1;
-                        printf("Found!\n");
-                        VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
-                        break;
+
+                        VSP_VLM().VSPGeom().VSP_Surface( k ).ControlSurface( p ).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection( j ) * ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() * TORAD;
 
                     }
 
                 }
+
+                k++;
 
             }
 
             // Print out error report
             if ( !Found )
             {
-                printf( "Could not find control surface.\n");
+                printf( "Could not find control surface: %s in control surface group: %s \n",
+                    ControlSurfaceGroup_[i].ControlSurface_Name( j ),
+                    ControlSurfaceGroup_[i].Name() );
 
                 // print out names of all known surfaces
                 printf( "Known control surfaces:\n" );
@@ -2074,32 +2106,31 @@ void StabilityAndControlSolve(void)
                 
                 for ( j = 1 ; j <= ControlSurfaceGroup_[i].NumberOfControlSurfaces() ; j++ ) {
                   
-                    printf( "Searching for control surface: %s in control surface group: %s...",
-                        ControlSurfaceGroup_[i].ControlSurface_Name( j ),
-                        ControlSurfaceGroup_[i].Name() );
-                    Found = 0;
-
-                    for (k = 1; k <= VSP_VLM().VSPGeom().NumberOfSurfaces(); ++k)
-                    {
-                        for (p = 1; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces(); p++)
-                        {
-                            if (strcmp(ControlSurfaceGroup_[i].ControlSurface_Name(j), VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).Name()) == 0)
-                            {
-
-                                Found = 1;
-                                printf("Found!\n");
-                                VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * (ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() + Delta_Control_) * TORAD;
-                                break;
-
-                            }
-
-                        }
-
-                    }
+                   Found = 0;
+         
+                   while ( k <= VSP_VLM().VSPGeom().NumberOfSurfaces() && !Found ) {
+                     
+                      for ( p = 1 ; p <= VSP_VLM().VSPGeom().VSP_Surface(k).NumberOfControlSurfaces() ; p++ ) {
+              
+                         if ( strcmp(ControlSurfaceGroup_[i].ControlSurface_Name(j), VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).Name()) == 0 ) {
+                  
+                            Found = 1;
+                           
+                            VSP_VLM().VSPGeom().VSP_Surface(k).ControlSurface(p).DeflectionAngle() = ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(j) * (ControlSurfaceGroup_[i].ControlSurface_DeflectionAngle() + Delta_Control_) * TORAD;
+           
+                         }
+                        
+                      }
+                     
+                      k++;
+                     
+                   }
                   
                    if ( !Found ) {
                       
-                       printf( "Could not find control surface.\n"); fflush(NULL);
+                      printf("Could not find control surface: %s in control surface group: %s \n",
+                              ControlSurfaceGroup_[i].ControlSurface_Name(j),
+                              ControlSurfaceGroup_[i].Name()); fflush(NULL);
                               
                       exit(1);
                       
@@ -2506,31 +2537,26 @@ void UnsteadyStabilityAndControlSolve(void)
                 CMz_damp *= Cref_ / Bref_;      
                 
              }  
-
-             if ( StabControlRun_ != 1 )
-             {
-                 fprintf(StabFile, "# Name \t\t Value \n");
-             }
                  
              // Roll analysis
              
              if ( StabControlRun_ == 2 ) {
          
-                fprintf(StabFile,"CFx_p \t\t %12.7f \n", CFx_damp);
-                fprintf(StabFile,"CFy_p \t\t %12.7f \n", CFy_damp);
-                fprintf(StabFile,"CFz_p \t\t %12.7f \n", CFz_damp);
+                fprintf(StabFile,"CFx_p %12.7f \n", CFx_damp);
+                fprintf(StabFile,"CFy_p %12.7f \n", CFy_damp);
+                fprintf(StabFile,"CFz_p %12.7f \n", CFz_damp);
             
-                fprintf(StabFile,"CMx_p \t\t %12.7f \n", CMx_damp);
-                fprintf(StabFile,"CMy_p \t\t %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMz_p \t\t %12.7f \n", CMz_damp);
+                fprintf(StabFile,"CMx_p %12.7f \n", CMx_damp);
+                fprintf(StabFile,"CMy_p %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMz_p %12.7f \n", CMz_damp);
             
-                fprintf(StabFile," CL_p \t\t %12.7f \n", CL_damp);
-                fprintf(StabFile," CD_p \t\t %12.7f \n", CD_damp);
-                fprintf(StabFile," CS_p \t\t %12.7f \n", CS_damp);
+                fprintf(StabFile," CL_p %12.7f \n", CL_damp);
+                fprintf(StabFile," CD_p %12.7f \n", CD_damp);
+                fprintf(StabFile," CS_p %12.7f \n", CS_damp);
           
-                fprintf(StabFile,"CMl_p \t\t %12.7f \n",-CMx_damp);
-                fprintf(StabFile,"CMm_p \t\t %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMn_p \t\t %12.7f \n",-CMz_damp);
+                fprintf(StabFile,"CMl_p %12.7f \n",-CMx_damp);
+                fprintf(StabFile,"CMm_p %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMn_p %12.7f \n",-CMz_damp);
                 
              }
              
@@ -2538,21 +2564,21 @@ void UnsteadyStabilityAndControlSolve(void)
              
              if ( StabControlRun_ == 3 ) {
          
-                fprintf(StabFile,"CFx_(q + alpha_dot) \t\t %12.7f \n", CFx_damp);
-                fprintf(StabFile,"CFy_(q + alpha_dot) \t\t %12.7f \n", CFy_damp);
-                fprintf(StabFile,"CFz_(q + alpha_dot) \t\t %12.7f \n", CFz_damp);
+                fprintf(StabFile,"CFx_(q + alpha_dot) %12.7f \n", CFx_damp);
+                fprintf(StabFile,"CFy_(q + alpha_dot) %12.7f \n", CFy_damp);
+                fprintf(StabFile,"CFz_(q + alpha_dot) %12.7f \n", CFz_damp);
             
-                fprintf(StabFile,"CMx_(q + alpha_dot) \t\t %12.7f \n", CMx_damp);
-                fprintf(StabFile,"CMy_(q + alpha_dot) \t\t %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMz_(q + alpha_dot) \t\t %12.7f \n", CMz_damp);
+                fprintf(StabFile,"CMx_(q + alpha_dot) %12.7f \n", CMx_damp);
+                fprintf(StabFile,"CMy_(q + alpha_dot) %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMz_(q + alpha_dot) %12.7f \n", CMz_damp);
             
-                fprintf(StabFile," CL_(q + alpha_dot) \t\t %12.7f \n", CL_damp);
-                fprintf(StabFile," CD_(q + alpha_dot) \t\t %12.7f \n", CD_damp);
-                fprintf(StabFile," CS_(q + alpha_dot) \t\t %12.7f \n", CS_damp);
+                fprintf(StabFile," CL_(q + alpha_dot) %12.7f \n", CL_damp);
+                fprintf(StabFile," CD_(q + alpha_dot) %12.7f \n", CD_damp);
+                fprintf(StabFile," CS_(q + alpha_dot) %12.7f \n", CS_damp);
           
-                fprintf(StabFile,"CMl_(q + alpha_dot) \t\t %12.7f \n",-CMx_damp);
-                fprintf(StabFile,"CMm_(q + alpha_dot) \t\t %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMn_(q + alpha_dot) \t\t %12.7f \n",-CMz_damp);
+                fprintf(StabFile,"CMl_(q + alpha_dot) %12.7f \n",-CMx_damp);
+                fprintf(StabFile,"CMm_(q + alpha_dot) %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMn_(q + alpha_dot) %12.7f \n",-CMz_damp);
                 
              }
                          
@@ -2560,21 +2586,21 @@ void UnsteadyStabilityAndControlSolve(void)
              
              if ( StabControlRun_ == 4 ) {
          
-                fprintf(StabFile,"CFx_(r - beta_dot) \t\t %12.7f \n", CFx_damp);
-                fprintf(StabFile,"CFy_(r - beta_dot) \t\t %12.7f \n", CFy_damp);
-                fprintf(StabFile,"CFz_(r - beta_dot) \t\t %12.7f \n", CFz_damp);
+                fprintf(StabFile,"CFx_(r - beta_dot) %12.7f \n", CFx_damp);
+                fprintf(StabFile,"CFy_(r - beta_dot) %12.7f \n", CFy_damp);
+                fprintf(StabFile,"CFz_(r - beta_dot) %12.7f \n", CFz_damp);
             
-                fprintf(StabFile,"CMx_(r - beta_dot) \t\t %12.7f \n", CMx_damp);
-                fprintf(StabFile,"CMy_(r - beta_dot) \t\t %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMz_(r - beta_dot) \t\t %12.7f \n", CMz_damp);
+                fprintf(StabFile,"CMx_(r - beta_dot) %12.7f \n", CMx_damp);
+                fprintf(StabFile,"CMy_(r - beta_dot) %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMz_(r - beta_dot) %12.7f \n", CMz_damp);
             
-                fprintf(StabFile," CL_(r - beta_dot) \t\t %12.7f \n", CL_damp);
-                fprintf(StabFile," CD_(r - beta_dot) \t\t %12.7f \n", CD_damp);
-                fprintf(StabFile," CS_(r - beta_dot) \t\t %12.7f \n", CS_damp);
+                fprintf(StabFile," CL_(r - beta_dot) %12.7f \n", CL_damp);
+                fprintf(StabFile," CD_(r - beta_dot) %12.7f \n", CD_damp);
+                fprintf(StabFile," CS_(r - beta_dot) %12.7f \n", CS_damp);
           
-                fprintf(StabFile,"CMl_(r - beta_dot) \t\t %12.7f \n",-CMx_damp);
-                fprintf(StabFile,"CMm_(r - beta_dot) \t\t %12.7f \n", CMy_damp);
-                fprintf(StabFile,"CMn_(r - beta_dot) \t\t %12.7f \n",-CMz_damp);
+                fprintf(StabFile,"CMl_(r - beta_dot) %12.7f \n",-CMx_damp);
+                fprintf(StabFile,"CMm_(r - beta_dot) %12.7f \n", CMy_damp);
+                fprintf(StabFile,"CMn_(r - beta_dot) %12.7f \n",-CMz_damp);
                 
              }  
              

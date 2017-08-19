@@ -155,7 +155,7 @@ private:
     int CurrentWakeIteration_;
     
     int DoSymmetryPlaneSolve_;
-    
+
     int Preconditioner_;
 
     double *Gamma_;
@@ -403,7 +403,12 @@ private:
     // Unsteady routines
     
     void SaveVortexState(void);
-
+    
+    // Overlapping surface code
+    
+    void FindOverLappingSurfaces(void);
+    int LoopsOverLap(int BodyLoop, int WingLoop);
+    
 public:
 
     // Constructor, Destructor, Copy
@@ -509,6 +514,16 @@ public:
     // Read in the FEM deformation file
     
     void LoadFEMDeformationData(void) { VSPGeom_.LoadFEMDeformationData(FileName_); };
+    
+    // Ground effects analysis
+    
+    int &DoGroundEffectsAnalysis(void) { return VSPGeom_.DoGroundEffectsAnalysis(); };
+    
+    double &VehicleRotationAngleVector(int i) { return VSPGeom_.VehicleRotationAngleVector(i); };
+    
+    double &VehicleRotationAxisLocation(int i) { return VSPGeom_.VehicleRotationAxisLocation(i); };
+    
+    double &HeightAboveGround(void) { return VSPGeom_.HeightAboveGround(); };
     
     // Access to VSP geometry
     

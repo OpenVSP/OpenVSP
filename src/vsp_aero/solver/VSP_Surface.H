@@ -269,7 +269,16 @@ private:
     // Control surface routines
     
     void Interpolate_XYZ_From_UV(double u, double v, double *xyz); 
-
+    
+    // Ground effects data
+    
+    int DoGroundEffectsAnalysis_;
+    double GroundEffectsRotationAngle_;
+    double GroundEffectsCGLocation_[3];
+    double GroundEffectsHeightAboveGround_;
+    
+    void RotateGeometry_About_Y_Axis(void);    
+    
 public:
 
     // Constructor, Destructor, Copy
@@ -382,6 +391,13 @@ public:
     
     void FEMUnDeformGeometry(double xyz_p[3]);
     
+    // Ground effects analysis
+    
+    int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
+    double &GroundEffectsRotationAngle(void) { return GroundEffectsRotationAngle_; };
+    double &GroundEffectsCGLocation(int i) { return GroundEffectsCGLocation_[i]; };
+    double &GroundEffectsHeightAboveGround(void) { return GroundEffectsHeightAboveGround_; };
+
     // Control surfaces
     
     int NumberOfControlSurfaces(void) { return NumberOfControlSurfaces_; };

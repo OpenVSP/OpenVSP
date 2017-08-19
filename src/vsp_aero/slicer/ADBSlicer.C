@@ -60,6 +60,8 @@ ADBSLICER::ADBSLICER(void)
     RotateGeometry = 0;
     
     CosRot = SinRot = 0.;
+    
+    ByteSwapForADB = 0;
 
 }
 

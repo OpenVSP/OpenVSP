@@ -164,7 +164,7 @@ VSP_GRID* VSP_AGGLOM::Agglomerate_(VSP_GRID &Grid)
     // Check the mesh for any errors
 
     CheckMesh_(CoarseGrid());
-     
+
     CoarseGrid_ = MergeCoLinearEdges_();
    
     // Check the mesh for any errors
@@ -1436,9 +1436,9 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
           
           CoarseGrid().KuttaNode(NumberOfKuttaNodes) = Node;
           
-          CoarseGrid().WingSurface(NumberOfKuttaNodes) = FineGrid().WingSurface(i);
+          CoarseGrid().WingSurfaceForKuttaNode(NumberOfKuttaNodes) = FineGrid().WingSurfaceForKuttaNode(i);
 
-          CoarseGrid().WingSurfaceIsPeriodic(NumberOfKuttaNodes) = FineGrid().WingSurfaceIsPeriodic(i);
+          CoarseGrid().WingSurfaceForKuttaNodeIsPeriodic(NumberOfKuttaNodes) = FineGrid().WingSurfaceForKuttaNodeIsPeriodic(i);
         
           CoarseGrid().WakeTrailingEdgeX(NumberOfKuttaNodes) = FineGrid().WakeTrailingEdgeX(i);
           CoarseGrid().WakeTrailingEdgeY(NumberOfKuttaNodes) = FineGrid().WakeTrailingEdgeY(i);
@@ -2156,10 +2156,10 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
  
     int Edge, Loop, NeighborLoop, Node1, Node2, Node3, Node4, NodeA, NodeB;
     int NumberOfLoopsMerged, BestNeighborLoop;        
-    double Good, Angle, BestAngle;
+    double Good, Angle, BestAngle, AngleError;
   
-    Good = 120.*PI/180.;
-     
+    Good = 100.*PI/180.;
+
     // Loop over all tris and merge any that can create decent quads
 
     NumberOfLoopsMerged = 0;
@@ -2169,7 +2169,7 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
     Loop = 1;
     
     while ( Loop <= FineGrid().NumberOfLoops() ) {
-     
+    
        if ( FineGrid().LoopList(Loop).NumberOfEdges() == 3 && VortexLoopWasAgglomerated_[Loop] > 0 ) {
         
           Node1 = FineGrid().LoopList(Loop).Node1();
@@ -2179,7 +2179,7 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
           BestAngle = 1.e9;
           
           for ( Edge = 1 ; Edge <= 3 ; Edge++ ) {
-           
+        
              FindNeighborLoopOnLocalEdge_(FineGrid(), Loop, Edge, NeighborLoop, NodeA, NodeB);
 
              if ( Loop != NeighborLoop && FineGrid().LoopList(NeighborLoop).NumberOfEdges() == 3 ) {
@@ -2187,7 +2187,7 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
                 if ( FineGrid().LoopList(NeighborLoop).SpanStation() == FineGrid().LoopList(Loop).SpanStation() ) {
                    
                    if ( LoopsAreCoplanar_(FineGrid(), Loop, NeighborLoop, 5.) ) {
-                      
+             
                       if ( VortexLoopWasAgglomerated_[NeighborLoop] > 0 ) {
                        
                          Node4 = FineGrid().LoopList(NeighborLoop).Node1()
@@ -2197,7 +2197,7 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
                          if ( Edge == 1 ) Angle = CalculateQuadQuality_(FineGrid(),Node3, Node1, Node4, Node2);
                          if ( Edge == 2 ) Angle = CalculateQuadQuality_(FineGrid(),Node1, Node2, Node4, Node3);
                          if ( Edge == 3 ) Angle = CalculateQuadQuality_(FineGrid(),Node2, Node3, Node4, Node1);
-         
+    
                          if ( Angle <= BestAngle ) {
                             
                             BestAngle = Angle;
@@ -2205,6 +2205,7 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
                             BestNeighborLoop = NeighborLoop;
                             
                          }
+                
                          
                       }
                       
@@ -2338,7 +2339,7 @@ void VSP_AGGLOM::CleanUpFans_(void)
     int NodeA, NodeB, NodeC, CurrentLoop, Done, MinLoop;
     int *NumberOfLoopsForNode, **NodeToLoopList, *LoopList, StackSize, Next;
     double **NodeToLoopAngleList, MinAngle;
-    double LimitAngle, TotalAngle;
+    double LimitAngle, TotalAngle, ds[3], MinArea, MaxArea, AspectRatio;
 
     // Create a node to loop tri list
     
@@ -2390,8 +2391,8 @@ void VSP_AGGLOM::CleanUpFans_(void)
     
     // Loop over nodes and find one with fans
     
-    LimitAngle = 30.;
-  
+    LimitAngle = 15.;
+
     LoopList = new int[ FineGrid().NumberOfLoops() + 1];
     
     for ( i = 1 ; i <= FineGrid().NumberOfNodes() ; i ++ ) {
@@ -2408,6 +2409,9 @@ void VSP_AGGLOM::CleanUpFans_(void)
              
              MinLoop = 0;
              
+             MinArea =  1.e9;
+             MaxArea = -1.e9;
+             
              for ( j = 1 ; j <= NumberOfLoopsForNode[i]; j++ ) {
                 
                 Loop = NodeToLoopList[i][j];
@@ -2418,13 +2422,21 @@ void VSP_AGGLOM::CleanUpFans_(void)
                    
                    MinLoop = j;
                    
+                   MinArea = FineGrid().LoopList(Loop).Area();
+                   
                 }
+                
+                MaxArea = MAX(FineGrid().LoopList(Loop).Area(),MaxArea);
                 
              }
              
+             // Calculate aspect ratio
+
+             AspectRatio = MaxArea / MinArea;
+                                                                          
              // If the minimum angle is small, then try and merge this tri with a neighbor
              
-             if ( MinAngle <= LimitAngle ) {
+             if ( MinAngle <= LimitAngle && AspectRatio > 10. ) {
 
                 StackSize = 1;
                 
@@ -2529,7 +2541,7 @@ void VSP_AGGLOM::CleanUpFans_(void)
                             if ( LoopsAreCoplanar_(FineGrid(), CurrentLoop, Loop, 5.) ) {      
                                       
                                // Check if the new total angle is ok
-                            
+                    
                                if ( ( TotalAngle + NodeToLoopAngleList[i][j] <= 60.                   ) ||
                                     ( TotalAngle + NodeToLoopAngleList[i][j] <= 90. && MinAngle <= 5. )    ) {   
                                

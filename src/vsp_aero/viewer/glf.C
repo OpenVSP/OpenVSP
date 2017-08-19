@@ -442,31 +442,56 @@ static void DrawString(char *s, void (*funct) (char s))
 				else distance -= SpaceSize;
 			}
 			else
+			{
 				if (i < ((int)strlen(s)-1))
+				{
 					if (s[i+1] == ' ')
 					{
-						if (m_direction == GLF_LEFT || m_direction == GLF_UP) distance += SymbolDist;
-						else distance -= SymbolDist;
+						if (m_direction == GLF_LEFT || m_direction == GLF_UP)
+						{
+							distance += SymbolDist;
+						}
+						else
+						{
+							distance -= SymbolDist;
+						}
 					}
 					else
 					{
-						if (fonts[curfont]->symbols[s[i+1]] == NULL) continue;
+						if (fonts[curfont]->symbols[s[i + 1]] == NULL)
+						{
+							continue;
+						}
 
 						if (m_direction == GLF_LEFT || m_direction == GLF_RIGHT)
 						{
 							sda = (float)fabs(fonts[curfont]->symbols[s[i]]->rightx);
 							sdb = (float)fabs(fonts[curfont]->symbols[s[i+1]]->leftx);
-							if (m_direction == GLF_LEFT) distance += sda+sdb+SymbolDist;
-							else distance -= sda+sdb+SymbolDist;
+							if (m_direction == GLF_LEFT)
+							{
+								distance += sda + sdb + SymbolDist;
+							}
+							else
+							{
+								distance -= sda + sdb + SymbolDist;
+							}
 						}
 						else
 						{
 							sda = (float)fabs(fonts[curfont]->symbols[s[i]]->topy);
 							sdb = (float)fabs(fonts[curfont]->symbols[s[i]]->bottomy);
-							if (m_direction == GLF_DOWN) distance -= sda+sdb+SymbolDist;
-							else distance += sda+sdb+SymbolDist;
+							if (m_direction == GLF_DOWN)
+							{
+								distance -= sda + sdb + SymbolDist;
+							}
+							else
+							{
+								distance += sda + sdb + SymbolDist;
+							}
 						}
 					}
+				}
+			}
 		}
 	}
 
@@ -512,7 +537,9 @@ static void DrawString(char *s, void (*funct) (char s))
 			}
 		}
 		else
+		{
 			if (i < ((int)strlen(s)-1))
+			{
 				if (s[i+1] == ' ')
 				{
 					switch (m_direction)
@@ -525,7 +552,10 @@ static void DrawString(char *s, void (*funct) (char s))
 				}
 				else
 				{
-					if (fonts[curfont]->symbols[s[i+1]] == NULL) continue;
+					if (fonts[curfont]->symbols[s[i+1]] == NULL)
+					{
+						continue;
+					}
 
 					if (m_direction == GLF_LEFT || m_direction == GLF_RIGHT)
 					{
@@ -540,8 +570,14 @@ static void DrawString(char *s, void (*funct) (char s))
 							sdb = (float)fabs(fonts[curfont]->symbols[s[i]]->leftx);
 						}
 
-						if (m_direction == GLF_LEFT) glTranslatef(sda+sdb+SymbolDist, 0, 0);
-						else glTranslatef(-(sda+sdb+SymbolDist), 0, 0);
+						if (m_direction == GLF_LEFT)
+						{
+							glTranslatef(sda+sdb+SymbolDist, 0, 0);
+						}
+						else
+						{
+							glTranslatef(-(sda+sdb+SymbolDist), 0, 0);
+						}
 					}
 					else
 					{
@@ -556,11 +592,19 @@ static void DrawString(char *s, void (*funct) (char s))
 							sdb = (float)fabs(fonts[curfont]->symbols[s[i]]->bottomy);
 						}
 
-						if (m_direction == GLF_DOWN) glTranslatef(0, -(sda+sdb+SymbolDist), 0);
-						else glTranslatef(0, sda+sdb+SymbolDist, 0);
+						if (m_direction == GLF_DOWN)
+						{
+							glTranslatef(0, -(sda+sdb+SymbolDist), 0);
+						}
+						else
+						{
+							glTranslatef(0, sda+sdb+SymbolDist, 0);
+						}
 					}
 
 				}
+			}
+		}
 	}
 	glPopMatrix();
 }
