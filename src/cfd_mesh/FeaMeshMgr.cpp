@@ -1589,6 +1589,89 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
     {
         fprintf( fp, "BEGIN BULK\n" );
 
+        // FeaPart Nodes
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        {
+            if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
+            {
+                fprintf( fp, "\n" );
+                fprintf( fp, "$%s Gridpoints\n", m_FeaPartNameVec[i].c_str() );
+
+                for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+                {
+                    if ( m_PntShift[j] >= 0 )
+                    {
+                        if ( m_FeaNodeVec[j]->HasOnlyIndex( i ) )
+                        {
+                            m_FeaNodeVec[j]->WriteNASTRAN( fp );
+                        }
+                    }
+                }
+            }
+        }
+
+        // SubSurface Nodes
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
+            fprintf( fp, "\n" );
+            fprintf( fp, "$%s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+
+            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            {
+                if ( m_PntShift[j] >= 0 )
+                {
+                    if ( m_FeaNodeVec[j]->HasOnlyIndex( i + m_NumFeaParts ) )
+                    {
+                        m_FeaNodeVec[j]->WriteNASTRAN( fp );
+                    }
+                }
+            }
+        }
+
+        // FixedPoint Nodes
+        if ( m_NumFeaFixPoints > 0 )
+        {
+            fprintf( fp, "\n" );
+            fprintf( fp, "$FixedPoints\n" );
+
+            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+            {
+                if ( m_PntShift[j] >= 0 )
+                {
+                    if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag )
+                    {
+                        m_FeaNodeVec[j]->WriteNASTRAN( fp );
+                    }
+                }
+            }
+        }
+
+        // Intersection Nodes
+        fprintf( fp, "\n" );
+        fprintf( fp, "$Intersections\n" );
+
+        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
+        {
+            if ( m_PntShift[j] >= 0 )
+            {
+                if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && !m_FeaNodeVec[j]->m_FixedPointFlag )
+                {
+                    m_FeaNodeVec[j]->WriteNASTRAN( fp );
+                }
+            }
+        }
+
+        //==== Remaining Nodes ====//
+        fprintf( fp, "\n" );
+        fprintf( fp, "$Remainingnodes\n" );
+        for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )
+        {
+            if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->m_Tags.size() == 0 )
+            {
+                m_FeaNodeVec[i]->WriteNASTRAN( fp );
+            }
+        }
+
         int elem_id = 0;
 
         // Write FeaParts
@@ -1664,86 +1747,6 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                         m_FeaElementVec[j]->WriteNASTRAN( fp, elem_id, cap_property_id );
                     }
                 }
-            }
-        }
-
-        // FeaPart Nodes
-        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
-        {
-            if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
-            {
-                fprintf( fp, "\n" );
-                fprintf( fp, "$%s Gridpoints\n", m_FeaPartNameVec[i].c_str() );
-
-                for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-                {
-                    if ( m_PntShift[j] >= 0 )
-                    {
-                        if ( m_FeaNodeVec[j]->HasOnlyIndex( i ) )
-                        {
-                            m_FeaNodeVec[j]->WriteNASTRAN( fp );
-                        }
-                    }
-                }
-            }
-        }
-
-        // SubSurface Nodes
-        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
-        {
-            fprintf( fp, "\n" );
-            fprintf( fp, "$%s Gridpoints\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
-
-            for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-            {
-                if ( m_PntShift[j] >= 0 )
-                {
-                    if ( m_FeaNodeVec[j]->HasOnlyIndex( i + m_NumFeaParts ) )
-                    {
-                        m_FeaNodeVec[j]->WriteNASTRAN( fp );
-                    }
-                }
-            }
-        }
-
-        // FixedPoint Nodes
-        fprintf( fp, "\n" );
-        fprintf( fp, "$FixedPoints\n" );
-
-        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-        {
-            if ( m_PntShift[j] >= 0 )
-            {
-                if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && m_FeaNodeVec[j]->m_FixedPointFlag )
-                {
-                    m_FeaNodeVec[j]->WriteNASTRAN( fp );
-                }
-            }
-        }
-
-        // Intersection Nodes
-        fprintf( fp, "\n" );
-        fprintf( fp, "$Intersections\n" );
-
-        for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
-        {
-            if ( m_PntShift[j] >= 0 )
-            {
-                if ( m_FeaNodeVec[j]->m_Tags.size() > 1 && !m_FeaNodeVec[j]->m_FixedPointFlag )
-                {
-                    m_FeaNodeVec[j]->WriteNASTRAN( fp );
-                }
-            }
-        }
-
-        //==== Remaining Nodes ====//
-        fprintf( fp, "\n" );
-        fprintf( fp, "$Remainingnodes\n" );
-        for ( int i = 0 ; i < ( int )m_FeaNodeVec.size() ; i++ )
-        {
-            if ( m_PntShift[i] >= 0 && m_FeaNodeVec[i]->m_Tags.size() == 0 )
-            {
-                m_FeaNodeVec[i]->WriteNASTRAN( fp );
             }
         }
 
@@ -1905,10 +1908,9 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 }
             }
 
-            fprintf( fp, "\n" );
-
             if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
             {
+                fprintf( fp, "\n" );
                 fprintf( fp, "*ELEMENT, TYPE=S6, ELSET=E%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
@@ -1980,7 +1982,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 m_FeaNodeVec[i]->WriteCalculix( fp );
             }
         }
-        fprintf( fp, "\n" );
 
         //==== FeaProperties ====//
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
@@ -1992,6 +1993,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
                 if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                 {
+                    fprintf( fp, "\n" );
                     sprintf( str, "E%s", m_FeaPartNameVec[i].c_str() );
                     m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
                     fprintf( fp, "\n" );
@@ -1999,6 +2001,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
                 if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_BEAM || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
                 {
+                    fprintf( fp, "\n" );
                     sprintf( str, "E%s_CAP", m_FeaPartNameVec[i].c_str() );
                     m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str );
                     fprintf( fp, "\n" );
@@ -2013,6 +2016,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
             if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
             {
+                fprintf( fp, "\n" );
                 sprintf( str, "E%s", m_SimpleSubSurfaceVec[i].GetName().c_str() );
                 m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
                 fprintf( fp, "\n" );
@@ -2020,6 +2024,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
 
             if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
             {
+                fprintf( fp, "\n" );
                 sprintf( str, "E%s_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str() );
                 m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str );
                 fprintf( fp, "\n" );
@@ -2030,7 +2035,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
         //==== Materials ====//
         fprintf( fp, "\n" );
         fprintf( fp, "**Materials\n" );
-
         for ( unsigned int i = 0; i < m_SimpleMaterialVec.size(); i++ )
         {
             m_SimpleMaterialVec[i].WriteCalculix( fp, i );
