@@ -587,7 +587,7 @@ void APITestSuite::TestFEAMesh()
     TEST_ASSERT( floor_id.c_str() != NULL );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( floor_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( floor_id, "CenterLocation", "FeaPart" ), 34 ), 34, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( floor_id, "RelCenterLocation", "FeaPart" ), 0.34 ), 0.34, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( floor_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::XZ_BODY ), vsp::FEA_SLICE_TYPE::XZ_BODY, TEST_TOL ); // XZ_BODY
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( floor_id, "FeaPropertyIndex", "FeaPart" ), 2 ), 2, TEST_TOL );
@@ -597,7 +597,7 @@ void APITestSuite::TestFEAMesh()
     TEST_ASSERT( bulkhead_id.c_str() != NULL );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "CenterLocation", "FeaPart" ), 15 ), 15, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "RelCenterLocation", "FeaPart" ), 0.15 ), 0.15, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::CONST_U ), vsp::FEA_SLICE_TYPE::CONST_U, TEST_TOL );
 
     //==== Add Dome ====//
@@ -613,7 +613,7 @@ void APITestSuite::TestFEAMesh()
     TEST_ASSERT( stiffener_id.c_str() != NULL );
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "CenterLocation", "FeaPart" ), 45 ), 45, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "RelCenterLocation", "FeaPart" ), 0.45 ), 0.45, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::CONST_U ), vsp::FEA_SLICE_TYPE::CONST_U, TEST_TOL );
 
     //==== Add LineArray ====//
