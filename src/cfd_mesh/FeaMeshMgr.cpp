@@ -1788,9 +1788,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 fprintf( fp, "**%s\n", m_FeaPartNameVec[i].c_str() );
                 fprintf( fp, "*NODE, NSET=N%s\n", m_FeaPartNameVec[i].c_str() );
 
-                int property_id = m_FeaPartPropertyIndexVec[i];
-                int cap_property_id = m_FeaPartCapPropertyIndexVec[i];
-
                 for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
                 {
                     if ( m_PntShift[j] >= 0 )
@@ -1816,11 +1813,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
                             m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
                         }
                     }
-
-                    fprintf( fp, "\n" );
-                    sprintf( str, "E%s", m_FeaPartNameVec[i].c_str() );
-
-                    m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
                     fprintf( fp, "\n" );
                 }
 
@@ -1837,13 +1829,8 @@ void FeaMeshMgrSingleton::WriteCalculix()
                         }
                     }
 
-                    fprintf( fp, "\n" );
-                    sprintf( str, "E%s_CAP", m_FeaPartNameVec[i].c_str() );
-
-                    m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str );
-                    fprintf( fp, "\n" );
-
                     // Write Normal Vectors
+                    fprintf( fp, "\n" );
                     fprintf( fp, "*NORMAL\n" );
 
                     for ( int j = 0; j < m_FeaElementVec.size(); j++ )
@@ -1907,9 +1894,6 @@ void FeaMeshMgrSingleton::WriteCalculix()
             fprintf( fp, "**%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
             fprintf( fp, "*NODE, NSET=N%s\n", m_SimpleSubSurfaceVec[i].GetName().c_str() );
 
-            int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
-            int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
-
             for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
             {
                 if ( m_PntShift[j] >= 0 )
@@ -1935,11 +1919,7 @@ void FeaMeshMgrSingleton::WriteCalculix()
                         m_FeaElementVec[j]->WriteCalculix( fp, elem_id );
                     }
                 }
-
                 fprintf( fp, "\n" );
-                sprintf( str, "E%s", m_SimpleSubSurfaceVec[i].GetName().c_str() );
-
-                m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
             }
 
             if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
@@ -1956,13 +1936,8 @@ void FeaMeshMgrSingleton::WriteCalculix()
                     }
                 }
 
-                fprintf( fp, "\n" );
-                sprintf( str, "E%s_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str() );
-
-                m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str );
-                fprintf( fp, "\n" );
-
                 // Write Normal Vectors
+                fprintf( fp, "\n" );
                 fprintf( fp, "*NORMAL\n" );
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
@@ -2005,6 +1980,52 @@ void FeaMeshMgrSingleton::WriteCalculix()
                 m_FeaNodeVec[i]->WriteCalculix( fp );
             }
         }
+        fprintf( fp, "\n" );
+
+        //==== FeaProperties ====//
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
+        {
+            if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
+            {
+                int property_id = m_FeaPartPropertyIndexVec[i];
+                int cap_property_id = m_FeaPartCapPropertyIndexVec[i];
+
+                if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
+                {
+                    sprintf( str, "E%s", m_FeaPartNameVec[i].c_str() );
+                    m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
+                    fprintf( fp, "\n" );
+                }
+
+                if ( m_FeaPartIncludedElementsVec[i] == vsp::FEA_BEAM || m_FeaPartIncludedElementsVec[i] == vsp::FEA_SHELL_AND_BEAM )
+                {
+                    sprintf( str, "E%s_CAP", m_FeaPartNameVec[i].c_str() );
+                    m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str );
+                    fprintf( fp, "\n" );
+                }
+            }
+        }
+
+        for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
+        {
+            int property_id = m_SimpleSubSurfaceVec[i].GetFeaPropertyIndex();
+            int cap_property_id = m_SimpleSubSurfaceVec[i].GetCapFeaPropertyIndex();
+
+            if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
+            {
+                sprintf( str, "E%s", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+                m_SimplePropertyVec[property_id].WriteCalculix( fp, str );
+                fprintf( fp, "\n" );
+            }
+
+            if ( m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_BEAM || m_SimpleSubSurfaceVec[i].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM )
+            {
+                sprintf( str, "E%s_CAP", m_SimpleSubSurfaceVec[i].GetName().c_str() );
+                m_SimplePropertyVec[cap_property_id].WriteCalculix( fp, str );
+                fprintf( fp, "\n" );
+            }
+        }
+
 
         //==== Materials ====//
         fprintf( fp, "\n" );
