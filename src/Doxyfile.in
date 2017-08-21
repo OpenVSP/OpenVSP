@@ -671,9 +671,14 @@ WARN_LOGFILE           =
 # directories like "/usr/src/myproject". Separate the files or directories 
 # with spaces.
 
-INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/geom_core \
+INPUT                  = @CMAKE_CURRENT_SOURCE_DIR@/cfd_mesh \
+                         @CMAKE_CURRENT_SOURCE_DIR@/geom_api \
+                         @CMAKE_CURRENT_SOURCE_DIR@/geom_core \
                          @CMAKE_CURRENT_SOURCE_DIR@/gui_and_draw \
-                         @CMAKE_CURRENT_SOURCE_DIR@/util
+                         @CMAKE_CURRENT_SOURCE_DIR@/util \
+                         @CMAKE_CURRENT_SOURCE_DIR@/vsp \
+                         @CMAKE_CURRENT_SOURCE_DIR@/vsp_graphic \
+                         @CMAKE_CURRENT_SOURCE_DIR@/xmlvsp
 
 # This tag can be used to specify the character encoding of the source files 
 # that doxygen parses. Internally doxygen uses the UTF-8 encoding, which is 
