@@ -102,7 +102,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_StructureTabLayout.AddDividerBox( "Structure Selection" );
 
-    int browser_h = 100;
+    int browser_h = 150;
 
     m_StructureSelectBrowser = m_StructureTabLayout.AddFlBrowser( browser_h );
     m_StructureSelectBrowser->type( FL_HOLD_BROWSER );

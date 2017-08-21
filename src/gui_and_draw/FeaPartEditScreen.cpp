@@ -68,7 +68,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     int button_width = m_SliceEditLayout.GetButtonWidth();
 
-    m_SliceEditLayout.AddLabel( "Parameterization:", m_SliceEditLayout.GetRemainX() / 3 );
+    m_SliceEditLayout.AddLabel( "Distance:", m_SliceEditLayout.GetRemainX() / 3 );
     m_SliceEditLayout.SetButtonWidth( m_SliceEditLayout.GetRemainX() / 2 );
     m_SliceEditLayout.AddButton( m_SlicePosRelToggle, "Relative" );
     m_SliceEditLayout.AddButton( m_SlicePosAbsToggle, "Absolute" );
@@ -157,7 +157,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     button_width = m_RibEditLayout.GetButtonWidth();
 
-    m_RibEditLayout.AddLabel( "Parameterization:", m_RibEditLayout.GetRemainX() / 3 );
+    m_RibEditLayout.AddLabel( "Distance:", m_RibEditLayout.GetRemainX() / 3 );
     m_RibEditLayout.SetButtonWidth( m_RibEditLayout.GetRemainX() / 2 );
     m_RibEditLayout.AddButton( m_RibPosRelToggle, "Relative" );
     m_RibEditLayout.AddButton( m_RibPosAbsToggle, "Absolute" );
@@ -235,7 +235,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_SparEditLayout.ForceNewLine();
 
-    m_SparEditLayout.AddLabel( "Parameterization:", m_SparEditLayout.GetRemainX() / 3 );
+    m_SparEditLayout.AddLabel( "Distance:", m_SparEditLayout.GetRemainX() / 3 );
     m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 2 );
     m_SparEditLayout.AddButton( m_SparPosRelToggle, "Relative" );
     m_SparEditLayout.AddButton( m_SparPosAbsToggle, "Absolute" );
@@ -403,6 +403,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_DomeEditLayout.ForceNewLine();
     m_DomeEditLayout.AddYGap();
 
+    m_DomeEditLayout.SetButtonWidth( m_DomeEditLayout.GetRemainX() / 3 );
     m_DomeEditLayout.SetSameLineFlag( false );
     m_DomeEditLayout.SetFitWidthFlag( true );
 
@@ -448,7 +449,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_RibArrayEditLayout.SetSameLineFlag( true );
     m_RibArrayEditLayout.SetFitWidthFlag( false );
 
-    m_RibArrayEditLayout.AddLabel( "Parameterization:", m_RibArrayEditLayout.GetRemainX() / 3 );
+    m_RibArrayEditLayout.AddLabel( "Distance:", m_RibArrayEditLayout.GetRemainX() / 3 );
     m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() / 2 );
     m_RibArrayEditLayout.AddButton( m_RibArrayPosRelToggle, "Relative" );
     m_RibArrayEditLayout.AddButton( m_RibArrayPosAbsToggle, "Absolute" );
@@ -465,8 +466,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_RibArrayEditLayout.SetFitWidthFlag( false );
 
     m_RibArrayEditLayout.AddLabel( "Direction", m_RibArrayEditLayout.GetRemainX() / 3 );
-    m_RibArrayEditLayout.AddButton( m_RibArrayNegDirToggle, "Negative" );
     m_RibArrayEditLayout.AddButton( m_RibArrayPosDirToggle, "Positive" );
+    m_RibArrayEditLayout.AddButton( m_RibArrayNegDirToggle, "Negative" );
 
     m_RibArrayPosNegDirToggleGroup.Init( this );
     m_RibArrayPosNegDirToggleGroup.AddButton( m_RibArrayNegDirToggle.GetFlButton() );
@@ -556,7 +557,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SliceArrayEditLayout.SetSameLineFlag( true );
     m_SliceArrayEditLayout.SetFitWidthFlag( false );
 
-    m_SliceArrayEditLayout.AddLabel( "Parameterization:", m_SliceArrayEditLayout.GetRemainX() / 3 );
+    m_SliceArrayEditLayout.AddLabel( "Distance:", m_SliceArrayEditLayout.GetRemainX() / 3 );
     m_SliceArrayEditLayout.SetButtonWidth( m_SliceArrayEditLayout.GetRemainX() / 2 );
     m_SliceArrayEditLayout.AddButton( m_SliceArrayPosRelToggle, "Relative" );
     m_SliceArrayEditLayout.AddButton( m_SliceArrayPosAbsToggle, "Absolute" );
@@ -570,8 +571,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SliceArrayEditLayout.SetButtonWidth( m_SliceArrayEditLayout.GetRemainX() / 3 );
 
     m_SliceArrayEditLayout.AddLabel( "Direction", m_SliceArrayEditLayout.GetRemainX() / 3 );
-    m_SliceArrayEditLayout.AddButton( m_SliceArrayNegDirToggle, "Negative" );
     m_SliceArrayEditLayout.AddButton( m_SliceArrayPosDirToggle, "Positive" );
+    m_SliceArrayEditLayout.AddButton( m_SliceArrayNegDirToggle, "Negative" );
 
     m_SliceArrayPosNegDirToggleGroup.Init( this );
     m_SliceArrayPosNegDirToggleGroup.AddButton( m_SliceArrayNegDirToggle.GetFlButton() );
@@ -977,8 +978,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_FeaSSLineArrayGroup.SetButtonWidth( m_FeaSSLineArrayGroup.GetRemainX() / 3 );
 
     m_FeaSSLineArrayGroup.AddLabel( "Direction", m_FeaSSLineArrayGroup.GetRemainX() / 3 );
-    m_FeaSSLineArrayGroup.AddButton( m_FeaSSLineArrayNegDirToggle, "Negative" );
     m_FeaSSLineArrayGroup.AddButton( m_FeaSSLineArrayPosDirToggle, "Positive" );
+    m_FeaSSLineArrayGroup.AddButton( m_FeaSSLineArrayNegDirToggle, "Negative" );
 
     m_FeaSSLineArrayPosNegDirToggleGroup.Init( this );
     m_FeaSSLineArrayPosNegDirToggleGroup.AddButton( m_FeaSSLineArrayNegDirToggle.GetFlButton() );
@@ -2382,25 +2383,33 @@ void FeaPartEditScreen::UpdateUnitLabels()
                 {
                     if ( feaprt->GetType() == vsp::FEA_SLICE || feaprt->GetType() == vsp::FEA_RIB || feaprt->GetType() == vsp::FEA_SPAR || feaprt->GetType() == vsp::FEA_RIB_ARRAY || feaprt->GetType() == vsp::FEA_SLICE_ARRAY ) // TODO: Switch to different check
                     {
+                        m_SlicePosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                        m_SparPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                        m_RibPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                        m_RibArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                        m_RibArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                        m_SliceArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                        m_SliceArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+
                         if ( feaprt->m_AbsRelParmFlag() == vsp::ABS )
                         {
-                            m_SlicePosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                            m_SparPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                            m_RibPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                            m_RibArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                            m_RibArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                            m_SliceArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
-                            m_SliceArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                            m_SlicePosUnit.Activate();
+                            m_SparPosUnit.Activate();
+                            m_RibPosUnit.Activate();
+                            m_RibArrayStartLocUnit.Activate();
+                            m_RibArrayPosUnit.Activate();
+                            m_SliceArrayStartLocUnit.Activate();
+                            m_SliceArrayPosUnit.Activate();
                         }
                         else if( feaprt->m_AbsRelParmFlag() == vsp::REL )
                         {
-                            m_SlicePosUnit.GetFlButton()->copy_label( " " );
-                            m_SparPosUnit.GetFlButton()->copy_label( " " );
-                            m_RibPosUnit.GetFlButton()->copy_label( " " );
-                            m_RibArrayStartLocUnit.GetFlButton()->copy_label( " " );
-                            m_RibArrayPosUnit.GetFlButton()->copy_label( " " );
-                            m_SliceArrayStartLocUnit.GetFlButton()->copy_label( " " );
-                            m_SliceArrayPosUnit.GetFlButton()->copy_label( " " );
+                            m_SlicePosUnit.Deactivate();
+                            m_SparPosUnit.Deactivate();
+                            m_RibPosUnit.Deactivate();
+                            m_RibArrayStartLocUnit.Deactivate();
+                            m_RibArrayPosUnit.Deactivate();
+                            m_SliceArrayStartLocUnit.Deactivate();
+                            m_SliceArrayPosUnit.Deactivate();
                         }
                     }
                 }
