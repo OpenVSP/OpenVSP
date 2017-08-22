@@ -245,11 +245,7 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
 
 VSP_EDGE::~VSP_EDGE(void)
 {
-
    // Nothing to do...
-   
-   printf("edge destructor... \n");fflush(NULL);
-   
 }
 
 /*##############################################################################
