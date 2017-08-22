@@ -642,7 +642,7 @@ void StructureMgrSingleton::InitFeaProperties()
 
     if ( default_shell && !shell_prop )
     {
-        default_shell->SetName( "Default_Shell" );
+        default_shell->SetName( "DefaultShell" );
         default_shell->m_FeaMaterialIndex.Set( 0 ); // aluminum
         default_shell->m_FeaPropertyType.Set( vsp::FEA_SHELL );
 
@@ -653,7 +653,7 @@ void StructureMgrSingleton::InitFeaProperties()
 
     if ( default_beam && !beam_prop )
     {
-        default_beam->SetName( "Default_Beam" );
+        default_beam->SetName( "DefaultBeam" );
         default_beam->m_FeaMaterialIndex.Set( 0 ); // aluminum
         default_beam->m_FeaPropertyType.Set( vsp::FEA_BEAM );
 
