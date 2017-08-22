@@ -603,7 +603,7 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
           LoopStack[Next] = Loop;
          
           KelvinGroup = LoopInKelvinConstraintGroup_[Loop];
-             
+
           while ( Next <= StackSize ) {
              
              Loop = LoopStack[Next];
@@ -617,7 +617,7 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                    Loop1 = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Loop1();
                    
                    Loop2 = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Loop2();
-                   
+
                    if ( LoopInKelvinConstraintGroup_[Loop1] == KelvinGroup ) {
                       
                       LoopInKelvinConstraintGroup_[Loop1] = -KelvinGroup;
@@ -641,7 +641,7 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
               
                    }    
                   
-                   else if ( LoopInKelvinConstraintGroup_[Loop1] != -KelvinGroup ){
+                   else if ( LoopInKelvinConstraintGroup_[Loop2] != -KelvinGroup ){
                      
                       printf("WTF... how did we jump to another Kelvin Group... \n"); fflush(NULL);
                       exit(1);
@@ -655,12 +655,12 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
              Next++;   
      
           }
-            
+      
           // Check and see if there are any loops in this Kelvin group that were not flipped
          
           NotFlipped = 0;
-         
-          for ( p = 1 ; p <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; p++ ) {                  
+
+          for ( p = 1 ; p <= NumberOfVortexLoops_ ; p++ ) {                  
                   
              if ( LoopInKelvinConstraintGroup_[p] == KelvinGroup ) {
                
@@ -769,6 +769,20 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
                
              }  
                    
+          }
+          
+          else {
+             
+             for ( p = 1 ; p <= NumberOfVortexLoops_ ; p++ ) {                  
+                  
+                if ( LoopInKelvinConstraintGroup_[p] == -KelvinGroup ) {
+                  
+                   LoopInKelvinConstraintGroup_[p] = KelvinGroup;
+                  
+                }
+            
+             }
+          
           }
          
        }                 
@@ -7775,7 +7789,7 @@ void VSP_SOLVER::UpdateVortexEdgeStrengths(int Level, int UpdateType)
              Node1 = VortexSheet(k).TrailingVortexEdge(i).Node();
    
              VortexSheet(k).TrailingVortexEdge(i).Gamma() = VSPGeom().Grid(Level).NodeList(Node1).dGamma();          
-     
+
           }
           
           if ( TimeAccurate_ ) VortexSheet(k).MaxConvectedDistance() = CurrentTime_;
