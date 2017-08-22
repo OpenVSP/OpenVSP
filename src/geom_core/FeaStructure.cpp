@@ -1169,7 +1169,14 @@ VspSurf FeaPart::ComputeRibSurf( double rel_center_location, double rotation )
         vec3d center_to_lead_edge = center - lead_edge;
         center_to_lead_edge.normalize();
 
-        double length_rib_0 = ( dist( trail_edge, lead_edge ) / 2 ) + 2 * FLT_EPSILON; // Rib half length before rotations, slightly oversized
+        // Identify expansion 
+        double expan = wing_bbox.GetLargestDist() * 1e-5;
+        if ( expan < 1e-6 )
+        {
+            expan = 1e-6;
+        }
+
+        double length_rib_0 = ( dist( trail_edge, lead_edge ) / 2 ) + expan; // Rib half length before rotations, slightly oversized
 
         // Normal vector to wing chord line
         vec3d normal_vec;
@@ -1326,7 +1333,7 @@ VspSurf FeaPart::ComputeRibSurf( double rel_center_location, double rotation )
         // Identify corners of the plane
         vec3d cornerA, cornerB, cornerC, cornerD;
 
-        double height = 0.5 * wing_bbox.GetSmallestDist() + 2 * FLT_EPSILON; // Height of Rib, slightly oversized
+        double height = 0.5 * wing_bbox.GetSmallestDist() + expan; // Height of Rib, slightly oversized
 
         cornerA = trail_edge_f + ( height * wing_z_axis );
         cornerB = trail_edge_f - ( height * wing_z_axis );
@@ -1418,6 +1425,13 @@ VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_p
         del_y = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
         del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
 
+        // Identify expansion 
+        double expan = geom_bbox.GetLargestDist() * 1e-5;
+        if ( expan < 1e-6 )
+        {
+            expan = 1e-6;
+        }
+
         if ( orientation_plane == vsp::CONST_U )
         {
             // Build conformal spine from parent geom
@@ -1478,12 +1492,12 @@ VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_p
         else
         {
             // Increase size slighlty to avoid tangency errors in FeaMeshMgr
-            del_x_minus = 2 * FLT_EPSILON;
-            del_x_plus = 2 * FLT_EPSILON;
-            del_y_minus = 2 * FLT_EPSILON;
-            del_y_plus = 2 * FLT_EPSILON;
-            del_z_minus = 2 * FLT_EPSILON;
-            del_z_plus = 2 * FLT_EPSILON;
+            del_x_minus = expan;
+            del_x_plus = expan;
+            del_y_minus = expan;
+            del_y_plus = expan;
+            del_z_minus = expan;
+            del_z_plus = expan;
 
             if ( orientation_plane == vsp::YZ_BODY || orientation_plane == vsp::YZ_ABS )
             {
@@ -2177,7 +2191,14 @@ void FeaSpar::ComputePlanarSurf()
         vec3d wing_z_axis = trail_edge_up - trail_edge_low;
         wing_z_axis.normalize();
 
-        double height = 0.5 * wing_bbox.GetSmallestDist() + 2 * FLT_EPSILON; // Height of spar, slightly oversized
+        // Identify expansion 
+        double expan = wing_bbox.GetLargestDist() * 1e-5;
+        if ( expan < 1e-6 )
+        {
+            expan = 1e-6;
+        }
+
+        double height = 0.5 * wing_bbox.GetSmallestDist() + expan; // Height of spar, slightly oversized
 
         vec3d center = ( inside_edge_pnt + outside_edge_pnt ) / 2; // center of spar
 
@@ -2236,8 +2257,8 @@ void FeaSpar::ComputePlanarSurf()
         double beta_le = -1 * PI + signed_angle( center_to_inner_edge, lead_edge_vec, normal_vec ); // Angle between spar and leading edge
 
         // Slightly oversize spar length
-        double length_spar_in = 2 * FLT_EPSILON;
-        double length_spar_out = 2 * FLT_EPSILON;
+        double length_spar_in = expan;
+        double length_spar_out = expan;
         double perp_dist;
 
         // Determine if the rib intersects the leading/trailing edge or inner/outer edge
