@@ -760,13 +760,9 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr )
 
             int num_pnts_on_surf = crv.CountMatch( projcrv, tol );
 
-            if ( num_pnts_on_surf > 1 )
-            {
-                retFlag = true;
-            }
-
             if ( num_pnts_on_surf > 2 || ( num_pnts_on_surf == 2 && crv.SingleLinear() ) )
             {
+                retFlag = true;
                 //==== If Surface Add To List ====//
                 MeshMgr->AddPossCoPlanarSurf( this, surfPtr );
                 PlaneBorderCurveIntersect( surfPtr, border_curves[i], MeshMgr );
