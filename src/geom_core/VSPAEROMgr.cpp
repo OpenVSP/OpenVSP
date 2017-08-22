@@ -789,6 +789,12 @@ string VSPAEROMgrSingleton::ComputeGeometry()
 
         // Compute intersected and trimmed geometry
         int halfFlag = 0;
+
+        if ( m_Symmetry() )
+        {
+            halfFlag = 1;
+        }
+
         m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag );
 
         // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
