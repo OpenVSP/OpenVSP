@@ -1497,6 +1497,7 @@ VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_p
         {
             current_surf.GetBoundingBox( geom_bbox );
         }
+        geom_bbox.Expand( 0.5 );
 
         geom_center = geom_bbox.GetCenter();
         del_x = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
