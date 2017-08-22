@@ -741,6 +741,11 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr )
     bool retFlag = false;
     double tol = 1.0e-05;
 
+    if ( this->GetSurfaceCfdType() == vsp::CFD_STRUCTURE )
+    {
+        return retFlag;
+    }
+
     vector< SCurve* > border_curves;
     surfPtr->LoadSCurves( border_curves );
 
