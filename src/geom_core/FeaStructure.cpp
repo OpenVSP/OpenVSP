@@ -2645,11 +2645,26 @@ void FeaFixPoint::IdentifySplitSurfIndex()
 
         // Split the parent surface
         vector< XferSurf > tempxfersurfs;
+        parent_surf_vec[i].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs );
 
         // Check if the UW point is on a valid patch (invalid patches are discarded in FetchXFerSurf)
-        bool on_valid_patch = parent_surf_vec[i].CheckandFetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs, uw[0], uw[1] );
+        bool on_valid_patch = false;
 
         int num_split_surfs = tempxfersurfs.size();
+
+        // Check if the UW point is on a valid patch (invalid patches are discarded in FetchXFerSurf)
+        for ( size_t j = 0; j < num_split_surfs; j++ )
+        {
+            double umin = tempxfersurfs[j].m_Surface.get_u0();
+            double umax = tempxfersurfs[j].m_Surface.get_umax();
+            double vmin = tempxfersurfs[j].m_Surface.get_v0();
+            double vmax = tempxfersurfs[j].m_Surface.get_vmax();
+
+            if ( uw[1] >= vmin && uw[1] <= vmax && uw[0] >= umin && uw[0] <= umax )
+            {
+                on_valid_patch = true; // The point is on the patch
+            }
+        }
 
         for ( size_t j = 0; j < num_split_surfs; j++ )
         {

@@ -1864,56 +1864,6 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
     }
 }
 
-bool VspSurf::CheckandFetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const double &u, const double &w )
-{
-    // CheckandFetchXFerSurf is similar to FetchXFerSurf, but also returns a bool indicating whether or not an input UW point 
-    //  lies on a valid patch. A valid patch is one that is passses CheckValidPatch.
-
-    bool on_valid_patch = true;
-
-    vector < piecewise_surface_type > surfvec;
-    surfvec.push_back( m_Surface );
-    SplitSurfs( surfvec );
-
-    int num_sections = surfvec.size();
-
-    for ( int isect = 0; isect < num_sections; isect++ )
-    {
-        piecewise_surface_type surf = surfvec[isect];
-
-        if ( !CheckValidPatch( surf ) )
-        {
-            if ( m_MagicVParm )
-            {
-                double umin = surf.get_u0();
-                double umax = surf.get_umax();
-                double wmin = surf.get_v0();
-                double wmax = surf.get_vmax();
-
-                if ( w >= wmin && w <= wmax && u >= umin && u <= umax )
-                {
-                    on_valid_patch = false; // The point is on the invalid patch
-                }
-            }
-
-            continue;
-        }
-
-        // Made it through all checks, keep surface.
-        XferSurf xsurf;
-        xsurf.m_FlipNormal = m_FlipNormal;
-        xsurf.m_Surface = surfvec[isect];
-        xsurf.m_GeomID = geom_id;
-        xsurf.m_SurfIndx = surf_ind;
-        xsurf.m_SurfType = m_SurfType;
-        xsurf.m_SurfCfdType = m_SurfCfdType;
-        xsurf.m_CompIndx = comp_ind;
-        xfersurfs.push_back( xsurf );
-    }
-
-    return on_valid_patch;
-}
-
 void VspSurf::ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &ptindxs, vector< vec3d > &allPntVec,
                   piecewise_surface_type::index_type &maxu, piecewise_surface_type::index_type &maxv,
                   piecewise_surface_type::index_type &nupatch, piecewise_surface_type::index_type &nvpatch,
