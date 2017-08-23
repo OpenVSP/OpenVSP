@@ -2341,39 +2341,3 @@ void VspSurf::MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &pt
     m_Surface.init_uv( 1, 1 );
     m_Surface.set( patch, 0, 0 );
 }
-
-bool VspSurf::OnValidPatch( const double &u, const double &w )
-{
-    // This function is used to check if a given UW point is located on a valid surface patch, 
-    //  and returns true if the point is on a valid patch. 
-
-    if ( m_MagicVParm )
-    {
-        vector < piecewise_surface_type > surfvec;
-        surfvec.push_back( m_Surface );
-        SplitSurfs( surfvec );
-
-        int num_sections = surfvec.size();
-
-        for ( int isect = 0; isect < num_sections; isect++ )
-        {
-            piecewise_surface_type surf = surfvec[isect];
-
-            // Check if the surface is a valid patch
-            if ( !CheckValidPatch( surf ) ) 
-            {
-                double umin = surf.get_u0();
-                double umax = surf.get_umax();
-                double wmin = surf.get_v0();
-                double wmax = surf.get_vmax();
-
-                if ( w >= wmin && w <= wmax && u >= umin && u <= umax )
-                {
-                    return false; // The point is on the invalid patch
-                }
-            }
-        }
-    }
-
-    return true;
-}
