@@ -1759,12 +1759,12 @@ VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_p
     return slice_surf;
 }
 
-void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid )
+void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid, const vector < double > &usuppress, const vector < double > &wsuppress )
 {
     for ( int p = 0; p < m_FeaPartSurfVec.size(); p++ )
     {
         // CFD_STRUCTURE and CFD_STIFFENER type surfaces have m_CompID starting at -9999
-        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), compid, xfersurfs );
+        m_FeaPartSurfVec[p].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), compid, xfersurfs, usuppress, wsuppress );
     }
 }
 

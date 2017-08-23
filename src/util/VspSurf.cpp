@@ -1846,11 +1846,11 @@ bool VspSurf::CheckValidPatch( const piecewise_surface_type &surf )
     return true;
 }
 
-void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs )
+void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const vector < double > &usuppress, const vector < double > &wsuppress )
 {
     vector < piecewise_surface_type > surfvec;
     surfvec.push_back( m_Surface );
-    SplitSurfs( surfvec );
+    SplitSurfs( surfvec, usuppress, wsuppress );
 
     int num_sections = surfvec.size();
 
