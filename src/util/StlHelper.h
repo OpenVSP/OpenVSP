@@ -83,6 +83,16 @@ void vector_remove_val( vector< T > & vec, T const & val )
     vec = new_vector;
 }
 
+//==== Delete All Items From Vector Matching rem_vec ====//
+template <class T>
+void vector_remove_vector( vector< T > & vec, const vector< T > & rem_vec )
+{
+    for ( int i = 0 ; i < ( int )rem_vec.size() ; i++ )
+    {
+        vector_remove_val( vec, rem_vec[i] );
+    }
+}
+
 //==== Find Index of Vector Where Val =====//
 template <class T>
 int vector_find_val( const vector< T > & vec, T const & val )
