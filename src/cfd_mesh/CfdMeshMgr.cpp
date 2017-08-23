@@ -2972,11 +2972,66 @@ void CfdMeshMgrSingleton::AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3
 
     vec2d proj_uwA0;
     pA.find_closest_uw( ip0, proj_uwA0.v );
-    Puw* puwA0 = new Puw( pA.get_surf_ptr(), proj_uwA0 );
-    m_DelPuwVec.push_back( puwA0 );
 
     vec2d proj_uwB0;
     pB.find_closest_uw( ip0, proj_uwB0.v );
+
+    vec2d proj_uwA1;
+    pA.find_closest_uw( ip1, proj_uwA1.v );
+
+    vec2d proj_uwB1;
+    pB.find_closest_uw( ip1, proj_uwB1.v );
+
+    // Intersections that lie exactly on a patch boundary will actually intersect both patches
+    // that share that boundary.  So, detect intersections that lie on the patch minimum edge
+    // and don't carry those forward.  Don't do this if the minimum parameter is zero.  I.e.
+    // there is no prior patch.
+
+    double tol = 10.0 * DBL_EPSILON;
+
+    if ( pA.get_u_min() > 0.0 ) // if Patch A is not the very beginning of u
+    {
+        double lim = pA.get_u_min() + tol;
+        // if both points projected to A are on the starting edge of u
+        if ( proj_uwA0.v[0] <= lim && proj_uwA1.v[0] <= lim )
+        {
+            return;
+        }
+    }
+
+    if ( pB.get_u_min() > 0.0 ) // if Patch B is not the very beginning of u
+    {
+        double lim = pB.get_u_min() + tol;
+        // if both points projected to B are on the starting edge of u
+        if ( proj_uwB0.v[0] <= lim && proj_uwB1.v[0] <= lim )
+        {
+            return;
+        }
+    }
+
+    if ( pA.get_w_min() > 0.0 ) // if Patch A is not the very beginning of w
+    {
+        double lim = pA.get_w_min() + tol;
+        // if both points projected to A are on the starting edge of w
+        if ( proj_uwA0.v[1] <= lim && proj_uwA1.v[1] <= lim )
+        {
+            return;
+        }
+    }
+
+    if ( pB.get_w_min() > 0.0 ) // if Patch B is not the very beginning of w
+    {
+        double lim = pB.get_w_min() + tol;
+        // if both points projected to B are on the starting edge of w
+        if ( proj_uwB0.v[1] <= lim && proj_uwB1.v[1] <= lim )
+        {
+            return;
+        }
+    }
+
+    Puw* puwA0 = new Puw( pA.get_surf_ptr(), proj_uwA0 );
+    m_DelPuwVec.push_back( puwA0 );
+
     Puw* puwB0 = new Puw( pB.get_surf_ptr(), proj_uwB0 );
     m_DelPuwVec.push_back( puwB0 );
 
@@ -2984,13 +3039,9 @@ void CfdMeshMgrSingleton::AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3
     ipnt0->m_Pnt = ip0;
     m_DelIPntVec.push_back( ipnt0 );
 
-    vec2d proj_uwA1;
-    pA.find_closest_uw( ip1, proj_uwA1.v );
     Puw* puwA1 = new Puw( pA.get_surf_ptr(), proj_uwA1 );
     m_DelPuwVec.push_back( puwA1 );
 
-    vec2d proj_uwB1;
-    pB.find_closest_uw( ip1, proj_uwB1.v );
     Puw* puwB1 = new Puw( pB.get_surf_ptr(), proj_uwB1 );
     m_DelPuwVec.push_back( puwB1 );
 
