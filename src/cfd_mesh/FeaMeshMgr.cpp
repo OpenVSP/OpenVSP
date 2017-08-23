@@ -126,6 +126,10 @@ void FeaMeshMgrSingleton::LoadSkins()
             FeaSkin* skin = dynamic_cast<FeaSkin*>( prt );
             assert( skin );
 
+            vector < double > usuppress;
+            vector < double > wsuppress;
+
+
             //===== Add FeaSkins ====//
             vector< XferSurf > skinxfersurfs;
 
@@ -133,7 +137,7 @@ void FeaMeshMgrSingleton::LoadSkins()
 
             m_RemoveSkinTris = skin->m_RemoveSkinTrisFlag();
 
-            skin->FetchFeaXFerSurf( skinxfersurfs, 0 );
+            skin->FetchFeaXFerSurf( skinxfersurfs, 0, usuppress, wsuppress );
 
             // Load Skin XFerSurf to m_SurfVec
             LoadSurfs( skinxfersurfs );
