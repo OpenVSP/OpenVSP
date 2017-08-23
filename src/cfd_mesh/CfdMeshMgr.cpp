@@ -2987,7 +2987,7 @@ void CfdMeshMgrSingleton::AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3
     // and don't carry those forward.  Don't do this if the minimum parameter is zero.  I.e.
     // there is no prior patch.
 
-    double tol = 10.0 * DBL_EPSILON;
+    double tol = 100.0 * DBL_EPSILON;
 
     if ( pA.get_u_min() > 0.0 ) // if Patch A is not the very beginning of u
     {
