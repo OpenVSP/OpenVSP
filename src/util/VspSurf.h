@@ -145,6 +145,14 @@ public:
         return m_WFeature.size();
     }
     void BuildFeatureLines( bool force_xsec_flag = false );
+    vector < double > GetUFeature()
+    {
+        return m_UFeature;
+    }
+    vector < double > GetWFeature()
+    {
+        return m_WFeature;
+    }
     bool CapUMin(int capType, double len, double str, double offset, bool swflag);
     bool CapUMax(int capType, double len, double str, double offset, bool swflag);
     bool CapWMin(int capType);
