@@ -61,6 +61,10 @@ public:
         w_max = max;
     }
 
+    double get_u_min()    { return u_min; }
+    double get_u_max()    { return u_max; }
+    double get_w_min()    { return w_min; }
+    double get_w_max()    { return w_max; }
 
     void compute_bnd_box();
     void put_pnt( int iu, int iw, const vec3d& pnt_in )
