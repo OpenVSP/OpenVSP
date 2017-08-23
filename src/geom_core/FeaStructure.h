@@ -201,6 +201,8 @@ public:
         return m_FeaPartDO;
     }
 
+    VspSurf* GetMainSurf();
+
     IntParm m_MainSurfIndx;
     IntParm m_IncludedElements;
     BoolParm m_DrawFeaPartFlag;

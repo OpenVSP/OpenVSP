@@ -1869,6 +1869,22 @@ void FeaPart::SetFeaMaterialIndex( int index )
     }
 }
 
+VspSurf* FeaPart::GetMainSurf()
+{
+    VspSurf* retsurf = NULL;
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        Geom *currgeom = veh->FindGeom( m_ParentGeomID );
+        if ( currgeom )
+        {
+            retsurf = currgeom->GetSurfPtr( m_MainSurfIndx() );
+        }
+    }
+    return retsurf;
+}
+
 //////////////////////////////////////////////////////
 //==================== FeaSlice ====================//
 //////////////////////////////////////////////////////
