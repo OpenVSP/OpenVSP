@@ -760,7 +760,7 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr )
 
             int num_pnts_on_surf = crv.CountMatch( projcrv, tol );
 
-            if ( num_pnts_on_surf > 0 )
+            if ( num_pnts_on_surf > 1 )
             {
                 retFlag = true;
             }
