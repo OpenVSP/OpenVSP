@@ -129,6 +129,7 @@ void FeaMeshMgrSingleton::LoadSkins()
             vector < double > usuppress;
             vector < double > wsuppress;
 
+            fea_struct->BuildSuppressList( usuppress, wsuppress );
 
             //===== Add FeaSkins ====//
             vector< XferSurf > skinxfersurfs;
