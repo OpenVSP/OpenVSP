@@ -175,6 +175,7 @@ public:
     void TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pts, double tol, int Nlimit );
     void TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pts, double tol, int Nlimit, int Nadapt = 0 );
 
+    void SplitSurfs( vector< piecewise_surface_type > &surfvec, const vector < double > &usuppress, const vector < double > &wsuppress );
     void SplitSurfs( vector< piecewise_surface_type > &surfvec );
 
     void ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &ptindxs, vector< vec3d > &allPntVec,

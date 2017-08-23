@@ -1702,6 +1702,18 @@ bool VspSurf::CapWMax(int CapType)
     return false;
 }
 
+void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec, const vector < double > &usuppress, const vector < double > &wsuppress )
+{
+    vector < double > usplits = m_UFeature;
+    vector < double > wsplits = m_WFeature;
+
+    vector_remove_vector( usplits, usuppress );
+    vector_remove_vector( wsplits, wsuppress );
+
+    SplitSurfsU( surfvec, usplits );
+    SplitSurfsW( surfvec, wsplits );
+}
+
 void VspSurf::SplitSurfs( vector< piecewise_surface_type > &surfvec )
 {
     SplitSurfsU( surfvec, m_UFeature );
