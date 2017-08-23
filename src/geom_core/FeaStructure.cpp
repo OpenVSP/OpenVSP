@@ -725,6 +725,84 @@ int FeaStructure::GetFeaPartIndex( FeaPart* fea_prt )
     return -1; // indicates an error
 }
 
+void FeaStructure::BuildSuppressList( vector < double > &usuppress, vector < double > &wsuppress )
+{
+
+    FeaSkin* skin = NULL;
+    FeaPart* pskin = GetFeaSkin();
+    if ( pskin )
+    {
+        skin = dynamic_cast< FeaSkin* > ( pskin );
+
+        if ( !skin )
+        {
+            return;
+        }
+    }
+
+    VspSurf* surf = skin->GetMainSurf();
+    if ( surf )
+    {
+        vector < double > ufeature = surf->GetUFeature();
+        vector < double > wfeature = surf->GetWFeature();
+
+        double umax = surf->GetUMax();
+        double wmax = surf->GetWMax();
+
+        for ( int i = 0; i < ufeature.size(); i++ )
+        {
+            int npts = 5;
+            vector < vec3d > pnts( npts );
+
+            for ( int j = 0; j < npts; j++ )
+            {
+                double w = wmax * j * 1.0 / ( npts - 1 );
+                pnts[j] = surf->CompPnt( ufeature[i], w );
+            }
+
+            if ( PtsOnAnyPlanarPart( pnts ) )
+            {
+                usuppress.push_back( ufeature[i] );
+            }
+        }
+
+        for ( int i = 0; i < wfeature.size(); i++ )
+        {
+            int npts = 5;
+            vector < vec3d > pnts( npts );
+
+            for ( int j = 0; j < npts; j++ )
+            {
+                double u = umax * j * 1.0 / ( npts - 1 );
+                pnts[j] = surf->CompPnt( u, wfeature[i] );
+            }
+
+            if ( PtsOnAnyPlanarPart( pnts ) )
+            {
+                wsuppress.push_back( wfeature[i] );
+            }
+        }
+    }
+}
+
+bool FeaStructure::PtsOnAnyPlanarPart( const vector < vec3d > &pnts )
+{
+    // Loop over all parts.
+    for ( int i  = 0; i < m_FeaPartVec.size(); i++ )
+    {
+        FeaPart* p = m_FeaPartVec[i];
+        if ( p )
+        {
+            if ( p->PtsOnPlanarPart( pnts ) )
+            {
+                return true;
+            }
+        }
+    }
+
+    return false;
+}
+
 //////////////////////////////////////////////////////
 //==================== FeaPart =====================//
 //////////////////////////////////////////////////////
@@ -1885,6 +1963,42 @@ VspSurf* FeaPart::GetMainSurf()
     return retsurf;
 }
 
+bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts )
+{
+    double tol = 1.0e-6;
+
+    VspSurf surf = m_FeaPartSurfVec[0];
+
+    double umax = surf.GetUMax();
+    double wmax = surf.GetWMax();
+
+    vec3d o = surf.CompPnt( umax * 0.5, wmax * 0.5 );
+    vec3d n = surf.CompNorm( umax * 0.5, wmax * 0.5 );
+
+    // Find point furthest from surface.
+    double dmax = 0.0;
+    for ( int i = 0; i < pnts.size(); i++ )
+    {
+        double d;
+
+        vec3d p = pnts[i];
+        d = dist_pnt_2_plane( o, n, p );
+
+        if ( d > dmax )
+        {
+            dmax = d;
+        }
+    }
+
+    // If furthest point is within tolerance, all points are on surface.
+    if ( dmax < tol )
+    {
+        return true;
+    }
+
+    return false;
+}
+
 //////////////////////////////////////////////////////
 //==================== FeaSlice ====================//
 //////////////////////////////////////////////////////
@@ -2854,6 +2968,11 @@ void FeaFixPoint::UpdateDrawObjs( int id, bool highlight )
     }
 }
 
+bool FeaFixPoint::PtsOnPlanarPart( const vector < vec3d > & pnts )
+{
+    return false;
+}
+
 ////////////////////////////////////////////////////
 //=================== FeaSkin ====================//
 ////////////////////////////////////////////////////
@@ -2896,6 +3015,11 @@ void FeaSkin::BuildSkinSurf()
             }
         }
     }
+}
+
+bool FeaSkin::PtsOnPlanarPart( const vector < vec3d > & pnts )
+{
+    return false;
 }
 
 ////////////////////////////////////////////////////
@@ -3142,6 +3266,11 @@ void FeaDome::UpdateDrawObjs( int id, bool highlight )
         m_FeaPartDO[j].m_GeomChanged = true;
         m_FeaPartDO[j + 1].m_GeomChanged = true;
     }
+}
+
+bool FeaDome::PtsOnPlanarPart( const vector < vec3d > & pnts )
+{
+    return false;
 }
 
 ////////////////////////////////////////////////////

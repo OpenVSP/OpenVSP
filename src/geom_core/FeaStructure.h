@@ -130,6 +130,10 @@ public:
         return &m_FeaGridDensity;
     }
 
+    virtual void BuildSuppressList( vector < double > &usuppress, vector < double > &wsuppress );
+
+    virtual bool PtsOnAnyPlanarPart( const vector < vec3d > &pnts );
+
 protected:
 
     string m_ParentGeomID;
@@ -202,6 +206,8 @@ public:
     }
 
     VspSurf* GetMainSurf();
+
+    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts );
 
     IntParm m_MainSurfIndx;
     IntParm m_IncludedElements;
@@ -325,6 +331,8 @@ public:
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
+    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts );
+
     Parm m_PosU;
     Parm m_PosW;
     BoolParm m_FixPointMassFlag;
@@ -355,6 +363,8 @@ public:
 
     virtual void UpdateDrawObjs( int id, bool highlight )    {}; // Do nothing for skins
 
+    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts );
+
     BoolParm m_RemoveSkinTrisFlag;
 
 protected:
@@ -374,6 +384,8 @@ public:
     virtual void BuildDomeSurf();
 
     virtual void UpdateDrawObjs( int id, bool highlight );
+
+    virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts );
 
     Parm m_Aradius;
     Parm m_Bradius;
