@@ -1964,11 +1964,11 @@ VspSurf* FeaPart::GetMainSurf()
     return retsurf;
 }
 
-bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts )
+bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
 {
     double tol = 1.0e-6;
 
-    VspSurf surf = m_FeaPartSurfVec[0];
+    VspSurf surf = m_FeaPartSurfVec[surf_ind];
 
     double umax = surf.GetUMax();
     double wmax = surf.GetWMax();
@@ -2969,7 +2969,7 @@ void FeaFixPoint::UpdateDrawObjs( int id, bool highlight )
     }
 }
 
-bool FeaFixPoint::PtsOnPlanarPart( const vector < vec3d > & pnts )
+bool FeaFixPoint::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
 {
     return false;
 }
@@ -3018,7 +3018,7 @@ void FeaSkin::BuildSkinSurf()
     }
 }
 
-bool FeaSkin::PtsOnPlanarPart( const vector < vec3d > & pnts )
+bool FeaSkin::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
 {
     return false;
 }
@@ -3269,7 +3269,7 @@ void FeaDome::UpdateDrawObjs( int id, bool highlight )
     }
 }
 
-bool FeaDome::PtsOnPlanarPart( const vector < vec3d > & pnts )
+bool FeaDome::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
 {
     return false;
 }
@@ -3483,6 +3483,18 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
     }
 
     return fearib;
+}
+
+bool FeaRibArray::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
+{
+    for ( size_t i = 0; i < m_NumRibs; i++ )
+    {
+        if ( FeaPart::PtsOnPlanarPart( pnts, i * m_SymmIndexVec.size() ) )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 xmlNodePtr FeaRibArray::EncodeXml( xmlNodePtr & node )
@@ -3740,6 +3752,18 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
     }
 
     return slice;
+}
+
+bool FeaSliceArray::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
+{
+    for ( size_t i = 0; i < m_NumSlices; i++ )
+    {
+        if ( FeaPart::PtsOnPlanarPart( pnts, i * m_SymmIndexVec.size() ) )
+        {
+            return true;
+        }
+    }
+    return false;
 }
 
 void FeaSliceArray::UpdateDrawObjs( int id, bool highlight )
