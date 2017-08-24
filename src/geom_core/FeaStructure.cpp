@@ -157,17 +157,17 @@ FeaPart* FeaStructure::AddFeaPart( int type )
     if ( type == vsp::FEA_SLICE )
     {
         feaprt = new FeaSlice( m_ParentGeomID );
-        feaprt->SetName( string( "Slice_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "Slice" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_RIB )
     {
         feaprt = new FeaRib( m_ParentGeomID );
-        feaprt->SetName( string( "Rib_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "Rib" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_SPAR )
     {
         feaprt = new FeaSpar( m_ParentGeomID );
-        feaprt->SetName( string( "Spar_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "Spar" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_FIX_POINT )
     {
@@ -177,23 +177,23 @@ FeaPart* FeaStructure::AddFeaPart( int type )
         if ( skin )
         {
             feaprt = new FeaFixPoint( m_ParentGeomID, skin->GetID() );
-            feaprt->SetName( string( "FixPoint_" + std::to_string( m_FeaPartCount ) ) );
+            feaprt->SetName( string( "FixPoint" + std::to_string( m_FeaPartCount ) ) );
         }
     }
     else if ( type == vsp::FEA_DOME )
     {
         feaprt = new FeaDome( m_ParentGeomID );
-        feaprt->SetName( string( "Dome_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "Dome" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_RIB_ARRAY )
     {
         feaprt = new FeaRibArray( m_ParentGeomID );
-        feaprt->SetName( string( "RibArray_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "RibArray" + std::to_string( m_FeaPartCount ) ) );
     }
     else if ( type == vsp::FEA_SLICE_ARRAY )
     {
         feaprt = new FeaSliceArray( m_ParentGeomID );
-        feaprt->SetName( string( "SliceArray_" + std::to_string( m_FeaPartCount ) ) );
+        feaprt->SetName( string( "SliceArray" + std::to_string( m_FeaPartCount ) ) );
     }
 
     if ( feaprt )
@@ -293,27 +293,27 @@ SubSurface* FeaStructure::AddFeaSubSurf( int type )
     if ( type == vsp::SS_LINE )
     {
         ssurf = new SSLine( m_ParentGeomID );
-        ssurf->SetName( string( "SSLINE_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SSLine" + to_string( m_FeaSubSurfCount ) ) );
     }
     else if ( type == vsp::SS_RECTANGLE )
     {
         ssurf = new SSRectangle( m_ParentGeomID );
-        ssurf->SetName( string( "SSRect_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SSRect" + to_string( m_FeaSubSurfCount ) ) );
     }
     else if ( type == vsp::SS_ELLIPSE )
     {
         ssurf = new SSEllipse( m_ParentGeomID );
-        ssurf->SetName( string( "SSEllipse_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SSEllipse" + to_string( m_FeaSubSurfCount ) ) );
     }
     else if ( type == vsp::SS_CONTROL )
     {
         ssurf = new SSControlSurf( m_ParentGeomID );
-        ssurf->SetName( string( "SSConSurf_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SSConSurf" + to_string( m_FeaSubSurfCount ) ) );
     }
     else if ( type == vsp::SS_LINE_ARRAY )
     {
         ssurf = new SSLineArray( m_ParentGeomID );
-        ssurf->SetName( string( "SSLineArray_" + to_string( m_FeaSubSurfCount ) ) );
+        ssurf->SetName( string( "SSLineArray" + to_string( m_FeaSubSurfCount ) ) );
     }
 
     if ( ssurf )
@@ -3475,7 +3475,7 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
         fearib->m_Theta.Set( m_Theta() );
         fearib->SetPerpendicularEdgeID( m_PerpendicularEdgeID );
 
-        fearib->SetName( string( m_Name + "_Rib_" + std::to_string( ind ) ) );
+        fearib->SetName( string( m_Name + "_Rib" + std::to_string( ind ) ) );
 
         fearib->UpdateSymmIndex();
         fearib->Update();
@@ -3744,7 +3744,7 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
         slice->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         slice->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
 
-        slice->SetName( string( m_Name + "_Slice_" + std::to_string( ind ) ) );
+        slice->SetName( string( m_Name + "_Slice" + std::to_string( ind ) ) );
 
         slice->UpdateSymmIndex();
         slice->Update();

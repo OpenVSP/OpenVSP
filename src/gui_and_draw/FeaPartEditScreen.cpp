@@ -2115,7 +2115,7 @@ void FeaPartEditScreen::UpdateFixPointParentChoice()
 
             if ( !structVec[StructureMgr.GetCurrStructIndex()]->FeaPartIsFixPoint( i ) )
             {
-                m_FixPointParentSurfChoice.AddItem( string( feaprt_vec[i]->GetName() + "_Surf" ) );
+                m_FixPointParentSurfChoice.AddItem( string( feaprt_vec[i]->GetName() ) );
                 m_FixPointParentIDVec.push_back( feaprt_vec[i]->GetID() );
             }
         }
