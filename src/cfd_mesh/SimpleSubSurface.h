@@ -49,6 +49,10 @@ public:
     {
         return m_Name;
     }
+    virtual string GetCompID()
+    {
+        return m_CompID;
+    }
 
     int m_Tag;
     int m_TestType;

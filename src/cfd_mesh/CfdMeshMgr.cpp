@@ -607,7 +607,7 @@ vector< SimpleSubSurface > CfdMeshMgrSingleton::GetSimpSubSurfs( string geom_id,
 
     for ( int i = 0; i < m_SimpleSubSurfaceVec.size(); i++ )
     {
-        if ( imain == m_SimpleSubSurfaceVec[i].m_MainSurfIndx )
+        if ( imain == m_SimpleSubSurfaceVec[i].m_MainSurfIndx && strcmp( m_SimpleSubSurfaceVec[i].GetCompID().c_str(), geom_id.c_str() ) == 0 )
         {
             ret_vec.push_back( m_SimpleSubSurfaceVec[i] );
         }
