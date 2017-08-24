@@ -266,6 +266,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     addOutputText( "Intersect\n" );
     Intersect();
+    addOutputText( "Finished Intersect\n" );
 
     addOutputText( "Build Target Map\n" );
     BuildTargetMap( CfdMeshMgrSingleton::VOCAL_OUTPUT );
