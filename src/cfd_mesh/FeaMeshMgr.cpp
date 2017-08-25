@@ -1544,7 +1544,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
 
         for ( int j = 0; j < m_FeaElementVec.size(); j++ )
         {
-            if ( ( m_FeaElementVec[j]->GetFeaSSIndex() == i )  && m_FeaElementVec[j]->GetFeaSSIndex() >= 0 )
+            if ( m_FeaElementVec[j]->GetFeaSSIndex() == i && m_FeaElementVec[j]->GetFeaSSIndex() >= 0 && m_SimpleSubSurfaceVec[i].m_IncludedElements != vsp::FEA_BEAM )
             {
                 m_FeaElementVec[j]->LoadNodes( temp_nVec );
             }
@@ -2343,7 +2343,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 {
                     if ( m_PntShift[j] >= 0 )
                     {
-                        if ( m_FeaNodeVec[j]->HasOnlyIndex( cnt ) )
+                        if ( m_FeaNodeVec[j]->HasTag( cnt ) )
                         {
                             m_FeaNodeDO[cnt].m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt );
                         }
@@ -2567,7 +2567,7 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 {
                     if ( m_PntShift[j] >= 0 )
                     {
-                        if ( m_FeaNodeVec[j]->HasOnlyIndex( i + m_NumFeaParts ) )
+                        if ( m_FeaNodeVec[j]->HasTag( i + m_NumFeaParts ) )
                         {
                             m_SSFeaNodeDO[i].m_PntVec.push_back( m_FeaNodeVec[j]->m_Pnt );
                         }
