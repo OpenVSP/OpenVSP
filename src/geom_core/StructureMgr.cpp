@@ -278,75 +278,32 @@ void StructureMgrSingleton::UpdateStructUnit( int new_unit )
         // Update FeaMaterial Units
         for ( size_t i = 0; i < m_FeaMaterialVec.size(); i++ )
         {
-            int density_unit_new, density_unit_old;
+            int density_unit_new, density_unit_old, pressure_unit_new, pressure_unit_old;
 
             switch ( new_unit )
             {
             case vsp::SI_UNIT:
             density_unit_new = vsp::RHO_UNIT_KG_M3;
-            break;
-
-            case vsp::CGS_UNIT:
-            density_unit_new = vsp::RHO_UNIT_G_CM3;
-            break;
-
-            case vsp::MPA_UNIT:
-            density_unit_new = vsp::RHO_UNIT_TONNE_MM3;
-            break;
-
-            case vsp::BFT_UNIT:
-            density_unit_new = vsp::RHO_UNIT_SLUG_FT3;
-            break;
-
-            case vsp::BIN_UNIT:
-            density_unit_new = vsp::RHO_UNIT_LBFSEC2_IN4;
-            break;
-            }
-
-            switch ( (int)veh->m_StructUnit.GetLastVal() )
-            {
-            case vsp::SI_UNIT:
-            density_unit_old = vsp::RHO_UNIT_KG_M3;
-            break;
-
-            case vsp::CGS_UNIT:
-            density_unit_old = vsp::RHO_UNIT_G_CM3;
-            break;
-
-            case vsp::MPA_UNIT:
-            density_unit_old = vsp::RHO_UNIT_TONNE_MM3;
-            break;
-
-            case vsp::BFT_UNIT:
-            density_unit_old = vsp::RHO_UNIT_SLUG_FT3;
-            break;
-
-            case vsp::BIN_UNIT:
-            density_unit_old = vsp::RHO_UNIT_LBFSEC2_IN4;
-            break;
-            }
-
-            int pressure_unit_new, pressure_unit_old;
-
-            switch ( new_unit )
-            {
-            case vsp::SI_UNIT:
             pressure_unit_new = vsp::PRES_UNIT_PA;
             break;
 
             case vsp::CGS_UNIT:
+            density_unit_new = vsp::RHO_UNIT_G_CM3;
             pressure_unit_new = vsp::PRES_UNIT_BA;
             break;
 
             case vsp::MPA_UNIT:
+            density_unit_new = vsp::RHO_UNIT_TONNE_MM3;
             pressure_unit_new = vsp::PRES_UNIT_MPA;
             break;
 
             case vsp::BFT_UNIT:
+            density_unit_new = vsp::RHO_UNIT_SLUG_FT3;
             pressure_unit_new = vsp::PRES_UNIT_PSF;
             break;
 
             case vsp::BIN_UNIT:
+            density_unit_new = vsp::RHO_UNIT_LBFSEC2_IN4;
             pressure_unit_new = vsp::PRES_UNIT_PSI;
             break;
             }
@@ -354,22 +311,27 @@ void StructureMgrSingleton::UpdateStructUnit( int new_unit )
             switch ( (int)veh->m_StructUnit.GetLastVal() )
             {
             case vsp::SI_UNIT:
+            density_unit_old = vsp::RHO_UNIT_KG_M3;
             pressure_unit_old = vsp::PRES_UNIT_PA;
             break;
 
             case vsp::CGS_UNIT:
+            density_unit_old = vsp::RHO_UNIT_G_CM3;
             pressure_unit_old = vsp::PRES_UNIT_BA;
             break;
 
             case vsp::MPA_UNIT:
+            density_unit_old = vsp::RHO_UNIT_TONNE_MM3;
             pressure_unit_old = vsp::PRES_UNIT_MPA;
             break;
 
             case vsp::BFT_UNIT:
+            density_unit_old = vsp::RHO_UNIT_SLUG_FT3;
             pressure_unit_old = vsp::PRES_UNIT_PSF;
             break;
 
             case vsp::BIN_UNIT:
+            density_unit_old = vsp::RHO_UNIT_LBFSEC2_IN4;
             pressure_unit_old = vsp::PRES_UNIT_PSI;
             break;
             }
@@ -714,6 +676,43 @@ FeaMaterial* StructureMgrSingleton::GetFeaMaterial( int index )
 
 void StructureMgrSingleton::InitFeaMaterials()
 {
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    int density_unit, pressure_unit;
+
+    switch ( (int)veh->m_StructUnit() )
+    {
+    case vsp::SI_UNIT:
+    density_unit = vsp::RHO_UNIT_KG_M3;
+    pressure_unit = vsp::PRES_UNIT_PA;
+    break;
+
+    case vsp::CGS_UNIT:
+    density_unit = vsp::RHO_UNIT_G_CM3;
+    pressure_unit = vsp::PRES_UNIT_BA;
+    break;
+
+    case vsp::MPA_UNIT:
+    density_unit = vsp::RHO_UNIT_TONNE_MM3;
+    pressure_unit = vsp::PRES_UNIT_MPA;
+    break;
+
+    case vsp::BFT_UNIT:
+    density_unit = vsp::RHO_UNIT_SLUG_FT3;
+    pressure_unit = vsp::PRES_UNIT_PSF;
+    break;
+
+    case vsp::BIN_UNIT:
+    density_unit = vsp::RHO_UNIT_LBFSEC2_IN4;
+    pressure_unit = vsp::PRES_UNIT_PSI;
+    break;
+    }
+
     // Reference: http://www.matweb.com/search/datasheet.aspx?bassnum=MA0001
 
     FeaMaterial* aluminum_7075_T6 = new FeaMaterial();
@@ -721,11 +720,13 @@ void StructureMgrSingleton::InitFeaMaterials()
     if ( aluminum_7075_T6 )
     {
         aluminum_7075_T6->SetName( "Aluminum 7075-T6" );
-        aluminum_7075_T6->m_MassDensity.Set( 0.102 ); // lb/in^3
-        aluminum_7075_T6->m_ElasticModulus.Set( 10.6e6 ); // psi
         aluminum_7075_T6->m_PoissonRatio.Set( 0.33 );
-        aluminum_7075_T6->m_ThermalExpanCoeff.Set( 13.1e-6 ); // in/(in-°F)
         aluminum_7075_T6->m_UserFeaMaterial = false;
+        // SI Units Used
+        aluminum_7075_T6->m_MassDensity.Set( ConvertDensity( 2810, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+        aluminum_7075_T6->m_ElasticModulus.Set( ConvertPressure( 71.7e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+        aluminum_7075_T6->m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 23.6e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°C)
+
         AddFeaMaterial( aluminum_7075_T6 );
     }
 
@@ -734,11 +735,13 @@ void StructureMgrSingleton::InitFeaMaterials()
     if ( aluminum_2024_T3 )
     {
         aluminum_2024_T3->SetName( "Aluminum 2024-T3" );
-        aluminum_2024_T3->m_MassDensity.Set( 0.100 ); // lb/in^3
-        aluminum_2024_T3->m_ElasticModulus.Set( 10.4e6 ); // psi
         aluminum_2024_T3->m_PoissonRatio.Set( 0.33 );
-        aluminum_2024_T3->m_ThermalExpanCoeff.Set( 12.9e-6 ); // in/(in-°F)
         aluminum_2024_T3->m_UserFeaMaterial = false;
+        // SI Units Used
+        aluminum_2024_T3->m_MassDensity.Set( ConvertDensity( 2780, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+        aluminum_2024_T3->m_ElasticModulus.Set( ConvertPressure( 73.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+        aluminum_2024_T3->m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 23.2e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°K)
+
         AddFeaMaterial( aluminum_2024_T3 );
     }
 
@@ -747,11 +750,13 @@ void StructureMgrSingleton::InitFeaMaterials()
     if ( Ti_6Al_4V )
     {
         Ti_6Al_4V->SetName( "Titanium Ti-6Al-4V" );
-        Ti_6Al_4V->m_MassDensity.Set( 0.160 ); // lb/in^3
-        Ti_6Al_4V->m_ElasticModulus.Set( 16.51e6 ); // psi
         Ti_6Al_4V->m_PoissonRatio.Set( 0.342 );
-        Ti_6Al_4V->m_ThermalExpanCoeff.Set( 5.11e-6 ); // in/(in-°F)
         Ti_6Al_4V->m_UserFeaMaterial = false;
+        // SI Units Used
+        Ti_6Al_4V->m_MassDensity.Set( ConvertDensity( 4430, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+        Ti_6Al_4V->m_ElasticModulus.Set( ConvertPressure( 113.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+        Ti_6Al_4V->m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 9.2e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°K)
+
         AddFeaMaterial( Ti_6Al_4V );
     }
 
@@ -760,11 +765,13 @@ void StructureMgrSingleton::InitFeaMaterials()
     if ( steel_4130 )
     {
         steel_4130->SetName( "AISI 4130 Steel" );
-        steel_4130->m_MassDensity.Set( 0.284 ); // lb/in^3
-        steel_4130->m_ElasticModulus.Set( 29.7e6 ); // psi
         steel_4130->m_PoissonRatio.Set( 0.29 );
-        steel_4130->m_ThermalExpanCoeff.Set( 7.61e-6 ); // in/(in-°F)
         steel_4130->m_UserFeaMaterial = false;
+        // SI Units Used
+        steel_4130->m_MassDensity.Set( ConvertDensity( 7850, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+        steel_4130->m_ElasticModulus.Set( ConvertPressure( 205e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+        steel_4130->m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 13.7e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°K)
+
         AddFeaMaterial( steel_4130 );
     }
 }
