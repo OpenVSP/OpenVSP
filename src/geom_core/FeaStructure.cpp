@@ -3310,7 +3310,7 @@ FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
     m_AbsStartLocation.Init( "AbsStartLocation", "FeaRibArray", this, 0.0, 0.0, 1e12 );
     m_AbsStartLocation.SetDescript( "Absolute Starting Location for Primary Rib" );
 
-    m_RelStartLocation.Init( "RelStartLocation", "FeaRibArray", this, 0.0, 0.0, 1e12 );
+    m_RelStartLocation.Init( "RelStartLocation", "FeaRibArray", this, 0.0, 0.0, 1.0 );
     m_RelStartLocation.SetDescript( "Relative Starting Location for Primary Rib" );
 
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
@@ -3396,7 +3396,7 @@ void FeaRibArray::CalcNumRibs()
             else
             {
                 m_RibAbsSpacing.SetLowerUpperLimits( m_AbsStartLocation() / 100, span_f ); // Limit to 100 ribs 
-                m_NumRibs = 1 + (int)floor( span_f / m_RibAbsSpacing() );
+                m_NumRibs = 1 + (int)floor( m_AbsStartLocation() / m_RibAbsSpacing() );
             }
         }
     }
@@ -3553,7 +3553,7 @@ FeaSliceArray::FeaSliceArray( string geomID, int type ) : FeaPart( geomID, type 
     m_SliceAbsSpacing.Init( "SliceAbsSpacing", "FeaSliceArray", this, 0.2, 0, 1e12 );
     m_SliceAbsSpacing.SetDescript( "Absolute Spacing Between Slices in Array" );
 
-    m_SliceRelSpacing.Init( "SliceRelSpacing", "FeaSliceArray", this, 0.2, 0, 1e12 );
+    m_SliceRelSpacing.Init( "SliceRelSpacing", "FeaSliceArray", this, 0.2, 0, 1.0 );
     m_SliceRelSpacing.SetDescript( "Relative Spacing Between Slices in Array" );
 
     m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaSliceArray", this, true, false, true );
@@ -3674,7 +3674,7 @@ void FeaSliceArray::CalcNumSlices()
             else
             {
                 m_SliceAbsSpacing.SetLowerUpperLimits( m_AbsStartLocation() / 100, perp_dist ); // Limit to 100 slices 
-                m_NumSlices = 1 + (int)floor( perp_dist / m_SliceAbsSpacing() );
+                m_NumSlices = 1 + (int)floor( m_AbsStartLocation() / m_SliceAbsSpacing() );
             }
         }
     }
