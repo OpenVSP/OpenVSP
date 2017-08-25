@@ -1268,10 +1268,10 @@ VspSurf FeaPart::ComputeRibSurf( double rel_center_location, double rotation )
         center_to_lead_edge.normalize();
 
         // Identify expansion 
-        double expan = wing_bbox.GetLargestDist() * 1e-5;
-        if ( expan < 1e-6 )
+        double expan = wing_bbox.GetLargestDist() * 1e-3;
+        if ( expan < 1e-5 )
         {
-            expan = 1e-6;
+            expan = 1e-5;
         }
 
         double length_rib_0 = ( dist( trail_edge, lead_edge ) / 2 ) + expan; // Rib half length before rotations, slightly oversized
@@ -1517,7 +1517,6 @@ VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_p
         {
             current_surf.GetBoundingBox( geom_bbox );
         }
-        geom_bbox.Expand( 0.5 );
 
         geom_center = geom_bbox.GetCenter();
         del_x = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
@@ -1525,10 +1524,10 @@ VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_p
         del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
 
         // Identify expansion 
-        double expan = geom_bbox.GetLargestDist() * 1e-5;
-        if ( expan < 1e-6 )
+        double expan = geom_bbox.GetLargestDist() * 1e-3;
+        if ( expan < 1e-5 )
         {
-            expan = 1e-6;
+            expan = 1e-5;
         }
 
         if ( orientation_plane == vsp::CONST_U )
@@ -2343,10 +2342,10 @@ void FeaSpar::ComputePlanarSurf()
         wing_z_axis.normalize();
 
         // Identify expansion 
-        double expan = wing_bbox.GetLargestDist() * 1e-5;
-        if ( expan < 1e-6 )
+        double expan = wing_bbox.GetLargestDist() * 1e-3;
+        if ( expan < 1e-5 )
         {
-            expan = 1e-6;
+            expan = 1e-5;
         }
 
         double height = 0.5 * wing_bbox.GetSmallestDist() + expan; // Height of spar, slightly oversized
@@ -2408,8 +2407,8 @@ void FeaSpar::ComputePlanarSurf()
         double beta_le = -1 * PI + signed_angle( center_to_inner_edge, lead_edge_vec, normal_vec ); // Angle between spar and leading edge
 
         // Slightly oversize spar length
-        double length_spar_in = expan;
-        double length_spar_out = expan;
+        double length_spar_in = 1e-6;
+        double length_spar_out = 1e-6;
         double perp_dist;
 
         // Determine if the rib intersects the leading/trailing edge or inner/outer edge
