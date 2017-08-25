@@ -1034,6 +1034,8 @@ double FeaPart::GetRibPerU( double rel_center_location )
                 }
             }
 
+            double abs_center_location = span * rel_center_location;
+
             // Determine current wing section:
             for ( size_t i = 1; i < num_wing_sec; i++ )
             {
@@ -1044,7 +1046,7 @@ double FeaPart::GetRibPerU( double rel_center_location )
                     span_f += wing_sec->m_Span();
                     wing_sec_span_vec.push_back( span_f - span_0 );
 
-                    if ( rel_center_location >= span_0 && rel_center_location <= span_f )
+                    if ( abs_center_location >= span_0 && abs_center_location <= span_f )
                     {
                         curr_sec_ind = i;
                     }
@@ -2616,8 +2618,6 @@ void FeaRib::UpdateParmLimits()
         }
 
         // Set parm limits and values
-        m_RelCenterLocation.SetUpperLimit( span );
-
         if ( m_AbsRelParmFlag() == vsp::REL )
         {
             m_AbsCenterLocation.Set( span * m_RelCenterLocation() );
