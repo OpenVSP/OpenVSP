@@ -567,17 +567,23 @@ void FeaStructure::IndividualizeRibArray( int rib_array_ind )
         FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( prt );
         assert( rib_array );
 
+        double dir = 1;
+        if ( !rib_array->m_PositiveDirectionFlag() )
+        {
+            dir = -1;
+        }
+
         for ( size_t i = 0; i < rib_array->GetNumRibs(); i++ )
         {
             double center_location;
 
             if ( rib_array->m_AbsRelParmFlag() == vsp::REL )
             {
-                center_location = rib_array->m_RelStartLocation() + i * rib_array->m_RibRelSpacing();
+                center_location = rib_array->m_RelStartLocation() + dir * i * rib_array->m_RibRelSpacing();
             }
             else if ( rib_array->m_AbsRelParmFlag() == vsp::ABS )
             {
-                center_location = rib_array->m_AbsStartLocation() + i * rib_array->m_RibAbsSpacing();
+                center_location = rib_array->m_AbsStartLocation() + dir * i * rib_array->m_RibAbsSpacing();
             }
 
             FeaRib* rib = rib_array->AddFeaRib( center_location, i );
@@ -607,17 +613,23 @@ void FeaStructure::IndividualizeSliceArray( int stiffener_array_ind )
         FeaSliceArray* slice_array = dynamic_cast<FeaSliceArray*>( prt );
         assert( slice_array );
 
+        double dir = 1;
+        if ( !slice_array->m_PositiveDirectionFlag() )
+        {
+            dir = -1;
+        }
+
         for ( size_t i = 0; i < slice_array->GetNumSlices(); i++ )
         {
             double center_location;
 
             if ( slice_array->m_AbsRelParmFlag() == vsp::REL )
             {
-                center_location = slice_array->m_RelStartLocation() + i * slice_array->m_SliceRelSpacing();
+                center_location = slice_array->m_RelStartLocation() + dir * i * slice_array->m_SliceRelSpacing();
             }
             else if ( slice_array->m_AbsRelParmFlag() == vsp::ABS )
             {
-                center_location = slice_array->m_AbsStartLocation() + i * slice_array->m_SliceAbsSpacing();
+                center_location = slice_array->m_AbsStartLocation() + dir * i * slice_array->m_SliceAbsSpacing();
             }
 
             FeaSlice* slice = slice_array->AddFeaSlice( center_location, i );
@@ -647,9 +659,15 @@ void FeaStructure::IndividualizeSSLineArray( int ssline_array_ind )
         SSLineArray* ssline_array = dynamic_cast<SSLineArray*>( sub_surf );
         assert( ssline_array );
 
+        double dir = 1;
+        if ( !ssline_array->m_PositiveDirectionFlag() )
+        {
+            dir = -1;
+        }
+
         for ( size_t i = 0; i < ssline_array->GetNumLines(); i++ )
         {
-            double center_location = ssline_array->m_StartLocation() + i * ssline_array->m_Spacing();
+            double center_location = ssline_array->m_StartLocation() + dir * i * ssline_array->m_Spacing();
 
             SSLine* ssline = ssline_array->AddSSLine( center_location, i );
             AddFeaSubSurf( ssline );
