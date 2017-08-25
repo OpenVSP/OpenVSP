@@ -341,7 +341,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
     m_MaterialEditSubGroup.SetInputWidth( m_MaterialEditSubGroup.GetW() / 6 );
 
-    m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 1, "%5.3g" );
+    m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 1e3, "%5.3g" );
     m_MaterialEditSubGroup.AddButton( m_MatDensityUnit, "" );
     m_MatDensityUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_MatDensityUnit.GetFlButton()->labelcolor( FL_BLACK );
@@ -350,7 +350,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MaterialEditSubGroup.ForceNewLine();
     m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
 
-    m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "Elastic Modulus", 10e5, "%5.3g" );
+    m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "Elastic Modulus", 1e4, "%5.3g" );
     m_MaterialEditSubGroup.AddButton( m_MatElasticModUnit, "" );
     m_MatElasticModUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_MatElasticModUnit.GetFlButton()->labelcolor( FL_BLACK );
@@ -1541,11 +1541,11 @@ bool StructScreen::Update()
                 }
                 else
                 {
-                m_FeaMaterialNameInput.Deactivate();
-                m_MatDensitySlider.Deactivate();
-                m_MatElasticModSlider.Deactivate();
-                m_MatPoissonSlider.Deactivate();
-                m_MatThermalExCoeffSlider.Deactivate();
+                    m_FeaMaterialNameInput.Deactivate();
+                    m_MatDensitySlider.Deactivate();
+                    m_MatElasticModSlider.Deactivate();
+                    m_MatPoissonSlider.Deactivate();
+                    m_MatThermalExCoeffSlider.Deactivate();
                 }
             }
         }
