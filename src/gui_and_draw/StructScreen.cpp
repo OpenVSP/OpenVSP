@@ -2040,6 +2040,12 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             if ( feastruct )
             {
                 feastruct->SetFeaStructName( m_FeaStructNameInput.GetString() );
+
+                StructSettings* setting_ptr = feastruct->GetStructSettingsPtr();
+                if ( setting_ptr )
+                {
+                    setting_ptr->ResetExportFileNames( m_FeaStructNameInput.GetString() );
+                }
             }
         }
     }
