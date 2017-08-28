@@ -2317,7 +2317,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                         }
                         else if ( prt->GetType() != vsp::FEA_FIX_POINT )
                         {
-                            prt->m_IncludedElements.Set( curr_val );
+                            prt->m_IncludedElements.Set( (int)curr_val );
                         }
                     }
                 }
@@ -2333,7 +2333,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                         }
                         else
                         {
-                            ssurf->m_IncludedElements.Set( curr_val );
+                            ssurf->m_IncludedElements.Set( (int)curr_val );
                         }
                     }
                 }
@@ -2693,7 +2693,7 @@ void StructScreen::OrientStructure( VSPGraphic::Common::VSPenum type )
                 return;
             }
 
-            glwin->getGraphicEngine()->getDisplay()->setCOR( -p.x(), -p.y(), -p.z() );
+            glwin->getGraphicEngine()->getDisplay()->setCOR( (float)-p.x(), (float)-p.y(), (float)-p.z() );
             glwin->getGraphicEngine()->getDisplay()->relativePan( 0.0f, 0.0f );
             glwin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( z );
 

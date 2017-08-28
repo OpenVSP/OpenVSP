@@ -338,7 +338,7 @@ void StructureMgrSingleton::UpdateStructUnit( int new_unit )
 
             m_FeaMaterialVec[i]->m_MassDensity.Set( ConvertDensity( m_FeaMaterialVec[i]->m_MassDensity.Get(), density_unit_old, density_unit_new ) );
             m_FeaMaterialVec[i]->m_ElasticModulus.Set( ConvertPressure( m_FeaMaterialVec[i]->m_ElasticModulus.Get(), pressure_unit_old, pressure_unit_new ) );
-            m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Get(), veh->m_StructUnit.GetLastVal(), new_unit ) );
+            m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( m_FeaMaterialVec[i]->m_ThermalExpanCoeff.Get(), (int)veh->m_StructUnit.GetLastVal(), new_unit ) );
         }
 
         // Update FeaProperty Units

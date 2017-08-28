@@ -2169,7 +2169,7 @@ void FeaSpar::UpdateParms()
         VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
 
         int num_wing_sec = wing->NumXSec();
-        int U_max = wing_surf.GetUMax();
+        double U_max = wing_surf.GetUMax();
 
         m_CurrWingSection.SetUpperLimit( num_wing_sec - 1 );
 
@@ -2260,7 +2260,7 @@ void FeaSpar::ComputePlanarSurf()
         wing_surf.GetBoundingBox( wing_bbox );
 
         int num_wing_sec = wing->NumXSec();
-        int U_max = wing_surf.GetUMax();
+        double U_max = wing_surf.GetUMax();
 
         m_CurrWingSection.SetUpperLimit( num_wing_sec - 1 );
 
