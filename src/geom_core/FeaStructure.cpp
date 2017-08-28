@@ -2616,6 +2616,9 @@ void FeaRib::UpdateParmLimits()
             }
         }
 
+        m_RelCenterLocation.SetLowerUpperLimits( 0.001, 0.999 );
+        m_AbsCenterLocation.SetLowerUpperLimits( span * 0.001, span * 0.999 );
+
         // Set parm limits and values
         if ( m_AbsRelParmFlag() == vsp::REL )
         {
@@ -2623,7 +2626,7 @@ void FeaRib::UpdateParmLimits()
         }
         else if ( m_AbsRelParmFlag() == vsp::ABS )
         {
-            m_AbsCenterLocation.SetUpperLimit( span );
+           // m_AbsCenterLocation.SetUpperLimit( span );
             m_RelCenterLocation.Set( m_AbsCenterLocation() / span );
         }
     }
@@ -3364,6 +3367,9 @@ void FeaRibArray::CalcNumRibs()
                 span_f += wing_sec->m_Span();
             }
         }
+
+        m_AbsStartLocation.SetLowerUpperLimits( 0.001 * span_f, 0.999 * span_f );
+        m_RelStartLocation.SetLowerUpperLimits( 0.001, 0.999 );
 
         // Calculate number of ribs and update Parm limits and values
         if ( m_AbsRelParmFlag() == vsp::REL )
