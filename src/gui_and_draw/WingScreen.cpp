@@ -479,6 +479,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_VKTGroup.AddSlider( m_VKTKappaSlider, "Kappa", 1, "%7.5f" );
     m_VKTGroup.AddSlider( m_VKTTauSlider, "Tau", 10, "%7.5f" );
     m_VKTGroup.AddYGap();
+    m_VKTGroup.AddButton( m_VKTInvertButton, "Invert Airfoil" );
+    m_VKTGroup.AddYGap();
     m_VKTGroup.SetSameLineFlag( true );
     m_VKTGroup.SetFitWidthFlag( false );
     m_VKTGroup.SetButtonWidth( 125 );
@@ -1058,6 +1060,7 @@ bool WingScreen::Update()
                 m_VKTKappaSlider.Update( vkt_xs->m_Kappa.GetID() );
                 m_VKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
                 m_VKTDegreeCounter.Update( vkt_xs->m_FitDegree.GetID() );
+                m_VKTInvertButton.Update( vkt_xs->m_Invert.GetID() );
             }
 
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );

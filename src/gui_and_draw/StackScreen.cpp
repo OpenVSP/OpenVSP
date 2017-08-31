@@ -303,6 +303,8 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_VKTGroup.AddSlider( m_VKTEpsilonSlider, "Epsilon", 1, "%7.5f" );
     m_VKTGroup.AddSlider( m_VKTKappaSlider, "Kappa", 1, "%7.5f" );
     m_VKTGroup.AddSlider( m_VKTTauSlider, "Tau", 10, "%7.5f" );
+    m_VKTGroup.AddYGap();
+    m_VKTGroup.AddButton( m_VKTInvertButton, "Invert Airfoil" );
 
     DisplayGroup( &m_PointGroup );
 
@@ -602,6 +604,7 @@ bool StackScreen::Update()
                 m_VKTEpsilonSlider.Update( vkt_xs->m_Epsilon.GetID() );
                 m_VKTKappaSlider.Update( vkt_xs->m_Kappa.GetID() );
                 m_VKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
+                m_VKTInvertButton.Update( vkt_xs->m_Invert.GetID() );
             }
         }
     }

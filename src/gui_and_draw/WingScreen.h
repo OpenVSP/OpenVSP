@@ -232,6 +232,7 @@ protected:
     SliderAdjRangeInput m_VKTEpsilonSlider;
     SliderAdjRangeInput m_VKTKappaSlider;
     SliderAdjRangeInput m_VKTTauSlider;
+    CheckButton m_VKTInvertButton;
 
     TriggerButton m_VKTFitCSTButton;
     Counter m_VKTDegreeCounter;

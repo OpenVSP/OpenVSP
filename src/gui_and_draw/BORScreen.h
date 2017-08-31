@@ -161,6 +161,7 @@ protected:
     SliderAdjRangeInput m_VKTEpsilonSlider;
     SliderAdjRangeInput m_VKTKappaSlider;
     SliderAdjRangeInput m_VKTTauSlider;
+    CheckButton m_VKTInvertButton;
 
     // Modify tab
     GroupLayout m_ModifyLayout;
