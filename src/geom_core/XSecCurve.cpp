@@ -134,7 +134,13 @@ string XSecCurve::GetName()
     {
         char str[256];
         sprintf( str, "_%d", m_GroupSuffix );
-        return pc->GetParentContainerPtr()->GetName() + " " + m_GroupName + string(str);
+
+        ParmContainer* ppc = pc->GetParentContainerPtr();
+        if ( ppc )
+        {
+            return ppc->GetName() + " " + m_GroupName + string(str);
+        }
+        return pc->GetName();
     }
     return ParmContainer::GetName();
 }
