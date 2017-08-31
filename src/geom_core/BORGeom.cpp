@@ -25,7 +25,7 @@ BORGeom::BORGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_TessU = 5;
     m_TessW = 8;
 
-    m_Diameter.Init( "Diameter", "Design", this, 1.0, 0.0, 1.0e12 );
+    m_Diameter.Init( "Diameter", "Design", this, 2.0, 0.0, 1.0e12 );
     m_Diameter.SetDescript( "Diameter of BOR" );
 
     m_Angle.Init( "Angle", "Design", this, 0.0, -180.0, 180.0 );
@@ -81,7 +81,7 @@ void BORGeom::UpdateSurf()
     if ( m_Mode() == vsp::BOR_FLOWTHROUGH )
     {
         stringer.RotateZ(m_Angle() * PI / 180.0);
-        stringer.OffsetY(m_Diameter());
+        stringer.OffsetY( m_Diameter() * 0.5 ); // Offset is a radius
 
         double r = stringer.CompPnt01( 0.0 ).y();
         m_Ae.Set( PI * r * r );
