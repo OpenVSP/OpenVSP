@@ -667,16 +667,22 @@ void StructScreen::UpdateStructBrowser()
     int scroll_pos = m_StructureSelectBrowser->position();
     m_StructureSelectBrowser->clear();
 
-    static int widths[] = { 220, 220 };
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    if ( !veh )
+    {
+        return;
+    }
+
+    static int widths[] = { 170, 140, 130 };
     m_StructureSelectBrowser->column_widths( widths );
     m_StructureSelectBrowser->column_char( ':' );
 
     char str[256];
 
-    sprintf( str, "@b@.NAME:@b@.SURFACE" );
+    sprintf( str, "@b@.NAME:@b@.GEOM:@b@.SURFACE" );
     m_StructureSelectBrowser->add( str );
 
-    string struct_name;
+    string struct_name, parent_geom_name;
     int struct_surf_ind;
 
     // Populate browser with added structures
@@ -687,7 +693,14 @@ void StructScreen::UpdateStructBrowser()
         {
             struct_name = structVec[i]->GetFeaStructName();
             struct_surf_ind = structVec[i]->GetFeaStructMainSurfIndx();
-            sprintf( str, "%s:Surf_%d", struct_name.c_str(), struct_surf_ind );
+
+            Geom* parent = veh->FindGeom( structVec[i]->GetParentGeomID() );
+            if ( parent )
+            {
+                parent_geom_name = parent->GetName();
+            }
+
+            sprintf( str, "%s:%s:Surf_%d", struct_name.c_str(), parent_geom_name.c_str(), struct_surf_ind );
             m_StructureSelectBrowser->add( str );
         }
 
