@@ -603,6 +603,17 @@ string Vehicle::AddGeom( const GeomType & type )
 
             add_geom->Update();
         }
+
+        string parent_id = add_geom->GetParentID();           // Parent
+        Geom* parent_geom = FindGeom( parent_id );
+        if ( parent_geom )
+        {
+            HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( parent_geom );
+            if ( hingeparent )
+            {
+                add_geom->Update();
+            }
+        }
     }
     return geom_id;
 }
