@@ -180,8 +180,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     int start_x = m_PartTabLayout.GetX();
     int start_y = m_PartTabLayout.GetY();
 
-    m_PartTabLayout.AddSubGroupLayout( m_MovePartButtonLayout, m_PartTabLayout.GetRemainX(), browser_h );
-    m_PartTabLayout.GetGroup()->resizable( m_MovePartButtonLayout.GetGroup() );
+    m_PartTabLayout.AddSubGroupLayout( m_MovePartButtonLayout, 20, browser_h );
     m_PartTabLayout.AddY( browser_h );
 
     m_MovePartButtonLayout.SetSameLineFlag( false );
@@ -192,8 +191,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MovePartButtonLayout.AddButton( m_MovePrtTopButton, "@2<<" );
     m_MovePartButtonLayout.AddYGap();
     m_MovePartButtonLayout.AddButton( m_MovePrtUpButton, "@2<" );
-    m_MovePartButtonLayout.AddY( browser_h - 95 - m_PartTabLayout.GetStdHeight() );
-    m_MovePartButtonLayout.AddResizeBox();
+    m_MovePartButtonLayout.AddY( browser_h - 75 - m_PartTabLayout.GetStdHeight() );
     m_MovePartButtonLayout.AddButton( m_MovePrtDownButton, "@2>" );
     m_MovePartButtonLayout.AddYGap();
     m_MovePartButtonLayout.AddButton( m_MovePrtBotButton, "@2>>" );
@@ -203,7 +201,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_PartTabLayout.SetFitWidthFlag( true );
 
     m_PartTabLayout.AddSubGroupLayout( m_FeaPartBrowserLayout, m_PartTabLayout.GetRemainX(), browser_h );
-    m_PartTabLayout.GetGroup()->resizable( m_FeaPartBrowserLayout.GetGroup() );
     m_PartTabLayout.AddY( browser_h );
 
     m_FeaPartSelectBrowser = m_FeaPartBrowserLayout.AddFlBrowser( browser_h );
@@ -234,11 +231,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_PartTabLayout.AddYGap();
 
     //==== General FeaPart Parameters ====//
-
-    m_PartGroup.SetGroupAndScreen( AddSubGroup( partTab, 5 ), this );
-    m_PartGroup.SetY( m_PartTabLayout.GetY() );
-
-    m_PartTabLayout.AddYGap();
+    m_PartTabLayout.AddSubGroupLayout( m_PartGroup, m_PartTabLayout.GetRemainX(), m_PartTabLayout.GetRemainY() );
 
     m_PartGroup.SetSameLineFlag( true );
     m_PartGroup.SetFitWidthFlag( false );
