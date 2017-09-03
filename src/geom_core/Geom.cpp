@@ -4105,7 +4105,7 @@ FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
 
         if ( feastruct )
         {
-            string defaultname = m_Name + "_Struct_" + to_string( m_FeaStructCount );
+            string defaultname = m_Name + "_Struct" + to_string( m_FeaStructCount );
             feastruct->SetFeaStructName( defaultname );
 
             StructSettings* setting_ptr = feastruct->GetStructSettingsPtr();
