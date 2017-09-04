@@ -787,7 +787,16 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
     FILE* fp = fopen( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_MASS_FILE_NAME ).c_str(), "w" );
     if ( fp )
     {
-        fprintf( fp, "FeaStruct_Name: %s\n", m_StructName.c_str() );
+        fprintf( fp, "...FEA Mesh...\n" );
+        fprintf( fp, "Mass_Unit: %s\n", m_MassUnit.c_str() );
+        fprintf( fp, "Num_Tris: %d\n", m_NumTris );
+        fprintf( fp, "Num_Beams: %d\n", m_NumBeams );
+        fprintf( fp, "\n" );
+
+        if ( m_NumFeaParts > 0 )
+        {
+            fprintf( fp, "FeaPart_Name         Mass_Tris   Mass_Beams\n" );
+        }
 
         // Iterate over each FeaPart index and calculate mass of each FeaElement if the current indexes match
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
@@ -813,33 +822,56 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
                 string name = m_FeaPartNameVec[i];
 
-                fprintf( fp, "\tFeaPartName: %s, Mass_Tris = %f, Mass_Beams = %f\n", name.c_str(), tri_mass, beam_mass );
+                fprintf( fp, "%-20s% -12.4f% -12.4f\n", name.c_str(), tri_mass, beam_mass );
+
                 m_TotalMass += tri_mass + beam_mass;
             }
         }
 
         // Add point masses
+        if ( m_NumFeaFixPoints > 0 )
+        {
+            fprintf( fp, "\n" );
+            fprintf( fp, "PointMass_Name       Mass        X_loc       Y_loc       Z_loc\n" );
+        }
+
         for ( unsigned int i = 0; i < m_NumFeaFixPoints; i++ )
         {
             if ( m_FixPointMassFlagMap[i][0] )
             {
                 double pnt_mass = 0;
                 string name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[i][0]];
+                vec3d pnt;
 
                 for ( int j = 0; j < m_FeaElementVec.size(); j++ )
                 {
                     if ( m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_POINT_MASS && m_FeaElementVec[j]->GetFeaPartIndex() == m_FixPntFeaPartIndexMap[i][0] && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
                     {
                         pnt_mass += m_FeaElementVec[j]->ComputeMass( -1 ); // property ID ignored for point masses
+                        
+                        vector < FeaNode* > node_vec;
+                        m_FeaElementVec[j]->LoadNodes( node_vec );
+
+                        if ( node_vec.size() > 0 )
+                        {
+                            pnt = node_vec[0]->m_Pnt;
+                        }
                     }
                 }
 
-                fprintf( fp, "\tFeaPartName: %s, Mass = %f\n", name.c_str(), pnt_mass );
+                fprintf( fp, "%-20s% -12.4f% -12.4f% -12.4f% -12.4f\n", name.c_str(), pnt_mass, pnt[0], pnt[1], pnt[2] );
+
                 m_TotalMass += pnt_mass;
             }
         }
 
         // Iterate over each FeaSubSurface index and calculate mass of each FeaElement if the subsurface indexes match
+        if ( m_NumFeaSubSurfs > 0 )
+        {
+            fprintf( fp, "\n" );
+            fprintf( fp, "FeaSubSurf_Name      Mass_Tris   Mass_Beams\n" );
+        }
+        
         for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )
         {
             double tri_mass = 0;
@@ -861,11 +893,14 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
 
             string name = m_SimpleSubSurfaceVec[i].GetName();
 
-            fprintf( fp, "\tFeaPartName: %s, Mass_Tris = %f, Mass_Beams = %f\n", name.c_str(), tri_mass, beam_mass );
+            fprintf( fp, "%-20s% -12.4f% -12.4f\n", name.c_str(), tri_mass, beam_mass );
+
             m_TotalMass += tri_mass + beam_mass;
         }
 
-        fprintf( fp, "Total Mass = %f\n", m_TotalMass );
+        fprintf( fp, "\n" );
+        fprintf( fp, "FeaStruct_Name       Total_Mass\n" );
+        fprintf( fp, "%-20s% -9.4f\n", m_StructName.c_str(), m_TotalMass );
 
         fclose( fp );
     }

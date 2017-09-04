@@ -93,7 +93,7 @@ void StructSettings::ResetExportFileNames()
 void StructSettings::ResetExportFileNames( string basename )
 {
     int pos;
-    const char *suffix[] = {"_mass.dat", "_NASTRAN.dat", "_calculix.dat", ".stl", ".msh" };
+    const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_calculix.dat", ".stl", ".msh" };
 
     for ( int i = 0 ; i < vsp::FEA_NUM_FILE_NAMES; i++ )
     {

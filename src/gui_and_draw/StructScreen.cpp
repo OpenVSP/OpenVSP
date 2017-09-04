@@ -2583,7 +2583,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
 
-            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select mass .dat file.", "*.dat" );
+            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select mass .txt file.", "*.txt" );
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_MASS_FILE_NAME );
