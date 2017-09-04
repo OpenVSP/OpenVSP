@@ -758,7 +758,6 @@ bool GeomScreen::Update()
 
     //===== Rel of Abs ====//
     m_XFormAbsRelToggle.Update( geom_ptr->m_AbsRelFlag.GetID() );
-    geom_ptr->DeactivateXForms();
     m_XRotSlider.Activate();
     m_YRotSlider.Activate();
     m_ZRotSlider.Activate();

@@ -392,6 +392,7 @@ GeomXForm::~GeomXForm()
 //==== Update ====//
 void GeomXForm::Update( bool fullupdate )
 {
+    DeactivateXForms();
     ComposeModelMatrix();
 
     double axlen = 1.0;
