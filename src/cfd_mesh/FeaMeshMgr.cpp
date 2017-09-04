@@ -13,6 +13,7 @@
 #include "SubSurfaceMgr.h"
 #include "StructureMgr.h"
 #include "PntNodeMerge.h"
+#include "main.h"
 
 //=============================================================//
 //=============================================================//
@@ -1661,6 +1662,10 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
     FILE* fp = fopen( filename.c_str(), "w" );
     if ( fp )
     {
+        fprintf( fp, "$NASTRAN Data File Generated from %s\n", VSPVERSION4 );
+        fprintf( fp, "$Num_Tris: %d\n", m_NumTris );
+        fprintf( fp, "$Num_Beams %d\n\n", m_NumBeams );
+
         fprintf( fp, "BEGIN BULK\n" );
 
         // FeaPart Nodes
@@ -1854,6 +1859,10 @@ void FeaMeshMgrSingleton::WriteCalculix()
     FILE* fp = fopen( fn.c_str(), "w" );
     if ( fp )
     {
+        fprintf( fp, "**Calculix Data File Generated from %s\n", VSPVERSION4 );
+        fprintf( fp, "**Num_Tris: %d\n", m_NumTris );
+        fprintf( fp, "**Num_Beams %d\n\n", m_NumBeams );
+
         int elem_id = 0;
         char str[256];
 
