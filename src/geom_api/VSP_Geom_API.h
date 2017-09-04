@@ -124,6 +124,7 @@ extern void StartGui( );
 //======================== Geom Functions ================================//
 extern std::vector<std::string> GetGeomTypes();
 extern std::string AddGeom( const std::string & type, const std::string & parent = std::string() );
+extern void UpdateGeom( const std::string & geom_id );
 extern void DeleteGeom( const std::string & geom_id );
 extern void DeleteGeomVec( const std::vector< std::string > & del_vec );
 extern void CutGeomToClipboard( const std::string & geom_id );

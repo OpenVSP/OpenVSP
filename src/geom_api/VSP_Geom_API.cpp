@@ -1253,6 +1253,16 @@ string AddGeom( const string & type, const string & parent  )
     return ret_id;
 }
 
+void UpdateGeom( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+
+    veh->UpdateGeom( geom_id );
+
+    ErrorMgr.NoError();
+}
+
+
 void DeleteGeom( const string & geom_id )
 {
     Vehicle* veh = GetVehicle();

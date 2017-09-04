@@ -416,6 +416,15 @@ void Vehicle::Update( bool fullupdate )
     }
 }
 
+void Vehicle::UpdateGeom( const string &geom_id )
+{
+    Geom* g_ptr = FindGeom( geom_id );
+    if ( g_ptr )
+    {
+        g_ptr->Update( );
+    }
+}
+
 void Vehicle::ForceUpdate()
 {
     for ( int i = 0 ; i < ( int )m_GeomStoreVec.size() ; i++ )
