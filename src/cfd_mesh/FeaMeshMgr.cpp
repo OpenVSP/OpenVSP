@@ -25,6 +25,8 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
     m_NumFeaSubSurfs = 0;
     m_FeaMeshStructIndex = -1;
     m_RemoveSkinTris = false;
+    m_NumTris = 0;
+    m_NumBeams = 0;
 }
 
 FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
@@ -166,6 +168,33 @@ void FeaMeshMgrSingleton::TransferMeshSettings()
     }
 }
 
+void FeaMeshMgrSingleton::GetMassUnit()
+{
+    switch ( m_Vehicle->m_StructUnit() )
+    {
+        case vsp::SI_UNIT:
+            m_MassUnit = "kg";
+            break;
+
+        case vsp::CGS_UNIT:
+            m_MassUnit = "g";
+            break;
+
+        case vsp::MPA_UNIT:
+            m_MassUnit = "tonne"; // or Mg/
+            break;
+
+        case vsp::BFT_UNIT:
+            m_MassUnit = "slug";
+            break;
+
+        case vsp::BIN_UNIT:
+            //string squared( 1, 178 );
+            m_MassUnit = "lbf*sec" + string( 1, 178 ) + "/in";
+            break;
+    }
+}
+
 void FeaMeshMgrSingleton::TransferFeaData()
 {
     // Transfer FeaPart Data
@@ -250,6 +279,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     // Hide all geoms after loading surfaces and settings
     m_Vehicle->HideAll();
 
+    GetMassUnit();
     TransferFeaData();
     TransferSubSurfData();
     TransferDrawObjData();
@@ -621,6 +651,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         }
 
         m_FeaElementVec.push_back( tri );
+        m_NumTris++;
     }
 
     // Build FeaBeam Intersections
@@ -743,6 +774,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
                 beam->SetFeaPartIndex( FeaPartIndex );
                 beam->SetFeaSSIndex( ssindexVec[j] );
                 m_FeaElementVec.push_back( beam );
+                m_NumBeams++;
             }
         }
     }

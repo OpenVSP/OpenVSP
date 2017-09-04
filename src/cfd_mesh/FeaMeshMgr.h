@@ -149,9 +149,12 @@ public:
 
 protected:
 
+    virtual void GetMassUnit();
+
     bool m_FeaMeshInProgress;
 
     double m_TotalMass;
+    string m_MassUnit;
 
     string m_StructName;
     int m_FeaMeshStructIndex;
@@ -159,6 +162,8 @@ protected:
     int m_NumFeaParts;
     int m_NumFeaSubSurfs;
     int m_NumFeaFixPoints;
+    int m_NumTris;
+    int m_NumBeams;
 
     bool m_RemoveSkinTris;
 
