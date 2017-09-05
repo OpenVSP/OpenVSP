@@ -80,6 +80,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_StructureTabLayout.AddDividerBox( "General" );
 
+    m_StructureTabLayout.AddButton( m_WikiLinkButton, "Link to FEA Mesh Wiki Documentation" );
+
+    m_StructureTabLayout.AddYGap();
+
     m_StructureTabLayout.SetSameLineFlag( true );
     m_StructureTabLayout.SetFitWidthFlag( false );
     m_StructureTabLayout.SetChoiceButtonWidth( m_StructureTabLayout.GetRemainX() / 2 );
@@ -1981,6 +1985,16 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->m_DrawMeshFlag = true;
             structvec[StructureMgr.GetCurrStructIndex()]->SetDrawFlag( false );
         }
+    }
+    else if ( device == &m_WikiLinkButton )
+    {
+#ifdef  __APPLE__
+        system( "open http://www.openvsp.org/wiki/doku.php?id=feamesh" );
+#elif   LINUX
+        system( "xdg-open http://www.openvsp.org/wiki/doku.php?id=feamesh" );
+#else
+        system( "start /max /wait http://www.openvsp.org/wiki/doku.php?id=feamesh" );
+#endif
     }
     else if ( device == &m_StructUnitChoice )
     {

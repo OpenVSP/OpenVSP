@@ -110,6 +110,7 @@ private:
     GroupLayout* m_CurrDispGroup;
 
     //===== Structure Tab Items =====//
+    TriggerButton m_WikiLinkButton;
     Choice m_StructUnitChoice;
     Choice m_GeomChoice;
     Choice m_SurfSel;
