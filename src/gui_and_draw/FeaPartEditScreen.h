@@ -165,6 +165,8 @@ private:
     ToggleRadioGroup m_RibArrayPosNegDirToggleGroup;
     SliderAdjRange2Input m_RibArrayStartLocSlider;
     TriggerButton m_RibArrayStartLocUnit;
+    SliderAdjRange2Input m_RibArrayEndLocSlider;
+    TriggerButton m_RibArrayEndLocUnit;
     SliderAdjRange2Input m_RibArraySpacingSlider;
     TriggerButton m_RibArrayPosUnit;
     SliderAdjRangeInput m_RibArrayThetaSlider;

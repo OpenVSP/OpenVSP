@@ -442,6 +442,8 @@ public:
     BoolParm m_PositiveDirectionFlag;
     Parm m_AbsStartLocation;
     Parm m_RelStartLocation;
+    Parm m_AbsEndLocation;
+    Parm m_RelEndLocation;
     Parm m_Theta;
 
 protected:

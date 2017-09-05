@@ -3321,6 +3321,12 @@ FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
     m_RelStartLocation.Init( "RelStartLocation", "FeaRibArray", this, 0.0, 0.0, 1.0 );
     m_RelStartLocation.SetDescript( "Relative Starting Location for Primary Rib" );
 
+    m_AbsEndLocation.Init( "AbsEndLocation", "FeaRibArray", this, 0.0, 0.0, 1e12 );
+    m_AbsEndLocation.SetDescript( "Absolute Location for Final Rib in Array" );
+
+    m_RelEndLocation.Init( "RelEndLocation", "FeaRibArray", this, 1.0, 0.0, 1.0 );
+    m_RelEndLocation.SetDescript( "Relative Location for Final Rib in Array" );
+
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
 
     m_NumRibs = 0;
@@ -3382,33 +3388,84 @@ void FeaRibArray::CalcNumRibs()
         {
             m_AbsStartLocation.Set( m_RelStartLocation() * span_f );
             m_RibAbsSpacing.Set( m_RibRelSpacing() * span_f );
+            m_AbsEndLocation.Set( m_RelEndLocation() * span_f );
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_RibRelSpacing.SetLowerUpperLimits( ( 1 - m_RelStartLocation() ) / 100, 1.0 ); // Limit to 100 ribs
-                m_NumRibs = 1 + (int)floor( ( 1 - m_RelStartLocation() ) / m_RibRelSpacing() );
+                // Flip start and end values if inconsistent with direction
+                if ( m_RelEndLocation() < m_RelStartLocation() ) 
+                {
+                    double temp_end = m_RelEndLocation();
+                    m_RelEndLocation.Set( m_RelStartLocation() );
+                    m_RelStartLocation.Set( temp_end );
+                }
+
+                m_RelEndLocation.SetLowerUpperLimits( m_RelStartLocation(), 1.0 );
+                m_RelStartLocation.SetLowerUpperLimits( 0.0, m_RelEndLocation() );
+
+                m_RibRelSpacing.SetLowerUpperLimits( ( m_RelEndLocation() - m_RelStartLocation() ) / 100, ( m_RelEndLocation() - m_RelStartLocation() ) ); // Limit to 100 ribs
+                m_NumRibs = 1 + (int)floor( ( m_RelEndLocation() - m_RelStartLocation() ) / m_RibRelSpacing() );
             }
             else
             {
-                m_RibRelSpacing.SetLowerUpperLimits( m_RelStartLocation() / 100, 1.0 ); // Limit to 100 ribs
-                m_NumRibs = 1 + (int)floor( ( m_RelStartLocation() ) / m_RibRelSpacing() );
+                // Flip start and end values if inconsistent with direction
+                if ( m_RelStartLocation() < m_RelEndLocation() )
+                {
+                    double temp_start = m_RelStartLocation();
+                    m_RelStartLocation.Set( m_RelEndLocation() );
+                    m_RelEndLocation.Set( temp_start );
+                }
+
+                m_RelStartLocation.SetLowerUpperLimits( m_RelEndLocation(), 1.0 );
+                m_RelEndLocation.SetLowerUpperLimits( 0.0, m_RelStartLocation() );
+
+                m_RibRelSpacing.SetLowerUpperLimits( ( m_RelStartLocation() - m_RelEndLocation() ) / 100, ( m_RelStartLocation() - m_RelEndLocation() ) ); // Limit to 100 ribs
+                m_NumRibs = 1 + (int)floor( ( m_RelStartLocation() - m_RelEndLocation() ) / m_RibRelSpacing() );
             }
         }
         else if ( m_AbsRelParmFlag() == vsp::ABS )
         {
             m_RelStartLocation.Set( m_AbsStartLocation() / span_f );
             m_RibRelSpacing.Set( m_RibAbsSpacing() / span_f );
+            m_RelEndLocation.Set( m_AbsEndLocation() / span_f );
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_RibAbsSpacing.SetLowerUpperLimits( ( span_f - m_AbsStartLocation() ) / 100, span_f ); // Limit to 100 ribs
-                m_NumRibs = 1 + (int)floor( ( span_f - m_AbsStartLocation() ) / m_RibAbsSpacing() );
+                // Flip start and end values if inconsistent with direction
+                if ( m_AbsEndLocation() < m_AbsStartLocation() )
+                {
+                    double temp_end = m_AbsEndLocation();
+                    m_AbsEndLocation.Set( m_AbsStartLocation() );
+                    m_AbsStartLocation.Set( temp_end );
+                }
+
+                m_AbsEndLocation.SetLowerUpperLimits( m_AbsStartLocation(), span_f );
+                m_AbsStartLocation.SetLowerUpperLimits( 0.0, m_AbsEndLocation() );
+
+                m_RibAbsSpacing.SetLowerUpperLimits( ( m_AbsEndLocation() - m_AbsStartLocation() ) / 100, ( m_AbsEndLocation() - m_AbsStartLocation() ) ); // Limit to 100 ribs
+                m_NumRibs = 1 + (int)floor( ( m_AbsEndLocation() - m_AbsStartLocation() ) / m_RibAbsSpacing() );
             }
             else
             {
-                m_RibAbsSpacing.SetLowerUpperLimits( m_AbsStartLocation() / 100, span_f ); // Limit to 100 ribs 
-                m_NumRibs = 1 + (int)floor( m_AbsStartLocation() / m_RibAbsSpacing() );
+                // Flip start and end values if inconsistent with direction
+                if ( m_AbsStartLocation() < m_AbsEndLocation() )
+                {
+                    double temp_start = m_AbsStartLocation();
+                    m_AbsStartLocation.Set( m_AbsEndLocation() );
+                    m_AbsEndLocation.Set( temp_start );
+                }
+
+                m_AbsStartLocation.SetLowerUpperLimits( m_AbsEndLocation(), span_f );
+                m_AbsEndLocation.SetLowerUpperLimits( 0.0, m_AbsStartLocation() );
+
+                m_RibAbsSpacing.SetLowerUpperLimits( ( m_AbsStartLocation() - m_AbsEndLocation() ) / 100, ( m_AbsStartLocation() - m_AbsEndLocation() ) ); // Limit to 100 ribs 
+                m_NumRibs = 1 + (int)floor( ( m_AbsStartLocation() - m_AbsEndLocation() ) / m_RibAbsSpacing() );
             }
+        }
+
+        if ( m_NumRibs < 1 || m_NumRibs > 101 )
+        {
+            m_NumRibs = 1;
         }
     }
 }

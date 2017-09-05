@@ -489,6 +489,16 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_RibArrayEditLayout.ForceNewLine();
     m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() / 3 );
 
+    m_RibArrayEditLayout.AddSlider( m_RibArrayEndLocSlider, "End Location", 0.5, "%5.3f" );
+
+    m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() );
+    m_RibArrayEditLayout.AddButton( m_RibArrayEndLocUnit, " " );
+    m_RibArrayEndLocUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_RibArrayEndLocUnit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_RibArrayEditLayout.ForceNewLine();
+    m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() / 3 );
+
     m_RibArrayEditLayout.AddSlider( m_RibArraySpacingSlider, "Spacing", 0.5, "%5.3f" );
 
     m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() );
@@ -1328,18 +1338,24 @@ bool FeaPartEditScreen::Update()
                         {
                             rib_array->m_RelStartLocation.Activate();
                             rib_array->m_AbsStartLocation.Deactivate();
+                            rib_array->m_RelEndLocation.Activate();
+                            rib_array->m_AbsEndLocation.Deactivate();
                             rib_array->m_RibRelSpacing.Activate();
                             rib_array->m_RibAbsSpacing.Deactivate();
                             m_RibArrayStartLocSlider.Update( 1, rib_array->m_RelStartLocation.GetID(), rib_array->m_AbsStartLocation.GetID() );
+                            m_RibArrayEndLocSlider.Update( 1, rib_array->m_RelEndLocation.GetID(), rib_array->m_AbsEndLocation.GetID() );
                             m_RibArraySpacingSlider.Update( 1, rib_array->m_RibRelSpacing.GetID(), rib_array->m_RibAbsSpacing.GetID() );
                         }
                         else
                         {
                             rib_array->m_RelStartLocation.Deactivate();
                             rib_array->m_AbsStartLocation.Activate();
+                            rib_array->m_RelEndLocation.Deactivate();
+                            rib_array->m_AbsEndLocation.Activate();
                             rib_array->m_RibRelSpacing.Deactivate();
                             rib_array->m_RibAbsSpacing.Activate();
                             m_RibArrayStartLocSlider.Update( 2, rib_array->m_RelStartLocation.GetID(), rib_array->m_AbsStartLocation.GetID() );
+                            m_RibArrayEndLocSlider.Update( 2, rib_array->m_RelEndLocation.GetID(), rib_array->m_AbsEndLocation.GetID() );
                             m_RibArraySpacingSlider.Update( 2, rib_array->m_RibRelSpacing.GetID(), rib_array->m_RibAbsSpacing.GetID() );
                         }
 
@@ -2409,6 +2425,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
                         m_SparPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                         m_RibPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                         m_RibArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                        m_RibArrayEndLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                         m_RibArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                         m_SliceArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                         m_SliceArrayEndLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
@@ -2420,6 +2437,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
                             m_SparPosUnit.Activate();
                             m_RibPosUnit.Activate();
                             m_RibArrayStartLocUnit.Activate();
+                            m_RibArrayEndLocUnit.Activate();
                             m_RibArrayPosUnit.Activate();
                             m_SliceArrayStartLocUnit.Activate();
                             m_SliceArrayEndLocUnit.Activate();
@@ -2431,6 +2449,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
                             m_SparPosUnit.Deactivate();
                             m_RibPosUnit.Deactivate();
                             m_RibArrayStartLocUnit.Deactivate();
+                            m_RibArrayEndLocUnit.Deactivate();
                             m_RibArrayPosUnit.Deactivate();
                             m_SliceArrayStartLocUnit.Deactivate();
                             m_SliceArrayEndLocUnit.Deactivate();
