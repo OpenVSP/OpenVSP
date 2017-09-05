@@ -137,6 +137,8 @@ public:
 
     void GetBoundingBox( BndBox &bb ) const;
 
+    double EstimateThick() const;
+
 protected:
     piecewise_curve_type m_Curve;
 
