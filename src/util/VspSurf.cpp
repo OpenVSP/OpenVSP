@@ -47,6 +47,8 @@ VspSurf::VspSurf()
     m_CloneIndex = -1;
 
     SetClustering( 1.0, 1.0 );
+
+    m_FoilSurf = NULL;
 }
 
 //===== Destructor  =====//

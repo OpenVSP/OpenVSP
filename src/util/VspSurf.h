@@ -226,6 +226,9 @@ public:
     void ScaleY( double s );
     void ScaleZ( double s );
 
+    void SetFoilSurf( VspSurf *s )                           { m_FoilSurf = s; }
+    VspSurf *GetFoilSurf()                                   { return m_FoilSurf; }
+
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
@@ -265,6 +268,8 @@ protected:
 
     int m_CloneIndex;
     Matrix4d m_CloneMat;
+
+    VspSurf *m_FoilSurf;
 
 };
 #endif
