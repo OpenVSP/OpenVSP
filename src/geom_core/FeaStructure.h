@@ -508,9 +508,6 @@ public:
 
     virtual string GetTypeName( );
 
-    virtual void WriteNASTRAN( FILE* fp, int prop_id );
-    virtual void WriteCalculix( FILE* fp, string ELSET );
-
     IntParm m_FeaPropertyType;
     Parm m_Thickness;
     Parm m_CrossSecArea;
@@ -533,9 +530,6 @@ public:
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
-
-    virtual void WriteNASTRAN( FILE* fp, int id );
-    virtual void WriteCalculix( FILE* fp, int id );
 
     virtual double GetShearModulus();
 

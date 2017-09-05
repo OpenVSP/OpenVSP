@@ -3990,39 +3990,6 @@ string FeaProperty::GetTypeName( )
     return string( "NONE" );
 }
 
-void FeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
-{
-    if ( m_FeaPropertyType() == vsp::FEA_SHELL )
-    {
-        fprintf( fp, "PSHELL,%d,%d,%f\n", prop_id, m_FeaMaterialIndex() + 1, m_Thickness() );
-    }
-    if ( m_FeaPropertyType() == vsp::FEA_BEAM )
-    {
-        fprintf( fp, "PBEAM,%d,%d,%f,%f,%f,%f,%f\n", prop_id, m_FeaMaterialIndex() + 1, m_CrossSecArea(), m_Izz(), m_Iyy(), m_Izy(), m_Ixx() );
-    }
-}
-
-void FeaProperty::WriteCalculix( FILE* fp, string ELSET )
-{
-    FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( m_FeaMaterialIndex() );
-
-    if ( fea_mat )
-    {
-        if ( m_FeaPropertyType() == vsp::FEA_SHELL )
-        {
-            fprintf( fp, "*SHELL SECTION, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
-            fprintf( fp, "%g\n", m_Thickness() );
-        }
-        if ( m_FeaPropertyType() == vsp::FEA_BEAM )
-        {
-            // Note: *BEAM GENERAL SECTION is supported by Abaqus but not Calculix. Calculix depends on BEAM SECTION properties
-            //  where the cross-section dimensions must be explicitly defined. 
-            fprintf( fp, "*BEAM GENERAL SECTION, SECTION=GENERAL, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), fea_mat->GetName().c_str() );
-            fprintf( fp, "%g,%g,%g,%g,%g\n", m_CrossSecArea(), m_Izz(), m_Izy(), m_Iyy(), m_Ixx() );
-        }
-    }
-}
-
 ////////////////////////////////////////////////////
 //================= FeaMaterial ==================//
 ////////////////////////////////////////////////////
@@ -4072,22 +4039,6 @@ xmlNodePtr FeaMaterial::DecodeXml( xmlNodePtr & node )
     ParmContainer::DecodeXml( node );
 
     return node;
-}
-
-void FeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
-{
-    fprintf( fp, "MAT1,%d,%g,%g,%g,%g,%g\n", mat_id, m_ElasticModulus(), GetShearModulus(), m_PoissonRatio(), m_MassDensity(), m_ThermalExpanCoeff() );
-}
-
-void FeaMaterial::WriteCalculix( FILE* fp, int mat_id )
-{
-    fprintf( fp, "*MATERIAL, NAME=%s\n", GetName().c_str() );
-    fprintf( fp, "*DENSITY\n" );
-    fprintf( fp, "%g\n", m_MassDensity() );
-    fprintf( fp, "*ELASTIC, TYPE=ISO\n" );
-    fprintf( fp, "%g,%g\n", m_ElasticModulus(), m_PoissonRatio() );
-    fprintf( fp, "*EXPANSION, TYPE=ISO\n" );
-    fprintf( fp, "%g\n", m_ThermalExpanCoeff() );
 }
 
 double FeaMaterial::GetShearModulus()
