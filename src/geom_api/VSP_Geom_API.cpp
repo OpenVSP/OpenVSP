@@ -1882,6 +1882,35 @@ string AddFeaPart( const string & geom_id, int fea_struct_id, int type )
     return feapart->GetID();
 }
 
+void DeleteFeaPart( const string & geom_id, int fea_struct_id, const string & part_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaPart::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    FeaStructure* feastruct = NULL;
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaPart::Invalid FeaStructure Ptr" );
+        return;
+    }
+
+    int index = StructureMgr.GetFeaPartIndex( part_id );
+    if ( index == -1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaPart::Can't Find FeaPart " + part_id );
+        return;
+    }
+    feastruct->DelFeaPart( index );
+    ErrorMgr.NoError();
+    return;
+}
+
 /// Add a FeaSubSurface, return FeaSubSurface ID
 string AddFeaSubSurf( const string & geom_id, int fea_struct_id, int type )
 {
@@ -1911,6 +1940,35 @@ string AddFeaSubSurf( const string & geom_id, int fea_struct_id, int type )
     feastruct->Update();
     ErrorMgr.NoError();
     return feasubsurf->GetID();
+}
+
+void DeleteFeaSubSurf( const string & geom_id, int fea_struct_id, const string & ss_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaSubSurf::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    FeaStructure* feastruct = NULL;
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaSubSurf::Invalid FeaStructure Ptr" );
+        return;
+    }
+
+    int index = StructureMgr.GetFeaSubSurfIndex( ss_id );
+    if ( index == -1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaSubSurf::Can't Find FeaSubSurf " + ss_id );
+        return;
+    }
+    feastruct->DelFeaSubSurf( index );
+    ErrorMgr.NoError();
+    return;
 }
 
 /// Add an FeaMaterial, return FeaMaterial ID

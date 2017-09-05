@@ -2232,7 +2232,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string AddFeaPart( const string & in geom_id, int fea_struct_id, int type )", asFUNCTION( vsp::AddFeaPart ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string DeleteFeaPart( const string & in geom_id, int fea_struct_id, const string & in part_id  )", asFUNCTION( vsp::DeleteFeaPart ), asCALL_CDECL );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string AddFeaSubSurf( const string & in geom_id, int fea_struct_id, int type )", asFUNCTION( vsp::AddFeaSubSurf ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string DeleteFeaSubSurf( const string & in geom_id, int fea_struct_id, const string & in ss_id  )", asFUNCTION( vsp::DeleteFeaSubSurf ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string AddFeaMaterial( )", asFUNCTION( vsp::AddFeaMaterial ), asCALL_CDECL );
     assert( r >= 0 );
