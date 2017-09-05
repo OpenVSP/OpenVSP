@@ -315,6 +315,7 @@ class SSLineArray : public SubSurface
     BoolParm m_PositiveDirectionFlag;
     Parm m_Spacing; // Spacing (U or W) between each constant line
     Parm m_StartLocation;
+    Parm m_EndLocation;
 
     protected:
     virtual int CompNumDrawPnts( Geom* geom ); // Remove?

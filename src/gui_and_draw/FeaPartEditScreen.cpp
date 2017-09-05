@@ -1009,8 +1009,9 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_FeaSSLineArrayGroup.SetSameLineFlag( false );
     m_FeaSSLineArrayGroup.SetFitWidthFlag( true );
 
-    m_FeaSSLineArrayGroup.AddSlider( m_FeaSSLineArraySpacingSlider, "Spacing", 0.5, "%5.4f" );
     m_FeaSSLineArrayGroup.AddSlider( m_FeaSSLineArrayStartLocSlider, "Start Location", 0.5, "%5.4f" );
+    m_FeaSSLineArrayGroup.AddSlider( m_FeaSSLineArrayEndLocSlider, "End Location", 0.5, "%5.4f" );
+    m_FeaSSLineArrayGroup.AddSlider( m_FeaSSLineArraySpacingSlider, "Spacing", 0.5, "%5.4f" );
 
     m_FeaSSLineArrayGroup.AddYGap();
 
@@ -1713,6 +1714,7 @@ bool FeaPartEditScreen::Update()
                         m_FeaSSLineArrayPosNegDirToggleGroup.Update( sslinearray->m_PositiveDirectionFlag.GetID() );
                         m_FeaSSLineArraySpacingSlider.Update( sslinearray->m_Spacing.GetID() );
                         m_FeaSSLineArrayStartLocSlider.Update( sslinearray->m_StartLocation.GetID() );
+                        m_FeaSSLineArrayEndLocSlider.Update( sslinearray->m_EndLocation.GetID() );
 
                         FeaPartDispGroup( &m_FeaSSLineArrayGroup );
                     }

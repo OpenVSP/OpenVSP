@@ -2054,6 +2054,9 @@ SSLineArray::SSLineArray( string comp_id, int type ) : SubSurface( comp_id, type
     m_StartLocation.Init( "StartLocation", "SS_LineArray", this, 0.0, 0.0, 1.0 );
     m_StartLocation.SetDescript( "Location of First SSLine in Array" );
 
+    m_EndLocation.Init( "EndLocation", "SS_LineArray", this, 1.0, 0.0, 1.0 );
+    m_EndLocation.SetDescript( "Location for Final SSLine in Array" );
+
     // Set to only Beam elements (cap) with no tags (tris)
     m_TestType = SSLineSeg::NO;
     m_IncludedElements.Set( vsp::FEA_BEAM );
@@ -2126,13 +2129,38 @@ void SSLineArray::CalcNumLines()
 
         if ( m_PositiveDirectionFlag() )
         {
-            m_Spacing.SetLowerUpperLimits( ( 1 - m_StartLocation() ) / 100, 1.0 ); // Limit to 100 lines
-            m_NumLines = 1 + (int)floor( ( 1.0 - m_StartLocation() ) / m_Spacing() );
+            if ( m_EndLocation() < m_StartLocation() )
+            {
+                double temp_end = m_EndLocation();
+                m_EndLocation.Set( m_StartLocation() );
+                m_StartLocation.Set( temp_end );
+            }
+
+            m_EndLocation.SetLowerUpperLimits( m_StartLocation(), 1.0 );
+            m_StartLocation.SetLowerUpperLimits( 0.0, m_EndLocation() );
+
+            m_Spacing.SetLowerUpperLimits( ( m_EndLocation() - m_StartLocation() ) / 100, ( m_EndLocation() - m_StartLocation() ) ); // Limit to 100 lines
+            m_NumLines = 1 + (int)floor( ( m_EndLocation() - m_StartLocation() ) / m_Spacing() );
         }
         else
         {
-            m_Spacing.SetLowerUpperLimits( m_StartLocation() / 100, 1.0 ); // Limit to 100 lines
-            m_NumLines = 1 + (int)floor( m_StartLocation() / m_Spacing() );
+            if ( m_StartLocation() < m_EndLocation() )
+            {
+                double temp_start = m_StartLocation();
+                m_StartLocation.Set( m_EndLocation() );
+                m_EndLocation.Set( temp_start );
+            }
+
+            m_StartLocation.SetLowerUpperLimits( m_EndLocation(), 1.0 );
+            m_EndLocation.SetLowerUpperLimits( 0.0, m_StartLocation() );
+
+            m_Spacing.SetLowerUpperLimits( ( m_StartLocation() - m_EndLocation() ) / 100, ( m_StartLocation() - m_EndLocation() ) ); // Limit to 100 lines
+            m_NumLines = 1 + (int)floor( ( m_StartLocation() - m_EndLocation() ) / m_Spacing() );
+        }
+
+        if ( m_NumLines < 1 || m_NumLines > 101 )
+        {
+            m_NumLines = 1;
         }
     }
 }

@@ -292,6 +292,7 @@ private:
     //===== SSLineArray =====//
     SliderAdjRangeInput m_FeaSSLineArraySpacingSlider;
     SliderAdjRangeInput m_FeaSSLineArrayStartLocSlider;
+    SliderAdjRangeInput m_FeaSSLineArrayEndLocSlider;
     ToggleButton m_FeaSSLineArrayConstUButton;
     ToggleButton m_FeaSSLineArrayConstWButton;
     ToggleRadioGroup m_FeaSSLineArrayConstToggleGroup;
