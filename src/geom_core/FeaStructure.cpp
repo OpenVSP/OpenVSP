@@ -3300,10 +3300,10 @@ bool FeaDome::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
 
 FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_RibAbsSpacing.Init( "RibAbsSpacing", "FeaRibArray", this, 0.1, 0, 1e12 );
+    m_RibAbsSpacing.Init( "RibAbsSpacing", "FeaRibArray", this, 0.1, 1e-6, 1e12 );
     m_RibAbsSpacing.SetDescript( "Absolute Spacing Between Ribs in Array" );
 
-    m_RibRelSpacing.Init( "RibRelSpacing", "FeaRibArray", this, 0.2, 0, 1e12 );
+    m_RibRelSpacing.Init( "RibRelSpacing", "FeaRibArray", this, 0.2, 1e-6, 1e12 );
     m_RibRelSpacing.SetDescript( "Relative Spacing Between Ribs in Array" );
 
     m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaRibArray", this, true, false, true );
@@ -3555,20 +3555,20 @@ void FeaRibArray::UpdateDrawObjs( int id, bool highlight )
 
 FeaSliceArray::FeaSliceArray( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_SliceAbsSpacing.Init( "SliceAbsSpacing", "FeaSliceArray", this, 0.2, 0, 1e12 );
+    m_SliceAbsSpacing.Init( "SliceAbsSpacing", "FeaSliceArray", this, 0.2, 1e-6, 1e12 );
     m_SliceAbsSpacing.SetDescript( "Absolute Spacing Between Slices in Array" );
 
-    m_SliceRelSpacing.Init( "SliceRelSpacing", "FeaSliceArray", this, 0.2, 0, 1.0 );
+    m_SliceRelSpacing.Init( "SliceRelSpacing", "FeaSliceArray", this, 0.2, 1e-6, 1.0 );
     m_SliceRelSpacing.SetDescript( "Relative Spacing Between Slices in Array" );
 
     m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "FeaSliceArray", this, true, false, true );
     m_PositiveDirectionFlag.SetDescript( "Flag to Increment SliceArray in Positive or Negative Direction" );
 
     m_AbsStartLocation.Init( "AbsStartLocation", "FeaSliceArray", this, 0.0, 0.0, 1e12 );
-    m_AbsStartLocation.SetDescript( "Absolute Starting Location for Primary Stiffener" );
+    m_AbsStartLocation.SetDescript( "Absolute Starting Location for First Slice in Array" );
 
-    m_RelStartLocation.Init( "RelStartLocation", "FeaSliceArray", this, 0.0, 0.0, 1e12 );
-    m_RelStartLocation.SetDescript( "Relative Starting Location for Primary Stiffener" );
+    m_RelStartLocation.Init( "RelStartLocation", "FeaSliceArray", this, 0.0, 0.0, 1.0 );
+    m_RelStartLocation.SetDescript( "Relative Starting Location for First Slice in Array" );
 
     m_OrientationPlane.Init( "OrientationPlane", "FeaSliceArray", this, vsp::YZ_BODY, vsp::XY_BODY, vsp::CONST_U );
     m_OrientationPlane.SetDescript( "Plane the FeaSliceArray will be Parallel to (Body or Absolute Reference Frame)" );
