@@ -42,6 +42,7 @@ public:
     virtual int GetTotFeaStructIndex( FeaStructure* fea_struct );
     virtual FeaPart* GetFeaPart( const string & feapart_id );
     virtual int GetFeaPartIndex( const string & feapart_id );
+    virtual int GetFeaSubSurfIndex( const string & ss_id );
     virtual string GetFeaPartName( const string & id );
     virtual int GetFeaPropertyIndex( const string & FeaPartID );
     virtual int GetFeaMaterialIndex( const string & FeaPartID );
