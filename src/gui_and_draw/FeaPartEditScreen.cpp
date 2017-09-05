@@ -1051,6 +1051,13 @@ bool FeaPartEditScreen::Update()
         {
             vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
 
+            // Update FeaParts and SubSurfaces if FeaMesh is not in progress.
+            //  Note: This update is mainly added to ensure GUI elements are upt to date (relative/absolute values are calculated and set in Update() )
+            if ( !FeaMeshMgr.GetFeaMeshInProgress() )
+            {
+                structVec[StructureMgr.GetCurrStructIndex()]->Update();
+            }
+
             // Update Current FeaPart
             if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
             {

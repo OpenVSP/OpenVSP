@@ -1722,7 +1722,15 @@ bool StructScreen::Update()
             // Update FeaParts and SubSurfaces if FeaMesh is not in progress
             if ( !FeaMeshMgr.GetFeaMeshInProgress() )
             {
-                structVec[StructureMgr.GetCurrStructIndex()]->Update();
+                // Only update if FeaPartEditScreen is not open, since the structure is updated there otherwise
+                VspScreen* edit_screen = m_ScreenMgr->GetScreen( ScreenMgr::VSP_FEA_PART_EDIT_SCREEN );
+                if ( edit_screen )
+                {
+                    if ( !edit_screen->IsShown() )
+                    {
+                        structVec[StructureMgr.GetCurrStructIndex()]->Update();
+                    }
+                }
             }
         }
         else
@@ -2197,8 +2205,6 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                     StructureMgr.SetCurrPartIndex( structvec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() + structvec[StructureMgr.GetCurrStructIndex()]->NumFeaSubSurfs() - 1 );
                 }
             }
-
-            structvec[StructureMgr.GetCurrStructIndex()]->Update();
         }
         else
         {
