@@ -594,6 +594,16 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SliceArrayEditLayout.ForceNewLine();
     m_SliceArrayEditLayout.SetButtonWidth( m_SliceArrayEditLayout.GetRemainX() / 3 );
 
+    m_SliceArrayEditLayout.AddSlider( m_SliceArrayEndLocSlider, "End Location", 0.5, "%5.3f" );
+
+    m_SliceArrayEditLayout.SetButtonWidth( m_SliceArrayEditLayout.GetRemainX() );
+    m_SliceArrayEditLayout.AddButton( m_SliceArrayEndLocUnit, " " );
+    m_SliceArrayEndLocUnit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_SliceArrayEndLocUnit.GetFlButton()->labelcolor( FL_BLACK );
+
+    m_SliceArrayEditLayout.ForceNewLine();
+    m_SliceArrayEditLayout.SetButtonWidth( m_SliceArrayEditLayout.GetRemainX() / 3 );
+
     m_SliceArrayEditLayout.AddSlider( m_SliceArraySpacingSlider, "Spacing", 0.5, "%5.3f" );
 
     m_SliceArrayEditLayout.SetButtonWidth( m_SliceArrayEditLayout.GetRemainX() );
@@ -1361,25 +1371,30 @@ bool FeaPartEditScreen::Update()
                         assert( slice_array );
 
                         m_SliceArrayOrientationChoice.Update( slice_array->m_OrientationPlane.GetID() );
-
                         m_SliceArrayPosTypeToggleGroup.Update( slice_array->m_AbsRelParmFlag.GetID() );
 
                         if ( slice_array->m_AbsRelParmFlag() == vsp::REL )
                         {
                             slice_array->m_RelStartLocation.Activate();
                             slice_array->m_AbsStartLocation.Deactivate();
+                            slice_array->m_RelEndLocation.Activate();
+                            slice_array->m_AbsEndLocation.Deactivate();
                             slice_array->m_SliceRelSpacing.Activate();
                             slice_array->m_SliceAbsSpacing.Deactivate();
                             m_SliceArrayStartLocSlider.Update( 1, slice_array->m_RelStartLocation.GetID(), slice_array->m_AbsStartLocation.GetID() );
+                            m_SliceArrayEndLocSlider.Update( 1, slice_array->m_RelEndLocation.GetID(), slice_array->m_AbsEndLocation.GetID() );
                             m_SliceArraySpacingSlider.Update( 1, slice_array->m_SliceRelSpacing.GetID(), slice_array->m_SliceAbsSpacing.GetID() );
                         }
                         else
                         {
                             slice_array->m_RelStartLocation.Deactivate();
                             slice_array->m_AbsStartLocation.Activate();
+                            slice_array->m_RelEndLocation.Deactivate();
+                            slice_array->m_AbsEndLocation.Activate();
                             slice_array->m_SliceRelSpacing.Deactivate();
                             slice_array->m_SliceAbsSpacing.Activate();
                             m_SliceArrayStartLocSlider.Update( 2, slice_array->m_RelStartLocation.GetID(), slice_array->m_AbsStartLocation.GetID() );
+                            m_SliceArrayEndLocSlider.Update( 2, slice_array->m_RelEndLocation.GetID(), slice_array->m_AbsEndLocation.GetID() );
                             m_SliceArraySpacingSlider.Update( 2, slice_array->m_SliceRelSpacing.GetID(), slice_array->m_SliceAbsSpacing.GetID() );
                         }
 
@@ -2396,6 +2411,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
                         m_RibArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                         m_RibArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                         m_SliceArrayStartLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
+                        m_SliceArrayEndLocUnit.GetFlButton()->copy_label( dist_unit.c_str() );
                         m_SliceArrayPosUnit.GetFlButton()->copy_label( dist_unit.c_str() );
 
                         if ( feaprt->m_AbsRelParmFlag() == vsp::ABS )
@@ -2406,6 +2422,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
                             m_RibArrayStartLocUnit.Activate();
                             m_RibArrayPosUnit.Activate();
                             m_SliceArrayStartLocUnit.Activate();
+                            m_SliceArrayEndLocUnit.Activate();
                             m_SliceArrayPosUnit.Activate();
                         }
                         else if( feaprt->m_AbsRelParmFlag() == vsp::REL )
@@ -2416,6 +2433,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
                             m_RibArrayStartLocUnit.Deactivate();
                             m_RibArrayPosUnit.Deactivate();
                             m_SliceArrayStartLocUnit.Deactivate();
+                            m_SliceArrayEndLocUnit.Deactivate();
                             m_SliceArrayPosUnit.Deactivate();
                         }
                     }

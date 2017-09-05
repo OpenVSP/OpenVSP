@@ -3576,6 +3576,12 @@ FeaSliceArray::FeaSliceArray( string geomID, int type ) : FeaPart( geomID, type 
     m_RelStartLocation.Init( "RelStartLocation", "FeaSliceArray", this, 0.0, 0.0, 1.0 );
     m_RelStartLocation.SetDescript( "Relative Starting Location for First Slice in Array" );
 
+    m_AbsEndLocation.Init( "AbsEndLocation", "FeaSliceArray", this, 0.0, 0.0, 1e12 );
+    m_AbsEndLocation.SetDescript( "Absolute Location for Final Slice in Array" );
+
+    m_RelEndLocation.Init( "RelEndLocation", "FeaSliceArray", this, 1.0, 0.0, 1.0 );
+    m_RelEndLocation.SetDescript( "Relative Location for Final Slice in Array" );
+
     m_OrientationPlane.Init( "OrientationPlane", "FeaSliceArray", this, vsp::YZ_BODY, vsp::XY_BODY, vsp::CONST_U );
     m_OrientationPlane.SetDescript( "Plane the FeaSliceArray will be Parallel to (Body or Absolute Reference Frame)" );
 
@@ -3660,33 +3666,84 @@ void FeaSliceArray::CalcNumSlices()
         {
             m_AbsStartLocation.Set( m_RelStartLocation() * perp_dist );
             m_SliceAbsSpacing.Set( m_SliceRelSpacing() * perp_dist );
+            m_AbsEndLocation.Set( m_RelEndLocation() * perp_dist );
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_SliceRelSpacing.SetLowerUpperLimits( ( 1 - m_RelStartLocation() ) / 100, 1.0 ); // Limit to 100 slices
-                m_NumSlices = 1 + (int)floor( ( 1 - m_RelStartLocation() ) / m_SliceRelSpacing() );
+                // Flip start and end values if inconsistent with direction
+                if ( m_RelEndLocation() < m_RelStartLocation() )
+                {
+                    double temp_end = m_RelEndLocation();
+                    m_RelEndLocation.Set( m_RelStartLocation() );
+                    m_RelStartLocation.Set( temp_end );
+                }
+
+                m_RelEndLocation.SetLowerUpperLimits( m_RelStartLocation(), 1.0 );
+                m_RelStartLocation.SetLowerUpperLimits( 0.0, m_RelEndLocation() );
+
+                m_SliceRelSpacing.SetLowerUpperLimits( ( m_RelEndLocation() - m_RelStartLocation() ) / 100, ( m_RelEndLocation() - m_RelStartLocation() ) ); // Limit to 100 slices
+                m_NumSlices = 1 + (int)floor( ( m_RelEndLocation() - m_RelStartLocation() ) / m_SliceRelSpacing() );
             }
             else
             {
-                m_SliceRelSpacing.SetLowerUpperLimits( m_RelStartLocation() / 100, 1.0 ); // Limit to 100 slices
-                m_NumSlices = 1 + (int)floor( ( m_RelStartLocation() ) / m_SliceRelSpacing() );
+                // Flip start and end values if inconsistent with direction
+                if ( m_RelStartLocation() < m_RelEndLocation() )
+                {
+                    double temp_start = m_RelStartLocation();
+                    m_RelStartLocation.Set( m_RelEndLocation() );
+                    m_RelEndLocation.Set( temp_start );
+                }
+
+                m_RelStartLocation.SetLowerUpperLimits( m_RelEndLocation(), 1.0 );
+                m_RelEndLocation.SetLowerUpperLimits( 0.0, m_RelStartLocation() );
+
+                m_SliceRelSpacing.SetLowerUpperLimits( ( m_RelStartLocation() - m_RelEndLocation() ) / 100, ( m_RelStartLocation() - m_RelEndLocation() ) ); // Limit to 100 slices
+                m_NumSlices = 1 + (int)floor( ( m_RelStartLocation() - m_RelEndLocation() ) / m_SliceRelSpacing() );
             }
         }
         else if ( m_AbsRelParmFlag() == vsp::ABS )
         {
             m_RelStartLocation.Set( m_AbsStartLocation() / perp_dist );
             m_SliceRelSpacing.Set( m_SliceAbsSpacing() / perp_dist );
+            m_RelEndLocation.Set( m_AbsEndLocation() / perp_dist );
 
             if ( m_PositiveDirectionFlag() )
             {
-                m_SliceAbsSpacing.SetLowerUpperLimits( ( perp_dist - m_AbsStartLocation() ) / 100, perp_dist ); // Limit to 100 slices
-                m_NumSlices = 1 + (int)floor( ( perp_dist - m_AbsStartLocation() ) / m_SliceAbsSpacing() );
+                // Flip start and end values if inconsistent with direction
+                if ( m_AbsEndLocation() < m_AbsStartLocation() )
+                {
+                    double temp_end = m_AbsEndLocation();
+                    m_AbsEndLocation.Set( m_AbsStartLocation() );
+                    m_AbsStartLocation.Set( temp_end );
+                }
+
+                m_AbsEndLocation.SetLowerUpperLimits( m_AbsStartLocation(), perp_dist );
+                m_AbsStartLocation.SetLowerUpperLimits( 0.0, m_AbsEndLocation() );
+
+                m_SliceAbsSpacing.SetLowerUpperLimits( ( m_AbsEndLocation() - m_AbsStartLocation() ) / 100, ( m_AbsEndLocation() - m_AbsStartLocation() ) ); // Limit to 100 slices
+                m_NumSlices = 1 + (int)floor( ( m_AbsEndLocation() - m_AbsStartLocation() ) / m_SliceAbsSpacing() );
             }
             else
             {
-                m_SliceAbsSpacing.SetLowerUpperLimits( m_AbsStartLocation() / 100, perp_dist ); // Limit to 100 slices 
-                m_NumSlices = 1 + (int)floor( m_AbsStartLocation() / m_SliceAbsSpacing() );
+                // Flip start and end values if inconsistent with direction
+                if ( m_AbsStartLocation() < m_AbsEndLocation() )
+                {
+                    double temp_start = m_AbsStartLocation();
+                    m_AbsStartLocation.Set( m_AbsEndLocation() );
+                    m_AbsEndLocation.Set( temp_start );
+                }
+
+                m_AbsStartLocation.SetLowerUpperLimits( m_AbsEndLocation(), perp_dist );
+                m_AbsEndLocation.SetLowerUpperLimits( 0.0, m_AbsStartLocation() );
+
+                m_SliceAbsSpacing.SetLowerUpperLimits( ( m_AbsStartLocation() - m_AbsEndLocation() ) / 100, ( m_AbsStartLocation() - m_AbsEndLocation() ) ); // Limit to 100 slices 
+                m_NumSlices = 1 + (int)floor( ( m_AbsStartLocation() - m_AbsEndLocation() ) / m_SliceAbsSpacing() );
             }
+        }
+
+        if ( m_NumSlices < 1 || m_NumSlices > 101 )
+        {
+            m_NumSlices = 1;
         }
     }
 }

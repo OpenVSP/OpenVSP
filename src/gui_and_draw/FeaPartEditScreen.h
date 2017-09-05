@@ -185,6 +185,8 @@ private:
     ToggleRadioGroup m_SliceArrayPosNegDirToggleGroup;
     SliderAdjRange2Input m_SliceArrayStartLocSlider;
     TriggerButton m_SliceArrayStartLocUnit;
+    SliderAdjRange2Input m_SliceArrayEndLocSlider;
+    TriggerButton m_SliceArrayEndLocUnit;
     SliderAdjRange2Input m_SliceArraySpacingSlider;
     TriggerButton m_SliceArrayPosUnit;
     ToggleButton m_SliceArrayXAxisToggle;

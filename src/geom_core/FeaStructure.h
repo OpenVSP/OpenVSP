@@ -478,6 +478,8 @@ public:
     BoolParm m_PositiveDirectionFlag;
     Parm m_AbsStartLocation;
     Parm m_RelStartLocation;
+    Parm m_AbsEndLocation;
+    Parm m_RelEndLocation;
     IntParm m_OrientationPlane;
     IntParm m_RotationAxis;
     Parm m_XRot;
