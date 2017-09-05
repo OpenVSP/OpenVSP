@@ -12,6 +12,27 @@
 #include "StructureMgr.h"
 #include "FeaMeshMgr.h"
 
+string GetFeaFormat( double input )
+{
+    if ( fabs( input ) < 10.0 )
+    {
+        return string( "%8.5f" );
+    }
+    else if ( fabs( input ) < 100.0 )
+    {
+        return string( "%8.4f" );
+    }
+    else if ( fabs( input ) < 10000.0 )
+    {
+        return string( "%8.3f" );
+    }
+    else
+    {
+        return string( "%8.3g" );
+    }
+}
+
+
 //////////////////////////////////////////////////////
 //==================== FeaNode =====================//
 //////////////////////////////////////////////////////
@@ -63,7 +84,7 @@ int FeaNode::GetIndex()
 
 void FeaNode::WriteNASTRAN( FILE* fp )
 {
-    fprintf( fp, "GRID,%d,,", m_Index );
+    fprintf( fp, "GRID,%8d,        ,", m_Index );
 
     double x = m_Pnt.x();
     double y = m_Pnt.y();
@@ -117,7 +138,7 @@ void FeaNode::WriteCalculix( FILE* fp )
 
 void FeaNode::WriteGmsh( FILE* fp )
 {
-    fprintf( fp, "%d %16.10f %16.10f %16.10f\n", m_Index, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
+    fprintf( fp, "%d %f %f %f\n", m_Index, m_Pnt.x(), m_Pnt.y(), m_Pnt.z() );
 }
 
 //////////////////////////////////////////////////////
@@ -196,7 +217,9 @@ void FeaTri::WriteNASTRAN( FILE* fp, int id, int property_index )
 
     double theta_material = RAD_2_DEG * signed_angle( x_element, m_Orientation, x_axis );
 
-    fprintf( fp, "CTRIA6,%d,%d,%d,%d,%d,%d,%d,%d,\n,%8.3f,,,,,,,\n", id, property_index + 1,
+    string format_string = "CTRIA6,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,\n      ," + GetFeaFormat( theta_material ) + "\n";
+
+    fprintf( fp, format_string.c_str(), id, property_index + 1,
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(),
              m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex(), theta_material );
 }
@@ -239,9 +262,6 @@ double FeaTri::ComputeMass( int property_index )
         avg_d = simp_mat_vec[mat_index].m_MassDensity;
     }
 
-    //double avg_t = ( m_Corners[0]->m_Thick + m_Corners[1]->m_Thick + m_Corners[2]->m_Thick ) / 3.0;
-    //double avg_d = ( m_Corners[0]->m_Dense + m_Corners[1]->m_Dense + m_Corners[2]->m_Dense ) / 3.0;
-
     mass = a * avg_t * avg_d;
     return mass;
 }
@@ -278,7 +298,7 @@ void FeaQuad::WriteCalculix( FILE* fp, int id )
 }
 void FeaQuad::WriteNASTRAN( FILE* fp, int id, int property_index )
 {
-    fprintf( fp, "CQUAD8,%d,%d,%d,%d,%d,%d,%d,%d,+\n+,%d,%d\n", id, property_index + 1,
+    fprintf( fp, "CQUAD8,%8d,%8d,%8d,%8d,%8d,%8d,%8d,%8d,+\n+,%8d,%8d\n", id, property_index + 1,
              m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(), m_Corners[2]->GetIndex(), m_Corners[3]->GetIndex(),
              m_Mids[0]->GetIndex(), m_Mids[1]->GetIndex(), m_Mids[2]->GetIndex(), m_Mids[3]->GetIndex() );
 }
@@ -362,14 +382,17 @@ void FeaBeam::WriteCalculix( FILE* fp, int id )
 
 void FeaBeam::WriteCalculixNormal( FILE* fp )
 {
-    fprintf( fp, "%d,%d,%8.5f,%8.5f,%8.5f\n", m_ElementIndex, m_Corners[0]->GetIndex(), m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
+    string format_string = "%8d,%8d," + GetFeaFormat( m_DispVec.x() ) + "," + GetFeaFormat( m_DispVec.y() ) + "," + GetFeaFormat( m_DispVec.z() ) + "\n";
+    fprintf( fp, format_string.c_str(), m_ElementIndex, m_Corners[0]->GetIndex(), m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
 }
 
 void FeaBeam::WriteNASTRAN( FILE* fp, int id, int property_index )
 {
-    fprintf( fp, "CBEAM,%d,%d,%d,%d,%f,%f,%f\n", id, property_index + 1,
-             m_Corners[0]->GetIndex(), m_Corners[1]->GetIndex(),
-             m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
+    string format_string = "CBAR,%8d,%8d,%8d,%8d," + GetFeaFormat( m_DispVec.x() ) + "," +
+        GetFeaFormat( m_DispVec.y() ) + "," + GetFeaFormat( m_DispVec.z() ) + "\n";
+
+    fprintf( fp, format_string.c_str(), id, property_index + 1, m_Corners[0]->GetIndex(), 
+             m_Corners[1]->GetIndex(), m_DispVec.x(), m_DispVec.y(), m_DispVec.z() );
 }
 
 void FeaBeam::WriteGmsh( FILE* fp, int id, int fea_part_index )
@@ -438,8 +461,9 @@ void FeaPointMass::WriteCalculix( FILE* fp, int id )
 void FeaPointMass::WriteNASTRAN( FILE* fp, int id, int property_index )
 {
     // Note: property_index ignored
+    string format_string = "CONM2,%8d,%8d,        ," + GetFeaFormat( m_Mass ) + "\n";
 
-    fprintf( fp, "CONM2,%d,%d, ,%f\n", id, m_Corners[0]->GetIndex(), m_Mass );
+    fprintf( fp, format_string.c_str(), id, m_Corners[0]->GetIndex(), m_Mass );
 }
 
 //////////////////////////////////////////////////////
@@ -471,11 +495,19 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
 {
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {
-        fprintf( fp, "PSHELL,%d,%d,%f\n", prop_id, m_SimpleFeaMatIndex + 1, m_Thickness );
+        string format_string = "PSHELL,%8d,%8d," + GetFeaFormat( m_Thickness ) + ",-1\n";
+
+        // Note: For plane strain analysis, material identification number for bending is set to -1
+        fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Thickness );
     }
     if ( m_FeaPropertyType == vsp::FEA_BEAM )
     {
-        fprintf( fp, "PBEAM,%d,%d,%f,%f,%f,%f,%f\n", prop_id, m_SimpleFeaMatIndex + 1, m_CrossSecArea, m_Izz, m_Iyy, m_Izy, m_Ixx );
+        string format_string = "PBAR,%8d,%8d," + GetFeaFormat( m_CrossSecArea ) + "," + 
+            GetFeaFormat( m_Izz ) + "," + GetFeaFormat( m_Iyy ) + "," + GetFeaFormat( m_Ixx ) + 
+            ",        ,        ,\n    ,        ,        ,        ,        ,        ,        ,        ,        ,\n    ,        ,        ," + 
+            GetFeaFormat( m_Izy ) + "\n";
+
+        fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_CrossSecArea, m_Izz, m_Iyy, m_Ixx, m_Izy );
     }
 }
 
@@ -512,7 +544,7 @@ void SimpleFeaMaterial::CopyFrom( FeaMaterial* fea_mat )
 
 void SimpleFeaMaterial::WriteNASTRAN( FILE* fp, int mat_id )
 {
-    fprintf( fp, "MAT1,%d,%g,%g,%g,%g,%g\n", mat_id, m_ElasticModulus, GetShearModulus(), m_PoissonRatio, m_MassDensity, m_ThermalExpanCoeff );
+    fprintf( fp, "MAT1,%8d,%8.3g,%8.3g,%8.5g,%8.3g,%8.3g\n", mat_id, m_ElasticModulus, GetShearModulus(), m_PoissonRatio, m_MassDensity, m_ThermalExpanCoeff );
 }
 
 void SimpleFeaMaterial::WriteCalculix( FILE* fp, int mat_id )
