@@ -339,11 +339,13 @@ enum FEA_PART_TYPE { FEA_SLICE = 0,
                      FEA_RIB_ARRAY,
                      FEA_SLICE_ARRAY,
                      FEA_SKIN,
-                     FEA_NUM_TYPES };
+                     FEA_NUM_TYPES 
+                   };
 
 enum FEA_PART_ELEMENT_TYPE { FEA_SHELL = 0,
                              FEA_BEAM,
-                             FEA_SHELL_AND_BEAM };
+                             FEA_SHELL_AND_BEAM 
+                           };
 
 enum FEA_SLICE_TYPE { XY_BODY = 0,
                       YZ_BODY,
@@ -351,13 +353,15 @@ enum FEA_SLICE_TYPE { XY_BODY = 0,
                       XY_ABS,
                       YZ_ABS,
                       XZ_ABS,
-                      CONST_U };
+                      CONST_U 
+                    };
 
 enum FEA_UNIT_TYPE { SI_UNIT = 0, // m, kg
                      CGS_UNIT, // cm, g
                      MPA_UNIT, // mm, tonne
                      BFT_UNIT, // ft, slug
-                     BIN_UNIT }; // in, lbf*sec^2/in
+                     BIN_UNIT // in, lbf*sec^2/in
+                   };
 
 enum WING_DRIVERS { AR_WSECT_DRIVER,
                     SPAN_WSECT_DRIVER,
