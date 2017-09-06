@@ -396,6 +396,8 @@ public:
     Parm m_XRot;
     Parm m_YRot;
     Parm m_ZRot;
+    BoolParm m_SpineAttachFlag;
+    Parm m_USpineLoc;
     BoolParm m_FlipDirectionFlag;
 
 protected:

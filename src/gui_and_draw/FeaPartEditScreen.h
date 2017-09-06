@@ -133,6 +133,8 @@ private:
     //===== Dome =====//
     Choice m_DomePropertyChoice;
     ToggleButton m_DomeFlipDirButton;
+    ToggleButton m_DomeSpineAttachButton;
+    SliderAdjRangeInput m_DomeUSpineSlider;
     SliderAdjRangeInput m_DomeARadSlider;
     SliderAdjRangeInput m_DomeBRadSlider;
     SliderAdjRangeInput m_DomeCRadSlider;

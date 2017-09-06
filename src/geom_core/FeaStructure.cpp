@@ -3082,6 +3082,12 @@ FeaDome::FeaDome( string geomID, int type ) : FeaPart( geomID, type )
     m_ZRot.Init( "Z_Rotation", "FeaDome", this, 0.0, -180, 180 );
     m_ZRot.SetDescript( "Rotation About Body Z Axis" );
 
+    m_SpineAttachFlag.Init( "SpineAttachFlag", "FeaDome", this, false, false, true );
+    m_SpineAttachFlag.SetDescript( "Flag to Attach to Spine of Parent Geom" );
+
+    m_USpineLoc.Init( "USpineLoc", "FeaDome", this, 0.0, 0.0, 1.0 );
+    m_USpineLoc.SetDescript( "Location of Dome Center Along Spine of Parent Geom" );
+
     m_FlipDirectionFlag.Init( "FlipDirectionFlag", "FeaDome", this, false, false, true );
     m_FlipDirectionFlag.SetDescript( "Flag to Flip the Direction of the FeaDome" );
 }
@@ -3186,6 +3192,23 @@ void FeaDome::BuildDomeSurf()
         // Transform to parent geom body coordinate frame
         Matrix4d model_matrix = curr_geom->getModelMatrix();
         m_FeaPartSurfVec[0].Transform( model_matrix );
+
+        if ( m_SpineAttachFlag() )
+        {
+            vector< VspSurf > surf_vec;
+            curr_geom->GetSurfVec( surf_vec );
+            VspSurf current_surf = surf_vec[m_MainSurfIndx()];
+
+            // Build conformal spine from parent geom
+            ConformalSpine cs;
+            cs.Build( current_surf );
+
+            vec3d spine_center = cs.FindCenterGivenU( m_USpineLoc() * current_surf.GetUMax() );
+
+            m_FeaPartSurfVec[0].OffsetX( spine_center.x() - curr_geom->m_XLoc() );
+            m_FeaPartSurfVec[0].OffsetY( spine_center.y() - curr_geom->m_YLoc() );
+            m_FeaPartSurfVec[0].OffsetZ( spine_center.z() - curr_geom->m_ZLoc() );
+        }
 
         m_FeaPartSurfVec[0].BuildFeatureLines();
 

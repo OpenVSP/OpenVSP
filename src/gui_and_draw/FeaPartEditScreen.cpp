@@ -337,10 +337,16 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_DomeEditLayout.AddYGap();
 
-    m_DomeEditLayout.SetSameLineFlag( true );
-    m_DomeEditLayout.SetFitWidthFlag( false );
+    m_DomeEditLayout.AddButton( m_DomeSpineAttachButton, "Attach to Spine" );
 
     m_DomeEditLayout.SetButtonWidth( m_DomeEditLayout.GetRemainX() / 3 );
+
+    m_DomeEditLayout.AddSlider( m_DomeUSpineSlider, "Spine U Loc", 1, "%5.3f" );
+
+    m_DomeEditLayout.AddYGap();
+
+    m_DomeEditLayout.SetSameLineFlag( true );
+    m_DomeEditLayout.SetFitWidthFlag( false );
 
     m_DomeEditLayout.AddSlider( m_DomeARadSlider, "A Radius", 10, "%5.3f" );
 
@@ -1298,6 +1304,8 @@ bool FeaPartEditScreen::Update()
                         assert( dome );
 
                         m_DomeFlipDirButton.Update( dome->m_FlipDirectionFlag.GetID() );
+                        m_DomeSpineAttachButton.Update( dome->m_SpineAttachFlag.GetID() );
+                        m_DomeUSpineSlider.Update( dome->m_USpineLoc.GetID() );
                         m_DomeARadSlider.Update( dome->m_Aradius.GetID() );
                         m_DomeBRadSlider.Update( dome->m_Bradius.GetID() );
                         m_DomeCRadSlider.Update( dome->m_Cradius.GetID() );
@@ -1309,6 +1317,15 @@ bool FeaPartEditScreen::Update()
                         m_DomeZRotSlider.Update( dome->m_ZRot.GetID() );
 
                         m_DomeShellCapToggleGroup.Update( dome->m_IncludedElements.GetID() );
+
+                        if ( dome->m_SpineAttachFlag() )
+                        {
+                            m_DomeUSpineSlider.Activate();
+                        }
+                        else
+                        {
+                            m_DomeUSpineSlider.Deactivate();
+                        }
 
                         if ( dome->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                         {
