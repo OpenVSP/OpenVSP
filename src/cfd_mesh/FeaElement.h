@@ -219,6 +219,13 @@ class SimpleFeaProperty
     double m_Iyy;
     double m_Izy;
     double m_Ixx;
+    double m_Dim1;
+    double m_Dim2;
+    double m_Dim3;
+    double m_Dim4;
+    double m_Dim5;
+    double m_Dim6;
+    int m_CrossSectType;
 
     protected:
 

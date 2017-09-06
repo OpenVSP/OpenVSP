@@ -480,6 +480,13 @@ void SimpleFeaProperty::CopyFrom( FeaProperty* fea_prop )
         m_Iyy = fea_prop->m_Iyy.Get();
         m_Izy = fea_prop->m_Izy.Get();
         m_Ixx = fea_prop->m_Ixx.Get();
+        m_Dim1 = fea_prop->m_Dim1.Get();
+        m_Dim2 = fea_prop->m_Dim2.Get();
+        m_Dim3 = fea_prop->m_Dim3.Get();
+        m_Dim4 = fea_prop->m_Dim4.Get();
+        m_Dim5 = fea_prop->m_Dim5.Get();
+        m_Dim6 = fea_prop->m_Dim6.Get();
+        m_CrossSectType = fea_prop->m_CrossSectType.Get();
         m_SimpleFeaMatIndex = fea_prop->m_FeaMaterialIndex();
 
         FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( m_SimpleFeaMatIndex );
@@ -502,12 +509,47 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
     }
     if ( m_FeaPropertyType == vsp::FEA_BEAM )
     {
-        string format_string = "PBAR,%8d,%8d," + GetFeaFormat( m_CrossSecArea ) + "," + 
-            GetFeaFormat( m_Izz ) + "," + GetFeaFormat( m_Iyy ) + "," + GetFeaFormat( m_Ixx ) + 
-            ",        ,        ,\n    ,        ,        ,        ,        ,        ,        ,        ,        ,\n    ,        ,        ," + 
-            GetFeaFormat( m_Izy ) + "\n";
+        if ( m_CrossSectType == vsp::FEA_XSEC_GENERAL )
+        {
+            string format_string = "PBAR,%8d,%8d," + GetFeaFormat( m_CrossSecArea ) + "," +
+                GetFeaFormat( m_Izz ) + "," + GetFeaFormat( m_Iyy ) + "," + GetFeaFormat( m_Ixx ) +
+                ",        ,        ,\n    ,        ,        ,        ,        ,        ,        ,        ,        ,\n    ,        ,        ," +
+                GetFeaFormat( m_Izy ) + "\n";
 
-        fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_CrossSecArea, m_Izz, m_Iyy, m_Ixx, m_Izy );
+            fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_CrossSecArea, m_Izz, m_Iyy, m_Ixx, m_Izy );
+        }
+        else if ( m_CrossSectType == vsp::FEA_XSEC_CIRC )
+        {
+            string format_string = "PBARL,%8d,%8d,        ,     ROD,\n     ," + GetFeaFormat( m_Dim1 ) + "\n";
+
+            fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1 );
+        }
+        else if ( m_CrossSectType == vsp::FEA_XSEC_PIPE )
+        {
+            string format_string = "PBARL,%8d,%8d,        ,    TUBE,\n     ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + "\n";
+
+            fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, 2 * m_Dim2 );
+        }
+        else if ( m_CrossSectType == vsp::FEA_XSEC_I )
+        {
+            string format_string = "PBARL,%8d,%8d,        ,       I,\n     ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + "," 
+                + GetFeaFormat( m_Dim3 ) + "," + GetFeaFormat( m_Dim4 ) + "," + GetFeaFormat( m_Dim5 ) + "," + GetFeaFormat( m_Dim6 ) + "\n";
+
+            fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, m_Dim2, m_Dim3, m_Dim4, m_Dim5, m_Dim6 );
+        }
+        else if ( m_CrossSectType == vsp::FEA_XSEC_RECT )
+        {
+            string format_string = "PBARL,%8d,%8d,        ,     BAR,\n     ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + "\n";
+
+            fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, m_Dim2 );
+        }
+        else if ( m_CrossSectType == vsp::FEA_XSEC_BOX )
+        {
+            string format_string = "PBARL,%8d,%8d,        ,     BOX,\n     ," + GetFeaFormat( m_Dim1 ) + "," + GetFeaFormat( m_Dim2 ) + ","
+                + GetFeaFormat( m_Dim3 ) + "," + GetFeaFormat( m_Dim4 ) + "\n";
+
+            fprintf( fp, format_string.c_str(), prop_id, m_SimpleFeaMatIndex + 1, m_Dim1, m_Dim2, m_Dim3, m_Dim4 );
+        }
     }
 }
 
@@ -520,10 +562,38 @@ void SimpleFeaProperty::WriteCalculix( FILE* fp, string ELSET )
     }
     if ( m_FeaPropertyType == vsp::FEA_BEAM )
     {
-        // Note: *BEAM GENERAL SECTION is supported by Abaqus but not Calculix. Calculix depends on BEAM SECTION properties
-        //  where the cross-section dimensions must be explicitly defined. 
-        fprintf( fp, "*BEAM GENERAL SECTION, SECTION=GENERAL, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
-        fprintf( fp, "%g,%g,%g,%g,%g\n", m_CrossSecArea, m_Izz, m_Izy, m_Iyy, m_Ixx );
+        if ( m_CrossSectType == vsp::FEA_XSEC_GENERAL )
+        {
+            // Note: *BEAM GENERAL SECTION is supported by Abaqus but not Calculix. Calculix depends on BEAM SECTION properties
+            //  where the cross-section dimensions must be explicitly defined. 
+            fprintf( fp, "*BEAM GENERAL SECTION, SECTION=GENERAL, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "%g,%g,%g,%g,%g\n", m_CrossSecArea, m_Izz, m_Izy, m_Iyy, m_Ixx );
+        }
+        else if ( m_CrossSectType == vsp::FEA_XSEC_CIRC )
+        {
+            fprintf( fp, "*BEAM SECTION, SECTION=CIRC, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "%f\n", m_Dim1 );
+        }
+        else if ( m_CrossSectType == vsp::FEA_XSEC_PIPE )
+        {
+            fprintf( fp, "*BEAM SECTION, SECTION=PIPE, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "%f,%f\n", m_Dim1, ( m_Dim1 - m_Dim2 ) ); 
+        }
+        else if ( m_CrossSectType == vsp::FEA_XSEC_I )
+        {
+            fprintf( fp, "*BEAM SECTION, SECTION=I, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "%f,%f,%f,%f,%f,%f,%f\n", ( m_Dim1 / 2 ), m_Dim1, m_Dim2, m_Dim3, m_Dim5, m_Dim6, m_Dim4 );
+        }
+        else if ( m_CrossSectType == vsp::FEA_XSEC_RECT )
+        {
+            fprintf( fp, "*BEAM SECTION, SECTION=RECT, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "%f,%f\n", m_Dim1, m_Dim2 );
+        }
+        else if ( m_CrossSectType == vsp::FEA_XSEC_BOX )
+        {
+            fprintf( fp, "*BEAM SECTION, SECTION=PIPE, ELSET=%s, MATERIAL=%s\n", ELSET.c_str(), m_MaterialName.c_str() );
+            fprintf( fp, "%f,%f,%f,%f,%f,%f\n", m_Dim1, m_Dim2, m_Dim4, m_Dim3, m_Dim4, m_Dim3 );
+        }
     }
 }
 
