@@ -1372,3 +1372,22 @@ double VspCurve::EstimateThick() const
 
     return sqrt( p.x() );
 }
+
+// Find the angle between two points on a curve.
+// First point: u1, considering curve dir1 = BEFORE or AFTER the point
+// Second point: u2, considering curve dir2 = BEFORE or AFTER the point
+// flipflag determines whether the second curve's sign is changed before calculating angle.
+double VspCurve::Angle( const double & u1, const int &dir1, const double & u2, const int &dir2, const bool & flipflag ) const
+{
+    vec3d tan1, tan2;
+
+    tan1 = CompTan( u1, dir1 );
+    tan2 = CompTan( u2, dir2 );
+
+    if ( flipflag )
+    {
+        tan2 = tan2 * -1.0;
+    }
+
+    return angle( tan1, tan2 );
+}
