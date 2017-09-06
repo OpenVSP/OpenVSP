@@ -1567,9 +1567,8 @@ VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_p
             x_axis.normalize();
 
             vec3d surf_pnt1 = current_surf.CompPnt01( per_u, 0.0 );
-            vec3d surf_pnt2 = current_surf.CompPnt01( per_u, 0.5 );
 
-            z_axis = surf_pnt1 - surf_pnt2;
+            z_axis = surf_pnt1 - slice_center;
             z_axis.normalize();
 
             y_axis = cross( x_axis, z_axis );
@@ -1580,7 +1579,7 @@ VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_p
 
             BndBox xsec_box;
             u_curve.GetBoundingBox( xsec_box );
-            max_length = xsec_box.GetLargestDist() + 2 * FLT_EPSILON;
+            max_length = xsec_box.GetLargestDist() + 1e-4;
 
             // TODO: Improve initial size and resize after rotations
 
