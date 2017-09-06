@@ -3107,10 +3107,13 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
+        bool urootcap = false;
+
         m_SurfVec[i].ResetUWSkip();
         if ( m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetUSkipFirst( true );
+            urootcap = true;
         }
         if ( m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
         {
@@ -3144,7 +3147,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
             degenGeom.setType(DegenGeom::SURFACE_TYPE);
 
             degenGeom.createSurfDegenPlate( pnts, uwpnts );
-            degenGeom.createSurfDegenStick( pnts, uwpnts );
+            degenGeom.createSurfDegenStick( pnts, uwpnts, m_SurfVec[i].GetFoilSurf(), urootcap );
         }
         else if( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
         {

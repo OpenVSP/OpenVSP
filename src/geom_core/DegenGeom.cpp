@@ -446,7 +446,7 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
     degenPlate.zcamber  = zMat;
 }
 
-void DegenGeom::createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts )
+void DegenGeom::createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const VspSurf *foilSurf, const bool &urootcap )
 {
     int nLow = 0, nHigh = num_xsecs;
     vec3d chordVec, camberPnt, prevCamberPnt;
@@ -455,6 +455,8 @@ void DegenGeom::createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, 
 
     int startPnt = 0;
     createDegenStick( degenSticks[0], pntsarr, uw_pnts, nLow, nHigh, startPnt );
+
+    augmentFoilSurfDegenStick( degenSticks[0], foilSurf, uw_pnts, urootcap );
 
 }
 
@@ -569,6 +571,14 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
         perimTop += dist( pntsarr[ i ][ startPnt + platePnts ], pntsarr[ i ][ startPnt + platePnts - 1 ] );
         degenStick.perimTop.push_back( perimTop );
         degenStick.perimBot.push_back( perimBot );
+
+        // Pad values to be calculated later for wings using foilSurf.
+        degenStick.toc2.push_back( 0.0 );
+        degenStick.tLoc2.push_back( 0.0 );
+        degenStick.anglele.push_back( 0.0 );
+        degenStick.anglete.push_back( 0.0 );
+        degenStick.radleTop.push_back( 0.0 );
+        degenStick.radleBot.push_back( 0.0 );
     }
 
     // Calculate sweep angle
@@ -638,6 +648,39 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
         }
         degenStick.areaTop.push_back( areaTop );
         degenStick.areaBot.push_back( areaBot );
+    }
+}
+
+void DegenGeom::augmentFoilSurfDegenStick( DegenStick &degenStick, const VspSurf *foilSurf, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap )
+{
+
+    for ( int i = 0; i < uw_pnts.size(); i++ )
+    {
+        double u = uw_pnts[i][0].x();
+
+        if( urootcap ) // Shift u because foilSurf isn't capped.
+        {
+            u = u - 1.0;
+        }
+
+        VspCurve c;
+        foilSurf->GetUConstCurve( c, u );
+
+        double tloc;
+        double t = c.CalculateThick( tloc );
+
+        double te_angle = c.Angle( TMAGIC, VspCurve::AFTER, 4.0 - TMAGIC, VspCurve::BEFORE, true ) * 180.0 / PI;
+        double le_angle = c.Angle( 2.0 + TMAGIC, VspCurve::AFTER, 2.0-TMAGIC, VspCurve::BEFORE, true ) * 180.0 / PI;
+
+        double le_crv_low = c.CompCurve( 2.0 - TMAGIC, VspCurve::BEFORE );
+        double le_crv_up = c.CompCurve( 2.0 + TMAGIC, VspCurve::AFTER );
+
+        degenStick.toc2[i] = t;
+        degenStick.tLoc2[i] =  tloc;
+        degenStick.anglele[i] =  le_angle;
+        degenStick.anglete[i] =  te_angle;
+        degenStick.radleTop[i] =  1.0/le_crv_up;
+        degenStick.radleBot[i] =  1.0/le_crv_low;
     }
 }
 
@@ -849,7 +892,8 @@ void DegenGeom::write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, DegenSt
              "Ishell12,Isolid11,Isolid22,Isolid12,sectArea,sectNormalx,"
              "sectNormaly,sectNormalz,perimTop,perimBot,u," );
     fprintf( file_id, "t00,t01,t02,t03,t10,t11,t12,t13,t20,t21,t22,t23,t30,t31,t32,t33," );
-    fprintf( file_id, "it00,it01,it02,it03,it10,it11,it12,it13,it20,it21,it22,it23,it30,it31,it32,it33,\n" );
+    fprintf( file_id, "it00,it01,it02,it03,it10,it11,it12,it13,it20,it21,it22,it23,it30,it31,it32,it33," );
+    fprintf( file_id, "toc2,tLoc2,anglele,anglete,radleTop,radleBot,\n" );
 
     for ( int i = 0; i < nxsecs; i++ )
     {
@@ -895,9 +939,16 @@ void DegenGeom::write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, DegenSt
         for( int j = 0; j < 16; j ++ )
         {
             fprintf( file_id, makeCsvFmt( 1, false ).c_str(), degenStick.invtransmat[i][j] );
-            if ( j < 16 - 1 )
-                fprintf( file_id, ", " );
+            fprintf( file_id, ", " );
         }
+
+        fprintf( file_id, makeCsvFmt( 6, false ).c_str(), \
+                 degenStick.toc2[i],                      \
+                 degenStick.tLoc2[i],                     \
+                 degenStick.anglele[i],                   \
+                 degenStick.anglete[i],                   \
+                 degenStick.radleTop[i],                  \
+                 degenStick.radleBot[i]              );
 
         fprintf( file_id, "\n" );
     }
@@ -1137,6 +1188,12 @@ void DegenGeom::write_degenGeomStickM_file( FILE* file_id, int nxsecs, DegenStic
     writeVecDouble.write( file_id, degenStick.u,          basename + "u",          nxsecs );
     writeMatDouble.write( file_id, degenStick.transmat,   basename + "transmat",   nxsecs,        16 );
     writeMatDouble.write( file_id, degenStick.invtransmat, basename + "invtransmat", nxsecs,        16 );
+    writeVecDouble.write( file_id, degenStick.toc2,       basename + "toc2",       nxsecs );
+    writeVecDouble.write( file_id, degenStick.tLoc2,      basename + "tLoc2",      nxsecs );
+    writeVecDouble.write( file_id, degenStick.anglele,    basename + "anglele",    nxsecs );
+    writeVecDouble.write( file_id, degenStick.anglete,    basename + "anglete",    nxsecs );
+    writeVecDouble.write( file_id, degenStick.radleTop,   basename + "radleTop",   nxsecs );
+    writeVecDouble.write( file_id, degenStick.radleBot,   basename + "radleBot",   nxsecs );
 
     writeVecDouble.write( file_id, degenStick.sweeple,    basename + "sweeple",    nxsecs - 1 );
     writeVecDouble.write( file_id, degenStick.sweepte,    basename + "sweepte",    nxsecs - 1 );

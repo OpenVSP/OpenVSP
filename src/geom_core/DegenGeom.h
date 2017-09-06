@@ -68,6 +68,12 @@ typedef struct
     vector< double >            areaTop;    //!
     vector< double >            areaBot;    //!
     vector< double >            u;          //!
+    vector< double >            toc2;       //!
+    vector< double >            tLoc2;      //!
+    vector< double >            anglele;    //!
+    vector< double >            anglete;    //!
+    vector< double >            radleTop;   //!
+    vector< double >            radleBot;   //!
 } DegenStick;
 
 typedef struct
@@ -231,9 +237,10 @@ public:
     void createSurfDegenPlate( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createBodyDegenPlate( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createDegenPlate( DegenPlate &degenPlate, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt );
-    void createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
+    void createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const VspSurf *foilSurf, const bool &urootcap );
     void createBodyDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt );
+    void augmentFoilSurfDegenStick( DegenStick &degenStick, const VspSurf *foilSurf, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap );
     void createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool flipnormal );
     void addDegenSubSurf( SubSurface *ssurf, int surfIndx );
     void addDegenHingeLine( SSControlSurf *csurf );
