@@ -157,7 +157,6 @@ public:
     void UpdateControlSurfaceGroups();
     void CleanCompleteControlSurfVec();
     void UpdateCompleteControlSurfVec();         // initializes one group per surface
-    void UpdateUngroupedVec();
     void UpdateActiveControlSurfVec();
     void UpdateBBox( vector < DrawObj* > & draw_obj_vec );
     void UpdateHighlighted( vector < DrawObj* > & draw_obj_vec );
@@ -172,7 +171,7 @@ public:
     int GetCurrentRotorDiskIndex()                          { return m_CurrentRotorDiskIndex; }
     vector <RotorDisk*> GetRotorDiskVec()                      { return m_RotorDiskVec; };
     vector < VspAeroControlSurf > GetActiveCSVec()          { return m_ActiveControlSurfaceVec; }
-    vector < VspAeroControlSurf > GetUngroupedCSVec()        { return m_UngroupedCS; }
+    vector < VspAeroControlSurf > GetCompleteCSVec()        { return m_CompleteControlSurfaceVec; }
     int GetCurrentCSGroupIndex()                            { return m_CurrentCSGroupIndex; }
     string GetCurrentCSGGroupName();
     vector <ControlSurfaceGroup* > GetControlSurfaceGroupVec()   { return m_ControlSurfaceGroupVec; }
@@ -206,7 +205,6 @@ public:
     void AddAllToCSGroup();
     void RemoveSelectedFromCSGroup();
     void RemoveAllFromCSGroup();
-    void RemoveFromUngrouped( const string & ssid, int reflec_num );
     void UpdateControlSurfaceGroupSuffix();
 
     virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id );
@@ -339,7 +337,6 @@ private:
     vector< RotorDisk* > m_RotorDiskVec;
     vector< VspAeroControlSurf > m_CompleteControlSurfaceVec;   // list of all control and rectangle sub-surfaces in the model selected as control surfaces
     vector < VspAeroControlSurf > m_ActiveControlSurfaceVec;
-    vector < VspAeroControlSurf > m_UngroupedCS;
     vector< ControlSurfaceGroup* > m_ControlSurfaceGroupVec;
 
     vector < DegenGeom > m_DegenGeomVec;

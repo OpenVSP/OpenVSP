@@ -287,7 +287,6 @@ void VSPAEROMgrSingleton::Update()
     UpdateRotorDisks();
 
     UpdateCompleteControlSurfVec();
-    UpdateUngroupedVec();
     UpdateActiveControlSurfVec();
 
     UpdateControlSurfaceGroups();
@@ -619,18 +618,6 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
     }
 }
 
-void VSPAEROMgrSingleton::UpdateUngroupedVec()
-{
-    m_UngroupedCS.clear();
-    for ( size_t i = 0; i < m_CompleteControlSurfaceVec.size(); ++i )
-    {
-        if ( !m_CompleteControlSurfaceVec[i].isGrouped )
-        {
-            m_UngroupedCS.push_back( m_CompleteControlSurfaceVec[i] );
-        }
-    }
-}
-
 void VSPAEROMgrSingleton::UpdateActiveControlSurfVec()
 {
     m_ActiveControlSurfaceVec.clear();
@@ -674,10 +661,10 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
     char str [256];
     bool exists = false;
 
-    for ( size_t i = 0 ; i < m_UngroupedCS.size(); ++i )
+    for ( size_t i = 0 ; i < m_CompleteControlSurfaceVec.size(); ++i )
     {
         // Construct a default group name
-        string curr_csg_id = m_UngroupedCS[i].parentGeomId + "_" + m_UngroupedCS[i].SSID;
+        string curr_csg_id = m_CompleteControlSurfaceVec[i].parentGeomId + "_" + m_CompleteControlSurfaceVec[i].SSID;
         exists = false;
 
         // Has CS been placed into init group?
@@ -692,15 +679,8 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                 if ( curr_csg_id == str ) // Update Existing Control Surface Group
                 {
                     csg = m_ControlSurfaceGroupVec[j];
-                    csg->AddSubSurface( m_UngroupedCS[i] );
+                    csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
                     m_ControlSurfaceGroupVec.back() = csg;
-                    for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
-                    {
-                        if ( m_UngroupedCS[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
-                        {
-                            m_CompleteControlSurfaceVec[j].isGrouped = true;
-                        }
-                    }
                     exists = true;
                     break;
                 }
@@ -709,28 +689,20 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
 
         if ( !exists ) // Create New Control Surface Group
         {
-            Geom* geom = veh->FindGeom( m_UngroupedCS[i].parentGeomId );
+            Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[i].parentGeomId );
             if ( geom )
             {
                 csg = new ControlSurfaceGroup;
-                csg->AddSubSurface( m_UngroupedCS[i] );
+                csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
                 sprintf( str, "%s_%s", geom->GetName().c_str(),
-                         geom->GetSubSurf( m_UngroupedCS[i].SSID )->GetName().c_str() );
+                         geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID )->GetName().c_str() );
                 csg->SetName( str );
-                csg->m_ParentGeomBaseID = m_UngroupedCS[i].parentGeomId;
+                csg->m_ParentGeomBaseID = m_CompleteControlSurfaceVec[i].parentGeomId;
                 m_ControlSurfaceGroupVec.push_back( csg );
-                for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
-                {
-                    if ( m_UngroupedCS[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
-                    {
-                        m_CompleteControlSurfaceVec[j].isGrouped = true;
-                    }
-                }
             }
         }
     }
 
-    UpdateUngroupedVec();
     UpdateControlSurfaceGroupSuffix();
 }
 
@@ -2177,18 +2149,6 @@ void VSPAEROMgrSingleton::UpdateRotorDiskSuffix()
     }
 }
 
-void VSPAEROMgrSingleton::RemoveFromUngrouped( const string & ssid, int reflec_num )
-{
-    for ( size_t i = 0; i < m_UngroupedCS.size(); ++i )
-    {
-        if ( m_UngroupedCS[i].SSID.compare( ssid ) == 0 && m_UngroupedCS[i].iReflect == reflec_num )
-        {
-            m_UngroupedCS.erase( m_UngroupedCS.begin() + i );
-            break;
-        }
-    }
-}
-
 void VSPAEROMgrSingleton::UpdateControlSurfaceGroupSuffix()
 {
     for (int i = 0 ; i < (int) m_ControlSurfaceGroupVec.size(); ++i)
@@ -2249,18 +2209,7 @@ void VSPAEROMgrSingleton::AddSelectedToCSGroup()
     {
         for ( size_t i = 0; i < selected.size(); ++i )
         {
-
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( m_UngroupedCS[ selected[ i ] - 1 ] );
-            for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
-            {
-                if ( m_UngroupedCS[selected[i] - 1].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
-                {
-                    if ( m_UngroupedCS[selected[i] - 1].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
-                    {
-                        m_CompleteControlSurfaceVec[ j ].isGrouped = true;
-                    }
-                }
-            }
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( m_CompleteControlSurfaceVec[ selected[ i ] - 1 ] );
         }
     }
     m_SelectedUngroupedCS.clear();
@@ -2272,19 +2221,9 @@ void VSPAEROMgrSingleton::AddAllToCSGroup()
 {
     if ( m_CurrentCSGroupIndex != -1 )
     {
-        for ( size_t i = 0; i < m_UngroupedCS.size(); ++i )
+        for ( size_t i = 0; i < m_CompleteControlSurfaceVec.size(); ++i )
         {
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( m_UngroupedCS[ i ] );
-            for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
-            {
-                if ( m_UngroupedCS[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
-                {
-                    if ( m_UngroupedCS[i].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
-                    {
-                        m_CompleteControlSurfaceVec[ j ].isGrouped = true;
-                    }
-                }
-            }
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( m_CompleteControlSurfaceVec[ i ] );
         }
     }
     m_SelectedUngroupedCS.clear();
@@ -2314,7 +2253,6 @@ void VSPAEROMgrSingleton::RemoveSelectedFromCSGroup()
         }
     }
     m_SelectedGroupedCS.clear();
-    UpdateUngroupedVec();
     UpdateActiveControlSurfVec();
 }
 
@@ -2338,7 +2276,6 @@ void VSPAEROMgrSingleton::RemoveAllFromCSGroup()
         }
     }
     m_SelectedGroupedCS.clear();
-    UpdateUngroupedVec();
     UpdateActiveControlSurfVec();
 }
 
@@ -2458,7 +2395,7 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
     if ( m_CurrentCSGroupIndex != -1 )
     {
         vector < VspAeroControlSurf > cont_surf_vec = m_ActiveControlSurfaceVec;
-        vector < VspAeroControlSurf > cont_surf_vec_ungrouped = m_UngroupedCS;
+        vector < VspAeroControlSurf > cont_surf_vec_ungrouped = m_CompleteControlSurfaceVec;
         if ( m_SelectedGroupedCS.size() == 0 && m_SelectedUngroupedCS.size() == 0 )
         {
             for ( size_t i = 0; i < cont_surf_vec.size(); ++i )
@@ -2480,12 +2417,12 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
         }
         else
         {
-            for ( size_t i = 0; i < m_SelectedGroupedCS.size(); ++i )
+            for ( size_t i = 0; i < m_SelectedUngroupedCS.size(); ++i )
             {
-                vec3d color( 0, 1, 0 ); // Green
-                parentID = cont_surf_vec[m_SelectedGroupedCS[i] - 1].parentGeomId;
-                sub_surf_indx = cont_surf_vec[m_SelectedGroupedCS[i] - 1].iReflect;
-                ssid = cont_surf_vec[m_SelectedGroupedCS[i] - 1].SSID;
+                vec3d color( 1, 0, 0 ); // Red
+                parentID = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].parentGeomId;
+                sub_surf_indx = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].iReflect;
+                ssid = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].SSID;
                 Geom* geom = veh->FindGeom( parentID );
                 SubSurface* subsurf = geom->GetSubSurf( ssid );
                 if ( subsurf )
@@ -2493,12 +2430,12 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
                     subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
                 }
             }
-            for ( size_t i = 0; i < m_SelectedUngroupedCS.size(); ++i )
+            for ( size_t i = 0; i < m_SelectedGroupedCS.size(); ++i )
             {
-                vec3d color( 1, 0, 0 ); // Red
-                parentID = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].parentGeomId;
-                sub_surf_indx = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].iReflect;
-                ssid = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].SSID;
+                vec3d color( 0, 1, 0 ); // Green
+                parentID = cont_surf_vec[m_SelectedGroupedCS[i] - 1].parentGeomId;
+                sub_surf_indx = cont_surf_vec[m_SelectedGroupedCS[i] - 1].iReflect;
+                ssid = cont_surf_vec[m_SelectedGroupedCS[i] - 1].SSID;
                 Geom* geom = veh->FindGeom( parentID );
                 SubSurface* subsurf = geom->GetSubSurf( ssid );
                 if ( subsurf )
