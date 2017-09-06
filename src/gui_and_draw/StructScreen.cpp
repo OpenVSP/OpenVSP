@@ -377,7 +377,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_PropertyEditGroup.SetGroupAndScreen( AddSubGroup( propTabGroup, 5 ), this );
     m_PropertyEditGroup.SetY( m_PropertyTabLayout.GetY() );
 
-    m_FeaPropertySelectBrowser = m_PropertyEditGroup.AddFlBrowser( browser_h );
+    m_FeaPropertySelectBrowser = m_PropertyEditGroup.AddFlBrowser( browser_h - 20 );
     m_FeaPropertySelectBrowser->type( FL_HOLD_BROWSER );
     m_FeaPropertySelectBrowser->labelfont( 13 );
     m_FeaPropertySelectBrowser->labelsize( 12 );
@@ -449,50 +449,252 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_FeaPropertyBeamGroup.SetSameLineFlag( true );
     m_FeaPropertyBeamGroup.SetFitWidthFlag( false );
 
-    m_FeaPropertyBeamGroup.SetButtonWidth( buttonwidth );
-    m_FeaPropertyBeamGroup.SetSliderWidth( m_FeaPropertyBeamGroup.GetW() / 3 );
-    m_FeaPropertyBeamGroup.SetInputWidth( m_FeaPropertyBeamGroup.GetW() / 6 );
+    m_FeaPropertyBeamGroup.SetSliderWidth( buttonwidth );
 
-    m_FeaPropertyBeamGroup.AddSlider( m_PropAreaSlider, "Cross-Sect Area", 100.0, "%5.3g" );
-    m_FeaPropertyBeamGroup.AddButton( m_PropAreaUnit, "" );
+    m_FeaBeamXSecChoice.AddItem( "General" );
+    m_FeaBeamXSecChoice.AddItem( "Circle" );
+    m_FeaBeamXSecChoice.AddItem( "Pipe" );
+    m_FeaBeamXSecChoice.AddItem( "I" );
+    m_FeaBeamXSecChoice.AddItem( "Rectangle" );
+    m_FeaBeamXSecChoice.AddItem( "Box" );
+    m_FeaPropertyBeamGroup.AddChoice( m_FeaBeamXSecChoice, "Cross Section Type" );
+
+    m_FeaPropertyBeamGroup.SetButtonWidth( m_FeaPropertyBeamGroup.GetRemainX() );
+
+    m_FeaPropertyBeamGroup.AddButton( m_ShowFeaBeamXSecButton, "Show XSec" );
+
+    m_FeaPropertyBeamGroup.ForceNewLine();
+
+    m_FeaPropertyBeamGroup.AddYGap();
+    int current_y = m_FeaPropertyBeamGroup.GetY();
+
+    // General XSec
+    m_FeaPropertyBeamGroup.AddSubGroupLayout( m_GenXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
+    m_GenXSecGroup.SetY( current_y );
+
+    m_GenXSecGroup.AddDividerBox( "General XSec" );
+
+    m_GenXSecGroup.SetSameLineFlag( true );
+    m_GenXSecGroup.SetFitWidthFlag( false );
+
+    m_GenXSecGroup.SetButtonWidth( buttonwidth );
+    m_GenXSecGroup.SetSliderWidth( m_GenXSecGroup.GetW() / 3 );
+    m_GenXSecGroup.SetInputWidth( m_GenXSecGroup.GetW() / 6 );
+
+    m_GenXSecGroup.AddSlider( m_PropAreaSlider, "Cross-Sect Area", 100.0, "%5.3g" );
+    m_GenXSecGroup.AddButton( m_PropAreaUnit, "" );
     m_PropAreaUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropAreaUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PropAreaUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
+    m_PropAreaUnit.SetWidth( m_GenXSecGroup.GetW() / 10 );
 
-    m_FeaPropertyBeamGroup.ForceNewLine();
+    m_GenXSecGroup.ForceNewLine();
 
-    m_FeaPropertyBeamGroup.AddSlider( m_PropIzzSlider, "Izz", 100.0, "%5.3g" );
-    m_FeaPropertyBeamGroup.AddButton( m_PropIzzUnit, "" );
+    m_GenXSecGroup.AddSlider( m_PropIzzSlider, "Izz", 100.0, "%5.3g" );
+    m_GenXSecGroup.AddButton( m_PropIzzUnit, "" );
     m_PropIzzUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIzzUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PropIzzUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
+    m_PropIzzUnit.SetWidth( m_GenXSecGroup.GetW() / 10 );
 
-    m_FeaPropertyBeamGroup.ForceNewLine();
+    m_GenXSecGroup.ForceNewLine();
 
-    m_FeaPropertyBeamGroup.AddSlider( m_PropIyySlider, "Iyy", 100.0, "%5.3g" );
-    m_FeaPropertyBeamGroup.AddButton( m_PropIyyUnit, "" );
+    m_GenXSecGroup.AddSlider( m_PropIyySlider, "Iyy", 100.0, "%5.3g" );
+    m_GenXSecGroup.AddButton( m_PropIyyUnit, "" );
     m_PropIyyUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIyyUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PropIyyUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
+    m_PropIyyUnit.SetWidth( m_GenXSecGroup.GetW() / 10 );
 
-    m_FeaPropertyBeamGroup.ForceNewLine();
+    m_GenXSecGroup.ForceNewLine();
 
-    m_FeaPropertyBeamGroup.AddSlider( m_PropIzySlider, "Izy", 100.0, "%5.3g" );
-    m_FeaPropertyBeamGroup.AddButton( m_PropIzyUnit, "" );
+    m_GenXSecGroup.AddSlider( m_PropIzySlider, "Izy", 100.0, "%5.3g" );
+    m_GenXSecGroup.AddButton( m_PropIzyUnit, "" );
     m_PropIzyUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIzyUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PropIzyUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
+    m_PropIzyUnit.SetWidth( m_GenXSecGroup.GetW() / 10 );
 
-    m_FeaPropertyBeamGroup.ForceNewLine();
+    m_GenXSecGroup.ForceNewLine();
 
-    m_FeaPropertyBeamGroup.AddSlider( m_PropIxxSlider, "Ixx", 100.0, "%5.3g" );
-    m_FeaPropertyBeamGroup.AddButton( m_PropIxxUnit, "" );
+    m_GenXSecGroup.AddSlider( m_PropIxxSlider, "Ixx", 100.0, "%5.3g" );
+    m_GenXSecGroup.AddButton( m_PropIxxUnit, "" );
     m_PropIxxUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIxxUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PropIxxUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
+    m_PropIxxUnit.SetWidth( m_GenXSecGroup.GetW() / 10 );
 
-    m_FeaPropertyBeamGroup.ForceNewLine();
-    m_PropertyEditGroup.AddYGap();
+    m_GenXSecGroup.ForceNewLine();
+
+    // Circle XSec
+    m_FeaPropertyBeamGroup.AddSubGroupLayout( m_CircXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
+    m_CircXSecGroup.SetY( current_y );
+
+    m_CircXSecGroup.AddDividerBox( "Circle XSec" );
+
+    m_CircXSecGroup.SetSameLineFlag( true );
+    m_CircXSecGroup.SetFitWidthFlag( false );
+
+    m_CircXSecGroup.SetButtonWidth( buttonwidth );
+    m_CircXSecGroup.SetSliderWidth( m_CircXSecGroup.GetW() / 3 );
+    m_CircXSecGroup.SetInputWidth( m_CircXSecGroup.GetW() / 6 );
+
+    m_CircXSecGroup.AddSlider( m_CircDim1Slider, "Dim1", 100.0, "%5.3f" );
+    m_CircXSecGroup.AddButton( m_CircDim1Unit, "" );
+    m_CircDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_CircDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_CircDim1Unit.SetWidth( m_CircXSecGroup.GetW() / 10 );
+
+    // Pipe/Tube XSec
+    m_FeaPropertyBeamGroup.AddSubGroupLayout( m_PipeXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
+    m_PipeXSecGroup.SetY( current_y );
+
+    m_PipeXSecGroup.AddDividerBox( "Pipe XSec" );
+
+    m_PipeXSecGroup.SetSameLineFlag( true );
+    m_PipeXSecGroup.SetFitWidthFlag( false );
+
+    m_PipeXSecGroup.SetButtonWidth( buttonwidth );
+    m_PipeXSecGroup.SetSliderWidth( m_PipeXSecGroup.GetW() / 3 );
+    m_PipeXSecGroup.SetInputWidth( m_PipeXSecGroup.GetW() / 6 );
+
+    m_PipeXSecGroup.AddSlider( m_PipeDim1Slider, "Dim1", 100.0, "%5.3f" );
+    m_PipeXSecGroup.AddButton( m_PipeDim1Unit, "" );
+    m_PipeDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PipeDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_PipeDim1Unit.SetWidth( m_PipeXSecGroup.GetW() / 10 );
+
+    m_PipeXSecGroup.ForceNewLine();
+
+    m_PipeXSecGroup.AddSlider( m_PipeDim2Slider, "Dim2", 100.0, "%5.3f" );
+    m_PipeXSecGroup.AddButton( m_PipeDim2Unit, "" );
+    m_PipeDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_PipeDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_PipeDim2Unit.SetWidth( m_PipeXSecGroup.GetW() / 10 );
+
+    // I XSec
+    m_FeaPropertyBeamGroup.AddSubGroupLayout( m_IXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
+    m_IXSecGroup.SetY( current_y );
+
+    m_IXSecGroup.AddDividerBox( "I XSec" );
+
+    m_IXSecGroup.SetSameLineFlag( true );
+    m_IXSecGroup.SetFitWidthFlag( false );
+
+    m_IXSecGroup.SetButtonWidth( buttonwidth );
+    m_IXSecGroup.SetSliderWidth( m_IXSecGroup.GetW() / 3 );
+    m_IXSecGroup.SetInputWidth( m_IXSecGroup.GetW() / 6 );
+
+    m_IXSecGroup.AddSlider( m_IDim1Slider, "Dim1", 100.0, "%5.3f" );
+    m_IXSecGroup.AddButton( m_IDim1Unit, "" );
+    m_IDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_IDim1Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
+
+    m_IXSecGroup.ForceNewLine();
+
+    m_IXSecGroup.AddSlider( m_IDim2Slider, "Dim2", 100.0, "%5.3f" );
+    m_IXSecGroup.AddButton( m_IDim2Unit, "" );
+    m_IDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_IDim2Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
+
+    m_IXSecGroup.ForceNewLine();
+
+    m_IXSecGroup.AddSlider( m_IDim3Slider, "Dim3", 100.0, "%5.3f" );
+    m_IXSecGroup.AddButton( m_IDim3Unit, "" );
+    m_IDim3Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim3Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_IDim3Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
+
+    m_IXSecGroup.ForceNewLine();
+
+    m_IXSecGroup.AddSlider( m_IDim4Slider, "Dim4", 100.0, "%5.3f" );
+    m_IXSecGroup.AddButton( m_IDim4Unit, "" );
+    m_IDim4Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim4Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_IDim4Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
+
+    m_IXSecGroup.ForceNewLine();
+
+    m_IXSecGroup.AddSlider( m_IDim5Slider, "Dim5", 100.0, "%5.3f" );
+    m_IXSecGroup.AddButton( m_IDim5Unit, "" );
+    m_IDim5Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim5Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_IDim5Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
+
+    m_IXSecGroup.ForceNewLine();
+
+    m_IXSecGroup.AddSlider( m_IDim6Slider, "Dim6", 100.0, "%5.3f" );
+    m_IXSecGroup.AddButton( m_IDim6Unit, "" );
+    m_IDim6Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_IDim6Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_IDim6Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
+
+    // Rectangle XSec
+    m_FeaPropertyBeamGroup.AddSubGroupLayout( m_RectXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
+    m_RectXSecGroup.SetY( current_y );
+
+    m_RectXSecGroup.AddDividerBox( "Rectangle XSec" );
+
+    m_RectXSecGroup.SetSameLineFlag( true );
+    m_RectXSecGroup.SetFitWidthFlag( false );
+
+    m_RectXSecGroup.SetButtonWidth( buttonwidth );
+    m_RectXSecGroup.SetSliderWidth( m_RectXSecGroup.GetW() / 3 );
+    m_RectXSecGroup.SetInputWidth( m_RectXSecGroup.GetW() / 6 );
+
+    m_RectXSecGroup.AddSlider( m_RectDim1Slider, "Dim1", 100.0, "%5.3f" );
+    m_RectXSecGroup.AddButton( m_RectDim1Unit, "" );
+    m_RectDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_RectDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_RectDim1Unit.SetWidth( m_RectXSecGroup.GetW() / 10 );
+
+    m_RectXSecGroup.ForceNewLine();
+
+    m_RectXSecGroup.AddSlider( m_RectDim2Slider, "Dim2", 100.0, "%5.3f" );
+    m_RectXSecGroup.AddButton( m_RectDim2Unit, "" );
+    m_RectDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_RectDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_RectDim2Unit.SetWidth( m_RectXSecGroup.GetW() / 10 );
+
+    // Box XSec
+    m_FeaPropertyBeamGroup.AddSubGroupLayout( m_BoxXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
+    m_BoxXSecGroup.SetY( current_y );
+
+    m_BoxXSecGroup.AddDividerBox( "Box XSec" );
+
+    m_BoxXSecGroup.SetSameLineFlag( true );
+    m_BoxXSecGroup.SetFitWidthFlag( false );
+
+    m_BoxXSecGroup.SetButtonWidth( buttonwidth );
+    m_BoxXSecGroup.SetSliderWidth( m_BoxXSecGroup.GetW() / 3 );
+    m_BoxXSecGroup.SetInputWidth( m_BoxXSecGroup.GetW() / 6 );
+
+    m_BoxXSecGroup.AddSlider( m_BoxDim1Slider, "Dim1", 100.0, "%5.3f" );
+    m_BoxXSecGroup.AddButton( m_BoxDim1Unit, "" );
+    m_BoxDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_BoxDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_BoxDim1Unit.SetWidth( m_BoxXSecGroup.GetW() / 10 );
+
+    m_BoxXSecGroup.ForceNewLine();
+
+    m_BoxXSecGroup.AddSlider( m_BoxDim2Slider, "Dim2", 100.0, "%5.3f" );
+    m_BoxXSecGroup.AddButton( m_BoxDim2Unit, "" );
+    m_BoxDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_BoxDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_BoxDim2Unit.SetWidth( m_BoxXSecGroup.GetW() / 10 );
+
+    m_BoxXSecGroup.ForceNewLine();
+
+    m_BoxXSecGroup.AddSlider( m_BoxDim3Slider, "Dim3", 100.0, "%5.3f" );
+    m_BoxXSecGroup.AddButton( m_BoxDim3Unit, "" );
+    m_BoxDim3Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_BoxDim3Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_BoxDim3Unit.SetWidth( m_BoxXSecGroup.GetW() / 10 );
+
+    m_BoxXSecGroup.ForceNewLine();
+
+    m_BoxXSecGroup.AddSlider( m_BoxDim4Slider, "Dim4", 100.0, "%5.3f" );
+    m_BoxXSecGroup.AddButton( m_BoxDim4Unit, "" );
+    m_BoxDim4Unit.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_BoxDim4Unit.GetFlButton()->labelcolor( FL_BLACK );
+    m_BoxDim4Unit.SetWidth( m_BoxXSecGroup.GetW() / 10 );
 
     //=== MESH TAB ===//
     m_MeshTabLayout.SetGroupAndScreen( meshTabGroup, this );
@@ -976,16 +1178,16 @@ void StructScreen::UpdateFeaPropertyBrowser()
     int scroll_pos = m_FeaPropertySelectBrowser->position();
     m_FeaPropertySelectBrowser->clear();
 
-    static int widths[] = { 160, 120, 120 };
+    static int widths[] = { 130, 70, 80, 130 };
     m_FeaPropertySelectBrowser->column_widths( widths );
     m_FeaPropertySelectBrowser->column_char( ':' );
 
     char str[256]; // TODO: Use to_string function
 
-    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.MATERIAL:" );
+    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.XSEC:@b@.MATERIAL:" );
     m_FeaPropertySelectBrowser->add( str );
 
-    string prop_name, prop_type, prop_mat;
+    string prop_name, prop_type, prop_xsec, prop_mat;
 
     vector< FeaProperty* > property_vec = StructureMgr.GetFeaPropertyVec();
 
@@ -994,13 +1196,22 @@ void StructScreen::UpdateFeaPropertyBrowser()
         prop_name = property_vec[i]->GetName();
         prop_type = property_vec[i]->GetTypeName();
 
+        if ( property_vec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
+        {
+            prop_xsec = "N/A";
+        }
+        else
+        {
+            prop_xsec = property_vec[i]->GetXSecName();
+        }
+
         FeaMaterial* fea_mat = StructureMgr.GetFeaMaterial( property_vec[i]->m_FeaMaterialIndex() );
         if ( fea_mat )
         {
             prop_mat = fea_mat->GetName();
         }
 
-        sprintf( str, "%s:%s:%s:", prop_name.c_str(), prop_type.c_str(), prop_mat.c_str() );
+        sprintf( str, "%s:%s:%s:%s:", prop_name.c_str(), prop_type.c_str(), prop_xsec.c_str(), prop_mat.c_str() );
 
         m_FeaPropertySelectBrowser->add( str );
     }
@@ -1216,6 +1427,29 @@ void StructScreen::UpdateFeaMaterialChoice()
         }
     }
 }
+
+void StructScreen::BeamXSecDispGroup( GroupLayout* group )
+{
+    if ( m_CurBeamXSecDispGroup == group && group )
+    {
+        return;
+    }
+
+    m_GenXSecGroup.Hide();
+    m_CircXSecGroup.Hide();
+    m_PipeXSecGroup.Hide();
+    m_IXSecGroup.Hide();
+    m_RectXSecGroup.Hide();
+    m_BoxXSecGroup.Hide();
+
+    m_CurBeamXSecDispGroup = group;
+
+    if ( group )
+    {
+        group->Show();
+    }
+}
+
 
 void StructScreen::CloseCallBack( Fl_Widget *w )
 {
@@ -1455,6 +1689,26 @@ void StructScreen::UpdateUnitLabels()
         m_PropIyyUnit.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
         m_PropIzyUnit.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
         m_PropIxxUnit.GetFlButton()->copy_label( area_moment_inertia_unit.c_str() );
+
+        m_CircDim1Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+
+        m_PipeDim1Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_PipeDim2Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+
+        m_IDim1Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_IDim2Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_IDim3Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_IDim4Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_IDim5Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_IDim6Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+
+        m_RectDim1Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_RectDim2Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+
+        m_BoxDim1Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_BoxDim2Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_BoxDim3Unit.GetFlButton()->copy_label( thick_unit.c_str() );
+        m_BoxDim4Unit.GetFlButton()->copy_label( thick_unit.c_str() );
     }
 }
 
@@ -1505,13 +1759,64 @@ bool StructScreen::Update()
                 }
                 else if ( fea_prop->m_FeaPropertyType() == vsp::FEA_BEAM )
                 {
-                    m_PropAreaSlider.Update( fea_prop->m_CrossSecArea.GetID() );
-                    m_PropIzzSlider.Update( fea_prop->m_Izz.GetID() );
-                    m_PropIyySlider.Update( fea_prop->m_Iyy.GetID() );
-                    m_PropIzySlider.Update( fea_prop->m_Izy.GetID() );
-                    m_PropIxxSlider.Update( fea_prop->m_Ixx.GetID() );
+                    m_FeaBeamXSecChoice.Update( fea_prop->m_CrossSectType.GetID() );
 
                     FeaPropertyDispGroup( &m_FeaPropertyBeamGroup );
+
+                    m_ShowFeaBeamXSecButton.Activate();
+
+                    if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_GENERAL )
+                    {
+                        m_ShowFeaBeamXSecButton.Deactivate();
+
+                        m_PropAreaSlider.Update( fea_prop->m_CrossSecArea.GetID() );
+                        m_PropIzzSlider.Update( fea_prop->m_Izz.GetID() );
+                        m_PropIyySlider.Update( fea_prop->m_Iyy.GetID() );
+                        m_PropIzySlider.Update( fea_prop->m_Izy.GetID() );
+                        m_PropIxxSlider.Update( fea_prop->m_Ixx.GetID() );
+
+                        BeamXSecDispGroup( &m_GenXSecGroup );
+                    }
+                    else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_CIRC )
+                    {
+                        m_CircDim1Slider.Update( fea_prop->m_Dim1.GetID() );
+
+                        BeamXSecDispGroup( &m_CircXSecGroup );
+                    }
+                    else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_PIPE )
+                    {
+                        m_PipeDim1Slider.Update( fea_prop->m_Dim1.GetID() );
+                        m_PipeDim2Slider.Update( fea_prop->m_Dim2.GetID() );
+
+                        BeamXSecDispGroup( &m_PipeXSecGroup );
+                    }
+                    else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_I )
+                    {
+                        m_IDim1Slider.Update( fea_prop->m_Dim1.GetID() );
+                        m_IDim2Slider.Update( fea_prop->m_Dim2.GetID() );
+                        m_IDim3Slider.Update( fea_prop->m_Dim3.GetID() );
+                        m_IDim4Slider.Update( fea_prop->m_Dim4.GetID() );
+                        m_IDim5Slider.Update( fea_prop->m_Dim5.GetID() );
+                        m_IDim6Slider.Update( fea_prop->m_Dim6.GetID() );
+
+                        BeamXSecDispGroup( &m_IXSecGroup );
+                    }
+                    else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_RECT )
+                    {
+                        m_RectDim1Slider.Update( fea_prop->m_Dim1.GetID() );
+                        m_RectDim2Slider.Update( fea_prop->m_Dim2.GetID() );
+
+                        BeamXSecDispGroup( &m_RectXSecGroup );
+                    }
+                    else if ( fea_prop->m_CrossSectType() == vsp::FEA_XSEC_BOX )
+                    {
+                        m_BoxDim1Slider.Update( fea_prop->m_Dim1.GetID() );
+                        m_BoxDim2Slider.Update( fea_prop->m_Dim2.GetID() );
+                        m_BoxDim3Slider.Update( fea_prop->m_Dim3.GetID() );
+                        m_BoxDim4Slider.Update( fea_prop->m_Dim4.GetID() );
+
+                        BeamXSecDispGroup( &m_BoxXSecGroup );
+                    }
                 }
             }
             else
@@ -2583,6 +2888,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 fea_prop->m_FeaMaterialIndex.Set( m_FeaBeamMaterialChoice.GetVal() );
             }
         }
+    }
+    else if ( device == &m_ShowFeaBeamXSecButton )
+    {
+        // Show XSec Diagram with Dimensions
     }
     else if ( device == &m_SelectStlFile )
     {

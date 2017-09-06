@@ -29,6 +29,7 @@ public:
 
     virtual void FeaStructDispGroup( GroupLayout* group );
     virtual void FeaPropertyDispGroup( GroupLayout* group );
+    virtual void BeamXSecDispGroup( GroupLayout* group );
 
     virtual void LoadGeomChoice();
     virtual void UpdateStructBrowser();
@@ -191,8 +192,18 @@ private:
 
     // Beam Property
     GroupLayout m_FeaPropertyBeamGroup;
+    GroupLayout* m_CurBeamXSecDispGroup;
+    GroupLayout m_GenXSecGroup;
+    GroupLayout m_CircXSecGroup;
+    GroupLayout m_PipeXSecGroup;
+    GroupLayout m_IXSecGroup;
+    GroupLayout m_RectXSecGroup;
+    GroupLayout m_BoxXSecGroup;
 
     Choice m_FeaBeamMaterialChoice;
+    Choice m_FeaBeamXSecChoice;
+    TriggerButton m_ShowFeaBeamXSecButton;
+    // General XSec
     SliderAdjRangeInput m_PropAreaSlider;
     TriggerButton m_PropAreaUnit;
     SliderAdjRangeInput m_PropIzzSlider;
@@ -203,6 +214,41 @@ private:
     TriggerButton m_PropIzyUnit;
     SliderAdjRangeInput m_PropIxxSlider;
     TriggerButton m_PropIxxUnit;
+    // Circ XSec
+    SliderAdjRangeInput m_CircDim1Slider;
+    TriggerButton m_CircDim1Unit;
+    // Pipe/Tube XSec
+    SliderAdjRangeInput m_PipeDim1Slider;
+    TriggerButton m_PipeDim1Unit;
+    SliderAdjRangeInput m_PipeDim2Slider;
+    TriggerButton m_PipeDim2Unit;
+    // I XSec
+    SliderAdjRangeInput m_IDim1Slider;
+    TriggerButton m_IDim1Unit;
+    SliderAdjRangeInput m_IDim2Slider;
+    TriggerButton m_IDim2Unit;
+    SliderAdjRangeInput m_IDim3Slider;
+    TriggerButton m_IDim3Unit;
+    SliderAdjRangeInput m_IDim4Slider;
+    TriggerButton m_IDim4Unit;
+    SliderAdjRangeInput m_IDim5Slider;
+    TriggerButton m_IDim5Unit;
+    SliderAdjRangeInput m_IDim6Slider;
+    TriggerButton m_IDim6Unit;
+    // Rect XSec
+    SliderAdjRangeInput m_RectDim1Slider;
+    TriggerButton m_RectDim1Unit;
+    SliderAdjRangeInput m_RectDim2Slider;
+    TriggerButton m_RectDim2Unit;
+    // Box XSec
+    SliderAdjRangeInput m_BoxDim1Slider;
+    TriggerButton m_BoxDim1Unit;
+    SliderAdjRangeInput m_BoxDim2Slider;
+    TriggerButton m_BoxDim2Unit;
+    SliderAdjRangeInput m_BoxDim3Slider;
+    TriggerButton m_BoxDim3Unit;
+    SliderAdjRangeInput m_BoxDim4Slider;
+    TriggerButton m_BoxDim4Unit;
 
     //===== Mesh Tab Items =====//
     SliderAdjRangeInput m_MaxEdgeLen;
