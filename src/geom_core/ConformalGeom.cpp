@@ -129,6 +129,8 @@ void ConformalGeom::UpdateSurf()
 
     for ( int i = 0 ; i < (int)m_MainSurfVec.size() ; i++ )
     {
+        m_MainSurfVec[i].SetFoilSurf( NULL );
+
         if ( m_MainSurfVec[i].IsClone() )
         {
             int clone_index = m_MainSurfVec[i].GetCloneIndex();

@@ -78,6 +78,17 @@ void BORGeom::UpdateSurf()
 
     stringer = m_XSCurve->GetCurve();
 
+    // Store m_FoilSurf for later use.
+    vector< VspCurve > crv_vec;
+    crv_vec.resize( 2 );
+
+    crv_vec[0] = stringer;
+    crv_vec[0].Scale( 1.0 / m_XSCurve->GetWidth() );
+    crv_vec[1] = crv_vec[0];
+
+    m_FoilSurf = VspSurf();
+    m_FoilSurf.SkinC0( crv_vec, false );
+
     if ( m_Mode() == vsp::BOR_FLOWTHROUGH )
     {
         stringer.RotateZ(m_Angle() * PI / 180.0);
@@ -155,6 +166,7 @@ void BORGeom::UpdateSurf()
 
     m_MainSurfVec[0].SetSurfType( vsp::WING_SURF );
     m_MainSurfVec[0].SetMagicVParm( true );
+    m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
 
     m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
 

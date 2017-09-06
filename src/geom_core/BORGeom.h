@@ -63,6 +63,8 @@ protected:
     XSecCurve *m_XSCurve;
 
     DrawObj m_CurrentXSecDrawObj;
+
+    VspSurf m_FoilSurf;
 };
 
 
