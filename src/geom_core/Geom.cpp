@@ -3139,7 +3139,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
 
         degenGeom.createDegenSurface( pnts, uwpnts, m_SurfVec[i].GetFlipNormal() );
 
-        if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF )
+        if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF || m_SurfVec[i].GetSurfType() == vsp::PROP_SURF )
         {
             degenGeom.setType(DegenGeom::SURFACE_TYPE);
 
