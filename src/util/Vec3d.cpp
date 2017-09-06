@@ -291,6 +291,10 @@ double angle( const vec3d& a, const vec3d& b )
     {
         return( acos( angle ) );
     }
+    else if ( angle < 0.0 )
+    {
+        return PI;
+    }
     else
     {
         return( 0.0 );
