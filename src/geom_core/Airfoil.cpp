@@ -115,9 +115,10 @@ void Airfoil::ReadV2File( xmlNodePtr &root )
 
 }
 
-double Airfoil::EstimateThick()
+double Airfoil::CalculateThick()
 {
-    return m_Curve.EstimateThick();
+    double tloc;
+    return m_Curve.CalculateThick( tloc );
 }
 
 
@@ -636,7 +637,7 @@ xmlNodePtr FileAirfoil::DecodeXml( xmlNodePtr & node )
 
 void FileAirfoil::OffsetCurve( double offset_val )
 {
-    double t = EstimateThick();
+    double t = CalculateThick();
     double c = m_Chord();
 
     double offset_c = c - 2.0*offset_val;
@@ -1461,7 +1462,7 @@ void CSTAirfoil::CheckLERad()
 
 void CSTAirfoil::OffsetCurve( double offset_val )
 {
-    double t = EstimateThick();
+    double t = CalculateThick();
     double c = m_Chord();
 
     double offset_c = c - 2.0*offset_val;
@@ -1565,7 +1566,7 @@ void VKTAirfoil::Update()
 
 void VKTAirfoil::OffsetCurve( double offset_val )
 {
-    double t = EstimateThick();
+    double t = CalculateThick();
     double c = m_Chord();
 
     double offset_c = c - 2.0*offset_val;

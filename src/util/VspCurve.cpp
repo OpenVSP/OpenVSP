@@ -1318,12 +1318,11 @@ void VspCurve::GetBoundingBox( BndBox &bb ) const
 }
 
 // This routine estimates the thickness of an airfoil from the curves directly.
-// It constructs the equiparameteric distance squared curve.  Rather than maximizing
-// that curve, it simply checks the bounding box of the control points.  For a well
-// behaved airfoil, this should be close to the curve.
-double VspCurve::EstimateThick() const
+// It constructs the equiparameteric distance squared curve.  It then maximizes that
+// curve.
+double VspCurve::CalculateThick( double &loc ) const
 {
-    piecewise_curve_type crv , c1, c2, c3;
+    piecewise_curve_type crv , c1, c2, c3, c4;
     crv = m_Curve;
 
     double tmid = ( crv.get_parameter_max() + crv.get_parameter_min() ) / 2.0;
@@ -1352,8 +1351,7 @@ double VspCurve::EstimateThick() const
     c1.scale( -1.0 );
     c3.sum( c1, c2 );
 
-    c1.clear(); // Clear before re-using c1
-    c1.square( c3 );
+    c4.square( c3 );
 
     typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
     onedpwc sumsq;
@@ -1364,14 +1362,19 @@ double VspCurve::EstimateThick() const
     typedef onedpwc::point_type onedpt;
     onedpt p;
 
-    sumsq = c1.sumcompcurve();
+    sumsq = c4.sumcompcurve();
 
-    sumsq.get_bounding_box( box );
+    // Negate to allow minimization instead of maximization.
+    sumsq.scale( -1.0 );
 
-    p = box.get_max();
+    double utmax;
+    double tmax = sqrt( -1.0 * eli::geom::intersect::minimum_dimension( utmax, sumsq, 0 ) );
 
-    return sqrt( p.x() );
+    loc = ( c2.f( utmax ).x() - c1.f( utmax ).x() ) * 0.5;
+
+    return tmax;
 }
+
 
 // Find the angle between two points on a curve.
 // First point: u1, considering curve dir1 = BEFORE or AFTER the point
