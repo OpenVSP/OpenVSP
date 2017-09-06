@@ -97,12 +97,14 @@ public:
     *
     * VSP_MAIN_SCREEN - Main VSP display window.
     * VSP_XSEC_SCREEN - 2D display window in XSec Panel.
+    * VSP_FEA_XEC_SCREEN - 2D dimensioned drawing of FEA beam element XSec
     */
     enum ScreenEnum
     {
         VSP_MAIN_SCREEN,
         VSP_XSEC_SCREEN,
         VSP_TEX_PREVIEW,
+        VSP_FEA_XSEC_SCREEN,
     };
 
     /*

@@ -16,6 +16,9 @@
 #include "Viewport.h"
 #include "Camera.h"
 #include "MaterialEditScreen.h"
+#include "Background.h"
+#include "GraphicSingletons.h"
+#include "StructureMgr.h"
 
 #include "VSPWindow.h"
 #include "WingGeom.h"
@@ -2013,6 +2016,116 @@ bool XSecViewScreen::Update()
 }
 
 void XSecViewScreen::Show()
+{
+    VspScreen::Show();
+
+    int w, h;
+
+    w = m_GlWin->pixel_w();
+    h = m_GlWin->pixel_h();
+    float oz = 1.5f * ( w < h ? 1.f / w : 1.f / h );
+    m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( oz );
+}
+
+
+
+//=====================================================================//
+//=====================================================================//
+//=====================================================================//
+
+
+
+FeaXSecScreen::FeaXSecScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 300, "FEA XSec" )
+{
+    int x = m_FLTK_Window->x();
+    int y = m_FLTK_Window->y();
+    int w = m_FLTK_Window->w();
+    int h = m_FLTK_Window->h();
+
+
+    m_FLTK_Window->begin();
+    m_GlWin = new VSPGUI::VspSubGlWindow( x, y, w, h, DrawObj::VSP_FEA_XSEC_SCREEN );
+    m_FLTK_Window->end();
+
+    m_GlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
+    m_GlWin->getGraphicEngine()->getDisplay()->getViewport()->showGridOverlay( false );
+}
+
+bool FeaXSecScreen::Update()
+{
+    assert( m_ScreenMgr );
+
+    VSPGraphic::Viewport * viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
+    assert( viewport );
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    string ExePath = veh->GetExePath();
+
+    string fileName = ExePath + string( "/textures/" );
+
+    char forwardSlash = '\\';
+    
+    for ( size_t i = 0; i < (int)fileName.size(); i++ )
+    {
+        if ( fileName[i] == forwardSlash )
+        {
+            fileName[i] = '/';
+        }
+    }
+
+    int xsec_type = -1;
+
+    if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
+    {
+        FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[StructureMgr.GetCurrPropertyIndex()];
+
+        if ( fea_prop )
+        {
+            xsec_type = fea_prop->m_CrossSectType();
+        }
+    }
+
+    if ( xsec_type == vsp::FEA_XSEC_CIRC )
+    {
+        fileName += "VSPCircXSec.png";
+    }
+    else if ( xsec_type == vsp::FEA_XSEC_PIPE )
+    {
+        fileName += "VSPPipeXSec.png";
+    }
+    else if ( xsec_type == vsp::FEA_XSEC_I )
+    {
+        fileName += "VSPIXSec.png";
+    }
+    else if ( xsec_type == vsp::FEA_XSEC_RECT )
+    {
+        fileName += "VSPRectXSec.png";
+    }
+    else if ( xsec_type == vsp::FEA_XSEC_BOX )
+    {
+        fileName += "VSPBoxXSec.png";
+    }
+    else
+    {
+        VspScreen::Hide();
+    }
+
+    viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_IMAGE );
+
+    if ( fileName.compare( "" ) != 0 )
+    {
+        viewport->getBackground()->removeImage();
+        viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( fileName.c_str() ) );
+    }
+
+    m_GlWin->update();
+    m_GlWin->redraw();
+
+    return true;
+}
+
+void FeaXSecScreen::Show()
 {
     VspScreen::Show();
 
