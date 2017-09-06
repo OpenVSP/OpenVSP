@@ -84,13 +84,14 @@ public:
     double FindMinimumDimension( double &u, const int &idim ) const;
 
     //===== Bezier Funcs ====//
-    vec3d CompPnt( double u );
-    vec3d CompTan( double u );
+    vec3d CompPnt( double u ) const;
+    vec3d CompTan( double u ) const;
 
-    vec3d CompPnt01( double u );
-    vec3d CompTan01( double u );
 
-    double CompLength( double tol = 1e-6 );
+    vec3d CompPnt01( double u ) const;
+    vec3d CompTan01( double u ) const;
+
+    double CompLength( double tol = 1e-6 ) const;
 
     //===== Tesselate ====//
     void TesselateNoCorner( int num_pnts_u, double umin, double umax, vector< vec3d > & output, vector< double > &uout );

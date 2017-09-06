@@ -874,7 +874,7 @@ double VspCurve::FindMinimumDimension( double &u, const int &idim ) const
 }
 
 //===== Compute Point  =====//
-vec3d VspCurve::CompPnt( double u )
+vec3d VspCurve::CompPnt( double u ) const
 {
     vec3d rtn;
     curve_point_type v( m_Curve.f( u ) );
@@ -884,7 +884,7 @@ vec3d VspCurve::CompPnt( double u )
 }
 
 //===== Compute Tangent  =====//
-vec3d VspCurve::CompTan( double u )
+vec3d VspCurve::CompTan( double u ) const
 {
     vec3d rtn;
     curve_point_type v( m_Curve.fp( u ) );
@@ -894,20 +894,20 @@ vec3d VspCurve::CompTan( double u )
 }
 
 //===== Compute Point U 0.0 -> 1.0 =====//
-vec3d VspCurve::CompPnt01( double u )
+vec3d VspCurve::CompPnt01( double u ) const
 {
     return CompPnt( u * m_Curve.get_tmax() );
 }
 
 
 //===== Compute Tan U 0.0 -> 1.0 =====//
-vec3d VspCurve::CompTan01( double u )
+vec3d VspCurve::CompTan01( double u ) const
 {
     return CompTan( u * m_Curve.get_tmax() );
 }
 
 //===== Compute Length =====//
-double VspCurve::CompLength( double tol )
+double VspCurve::CompLength( double tol ) const
 {
     double len = 0.0;
     eli::geom::curve::length( len, m_Curve, tol );
