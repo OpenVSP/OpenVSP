@@ -854,13 +854,13 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_Q.Init("Q", "ParasiteDragProps", this, 1, 0, 3 );
     m_Q.SetDescript( "Interference Factor" );
 
-    m_Roughness.Init("Roughness", "ParasiteDragProps", this, -1, -1, 10 );
+    m_Roughness.Init("Roughness", "ParasiteDragProps", this, 0.0, 0, 1e3 );
     m_Roughness.SetDescript( "Roughness Height" );
 
-    m_TeTwRatio.Init("TeTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
+    m_TeTwRatio.Init("TeTwRatio", "ParasiteDragProps", this, 1, -1, 1e6 );
     m_TeTwRatio.SetDescript("Temperature Ratio of Freestream to Wall" );
 
-    m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
+    m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, 1, -1, 1e6 );
     m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
 
     m_GroupedAncestorGen.Init("IncorporatedGen", "ParasiteDragProps", this, 0, 0, 100);

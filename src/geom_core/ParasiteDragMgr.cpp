@@ -140,9 +140,9 @@ void ParasiteDragMgrSingleton::SetDefaultStruct()
     m_DefaultStruct.Swet = -1;
     m_DefaultStruct.Lref = -1;
     m_DefaultStruct.Re = -1;
-    m_DefaultStruct.Roughness = -1;
-    m_DefaultStruct.TeTwRatio = -1;
-    m_DefaultStruct.TawTwRatio = -1;
+    m_DefaultStruct.Roughness = 0.0;
+    m_DefaultStruct.TeTwRatio = 1;
+    m_DefaultStruct.TawTwRatio = 1;
     m_DefaultStruct.PercLam = 0.0;
     m_DefaultStruct.Cf = -1;
     m_DefaultStruct.fineRat = -1;
@@ -2665,6 +2665,11 @@ void ParasiteDragMgrSingleton::UpdateParmActivity()
     {
         m_ReqL.Activate();
         m_Mach.Activate();
+        m_SpecificHeatRatio.Activate();
+    }
+
+    if ( m_TurbCfEqnType() == vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION )
+    {
         m_SpecificHeatRatio.Activate();
     }
 }
