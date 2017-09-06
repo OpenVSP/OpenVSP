@@ -2890,6 +2890,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_ShowFeaBeamXSecButton )
     {
         // Show XSec Diagram with Dimensions
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_FEA_XSEC_SCREEN );
     }
     else if ( device == &m_SelectStlFile )
     {
