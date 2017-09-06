@@ -1008,7 +1008,7 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_SLICE_TYPE", "XZ_ABS", XZ_ABS );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "FEA_SLICE_TYPE", "CONST_U", CONST_U );
+    r = se->RegisterEnumValue( "FEA_SLICE_TYPE", "SPINE_NORMAL", SPINE_NORMAL );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "FEA_UNIT_TYPE" );

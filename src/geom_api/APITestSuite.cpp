@@ -598,7 +598,7 @@ void APITestSuite::TestFEAMesh()
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "RelCenterLocation", "FeaPart" ), 0.15 ), 0.15, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::CONST_U ), vsp::FEA_SLICE_TYPE::CONST_U, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( bulkhead_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::SPINE_NORMAL ), vsp::FEA_SLICE_TYPE::SPINE_NORMAL, TEST_TOL );
 
     //==== Add Dome ====//
     string dome_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_DOME );
@@ -614,7 +614,7 @@ void APITestSuite::TestFEAMesh()
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "RelCenterLocation", "FeaPart" ), 0.45 ), 0.45, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::CONST_U ), vsp::FEA_SLICE_TYPE::CONST_U, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( stiffener_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::SPINE_NORMAL ), vsp::FEA_SLICE_TYPE::SPINE_NORMAL, TEST_TOL );
 
     //==== Add LineArray ====//
     string line_array_id = vsp::AddFeaSubSurf( pod_id, struct_ind, vsp::SS_LINE_ARRAY );

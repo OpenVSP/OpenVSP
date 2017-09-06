@@ -53,7 +53,7 @@ void main()
 
     SetParmVal( FindParm( bulkhead_id, "IncludedElements", "FeaPart" ), FEA_SHELL_AND_BEAM );
     SetParmVal( FindParm( bulkhead_id, "RelCenterLocation", "FeaPart" ), 0.15 );
-    SetParmVal( FindParm( bulkhead_id, "OrientationPlane", "FeaSlice" ), CONST_U );
+    SetParmVal( FindParm( bulkhead_id, "OrientationPlane", "FeaSlice" ), SPINE_NORMAL );
 
     //==== Add Dome ====//
     string dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME );
@@ -67,7 +67,7 @@ void main()
 
     SetParmVal( FindParm( stiffener_id, "IncludedElements", "FeaPart" ), FEA_BEAM );
     SetParmVal( FindParm( stiffener_id, "RelCenterLocation", "FeaPart" ), 0.45 );
-    SetParmVal( FindParm( stiffener_id, "OrientationPlane", "FeaSlice" ), CONST_U );
+    SetParmVal( FindParm( stiffener_id, "OrientationPlane", "FeaSlice" ), SPINE_NORMAL );
 
     //==== Add LineArray ====//
     string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );

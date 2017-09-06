@@ -353,7 +353,7 @@ enum FEA_SLICE_TYPE { XY_BODY = 0,
                       XY_ABS,
                       YZ_ABS,
                       XZ_ABS,
-                      CONST_U 
+                      SPINE_NORMAL
                     };
 
 enum FEA_UNIT_TYPE { SI_UNIT = 0, // m, kg

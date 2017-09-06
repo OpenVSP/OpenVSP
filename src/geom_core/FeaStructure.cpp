@@ -1536,7 +1536,7 @@ VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_p
             expan = 1e-5;
         }
 
-        if ( orientation_plane == vsp::CONST_U )
+        if ( orientation_plane == vsp::SPINE_NORMAL )
         {
             // Build conformal spine from parent geom
             ConformalSpine cs;
@@ -2031,7 +2031,7 @@ bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
 
 FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
 {
-    m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, vsp::YZ_BODY, vsp::XY_BODY, vsp::CONST_U );
+    m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, vsp::YZ_BODY, vsp::XY_BODY, vsp::SPINE_NORMAL );
     m_OrientationPlane.SetDescript( "Plane the FeaSlice Part will be Parallel to (Body or Absolute Reference Frame)" );
 
     m_RotationAxis.Init( "RotationAxis", "FeaSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
@@ -2106,7 +2106,7 @@ void FeaSlice::UpdateParmLimits()
         {
             perp_dist = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
         }
-        else if ( m_OrientationPlane() == vsp::CONST_U )
+        else if ( m_OrientationPlane() == vsp::SPINE_NORMAL )
         {
             // Build conformal spine from parent geom
             ConformalSpine cs;
@@ -3662,7 +3662,7 @@ FeaSliceArray::FeaSliceArray( string geomID, int type ) : FeaPart( geomID, type 
     m_RelEndLocation.Init( "RelEndLocation", "FeaSliceArray", this, 1.0, 0.0, 1.0 );
     m_RelEndLocation.SetDescript( "Relative Location for Final Slice in Array" );
 
-    m_OrientationPlane.Init( "OrientationPlane", "FeaSliceArray", this, vsp::YZ_BODY, vsp::XY_BODY, vsp::CONST_U );
+    m_OrientationPlane.Init( "OrientationPlane", "FeaSliceArray", this, vsp::YZ_BODY, vsp::XY_BODY, vsp::SPINE_NORMAL );
     m_OrientationPlane.SetDescript( "Plane the FeaSliceArray will be Parallel to (Body or Absolute Reference Frame)" );
 
     m_RotationAxis.Init( "RotationAxis", "FeaSliceArray", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
@@ -3732,7 +3732,7 @@ void FeaSliceArray::CalcNumSlices()
         {
             perp_dist = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
         }
-        else if ( m_OrientationPlane() == vsp::CONST_U )
+        else if ( m_OrientationPlane() == vsp::SPINE_NORMAL )
         {
             // Build conformal spine from parent geom
             ConformalSpine cs;
@@ -3905,7 +3905,7 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
             slice->m_AbsCenterLocation.Set( center_location );
         }
 
-        slice->m_OrientationPlane.Set( vsp::CONST_U );
+        slice->m_OrientationPlane.Set( vsp::SPINE_NORMAL );
         slice->m_AbsRelParmFlag.Set( m_AbsRelParmFlag() );
         slice->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         slice->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );

@@ -60,7 +60,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SliceOrientationChoice.AddItem( "XY_Abs" );
     m_SliceOrientationChoice.AddItem( "YZ_Abs" );
     m_SliceOrientationChoice.AddItem( "XZ_Abs" );
-    m_SliceOrientationChoice.AddItem( "Const_U" );
+    m_SliceOrientationChoice.AddItem( "Spine_Normal" );
     m_SliceEditLayout.AddChoice( m_SliceOrientationChoice, "Orientation" );
 
     m_SliceEditLayout.SetSameLineFlag( true );
@@ -567,7 +567,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SliceArrayOrientationChoice.AddItem( "XY_Abs" );
     m_SliceArrayOrientationChoice.AddItem( "YZ_Abs" );
     m_SliceArrayOrientationChoice.AddItem( "XZ_Abs" );
-    m_SliceArrayOrientationChoice.AddItem( "Const_U" );
+    m_SliceArrayOrientationChoice.AddItem( "Spine_Normal" );
     m_SliceArrayEditLayout.AddChoice( m_SliceArrayOrientationChoice, "Orientation" );
 
     m_SliceArrayEditLayout.SetSameLineFlag( true );
