@@ -507,6 +507,7 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual string GetTypeName( );
+    virtual string GetXSecName();
 
     IntParm m_FeaPropertyType;
     Parm m_Thickness;
@@ -515,6 +516,13 @@ public:
     Parm m_Iyy;
     Parm m_Izy;
     Parm m_Ixx;
+    Parm m_Dim1;
+    Parm m_Dim2;
+    Parm m_Dim3;
+    Parm m_Dim4;
+    Parm m_Dim5;
+    Parm m_Dim6;
+    IntParm m_CrossSectType;
     IntParm m_FeaMaterialIndex;
 
 protected:

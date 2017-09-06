@@ -3941,6 +3941,27 @@ FeaProperty::FeaProperty() : ParmContainer()
     m_Ixx.Init( "Izz", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
     m_Ixx.SetDescript( "Torsional Constant About FeaElement Neutral Axis (J)" );
 
+    m_Dim1.Init( "Dim1", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim1.SetDescript( "First Dimension of the Cross Section" );
+
+    m_Dim2.Init( "Dim2", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim2.SetDescript( "Second Dimension of the Cross Section" );
+
+    m_Dim3.Init( "Dim3", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim3.SetDescript( "Third Dimension of the Cross Section" );
+
+    m_Dim4.Init( "Dim4", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim4.SetDescript( "Fourth Dimension of the Cross Section" );
+
+    m_Dim5.Init( "Dim5", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim5.SetDescript( "Fifth Dimension of the Cross Section" );
+
+    m_Dim6.Init( "Dim6", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
+    m_Dim6.SetDescript( "Sixth Dimension of the Cross Section" );
+
+    m_CrossSectType.Init( "CrossSectType", "FeaProperty", this, vsp::FEA_XSEC_GENERAL, vsp::FEA_XSEC_GENERAL, vsp::FEA_XSEC_BOX );
+    m_CrossSectType.SetDescript( "Cross Section Type" );
+
     m_FeaMaterialIndex.Init( "FeaMaterialIndex", "FeaProperty", this, 0, 0, 1e12 );
     m_FeaMaterialIndex.SetDescript( "FeaMaterial Index for FeaProperty" );
 }
@@ -3985,6 +4006,36 @@ string FeaProperty::GetTypeName( )
     if ( m_FeaPropertyType() == vsp::FEA_BEAM )
     {
         return string( "Beam" );
+    }
+
+    return string( "NONE" );
+}
+
+string FeaProperty::GetXSecName()
+{
+    if ( m_CrossSectType() == vsp::FEA_XSEC_GENERAL )
+    {
+        return string( "General" );
+    }
+    if ( m_CrossSectType() == vsp::FEA_XSEC_CIRC )
+    {
+        return string( "Circle" );
+    }
+    if ( m_CrossSectType() == vsp::FEA_XSEC_PIPE )
+    {
+        return string( "Pipe" );
+    }
+    if ( m_CrossSectType() == vsp::FEA_XSEC_I )
+    {
+        return string( "I" );
+    }
+    if ( m_CrossSectType() == vsp::FEA_XSEC_RECT )
+    {
+        return string( "Rectangle" );
+    }
+    if ( m_CrossSectType() == vsp::FEA_XSEC_BOX )
+    {
+        return string( "Box" );
     }
 
     return string( "NONE" );

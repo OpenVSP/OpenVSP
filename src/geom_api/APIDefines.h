@@ -363,6 +363,14 @@ enum FEA_UNIT_TYPE { SI_UNIT = 0, // m, kg
                      BIN_UNIT // in, lbf*sec^2/in
                    };
 
+enum FEA_CROSS_SECT_TYPE { FEA_XSEC_GENERAL = 0,
+                           FEA_XSEC_CIRC,
+                           FEA_XSEC_PIPE,
+                           FEA_XSEC_I,
+                           FEA_XSEC_RECT,
+                           FEA_XSEC_BOX
+                         };
+
 enum WING_DRIVERS { AR_WSECT_DRIVER,
                     SPAN_WSECT_DRIVER,
                     AREA_WSECT_DRIVER,
