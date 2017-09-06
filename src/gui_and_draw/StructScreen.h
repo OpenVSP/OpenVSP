@@ -301,8 +301,6 @@ private:
     int m_FeaCurrMainSurfIndx;
     vector < int > m_SelectedPartIndexVec;
     int m_SelectedFeaPartChoice;
-    int m_SelectedMaterialIndex;
-    int m_SelectedPropertyIndex;
     int m_NumFeaPartChoices;
 };
 

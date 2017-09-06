@@ -23,6 +23,8 @@ StructureMgrSingleton::StructureMgrSingleton()
 
     m_CurrStructIndex = -1;
     m_CurrPartIndex = -1;
+    m_CurrFeaMaterialIndex = -1;
+    m_CurrFeaPropertyIndex = -1;
 
     m_FeaSliceOrientationIndex = 1; // Default to XY Plane
 }

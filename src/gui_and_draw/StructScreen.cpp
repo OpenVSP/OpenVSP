@@ -807,8 +807,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     // Set initial values
     m_FeaCurrMainSurfIndx = 0;
     m_SelectedFeaPartChoice = 0;
-    m_SelectedMaterialIndex = -1;
-    m_SelectedPropertyIndex = -1;
     m_CurrDispGroup = NULL;
 }
 
@@ -1216,9 +1214,9 @@ void StructScreen::UpdateFeaPropertyBrowser()
         m_FeaPropertySelectBrowser->add( str );
     }
 
-    if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
+    if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
     {
-        m_FeaPropertySelectBrowser->select( m_SelectedPropertyIndex + 2 );
+        m_FeaPropertySelectBrowser->select( StructureMgr.GetCurrPropertyIndex() + 2 );
     }
 
     m_FeaPropertySelectBrowser->position( scroll_pos );
@@ -1377,9 +1375,9 @@ void StructScreen::UpdateFeaMaterialBrowser()
         m_FeaMaterialSelectBrowser->add( mat_name.c_str() );
     }
 
-    if ( StructureMgr.ValidFeaMaterialInd( m_SelectedMaterialIndex ) )
+    if ( StructureMgr.ValidFeaMaterialInd( StructureMgr.GetCurrMaterialIndex() ) )
     {
-        m_FeaMaterialSelectBrowser->select( m_SelectedMaterialIndex + 1 );
+        m_FeaMaterialSelectBrowser->select( StructureMgr.GetCurrMaterialIndex() + 1 );
     }
 
     if ( StructureMgr.NumFeaMaterials() <= 0 )
@@ -1414,9 +1412,9 @@ void StructScreen::UpdateFeaMaterialChoice()
         m_FeaShellMaterialChoice.UpdateItems();
         m_FeaBeamMaterialChoice.UpdateItems();
 
-        if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
+        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
         {
-            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[m_SelectedPropertyIndex];
+            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[StructureMgr.GetCurrPropertyIndex()];
 
             if ( fea_prop )
             {
@@ -1744,9 +1742,9 @@ bool StructScreen::Update()
         UpdateFeaPropertyBrowser();
         UpdateFeaPropertyChoice();
 
-        if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
+        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
         {
-            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[m_SelectedPropertyIndex];
+            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[StructureMgr.GetCurrPropertyIndex()];
             if ( fea_prop )
             {
                 m_FeaPropertyNameInput.Update( fea_prop->GetName() );
@@ -1835,9 +1833,9 @@ bool StructScreen::Update()
 
         UpdateUnitLabels();
 
-        if ( StructureMgr.ValidFeaMaterialInd( m_SelectedMaterialIndex ) )
+        if ( StructureMgr.ValidFeaMaterialInd( StructureMgr.GetCurrMaterialIndex() ) )
         {
-            FeaMaterial* fea_mat = StructureMgr.GetFeaMaterialVec()[m_SelectedMaterialIndex];
+            FeaMaterial* fea_mat = StructureMgr.GetFeaMaterialVec()[StructureMgr.GetCurrMaterialIndex()];
             if ( fea_mat )
             {
                 m_FeaMaterialNameInput.Update( fea_mat->GetName() );
@@ -2179,7 +2177,7 @@ void StructScreen::CallBack( Fl_Widget* w )
             {
                 if ( m_FeaPropertySelectBrowser->selected( iCase ) )
                 {
-                    m_SelectedPropertyIndex = iCase - 2;
+                    StructureMgr.SetCurrPropertyIndex( iCase - 2 );
                     break;
                 }
             }
@@ -2190,7 +2188,7 @@ void StructScreen::CallBack( Fl_Widget* w )
             {
                 if ( m_FeaMaterialSelectBrowser->selected( iCase ) )
                 {
-                    m_SelectedMaterialIndex = iCase - 1;
+                    StructureMgr.SetCurrMaterialIndex( iCase - 1 );
                     break;
                 }
             }
@@ -2798,27 +2796,27 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_AddFeaPropertyButton )
     {
         StructureMgr.AddFeaProperty( m_FeaPropertyType.GetVal() );
-        m_SelectedPropertyIndex = StructureMgr.NumFeaProperties() - 1;
+        StructureMgr.SetCurrPropertyIndex( StructureMgr.NumFeaProperties() - 1 );
     }
     else if ( device == &m_DelFeaPropertyButton )
     {
-        if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
+        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
         {
-            StructureMgr.DeleteFeaProperty( m_SelectedPropertyIndex );
+            StructureMgr.DeleteFeaProperty( StructureMgr.GetCurrPropertyIndex() );
 
-            m_SelectedPropertyIndex -= 1;
+            StructureMgr.SetCurrPropertyIndex( StructureMgr.GetCurrPropertyIndex() - 1 );
         }
         else
         {
-            m_SelectedPropertyIndex = -1;
+            StructureMgr.SetCurrPropertyIndex( -1 );
         }
     }
     else if ( device == &m_FeaPropertyNameInput )
     {
-        if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
+        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
         {
             vector < FeaProperty* > property_vec = StructureMgr.GetFeaPropertyVec();
-            FeaProperty* fea_prop = property_vec[m_SelectedPropertyIndex];
+            FeaProperty* fea_prop = property_vec[StructureMgr.GetCurrPropertyIndex()];
 
             if ( fea_prop )
             {
@@ -2837,27 +2835,27 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_AddFeaMaterialButton )
     {
         StructureMgr.AddFeaMaterial();
-        m_SelectedMaterialIndex = StructureMgr.NumFeaMaterials() - 1;
+        StructureMgr.SetCurrMaterialIndex( StructureMgr.NumFeaMaterials() - 1 );
     }
     else if ( device == &m_DelFeaMaterialButton )
     {
-        if ( StructureMgr.ValidFeaMaterialInd( m_SelectedMaterialIndex ) )
+        if ( StructureMgr.ValidFeaMaterialInd( StructureMgr.GetCurrMaterialIndex() ) )
         {
-            StructureMgr.DeleteFeaMaterial( m_SelectedMaterialIndex );
+            StructureMgr.DeleteFeaMaterial( StructureMgr.GetCurrMaterialIndex() );
 
-            m_SelectedMaterialIndex -= 1;
+            StructureMgr.SetCurrMaterialIndex( StructureMgr.GetCurrMaterialIndex() - 1 );
         }
         else
         {
-            m_SelectedMaterialIndex = -1;
+            StructureMgr.SetCurrMaterialIndex( -1 );
         }
     }
     else if ( device == &m_FeaMaterialNameInput )
     {
-        if ( StructureMgr.ValidFeaMaterialInd( m_SelectedMaterialIndex ) )
+        if ( StructureMgr.ValidFeaMaterialInd( StructureMgr.GetCurrMaterialIndex() ) )
         {
             vector < FeaMaterial* > material_vec = StructureMgr.GetFeaMaterialVec();
-            FeaMaterial* fea_mat = material_vec[m_SelectedMaterialIndex];
+            FeaMaterial* fea_mat = material_vec[StructureMgr.GetCurrMaterialIndex()];
 
             if ( fea_mat )
             {
@@ -2867,9 +2865,9 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_FeaShellMaterialChoice )
     {
-        if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
+        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
         {
-            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[m_SelectedPropertyIndex];
+            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[StructureMgr.GetCurrPropertyIndex()];
 
             if ( fea_prop )
             {
@@ -2879,9 +2877,9 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_FeaBeamMaterialChoice )
     {
-        if ( StructureMgr.ValidFeaPropertyInd( m_SelectedPropertyIndex ) )
+        if ( StructureMgr.ValidFeaPropertyInd( StructureMgr.GetCurrPropertyIndex() ) )
         {
-            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[m_SelectedPropertyIndex];
+            FeaProperty* fea_prop = StructureMgr.GetFeaPropertyVec()[StructureMgr.GetCurrPropertyIndex()];
 
             if ( fea_prop )
             {

@@ -108,6 +108,24 @@ public:
         return m_CurrPartIndex;
     }
 
+    virtual void SetCurrMaterialIndex( int ind )
+    {
+        m_CurrFeaMaterialIndex = ind;
+    }
+    virtual int GetCurrMaterialIndex()
+    {
+        return m_CurrFeaMaterialIndex;
+    }
+
+    virtual void SetCurrPropertyIndex( int ind )
+    {
+        m_CurrFeaPropertyIndex = ind;
+    }
+    virtual int GetCurrPropertyIndex()
+    {
+        return m_CurrFeaPropertyIndex;
+    }
+
     virtual void SetFeaSliceOrientIndex( int ind )
     {
         m_FeaSliceOrientationIndex = ind;
@@ -127,7 +145,8 @@ protected:
 
     int m_CurrStructIndex;
     int m_CurrPartIndex;
-
+    int m_CurrFeaMaterialIndex;
+    int m_CurrFeaPropertyIndex;
     int m_FeaSliceOrientationIndex; // Identifies the default orientation for FeaSlices; 0: XY_PLANE, 1: YZ_PLANE, 2: XZ_PLANE
 };
 
