@@ -261,6 +261,7 @@ protected:
 
     bool m_Closed;
 
+    VspSurf m_FoilSurf;
 
 };
 #endif // !defined(VSPWINGGEOM__INCLUDED_)

@@ -1901,15 +1901,15 @@ void WingGeom::UpdateSurf()
     crv_creator.set_conditions( le_joint_vec, degree, false );
     crv_creator.create( cle );
 
-    VspSurf foilsurf;
-    foilsurf.SkinC0( untransformed_crv_vec, false );
+    m_FoilSurf = VspSurf();
+    m_FoilSurf.SkinC0( untransformed_crv_vec, false );
 
     vector < rib_data_type > ref_rib_vec;
     vector < double > u_vec;
 
     assert( cte.number_segments() == nxsec - 1 );
     assert( cle.number_segments() == nxsec - 1 );
-    assert( foilsurf.GetNumSectU() == nxsec - 1 );
+    assert( m_FoilSurf.GetNumSectU() == nxsec - 1 );
 
     for ( int i = 0 ; i < nxsec - 1 ; i++ )
     {
@@ -1991,7 +1991,7 @@ void WingGeom::UpdateSurf()
                 double localchord = dist( ptte, ptle );
 
                 VspCurve inscrv;
-                foilsurf.GetUConstCurve( inscrv, u );
+                m_FoilSurf.GetUConstCurve( inscrv, u );
 
                 // Transform interpolated foil such that later transformation
                 // will properly position the foil.  This is mostly needed to
