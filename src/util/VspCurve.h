@@ -86,7 +86,14 @@ public:
     //===== Bezier Funcs ====//
     vec3d CompPnt( double u ) const;
     vec3d CompTan( double u ) const;
+    vec3d CompTan( double u, int sideflag ) const;
+    vec3d CompNorm( double u ) const;
+    vec3d CompNorm( double u, int sideflag ) const;
 
+    double CompCurve( double u ) const;
+    double CompCurve( double u, int sideflag ) const;
+
+    enum { BEFORE, AFTER };
 
     vec3d CompPnt01( double u ) const;
     vec3d CompTan01( double u ) const;

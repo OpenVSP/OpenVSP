@@ -893,6 +893,143 @@ vec3d VspCurve::CompTan( double u ) const
     return rtn;
 }
 
+vec3d VspCurve::CompTan( double u, int sideflag ) const
+{
+    curve_point_type v;
+
+    if ( sideflag == BEFORE )
+    {
+        piecewise_curve_type c1, c2;
+
+        if ( u > m_Curve.get_parameter_min() )
+        {
+            m_Curve.split( c1, c2, u );
+            v = c1.fp( u );
+        }
+        else
+        {
+            v = m_Curve.fp( u );
+        }
+    }
+    else
+    {
+        piecewise_curve_type c1, c2;
+
+        if ( u < m_Curve.get_parameter_max() )
+        {
+            m_Curve.split( c1, c2, u );
+            v = c2.fp( u );
+        }
+        else
+        {
+            v = m_Curve.fp( u );
+        }
+    }
+
+    vec3d rtn;
+    rtn.set_xyz( v.x(), v.y(), v.z() );
+    return rtn;
+}
+
+vec3d VspCurve::CompNorm( double u) const
+{
+    vec3d rtn;
+    curve_point_type v( m_Curve.fpp( u ) );
+
+    rtn.set_xyz( v.x(), v.y(), v.z() );
+    return rtn;
+}
+
+vec3d VspCurve::CompNorm( double u, int sideflag ) const
+{
+    curve_point_type v;
+
+    if ( sideflag == BEFORE )
+    {
+        piecewise_curve_type c1, c2;
+
+        if ( u > m_Curve.get_parameter_min() )
+        {
+            m_Curve.split( c1, c2, u );
+            v = c1.fpp( u );
+        }
+        else
+        {
+            v = m_Curve.fpp( u );
+        }
+    }
+    else
+    {
+        piecewise_curve_type c1, c2;
+
+        if ( u < m_Curve.get_parameter_max() )
+        {
+            m_Curve.split( c1, c2, u );
+            v = c2.fpp( u );
+        }
+        else
+        {
+            v = m_Curve.fpp( u );
+        }
+    }
+
+    vec3d rtn;
+    rtn.set_xyz( v.x(), v.y(), v.z() );
+    return rtn;
+}
+
+double VspCurve::CompCurve( double u ) const
+{
+    curve_point_type fp( m_Curve.fp( u ) );
+    curve_point_type fpp( m_Curve.fpp( u ) );
+
+    double fpn = fp.norm();
+    double denom = fpn * fpn * fpn;
+    return ( fp.cross( fpp ) ).norm() / denom;
+}
+
+double VspCurve::CompCurve( double u, int sideflag ) const
+{
+    curve_point_type fp, fpp;
+
+    if ( sideflag == BEFORE )
+    {
+        piecewise_curve_type c1, c2;
+
+        if ( u > m_Curve.get_parameter_min() )
+        {
+            m_Curve.split( c1, c2, u );
+            fp = c1.fp( u );
+            fpp = c1.fpp( u );
+        }
+        else
+        {
+            fp = m_Curve.fp( u );
+            fpp = m_Curve.fpp( u );
+        }
+    }
+    else
+    {
+        piecewise_curve_type c1, c2;
+
+        if ( u < m_Curve.get_parameter_max() )
+        {
+            m_Curve.split( c1, c2, u );
+            fp = c2.fp( u );
+            fpp = c2.fpp( u );
+        }
+        else
+        {
+            fp = m_Curve.fp( u );
+            fpp = m_Curve.fpp( u );
+        }
+    }
+
+    double fpn = fp.norm();
+    double denom = fpn * fpn * fpn;
+    return ( fp.cross( fpp ) ).norm() / denom;
+}
+
 //===== Compute Point U 0.0 -> 1.0 =====//
 vec3d VspCurve::CompPnt01( double u ) const
 {
