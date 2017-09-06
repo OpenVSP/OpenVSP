@@ -1514,7 +1514,8 @@ void ParasiteDragScreen::UpdateIncorporateDropDowns()
 
                 for ( size_t j = 1; j < m_grouped[i].GetItems().size(); ++j )
                 {
-                    if ( veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetType().m_Type != HINGE_GEOM_TYPE )
+                    if ( veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetType().m_Type != HINGE_GEOM_TYPE &&
+                        veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetType().m_Type != BLANK_GEOM_TYPE)
                     {
                         if ( rowVec[i].GeomShapeType !=
                                 veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetSurfPtr( 0 )->GetSurfType() )
