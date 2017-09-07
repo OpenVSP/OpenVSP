@@ -166,10 +166,15 @@ bool UserParmScreen::Update()
     }
 
     // Parameter GUI got out of sync.  Probably from File->New or similar.
-    if ( m_NumParmsLast != num_parms )
+    UserParmContainer * upc = LinkMgr.GetUserParmContainer();
+    if ( upc )
     {
-        RebuildAdjustGroup();
+        if ( !upc->SortVars() || m_NumParmsLast != num_parms )
+        {
+            RebuildAdjustGroup();
+        }
     }
+
 
     //==== Update Parm Adjust Tab ====//
     for ( int i = 0 ; i < (int)m_ParmSliderVec.size() ; i++ )
