@@ -320,7 +320,7 @@ void Parm::DecodeXml( xmlNodePtr & node, bool detailed )
     Set( val );
 }
 
-ParmContainer* Parm::GetLinkContainer()
+ParmContainer* Parm::GetLinkContainer() const
 {
     string id = GetLinkContainerID();
     ParmContainer* pc = ParmMgr.FindParmContainer( id );
