@@ -11,7 +11,7 @@
 #include "ParmMgr.h"
 
 //==== Constructor ====//
-UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 550, "User Parms" )
+UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 580, "User Parms" )
 {
     //==== Variables =====//
     m_NumParmsLast = 0;
@@ -83,6 +83,8 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 550, "Us
     m_CreateGroup.AddInput( m_EditParmNameInput, "Name:" );
     m_CreateGroup.AddInput( m_EditParmGroupInput, "Group:" );
     m_CreateGroup.AddInput( m_EditParmDescInput, "Desc:" );
+    m_CreateGroup.AddInput( m_EditParmMinInput, "Min:" );
+    m_CreateGroup.AddInput( m_EditParmMaxInput, "Max:" );
 
     m_UserDefinedBrowser->callback( staticScreenCB, this );
 
@@ -147,12 +149,20 @@ bool UserParmScreen::Update()
         m_EditParmNameInput.Update( user_parm_ptr->GetName() );
         m_EditParmGroupInput.Update( user_parm_ptr->GetGroupName() );
         m_EditParmDescInput.Update( user_parm_ptr->GetDescript() );
+
+        char str[255];
+        sprintf( str, " %7.5f", user_parm_ptr->GetLowerLimit() );
+        m_EditParmMinInput.Update( str );
+        sprintf( str, " %7.5f", user_parm_ptr->GetUpperLimit() );
+        m_EditParmMaxInput.Update( str );
     }
     else
     {
         m_EditParmNameInput.Update( "" );
         m_EditParmGroupInput.Update( "" );
         m_EditParmDescInput.Update( "" );
+        m_EditParmMinInput.Update( "" );
+        m_EditParmMaxInput.Update( "" );
     }
 
     // Parameter GUI got out of sync.  Probably from File->New or similar.
@@ -279,7 +289,9 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_EditParmNameInput ||
               gui_device == &m_EditParmGroupInput ||
-              gui_device == &m_EditParmDescInput )
+              gui_device == &m_EditParmDescInput ||
+              gui_device == &m_EditParmMinInput ||
+              gui_device == &m_EditParmMaxInput )
     {
         int index = m_UserDefinedBrowser->value() - 1;
         if ( index >= 0 && index < (int)m_UserParmBrowserVec.size() )
@@ -293,6 +305,10 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                     p->SetGroupName( m_EditParmGroupInput.GetString() );
                 else if ( gui_device == &m_EditParmDescInput )
                     p->SetDescript( m_EditParmDescInput.GetString() );
+                else if ( gui_device == &m_EditParmMinInput )
+                    p->SetLowerLimit( atof( m_EditParmMinInput.GetString().c_str() ) );
+                else if ( gui_device == &m_EditParmMaxInput )
+                    p->SetUpperLimit( atof( m_EditParmMaxInput.GetString().c_str() ) );
 
                 //==== Load User Parms Into Browser ====//
                 m_UserDefinedBrowser->clear();

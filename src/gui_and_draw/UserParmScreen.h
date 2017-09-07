@@ -54,6 +54,8 @@ protected:
     StringInput m_EditParmNameInput;
     StringInput m_EditParmGroupInput;
     StringInput m_EditParmDescInput;
+    StringInput m_EditParmMinInput;
+    StringInput m_EditParmMaxInput;
 
     Fl_Browser* m_UserDefinedBrowser;
 
