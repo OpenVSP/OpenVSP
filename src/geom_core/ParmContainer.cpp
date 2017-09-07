@@ -620,6 +620,7 @@ xmlNodePtr UserParmContainer::DecodeXml( xmlNodePtr & node )
             }
         }
     }
+    SortVars();
     return child_node;
 }
 
@@ -632,6 +633,7 @@ string UserParmContainer::AddParm(int type, const string & name, const string & 
         p->Init( name, group, this, 0.0, -1.0e6, 1.0e6 );
         p->SetDescript( "User Parm Descript" );
         m_UserParmVec.push_back( p );
+        SortVars();
         return p->GetID();
     }
     return string();
@@ -647,4 +649,19 @@ void UserParmContainer::DeleteParm(int index )
     }
 }
 
+bool UserParmNameCompare( const Parm *dvA, const Parm *dvB )
+{
+    return NameCompare( dvA->GetID(), dvB->GetID() );
+}
 
+bool UserParmContainer::SortVars()
+{
+    bool wassorted = std::is_sorted( m_UserParmVec.begin() + m_NumPredefined, m_UserParmVec.end(), UserParmNameCompare );
+
+    if ( !wassorted )
+    {
+        std::sort( m_UserParmVec.begin() + m_NumPredefined, m_UserParmVec.end(), UserParmNameCompare );
+    }
+
+    return wassorted;
+}

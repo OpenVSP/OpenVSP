@@ -116,6 +116,8 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual bool SortVars();
+
 protected:
 
     int m_NumPredefined;
