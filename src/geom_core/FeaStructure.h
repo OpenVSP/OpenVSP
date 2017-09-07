@@ -196,6 +196,11 @@ public:
     {
         return m_FeaPartSurfVec;
     }
+    virtual void AddFeaPartSurf( VspSurf fea_surf )
+    {
+        m_FeaPartSurfVec.push_back( fea_surf );
+    }
+    virtual void DeleteFeaPartSurf( int ind );
 
     virtual int GetFeaMaterialIndex();
     virtual void SetFeaMaterialIndex( int index );

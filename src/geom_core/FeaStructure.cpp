@@ -1871,6 +1871,14 @@ void FeaPart::FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid, const
     }
 }
 
+void FeaPart::DeleteFeaPartSurf( int ind )
+{
+    if ( m_FeaPartSurfVec.size() > 0 && ind < m_FeaPartSurfVec.size() && ind >= 0 )
+    {
+        m_FeaPartSurfVec.erase( m_FeaPartSurfVec.begin() + ind );
+    }
+}
+
 void FeaPart::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
 {
     for ( int i = 0; i < (int)m_FeaPartDO.size(); i++ )
