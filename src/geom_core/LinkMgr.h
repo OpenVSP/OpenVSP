@@ -74,6 +74,7 @@ public:
     string AddUserParm(int type, const string & name, const string & group );
     void DeleteUserParm( int index );
     void DeleteAllUserParm( );
+    UserParmContainer * GetUserParmContainer()              { return &m_UserParms; }
 
     //==== Build Container, Group And Parm Vecs Given Parm ID ====//
     int GetCurrContainerVec( const string& parm_id, vector< string > & idVec );
