@@ -534,7 +534,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_CircXSecGroup.SetSliderWidth( m_CircXSecGroup.GetW() / 3 );
     m_CircXSecGroup.SetInputWidth( m_CircXSecGroup.GetW() / 6 );
 
-    m_CircXSecGroup.AddSlider( m_CircDim1Slider, "Dim1", 100.0, "%5.3f" );
+    m_CircXSecGroup.AddSlider( m_CircDim1Slider, "Radius", 100.0, "%5.3f" );
     m_CircXSecGroup.AddButton( m_CircDim1Unit, "" );
     m_CircDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_CircDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
@@ -553,7 +553,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_PipeXSecGroup.SetSliderWidth( m_PipeXSecGroup.GetW() / 3 );
     m_PipeXSecGroup.SetInputWidth( m_PipeXSecGroup.GetW() / 6 );
 
-    m_PipeXSecGroup.AddSlider( m_PipeDim1Slider, "Dim1", 100.0, "%5.3f" );
+    m_PipeXSecGroup.AddSlider( m_PipeDim1Slider, "R_outer", 100.0, "%5.3f" );
     m_PipeXSecGroup.AddButton( m_PipeDim1Unit, "" );
     m_PipeDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PipeDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
@@ -561,7 +561,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_PipeXSecGroup.ForceNewLine();
 
-    m_PipeXSecGroup.AddSlider( m_PipeDim2Slider, "Dim2", 100.0, "%5.3f" );
+    m_PipeXSecGroup.AddSlider( m_PipeDim2Slider, "R_inner", 100.0, "%5.3f" );
     m_PipeXSecGroup.AddButton( m_PipeDim2Unit, "" );
     m_PipeDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PipeDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
@@ -639,7 +639,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_RectXSecGroup.SetSliderWidth( m_RectXSecGroup.GetW() / 3 );
     m_RectXSecGroup.SetInputWidth( m_RectXSecGroup.GetW() / 6 );
 
-    m_RectXSecGroup.AddSlider( m_RectDim1Slider, "Dim1", 100.0, "%5.3f" );
+    m_RectXSecGroup.AddSlider( m_RectDim1Slider, "Width", 100.0, "%5.3f" );
     m_RectXSecGroup.AddButton( m_RectDim1Unit, "" );
     m_RectDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_RectDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
@@ -647,7 +647,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_RectXSecGroup.ForceNewLine();
 
-    m_RectXSecGroup.AddSlider( m_RectDim2Slider, "Dim2", 100.0, "%5.3f" );
+    m_RectXSecGroup.AddSlider( m_RectDim2Slider, "Height", 100.0, "%5.3f" );
     m_RectXSecGroup.AddButton( m_RectDim2Unit, "" );
     m_RectDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_RectDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
