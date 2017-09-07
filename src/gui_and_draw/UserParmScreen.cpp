@@ -196,18 +196,19 @@ void UserParmScreen::RebuildAdjustGroup()
     int num_vars =  LinkMgr.GetNumUserParms() - num_predef_vars;
     m_ParmSliderVec.resize( num_vars );
 
-    string lastContID;
+    string lastGroupName;
 
     for ( int i = 0 ; i < num_vars ; i++ )
     {
         string pID = LinkMgr.GetUserParmId( i + num_predef_vars );
         Parm* p = ParmMgr.FindParm( pID );
-        string contID = p->GetContainerID();
 
-        if ( contID.compare( lastContID ) != 0 )
+        string groupName = p->GetDisplayGroupName();
+
+        if ( groupName.compare( lastGroupName ) != 0 )
         {
-            lastContID = contID;
-            m_AdjustLayout.AddDividerBox( ParmMgr.FindParmContainer( contID )->GetName() );
+            lastGroupName = groupName;
+            m_AdjustLayout.AddDividerBox( groupName );
         }
         m_AdjustLayout.SetButtonWidth( 300 );
         m_AdjustLayout.AddSlider( m_ParmSliderVec[i], "AUTO_UPDATE", 10, "%7.3f" );
