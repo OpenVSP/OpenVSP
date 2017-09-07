@@ -54,10 +54,10 @@ protected:
     ToggleButton m_LowerTog;
     ToggleButton m_UpperTog;
 
-    SliderInput m_OffsetSlider;
-    SliderInput m_ScaleSlider;
-    SliderInput m_LowerLimitSlider;
-    SliderInput m_UpperLimitSlider;
+    SliderAdjRangeInput m_OffsetSlider;
+    SliderAdjRangeInput m_ScaleSlider;
+    SliderAdjRangeInput m_LowerLimitSlider;
+    SliderAdjRangeInput m_UpperLimitSlider;
 
     Fl_Browser* m_LinkBrowser;
 };
