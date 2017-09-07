@@ -285,6 +285,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     TransferSubSurfData();
     TransferDrawObjData();
 
+    MergeCoplanarParts();
+
     addOutputText( "Add Structure Parts\n" );
     AddStructureParts();
 
@@ -348,6 +350,143 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
 
     string mass_output = "Total Mass = " + std::to_string( m_TotalMass ) + "\n";
     addOutputText( mass_output );
+}
+
+void FeaMeshMgrSingleton::MergeCoplanarParts()
+{
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex );
+
+    vector < VspSurf > all_surf_vec;
+    vector < vec3d > all_norm_vec;
+    vector < int > all_feaprt_ind_vec;
+    vector < int > feaprt_surf_ind_vec;
+
+    if ( fea_struct )
+    {
+        vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
+
+        // Collect all surfaces and compute norms
+        for ( size_t k = 1; k < m_NumFeaParts; k++ )
+        {
+            if ( fea_part_vec[k]->GetType() != vsp::FEA_DOME )
+            {
+                vector < VspSurf > surf_vec = fea_part_vec[k]->GetFeaPartSurfVec();
+
+                for ( size_t j = 0; j < surf_vec.size(); j++ )
+                {
+                    all_surf_vec.push_back( surf_vec[j] );
+                    all_feaprt_ind_vec.push_back( k );
+                    all_norm_vec.push_back( surf_vec[j].CompNorm01( 0.5, 0.5 ) );
+                    feaprt_surf_ind_vec.push_back( j );
+                }
+            }
+        }
+
+        for ( size_t i = 0; i < (int)all_norm_vec.size(); i++ )
+        {
+            for ( size_t j = i + 1; j < (int)all_norm_vec.size(); j++ )
+            {
+                if ( ( ( abs( dot( all_norm_vec[i], all_norm_vec[j] ) ) - 1.0 ) <= FLT_EPSILON ) && ( all_norm_vec[j].mag() >= FLT_EPSILON ) && ( all_norm_vec[i].mag() >= FLT_EPSILON ) )
+                {
+                    vec3d pntA = all_surf_vec[i].CompPnt01( 0.5, 0.5 );
+                    vec3d pntB = all_surf_vec[j].CompPnt01( 0.5, 0.5 );
+
+                    BndBox bboxA, bboxB;
+                    all_surf_vec[i].GetBoundingBox( bboxA );
+                    all_surf_vec[j].GetBoundingBox( bboxB );
+
+                    if ( ( dist_pnt_2_plane( pntA, all_norm_vec[i], pntB ) <= FLT_EPSILON ) && Compare( bboxA, bboxB ) )
+                    {
+                        VspSurf new_surf = all_surf_vec[i];
+
+                        vec3d maxA = bboxA.GetMax();
+                        vec3d maxB = bboxB.GetMax();
+                        vec3d minA = bboxA.GetMin();
+                        vec3d minB = bboxB.GetMin();
+
+                        if ( ( all_feaprt_ind_vec[i] != all_feaprt_ind_vec[j] ) && dist( maxA, maxB ) <= FLT_EPSILON && dist( minA, minB ) <= FLT_EPSILON )
+                        {
+                            // Coplanar surfaces are same size and location. One surface kept, other is deleted
+                            //  Note: Priority for which FeaPart data is kept is given to earlier index in fea_part_vec
+                        }
+                        else 
+                        {
+                            // Coplanar surfaces are symmetric. Delete one surface and significantly oversize the other.
+                            vec3d orgin, all_max, all_min;
+
+                            if ( dist( maxA, orgin ) > dist( maxB, orgin ) )
+                            {
+                                all_max = maxA;
+                            }
+                            else
+                            {
+                                all_max = maxB;
+                            }
+
+                            if ( dist( minA, orgin ) > dist( minB, orgin ) )
+                            {
+                                all_min = minA;
+                            }
+                            else
+                            {
+                                all_min = minB;
+                            }
+
+                            // Move center of the surface to the orgin prior to expanding
+                            vec3d centerA = ( maxA + minA ) / 2;
+                            new_surf.Offset( -1 * centerA );
+
+                            vec3d diag_vec = all_max - all_min;
+
+                            // Note: The scaling may need adjustment. Errors can result if the surface becomes extremely large from merging multiple surfaces
+                            new_surf.ScaleX( 1 + abs( diag_vec[0] ) );
+                            new_surf.ScaleY( 1 + abs( diag_vec[1] ) );
+                            new_surf.ScaleZ( 1 + abs( diag_vec[2] ) );
+
+                            new_surf.Offset( centerA );
+                        }
+
+                        fea_part_vec[all_feaprt_ind_vec[i]]->DeleteFeaPartSurf( feaprt_surf_ind_vec[i] );
+
+                        // Adjust surf indexes for deleted surface
+                        for ( size_t n = 0; n < feaprt_surf_ind_vec.size(); n++ )
+                        {
+                            if ( all_feaprt_ind_vec[i] == all_feaprt_ind_vec[n] && ( feaprt_surf_ind_vec[i] < feaprt_surf_ind_vec[n] ) )
+                            {
+                                feaprt_surf_ind_vec[n] -= 1;
+                            }
+                        }
+
+                        fea_part_vec[all_feaprt_ind_vec[j]]->DeleteFeaPartSurf( feaprt_surf_ind_vec[j] );
+
+                        // Adjust surf indexes for deleted surface
+                        for ( size_t n = 0; n < feaprt_surf_ind_vec.size(); n++ )
+                        {
+                            if ( all_feaprt_ind_vec[j] == all_feaprt_ind_vec[n] && ( feaprt_surf_ind_vec[j] < feaprt_surf_ind_vec[n] ) )
+                            {
+                                feaprt_surf_ind_vec[n] -= 1;
+                            }
+                        }
+
+                        // Add merged surface
+                        fea_part_vec[all_feaprt_ind_vec[i]]->AddFeaPartSurf( new_surf );
+                        all_surf_vec[i] = new_surf;
+                        all_surf_vec[j] = new_surf;
+                        all_norm_vec[j] = vec3d();
+
+                        // Output warning if FeaParts are different due to data loss (symmetric parts retain all FeaPart data)
+                        if ( all_feaprt_ind_vec[i] != all_feaprt_ind_vec[j] )
+                        {
+                            string output = "WARNING: Coplanar Surfaces Merged: " + fea_part_vec[all_feaprt_ind_vec[i]]->GetName() +
+                                ", " + fea_part_vec[all_feaprt_ind_vec[j]]->GetName() + "\n";
+
+                            addOutputText( output.c_str() );
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
 
 void FeaMeshMgrSingleton::AddStructureParts()
