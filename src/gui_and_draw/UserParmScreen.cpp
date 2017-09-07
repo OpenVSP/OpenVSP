@@ -11,7 +11,7 @@
 #include "ParmMgr.h"
 
 //==== Constructor ====//
-UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 580, "User Parms" )
+UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "User Parms" )
 {
     //==== Variables =====//
     m_NumParmsLast = 0;
@@ -67,9 +67,9 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 580, "Us
     m_CreateGroup.SetSameLineFlag( true );
 
     m_CreateGroup.SetButtonWidth( 170 );
-    m_CreateGroup.AddX( 20 );
+    m_CreateGroup.AddX( 95 );
     m_CreateGroup.AddButton( m_DeleteParm, "Delete" );
-    m_CreateGroup.AddX( 20 );
+    m_CreateGroup.AddX( 40 );
     m_CreateGroup.AddButton( m_DeleteAllParm, "DeleteAll" );
 
     m_CreateGroup.SetFitWidthFlag( true );
@@ -209,7 +209,7 @@ void UserParmScreen::RebuildAdjustGroup()
             lastContID = contID;
             m_AdjustLayout.AddDividerBox( ParmMgr.FindParmContainer( contID )->GetName() );
         }
-        m_AdjustLayout.SetButtonWidth( 130 );
+        m_AdjustLayout.SetButtonWidth( 300 );
         m_AdjustLayout.AddSlider( m_ParmSliderVec[i], "AUTO_UPDATE", 10, "%7.3f" );
         m_ParmSliderVec[i].Update( pID );
     }
