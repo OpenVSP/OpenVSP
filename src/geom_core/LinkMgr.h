@@ -89,6 +89,8 @@ public:
     xmlNodePtr EncodeXml( xmlNodePtr & node );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    void SortLinksByA();
+    void SortLinksByB();
 
 private:
 

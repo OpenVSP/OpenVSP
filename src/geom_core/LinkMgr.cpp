@@ -721,3 +721,23 @@ void LinkMgrSingleton::DeleteAllUserParm( )
         m_UserParms.DeleteParm( m_UserParms.GetNumUserParms() - 1 );
     }
 }
+
+bool LinkNameCompareA( const Link *lnkA, const Link *lnkB )
+{
+    return NameCompare( lnkA->GetParmA(), lnkB->GetParmA() );
+}
+
+bool LinkNameCompareB( const Link *lnkA, const Link *lnkB )
+{
+    return NameCompare( lnkA->GetParmB(), lnkB->GetParmB() );
+}
+
+void LinkMgrSingleton::SortLinksByA()
+{
+    std::sort( m_LinkVec.begin(), m_LinkVec.end(), LinkNameCompareA );
+}
+
+void LinkMgrSingleton::SortLinksByB()
+{
+    std::sort( m_LinkVec.begin(), m_LinkVec.end(), LinkNameCompareB );
+}
