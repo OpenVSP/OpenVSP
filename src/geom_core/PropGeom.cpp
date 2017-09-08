@@ -844,7 +844,17 @@ void PropGeom::UpdateSurf()
         m_MainSurfVec[0].FlipNormal();
     }
 
+    // UpdateEndCaps here so we only have to cap one blade.
+    UpdateEndCaps();
+
     m_MainSurfVec.resize( m_Nblade(), m_MainSurfVec[0] );
+
+    // Duplicate capping variables
+    m_CapUMinSuccess.resize( m_Nblade(), m_CapUMinSuccess[0] );
+    m_CapUMaxSuccess.resize( m_Nblade(), m_CapUMaxSuccess[0] );
+    m_CapWMinSuccess.resize( m_Nblade(), m_CapWMinSuccess[0] );
+    m_CapWMaxSuccess.resize( m_Nblade(), m_CapWMaxSuccess[0] );
+
     Matrix4d rot;
     for ( int i = 1; i < m_Nblade(); i++ )
     {

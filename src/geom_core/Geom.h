@@ -593,6 +593,7 @@ public:
     Parm m_CapUMaxOffset;
     Parm m_CapUMaxStrength;
     BoolParm m_CapUMaxSweepFlag;
+    bool m_CappingDone;
 
     //==== Wake for CFD Mesh ====//
     BoolParm m_WakeActiveFlag;

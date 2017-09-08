@@ -964,6 +964,8 @@ void Geom::Update( bool fullupdate )
 
     m_LateUpdateFlag = false;
 
+    m_CappingDone = false;
+
     Scale();
 
     UpdateSets();
@@ -1129,6 +1131,12 @@ void Geom::CalcTexCoords( int indx, vector< vector< vector< double > > > &utex, 
 
 void Geom::UpdateEndCaps()
 {
+    if ( m_CappingDone )
+    {
+        return;
+    }
+    m_CappingDone = true;
+
     int nmain = m_MainSurfVec.size();
     m_CapUMinSuccess.resize( nmain );
     m_CapUMaxSuccess.resize( nmain );
