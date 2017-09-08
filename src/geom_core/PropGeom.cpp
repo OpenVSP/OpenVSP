@@ -823,7 +823,8 @@ void PropGeom::UpdateSurf()
         u_pseudo[i] = ( r - rfirst ) / ( rlast - rfirst );
     }
 
-    m_MainSurfVec.resize( m_Nblade() );
+    m_MainSurfVec.resize( 1 );
+    m_MainSurfVec.reserve( m_Nblade() );
 
     m_MainSurfVec[0].SetMagicVParm( false );
     m_MainSurfVec[0].SkinCubicSpline( rib_vec, u_pseudo, tdisc, false );
@@ -843,6 +844,7 @@ void PropGeom::UpdateSurf()
         m_MainSurfVec[0].FlipNormal();
     }
 
+    m_MainSurfVec.resize( m_Nblade(), m_MainSurfVec[0] );
     Matrix4d rot;
     for ( int i = 1; i < m_Nblade(); i++ )
     {
@@ -850,7 +852,6 @@ void PropGeom::UpdateSurf()
         rot.loadIdentity();
         rot.rotateX( theta );
 
-        m_MainSurfVec[i] = m_MainSurfVec[0];
         m_MainSurfVec[i].Transform( rot );
     }
 
