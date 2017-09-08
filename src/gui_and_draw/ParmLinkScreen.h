@@ -48,6 +48,9 @@ protected:
     TriggerButton m_DeleteLink;
     TriggerButton m_DeleteAllLinks;
 
+    TriggerButton m_ASort;
+    TriggerButton m_BSort;
+
     // Used to activate and deactivate sliders
     ToggleButton m_OffsetTog;
     ToggleButton m_ScaleTog;
