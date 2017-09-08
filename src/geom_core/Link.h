@@ -28,21 +28,21 @@ public:
 
     virtual void SetParmA( string id );
     virtual void SetParmB( string id );
-    virtual string GetParmA()                   { return m_ParmA; }
-    virtual string GetParmB()                   { return m_ParmB; }
+    virtual string GetParmA() const             { return m_ParmA; }
+    virtual string GetParmB() const             { return m_ParmB; }
     virtual void InitOffsetScale();
 
     virtual void SetOffsetFlag( bool f )        { m_OffsetFlag = f; }
-    virtual bool GetOffsetFlag()                { return m_OffsetFlag; }
+    virtual bool GetOffsetFlag() const          { return m_OffsetFlag; }
 
     virtual void SetScaleFlag( bool f )         { m_ScaleFlag = f; }
-    virtual bool GetScaleFlag()                 { return m_ScaleFlag; }
+    virtual bool GetScaleFlag() const           { return m_ScaleFlag; }
 
     virtual void SetLowerLimitFlag( bool f )    { m_LowerLimitFlag = f; }
-    virtual bool GetLowerLimitFlag()            { return m_LowerLimitFlag; }
+    virtual bool GetLowerLimitFlag() const      { return m_LowerLimitFlag; }
 
     virtual void SetUpperLimitFlag( bool f )    { m_UpperLimitFlag = f; }
-    virtual bool GetUpperLimitFlag()            { return m_UpperLimitFlag; }
+    virtual bool GetUpperLimitFlag() const      { return m_UpperLimitFlag; }
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
