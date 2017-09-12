@@ -739,7 +739,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_FeaSSLineGroup.SetButtonWidth( m_FeaSSLineGroup.GetRemainX() / 3 );
     m_FeaSSLineGroup.AddButton( m_FeaSSLineShellToggle, "Shell" );
-    m_FeaSSLineGroup.AddButton( m_FeaSSLineCapToggle, "Cap (no tris)" );
+    m_FeaSSLineGroup.AddButton( m_FeaSSLineCapToggle, "Cap (No Tris)" );
     m_FeaSSLineGroup.AddButton( m_FeaSSLineShellCapToggle, "Shell and Cap" );
 
     m_FeaSSLineShellCapToggleGroup.Init( this );
@@ -795,7 +795,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_FeaSSRecGroup.SetButtonWidth( m_FeaSSRecGroup.GetRemainX() / 3 );
     m_FeaSSRecGroup.AddButton( m_FeaSSRecShellToggle, "Shell" );
-    m_FeaSSRecGroup.AddButton( m_FeaSSRecCapToggle, "Cap (no tris)" );
+    m_FeaSSRecGroup.AddButton( m_FeaSSRecCapToggle, "Cap (No Tris)" );
     m_FeaSSRecGroup.AddButton( m_FeaSSRecShellCapToggle, "Shell and Cap" );
 
     m_FeaSSRecShellCapToggleGroup.Init( this );
@@ -852,7 +852,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_FeaSSEllGroup.SetButtonWidth( m_FeaSSEllGroup.GetRemainX() / 3 );
     m_FeaSSEllGroup.AddButton( m_FeaSSEllShellToggle, "Shell" );
-    m_FeaSSEllGroup.AddButton( m_FeaSSEllCapToggle, "Cap (no tris)" );
+    m_FeaSSEllGroup.AddButton( m_FeaSSEllCapToggle, "Cap (No Tris)" );
     m_FeaSSEllGroup.AddButton( m_FeaSSEllShellCapToggle, "Shell and Cap" );
 
     m_FeaSSEllShellCapToggleGroup.Init( this );
@@ -966,7 +966,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_FeaSSConGroup.SetButtonWidth( m_FeaSSConGroup.GetRemainX() / 3 );
     m_FeaSSConGroup.AddButton( m_FeaSSConShellToggle, "Shell" );
-    m_FeaSSConGroup.AddButton( m_FeaSSConCapToggle, "Cap (no tris)" );
+    m_FeaSSConGroup.AddButton( m_FeaSSConCapToggle, "Cap (No Tris)" );
     m_FeaSSConGroup.AddButton( m_FeaSSConShellCapToggle, "Shell and Cap" );
 
     m_FeaSSConShellCapToggleGroup.Init( this );

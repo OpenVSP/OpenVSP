@@ -970,7 +970,7 @@ string FeaPart::GetTypeName( int type )
     }
     if ( type == vsp::FEA_FIX_POINT )
     {
-        return string( "FixPoint" );
+        return string( "Fixed_Point" );
     }
     if ( type == vsp::FEA_SKIN )
     {
@@ -978,7 +978,7 @@ string FeaPart::GetTypeName( int type )
     }
     if ( type == vsp::FEA_RIB_ARRAY )
     {
-        return string( "RibArray" );
+        return string( "Rib_Array" );
     }
     if ( type == vsp::FEA_DOME )
     {
@@ -986,7 +986,7 @@ string FeaPart::GetTypeName( int type )
     }
     if ( type == vsp::FEA_SLICE_ARRAY )
     {
-        return string( "SliceArray" );
+        return string( "Slice_Array" );
     }
 
     return string( "NONE" );

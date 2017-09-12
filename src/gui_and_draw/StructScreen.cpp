@@ -787,7 +787,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_DisplayTabLayout.AddYGap();
 
-    m_DisplayTabLayout.AddDividerBox( "Display FeaElement Sets" );
+    m_DisplayTabLayout.AddDividerBox( "Display Element Sets" );
 
     m_DrawPartSelectBrowser = m_DisplayTabLayout.AddCheckBrowser( 150 );
     m_DrawPartSelectBrowser->callback( staticScreenCB, this );
