@@ -1098,8 +1098,25 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                     if ( ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndMap[n][j][1]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndMap[n][j][0]] ) ||
                         ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndMap[n][j][0]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndMap[n][j][1]] ) )
                     {
-                        vec2d closest_uwA = ( *c )->m_SurfA->ClosestUW( m_FixPntMap[n][j] );
-                        vec2d closest_uwB = ( *c )->m_SurfB->ClosestUW( m_FixPntMap[n][j] );
+                        vec2d closest_uwA, closest_uwB;
+
+                        if ( ( *c )->m_SurfA->ValidUW( m_FixUWMap[n][j] ) )
+                        {
+                            closest_uwA = ( *c )->m_SurfA->ClosestUW( m_FixPntMap[n][j], m_FixUWMap[n][j][0], m_FixUWMap[n][j][1] );
+                        }
+                        else
+                        {
+                            closest_uwA = ( *c )->m_SurfA->ClosestUW( m_FixPntMap[n][j] );
+                        }
+
+                        if ( ( *c )->m_SurfB->ValidUW( m_FixUWMap[n][j] ) )
+                        {
+                            closest_uwB = ( *c )->m_SurfB->ClosestUW( m_FixPntMap[n][j], m_FixUWMap[n][j][0], m_FixUWMap[n][j][1] );
+                        }
+                        else
+                        {
+                            closest_uwB = ( *c )->m_SurfB->ClosestUW( m_FixPntMap[n][j] );
+                        }
 
                         Puw* p0 = NULL;
                         Puw* p1 = NULL;
