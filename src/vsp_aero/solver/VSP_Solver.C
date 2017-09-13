@@ -88,6 +88,8 @@ void VSP_SOLVER::init(void)
     
     Preconditioner_ = SSOR;
     
+    CalculateVortexLift_ = 0;
+    
     sprintf(CaseString_,"No Comment");
     
     VortexSheet_ = NULL;
@@ -897,7 +899,7 @@ void VSP_SOLVER::InitializeFreeStream(void)
  
     int i, j;
     double xyz[3], q[5], CA, SA, CB, SB, Rate_P, Rate_Q, Rate_R;
-    double gamma, gm1, gm2, gm3, f1, pinf, rho;
+    double gamma, f1, gm1, gm2, gm3;
     VSP_NODE VSP_Node1, VSP_Node2;
 
     // Limits on max velocity, and min/max pressures
@@ -905,24 +907,22 @@ void VSP_SOLVER::InitializeFreeStream(void)
     if ( Mach_ <= 0. ) Mach_ = 0.001;
 
     gamma = 1.4;
-    
+
     gm1 = gamma - 1.;
 
     gm2 = 0.5*gm1*SQR(Mach_);
 
     gm3 = 1./gm1;
 
-    pinf = 1./(gamma*SQR(Mach_));
-
-    QMax_ = 0.75*sqrt( 1./gm2 + 1. );
-
-    rho = pow( 1. - gm2*( QMax_ - 1. ), gm3 );
-
-    CpMin_ = 2.*( pow( rho, gamma ) - 1. )*pinf;
+    QMax_ = 0.75*sqrt( 1./gm2 + 1. );    
+    
+    CpMin_ = -2./(gamma*Mach_*Mach_);
 
     f1 = 1. + 0.5*(gamma-1.)*Mach_*Mach_;
 
     CpMax_ = 2.*( pow(f1,(gamma)/(gamma-1)) - 1. ) / ( 1.4*Mach_*Mach_ );
+    
+    DCpMax_ = CpMax_ - CpMin_;
 
     // Base pressure
     
@@ -3119,6 +3119,8 @@ void VSP_SOLVER::UpdateWakeLocations(void)
        for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
               
           for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+             
+             if ( DoGroundEffectsAnalysis() ) VortexSheet(m).TrailingVortexEdge(i).DoGroundEffectsAnalysis() = 1;
 
              VortexSheet(m).TrailingVortexEdge(i).UpdateLocation();
              
@@ -3279,9 +3281,9 @@ void VSP_SOLVER::CalculateSurfaceMotion(void)
        for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
         
           Unsteady_H_ =  Unsteady_HMax_ * sin ( Unsteady_AngleRate_*CurrentTime_ );     
-                   
-          Hdot = Unsteady_HMax_ * cos ( Unsteady_AngleRate_*(CurrentTime_ - 0.5*TimeStep_ ) - 0.5*PI) * Unsteady_AngleRate_;   
-
+          
+          Hdot = Unsteady_HMax_ * cos ( Unsteady_AngleRate_*CurrentTime_) * Unsteady_AngleRate_;   
+ 
           // Calculate body velocities
           
           LocalBodySurfaceVelocity_[i][0] = 0.;
@@ -3325,7 +3327,7 @@ void VSP_SOLVER::CalculateSurfaceMotion(void)
        for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
    
           // Surface location at t - dt
-          
+//djk          
           Unsteady_Angle_ = AngleZero_ + Unsteady_AngleMax_ * TORAD * sin ( Unsteady_AngleRate_*(CurrentTime_ - TimeStep_) - 0.5*PI);  
 
           Quat.FormRotationQuat(RotVec,Unsteady_Angle_);
@@ -3347,7 +3349,7 @@ void VSP_SOLVER::CalculateSurfaceMotion(void)
           Vec1(2) += Zcg();
                    
           // Surface location at t
-          
+//djk          
           Unsteady_Angle_ = AngleZero_ + Unsteady_AngleMax_ * TORAD * sin ( Unsteady_AngleRate_*CurrentTime_ - 0.5*PI);  
           
           Quat.FormRotationQuat(RotVec,Unsteady_Angle_);
@@ -3375,7 +3377,7 @@ void VSP_SOLVER::CalculateSurfaceMotion(void)
           LocalBodySurfaceVelocity_[i][2] = ( Vec2(2) - Vec1(2) ) / TimeStep_;
                     
           // Angle at time t
-          
+//djk          
           Unsteady_Angle_ = AngleZero_ + Unsteady_AngleMax_ * TORAD * sin ( Unsteady_AngleRate_*(CurrentTime_) - 0.5*PI);  
            
        }
@@ -3919,9 +3921,10 @@ void VSP_SOLVER::CalculateTrefftzForces(void)
 {
 
     int j, k, p, Loop, Loop1, Loop2, Hits;
-    double xyz[3], q[3], qtot[3], Factor, Camber, Normal[3];
-    double mag1, mag2, dot, angle;
-
+    double xyz[3], q[3], qtot[3], Factor, AttachedForce[3];
+    double Normal[3], Dot, VortexLift, LeadingEdgeThrust, Sign, Sweep;
+    double mag1, mag2, dot, angle, Theta, ToC, RoC, EtaToC, Kt, Area, DeltaCp, Fact;
+ 
     // Loop over vortex edges and calculate forces via K-J theorem, using only wake induced velocities applied at TE
 
     for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
@@ -3931,9 +3934,7 @@ void VSP_SOLVER::CalculateTrefftzForces(void)
        qtot[0] = qtot[1] = qtot[2] = 0.;
        
        Normal[0] = Normal[1] = Normal[2] = 0.;
-       
-       Camber = 0.;
-       
+
        Hits = 0;
        
        for ( k = 1 ; k <= 2 ; k++ ) {
@@ -3965,14 +3966,12 @@ void VSP_SOLVER::CalculateTrefftzForces(void)
              qtot[1] += LocalFreeStreamVelocity_[Loop][1] * Factor;
              qtot[2] += LocalFreeStreamVelocity_[Loop][2] * Factor;
              
-             // Camber information
+             // Normal
              
-             Normal[0] += VortexLoop(Loop).NormalCamber()[0];
-             Normal[1] += VortexLoop(Loop).NormalCamber()[1];
-             Normal[2] += VortexLoop(Loop).NormalCamber()[2];
-             
-             Camber += VortexLoop(Loop).Camber();
-   
+             Normal[0] += VortexLoop(Loop).FlatPlateNormal()[0];
+             Normal[1] += VortexLoop(Loop).FlatPlateNormal()[1];
+             Normal[2] += VortexLoop(Loop).FlatPlateNormal()[2];
+
              Hits++;
           
           }
@@ -3986,9 +3985,7 @@ void VSP_SOLVER::CalculateTrefftzForces(void)
        Normal[0] /= Hits;
        Normal[1] /= Hits;
        Normal[2] /= Hits;
-       
-       Camber /= Hits;
-         
+
        // Trailing vortices induced velocities... shift the current bound vortex to the 
        // 'trailing edge' of the trailing vortex.
 
@@ -4070,8 +4067,123 @@ void VSP_SOLVER::CalculateTrefftzForces(void)
         
        }
 
+       // Calculate fully attached induced drag
+       
        SurfaceVortexEdge(j).CalculateTrefftzForces(qtot);
        
+       // If this is a wing leading edge... determine the amount of
+       // leading edge suction and vortex lift we may have
+       
+       if ( CalculateVortexLift_ && SurfaceVortexEdge(j).IsLeadingEdge() ) {
+
+          // Save fully attached force values
+          
+          AttachedForce[0] = SurfaceVortexEdge(j).Trefftz_Fx();
+          AttachedForce[1] = SurfaceVortexEdge(j).Trefftz_Fy();
+          AttachedForce[2] = SurfaceVortexEdge(j).Trefftz_Fz();    
+          
+          Sign = 1.;
+          
+          if ( vector_dot(AttachedForce, Normal) < 0. ) Sign = -1.;
+          
+          // Local angle of attack
+        
+          Dot = vector_dot(Normal, FreeStreamVelocity_);
+          
+          Dot = MAX(-1.,MIN(1.,Dot));
+          
+          Theta = 0.5*PI - acos(Dot);
+
+          // Determine the effective sweep angle of the leading edge
+          
+          Sweep = vector_dot(FreeStreamVelocity_,SurfaceVortexEdge(j).Vec());
+          
+          Sweep = MAX(-1.,MIN(1.,Sweep));
+          
+          Sweep = acos(Sweep);
+          
+          if ( Sweep > PI ) Sweep -= PI;
+          
+          Sweep = 0.5*PI - Sweep;
+          
+          Sweep /= pow(cos(Theta),2.);     
+           
+          // Calculate fraction of attached flow
+          
+          ToC    = SurfaceVortexEdge(j).ThicknessToChord();
+          EtaToC = SurfaceVortexEdge(j).LocationOfMaxThickness();
+          RoC    = SurfaceVortexEdge(j).RadiusToChord();
+
+          Kt = CalculateLeadingEdgeSuctionFraction(Mach_, ToC, RoC, EtaToC, ABS(Theta), Sweep);
+
+          // Calculate component of downwash that is normal to local surface
+
+          Dot = vector_dot(qtot,Normal);
+
+          qtot[0] = Dot * Normal[0];
+          qtot[1] = Dot * Normal[1]; 
+          qtot[2] = Dot * Normal[2]; 
+
+          // Calculate leading edge thrust component
+        
+          SurfaceVortexEdge(j).CalculateTrefftzForces(qtot);
+          
+          LeadingEdgeThrust = sqrt( pow(SurfaceVortexEdge(j).Trefftz_Fx(),2.)
+                                  + pow(SurfaceVortexEdge(j).Trefftz_Fy(),2.)
+                                  + pow(SurfaceVortexEdge(j).Trefftz_Fz(),2.) )/cos(Sweep);
+                                         
+          // Double up if the leading edge loop is a tri... I really want the loading on the
+          // entire leading edge region.
+          
+          Loop = SurfaceVortexEdge(j).VortexLoop1();
+         
+          if ( VortexLoop(Loop).NumberOfEdges() == 3 ) LeadingEdgeThrust *= 2.;
+
+          // Calculate onset of vortex lift
+
+          VortexLift = 0.;
+        
+          if ( Sweep >= 45.*TORAD ) {
+
+             VortexLift = Sign * LeadingEdgeThrust;
+             
+             Kt = 0.;
+             
+             VortexLoop(SurfaceVortexEdge(j).VortexLoop1()).CompressibilityFactor() = 1.;
+             VortexLoop(SurfaceVortexEdge(j).VortexLoop2()).CompressibilityFactor() = 1.;
+
+          }
+
+          // Sum up forces = attached + vortex - lost leading edge thrust
+   
+          SurfaceVortexEdge(j).Trefftz_Fx() = AttachedForce[0] + VortexLift*Normal[0] + (1.-Kt)*LeadingEdgeThrust*cos(AngleOfAttack_);
+          SurfaceVortexEdge(j).Trefftz_Fy() = AttachedForce[1] + VortexLift*Normal[1];
+          SurfaceVortexEdge(j).Trefftz_Fz() = AttachedForce[2] + VortexLift*Normal[2] + (1.-Kt)*LeadingEdgeThrust*sin(AngleOfAttack_);                 
+
+          // Limit forces to something sane...
+
+          Area = VortexLoop(Loop).Area();
+          
+          if ( VortexLoop(Loop).NumberOfEdges() == 3 ) Area *= 2.;
+
+          DeltaCp = ( SurfaceVortexEdge(j).Trefftz_Fx() * Normal[0]
+                    + SurfaceVortexEdge(j).Trefftz_Fy() * Normal[1]
+                    + SurfaceVortexEdge(j).Trefftz_Fz() * Normal[2] ) / Area;
+                    
+          if ( ABS(DeltaCp) > 2.*DCpMax_ ) {
+             
+             Fact = sqrt(DCpMax_/ABS(DeltaCp));
+             
+             VortexLift *= Fact;
+
+             SurfaceVortexEdge(j).Trefftz_Fx() = AttachedForce[0] + VortexLift*Normal[0] + (1.-Kt)*LeadingEdgeThrust*cos(AngleOfAttack_);
+             SurfaceVortexEdge(j).Trefftz_Fy() = AttachedForce[1] + VortexLift*Normal[1];
+             SurfaceVortexEdge(j).Trefftz_Fz() = AttachedForce[2] + VortexLift*Normal[2] + (1.-Kt)*LeadingEdgeThrust*sin(AngleOfAttack_);                 
+
+          }   
+
+       }   
+           
     }
    
 }
@@ -4085,17 +4197,20 @@ void VSP_SOLVER::CalculateTrefftzForces(void)
 void VSP_SOLVER::CalculateKuttaJukowskiForces(void)
 {
 
-    int j, Loop1, Loop2;
+    int j, Loop, Loop1, Loop2;
     double Fx, Fy, Fz, Hits;
+    double AttachedForce[3];
+    double Normal[3], Dot, VortexLift, LeadingEdgeThrust, Sign, Sweep, Theta;
+    VSP_LOOP VLoop;
 
     // Loop over vortex edges and calculate forces via K-J theorem
 
-#pragma omp parallel for private(Loop1, Loop2, Fx, Fy, Fz, Hits)
+#pragma omp parallel for private(Loop, Loop1, Loop2, Fx, Fy, Fz, Hits, Normal, Sweep, Dot, VortexLift, LeadingEdgeThrust, Sign, Theta)
     for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
      
-       Fx = SurfaceVortexEdge(j).Fx() = 0.;
-       Fy = SurfaceVortexEdge(j).Fy() = 0.;
-       Fz = SurfaceVortexEdge(j).Fz() = 0.;
+       Fx = SurfaceVortexEdge(j).Fx() = Normal[0] = 0.;
+       Fy = SurfaceVortexEdge(j).Fy() = Normal[1] = 0.;
+       Fz = SurfaceVortexEdge(j).Fz() = Normal[2] = 0.;
           
        if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
         
@@ -4110,6 +4225,10 @@ void VSP_SOLVER::CalculateKuttaJukowskiForces(void)
              Fx += SurfaceVortexEdge(j).Fx();
              Fy += SurfaceVortexEdge(j).Fy();
              Fz += SurfaceVortexEdge(j).Fz();
+
+             Normal[0] += VortexLoop(Loop1).FlatPlateNormal()[0];
+             Normal[1] += VortexLoop(Loop1).FlatPlateNormal()[1];
+             Normal[2] += VortexLoop(Loop1).FlatPlateNormal()[2];             
              
              Hits += 1.;
             
@@ -4124,10 +4243,20 @@ void VSP_SOLVER::CalculateKuttaJukowskiForces(void)
              Fx += SurfaceVortexEdge(j).Fx();
              Fy += SurfaceVortexEdge(j).Fy();
              Fz += SurfaceVortexEdge(j).Fz();
+
+             Normal[0] += VortexLoop(Loop2).FlatPlateNormal()[0];
+             Normal[1] += VortexLoop(Loop2).FlatPlateNormal()[1];
+             Normal[2] += VortexLoop(Loop2).FlatPlateNormal()[2];                  
              
              Hits += 1.;
              
           }       
+
+          // Local Normal
+          
+          Normal[0] /= Hits;
+          Normal[1] /= Hits;
+          Normal[2] /= Hits;          
                    
           // Edge forces
           
@@ -4136,9 +4265,78 @@ void VSP_SOLVER::CalculateKuttaJukowskiForces(void)
           SurfaceVortexEdge(j).Fz() = Fz / Hits;
           
        }
+
+       // If this is a wing leading edge... determine the amount of
+       // leading edge suction and vortex lift we may have
+       
+       if ( CalculateVortexLift_ && SurfaceVortexEdge(j).IsLeadingEdge() ) {
+
+          // Save fully attached force values
           
-    }
+          AttachedForce[0] = SurfaceVortexEdge(j).Fx();
+          AttachedForce[1] = SurfaceVortexEdge(j).Fy();
+          AttachedForce[2] = SurfaceVortexEdge(j).Fz();    
+          
+          Sign = 1.;
+          
+          if ( vector_dot(AttachedForce, Normal) < 0. ) Sign = -1.;
+          
+          // Local angle of attack
+        
+          Dot = vector_dot(Normal, FreeStreamVelocity_);
+          
+          Dot = MAX(-1.,MIN(1.,Dot));
+          
+          Theta = 0.5*PI - acos(Dot);
+
+          // Determine the effective sweep angle of the leading edge
+          
+          Sweep = vector_dot(FreeStreamVelocity_,SurfaceVortexEdge(j).Vec());
+          
+          Sweep = MAX(-1.,MIN(1.,Sweep));
+          
+          Sweep = acos(Sweep);
+          
+          if ( Sweep > PI ) Sweep -= PI;
+          
+          Sweep = 0.5*PI - Sweep;
+          
+          Sweep /= pow(cos(Theta),2.);     
+        
+          LeadingEdgeThrust = sqrt( pow(SurfaceVortexEdge(j).Fx(),2.)
+                                  + pow(SurfaceVortexEdge(j).Fy(),2.)
+                                  + pow(SurfaceVortexEdge(j).Fz(),2.) )*cos(Sweep);
+                                         
+          // Double up if the leading edge loop is a tri... I really want the loading on the
+          // entire leading edge region.
+          
+          Loop = SurfaceVortexEdge(j).VortexLoop1();
          
+          if ( VortexLoop(Loop).NumberOfEdges() == 3 ) LeadingEdgeThrust *= 2.;
+
+          // Calculate onset of vortex lift
+
+          VortexLift = 0.;
+        
+          if ( Sweep >= 45.*TORAD ) {
+
+             VortexLift = Sign * LeadingEdgeThrust/cos(Sweep);
+  
+             VortexLoop(SurfaceVortexEdge(j).VortexLoop1()).CompressibilityFactor() = 1.;
+             VortexLoop(SurfaceVortexEdge(j).VortexLoop2()).CompressibilityFactor() = 1.;
+
+          }
+
+          // Sum up forces = attached + vortex - lost leading edge thrust
+   
+          SurfaceVortexEdge(j).Fx() = AttachedForce[0] + VortexLift*Normal[0] + LeadingEdgeThrust*cos(AngleOfAttack_);
+          SurfaceVortexEdge(j).Fy() = AttachedForce[1] + VortexLift*Normal[1];
+          SurfaceVortexEdge(j).Fz() = AttachedForce[2] + VortexLift*Normal[2] + LeadingEdgeThrust*sin(AngleOfAttack_);                 
+
+       }   
+               
+    }
+                 
 }
 
 /*##############################################################################
@@ -4192,7 +4390,7 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
 
     int i, j, Loop1, Loop2;
     double Fx, Fy, Fz, Wgt1, Wgt2;
-    double Fact1, Fact2, CpI, Cp;
+    double Fact, CpI, Cp;
 
     // Loop over vortex edges and calculate forces via K-J theorem
  
@@ -4262,18 +4460,14 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
        if ( Mach_ < 1. ) {
        
           Cp = VortexLoop(i).dCp();
-          
-          CpI = sqrt(1.-Mach_*Mach_)*Cp;
-          
+
           CpI = ABS(Cp);
-          
-          Fact1 = 1./sqrt(1.-Mach_*Mach_);
-          
-          Fact2 = 1. + 0.25*CpI*Mach_*Mach_/sqrt(1.-Mach_*Mach_); 
+
+          Fact = 1. + 0.25*CpI*Mach_*Mach_/sqrt(1.-Mach_*Mach_); 
    
-          VortexLoop(i).CompressibilityFactor() = Fact2;
+          VortexLoop(i).CompressibilityFactor() = Fact;
    
-          VortexLoop(i).dCp() = Cp * Fact2;
+          VortexLoop(i).dCp() = Cp * Fact;
           
        }
        
@@ -4521,7 +4715,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
           else if ( ModelType_ == VLM_MODEL && !SurfaceVortexEdge(j).IsTrailingEdge() ) {
              
              CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
-             
+
              Fx = ( SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
              Fy = ( SurfaceVortexEdge(j).Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
              Fz = ( SurfaceVortexEdge(j).Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
@@ -4633,6 +4827,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
     double Length, Re, Cf, Cl, Cd, Cs, Ct, Cn, Cx, Cy, Cz;
     double Swet, SwetTotal, StallFact, CompressibilityFactor;
     double CA, SA, CB, SB, CMx, CMy, CMz, Cmx, Cmy, Cmz, Cl_2d, dCD;
+    double Normal[3], Mag;
 
     CA = cos(AngleOfAttack_);
     SA = sin(AngleOfAttack_);
@@ -4721,7 +4916,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
              Fz = SurfaceVortexEdge(j).Fz() + SurfaceVortexEdge(j).Unsteady_Fz();
              
           }
-          
+         
           // Sum up span wise loading
 
           for ( k = 1 ; k <= 2 ; k++ ) {
@@ -4771,16 +4966,20 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
                 SpanStation = 1;
            
                 // Chordwise integrated forces
+                
+                if ( Mach_ < 1. ) {
                        
-                Span_Cx_[SurfaceID][SpanStation] += Wgt*Fx;
-
-                Span_Cy_[SurfaceID][SpanStation] += Wgt*Fy;
-
-                Span_Cz_[SurfaceID][SpanStation] += Wgt*Fz;
-                               
-                Span_Cn_[SurfaceID][SpanStation] += Wgt * Fx * VortexLoop(Loop).Nx()
-                                                  + Wgt * Fy * VortexLoop(Loop).Ny()
-                                                  + Wgt * Fz * VortexLoop(Loop).Nz();
+                   Span_Cx_[SurfaceID][SpanStation] += Wgt*Fx;
+   
+                   Span_Cy_[SurfaceID][SpanStation] += Wgt*Fy;
+   
+                   Span_Cz_[SurfaceID][SpanStation] += Wgt*Fz;
+                                  
+                   Span_Cn_[SurfaceID][SpanStation] += Wgt * Fx * VortexLoop(Loop).Nx()
+                                                     + Wgt * Fy * VortexLoop(Loop).Ny()
+                                                     + Wgt * Fz * VortexLoop(Loop).Nz();
+                                                     
+                }
                 
                 // Chordwise integrated moments
                        
@@ -6491,7 +6690,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseGeometry(void)
                     + VSPGeom().Grid(Level).EdgeList(j).DegenWing()
                     + VSPGeom().Grid(Level).EdgeList(j).Cart3DSurface();
                     
-          if ( VSPGeom().Grid(Level).EdgeList(j).Loop1() == VSPGeom().Grid(Level).EdgeList(j).Loop2() )  SurfaceID = 999;             
+          if ( VSPGeom().Grid(Level).EdgeList(j).Loop1() == VSPGeom().Grid(Level).EdgeList(j).Loop2() )  SurfaceID *= -1;         
 
           Node1 = VSPGeom().Grid(Level).EdgeList(j).Node1();
           Node2 = VSPGeom().Grid(Level).EdgeList(j).Node2();  
@@ -6892,8 +7091,8 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(void)
           xyz[0] = VortexLoop(k).Xc();
           xyz[1] = VortexLoop(k).Yc();
           xyz[2] = VortexLoop(k).Zc();
-   
-          SurfaceVortexEdgeInteractionList_[k] = CreateInteractionList(xyz, NumberOfEdges);
+  
+          SurfaceVortexEdgeInteractionList_[k] = CreateInteractionList(VortexLoop(k).ComponentID(),xyz, NumberOfEdges);
                                 
           NumberOfVortexEdgesForInteractionListEntry_[k] = NumberOfEdges;    
           
@@ -6948,7 +7147,7 @@ void VSP_SOLVER::CalculateSurfaceInducedVelocityAtPoint(double xyz[3], double q[
      
     // Create interaction list for this xyz location
 
-    InteractionList = CreateInteractionList(xyz, NumberOfEdges);
+    InteractionList = CreateInteractionList(0,xyz, NumberOfEdges);
 
     U = V = W = 0.;
 
@@ -6992,7 +7191,7 @@ void VSP_SOLVER::CalculateWingSurfaceInducedVelocityAtPoint(double xyz[3], doubl
      
     // Create interaction list for this xyz location
 
-    InteractionList = CreateInteractionList(xyz, NumberOfEdges);
+    InteractionList = CreateInteractionList(0,xyz, NumberOfEdges);
 
     U = V = W = 0.;
 
@@ -7027,13 +7226,13 @@ void VSP_SOLVER::CalculateWingSurfaceInducedVelocityAtPoint(double xyz[3], doubl
 #                                                                              #
 ##############################################################################*/
 
-VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInteractionEdges)
+VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, double xyz[3], int &NumberOfInteractionEdges)
 {
 
     int i, j, Level, Loop;
     int Level_1, Level_2, Used, i_1, i_2;
-    int StackSize, MoveDownLevel, Next, Found;
-    double Distance, FarAway, Mu, Test;
+    int StackSize, MoveDownLevel, Next, Found, AddEdges;
+    double Distance, FarAway, Mu, Test, NormalDistance, Vec[3], Tolerance, Ratio;
     VSP_EDGE **InteractionEdgeList;
 
     // Allocate space if this is the first time through
@@ -7123,19 +7322,45 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
                       + pow(xyz[1] - VSPGeom().Grid(Level).LoopList(Loop).Yc(),2.)
                       + pow(xyz[2] - VSPGeom().Grid(Level).LoopList(Loop).Zc(),2.) );
 
-       Test = VSPGeom().Grid(Level).LoopList(Loop).Length();
-  
-       Test = FarAway * ( Test + VSPGeom().Grid(Level).LoopList(Loop).CentroidOffSet() );
-       
+       Test = FarAway * ( VSPGeom().Grid(Level).LoopList(Loop).Length() + VSPGeom().Grid(Level).LoopList(Loop).CentroidOffSet() );
+      
        if ( Level == 1 || ( Test <= Distance && !inside_box(VSPGeom().Grid(Level).LoopList(Loop).BoundBox(), xyz) ) ) {
       
+          // Check for nearly planar, and close, panels on different surfaces
+
+          Ratio = Distance / ( VSPGeom().Grid(Level).LoopList(Loop).Length() + VSPGeom().Grid(Level).LoopList(Loop).CentroidOffSet() );
+
+          AddEdges = 1;
+        
+          if ( ComponentID > 0 && ComponentID != VSPGeom().Grid(Level).LoopList(Loop).ComponentID() && Level == 1 && Ratio <= 2. ) {
+             
+             // Calculate normal distance
+             
+             Vec[0] = xyz[0] - VSPGeom().Grid(Level).LoopList(Loop).Xc();
+             Vec[1] = xyz[1] - VSPGeom().Grid(Level).LoopList(Loop).Yc();
+             Vec[2] = xyz[2] - VSPGeom().Grid(Level).LoopList(Loop).Zc();
+             
+             NormalDistance = ABS(vector_dot(Vec,VSPGeom().Grid(Level).LoopList(Loop).Normal()));
+             
+             // Tolerance
+             
+             Tolerance = sqrt(VSPGeom().Grid(Level).LoopList(Loop).Area());
+      
+             if ( ABS(NormalDistance) <= 0.25*Tolerance ) AddEdges = 0;
+
+          }
+     
           // Add these edges to the list
           
-          for ( i = 1 ; i <= VSPGeom().Grid(Level).LoopList(Loop).NumberOfEdges() ; i++ ) {
-    
-             j = VSPGeom().Grid(Level).LoopList(Loop).Edge(i);
-             
-             EdgeIsUsed_[Level][j] = SearchID_;
+          if ( AddEdges ) {
+ 
+             for ( i = 1 ; i <= VSPGeom().Grid(Level).LoopList(Loop).NumberOfEdges() ; i++ ) {
+       
+                j = VSPGeom().Grid(Level).LoopList(Loop).Edge(i);
+                
+                EdgeIsUsed_[Level][j] = SearchID_;
+                
+             }
              
           }
           
@@ -8089,130 +8314,65 @@ void VSP_SOLVER::WriteCaseHeader(FILE *fid)
 
 /*##############################################################################
 #                                                                              #
-#                       VSP_SOLVER FindOverLappingSurfaces                     #
+#                VSP_SOLVER CalculateLeadingEdgeSuctionFraction                #
 #                                                                              #
 ##############################################################################*/
 
-void VSP_SOLVER::FindOverLappingSurfaces(void)
-{
-
-    int body, wing, ib, iw, k;
-
-    // Loop over surfaces
-
-    for ( body = 1 ; body <= VSPGeom().NumberOfSurfaces() ; body++ ) { 
-     
-       // Look at body surfaces
-       
-       if ( VSPGeom().VSP_Surface(body).SurfaceType() == DEGEN_BODY_SURFACE ) {
-          
-          for ( wing = 1 ; wing <= VSPGeom().NumberOfSurfaces() ; wing++ ) {
-          
-             // Look at wing surfaces
-             
-             if ( VSPGeom().VSP_Surface(wing).SurfaceType() == DEGEN_WING_SURFACE ) {
-                
-                // Find the body loops
-                
-                for ( ib = 1 ; ib <= NumberOfVortexLoops_ ; ib++ ) {
-                   
-                   if ( VortexLoop(ib).SurfaceID() == body ) {
-                   
-                      // Find the wing loops
-                      
-                      for ( iw = 1 ; iw <= NumberOfVortexLoops_ ; iw++ ) {
-                      
-                         if ( VortexLoop(iw).SurfaceID() == wing ) {
-                            
-                            // Compare these two loops for overlap
-                            
-                            if ( LoopsOverLap(ib, iw) ) {
-                               
-                               VortexLoop(ib).dCp() = 0.;
-                               VortexLoop(iw).dCp() = 0.;
-                               
-                               for ( k = 1 ; k <= VortexLoop(ib).NumberOfEdges() ; k++ ) {
-                         
-                                  SurfaceVortexEdge(VortexLoop(ib).Edge(k)).Fx() = 0.;
-                                  SurfaceVortexEdge(VortexLoop(ib).Edge(k)).Fy() = 0.;
-                                  SurfaceVortexEdge(VortexLoop(ib).Edge(k)).Fz() = 0.;
-                                  
-                                  SurfaceVortexEdge(VortexLoop(ib).Edge(k)).Trefftz_Fx() = 0.;
-                                  SurfaceVortexEdge(VortexLoop(ib).Edge(k)).Trefftz_Fx() = 0.;
-                                  SurfaceVortexEdge(VortexLoop(ib).Edge(k)).Trefftz_Fx() = 0.;
-                                                                    
-                               }
-                               
-                               for ( k = 1 ; k <= VortexLoop(iw).NumberOfEdges() ; k++ ) {
-                         
-                                  SurfaceVortexEdge(VortexLoop(iw).Edge(k)).Fx() = 0.;
-                                  SurfaceVortexEdge(VortexLoop(iw).Edge(k)).Fy() = 0.;
-                                  SurfaceVortexEdge(VortexLoop(iw).Edge(k)).Fz() = 0.;
-                                  
-                                  SurfaceVortexEdge(VortexLoop(iw).Edge(k)).Trefftz_Fx() = 0.;
-                                  SurfaceVortexEdge(VortexLoop(iw).Edge(k)).Trefftz_Fx() = 0.;
-                                  SurfaceVortexEdge(VortexLoop(iw).Edge(k)).Trefftz_Fx() = 0.;
-                                                                    
-                               }        
-                                       
-                            }
-                            
-                         }
-                         
-                      }
-                      
-                   }
-                   
-                }
-                
-             }
-             
-          }
-          
-       }
-       
-    }
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                          VSP_SOLVER LoopsOverLap                             #
-#                                                                              #
-##############################################################################*/
-
-int VSP_SOLVER::LoopsOverLap(int BodyLoop, int WingLoop)
+double VSP_SOLVER::CalculateLeadingEdgeSuctionFraction(double Mach, double ToC, double RoC, double EtaToC, double AoA, double Sweep)
 {
    
-    double Distance, MinDistance, PlanarDistance, Vec[3];
+   double Rin, RoCn, ToCn, Machn, Betan, Ctn;
+   double e1, e2, e3, Ptt, Pat, k, Kt;
+   
+   // Normal RoC
+   
+   RoCn = RoC / pow(cos(Sweep),2.);
+   
+   // Normal ToC
+   
+   ToCn = ToC / cos(Sweep);   
 
-    // Distance between centroids
-    
-    Vec[0] = VortexLoop(BodyLoop).Xc() - VortexLoop(WingLoop).Xc();
-    Vec[1] = VortexLoop(BodyLoop).Yc() - VortexLoop(WingLoop).Yc();
-    Vec[2] = VortexLoop(BodyLoop).Zc() - VortexLoop(WingLoop).Zc();
-    
-    Distance = sqrt(vector_dot(Vec,Vec));
-    
-    // Distance bewteen two planes
-    
-    PlanarDistance = vector_dot(Vec,VortexLoop(BodyLoop).Normal());
+   // Normal Leading edge radius index
+   
+   Rin = RoCn * EtaToC / pow(ToCn,2.);
+   
+   // Exponents
+   
+   e1 =  0.40*pow(Rin,0.16) - 0.7;
+   e2 =  1.60*pow(Rin,0.10) - 3.0;
+   e3 = -0.32*pow(Rin,0.10) - 0.3;
+   
+   // Normal Mach
+   
+   Machn = Mach * cos(Sweep);
+   
+   // Catch supersonic case
+   
+   if ( Machn >= 1. ) return 0.;   
+   
+   // Betan
+   
+   Betan = sqrt(1. - pow(Machn,2.));
+   
+   // Ctn
+   
+   Ctn = 2.*PI*pow(sin(AoA),2.) / ( Betan * pow(cos(Sweep),3.) );
+   
+   // Ptt
+   
+   Ptt = Ctn * Betan * pow( ToCn * pow(EtaToC/0.5,e1) / 0.09, e2);
+   
+   // k
+   
+   k = ( 0.14*(1. - (1. - sqrt(Rin)*pow(Machn,5.))) + 0.11*sqrt(Rin))*pow((1.-Machn)/Machn,0.48*(1.+pow(Rin,0.3)));
+   
+   // Kt
 
-    if ( PlanarDistance <= 0.01 ) {
-       
-       // In plane distance
-       
-       MinDistance = MIN( sqrt(VortexLoop(BodyLoop).Area()), sqrt(VortexLoop(WingLoop).Area()) );
-       
-       if ( Distance <= 2.*MinDistance ) {
- 
-          return 1;
-          
-       }
-       
-    }
-    
-    return 0;
+   Kt = (1. + sqrt(pow(ToCn,1.2))) * k * pow(Ptt,e3);
+   
+   Kt = MAX(0.,MIN(Kt,1.));
+   
+   return Kt;
  
 }
 

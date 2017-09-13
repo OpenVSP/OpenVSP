@@ -187,6 +187,10 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
     
     UserSelectedSolutionCase_ = 1;
     
+    // User sets the plot limits
+    
+    UserSetPlotLimits = 0;
+    
 }
 
 /*##############################################################################
@@ -622,7 +626,17 @@ void GL_VIEWER::LoadMeshData(void)
          
        for ( i = 1 ; i <= NumberOfCourseEdgesForLevel[Level] ; i++ ) {
  
-          BIO.fread(&(CoarseEdgeList[Level][i].SurfaceID), i_size, 1, adb_file);       
+          BIO.fread(&(CoarseEdgeList[Level][i].SurfaceID), i_size, 1, adb_file);   
+          
+          CoarseEdgeList[Level][i].IsBoundaryEdge = 0;
+          
+          if ( CoarseEdgeList[Level][i].SurfaceID < 0 ) {
+             
+             CoarseEdgeList[Level][i].SurfaceID = -CoarseEdgeList[Level][i].SurfaceID;
+             
+             CoarseEdgeList[Level][i].IsBoundaryEdge = 1;    
+             
+          }
         
           BIO.fread(&(CoarseEdgeList[Level][i].node1), i_size, 1, adb_file);       
           BIO.fread(&(CoarseEdgeList[Level][i].node2), i_size, 1, adb_file);       
@@ -630,6 +644,13 @@ void GL_VIEWER::LoadMeshData(void)
           CoarseEdgeList[Level][i].IsKuttaEdge = 0;
           
        }
+       
+       for ( i = 1 ; i <= NumberOfCourseEdgesForLevel[Level] ; i++ ) {
+
+          CoarseNodeList[Level][CoarseEdgeList[Level][i].node1].SurfID = CoarseEdgeList[Level][i].SurfaceID;
+          CoarseNodeList[Level][CoarseEdgeList[Level][i].node2].SurfID = CoarseEdgeList[Level][i].SurfaceID;    
+
+       }       
     
     }    
     
@@ -838,7 +859,7 @@ void GL_VIEWER::LoadSolutionData(void)
 
     LoadExistingSolutionData(UserSelectedSolutionCase_);
 
-    FindSolutionMinMax();
+    if ( !UserSetPlotLimits ) FindSolutionMinMax();
 
 }
 
@@ -882,7 +903,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
        exit(1);
 
     } 
-    
+
     // Read in the default text string to check on endianess
 
     BIO.fread(&DumInt, i_size, 1, adb_file);
@@ -900,7 +921,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
     // Set the file position to the top of the temperature data
 
     fsetpos(adb_file, &StartOfWallTemperatureData);
-    
+
     for ( p = 1 ; p <= Case ; p++ ) {  
    
        // Read in the EdgeMach, Q, and Alpha lists
@@ -923,7 +944,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
        // Read in the wake location data
        
        BIO.fread(&(NumberOfTrailingVortexEdges_), i_size, 1, adb_file); // Number of trailing wake vortices
-   
+  
        XWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
        YWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
        ZWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
@@ -941,7 +962,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
              BIO.fread(&(XWake_[i][j]), f_size, 1, adb_file); // X
              BIO.fread(&(YWake_[i][j]), f_size, 1, adb_file); // Y
              BIO.fread(&(ZWake_[i][j]), f_size, 1, adb_file); // Z
-             
+
              XWake_[i][j] -= GeometryXShift;
              YWake_[i][j] -= GeometryYShift;
              ZWake_[i][j] -= GeometryZShift;
@@ -958,17 +979,15 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
        CurrentChoiceAlpha = 1;
        CurrentChoiceBeta  = 1;
        
-    }
+       // Read in any control surface deflection data
+   
+       for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
+   
+          BIO.fread(&(ControlSurface[i].DeflectionAngle), f_size, 1, adb_file); 
+
+       }       
     
-    // Read in any control surface deflection data
-
-    for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
-
-       BIO.fread(&(ControlSurface[i].DeflectionAngle), f_size, 1, adb_file); 
-       
-       printf("ControlSurface[%d].DeflectionAngle: %f \n",i,ControlSurface[i].DeflectionAngle);
-  
-    }       
+    }
     
     // Close the adb file
 
@@ -989,7 +1008,7 @@ void GL_VIEWER::RotateControlSurfaceNode( float xyz[3], int ConSurf )
    
     // Rotate point about control surface hinge line
 
-    Quat.FormRotationQuat_f((float*)ControlSurface[ConSurf].HingeVec,(float)ControlSurface[ConSurf].DeflectionAngle);
+    Quat.FormRotationQuat_f(ControlSurface[ConSurf].HingeVec,ControlSurface[ConSurf].DeflectionAngle);
 
     InvQuat = Quat;
 
@@ -1651,6 +1670,8 @@ void GL_VIEWER::SetSolutionMin(float MinVal)
     int i;
 
     if ( DrawCpIsOn ) CpMin = MinVal;
+    
+    UserSetPlotLimits = 1;
 
 }
 
@@ -1666,6 +1687,8 @@ void GL_VIEWER::SetSolutionMax(float MaxVal)
     int i;
 
     if ( DrawCpIsOn ) CpMax = MaxVal;
+    
+    UserSetPlotLimits = 1;
 
 }
 
@@ -2899,8 +2922,8 @@ void GL_VIEWER::DrawCoarseMeshEdgesForLevel(int Level)
     for ( j = 1 ; j <= NumberOfCourseEdgesForLevel[Level]; j++ ) {
 
       SurfaceID = CoarseEdgeList[Level][j].SurfaceID;
- 
-      if ( SurfaceID == 999 ) {
+
+      if ( CoarseEdgeList[Level][j].IsBoundaryEdge && !CoarseEdgeList[Level][j].IsKuttaEdge) {
 
           rgb[0] = 1.;
           rgb[1] = 0.;
@@ -2933,8 +2956,7 @@ void GL_VIEWER::DrawCoarseMeshEdgesForLevel(int Level)
           glColor3fv(rgb);         
          
       }         
-         
-         
+                  
       if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfaceID]) == 2 ) {
 
        glBegin(GL_LINES);
@@ -3017,28 +3039,34 @@ void GL_VIEWER::DrawCoarseMeshNodesForLevel(int Level)
     glColor3fv(rgb);
     
     for ( j = 1 ; j <= NumberOfCourseNodesForLevel[Level]; j++ ) {
-
-       vec[0] = CoarseNodeList[Level][j].x;
-       vec[1] = CoarseNodeList[Level][j].y;
-       vec[2] = CoarseNodeList[Level][j].z;
-          
-       glBegin(GL_POINTS);
-
-          glVertex3fv(vec);
-
-       glEnd();
        
-       if ( DrawReflectedGeometryIsOn ) {
+       SurfID = CoarseNodeList[Level][j].SurfID;
+       
+       if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
 
+          vec[0] = CoarseNodeList[Level][j].x;
+          vec[1] = CoarseNodeList[Level][j].y;
+          vec[2] = CoarseNodeList[Level][j].z;
+             
           glBegin(GL_POINTS);
-
-             vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
- 
-             glVertex3fv(vec);                
-          
+   
+             glVertex3fv(vec);
+   
           glEnd();
+          
+          if ( DrawReflectedGeometryIsOn ) {
+   
+             glBegin(GL_POINTS);
+   
+                vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+    
+                glVertex3fv(vec);                
+             
+             glEnd();
 
-        }   
+           }   
+           
+       }
    
     }
     
@@ -4541,9 +4569,9 @@ void GL_VIEWER::DrawSymmetryPlane(void)
     float vec1[3], vec2[3], vec3[3], vec4[3], Normal[3], rgb[4], LastEmissivity;
     float xyz1[3], xyz2[3];
 
-    glTranslatef( Xcg - GeometryXShift,
-                  Ycg - GeometryYShift,
-                  Zcg - GeometryZShift);
+    glTranslatef( 0. - GeometryXShift,
+                  0. - GeometryYShift,
+                  0. - GeometryZShift);
 
     // Draw triangles as shaded surface
 
@@ -4562,20 +4590,20 @@ void GL_VIEWER::DrawSymmetryPlane(void)
     if ( DrawXPlaneIsOn ) {
        
        vec1[0] =         0;
-       vec1[1] = -ViewSize;
-       vec1[2] =  ViewSize;
+       vec1[1] = -ViewSize + GeometryYShift;
+       vec1[2] =  ViewSize + GeometryZShift;
        
        vec2[0] =         0;
-       vec2[1] = -ViewSize;
-       vec2[2] = -ViewSize;
+       vec2[1] = -ViewSize + GeometryYShift;
+       vec2[2] = -ViewSize + GeometryZShift;
        
        vec3[0] =         0;
-       vec3[1] =  ViewSize;
-       vec3[2] = -ViewSize;
+       vec3[1] =  ViewSize + GeometryYShift;
+       vec3[2] = -ViewSize + GeometryZShift;
        
        vec4[0] =         0;
-       vec4[1] =  ViewSize;
-       vec4[2] =  ViewSize;
+       vec4[1] =  ViewSize + GeometryYShift;
+       vec4[2] =  ViewSize + GeometryZShift;
        
        Normal[0] = 1.;
        Normal[1] = 0.;
@@ -4585,21 +4613,21 @@ void GL_VIEWER::DrawSymmetryPlane(void)
 
     else if ( DrawYPlaneIsOn ) {
        
-       vec1[0] = -ViewSize;
+       vec1[0] = -ViewSize + GeometryXShift;
        vec1[1] =        0.;
-       vec1[2] =  ViewSize;
+       vec1[2] =  ViewSize + GeometryZShift;
        
-       vec2[0] =  ViewSize;
+       vec2[0] =  ViewSize + GeometryXShift;
        vec2[1] =        0.;
-       vec2[2] =  ViewSize;
+       vec2[2] =  ViewSize + GeometryZShift;
        
-       vec3[0] =  ViewSize;
+       vec3[0] =  ViewSize + GeometryXShift;
        vec3[1] =        0.;
-       vec3[2] = -ViewSize;
+       vec3[2] = -ViewSize + GeometryZShift;
        
-       vec4[0] = -ViewSize;
+       vec4[0] = -ViewSize + GeometryXShift;
        vec4[1] =        0.;
-       vec4[2] = -ViewSize;
+       vec4[2] = -ViewSize + GeometryZShift;
        
        Normal[0] = 0.;
        Normal[1] = 1.;
@@ -4609,20 +4637,20 @@ void GL_VIEWER::DrawSymmetryPlane(void)
         
     else if ( DrawZPlaneIsOn ) {
        
-       vec1[0] = -ViewSize;
-       vec1[1] = -ViewSize;
+       vec1[0] = -ViewSize + GeometryXShift;
+       vec1[1] = -ViewSize + GeometryYShift;
        vec1[2] =         0.;
        
-       vec2[0] = -ViewSize;
-       vec2[1] =  ViewSize;
+       vec2[0] = -ViewSize + GeometryXShift;
+       vec2[1] =  ViewSize + GeometryYShift;
        vec2[2] =        0.;
        
-       vec3[0] =  ViewSize;
-       vec3[1] =  ViewSize;
+       vec3[0] =  ViewSize + GeometryXShift;
+       vec3[1] =  ViewSize + GeometryYShift;
        vec3[2] =        0.;
        
-       vec4[0] =  ViewSize;
-       vec4[1] = -ViewSize;
+       vec4[0] =  ViewSize + GeometryXShift;
+       vec4[1] = -ViewSize + GeometryYShift;
        vec4[2] =        0.;
        
        Normal[0] = 0.;
@@ -4721,9 +4749,9 @@ void GL_VIEWER::DrawSymmetryPlane(void)
     
     glEnable(GL_LIGHTING);
 
-    glTranslatef( -Xcg + GeometryXShift,
-                  -Ycg + GeometryYShift,
-                  -Zcg + GeometryZShift);     
+    glTranslatef( 0. + GeometryXShift,
+                  0. + GeometryYShift,
+                  0. + GeometryZShift);     
   
 }
 

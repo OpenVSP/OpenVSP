@@ -104,6 +104,10 @@ private:
     
     double EvaluatedLength_;
     
+    // Ground effects
+    
+    int DoGroundEffectsAnalysis_;
+    
 public:
 
     // Constructor, Destructor, Copy
@@ -204,6 +208,10 @@ public:
     
     void ConvectWakeVorticity(int ConvectType);
     void ConvectWakeVorticityOld(int ConvectType);
+    
+    // Ground effects analysis flag
+    
+    int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
     
     // Unsteady analysis
     

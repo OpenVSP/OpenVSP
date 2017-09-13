@@ -858,7 +858,7 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3])
           TrailingVortexList_[                            1].Gamma(j) = 0.5 * TrailingGamma_[1][j];
        
           TrailingVortexList_[NumberOfTrailingVortices_ + 1].Gamma(j) = 0.5 * TrailingGamma_[1][j];
-          
+
        }
        
     }

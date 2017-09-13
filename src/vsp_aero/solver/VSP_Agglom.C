@@ -1080,11 +1080,11 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        CoarseGrid().LoopList(i).Ny() = 0.;
        CoarseGrid().LoopList(i).Nz() = 0.; 
        
-       // Local Camber Line Normal
+       // Local Flat Plate Normal
        
-       CoarseGrid().LoopList(i).NxCamber() = 0.;
-       CoarseGrid().LoopList(i).NyCamber() = 0.;
-       CoarseGrid().LoopList(i).NzCamber() = 0.;
+       CoarseGrid().LoopList(i).NxFlatPlate() = 0.;
+       CoarseGrid().LoopList(i).NyFlatPlate() = 0.;
+       CoarseGrid().LoopList(i).NzFlatPlate() = 0.;
        
        // Camber
        
@@ -1122,7 +1122,8 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
 
        // Fine grid things that don't change
        
-       CoarseGrid().LoopList(Next).SurfaceID()   = FineGrid().LoopList(i).SurfaceID();    
+       CoarseGrid().LoopList(Next).SurfaceID()   = FineGrid().LoopList(i).SurfaceID();   
+       CoarseGrid().LoopList(Next).ComponentID() = FineGrid().LoopList(i).ComponentID();     
        CoarseGrid().LoopList(Next).SpanStation() = FineGrid().LoopList(i).SpanStation(); 
        CoarseGrid().LoopList(Next).SurfaceType() = FineGrid().LoopList(i).SurfaceType(); 
        CoarseGrid().LoopList(Next).DegenBodyID() = FineGrid().LoopList(i).DegenBodyID(); 
@@ -1143,9 +1144,9 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        
        // Local Camber Line Normal
        
-       CoarseGrid().LoopList(Next).NxCamber() += Area*FineGrid().LoopList(i).NxCamber();
-       CoarseGrid().LoopList(Next).NyCamber() += Area*FineGrid().LoopList(i).NyCamber();
-       CoarseGrid().LoopList(Next).NzCamber() += Area*FineGrid().LoopList(i).NzCamber();
+       CoarseGrid().LoopList(Next).NxFlatPlate() += Area*FineGrid().LoopList(i).NxFlatPlate();
+       CoarseGrid().LoopList(Next).NyFlatPlate() += Area*FineGrid().LoopList(i).NyFlatPlate();
+       CoarseGrid().LoopList(Next).NzFlatPlate() += Area*FineGrid().LoopList(i).NzFlatPlate();
        
        // Camber
        
@@ -1203,11 +1204,11 @@ void VSP_AGGLOM::CreateCoarseMesh_(void)
        CoarseGrid().LoopList(i).Ny() /= Mag;
        CoarseGrid().LoopList(i).Nz() /= Mag;
       
-       // Local Camber Line Normal
+       // Local Flat Plate Normal
        
-       CoarseGrid().LoopList(i).NxCamber() /= Area;
-       CoarseGrid().LoopList(i).NyCamber() /= Area;
-       CoarseGrid().LoopList(i).NzCamber() /= Area;
+       CoarseGrid().LoopList(i).NxFlatPlate() /= Area;
+       CoarseGrid().LoopList(i).NyFlatPlate() /= Area;
+       CoarseGrid().LoopList(i).NzFlatPlate() /= Area;
        
        // Camber
        
@@ -2434,7 +2435,7 @@ void VSP_AGGLOM::CleanUpFans_(void)
 
              AspectRatio = MaxArea / MinArea;
                                                                           
-             // If the minimum angle is small, then try and merge this tri with a neighbor
+             // If the minimum angle is small and it has a high aspect ration...then try and merge this tri with a neighbor
              
              if ( MinAngle <= LimitAngle && AspectRatio > 10. ) {
 

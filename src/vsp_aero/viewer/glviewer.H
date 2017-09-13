@@ -80,7 +80,7 @@ struct TRI_STRUCT
 	int edge3;
 
 	int surface_id;
-    int surface_type;
+   int surface_type;
 	float area;
 
 }; typedef struct TRI_STRUCT TRI;
@@ -93,6 +93,8 @@ struct NODE_STRUCT
 	float x;
 	float y;
 	float z;
+   
+   int SurfID;
 
 }; typedef struct NODE_STRUCT NODE;
 
@@ -108,6 +110,8 @@ struct EDGE_STRUCT
    int SurfaceID;
    
    int IsKuttaEdge;
+   
+   int IsBoundaryEdge;
 
 }; typedef struct EDGE_STRUCT EDGE;
 
@@ -156,6 +160,8 @@ private:
     int SymmetryFlag;
     
     // Cpmin, and Cpmax
+    
+    int UserSetPlotLimits;
     
     float CpMinSoln;
     float CpMaxSoln;
@@ -591,11 +597,11 @@ public:
     
     void DrawWakesToInfinityWasPicked(void)          { ToggleFlag(DrawWakesToInfinityIsOn,                       "DrawWakesToInfinityIsOn");     };
     
-    void DrawXPlaneWasPicked(void)                   { ToggleFlag(DrawXPlaneIsOn,                       "DrawXPlaneIsOn");     };
+    void DrawXPlaneWasPicked(void)                   { ToggleFlag(DrawXPlaneIsOn,                       "DrawXPlaneIsOn");  DrawYPlaneIsOn = DrawZPlaneIsOn = 0;  };
     
-    void DrawYPlaneWasPicked(void)                   { ToggleFlag(DrawYPlaneIsOn,                       "DrawYPlaneIsOn");     };
+    void DrawYPlaneWasPicked(void)                   { ToggleFlag(DrawYPlaneIsOn,                       "DrawYPlaneIsOn");  DrawXPlaneIsOn = DrawZPlaneIsOn = 0;  };
 
-    void DrawZPlaneWasPicked(void)                   { ToggleFlag(DrawZPlaneIsOn,                       "DrawZPlaneIsOn");     };
+    void DrawZPlaneWasPicked(void)                   { ToggleFlag(DrawZPlaneIsOn,                       "DrawZPlaneIsOn");  DrawXPlaneIsOn = DrawYPlaneIsOn = 0;  };
     
     // ADB Menu
 

@@ -339,16 +339,24 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
 {
 
-    int i, Wing, Done, NumberOfBodySets, BodySet, Surface;
+    int i, Wing, Done, NumberOfBodySets, BodySet, Surface,SurfNDx, GeomIDFlags;
     int TotalNumberOfWings, TotalNumberOfBodies;
-    int *ReadInThisWing, *ReadInThisBody;
+    int *ReadInThisWing, *ReadInThisBody, ComponentID;
     double Diam, x, y, z, nx, ny, nz, Epsilon, MinVal, MaxVal;
     char VSP_File_Name[2000], DumChar[2000], Type[2000], Name[2000];
+    char GeomID[2000], LastGeomID[2000];
+    char Comma[2000], *Next;
     VSP_SURFACE SurfaceParser;
     BBOX ComponentBBox;
     FILE *VSP_Degen_File;
     
     MinVal = MaxVal = 0.;
+    
+    ComponentID = 0;
+    
+    GeomIDFlags = 0;
+    
+    sprintf(Comma,",");
     
     // Open degen file
 
@@ -383,7 +391,21 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
      
        if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;   
        
+       if ( strstr(DumChar,"GEOMID") != NULL ) GeomIDFlags = 1;
+       
        if ( strncmp(DumChar,"LIFTING_SURFACE",15) == 0 ) TotalNumberOfWings++;
+       
+    }
+    
+    if ( GeomIDFlags ) {
+       
+       printf("GeomIDFlags are defined! \n");
+       
+    }
+    
+    else {
+       
+       printf("GeomIDFlags are NOT defined! \n");       
        
     }
     
@@ -529,9 +551,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
                 NumberOfDegenBodies_++;
                 
                 ReadInThisBody[i] = -DoSymmetryPlaneSolve_;
-                
-                printf("ReadInThisBody[i]: %d \n",ReadInThisBody[i]);
-                
+
              }
           
           }
@@ -662,8 +682,10 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
  
     // Read in the wing data
     
-    Surface = 0;
+    sprintf(LastGeomID," ");
     
+    Surface = 0;
+
     for ( Wing = 1 ; Wing <= TotalNumberOfWings ; Wing++ ) {
 
        Done = 0;
@@ -673,24 +695,46 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           fgets(DumChar,1000,VSP_Degen_File);
           
           if ( strncmp(DumChar,"LIFTING_SURFACE",15) == 0 ) Done = 1;
-          
+     
        }
        
        if ( ReadInThisWing[Wing] ) {
           
           Surface++;
-              
-          sscanf(DumChar,"%15s,%s",Type,Name);
 
-          printf("Working on reading wing: %d --> %s \n",Wing,Name);
+          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  sprintf(Type,"%s",Next);            
+          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(Name,"%s",Next);       
+          
+          if ( GeomIDFlags ) {
+             
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;      
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next);
+             
+          }
+          
+          else {
+             
+              sprintf(GeomID,"%s",Name);
+              
+          }
+
+          if ( Verbose_ ) printf("Working on reading wing: %d --> %s with component ID: %s \n",Wing,Name,GeomID);
   
           VSP_Surface(Surface).ReadWingDataFromFile(Name,VSP_Degen_File);
+          
+          if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
+          
+          sprintf(LastGeomID,"%s",GeomID);
+          
+          VSP_Surface(Surface).ComponentID() = ComponentID;
           
        }
        
     }
         
     // Read in the body data
+
+    sprintf(LastGeomID," ");
 
     for ( BodySet = 1 ; BodySet <= NumberOfBodySets ; BodySet++ ) {
         
@@ -720,12 +764,32 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           Surface++;
             
-          sscanf(DumChar,"%4s,%s",Type,Name);
+          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  sprintf(Type,"%s",Next);            
+          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(Name,"%s",Next);   
+          
+          if ( GeomIDFlags ) {
+                 
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;      
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next);
+             
+          }
+          
+          else {
+             
+             sprintf(GeomID,"%s",Name);
+             
+          } 
 
-          if ( Verbose_ ) printf("Working on reading #2 horizontal slice for body: %d --> %s ... SymFlag: %d \n",BodySet,Name,ReadInThisBody[i]); fflush(NULL);
+          if ( Verbose_ ) printf("Working on reading #1 horizontal slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
                  
           VSP_Surface(Surface).ReadBodyDataFromFile(Name,2,VSP_Degen_File);
           
+          if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
+          
+          sprintf(LastGeomID,"%s",GeomID);
+          
+          VSP_Surface(Surface).ComponentID() = ComponentID;
+
        }
 
        // Load in the horizontal slices ... read in half span geometry ... as it lies on the symmetry plane
@@ -754,11 +818,31 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           Surface++;
    
-          sscanf(DumChar,"%4s,%s",Type,Name);
-   
-          if ( Verbose_ ) printf("Working on reading #1 horizontal slice for body: %d --> %s ... SymFlag: %d \n",BodySet,Name,ReadInThisBody[i]); fflush(NULL);
+          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  sprintf(Type,"%s",Next);            
+          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(Name,"%s",Next);       
+          
+          if ( GeomIDFlags ) {
+             
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;      
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next); 
+             
+          }
+          
+          else {
+             
+             sprintf(GeomID,"%s",Name);
+             
+          }
+             
+          if ( Verbose_ ) printf("Working on reading #2 horizontal slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
                  
           VSP_Surface(Surface).ReadBodyDataFromFile(Name,1,VSP_Degen_File);
+          
+          if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
+          
+          sprintf(LastGeomID,"%s",GeomID);
+          
+          VSP_Surface(Surface).ComponentID() = ComponentID;
           
        }
           
@@ -788,12 +872,31 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
        
           Surface++;
        
-          sscanf(DumChar,"%4s,%s",Type,Name);
-   
-          if ( Verbose_ ) printf("Working on reading vertical slice for body: %d --> %s \n",BodySet,Name);
-                 
+          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  sprintf(Type,"%s",Next);            
+          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(Name,"%s",Next);   
+          
+          if ( GeomIDFlags ) {
+                  
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;      
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next); 
+             
+          }
+          
+          else {
+             
+             sprintf(GeomID,"%s",Name);
+             
+          }
+          
+          if ( Verbose_ ) printf("Working on reading #1 vertical slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
+                            
           VSP_Surface(Surface).ReadBodyDataFromFile(Name,3,VSP_Degen_File);    
           
+          if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
+          
+          sprintf(LastGeomID,"%s",GeomID);
+          
+          VSP_Surface(Surface).ComponentID() = ComponentID;          
        } 
        
        // Load in the vertical slices
@@ -822,11 +925,31 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
                
           Surface++;
                       
-          sscanf(DumChar,"%4s,%s",Type,Name);
-   
-          if ( Verbose_ ) printf("Working on reading vertical slice for body: %d --> %s \n",BodySet,Name);
+          Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  sprintf(Type,"%s",Next);            
+          Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(Name,"%s",Next);    
+          
+          if ( GeomIDFlags ) {
+                           
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;      
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next); 
+
+          }
+          
+          else {
+             
+             sprintf(GeomID,"%s",Name);
+             
+          }
+          
+          if ( Verbose_ ) printf("Working on reading #2 vertical slice for body: %d --> %s ... SymFlag: %d and Component ID: %s \n",BodySet,Name,ReadInThisBody[i],GeomID); fflush(NULL);
                  
           VSP_Surface(Surface).ReadBodyDataFromFile(Name,4,VSP_Degen_File);    
+          
+          if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
+          
+          sprintf(LastGeomID,"%s",GeomID);
+          
+          VSP_Surface(Surface).ComponentID() = ComponentID;   
           
        }
           
@@ -1001,7 +1124,7 @@ void VSP_GEOM::MeshGeom(void)
              Grid().EdgeList(i).IsLeadingEdge()  = VSP_Surface(Surface).Grid().EdgeList(i).IsLeadingEdge();
              
              Grid().EdgeList(i).EdgeType()       = VSP_Surface(Surface).Grid().EdgeList(i).EdgeType();
-   
+
           }
          
        }

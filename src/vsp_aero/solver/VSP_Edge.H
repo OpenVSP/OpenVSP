@@ -150,6 +150,12 @@ private:
                                    double &X1, double &Y1, double &Z1,
                                    double &Xd, double &Yd, double &Zd,
                                    double &t1, double &t2);    
+                                   
+    // Airfoil data
+
+    double ThicknessToChord_;
+    double LocationOfMaxThickness_;
+    double RadiusToChord_;                                   
 
 public:
 
@@ -289,6 +295,13 @@ public:
     // Vortex unit vector
     
     double *Vec(void) { return Vec_; };    
+    
+    // Airfoil data
+    
+    double &ThicknessToChord(void) { return ThicknessToChord_; };
+    double &LocationOfMaxThickness(void ) { return LocationOfMaxThickness_; };
+    double &RadiusToChord(void) { return RadiusToChord_; };        
+
 
 };
 

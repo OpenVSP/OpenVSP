@@ -69,6 +69,8 @@ void VORTEX_TRAIL::init(void)
     GammaSave_ = NULL;
 
     MaxConvectedDistance_ = 1.e12;
+    
+    DoGroundEffectsAnalysis_ = 0;
             
 }
 
@@ -559,7 +561,7 @@ void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3])
    q[0] += Fact*dq[0];
    q[1] += Fact*dq[1];
    q[2] += Fact*dq[2];
-
+//djk
    // Uncomment below to make things 2D
    //q[0] = q[1] = q[2] = 0.;
  
@@ -750,6 +752,8 @@ void VORTEX_TRAIL::UpdateLocation(void)
         NodeList_[i+1].x() += 0.5*dx;
         NodeList_[i+1].y() += 0.5*dy;
         NodeList_[i+1].z() += 0.5*dz;
+        
+        if ( DoGroundEffectsAnalysis_ ) NodeList_[i+1].z() = MAX(NodeList_[i+1].z(), 0.);
 
     }
     
@@ -1324,6 +1328,10 @@ void VORTEX_TRAIL::Smooth(void)
          if ( Case == 1 ) NodeList_[i].x() = r[i];
          if ( Case == 2 ) NodeList_[i].y() = r[i];
          if ( Case == 3 ) NodeList_[i].z() = r[i];
+         
+         if ( Case == 3 && DoGroundEffectsAnalysis_ ) NodeList_[i].z() = MAX(NodeList_[i].z(), 0.);
+         
+if ( Case == 3 && DoGroundEffectsAnalysis_ && NodeList_[i].z() <= 0. ) printf("NodeList_[i].z(): %f \n",NodeList_[i].z());
          
         }
         

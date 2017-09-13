@@ -106,7 +106,13 @@ void VSP_EDGE::init(void)
     VortexLoop2DownWindWeight_ = 0.;
 
     Gamma_ = 0.;   
+
+    ThicknessToChord_ = 0.;   
     
+    LocationOfMaxThickness_ = 0.;   
+    
+    RadiusToChord_ = 0.;                                    
+  
 }
 
 /*##############################################################################
@@ -233,6 +239,18 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     EdgeCoef_[0] = VSPEdge.EdgeCoef_[0];
     EdgeCoef_[1] = VSPEdge.EdgeCoef_[1];
     
+    // Circulation strength
+    
+    Gamma_ = VSPEdge.Gamma_;
+    
+    // Airfoil information                                  
+  
+    ThicknessToChord_ = VSPEdge.ThicknessToChord_;
+    
+    LocationOfMaxThickness_ = VSPEdge.LocationOfMaxThickness_;
+    
+    RadiusToChord_ = VSPEdge.RadiusToChord_;    
+    
     return *this;
     
 }
@@ -245,7 +263,9 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
 
 VSP_EDGE::~VSP_EDGE(void)
 {
+
    // Nothing to do...
+
 }
 
 /*##############################################################################

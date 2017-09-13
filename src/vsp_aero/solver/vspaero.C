@@ -149,6 +149,7 @@ int DoUnsteadyAnalysis_      = 0;
 int UnsteadyAnalysisType_    = 0;
 int NumberOfTimeSteps_       = 0;
 int NumberOfTimeSamples_     = 0;
+int UseVortexLiftModel_      = 0;
 
 // Prototypes
 
@@ -187,7 +188,7 @@ int main(int argc, char **argv)
 
     // Output a header
 
-    printf("VSPAERO v.4.1.1 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
+    printf("VSPAERO v.4.2.0 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
     printf("\n\n\n\n");
     
 #ifdef VSPAERO_OPENMP
@@ -230,7 +231,13 @@ int main(int argc, char **argv)
        NumberOfAoAs_ = 1;
        
        AoAList_[1] = 0.;
-    
+       
+       Zcg_ += HeightAboveGround_ - Zcg_;
+          
+       VSP_VLM().Xcg() = Xcg_;
+       VSP_VLM().Ycg() = Ycg_;
+       VSP_VLM().Zcg() = Zcg_;       
+
     }
     
     // Write out 2D FEM file
@@ -305,7 +312,7 @@ int main(int argc, char **argv)
 
 void PrintUsageHelp()
 {
-       printf("VSPAERO v.4.1.1 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
+       printf("VSPAERO v.4.2.0  --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
        printf("\n\n\n\n");
 
        printf("Usage: vspaero [options] <FileName>\n");
@@ -424,6 +431,12 @@ void ParseInput(int argc, char *argv[])
 
           VSP_VLM().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
 
+       }
+       
+       else if ( strcmp(argv[i],"-vortex") == 0 ) {
+       
+          VSP_VLM().CalculateVortexLift() = UseVortexLiftModel_ = 1;
+          
        }
 
        else if ( strcmp(argv[i],"-fs") == 0 ) {
@@ -919,7 +932,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
                            if ( strcmp( VSP_VLM().VSPGeom().VSP_Surface( k  ).ControlSurface( p ).ShortName(),
                                         VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).ShortName() ) == 0 ){
    
-                             sprintf( tempStrBuf,", %s", VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).Name() );
+                             sprintf( tempStrBuf,",%s", VSP_VLM().VSPGeom().VSP_Surface( k2 ).ControlSurface( p2 ).Name() );
                              strcat( controlGroupStrBuf, tempStrBuf );
                      
                              NumControls++;
@@ -1797,7 +1810,9 @@ void Solve(void)
              // Set a comment line
              
              sprintf(VSP_VLM().CaseString(),"Case: %-d ...",Case);
-      
+             
+             if ( DoGroundEffectsAnalysis_ ) sprintf(VSP_VLM().CaseString(),"AoA: %7.3f",-VSP_VLM().VehicleRotationAngleVector(1));
+
              // Solve this case
              
              if ( SaveRestartFile_ ) VSP_VLM().SaveRestartFile() = 1;

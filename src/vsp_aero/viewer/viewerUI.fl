@@ -7,7 +7,7 @@ class viewerUI {open
   Function {viewerUI()} {open
   } {
     Fl_Window mainWindow {
-      label {VSPAERO Viewer 4.1.1} open selected
+      label {VSPAERO Viewer 4.2.0} open
       private xywh {634 394 1160 710} type Double labelsize 12 align 0 resizable visible
     } {
       Fl_Group {} {open
@@ -374,20 +374,20 @@ glviewer->redraw();}
           MenuItem DrawXPlane {
             label {Draw X-Plane}
             callback {glviewer->DrawXPlaneWasPicked();
-glviewer->redraw();}
-            xywh {0 0 36 21} type Toggle
+glviewer->redraw();} selected
+            xywh {0 0 36 21} type Radio
           }
           MenuItem DrawYPlane {
             label {Draw Y-Plane}
             callback {glviewer->DrawYPlaneWasPicked();
 glviewer->redraw();}
-            xywh {10 10 36 21} type Toggle
+            xywh {10 10 36 21} type Radio
           }
           MenuItem DrawZPlane {
             label {Draw Z-Plane}
             callback {glviewer->DrawZPlaneWasPicked();
 glviewer->redraw();}
-            xywh {20 20 36 21} type Toggle
+            xywh {20 20 36 21} type Radio
           }
         }
       }

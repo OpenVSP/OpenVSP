@@ -157,6 +157,8 @@ private:
     int DoSymmetryPlaneSolve_;
 
     int Preconditioner_;
+    
+    int CalculateVortexLift_;
 
     double *Gamma_;
     double *GammaNM1_;
@@ -191,6 +193,7 @@ private:
     double CpMin_;
     double CpMax_;
     double CpBase_;
+    double DCpMax_;
     
     double CL_[2];
     double CD_[2];
@@ -339,16 +342,14 @@ private:
     void Setup_VortexEdges(void);
     
     void InitializeTrailingVortices(void);
-    
-    void CreateInteractionList(void);
-   
+
     void CreateSurfaceVorticesInteractionList(void);
     
     void CalculateSurfaceInducedVelocityAtPoint(double xyz[3], double q[3]);
 
     void CalculateWingSurfaceInducedVelocityAtPoint(double xyz[3], double q[3]);
     
-    VSP_EDGE **CreateInteractionList(double xyz[3], int &NumberOfInteractionEdges);
+    VSP_EDGE **CreateInteractionList(int ComponentID, double xyz[3], int &NumberOfInteractionEdges);
     
     int FirstTimeSetup_;
     int MaxStackSize_;
@@ -404,10 +405,9 @@ private:
     
     void SaveVortexState(void);
     
-    // Overlapping surface code
+    // Carlson's attainable leading edge suction model
     
-    void FindOverLappingSurfaces(void);
-    int LoopsOverLap(int BodyLoop, int WingLoop);
+    double CalculateLeadingEdgeSuctionFraction(double Mach, double ToC, double RoC, double EtaToC, double AoA, double Sweep);
     
 public:
 
@@ -626,6 +626,10 @@ public:
     // Over ride default edge by edge ssor preconditioner
     
     int &Preconditioner(void ) { return Preconditioner_; };
+    
+    // Force calculation of leading edge suction and/or vortex lift 
+    
+    int &CalculateVortexLift(void) { return CalculateVortexLift_; };
     
     // User case string
     
