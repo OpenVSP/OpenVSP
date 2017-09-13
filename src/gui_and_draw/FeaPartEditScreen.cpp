@@ -2169,7 +2169,6 @@ void FeaPartEditScreen::UpdateFixPointParentChoice()
 
         for ( size_t i = 0; i < feaprt_vec.size(); i++ )
         {
-
             if ( !structVec[StructureMgr.GetCurrStructIndex()]->FeaPartIsFixPoint( i ) )
             {
                 m_FixPointParentSurfChoice.AddItem( string( feaprt_vec[i]->GetName() ) );
@@ -2195,10 +2194,19 @@ void FeaPartEditScreen::UpdateFixPointParentChoice()
                     if ( parent_feaprt )
                     {
                         int parent_index = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPartIndex( parent_feaprt );
+                        int num_fix_pnts_prior = 0;
 
-                        if ( structVec[StructureMgr.GetCurrStructIndex()]->ValidFeaPartInd( parent_index ) )
+                        for ( size_t i = 0; i < parent_index; i++ )
                         {
-                            m_FixPointParentSurfChoice.SetVal( parent_index );
+                            if ( structVec[StructureMgr.GetCurrStructIndex()]->FeaPartIsFixPoint( i ) )
+                            {
+                                num_fix_pnts_prior++;
+                            }
+                        }
+
+                        if ( structVec[StructureMgr.GetCurrStructIndex()]->ValidFeaPartInd( parent_index - num_fix_pnts_prior ) )
+                        {
+                            m_FixPointParentSurfChoice.SetVal( parent_index - num_fix_pnts_prior );
                         }
                     }
                     else
