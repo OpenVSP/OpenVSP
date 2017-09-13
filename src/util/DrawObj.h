@@ -50,6 +50,7 @@ public:
     * VSP_WIRE_TRIS - Render Triangles to wire frame.
     * VSP_HIDDEN_TRIS - Render Triangles to solid wire frame.
     * VSP_SHADED_TRIS - Render Triangles to mesh with lighting.
+    * VSP_WIRE_SHADED_TRIS - Render Triangles to wire frame mesh with lighting
     * VSP_SETTING - This drawObj provides Global Setting Info(lighting, etc...).  Does not render anything.
     * VSP_RULER - Render Ruler.
     * VSP_PICK_VERTEX - This type drawObj enables vertex picking for a specific geometry.
@@ -59,6 +60,7 @@ public:
     * VSP_HIDDEN_QUADS - Render Quads to solid wire frame.
     * VSP_SHADED_QUADS - Render Quads to mesh with lighting.
     * VSP_WIRE_QUADS - Render Quads to wire frame.
+    * VSP_WIRE_SHADED_QUADS - Render Quads to wire frame mesh with lighting
     */
 
     vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
