@@ -214,6 +214,40 @@ void VSPAEROMgrSingleton::Renew()
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
     m_LastSelectedType = -1;
+
+    m_AnalysisMethod.Set( vsp::VORTEX_LATTICE );
+    m_GeomSet.Set( vsp::SET_ALL );
+    m_RefFlag.Set( MANUAL_REF );
+    m_Sref.Set( 100 );
+    m_bref.Set( 1.0 );
+    m_cref.Set( 1.0 );
+
+    m_CGGeomSet.Set( vsp::SET_ALL );
+    m_NumMassSlice.Set( 10 );
+    m_Xcg.Set( 0.0 );
+    m_Ycg.Set( 0.0 );
+    m_Zcg.Set( 0.0 );
+
+    m_AlphaStart.Set( 1.0 ); m_AlphaEnd.Set( 10 ); m_AlphaNpts.Set( 3 );
+    m_BetaStart.Set( 0.0 ); m_BetaEnd.Set( 0.0 ); m_BetaNpts.Set( 1 );
+    m_MachStart.Set( 0.0 ); m_MachEnd.Set( 0.0 ); m_MachNpts.Set( 1 );
+
+    m_BatchModeFlag.Set( true );
+    m_JacobiPrecondition.Set( false );
+    m_LeadingEdgeSuction.Set( false );
+    m_Symmetry.Set( false );
+    m_StabilityCalcFlag.Set( false );
+    m_StabilityType.Set( vsp::STABILITY_DEFAULT );
+
+    m_NCPU.Set( 4 );
+
+    m_WakeNumIter.Set( 5 );
+    m_WakeAvgStartIter.Set( 0 );
+    m_WakeSkipUntilIter.Set( 0 );
+
+    m_ClMaxToggle.Set( false );
+    m_MaxTurnToggle.Set( false );
+    m_FarDistToggle.Set( false );
 }
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
