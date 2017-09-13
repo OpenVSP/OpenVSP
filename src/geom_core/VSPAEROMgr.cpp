@@ -151,6 +151,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_ReCref.SetDescript( "Reynolds Number along Reference Chord" );
     m_JacobiPrecondition.Init( "JacobiPrecondition", groupname, this, false, false, true );
     m_JacobiPrecondition.SetDescript( "Activate Jacobi Preconditioner" );
+    m_LeadingEdgeSuction.Init( "LeadingEdgeSuction", groupname, this, false, false, true );
+    m_LeadingEdgeSuction.SetDescript( "Activate Leading Edge Suction/Vortex Lift" );
     m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
     m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
@@ -946,10 +948,29 @@ string VSPAEROMgrSingleton::CreateSetupFile()
 
     // Preconditioner
 
+    string jacobi;
     if ( m_JacobiPrecondition() )
     {
-        fprintf( case_file, "PreconditionerType = %s \n", "JACOBI" );
+        jacobi = "Y";
     }
+    else
+    {
+        jacobi = "N";
+    }
+    fprintf( case_file, "Preconditioner = %s \n", jacobi.c_str() );
+
+    // Leading Edge Suction/Vortex Lift
+
+    string lesuction;
+    if ( m_LeadingEdgeSuction() )
+    {
+        lesuction = "Y";
+    }
+    else
+    {
+        lesuction = "N";
+    }
+    fprintf( case_file, "VortexLift = %s \n", lesuction.c_str());
 
     // Unsteady Setup
     if ( m_StabilityCalcFlag() )

@@ -174,6 +174,7 @@ protected:
     ToggleButton m_SymmetryToggle;
     ToggleButton m_Write2DFEMToggle;
     ToggleButton m_JacobiPreconditionToggle;
+    ToggleButton m_LeadingEdgeSuctionToggle;
 
     // Wake calculation options
     SliderAdjRangeInput m_WakeNumIterSlider;
