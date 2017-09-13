@@ -31,6 +31,7 @@ public:
         TEST_ADD( APITestSuiteParasiteDrag::TestFrictionCoefficientEquations );
         TEST_ADD( APITestSuiteParasiteDrag::TestSubSurfaceHandling );
         TEST_ADD( APITestSuiteParasiteDrag::TestGeometryGrouping );
+        TEST_ADD( APITestSuiteParasiteDrag::TestPartialFrictionMethod );
     }
 
 private:
@@ -48,6 +49,7 @@ private:
     void TestUSAF1966();
     void TestFormFactorEquations();
     void TestFrictionCoefficientEquations();
+    void TestPartialFrictionMethod();
 
     string m_vspfname_for_parasitedragtests;
 };

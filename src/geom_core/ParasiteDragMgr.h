@@ -97,7 +97,8 @@ public:
     void CalcRePowerDivisor();
     void ReynoldsNumCalc( int index );
     void Calculate_Cf();
-    void CalcPartialTurbulence( int i, double lref, double vinf, double kineVisc );
+    double CalcPartialTurbulence( double perclam, double re, double lref, double reqL,
+        double roughness, double tawtwrat, double tetwrat );
     void Calculate_fineRat();
     double CalculateFinessRatio( int isurf, int irow );
     void Calculate_FF();

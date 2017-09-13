@@ -648,3 +648,10 @@ void APITestSuiteParasiteDrag::TestFrictionCoefficientEquations()
     vsp::WriteCfEqnCSVFile( "matlab\\FrictionCoefficientData.csv" );
     printf( "COMPLETE. \n" );
 }
+
+void APITestSuiteParasiteDrag::TestPartialFrictionMethod()
+{
+    printf( "Starting Partial Friction Method Data Creation. \n" );
+    vsp::WritePartialCfMethodCSVFile( "matlab\\PartialFrictionMethodData.csv" );
+    printf( "COMPLETE. \n" );
+}

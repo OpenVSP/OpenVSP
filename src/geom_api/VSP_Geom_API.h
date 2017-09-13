@@ -286,6 +286,7 @@ extern void CalcAtmosphere( const double & alt, const double & delta_temp, const
 extern void WriteBodyFFCSVFile( const std::string & file_name );
 extern void WriteWingFFCSVFile( const std::string & file_name );
 extern void WriteCfEqnCSVFile( const std::string & file_name );
+extern void WritePartialCfMethodCSVFile( const std::string & file_name );
 
 }           // End vsp namespace
 

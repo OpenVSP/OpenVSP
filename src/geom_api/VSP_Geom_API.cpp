@@ -3814,5 +3814,37 @@ void WriteCfEqnCSVFile(const std::string & file_name)
     res->WriteCSVFile( file_name );
 }
 
+void WritePartialCfMethodCSVFile(const std::string & file_name)
+{
+    Results* res = ResultsMgr.CreateResults("Friction_Coefficient");
+    char str[256];
+    vector < double > cf_vec, ref_leng;
+    vector < double > lam_perc_array = linspace( 0, 100, 1000 );
+    vector < double > ReyIn_array, reql_array;
+    ReyIn_array.push_back( 1.0e7 );
+    reql_array.push_back( 1.0e7 );
+    vector < double > roughness, taw_tw_ratio, te_tw_ratio;
+    roughness.push_back(0.0);
+    taw_tw_ratio.push_back(1.0);
+    te_tw_ratio.push_back(1.0);
+    ref_leng.push_back(1.0);
+
+    for (size_t i = 0; i < lam_perc_array.size(); ++i )
+    {
+        cf_vec.push_back( ParasiteDragMgr.CalcPartialTurbulence( lam_perc_array[i], ReyIn_array[0], ref_leng[0], reql_array[0],
+            roughness[0], taw_tw_ratio[0], te_tw_ratio[0]) );
+    }
+
+    res->Add(NameValData("LamPerc", lam_perc_array));
+    res->Add(NameValData("Cf", cf_vec));
+    res->Add(NameValData("ReyIn", ReyIn_array));
+    res->Add(NameValData("Ref_Leng", ref_leng));
+    res->Add(NameValData("Re\/L", reql_array));
+    res->Add(NameValData("Roughness", roughness));
+    res->Add(NameValData("Taw\/Tw", taw_tw_ratio));
+    res->Add(NameValData("Te\/Tw", te_tw_ratio));
+    res->WriteCSVFile( file_name );
+}
+
 //============================================================================//
 }   // vsp namespace
