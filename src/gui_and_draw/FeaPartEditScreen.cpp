@@ -1501,7 +1501,6 @@ bool FeaPartEditScreen::Update()
                 if ( subsurf )
                 {
                     m_FeaPartNameInput.Update( subsurf->GetName() );
-                    m_ShellCapToggleGroup.Update( subsurf->m_IncludedElements.GetID() );
 
                     if ( subsurf->GetType() == vsp::SS_LINE )
                     {

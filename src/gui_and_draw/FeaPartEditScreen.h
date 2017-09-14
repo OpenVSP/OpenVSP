@@ -19,13 +19,13 @@ class FeaPartEditScreen : public BasicScreen
 public:
     FeaPartEditScreen( ScreenMgr* mgr );
     virtual ~FeaPartEditScreen();
+
     virtual bool Update();
     virtual void Show();
     virtual void GuiDeviceCallBack( GuiDevice* device );
     virtual void CloseCallBack( Fl_Widget *w );
 
     virtual void FeaPartDispGroup( GroupLayout* group );
-
     virtual void UpdateFeaPropertyChoice();
     virtual void UpdatePerpendicularRibChoice();
     virtual void UpdateFixPointParentChoice();
@@ -51,16 +51,8 @@ private:
     GroupLayout m_FeaSSConGroup;
     GroupLayout m_FeaSSLineArrayGroup;
 
-    //===== FeaPart Tab Items =====//
-
+    //===== General =====//
     StringInput m_FeaPartNameInput;
-    TriggerButton m_EditFeaPartButton;
-    TriggerButton m_AddFeaPartButton;
-    TriggerButton m_DelFeaPartButton;
-    ToggleButton m_ShellToggle;
-    ToggleButton m_CapToggle;
-    ToggleButton m_ShellCapToggle;
-    ToggleRadioGroup m_ShellCapToggleGroup;
 
     //===== Skin =====//
     ToggleButton m_RemoveSkinTrisToggle;
