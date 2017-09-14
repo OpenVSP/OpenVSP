@@ -2980,29 +2980,27 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         // Load DegenGeom
         for ( int i = 0; i < m_DegenSurfDrawObj_vec.size(); i++ )
         {
-            sprintf( str, "_%d", i );
-            m_DegenSurfDrawObj_vec[i].m_GeomID = m_ID + "Degen_Surf_" + str;
+            m_DegenSurfDrawObj_vec[i].m_GeomID = m_ID + "Degen_Surf_" + std::to_string( i );
             m_DegenSurfDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
 
             // Set Render Destination to Main VSP Window.
             m_DegenSurfDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
-            Material material;
-            material.SetMaterialToDefault();
+            Material * material = m_GuiDraw.getMaterial();
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material.m_Ambi[j];
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material.m_Diff[j];
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material.m_Spec[j];
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material.m_Emis[j];
+                m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
 
-            m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material.m_Shininess;
+            m_DegenSurfDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
 
             vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
                                         m_GuiDraw.GetWireColor().y() / 255.0,
@@ -3045,29 +3043,27 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         for ( int i = 0; i < m_DegenPlateDrawObj_vec.size(); i++ )
         {
-            sprintf( str, "_%d", i );
-            m_DegenPlateDrawObj_vec[i].m_GeomID = m_ID + "Degen_Plate_" + str;
+            m_DegenPlateDrawObj_vec[i].m_GeomID = m_ID + "Degen_Plate_" + std::to_string( i );
             m_DegenPlateDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
 
             // Set Render Destination to Main VSP Window.
             m_DegenPlateDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
-            Material material;
-            material.SetMaterialToDefault();
+            Material * material = m_GuiDraw.getMaterial();
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material.m_Ambi[j];
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material.m_Diff[j];
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material.m_Spec[j];
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material.m_Emis[j];
+                m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
 
-            m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material.m_Shininess;
+            m_DegenPlateDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
 
             vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
                                         m_GuiDraw.GetWireColor().y() / 255.0,
@@ -3110,29 +3106,27 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         for ( int i = 0; i < m_DegenCamberPlateDrawObj_vec.size(); i++ )
         {
-            sprintf( str, "_%d", i );
-            m_DegenCamberPlateDrawObj_vec[i].m_GeomID = m_ID + "Degen_Camber_Plate_" + str;
+            m_DegenCamberPlateDrawObj_vec[i].m_GeomID = m_ID + "Degen_Camber_Plate_" + std::to_string( i );
             m_DegenCamberPlateDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
 
             // Set Render Destination to Main VSP Window.
             m_DegenCamberPlateDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
-            Material material;
-            material.SetMaterialToDefault();
+            Material * material = m_GuiDraw.getMaterial();
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material.m_Ambi[j];
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material.m_Diff[j];
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material.m_Spec[j];
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
 
             for ( int j = 0; j < 4; j++ )
-                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material.m_Emis[j];
+                m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
 
-            m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material.m_Shininess;
+            m_DegenCamberPlateDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
 
             vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
                                         m_GuiDraw.GetWireColor().y() / 255.0,
@@ -3172,38 +3166,11 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         }
     }
 
-    //if ( m_GuiDraw.GetDispDegenStickFlag() )
-    //{
-    //    for ( int i = 0; i < m_DegenStickDrawObj_vec.size(); i++ )
-    //    {
-    //        sprintf( str, "_%d", i );
-    //        m_DegenStickDrawObj_vec[i].m_GeomID = m_ID + "Degen_Stick_" + str;
-
-    //        // Set Render Destination to Main VSP Window.
-    //        m_DegenStickDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-
-    //        vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
-    //                                 m_GuiDraw.GetWireColor().y() / 255.0,
-    //                                 m_GuiDraw.GetWireColor().z() / 255.0 );
-
-    //        m_DegenStickDrawObj_vec[i].m_LineWidth = 1.0;
-    //        m_DegenStickDrawObj_vec[i].m_LineColor = lineColor;
-
-    //        if ( m_GuiDraw.GetDegenDrawType() == m_GuiDraw.GEOM_DRAW_WIRE )
-    //        {
-    //            m_DegenStickDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
-    //        }
-
-    //        draw_obj_vec.push_back( &m_DegenStickDrawObj_vec[i] );
-    //    }
-    //}
-
     if ( m_GuiDraw.GetDispSubSurfFlag() && m_GuiDraw.GetDisplayType() != GeomGuiDraw::DISPLAY_BEZIER )
     {
         for ( int i = 0; i < m_DegenSubSurfDrawObj_vec.size(); i++ )
         {
-            sprintf( str, "_%d", i );
-            m_DegenSubSurfDrawObj_vec[i].m_GeomID = m_ID + "Degen_SubSurf_" + str;
+            m_DegenSubSurfDrawObj_vec[i].m_GeomID = m_ID + "Degen_SubSurf_" + std::to_string( i );
             m_DegenSubSurfDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
 
             // Set Render Destination to Main VSP Window.
