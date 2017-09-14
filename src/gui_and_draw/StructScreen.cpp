@@ -32,18 +32,23 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
+    int border = 5;
+    int labelfont = 13;
+    int textsize = 12;
+    int labelsize = 12;
+
     Fl_Group* structTab = AddTab( "Structure" );
-    Fl_Group* structTabGroup = AddSubGroup( structTab, 5 );
+    Fl_Group* structTabGroup = AddSubGroup( structTab, border );
     Fl_Group* partTab = AddTab( "Part" );
-    Fl_Group* partTabGroup = AddSubGroup( partTab, 5 );
+    Fl_Group* partTabGroup = AddSubGroup( partTab, border );
     Fl_Group* matTab = AddTab( "Material" );
-    Fl_Group* matTabGroup = AddSubGroup( matTab, 5 );
+    Fl_Group* matTabGroup = AddSubGroup( matTab, border );
     Fl_Group* propTab = AddTab( "Property" );
-    Fl_Group* propTabGroup = AddSubGroup( propTab, 5 );
+    Fl_Group* propTabGroup = AddSubGroup( propTab, border );
     Fl_Group* meshTab = AddTab( "Mesh" );
-    Fl_Group* meshTabGroup = AddSubGroup( meshTab, 5 );
+    Fl_Group* meshTabGroup = AddSubGroup( meshTab, border );
     Fl_Group* displayTab = AddTab( "Display" );
-    Fl_Group* displayTabGroup = AddSubGroup( displayTab, 5 );
+    Fl_Group* displayTabGroup = AddSubGroup( displayTab, border );
 
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -53,10 +58,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
                         - 2 * m_ConsoleLayout.GetGapHeight() );
 
     m_ConsoleLayout.AddYGap();
-    m_ConsoleLayout.AddX(5);
+    m_ConsoleLayout.AddX( border );
 
-    m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - 5,
-                                       m_ConsoleLayout.GetRemainY() - 5);
+    m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - border,
+                                       m_ConsoleLayout.GetRemainY() - border );
 
     m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTextDisplay( 115 );
     m_ConsoleBuffer = new Fl_Text_Buffer;
@@ -110,9 +115,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_StructureSelectBrowser = m_StructureTabLayout.AddFlBrowser( browser_h );
     m_StructureSelectBrowser->type( FL_HOLD_BROWSER );
-    m_StructureSelectBrowser->labelfont( 13 );
-    m_StructureSelectBrowser->labelsize( 12 );
-    m_StructureSelectBrowser->textsize( 12 );
+    m_StructureSelectBrowser->labelfont( labelfont );
+    m_StructureSelectBrowser->labelsize( labelsize );
+    m_StructureSelectBrowser->textsize( textsize );
     m_StructureSelectBrowser->callback( staticScreenCB, this );
 
     int buttonwidth = m_StructureTabLayout.GetButtonWidth();
@@ -150,9 +155,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_StructGeneralGroup.SetGroupAndScreen( AddSubGroup( structTab, 5 ), this );
     m_StructGeneralGroup.SetY( m_StructGroup.GetY() );
-
-    m_StructGeneralGroup.SetSameLineFlag( false );
-    m_StructGeneralGroup.SetFitWidthFlag( true );
 
     m_StructGeneralGroup.AddDividerBox( "Orientation" );
 
@@ -209,9 +211,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_FeaPartSelectBrowser = m_FeaPartBrowserLayout.AddFlBrowser( browser_h );
     m_FeaPartSelectBrowser->type( FL_MULTI_BROWSER );
-    m_FeaPartSelectBrowser->labelfont( 13 );
-    m_FeaPartSelectBrowser->labelsize( 12 );
-    m_FeaPartSelectBrowser->textsize( 12 );
+    m_FeaPartSelectBrowser->labelfont( labelfont );
+    m_FeaPartSelectBrowser->labelsize( labelsize );
+    m_FeaPartSelectBrowser->textsize( textsize );
     m_FeaPartSelectBrowser->callback( staticScreenCB, this );
 
     m_PartTabLayout.SetX( start_x );
@@ -228,10 +230,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_PartTabLayout.AddButton( m_DelFeaPartButton, "Delete Part" );
 
     m_PartTabLayout.ForceNewLine();
-
-    m_PartTabLayout.SetSameLineFlag( false );
-    m_PartTabLayout.SetFitWidthFlag( true );
-
     m_PartTabLayout.AddYGap();
 
     //==== General FeaPart Parameters ====//
@@ -277,7 +275,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_PartGroup.SetChoiceButtonWidth( m_PartGroup.GetRemainX() / 2 );
 
     m_PartGroup.AddChoice( m_GenPropertyChoice, "Property" );
-
     m_PartGroup.AddChoice( m_GenCapPropertyChoice, "Cap Property" );
 
     m_PartGroup.AddYGap();
@@ -300,13 +297,14 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MaterialTabLayout.AddDividerBox( "Material Selection" );
 
     m_MaterialEditGroup.SetGroupAndScreen( AddSubGroup( matTabGroup, 5 ), this );
+
     m_MaterialEditGroup.SetY( m_MaterialTabLayout.GetY() );
 
     m_FeaMaterialSelectBrowser = m_MaterialEditGroup.AddFlBrowser( browser_h );
     m_FeaMaterialSelectBrowser->type( FL_HOLD_BROWSER );
-    m_FeaMaterialSelectBrowser->labelfont( 13 );
-    m_FeaMaterialSelectBrowser->labelsize( 12 );
-    m_FeaMaterialSelectBrowser->textsize( 12 );
+    m_FeaMaterialSelectBrowser->labelfont( labelfont );
+    m_FeaMaterialSelectBrowser->labelsize( labelsize );
+    m_FeaMaterialSelectBrowser->textsize( textsize );
     m_FeaMaterialSelectBrowser->callback( staticScreenCB, this );
 
     m_MaterialEditGroup.SetSameLineFlag( true );
@@ -318,10 +316,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MaterialEditGroup.AddButton( m_DelFeaMaterialButton, "Delete Material" );
     m_MaterialEditGroup.ForceNewLine();
 
-    m_MaterialEditSubGroup.SetGroupAndScreen( AddSubGroup( matTab, 5 ), this );
-    m_MaterialEditSubGroup.SetY( m_MaterialEditGroup.GetY() );
+    m_MaterialEditGroup.AddSubGroupLayout( m_MaterialEditSubGroup, m_MaterialEditGroup.GetRemainX(), m_MaterialEditGroup.GetRemainY() );
 
-    m_MaterialEditSubGroup.SetButtonWidth( buttonwidth );
+    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() / 3 );
 
     m_MaterialEditSubGroup.AddYGap();
 
@@ -334,26 +331,28 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MaterialEditSubGroup.SetSameLineFlag( true );
     m_MaterialEditSubGroup.SetFitWidthFlag( false );
 
-    m_MaterialEditSubGroup.SetButtonWidth( buttonwidth );
+    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() / 3 );
     m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
     m_MaterialEditSubGroup.SetInputWidth( m_MaterialEditSubGroup.GetW() / 6 );
 
     m_MaterialEditSubGroup.AddSlider( m_MatDensitySlider, "Mass Density", 1e3, "%5.3g" );
+    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() );
     m_MaterialEditSubGroup.AddButton( m_MatDensityUnit, "" );
     m_MatDensityUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_MatDensityUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_MatDensityUnit.SetWidth( ( m_MaterialEditSubGroup.GetW() / 5 ) - 7 );
 
     m_MaterialEditSubGroup.ForceNewLine();
+    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() / 3 );
     m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
 
     m_MaterialEditSubGroup.AddSlider( m_MatElasticModSlider, "Elastic Modulus", 1e4, "%5.3g" );
+    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() );
     m_MaterialEditSubGroup.AddButton( m_MatElasticModUnit, "" );
     m_MatElasticModUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_MatElasticModUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_MatElasticModUnit.SetWidth( ( m_MaterialEditSubGroup.GetW() / 5 ) - 7 );
 
     m_MaterialEditSubGroup.ForceNewLine();
+    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() / 3 );
     m_MaterialEditSubGroup.SetSliderWidth( 6 * m_MaterialEditSubGroup.GetW() / 24 );
 
     m_MaterialEditSubGroup.AddSlider( m_MatPoissonSlider, "Poisson Ratio", 1, "%5.3g" );
@@ -361,13 +360,10 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MaterialEditSubGroup.ForceNewLine();
 
     m_MaterialEditSubGroup.AddSlider( m_MatThermalExCoeffSlider, "Thermal Expan Coeff", 10e-5, "%5.3g" );
+    m_MaterialEditSubGroup.SetButtonWidth( m_MaterialEditSubGroup.GetRemainX() );
     m_MaterialEditSubGroup.AddButton( m_MatThermalExCoeffUnit, "" );
     m_MatThermalExCoeffUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_MatThermalExCoeffUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_MatThermalExCoeffUnit.SetWidth( ( m_MaterialEditSubGroup.GetW() / 5 ) - 7 );
-
-    m_MaterialEditSubGroup.ForceNewLine();
-    m_MaterialEditSubGroup.AddYGap();
 
     //=== Property Tab ===//
     m_PropertyTabLayout.SetGroupAndScreen( propTabGroup, this );
@@ -379,9 +375,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_FeaPropertySelectBrowser = m_PropertyEditGroup.AddFlBrowser( browser_h - 20 );
     m_FeaPropertySelectBrowser->type( FL_HOLD_BROWSER );
-    m_FeaPropertySelectBrowser->labelfont( 13 );
-    m_FeaPropertySelectBrowser->labelsize( 12 );
-    m_FeaPropertySelectBrowser->textsize( 12 );
+    m_FeaPropertySelectBrowser->labelfont( labelfont );
+    m_FeaPropertySelectBrowser->labelsize( labelsize );
+    m_FeaPropertySelectBrowser->textsize( textsize );
     m_FeaPropertySelectBrowser->callback( staticScreenCB, this );
 
     m_PropertyEditGroup.SetChoiceButtonWidth( buttonwidth );
@@ -400,10 +396,9 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_PropertyEditGroup.AddButton( m_DelFeaPropertyButton, "Delete Property" );
     m_PropertyEditGroup.ForceNewLine();
 
-    m_FeaPropertyCommonGroup.SetGroupAndScreen( AddSubGroup( propTab, 5 ), this );
-    m_FeaPropertyCommonGroup.SetY( m_PropertyEditGroup.GetY() );
+    m_PropertyEditGroup.AddSubGroupLayout( m_FeaPropertyCommonGroup, m_PropertyEditGroup.GetRemainX(), m_PropertyEditGroup.GetRemainY() );
 
-    m_FeaPropertyCommonGroup.SetButtonWidth( buttonwidth );
+    m_FeaPropertyCommonGroup.SetButtonWidth( m_FeaPropertyCommonGroup.GetRemainX() / 3 );
 
     m_FeaPropertyCommonGroup.AddYGap();
 
@@ -411,45 +406,42 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_FeaPropertyCommonGroup.AddYGap();
 
-    m_FeaPropertyShellGroup.SetGroupAndScreen( AddSubGroup( propTab, 5 ), this );
-    m_FeaPropertyShellGroup.SetY( m_FeaPropertyCommonGroup.GetY() );
+    m_FeaPropertyCommonGroup.AddSubGroupLayout( m_FeaPropertyShellGroup, m_FeaPropertyCommonGroup.GetRemainX(), m_FeaPropertyCommonGroup.GetRemainY() );
 
     m_FeaPropertyShellGroup.AddDividerBox( "Shell Properties" );
 
-    m_FeaPropertyShellGroup.SetButtonWidth( buttonwidth );
-    m_FeaPropertyShellGroup.SetChoiceButtonWidth( buttonwidth );
+    m_FeaPropertyShellGroup.SetButtonWidth( m_FeaPropertyShellGroup.GetRemainX() / 3 );
+    m_FeaPropertyShellGroup.SetChoiceButtonWidth( m_FeaPropertyShellGroup.GetRemainX() / 3 );
 
     m_FeaPropertyShellGroup.AddChoice( m_FeaShellMaterialChoice, "Material" );
 
     m_FeaPropertyShellGroup.SetSameLineFlag( true );
     m_FeaPropertyShellGroup.SetFitWidthFlag( false );
 
-    m_FeaPropertyShellGroup.SetButtonWidth( buttonwidth );
     m_FeaPropertyShellGroup.SetSliderWidth( m_FeaPropertyShellGroup.GetW() / 3 );
     m_FeaPropertyShellGroup.SetInputWidth( m_FeaPropertyShellGroup.GetW() / 6 );
 
     m_FeaPropertyShellGroup.AddSlider( m_PropThickSlider, "Thickness", 100.0, "%5.3g" );
+    m_FeaPropertyShellGroup.SetButtonWidth( m_FeaPropertyShellGroup.GetRemainX() );
     m_FeaPropertyShellGroup.AddButton( m_PropThickUnit, "" );
     m_PropThickUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropThickUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PropThickUnit.SetWidth( m_FeaPropertyShellGroup.GetW() / 10 );
 
     m_FeaPropertyShellGroup.ForceNewLine();
 
-    m_FeaPropertyBeamGroup.SetGroupAndScreen( AddSubGroup( propTab, 5 ), this );
-    m_FeaPropertyBeamGroup.SetY( m_FeaPropertyCommonGroup.GetY() );
+    m_FeaPropertyCommonGroup.AddSubGroupLayout( m_FeaPropertyBeamGroup, m_FeaPropertyCommonGroup.GetRemainX(), m_FeaPropertyCommonGroup.GetRemainY() );
 
     m_FeaPropertyBeamGroup.AddDividerBox( "Beam Properties" );
 
-    m_FeaPropertyBeamGroup.SetButtonWidth( buttonwidth );
-    m_FeaPropertyBeamGroup.SetChoiceButtonWidth( buttonwidth );
+    m_FeaPropertyBeamGroup.SetButtonWidth( m_FeaPropertyBeamGroup.GetRemainX() / 3 );
+    m_FeaPropertyBeamGroup.SetChoiceButtonWidth( m_FeaPropertyBeamGroup.GetRemainX() / 3 );
 
     m_FeaPropertyBeamGroup.AddChoice( m_FeaBeamMaterialChoice, "Material" );
 
     m_FeaPropertyBeamGroup.SetSameLineFlag( true );
     m_FeaPropertyBeamGroup.SetFitWidthFlag( false );
 
-    m_FeaPropertyBeamGroup.SetSliderWidth( buttonwidth );
+    m_FeaPropertyBeamGroup.SetSliderWidth( m_FeaPropertyBeamGroup.GetRemainX() / 3 );
 
     m_FeaBeamXSecChoice.AddItem( "General" );
     m_FeaBeamXSecChoice.AddItem( "Circle" );
@@ -459,242 +451,247 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_FeaBeamXSecChoice.AddItem( "Box" );
     m_FeaPropertyBeamGroup.AddChoice( m_FeaBeamXSecChoice, "Cross Section Type" );
 
-    m_FeaPropertyBeamGroup.SetButtonWidth( m_FeaPropertyBeamGroup.GetRemainX() );
-
     m_FeaPropertyBeamGroup.AddButton( m_ShowFeaBeamXSecButton, "Show XSec" );
 
     m_FeaPropertyBeamGroup.ForceNewLine();
 
     m_FeaPropertyBeamGroup.AddYGap();
-    int current_y = m_FeaPropertyBeamGroup.GetY();
 
     // General XSec
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_GenXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
-    m_GenXSecGroup.SetY( current_y );
 
     m_GenXSecGroup.AddDividerBox( "General XSec" );
 
     m_GenXSecGroup.SetSameLineFlag( true );
     m_GenXSecGroup.SetFitWidthFlag( false );
 
-    m_GenXSecGroup.SetButtonWidth( buttonwidth );
-    m_GenXSecGroup.SetSliderWidth( m_GenXSecGroup.GetW() / 3 );
-    m_GenXSecGroup.SetInputWidth( m_GenXSecGroup.GetW() / 6 );
+    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() / 3 );
+    m_GenXSecGroup.SetSliderWidth( m_GenXSecGroup.GetRemainX() / 3 );
+    m_GenXSecGroup.SetInputWidth( m_GenXSecGroup.GetRemainX() / 6 );
 
     m_GenXSecGroup.AddSlider( m_PropAreaSlider, "Cross-Sect Area", 100.0, "%5.3g" );
+    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() );
     m_GenXSecGroup.AddButton( m_PropAreaUnit, "" );
     m_PropAreaUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropAreaUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PropAreaUnit.SetWidth( m_GenXSecGroup.GetW() / 10 );
 
     m_GenXSecGroup.ForceNewLine();
+    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() / 3 );
 
     m_GenXSecGroup.AddSlider( m_PropIzzSlider, "Izz", 100.0, "%5.3g" );
+    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() );
     m_GenXSecGroup.AddButton( m_PropIzzUnit, "" );
     m_PropIzzUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIzzUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PropIzzUnit.SetWidth( m_GenXSecGroup.GetW() / 10 );
 
     m_GenXSecGroup.ForceNewLine();
+    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() / 3 );
 
     m_GenXSecGroup.AddSlider( m_PropIyySlider, "Iyy", 100.0, "%5.3g" );
+    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() );
     m_GenXSecGroup.AddButton( m_PropIyyUnit, "" );
     m_PropIyyUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIyyUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PropIyyUnit.SetWidth( m_GenXSecGroup.GetW() / 10 );
 
     m_GenXSecGroup.ForceNewLine();
+    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() / 3 );
 
     m_GenXSecGroup.AddSlider( m_PropIzySlider, "Izy", 100.0, "%5.3g" );
+    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() );
     m_GenXSecGroup.AddButton( m_PropIzyUnit, "" );
     m_PropIzyUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIzyUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PropIzyUnit.SetWidth( m_GenXSecGroup.GetW() / 10 );
 
     m_GenXSecGroup.ForceNewLine();
+    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() / 3 );
 
     m_GenXSecGroup.AddSlider( m_PropIxxSlider, "Ixx", 100.0, "%5.3g" );
+    m_GenXSecGroup.SetButtonWidth( m_GenXSecGroup.GetRemainX() );
     m_GenXSecGroup.AddButton( m_PropIxxUnit, "" );
     m_PropIxxUnit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PropIxxUnit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PropIxxUnit.SetWidth( m_GenXSecGroup.GetW() / 10 );
 
     m_GenXSecGroup.ForceNewLine();
 
     // Circle XSec
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_CircXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
-    m_CircXSecGroup.SetY( current_y );
 
     m_CircXSecGroup.AddDividerBox( "Circle XSec" );
 
     m_CircXSecGroup.SetSameLineFlag( true );
     m_CircXSecGroup.SetFitWidthFlag( false );
 
-    m_CircXSecGroup.SetButtonWidth( buttonwidth );
-    m_CircXSecGroup.SetSliderWidth( m_CircXSecGroup.GetW() / 3 );
-    m_CircXSecGroup.SetInputWidth( m_CircXSecGroup.GetW() / 6 );
+    m_CircXSecGroup.SetButtonWidth( m_CircXSecGroup.GetRemainX() / 3 );
+    m_CircXSecGroup.SetSliderWidth( m_CircXSecGroup.GetRemainX() / 3 );
+    m_CircXSecGroup.SetInputWidth( m_CircXSecGroup.GetRemainX() / 6 );
 
     m_CircXSecGroup.AddSlider( m_CircDim1Slider, "Radius", 100.0, "%5.3f" );
+    m_CircXSecGroup.SetButtonWidth( m_CircXSecGroup.GetRemainX() );
     m_CircXSecGroup.AddButton( m_CircDim1Unit, "" );
     m_CircDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_CircDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_CircDim1Unit.SetWidth( m_CircXSecGroup.GetW() / 10 );
 
     // Pipe/Tube XSec
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_PipeXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
-    m_PipeXSecGroup.SetY( current_y );
 
     m_PipeXSecGroup.AddDividerBox( "Pipe XSec" );
 
     m_PipeXSecGroup.SetSameLineFlag( true );
     m_PipeXSecGroup.SetFitWidthFlag( false );
 
-    m_PipeXSecGroup.SetButtonWidth( buttonwidth );
-    m_PipeXSecGroup.SetSliderWidth( m_PipeXSecGroup.GetW() / 3 );
-    m_PipeXSecGroup.SetInputWidth( m_PipeXSecGroup.GetW() / 6 );
+    m_PipeXSecGroup.SetButtonWidth( m_PipeXSecGroup.GetRemainX() / 3 );
+    m_PipeXSecGroup.SetSliderWidth( m_PipeXSecGroup.GetRemainX() / 3 );
+    m_PipeXSecGroup.SetInputWidth( m_PipeXSecGroup.GetRemainX() / 6 );
 
     m_PipeXSecGroup.AddSlider( m_PipeDim1Slider, "R_outer", 100.0, "%5.3f" );
+    m_PipeXSecGroup.SetButtonWidth( m_PipeXSecGroup.GetRemainX() );
     m_PipeXSecGroup.AddButton( m_PipeDim1Unit, "" );
     m_PipeDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PipeDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PipeDim1Unit.SetWidth( m_PipeXSecGroup.GetW() / 10 );
 
     m_PipeXSecGroup.ForceNewLine();
+    m_PipeXSecGroup.SetButtonWidth( m_PipeXSecGroup.GetW() / 3 );
 
     m_PipeXSecGroup.AddSlider( m_PipeDim2Slider, "R_inner", 100.0, "%5.3f" );
+    m_PipeXSecGroup.SetButtonWidth( m_PipeXSecGroup.GetRemainX() );
     m_PipeXSecGroup.AddButton( m_PipeDim2Unit, "" );
     m_PipeDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_PipeDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_PipeDim2Unit.SetWidth( m_PipeXSecGroup.GetW() / 10 );
 
     // I XSec
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_IXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
-    m_IXSecGroup.SetY( current_y );
 
     m_IXSecGroup.AddDividerBox( "I XSec" );
 
     m_IXSecGroup.SetSameLineFlag( true );
     m_IXSecGroup.SetFitWidthFlag( false );
 
-    m_IXSecGroup.SetButtonWidth( buttonwidth );
-    m_IXSecGroup.SetSliderWidth( m_IXSecGroup.GetW() / 3 );
-    m_IXSecGroup.SetInputWidth( m_IXSecGroup.GetW() / 6 );
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() / 3 );
+    m_IXSecGroup.SetSliderWidth( m_IXSecGroup.GetRemainX() / 3 );
+    m_IXSecGroup.SetInputWidth( m_IXSecGroup.GetRemainX() / 6 );
 
     m_IXSecGroup.AddSlider( m_IDim1Slider, "Dim1", 100.0, "%5.3f" );
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
     m_IXSecGroup.AddButton( m_IDim1Unit, "" );
     m_IDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_IDim1Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
 
     m_IXSecGroup.ForceNewLine();
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetW() / 3 );
 
     m_IXSecGroup.AddSlider( m_IDim2Slider, "Dim2", 100.0, "%5.3f" );
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
     m_IXSecGroup.AddButton( m_IDim2Unit, "" );
     m_IDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_IDim2Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
 
     m_IXSecGroup.ForceNewLine();
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() / 3 );
 
     m_IXSecGroup.AddSlider( m_IDim3Slider, "Dim3", 100.0, "%5.3f" );
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
     m_IXSecGroup.AddButton( m_IDim3Unit, "" );
     m_IDim3Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim3Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_IDim3Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
 
     m_IXSecGroup.ForceNewLine();
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() / 3 );
 
     m_IXSecGroup.AddSlider( m_IDim4Slider, "Dim4", 100.0, "%5.3f" );
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
     m_IXSecGroup.AddButton( m_IDim4Unit, "" );
     m_IDim4Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim4Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_IDim4Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
 
     m_IXSecGroup.ForceNewLine();
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() / 3 );
 
     m_IXSecGroup.AddSlider( m_IDim5Slider, "Dim5", 100.0, "%5.3f" );
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
     m_IXSecGroup.AddButton( m_IDim5Unit, "" );
     m_IDim5Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim5Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_IDim5Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
 
     m_IXSecGroup.ForceNewLine();
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() / 3 );
 
     m_IXSecGroup.AddSlider( m_IDim6Slider, "Dim6", 100.0, "%5.3f" );
+    m_IXSecGroup.SetButtonWidth( m_IXSecGroup.GetRemainX() );
     m_IXSecGroup.AddButton( m_IDim6Unit, "" );
     m_IDim6Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_IDim6Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_IDim6Unit.SetWidth( m_IXSecGroup.GetW() / 10 );
 
     // Rectangle XSec
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_RectXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
-    m_RectXSecGroup.SetY( current_y );
 
     m_RectXSecGroup.AddDividerBox( "Rectangle XSec" );
 
     m_RectXSecGroup.SetSameLineFlag( true );
     m_RectXSecGroup.SetFitWidthFlag( false );
 
-    m_RectXSecGroup.SetButtonWidth( buttonwidth );
-    m_RectXSecGroup.SetSliderWidth( m_RectXSecGroup.GetW() / 3 );
-    m_RectXSecGroup.SetInputWidth( m_RectXSecGroup.GetW() / 6 );
+    m_RectXSecGroup.SetButtonWidth( m_RectXSecGroup.GetRemainX() / 3 );
+    m_RectXSecGroup.SetSliderWidth( m_RectXSecGroup.GetRemainX() / 3 );
+    m_RectXSecGroup.SetInputWidth( m_RectXSecGroup.GetRemainX() / 6 );
 
     m_RectXSecGroup.AddSlider( m_RectDim1Slider, "Width", 100.0, "%5.3f" );
+    m_RectXSecGroup.SetButtonWidth( m_RectXSecGroup.GetRemainX() );
     m_RectXSecGroup.AddButton( m_RectDim1Unit, "" );
     m_RectDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_RectDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_RectDim1Unit.SetWidth( m_RectXSecGroup.GetW() / 10 );
 
     m_RectXSecGroup.ForceNewLine();
+    m_RectXSecGroup.SetButtonWidth( m_RectXSecGroup.GetRemainX() / 3 );
 
     m_RectXSecGroup.AddSlider( m_RectDim2Slider, "Height", 100.0, "%5.3f" );
+    m_RectXSecGroup.SetButtonWidth( m_RectXSecGroup.GetRemainX() );
     m_RectXSecGroup.AddButton( m_RectDim2Unit, "" );
     m_RectDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_RectDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_RectDim2Unit.SetWidth( m_RectXSecGroup.GetW() / 10 );
 
     // Box XSec
     m_FeaPropertyBeamGroup.AddSubGroupLayout( m_BoxXSecGroup, m_FeaPropertyBeamGroup.GetRemainX(), m_FeaPropertyBeamGroup.GetRemainY() );
-    m_BoxXSecGroup.SetY( current_y );
 
     m_BoxXSecGroup.AddDividerBox( "Box XSec" );
 
     m_BoxXSecGroup.SetSameLineFlag( true );
     m_BoxXSecGroup.SetFitWidthFlag( false );
 
-    m_BoxXSecGroup.SetButtonWidth( buttonwidth );
-    m_BoxXSecGroup.SetSliderWidth( m_BoxXSecGroup.GetW() / 3 );
-    m_BoxXSecGroup.SetInputWidth( m_BoxXSecGroup.GetW() / 6 );
+    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() / 3 );
+    m_BoxXSecGroup.SetSliderWidth( m_BoxXSecGroup.GetRemainX() / 3 );
+    m_BoxXSecGroup.SetInputWidth( m_BoxXSecGroup.GetRemainX() / 6 );
 
     m_BoxXSecGroup.AddSlider( m_BoxDim1Slider, "Dim1", 100.0, "%5.3f" );
+    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() );
     m_BoxXSecGroup.AddButton( m_BoxDim1Unit, "" );
     m_BoxDim1Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_BoxDim1Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_BoxDim1Unit.SetWidth( m_BoxXSecGroup.GetW() / 10 );
 
     m_BoxXSecGroup.ForceNewLine();
+    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() / 3 );
 
     m_BoxXSecGroup.AddSlider( m_BoxDim2Slider, "Dim2", 100.0, "%5.3f" );
+    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() );
     m_BoxXSecGroup.AddButton( m_BoxDim2Unit, "" );
     m_BoxDim2Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_BoxDim2Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_BoxDim2Unit.SetWidth( m_BoxXSecGroup.GetW() / 10 );
 
     m_BoxXSecGroup.ForceNewLine();
+    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() / 3 );
 
     m_BoxXSecGroup.AddSlider( m_BoxDim3Slider, "Dim3", 100.0, "%5.3f" );
+    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() );
     m_BoxXSecGroup.AddButton( m_BoxDim3Unit, "" );
     m_BoxDim3Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_BoxDim3Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_BoxDim3Unit.SetWidth( m_BoxXSecGroup.GetW() / 10 );
 
     m_BoxXSecGroup.ForceNewLine();
+    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() / 3 );
 
     m_BoxXSecGroup.AddSlider( m_BoxDim4Slider, "Dim4", 100.0, "%5.3f" );
+    m_BoxXSecGroup.SetButtonWidth( m_BoxXSecGroup.GetRemainX() );
     m_BoxXSecGroup.AddButton( m_BoxDim4Unit, "" );
     m_BoxDim4Unit.GetFlButton()->box( FL_THIN_UP_BOX );
     m_BoxDim4Unit.GetFlButton()->labelcolor( FL_BLACK );
-    m_BoxDim4Unit.SetWidth( m_BoxXSecGroup.GetW() / 10 );
 
     //=== MESH TAB ===//
     m_MeshTabLayout.SetGroupAndScreen( meshTabGroup, this );
@@ -753,7 +750,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MeshTabLayout.AddYGap();
 
     m_MeshTabLayout.SetButtonWidth( 75 );
-    m_MeshTabLayout.AddButton( m_NastFile, "NASTRAN" );
+    m_MeshTabLayout.AddButton( m_NastFile, "Nastran" );
     m_MeshTabLayout.AddOutput( m_NastOutput );
     m_MeshTabLayout.SetButtonWidth( m_MeshTabLayout.GetRemainX() );
     m_MeshTabLayout.AddButton( m_SelectNastFile, "..." );
@@ -789,7 +786,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_DisplayTabLayout.AddDividerBox( "Display Element Sets" );
 
-    m_DrawPartSelectBrowser = m_DisplayTabLayout.AddCheckBrowser( 150 );
+    m_DrawPartSelectBrowser = m_DisplayTabLayout.AddCheckBrowser( browser_h );
     m_DrawPartSelectBrowser->callback( staticScreenCB, this );
 
     m_DisplayTabLayout.AddY( 125 );
@@ -870,14 +867,13 @@ void StructScreen::UpdateStructBrowser()
         return;
     }
 
-    static int widths[] = { 170, 140, 130 };
+    static int widths[] = { 170, 140, 130 }; // TODO: Set spacing as function of browser width
     m_StructureSelectBrowser->column_widths( widths );
     m_StructureSelectBrowser->column_char( ':' );
 
     char str[256];
 
-    sprintf( str, "@b@.NAME:@b@.GEOM:@b@.SURFACE" );
-    m_StructureSelectBrowser->add( str );
+    m_StructureSelectBrowser->add( "@b@.NAME:@b@.GEOM:@b@.SURFACE" );
 
     string struct_name, parent_geom_name;
     int struct_surf_ind;
@@ -915,14 +911,13 @@ void StructScreen::UpdateFeaPartBrowser()
     //==== FeaPart Browser ====//
     int scroll_pos = m_FeaPartSelectBrowser->position();
     m_FeaPartSelectBrowser->clear();
-    static int widths[] = { 85, 65, 45, 85, 35, 85 };
+    static int widths[] = { 85, 65, 45, 85, 35, 85 }; // TODO: Set spacing as function of browser width
     m_FeaPartSelectBrowser->column_widths( widths );
     m_FeaPartSelectBrowser->column_char( ':' );
 
     char str[256];
 
-    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.SHELL:@b@.PROPERTY:@b@.CAP:@b@.PROPERTY" );
-    m_FeaPartSelectBrowser->add( str );
+    m_FeaPartSelectBrowser->add( "@b@.NAME:@b@.TYPE:@b@.SHELL:@b@.PROPERTY:@b@.CAP:@b@.PROPERTY" );
 
     string fea_name, fea_type, shell, shell_prop, cap, cap_prop;
 
@@ -1176,14 +1171,13 @@ void StructScreen::UpdateFeaPropertyBrowser()
     int scroll_pos = m_FeaPropertySelectBrowser->position();
     m_FeaPropertySelectBrowser->clear();
 
-    static int widths[] = { 130, 70, 80, 130 };
+    static int widths[] = { 130, 70, 80, 130 }; // TODO: Set spacing as function of browser width
     m_FeaPropertySelectBrowser->column_widths( widths );
     m_FeaPropertySelectBrowser->column_char( ':' );
 
-    char str[256]; // TODO: Use to_string function
+    char str[256];
 
-    sprintf( str, "@b@.NAME:@b@.TYPE:@b@.XSEC:@b@.MATERIAL:" );
-    m_FeaPropertySelectBrowser->add( str );
+    m_FeaPropertySelectBrowser->add( "@b@.NAME:@b@.TYPE:@b@.XSEC:@b@.MATERIAL:" );
 
     string prop_name, prop_type, prop_xsec, prop_mat;
 
@@ -1377,16 +1371,12 @@ void StructScreen::UpdateFeaMaterialBrowser()
 
     if ( StructureMgr.ValidFeaMaterialInd( StructureMgr.GetCurrMaterialIndex() ) )
     {
+        m_MaterialEditSubGroup.Show();
         m_FeaMaterialSelectBrowser->select( StructureMgr.GetCurrMaterialIndex() + 1 );
-    }
-
-    if ( StructureMgr.NumFeaMaterials() <= 0 )
-    {
-        m_MaterialEditSubGroup.Hide();
     }
     else
     {
-        m_MaterialEditSubGroup.Show();
+        m_MaterialEditSubGroup.Hide();
     }
 
     m_FeaMaterialSelectBrowser->position( scroll_pos );
@@ -1720,6 +1710,9 @@ bool StructScreen::Update()
 
         m_StructUnitChoice.Update( veh->m_StructUnit.GetID() );
 
+        //==== Update Unit Labels ====//
+        UpdateUnitLabels();
+
         //===== Geom Choice Update =====//
         LoadGeomChoice();
 
@@ -1830,8 +1823,6 @@ bool StructScreen::Update()
         //===== FeaMaterial Update =====//
         UpdateFeaMaterialBrowser();
         UpdateFeaMaterialChoice();
-
-        UpdateUnitLabels();
 
         if ( StructureMgr.ValidFeaMaterialInd( StructureMgr.GetCurrMaterialIndex() ) )
         {
@@ -2114,7 +2105,6 @@ void StructScreen::CallBack( Fl_Widget* w )
                         if ( feaprt )
                         {
                             m_FeaPartChoice.SetVal( feaprt->GetType() );
-                            m_FeaCurrMainSurfIndx = feaprt->m_MainSurfIndx();
                         }
                     }
                     else if ( m_SelectedPartIndexVec[0] >= structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -2124,7 +2114,6 @@ void StructScreen::CallBack( Fl_Widget* w )
                         if ( subsurf )
                         {
                             m_FeaPartChoice.SetVal( subsurf->GetType() );
-                            m_FeaCurrMainSurfIndx = subsurf->m_MainSurfIndx();
                         }
                     }
                 }

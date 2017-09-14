@@ -78,8 +78,6 @@ public:
 
 private:
 
-    Fl_Text_Buffer m_TextBuffer;
-
     GroupLayout m_ConsoleLayout;
     GroupLayout m_BorderConsoleLayout;
     GroupLayout m_StructureTabLayout;
@@ -97,9 +95,11 @@ private:
     GroupLayout m_MeshTabLayout;
     GroupLayout m_DisplayTabLayout;
 
+    GroupLayout* m_CurrDispGroup;
+
     //===== Console Items =====//
-    Fl_Text_Display *m_ConsoleDisplay;
-    Fl_Text_Buffer *m_ConsoleBuffer;
+    Fl_Text_Display* m_ConsoleDisplay;
+    Fl_Text_Buffer* m_ConsoleBuffer;
 
     ProcessUtil m_FeaMeshProcess;
     ProcessUtil m_MonitorProcess;
@@ -107,8 +107,6 @@ private:
     //===== Common buttons =====//
     StringOutput m_CurrStructOutput;
     TriggerButton m_FeaMeshExportButton;
-
-    GroupLayout* m_CurrDispGroup;
 
     //===== Structure Tab Items =====//
     TriggerButton m_WikiLinkButton;
@@ -118,7 +116,7 @@ private:
     TriggerButton m_AddFeaStructButton;
     TriggerButton m_DelFeaStructButton;
 
-    Fl_Browser * m_StructureSelectBrowser;
+    Fl_Browser* m_StructureSelectBrowser;
 
     StringInput m_FeaStructNameInput;
 
@@ -130,7 +128,7 @@ private:
     TriggerButton m_OrientTopButton;
 
     //===== FeaPart Tab Items =====//
-    Fl_Browser * m_FeaPartSelectBrowser;
+    Fl_Browser* m_FeaPartSelectBrowser;
 
     TriggerButton m_MovePrtUpButton;
     TriggerButton m_MovePrtDownButton;
@@ -258,7 +256,6 @@ private:
     SliderAdjRangeInput m_GrowthRatio;
 
     ToggleButton m_Rig3dGrowthLimit;
-
     ToggleButton m_HalfMeshButton;
 
     //===== Output Items =====//
@@ -286,7 +283,7 @@ private:
     ToggleButton m_DrawNodesToggle;
     ToggleButton m_DrawElementOrientVecToggle;
 
-    Fl_Check_Browser * m_DrawPartSelectBrowser;
+    Fl_Check_Browser* m_DrawPartSelectBrowser;
 
     TriggerButton m_DrawAllButton;
     TriggerButton m_HideAllButton;
