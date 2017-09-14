@@ -1030,7 +1030,7 @@ void CfdMeshScreen::GuiDeviceGlobalTabCallback( GuiDevice* device )
     //Use Set
     else if ( device == &m_UseSet )
     {
-        CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex = m_UseSet.GetVal();
+        m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex = m_UseSet.GetVal();
     }
 }
 
