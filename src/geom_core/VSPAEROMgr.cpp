@@ -493,7 +493,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                         for (size_t j = 0; j < m_RotorDiskVec.size(); ++j)
                         {
                             // If Rotor Disk and Corresponding Surface Num Already Exists within m_RotorDiskVec
-                            if (m_RotorDiskVec[j]->m_ParentGeomId == veh->GetGeomVec()[i] && m_RotorDiskVec[j]->GetSurfNum() == iSubsurf)
+                            if (m_RotorDiskVec[j]->m_ParentGeomId == currgeomvec[i] && m_RotorDiskVec[j]->GetSurfNum() == iSubsurf)
                             {
                                 contained = true;
                                 temp.push_back(m_RotorDiskVec[j]);
@@ -518,7 +518,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                         {
                             RotorDisk *rotor = new RotorDisk();
                             temp.push_back(rotor);
-                            temp.back()->m_ParentGeomId = veh->GetGeomVec()[i];
+                            temp.back()->m_ParentGeomId = currgeomvec[i];
                             temp.back()->m_ParentGeomSurfNdx = iSubsurf;
                             sprintf(str, "%s_%u", geom->GetName().c_str(), iSubsurf);
                             temp.back()->SetName(str);
