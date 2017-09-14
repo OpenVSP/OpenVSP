@@ -1271,6 +1271,16 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                         args.push_back( "-write2dfem" );
                     }
 
+                    if ( m_JacobiPrecondition() )
+                    {
+                        args.push_back( "-jacobi" );
+                    }
+
+                    if ( m_LeadingEdgeSuction() )
+                    {
+                        args.push_back( "-vortex" );
+                    }
+
                     // Add model file name
                     args.push_back( modelNameBase );
 
@@ -1445,6 +1455,16 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         if( m_Write2DFEMFlag() )
         {
             args.push_back( "-write2dfem" );
+        }
+
+        if ( m_JacobiPrecondition() )
+        {
+            args.push_back( "-jacobi" );
+        }
+
+        if ( m_LeadingEdgeSuction() )
+        {
+            args.push_back( "-vortex" );
         }
 
         // Add model file name
