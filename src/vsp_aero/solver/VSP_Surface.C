@@ -1010,7 +1010,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
     int NumberOfControlSurfaceNodes, FoundHingeLineData;
     double DumFloat, Vec[3], VecQC_1[3], VecQC_2[3], Mag, HingeVec[3];
     double x1, y1, z1, x2, y2, z2, ArcLength, Chord, up, wp, xyz[3];
-    double u1, u2, w1, w2, ulist[3], wlist[3];
+    double u1, u2, w1, w2, ulist[4], wlist[4];
 
     char DumChar[4000], Stuff[4000], LastSubSurf[4000], Comma[4000], *Next;
     
