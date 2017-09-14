@@ -4107,7 +4107,7 @@ void VSP_SOLVER::CalculateTrefftzForces(void)
           Sweep = 0.5*PI - Sweep;
           
           Sweep /= pow(cos(Theta),2.);     
-           
+
           // Calculate fraction of attached flow
           
           ToC    = SurfaceVortexEdge(j).ThicknessToChord();
@@ -4125,19 +4125,18 @@ void VSP_SOLVER::CalculateTrefftzForces(void)
           qtot[2] = Dot * Normal[2]; 
 
           // Calculate leading edge thrust component
-        
+
           SurfaceVortexEdge(j).CalculateTrefftzForces(qtot);
           
           LeadingEdgeThrust = sqrt( pow(SurfaceVortexEdge(j).Trefftz_Fx(),2.)
                                   + pow(SurfaceVortexEdge(j).Trefftz_Fy(),2.)
                                   + pow(SurfaceVortexEdge(j).Trefftz_Fz(),2.) )/cos(Sweep);
                                          
-          // Double up if the leading edge loop is a tri... I really want the loading on the
-          // entire leading edge region.
+          // Loop for the leading edge... one is zero, one is real... door 1 or 2?
           
-          Loop = SurfaceVortexEdge(j).VortexLoop1();
-         
-          if ( VortexLoop(Loop).NumberOfEdges() == 3 ) LeadingEdgeThrust *= 2.;
+          Loop = SurfaceVortexEdge(j).VortexLoop1() + SurfaceVortexEdge(j).VortexLoop2();
+                    
+          if ( VortexLoop(Loop).NumberOfEdges() == 3 ) LeadingEdgeThrust *= 1.5;
 
           // Calculate onset of vortex lift
 
@@ -4163,8 +4162,6 @@ void VSP_SOLVER::CalculateTrefftzForces(void)
           // Limit forces to something sane...
 
           Area = VortexLoop(Loop).Area();
-          
-          if ( VortexLoop(Loop).NumberOfEdges() == 3 ) Area *= 2.;
 
           DeltaCp = ( SurfaceVortexEdge(j).Trefftz_Fx() * Normal[0]
                     + SurfaceVortexEdge(j).Trefftz_Fy() * Normal[1]
@@ -4310,9 +4307,9 @@ void VSP_SOLVER::CalculateKuttaJukowskiForces(void)
           // Double up if the leading edge loop is a tri... I really want the loading on the
           // entire leading edge region.
           
-          Loop = SurfaceVortexEdge(j).VortexLoop1();
+          Loop = SurfaceVortexEdge(j).VortexLoop1() + SurfaceVortexEdge(j).VortexLoop2();
          
-          if ( VortexLoop(Loop).NumberOfEdges() == 3 ) LeadingEdgeThrust *= 2.;
+          if ( VortexLoop(Loop).NumberOfEdges() == 3 ) LeadingEdgeThrust *= 1.5;
 
           // Calculate onset of vortex lift
 
@@ -4390,7 +4387,7 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
 
     int i, j, Loop1, Loop2;
     double Fx, Fy, Fz, Wgt1, Wgt2;
-    double Fact, CpI, Cp;
+    double Fact, CpI, Cp, Mc, Fc;
 
     // Loop over vortex edges and calculate forces via K-J theorem
  
@@ -4446,6 +4443,9 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
     }
     
     // Calculate normal force on each vortex loop
+    
+    Mc = 0.75; // Max Mach number at which Karman Tsien correction is applied
+               // - Above this we linearly drop the correction to zero by Mach 1.
        
     for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
    
@@ -4462,8 +4462,23 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
           Cp = VortexLoop(i).dCp();
 
           CpI = ABS(Cp);
+          
+          // Adjust 2nd order correction model, phase out after Mc ~ 0.75 based on
+          // NACA airfoil data
+          
+          if ( Mach_ < Mc ) {
 
-          Fact = 1. + 0.25*CpI*Mach_*Mach_/sqrt(1.-Mach_*Mach_); 
+             Fact = 1. + 0.25*CpI*Mach_*Mach_/sqrt(1.-Mach_*Mach_); 
+             
+          }
+          
+          else {
+             
+             Fc = 0.25*CpI*Mc*Mc/sqrt(1.-Mc*Mc);
+             
+             Fact = 1. + Fc*(1. - (Mach_*Mach_ - Mc*Mc)/(1. - Mc*Mc));
+             
+          }
    
           VortexLoop(i).CompressibilityFactor() = Fact;
    
