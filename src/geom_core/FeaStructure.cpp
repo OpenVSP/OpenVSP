@@ -11,14 +11,11 @@
 #include "FeaStructure.h"
 
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "StructureMgr.h"
 #include "LinkMgr.h"
 #include "WingGeom.h"
 #include "ConformalGeom.h"
-
-#include <cfloat>
 
 //////////////////////////////////////////////////////
 //================== FeaStructure ==================//

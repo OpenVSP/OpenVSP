@@ -27,7 +27,6 @@
 #include "MaterialMgr.h"
 #include "WaveDragMgr.h"
 #include "GroupTransformations.h"
-#include "FeaStructure.h"
 
 #include <assert.h>
 

@@ -10,7 +10,6 @@
 #include "IntersectPatch.h"
 #include "Surf.h"
 #include "CfdMeshMgr.h"
-// #include "FeaMeshMgr.h"
 #include "Tritri.h"
 
 void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth, CfdMeshMgrSingleton *MeshMgr )

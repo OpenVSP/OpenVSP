@@ -11,22 +11,11 @@
 #if !defined(StructSettings__INCLUDED_)
 #define StructSettings__INCLUDED_
 
-#include "Vec2d.h"
-#include "Vec3d.h"
-#include "DrawObj.h"
 #include "APIDefines.h"
-
 #include "MeshCommonSettings.h"
 
 #include <assert.h>
 
-#include <set>
-#include <map>
-#include <vector>
-#include <list>
-#include <string>
-#include <iostream>
-#include <sstream>
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////

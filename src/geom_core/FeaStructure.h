@@ -16,15 +16,12 @@
 #define FEASTRUCTURE_INCLUDED_
 
 #include "VspSurf.h"
-#include "TMesh.h"
-#include "Vec2d.h"
 #include "Vec3d.h"
 #include "Parm.h"
 #include "ParmContainer.h"
 #include "DrawObj.h"
 #include "APIDefines.h"
 #include "SubSurface.h"
-#include "Matrix.h"
 #include "StructSettings.h"
 #include "GridDensity.h"
 

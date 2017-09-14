@@ -9,7 +9,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "StructureMgr.h"
-#include "VehicleMgr.h"
 #include "Vehicle.h"
 #include "UnitConversion.h"
 

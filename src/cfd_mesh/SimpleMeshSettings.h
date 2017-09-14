@@ -12,7 +12,6 @@
 
 #include "APIDefines.h"
 #include "Vehicle.h"
-//#include "MeshCommonSettings.h"
 #include "CfdMeshSettings.h"
 #include "StructSettings.h"
 #include "GridDensity.h"
