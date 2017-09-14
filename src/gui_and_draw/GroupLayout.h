@@ -177,8 +177,6 @@ public:
     //==== Subgroups can be Used To Create Multiple Column Layouts ====//
     void AddSubGroupLayout( GroupLayout& layout, int w, int h );
 
-    void AddTabGroup( TabGroup &tgrp, int w, int h );
-
     //==== Standard Non-Parm Components ====//
     Fl_Check_Browser* AddCheckBrowser( int h );
 
