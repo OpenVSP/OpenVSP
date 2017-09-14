@@ -3380,8 +3380,6 @@ void Geom::CreateDegenGeomPreview( vector<DegenGeom> &dgs )
         else if ( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
         {
             degenGeom.setType( DegenGeom::DISK_TYPE );
-
-            //degenGeom.createDegenDisk( pnts, m_SurfVec[i].GetFlipNormal() );
         }
         else
         {
