@@ -4750,94 +4750,92 @@ void CfdMeshMgrSingleton::DebugWriteChains( const char* name, bool tessFlag )
             fprintf(fp, "axis off\n" );
             fclose( fp );
         }
-
-
     }
     else
     {
-    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-    {
-        char str[256];
-        sprintf( str, "%s%d.dat", name, i );
-        FILE* fp = fopen( str, "w" );
-
-        int cnt = 0;
-        list< ISegChain* >::iterator c;
-        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+        for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
         {
-            if ( m_SurfVec[i] == ( *c )->m_SurfA || m_SurfVec[i] == ( *c )->m_SurfB )
+            char str[256];
+            sprintf( str, "%s%d.dat", name, i );
+            FILE* fp = fopen( str, "w" );
+
+            int cnt = 0;
+            list< ISegChain* >::iterator c;
+            for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
             {
-                if ( cnt % 9 == 0 )
+                if ( m_SurfVec[i] == ( *c )->m_SurfA || m_SurfVec[i] == ( *c )->m_SurfB )
                 {
-                    fprintf( fp, "COLOR RED\n" );
-                }
-                else if ( cnt % 9 == 1 )
-                {
-                    fprintf( fp, "COLOR BLUE\n" );
-                }
-                else if ( cnt % 9 == 2 )
-                {
-                    fprintf( fp, "COLOR GREEN\n" );
-                }
-                else if ( cnt % 9 == 3 )
-                {
-                    fprintf( fp, "COLOR PURPLE\n" );
-                }
-                else if ( cnt % 9 == 4 )
-                {
-                    fprintf( fp, "COLOR YELLOW\n" );
-                }
-                else if ( cnt % 9 == 5 )
-                {
-                    fprintf( fp, "COLOR DARK_ORANGE\n" );
-                }
-                else if ( cnt % 9 == 6 )
-                {
-                    fprintf( fp, "COLOR GREY\n" );
-                }
-                else if ( cnt % 9 == 7 )
-                {
-                    fprintf( fp, "COLOR DARK_PURPLE\n" );
-                }
-                else if ( cnt % 9 == 8 )
-                {
-                    fprintf( fp, "COLOR AQUA\n" );
-                }
+                    if ( cnt % 9 == 0 )
+                    {
+                        fprintf( fp, "COLOR RED\n" );
+                    }
+                    else if ( cnt % 9 == 1 )
+                    {
+                        fprintf( fp, "COLOR BLUE\n" );
+                    }
+                    else if ( cnt % 9 == 2 )
+                    {
+                        fprintf( fp, "COLOR GREEN\n" );
+                    }
+                    else if ( cnt % 9 == 3 )
+                    {
+                        fprintf( fp, "COLOR PURPLE\n" );
+                    }
+                    else if ( cnt % 9 == 4 )
+                    {
+                        fprintf( fp, "COLOR YELLOW\n" );
+                    }
+                    else if ( cnt % 9 == 5 )
+                    {
+                        fprintf( fp, "COLOR DARK_ORANGE\n" );
+                    }
+                    else if ( cnt % 9 == 6 )
+                    {
+                        fprintf( fp, "COLOR GREY\n" );
+                    }
+                    else if ( cnt % 9 == 7 )
+                    {
+                        fprintf( fp, "COLOR DARK_PURPLE\n" );
+                    }
+                    else if ( cnt % 9 == 8 )
+                    {
+                        fprintf( fp, "COLOR AQUA\n" );
+                    }
 
 
-                if ( ! tessFlag )
-                {
-                    for ( int j = 0 ; j < ( int )( *c )->m_ISegDeque.size() ; j++ )
+                    if ( ! tessFlag )
+                    {
+                        for ( int j = 0 ; j < ( int )( *c )->m_ISegDeque.size() ; j++ )
+                        {
+                            fprintf( fp, "MOVE \n" );
+                            vec2d uw0 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
+                            vec2d uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
+                            vec2d tmp = uw0 + ( uw1 - uw0 ) * 0.1;
+                            uw1 = uw1 + ( uw0 - uw1 ) * 0.1;
+                            uw0 = tmp;
+                            fprintf( fp, "%f %f\n", uw0[0], uw0[1] );
+                            fprintf( fp, "%f %f\n", uw1[0], uw1[1] );
+                        }
+                    }
+                    else
                     {
                         fprintf( fp, "MOVE \n" );
-                        vec2d uw0 = ( *c )->m_ISegDeque[j]->m_IPnt[0]->GetPuw( m_SurfVec[i] )->m_UW;
-                        vec2d uw1 = ( *c )->m_ISegDeque[j]->m_IPnt[1]->GetPuw( m_SurfVec[i] )->m_UW;
-                        vec2d tmp = uw0 + ( uw1 - uw0 ) * 0.1;
-                        uw1 = uw1 + ( uw0 - uw1 ) * 0.1;
-                        uw0 = tmp;
-                        fprintf( fp, "%f %f\n", uw0[0], uw0[1] );
-                        fprintf( fp, "%f %f\n", uw1[0], uw1[1] );
+                        for ( int j = 1 ; j < ( int )( *c )->m_TessVec.size() ; j++ )
+                        {
+                            vec2d uw0 = ( *c )->m_TessVec[j - 1]->GetPuw( m_SurfVec[i] )->m_UW;
+                            vec2d uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
+                            vec2d tmp = uw0 + ( uw1 - uw0 ) * 0.1;
+                            uw1 = uw1 + ( uw0 - uw1 ) * 0.1;
+                            uw0 = tmp;
+                            fprintf( fp, "%f %f\n", uw0[0], uw0[1] );
+                            fprintf( fp, "%f %f\n", uw1[0], uw1[1] );
+                        }
                     }
+                    cnt++;
                 }
-                else
-                {
-                    fprintf( fp, "MOVE \n" );
-                    for ( int j = 1 ; j < ( int )( *c )->m_TessVec.size() ; j++ )
-                    {
-                        vec2d uw0 = ( *c )->m_TessVec[j - 1]->GetPuw( m_SurfVec[i] )->m_UW;
-                        vec2d uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
-                        vec2d tmp = uw0 + ( uw1 - uw0 ) * 0.1;
-                        uw1 = uw1 + ( uw0 - uw1 ) * 0.1;
-                        uw0 = tmp;
-                        fprintf( fp, "%f %f\n", uw0[0], uw0[1] );
-                        fprintf( fp, "%f %f\n", uw1[0], uw1[1] );
-                    }
-                }
-                cnt++;
             }
+            fclose( fp );
         }
-        fclose( fp );
-    }
     }
 }
 
