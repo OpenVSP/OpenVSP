@@ -686,20 +686,6 @@ FeaPart* FeaStructure::GetFeaSkin()
     return NULL;
 }
 
-int FeaStructure::GetNumFeaSkin()
-{
-    int num_skin = 0;
-
-    for ( int i = 0; i < (int)m_FeaPartVec.size(); i++ )
-    {
-        if ( m_FeaPartVec[i]->GetType() == vsp::FEA_SKIN )
-        {
-            num_skin++;
-        }
-    }
-    return num_skin;
-}
-
 //==== Get FeaProperty Index from FeaPart Index =====//
 int FeaStructure::GetFeaPropertyIndex( int fea_part_ind )
 {

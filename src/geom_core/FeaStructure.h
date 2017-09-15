@@ -73,8 +73,7 @@ public:
     virtual void IndividualizeSSLineArray( int ssline_array_ind );
 
     virtual vector< FeaPart* > InitFeaSkin( );
-    virtual FeaPart* GetFeaSkin( );
-    virtual int GetNumFeaSkin();
+    virtual FeaPart* GetFeaSkin();
 
     virtual void UpdateFeaSubSurfs();
     virtual void RecolorFeaSubSurfs( vector < int > active_ind_vec );
