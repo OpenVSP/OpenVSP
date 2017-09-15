@@ -666,6 +666,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     if ( all_pnt_vec.size() == 0 )
     {
         m_FeaMeshInProgress = false;
+        addOutputText( "Error: No Nodes in Mesh\n" );
         return;
     }
 
