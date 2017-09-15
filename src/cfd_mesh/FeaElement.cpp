@@ -32,7 +32,6 @@ string GetFeaFormat( double input )
     }
 }
 
-
 //////////////////////////////////////////////////////
 //==================== FeaNode =====================//
 //////////////////////////////////////////////////////
@@ -342,12 +341,6 @@ double FeaQuad::ComputeMass( int property_index )
     {
         avg_d = simp_mat_vec[mat_index].m_MassDensity;
     }
-
-    //double avg_t = ( m_Corners[0]->m_Thick + m_Corners[1]->m_Thick +
-    //                 m_Corners[2]->m_Thick + m_Corners[3]->m_Thick ) / 4.0;
-
-    //double avg_d = ( m_Corners[0]->m_Dense + m_Corners[1]->m_Dense +
-    //                 m_Corners[2]->m_Dense + m_Corners[3]->m_Dense ) / 4.0;
 
     mass = a * avg_t * avg_d;
     return mass;

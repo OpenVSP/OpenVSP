@@ -24,13 +24,15 @@ string GetFeaFormat( double input );
 
 class FeaNodeTag
 {
-    public:
+public:
+
     int m_FeaPartTagIndex;
+
 };
 
 class FeaNode
 {
-    public:
+public:
     FeaNode()
     {
         m_Index = -1;
@@ -42,9 +44,7 @@ class FeaNode
         m_Index = -1;
         m_FixedPointFlag = false;
     };
-    virtual ~FeaNode()
-    {
-    };
+    virtual ~FeaNode()    {};
 
     int GetIndex();
 
@@ -64,12 +64,10 @@ class FeaNode
 
 class FeaElement
 {
-    public:
+public:
 
     FeaElement();
-    virtual ~FeaElement()
-    {
-    };
+    virtual ~FeaElement()    {};
 
     virtual void DeleteAllNodes();
     virtual void LoadNodes( vector< FeaNode* > & node_vec );
@@ -106,7 +104,8 @@ class FeaElement
     vector< FeaNode* > m_Corners;
     vector< FeaNode* > m_Mids;
 
-    protected:
+protected:
+
     int m_ElementType;
     int m_FeaPartIndex; // Corresponds to index in FeaStructure m_FeaPartVec
     int m_FeaSSIndex; // Corresponds to index in FeaStructure m_FeaSubSurfVec
@@ -115,13 +114,9 @@ class FeaElement
 //==== 6 Point Triangle Element ====//
 class FeaTri : public FeaElement
 {
-    public:
-    FeaTri()
-    {
-    };
-    virtual ~FeaTri()
-    {
-    };
+public:
+    FeaTri()    {};
+    virtual ~FeaTri()    {};
 
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & orientation );
     virtual void WriteCalculix( FILE* fp, int id );
@@ -135,13 +130,9 @@ class FeaTri : public FeaElement
 //=== 8 Point Quad Element ====//
 class FeaQuad : public FeaElement
 {
-    public:
-    FeaQuad()
-    {
-    };
-    virtual ~FeaQuad()
-    {
-    };
+public:
+    FeaQuad()    {};
+    virtual ~FeaQuad()    {};
 
     virtual void Create( vec3d & p0, vec3d & p1, vec3d & p2, vec3d & p3 );
     virtual void WriteCalculix( FILE* fp, int id );
@@ -153,13 +144,9 @@ class FeaQuad : public FeaElement
 //=== Beam Element ====//
 class FeaBeam : public FeaElement
 {
-    public:
-    FeaBeam()
-    {
-    };
-    virtual ~FeaBeam()
-    {
-    };
+public:
+    FeaBeam()    {};
+    virtual ~FeaBeam()    {};
 
     virtual void Create( vec3d & p0, vec3d & p1 , vec3d & norm );
     virtual void WriteCalculix( FILE* fp, int id );
@@ -169,6 +156,9 @@ class FeaBeam : public FeaElement
     virtual double ComputeMass( int property_index );
 
     vec3d m_DispVec; // Vector from end point in the displacement coordinate system at the end point
+
+private:
+
     int m_ElementIndex;
 };
 
@@ -188,7 +178,10 @@ public:
         return m_Mass;
     };
 
+private:
+
     double m_Mass;
+
 };
 
 //=== SimpleFeaProperty ====//
@@ -227,7 +220,7 @@ class SimpleFeaProperty
     double m_Dim6;
     int m_CrossSectType;
 
-    protected:
+protected:
 
     int m_SimpleFeaMatIndex;
     string m_MaterialName;
@@ -236,13 +229,9 @@ class SimpleFeaProperty
 //=== SimpleFeaMaterial ====//
 class SimpleFeaMaterial
 {
-    public:
-    SimpleFeaMaterial()
-    {
-    };
-    virtual ~SimpleFeaMaterial()
-    {
-    };
+public:
+    SimpleFeaMaterial()    {};
+    virtual ~SimpleFeaMaterial()    {};
 
     virtual void CopyFrom( FeaMaterial* fea_mat );
 
@@ -256,7 +245,7 @@ class SimpleFeaMaterial
     double m_PoissonRatio;
     double m_ThermalExpanCoeff;
 
-    protected:
+protected:
 
     string m_Name;
 };
