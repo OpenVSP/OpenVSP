@@ -292,8 +292,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     // TODO: Update and Build Domain for Half Mesh?
 
-    DeleteAllSources(); // TODO: Remove? No sources in FeaMesh
-
     addOutputText( "Build Slice Planes\n" );
     BuildGrid();
 
