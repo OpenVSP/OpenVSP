@@ -410,10 +410,7 @@ bool FeaStructure::ValidFeaPartInd( int ind )
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 void FeaStructure::UpdateFeaParts()
@@ -503,17 +500,16 @@ string FeaStructure::GetFeaPartName( int ind )
 
 bool FeaStructure::FeaPartIsFixPoint( int ind )
 {
-    bool fixpoint = false;
     FeaPart* fea_part = GetFeaPart( ind );
 
     if ( fea_part )
     {
         if ( fea_part->GetType() == vsp::FEA_FIX_POINT )
         {
-            fixpoint = true;
+            return true;
         }
     }
-    return fixpoint;
+    return false;
 }
 
 int FeaStructure::GetNumFeaFixPoints()
@@ -532,17 +528,16 @@ int FeaStructure::GetNumFeaFixPoints()
 
 bool FeaStructure::FeaPartIsArray( int ind )
 {
-    bool array = false;
     FeaPart* fea_part = GetFeaPart( ind );
 
     if ( fea_part )
     {
         if ( fea_part->GetType() == vsp::FEA_RIB_ARRAY || fea_part->GetType() == vsp::FEA_SLICE_ARRAY )
         {
-            array = true;
+            return true;
         }
     }
-    return array;
+    return false;
 }
 
 void FeaStructure::IndividualizeRibArray( int rib_array_ind )
@@ -1443,10 +1438,7 @@ bool FeaPart::RefFrameIsBody( int orientation_plane )
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_plane, double x_rot, double y_rot, double z_rot )
@@ -1942,10 +1934,7 @@ int FeaPart::GetFeaMaterialIndex()
     {
         return fea_prop->m_FeaMaterialIndex();
     }
-    else
-    {
-        return -1;
-    }
+    return -1; // Indicates an error
 }
 
 void FeaPart::SetFeaMaterialIndex( int index )

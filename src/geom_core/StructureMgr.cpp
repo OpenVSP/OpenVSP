@@ -179,16 +179,12 @@ bool StructureMgrSingleton::ValidTotalFeaStructInd( int index )
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 int StructureMgrSingleton::NumFeaStructures()
 {
-    vector < FeaStructure* > struct_vec = GetAllFeaStructs();
-    return struct_vec.size();
+    return GetAllFeaStructs().size();
 }
 
 int StructureMgrSingleton::GetTotFeaStructIndex( FeaStructure* fea_struct )
@@ -583,10 +579,7 @@ bool StructureMgrSingleton::ValidFeaPropertyInd( int index )
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 FeaProperty* StructureMgrSingleton::GetFeaProperty( int index )
@@ -595,10 +588,7 @@ FeaProperty* StructureMgrSingleton::GetFeaProperty( int index )
     {
         return m_FeaPropertyVec[index];
     }
-    else
-    {
-        return NULL;
-    }
+    return NULL;
 }
 
 void StructureMgrSingleton::InitFeaProperties()
@@ -676,10 +666,7 @@ bool StructureMgrSingleton::ValidFeaMaterialInd( int index )
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 FeaMaterial* StructureMgrSingleton::GetFeaMaterial( int index )
@@ -688,10 +675,7 @@ FeaMaterial* StructureMgrSingleton::GetFeaMaterial( int index )
     {
         return m_FeaMaterialVec[index];
     }
-    else
-    {
-        return NULL;
-    }
+    return NULL;
 }
 
 void StructureMgrSingleton::InitFeaMaterials()
