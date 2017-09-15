@@ -640,7 +640,7 @@ FeaMaterial* StructureMgrSingleton::AddFeaMaterial()
 
     if ( feamat )
     {
-        feamat->SetName( string( "MATERIAL_" + std::to_string( m_FeaMatCount ) ) );
+        feamat->SetName( string( "Material" + std::to_string( m_FeaMatCount ) ) );
         feamat->m_UserFeaMaterial = true;
         m_FeaMaterialVec.push_back( feamat );
         m_FeaMatCount++;
