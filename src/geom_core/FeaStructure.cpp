@@ -2009,9 +2009,16 @@ FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
     m_OrientationPlane.SetDescript( "Plane the FeaSlice Part will be Parallel to (Body or Absolute Reference Frame)" );
 
     m_RotationAxis.Init( "RotationAxis", "FeaSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
+    m_RotationAxis.SetDescript( "Slice Axis of Rotation" );
+
     m_XRot.Init( "XRot", "FeaSlice", this, 0.0, -90.0, 90.0 );
+    m_XRot.SetDescript( "Rotation About Slice X Axis" );
+
     m_YRot.Init( "YRot", "FeaSlice", this, 0.0, -90.0, 90.0 );
+    m_YRot.SetDescript( "Rotation About Slice Y Axis" );
+
     m_ZRot.Init( "ZRot", "FeaSlice", this, 0.0, -90.0, 90.0 );
+    m_ZRot.SetDescript( "Rotation About Slice Z Axis" );
 }
 
 void FeaSlice::Update()
@@ -2114,6 +2121,7 @@ void FeaSlice::UpdateDrawObjs( int id, bool highlight )
 FeaSpar::FeaSpar( string geomID, int type ) : FeaSlice( geomID, type )
 {
     m_Theta.Init( "Theta", "FeaSpar", this, 0.0, -90.0, 90.0 );
+    m_Theta.SetDescript( "Rotation of Spar About Axis Normal to Wing Chord Line " );
 
     m_LimitSparToSectionFlag.Init( "LimitSparToSectionFlag", "FeaSpar", this, false, false, true );
     m_LimitSparToSectionFlag.SetDescript( "Flag to Limit Spar Length to Wing Section" );
@@ -2544,7 +2552,7 @@ void FeaSpar::UpdateDrawObjs( int id, bool highlight )
 FeaRib::FeaRib( string geomID, int type ) : FeaSlice( geomID, type )
 {
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
-    m_Theta.SetDescript( "Rotation of FeaRib about axis normal to wing chord line" );
+    m_Theta.SetDescript( "Rotation of FeaRib About Axis Normal to Wing Chord Line" );
 }
 
 void FeaRib::Update()
@@ -3636,9 +3644,16 @@ FeaSliceArray::FeaSliceArray( string geomID, int type ) : FeaPart( geomID, type 
     m_OrientationPlane.SetDescript( "Plane the FeaSliceArray will be Parallel to (Body or Absolute Reference Frame)" );
 
     m_RotationAxis.Init( "RotationAxis", "FeaSliceArray", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
+    m_RotationAxis.SetDescript( "Rotation Axis for Each Slice in Array" );
+
     m_XRot.Init( "XRot", "FeaSliceArray", this, 0.0, -90.0, 90.0 );
+    m_XRot.SetDescript( "Rotation About Each Slice's X Axis" );
+
     m_YRot.Init( "YRot", "FeaSliceArray", this, 0.0, -90.0, 90.0 );
+    m_YRot.SetDescript( "Rotation About Each Slice's Y Axis" );
+
     m_ZRot.Init( "ZRot", "FeaSliceArray", this, 0.0, -90.0, 90.0 );
+    m_ZRot.SetDescript( "Rotation About Each Slice's Z Axis" );
 
     m_NumSlices = 0;
 }
