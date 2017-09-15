@@ -2604,8 +2604,8 @@ void FeaRib::UpdateParmLimits()
             }
         }
 
-        m_RelCenterLocation.SetLowerUpperLimits( 0.001, 0.999 );
-        m_AbsCenterLocation.SetLowerUpperLimits( span * 0.001, span * 0.999 );
+        m_RelCenterLocation.SetLowerUpperLimits( 0.0, 1.0 );
+        m_AbsCenterLocation.SetLowerUpperLimits( 0.0, span );
 
         // Set parm limits and values
         if ( m_AbsRelParmFlag() == vsp::REL )
@@ -3320,13 +3320,13 @@ FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
     m_AbsStartLocation.Init( "AbsStartLocation", "FeaRibArray", this, 0.0, 0.0, 1e12 );
     m_AbsStartLocation.SetDescript( "Absolute Starting Location for Primary Rib" );
 
-    m_RelStartLocation.Init( "RelStartLocation", "FeaRibArray", this, 0.0, 0.0, 1.0 );
+    m_RelStartLocation.Init( "RelStartLocation", "FeaRibArray", this, 0.1, 0.0, 1.0 );
     m_RelStartLocation.SetDescript( "Relative Starting Location for Primary Rib" );
 
     m_AbsEndLocation.Init( "AbsEndLocation", "FeaRibArray", this, 0.0, 0.0, 1e12 );
     m_AbsEndLocation.SetDescript( "Absolute Location for Final Rib in Array" );
 
-    m_RelEndLocation.Init( "RelEndLocation", "FeaRibArray", this, 1.0, 0.0, 1.0 );
+    m_RelEndLocation.Init( "RelEndLocation", "FeaRibArray", this, 0.9, 0.0, 1.0 );
     m_RelEndLocation.SetDescript( "Relative Location for Final Rib in Array" );
 
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
@@ -3382,8 +3382,8 @@ void FeaRibArray::CalcNumRibs()
             }
         }
 
-        m_AbsStartLocation.SetLowerUpperLimits( 0.001 * span_f, 0.999 * span_f );
-        m_RelStartLocation.SetLowerUpperLimits( 0.001, 0.999 );
+        m_AbsStartLocation.SetLowerUpperLimits( 0.0, span_f );
+        m_RelStartLocation.SetLowerUpperLimits( 0.0, 1.0 );
 
         // Calculate number of ribs and update Parm limits and values
         if ( m_AbsRelParmFlag() == vsp::REL )
