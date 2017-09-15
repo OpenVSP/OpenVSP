@@ -109,7 +109,6 @@ protected:
 
     vector < string > m_ExportFileNames;
 
-
 };
 
 class SimpleGridDensity

@@ -127,7 +127,6 @@ void SimpleSubSurface::SplitSegsW( const double & w, vector<SSLineSeg> &splitvec
     vector<int> inds;
     for ( int i = 0; i < num_l_segs; i++ )
     {
-
         SSLineSeg& seg = splitvec[i];
         vec3d p0 = seg.GetP0();
         vec3d p1 = seg.GetP1();

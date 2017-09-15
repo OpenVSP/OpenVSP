@@ -443,7 +443,6 @@ void StructureMgrSingleton::UpdateStructUnit( int new_unit )
         
                     if ( fix_pnt->m_FixPointMassFlag() )
                     {
-
                         int mass_unit_new, mass_unit_old;
 
                         switch ( new_unit )

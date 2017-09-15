@@ -728,7 +728,6 @@ int FeaStructure::GetFeaPartIndex( FeaPart* fea_prt )
 
 void FeaStructure::BuildSuppressList( vector < double > &usuppress, vector < double > &wsuppress )
 {
-
     FeaSkin* skin = NULL;
     FeaPart* pskin = GetFeaSkin();
     if ( pskin )
@@ -986,7 +985,6 @@ double FeaPart::GetRibPerU( double rel_center_location )
 
         if ( current_wing )
         {
-
             WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
             assert( wing );
 
@@ -1658,7 +1656,6 @@ VspSurf FeaPart::ComputeSliceSurf( double rel_center_location, int orientation_p
             }
             else if ( orientation_plane == vsp::XY_BODY || orientation_plane == vsp::XY_ABS )
             {
-
                 slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * rel_center_location );
 
                 double z_off = ( slice_center - geom_center ).z();
@@ -1933,8 +1930,6 @@ void FeaPart::UpdateDrawObjs( int id, bool highlight )
         }
 
         m_FeaPartDO[j].m_MaterialInfo.Shininess = 5.0f;
-
-
         m_FeaPartDO[j].m_GeomChanged = true;
     }
 }
@@ -3142,13 +3137,10 @@ void FeaDome::BuildDomeSurf()
         if ( m_FlipDirectionFlag() )
         {
             stringer.ReflectYZ();
-            //stringer.OffsetX( 1.0 );
         }
 
         // Revolve to unit sphere
         m_FeaPartSurfVec[0].CreateBodyRevolution( stringer );
-
-        //m_FeaPartSurfVec[0].OffsetX( -1.0 ); // Offset by radius
 
         // Scale to ellipsoid
         m_FeaPartSurfVec[0].ScaleX( m_Aradius() );
@@ -3557,8 +3549,6 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
 
     if ( fearib )
     {
-        fearib->m_IncludedElements.Set( m_IncludedElements() );
-
         if ( m_AbsRelParmFlag() == vsp::REL )
         {
             fearib->m_RelCenterLocation.Set( center_location );
@@ -3569,6 +3559,7 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
         }
 
         fearib->m_AbsRelParmFlag.Set( m_AbsRelParmFlag() );
+        fearib->m_IncludedElements.Set( m_IncludedElements() );
         fearib->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         fearib->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
         fearib->m_Theta.Set( m_Theta() );
@@ -3884,8 +3875,6 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
 
     if ( slice )
     {
-        slice->m_IncludedElements.Set( m_IncludedElements() );
-
         if ( m_AbsRelParmFlag() == vsp::REL )
         {
             slice->m_RelCenterLocation.Set( center_location );
@@ -3897,6 +3886,7 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
 
         slice->m_OrientationPlane.Set( vsp::SPINE_NORMAL );
         slice->m_AbsRelParmFlag.Set( m_AbsRelParmFlag() );
+        slice->m_IncludedElements.Set( m_IncludedElements() );
         slice->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         slice->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
 
@@ -4071,7 +4061,6 @@ FeaMaterial::FeaMaterial() : ParmContainer()
 
     m_ThermalExpanCoeff.Init( "ThermalExpanCoeff", "FeaMaterial", this, 0.0, 0.0, 1.0e12 );
     m_ThermalExpanCoeff.SetDescript( "Thermal Expansion Coefficient for Material" );
-
 }
 
 FeaMaterial::~FeaMaterial()

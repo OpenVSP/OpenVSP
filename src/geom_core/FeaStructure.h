@@ -529,6 +529,7 @@ public:
     IntParm m_FeaMaterialIndex;
 
 protected:
+
 };
 
 class FeaMaterial : public ParmContainer

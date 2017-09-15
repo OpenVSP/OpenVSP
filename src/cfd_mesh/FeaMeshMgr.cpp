@@ -146,7 +146,6 @@ void FeaMeshMgrSingleton::LoadSkins()
             // Load Skin XFerSurf to m_SurfVec
             LoadSurfs( skinxfersurfs );
 
-            // Not sure this is needed, could possibly be done in Fetch call above.
             for ( int j = 0; j < m_SurfVec.size(); j++ )
             {
                 m_SurfVec[j]->SetFeaPartIndex( skin_index );
@@ -190,7 +189,6 @@ void FeaMeshMgrSingleton::GetMassUnit()
             break;
 
         case vsp::BIN_UNIT:
-            //string squared( 1, 178 );
             m_MassUnit = "lbf*sec" + string( 1, 178 ) + "/in";
             break;
     }
@@ -803,8 +801,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             int FeaPartCapA = m_FeaPartIncludedElementsVec[( *c )->m_SurfA->GetFeaPartIndex()];
             int FeaPartCapB = m_FeaPartIncludedElementsVec[( *c )->m_SurfB->GetFeaPartIndex()];
 
-            vector< vec3d > ipntVec;
-            vector< vec3d > inormVec;
+            vector< vec3d > ipntVec, inormVec;
             vector < int > ssindexVec;
             Surf* NormSurf;
             int FeaPartIndex = -1;

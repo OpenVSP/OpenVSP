@@ -185,7 +185,6 @@ void SimpleGridDensity::CopyFrom( GridDensity* gd )
     m_MaxGap = gd->m_MaxGap.Get();
     m_FarMaxGap = gd->m_FarMaxGap.Get();
     m_GrowRatio = gd->m_GrowRatio.Get();
-
     m_Sources = gd->GetSimpleSourceVec();
 }
 
