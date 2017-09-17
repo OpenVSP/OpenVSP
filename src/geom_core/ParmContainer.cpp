@@ -656,6 +656,11 @@ bool UserParmNameCompare( const Parm *dvA, const Parm *dvB )
 
 bool UserParmContainer::SortVars()
 {
+    if ( m_UserParmVec.size() < m_NumPredefined )
+    {
+        return false;
+    }
+
     bool wassorted = std::is_sorted( m_UserParmVec.begin() + m_NumPredefined, m_UserParmVec.end(), UserParmNameCompare );
 
     if ( !wassorted )
