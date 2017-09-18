@@ -751,6 +751,16 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         return string();
     }
 
+    // Cleanup previously created meshGeom IDs created from VSPAEROMgr
+    if ( veh->FindGeom( m_LastPanelMeshGeomId ) )
+    {
+        veh->DeleteGeom( m_LastPanelMeshGeomId );
+        if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE )
+        {
+            veh->ShowOnlySet( m_GeomSet() );
+        }
+    }
+
     m_DegenGeomVec.clear();
     veh->CreateDegenGeom( m_GeomSet() );
     m_DegenGeomVec = veh->GetDegenGeomVec();
@@ -789,12 +799,6 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     // Generate *.tri geometry file for Panel method
     if ( m_AnalysisMethod.Get() == vsp::PANEL )
     {
-        // Cleanup previously created meshGeom IDs created from VSPAEROMgr
-        if ( veh->FindGeom( m_LastPanelMeshGeomId ) )
-        {
-            veh->DeleteGeom( m_LastPanelMeshGeomId );
-        }
-
         // Compute intersected and trimmed geometry
         int halfFlag = 0;
 
