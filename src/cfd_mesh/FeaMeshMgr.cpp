@@ -382,7 +382,7 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
         {
             for ( size_t j = i + 1; j < (int)all_norm_vec.size(); j++ )
             {
-                if ( ( ( abs( dot( all_norm_vec[i], all_norm_vec[j] ) ) - 1.0 ) <= FLT_EPSILON ) && ( all_norm_vec[j].mag() >= FLT_EPSILON ) && ( all_norm_vec[i].mag() >= FLT_EPSILON ) )
+                if ( ( abs( abs( dot( all_norm_vec[i], all_norm_vec[j] ) ) - 1.0 ) <= FLT_EPSILON ) && ( all_norm_vec[j].mag() >= FLT_EPSILON ) && ( all_norm_vec[i].mag() >= FLT_EPSILON ) )
                 {
                     vec3d pntA = all_surf_vec[i].CompPnt01( 0.5, 0.5 );
                     vec3d pntB = all_surf_vec[j].CompPnt01( 0.5, 0.5 );
