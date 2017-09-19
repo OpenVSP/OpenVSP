@@ -3049,15 +3049,51 @@ void CfdMeshMgrSingleton::AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3
     ipnt1->m_Pnt = ip1;
     m_DelIPntVec.push_back( ipnt1 );
 
-    new ISeg( pA.get_surf_ptr(), pB.get_surf_ptr(), ipnt0, ipnt1 );
-
     int id0 = IPntBin::ComputeID( ipnt0->m_Pnt );
-    m_BinMap[id0].m_ID = id0;
-    m_BinMap[id0].m_IPnts.push_back( ipnt0 );
-
     int id1 = IPntBin::ComputeID( ipnt1->m_Pnt );
-    m_BinMap[id1].m_ID = id1;
-    m_BinMap[id1].m_IPnts.push_back( ipnt1 );
+
+    //==== Determine if Segment has a Duplicate ====//
+    bool match = false;
+
+    vector< IPnt* > compareIPntVec0;
+    m_BinMap[id0].AddCompareIPnts( ipnt0, compareIPntVec0 ); // Get all segments with matching end point
+
+    for ( int i = 0; i < (int)compareIPntVec0.size(); i++ )
+    {
+        if ( compareIPntVec0[i]->m_Puws[0]->m_Surf == ipnt0->m_Puws[0]->m_Surf &&
+             compareIPntVec0[i]->m_Puws[1]->m_Surf == ipnt0->m_Puws[1]->m_Surf )
+        {
+            if ( compareIPntVec0[i]->m_Segs.size() > 0 ) // Should always be true
+            {
+                double d0 = dist_squared( compareIPntVec0[i]->m_Segs[0]->m_IPnt[0]->m_Pnt, ip0 );
+                double d1 = dist_squared( compareIPntVec0[i]->m_Segs[0]->m_IPnt[1]->m_Pnt, ip1 );
+
+                double d2 = dist_squared( compareIPntVec0[i]->m_Segs[0]->m_IPnt[1]->m_Pnt, ip0 );
+                double d3 = dist_squared( compareIPntVec0[i]->m_Segs[0]->m_IPnt[0]->m_Pnt, ip1 );
+
+                if ( ( d0 <= DBL_EPSILON && d1 <= DBL_EPSILON ) || ( d2 <= DBL_EPSILON && d3 <= DBL_EPSILON ) )
+                {
+                    match = true;
+                    break;
+                }
+            }
+        }
+    }
+
+    if ( !match )
+    {
+        new ISeg( pA.get_surf_ptr(), pB.get_surf_ptr(), ipnt0, ipnt1 );
+
+        m_BinMap[id0].m_ID = id0;
+        m_BinMap[id0].m_IPnts.push_back( ipnt0 );
+
+        m_BinMap[id1].m_ID = id1;
+        m_BinMap[id1].m_IPnts.push_back( ipnt1 );
+    }
+    else
+    {
+        printf( "Duplicate Segment Skipped\n" );
+    }
 
 #ifdef DEBUG_CFD_MESH
 
@@ -3149,7 +3185,7 @@ void CfdMeshMgrSingleton::BuildChains()
         int id = ( *iter ).second.m_ID;
         for ( int i = 0 ; i < ( int )m_BinMap[id].m_IPnts.size() ; i++ )
         {
-            if ( !m_BinMap[id].m_IPnts[i]->m_UsedFlag )
+            if ( !m_BinMap[id].m_IPnts[i]->m_UsedFlag && m_BinMap[id].m_IPnts[i]->m_Segs.size() > 0 )
             {
                 ISeg* seg = m_BinMap[id].m_IPnts[i]->m_Segs[0];
                 seg->m_IPnt[0]->m_UsedFlag = true;
