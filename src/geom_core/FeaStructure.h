@@ -167,7 +167,6 @@ public:
     static string GetTypeName( int type );
 
     virtual bool RefFrameIsBody( int orientation_plane );
-    virtual VspSurf ComputeSliceSurf( double rel_center_location, int orientation_plane, double x_rot, double y_rot, double z_rot );
 
     virtual void FetchFeaXFerSurf( vector< XferSurf > &xfersurfs, int compid, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector < double >() );
 
@@ -237,6 +236,8 @@ public:
 
     virtual void Update();
     virtual void UpdateParmLimits();
+
+    virtual VspSurf ComputeSliceSurf();
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
