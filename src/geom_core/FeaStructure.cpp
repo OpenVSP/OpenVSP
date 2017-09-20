@@ -60,6 +60,7 @@ xmlNodePtr FeaStructure::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr fea_info = xmlNewChild( node, NULL, BAD_CAST "FeaStructureInfo", NULL );
 
+    XmlUtil::AddStringNode( fea_info, "StructureName", m_FeaStructName );
     XmlUtil::AddStringNode( fea_info, "ParentGeomID", m_ParentGeomID );
     XmlUtil::AddIntNode( fea_info, "MainSurfIndx", m_MainSurfIndx );
 

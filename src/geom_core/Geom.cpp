@@ -2512,6 +2512,8 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
 
                     if ( feastruct )
                     {
+                        string name = XmlUtil::FindString( structnode, "StructureName", string() );
+                        feastruct->SetFeaStructName( name );
                         feastruct->DecodeXml( structnode );
 
                         xmlNodePtr setting_node = XmlUtil::GetNode( structnode, "StructSettings", 0 );
