@@ -988,12 +988,9 @@ double FeaPart::GetRibPerU( double rel_center_location )
             current_wing->GetSurfVec( surf_vec );
             VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
 
-            BndBox wing_bbox;
-            wing_surf.GetBoundingBox( wing_bbox );
-
             int num_wing_sec = wing->NumXSec();
 
-            vector < double > wing_sec_span_vec; // Vector of Span lengths for each wing section (first section has no length)
+            vector < double > wing_sec_span_vec; // Vector of wing span increasing by each wing section (first section has no length)
             wing_sec_span_vec.push_back( 0.0 );
 
             double U_max = wing_surf.GetUMax();
@@ -1001,6 +998,7 @@ double FeaPart::GetRibPerU( double rel_center_location )
             // Init values:
             double span_0 = 0.0;
             double span_f = 0.0;
+            double section_span = 0.0;
             double U_0, U_f;
             int curr_sec_ind = -1;
 
@@ -1027,11 +1025,12 @@ double FeaPart::GetRibPerU( double rel_center_location )
                 if ( wing_sec )
                 {
                     span_f += wing_sec->m_Span();
-                    wing_sec_span_vec.push_back( span_f - span_0 );
+                    wing_sec_span_vec.push_back( span_f );
 
                     if ( abs_center_location >= span_0 && abs_center_location <= span_f )
                     {
                         curr_sec_ind = i;
+                        section_span = wing_sec->m_Span();
                     }
 
                     span_0 = span_f;
@@ -1049,9 +1048,9 @@ double FeaPart::GetRibPerU( double rel_center_location )
 
             U_f = U_0 + 1;
 
-            double u_step = ( U_f - U_0 ) / U_max;
+            double u_step = 1 / U_max;
 
-            per_u = U_0 / U_max + ( ( ( rel_center_location * span ) - wing_sec_span_vec[curr_sec_ind - 1] ) / wing_sec_span_vec[curr_sec_ind] ) * u_step;
+            per_u = U_0 / U_max + ( ( abs_center_location - wing_sec_span_vec[curr_sec_ind - 1] ) / section_span ) * u_step;
         }
     }
 
