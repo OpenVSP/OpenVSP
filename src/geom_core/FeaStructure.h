@@ -166,10 +166,6 @@ public:
 
     static string GetTypeName( int type );
 
-    virtual double GetRibPerU( double rel_center_location );
-    virtual double GetRibTotalRotation( double rel_center_location, double initial_rotation, string perp_edge_ID );
-    virtual VspSurf ComputeRibSurf( double rel_center_location, double rotation );
-
     virtual bool RefFrameIsBody( int orientation_plane );
     virtual VspSurf ComputeSliceSurf( double rel_center_location, int orientation_plane, double x_rot, double y_rot, double z_rot );
 
@@ -299,6 +295,10 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual double GetRibPerU();
+    virtual double GetRibTotalRotation();
+    virtual VspSurf ComputeRibSurf();
+
     virtual void UpdateDrawObjs( int id, bool highlight );
 
     void SetPerpendicularEdgeID( string ID )
@@ -315,7 +315,9 @@ public:
 protected:
 
     string m_PerpendicularEdgeID;
-
+    double m_PerU;
+    double m_TotRot;
+    double m_U_sec_min, m_U_sec_max;
 };
 
 class FeaFixPoint : public FeaPart
