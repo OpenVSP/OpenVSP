@@ -223,17 +223,25 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     int input_width = m_SparEditLayout.GetInputWidth();
 
+    m_SparEditLayout.AddButton( m_SparSectionLimitToggle, "Limit Spar to Section" );
+
     m_SparEditLayout.SetSameLineFlag( true );
     m_SparEditLayout.SetFitWidthFlag( false );
 
-    m_SparEditLayout.AddButton( m_SparSectionLimitToggle, "Limit Spar to Section" );
+    m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 11 );
+    m_SparEditLayout.SetInputWidth( m_SparEditLayout.GetRemainX() / 12 );
 
-    m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 4 );
-    m_SparEditLayout.SetInputWidth( m_SparEditLayout.GetRemainX() / 5 );
+    int labelwidth = m_SparEditLayout.GetRemainX() / 9;
+    int gap = m_SparEditLayout.GetRemainX() / 34;
 
-    m_SparEditLayout.AddIndexSelector( m_SparSectIndexSelector );
+    m_SparEditLayout.AddLabel( "Start:", labelwidth );
+    m_SparEditLayout.AddIndexSelector( m_SparStartSectIndexSelector );
+    m_SparEditLayout.AddX( gap );
+    m_SparEditLayout.AddLabel( "End:", labelwidth );
+    m_SparEditLayout.AddIndexSelector( m_SparEndSectIndexSelector );
 
     m_SparEditLayout.ForceNewLine();
+    m_SparEditLayout.AddYGap();
 
     m_SparEditLayout.AddLabel( "Distance:", m_SparEditLayout.GetRemainX() / 3 );
     m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 2 );
@@ -1243,15 +1251,18 @@ bool FeaPartEditScreen::Update()
                         }
 
                         m_SparSectionLimitToggle.Update( spar->m_LimitSparToSectionFlag.GetID() );
-                        m_SparSectIndexSelector.Update( spar->m_CurrWingSection.GetID() );
+                        m_SparStartSectIndexSelector.Update( spar->m_StartWingSection.GetID() );
+                        m_SparEndSectIndexSelector.Update( spar->m_EndWingSection.GetID() );
 
                         if ( spar->m_LimitSparToSectionFlag() )
                         {
-                            m_SparSectIndexSelector.Activate();
+                            m_SparStartSectIndexSelector.Activate();
+                            m_SparEndSectIndexSelector.Activate();
                         }
                         else
                         {
-                            m_SparSectIndexSelector.Deactivate();
+                            m_SparStartSectIndexSelector.Deactivate();
+                            m_SparEndSectIndexSelector.Deactivate();
                         }
 
                         m_SparThetaSlider.Update( spar->m_Theta.GetID() );

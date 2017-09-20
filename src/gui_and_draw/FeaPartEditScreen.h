@@ -104,7 +104,8 @@ private:
     SliderAdjRange2Input m_SparPosSlider;
     TriggerButton m_SparPosUnit;
     ToggleButton m_SparSectionLimitToggle;
-    IndexSelector m_SparSectIndexSelector;
+    IndexSelector m_SparStartSectIndexSelector;
+    IndexSelector m_SparEndSectIndexSelector;
     SliderAdjRangeInput m_SparThetaSlider;
     Choice m_SparCapPropertyChoice;
     ToggleButton m_SparShellToggle;

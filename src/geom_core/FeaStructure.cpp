@@ -2126,8 +2126,11 @@ FeaSpar::FeaSpar( string geomID, int type ) : FeaSlice( geomID, type )
     m_LimitSparToSectionFlag.Init( "LimitSparToSectionFlag", "FeaSpar", this, false, false, true );
     m_LimitSparToSectionFlag.SetDescript( "Flag to Limit Spar Length to Wing Section" );
 
-    m_CurrWingSection.Init( "CurrWingSection", "FeaSpar", this, 1, 1, 1000 );
-    m_CurrWingSection.SetDescript( "Current Wing Section to Limit Spar Length to" );
+    m_StartWingSection.Init( "StartWingSection", "FeaSpar", this, 1, 1, 1000 );
+    m_StartWingSection.SetDescript( "Start Wing Section to Limit Spar Length to" );
+
+    m_EndWingSection.Init( "EndWingSection", "FeaSpar", this, 1, 1, 1000 );
+    m_EndWingSection.SetDescript( "End Wing Section to Limit Spar Length to" );
 }
 
 void FeaSpar::Update()
@@ -2159,45 +2162,44 @@ void FeaSpar::UpdateParms()
         int num_wing_sec = wing->NumXSec();
         double U_max = wing_surf.GetUMax();
 
-        m_CurrWingSection.SetUpperLimit( num_wing_sec - 1 );
-
-        double U_sec_min, U_sec_max;
+        m_StartWingSection.SetLowerUpperLimits( 1, m_EndWingSection() );
+        m_EndWingSection.SetLowerUpperLimits( m_StartWingSection(), num_wing_sec - 1 );
 
         // Determine U limits of spar
         if ( m_LimitSparToSectionFlag() )
         {
             if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
             {
-                U_sec_min = ( m_CurrWingSection() - 1 );
+                m_U_sec_min = ( m_StartWingSection() - 1 );
             }
             else
             {
-                U_sec_min = m_CurrWingSection();
+                m_U_sec_min = m_StartWingSection();
             }
 
-            U_sec_max = U_sec_min + 1;
+            m_U_sec_max = m_U_sec_min + 1 + ( m_EndWingSection() - m_StartWingSection() );
         }
         else
         {
             if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
             {
-                U_sec_min = 0;
+                m_U_sec_min = 0;
             }
             else
             {
-                U_sec_min = 1;
+                m_U_sec_min = 1;
             }
             if ( wing->m_CapUMaxOption() == vsp::NO_END_CAP )
             {
-                U_sec_max = U_max;
+                m_U_sec_max = U_max;
             }
             else
             {
-                U_sec_max = U_max - 1;
+                m_U_sec_max = U_max - 1;
             }
         }
 
-        double u_mid = ( ( U_sec_min + U_sec_max ) / 2 ) / U_max;
+        double u_mid = ( ( m_U_sec_min + m_U_sec_max ) / 2 ) / U_max;
 
         double chord_length = dist( wing_surf.CompPnt01( u_mid, 0.5 ), wing_surf.CompPnt01( u_mid, 0.0 ) ); // average chord length
 
@@ -2247,48 +2249,9 @@ void FeaSpar::ComputePlanarSurf()
         BndBox wing_bbox;
         wing_surf.GetBoundingBox( wing_bbox );
 
-        int num_wing_sec = wing->NumXSec();
         double U_max = wing_surf.GetUMax();
 
-        m_CurrWingSection.SetUpperLimit( num_wing_sec - 1 );
-
-        double U_sec_min, U_sec_max;
-
-        // Determine U limits of spar
-        if ( m_LimitSparToSectionFlag() )
-        {
-            if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
-            {
-                U_sec_min = ( m_CurrWingSection() - 1 );
-            }
-            else
-            {
-                U_sec_min = m_CurrWingSection();
-            }
-
-            U_sec_max = U_sec_min + 1;
-        }
-        else
-        {
-            if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
-            {
-                U_sec_min = 0;
-            }
-            else
-            {
-                U_sec_min = 1;
-            }
-            if ( wing->m_CapUMaxOption() == vsp::NO_END_CAP )
-            {
-                U_sec_max = U_max;
-            }
-            else
-            {
-                U_sec_max = U_max - 1;
-            }
-        }
-
-        double u_mid = ( ( U_sec_min + U_sec_max ) / 2 ) / U_max;
+        double u_mid = ( ( m_U_sec_min + m_U_sec_max ) / 2 ) / U_max;
 
         VspCurve constant_u_curve;
         wing_surf.GetU01ConstCurve( constant_u_curve, u_mid );
@@ -2300,10 +2263,10 @@ void FeaSpar::ComputePlanarSurf()
         double V_leading_edge = ( V_min + V_max ) * 0.5;
 
         // Wing corner points:
-        vec3d min_trail_edge = wing_surf.CompPnt( U_sec_min, 0.0 );
-        vec3d min_lead_edge = wing_surf.CompPnt( U_sec_min, V_leading_edge );
-        vec3d max_trail_edge = wing_surf.CompPnt( U_sec_max, 0.0 );
-        vec3d max_lead_edge = wing_surf.CompPnt( U_sec_max, V_leading_edge );
+        vec3d min_trail_edge = wing_surf.CompPnt( m_U_sec_min, 0.0 );
+        vec3d min_lead_edge = wing_surf.CompPnt( m_U_sec_min, V_leading_edge );
+        vec3d max_trail_edge = wing_surf.CompPnt( m_U_sec_max, 0.0 );
+        vec3d max_lead_edge = wing_surf.CompPnt( m_U_sec_max, V_leading_edge );
 
         // Determine inner edge and outer edge spar points before rotations
         vec3d inside_edge_vec = min_lead_edge - min_trail_edge;

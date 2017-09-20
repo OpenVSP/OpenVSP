@@ -271,9 +271,12 @@ public:
 
     Parm m_Theta;
     BoolParm m_LimitSparToSectionFlag;
-    IntParm m_CurrWingSection;
+    IntParm m_StartWingSection;
+    IntParm m_EndWingSection;
 
-protected:
+private:
+
+    double m_U_sec_min, m_U_sec_max;
 
 };
 
