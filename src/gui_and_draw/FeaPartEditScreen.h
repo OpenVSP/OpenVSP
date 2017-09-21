@@ -155,6 +155,9 @@ private:
     //===== RibArray =====//
     Choice m_RibArrayPropertyChoice;
     Choice m_RibArrayPerpEdgeChoice;
+    ToggleButton m_RibArraySectionLimitToggle;
+    IndexSelector m_RibArrayStartSectIndexSelector;
+    IndexSelector m_RibArrayEndSectIndexSelector;
     ToggleButton m_RibArrayPosRelToggle;
     ToggleButton m_RibArrayPosAbsToggle;
     ToggleRadioGroup m_RibArrayPosTypeToggleGroup;

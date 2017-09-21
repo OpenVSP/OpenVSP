@@ -3337,7 +3337,17 @@ FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
     m_RelEndLocation.Init( "RelEndLocation", "FeaRibArray", this, 0.9, 0.0, 1.0 );
     m_RelEndLocation.SetDescript( "Relative Location for Final Rib in Array" );
 
-    m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
+    m_Theta.Init( "Theta", "FeaRibArray", this, 0.0, -90.0, 90.0 );
+    m_Theta.SetDescript( "Rotation of Each Rib in Array" );
+
+    m_LimitArrayToSectionFlag.Init( "LimitRibToSectionFlag", "FeaRibArray", this, false, false, true );
+    m_LimitArrayToSectionFlag.SetDescript( "Flag to Limit Rib Length to Wing Section" );
+
+    m_StartWingSection.Init( "StartWingSection", "FeaRibArray", this, 1, 1, 1000 );
+    m_StartWingSection.SetDescript( "Start Wing Section to Limit Array to" );
+
+    m_EndWingSection.Init( "EndWingSection", "FeaRibArray", this, 1, 1, 1000 );
+    m_EndWingSection.SetDescript( "End Wing Section to Limit Array to" );
 
     m_NumRibs = 0;
 }
@@ -3376,11 +3386,26 @@ void FeaRibArray::CalcNumRibs()
 
         int num_wing_sec = wing->NumXSec();
 
-        // Init values:
+        m_StartWingSection.SetLowerUpperLimits( 1, m_EndWingSection() );
+        m_EndWingSection.SetLowerUpperLimits( m_StartWingSection(), num_wing_sec - 1 );
+
+        // Init values and identify wing section:
         double span_f = 0.0;
+        int start_sect, end_sect;
+
+        if ( m_LimitArrayToSectionFlag() )
+        {
+            start_sect = m_StartWingSection();
+            end_sect = m_EndWingSection() + 1;
+        }
+        else
+        {
+            start_sect = 1;
+            end_sect = num_wing_sec;
+        }
 
         // Determine wing span:
-        for ( size_t i = 1; i < num_wing_sec; i++ )
+        for ( size_t i = start_sect; i < end_sect; i++ )
         {
             WingSect* wing_sec = wing->GetWingSect( i );
 
@@ -3521,7 +3546,9 @@ void FeaRibArray::CreateFeaRibArray()
 
             rib->m_Theta.Set( m_Theta() );
             rib->SetPerpendicularEdgeID( m_PerpendicularEdgeID );
-            rib->m_LimitRibToSectionFlag.Set( false );
+            rib->m_LimitRibToSectionFlag.Set( m_LimitArrayToSectionFlag() );
+            rib->m_StartWingSection.Set( m_StartWingSection() );
+            rib->m_EndWingSection.Set( m_EndWingSection() );
 
             // Update Rib Relative Center Location
             double rel_center_location =  m_RelStartLocation() + dir * i * m_RibRelSpacing();

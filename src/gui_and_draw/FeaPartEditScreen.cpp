@@ -481,8 +481,28 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_RibArrayEditLayout.AddYGap();
 
+    m_RibArrayEditLayout.AddButton( m_RibArraySectionLimitToggle, "Limit Rib Array to Section" );
+
     m_RibArrayEditLayout.SetSameLineFlag( true );
     m_RibArrayEditLayout.SetFitWidthFlag( false );
+
+    button_width = m_RibArrayEditLayout.GetButtonWidth();
+    input_width = m_RibArrayEditLayout.GetInputWidth();
+
+    m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() / 11 );
+    m_RibArrayEditLayout.SetInputWidth( m_RibArrayEditLayout.GetRemainX() / 12 );
+
+    labelwidth = m_RibArrayEditLayout.GetRemainX() / 9;
+    gap = m_RibArrayEditLayout.GetRemainX() / 34;
+
+    m_RibArrayEditLayout.AddLabel( "Start:", labelwidth );
+    m_RibArrayEditLayout.AddIndexSelector( m_RibArrayStartSectIndexSelector );
+    m_RibArrayEditLayout.AddX( gap );
+    m_RibArrayEditLayout.AddLabel( "End:", labelwidth );
+    m_RibArrayEditLayout.AddIndexSelector( m_RibArrayEndSectIndexSelector );
+
+    m_RibArrayEditLayout.AddYGap();
+    m_RibArrayEditLayout.ForceNewLine();
 
     m_RibArrayEditLayout.AddLabel( "Distance:", m_RibArrayEditLayout.GetRemainX() / 3 );
     m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() / 2 );
@@ -513,6 +533,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     button_width = m_RibArrayEditLayout.GetButtonWidth();
 
     m_RibArrayEditLayout.SetSliderWidth( m_RibArrayEditLayout.GetRemainX() / 5 );
+    m_RibArrayEditLayout.SetInputWidth( input_width );
 
     m_RibArrayEditLayout.AddSlider( m_RibArrayStartLocSlider, "Start Location", 0.5, "%5.3f" );
 
@@ -1396,6 +1417,21 @@ bool FeaPartEditScreen::Update()
                     {
                         FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( feaprt );
                         assert( rib_array );
+
+                        m_RibArraySectionLimitToggle.Update( rib_array->m_LimitArrayToSectionFlag.GetID() );
+                        m_RibArrayStartSectIndexSelector.Update( rib_array->m_StartWingSection.GetID() );
+                        m_RibArrayEndSectIndexSelector.Update( rib_array->m_EndWingSection.GetID() );
+
+                        if ( rib_array->m_LimitArrayToSectionFlag() )
+                        {
+                            m_RibArrayStartSectIndexSelector.Activate();
+                            m_RibArrayEndSectIndexSelector.Activate();
+                        }
+                        else
+                        {
+                            m_RibArrayStartSectIndexSelector.Deactivate();
+                            m_RibArrayEndSectIndexSelector.Deactivate();
+                        }
 
                         m_RibArrayPosTypeToggleGroup.Update( rib_array->m_AbsRelParmFlag.GetID() );
 

@@ -457,6 +457,9 @@ public:
     Parm m_AbsEndLocation;
     Parm m_RelEndLocation;
     Parm m_Theta;
+    BoolParm m_LimitArrayToSectionFlag;
+    IntParm m_StartWingSection;
+    IntParm m_EndWingSection;
 
 protected:
 
