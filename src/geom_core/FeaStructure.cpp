@@ -3933,7 +3933,7 @@ FeaSlice* FeaSliceArray::AddFeaSlice( double center_location, int ind )
             slice->m_AbsCenterLocation.Set( center_location );
         }
 
-        slice->m_OrientationPlane.Set( vsp::SPINE_NORMAL );
+        slice->m_OrientationPlane.Set( m_OrientationPlane() );
         slice->m_AbsRelParmFlag.Set( m_AbsRelParmFlag() );
         slice->m_IncludedElements.Set( m_IncludedElements() );
         slice->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
