@@ -213,7 +213,7 @@ std::string SubSurface::GetTypeName( int type )
     }
     if ( type == vsp::SS_LINE_ARRAY )
     {
-        return string( "LineArray" );
+        return string( "Line_Array" );
     }
     return string( "NONE" );
 }
