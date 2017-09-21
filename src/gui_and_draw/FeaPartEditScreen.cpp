@@ -152,10 +152,30 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_RibEditLayout.AddChoice( m_RibPerpendicularEdgeChoice, "Edge Normal" );
 
+    m_RibEditLayout.AddYGap();
+
+    m_RibEditLayout.AddButton( m_RibSectionLimitToggle, "Limit Rib to Section" );
+
     m_RibEditLayout.SetSameLineFlag( true );
     m_RibEditLayout.SetFitWidthFlag( false );
 
     button_width = m_RibEditLayout.GetButtonWidth();
+    int input_width = m_RibEditLayout.GetInputWidth();
+
+    m_RibEditLayout.SetButtonWidth( m_RibEditLayout.GetRemainX() / 11 );
+    m_RibEditLayout.SetInputWidth( m_RibEditLayout.GetRemainX() / 12 );
+
+    int labelwidth = m_RibEditLayout.GetRemainX() / 9;
+    int gap = m_RibEditLayout.GetRemainX() / 34;
+
+    m_RibEditLayout.AddLabel( "Start:", labelwidth );
+    m_RibEditLayout.AddIndexSelector( m_RibStartSectIndexSelector );
+    m_RibEditLayout.AddX( gap );
+    m_RibEditLayout.AddLabel( "End:", labelwidth );
+    m_RibEditLayout.AddIndexSelector( m_RibEndSectIndexSelector );
+
+    m_RibEditLayout.ForceNewLine();
+    m_RibEditLayout.AddYGap();
 
     m_RibEditLayout.AddLabel( "Distance:", m_RibEditLayout.GetRemainX() / 3 );
     m_RibEditLayout.SetButtonWidth( m_RibEditLayout.GetRemainX() / 2 );
@@ -169,6 +189,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_RibEditLayout.ForceNewLine();
 
     m_RibEditLayout.SetSliderWidth( m_RibEditLayout.GetRemainX() / 5 );
+    m_RibEditLayout.SetInputWidth( input_width );
 
     m_RibEditLayout.AddSlider( m_RibPosSlider, "Location", 0.5, "%5.3f" );
 
@@ -221,7 +242,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 2 );
 
-    int input_width = m_SparEditLayout.GetInputWidth();
+    input_width = m_SparEditLayout.GetInputWidth();
 
     m_SparEditLayout.AddButton( m_SparSectionLimitToggle, "Limit Spar to Section" );
 
@@ -231,8 +252,8 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 11 );
     m_SparEditLayout.SetInputWidth( m_SparEditLayout.GetRemainX() / 12 );
 
-    int labelwidth = m_SparEditLayout.GetRemainX() / 9;
-    int gap = m_SparEditLayout.GetRemainX() / 34;
+    labelwidth = m_SparEditLayout.GetRemainX() / 9;
+    gap = m_SparEditLayout.GetRemainX() / 34;
 
     m_SparEditLayout.AddLabel( "Start:", labelwidth );
     m_SparEditLayout.AddIndexSelector( m_SparStartSectIndexSelector );
@@ -1193,6 +1214,21 @@ bool FeaPartEditScreen::Update()
                     {
                         FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
                         assert( rib );
+
+                        m_RibSectionLimitToggle.Update( rib->m_LimitRibToSectionFlag.GetID() );
+                        m_RibStartSectIndexSelector.Update( rib->m_StartWingSection.GetID() );
+                        m_RibEndSectIndexSelector.Update( rib->m_EndWingSection.GetID() );
+
+                        if ( rib->m_LimitRibToSectionFlag() )
+                        {
+                            m_RibStartSectIndexSelector.Activate();
+                            m_RibEndSectIndexSelector.Activate();
+                        }
+                        else
+                        {
+                            m_RibStartSectIndexSelector.Deactivate();
+                            m_RibEndSectIndexSelector.Deactivate();
+                        }
 
                         m_RibPosTypeToggleGroup.Update( rib->m_AbsRelParmFlag.GetID() );
 

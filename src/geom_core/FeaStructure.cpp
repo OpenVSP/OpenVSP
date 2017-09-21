@@ -2054,6 +2054,15 @@ FeaRib::FeaRib( string geomID, int type ) : FeaSlice( geomID, type )
 {
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
     m_Theta.SetDescript( "Rotation of FeaRib About Axis Normal to Wing Chord Line" );
+
+    m_LimitRibToSectionFlag.Init( "LimitRibToSectionFlag", "FeaRib", this, false, false, true );
+    m_LimitRibToSectionFlag.SetDescript( "Flag to Limit Rib Length to Wing Section" );
+
+    m_StartWingSection.Init( "StartWingSection", "FeaRib", this, 1, 1, 1000 );
+    m_StartWingSection.SetDescript( "Start Wing Section to Limit Rib to" );
+
+    m_EndWingSection.Init( "EndWingSection", "FeaRib", this, 1, 1, 1000 );
+    m_EndWingSection.SetDescript( "End Wing Section to Limit Rib to" );
 }
 
 void FeaRib::Update()
@@ -2094,11 +2103,28 @@ void FeaRib::UpdateParmLimits()
 
         int num_wing_sec = wing->NumXSec();
 
+        m_StartWingSection.SetLowerUpperLimits( 1, m_EndWingSection() );
+        m_EndWingSection.SetLowerUpperLimits( m_StartWingSection(), num_wing_sec - 1 );
+
         // Init values:
         double span = 0.0;
+        int start_sect, end_sect;
+        int curr_sec_ind = -1;
+
+        // Determine current wing section:
+        if ( m_LimitRibToSectionFlag() )
+        {
+            start_sect = m_StartWingSection();
+            end_sect = m_EndWingSection() + 1;
+        }
+        else
+        {
+            start_sect = 1;
+            end_sect = num_wing_sec;
+        }
 
         // Determine wing span:
-        for ( size_t i = 1; i < num_wing_sec; i++ )
+        for ( size_t i = start_sect; i < end_sect; i++ )
         {
             WingSect* wing_sec = wing->GetWingSect( i );
 
@@ -2118,7 +2144,6 @@ void FeaRib::UpdateParmLimits()
         }
         else if ( m_AbsRelParmFlag() == vsp::ABS )
         {
-           // m_AbsCenterLocation.SetUpperLimit( span );
             m_RelCenterLocation.Set( m_AbsCenterLocation() / span );
         }
     }
@@ -2177,11 +2202,22 @@ double FeaRib::GetRibPerU( )
             double span_0 = 0.0;
             double span_f = 0.0;
             double section_span = 0.0;
-            //double U_0, U_f;
+            int start_sect, end_sect;
             int curr_sec_ind = -1;
 
             // Determine current wing section:
-            for ( size_t i = 1; i < num_wing_sec; i++ )
+            if ( m_LimitRibToSectionFlag() )
+            {
+                start_sect = m_StartWingSection();
+                end_sect = m_EndWingSection() + 1;
+            }
+            else
+            {
+                start_sect = 1;
+                end_sect = num_wing_sec;
+            }
+
+            for ( size_t i = start_sect; i < end_sect; i++ )
             {
                 WingSect* wing_sec = wing->GetWingSect( i );
 
@@ -2200,29 +2236,51 @@ double FeaRib::GetRibPerU( )
                 }
             }
 
-            if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
+            int num_skip_sect = start_sect - 1;
+            curr_sec_ind -= num_skip_sect;
+
+            if ( m_LimitRibToSectionFlag() )
             {
-                m_U_sec_min = 0;
+                if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
+                {
+                    m_U_sec_min = ( m_StartWingSection() - 1 );
+                }
+                else
+                {
+                    m_U_sec_min = m_StartWingSection();
+                }
+
+                m_U_sec_max = m_U_sec_min + 1 + ( m_EndWingSection() - m_StartWingSection() );
             }
             else
             {
-                m_U_sec_min = 1;
-            }
-            if ( wing->m_CapUMaxOption() == vsp::NO_END_CAP )
-            {
-                m_U_sec_max = U_max;
-            }
-            else
-            {
-                m_U_sec_max = U_max - 1;
+                if ( wing->m_CapUMinOption() == vsp::NO_END_CAP )
+                {
+                    m_U_sec_min = 0;
+                }
+                else
+                {
+                    m_U_sec_min = 1;
+                }
+                if ( wing->m_CapUMaxOption() == vsp::NO_END_CAP )
+                {
+                    m_U_sec_max = U_max;
+                }
+                else
+                {
+                    m_U_sec_max = U_max - 1;
+                }
             }
 
             double u_step = 1 / U_max;
 
-            m_PerU = m_U_sec_min / U_max + ( ( m_AbsCenterLocation() - wing_sec_span_vec[curr_sec_ind - 1] ) / section_span ) * u_step;
+            if ( curr_sec_ind >= 0 && curr_sec_ind < wing_sec_span_vec.size() )
+            {
+                m_PerU = m_U_sec_min / U_max + ( curr_sec_ind - 1 ) * u_step + ( ( m_AbsCenterLocation() - wing_sec_span_vec[curr_sec_ind - 1] ) / section_span ) * u_step;
+            }
         }
     }
-
+    
     return m_PerU;
 }
 
@@ -3463,6 +3521,7 @@ void FeaRibArray::CreateFeaRibArray()
 
             rib->m_Theta.Set( m_Theta() );
             rib->SetPerpendicularEdgeID( m_PerpendicularEdgeID );
+            rib->m_LimitRibToSectionFlag.Set( false );
 
             // Update Rib Relative Center Location
             double rel_center_location =  m_RelStartLocation() + dir * i * m_RibRelSpacing();

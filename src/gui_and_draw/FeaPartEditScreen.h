@@ -82,6 +82,9 @@ private:
     //===== Rib =====//
     Choice m_RibPropertyChoice;
     Choice m_RibPerpendicularEdgeChoice;
+    ToggleButton m_RibSectionLimitToggle;
+    IndexSelector m_RibStartSectIndexSelector;
+    IndexSelector m_RibEndSectIndexSelector;
     ToggleButton m_RibPosRelToggle;
     ToggleButton m_RibPosAbsToggle;
     ToggleRadioGroup m_RibPosTypeToggleGroup;

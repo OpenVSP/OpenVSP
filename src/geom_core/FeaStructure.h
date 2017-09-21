@@ -312,6 +312,9 @@ public:
     }
 
     Parm m_Theta;
+    BoolParm m_LimitRibToSectionFlag;
+    IntParm m_StartWingSection;
+    IntParm m_EndWingSection;
 
 protected:
 
