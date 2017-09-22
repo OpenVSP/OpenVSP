@@ -110,6 +110,7 @@ public:
 
     virtual void TransferDrawObjData();
 
+    virtual void SetAllDisplayFlags( bool flag );
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void UpdateDisplaySettings();

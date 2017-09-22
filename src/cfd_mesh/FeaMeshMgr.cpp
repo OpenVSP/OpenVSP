@@ -2487,6 +2487,19 @@ void FeaMeshMgrSingleton::SetDrawCapFlag( int index, bool flag )
     }
 }
 
+void FeaMeshMgrSingleton::SetAllDisplayFlags( bool flag )
+{
+    for ( unsigned int i = 0; i < m_DrawElementFlagVec.size(); i++ )
+    {
+        SetDrawElementFlag( i, flag );
+    }
+
+    for ( unsigned int i = 0; i < m_DrawCapFlagVec.size(); i++ )
+    {
+        SetDrawCapFlag( i, flag );
+    }
+}
+
 void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
     if ( !GetGridDensityPtr() || !GetStructSettingsPtr() )

@@ -2660,31 +2660,11 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_DrawAllButton )
     {
-        vector < bool > draw_element_flag_vec = FeaMeshMgr.GetDrawElementFlagVec();
-        for ( unsigned int i = 0; i < draw_element_flag_vec.size(); i++ )
-        {
-            FeaMeshMgr.SetDrawElementFlag( i, true );
-        }
-
-        vector < bool > draw_cap_flag_vec = FeaMeshMgr.GetDrawCapFlagVec();
-        for ( unsigned int i = 0; i < draw_cap_flag_vec.size(); i++ )
-        {
-            FeaMeshMgr.SetDrawCapFlag( i, true );
-        }
+        FeaMeshMgr.SetAllDisplayFlags( true );
     }
     else if ( device == &m_HideAllButton )
     {
-        vector < bool > draw_element_flag_vec = FeaMeshMgr.GetDrawElementFlagVec();
-        for ( unsigned int i = 0; i < draw_element_flag_vec.size(); i++ )
-        {
-            FeaMeshMgr.SetDrawElementFlag( i, false );
-        }
-
-        vector < bool > draw_cap_flag_vec = FeaMeshMgr.GetDrawCapFlagVec();
-        for ( unsigned int i = 0; i < draw_cap_flag_vec.size(); i++ )
-        {
-            FeaMeshMgr.SetDrawCapFlag( i, false );
-        }
+        FeaMeshMgr.SetAllDisplayFlags( false );
     }
     else if ( device == &m_MovePrtUpButton )
     {
