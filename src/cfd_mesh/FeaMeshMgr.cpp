@@ -2487,6 +2487,15 @@ void FeaMeshMgrSingleton::SetDrawCapFlag( int index, bool flag )
     }
 }
 
+bool FeaMeshMgrSingleton::FeaDataAvailable()
+{
+    if ( m_FeaElementVec.size() > 0 )
+    {
+        return true;
+    }
+    return false;
+}
+
 void FeaMeshMgrSingleton::SetAllDisplayFlags( bool flag )
 {
     for ( unsigned int i = 0; i < m_DrawElementFlagVec.size(); i++ )

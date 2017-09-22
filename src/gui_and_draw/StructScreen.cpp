@@ -72,11 +72,12 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_BorderConsoleLayout.SetSameLineFlag( true );
     m_BorderConsoleLayout.SetFitWidthFlag( false );
 
-    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 3 );
-    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 3 );
+    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 4 );
+    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 4 );
 
     m_BorderConsoleLayout.AddOutput( m_CurrStructOutput, "Current Structure" );
     m_BorderConsoleLayout.AddButton( m_FeaMeshExportButton, "Mesh and Export" );
+    m_BorderConsoleLayout.AddButton( m_ResetDisplayButton, "Reset Display" );
 
     //=== Structures Tab ===//
     structTab->show();
@@ -2047,6 +2048,15 @@ bool StructScreen::Update()
         {
             m_FeaMeshExportButton.Activate();
         }
+
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) && FeaMeshMgr.FeaDataAvailable() )
+        {
+            m_ResetDisplayButton.Activate();
+        }
+        else
+        {
+            m_ResetDisplayButton.Deactivate();
+        }
     }
 
     return true;
@@ -2276,6 +2286,14 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->m_DrawMeshFlag = true;
             structvec[StructureMgr.GetCurrStructIndex()]->SetDrawFlag( false );
+        }
+    }
+    else if ( device == &m_ResetDisplayButton )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) && FeaMeshMgr.FeaDataAvailable() )
+        {
+            StructureMgr.ShowAllParts();
+            FeaMeshMgr.SetAllDisplayFlags( false );
         }
     }
     else if ( device == &m_WikiLinkButton )

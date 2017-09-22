@@ -286,6 +286,39 @@ void StructureMgrSingleton::ResetExportFileNames( const string & VSP3FileName )
     }
 }
 
+void StructureMgrSingleton::ShowAllParts()
+{
+    FeaStructure* fea_struct = GetFeaStruct( m_CurrStructIndex );
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( fea_struct && veh )
+    {
+        string parent_id = fea_struct->GetParentGeomID();
+        veh->HideAll();
+
+        Geom* parent = veh->FindGeom( parent_id );
+        if ( parent )
+        {
+            parent->SetSetFlag( 1, true ); //add to shown
+            parent->SetSetFlag( 2, false ); //remove from show
+        }
+
+        vector < FeaPart* > part_vec = fea_struct->GetFeaPartVec();
+
+        for ( size_t i = 0; i < part_vec.size(); i++ )
+        {
+            part_vec[i]->m_DrawFeaPartFlag.Set( true );
+        }
+
+        vector < SubSurface* > ss_vec = fea_struct->GetFeaSubSurfVec();
+
+        for ( size_t i = 0; i < ss_vec.size(); i++ )
+        {
+            ss_vec[i]->m_DrawFeaPartFlag.Set( true );
+        }
+    }
+}
+
 void StructureMgrSingleton::UpdateStructUnit( int new_unit )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();

@@ -106,6 +106,7 @@ private:
 
     //===== Common buttons =====//
     StringOutput m_CurrStructOutput;
+    TriggerButton m_ResetDisplayButton;
     TriggerButton m_FeaMeshExportButton;
 
     //===== Structure Tab Items =====//
