@@ -408,7 +408,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_DomeEditLayout.AddYGap();
     m_DomeEditLayout.SetButtonWidth( m_DomeEditLayout.GetRemainX() / 3 );
 
-    m_DomeEditLayout.AddSlider( m_DomeXSlider, "XLoc", 50, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeXSlider, "XLoc", 10, "%5.3f" );
 
     m_DomeEditLayout.SetButtonWidth( m_DomeEditLayout.GetRemainX() );
     m_DomeEditLayout.AddButton( m_DomeXUnit, " " );
@@ -418,7 +418,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_DomeEditLayout.ForceNewLine();
     m_DomeEditLayout.SetButtonWidth( m_DomeEditLayout.GetRemainX() / 3 );
 
-    m_DomeEditLayout.AddSlider( m_DomeYSlider, "YLoc", 50, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeYSlider, "YLoc", 10, "%5.3f" );
 
     m_DomeEditLayout.SetButtonWidth( m_DomeEditLayout.GetRemainX() );
     m_DomeEditLayout.AddButton( m_DomeYUnit, " " );
@@ -428,7 +428,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_DomeEditLayout.ForceNewLine();
     m_DomeEditLayout.SetButtonWidth( m_DomeEditLayout.GetRemainX() / 3 );
 
-    m_DomeEditLayout.AddSlider( m_DomeZSlider, "ZLoc", 50, "%5.3f" );
+    m_DomeEditLayout.AddSlider( m_DomeZSlider, "ZLoc", 10, "%5.3f" );
 
     m_DomeEditLayout.SetButtonWidth( m_DomeEditLayout.GetRemainX() );
     m_DomeEditLayout.AddButton( m_DomeZUnit, " " );
