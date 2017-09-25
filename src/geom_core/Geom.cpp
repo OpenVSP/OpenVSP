@@ -4145,8 +4145,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         char str[256];
 
-        int nxsec = m_XSecSurf.NumXSec();
-        for ( int i = 0 ; i < nxsec ; i++ )
+        for ( int i = 0 ; i < m_XSecDrawObj_vec.size() ; i++ )
         {
             sprintf( str, "_%d", i );
 
