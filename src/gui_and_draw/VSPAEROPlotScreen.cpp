@@ -1190,12 +1190,11 @@ void VSPAEROPlotScreen::RedrawSweepPlot()
                     {
                         //====Plot Stuff====//
                         tResultDataPtr = res->FindPtr( xDataSetNames[iXData] );
-                        nData = res->GetNumData( xDataSetNames[iXData] );
+                        nData = tResultDataPtr->GetDoubleData().size();
                         xDoubleData.push_back( tResultDataPtr->GetDouble( nData - 1 ) );
 
-                        //NameValData* tResultDataPtr;
                         tResultDataPtr = res->FindPtr( yDataSetNames[iYData] );
-                        nData = res->GetNumData( yDataSetNames[iYData] );
+                        nData = tResultDataPtr->GetDoubleData().size();
                         yDoubleData.push_back( tResultDataPtr->GetDouble( nData - 1 ) );
                     }
                 }
