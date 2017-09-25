@@ -542,12 +542,6 @@ string Vehicle::CreateGeom( const GeomType & type )
         return "NONE";
     }
 
-    //==== Custom Geom Will be Updated After Scripts Are Read ====//
-    if ( type.m_Type != CUSTOM_GEOM_TYPE )
-    {
-        new_geom->Update();
-    }
-
     m_GeomStoreVec.push_back( new_geom );
 
     Geom* type_geom_ptr = FindGeom( type.m_GeomID );
@@ -556,7 +550,6 @@ string Vehicle::CreateGeom( const GeomType & type )
         string id = new_geom->GetID();
         new_geom->CopyFrom( type_geom_ptr );
         new_geom->SetName( type.m_Name );
-        new_geom->Update();
     }
 
     return new_geom->GetID();
@@ -576,7 +569,6 @@ string Vehicle::AddGeom( const GeomType & type )
         {
             add_geom->SetType( type );
             CustomGeomMgr.InitGeom( geom_id, type.m_ModuleName, type.m_DisplayName );
-//            add_geom->Update();
         }
         //==== Update Conformal After Attachment to Parent ====//
         else if ( type.m_Type == CONFORMAL_GEOM_TYPE )
@@ -610,19 +602,9 @@ string Vehicle::AddGeom( const GeomType & type )
                 MessageMgr::getInstance().SendAll( errMsgData );
             }
 
-            add_geom->Update();
         }
 
-        string parent_id = add_geom->GetParentID();           // Parent
-        Geom* parent_geom = FindGeom( parent_id );
-        if ( parent_geom )
-        {
-            HingeGeom* hingeparent = dynamic_cast < HingeGeom* > ( parent_geom );
-            if ( hingeparent )
-            {
-                add_geom->Update();
-            }
-        }
+        add_geom->Update();
     }
     return geom_id;
 }
@@ -1507,6 +1489,8 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
             }
         }
     }
+
+    ForceUpdate();
 
     LinkMgr.DecodeXml( node );
     AdvLinkMgr.DecodeXml( node );
@@ -3949,6 +3933,8 @@ string Vehicle::ImportV2File( const string & file_name )
             }
         }
     }
+
+    ForceUpdate();
 
     m_CfdSettings.ReadV2File( root );
     m_CfdGridDensity.ReadV2File( root );
