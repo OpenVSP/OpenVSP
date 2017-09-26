@@ -241,11 +241,27 @@ public:
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
+    virtual void SetSectionBBox( BndBox box )
+    {
+        m_SectBBox = box;
+    }
+
+    virtual void SetCenter( vec3d center )
+    {
+        m_Center = center;
+    }
+
     IntParm m_OrientationPlane;
     IntParm m_RotationAxis;
     Parm m_XRot;
     Parm m_YRot;
     Parm m_ZRot;
+
+
+protected:
+
+    BndBox m_SectBBox;
+    vec3d m_Center;
 };
 
 enum

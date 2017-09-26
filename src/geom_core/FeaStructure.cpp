@@ -1209,30 +1209,38 @@ void FeaSlice::UpdateParmLimits()
         VspSurf orig_surf = current_surf;
         orig_surf.Transform( model_matrix );
 
-        BndBox geom_bbox;
-
         if ( RefFrameIsBody( m_OrientationPlane() ) )
         {
-            orig_surf.GetBoundingBox( geom_bbox );
+            orig_surf.GetBoundingBox( m_SectBBox );
         }
         else
         {
-            current_surf.GetBoundingBox( geom_bbox );
+            current_surf.GetBoundingBox( m_SectBBox );
         }
 
         double perp_dist; // Total distance perpendicular to the FeaSlice plane
 
+        vec3d geom_center = m_SectBBox.GetCenter();
+        double del_x = m_SectBBox.GetMax( 0 ) - m_SectBBox.GetMin( 0 );
+        double del_y = m_SectBBox.GetMax( 1 ) - m_SectBBox.GetMin( 1 );
+        double del_z = m_SectBBox.GetMax( 2 ) - m_SectBBox.GetMin( 2 );
         if ( m_OrientationPlane() == vsp::XY_BODY || m_OrientationPlane() == vsp::XY_ABS )
         {
-            perp_dist = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
+            perp_dist = m_SectBBox.GetMax( 2 ) - m_SectBBox.GetMin( 2 );
+
+            m_Center = vec3d( geom_center.x(), geom_center.y(), m_SectBBox.GetMin( 2 ) + del_z * m_RelCenterLocation() );
         }
         else if ( m_OrientationPlane() == vsp::YZ_BODY || m_OrientationPlane() == vsp::YZ_ABS )
         {
-            perp_dist = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
+            perp_dist = m_SectBBox.GetMax( 0 ) - m_SectBBox.GetMin( 0 );
+
+            m_Center = vec3d( m_SectBBox.GetMin( 0 ) + del_x * m_RelCenterLocation(), geom_center.y(), geom_center.z() );
         }
         else if ( m_OrientationPlane() == vsp::XZ_BODY || m_OrientationPlane() == vsp::XZ_ABS )
         {
-            perp_dist = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
+            perp_dist = m_SectBBox.GetMax( 1 ) - m_SectBBox.GetMin( 1 );
+
+            m_Center = vec3d( geom_center.x(), m_SectBBox.GetMin( 1 ) + del_y * m_RelCenterLocation(), geom_center.z() );
         }
         else if ( m_OrientationPlane() == vsp::SPINE_NORMAL )
         {
@@ -1241,6 +1249,14 @@ void FeaSlice::UpdateParmLimits()
             cs.Build( current_surf );
 
             perp_dist = cs.GetSpineLength();
+
+            double u_max = current_surf.GetUMax();
+
+            double spine_length = cs.GetSpineLength();
+            double length_on_spine = m_RelCenterLocation() * spine_length;
+            double per_u = cs.FindUGivenLengthAlongSpine( length_on_spine ) / u_max;
+
+            m_Center = cs.FindCenterGivenU( per_u * u_max );
         }
 
         // Set Parm limits and values
@@ -1293,7 +1309,7 @@ VspSurf FeaSlice::ComputeSliceSurf()
 
         double u_max = current_surf.GetUMax();
 
-        vec3d slice_center, geom_center, cornerA, cornerB, cornerC, cornerD, x_axis, y_axis, z_axis,
+        vec3d geom_center, cornerA, cornerB, cornerC, cornerD, x_axis, y_axis, z_axis,
             center_to_A, center_to_B, center_to_C, center_to_D;
         double del_x_plus, del_x_minus, del_y_plus, del_y_minus, del_z_plus, del_z_minus, max_length, del_x, del_y, del_z;
 
@@ -1301,24 +1317,13 @@ VspSurf FeaSlice::ComputeSliceSurf()
         y_axis.set_y( 1.0 );
         z_axis.set_z( 1.0 );
 
-        BndBox geom_bbox;
-
-        if ( RefFrameIsBody( m_OrientationPlane() ) )
-        {
-            orig_surf.GetBoundingBox( geom_bbox );
-        }
-        else
-        {
-            current_surf.GetBoundingBox( geom_bbox );
-        }
-
-        geom_center = geom_bbox.GetCenter();
-        del_x = geom_bbox.GetMax( 0 ) - geom_bbox.GetMin( 0 );
-        del_y = geom_bbox.GetMax( 1 ) - geom_bbox.GetMin( 1 );
-        del_z = geom_bbox.GetMax( 2 ) - geom_bbox.GetMin( 2 );
+        geom_center = m_SectBBox.GetCenter();
+        del_x = m_SectBBox.GetMax( 0 ) - m_SectBBox.GetMin( 0 );
+        del_y = m_SectBBox.GetMax( 1 ) - m_SectBBox.GetMin( 1 );
+        del_z = m_SectBBox.GetMax( 2 ) - m_SectBBox.GetMin( 2 );
 
         // Identify expansion 
-        double expan = geom_bbox.GetLargestDist() * 1e-3;
+        double expan = m_SectBBox.GetLargestDist() * 1e-3;
         if ( expan < 1e-5 )
         {
             expan = 1e-5;
@@ -1335,8 +1340,6 @@ VspSurf FeaSlice::ComputeSliceSurf()
             double length_on_spine = m_RelCenterLocation() * spine_length;
             double per_u = cs.FindUGivenLengthAlongSpine( length_on_spine ) / u_max;
 
-            slice_center = cs.FindCenterGivenU( per_u * u_max );
-
             // Use small change in u along spline to get x axis of geom at center point
             double delta_u;
 
@@ -1351,12 +1354,12 @@ VspSurf FeaSlice::ComputeSliceSurf()
 
             vec3d delta_u_center = cs.FindCenterGivenU( delta_u );
 
-            x_axis = delta_u_center - slice_center;
+            x_axis = delta_u_center - m_Center;
             x_axis.normalize();
 
             vec3d surf_pnt1 = current_surf.CompPnt01( per_u, 0.0 );
 
-            z_axis = surf_pnt1 - slice_center;
+            z_axis = surf_pnt1 - m_Center;
             z_axis.normalize();
 
             y_axis = cross( x_axis, z_axis );
@@ -1375,10 +1378,10 @@ VspSurf FeaSlice::ComputeSliceSurf()
             vec3d y_prime = max_length * y_axis * cos( PI / 4 ) + max_length * z_axis * sin( PI / 4 );
             vec3d z_prime = max_length * -1 * y_axis * sin( PI / 4 ) + max_length * z_axis * cos( PI / 4 );
 
-            cornerA = slice_center + y_prime;
-            cornerB = slice_center - z_prime;
-            cornerC = slice_center + z_prime;
-            cornerD = slice_center - y_prime;
+            cornerA = m_Center + y_prime;
+            cornerB = m_Center - z_prime;
+            cornerC = m_Center + z_prime;
+            cornerD = m_Center - y_prime;
         }
         else
         {
@@ -1389,6 +1392,10 @@ VspSurf FeaSlice::ComputeSliceSurf()
             del_y_plus = expan;
             del_z_minus = expan;
             del_z_plus = expan;
+
+            double x_off = ( m_Center - geom_center ).x();
+            double y_off = ( m_Center - geom_center ).y();
+            double z_off = ( m_Center - geom_center ).z();
 
             if ( m_OrientationPlane() == vsp::YZ_BODY || m_OrientationPlane() == vsp::YZ_ABS )
             {
@@ -1606,10 +1613,10 @@ VspSurf FeaSlice::ComputeSliceSurf()
                 center_to_D.set_z( 0.5 * del_z_plus );
             }
 
-            cornerA = slice_center + center_to_A;
-            cornerB = slice_center + center_to_B;
-            cornerC = slice_center + center_to_C;
-            cornerD = slice_center + center_to_D;
+            cornerA = m_Center + center_to_A;
+            cornerB = m_Center + center_to_B;
+            cornerC = m_Center + center_to_C;
+            cornerD = m_Center + center_to_D;
         }
 
         // Make Planar Surface
@@ -1619,7 +1626,7 @@ VspSurf FeaSlice::ComputeSliceSurf()
         Matrix4d trans_mat_1, trans_mat_2, rot_mat_x, rot_mat_y, rot_mat_z;
 
         trans_mat_1.loadIdentity();
-        trans_mat_1.translatef( slice_center.x() * -1, slice_center.y() * -1, slice_center.z() * -1 );
+        trans_mat_1.translatef( m_Center.x() * -1, m_Center.y() * -1, m_Center.z() * -1 );
         slice_surf.Transform( trans_mat_1 );
 
         rot_mat_x.loadIdentity();
@@ -1635,7 +1642,7 @@ VspSurf FeaSlice::ComputeSliceSurf()
         slice_surf.Transform( rot_mat_z );
 
         trans_mat_2.loadIdentity();
-        trans_mat_2.translatef( slice_center.x(), slice_center.y(), slice_center.z() );
+        trans_mat_2.translatef( m_Center.x(), m_Center.y(), m_Center.z() );
         slice_surf.Transform( trans_mat_2 );
 
         if ( RefFrameIsBody( m_OrientationPlane() ) )
