@@ -1416,61 +1416,88 @@ VspSurf FeaSlice::ComputeSliceSurf()
 
             if ( m_OrientationPlane() == vsp::YZ_BODY || m_OrientationPlane() == vsp::YZ_ABS )
             {
-                slice_center = vec3d( geom_bbox.GetMin( 0 ) + del_x * m_RelCenterLocation(), geom_center.y(), geom_center.z() );
-
-                double x_off = ( slice_center - geom_center ).x();
-
                 // Resize for Y rotation
-                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / del_z ) )
+                if ( m_YRot() > 0 )
                 {
-                    del_z_plus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
-                }
-                else
-                {
-                    del_z_plus += abs( del_z / cos( DEG_2_RAD * m_YRot() ) );
-                }
+                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / ( del_z - 2 * z_off ) ) )
+                    {
+                        del_z_plus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                    }
+                    else
+                    {
+                        del_z_plus += abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                    }
 
-                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / del_z ) )
-                {
-                    del_z_minus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / ( del_z + 2 * z_off ) ) )
+                    {
+                        del_z_minus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                    }
+                    else
+                    {
+                        del_z_minus += abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                    }
                 }
                 else
                 {
-                    del_z_minus += abs( del_z / cos( DEG_2_RAD * m_YRot() ) );
+                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x - 2 * x_off ) / ( del_z - 2 * z_off ) ) )
+                    {
+                        del_z_plus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                    }
+                    else
+                    {
+                        del_z_plus += abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                    }
+
+                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_x + 2 * x_off ) / ( del_z + 2 * z_off ) ) )
+                    {
+                        del_z_minus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                    }
+                    else
+                    {
+                        del_z_minus += abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                    }
                 }
 
                 // Resize for Z rotation
-                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / del_y ) )
+                if ( m_ZRot() > 0 )
                 {
-                    del_y_minus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / ( del_y - 2 * y_off ) ) )
+                    {
+                        del_y_minus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                    }
+                    else
+                    {
+                        del_y_minus += abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                    }
+
+                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / ( del_y + 2 * y_off ) ) )
+                    {
+                        del_y_plus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                    }
+                    else
+                    {
+                        del_y_plus += abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                    }
                 }
                 else
                 {
-                    del_y_minus += abs( del_y / cos( DEG_2_RAD * m_ZRot() ) );
-                }
+                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x + 2 * x_off ) / ( del_y + 2 * y_off ) ) )
+                    {
+                        del_y_plus += abs( ( del_x + 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                    }
+                    else
+                    {
+                        del_y_plus += abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                    }
 
-                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / del_y ) )
-                {
-                    del_y_plus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
-                }
-                else
-                {
-                    del_y_plus += abs( del_y / cos( DEG_2_RAD * m_ZRot() ) );
-                }
-
-                // swap _plus and _minus if negative rotation
-                if ( m_YRot() < 0.0 )
-                {
-                    double temp = del_z_plus;
-                    del_z_plus = del_z_minus;
-                    del_z_minus = temp;
-                }
-
-                if ( m_ZRot() < 0.0 )
-                {
-                    double temp = del_y_plus;
-                    del_y_plus = del_y_minus;
-                    del_y_minus = temp;
+                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_x - 2 * x_off ) / ( del_y - 2 * y_off ) ) )
+                    {
+                        del_y_minus += abs( ( del_x - 2 * x_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                    }
+                    else
+                    {
+                        del_y_minus += abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                    }
                 }
 
                 center_to_A.set_y( -0.5 * del_y_minus );
@@ -1487,63 +1514,88 @@ VspSurf FeaSlice::ComputeSliceSurf()
             }
             else if ( m_OrientationPlane() == vsp::XY_BODY || m_OrientationPlane() == vsp::XY_ABS )
             {
-                slice_center = vec3d( geom_center.x(), geom_center.y(), geom_bbox.GetMin( 2 ) + del_z * m_RelCenterLocation() );
-
-                double z_off = ( slice_center - geom_center ).z();
-
                 // Resize for Y rotation
-                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / del_x ) )
+                if ( m_YRot() > 0 )
                 {
-                    del_x_minus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / ( del_x - 2 * x_off ) ) )
+                    {
+                        del_x_minus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                    }
+                    else
+                    {
+                        del_x_minus += abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                    }
+
+                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / ( del_x + 2 * x_off ) ) )
+                    {
+                        del_x_plus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                    }
+                    else
+                    {
+                        del_x_plus += abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                    }
                 }
                 else
                 {
-                    del_x_minus += abs( del_x / cos( DEG_2_RAD * m_YRot() ) );
-                }
+                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z + 2 * z_off ) / ( del_x + 2 * x_off ) ) )
+                    {
+                        del_x_plus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                    }
+                    else
+                    {
+                        del_x_plus += abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                    }
 
-                if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / del_x ) )
-                {
-                    del_x_plus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                    if ( abs( DEG_2_RAD * m_YRot() ) > atan( ( del_z - 2 * z_off ) / ( del_x - 2 * x_off ) ) )
+                    {
+                        del_x_minus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_YRot() ) );
+                    }
+                    else
+                    {
+                        del_x_minus += abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_YRot() ) );
+                    }
                 }
-                else
-                {
-                    del_x_plus += abs( del_x / cos( DEG_2_RAD * m_YRot() ) );
-                }
-
-                double test1 = atan( ( del_z + 2 * z_off ) / del_y );
 
                 // Resize for X rotation
-                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / del_y ) )
+                if ( m_XRot() > 0 )
                 {
-                    del_y_plus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / ( del_y - 2 * y_off ) ) )
+                    {
+                        del_y_plus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                    }
+                    else
+                    {
+                        del_y_plus += abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                    }
+
+                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / ( del_y + 2 * y_off ) ) )
+                    {
+                        del_y_minus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                    }
+                    else
+                    {
+                        del_y_minus += abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                    }
                 }
                 else
                 {
-                    del_y_plus += abs( del_y / cos( DEG_2_RAD * m_XRot() ) );
-                }
+                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / ( del_y - 2 * y_off ) ) )
+                    {
+                        del_y_plus += abs( ( del_z -2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                    }
+                    else
+                    {
+                        del_y_plus += abs( ( del_y - 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                    }
 
-                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z - 2 * z_off ) / del_y ) )
-                {
-                    del_y_minus += abs( ( del_z - 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
-                }
-                else
-                {
-                    del_y_minus += abs( del_y / cos( DEG_2_RAD * m_XRot() ) );
-                }
-
-                // swap _plus and _minus if negative rotation
-                if ( m_YRot() < 0.0 )
-                {
-                    double temp = del_x_plus;
-                    del_x_plus = del_x_minus;
-                    del_x_minus = temp;
-                }
-
-                if ( m_XRot() < 0.0 )
-                {
-                    double temp = del_y_plus;
-                    del_y_plus = del_y_minus;
-                    del_y_minus = temp;
+                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_z + 2 * z_off ) / ( del_y + 2 * y_off ) ) )
+                    {
+                        del_y_minus += abs( ( del_z + 2 * z_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                    }
+                    else
+                    {
+                        del_y_minus += abs( ( del_y + 2 * y_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                    }
                 }
 
                 center_to_A.set_x( -0.5 * del_x_minus );
@@ -1560,61 +1612,88 @@ VspSurf FeaSlice::ComputeSliceSurf()
             }
             else if ( m_OrientationPlane() == vsp::XZ_BODY || m_OrientationPlane() == vsp::XZ_ABS )
             {
-                slice_center = vec3d( geom_center.x(), geom_bbox.GetMin( 1 ) + del_y * m_RelCenterLocation(), geom_center.z() );
-
-                double y_off = ( slice_center - geom_center ).y();
-
                 // Resize for Z rotation
-                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / del_x ) )
+                if ( m_ZRot() > 0 )
                 {
-                    del_x_plus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
-                }
-                else
-                {
-                    del_x_plus += abs( del_x / cos( DEG_2_RAD * m_ZRot() ) );
-                }
+                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / ( del_x - 2 * x_off ) ) )
+                    {
+                        del_x_plus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                    }
+                    else
+                    {
+                        del_x_plus += abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                    }
 
-                if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / del_x ) )
-                {
-                    del_x_minus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / ( del_x + 2 * x_off ) ) )
+                    {
+                        del_x_minus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                    }
+                    else
+                    {
+                        del_x_minus += abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                    }
                 }
-                else
+                else 
                 {
-                    del_x_minus += abs( del_x / cos( DEG_2_RAD * m_ZRot() ) );
+                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y - 2 * y_off ) / ( del_x - 2 * x_off ) ) )
+                    {
+                        del_x_plus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                    }
+                    else
+                    {
+                        del_x_plus += abs( ( del_x - 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                    }
+
+                    if ( abs( DEG_2_RAD * m_ZRot() ) > atan( ( del_y + 2 * y_off ) / ( del_x + 2 * x_off ) ) )
+                    {
+                        del_x_minus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_ZRot() ) );
+                    }
+                    else
+                    {
+                        del_x_minus += abs( ( del_x + 2 * x_off ) / cos( DEG_2_RAD * m_ZRot() ) );
+                    }
                 }
 
                 // Resize for X rotation
-                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / del_z ) )
+                if ( m_XRot() > 0 )
                 {
-                    del_z_minus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / ( del_z - 2 * z_off ) ) )
+                    {
+                        del_z_plus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                    }
+                    else
+                    {
+                        del_z_plus += abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                    }
+
+                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / ( del_z + 2 * z_off ) ) )
+                    {
+                        del_z_minus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                    }
+                    else
+                    {
+                        del_z_minus += abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                    }
                 }
                 else
                 {
-                    del_z_minus += abs( del_z / cos( DEG_2_RAD * m_XRot() ) );
-                }
+                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / ( del_z - 2 * z_off ) ) )
+                    {
+                        del_z_plus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                    }
+                    else
+                    {
+                        del_z_plus += abs( ( del_z - 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                    }
 
-                if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y - 2 * y_off ) / del_z ) )
-                {
-                    del_z_plus += abs( ( del_y - 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
-                }
-                else
-                {
-                    del_z_plus += abs( del_z / cos( DEG_2_RAD * m_XRot() ) );
-                }
-
-                // swap _plus and _minus if negative rotation
-                if ( m_ZRot() < 0.0 )
-                {
-                    double temp = del_x_plus;
-                    del_x_plus = del_x_minus;
-                    del_x_minus = temp;
-                }
-
-                if ( m_XRot() < 0.0 )
-                {
-                    double temp = del_z_plus;
-                    del_z_plus = del_z_minus;
-                    del_z_minus = temp;
+                    if ( abs( DEG_2_RAD * m_XRot() ) > atan( ( del_y + 2 * y_off ) / ( del_z + 2 * z_off ) ) )
+                    {
+                        del_z_minus += abs( ( del_y + 2 * y_off ) / sin( DEG_2_RAD * m_XRot() ) );
+                    }
+                    else
+                    {
+                        del_z_minus += abs( ( del_z + 2 * z_off ) / cos( DEG_2_RAD * m_XRot() ) );
+                    }
                 }
 
                 center_to_A.set_x( -0.5 * del_x_minus );
