@@ -2168,6 +2168,9 @@ FeaRib::FeaRib( string geomID, int type ) : FeaSlice( geomID, type )
 
     m_EndWingSection.Init( "EndWingSection", "FeaRib", this, 1, 1, 1000 );
     m_EndWingSection.SetDescript( "End Wing Section to Limit Rib to" );
+
+    m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaRib", this, false, false, true );
+    m_BndBoxTrimFlag.SetDescript( "Flag to Trim Rib to Bounding Box Instead of Wing Surface" );
 }
 
 void FeaRib::Update()
@@ -2178,7 +2181,6 @@ void FeaRib::Update()
     if ( m_FeaPartSurfVec.size() > 0 )
     {
         GetRibPerU();
-        GetRibTotalRotation();
         m_FeaPartSurfVec[0] = ComputeRibSurf();
 
         // Using the primary m_FeaPartSurfVec (index 0) as a reference, setup the symmetric copies to be definied in UpdateSymmParts 
@@ -2333,16 +2335,13 @@ double FeaRib::GetRibPerU( )
 
                     if ( m_AbsCenterLocation() >= span_0 && m_AbsCenterLocation() <= span_f )
                     {
-                        curr_sec_ind = i;
+                        curr_sec_ind = i - ( start_sect - 1 ); // must consider skipped sections
                         section_span = wing_sec->m_Span();
                     }
 
                     span_0 = span_f;
                 }
             }
-
-            int num_skip_sect = start_sect - 1;
-            curr_sec_ind -= num_skip_sect;
 
             if ( m_LimitRibToSectionFlag() )
             {
@@ -2404,13 +2403,20 @@ double FeaRib::GetRibTotalRotation( )
             current_wing->GetSurfVec( surf_vec );
             VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
 
+            // Get surface prior to rotating and translating
+            Matrix4d model_matrix = current_wing->getModelMatrix();
+            model_matrix.affineInverse();
+
+            VspSurf orig_surf = wing_surf;
+            orig_surf.Transform( model_matrix );
+
             // Find initial rotation (alpha) to perpendicular edge or spar
             double alpha = 0.0;
             double u_edge_out = m_PerU + 2 * FLT_EPSILON;
             double u_edge_in = m_PerU - 2 * FLT_EPSILON;
 
             VspCurve constant_u_curve;
-            wing_surf.GetU01ConstCurve( constant_u_curve, m_PerU );
+            orig_surf.GetU01ConstCurve( constant_u_curve, m_PerU );
 
             piecewise_curve_type u_curve = constant_u_curve.GetCurve();
 
@@ -2425,42 +2431,27 @@ double FeaRib::GetRibTotalRotation( )
             vec3d chord_dir_vec = trail_edge - lead_edge;
             chord_dir_vec.normalize();
 
-            // Wing corner points:
-            vec3d min_trail_edge = wing_surf.CompPnt( m_U_sec_min, 0.0 );
-            vec3d min_lead_edge = wing_surf.CompPnt( m_U_sec_min, v_leading_edge );
-
-            // Wing edge vectors (assumes linearity)
-            vec3d lead_edge_vec = lead_edge - min_lead_edge;
-            vec3d inner_edge_vec = min_trail_edge - min_lead_edge;
-
-            lead_edge_vec.normalize();
-            inner_edge_vec.normalize();
-
-            // Normal vector to wing chord line
-            vec3d normal_vec = cross( inner_edge_vec, lead_edge_vec );
-            normal_vec.normalize();
-
             if ( strcmp( m_PerpendicularEdgeID.c_str(), "Trailing Edge" ) == 0 )
             {
                 vec3d trail_edge_out, trail_edge_in;
-                trail_edge_out = wing_surf.CompPnt01( u_edge_out, v_min );
-                trail_edge_in = wing_surf.CompPnt01( u_edge_in, v_min );
+                trail_edge_out = orig_surf.CompPnt01( u_edge_out, v_min );
+                trail_edge_in = orig_surf.CompPnt01( u_edge_in, v_min );
 
                 vec3d trail_edge_dir_vec = trail_edge_out - trail_edge_in;
                 trail_edge_dir_vec.normalize();
 
-                alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, trail_edge_dir_vec, normal_vec );
+                alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, trail_edge_dir_vec, m_WingNorm );
             }
             else if ( strcmp( m_PerpendicularEdgeID.c_str(), "Leading Edge" ) == 0 )
             {
                 vec3d lead_edge_out, lead_edge_in;
-                lead_edge_out = wing_surf.CompPnt01( u_edge_out, v_leading_edge / v_max );
-                lead_edge_in = wing_surf.CompPnt01( u_edge_in, v_leading_edge / v_max );
+                lead_edge_out = orig_surf.CompPnt01( u_edge_out, v_leading_edge / v_max );
+                lead_edge_in = orig_surf.CompPnt01( u_edge_in, v_leading_edge / v_max );
 
                 vec3d lead_edge_dir_vec = lead_edge_out - lead_edge_in;
                 lead_edge_dir_vec.normalize();
 
-                alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, lead_edge_dir_vec, normal_vec );
+                alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, lead_edge_dir_vec, m_WingNorm );
             }
             else if ( strcmp( m_PerpendicularEdgeID.c_str(), "None" ) == 0 )
             {
@@ -2481,7 +2472,7 @@ double FeaRib::GetRibTotalRotation( )
                     vec3d spar_dir_vec = edge2 - edge1;
                     spar_dir_vec.normalize();
 
-                    alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, spar_dir_vec, normal_vec );
+                    alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, spar_dir_vec, m_WingNorm );
                 }
             }
 
@@ -2507,15 +2498,6 @@ VspSurf FeaRib::ComputeRibSurf()
         }
         rib_surf = VspSurf(); // Create primary VspSurf
 
-        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
-        {
-            rib_surf.SetSurfCfdType( vsp::CFD_STRUCTURE );
-        }
-        else
-        {
-            rib_surf.SetSurfCfdType( vsp::CFD_STIFFENER );
-        }
-
         WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
         assert( wing );
 
@@ -2523,11 +2505,18 @@ VspSurf FeaRib::ComputeRibSurf()
         current_wing->GetSurfVec( surf_vec );
         VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
 
+        // Get surface prior to rotating and translating
+        Matrix4d model_matrix = wing->getModelMatrix();
+        model_matrix.affineInverse();
+
+        VspSurf orig_surf = wing_surf;
+        orig_surf.Transform( model_matrix );
+
         BndBox wing_bbox;
-        wing_surf.GetBoundingBox( wing_bbox );
+        orig_surf.GetBoundingBox( wing_bbox );
 
         VspCurve constant_u_curve;
-        wing_surf.GetU01ConstCurve( constant_u_curve, m_PerU );
+        orig_surf.GetU01ConstCurve( constant_u_curve, m_PerU );
 
         piecewise_curve_type u_curve = constant_u_curve.GetCurve();
 
@@ -2553,10 +2542,10 @@ VspSurf FeaRib::ComputeRibSurf()
         vec3d center = ( trail_edge + lead_edge ) / 2; // Center of rib
 
         // Wing corner points:
-        vec3d min_trail_edge = wing_surf.CompPnt( m_U_sec_min, 0.0 );
-        vec3d min_lead_edge = wing_surf.CompPnt( m_U_sec_min, v_leading_edge );
-        vec3d max_trail_edge = wing_surf.CompPnt( m_U_sec_max, 0.0 );
-        vec3d max_lead_edge = wing_surf.CompPnt( m_U_sec_max, v_leading_edge );
+        vec3d min_trail_edge = orig_surf.CompPnt( m_U_sec_min, 0.0 );
+        vec3d min_lead_edge = orig_surf.CompPnt( m_U_sec_min, v_leading_edge );
+        vec3d max_trail_edge = orig_surf.CompPnt( m_U_sec_max, 0.0 );
+        vec3d max_lead_edge = orig_surf.CompPnt( m_U_sec_max, v_leading_edge );
 
         // Wing edge vectors (assumes linearity)
         vec3d trail_edge_vec = max_trail_edge - min_trail_edge;
@@ -2569,185 +2558,250 @@ VspSurf FeaRib::ComputeRibSurf()
         inner_edge_vec.normalize();
         outer_edge_vec.normalize();
 
-        vec3d center_to_trail_edge = trail_edge - center;
-        center_to_trail_edge.normalize();
-
-        vec3d center_to_lead_edge = center - lead_edge;
-        center_to_lead_edge.normalize();
-
-        // Identify expansion 
-        double expan = wing_bbox.GetLargestDist() * 1e-3;
-        if ( expan < 1e-5 )
-        {
-            expan = 1e-5;
-        }
-
-        double length_rib_0 = ( dist( trail_edge, lead_edge ) / 2 ) + expan; // Rib half length before rotations, slightly oversized
-
         // Normal vector to wing chord line
-        vec3d normal_vec;
-
         if ( inner_edge_vec.mag() >= FLT_EPSILON )
         {
-            normal_vec = cross( lead_edge_vec, inner_edge_vec );
+            m_WingNorm = cross( lead_edge_vec, inner_edge_vec );
         }
         else
         {
-            normal_vec = cross( lead_edge_vec, outer_edge_vec );
+            m_WingNorm = cross( outer_edge_vec, lead_edge_vec );
         }
 
-        normal_vec.normalize();
+        m_WingNorm.normalize();
 
-        // Determine angle between center and corner points
-        vec3d center_to_le_min_vec = min_lead_edge - center;
-        vec3d center_to_te_min_vec = min_trail_edge - center;
-        vec3d center_to_le_max_vec = max_lead_edge - center;
-        vec3d center_to_te_max_vec = max_trail_edge - center;
+        // Get rotation
+        GetRibTotalRotation();
 
-        center_to_le_min_vec.normalize();
-        center_to_te_min_vec.normalize();
-        center_to_le_max_vec.normalize();
-        center_to_te_max_vec.normalize();
-
-        // Get maximum angles for rib to intersect wing edges
-        double max_angle_inner_le = -PI + signed_angle( center_to_le_min_vec, center_to_lead_edge, normal_vec );
-        double max_angle_inner_te = signed_angle( center_to_te_min_vec, center_to_trail_edge, normal_vec );
-        double max_angle_outer_le = PI - signed_angle( center_to_lead_edge, center_to_le_max_vec, normal_vec );
-        double max_angle_outer_te = signed_angle( center_to_te_max_vec, center_to_trail_edge, normal_vec );
-
-        double sweep_te = -1 * signed_angle( trail_edge_vec, center_to_trail_edge, normal_vec ); // Trailing edge sweep
-        double sweep_le = -1 * signed_angle( lead_edge_vec, center_to_lead_edge, normal_vec ); // Leading edge sweep
-
-        double phi_te = PI - ( m_TotRot + sweep_te ); // Total angle for trailing edge side of rib
-        double phi_le = PI - ( m_TotRot + sweep_le );// Total angle for leading edge side of rib
-
-        double length_rib_te, length_rib_le, perp_dist;
-
-        // Determine if the rib intersects the leading/trailing edge or inner/outer edge
-        if ( m_TotRot <= 0 )
+        if ( m_BndBoxTrimFlag() )
         {
-            if ( m_TotRot <= max_angle_inner_le )
+            // Get bounding box of wing sections
+            BndBox sect_bbox;
+
+            if ( m_LimitRibToSectionFlag() )
             {
-                if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                // Note: This method may not be valid for the bounding box of a wing surface that is blended
+                sect_bbox.Reset();
+
+                for ( size_t i = m_StartWingSection() - 1; i <= m_EndWingSection(); i++ )
                 {
-                    length_rib_le = length_rib_0;
-                }
-                else
-                {
-                    perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
-                    length_rib_le = abs( perp_dist / sin( m_TotRot ) );
+                    WingSect* wing_sec = wing->GetWingSect( i );
+
+                    if ( wing_sec )
+                    {
+                        VspCurve xsec_curve = wing_sec->GetCurve();
+                        BndBox bbox;
+                        xsec_curve.GetBoundingBox( bbox );
+                        sect_bbox.Update( bbox );
+                    }
                 }
             }
             else
             {
-                if ( abs( sin( phi_le ) ) <= FLT_EPSILON )
-                {
-                    length_rib_le = length_rib_0;
-                }
-                else
-                {
-                    length_rib_le = abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
-                }
+                sect_bbox = wing_bbox;
             }
 
-            if ( m_TotRot <= max_angle_outer_te )
+            FeaSlice* temp_slice = NULL;
+            temp_slice = new FeaSlice( m_ParentGeomID );
+
+            if ( temp_slice )
             {
-                if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
-                {
-                    length_rib_te = length_rib_0;
-                }
-                else
-                {
-                    perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
-                    length_rib_te = abs( perp_dist / sin( m_TotRot ) );
-                }
-            }
-            else
-            {
-                if ( abs( sin( phi_te ) ) <= FLT_EPSILON )
-                {
-                    length_rib_te = length_rib_0;
-                }
-                else
-                {
-                    length_rib_te = abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
-                }
+                temp_slice->SetCenter( center );
+                temp_slice->SetSectionBBox( sect_bbox );
+                temp_slice->m_OrientationPlane.Set( vsp::XZ_BODY );
+                temp_slice->m_ZRot.Set( RAD_2_DEG * m_TotRot );
+
+                // Update Slice Relative Center Location
+                double rel_center_location =( center.y() - sect_bbox.GetMin( 1 ) ) / ( sect_bbox.GetMax( 1 ) - sect_bbox.GetMin( 1 ) );
+                temp_slice->m_RelCenterLocation.Set( rel_center_location );
+
+                rib_surf = temp_slice->ComputeSliceSurf();
+
+                delete temp_slice;
             }
         }
         else
         {
-            if ( m_TotRot >= max_angle_inner_te )
+            // Identify expansion 
+            double expan = wing_bbox.GetLargestDist() * 1e-3;
+            if ( expan < 1e-5 )
             {
-                if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                expan = 1e-5;
+            }
+
+            double length_rib_0 = ( dist( trail_edge, lead_edge ) / 2 ) + expan; // Rib half length before rotations, slightly oversized
+
+            vec3d center_to_trail_edge = trail_edge - center;
+            center_to_trail_edge.normalize();
+
+            vec3d center_to_lead_edge = center - lead_edge;
+            center_to_lead_edge.normalize();
+
+            // Determine angle between center and corner points
+            vec3d center_to_le_min_vec = min_lead_edge - center;
+            vec3d center_to_te_min_vec = min_trail_edge - center;
+            vec3d center_to_le_max_vec = max_lead_edge - center;
+            vec3d center_to_te_max_vec = max_trail_edge - center;
+
+            center_to_le_min_vec.normalize();
+            center_to_te_min_vec.normalize();
+            center_to_le_max_vec.normalize();
+            center_to_te_max_vec.normalize();
+
+            // Get maximum angles for rib to intersect wing edges
+            double max_angle_inner_le = -PI + signed_angle( center_to_le_min_vec, center_to_lead_edge, m_WingNorm );
+            double max_angle_inner_te = signed_angle( center_to_te_min_vec, center_to_trail_edge, m_WingNorm );
+            double max_angle_outer_le = PI - signed_angle( center_to_lead_edge, center_to_le_max_vec, m_WingNorm );
+            double max_angle_outer_te = signed_angle( center_to_te_max_vec, center_to_trail_edge, m_WingNorm );
+
+            double sweep_te = -1 * signed_angle( trail_edge_vec, center_to_trail_edge, m_WingNorm ); // Trailing edge sweep
+            double sweep_le = -1 * signed_angle( lead_edge_vec, center_to_lead_edge, m_WingNorm ); // Leading edge sweep
+
+            double phi_te = PI - ( m_TotRot + sweep_te ); // Total angle for trailing edge side of rib
+            double phi_le = PI - ( m_TotRot + sweep_le );// Total angle for leading edge side of rib
+
+            double length_rib_te, length_rib_le, perp_dist;
+
+            // Determine if the rib intersects the leading/trailing edge or inner/outer edge
+            if ( m_TotRot <= 0 )
+            {
+                if ( m_TotRot <= max_angle_inner_le )
                 {
-                    length_rib_te = length_rib_0;
+                    if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_rib_le = length_rib_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
+                        length_rib_le = abs( perp_dist / sin( m_TotRot ) );
+                    }
                 }
                 else
                 {
-                    perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
-                    length_rib_te = abs( perp_dist / sin( m_TotRot ) );
+                    if ( abs( sin( phi_le ) ) <= FLT_EPSILON )
+                    {
+                        length_rib_le = length_rib_0;
+                    }
+                    else
+                    {
+                        length_rib_le = abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
+                    }
+                }
+
+                if ( m_TotRot <= max_angle_outer_te )
+                {
+                    if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_rib_te = length_rib_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
+                        length_rib_te = abs( perp_dist / sin( m_TotRot ) );
+                    }
+                }
+                else
+                {
+                    if ( abs( sin( phi_te ) ) <= FLT_EPSILON )
+                    {
+                        length_rib_te = length_rib_0;
+                    }
+                    else
+                    {
+                        length_rib_te = abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
+                    }
                 }
             }
             else
             {
-                if ( abs( sin( phi_te ) ) <= FLT_EPSILON )
+                if ( m_TotRot >= max_angle_inner_te )
                 {
-                    length_rib_te = length_rib_0;
+                    if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_rib_te = length_rib_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
+                        length_rib_te = abs( perp_dist / sin( m_TotRot ) );
+                    }
                 }
                 else
                 {
-                    length_rib_te = abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
+                    if ( abs( sin( phi_te ) ) <= FLT_EPSILON )
+                    {
+                        length_rib_te = length_rib_0;
+                    }
+                    else
+                    {
+                        length_rib_te = abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
+                    }
+                }
+
+                if ( m_TotRot >= max_angle_outer_le )
+                {
+                    if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_rib_le = length_rib_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
+                        length_rib_le = abs( perp_dist / sin( m_TotRot ) );
+                    }
+                }
+                else
+                {
+                    if ( abs( sin( phi_le ) ) <= FLT_EPSILON )
+                    {
+                        length_rib_le = length_rib_0;
+                    }
+                    else
+                    {
+                        length_rib_le = abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
+                    }
                 }
             }
 
-            if ( m_TotRot >= max_angle_outer_le )
-            {
-                if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
-                {
-                    length_rib_le = length_rib_0;
-                }
-                else
-                {
-                    perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
-                    length_rib_le = abs( perp_dist / sin( m_TotRot ) );
-                }
-            }
-            else
-            {
-                if ( abs( sin( phi_le ) ) <= FLT_EPSILON )
-                {
-                    length_rib_le = length_rib_0;
-                }
-                else
-                {
-                    length_rib_le = abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
-                }
-            }
+            // Apply Rodrigues' Rotation Formula
+            vec3d rib_vec_te = center_to_trail_edge * cos( m_TotRot ) + cross( center_to_trail_edge, m_WingNorm ) * sin( m_TotRot ) + m_WingNorm * dot( center_to_trail_edge, m_WingNorm ) * ( 1 - cos( m_TotRot ) );
+            vec3d rib_vec_le = center_to_lead_edge * cos( m_TotRot ) + cross( center_to_lead_edge, m_WingNorm ) * sin( m_TotRot ) + m_WingNorm * dot( center_to_lead_edge, m_WingNorm ) * ( 1 - cos( m_TotRot ) );
+
+            rib_vec_te.normalize();
+            rib_vec_le.normalize();
+
+            // Calculate final end points
+            vec3d trail_edge_f = center + length_rib_te * rib_vec_te;
+            vec3d lead_edge_f = center - length_rib_le * rib_vec_le;
+
+            // Identify corners of the plane
+            vec3d cornerA, cornerB, cornerC, cornerD;
+
+            double height = 0.5 * wing_bbox.GetSmallestDist() + expan; // Height of Rib, slightly oversized
+
+            cornerA = trail_edge_f + ( height * wing_z_axis );
+            cornerB = trail_edge_f - ( height * wing_z_axis );
+            cornerC = lead_edge_f + ( height * wing_z_axis );
+            cornerD = lead_edge_f - ( height * wing_z_axis );
+
+            // Make Planar Surface
+            rib_surf.MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+
+            // Transform to body coordinate frame
+            model_matrix.affineInverse();
+            rib_surf.Transform( model_matrix );
         }
 
-        // Apply Rodrigues' Rotation Formula
-        vec3d rib_vec_te = center_to_trail_edge * cos( m_TotRot ) + cross( center_to_trail_edge, normal_vec ) * sin( m_TotRot ) + normal_vec * dot( center_to_trail_edge, normal_vec ) * ( 1 - cos( m_TotRot ) );
-        vec3d rib_vec_le = center_to_lead_edge * cos( m_TotRot ) + cross( center_to_lead_edge, normal_vec ) * sin( m_TotRot ) + normal_vec * dot( center_to_lead_edge, normal_vec ) * ( 1 - cos( m_TotRot ) );
-
-        rib_vec_te.normalize();
-        rib_vec_le.normalize();
-
-        // Calculate final end points
-        vec3d trail_edge_f = center + length_rib_te * rib_vec_te;
-        vec3d lead_edge_f = center - length_rib_le * rib_vec_le;
-
-        // Identify corners of the plane
-        vec3d cornerA, cornerB, cornerC, cornerD;
-
-        double height = 0.5 * wing_bbox.GetSmallestDist() + expan; // Height of Rib, slightly oversized
-
-        cornerA = trail_edge_f + ( height * wing_z_axis );
-        cornerB = trail_edge_f - ( height * wing_z_axis );
-        cornerC = lead_edge_f + ( height * wing_z_axis );
-        cornerD = lead_edge_f - ( height * wing_z_axis );
-
-        // Make Planar Surface
-        rib_surf.MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+        // Set Surface CFD Type: 
+        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+        {
+            rib_surf.SetSurfCfdType( vsp::CFD_STRUCTURE );
+        }
+        else
+        {
+            rib_surf.SetSurfCfdType( vsp::CFD_STIFFENER );
+        }
 
         if ( rib_surf.GetFlipNormal() != wing_surf.GetFlipNormal() )
         {

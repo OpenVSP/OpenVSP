@@ -331,6 +331,7 @@ public:
     BoolParm m_LimitRibToSectionFlag;
     IntParm m_StartWingSection;
     IntParm m_EndWingSection;
+    BoolParm m_BndBoxTrimFlag;
 
 protected:
 
@@ -338,6 +339,7 @@ protected:
     double m_PerU;
     double m_TotRot;
     double m_U_sec_min, m_U_sec_max;
+    vec3d m_WingNorm;
 };
 
 class FeaFixPoint : public FeaPart
