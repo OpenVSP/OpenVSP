@@ -488,39 +488,39 @@ void FeaMeshMgrSingleton::AddStructureParts()
 
     if ( fea_struct )
     {
+        int fix_pnt_cnt = 0;
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
         //===== Add FeaParts ====//
         for ( int i = 1; i < m_NumFeaParts; i++ ) // FeaSkin is index 0 and has been added already
         {
-            int part_index = fea_struct->GetFeaPartIndex( fea_part_vec[i] );
-            vector< XferSurf > partxfersurfs;
-
-            // Note: FeaFixPoint FeaParts are not surfaces, so FetchFeaXFerSurf will return an empty vector of XferSurf
-            fea_part_vec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ) );
-
-            // Load Rib XFerSurf to m_SurfVec
-            LoadSurfs( partxfersurfs );
-
-            // Identify the FeaPart index and add to m_FeaPartSurfVec
-            int begin = m_SurfVec.size() - partxfersurfs.size();
-            int end = m_SurfVec.size();
-
-            for ( int j = begin; j < end; j++ )
+            if ( !fea_struct->FeaPartIsFixPoint( i ) )
             {
-                m_SurfVec[j]->SetFeaPartIndex( part_index );
+                int part_index = fea_struct->GetFeaPartIndex( fea_part_vec[i] );
+                vector< XferSurf > partxfersurfs;
+
+                fea_part_vec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ) );
+
+                // Load Rib XFerSurf to m_SurfVec
+                LoadSurfs( partxfersurfs );
+
+                // Identify the FeaPart index and add to m_FeaPartSurfVec
+                int begin = m_SurfVec.size() - partxfersurfs.size();
+                int end = m_SurfVec.size();
+
+                for ( int j = begin; j < end; j++ )
+                {
+                    m_SurfVec[j]->SetFeaPartIndex( part_index );
+                }
             }
-        }
-
-        int fix_pnt_cnt = 0;
-
-        //===== Add FixedPoint Data ====//
-        for ( int i = 0; i < m_NumFeaParts; i++ ) // Fixed Points are added after all surfaces have been added to m_SurfVec 
-        {
-            if ( fea_struct->FeaPartIsFixPoint( i ) )
+            else if ( fea_struct->FeaPartIsFixPoint( i ) ) 
             {
+                //===== Add FixedPoint Data ====//
                 FeaFixPoint* fixpnt = dynamic_cast<FeaFixPoint*>( fea_part_vec[i] );
                 assert( fixpnt );
+
+                // Identify which surface(s) the fixed point lies on while taking into consideration surface split suppression
+                fixpnt->IdentifySplitSurfIndex( m_StructSettings.m_HalfMeshFlag, fea_struct->GetUSuppress(), fea_struct->GetWSuppress() );
 
                 int part_index = fea_struct->GetFeaPartIndex( fea_part_vec[i] );
                 vector < vec3d > pnt_vec = fixpnt->GetPntVec();

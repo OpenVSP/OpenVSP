@@ -421,16 +421,6 @@ void FeaStructure::UpdateFeaParts()
     for ( unsigned int i = 0; i < m_FeaPartVec.size(); i++ )
     {
         m_FeaPartVec[i]->UpdateSymmIndex();
-
-        if ( FeaPartIsFixPoint( i ) )
-        {
-            FeaFixPoint* fixpt = dynamic_cast<FeaFixPoint*>( m_FeaPartVec[i] );
-            assert( fixpt );
-
-            // Store HalfMeshFlag setting
-            fixpt->m_HalfMeshFlag = m_StructSettings.GetHalfMeshFlag();
-        }
-
         m_FeaPartVec[i]->Update();
 
         if ( !FeaPartIsFixPoint( i ) && !FeaPartIsArray( i ) )
@@ -2908,13 +2898,10 @@ FeaFixPoint::FeaFixPoint( string compID, string partID, int type ) : FeaPart( co
     m_FeaPropertyIndex = -1; // No property
     m_CapFeaPropertyIndex = -1; // No property
     m_BorderFlag = false;
-    m_HalfMeshFlag = false;
 }
 
 void FeaFixPoint::Update()
 {
-    IdentifySplitSurfIndex();
-
     m_FeaPartSurfVec.clear(); // FeaFixPoints are not a VspSurf
 }
 
@@ -2984,7 +2971,7 @@ bool FeaFixPoint::LessThanY( piecewise_surface_type & surface, double val ) cons
     return true;
 }
 
-void FeaFixPoint::IdentifySplitSurfIndex()
+void FeaFixPoint::IdentifySplitSurfIndex( bool half_mesh_flag, const vector < double > &usuppress, const vector < double > &wsuppress )
 {
     // This function is called instead of FeaPart::FetchFeaXFerSurf when the FeaPart type is FEA_FIX_POINT, since 
     //  FeaFixPoints are not surfaces. This function determines the number of split surfaces for the FeaFixPoint 
@@ -3019,7 +3006,7 @@ void FeaFixPoint::IdentifySplitSurfIndex()
 
         // Split the parent surface
         vector< XferSurf > tempxfersurfs;
-        parent_surf_vec[i].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs );
+        parent_surf_vec[i].FetchXFerSurf( m_ParentGeomID, m_MainSurfIndx(), 0, tempxfersurfs, usuppress, wsuppress );
 
         // Check if the UW point is on a valid patch (invalid patches are discarded in FetchXFerSurf)
         bool on_valid_patch = false;
@@ -3044,12 +3031,12 @@ void FeaFixPoint::IdentifySplitSurfIndex()
         {
             bool addSurfFlag = true;
 
-            if ( m_HalfMeshFlag && LessThanY( tempxfersurfs[j].m_Surface, 1e-6 ) )
+            if ( half_mesh_flag && LessThanY( tempxfersurfs[j].m_Surface, 1e-6 ) )
             {
                 addSurfFlag = false;
             }
 
-            if ( m_HalfMeshFlag && PlaneAtYZero( tempxfersurfs[j].m_Surface ) )
+            if ( half_mesh_flag && PlaneAtYZero( tempxfersurfs[j].m_Surface ) )
             {
                 addSurfFlag = false;
             }
