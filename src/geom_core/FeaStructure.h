@@ -126,7 +126,16 @@ public:
         return &m_FeaGridDensity;
     }
 
-    virtual void BuildSuppressList( vector < double > &usuppress, vector < double > &wsuppress );
+    virtual void BuildSuppressList();
+
+    virtual vector < double > GetUSuppress()
+    {
+        return m_Usuppress;
+    }
+    virtual vector < double > GetWSuppress()
+    {
+        return m_Wsuppress;
+    }
 
     virtual bool PtsOnAnyPlanarPart( const vector < vec3d > &pnts );
 
@@ -137,6 +146,9 @@ protected:
     int m_FeaPartCount; // Counter used for creating unique name for parts
     int m_FeaSubSurfCount; // Counter used for creating unique name for subsurfaces
     string m_FeaStructName;
+
+    vector < double > m_Usuppress;
+    vector < double > m_Wsuppress;
 
     vector < FeaPart* > m_FeaPartVec;
 

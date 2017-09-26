@@ -724,8 +724,11 @@ int FeaStructure::GetFeaPartIndex( FeaPart* fea_prt )
     return -1; // indicates an error
 }
 
-void FeaStructure::BuildSuppressList( vector < double > &usuppress, vector < double > &wsuppress )
+void FeaStructure::BuildSuppressList()
 {
+    m_Usuppress.clear();
+    m_Wsuppress.clear();
+
     FeaSkin* skin = NULL;
     FeaPart* pskin = GetFeaSkin();
     if ( pskin )
@@ -760,7 +763,7 @@ void FeaStructure::BuildSuppressList( vector < double > &usuppress, vector < dou
 
             if ( PtsOnAnyPlanarPart( pnts ) )
             {
-                usuppress.push_back( ufeature[i] );
+                m_Usuppress.push_back( ufeature[i] );
             }
         }
 
@@ -777,7 +780,7 @@ void FeaStructure::BuildSuppressList( vector < double > &usuppress, vector < dou
 
             if ( PtsOnAnyPlanarPart( pnts ) )
             {
-                wsuppress.push_back( wfeature[i] );
+                m_Wsuppress.push_back( wfeature[i] );
             }
         }
     }
