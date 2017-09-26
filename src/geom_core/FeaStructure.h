@@ -286,6 +286,7 @@ public:
     BoolParm m_LimitSparToSectionFlag;
     IntParm m_StartWingSection;
     IntParm m_EndWingSection;
+    BoolParm m_BndBoxTrimFlag;
 
 private:
 

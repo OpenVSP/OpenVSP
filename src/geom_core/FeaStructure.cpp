@@ -1774,6 +1774,9 @@ FeaSpar::FeaSpar( string geomID, int type ) : FeaSlice( geomID, type )
 
     m_EndWingSection.Init( "EndWingSection", "FeaSpar", this, 1, 1, 1000 );
     m_EndWingSection.SetDescript( "End Wing Section to Limit Spar Length to" );
+
+    m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaSpar", this, false, false, true );
+    m_BndBoxTrimFlag.SetDescript( "Flag to Trim Spar to Bounding Box Instead of Wing Surface" );
 }
 
 void FeaSpar::Update()
@@ -1873,15 +1876,6 @@ void FeaSpar::ComputePlanarSurf()
 
         m_FeaPartSurfVec[0] = VspSurf(); // Create primary VspSurf
 
-        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
-        {
-            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
-        }
-        else
-        {
-            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
-        }
-
         WingGeom* wing = dynamic_cast<WingGeom*>( current_wing );
         assert( wing );
 
@@ -1889,15 +1883,22 @@ void FeaSpar::ComputePlanarSurf()
         current_wing->GetSurfVec( surf_vec );
         VspSurf wing_surf = surf_vec[m_MainSurfIndx()];
 
-        BndBox wing_bbox;
-        wing_surf.GetBoundingBox( wing_bbox );
+        // Get surface prior to rotating and translating
+        Matrix4d model_matrix = current_wing->getModelMatrix();
+        model_matrix.affineInverse();
 
-        double U_max = wing_surf.GetUMax();
+        VspSurf orig_surf = wing_surf;
+        orig_surf.Transform( model_matrix );
+
+        BndBox wing_bbox;
+        orig_surf.GetBoundingBox( wing_bbox );
+
+        double U_max = orig_surf.GetUMax();
 
         double u_mid = ( ( m_U_sec_min + m_U_sec_max ) / 2 ) / U_max;
 
         VspCurve constant_u_curve;
-        wing_surf.GetU01ConstCurve( constant_u_curve, u_mid );
+        orig_surf.GetU01ConstCurve( constant_u_curve, u_mid );
 
         piecewise_curve_type u_curve = constant_u_curve.GetCurve();
 
@@ -1906,10 +1907,10 @@ void FeaSpar::ComputePlanarSurf()
         double V_leading_edge = ( V_min + V_max ) * 0.5;
 
         // Wing corner points:
-        vec3d min_trail_edge = wing_surf.CompPnt( m_U_sec_min, 0.0 );
-        vec3d min_lead_edge = wing_surf.CompPnt( m_U_sec_min, V_leading_edge );
-        vec3d max_trail_edge = wing_surf.CompPnt( m_U_sec_max, 0.0 );
-        vec3d max_lead_edge = wing_surf.CompPnt( m_U_sec_max, V_leading_edge );
+        vec3d min_trail_edge = orig_surf.CompPnt( m_U_sec_min, 0.0 );
+        vec3d min_lead_edge = orig_surf.CompPnt( m_U_sec_min, V_leading_edge );
+        vec3d max_trail_edge = orig_surf.CompPnt( m_U_sec_max, 0.0 );
+        vec3d max_lead_edge = orig_surf.CompPnt( m_U_sec_max, V_leading_edge );
 
         // Determine inner edge and outer edge spar points before rotations
         vec3d inside_edge_vec = min_lead_edge - min_trail_edge;
@@ -1963,17 +1964,6 @@ void FeaSpar::ComputePlanarSurf()
         inner_edge_vec.normalize();
         outer_edge_vec.normalize();
 
-        // Determine angle between center and corner points
-        vec3d center_to_le_in_vec = min_lead_edge - center;
-        vec3d center_to_te_in_vec = min_trail_edge - center;
-        vec3d center_to_le_out_vec = max_lead_edge - center;
-        vec3d center_to_te_out_vec = max_trail_edge - center;
-
-        center_to_le_in_vec.normalize();
-        center_to_te_in_vec.normalize();
-        center_to_le_out_vec.normalize();
-        center_to_te_out_vec.normalize();
-
         // Normal vector to wing chord line
         vec3d normal_vec;
 
@@ -1991,147 +1981,222 @@ void FeaSpar::ComputePlanarSurf()
         double alpha_0 = ( PI / 2 ) - signed_angle( inner_edge_vec, center_to_outer_edge, normal_vec ); // Initial rotation
         double theta = DEG_2_RAD * m_Theta(); // User defined angle converted to Rad
 
-        // Get maximum angles for spar to intersect wing edges
-        double max_angle_inner_le = -1 * signed_angle( center_to_inner_edge, center_to_le_in_vec, normal_vec );
-        double max_angle_inner_te = -1 * signed_angle( center_to_inner_edge, center_to_te_in_vec, normal_vec );
-        double max_angle_outer_le = signed_angle( center_to_le_out_vec, center_to_outer_edge, normal_vec );
-        double max_angle_outer_te = signed_angle( center_to_te_out_vec, center_to_outer_edge, normal_vec );
-
-        double beta_te = -1 * signed_angle( center_to_outer_edge, trail_edge_vec, normal_vec ); // Angle between spar and trailing edge
-        double beta_le = -1 * PI + signed_angle( center_to_inner_edge, lead_edge_vec, normal_vec ); // Angle between spar and leading edge
-
-        // Slightly oversize spar length
-        double length_spar_in = 1e-6;
-        double length_spar_out = 1e-6;
-        double perp_dist;
-
-        // Determine if the rib intersects the leading/trailing edge or inner/outer edge
-        if ( theta >= 0 )
+        if ( m_BndBoxTrimFlag() )
         {
-            if ( theta > max_angle_inner_le )
+            // Get bounding box of wing sections
+            BndBox sect_bbox;
+
+            if ( m_LimitSparToSectionFlag() )
             {
-                if ( abs( sin( theta + beta_le ) ) <= FLT_EPSILON || ( min_lead_edge - max_lead_edge ).mag() <= FLT_EPSILON )
+                // Note: This method may not be valid for the bounding box of a wing surface that is blended
+                sect_bbox.Reset();
+
+                for ( size_t i = m_StartWingSection() - 1; i <= m_EndWingSection(); i++ )
                 {
-                    length_spar_in += length_spar_0;
-                }
-                else
-                {
-                    perp_dist = cross( ( center - max_lead_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - max_lead_edge ).mag();
-                    length_spar_in += abs( perp_dist / sin( theta + beta_le ) );
+                    WingSect* wing_sec = wing->GetWingSect( i );
+
+                    if ( wing_sec )
+                    {
+                        VspCurve xsec_curve = wing_sec->GetCurve();
+                        BndBox bbox;
+                        xsec_curve.GetBoundingBox( bbox );
+                        sect_bbox.Update( bbox );
+                    }
                 }
             }
             else
             {
-                if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( min_trail_edge - min_lead_edge ).mag() <= FLT_EPSILON )
-                {
-                    length_spar_in += length_spar_0;
-                }
-                else
-                {
-                    perp_dist = cross( ( center - min_lead_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - min_lead_edge ).mag();
-                    length_spar_in += abs( perp_dist / cos( theta + alpha_0 ) );
-                }
+                sect_bbox = wing_bbox;
             }
 
-            if ( theta > max_angle_outer_te )
+            FeaSlice* temp_slice = NULL;
+            temp_slice = new FeaSlice( m_ParentGeomID );
+
+            if ( temp_slice )
             {
-                if ( abs( sin( theta - beta_te ) ) <= FLT_EPSILON || ( min_trail_edge - max_trail_edge ).mag() <= FLT_EPSILON )
-                {
-                    length_spar_out += length_spar_0;
-                }
-                else
-                {
-                    perp_dist = cross( ( center - max_trail_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - max_trail_edge ).mag();
-                    length_spar_out += abs( perp_dist / sin( theta - beta_te ) );
-                }
-            }
-            else
-            {
-                if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( max_trail_edge - max_lead_edge ).mag() <= FLT_EPSILON )
-                {
-                    length_spar_out += length_spar_0;
-                }
-                else
-                {
-                    perp_dist = cross( ( center - max_lead_edge ), ( center - max_trail_edge ) ).mag() / ( max_trail_edge - max_lead_edge ).mag();
-                    length_spar_out += abs( perp_dist / cos( theta + alpha_0 ) );
-                }
+                temp_slice->SetCenter( center );
+                temp_slice->SetSectionBBox( sect_bbox );
+                temp_slice->m_OrientationPlane.Set( vsp::YZ_BODY );
+                temp_slice->m_ZRot.Set( RAD_2_DEG * ( theta + alpha_0 ) );
+
+                // Update Slice Relative Center Location
+                double rel_center_location = ( center.x() - sect_bbox.GetMin( 0 ) ) / ( sect_bbox.GetMax( 0 ) - sect_bbox.GetMin( 0 ) );
+                temp_slice->m_RelCenterLocation.Set( rel_center_location );
+
+                m_FeaPartSurfVec[0] = temp_slice->ComputeSliceSurf();
+
+                delete temp_slice;
             }
         }
         else
         {
-            if ( theta < max_angle_inner_te )
+            // Determine angle between center and corner points
+            vec3d center_to_le_in_vec = min_lead_edge - center;
+            vec3d center_to_te_in_vec = min_trail_edge - center;
+            vec3d center_to_le_out_vec = max_lead_edge - center;
+            vec3d center_to_te_out_vec = max_trail_edge - center;
+
+            center_to_le_in_vec.normalize();
+            center_to_te_in_vec.normalize();
+            center_to_le_out_vec.normalize();
+            center_to_te_out_vec.normalize();
+
+            // Get maximum angles for spar to intersect wing edges
+            double max_angle_inner_le = -1 * signed_angle( center_to_inner_edge, center_to_le_in_vec, normal_vec );
+            double max_angle_inner_te = -1 * signed_angle( center_to_inner_edge, center_to_te_in_vec, normal_vec );
+            double max_angle_outer_le = signed_angle( center_to_le_out_vec, center_to_outer_edge, normal_vec );
+            double max_angle_outer_te = signed_angle( center_to_te_out_vec, center_to_outer_edge, normal_vec );
+
+            double beta_te = -1 * signed_angle( center_to_outer_edge, trail_edge_vec, normal_vec ); // Angle between spar and trailing edge
+            double beta_le = -1 * PI + signed_angle( center_to_inner_edge, lead_edge_vec, normal_vec ); // Angle between spar and leading edge
+
+            // Slightly oversize spar length
+            double length_spar_in = 1e-6;
+            double length_spar_out = 1e-6;
+            double perp_dist;
+
+            // Determine if the rib intersects the leading/trailing edge or inner/outer edge
+            if ( theta >= 0 )
             {
-                if ( abs( sin( theta - beta_te ) ) <= FLT_EPSILON || ( max_trail_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                if ( theta > max_angle_inner_le )
                 {
-                    length_spar_in += length_spar_0;
+                    if ( abs( sin( theta + beta_le ) ) <= FLT_EPSILON || ( min_lead_edge - max_lead_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_spar_in += length_spar_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - max_lead_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - max_lead_edge ).mag();
+                        length_spar_in += abs( perp_dist / sin( theta + beta_le ) );
+                    }
                 }
                 else
                 {
-                    perp_dist = cross( ( center - max_trail_edge ), ( center - min_trail_edge ) ).mag() / ( max_trail_edge - min_trail_edge ).mag();
-                    length_spar_in += abs( perp_dist / sin( theta - beta_te ) );
+                    if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( min_trail_edge - min_lead_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_spar_in += length_spar_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - min_lead_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - min_lead_edge ).mag();
+                        length_spar_in += abs( perp_dist / cos( theta + alpha_0 ) );
+                    }
+                }
+
+                if ( theta > max_angle_outer_te )
+                {
+                    if ( abs( sin( theta - beta_te ) ) <= FLT_EPSILON || ( min_trail_edge - max_trail_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_spar_out += length_spar_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - max_trail_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - max_trail_edge ).mag();
+                        length_spar_out += abs( perp_dist / sin( theta - beta_te ) );
+                    }
+                }
+                else
+                {
+                    if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( max_trail_edge - max_lead_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_spar_out += length_spar_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - max_lead_edge ), ( center - max_trail_edge ) ).mag() / ( max_trail_edge - max_lead_edge ).mag();
+                        length_spar_out += abs( perp_dist / cos( theta + alpha_0 ) );
+                    }
                 }
             }
             else
             {
-                if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( min_trail_edge - min_lead_edge ).mag() <= FLT_EPSILON )
+                if ( theta < max_angle_inner_te )
                 {
-                    length_spar_in += length_spar_0;
+                    if ( abs( sin( theta - beta_te ) ) <= FLT_EPSILON || ( max_trail_edge - min_trail_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_spar_in += length_spar_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - max_trail_edge ), ( center - min_trail_edge ) ).mag() / ( max_trail_edge - min_trail_edge ).mag();
+                        length_spar_in += abs( perp_dist / sin( theta - beta_te ) );
+                    }
                 }
                 else
                 {
-                    perp_dist = cross( ( center - min_lead_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - min_lead_edge ).mag();
-                    length_spar_in += abs( perp_dist / cos( theta + alpha_0 ) );
+                    if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( min_trail_edge - min_lead_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_spar_in += length_spar_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - min_lead_edge ), ( center - min_trail_edge ) ).mag() / ( min_trail_edge - min_lead_edge ).mag();
+                        length_spar_in += abs( perp_dist / cos( theta + alpha_0 ) );
+                    }
+                }
+
+                if ( theta < max_angle_outer_le )
+                {
+                    if ( abs( sin( theta + beta_le ) ) <= FLT_EPSILON || ( max_lead_edge - min_lead_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_spar_out += length_spar_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - max_lead_edge ), ( center - min_lead_edge ) ).mag() / ( max_lead_edge - min_lead_edge ).mag();
+                        length_spar_out += abs( perp_dist / sin( theta + beta_le ) );
+                    }
+                }
+                else
+                {
+                    if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( max_trail_edge - max_lead_edge ).mag() <= FLT_EPSILON )
+                    {
+                        length_spar_out += length_spar_0;
+                    }
+                    else
+                    {
+                        perp_dist = cross( ( center - max_lead_edge ), ( center - max_trail_edge ) ).mag() / ( max_trail_edge - max_lead_edge ).mag();
+                        length_spar_out += abs( perp_dist / cos( theta + alpha_0 ) );
+                    }
                 }
             }
 
-            if ( theta < max_angle_outer_le )
-            {
-                if ( abs( sin( theta + beta_le ) ) <= FLT_EPSILON || ( max_lead_edge - min_lead_edge ).mag() <= FLT_EPSILON )
-                {
-                    length_spar_out += length_spar_0;
-                }
-                else
-                {
-                    perp_dist = cross( ( center - max_lead_edge ), ( center - min_lead_edge ) ).mag() / ( max_lead_edge - min_lead_edge ).mag();
-                    length_spar_out += abs( perp_dist / sin( theta + beta_le ) );
-                }
-            }
-            else
-            {
-                if ( abs( cos( theta + alpha_0 ) ) <= FLT_EPSILON || ( max_trail_edge - max_lead_edge ).mag() <= FLT_EPSILON )
-                {
-                    length_spar_out += length_spar_0;
-                }
-                else
-                {
-                    perp_dist = cross( ( center - max_lead_edge ), ( center - max_trail_edge ) ).mag() / ( max_trail_edge - max_lead_edge ).mag();
-                    length_spar_out += abs( perp_dist / cos( theta + alpha_0 ) );
-                }
-            }
+            // Apply Rodrigues' Rotation Formula
+            vec3d spar_vec_in = center_to_inner_edge * cos( theta ) + cross( center_to_inner_edge, normal_vec ) * sin( theta ) + normal_vec * dot( center_to_inner_edge, normal_vec ) * ( 1 - cos( theta ) );
+            vec3d spar_vec_out = center_to_outer_edge * cos( theta ) + cross( center_to_outer_edge, normal_vec ) * sin( theta ) + normal_vec * dot( center_to_outer_edge, normal_vec ) * ( 1 - cos( theta ) );
+
+            spar_vec_in.normalize();
+            spar_vec_out.normalize();
+
+            // Calculate final end points
+            vec3d inside_edge_f = center + length_spar_in * spar_vec_in;
+            vec3d outside_edge_f = center + length_spar_out * spar_vec_out;
+
+            // Identify corners of the plane
+            vec3d cornerA, cornerB, cornerC, cornerD;
+
+            cornerA = inside_edge_f + ( height * wing_z_axis );
+            cornerB = inside_edge_f - ( height * wing_z_axis );
+            cornerC = outside_edge_f + ( height * wing_z_axis );
+            cornerD = outside_edge_f - ( height * wing_z_axis );
+
+            // Make Planar Surface
+            m_FeaPartSurfVec[0].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+
+            // Transform to body coordinate frame
+            model_matrix.affineInverse();
+            m_FeaPartSurfVec[0].Transform( model_matrix );
         }
 
-        // Apply Rodrigues' Rotation Formula
-        vec3d spar_vec_in = center_to_inner_edge * cos( theta ) + cross( center_to_inner_edge, normal_vec ) * sin( theta ) + normal_vec * dot( center_to_inner_edge, normal_vec ) * ( 1 - cos( theta ) );
-        vec3d spar_vec_out = center_to_outer_edge * cos( theta ) + cross( center_to_outer_edge, normal_vec ) * sin( theta ) + normal_vec * dot( center_to_outer_edge, normal_vec ) * ( 1 - cos( theta ) );
-
-        spar_vec_in.normalize();
-        spar_vec_out.normalize();
-
-        // Calculate final end points
-        vec3d inside_edge_f = center + length_spar_in * spar_vec_in;
-        vec3d outside_edge_f = center + length_spar_out * spar_vec_out;
-
-        // Identify corners of the plane
-        vec3d cornerA, cornerB, cornerC, cornerD;
-
-        cornerA = inside_edge_f + ( height * wing_z_axis );
-        cornerB = inside_edge_f - ( height * wing_z_axis );
-        cornerC = outside_edge_f + ( height * wing_z_axis );
-        cornerD = outside_edge_f - ( height * wing_z_axis );
-
-        // Make Planar Surface
-        m_FeaPartSurfVec[0].MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+        // Set Surface CFD Type: 
+        if ( m_IncludedElements() == vsp::FEA_SHELL || m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+        {
+            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STRUCTURE );
+        }
+        else
+        {
+            m_FeaPartSurfVec[0].SetSurfCfdType( vsp::CFD_STIFFENER );
+        }
 
         if ( m_FeaPartSurfVec[0].GetFlipNormal() != wing_surf.GetFlipNormal() )
         {
