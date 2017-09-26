@@ -1224,6 +1224,23 @@ void FeaSlice::UpdateParmLimits()
         double del_x = m_SectBBox.GetMax( 0 ) - m_SectBBox.GetMin( 0 );
         double del_y = m_SectBBox.GetMax( 1 ) - m_SectBBox.GetMin( 1 );
         double del_z = m_SectBBox.GetMax( 2 ) - m_SectBBox.GetMin( 2 );
+
+        if ( m_RotationAxis() == vsp::X_DIR )
+        {
+            m_YRot.Set( 0.0 );
+            m_ZRot.Set( 0.0 );
+        }
+        else if ( m_RotationAxis() == vsp::Y_DIR )
+        {
+            m_XRot.Set( 0.0 );
+            m_ZRot.Set( 0.0 );
+        }
+        else if ( m_RotationAxis() == vsp::Z_DIR )
+        {
+            m_XRot.Set( 0.0 );
+            m_YRot.Set( 0.0 );
+        }
+
         if ( m_OrientationPlane() == vsp::XY_BODY || m_OrientationPlane() == vsp::XY_ABS )
         {
             perp_dist = m_SectBBox.GetMax( 2 ) - m_SectBBox.GetMin( 2 );

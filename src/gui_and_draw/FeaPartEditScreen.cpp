@@ -1183,34 +1183,29 @@ bool FeaPartEditScreen::Update()
                         }
 
                         m_SliceRotAxisToggleGroup.Update( slice->m_RotationAxis.GetID() );
+                        m_SliceShellCapToggleGroup.Update( slice->m_IncludedElements.GetID() );
+
                         m_SliceXRotSlider.Update( slice->m_XRot.GetID() );
                         m_SliceYRotSlider.Update( slice->m_YRot.GetID() );
                         m_SliceZRotSlider.Update( slice->m_ZRot.GetID() );
-                        m_SliceShellCapToggleGroup.Update( slice->m_IncludedElements.GetID() );
 
                         if ( slice->m_RotationAxis() == vsp::X_DIR )
                         {
                             m_SliceXRotSlider.Activate();
                             m_SliceYRotSlider.Deactivate();
                             m_SliceZRotSlider.Deactivate();
-                            slice->m_YRot.Set( 0.0 );
-                            slice->m_ZRot.Set( 0.0 );
                         }
                         else if ( slice->m_RotationAxis() == vsp::Y_DIR )
                         {
                             m_SliceXRotSlider.Deactivate();
                             m_SliceYRotSlider.Activate();
                             m_SliceZRotSlider.Deactivate();
-                            slice->m_XRot.Set( 0.0 );
-                            slice->m_ZRot.Set( 0.0 );
                         }
                         else if ( slice->m_RotationAxis() == vsp::Z_DIR )
                         {
                             m_SliceXRotSlider.Deactivate();
                             m_SliceYRotSlider.Deactivate();
                             m_SliceZRotSlider.Activate();
-                            slice->m_XRot.Set( 0.0 );
-                            slice->m_YRot.Set( 0.0 );
                         }
 
                         if ( slice->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
