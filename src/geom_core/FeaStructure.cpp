@@ -3573,6 +3573,9 @@ FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
     m_EndWingSection.Init( "EndWingSection", "FeaRibArray", this, 1, 1, 1000 );
     m_EndWingSection.SetDescript( "End Wing Section to Limit Array to" );
 
+    m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaRibArray", this, false, false, true );
+    m_BndBoxTrimFlag.SetDescript( "Flag to Trim Rib Array to Bounding Box Instead of Wing Surface" );
+
     m_NumRibs = 0;
 }
 
@@ -3773,6 +3776,7 @@ void FeaRibArray::CreateFeaRibArray()
             rib->m_LimitRibToSectionFlag.Set( m_LimitArrayToSectionFlag() );
             rib->m_StartWingSection.Set( m_StartWingSection() );
             rib->m_EndWingSection.Set( m_EndWingSection() );
+            rib->m_BndBoxTrimFlag.Set( m_BndBoxTrimFlag() );
 
             // Update Rib Relative Center Location
             double rel_center_location =  m_RelStartLocation() + dir * i * m_RibRelSpacing();
@@ -3781,7 +3785,6 @@ void FeaRibArray::CreateFeaRibArray()
             // Update
             rib->UpdateParmLimits();
             rib->GetRibPerU();
-            rib->GetRibTotalRotation();
 
             // Get rib surface
             VspSurf main_rib_surf = rib->ComputeRibSurf();
@@ -3839,6 +3842,7 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
         fearib->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
         fearib->m_Theta.Set( m_Theta() );
         fearib->SetPerpendicularEdgeID( m_PerpendicularEdgeID );
+        fearib->m_BndBoxTrimFlag.Set( m_BndBoxTrimFlag() );
 
         fearib->SetName( string( m_Name + "_Rib" + std::to_string( ind ) ) );
 

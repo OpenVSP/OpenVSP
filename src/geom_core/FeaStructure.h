@@ -479,6 +479,7 @@ public:
     BoolParm m_LimitArrayToSectionFlag;
     IntParm m_StartWingSection;
     IntParm m_EndWingSection;
+    BoolParm m_BndBoxTrimFlag;
 
 protected:
 
