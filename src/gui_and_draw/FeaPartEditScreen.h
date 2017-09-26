@@ -91,6 +91,7 @@ private:
     SliderAdjRange2Input m_RibPosSlider;
     TriggerButton m_RibPosUnit;
     SliderAdjRangeInput m_RibThetaSlider;
+    ToggleButton m_RibTrimToBBoxToggle;
     Choice m_RibCapPropertyChoice;
     ToggleButton m_RibShellToggle;
     ToggleButton m_RibCapToggle;
@@ -110,6 +111,7 @@ private:
     IndexSelector m_SparStartSectIndexSelector;
     IndexSelector m_SparEndSectIndexSelector;
     SliderAdjRangeInput m_SparThetaSlider;
+    ToggleButton m_SparTrimToBBoxToggle;
     Choice m_SparCapPropertyChoice;
     ToggleButton m_SparShellToggle;
     ToggleButton m_SparCapToggle;
@@ -171,6 +173,7 @@ private:
     SliderAdjRange2Input m_RibArraySpacingSlider;
     TriggerButton m_RibArrayPosUnit;
     SliderAdjRangeInput m_RibArrayThetaSlider;
+    ToggleButton m_RibArrayTrimToBBoxToggle;
     Choice m_RibArrayCapPropertyChoice;
     TriggerButton m_IndividualizeRibArrayButton;
     ToggleButton m_RibArrayShellToggle;

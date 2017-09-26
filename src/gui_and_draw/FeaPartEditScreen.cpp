@@ -211,6 +211,10 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_RibEditLayout.AddYGap();
 
+    m_RibEditLayout.AddButton( m_RibTrimToBBoxToggle, "Trim to Bounding Box" );
+
+    m_RibEditLayout.AddYGap();
+
     m_RibEditLayout.AddDividerBox( "Elements" );
 
     m_RibEditLayout.SetSameLineFlag( true );
@@ -295,6 +299,10 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 3 );
 
     m_SparEditLayout.AddSlider( m_SparThetaSlider, "Rotation", 25, "%5.3f" );
+
+    m_SparEditLayout.AddYGap();
+
+    m_SparEditLayout.AddButton( m_SparTrimToBBoxToggle, "Trim to Bounding Box" );
 
     m_SparEditLayout.AddYGap();
 
@@ -572,6 +580,10 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_RibArrayEditLayout.SetButtonWidth( button_width );
 
     m_RibArrayEditLayout.AddSlider( m_RibArrayThetaSlider, "Rotation", 25, "%5.3f" );
+
+    m_RibArrayEditLayout.AddYGap();
+
+    m_RibArrayEditLayout.AddButton( m_RibArrayTrimToBBoxToggle, "Trim to Bounding Box" );
 
     m_RibArrayEditLayout.AddYGap();
 
@@ -1262,6 +1274,7 @@ bool FeaPartEditScreen::Update()
                         }
 
                         m_RibThetaSlider.Update( rib->m_Theta.GetID() );
+                        m_RibTrimToBBoxToggle.Update( rib->m_BndBoxTrimFlag.GetID() );
                         m_RibShellCapToggleGroup.Update( rib->m_IncludedElements.GetID() );
 
                         if ( rib->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
@@ -1318,6 +1331,7 @@ bool FeaPartEditScreen::Update()
                         }
 
                         m_SparThetaSlider.Update( spar->m_Theta.GetID() );
+                        m_SparTrimToBBoxToggle.Update( spar->m_BndBoxTrimFlag.GetID() );
                         m_SparShellCapToggleGroup.Update( spar->m_IncludedElements.GetID() );
 
                         if ( spar->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
@@ -1456,6 +1470,7 @@ bool FeaPartEditScreen::Update()
                         }
 
                         m_RibArrayThetaSlider.Update( rib_array->m_Theta.GetID() );
+                        m_RibArrayTrimToBBoxToggle.Update( rib_array->m_BndBoxTrimFlag.GetID() );
                         m_RibArrayShellCapToggleGroup.Update( rib_array->m_IncludedElements.GetID() );
                         m_RibArrayPosNegDirToggleGroup.Update( rib_array->m_PositiveDirectionFlag.GetID() );
 
