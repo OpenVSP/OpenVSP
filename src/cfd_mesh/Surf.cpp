@@ -1239,11 +1239,11 @@ bool Surf::ValidUW( vec2d & uw )
 {
     //return true;
     double slop = 1.0e-4;
-    if ( uw[0] < -slop )
+    if ( uw[0] < m_SurfCore.GetMinU() - slop )
     {
         return false;
     }
-    if ( uw[1] < -slop )
+    if ( uw[1] < m_SurfCore.GetMinW() - slop )
     {
         return false;
     }
@@ -1256,13 +1256,13 @@ bool Surf::ValidUW( vec2d & uw )
         return false;
     }
 
-    if ( uw[0] < 0.0 )
+    if ( uw[0] < m_SurfCore.GetMinU() )
     {
-        uw[0] = 0.0;
+        uw[0] = m_SurfCore.GetMinU();
     }
-    if ( uw[1] < 0.0 )
+    if ( uw[1] < m_SurfCore.GetMinW() )
     {
-        uw[1] = 0.0;
+        uw[1] = m_SurfCore.GetMinW();
     }
     if ( uw[0] > m_SurfCore.GetMaxU() )
     {
