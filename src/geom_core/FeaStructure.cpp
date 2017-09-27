@@ -3833,6 +3833,9 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
         fearib->m_Theta.Set( m_Theta() );
         fearib->SetPerpendicularEdgeID( m_PerpendicularEdgeID );
         fearib->m_BndBoxTrimFlag.Set( m_BndBoxTrimFlag() );
+        fearib->m_LimitRibToSectionFlag.Set( m_LimitArrayToSectionFlag() );
+        fearib->m_StartWingSection.Set( m_StartWingSection() );
+        fearib->m_EndWingSection.Set( m_EndWingSection() );
 
         fearib->SetName( string( m_Name + "_Rib" + std::to_string( ind ) ) );
 
