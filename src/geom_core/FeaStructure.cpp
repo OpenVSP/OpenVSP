@@ -1346,7 +1346,7 @@ VspSurf FeaSlice::ComputeSliceSurf()
         del_z = m_SectBBox.GetMax( 2 ) - m_SectBBox.GetMin( 2 );
 
         // Identify expansion 
-        double expan = m_SectBBox.GetLargestDist() * 1e-3;
+        double expan = m_SectBBox.GetLargestDist() * 1e-5;
         if ( expan < 1e-5 )
         {
             expan = 1e-5;
@@ -1938,7 +1938,7 @@ void FeaSpar::ComputePlanarSurf()
         wing_z_axis.normalize();
 
         // Identify expansion 
-        double expan = wing_bbox.GetLargestDist() * 1e-3;
+        double expan = wing_bbox.GetLargestDist() * 1e-4;
         if ( expan < 1e-5 )
         {
             expan = 1e-5;
@@ -2658,13 +2658,13 @@ VspSurf FeaRib::ComputeRibSurf()
         else
         {
             // Identify expansion 
-            double expan = wing_bbox.GetLargestDist() * 1e-3;
+            double expan = wing_bbox.GetLargestDist() * 1e-4;
             if ( expan < 1e-5 )
             {
                 expan = 1e-5;
             }
 
-            double length_rib_0 = ( dist( trail_edge, lead_edge ) / 2 ) + expan; // Rib half length before rotations, slightly oversized
+            double length_rib_0 = ( dist( trail_edge, lead_edge ) / 2 ); // Rib half length before rotations
 
             vec3d center_to_trail_edge = trail_edge - center;
             center_to_trail_edge.normalize();
@@ -2695,7 +2695,9 @@ VspSurf FeaRib::ComputeRibSurf()
             double phi_te = PI - ( m_TotRot + sweep_te ); // Total angle for trailing edge side of rib
             double phi_le = PI - ( m_TotRot + sweep_le );// Total angle for leading edge side of rib
 
-            double length_rib_te, length_rib_le, perp_dist;
+            double perp_dist;
+            double length_rib_te = 1e-6;
+            double length_rib_le = 1e-6;
 
             // Determine if the rib intersects the leading/trailing edge or inner/outer edge
             if ( m_TotRot <= 0 )
@@ -2704,23 +2706,23 @@ VspSurf FeaRib::ComputeRibSurf()
                 {
                     if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
                     {
-                        length_rib_le = length_rib_0;
+                        length_rib_le += length_rib_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
-                        length_rib_le = abs( perp_dist / sin( m_TotRot ) );
+                        length_rib_le += abs( perp_dist / sin( m_TotRot ) );
                     }
                 }
                 else
                 {
                     if ( abs( sin( phi_le ) ) <= FLT_EPSILON )
                     {
-                        length_rib_le = length_rib_0;
+                        length_rib_le += length_rib_0;
                     }
                     else
                     {
-                        length_rib_le = abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
+                        length_rib_le += abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
                     }
                 }
 
@@ -2728,23 +2730,23 @@ VspSurf FeaRib::ComputeRibSurf()
                 {
                     if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
                     {
-                        length_rib_te = length_rib_0;
+                        length_rib_te += length_rib_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
-                        length_rib_te = abs( perp_dist / sin( m_TotRot ) );
+                        length_rib_te += abs( perp_dist / sin( m_TotRot ) );
                     }
                 }
                 else
                 {
                     if ( abs( sin( phi_te ) ) <= FLT_EPSILON )
                     {
-                        length_rib_te = length_rib_0;
+                        length_rib_te += length_rib_0;
                     }
                     else
                     {
-                        length_rib_te = abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
+                        length_rib_te += abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
                     }
                 }
             }
@@ -2754,23 +2756,23 @@ VspSurf FeaRib::ComputeRibSurf()
                 {
                     if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( min_lead_edge - min_trail_edge ).mag() <= FLT_EPSILON )
                     {
-                        length_rib_te = length_rib_0;
+                        length_rib_te += length_rib_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - min_trail_edge ), ( center - min_lead_edge ) ).mag() / ( min_lead_edge - min_trail_edge ).mag();
-                        length_rib_te = abs( perp_dist / sin( m_TotRot ) );
+                        length_rib_te += abs( perp_dist / sin( m_TotRot ) );
                     }
                 }
                 else
                 {
                     if ( abs( sin( phi_te ) ) <= FLT_EPSILON )
                     {
-                        length_rib_te = length_rib_0;
+                        length_rib_te += length_rib_0;
                     }
                     else
                     {
-                        length_rib_te = abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
+                        length_rib_te += abs( length_rib_0 * sin( sweep_te ) / sin( phi_te ) );
                     }
                 }
 
@@ -2778,23 +2780,23 @@ VspSurf FeaRib::ComputeRibSurf()
                 {
                     if ( abs( sin( m_TotRot ) ) <= FLT_EPSILON || ( max_lead_edge - max_trail_edge ).mag() <= FLT_EPSILON )
                     {
-                        length_rib_le = length_rib_0;
+                        length_rib_le += length_rib_0;
                     }
                     else
                     {
                         perp_dist = cross( ( center - max_trail_edge ), ( center - max_lead_edge ) ).mag() / ( max_lead_edge - max_trail_edge ).mag();
-                        length_rib_le = abs( perp_dist / sin( m_TotRot ) );
+                        length_rib_le += abs( perp_dist / sin( m_TotRot ) );
                     }
                 }
                 else
                 {
                     if ( abs( sin( phi_le ) ) <= FLT_EPSILON )
                     {
-                        length_rib_le = length_rib_0;
+                        length_rib_le += length_rib_0;
                     }
                     else
                     {
-                        length_rib_le = abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
+                        length_rib_le += abs( length_rib_0 * sin( sweep_le ) / sin( phi_le ) );
                     }
                 }
             }
