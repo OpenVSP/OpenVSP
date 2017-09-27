@@ -337,6 +337,7 @@ public:
     void AddPossCoPlanarSurf( Surf* surfA, Surf* surfB );
     vector< Surf* > GetPossCoPlanarSurfs( Surf* surfPtr );
 
+    virtual void MergeFeaPartSSEdgeOverlap()    {}; // Only for FeaMesh; do nothing for CfdMesh
     virtual void CheckFixPointIntersects()    {}; // Only for FeaMesh; do nothing for CfdMesh
     virtual void SetFixPointBorderNodes()    {}; // Only for FeaMesh; do nothing for CfdMesh
 

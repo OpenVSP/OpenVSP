@@ -1714,6 +1714,119 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
     }
 }
 
+void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
+{
+    // Check for SubSurface Edges on FeaPart Surfaces. If found, remove the SubSurface intersectionchain and 
+    //  allow it to be replaced by the FeaPart intersection curve. Note: It may be possible to combine this function
+    //  with CfdMeshMgrSingleton::BuildSubSurfIntChains()
+    vec2d uw_pnt0;
+    vec2d uw_pnt1;
+
+    for ( size_t i = 0; i < (int)m_SurfVec.size(); i++ )
+    {
+        for ( size_t j = 0; j < (int)m_SurfVec.size(); j++ )
+        {
+            Surf* surfA = m_SurfVec[i]; // FeaPart Surface
+            Surf* surfB = m_SurfVec[j]; // Skin Surface
+
+            if ( ( surfA->GetCompID() < 0 ) && ( surfB->GetCompID() >= 0 ) && ( i != j ) && ( m_FeaPartTypeVec[surfA->GetFeaPartIndex()] != vsp::FEA_DOME ) )
+            {
+                vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surfB->GetGeomID(), surfB->GetMainSurfID(), surfB->GetCompID() );
+
+                // Split SubSurfs
+                for ( int ss = 0; ss < (int)ss_vec.size(); ss++ )
+                {
+                    ss_vec[ss].SplitSegsU( surfB->GetSurfCore()->GetMinU() );
+                    ss_vec[ss].SplitSegsU( surfB->GetSurfCore()->GetMaxU() );
+                    ss_vec[ss].SplitSegsW( surfB->GetSurfCore()->GetMinW() );
+                    ss_vec[ss].SplitSegsW( surfB->GetSurfCore()->GetMaxW() );
+
+                    vector < vector< SSLineSeg > >& segsvec = ss_vec[ss].GetSplitSegs();
+
+                    for ( int i = 0; i < segsvec.size(); i++ )
+                    {
+                        vector< SSLineSeg >& segs = segsvec[i];
+                        bool is_poly = ss_vec[ss].GetPolyFlag();
+
+                        // Build Intersection Chains
+                        for ( int ls = 0; ls < (int)segs.size(); ls++ )
+                        {
+                            SSLineSeg l_seg = segs[ls];
+                            vec3d lp0, lp1;
+
+                            lp0 = l_seg.GetP0();
+                            lp1 = l_seg.GetP1();
+                            uw_pnt0 = vec2d( lp0.x(), lp0.y() );
+                            uw_pnt1 = vec2d( lp1.x(), lp1.y() );
+                            double max_u, max_w, tol;
+                            double min_u, min_w;
+                            tol = 1e-6;
+                            min_u = surfB->GetSurfCore()->GetMinU();
+                            min_w = surfB->GetSurfCore()->GetMinW();
+                            max_u = surfB->GetSurfCore()->GetMaxU();
+                            max_w = surfB->GetSurfCore()->GetMaxW();
+
+                            if ( uw_pnt0[0] < min_u - FLT_EPSILON || uw_pnt0[1] < min_w - FLT_EPSILON || uw_pnt1[0] < min_u - FLT_EPSILON || uw_pnt1[1] < min_w - FLT_EPSILON )
+                            {
+                                continue; // Skip if either point has a value not on this surface
+                            }
+                            if ( uw_pnt0[0] > max_u + FLT_EPSILON || uw_pnt0[1] > max_w + FLT_EPSILON || uw_pnt1[0] > max_u + FLT_EPSILON || uw_pnt1[1] > max_w + FLT_EPSILON )
+                            {
+                                continue; // Skip if either point has a value not on this surface
+                            }
+                            if ( ( ( std::abs( uw_pnt0[0] - max_u ) < tol && std::abs( uw_pnt1[0] - max_u ) < tol ) ||
+                                ( std::abs( uw_pnt0[1] - max_w ) < tol && std::abs( uw_pnt1[1] - max_w ) < tol ) ||
+                                 ( std::abs( uw_pnt0[0] - min_u ) < tol && std::abs( uw_pnt1[0] - min_u ) < tol ) ||
+                                 ( std::abs( uw_pnt0[1] - min_w ) < tol && std::abs( uw_pnt1[1] - min_w ) < tol ) )
+                                 && is_poly )
+                            {
+                                continue; // Skip if both end points are on the same edge of the surface
+                            }
+
+                            vec3d skin_pnt0 = surfB->CompPnt( uw_pnt0[0], uw_pnt0[1] );
+                            vec3d skin_pnt1 = surfB->CompPnt( uw_pnt1[0], uw_pnt1[1] );
+
+                            double part_U0, part_W0, part_U1, part_W1;
+                            surfA->GetSurfCore()->FindNearest( part_U0, part_W0, skin_pnt0 );
+                            surfA->GetSurfCore()->FindNearest( part_U1, part_W1, skin_pnt1 );
+
+                            vec3d part_pnt0 = surfA->GetSurfCore()->CompPnt( part_U0, part_W0 );
+                            vec3d part_pnt1 = surfA->GetSurfCore()->CompPnt( part_U1, part_W1 );
+
+                            if ( dist_squared( part_pnt0, skin_pnt0 ) <= FLT_EPSILON && dist_squared( part_pnt1, skin_pnt1 ) <= FLT_EPSILON )
+                            {
+                                vector < ISegChain* > chain;
+                                list< ISegChain* >::iterator c;
+                                for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+                                {
+                                    if ( ( dist_squared( part_pnt0, ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt ) <= FLT_EPSILON && dist_squared( part_pnt1, ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt ) <= FLT_EPSILON ) ||
+                                        ( dist_squared( part_pnt0, ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt ) <= FLT_EPSILON && dist_squared( part_pnt1, ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt ) <= FLT_EPSILON ) )
+                                    {
+                                        string part = m_FeaPartNameVec[surfA->GetFeaPartIndex()];
+                                        string message = "Merged Intersection Curve: " + part + " and " + ss_vec[ss].GetName() + "/n";
+                                        addOutputText( message.c_str() );
+                                    }
+                                    else
+                                    {
+                                        chain.push_back( *c );
+                                    }
+                                }
+
+                                m_ISegChainList.clear();
+
+                                for ( size_t i = 0; i < (int)chain.size(); i++ )
+                                {
+                                    m_ISegChainList.push_back( chain[i] );
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
 {
     for ( unsigned int i = 0; i < m_NumFeaSubSurfs; i++ )

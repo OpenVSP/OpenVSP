@@ -74,6 +74,7 @@ public:
     virtual void BuildFeaMesh();
     virtual void CheckSubSurfBorderIntersect();
     virtual void CheckDuplicateSSIntersects();
+    virtual void MergeFeaPartSSEdgeOverlap();
     virtual void RemoveSubSurfFeaTris();
     virtual void RemoveSkinTris();
     virtual void TagFeaNodes();
