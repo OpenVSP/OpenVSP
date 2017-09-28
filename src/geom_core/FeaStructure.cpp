@@ -3991,6 +3991,22 @@ void FeaSliceArray::CalcNumSlices()
             current_surf.GetBoundingBox( geom_bbox );
         }
 
+        if ( m_RotationAxis() == vsp::X_DIR )
+        {
+            m_YRot.Set( 0.0 );
+            m_ZRot.Set( 0.0 );
+        }
+        else if ( m_RotationAxis() == vsp::Y_DIR )
+        {
+            m_XRot.Set( 0.0 );
+            m_ZRot.Set( 0.0 );
+        }
+        else if ( m_RotationAxis() == vsp::Z_DIR )
+        {
+            m_XRot.Set( 0.0 );
+            m_YRot.Set( 0.0 );
+        }
+
         double perp_dist; // Total distance perpendicular to the FeaSlice plane
 
         if ( m_OrientationPlane() == vsp::XY_BODY || m_OrientationPlane() == vsp::XY_ABS )
@@ -4135,15 +4151,16 @@ void FeaSliceArray::CreateFeaSliceArray()
             }
 
             slice->m_OrientationPlane.Set( m_OrientationPlane() );
+            slice->m_RotationAxis.Set( m_RotationAxis() );
             slice->m_XRot.Set( m_XRot() );
             slice->m_YRot.Set( m_YRot() );
             slice->m_ZRot.Set( m_ZRot() );
 
-            slice->UpdateParmLimits();
-
             // Update Slice Relative Center Location
             double rel_center_location = m_RelStartLocation() + dir * i * m_SliceRelSpacing();
             slice->m_RelCenterLocation.Set( rel_center_location );
+
+            slice->UpdateParmLimits();
 
             VspSurf main_slice_surf = slice->ComputeSliceSurf();
 

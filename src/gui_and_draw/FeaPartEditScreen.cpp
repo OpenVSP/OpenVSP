@@ -1537,24 +1537,18 @@ bool FeaPartEditScreen::Update()
                             m_SliceArrayXRotSlider.Activate();
                             m_SliceArrayYRotSlider.Deactivate();
                             m_SliceArrayZRotSlider.Deactivate();
-                            slice_array->m_YRot.Set( 0.0 );
-                            slice_array->m_ZRot.Set( 0.0 );
                         }
                         else if ( slice_array->m_RotationAxis() == vsp::Y_DIR )
                         {
                             m_SliceArrayXRotSlider.Deactivate();
                             m_SliceArrayYRotSlider.Activate();
                             m_SliceArrayZRotSlider.Deactivate();
-                            slice_array->m_XRot.Set( 0.0 );
-                            slice_array->m_ZRot.Set( 0.0 );
                         }
                         else if ( slice_array->m_RotationAxis() == vsp::Z_DIR )
                         {
                             m_SliceArrayXRotSlider.Deactivate();
                             m_SliceArrayYRotSlider.Deactivate();
                             m_SliceArrayZRotSlider.Activate();
-                            slice_array->m_XRot.Set( 0.0 );
-                            slice_array->m_YRot.Set( 0.0 );
                         }
 
                         if ( slice_array->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
