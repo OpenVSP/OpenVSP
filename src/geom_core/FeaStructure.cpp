@@ -1903,13 +1903,8 @@ void FeaSpar::ComputePlanarSurf()
 
         double u_mid = ( ( m_U_sec_min + m_U_sec_max ) / 2 ) / U_max;
 
-        VspCurve constant_u_curve;
-        orig_surf.GetU01ConstCurve( constant_u_curve, u_mid );
-
-        piecewise_curve_type u_curve = constant_u_curve.GetCurve();
-
-        double V_min = u_curve.get_parameter_min(); // Really must be 0.0
-        double V_max = u_curve.get_parameter_max(); // Really should be 4.0
+        double V_min = 0.0;
+        double V_max = orig_surf.GetWMax(); // Really should be 4.0
         double V_leading_edge = ( V_min + V_max ) * 0.5;
 
         // Wing corner points:
@@ -1932,12 +1927,12 @@ void FeaSpar::ComputePlanarSurf()
         double length_spar_0 = dist( inside_edge_pnt, outside_edge_pnt ) / 2; // Initial spar half length
 
         // Find two points slightly above and below the trailing edge
-        double v_trail_edge_low = V_min + 2 * TMAGIC;
-        double v_trail_edge_up = V_max - 2 * TMAGIC;
+        double V_trail_edge_low = V_min + 2 * TMAGIC;
+        double V_trail_edge_up = V_max - 2 * TMAGIC;
 
         vec3d trail_edge_up, trail_edge_low;
-        trail_edge_up = u_curve.f( v_trail_edge_low );
-        trail_edge_low = u_curve.f( v_trail_edge_up );
+        trail_edge_up = orig_surf.CompPnt01( u_mid, V_trail_edge_low / V_max );
+        trail_edge_low = orig_surf.CompPnt01( u_mid, V_trail_edge_up / V_max );
 
         vec3d wing_z_axis = trail_edge_up - trail_edge_low;
         wing_z_axis.normalize();
@@ -2475,18 +2470,13 @@ double FeaRib::GetRibTotalRotation( )
             double u_edge_out = m_PerU + 2 * FLT_EPSILON;
             double u_edge_in = m_PerU - 2 * FLT_EPSILON;
 
-            VspCurve constant_u_curve;
-            orig_surf.GetU01ConstCurve( constant_u_curve, m_PerU );
-
-            piecewise_curve_type u_curve = constant_u_curve.GetCurve();
-
-            double v_min = u_curve.get_parameter_min(); // Really must be 0.0
-            double v_max = u_curve.get_parameter_max(); // Really should be 4.0
-            double v_leading_edge = ( v_min + v_max ) * 0.5;
+            double V_min = 0.0;
+            double V_max = orig_surf.GetWMax(); // Really should be 4.0
+            double V_leading_edge = ( V_min + V_max ) * 0.5;
 
             vec3d trail_edge, lead_edge;
-            trail_edge = u_curve.f( v_min );
-            lead_edge = u_curve.f( v_leading_edge );
+            trail_edge = orig_surf.CompPnt01( m_PerU, 0.0 );
+            lead_edge = orig_surf.CompPnt01( m_PerU, V_leading_edge / V_max );
 
             vec3d chord_dir_vec = trail_edge - lead_edge;
             chord_dir_vec.normalize();
@@ -2494,8 +2484,8 @@ double FeaRib::GetRibTotalRotation( )
             if ( strcmp( m_PerpendicularEdgeID.c_str(), "Trailing Edge" ) == 0 )
             {
                 vec3d trail_edge_out, trail_edge_in;
-                trail_edge_out = orig_surf.CompPnt01( u_edge_out, v_min );
-                trail_edge_in = orig_surf.CompPnt01( u_edge_in, v_min );
+                trail_edge_out = orig_surf.CompPnt01( u_edge_out, 0.0 );
+                trail_edge_in = orig_surf.CompPnt01( u_edge_in, 0.0 );
 
                 vec3d trail_edge_dir_vec = trail_edge_out - trail_edge_in;
                 trail_edge_dir_vec.normalize();
@@ -2505,8 +2495,8 @@ double FeaRib::GetRibTotalRotation( )
             else if ( strcmp( m_PerpendicularEdgeID.c_str(), "Leading Edge" ) == 0 )
             {
                 vec3d lead_edge_out, lead_edge_in;
-                lead_edge_out = orig_surf.CompPnt01( u_edge_out, v_leading_edge / v_max );
-                lead_edge_in = orig_surf.CompPnt01( u_edge_in, v_leading_edge / v_max );
+                lead_edge_out = orig_surf.CompPnt01( u_edge_out, V_leading_edge / V_max );
+                lead_edge_in = orig_surf.CompPnt01( u_edge_in, V_leading_edge / V_max );
 
                 vec3d lead_edge_dir_vec = lead_edge_out - lead_edge_in;
                 lead_edge_dir_vec.normalize();
@@ -2575,26 +2565,22 @@ VspSurf FeaRib::ComputeRibSurf()
         BndBox wing_bbox;
         orig_surf.GetBoundingBox( wing_bbox );
 
-        VspCurve constant_u_curve;
-        orig_surf.GetU01ConstCurve( constant_u_curve, m_PerU );
-
-        piecewise_curve_type u_curve = constant_u_curve.GetCurve();
-
-        double v_min = u_curve.get_parameter_min(); // Really must be 0.0
-        double v_max = u_curve.get_parameter_max(); // Really should be 4.0
-        double v_leading_edge = ( v_min + v_max ) * 0.5;
+        double V_min = 0.0;
+        double V_max = orig_surf.GetWMax(); // Really should be 4.0
+        double V_leading_edge = ( V_min + V_max ) * 0.5;
 
         vec3d trail_edge, lead_edge;
-        trail_edge = u_curve.f( v_min );
-        lead_edge = u_curve.f( v_leading_edge );
+        trail_edge = orig_surf.CompPnt01( m_PerU, 0.0 );
+        lead_edge = orig_surf.CompPnt01( m_PerU, V_leading_edge / V_max );
 
         // Find two points slightly above and below the trailing edge
-        double v_trail_edge_low = v_min + 2 * TMAGIC;
-        double v_trail_edge_up = v_max - 2 * TMAGIC;
+        double V_trail_edge_low = V_min + 2 * TMAGIC;
+        double V_trail_edge_up = V_max - 2 * TMAGIC;
 
         vec3d trail_edge_up, trail_edge_low;
-        trail_edge_up = u_curve.f( v_trail_edge_low );
-        trail_edge_low = u_curve.f( v_trail_edge_up );
+
+        trail_edge_up = orig_surf.CompPnt01( m_PerU, V_trail_edge_low / V_max );
+        trail_edge_low = orig_surf.CompPnt01( m_PerU, V_trail_edge_up / V_max );
 
         vec3d wing_z_axis = trail_edge_up - trail_edge_low;
         wing_z_axis.normalize();
@@ -2603,9 +2589,9 @@ VspSurf FeaRib::ComputeRibSurf()
 
         // Wing corner points:
         vec3d min_trail_edge = orig_surf.CompPnt( m_U_sec_min, 0.0 );
-        vec3d min_lead_edge = orig_surf.CompPnt( m_U_sec_min, v_leading_edge );
+        vec3d min_lead_edge = orig_surf.CompPnt( m_U_sec_min, V_leading_edge );
         vec3d max_trail_edge = orig_surf.CompPnt( m_U_sec_max, 0.0 );
-        vec3d max_lead_edge = orig_surf.CompPnt( m_U_sec_max, v_leading_edge );
+        vec3d max_lead_edge = orig_surf.CompPnt( m_U_sec_max, V_leading_edge );
 
         // Wing edge vectors (assumes linearity)
         vec3d trail_edge_vec = max_trail_edge - min_trail_edge;
