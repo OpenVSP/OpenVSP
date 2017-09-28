@@ -3651,10 +3651,6 @@ void FeaRibArray::CalcNumRibs()
         // Calculate number of ribs and update Parm limits and values
         if ( m_AbsRelParmFlag() == vsp::REL )
         {
-            m_AbsStartLocation.Set( m_RelStartLocation() * span_f );
-            m_RibAbsSpacing.Set( m_RibRelSpacing() * span_f );
-            m_AbsEndLocation.Set( m_RelEndLocation() * span_f );
-
             if ( m_PositiveDirectionFlag() )
             {
                 // Flip start and end values if inconsistent with direction
@@ -3687,13 +3683,13 @@ void FeaRibArray::CalcNumRibs()
                 m_RibRelSpacing.SetLowerUpperLimits( ( m_RelStartLocation() - m_RelEndLocation() ) / 100, ( m_RelStartLocation() - m_RelEndLocation() ) ); // Limit to 100 ribs
                 m_NumRibs = 1 + (int)floor( ( m_RelStartLocation() - m_RelEndLocation() ) / m_RibRelSpacing() );
             }
+
+            m_AbsStartLocation.Set( m_RelStartLocation() * span_f );
+            m_RibAbsSpacing.Set( m_RibRelSpacing() * span_f );
+            m_AbsEndLocation.Set( m_RelEndLocation() * span_f );
         }
         else if ( m_AbsRelParmFlag() == vsp::ABS )
         {
-            m_RelStartLocation.Set( m_AbsStartLocation() / span_f );
-            m_RibRelSpacing.Set( m_RibAbsSpacing() / span_f );
-            m_RelEndLocation.Set( m_AbsEndLocation() / span_f );
-
             if ( m_PositiveDirectionFlag() )
             {
                 // Flip start and end values if inconsistent with direction
@@ -3726,6 +3722,10 @@ void FeaRibArray::CalcNumRibs()
                 m_RibAbsSpacing.SetLowerUpperLimits( ( m_AbsStartLocation() - m_AbsEndLocation() ) / 100, ( m_AbsStartLocation() - m_AbsEndLocation() ) ); // Limit to 100 ribs 
                 m_NumRibs = 1 + (int)floor( ( m_AbsStartLocation() - m_AbsEndLocation() ) / m_RibAbsSpacing() );
             }
+
+            m_RelStartLocation.Set( m_AbsStartLocation() / span_f );
+            m_RibRelSpacing.Set( m_RibAbsSpacing() / span_f );
+            m_RelEndLocation.Set( m_AbsEndLocation() / span_f );
         }
 
         if ( m_NumRibs < 1 || m_NumRibs > 101 )
@@ -4033,10 +4033,6 @@ void FeaSliceArray::CalcNumSlices()
         //Calculate number of slices and update Parm limits and values
         if ( m_AbsRelParmFlag() == vsp::REL )
         {
-            m_AbsStartLocation.Set( m_RelStartLocation() * perp_dist );
-            m_SliceAbsSpacing.Set( m_SliceRelSpacing() * perp_dist );
-            m_AbsEndLocation.Set( m_RelEndLocation() * perp_dist );
-
             if ( m_PositiveDirectionFlag() )
             {
                 // Flip start and end values if inconsistent with direction
@@ -4069,13 +4065,13 @@ void FeaSliceArray::CalcNumSlices()
                 m_SliceRelSpacing.SetLowerUpperLimits( ( m_RelStartLocation() - m_RelEndLocation() ) / 100, ( m_RelStartLocation() - m_RelEndLocation() ) ); // Limit to 100 slices
                 m_NumSlices = 1 + (int)floor( ( m_RelStartLocation() - m_RelEndLocation() ) / m_SliceRelSpacing() );
             }
+
+            m_AbsStartLocation.Set( m_RelStartLocation() * perp_dist );
+            m_SliceAbsSpacing.Set( m_SliceRelSpacing() * perp_dist );
+            m_AbsEndLocation.Set( m_RelEndLocation() * perp_dist );
         }
         else if ( m_AbsRelParmFlag() == vsp::ABS )
         {
-            m_RelStartLocation.Set( m_AbsStartLocation() / perp_dist );
-            m_SliceRelSpacing.Set( m_SliceAbsSpacing() / perp_dist );
-            m_RelEndLocation.Set( m_AbsEndLocation() / perp_dist );
-
             if ( m_PositiveDirectionFlag() )
             {
                 // Flip start and end values if inconsistent with direction
@@ -4108,6 +4104,10 @@ void FeaSliceArray::CalcNumSlices()
                 m_SliceAbsSpacing.SetLowerUpperLimits( ( m_AbsStartLocation() - m_AbsEndLocation() ) / 100, ( m_AbsStartLocation() - m_AbsEndLocation() ) ); // Limit to 100 slices 
                 m_NumSlices = 1 + (int)floor( ( m_AbsStartLocation() - m_AbsEndLocation() ) / m_SliceAbsSpacing() );
             }
+
+            m_RelStartLocation.Set( m_AbsStartLocation() / perp_dist );
+            m_SliceRelSpacing.Set( m_SliceAbsSpacing() / perp_dist );
+            m_RelEndLocation.Set( m_AbsEndLocation() / perp_dist );
         }
 
         if ( m_NumSlices < 1 || m_NumSlices > 101 )
