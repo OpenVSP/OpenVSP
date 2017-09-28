@@ -78,6 +78,7 @@ public:
     void SwapUWDirections();
     void Transform( Matrix4d & mat );
     void GetBoundingBox( BndBox &bb ) const;
+    void GetUSectionBoundingBox( BndBox &bb, const int U0, const int Uf );
     bool IsClosedU() const;
     bool IsClosedW() const;
 

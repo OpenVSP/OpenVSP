@@ -133,6 +133,41 @@ void VspSurf::GetBoundingBox( BndBox &bb ) const
     bb.Update( v3max );
 }
 
+void VspSurf::GetUSectionBoundingBox( BndBox &bb, const int U0, const int Uf )
+{
+    bb.Reset();
+
+    vector < piecewise_surface_type > split_surf_vec;
+    split_surf_vec.push_back( m_Surface );
+    SplitSurfsU( split_surf_vec, m_UFeature );
+
+    if ( split_surf_vec.size() == 0  )
+    {
+        return;
+    }
+
+    int mult = floor( 1.0 / ( m_UFeature[1] - m_UFeature[0] ) ); // Get spacing
+
+    if ( U0 < 0 || U0 >= split_surf_vec.size() || Uf < 0 || mult * Uf >= split_surf_vec.size() )
+    {
+        return;
+    }
+
+    for ( size_t i = U0; i < ( mult * Uf ); i++ )
+    {
+        surface_bounding_box_type bbx;
+        vec3d v3min, v3max;
+
+        split_surf_vec[i].get_bounding_box( bbx );
+
+        v3min.set_xyz( bbx.get_min().x(), bbx.get_min().y(), bbx.get_min().z() );
+        v3max.set_xyz( bbx.get_max().x(), bbx.get_max().y(), bbx.get_max().z() );
+
+        bb.Update( v3min );
+        bb.Update( v3max );
+    }
+}
+
 bool VspSurf::IsClosedU() const
 {
     return m_Surface.closed_u();
