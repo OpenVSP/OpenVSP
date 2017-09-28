@@ -1236,21 +1236,15 @@ void FeaSlice::UpdateParmLimits()
 
         if ( m_OrientationPlane() == vsp::XY_BODY || m_OrientationPlane() == vsp::XY_ABS )
         {
-            perp_dist = m_SectBBox.GetMax( 2 ) - m_SectBBox.GetMin( 2 );
-
-            m_Center = vec3d( geom_center.x(), geom_center.y(), m_SectBBox.GetMin( 2 ) + del_z * m_RelCenterLocation() );
+            perp_dist = del_z;
         }
         else if ( m_OrientationPlane() == vsp::YZ_BODY || m_OrientationPlane() == vsp::YZ_ABS )
         {
-            perp_dist = m_SectBBox.GetMax( 0 ) - m_SectBBox.GetMin( 0 );
-
-            m_Center = vec3d( m_SectBBox.GetMin( 0 ) + del_x * m_RelCenterLocation(), geom_center.y(), geom_center.z() );
+            perp_dist = del_x;
         }
         else if ( m_OrientationPlane() == vsp::XZ_BODY || m_OrientationPlane() == vsp::XZ_ABS )
         {
-            perp_dist = m_SectBBox.GetMax( 1 ) - m_SectBBox.GetMin( 1 );
-
-            m_Center = vec3d( geom_center.x(), m_SectBBox.GetMin( 1 ) + del_y * m_RelCenterLocation(), geom_center.z() );
+            perp_dist = del_y;
         }
         else if ( m_OrientationPlane() == vsp::SPINE_NORMAL )
         {
@@ -1259,14 +1253,6 @@ void FeaSlice::UpdateParmLimits()
             cs.Build( current_surf );
 
             perp_dist = cs.GetSpineLength();
-
-            double u_max = current_surf.GetUMax();
-
-            double spine_length = cs.GetSpineLength();
-            double length_on_spine = m_RelCenterLocation() * spine_length;
-            double per_u = cs.FindUGivenLengthAlongSpine( length_on_spine ) / u_max;
-
-            m_Center = cs.FindCenterGivenU( per_u * u_max );
         }
 
         // Set Parm limits and values
@@ -1278,6 +1264,33 @@ void FeaSlice::UpdateParmLimits()
         {
             m_AbsCenterLocation.SetUpperLimit( perp_dist );
             m_RelCenterLocation.Set( m_AbsCenterLocation() / perp_dist );
+        }
+
+        // Determine Slice Center in 3D
+        if ( m_OrientationPlane() == vsp::XY_BODY || m_OrientationPlane() == vsp::XY_ABS )
+        {
+            m_Center = vec3d( geom_center.x(), geom_center.y(), m_SectBBox.GetMin( 2 ) + del_z * m_RelCenterLocation() );
+        }
+        else if ( m_OrientationPlane() == vsp::YZ_BODY || m_OrientationPlane() == vsp::YZ_ABS )
+        {
+            m_Center = vec3d( m_SectBBox.GetMin( 0 ) + del_x * m_RelCenterLocation(), geom_center.y(), geom_center.z() );
+        }
+        else if ( m_OrientationPlane() == vsp::XZ_BODY || m_OrientationPlane() == vsp::XZ_ABS )
+        {
+            m_Center = vec3d( geom_center.x(), m_SectBBox.GetMin( 1 ) + del_y * m_RelCenterLocation(), geom_center.z() );
+        }
+        else if ( m_OrientationPlane() == vsp::SPINE_NORMAL )
+        {
+            // Build conformal spine from parent geom
+            ConformalSpine cs;
+            cs.Build( current_surf );
+
+            double u_max = current_surf.GetUMax();
+            double spine_length = cs.GetSpineLength();
+            double length_on_spine = m_RelCenterLocation() * spine_length;
+            double per_u = cs.FindUGivenLengthAlongSpine( length_on_spine ) / u_max;
+
+            m_Center = cs.FindCenterGivenU( per_u * u_max );
         }
     }
 }
