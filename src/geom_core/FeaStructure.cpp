@@ -1994,21 +1994,10 @@ void FeaSpar::ComputePlanarSurf()
 
             if ( m_LimitSparToSectionFlag() )
             {
-                // Note: This method may not be valid for the bounding box of a wing surface that is blended
+                //Determine wing section bounding box
                 sect_bbox.Reset();
 
-                for ( size_t i = m_StartWingSection() - 1; i <= m_EndWingSection(); i++ )
-                {
-                    WingSect* wing_sec = wing->GetWingSect( i );
-
-                    if ( wing_sec )
-                    {
-                        VspCurve xsec_curve = wing_sec->GetCurve();
-                        BndBox bbox;
-                        xsec_curve.GetBoundingBox( bbox );
-                        sect_bbox.Update( bbox );
-                    }
-                }
+                orig_surf.GetUSectionBoundingBox( sect_bbox, m_U_sec_min, m_U_sec_max );
             }
             else
             {
@@ -2651,21 +2640,10 @@ VspSurf FeaRib::ComputeRibSurf()
 
             if ( m_LimitRibToSectionFlag() )
             {
-                // Note: This method may not be valid for the bounding box of a wing surface that is blended
+                //Determine wing section bounding box
                 sect_bbox.Reset();
 
-                for ( size_t i = m_StartWingSection() - 1; i <= m_EndWingSection(); i++ )
-                {
-                    WingSect* wing_sec = wing->GetWingSect( i );
-
-                    if ( wing_sec )
-                    {
-                        VspCurve xsec_curve = wing_sec->GetCurve();
-                        BndBox bbox;
-                        xsec_curve.GetBoundingBox( bbox );
-                        sect_bbox.Update( bbox );
-                    }
-                }
+                orig_surf.GetUSectionBoundingBox( sect_bbox, m_U_sec_min, m_U_sec_max );
             }
             else
             {
