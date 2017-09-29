@@ -5,8 +5,8 @@
 
 #include "VBO.h"
 
-#define BUFFER_INITIAL      (1024 * 1024)       // initial buffer size
-#define BUFFER_INCREMENT    (1024 * 1024)       // buffer increment size
+#define BUFFER_INITIAL      (1024)        // initial buffer size
+#define BUFFER_INCREMENT    (1024)        // buffer increment size
 
 namespace VSPGraphic
 {
