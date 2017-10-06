@@ -411,6 +411,8 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     m_HistoryFile       = string();
     m_LoadFile          = string();
     m_StabFile          = string();
+    m_CutsFile          = string();
+    m_SliceFile         = string();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if( veh )
@@ -437,6 +439,8 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             m_HistoryFile       = m_ModelNameBase + string( ".history" );
             m_LoadFile          = m_ModelNameBase + string( ".lod" );
             m_StabFile          = m_ModelNameBase + string( ".stab" );
+            m_CutsFile          = m_ModelNameBase + string( ".cuts" );
+            m_SliceFile         = m_ModelNameBase + string( ".slc" );
 
             break;
 
@@ -456,6 +460,8 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             m_HistoryFile       = m_ModelNameBase + string( ".history" );
             m_LoadFile          = m_ModelNameBase + string( ".lod" );
             m_StabFile          = m_ModelNameBase + string( ".stab" );
+            m_CutsFile          = m_ModelNameBase + string( ".cuts" );
+            m_SliceFile         = m_ModelNameBase + string( ".slc" );
 
             break;
 

@@ -239,6 +239,8 @@ public:
     string m_HistoryFile;
     string m_LoadFile;
     string m_StabFile;
+    string m_CutsFile;
+    string m_SliceFile;
 
     IntParm m_GeomSet;
 
