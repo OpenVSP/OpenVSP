@@ -206,6 +206,8 @@ public:
 
     IntParm m_AnalysisMethod;
 
+    // CpSlicer Functionality and Variables
+    string ComputeCpSlices( FILE * logFile = NULL );
     string ExecuteCpSlicer( FILE * logFile = NULL );
     void CreateCutsFile();
     vector < CpSlice* > GetCpSliceVec()                    { return m_CpSliceVec; }

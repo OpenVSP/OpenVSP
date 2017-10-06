@@ -2532,6 +2532,20 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
     }
 }
 
+string VSPAEROMgrSingleton::ComputeCpSlices( FILE * logFile )
+{
+    string resID = string();
+
+    CreateCutsFile();
+
+    resID = ExecuteCpSlicer( logFile );
+
+    vector < string > resIDvec;
+    ReadSliceFile( m_SliceFile, resIDvec );
+
+    return resID;
+}
+
 string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
