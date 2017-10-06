@@ -352,9 +352,11 @@ void Vehicle::SetupPaths()
 #ifdef WIN32
     m_VSPAEROCmd = string( "vspaero.exe" );
     m_VIEWERCmd = string( "vspviewer.exe" );
+    m_SLICERCmd = string( "vspslicer.exe" );
 #else
     m_VSPAEROCmd = string( "vspaero" );
     m_VIEWERCmd = string( "vspviewer" );
+    m_SLICERCmd = string( "vspslicer" );
 #endif
 
     if( !CheckForFile( m_ExePath, m_VSPAEROCmd ) )
@@ -364,6 +366,10 @@ void Vehicle::SetupPaths()
     if( !CheckForFile( m_ExePath, m_VIEWERCmd ) )
     {
         printf("VSPAERO viewer not found.\n");
+    }
+    if ( !CheckForFile( m_ExePath, m_SLICERCmd ) )
+    {
+        printf( "VSPAERO slicer not found.\n" );
     }
 
     m_CustomScriptDirs.push_back( string( "./CustomScripts/" ) );

@@ -164,6 +164,7 @@ public:
     string GetHomePath()                                    { return m_HomePath; }
     string GetVSPAEROCmd()                                  { return m_VSPAEROCmd; }
     string GetVIEWERCmd()                                   { return m_VIEWERCmd; }
+    string GetSLICERCmd()                                   { return m_SLICERCmd; }
 
     //==== Get Script Dir to Write Scripts ====//
     string GetWriteScriptDir()                              { return m_CustomScriptDirs[0]; }
@@ -396,6 +397,7 @@ protected:
     string m_HomePath;
     string m_VSPAEROCmd;
     string m_VIEWERCmd;
+    string m_SLICERCmd;
     vector< string > m_CustomScriptDirs;
 
 
