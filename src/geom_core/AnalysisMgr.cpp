@@ -463,6 +463,10 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     ParasiteDragFullAnalysis *vspdbu = new ParasiteDragFullAnalysis();
 
     RegisterAnalysis( "ParasiteDrag", vspdbu );
+
+    CpSlicerAnalysis *cpsa = new CpSlicerAnalysis();
+
+    RegisterAnalysis( "CpSlicer", cpsa );
 }
 
 //======================================================================================//
@@ -1819,6 +1823,66 @@ string ParasiteDragFullAnalysis::Execute()
         // Reference Area
         ParasiteDragMgr.m_RefFlag.Set( refFlagOrig );
         ParasiteDragMgr.m_Sref.Set( srefOrig );
+    }
+
+    return res_id;
+}
+
+//======================================================================================//
+//=================================== CpSlicer =========================================//
+//======================================================================================//
+
+void CpSlicerAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        // Cuts
+        m_Inputs.Add( NameValData( "XSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR ) ) );
+        m_Inputs.Add( NameValData( "YSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR ) ) );
+        m_Inputs.Add( NameValData( "ZSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Z_DIR ) ) );
+    }
+    else
+    {
+        // TODO Throw an error here
+        printf( "ERROR - trying to set defaults without a vehicle: void CpSlicerAnalysis::SetDefaults()\n" );
+    }
+}
+
+string CpSlicerAnalysis::Execute()
+{
+    string res_id;
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        NameValData *nvd = NULL;
+
+        // Cuts
+        vector < double > xcutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR );
+        vector < double > ycutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR );
+        vector < double > zcutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::Z_DIR );
+
+        VSPAEROMgr.ClearCpSliceVec();
+
+        nvd = m_Inputs.FindPtr( "XSlicePosVec", 0 );
+        if ( nvd ) VSPAEROMgr.AddCpSliceVec( vsp::X_DIR, nvd->GetDoubleData() );
+
+        nvd = m_Inputs.FindPtr( "YSlicePosVec", 0 );
+        if ( nvd ) VSPAEROMgr.AddCpSliceVec( vsp::Y_DIR, nvd->GetDoubleData() );
+
+        nvd = m_Inputs.FindPtr( "ZSlicePosVec", 0 );
+        if ( nvd ) VSPAEROMgr.AddCpSliceVec( vsp::Z_DIR, nvd->GetDoubleData() );
+
+        // Execute analysis
+        res_id = VSPAEROMgr.ComputeCpSlices( stdout );
+
+        // ==== Restore original values that were overwritten by analysis inputs ==== //
+        VSPAEROMgr.AddCpSliceVec( vsp::X_DIR, xcutsOrig );
+        VSPAEROMgr.AddCpSliceVec( vsp::Y_DIR, ycutsOrig );
+        VSPAEROMgr.AddCpSliceVec( vsp::Z_DIR, zcutsOrig );
     }
 
     return res_id;
