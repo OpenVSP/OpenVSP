@@ -2532,6 +2532,54 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
     }
 }
 
+string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return string();
+    }
+
+    WaitForFile( m_AdbFile );
+    if ( !FileExist( m_AdbFile ) )
+    {
+        fprintf( stderr, "WARNING: Aerothermal database file not found: %s\n\tFile: %s \tLine:%d\n", m_AdbFile.c_str(), __FILE__, __LINE__ );
+    }
+
+    WaitForFile( m_CutsFile );
+    if ( !FileExist( m_CutsFile ) )
+    {
+        fprintf( stderr, "WARNING: Cuts file not found: %s\n\tFile: %s \tLine:%d\n", m_CutsFile.c_str(), __FILE__, __LINE__ );
+    }
+
+    //====== Send command to be executed by the system at the command prompt ======//
+    vector<string> args;
+
+    // Add model file name
+    args.push_back( m_ModelNameBase );
+
+    //====== Execute VSPAERO Slicer ======//
+    m_SlicerThread.ForkCmd( veh->GetExePath(), veh->GetSLICERCmd(), args );
+
+    // ==== MonitorSolverProcess ==== //
+    MonitorSolver( logFile );
+
+    // Write out new results
+    Results* res = ResultsMgr.CreateResults( "CpSlice_Wrapper" );
+    if ( !res )
+    {
+        fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
+        return string();
+    }
+    else
+    {
+        int num_slice = m_CpSliceVec.size();
+        res->Add( NameValData( "Num_Cuts", num_slice ) );
+    }
+
+    return res->GetID();
+}
+
 void VSPAEROMgrSingleton::CreateCutsFile()
 {
     UpdateFilenames();

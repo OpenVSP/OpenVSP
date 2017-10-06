@@ -206,6 +206,7 @@ public:
 
     IntParm m_AnalysisMethod;
 
+    string ExecuteCpSlicer( FILE * logFile = NULL );
     void CreateCutsFile();
     vector < CpSlice* > GetCpSliceVec()                    { return m_CpSliceVec; }
 
@@ -322,6 +323,7 @@ public:
     Parm m_SweepYMax;
 
     ProcessUtil m_SolverProcess;
+    ProcessUtil m_SlicerThread;
 
 protected:
     DrawObj m_HighlightDrawObj;
