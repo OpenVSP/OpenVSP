@@ -276,6 +276,14 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
         m_RotorDiskVec[i]->EncodeXml( rotornode );
     }
 
+    // Encode CpSlices using Internal Encode Method
+    XmlUtil::AddIntNode( VSPAEROsetnode, "CpSliceCount", m_CpSliceVec.size() );
+    for ( size_t i = 0; i < m_CpSliceVec.size(); ++i )
+    {
+        xmlNodePtr cpslicenode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "CpSlice", NULL );
+        m_CpSliceVec[i]->EncodeXml( cpslicenode );
+    }
+
     return VSPAEROsetnode;
 }
 
@@ -307,6 +315,18 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
             {
                 AddRotorDisk();
                 m_RotorDiskVec.back()->DecodeXml( rotornode );
+            }
+        }
+
+        // Decode CpSlices using Internal Decode Method
+        int num_slice = XmlUtil::FindInt( VSPAEROsetnode, "CpSliceCount", 0 );
+        for ( size_t i = 0; i < num_slice; ++i )
+        {
+            xmlNodePtr cpslicenode = XmlUtil::GetNode( VSPAEROsetnode, "CpSlice", i );
+            if ( cpslicenode )
+            {
+                AddCpSlice( vsp::X_DIR );
+                m_CpSliceVec.back()->DecodeXml( cpslicenode );
             }
         }
     }
