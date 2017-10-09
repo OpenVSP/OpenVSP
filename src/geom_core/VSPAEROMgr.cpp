@@ -2646,6 +2646,67 @@ void VSPAEROMgrSingleton::CreateCutsFile()
 
 }
 
+bool VSPAEROMgrSingleton::ValidCpSliceInd( int ind )
+{
+    if ( (int)m_CpSliceVec.size() > 0 && ind >= 0 && ind < (int)m_CpSliceVec.size() )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void VSPAEROMgrSingleton::DelCpSlice( int ind )
+{
+    if ( ValidCpSliceInd( ind ) )
+    {
+        delete m_CpSliceVec[ind];
+        m_CpSliceVec.erase( m_CpSliceVec.begin() + ind );
+    }
+}
+
+CpSlice* VSPAEROMgrSingleton::AddCpSlice( int type )
+{
+    CpSlice* slice = NULL;
+
+    if ( type == vsp::X_DIR || type == vsp::Y_DIR || type == vsp::Z_DIR )
+    {
+        slice = new CpSlice( type );
+        slice->SetName( string( "CpSlice_" + to_string( (long long)m_CpSliceVec.size() ) ) );
+    }
+
+    if ( slice )
+    {
+        slice->SetParentContainer( GetID() );
+        AddCpSlice( slice );
+    }
+
+    return slice;
+}
+
+CpSlice* VSPAEROMgrSingleton::GetCpSlice( int ind )
+{
+    if ( ValidCpSliceInd( ind ) )
+    {
+        return m_CpSliceVec[ind];
+    }
+    return NULL;
+}
+
+int VSPAEROMgrSingleton::GetCpSliceIndex( const string & id )
+{
+    for ( int i = 0; i < (int)m_CpSliceVec.size(); i++ )
+    {
+        if ( m_CpSliceVec[i]->GetID() == id && ValidCpSliceInd( i ) )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
 void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_id_vector )
 {
     FILE *fp = NULL;

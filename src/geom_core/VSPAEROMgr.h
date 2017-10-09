@@ -210,6 +210,12 @@ public:
     string ComputeCpSlices( FILE * logFile = NULL );
     string ExecuteCpSlicer( FILE * logFile = NULL );
     void CreateCutsFile();
+    void AddCpSlice( CpSlice* slice )                      { m_CpSliceVec.push_back( slice ); }
+    CpSlice* AddCpSlice( int type );
+    bool ValidCpSliceInd( int ind );
+    void DelCpSlice( int ind );
+    CpSlice* GetCpSlice( int ind );
+    int GetCpSliceIndex( const string & id );
     vector < CpSlice* > GetCpSliceVec()                    { return m_CpSliceVec; }
 
     // Rotor Disk Functionality
