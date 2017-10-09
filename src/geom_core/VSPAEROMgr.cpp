@@ -209,6 +209,8 @@ void VSPAEROMgrSingleton::Renew()
     }
     m_RotorDiskVec.clear();
 
+    ClearCpSliceVec();
+
     m_DegenGeomVec.clear();
 
     m_CurrentCSGroupIndex = -1;
@@ -2594,6 +2596,19 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     return res->GetID();
 }
 
+void VSPAEROMgrSingleton::ClearCpSliceResults()
+{
+    // Clear previous results
+    while ( ResultsMgr.GetNumResults( "CpSlicer_Case" ) > 0 )
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "CpSlicer_Case", 0 ) );
+    }
+    while ( ResultsMgr.GetNumResults( "CpSlicer_Wrapper" ) > 0 )
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "CpSlicer_Wrapper", 0 ) );
+    }
+}
+
 void VSPAEROMgrSingleton::CreateCutsFile()
 {
     UpdateFilenames();
@@ -2732,6 +2747,16 @@ int VSPAEROMgrSingleton::GetCpSliceIndex( const string & id )
         }
     }
     return -1;
+}
+
+void VSPAEROMgrSingleton::ClearCpSliceVec()
+{
+    for ( size_t i = 0; i < m_CpSliceVec.size(); ++i )
+    {
+        delete m_CpSliceVec[i];
+        m_CpSliceVec.erase( m_CpSliceVec.begin() + i );
+    }
+    m_CpSliceVec.clear();
 }
 
 void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_id_vector )

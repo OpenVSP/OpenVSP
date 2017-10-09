@@ -209,6 +209,7 @@ public:
     // CpSlicer Functionality and Variables
     string ComputeCpSlices( FILE * logFile = NULL );
     string ExecuteCpSlicer( FILE * logFile = NULL );
+    void ClearCpSliceResults();
     void CreateCutsFile();
     void AddCpSlice( CpSlice* slice )                      { m_CpSliceVec.push_back( slice ); }
     CpSlice* AddCpSlice( int type );
@@ -219,6 +220,7 @@ public:
     void AddCpSliceVec( int cut_type, vector < double > cut_vec );
     vector < double > GetCpSlicePosVec(int type );
     vector < CpSlice* > GetCpSliceVec()                    { return m_CpSliceVec; }
+    void ClearCpSliceVec();
 
     // Rotor Disk Functionality
     void AddRotorDisk();
