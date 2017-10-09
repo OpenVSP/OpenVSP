@@ -206,6 +206,7 @@ public:
 
     IntParm m_AnalysisMethod;
 
+    void CreateCutsFile();
     vector < CpSlice* > GetCpSliceVec()                    { return m_CpSliceVec; }
 
     // Rotor Disk Functionality

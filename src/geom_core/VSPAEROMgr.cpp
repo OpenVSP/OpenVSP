@@ -2532,6 +2532,57 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
     }
 }
 
+void VSPAEROMgrSingleton::CreateCutsFile()
+{
+    UpdateFilenames();
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        fprintf( stderr, "ERROR %d: Unable to get vehicle \n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
+        return ;
+    }
+
+    // Clear existing cuts file
+    if ( FileExist( m_CutsFile ) )
+    {
+        remove( m_CutsFile.c_str() );
+    }
+
+    FILE * cut_file = fopen( m_CutsFile.c_str(), "w" );
+    if ( cut_file == NULL )
+    {
+        fprintf( stderr, "ERROR %d: Unable to create cuts file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, m_CutsFile.c_str(), __FILE__, __LINE__ );
+        return;
+    }
+
+    int numcuts = m_CpSliceVec.size();
+
+    fprintf( cut_file, "%d\n", numcuts );
+
+    for ( size_t i = 0; i < numcuts; i++ )
+    {
+        if ( m_CpSliceVec[i]->m_CutType() == vsp::X_DIR )
+        {
+            fprintf( cut_file, "x %f\n", m_CpSliceVec[i]->m_CutPosition() );
+        }
+        else if ( m_CpSliceVec[i]->m_CutType() == vsp::Y_DIR )
+        {
+            fprintf( cut_file, "y %f\n", m_CpSliceVec[i]->m_CutPosition() );
+        }
+        else if ( m_CpSliceVec[i]->m_CutType() == vsp::Z_DIR )
+        {
+            fprintf( cut_file, "z %f\n", m_CpSliceVec[i]->m_CutPosition() );
+        }
+    }
+
+    //Finish up by closing the file and making sure that it appears in the file system
+    fclose( cut_file );
+
+    // Wait until the setup file shows up on the file system
+    WaitForFile( m_SetupFile );
+
+}
 
 /*##############################################################################
 #                                                                              #
