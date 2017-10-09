@@ -2529,6 +2529,41 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
 
 /*##############################################################################
 #                                                                              #
+#                               CpSlice                                        #
+#                                                                              #
+##############################################################################*/
+
+CpSlice::CpSlice( int init_type ) : ParmContainer()
+{
+    m_CutType.Init( "CutType", "CpSlice", this, init_type, vsp::X_DIR, vsp::Z_DIR );
+    m_CutType.SetDescript( "Perpendicular Axis for the Cut" );
+
+    m_CutPosition.Init( "CutPosition", "CpSlice", this, 0.0, -1e12, 1e12 );
+    m_CutPosition.SetDescript( "Position of the Cut from Orgin Along Perpendicular Axis" );
+}
+
+CpSlice::~CpSlice( )
+{
+
+}
+
+void CpSlice::ParmChanged( Parm* parm_ptr, int type )
+{
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+/*##############################################################################
+#                                                                              #
 #                              RotorDisk                                       #
 #                                                                              #
 ##############################################################################*/

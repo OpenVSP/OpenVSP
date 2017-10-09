@@ -77,6 +77,20 @@ public:
 
 };
 
+class CpSlice : public ParmContainer
+{
+public:
+
+    CpSlice( int init_type );
+    ~CpSlice();
+
+    void ParmChanged( Parm* parm_ptr, int type );
+
+    IntParm m_CutType;
+    Parm m_CutPosition;
+
+};
+
 class ControlSurfaceGroup : public ParmContainer
 {
 public:
