@@ -55,11 +55,13 @@ public:
     void ControlSurfaceGroupBrowserCallback();
     void UngroupedCSBrowserCallback();
     void GroupedCSBrowserCallback();
+    void CpSliceBrowserCallback();
 
     void SelectPropBrowser( int cur_index );
     void SelectControlSurfaceBrowser( int cur_index );
     void SelectUngroupedListBrowser( int cur_index );
     void SelectGroupedListBrowser( int cur_index );
+    void SelectCpSliceBrowser( int cur_index );
 
     void AddOutputText( Fl_Text_Display *display, const string &text );
 
@@ -84,6 +86,8 @@ public:
     void UpdateDeflectionAngleScrollGroup();
     void UpdateControlSurfaceGroupNames();
     void UpdateDeflectionGainScrollGroup();
+    void UpdateCpSlices();
+    void UpdateCpSliceBrowser();
 
     void DisplayDegenCamberPreview();
 
@@ -161,6 +165,7 @@ protected:
     GroupLayout m_WakeLayout;
     GroupLayout m_OtherParmsLayout;
     GroupLayout m_UnsteadyLayout;
+    GroupLayout m_CpSlicerLayout;
 
     // Advanced Case Setup Layout
     //  Degengeom (VLM & Panel)
@@ -192,6 +197,16 @@ protected:
     // Unsteady Setup
     ToggleButton m_StabilityCalcToggle;
     Choice m_StabilityTypeChoice;
+
+    // Cp Slice Setup
+    ToggleButton m_CpSlicerActivateToggle;
+    TriggerButton m_CpSliceLastADBButton;
+    Fl_Browser* m_CpSliceBrowser;
+    TriggerButton m_AddCpSliceButton;
+    TriggerButton m_DeleteCpSliceButton;
+    Choice m_CpSliceTypeChoice;
+    SliderAdjRangeInput m_CpSliceLocation;
+    StringInput m_CpSliceNameInput;
 
     //==== Rotor Disk Tab ====//
     GroupLayout m_PropGeneralLayout;

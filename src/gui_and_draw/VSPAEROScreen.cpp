@@ -334,7 +334,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     int button_width = 130;
     m_AdvancedRightLayout.AddSubGroupLayout( m_UnsteadyLayout,
         m_AdvancedRightLayout.GetW(),
-        m_AdvancedRightLayout.GetH());
+        3 * m_AdvancedRightLayout.GetStdHeight() );
+    m_AdvancedRightLayout.AddY( m_UnsteadyLayout.GetH() );
     m_UnsteadyLayout.SetButtonWidth( button_width );
     m_UnsteadyLayout.AddDividerBox( "Unsteady" );
     m_UnsteadyLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
@@ -346,6 +347,62 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     //m_StabilityTypeChoice.AddItem( "Heave" ); // To Be Implemented
     //m_StabilityTypeChoice.AddItem( "Impulse" ); // To Be Implemented
     m_StabilityTypeChoice.UpdateItems();
+
+    m_AdvancedRightLayout.AddSubGroupLayout( m_CpSlicerLayout,
+                                             m_AdvancedRightLayout.GetW(),
+                                             10 * m_AdvancedRightLayout.GetStdHeight() );
+    m_AdvancedRightLayout.AddY( m_CpSlicerLayout.GetH() );
+
+    m_CpSlicerLayout.AddDividerBox( "Cp Slicer" );
+
+    m_CpSlicerLayout.SetSameLineFlag( true );
+    m_CpSlicerLayout.SetFitWidthFlag( false );
+
+    m_CpSlicerLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 2 );
+
+    m_CpSlicerLayout.AddButton( m_CpSlicerActivateToggle, "Activate Cp Slicer" );
+    m_CpSlicerLayout.AddButton( m_CpSliceLastADBButton, "Slice Latest *.adb File" );
+
+    m_CpSlicerLayout.AddYGap();
+    m_CpSlicerLayout.ForceNewLine();
+    m_CpSlicerLayout.SetSameLineFlag( false );
+    m_CpSlicerLayout.SetFitWidthFlag( true );
+
+    int CpBrowserHeight = 75;
+
+    m_CpSliceBrowser = m_CpSlicerLayout.AddFlBrowser( 0 );
+    m_CpSliceBrowser->resize( m_CpSlicerLayout.GetX(), m_CpSlicerLayout.GetY(), m_CpSlicerLayout.GetW(), CpBrowserHeight );
+    m_CpSliceBrowser->type( FL_MULTI_BROWSER );
+    m_CpSliceBrowser->labelfont( 13 );
+    m_CpSliceBrowser->textsize( 12 );
+    m_CpSliceBrowser->callback( staticScreenCB, this );
+
+    m_CpSlicerLayout.AddY( CpBrowserHeight );
+
+    m_CpSlicerLayout.SetSameLineFlag( true );
+    m_CpSlicerLayout.SetFitWidthFlag( false );
+
+    m_CpSlicerLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 2 );
+
+    m_CpSlicerLayout.AddButton( m_AddCpSliceButton, "Add Slice" );
+    m_CpSlicerLayout.AddButton( m_DeleteCpSliceButton, "Delete Slice" );
+
+    m_CpSlicerLayout.AddYGap();
+    m_CpSlicerLayout.ForceNewLine();
+    m_CpSlicerLayout.SetSameLineFlag( false );
+    m_CpSlicerLayout.SetFitWidthFlag( true );
+    m_CpSlicerLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
+    m_CpSlicerLayout.SetChoiceButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
+
+    m_CpSlicerLayout.AddInput( m_CpSliceNameInput, "Name" );
+
+    m_CpSliceTypeChoice.AddItem( "X" );
+    m_CpSliceTypeChoice.AddItem( "Y" );
+    m_CpSliceTypeChoice.AddItem( "Z" );
+    m_CpSlicerLayout.AddChoice( m_CpSliceTypeChoice, "Slice Type" );
+    m_CpSliceTypeChoice.UpdateItems();
+
+    m_CpSlicerLayout.AddSlider( m_CpSliceLocation, "Position", 100, "%7.3f" );
 
     //==== Rotor Disk Tab ==== //
     Fl_Group* rotor_tab = AddTab( "Rotor" );
@@ -550,6 +607,8 @@ bool VSPAEROScreen::Update()
         UpdateVSPAEROButtons();
 
         UpdateAdvancedTabDevices();
+        UpdateCpSlices();
+        UpdateCpSliceBrowser();
 
         UpdatePropElemDevices();
 
@@ -598,6 +657,10 @@ void VSPAEROScreen::CallBack( Fl_Widget* w )
     else if ( w == m_GroupedCSBrowser )
     {
         GroupedCSBrowserCallback();
+    }
+    else if ( w == m_CpSliceBrowser )
+    {
+        CpSliceBrowserCallback();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -817,6 +880,43 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         else if ( device == &m_StabilityTypeChoice )
         {
             VSPAEROMgr.m_StabilityType = m_StabilityTypeChoice.GetVal();
+        }
+        else if ( device == &m_CpSliceLastADBButton )
+        {
+            // Clear out previous results
+            VSPAEROMgr.ClearCpSliceResults();
+
+            VSPAEROMgr.ComputeCpSlices();
+        }
+        else if ( device == &m_AddCpSliceButton )
+        {
+            CpSlice* slice = VSPAEROMgr.AddCpSlice( m_CpSliceTypeChoice.GetVal() );
+
+            if ( slice )
+            {
+                VSPAEROMgr.SetCurrentCpSliceIndex( VSPAEROMgr.GetCpSliceVec().size() - 1 );
+            }
+        }
+        else if ( device == &m_DeleteCpSliceButton )
+        {
+            VSPAEROMgr.DelCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
+
+            if ( VSPAEROMgr.ValidCpSliceInd( VSPAEROMgr.GetCurrentCpSliceIndex() - 1 ) )
+            {
+                VSPAEROMgr.SetCurrentCpSliceIndex( VSPAEROMgr.GetCurrentCpSliceIndex() );
+            }
+            else
+            {
+                VSPAEROMgr.SetCurrentCpSliceIndex( -1 );
+            }
+        }
+        else if ( device == &m_CpSliceNameInput )
+        {
+            CpSlice* slice = VSPAEROMgr.GetCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
+            if ( slice )
+            {
+                slice->SetName( m_CpSliceNameInput.GetString() );
+            }
         }
         else if ( device == &m_GroupEditNameInput )
         {
@@ -1565,4 +1665,76 @@ void VSPAEROScreen::DisplayDegenCamberPreview()
 
     }
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void VSPAEROScreen::UpdateCpSlices()
+{
+    m_CpSlicerActivateToggle.Update( VSPAEROMgr.m_CpSliceFlag.GetID() );
+
+    CpSlice* slice = VSPAEROMgr.GetCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
+    if ( slice )
+    {
+        m_CpSliceNameInput.Update( slice->GetName() );
+        m_CpSliceTypeChoice.Update( slice->m_CutType.GetID() );
+        m_CpSliceLocation.Update( slice->m_CutPosition.GetID() );
+    }
+}
+
+void VSPAEROScreen::UpdateCpSliceBrowser()
+{
+    char str[256];
+    m_CpSliceBrowser->clear();
+    static int widths[] = { m_CpSlicerLayout.GetW() / 3, m_CpSlicerLayout.GetW() / 3, m_CpSlicerLayout.GetW() / 3 }; // widths for each column
+    m_CpSliceBrowser->column_widths( widths );    // assign array to widget
+    m_CpSliceBrowser->column_char( ':' );         // use : as the column character
+
+    m_CpSliceBrowser->add( "@b@.Name:@b@.Type:@b@.Position" );
+
+    for ( size_t i = 0; i < VSPAEROMgr.GetCpSliceVec().size(); ++i )
+    {
+        CpSlice* slice = VSPAEROMgr.GetCpSliceVec()[i];
+        if ( slice )
+        {
+            string type;
+            if ( slice->m_CutType() == vsp::X_DIR )
+            {
+                type = "X";
+            }
+            else if ( slice->m_CutType() == vsp::Y_DIR )
+            {
+                type = "Y";
+            }
+            else if ( slice->m_CutType() == vsp::Z_DIR )
+            {
+                type = "Z";
+            }
+
+            sprintf( str, "%s:%s:%4.2f", slice->GetName().c_str(), type.c_str(), slice->m_CutPosition() );
+            m_CpSliceBrowser->add( str );
+        }
+    }
+
+    SelectCpSliceBrowser( VSPAEROMgr.GetCurrentCpSliceIndex() + 2 );
+}
+
+void VSPAEROScreen::SelectCpSliceBrowser( int cur_index )
+{
+    if ( cur_index > 0 )
+    {
+        //==== Select If Match ====//
+        m_CpSliceBrowser->select( cur_index );
+
+        //==== Position Browser ====//
+        m_CpSliceBrowser->topline( cur_index );
+    }
+}
+
+void VSPAEROScreen::CpSliceBrowserCallback()
+{
+    //==== Find Last Selected CpSlice ====//
+    int last = m_CpSliceBrowser->value();
+    if ( last >= 2 )
+    {
+        VSPAEROMgr.SetCurrentCpSliceIndex( last - 2 );
+    }
 }
