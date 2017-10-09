@@ -206,6 +206,8 @@ public:
 
     IntParm m_AnalysisMethod;
 
+    vector < CpSlice* > GetCpSliceVec()                    { return m_CpSliceVec; }
+
     // Rotor Disk Functionality
     void AddRotorDisk();
     bool ValidRotorDiskIndex( int index );
@@ -355,6 +357,7 @@ private:
     vector< VspAeroControlSurf > m_CompleteControlSurfaceVec;   // list of all control and rectangle sub-surfaces in the model selected as control surfaces
     vector < VspAeroControlSurf > m_ActiveControlSurfaceVec;
     vector< ControlSurfaceGroup* > m_ControlSurfaceGroupVec;
+    vector < CpSlice* > m_CpSliceVec;
 
     vector < DegenGeom > m_DegenGeomVec;
 
