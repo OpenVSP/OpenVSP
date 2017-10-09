@@ -166,6 +166,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_FarDist.Init( "FarDist", groupname, this, -1, 0, 1e6 );
     m_FarDist.SetDescript( "Far Field Distance for Wake Adaptation" );
     m_FarDistToggle.Init( "FarDistToggle", groupname, this, false, false, true );
+    m_CpSliceFlag.Init( "CpSliceFlag", groupname, this, false, false, true );
+    m_CpSliceFlag.SetDescript( "Flag to Calculate Cp Slices for Each Run Case" );
 
     // Unsteady
     m_StabilityCalcFlag.Init( "StabilityCalcFlag", groupname, this, false, false, true );
@@ -1167,6 +1169,10 @@ Optional input of logFile allows outputting to a log file or the console
 string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 {
     UpdateFilenames();
+    if ( m_CpSliceFlag() )
+    {
+        ClearCpSliceResults();
+    }
     if ( m_BatchModeFlag.Get() )
     {
         return ComputeSolverBatch( logFile );
@@ -1333,6 +1339,12 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     if ( stabilityFlag )
                     {
                         ReadStabFile( stabFileName, res_id_vector, analysisMethod );      //*.STAB stability coeff file
+                    }
+
+                    // CpSlice Latest *.adb File
+                    if ( m_CpSliceFlag() )
+                    {
+                        ComputeCpSlices();
                     }
 
                     // Send the message to update the screens
@@ -1518,6 +1530,12 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         if ( stabilityFlag )
         {
             ReadStabFile( stabFileName, res_id_vector, analysisMethod );      //*.STAB stability coeff file
+        }
+
+        // CpSlice *.adb File
+        if ( m_CpSliceFlag() )
+        {
+            ComputeCpSlices();
         }
 
         // Send the message to update the screens

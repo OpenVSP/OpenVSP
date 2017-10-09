@@ -222,6 +222,8 @@ public:
     vector < CpSlice* > GetCpSliceVec()                    { return m_CpSliceVec; }
     void ClearCpSliceVec();
 
+    BoolParm m_CpSliceFlag;
+
     // Rotor Disk Functionality
     void AddRotorDisk();
     bool ValidRotorDiskIndex( int index );
