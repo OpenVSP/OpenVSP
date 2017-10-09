@@ -347,6 +347,7 @@ protected:
     vector <string> ReadDelimLine( FILE * fp, char * delimeters );
     bool CheckForCaseHeader( std::vector<string> headerStr );
     int ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    void ReadSliceFile( string filename, vector <string> &res_id_vector );
 
     void AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
 

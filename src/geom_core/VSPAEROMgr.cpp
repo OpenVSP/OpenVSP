@@ -2632,6 +2632,108 @@ void VSPAEROMgrSingleton::CreateCutsFile()
 
 }
 
+void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_id_vector )
+{
+    FILE *fp = NULL;
+    bool read_success = false;
+    WaitForFile( filename );
+    fp = fopen( filename.c_str(), "r" );
+    if ( fp == NULL )
+    {
+        fprintf( stderr, "ERROR %d: Could not open Slice file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_SliceFile.c_str(), __FILE__, __LINE__ );
+        return;
+    }
+
+    Results* res = NULL;
+    std::vector<string> data_string_array;
+    int num_table_columns = 4;
+
+    // Read in all of the data into the results manager
+    char seps[] = " :,_\t\n";
+    bool skip = false;
+
+    while ( !feof( fp ) )
+    {
+        if ( !skip )
+        {
+            data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
+        }
+        skip = false;
+
+        if ( data_string_array.size() > 0 )
+        {
+            if ( strcmp( data_string_array[0].c_str(), "BLOCK" ) == 0 )
+            {
+                res = ResultsMgr.CreateResults( "CpSlicer_Case" );
+                res_id_vector.push_back( res->GetID() );
+
+                if ( strcmp( data_string_array[4].c_str(), "X" ) == 0 )
+                {
+                    res->Add( NameValData( "Cut_Type", vsp::X_DIR ) );
+                }
+                else if ( strcmp( data_string_array[4].c_str(), "Y" ) == 0 )
+                {
+                    res->Add( NameValData( "Cut_Type", vsp::Y_DIR ) );
+                }
+                else if ( strcmp( data_string_array[4].c_str(), "Z" ) == 0 )
+                {
+                    res->Add( NameValData( "Cut_Type", vsp::Z_DIR ) );
+                }
+
+                res->Add( NameValData( "Cut_Loc", std::stod( data_string_array[5] ) ) );
+                res->Add( NameValData( "Cut_Num", std::stoi( data_string_array[2] ) ) );
+            }
+            else if ( res && strcmp( data_string_array[0].c_str(), "Case" ) == 0 )
+            {
+                res->Add( NameValData( "Case", std::stoi( data_string_array[1] ) ) );
+                res->Add( NameValData( "Mach", std::stod( data_string_array[4] ) ) );
+                res->Add( NameValData( "Alpha", std::stod( data_string_array[7] ) ) );
+                res->Add( NameValData( "Beta", std::stod( data_string_array[10] ) ) );
+            }
+            //READ slc table
+            /* Example slc table
+            BLOCK Cut_1_at_X:_2.000000
+            Case: 1 ... Mach: 0.001000 ... Alpha: 1.000000 ... Beta: 0.000000 ...     Case: 1 ...
+            x          y          z         dCp
+            2.0000     0.0000    -0.6063    -0.0000
+            2.0000     0.0000    -0.5610    -0.0000
+            2.0000     0.0000    -0.4286    -0.0000
+            2.0000     0.0000    -0.1093    -0.0000
+            */
+            else if ( res && data_string_array.size() == num_table_columns && strcmp( data_string_array[0].c_str(), "x" ) != 0 )
+            {
+                //discard the header row and read the next line assuming that it is numeric
+                //data_string_array = ReadDelimLine( fp, seps );
+
+                // create new vectors for this set of results information
+                vector < double > x_data_vec, y_data_vec, z_data_vec, dCp_data_vec;
+
+                while ( data_string_array.size() == num_table_columns )
+                {
+                    x_data_vec.push_back( std::stod( data_string_array[0] ) );
+                    y_data_vec.push_back( std::stod( data_string_array[1] ) );
+                    z_data_vec.push_back( std::stod( data_string_array[2] ) );
+                    dCp_data_vec.push_back( std::stod( data_string_array[3] ) );
+
+                    data_string_array = ReadDelimLine( fp, seps );
+                }
+
+                skip = true;
+
+                //Add to the results manager
+                res->Add( NameValData( "X_Loc", x_data_vec ) );
+                res->Add( NameValData( "Y_Loc", y_data_vec ) );
+                res->Add( NameValData( "Z_Loc", z_data_vec ) );
+                res->Add( NameValData( "dCp", dCp_data_vec ) );
+            } // end of cut data
+        }
+    }
+
+    std::fclose( fp );
+
+    return;
+}
+
 /*##############################################################################
 #                                                                              #
 #                               CpSlice                                        #
