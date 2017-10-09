@@ -216,6 +216,8 @@ public:
     void DelCpSlice( int ind );
     CpSlice* GetCpSlice( int ind );
     int GetCpSliceIndex( const string & id );
+    void AddCpSliceVec( int cut_type, vector < double > cut_vec );
+    vector < double > GetCpSlicePosVec(int type );
     vector < CpSlice* > GetCpSliceVec()                    { return m_CpSliceVec; }
 
     // Rotor Disk Functionality

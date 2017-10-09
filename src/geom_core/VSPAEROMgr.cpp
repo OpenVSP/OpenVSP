@@ -2646,6 +2646,33 @@ void VSPAEROMgrSingleton::CreateCutsFile()
 
 }
 
+void VSPAEROMgrSingleton::AddCpSliceVec( int cut_type, vector< double > cut_vec )
+{
+    for ( size_t i = 0; i < cut_vec.size(); i++ )
+    {
+        CpSlice* slice = AddCpSlice( cut_type );
+
+        if ( slice )
+        {
+            slice->m_CutPosition.Set( cut_vec[i] );
+        }
+    }
+}
+
+vector < double > VSPAEROMgrSingleton::GetCpSlicePosVec( int type )
+{
+    vector < double > cut_pos_vec;
+
+    for ( size_t i = 0; i < m_CpSliceVec.size(); i++ )
+    {
+        if ( m_CpSliceVec[i]->m_CutType() == type )
+        {
+            cut_pos_vec.push_back( m_CpSliceVec[i]->m_CutPosition() );
+        }
+    }
+    return cut_pos_vec;
+}
+
 bool VSPAEROMgrSingleton::ValidCpSliceInd( int ind )
 {
     if ( (int)m_CpSliceVec.size() > 0 && ind >= 0 && ind < (int)m_CpSliceVec.size() )
