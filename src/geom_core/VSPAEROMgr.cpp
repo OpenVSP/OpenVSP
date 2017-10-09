@@ -179,6 +179,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
     m_LastSelectedType = -1;
+    m_CurrentCpSliceIndex = -1;
 
     m_Verbose = false;
 }

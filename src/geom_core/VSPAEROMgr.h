@@ -221,6 +221,8 @@ public:
     vector < double > GetCpSlicePosVec(int type );
     vector < CpSlice* > GetCpSliceVec()                    { return m_CpSliceVec; }
     void ClearCpSliceVec();
+    int GetCurrentCpSliceIndex()                           { return m_CurrentCpSliceIndex; }
+    void SetCurrentCpSliceIndex( int index )               { m_CurrentCpSliceIndex = index; }
 
     BoolParm m_CpSliceFlag;
 
@@ -381,6 +383,7 @@ private:
 
     int m_CurrentRotorDiskIndex;
     int m_CurrentCSGroupIndex;
+    int m_CurrentCpSliceIndex;
 
     bool m_Verbose;
 };
