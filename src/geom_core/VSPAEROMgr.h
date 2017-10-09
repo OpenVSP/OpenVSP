@@ -338,6 +338,15 @@ public:
     Parm m_SweepYMin;
     Parm m_SweepYMax;
 
+    BoolParm m_CpSliceXMinIsManual;
+    BoolParm m_CpSliceXMaxIsManual;
+    BoolParm m_CpSliceYMinIsManual;
+    BoolParm m_CpSliceYMaxIsManual;
+    Parm m_CpSliceXMin;
+    Parm m_CpSliceXMax;
+    Parm m_CpSliceYMin;
+    Parm m_CpSliceYMax;
+
     ProcessUtil m_SolverProcess;
     ProcessUtil m_SlicerThread;
 
