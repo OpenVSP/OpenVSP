@@ -155,6 +155,8 @@ protected:
     Fl_Group* m_CpSliceTab;
     GroupLayout m_CpSliceLayout;
     GroupLayout m_CpSliceControlLayout;
+    GroupLayout m_CutXYZSelectLayout;
+    Fl_Group* m_CutXYZSelectGroup;
     GroupLayout m_CpSlicePlotLayout;
     Ca_Canvas*  m_CpSlicePlotCanvas;
 
@@ -162,8 +164,10 @@ protected:
     Fl_Scroll* m_CpSliceLegendGroup;
 
     Fl_Browser * m_CpSliceCutBrowser;
+    vector < Choice > m_CpSlicePosTypeChoiceVec;
     Fl_Browser * m_CpSliceCaseBrowser;
     vector< string > m_CpSliceCaseSelectedResultIDs;
+    map < int, vector < string > >  m_CpSliceCutResultIDMap;
     vector< string > m_CpSliceCutSelectedResultIDs;
 
     ToggleButton m_CpSliceManualXMinToggle;
@@ -179,6 +183,8 @@ protected:
 
     int m_NumCpCuts; // Number of CpSlice Cuts
     int m_NumCpCases; // Number of Flow Condition Cases
+
+    vector < int > m_CpSliceCutPosTypeVec;
 
     void UpdateCpSliceCaseBrowser();
     void ConstructCpSliceCaseString( char* strbuf, Results* res );

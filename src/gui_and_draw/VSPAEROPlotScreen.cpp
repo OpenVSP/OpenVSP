@@ -333,13 +333,21 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     // Control layout
     m_CpSliceLayout.AddSubGroupLayout( m_CpSliceControlLayout, controlWidth, m_CpSliceLayout.GetH() - 2 * groupBorderWidth );
 
+    int control_x = m_CpSliceControlLayout.GetX();
+
     GroupLayout CutSelectLayout;
-    m_CpSliceControlLayout.AddSubGroupLayout( CutSelectLayout, m_CpSliceControlLayout.GetW(), yDataSelectHeight );
+    m_CpSliceControlLayout.AddSubGroupLayout( CutSelectLayout, m_CpSliceControlLayout.GetW() / 2, yDataSelectHeight );
     CutSelectLayout.AddDividerBox( "Slice" );
     m_CpSliceCutBrowser = CutSelectLayout.AddFlBrowser( CutSelectLayout.GetRemainY() );
     m_CpSliceCutBrowser->callback( staticScreenCB, this );
     m_CpSliceCutBrowser->type( FL_MULTI_BROWSER );
-    m_CpSliceControlLayout.AddY( CutSelectLayout.GetH() + 2 * groupBorderWidth );
+    m_CpSliceControlLayout.AddX( CutSelectLayout.GetW() );
+
+    m_CpSliceControlLayout.AddSubGroupLayout( m_CutXYZSelectLayout, m_CpSliceControlLayout.GetW() / 2, yDataSelectHeight );
+    m_CutXYZSelectGroup = new Fl_Group( m_CpSliceControlLayout.GetX(), m_CpSliceControlLayout.GetY(), m_CpSliceControlLayout.GetW() / 2, yDataSelectHeight );
+
+    m_CpSliceControlLayout.AddY( m_CutXYZSelectLayout.GetH() + 2 * groupBorderWidth );
+    m_CpSliceControlLayout.SetX( control_x );
 
     GroupLayout flowCaseLayout;
     m_CpSliceControlLayout.AddSubGroupLayout( flowCaseLayout, m_CpSliceControlLayout.GetW(), flowConditionSelectHeight );
@@ -879,6 +887,14 @@ void VSPAEROPlotScreen::GuiDeviceCallBack( GuiDevice* device )
 
     m_SelectDefaultData = false;
 
+    for ( size_t i = 0; i < m_CpSliceCutPosTypeVec.size(); ++i )
+    {
+        if ( device == &m_CpSlicePosTypeChoiceVec[i] )
+        {
+            m_CpSliceCutPosTypeVec[i] = m_CpSlicePosTypeChoiceVec[i].GetVal();
+        }
+    }
+
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -1350,6 +1366,7 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
     int scrollPos = m_CpSliceCutBrowser->position();
     m_CpSliceCutBrowser->clear();
     m_CpSliceCutSelectedResultIDs.clear();
+    m_CpSliceCutResultIDMap.clear();
 
     string wrapper_res_id = ResultsMgr.FindLatestResultsID( "CpSlice_Wrapper" );
     Results* wrapper_res = ResultsMgr.FindResultsPtr( wrapper_res_id );
@@ -1364,6 +1381,27 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
             m_NumCpCuts = dataVector[dataVector.size() - 1];
         }
     }
+
+    vector< int > selected_cut_pos_type;;
+    for ( unsigned int i = 0; i < m_CpSlicePosTypeChoiceVec.size(); i++ )
+    {
+        if ( m_CpSlicePosTypeChoiceVec[i].GetFlChoice() )
+        {
+            selected_cut_pos_type.push_back( m_CpSlicePosTypeChoiceVec[i].GetVal() );
+        }
+    }
+
+    m_CpSlicePosTypeChoiceVec.clear();
+    m_CpSlicePosTypeChoiceVec.resize( m_NumCpCuts );
+    m_CpSliceCutPosTypeVec.clear();
+
+    // Position Type Choice
+    m_CutXYZSelectGroup->clear();
+    m_CutXYZSelectLayout.SetGroup( m_CutXYZSelectGroup );
+    m_CutXYZSelectLayout.AddDividerBox( "Position" );
+    m_CutXYZSelectLayout.SetChoiceButtonWidth( 0 );
+    int font_size = m_CpSliceCutBrowser->textsize();
+    m_CutXYZSelectLayout.SetStdHeight( 1.35 * font_size );
 
     string resultName = "CpSlicer_Case";
 
@@ -1429,6 +1467,8 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
 
             m_CpSliceCutBrowser->add( strbuf );
 
+            m_CutXYZSelectLayout.AddChoice( m_CpSlicePosTypeChoiceVec[iCut], " " );
+
             if ( m_SelectDefaultData )   //select aLL flow conditions
             {
                 // Include results of all CpSlice cuts for given flow condition case
@@ -1442,6 +1482,19 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
                 }
 
                 m_CpSliceCutBrowser->select( iCut + 1 ); //account for browser using 1-based indexing
+
+                if ( type == vsp::X_DIR )
+                {
+                    m_CpSliceCutPosTypeVec.push_back( vsp::Y_DIR );
+                }
+                else if ( type == vsp::Y_DIR )
+                {
+                    m_CpSliceCutPosTypeVec.push_back( vsp::X_DIR );
+                }
+                else if ( type == vsp::Z_DIR )
+                {
+                    m_CpSliceCutPosTypeVec.push_back( vsp::X_DIR );
+                }
             }
             else if ( iCut < wasSelected.size() ) // restore original row selections
             {
@@ -1459,8 +1512,36 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
 
                     m_CpSliceCutBrowser->select( iCut + 1 ); //account for browser using 1-based indexing
                 }
+
+                m_CpSliceCutPosTypeVec.push_back( selected_cut_pos_type[iCut] );
             }
-         }
+
+            // Map each result ID to cut index
+            for ( size_t j = 0; j < m_NumCpCases; j++ )
+            {
+                Results* slice_res = ResultsMgr.FindResults( resultName, iCut + ( j * m_NumCpCuts ) );
+                if ( slice_res )
+                {
+                    m_CpSliceCutResultIDMap[iCut].push_back( slice_res->GetID() );
+                }
+            }
+        }
+    }
+
+    // Update Position Type Choice Vector
+    for ( unsigned int i = 0; i < m_CpSliceCutPosTypeVec.size(); i++ )
+    {
+        if ( m_CpSlicePosTypeChoiceVec[i].GetFlChoice() )
+        {
+            m_CpSlicePosTypeChoiceVec[i].ClearItems();
+
+            m_CpSlicePosTypeChoiceVec[i].AddItem( "X" );
+            m_CpSlicePosTypeChoiceVec[i].AddItem( "Y" );
+            m_CpSlicePosTypeChoiceVec[i].AddItem( "Z" );
+
+            m_CpSlicePosTypeChoiceVec[i].UpdateItems();
+            m_CpSlicePosTypeChoiceVec[i].SetVal( m_CpSliceCutPosTypeVec[i] );
+        }
     }
 
     m_CpSliceCutBrowser->position( scrollPos );
@@ -1656,6 +1737,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
 
     //Redraw plot if data is available and selected
     bool expandOnly = false;
+    vector < int > pos_type_vec;
 
     if ( ( m_CpSliceCaseSelectedResultIDs.size() > 0 ) & ( m_CpSliceCutSelectedResultIDs.size() > 0 ) )
     {
@@ -1696,17 +1778,34 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                             type = tResultDataPtr->GetIntData()[0];
                         }
 
-                        if ( type == vsp::X_DIR )
+                        // Get Equivalent Cut Index
+                        int equ_index = 0;
+
+                        for ( size_t i_int = 0; i_int < (int)m_CpSliceCutResultIDMap.size(); i_int++ )
                         {
-                            tResultDataPtr = res->FindPtr( "Y_LOC" );
+                            for ( size_t i_string = 0; i_string < (int)m_CpSliceCutResultIDMap[i_int].size(); i_string++ )
+                            {
+                                if ( m_CpSliceCutResultIDMap[i_int][i_string] == m_CpSliceCutSelectedResultIDs[iCut] )
+                                {
+                                    equ_index = i_int;
+                                    break;
+                                }
+                            }
                         }
-                        else if ( type == vsp::Y_DIR )
+
+                        pos_type_vec.push_back( m_CpSliceCutPosTypeVec[equ_index] );
+
+                        if ( m_CpSliceCutPosTypeVec[equ_index] == vsp::X_DIR )
                         {
                             tResultDataPtr = res->FindPtr( "X_Loc" );
                         }
-                        else if ( type == vsp::Z_DIR )
+                        else if ( m_CpSliceCutPosTypeVec[equ_index] == vsp::Y_DIR )
                         {
-                            tResultDataPtr = res->FindPtr( "X_Loc" );
+                            tResultDataPtr = res->FindPtr( "Y_Loc" );
+                        }
+                        else if ( m_CpSliceCutPosTypeVec[equ_index] == vsp::Z_DIR )
+                        {
+                            tResultDataPtr = res->FindPtr( "Z_Loc" );
                         }
 
                         if ( tResultDataPtr )
@@ -1743,16 +1842,27 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
             }
         }
 
-        //if ( xDataSetNames.size() == 1 )
-        //{
-        //    m_SweepPlotCanvas->current_x()->copy_label( xDataSetNames[0].c_str() );
-        //}
-        //else
-        //{
-        //    m_SweepPlotCanvas->current_x()->copy_label( "[multiple]" );
-        //}
+        // Check for all same CpSlice cut type
+        if ( std::adjacent_find( pos_type_vec.begin(), pos_type_vec.end(), std::not_equal_to<int>() ) == pos_type_vec.end() )
+        {
+            if ( pos_type_vec[0] == vsp::X_DIR )
+            {
+                m_CpSlicePlotCanvas->current_x()->copy_label( "Position [X]" );
+            }
+            else if ( pos_type_vec[0] == vsp::Y_DIR )
+            {
+                m_CpSlicePlotCanvas->current_x()->copy_label( "Position [Y]" );
+            }
+            else if ( pos_type_vec[0] == vsp::Z_DIR )
+            {
+                m_CpSlicePlotCanvas->current_x()->copy_label( "Position [Z]" );
+            }
+        }
+        else
+        {
+            m_CpSlicePlotCanvas->current_x()->copy_label( "Position [multiple]" );
+        }
 
-        m_CpSlicePlotCanvas->current_x()->copy_label( "Position" );
         m_CpSlicePlotCanvas->current_y()->copy_label( "dCP" );
     }
 }
