@@ -382,10 +382,11 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CpSlicerLayout.SetSameLineFlag( true );
     m_CpSlicerLayout.SetFitWidthFlag( false );
 
-    m_CpSlicerLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 2 );
+    m_CpSlicerLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
 
     m_CpSlicerLayout.AddButton( m_AddCpSliceButton, "Add Slice" );
     m_CpSlicerLayout.AddButton( m_DeleteCpSliceButton, "Delete Slice" );
+    m_CpSlicerLayout.AddButton( m_DeleteAllCpSliceButton, "Delete All" );
 
     m_CpSlicerLayout.AddYGap();
     m_CpSlicerLayout.ForceNewLine();
@@ -909,6 +910,11 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
             {
                 VSPAEROMgr.SetCurrentCpSliceIndex( -1 );
             }
+        }
+        else if ( device == &m_DeleteAllCpSliceButton )
+        {
+            VSPAEROMgr.ClearCpSliceVec();
+            VSPAEROMgr.SetCurrentCpSliceIndex( -1 );
         }
         else if ( device == &m_CpSliceNameInput )
         {

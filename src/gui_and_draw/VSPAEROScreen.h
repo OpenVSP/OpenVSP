@@ -204,6 +204,7 @@ protected:
     Fl_Browser* m_CpSliceBrowser;
     TriggerButton m_AddCpSliceButton;
     TriggerButton m_DeleteCpSliceButton;
+    TriggerButton m_DeleteAllCpSliceButton;
     Choice m_CpSliceTypeChoice;
     SliderAdjRangeInput m_CpSliceLocation;
     StringInput m_CpSliceNameInput;
