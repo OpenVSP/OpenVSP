@@ -166,6 +166,7 @@ protected:
     GroupLayout m_OtherParmsLayout;
     GroupLayout m_UnsteadyLayout;
     GroupLayout m_CpSlicerLayout;
+    GroupLayout m_CpSlicerSubLayout;
 
     // Advanced Case Setup Layout
     //  Degengeom (VLM & Panel)

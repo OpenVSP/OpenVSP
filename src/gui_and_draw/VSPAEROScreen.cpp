@@ -390,20 +390,24 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_CpSlicerLayout.AddYGap();
     m_CpSlicerLayout.ForceNewLine();
-    m_CpSlicerLayout.SetSameLineFlag( false );
-    m_CpSlicerLayout.SetFitWidthFlag( true );
-    m_CpSlicerLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
-    m_CpSlicerLayout.SetChoiceButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
 
-    m_CpSlicerLayout.AddInput( m_CpSliceNameInput, "Name" );
+    m_CpSlicerLayout.AddSubGroupLayout( m_CpSlicerSubLayout,
+                                        m_CpSlicerLayout.GetW(),
+                                        10 * m_CpSlicerLayout.GetStdHeight() );
+    m_CpSlicerLayout.AddY( m_CpSlicerSubLayout.GetH() );
+
+    m_CpSlicerSubLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
+    m_CpSlicerSubLayout.SetChoiceButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
+
+    m_CpSlicerSubLayout.AddInput( m_CpSliceNameInput, "Name" );
 
     m_CpSliceTypeChoice.AddItem( "X" );
     m_CpSliceTypeChoice.AddItem( "Y" );
     m_CpSliceTypeChoice.AddItem( "Z" );
-    m_CpSlicerLayout.AddChoice( m_CpSliceTypeChoice, "Slice Type" );
+    m_CpSlicerSubLayout.AddChoice( m_CpSliceTypeChoice, "Slice Type" );
     m_CpSliceTypeChoice.UpdateItems();
 
-    m_CpSlicerLayout.AddSlider( m_CpSliceLocation, "Position", 100, "%7.3f" );
+    m_CpSlicerSubLayout.AddSlider( m_CpSliceLocation, "Position", 100, "%7.3f" );
 
     //==== Rotor Disk Tab ==== //
     Fl_Group* rotor_tab = AddTab( "Rotor" );
@@ -1689,9 +1693,14 @@ void VSPAEROScreen::UpdateCpSlices()
     CpSlice* slice = VSPAEROMgr.GetCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
     if ( slice )
     {
+        m_CpSlicerSubLayout.Show();
         m_CpSliceNameInput.Update( slice->GetName() );
         m_CpSliceTypeChoice.Update( slice->m_CutType.GetID() );
         m_CpSliceLocation.Update( slice->m_CutPosition.GetID() );
+    }
+    else
+    {
+        m_CpSlicerSubLayout.Hide();
     }
 }
 
