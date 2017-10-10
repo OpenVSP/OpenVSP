@@ -175,6 +175,8 @@ protected:
     SliderAdjRangeInput  m_CpSliceYMinSlider;
     SliderAdjRangeInput  m_CpSliceYMaxSlider;
 
+    ToggleButton m_CpSliceFlipYToggle;
+
     int m_NumCpCuts; // Number of CpSlice Cuts
     int m_NumCpCases; // Number of Flow Condition Cases
 

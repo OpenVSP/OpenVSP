@@ -397,6 +397,10 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     CpSliceActionLayout.AddSlider( m_CpSliceYMaxSlider, "Ymax", 1.0, "%g" );
     CpSliceActionLayout.InitWidthHeightVals();
 
+    CpSliceActionLayout.ForceNewLine();
+
+    CpSliceActionLayout.AddButton( m_CpSliceFlipYToggle, "Flip Y Axis" );
+
     // Plot layout
     m_CpSliceLayout.AddX( controlWidth + 2 * groupBorderWidth );
     m_CpSliceLayout.AddSubGroupLayout( m_CpSlicePlotLayout, plotWidth, m_CpSliceLayout.GetH() - 2 * groupBorderWidth );
@@ -781,6 +785,9 @@ void VSPAEROPlotScreen::UpdateCpSliceAutoManualAxisLimits()
             VSPAEROMgr.m_CpSliceYMax = t_Axis->maximum();
         }
     }
+
+    // Update Flip Y Axis
+    m_CpSliceFlipYToggle.Update( VSPAEROMgr.m_CpSliceYAxisFlipFlag.GetID() );
 }
 
 void VSPAEROPlotScreen::Show()
@@ -1709,6 +1716,17 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                     }
 
                     Fl_Color c = ColorWheel( iplot, nlines );
+
+                    if ( VSPAEROMgr.m_CpSliceYAxisFlipFlag() )
+                    {
+                        vector < double > temp_vec;
+                        temp_vec.resize( dCpData.size() );
+                        for ( size_t k = 0; k < dCpData.size(); k++ )
+                        {
+                            temp_vec[k] = -1 * dCpData[k];
+                        }
+                        dCpData = temp_vec;
+                    }
 
                     //add the data to the plot
                     AddPointLine( locData, dCpData, 2, c, 4, StyleWheel( iplot ) );

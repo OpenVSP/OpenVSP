@@ -347,6 +347,8 @@ public:
     Parm m_CpSliceYMin;
     Parm m_CpSliceYMax;
 
+    BoolParm m_CpSliceYAxisFlipFlag;
+
     ProcessUtil m_SolverProcess;
     ProcessUtil m_SlicerThread;
 
