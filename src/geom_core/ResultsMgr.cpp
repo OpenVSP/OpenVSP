@@ -29,12 +29,12 @@ NameValData::NameValData( const string & name )
 }
 
 //==== Construtors With Name & Data =====//
-NameValData::NameValData( const string & name, int i_data )
+NameValData::NameValData( const string & name, const int & i_data )
 {
     Init( name, vsp::INT_DATA );
     m_IntData.push_back( i_data );
 }
-NameValData::NameValData( const string & name, double d_data )
+NameValData::NameValData( const string & name, const double & d_data )
 {
     Init( name, vsp::DOUBLE_DATA );
     m_DoubleData.push_back( d_data );
@@ -49,22 +49,22 @@ NameValData::NameValData( const string & name, const vec3d & v_data )
     Init( name, vsp::VEC3D_DATA );
     m_Vec3dData.push_back( v_data );
 }
-NameValData::NameValData( const string & name, vector< int > & i_data )
+NameValData::NameValData( const string & name, const vector< int > & i_data )
 {
     Init( name, vsp::INT_DATA );
     m_IntData = i_data;
 }
-NameValData::NameValData( const string & name, vector< double > & d_data )
+NameValData::NameValData( const string & name, const vector< double > & d_data )
 {
     Init( name, vsp::DOUBLE_DATA );
     m_DoubleData = d_data;
 }
-NameValData::NameValData( const string & name, vector< string > & s_data )
+NameValData::NameValData( const string & name, const vector< string > & s_data )
 {
     Init( name, vsp::STRING_DATA );
     m_StringData = s_data;
 }
-NameValData::NameValData( const string & name, vector< vec3d > & v_data )
+NameValData::NameValData( const string & name, const vector< vec3d > & v_data )
 {
     Init( name, vsp::VEC3D_DATA );
     m_Vec3dData = v_data;
