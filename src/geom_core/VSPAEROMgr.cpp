@@ -175,7 +175,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_FarDist.Init( "FarDist", groupname, this, -1, 0, 1e6 );
     m_FarDist.SetDescript( "Far Field Distance for Wake Adaptation" );
     m_FarDistToggle.Init( "FarDistToggle", groupname, this, false, false, true );
-    m_CpSliceFlag.Init( "CpSliceFlag", groupname, this, false, false, true );
+    m_CpSliceFlag.Init( "CpSliceFlag", groupname, this, true, false, true );
     m_CpSliceFlag.SetDescript( "Flag to Calculate Cp Slices for Each Run Case" );
 
     // Unsteady

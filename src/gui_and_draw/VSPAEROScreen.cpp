@@ -1671,6 +1671,15 @@ void VSPAEROScreen::UpdateCpSlices()
 {
     m_CpSlicerActivateToggle.Update( VSPAEROMgr.m_CpSliceFlag.GetID() );
 
+    if ( VSPAEROMgr.GetCpSliceVec().size() <= 0 )
+    {
+        m_CpSlicerActivateToggle.Deactivate();
+    }
+    else
+    {
+        m_CpSlicerActivateToggle.Activate();
+    }
+
     CpSlice* slice = VSPAEROMgr.GetCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
     if ( slice )
     {
