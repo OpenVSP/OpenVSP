@@ -344,7 +344,10 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_CpSliceControlLayout.AddX( CutSelectLayout.GetW() );
 
     m_CpSliceControlLayout.AddSubGroupLayout( m_CutXYZSelectLayout, m_CpSliceControlLayout.GetW() / 2, yDataSelectHeight );
-    m_CutXYZSelectGroup = new Fl_Group( m_CpSliceControlLayout.GetX(), m_CpSliceControlLayout.GetY(), m_CpSliceControlLayout.GetW() / 2, yDataSelectHeight );
+    m_CutXYZSelectLayout.AddDividerBox( "Position" );
+
+    m_CutXYZSelectScrollGroup = m_CutXYZSelectLayout.AddFlScroll( m_CutXYZSelectLayout.GetRemainY() - groupBorderWidth );
+    m_CutXYZSelectScrollGroup->type( Fl_Scroll::VERTICAL_ALWAYS );
 
     m_CpSliceControlLayout.AddY( m_CutXYZSelectLayout.GetH() + 2 * groupBorderWidth );
     m_CpSliceControlLayout.SetX( control_x );
@@ -1400,12 +1403,11 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
     m_CpSliceCutPosTypeVec.clear();
 
     // Position Type Choice
-    m_CutXYZSelectGroup->clear();
-    m_CutXYZSelectLayout.SetGroup( m_CutXYZSelectGroup );
-    m_CutXYZSelectLayout.AddDividerBox( "Position" );
-    m_CutXYZSelectLayout.SetChoiceButtonWidth( 0 );
+    m_CutXYZSelectScrollGroup->clear();
+    m_CutXYZSelectLayout.SetGroup( m_CutXYZSelectScrollGroup );
+    m_CutXYZSelectLayout.SetChoiceButtonWidth( 8 * m_CutXYZSelectLayout.GetRemainX() / 19 );
     int font_size = m_CpSliceCutBrowser->textsize();
-    m_CutXYZSelectLayout.SetStdHeight( 1.35 * font_size );
+    m_CutXYZSelectLayout.SetStdHeight( 1.3275 * font_size );
 
     string resultName = "CpSlicer_Case";
 
@@ -1471,7 +1473,9 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
 
             m_CpSliceCutBrowser->add( strbuf );
 
-            m_CutXYZSelectLayout.AddChoice( m_CpSlicePosTypeChoiceVec[iCut], " " );
+            sprintf( strbuf, "Cut %d", cut_num );
+
+            m_CutXYZSelectLayout.AddChoice( m_CpSlicePosTypeChoiceVec[iCut], strbuf );
 
             if ( m_SelectDefaultData )   //select aLL flow conditions
             {

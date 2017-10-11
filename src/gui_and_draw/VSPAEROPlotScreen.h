@@ -156,7 +156,7 @@ protected:
     GroupLayout m_CpSliceLayout;
     GroupLayout m_CpSliceControlLayout;
     GroupLayout m_CutXYZSelectLayout;
-    Fl_Group* m_CutXYZSelectGroup;
+    Fl_Scroll* m_CutXYZSelectScrollGroup;
     GroupLayout m_CpSlicePlotLayout;
     Ca_Canvas*  m_CpSlicePlotCanvas;
 
