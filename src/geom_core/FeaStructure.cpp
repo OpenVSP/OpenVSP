@@ -1992,7 +1992,7 @@ void FeaSpar::ComputePlanarSurf()
                 //Determine wing section bounding box
                 sect_bbox.Reset();
 
-                orig_surf.GetUSectionBoundingBox( sect_bbox, m_U_sec_min, m_U_sec_max );
+                orig_surf.GetLimitedBoundingBox( sect_bbox, m_U_sec_min, m_U_sec_max, 0.0, orig_surf.GetWMax() );
             }
             else
             {
@@ -2629,7 +2629,7 @@ VspSurf FeaRib::ComputeRibSurf()
                 //Determine wing section bounding box
                 sect_bbox.Reset();
 
-                orig_surf.GetUSectionBoundingBox( sect_bbox, m_U_sec_min, m_U_sec_max );
+                orig_surf.GetLimitedBoundingBox( sect_bbox, m_U_sec_min, m_U_sec_max, 0.0, orig_surf.GetWMax() );
             }
             else
             {
