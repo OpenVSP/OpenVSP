@@ -405,9 +405,12 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     CpSliceActionLayout.AddSlider( m_CpSliceYMaxSlider, "Ymax", 1.0, "%g" );
     CpSliceActionLayout.InitWidthHeightVals();
 
+    CpSliceActionLayout.SetFitWidthFlag( false );
     CpSliceActionLayout.ForceNewLine();
+    CpSliceActionLayout.SetButtonWidth( CpSliceActionLayout.GetW() / 2 );
 
     CpSliceActionLayout.AddButton( m_CpSliceFlipYToggle, "Flip Y Axis" );
+    CpSliceActionLayout.AddButton( m_CpSlicePlotLinesToggle, "Plot Lines" );
 
     // Plot layout
     m_CpSliceLayout.AddX( controlWidth + 2 * groupBorderWidth );
@@ -796,6 +799,7 @@ void VSPAEROPlotScreen::UpdateCpSliceAutoManualAxisLimits()
 
     // Update Flip Y Axis
     m_CpSliceFlipYToggle.Update( VSPAEROMgr.m_CpSliceYAxisFlipFlag.GetID() );
+    m_CpSlicePlotLinesToggle.Update( VSPAEROMgr.m_CpSlicePlotLinesFlag.GetID() );
 }
 
 void VSPAEROPlotScreen::Show()
@@ -1828,7 +1832,14 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                     }
 
                     //add the data to the plot
-                    AddPointLine( locData, dCpData, 2, c, 4, StyleWheel( iplot ) );
+                    if ( VSPAEROMgr.m_CpSlicePlotLinesFlag() )
+                    {
+                        AddPointLine( locData, dCpData, 2, c, 4, StyleWheel( iplot ) );
+                    }
+                    else
+                    {
+                        AddPoint( locData, dCpData, c, 4, StyleWheel( iplot ) );
+                    }
 
                     char strbuf[1024];
                     sprintf( strbuf, "Cut %d, Case %d", cut_num, case_num );
