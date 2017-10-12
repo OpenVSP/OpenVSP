@@ -4171,7 +4171,7 @@ vector< string > MeshGeom::GetTMeshNames()
     vector< string > names;
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        names.push_back( m_TMeshVec[i]->m_NameStr.append( to_string( ( long long )m_TMeshVec[i]->m_SurfNum ) ) );
+        names.push_back( m_TMeshVec[i]->m_NameStr + "_Surf" + to_string( ( long long )m_TMeshVec[i]->m_SurfNum ) );
     }
 
     return names;
