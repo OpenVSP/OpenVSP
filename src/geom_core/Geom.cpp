@@ -3248,7 +3248,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d 
                 SSControlSurf *csurf = dynamic_cast < SSControlSurf* > ( m_SubSurfVec[j] );
                 if ( csurf )
                 {
-                    degenGeom.addDegenHingeLine( csurf );
+                    degenGeom.addDegenHingeLine( csurf, isurf );
                 }
             }
         }

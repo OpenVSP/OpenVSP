@@ -97,6 +97,7 @@ typedef struct
     vsp::SUBSURF_TYPE           typeId;     //! enumeration for the typeName; vsp::SUBSURF_TYPE
     vector< double >            u;          //!
     vector< double >            w;          //!
+    vector< vec3d >             x;          //!
 } DegenSubSurf;
 
 typedef struct
@@ -106,6 +107,8 @@ typedef struct
     vector < double >           uEnd;
     vector < double >           wStart;
     vector < double >           wEnd;
+    vector < vec3d >            xStart;
+    vector < vec3d >            xEnd;
 } DegenHingeLine;
 
 typedef struct
@@ -244,7 +247,7 @@ public:
     void augmentFoilSurfDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap );
     void createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool flipnormal );
     void addDegenSubSurf( SubSurface *ssurf, int surfIndx );
-    void addDegenHingeLine( SSControlSurf *csurf );
+    void addDegenHingeLine( SSControlSurf *csurf, int surfIndx );
 
     string makeCsvFmt( int n, bool newline = true );
     void write_degenGeomCsv_file( FILE* file_id );
