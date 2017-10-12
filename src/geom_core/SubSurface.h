@@ -62,7 +62,7 @@ public:
     {
         return m_P1;
     }
-    virtual void GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, const int *num_pnts_ptr );
+    virtual void GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, int num_pnts );
     virtual int CompNumDrawPnts( VspSurf* surf, Geom* geom );
 
 protected:

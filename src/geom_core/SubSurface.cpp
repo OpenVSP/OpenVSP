@@ -152,11 +152,6 @@ void SubSurface::UpdateDrawObjs()
         {
             ind = 0;
             int num_pnts = CompNumDrawPnts( geom );
-            int *num_pnts_ptr = NULL;
-            if ( num_pnts > 0 )
-            {
-                num_pnts_ptr = &num_pnts;
-            }
 
             int isurf = m_MainSurfIndx();
 
@@ -166,7 +161,7 @@ void SubSurface::UpdateDrawObjs()
             for ( int s = 0 ; s < ncopy ; s++ )
             {
                 vector < vec3d > pts;
-                m_LVec[ls].GetDOPts( &surf_vec[symms[s]], geom, pts, num_pnts_ptr );
+                m_LVec[ls].GetDOPts( &surf_vec[symms[s]], geom, pts, num_pnts );
                 m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.begin(), pts.begin(), pts.end() );
 
                 m_SubSurfHighlightDO[ind].m_PntVec.insert( m_SubSurfHighlightDO[ind].m_PntVec.begin(), pts.begin(), pts.end());
@@ -488,14 +483,9 @@ int SSLineSeg::CompNumDrawPnts( VspSurf* surf, Geom* geom )
     return ( int )( ( avg_num_secs ) * ( avg_tess - 1 ) );
 }
 
-void SSLineSeg::GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, const int *num_pnts_ptr )
+void SSLineSeg::GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, int num_pnts )
 {
-    int num_pnts;
-    if ( num_pnts_ptr )
-    {
-        num_pnts = *num_pnts_ptr;
-    }
-    else
+    if ( num_pnts < 0 )
     {
         num_pnts = CompNumDrawPnts( surf, geom );
     }
