@@ -820,26 +820,26 @@ void DegenGeom::addDegenSubSurf( SubSurface *ssurf, int surfIndx )
 
 void DegenGeom::addDegenHingeLine( SSControlSurf *csurf )
 {
-    DegenHingeLine dghl;
+            DegenHingeLine dghl;
 
-    dghl.name = csurf->GetName();
+            dghl.name = csurf->GetName();
 
-    int npt = csurf->m_UWStart.size();
+            int npt = csurf->m_UWStart.size();
 
-    dghl.uStart.resize( npt );
-    dghl.uEnd.resize( npt );
-    dghl.wStart.resize( npt );
-    dghl.wEnd.resize( npt );
+            dghl.uStart.resize( npt );
+            dghl.uEnd.resize( npt );
+            dghl.wStart.resize( npt );
+            dghl.wEnd.resize( npt );
 
-    for ( int i = 0; i < npt; i++ )
-    {
-        dghl.uStart[i] = csurf->m_UWStart[i].x();
-        dghl.uEnd[i] = csurf->m_UWEnd[i].x();
-        dghl.wStart[i] = csurf->m_UWStart[i].y();
-        dghl.wEnd[i] = csurf->m_UWEnd[i].y();
-    }
+            for ( int i = 0; i < npt; i++ )
+            {
+                dghl.uStart[i] = csurf->m_UWStart[i].x();
+                dghl.uEnd[i] = csurf->m_UWEnd[i].x();
+                dghl.wStart[i] = csurf->m_UWStart[i].y();
+                dghl.wEnd[i] = csurf->m_UWEnd[i].y();
+            }
 
-    degenHingeLines.push_back( dghl );
+            degenHingeLines.push_back( dghl );
 }
 
 string DegenGeom::makeCsvFmt( int n, bool newline )
