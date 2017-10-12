@@ -794,28 +794,28 @@ void DegenGeom::addDegenSubSurf( SubSurface *ssurf, int surfIndx )
         }
     }
 
-    for ( int i = 0; i < ppvec.size(); i++ )
-    {
-        DegenSubSurf dgss;
-        dgss.name = ssurf->GetName();
-        dgss.fullName = ssurfParentName + "_Surf" + std::to_string( surfIndx ) + "_" + dgss.name;
-        dgss.typeName = ssurf->GetTypeName(ssurf->GetType());
-        dgss.typeId = (vsp::SUBSURF_TYPE)ssurf->GetType();
-        dgss.testType = ssurf->m_TestType();
+            for ( int i = 0; i < ppvec.size(); i++ )
+            {
+                DegenSubSurf dgss;
+                dgss.name = ssurf->GetName();
+                dgss.fullName = ssurfParentName + "_Surf" + std::to_string( surfIndx ) + "_" + dgss.name;
+                dgss.typeName = ssurf->GetTypeName(ssurf->GetType());
+                dgss.typeId = (vsp::SUBSURF_TYPE)ssurf->GetType();
+                dgss.testType = ssurf->m_TestType();
 
-        int npt = ppvec[i].size();
+                int npt = ppvec[i].size();
 
-        dgss.u.resize( npt );
-        dgss.w.resize( npt );
+                dgss.u.resize( npt );
+                dgss.w.resize( npt );
 
-        for ( int j = 0; j < ppvec[i].size(); j++ )
-        {
-            dgss.u[j] = ppvec[i][j].x();
-            dgss.w[j] = ppvec[i][j].y();
-        }
+                for ( int j = 0; j < ppvec[i].size(); j++ )
+                {
+                    dgss.u[j] = ppvec[i][j].x();
+                    dgss.w[j] = ppvec[i][j].y();
+                }
 
-        degenSubSurfs.push_back( dgss );
-    }
+                degenSubSurfs.push_back( dgss );
+            }
 }
 
 void DegenGeom::addDegenHingeLine( SSControlSurf *csurf )
