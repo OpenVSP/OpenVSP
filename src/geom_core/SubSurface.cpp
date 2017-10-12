@@ -658,7 +658,7 @@ void SSLine::Update()
 
 int SSLine::CompNumDrawPnts( Geom* geom )
 {
-    VspSurf* surf = geom->GetSurfPtr();
+    VspSurf* surf = geom->GetSurfPtr( m_MainSurfIndx() );
     if ( !surf )
     {
         return 0;
