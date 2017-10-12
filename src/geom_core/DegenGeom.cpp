@@ -791,8 +791,6 @@ void DegenGeom::addDegenSubSurf( SubSurface *ssurf, int surfIndx )
         if ( ssurfParentGeom )
         {
             ssurfParentName = ssurfParentGeom->GetName();
-        }
-    }
 
             for ( int i = 0; i < ppvec.size(); i++ )
             {
@@ -816,6 +814,8 @@ void DegenGeom::addDegenSubSurf( SubSurface *ssurf, int surfIndx )
 
                 degenSubSurfs.push_back( dgss );
             }
+        }
+    }
 }
 
 void DegenGeom::addDegenHingeLine( SSControlSurf *csurf )
