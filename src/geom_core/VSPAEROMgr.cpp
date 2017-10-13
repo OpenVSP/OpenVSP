@@ -2082,6 +2082,30 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
                 return;
             }
         }
+        else if ( res && CheckForResultHeader( data_string_array ) )
+        {
+            char seps[] = " :,\t\n";
+            data_string_array = ReadDelimLine( fp, seps );
+
+            // Read result table
+            double value;
+
+            // Parse if this is not a comment line
+            while ( !feof( fp ) && strncmp( data_string_array[0].c_str(), "#", 1 ) != 0 )
+            {
+                if ( ( data_string_array.size() == 3 ) )
+                {
+                    // assumption that the 2nd entry is a number
+                    if ( sscanf( data_string_array[1].c_str(), "%lf", &value ) == 1 )
+                    {
+                        res->Add( NameValData( data_string_array[0], value ) );
+                    }
+                }
+
+                // read the next line
+                data_string_array = ReadDelimLine( fp, seps );
+            } // end while
+        }
         else if ( data_string_array.size() > 0 )
         {
             // Parse if this is not a comment line
@@ -2203,6 +2227,19 @@ bool VSPAEROMgrSingleton::CheckForCaseHeader( std::vector<string> headerStr )
     if ( headerStr.size() == 1 )
     {
         if ( strcmp( headerStr[0].c_str(), "*****************************************************************************************************************************************************************************************" ) == 0 )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool VSPAEROMgrSingleton::CheckForResultHeader( std::vector<string> headerStr )
+{
+    if ( headerStr.size() == 4 )
+    {
+        if ( strcmp( headerStr[0].c_str(), "#" ) == 0 && strcmp( headerStr[1].c_str(), "Result" ) == 0 )
         {
             return true;
         }
