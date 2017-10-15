@@ -1196,14 +1196,12 @@ double ConformalSpine::FindUGivenLengthAlongSpine( double length ) const
     // Init values
     double length_0 = 0;
     double length_1 = 0;
-    double u_0 = m_UVec[0];
-    double u_1 = 0;
 
     for ( size_t j = 1; j < m_CenterVec.size(); j++ )
     {
         length_1 = length_0 + dist( m_CenterVec[j - 1], m_CenterVec[j] );
-        u_0 = m_UVec[j - 1];
-        u_1 = m_UVec[j];
+        double u_0 = m_UVec[j - 1];
+        double u_1 = m_UVec[j];
 
         if ( length >= length_0 && length <= length_1 )
         {
@@ -1227,4 +1225,5 @@ double ConformalSpine::FindUGivenLengthAlongSpine( double length ) const
             length_0 = length_1;
         }
     }
+    return u;
 }
