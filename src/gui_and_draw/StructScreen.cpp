@@ -1278,7 +1278,8 @@ void StructScreen::UpdateFeaPropertyChoice()
             }
             else if ( m_SelectedPartIndexVec.size() > 1 )
             {
-                int prop_index, cap_index;
+                int prop_index = -1;
+                int cap_index = -1;
                 bool mult_prop = false;
                 bool mult_cap_prop = false;
 

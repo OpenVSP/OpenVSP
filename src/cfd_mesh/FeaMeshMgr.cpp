@@ -1803,7 +1803,7 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                                         ( dist_squared( part_pnt0, ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt ) <= FLT_EPSILON && dist_squared( part_pnt1, ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt ) <= FLT_EPSILON ) )
                                     {
                                         string part = m_FeaPartNameVec[surfA->GetFeaPartIndex()];
-                                        string message = "Merged Intersection Curve: " + part + " and " + ss_vec[ss].GetName() + "/n";
+                                        string message = "Merged Intersection Curve: " + part + " and " + ss_vec[ss].GetName() + "\n";
                                         addOutputText( message.c_str() );
                                     }
                                     else

@@ -30,7 +30,7 @@ StructureMgrSingleton::StructureMgrSingleton()
 
 StructureMgrSingleton::~StructureMgrSingleton()
 {
-
+    Wype();
 }
 
 xmlNodePtr StructureMgrSingleton::EncodeXml( xmlNodePtr & node )
@@ -472,7 +472,8 @@ void StructureMgrSingleton::UpdateStructUnit( int new_unit )
         
                     if ( fix_pnt->m_FixPointMassFlag() )
                     {
-                        int mass_unit_new, mass_unit_old;
+                        int mass_unit_new = -1;
+                        int mass_unit_old = -1;
 
                         switch ( new_unit )
                         {
@@ -720,7 +721,8 @@ void StructureMgrSingleton::InitFeaMaterials()
         return;
     }
 
-    int density_unit, pressure_unit;
+    int density_unit = -1;
+    int pressure_unit = -1;
 
     switch ( (int)veh->m_StructUnit() )
     {

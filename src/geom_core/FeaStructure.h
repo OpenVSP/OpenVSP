@@ -209,11 +209,6 @@ public:
     virtual int GetFeaMaterialIndex();
     virtual void SetFeaMaterialIndex( int index );
 
-    virtual vector < DrawObj > GetDrawObjVec()
-    {
-        return m_FeaPartDO;
-    }
-
     VspSurf* GetMainSurf();
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind = 0 );

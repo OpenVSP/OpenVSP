@@ -4124,10 +4124,7 @@ bool Geom::ValidGeomFeaStructInd( int index )
     {
         return true;
     }
-    else
-    {
-        return false;
-    }
+    return false;
 }
 
 void Geom::DelAllSources()

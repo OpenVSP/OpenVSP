@@ -165,7 +165,7 @@ void FeaStructure::SetDrawFlag( bool flag )
 
 FeaPart* FeaStructure::AddFeaPart( int type )
 {
-    FeaPart* feaprt = new FeaPart( m_ParentGeomID, type );
+    FeaPart* feaprt = NULL;
 
     if ( type == vsp::FEA_SLICE )
     {
@@ -573,7 +573,7 @@ void FeaStructure::IndividualizeRibArray( int rib_array_ind )
 
         for ( size_t i = 0; i < rib_array->GetNumRibs(); i++ )
         {
-            double center_location;
+            double center_location = 0.0;
 
             if ( rib_array->m_AbsRelParmFlag() == vsp::REL )
             {
@@ -619,7 +619,7 @@ void FeaStructure::IndividualizeSliceArray( int stiffener_array_ind )
 
         for ( size_t i = 0; i < slice_array->GetNumSlices(); i++ )
         {
-            double center_location;
+            double center_location = 0.0;
 
             if ( slice_array->m_AbsRelParmFlag() == vsp::REL )
             {
@@ -1224,7 +1224,7 @@ void FeaSlice::UpdateParmLimits()
             current_surf.GetBoundingBox( m_SectBBox );
         }
 
-        double perp_dist; // Total distance perpendicular to the FeaSlice plane
+        double perp_dist = 0.0; // Total distance perpendicular to the FeaSlice plane
 
         vec3d geom_center = m_SectBBox.GetCenter();
         double del_x = m_SectBBox.GetMax( 0 ) - m_SectBBox.GetMin( 0 );
@@ -3986,7 +3986,7 @@ void FeaSliceArray::CalcNumSlices()
             m_YRot.Set( 0.0 );
         }
 
-        double perp_dist; // Total distance perpendicular to the FeaSlice plane
+        double perp_dist = 0.0; // Total distance perpendicular to the FeaSlice plane
 
         if ( m_OrientationPlane() == vsp::XY_BODY || m_OrientationPlane() == vsp::XY_ABS )
         {
