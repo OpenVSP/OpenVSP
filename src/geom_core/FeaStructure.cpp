@@ -137,6 +137,19 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
     return node;
 }
 
+void FeaStructure::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
+{
+    for ( size_t i = 0; i < (int)m_FeaPartVec.size(); i++ )
+    {
+        m_FeaPartVec[i]->AddLinkableParms( linkable_parm_vec, link_container_id );
+    }
+
+    for ( size_t i = 0; i < (int)m_FeaSubSurfVec.size(); i++ )
+    {
+        m_FeaSubSurfVec[i]->AddLinkableParms( linkable_parm_vec, link_container_id );
+    }
+}
+
 void FeaStructure::SetDrawFlag( bool flag )
 {
     for ( size_t i = 0; i < m_FeaPartVec.size(); i++ )

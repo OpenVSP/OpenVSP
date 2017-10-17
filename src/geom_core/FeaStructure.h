@@ -40,6 +40,7 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     virtual void SetDrawFlag( bool flag );
 
     virtual void AddFeaPart( FeaPart* fea_part )
