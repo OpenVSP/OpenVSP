@@ -728,6 +728,11 @@ void VSPAEROMgrSingleton::AddLinkableParms( vector < string > & linkable_parm_ve
     {
         m_RotorDiskVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
     }
+
+    for ( size_t i = 0; i < m_CpSliceVec.size(); ++i )
+    {
+        m_CpSliceVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
+    }
 }
 
 // InitControlSurfaceGroups - creates the initial default grouping for the control surfaces
