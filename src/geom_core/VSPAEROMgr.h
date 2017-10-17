@@ -86,8 +86,17 @@ public:
 
     void ParmChanged( Parm* parm_ptr, int type );
 
+    void LoadDrawObj( vector < DrawObj* > &draw_obj_vec, int id, bool highlight );
+
     IntParm m_CutType;
     Parm m_CutPosition;
+    BoolParm m_DrawCutFlag;
+
+private:
+
+    VspSurf CreateSurf();
+
+    vector < DrawObj > m_CpSliceDOVec;
 
 };
 

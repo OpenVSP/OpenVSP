@@ -2473,6 +2473,17 @@ void VSPAEROMgrSingleton::LoadDrawObjs( vector < DrawObj* > & draw_obj_vec )
     {
         UpdateHighlighted( draw_obj_vec );
     }
+
+    for ( size_t i = 0; i < m_CpSliceVec.size(); i++ )
+    {
+        bool highlight = false;
+        if ( m_CurrentCpSliceIndex == i )
+        {
+            highlight = true;
+        }
+
+        m_CpSliceVec[i]->LoadDrawObj( draw_obj_vec, i, highlight );
+    }
 }
 
 void VSPAEROMgrSingleton::UpdateBBox( vector < DrawObj* > & draw_obj_vec )
@@ -2925,6 +2936,9 @@ CpSlice::CpSlice( int init_type ) : ParmContainer()
 
     m_CutPosition.Init( "CutPosition", "CpSlice", this, 0.0, -1e12, 1e12 );
     m_CutPosition.SetDescript( "Position of the Cut from Orgin Along Perpendicular Axis" );
+
+    m_DrawCutFlag.Init( "DrawCutFlag", "CpSlice", this, true, false, true );
+    m_DrawCutFlag.SetDescript( "Flag to Draw the CpSlice Cutting Plane" );
 }
 
 CpSlice::~CpSlice( )
@@ -2944,6 +2958,132 @@ void CpSlice::ParmChanged( Parm* parm_ptr, int type )
     if ( veh )
     {
         veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+VspSurf CpSlice::CreateSurf()
+{
+    VspSurf slice_surf = VspSurf();
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        vec3d pnt0, pnt1, pnt2, pnt3;
+
+        // TODO: Improve Surface Sizing 
+        double size = veh->GetBndBox().GetLargestDist() / 2;
+        if ( size <= 1.0e-7 )
+        {
+            size = 0.5; // Make a unit square plane if no vehicle bounding box
+        }
+
+        double to_corner = size / sin( DEG_2_RAD * 45 );
+        vec3d veh_center = veh->GetBndBox().GetCenter();
+
+        // Center at vehicle bounding box center
+        if ( m_CutType() == vsp::X_DIR )
+        {
+            pnt0 = vec3d( m_CutPosition(), to_corner + veh_center.y(), to_corner + veh_center.z() );
+            pnt1 = vec3d( m_CutPosition(), -1 * to_corner + veh_center.y(), to_corner + veh_center.z() );
+            pnt2 = vec3d( m_CutPosition(), to_corner + veh_center.y(), -1 * to_corner + veh_center.z() );
+            pnt3 = vec3d( m_CutPosition(), -1 * to_corner + veh_center.y(), -1 * to_corner + veh_center.z() );
+        }
+        else if ( m_CutType() == vsp::Y_DIR )
+        {
+            pnt0 = vec3d( to_corner + veh_center.x(), m_CutPosition(), to_corner + veh_center.z() );
+            pnt1 = vec3d( -1 * to_corner + veh_center.x(), m_CutPosition(), to_corner + veh_center.z() );
+            pnt2 = vec3d( to_corner + veh_center.x(), m_CutPosition(), -1 * to_corner + veh_center.z() );
+            pnt3 = vec3d( -1 * to_corner + veh_center.x(), m_CutPosition(), -1 * to_corner + veh_center.z() );
+        }
+        else if ( m_CutType() == vsp::Z_DIR )
+        {
+            pnt0 = vec3d( to_corner + veh_center.x(), to_corner + veh_center.y(), m_CutPosition() );
+            pnt1 = vec3d( -1 * to_corner + veh_center.x(), to_corner + veh_center.y(), m_CutPosition() );
+            pnt2 = vec3d( to_corner + veh_center.x(), -1 * to_corner + veh_center.y(), m_CutPosition() );
+            pnt3 = vec3d( -1 * to_corner + veh_center.x(), -1 * to_corner + veh_center.y(), m_CutPosition() );
+        }
+
+        slice_surf.MakePlaneSurf( pnt0, pnt1, pnt2, pnt3 );
+    }
+
+    return slice_surf;
+}
+
+void CpSlice::LoadDrawObj( vector < DrawObj* > &draw_obj_vec, int id, bool highlight )
+{
+    // One DrawObj for plane and one for border. This is done to avoid DrawObj ordering transparancy issues
+    m_CpSliceDOVec.clear();
+    m_CpSliceDOVec.resize( 2 );
+
+    if ( m_DrawCutFlag() )
+    {
+        VspSurf slice_surf = CreateSurf();
+
+        m_CpSliceDOVec[0].m_GeomID = m_Name + "_Plane_" + std::to_string( id );
+        m_CpSliceDOVec[0].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        m_CpSliceDOVec[1].m_GeomID = m_Name + "_Border_" + std::to_string( id );
+        m_CpSliceDOVec[1].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        if ( highlight )
+        {
+            m_CpSliceDOVec[1].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+            m_CpSliceDOVec[1].m_LineWidth = 3.0;
+        }
+        else
+        {
+            m_CpSliceDOVec[1].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
+            m_CpSliceDOVec[1].m_LineWidth = 1.0;
+        }
+
+        m_CpSliceDOVec[0].m_Type = DrawObj::VSP_SHADED_QUADS;
+        m_CpSliceDOVec[1].m_Type = DrawObj::VSP_LINE_LOOP;
+
+        vec3d p00 = slice_surf.CompPnt01( 0, 0 );
+        vec3d p10 = slice_surf.CompPnt01( 1, 0 );
+        vec3d p11 = slice_surf.CompPnt01( 1, 1 );
+        vec3d p01 = slice_surf.CompPnt01( 0, 1 );
+
+        m_CpSliceDOVec[0].m_PntVec.push_back( p00 );
+        m_CpSliceDOVec[0].m_PntVec.push_back( p10 );
+        m_CpSliceDOVec[0].m_PntVec.push_back( p11 );
+        m_CpSliceDOVec[0].m_PntVec.push_back( p01 );
+
+        m_CpSliceDOVec[1].m_PntVec.push_back( p00 );
+        m_CpSliceDOVec[1].m_PntVec.push_back( p10 );
+        m_CpSliceDOVec[1].m_PntVec.push_back( p11 );
+        m_CpSliceDOVec[1].m_PntVec.push_back( p01 );
+
+        // Get new normal and set plane color to medium glass
+        vec3d quadnorm = cross( p10 - p00, p01 - p00 );
+        quadnorm.normalize();
+
+        for ( size_t i = 0; i < 4; i++ )
+        {
+            m_CpSliceDOVec[0].m_MaterialInfo.Ambient[i] = 0.2f;
+            m_CpSliceDOVec[0].m_MaterialInfo.Diffuse[i] = 0.1f;
+            m_CpSliceDOVec[0].m_MaterialInfo.Specular[i] = 0.7f;
+            m_CpSliceDOVec[0].m_MaterialInfo.Emission[i] = 0.0f;
+
+            m_CpSliceDOVec[0].m_NormVec.push_back( quadnorm );
+        }
+
+        if ( highlight )
+        {
+            m_CpSliceDOVec[0].m_MaterialInfo.Diffuse[3] = 0.67f;
+        }
+        else
+        {
+            m_CpSliceDOVec[0].m_MaterialInfo.Diffuse[3] = 0.33f;
+        }
+
+        m_CpSliceDOVec[0].m_MaterialInfo.Shininess = 5.0f;
+
+        m_CpSliceDOVec[0].m_GeomChanged = true;
+        draw_obj_vec.push_back( &m_CpSliceDOVec[0] );
+
+        m_CpSliceDOVec[1].m_GeomChanged = true;
+        draw_obj_vec.push_back( &m_CpSliceDOVec[1] );
     }
 }
 

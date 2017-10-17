@@ -209,6 +209,7 @@ protected:
     Choice m_CpSliceTypeChoice;
     SliderAdjRangeInput m_CpSliceLocation;
     StringInput m_CpSliceNameInput;
+    ToggleButton m_CpSliceShowToggle;
 
     //==== Rotor Disk Tab ====//
     GroupLayout m_PropGeneralLayout;

@@ -398,8 +398,19 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_CpSlicerSubLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
     m_CpSlicerSubLayout.SetChoiceButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
+    int input_width = m_CpSlicerSubLayout.GetInputWidth();
+    m_CpSlicerSubLayout.SetInputWidth( m_CpSlicerLayout.GetRemainX() / 3 );
+
+    m_CpSlicerSubLayout.SetSameLineFlag( true );
+    m_CpSlicerSubLayout.SetFitWidthFlag( false );
 
     m_CpSlicerSubLayout.AddInput( m_CpSliceNameInput, "Name" );
+    m_CpSlicerSubLayout.AddButton( m_CpSliceShowToggle, "Show Cut" );
+
+    m_CpSlicerSubLayout.ForceNewLine();
+    m_CpSlicerSubLayout.SetSameLineFlag( false );
+    m_CpSlicerSubLayout.SetFitWidthFlag( true );
+    m_CpSlicerSubLayout.SetInputWidth( input_width );
 
     m_CpSliceTypeChoice.AddItem( "X" );
     m_CpSliceTypeChoice.AddItem( "Y" );
@@ -442,7 +453,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_PropElemLayout.AddY( prop_elem_browser_h );
 
-    int input_width = 60;
+    input_width = 60;
     int XYZ_button_width = 20;
     int else_button_width = 60;
     int browser_augment = 40;
@@ -1697,6 +1708,7 @@ void VSPAEROScreen::UpdateCpSlices()
         m_CpSliceNameInput.Update( slice->GetName() );
         m_CpSliceTypeChoice.Update( slice->m_CutType.GetID() );
         m_CpSliceLocation.Update( slice->m_CutPosition.GetID() );
+        m_CpSliceShowToggle.Update( slice->m_DrawCutFlag.GetID() );
     }
     else
     {
