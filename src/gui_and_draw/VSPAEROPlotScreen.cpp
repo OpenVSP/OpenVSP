@@ -422,7 +422,7 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_CpSlicePlotLayout.AddY( plotTopBottomMargin );
     m_CpSlicePlotCanvas = m_CpSlicePlotLayout.AddCanvas( m_CpSlicePlotLayout.GetW() - 2 * plotSideMargin, m_CpSlicePlotLayout.GetH() - 2 * plotTopBottomMargin,
                                                            0, 1, 0, 1, //xMin, xMax, yMin, yMax,
-                                                           "", "[X]", "dCp" );
+                                                           "", "[X]", "[Y]" );
     m_CpSlicePlotCanvas->align( FL_ALIGN_TOP );
     m_CpSlicePlotCanvas->current_x()->label_format( "%g" );
     m_CpSlicePlotCanvas->current_y()->label_format( "%g" );
@@ -1756,16 +1756,24 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                 if ( m_CpSliceCutSelectedResultIDs[iCut] == m_CpSliceCaseSelectedResultIDs[iCase] )
                 {
                     NameValData* tResultDataPtr;
-                    vector <double> dCpData, locData;
+                    vector <double> CpData, locData;
                     int type, cut_num, case_num;
 
                     Results* res = ResultsMgr.FindResultsPtr( m_CpSliceCutSelectedResultIDs[iCut] );
                     if ( res )
                     {
-                        tResultDataPtr = res->FindPtr( "dCp" );
+                        if ( VSPAEROMgr.GetCpSliceAnalysisType() == vsp::VORTEX_LATTICE )
+                        {
+                            tResultDataPtr = res->FindPtr( "dCp" );
+                        }
+                        else if ( VSPAEROMgr.GetCpSliceAnalysisType() == vsp::PANEL )
+                        {
+                            tResultDataPtr = res->FindPtr( "Cp" );
+                        }
+
                         if ( tResultDataPtr )
                         {
-                            dCpData = tResultDataPtr->GetDoubleData();
+                            CpData = tResultDataPtr->GetDoubleData();
                         }
 
                         tResultDataPtr = res->FindPtr( "Cut_Num" );
@@ -1827,22 +1835,22 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                     if ( VSPAEROMgr.m_CpSliceYAxisFlipFlag() )
                     {
                         vector < double > temp_vec;
-                        temp_vec.resize( dCpData.size() );
-                        for ( size_t k = 0; k < dCpData.size(); k++ )
+                        temp_vec.resize( CpData.size() );
+                        for ( size_t k = 0; k < CpData.size(); k++ )
                         {
-                            temp_vec[k] = -1 * dCpData[k];
+                            temp_vec[k] = -1 * CpData[k];
                         }
-                        dCpData = temp_vec;
+                        CpData = temp_vec;
                     }
 
                     //add the data to the plot
                     if ( VSPAEROMgr.m_CpSlicePlotLinesFlag() )
                     {
-                        AddPointLine( locData, dCpData, 2, c, 4, StyleWheel( iplot ) );
+                        AddPointLine( locData, CpData, 2, c, 4, StyleWheel( iplot ) );
                     }
                     else
                     {
-                        AddPoint( locData, dCpData, c, 4, StyleWheel( iplot ) );
+                        AddPoint( locData, CpData, c, 4, StyleWheel( iplot ) );
                     }
 
                     char strbuf[1024];
@@ -1851,7 +1859,7 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
                     iplot++;
 
                     //Handle axis limits
-                    UpdateAxisLimits( m_CpSlicePlotCanvas, locData, dCpData, expandOnly );
+                    UpdateAxisLimits( m_CpSlicePlotCanvas, locData, CpData, expandOnly );
                     expandOnly = true;
                 }
             }
@@ -1878,7 +1886,14 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
             m_CpSlicePlotCanvas->current_x()->copy_label( "Position [multiple]" );
         }
 
-        m_CpSlicePlotCanvas->current_y()->copy_label( "dCP" );
+        if ( VSPAEROMgr.GetCpSliceAnalysisType() == vsp::VORTEX_LATTICE )
+        {
+            m_CpSlicePlotCanvas->current_y()->copy_label( "dCP" );
+        }
+        else if ( VSPAEROMgr.GetCpSliceAnalysisType() == vsp::PANEL )
+        {
+            m_CpSlicePlotCanvas->current_y()->copy_label( "CP" );
+        }
     }
 }
 

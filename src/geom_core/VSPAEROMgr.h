@@ -232,6 +232,7 @@ public:
     void ClearCpSliceVec();
     int GetCurrentCpSliceIndex()                           { return m_CurrentCpSliceIndex; }
     void SetCurrentCpSliceIndex( int index )               { m_CurrentCpSliceIndex = index; }
+    int GetCpSliceAnalysisType()                           { return m_CpSliceAnalysisType; }
 
     BoolParm m_CpSliceFlag;
 
@@ -405,6 +406,8 @@ private:
     int m_CurrentRotorDiskIndex;
     int m_CurrentCSGroupIndex;
     int m_CurrentCpSliceIndex;
+
+    int m_CpSliceAnalysisType;
 
     bool m_Verbose;
 };

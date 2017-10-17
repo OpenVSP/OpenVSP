@@ -453,6 +453,9 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     m_CutsFile          = string();
     m_SliceFile         = string();
 
+    // Save analysis type for Cp Slicer
+    m_CpSliceAnalysisType = m_AnalysisMethod.Get();
+
     Vehicle *veh = VehicleMgr.GetVehicle();
     if( veh )
     {
@@ -2885,7 +2888,7 @@ void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_i
             /* Example slc table
             BLOCK Cut_1_at_X:_2.000000
             Case: 1 ... Mach: 0.001000 ... Alpha: 1.000000 ... Beta: 0.000000 ...     Case: 1 ...
-            x          y          z         dCp
+            x          y          z         dCp/Cp
             2.0000     0.0000    -0.6063    -0.0000
             2.0000     0.0000    -0.5610    -0.0000
             2.0000     0.0000    -0.4286    -0.0000
@@ -2893,18 +2896,15 @@ void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_i
             */
             else if ( res && data_string_array.size() == num_table_columns && strcmp( data_string_array[0].c_str(), "x" ) != 0 )
             {
-                //discard the header row and read the next line assuming that it is numeric
-                //data_string_array = ReadDelimLine( fp, seps );
-
                 // create new vectors for this set of results information
-                vector < double > x_data_vec, y_data_vec, z_data_vec, dCp_data_vec;
+                vector < double > x_data_vec, y_data_vec, z_data_vec, Cp_data_vec;
 
                 while ( data_string_array.size() == num_table_columns )
                 {
                     x_data_vec.push_back( std::stod( data_string_array[0] ) );
                     y_data_vec.push_back( std::stod( data_string_array[1] ) );
                     z_data_vec.push_back( std::stod( data_string_array[2] ) );
-                    dCp_data_vec.push_back( std::stod( data_string_array[3] ) );
+                    Cp_data_vec.push_back( std::stod( data_string_array[3] ) );
 
                     data_string_array = ReadDelimLine( fp, seps );
                 }
@@ -2915,7 +2915,15 @@ void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_i
                 res->Add( NameValData( "X_Loc", x_data_vec ) );
                 res->Add( NameValData( "Y_Loc", y_data_vec ) );
                 res->Add( NameValData( "Z_Loc", z_data_vec ) );
-                res->Add( NameValData( "dCp", dCp_data_vec ) );
+
+                if ( m_CpSliceAnalysisType == vsp::VORTEX_LATTICE )
+                {
+                    res->Add( NameValData( "dCp", Cp_data_vec ) );
+                }
+                else if ( m_CpSliceAnalysisType == vsp::PANEL )
+                {
+                    res->Add( NameValData( "Cp", Cp_data_vec ) );
+                }
             } // end of cut data
         }
     }
