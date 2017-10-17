@@ -906,7 +906,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if ( device == &m_AddCpSliceButton )
         {
-            CpSlice* slice = VSPAEROMgr.AddCpSlice( m_CpSliceTypeChoice.GetVal() );
+            CpSlice* slice = VSPAEROMgr.AddCpSlice();
 
             if ( slice )
             {

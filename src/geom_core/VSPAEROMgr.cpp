@@ -340,7 +340,7 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
             xmlNodePtr cpslicenode = XmlUtil::GetNode( VSPAEROsetnode, "CpSlice", i );
             if ( cpslicenode )
             {
-                AddCpSlice( vsp::X_DIR );
+                AddCpSlice();
                 m_CpSliceVec.back()->DecodeXml( cpslicenode );
             }
         }
@@ -2722,10 +2722,11 @@ void VSPAEROMgrSingleton::AddCpSliceVec( int cut_type, vector< double > cut_vec 
 {
     for ( size_t i = 0; i < cut_vec.size(); i++ )
     {
-        CpSlice* slice = AddCpSlice( cut_type );
+        CpSlice* slice = AddCpSlice();
 
         if ( slice )
         {
+            slice->m_CutType.Set( cut_type );
             slice->m_CutPosition.Set( cut_vec[i] );
         }
     }
@@ -2766,18 +2767,14 @@ void VSPAEROMgrSingleton::DelCpSlice( int ind )
     }
 }
 
-CpSlice* VSPAEROMgrSingleton::AddCpSlice( int type )
+CpSlice* VSPAEROMgrSingleton::AddCpSlice( )
 {
     CpSlice* slice = NULL;
-
-    if ( type == vsp::X_DIR || type == vsp::Y_DIR || type == vsp::Z_DIR )
-    {
-        slice = new CpSlice( type );
-        slice->SetName( string( "CpSlice_" + to_string( (long long)m_CpSliceVec.size() ) ) );
-    }
+    slice = new CpSlice();
 
     if ( slice )
     {
+        slice->SetName( string( "CpSlice_" + to_string( (long long)m_CpSliceVec.size() ) ) );
         slice->SetParentContainer( GetID() );
         AddCpSlice( slice );
     }
@@ -2917,9 +2914,9 @@ void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_i
 #                                                                              #
 ##############################################################################*/
 
-CpSlice::CpSlice( int init_type ) : ParmContainer()
+CpSlice::CpSlice() : ParmContainer()
 {
-    m_CutType.Init( "CutType", "CpSlice", this, init_type, vsp::X_DIR, vsp::Z_DIR );
+    m_CutType.Init( "CutType", "CpSlice", this, vsp::Y_DIR, vsp::X_DIR, vsp::Z_DIR );
     m_CutType.SetDescript( "Perpendicular Axis for the Cut" );
 
     m_CutPosition.Init( "CutPosition", "CpSlice", this, 0.0, -1e12, 1e12 );

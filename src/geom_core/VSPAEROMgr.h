@@ -81,7 +81,7 @@ class CpSlice : public ParmContainer
 {
 public:
 
-    CpSlice( int init_type );
+    CpSlice();
     ~CpSlice();
 
     void ParmChanged( Parm* parm_ptr, int type );
@@ -221,7 +221,7 @@ public:
     void ClearCpSliceResults();
     void CreateCutsFile();
     void AddCpSlice( CpSlice* slice )                      { m_CpSliceVec.push_back( slice ); }
-    CpSlice* AddCpSlice( int type );
+    CpSlice* AddCpSlice();
     bool ValidCpSliceInd( int ind );
     void DelCpSlice( int ind );
     CpSlice* GetCpSlice( int ind );
