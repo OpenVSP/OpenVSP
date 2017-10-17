@@ -1731,21 +1731,9 @@ void VSPAEROScreen::UpdateCpSliceBrowser()
         CpSlice* slice = VSPAEROMgr.GetCpSliceVec()[i];
         if ( slice )
         {
-            string type;
-            if ( slice->m_CutType() == vsp::X_DIR )
-            {
-                type = "X";
-            }
-            else if ( slice->m_CutType() == vsp::Y_DIR )
-            {
-                type = "Y";
-            }
-            else if ( slice->m_CutType() == vsp::Z_DIR )
-            {
-                type = "Z";
-            }
+            char type = 88 + slice->m_CutType(); // ASCII X: 88; Y: 89; Z: 90
 
-            sprintf( str, "%s:%s:%4.2f", slice->GetName().c_str(), type.c_str(), slice->m_CutPosition() );
+            sprintf( str, "%s:%c:%4.2f", slice->GetName().c_str(), type, slice->m_CutPosition() );
             m_CpSliceBrowser->add( str );
         }
     }

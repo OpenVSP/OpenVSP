@@ -2706,18 +2706,8 @@ void VSPAEROMgrSingleton::CreateCutsFile()
 
     for ( size_t i = 0; i < numcuts; i++ )
     {
-        if ( m_CpSliceVec[i]->m_CutType() == vsp::X_DIR )
-        {
-            fprintf( cut_file, "x %f\n", m_CpSliceVec[i]->m_CutPosition() );
-        }
-        else if ( m_CpSliceVec[i]->m_CutType() == vsp::Y_DIR )
-        {
-            fprintf( cut_file, "y %f\n", m_CpSliceVec[i]->m_CutPosition() );
-        }
-        else if ( m_CpSliceVec[i]->m_CutType() == vsp::Z_DIR )
-        {
-            fprintf( cut_file, "z %f\n", m_CpSliceVec[i]->m_CutPosition() );
-        }
+        fprintf( cut_file, "%c %f\n", 120 + m_CpSliceVec[i]->m_CutType(),
+                 m_CpSliceVec[i]->m_CutPosition() );
     }
 
     //Finish up by closing the file and making sure that it appears in the file system
@@ -2861,19 +2851,7 @@ void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_i
                 res = ResultsMgr.CreateResults( "CpSlicer_Case" );
                 res_id_vector.push_back( res->GetID() );
 
-                if ( strcmp( data_string_array[4].c_str(), "X" ) == 0 )
-                {
-                    res->Add( NameValData( "Cut_Type", vsp::X_DIR ) );
-                }
-                else if ( strcmp( data_string_array[4].c_str(), "Y" ) == 0 )
-                {
-                    res->Add( NameValData( "Cut_Type", vsp::Y_DIR ) );
-                }
-                else if ( strcmp( data_string_array[4].c_str(), "Z" ) == 0 )
-                {
-                    res->Add( NameValData( "Cut_Type", vsp::Z_DIR ) );
-                }
-
+                res->Add( NameValData( "Cut_Type", (int)( data_string_array[4][0] - 88 ) ) ); // ASCII X: 88; Y: 89; Z: 90
                 res->Add( NameValData( "Cut_Loc", std::stod( data_string_array[5] ) ) );
                 res->Add( NameValData( "Cut_Num", std::stoi( data_string_array[2] ) ) );
             }

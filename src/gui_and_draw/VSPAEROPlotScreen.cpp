@@ -1454,22 +1454,10 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
                 cut_num = intdata[intdata.size() - 1];
             }
 
-            string type_str;
-            if ( type == vsp::X_DIR )
-            {
-                type_str = "x";
-            }
-            else if ( type == vsp::Y_DIR )
-            {
-                type_str = "y";
-            }
-            else if ( type == vsp::Z_DIR )
-            {
-                type_str = "z";
-            }
+            char type_char = 88 + type; // ASCII X: 88; Y: 89; Z: 90
 
             char strbuf[1024];
-            sprintf( strbuf, "Cut %d: %s= %4.2f", cut_num, type_str.c_str(), location );
+            sprintf( strbuf, "Cut %d: %c= %4.2f", cut_num, type_char, location );
 
             m_CpSliceCutBrowser->add( strbuf );
 
@@ -1868,18 +1856,10 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
         // Check for all same CpSlice cut type
         if ( std::adjacent_find( pos_type_vec.begin(), pos_type_vec.end(), std::not_equal_to<int>() ) == pos_type_vec.end() )
         {
-            if ( pos_type_vec[0] == vsp::X_DIR )
-            {
-                m_CpSlicePlotCanvas->current_x()->copy_label( "Position [X]" );
-            }
-            else if ( pos_type_vec[0] == vsp::Y_DIR )
-            {
-                m_CpSlicePlotCanvas->current_x()->copy_label( "Position [Y]" );
-            }
-            else if ( pos_type_vec[0] == vsp::Z_DIR )
-            {
-                m_CpSlicePlotCanvas->current_x()->copy_label( "Position [Z]" );
-            }
+            char strbuf[1024];
+            sprintf( strbuf, "Position: %c", ( 88 + pos_type_vec[0] ) ); // ASCII X: 88; Y: 89; Z: 90
+
+            m_CpSlicePlotCanvas->current_x()->copy_label( strbuf );
         }
         else
         {
