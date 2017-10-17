@@ -1687,6 +1687,59 @@ void APITestSuiteVSPAERO::TestVSPAeroParmContainersAccessibleAfterSave()
     printf("COMPLETE.\n");
 }
 
+void APITestSuiteVSPAERO::TestVSPAeroCpSlicer()
+{
+    printf( "APITestSuiteVSPAERO::TestVSPAeroCpSlicer()\n" );
+
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //open the file created in TestVSPAeroCreateModel
+    vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
+    if ( m_vspfname_for_vspaerotests == string() )
+    {
+        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeomPanel" );
+        return;
+    }
+    if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
+    {
+        TEST_FAIL( "m_vspfname_for_vspaerotests failed to open" );
+        return;
+    }
+
+    //==== Analysis: CpSlicer ====//
+    string analysis_name = "CpSlicer";
+    printf( "\t%s\n", analysis_name.c_str() );
+    // Set defaults
+    vsp::SetAnalysisInputDefaults( analysis_name );
+
+    // Setup cuts
+    vector < double > ycuts;
+    ycuts.push_back( 2.0 );
+    ycuts.push_back( 4.5 );
+    ycuts.push_back( 8.0 );
+
+    vsp::SetDoubleAnalysisInput( analysis_name, "YSlicePosVec", ycuts, 0 );
+
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // list inputs, type, and current values
+    vsp::PrintAnalysisInputs( analysis_name );
+
+    // Execute
+    printf( "\n\t\tExecuting..." );
+    string results_id = vsp::ExecAnalysis( analysis_name );
+    printf( "COMPLETE\n\n" );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // Get & Display Results
+    vsp::PrintResults( results_id );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "\n" );
+}
+
 double  APITestSuiteVSPAERO::calcTessWCheckVal( double t_tess_w )
 {
     double t_mult = 4;
