@@ -155,8 +155,6 @@ protected:
     Fl_Group* m_CpSliceTab;
     GroupLayout m_CpSliceLayout;
     GroupLayout m_CpSliceControlLayout;
-    GroupLayout m_CutXYZSelectLayout;
-    Fl_Scroll* m_CutXYZSelectScrollGroup;
     GroupLayout m_CpSlicePlotLayout;
     Ca_Canvas*  m_CpSlicePlotCanvas;
 
@@ -164,7 +162,10 @@ protected:
     Fl_Scroll* m_CpSliceLegendGroup;
 
     Fl_Browser * m_CpSliceCutBrowser;
-    vector < Choice > m_CpSlicePosTypeChoiceVec;
+    vector < Choice* > m_CpSlicePosTypeChoiceVec;
+    Choice m_XCpSlicePosTypeChoice;
+    Choice m_YCpSlicePosTypeChoice;
+    Choice m_ZCpSlicePosTypeChoice;
     Fl_Browser * m_CpSliceCaseBrowser;
     vector< string > m_CpSliceCaseSelectedResultIDs;
     map < int, vector < string > >  m_CpSliceCutResultIDMap;
@@ -184,8 +185,6 @@ protected:
 
     int m_NumCpCuts; // Number of CpSlice Cuts
     int m_NumCpCases; // Number of Flow Condition Cases
-
-    vector < int > m_CpSliceCutPosTypeVec;
 
     void UpdateCpSliceCaseBrowser();
     void ConstructCpSliceCaseString( char* strbuf, Results* res );
