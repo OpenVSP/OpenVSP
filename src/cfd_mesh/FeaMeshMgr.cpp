@@ -1717,10 +1717,10 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
 void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
 {
     // Check for SubSurface Edges on FeaPart Surfaces. If found, remove the SubSurface intersectionchain and 
-    //  allow it to be replaced by the FeaPart intersection curve. Note: It may be possible to combine this function
-    //  with CfdMeshMgrSingleton::BuildSubSurfIntChains()
+    //  allow it to be replaced by the FeaPart intersection curve. 
     vec2d uw_pnt0;
     vec2d uw_pnt1;
+    vector < ISegChain* > remove_chain_list;
 
     for ( size_t i = 0; i < (int)m_SurfVec.size(); i++ )
     {
@@ -1783,6 +1783,7 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                                 continue; // Skip if both end points are on the same edge of the surface
                             }
 
+                            // Project SubSurface edge point on FeaPart surface
                             vec3d skin_pnt0 = surfB->CompPnt( uw_pnt0[0], uw_pnt0[1] );
                             vec3d skin_pnt1 = surfB->CompPnt( uw_pnt1[0], uw_pnt1[1] );
 
@@ -1795,34 +1796,81 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
 
                             if ( dist_squared( part_pnt0, skin_pnt0 ) <= FLT_EPSILON && dist_squared( part_pnt1, skin_pnt1 ) <= FLT_EPSILON )
                             {
-                                vector < ISegChain* > chain;
-                                list< ISegChain* >::iterator c;
-                                for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+                                list< ISegChain* >::iterator c1, c2;
+                                for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); c1++ )
                                 {
-                                    if ( ( dist_squared( part_pnt0, ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt ) <= FLT_EPSILON && dist_squared( part_pnt1, ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt ) <= FLT_EPSILON ) ||
-                                        ( dist_squared( part_pnt0, ( *c )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt ) <= FLT_EPSILON && dist_squared( part_pnt1, ( *c )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt ) <= FLT_EPSILON ) )
+                                    if ( ( *c1 )->m_SurfA == ( *c1 )->m_SurfB ) // Indicates SubSurface ISegChain
                                     {
-                                        string part = m_FeaPartNameVec[surfA->GetFeaPartIndex()];
-                                        string message = "Merged Intersection Curve: " + part + " and " + ss_vec[ss].GetName() + "\n";
-                                        addOutputText( message.c_str() );
-                                    }
-                                    else
-                                    {
-                                        chain.push_back( *c );
-                                    }
-                                }
+                                        if ( ( dist_squared( part_pnt0, ( *c1 )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt ) <= FLT_EPSILON && dist_squared( part_pnt1, ( *c1 )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt ) <= FLT_EPSILON ) ||
+                                            ( dist_squared( part_pnt0, ( *c1 )->m_ISegDeque.back()->m_IPnt[1]->m_Pnt ) <= FLT_EPSILON && dist_squared( part_pnt1, ( *c1 )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt ) <= FLT_EPSILON ) )
+                                        {
+                                            // Check if this ISegChain has already been added to remove_chain_list
+                                            if ( std::find( remove_chain_list.begin(), remove_chain_list.end(), ( *c1 ) ) == remove_chain_list.end() )
+                                            {
+                                                string part = m_FeaPartNameVec[surfA->GetFeaPartIndex()];
+                                                string message = "Merged Intersection Curve: " + part + " and " + ss_vec[ss].GetName() + "\n";
+                                                addOutputText( message.c_str() );
 
-                                m_ISegChainList.clear();
+                                                remove_chain_list.push_back( *c1 );
 
-                                for ( size_t i = 0; i < (int)chain.size(); i++ )
-                                {
-                                    m_ISegChainList.push_back( chain[i] );
+                                                // Split FeaPart ISegChain at SubSurface edge points
+                                                for ( c2 = m_ISegChainList.begin(); c2 != m_ISegChainList.end(); c2++ )
+                                                {
+                                                    if ( ( *c1 ) != ( *c2 ) && ( ( ( *c2 )->m_SurfA == surfA && ( *c2 )->m_SurfB == surfB ) || ( ( *c2 )->m_SurfB == surfA && ( *c2 )->m_SurfA == surfB ) ) )
+                                                    {
+                                                        vec2d part_UW0 = vec2d( part_U0, part_W0 );
+                                                        vec2d part_UW1 = vec2d( part_U1, part_W1 );
+
+                                                        Puw* part_p0 = new Puw( surfA, part_UW0 );
+                                                        Puw* skin_p0 = new Puw( surfB, uw_pnt0 );
+
+                                                        Puw* part_p1 = new Puw( surfA, part_UW1 );
+                                                        Puw* skin_p1 = new Puw( surfB, uw_pnt1 );
+
+                                                        IPnt* split_pnt1 = new IPnt( part_p0, skin_p0 );
+                                                        IPnt* split_pnt2 = new IPnt( part_p1, skin_p1 );
+
+                                                        if ( part_p0 )
+                                                        {
+                                                            ( *c2 )->AddBorderSplit( split_pnt1, part_p0 );
+                                                        }
+                                                        else if ( skin_p0 )
+                                                        {
+                                                            ( *c2 )->AddBorderSplit( split_pnt1, skin_p0 );
+                                                        }
+
+                                                        if ( part_p1 )
+                                                        {
+                                                            ( *c2 )->AddBorderSplit( split_pnt2, part_p1 );
+                                                        }
+                                                        else if ( skin_p1 )
+                                                        {
+                                                            ( *c2 )->AddBorderSplit( split_pnt2, skin_p1 );
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
                                 }
                             }
                         }
                     }
                 }
             }
+        }
+    }
+
+    // Only keep ISegChains not added to remove_chain_list
+    list< ISegChain* >::iterator c;
+    list < ISegChain* > old_chain_list = m_ISegChainList;
+    m_ISegChainList.clear();
+
+    for ( c = old_chain_list.begin(); c != old_chain_list.end(); c++ )
+    {
+        if ( std::find( remove_chain_list.begin(), remove_chain_list.end(), ( *c ) ) == remove_chain_list.end() )
+        {
+            m_ISegChainList.push_back( ( *c ) );
         }
     }
 }
