@@ -50,8 +50,8 @@ public:
 
     virtual void CopyFrom( CfdMeshSettings* settings );
 
-    virtual string GetExportFileName( int type );
-    virtual bool GetExportFileFlag( int type );
+    string GetExportFileName( int type );
+    bool GetExportFileFlag( int type );
 
     bool m_FarManLocFlag;
     bool m_FarAbsSizeFlag;
@@ -98,7 +98,7 @@ public:
 
     virtual void CopyFrom( StructSettings* settings );
 
-    virtual string GetExportFileName( int type );
+    string GetExportFileName( int type );
 
     vector < bool > m_ExportFileFlags;
     int m_NumEvenlySpacedPart;

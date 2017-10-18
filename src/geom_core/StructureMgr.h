@@ -31,107 +31,107 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual void Renew();
-    virtual void Wype();
+    void Renew();
+    void Wype();
 
     //==== FeaStructure Management ====//
-    virtual vector < FeaStructure* > GetAllFeaStructs();
-    virtual FeaStructure* GetFeaStruct( int struct_ind );
-    virtual bool ValidTotalFeaStructInd( int index );
-    virtual int NumFeaStructures();
-    virtual int GetTotFeaStructIndex( FeaStructure* fea_struct );
-    virtual FeaPart* GetFeaPart( const string & feapart_id );
-    virtual int GetFeaPartIndex( const string & feapart_id );
-    virtual int GetFeaSubSurfIndex( const string & ss_id );
-    virtual string GetFeaPartName( const string & id );
-    virtual int GetFeaPropertyIndex( const string & FeaPartID );
-    virtual int GetFeaMaterialIndex( const string & FeaPartID );
-    virtual void ResetExportFileNames( const string & VSP3FileName );
-    virtual void ShowAllParts();
+    vector < FeaStructure* > GetAllFeaStructs();
+    FeaStructure* GetFeaStruct( int struct_ind );
+    bool ValidTotalFeaStructInd( int index );
+    int NumFeaStructures();
+    int GetTotFeaStructIndex( FeaStructure* fea_struct );
+    FeaPart* GetFeaPart( const string & feapart_id );
+    int GetFeaPartIndex( const string & feapart_id );
+    int GetFeaSubSurfIndex( const string & ss_id );
+    string GetFeaPartName( const string & id );
+    int GetFeaPropertyIndex( const string & FeaPartID );
+    int GetFeaMaterialIndex( const string & FeaPartID );
+    void ResetExportFileNames( const string & VSP3FileName );
+    void ShowAllParts();
 
-    virtual void UpdateStructUnit( int new_unit );
+    void UpdateStructUnit( int new_unit );
 
     //==== FeaProperty Management ====//
-    virtual void AddFeaProperty( FeaProperty* fea_prop )
+    void AddFeaProperty( FeaProperty* fea_prop )
     {
         m_FeaPropertyVec.push_back( fea_prop );
     }
-    virtual FeaProperty* AddFeaProperty( int property_type );
-    virtual void DeleteFeaProperty( int index );
-    virtual bool ValidFeaPropertyInd( int index );
-    virtual FeaProperty* GetFeaProperty( int index );
+    FeaProperty* AddFeaProperty( int property_type );
+    void DeleteFeaProperty( int index );
+    bool ValidFeaPropertyInd( int index );
+    FeaProperty* GetFeaProperty( int index );
 
-    virtual vector < FeaProperty* > GetFeaPropertyVec()
+    vector < FeaProperty* > GetFeaPropertyVec()
     {
         return m_FeaPropertyVec;
     }
-    virtual int NumFeaProperties()
+    int NumFeaProperties()
     {
         return m_FeaPropertyVec.size();
     }
-    virtual void InitFeaProperties();
+    void InitFeaProperties();
 
     //==== FeaMaterial Management ====//
-    virtual void AddFeaMaterial( FeaMaterial* fea_mat )
+    void AddFeaMaterial( FeaMaterial* fea_mat )
     {
         m_FeaMaterialVec.push_back( fea_mat );
     }
-    virtual FeaMaterial* AddFeaMaterial();
-    virtual void DeleteFeaMaterial( int index );
-    virtual bool ValidFeaMaterialInd( int index );
-    virtual FeaMaterial* GetFeaMaterial( int index );
-    virtual void InitFeaMaterials();
+    FeaMaterial* AddFeaMaterial();
+    void DeleteFeaMaterial( int index );
+    bool ValidFeaMaterialInd( int index );
+    FeaMaterial* GetFeaMaterial( int index );
+    void InitFeaMaterials();
 
-    virtual vector < FeaMaterial* > GetFeaMaterialVec()
+    vector < FeaMaterial* > GetFeaMaterialVec()
     {
         return m_FeaMaterialVec;
     }
-    virtual int NumFeaMaterials()
+    int NumFeaMaterials()
     {
         return m_FeaMaterialVec.size();
     }
 
-    virtual void SetCurrStructIndex( int ind )
+    void SetCurrStructIndex( int ind )
     {
         m_CurrStructIndex = ind;
     }
-    virtual int GetCurrStructIndex()
+    int GetCurrStructIndex()
     {
         return m_CurrStructIndex;
     }
 
-    virtual void SetCurrPartIndex( int ind )
+    void SetCurrPartIndex( int ind )
     {
         m_CurrPartIndex = ind;
     }
-    virtual int GetCurrPartIndex()
+    int GetCurrPartIndex()
     {
         return m_CurrPartIndex;
     }
 
-    virtual void SetCurrMaterialIndex( int ind )
+    void SetCurrMaterialIndex( int ind )
     {
         m_CurrFeaMaterialIndex = ind;
     }
-    virtual int GetCurrMaterialIndex()
+    int GetCurrMaterialIndex()
     {
         return m_CurrFeaMaterialIndex;
     }
 
-    virtual void SetCurrPropertyIndex( int ind )
+    void SetCurrPropertyIndex( int ind )
     {
         m_CurrFeaPropertyIndex = ind;
     }
-    virtual int GetCurrPropertyIndex()
+    int GetCurrPropertyIndex()
     {
         return m_CurrFeaPropertyIndex;
     }
 
-    virtual void SetFeaSliceOrientIndex( int ind )
+    void SetFeaSliceOrientIndex( int ind )
     {
         m_FeaSliceOrientationIndex = ind;
     }
-    virtual int GetFeaSliceOrientIndex()
+    int GetFeaSliceOrientIndex()
     {
         return m_FeaSliceOrientationIndex;
     }

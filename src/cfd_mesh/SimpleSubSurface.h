@@ -20,36 +20,36 @@ public:
     SimpleSubSurface();
     virtual ~SimpleSubSurface();
 
-    virtual void CopyFrom( SubSurface* ss );
+    void CopyFrom( SubSurface* ss );
 
-    virtual void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
-    virtual void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
-    virtual void SplitSegsU( const double & u, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant U value
-    virtual void SplitSegsW( const double & w, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant W value
-    virtual void ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec );
-    virtual bool Subtag( const vec3d & center );
+    void SplitSegsU( const double & u ); // Split line segments that cross a constant U value
+    void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
+    void SplitSegsU( const double & u, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant U value
+    void SplitSegsW( const double & w, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant W value
+    void ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec );
+    bool Subtag( const vec3d & center );
 
-    virtual std::vector< std::vector< SSLineSeg > >& GetSplitSegs()
+    std::vector< std::vector< SSLineSeg > >& GetSplitSegs()
     {
         return m_SplitLVec;
     }
-    virtual bool GetPolyFlag()
+    bool GetPolyFlag()
     {
         return m_PolyFlag;
     }
-    virtual int GetFeaPropertyIndex()
+    int GetFeaPropertyIndex()
     {
         return m_FeaPropertyIndex;
     }
-    virtual int GetCapFeaPropertyIndex()
+    int GetCapFeaPropertyIndex()
     {
         return m_CapFeaPropertyIndex;
     }
-    virtual string GetName()
+    string GetName()
     {
         return m_Name;
     }
-    virtual string GetCompID()
+    string GetCompID()
     {
         return m_CompID;
     }

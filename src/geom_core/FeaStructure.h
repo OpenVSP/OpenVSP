@@ -33,112 +33,112 @@ class FeaStructure
 public:
 
     FeaStructure( string GeomID, int surf_index );
-    virtual ~FeaStructure();
+    ~FeaStructure();
 
-    virtual void Update();
+    void Update();
 
-    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
-    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+    xmlNodePtr EncodeXml( xmlNodePtr & node );
+    xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
-    virtual void SetDrawFlag( bool flag );
+    void SetDrawFlag( bool flag );
 
-    virtual void AddFeaPart( FeaPart* fea_part )
+    void AddFeaPart( FeaPart* fea_part )
     {
         m_FeaPartVec.push_back( fea_part );
     }
-    virtual FeaPart* AddFeaPart( int type );
-    virtual bool ValidFeaPartInd( int ind );
-    virtual void DelFeaPart( int ind );
-    virtual void ReorderFeaPart( int ind, int action );
-    virtual void UpdateFeaParts();
-    virtual FeaPart* GetFeaPart( int ind );
-    virtual string GetFeaPartName( int ind );
-    virtual vector< FeaPart* > GetFeaPartVec()
+    FeaPart* AddFeaPart( int type );
+    bool ValidFeaPartInd( int ind );
+    void DelFeaPart( int ind );
+    void ReorderFeaPart( int ind, int action );
+    void UpdateFeaParts();
+    FeaPart* GetFeaPart( int ind );
+    string GetFeaPartName( int ind );
+    vector< FeaPart* > GetFeaPartVec()
     {
         return m_FeaPartVec;
     }
-    virtual int GetFeaPartIndex( FeaPart* fea_part );
-    virtual int NumFeaParts()
+    int GetFeaPartIndex( FeaPart* fea_part );
+    int NumFeaParts()
     {
         return m_FeaPartVec.size();
     }
 
-    virtual bool FeaPartIsFixPoint( int ind );
-    virtual int GetNumFeaFixPoints();
+    bool FeaPartIsFixPoint( int ind );
+    int GetNumFeaFixPoints();
 
-    virtual bool FeaPartIsArray( int ind );
+    bool FeaPartIsArray( int ind );
 
-    virtual void IndividualizeRibArray( int rib_array_ind );
-    virtual void IndividualizeSliceArray( int slice_array_ind );
-    virtual void IndividualizeSSLineArray( int ssline_array_ind );
+    void IndividualizeRibArray( int rib_array_ind );
+    void IndividualizeSliceArray( int slice_array_ind );
+    void IndividualizeSSLineArray( int ssline_array_ind );
 
-    virtual vector< FeaPart* > InitFeaSkin( );
-    virtual FeaPart* GetFeaSkin();
+    vector< FeaPart* > InitFeaSkin( );
+    FeaPart* GetFeaSkin();
 
-    virtual void UpdateFeaSubSurfs();
-    virtual void RecolorFeaSubSurfs( vector < int > active_ind_vec );
-    virtual SubSurface* AddFeaSubSurf( int type );
-    virtual bool ValidFeaSubSurfInd( int ind );
-    virtual void DelFeaSubSurf( int ind );
-    virtual SubSurface* GetFeaSubSurf( int ind );
-    virtual void ReorderFeaSubSurf( int ind, int action );
-    virtual int NumFeaSubSurfs()
+    void UpdateFeaSubSurfs();
+    void RecolorFeaSubSurfs( vector < int > active_ind_vec );
+    SubSurface* AddFeaSubSurf( int type );
+    bool ValidFeaSubSurfInd( int ind );
+    void DelFeaSubSurf( int ind );
+    SubSurface* GetFeaSubSurf( int ind );
+    void ReorderFeaSubSurf( int ind, int action );
+    int NumFeaSubSurfs()
     {
         return m_FeaSubSurfVec.size();
     }
-    virtual vector< SubSurface* > GetFeaSubSurfVec()
+    vector< SubSurface* > GetFeaSubSurfVec()
     {
         return m_FeaSubSurfVec;
     }
-    virtual void AddFeaSubSurf( SubSurface* sub_surf )
+    void AddFeaSubSurf( SubSurface* sub_surf )
     {
         m_FeaSubSurfVec.push_back( sub_surf );
     }
 
-    virtual int GetFeaPropertyIndex( int fea_part_ind );
-    virtual int GetCapFeaPropertyIndex( int fea_part_ind );
+    int GetFeaPropertyIndex( int fea_part_ind );
+    int GetCapFeaPropertyIndex( int fea_part_ind );
 
-    virtual string GetParentGeomID()
+    string GetParentGeomID()
     {
         return m_ParentGeomID;
     }
 
-    virtual int GetFeaStructMainSurfIndx()
+    int GetFeaStructMainSurfIndx()
     {
         return m_MainSurfIndx;
     }
 
-    virtual string GetFeaStructName()
+    string GetFeaStructName()
     {
         return m_FeaStructName;
     }
-    virtual void SetFeaStructName( string struct_name )
+    void SetFeaStructName( string struct_name )
     {
         m_FeaStructName = struct_name;
     }
 
-    virtual StructSettings* GetStructSettingsPtr()
+    StructSettings* GetStructSettingsPtr()
     {
         return &m_StructSettings;
     }
-    virtual GridDensity* GetFeaGridDensityPtr()
+    GridDensity* GetFeaGridDensityPtr()
     {
         return &m_FeaGridDensity;
     }
 
-    virtual void BuildSuppressList();
+    void BuildSuppressList();
 
-    virtual vector < double > GetUSuppress()
+    vector < double > GetUSuppress()
     {
         return m_Usuppress;
     }
-    virtual vector < double > GetWSuppress()
+    vector < double > GetWSuppress()
     {
         return m_Wsuppress;
     }
 
-    virtual bool PtsOnAnyPlanarPart( const vector < vec3d > &pnts );
+    bool PtsOnAnyPlanarPart( const vector < vec3d > &pnts );
 
 protected:
 
@@ -321,9 +321,9 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual double GetRibPerU();
-    virtual double GetRibTotalRotation();
-    virtual VspSurf ComputeRibSurf();
+    double GetRibPerU();
+    double GetRibTotalRotation();
+    VspSurf ComputeRibSurf();
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
@@ -359,9 +359,9 @@ public:
     virtual ~FeaFixPoint()    {};
 
     virtual void Update();
-    virtual void IdentifySplitSurfIndex( bool half_mesh_flag, const vector < double > &usuppress, const vector < double > &wsuppress );
-    virtual vector < vec3d > GetPntVec(); // Returns the FeaFixPoint 3D coordinate on each parent surface
-    virtual vec2d GetUW(); // Returns the FeaFixPoint UW coordinate on main parent surface
+    void IdentifySplitSurfIndex( bool half_mesh_flag, const vector < double > &usuppress, const vector < double > &wsuppress );
+    vector < vec3d > GetPntVec(); // Returns the FeaFixPoint 3D coordinate on each parent surface
+    vec2d GetUW(); // Returns the FeaFixPoint UW coordinate on main parent surface
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -395,7 +395,7 @@ public:
 
     virtual void Update();
 
-    virtual void BuildSkinSurf();
+    void BuildSkinSurf();
 
     virtual void UpdateDrawObjs( int id, bool highlight )    {}; // Do nothing for skins
 
@@ -417,7 +417,7 @@ public:
 
     virtual void Update();
 
-    virtual void BuildDomeSurf();
+    void BuildDomeSurf();
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
@@ -449,8 +449,8 @@ public:
     virtual ~FeaRibArray();
 
     virtual void Update();
-    virtual void CalcNumRibs();
-    virtual void CreateFeaRibArray();
+    void CalcNumRibs();
+    void CreateFeaRibArray();
 
     virtual FeaRib* AddFeaRib( double center_location, int ind );
 
@@ -461,7 +461,7 @@ public:
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind = 0 );
 
-    virtual int GetNumRibs()
+    int GetNumRibs()
     {
         return m_NumRibs;
     }
@@ -503,8 +503,8 @@ public:
     virtual ~FeaSliceArray()    {};
 
     virtual void Update();
-    virtual void CreateFeaSliceArray();
-    virtual void CalcNumSlices();
+    void CreateFeaSliceArray();
+    void CalcNumSlices();
 
     virtual FeaSlice* AddFeaSlice( double center_location, int ind );
 
@@ -512,7 +512,7 @@ public:
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind = 0 );
 
-    virtual int GetNumSlices()
+    int GetNumSlices()
     {
         return m_NumSlices;
     }
@@ -548,8 +548,8 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual string GetTypeName( );
-    virtual string GetXSecName();
+    string GetTypeName( );
+    string GetXSecName();
 
     IntParm m_FeaPropertyType;
     Parm m_Thickness;
@@ -582,7 +582,7 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
-    virtual double GetShearModulus();
+    double GetShearModulus();
 
     Parm m_MassDensity;
     Parm m_ElasticModulus;

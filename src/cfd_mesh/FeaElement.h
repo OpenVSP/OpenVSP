@@ -188,19 +188,15 @@ private:
 class SimpleFeaProperty
 {
     public:
-    SimpleFeaProperty()
-    {
-    };
-    virtual ~SimpleFeaProperty()
-    {
-    };
+    SimpleFeaProperty()    {};
+    ~SimpleFeaProperty()    {};
 
-    virtual void CopyFrom( FeaProperty* fea_prop );
+    void CopyFrom( FeaProperty* fea_prop );
 
-    virtual void WriteNASTRAN( FILE* fp, int id );
-    virtual void WriteCalculix( FILE* fp, string ELSET );
+    void WriteNASTRAN( FILE* fp, int id );
+    void WriteCalculix( FILE* fp, string ELSET );
 
-    virtual int GetSimpFeaMatIndex()
+    int GetSimpFeaMatIndex()
     {
         return m_SimpleFeaMatIndex;
     }
@@ -231,14 +227,14 @@ class SimpleFeaMaterial
 {
 public:
     SimpleFeaMaterial()    {};
-    virtual ~SimpleFeaMaterial()    {};
+    ~SimpleFeaMaterial()    {};
 
-    virtual void CopyFrom( FeaMaterial* fea_mat );
+    void CopyFrom( FeaMaterial* fea_mat );
 
-    virtual void WriteNASTRAN( FILE* fp, int id );
-    virtual void WriteCalculix( FILE* fp, int id );
+    void WriteNASTRAN( FILE* fp, int id );
+    void WriteCalculix( FILE* fp, int id );
 
-    virtual double GetShearModulus();
+    double GetShearModulus();
 
     double m_MassDensity;
     double m_ElasticModulus;
