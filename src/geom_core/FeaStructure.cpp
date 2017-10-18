@@ -1014,38 +1014,47 @@ void FeaPart::LoadDrawObjs( std::vector< DrawObj* > & draw_obj_vec )
 
 void FeaPart::UpdateDrawObjs( int id, bool highlight )
 {
+    // 2 DrawObj per FeaPart: One for the planar surface and the other for the outline. This is done to avoid
+    //  OpenGL transparency ordering issues. 
     m_FeaPartDO.clear();
-    m_FeaPartDO.resize( m_FeaPartSurfVec.size() );
+    m_FeaPartDO.resize( 2 * m_FeaPartSurfVec.size() );
 
-    for ( unsigned int j = 0; j < m_FeaPartSurfVec.size(); j++ )
+    for ( unsigned int j = 0; j < 2 * m_FeaPartSurfVec.size(); j += 2 )
     {
-        m_FeaPartDO[j].m_PntVec.clear();
-
         m_FeaPartDO[j].m_GeomID = string( m_Name + "_" + std::to_string( id ) + "_" + std::to_string( j ) );
         m_FeaPartDO[j].m_Screen = DrawObj::VSP_MAIN_SCREEN;
 
+        m_FeaPartDO[j + 1].m_GeomID = string( m_Name + "_" + std::to_string( id ) + "_" + std::to_string( j + 1 ) );
+        m_FeaPartDO[j + 1].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
         if ( highlight )
         {
-            m_FeaPartDO[j].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
-            m_FeaPartDO[j].m_LineWidth = 3.0;
+            m_FeaPartDO[j + 1].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+            m_FeaPartDO[j + 1].m_LineWidth = 3.0;
         }
         else
         {
-            m_FeaPartDO[j].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
-            m_FeaPartDO[j].m_LineWidth = 1.0;
+            m_FeaPartDO[j + 1].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
+            m_FeaPartDO[j + 1].m_LineWidth = 1.0;
         }
 
-        m_FeaPartDO[j].m_Type = DrawObj::VSP_WIRE_SHADED_QUADS;
+        m_FeaPartDO[j].m_Type = DrawObj::VSP_SHADED_QUADS;
+        m_FeaPartDO[j + 1].m_Type = DrawObj::VSP_LINE_LOOP;
 
-        vec3d p00 = m_FeaPartSurfVec[j].CompPnt01( 0, 0 );
-        vec3d p10 = m_FeaPartSurfVec[j].CompPnt01( 1, 0 );
-        vec3d p11 = m_FeaPartSurfVec[j].CompPnt01( 1, 1 );
-        vec3d p01 = m_FeaPartSurfVec[j].CompPnt01( 0, 1 );
+        vec3d p00 = m_FeaPartSurfVec[j / 2].CompPnt01( 0, 0 );
+        vec3d p10 = m_FeaPartSurfVec[j / 2].CompPnt01( 1, 0 );
+        vec3d p11 = m_FeaPartSurfVec[j / 2].CompPnt01( 1, 1 );
+        vec3d p01 = m_FeaPartSurfVec[j / 2].CompPnt01( 0, 1 );
 
         m_FeaPartDO[j].m_PntVec.push_back( p00 );
         m_FeaPartDO[j].m_PntVec.push_back( p10 );
         m_FeaPartDO[j].m_PntVec.push_back( p11 );
         m_FeaPartDO[j].m_PntVec.push_back( p01 );
+
+        m_FeaPartDO[j + 1].m_PntVec.push_back( p00 );
+        m_FeaPartDO[j + 1].m_PntVec.push_back( p10 );
+        m_FeaPartDO[j + 1].m_PntVec.push_back( p11 );
+        m_FeaPartDO[j + 1].m_PntVec.push_back( p01 );
 
         // Get new normal
         vec3d quadnorm = cross( p10 - p00, p01 - p00 );
@@ -1075,7 +1084,9 @@ void FeaPart::UpdateDrawObjs( int id, bool highlight )
         }
 
         m_FeaPartDO[j].m_MaterialInfo.Shininess = 5.0f;
+
         m_FeaPartDO[j].m_GeomChanged = true;
+        m_FeaPartDO[j+ 1].m_GeomChanged = true;
     }
 }
 
