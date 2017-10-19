@@ -1085,6 +1085,7 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
             // Only check for FeaFixPoints on two surfaces. Nodes are automatically set for more than two surface intersections
             if ( m_FixPntBorderFlagMap[n][j] == BORDER_FIX_POINT && m_FixPntSurfIndMap[n][j].size() == 2 )
             {
+                bool split = false;
                 list< ISegChain* >::iterator c;
                 for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
                 {
@@ -1124,19 +1125,44 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
                         }
 
                         IPnt* split_pnt = new IPnt( p0, p1 );
+                        bool success = false;
 
                         if ( p0 )
                         {
-                            ( *c )->AddBorderSplit( split_pnt, p0 );
+                            success = ( *c )->AddBorderSplit( split_pnt, p0 );
                         }
-                        else if ( p1 )
+                        if ( p1 && !success )
                         {
-                            ( *c )->AddBorderSplit( split_pnt, p1 );
+                            success = ( *c )->AddBorderSplit( split_pnt, p1 );
                         }
 
-                        string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[n][j]];
-                        string message = "\tBorder Intersect Point Set for " + fix_point_name + "\n";
-                        addOutputText( message );
+                        if ( success )
+                        {
+                            string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[n][j]];
+                            string message = "\tBorder Intersect Point Set for " + fix_point_name + "\n";
+                            addOutputText( message );
+                            split = true;
+                        }
+                        else // Free memory
+                        {
+                            if ( p0 )
+                            {
+                                delete p0;
+                            }
+                            if ( p1 )
+                            {
+                                delete p1;
+                            }
+                            if ( split_pnt )
+                            {
+                                delete split_pnt;
+                            }
+                        }
+                    }
+
+                    if ( split )
+                    {
+                        break;
                     }
                 }
             }
