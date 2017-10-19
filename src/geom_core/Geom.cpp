@@ -4080,10 +4080,9 @@ FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
             string defaultname = m_Name + "_Struct" + to_string( m_FeaStructCount );
             feastruct->SetFeaStructName( defaultname );
 
-            StructSettings* setting_ptr = feastruct->GetStructSettingsPtr();
-            if ( setting_ptr )
+            if ( feastruct->GetStructSettingsPtr() )
             {
-                setting_ptr->ResetExportFileNames( defaultname );
+                feastruct->GetStructSettingsPtr()->ResetExportFileNames( defaultname );
             }
 
             if ( initskin )

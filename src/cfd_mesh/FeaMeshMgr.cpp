@@ -1075,18 +1075,19 @@ void FeaMeshMgrSingleton::SetFixPointSurfaceNodes()
                         {
                             string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[n][j]];
 
-                            if ( !m_SurfVec[i]->GetMesh()->SetFixPoint( m_FixPntMap[n][j], m_FixUWMap[n][j] ) )
-                            {
-                                string message = "Error: No node found for " + fix_point_name + ". Adjust GridDensity.\n";
-                                addOutputText( message );
-                            }
-                            else
+                            if ( m_SurfVec[i]->GetMesh()->SetFixPoint( m_FixPntMap[n][j], m_FixUWMap[n][j] ) )
                             {
                                 string count = std::to_string( m_SurfVec[i]->GetMesh()->GetNumFixPointIter() );
                                 string message = "\t" + fix_point_name + " Number of Iterations:" + count + "\n";
                                 addOutputText( message );
                                 m_SurfVec[i]->GetMesh()->ResetNumFixPointIter();
                             }
+                            else
+                            {
+                                string message = "Error: No node found for " + fix_point_name + ". Adjust GridDensity.\n";
+                                addOutputText( message );
+                            }
+                            break;
                         }
                     }
                 }

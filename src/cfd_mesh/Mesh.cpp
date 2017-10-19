@@ -1331,12 +1331,10 @@ bool Mesh::SetFixPoint( vec3d fix_pnt, vec2d fix_uw )
 
         for ( size_t i = 0; i < check_edge_vec.size(); i++ )
         {
-            if ( !check_edge_vec[i]->border )
+            if ( !check_edge_vec[i]->border && check_edge_vec[i]->ComputeLength() > tol )
             {
-                if ( check_edge_vec[i]->ComputeLength() > tol )
-                {
-                    long_edge = true;
-                }
+                long_edge = true;
+                break;
             }
         }
 

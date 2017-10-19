@@ -2380,10 +2380,9 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             {
                 feastruct->SetFeaStructName( m_FeaStructNameInput.GetString() );
 
-                StructSettings* setting_ptr = feastruct->GetStructSettingsPtr();
-                if ( setting_ptr )
+                if ( feastruct->GetStructSettingsPtr() )
                 {
-                    setting_ptr->ResetExportFileNames( m_FeaStructNameInput.GetString() );
+                    feastruct->GetStructSettingsPtr()->ResetExportFileNames( m_FeaStructNameInput.GetString() );
                 }
             }
         }
