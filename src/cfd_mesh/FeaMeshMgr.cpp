@@ -1465,12 +1465,16 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                 tot_max_w += TMAGIC;
             }
 
-            for ( size_t i = 0; i < surf_vec.size(); i++ )
+            int i = 0;
+
+            while ( i < (int)surf_vec.size() && ( *c )->m_BorderFlag && ( *c )->m_SSIntersectIndex < 0 )
             {
                 // Get all SubSurfaces for the specified geom
                 vector < SimpleSubSurface > ss_vec = GetSimpSubSurfs( surf_vec[i]->GetGeomID(), surf_vec[i]->GetMainSurfID(), surf_vec[i]->GetCompID() );
 
-                for ( int ss = 0; ss < (int)ss_vec.size(); ss++ )
+                int ss = 0;
+
+                while ( ss < (int)ss_vec.size() && ( *c )->m_BorderFlag && ( *c )->m_SSIntersectIndex < 0 )
                 {
                     if ( ss_vec[ss].m_IncludedElements == vsp::FEA_BEAM || ss_vec[ss].m_IncludedElements == vsp::FEA_SHELL_AND_BEAM ) // Only consider SubSurface if cap intersections is flagged
                     {
@@ -1483,19 +1487,19 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                         vector < vector< SSLineSeg > >& segsvec = ss_vec[ss].GetSplitSegs();
 
                         // Build Intersection Chains
-                        for ( int j = 0; j < segsvec.size(); j++ )
+                        int j = 0;
+
+                        while ( j < (int)segsvec.size() && ( *c )->m_BorderFlag && ( *c )->m_SSIntersectIndex < 0 )
                         {
                             vector< SSLineSeg >& segs = segsvec[j];
+                            int ls = 0;
 
-                            for ( int ls = 0; ls < (int)segs.size(); ls++ )
+                            while ( ls < (int)segs.size() && ( *c )->m_BorderFlag && ( *c )->m_SSIntersectIndex < 0 )
                             {
-                                vec3d lp0, lp1;
-                                vec2d uw_pnt0, uw_pnt1;
-
-                                lp0 = segs[ls].GetP0();
-                                lp1 = segs[ls].GetP1();
-                                uw_pnt0 = vec2d( lp0.x(), lp0.y() );
-                                uw_pnt1 = vec2d( lp1.x(), lp1.y() );
+                                vec3d lp0 = segs[ls].GetP0();
+                                vec3d lp1 = segs[ls].GetP1();
+                                vec2d uw_pnt0 = vec2d( lp0.x(), lp0.y() );
+                                vec2d uw_pnt1 = vec2d( lp1.x(), lp1.y() );
 
                                 // Cap subsurface edge points to within min and max U/W.
                                 if ( uw_pnt0[0] < tot_min_u && closedU )
@@ -1644,7 +1648,9 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                             ( const_w_curve && abs( uw_pnt0[1] - uw_pnt1[1] ) <= FLT_EPSILON ) ) )
                                         {
                                             // Check if a split point lies on subsurface edge
-                                            for ( size_t k = 0; k < split_pnt_vec.size(); k++ )
+                                            int k = 0;
+
+                                            while ( k < (int)split_pnt_vec.size() && ( *c )->m_BorderFlag && ( *c )->m_SSIntersectIndex < 0 )
                                             {
                                                 bool split_on_ss_edge = false;
 
@@ -1691,7 +1697,9 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                                 }
 
                                                 // Check if the subsurface edge is split by more than one point
-                                                for ( size_t n = 0; n < split_pnt_vec.size(); n++ )
+                                                int n = 0;
+
+                                                while ( n < (int)split_pnt_vec.size() && ( *c )->m_BorderFlag && ( *c )->m_SSIntersectIndex < 0 )
                                                 {
                                                     split_on_ss_edge = false;
 
@@ -1735,15 +1743,21 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
                                                             break;
                                                         }
                                                     }
+                                                    n++; // increase splitpnt index
                                                 }
+                                                k++; // increase splitpnt index
                                             }
                                         }
                                     }
                                 }
+                                ls++; // increase seg index
                             }
+                            j++; // increase segvec index
                         }
                     }
+                    ss++; // increase subsurface index
                 }
+                i++; // increase surf index
             }
         }
     }
