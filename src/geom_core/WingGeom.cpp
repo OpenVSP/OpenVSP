@@ -1344,6 +1344,10 @@ void WingGeom::Scale()
                     double area = ws->m_Area() * currentScale * currentScale;
                     ws->ForceAspectTaperArea(ws->m_Aspect(), ws->m_Taper(), area);
                 }
+                else
+                {
+                    ws->ForceChordVal( ws->m_TipChord() * currentScale, false );
+                }
 
                 // Operate on all sections.
                 ws->SetScale( currentScale );
