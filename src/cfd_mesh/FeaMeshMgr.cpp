@@ -401,10 +401,30 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
                         {
                             // Coplanar surfaces are same size and location. One surface kept, other is deleted
                             //  Note: Priority for which FeaPart data is kept is given to earlier index in fea_part_vec
+
+                            // Update Parent Surface for Fixed Points. This is only supported for FeaParts placed in the 
+                            //  same location, not for overlaps due to symmetry.
+                            for ( size_t k = 0; k < fea_part_vec.size(); k++ )
+                            {
+                                if ( fea_struct->FeaPartIsFixPoint( k ) )
+                                {
+                                    FeaFixPoint* fixpnt = dynamic_cast<FeaFixPoint*>( fea_part_vec[k] );
+                                    assert( fixpnt );
+
+                                    string oldID = fea_part_vec[all_feaprt_ind_vec[j]]->GetID();
+                                    string newID = fea_part_vec[all_feaprt_ind_vec[i]]->GetID();
+
+                                    if ( strcmp( oldID.c_str(), fixpnt->m_ParentFeaPartID.c_str() ) == 0 )
+                                    {
+                                        fixpnt->m_ParentFeaPartID = newID;
+                                    }
+                                }
+                            }
                         }
                         else 
                         {
-                            // Coplanar surfaces are symmetric. Delete one surface and significantly oversize the other.
+                            // Coplanar surfaces are symmetric. Delete one surface and significantly oversize the other. 
+                            // Note: Fixed points on the oversized surface will not be at the same UW coordinate
                             vec3d orgin, all_max, all_min;
 
                             if ( dist( maxA, orgin ) > dist( maxB, orgin ) )
