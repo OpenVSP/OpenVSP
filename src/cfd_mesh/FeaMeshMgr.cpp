@@ -1842,25 +1842,60 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                                                         Puw* part_p1 = new Puw( surfA, part_UW1 );
                                                         Puw* skin_p1 = new Puw( surfB, uw_pnt1 );
 
-                                                        IPnt* split_pnt1 = new IPnt( part_p0, skin_p0 );
-                                                        IPnt* split_pnt2 = new IPnt( part_p1, skin_p1 );
+                                                        IPnt* split_pnt0 = new IPnt( part_p0, skin_p0 );
+                                                        IPnt* split_pnt1 = new IPnt( part_p1, skin_p1 );
+
+                                                        bool success0 = false;
+                                                        bool success1 = false;
 
                                                         if ( part_p0 )
                                                         {
-                                                            ( *c2 )->AddBorderSplit( split_pnt1, part_p0 );
+                                                            success0 = ( *c2 )->AddBorderSplit( split_pnt0, part_p0 );
                                                         }
-                                                        else if ( skin_p0 )
+                                                        if ( skin_p0 && !success0 )
                                                         {
-                                                            ( *c2 )->AddBorderSplit( split_pnt1, skin_p0 );
+                                                            success0 = ( *c2 )->AddBorderSplit( split_pnt0, skin_p0 );
                                                         }
 
                                                         if ( part_p1 )
                                                         {
-                                                            ( *c2 )->AddBorderSplit( split_pnt2, part_p1 );
+                                                            success1 = ( *c2 )->AddBorderSplit( split_pnt1, part_p1 );
                                                         }
-                                                        else if ( skin_p1 )
+                                                        if ( skin_p1 && !success1 )
                                                         {
-                                                            ( *c2 )->AddBorderSplit( split_pnt2, skin_p1 );
+                                                            success1 = ( *c2 )->AddBorderSplit( split_pnt1, skin_p1 );
+                                                        }
+
+                                                        // Free memory
+                                                        if ( !success0 )
+                                                        {
+                                                            if ( part_p0 )
+                                                            {
+                                                                delete part_p0;
+                                                            }
+                                                            if ( skin_p0 )
+                                                            {
+                                                                delete skin_p0;
+                                                            }
+                                                            if ( split_pnt0 )
+                                                            {
+                                                                delete split_pnt0;
+                                                            }
+                                                        }
+                                                        if ( !success1 )
+                                                        {
+                                                            if ( part_p1 )
+                                                            {
+                                                                delete part_p1;
+                                                            }
+                                                            if ( skin_p1 )
+                                                            {
+                                                                delete skin_p1;
+                                                            }
+                                                            if ( split_pnt1 )
+                                                            {
+                                                                delete split_pnt1;
+                                                            }
                                                         }
                                                     }
                                                 }
