@@ -1747,6 +1747,12 @@ void RoundedRectXSec::SetWidthHeight( double w, double h )
     m_Height = h;
 }
 
+void RoundedRectXSec::SetScale( double scale )
+{
+    XSecCurve::SetScale( scale );
+
+    m_Radius.Set( m_Radius() * scale );
+}
 
 void RoundedRectXSec::ReadV2FileFuse2( xmlNodePtr &root )
 {
