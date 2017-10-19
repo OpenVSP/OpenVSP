@@ -1173,17 +1173,20 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
 void FeaMeshMgrSingleton::CheckFixPointIntersects()
 {
     // Idenitfy and set FeaFixPoints on intersection curves
-    double tol;
 
     for ( size_t n = 0; n < m_NumFeaFixPoints; n++ )
     {
         for ( size_t j = 0; j < m_FixPntSurfIndMap[n].size(); j++ )
         {
+            bool split = false;
             list< ISegChain* >::iterator c;
             for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
             {
                 Puw* p0 = NULL;
                 Puw* p1 = NULL;
+                IPnt* split_pnt = NULL;
+                bool success = false;
+                double tol = 1e-3;
 
                 if ( !( *c )->m_BorderFlag && m_FixPntSurfIndMap[n][j].size() == 1 )
                 {
@@ -1194,13 +1197,9 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                             vec2d closest_uw = ( *c )->m_SurfB->ClosestUW( m_FixPntMap[n][j] );
                             vec3d closest_pnt = ( *c )->m_SurfB->CompPnt( closest_uw[0], closest_uw[1] );
 
-                            if ( ( *c )->m_SurfA->GetCompID() < 0 )
+                            if ( ( *c )->m_SurfA->GetCompID() < 0 ) // Looser tolerance for FeaParts
                             {
                                 tol = 1e-2;
-                            }
-                            else
-                            {
-                                tol = 1e-3;
                             }
 
                             // Compare FeaFixPoint to closest point on other surface
@@ -1218,35 +1217,25 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                     p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
                                 }
 
-                                IPnt* split_pnt = new IPnt( p0, p1 );
-                                int num_split = ( *c )->m_SplitVec.size();
+                                split_pnt = new IPnt( p0, p1 );
 
                                 if ( p0 )
                                 {
-                                    ( *c )->AddBorderSplit( split_pnt, p0 );
+                                    success = ( *c )->AddBorderSplit( split_pnt, p0 );
 
-                                    if ( ( *c )->m_SplitVec.size() > num_split )
+                                    if ( success )
                                     {
                                         m_FixPntMap[n][j] = ( *c )->m_SurfA->CompPnt( closest_uwA.x(), closest_uwA.y() );
                                     }
                                 }
-                                else if ( p1 )
+                                if ( p1 && !success )
                                 {
-                                    ( *c )->AddBorderSplit( split_pnt, p1 );
+                                    success = ( *c )->AddBorderSplit( split_pnt, p1 );
 
-                                    if ( ( *c )->m_SplitVec.size() > num_split )
+                                    if ( success )
                                     {
                                         m_FixPntMap[n][j] = closest_pnt;
                                     }
-                                }
-
-                                if ( ( *c )->m_SplitVec.size() > num_split )
-                                {
-                                    m_FixPntBorderFlagMap[n][j] = INTERSECT_FIX_POINT;
-
-                                    string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[n][j]];
-                                    string message = "\tIntersection Found for " + fix_point_name + "\n";
-                                    addOutputText( message );
                                 }
                             }
                         }
@@ -1255,16 +1244,10 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                             vec2d closest_uw = ( *c )->m_SurfA->ClosestUW( m_FixPntMap[n][j] );
                             vec3d closest_pnt = ( *c )->m_SurfA->CompPnt( closest_uw[0], closest_uw[1] );
 
-                            if ( ( *c )->m_SurfB->GetCompID() < 0 )
+                            if ( ( *c )->m_SurfB->GetCompID() < 0 ) // Looser tolerance for FeaParts
                             {
                                 tol = 1e-2;
                             }
-                            else
-                            {
-                                tol = 1e-3;
-                            }
-
-                            double test = dist( closest_pnt, m_FixPntMap[n][j] );
 
                             // Compare FeaFixPoint to closest point on other surface
                             if ( dist( closest_pnt, m_FixPntMap[n][j] ) <= tol )
@@ -1282,41 +1265,30 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                 }
 
                                 IPnt* split_pnt = new IPnt( p0, p1 );
-                                int num_split = ( *c )->m_SplitVec.size();
 
                                 if ( p0 )
                                 {
-                                    ( *c )->AddBorderSplit( split_pnt, p0 );
+                                    success = ( *c )->AddBorderSplit( split_pnt, p0 );
 
-                                    if ( ( *c )->m_SplitVec.size() > num_split )
+                                    if ( success )
                                     {
                                         m_FixPntMap[n][j] = closest_pnt;
                                     }
                                 }
-                                else if ( p1 )
+                                if ( p1 && !success )
                                 {
-                                    ( *c )->AddBorderSplit( split_pnt, p1 );
+                                    success = ( *c )->AddBorderSplit( split_pnt, p1 );
 
-                                    if ( ( *c )->m_SplitVec.size() > num_split )
+                                    if ( success )
                                     {
                                         m_FixPntMap[n][j] = ( *c )->m_SurfB->CompPnt( closest_uwB[0], closest_uwB[1] );
                                     }
                                 }
-
-                                if ( ( *c )->m_SplitVec.size() > num_split )
-                                {
-                                    m_FixPntBorderFlagMap[n][j] = INTERSECT_FIX_POINT;
-
-                                    string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[n][j]];
-                                    string message = "\tIntersection Found for " + fix_point_name + "\n";
-                                    addOutputText( message );
-                                }
                             }
                         }
                     }
-                    else if ( ( *c )->m_SurfA == ( *c )->m_SurfB ) // Indicates SubSurface Edge
+                    else if ( ( *c )->m_SurfA == ( *c )->m_SurfB && ( *c )->m_SurfA->GetSurfID() == m_FixPntSurfIndMap[n][j][0] ) // Indicates SubSurface Edge
                     {
-                        int iseg_index = 0;
                         double closest_dist = FLT_MAX;
 
                         for ( size_t m = 0; m < ( *c )->m_ISegDeque.size(); m++ )
@@ -1329,12 +1301,9 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
 
                             if ( distance <= closest_dist )
                             {
-                                iseg_index = m;
                                 closest_dist = distance;
                             }
                         }
-
-                        tol = 1e-3;
 
                         if ( closest_dist < tol )
                         {
@@ -1351,27 +1320,47 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                             }
 
                             IPnt* split_pnt = new IPnt( p0, p1 );
-                            int num_split = ( *c )->m_SplitVec.size();
 
                             if ( p0 )
                             {
-                                ( *c )->AddBorderSplit( split_pnt, p0 );
+                                success = ( *c )->AddBorderSplit( split_pnt, p0 );
                             }
-                            else if ( p1 )
+                            if ( p1 && !success )
                             {
-                                ( *c )->AddBorderSplit( split_pnt, p1 );
-                            }
-
-                            if ( ( *c )->m_SplitVec.size() > num_split )
-                            {
-                                m_FixPntBorderFlagMap[n][j] = INTERSECT_FIX_POINT;
-
-                                string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[n][j]];
-                                string message = "\tIntersection Found for " + fix_point_name + "\n";
-                                addOutputText( message );
+                                success = ( *c )->AddBorderSplit( split_pnt, p1 );
                             }
                         }
                     }
+
+                    if ( success )
+                    {
+                        m_FixPntBorderFlagMap[n][j] = INTERSECT_FIX_POINT;
+
+                        string fix_point_name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[n][j]];
+                        string message = "\tIntersection Found for " + fix_point_name + "\n";
+                        addOutputText( message );
+                        split = true;
+                    }
+                    else // Free memory
+                    {
+                        if ( p0 )
+                        {
+                            delete p0;
+                        }
+                        if ( p1 )
+                        {
+                            delete p1;
+                        }
+                        if ( split_pnt )
+                        {
+                            delete split_pnt;
+                        }
+                    }
+                }
+
+                if ( split )
+                {
+                    break;
                 }
             }
         }
