@@ -2118,6 +2118,8 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "double Deg2Rad( double d )", asMETHOD( ScriptMgrSingleton, Deg2Rad ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string GetVSPVersion( )", asMETHOD( ScriptMgrSingleton, GetVSPVersion ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
 
 
     //====  Register Proxy Utility Functions ====//
