@@ -24,6 +24,7 @@
 #include "VSPAEROMgr.h"
 #include "MeasureMgr.h"
 #include "SubSurfaceMgr.h"
+#include "VKTAirfoil.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -2464,6 +2465,148 @@ void SetAirfoilPnts( const string& xsec_id, std::vector< vec3d > & up_pnt_vec, s
     assert( file_xs );
     file_xs->SetAirfoilPnts( up_pnt_vec, low_pnt_vec );
     ErrorMgr.NoError();
+}
+
+std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau )
+{
+    // alpha = Angle of attack( radian )
+    // epsilon = Thisckness
+    // kappa = Camber
+    // tau = Trailing edge angle( radian )
+    // npts = # of nodes in the circumferential direction
+
+    const double ell = 0.25; // chord length = 4 * ell
+
+    vector < vec3d > xyzdata;
+    xyzdata.resize( npts );
+
+    double a = ell * sqrt( ( 1.0 + epsilon ) * ( 1.0 + epsilon ) + kappa * kappa ); // Radius of circle
+    double beta = asin( ell * kappa / a ); // Angle of TE location (rad)
+    double n = 2.0 - tau / PI;
+    doublec mu = doublec( -ell * epsilon, ell * kappa ); // Center of circle
+
+    if ( ( ell * kappa / a ) > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetVKTAirfoilPnts: Camber parameter, kappa, is too large" );
+        return xyzdata;
+    }
+
+    int ile = 0;
+    double dmax = -1.0;
+    // Evaluate points and track furthest from TE as surrogate for LE.
+    // Would be better to identify LE as tightest curvature or similar.
+    for ( size_t p = 0; p < npts - 1; p++ )
+    {
+        // Clockwise from TE
+        double theta = 2.0 * PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
+
+        double xi = a * cos( theta - beta ) + mu.real();
+        double eta = a * sin( theta - beta ) + mu.imag();
+        doublec zeta = doublec( xi, eta );
+
+        // Karman-Trefftz transformation
+        doublec temp = pow( zeta - ell, n ) / pow( zeta + ell, n );
+        doublec z = n * ell * ( 1.0 + temp ) / ( 1.0 - temp );
+        xyzdata[p].set_xyz( z.real(), z.imag(), 0.0 );
+
+        // Find point furthest from TE.  Declare that the LE.
+        double d = dist( xyzdata[p], xyzdata[0] );
+        if ( d > dmax )
+        {
+            dmax = d;
+            ile = p;
+        }
+    }
+
+    xyzdata[npts - 1] = xyzdata[0]; // Ensure closure
+
+    // Shift and scale airfoil such that xle=0 and xte=1.
+    double scale = xyzdata[0].x() - xyzdata[ile].x();
+    double xshift = xyzdata[ile].x();
+
+    for ( size_t j = 0; j < npts; j++ )
+    {
+        xyzdata[j].offset_x( -1 * xshift );
+        xyzdata[j] = xyzdata[j] / scale;
+    }
+
+    return xyzdata;
+}
+
+std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, std::vector<vec3d> xyzdata )
+{
+    // alpha = Angle of attack( radian )
+    // epsilon = Thisckness
+    // kappa = Camber
+    // tau = Trailing edge angle( radian )
+    // xyzdata = output from vsp::GetVKTAirfoilPnts
+
+    doublec i( 0, 1 );
+    const double ell = 0.25; // chord length = 4 * ell
+
+    const double npts = xyzdata.size();
+
+    vector < double > cpdata;
+    cpdata.resize( npts );
+
+    double a = ell * sqrt( ( 1.0 + epsilon ) * ( 1.0 + epsilon ) + kappa * kappa ); // Radius of circle
+    double beta = asin( ell * kappa / a ); // Angle of TE location (rad)
+    double n = 2.0 - tau / PI;
+    doublec mu = doublec( -ell * epsilon, ell * kappa ); // Center of circle
+
+    if ( ( ell * kappa / a ) > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetVKTAirfoilCpDist: Camber parameter, kappa, is too large" );
+        return cpdata;
+    }
+
+    int ile = 0;
+    double dmax = -1.0;
+    // Evaluate points and track furthest from TE as surrogate for LE.
+    // Would be better to identify LE as tightest curvature or similar.
+    for ( size_t p = 0; p < npts - 1; p++ )
+    {
+        // Clockwise from TE
+        double theta = 2.0 * PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
+
+        double xi = a * cos( theta - beta ) + mu.real();
+        double eta = a * sin( theta - beta ) + mu.imag();
+        doublec zeta = doublec( xi, eta );
+
+        // w(zeta): Complex velocity in the circle plane (a flow around a cylinder)
+        doublec w = cmplx_velocity( zeta, alpha, beta, a, mu );
+
+        // Compute the velocity in the airfoil plane : ( u, v ) = w / ( dZ / dzeta )
+        // Derivative of the Karman - Trefftz transformation:
+        doublec dzdzeta = derivative( zeta, ell, n );
+
+        double u, v;
+
+        if ( abs( theta ) <= FLT_EPSILON ) // Special treatment at the trailing edge (theta = 0.0)
+        {
+            if ( abs( tau ) <= FLT_EPSILON ) // Joukowski airfoil (cusped trailing edge: tau = 0.0 )
+            {
+                doublec uv = ( ell / a ) * exp( 2.0 * i * beta ) * cos( alpha + beta );
+                u = uv.real();
+                v = -1 * uv.imag();
+            }
+            else // Karman-Trefftz airfoil (finite angle: tau > 0.0), TE must be a stagnation point.
+            {
+                u = 0.0;
+                v = 0.0;
+            }
+        }
+        else
+        {
+            doublec uv = w / dzdzeta;
+            u = uv.real();
+            v = -1 * uv.imag();
+        }
+
+        cpdata[p] = 1.0 - ( pow( u, 2.0 ) + ( pow( v, 2.0 ) ) );
+    }
+
+    return cpdata;
 }
 
 std::vector<vec3d> GetAirfoilUpperPnts( const string& xsec_id )

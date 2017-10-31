@@ -193,6 +193,8 @@ extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double to
 extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name );
 extern void SetAirfoilPnts( const std::string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
+extern std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau );
+extern std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, std::vector<vec3d> xyz_data );
 extern std::vector<vec3d> GetAirfoilUpperPnts( const std::string& xsec_id );
 extern std::vector<vec3d> GetAirfoilLowerPnts( const std::string& xsec_id );
 extern std::vector<double> GetUpperCSTCoefs( const std::string& xsec_id );
