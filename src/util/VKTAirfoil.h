@@ -13,6 +13,12 @@
 
 #include "Vec3d.h"
 
+typedef std::complex< double > doublec;
+
 vec3d vkt_airfoil_point( double theta, double epsilon, double kappa, double tau );
+
+doublec cmplx_potential( doublec zeta, double alpha, double beta, double a, doublec mu );
+doublec cmplx_velocity( doublec zeta, double alpha, double beta, double a, doublec mu );
+doublec derivative( doublec zeta, double ell, double n );
 
 #endif
