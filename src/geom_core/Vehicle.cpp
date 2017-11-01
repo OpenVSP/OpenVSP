@@ -2668,7 +2668,9 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set )
                     }
                 }
 
-                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE(), usplit, wsplit );
+                string prefix = geom_vec[i]->GetID() + ", " + geom_vec[i]->GetName() + ", " + to_string( j );
+
+                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE(), usplit, wsplit, prefix );
             }
         }
     }

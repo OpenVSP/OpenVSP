@@ -21,6 +21,7 @@
 
 #include <api/dll_iges.h>
 #include <api/dll_entity128.h>
+#include <api/dll_entity406.h>
 
 #include "eli/code_eli.hpp"
 
@@ -195,7 +196,7 @@ public:
     void ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs );
     void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit );
 
-    void ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit );
+    void ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string labelprefix );
 
     void SetUSkipFirst( bool f );
     void SetUSkipLast( bool f );
