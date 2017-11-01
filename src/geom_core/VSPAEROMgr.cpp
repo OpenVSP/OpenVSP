@@ -2690,8 +2690,6 @@ void VSPAEROMgrSingleton::ClearCpSliceResults()
 
 void VSPAEROMgrSingleton::CreateCutsFile()
 {
-    UpdateFilenames();
-
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
