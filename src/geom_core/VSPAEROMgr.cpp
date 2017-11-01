@@ -2617,6 +2617,13 @@ string VSPAEROMgrSingleton::ComputeCpSlices( FILE * logFile )
     vector < string > resIDvec;
     ReadSliceFile( m_SliceFile, resIDvec );
 
+    // Add Case Result IDs to CpSlice Wrapper Result
+    Results* res = ResultsMgr.FindResultsPtr( resID );
+    if ( res )
+    {
+        res->Add( NameValData( "CpSlice_Case_ID_Vec", resIDvec ) );
+    }
+
     return resID;
 }
 
