@@ -1384,8 +1384,8 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                         ReadStabFile( stabFileName, res_id_vector, analysisMethod );      //*.STAB stability coeff file
                     }
 
-                    // CpSlice Latest *.adb File
-                    if ( m_CpSliceFlag() )
+                    // CpSlice Latest *.adb File if slices are defined
+                    if ( m_CpSliceFlag() && m_CpSliceVec.size() > 0 )
                     {
                         ComputeCpSlices();
                     }
@@ -1575,8 +1575,8 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             ReadStabFile( stabFileName, res_id_vector, analysisMethod );      //*.STAB stability coeff file
         }
 
-        // CpSlice *.adb File
-        if ( m_CpSliceFlag() )
+        // CpSlice *.adb File and slices are defined
+        if ( m_CpSliceFlag() && m_CpSliceVec.size() > 0 )
         {
             ComputeCpSlices();
         }
