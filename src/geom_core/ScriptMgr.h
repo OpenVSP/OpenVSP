@@ -172,6 +172,7 @@ private:
 
     CScriptArray* GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau );
     CScriptArray* GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, CScriptArray* xyz_data );
+    CScriptArray* GetEllipsoidSurfPnts( const vec3d& center, const vec3d& abc_rad, int u_npts = 20, int w_npts = 20 );
 
     void SetUpperCST( const string& xsec_id, int deg, CScriptArray* coefs );
     void SetLowerCST( const string& xsec_id, int deg, CScriptArray* coefs );
