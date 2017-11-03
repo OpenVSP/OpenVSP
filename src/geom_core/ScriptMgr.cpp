@@ -1879,6 +1879,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<vec3d>@ GetEllipsoidSurfPnts( const vec3d& in center, const vec3d& in abc_rad, int u_npts = 20, int w_npts = 20 )", asMETHOD( ScriptMgrSingleton, GetEllipsoidSurfPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetEllipsoidCpDist( array<vec3d>@ surf_pnt_arr, const vec3d& in abc_rad, const vec3d& in V_inf )", asMETHOD( ScriptMgrSingleton, GetEllipsoidCpDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<vec3d>@  GetAirfoilUpperPnts(const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetAirfoilUpperPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<vec3d>@  GetAirfoilLowerPnts(const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetAirfoilLowerPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
@@ -2470,6 +2472,21 @@ CScriptArray* ScriptMgrSingleton::GetEllipsoidSurfPnts( const vec3d& center, con
 
     return GetProxyVec3dArray();
 }
+
+CScriptArray* ScriptMgrSingleton::GetEllipsoidCpDist( CScriptArray* surf_pnt_arr, const vec3d& abc_rad, const vec3d& V_inf )
+{
+    vector< vec3d > surf_pnt_vec;
+    surf_pnt_vec.resize( surf_pnt_arr->GetSize() );
+    for ( int i = 0; i < (int)surf_pnt_arr->GetSize(); i++ )
+    {
+        surf_pnt_vec[i] = *(vec3d*)( surf_pnt_arr->At( i ) );
+    }
+
+    m_ProxyVec3dArray = vsp::GetEllipsoidCpDist( surf_pnt_vec, abc_rad, V_inf );
+
+    return GetProxyVec3dArray();
+}
+
 void ScriptMgrSingleton::SetUpperCST( const string& xsec_id, int deg, CScriptArray* coefs_arr )
 {
     vector < double > coefs_vec;
