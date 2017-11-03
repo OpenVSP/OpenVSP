@@ -26,6 +26,8 @@
 #include "SubSurfaceMgr.h"
 #include "VKTAirfoil.h"
 
+#include "eli/mutil/quad/simpson.hpp"
+
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
 #endif
@@ -2655,6 +2657,84 @@ std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d center, const vec3d abc_rad
 
     return surf_pnt_vec;
 }
+
+std::vector <vec3d> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf )
+{
+    // Generate Analytical Solution for Potential Flow at input ellipsoid surface points for input velocity vector (V).
+    //  Based on Munk, M. M., 'Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally 
+    //  Through a Perfect Fluid,' NACA TN-196, June 1924.
+
+    double alpha = abc_rad.x() * abc_rad.y() * abc_rad.z() * IntegrateEllipsoidFlow( abc_rad, 0 );
+    double beta = abc_rad.x() * abc_rad.y() * abc_rad.z() * IntegrateEllipsoidFlow( abc_rad, 1 );
+    double gamma = abc_rad.x() * abc_rad.y() * abc_rad.z() * IntegrateEllipsoidFlow( abc_rad, 2 );
+
+    double k1 = alpha / ( 2.0 - alpha );
+    double k2 = beta / ( 2.0 - beta );
+    double k3 = gamma / ( 2.0 - gamma );
+
+    double A = k1 + 1;
+    double B = k2 + 1;
+    double C = k3 + 1;
+
+    vector < vec3d > pot_vec, uvw_vec, cp_vec;
+    pot_vec.resize( surf_pnt_vec.size() );
+    uvw_vec.resize( surf_pnt_vec.size() );
+    cp_vec.resize( surf_pnt_vec.size() );
+
+    double Vmax_x = A * V_inf.x();
+    double Vmax_y = B * V_inf.y();
+    double Vmax_z = C * V_inf.z();
+
+    for ( size_t i = 0; i < surf_pnt_vec.size(); i++ )
+    {
+        // Velocity potential
+        pot_vec[i] = vec3d( ( Vmax_x * surf_pnt_vec[i].x() ), ( Vmax_y * surf_pnt_vec[i].y() ), ( Vmax_z * surf_pnt_vec[i].z() ) );
+
+        // Normal vector
+        vec3d norm( ( 2.0 * surf_pnt_vec[i].x() / pow( abc_rad.x(), 2.0 ) ), 
+            ( 2.0 * surf_pnt_vec[i].y() / pow( abc_rad.y(), 2.0 ) ), 
+            ( 2.0 * surf_pnt_vec[i].z() / pow( abc_rad.z(), 2.0 ) ) );
+
+        norm.normalize();
+
+        // Vmax component in panel normal direction
+        double Vnorm = Vmax_x * norm.x() + Vmax_y * norm.y() + Vmax_z * norm.z();
+
+        // Surface velocity
+        uvw_vec[i] = vec3d( ( Vmax_x - Vnorm * norm.x() ), ( Vmax_y - Vnorm * norm.y() ), ( Vmax_z - Vnorm * norm.z() ) );
+
+        // Pressure Coefficient
+        cp_vec[i] = vec3d( ( 1.0 - ( pow( uvw_vec[i].x(), 2.0 ) / pow( V_inf.x(), 2.0 ) ) ),
+            ( 1.0 - ( pow( uvw_vec[i].y(), 2.0 ) / pow( V_inf.y(), 2.0 ) ) ),
+            ( 1.0 - ( pow( uvw_vec[i].z(), 2.0 ) / pow( V_inf.z(), 2.0 ) ) ) );
+    }
+
+    return cp_vec;
+}
+
+struct ellipsoid_flow_functor
+{
+    double operator()( const double &t )
+    {
+        return ( 1.0 / ( ( pow( abc_rad[abc_index], 2.0 ) + t ) * sqrt( ( pow( abc_rad.x(), 2.0 ) + t ) * ( pow( abc_rad.y(), 2.0 ) + t ) * ( pow( abc_rad.z(), 2.0 ) + t ) ) ) );
+    }
+    vec3d abc_rad;
+    int abc_index; // a: 0, b: 1, c: 2
+};
+
+double IntegrateEllipsoidFlow( const vec3d abc_rad, const int abc_index )
+{
+    // Integration of Equations 6 and 7 for alpha, beta, and gamma in "Hydrodynamics" by Horace Lamb, Ch.5, Section 111, pg. 162. 
+    //  abc_index corresponds to a:0 for alpha, b:1 for beta, and c:2 for gamma
+    ellipsoid_flow_functor fun;
+    fun.abc_rad = abc_rad;
+    fun.abc_index = abc_index;
+
+    eli::mutil::quad::simpson< double > quad;
+
+    return quad( fun, 0.0, 1.0e8 ); // Integrate from 0 to inf (Note: an upper limit greater than 1.0e8 will produce errors)
+}
+
 std::vector<vec3d> GetAirfoilUpperPnts( const string& xsec_id )
 {
     vector< vec3d > pnt_vec;
