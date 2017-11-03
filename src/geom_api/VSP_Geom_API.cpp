@@ -2609,6 +2609,52 @@ std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilo
     return cpdata;
 }
 
+std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d center, const vec3d abc_rad, int u_npts, int w_npts )
+{
+    // Generate the surface points for a ellipsoid of input abc radius vector at center. Based on the Matlab function ellipsoid.m
+    if ( u_npts < 20 )
+    {
+        u_npts = 20;
+    }
+    if ( w_npts < 20 )
+    {
+        w_npts = 20;
+    }
+
+    vector < vec3d > surf_pnt_vec;
+
+    vector < double > theta_vec, phi_vec;
+    theta_vec.resize( u_npts );
+    phi_vec.resize( w_npts );
+
+    theta_vec[0] = 0.0; // theta: [0,2PI] 
+    phi_vec[0] = 0.0; // phi: [0,PI]
+
+    const double theta_step = 2 * PI / ( u_npts - 1 );
+    const double phi_step = PI / ( w_npts - 1 );
+
+    for ( size_t i = 1; i < u_npts; i++ )
+    {
+        theta_vec[i] = theta_vec[i - 1] + theta_step;
+    }
+
+    for ( size_t i = 1; i < w_npts; i++ )
+    {
+        phi_vec[i] = phi_vec[i - 1] + phi_step;
+    }
+
+    for ( size_t u = 0; u < u_npts; u++ )
+    {
+        for ( size_t w = 0; w < w_npts; w++ )
+        {
+            surf_pnt_vec.push_back( vec3d( ( abc_rad.x() * cos( theta_vec[u] ) * sin( phi_vec[w] ) + center.x() ),
+                ( abc_rad.y() * sin( theta_vec[u] ) * sin( phi_vec[w] ) + center.y() ),
+                ( abc_rad.z() * cos( phi_vec[w] ) + center.z() ) ) );
+        }
+    }
+
+    return surf_pnt_vec;
+}
 std::vector<vec3d> GetAirfoilUpperPnts( const string& xsec_id )
 {
     vector< vec3d > pnt_vec;
