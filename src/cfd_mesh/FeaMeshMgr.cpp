@@ -26,6 +26,7 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
     m_NumFeaSubSurfs = 0;
     m_FeaMeshStructIndex = -1;
     m_RemoveSkinTris = false;
+    m_NumFeaFixPoints = 0;
     m_NumTris = 0;
     m_NumBeams = 0;
 }
@@ -56,9 +57,12 @@ void FeaMeshMgrSingleton::CleanUp()
     m_IndMap.clear();
     m_PntShift.clear();
 
+    m_TotalMass = 0.0;
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
     m_NumFeaFixPoints = 0;
+    m_NumTris = 0;
+    m_NumBeams = 0;
 
     m_FeaPartNameVec.clear();
     m_FeaPartTypeVec.clear();
