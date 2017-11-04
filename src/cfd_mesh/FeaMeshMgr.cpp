@@ -115,8 +115,6 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
 
     LoadSkins();
 
-    CleanMergeSurfs( );
-
     return true;
 }
 
@@ -288,6 +286,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     addOutputText( "Add Structure Parts\n" );
     AddStructureParts();
+
+    CleanMergeSurfs();
 
     // TODO: Update and Build Domain for Half Mesh?
 
@@ -935,6 +935,13 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
 
                 vec3d start_pnt = ipntVec[j - 1];
                 vec3d end_pnt = ipntVec[j];
+
+                // Check for collapsed beam elements (caused by bug in Intersect where invalid intersection points are added to m_BinMap)
+                if ( dist( start_pnt, end_pnt ) < FLT_EPSILON )
+                {
+                    printf( "Warning: Collapsed Beam Element Skipped\n" );
+                    break;
+                }
 
                 // Use node point if close to beam endpoints (avoids tolerance errors in BuildIndMap and FindPntInd)
                 for ( size_t k = 0; k < node_vec.size(); k++ )

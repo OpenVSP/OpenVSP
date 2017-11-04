@@ -1079,9 +1079,20 @@ void CfdMeshMgrSingleton::CleanMergeSurfs()
         Surf* surfPtr = surfs[s];
 
         bool addSurfFlag = true;
-        if ( GetSettingsPtr()->m_HalfMeshFlag && surfPtr->GetSurfCore()->LessThanY( 1e-6 ) )
+
+        if ( surfPtr->GetCompID() >= 0 )
         {
-            addSurfFlag = false;
+            if ( GetSettingsPtr()->m_HalfMeshFlag && surfPtr->GetSurfCore()->LessThanY( 1e-6 ) )
+            {
+                addSurfFlag = false;
+            }
+        }
+        else if ( surfPtr->GetCompID() < 0 ) // Indicates FEA Part Surface (Increase Tolerance)
+        {
+            if ( GetSettingsPtr()->m_HalfMeshFlag && surfPtr->GetSurfCore()->LessThanY( 1e-3 ) )
+            {
+                addSurfFlag = false;
+            }
         }
 
         if ( GetSettingsPtr()->m_HalfMeshFlag && surfPtr->GetSurfCore()->PlaneAtYZero() )
