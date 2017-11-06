@@ -338,15 +338,37 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
 void FeaMeshMgrSingleton::ExportFeaMesh()
 {
-    WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ) );
-    WriteCalculix();
-    WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME ) );
-    WriteGmsh();
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) )
+    {
+        WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ) );
+    }
 
-    ComputeWriteMass();
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) )
+    {
+        WriteCalculix();
+    }
 
-    string mass_output = "Total Mass = " + std::to_string( m_TotalMass ) + "\n";
-    addOutputText( mass_output );
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) )
+    {
+        WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME ) );
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
+    {
+        WriteGmsh();
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
+    {
+        WriteGmsh();
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )
+    {
+        ComputeWriteMass();
+        string mass_output = "Total Mass = " + std::to_string( m_TotalMass ) + "\n";
+        addOutputText( mass_output );
+    }
 }
 
 void FeaMeshMgrSingleton::MergeCoplanarParts()
