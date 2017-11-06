@@ -160,6 +160,13 @@ string SimpleFeaMeshSettings::GetExportFileName( int type )
     return string();
 }
 
+bool SimpleFeaMeshSettings::GetExportFileFlag( int type )
+{
+    assert( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES );
+
+    return m_ExportFileFlags[type];
+}
+
 //////////////////////////////////////////////////////
 //============== SimpleGridDensity =================//
 //////////////////////////////////////////////////////

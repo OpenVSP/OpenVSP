@@ -99,6 +99,7 @@ public:
     virtual void CopyFrom( StructSettings* settings );
 
     string GetExportFileName( int type );
+    bool GetExportFileFlag( int type );
 
     vector < bool > m_ExportFileFlags;
     int m_NumEvenlySpacedPart;
