@@ -46,9 +46,6 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_DrawElementOrientVecFlag.SetDescript( "Flag to Draw FeaElement Orientation Vectors" );
 
     ResetExportFileNames();
-
-    m_MultPropertyIndex = 0;
-    m_MultCapPropertyIndex = 1;
 }
 
 StructSettings::~StructSettings()

@@ -42,24 +42,6 @@ public:
     BoolParm m_DrawNodesFlag;
     BoolParm m_DrawElementOrientVecFlag;
 
-    virtual int GetMultPropertyIndex()
-    {
-        return m_MultPropertyIndex;
-    }
-    virtual void SetMultPropertyIndex( int index )
-    {
-        m_MultPropertyIndex = index;
-    }
-
-    virtual int GetMultCapPropertyIndex()
-    {
-        return m_MultCapPropertyIndex;
-    }
-    virtual void SetMultCapPropertyIndex( int index )
-    {
-        m_MultCapPropertyIndex = index;
-    }
-
 protected:
 
     // These file names do not get written to file.  They are reset each time
@@ -67,9 +49,6 @@ protected:
     // default behavior based on the main file name -- and to use the user-set
     // file names.
     string m_ExportFileNames[vsp::FEA_NUM_FILE_NAMES];
-
-    int m_MultPropertyIndex;
-    int m_MultCapPropertyIndex;
 
 };
 
