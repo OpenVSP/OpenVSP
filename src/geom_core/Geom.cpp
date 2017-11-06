@@ -2520,6 +2520,7 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
                         if ( setting_node )
                         {
                             feastruct->GetStructSettingsPtr()->DecodeXml( structnode );
+                            feastruct->GetStructSettingsPtr()->ResetExportFileNames( name );
                         }
 
                         xmlNodePtr dense_node = XmlUtil::GetNode( structnode, "FEAGridDensity", 0 );
