@@ -1805,7 +1805,7 @@ FeaSpar::FeaSpar( string geomID, int type ) : FeaSlice( geomID, type )
     m_EndWingSection.Init( "EndWingSection", "FeaSpar", this, 1, 1, 1000 );
     m_EndWingSection.SetDescript( "End Wing Section to Limit Spar Length to" );
 
-    m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaSpar", this, false, false, true );
+    m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaSpar", this, true, false, true );
     m_BndBoxTrimFlag.SetDescript( "Flag to Trim Spar to Bounding Box Instead of Wing Surface" );
 }
 
@@ -2248,7 +2248,7 @@ FeaRib::FeaRib( string geomID, int type ) : FeaSlice( geomID, type )
     m_EndWingSection.Init( "EndWingSection", "FeaRib", this, 1, 1, 1000 );
     m_EndWingSection.SetDescript( "End Wing Section to Limit Rib to" );
 
-    m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaRib", this, false, false, true );
+    m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaRib", this, true, false, true );
     m_BndBoxTrimFlag.SetDescript( "Flag to Trim Rib to Bounding Box Instead of Wing Surface" );
 }
 
@@ -3566,7 +3566,7 @@ FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
     m_EndWingSection.Init( "EndWingSection", "FeaRibArray", this, 1, 1, 1000 );
     m_EndWingSection.SetDescript( "End Wing Section to Limit Array to" );
 
-    m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaRibArray", this, false, false, true );
+    m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaRibArray", this, true, false, true );
     m_BndBoxTrimFlag.SetDescript( "Flag to Trim Rib Array to Bounding Box Instead of Wing Surface" );
 
     m_NumRibs = 0;
