@@ -2540,8 +2540,8 @@ double FeaRib::GetRibTotalRotation( )
                     VspSurf surf = part->GetFeaPartSurfVec()[0];
 
                     vec3d edge1, edge2;
-                    edge1 = surf.CompPnt01( 0.5, 0.0 );
-                    edge2 = surf.CompPnt01( 0.5, 1.0 );
+                    edge1 = surf.CompPnt01( 0.0, 0.5 );
+                    edge2 = surf.CompPnt01( 1.0, 0.5 );
 
                     vec3d spar_dir_vec = edge2 - edge1;
                     spar_dir_vec.normalize();
