@@ -10,6 +10,7 @@
 #include "Geom.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include "CfdMeshSettings.h"
 
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>

@@ -12,7 +12,6 @@
 #define CfdMeshSettings_CfdMeshSettings__INCLUDED_
 
 #include "GridDensity.h"
-#include "Vehicle.h"
 
 #include "Vec2d.h"
 #include "Vec3d.h"

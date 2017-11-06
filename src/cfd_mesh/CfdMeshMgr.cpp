@@ -8,8 +8,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "CfdMeshMgr.h"
-//#include "CfdMeshScreen.h"
-//#include "feaStructScreen.h"
 #include "Util.h"
 #include "SubSurfaceMgr.h"
 #include "main.h"
