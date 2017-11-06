@@ -40,22 +40,19 @@ void MeshCommonSettings::InitCommonParms()
 
 xmlNodePtr MeshCommonSettings::EncodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr meshcommonnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
+    ParmContainer::EncodeXml( node );
 
-    ParmContainer::EncodeXml( meshcommonnode );
-
-    return meshcommonnode;
+    return node;
 }
 
 xmlNodePtr MeshCommonSettings::DecodeXml( xmlNodePtr & node )
 {
-    xmlNodePtr meshcommonnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
-    if ( meshcommonnode )
+    if ( node )
     {
-        ParmContainer::DecodeXml( meshcommonnode );
+        ParmContainer::DecodeXml( node );
     }
 
-    return meshcommonnode;
+    return node;
 }
 
 //==== Parm Changed ====//

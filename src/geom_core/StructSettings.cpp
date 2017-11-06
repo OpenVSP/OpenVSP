@@ -52,6 +52,38 @@ StructSettings::~StructSettings()
 {
 }
 
+xmlNodePtr StructSettings::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr structsettingnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
+
+    //for ( size_t i = 0; i < vsp::FEA_NUM_FILE_NAMES; i++ )
+    //{
+    //    string fname = "FEAExportName_" + std::to_string( i );
+    //    XmlUtil::AddStringNode( structsettingnode, fname.c_str(), m_ExportFileNames[i] );
+    //}
+
+    MeshCommonSettings::EncodeXml( structsettingnode );
+
+    return structsettingnode;
+}
+
+xmlNodePtr StructSettings::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr structsettingnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
+    if ( structsettingnode )
+    {
+        //for ( size_t i = 0; i < vsp::FEA_NUM_FILE_NAMES; i++ )
+        //{
+        //    string fname = "FEAExportName_" + std::to_string( i );
+        //    m_ExportFileNames[i] = XmlUtil::FindString( structsettingnode, fname.c_str(), 0 );
+        //}
+
+        MeshCommonSettings::DecodeXml( structsettingnode );
+    }
+
+    return structsettingnode;
+}
+
 string StructSettings::GetExportFileName( int type )
 {
     if ( type >= 0 && type < vsp::FEA_NUM_FILE_NAMES )

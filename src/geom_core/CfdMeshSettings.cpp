@@ -87,6 +87,30 @@ CfdMeshSettings::~CfdMeshSettings()
 {
 }
 
+xmlNodePtr CfdMeshSettings::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr cfdsettingnode = xmlNewChild( node, NULL, BAD_CAST m_Name.c_str(), NULL );
+
+    XmlUtil::AddStringNode( cfdsettingnode, "FarGeomID", m_FarGeomID );
+
+    MeshCommonSettings::EncodeXml( cfdsettingnode );
+
+    return cfdsettingnode;
+}
+
+xmlNodePtr CfdMeshSettings::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr cfdsettingnode = XmlUtil::GetNode( node, m_Name.c_str(), 0 );
+    if ( cfdsettingnode )
+    {
+        m_FarGeomID = XmlUtil::FindString( cfdsettingnode, "FarGeomID", m_FarGeomID );
+
+        MeshCommonSettings::DecodeXml( cfdsettingnode );
+    }
+
+    return cfdsettingnode;
+}
+
 void CfdMeshSettings::ReadV2File( xmlNodePtr &root )
 {
     // TODO: Complete ReadV2File Functions

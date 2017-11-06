@@ -25,6 +25,9 @@ public:
     StructSettings();
     virtual ~StructSettings();
 
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
     string GetExportFileName( int type );
     void SetExportFileName( const string &fn, int type );
     void ResetExportFileNames();

@@ -38,6 +38,9 @@ public:
     CfdMeshSettings();
     virtual ~CfdMeshSettings();
 
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
     virtual void ReadV2File( xmlNodePtr &root );
 
     virtual string GetFarGeomID()
