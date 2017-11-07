@@ -16,6 +16,7 @@
 #include "LinkMgr.h"
 #include "WingGeom.h"
 #include "ConformalGeom.h"
+#include "UnitConversion.h"
 
 #include <cfloat>
 
@@ -4385,6 +4386,82 @@ FeaMaterial::~FeaMaterial()
 
 }
 
+void FeaMaterial::Update()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( !veh )
+    {
+        return;
+    }
+
+    if ( !m_UserFeaMaterial )
+    {
+        // SI Units Used
+        // Reference: http://www.matweb.com/search/datasheet.aspx?bassnum=MA0001
+
+        int density_unit = -1;
+        int pressure_unit = -1;
+
+        switch ( (int)veh->m_StructUnit() )
+        {
+        case vsp::SI_UNIT:
+        density_unit = vsp::RHO_UNIT_KG_M3;
+        pressure_unit = vsp::PRES_UNIT_PA;
+        break;
+
+        case vsp::CGS_UNIT:
+        density_unit = vsp::RHO_UNIT_G_CM3;
+        pressure_unit = vsp::PRES_UNIT_BA;
+        break;
+
+        case vsp::MPA_UNIT:
+        density_unit = vsp::RHO_UNIT_TONNE_MM3;
+        pressure_unit = vsp::PRES_UNIT_MPA;
+        break;
+
+        case vsp::BFT_UNIT:
+        density_unit = vsp::RHO_UNIT_SLUG_FT3;
+        pressure_unit = vsp::PRES_UNIT_PSF;
+        break;
+
+        case vsp::BIN_UNIT:
+        density_unit = vsp::RHO_UNIT_LBFSEC2_IN4;
+        pressure_unit = vsp::PRES_UNIT_PSI;
+        break;
+        }
+
+        if ( strcmp( m_Name.c_str(), "Aluminum 7075-T6" ) == 0 )
+        {
+            m_PoissonRatio.Set( 0.33 );
+            m_MassDensity.Set( ConvertDensity( 2810, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_ElasticModulus.Set( ConvertPressure( 71.7e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 23.6e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°C)
+        }
+        else if ( strcmp( m_Name.c_str(), "Aluminum 2024-T3" ) == 0 )
+        {
+            m_PoissonRatio.Set( 0.33 );
+            m_MassDensity.Set( ConvertDensity( 2780, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_ElasticModulus.Set( ConvertPressure( 73.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 23.2e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°C)
+        }
+        else if ( strcmp( m_Name.c_str(), "Titanium Ti-6Al-4V" ) == 0 )
+        {
+            m_PoissonRatio.Set( 0.342 );
+            m_MassDensity.Set( ConvertDensity( 4430, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_ElasticModulus.Set( ConvertPressure( 113.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 9.2e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°C)
+        }
+        else if ( strcmp( m_Name.c_str(), "AISI 4130 Steel" ) == 0 )
+        {
+            m_PoissonRatio.Set( 0.29 );
+            m_MassDensity.Set( ConvertDensity( 7850, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
+            m_ElasticModulus.Set( ConvertPressure( 205e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
+            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 13.7e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°C)
+        }
+    }
+}
+
 void FeaMaterial::ParmChanged( Parm* parm_ptr, int type )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
@@ -4393,6 +4470,8 @@ void FeaMaterial::ParmChanged( Parm* parm_ptr, int type )
     {
         veh->ParmChanged( parm_ptr, type );
     }
+
+    Update();
 }
 
 xmlNodePtr FeaMaterial::EncodeXml( xmlNodePtr & node )
