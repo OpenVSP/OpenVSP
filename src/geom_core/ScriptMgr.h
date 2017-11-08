@@ -170,6 +170,9 @@ private:
     void SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
     void SetVec3dArray( CScriptArray* arr );
 
+    CScriptArray* GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau );
+    CScriptArray* GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, CScriptArray* xyz_data );
+
     void SetUpperCST( const string& xsec_id, int deg, CScriptArray* coefs );
     void SetLowerCST( const string& xsec_id, int deg, CScriptArray* coefs );
 
