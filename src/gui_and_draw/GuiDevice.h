@@ -222,6 +222,52 @@ protected:
 
 };
 
+//==== Output ====//
+class Output : public GuiDevice
+{
+public:
+    Output();
+    virtual void DeviceCB( Fl_Widget* w )               {}
+    virtual void Init( VspScreen* screen, Fl_Output* output, const char* format, VspButton* parm_button = NULL );
+
+    virtual void SetFormat( const char* format )
+    {
+        if ( m_Format.compare( format ) != 0 )
+        {
+            m_Format = format;
+            m_NewFormat = true;
+        }
+    }
+
+    virtual void SetSuffix( string sfx )
+    {
+        if ( m_Suffix.compare( sfx ) != 0 )
+        {
+            m_Suffix = sfx;
+            m_NewFormat = true;
+        }
+    }
+
+    virtual void SetButtonNameUpdate( bool flag )
+    {
+        m_ParmButton.SetButtonNameUpdate( flag );
+    }
+
+protected:
+
+    virtual void SetValAndLimits( Parm* parm_ptr );
+
+    Fl_Output* m_Output;
+    char m_Str[256];
+    string m_Format;
+    string m_Suffix;
+    bool m_NewFormat;
+
+    bool m_ParmButtonFlag;
+    ParmButton m_ParmButton;
+
+};
+
 //==== Slider ====//
 class Slider : public GuiDevice
 {

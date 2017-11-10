@@ -781,6 +781,30 @@ void GroupLayout::AddOutput( StringOutput& string_output, const char* label, int
     string_output.Init( m_Screen, output );
 }
 
+void GroupLayout::AddOutput( Output& output, const char* label, const char* format, int used_w )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Parm Button ====//
+    VspButton* button = AddParmButton( label );
+
+    //==== Add Text Input ====//
+    int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
+    Fl_Output* floutput = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
+    floutput->color( ( Fl_Color )23 );
+    floutput->labelfont( 1 );
+    floutput->labelsize( 12 );
+    floutput->textfont( 1 );
+    floutput->textsize( 12 );
+
+    m_Group->add( floutput );
+    AddX( iw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    output.Init( m_Screen, floutput, format, button );
+}
 
 //==== Create & Init Float Input  ====//
 void GroupLayout::AddInput( Input& input, const char* label, const char* format )

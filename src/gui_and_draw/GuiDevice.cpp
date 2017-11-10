@@ -362,6 +362,69 @@ void Input::DeviceCB( Fl_Widget* w )
 }
 
 //=====================================================================//
+//======================          Output         ======================//
+//=====================================================================//
+
+//==== Constructor ====//
+Output::Output() : GuiDevice()
+{
+    m_Type = GDEV_OUTPUT;
+    m_Output = NULL;
+    m_Format = string( " %7.5f" );
+    m_Suffix = string();
+    m_NewFormat = true;
+    m_ParmButtonFlag = false;
+}
+
+//==== Init ====//
+void Output::Init( VspScreen* screen, Fl_Output* output, const char* format, VspButton* parm_button )
+{
+    assert( input );
+    GuiDevice::Init( screen );
+    AddWidget( parm_button );
+    AddWidget( output, true );
+
+    SetFormat( format );
+    m_Output = output;
+    m_Output->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
+    m_Output->callback( StaticDeviceCB, this );
+
+    m_ParmButtonFlag = false;
+    if ( parm_button )
+    {
+        m_ParmButtonFlag = true;
+        m_ParmButton.Init( screen, parm_button );
+    }
+}
+
+//==== Set Input Value and Limits =====//
+void Output::SetValAndLimits( Parm* parm_ptr )
+{
+    assert( m_Output );
+    double new_val = parm_ptr->Get();
+
+    if ( CheckValUpdate( new_val ) || m_NewFormat )
+    {
+        sprintf( m_Str, m_Format.c_str(), new_val );
+
+        if ( m_Suffix != string() )
+        {
+            string tmp = string( m_Str );
+            sprintf( m_Str, "%s %s", tmp.c_str(), m_Suffix.c_str() );
+        }
+
+        m_Output->value( m_Str );
+        m_NewFormat = false;
+    }
+    m_LastVal = new_val;
+
+    if ( m_ParmButtonFlag )
+    {
+        m_ParmButton.Update( parm_ptr->GetID() );
+    }
+}
+
+//=====================================================================//
 //======================           Slider        ======================//
 //=====================================================================//
 
