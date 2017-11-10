@@ -4212,3 +4212,90 @@ string Vehicle::WriteDegenGeomFile()
     }
     return outStr;
 }
+
+vec3d Vehicle::CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
+{
+    Geom* geom_ptr = FindGeom( geom_id );
+    vec3d ret;
+    if ( geom_ptr )
+    {
+        if ( surf_indx >= 0 && surf_indx < geom_ptr->GetNumTotalSurfs() )
+        {
+            ret = geom_ptr->CompPnt01(surf_indx, u, w);
+        }
+    }
+
+    return ret;
+}
+
+vec3d Vehicle::CompNorm01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
+{
+    Geom* geom_ptr = FindGeom( geom_id );
+    vec3d ret;
+    if ( geom_ptr )
+    {
+        if ( surf_indx >= 0 && surf_indx < geom_ptr->GetNumTotalSurfs() )
+        {
+            VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+            ret = surf->CompNorm01( u, w );
+        }
+    }
+
+    return ret;
+}
+
+void Vehicle::CompCurvature01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w, double &k1, double &k2, double &ka, double &kg)
+{
+    Geom* geom_ptr = FindGeom( geom_id );
+
+    k1 = 0.0;
+    k2 = 0.0;
+    ka = 0.0;
+    kg = 0.0;
+
+    if ( geom_ptr )
+    {
+        if ( surf_indx >= 0 && surf_indx < geom_ptr->GetNumTotalSurfs() )
+        {
+            VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+            if ( surf )
+            {
+                surf->CompCurvature01( u, w, k1, k2, ka, kg );
+            }
+        }
+    }
+}
+
+double Vehicle::ProjPnt01I(const std::string &geom_id, const vec3d & pt, int &surf_indx, double &u, double &w)
+{
+    double tol = 1e-12;
+
+    double dmin = std::numeric_limits<double>::max();
+
+    Geom * geom = FindGeom( geom_id );
+
+    if ( geom )
+    {
+        int nsurf = geom->GetNumTotalSurfs();
+        for ( int i = 0; i < nsurf; i++ )
+        {
+            double utest, wtest;
+
+            double d = geom->GetSurfPtr(i)->FindNearest01( utest, wtest, pt );
+
+            if ( d < dmin )
+            {
+                dmin = d;
+                u = utest;
+                w = wtest;
+                surf_indx = i;
+
+                if ( d < tol )
+                {
+                    break;
+                }
+            }
+        }
+    }
+    return dmin;
+}

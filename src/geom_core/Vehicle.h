@@ -254,6 +254,12 @@ public:
     string WriteDegenGeomFile();
     void ClearDegenGeom()   { m_DegenGeomVec.clear(); }
 
+    //==== Surface Query ====//
+    vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
+    vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
+    void CompCurvature01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w, double &k1, double &k2, double &ka, double &kg);
+    double ProjPnt01I(const std::string &geom_id, const vec3d & pt, int &surf_indx, double &u, double &w);
+
     CfdMeshSettings* GetCfdSettingsPtr()
     {
         return &m_CfdSettings;
