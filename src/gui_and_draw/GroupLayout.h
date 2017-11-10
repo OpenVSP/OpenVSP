@@ -161,7 +161,7 @@ public:
                              double range, const char* format );
     void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
     void AddSkinHeader( SkinHeader & skin_header, bool addcontchoice = true );
-    void AddGeomPicker( GeomPicker & geom_picker, int used_w = 0 );
+    void AddGeomPicker( GeomPicker & geom_picker, int used_w = 0, string text = string() );
     void AddPCurveEditor( PCurveEditor & curve_editor );
 
     Fl_Browser* AddFlBrowser( int height );

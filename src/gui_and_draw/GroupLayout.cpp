@@ -1439,7 +1439,7 @@ void GroupLayout::AddSkinHeader( SkinHeader & skin_header, bool addcontchoice )
 }
 
 //==== Add Geom Picker ====//
-void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w )
+void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w, string text )
 {
 
     assert( m_Group && m_Screen );
@@ -1447,7 +1447,12 @@ void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w )
     //==== Geom Button ====//
     if ( m_ChoiceButtonWidth > 0 )
     {
-        Fl_Button* button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, "Geom" );
+        if ( text.length() == 0 )
+        {
+            text = string( "Geom" );
+        }
+        Fl_Button* button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight );
+        button->copy_label( text.c_str() );
         button->box( FL_THIN_UP_BOX );
         button->labelfont( 1 );
         button->labelsize( 12 );
