@@ -10,6 +10,8 @@
 #if !defined(UNIT_CONVERSION_INCLUDED_)
 #define UNIT_CONVERSION_INCLUDED_
 
+#include <string>
+
 // Velocity
 double ConvertVelocityToM_S( double velocity, int cur_unit );
 double ConvertVelocityFromM_S( double velocity, int new_unit );
@@ -45,5 +47,6 @@ double ConvertDynaVisToKG_M_S( double dynavis, int cur_unit );
 double ConvertDynaVisFromKG_M_S( double dynavis, int new_unit );
 double ConvertDynaVis( double dynavis, int cur_unit, int new_unit );
 
+std::string LenUnitName( int len_unit );
 
 #endif

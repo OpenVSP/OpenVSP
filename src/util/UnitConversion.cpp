@@ -430,3 +430,18 @@ double ConvertDynaVis( double dynavis, int cur_unit, int new_unit )
     double dynavis_kg_m_s = ConvertDynaVisToKG_M_S( dynavis, cur_unit );
     return ConvertDynaVisFromKG_M_S( dynavis_kg_m_s, new_unit );
 }
+
+std::string LenUnitName( int len_unit )
+{
+    switch( len_unit )
+    {
+        case vsp::LEN_MM : return std::string( "mm" );
+        case vsp::LEN_CM : return std::string( "cm" );
+        case vsp::LEN_M : return std::string( "m" );
+        case vsp::LEN_IN : return std::string( "in" );
+        case vsp::LEN_FT : return std::string( "ft" );
+        case vsp::LEN_YD : return std::string( "yd" );
+        case vsp::LEN_UNITLESS : return std::string();
+    }
+    return std::string();
+}
