@@ -1366,7 +1366,6 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     getVGuiDraw()->getLightMgr()->EncodeXml( vehicle_node );
 
     // Encode label information.
-    getVGuiDraw()->getLabelMgr()->EncodeXml( vehicle_node );
 
     MaterialMgr.EncodeXml( node );
 
@@ -1413,7 +1412,6 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
         getVGuiDraw()->getLightMgr()->DecodeXml( vehicle_node );
 
         // Decode label information.
-        getVGuiDraw()->getLabelMgr()->DecodeXml( vehicle_node );
 
     }
 

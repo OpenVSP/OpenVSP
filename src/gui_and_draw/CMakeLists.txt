@@ -54,7 +54,6 @@ MainVSPScreen.cpp
 ManageBackgroundScreen.cpp
 ManageCORScreen.cpp
 ManageGeomScreen.cpp
-ManageLabelScreen.cpp
 ManageLightingScreen.cpp
 ManageTextureScreen.cpp
 ManageViewScreen.cpp
@@ -120,7 +119,6 @@ MainVSPScreen.h
 ManageBackgroundScreen.h
 ManageCORScreen.h
 ManageGeomScreen.h
-ManageLabelScreen.h
 ManageLightingScreen.h
 ManageTextureScreen.h
 ManageViewScreen.h

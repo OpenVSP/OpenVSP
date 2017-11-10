@@ -23,7 +23,6 @@
 #include "ManageBackgroundScreen.h"
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
-#include "ManageLabelScreen.h"
 #include "ManageLightingScreen.h"
 #include "ManageTextureScreen.h"
 #include "ManageViewScreen.h"
@@ -171,7 +170,6 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_FIT_MODEL_SCREEN] = new FitModelScreen( this );
     m_ScreenVec[VSP_IGES_OPTIONS_SCREEN] = new IGESOptionsScreen( this );
     m_ScreenVec[VSP_IMPORT_SCREEN] = new ImportScreen( this );
-    m_ScreenVec[VSP_LABEL_SCREEN] = new ManageLabelScreen( this );
     m_ScreenVec[VSP_LIGHTING_SCREEN] = new ManageLightingScreen( this );
     m_ScreenVec[VSP_MAIN_SCREEN] = new MainVSPScreen( this  );
     m_ScreenVec[VSP_MANAGE_GEOM_SCREEN] = new ManageGeomScreen( this );

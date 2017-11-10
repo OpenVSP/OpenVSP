@@ -41,7 +41,6 @@ public:
            VSP_FIT_MODEL_SCREEN,
            VSP_IGES_OPTIONS_SCREEN,
            VSP_IMPORT_SCREEN,
-           VSP_LABEL_SCREEN,
            VSP_LIGHTING_SCREEN,
            VSP_MAIN_SCREEN,
            VSP_MANAGE_GEOM_SCREEN,

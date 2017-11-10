@@ -17,7 +17,6 @@
 #include "Geom.h"
 #include "MessageMgr.h"
 #include "DrawObj.h"
-#include "LabelMgr.h"
 #include "LightMgr.h"
 #include "DegenGeom.h"
 #include "CfdMeshSettings.h"
@@ -47,14 +46,6 @@
 class VehicleGuiDraw
 {
 public:
-    /*!
-    * Get Labels pointer.
-    */
-    static LabelMgr * getLabelMgr()
-    {
-        return LabelMgr::getInstance();
-    }
-
     /*!
     * Get Lights pointer.
     */

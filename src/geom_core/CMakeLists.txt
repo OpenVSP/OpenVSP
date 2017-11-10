@@ -77,8 +77,6 @@ WingGeom.cpp
 XSec.cpp
 XSecCurve.cpp
 XSecSurf.cpp
-Label.cpp
-LabelMgr.cpp
 Light.cpp
 LightMgr.cpp
 Color.cpp
@@ -108,8 +106,6 @@ GeomCoreTestSuite.h
 GridDensity.h
 GroupTransformations.h
 HingeGeom.h
-Label.h
-LabelMgr.h
 Light.h
 LightMgr.h
 Link.h

@@ -8,7 +8,6 @@ FLTK_WRAP_UI( screens
 aboutScreen.fl
 curveEditFlScreen.fl
 feaStructFlScreen.fl
-labelFlScreen.fl
 massPropFlScreen.fl
 parmFlScreen.fl
 pickSetFlScreen.fl
