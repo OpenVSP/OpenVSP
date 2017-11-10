@@ -2728,46 +2728,43 @@ void Geom::ResetGeomChangedFlag()
     }
 }
 
-//==== Load All Draw Objects ====//
-void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     char str[256];
 
-    if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    for ( int i = 0; i < (int)m_WireShadeDrawObj_vec.size(); i++ )
     {
-        for ( int i = 0; i < (int)m_WireShadeDrawObj_vec.size(); i++ )
+        // Symmetry drawObjs have same m_ID. Make them unique by adding index
+        // at the end of m_ID.
+        sprintf( str, "_%d", i );
+        m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
+        m_WireShadeDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
+
+        // Set Render Destination to Main VSP Window.
+        m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        Material * material = m_GuiDraw.getMaterial();
+
+        for ( int j = 0; j < 4; j++ )
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
+
+        for ( int j = 0; j < 4; j++ )
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
+
+        for ( int j = 0; j < 4; j++ )
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
+
+        for ( int j = 0; j < 4; j++ )
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
+
+        m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
+
+        vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
+                                 m_GuiDraw.GetWireColor().y() / 255.0,
+                                 m_GuiDraw.GetWireColor().z() / 255.0 );
+
+        switch ( m_GuiDraw.GetDrawType() )
         {
-            // Symmetry drawObjs have same m_ID. Make them unique by adding index
-            // at the end of m_ID.
-            sprintf( str, "_%d", i );
-            m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
-            m_WireShadeDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
-
-            // Set Render Destination to Main VSP Window.
-            m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
-
-            Material * material = m_GuiDraw.getMaterial();
-
-            for ( int j = 0; j < 4; j++ )
-                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[j] = (float)material->m_Ambi[j];
-
-            for ( int j = 0; j < 4; j++ )
-                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[j] = (float)material->m_Diff[j];
-
-            for ( int j = 0; j < 4; j++ )
-                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[j] = (float)material->m_Spec[j];
-
-            for ( int j = 0; j < 4; j++ )
-                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
-
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
-
-            vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
-                m_GuiDraw.GetWireColor().y() / 255.0,
-                m_GuiDraw.GetWireColor().z() / 255.0 );
-
-            switch ( m_GuiDraw.GetDrawType() )
-            {
             case GeomGuiDraw::GEOM_DRAW_WIRE:
                 m_WireShadeDrawObj_vec[i].m_LineWidth = 1.0;
                 m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
@@ -2814,8 +2811,19 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
                 }
                 draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
-            }
         }
+    }
+
+}
+
+//==== Load All Draw Objects ====//
+void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+    char str[256];
+
+    if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    {
+        LoadMainDrawObjs( draw_obj_vec );
     }
     else
     {

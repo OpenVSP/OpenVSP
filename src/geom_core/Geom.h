@@ -348,6 +348,7 @@ public:
     virtual ~Geom();
 
     virtual void Update( bool fullupdate = true );
+    virtual void LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec );
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void SetColor( int r, int g, int b );
