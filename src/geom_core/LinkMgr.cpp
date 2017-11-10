@@ -47,8 +47,6 @@ void LinkMgrSingleton::Wype()
     delete( m_WorkingLink );
     m_WorkingLink = NULL;
 
-    m_firsttime = bool();
-
     DelAllLinks();
     m_LinkVec = deque< Link* >();
 
