@@ -62,8 +62,8 @@ protected:
 
     SliderAdjRangeInput m_LEClusterSlider;
     SliderAdjRangeInput m_TEClusterSlider;
-    StringOutput m_SmallPanelWOutput;
-    StringOutput m_MaxGrowthOutput;
+    Output m_SmallPanelWOutput;
+    Output m_MaxGrowthOutput;
 
     // Wing section tab
     GroupLayout m_SectionLayout;

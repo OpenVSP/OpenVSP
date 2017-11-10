@@ -67,7 +67,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
     m_BetaToggle.AddButton( m_Beta34Toggle.GetFlButton() );
 
     m_DesignLayout.SetSameLineFlag( true );
-    m_DesignLayout.AddOutput( m_AFOutput, "Activity Factor", m_DesignLayout.GetW() / 2 );
+    m_DesignLayout.AddOutput( m_AFOutput, "Activity Factor", "%6.2f", m_DesignLayout.GetW() / 2 );
     m_DesignLayout.SetButtonWidth( 50 );
     m_DesignLayout.AddSlider( m_AFLimitSlider, "r_0", 1, "%6.5f" );
     m_DesignLayout.SetButtonWidth( 100 );
@@ -118,8 +118,8 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.SetButtonWidth( 200 );
-    m_DesignLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width" );
-    m_DesignLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio" );
+    m_DesignLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width", "%6.4g" );
+    m_DesignLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio", "%6.3f" );
 
     //==== Blade Tab ====//
     Fl_Group* plot_tab = AddTab( "Blade" );
@@ -694,8 +694,7 @@ bool PropScreen::Update()
     m_AFLimitSlider.Update( propeller_ptr->m_AFLimit.GetID() );
 
     char str[255];
-    sprintf( str, "%6.2f", propeller_ptr->m_AF() );
-    m_AFOutput.Update( string( str ) );
+    m_AFOutput.Update( propeller_ptr->m_AF.GetID() );
 
     m_RFoldSlider.Update( propeller_ptr->m_RadFoldAxis.GetID() );
     m_AxFoldSlider.Update( propeller_ptr->m_AxialFoldAxis.GetID() );

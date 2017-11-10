@@ -38,12 +38,12 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
     m_DesignLayout.AddYGap();
 
     m_DesignLayout.SetFitWidthFlag( true );
-    m_DesignLayout.AddOutput( m_A0Output, "A0" );
-    m_DesignLayout.AddOutput( m_AeOutput, "Ae" );
+    m_DesignLayout.AddOutput( m_A0Output, "A0", "%6.5g" );
+    m_DesignLayout.AddOutput( m_AeOutput, "Ae", "%6.5g" );
 
     m_DesignLayout.SetSameLineFlag( true );
-    m_DesignLayout.AddOutput( m_AminOutput, "Amin", m_DesignLayout.GetW() / 2 );
-    m_DesignLayout.AddOutput( m_AminWOutput, "Amin W", m_DesignLayout.GetW() / 2 );
+    m_DesignLayout.AddOutput( m_AminOutput, "Amin", "%6.5g", m_DesignLayout.GetW() / 2 );
+    m_DesignLayout.AddOutput( m_AminWOutput, "Amin W", "%6.5g" , m_DesignLayout.GetW() / 2 );
     m_DesignLayout.ForceNewLine();
 
     m_DesignLayout.SetSameLineFlag( false );
@@ -511,18 +511,10 @@ bool BORScreen::Update()
     BORGeom* bor_ptr = dynamic_cast< BORGeom* >( geom_ptr );
     assert( bor_ptr );
 
-    char str[255];
-    sprintf( str, "%6.5g", bor_ptr->m_A0() );
-    m_A0Output.Update( string( str ) );
-
-    sprintf( str, "%6.5g", bor_ptr->m_Amin() );
-    m_AminOutput.Update( string( str ) );
-
-    sprintf( str, "%6.5g", bor_ptr->m_AminW() );
-    m_AminWOutput.Update( string( str ) );
-
-    sprintf( str, "%6.5g", bor_ptr->m_Ae() );
-    m_AeOutput.Update( string( str ) );
+    m_A0Output.Update( bor_ptr->m_A0.GetID() );
+    m_AminOutput.Update( bor_ptr->m_Amin.GetID() );
+    m_AminWOutput.Update( bor_ptr->m_AminW.GetID() );
+    m_AeOutput.Update( bor_ptr->m_Ae.GetID() );
 
     m_ModeChoice.Update( bor_ptr->m_Mode.GetID() );
 

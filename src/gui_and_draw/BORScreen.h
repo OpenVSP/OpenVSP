@@ -38,10 +38,10 @@ protected:
 
     Choice m_ModeChoice;
 
-    StringOutput m_A0Output;
-    StringOutput m_AminOutput;
-    StringOutput m_AminWOutput;
-    StringOutput m_AeOutput;
+    Output m_A0Output;
+    Output m_AminOutput;
+    Output m_AminWOutput;
+    Output m_AeOutput;
 
     SliderAdjRangeInput m_CapTessSlider;
 

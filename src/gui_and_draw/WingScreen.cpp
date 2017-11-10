@@ -76,8 +76,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_PlanLayout.AddSlider( m_TEClusterSlider, "TE Clustering", 1, "%6.5f" );
     m_PlanLayout.AddYGap();
     m_PlanLayout.SetButtonWidth( 200 );
-    m_PlanLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width" );
-    m_PlanLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio" );
+    m_PlanLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width","%6.4g" );
+    m_PlanLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio", "%6.3f" );
 
     Fl_Group* sect_tab = AddTab( "Sect", 4 );
     Fl_Group* sect_group = AddSubGroup( sect_tab, 5 );
@@ -717,11 +717,8 @@ bool WingScreen::Update()
     m_LEClusterSlider.Update( wing_ptr->m_LECluster.GetID() );
     m_TEClusterSlider.Update( wing_ptr->m_TECluster.GetID() );
 
-    sprintf( str, "%6.4g", wing_ptr->m_SmallPanelW() );
-    m_SmallPanelWOutput.Update( str );
-
-    sprintf( str, "%6.3f", wing_ptr->m_MaxGrowth() );
-    m_MaxGrowthOutput.Update( str );
+    m_SmallPanelWOutput.Update( wing_ptr->m_SmallPanelW.GetID() );
+    m_MaxGrowthOutput.Update( wing_ptr->m_MaxGrowth.GetID() );
 
     sprintf( str, "%6.4f", wing_ptr->m_TotalProjSpan() * wing_ptr->m_TotalProjSpan() / wing_ptr->m_TotalArea() );
     m_PlanAROutput.Update( str );
