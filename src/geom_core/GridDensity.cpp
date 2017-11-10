@@ -402,7 +402,7 @@ double PointSimpleSource::GetTargetLen( double base_len, vec3d &  pos, const str
 
 void PointSimpleSource::Update( Geom* geomPtr )
 {
-    m_Loc = geomPtr->GetUWPt( m_SurfIndx, m_ULoc, m_WLoc );
+    m_Loc = geomPtr->CompPnt01(m_SurfIndx, m_ULoc, m_WLoc);
 }
 
 void PointSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -575,8 +575,8 @@ double LineSimpleSource::GetTargetLen( double base_len, vec3d & pos, const strin
 
 void LineSimpleSource::Update( Geom* geomPtr )
 {
-    vec3d p1 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc1, m_WLoc1 );
-    vec3d p2 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc2, m_WLoc2 );
+    vec3d p1 = geomPtr->CompPnt01(m_SurfIndx, m_ULoc1, m_WLoc1);
+    vec3d p2 = geomPtr->CompPnt01(m_SurfIndx, m_ULoc2, m_WLoc2);
     m_RadSquared1 = m_Rad * m_Rad;
     m_RadSquared2 = m_Rad2 * m_Rad2;
     SetEndPnts( p1, p2 );
@@ -760,7 +760,7 @@ void BoxSimpleSource::Update( Geom* geomPtr )
         for ( int j = 0 ; j < num_segs ; j++ )
         {
             double w = m_WLoc1 + fu * ( m_WLoc2 - m_WLoc1 );
-            vec3d p = geomPtr->GetUWPt( m_SurfIndx, u, w );
+            vec3d p = geomPtr->CompPnt01(m_SurfIndx, u, w);
             pVec.push_back( p );
             box.Update( p );
         }

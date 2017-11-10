@@ -3333,12 +3333,12 @@ int Geom::GetNumSymFlags()
     return numSymFlags;
 }
 
-vec3d Geom::GetUWPt( const double &u, const double &w )
+vec3d Geom::CompPnt01(const double &u, const double &w)
 {
     return GetSurfPtr()->CompPnt01( u, w );
 }
 
-vec3d Geom::GetUWPt( const int &indx, const double &u, const double &w )
+vec3d Geom::CompPnt01(const int &indx, const double &u, const double &w)
 {
     return GetSurfPtr( indx )->CompPnt01( u, w );
 }

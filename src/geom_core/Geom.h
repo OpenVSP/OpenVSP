@@ -402,8 +402,8 @@ public:
     */
     virtual void ResetGeomChangedFlag();
 
-    virtual vec3d GetUWPt( const double &u, const double &w );
-    virtual vec3d GetUWPt( const int &indx, const double &u, const double &w );
+    virtual vec3d CompPnt01(const double &u, const double &w);
+    virtual vec3d CompPnt01(const int &indx, const double &u, const double &w);
 
     virtual bool CompRotCoordSys( const double &u, const double &w, Matrix4d &rotmat );
     virtual bool CompTransCoordSys( const double &u, const double &w, Matrix4d &transmat );

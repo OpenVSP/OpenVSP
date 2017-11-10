@@ -187,7 +187,7 @@ void HingeGeom::UpdateSurf()
 
                 parent->CompRotCoordSys( m_PrimULoc(), m_PrimWLoc(), rotMat );
 
-                vec3d surfpt = parent->GetUWPt( m_PrimULoc(), m_PrimWLoc() );
+                vec3d surfpt = parent->CompPnt01(m_PrimULoc(), m_PrimWLoc());
 
 
                 if ( m_PrimaryType() == SURFPT )
