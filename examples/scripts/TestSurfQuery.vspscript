@@ -49,6 +49,74 @@ void main()
 
     Print( "Dist " + d + " u " + uout + " w " + wout );
 
+    array<double> uvec;
+    array<double> wvec;
+
+    int n = 5;
+
+    uvec.resize( n );
+    wvec.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        uvec[i] = (i+1)*1.0/(n+1);
+        wvec[i] = (n-i)*1.0/(n+1);
+    }
+
+    array< vec3d > ptvec = CompVecPnt01( gid, 0, uvec, wvec );
+    array< vec3d > normvec = CompVecNorm01( gid, 0, uvec, wvec );
+
+    array<double> k1vec;
+    array<double> k2vec;
+    array<double> kavec;
+    array<double> kgvec;
+
+    CompVecCurvature01( gid, 0, uvec, wvec, k1vec, k2vec, kavec, kgvec );
+
+    Print( "Surface query:" );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        Print( "u: " + uvec[i] + " w: " + wvec[i] + " pnt: " + vec3dString( ptvec[i] ) + " norm: " + vec3dString( normvec[i] ) );
+        Print( "    k1: " + k1vec[i] + " k2: " + k2vec[i]  + " ka: " + kavec[i]  + " kg: " + kgvec[i] );
+
+        ptvec[i] = ptvec[i] + normvec[i];
+    }
+
+    array<double> uoutv;
+    array<double> woutv;
+    array<double> doutv;
+
+    ProjVecPnt01( gid, 0, ptvec, uoutv, woutv, doutv );
+
+    Print( "Surface projection:" );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        Print( "u: " + uoutv[i] + " w: " + woutv[i] + " d: " + doutv[i] );
+    }
+
+    array<double> u0v;
+    array<double> w0v;
+
+    u0v.resize( n );
+    w0v.resize( n );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        u0v[i] = uvec[i] + 0.01234;
+        w0v[i] = wvec[i] - 0.05678;
+    }
+
+    ProjVecPnt01Guess( gid, 0, ptvec, u0v,  w0v,  uoutv, woutv, doutv );
+
+    Print( "Surface projection with guesses:" );
+
+    for( int i = 0 ; i < n ; i++ )
+    {
+        Print( "u: " + uoutv[i] + " w: " + woutv[i] + " d: " + doutv[i] );
+    }
+
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )
     {

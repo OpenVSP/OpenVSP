@@ -300,6 +300,11 @@ extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const 
 extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx, double &u, double &w);
 extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &u0, const double &w0, double &u, double &w);
 
+extern vector < vec3d > CompVecPnt01(const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws);
+extern vector < vec3d > CompVecNorm01(const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws);
+extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws, vector < double > &k1s, vector < double > &k2s, vector < double > &kas, vector < double > &kgs);
+extern void ProjVecPnt01(const std::string &geom_id, int &surf_indx, const vector < vec3d > &pts, vector < double > &us, vector < double > &ws, vector < double > &ds );
+extern void ProjVecPnt01Guess(const std::string &geom_id, int &surf_indx, const vector < vec3d > &pts, const vector < double > &u0s, const vector < double > &w0s, vector < double > &us, vector < double > &ws, vector < double > &ds );
 }           // End vsp namespace
 
 

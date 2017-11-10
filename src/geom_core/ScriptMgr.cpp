@@ -2021,6 +2021,17 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "double ProjPnt01Guess( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, const double & in u0, const double & in w0, double & out u, double & out w )", asFUNCTION(vsp::ProjPnt01Guess), asCALL_CDECL);
     assert( r >= 0 );
+
+    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecPnt01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ ws )", asMETHOD( ScriptMgrSingleton, CompVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecNorm01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ws )", asMETHOD( ScriptMgrSingleton, CompVecNorm01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void CompVecCurvature01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ ws, array<double>@ k1s, array<double>@ k2s, array<double>@ kas, array<double>@ kgs)", asMETHOD( ScriptMgrSingleton, CompVecCurvature01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void ProjVecPnt01(const string & in geom_id, int & in surf_indx, array<vec3d>@ pts, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void ProjVecPnt01Guess(const string & in geom_id, int & in surf_indx, array<vec3d>@ pts, array<double>@ u0s, array<double>@ w0s, array<double>@ us, array<double>@ ws, array<double>@ ds )", asMETHOD( ScriptMgrSingleton, ProjVecPnt01Guess ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
 }
 
 void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
@@ -2113,6 +2124,14 @@ CScriptArray* ScriptMgrSingleton::GetProxyDoubleArray()
     return sarr;
 }
 
+void ScriptMgrSingleton::FillDoubleArray( vector < double > & in, CScriptArray* out )
+{
+    out->Resize( in.size() );
+    for ( int i = 0 ; i < ( int )in.size() ; i++ )
+    {
+        out->SetValue( i, &in[i] );
+    }
+}
 
 //==== Wrappers For API Functions That Return Vectors ====//
 CScriptArray* ScriptMgrSingleton::GetGeomTypes()
@@ -2542,6 +2561,130 @@ void ScriptMgrSingleton::SetVec3dAnalysisInput( const string& analysis, const st
     vsp::SetVec3dAnalysisInput( analysis, name, indata_vec, index );
 }
 
+CScriptArray* ScriptMgrSingleton::CompVecPnt01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws)
+{
+    vector < double > in_us;
+    in_us.resize( us->GetSize() );
+    for ( int i = 0 ; i < ( int )us->GetSize() ; i++ )
+    {
+        in_us[i] = * ( double* )( us->At( i ) );
+    }
+
+    vector < double > in_ws;
+    in_ws.resize( ws->GetSize() );
+    for ( int i = 0 ; i < ( int )ws->GetSize() ; i++ )
+    {
+        in_ws[i] = * ( double* )( ws->At( i ) );
+    }
+
+    m_ProxyVec3dArray = vsp::CompVecPnt01( geom_id, surf_indx, in_us, in_ws );
+    return GetProxyVec3dArray();
+}
+
+CScriptArray* ScriptMgrSingleton::CompVecNorm01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws)
+{
+    vector < double > in_us;
+    in_us.resize( us->GetSize() );
+    for ( int i = 0 ; i < ( int )us->GetSize() ; i++ )
+    {
+        in_us[i] = * ( double* )( us->At( i ) );
+    }
+
+    vector < double > in_ws;
+    in_ws.resize( ws->GetSize() );
+    for ( int i = 0 ; i < ( int )ws->GetSize() ; i++ )
+    {
+        in_ws[i] = * ( double* )( ws->At( i ) );
+    }
+
+    m_ProxyVec3dArray = vsp::CompVecNorm01( geom_id, surf_indx, in_us, in_ws );
+    return GetProxyVec3dArray();
+}
+
+void ScriptMgrSingleton::CompVecCurvature01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws, CScriptArray* k1s, CScriptArray* k2s, CScriptArray* kas, CScriptArray* kgs)
+{
+    vector < double > in_us;
+    in_us.resize( us->GetSize() );
+    for ( int i = 0 ; i < ( int )us->GetSize() ; i++ )
+    {
+        in_us[i] = * ( double* )( us->At( i ) );
+    }
+
+    vector < double > in_ws;
+    in_ws.resize( ws->GetSize() );
+    for ( int i = 0 ; i < ( int )ws->GetSize() ; i++ )
+    {
+        in_ws[i] = * ( double* )( ws->At( i ) );
+    }
+
+    vector < double > out_k1s;
+    vector < double > out_k2s;
+    vector < double > out_kas;
+    vector < double > out_kgs;
+
+    vsp::CompVecCurvature01( geom_id, surf_indx, in_us, in_ws, out_k1s, out_k2s, out_kas, out_kgs );
+
+    FillDoubleArray( out_k1s, k1s );
+    FillDoubleArray( out_k2s, k2s );
+    FillDoubleArray( out_kas, kas );
+    FillDoubleArray( out_kgs, kgs );
+}
+
+void ScriptMgrSingleton::ProjVecPnt01(const string &geom_id, int &surf_indx, CScriptArray* pts, CScriptArray* us, CScriptArray* ws, CScriptArray* ds )
+{
+    vector < vec3d > in_pts;
+
+    in_pts.resize( pts->GetSize() );
+    for ( int i = 0 ; i < ( int )pts->GetSize() ; i++ )
+    {
+        in_pts[i] = * ( vec3d* )( pts->At( i ) );
+    }
+
+    vector < double > out_us;
+    vector < double > out_ws;
+    vector < double > out_ds;
+
+    vsp::ProjVecPnt01( geom_id, surf_indx, in_pts, out_us, out_ws, out_ds );
+
+    FillDoubleArray( out_us, us );
+    FillDoubleArray( out_ws, ws );
+    FillDoubleArray( out_ds, ds );
+}
+
+void ScriptMgrSingleton::ProjVecPnt01Guess(const string &geom_id, int &surf_indx, CScriptArray* pts, CScriptArray* u0s, CScriptArray* w0s, CScriptArray* us, CScriptArray* ws, CScriptArray* ds )
+{
+    vector < vec3d > in_pts;
+
+    in_pts.resize( pts->GetSize() );
+    for ( int i = 0 ; i < ( int )pts->GetSize() ; i++ )
+    {
+        in_pts[i] = * ( vec3d* )( pts->At( i ) );
+    }
+
+    vector < double > in_u0s;
+    in_u0s.resize( u0s->GetSize() );
+    for ( int i = 0 ; i < ( int )u0s->GetSize() ; i++ )
+    {
+        in_u0s[i] = * ( double* )( u0s->At( i ) );
+    }
+
+    vector < double > in_w0s;
+    in_w0s.resize( w0s->GetSize() );
+    for ( int i = 0 ; i < ( int )w0s->GetSize() ; i++ )
+    {
+        in_w0s[i] = * ( double* )( w0s->At( i ) );
+    }
+
+    vector < double > out_us;
+    vector < double > out_ws;
+    vector < double > out_ds;
+
+    vsp::ProjVecPnt01Guess( geom_id, surf_indx, in_pts, in_u0s, in_w0s, out_us, out_ws, out_ds );
+
+    FillDoubleArray( out_us, us );
+    FillDoubleArray( out_ws, ws );
+    FillDoubleArray( out_ds, ds );
+}
 //==== Console Print String Data ====//
 void ScriptMgrSingleton::Print( const string & data, bool new_line )
 {
