@@ -711,6 +711,128 @@ vec3d VspSurf::CompNorm01( double u01, double v01 ) const
     return CompNorm( u01 * GetUMax(), v01 * GetWMax() );
 }
 
+//===== Compute Surface Curvature Metrics Given  U W =====//
+void VspSurf::CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const
+{
+    double umn = m_Surface.get_u0();
+    double wmn = m_Surface.get_v0();
+
+    double umx = m_Surface.get_umax();
+    double wmx = m_Surface.get_vmax();
+
+    double slop = 1e-3;
+    if( u < (umn - slop) || w < (wmn - slop) || u > (umx + slop) || w > (wmx + slop) )
+    {
+        printf("BAD parameter in VspSurf::CompCurvature! %f %f\n", u, w );
+        assert(false);
+    }
+
+    if ( u < umn )
+        u = umn;
+
+    if ( w < wmn )
+        w = wmn;
+
+    if ( u > umx )
+        u = umx;
+
+    if ( w > wmx )
+        w = wmx;
+
+    double tol = 1e-10;
+
+    double bump = 1e-3;
+
+    // First derivative vectors
+    vec3d S_u = CompTanU( u, w );
+    vec3d S_w = CompTanW( u, w );
+
+    double E = dot( S_u, S_u );
+    double G = dot( S_w, S_w );
+
+    if( E < tol && G < tol )
+    {
+        double umid = ( umn + umx ) / 2.0;
+        double wmid = ( wmn + wmx ) / 2.0;
+
+        u = u + ( umid - u ) * bump;
+        w = w + ( wmid - w ) * bump;
+
+        S_u = CompTanU( u, w );
+        S_w = CompTanW( u, w );
+
+        E = dot( S_u, S_u );
+        G = dot( S_w, S_w );
+    }
+    else if( E < tol ) // U direction degenerate
+    {
+        double wmid = ( wmn + wmx ) / 2.0;
+        w = w + ( wmid - w ) * bump;
+
+        S_u = CompTanU( u, w );
+        S_w = CompTanW( u, w );
+
+        E = dot( S_u, S_u );
+        G = dot( S_w, S_w );
+    }
+    else if( G < tol ) // W direction degenerate
+    {
+        double umid = ( umn + umx ) / 2.0;
+        u = u + ( umid - u ) * bump;
+
+        S_u = CompTanU( u, w );
+        S_w = CompTanW( u, w );
+
+        E = dot( S_u, S_u );
+        G = dot( S_w, S_w );
+    }
+
+    // Second derivative vectors
+    vec3d S_uu = CompTanUU( u, w );
+    vec3d S_uw = CompTanUW( u, w );
+    vec3d S_ww = CompTanWW( u, w );
+
+    // Unit normal vector
+    vec3d Q = cross( S_u, S_w );
+    Q.normalize();
+
+    double F = dot( S_u, S_w );
+
+    double L = dot( S_uu, Q );
+    double M = dot( S_uw, Q );
+    double N = dot( S_ww, Q );
+
+    // Mean curvature
+    ka = ( E * N + G * L - 2.0 * F * M ) / ( 2.0 * ( E * G - F * F ) );
+
+    // Gaussian curvature
+    kg = ( L * N - M * M ) / ( E * G - F * F );
+
+    double b = sqrt( ka * ka - kg );
+
+    // Principal curvatures
+    double kmax = ka + b;
+    double kmin = ka - b;
+
+    // Ensure k1 has largest magnitude
+    if( std::abs( kmax ) > std::abs( kmin ) )
+    {
+        k1 = kmax;
+        k2 = kmin;
+    }
+    else
+    {
+        k1 = kmin;
+        k2 = kmax;
+    }
+}
+
+//===== Compute Normal  0->1.0  =====//
+void VspSurf::CompCurvature01( double u01, double v01, double& k1, double& k2, double& ka, double& kg ) const
+{
+    CompCurvature( u01 * GetUMax(), v01 * GetWMax(), k1, k2, ka, kg );
+}
+
 void VspSurf::ResetUWSkip()
 {
     piecewise_surface_type::index_type ip, jp, nupatch, nwpatch;
