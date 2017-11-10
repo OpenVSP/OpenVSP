@@ -141,7 +141,7 @@ public:
     void AddButton(  CheckButton& check_button, const char* label );
     void AddButton(  ToggleButton& toggle_button, const char* label );
     void AddButton(  CheckButtonBit& check_bit_button, const char* label, int val );
-    void AddButton(  TriggerButton& trigger_button, const char* label );
+    void AddButton(  TriggerButton& trigger_button, const char* label, int used_w  = 0 );
     void AddButton(  ParmButton& parm_button, const char* label );
     void AddButton( RadioButton& radio_button, const char* label, int val = 0);
     void AddInput(  StringInput& string_input, const char* label, int used_w = 0 );

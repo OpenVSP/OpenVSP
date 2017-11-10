@@ -479,12 +479,12 @@ void GroupLayout::AddButton( CheckButtonBit& cbutton, const char* label, int val
 
 
 //==== Create & Init Gui TriggerButton  ====//
-void GroupLayout::AddButton( TriggerButton& tbutton, const char* label )
+void GroupLayout::AddButton( TriggerButton& tbutton, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
     //==== Add Check Button ====//
-    int bw = FitWidth( 0, m_ButtonWidth );
+    int bw = FitWidth( used_w, m_ButtonWidth );
     Fl_Button* flbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, label );
     flbutton->labelfont( 1 );
     flbutton->labelsize( 12 );
