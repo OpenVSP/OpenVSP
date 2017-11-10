@@ -18,6 +18,7 @@
 #include "Entity.h"
 #include "Ruler.h"
 #include "GraphicEngine.h"
+#include "ManageMeasureScreen.h"
 #include "ManageLightingScreen.h"
 #include "ManageGeomScreen.h"
 #include "ManageCORScreen.h"
@@ -280,6 +281,14 @@ void VspGlWindow::update()
         if( cfdScreen )
         {
             cfdScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from measureScreen.
+        ManageMeasureScreen * measureScreen = dynamic_cast< ManageMeasureScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MEASURE_SCREEN ) );
+        if( measureScreen )
+        {
+            measureScreen->LoadDrawObjs( drawObjs );
         }
 
         // Load Render Objects from lightScreen.
@@ -1906,6 +1915,48 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
 {
     // Find out where feedback is heading...
     std::string selectedFeedbackName = selected->getGroup();
+
+    // Probe Screen Feedback
+    ManageMeasureScreen * measureScreen = dynamic_cast<ManageMeasureScreen*>
+    ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MEASURE_SCREEN ) );
+
+    if( measureScreen && measureScreen->getFeedbackGroupName() == selectedFeedbackName )
+    {
+        // Location feedback
+        SelectedLoc * loc = dynamic_cast<SelectedLoc*> ( selected );
+        if( loc )
+        {
+            glm::vec3 placement = loc->getLoc();
+            measureScreen->Set( vec3d(placement.x, placement.y, placement.z ) );
+
+            // Only one selection is needed for label, remove this 'selected' from selection list.
+            m_GEngine->getScene()->removeSelected( selected );
+            selected = NULL;
+        }
+
+        // Vertex feedback
+        // Cast selectable to SelectedPnt object, so that we can get Render Source Ptr.
+        SelectedPnt * pnt = dynamic_cast<SelectedPnt*>( selected );
+        if( pnt )
+        {
+            VSPGraphic::Entity * e = dynamic_cast<VSPGraphic::Entity*>(pnt->getSource());
+            if(e)
+            {
+                ID * id = _findID( e->getID() );
+                if( id )
+                {
+                    int index = id->geomID.find_last_of( '_' );
+                    std::string baseId = id->geomID.substr( 0, index );
+                    glm::vec3 placement = e->getVertexVec(pnt->getIndex());
+                    measureScreen->Set( vec3d( placement.x, placement.y, placement.z ), baseId );
+
+                    // Only one selection is needed for label, remove this 'selected' from selection list.
+                    m_GEngine->getScene()->removeSelected( selected );
+                    selected = NULL;
+                }
+            }
+        }
+    }
 
     // Geom Screen Feedback
     ManageGeomScreen * geomScreen = dynamic_cast<ManageGeomScreen *>

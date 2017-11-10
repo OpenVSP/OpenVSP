@@ -111,6 +111,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_SetEditMenuItem.Init( mgr, m_MenuBar, "Model/Set Editor...", ScreenMgr::VSP_SET_EDITOR_SCREEN );
     m_LinkMenuItem.Init( mgr, m_MenuBar, "Model/Link...", ScreenMgr::VSP_PARM_LINK_SCREEN );
     m_DesVarMenuItem.Init( mgr, m_MenuBar, "Model/Design Variables...", ScreenMgr::VSP_DESIGN_VAR_SCREEN );
+    m_LabelMenuItem.Init( mgr, m_MenuBar, "Model/Measure...", ScreenMgr::VSP_MEASURE_SCREEN );
     m_LightMenuItem.Init( mgr, m_MenuBar, "Model/Lighting...", ScreenMgr::VSP_LIGHTING_SCREEN );
     m_ClipMenuItem.Init( mgr, m_MenuBar, "Model/Clipping...", ScreenMgr::VSP_CLIPPING_SCREEN );
     m_TextureMenuItem.Init( mgr, m_MenuBar, "Model/Texture...", ScreenMgr::VSP_MANAGE_TEXTURE_SCREEN );

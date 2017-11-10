@@ -55,6 +55,7 @@ ManageBackgroundScreen.cpp
 ManageCORScreen.cpp
 ManageGeomScreen.cpp
 ManageLightingScreen.cpp
+ManageMeasureScreen.cpp
 ManageTextureScreen.cpp
 ManageViewScreen.cpp
 MassPropScreen.cpp
@@ -120,6 +121,7 @@ ManageBackgroundScreen.h
 ManageCORScreen.h
 ManageGeomScreen.h
 ManageLightingScreen.h
+ManageMeasureScreen.h
 ManageTextureScreen.h
 ManageViewScreen.h
 MassPropScreen.h

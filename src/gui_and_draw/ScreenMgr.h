@@ -47,6 +47,7 @@ public:
            VSP_MANAGE_TEXTURE_SCREEN,
            VSP_MASS_PROP_SCREEN,
            VSP_MATERIAL_EDIT_SCREEN,
+           VSP_MEASURE_SCREEN,
            VSP_SNAP_TO_SCREEN,
            VSP_PARASITE_DRAG_SCREEN,
            VSP_PARM_DEBUG_SCREEN,
