@@ -22,6 +22,7 @@
 #include "StlHelper.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
+#include "MeasureMgr.h"
 #include "AdvLinkMgr.h"
 #include "AnalysisMgr.h"
 #include "ParasiteDragMgr.h"
@@ -329,6 +330,7 @@ void Vehicle::Wype()
     VarPresetMgr.Renew();
     ParasiteDragMgr.Renew();
     VSPAEROMgr.Renew();
+    MeasureMgr.Renew();
 }
 
 void Vehicle::SetVSP3FileName( const string & f_name )
@@ -417,6 +419,8 @@ void Vehicle::Update( bool fullupdate )
             g_ptr->Update( fullupdate );
         }
     }
+
+    MeasureMgr.Update();
 }
 
 void Vehicle::UpdateGeom( const string &geom_id )
@@ -1366,6 +1370,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     getVGuiDraw()->getLightMgr()->EncodeXml( vehicle_node );
 
     // Encode label information.
+    MeasureMgr.EncodeXml( vehicle_node );
 
     MaterialMgr.EncodeXml( node );
 
@@ -1412,6 +1417,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
         getVGuiDraw()->getLightMgr()->DecodeXml( vehicle_node );
 
         // Decode label information.
+        MeasureMgr.DecodeXml( vehicle_node );
 
     }
 

@@ -48,6 +48,8 @@ HingeGeom.cpp
 Link.cpp
 LinkMgr.cpp
 MaterialMgr.cpp
+Measure.cpp
+MeasureMgr.cpp
 MeshGeom.cpp
 ParasiteDragMgr.cpp
 Parm.cpp
@@ -111,6 +113,8 @@ LightMgr.h
 Link.h
 LinkMgr.h
 MaterialMgr.h
+Measure.h
+MeasureMgr.h
 MeshGeom.h
 ParasiteDragMgr.h
 Parm.h
