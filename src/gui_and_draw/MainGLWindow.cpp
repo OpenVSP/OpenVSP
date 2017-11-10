@@ -17,6 +17,7 @@
 #include "Texture2D.h"
 #include "Entity.h"
 #include "Ruler.h"
+#include "Probe.h"
 #include "GraphicEngine.h"
 #include "ManageMeasureScreen.h"
 #include "ManageLightingScreen.h"
@@ -32,6 +33,7 @@
 #include "ManageViewScreen.h"
 #include "WaveDragScreen.h"
 #include "VSPAEROScreen.h"
+#include "MeasureMgr.h"
 
 #pragma warning(disable:4244)
 
@@ -283,6 +285,10 @@ void VspGlWindow::update()
             cfdScreen->LoadDrawObjs( drawObjs );
         }
 
+        // I don't like having this Update() here.  However, there does not appear
+        // to be a better place to put it.  Vehicle::Update does not get called
+        // frequently enough.
+        MeasureMgr.Update();
         // Load Render Objects from measureScreen.
         ManageMeasureScreen * measureScreen = dynamic_cast< ManageMeasureScreen* >
         ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MEASURE_SCREEN ) );
@@ -756,9 +762,8 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             id = 0xFFFFFFFF;
         }
 
+        VSPGraphic::Probe * probe;
         VSPGraphic::Ruler * ruler;
-
-        glm::vec3 start, end, offset;
 
         switch( objects[i]->m_Type )
         {
@@ -775,11 +780,15 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
             ruler = dynamic_cast<VSPGraphic::Ruler*> ( m_GEngine->getScene()->getObject( id ) );
             if( ruler )
             {
+                ruler->setVisibility( objects[i]->m_Visible );
+
                 ruler->setTextColor( (float)objects[i]->m_TextColor.x(),
                     (float)objects[i]->m_TextColor.y(),
                     (float)objects[i]->m_TextColor.z() );
 
                 ruler->setTextSize( (float)objects[i]->m_TextSize );
+
+                glm::vec3 start, end, offset;
 
                 switch( objects[i]->m_Ruler.Step )
                 {
@@ -801,7 +810,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                     end = glm::vec3( objects[i]->m_Ruler.End.x(),
                         objects[i]->m_Ruler.End.y(),
                         objects[i]->m_Ruler.End.z() );
-                    ruler->placeRuler( start, end );
+                    ruler->placeRuler( start, end, objects[i]->m_Ruler.Label );
                     break;
 
                 case DrawObj::VSP_RULER_STEP_COMPLETE:
@@ -814,7 +823,7 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                     offset = glm::vec3( objects[i]->m_Ruler.Offset.x(),
                         objects[i]->m_Ruler.Offset.y(),
                         objects[i]->m_Ruler.Offset.z() );
-                    ruler->placeRuler( start, end, offset );
+                    ruler->placeRuler( start, end, offset, objects[i]->m_Ruler.Label );
                     break;
 
                 default:
@@ -822,7 +831,64 @@ void VspGlWindow::_update( std::vector<DrawObj *> objects )
                 }
             }
             break;
- 
+
+        case DrawObj::VSP_PROBE:
+            if( id == 0xFFFFFFFF )
+            {
+                m_GEngine->getScene()->createObject( Common::VSP_OBJECT_PROBE, &id );
+
+                ID idInfo;
+                idInfo.bufferID = id;
+                idInfo.geomID = objects[i]->m_GeomID;
+                m_ids.push_back( idInfo );
+            }
+            probe = dynamic_cast<VSPGraphic::Probe*> ( m_GEngine->getScene()->getObject( id ) );
+            if( probe )
+            {
+                probe->setVisibility( objects[i]->m_Visible );
+
+                probe->setTextColor( (float)objects[i]->m_TextColor.x(),
+                    (float)objects[i]->m_TextColor.y(),
+                    (float)objects[i]->m_TextColor.z() );
+
+                probe->setTextSize( (float)objects[i]->m_TextSize );
+
+                glm::vec3 pt, norm;
+                float len;
+
+                switch( objects[i]->m_Probe.Step )
+                {
+                case DrawObj::VSP_PROBE_STEP_ZERO:
+                    probe->reset();
+                    break;
+
+                case DrawObj::VSP_PROBE_STEP_ONE:
+                    pt = glm::vec3( objects[i]->m_Probe.Pt.x(),
+                        objects[i]->m_Probe.Pt.y(),
+                        objects[i]->m_Probe.Pt.z() );
+                    norm = glm::vec3( objects[i]->m_Probe.Norm.x(),
+                        objects[i]->m_Probe.Norm.y(),
+                        objects[i]->m_Probe.Norm.z() );
+                    probe->placeProbe( pt, norm, objects[i]->m_Probe.Label );
+                    break;
+
+                case DrawObj::VSP_PROBE_STEP_COMPLETE:
+                    pt = glm::vec3( objects[i]->m_Probe.Pt.x(),
+                        objects[i]->m_Probe.Pt.y(),
+                        objects[i]->m_Probe.Pt.z() );
+                    norm = glm::vec3( objects[i]->m_Probe.Norm.x(),
+                        objects[i]->m_Probe.Norm.y(),
+                        objects[i]->m_Probe.Norm.z() );
+                    len = objects[i]->m_Probe.Len;
+                    probe->placeProbe( pt, norm, len, objects[i]->m_Probe.Label );
+                    break;
+
+                default:
+                    break;
+                }
+            }
+            break;
+
         default:
             break;
        }
@@ -1927,7 +1993,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
         if( loc )
         {
             glm::vec3 placement = loc->getLoc();
-            measureScreen->Set( vec3d(placement.x, placement.y, placement.z ) );
+            measureScreen->Set( vec3d( placement.x, placement.y, placement.z ) );
 
             // Only one selection is needed for label, remove this 'selected' from selection list.
             m_GEngine->getScene()->removeSelected( selected );

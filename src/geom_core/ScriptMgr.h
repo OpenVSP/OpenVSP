@@ -200,6 +200,10 @@ private:
     void AddExcrescence(const std::string & excresName, int excresType, double excresVal);
     void DeleteExcrescence(int index);
 
+    //=== Register Measure Functions ===//
+    CScriptArray* GetAllRulers();
+    CScriptArray* GetAllProbes();
+
     CScriptArray* CompVecPnt01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws);
     CScriptArray* CompVecNorm01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws);
     void CompVecCurvature01(const string &geom_id, const int &surf_indx, CScriptArray* us, CScriptArray* ws, CScriptArray* k1s, CScriptArray* k2s, CScriptArray* kas, CScriptArray* kgs);

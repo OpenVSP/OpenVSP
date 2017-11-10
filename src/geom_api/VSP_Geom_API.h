@@ -305,6 +305,19 @@ extern vector < vec3d > CompVecNorm01(const std::string &geom_id, const int &sur
 extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws, vector < double > &k1s, vector < double > &k2s, vector < double > &kas, vector < double > &kgs);
 extern void ProjVecPnt01(const std::string &geom_id, int &surf_indx, const vector < vec3d > &pts, vector < double > &us, vector < double > &ws, vector < double > &ds );
 extern void ProjVecPnt01Guess(const std::string &geom_id, int &surf_indx, const vector < vec3d > &pts, const vector < double > &u0s, const vector < double > &w0s, vector < double > &us, vector < double > &ws, vector < double > &ds );
+
+//======================= Measure Functions ============================//
+extern string AddRuler( const string & startgeomid, int startsurfindx, double startu, double startw,
+                        const string & endgeomid, int endsurfindx, double endu, double endw, const string & name );
+extern vector < string > GetAllRulers();
+extern void DelRuler( const string &id );
+extern void DeleteAllRulers();
+
+extern string AddProbe( const string & geomid, int surfindx, double u, double w, const string & name );
+extern vector < string > GetAllProbes();
+extern void DelProbe( const string &id );
+extern void DeleteAllProbes();
+
 }           // End vsp namespace
 
 

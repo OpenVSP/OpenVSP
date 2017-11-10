@@ -82,6 +82,7 @@ public:
         VSP_PICK_VERTEX,
         VSP_PICK_GEOM,
         VSP_PICK_LOCATION,
+        VSP_PROBE,
         VSP_CLIP,
         VSP_SHADED_QUADS,
         VSP_WIRE_QUADS,
@@ -103,6 +104,20 @@ public:
     };
 
     /*
+    * Probe step enum.
+    * A probe requires two steps to complete.  On first
+    * step, only start point is given.  Probe label is drawn
+    * between start point and mouse location.
+    */
+    enum ProbeEnum
+    {
+        VSP_PROBE_STEP_ZERO,
+        VSP_PROBE_STEP_ONE,
+        VSP_PROBE_STEP_TWO,
+        VSP_PROBE_STEP_COMPLETE,
+    };
+
+    /*
     * Ruler step enum.
     * A ruler requires three steps to complete.  On first
     * step, only start point is given.  Ruler is drawn
@@ -120,6 +135,22 @@ public:
     };
 
     /*
+    * Probe Information.
+    * Step - Current step of building a probe.
+    * Pt - Probe surface point.
+    * Norm - Surface normal at probe point.
+    * Len - Length of label from point.
+    */
+    struct Probe
+    {
+        ProbeEnum Step;
+        vec3d Pt;
+        vec3d Norm;
+        double Len;
+        string Label;
+    };
+
+    /*
     * Ruler Information.
     * Step - Current step of building a ruler.
     * Start - Vertex Information of starting point.
@@ -132,6 +163,7 @@ public:
         vec3d Start;
         vec3d End;
         vec3d Offset;
+        string Label;
     };
 
     /*
@@ -265,6 +297,11 @@ public:
     * m_Screen is set to VSP_MAIN_SCREEN by default.
     */
     ScreenEnum m_Screen;
+
+    /*
+     * Holds probe information.
+     */
+    Probe m_Probe;
 
     /*
     * Holds ruler information.

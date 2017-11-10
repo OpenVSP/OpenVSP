@@ -1,0 +1,70 @@
+void main()
+{
+    string gid = AddGeom( "POD", "" );
+    SetParmVal( gid, "Y_Rel_Location", "XForm", 2.0 );
+    SetParmVal( gid, "Sym_Planar_Flag", "Sym", SYM_FLAG::SYM_XZ );
+
+    string gid2 = AddGeom( "POD", "" );
+    SetParmVal( gid2, "Z_Rel_Location", "XForm", 4.0 );
+
+    Update();
+
+
+    string rid = AddRuler( gid, 1, 0.2, 0.3, gid2, 0, 0.2, 0.3, "Ruler 1" );
+
+    SetParmVal( FindParm( rid, "X_Offset", "Measure" ), 6.0 );
+    SetParmVal( FindParm( rid, "Y_Offset", "Measure" ), 7.0 );
+    SetParmVal( FindParm( rid, "Z_Offset", "Measure" ), 8.0 );
+
+    string rid2 = AddRuler( gid, 0, 0.4, 0.6, gid, 1, 0.8, 0.9, "Ruler 2" );
+
+    array< string > @ruler_array = GetAllRulers();
+
+    Print("Two Rulers");
+    for( int n = 0 ; n < int( ruler_array.length() ) ; n++ )
+    {
+        Print( ruler_array[n] );
+    }
+
+    DelRuler( ruler_array[1] );
+
+    ruler_array = GetAllRulers();
+
+    Print("One Ruler");
+    for( int n = 0 ; n < int( ruler_array.length() ) ; n++ )
+    {
+        Print( ruler_array[n] );
+    }
+
+    string distid = FindParm( rid, "Distance", "Measure" );
+    double d = GetParmVal( distid );
+
+    Print( "Distance before update " + d );
+
+    Update();
+
+    d = GetParmVal( distid );
+    Print( "Distance after update " + d );
+
+// DelRuler( const string &id );
+// DeleteAllRulers();
+
+    string pid = AddProbe( gid, 0, 0.5, 0.8, "Probe 1" );
+
+    SetParmVal( FindParm( pid, "Len", "Measure" ), 3.0 );
+
+    Update();
+
+
+// array< string > @probe_array GetAllProbes();
+// DelProbe( const string &id );
+// DeleteAllProbes();
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+
+}

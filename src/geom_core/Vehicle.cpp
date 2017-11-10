@@ -133,6 +133,8 @@ Vehicle::Vehicle()
     m_TextSize.Init( "TextSize", "Text", this, 2.0, 0.0, 100.0 );
     m_TextSize.SetDescript( "Size of text labels displayed on screen" );
 
+    m_MeasureLenUnit.Init( "LenUnit", "Measure", this, vsp::LEN_UNITLESS, vsp::LEN_MM, vsp::LEN_UNITLESS );
+
     // Initialize the group transformations object
     m_GroupTransformations.Init( this );
 

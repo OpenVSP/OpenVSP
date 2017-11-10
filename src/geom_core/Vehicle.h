@@ -358,6 +358,8 @@ public:
 
     Parm m_AxisLength;
     Parm m_TextSize;
+    IntParm m_MeasureLenUnit;
+
 
 protected:
 

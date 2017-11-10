@@ -22,6 +22,7 @@
 #include "WingGeom.h"
 #include "PropGeom.h"
 #include "VSPAEROMgr.h"
+#include "MeasureMgr.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -4279,4 +4280,47 @@ void ProjVecPnt01Guess( const std::string &geom_id, int &surf_indx, const vector
     }
     ErrorMgr.NoError();
 }
+
+string AddRuler( const string & startgeomid, int startsurfindx, double startu, double startw,
+                 const string & endgeomid, int endsurfindx, double endu, double endw, const string & name )
+{
+    return MeasureMgr.CreateAndAddRuler( startgeomid, startsurfindx, startu, startw,
+                                         endgeomid, endsurfindx, endu, endw, name );
+}
+
+vector < string > GetAllRulers()
+{
+    return MeasureMgr.GetAllRulers();
+}
+
+void DelRuler( const string &id )
+{
+    MeasureMgr.DelRuler( id );
+}
+
+void DeleteAllRulers()
+{
+    MeasureMgr.DelAllRulers();
+}
+
+string AddProbe( const string & geomid, int surfindx, double u, double w, const string & name )
+{
+    return MeasureMgr.CreateAndAddProbe( geomid, surfindx, u, w, name );
+}
+
+vector < string > GetAllProbes()
+{
+    return MeasureMgr.GetAllProbes();
+}
+
+void DelProbe( const string &id )
+{
+    MeasureMgr.DelProbe( id );
+}
+
+void DeleteAllProbes()
+{
+    MeasureMgr.DelAllProbes();
+}
+
 }   // vsp namespace
