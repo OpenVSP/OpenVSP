@@ -360,6 +360,7 @@ public:
     BoolParm m_exportDegenGeomMFile;
 
     Parm m_AxisLength;
+    Parm m_TextSize;
 
 protected:
 

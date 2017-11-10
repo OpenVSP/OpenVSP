@@ -14,7 +14,7 @@
 #include "GraphicEngine.h"
 #include "Display.h"
 
-ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 445 + 45, "Adjust View" )
+ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 445 + 45 + 45, "Adjust View" )
 {
     //===== Initialize Values for Sliders =====//
 
@@ -100,6 +100,12 @@ ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 44
 
     m_BorderLayout.AddSlider( m_AxisLenSlider, "Len", 10.0, "%7.3f" );
 
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddDividerBox( "Text Label Size" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddSlider( m_TextSizeSlider, "Size", 10.0, "%5.1f" );
+
 }
 
 ManageViewScreen::~ManageViewScreen()
@@ -174,6 +180,7 @@ bool ManageViewScreen::Update()
     if ( veh )
     {
         m_AxisLenSlider.Update( veh->m_AxisLength.GetID() );
+        m_TextSizeSlider.Update( veh->m_TextSize.GetID() );
     }
 
     m_ViewportSizeX.Update( m_ViewportSizeXValue.GetID() );

@@ -129,6 +129,9 @@ Vehicle::Vehicle()
     m_AxisLength.Init( "AxisLength", "Axis", this, 1.0, 1e-12, 1e12 );
     m_AxisLength.SetDescript( "Length of axis icon displayed on screen" );
 
+    m_TextSize.Init( "TextSize", "Text", this, 2.0, 0.0, 100.0 );
+    m_TextSize.SetDescript( "Size of text labels displayed on screen" );
+
     // Initialize the group transformations object
     m_GroupTransformations.Init( this );
 
