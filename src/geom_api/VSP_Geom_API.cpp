@@ -3857,4 +3857,202 @@ void WritePartialCfMethodCSVFile(const std::string & file_name)
 }
 
 //============================================================================//
+
+vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    vec3d ret;
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompPnt01::Can't Find Geom " + geom_id );
+        return ret;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompPnt01::Invalid Surface Index " + to_string( surf_indx ) );
+        return ret;
+    }
+
+    ret = geom_ptr->CompPnt01(surf_indx, clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ) );
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    vec3d ret;
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompNorm01::Can't Find Geom " + geom_id );
+        return ret;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompNorm01::Invalid Surface Index " + to_string( surf_indx ) );
+        return ret;
+    }
+
+    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    ret = surf->CompNorm01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ) );
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    vec3d ret;
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompTanU01::Can't Find Geom " + geom_id );
+        return ret;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompTanU01::Invalid Surface Index " + to_string( surf_indx ) );
+        return ret;
+    }
+
+    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    ret = surf->CompTanU01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ) );
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    vec3d ret;
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompTanW01::Can't Find Geom " + geom_id );
+        return ret;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompTanW01::Invalid Surface Index " + to_string( surf_indx ) );
+        return ret;
+    }
+
+    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    ret = surf->CompTanW01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ) );
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+void CompCurvature01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w, double &k1,
+                     double &k2, double &ka, double &kg)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    k1 = 0.0;
+    k2 = 0.0;
+    ka = 0.0;
+    kg = 0.0;
+
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompCurvature01::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompCurvature01::Invalid Surface Index " + to_string( surf_indx ) );
+        return;
+    }
+
+    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    surf->CompCurvature01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ), k1, k2, ka, kg );
+
+    ErrorMgr.NoError();
+}
+
+double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &u, double &w)
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    double dmin = std::numeric_limits<double>::max();
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjPnt01::Can't Find Geom " + geom_id );
+        return dmin;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01::Invalid Surface Index " + to_string( surf_indx ) );
+        return dmin;
+    }
+
+    dmin = geom->GetSurfPtr( surf_indx )->FindNearest01( u, w, pt );
+
+    ErrorMgr.NoError();
+
+    return dmin;
+}
+
+double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx,
+                  double &u, double &w)
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    double dmin = std::numeric_limits<double>::max();
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjPnt01I::Can't Find Geom " + geom_id );
+        return dmin;
+    }
+
+    dmin = vPtr->ProjPnt01I( geom_id, pt, surf_indx, u, w );
+
+    ErrorMgr.NoError();
+
+    return dmin;
+}
+
+double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &u0, const double &w0, double &u, double &w)
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    double dmin = std::numeric_limits<double>::max();
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjPnt01Guess::Can't Find Geom " + geom_id );
+        return dmin;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01Guess::Invalid Surface Index " + to_string( surf_indx ) );
+        return dmin;
+    }
+
+    dmin = geom->GetSurfPtr( surf_indx )->FindNearest01( u, w, pt, clamp( u0, 0.0, 1.0 ), clamp( w0, 0.0, 1.0 ) );
+
+    ErrorMgr.NoError();
+
+    return dmin;
+}
+
 }   // vsp namespace

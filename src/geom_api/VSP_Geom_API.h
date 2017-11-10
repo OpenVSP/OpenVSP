@@ -288,6 +288,18 @@ extern void WriteWingFFCSVFile( const std::string & file_name );
 extern void WriteCfEqnCSVFile( const std::string & file_name );
 extern void WritePartialCfMethodCSVFile( const std::string & file_name );
 
+//======================== Surface Query Functions ======================//
+extern vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
+extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
+extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
+extern vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
+extern void CompCurvature01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w,
+                            double &k1, double &k2, double &ka, double &kg);
+
+extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &u, double &w);
+extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx, double &u, double &w);
+extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &u0, const double &w0, double &u, double &w);
+
 }           // End vsp namespace
 
 
