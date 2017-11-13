@@ -135,6 +135,10 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_WaveDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Wave Drag...", ScreenMgr::VSP_WAVEDRAG_SCREEN );
     m_ParasiteDragMenuItem.Init( mgr, m_MenuBar, "Analysis/Parasite Drag...", ScreenMgr::VSP_PARASITE_DRAG_SCREEN );
 
+    if ( !VehicleMgr.GetVehicle()->GetHeldenMeshCmd().empty() || true )
+    {
+        m_HeldenMeshMenuItem.Init( mgr, m_MenuBar, "Analysis/Helden Mesh...", ScreenMgr::VSP_HELDEN_SCREEN );
+    }
 
     // m_AboutMenuItem.Init( mgr, m_MenuBar, "Help/About...", ScreenMgr:: );
     // m_OnlineHelpMenuItem.Init( mgr, m_MenuBar, "Help/Online Help...", ScreenMgr:: );

@@ -42,6 +42,7 @@ public:
            VSP_FEA_PART_EDIT_SCREEN,
            VSP_FEA_XSEC_SCREEN,
            VSP_FIT_MODEL_SCREEN,
+           VSP_HELDEN_SCREEN,
            VSP_IGES_OPTIONS_SCREEN,
            VSP_IMPORT_SCREEN,
            VSP_LIGHTING_SCREEN,

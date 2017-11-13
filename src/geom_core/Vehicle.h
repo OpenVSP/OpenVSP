@@ -165,6 +165,7 @@ public:
     string GetVSPAEROCmd()                                  { return m_VSPAEROCmd; }
     string GetVIEWERCmd()                                   { return m_VIEWERCmd; }
     string GetSLICERCmd()                                   { return m_SLICERCmd; }
+    string GetHeldenMeshCmd()                               { return m_HeldenMeshCmd; }
 
     //==== Get Script Dir to Write Scripts ====//
     string GetWriteScriptDir()                              { return m_CustomScriptDirs[0]; }
@@ -421,6 +422,7 @@ protected:
     string m_VSPAEROCmd;
     string m_VIEWERCmd;
     string m_SLICERCmd;
+    string m_HeldenMeshCmd;
     vector< string > m_CustomScriptDirs;
 
     IntersectSettings m_ISectSettings;

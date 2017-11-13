@@ -19,6 +19,7 @@
 #include "ExportScreen.h"
 #include "FeaPartEditScreen.h"
 #include "FitModelScreen.h"
+#include "HeldenScreen.h"
 #include "IGESOptionsScreen.h"
 #include "ImportScreen.h"
 #include "ManageBackgroundScreen.h"
@@ -208,6 +209,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_FEA_PART_EDIT_SCREEN] = new FeaPartEditScreen( this );
     m_ScreenVec[VSP_FEA_XSEC_SCREEN] = new FeaXSecScreen( this );
     m_ScreenVec[VSP_FIT_MODEL_SCREEN] = new FitModelScreen( this );
+    m_ScreenVec[VSP_HELDEN_SCREEN] = new HeldenScreen( this );
     m_ScreenVec[VSP_IGES_OPTIONS_SCREEN] = new IGESOptionsScreen( this );
     m_ScreenVec[VSP_IMPORT_SCREEN] = new ImportScreen( this );
     m_ScreenVec[VSP_MEASURE_SCREEN] = new ManageMeasureScreen( this );

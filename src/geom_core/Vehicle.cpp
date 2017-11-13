@@ -380,10 +380,12 @@ void Vehicle::SetupPaths()
     m_VSPAEROCmd = string( "vspaero.exe" );
     m_VIEWERCmd = string( "vspviewer.exe" );
     m_SLICERCmd = string( "vspslicer.exe" );
+    m_HeldenMeshCmd = string( "" );
 #else
     m_VSPAEROCmd = string( "vspaero" );
     m_VIEWERCmd = string( "vspviewer" );
     m_SLICERCmd = string( "vspslicer" );
+    m_HeldenMeshCmd = string ( "heldenmesh" );
 #endif
 
     if( !CheckForFile( m_ExePath, m_VSPAEROCmd ) )
@@ -397,6 +399,10 @@ void Vehicle::SetupPaths()
     if ( !CheckForFile( m_ExePath, m_SLICERCmd ) )
     {
         printf( "VSPAERO slicer not found.\n" );
+    }
+    if( !CheckForFile( m_ExePath, m_HeldenMeshCmd ) )
+    {
+        printf("Helden Mesh not found.\n");
     }
 
     m_CustomScriptDirs.push_back( string( "./CustomScripts/" ) );
