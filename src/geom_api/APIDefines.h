@@ -228,7 +228,8 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 CFD_FACET_TYPE      = 1048576,
                                 CFD_CURV_TYPE       = 2097152,
                                 CFD_PLOT3D_TYPE     = 4194304,
-};
+                                HELDEN_IGES_TYPE    = 8388608,
+                            };
 
 enum SET_TYPE { SET_ALL = 0,
                 SET_SHOWN = 1,

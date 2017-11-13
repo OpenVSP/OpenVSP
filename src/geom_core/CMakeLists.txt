@@ -44,6 +44,7 @@ Geom.cpp
 GeomCoreTestSuite.cpp
 GridDensity.cpp
 GroupTransformations.cpp
+HeldenMgr.cpp
 HingeGeom.cpp
 Link.cpp
 LinkMgr.cpp
@@ -110,6 +111,7 @@ Geom.h
 GeomCoreTestSuite.h
 GridDensity.h
 GroupTransformations.h
+HeldenMgr.h
 HingeGeom.h
 Light.h
 LightMgr.h

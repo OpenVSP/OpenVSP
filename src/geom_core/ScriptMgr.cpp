@@ -847,6 +847,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "DRAG_BUILD_CSV_TYPE", DRAG_BUILD_CSV_TYPE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "HELDEN_IGES_TYPE", HELDEN_IGES_TYPE );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "CFD_CONTROL_TYPE" );
     assert( r >= 0 );
