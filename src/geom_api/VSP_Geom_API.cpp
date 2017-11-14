@@ -4195,7 +4195,7 @@ void CompVecCurvature01( const std::string &geom_id, const int &surf_indx, const
     ErrorMgr.NoError();
 }
 
-void ProjVecPnt01(const std::string &geom_id, int &surf_indx, const vector < vec3d > &pts, vector < double > &us, vector < double > &ws, vector < double > &ds )
+void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const vector < vec3d > &pts, vector < double > &us, vector < double > &ws, vector < double > &ds )
 {
     Vehicle* veh = GetVehicle();
 
@@ -4234,7 +4234,7 @@ void ProjVecPnt01(const std::string &geom_id, int &surf_indx, const vector < vec
     ErrorMgr.NoError();
 }
 
-void ProjVecPnt01Guess( const std::string &geom_id, int &surf_indx, const vector < vec3d > &pts, const vector < double > &u0s, const vector < double > &w0s, vector < double > &us, vector < double > &ws, vector < double > &ds )
+void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const vector < vec3d > &pts, const vector < double > &u0s, const vector < double > &w0s, vector < double > &us, vector < double > &ws, vector < double > &ds )
 {
     Vehicle* veh = GetVehicle();
 

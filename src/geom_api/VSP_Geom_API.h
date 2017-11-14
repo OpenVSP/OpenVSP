@@ -294,27 +294,27 @@ extern vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const 
 extern vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
 extern vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
 extern void CompCurvature01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w,
-                            double &k1, double &k2, double &ka, double &kg);
+                            double &k1_out, double &k2_out, double &ka_out, double &kg_out);
 
-extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &u, double &w);
-extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx, double &u, double &w);
-extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &u0, const double &w0, double &u, double &w);
+extern double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &u_out, double &w_out);
+extern double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx_out, double &u_out, double &w_out);
+extern double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &u0, const double &w0, double &u_out, double &w_out);
 
-extern vector < vec3d > CompVecPnt01(const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws);
-extern vector < vec3d > CompVecNorm01(const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws);
-extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws, vector < double > &k1s, vector < double > &k2s, vector < double > &kas, vector < double > &kgs);
-extern void ProjVecPnt01(const std::string &geom_id, int &surf_indx, const vector < vec3d > &pts, vector < double > &us, vector < double > &ws, vector < double > &ds );
-extern void ProjVecPnt01Guess(const std::string &geom_id, int &surf_indx, const vector < vec3d > &pts, const vector < double > &u0s, const vector < double > &w0s, vector < double > &us, vector < double > &ws, vector < double > &ds );
+extern std::vector < vec3d > CompVecPnt01(const std::string &geom_id, const int &surf_indx, const std::vector < double > &u_in_vec, const std::vector < double > &w_in_vec);
+extern std::vector < vec3d > CompVecNorm01(const std::string &geom_id, const int &surf_indx, const std::vector < double > &us, const std::vector < double > &ws);
+extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx, const std::vector < double > &us, const std::vector < double > &ws, std::vector < double > &k1_out_vec, std::vector < double > &k2_out_vec, std::vector < double > &ka_out_vec, std::vector < double > &kg_out_vec);
+extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < double > &d_out_vec );
+extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts, const std::vector < double > &u0s, const std::vector < double > &w0s, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < double > &d_out_vec );
 
 //======================= Measure Functions ============================//
 extern string AddRuler( const string & startgeomid, int startsurfindx, double startu, double startw,
                         const string & endgeomid, int endsurfindx, double endu, double endw, const string & name );
-extern vector < string > GetAllRulers();
+extern std::vector < string > GetAllRulers();
 extern void DelRuler( const string &id );
 extern void DeleteAllRulers();
 
 extern string AddProbe( const string & geomid, int surfindx, double u, double w, const string & name );
-extern vector < string > GetAllProbes();
+extern std::vector < string > GetAllProbes();
 extern void DelProbe( const string &id );
 extern void DeleteAllProbes();
 
