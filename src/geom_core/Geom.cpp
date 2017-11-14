@@ -1005,6 +1005,30 @@ void Geom::Update( bool fullupdate )
     m_UpdateBlock = false;
 }
 
+void Geom::GetUWTess01( int indx, vector < double > &u, vector < double > &w )
+{
+    vector< vector< vec3d > > pnts;
+    vector< vector< vec3d > > norms;
+    vector< vector< vec3d > > uw_pnts;
+
+    UpdateTesselate( indx, pnts, norms, uw_pnts, false );
+
+    double umx = GetSurfPtr( indx )->GetUMax();
+    double wmx = GetSurfPtr( indx )->GetWMax();
+
+    u.resize( uw_pnts.size() );
+    for ( int i = 0; i < uw_pnts.size(); i++ )
+    {
+        u[i] = uw_pnts[i][0].x() / umx;
+    }
+
+    w.resize( uw_pnts[0].size() );
+    for ( int j = 0; j < uw_pnts[0].size(); j++ )
+    {
+        w[j] = uw_pnts[0][j].y() / wmx;
+    }
+}
+
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
                             vector< vector< vec3d > > &uw_pnts, bool degen )
 {

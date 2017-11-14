@@ -117,6 +117,21 @@ void main()
         Print( "u: " + uoutv[i] + " w: " + woutv[i] + " d: " + doutv[i] );
     }
 
+
+    array<double> utess;
+    array<double> wtess;
+    GetUWTess01( gid, surf_indx, utess, wtess );
+
+    for( int i = 0 ; i < utess.size() ; i++ )
+    {
+        Print( "utess: " + utess[i] );
+    }
+
+    for( int j = 0 ; j < wtess.size() ; j++ )
+    {
+        Print( "wtess: " + wtess[j] );
+    }
+
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )
     {

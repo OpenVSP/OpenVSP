@@ -306,6 +306,8 @@ extern void CompVecCurvature01(const std::string &geom_id, const int &surf_indx,
 extern void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < double > &d_out_vec );
 extern void ProjVecPnt01Guess(const std::string &geom_id, const int &surf_indx, const std::vector < vec3d > &pts, const std::vector < double > &u0s, const std::vector < double > &w0s, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec, std::vector < double > &d_out_vec );
 
+extern void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec);
+
 //======================= Measure Functions ============================//
 extern string AddRuler( const string & startgeomid, int startsurfindx, double startu, double startw,
                         const string & endgeomid, int endsurfindx, double endu, double endw, const string & name );

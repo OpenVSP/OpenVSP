@@ -2021,6 +2021,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "double ProjPnt01Guess( const string & in geom_id, const int & in surf_indx, const vec3d & in pt, const double & in u0, const double & in w0, double & out u, double & out w )", asFUNCTION(vsp::ProjPnt01Guess), asCALL_CDECL);
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void GetUWTess01(const string & in geom_id, int & in surf_indx, array<double>@ us, array<double>@ ws )", asMETHOD( ScriptMgrSingleton, GetUWTess01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "array<vec3d>@ CompVecPnt01(const string & in geom_id, const int & in surf_indx, array<double>@ us, array<double>@ ws )", asMETHOD( ScriptMgrSingleton, CompVecPnt01 ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
@@ -2703,6 +2705,17 @@ void ScriptMgrSingleton::ProjVecPnt01Guess(const string &geom_id, int &surf_indx
     FillDoubleArray( out_us, us );
     FillDoubleArray( out_ws, ws );
     FillDoubleArray( out_ds, ds );
+}
+
+void ScriptMgrSingleton::GetUWTess01(const string &geom_id, int &surf_indx, CScriptArray* us, CScriptArray* ws )
+{
+    vector < double > out_us;
+    vector < double > out_ws;
+
+    vsp::GetUWTess01( geom_id, surf_indx, out_us, out_ws );
+
+    FillDoubleArray( out_us, us );
+    FillDoubleArray( out_ws, ws );
 }
 
 //=== Register Measure Functions ===//

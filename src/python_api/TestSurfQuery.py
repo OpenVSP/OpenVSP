@@ -95,6 +95,14 @@ for i in range(len(uoutv)):
 
 
 
+utess, wtess = vsp.GetUWTess01( gid, surf_indx );
+
+for i in range(len(utess)):
+    print( "utess: " + str(utess[i]) )
+
+for j in range(len(wtess)):
+    print( "wtess: " + str(wtess[j]) )
+
 # Check for errors
 
 num_err = errorMgr.GetNumTotalErrors()

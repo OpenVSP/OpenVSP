@@ -4281,6 +4281,29 @@ void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const 
     ErrorMgr.NoError();
 }
 
+void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetUWTess01::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUWTess01::Invalid Surface Index " + to_string( surf_indx ) );
+        return;
+    }
+
+    geom_ptr->GetUWTess01( surf_indx, u_out_vec, w_out_vec );
+
+    ErrorMgr.NoError();
+    return;
+}
+
 string AddRuler( const string & startgeomid, int startsurfindx, double startu, double startw,
                  const string & endgeomid, int endsurfindx, double endu, double endw, const string & name )
 {
