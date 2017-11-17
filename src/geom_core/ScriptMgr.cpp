@@ -1874,6 +1874,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetAirfoilPnts( const string& in xsec_id, array<vec3d>@ up_pnt_vec, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void WriteSeligAirfoilFile( const string& in airfoil_name, array<vec3d>@ ordered_airfoil_pnts )", asMETHOD( ScriptMgrSingleton, WriteSeligAirfoilFile ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<vec3d>@ GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau )", asMETHOD( ScriptMgrSingleton, GetVKTAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<double>@ GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, array<vec3d>@ xydata )", asMETHOD( ScriptMgrSingleton, GetVKTAirfoilCpDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
@@ -2444,6 +2446,18 @@ void ScriptMgrSingleton::SetAirfoilPnts( const string& xsec_id, CScriptArray* up
     }
 
     vsp::SetAirfoilPnts( xsec_id, up_pnt_vec, low_pnt_vec );
+}
+
+void ScriptMgrSingleton::WriteSeligAirfoilFile( const string& airfoil_name, CScriptArray* ordered_airfoil_pnts )
+{
+    vector< vec3d > xyz_vec;
+    xyz_vec.resize( ordered_airfoil_pnts->GetSize() );
+    for ( int i = 0; i < (int)ordered_airfoil_pnts->GetSize(); i++ )
+    {
+        xyz_vec[i] = *(vec3d*)( ordered_airfoil_pnts->At( i ) );
+    }
+
+    vsp::WriteSeligAirfoilFile( airfoil_name, xyz_vec );
 }
 
 CScriptArray* ScriptMgrSingleton::GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau )

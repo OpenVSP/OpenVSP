@@ -170,6 +170,8 @@ private:
     void SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
     void SetVec3dArray( CScriptArray* arr );
 
+    void WriteSeligAirfoilFile( const string& airfoil_name, CScriptArray* ordered_airfoil_pnts );
+
     CScriptArray* GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau );
     CScriptArray* GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, CScriptArray* xyz_data );
     CScriptArray* GetEllipsoidSurfPnts( const vec3d& center, const vec3d& abc_rad, int u_npts = 20, int w_npts = 20 );
