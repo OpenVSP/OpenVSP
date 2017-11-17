@@ -71,6 +71,7 @@ void ScriptMgrSingleton::Init( )
     RegisterStdString( m_ScriptEngine );
     RegisterScriptArray( m_ScriptEngine, true );
     RegisterScriptFile( m_ScriptEngine );
+    RegisterStdStringUtils( m_ScriptEngine );
     RegisterScriptMath( m_ScriptEngine );
     RegisterScriptAny( m_ScriptEngine );
 
