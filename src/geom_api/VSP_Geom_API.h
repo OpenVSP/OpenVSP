@@ -193,6 +193,7 @@ extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double to
 extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name );
 extern void SetAirfoilPnts( const std::string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
+extern void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d> & ordered_airfoil_pnts );
 extern std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau );
 extern std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, std::vector<vec3d> xyz_data );
 extern std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d center, const vec3d abc_rad, int u_npts = 20, int w_npts = 20 );

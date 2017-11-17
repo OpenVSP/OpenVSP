@@ -2469,6 +2469,33 @@ void SetAirfoilPnts( const string& xsec_id, std::vector< vec3d > & up_pnt_vec, s
     ErrorMgr.NoError();
 }
 
+void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d> & ordered_airfoil_pnts )
+{
+    // Note, the input airfoil coordinate points must be ordered in the correct Selig format: Start at X = 1, proceed 
+    //  along the top of the airfoil to x = 0.0 at the leading edge, and return to X = 1 along the bottom surface
+
+    //==== Open file ====//
+    string file_name = airfoil_name + ".dat";
+    FILE* af = fopen( file_name.c_str(), "w" );
+    if ( !af )
+    {
+        return;
+    }
+
+    string header = airfoil_name + " AIRFOIL\n";
+    fprintf( af, header.c_str() );
+
+    char buff[256];
+
+    for ( size_t i = 0; i < ordered_airfoil_pnts.size(); i++ )
+    {
+        sprintf( buff, " %7.6f     %7.6f\n", ordered_airfoil_pnts[i].x(), ordered_airfoil_pnts[i].y() );
+        fprintf( af, buff );
+    }
+
+    fclose( af );
+}
+
 std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau )
 {
     // alpha = Angle of attack( radian )
