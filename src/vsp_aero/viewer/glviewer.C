@@ -1008,7 +1008,7 @@ void GL_VIEWER::RotateControlSurfaceNode( float xyz[3], int ConSurf )
    
     // Rotate point about control surface hinge line
 
-    Quat.FormRotationQuat_f(ControlSurface[ConSurf].HingeVec,ControlSurface[ConSurf].DeflectionAngle);
+    Quat.FormRotationQuatf(ControlSurface[ConSurf].HingeVec,ControlSurface[ConSurf].DeflectionAngle);
 
     InvQuat = Quat;
 
@@ -4159,7 +4159,17 @@ void GL_VIEWER::DrawShadedSolutionPerNode(float *Function, float FMin, float FMa
 void GL_VIEWER::DrawCp(void)
 {
 
-    sprintf(LegendTitle,"Delta-Cp");
+    if ( ModelType == VLM_MODEL ) {
+    
+       sprintf(LegendTitle,"Delta-Cp");
+       
+    }
+    
+    else {
+       
+       sprintf(LegendTitle,"Cp");
+       
+    }
 
     LegendMin = CpMin;
     LegendMax = CpMax;
@@ -4799,9 +4809,9 @@ void GL_VIEWER::DrawAxes(void)
     glEnd();
  
     glScalef(InvScale, InvScale, InvScale);
-    glTranslatef( -(Xcg - GeometryXShift),
-                  -(Ycg - GeometryYShift),
-                  -(Zcg - GeometryZShift));
+    glTranslatef( -(0. - GeometryXShift),
+                  -(0. - GeometryYShift),
+                  -(0. - GeometryZShift));
 
     glLineWidth(1);
     glEnable(GL_LIGHTING);

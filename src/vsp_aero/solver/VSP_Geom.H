@@ -106,6 +106,11 @@ private:
     // Control surface routines
     
     void FindControlSurfaceVortexLoops(void);
+    
+    // Coarse grid information routines
+    
+    void OutputCoarseGridInfo(void);
+    int CalculateNumberOfFineLoops(int Level, VSP_LOOP &Loop);
 
 public:
 

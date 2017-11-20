@@ -21,18 +21,21 @@
 #include "VSPAERO_OMP.H"
 #include "time.H"
 #include "quat.H"
+#include "MatPrecon.H"
 
 #define SOLVER_JACOBI 1
 #define SOLVER_GMRES  2
 
 #define JACOBI 1
 #define SSOR   2
+#define MATCON 3
 
 #define SYM_X 1
 #define SYM_Y 2
 #define SYM_Z 3
 
-#define FORCE_AVERAGE 1
+#define FORCE_AVERAGE  1
+#define FORCE_UNSTEADY 2
 
 #define IMPULSE_ANALYSIS 1
 #define HEAVE_ANALYSIS   2
@@ -78,6 +81,10 @@ private:
     // Write out 2d FEM output file
     
     int Write2DFEMFile_;
+    
+    // Turn off KT correction
+    
+    int NoKarmanTsienCorrection_;
    
     // Function data
     
@@ -159,6 +166,7 @@ private:
     int Preconditioner_;
     
     int CalculateVortexLift_;
+    int CalculateLeadingEdgeSuction_;
 
     double *Gamma_;
     double *GammaNM1_;
@@ -170,6 +178,9 @@ private:
     double *Delta_;
     double JacobiRelaxationFactor_;
     double L2Residual_;
+    
+    int NumberOfMatrixPreconditioners_;    
+    MATPRECON *MatrixPreconditionerList_;
     
     double AngleOfAttack_;
     double AngleOfBeta_;
@@ -195,15 +206,15 @@ private:
     double CpBase_;
     double DCpMax_;
     
-    double CL_[2];
-    double CD_[2];
-    double CS_[2];    
-    double CFx_[2];
-    double CFy_[2];
-    double CFz_[2];
-    double CMx_[2];
-    double CMy_[2];
-    double CMz_[2];
+    double CL_[3];
+    double CD_[3];
+    double CS_[3];    
+    double CFx_[3];
+    double CFy_[3];
+    double CFz_[3];
+    double CMx_[3];
+    double CMy_[3];
+    double CMz_[3];
     
     double *CL_Unsteady_;
     double *CD_Unsteady_;
@@ -222,6 +233,9 @@ private:
     double **Span_Cx_;
     double **Span_Cy_;
     double **Span_Cz_;
+    double **Span_Cxi_;
+    double **Span_Cyi_;
+    double **Span_Czi_;    
     double **Span_Cmx_;
     double **Span_Cmy_;
     double **Span_Cmz_;
@@ -288,6 +302,14 @@ private:
     
     void CalculateNeighborCoefs(void);
     
+    // Calculate the matrix preconditioners
+    
+    int CalculateNumberOfFineLoops(int Level, VSP_LOOP &Loop, int *LoopList);
+    
+    void CreateMatrixPreconditionersDataStructure(void);
+
+    void CreateMatrixPreconditioners(void);
+
     // Multi Grid Routines
 
     void RestrictSolutionFromGrid(int Level);
@@ -384,6 +406,10 @@ private:
     
     double Time1_;
     double Time2_;
+    
+    // FEM file (beam)
+    
+    FILE *FEMLoadFile_;
     
     // FEM Analysis
     
@@ -535,6 +561,7 @@ public:
     void Solve(void) { Solve(0); };
     void Solve(int Case);
     void SolveLinearSystem(void);
+    void ReCalculateForces(void);
     
     // Wake update 
     
@@ -567,16 +594,22 @@ public:
     void CalculateForces(void);
     void CalculatePressureForces(void);
     void CalculateTrefftzForces(void);
+    void CalculateTrefftzForcesOld(void);
+    
     void CalculateKuttaJukowskiForces(void);
     void CalculateUnsteadyForces(void);    
-    void IntegrateForcesAndMoments(void);
+    void IntegrateForcesAndMoments(int UnsteadyEvaluation);
     void CalculateDeltaCPs(void);
     void CalculateSurfacePressures(void);
-    void CalculateCLmaxLimitedForces(void);
+                                          
+    void CalculateCLmaxLimitedForces(int UnsteadyEvaluation);
+    void CalculateVortexBurstLocation(void);
 
     void CalculateSpanWiseLoading(void);
     void WriteOutAerothermalDatabaseFiles(void);
-    void CreateFEMLoadFile(void);
+    void CreateFEMLoadFile(int Case);
+    void CreateFEMLoadFileFromVLMSolve(int Case);
+    void CreateFEMLoadFileFromPanelSolve(int Case);
 
     // Field surveys
     
@@ -611,6 +644,8 @@ public:
     
     int &Write2DFEMFile(void) { return Write2DFEMFile_; };
     
+    int &NoKarmanTsienCorrection(void) { return NoKarmanTsienCorrection_; };
+    
     // Unsteady analysis
     
     int &TimeAnalysisType(void) { return TimeAnalysisType_; };
@@ -630,6 +665,8 @@ public:
     // Force calculation of leading edge suction and/or vortex lift 
     
     int &CalculateVortexLift(void) { return CalculateVortexLift_; };
+    
+    int &CalculateLeadingEdgeSuction(void) { return CalculateLeadingEdgeSuction_; };
     
     // User case string
     

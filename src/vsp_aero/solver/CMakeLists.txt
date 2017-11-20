@@ -70,6 +70,7 @@ if(BUILD_VSPAERO)
   Vortex_Sheet.C
   Vortex_Trail.C
   matrix.C
+  MatPrecon.C
   quat.C
   time.C
   utils.C
@@ -92,6 +93,7 @@ if(BUILD_VSPAERO)
   Vortex_Sheet.H
   Vortex_Trail.H
   matrix.H
+  MatPrecon.H
   quat.H
   time.H
   utils.H

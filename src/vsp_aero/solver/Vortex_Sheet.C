@@ -65,7 +65,7 @@ void VORTEX_SHEET::init(void)
     Child2_ = NULL;
     
     AgglomeratedTrailingVortexList_ = NULL;
-    
+
     TimeAccurate_ = 0;
     
     Evaluate_ = 0;
@@ -864,7 +864,7 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3])
     }
 
     // Agglomerate the trailing vortices .. we start at the coarsest level
- 
+
     if ( NumberOfTrailingVortices_ >= 4 ) {
 
        for ( i = 1 ; i <= NumberOfVortexSheetsForLevel_[NumberOfLevels_] ; i++ ) {
@@ -880,7 +880,7 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3])
     // Create a unique list of the agglomerated trailing vortices
 
     NumberOfAgglomeratedTrailingVortices_ = 0;
-    
+   
     for ( i = 1 ; i <= NumberOfTrailingVortices ; i++ ) {
 
        if ( TrailingVortexList_[i].Evaluate() ) {
@@ -1094,7 +1094,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
 {
 
     int i, j;
-    double U, V, W, Vec[3], xyz_k[3], dq[3], Mag;
+    double U, V, W, Vec[3], xyz_k[3], dq[3], Mag, Fact;
     VORTEX_TRAIL *TrailingVortex;
     VORTEX_SHEET *VortexSheet;
 
@@ -1175,7 +1175,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
     
     q[0] = q[1] = q[2] = U = V = W = 0.;
 
-#pragma omp parallel for reduction(+:U,V,W) private(dq,xyz_k,TrailingVortex,Vec)      
+#pragma omp parallel for reduction(+:U,V,W) private(dq,xyz_k,TrailingVortex,Vec,Mag)      
     for ( i = 1 ; i <= NumberOfAgglomeratedTrailingVortices_ ; i++ ) {
 
        TrailingVortex = AgglomeratedTrailingVortexList_[i];
@@ -1189,11 +1189,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
        Mag = vector_dot(Vec,FreeStreamVelocity_); 
        
        // Shift the x location to the wing trailing edge of this trailing vortex
-       
-       xyz_k[0] = TrailingVortex->TE_Node().x();
-       xyz_k[1] = xyz_p[1];
-       xyz_k[2] = xyz_p[2];
- 
+
        xyz_k[0] = xyz_p[0] + Mag * FreeStreamVelocity_[0];
        xyz_k[1] = xyz_p[1] + Mag * FreeStreamVelocity_[1];
        xyz_k[2] = xyz_p[2] + Mag * FreeStreamVelocity_[2];
@@ -1206,7 +1202,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
        
        Mag = vector_dot(Vec,Vec); 
               
-       if (1|| Mag > 0.01*TrailingVortex->Sigma() ) {
+       if ( Mag > 0.01*TrailingVortex->Sigma() ) {
                  
           U += dq[0];
           V += dq[1];
@@ -1215,6 +1211,16 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
        }
 
     } 
+
+    // Approximate KT correction
+    
+    if ( !TrailingVortex->NoKarmanTsienCorrection() ) {
+       
+       U *= pow(1.+0.25*TrailingVortex->Mach()*TrailingVortex->Mach(),2.);
+       V *= pow(1.+0.25*TrailingVortex->Mach()*TrailingVortex->Mach(),2.);
+       W *= pow(1.+0.25*TrailingVortex->Mach()*TrailingVortex->Mach(),2.);
+
+    }
     
     // If this is an unsteady solution, we have to evaluate the starting
     // vortices for all the previous time steps
@@ -1241,7 +1247,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
        
        } 
        
-    }        
+    }     
 
     q[0] = U;
     q[1] = V;

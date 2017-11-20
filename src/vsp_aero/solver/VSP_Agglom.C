@@ -2157,10 +2157,11 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
  
     int Edge, Loop, NeighborLoop, Node1, Node2, Node3, Node4, NodeA, NodeB;
     int NumberOfLoopsMerged, BestNeighborLoop;        
-    double Good, Angle, BestAngle, AngleError;
-  
-    Good = 100.*PI/180.;
+    double Angle, BestAngle, AngleError;
 
+    GoodQuadAngle_  = 100.*TORAD;
+    WorstQuadAngle_ = 135.*TORAD;
+    
     // Loop over all tris and merge any that can create decent quads
 
     NumberOfLoopsMerged = 0;
@@ -2207,7 +2208,6 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
                             
                          }
                 
-                         
                       }
                       
                    }
@@ -2217,8 +2217,8 @@ void VSP_AGGLOM::CreateMixedMesh_(void)
              }
              
           }
-                       
-          if ( BestAngle <= Good ) {
+                     
+          if ( BestAngle <= GoodQuadAngle_ ) {
 
              VortexLoopWasAgglomerated_[Loop] = -Loop;
 
@@ -2436,7 +2436,7 @@ void VSP_AGGLOM::CleanUpFans_(void)
              AspectRatio = MaxArea / MinArea;
                                                                           
              // If the minimum angle is small and it has a high aspect ration...then try and merge this tri with a neighbor
-             
+            
              if ( MinAngle <= LimitAngle && AspectRatio > 10. ) {
 
                 StackSize = 1;
@@ -3044,7 +3044,8 @@ double VSP_AGGLOM::CalculateQuadQuality_(VSP_GRID &ThisGrid, int Node1,
                                          int Node2, int Node3, int Node4)
 {
 
-    double Vec1[3], Vec2[3], Vec3[3], Vec4[3], Vec5[3], Mag, Angle[4];
+    double Vec1[3], Vec2[3], Vec3[3], Vec4[3], Vec5[3], Vec6[3], Mag, Angle[4];
+    double MaxAngle;
     
     // Vec 1
     
@@ -3105,18 +3106,38 @@ double VSP_AGGLOM::CalculateQuadQuality_(VSP_GRID &ThisGrid, int Node1,
     Vec5[0] /= Mag;
     Vec5[1] /= Mag;
     Vec5[2] /= Mag;
-            
+        
+    // Vec 6
+    
+    Vec6[0] = ThisGrid.NodeList(Node2).x() - ThisGrid.NodeList(Node4).x();
+    Vec6[1] = ThisGrid.NodeList(Node2).y() - ThisGrid.NodeList(Node4).y();
+    Vec6[2] = ThisGrid.NodeList(Node2).z() - ThisGrid.NodeList(Node4).z();
+ 
+    Mag = sqrt(vector_dot(Vec6,Vec6));
+    
+    Vec6[0] /= Mag;
+    Vec6[1] /= Mag;
+    Vec6[2] /= Mag;
+                
     // Check all four angles
    
-    Angle[0] =  vector_dot(Vec1,Vec5); Angle[0] = MIN(1.,MAX(-1.,Angle[0])); Angle[0] = acos(Angle[0]);
+    Angle[0] = vector_dot(Vec1,Vec5); Angle[0] = MIN(1.,MAX(-1.,Angle[0])); Angle[0] = acos(Angle[0]);
 
-    Angle[1] =  vector_dot(Vec2,Vec5); Angle[1] = MIN(1.,MAX(-1.,Angle[1])); Angle[1] = acos(Angle[1]); 
+    Angle[1] = vector_dot(Vec2,Vec5); Angle[1] = MIN(1.,MAX(-1.,Angle[1])); Angle[1] = acos(Angle[1]); 
 
-    Angle[2] = -vector_dot(Vec3,Vec5); Angle[2] = MIN(1.,MAX(-1.,Angle[2])); Angle[2] = acos(Angle[2]); 
+    Angle[2] = vector_dot(Vec3,Vec6); Angle[2] = MIN(1.,MAX(-1.,Angle[2])); Angle[2] = acos(Angle[2]); 
     
-    Angle[3] = -vector_dot(Vec4,Vec5); Angle[3] = MIN(1.,MAX(-1.,Angle[3])); Angle[3] = acos(Angle[3]); 
+    Angle[3] = vector_dot(Vec4,Vec6); Angle[3] = MIN(1.,MAX(-1.,Angle[3])); Angle[3] = acos(Angle[3]); 
+    
+    // Check how parallel opposite sides are
+    
+    Mag = MAX(0.01,ABS(2. + vector_dot(Vec1,Vec3) + vector_dot(Vec2,Vec4)));
 
-    return MAX(Angle[0]+Angle[1],Angle[2]+Angle[3]);
+    MaxAngle = MAX(Angle[0]+Angle[1],Angle[2]+Angle[3]);
+    
+    if ( MaxAngle <= WorstQuadAngle_ && Mag <= 0.01 ) return Mag*MaxAngle;
+    
+    return MaxAngle;
     
 }
 

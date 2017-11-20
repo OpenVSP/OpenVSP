@@ -736,3 +736,19 @@ void VSP_EDGE::CalculateTrefftzForces(double FreeStream[3])
 }
 
 
+/*##############################################################################
+#                                                                              #
+#                   VSP_EDGE CalculateNormalTrefftzForces                      #
+#                                                                              #
+##############################################################################*/
+
+void VSP_EDGE::CalculateNormalTrefftzForces(double FreeStream[3])
+{
+
+    vector_cross(FreeStream, Vec_, Normal_Trefftz_Forces_);
+   
+    Normal_Trefftz_Forces_[0] *= Length_*Gamma_;
+    Normal_Trefftz_Forces_[1] *= Length_*Gamma_;
+    Normal_Trefftz_Forces_[2] *= Length_*Gamma_;
+
+}

@@ -250,12 +250,14 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 
     fclose(Cart3D_File);
     
-    // Now see if a degen file exists, open it, and look for rotor info
+    // Now see if a degen file exists
 
     sprintf(VSP_Degen_File_Name,"%s_DegenGeom.csv",FileName);
 
     if ( (VSP_Degen_File = fopen(VSP_Degen_File_Name,"r")) != NULL ) {
 
+       // See if any rotors are defined
+       
        NumberOfRotors_ = 0;
        
        Done = 0;
@@ -325,6 +327,14 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
        }
        
        printf("Found: %d Rotors \n",NumberOfRotors_);
+       
+       rewind(VSP_Degen_File);  
+              
+       // Now search for control surface hinges
+       
+       // Close file
+       
+       fclose(VSP_Degen_File);
        
     }    
 
@@ -1142,7 +1152,7 @@ void VSP_GEOM::MeshGeom(void)
     }
     
     Grid().MinLoopArea() = AreaTotal/200.;
-    
+   
     printf("Total NumberOfNodes:      %d \n",Grid().NumberOfNodes());
     printf("Total NumberOfLoops:      %d \n",Grid().NumberOfLoops());
     printf("Total NumberOfEdges:      %d \n",Grid().NumberOfEdges());
@@ -1193,7 +1203,9 @@ void VSP_GEOM::MeshGeom(void)
        
        else {
           
-          printf("Stopped aggloemeration at.... Grid:%d --> # loops: %10d ...# Edges: %10d  \n",i,Grid_[i]->NumberOfLoops(),Grid_[i]->NumberOfEdges());
+          printf("Stopped agglomeration at.... Grid:%d --> # loops: %10d ...# Edges: %10d  \n",i,Grid_[i]->NumberOfLoops(),Grid_[i]->NumberOfEdges());
+          
+          if ( Grid_[i]->NumberOfLoops() == Grid_[i-1]->NumberOfLoops() ) i--;
           
           Done = 1;
           
@@ -1205,6 +1217,10 @@ void VSP_GEOM::MeshGeom(void)
 
     printf("NumberOfGridLevels_: %d \n",NumberOfGridLevels_);    
     
+    // Ouput the coarse grid mesh info
+    
+    if ( Verbose_ ) OutputCoarseGridInfo();
+
     // Find vortex loops lying within any control surface regions
     
     FindControlSurfaceVortexLoops();
@@ -1234,7 +1250,7 @@ void VSP_GEOM::AgglomerateMeshes(void)
 
 /*##############################################################################
 #                                                                              #
-#                     VSP_SOLVER FindControlSurfaceVortexLoops                 #
+#                     VSP_GEOM FindControlSurfaceVortexLoops                   #
 #                                                                              #
 ##############################################################################*/
 
@@ -1305,4 +1321,72 @@ void VSP_GEOM::FindControlSurfaceVortexLoops(void)
  
 }
 
+/*##############################################################################
+#                                                                              #
+#                           VSP_GEOM OutputCoarseGridInfo                      #
+#                                                                              #
+##############################################################################*/
+
+void VSP_GEOM::OutputCoarseGridInfo(void)
+{
+
+    int i, j, NumberOfLoops, Loop, Edge, Level;
+
+    Level = NumberOfGridLevels_;
+
+    for ( i = 1 ; i <= Grid(Level).NumberOfLoops() ; i++ ) {
+
+       NumberOfLoops = CalculateNumberOfFineLoops(Level, Grid(Level).LoopList(i));
+       
+       printf("Coarse loop %d contains %d fine loops \n",i,NumberOfLoops);
+       
+       for ( j = 1 ; j <= Grid(Level).LoopList(i).NumberOfEdges() ; j++ ) {
+          
+          Edge = Grid(Level).LoopList(i).Edge(j);
+          
+          Loop = Grid(Level).EdgeList(Edge).Loop1()
+               + Grid(Level).EdgeList(Edge).Loop2() - i;
+                
+          printf("   Boundary Loop: %d: %d ... pairs: %d %d\n",j,Loop,
+          Grid(Level).EdgeList(Edge).Loop1(),
+          Grid(Level).EdgeList(Edge).Loop2());
+          
+       }
+
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                       VSP_GEOM CalculateNumberOfFineLoops                    #
+#                                                                              #
+##############################################################################*/
+
+int VSP_GEOM::CalculateNumberOfFineLoops(int Level, VSP_LOOP &Loop)
+{
+
+    int i, FineLoops;
+
+    FineLoops = 0;
+    
+    if ( Level == 2 ) {
+
+       FineLoops = Loop.NumberOfFineGridLoops();
+
+    }
+    
+    else {
+       
+       for ( i = 1 ; i <= Loop.NumberOfFineGridLoops() ; i++ ) {
+    
+          FineLoops += CalculateNumberOfFineLoops(Level-1,Grid(Level-1).LoopList(Loop.FineGridLoop(i)));
+
+       }
+       
+    }
+    
+    return FineLoops;
+
+}
 

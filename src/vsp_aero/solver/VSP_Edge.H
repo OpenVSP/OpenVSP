@@ -74,6 +74,7 @@ private:
     double Length_;
     double Forces_[3];
     double Trefftz_Forces_[3];
+    double Normal_Trefftz_Forces_[3];
     double Unsteady_Forces_[3];
     
     // Vortex solution data
@@ -232,6 +233,8 @@ public:
    
     void CalculateTrefftzForces(double FreeStream[3]);
     
+    void CalculateNormalTrefftzForces(double FreeStream[3]);
+    
     double GeneralizedPrincipalPartOfDownWash(void);
     
     // Access to Mach number
@@ -263,7 +266,11 @@ public:
     double &Trefftz_Fx(void) { return Trefftz_Forces_[0]; };
     double &Trefftz_Fy(void) { return Trefftz_Forces_[1]; };
     double &Trefftz_Fz(void) { return Trefftz_Forces_[2]; };
-    
+
+    double &Normal_Trefftz_Fx(void) { return Normal_Trefftz_Forces_[0]; };
+    double &Normal_Trefftz_Fy(void) { return Normal_Trefftz_Forces_[1]; };
+    double &Normal_Trefftz_Fz(void) { return Normal_Trefftz_Forces_[2]; };
+        
     double &Unsteady_Fx(void) { return Unsteady_Forces_[0]; };
     double &Unsteady_Fy(void) { return Unsteady_Forces_[1]; };
     double &Unsteady_Fz(void) { return Unsteady_Forces_[2]; };    

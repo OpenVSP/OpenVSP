@@ -7,7 +7,7 @@ class viewerUI {open
   Function {viewerUI()} {open
   } {
     Fl_Window mainWindow {
-      label {VSPAERO Viewer 4.2.0} open
+      label {VSPAERO Viewer 4.3.0} open selected
       private xywh {634 394 1160 710} type Double labelsize 12 align 0 resizable visible
     } {
       Fl_Group {} {open
@@ -249,7 +249,7 @@ glviewer->redraw();}
           xywh {30 30 100 20} type Radio value 1
         }
         MenuItem ADBMenuPickWallCpShaded {
-          label {Delta-Cp}
+          label Pressures
           callback {glviewer->DrawCpWasPicked();
 glviewer->redraw();}
           xywh {15 15 100 20} type Radio divider
@@ -374,7 +374,7 @@ glviewer->redraw();}
           MenuItem DrawXPlane {
             label {Draw X-Plane}
             callback {glviewer->DrawXPlaneWasPicked();
-glviewer->redraw();} selected
+glviewer->redraw();}
             xywh {0 0 36 21} type Radio
           }
           MenuItem DrawYPlane {

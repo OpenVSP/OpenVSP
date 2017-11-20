@@ -53,7 +53,7 @@ private:
     double **TrailingGamma_;
     
     double **StartingGamma_;
-    
+
     VORTEX_TRAIL *TrailingVortexList_;
 
     // Agglomerated trailing vortex list

@@ -61,6 +61,9 @@ private:
     int NumberOfEdgesInQueue_;
     int NextBestEdgeOnFront_;
     
+    double GoodQuadAngle_;
+    double WorstQuadAngle_;
+    
     // Scratch arrays
     
     int *LoopHits_;
