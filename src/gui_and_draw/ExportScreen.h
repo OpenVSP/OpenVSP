@@ -62,6 +62,7 @@ protected:
     TriggerButton m_DXFButton;
     TriggerButton m_SVGButton;
     TriggerButton m_FacetButton;
+    TriggerButton m_PMARCButton;
 
     int m_SelectedSetIndex;
 };

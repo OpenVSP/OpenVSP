@@ -4182,6 +4182,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     {
         WriteFacetFile(file_name, write_set);
     }
+    else if ( file_type == EXPORT_PMARC )
+    {
+        WritePMARCFile(file_name, write_set);
+    }
 }
 
 void Vehicle::CreateDegenGeom( int set )

@@ -197,7 +197,8 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_BEM,
                     EXPORT_DXF,
                     EXPORT_FACET,
-                    EXPORT_SVG
+                    EXPORT_SVG,
+                    EXPORT_PMARC
                  };
 
 enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
