@@ -23,6 +23,7 @@
 #include "PropGeom.h"
 #include "VSPAEROMgr.h"
 #include "MeasureMgr.h"
+#include "SubSurfaceMgr.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -1609,6 +1610,29 @@ std::string GetSubSurfName( const std::string & geom_id, const std::string & sub
     }
     ErrorMgr.NoError();
     return ssurf->GetName();
+}
+
+/// Get index for sub surface given ID
+int GetSubSurfIndex( const std::string & sub_id )
+{
+    SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ss_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfIndex::Invalid Sub Surface Ptr " );
+        return -1;
+    }
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( ss_ptr->GetCompID() );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfIndex::Can't Find Geom " + ss_ptr->GetCompID() );
+        return -1;
+    }
+
+    int ss_ind = geom_ptr->GetSubSurfIndex( sub_id );;
+
+    ErrorMgr.NoError();
+    return ss_ind;
 }
 
 void CutXSec( const string & geom_id, int index )

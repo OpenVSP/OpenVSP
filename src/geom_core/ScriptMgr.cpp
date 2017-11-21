@@ -1787,6 +1787,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string GetSubSurfName( const string & in geom_id, const string & in sub_id )", asFUNCTION( vsp::GetSubSurfName ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "int GetSubSurfIndex( const string & in sub_id )", asFUNCTION( vsp::GetSubSurfIndex ), asCALL_CDECL );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void CutXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CutXSec ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void CopyXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CopyXSec ), asCALL_CDECL );

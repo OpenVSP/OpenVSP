@@ -139,11 +139,14 @@ extern std::vector<std::string> GetGeomParmIDs( const std::string & geom_id );
 extern std::string GetParm( const std::string & geom_id, const std::string & name, const std::string & group );
 extern int GetNumXSecSurfs( const std::string & geom_id );
 extern int GetNumMainSurfs( const std::string & geom_id );
+
+//======================== SubSurface Functions ================================//
 extern std::string AddSubSurf( const std::string & geom_id, int type, int surfindex = 0 );
 extern std::string GetSubSurf( const std::string & geom_id, int index );
 extern void DeleteSubSurf( const std::string & geom_id, const std::string & sub_id );
 extern void SetSubSurfName(const std::string & geom_id, const std::string & sub_id, const std::string & name);
 extern std::string GetSubSurfName( const std::string & geom_id, const std::string & sub_id );
+extern int GetSubSurfIndex( const std::string & sub_id );
 
 extern void CutXSec( const std::string & geom_id, int index );
 extern void CopyXSec( const std::string & geom_id, int index );
