@@ -306,6 +306,7 @@ public:
     Parm m_Rho;
     Parm m_ReCref;
     IntParm m_Precondition;
+    BoolParm m_VortexLift;
     BoolParm m_LeadingEdgeSuction;
     BoolParm m_Symmetry;
     BoolParm m_Write2DFEMFlag;

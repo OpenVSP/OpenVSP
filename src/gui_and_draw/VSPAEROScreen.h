@@ -180,6 +180,7 @@ protected:
     ToggleButton m_SymmetryToggle;
     ToggleButton m_Write2DFEMToggle;
     Choice m_PreconditionChoice;
+    ToggleButton m_VortexLiftToggle;
     ToggleButton m_LeadingEdgeSuctionToggle;
 
     // Wake calculation options

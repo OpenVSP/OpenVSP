@@ -165,8 +165,10 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_ReCref.SetDescript( "Reynolds Number along Reference Chord" );
     m_Precondition.Init( "Precondition", groupname, this, vsp::PRECON_MATRIX, vsp::PRECON_MATRIX, vsp::PRECON_SSOR );
     m_Precondition.SetDescript( "Preconditioner Choice" );
+    m_VortexLift.Init( "VortexLift", groupname, this, true, false, true );
+    m_VortexLift.SetDescript( "Activate Vortex Lift" );
     m_LeadingEdgeSuction.Init( "LeadingEdgeSuction", groupname, this, false, false, true );
-    m_LeadingEdgeSuction.SetDescript( "Activate Leading Edge Suction/Vortex Lift" );
+    m_LeadingEdgeSuction.SetDescript( "Activate Leading Edge Suction" );
     m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
     m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
@@ -253,6 +255,7 @@ void VSPAEROMgrSingleton::Renew()
 
     m_BatchModeFlag.Set( true );
     m_Precondition.Set( vsp::PRECON_MATRIX );
+    m_VortexLift.Set( true );
     m_LeadingEdgeSuction.Set( false );
     m_Symmetry.Set( false );
     m_StabilityCalcFlag.Set( false );
@@ -1053,13 +1056,19 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
     fprintf( case_file, "Preconditioner = %s \n", precon.c_str() );
 
+    // Vortex Lift
+    string vorlift;
+    if ( m_VortexLift() )
     {
+        vorlift = "Y";
     }
     else
     {
+        vorlift = "N";
     }
-    // Leading Edge Suction/Vortex Lift
+    fprintf( case_file, "Vortex Lift = %s \n", vorlift.c_str() );
 
+    // Leading Edge Suction
     string lesuction;
     if ( m_LeadingEdgeSuction() )
     {
@@ -1069,7 +1078,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     {
         lesuction = "N";
     }
-    fprintf( case_file, "VortexLift = %s \n", lesuction.c_str());
+    fprintf( case_file, "LE Suction = %s \n", lesuction.c_str());
 
     // Unsteady Setup
     if ( m_StabilityCalcFlag() )
@@ -1349,9 +1358,15 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                         args.push_back( "-ssor" );
                     }
 
+                    if ( !m_VortexLift() )
+                    {
+                        args.push_back( "-novortex" );
+                    }
+
                     if ( m_LeadingEdgeSuction() )
                     {
-                        args.push_back( "-vortex" );
+                        args.push_back( "-lesuction" );
+                    }
                     }
 
                     // Add model file name
@@ -1545,9 +1560,15 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             args.push_back( "-ssor" );
         }
 
+        if ( !m_VortexLift() )
+        {
+            args.push_back( "-novortex" );
+        }
+
         if ( m_LeadingEdgeSuction() )
         {
-            args.push_back( "-vortex" );
+            args.push_back( "-lesuction" );
+        }
         }
 
         // Add model file name
