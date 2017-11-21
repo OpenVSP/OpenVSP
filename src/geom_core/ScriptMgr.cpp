@@ -1108,13 +1108,27 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSPAERO_ANALYSIS_METHOD", "PANEL", PANEL );
     assert( r >= 0 );
 
-    r = se->RegisterEnum( "VSPAERO_COMP_REFERENCE_TYPE" );
+    r = se->RegisterEnum( "VSPAERO_REF_WING_TYPE" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_COMP_REFERENCE_TYPE", "MANUAL_REF", MANUAL_REF );
+    r = se->RegisterEnumValue( "VSPAERO_REF_WING_TYPE", "MANUAL_REF", MANUAL_REF );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_COMP_REFERENCE_TYPE", "COMPONENT_REF", COMPONENT_REF );
+    r = se->RegisterEnumValue( "VSPAERO_REF_WING_TYPE", "COMPONENT_REF", COMPONENT_REF );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "VSPAERO_STABILITY_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_DEFAULT", STABILITY_DEFAULT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_P_ANALYSIS", STABILITY_P_ANALYSIS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_Q_ANALYSIS", STABILITY_Q_ANALYSIS );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_R_ANALYSIS", STABILITY_R_ANALYSIS );
+    assert( r >= 0 );
+    //r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_HEAVE", STABILITY_HEAVE );
+    //assert( r >= 0 );
+    //r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_IMPULSE", STABILITY_IMPULSE );
+    //assert( r >= 0 );
 
     r = se->RegisterEnum( "VSPAERO_PRECONDITION" );
     assert( r >= 0 );
