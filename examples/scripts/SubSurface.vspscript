@@ -3,8 +3,9 @@ void main()
 {
     string wid = AddGeom( "WING", "" );                             // Add Wing
 
+    // Note: Parm Group for SubSurfaces in the form: "SS_" + type + "_" + count
     string subid = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
-    SetParmVal( wid, "Const_Line_Value", "SubSurface_1", 0.4 );     // CHange Loc
+    SetParmVal( wid, "Const_Line_Value", "SS_Line_1", 0.4 );     // Change Loc
 
     subid = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
     SetParmVal( wid, "Center_W", "SS_Rectangle_1", 0.0 );           // Change Loc/Size

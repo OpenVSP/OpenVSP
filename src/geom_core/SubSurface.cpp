@@ -617,10 +617,10 @@ void SSLineSeg::AddToTMesh( TMesh* tmesh )
 
 SSLine::SSLine( string comp_id, int type ) : SubSurface( comp_id, type )
 {
-    m_ConstType.Init( "Const_Line_Type", "SubSurface", this, vsp::CONST_U, 0, 1 );
-    m_ConstVal.Init( "Const_Line_Value", "SubSurface", this, 0.5, 0, 1 );
+    m_ConstType.Init( "Const_Line_Type", "SS_Line", this, vsp::CONST_U, 0, 1 );
+    m_ConstVal.Init( "Const_Line_Value", "SS_Line", this, 0.5, 0, 1 );
     m_ConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is choosen." );
-    m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::LT );
+    m_TestType.Init( "Test_Type", "SS_Line", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::LT );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
 
     m_LVec.resize( 1 );
