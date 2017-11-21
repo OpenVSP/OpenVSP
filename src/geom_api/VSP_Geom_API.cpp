@@ -1635,6 +1635,30 @@ int GetSubSurfIndex( const std::string & sub_id )
     return ss_ind;
 }
 
+/// Get vector of sub surface IDs for a Geom
+std::vector<std::string> GetSubSurfIDVec( const std::string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfIDVec::Can't Find Geom " + geom_id );
+        return vector<string>();
+    }
+
+    vector<SubSurface*> ss_vec = geom_ptr->GetSubSurfVec();
+    vector<string> ID_vec;
+    ID_vec.resize( ss_vec.size() );
+
+    for ( size_t i = 0; i < ss_vec.size(); i++ )
+    {
+        ID_vec[i] = ss_vec[i]->GetID();
+    }
+
+    ErrorMgr.NoError();
+    return ID_vec;
+}
+
 void CutXSec( const string & geom_id, int index )
 {
     Vehicle* veh = GetVehicle();
