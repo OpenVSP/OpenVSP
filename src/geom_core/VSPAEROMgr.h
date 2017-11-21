@@ -308,6 +308,7 @@ public:
     IntParm m_Precondition;
     BoolParm m_VortexLift;
     BoolParm m_LeadingEdgeSuction;
+    BoolParm m_KTCorrection;
     BoolParm m_Symmetry;
     BoolParm m_Write2DFEMFlag;
     BoolParm m_ClMaxToggle;

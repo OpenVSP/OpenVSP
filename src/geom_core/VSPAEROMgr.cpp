@@ -169,6 +169,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_VortexLift.SetDescript( "Activate Vortex Lift" );
     m_LeadingEdgeSuction.Init( "LeadingEdgeSuction", groupname, this, false, false, true );
     m_LeadingEdgeSuction.SetDescript( "Activate Leading Edge Suction" );
+    m_KTCorrection.Init( "KTCorrection", groupname, this, true, false, true );
+    m_KTCorrection.SetDescript( "Activate 2nd Order Karman-Tsien Mach Number Correction" );
     m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
     m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
@@ -257,6 +259,7 @@ void VSPAEROMgrSingleton::Renew()
     m_Precondition.Set( vsp::PRECON_MATRIX );
     m_VortexLift.Set( true );
     m_LeadingEdgeSuction.Set( false );
+    m_KTCorrection.Set( true );
     m_Symmetry.Set( false );
     m_StabilityCalcFlag.Set( false );
     m_StabilityType.Set( vsp::STABILITY_DEFAULT );
@@ -1080,6 +1083,18 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
     fprintf( case_file, "LE Suction = %s \n", lesuction.c_str());
 
+    // 2nd Order Karman-Tsien Mach Number Correction
+    string ktcorrect;
+    if ( m_KTCorrection() )
+    {
+        ktcorrect = "Y";
+    }
+    else
+    {
+        ktcorrect = "N";
+    }
+    fprintf( case_file, "Karman-Tsien Correction = %s \n", lesuction.c_str() );
+
     // Unsteady Setup
     if ( m_StabilityCalcFlag() )
     {
@@ -1367,6 +1382,10 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     {
                         args.push_back( "-lesuction" );
                     }
+
+                    if ( !m_KTCorrection() )
+                    {
+                        args.push_back( "-nokt" );
                     }
 
                     // Add model file name
@@ -1569,6 +1588,10 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         {
             args.push_back( "-lesuction" );
         }
+
+        if ( !m_KTCorrection() )
+        {
+            args.push_back( "-nokt" );
         }
 
         // Add model file name

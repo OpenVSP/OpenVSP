@@ -291,6 +291,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedCaseSetupLayout.AddButton( m_VortexLiftToggle, "Vortex Lift" );
     m_AdvancedCaseSetupLayout.AddButton( m_LeadingEdgeSuctionToggle, "Leading Edge Suction" );
+    m_AdvancedCaseSetupLayout.AddButton( m_KTCorrectionToggle, "2nd Order Karman-Tsien Mach Correction" );
     m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
     m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
 
@@ -1166,6 +1167,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_PreconditionChoice.Update(VSPAEROMgr.m_Precondition.GetID());
     m_VortexLiftToggle.Update(VSPAEROMgr.m_VortexLift.GetID());
     m_LeadingEdgeSuctionToggle.Update(VSPAEROMgr.m_LeadingEdgeSuction.GetID());
+    m_KTCorrectionToggle.Update( VSPAEROMgr.m_KTCorrection.GetID() );
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
     m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
 

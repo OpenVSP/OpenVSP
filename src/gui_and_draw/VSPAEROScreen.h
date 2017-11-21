@@ -182,6 +182,7 @@ protected:
     Choice m_PreconditionChoice;
     ToggleButton m_VortexLiftToggle;
     ToggleButton m_LeadingEdgeSuctionToggle;
+    ToggleButton m_KTCorrectionToggle;
 
     // Wake calculation options
     SliderAdjRangeInput m_WakeNumIterSlider;
