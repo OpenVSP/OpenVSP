@@ -163,8 +163,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Rho.SetDescript( "Freestream Density" );
     m_ReCref.Init( "ReCref", groupname, this, 10000000., 0, 1e12 );
     m_ReCref.SetDescript( "Reynolds Number along Reference Chord" );
-    m_JacobiPrecondition.Init( "JacobiPrecondition", groupname, this, false, false, true );
-    m_JacobiPrecondition.SetDescript( "Activate Jacobi Preconditioner" );
+    m_Precondition.Init( "Precondition", groupname, this, vsp::PRECON_MATRIX, vsp::PRECON_MATRIX, vsp::PRECON_SSOR );
+    m_Precondition.SetDescript( "Preconditioner Choice" );
     m_LeadingEdgeSuction.Init( "LeadingEdgeSuction", groupname, this, false, false, true );
     m_LeadingEdgeSuction.SetDescript( "Activate Leading Edge Suction/Vortex Lift" );
     m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
@@ -252,7 +252,7 @@ void VSPAEROMgrSingleton::Renew()
     m_MachStart.Set( 0.0 ); m_MachEnd.Set( 0.0 ); m_MachNpts.Set( 1 );
 
     m_BatchModeFlag.Set( true );
-    m_JacobiPrecondition.Set( false );
+    m_Precondition.Set( vsp::PRECON_MATRIX );
     m_LeadingEdgeSuction.Set( false );
     m_Symmetry.Set( false );
     m_StabilityCalcFlag.Set( false );
@@ -1038,18 +1038,26 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
 
     // Preconditioner
-
-    string jacobi;
-    if ( m_JacobiPrecondition() )
+    string precon;
+    if ( m_Precondition() == vsp::PRECON_MATRIX )
     {
-        jacobi = "Y";
+        precon = "Matrix";
+    }
+    else if ( m_Precondition() == vsp::PRECON_JACOBI )
+    {
+        precon = "Jacobi";
+    }
+    else if ( m_Precondition() == vsp::PRECON_SSOR )
+    {
+        precon = "SSOR";
+    }
+    fprintf( case_file, "Preconditioner = %s \n", precon.c_str() );
+
+    {
     }
     else
     {
-        jacobi = "N";
     }
-    fprintf( case_file, "Preconditioner = %s \n", jacobi.c_str() );
-
     // Leading Edge Suction/Vortex Lift
 
     string lesuction;
@@ -1332,9 +1340,13 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                         args.push_back( "-write2dfem" );
                     }
 
-                    if ( m_JacobiPrecondition() )
+                    if ( m_Precondition() == vsp::PRECON_JACOBI )
                     {
                         args.push_back( "-jacobi" );
+                    }
+                    else if ( m_Precondition() == vsp::PRECON_SSOR )
+                    {
+                        args.push_back( "-ssor" );
                     }
 
                     if ( m_LeadingEdgeSuction() )
@@ -1524,9 +1536,13 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             args.push_back( "-write2dfem" );
         }
 
-        if ( m_JacobiPrecondition() )
+        if ( m_Precondition() == vsp::PRECON_JACOBI )
         {
             args.push_back( "-jacobi" );
+        }
+        else if ( m_Precondition() == vsp::PRECON_SSOR )
+        {
+            args.push_back( "-ssor" );
         }
 
         if ( m_LeadingEdgeSuction() )

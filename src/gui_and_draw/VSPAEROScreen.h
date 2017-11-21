@@ -179,7 +179,7 @@ protected:
     ToggleButton m_BatchCalculationToggle;
     ToggleButton m_SymmetryToggle;
     ToggleButton m_Write2DFEMToggle;
-    ToggleButton m_JacobiPreconditionToggle;
+    Choice m_PreconditionChoice;
     ToggleButton m_LeadingEdgeSuctionToggle;
 
     // Wake calculation options

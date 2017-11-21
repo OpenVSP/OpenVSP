@@ -305,7 +305,7 @@ public:
     Parm m_Vinf;
     Parm m_Rho;
     Parm m_ReCref;
-    BoolParm m_JacobiPrecondition;
+    IntParm m_Precondition;
     BoolParm m_LeadingEdgeSuction;
     BoolParm m_Symmetry;
     BoolParm m_Write2DFEMFlag;

@@ -283,8 +283,12 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedCaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
     m_AdvancedCaseSetupLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
-    m_AdvancedCaseSetupLayout.AddButton( m_JacobiPreconditionToggle, "Jacobi Preconditioner");
     m_AdvancedCaseSetupLayout.AddButton( m_LeadingEdgeSuctionToggle, "Leading Edge Suction/Vortex Lift" );
+    m_PreconditionChoice.AddItem( "Matrix" );
+    m_PreconditionChoice.AddItem( "Jacobi" );
+    m_PreconditionChoice.AddItem( "SSOR" );
+    m_AdvancedCaseSetupLayout.AddChoice( m_PreconditionChoice, "Preconditioner");
+
     m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
     m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
 
@@ -1157,7 +1161,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
 
     m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
     m_BatchCalculationToggle.Update(VSPAEROMgr.m_BatchModeFlag.GetID());
-    m_JacobiPreconditionToggle.Update(VSPAEROMgr.m_JacobiPrecondition.GetID());
+    m_PreconditionChoice.Update(VSPAEROMgr.m_Precondition.GetID());
     m_LeadingEdgeSuctionToggle.Update(VSPAEROMgr.m_LeadingEdgeSuction.GetID());
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
     m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );

@@ -1115,6 +1115,16 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSPAERO_COMP_REFERENCE_TYPE", "COMPONENT_REF", COMPONENT_REF );
     assert( r >= 0 );
 
+
+    r = se->RegisterEnum( "VSPAERO_PRECONDITION" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_PRECONDITION", "PRECON_MATRIX", PRECON_MATRIX );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_PRECONDITION", "PRECON_JACOBI", PRECON_JACOBI );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_PRECONDITION", "PRECON_SSOR", PRECON_SSOR );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "FREESTREAM_PD_UNITS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FREESTREAM_PD_UNITS", "PD_UNITS_IMPERIAL", PD_UNITS_IMPERIAL );
