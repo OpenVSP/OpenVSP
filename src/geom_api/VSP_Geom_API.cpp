@@ -1726,6 +1726,20 @@ std::vector<std::string> GetAllSubSurfIDs()
     return ID_vec;
 }
 
+/// Get # of sub surfaces for a geom
+int GetNumSubSurf( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumSubSurf::Can't Find Geom " + geom_id );
+        return -1;
+    }
+    ErrorMgr.NoError();
+    return geom_ptr->NumSubSurfs();
+}
+
 void CutXSec( const string & geom_id, int index )
 {
     Vehicle* veh = GetVehicle();

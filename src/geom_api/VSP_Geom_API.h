@@ -152,6 +152,7 @@ extern std::string GetSubSurfName( const std::string & sub_id );
 extern int GetSubSurfIndex( const std::string & sub_id );
 extern std::vector<std::string> GetSubSurfIDVec( const std::string & geom_id );
 extern std::vector<std::string> GetAllSubSurfIDs();
+extern int GetNumSubSurf( const std::string & geom_id );
 
 extern void CutXSec( const std::string & geom_id, int index );
 extern void CopyXSec( const std::string & geom_id, int index );
