@@ -1571,6 +1571,32 @@ void DeleteSubSurf( const string & geom_id, const string & sub_id )
     return;
 }
 
+void DeleteSubSurf( const string & sub_id )
+{
+    SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ss_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
+        return;
+    }
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( ss_ptr->GetCompID() );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find Geom " + ss_ptr->GetCompID() );
+        return;
+    }
+    int index = geom_ptr->GetSubSurfIndex( sub_id );
+    if ( index == -1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
+        return;
+    }
+    geom_ptr->DelSubSurf( index );
+    ErrorMgr.NoError();
+    return;
+}
+
 void SetSubSurfName( const std::string & geom_id, const std::string & sub_id, const std::string & name )
 {
     Vehicle* veh = GetVehicle();
