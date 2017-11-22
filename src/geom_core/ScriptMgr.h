@@ -134,6 +134,7 @@ private:
     CScriptArray* GetSubSurfIDVec( const string & geom_id );
     CScriptArray* GetAllSubSurfIDs();
     CScriptArray* GetSubSurf( const string & geom_id, const string & name );
+    CScriptArray* GetSubSurfParmIDs( const string & sub_id );
     CScriptArray* GetXSecParmIDs( const string & xsec_id );
     CScriptArray* ReadFileXSec( const string& xsec_id, const string& file_name );
     CScriptArray* GetAirfoilUpperPnts( const string& xsec_id );

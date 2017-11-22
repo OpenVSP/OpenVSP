@@ -1782,6 +1782,25 @@ int GetSubSurfType( const string & sub_id )
     return ssurf->GetType();
 }
 
+/// Get of the linkable parms ids for this sub surface
+std::vector<std::string> GetSubSurfParmIDs( const string & sub_id )
+{
+    vector< string > parm_vec;
+
+    Vehicle* veh = GetVehicle();
+    SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ss_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfParmIDs::Can't Find SubSurface " + sub_id );
+        return parm_vec;
+    }
+
+    ss_ptr->AddLinkableParms( parm_vec );
+
+    ErrorMgr.NoError();
+    return parm_vec;
+}
+
 void CutXSec( const string & geom_id, int index )
 {
     Vehicle* veh = GetVehicle();

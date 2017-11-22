@@ -1805,6 +1805,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "int GetSubSurfType( const string & in sub_id )", asFUNCTION( vsp::GetSubSurfType ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@ GetSubSurfParmIDs(const string & in sub_id )", asMETHOD( ScriptMgrSingleton, GetSubSurfParmIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void CutXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CutXSec ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void CopyXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CopyXSec ), asCALL_CDECL );
@@ -2235,6 +2237,12 @@ CScriptArray* ScriptMgrSingleton::GetAllSubSurfIDs()
 CScriptArray* ScriptMgrSingleton::GetSubSurf( const string & geom_id, const string & name )
 {
     m_ProxyStringArray = vsp::GetSubSurf( geom_id, name );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetSubSurfParmIDs( const string & sub_id )
+{
+    m_ProxyStringArray = vsp::GetSubSurfParmIDs( sub_id );
     return GetProxyStringArray();
 }
 
