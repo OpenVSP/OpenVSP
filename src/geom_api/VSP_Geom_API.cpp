@@ -1618,6 +1618,19 @@ void SetSubSurfName( const std::string & geom_id, const std::string & sub_id, co
     return;
 }
 
+void SetSubSurfName( const std::string & sub_id, const std::string & name )
+{
+    SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ss_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Invalid Sub Surface Ptr " );
+        return;
+    }
+    ss_ptr->SetName( name );
+    ErrorMgr.NoError();
+    return;
+}
+
 std::string GetSubSurfName( const std::string & geom_id, const std::string & sub_id )
 {
     Vehicle* veh = GetVehicle();
