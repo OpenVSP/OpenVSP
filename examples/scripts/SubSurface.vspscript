@@ -1,20 +1,88 @@
 
 void main()
 {
+    Print( string("Begin SubSurface Test\n") );
+    
+    Print( string("Add Wing Geometry\n") );
     string wid = AddGeom( "WING", "" );                             // Add Wing
 
-    // Note: Parm Group for SubSurfaces in the form: "SS_" + type + "_" + count
-    string subid = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
+    // Note: Parm Group for SubSurfaces in the form: "SS_" + type + "_" + count (initialized at 1)
+    Print( string("Add SS_Line\n") );
+    string ss_line_id = AddSubSurf( wid, SS_LINE );                      // Add Sub Suface Line
     SetParmVal( wid, "Const_Line_Value", "SS_Line_1", 0.4 );     // Change Loc
+    
+    // Get and list all Parm info for SS_Line
+    array<string> parm_id_vec = GetSubSurfParmIDs( ss_line_id );
+    Print( string("SS_Line Parms: \n") );
+    
+    for ( uint i = 0; i < uint(parm_id_vec.length()); i++ )
+    {
+        string id_name_str = string("\tName: ") + GetParmName( parm_id_vec[i] ) + string(", Group: ") + GetParmDisplayGroupName( parm_id_vec[i] ) +
+            string(", ID: ") + parm_id_vec[i] + string("\n");
+        Print( id_name_str );
+    }
 
-    subid = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
+    Print( string("Add SS_Rectangle\n") );
+    string ss_rec_id = AddSubSurf( wid, SS_RECTANGLE );                        // Add Sub Surface Rectangle
     SetParmVal( wid, "Center_W", "SS_Rectangle_1", 0.0 );           // Change Loc/Size
     SetParmVal( wid, "U_Length", "SS_Rectangle_1", 0.1 );
     SetParmVal( wid, "W_Length", "SS_Rectangle_1", 0.1 );
-
-
+    
     Update();
 
+    int num_ss = GetNumSubSurf( wid );
+    string num_str = string("Number of SubSurfaces: ") + num_ss + string("\n");
+    Print( num_str );
+    
+    array<string> id_vec = GetSubSurfIDVec( wid );
+    string id_type_str = string( "SubSurface IDs and Type Indexes -> ");
+    
+    for ( uint i = 0; i < uint(id_vec.length()); i++ )
+    {
+        id_type_str += id_vec[i];
+        id_type_str += string(": ");
+        
+        string type = GetSubSurfType(id_vec[i]);
+        id_type_str += type;
+        id_type_str += string("\t");
+    }
+    
+    id_type_str += string("\n");
+    Print( id_type_str );
+    
+    string rec_name = GetSubSurfName( ss_rec_id );
+    string name_str = string("Current Name of SS_Rectangle: ") + rec_name + string("\n");
+    Print( name_str );
+    
+    string new_name = string("New_SS_Rec_Name");
+    SetSubSurfName( ss_rec_id, new_name );
+    rec_name = GetSubSurfName( ss_rec_id );
+    name_str = string("New Name of SS_Rectangle: ") + rec_name + string("\n");
+    Print( name_str );
+
+    int ind = GetSubSurfIndex( ss_rec_id );
+    string ind_str = string("Index of SS_Rectangle: ") + ind + string("\n");
+    Print( ind_str );
+    
+    id_vec = GetSubSurf( wid, rec_name );
+    string ID_str = string("IDs of subsurfaces named \"") + rec_name + string("\": ");
+    
+    for ( uint i = 0; i < uint(id_vec.length()); i++ )
+    {
+        ID_str += id_vec[i];
+        ID_str += string("\t");
+    }
+    
+    ID_str += string("\n");
+    Print( ID_str );
+    
+    Print("Delete SS_Line\n");
+    DeleteSubSurf( ss_line_id );
+    
+    num_ss = GetNumSubSurf( wid );
+    num_str = string("Number of SubSurfaces: ") + num_ss + string("\n");
+    Print( num_str );
+    
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )
     {
@@ -22,5 +90,5 @@ void main()
         Print( err.GetErrorString() );
     }
 
-
+    Print( string("End SubSurface Test\n") );
 }
