@@ -1551,6 +1551,35 @@ string GetSubSurf( const string & geom_id, int index )
     return ssurf->GetID();
 }
 
+/// Get IDs for all sub surface with parent geom ID and name
+std::vector<std::string> GetSubSurf( const string & geom_id, const string & name )
+{
+    vector<string> ID_vec;
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Can't Find Geom " + geom_id );
+        return ID_vec;
+    }
+    vector<SubSurface*> ss_vec = geom_ptr->GetSubSurfVec();
+    for ( size_t i = 0; i < ss_vec.size(); i++ )
+    {
+        if ( strcmp( ss_vec[i]->GetName().c_str(), name.c_str() ) == 0 )
+        {
+            ID_vec.push_back( ss_vec[i]->GetID() );
+        }
+    }
+
+    if ( ID_vec.size() == 0 )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetSubSurf::Can't Find Sub Surface with Name " + name );
+        return ID_vec;
+    }
+    ErrorMgr.NoError();
+    return ID_vec;
+}
+
 void DeleteSubSurf( const string & geom_id, const string & sub_id )
 {
     Vehicle* veh = GetVehicle();

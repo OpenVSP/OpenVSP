@@ -133,6 +133,7 @@ private:
     CScriptArray* GetGeomParmIDs( const string & geom_id );
     CScriptArray* GetSubSurfIDVec( const string & geom_id );
     CScriptArray* GetAllSubSurfIDs();
+    CScriptArray* GetSubSurf( const string & geom_id, const string & name );
     CScriptArray* GetXSecParmIDs( const string & xsec_id );
     CScriptArray* ReadFileXSec( const string& xsec_id, const string& file_name );
     CScriptArray* GetAirfoilUpperPnts( const string& xsec_id );
