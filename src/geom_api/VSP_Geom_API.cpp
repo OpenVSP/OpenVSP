@@ -1769,6 +1769,19 @@ int GetNumSubSurf( const string & geom_id )
     return geom_ptr->NumSubSurfs();
 }
 
+/// Get sub surface type
+int GetSubSurfType( const string & sub_id )
+{
+    SubSurface* ssurf = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfType::Invalid Sub Surface Ptr " );
+        return -1;
+    }
+    ErrorMgr.NoError();
+    return ssurf->GetType();
+}
+
 void CutXSec( const string & geom_id, int index )
 {
     Vehicle* veh = GetVehicle();
