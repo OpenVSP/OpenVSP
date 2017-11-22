@@ -1710,6 +1710,22 @@ std::vector<std::string> GetSubSurfIDVec( const std::string & geom_id )
     return ID_vec;
 }
 
+/// Get vector of all sub surface IDs
+std::vector<std::string> GetAllSubSurfIDs()
+{
+    vector<SubSurface*> ss_vec = SubSurfaceMgr.GetSubSurfs();
+    vector<string> ID_vec;
+    ID_vec.resize( ss_vec.size() );
+
+    for ( size_t i = 0; i < ss_vec.size(); i++ )
+    {
+        ID_vec[i] = ss_vec[i]->GetID();
+    }
+
+    ErrorMgr.NoError();
+    return ID_vec;
+}
+
 void CutXSec( const string & geom_id, int index )
 {
     Vehicle* veh = GetVehicle();
