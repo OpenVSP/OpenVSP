@@ -1651,6 +1651,18 @@ std::string GetSubSurfName( const std::string & geom_id, const std::string & sub
     return ssurf->GetName();
 }
 
+std::string GetSubSurfName( const std::string & sub_id )
+{
+    SubSurface* ssurf = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Invalid Sub Surface Ptr " );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return ssurf->GetName();
+}
+
 /// Get index for sub surface given ID
 int GetSubSurfIndex( const std::string & sub_id )
 {

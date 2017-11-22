@@ -148,6 +148,7 @@ extern void DeleteSubSurf( const std::string & sub_id );
 extern void SetSubSurfName(const std::string & geom_id, const std::string & sub_id, const std::string & name);
 extern void SetSubSurfName( const std::string & sub_id, const std::string & name );
 extern std::string GetSubSurfName( const std::string & geom_id, const std::string & sub_id );
+extern std::string GetSubSurfName( const std::string & sub_id );
 extern int GetSubSurfIndex( const std::string & sub_id );
 extern std::vector<std::string> GetSubSurfIDVec( const std::string & geom_id );
 
