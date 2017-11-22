@@ -27,6 +27,7 @@
 #include "VKTAirfoil.h"
 
 #include "eli/mutil/quad/simpson.hpp"
+#include "Eigen/src/Core/Matrix.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -2494,6 +2495,88 @@ void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d>
     }
 
     fclose( af );
+}
+
+std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+{
+    // Calculation of lift distribution for a Hershey Bar wing with unit chord length using Glauert's Method
+
+    vector < vec3d > y_cl_vec; // return vector of y position and cl value
+    if ( full_span_flag )
+    {
+        y_cl_vec.resize( 2 * npts );
+    }
+    else
+    {
+        y_cl_vec.resize( npts );
+    }
+
+    const double alpha0 = 0;
+    const double c = 1; // root/tip chord
+
+    vector < double > theta_vec, y_span_vec, r_vec, a_vec, gamma_vec, cl_vec;
+    vector < int > odd_vec;
+    theta_vec.resize( npts );
+    y_span_vec.resize( npts );
+    odd_vec.resize( npts );
+    r_vec.resize( npts );
+    a_vec.resize( npts );
+    gamma_vec.resize( npts );
+    cl_vec.resize( npts );
+
+    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> c_mat;
+    c_mat.resize( npts, npts );
+
+    for ( size_t i = 0; i < npts; i++ )
+    {
+        theta_vec[i] = ( i + 1 ) * ( ( PI / 2 ) / npts );
+        y_span_vec[i] = cos( theta_vec[i] ) * ( span / 2 );
+        y_cl_vec[i].set_x( y_span_vec[i] );
+        odd_vec[i] = 2 * i + 1;
+        r_vec[i] = PI * c / 4 / ( span / 2 ) * ( alpha - alpha0 ) * sin( theta_vec[i] );
+    }
+
+    for ( size_t i = 0; i < npts; i++ )
+    {
+        for ( size_t j = 0; j < npts; j++ )
+        {
+            c_mat( i, j ) = sin( theta_vec[j] * odd_vec[i] ) * ( PI * c * odd_vec[i] / 4 / ( span / 2 ) + sin( theta_vec[j] ) );
+        }
+    }
+
+    // Invert the matrix
+    c_mat = c_mat.inverse();
+
+    // Matrix multiplication: [N,N]x[N,1]
+    for ( size_t i = 0; i < npts; i++ )
+    {
+        for ( size_t j = 0; j < npts; j++ )
+        {
+            a_vec[i] += c_mat( j, i ) * r_vec[j];
+        }
+    }
+
+    // Matrix multiplication: [N,N]x[N,1]
+    for ( size_t i = 0; i < npts; i++ )
+    {
+        for ( size_t j = 0; j < npts; j++ )
+        {
+            gamma_vec[i] += 4 * Vinf * ( span / 2 ) * sin( theta_vec[i] * odd_vec[j] ) * a_vec[j];
+        }
+
+        cl_vec[i] = 2 * gamma_vec[i] / Vinf;
+        y_cl_vec[i].set_y( cl_vec[i] );
+    }
+
+    if ( full_span_flag )
+    {
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cl_vec[( 2 * npts - 1 ) - i] = y_cl_vec[i]; // Apply symmetry
+        }
+    }
+
+    return y_cl_vec;
 }
 
 std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau )
