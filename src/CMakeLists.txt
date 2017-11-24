@@ -84,6 +84,73 @@ ADD_SUBDIRECTORY( python_api )
 
 ADD_SUBDIRECTORY( vsp_aero )
 
+
+# TODO consider using CPackDMG for an even better macOS install experience
+# https://cmake.org/cmake/help/v3.5/module/CPackDMG.html
+# https://gitlab.kitware.com/cmake/cmake/blob/v3.6.2/Packaging/CMakeDMGSetup.scpt
+
+IF( APPLE )
+  add_custom_target(BuildMacApp ALL)
+  set( APP_NAME "VSP")
+  set( APP_VERSION "${VSPVER_MAJOR}.${VSPVER_MINOR}.${VSPVER_PATCH}")
+  set( ICON_NAME "vsp.icns" )
+  set( ICON_PATH "${PROJECT_SOURCE_DIR}/${ICON_NAME}" )
+  set( APP_PATH "${CMAKE_BINARY_DIR}/${APP_NAME}.app/Contents")
+  set( APP_EXC_PATH "${APP_PATH}/MacOS/")
+
+  add_custom_command(TARGET BuildMacApp
+                    PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory
+                    "${APP_PATH}/MacOS/")
+  add_custom_command(TARGET BuildMacApp
+                    PRE_BUILD COMMAND ${CMAKE_COMMAND} -E make_directory
+                    "${APP_PATH}/Resources/")
+
+  add_custom_command(TARGET BuildMacApp
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:vsp>
+                     "${APP_PATH}/MacOS/")
+  add_custom_command(TARGET BuildMacApp
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:vspaero>
+                     "${APP_PATH}/MacOS/")
+  add_custom_command(TARGET BuildMacApp
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:vspscript>
+                     "${APP_PATH}/MacOS/")
+  add_custom_command(TARGET BuildMacApp
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:vspslicer>
+                     "${APP_PATH}/MacOS/")
+  add_custom_command(TARGET BuildMacApp
+                     POST_BUILD
+                     COMMAND ${CMAKE_COMMAND} -E copy $<TARGET_FILE:vspviewer>
+                     "${APP_PATH}/MacOS/")
+
+
+  SET( MACOSX_BUNDLE_ICON_FILE ${ICON_NAME})
+  SET( MACOSX_BUNDLE_GUI_IDENTIFIER "org.openvsp.vsp")
+  SET( MACOSX_BUNDLE_BUNDLE_NAME ${APP_NAME})
+  SET( MACOSX_BUNDLE_EXECUTABLE_NAME "vsp")
+  SET( MACOSX_BUNDLE_PRODUCT_NAME ${APP_NAME})
+  SET( MACOSX_BUNDLE_INFO_STRING "${APP_NAME} ${APP_VERSION}")
+  SET( MACOSX_BUNDLE_LONG_VERSION_STRING ${APP_VERSION})
+  SET( MACOSX_BUNDLE_SHORT_VERSION_STRING ${APP_VERSION})
+  SET( MACOSX_BUNDLE_BUNDLE_VERSION ${APP_VERSION})
+  # Using a custom plist template file is required because the default
+  # cmake template doesn't have the NSPrincipalClass key which is needed
+  # for making the app retina-compatible. This bug should be fixed upstream.
+  SET( MACOSX_BUNDLE_INFO_PLIST "${PROJECT_SOURCE_DIR}/MacOSXBundleInfo-custom.plist.in")
+  configure_file(${MACOSX_BUNDLE_INFO_PLIST}
+                 "${APP_PATH}/Info.plist")
+
+  add_custom_command(TARGET BuildMacApp
+                   POST_BUILD
+                   COMMAND ${CMAKE_COMMAND} -E copy
+                   "${PROJECT_SOURCE_DIR}/${MACOSX_BUNDLE_ICON_FILE}"
+                   "${APP_PATH}/Resources/")
+ENDIF( APPLE )
+
+
 SET( CPACK_GENERATOR ZIP )
 SET( CPACK_PACKAGE_NAME OpenVSP )
 SET( CPACK_PACKAGE_VERSION_MAJOR ${VSPVER_MAJOR} )
@@ -91,10 +158,18 @@ SET( CPACK_PACKAGE_VERSION_MINOR ${VSPVER_MINOR} )
 SET( CPACK_PACKAGE_VERSION_PATCH ${VSPVER_PATCH} )
 
 IF( APPLE )
-     SET( CPACK_SYSTEM_NAME MacOS )
+  SET( CPACK_SYSTEM_NAME MacOS )
+  # Need to set the right permissions on all executables within the MacOS
+  # directory, otherwise the app won't run
+  INSTALL(DIRECTORY "${CMAKE_BINARY_DIR}/${APP_NAME}.app/"
+          DESTINATION "${APP_NAME}.app"
+          PATTERN "MacOS/*"
+          PERMISSIONS OWNER_EXECUTE OWNER_WRITE OWNER_READ
+          )
 ENDIF( APPLE )
 
 INCLUDE( CPack )
+
 
 INSTALL( DIRECTORY ../examples/airfoil/ DESTINATION airfoil )
 INSTALL( DIRECTORY ../examples/CustomScripts/ DESTINATION CustomScripts )
