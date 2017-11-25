@@ -2600,10 +2600,15 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 
 void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 {
+    WriteIGESFile( file_name, write_set, m_IGESLenUnit(), m_IGESSplitSubSurfs(), m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE() );
+}
+
+void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUnit, bool splitSubSurfs, bool splitSurfs, bool toCubic, double toCubicTol, bool trimTE )
+{
     DLL_IGES model;
 
     // Note, YD not handled by libIGES.
-    switch( m_IGESLenUnit() )
+    switch( lenUnit )
     {
     case vsp::LEN_CM:
         model.SetUnitsFlag( UNIT_CENTIMETER );
@@ -2641,7 +2646,7 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 
                 vector < SubSurface *> ssvec = geom_vec[i]->GetSubSurfVec();
 
-                if ( m_IGESSplitSubSurfs() )
+                if ( splitSubSurfs )
                 {
                     for ( int k = 0; k < ssvec.size(); k++ )
                     {
@@ -2670,7 +2675,7 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 
                 string prefix = geom_vec[i]->GetID() + ", " + geom_vec[i]->GetName() + ", " + to_string( j );
 
-                surf_vec[j].ToIGES( model, m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE(), usplit, wsplit, prefix );
+                surf_vec[j].ToIGES( model, splitSurfs, toCubic, toCubicTol, trimTE, usplit, wsplit, prefix );
             }
         }
     }

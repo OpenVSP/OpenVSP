@@ -193,6 +193,7 @@ public:
     void WritePovRayFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set );
     void WriteIGESFile( const string & file_name, int write_set );
+    void WriteIGESFile( const string & file_name, int write_set, int lenUnit, bool splitSubSurfs, bool splitSurfs, bool toCubic, double toCubicTol, bool trimTE );
     void WriteBEMFile( const string & file_name, int write_set );
     void WriteDXFFile( const string & file_name, int write_set );
     void WriteSVGFile( const string & file_name, int write_set );
