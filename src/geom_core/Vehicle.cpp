@@ -64,6 +64,12 @@ Vehicle::Vehicle()
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
     m_IGESTrimTE.Init( "TrimTE", "IGESSettings", this, false, 0, 1 );
 
+    m_IGESLabelID.Init( "LabelID", "IGESSettings", this, true, 0, 1 );
+    m_IGESLabelName.Init( "LabelName", "IGESSettings", this, true, 0, 1 );
+    m_IGESLabelSurfNo.Init( "LabelSurfNo", "IGESSettings", this, true, 0, 1 );
+    m_IGESLabelSplitNo.Init( "LabelSplitNo", "IGESSettings", this, true, 0, 1 );
+    m_IGESLabelDelim.Init( "LabelDelim", "IGESSettings", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
+
     m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
     m_DXFLenUnit.SetDescript( "Sets DXF Header Units; Numeric Values Unchanged" );
     m_DXFProjectionFlag.Init( "DXFProjectionFlag", "DXFSettings", this , false, 0, 1 );
@@ -2600,11 +2606,17 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 
 void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 {
-    WriteIGESFile( file_name, write_set, m_IGESLenUnit(), m_IGESSplitSubSurfs(), m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE() );
+    WriteIGESFile( file_name, write_set, m_IGESLenUnit(), m_IGESSplitSubSurfs(), m_IGESSplitSurfs(), m_IGESToCubic(),
+                   m_IGESToCubicTol(), m_IGESTrimTE(), m_IGESLabelID(), m_IGESLabelName(), m_IGESLabelSurfNo(),
+                   m_IGESLabelSplitNo(), m_IGESLabelDelim() );
 }
 
-void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUnit, bool splitSubSurfs, bool splitSurfs, bool toCubic, double toCubicTol, bool trimTE )
+void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUnit, bool splitSubSurfs,
+                             bool splitSurfs, bool toCubic, double toCubicTol, bool trimTE, bool labelID,
+                             bool labelName, bool labelSurfNo, bool labelSplitNo, int delimType )
 {
+    string delim = StringUtil::get_delim( delimType );
+
     DLL_IGES model;
 
     // Note, YD not handled by libIGES.
@@ -2673,9 +2685,32 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
                     }
                 }
 
-                string prefix = geom_vec[i]->GetID() + ", " + geom_vec[i]->GetName() + ", " + to_string( j );
+                string prefix;
 
-                surf_vec[j].ToIGES( model, splitSurfs, toCubic, toCubicTol, trimTE, usplit, wsplit, prefix );
+                if ( labelID )
+                {
+                    prefix = geom_vec[i]->GetID();
+                }
+
+                if ( labelName )
+                {
+                    if ( prefix.size() > 0 )
+                    {
+                        prefix.append( delim );
+                    }
+                    prefix.append( geom_vec[i]->GetName() );
+                }
+
+                if ( labelSurfNo )
+                {
+                    if ( prefix.size() > 0 )
+                    {
+                        prefix.append( delim );
+                    }
+                    prefix.append( to_string( j ) );
+                }
+
+                surf_vec[j].ToIGES( model, splitSurfs, toCubic, toCubicTol, trimTE, usplit, wsplit, prefix, labelSplitNo, delim );
             }
         }
     }

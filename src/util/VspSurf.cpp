@@ -2173,7 +2173,7 @@ void VspSurf::ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> 
     }
 }
 
-void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string labelprefix )
+void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string labelprefix, bool labelSplitNo, string delim )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
@@ -2251,12 +2251,24 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol,
 
         DLL_IGES_ENTITY_128 isurf( model, true );
 
-        string label = labelprefix + ", " + to_string( is );
+        string label = labelprefix;
 
-        DLL_IGES_ENTITY_406 e406( model, true );
-        e406.SetProperty_Name( label.c_str() );
-        isurf.AddOptionalEntity( e406.GetRawPtr() );
-        e406.Detach();
+        if ( labelSplitNo )
+        {
+            if ( label.size() > 0 )
+            {
+                label.append( delim );
+            }
+            label.append( to_string( is ) );
+        }
+
+        if ( label.size() > 0 )
+        {
+            DLL_IGES_ENTITY_406 e406( model, true );
+            e406.SetProperty_Name( label.c_str()) ;
+            isurf.AddOptionalEntity( e406.GetRawPtr() );
+            e406.Detach();
+        }
 
         if( !isurf.SetNURBSData( nupts, nvpts, maxu + 1, maxv + 1,
              knotu.data(), knotv.data(), coeff.data(),
