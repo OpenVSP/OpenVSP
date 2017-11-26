@@ -4,6 +4,7 @@
 //
 
 #include "StringUtil.h"
+#include "APIDefines.h"
 
 void StringUtil::change_from_to( char *str, const char from, const char to )
 {
@@ -161,4 +162,20 @@ int StringUtil::compute_hash( const string & str )
     hash += (hash << 15);
 
     return hash;
+}
+
+string StringUtil::get_delim( int delim_type )
+{
+    switch(delim_type)
+    {
+        case vsp::DELIM_COMMA:
+            return string( ", " );
+        case vsp::DELIM_USCORE:
+            return string( "_" );
+        case vsp::DELIM_SPACE:
+            return string( " " );
+        case vsp::DELIM_NONE:
+        default:
+            return string( "" );
+    }
 }
