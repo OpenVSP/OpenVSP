@@ -536,6 +536,19 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "LEN_UNITS", "LEN_UNITLESS", LEN_UNITLESS );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "DELIM_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DELIM_TYPE", "DELIM_COMMA", DELIM_COMMA );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DELIM_TYPE", "DELIM_USCORE", DELIM_USCORE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DELIM_TYPE", "DELIM_SPACE", DELIM_SPACE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DELIM_TYPE", "DELIM_NONE", DELIM_NONE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DELIM_TYPE", "DELIM_NUM_TYPES", DELIM_NUM_TYPES );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "DIMENSION_SET" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "DIMENSION_SET", "SET_3D", SET_3D );

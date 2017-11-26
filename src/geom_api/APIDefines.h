@@ -70,6 +70,13 @@ enum LEN_UNITS { LEN_MM,
                  LEN_UNITLESS
                };
 
+enum DELIM_TYPE { DELIM_COMMA,
+                  DELIM_USCORE,
+                  DELIM_SPACE,
+                  DELIM_NONE,
+                  DELIM_NUM_TYPES
+                };
+
 enum DIMENSION_SET { SET_3D,
                      SET_2D,
                    };
