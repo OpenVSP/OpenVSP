@@ -20,6 +20,10 @@ string PathToHome();
 bool CheckForFile( const string & path, string &file );
 bool FileExist( const string & file );
 string GetFilename( const string &pathfile );
+string GetPath( const string& fname );
+
+void ChangeWorkingDirectory( const string & path );
+string GetCurrentWorkingDirectory();
 
 #endif
 

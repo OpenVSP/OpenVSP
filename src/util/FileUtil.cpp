@@ -305,3 +305,41 @@ string GetFilename( const string &pathfile )
     return fileParts.back();
 
 }
+
+string GetPath( const string& fname )
+{
+    size_t pos = fname.find_last_of( "\\/" );
+
+    if ( string::npos == pos )
+    {
+        return string( "" );
+    }
+    else
+    {
+        return fname.substr( 0, pos );
+    }
+}
+
+void ChangeWorkingDirectory( const string & path )
+{
+#ifdef WIN32
+    _chdir( path.c_str() );
+#else
+    chdir( path.c_str() );
+#endif
+}
+
+string GetCurrentWorkingDirectory()
+{
+    const int BUFSIZE = 4096;
+    char buf[BUFSIZE];
+    memset(buf , 0 , BUFSIZE);
+
+#ifdef WIN32
+    _getcwd( buf, BUFSIZE - 1 );
+#else
+    getcwd( buf, BUFSIZE - 1 );
+#endif
+
+    return string( buf );
+}
