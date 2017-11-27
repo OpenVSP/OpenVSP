@@ -41,11 +41,18 @@ ProcessUtil::ProcessUtil()
 
     m_StdoutPipe[PIPE_READ] = NULL;
     m_StdoutPipe[PIPE_WRITE] = NULL;
+
+    m_StdinPipe[PIPE_READ] = NULL;
+    m_StdinPipe[PIPE_WRITE] = NULL;
 #else
     childPid = -1;
 
     m_StdoutPipe[PIPE_READ] = -1;
     m_StdoutPipe[PIPE_WRITE] = -1;
+
+    m_StdinPipe[PIPE_READ] = -1;
+    m_StdinPipe[PIPE_WRITE] = -1;
+
 #endif
 }
 
@@ -210,8 +217,18 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
         return -1;
     }
 
+    if( pipe( m_StdinPipe ) < 0 )
+    {
+        printf( "Error allocating pipe for child input redirect");
+        return -1;
+    }
+
     fcntl( m_StdoutPipe[PIPE_WRITE] , F_SETFL, O_NONBLOCK );
     fcntl( m_StdoutPipe[PIPE_READ] , F_SETFL, O_NONBLOCK );
+
+    // Not sure if this is needed or appropriate.
+    fcntl( m_StdinPipe[PIPE_WRITE] , F_SETFL, O_NONBLOCK );
+    fcntl( m_StdinPipe[PIPE_READ] , F_SETFL, O_NONBLOCK );
 
     if ( ( childPid = fork() ) == 0 )
     {
@@ -226,6 +243,15 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
         close( m_StdoutPipe[PIPE_READ] );
         close( m_StdoutPipe[PIPE_WRITE] );
 
+        if( dup2( m_StdinPipe[PIPE_READ], STDIN_FILENO ) == -1 )
+        {
+            printf( "Error redirecting child stdin" );
+            exit( 0 );
+        }
+
+        close( m_StdinPipe[PIPE_READ] );
+        close( m_StdinPipe[PIPE_WRITE] );
+
         string command = path + string("/") + cmd;
         if( cppexecv( command, opts ) < 0 ) {
             printf( "execv error\n" );
@@ -235,12 +261,15 @@ int ProcessUtil::ForkCmd( const string &path, const string &cmd, const vector<st
     {
         close( m_StdoutPipe[PIPE_READ] );
         close( m_StdoutPipe[PIPE_WRITE] );
+        close( m_StdinPipe[PIPE_READ] );
+        close( m_StdinPipe[PIPE_WRITE] );
 
         printf( "Fork failed (%d).\n", childPid );
         return 0;
     }
 
     close( m_StdoutPipe[PIPE_WRITE] );
+    close( m_StdinPipe[PIPE_READ] );
 
 #endif
 
@@ -376,6 +405,38 @@ void ProcessUtil::ReadStdoutPipe(char * bufptr, int bufsize, unsigned long * nre
 #else
     *nreadptr = read( m_StdoutPipe[PIPE_READ], bufptr, bufsize );
 #endif
+}
+
+void ProcessUtil::WriteStdinPipe(char * bufptr, int bufsize, unsigned long * nwriteptr )
+{
+#ifdef WIN32
+//    WriteFile( m_StdinPipe[PIPE_WRITE], bufptr, bufsize, nwriteptr, NULL );
+#else
+    *nwriteptr = write( m_StdinPipe[PIPE_WRITE], bufptr, bufsize );
+#endif
+}
+
+void ProcessUtil::DumpFileStdinPipe( const string & fname )
+{
+    FILE *fp = fopen( fname.c_str(), "r" );
+
+    if ( fp )
+    {
+        char buf[1024] = { 0 };
+
+        while( fgets( buf, 1024, fp ) != NULL )
+        {
+            unsigned long nwrite;
+            int len = strlen( buf );
+            WriteStdinPipe( buf, len, &nwrite );
+        }
+
+        fclose( fp );
+    }
+    else
+    {
+        printf( "Could not open file for read. %s\n", fname.c_str() );
+    }
 }
 
 /* PrettyCmd( path, cmd, opts )

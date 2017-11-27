@@ -40,6 +40,9 @@ public:
     bool IsRunning();
 
     void ReadStdoutPipe(char * buf, int bufsize, unsigned long * nread );
+    void WriteStdinPipe(char * bufptr, int bufsize, unsigned long * nwriteptr );
+
+    void DumpFileStdinPipe( const string & fname );
 
     string PrettyCmd( const string &path, const string &cmd, const vector<string> &opts ); //returns a command string that could be used on the command line
 
@@ -48,10 +51,12 @@ public:
     void StartThread( LPTHREAD_START_ROUTINE threadfun, LPVOID data );
 
     HANDLE m_StdoutPipe[2];
+    HANDLE m_StdinPipe[2];
 #else
     void StartThread( void *(*threadfun)( void * ), void *data );
 
     int m_StdoutPipe[2];
+    int m_StdinPipe[2];
 #endif
 
 private:
