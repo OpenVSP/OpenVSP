@@ -41,6 +41,7 @@ protected:
     TriggerButton m_STLButton;
     TriggerButton m_NASCARTButton;
     TriggerButton m_XSecButton;
+    TriggerButton m_XSecWireButton;
     TriggerButton m_PTSButton;
     TriggerButton m_V2Button;
     TriggerButton m_BEMButton;
