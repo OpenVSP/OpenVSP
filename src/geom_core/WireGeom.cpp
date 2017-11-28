@@ -148,6 +148,40 @@ void WireGeom::UpdateDrawObj()
         m_AxisDrawObj_vec[i].m_LineColor = c;
         m_AxisDrawObj_vec[i].m_GeomChanged = true;
     }
+
+    int num_cross = ( int ) m_XFormPts.size();
+    if ( num_cross > 0 )
+    {
+        int ilim = floor( num_cross * 0.5 );
+
+        int num_pnts = ( int ) m_XFormPts[0].size();
+
+        if ( num_pnts > 0 )
+        {
+            int jlim = floor( num_pnts * 0.5 );
+
+            m_FeatureDrawObj_vec.clear();
+            m_FeatureDrawObj_vec.resize( 2 );
+
+            for ( int i = 0; i < ilim - 1; i++ )
+            {
+                m_FeatureDrawObj_vec[0].m_PntVec.push_back( m_XFormPts[ i ][0] );
+                m_FeatureDrawObj_vec[0].m_PntVec.push_back( m_XFormPts[ i + 1 ][0] );
+            }
+            m_FeatureDrawObj_vec[0].m_LineColor = vec3d( 1, 0, 0 );
+            m_FeatureDrawObj_vec[0].m_LineWidth = 3.0;
+            m_FeatureDrawObj_vec[0].m_GeomChanged = true;
+
+            for ( int j = 0; j < jlim - 1; j++ )
+            {
+                m_FeatureDrawObj_vec[1].m_PntVec.push_back( m_XFormPts[0][ j ] );
+                m_FeatureDrawObj_vec[1].m_PntVec.push_back( m_XFormPts[0][ j + 1 ] );
+            }
+            m_FeatureDrawObj_vec[1].m_LineColor = vec3d( 0, 1, 0 );
+            m_FeatureDrawObj_vec[1].m_LineWidth = 3.0;
+            m_FeatureDrawObj_vec[1].m_GeomChanged = true;
+        }
+    }
 }
 
 //==== Get Total Transformation Matrix from Original Points ====//
