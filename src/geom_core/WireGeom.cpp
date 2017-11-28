@@ -136,6 +136,18 @@ void WireGeom::UpdateDrawObj()
     m_WireShadeDrawObj_vec[0].m_vTexMesh[0].insert( m_WireShadeDrawObj_vec[0].m_vTexMesh[0].end(), dum.begin(), dum.end() );
 
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+
+    //=== Axis ===//
+    m_AxisDrawObj_vec.clear();
+    m_AxisDrawObj_vec.resize( 3 );
+    for ( int i = 0; i < 3; i++ )
+    {
+        MakeDashedLine( m_AttachOrigin,  m_AttachAxis[i], 4, m_AxisDrawObj_vec[i].m_PntVec );
+        vec3d c;
+        c.v[i] = 1.0;
+        m_AxisDrawObj_vec[i].m_LineColor = c;
+        m_AxisDrawObj_vec[i].m_GeomChanged = true;
+    }
 }
 
 //==== Get Total Transformation Matrix from Original Points ====//
