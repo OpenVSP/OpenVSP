@@ -306,6 +306,10 @@ enum SUBSURF_TYPE { SS_LINE,
                     SS_NUM_TYPES
                   };
 
+enum SUBSURF_LINE_TYPE { CONST_U,
+                         CONST_W
+                       };
+
 enum SUBSURF_INOUT { INSIDE,
                      OUTSIDE
                    };

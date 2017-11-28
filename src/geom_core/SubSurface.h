@@ -180,7 +180,6 @@ public:
     SSLine( string compID, int type = vsp::SS_LINE );
     virtual ~SSLine();
 
-    enum { CONST_U, CONST_W };
     IntParm m_ConstType; // Either constant u or constant w line
     Parm m_ConstVal; // Either the const u value or const w value of line
 

@@ -918,6 +918,20 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "SUBSURF_TYPE", "SS_NUM_TYPES", SS_NUM_TYPES );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "SUBSURF_LINE_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_LINE_TYPE", "CONST_U", CONST_U );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_LINE_TYPE", "CONST_W", CONST_W );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "SUBSURF_INOUT" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_INOUT", "INSIDE", INSIDE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_INOUT", "OUTSIDE", OUTSIDE );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "WING_DRIVERS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "WING_DRIVERS", "AR_WSECT_DRIVER", vsp::AR_WSECT_DRIVER );

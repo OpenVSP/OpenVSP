@@ -627,7 +627,7 @@ void SSLineSeg::AddToTMesh( TMesh* tmesh )
 
 SSLine::SSLine( string comp_id, int type ) : SubSurface( comp_id, type )
 {
-    m_ConstType.Init( "Const_Line_Type", "SubSurface", this, CONST_U, 0, 1 );
+    m_ConstType.Init( "Const_Line_Type", "SubSurface", this, vsp::CONST_U, 0, 1 );
     m_ConstVal.Init( "Const_Line_Value", "SubSurface", this, 0.5, 0, 1 );
     m_ConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is choosen." );
     m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::LT );
@@ -644,12 +644,12 @@ void SSLine::Update()
 {
     // Using m_LVec[0] since SSLine should always only have one line segment
     // Update SSegLine points based on current values
-    if ( m_ConstType() == CONST_U )
+    if ( m_ConstType() == vsp::CONST_U )
     {
         m_LVec[0].SetSP0( vec3d( m_ConstVal(), 1, 0 ) );
         m_LVec[0].SetSP1( vec3d( m_ConstVal(), 0, 0 ) );
     }
-    else if ( m_ConstType() == CONST_W )
+    else if ( m_ConstType() == vsp::CONST_W )
     {
         m_LVec[0].SetSP0( vec3d( 0, m_ConstVal(), 0 ) );
         m_LVec[0].SetSP1( vec3d( 1, m_ConstVal(), 0 ) );
@@ -674,11 +674,11 @@ int SSLine::CompNumDrawPnts( Geom* geom )
         return 0;
     }
 
-    if ( m_ConstType() == CONST_W )
+    if ( m_ConstType() == vsp::CONST_W )
     {
         return ( int )( surf->GetUMax() * ( geom->m_TessU() - 2 ) );
     }
-    else if ( m_ConstType() == CONST_U )
+    else if ( m_ConstType() == vsp::CONST_U )
     {
         return ( int )( surf->GetWMax() * ( geom->m_TessW() - 4 ) );
     }

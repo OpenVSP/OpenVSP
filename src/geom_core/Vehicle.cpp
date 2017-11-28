@@ -2540,7 +2540,7 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
                                 {
                                     SSLine *subline = (SSLine*) sub;
 
-                                    if( subline->m_ConstType() == SSLine::CONST_U )
+                                    if( subline->m_ConstType() == vsp::CONST_U )
                                     {
                                         usplit.push_back( subline->m_ConstVal() * surf_vec[j].GetUMax() );
                                     }
@@ -2618,7 +2618,7 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set )
                                 {
                                     SSLine *subline = (SSLine*) sub;
 
-                                    if( subline->m_ConstType() == SSLine::CONST_U )
+                                    if( subline->m_ConstType() == vsp::CONST_U )
                                     {
                                         usplit.push_back( subline->m_ConstVal() * surf_vec[j].GetUMax() );
                                     }
