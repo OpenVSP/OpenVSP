@@ -3180,35 +3180,35 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
 
 
 void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d > > &pnts, const vector< vector< vec3d > > &nrms, const vector< vector< vec3d > > &uwpnts,
-                            bool urootcap, int i, bool preview )
+                            bool urootcap, int isurf, bool preview )
 {
     DegenGeom degenGeom;
     degenGeom.setParentGeom( this );
-    degenGeom.setSurfNum( i );
+    degenGeom.setSurfNum( isurf );
 
     degenGeom.setNumXSecs( pnts.size() );
     degenGeom.setNumPnts( pnts[0].size() );
     degenGeom.setName( GetName() );
 
-    degenGeom.createDegenSurface( pnts, uwpnts, m_SurfVec[i].GetFlipNormal() );
+    degenGeom.createDegenSurface( pnts, uwpnts, m_SurfVec[isurf].GetFlipNormal() );
 
-    if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF || m_SurfVec[i].GetSurfType() == vsp::PROP_SURF )
+    if( m_SurfVec[isurf].GetSurfType() == vsp::WING_SURF || m_SurfVec[isurf].GetSurfType() == vsp::PROP_SURF )
     {
         degenGeom.setType(DegenGeom::SURFACE_TYPE);
 
         degenGeom.createSurfDegenPlate( pnts, uwpnts );
         if ( !preview )
         {
-            degenGeom.createSurfDegenStick( pnts, uwpnts, m_SurfVec[i].GetFoilSurf(), urootcap );
+            degenGeom.createSurfDegenStick( pnts, uwpnts, m_SurfVec[isurf].GetFoilSurf(), urootcap );
         }
     }
-    else if( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
+    else if( m_SurfVec[isurf].GetSurfType() == vsp::DISK_SURF )
     {
         degenGeom.setType(DegenGeom::DISK_TYPE);
 
         if ( !preview )
         {
-            degenGeom.createDegenDisk( pnts, m_SurfVec[i].GetFlipNormal() );
+            degenGeom.createDegenDisk( pnts, m_SurfVec[isurf].GetFlipNormal() );
         }
     }
     else
@@ -3226,9 +3226,9 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d 
     // degenerate subsurfaces
     for ( int j = 0; j < m_SubSurfVec.size(); j++ )
     {
-        if ( m_SurfIndxVec[i] == m_SubSurfVec[j]->m_MainSurfIndx() )
+        if ( m_SurfIndxVec[isurf] == m_SubSurfVec[j]->m_MainSurfIndx() )
         {
-            degenGeom.addDegenSubSurf( m_SubSurfVec[j], i );    //TODO is there a way to eliminate having to send in the surf index "i"
+            degenGeom.addDegenSubSurf( m_SubSurfVec[j], isurf );    //TODO is there a way to eliminate having to send in the surf index "i"
 
             if ( !preview )
             {

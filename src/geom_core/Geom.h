@@ -479,7 +479,7 @@ public:
     //===== Degenerate Geometry =====//
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d > > &pnts, const vector< vector< vec3d > > &nrms, const vector< vector< vec3d > > &uwpnts,
-                                  bool urootcap, int i, bool preview );
+                                  bool urootcap, int isurf, bool preview );
 
     IntParm m_TessU;
     LimIntParm m_TessW;
