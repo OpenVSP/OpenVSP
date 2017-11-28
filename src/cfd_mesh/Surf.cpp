@@ -29,7 +29,7 @@ Surf::Surf()
     m_FarFlag = false;
     m_WakeParentSurfID = -1;
     m_Mesh.SetSurfPtr( this );
-    m_NumMap = 10;
+    m_NumMap = 11;
     m_BaseTag = 1;
     m_MainSurfID = 0;
 }
@@ -193,11 +193,11 @@ void Surf::SetSymPlaneFlag( bool flag )
     // Refine background map for symmetry plane.
     if( m_SymPlaneFlag )
     {
-        m_NumMap = 100;
+        m_NumMap = 101;
     }
     else
     {
-        m_NumMap = 10;
+        m_NumMap = 11;
     }
 }
 
