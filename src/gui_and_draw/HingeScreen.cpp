@@ -603,5 +603,5 @@ void HingeScreen::GuiDeviceCallBack( GuiDevice* device )
         }
     }
 
-    m_ScreenMgr->SetUpdateFlag( true );
+    GeomScreen::GuiDeviceCallBack( device );
 }
