@@ -21,6 +21,9 @@ protected:
 
     GroupLayout m_WireLayout;
 
+    Choice m_TypeChoice;
+    CheckButton m_InvertButton;
+
     IndexSelector m_ISkipStartIndexSelector;
     IndexSelector m_ISkipEndIndexSelector;
     IndexSelector m_JSkipStartIndexSelector;

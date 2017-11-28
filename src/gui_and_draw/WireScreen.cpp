@@ -22,6 +22,18 @@ WireScreen::WireScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Wireframe
 
     m_WireLayout.SetGroupAndScreen( wire_group, this );
 
+    m_WireLayout.AddDividerBox( "Wireframe Characteristics" );
+
+    m_TypeChoice.AddItem( "Lifting" );
+    m_TypeChoice.AddItem( "Non-Lifting" );
+    m_WireLayout.AddChoice( m_TypeChoice, "Type" );
+
+    m_WireLayout.AddYGap();
+    m_WireLayout.AddButton( m_InvertButton, "Invert" );
+
+    m_WireLayout.AddYGap();
+    m_WireLayout.AddDividerBox( "I/J Skip" );
+
     m_WireLayout.AddIndexSelector( m_ISkipStartIndexSelector, "I Start Skip" );
     m_WireLayout.AddIndexSelector( m_ISkipEndIndexSelector, "I End Skip" );
     m_WireLayout.AddIndexSelector( m_JSkipStartIndexSelector, "J Start Skip" );
@@ -54,6 +66,9 @@ bool WireScreen::Update()
     //==== Update Point Cloud Specific Parms ====//
     WireGeom* wire_geom_ptr = dynamic_cast< WireGeom* >( geom_ptr );
     assert( wire_geom_ptr );
+
+    m_TypeChoice.Update( wire_geom_ptr->m_WireType.GetID() );
+    m_InvertButton.Update( wire_geom_ptr->m_InvertFlag.GetID() );
 
     m_ISkipStartIndexSelector.Update( wire_geom_ptr->m_ISkipStart.GetID() );
     m_ISkipEndIndexSelector.Update( wire_geom_ptr->m_ISkipEnd.GetID() );
