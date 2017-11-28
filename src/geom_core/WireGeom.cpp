@@ -33,6 +33,10 @@ WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_InvertFlag.Init( "InvertFlag", "Wireframe", this, false, false, true );
 
+    m_ISkipStart.Init( "ISkipStart", "WireFrame", this, 0, 0, 1e6 );
+    m_ISkipEnd.Init( "ISkipEnd", "WireFrame", this, 0, 0, 1e6 );
+    m_JSkipStart.Init( "JSkipStart", "WireFrame", this, 0, 0, 1e6 );
+    m_JSkipEnd.Init( "JSkipEnd", "WireFrame", this, 0, 0, 1e6 );
 
     Update();
 }
@@ -46,21 +50,36 @@ void WireGeom::UpdateSurf()
 {
     int num_pnts, num_cross;
 
-    num_cross = ( int ) m_WirePts.size();
+    num_cross = ( int ) m_WirePts.size() - m_ISkipStart() - m_ISkipEnd();
+
+    if ( num_cross <= 0 )
+    {
+        m_XFormPts.resize( 0 );
+        m_XFormNorm.resize( 0 );
+        return;
+    }
 
     Matrix4d transMat = GetTotalTransMat();
 
     m_XFormPts.resize( num_cross );
     m_XFormNorm.resize( num_cross );
+
+    num_pnts = ( int ) m_WirePts[0].size() - m_JSkipStart() - m_JSkipEnd();
+
+    if ( num_pnts <= 0 )
+    {
+        m_XFormPts.resize( 0 );
+        m_XFormNorm.resize( 0 );
+        return;
+    }
+
     for ( int i = 0 ; i < num_cross ; i++ )
     {
-        num_pnts = ( int ) m_WirePts[0].size();
-
         m_XFormPts[i].resize( num_pnts );
         m_XFormNorm[i].resize( num_pnts );
         for ( int j = 0 ; j < num_pnts ; j++ )
         {
-            m_XFormPts[i][j] = transMat.xform( m_WirePts[i][j] );
+            m_XFormPts[i][j] = transMat.xform( m_WirePts[i + m_ISkipStart()][j + m_JSkipStart()] );
         }
     }
 

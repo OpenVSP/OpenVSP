@@ -16,6 +16,16 @@ WireScreen::WireScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Wireframe
 {
 
     RemoveTab( GetTab( m_SubSurfTab_ind ) );
+
+    Fl_Group* wire_tab = AddTab( "WireFrame" );
+    Fl_Group* wire_group = AddSubGroup( wire_tab, 5 );
+
+    m_WireLayout.SetGroupAndScreen( wire_group, this );
+
+    m_WireLayout.AddIndexSelector( m_ISkipStartIndexSelector, "I Start Skip" );
+    m_WireLayout.AddIndexSelector( m_ISkipEndIndexSelector, "I End Skip" );
+    m_WireLayout.AddIndexSelector( m_JSkipStartIndexSelector, "J Start Skip" );
+    m_WireLayout.AddIndexSelector( m_JSkipEndIndexSelector, "J End Skip" );
 }
 
 
@@ -44,6 +54,11 @@ bool WireScreen::Update()
     //==== Update Point Cloud Specific Parms ====//
     WireGeom* wire_geom_ptr = dynamic_cast< WireGeom* >( geom_ptr );
     assert( wire_geom_ptr );
+
+    m_ISkipStartIndexSelector.Update( wire_geom_ptr->m_ISkipStart.GetID() );
+    m_ISkipEndIndexSelector.Update( wire_geom_ptr->m_ISkipEnd.GetID() );
+    m_JSkipStartIndexSelector.Update( wire_geom_ptr->m_JSkipStart.GetID() );
+    m_JSkipEndIndexSelector.Update( wire_geom_ptr->m_JSkipEnd.GetID() );
 
     return true;
 }

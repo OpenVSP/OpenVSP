@@ -19,6 +19,13 @@ public:
 
 protected:
 
+    GroupLayout m_WireLayout;
+
+    IndexSelector m_ISkipStartIndexSelector;
+    IndexSelector m_ISkipEndIndexSelector;
+    IndexSelector m_JSkipStartIndexSelector;
+    IndexSelector m_JSkipEndIndexSelector;
+
 };
 
 

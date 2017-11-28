@@ -45,6 +45,11 @@ public:
     IntParm m_WireType;
     BoolParm m_InvertFlag;
 
+    IntParm m_ISkipStart;
+    IntParm m_ISkipEnd;
+    IntParm m_JSkipStart;
+    IntParm m_JSkipEnd;
+
 protected:
 
     vector < vector < vec3d > > m_WirePts;
