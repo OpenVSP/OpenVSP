@@ -241,6 +241,7 @@ public:
     void createBodyDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt );
     void augmentFoilSurfDegenStick( DegenStick &degenStick, const VspSurf *foilSurf, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap );
+    void augmentFoilSurfDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap );
     void createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool flipnormal );
     void addDegenSubSurf( SubSurface *ssurf, int surfIndx );
     void addDegenHingeLine( SSControlSurf *csurf );

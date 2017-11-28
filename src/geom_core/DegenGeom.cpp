@@ -456,7 +456,14 @@ void DegenGeom::createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, 
     int startPnt = 0;
     createDegenStick( degenSticks[0], pntsarr, uw_pnts, nLow, nHigh, startPnt );
 
-    augmentFoilSurfDegenStick( degenSticks[0], foilSurf, uw_pnts, urootcap );
+    if ( foilSurf ) // Calculate surface based exact values
+    {
+        augmentFoilSurfDegenStick( degenSticks[0], foilSurf, uw_pnts, urootcap );
+    }
+    else // Calculate discrete approximations
+    {
+        augmentFoilSurfDegenStick( degenSticks[0], pntsarr, uw_pnts, urootcap );
+    }
 
 }
 
@@ -683,6 +690,51 @@ void DegenGeom::augmentFoilSurfDegenStick( DegenStick &degenStick, const VspSurf
         degenStick.radleBot[i] =  1.0/le_crv_low;
     }
 }
+
+void DegenGeom::augmentFoilSurfDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap )
+{
+    int platePnts = ( num_pnts + 1 ) / 2;
+    int jle = platePnts - 1;
+    int jte0 = 0;
+    int jte1 = num_pnts - 1;
+
+    for ( int i = 0; i < uw_pnts.size(); i++ )
+    {
+        double u = uw_pnts[i][0].x();
+
+        if( urootcap ) // Shift u because foilSurf isn't capped.
+        {
+            u = u - 1.0;
+        }
+
+        vector < vec3d > section( num_pnts );
+        for ( int j = 0; j < num_pnts; j++ )
+        {
+            section[j] = pntsarr[ i ][ j ];
+        }
+
+        vec3d ute0 = pntsarr[ i ][ jte0 + 1 ] - pntsarr[ i ][ jte0 ];
+        vec3d ute1 = pntsarr[ i ][ jte1 - 1 ] - pntsarr[ i ][ jte1 ];
+
+        double te_angle = angle( ute0, ute1 ) * 180.0 / PI;
+
+        vec3d ule0 = pntsarr[ i ][ jle + 1 ] - pntsarr[ i ][ jle ];
+        vec3d ule1 = pntsarr[ i ][ jle - 1 ] - pntsarr[ i ][ jle ];
+
+        double le_angle = angle( ule0, ule1 ) * 180.0 / PI;
+
+        double le_rad = radius_of_circle( pntsarr[ i ][ jle + 1 ], pntsarr[ i ][ jle ], pntsarr[ i ][ jle - 1 ] );
+        le_rad = le_rad / degenStick.chord[i];
+
+        degenStick.toc2[i] = degenStick.toc[i];
+        degenStick.tLoc2[i] = degenStick.tLoc[i];
+        degenStick.anglele[i] = le_angle;
+        degenStick.anglete[i] = te_angle;
+        degenStick.radleTop[i] = le_rad;
+        degenStick.radleBot[i] = le_rad;
+    }
+}
+
 
 void DegenGeom::createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool flipnormal )
 {
