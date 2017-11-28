@@ -3174,13 +3174,13 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
         UpdateTesselate( i, pnts, nrms, uwpnts, true );
         m_SurfVec[i].ResetUWSkip();
 
-        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview );
+        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview, m_SurfVec[i].GetFlipNormal(), m_SurfVec[i].GetSurfType(), m_SurfVec[i].GetFoilSurf() );
     }
 }
 
 
 void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d > > &pnts, const vector< vector< vec3d > > &nrms, const vector< vector< vec3d > > &uwpnts,
-                            bool urootcap, int isurf, bool preview )
+                            bool urootcap, int isurf, bool preview, bool flipnormal, int surftype, VspSurf *fs )
 {
     DegenGeom degenGeom;
     degenGeom.setParentGeom( this );
@@ -3190,25 +3190,25 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d 
     degenGeom.setNumPnts( pnts[0].size() );
     degenGeom.setName( GetName() );
 
-    degenGeom.createDegenSurface( pnts, uwpnts, m_SurfVec[isurf].GetFlipNormal() );
+    degenGeom.createDegenSurface( pnts, uwpnts, flipnormal );
 
-    if( m_SurfVec[isurf].GetSurfType() == vsp::WING_SURF || m_SurfVec[isurf].GetSurfType() == vsp::PROP_SURF )
+    if( surftype == vsp::WING_SURF || surftype == vsp::PROP_SURF )
     {
         degenGeom.setType(DegenGeom::SURFACE_TYPE);
 
         degenGeom.createSurfDegenPlate( pnts, uwpnts );
         if ( !preview )
         {
-            degenGeom.createSurfDegenStick( pnts, uwpnts, m_SurfVec[isurf].GetFoilSurf(), urootcap );
+            degenGeom.createSurfDegenStick( pnts, uwpnts, fs, urootcap );
         }
     }
-    else if( m_SurfVec[isurf].GetSurfType() == vsp::DISK_SURF )
+    else if( surftype == vsp::DISK_SURF )
     {
         degenGeom.setType(DegenGeom::DISK_TYPE);
 
         if ( !preview )
         {
-            degenGeom.createDegenDisk( pnts, m_SurfVec[isurf].GetFlipNormal() );
+            degenGeom.createDegenDisk( pnts, flipnormal );
         }
     }
     else
