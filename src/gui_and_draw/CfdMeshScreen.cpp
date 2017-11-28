@@ -269,6 +269,8 @@ void CfdMeshScreen::CreateSourcesTab()
     m_SourcesType.AddItem("Point");
     m_SourcesType.AddItem("Line");
     m_SourcesType.AddItem("Box");
+    m_SourcesType.AddItem("U Line");
+    m_SourcesType.AddItem("W Line");
     m_SourcesLeft.AddChoice(m_SourcesType, "Type");
     m_SourcesLeft.AddYGap();
     m_SourcesLeft.AddButton(m_AddSource, "Add Source");
@@ -719,6 +721,36 @@ void CfdMeshScreen::UpdateSourcesTab( BaseSource* source )
 
             m_SourceU2.Update( ps->m_ULoc2.GetID() );
             m_SourceW2.Update( ps->m_WLoc2.GetID() );
+
+            m_SourceLen2.Deactivate();
+            m_SourceRad2.Deactivate();
+        }
+        else if ( source->GetType() == vsp::ULINE_SOURCE )
+        {
+            m_SourceU1.Activate();
+
+            ULineSource* ps = ( ULineSource* )source;
+
+            m_SourceU1.Update( ps->m_Val.GetID() );
+            m_SourceW1.Deactivate();
+
+            m_SourceU2.Deactivate();
+            m_SourceW2.Deactivate();
+
+            m_SourceLen2.Deactivate();
+            m_SourceRad2.Deactivate();
+        }
+        else if ( source->GetType() == vsp::WLINE_SOURCE )
+        {
+            m_SourceW1.Activate();
+
+            WLineSource* ps = ( WLineSource* )source;
+
+            m_SourceU1.Deactivate();
+            m_SourceW1.Update( ps->m_Val.GetID() );
+
+            m_SourceU2.Deactivate();
+            m_SourceW2.Deactivate();
 
             m_SourceLen2.Deactivate();
             m_SourceRad2.Deactivate();

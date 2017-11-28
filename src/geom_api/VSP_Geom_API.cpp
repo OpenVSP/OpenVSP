@@ -597,6 +597,16 @@ void AddCFDSource( int type, const string & geom_id, int surf_index,
         bs->m_ULoc2 = u2;
         bs->m_WLoc2 = w2;
     }
+    else if ( source->GetType() == ULINE_SOURCE )
+    {
+        ULineSource* bs = dynamic_cast< ULineSource* > (source);
+        bs->m_Val = u1;
+    }
+    else if ( source->GetType() == WLINE_SOURCE )
+    {
+        WLineSource* bs = dynamic_cast< WLineSource* > (source);
+        bs->m_Val = w1;
+    }
     ErrorMgr.NoError();
 
 }

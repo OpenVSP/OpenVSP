@@ -173,7 +173,12 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
 
             // apply sources
             vec3d p = m_SurfCore.CompPnt( u, w );
-            double grid_len = m_GridDensityPtr->GetTargetLen( p, limitFlag );
+
+            // The last four parameters passed here (m_GeomID, m_MainSurfID, u, w)
+            // represent a significant layering violation.  This is needed to allow
+            // constant U/W line sources to do some evaluation in u,w space instead
+            // of just x,y,z space.
+            double grid_len = m_GridDensityPtr->GetTargetLen( p, limitFlag, m_GeomID, m_MainSurfID, u, w );
             len = min( len, grid_len );
 
             // finally check max size

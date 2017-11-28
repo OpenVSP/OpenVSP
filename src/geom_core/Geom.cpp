@@ -3981,6 +3981,14 @@ BaseSource* Geom::CreateSource( int type )
     {
         src_ptr = new BoxSource();
     }
+    else if ( type == ULINE_SOURCE )
+    {
+        src_ptr = new ULineSource();
+    }
+    else if ( type == WLINE_SOURCE )
+    {
+        src_ptr = new WLineSource();
+    }
 
     return src_ptr;
 }
@@ -3999,6 +4007,14 @@ BaseSimpleSource* Geom::CreateSimpleSource( int type )
     else if ( type == BOX_SOURCE )
     {
         src_ptr = new BoxSimpleSource();
+    }
+    else if ( type == ULINE_SOURCE )
+    {
+        src_ptr = new ULineSimpleSource();
+    }
+    else if ( type == WLINE_SOURCE )
+    {
+        src_ptr = new WLineSimpleSource();
     }
 
     return src_ptr;

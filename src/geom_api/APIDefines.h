@@ -278,6 +278,8 @@ enum CFD_CONTROL_TYPE {     CFD_MIN_EDGE_LEN,
 enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
                             LINE_SOURCE,
                             BOX_SOURCE,
+                            ULINE_SOURCE,
+                            WLINE_SOURCE,
                             NUM_SOURCE_TYPES,
                           };
 

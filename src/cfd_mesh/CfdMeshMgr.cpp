@@ -751,6 +751,32 @@ BaseSource* CfdMeshMgrSingleton::AddSource( int type )
         curr_geom->AddCfdMeshSource( source );
         ret_source = source;
     }
+    else if ( type == vsp::ULINE_SOURCE )
+    {
+        ULineSource* source = new ULineSource();
+        sprintf( str, "ULineSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
+        source->SetName( str );
+        source->m_Len = 0.1;
+        source->m_Rad = 1.0;
+        source->m_Val = 0.5;
+        source->m_MainSurfIndx = m_CurrMainSurfIndx;
+
+        curr_geom->AddCfdMeshSource( source );
+        ret_source = source;
+    }
+    else if ( type == vsp::WLINE_SOURCE )
+    {
+        WLineSource* source = new WLineSource();
+        sprintf( str, "WLineSource_srf_%d_%d", m_CurrMainSurfIndx, num_sources );
+        source->SetName( str );
+        source->m_Len = 0.1;
+        source->m_Rad = 1.0;
+        source->m_Val = 0.5;
+        source->m_MainSurfIndx = m_CurrMainSurfIndx;
+
+        curr_geom->AddCfdMeshSource( source );
+        ret_source = source;
+    }
 
     //==== Highlight/Edit The New Source ====//
     vector< BaseSource* > sVec = curr_geom->GetCfdMeshMainSourceVec();
