@@ -1661,7 +1661,7 @@ void Vehicle::WriteXSecFile( const string & file_name, int write_set )
     {
         if( geom_vec[i]->GetSetFlag( write_set ) )
         {
-            geom_cnt += geom_vec[i]->GetNumTotalSurfs();
+            geom_cnt += geom_vec[i]->GetNumTotalHrmSurfs();
         }
     }
 

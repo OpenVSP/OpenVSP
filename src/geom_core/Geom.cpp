@@ -3290,6 +3290,11 @@ int Geom::GetNumTotalSurfs()
     return GetNumSymmCopies() * GetNumMainSurfs();
 }
 
+int Geom::GetNumTotalHrmSurfs()
+{
+    return GetNumTotalSurfs();
+}
+
 //==== Count Number of Sym Copies of Each Surface ====//
 int Geom::GetNumSymmCopies()
 {

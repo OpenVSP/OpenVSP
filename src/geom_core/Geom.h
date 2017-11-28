@@ -379,6 +379,7 @@ public:
     virtual void GetMainSurfVec( vector<VspSurf> &surf_vec )    { surf_vec = m_MainSurfVec; }
     virtual int GetNumSymFlags();
     virtual int GetNumTotalSurfs();
+    virtual int GetNumTotalHrmSurfs();
     virtual int GetNumSymmCopies();
 
     virtual vector < int > & GetSymmIndexs( int imain )
