@@ -2049,7 +2049,7 @@ void Geom::UpdateDegenDrawObj()
     m_DegenCamberPlateDrawObj_vec.clear();
     m_DegenSubSurfDrawObj_vec.clear();
 
-    for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
+    for ( int i = 0; i < (int)DegenGeomVec.size(); i++ )
     {
         //=== Degen Surface ===//
         DegenSurface degen_surf = DegenGeomVec[i].getDegenSurf();
@@ -2172,7 +2172,10 @@ void Geom::UpdateDegenDrawObj()
                     vec3d camber_draw_norm = cross( v, u );
                     camber_draw_norm.normalize();
 
-                    if ( m_SurfVec[i].GetFlipNormal() )
+                    vec3d approx_norm = 0.25 * ( norm1 + norm2 + norm3 + norm4 );
+                    approx_norm.normalize();
+
+                    if ( dot( camber_draw_norm, approx_norm ) < 0.0 )
                     {
                         camber_draw_norm = -1 * camber_draw_norm;
                     }
