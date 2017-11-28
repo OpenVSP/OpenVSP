@@ -97,6 +97,8 @@ private:
     void Init();
     void Wype();
 
+    string m_LastMeshID;
+
 };
 
 #define HeldenMgr HeldenMgrSingleton::getInstance()

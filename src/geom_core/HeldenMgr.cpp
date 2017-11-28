@@ -39,6 +39,7 @@ HeldenMgrSingleton::HeldenMgrSingleton() : ParmContainer()
 
 void HeldenMgrSingleton::Init()
 {
+    m_LastMeshID = string("");
 }
 
 void HeldenMgrSingleton::Wype()
@@ -460,6 +461,12 @@ void HeldenMgrSingleton::ExecuteHMesh( FILE *logFile )
 
     if ( veh )
     {
+        if ( !m_LastMeshID.empty() )
+        {
+            veh->DeleteGeom( m_LastMeshID );
+            m_LastMeshID = string( "" );
+        }
+
         vector<string> args;
 
         string igesfname = veh->getExportFileName( vsp::HELDEN_IGES_TYPE );
@@ -556,6 +563,18 @@ void HeldenMgrSingleton::MonitorHMesh(FILE *logFile)
         SleepForMilliseconds( 100 );
         runflag = m_HMeshProcess.IsRunning();
     }
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if( veh )
+    {
+        veh->HideAll();
+
+        string fname = FileInPathOf( "Addams.i.tri" );
+
+        m_LastMeshID = veh->ImportFile( fname, vsp::IMPORT_CART3D_TRI );
+    }
+
 }
 
 // helper thread functions for VSPAERO GUI interface and multi-threaded impleentation
