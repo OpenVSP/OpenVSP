@@ -807,9 +807,13 @@ public:
 
     IndexSelector();
     virtual void Init( VspScreen* screen, Fl_Button* ll_but,  Fl_Button* l_but,
-                       Fl_Int_Input* input, Fl_Button* r_but, Fl_Button* rr_but );
+                       Fl_Int_Input* input, Fl_Button* r_but, Fl_Button* rr_but,
+                       VspButton* parm_button = NULL );
     virtual void DeviceCB( Fl_Widget* w );
-   virtual void SetWidth( int w ) ;
+
+    virtual void Update( const string & val );
+
+    virtual void SetWidth( int w ) ;
 
     virtual void SetIndex( int index );
     virtual int  GetIndex()                 { return m_Index; }
@@ -826,6 +830,9 @@ protected:
     Fl_Int_Input* m_Input;
     Fl_Button* m_RButton;
     Fl_Button* m_RRButton;
+
+    bool m_ParmButtonFlag;
+    ParmButton m_ParmButton;
 
     int m_Index;
     int m_MinIndex;

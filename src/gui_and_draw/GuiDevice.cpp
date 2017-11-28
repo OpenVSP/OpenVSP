@@ -1851,9 +1851,17 @@ IndexSelector::IndexSelector()
 }
 
 void IndexSelector::Init( VspScreen* screen, Fl_Button* ll_but,  Fl_Button* l_but,
-                          Fl_Int_Input* input, Fl_Button* r_but, Fl_Button* rr_but )
+                          Fl_Int_Input* input, Fl_Button* r_but, Fl_Button* rr_but,
+                          VspButton* parm_button )
 {
     GuiDevice::Init( screen );
+
+    m_ParmButtonFlag = false;
+    if ( parm_button )
+    {
+        m_ParmButtonFlag = true;
+        m_ParmButton.Init( screen, parm_button );
+    }
 
     m_LLButton = ll_but;
     m_LButton  = l_but;
@@ -1874,6 +1882,7 @@ void IndexSelector::Init( VspScreen* screen, Fl_Button* ll_but,  Fl_Button* l_bu
     AddWidget( input, true );
     AddWidget( r_but );
     AddWidget( rr_but );
+    AddWidget( parm_button );
 }
 
 //==== Set Total Width By Resizing First Widget Of List ====//
@@ -1960,6 +1969,17 @@ void IndexSelector::DeviceCB( Fl_Widget* w )
     }
 
     m_Screen->GuiDeviceCallBack( this );
+}
+
+//==== Update ====//
+void IndexSelector::Update( const string & val )
+{
+    GuiDevice::Update( val );
+
+    if ( m_ParmButtonFlag )
+    {
+        m_ParmButton.Update( val );
+    }
 }
 
 void IndexSelector::SetValAndLimits( Parm* parm_ptr )

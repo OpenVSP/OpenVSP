@@ -870,11 +870,20 @@ void GroupLayout::AddInputEvenSpacedVector(Input& start_input, Input& end_input,
 }
 
 //==== Create & Init Index Selector  ====//
-void GroupLayout::AddIndexSelector( IndexSelector& selector, int used_w )
+void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
     int butw = 5 * m_ButtonWidth / 6;
+
+    VspButton* button = NULL;
+    if ( label )
+    {
+        button = AddParmButton( label );
+        // Shrink arrows.
+        butw = butw / 2;
+        used_w = used_w + m_ButtonWidth;
+    }
 
     Fl_Button* but_ll = new Fl_Button( m_X, m_Y, butw, m_StdHeight, "<<" );
     but_ll->box( FL_THIN_UP_BOX );
@@ -924,7 +933,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, int used_w )
 
     AddX( butw );
 
-    selector.Init( m_Screen, but_ll, but_l, int_inp, but_r, but_rr );
+    selector.Init( m_Screen, but_ll, but_l, int_inp, but_r, but_rr, button );
 
     AddY( m_StdHeight );
     NewLineX();
