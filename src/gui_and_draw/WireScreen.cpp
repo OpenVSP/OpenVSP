@@ -29,14 +29,21 @@ WireScreen::WireScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Wireframe
     m_WireLayout.AddChoice( m_TypeChoice, "Type" );
 
     m_WireLayout.AddYGap();
+    m_WireLayout.AddDividerBox( "Normal Vector" );
     m_WireLayout.AddButton( m_InvertButton, "Invert" );
 
+    m_WireLayout.AddYGap();
+    m_WireLayout.AddDividerBox( "Swap Point Ordering" );
     m_WireLayout.AddButton( m_SwapIJButton, "Swap I/J" );
+
+    m_WireLayout.AddYGap();
+    m_WireLayout.AddDividerBox( "Reverse" );
+
     m_WireLayout.AddButton( m_RevIButton, "Reverse I" );
     m_WireLayout.AddButton( m_RevJButton, "Reverse J" );
 
     m_WireLayout.AddYGap();
-    m_WireLayout.AddDividerBox( "I/J Skip" );
+    m_WireLayout.AddDividerBox( "Start/End Skip" );
 
     m_WireLayout.AddIndexSelector( m_ISkipStartIndexSelector, "I Start Skip" );
     m_WireLayout.AddIndexSelector( m_ISkipEndIndexSelector, "I End Skip" );
