@@ -3177,7 +3177,17 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
         UpdateTesselate( i, pnts, nrms, uwpnts, true );
         m_SurfVec[i].ResetUWSkip();
 
-        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview, m_SurfVec[i].GetFlipNormal(), m_SurfVec[i].GetSurfType(), m_SurfVec[i].GetFoilSurf() );
+        int surftype = DegenGeom::BODY_TYPE;
+        if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF || m_SurfVec[i].GetSurfType() == vsp::PROP_SURF )
+        {
+            surftype = DegenGeom::SURFACE_TYPE;
+        }
+        else if( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
+        {
+            surftype = DegenGeom::DISK_TYPE;
+        }
+
+        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview, m_SurfVec[i].GetFlipNormal(), surftype, m_SurfVec[i].GetFoilSurf() );
     }
 }
 
@@ -3195,7 +3205,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d 
 
     degenGeom.createDegenSurface( pnts, uwpnts, flipnormal );
 
-    if( surftype == vsp::WING_SURF || surftype == vsp::PROP_SURF )
+    if( surftype == DegenGeom::SURFACE_TYPE )
     {
         degenGeom.setType(DegenGeom::SURFACE_TYPE);
 
@@ -3205,7 +3215,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d 
             degenGeom.createSurfDegenStick( pnts, uwpnts, fs, urootcap );
         }
     }
-    else if( surftype == vsp::DISK_SURF )
+    else if( surftype == DegenGeom::DISK_TYPE )
     {
         degenGeom.setType(DegenGeom::DISK_TYPE);
 
