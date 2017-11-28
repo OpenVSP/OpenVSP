@@ -102,7 +102,6 @@ public:
     }
     virtual int  ReadSTL( const char* file_name );
     virtual int  ReadXSec( const char* file_name );
-    virtual void AddTri( TMesh* tMesh, vec3d & p0, vec3d & p1, vec3d & p2 );
     virtual int  ReadNascart( const char* file_name );
     virtual int  ReadTriFile( const char* file_name );
     virtual float ReadBinFloat( FILE* fptr );

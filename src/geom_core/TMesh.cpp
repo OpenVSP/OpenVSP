@@ -1065,6 +1065,25 @@ double TMesh::ComputeTrimVol()
     return trimVol;
 }
 
+void TMesh::AddTri( const vec3d & p0, const vec3d & p1, const vec3d & p2 )
+{
+    double dist_tol = 1.0e-12;
+
+    vec3d v01 = p1 - p0;
+    vec3d v02 = p2 - p0;
+    vec3d v12 = p2 - p1;
+
+    if ( v01.mag() < dist_tol || v02.mag() < dist_tol || v12.mag() < dist_tol )
+    {
+        return;
+    }
+
+    vec3d norm = cross( v01, v02 );
+    norm.normalize();
+
+    AddTri( p0, p1, p2, norm );
+}
+
 void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm )
 {
     // Use For XYZ Tri

@@ -216,9 +216,9 @@ int MeshGeom::ReadXSec( const char* file_name )
         for ( int i = 1 ; i < ( int )crossVec.size() ; i++ )
             for ( int j = 1 ; j < ( int )crossVec[i].size() ; j++ )
             {
-                AddTri( tMesh, crossVec[i - 1][j - 1], crossVec[i][j - 1], crossVec[i][j] );
+                tMesh->AddTri( crossVec[i - 1][j - 1], crossVec[i][j - 1], crossVec[i][j] );
 
-                AddTri( tMesh, crossVec[i - 1][j - 1], crossVec[i][j], crossVec[i - 1][j] );
+                tMesh->AddTri( crossVec[i - 1][j - 1], crossVec[i][j], crossVec[i - 1][j] );
             }
     }
     fclose( fp );
@@ -229,27 +229,6 @@ int MeshGeom::ReadXSec( const char* file_name )
 
     return 1;
 }
-
-void MeshGeom::AddTri( TMesh* tMesh, vec3d & p0, vec3d & p1, vec3d & p2 )
-{
-    double dist_tol = 1.0e-12;
-
-    vec3d v01 = p1 - p0;
-    vec3d v02 = p2 - p0;
-    vec3d v12 = p2 - p1;
-
-    if ( v01.mag() < dist_tol || v02.mag() < dist_tol || v12.mag() < dist_tol )
-    {
-        return;
-    }
-
-    vec3d norm = cross( v01, v02 );
-    norm.normalize();
-
-    tMesh->AddTri( p0, p1, p2, norm );
-}
-
-
 
 int MeshGeom::ReadSTL( const char* file_name )
 {
