@@ -2042,7 +2042,7 @@ void Geom::UpdateDegenDrawObj()
 {
     //=== DegenGeom ===//
     vector< DegenGeom > DegenGeomVec; // Vector of geom in degenerate representation
-    CreateDegenGeomPreview( DegenGeomVec );
+    CreateDegenGeom( DegenGeomVec, true );
 
     m_DegenSurfDrawObj_vec.clear();
     m_DegenPlateDrawObj_vec.clear();
@@ -3139,7 +3139,9 @@ Material * Geom::GetMaterial()
 }
 
 //==== Create Degenerate Geometry ====//
-void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
+// When preview = true, this simplifies to generate only the
+// required degen plate,surface, and subsurface for updating the preview DrawObj vectors
+void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
 {
     vector< vector< vec3d > > pnts;
     vector< vector< vec3d > > nrms;
@@ -3187,20 +3189,30 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
             degenGeom.setType(DegenGeom::SURFACE_TYPE);
 
             degenGeom.createSurfDegenPlate( pnts, uwpnts );
-            degenGeom.createSurfDegenStick( pnts, uwpnts, m_SurfVec[i].GetFoilSurf(), urootcap );
+            if ( !preview )
+            {
+                degenGeom.createSurfDegenStick( pnts, uwpnts, m_SurfVec[i].GetFoilSurf(), urootcap );
+            }
         }
         else if( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
         {
             degenGeom.setType(DegenGeom::DISK_TYPE);
 
-            degenGeom.createDegenDisk( pnts, m_SurfVec[i].GetFlipNormal() );
+            if ( !preview )
+            {
+                degenGeom.createDegenDisk( pnts, m_SurfVec[i].GetFlipNormal() );
+            }
         }
         else
         {
             degenGeom.setType(DegenGeom::BODY_TYPE);
 
             degenGeom.createBodyDegenPlate( pnts, uwpnts );
-            degenGeom.createBodyDegenStick( pnts, uwpnts );
+
+            if ( !preview )
+            {
+                degenGeom.createBodyDegenStick( pnts, uwpnts );
+            }
         }
 
         // degenerate subsurfaces
@@ -3210,88 +3222,18 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs)
             {
                 degenGeom.addDegenSubSurf( m_SubSurfVec[j], i );    //TODO is there a way to eliminate having to send in the surf index "i"
 
-                SSControlSurf *csurf = dynamic_cast < SSControlSurf* > ( m_SubSurfVec[j] );
-                if ( csurf )
+                if ( !preview )
                 {
-                    degenGeom.addDegenHingeLine( csurf );
+                    SSControlSurf *csurf = dynamic_cast < SSControlSurf* > ( m_SubSurfVec[j] );
+                    if ( csurf )
+                    {
+                        degenGeom.addDegenHingeLine( csurf );
+                    }
                 }
             }
         }
 
         dgs.push_back(degenGeom);
-    }
-}
-
-//==== Create Degenerate Geometry Preview ====//
-void Geom::CreateDegenGeomPreview( vector<DegenGeom> &dgs )
-{
-    // This function is similar to CreateDegenGeom, but has been simplified to generate only the
-    // required degen plate,surface, and subsurface for updating the preview DrawObj vectors
-
-    vector< vector< vec3d > > pnts;
-    vector< vector< vec3d > > nrms;
-    vector< vector< vec3d > > uwpnts;
-
-    for ( int i = 0; i < (int)m_SurfVec.size(); i++ )
-    {
-        m_SurfVec[i].ResetUWSkip();
-        if ( m_CapUMinSuccess[m_SurfIndxVec[i]] )
-        {
-            m_SurfVec[i].SetUSkipFirst( true );
-        }
-        if ( m_CapUMaxSuccess[m_SurfIndxVec[i]] )
-        {
-            m_SurfVec[i].SetUSkipLast( true );
-        }
-        if ( m_CapWMinSuccess[m_SurfIndxVec[i]] )
-        {
-            m_SurfVec[i].SetWSkipFirst( true );
-        }
-        if ( m_CapWMaxSuccess[m_SurfIndxVec[i]] )
-        {
-            m_SurfVec[i].SetWSkipLast( true );
-        }
-
-        //==== Tesselate Surface ====//
-        UpdateTesselate( i, pnts, nrms, uwpnts, true );
-        m_SurfVec[i].ResetUWSkip();
-
-        DegenGeom degenGeom;
-        degenGeom.setParentGeom( this );
-        degenGeom.setSurfNum( i );
-
-        degenGeom.setNumXSecs( pnts.size() );
-        degenGeom.setNumPnts( pnts[0].size() );
-        degenGeom.setName( GetName() );
-
-        degenGeom.createDegenSurface( pnts, uwpnts, m_SurfVec[i].GetFlipNormal() );
-
-        if ( m_SurfVec[i].GetSurfType() == vsp::WING_SURF )
-        {
-            degenGeom.setType( DegenGeom::SURFACE_TYPE );
-
-            degenGeom.createSurfDegenPlate( pnts, uwpnts );
-        }
-        else if ( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
-        {
-            degenGeom.setType( DegenGeom::DISK_TYPE );
-        }
-        else
-        {
-            degenGeom.setType( DegenGeom::BODY_TYPE );
-
-            degenGeom.createBodyDegenPlate( pnts, uwpnts );
-        }
-
-        for ( int j = 0; j < m_SubSurfVec.size(); j++ )
-        {
-            if ( m_SurfIndxVec[i] == m_SubSurfVec[j]->m_MainSurfIndx() )
-            {
-                degenGeom.addDegenSubSurf( m_SubSurfVec[j], i );
-            }
-        }
-
-        dgs.push_back( degenGeom );
     }
 }
 

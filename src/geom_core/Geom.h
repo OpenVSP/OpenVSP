@@ -477,8 +477,7 @@ public:
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};
 
     //===== Degenerate Geometry =====//
-    virtual void CreateDegenGeom( vector<DegenGeom> &dgs);
-    virtual void CreateDegenGeomPreview( vector<DegenGeom> &dgs );
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
 
     IntParm m_TessU;
     LimIntParm m_TessW;
