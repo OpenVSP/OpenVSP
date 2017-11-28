@@ -355,7 +355,7 @@ double cos_angle( const vec3d& a, const vec3d& b )
 }
 
 //******* Radius of Circle Passing Thru 3 Points ******//
-double radius_of_circle( vec3d& p1, vec3d& p2, vec3d& p3 )
+double radius_of_circle( const vec3d& p1, const vec3d& p2, const vec3d& p3 )
 {
     vec3d a = p1 - p3;
     vec3d b = p2 - p3;
