@@ -360,7 +360,7 @@ void HeldenMgrSingleton::InitHMesh()
         // Capture output and dump to INPUT_EXAMPLE
         string exfname = FileInPathOf( "INPUT_EXAMPLE" );
         FILE *logFile = fopen( exfname.c_str(), "w" );
-        MonitorHMesh( logFile );
+        MonitorHMesh( logFile, true );
         fclose( logFile );
 
         // Re-open INPUT_EXAMPLE for read.
@@ -408,6 +408,13 @@ void HeldenMgrSingleton::InitHMesh()
                     fprintf( hmfile, "%s", buf );
                 }
 
+                fprintf( hmfile, "SRC_PATCH: All\n" );
+                fprintf( hmfile, "STRENGTH    WIDTH_RATIO STRETCH_MAX EDGE_ANGLE\n" );
+                fprintf( hmfile, "1           2           1000000     30\n" );
+                fprintf( hmfile, "S_MIN       S_BASE      CURV_ANGLE  S_EDGE\n" );
+                fprintf( hmfile, "0.3         10          3           0.3\n" );
+                fprintf( hmfile, "----------------------------------------------------------\n" );
+
                 // Build geometry dependent lines.
                 int ngeom;
                 vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
@@ -416,7 +423,7 @@ void HeldenMgrSingleton::InitHMesh()
                 {
                     if( geom_vec[i]->GetSetFlag( m_SelectedSetIndex() ) )
                     {
-                        fprintf( hmfile, "SRC_PATCH: %s\n", geom_vec[i]->GetName().c_str() );
+                        fprintf( hmfile, "SRC_PATCH: %s_%s\n", geom_vec[i]->GetID().c_str(), geom_vec[i]->GetName().c_str() );
                         fprintf( hmfile, "STRENGTH    WIDTH_RATIO STRETCH_MAX EDGE_ANGLE\n" );
                         fprintf( hmfile, "1           2           1000000     30\n" );
                         fprintf( hmfile, "S_MIN       S_BASE      CURV_ANGLE  S_EDGE\n" );
@@ -502,7 +509,7 @@ void HeldenMgrSingleton::ExecuteHMesh( FILE *logFile )
         ChangeWorkingDirectory( pwd );
 
         // ==== MonitorSolverProcess ==== //
-        MonitorHMesh(logFile);
+        MonitorHMesh( logFile, false );
 
         // Check if the kill solver flag has been raised, if so clean up and return
         //  note: we could have exited the IsRunning loop if the process was killed
@@ -521,7 +528,7 @@ void HeldenMgrSingleton::ExecuteHMesh( FILE *logFile )
     }
 }
 
-void HeldenMgrSingleton::MonitorHMesh(FILE *logFile)
+void HeldenMgrSingleton::MonitorHMesh(FILE *logFile, bool initflag )
 {
     // ==== MonitorSolverProcess ==== //
     int bufsize = 1000;
@@ -564,17 +571,19 @@ void HeldenMgrSingleton::MonitorHMesh(FILE *logFile)
         runflag = m_HMeshProcess.IsRunning();
     }
 
-    Vehicle *veh = VehicleMgr.GetVehicle();
-
-    if( veh )
+    if ( !initflag )
     {
-        veh->HideAll();
+        Vehicle *veh = VehicleMgr.GetVehicle();
 
-        string fname = FileInPathOf( "Addams.i.tri" );
+        if( veh )
+        {
+            veh->HideAll();
 
-        m_LastMeshID = veh->ImportFile( fname, vsp::IMPORT_CART3D_TRI );
+            string fname = FileInPathOf( "Addams.i.tri" );
+
+            m_LastMeshID = veh->ImportFile( fname, vsp::IMPORT_CART3D_TRI );
+        }
     }
-
 }
 
 // helper thread functions for VSPAERO GUI interface and multi-threaded impleentation

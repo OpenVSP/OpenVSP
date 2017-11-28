@@ -85,7 +85,7 @@ protected:
     void MonitorHPatch(FILE *logFile);
     bool m_HPatchProcessKill;
 
-    void MonitorHMesh(FILE *logFile);
+    void MonitorHMesh(FILE *logFile, bool initflag);
     bool m_HMeshProcessKill;
 
 private:
