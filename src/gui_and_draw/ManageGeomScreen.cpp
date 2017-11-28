@@ -689,6 +689,7 @@ void ManageGeomScreen::CreateScreens()
     m_GeomScreenVec[CONFORMAL_SCREEN] = new ConformalScreen( m_ScreenMgr );
     m_GeomScreenVec[ELLIPSOID_GEOM_SCREEN] = new EllipsoidScreen( m_ScreenMgr );
     m_GeomScreenVec[BOR_GEOM_SCREEN] = new BORScreen( m_ScreenMgr );
+    m_GeomScreenVec[WIRE_FRAME_GEOM_SCREEN] = new WireScreen( m_ScreenMgr );
 
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
     {

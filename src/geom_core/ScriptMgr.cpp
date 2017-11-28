@@ -731,6 +731,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_BEM", IMPORT_BEM );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_XSEC_WIRE", IMPORT_XSEC_WIRE );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "EXPORT_TYPE" );
     assert( r >= 0 );

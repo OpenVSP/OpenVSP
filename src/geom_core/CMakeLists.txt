@@ -76,6 +76,7 @@ Vehicle.cpp
 VehicleMgr.cpp
 WaveDragMgr.cpp
 WingGeom.cpp
+WireGeom.cpp
 XSec.cpp
 XSecCurve.cpp
 XSecSurf.cpp
@@ -143,6 +144,7 @@ VehicleMgr.h
 VSPAEROMgr.h
 WaveDragMgr.h
 WingGeom.h
+WireGeom.h
 XSec.h
 XSecCurve.h
 XSecSurf.h

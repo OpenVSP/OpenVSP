@@ -92,6 +92,7 @@ VSPAEROScreen.cpp
 VSPWindow.cpp
 WaveDragScreen.cpp
 WingScreen.cpp
+WireScreen.cpp
 AdvLinkScreen.h
 BlankScreen.h
 BEMOptionsScreen.h
@@ -158,6 +159,7 @@ VSPAEROScreen.h
 VSPWindow.h
 WaveDragScreen.h
 WingScreen.h
+WireScreen.h
 )
 
 

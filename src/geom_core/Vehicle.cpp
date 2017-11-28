@@ -36,6 +36,7 @@
 #include "FileUtil.h"
 #include "VarPresetMgr.h"
 #include "VSPAEROMgr.h"
+#include "WireGeom.h"
 #include "main.h"
 
 #include "ProjectionMgr.h"
@@ -544,6 +545,10 @@ string Vehicle::CreateGeom( const GeomType & type )
     {
         new_geom = new BORGeom( this );
     }
+    else if ( type.m_Name == "WireFrame" || type.m_Name == "WIREFRAME" )
+    {
+        new_geom = new WireGeom( this );
+    }
 
     if ( !new_geom )
     {
@@ -591,7 +596,8 @@ string Vehicle::AddGeom( const GeomType & type )
                      par->GetType().m_Type == MESH_GEOM_TYPE ||
                      par->GetType().m_Type == PT_CLOUD_GEOM_TYPE ||
                      par->GetType().m_Type == HINGE_GEOM_TYPE ||
-                     par->GetType().m_Type == CONFORMAL_GEOM_TYPE )
+                     par->GetType().m_Type == CONFORMAL_GEOM_TYPE ||
+                     par->GetType().m_Type == WIRE_FRAME_GEOM_TYPE )
                 {
                     MessageData errMsgData;
                     errMsgData.m_String = "Error";

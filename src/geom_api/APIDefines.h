@@ -168,7 +168,8 @@ enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_XSEC_MESH,
                     IMPORT_PTS,
                     IMPORT_V2,
-                    IMPORT_BEM
+                    IMPORT_BEM,
+                    IMPORT_XSEC_WIRE
                  };
 
 enum EXPORT_TYPE {  EXPORT_FELISA,
