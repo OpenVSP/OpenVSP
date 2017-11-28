@@ -85,10 +85,8 @@ void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, DrawObj &d
     dobj.m_GeomChanged = true;
 }
 
-void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vector < vec3d > &pts )
+void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vector < vec3d > &pts, int nseg )
 {
-    int nseg = 48;
-
     pts.reserve( pts.size() + 2 * nseg );
     for ( int i = 0; i < nseg; i++ )
     {
@@ -99,7 +97,7 @@ void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vect
     }
 }
 
-void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, vector < vec3d > &pts )
+void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, vector < vec3d > &pts, int nseg )
 {
     vec3d n = norm;
     n.normalize();
@@ -114,7 +112,7 @@ void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, vector < vec3
 
     vec3d pstart = u * rad;
 
-    MakeCircle( pcen, n, pstart, pts );
+    MakeCircle( pcen, n, pstart, pts, nseg );
 
 }
 

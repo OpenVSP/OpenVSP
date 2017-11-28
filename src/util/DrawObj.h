@@ -371,8 +371,8 @@ protected:
 void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts );
 void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, DrawObj &dobj );
 
-void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, vector < vec3d > &pts );
-void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vector < vec3d > &pts );
+void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, vector < vec3d > &pts, int nseg = 48 );
+void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vector < vec3d > &pts, int nseg = 48 );
 void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj );
 
 void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj, DrawObj &arrow );
