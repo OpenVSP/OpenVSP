@@ -42,6 +42,7 @@ public:
     Parm m_ScaleFromOrig;
 
     IntParm m_WireType;
+    BoolParm m_InvertFlag;
 
 protected:
 
@@ -49,6 +50,8 @@ protected:
     vector < vector < vec3d > > m_XFormPts;
 
     vector < vector < vec3d > > m_XFormNorm;
+
+    bool CheckInverted();
 
 };
 

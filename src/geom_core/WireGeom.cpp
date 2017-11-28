@@ -8,6 +8,7 @@
 #include "WireGeom.h"
 #include "Vehicle.h"
 #include "StringUtil.h"
+#include "Util.h"
 
 //==== Constructor ====//
 WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
@@ -27,6 +28,11 @@ WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_ScaleMatrix.loadIdentity();
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12 );
+
+    m_WireType.Init( "WireType", "WireFrame", this, 0, 0, 1 );
+
+    m_InvertFlag.Init( "InvertFlag", "Wireframe", this, false, false, true );
+
 
     Update();
 }
@@ -55,9 +61,33 @@ void WireGeom::UpdateSurf()
         for ( int j = 0 ; j < num_pnts ; j++ )
         {
             m_XFormPts[i][j] = transMat.xform( m_WirePts[i][j] );
-            m_XFormNorm[i][j] = vec3d( 1.0, 0.0, 0.0 );    // TODO
         }
     }
+
+    for ( int i = 0 ; i < num_cross ; i++ )
+    {
+        int inext = clamp( i + 1, 0, num_cross - 1 );
+        int iprev = clamp( i - 1, 0, num_cross - 1 );
+        for ( int j = 0 ; j < num_pnts ; j++ )
+        {
+            int jnext = clamp( j + 1, 0, num_pnts - 1 );
+            int jprev = clamp( j - 1, 0, num_pnts - 1 );
+
+            vec3d di = m_XFormPts[inext][j] - m_XFormPts[iprev][j];
+            vec3d dj = m_XFormPts[i][jnext] - m_XFormPts[i][jprev];
+
+            vec3d n = cross( di, dj );
+            n.normalize();
+
+            if ( m_InvertFlag() )
+            {
+                n = -1.0 * n;
+            }
+
+            m_XFormNorm[i][j] = n;
+        }
+    }
+
 }
 
 void WireGeom::UpdateDrawObj()
@@ -172,6 +202,8 @@ void WireGeom::ReadXSec( FILE* fp )
         }
     }
 
+    m_InvertFlag = CheckInverted();
+
     Update();
 }
 
@@ -260,4 +292,59 @@ xmlNodePtr WireGeom::DecodeXml( xmlNodePtr & node )
     }
 
     return wire_node;
+}
+
+bool WireGeom::CheckInverted()
+{
+    int num_pnts, num_cross;
+
+    num_cross = ( int ) m_WirePts.size();
+
+    if ( num_cross == 0 )
+    {
+        return false;
+    }
+
+    num_pnts = ( int ) m_WirePts[0].size();
+
+    if ( num_pnts == 0 )
+    {
+        return false;
+    }
+
+    // Find approximate center point to improve volume calculation.
+    vec3d cen;
+    for ( int i = 0 ; i < num_cross; i++ )
+    {
+        for ( int j = 0 ; j < num_pnts; j++ )
+        {
+            cen = cen + m_WirePts[i][j];
+        }
+    }
+    cen = cen / ( num_cross * num_pnts );
+
+    // Find approximate volume.  Since bodies are not required to be
+    // watertight, this may not be perfectly accurate.  However, we're
+    // only interested in the sign of the result.
+    double vol = 0;
+    for ( int i = 0 ; i < num_cross - 1; i++ )
+    {
+        for ( int j = 0 ; j < num_pnts - 1; j++ )
+        {
+            vec3d a = m_WirePts[i][j] - cen;
+            vec3d b = m_WirePts[i+1][j] - cen;
+            vec3d c = m_WirePts[i+1][j+1] - cen;
+            vec3d d = m_WirePts[i][j+1] - cen;
+
+            vol = vol + tetra_volume( a, b, c )
+                      + tetra_volume( a, c, d );
+        }
+    }
+
+    // Check volume sign as indication of orientation.
+    if ( vol < 0 )
+    {
+        return true;
+    }
+    return false;
 }
