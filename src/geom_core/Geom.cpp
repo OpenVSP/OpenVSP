@@ -3174,6 +3174,16 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
         UpdateTesselate( i, pnts, nrms, uwpnts, true );
         m_SurfVec[i].ResetUWSkip();
 
+        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview );
+    }
+}
+
+
+void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d > > &pnts, const vector< vector< vec3d > > &nrms, const vector< vector< vec3d > > &uwpnts,
+                            bool urootcap, int i, bool preview )
+{
+
+    {
         DegenGeom degenGeom;
         degenGeom.setParentGeom( this );
         degenGeom.setSurfNum( i );
