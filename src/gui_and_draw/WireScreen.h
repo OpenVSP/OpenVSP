@@ -24,6 +24,10 @@ protected:
     Choice m_TypeChoice;
     CheckButton m_InvertButton;
 
+    CheckButton m_SwapIJButton;
+    CheckButton m_RevIButton;
+    CheckButton m_RevJButton;
+
     IndexSelector m_ISkipStartIndexSelector;
     IndexSelector m_ISkipEndIndexSelector;
     IndexSelector m_JSkipStartIndexSelector;

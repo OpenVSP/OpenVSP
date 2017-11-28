@@ -31,6 +31,10 @@ WireScreen::WireScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Wireframe
     m_WireLayout.AddYGap();
     m_WireLayout.AddButton( m_InvertButton, "Invert" );
 
+    m_WireLayout.AddButton( m_SwapIJButton, "Swap I/J" );
+    m_WireLayout.AddButton( m_RevIButton, "Reverse I" );
+    m_WireLayout.AddButton( m_RevJButton, "Reverse J" );
+
     m_WireLayout.AddYGap();
     m_WireLayout.AddDividerBox( "I/J Skip" );
 
@@ -69,6 +73,9 @@ bool WireScreen::Update()
 
     m_TypeChoice.Update( wire_geom_ptr->m_WireType.GetID() );
     m_InvertButton.Update( wire_geom_ptr->m_InvertFlag.GetID() );
+    m_SwapIJButton.Update( wire_geom_ptr->m_SwapIJFlag.GetID() );
+    m_RevIButton.Update( wire_geom_ptr->m_RevIFlag.GetID() );
+    m_RevJButton.Update( wire_geom_ptr->m_RevJFlag.GetID() );
 
     m_ISkipStartIndexSelector.Update( wire_geom_ptr->m_ISkipStart.GetID() );
     m_ISkipEndIndexSelector.Update( wire_geom_ptr->m_ISkipEnd.GetID() );

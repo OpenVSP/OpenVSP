@@ -38,6 +38,10 @@ WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_JSkipStart.Init( "JSkipStart", "WireFrame", this, 0, 0, 1e6 );
     m_JSkipEnd.Init( "JSkipEnd", "WireFrame", this, 0, 0, 1e6 );
 
+    m_SwapIJFlag.Init( "FlipIJFlag", "Wireframe", this, false, false, true );
+    m_RevIFlag.Init( "RevIFlag", "Wireframe", this, false, false, true );
+    m_RevJFlag.Init( "RevJFlag", "Wireframe", this, false, false, true );
+
     Update();
 }
 
@@ -48,49 +52,150 @@ WireGeom::~WireGeom()
 
 void WireGeom::UpdateSurf()
 {
-    int num_pnts, num_cross;
+    int num_j, num_i;
 
-    num_cross = ( int ) m_WirePts.size() - m_ISkipStart() - m_ISkipEnd();
+    num_i = m_WirePts.size();
 
-    if ( num_cross <= 0 )
+    if ( num_i <= 0 )
     {
-        m_XFormPts.resize( 0 );
-        m_XFormNorm.resize( 0 );
+        m_XFormPts.resize(0);
+        m_XFormNorm.resize(0);
         return;
     }
 
+    num_j = m_WirePts[0].size();
+
+    if ( num_j <= 0 )
+    {
+        m_XFormPts.resize(0);
+        m_XFormNorm.resize(0);
+        return;
+    }
+
+    // Perform transformation on base points.
     Matrix4d transMat = GetTotalTransMat();
-
-    m_XFormPts.resize( num_cross );
-    m_XFormNorm.resize( num_cross );
-
-    num_pnts = ( int ) m_WirePts[0].size() - m_JSkipStart() - m_JSkipEnd();
-
-    if ( num_pnts <= 0 )
+    m_XFormPts.resize( num_i );
+    for ( int i = 0 ; i < num_i ; i++ )
     {
-        m_XFormPts.resize( 0 );
-        m_XFormNorm.resize( 0 );
-        return;
-    }
-
-    for ( int i = 0 ; i < num_cross ; i++ )
-    {
-        m_XFormPts[i].resize( num_pnts );
-        m_XFormNorm[i].resize( num_pnts );
-        for ( int j = 0 ; j < num_pnts ; j++ )
+        m_XFormPts[i].resize( num_j );
+        for ( int j = 0 ; j < num_j ; j++ )
         {
-            m_XFormPts[i][j] = transMat.xform( m_WirePts[i + m_ISkipStart()][j + m_JSkipStart()] );
+            m_XFormPts[i][j] = transMat.xform( m_WirePts[i][j] );
         }
     }
 
-    for ( int i = 0 ; i < num_cross ; i++ )
+    // Handle swapping I/J.
+    if ( m_SwapIJFlag() )
     {
-        int inext = clamp( i + 1, 0, num_cross - 1 );
-        int iprev = clamp( i - 1, 0, num_cross - 1 );
-        for ( int j = 0 ; j < num_pnts ; j++ )
+        vector < vector < vec3d > > tmppts;
+
+        tmppts.resize( num_j );
+        for ( int j = 0 ; j < num_j ; j++ )
         {
-            int jnext = clamp( j + 1, 0, num_pnts - 1 );
-            int jprev = clamp( j - 1, 0, num_pnts - 1 );
+            tmppts[j].resize( num_i );
+        }
+
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            for ( int j = 0 ; j < num_j ; j++ )
+            {
+                tmppts[j][i] = m_XFormPts[i][j];
+            }
+        }
+
+        double tmp = num_i;
+        num_i = num_j;
+        num_j = tmp;
+
+        m_XFormPts = tmppts;
+    }
+
+    // Handle reversing I
+    if ( m_RevIFlag() )
+    {
+        vector < vector < vec3d > > tmppts;
+
+        tmppts.resize( num_i );
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            tmppts[i].resize( num_j );
+        }
+
+
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            int k = num_i - i - 1;
+            for ( int j = 0 ; j < num_j ; j++ )
+            {
+                tmppts[k][j] = m_XFormPts[i][j];
+            }
+        }
+
+        m_XFormPts = tmppts;
+    }
+
+    // Handle reversing J
+    if ( m_RevJFlag() )
+    {
+        vector < vector < vec3d > > tmppts;
+
+        tmppts.resize( num_i );
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            tmppts[i].resize( num_j );
+        }
+
+
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            for ( int j = 0 ; j < num_j ; j++ )
+            {
+                int k = num_j - j - 1;
+                tmppts[i][k] = m_XFormPts[i][j];
+            }
+        }
+
+        m_XFormPts = tmppts;
+    }
+
+    // Handle skipping.
+    if ( m_ISkipStart() != 0 || m_ISkipEnd() != 0 || m_JSkipStart() != 0 || m_JSkipEnd() != 0 )
+    {
+        num_i = num_i - m_ISkipStart() - m_ISkipEnd();
+        num_j = num_j - m_JSkipStart() - m_JSkipEnd();
+
+        if ( num_i <= 0 || num_j <= 0 ) // No surface left
+        {
+            m_XFormPts.resize(0);
+            m_XFormNorm.resize(0);
+            return;
+        }
+
+        vector < vector < vec3d > > tmppts;
+        tmppts.resize( num_i );
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            tmppts[i].resize( num_j );
+            for ( int j = 0 ; j < num_j ; j++ )
+            {
+                tmppts[i][j] =  m_XFormPts[i + m_ISkipStart()][j + m_JSkipStart()];
+            }
+        }
+        m_XFormPts = tmppts;
+    }
+
+    // Calculate normal vectors.
+    m_XFormNorm.resize( num_i );
+    for ( int i = 0 ; i < num_i ; i++ )
+    {
+        m_XFormNorm[i].resize( num_j );
+
+        int inext = clamp( i + 1, 0, num_i - 1 );
+        int iprev = clamp( i - 1, 0, num_i - 1 );
+        for ( int j = 0 ; j < num_j ; j++ )
+        {
+            int jnext = clamp( j + 1, 0, num_j - 1 );
+            int jprev = clamp( j - 1, 0, num_j - 1 );
 
             vec3d di = m_XFormPts[inext][j] - m_XFormPts[iprev][j];
             vec3d dj = m_XFormPts[i][jnext] - m_XFormPts[i][jprev];

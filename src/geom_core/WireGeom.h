@@ -46,6 +46,10 @@ public:
     IntParm m_WireType;
     BoolParm m_InvertFlag;
 
+    BoolParm m_SwapIJFlag;
+    BoolParm m_RevIFlag;
+    BoolParm m_RevJFlag;
+
     IntParm m_ISkipStart;
     IntParm m_ISkipEnd;
     IntParm m_JSkipStart;
