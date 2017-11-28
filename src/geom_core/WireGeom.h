@@ -48,6 +48,7 @@ public:
 
     IntParm m_WireType;
     BoolParm m_InvertFlag;
+    bool m_OtherInvertFlag;
 
     BoolParm m_SwapIJFlag;
     BoolParm m_RevIFlag;

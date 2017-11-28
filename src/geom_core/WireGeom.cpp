@@ -51,6 +51,8 @@ WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_JStartPatchType.Init( "IStartPatchType", "WireFrame", this, vsp::PATCH_NONE, vsp::PATCH_NONE, vsp::PATCH_NUM_TYPES - 1 );
     m_JEndPatchType.Init( "IStartPatchType", "WireFrame", this, vsp::PATCH_NONE, vsp::PATCH_NONE, vsp::PATCH_NUM_TYPES - 1 );
 
+    m_OtherInvertFlag = false;
+
     Update();
 }
 
@@ -62,6 +64,8 @@ WireGeom::~WireGeom()
 void WireGeom::UpdateSurf()
 {
     int num_j, num_i;
+
+    m_OtherInvertFlag = false;
 
     num_i = m_WirePts.size();
 
@@ -96,6 +100,8 @@ void WireGeom::UpdateSurf()
     // Handle swapping I/J.
     if ( m_SwapIJFlag() )
     {
+        m_OtherInvertFlag = !m_OtherInvertFlag;
+
         vector < vector < vec3d > > tmppts;
 
         tmppts.resize( num_j );
@@ -122,6 +128,8 @@ void WireGeom::UpdateSurf()
     // Handle reversing I
     if ( m_RevIFlag() )
     {
+        m_OtherInvertFlag = !m_OtherInvertFlag;
+
         vector < vector < vec3d > > tmppts;
 
         tmppts.resize( num_i );
@@ -146,6 +154,8 @@ void WireGeom::UpdateSurf()
     // Handle reversing J
     if ( m_RevJFlag() )
     {
+        m_OtherInvertFlag = !m_OtherInvertFlag;
+
         vector < vector < vec3d > > tmppts;
 
         tmppts.resize( num_i );
@@ -378,7 +388,7 @@ void WireGeom::UpdateSurf()
             vec3d n = cross( di, dj );
             n.normalize();
 
-            if ( m_InvertFlag() )
+            if ( m_InvertFlag() ^ m_OtherInvertFlag ) // Bitwise XOR
             {
                 n = -1.0 * n;
             }
@@ -755,7 +765,7 @@ vector< TMesh* > WireGeom::CreateTMeshVec()
     {
         for ( int j = 1; j < num_pnts; j++ )
         {
-            if ( m_InvertFlag() )
+            if ( m_InvertFlag() ^ m_OtherInvertFlag ) // Bitwise XOR
             {
                 tMesh->AddTri( m_XFormPts[i - 1][j - 1], m_XFormPts[i][j], m_XFormPts[i][j - 1] );
                 tMesh->AddTri( m_XFormPts[i - 1][j - 1], m_XFormPts[i - 1][j], m_XFormPts[i][j] );
