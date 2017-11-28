@@ -348,3 +348,47 @@ bool WireGeom::CheckInverted()
     }
     return false;
 }
+
+//==== Create TMesh Vector ====//
+vector< TMesh* > WireGeom::CreateTMeshVec()
+{
+    vector < TMesh* > tmeshvec;
+
+    int num_pnts, num_cross;
+
+    num_cross = ( int ) m_WirePts.size();
+
+    if ( num_cross == 0 )
+    {
+        return tmeshvec;
+    }
+
+    num_pnts = ( int ) m_WirePts[0].size();
+
+    if ( num_pnts == 0 )
+    {
+        return tmeshvec;
+    }
+
+    TMesh*  tMesh = new TMesh();
+    //==== Convert CrossSections to Triangles ====//
+    for ( int i = 1 ; i < num_cross ; i++ )
+    {
+        for ( int j = 1; j < num_pnts; j++ )
+        {
+            if ( m_InvertFlag() )
+            {
+                tMesh->AddTri( m_WirePts[i - 1][j - 1], m_WirePts[i][j], m_WirePts[i][j - 1] );
+                tMesh->AddTri( m_WirePts[i - 1][j - 1], m_WirePts[i - 1][j], m_WirePts[i][j] );
+            }
+            else
+            {
+                tMesh->AddTri( m_WirePts[i - 1][j - 1], m_WirePts[i][j - 1], m_WirePts[i][j] );
+                tMesh->AddTri( m_WirePts[i - 1][j - 1], m_WirePts[i][j], m_WirePts[i - 1][j] );
+            }
+        }
+    }
+
+    tmeshvec.push_back( tMesh );
+    return tmeshvec;
+}

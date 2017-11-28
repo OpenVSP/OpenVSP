@@ -36,6 +36,7 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual vector< TMesh* > CreateTMeshVec();
 
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
