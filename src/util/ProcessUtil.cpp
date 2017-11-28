@@ -6,6 +6,7 @@
 #include "ProcessUtil.h"
 
 #include <cstdlib>
+#include <cstring>
 
 #ifdef __APPLE__
 
