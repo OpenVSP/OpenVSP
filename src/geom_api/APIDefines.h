@@ -355,6 +355,13 @@ enum CAP_TYPE { NO_END_CAP,
                 NUM_END_CAP_OPTIONS
               };
 
+enum PATCH_TYPE { PATCH_NONE,
+                  PATCH_POINT,
+                  PATCH_LINE,
+                  PATCH_COPY,
+                  PATCH_NUM_TYPES
+                };
+
 enum PROJ_TGT_TYPE { SET_TARGET,
                      GEOM_TARGET,
                      NUM_PROJ_TGT_OPTIONS

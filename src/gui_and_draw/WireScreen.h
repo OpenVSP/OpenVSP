@@ -28,6 +28,11 @@ protected:
     CheckButton m_RevIButton;
     CheckButton m_RevJButton;
 
+    Choice m_IStartPatchTypeChoice;
+    Choice m_IEndPatchTypeChoice;
+    Choice m_JStartPatchTypeChoice;
+    Choice m_JEndPatchTypeChoice;
+
     IndexSelector m_IStrideIndexSelector;
     IndexSelector m_JStrideIndexSelector;
 

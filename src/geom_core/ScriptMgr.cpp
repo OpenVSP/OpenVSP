@@ -972,6 +972,19 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "CAP_TYPE", "NUM_END_CAP_OPTIONS", vsp::NUM_END_CAP_OPTIONS );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "PATCH_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PATCH_TYPE", "PATCH_NONE", vsp::PATCH_NONE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PATCH_TYPE", "PATCH_POINT", vsp::PATCH_POINT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PATCH_TYPE", "PATCH_LINE", vsp::PATCH_LINE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PATCH_TYPE", "PATCH_COPY", vsp::PATCH_COPY );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PATCH_TYPE", "PATCH_NUM_TYPES", vsp::PATCH_NUM_TYPES );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "WING_BLEND" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "WING_BLEND", "BLEND_FREE", vsp::BLEND_FREE );

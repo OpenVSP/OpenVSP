@@ -9,6 +9,7 @@
 #include "Vehicle.h"
 #include "StringUtil.h"
 #include "Util.h"
+#include "APIDefines.h"
 
 //==== Constructor ====//
 WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
@@ -44,6 +45,11 @@ WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_IStride.Init( "IStride", "WireFrame", this, 1, 1, 1e3 );
     m_JStride.Init( "JStride", "WireFrame", this, 1, 1, 1e3 );
+
+    m_IStartPatchType.Init( "IStartPatchType", "WireFrame", this, vsp::PATCH_NONE, vsp::PATCH_NONE, vsp::PATCH_NUM_TYPES - 1 );
+    m_IEndPatchType.Init( "IStartPatchType", "WireFrame", this, vsp::PATCH_NONE, vsp::PATCH_NONE, vsp::PATCH_NUM_TYPES - 1 );
+    m_JStartPatchType.Init( "IStartPatchType", "WireFrame", this, vsp::PATCH_NONE, vsp::PATCH_NONE, vsp::PATCH_NUM_TYPES - 1 );
+    m_JEndPatchType.Init( "IStartPatchType", "WireFrame", this, vsp::PATCH_NONE, vsp::PATCH_NONE, vsp::PATCH_NUM_TYPES - 1 );
 
     Update();
 }
@@ -161,6 +167,125 @@ void WireGeom::UpdateSurf()
         m_XFormPts = tmppts;
     }
 
+    if ( m_IStartPatchType() != vsp::PATCH_NONE )
+    {
+        vector < vec3d > oldrow;
+        vector < vec3d > oppositerow;
+
+        vector < vec3d > newrow;
+
+        oldrow = m_XFormPts[0];
+        oppositerow = m_XFormPts[ m_XFormPts.size() - 1 ];
+
+        PatchRow( oldrow, oppositerow, m_IStartPatchType(), newrow );
+
+        vector < vector < vec3d > > tmppts;
+        tmppts.resize( num_i + 1 );
+        tmppts[0] = newrow;
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            tmppts[i+1] = m_XFormPts[i];
+        }
+
+        m_XFormPts = tmppts;
+        num_i++;
+    }
+
+    if ( m_IEndPatchType() != vsp::PATCH_NONE )
+    {
+        vector < vec3d > oldrow;
+        vector < vec3d > oppositerow;
+
+        vector < vec3d > newrow;
+
+        oldrow = m_XFormPts[ m_XFormPts.size() - 1 ];
+        oppositerow = m_XFormPts[0];
+
+        PatchRow( oldrow, oppositerow, m_IEndPatchType(), newrow );
+
+        m_XFormPts.push_back( newrow );
+        num_i++;
+    }
+
+    if ( m_JStartPatchType() != vsp::PATCH_NONE )
+    {
+        vector < vec3d > oldrow;
+        vector < vec3d > oppositerow;
+
+        vector < vec3d > newrow;
+
+        oldrow.resize( num_i );
+        oppositerow = oldrow;
+
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            oldrow[i] = m_XFormPts[i][0];
+            oppositerow[i] = m_XFormPts[i][num_j - 1];
+        }
+
+        PatchRow( oldrow, oppositerow, m_JStartPatchType(), newrow );
+
+        vector < vector < vec3d > > tmppts;
+        tmppts.resize( num_i );
+
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            tmppts[i].resize( num_j + 1 );
+        }
+
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            tmppts[i][0] = newrow[i];
+
+            for ( int j = 0 ; j < num_j ; j++ )
+            {
+                tmppts[i][j+1] = m_XFormPts[i][j];
+            }
+        }
+
+        m_XFormPts = tmppts;
+        num_j++;
+    }
+
+    if ( m_JEndPatchType() != vsp::PATCH_NONE )
+    {
+        vector < vec3d > oldrow;
+        vector < vec3d > oppositerow;
+
+        vector < vec3d > newrow;
+
+        oldrow.resize( num_i );
+        oppositerow = oldrow;
+
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            oldrow[i] = m_XFormPts[i][num_j - 1];
+            oppositerow[i] = m_XFormPts[i][0];
+        }
+
+        PatchRow( oldrow, oppositerow, m_JEndPatchType(), newrow );
+
+        vector < vector < vec3d > > tmppts;
+        tmppts.resize( num_i );
+
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            tmppts[i].resize( num_j + 1 );
+        }
+
+        for ( int i = 0 ; i < num_i ; i++ )
+        {
+            for ( int j = 0 ; j < num_j ; j++ )
+            {
+                tmppts[i][j] = m_XFormPts[i][j];
+            }
+            tmppts[i][num_j] = newrow[i];
+        }
+
+        m_XFormPts = tmppts;
+        num_j++;
+    }
+
     // Handle skipping.
     if ( m_ISkipStart() != 0 || m_ISkipEnd() != 0 || m_JSkipStart() != 0 || m_JSkipEnd() != 0 )
     {
@@ -262,6 +387,37 @@ void WireGeom::UpdateSurf()
         }
     }
 
+}
+
+void WireGeom::PatchRow( const vector < vec3d > &oldrow, const vector < vec3d > &oppositerow, int type, vector < vec3d > &newrow )
+{
+    if ( type == vsp::PATCH_POINT )
+    {
+        vec3d cen;
+        for ( int i = 0; i < oldrow.size(); i++ )
+        {
+            cen = cen + oldrow[i];
+        }
+        cen = cen * 1.0 / oldrow.size();
+
+        newrow.resize( oldrow.size(), cen );
+    }
+    else if ( type == vsp::PATCH_LINE )
+    {
+        newrow = oldrow;
+        int n = ceil( newrow.size() * 0.5 );
+        for ( int i = 0; i < n; i++ )
+        {
+            int j = newrow.size() - 1 - i;
+            vec3d pt = ( newrow[i] + newrow[j] ) * 0.5;
+            newrow[i] = pt;
+            newrow[j] = pt;
+        }
+    }
+    else if ( type == vsp::PATCH_COPY )
+    {
+        newrow = oppositerow;
+    }
 }
 
 void WireGeom::UpdateDrawObj()

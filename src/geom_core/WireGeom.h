@@ -58,6 +58,11 @@ public:
     IntParm m_JSkipStart;
     IntParm m_JSkipEnd;
 
+    IntParm m_IStartPatchType;
+    IntParm m_IEndPatchType;
+    IntParm m_JStartPatchType;
+    IntParm m_JEndPatchType;
+
 protected:
 
     vector < vector < vec3d > > m_WirePts;
@@ -66,6 +71,8 @@ protected:
     vector < vector < vec3d > > m_XFormNorm;
 
     bool CheckInverted();
+
+    void PatchRow( const vector < vec3d > &oldrow, const vector < vec3d > &oppositerow, int type, vector < vec3d > &newrow );
 
 };
 

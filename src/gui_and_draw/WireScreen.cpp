@@ -43,6 +43,33 @@ WireScreen::WireScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Wireframe
     m_WireLayout.AddButton( m_RevJButton, "Reverse J" );
 
     m_WireLayout.AddYGap();
+    m_WireLayout.AddDividerBox( "Patch" );
+
+    m_IStartPatchTypeChoice.AddItem( "None" );
+    m_IStartPatchTypeChoice.AddItem( "Point" );
+    m_IStartPatchTypeChoice.AddItem( "Line" );
+    m_IStartPatchTypeChoice.AddItem( "Copy Opposite" );
+    m_WireLayout.AddChoice( m_IStartPatchTypeChoice, "I Start" );
+
+    m_IEndPatchTypeChoice.AddItem( "None" );
+    m_IEndPatchTypeChoice.AddItem( "Point" );
+    m_IEndPatchTypeChoice.AddItem( "Line" );
+    m_IEndPatchTypeChoice.AddItem( "Copy Opposite" );
+    m_WireLayout.AddChoice( m_IEndPatchTypeChoice, "I End" );
+
+    m_JStartPatchTypeChoice.AddItem( "None" );
+    m_JStartPatchTypeChoice.AddItem( "Point" );
+    m_JStartPatchTypeChoice.AddItem( "Line" );
+    m_JStartPatchTypeChoice.AddItem( "Copy Opposite" );
+    m_WireLayout.AddChoice( m_JStartPatchTypeChoice, "J Start" );
+
+    m_JEndPatchTypeChoice.AddItem( "None" );
+    m_JEndPatchTypeChoice.AddItem( "Point" );
+    m_JEndPatchTypeChoice.AddItem( "Line" );
+    m_JEndPatchTypeChoice.AddItem( "Copy Opposite" );
+    m_WireLayout.AddChoice( m_JEndPatchTypeChoice, "J End" );
+
+    m_WireLayout.AddYGap();
     m_WireLayout.AddDividerBox( "Start/End Skip" );
 
     m_WireLayout.AddIndexSelector( m_ISkipStartIndexSelector, "I Start Skip" );
@@ -97,6 +124,11 @@ bool WireScreen::Update()
 
     m_IStrideIndexSelector.Update( wire_geom_ptr->m_IStride.GetID() );
     m_JStrideIndexSelector.Update( wire_geom_ptr->m_JStride.GetID() );
+
+    m_IStartPatchTypeChoice.Update( wire_geom_ptr->m_IStartPatchType.GetID() );
+    m_IEndPatchTypeChoice.Update( wire_geom_ptr->m_IEndPatchType.GetID() );
+    m_JStartPatchTypeChoice.Update( wire_geom_ptr->m_JStartPatchType.GetID() );
+    m_JEndPatchTypeChoice.Update( wire_geom_ptr->m_JEndPatchType.GetID() );
 
     return true;
 }
