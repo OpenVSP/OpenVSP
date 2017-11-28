@@ -42,8 +42,8 @@ bool WireScreen::Update()
     GeomScreen::Update();
 
     //==== Update Point Cloud Specific Parms ====//
-    WireGeom* pt_cloud_geom_ptr = dynamic_cast< WireGeom* >( geom_ptr );
-    assert( pt_cloud_geom_ptr );
+    WireGeom* wire_geom_ptr = dynamic_cast< WireGeom* >( geom_ptr );
+    assert( wire_geom_ptr );
 
     return true;
 }
