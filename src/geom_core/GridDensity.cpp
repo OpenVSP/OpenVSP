@@ -85,6 +85,14 @@ void PointSource::SetNamedVal( string name, double val )
     {
         m_WLoc = val;
     }
+    else if ( name == "Length" )
+    {
+        m_Len = val;
+    }
+    else if ( name == "Radius" )
+    {
+        m_Rad = val;
+    }
 }
 
 void PointSource::ReadV2File( xmlNodePtr &root )
@@ -148,6 +156,14 @@ void LineSource::SetNamedVal( string name, double val )
     else if ( name == "W2" )
     {
         m_WLoc2 = val;
+    }
+    else if ( name == "Length" )
+    {
+        m_Len = val;
+    }
+    else if ( name == "Radius" )
+    {
+        m_Rad = val;
     }
     else if ( name == "Length2" )
     {
@@ -227,6 +243,14 @@ void BoxSource::SetNamedVal( string name, double val )
     else if ( name == "W2" )
     {
         m_WLoc2 = val;
+    }
+    else if ( name == "Length" )
+    {
+        m_Len = val;
+    }
+    else if ( name == "Radius" )
+    {
+        m_Rad = val;
     }
 }
 
