@@ -3182,69 +3182,66 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
 void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d > > &pnts, const vector< vector< vec3d > > &nrms, const vector< vector< vec3d > > &uwpnts,
                             bool urootcap, int i, bool preview )
 {
+    DegenGeom degenGeom;
+    degenGeom.setParentGeom( this );
+    degenGeom.setSurfNum( i );
 
+    degenGeom.setNumXSecs( pnts.size() );
+    degenGeom.setNumPnts( pnts[0].size() );
+    degenGeom.setName( GetName() );
+
+    degenGeom.createDegenSurface( pnts, uwpnts, m_SurfVec[i].GetFlipNormal() );
+
+    if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF || m_SurfVec[i].GetSurfType() == vsp::PROP_SURF )
     {
-        DegenGeom degenGeom;
-        degenGeom.setParentGeom( this );
-        degenGeom.setSurfNum( i );
+        degenGeom.setType(DegenGeom::SURFACE_TYPE);
 
-        degenGeom.setNumXSecs( pnts.size() );
-        degenGeom.setNumPnts( pnts[0].size() );
-        degenGeom.setName( GetName() );
-
-        degenGeom.createDegenSurface( pnts, uwpnts, m_SurfVec[i].GetFlipNormal() );
-
-        if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF || m_SurfVec[i].GetSurfType() == vsp::PROP_SURF )
+        degenGeom.createSurfDegenPlate( pnts, uwpnts );
+        if ( !preview )
         {
-            degenGeom.setType(DegenGeom::SURFACE_TYPE);
+            degenGeom.createSurfDegenStick( pnts, uwpnts, m_SurfVec[i].GetFoilSurf(), urootcap );
+        }
+    }
+    else if( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
+    {
+        degenGeom.setType(DegenGeom::DISK_TYPE);
 
-            degenGeom.createSurfDegenPlate( pnts, uwpnts );
+        if ( !preview )
+        {
+            degenGeom.createDegenDisk( pnts, m_SurfVec[i].GetFlipNormal() );
+        }
+    }
+    else
+    {
+        degenGeom.setType(DegenGeom::BODY_TYPE);
+
+        degenGeom.createBodyDegenPlate( pnts, uwpnts );
+
+        if ( !preview )
+        {
+            degenGeom.createBodyDegenStick( pnts, uwpnts );
+        }
+    }
+
+    // degenerate subsurfaces
+    for ( int j = 0; j < m_SubSurfVec.size(); j++ )
+    {
+        if ( m_SurfIndxVec[i] == m_SubSurfVec[j]->m_MainSurfIndx() )
+        {
+            degenGeom.addDegenSubSurf( m_SubSurfVec[j], i );    //TODO is there a way to eliminate having to send in the surf index "i"
+
             if ( !preview )
             {
-                degenGeom.createSurfDegenStick( pnts, uwpnts, m_SurfVec[i].GetFoilSurf(), urootcap );
-            }
-        }
-        else if( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
-        {
-            degenGeom.setType(DegenGeom::DISK_TYPE);
-
-            if ( !preview )
-            {
-                degenGeom.createDegenDisk( pnts, m_SurfVec[i].GetFlipNormal() );
-            }
-        }
-        else
-        {
-            degenGeom.setType(DegenGeom::BODY_TYPE);
-
-            degenGeom.createBodyDegenPlate( pnts, uwpnts );
-
-            if ( !preview )
-            {
-                degenGeom.createBodyDegenStick( pnts, uwpnts );
-            }
-        }
-
-        // degenerate subsurfaces
-        for ( int j = 0; j < m_SubSurfVec.size(); j++ )
-        {
-            if ( m_SurfIndxVec[i] == m_SubSurfVec[j]->m_MainSurfIndx() )
-            {
-                degenGeom.addDegenSubSurf( m_SubSurfVec[j], i );    //TODO is there a way to eliminate having to send in the surf index "i"
-
-                if ( !preview )
+                SSControlSurf *csurf = dynamic_cast < SSControlSurf* > ( m_SubSurfVec[j] );
+                if ( csurf )
                 {
-                    SSControlSurf *csurf = dynamic_cast < SSControlSurf* > ( m_SubSurfVec[j] );
-                    if ( csurf )
-                    {
-                        degenGeom.addDegenHingeLine( csurf );
-                    }
+                    degenGeom.addDegenHingeLine( csurf );
                 }
             }
         }
-
-        dgs.push_back(degenGeom);
     }
+
+    dgs.push_back(degenGeom);
 }
 
 //==== Set Sym Flag ====//
