@@ -917,7 +917,7 @@ double ConstLineSimpleSource::GetTargetLen( double base_len, vec3d & pos, const 
 
                 uw = m_UWPts[imatch] + t * ( m_UWPts[imatch + 1] - m_UWPts[imatch] );
 
-                vec3d p = m_GeomPtr->GetUWPt( m_SurfIndx, uw.x(), uw.y() );
+                vec3d p = m_GeomPtr->CompPnt01( m_SurfIndx, uw.x(), uw.y() );
 
                 double d2 = dist_squared( pos, p );
 
@@ -1060,7 +1060,7 @@ void ULineSimpleSource::Update( Geom* geomPtr )
     for ( int i = 0; i < N; i++ )
     {
         double w = i * 1.0 / ( N - 1 );
-        m_Pts[i] = geomPtr->GetUWPt( m_SurfIndx, m_Val, w );
+        m_Pts[i] = geomPtr->CompPnt01( m_SurfIndx, m_Val, w );
         m_UWPts[i] = vec3d( m_Val, w, 0.0 );
     }
 
@@ -1087,7 +1087,7 @@ void WLineSimpleSource::Update( Geom* geomPtr )
     for ( int i = 0; i < N; i++ )
     {
         double u = i * 1.0 / ( N - 1 );
-        m_Pts[i] = geomPtr->GetUWPt( m_SurfIndx, u, m_Val );
+        m_Pts[i] = geomPtr->CompPnt01( m_SurfIndx, u, m_Val );
         m_UWPts[i] = vec3d( u, m_Val, 0.0 );
     }
 
