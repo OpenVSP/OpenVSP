@@ -39,6 +39,9 @@ public:
 
     virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
 
+    virtual int GetNumTotalHrmSurfs();
+    virtual void WriteXSecFile( int geom_no, FILE* dump_file );
+
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;

@@ -814,3 +814,28 @@ void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
     Geom::CreateDegenGeom( dgs, m_XFormPts, m_XFormNorm, uwpnts, false, 0, preview, m_InvertFlag(), surftype, NULL );
 
 }
+
+int WireGeom::GetNumTotalHrmSurfs()
+{
+    return 1;
+}
+
+void WireGeom::WriteXSecFile( int geom_no, FILE* dump_file )
+{
+    //==== Write XSec Header ====//
+    fprintf( dump_file, "\n" );
+    fprintf( dump_file, "%s \n", ( char* ) m_Name.c_str() );
+    fprintf( dump_file, " GROUP NUMBER      = %d \n", geom_no );
+    fprintf( dump_file, " TYPE              = %d  \n", m_WireType() );         // 1 -- Non Lifting, 0 -- Lifting
+    fprintf( dump_file, " CROSS SECTIONS    = %d \n", static_cast<int>( m_XFormPts.size() ) );
+    fprintf( dump_file, " PTS/CROSS SECTION = %d \n", static_cast<int>( m_XFormPts[0].size() ) );
+
+    //==== Write XSec Data ====//
+    for ( int j = 0 ; j < ( int )m_XFormPts.size() ; j++ )
+    {
+        for ( int k = 0 ; k < ( int )m_XFormPts[j].size() ; k++ )
+        {
+            fprintf( dump_file, "%25.17e  %25.17e  %25.17e\n", m_XFormPts[j][k].x(), m_XFormPts[j][k].y(), m_XFormPts[j][k].z() );
+        }
+    }
+}
