@@ -1032,9 +1032,15 @@ void Vehicle::PasteClipboard()
             }
 
             //==== Update gPtr and all children  ====//
-            gPtr->SetIgnoreAbsFlag( true );
+            if ( parentGeom->GetType().m_Type != HINGE_GEOM_TYPE )
+            {
+                gPtr->SetIgnoreAbsFlag( true );
+            }
             gPtr->Update();
-            gPtr->SetIgnoreAbsFlag( false );
+            if ( parentGeom->GetType().m_Type != HINGE_GEOM_TYPE )
+            {
+                gPtr->SetIgnoreAbsFlag( false );
+            }
         }
     }
 
