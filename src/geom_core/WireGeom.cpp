@@ -138,11 +138,6 @@ void WireGeom::UpdateDrawObj()
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
 }
 
-void WireGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
-{
-    Geom::LoadDrawObjs( draw_obj_vec );
-}
-
 //==== Get Total Transformation Matrix from Original Points ====//
 Matrix4d WireGeom::GetTotalTransMat()
 {
