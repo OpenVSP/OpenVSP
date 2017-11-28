@@ -49,24 +49,28 @@ WireScreen::WireScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Wireframe
     m_IStartPatchTypeChoice.AddItem( "Point" );
     m_IStartPatchTypeChoice.AddItem( "Line" );
     m_IStartPatchTypeChoice.AddItem( "Copy Opposite" );
+    m_IStartPatchTypeChoice.AddItem( "Halfway Opposite" );
     m_WireLayout.AddChoice( m_IStartPatchTypeChoice, "I Start" );
 
     m_IEndPatchTypeChoice.AddItem( "None" );
     m_IEndPatchTypeChoice.AddItem( "Point" );
     m_IEndPatchTypeChoice.AddItem( "Line" );
     m_IEndPatchTypeChoice.AddItem( "Copy Opposite" );
+    m_IEndPatchTypeChoice.AddItem( "Halfway Opposite" );
     m_WireLayout.AddChoice( m_IEndPatchTypeChoice, "I End" );
 
     m_JStartPatchTypeChoice.AddItem( "None" );
     m_JStartPatchTypeChoice.AddItem( "Point" );
     m_JStartPatchTypeChoice.AddItem( "Line" );
     m_JStartPatchTypeChoice.AddItem( "Copy Opposite" );
+    m_JStartPatchTypeChoice.AddItem( "Halfway Opposite" );
     m_WireLayout.AddChoice( m_JStartPatchTypeChoice, "J Start" );
 
     m_JEndPatchTypeChoice.AddItem( "None" );
     m_JEndPatchTypeChoice.AddItem( "Point" );
     m_JEndPatchTypeChoice.AddItem( "Line" );
     m_JEndPatchTypeChoice.AddItem( "Copy Opposite" );
+    m_JEndPatchTypeChoice.AddItem( "Halfway Opposite" );
     m_WireLayout.AddChoice( m_JEndPatchTypeChoice, "J End" );
 
     m_WireLayout.AddYGap();

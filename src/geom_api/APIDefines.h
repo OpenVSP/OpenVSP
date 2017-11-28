@@ -359,6 +359,7 @@ enum PATCH_TYPE { PATCH_NONE,
                   PATCH_POINT,
                   PATCH_LINE,
                   PATCH_COPY,
+                  PATCH_HALFWAY,
                   PATCH_NUM_TYPES
                 };
 

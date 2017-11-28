@@ -418,6 +418,14 @@ void WireGeom::PatchRow( const vector < vec3d > &oldrow, const vector < vec3d > 
     {
         newrow = oppositerow;
     }
+    else if ( type == vsp::PATCH_HALFWAY )
+    {
+        newrow.resize( oldrow.size() );
+        for ( int i = 0; i < oldrow.size(); i++ )
+        {
+            newrow[i] = ( oldrow[i] + oppositerow[i] ) * 0.5;
+        }
+    }
 }
 
 void WireGeom::UpdateDrawObj()
