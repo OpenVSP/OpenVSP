@@ -406,3 +406,46 @@ vector< TMesh* > WireGeom::CreateTMeshVec()
     tmeshvec.push_back( tMesh );
     return tmeshvec;
 }
+
+//==== Create Degenerate Geometry ====//
+// When preview = true, this simplifies to generate only the
+// required degen plate,surface, and subsurface for updating the preview DrawObj vectors
+void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
+{
+    int num_pnts, num_cross;
+
+    num_cross = ( int ) m_XFormPts.size();
+
+    if ( num_cross == 0 )
+    {
+        return;
+    }
+
+    num_pnts = ( int ) m_XFormPts[0].size();
+
+    if ( num_pnts == 0 )
+    {
+        return;
+    }
+
+    vector< vector< vec3d > > uwpnts;
+    uwpnts.resize( num_cross );
+
+    for ( int i = 0; i < num_cross; i++ )
+    {
+        uwpnts[i].resize( num_pnts );
+        for ( int j = 0; j < num_pnts; j++ )
+        {
+            uwpnts[i][j] = vec3d( i * 1.0 / num_cross, j * 1.0 / num_pnts, 0.0 );
+        }
+    }
+
+    int surftype = DegenGeom::SURFACE_TYPE;
+    if ( m_WireType() == 1 )
+    {
+        surftype = DegenGeom::BODY_TYPE;
+    }
+
+    Geom::CreateDegenGeom( dgs, m_XFormPts, m_XFormNorm, uwpnts, false, 0, preview, m_InvertFlag(), surftype, NULL );
+
+}

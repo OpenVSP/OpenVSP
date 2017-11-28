@@ -37,6 +37,8 @@ public:
 
     virtual vector< TMesh* > CreateTMeshVec();
 
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
+
     // Scale Transformation Matrix
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;
