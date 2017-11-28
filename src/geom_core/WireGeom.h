@@ -50,6 +50,9 @@ public:
     BoolParm m_RevIFlag;
     BoolParm m_RevJFlag;
 
+    IntParm m_IStride;
+    IntParm m_JStride;
+
     IntParm m_ISkipStart;
     IntParm m_ISkipEnd;
     IntParm m_JSkipStart;

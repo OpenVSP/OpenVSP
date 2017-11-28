@@ -28,6 +28,9 @@ protected:
     CheckButton m_RevIButton;
     CheckButton m_RevJButton;
 
+    IndexSelector m_IStrideIndexSelector;
+    IndexSelector m_JStrideIndexSelector;
+
     IndexSelector m_ISkipStartIndexSelector;
     IndexSelector m_ISkipEndIndexSelector;
     IndexSelector m_JSkipStartIndexSelector;

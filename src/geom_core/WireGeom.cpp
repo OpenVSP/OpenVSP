@@ -42,6 +42,9 @@ WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_RevIFlag.Init( "RevIFlag", "Wireframe", this, false, false, true );
     m_RevJFlag.Init( "RevJFlag", "Wireframe", this, false, false, true );
 
+    m_IStride.Init( "IStride", "WireFrame", this, 1, 1, 1e3 );
+    m_JStride.Init( "JStride", "WireFrame", this, 1, 1, 1e3 );
+
     Update();
 }
 
@@ -182,6 +185,53 @@ void WireGeom::UpdateSurf()
             }
         }
         m_XFormPts = tmppts;
+    }
+
+    // Handle I Stride
+    if ( m_IStride() != 1 )
+    {
+        vector < vector < vec3d > > tmppts;
+
+        int ilast;
+        for ( int i = 0 ; i < num_i ; i = i + m_IStride() )
+        {
+            tmppts.push_back( m_XFormPts[i] );
+            ilast = i;
+        }
+        if ( ilast != num_i - 1 )
+        {
+            tmppts.push_back( m_XFormPts[num_i - 1] );
+        }
+
+        m_XFormPts = tmppts;
+        num_i = m_XFormPts.size();
+    }
+
+    // Handle J Stride
+    if ( m_JStride() != 1 )
+    {
+        vector < vector < vec3d > > tmppts;
+        tmppts.resize( num_i );
+
+        int jlast;
+        for ( int j = 0 ; j < num_j ; j = j + m_JStride() )
+        {
+            for ( int i = 0 ; i < num_i ; i++ )
+            {
+                tmppts[i].push_back( m_XFormPts[i][j] );
+            }
+            jlast = j;
+        }
+        if ( jlast != num_j - 1 )
+        {
+            for ( int i = 0 ; i < num_i ; i++ )
+            {
+                tmppts[i].push_back( m_XFormPts[i][num_j - 1] );
+            }
+        }
+
+        m_XFormPts = tmppts;
+        num_j = m_XFormPts[0].size();
     }
 
     // Calculate normal vectors.

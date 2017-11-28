@@ -42,6 +42,12 @@ WireScreen::WireScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Wireframe
     m_WireLayout.AddIndexSelector( m_ISkipEndIndexSelector, "I End Skip" );
     m_WireLayout.AddIndexSelector( m_JSkipStartIndexSelector, "J Start Skip" );
     m_WireLayout.AddIndexSelector( m_JSkipEndIndexSelector, "J End Skip" );
+
+    m_WireLayout.AddYGap();
+    m_WireLayout.AddDividerBox( "Stride" );
+
+    m_WireLayout.AddIndexSelector( m_IStrideIndexSelector, "I Stride" );
+    m_WireLayout.AddIndexSelector( m_JStrideIndexSelector, "J Stride" );
 }
 
 
@@ -81,6 +87,9 @@ bool WireScreen::Update()
     m_ISkipEndIndexSelector.Update( wire_geom_ptr->m_ISkipEnd.GetID() );
     m_JSkipStartIndexSelector.Update( wire_geom_ptr->m_JSkipStart.GetID() );
     m_JSkipEndIndexSelector.Update( wire_geom_ptr->m_JSkipEnd.GetID() );
+
+    m_IStrideIndexSelector.Update( wire_geom_ptr->m_IStride.GetID() );
+    m_JStrideIndexSelector.Update( wire_geom_ptr->m_JStride.GetID() );
 
     return true;
 }
