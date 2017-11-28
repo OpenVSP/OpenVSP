@@ -149,7 +149,7 @@ void WireGeom::UpdateBBox()
 
     int num_pnts, num_cross;
 
-    num_cross = ( int ) m_WirePts.size();
+    num_cross = ( int ) m_XFormPts.size();
 
     if ( num_cross == 0 )
     {
@@ -158,7 +158,7 @@ void WireGeom::UpdateBBox()
 
     for ( int i = 0 ; i < num_cross ; i++ )
     {
-        num_pnts = ( int ) m_WirePts[0].size();
+        num_pnts = ( int ) m_XFormPts[0].size();
 
         if ( num_pnts == 0 )
         {
@@ -356,14 +356,14 @@ vector< TMesh* > WireGeom::CreateTMeshVec()
 
     int num_pnts, num_cross;
 
-    num_cross = ( int ) m_WirePts.size();
+    num_cross = ( int ) m_XFormPts.size();
 
     if ( num_cross == 0 )
     {
         return tmeshvec;
     }
 
-    num_pnts = ( int ) m_WirePts[0].size();
+    num_pnts = ( int ) m_XFormPts[0].size();
 
     if ( num_pnts == 0 )
     {
@@ -378,13 +378,13 @@ vector< TMesh* > WireGeom::CreateTMeshVec()
         {
             if ( m_InvertFlag() )
             {
-                tMesh->AddTri( m_WirePts[i - 1][j - 1], m_WirePts[i][j], m_WirePts[i][j - 1] );
-                tMesh->AddTri( m_WirePts[i - 1][j - 1], m_WirePts[i - 1][j], m_WirePts[i][j] );
+                tMesh->AddTri( m_XFormPts[i - 1][j - 1], m_XFormPts[i][j], m_XFormPts[i][j - 1] );
+                tMesh->AddTri( m_XFormPts[i - 1][j - 1], m_XFormPts[i - 1][j], m_XFormPts[i][j] );
             }
             else
             {
-                tMesh->AddTri( m_WirePts[i - 1][j - 1], m_WirePts[i][j - 1], m_WirePts[i][j] );
-                tMesh->AddTri( m_WirePts[i - 1][j - 1], m_WirePts[i][j], m_WirePts[i - 1][j] );
+                tMesh->AddTri( m_XFormPts[i - 1][j - 1], m_XFormPts[i][j - 1], m_XFormPts[i][j] );
+                tMesh->AddTri( m_XFormPts[i - 1][j - 1], m_XFormPts[i][j], m_XFormPts[i - 1][j] );
             }
         }
     }
