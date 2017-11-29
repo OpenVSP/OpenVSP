@@ -5291,7 +5291,7 @@ void VSP_SOLVER::CalculateSurfacePressures(void)
 {
 
     int i, j, Loop1, Loop2, *LoopHits, *EdgeHits, Edge;
-    double Vec1[3], Vec2[2], Vec[3], Dot, Mag1, Mag2, Gradient;
+    double Vec1[3], Vec2[3], Vec[3], Dot, Mag1, Mag2, Gradient;
     double *U, *V, *W, *UDenom, *VDenom, *WDenom;
     double Cp, Fact, Ratio, CpC, q2, CpCrit;
     
