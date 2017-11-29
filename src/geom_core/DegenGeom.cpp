@@ -320,10 +320,10 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
 {
     int platePnts = ( num_pnts + 1 ) / 2;
 
-    vector< vector<vec3d>  >    xMat = degenPlate.x;
-    vector< vector<vec3d>  >    nCamberMat = degenPlate.nCamber;
-    vector< vector<double> >    tMat = degenPlate.t;
-    vector< vector<double> >    zMat = degenPlate.zcamber;
+    vector< vector <vec3d> > xMat;
+    vector< vector <vec3d> > nCamberMat;
+    vector< vector <double> > tMat;
+    vector< vector <double> > zMat;
 
     vector<vec3d>   xVec(  platePnts );
     vector<vec3d>   nCVec( platePnts );
@@ -398,14 +398,16 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
 
             xVec[j]  = chordPnt;
 
+            // This portion of the code implicitly assumes each section is flat.  For
+            // bodies with extreme skinning, this is likley not the case and unexpected results
+            // may occur.
+
             vec3d zv = camberPnt - chordPnt;
-            if ( dot( zv, nCVec[j] ) >= 0.0 )
+            zVec[j] = zv.mag();
+
+            if ( dot( zv, nCVec[j] ) <= -1e-12 )
             {
-                zVec[j] = zv.mag();
-            }
-            else
-            {
-                zVec[j] = -zv.mag();
+                zVec[j] *= -1;
             }
         }
 
