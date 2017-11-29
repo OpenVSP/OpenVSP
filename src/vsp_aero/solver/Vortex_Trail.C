@@ -705,7 +705,7 @@ double VORTEX_TRAIL::UpdateLocation(void)
 {
  
     int i, j, m, Level;
-    double *U, *V, *W, Vec[3], Mag, *X, *Y, *Z, dx, dy, dz, dS, MaxDelta, Relax;
+    double *U, *V, *W, Vec[3], Mag, dx, dy, dz, dS, MaxDelta, Relax;
     VSP_NODE NodeA, NodeB, NodeTemp;
    
     //  velocities to be monotonic in nature
@@ -773,10 +773,6 @@ double VORTEX_TRAIL::UpdateLocation(void)
     }
 
     MaxDelta = sqrt(MaxDelta);
-    
-    delete [] X;
-    delete [] Y;
-    delete [] Z;
 
     // Update trailing vortex shape
     
