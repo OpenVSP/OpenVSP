@@ -2824,6 +2824,8 @@ void UnsteadyStabilityAndControlSolve(void)
        
     }
     
+    fclose(StabFile);    
+    
 }    
 
     
