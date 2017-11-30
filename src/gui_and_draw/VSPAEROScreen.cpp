@@ -1195,6 +1195,8 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
         m_StabilityCalcToggle.Update(VSPAEROMgr.m_StabilityCalcFlag.GetID());
     }
 
+    m_StabilityTypeChoice.Update( VSPAEROMgr.m_StabilityType.GetID() );
+
     if (!VSPAEROMgr.m_StabilityCalcFlag())
     {
         m_StabilityTypeChoice.Deactivate();
