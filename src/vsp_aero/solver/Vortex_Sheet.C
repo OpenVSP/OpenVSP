@@ -1213,8 +1213,8 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
     } 
 
     // Approximate KT correction
-    
-    if ( !TrailingVortex->NoKarmanTsienCorrection() ) {
+
+    if ( !TrailingVortexList_[1].NoKarmanTsienCorrection() ) {
        
        U *= pow(1.+0.25*TrailingVortex->Mach()*TrailingVortex->Mach(),2.);
        V *= pow(1.+0.25*TrailingVortex->Mach()*TrailingVortex->Mach(),2.);

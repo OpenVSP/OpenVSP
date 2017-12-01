@@ -2206,9 +2206,8 @@ void VSP_SOLVER::CreateMatrixPreconditionersDataStructure(void)
     
     Done = 0;
     
-    Level = VSPGeom().NumberOfGridLevels();
+    Level = VSPGeom().NumberOfGridLevels() - 1;
     
-
     while ( !Done && Level >= 1 ) {
        
        Loops = 0;
