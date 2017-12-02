@@ -26,7 +26,7 @@ HeldenScreen::HeldenScreen( ScreenMgr* mgr ) : TabScreen( mgr, 600, 500, "Helden
     m_HMeshThreadIsRunning = false;
 
     Fl_Group* options_tab = AddTab( "Options" );
-    Fl_Group* surf_file_tab = AddTab( "INPUT_HELDENSURF" );
+    Fl_Group* surf_file_tab = AddTab( "INPUT_HELDENSURFACE" );
     Fl_Group* patch_file_tab = AddTab( "INPUT_HELDENPATCH" );
     Fl_Group* mesh_file_tab = AddTab( "INPUT_HELDENMESH" );
 
@@ -37,7 +37,7 @@ HeldenScreen::HeldenScreen( ScreenMgr* mgr ) : TabScreen( mgr, 600, 500, "Helden
     int window_border_width = 5;
     int group_border_width = 2;
 
-    int col_height = 250;
+    int col_height = 220;
 
     m_OptionsLayout.AddSubGroupLayout( m_FirstColLayout, ( m_OptionsLayout.GetW()
                     - group_border_width ) / 2 - window_border_width, col_height );
@@ -90,7 +90,7 @@ HeldenScreen::HeldenScreen( ScreenMgr* mgr ) : TabScreen( mgr, 600, 500, "Helden
 
     m_OptionsLayout.AddYGap();
 
-    m_ConsoleDisplay = m_OptionsLayout.AddFlTextDisplay( m_OptionsLayout.GetRemainY() - 3 * m_OptionsLayout.GetStdHeight() - window_border_width );
+    m_ConsoleDisplay = m_OptionsLayout.AddFlTextDisplay( m_OptionsLayout.GetRemainY() - 4 * m_OptionsLayout.GetStdHeight() );
     m_ConsoleBuffer = new Fl_Text_Buffer;
     m_ConsoleDisplay->buffer( m_ConsoleBuffer );
 
@@ -98,6 +98,9 @@ HeldenScreen::HeldenScreen( ScreenMgr* mgr ) : TabScreen( mgr, 600, 500, "Helden
 
     m_OptionsLayout.SetSameLineFlag( true );
     m_OptionsLayout.SetFitWidthFlag( false );
+
+    m_OptionsLayout.AddButton( m_ExportIGESButton, "Export IGES File" );
+    m_OptionsLayout.ForceNewLine();
 
     m_OptionsLayout.AddButton( m_InitHSurfButton, "Init Helden Surf" );
     m_OptionsLayout.AddButton( m_HSurfButton, "Launch Helden Surf" );
@@ -119,7 +122,7 @@ HeldenScreen::HeldenScreen( ScreenMgr* mgr ) : TabScreen( mgr, 600, 500, "Helden
     Fl_Group* surf_file_group = AddSubGroup( surf_file_tab, 5 );
     m_SurfFileLayout.SetGroupAndScreen( surf_file_group, this );
 
-    m_SurfFileLayout.AddDividerBox( "Helden Surf INPUT_HELDENSURF File" );
+    m_SurfFileLayout.AddDividerBox( "Helden Surf INPUT_HELDENSURFACE File" );
 
     m_SurfFileEditor = m_SurfFileLayout.AddFlTextEditor( m_SurfFileLayout.GetRemainY() - m_SurfFileLayout.GetStdHeight() );
 
@@ -130,8 +133,8 @@ HeldenScreen::HeldenScreen( ScreenMgr* mgr ) : TabScreen( mgr, 600, 500, "Helden
     m_SurfFileLayout.SetButtonWidth( m_SurfFileLayout.GetW()/2 );
     m_SurfFileLayout.SetSameLineFlag( true );
     m_SurfFileLayout.SetFitWidthFlag( false );
-    m_SurfFileLayout.AddButton( m_SaveSurfFile, "Save Surf File" );
-    m_SurfFileLayout.AddButton( m_ReadSurfFile, "Read Surf File" );
+    m_SurfFileLayout.AddButton( m_SaveSurfFile, "Save Surface File" );
+    m_SurfFileLayout.AddButton( m_ReadSurfFile, "Read Surface File" );
 
     // Set up Helden Patch File tab
 
@@ -399,12 +402,12 @@ void HeldenScreen::GuiDeviceCallBack( GuiDevice* device )
 
     if( device == &m_SaveSurfFile )
     {
-        string setupfile = HeldenMgr.FileInPathOf( "INPUT_HELDENSURF" );
+        string setupfile = HeldenMgr.FileInPathOf( "INPUT_HELDENSURFACE" );
         m_SurfFileBuffer->savefile( setupfile.c_str() );
     }
     else if( device == &m_ReadSurfFile )
     {
-        string setupfile = HeldenMgr.FileInPathOf( "INPUT_HELDENSURF" );
+        string setupfile = HeldenMgr.FileInPathOf( "INPUT_HELDENSURFACE" );
         m_SurfFileBuffer->loadfile( setupfile.c_str() );
     }
     else if( device == &m_SavePatchFile )
@@ -427,6 +430,10 @@ void HeldenScreen::GuiDeviceCallBack( GuiDevice* device )
         string setupfile = HeldenMgr.FileInPathOf( "INPUT_HELDENMESH" );
         m_MeshFileBuffer->loadfile( setupfile.c_str() );
     }
+    else if ( device == & m_ExportIGESButton )
+    {
+        HeldenMgr.ExportIGESConvertRST();
+    }
     else if ( device == &m_IGESFileSelect )
     {
         veh->setExportFileName( vsp::HELDEN_IGES_TYPE,
@@ -437,7 +444,7 @@ void HeldenScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         HeldenMgr.InitHSurf();
 
-        string setupfile = HeldenMgr.FileInPathOf( "INPUT_HELDENSurf" );
+        string setupfile = HeldenMgr.FileInPathOf( "INPUT_HELDENSURFACE" );
         m_SurfFileBuffer->loadfile( setupfile.c_str() );
     }
     else if ( device == &m_HSurfButton )

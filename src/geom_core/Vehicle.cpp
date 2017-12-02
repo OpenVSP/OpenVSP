@@ -389,7 +389,7 @@ void Vehicle::SetupPaths()
     m_VSPAEROCmd = string( "vspaero" );
     m_VIEWERCmd = string( "vspviewer" );
     m_SLICERCmd = string( "vspslicer" );
-    m_HeldenSurfCmd = string ( "heldensurf" );
+    m_HeldenSurfCmd = string ( "heldensurface" );
     m_HeldenMeshCmd = string ( "heldenmesh" );
     m_HeldenPatchCmd = string ( "heldenpatch" );
 #endif
@@ -406,17 +406,24 @@ void Vehicle::SetupPaths()
     {
         printf( "VSPAERO slicer not found.\n" );
     }
+
+    // Even though warning messages are disabled, the command inside the if-statement
+    // still needs to be executed to perform check for later use.  Do not remove these
+    // lines.
     if( !CheckForFile( m_ExePath, m_HeldenSurfCmd ) )
     {
-        printf("Helden Surf not found.\n");
+        // Do not print message for optional heldensurface
+        // printf("heldensurface not found.\n");
     }
     if( !CheckForFile( m_ExePath, m_HeldenMeshCmd ) )
     {
-        printf("Helden Mesh not found.\n");
+        // Do not print message for optional heldenmesh
+        // printf("heldenmesh not found.\n");
     }
     if( !CheckForFile( m_ExePath, m_HeldenPatchCmd ) )
     {
-        printf("Helden Patch not found.\n");
+        // Do not print message for optional heldenpatch
+        // printf("heldenpatch not found.\n");
     }
 
     m_CustomScriptDirs.push_back( string( "./CustomScripts/" ) );

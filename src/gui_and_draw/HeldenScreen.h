@@ -81,6 +81,8 @@ protected:
     Fl_Text_Buffer *m_ConsoleBuffer;
 
     // Execute Layout
+    TriggerButton m_ExportIGESButton;
+
     TriggerButton m_InitHSurfButton;
     TriggerButton m_HSurfButton;
     TriggerButton m_KillHSurfButton;

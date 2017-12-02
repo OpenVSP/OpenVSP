@@ -48,6 +48,8 @@ public:
     Parm m_IGESToCubicTol;
     BoolParm m_IGESTrimTE;
 
+    void ExportIGESConvertRST( FILE *logFile = NULL );
+
     bool IsHSurfRunning();
     void KillHSurf();
     void InitHSurf();

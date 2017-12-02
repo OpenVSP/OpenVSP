@@ -85,6 +85,68 @@ void HeldenMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
 
 void HeldenMgrSingleton::InitHSurf()
 {
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        vector<string> args;
+
+        // Run HeldenMesh with -x to create example input file.
+        args.push_back( "-x" );
+
+        // Execute Helden Patch
+        m_HMeshProcess.ForkCmd( veh->GetExePath(), veh->GetHeldenSurfCmd(), args );
+
+        // Capture output and dump to INPUT_EXAMPLE
+        string exfname = FileInPathOf( "INPUT_HELDENSURF_EXAMPLE" );
+        FILE *logFile = fopen( exfname.c_str(), "w" );
+        MonitorHMesh( logFile, true );
+        fclose( logFile );
+
+        // Re-open INPUT_EXAMPLE for read.
+        FILE *infile = fopen( exfname.c_str(), "r" );
+
+        if ( infile )
+        {
+            string hsfname = FileInPathOf( "INPUT_HELDENSURFACE" );
+            FILE *hsfile = fopen( hsfname.c_str(), "w" );
+
+            if ( hsfile )
+            {
+                char buf[1024];
+
+                int initskip = 2;
+                int header = 2;
+
+                // Skip initial lines.
+                for ( int i = 0; i < initskip; i++ )
+                {
+                    fgets( buf, sizeof(buf), infile );
+                }
+
+                for ( int i = 0; i < header; i++ )
+                {
+                    fgets( buf, sizeof(buf), infile );
+                    fprintf( hsfile, "%s", buf );
+                }
+
+                // Skip line with VSP.rst specified.
+                fgets( buf, sizeof(buf), infile );
+
+                // Print line with HELDENPATCH.rst instead.
+                fprintf( hsfile, "HELDENPATCH.rst                    0.1         1           0\n" );
+
+                // Dump remainder of file as example.
+                while ( fgets( buf, sizeof( buf ), infile ) != NULL )
+                {
+                    fprintf( hsfile, "%s", buf );
+                }
+
+                fclose( hsfile );
+            }
+            fclose( infile );
+        }
+    }
 }
 
 /* ExecuteHSurf(FILE * logFile)
@@ -99,7 +161,13 @@ void HeldenMgrSingleton::ExecuteHSurf( FILE *logFile )
     {
         vector<string> args;
 
-        args.push_back( "-x" );
+        string igesfname = veh->getExportFileName( vsp::HELDEN_IGES_TYPE );
+
+        string path = GetPath( igesfname );
+
+        string hsfname = FileInPathOf( "INPUT_HELDENSURFACE" );
+
+        args.push_back( hsfname );
 
         //Print out execute command
         string cmdStr = m_HSurfProcess.PrettyCmd( veh->GetExePath(), veh->GetHeldenSurfCmd(), args );
@@ -115,8 +183,13 @@ void HeldenMgrSingleton::ExecuteHSurf( FILE *logFile )
             MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
         }
 
+        string pwd = GetCurrentWorkingDirectory();
+        ChangeWorkingDirectory( path );
         // Execute Helden Patch
         m_HSurfProcess.ForkCmd( veh->GetExePath(), veh->GetHeldenSurfCmd(), args );
+
+        // Return working directory
+        ChangeWorkingDirectory( pwd );
 
         // ==== MonitorSolverProcess ==== //
         MonitorHSurf(logFile);
@@ -202,7 +275,7 @@ void HeldenMgrSingleton::InitHPatch()
         }
     }
 
-    string igesfname = veh->getExportFileName( vsp::HELDEN_IGES_TYPE );
+    string rstfname = FileInPathOf( "HELDENSURFACE.rst" );
 
     string hpfname = FileInPathOf( "INPUT_HELDENPATCH" );
 
@@ -214,7 +287,7 @@ void HeldenMgrSingleton::InitHPatch()
 
         new_box.Scale( v );
 
-        fprintf( fp, "%s\n", igesfname.c_str() );
+        fprintf( fp, "%s\n", rstfname.c_str() );
         fprintf( fp, "cbox %f %f %f %f %f %f\n", new_box.GetMin( 0 ), new_box.GetMax( 0 ), new_box.GetMin( 1 ), new_box.GetMax( 1 ), new_box.GetMin( 2 ), new_box.GetMax( 2 ) );
         fprintf( fp, "clean\n" );
         fprintf( fp, "0\n" );
@@ -222,6 +295,83 @@ void HeldenMgrSingleton::InitHPatch()
         fclose( fp );
     }
 
+}
+
+void HeldenMgrSingleton::ExportIGESConvertRST( FILE *logFile )
+{
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        string igesfname = veh->getExportFileName( vsp::HELDEN_IGES_TYPE );
+
+        string path = GetPath( igesfname );
+
+        veh->WriteIGESFile( igesfname, m_SelectedSetIndex(), m_IGESLenUnit(), m_IGESSplitSubSurfs(),
+                            m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE(),
+                            true, true, false, false, vsp::DELIM_USCORE );
+
+        string fname = FileInPathOf( "INPUT_CONVERT" );
+        FILE *fp = fopen( fname.c_str(), "w" );
+
+        if ( fp )
+        {
+            fprintf( fp, "%s\n", igesfname.c_str() );
+            fprintf( fp, "0\n" );
+
+            fclose( fp );
+        }
+
+        vector<string> args;
+
+        // Not sure why, but having an empty argument list doesn't work.
+        // This redirection doesn't actually work either, as it should be handled by the OS.
+        args.push_back( " < " + fname );
+
+        //Print out execute command
+        string cmdStr = m_HPatchProcess.PrettyCmd( veh->GetExePath(), veh->GetHeldenPatchCmd(), args );
+        if( logFile )
+        {
+            fprintf( logFile, "%s", cmdStr.c_str() );
+        }
+        else
+        {
+            MessageData data;
+            data.m_String = "HeldenMessage";
+            data.m_StringVec.push_back( cmdStr );
+            MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        }
+
+        string pwd = GetCurrentWorkingDirectory();
+        ChangeWorkingDirectory( path );
+        // Execute Helden Patch
+        m_HPatchProcess.ForkCmd( veh->GetExePath(), veh->GetHeldenPatchCmd(), args );
+
+        m_HPatchProcess.DumpFileStdinPipe( fname );
+
+        // Return working directory
+        ChangeWorkingDirectory( pwd );
+
+
+        // ==== MonitorSolverProcess ==== //
+        MonitorHPatch(logFile);
+
+        // Check if the kill solver flag has been raised, if so clean up and return
+        //  note: we could have exited the IsRunning loop if the process was killed
+        if( m_HPatchProcessKill )
+        {
+            m_HPatchProcessKill = false;    //reset kill flag
+
+            return;
+        }
+
+        // Send the message to update the screens
+        MessageData data;
+        data.m_String = "UpdateAllScreens";
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+
+    }
 }
 
 /* ExecuteHPatch(FILE * logFile)
@@ -239,10 +389,6 @@ void HeldenMgrSingleton::ExecuteHPatch( FILE *logFile )
         string path = GetPath( igesfname );
 
         string hpfname = FileInPathOf( "INPUT_HELDENPATCH" );
-
-        veh->WriteIGESFile( igesfname, m_SelectedSetIndex(), m_IGESLenUnit(), m_IGESSplitSubSurfs(),
-                       m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE(),
-                       true, true, false, false, vsp::DELIM_USCORE );
 
         vector<string> args;
 
@@ -376,7 +522,7 @@ void HeldenMgrSingleton::InitHMesh()
                 char buf[1024];
 
                 int initskip = 2;
-                int headerfirst = 2;
+                int headerfirst = 3;
                 int headernext = 7;
 
                 // Skip initial lines.
@@ -392,14 +538,7 @@ void HeldenMgrSingleton::InitHMesh()
                     fprintf( hmfile, "%s", buf );
                 }
 
-                // Read OUTPUT line
-                fgets( buf, sizeof(buf), infile );
-
-                // Append cart3d and print line.
-                string sbuf( buf );
-                StringUtil::remove_trailing( sbuf, '\n' );
-                sbuf.append( " cart3d\n" );
-                fprintf( hmfile, "%s", sbuf.c_str() );
+                fprintf( hmfile, "OUTPUT: cart3d\n" );
 
                 // Continue copying the header lines.
                 for ( int i = 0; i < headernext; i++ )
