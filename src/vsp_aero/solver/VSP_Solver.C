@@ -2777,7 +2777,7 @@ void VSP_SOLVER::DoMatrixPrecondition(double *vec_in)
     
     else if ( Preconditioner_ == MATCON ) {
 
-#pragma omp parallel for         
+#pragma omp parallel for private(i)
        for ( k = 1 ; k <= NumberOfMatrixPreconditioners_ ; k++ ) {
 
           for ( i = 1 ; i <= MatrixPreconditionerList_[k].NumberOfVortexLoops() ; i++ ) {
