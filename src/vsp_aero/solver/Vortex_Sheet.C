@@ -1216,10 +1216,10 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
 
     if ( !TrailingVortexList_[1].NoKarmanTsienCorrection() ) {
        
-       U *= pow(1.+0.25*TrailingVortex->Mach()*TrailingVortex->Mach(),2.);
-       V *= pow(1.+0.25*TrailingVortex->Mach()*TrailingVortex->Mach(),2.);
-       W *= pow(1.+0.25*TrailingVortex->Mach()*TrailingVortex->Mach(),2.);
 
+       U *= pow(1.+0.25*TrailingVortexList_[1].Mach()*TrailingVortexList_[1].Mach(),2.);
+       V *= pow(1.+0.25*TrailingVortexList_[1].Mach()*TrailingVortexList_[1].Mach(),2.);
+       W *= pow(1.+0.25*TrailingVortexList_[1].Mach()*TrailingVortexList_[1].Mach(),2.);
     }
     
     // If this is an unsteady solution, we have to evaluate the starting
