@@ -198,11 +198,14 @@ void HeldenMgrSingleton::ExecuteHSurf( FILE *logFile )
         // Execute Helden Patch
         m_HSurfProcess.ForkCmd( veh->GetExePath(), veh->GetHeldenSurfCmd(), args );
 
-        // Return working directory
-        ChangeWorkingDirectory( pwd );
 
         // ==== MonitorSolverProcess ==== //
         MonitorHSurf(logFile);
+
+        rename( "TESTME3.rst", "HELDENSURFACE.rst" );
+
+        // Return working directory
+        ChangeWorkingDirectory( pwd );
 
         // Check if the kill solver flag has been raised, if so clean up and return
         //  note: we could have exited the IsRunning loop if the process was killed
