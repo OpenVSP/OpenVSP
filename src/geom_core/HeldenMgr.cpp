@@ -89,6 +89,16 @@ void HeldenMgrSingleton::InitHSurf()
 
     if ( veh )
     {
+        string igesfname = veh->getExportFileName( vsp::HELDEN_IGES_TYPE );
+
+        string rstfname = GetFilename( igesfname );
+        int pos = rstfname.find( ".igs" );
+        if ( pos >= 0 )
+        {
+            rstfname.erase( pos, rstfname.length() - 1 );
+        }
+        rstfname += string( ".rst" );
+
         vector<string> args;
 
         // Run HeldenMesh with -x to create example input file.
@@ -134,7 +144,7 @@ void HeldenMgrSingleton::InitHSurf()
                 fgets( buf, sizeof(buf), infile );
 
                 // Print line with HELDENPATCH.rst instead.
-                fprintf( hsfile, "HELDENPATCH.rst                    0.1         1           0\n" );
+                fprintf( hsfile, "%s                    0.1         1           0\n", rstfname.c_str() );
 
                 // Dump remainder of file as example.
                 while ( fgets( buf, sizeof( buf ), infile ) != NULL )
@@ -308,6 +318,16 @@ void HeldenMgrSingleton::ExportIGESConvertRST( FILE *logFile )
 
         string path = GetPath( igesfname );
 
+        string origfname = FileInPathOf( "HELDENPATCH.rst" );
+
+        string newfname = igesfname;
+        int pos = newfname.find( ".igs" );
+        if ( pos >= 0 )
+        {
+            newfname.erase( pos, newfname.length() - 1 );
+        }
+        newfname += string( ".rst" );
+
         veh->WriteIGESFile( igesfname, m_SelectedSetIndex(), m_IGESLenUnit(), m_IGESSplitSubSurfs(),
                             m_IGESSplitSurfs(), m_IGESToCubic(), m_IGESToCubicTol(), m_IGESTrimTE(),
                             true, true, false, false, vsp::DELIM_USCORE );
@@ -356,6 +376,8 @@ void HeldenMgrSingleton::ExportIGESConvertRST( FILE *logFile )
 
         // ==== MonitorSolverProcess ==== //
         MonitorHPatch(logFile);
+
+        rename( origfname.c_str(), newfname.c_str() );
 
         // Check if the kill solver flag has been raised, if so clean up and return
         //  note: we could have exited the IsRunning loop if the process was killed
