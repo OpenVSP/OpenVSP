@@ -2426,8 +2426,11 @@ void VSP_AGGLOM::CleanUpFans_(void)
                    MinArea = FineGrid().LoopList(Loop).Area();
                    
                 }
-                
-                MaxArea = MAX(FineGrid().LoopList(Loop).Area(),MaxArea);
+
+                if ( Loop > 0 && VortexLoopWasAgglomerated_[Loop] )
+                {
+                    MaxArea = MAX( FineGrid().LoopList( Loop ).Area(), MaxArea );
+                }
                 
              }
              
