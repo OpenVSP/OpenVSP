@@ -38,10 +38,38 @@ public:
 
     void FormInverse(void);
 
-    void FormRotationQuat(double *Vec, double Theta);
-    void FormRotationQuat(float *Vec, float Theta);
-    void FormRotationQuatf(float *Vec, float Theta);
-
+    template <typename T>
+    void FormRotationQuat(T *Vec, T Theta);
 };
+
+/*##############################################################################
+#                                                                              #
+#                         QUAT FormRotationQuat                                #
+#                                                                              #
+##############################################################################*/
+
+template <typename T>
+void QUAT::FormRotationQuat(T *Vec, T Theta)
+{
+
+    int i;
+    T Dot, SinHalfTheta;
+    QUAT Quat;
+
+    // Create the pure part along the normalized vector
+
+    Dot = sqrt(vector_dot(Vec,Vec));
+
+    SinHalfTheta = sin(0.5*Theta);
+
+    for ( i = 0 ; i <= 2 ; i++ ) {
+
+        (*this)(i) = Vec[i] * SinHalfTheta / Dot;
+
+    }
+
+    (*this)(3) = cos(0.5*Theta);
+
+}
 
 #endif
