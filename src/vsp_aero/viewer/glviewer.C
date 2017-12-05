@@ -1008,7 +1008,7 @@ void GL_VIEWER::RotateControlSurfaceNode( float xyz[3], int ConSurf )
    
     // Rotate point about control surface hinge line
 
-    Quat.FormRotationQuatf(ControlSurface[ConSurf].HingeVec,ControlSurface[ConSurf].DeflectionAngle);
+    Quat.FormRotationQuat(ControlSurface[ConSurf].HingeVec,ControlSurface[ConSurf].DeflectionAngle);
 
     InvQuat = Quat;
 
