@@ -4227,41 +4227,70 @@ void GL_VIEWER::DrawRotorSurfacesShaded(void)
     
     for ( i = 1 ; i <= NumberOfPropulsionElements ; i++ ) {
      
-         PropulsionElement[i].Rotor.CalculateRotorGeometry();
-       
-          // Loop over nodes defining the tips of each rotor and draw the rotor disk
+       PropulsionElement[i].Rotor.CalculateRotorGeometry();
+    
+       // Loop over nodes defining the tips of each rotor and draw the rotor disk
+     
+       for ( j = 1 ; j < NUM_ROTOR_NODES ; j++ ) {
+
+          glBegin(GL_TRIANGLES);
+
+             glNormal3f( -PropulsionElement[i].Rotor.Normal(0),
+                         -PropulsionElement[i].Rotor.Normal(1),
+                         -PropulsionElement[i].Rotor.Normal(2) );
+
+             vec[0] = PropulsionElement[i].Rotor.XYZ(0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.XYZ(1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.XYZ(2) - GeometryZShift;
+
+             glVertex3fv(vec);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,2) - GeometryZShift;
+      
+             glVertex3fv(vec);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,2) - GeometryZShift;
+      
+             glVertex3fv(vec);
+
+          glEnd();
         
-          for ( j = 1 ; j < NUM_ROTOR_NODES ; j++ ) {
+          if ( DrawReflectedGeometryIsOn ) {
 
              glBegin(GL_TRIANGLES);
-
+             
                 glNormal3f( -PropulsionElement[i].Rotor.Normal(0),
                             -PropulsionElement[i].Rotor.Normal(1),
                             -PropulsionElement[i].Rotor.Normal(2) );
-
+   
                 vec[0] = PropulsionElement[i].Rotor.XYZ(0) - GeometryXShift;;
-                vec[1] = PropulsionElement[i].Rotor.XYZ(1) - GeometryYShift;;
+                vec[1] = -PropulsionElement[i].Rotor.XYZ(1) - GeometryYShift;;
                 vec[2] = PropulsionElement[i].Rotor.XYZ(2) - GeometryZShift;;
 
                 glVertex3fv(vec);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,0) - GeometryXShift;;
-                vec[1] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,1) - GeometryYShift;;
+                vec[1] = -PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,1) - GeometryYShift;;
                 vec[2] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,2) - GeometryZShift;;
-         
+  
                 glVertex3fv(vec);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,0) - GeometryXShift;;
-                vec[1] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,1) - GeometryYShift;;
+                vec[1] = -PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,1) - GeometryYShift;;
                 vec[2] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,2) - GeometryZShift;;
-         
+  
                 glVertex3fv(vec);
-
-             glEnd();
-
-          }
-         
-       
+                
+             glEnd();             
+             
+          }  
+          
+       }
+     
     }
     
     if ( DrawWithWhiteBackgroundIsOn ) {
@@ -4288,27 +4317,48 @@ void GL_VIEWER::DrawRotorSurfacesShaded(void)
 
     for ( i = 1 ; i <= NumberOfPropulsionElements ; i++ ) {
 
-          // Now outline the rotor, indicating the direction of rotation
-          
-          for ( j = 1 ; j < NUM_ROTOR_NODES ; j++ ) {
+       // Now outline the rotor, indicating the direction of rotation
+       
+       for ( j = 1 ; j < NUM_ROTOR_NODES ; j++ ) {
+
+          glBegin(GL_LINES);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,2) - GeometryZShift;
+      
+             glVertex3fv(vec);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,2) - GeometryZShift;
+      
+             glVertex3fv(vec);
+             
+          glEnd();
+                  
+          if ( DrawReflectedGeometryIsOn ) {
 
              glBegin(GL_LINES);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j  ,2) - GeometryZShift;
          
                 glVertex3fv(vec);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorRadiusXYZ(j+1,2) - GeometryZShift;
          
                 glVertex3fv(vec);
                 
              glEnd();
+              
+          }
+                       
 
-          }       
+       }       
  
     }
     
@@ -4316,8 +4366,122 @@ void GL_VIEWER::DrawRotorSurfacesShaded(void)
     
     for ( i = 1 ; i <= NumberOfPropulsionElements ; i++ ) {
     
-          glBegin(GL_TRIANGLES);
+       glBegin(GL_TRIANGLES);
 
+             // Triangle 1
+          
+             glNormal3f( PropulsionElement[i].Rotor.RotorDirectionVectorNormal(1,0),
+                         PropulsionElement[i].Rotor.RotorDirectionVectorNormal(1,1),
+                         PropulsionElement[i].Rotor.RotorDirectionVectorNormal(1,2) );
+          
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,2) - GeometryZShift;
+
+             glVertex3fv(vec);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,2) - GeometryZShift;
+
+             glVertex3fv(vec);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,2) - GeometryZShift;
+             
+             glVertex3fv(vec);
+             
+       glEnd();
+             
+       glBegin(GL_TRIANGLES);             
+             
+             // Triangle 2
+           
+             glNormal3f( PropulsionElement[i].Rotor.RotorDirectionVectorNormal(2,0),
+                         PropulsionElement[i].Rotor.RotorDirectionVectorNormal(2,1),
+                         PropulsionElement[i].Rotor.RotorDirectionVectorNormal(2,2) );
+           
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,2) - GeometryZShift;
+
+             glVertex3fv(vec);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,2) - GeometryZShift;
+
+             glVertex3fv(vec);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,2) - GeometryZShift;
+             
+             glVertex3fv(vec);             
+
+       glEnd();
+             
+       glBegin(GL_TRIANGLES);       
+       
+             // Triangle 3
+     
+             glNormal3f( PropulsionElement[i].Rotor.RotorDirectionVectorNormal(3,0),
+                         PropulsionElement[i].Rotor.RotorDirectionVectorNormal(3,1),
+                         PropulsionElement[i].Rotor.RotorDirectionVectorNormal(3,2) );
+     
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,2) - GeometryZShift;
+
+             glVertex3fv(vec);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,2) - GeometryZShift;
+
+             glVertex3fv(vec);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,2) - GeometryZShift;
+             
+             glVertex3fv(vec);             
+      
+       glEnd();
+             
+       glBegin(GL_TRIANGLES);       
+         
+             // Triangle 4
+           
+             glNormal3f( PropulsionElement[i].Rotor.RotorDirectionVectorNormal(4,0),
+                         PropulsionElement[i].Rotor.RotorDirectionVectorNormal(4,1),
+                         PropulsionElement[i].Rotor.RotorDirectionVectorNormal(4,2) );
+           
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,2) - GeometryZShift;
+
+             glVertex3fv(vec);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,2) - GeometryZShift;
+
+             glVertex3fv(vec);
+
+             vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,0) - GeometryXShift;
+             vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,1) - GeometryYShift;
+             vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,2) - GeometryZShift;
+             
+             glVertex3fv(vec);             
+                          
+       glEnd(); 
+       
+       if ( DrawReflectedGeometryIsOn ) {
+       
+          glBegin(GL_TRIANGLES);
+   
                 // Triangle 1
              
                 glNormal3f( PropulsionElement[i].Rotor.RotorDirectionVectorNormal(1,0),
@@ -4325,19 +4489,19 @@ void GL_VIEWER::DrawRotorSurfacesShaded(void)
                             PropulsionElement[i].Rotor.RotorDirectionVectorNormal(1,2) );
              
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,2) - GeometryZShift;
-
+   
                 glVertex3fv(vec);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,2) - GeometryZShift;
-
+   
                 glVertex3fv(vec);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,2) - GeometryZShift;
                 
                 glVertex3fv(vec);
@@ -4353,23 +4517,23 @@ void GL_VIEWER::DrawRotorSurfacesShaded(void)
                             PropulsionElement[i].Rotor.RotorDirectionVectorNormal(2,2) );
               
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,2) - GeometryZShift;
-
+   
                 glVertex3fv(vec);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,2) - GeometryZShift;
-
+   
                 glVertex3fv(vec);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,2) - GeometryZShift;
                 
                 glVertex3fv(vec);             
-
+   
           glEnd();
                 
           glBegin(GL_TRIANGLES);       
@@ -4381,19 +4545,19 @@ void GL_VIEWER::DrawRotorSurfacesShaded(void)
                             PropulsionElement[i].Rotor.RotorDirectionVectorNormal(3,2) );
         
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,2) - GeometryZShift;
-
+   
                 glVertex3fv(vec);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,2) - GeometryZShift;
-
+   
                 glVertex3fv(vec);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(2,2) - GeometryZShift;
                 
                 glVertex3fv(vec);             
@@ -4409,25 +4573,27 @@ void GL_VIEWER::DrawRotorSurfacesShaded(void)
                             PropulsionElement[i].Rotor.RotorDirectionVectorNormal(4,2) );
               
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(1,2) - GeometryZShift;
-
+   
                 glVertex3fv(vec);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(3,2) - GeometryZShift;
-
+   
                 glVertex3fv(vec);
-
+   
                 vec[0] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,0) - GeometryXShift;
-                vec[1] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,1) - GeometryYShift;
+                vec[1] = -PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,1) - GeometryYShift;
                 vec[2] = PropulsionElement[i].Rotor.RotorDirectionVectorXYZ(4,2) - GeometryZShift;
                 
                 glVertex3fv(vec);             
                              
-          glEnd(); 
-       
+          glEnd();   
+          
+       }     
+                                  
     }
  
 }
