@@ -4464,6 +4464,12 @@ void FeaMaterial::Update()
 
 void FeaMaterial::ParmChanged( Parm* parm_ptr, int type )
 {
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
+
     Vehicle* veh = VehicleMgr.GetVehicle();
 
     if ( veh )
