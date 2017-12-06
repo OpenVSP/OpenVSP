@@ -379,7 +379,7 @@ Output::Output() : GuiDevice()
 //==== Init ====//
 void Output::Init( VspScreen* screen, Fl_Output* output, const char* format, VspButton* parm_button )
 {
-    assert( input );
+    assert( output );
     GuiDevice::Init( screen );
     AddWidget( parm_button );
     AddWidget( output, true );
