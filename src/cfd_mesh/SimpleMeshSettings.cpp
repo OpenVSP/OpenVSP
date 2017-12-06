@@ -234,7 +234,7 @@ double SimpleGridDensity::GetFarRadFrac()
     return radFrac;
 }
 
-double SimpleGridDensity::GetTargetLen( vec3d& pos, bool farFlag )
+double SimpleGridDensity::GetTargetLen( vec3d& pos, bool farFlag, const string & geomid, const int & surfindx, const double & u, const double & w )
 {
     double target_len;
     double base_len;
@@ -251,7 +251,7 @@ double SimpleGridDensity::GetTargetLen( vec3d& pos, bool farFlag )
 
     for ( int i = 0; i < (int)m_Sources.size(); i++ )
     {
-        double len = m_Sources[i]->GetTargetLen( base_len, pos );
+        double len = m_Sources[i]->GetTargetLen( base_len, pos, geomid, surfindx, u, w );
         if ( len < target_len )
         {
             target_len = len;

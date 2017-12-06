@@ -147,7 +147,7 @@ public:
 
     double GetRadFrac( bool farflag );
     double GetFarRadFrac();
-    double GetTargetLen( vec3d& pos, bool farFlag = false );
+    double GetTargetLen( vec3d& pos, bool farFlag = false, const string & geomid = string(), const int & surfindx = 0, const double & u = 0.0, const double &w = 0.0 );
 
     void ClearSources()
     {
