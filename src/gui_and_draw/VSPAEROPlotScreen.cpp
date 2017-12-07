@@ -1068,6 +1068,7 @@ void VSPAEROPlotScreen::UpdateCpSliceCaseBrowser()
     m_CpSliceCaseSelectedResultIDs.clear();
 
     string resultName = "CpSlicer_Case";
+    int case_num = 1;
 
     for ( unsigned int iCase = 0; iCase < m_NumCpCases; iCase++ )
     {
@@ -1075,7 +1076,8 @@ void VSPAEROPlotScreen::UpdateCpSliceCaseBrowser()
         if ( res )
         {
             char strbuf[1024];
-            ConstructCpSliceCaseString( strbuf, res );
+            ConstructCpSliceCaseString( strbuf, res, case_num );
+            case_num++;
             m_CpSliceCaseBrowser->add( strbuf );
             if ( m_SelectDefaultData )   //select ALL flow conditions
             {
@@ -1158,23 +1160,16 @@ void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * r
     }
 }
 
-void VSPAEROPlotScreen::ConstructCpSliceCaseString( char* strbuf, Results* res )
+void VSPAEROPlotScreen::ConstructCpSliceCaseString( char* strbuf, Results* res, int case_num )
 {
     if ( strbuf && res )
     {
         NameValData* nvd;
         vector <double> dataVector;
 
-        int case_num = 0;
         double alpha = 0;
         double beta = 0;
         double mach = 0;
-
-        nvd = res->FindPtr( "Case" );
-        if ( nvd )
-        {
-            case_num = nvd->GetIntData()[nvd->GetIntData().size() - 1];
-        }
 
         nvd = res->FindPtr( "Alpha" );
         if ( nvd )

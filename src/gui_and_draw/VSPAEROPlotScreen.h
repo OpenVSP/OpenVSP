@@ -187,7 +187,7 @@ protected:
     int m_NumCpCases; // Number of Flow Condition Cases
 
     void UpdateCpSliceCaseBrowser();
-    void ConstructCpSliceCaseString( char* strbuf, Results* res );
+    void ConstructCpSliceCaseString( char* strbuf, Results* res, int case_num = 1 );
     void UpdateCpSliceCutBrowser();
 
     void RedrawCpSlicePlot();
