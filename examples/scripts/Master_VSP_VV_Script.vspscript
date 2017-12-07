@@ -1863,7 +1863,7 @@ class HersheyVV : VV_Base
                 Cl_res_mat[x] = Cl_res;
                 Cl_approx_mat[x] = Cl_approx;
                 
-                Lift_angle_vsp[x] = 1/(Cl_alpha_res[x]*(pi/180)); // deg
+                Lift_angle_vsp[x] = 1/(Cl_alpha_res[x]); // deg
             }
 
             // Add error
