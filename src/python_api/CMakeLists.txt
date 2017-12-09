@@ -47,7 +47,14 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 	)
 
 	SET_SOURCE_FILES_PROPERTIES(vsp.i PROPERTIES CPLUSPLUS ON)
-	SWIG_ADD_MODULE(vsp python vsp.i )
+
+	IF (${CMAKE_VERSION} VERSION_LESS "3.8.0")
+		SWIG_ADD_MODULE( vsp python vsp.i )
+	ELSE()
+		SWIG_ADD_LIBRARY( vsp
+		LANGUAGE python
+		SOURCES vsp.i )
+	ENDIF()
 
 	IF( APPLE )
 		SET( PY_LIB "" )
@@ -91,7 +98,14 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		)
 
 		SET_SOURCE_FILES_PROPERTIES(vsp_g.i PROPERTIES CPLUSPLUS ON)
-		SWIG_ADD_MODULE(vsp_g python vsp_g.i )
+
+		IF (${CMAKE_VERSION} VERSION_LESS "3.8.0")
+			SWIG_ADD_MODULE( vsp_g python vsp_g.i )
+		ELSE()
+			SWIG_ADD_LIBRARY( vsp_g
+			LANGUAGE python
+			SOURCES vsp_g.i )
+		ENDIF()
 
 		IF( APPLE )
 			SET( PY_LIB "" )
