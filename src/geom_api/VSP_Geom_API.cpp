@@ -14,6 +14,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "AnalysisMgr.h"
+#include "SurfaceIntersectionMgr.h"
 #include "CfdMeshMgr.h"
 #include "Util.h"
 #include "DesignVarMgr.h"

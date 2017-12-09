@@ -31,6 +31,7 @@ using namespace std;
 
 class Surf;
 class SurfPatch;
+class SurfaceIntersectionSingleton;
 class CfdMeshMgrSingleton;
 
 //////////////////////////////////////////////////////////////////////
@@ -80,7 +81,7 @@ public:
     {
         return &bnd_box;
     }
-    friend void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth, CfdMeshMgrSingleton *MeshMgr );
+    friend void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth, SurfaceIntersectionSingleton *MeshMgr );
     void find_closest_uw( vec3d& pnt_in, double guess_uw[2], double uw[2] );
     void find_closest_uw( vec3d& pnt_in, double uw[2] );
     vec3d comp_pnt_01( double u, double w );
@@ -104,7 +105,7 @@ public:
         return sub_depth;
     }
 
-    friend void intersect_quads( SurfPatch&  bp1, SurfPatch& bp2, CfdMeshMgrSingleton *MeshMgr );
+    friend void intersect_quads( SurfPatch&  bp1, SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr );
 
 protected:
 

@@ -41,6 +41,7 @@
 #include "STEPOptionsScreen.h"
 #include "STLOptionsScreen.h"
 #include "StructScreen.h"
+#include "SurfaceIntersectionScreen.h"
 #include "SVGOptionsScreen.h"
 #include "TypeEditorScreen.h"
 #include "UserParmScreen.h"
@@ -203,6 +204,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_STEP_OPTIONS_SCREEN] = new STEPOptionsScreen( this );
     m_ScreenVec[VSP_STL_OPTIONS_SCREEN] = new STLOptionsScreen( this );
     m_ScreenVec[VSP_STRUCT_SCREEN] = new StructScreen( this );
+    m_ScreenVec[VSP_SURFACE_INTERSECTION_SCREEN] = new SurfaceIntersectionScreen( this );
     m_ScreenVec[VSP_SVG_OPTIONS_SCREEN] = new SVGOptionsScreen( this );
     m_ScreenVec[VSP_TYPE_EDITOR_SCREEN] = new TypeEditorScreen( this );
     m_ScreenVec[VSP_USER_PARM_SCREEN] = new UserParmScreen( this );

@@ -29,6 +29,7 @@
 #include "Selectable.h"
 #include "SelectedPnt.h"
 #include "SelectedLoc.h"
+#include "SurfaceIntersectionScreen.h"
 #include "ClippingScreen.h"
 #include "Clipping.h"
 #include "ManageViewScreen.h"
@@ -284,6 +285,14 @@ void VspGlWindow::update()
         if( cfdScreen )
         {
             cfdScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from CfdMeshScreen.
+        SurfaceIntersectionScreen * surfScreen = dynamic_cast< SurfaceIntersectionScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_SURFACE_INTERSECTION_SCREEN ) );
+        if( surfScreen )
+        {
+            surfScreen->LoadDrawObjs( drawObjs );
         }
 
         // I don't like having this Update() here.  However, there does not appear

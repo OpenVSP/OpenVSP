@@ -31,6 +31,7 @@ SCurve.cpp
 SimpleMeshSettings.cpp
 SimpleSubSurface.cpp
 Surf.cpp
+SurfaceIntersectionMgr.cpp
 SurfCore.cpp
 SurfPatch.cpp
 Tri.cpp
@@ -47,6 +48,7 @@ SCurve.h
 SimpleMeshSettings.h
 SimpleSubSurface.h
 Surf.h
+SurfaceIntersectionMgr.h
 SurfCore.h
 SurfPatch.h
 Tri.h

@@ -187,7 +187,7 @@ double IPntGroup::GroupDist( IPntGroup* g )
 // This function is un-used, but it is left here in case it may be used at a later time.
 // At such time, it should be updated to use the surface density map rather than only the
 // mesh density sources.
-double IPntGroup::GroupDistFract( IPntGroup* g, CfdMeshMgrSingleton *MeshMgr )
+double IPntGroup::GroupDistFract( IPntGroup* g, SurfaceIntersectionSingleton *MeshMgr )
 {
     double d = GroupDist( g );
     vec3d pnt = m_IPntVec[0]->m_Pnt;
@@ -326,7 +326,7 @@ void ISeg::JoinFront( ISeg* seg )
     }
 }
 
-ISeg* ISeg::Split( Surf* sPtr, vec2d & uw, CfdMeshMgrSingleton *MeshMgr )
+ISeg* ISeg::Split( Surf* sPtr, vec2d & uw, SurfaceIntersectionSingleton *MeshMgr )
 {
     vec2d uwa, uwb;
     if ( sPtr == m_SurfA )
@@ -1080,7 +1080,7 @@ bool SplitCompare( const ISegSplit* a, const ISegSplit* b )
 }
 
 
-vector< ISegChain* > ISegChain::SortAndSplit( CfdMeshMgrSingleton *MeshMgr )
+vector< ISegChain* > ISegChain::SortAndSplit( SurfaceIntersectionSingleton *MeshMgr )
 {
 //for ( int i = 0 ; i < (int)m_SplitVec.size() ; i++ )
 //  printf("Split Index = %d %f\n", m_SplitVec[i]->m_Index,  m_SplitVec[i]->m_Fract );
@@ -1121,7 +1121,7 @@ vector< ISegChain* > ISegChain::SortAndSplit( CfdMeshMgrSingleton *MeshMgr )
     return new_chains;
 }
 
-vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf, CfdMeshMgrSingleton *MeshMgr )
+vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf, SurfaceIntersectionSingleton *MeshMgr )
 {
     vector< ISegChain* > new_chains;
 
@@ -1231,7 +1231,7 @@ void ISegChain::TransferTess( )
     m_BCurve.Tesselate( autess );
 }
 
-void ISegChain::ApplyTess( CfdMeshMgrSingleton *MeshMgr )
+void ISegChain::ApplyTess( SurfaceIntersectionSingleton *MeshMgr )
 {
     //==== Clear Old Tess ====//
     m_TessVec.clear();

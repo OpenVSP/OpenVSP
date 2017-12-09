@@ -84,6 +84,7 @@ StructScreen.cpp
 STEPOptionsScreen.cpp
 STLOptionsScreen.cpp
 SubGLWindow.cpp
+SurfaceIntersectionScreen.cpp
 SVGOptionsScreen.cpp
 TypeEditorScreen.cpp
 UserParmScreen.cpp
@@ -152,6 +153,7 @@ StructScreen.h
 STEPOptionsScreen.h
 STLOptionsScreen.h
 SubGLWindow.h
+SurfaceIntersectionScreen.h
 SVGOptionsScreen.h
 TypeEditorScreen.h
 UserParmScreen.h

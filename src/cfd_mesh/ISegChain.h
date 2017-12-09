@@ -106,7 +106,7 @@ public:
     double MinDist( IPnt* ip  );
     void JoinBack( ISeg* seg );
     void JoinFront( ISeg* seg );
-    ISeg* Split( Surf* sPtr, vec2d & uw, CfdMeshMgrSingleton *MeshMgr );
+    ISeg* Split( Surf* sPtr, vec2d & uw, SurfaceIntersectionSingleton *MeshMgr );
 
     bool Match( ISeg* seg );
 
@@ -183,13 +183,13 @@ public:
 
     void MergeSplits();
     void RemoveChainEndSplits();
-    vector< ISegChain* > SortAndSplit( CfdMeshMgrSingleton *MeshMgr );
-    vector< ISegChain* > FindCoPlanarChains( Surf* surfPtr, Surf* adjSurf, CfdMeshMgrSingleton *MeshMgr );
+    vector< ISegChain* > SortAndSplit( SurfaceIntersectionSingleton *MeshMgr );
+    vector< ISegChain* > FindCoPlanarChains( Surf* surfPtr, Surf* adjSurf, SurfaceIntersectionSingleton *MeshMgr );
     void MergeInteriorIPnts();
 
     void BuildCurves();
     void TransferTess();
-    void ApplyTess( CfdMeshMgrSingleton *MeshMgr );
+    void ApplyTess( SurfaceIntersectionSingleton *MeshMgr );
 
     void SpreadDensity( );
     void CalcDensity( SimpleGridDensity* grid_den, list< MapSource* > & splitSources );
@@ -247,7 +247,7 @@ public:
     vector< IPnt* > m_IPntVec;
 
     double GroupDist( IPntGroup* g );
-    double GroupDistFract( IPntGroup* g, CfdMeshMgrSingleton *MeshMgr );
+    double GroupDistFract( IPntGroup* g, SurfaceIntersectionSingleton *MeshMgr );
     void AddGroup( IPntGroup* g );
 };
 
