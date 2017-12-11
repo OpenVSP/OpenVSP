@@ -469,7 +469,7 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
                     vector < string > tagnamevec = m_CompGeomResults->Find( "Tag_Name" ).GetStringData();
                     if ( m_geo_subsurfID[i].compare( "" ) == 0 )
                     {
-                        sprintf( str, "%s%i", geom->GetName().c_str(), m_geo_surfNum[i] );
+                        sprintf( str, "%s_Surf%i", geom->GetName().c_str(), m_geo_surfNum[i] );
                         newstr = str;
                         searchIndex = vector_find_val( tagnamevec, newstr );
                         m_geo_swet.push_back( m_CompGeomResults->Find( "Tag_Wet_Area" ).GetDouble( searchIndex ) );
@@ -477,7 +477,7 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
                     }
                     else
                     {
-                        sprintf( str, "%s%i,%s", geom->GetName().c_str(), m_geo_surfNum[i],
+                        sprintf( str, "%s_Surf%i,%s", geom->GetName().c_str(), m_geo_surfNum[i],
                              geom->GetSubSurf( m_geo_subsurfID[i] )->GetName().c_str() );
                         newstr = str;
                         searchIndex = vector_find_val( tagnamevec, newstr );
