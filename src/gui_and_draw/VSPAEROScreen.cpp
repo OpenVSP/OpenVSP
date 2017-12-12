@@ -244,7 +244,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Advanced Case Setup Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_AdvancedCaseSetupLayout,
         m_AdvancedLeftLayout.GetW(),
-        9 * m_AdvancedLeftLayout.GetStdHeight() );
+        11 * m_AdvancedLeftLayout.GetStdHeight() );
     m_AdvancedLeftLayout.AddY( m_AdvancedCaseSetupLayout.GetH() );
 
     m_AdvancedCaseSetupLayout.AddDividerBox( "Advanced Case Setup" );
