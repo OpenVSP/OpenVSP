@@ -56,7 +56,7 @@ void Atmosphere::USStandardAtmosphere1976( double alt, double delta_temp, int al
         }
         else
         {
-            CalcLayerQuantitiesUS1976( T, P, StdAtmosAltSteps[i + 1], StdAtmosAltSteps[i + 1], 0.0 );
+            CalcLayerQuantitiesUS1976( T, P, StdAtmosAltSteps[i], StdAtmosAltSteps[i], 0.0 );
         }
     }
 
