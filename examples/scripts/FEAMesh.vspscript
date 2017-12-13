@@ -17,7 +17,8 @@ void main()
     Update();
 
     //==== Set Structure Units ====//
-    SetParmVal( FindParm( pod_id, "StructUnit", "FeaStructure" ), BFT_UNIT );
+    string veh_id = FindContainer( "Vehicle", 0 );
+    SetParmVal( FindParm( veh_id, "StructUnit", "FeaStructure" ), BFT_UNIT );
 
     //==== Add FeaStructure to Pod ====//
     int struct_ind = AddFeaStruct( pod_id );

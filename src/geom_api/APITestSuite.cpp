@@ -557,7 +557,8 @@ void APITestSuite::TestFEAMesh()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     //==== Set Structure Units ====//
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( pod_id, "StructUnit", "FeaStructure" ), vsp::BFT_UNIT ), vsp::BFT_UNIT, TEST_TOL );
+    string veh_id = vsp::FindContainer( "Vehicle", 0 );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( veh_id, "StructUnit", "FeaStructure" ), vsp::BFT_UNIT ), vsp::BFT_UNIT, TEST_TOL );
 
     //==== Add FeaStructure to Pod ====//
     int struct_ind = vsp::AddFeaStruct( pod_id );
@@ -569,7 +570,7 @@ void APITestSuite::TestFEAMesh()
 
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( mat_id, "MassDensity", "FeaMaterial" ), 0.016 ), 0.016, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( mat_id, "ElasticModulus", "FeaMaterial" ), 2.0e6 ), 2.0e6, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( mat_id, "PoissonsRatio", "FeaMaterial" ), 0.4 ), 0.4, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( mat_id, "PoissonRatio", "FeaMaterial" ), 0.4 ), 0.4, TEST_TOL );
 
     //==== Create FeaProperty ====//
     string prop_id = vsp::AddFeaProperty();
@@ -628,7 +629,7 @@ void APITestSuite::TestFEAMesh()
     string hole_id = vsp::AddFeaSubSurf( pod_id, struct_ind, vsp::SS_RECTANGLE );
     TEST_ASSERT( hole_id.c_str() != NULL );
 
-    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "IncludedElements", "SS_Rectangle" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "IncludedElements", "SubSurface" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "Center_U", "SS_Rectangle" ), 0.65 ), 0.65, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "Center_W", "SS_Rectangle" ), 0.5 ), 0.5, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::FindParm( hole_id, "U_Length", "SS_Rectangle" ), 0.1 ), 0.1, TEST_TOL );
