@@ -1205,6 +1205,30 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "PROJ_DIR_TYPE", "NUM_PROJ_DIR_OPTIONS", NUM_PROJ_DIR_OPTIONS );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "PCURV_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PCURV_TYPE", "LINEAR", LINEAR );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PCURV_TYPE", "PCHIP", PCHIP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PCURV_TYPE", "CEDIT", CEDIT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PCURV_TYPE", "NUM_PCURV_TYPE", NUM_PCURV_TYPE );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "PROP_PCURVE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_PCURVE", "PROP_CHORD", PROP_CHORD );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_PCURVE", "PROP_TWIST", PROP_TWIST );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_PCURVE", "PROP_RAKE", PROP_RAKE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_PCURVE", "PROP_SKEW", PROP_SKEW );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_PCURVE", "NUM_PROP_PCURVE", NUM_PROP_PCURVE );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "VSPAERO_ANALYSIS_METHOD" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_ANALYSIS_METHOD", "VORTEX_LATTICE", VORTEX_LATTICE );
