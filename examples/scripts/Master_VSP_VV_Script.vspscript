@@ -195,7 +195,7 @@ class HTML
         fid.writeString( string("\t  ul ul { padding-left: 1.35vmin; font-size: 1.5vmin; }\n") );
         fid.writeString( string("\t  li { margin: 5px 0; }\n") );
         fid.writeString( string("\t  table.center { margin: auto; border-collapse: collapse; } \n") );
-        fid.writeString( string("\t  table.center.vspaero { width: 45%; } \n") );
+        fid.writeString( string("\t  table.center.vspaero { width: 42.5%; } \n") );
         fid.writeString( string("\t  table.center.setup { width: 60%; } \n") );
         fid.writeString( string("\t  caption { text-align: center; font-weight: bold; font-size: 115%; } \n") );
         fid.writeString( string("\t  th, td { padding: 8px; border: 1px solid black; } \n") );
@@ -410,26 +410,14 @@ class HTML
             fid.writeString( string("\t\t\t</ul>\n") );
             fid.writeString( string("\t\t  </li>\n") );
         }
-        if ( m_evv.m_runflag )
+        if ( m_evv.m_runflag && m_evv.m_EllispoidIDVec.length() > 0 )
         {
             fid.writeString( string("\t\t  <li><a href='#EW'>Ellipsoid</a>\n") );
-            fid.writeString( string("\t\t\t<ul>\n") );
-            if ( m_evv.m_EllispoidIDVec.length() > 0 )
-            {
-                fid.writeString( string("\t\t\t  <li><a href='#ECP'>Cp Study</a></li>\n") );
-            }
-            fid.writeString( string("\t\t\t</ul>\n") );
             fid.writeString( string("\t\t  </li>\n") );
         }
         if ( m_sdvv.m_runflag )
         {
             fid.writeString( string("\t\t  <li><a href='#SDW'>Supersonic Delta Wing</a>\n") );
-            fid.writeString( string("\t\t\t<ul>\n") );
-            // if ( m_sdvv.TestSupersonicDeltaWing.length() > 0 )
-            // {
-                // fid.writeString( string("\t\t\t<li><a href='#SAR'>. AR Study</a></li>\n") );
-            // }
-            fid.writeString( string("\t\t\t</ul>\n") );
             fid.writeString( string("\t\t  </li>\n") );
         }
         
@@ -502,14 +490,14 @@ class HTML
         text = string("M\\(\\equiv\\)\tMach Number");
         WriteParagraph( text );
         
-        text = string("m\\(\\equiv\\)\tParameter Measuring Subsonic (m < 1) or Supersonic (m > 1) Character of Wing Leading Edge");
+        text = string("m\\(\\equiv\\)\tSubsonic (m < 1) or Supersonic (m > 1) Character of Wing Leading Edge");
         WriteParagraph( text );
         
         fid.writeString( string("\t\t</div>\n") );
         fid.writeString( string( "\t\t<h2 id='EQU' style='text-align: center; font-size: 200%; font-weight: bold;'>Equations</h2>\n" ) );
         fid.writeString( string("\t\t<div>\n") );
         
-        text = string("Lifting Line Theory provides the following equations:");
+        text = string("Lifting Line Theory provides the following equations outlined in the NACA TN 3911 <span style='font-style: italic'>A Method for Predicting Lift Increments Due to Flap Deflection at Low Angles of Attack in Incompressible Flow</span> by Lowry and Polhamus:");
         WriteParagraph( text );
         
         fid.writeString( string( "\t\t  <p>$$C_{L\\alpha} = \\frac{2\\pi AR }{2 + \\sqrt{(\\frac{AR^2 B^2}{K^2})(1 + \\frac{tan^2 \\Lambda_{c/2}}{B^2}) + 4}}$$</p>\n" ) );
@@ -517,10 +505,6 @@ class HTML
         fid.writeString( string( "\t\t  <p>$$B =\\sqrt{1-M^2}$$</p>\n" ) );
         
         fid.writeString( string( "\t\t  <p>$$K =C_{L\\alpha2D}(\\frac{180}{\\pi})/(2\\pi)$$</p>\n" ) );
-        
-        //fid.writeString( string( "\t\t  <p>$$\\frac{\\partial \\alpha}{\\partial C_L} \\approx 10 + \\frac{20}{AR}$$</p>\n" ) );
-        
-        //fid.writeString( string( "\t\t  <p>$$\\frac{\\partial \\alpha}{\\partial C_L} \\approx 10 + \\frac{9}{AR^2} + \\frac{20}{AR}$$</p>\n" ) );
         
         text = string("The next group of equations are presented for three-dimensional wings in steady supersonic flow in <span style='font-style: italic'>Aerodynamics of Wings and Bodies</span> by Ashley and Landahl:");
         WriteParagraph( text );
@@ -728,18 +712,6 @@ class HTML
                 
                 AddChartsToBody(m_hvv.m_HersheyLDIDVec);
             }
-            
-            // if ( m_hvv.m_HersheyARppIDVec.length() > 0 )
-            // {
-                // fid.writeString( string("\t\t<div>\n") );
-                // fid.writeString( string("\t\t  <h2 id='HARpp'>Aspect Ratio Per Panel Study</h2>\n") );
-                
-                // text = string("The final Hershey Bar wing study looks to determine an ideal aspect ratio per panel that could be used to reduce the error in Cl between VSPAERO and Lifting Line Theory. To calculate the AR per panel, AR is divided by the span tesselation minus 1. This is then divided by 2 times the chord divided by the chord tesselation minus 1. This method does not take into consideration tip or LE/TE edge clustering. The charts below can be used to identify a reasonable AR per panel for a particular situation.");
-                
-                // WriteParagraph( text );
-                
-                // AddChartsToBody(m_hvv.m_HersheyARppIDVec);
-            // }
         }
         if ( m_svv.m_runflag )
         {
@@ -836,7 +808,7 @@ class HTML
                 fid.writeString( string("\t\t  <h2 id='SAR'>Aspect Ratio Study</h2>\n") );
                 
                 
-                text = string("The first swept Hershey Bar wing study focusses on the influence of aspect ratio on Lift Angle results. The Lift Angle is calculated from each VSPAERO result as the inverse of \\(C_{L\\alpha}\\) and compared to the theoretical 3D result for each run case, as seen in the plots below. For the theoretical 3D result, a K ratio of 1.0 is assumed.")
+                text = string("The first swept Hershey Bar wing study focusses on the influence of aspect ratio on Lift Angle results. The Lift Angle is calculated from each VSPAERO result as the inverse of \\(C_{L\\alpha}\\) and compared to the theoretical 3D result for each run case, as seen in the plots below. For the theoretical 3D result, a K ratio of 1.0 is assumed.");
 
                 // The average percent error in lift angle for the 35° sweep wing is found to be ") + double( m_svv.m_35Sweep_LA_Err ) + string("%.");
                 // For the approximate result, a 2D lift curve slope of 0.107699 was assumed for a NACA 0012 from <i>Theory of Air Sections</i>
@@ -1226,85 +1198,81 @@ class HTML
                 AddChartsToBody(m_vktvv.m_VKTTessIDVec);
             }
         }
-        if ( m_evv.m_runflag )
+        if ( m_evv.m_runflag && m_evv.m_EllispoidIDVec.length() > 0 )
         {
             fid.writeString( string( "\t\t<h1 id='EW'>Ellipsoid</h1>\n" ) );
+
+            fid.writeString( string("\t\t<div>\n") );
+
+            text = string("An ellipsoid geometry is modeled for this V&V case. Four VSPAERO single point analyses are then conducted. To validate the VSPAERO results, the surface  coordinate points for the ellipsoid are first calculated using the API function vsp::GetEllipsoidSurfPnts. The \\(C_P\\) is then calculated at each surface point with the API function vsp::GetEllipsoidCpDist with the freestream velocity set to 100 in the X direction, as is default VSPAERO. The vsp::GetEllipsoidCpDist function is based off the algorithms presented in NACA TN 196 by Max M. Munk. Three plots are generated for each VSPAERO run case per. They display the VSPAERO and theoretical \\(C_P\\) distribution along a major axis of the ellispoid.");
             
-            if ( m_evv.m_EllispoidIDVec.length() > 0 )
+            WriteParagraph( text );
+            
+            HTMLTable t1 = HTMLTable(); // Initialize Table
+            array<string> head_str(6);
+            head_str[0] = string("A Radius");
+            head_str[1] = string("B Radius");
+            head_str[2] = string("C Radius");
+            head_str[3] = string("Center");
+            head_str[4] = string("U Tess");
+            head_str[5] = string("W Tess");
+            t1.m_HeaderStringVec = head_str;
+            
+            array<array<string>> data_mat(1);
+            data_mat[0].resize(6);
+            data_mat[0][0] = string("1.0");
+            data_mat[0][1] = string("2.0");
+            data_mat[0][2] = string("3.0");
+            data_mat[0][3] = string("(0.0, 0.0, 0.0)");
+            data_mat[0][4] = string("40");
+            data_mat[0][5] = string("41");
+            
+            t1.m_TableDataMat = data_mat;
+            t1.m_Width = 0;
+            t1.m_Caption = string("Ellipsoid Geometry Setup");
+            
+            t1.WriteHTMLTable();
+            
+            HTMLTable t2 = HTMLTable(); // Initialize Table
+            head_str.resize(7);
+            head_str[0] = string("Run Case #");
+            head_str[1] = string("Analysis");
+            head_str[2] = string("Method");
+            head_str[3] = string("\\(\\alpha\\) (°)");
+            head_str[4] = string("\\(\\beta\\) (°)");
+            head_str[5] = string("M");
+            head_str[6] = string("Wake Iterations");
+            t2.m_HeaderStringVec = head_str;
+            
+            data_mat.resize(4);
+            for ( uint i = 0; i < uint(data_mat.length()); i++ )
             {
-                fid.writeString( string("\t\t<div>\n") );
-                fid.writeString( string("\t\t  <h2 id='ECP'>\\(C_P\\) Study</h2>\n") );
-                
-                text = string("An ellipsoid geometry is modeled for this V&V case. Four VSPAERO single point analyses are then conducted. To validate the VSPAERO results, the surface coordinate points for the ellipsoid are first calculated using the API function vsp::GetEllipsoidSurfPnts. The \\(C_P\\) is then calculated at each surface point with the API function vsp::GetEllipsoidCpDist with the freestream velocity set to 100 in the X direction, as is default VSPAERO. The vsp::GetEllipsoidCpDist function is based off the algorithms presented in NACA TN 196 by Max M. Munk. Three plots are generated for each VSPAERO run case per. They display the VSPAERO and theoretical \\(C_P\\) distribution along a major axis of the ellispoid.");
-                
-                WriteParagraph( text );
-                
-                HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(6);
-                head_str[0] = string("A Radius");
-                head_str[1] = string("B Radius");
-                head_str[2] = string("C Radius");
-                head_str[3] = string("Center");
-                head_str[4] = string("U Tess");
-                head_str[5] = string("W Tess");
-                t1.m_HeaderStringVec = head_str;
-                
-                array<array<string>> data_mat(1);
-                data_mat[0].resize(6);
-                data_mat[0][0] = string("1.0");
-                data_mat[0][1] = string("2.0");
-                data_mat[0][2] = string("3.0");
-                data_mat[0][3] = string("(0.0, 0.0, 0.0)");
-                data_mat[0][4] = string("40");
-                data_mat[0][5] = string("41");
-                
-                t1.m_TableDataMat = data_mat;
-                t1.m_Width = 0;
-                t1.m_Caption = string("Ellipsoid Geometry Setup");
-                
-                t1.WriteHTMLTable();
-                
-                HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(7);
-                head_str[0] = string("Run Case #");
-                head_str[1] = string("Analysis");
-                head_str[2] = string("Method");
-                head_str[3] = string("\\(\\alpha\\) (°)");
-                head_str[4] = string("\\(\\beta\\) (°)");
-                head_str[5] = string("M");
-                head_str[6] = string("Wake Iterations");
-                t2.m_HeaderStringVec = head_str;
-                
-                data_mat.resize(4);
-                for ( uint i = 0; i < uint(data_mat.length()); i++ )
-                {
-                    data_mat[i].resize(7);
-                    data_mat[i][0] = i + 1;
-                    data_mat[i][1] = string("Single Point");
-                    data_mat[i][2] = string("Panel");
-                    data_mat[i][5] = m_vktvv.m_MachVec[0];
-                    data_mat[i][6] = m_vktvv.m_WakeIterVec[0];
-                }
-
-                data_mat[0][3] = string("0.0");
-                data_mat[0][4] = string("0.0");
-
-                data_mat[1][3] = string("0.0");
-                data_mat[1][4] = string("5.0");
-
-                data_mat[2][3] = string("5.0");
-                data_mat[2][4] = string("0.0");
-
-                data_mat[3][3] = string("5.0");
-                data_mat[3][4] = string("5.0");
-                
-                t2.m_TableDataMat = data_mat;
-                t2.m_Caption = string("Ellipsoid VSPAERO Setup");
-                t2.m_Width = 1;
-                t2.WriteHTMLTable();
-                
-                AddChartsToBody(m_evv.m_EllispoidIDVec);
+                data_mat[i].resize(7);
+                data_mat[i][0] = i + 1;
+                data_mat[i][1] = string("Single Point");
+                data_mat[i][2] = string("Panel");
+                data_mat[i][5] = m_vktvv.m_MachVec[0];
+                data_mat[i][6] = m_vktvv.m_WakeIterVec[0];
             }
+
+            data_mat[0][3] = string("0.0");
+            data_mat[0][4] = string("0.0");
+
+            data_mat[1][3] = string("0.0");
+            data_mat[1][4] = string("5.0");
+
+            data_mat[2][3] = string("5.0");
+            data_mat[2][4] = string("0.0");
+
+            data_mat[3][3] = string("5.0");
+            data_mat[3][4] = string("5.0");
+            
+            t2.m_TableDataMat = data_mat;
+            t2.m_Caption = string("Ellipsoid VSPAERO Setup");
+            t2.m_Width = 1;
+            t2.WriteHTMLTable();
+            
+            AddChartsToBody(m_evv.m_EllispoidIDVec);
         }
         if ( m_sdvv.m_runflag )
         {
@@ -1449,8 +1417,8 @@ class HTMLChart
     {
         m_PointSize = 5.0;
         m_LegendPos = string("right");
-        m_Height = 0.45;
-        m_Width = 0.4;
+        m_Height = 0.7;
+        m_Width = 0.65;
     }
     
     void WriteChartHead( array<string> data_str_vec )
@@ -1482,7 +1450,6 @@ class HTMLChart
         fid.writeString( string("\t\tvar options = {\n") );
         string title_name = string("\t\t  title: '") + m_Title + string("',\n");
         fid.writeString( title_name );
-        //fid.writeString( string("\t\t  curveType: 'function',\n") );
         string pnt_size = string("\t\t  pointSize: ") + double(m_PointSize) + string(",\n");
         fid.writeString( pnt_size );
         
@@ -1507,12 +1474,6 @@ class HTMLChart
         fid.writeString( add_name );
         fid.writeString( string("\n\t\tchart.draw(data, options);\n") );
         
-        //// Add resizing event to adjust chart sizes
-        // string onload = string("\n\t\twindow.onload = ") + m_ChartName + string(";\n");
-        // fid.writeString( onload );
-        // string onresize = string("\t\twindow.onresize = ") + m_ChartName + string(";\n");
-        // fid.writeString( onresize );
-        
         fid.writeString( string("\t  }\n\n") );
     }
     
@@ -1534,7 +1495,7 @@ class HTMLTable
 {
     HTMLTable()
     {
-        m_Width = 0; // 0: 60% (geometry setup); 1: 45% (VSPAERO setup)
+        m_Width = 0; // 0: 60% (geometry setup); 1: 42.5% (VSPAERO setup)
     }
     
     void WriteHTMLTable()
@@ -1759,25 +1720,19 @@ class HersheyVV : VV_Base
         const uint8 num_WTess = uint8(m_Tess_ValW.length());
         const uint8 num_TC = uint8(m_Tip_Clus.length());
         
-        array<array<array<double>>> Error_Tess_theo(num_AR),  AR_pp(num_AR), Error_Cl_theo(num_AR); // index 0: AR, index 1: UTess, index 2: WTess
+        array<array<array<double>>> Error_Tess_theo(num_AR), Error_Cl_theo(num_AR); // index 0: AR, index 1: UTess, index 2: WTess
         array<array<array<array<array<double>>>>> span_loc_data(num_AR), cl_dist_data(num_AR); // index 0: AR, index 1: UTess, index 2: WTess, index 3: Tip Cluster
         array<array<array<array<vec3d>>>> cl_dist_theo(num_AR);
         array<double> C_l_llt(num_AR);
         
-        //const double Cl_2d = 0.107699; // From Plot digitizer for NACA 0012 Theory of Air Sections
-        //const double k_exp = Cl_2d*(180/pi)/(2*pi);
         const double C_bot_two = 1 + (pow(tan(0.0),2)/pow(b,2));
         
         const uint8 num_alpha = 9; // Reduce Number of points for testing. TODO: Set to 9
         const double alpha_0 = -20.0;
         const double alpha_f = 20.0;
         const double d_alpha = alpha_f - alpha_0;
-        
         const double Vinf = 100;
-        
-        //double Sum_Err_2d = 0.0;
         double Sum_Err_Theo = 0.0;
-        //double Sum_Err_llt = 0.0;
 
         array<array<double>> alpha_vlm(num_AR), Cl_vlm(num_AR), Cl_approx(num_AR);
         array<double> Cl_alpha_vlm(num_AR), Lift_angle_vlm(num_AR), Lift_angle_theo(num_AR), AR(num_AR), C_ratio(num_AR), Cl_alpha_theo( num_AR ), Lift_angle_pm(num_AR), Cl_alpha_pm(num_AR);
@@ -1864,14 +1819,7 @@ class HersheyVV : VV_Base
             // Fluid -Dynamic Lift pg 3-2
             // Method 1 of USAF DATCOM Section 1, page 1-7, and also NACA TN-3911)
             AR[x] = 2*m_halfAR[x];
-            //Lift_angle_llt[x] = 10 + (9/pow(AR[x],2)) + (20/AR[x]); // deg
-            //Cl_alpha_llt[x] = (1/Lift_angle_llt[x])*(180/pi); // rad
             double C_top = 2*pi*AR[x];
-            //double C_bot_one_3d = (pow(AR[x],2)*pow(b,2))/pow(k_exp,2);
-            //double C_bot_3d = 2 + (sqrt((C_bot_one_3d*C_bot_two)+4));
-            //Cl_alpha_3d[x] = (C_top/C_bot_3d); // deg
-            //Lift_angle_3d[x] = 1/(Cl_alpha_3d[x]*(pi/180)); // Cl to 3D theoretical lift angle (deg)
-            
             double C_bot_one_theo = (pow(AR[x],2)*pow(b,2))/pow(k_theo,2);
             double C_bot_theo = (2 + (sqrt((C_bot_one_theo*C_bot_two)+4)));
             Cl_alpha_theo[x] = (C_top/C_bot_theo)*(pi/180); // deg
@@ -1904,9 +1852,7 @@ class HersheyVV : VV_Base
             }
 
             // Add error
-            //Sum_Err_2d += abs(Lift_angle_vsp[x] - Lift_angle_3d[x])/abs(Lift_angle_3d[x]);
             Sum_Err_Theo += abs(Lift_angle_vlm[x] - Lift_angle_theo[x])/abs(Lift_angle_theo[x]);
-            //Sum_Err_llt += abs(Lift_angle_vsp[x] - Lift_angle_llt[x])/abs(Lift_angle_llt[x]);
             
             //==== Analysis: VSPAero Panel Single ====//
             Print( m_VSPSingleAnalysis );
@@ -1987,17 +1933,10 @@ class HersheyVV : VV_Base
             //==== Tesselation Study ====//
             if ( x != 0 && x != 2 && x != 4 ) // Skip evens 
             {
-                //Error_Tess_exp[x].resize(num_UTess);
                 Error_Tess_theo[x].resize(num_UTess);
                 span_loc_data[x].resize(num_UTess);
                 cl_dist_data[x].resize(num_UTess);
-                AR_pp[x].resize(num_UTess);
-                //Error_Cl_llt[x].resize(num_UTess);
                 cl_dist_theo[x].resize(num_UTess);
-                
-                // Calculate Experimental and Theoretical Values
-                //double C_l_alpha_llt = 1/(10+(20/(2*m_halfAR[x]))); //deg
-                //C_l_llt[x] = 1/Lift_angle_llt[x]; // deg with alpha = 1.0°
                 
                 for (uint8 q = 0; q < num_UTess; q++ )
                 {
@@ -2005,8 +1944,6 @@ class HersheyVV : VV_Base
                     Error_Tess_theo[x][q].resize(num_WTess);
                     span_loc_data[x][q].resize(num_WTess);
                     cl_dist_data[x][q].resize(num_WTess);
-                    AR_pp[x][q].resize(num_WTess);
-                    //Error_Cl_llt[x][q].resize(num_WTess);
                     cl_dist_theo[x][q].resize(num_WTess);
                     
                     for( uint8 r = 0; r < num_WTess; r++)
@@ -2061,11 +1998,9 @@ class HersheyVV : VV_Base
                             // Freestream Parameters
                             Print( "\tExecuting input Parameters..." );
                             array<double> alpha(1, 1.0);
-                            //array<int> Symmetry(1,1);
                             SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", alpha, 0);
                             SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
                             SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
-                            //SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", Symmetry, 0);
 
                             Update();
 
@@ -2122,10 +2057,6 @@ class HersheyVV : VV_Base
                                 {
                                     cl_dist_theo[x][q][r] = GetHersheyBarLiftDist( int(span_dist_vec.length())/2, Deg2Rad(Alpha[0]), Vinf, (2*m_halfAR[x]), true );
                                 }
-                                
-                                // AR Per Panel
-                                AR_pp[x][q][r] = (m_halfAR[x]*(m_Tess_ValW[r] - 1))/(2*(m_Tess_ValU[q] - 1)); // Approximate AR per panel with c = 1
-                                //Error_Cl_llt[x][q][r] = (abs(Cl_res_tess - C_l_llt[x])/abs(C_l_llt[x]))*100;
                             }
                             
                             ClearVSPModel();
@@ -2139,7 +2070,7 @@ class HersheyVV : VV_Base
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("CLvA");
         c1.m_Series = string("{ 6: { pointSize: 0, color: 'gray', lineWidth: 2 } }");
-        c1.m_Legend = string("'Alpha','5','7','10','20','30','50','Thin Approx'");
+        c1.m_Legend = string("'Alpha','5','7','10','20','30','50','Thin Approximation'");
         c1.m_Title = string("Hershey Bar VLM: Cl vs Alpha for Various AR");
         c1.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true } }");
@@ -2176,7 +2107,7 @@ class HersheyVV : VV_Base
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("CLavAR");
         c2.m_Series = string("{ 2: { pointSize: 0,  color: 'gray', lineWidth: 3 } }");
-        c2.m_Legend = string("'AR','VSPAERO VLM','VSPAERO Panel','Theoretical Approx'");
+        c2.m_Legend = string("'AR','VSPAERO VLM','VSPAERO Panel','Theoretical Approximation'");
         c2.m_Title = string("Hershey Bar: Cl_alpha vs AR");
         c2.m_HAxisString = string("hAxis: { title: 'AR', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         c2.m_VAxisString = string("vAxis: { title: 'Cl_alpha (°)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
@@ -2205,7 +2136,7 @@ class HersheyVV : VV_Base
         // Hershey Bar:  Lift Angle vs. Chord Ratio
         HTMLChart c3 = HTMLChart(); // Initialize Chart
         c3.m_ChartName = string("LAvCR");
-        c3.m_Legend = string("'1/AR','VSPAERO VLM','VSPAERO Panel','3D Theoretical Approx'");
+        c3.m_Legend = string("'1/AR','VSPAERO VLM','VSPAERO Panel','3D Theoretical Approximation'");
         c3.m_Series = string("{ 2: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
         c3.m_Title = string("Hershey Bar: Lift Angle vs. Chord Ratio");
         c3.m_HAxisString = string("hAxis: { title: '1/AR', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
@@ -2239,9 +2170,7 @@ class HersheyVV : VV_Base
         Print( m_Hershey_AR60_Cl_alpha_Err, false );
         Print( string( "%" ) );
         
-       // double Err_2d = (Sum_Err_2d/num_AR)*100;
         double Err_Theo = (Sum_Err_Theo/num_AR)*100;
-        //m_Hershey_LA_Err  = (Sum_Err_llt/num_AR)*100;
 
         Print( string( "The average percent error between VSPAERO and theoreticl approximate results is:" ), false );
         Print( Err_Theo, false );
@@ -2321,7 +2250,7 @@ class HersheyVV : VV_Base
                     {
                         HTMLChart c6 = HTMLChart(); // Initialize Chart
                         c6.m_ChartName = string("LD_AR") + int(2*m_halfAR[x]) + string("_U") + int(m_Tess_ValU[q]) + string("_W") + int(m_Tess_ValW[r]);
-                        c6.m_Legend = string("'Span Location','TC: 0.1','TC: 0.2','TC: 1.0','3D Approx'");
+                        c6.m_Legend = string("'Span Location','TC: 0.1','TC: 0.2','TC: 1.0','3D Approximation'");
                         c6.m_Series = string("{ 3: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
                         c6.m_Title = string("Lift Distribution of Various Tip Clustering Compared to Lifting Line Theory for AR = ") + int(2*m_halfAR[x]) + 
                             string(", Span Tess = ") + int(m_Tess_ValU[q]) + string(", Chord Tess = ") + int(m_Tess_ValW[r]);
@@ -2352,69 +2281,6 @@ class HersheyVV : VV_Base
                         m_HersheyLDIDVec.push_back( c6.m_ChartName );
                     }
                 }
-                
-                // Hershey Bar VLM: AR Per Panel
-                
-                // for (uint8 q = 0; q < num_UTess; q++ )
-                // {
-                    // string chart_name = string("ARpp_") + int(2*halfAR[x]) + string("_U") + int(Tess_ValU[q]);
-                    // string legend = string("'ARpp','20','40','80','100'");
-                    // string title = string("% Error of VSPAERO and Lifting Line Theory Cl of Various Span Tesselation for AR = ") + int(2*halfAR[x]) + string(", Span Tess = ") + int(Tess_ValU[q]);
-                    // string haxis = string("AR Per Panel");
-                    // string vaxis = string("% Error");
-                    
-                    // array<array<double>> data_mat(2);
-                    // data_mat[0] = AR_pp[x][q];
-                    // data_mat[1] = Error_Cl_llt[x][0];
-                    
-                    // WriteChartHead( chart_name, legend, data_mat, title, haxis, vaxis );
-                    
-                    // m_HersheyARppIDVec.push_back( chart_name );
-                // }
-                
-                // array<string> data_str_vec7;
-                
-                // // Google Charts API only supports a single X data vector. The x data from must be offset with null data
-                // for( uint r = 0; r < uint(AR_pp[x][0].length()); r++ )// U_Tess = 20
-                // {
-                    // string row = string("\t\t  [") + double( AR_pp[x][0][r] ) + string(",") + double( Error_Cl_llt[x][0][r] ) + string(",null,null,null],\n");
-                    // data_str_vec7.push_back( row );
-                // }
-                // for( uint r = 0; r < uint(AR_pp[x][1].length()); r++ )// U_Tess = 45
-                // {
-                    // string row = string("\t\t  [") + double( AR_pp[x][1][r] ) + string(",null,") + double( Error_Cl_llt[x][1][r] ) + string(",null,null],\n");
-                    // data_str_vec7.push_back( row );
-                // }
-                // for( uint r = 0; r < uint(AR_pp[x][2].length()); r++ )// U_Tess = 75
-                // {
-                    // string row = string("\t\t  [") + double( AR_pp[x][2][r] ) + string(",null,null,") + double( Error_Cl_llt[x][2][r] ) + string(",null],\n");
-                    // data_str_vec7.push_back( row );
-                // }
-                // for( uint r = 0; r < uint(AR_pp[x][2].length()); r++ )// U_Tess = 100
-                // {
-                    // string row = string("\t\t  [") + double( AR_pp[x][3][r] ) + string(",null,null,null,") + double( Error_Cl_llt[x][3][r] );
-                    
-                    // if ( r == AR_pp[x][3].length() - 1 )
-                    // {
-                        // row += string("]\n");
-                    // }
-                    // else
-                    // {
-                        // row += string("],\n");
-                    // }
-                    
-                    // data_str_vec7.push_back( row );
-                // }
-                
-                // HTMLChart c7 = HTMLChart(); // Initialize HTMLChart class
-                // c7.m_ChartName = string("ARpp_") + int(2*m_halfAR[x]);
-                // c7.m_Title = string("% Error of VSPAERO and Lifting Line Theory Cl of Various Span Tesselation for AR = ") + int(2*m_halfAR[x]);
-                // c7.m_Legend = string("'ARpp','20','45', '75','100'");
-                // c7.m_HAxisString = string("hAxis: { title: 'AR Per Panel', titleTextStyle: { bold: true } }");
-                // c7.m_VAxisString = string("vAxis: { title: '% Error', titleTextStyle: { bold: true } }");
-                
-                // c7.WriteChartHead( data_str_vec7 );
-                // m_HersheyARppIDVec.push_back( c7.m_ChartName );
             }
         }
     }
@@ -2445,10 +2311,6 @@ class SweepVV : VV_Base
         m_halfAR[3] = 12.5;
         m_halfAR[4] = 20.0;
         m_halfAR[5] = 30.001;
-        
-        // m_Tip_Clus[0] = 0.1;
-        // m_Tip_Clus[1] = 0.2;
-        // m_Tip_Clus[2] = 1;
         
         m_Tip_Clus[0] = 1;
         
@@ -2567,12 +2429,9 @@ class SweepVV : VV_Base
         
         array<array<array<double>>> Error_Tess_theo(num_AR); // index 0: AR, index 1: UTess, index 3: WTess
         
-        //const double Cl_2d = 0.107699; // From Plot digitizer for NACA 0012 Theory of Air Sections
-        //const double k_exp = Cl_2d*(180/pi)/(2*pi);
         const double sweep = 35; // deg
         const double C_bot_two = 1 + (pow((tan(Deg2Rad(sweep))),2)/pow(b,2));
         
-        //double Sum_Err_Exp = 0.0;
         double Sum_Err_Theo = 0.0;
         
         array<double> Lift_angle_vlm(num_AR), Lift_angle_theo(num_AR), C_ratio(num_AR), Lift_angle_pm(num_AR);
@@ -2650,12 +2509,6 @@ class SweepVV : VV_Base
             
             // Calculate Experimental and Theoretical Values
             double C_top = 2*pi*2*m_halfAR[x];
-            // double C_bot_one_exp = (pow((2*m_halfAR[x]),2)*pow(b,2))/pow(k_exp,2);
-            // double C_bot_exp = 2 + (sqrt((C_bot_one_exp*C_bot_two)+4));
-            // double C_l_alpha_exper = C_top/C_bot_exp;
-            // double C_l_alpha_exp = C_l_alpha_exper*(pi/180); // rad --> deg
-            // Lift_angle_exp[x] = 1/C_l_alpha_exp; // Cl to lift angle (deg)
-            
             double C_bot_one_theo = (pow((2*m_halfAR[x]),2)*pow(b,2))/pow(k_theo,2);
             double C_bot_theo = (2 + (sqrt((C_bot_one_theo*C_bot_two)+4)));
             double C_l_alpha_theo = (C_top/C_bot_theo)*(pi/180); // deg
@@ -2669,11 +2522,7 @@ class SweepVV : VV_Base
                 double C_l_alpha_vsp = Cl_res; // alpha = 1.0 (deg)
 
                 Lift_angle_vlm[x] = 1/(C_l_alpha_vsp); // deg
-                
-                //Sum_Err_Exp += abs(Lift_angle_res[x] - Lift_angle_exp[x])/abs(Lift_angle_exp[x]);
             }
-            
-            //double C_l_alpha_llt = 1/(10+(20/(2*m_halfAR[x]))); // deg
             
             Sum_Err_Theo += abs(Lift_angle_vlm[x] - Lift_angle_theo[x])/abs(Lift_angle_theo[x]);
             
@@ -2839,8 +2688,6 @@ class SweepVV : VV_Base
 
                                 // Calculate Error
                                 double C_l_alpha_vsp = Cl_res; // alpha = 1.0 (deg)
-                                //Error_Tess_exp[x][q][r] = (abs(C_l_alpha_vsp - C_l_alpha_exp)/abs(C_l_alpha_exp))*100;
-                                //Error_Tess_llt[x][q][r] = (abs(C_l_alpha_vsp - C_l_alpha_llt)/abs(C_l_alpha_llt))*100;
                                 Error_Tess_theo[x][q][r] = (abs(C_l_alpha_vsp - C_l_alpha_theo)/abs(C_l_alpha_theo))*100;
                             }
                             
@@ -2859,7 +2706,6 @@ class SweepVV : VV_Base
         c1.m_Title = string("35° Sweep: Lift Angle vs Chord Ratio");
         c1.m_HAxisString = string("hAxis: { title: '1/AR', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         c1.m_VAxisString = string("vAxis: { title: 'd_a/d_C_l (°)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
-        c1.m_Width = 0.38;
 
         array<string> data_str_vec1;
         for( uint i = 0; i < num_AR; i++ )
@@ -2933,7 +2779,7 @@ class SweepVV : VV_Base
                 c3.m_HAxisString = string("hAxis: { title: 'Span Tess', titleTextStyle: { bold: true } }");
                 c3.m_VAxisString = string("vAxis: { title: '% Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
                 c3.m_Width = 0.38;
-
+                
                 array<string> data_str_vec3;
                 for( uint i = 0; i < num_UTess; i++ )
                 {
@@ -2988,12 +2834,6 @@ class SweepVV : VV_Base
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 1 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 );
         
-        // TODO: Use Defaults or adjust parm values?
-        // SetParmVal( wing_id, "Tess_W", "Shape", 80 );
-        // SetParmVal( wing_id, "SectTess_U", "XSec_1", 6 );
-        // SetParmVal( wing_id, "TECluster", "WingGeom", 0.65 );
-        // SetParmVal( wing_id, "LECluster", "WingGeom", 0.35 );
-        
         Update();
         
         for ( uint8 x = 0; x < uint8(m_halfAR.length()); x++ )
@@ -3002,8 +2842,6 @@ class SweepVV : VV_Base
             {
                 SetParmVal( wing_id, "Sweep", "XSec_1", m_Sweep[v] );
                 SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] );
-                
-                //SetParmVal( wing_id, "Sweep_Location", "XSec_1", 0.5 );
 
                 Update();
 
@@ -3029,9 +2867,6 @@ class SweepVV : VV_Base
         const uint8 num_AR = uint8(m_halfAR.length());
         const uint8 num_Sweep = uint8(m_Sweep.length());
         
-        //const double Cl_2d = 0.107699; // From Plot digitizer for NACA 0012 Theory of Air Sections
-        //const double k_exp = Cl_2d*(180/pi)/(2*pi);
-        
         array<array<double>> Lift_angle_vlm(num_AR), Lift_angle_theo(num_AR), Cl_alpha_vlm(num_AR), Cl_alpha_theo(num_AR), Lift_angle_pm(num_AR), Cl_alpha_pm(num_AR);
         array<double> Error_Vec_vlm(num_Sweep), C_ratio(num_AR), Error_Vec_pm(num_Sweep);
         
@@ -3040,11 +2875,10 @@ class SweepVV : VV_Base
             Lift_angle_vlm[x].resize(num_Sweep);
             Lift_angle_pm[x].resize(num_Sweep);
             Lift_angle_theo[x].resize(num_Sweep);
-            //Lift_angle_exp[x].resize(num_Sweep);
+
             Cl_alpha_vlm[x].resize(num_Sweep);
             Cl_alpha_pm[x].resize(num_Sweep);
             Cl_alpha_theo[x].resize(num_Sweep);
-            //Cl_alpha_exp[x].resize(num_Sweep);
             
             C_ratio[x] = 1/(2*m_halfAR[x]); // AR to chord ratio
             
@@ -3125,10 +2959,6 @@ class SweepVV : VV_Base
                     // Calculate Experimental and Theoretical Values
                     double C_bot_two = 1 + (pow((tan(Deg2Rad(m_Sweep[v]))),2)/pow(b,2));
                     double C_top = 2*pi*2*m_halfAR[x];
-                    // double C_bot_one_exp = (pow((2*m_halfAR[x]),2)*pow(b,2))/pow(k_exp,2);
-                    // double C_bot_exp = 2 + (sqrt((C_bot_one_exp*C_bot_two)+4));
-                    // Cl_alpha_exp[x][v] = (C_top/C_bot_exp)*(pi/180); // rad --> deg
-                    // Lift_angle_exp[x][v] = 1/Cl_alpha_exp[x][v]; // Cl to lift angle (deg)
                     
                     Lift_angle_vlm[x][v] = 1/(Cl_alpha_vlm[x][v]); // deg
                     double C_bot_one_theo = (pow((2*m_halfAR[x]),2)*pow(b,2))/pow(k_theo,2);
@@ -3286,14 +3116,13 @@ class SweepVV : VV_Base
             m_SweepSweepClavARIDVec.push_back( c3.m_ChartName );
         }
         
-        // VLM: Ave % Dif of VSPAERO/Theoretical Results vs. Sweep
+        // Average % Dif of VSPAERO/Theoretical Results vs. Sweep
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("ErrorvSweep");
         c2.m_Legend = string("'Sweep','Ave % VLM Error', 'Ave % Panel Error'");
-        c2.m_Title = string("VLM: Ave % Error in Cl_alpha of VSPAERO to Theoretical Results vs. Sweep"); 
+        c2.m_Title = string("Average % Error in Cl_alpha of VSPAERO to Theoretical Results vs. Sweep"); 
         c2.m_HAxisString = string("hAxis: { title: 'Sweep (°)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         c2.m_VAxisString = string("vAxis: { title: '% Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
-        c2.m_Width = 0.38;
         
         array<string> data_str_vec2;
         for( uint i = 0; i < num_Sweep; i++ )
@@ -3372,10 +3201,6 @@ class BertinVV : VV_Base
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 0.2 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 0.2 );
         SetParmVal( wing_id, "Aspect", "XSec_1", 2.5 );
-        
-        // Adjust parm values or use defaults?
-        // SetParmVal( wing_id, "SectTess_U", "XSec_1", 7 ); // Span
-        // SetParmVal( wing_id, "Tess_W", "Shape", 59 ); // Chord
 
         Update();
 
@@ -3534,7 +3359,6 @@ class BertinVV : VV_Base
         c1.m_Title = string("VLM: % Error in Cl_alpha of VSPAERO to Theoretical Results vs. Alpha"); 
         c1.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: '% Error', titleTextStyle: { bold: true } }");
-        c1.m_Width = 0.38;
         
         array<string> data_str_vec1;
         for( uint i = 0; i < uint(m_AlphaNpts); i++ )
@@ -3704,10 +3528,6 @@ class WarrenVV : VV_Base
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.5 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 0.5 );
         SetParmVal( wing_id, "Aspect", "XSec_1", sqrt(2) );
-        
-        // Adjust Parms or Use Defaults?
-        // SetParmVal( wing_id, "SectTess_U", "XSec_1", 7 ); // Span
-        // SetParmVal( wing_id, "Tess_W", "Shape", 59 ); // Chord
         
         Update();
 
@@ -3883,7 +3703,6 @@ class WarrenVV : VV_Base
         c1.m_Title = string("VLM: % Error in Cl_alpha of VSPAERO to Theoretical Results vs. Alpha"); 
         c1.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: '% Error', titleTextStyle: { bold: true } }");
-        c1.m_Width = 0.38;
         
         array<string> data_str_vec1;
         for( uint i = 0; i < uint(m_AlphaNpts); i++ )
@@ -3912,7 +3731,6 @@ class WarrenVV : VV_Base
         c2.m_Title = string("VLM: % Error in Cm_alpha of VSPAERO to Theoretical Results vs. Alpha"); 
         c2.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
         c2.m_VAxisString = string("vAxis: { title: '% Error', titleTextStyle: { bold: true } }");
-        c2.m_Width = 0.38;
         
         array<string> data_str_vec2;
         for( uint i = 0; i < uint(m_AlphaNpts); i++ )
@@ -4068,16 +3886,13 @@ class VKTVV : VV_Base
     VKTVV()
     {
         m_epsilon[0] = 0.1;
-        //m_epsilon[1] = 0.15;
         m_epsilon[1] = 0.2;
         
         m_kappa[0] = 0;
         m_kappa[1] = 0.1;
-        //m_kappa[2] = 0.2;
         
         m_tau[0] = 0;
         m_tau[1] = 10;
-        //m_tau[2] = 20;
         
         // Add another intermediary chord and span tesselation value?
         m_ChordTess[0] = 20;
@@ -4202,8 +4017,6 @@ class VKTVV : VV_Base
         uint8 num_STess = uint8(m_SpanTess.length());
         
         array<double> cut(1, 0.0);
-        
-        //const int npts_h = 801; // high point density
         const int npts_l = 122; // low point density
         
         array<array<array<array<vec3d>>>> xyz_airfoil_mat_ekt(num_epsilon); // index 0: epsilon, index 1: kappa, index 3: tau
