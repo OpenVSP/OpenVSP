@@ -502,6 +502,9 @@ class HTML
         text = string("M\\(\\equiv\\)\tMach Number");
         WriteParagraph( text );
         
+        text = string("m\\(\\equiv\\)\tParameter Measuring Subsonic (m < 1) or Supersonic (m > 1) Character of Wing Leading Edge");
+        WriteParagraph( text );
+        
         fid.writeString( string("\t\t</div>\n") );
         fid.writeString( string( "\t\t<h2 id='EQU' style='text-align: center; font-size: 200%; font-weight: bold;'>Equations</h2>\n" ) );
         fid.writeString( string("\t\t<div>\n") );
@@ -518,6 +521,13 @@ class HTML
         //fid.writeString( string( "\t\t  <p>$$\\frac{\\partial \\alpha}{\\partial C_L} \\approx 10 + \\frac{20}{AR}$$</p>\n" ) );
         
         //fid.writeString( string( "\t\t  <p>$$\\frac{\\partial \\alpha}{\\partial C_L} \\approx 10 + \\frac{9}{AR^2} + \\frac{20}{AR}$$</p>\n" ) );
+        
+        text = string("The next group of equations are presented for three-dimensional wings in steady supersonic flow in <span style='font-style: italic'>Aerodynamics of Wings and Bodies</span> by Ashley and Landahl:");
+        WriteParagraph( text );
+        
+        fid.writeString( string( "\t\t  <p>$$m =\\frac{B}{tan(\\Lambda)}$$</p>\n" ) );
+        
+        fid.writeString( string( "\t\t  <p>$$C_{L\\alpha}tan(\\Lambda) = f(m)$$</p>\n" ) );
         
         fid.writeString( string("\t\t</div>\n") );
         
@@ -1300,7 +1310,7 @@ class HTML
         {
             fid.writeString( string( "\t\t<h1 id='SDW'>Supersonic Delta Wing</h1>\n" ) );
             
-            text = string("This next study is similar to a study presented by Dave Kinney at the 2016 OpenVSP Workshop. Two delta wings are modeled and analyzed with VSPAERO.");
+            text = string("This next study is similar to a study presented by Dave Kinney at the 2016 OpenVSP Workshop, which compared VSPAERO results to thh theory of three-dimensional wings in steady supersonic flow outlined in <span style='font-style: italic'>Aerodynamics of Wings and Bodies</span> by Ashley and Landahl. Two delta wings are modeled and analyzed with VSPAERO, and the results are displayed alongside experimental data below.");
             
             WriteParagraph( text );
             
@@ -1310,9 +1320,9 @@ class HTML
             head_str[1] = string("Airfoil");
             head_str[2] = string("Root Chord");
             head_str[3] = string("\\(\\Lambda\\) Location");
-            head_str[4] = string("Section \\(\\Lambda\\) Location");
-            head_str[5] = string("Section \\(\\Lambda\\) (°)");
-            head_str[6] = string("\\(\\Lambda\\) (°)");
+            head_str[4] = string("\\(\\Lambda\\) (°)");
+            head_str[5] = string("Section \\(\\Lambda\\) Location");
+            head_str[6] = string("Section \\(\\Lambda\\) (°)");
             head_str[7] = string("U Tess");
             head_str[8] = string("W Tess");
             head_str[9] = string("Span");
@@ -1326,16 +1336,16 @@ class HTML
                 data_mat[i][1] = string("NACA0012");
                 data_mat[i][2] = string("6.0");
                 data_mat[i][3] = string("0.0");
-                data_mat[i][4] = string("1.0");
-                data_mat[i][5] = string("0.0");
+                data_mat[i][5] = string("1.0");
+                data_mat[i][6] = string("0.0");
                 data_mat[i][7] = string("6");
                 data_mat[i][8] = string("33");
             }
             
-            data_mat[0][6] = m_sdvv.m_Sweep[0];
+            data_mat[0][4] = m_sdvv.m_Sweep[0];
             data_mat[0][9] = string("20");
             
-            data_mat[1][6] = m_sdvv.m_Sweep[1];
+            data_mat[1][4] = m_sdvv.m_Sweep[1];
             data_mat[1][9] = string("7");
             
             t1.m_Width = 0;
@@ -1363,7 +1373,7 @@ class HTML
             data_mat[0][4] = string("1.135, 1.366, 1.894, 2.386, 2.861, 3.369, 3.884, 4.404");
             data_mat[0][5] = m_sdvv.m_WakeIterVec[0];
             
-            t2.m_Width = 1;
+            t2.m_Width = 0;
             t2.m_TableDataMat = data_mat;
             t2.m_Caption = string("Supersonic Delta Wing VSPAERO Setup");
             
@@ -1379,7 +1389,8 @@ class HTML
         fid.writeString( string("\t\t<div>\n") );
         fid.writeString( string("\t\t  <ol>\n") );
         
-        fid.writeString( string("\t\t\t<li>Abbott, I., & Doenhoff, A. (1959). <span style='font-style: italic'>Theory of Wing Sections: Including a Summary of Airfoil Data</span>. NY: Dover Publications, Inc.</li>\n") );
+        fid.writeString( string("\t\t\t<li>Abbott, I. & Doenhoff, A. (1959). <span style='font-style: italic'>Theory of Wing Sections: Including a Summary of Airfoil Data</span>. NY: Dover Publications, Inc.</li>\n") );
+        fid.writeString( string("\t\t\t<li>Ashley, H. & Landahl, M. (1965). <span style='font-style: italic'>Aerodynamics of Wings and Bodies</span>. MA: Addison-Wesley Publishing Company, Inc.</li>\n") );
         fid.writeString( string("\t\t\t<li>Bertin, J. J., & Smith, M. L. (1994). <span style='font-style: italic'>Aerodynamics for Engineers</span>(2nd ed.). Englewood Cliffs, NJ: Prentice Hall.</li>\n") );
         fid.writeString( string("\t\t\t<li>Hoerner, S. F., & Borst, H. V. (1985). <span style='font-style: italic'>Fluid-Dynamic Lift: Practical Information on Aerodynamic and Hydrodynamic Lift</span> (2nd ed.). Albuquerque/N.M.: Hoerner.</li>\n") );
         fid.writeString( string("\t\t\t<li>Katz, J. & Plotkin, A. (2001). <span style='font-style: italic'>Low-Speed Aerodynamics</span> (2nd ed.). New York: Cambridge University Press.</li>\n") );
@@ -4987,12 +4998,6 @@ class SDVV : VV_Base
         SetParmVal( wing_id, "Sweep_Location", "XSec_1", 0 );
         SetParmVal( wing_id, "Sec_Sweep_Location", "XSec_1", 1 );
         SetParmVal( wing_id, "Sec_Sweep", "XSec_1", 0 );
-        //SetParmVal( wing_id, "Tess_W", "Shape", 100 );
-        //SetParmVal( wing_id, "SectTess_U", "XSec_1", 16 );
-        //SetParmVal( wing_id, "InCluster", "XSec_1", 0.15 );
-        //SetParmVal( wing_id, "OutCluster", "XSec_1", 0.15 );
-        //SetParmVal( wing_id, "LECluster", "WingGeom", 0.15 );
-        //SetParmVal( wing_id, "TECluster", "WingGeom", 0.15 );
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 8 );
         
         Update();
@@ -5118,6 +5123,7 @@ class SDVV : VV_Base
                     array<double> cl_vec = GetDoubleResults( rid_vec[0], "CL" );
                     double Cl_res = cl_vec[int(cl_vec.length()) - 1];
                     double Cl_alpha_vsp = Cl_res; // alpha = 1.0 (deg)
+                    Cl_alpha_vsp = Cl_res*(180/pi); // deg -> rad 
                     
                     Cl_alpha_tan_sweep[s][m] = Cl_alpha_vsp * tan( Deg2Rad(m_Sweep[s]) );
                     M_sweep_fun[s][m] = sqrt( pow( m_SuperMachVec[m], 2.0 ) - 1 ) / tan( Deg2Rad(m_Sweep[s]) );
@@ -5126,31 +5132,82 @@ class SDVV : VV_Base
                 ClearVSPModel();
             }
         }
+        
+        // Experimental data from Aerodynamics Of Wings And Bodies [Ashley & Landahl, pg. 169] using Plot Digitizer
+        array<double> m_exp(21), Cl_alpha_tan_sweep_exp(21);
+        m_exp[0] = 0.192469;
+        m_exp[1] = 0.312413;
+        m_exp[2] = 0.253835;
+        m_exp[3] = 0.298466;
+        m_exp[4] = 0.354254;
+        m_exp[5] = 0.538354;
+        m_exp[6] = 0.496513;
+        m_exp[7] = 0.415621;
+        m_exp[8] = 0.468619;
+        m_exp[9] = 0.64993;
+        m_exp[10] = 0.714086;
+        m_exp[11] = 0.725244;
+        m_exp[12] = 0.803347;
+        m_exp[13] = 0.88424;
+        m_exp[14] = 0.956764;
+        m_exp[15] = 1.0265;
+        m_exp[16] = 1.07392;
+        m_exp[17] = 1.18271;
+        m_exp[18] = 1.38633;
+        m_exp[19] = 1.43654;
+        m_exp[20] = 1.91632;
+        
+        Cl_alpha_tan_sweep_exp[0] = 5.81731;
+        Cl_alpha_tan_sweep_exp[1] = 6.45192;
+        Cl_alpha_tan_sweep_exp[2] = 5.71635;
+        Cl_alpha_tan_sweep_exp[3] = 5.64423;
+        Cl_alpha_tan_sweep_exp[4] = 5.47115;
+        Cl_alpha_tan_sweep_exp[5] = 5.65865;
+        Cl_alpha_tan_sweep_exp[6] = 5.45673;
+        Cl_alpha_tan_sweep_exp[7] = 5.25481;
+        Cl_alpha_tan_sweep_exp[8] = 5.06731;
+        Cl_alpha_tan_sweep_exp[9] = 5.02404;
+        Cl_alpha_tan_sweep_exp[10] = 4.99519;
+        Cl_alpha_tan_sweep_exp[11] = 4.57692;
+        Cl_alpha_tan_sweep_exp[12] = 4.17308;
+        Cl_alpha_tan_sweep_exp[13] = 4.38942;
+        Cl_alpha_tan_sweep_exp[14] = 3.71154;
+        Cl_alpha_tan_sweep_exp[15] = 3.61058;
+        Cl_alpha_tan_sweep_exp[16] = 3.35096;
+        Cl_alpha_tan_sweep_exp[17] = 3.13462;
+        Cl_alpha_tan_sweep_exp[18] = 2.37019;
+        Cl_alpha_tan_sweep_exp[19] = 2.61538;
+        Cl_alpha_tan_sweep_exp[20] = 2.02404;
 
         // Supersonic Delta Wing Plot: Cl_alpha*tan(sweep) = f(((M^2 - 1)^0.5)/tan(sweep)) 
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("SuperDelta");
-        c1.m_Legend = string("'((M^2 - 1)^0.5)/tan(sweep)','VSPAERO 35° Sweep','VSPAERO 65° Sweep'");
-        c1.m_Title = string("Supersonic Delta Wing: Cl_alpha*tan(sweep) = f(((M^2 - 1)^0.5)/tan(sweep))");
-        c1.m_HAxisString = string("hAxis: { title: '((M^2 - 1)^0.5)/tan(sweep)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
+        c1.m_Legend = string("'((M^2 - 1)^0.5)/tan(sweep)','VSPAERO 35° Sweep','VSPAERO 65° Sweep','Experimental Data'");
+        c1.m_Title = string("Supersonic Delta Wing: Cl_alpha*tan(sweep) = f(m)");
+        c1.m_Series = string("{ 2: { pointSize: 3, color: 'gray', lineWidth: 0 } }");
+        c1.m_HAxisString = string("hAxis: { title: 'm', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl_alpha*tan(sweep)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
-        c1.m_Height = 0.55;
-        c1.m_Width = 0.45;
         
         array<string> data_str_vec1;
         for( uint i = 0; i < num_mach; i++ )
         {
-            string row = string("\t\t  [") + double( M_sweep_fun[0][i] ) + string(",") + double( Cl_alpha_tan_sweep[0][i] ) + 
-                string(",null],\n");
+            string row = string("\t\t  [") + double( M_sweep_fun[0][i] ) + string(",") + double( Cl_alpha_tan_sweep[0][i] ) + string(",null,null],\n");
             
             data_str_vec1.push_back( row );
         }
 
         for( uint i = 0; i < num_mach; i++ )
         {
-            string row = string("\t\t  [") + double( M_sweep_fun[1][i] ) + string(",null,") + double( Cl_alpha_tan_sweep[1][i] );
+            string row = string("\t\t  [") + double( M_sweep_fun[1][i] ) + string(",null,") + double( Cl_alpha_tan_sweep[1][i] ) + string(",null],\n");
             
-            if ( i == num_mach - 1 )
+            data_str_vec1.push_back( row );
+        }
+        
+        for( uint i = 0; i < uint(m_exp.length()); i++ )
+        {
+            string row = string("\t\t  [") + double( m_exp[i] ) + string(",null,null,") + double( Cl_alpha_tan_sweep_exp[i] );
+            
+            if ( i == uint(m_exp.length()) - 1 )
             {
                 row += string("]\n");
             }
