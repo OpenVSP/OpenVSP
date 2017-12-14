@@ -29,6 +29,23 @@
 #include <list>
 using namespace std;
 
+#include "Vec3d.h"
+
+#include "eli/code_eli.hpp"
+
+#include "eli/geom/surface/bezier.hpp"
+#include "eli/geom/surface/piecewise.hpp"
+#include "eli/geom/curve/piecewise_creator.hpp"
+#include "eli/geom/surface/piecewise_general_skinning_surface_creator.hpp"
+#include "eli/geom/intersect/minimum_distance_surface.hpp"
+
+typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
+typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
+typedef piecewise_surface_type::point_type surface_point_type;
+
+typedef piecewise_surface_type::tolerance_type surface_tolerance_type;
+
+
 class Surf;
 class SurfPatch;
 class SurfaceIntersectionSingleton;
@@ -62,17 +79,27 @@ public:
         w_max = max;
     }
 
+    void setPatch( const surface_patch_type &p )
+    {
+        m_Patch = p;
+    }
+
+    long degree_u()
+    {
+        return m_Patch.degree_u();
+    }
+
+    long degree_v()
+    {
+        return m_Patch.degree_v();
+    }
+
     double get_u_min()    { return u_min; }
     double get_u_max()    { return u_max; }
     double get_w_min()    { return w_min; }
     double get_w_max()    { return w_max; }
 
     void compute_bnd_box();
-    void put_pnt( int iu, int iw, const vec3d& pnt_in )
-    {
-        pnts[iu][iw] = pnt_in;
-    }
-    vec3d comp_pnt( double u, double w );
 
     void split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, SurfPatch& bp11 );
     bool test_planar( double tol );
@@ -82,14 +109,11 @@ public:
         return &bnd_box;
     }
     friend void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth, SurfaceIntersectionSingleton *MeshMgr );
-    void find_closest_uw( vec3d& pnt_in, double guess_uw[2], double uw[2] );
     void find_closest_uw( vec3d& pnt_in, double uw[2] );
     vec3d comp_pnt_01( double u, double w );
     vec3d comp_tan_u_01( double u, double w );
     vec3d comp_tan_w_01( double u, double w );
 
-
-    void comp_delta_uw( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2], double delta_uw[2] );
 
     void Draw();
 
@@ -111,15 +135,14 @@ protected:
 
     Surf* m_SurfPtr;
 
+    surface_patch_type m_Patch;
+
     double u_min, u_max;
     double w_min, w_max;
-    vec3d pnts[4][4];
+
     BndBox bnd_box;
 
     int sub_depth;
-
-//  list <int_curve*> int_curve_ptr_list;
-    void blend_funcs( double u, double& F1, double& F2, double& F3, double& F4 );
 
 };
 

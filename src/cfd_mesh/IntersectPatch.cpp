@@ -70,14 +70,18 @@ void intersect_quads( SurfPatch& pa, SurfPatch& pb, SurfaceIntersectionSingleton
     int coplanar;
     vec3d ip0, ip1;
 
-    vec3d a0 = pa.pnts[0][0];
-    vec3d a1 = pa.pnts[3][0];
-    vec3d a2 = pa.pnts[3][3];
-    vec3d a3 = pa.pnts[0][3];
-    vec3d b0 = pb.pnts[0][0];
-    vec3d b1 = pb.pnts[3][0];
-    vec3d b2 = pb.pnts[3][3];
-    vec3d b3 = pb.pnts[0][3];
+    long an( pa.degree_u() ), am( pa.degree_v() );
+    long bn( pb.degree_u() ), bm( pb.degree_v() );
+
+    vec3d a0 = pa.m_Patch.get_control_point( 0, 0 );
+    vec3d a1 = pa.m_Patch.get_control_point( an, 0 );
+    vec3d a2 = pa.m_Patch.get_control_point( an, am );
+    vec3d a3 = pa.m_Patch.get_control_point( 0, am );
+
+    vec3d b0 = pb.m_Patch.get_control_point( 0, 0 );
+    vec3d b1 = pb.m_Patch.get_control_point( bn, 0 );
+    vec3d b2 = pb.m_Patch.get_control_point( bn, bm );
+    vec3d b3 = pb.m_Patch.get_control_point( 0, bm );
 
     //==== Tri A1 and B1 ====//
     iflag = tri_tri_intersect_with_isectline( a0.v, a2.v, a3.v, b0.v, b2.v, b3.v, &coplanar, ip0.v, ip1.v );

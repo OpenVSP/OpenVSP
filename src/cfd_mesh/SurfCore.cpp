@@ -736,13 +736,7 @@ void SurfCore::BuildPatches( Surf* srf ) const
 
             SurfPatch* patch = new SurfPatch();
 
-            for ( int pi = 0 ; pi < 4 ; pi++ )
-            {
-                for ( int pj = 0 ; pj < 4 ; pj++ )
-                {
-                    patch->put_pnt( pi, pj, epatch->get_control_point( pi, pj ) );
-                }
-            }
+            patch->setPatch( *epatch );
 
             patch->set_u_min_max( umin, umin + du );
             patch->set_w_min_max( vmin, vmin + dv );
