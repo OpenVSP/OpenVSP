@@ -31,16 +31,16 @@ Puw::~Puw()
 //////////////////////////////////////////////////////////////////////
 //==== IPnt Bin ====//
 //////////////////////////////////////////////////////////////////////
-int IPntBin::ComputeID( vec3d & pos )
+long IPntBin::ComputeID( vec3d & pos )
 {
-    int id =    ( int )( pos.x() * 10000.0 ) +
-                ( int )( pos.y() * 10000.0 ) +
-                ( int )( pos.z() * 10000.0 );
+    long id =   ( long )( pos.x() * 100000.0 ) +
+                ( long )( pos.y() * 100000.0 ) +
+                ( long )( pos.z() * 100000.0 );
 
     return id;
 }
 
-IPnt* IPntBin::Match( IPnt* ip, map< int, IPntBin > & binMap )
+IPnt* IPntBin::Match( IPnt* ip, map< long, IPntBin > & binMap )
 {
     IPnt* close_ipnt = NULL;
 

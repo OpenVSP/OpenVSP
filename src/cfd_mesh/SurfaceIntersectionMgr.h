@@ -238,7 +238,7 @@ protected:
 
     list< ISegChain* > m_ISegChainList;
 
-    map< int, IPntBin > m_BinMap;
+    map< long, IPntBin > m_BinMap;
 
     //vector< ISegSplit* > m_ISegSplitVec;
 

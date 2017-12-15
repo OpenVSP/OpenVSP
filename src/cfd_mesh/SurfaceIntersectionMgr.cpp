@@ -778,8 +778,8 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( SurfPatch& pA, SurfPatch&
     ipnt1->m_Pnt = ip1;
     m_DelIPntVec.push_back( ipnt1 );
 
-    int id0 = IPntBin::ComputeID( ipnt0->m_Pnt );
-    int id1 = IPntBin::ComputeID( ipnt1->m_Pnt );
+    long id0 = IPntBin::ComputeID( ipnt0->m_Pnt );
+    long id1 = IPntBin::ComputeID( ipnt1->m_Pnt );
 
     //==== Determine if Segment has a Duplicate ====//
     bool match = false;
@@ -894,7 +894,7 @@ ISeg* SurfaceIntersectionSingleton::CreateSurfaceSeg(  Surf* surfA, vec2d & uwA0
 void SurfaceIntersectionSingleton::BuildChains()
 {
     //==== Load Adjoining Bins =====//
-    map< int, IPntBin >::const_iterator iter;
+    map< long, IPntBin >::const_iterator iter;
     for ( iter = m_BinMap.begin() ; iter != m_BinMap.end() ; iter++ )
     {
         int id = ( *iter ).second.m_ID;
@@ -975,7 +975,7 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain )
             testIPnt = chain->m_ISegDeque.back()->m_IPnt[1];
         }
 
-        int binID = IPntBin::ComputeID( testIPnt->m_Pnt );
+        long binID = IPntBin::ComputeID( testIPnt->m_Pnt );
 
         IPnt* matchIPnt = m_BinMap[binID].Match( testIPnt, m_BinMap );
 
