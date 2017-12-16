@@ -1039,17 +1039,22 @@ void Vehicle::PasteClipboard()
             {
                 gPtr->SetParentID( parent_id );
                 parentGeom->AddChildID( gPtr->GetID() );
+
+                //==== Update gPtr and all children  ====//
+                if ( parentGeom->GetType().m_Type != HINGE_GEOM_TYPE )
+                {
+                    gPtr->SetIgnoreAbsFlag( true );
+                }
             }
 
-            //==== Update gPtr and all children  ====//
-            if ( parentGeom->GetType().m_Type != HINGE_GEOM_TYPE )
-            {
-                gPtr->SetIgnoreAbsFlag( true );
-            }
             gPtr->Update();
-            if ( parentGeom->GetType().m_Type != HINGE_GEOM_TYPE )
+
+            if ( parentGeom )
             {
-                gPtr->SetIgnoreAbsFlag( false );
+                if ( parentGeom->GetType().m_Type != HINGE_GEOM_TYPE )
+                {
+                    gPtr->SetIgnoreAbsFlag( false );
+                }
             }
         }
     }
