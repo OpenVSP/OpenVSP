@@ -31,9 +31,6 @@ FeaStructure::FeaStructure( string geomID, int surf_index )
 
     m_FeaPartCount = 0;
     m_FeaSubSurfCount = 0;
-
-    LinkMgr.RegisterContainer( m_StructSettings.GetID() );
-    LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
 }
 
 FeaStructure::~FeaStructure()
@@ -156,15 +153,20 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
 
 void FeaStructure::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
 {
+    ReSuffixGroupNames();
+
     for ( size_t i = 0; i < (int)m_FeaPartVec.size(); i++ )
     {
-        m_FeaPartVec[i]->AddLinkableParms( linkable_parm_vec, link_container_id );
+        m_FeaPartVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
     }
 
     for ( size_t i = 0; i < (int)m_FeaSubSurfVec.size(); i++ )
     {
-        m_FeaSubSurfVec[i]->AddLinkableParms( linkable_parm_vec, link_container_id );
+        m_FeaSubSurfVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
     }
+
+    m_StructSettings.AddLinkableParms( linkable_parm_vec, m_ID );
+    m_FeaGridDensity.AddLinkableParms( linkable_parm_vec, m_ID );
 }
 
 void FeaStructure::SetDrawFlag( bool flag )

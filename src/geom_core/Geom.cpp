@@ -3845,11 +3845,6 @@ void Geom::AddLinkableParms( vector< string > & linkable_parm_vec, const string 
     {
         m_SubSurfVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
     }
-
-    for ( int i = 0; i < (int)m_FeaStructVec.size(); i++ )
-    {
-        m_FeaStructVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
 }
 
 void Geom::ChangeID( string id )
