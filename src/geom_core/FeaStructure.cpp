@@ -180,6 +180,22 @@ void FeaStructure::SetDrawFlag( bool flag )
     }
 }
 
+void FeaStructure::ReSuffixGroupNames()
+{
+    // Note: This function differs from SubSurfaceMgr.ReSuffixGroupNames in the use of the FeaPart/SubSurface index
+    //  as the suffix. This avoids different instances of the base FeaPart or SubSurface class having the same suffix. 
+
+    for ( size_t i = 0; i < m_FeaPartVec.size(); i++ )
+    {
+        m_FeaPartVec[i]->SetDisplaySuffix( i );
+    }
+
+    for ( size_t i = 0; i < m_FeaSubSurfVec.size(); i++ )
+    {
+        m_FeaSubSurfVec[i]->SetDisplaySuffix( i );
+    }
+}
+
 FeaPart* FeaStructure::AddFeaPart( int type )
 {
     FeaPart* feaprt = NULL;

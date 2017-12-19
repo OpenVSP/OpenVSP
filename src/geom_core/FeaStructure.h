@@ -45,6 +45,8 @@ public:
     void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     void SetDrawFlag( bool flag );
 
+    void ReSuffixGroupNames();
+
     void AddFeaPart( FeaPart* fea_part )
     {
         m_FeaPartVec.push_back( fea_part );
