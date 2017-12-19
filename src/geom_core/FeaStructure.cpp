@@ -4259,7 +4259,7 @@ FeaProperty::FeaProperty() : ParmContainer()
     m_Izy.Init( "Izy", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
     m_Izy.SetDescript( "Area Product of Inertia of FeaElement (I12)" );
 
-    m_Ixx.Init( "Izz", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
+    m_Ixx.Init( "Ixx", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
     m_Ixx.SetDescript( "Torsional Constant About FeaElement Neutral Axis (J)" );
 
     m_Dim1.Init( "Dim1", "FeaProperty", this, 0.0, 0.0, 1.0e12 );
