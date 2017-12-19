@@ -34,6 +34,8 @@ public:
     void Renew();
     void Wype();
 
+    void AddLinkableContainers( vector< string > & linkable_container_vec );
+
     //==== FeaStructure Management ====//
     vector < FeaStructure* > GetAllFeaStructs();
     FeaStructure* GetFeaStruct( int struct_ind );
