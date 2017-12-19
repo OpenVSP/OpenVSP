@@ -59,6 +59,23 @@ void FeaStructure::Update()
     UpdateFeaSubSurfs();
 }
 
+void FeaStructure::ParmChanged( Parm* parm_ptr, int type )
+{
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
+
+    Update();
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
 xmlNodePtr FeaStructure::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr fea_info = xmlNewChild( node, NULL, BAD_CAST "FeaStructureInfo", NULL );

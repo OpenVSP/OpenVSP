@@ -28,17 +28,19 @@
 // Forward declaration
 class FeaPart;
 
-class FeaStructure
+class FeaStructure : public ParmContainer
 {
 public:
 
     FeaStructure( string GeomID, int surf_index );
-    ~FeaStructure();
+    virtual ~FeaStructure();
 
-    void Update();
+    virtual void Update();
 
-    xmlNodePtr EncodeXml( xmlNodePtr & node );
-    xmlNodePtr DecodeXml( xmlNodePtr & node );
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     void SetDrawFlag( bool flag );
