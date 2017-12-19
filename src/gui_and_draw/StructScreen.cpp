@@ -885,7 +885,7 @@ void StructScreen::UpdateStructBrowser()
     {
         for ( int i = 0; i < (int)structVec.size(); i++ )
         {
-            struct_name = structVec[i]->GetFeaStructName();
+            struct_name = structVec[i]->GetName();
             struct_surf_ind = structVec[i]->GetFeaStructMainSurfIndx();
 
             Geom* parent = veh->FindGeom( structVec[i]->GetParentGeomID() );
@@ -1861,7 +1861,7 @@ bool StructScreen::Update()
             vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
             FeaStructure* curr_struct = structVec[StructureMgr.GetCurrStructIndex()];
 
-            m_CurrStructOutput.Update( curr_struct->GetFeaStructName() );
+            m_CurrStructOutput.Update( curr_struct->GetName() );
 
             //==== Default Elem Size ====//
             m_MaxEdgeLen.Update( curr_struct->GetFeaGridDensityPtr()->m_BaseLen.GetID() );
@@ -1904,7 +1904,7 @@ bool StructScreen::Update()
             m_GmshFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME )->GetID() );
 
             // Update Structure Name
-            m_FeaStructNameInput.Update( curr_struct->GetFeaStructName() );
+            m_FeaStructNameInput.Update( curr_struct->GetName() );
 
             if ( m_SelectedPartIndexVec.size() > 0 )
             {
@@ -2378,7 +2378,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
 
             if ( feastruct )
             {
-                feastruct->SetFeaStructName( m_FeaStructNameInput.GetString() );
+                feastruct->SetName( m_FeaStructNameInput.GetString() );
 
                 if ( feastruct->GetStructSettingsPtr() )
                 {

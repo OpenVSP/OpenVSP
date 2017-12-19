@@ -111,15 +111,6 @@ public:
         return m_MainSurfIndx;
     }
 
-    string GetFeaStructName()
-    {
-        return m_FeaStructName;
-    }
-    void SetFeaStructName( string struct_name )
-    {
-        m_FeaStructName = struct_name;
-    }
-
     StructSettings* GetStructSettingsPtr()
     {
         return &m_StructSettings;
@@ -148,7 +139,6 @@ protected:
     int m_MainSurfIndx;
     int m_FeaPartCount; // Counter used for creating unique name for parts
     int m_FeaSubSurfCount; // Counter used for creating unique name for subsurfaces
-    string m_FeaStructName;
 
     vector < double > m_Usuppress;
     vector < double > m_Wsuppress;

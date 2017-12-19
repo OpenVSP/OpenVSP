@@ -105,7 +105,7 @@ bool FeaMeshMgrSingleton::LoadSurfaces()
     }
 
     // Save structure name
-    m_StructName = fea_struct->GetFeaStructName();
+    m_StructName = fea_struct->GetName();
 
     // Identify number of FeaParts
     m_NumFeaParts = fea_struct->NumFeaParts();

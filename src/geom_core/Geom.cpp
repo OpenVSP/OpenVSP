@@ -2513,7 +2513,7 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
                     if ( feastruct )
                     {
                         string name = XmlUtil::FindString( structnode, "StructureName", string() );
-                        feastruct->SetFeaStructName( name );
+                        feastruct->SetName( name );
                         feastruct->DecodeXml( structnode );
 
                         xmlNodePtr setting_node = XmlUtil::GetNode( structnode, "StructSettings", 0 );
@@ -4006,7 +4006,7 @@ FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
         if ( feastruct )
         {
             string defaultname = m_Name + "_Struct" + to_string( m_FeaStructCount );
-            feastruct->SetFeaStructName( defaultname );
+            feastruct->SetName( defaultname );
 
             if ( feastruct->GetStructSettingsPtr() )
             {
