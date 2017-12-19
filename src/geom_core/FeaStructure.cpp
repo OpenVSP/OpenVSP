@@ -898,6 +898,19 @@ xmlNodePtr FeaPart::DecodeXml( xmlNodePtr & node )
     return ParmContainer::DecodeXml( node );
 }
 
+void FeaPart::SetDisplaySuffix( int num )
+{
+    for ( int i = 0; i < (int)m_ParmVec.size(); i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+
+        if ( p )
+        {
+            p->SetGroupDisplaySuffix( num );
+        }
+    }
+}
+
 void FeaPart::UpdateSymmParts()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();

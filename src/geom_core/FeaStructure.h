@@ -166,6 +166,8 @@ public:
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
+    virtual void SetDisplaySuffix( int num );
+
     virtual void UpdateSymmParts();
     virtual void UpdateSymmIndex();
 
