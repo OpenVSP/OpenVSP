@@ -383,7 +383,7 @@ protected:
     // helper functions for VSPAERO files
     void ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
     void ReadLoadFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
-    void ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    void ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType );
     vector <string> ReadDelimLine( FILE * fp, char * delimeters );
     bool CheckForCaseHeader( std::vector<string> headerStr );
     bool CheckForResultHeader( std::vector < string > headerstr );

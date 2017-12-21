@@ -1279,6 +1279,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 
         bool stabilityFlag = m_StabilityCalcFlag.Get();
         vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
+        vsp::VSPAERO_STABILITY_TYPE stabilityType = ( vsp::VSPAERO_STABILITY_TYPE )m_StabilityType.Get();
 
         int ncpu = m_NCPU.Get();
 
@@ -1427,7 +1428,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
                     if ( stabilityFlag )
                     {
-                        ReadStabFile( stabFileName, res_id_vector, analysisMethod );      //*.STAB stability coeff file
+                        ReadStabFile( stabFileName, res_id_vector, analysisMethod, stabilityType );      //*.STAB stability coeff file
                     }
 
                     // CpSlice Latest *.adb File if slices are defined
@@ -1481,6 +1482,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
         bool stabilityFlag = m_StabilityCalcFlag.Get();
         vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
+        vsp::VSPAERO_STABILITY_TYPE stabilityType = ( vsp::VSPAERO_STABILITY_TYPE )m_StabilityType.Get();
 
         int ncpu = m_NCPU.Get();
 
@@ -1632,7 +1634,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
         if ( stabilityFlag )
         {
-            ReadStabFile( stabFileName, res_id_vector, analysisMethod );      //*.STAB stability coeff file
+            ReadStabFile( stabFileName, res_id_vector, analysisMethod, stabilityType );      //*.STAB stability coeff file
         }
 
         // CpSlice *.adb File and slices are defined
@@ -2108,7 +2110,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
 Read .STAB file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -2126,7 +2128,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
     std::vector<string> data_string_array;
 
     // Read in all of the data into the results manager
-    char seps[]   = " :,\t\n";
+    char seps[] = " :,\t\n";
     while ( !feof( fp ) )
     {
         data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
@@ -2134,6 +2136,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
         if ( CheckForCaseHeader( data_string_array ) )
         {
             res = ResultsMgr.CreateResults( "VSPAERO_Stab" );
+            res->Add( NameValData( "StabilityType", stabilityType ) );
             res_id_vector.push_back( res->GetID() );
 
             if ( ReadVSPAEROCaseHeader( res, fp, analysisMethod ) != 0 )
@@ -2145,7 +2148,6 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
         }
         else if ( res && CheckForResultHeader( data_string_array ) )
         {
-            char seps[] = " :,\t\n";
             data_string_array = ReadDelimLine( fp, seps );
 
             // Read result table
@@ -2172,46 +2174,77 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
             // Parse if this is not a comment line
             if ( res && strncmp( data_string_array[0].c_str(), "#", 1 ) != 0 )
             {
-                //================ Table Data ================//
-                // Checks for table header format
-                if ( ( data_string_array.size() != table_column_names.size() ) || ( table_column_names.size() == 0 ) )
+                if ( stabilityType != vsp::STABILITY_DEFAULT )
                 {
-                    //Indicator that the data table has changed or has not been initialized.
-                    table_column_names.clear();
-                    table_column_names = data_string_array;
+                    // Support file format for P, Q, or R uinsteady analysis types
+                    string name = data_string_array[0];
 
-                    // map control group names to full control surface group names
-                    int i_field_offset = -1;
-                    for ( unsigned int i_field = 0; i_field < data_string_array.size(); i_field++ )
+                    for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
                     {
-                        if ( strstr( table_column_names[i_field].c_str(), "ConGrp_" ) )
+                        //attempt to read a double if that fails then treat it as a string result and add to result name to account for spaces
+                        double temp_val = 0;
+                        int result = 0;
+                        result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
+
+                        if ( result == 1 )
                         {
-                            //  Set field offset based on the first ConGrp_ found
-                            if ( i_field_offset == -1 )
-                            {
-                                i_field_offset = i_field;
-                            }
-
-                            if ( m_Verbose ) { printf( "\tMapping table col name to CSG name: \n" ); }
-                            if ( m_Verbose ) { printf( "\ti_field = %d --> i_field_offset = %d\n", i_field, i_field - i_field_offset ); }
-                            if ( ( i_field - i_field_offset ) < m_ControlSurfaceGroupVec.size() )
-                            {
-                                if ( m_Verbose ) { printf( "\t%s --> %s\n", table_column_names[i_field].c_str(), m_ControlSurfaceGroupVec[i_field - i_field_offset]->GetName().c_str() ); }
-                                table_column_names[i_field] = m_ControlSurfaceGroupVec[i_field - i_field_offset]->GetName();
-                            }
-                            else
-                            {
-                                printf( "\tERROR (i_field - i_field_offset) > m_ControlSurfaceGroupVec.size()\n" );
-                                printf( "\t      (  %d    -    %d         ) >            %lu             \n", i_field, i_field_offset, m_ControlSurfaceGroupVec.size() );
-                            }
-
+                            res->Add( NameValData( name, temp_val ) );
+                        }
+                        else
+                        {
+                            name += data_string_array[i_field];
                         }
                     }
-
                 }
                 else
                 {
-                    if ( m_StabilityType() == vsp::STABILITY_DEFAULT )
+                    //================ Table Data ================//
+                    // Checks for table header format
+                    if ( ( data_string_array.size() != table_column_names.size() ) || ( table_column_names.size() == 0 ) )
+                    {
+                        //Indicator that the data table has changed or has not been initialized.
+                        table_column_names.clear();
+                        table_column_names = data_string_array;
+
+                        // map control group names to full control surface group names
+                        int i_field_offset = -1;
+                        for ( unsigned int i_field = 0; i_field < data_string_array.size(); i_field++ )
+                        {
+                            if ( strstr( table_column_names[i_field].c_str(), "ConGrp_" ) )
+                            {
+                                //  Set field offset based on the first ConGrp_ found
+                                if ( i_field_offset == -1 )
+                                {
+                                    i_field_offset = i_field;
+                                }
+
+                                if ( m_Verbose )
+                                {
+                                    printf( "\tMapping table col name to CSG name: \n" );
+                                }
+                                if ( m_Verbose )
+                                {
+                                    printf( "\ti_field = %d --> i_field_offset = %d\n", i_field, i_field - i_field_offset );
+                                }
+                                if ( ( i_field - i_field_offset ) < m_ControlSurfaceGroupVec.size() )
+                                {
+                                    if ( m_Verbose )
+                                    {
+                                        printf( "\t%s --> %s\n", table_column_names[i_field].c_str(), m_ControlSurfaceGroupVec[i_field - i_field_offset]->GetName().c_str() );
+                                    }
+                                    table_column_names[i_field] = m_ControlSurfaceGroupVec[i_field - i_field_offset]->GetName();
+                                }
+                                else
+                                {
+                                    printf( "\tERROR (i_field - i_field_offset) > m_ControlSurfaceGroupVec.size()\n" );
+                                    printf( "\t      (  %d    -    %d         ) >            %lu             \n", i_field, i_field_offset, m_ControlSurfaceGroupVec.size() );
+                                }
+
+                            }
+                        }
+
+                    }
+                    else
                     {
                         //This is a continuation of the current table and add this row to the results manager
                         for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
@@ -2229,28 +2262,9 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
                                 res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], data_string_array[i_field] ) );
                             }
                         }
-                    }
-                    else
-                    {
-                        // TODO: Add if for stability calcs other than stability if NOT StabilityType = 0
-                        //This is a continuation of the current table and add this row to the results manager
-                        for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
-                        {
-                            //attempt to read a double if that fails then treat it as a string result
-                            double temp_val = 0;
-                            int result = 0;
-                            result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
-                            if ( result == 1 )
-                            {
-                                res->Add( NameValData( data_string_array[0], temp_val ) );
-                            }
-                            else
-                            {
-                                res->Add( NameValData( data_string_array[0], data_string_array[i_field] ) );
-                            }
-                        }
-                    }
-                } //end new table check
+                    } //end new table check
+
+                } // end unsteady check
 
             } // end comment line check
 
