@@ -1803,13 +1803,22 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
         ...
         */
         int wake_iter_table_columns = 18;
-        if( data_string_array.size() == wake_iter_table_columns )
+
+        bool unsteady = false;
+        int unsteady_table_columns = 28;
+        if ( data_string_array.size() == unsteady_table_columns )
+        {
+            unsteady = true;
+        }
+
+        if( data_string_array.size() >= wake_iter_table_columns )
         {
             //discard the header row and read the next line assuming that it is numeric
             data_string_array = ReadDelimLine( fp, seps );
 
             // create new vectors for this set of results information
             std::vector<int> i;
+            std::vector<double> time;
             std::vector<double> Mach;
             std::vector<double> Alpha;
             std::vector<double> Beta;
@@ -1827,10 +1836,27 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
             std::vector<double> CMy;
             std::vector<double> CMz;
             std::vector<double> ToQS;
+            std::vector<double> UnstdAng;
+            std::vector<double> CL_Un;
+            std::vector<double> CDi_Un;
+            std::vector<double> CS_Un;
+            std::vector<double> CFx_Un;
+            std::vector<double> CFy_Un;
+            std::vector<double> CFz_Un;
+            std::vector<double> CMx_Un;
+            std::vector<double> CMy_Un;
+            std::vector<double> CMz_Un;
 
-            while ( data_string_array.size() == wake_iter_table_columns )
+            while ( data_string_array.size() >= wake_iter_table_columns )
             {
-                i.push_back(        std::stoi( data_string_array[0] ) );
+                if ( unsteady )
+                {
+                    time.push_back( std::stod( data_string_array[0] ) );
+                }
+                else
+                {
+                    i.push_back( std::stoi( data_string_array[0] ) );
+                }
 
                 Mach.push_back(     std::stod( data_string_array[1] ) );
                 Alpha.push_back(    std::stod( data_string_array[2] ) );
@@ -1855,13 +1881,34 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
                 ToQS.push_back(     std::stod( data_string_array[17] ) );
 
+                if ( unsteady ) // Additional columns for unsteady analysis
+                {
+                    UnstdAng.push_back( std::stod( data_string_array[18] ) );
+                    CL_Un.push_back( std::stod( data_string_array[19] ) );
+                    CDi_Un.push_back( std::stod( data_string_array[20] ) );
+                    CS_Un.push_back( std::stod( data_string_array[21] ) );
+                    CFx_Un.push_back( std::stod( data_string_array[22] ) );
+                    CFy_Un.push_back( std::stod( data_string_array[23] ) );
+                    CFz_Un.push_back( std::stod( data_string_array[24] ) );
+                    CMx_Un.push_back( std::stod( data_string_array[25] ) );
+                    CMy_Un.push_back( std::stod( data_string_array[26] ) );
+                    CMz_Un.push_back( std::stod( data_string_array[27] ) );
+                }
+
                 data_string_array = ReadDelimLine( fp, seps );
             }
 
             //add to the results manager
             if ( res )
             {
-                res->Add( NameValData( "WakeIter", i ) );
+                if ( unsteady )
+                {
+                    res->Add( NameValData( "Time", time ) );
+                }
+                else
+                {
+                    res->Add( NameValData( "WakeIter", i ) );
+                }
                 res->Add( NameValData( "Mach", Mach ) );
                 res->Add( NameValData( "Alpha", Alpha ) );
                 res->Add( NameValData( "Beta", Beta ) );
@@ -1879,6 +1926,20 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 res->Add( NameValData( "CMy", CMy ) );
                 res->Add( NameValData( "CMz", CMz ) );
                 res->Add( NameValData( "T/QS", ToQS ) );
+
+                if ( unsteady )
+                {
+                    res->Add( NameValData( "UnstdyAng", UnstdAng ) );
+                    res->Add( NameValData( "CL_Un", CL_Un ) );
+                    res->Add( NameValData( "CDi_Un", CDi_Un ) );
+                    res->Add( NameValData( "CS_Un", CS_Un ) );
+                    res->Add( NameValData( "CFx_Un", CFx_Un ) );
+                    res->Add( NameValData( "CFy_Un", CFy_Un ) );
+                    res->Add( NameValData( "CFz_Un", CFz_Un ) );
+                    res->Add( NameValData( "CMx_Un", CMx_Un ) );
+                    res->Add( NameValData( "CMy_Un", CMy_Un ) );
+                    res->Add( NameValData( "CMz_Un", CMz_Un ) );
+                }
             }
 
         } // end of wake iteration
