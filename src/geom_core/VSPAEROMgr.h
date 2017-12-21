@@ -362,6 +362,15 @@ public:
     BoolParm m_CpSliceYAxisFlipFlag;
     BoolParm m_CpSlicePlotLinesFlag;
 
+    BoolParm m_UnsteadyXMinIsManual;
+    BoolParm m_UnsteadyXMaxIsManual;
+    BoolParm m_UnsteadyYMinIsManual;
+    BoolParm m_UnsteadyYMaxIsManual;
+    Parm m_UnsteadyXMin;
+    Parm m_UnsteadyXMax;
+    Parm m_UnsteadyYMin;
+    Parm m_UnsteadyYMax;
+
     ProcessUtil m_SolverProcess;
     ProcessUtil m_SlicerThread;
 

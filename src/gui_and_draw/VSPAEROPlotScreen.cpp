@@ -448,6 +448,98 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_CpSlicePlotCanvas->current_x()->label_format( "%g" );
     m_CpSlicePlotCanvas->current_y()->label_format( "%g" );
 
+    //==== Unsteady Tab ====//
+    m_UnsteadyTab = AddTab( "Unsteady" );
+    Fl_Group* unsteadyPlotGroup = AddSubGroup( m_UnsteadyTab, windowBorderWidth );
+    m_UnsteadyLayout.SetGroupAndScreen( unsteadyPlotGroup, this );
+
+    m_UnsteadyLayout.AddX( groupBorderWidth );
+    m_UnsteadyLayout.AddY( groupBorderWidth );
+
+    // Control layout
+    m_UnsteadyLayout.AddSubGroupLayout( m_UnsteadyControlLayout, controlWidth, m_UnsteadyLayout.GetH() - 2 * groupBorderWidth );
+
+    // layout the heights of the control layout
+    yDataSelectHeight = 11 * rowHeight;
+
+    flowConditionSelectHeight = m_UnsteadyLayout.GetH() - 2 * groupBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - groupBorderWidth;
+
+    GroupLayout unsteadyYDataSelectLayout;
+    m_UnsteadyControlLayout.AddSubGroupLayout( unsteadyYDataSelectLayout, m_UnsteadyControlLayout.GetW(), yDataSelectHeight );
+    unsteadyYDataSelectLayout.AddDividerBox( "Y-Data" );
+    m_UnsteadyYDataBrowser = unsteadyYDataSelectLayout.AddFlBrowser( unsteadyYDataSelectLayout.GetRemainY() );
+    m_UnsteadyYDataBrowser->callback( staticScreenCB, this );
+    m_UnsteadyYDataBrowser->type( FL_MULTI_BROWSER );
+    m_UnsteadyControlLayout.AddY( unsteadyYDataSelectLayout.GetH() + 2 * groupBorderWidth );
+
+    GroupLayout unsteadyFlowConditionLayout;
+    m_UnsteadyControlLayout.AddSubGroupLayout( unsteadyFlowConditionLayout, m_UnsteadyControlLayout.GetW(), flowConditionSelectHeight );
+    unsteadyFlowConditionLayout.AddDividerBox( "Flow Condition" );
+    m_UnsteadyFlowConditionBrowser = unsteadyFlowConditionLayout.AddFlBrowser( unsteadyFlowConditionLayout.GetRemainY() );
+    m_UnsteadyFlowConditionBrowser->callback( staticScreenCB, this );
+    m_UnsteadyFlowConditionBrowser->type( FL_MULTI_BROWSER );
+    m_UnsteadyControlLayout.AddY( unsteadyFlowConditionLayout.GetH() + 2 * groupBorderWidth );
+
+    m_UnsteadyControlLayout.AddDividerBox( "Legend" );
+    m_UnsteadyLegendGroup = m_UnsteadyControlLayout.AddFlScroll( legendHeight - rowHeight );
+    m_UnsteadyLegendGroup->type( Fl_Scroll::VERTICAL_ALWAYS );
+    m_UnsteadyLegendLayout.SetGroupAndScreen( m_UnsteadyLegendGroup, this );
+    m_UnsteadyControlLayout.AddYGap();
+
+    // Action buttons
+    GroupLayout unsteadyActionLayout;
+    m_UnsteadyControlLayout.AddSubGroupLayout( unsteadyActionLayout, m_UnsteadyControlLayout.GetW(), actionButtonHeight );
+    unsteadyActionLayout.AddDividerBox( "Actions:" );
+
+    unsteadyActionLayout.SetSameLineFlag( true );
+
+    unsteadyActionLayout.SetFitWidthFlag( false );
+    unsteadyActionLayout.SetButtonWidth( actionToggleButtonWidth );
+    unsteadyActionLayout.AddButton( m_UnsteadyManualXMinToggle, "" );
+    unsteadyActionLayout.SetButtonWidth( actionSliderButtonWidth );
+    unsteadyActionLayout.SetFitWidthFlag( true );
+    unsteadyActionLayout.AddSlider( m_UnsteadyXMinSlider, "Xmin", 1.0, "%g" );
+
+    unsteadyActionLayout.ForceNewLine();
+
+    unsteadyActionLayout.SetFitWidthFlag( false );
+    unsteadyActionLayout.SetButtonWidth( actionToggleButtonWidth );
+    unsteadyActionLayout.AddButton( m_UnsteadyManualXMaxToggle, "" );
+    unsteadyActionLayout.SetButtonWidth( actionSliderButtonWidth );
+    unsteadyActionLayout.SetFitWidthFlag( true );
+    unsteadyActionLayout.AddSlider( m_UnsteadyXMaxSlider, "Xmax", 1.0, "%g" );
+
+    unsteadyActionLayout.ForceNewLine();
+
+    unsteadyActionLayout.SetFitWidthFlag( false );
+    unsteadyActionLayout.SetButtonWidth( actionToggleButtonWidth );
+    unsteadyActionLayout.AddButton( m_UnsteadyManualYMinToggle, "" );
+    unsteadyActionLayout.SetButtonWidth( actionSliderButtonWidth );
+    unsteadyActionLayout.SetFitWidthFlag( true );
+    unsteadyActionLayout.AddSlider( m_UnsteadyYMinSlider, "Ymin", 1.0, "%g" );
+
+    unsteadyActionLayout.ForceNewLine();
+
+    unsteadyActionLayout.SetFitWidthFlag( false );
+    unsteadyActionLayout.SetButtonWidth( actionToggleButtonWidth );
+    unsteadyActionLayout.AddButton( m_UnsteadyManualYMaxToggle, "" );
+    unsteadyActionLayout.SetButtonWidth( actionSliderButtonWidth );
+    unsteadyActionLayout.SetFitWidthFlag( true );
+    unsteadyActionLayout.AddSlider( m_UnsteadyYMaxSlider, "Ymax", 1.0, "%g" );
+    unsteadyActionLayout.InitWidthHeightVals();
+
+    // Plot layout
+    m_UnsteadyLayout.AddX( controlWidth + 2 * groupBorderWidth );
+    m_UnsteadyLayout.AddSubGroupLayout( m_UnsteadyPlotLayout, plotWidth, m_ConvergenceLayout.GetH() - 2 * groupBorderWidth );
+    m_UnsteadyPlotLayout.AddX( plotSideMargin );
+    m_UnsteadyPlotLayout.AddY( plotTopBottomMargin );
+    m_UnsteadyPlotCanvas = m_UnsteadyPlotLayout.AddCanvas( m_UnsteadyPlotLayout.GetW() - 2 * plotSideMargin, m_UnsteadyPlotLayout.GetH() - 2 * plotTopBottomMargin,
+                                                                 0, 1, 0, 1, //xMin, xMax, yMin, yMax,
+                                                                 "", "[X]", "[Y]" );
+    m_UnsteadyPlotCanvas->align( FL_ALIGN_TOP );
+    m_UnsteadyPlotCanvas->current_x()->label_format( "%g" );
+    m_UnsteadyPlotCanvas->current_y()->label_format( "%g" );
+
     SetDefaultView();
 }
 
@@ -478,17 +570,44 @@ bool VSPAEROPlotScreen::Update()
 {
     //TODO Update only the tab that is visible
 
-    // Update single plot canvas
-    UpdateConvergenceFlowConditionBrowser();
-    UpdateConvergenceYDataBrowser();
-    RedrawConvergencePlot();
-    UpdateConvergenceAutoManualAxisLimits();
+    string resultName = "VSPAERO_Stab";
+    Results* res = ResultsMgr.FindResults( resultName, 0 );
+    bool stabFlag = false;
+    int stabType;
+    if ( res )
+    {
+        stabFlag = true;
+        stabType = res->FindPtr( "StabilityType" )->GetInt( 0 );
+    }
+
+    if ( !stabFlag || ( stabFlag && stabType == vsp::STABILITY_DEFAULT ) )
+    {
+        m_UnsteadyTab->deactivate();
+        m_ConvergenceTab->activate();
+
+        // Update single plot canvas
+        UpdateConvergenceFlowConditionBrowser();
+        UpdateConvergenceYDataBrowser();
+        RedrawConvergencePlot();
+        UpdateConvergenceAutoManualAxisLimits();
+    }
+    else // P, Q, or R unsteady analysis
+    {
+        m_ConvergenceTab->deactivate();
+        m_UnsteadyTab->activate();
+
+        // Update unsteady plot canvas
+        UpdateUnsteadyFlowConditionBrowser();
+        UpdateUnsteadyYDataBrowser();
+        RedrawUnsteadyPlot();
+        UpdateUnsteadyAutoManualAxisLimits();
+    }
 
     // Update load distribution
     // Let's check to see what analysis method was used on the first result found
     // note that only VSPAEROMgr clear alls VSPAERO_* results from the results manager each time it's run all analyses in the results 'should' have the same analysis method
-    string resultName = "VSPAERO_Load";
-    Results* res = ResultsMgr.FindResults( resultName, 0 );
+    resultName = "VSPAERO_Load";
+    res = ResultsMgr.FindResults( resultName, 0 );
     if ( res )
     {
         // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
@@ -826,6 +945,80 @@ void VSPAEROPlotScreen::UpdateCpSliceAutoManualAxisLimits()
     m_CpSlicePlotLinesToggle.Update( VSPAEROMgr.m_CpSlicePlotLinesFlag.GetID() );
 }
 
+void VSPAEROPlotScreen::UpdateUnsteadyAutoManualAxisLimits()
+{
+    Ca_Axis_ *  t_Axis;
+
+    m_UnsteadyManualXMinToggle.Update( VSPAEROMgr.m_UnsteadyXMinIsManual.GetID() );
+    m_UnsteadyManualXMaxToggle.Update( VSPAEROMgr.m_UnsteadyXMaxIsManual.GetID() );
+    m_UnsteadyXMinSlider.Update( VSPAEROMgr.m_UnsteadyXMin.GetID() );
+    m_UnsteadyXMaxSlider.Update( VSPAEROMgr.m_UnsteadyXMax.GetID() );
+    t_Axis = m_UnsteadyPlotCanvas->current_x();
+    if ( t_Axis )
+    {
+        // Minimum
+        if ( VSPAEROMgr.m_UnsteadyXMinIsManual() )
+        {
+            // MANUAL
+            m_UnsteadyXMinSlider.Activate();
+            t_Axis->minimum( VSPAEROMgr.m_UnsteadyXMin.Get() );
+        }
+        else
+        {
+            // AUTO
+            m_UnsteadyXMinSlider.Deactivate();
+            VSPAEROMgr.m_UnsteadyXMin = t_Axis->minimum();
+        }
+        // Maximum
+        if ( VSPAEROMgr.m_UnsteadyXMaxIsManual() )
+        {
+            // MANUAL
+            m_UnsteadyXMaxSlider.Activate();
+            t_Axis->maximum( VSPAEROMgr.m_UnsteadyXMax.Get() );
+        }
+        else
+        {
+            // AUTO
+            m_UnsteadyXMaxSlider.Deactivate();
+            VSPAEROMgr.m_UnsteadyXMax = t_Axis->maximum();
+        }
+    }
+    m_UnsteadyManualYMinToggle.Update( VSPAEROMgr.m_UnsteadyYMinIsManual.GetID() );
+    m_UnsteadyManualYMaxToggle.Update( VSPAEROMgr.m_UnsteadyYMaxIsManual.GetID() );
+    m_UnsteadyYMinSlider.Update( VSPAEROMgr.m_UnsteadyYMin.GetID() );
+    m_UnsteadyYMaxSlider.Update( VSPAEROMgr.m_UnsteadyYMax.GetID() );
+    t_Axis = m_UnsteadyPlotCanvas->current_y();
+    if ( t_Axis )
+    {
+        // Minimum
+        if ( VSPAEROMgr.m_UnsteadyYMinIsManual() )
+        {
+            // MANUAL
+            m_UnsteadyYMinSlider.Activate();
+            t_Axis->minimum( VSPAEROMgr.m_UnsteadyYMin.Get() );
+        }
+        else
+        {
+            // AUTO
+            m_UnsteadyYMinSlider.Deactivate();
+            VSPAEROMgr.m_UnsteadyYMin = t_Axis->minimum();
+        }
+        // Maximum
+        if ( VSPAEROMgr.m_UnsteadyYMaxIsManual() )
+        {
+            // MANUAL
+            m_UnsteadyYMaxSlider.Activate();
+            t_Axis->maximum( VSPAEROMgr.m_UnsteadyYMax.Get() );
+        }
+        else
+        {
+            // AUTO
+            m_UnsteadyYMaxSlider.Deactivate();
+            VSPAEROMgr.m_UnsteadyYMax = t_Axis->maximum();
+        }
+    }
+}
+
 void VSPAEROPlotScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
@@ -1114,6 +1307,51 @@ void VSPAEROPlotScreen::UpdateCpSliceCaseBrowser()
     }
 
     m_CpSliceCaseBrowser->position( scrollPos );
+}
+
+void VSPAEROPlotScreen::UpdateUnsteadyFlowConditionBrowser()
+{
+    // keeps track of the previously selected rows (browser uses 1-based indexing)
+    vector<bool> wasSelected;
+    for ( unsigned int iCase = 1; iCase <= m_UnsteadyFlowConditionBrowser->size(); iCase++ )
+    {
+        wasSelected.push_back( m_UnsteadyFlowConditionBrowser->selected( iCase ) );
+    }
+
+    int scrollPos = m_UnsteadyFlowConditionBrowser->position();
+    m_UnsteadyFlowConditionBrowser->clear();
+    m_UnsteadyFlowConditionSelectedResultIDs.clear();
+
+    string resultName = "VSPAERO_History";
+
+    int numCases = ResultsMgr.GetNumResults( resultName );
+
+    for ( unsigned int iCase = 0; iCase < numCases; iCase++ )
+    {
+        Results* res = ResultsMgr.FindResults( resultName, iCase );
+        if ( res )
+        {
+            char strbuf[1024];
+            ConstructFlowConditionString( strbuf, res, false );
+            m_UnsteadyFlowConditionBrowser->add( strbuf );
+            if ( m_SelectDefaultData )   //select ALL flow conditions
+            {
+                m_UnsteadyFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                m_UnsteadyFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+            }
+            else if ( iCase < wasSelected.size() ) // restore original row selections
+            {
+                if ( wasSelected[iCase] )
+                {
+                    m_UnsteadyFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                    m_UnsteadyFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                }
+            }
+        }   //if( res )
+    }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
+
+    m_UnsteadyFlowConditionBrowser->position( scrollPos );
+
 }
 
 void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * res, bool includeResultId )
@@ -1502,6 +1740,74 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
     m_CpSliceCutBrowser->position( scrollPos );
 }
 
+void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
+{
+    // keeps track of the previously selected rows (browser uses 1-based indexing)
+    vector<bool> wasSelected;
+    for ( unsigned int iCase = 1; iCase <= m_UnsteadyYDataBrowser->size(); iCase++ )
+    {
+        wasSelected.push_back( m_UnsteadyYDataBrowser->selected( iCase ) );
+    }
+
+    int scrollPos = m_UnsteadyYDataBrowser->position();
+    m_UnsteadyYDataBrowser->clear();
+
+    string resultName = "VSPAERO_History";
+    string resultID = ResultsMgr.FindLatestResultsID( resultName );
+    vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
+    for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
+    {
+        if ( ( strncmp( dataNames[iDataName].c_str(), "FC_", 3 ) != 0 )  &
+            ( strcmp( dataNames[iDataName].c_str(), "WakeIter" ) != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "Mach" ) != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "Alpha" ) != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "Beta" ) != 0 )  &
+             ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) )
+        {
+            m_UnsteadyYDataBrowser->add( dataNames[iDataName].c_str() );
+        }
+    }
+
+    string default_res;
+    Results* res = ResultsMgr.FindResults( "VSPAERO_Stab", 0 );
+    int stabType = 0;
+    if ( res )
+    {
+        stabType = res->FindPtr( "StabilityType" )->GetInt( 0 );
+    }
+
+    if ( stabType == vsp::STABILITY_P_ANALYSIS )
+    {
+        default_res = "CMx";
+    }
+    else if ( stabType == vsp::STABILITY_Q_ANALYSIS )
+    {
+        default_res = "CMy";
+    }
+    else if ( stabType == vsp::STABILITY_R_ANALYSIS )
+    {
+        default_res = "CMz";
+    }
+
+    // restore original row selections
+    for ( unsigned int iCase = 0; iCase < m_UnsteadyYDataBrowser->size(); iCase++ )
+    {
+        if ( ( m_SelectDefaultData && strcmp( m_UnsteadyYDataBrowser->text( iCase + 1 ), default_res.c_str() ) == 0 ) )
+        {
+            m_UnsteadyYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+        }
+        if ( iCase < wasSelected.size() )
+        {
+            if ( wasSelected[iCase] )
+            {
+                m_UnsteadyYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+            }
+        }
+    }
+
+    m_UnsteadyYDataBrowser->position( scrollPos );
+}
+
 void VSPAEROPlotScreen::RedrawConvergencePlot()
 {
     Ca_Canvas::current( m_ConvergencePlotCanvas );
@@ -1821,6 +2127,41 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
     }
 }
 
+void VSPAEROPlotScreen::RedrawUnsteadyPlot()
+{
+    Ca_Canvas::current( m_UnsteadyPlotCanvas );
+    m_UnsteadyPlotCanvas->clear();
+
+    m_UnsteadyLegendGroup->clear();
+    m_UnsteadyLegendLayout.SetGroup( m_UnsteadyLegendGroup );
+    m_UnsteadyLegendLayout.InitWidthHeightVals();
+    m_UnsteadyLegendLayout.SetButtonWidth( (int)( m_UnsteadyLegendLayout.GetW() * 0.75 ) );
+
+    // Get selected y data names
+    vector <string> yDataSetNames;
+    for ( int i = 1; i <= m_UnsteadyYDataBrowser->size(); i++ )
+    {
+        if ( m_UnsteadyYDataBrowser->selected( i ) )
+        {
+            yDataSetNames.push_back( m_UnsteadyYDataBrowser->text( i ) );
+        }
+    }
+
+    m_UnsteadyNLines = m_UnsteadyFlowConditionSelectedResultIDs.size() * yDataSetNames.size();
+    m_UnsteadyiPlot = 0;
+
+    // Plot only if y data has been selected
+    if ( m_UnsteadyNLines > 0 )
+    {
+        bool expandOnly = false;
+        for ( unsigned int iCase = 0; iCase < m_UnsteadyFlowConditionSelectedResultIDs.size(); iCase++ )
+        {
+            PlotUnsteady( m_UnsteadyFlowConditionSelectedResultIDs[iCase], yDataSetNames, expandOnly, iCase );
+            expandOnly = true;
+        }
+    }
+}
+
 string VSPAEROPlotScreen::MakeAxisLabelStr( vector <string> dataSetNames )
 {
     string labelStr;
@@ -2076,6 +2417,105 @@ void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> y
 
 }
 
+void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetNames, bool expandOnly, int icase )
+{
+    Results* res = ResultsMgr.FindResultsPtr( resultID );
+    if ( !res )
+    {
+        //TODO indicate that no data exists
+        m_UnsteadyPlotCanvas->current_y()->label( "[Y]" );
+        m_UnsteadyPlotCanvas->current_x()->label( "[X]" );
+    }
+    else if ( strcmp( res->GetName().c_str(), "VSPAERO_History" ) == 0 )
+    {
+        //  Get the X Data
+        vector <double> xDoubleData_orig;
+        NameValData* xResultDataPtr;
+        xResultDataPtr = res->FindPtr( "Time" );
+
+        if ( ( xResultDataPtr != NULL ) )
+        {
+            vector <double> tDoubledata = xResultDataPtr->GetDoubleData();
+            copy( tDoubledata.begin(), tDoubledata.end(), back_inserter( xDoubleData_orig ) );
+        }
+
+        // Get the Y-Data
+        NameValData* yResultDataPtr;
+        for ( int iDataSet = 0; iDataSet < (int)yDataSetNames.size(); iDataSet++ )
+        {
+            yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
+            if ( yResultDataPtr != NULL )
+            {
+                vector <double> xDoubleData = xDoubleData_orig;
+                vector <double> yDoubleData;
+                if ( yResultDataPtr->GetType() == vsp::INT_DATA )
+                {
+                    vector <int> tIntData = yResultDataPtr->GetIntData();
+                    copy( tIntData.begin(), tIntData.end(), back_inserter( yDoubleData ) );
+                }
+                else
+                {
+                    yDoubleData = yResultDataPtr->GetDoubleData();
+                }
+
+                if ( ( xDoubleData.size() == yDoubleData.size() ) && ( xDoubleData.size()>0 ) )
+                {
+                    // check again if there are still points to plot
+                    if ( xDoubleData.size()>0 )
+                    {
+                        Fl_Color c = ColorWheel( m_UnsteadyiPlot, m_ConvergenceNLines );
+
+                        //add the normalized data to the plot
+                        AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_UnsteadyiPlot ) );
+
+                        char strbuf[100];
+                        ConstructFlowConditionString( strbuf, res, false );
+                        string legendstr = strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
+                        m_UnsteadyLegendLayout.AddLegendEntry( legendstr, c );
+                        m_UnsteadyiPlot++;
+
+                        //Handle Axis limits
+                        //  Auto adjust and expand limits for Y-Axis
+                        UpdateSingleAxisLimits( m_UnsteadyPlotCanvas->current_y(), yDoubleData, expandOnly, false );
+                    }
+                }
+                else
+                {
+                    fprintf( stderr, "WARNING: xDoubleData.size() and yDoubleData.size() must be equal AND greater than 0\n\txDoubleData.size()=%ld\n\tyDoubleData.size()=%ld\n\tFile: %s \tLine:%d\n", xDoubleData.size(), yDoubleData.size(), __FILE__, __LINE__ );
+                }
+
+                expandOnly = true;
+            }
+        }
+
+        // Explicitly set the X-axis limits  to the wake iteration limits
+        if ( xDoubleData_orig.size() > 0 )
+        {
+            m_UnsteadyPlotCanvas->current_x()->minimum( xDoubleData_orig[0] );
+            m_UnsteadyPlotCanvas->current_x()->maximum( xDoubleData_orig[xDoubleData_orig.size() - 1] );
+        }
+
+        // Annotate axes
+        string labelStr;
+        labelStr.clear();
+        if ( yDataSetNames.size() == 1 )
+        {
+            labelStr = yDataSetNames[0];
+        }
+        else
+        {
+            labelStr = "[multiple]";
+        }
+
+        m_UnsteadyPlotCanvas->current_y()->copy_label( labelStr.c_str() );
+        m_UnsteadyPlotCanvas->current_x()->label( "Time" );
+    }
+    else
+    {
+        m_UnsteadyPlotCanvas->label( "PLOT ERROR - INVALID RESULT TYPE" );
+    }
+
+}
 
 void VSPAEROPlotScreen::UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expandOnly )
 {

@@ -53,6 +53,7 @@ protected:
     void UpdateLoadDistAutoManualAxisLimits();
     void UpdateSweepAutoManualAxisLimits();
     void UpdateCpSliceAutoManualAxisLimits();
+    void UpdateUnsteadyAutoManualAxisLimits();
     string MakeAxisLabelStr( vector <string> dataSetNames );
     void UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expand_only );
     void UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero = false );
@@ -191,6 +192,37 @@ protected:
     void UpdateCpSliceCutBrowser();
 
     void RedrawCpSlicePlot();
+
+    //==== Unsteady Tab ====//
+    Fl_Group* m_UnsteadyTab;
+    GroupLayout m_UnsteadyLayout;
+    GroupLayout m_UnsteadyControlLayout;
+    GroupLayout m_UnsteadyPlotLayout;
+    Ca_Canvas*  m_UnsteadyPlotCanvas;
+
+    GroupLayout m_UnsteadyLegendLayout;
+    Fl_Scroll* m_UnsteadyLegendGroup;
+    int m_UnsteadyNLines;
+    int m_UnsteadyiPlot;
+
+    Fl_Browser * m_UnsteadyYDataBrowser;
+    Fl_Browser * m_UnsteadyFlowConditionBrowser;
+    vector< string > m_UnsteadyFlowConditionSelectedResultIDs;
+
+    ToggleButton m_UnsteadyManualXMinToggle;
+    ToggleButton m_UnsteadyManualXMaxToggle;
+    ToggleButton m_UnsteadyManualYMinToggle;
+    ToggleButton m_UnsteadyManualYMaxToggle;
+    SliderAdjRangeInput m_UnsteadyXMinSlider;
+    SliderAdjRangeInput m_UnsteadyXMaxSlider;
+    SliderAdjRangeInput  m_UnsteadyYMinSlider;
+    SliderAdjRangeInput  m_UnsteadyYMaxSlider;
+
+    void UpdateUnsteadyFlowConditionBrowser();
+    void UpdateUnsteadyYDataBrowser();
+
+    void RedrawUnsteadyPlot();
+    void PlotUnsteady( string resultID, vector <string> yDataSetNames, bool expand_only, int icase );
 
 };
 
