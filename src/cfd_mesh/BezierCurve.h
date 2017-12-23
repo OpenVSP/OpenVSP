@@ -64,6 +64,8 @@ public:
     void TessAdaptXYZ( const Surf &srf, double umin, double umax, std::vector< vec3d > & pnts, double tol, int Nlimit );
     void TessAdaptXYZ( const Surf &srf, double umin, double umax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, double tol, int Nlimit, int Nadapt = 0 );
 
+    void InterpolateLinear( vector< vec3d > & input_pnt_vec );
+
     void FlipCurve();
     void BuildWakeTECurve( const Bezier_curve &lecrv, double endx, double angle );
     curve_point_type ComputeWakeTrailEdgePnt( const curve_point_type &pnt, double endx, double angle );

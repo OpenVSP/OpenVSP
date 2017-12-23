@@ -21,6 +21,9 @@
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
 typedef piecewise_curve_type::bounding_box_type curve_bounding_box_type;
+typedef piecewise_curve_type::point_type curve_point_type;
+
+typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_type> piecewise_linear_creator_type;
 
 //===== Constructor  =====//
 Bezier_curve::Bezier_curve()
@@ -426,5 +429,30 @@ void Bezier_curve::TessAdaptXYZ( const Surf &srf, double umin, double umax, cons
     {
         pnts.push_back( pmin );
         pnts.push_back( pmid );
+    }
+}
+
+//===== Interpolate Creates piecewise linear curves ===//
+void Bezier_curve::InterpolateLinear( vector< vec3d > & input_pnt_vec )
+{
+    // copy points over to new type
+    vector<curve_point_type> pts( input_pnt_vec.size() );
+    for ( size_t i = 0; i < pts.size(); ++i )
+    {
+        pts[i] << input_pnt_vec[i].x(), input_pnt_vec[i].y(), input_pnt_vec[i].z();
+    }
+
+    int nseg( pts.size() - 1 );
+    piecewise_linear_creator_type plc( nseg );
+
+    // set the polygon corners
+    for ( curve_index_type i = 0; i < static_cast<curve_index_type>( pts.size() ); ++i )
+    {
+        plc.set_corner( pts[i], i );
+    }
+
+    if ( !plc.create( m_Curve ) )
+    {
+        std::cerr << "Failed to create linear curve. " << __LINE__ << std::endl;
     }
 }
