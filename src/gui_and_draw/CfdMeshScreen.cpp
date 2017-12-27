@@ -245,7 +245,7 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.SetSameLineFlag( false );
     m_OutputTabLayout.SetButtonWidth( 175 );
 
-    m_OutputTabLayout.AddButton( m_ExportRawPts, "Export Raw Points" );
+    m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
     m_OutputTabLayout.AddSlider( m_ExportRelCurveTolSlider, "Export Curve Tolerance", 1.0, "%7.5f" );
 
     m_OutputTabLayout.SetFitWidthFlag( false );
@@ -729,10 +729,10 @@ void CfdMeshScreen::UpdateOutputTab()
     m_CurvFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_CURV_FILE_NAME )->GetID() );
     m_Plot3DFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_PLOT3D_FILE_NAME )->GetID() );
 
-    m_ExportRawPts.Update( m_Vehicle->GetCfdSettingsPtr()->m_ExportRawPtsFlag.GetID() );
+    m_ExportRaw.Update( m_Vehicle->GetCfdSettingsPtr()->m_ExportRawFlag.GetID() );
     m_ExportRelCurveTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_ExportRelCurveTol.GetID() );
 
-    if ( m_Vehicle->GetCfdSettingsPtr()->m_ExportRawPtsFlag() )
+    if ( m_Vehicle->GetCfdSettingsPtr()->m_ExportRawFlag() )
     {
         m_ExportRelCurveTolSlider.Deactivate();
     }

@@ -379,14 +379,14 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME ) )
     {
         WriteGridToolCurvFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME ),
-                               GetStructSettingsPtr()->m_ExportRawPtsFlag,
+                               GetStructSettingsPtr()->m_ExportRawFlag,
                                GetStructSettingsPtr()->m_ExportRelCurveTol );
     }
 
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME ) )
     {
         WritePlot3DFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ),
-                         GetStructSettingsPtr()->m_ExportRawPtsFlag,
+                         GetStructSettingsPtr()->m_ExportRawFlag,
                          GetStructSettingsPtr()->m_ExportRelCurveTol );
     }
 

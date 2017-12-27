@@ -456,14 +456,14 @@ void SurfaceIntersectionSingleton::ExportFiles()
     if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME ) )
     {
         WriteGridToolCurvFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME ),
-                               GetIntersectSettingsPtr()->m_ExportRawPtsFlag,
+                               GetIntersectSettingsPtr()->m_ExportRawFlag,
                                GetIntersectSettingsPtr()->m_ExportRelCurveTol );
     }
 
     if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME ) )
     {
         WritePlot3DFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME ),
-                         GetIntersectSettingsPtr()->m_ExportRawPtsFlag,
+                         GetIntersectSettingsPtr()->m_ExportRawFlag,
                          GetIntersectSettingsPtr()->m_ExportRelCurveTol );
     }
 

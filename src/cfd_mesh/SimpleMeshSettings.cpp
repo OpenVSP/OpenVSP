@@ -43,7 +43,7 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
 
     m_DrawRelCurveTol = settings->m_DrawRelCurveTol.Get();
 
-    m_ExportRawPtsFlag = settings->m_ExportRawPtsFlag.Get();
+    m_ExportRawFlag = settings->m_ExportRawFlag.Get();
     m_ExportRelCurveTol = settings->m_ExportRelCurveTol.Get();
 
     m_IntersectSubSurfs = settings->m_IntersectSubSurfs.Get();

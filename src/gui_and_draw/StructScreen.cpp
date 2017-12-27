@@ -796,7 +796,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_OutputTabLayout.SetButtonWidth( 175 );
 
-    m_OutputTabLayout.AddButton( m_ExportRawPts, "Export Raw Points" );
+    m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
     m_OutputTabLayout.AddSlider( m_ExportRelCurveTolSlider, "Export Curve Tolerance", 1.0, "%7.5f" );
 
     m_OutputTabLayout.SetFitWidthFlag( false );
@@ -2006,10 +2006,10 @@ bool StructScreen::Update()
             m_CurvFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME )->GetID() );
             m_Plot3DFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME )->GetID() );
 
-            m_ExportRawPts.Update( curr_struct->GetStructSettingsPtr()->m_ExportRawPtsFlag.GetID() );
+            m_ExportRaw.Update( curr_struct->GetStructSettingsPtr()->m_ExportRawFlag.GetID() );
             m_ExportRelCurveTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_ExportRelCurveTol.GetID() );
 
-            if ( curr_struct->GetStructSettingsPtr()->m_ExportRawPtsFlag() )
+            if ( curr_struct->GetStructSettingsPtr()->m_ExportRawFlag() )
             {
                 m_ExportRelCurveTolSlider.Deactivate();
             }

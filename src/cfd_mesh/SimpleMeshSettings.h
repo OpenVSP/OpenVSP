@@ -39,7 +39,7 @@ public:
     bool m_DrawPntsFlag;
 
     double m_DrawRelCurveTol;
-    bool m_ExportRawPtsFlag;
+    bool m_ExportRawFlag;
     double m_ExportRelCurveTol;
 
     bool m_IntersectSubSurfs;

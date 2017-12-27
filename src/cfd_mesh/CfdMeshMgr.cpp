@@ -1241,14 +1241,14 @@ void CfdMeshMgrSingleton::ExportFiles()
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_CURV_FILE_NAME ) )
     {
         WriteGridToolCurvFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_CURV_FILE_NAME ),
-                               GetCfdSettingsPtr()->m_ExportRawPtsFlag,
+                               GetCfdSettingsPtr()->m_ExportRawFlag,
                                GetCfdSettingsPtr()->m_ExportRelCurveTol );
     }
 
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_PLOT3D_FILE_NAME ) )
     {
         WritePlot3DFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_PLOT3D_FILE_NAME ),
-                         GetCfdSettingsPtr()->m_ExportRawPtsFlag,
+                         GetCfdSettingsPtr()->m_ExportRawFlag,
                          GetCfdSettingsPtr()->m_ExportRelCurveTol );
     }
 

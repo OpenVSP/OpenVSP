@@ -111,7 +111,7 @@ void SurfaceIntersectionScreen::CreateOutputTab()
 
     m_OutputTabLayout.SetButtonWidth( 175 );
 
-    m_OutputTabLayout.AddButton( m_ExportRawPts, "Export Raw Points" );
+    m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
     m_OutputTabLayout.AddSlider( m_ExportRelCurveTolSlider, "Export Curve Tolerance", 1.0, "%7.5f" );
 
     m_OutputTabLayout.AddYGap();
@@ -229,10 +229,10 @@ void SurfaceIntersectionScreen::UpdateOutputTab()
     m_SrfFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME )->GetID() );
     m_XYZIntCurves.Update( m_Vehicle->GetISectSettingsPtr()->m_XYZIntCurveFlag.GetID() );
 
-    m_ExportRawPts.Update( m_Vehicle->GetISectSettingsPtr()->m_ExportRawPtsFlag.GetID() );
+    m_ExportRaw.Update( m_Vehicle->GetISectSettingsPtr()->m_ExportRawFlag.GetID() );
     m_ExportRelCurveTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_ExportRelCurveTol.GetID() );
 
-    if ( m_Vehicle->GetISectSettingsPtr()->m_ExportRawPtsFlag() )
+    if ( m_Vehicle->GetISectSettingsPtr()->m_ExportRawFlag() )
     {
         m_ExportRelCurveTolSlider.Deactivate();
     }

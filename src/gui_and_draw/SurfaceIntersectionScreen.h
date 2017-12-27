@@ -90,7 +90,7 @@ protected:
     StringOutput m_Plot3DOutput;
     StringOutput m_SrfOutput;
 
-    ToggleButton m_ExportRawPts;
+    ToggleButton m_ExportRaw;
     SliderAdjRangeInput m_ExportRelCurveTolSlider;
 
     //===== Console Items =====//

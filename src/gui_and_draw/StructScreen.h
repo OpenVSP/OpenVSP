@@ -293,7 +293,7 @@ private:
     StringOutput m_CurvOutput;
     StringOutput m_Plot3DOutput;
 
-    ToggleButton m_ExportRawPts;
+    ToggleButton m_ExportRaw;
     SliderAdjRangeInput m_ExportRelCurveTolSlider;
 
     //===== Draw Tab Items =====//
