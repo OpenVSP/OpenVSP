@@ -302,6 +302,11 @@ public:
         return &m_CfdSettings;
     }
 
+    virtual SimpleGridDensity* GetGridDensityPtr()
+    {
+        return &m_CfdGridDensity;
+    }
+
 protected:
 
     /*
@@ -315,6 +320,7 @@ protected:
     string m_WakeGeomID;
 
     SimpleCfdMeshSettings m_CfdSettings;
+    SimpleCfdGridDensity m_CfdGridDensity;
 
     //==== Wakes ====//
     WakeMgr m_WakeMgr;

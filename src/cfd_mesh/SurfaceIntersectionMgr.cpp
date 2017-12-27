@@ -400,8 +400,6 @@ void SurfaceIntersectionSingleton::BuildGrid()
     vector< SCurve* > scurve_vec;
     for ( i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
-        m_SurfVec[i]->BuildDistMap();
-        m_SurfVec[i]->SetGridDensityPtr( GetGridDensityPtr() );
         m_SurfVec[i]->FindBorderCurves();
         m_SurfVec[i]->LoadSCurves( scurve_vec );
     }

@@ -249,7 +249,6 @@ public:
     vector< IPnt* > m_IPntVec;
 
     double GroupDist( IPntGroup* g );
-    double GroupDistFract( IPntGroup* g, SurfaceIntersectionSingleton *MeshMgr );
     void AddGroup( IPntGroup* g );
 };
 

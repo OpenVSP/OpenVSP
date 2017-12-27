@@ -184,24 +184,6 @@ double IPntGroup::GroupDist( IPntGroup* g )
     return dist( p0, p1 );
 }
 
-// This function is un-used, but it is left here in case it may be used at a later time.
-// At such time, it should be updated to use the surface density map rather than only the
-// mesh density sources.
-double IPntGroup::GroupDistFract( IPntGroup* g, SurfaceIntersectionSingleton *MeshMgr )
-{
-    double d = GroupDist( g );
-    vec3d pnt = m_IPntVec[0]->m_Pnt;
-
-    SimpleGridDensity* gdp = MeshMgr->GetGridDensityPtr();
-
-    double target_dist = gdp->GetTargetLen( pnt );
-
-    return ( d / target_dist );
-
-
-}
-
-
 void IPntGroup::AddGroup( IPntGroup* g )
 {
     for ( int i = 0 ; i < ( int )g->m_IPntVec.size() ; i++ )

@@ -940,6 +940,12 @@ void CfdMeshMgrSingleton::BuildGrid()
 {
     SurfaceIntersectionSingleton::BuildGrid();
 
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        m_SurfVec[i]->BuildDistMap();
+        m_SurfVec[i]->SetGridDensityPtr( GetGridDensityPtr() );
+    }
+
     //==== Build Wake Surfaces (If Defined) ====//
     m_WakeMgr.CreateWakesAppendBorderCurves( m_ICurveVec );
     m_WakeMgr.AppendWakeSurfs( m_SurfVec );

@@ -113,11 +113,6 @@ public:
 
     void addOutputText( const string &str, int output_type = VOCAL_OUTPUT );
 
-    virtual SimpleGridDensity* GetGridDensityPtr()
-    {
-        return &m_CfdGridDensity;
-    }
-
 //  virtual void Draw();
 //  virtual void Draw_BBox( BndBox box );
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
@@ -252,8 +247,6 @@ protected:
     vector< vector< vec3d > > debugRayIsect;
 
     SimpleIntersectSettings m_IntersectSettings;
-
-    SimpleCfdGridDensity m_CfdGridDensity;
 
     //==== Vector of Surfs that may have a border that lies on Surf A ====//
     map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
