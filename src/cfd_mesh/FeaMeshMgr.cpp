@@ -369,6 +369,28 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
         string mass_output = "Total Mass = " + std::to_string( m_TotalMass ) + "\n";
         addOutputText( mass_output );
     }
+
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME ) )
+    {
+        WriteSurfsIntCurves( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME ) );
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME ) )
+    {
+        WriteGridToolCurvFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME ),
+                               GetStructSettingsPtr()->m_ExportRawPtsFlag,
+                               GetStructSettingsPtr()->m_ExportRelCurveTol );
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME ) )
+    {
+        WritePlot3DFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ),
+                         GetStructSettingsPtr()->m_ExportRawPtsFlag,
+                         GetStructSettingsPtr()->m_ExportRelCurveTol );
+    }
+
+
 }
 
 void FeaMeshMgrSingleton::MergeCoplanarParts()
@@ -2792,6 +2814,8 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         return;
     }
 
+    SurfaceIntersectionSingleton::LoadDrawObjs( draw_obj_vec );
+
     if ( !GetFeaMeshInProgress() && ( m_DrawElementFlagVec.size() == m_NumFeaParts + m_NumFeaSubSurfs ) )
     {
         // FeaParts:
@@ -3274,5 +3298,14 @@ void FeaMeshMgrSingleton::UpdateDisplaySettings()
 
         GetStructSettingsPtr()->m_DrawNodesFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawNodesFlag.Get();
         GetStructSettingsPtr()->m_DrawElementOrientVecFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawElementOrientVecFlag.Get();
+
+        GetStructSettingsPtr()->m_DrawBorderFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawBorderFlag.Get();
+        GetStructSettingsPtr()->m_DrawIsectFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawIsectFlag.Get();
+        GetStructSettingsPtr()->m_DrawRawFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawRawFlag.Get();
+        GetStructSettingsPtr()->m_DrawBinAdaptFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawBinAdaptFlag.Get();
+        GetStructSettingsPtr()->m_DrawCurveFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawCurveFlag.Get();
+        GetStructSettingsPtr()->m_DrawPntsFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawPntsFlag.Get();
+
+        GetStructSettingsPtr()->m_DrawRelCurveTol = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawRelCurveTol.Get();
     }
 }

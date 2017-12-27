@@ -206,11 +206,6 @@ public:
 
     stringstream m_OutStream;
 
-    virtual SimpleFeaMeshSettings* GetStructSettingsPtr()
-    {
-        return &m_StructSettings;
-    }
-
     virtual SimpleIntersectSettings* GetIntersectSettingsPtr()
     {
         return &m_IntersectSettings;
@@ -257,9 +252,7 @@ protected:
     vector< vector< vec3d > > debugRayIsect;
 
     SimpleIntersectSettings m_IntersectSettings;
-    SimpleFeaMeshSettings m_StructSettings;
 
-    SimpleGridDensity m_FeaGridDensity;
     SimpleCfdGridDensity m_CfdGridDensity;
 
     //==== Vector of Surfs that may have a border that lies on Surf A ====//

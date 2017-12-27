@@ -93,6 +93,7 @@ private:
     GroupLayout m_PropertyTabLayout;
     GroupLayout m_PropertyEditGroup;
     GroupLayout m_MeshTabLayout;
+    GroupLayout m_OutputTabLayout;
     GroupLayout m_DisplayTabLayout;
 
     GroupLayout* m_CurrDispGroup;
@@ -278,11 +279,38 @@ private:
     StringOutput m_NastOutput;
     StringOutput m_CalcOutput;
 
+    ToggleButton m_SrfFile;
+    ToggleButton m_XYZIntCurves;
+    TriggerButton m_SelectSrfFile;
+    StringOutput m_SrfOutput;
+
+    ToggleButton m_CurvFile;
+    ToggleButton m_Plot3DFile;
+
+    TriggerButton m_SelectCurvFile;
+    TriggerButton m_SelectPlot3DFile;
+
+    StringOutput m_CurvOutput;
+    StringOutput m_Plot3DOutput;
+
+    ToggleButton m_ExportRawPts;
+    SliderAdjRangeInput m_ExportRelCurveTolSlider;
+
     //===== Draw Tab Items =====//
     ToggleButton m_DrawMeshButton;
     ToggleButton m_ColorElementsButton;
     ToggleButton m_DrawNodesToggle;
     ToggleButton m_DrawElementOrientVecToggle;
+
+    ToggleButton m_DrawIsect;
+    ToggleButton m_DrawBorder;
+
+    ToggleButton m_ShowRaw;
+    ToggleButton m_ShowBinAdapt;
+    SliderAdjRangeInput m_DrawRelCurveTolSlider;
+
+    ToggleButton m_ShowCurve;
+    ToggleButton m_ShowPts;
 
     Fl_Check_Browser* m_DrawPartSelectBrowser;
 

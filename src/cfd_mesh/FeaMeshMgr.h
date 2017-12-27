@@ -200,6 +200,9 @@ protected:
     map< int, vector< int > > m_IndMap;
     vector< int > m_PntShift;
 
+    SimpleFeaMeshSettings m_StructSettings;
+    SimpleGridDensity m_FeaGridDensity;
+
 private:
 
     vector< DrawObj > m_FeaElementDO;
