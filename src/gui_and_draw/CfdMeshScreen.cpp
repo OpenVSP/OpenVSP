@@ -14,7 +14,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "CFD Mesh", 150 )
+CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 642, "CFD Mesh", 150 )
 {
     m_Vehicle = m_ScreenMgr->GetVehiclePtr();
 
@@ -33,13 +33,13 @@ CfdMeshScreen::CfdMeshScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "CFD 
 
     m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY()
                         - 7 * m_ConsoleLayout.GetStdHeight()
-                        - 2.0 * m_ConsoleLayout.GetGapHeight() );
+                        - 2 * m_ConsoleLayout.GetGapHeight() );
 
     m_ConsoleLayout.AddYGap();
     m_ConsoleLayout.AddX(5);
 
-    m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - 5.0,
-                                       m_ConsoleLayout.GetRemainY() - 5.0);
+    m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - 5,
+                                       m_ConsoleLayout.GetRemainY() - 5 );
 
     m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTextDisplay( 115 );
     m_ConsoleBuffer = new Fl_Text_Buffer;
@@ -118,23 +118,33 @@ void CfdMeshScreen::CreateDisplayTab()
     Fl_Group* displayTabGroup = AddSubGroup( displayTab, 5 );
 
     m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
+    m_DisplayTabLayout.SetButtonWidth( 175 );
 
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton(m_ShowSourcesAndWakePreview, "Show Sources and Wake Preview");
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton(m_ShowFarFieldPreview, "Show Far Field Preview");
+    m_DisplayTabLayout.AddDividerBox( "Mesh Display" );
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton(m_ShowMesh, "Show Mesh");
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton(m_ShowWake, "Show Wake");
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton(m_ShowSymmetryPlane, "Show Symmetry Plane");
-    m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton(m_ShowFarField, "Show Far Field");
-    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton(m_ColorTags, "Color Tags");
     m_DisplayTabLayout.AddButton(m_ShowBadEdgesAndTriangles, "Show Bad Edges and Triangles");
     m_DisplayTabLayout.AddYGap();
-    m_DisplayTabLayout.AddButton(m_ColorTags, "Color Tags");
+    m_DisplayTabLayout.AddButton(m_ShowSourcesAndWakePreview, "Show Sources and Wake Preview");
+    m_DisplayTabLayout.AddButton(m_ShowWake, "Show Wake");
+    m_DisplayTabLayout.AddButton(m_ShowSymmetryPlane, "Show Symmetry Plane");
+    m_DisplayTabLayout.AddButton(m_ShowFarFieldPreview, "Show Far Field Preview");
+    m_DisplayTabLayout.AddButton(m_ShowFarField, "Show Far Field");
+    m_DisplayTabLayout.AddYGap();
+
+    m_DisplayTabLayout.AddDividerBox( "Intersection Curve Display" );
+
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_DrawIsect, "Show Intersection Curves");
+    m_DisplayTabLayout.AddButton( m_DrawBorder, "Show Border Curves");
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_ShowCurve, "Show Curves");
+    m_DisplayTabLayout.AddButton( m_ShowPts, "Show Points");
+    m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
+    m_DisplayTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
+    m_DisplayTabLayout.AddSlider( m_DrawRelCurveTolSlider, "Display Curve Tolerance", 1.0, "%7.5f" );
 
     displayTab->show();
 }
@@ -203,6 +213,17 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.AddYGap();
 
     m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.AddDividerBox("Surface and Subsurface Key File");
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetFitWidthFlag( false );
+
+    m_OutputTabLayout.AddButton(m_TkeyFile, ".tkey");
+    m_OutputTabLayout.AddOutput(m_TkeyOutput);
+    m_OutputTabLayout.AddButton(m_SelectTkeyFile, "...");
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.AddYGap();
+
+    m_OutputTabLayout.SetFitWidthFlag( true );
     m_OutputTabLayout.AddDividerBox("Surfaces and Intersection Curves");
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.SetFitWidthFlag( false );
@@ -218,14 +239,29 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
 
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddDividerBox("Surface and Subsurface Key File");
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.InitWidthHeightVals();
 
-    m_OutputTabLayout.AddButton(m_TkeyFile, ".tkey");
-    m_OutputTabLayout.AddOutput(m_TkeyOutput);
-    m_OutputTabLayout.AddButton(m_SelectTkeyFile, "...");
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.SetSameLineFlag( false );
+    m_OutputTabLayout.SetButtonWidth( 175 );
+
+    m_OutputTabLayout.AddButton( m_ExportRawPts, "Export Raw Points" );
+    m_OutputTabLayout.AddSlider( m_ExportRelCurveTolSlider, "Export Curve Tolerance", 1.0, "%7.5f" );
+
+    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.SetSameLineFlag( true );
+
+    m_OutputTabLayout.SetButtonWidth(55);
+    m_OutputTabLayout.SetInputWidth(300);
+
+    m_OutputTabLayout.AddButton(m_CurvFile, ".curv");
+    m_OutputTabLayout.AddOutput(m_CurvOutput);
+    m_OutputTabLayout.AddButton(m_SelectCurvFile, "...");
+
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.AddButton(m_Plot3DFile, ".p3d");
+    m_OutputTabLayout.AddOutput(m_Plot3DOutput);
+    m_OutputTabLayout.AddButton(m_SelectPlot3DFile, "...");
 
     outputTab->show();
 }
@@ -619,6 +655,26 @@ void CfdMeshScreen::UpdateDisplayTab()
     m_ShowBadEdgesAndTriangles.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawBadFlag.GetID() );
     m_ColorTags.Update( m_Vehicle->GetCfdSettingsPtr()->m_ColorTagsFlag.GetID() );
 
+    m_DrawIsect.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawIsectFlag.GetID() );
+    m_DrawBorder.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawBorderFlag.GetID() );
+
+    m_ShowRaw.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawRawFlag.GetID() );
+    m_ShowBinAdapt.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawBinAdaptFlag.GetID() );
+
+    m_ShowCurve.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawCurveFlag.GetID() );
+    m_ShowPts.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawPntsFlag.GetID() );
+
+    m_DrawRelCurveTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawRelCurveTol.GetID() );
+
+    if ( m_Vehicle->GetCfdSettingsPtr()->m_DrawBinAdaptFlag() )
+    {
+        m_DrawRelCurveTolSlider.Activate();
+    }
+    else
+    {
+        m_DrawRelCurveTolSlider.Deactivate();
+    }
+
     if ( CfdMeshMgr.GetCfdSettingsPtr() )
     {
         CfdMeshMgr.UpdateDisplaySettings();
@@ -662,6 +718,29 @@ void CfdMeshScreen::UpdateOutputTab()
     m_SrfFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->GetID() );
     m_XYZIntCurves.Update( m_Vehicle->GetCfdSettingsPtr()->m_XYZIntCurveFlag.GetID() );
     m_TkeyFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME)->GetID() );
+
+
+    string curvname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_CURV_FILE_NAME );
+    m_CurvOutput.Update( truncateFileName( curvname, 40 ).c_str() );
+    string plot3dname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_PLOT3D_FILE_NAME );
+    m_Plot3DOutput.Update( truncateFileName( plot3dname, 40 ).c_str() );
+
+    //==== Update File Output Flags ====//
+    m_CurvFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_CURV_FILE_NAME )->GetID() );
+    m_Plot3DFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_PLOT3D_FILE_NAME )->GetID() );
+
+    m_ExportRawPts.Update( m_Vehicle->GetCfdSettingsPtr()->m_ExportRawPtsFlag.GetID() );
+    m_ExportRelCurveTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_ExportRelCurveTol.GetID() );
+
+    if ( m_Vehicle->GetCfdSettingsPtr()->m_ExportRawPtsFlag() )
+    {
+        m_ExportRelCurveTolSlider.Deactivate();
+    }
+    else
+    {
+        m_ExportRelCurveTolSlider.Activate();
+    }
+
 }
 
 void CfdMeshScreen::UpdateSourcesTab( BaseSource* source )
@@ -1114,6 +1193,22 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_TKEY_FILE_NAME );
+        }
+    }
+    else if ( device == &m_SelectCurvFile )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select GridTool .curv file.", "*.curv" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_CURV_FILE_NAME );
+        }
+    }
+    else if ( device == &m_SelectPlot3DFile )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select Plot3D .p3d file.", "*.p3d" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_PLOT3D_FILE_NAME );
         }
     }
 }

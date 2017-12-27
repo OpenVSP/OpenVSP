@@ -183,7 +183,14 @@ public:
     ~CfdMeshMgrSingleton() override;
     void CleanUp() override;
 
+    SimpleMeshCommonSettings* GetSettingsPtr() override
+    {
+        return (SimpleMeshCommonSettings* ) &m_CfdSettings;
+    }
+
     virtual void GenerateMesh();
+
+    void TransferMeshSettings() override;
 
     virtual void GUI_Val( string name, double val );
     virtual void GUI_Val( string name, int val );
@@ -231,7 +238,7 @@ public:
 //  virtual void Draw_BBox( BndBox box );
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
 
-    virtual void UpdateDisplaySettings();
+    void UpdateDisplaySettings() override;
 
     virtual void WriteSTL( const string &filename );
     virtual void WriteTaggedSTL( const string &filename );
@@ -290,6 +297,10 @@ public:
     vector< vec3d > m_DebugColors;
 #endif
 
+    virtual SimpleCfdMeshSettings* GetCfdSettingsPtr()
+    {
+        return &m_CfdSettings;
+    }
 
 protected:
 
@@ -302,6 +313,8 @@ protected:
     string m_CurrSourceGeomID;
     int m_CurrMainSurfIndx;
     string m_WakeGeomID;
+
+    SimpleCfdMeshSettings m_CfdSettings;
 
     //==== Wakes ====//
     WakeMgr m_WakeMgr;

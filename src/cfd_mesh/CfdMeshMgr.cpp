@@ -456,6 +456,15 @@ void CfdMeshMgrSingleton::GenerateMesh()
     m_MeshInProgress = false;
 }
 
+void CfdMeshMgrSingleton::TransferMeshSettings()
+{
+    m_CfdSettings = SimpleCfdMeshSettings();
+    m_CfdSettings.CopyFrom( m_Vehicle->GetCfdSettingsPtr() );
+
+    m_CfdGridDensity = SimpleCfdGridDensity();
+    m_CfdGridDensity.CopyFrom( m_Vehicle->GetCfdGridDensityPtr() );
+}
+
 void CfdMeshMgrSingleton::CleanUp()
 {
     SurfaceIntersectionSingleton::CleanUp();
@@ -1222,6 +1231,21 @@ void CfdMeshMgrSingleton::ExportFiles()
     {
         SubSurfaceMgr.WriteKeyFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TKEY_FILE_NAME ) );
     }
+
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_CURV_FILE_NAME ) )
+    {
+        WriteGridToolCurvFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_CURV_FILE_NAME ),
+                               GetCfdSettingsPtr()->m_ExportRawPtsFlag,
+                               GetCfdSettingsPtr()->m_ExportRelCurveTol );
+    }
+
+    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_PLOT3D_FILE_NAME ) )
+    {
+        WritePlot3DFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_PLOT3D_FILE_NAME ),
+                         GetCfdSettingsPtr()->m_ExportRawPtsFlag,
+                         GetCfdSettingsPtr()->m_ExportRelCurveTol );
+    }
+
 }
 
 void CfdMeshMgrSingleton::WriteTaggedSTL( const string &filename )
@@ -3953,5 +3977,18 @@ void CfdMeshMgrSingleton::UpdateDisplaySettings()
         GetCfdSettingsPtr()->m_DrawFarFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawFarFlag.Get();
         GetCfdSettingsPtr()->m_DrawBadFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawBadFlag.Get();
         GetCfdSettingsPtr()->m_ColorTagsFlag = m_Vehicle->GetCfdSettingsPtr()->m_ColorTagsFlag.Get();
+
+        GetCfdSettingsPtr()->m_DrawBorderFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawBorderFlag.Get();
+        GetCfdSettingsPtr()->m_DrawIsectFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawIsectFlag.Get();
+        GetCfdSettingsPtr()->m_DrawRawFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawRawFlag.Get();
+        GetCfdSettingsPtr()->m_DrawBinAdaptFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawBinAdaptFlag.Get();
+        GetCfdSettingsPtr()->m_DrawCurveFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawCurveFlag.Get();
+        GetCfdSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawPntsFlag.Get();
+
+        GetCfdSettingsPtr()->m_DrawRelCurveTol = m_Vehicle->GetCfdSettingsPtr()->m_DrawRelCurveTol.Get();
+
+//        GetCfdSettingsPtr()->m_IntersectSubSurfs = m_Vehicle->GetCfdSettingsPtr()->m_IntersectSubSurfs.Get();
+//        GetCfdSettingsPtr()->m_SelectedSetIndex = m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex.Get();
+//        GetCfdSettingsPtr()->m_XYZIntCurveFlag = m_Vehicle->GetCfdSettingsPtr()->m_XYZIntCurveFlag.Get();
     }
 }
