@@ -175,9 +175,9 @@ void SubSurface::UpdateDrawObjs()
             {
                 vector < vec3d > pts;
                 m_LVec[ls].GetDOPts( &surf_vec[symms[s]], geom, pts, num_pnts );
-                m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.begin(), pts.begin(), pts.end() );
+                m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.end(), pts.begin(), pts.end() );
 
-                m_SubSurfHighlightDO[ind].m_PntVec.insert( m_SubSurfHighlightDO[ind].m_PntVec.begin(), pts.begin(), pts.end());
+                m_SubSurfHighlightDO[ind].m_PntVec.insert( m_SubSurfHighlightDO[ind].m_PntVec.end(), pts.begin(), pts.end());
                 m_SubSurfHighlightDO[ind].m_Type = DrawObj::VSP_LINES;
                 m_SubSurfHighlightDO[ind].m_LineWidth = 5.0;
                 ++ind;
