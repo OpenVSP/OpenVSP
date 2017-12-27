@@ -34,11 +34,74 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
     m_DrawBadFlag = settings->m_DrawBadFlag.Get();
     m_ColorTagsFlag = settings->m_ColorTagsFlag.Get();
 
+    m_DrawBorderFlag = settings->m_DrawBorderFlag.Get();
+    m_DrawIsectFlag = settings->m_DrawIsectFlag.Get();
+    m_DrawRawFlag = settings->m_DrawRawFlag.Get();
+    m_DrawBinAdaptFlag = settings->m_DrawBinAdaptFlag.Get();
+    m_DrawCurveFlag = settings->m_DrawCurveFlag.Get();
+    m_DrawPntsFlag = settings->m_DrawPntsFlag.Get();
+
+    m_DrawRelCurveTol = settings->m_DrawRelCurveTol.Get();
+
+    m_ExportRawPtsFlag = settings->m_ExportRawPtsFlag.Get();
+    m_ExportRelCurveTol = settings->m_ExportRelCurveTol.Get();
+
     m_IntersectSubSurfs = settings->m_IntersectSubSurfs.Get();
 
     m_FarMeshFlag = settings->m_FarMeshFlag.Get();
     m_FarCompFlag = settings->m_FarCompFlag.Get();
     m_HalfMeshFlag = settings->m_HalfMeshFlag.Get();
+}
+
+//////////////////////////////////////////////////////
+//============ SimpleIntersectSettings ===============//
+//////////////////////////////////////////////////////
+
+SimpleIntersectSettings::SimpleIntersectSettings()
+{
+
+}
+
+SimpleIntersectSettings::~SimpleIntersectSettings()
+{
+
+}
+
+void SimpleIntersectSettings::CopyFrom( IntersectSettings* settings )
+{
+
+    m_ExportFileFlags.clear();
+    m_ExportFileFlags.resize( vsp::INTERSECT_NUM_FILE_NAMES );
+
+    for ( size_t i = 0; i < vsp::INTERSECT_NUM_FILE_NAMES; i++ )
+    {
+        m_ExportFileFlags[i] = settings->m_ExportFileFlags[i].Get();
+    }
+
+    m_ExportFileNames = settings->GetExportFileNames();
+
+    m_SelectedSetIndex = settings->m_SelectedSetIndex.Get();
+
+    m_XYZIntCurveFlag = settings->m_XYZIntCurveFlag.Get();
+
+    SimpleMeshCommonSettings::CopyFrom( settings );
+}
+
+string SimpleIntersectSettings::GetExportFileName( int type )
+{
+    if ( type >= 0 && type < vsp::INTERSECT_NUM_FILE_NAMES )
+    {
+        return m_ExportFileNames[type];
+    }
+
+    return string();
+}
+
+bool SimpleIntersectSettings::GetExportFileFlag( int type )
+{
+    assert( type >= 0 && type < vsp::INTERSECT_NUM_FILE_NAMES );
+
+    return m_ExportFileFlags[type];
 }
 
 //////////////////////////////////////////////////////
@@ -144,6 +207,8 @@ void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
     m_NumEvenlySpacedPart = settings->m_NumEvenlySpacedPart.Get();
     m_DrawNodesFlag = settings->m_DrawNodesFlag.Get();
     m_DrawElementOrientVecFlag = settings->m_DrawElementOrientVecFlag.Get();
+
+    m_XYZIntCurveFlag = settings->m_XYZIntCurveFlag.Get();
 
     m_ExportFileNames = settings->GetExportFileNames();
 

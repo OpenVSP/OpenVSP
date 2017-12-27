@@ -19,7 +19,7 @@
 #include "DrawObj.h"
 #include "LightMgr.h"
 #include "DegenGeom.h"
-#include "CfdMeshSettings.h"
+#include "MeshCommonSettings.h"
 #include "ClippingMgr.h"
 #include "SnapTo.h"
 #include "STEPutil.h"

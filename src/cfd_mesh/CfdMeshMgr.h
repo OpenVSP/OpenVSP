@@ -65,8 +65,7 @@
 #include "BezierCurve.h"
 #include "Vehicle.h"
 #include "SurfaceIntersectionMgr.h"
-#include "CfdMeshSettings.h"
-#include "StructSettings.h"
+#include "MeshCommonSettings.h"
 #include "SimpleSubSurface.h"
 #include "SimpleMeshSettings.h"
 

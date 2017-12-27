@@ -22,7 +22,7 @@
 #include "DrawObj.h"
 #include "APIDefines.h"
 #include "SubSurface.h"
-#include "StructSettings.h"
+#include "MeshCommonSettings.h"
 #include "GridDensity.h"
 
 // Forward declaration

@@ -12,8 +12,7 @@
 
 #include "APIDefines.h"
 #include "Vehicle.h"
-#include "CfdMeshSettings.h"
-#include "StructSettings.h"
+#include "MeshCommonSettings.h"
 #include "GridDensity.h"
 
 using namespace std;
@@ -32,13 +31,47 @@ public:
     bool m_DrawBadFlag;
     bool m_ColorTagsFlag;
 
+    bool m_DrawBorderFlag;
+    bool m_DrawIsectFlag;
+    bool m_DrawRawFlag;
+    bool m_DrawBinAdaptFlag;
+    bool m_DrawCurveFlag;
+    bool m_DrawPntsFlag;
+
+    double m_DrawRelCurveTol;
+    bool m_ExportRawPtsFlag;
+    double m_ExportRelCurveTol;
+
     bool m_IntersectSubSurfs;
 
     bool m_FarMeshFlag;
     bool m_FarCompFlag;
     bool m_HalfMeshFlag;
 
+    int m_SelectedSetIndex;
+
+    bool m_XYZIntCurveFlag;
+
 protected:
+
+};
+
+class SimpleIntersectSettings : public SimpleMeshCommonSettings
+{
+public:
+    SimpleIntersectSettings();
+    virtual ~SimpleIntersectSettings();
+
+    virtual void CopyFrom( IntersectSettings* settings );
+
+    string GetExportFileName( int type );
+    bool GetExportFileFlag( int type );
+
+    vector < bool > m_ExportFileFlags;
+
+protected:
+
+    vector < string > m_ExportFileNames;
 
 };
 
@@ -79,10 +112,7 @@ public:
     bool m_DrawSymmFlag;
     bool m_DrawWakeFlag;
 
-    int m_SelectedSetIndex;
-
     vector < bool > m_ExportFileFlags;
-    bool m_XYZIntCurveFlag;
 
 protected:
 

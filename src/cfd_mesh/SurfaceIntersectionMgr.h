@@ -62,8 +62,7 @@
 #include "GridDensity.h"
 #include "BezierCurve.h"
 #include "Vehicle.h"
-#include "CfdMeshSettings.h"
-#include "StructSettings.h"
+#include "MeshCommonSettings.h"
 #include "SimpleSubSurface.h"
 #include "SimpleMeshSettings.h"
 
