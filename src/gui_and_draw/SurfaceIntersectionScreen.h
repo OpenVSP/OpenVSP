@@ -43,9 +43,9 @@ public:
     string truncateFileName( const string &fn, int len );
     void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
 
-    ProcessUtil* getCfdMeshProcess()
+    ProcessUtil* getIntersectProcess()
     {
-        return &m_CFDMeshProcess;
+        return &m_IntersectProcess;
     }
 
 protected:
@@ -64,24 +64,43 @@ protected:
 
     //===== Display Tab Items =====//
 
+    ToggleButton m_DrawIsect;
+    ToggleButton m_DrawBorder;
+
+    ToggleButton m_ShowRaw;
+    ToggleButton m_ShowBinAdapt;
+    SliderAdjRangeInput m_DrawRelCurveTolSlider;
+
+    ToggleButton m_ShowCurve;
+    ToggleButton m_ShowPts;
 
     //===== Output Tab Items =====//
+
+    ToggleButton m_CurvFile;
+    ToggleButton m_Plot3DFile;
 
     ToggleButton m_SrfFile;
     ToggleButton m_XYZIntCurves;
 
+    TriggerButton m_SelectCurvFile;
+    TriggerButton m_SelectPlot3DFile;
     TriggerButton m_SelectSrfFile;
 
+    StringOutput m_CurvOutput;
+    StringOutput m_Plot3DOutput;
     StringOutput m_SrfOutput;
+
+    ToggleButton m_ExportRawPts;
+    SliderAdjRangeInput m_ExportRelCurveTolSlider;
 
     //===== Console Items =====//
 
     Fl_Text_Display *m_ConsoleDisplay;
     Fl_Text_Buffer *m_ConsoleBuffer;
 
-    TriggerButton m_MeshAndExport;
+    TriggerButton m_IntersectAndExport;
 
-    ProcessUtil m_CFDMeshProcess;
+    ProcessUtil m_IntersectProcess;
     ProcessUtil m_MonitorProcess;
 
 private:
@@ -98,10 +117,6 @@ private:
     void GuiDeviceOutputTabCallback( GuiDevice* device );
 
     Vehicle* m_Vehicle;
-
-    vector< string > m_GeomVec;
-    vector< string > m_WingGeomVec;
-
 };
 
 #endif //SURFINTERSECTSCREEN_H
