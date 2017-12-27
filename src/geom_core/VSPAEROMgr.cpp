@@ -1093,7 +1093,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     {
         ktcorrect = "N";
     }
-    fprintf( case_file, "Karman-Tsien Correction = %s \n", lesuction.c_str() );
+    fprintf( case_file, "Karman-Tsien Correction = %s \n", ktcorrect.c_str() );
 
     // Unsteady Setup
     if ( m_StabilityCalcFlag() )
