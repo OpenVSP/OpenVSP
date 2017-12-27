@@ -451,9 +451,24 @@ void SurfaceIntersectionSingleton::BuildGrid()
 void SurfaceIntersectionSingleton::ExportFiles()
 {
     if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME ) )
-        WriteSurfsIntCurves( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME ) );
     {
+        WriteSurfsIntCurves( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME ) );
     }
+
+    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME ) )
+    {
+        WriteGridToolCurvFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME ),
+                               GetIntersectSettingsPtr()->m_ExportRawPtsFlag,
+                               GetIntersectSettingsPtr()->m_ExportRelCurveTol );
+    }
+
+    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME ) )
+    {
+        WritePlot3DFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME ),
+                         GetIntersectSettingsPtr()->m_ExportRawPtsFlag,
+                         GetIntersectSettingsPtr()->m_ExportRelCurveTol );
+    }
+
 }
 
 void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
@@ -641,6 +656,104 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
         fclose( fp );
     }
 
+}
+
+void SurfaceIntersectionSingleton::WriteGridToolCurvFile( const string &filename, bool rawflag, double reltol )
+{
+    FILE* fp = fopen( filename.c_str(), "w" );
+    if ( fp )
+    {
+        list< ISegChain* >::iterator c;
+        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+        {
+            // Assume A and B curves are coincident -- just print A curve.
+            Surf* surf = (*c)->m_ACurve.GetSurf();
+
+            Bezier_curve xyzcrv = (*c)->m_ACurve.GetUWCrv();
+            vector<vec3d> ptvec;
+
+            if ( rawflag )
+            {
+                xyzcrv.UWCurveToXYZCurve( surf );
+                xyzcrv.GetControlPoints( ptvec );
+            }
+            else
+            {
+                xyzcrv.TessAdaptXYZ( *surf, ptvec, reltol, 16 );
+            }
+
+            fprintf( fp, "%d\n", ptvec.size() );
+
+            for ( int i = 0; i < ptvec.size(); i++ )
+            {
+                vec3d pt = ptvec[i];
+                fprintf( fp, "%21.15e %21.15e %21.15e\n", pt.x(), pt.y(), pt.z() );
+            }
+
+        }
+        fclose( fp );
+    }
+}
+
+void SurfaceIntersectionSingleton::WritePlot3DFile( const string &filename, bool rawflag, double reltol )
+{
+    FILE* fp = fopen( filename.c_str(), "w" );
+    if ( fp )
+    {
+        int nchain = m_ISegChainList.size();
+        fprintf( fp, " %d\n", nchain );
+
+        vector < vector < vec3d > > allpts( nchain );
+
+        int ichain = 0;
+        list< ISegChain* >::iterator c;
+        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+        {
+            // Assume A and B curves are coincident -- just print A curve.
+            Surf* surf = (*c)->m_ACurve.GetSurf();
+
+            Bezier_curve xyzcrv = (*c)->m_ACurve.GetUWCrv();
+
+            if ( rawflag )
+            {
+                xyzcrv.UWCurveToXYZCurve( surf );
+                xyzcrv.GetControlPoints( allpts[ichain] );
+            }
+            else
+            {
+                xyzcrv.TessAdaptXYZ( *surf, allpts[ichain], reltol, 16 );
+            }
+
+            fprintf( fp, " %d 1 1\n", allpts[ichain].size() );
+            ichain++;
+        }
+
+        for ( ichain = 0; ichain < nchain; ichain++ )
+        {
+            for ( int i = 0; i < allpts[ichain].size(); i++ )
+            {
+                vec3d pt = allpts[ichain][i];
+                fprintf( fp, "%25.17e ", pt.x() );
+            }
+            fprintf( fp, "\n" );
+
+            for ( int i = 0; i < allpts[ichain].size(); i++ )
+            {
+                vec3d pt = allpts[ichain][i];
+                fprintf( fp, "%25.17e ", pt.y() );
+            }
+            fprintf( fp, "\n" );
+
+            for ( int i = 0; i < allpts[ichain].size(); i++ )
+            {
+                vec3d pt = allpts[ichain][i];
+                fprintf( fp, "%25.17e ", pt.z() );
+            }
+            fprintf( fp, "\n" );
+        }
+
+        fclose( fp );
+    }
 }
 
 void SurfaceIntersectionSingleton::BuildCurves()

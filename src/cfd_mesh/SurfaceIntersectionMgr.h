@@ -130,6 +130,8 @@ public:
     virtual void CleanMergeSurfs();
 
     virtual void WriteSurfsIntCurves( const string &filename  );
+    virtual void WriteGridToolCurvFile( const string &filename, bool rawflag, double reltol );
+    virtual void WritePlot3DFile( const string &filename, bool rawflag, double reltol );
 
     virtual void ExportFiles();
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );
