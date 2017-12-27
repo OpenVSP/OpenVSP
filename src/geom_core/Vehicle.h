@@ -261,6 +261,11 @@ public:
         return &m_CfdSettings;
     }
 
+    IntersectSettings* GetISectSettingsPtr()
+    {
+        return &m_ISectSettings;
+    }
+
     virtual GridDensity* GetCfdGridDensityPtr()
     {
         return &m_CfdGridDensity;
@@ -407,6 +412,7 @@ protected:
     string m_SLICERCmd;
     vector< string > m_CustomScriptDirs;
 
+    IntersectSettings m_ISectSettings;
 
     CfdMeshSettings m_CfdSettings;
     CfdGridDensity m_CfdGridDensity;
