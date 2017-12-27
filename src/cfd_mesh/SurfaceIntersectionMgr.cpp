@@ -1725,7 +1725,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                     }
                     else
                     {
-                        fprintf( fp, "x=[" );
+                        fprintf( fp, "u=[" );
                         int j;
                         vec2d uw1;
                         for ( j = 0 ; j < ( int )( *c )->m_TessVec.size() - 1 ; j++ )
@@ -1736,7 +1736,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                         uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
                         fprintf( fp, "%f];\n", uw1[0] );
 
-                        fprintf( fp, "y=[" );
+                        fprintf( fp, "w=[" );
                         for ( j = 0 ; j < ( int )( *c )->m_TessVec.size() - 1 ; j++ )
                         {
                             uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
@@ -1745,13 +1745,59 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
                         uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
                         fprintf( fp, "%f];\n", uw1[1] );
 
-                        fprintf( fp, "plot( x, y); hold on;\n" );
+                        fprintf( fp, "figure(1)\n");
+                        fprintf( fp, "plot( u, w, 'x-'); hold on;\n" );
+
+
+                        fprintf( fp, "x=[" );
+                        vec3d pt;
+                        for ( j = 0 ; j < ( int )( *c )->m_TessVec.size() - 1 ; j++ )
+                        {
+                            uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
+                            pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                            fprintf( fp, "%f,", pt.x() );
+                        }
+                        uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
+                        pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                        fprintf( fp, "%f];\n", pt.x() );
+
+                        fprintf( fp, "y=[" );
+                        for ( j = 0 ; j < ( int )( *c )->m_TessVec.size() - 1 ; j++ )
+                        {
+                            uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
+                            pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                            fprintf( fp, "%f,", pt.y() );
+                        }
+                        uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
+                        pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                        fprintf( fp, "%f];\n", pt.y() );
+
+                        fprintf( fp, "z=[" );
+                        for ( j = 0 ; j < ( int )( *c )->m_TessVec.size() - 1 ; j++ )
+                        {
+                            uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
+                            pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                            fprintf( fp, "%f,", pt.z() );
+                        }
+                        uw1 = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_UW;
+                        pt = ( *c )->m_TessVec[j]->GetPuw( m_SurfVec[i] )->m_Surf->CompPnt( uw1[0], uw1[1] );
+                        fprintf( fp, "%f];\n", pt.z() );
+
+                        fprintf( fp, "figure(2)\n");
+                        fprintf( fp, "plot3( x, y, z, 'x-'); hold on;\n" );
 
                     }
                     cnt++;
                 }
             }
+            fprintf( fp, "figure(1)\n");
             fprintf(fp, "axis off\n" );
+            fprintf(fp, "axis equal\n" );
+
+            fprintf( fp, "figure(2)\n");
+            fprintf(fp, "axis off\n" );
+            fprintf(fp, "axis equal\n" );
+
             fclose( fp );
         }
     }
