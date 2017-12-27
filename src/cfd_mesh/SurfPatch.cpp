@@ -95,12 +95,18 @@ void SurfPatch::split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, 
 //===== Test If Patch Is Planar (within tol)  =====//
 bool SurfPatch::test_planar( double tol )
 {
-    surface_patch_type approx;
-    approx.planar_approx( m_Patch );
+    return test_planar_rel( tol / bnd_box.DiagDist() );
+}
 
-    double dst = m_Patch.eqp_distance_bound( approx );
+//===== Test If Patch Is Planar (within relative tol)  =====//
+bool SurfPatch::test_planar_rel( double reltol )
+{
+    surface_patch_type approx = m_Patch;
+    approx.planar_approx();
 
-    return dst < tol;
+    double dst = m_Patch.simple_eqp_distance_bound( approx );
+
+    return dst < ( reltol * bnd_box.DiagDist() );
 }
 
 //===== Find Closest UW On Patch to Given Point  =====//
@@ -150,7 +156,7 @@ void SurfPatch::IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vec
     }
 
     //==== Do Tri Seg intersection ====//
-    if ( test_planar( DEFAULT_PLANE_TOL ) )
+    if ( test_planar( 1.0e-5 ) )  // Uses a dimensional tolerance in test.
     {
         int n( m_Patch.degree_u() ), m( m_Patch.degree_v() );
 

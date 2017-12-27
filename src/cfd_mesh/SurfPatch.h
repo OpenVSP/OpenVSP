@@ -15,12 +15,6 @@
 #include "Vec3d.h"
 #include "BndBox.h"
 
-//Original
-//#define DEFAULT_PLANE_TOL (0.0002)
-//jrg 8/25/2010
-//#define DEFAULT_PLANE_TOL (0.0002)
-#define DEFAULT_PLANE_TOL (1.0e-5)
-
 #include <assert.h>
 #include <cmath>
 #include <float.h>
@@ -103,6 +97,7 @@ public:
 
     void split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, SurfPatch& bp11 );
     bool test_planar( double tol );
+    bool test_planar_rel( double reltol );
 
     BndBox* get_bbox()
     {
