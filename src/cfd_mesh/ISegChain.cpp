@@ -472,6 +472,46 @@ void ISegBox::Intersect( ISegBox* box )
     }
 }
 
+void ISegBox::AppendLineSegs( vector < vec3d > &lsegs )
+{
+    vec3d uw;
+    vec3d pnt0, pnt;
+
+    if ( m_Surf )
+    {
+        uw = m_Box.GetCornerPnt( 0 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+        pnt0 = pnt;
+
+        lsegs.push_back( pnt );
+
+        uw = m_Box.GetCornerPnt( 1 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+
+        lsegs.push_back( pnt );
+        lsegs.push_back( pnt );
+
+        uw = m_Box.GetCornerPnt( 3 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+
+        lsegs.push_back( pnt );
+        lsegs.push_back( pnt );
+
+        uw = m_Box.GetCornerPnt( 2 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+
+        lsegs.push_back( pnt );
+        lsegs.push_back( pnt );
+
+        lsegs.push_back( pnt0 );
+    }
+
+    if ( m_SubBox[0] )
+    {
+        m_SubBox[0]->AppendLineSegs( lsegs );
+        m_SubBox[1]->AppendLineSegs( lsegs );
+    }
+}
 
 
 

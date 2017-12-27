@@ -155,6 +155,8 @@ public:
 
     void Draw();
 
+    void AppendLineSegs( vector < vec3d > &lsegs );
+
 };
 
 //==== ISeg Chain - Intersection Between Two Surfaces ====//
