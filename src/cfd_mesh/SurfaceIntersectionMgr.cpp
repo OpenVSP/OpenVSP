@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// CfdMeshMgr
+// SurfaceIntersectionMgr
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -103,13 +103,7 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     addOutputText( "Exporting Files\n" );
     ExportFiles();
 
-    //==== No Show Components ====//
-    vector<string> geomVec = m_Vehicle->GetGeomVec();
-//  for ( int i = 0 ; i < (int)geomVec.size() ; i++ )
-//      m_Vehicle->FindGeom( geomVec[i] )->setNoShowFlag(1);
-//  m_ScreenMgr->Update( GEOM_SCREEN );
-
-    GetCfdSettingsPtr()->m_DrawMeshFlag = true;
+    addOutputText( "Done\n" );
 
     m_MeshInProgress = false;
 }
@@ -177,11 +171,8 @@ void SurfaceIntersectionSingleton::CleanUp()
 
 void SurfaceIntersectionSingleton::TransferMeshSettings()
 {
-    m_CfdSettings = SimpleCfdMeshSettings();
-    m_CfdSettings.CopyFrom( m_Vehicle->GetCfdSettingsPtr() );
-
-    m_CfdGridDensity = SimpleCfdGridDensity();
-    m_CfdGridDensity.CopyFrom( m_Vehicle->GetCfdGridDensityPtr() );
+    m_IntersectSettings = SimpleIntersectSettings();
+    m_IntersectSettings.CopyFrom( m_Vehicle->GetISectSettingsPtr() );
 }
 
 void SurfaceIntersectionSingleton::TransferSubSurfData()
@@ -246,7 +237,7 @@ void SurfaceIntersectionSingleton::addOutputText( const string &str, int output_
 
 void SurfaceIntersectionSingleton::FetchSurfs( vector< XferSurf > &xfersurfs )
 {
-    m_Vehicle->FetchXFerSurfs( GetCfdSettingsPtr()->m_SelectedSetIndex, xfersurfs );
+    m_Vehicle->FetchXFerSurfs( GetSettingsPtr()->m_SelectedSetIndex, xfersurfs );
 }
 
 void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs )
@@ -459,9 +450,9 @@ void SurfaceIntersectionSingleton::BuildGrid()
 
 void SurfaceIntersectionSingleton::ExportFiles()
 {
-    if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME ) )
+    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME ) )
+        WriteSurfsIntCurves( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME ) );
     {
-        WriteSurfsIntCurves( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_SRF_FILE_NAME ) );
     }
 }
 
@@ -553,7 +544,7 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
             }
             ipntVec.push_back( border_curves[i]->m_ISegDeque.back()->m_IPnt[1] );
 
-            if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag )
+            if ( ! GetSettingsPtr()->m_XYZIntCurveFlag )
             {
                 fprintf( fp, "%d		// Number of Border Points (Au, Aw, Bu, Bw) \n", ( int )ipntVec.size() );
             }
@@ -567,7 +558,7 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
                 Puw* pwA = ipntVec[j]->GetPuw( surfA );
                 Puw* pwB = ipntVec[j]->GetPuw( surfB );
 
-                if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag )
+                if ( ! GetSettingsPtr()->m_XYZIntCurveFlag )
                 {
                     fprintf( fp, "%d    %16.16lf, %16.16lf, %16.16lf, %16.16lf \n", j,
                              pwA->m_UW.x(), pwA->m_UW.y(), pwB->m_UW.x(), pwB->m_UW.y() );
@@ -610,7 +601,7 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
             }
             ipntVec.push_back( intersect_curves[i]->m_ISegDeque.back()->m_IPnt[1] );
 
-            if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag )
+            if ( ! GetSettingsPtr()->m_XYZIntCurveFlag )
             {
                 fprintf( fp, "%d		// Number of Intersect Points (Au, Aw, Bu, Bw) \n", ( int )ipntVec.size() );
             }
@@ -624,7 +615,7 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
                 Puw* pwA = ipntVec[j]->GetPuw( surfA );
                 Puw* pwB = ipntVec[j]->GetPuw( surfB );
 
-                if ( ! GetCfdSettingsPtr()->m_XYZIntCurveFlag )
+                if ( ! GetSettingsPtr()->m_XYZIntCurveFlag )
                 {
                     fprintf( fp, "%d    %16.16lf, %16.16lf, %16.16lf, %16.16lf \n", j,
                              pwA->m_UW.x(), pwA->m_UW.y(), pwB->m_UW.x(), pwB->m_UW.y() );
@@ -667,11 +658,12 @@ void SurfaceIntersectionSingleton::Intersect()
 
     //==== Quad Tree Intersection - Intersection Segments Get Loaded at AddIntersectionSeg ===//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
-        for ( int j = i + 1 ; j < ( int )m_SurfVec.size() ; j++ )
+    {
+        for ( int j = i + 1; j < (int) m_SurfVec.size(); j++ )
         {
             m_SurfVec[i]->Intersect( m_SurfVec[j], this );
         }
-
+    }
 
     BuildChains();
 
@@ -1765,8 +1757,6 @@ vector< Surf* > SurfaceIntersectionSingleton::GetPossCoPlanarSurfs( Surf* surfPt
     return retSurfVec;
 }
 
-
-
 void SurfaceIntersectionSingleton::TestStuff()
 {
     if ( !m_SurfVec.size() )
@@ -1810,11 +1800,6 @@ void SurfaceIntersectionSingleton::TestStuff()
     psurf = pVec[0]->comp_pnt_01( 0.6, 0.6 );
     ppatch = sp0.comp_pnt_01( 0.4, 0.4 );
     d = dist( psurf, ppatch );
-
-
-
-
-
 }
 
 void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
@@ -1824,320 +1809,218 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
         return;
     }
 
+    // Draw ISegChains
+    m_IsectCurveDO.m_GeomID = GetID() + "ISECTCURVE";
+    m_IsectCurveDO.m_Type = DrawObj::VSP_LINES;
+    m_IsectCurveDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
+                               GetSettingsPtr()->m_DrawCurveFlag &&
+                               GetSettingsPtr()->m_DrawBinAdaptFlag;
+    m_IsectCurveDO.m_LineColor = vec3d(0, 0, 1);
+    m_IsectCurveDO.m_LineWidth = 2.0;
+
+    m_IsectPtsDO.m_GeomID = GetID() + "ISECTPTS";
+    m_IsectPtsDO.m_Type = DrawObj::VSP_POINTS;
+    m_IsectPtsDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
+                               GetSettingsPtr()->m_DrawPntsFlag &&
+                               GetSettingsPtr()->m_DrawBinAdaptFlag;
+    m_IsectPtsDO.m_PointColor = vec3d(0, 0, 0);
+    m_IsectPtsDO.m_PointSize = 10.0;
+
+    m_BorderCurveDO.m_GeomID = GetID() + "BORDERCURVE";
+    m_BorderCurveDO.m_Type = DrawObj::VSP_LINES;
+    m_BorderCurveDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
+                               GetSettingsPtr()->m_DrawCurveFlag &&
+                               GetSettingsPtr()->m_DrawBinAdaptFlag;
+    m_BorderCurveDO.m_LineColor = vec3d(0, 1, 0);
+    m_BorderCurveDO.m_LineWidth = 2.0;
+
+    m_BorderPtsDO.m_GeomID = GetID() + "BORDERPTS";
+    m_BorderPtsDO.m_Type = DrawObj::VSP_POINTS;
+    m_BorderPtsDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
+                               GetSettingsPtr()->m_DrawPntsFlag &&
+                               GetSettingsPtr()->m_DrawBinAdaptFlag;
+    m_BorderPtsDO.m_PointColor = vec3d(0, 0, 0);
+    m_BorderPtsDO.m_PointSize = 10.0;
+
+    m_RawIsectCurveDO.m_GeomID = GetID() + "RAWISECTCURVE";
+    m_RawIsectCurveDO.m_Type = DrawObj::VSP_LINES;
+    m_RawIsectCurveDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
+                                  GetSettingsPtr()->m_DrawCurveFlag &&
+                                  GetSettingsPtr()->m_DrawRawFlag;
+    m_RawIsectCurveDO.m_LineColor = vec3d(1, 0, 1);
+    m_RawIsectCurveDO.m_LineWidth = 2.0;
+
+    m_RawIsectPtsDO.m_GeomID = GetID() + "RAWISECTPTS";
+    m_RawIsectPtsDO.m_Type = DrawObj::VSP_POINTS;
+    m_RawIsectPtsDO.m_Visible = GetSettingsPtr()->m_DrawIsectFlag &&
+                                GetSettingsPtr()->m_DrawPntsFlag &&
+                                GetSettingsPtr()->m_DrawRawFlag;
+    m_RawIsectPtsDO.m_PointColor = vec3d(0.5, 0.5, 0.5);
+    m_RawIsectPtsDO.m_PointSize = 10.0;
+
+    m_RawBorderCurveDO.m_GeomID = GetID() + "RAWBORDERCURVE";
+    m_RawBorderCurveDO.m_Type = DrawObj::VSP_LINES;
+    m_RawBorderCurveDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
+                                   GetSettingsPtr()->m_DrawCurveFlag &&
+                                   GetSettingsPtr()->m_DrawRawFlag;
+    m_RawBorderCurveDO.m_LineColor = vec3d(1, 1, 0);
+    m_RawBorderCurveDO.m_LineWidth = 2.0;
+
+    m_RawBorderPtsDO.m_GeomID = GetID() + "RAWBORDERPTS";
+    m_RawBorderPtsDO.m_Type = DrawObj::VSP_POINTS;
+    m_RawBorderPtsDO.m_Visible = GetSettingsPtr()->m_DrawBorderFlag &&
+                                 GetSettingsPtr()->m_DrawPntsFlag &&
+                                 GetSettingsPtr()->m_DrawRawFlag;
+    m_RawBorderPtsDO.m_PointColor = vec3d(0.5, 0.5, 0.5);
+    m_RawBorderPtsDO.m_PointSize = 10.0;
+
+    m_ApproxPlanesDO.m_GeomID = GetID() + "APPROXPLANES";
+    m_ApproxPlanesDO.m_Type = DrawObj::VSP_LINES;
+    m_ApproxPlanesDO.m_Visible = false;
+    m_ApproxPlanesDO.m_LineColor = vec3d( .2, .2, .2 );
+    m_ApproxPlanesDO.m_LineWidth = 1.0;
+
+    m_IsectCurveDO.m_PntVec.clear();
+    m_IsectPtsDO.m_PntVec.clear();
+    m_BorderCurveDO.m_PntVec.clear();
+    m_BorderPtsDO.m_PntVec.clear();
+    m_RawIsectCurveDO.m_PntVec.clear();
+    m_RawIsectPtsDO.m_PntVec.clear();
+    m_RawBorderCurveDO.m_PntVec.clear();
+    m_RawBorderPtsDO.m_PntVec.clear();
+    m_ApproxPlanesDO.m_PntVec.clear();
+
+    list<ISegChain *>::iterator c;
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    {
+        DrawObj *curveDO;
+        DrawObj *ptsDO;
+        DrawObj *rawcurveDO;
+        DrawObj *rawptsDO;
+
+        if ( (*c)->m_BorderFlag )
+        {
+            curveDO = &m_BorderCurveDO;
+            ptsDO = &m_BorderPtsDO;
+            rawcurveDO = & m_RawBorderCurveDO;
+            rawptsDO = &m_RawBorderPtsDO;
+        }
+        else
+        {
+            curveDO = &m_IsectCurveDO;
+            ptsDO = &m_IsectPtsDO;
+            rawcurveDO = &m_RawIsectCurveDO;
+            rawptsDO = & m_RawIsectPtsDO;
+        }
+
+        {
+            vector<vec3d> ptvec;
+            vector<vec3d> rawptvec;
+
+            Bezier_curve xyzcrvA = (*c)->m_ACurve.GetUWCrv();
+            xyzcrvA.TessAdaptXYZ( *(*c)->m_ACurve.GetSurf(), ptvec, GetSettingsPtr()->m_DrawRelCurveTol, 16 );
+
+            xyzcrvA.UWCurveToXYZCurve( (*c)->m_ACurve.GetSurf() );
+            xyzcrvA.GetControlPoints( rawptvec );
+
+
+            ptsDO->m_PntVec.insert( ptsDO->m_PntVec.end(), ptvec.begin(), ptvec.end() );
+            rawptsDO->m_PntVec.insert( rawptsDO->m_PntVec.end(), rawptvec.begin(), rawptvec.end() );
+
+            for ( int j = 1; j < ptvec.size(); j++ )
+            {
+                curveDO->m_PntVec.push_back( ptvec[j - 1] );
+                curveDO->m_PntVec.push_back( ptvec[j] );
+            }
+
+            for ( int j = 1; j < rawptvec.size(); j++ )
+            {
+                rawcurveDO->m_PntVec.push_back( rawptvec[j - 1] );
+                rawcurveDO->m_PntVec.push_back( rawptvec[j] );
+            }
+
+
+            ptvec.clear();
+            rawptvec.clear();
+
+            Bezier_curve xyzcrvB = (*c)->m_BCurve.GetUWCrv();
+            xyzcrvB.TessAdaptXYZ( *(*c)->m_BCurve.GetSurf(), ptvec, GetSettingsPtr()->m_DrawRelCurveTol, 16 );
+
+            xyzcrvB.UWCurveToXYZCurve( (*c)->m_BCurve.GetSurf() );
+            xyzcrvB.GetControlPoints( rawptvec );
+
+            ptsDO->m_PntVec.insert( ptsDO->m_PntVec.end(), ptvec.begin(), ptvec.end() );
+            rawptsDO->m_PntVec.insert( rawptsDO->m_PntVec.end(), rawptvec.begin(), rawptvec.end() );
+
+            for ( int j = 1; j < ptvec.size(); j++ )
+            {
+                curveDO->m_PntVec.push_back( ptvec[j - 1] );
+                curveDO->m_PntVec.push_back( ptvec[j] );
+            }
+
+            for ( int j = 1; j < rawptvec.size(); j++ )
+            {
+                rawcurveDO->m_PntVec.push_back( rawptvec[j - 1] );
+                rawcurveDO->m_PntVec.push_back( rawptvec[j] );
+            }
+        }
+
+        if ( !(*c)->m_BorderFlag )
+        {
+            (*c)->m_ISegBoxA.AppendLineSegs( m_ApproxPlanesDO.m_PntVec );
+            (*c)->m_ISegBoxB.AppendLineSegs( m_ApproxPlanesDO.m_PntVec );
+        }
+    }
+
+    // Normal Vec is not required, load placeholder.
+    m_IsectCurveDO.m_NormVec = m_IsectCurveDO.m_PntVec;
+    m_IsectPtsDO.m_NormVec = m_IsectPtsDO.m_PntVec;
+    m_BorderCurveDO.m_NormVec = m_BorderCurveDO.m_PntVec;
+    m_BorderPtsDO.m_NormVec = m_BorderPtsDO.m_PntVec;
+
+    m_RawIsectCurveDO.m_NormVec = m_RawIsectCurveDO.m_PntVec;
+    m_RawIsectPtsDO.m_NormVec = m_RawIsectPtsDO.m_PntVec;
+    m_RawBorderCurveDO.m_NormVec = m_RawBorderCurveDO.m_PntVec;
+    m_RawBorderPtsDO.m_NormVec = m_RawBorderPtsDO.m_PntVec;
+
+    m_ApproxPlanesDO.m_NormVec = m_ApproxPlanesDO.m_PntVec;
+
+    draw_obj_vec.push_back( &m_IsectCurveDO );
+    draw_obj_vec.push_back( &m_IsectPtsDO );
+    draw_obj_vec.push_back( &m_BorderCurveDO );
+    draw_obj_vec.push_back( &m_BorderPtsDO );
+
+    draw_obj_vec.push_back( &m_RawIsectCurveDO );
+    draw_obj_vec.push_back( &m_RawIsectPtsDO );
+    draw_obj_vec.push_back( &m_RawBorderCurveDO );
+    draw_obj_vec.push_back( &m_RawBorderPtsDO );
+
+    draw_obj_vec.push_back( &m_ApproxPlanesDO );
 
 }
-
-/*
-void SurfaceIntersectionSingleton::Draw()
-{
-    bool isShown = m_Vehicle->getScreenMgr()->getCfdMeshScreen()->isShown();
-    if ( !isShown )
-        return;
-
-    UpdateSourcesAndWakes();
-    UpdateDomain();
-
-    glLineWidth( 1.0 );
-    glColor4ub( 255, 0, 0, 255 );
-
-    BaseSource* source = GetCurrSource();
-
-    if ( m_DrawSourceFlag )
-    {
-        GetGridDensityPtr()->Draw(source);
-        m_WakeMgr.Draw();
-    }
-
-    if ( m_DrawFarPreFlag )
-    {
-        if ( m_FarMeshFlag )
-        {
-            glColor4ub( 0, 200, 0, 255 );
-            Draw_BBox( m_Domain );
-        }
-    }
-
-    if ( m_DrawMeshFlag )
-    {
-    ////////glLineWidth( 1.0 );
-    ////////glColor4ub( 255, 0, 0, 255 );
-    ////////glBegin( GL_LINES );
-    ////////for ( int i = 0 ; i < debugPnts.size() ; i+=2 )
-    ////////{
-    ////////    if ( i%4 == 0 )
-    ////////        glColor4ub( 255, 0, 0, 255 );
-    ////////    else
-    ////////        glColor4ub( 0, 0, 255, 255 );
-    ////////    glVertex3dv( debugPnts[i].data() );
-    ////////    glVertex3dv( debugPnts[i+1].data() );
-    ////////}
-    ////////glEnd();
-    ////////glColor4ub( 0, 0, 0, 255 );
-    ////////glPointSize(4.0);
-    ////////glBegin( GL_POINTS );
-    ////////for ( int i = 0 ; i < debugPnts.size() ; i++ )
-    ////////{
-    ////////    glVertex3dv( debugPnts[i].data() );
-    ////////}
-    ////////glEnd();
-
-
-        //==== Draw Mesh ====//
-        glPolygonOffset(2.0, 1);
-
-        glCullFace( GL_BACK );                      // Cull Back Faces For Trans
-        glEnable( GL_CULL_FACE );
-
-#ifndef __APPLE__
-        glEnable(GL_POLYGON_OFFSET_EXT);
-#endif
-
-        glColor4ub( 220, 220, 220, 255 );
-        for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
-        {
-
-            vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-            for ( int t = 0 ; t < (int)m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
-            {
-                if ( !m_SurfVec[i]->GetWakeFlag() &&
-                        ( !m_SurfVec[i]->GetFarFlag() || m_DrawFarFlag ) &&
-                        ( !m_SurfVec[i]->GetSymPlaneFlag() || m_DrawSymmFlag ) )
-                {
-                    SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
-                    glBegin( GL_POLYGON );
-                        glVertex3dv( pVec[stri->ind0].data() );
-                        glVertex3dv( pVec[stri->ind1].data() );
-                        glVertex3dv( pVec[stri->ind2].data() );
-                    glEnd();
-                }
-            }
-        }
-
-        glLineWidth(1.0);
-        glColor4ub( 100, 0, 100, 255 );
-        for ( int i = 0 ; i < (int)m_SurfVec.size() ; i++ )
-        {
-            if ( !m_SurfVec[i]->GetWakeFlag() )
-                glColor4ub( 100, 0, 100, 255 );
-            else
-                glColor4ub( 0, 100, 0, 255 );
-
-            vector< vec3d > pVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
-            for ( int t = 0 ; t < (int)m_SurfVec[i]->GetMesh()->GetSimpTriVec().size() ; t++ )
-            {
-                if ( ( !m_SurfVec[i]->GetWakeFlag() || m_DrawWakeFlag ) &&
-                        ( !m_SurfVec[i]->GetFarFlag() || m_DrawFarFlag ) &&
-                        ( !m_SurfVec[i]->GetSymPlaneFlag() || m_DrawSymmFlag ) )
-                {
-                    SimpTri* stri = &m_SurfVec[i]->GetMesh()->GetSimpTriVec()[t];
-                    glBegin( GL_LINE_LOOP );
-                        glVertex3dv( pVec[stri->ind0].data() );
-                        glVertex3dv( pVec[stri->ind1].data() );
-                        glVertex3dv( pVec[stri->ind2].data() );
-                    glEnd();
-                }
-            }
-        }
-        glDisable( GL_CULL_FACE );
-#ifndef __APPLE__
-        glDisable(GL_POLYGON_OFFSET_EXT);
-#endif
-    }
-
-
-#ifdef DEBUG_CFD_MESH
-    if ( m_DebugDraw )
-    {
-        for ( int i = 0 ; i < (int)m_DebugCurves.size() ; i++ )
-        {
-            glPointSize( 4.0 );
-            glLineWidth( 2.0 );
-            vec3d rgb = m_DebugColors[i];
-            glColor4ub( (GLbyte)rgb[0], (GLbyte)rgb[1], (GLbyte)rgb[2], 255 );
-
-            glBegin( GL_LINE_STRIP );
-            for ( int j = 0 ; j < (int)m_DebugCurves[i].size() ; j++ )
-            {
-                glVertex3dv( m_DebugCurves[i][j].data() );
-            }
-            glEnd();
-
-            glBegin( GL_POINTS );
-            for ( int j = 0 ; j < (int)m_DebugCurves[i].size() ; j++ )
-            {
-                glVertex3dv( m_DebugCurves[i][j].data() );
-            }
-            glEnd();
-
-        }
-    }
-
-#endif
-
-
-    if ( m_DrawBadFlag )
-    {
-        vector< Edge* >::iterator e;
-
-        glLineWidth( 3.0 );
-        glColor3ub( 255, 0, 0 );
-        glBegin( GL_LINES );
-        for ( e = m_BadEdges.begin() ; e != m_BadEdges.end(); e++ )
-        {
-            glVertex3dv( (*e)->n0->pnt.data() );
-            glVertex3dv( (*e)->n1->pnt.data() );
-        }
-        glEnd();
-
-
-        vector< Tri* >::iterator t;
-
-        for ( t = m_BadTris.begin() ; t != m_BadTris.end(); t++ )
-        {
-            glBegin( GL_POLYGON );
-                glVertex3dv( (*t)->n0->pnt.data() );
-                glVertex3dv( (*t)->n1->pnt.data() );
-                glVertex3dv( (*t)->n2->pnt.data() );
-            glEnd();
-
-            glBegin( GL_LINE_LOOP );
-                glVertex3dv( (*t)->n0->pnt.data() );
-                glVertex3dv( (*t)->n1->pnt.data() );
-                glVertex3dv( (*t)->n2->pnt.data() );
-            glEnd();
-        }
-
-    }
-
-    //glLineWidth( 1.0 );
-    //glColor4ub( 150, 150, 150, 255 );
-    //for ( int s = 0 ; s < (int)m_SurfVec.size() ; s++ )
-    //{
-    //  m_SurfVec[s]->Draw();
-    //}
-
-    //glPointSize( 4.0 );
-    //glLineWidth( 1.0 );
-    //glColor4ub( 255, 0, 0, 255 );
-    //for ( int s = 0 ; s < (int)debugPatches.size() ; s++ )
-    //{
-    //  debugPatches[s]->Draw();
-    //}
-
-
-    //////for ( int r = 0 ; r < debugRayIsect.size() ; r++ )
-    //////{
-    //////  glColor4ub( 255, 0, 0, 255 );
-    //////  glBegin( GL_LINE_STRIP );
-    //////  for ( int i = 0 ; i < debugRayIsect[r].size() ; i++ )
-    //////  {
-    //////      glVertex3dv( debugRayIsect[r][i].data() );
-    //////  }
-    //////  glEnd();
-    //////
-    //////  glColor4ub( 255, 0, 255, 255 );
-    //////  glBegin( GL_POINTS );
-    //////  for ( int i = 0 ; i < debugRayIsect[r].size() ; i++ )
-    //////  {
-    //////      glVertex3dv( debugRayIsect[r][i].data() );
-    //////  }
-    //////  glEnd();
-    //////}
-
-    //glLineWidth( 2.0 );
-    //int cnt = 0;
-    //list< ISegChain* >::iterator c;
-    //for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
-    //{
-    //  if ( cnt%4 == 0 )               glColor4ub( 0, 255, 255, 100 );
-    //  else if ( cnt%4 == 1 )          glColor4ub( 255, 0, 0, 100 );
-    //  else if ( cnt%4 == 2 )          glColor4ub( 0, 255, 0, 100 );
-    //  else if ( cnt%4 == 3 )          glColor4ub( 0, 0, 255, 100 );
-    //  if ( cnt == m_HighlightChainIndex )
-    //  {
-    //      glColor4ub( 255, 255, 255, 100 );
-    //      //if ( (*c)->m_SurfA ) (*c)->m_SurfA->Draw();
-    //      //if ( (*c)->m_SurfB ) (*c)->m_SurfB->Draw();
-
-    //      glColor4ub( 0, 255, 255, 255 );
-    //      glLineWidth( 2.0 );
-    //      glPointSize( 6.0 );
-    //  }
-    //  else
-    //  {
-    //      glColor4ub( 255, 0, 0, 255 );
-    //      glLineWidth( 1.0 );
-    //      glPointSize( 3.0 );
-    //  }
-
-
-    //  (*c)->Draw();
-
-    //  cnt++;
-
-    ////    //(*c)->m_ISegBoxA.Draw();
-    ////    //(*c)->m_ISegBoxB.Draw();
-    //}
-
-}
-*/
-
-/*
-//==== Compose Modeling Matrix ====//
-void SurfaceIntersectionSingleton::Draw_BBox( bbox box )
-{
-  double temp[3];
-  temp[0] = box.get_min(0);
-  temp[1] = box.get_min(1);
-  temp[2] = box.get_min(2);
-
-  glBegin( GL_LINE_STRIP );
-    glVertex3dv(temp);
-    temp[0] = box.get_max(0);
-    glVertex3dv(temp);
-    temp[1] = box.get_max(1);
-    glVertex3dv(temp);
-    temp[2] = box.get_max(2);
-    glVertex3dv(temp);
-    temp[0] = box.get_min(0);
-    glVertex3dv(temp);
-    temp[2] = box.get_min(2);
-    glVertex3dv(temp);
-    temp[1] = box.get_min(1);
-    glVertex3dv(temp);
-    temp[2] = box.get_max(2);
-    glVertex3dv(temp);
-    temp[0] = box.get_max(0);
-    glVertex3dv(temp);
-    temp[2] = box.get_min(2);
-    glVertex3dv(temp);
-  glEnd();
-
-  glBegin( GL_LINE_STRIP );
-    temp[2] = box.get_max(2);
-    glVertex3dv(temp);
-    temp[1] = box.get_max(1);
-    glVertex3dv(temp);
-  glEnd();
-
-  glBegin( GL_LINE_STRIP );
-    temp[2] = box.get_min(2);
-    glVertex3dv(temp);
-    temp[0] = box.get_min(0);
-    glVertex3dv(temp);
-  glEnd();
-
-  glBegin( GL_LINE_STRIP );
-    temp[2] = box.get_max(2);
-    glVertex3dv(temp);
-    temp[1] = box.get_min(1);
-    glVertex3dv(temp);
-  glEnd();
-
-}
-*/
 
 void SurfaceIntersectionSingleton::SetICurveVec( ICurve* newcurve, int loc )
 {
     m_ICurveVec[loc] = newcurve;
+}
+
+
+void SurfaceIntersectionSingleton::UpdateDisplaySettings()
+{
+    if ( GetIntersectSettingsPtr() )
+    {
+        GetIntersectSettingsPtr()->m_DrawBorderFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawBorderFlag.Get();
+        GetIntersectSettingsPtr()->m_DrawIsectFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawIsectFlag.Get();
+        GetIntersectSettingsPtr()->m_DrawRawFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawRawFlag.Get();
+        GetIntersectSettingsPtr()->m_DrawBinAdaptFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawBinAdaptFlag.Get();
+        GetIntersectSettingsPtr()->m_DrawCurveFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.Get();
+        GetIntersectSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.Get();
+
+        GetIntersectSettingsPtr()->m_DrawRelCurveTol = m_Vehicle->GetISectSettingsPtr()->m_DrawRelCurveTol.Get();
+
+        GetIntersectSettingsPtr()->m_IntersectSubSurfs = m_Vehicle->GetISectSettingsPtr()->m_IntersectSubSurfs.Get();
+        GetIntersectSettingsPtr()->m_SelectedSetIndex = m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.Get();
+
+        GetIntersectSettingsPtr()->m_XYZIntCurveFlag = m_Vehicle->GetISectSettingsPtr()->m_XYZIntCurveFlag.Get();
+    }
 }

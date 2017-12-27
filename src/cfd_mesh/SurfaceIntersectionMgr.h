@@ -122,6 +122,8 @@ public:
 //  virtual void Draw_BBox( BndBox box );
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
+    virtual void UpdateDisplaySettings();
+
     virtual void FetchSurfs( vector< XferSurf > &xfersurfs );
     virtual void LoadSurfs( vector< XferSurf > &xfersurfs );
 
@@ -206,13 +208,14 @@ public:
     {
         return &m_StructSettings;
     }
-    virtual SimpleCfdMeshSettings* GetCfdSettingsPtr()
+
+    virtual SimpleIntersectSettings* GetIntersectSettingsPtr()
     {
-        return &m_CfdSettings;
+        return &m_IntersectSettings;
     }
     virtual SimpleMeshCommonSettings* GetSettingsPtr()
     {
-        return (SimpleMeshCommonSettings* )&m_CfdSettings;
+        return (SimpleMeshCommonSettings* )&m_IntersectSettings;
     }
 
     bool GetMeshInProgress()
@@ -251,8 +254,9 @@ protected:
 
     vector< vector< vec3d > > debugRayIsect;
 
+    SimpleIntersectSettings m_IntersectSettings;
     SimpleFeaMeshSettings m_StructSettings;
-    SimpleCfdMeshSettings m_CfdSettings;
+
     SimpleGridDensity m_FeaGridDensity;
     SimpleCfdGridDensity m_CfdGridDensity;
 
@@ -261,8 +265,17 @@ protected:
 
 private:
 
-//    DrawObj m_ISegChainDO;
-//    DrawObj m_ISegChainPtsDO;
+    DrawObj m_IsectCurveDO;
+    DrawObj m_IsectPtsDO;
+    DrawObj m_BorderCurveDO;
+    DrawObj m_BorderPtsDO;
+
+    DrawObj m_RawIsectCurveDO;
+    DrawObj m_RawIsectPtsDO;
+    DrawObj m_RawBorderCurveDO;
+    DrawObj m_RawBorderPtsDO;
+
+    DrawObj m_ApproxPlanesDO;
 };
 
 #define SurfaceIntersectionMgr SurfaceIntersectionSingleton::getInstance()
