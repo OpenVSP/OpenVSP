@@ -825,6 +825,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_TKEY_TYPE", CFD_TKEY_TYPE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_CURV_TYPE", CFD_CURV_TYPE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_PLOT3D_TYPE", CFD_PLOT3D_TYPE );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "PROJ_AREA_CSV_TYPE", PROJ_AREA_CSV_TYPE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "WAVE_DRAG_TXT_TYPE", WAVE_DRAG_TXT_TYPE );
