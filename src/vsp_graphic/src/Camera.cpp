@@ -23,8 +23,6 @@ Camera::Camera()
 
     _projectionMatrix = glm::mat4( 1.0 );
     _modelviewMatrix = glm::mat4( 1.0 );
-
-    _viewMatrix = glm::mat4( 1.0 );
 }
 Camera::~Camera()
 {

@@ -82,7 +82,7 @@ void ArcballCam::load( int index )
     _rMat = _toMatrix( _globalQuat );
     _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
     _cMat = _saves[index].cor;
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
+    _modelviewMatrix = _tMat * _rMat * _cMat;
 }
 
 void ArcballCam::center()
@@ -92,7 +92,7 @@ void ArcballCam::center()
     _tMat = glm::mat4( 1.0f );
 
     // Keep View and Rotation.
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
+    _modelviewMatrix = _tMat * _rMat * _cMat;
 }
 
 void ArcballCam::resize( int x, int y, int width, int height )
@@ -134,7 +134,7 @@ void ArcballCam::rotate( int px, int py, int cx, int cy )
 
     //===== Set modelview matrix =====//
     _rMat = _toMatrix( _globalQuat );
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
+    _modelviewMatrix = _tMat * _rMat * _cMat;
 }
 
 void ArcballCam::rotateSphere( float angleX, float angleY, float angleZ )
@@ -148,7 +148,7 @@ void ArcballCam::rotateSphere( float angleX, float angleY, float angleZ )
     //===== _rMat will change modelviewMatrix =====//
     _globalQuat = _matrixToQuat( _rMat );
 
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
+    _modelviewMatrix = _tMat * _rMat * _cMat;
 }
 
 glm::vec3 ArcballCam::getRotationEulerAngles()
@@ -200,7 +200,7 @@ void ArcballCam::pan( int px, int py, int cx, int cy )
 
     _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
 
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
+    _modelviewMatrix = _tMat * _rMat * _cMat;
 }
 
 glm::vec2 ArcballCam::getPanValues()
@@ -216,7 +216,7 @@ void ArcballCam::relativePan( float x, float y )
 
     _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
 
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
+    _modelviewMatrix = _tMat * _rMat * _cMat;
 }
 
 void ArcballCam::zoom( int px, int py, int cx, int cy )
@@ -289,7 +289,7 @@ float ArcballCam::getRelativeZoomValue()
 void ArcballCam::setCOR( float x, float y, float z )
 {
     _cMat = glm::translate( glm::vec3( x, y, z ) );
-    _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
+    _modelviewMatrix = _tMat * _rMat * _cMat;
 }
 
 glm::vec3 ArcballCam::getCOR()

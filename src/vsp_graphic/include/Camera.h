@@ -155,7 +155,6 @@ protected:
 
 protected:
     // Transformation matrices.
-    glm::mat4 _viewMatrix;
     glm::mat4 _modelviewMatrix;
     glm::mat4 _projectionMatrix;
 
