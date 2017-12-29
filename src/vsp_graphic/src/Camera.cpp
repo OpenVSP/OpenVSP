@@ -9,7 +9,6 @@ namespace VSPGraphic
 {
 Camera::Camera()
 {
-    changeView( Common::VSP_CAM_TOP );
 
     _vx = _vy = 0;
     _vWidth = _vHeight = 1;
@@ -73,51 +72,51 @@ void Camera::changeView( Common::VSPenum type )
     switch( type )
     {
     case Common::VSP_CAM_TOP:
-        _top();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 0, 0, 0 );
         break;
 
     case Common::VSP_CAM_FRONT:
-        _front();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 0.0, - 90.0 * ( M_PI / 180.0 ), - 90.0 * ( M_PI / 180.0 ) );
         break;
 
     case Common::VSP_CAM_LEFT:
-        _left();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 90.0 * ( M_PI / 180.0 ), 0.0, 0.0 );
         break;
 
     case Common::VSP_CAM_LEFT_ISO:
-        _left_Iso();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 0.1959132757121161 * M_PI, -0.25 * M_PI, -M_PI / 3.0 );
         break;
 
     case Common::VSP_CAM_BOTTOM:
-        _bottom();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 0.0, 180.0 * ( M_PI / 180.0 ), 180.0 * ( M_PI / 180.0 ) );
         break;
 
     case Common::VSP_CAM_REAR:
-        _rear();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 0.0, 90.0 * ( M_PI / 180.0 ), 90.0 * ( M_PI / 180.0 ) );
         break;
 
     case Common::VSP_CAM_RIGHT:
-        _right();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( -90.0 * ( M_PI / 180.0 ), -180.0 * ( M_PI / 180.0 ), 0.0 );
         break;
 
     case Common::VSP_CAM_RIGHT_ISO:
-        _right_Iso();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( -0.1959132757121161 * M_PI, -0.25 * M_PI, -2.0 * M_PI / 3.0 );
         break;
 
     case Common::VSP_CAM_CENTER:
