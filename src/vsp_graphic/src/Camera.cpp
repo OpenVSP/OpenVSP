@@ -128,62 +128,6 @@ void Camera::changeView( Common::VSPenum type )
     }
 }
 
-void Camera::_top()
-{
-    _eye = glm::vec3( 0.0f, 0.0f, 1.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, 1.0f, 0.0f );
-}
-
-void Camera::_front()
-{
-    _eye = glm::vec3( -1.0f, 0.0f, 0.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, 0.0f, 1.0f );
-}
-
-void Camera::_left()
-{
-    _eye = glm::vec3( 0.0f, -1.0f, 0.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, 0.0f, 1.0f );
-}
-
-void Camera::_left_Iso()
-{
-    _eye = glm::vec3( -1.0f, -1.0f, 1.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 1.0f, 1.0f, 1.0f );
-}
-
-void Camera::_bottom()
-{
-    _eye = glm::vec3( 0.0f, 0.0f, -1.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, -1.0f, 0.0f );
-}
-
-void Camera::_rear()
-{
-    _eye = glm::vec3( 1.0f, 0.0f, 0.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, 0.0f, 1.0f );
-}
-
-void Camera::_right()
-{
-    _eye = glm::vec3( 0.0f, 1.0f, 0.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, 0.0f, 1.0f );
-}
-
-void Camera::_right_Iso()
-{
-    _eye = glm::vec3( -1.0f, 1.0f, 1.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 1.0f, -1.0f, 1.0f );
-}
-
 void Camera::_calculateProjection()
 {
     float range = 0;

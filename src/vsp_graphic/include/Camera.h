@@ -155,19 +155,6 @@ public:
     virtual glm::vec3 getCOR() = 0;
 
 protected:
-    /*
-    * Change View.
-    */
-    virtual void _top();
-    virtual void _front();
-    virtual void _left();
-    virtual void _left_Iso();
-    virtual void _bottom();
-    virtual void _rear();
-    virtual void _right();
-    virtual void _right_Iso();
-
-protected:
     virtual void _calculateProjection();
 
 protected:
@@ -175,11 +162,6 @@ protected:
     glm::mat4 _viewMatrix;
     glm::mat4 _modelviewMatrix;
     glm::mat4 _projectionMatrix;
-
-    // Camera
-    glm::vec3 _eye;
-    glm::vec3 _focus;
-    glm::vec3 _camUp;
 
     // Viewport x, y, width and height.
     int _vx;
