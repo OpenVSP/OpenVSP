@@ -33,6 +33,8 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_FLTK_Window = NULL;
     m_GlWin = NULL;
 
+    m_ShowXYZArrow = true;
+
     int x, y, w, h, side;
     w = 500;
     h = 500;
