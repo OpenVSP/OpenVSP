@@ -415,34 +415,138 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_TopMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_TOP );
+        ManageViewScreen * viewScreen = NULL;
+        viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if( viewScreen )
+        {
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+                viewScreen->UpdateRotations();
+            }
+        }
     }
     else if ( data == &m_FrontMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_FRONT );
+        ManageViewScreen * viewScreen = NULL;
+        viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if( viewScreen )
+        {
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+                viewScreen->UpdateRotations();
+            }
+        }
     }
     else if ( data == &m_LeftSideMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_LEFT );
+        ManageViewScreen * viewScreen = NULL;
+        viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if( viewScreen )
+        {
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+                viewScreen->UpdateRotations();
+            }
+        }
     }
     else if ( data == &m_LeftIsoMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_LEFT_ISO );
+        ManageViewScreen * viewScreen = NULL;
+        viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if( viewScreen )
+        {
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+                viewScreen->UpdateRotations();
+            }
+        }
     }
     else if ( data == &m_BottomMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_BOTTOM );
+        ManageViewScreen * viewScreen = NULL;
+        viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if( viewScreen )
+        {
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+                viewScreen->UpdateRotations();
+            }
+        }
     }
     else if ( data == &m_RearMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_REAR );
+        ManageViewScreen * viewScreen = NULL;
+        viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if( viewScreen )
+        {
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+                viewScreen->UpdateRotations();
+            }
+        }
     }
     else if ( data == &m_RightSideMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_RIGHT );
+        ManageViewScreen * viewScreen = NULL;
+        viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if( viewScreen )
+        {
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+                viewScreen->UpdateRotations();
+            }
+        }
     }
     else if ( data == &m_RightIsoMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_RIGHT_ISO );
+        ManageViewScreen * viewScreen = NULL;
+        viewScreen = dynamic_cast< ManageViewScreen* >
+        ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_VIEW_SCREEN ) );
+
+        if( viewScreen )
+        {
+            if ( viewScreen->IsShown() )
+            {
+                viewScreen->UpdateCOR();
+                viewScreen->UpdatePan();
+                viewScreen->UpdateRotations();
+            }
+        }
     }
     else if ( data == &m_CenterMenuItem )
     {
