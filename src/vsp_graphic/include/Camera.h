@@ -58,10 +58,6 @@ public:
     * VSP_CAM_BOTTOM, VSP_CAM_REAR, VSP_CAM_RIGHT, VSP_CAM_RIGHT_ISO, VSP_CAM_CENTER.
     */
     virtual void changeView( Common::VSPenum type );
-    /*!
-    * Reset camera to default location.
-    */
-    virtual void resetView();
 
 public:
     /*

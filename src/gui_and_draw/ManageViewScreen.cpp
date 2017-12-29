@@ -368,14 +368,6 @@ void ManageViewScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_ResetCamera )
     {
-        MainVSPScreen* main = dynamic_cast<MainVSPScreen*>( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
-        if( main )
-        {
-            VSPGUI::VspGlWindow * glwin = main->GetGLWindow();
-
-            glwin->resetView();
-        }
-
         //===== Reset the values to default =====//
         m_PanXPosValue.Set( 0.0 );
         m_PanYPosValue.Set( 0.0 );

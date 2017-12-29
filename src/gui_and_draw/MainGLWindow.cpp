@@ -134,11 +134,6 @@ glm::vec3 VspGlWindow::getRotationEulerAngles()
     return m_GEngine->getDisplay()->getRotationEulerAngles();
 }
 
-void VspGlWindow::resetView()
-{
-    m_GEngine->getDisplay()->resetView();
-}
-
 void VspGlWindow::draw()
 {
     // Initialize Glew when context is created.

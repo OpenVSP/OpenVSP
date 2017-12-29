@@ -107,11 +107,6 @@ public:
     virtual void changeView( Common::VSPenum type );
 
     /*!
-    * Reset Geometry View.
-    */
-    virtual void resetView();
-
-    /*!
     * Center Geometry.
     */
     virtual void center();

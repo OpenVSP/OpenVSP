@@ -85,22 +85,6 @@ void ArcballCam::load( int index )
     _modelviewMatrix = _tMat * _viewMatrix * _rMat * _cMat;
 }
 
-void ArcballCam::resetView()
-{
-    // Reset global quaternion and transformation matrices.
-    _globalQuat = glm::vec4( 0.0, 0.0, 0.0, 1.0 );
-    _rMat = _tMat = glm::mat4( 1.0f );
-
-    // Reset panning.
-    _pan = glm::vec2( 0.0f, 0.0f );
-
-    // Reset center of rotation.
-    _cMat = glm::mat4( 1.0f );
-
-    // Reset modelview matrix.
-    Camera::resetView();
-}
-
 void ArcballCam::center()
 {
     // Reset Panning.

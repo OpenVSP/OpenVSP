@@ -40,11 +40,6 @@ glm::mat4 Camera::getProjectionMatrix()
     return _projectionMatrix;
 }
 
-void Camera::resetView()
-{
-    _modelviewMatrix = _viewMatrix * glm::mat4( 1.0f );
-}
-
 void Camera::resize( int x, int y, int width, int height )
 {
     _vx = x;

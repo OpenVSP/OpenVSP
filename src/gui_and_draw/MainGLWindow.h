@@ -121,8 +121,6 @@ public:
      */
     virtual glm::vec3 getRotationEulerAngles();
 
-    virtual void resetView();
-
 // Override Fl_Gl_Window Functions.
 public:
     virtual void draw();
