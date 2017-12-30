@@ -291,6 +291,11 @@ public:
     SliderInput m_SSRecULenSlider;
     SliderInput m_SSRecWLenSlider;
     SliderAdjRangeInput m_SSRecThetaSlider;
+
+    SliderInput m_SSRecWRadiusSlider;
+    SliderInput m_SSRecURadiusSlider;
+    SliderInput m_SSRecArcNumPts;
+
     ToggleButton m_SSRecInsideButton;
     ToggleButton m_SSRecOutsideButton;
     ToggleRadioGroup m_SSRecTestToggleGroup;

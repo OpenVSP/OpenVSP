@@ -11,6 +11,10 @@
 #ifndef SUBSURFACE_INCLUDED_
 #define SUBSURFACE_INCLUDED_
 
+#define PI 3.14159265359
+
+#include <math.h>
+
 #include "VspSurf.h"
 #include "TMesh.h"
 #include "Vec2d.h"
@@ -215,7 +219,11 @@ public:
     Parm m_CenterW; // W location of square center
     Parm m_ULength; // Length of U dimension
     Parm m_WLength; // Length of W dimension
-    Parm m_Theta; // Rotation Angle
+    Parm m_Theta;   // Rotation Angle
+
+    Parm m_URadius; //.. Relative radius of the rectangle in U direction
+    Parm m_WRadius; //.. Relative radius of the rectangle in W direction
+    Parm m_NumArcPts; // Additional points of the arcs between start and end point
 
     virtual void Update();
 };

@@ -736,18 +736,31 @@ SSRectangle::SSRectangle( string comp_id, int type ) : SubSurface( comp_id, type
 {
     m_CenterU.Init( "Center_U", "SS_Rectangle", this, 0.5, 0, 1 );
     m_CenterU.SetDescript( "Defines the U location of the rectangle center" );
+
     m_CenterW.Init( "Center_W", "SS_Rectangle", this, 0.5, 0, 1 );
     m_CenterW.SetDescript( "Defines the W location of the rectangle center" );
+
     m_ULength.Init( "U_Length", "SS_Rectangle", this, .2, 0, 1 );
     m_ULength.SetDescript( "Defines length of rectangle in U direction before rotation" );
+
     m_WLength.Init( "W_Length", "SS_Rectangle", this, .2, 0, 1 );
     m_WLength.SetDescript( "Defines length of rectangle in W direction before rotation" );
+
     m_Theta.Init( "Theta", "SS_Rectangle", this, 0, -90, 90 );
     m_Theta.SetDescript( "Defines angle in degrees from U axis to rotate the rectangle" );
+
     m_TestType.Init( "Test_Type", "SS_Rectangle", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
-    m_LVec.resize(4);
+    m_URadius.Init( "U_Radius", "SS_Rectangle", this, .0, 0, 1.0);
+    m_URadius.SetDescript( "Relative radius of the rectangle corners in U direction" );
+
+    m_WRadius.Init( "W_Radius", "SS_Rectangle", this, .0, 0, 1.0);
+    m_WRadius.SetDescript( "Relative radius of the rectangle corners in W direction" );
+
+    m_NumArcPts.Init( "Num_Radius", "SS_Rectangle", this, 5, 0, 20);
+    m_NumArcPts.SetDescript( "Amount of arc points for tessellation of rounded rectangle corners" );
+
 }
 
 //===== Destructor =====//
@@ -765,6 +778,9 @@ void SSRectangle::Update()
 
     vec3d center;
     vector< vec3d > pntVec;
+    vector< vec3d > arcVec;
+
+    int NArcPtsInt = m_NumArcPts();
 
     center = vec3d( m_CenterU(), m_CenterW(), 0 );
 
@@ -778,23 +794,94 @@ void SSRectangle::Update()
     transMat2.loadIdentity();
     transMat2.translatef( center.x(), center.y(), 0 );
 
-    // Make points in counter clockwise fashion;
-    pntVec.resize( 5 );
-    pntVec[0] = center + vec3d( m_ULength(), m_WLength(), 0 ) * -0.5;
-    pntVec[1] = center + vec3d( m_ULength(), -1.0 * m_WLength(), 0 ) * 0.5;
-    pntVec[2] = center + vec3d( m_ULength(), m_WLength(), 0 ) * 0.5;
-    pntVec[3] = center + vec3d( -1.0 * m_ULength(), m_WLength(), 0 ) * 0.5;
-    pntVec[4] = pntVec[0];
+//--Create arc points in clockwise direction of right upper corner--------------
+    arcVec.resize( NArcPtsInt );
+    float dphi = 0.5*PI/(NArcPtsInt+1);
+    for(int i=0; i<NArcPtsInt; i++){
+        float phase_i = dphi*(i+1);
+        arcVec[i] = vec3d( sin(phase_i)*m_URadius(), cos(phase_i)*m_WRadius(), 0.0)
+                  + vec3d( 1.0, 1.0, 0.0)
+                  - vec3d( m_URadius(), m_WRadius(), 0.0);
+    }
 
-    // Apply transformations
-    for ( int i = 0; i < 5 ; i++ )
+//--Create points of the overall shape------------------------------------------
+    int pts_idx = 0;
+    pntVec.resize( 9 + 4*NArcPtsInt );
+
+//--Bottom line:
+    pntVec[pts_idx] = vec3d(-1.0, -1.0, 0.0) + vec3d( m_URadius(), 0.0, 0.0); pts_idx++;
+    pntVec[pts_idx] = vec3d( 1.0, -1.0, 0.0) + vec3d(-m_URadius(), 0.0, 0.0); pts_idx++;
+
+//--Bottom right arc:
+    for(int i=0; i<NArcPtsInt; i++){
+        pntVec[pts_idx] = vec3d(0.0, 0.0, 0.0);
+        pntVec[pts_idx].set_x( arcVec[i].x());
+        pntVec[pts_idx].set_y(-arcVec[i].y());
+        pts_idx++;
+    }
+
+//--Right line:
+    pntVec[pts_idx] = vec3d( 1.0, -1.0, 0.0) + vec3d( 0.0, m_WRadius(), 0.0); pts_idx++;
+    pntVec[pts_idx] = vec3d( 1.0,  1.0, 0.0) + vec3d( 0.0,-m_WRadius(), 0.0); pts_idx++;
+
+//--Upper right arc:
+    for(int i=0; i<NArcPtsInt; i++){
+        pntVec[pts_idx] = vec3d(0.0, 0.0, 0.0);
+        pntVec[pts_idx].set_x(arcVec[NArcPtsInt-i-1].x());
+        pntVec[pts_idx].set_y(arcVec[NArcPtsInt-i-1].y());
+        pts_idx++;
+    }
+
+//--Upper line:
+    pntVec[pts_idx] = vec3d( 1.0,  1.0, 0.0) + vec3d(-m_URadius(), 0.0, 0.0); pts_idx++;
+    pntVec[pts_idx] = vec3d(-1.0,  1.0, 0.0) + vec3d( m_URadius(), 0.0, 0.0); pts_idx++;
+
+//--Upper left arc:
+    for(int i=0; i<NArcPtsInt; i++){
+        pntVec[pts_idx] = vec3d(0.0, 0.0, 0.0);
+        pntVec[pts_idx].set_x(-arcVec[i].x());
+        pntVec[pts_idx].set_y( arcVec[i].y());
+        pts_idx++;
+    }
+
+//--Left line:
+    pntVec[pts_idx] = vec3d(-1.0,  1.0, 0.0) + vec3d( 0.0,-m_WRadius(), 0.0); pts_idx++;
+    pntVec[pts_idx] = vec3d(-1.0, -1.0, 0.0) + vec3d( 0.0, m_WRadius(), 0.0); pts_idx++;
+
+//--Bottom left arc:
+    for(int i=0; i<NArcPtsInt; i++){
+        pntVec[pts_idx] = vec3d(0.0, 0.0, 0.0);
+        pntVec[pts_idx].set_x(-arcVec[NArcPtsInt-i-1].x());
+        pntVec[pts_idx].set_y(-arcVec[NArcPtsInt-i-1].y());
+        pts_idx++;
+    }
+
+//--Last point to close shape:
+    pntVec[pts_idx] = pntVec[0]; pts_idx++;
+
+//--Stretch rectangle by height and weight--------------------------------------
+    for ( int i = 0; i < pts_idx; i++ ){
+        pntVec[i].scale_x(m_ULength()/2);
+        pntVec[i].scale_y(m_WLength()/2);
+    }
+
+//--Align rectangle to centre---------------------------------------------------
+    for ( int i = 0; i < pts_idx; i++ ){
+        pntVec[i].set_x(pntVec[i].x() + center.x());
+        pntVec[i].set_y(pntVec[i].y() + center.y());
+    }
+
+//--Apply transformations-------------------------------------------------------
+    for ( int i = 0; i < pts_idx; i++ )
     {
         pntVec[i] = transMat2.xform( rotMat.xform( transMat1.xform( pntVec[i] ) ) );
     }
 
+//--Create line segments--------------------------------------------------------
     int pind = 0;
+    m_LVec.resize(pts_idx-1);
 
-    for ( int i = 0 ; i < 4; i++ )
+    for ( int i = 0 ; i < pts_idx-1; i++ )
     {
         m_LVec[i].SetSP0( pntVec[pind] );
         pind++;
