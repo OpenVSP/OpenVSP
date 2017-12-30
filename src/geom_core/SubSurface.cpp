@@ -758,7 +758,7 @@ SSRectangle::SSRectangle( string comp_id, int type ) : SubSurface( comp_id, type
     m_WRadius.Init( "W_Radius", "SS_Rectangle", this, .0, 0, 1.0 );
     m_WRadius.SetDescript( "Relative radius of the rectangle corners in W direction" );
 
-    m_NumArcPts.Init( "Num_Radius", "SS_Rectangle", this, 5, 0, 20 );
+    m_NumArcPts.Init( "Num_Radius", "SS_Rectangle", this, 5, 0, 1000 );
     m_NumArcPts.SetDescript( "Amount of arc points for tessellation of rounded rectangle corners" );
 
 }

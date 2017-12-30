@@ -603,9 +603,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSRecGroup.AddSlider( m_SSRecWLenSlider, "W Length", 1, "%5.4f" );
     m_SSRecGroup.AddSlider( m_SSRecThetaSlider, "Theta", 25, "%5.4f" );
 
-    m_SSRecGroup.AddSlider( m_SSRecURadiusSlider, "Radius U", 0.5, "%5.4f" );
-    m_SSRecGroup.AddSlider( m_SSRecWRadiusSlider, "Radius W", 0.5, "%5.4f" );
-    m_SSRecGroup.AddSlider( m_SSRecArcNumPts,   "Num Radius", 5, "%5.0f" );
+    m_SSRecGroup.AddSlider( m_SSRecURadiusSlider, "Radius U", 1, "%5.4f" );
+    m_SSRecGroup.AddSlider( m_SSRecWRadiusSlider, "Radius W", 1, "%5.4f" );
+    m_SSRecGroup.AddSlider( m_SSRecArcNumPts, "Num Radius", 100, "%5.0f" );
 
     //==== SS_Ellipse ====//
     m_SSEllGroup.SetGroupAndScreen( AddSubGroup( subsurf_tab, 5 ), this );
