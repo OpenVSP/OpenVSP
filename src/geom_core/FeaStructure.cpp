@@ -314,6 +314,10 @@ SubSurface* FeaStructure::AddFeaSubSurf( int type )
         ssurf = new SSRectangle( m_ParentGeomID );
         ssurf->SetName( string( "SSRect" + to_string( m_FeaSubSurfCount ) ) );
     }
+    else if ( type == vsp::SS_FOURVERTPOLY ){
+        ssurf = new SSFourVertPoly( m_ParentGeomID );
+        ssurf->SetName( string( "SSFourVertPoly" + to_string( m_FeaSubSurfCount ) ) );        
+    }
     else if ( type == vsp::SS_ELLIPSE )
     {
         ssurf = new SSEllipse( m_ParentGeomID );
@@ -4436,28 +4440,28 @@ void FeaMaterial::Update()
             m_PoissonRatio.Set( 0.33 );
             m_MassDensity.Set( ConvertDensity( 2810, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
             m_ElasticModulus.Set( ConvertPressure( 71.7e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 23.6e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°C)
+            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 23.6e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-ï¿½C)
         }
         else if ( strcmp( m_Name.c_str(), "Aluminum 2024-T3" ) == 0 )
         {
             m_PoissonRatio.Set( 0.33 );
             m_MassDensity.Set( ConvertDensity( 2780, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
             m_ElasticModulus.Set( ConvertPressure( 73.1e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 23.2e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°C)
+            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 23.2e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-ï¿½C)
         }
         else if ( strcmp( m_Name.c_str(), "Titanium Ti-6Al-4V" ) == 0 )
         {
             m_PoissonRatio.Set( 0.342 );
             m_MassDensity.Set( ConvertDensity( 4430, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
             m_ElasticModulus.Set( ConvertPressure( 113.8e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 9.2e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°C)
+            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 9.2e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-ï¿½C)
         }
         else if ( strcmp( m_Name.c_str(), "AISI 4130 Steel" ) == 0 )
         {
             m_PoissonRatio.Set( 0.29 );
             m_MassDensity.Set( ConvertDensity( 7850, vsp::RHO_UNIT_KG_M3, density_unit ) ); // kg/m^3
             m_ElasticModulus.Set( ConvertPressure( 205e9, vsp::PRES_UNIT_PA, pressure_unit ) ); // Pa
-            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 13.7e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-°C)
+            m_ThermalExpanCoeff.Set( ConvertThermalExpanCoeff( 13.7e-6, vsp::SI_UNIT, veh->m_StructUnit() ) ); // m/(m-ï¿½C)
         }
     }
 }

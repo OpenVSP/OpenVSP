@@ -525,6 +525,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE ) );
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
+    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_FOURVERTPOLY) );
 // Only add control surface in WingScreen.
 //    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL) );
 
@@ -633,6 +634,46 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSEllGroup.AddSlider( m_SSEllULenSlider, "U Length", 1, "%5.4f" );
     m_SSEllGroup.AddSlider( m_SSEllWLenSlider, "W Length", 1, "%5.4f" );
     m_SSEllGroup.AddSlider( m_SSEllThetaSlider, "Theta", 25, "%5.4f" );
+
+    //==== SS_FOURVERTPOLY ====//
+    m_SSFOURVERTPOLYGroup.SetGroupAndScreen( AddSubGroup( subsurf_tab, 5 ), this );
+    m_SSFOURVERTPOLYGroup.SetY( start_y );
+    remain_x = m_SSFOURVERTPOLYGroup.GetRemainX();
+
+    m_SSFOURVERTPOLYGroup.SetFitWidthFlag( false );
+    m_SSFOURVERTPOLYGroup.SetSameLineFlag( true );
+    m_SSFOURVERTPOLYGroup.AddLabel( "Tag", remain_x / 3 );
+    m_SSFOURVERTPOLYGroup.SetButtonWidth( remain_x / 3 );
+    m_SSFOURVERTPOLYGroup.AddButton( m_SSFrthPlyInside, "Inside" );
+    m_SSFOURVERTPOLYGroup.AddButton( m_SSFrthPlyOutside, "Outside" );
+
+    m_SSFOURVERTPOLYTestToggleGroup.Init( this );
+    m_SSFOURVERTPOLYTestToggleGroup.AddButton( m_SSFrthPlyInside.GetFlButton() );
+    m_SSFOURVERTPOLYTestToggleGroup.AddButton( m_SSFrthPlyOutside.GetFlButton() );
+
+    m_SSFOURVERTPOLYGroup.SetFitWidthFlag( true );
+    m_SSFOURVERTPOLYGroup.SetSameLineFlag( false );
+    m_SSFOURVERTPOLYGroup.ForceNewLine();
+
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly1USlider, "First U corner", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly1WSlider, "First W corner", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddYGap();
+    m_SSFOURVERTPOLYGroup.AddYGap();
+
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly2USlider, "Second U corner", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly2WSlider, "Second W corner", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddYGap();
+    m_SSFOURVERTPOLYGroup.AddYGap();
+
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly3USlider, "Third U corner", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly3WSlider, "Third W corner", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddYGap();
+    m_SSFOURVERTPOLYGroup.AddYGap();
+
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly4USlider, "Fourth U corner", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly4WSlider, "Fourth W corner", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddYGap();
+    m_SSFOURVERTPOLYGroup.AddYGap();
 
     //===== SSControl ====//
     m_SSConGroup.SetGroupAndScreen(AddSubGroup(subsurf_tab, 5), this);
@@ -907,6 +948,25 @@ bool GeomScreen::Update()
             m_SSRecArcNumPts.Update( ssrec->m_NumArcPts.GetID() );
             SubSurfDispGroup( &m_SSRecGroup );
         }
+
+        else if ( subsurf->GetType() == vsp::SS_FOURVERTPOLY )
+        {
+            SSFourVertPoly* ssrec = dynamic_cast< SSFourVertPoly* >( subsurf );
+            assert( subsurf );
+
+            m_SSFOURVERTPOLYTestToggleGroup.Update( ssrec->m_TestType.GetID() );
+            m_SSFrthPly1USlider.Update( ssrec->m_FirstU.GetID() );
+            m_SSFrthPly1WSlider.Update( ssrec->m_FirstW.GetID() );
+            m_SSFrthPly2USlider.Update( ssrec->m_SecondU.GetID() );
+            m_SSFrthPly2WSlider.Update( ssrec->m_SecondW.GetID() );
+            m_SSFrthPly3USlider.Update( ssrec->m_ThirdU.GetID() );
+            m_SSFrthPly3WSlider.Update( ssrec->m_ThirdW.GetID() );
+            m_SSFrthPly4USlider.Update( ssrec->m_FourthU.GetID() );
+            m_SSFrthPly4WSlider.Update( ssrec->m_FourthW.GetID() );
+
+            SubSurfDispGroup( &m_SSFOURVERTPOLYGroup );
+        }
+
         else if ( subsurf->GetType() == vsp::SS_ELLIPSE )
         {
             SSEllipse* ssell = dynamic_cast< SSEllipse* >( subsurf );
@@ -1124,6 +1184,10 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             ssurf = geom_ptr->AddSubSurf( vsp::SS_ELLIPSE, m_SSCurrMainSurfIndx );
         }
+        else if (m_SubSurfChoice.GetVal() == vsp::SS_FOURVERTPOLY)
+        {
+            ssurf = geom_ptr->AddSubSurf(vsp::SS_FOURVERTPOLY, m_SSCurrMainSurfIndx);
+        }
         else if (m_SubSurfChoice.GetVal() == vsp::SS_CONTROL)
         {
             ssurf = geom_ptr->AddSubSurf(vsp::SS_CONTROL, m_SSCurrMainSurfIndx);
@@ -1168,6 +1232,7 @@ void GeomScreen::SubSurfDispGroup( GroupLayout* group )
     m_SSCommonGroup.Hide();
     m_SSEllGroup.Hide();
     m_SSConGroup.Hide();
+    m_SSFOURVERTPOLYGroup.Hide();
 
     m_CurSubDispGroup = group;
 

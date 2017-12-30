@@ -3906,6 +3906,12 @@ SubSurface* Geom::AddSubSurf( int type, int surfindex )
         ssurf = new SSRectangle( m_ID );
         ssurf->SetName( string( "SS_RECT_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
     }
+    else if ( type == vsp::SS_FOURVERTPOLY )
+    {
+        printf("Add 4 vertex polygon\n");
+        ssurf = new SSFourVertPoly( m_ID );
+        ssurf->SetName( string( "SS_FOURVERTPOLY_" + to_string( ( long long )m_SubSurfVec.size() ) ) );
+    }
     else if ( type == vsp::SS_ELLIPSE )
     {
         ssurf = new SSEllipse( m_ID );

@@ -324,6 +324,7 @@ enum VSP_SURF_CFD_TYPE { CFD_NORMAL,
 enum SUBSURF_TYPE { SS_LINE,
                     SS_RECTANGLE,
                     SS_ELLIPSE,
+                    SS_FOURVERTPOLY,
                     SS_CONTROL,
                     SS_LINE_ARRAY,
                     SS_NUM_TYPES

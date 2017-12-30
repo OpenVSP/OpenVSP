@@ -300,6 +300,25 @@ public:
     ToggleButton m_SSRecOutsideButton;
     ToggleRadioGroup m_SSRecTestToggleGroup;
 
+    //==== SS_FOURVERTPOLY ====//
+    GroupLayout m_SSFOURVERTPOLYGroup;
+
+    ToggleButton m_SSFrthPlyInside;
+    ToggleButton m_SSFrthPlyOutside;
+    ToggleRadioGroup m_SSFOURVERTPOLYTestToggleGroup;
+
+    SliderInput m_SSFrthPly1USlider;
+    SliderInput m_SSFrthPly1WSlider;
+
+    SliderInput m_SSFrthPly2USlider;
+    SliderInput m_SSFrthPly2WSlider;
+
+    SliderInput m_SSFrthPly3USlider;
+    SliderInput m_SSFrthPly3WSlider;
+
+    SliderInput m_SSFrthPly4USlider;
+    SliderInput m_SSFrthPly4WSlider;
+
     // SS_Ellipse
     GroupLayout m_SSEllGroup;
     SliderInput m_SSEllCentUSlider;

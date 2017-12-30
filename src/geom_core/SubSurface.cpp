@@ -215,6 +215,11 @@ std::string SubSurface::GetTypeName( int type )
     {
         return string( "Line_Array" );
     }
+    if ( type == vsp::SS_FOURVERTPOLY)
+    {
+        return string( "Four vertex polygon" );
+    }
+
     return string( "NONE" );
 }
 
@@ -725,6 +730,80 @@ bool SSLine::Subtag( TTri* tri )
 bool SSLine::Subtag( const vec3d & center )
 {
     return m_LVec[0].Subtag( center );
+}
+
+/////////////////////////////////////////////////////////////////
+//=================== Four vertex polygon =====================//
+/////////////////////////////////////////////////////////////////
+
+//===== Constructor =====//
+SSFourVertPoly::SSFourVertPoly( string comp_id, int type ) : SubSurface( comp_id, type )
+{
+    m_FirstU.Init( "First_U", "SSFourVertPoly", this, 0.45, 0, 1);
+    m_FirstU.SetDescript( "U coordinate of the first vertex of the polygon" );
+
+    m_FirstW.Init( "First_W", "SSFourVertPoly", this, 0.45, 0, 1);
+    m_FirstW.SetDescript( "W coordinate of the first vertex of the polygon" );
+
+    m_SecondU.Init( "Second_U", "SSFourVertPoly", this, 0.55, 0, 1);
+    m_SecondU.SetDescript( "U coordinate of the second vertex of the polygon" );
+
+    m_SecondW.Init( "Second_W", "SSFourVertPoly", this, 0.45, 0, 1);
+    m_SecondW.SetDescript( "W coordinate of the second vertex of the polygon" );
+
+    m_ThirdU.Init( "Third_U", "SSFourVertPoly", this, 0.55, 0, 1);
+    m_ThirdU.SetDescript( "U coordinate of the third vertex of the polygon" );
+
+    m_ThirdW.Init( "Third_W", "SSFourVertPoly", this, 0.55, 0, 1);
+    m_ThirdW.SetDescript( "W coordinate of the third vertex of the polygon" );
+
+    m_FourthU.Init( "Fourth_U", "SSFourVertPoly", this, 0.45, 0, 1);
+    m_FourthU.SetDescript( "U coordinate of the fourth vertex of the polygon" );
+
+    m_FourthW.Init( "Fourth_W", "SSFourVertPoly", this, 0.55, 0, 1);
+    m_FourthW.SetDescript( "W coordinate of the fourth vertex of the polygon" );
+
+    m_TestType.Init( "Test_Type", "SSFourVertPoly", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
+    m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
+}
+
+//===== Destructor =====//
+SSFourVertPoly::~SSFourVertPoly()
+{
+}
+
+void SSFourVertPoly::Update()
+{
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
+    if ( !geom )
+    {
+        return;
+    }
+
+//--Create vertices-------------------------------------------------------------
+    vector< vec3d > pntVec;
+    pntVec.resize(5);
+
+    pntVec[0] = vec3d(m_FirstU(), m_FirstW(), 0.0);
+    pntVec[1] = vec3d(m_SecondU(), m_SecondW(), 0.0);
+    pntVec[2] = vec3d(m_ThirdU(), m_ThirdW(), 0.0);
+    pntVec[3] = vec3d(m_FourthU(), m_FourthW(), 0.0);
+    pntVec[4] = pntVec[0];
+
+//--Create line segments--------------------------------------------------------
+    int pind = 0;
+    m_LVec.resize(4);
+
+    for ( int i = 0 ; i < 4; i++ )
+    {
+        m_LVec[i].SetSP0( pntVec[pind] );
+        pind++;
+        m_LVec[i].SetSP1( pntVec[pind] );
+        m_LVec[i].Update( geom );
+    }
+
+//--Update surface--------------------------------------------------------------
+    SubSurface::Update();
 }
 
 //////////////////////////////////////////////////////

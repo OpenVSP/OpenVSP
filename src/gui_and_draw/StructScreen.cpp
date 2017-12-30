@@ -1130,6 +1130,7 @@ void StructScreen::UpdateFeaPartChoice()
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE_ARRAY ) );
+                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_FOURVERTPOLY ) );
 
                     if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
                     {
@@ -2509,6 +2510,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_RECTANGLE )
                 {
                     ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_RECTANGLE );
+                }
+                else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_FOURVERTPOLY )
+                {
+                    ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_FOURVERTPOLY );
                 }
                 else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_ELLIPSE )
                 {

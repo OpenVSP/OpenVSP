@@ -209,6 +209,27 @@ protected:
 
 };
 
+class SSFourVertPoly : public SubSurface
+{
+public:
+    SSFourVertPoly( string compID, int type = vsp::SS_FOURVERTPOLY );
+    virtual ~SSFourVertPoly();
+
+    Parm m_FirstU; //........................... U coordinate of the first vertex of the polygon
+    Parm m_FirstW; //........................... W coordinate of the first vertex of the polygon
+
+    Parm m_SecondU; //.......................... U coordinate of the second vertex of the polygon
+    Parm m_SecondW; //.......................... W coordinate of the second vertex of the polygon
+
+    Parm m_ThirdU; //........................... U coordinate of the third vertex of the polygon
+    Parm m_ThirdW; //........................... W coordinate of the third vertex of the polygon
+
+    Parm m_FourthU; //.......................... U coordinate of the fourth vertex of the polygon
+    Parm m_FourthW; //.......................... W coordinate of the fourth vertex of the polygon    
+
+    virtual void Update();
+};
+
 class SSRectangle : public SubSurface
 {
 public:

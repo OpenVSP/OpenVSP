@@ -445,6 +445,9 @@ void APITestSuite::TestFacetExport()
     string subsurf_ellipse_id = vsp::AddSubSurf( pod_id, vsp::SS_ELLIPSE, 0 );
     TEST_ASSERT( subsurf_ellipse_id.c_str() != NULL );
 
+    string subsurf_fourvertpoly_id = vsp::AddSubSurf( pod_id, vsp::SS_FOURVERTPOLY, 0 );
+    TEST_ASSERT( subsurf_fourvertpoly_id.c_str() != NULL );
+
     string subsurf_rectangle_id = vsp::AddSubSurf( pod_id, vsp::SS_RECTANGLE, 0 );
     TEST_ASSERT( subsurf_rectangle_id.c_str() != NULL );
 
