@@ -776,6 +776,14 @@ void SSRectangle::Update()
         return;
     }
 
+    // default condition is simple polygon.
+    double radtol = 1e-2;
+    m_PolyFlag = true;
+    if ( m_URadius() > radtol && m_WRadius() > radtol )
+    {
+        m_PolyFlag = false;
+    }
+
     vec3d center;
     vector< vec3d > pntVec;
     vector< vec3d > arcVec;
