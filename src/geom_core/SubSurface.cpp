@@ -796,7 +796,7 @@ void SSRectangle::Update()
 
 //--Create arc points in clockwise direction of right upper corner--------------
     arcVec.resize( NArcPtsInt );
-    float dphi = 0.5*PI/(NArcPtsInt+1);
+    float dphi = 0.5 * M_PI / ( NArcPtsInt + 1 );
     for(int i=0; i<NArcPtsInt; i++){
         float phase_i = dphi*(i+1);
         arcVec[i] = vec3d( sin(phase_i)*m_URadius(), cos(phase_i)*m_WRadius(), 0.0)

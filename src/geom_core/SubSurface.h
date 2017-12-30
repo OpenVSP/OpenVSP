@@ -11,8 +11,6 @@
 #ifndef SUBSURFACE_INCLUDED_
 #define SUBSURFACE_INCLUDED_
 
-#define PI 3.14159265359
-
 #include <math.h>
 
 #include "VspSurf.h"
