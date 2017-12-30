@@ -752,13 +752,13 @@ SSRectangle::SSRectangle( string comp_id, int type ) : SubSurface( comp_id, type
     m_TestType.Init( "Test_Type", "SS_Rectangle", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
-    m_URadius.Init( "U_Radius", "SS_Rectangle", this, .0, 0, 1.0);
+    m_URadius.Init( "U_Radius", "SS_Rectangle", this, .0, 0, 1.0 );
     m_URadius.SetDescript( "Relative radius of the rectangle corners in U direction" );
 
-    m_WRadius.Init( "W_Radius", "SS_Rectangle", this, .0, 0, 1.0);
+    m_WRadius.Init( "W_Radius", "SS_Rectangle", this, .0, 0, 1.0 );
     m_WRadius.SetDescript( "Relative radius of the rectangle corners in W direction" );
 
-    m_NumArcPts.Init( "Num_Radius", "SS_Rectangle", this, 5, 0, 20);
+    m_NumArcPts.Init( "Num_Radius", "SS_Rectangle", this, 5, 0, 20 );
     m_NumArcPts.SetDescript( "Amount of arc points for tessellation of rounded rectangle corners" );
 
 }
@@ -797,62 +797,75 @@ void SSRectangle::Update()
 //--Create arc points in clockwise direction of right upper corner--------------
     arcVec.resize( NArcPtsInt );
     float dphi = 0.5 * M_PI / ( NArcPtsInt + 1 );
-    for(int i=0; i<NArcPtsInt; i++){
-        float phase_i = dphi*(i+1);
-        arcVec[i] = vec3d( sin(phase_i)*m_URadius(), cos(phase_i)*m_WRadius(), 0.0)
-                  + vec3d( 1.0, 1.0, 0.0)
-                  - vec3d( m_URadius(), m_WRadius(), 0.0);
+    for( int i = 0; i < NArcPtsInt; i++ )
+    {
+        float phase_i = dphi * ( i + 1 );
+        arcVec[i] = vec3d( sin( phase_i ) * m_URadius(), cos( phase_i ) * m_WRadius(), 0.0 )
+                    + vec3d( 1.0, 1.0, 0.0 )
+                    - vec3d( m_URadius(), m_WRadius(), 0.0 );
     }
 
 //--Create points of the overall shape------------------------------------------
     int pts_idx = 0;
-    pntVec.resize( 9 + 4*NArcPtsInt );
+    pntVec.resize( 9 + 4 * NArcPtsInt );
 
 //--Bottom line:
-    pntVec[pts_idx] = vec3d(-1.0, -1.0, 0.0) + vec3d( m_URadius(), 0.0, 0.0); pts_idx++;
-    pntVec[pts_idx] = vec3d( 1.0, -1.0, 0.0) + vec3d(-m_URadius(), 0.0, 0.0); pts_idx++;
+    pntVec[pts_idx] = vec3d( -1.0, -1.0, 0.0 ) + vec3d( m_URadius(), 0.0, 0.0 );
+    pts_idx++;
+    pntVec[pts_idx] = vec3d( 1.0, -1.0, 0.0 ) + vec3d( -m_URadius(), 0.0, 0.0 );
+    pts_idx++;
 
 //--Bottom right arc:
-    for(int i=0; i<NArcPtsInt; i++){
-        pntVec[pts_idx] = vec3d(0.0, 0.0, 0.0);
-        pntVec[pts_idx].set_x( arcVec[i].x());
-        pntVec[pts_idx].set_y(-arcVec[i].y());
+    for( int i = 0; i < NArcPtsInt; i++ )
+    {
+        pntVec[pts_idx] = vec3d( 0.0, 0.0, 0.0 );
+        pntVec[pts_idx].set_x( arcVec[i].x() );
+        pntVec[pts_idx].set_y( -arcVec[i].y() );
         pts_idx++;
     }
 
 //--Right line:
-    pntVec[pts_idx] = vec3d( 1.0, -1.0, 0.0) + vec3d( 0.0, m_WRadius(), 0.0); pts_idx++;
-    pntVec[pts_idx] = vec3d( 1.0,  1.0, 0.0) + vec3d( 0.0,-m_WRadius(), 0.0); pts_idx++;
+    pntVec[pts_idx] = vec3d( 1.0, -1.0, 0.0 ) + vec3d( 0.0, m_WRadius(), 0.0 );
+    pts_idx++;
+    pntVec[pts_idx] = vec3d( 1.0,  1.0, 0.0 ) + vec3d( 0.0, -m_WRadius(), 0.0 );
+    pts_idx++;
 
 //--Upper right arc:
-    for(int i=0; i<NArcPtsInt; i++){
-        pntVec[pts_idx] = vec3d(0.0, 0.0, 0.0);
-        pntVec[pts_idx].set_x(arcVec[NArcPtsInt-i-1].x());
-        pntVec[pts_idx].set_y(arcVec[NArcPtsInt-i-1].y());
+    for( int i = 0; i < NArcPtsInt; i++ )
+    {
+        pntVec[pts_idx] = vec3d( 0.0, 0.0, 0.0 );
+        pntVec[pts_idx].set_x( arcVec[NArcPtsInt - i - 1].x() );
+        pntVec[pts_idx].set_y( arcVec[NArcPtsInt - i - 1].y() );
         pts_idx++;
     }
 
 //--Upper line:
-    pntVec[pts_idx] = vec3d( 1.0,  1.0, 0.0) + vec3d(-m_URadius(), 0.0, 0.0); pts_idx++;
-    pntVec[pts_idx] = vec3d(-1.0,  1.0, 0.0) + vec3d( m_URadius(), 0.0, 0.0); pts_idx++;
+    pntVec[pts_idx] = vec3d( 1.0,  1.0, 0.0 ) + vec3d( -m_URadius(), 0.0, 0.0 );
+    pts_idx++;
+    pntVec[pts_idx] = vec3d( -1.0,  1.0, 0.0 ) + vec3d( m_URadius(), 0.0, 0.0 );
+    pts_idx++;
 
 //--Upper left arc:
-    for(int i=0; i<NArcPtsInt; i++){
-        pntVec[pts_idx] = vec3d(0.0, 0.0, 0.0);
-        pntVec[pts_idx].set_x(-arcVec[i].x());
-        pntVec[pts_idx].set_y( arcVec[i].y());
+    for( int i = 0; i < NArcPtsInt; i++ )
+    {
+        pntVec[pts_idx] = vec3d( 0.0, 0.0, 0.0 );
+        pntVec[pts_idx].set_x( -arcVec[i].x() );
+        pntVec[pts_idx].set_y( arcVec[i].y() );
         pts_idx++;
     }
 
 //--Left line:
-    pntVec[pts_idx] = vec3d(-1.0,  1.0, 0.0) + vec3d( 0.0,-m_WRadius(), 0.0); pts_idx++;
-    pntVec[pts_idx] = vec3d(-1.0, -1.0, 0.0) + vec3d( 0.0, m_WRadius(), 0.0); pts_idx++;
+    pntVec[pts_idx] = vec3d( -1.0,  1.0, 0.0 ) + vec3d( 0.0, -m_WRadius(), 0.0 );
+    pts_idx++;
+    pntVec[pts_idx] = vec3d( -1.0, -1.0, 0.0 ) + vec3d( 0.0, m_WRadius(), 0.0 );
+    pts_idx++;
 
 //--Bottom left arc:
-    for(int i=0; i<NArcPtsInt; i++){
-        pntVec[pts_idx] = vec3d(0.0, 0.0, 0.0);
-        pntVec[pts_idx].set_x(-arcVec[NArcPtsInt-i-1].x());
-        pntVec[pts_idx].set_y(-arcVec[NArcPtsInt-i-1].y());
+    for( int i = 0; i < NArcPtsInt; i++ )
+    {
+        pntVec[pts_idx] = vec3d( 0.0, 0.0, 0.0 );
+        pntVec[pts_idx].set_x( -arcVec[NArcPtsInt - i - 1].x() );
+        pntVec[pts_idx].set_y( -arcVec[NArcPtsInt - i - 1].y() );
         pts_idx++;
     }
 
@@ -860,15 +873,17 @@ void SSRectangle::Update()
     pntVec[pts_idx] = pntVec[0]; pts_idx++;
 
 //--Stretch rectangle by height and weight--------------------------------------
-    for ( int i = 0; i < pts_idx; i++ ){
-        pntVec[i].scale_x(m_ULength()/2);
-        pntVec[i].scale_y(m_WLength()/2);
+    for ( int i = 0; i < pts_idx; i++ )
+    {
+        pntVec[i].scale_x( m_ULength() / 2 );
+        pntVec[i].scale_y( m_WLength() / 2 );
     }
 
 //--Align rectangle to centre---------------------------------------------------
-    for ( int i = 0; i < pts_idx; i++ ){
-        pntVec[i].set_x(pntVec[i].x() + center.x());
-        pntVec[i].set_y(pntVec[i].y() + center.y());
+    for ( int i = 0; i < pts_idx; i++ )
+    {
+        pntVec[i].set_x( pntVec[i].x() + center.x() );
+        pntVec[i].set_y( pntVec[i].y() + center.y() );
     }
 
 //--Apply transformations-------------------------------------------------------
@@ -879,9 +894,9 @@ void SSRectangle::Update()
 
 //--Create line segments--------------------------------------------------------
     int pind = 0;
-    m_LVec.resize(pts_idx-1);
+    m_LVec.resize( pts_idx - 1 );
 
-    for ( int i = 0 ; i < pts_idx-1; i++ )
+    for ( int i = 0 ; i < pts_idx - 1; i++ )
     {
         m_LVec[i].SetSP0( pntVec[pind] );
         pind++;
