@@ -1,6 +1,9 @@
 #ifndef _VSP_GRAPHIC_CAMERA_BASE_H
 #define _VSP_GRAPHIC_CAMERA_BASE_H
 
+#define _USE_MATH_DEFINES
+#include <cmath>
+
 #include "glm/glm.hpp"
 #include "Common.h"
 
