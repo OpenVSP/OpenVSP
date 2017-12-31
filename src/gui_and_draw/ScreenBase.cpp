@@ -655,25 +655,37 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSFOURVERTPOLYGroup.SetSameLineFlag( false );
     m_SSFOURVERTPOLYGroup.ForceNewLine();
 
-    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly1USlider, "First U corner", 1, "%5.4f" );
-    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly1WSlider, "First W corner", 1, "%5.4f" );
-    m_SSFOURVERTPOLYGroup.AddYGap();
-    m_SSFOURVERTPOLYGroup.AddYGap();
-
-    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly2USlider, "Second U corner", 1, "%5.4f" );
-    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly2WSlider, "Second W corner", 1, "%5.4f" );
-    m_SSFOURVERTPOLYGroup.AddYGap();
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPlyCenterU, "Center U", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPlyCenterW, "Center W", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_TessNum, "Num", 1000, "%8.0f" );
     m_SSFOURVERTPOLYGroup.AddYGap();
 
-    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly3USlider, "Third U corner", 1, "%5.4f" );
-    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly3WSlider, "Third W corner", 1, "%5.4f" );
-    m_SSFOURVERTPOLYGroup.AddYGap();
+//--Configure vertex selector indexer-------------------------------------------
+    int OldBtWidth = m_SSFOURVERTPOLYGroup.GetButtonWidth(); //.................. Current button width
+    m_SSFOURVERTPOLYGroup.SetButtonWidth( OldBtWidth*2/3 );
+
+    m_FourPolyVertexIndexSelector.SetIndex( 1 ); //............................ Set index
+    m_FourPolyVertexIndexSelector.SetMinMaxLimits( 1, 4 ); //.................. Set index range
+    m_SSFOURVERTPOLYGroup.AddIndexSelector(m_FourPolyVertexIndexSelector);
+    m_SSFOURVERTPOLYGroup.SetButtonWidth( OldBtWidth );
+//------------------------------------------------------------------------------
+
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_dU, "Delta U", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_dW, "Delta W", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_R,  "Radius", 1, "%5.4f" );
     m_SSFOURVERTPOLYGroup.AddYGap();
 
-    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly4USlider, "Fourth U corner", 1, "%5.4f" );
-    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly4WSlider, "Fourth W corner", 1, "%5.4f" );
-    m_SSFOURVERTPOLYGroup.AddYGap();
-    m_SSFOURVERTPOLYGroup.AddYGap();
+//--Configure edge selector indexer---------------------------------------------
+    m_SSFOURVERTPOLYGroup.SetButtonWidth( OldBtWidth*2/3 );
+    m_FourPolyEdgeIndexSelector.SetIndex( 1 ); //.............................. Set index
+    m_FourPolyEdgeIndexSelector.SetMinMaxLimits( 1, 4 ); //.................. Set index range
+    m_SSFOURVERTPOLYGroup.AddIndexSelector(m_FourPolyEdgeIndexSelector);
+    m_SSFOURVERTPOLYGroup.SetButtonWidth( OldBtWidth );
+//------------------------------------------------------------------------------
+
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_NormDev, "Norm. deflection", 1, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_NormDevPos, "Position", 0.5, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_NormDevRot, "Rotation", 90.0, "%5.4f" );
 
     //===== SSControl ====//
     m_SSConGroup.SetGroupAndScreen(AddSubGroup(subsurf_tab, 5), this);
@@ -951,18 +963,64 @@ bool GeomScreen::Update()
 
         else if ( subsurf->GetType() == vsp::SS_FOURVERTPOLY )
         {
-            SSFourVertPoly* ssrec = dynamic_cast< SSFourVertPoly* >( subsurf );
+            SSFourVertPoly* sspoly = dynamic_cast< SSFourVertPoly* >( subsurf );
             assert( subsurf );
 
-            m_SSFOURVERTPOLYTestToggleGroup.Update( ssrec->m_TestType.GetID() );
-            m_SSFrthPly1USlider.Update( ssrec->m_FirstU.GetID() );
-            m_SSFrthPly1WSlider.Update( ssrec->m_FirstW.GetID() );
-            m_SSFrthPly2USlider.Update( ssrec->m_SecondU.GetID() );
-            m_SSFrthPly2WSlider.Update( ssrec->m_SecondW.GetID() );
-            m_SSFrthPly3USlider.Update( ssrec->m_ThirdU.GetID() );
-            m_SSFrthPly3WSlider.Update( ssrec->m_ThirdW.GetID() );
-            m_SSFrthPly4USlider.Update( ssrec->m_FourthU.GetID() );
-            m_SSFrthPly4WSlider.Update( ssrec->m_FourthW.GetID() );
+            m_SSFOURVERTPOLYTestToggleGroup.Update( sspoly->m_TestType.GetID() );
+
+            m_SSFrthPlyCenterU.Update( sspoly->m_CenterU.GetID() );
+            m_SSFrthPlyCenterW.Update( sspoly->m_CenterW.GetID() );
+            m_SSFrthPly_TessNum.Update( sspoly->m_TessPtsNum.GetID() );
+
+        //--Get ID of the vertex------------------------------------------------
+            int vrtID = m_FourPolyVertexIndexSelector.GetIndex();
+            switch (vrtID) {
+                case 1:
+                    m_SSFrthPly_dU.Update( sspoly->m_UppLftU.GetID() );
+                    m_SSFrthPly_dW.Update( sspoly->m_UppLftW.GetID() );
+                    m_SSFrthPly_R.Update( sspoly->m_UppLftRad.GetID() );
+                    break;
+                case 2:
+                    m_SSFrthPly_dU.Update( sspoly->m_UppRhtU.GetID() );
+                    m_SSFrthPly_dW.Update( sspoly->m_UppRhtW.GetID() );
+                    m_SSFrthPly_R.Update( sspoly->m_UppRhtRad.GetID() );
+                    break;
+                case 3:
+                    m_SSFrthPly_dU.Update( sspoly->m_LwRhtU.GetID() );
+                    m_SSFrthPly_dW.Update( sspoly->m_LwRhtW.GetID() );
+                    m_SSFrthPly_R.Update( sspoly->m_LwRhtRad.GetID() );
+                    break;
+                case 4:
+                    m_SSFrthPly_dU.Update( sspoly->m_LwLftU.GetID() );
+                    m_SSFrthPly_dW.Update( sspoly->m_LwLftW.GetID() );
+                    m_SSFrthPly_R.Update( sspoly->m_LwLftRad.GetID() );
+                    break;
+            }
+
+        //--Get ID of edge------------------------------------------------------
+            int edgeID = m_FourPolyEdgeIndexSelector.GetIndex();
+            switch ( edgeID ) {
+                case 1:
+                    m_SSFrthPly_NormDev.Update( sspoly->m_NrmDevUpper.GetID() );
+                    m_SSFrthPly_NormDevPos.Update( sspoly->m_NrmDevUpperPos.GetID() );
+                    m_SSFrthPly_NormDevRot.Update( sspoly->m_NrmDevUpperAng.GetID() );
+                    break;
+                case 2:
+                    m_SSFrthPly_NormDev.Update( sspoly->m_NrmDevRight.GetID() );
+                    m_SSFrthPly_NormDevPos.Update( sspoly->m_NrmDevRightPos.GetID() );
+                    m_SSFrthPly_NormDevRot.Update( sspoly->m_NrmDevRightAng.GetID() );
+                    break;
+                case 3:
+                    m_SSFrthPly_NormDev.Update( sspoly->m_NrmDevBottom.GetID() );
+                    m_SSFrthPly_NormDevPos.Update( sspoly->m_NrmDevBottomPos.GetID() );
+                    m_SSFrthPly_NormDevRot.Update( sspoly->m_NrmDevBottomAng.GetID() );
+                    break;
+                case 4:
+                    m_SSFrthPly_NormDev.Update( sspoly->m_NrmDevLeft.GetID() );
+                    m_SSFrthPly_NormDevPos.Update( sspoly->m_NrmDevLeftPos.GetID() );
+                    m_SSFrthPly_NormDevRot.Update( sspoly->m_NrmDevLeftAng.GetID() );
+                    break;
+            }
 
             SubSurfDispGroup( &m_SSFOURVERTPOLYGroup );
         }

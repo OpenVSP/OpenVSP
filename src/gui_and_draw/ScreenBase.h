@@ -307,17 +307,19 @@ public:
     ToggleButton m_SSFrthPlyOutside;
     ToggleRadioGroup m_SSFOURVERTPOLYTestToggleGroup;
 
-    SliderInput m_SSFrthPly1USlider;
-    SliderInput m_SSFrthPly1WSlider;
+    SliderInput m_SSFrthPlyCenterU;
+    SliderInput m_SSFrthPlyCenterW;
+    SliderAdjRangeInput m_SSFrthPly_TessNum;
 
-    SliderInput m_SSFrthPly2USlider;
-    SliderInput m_SSFrthPly2WSlider;
+    IndexSelector m_FourPolyVertexIndexSelector;
+    SliderInput m_SSFrthPly_dU;
+    SliderInput m_SSFrthPly_dW;
+    SliderInput m_SSFrthPly_R;
 
-    SliderInput m_SSFrthPly3USlider;
-    SliderInput m_SSFrthPly3WSlider;
-
-    SliderInput m_SSFrthPly4USlider;
-    SliderInput m_SSFrthPly4WSlider;
+    IndexSelector m_FourPolyEdgeIndexSelector;
+    SliderInput m_SSFrthPly_NormDev;
+    SliderInput m_SSFrthPly_NormDevPos;
+    SliderInput m_SSFrthPly_NormDevRot;
 
     // SS_Ellipse
     GroupLayout m_SSEllGroup;

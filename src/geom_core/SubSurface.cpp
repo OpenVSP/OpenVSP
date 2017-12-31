@@ -739,29 +739,86 @@ bool SSLine::Subtag( const vec3d & center )
 //===== Constructor =====//
 SSFourVertPoly::SSFourVertPoly( string comp_id, int type ) : SubSurface( comp_id, type )
 {
-    m_FirstU.Init( "First_U", "SSFourVertPoly", this, 0.45, 0, 1);
-    m_FirstU.SetDescript( "U coordinate of the first vertex of the polygon" );
+    m_CenterU.Init( "Center_U", "SSFourVertPoly", this, 0.5, 0.0, 1.0); //................... U component of the mid point
+    m_CenterU.SetDescript( "U component of the mid point" );
 
-    m_FirstW.Init( "First_W", "SSFourVertPoly", this, 0.45, 0, 1);
-    m_FirstW.SetDescript( "W coordinate of the first vertex of the polygon" );
+    m_CenterW.Init( "Center_W", "SSFourVertPoly", this, 0.5, 0.0, 1.0); //................... W component of the mid point
+    m_CenterW.SetDescript( "W component of the mid point" );
 
-    m_SecondU.Init( "Second_U", "SSFourVertPoly", this, 0.55, 0, 1);
-    m_SecondU.SetDescript( "U coordinate of the second vertex of the polygon" );
+    m_UppLftU.Init( "UpperLft_U", "SSFourVertPoly", this, 0.1, 0.0, 1.0); //................. U component of upper left corner
+    m_UppLftU.SetDescript( "U component of upper left corner" );
 
-    m_SecondW.Init( "Second_W", "SSFourVertPoly", this, 0.45, 0, 1);
-    m_SecondW.SetDescript( "W coordinate of the second vertex of the polygon" );
+    m_UppLftW.Init( "UpperLft_W", "SSFourVertPoly", this, 0.1, 0.0, 1.0); //................. W component of upper left corner
+    m_UppLftW.SetDescript( "W component of upper left corner" );
 
-    m_ThirdU.Init( "Third_U", "SSFourVertPoly", this, 0.55, 0, 1);
-    m_ThirdU.SetDescript( "U coordinate of the third vertex of the polygon" );
+    m_UppRhtU.Init( "UpperRht_U", "SSFourVertPoly", this, 0.1, 0.0, 1.0); //................. U component of upper right corner
+    m_UppRhtU.SetDescript( "U component of upper right corner" );
 
-    m_ThirdW.Init( "Third_W", "SSFourVertPoly", this, 0.55, 0, 1);
-    m_ThirdW.SetDescript( "W coordinate of the third vertex of the polygon" );
+    m_UppRhtW.Init( "UpperRht_W", "SSFourVertPoly", this, 0.1, 0.0, 1.0); //................. W component of upper right corner
+    m_UppRhtW.SetDescript( "W component of upper right corner" );
 
-    m_FourthU.Init( "Fourth_U", "SSFourVertPoly", this, 0.45, 0, 1);
-    m_FourthU.SetDescript( "U coordinate of the fourth vertex of the polygon" );
+    m_LwRhtU.Init( "LowerRht_U", "SSFourVertPoly", this, 0.1, 0.0, 1.0); //.................. U component of lower right corner
+    m_LwRhtU.SetDescript( "U component of lower right corner" );
 
-    m_FourthW.Init( "Fourth_W", "SSFourVertPoly", this, 0.55, 0, 1);
-    m_FourthW.SetDescript( "W coordinate of the fourth vertex of the polygon" );
+    m_LwRhtW.Init( "LowerRht_W", "SSFourVertPoly", this, 0.1, 0.0, 1.0); //.................. W component of lower right corner
+    m_LwRhtW.SetDescript( "W component of lower right corner" );
+
+    m_LwLftU.Init( "LowerLft_U", "SSFourVertPoly", this, 0.1, 0.0, 1.0); //.................. U component of lower left corner
+    m_LwLftU.SetDescript( "U component of lower left corner" );
+
+    m_LwLftW.Init( "LowerLft_W", "SSFourVertPoly", this, 0.1, 0.0, 1.0); //.................. W component of lower left corner
+    m_LwLftW.SetDescript( "W component of lower left corner" );
+
+    m_NrmDevUpper.Init( "NormDev_Upper", "SSFourVertPoly", this, 0.0, -1.0, 1.0); //......... Normal deviation of the mid point on the upper line
+    m_NrmDevUpper.SetDescript( "Normal deviation of the mid point on the upper line" );
+
+    m_NrmDevRight.Init( "NormDev_Right", "SSFourVertPoly", this, 0.0, -1.0, 1.0); //......... Normal deviation of the mid point on the right line
+    m_NrmDevRight.SetDescript( "Normal deviation of the mid point on the right line" );
+
+    m_NrmDevBottom.Init( "NormDev_Bottom", "SSFourVertPoly", this, 0.0, -1.0, 1.0); //....... Normal deviation of the mid point on the bottom line
+    m_NrmDevBottom.SetDescript( "Normal deviation of the mid point on the bottom line" );
+
+    m_NrmDevLeft.Init( "NormDev_Left", "SSFourVertPoly", this, 0.0, -1.0, 1.0); //........... Normal deviation of the mid point on the left line
+    m_NrmDevLeft.SetDescript( "Normal deviation of the mid point on the left line" );
+
+    m_NrmDevUpperPos.Init( "NrmDevPos_Upper", "SSFourVertPoly", this, 0.5, 0.1, 0.9 ); //..... Position of the normal deviation vector on the upper side [0.0, 1.0]
+    m_NrmDevUpperPos.SetDescript( "Position of the normal deviation vector on the upper side" );
+
+    m_NrmDevRightPos.Init( "NrmDevPos_Right", "SSFourVertPoly", this, 0.5, 0.1, 0.9 ); //..... Position of the normal deviation vector on the right side [0.0, 1.0]
+    m_NrmDevRightPos.SetDescript( "Position of the normal deviation vector on the right side" );
+
+    m_NrmDevBottomPos.Init( "NrmDevPos_Bottom", "SSFourVertPoly", this, 0.5, 0.1, 0.9 ); //... Position of the normal deviation vector on the bottom side [0.0, 1.0]
+    m_NrmDevBottomPos.SetDescript( "Position of the normal deviation vector on the bottom side" );
+
+    m_NrmDevLeftPos.Init( "NrmDevPos_Left", "SSFourVertPoly", this, 0.5, 0.1, 0.9 ); //....... Position of the normal deviation vector on the left side [0.0, 1.0]
+    m_NrmDevLeftPos.SetDescript( "Position of the normal deviation vector on the left side" );
+
+    m_NrmDevUpperAng.Init( "NrmDevAng_Upper", "SSFourVertPoly", this, 0.0, -90.0, 90.0 ); //.. Rotation angle of the normal vector on the upper edge
+    m_NrmDevUpperAng.SetDescript( "Rotation angle of the normal vector on the upper edge" );
+
+    m_NrmDevRightAng.Init( "NrmDevAng_Right", "SSFourVertPoly", this, 0.0, -90.0, 90.0 ); //.. Rotation angle of the normal vector on the right edge
+    m_NrmDevRightAng.SetDescript( "Rotation angle of the normal vector on the right edge" );
+
+    m_NrmDevBottomAng.Init( "NrmDevAng_Bottom", "SSFourVertPoly", this, 0.0, -90.0, 90.0 ); // Rotation angle of the normal vector on the bottom edge
+    m_NrmDevBottomAng.SetDescript( "Rotation angle of the normal vector on the bottom edge" );
+
+    m_NrmDevLeftAng.Init( "NrmDevAng_Left", "SSFourVertPoly", this, 0.0, -90.0, 90.0 ); //.... Rotation angle of the normal vector on the left side
+    m_NrmDevLeftAng.SetDescript( "Rotation angle of the normal vector on the left side" );
+
+    m_UppLftRad.Init( "Radius_UppLft", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //............ Radius of the upper left vertex
+    m_UppLftRad.SetDescript( "Radius of the upper left vertex" );
+
+    m_UppRhtRad.Init( "Radius_UppRht", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //............ Radius of the upper right vertex
+    m_UppRhtRad.SetDescript( "Radius of the upper right vertex" );
+
+    m_LwRhtRad.Init( "Radius_LwRht", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //.............. Radius of the lower right vertex
+    m_LwRhtRad.SetDescript( "Radius of the lower right vertex" );
+
+    m_LwLftRad.Init( "Radius_LwLft", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //.............. Radius of the lower left vertex
+    m_LwLftRad.SetDescript( "Radius of the lower left vertex" );
+
+    m_TessPtsNum.Init( "Num_TessPts", "SSFourVertPoly", this, 1000, 12, 1000 ); //............ Number of tessellation points on the polygon
+    m_TessPtsNum.SetDescript( "Number of tessellation points on the polygon" );
 
     m_TestType.Init( "Test_Type", "SSFourVertPoly", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
@@ -780,30 +837,153 @@ void SSFourVertPoly::Update()
         return;
     }
 
-//--Create vertices-------------------------------------------------------------
-    vector< vec3d > pntVec;
-    pntVec.resize(5);
+    vector< vec3d > pntVec; //................................................. All points
+    pntVec.resize(9);
 
-    pntVec[0] = vec3d(m_FirstU(), m_FirstW(), 0.0);
-    pntVec[1] = vec3d(m_SecondU(), m_SecondW(), 0.0);
-    pntVec[2] = vec3d(m_ThirdU(), m_ThirdW(), 0.0);
-    pntVec[3] = vec3d(m_FourthU(), m_FourthW(), 0.0);
-    pntVec[4] = pntVec[0];
+    vector< vec3d > SideContrPt; //............................................ Four control points for deflection of edges
+    SideContrPt.resize(4);
+
+    vector< vec3d > nrmVec; //................................................. Normal vectors
+    nrmVec.resize(4);
+
+    vector< float > nrmVec_len; //............................................. Lenght of normal vectors
+    nrmVec_len.resize(4);
+
+//--Create corner vertices------------------------------------------------------
+    pntVec[0] = vec3d(m_CenterU()-m_UppLftU(), m_CenterW()-m_UppLftW(), 0.0);
+    pntVec[2] = vec3d(m_CenterU()+m_UppRhtU(), m_CenterW()-m_UppRhtW(), 0.0);
+    pntVec[4] = vec3d(m_CenterU()+m_LwRhtU(),  m_CenterW()+m_LwRhtW(),  0.0);
+    pntVec[6] = vec3d(m_CenterU()-m_LwLftU(),  m_CenterW()+m_LwLftW(),  0.0);
+    pntVec[8] = pntVec[0];
+
+//--Compute mid points ---------------------------------------------------------
+    SideContrPt[0] = pntVec[0] + m_NrmDevUpperPos() * ( pntVec[2] - pntVec[0] ); //...... Top
+    SideContrPt[1] = pntVec[2] + m_NrmDevRightPos() * ( pntVec[4] - pntVec[2] ); //...... Right
+    SideContrPt[2] = pntVec[4] + m_NrmDevBottomPos() * ( pntVec[6] - pntVec[4] ); //..... Bottom
+    SideContrPt[3] = pntVec[6] + m_NrmDevLeftPos() * ( pntVec[8] - pntVec[6] ); //....... Left
+
+//--Compute normal vectors -----------------------------------------------------
+    nrmVec[0] = vec3d( (pntVec[2] - pntVec[0]).y(), -(pntVec[2] - pntVec[0]).x(), 0.0);
+    nrmVec[1] = vec3d( (pntVec[4] - pntVec[2]).y(), -(pntVec[4] - pntVec[2]).x(), 0.0);
+    nrmVec[2] = vec3d( (pntVec[6] - pntVec[4]).y(), -(pntVec[6] - pntVec[4]).x(), 0.0);
+    nrmVec[3] = vec3d( (pntVec[8] - pntVec[6]).y(), -(pntVec[8] - pntVec[6]).x(), 0.0);
+
+//--Compute lenght of normal vectors--------------------------------------------
+    nrmVec_len[0] = sqrt( nrmVec[0].x()*nrmVec[0].x() + nrmVec[0].y()*nrmVec[0].y() );
+    nrmVec_len[1] = sqrt( nrmVec[1].x()*nrmVec[1].x() + nrmVec[1].y()*nrmVec[1].y() );
+    nrmVec_len[2] = sqrt( nrmVec[2].x()*nrmVec[2].x() + nrmVec[2].y()*nrmVec[2].y() );
+    nrmVec_len[3] = sqrt( nrmVec[3].x()*nrmVec[3].x() + nrmVec[3].y()*nrmVec[3].y() );
+
+//--Normalize normal vectors----------------------------------------------------
+    nrmVec[0] = 1.0/nrmVec_len[0] * nrmVec[0];
+    nrmVec[1] = 1.0/nrmVec_len[1] * nrmVec[1];
+    nrmVec[2] = 1.0/nrmVec_len[2] * nrmVec[2];
+    nrmVec[3] = 1.0/nrmVec_len[3] * nrmVec[3];
+
+//--Rotate normal vector--------------------------------------------------------
+    nrmVec[0].rotate_z( cos(m_NrmDevUpperAng()*PI/180.0 ), sin(m_NrmDevUpperAng()*PI/180.0)  );
+    nrmVec[1].rotate_z( cos(m_NrmDevRightAng()*PI/180.0 ), sin(m_NrmDevRightAng()*PI/180.0)  );
+    nrmVec[2].rotate_z( cos(m_NrmDevBottomAng()*PI/180.0), sin(m_NrmDevBottomAng()*PI/180.0) );
+    nrmVec[3].rotate_z( cos(m_NrmDevLeftAng()*PI/180.0  ), sin(m_NrmDevLeftAng()*PI/180.0)   );
+
+//--Estimate mid points---------------------------------------------------------
+    pntVec[1] = SideContrPt[0] + m_NrmDevUpper() * nrmVec[0];
+    pntVec[3] = SideContrPt[1] + m_NrmDevRight() * nrmVec[1];
+    pntVec[5] = SideContrPt[2] + m_NrmDevBottom() * nrmVec[2];
+    pntVec[7] = SideContrPt[3] + m_NrmDevLeft() * nrmVec[3];
+
+//--Create top curve------------------------------------------------------------
+    vector< vec3d > topPts;
+    topPts.resize(3);
+    topPts[0] = pntVec[0];
+    topPts[1] = pntVec[1];
+    topPts[2] = pntVec[2];
+
+    VspCurve TopCurve;
+    TopCurve.SetQuadraticControlPoints( topPts, false );
+
+//--Create right curve----------------------------------------------------------
+    vector< vec3d > rightPts;
+    rightPts.resize(3);
+    rightPts[0] = pntVec[2];
+    rightPts[1] = pntVec[3];
+    rightPts[2] = pntVec[4];
+
+    VspCurve RightCurve;
+    RightCurve.SetQuadraticControlPoints( rightPts, false );
+
+//--Bottom curve----------------------------------------------------------------
+    vector< vec3d > bottomPts;
+    bottomPts.resize(3);
+    bottomPts[0] = pntVec[4];
+    bottomPts[1] = pntVec[5];
+    bottomPts[2] = pntVec[6];
+
+    VspCurve BottomCurve;
+    BottomCurve.SetQuadraticControlPoints( bottomPts, false );
+
+//--Left curve------------------------------------------------------------------
+    vector< vec3d > leftPts;
+    leftPts.resize(3);
+    leftPts[0] = pntVec[6];
+    leftPts[1] = pntVec[7];
+    leftPts[2] = pntVec[8];
+
+    VspCurve LeftCurve;
+    LeftCurve.SetQuadraticControlPoints( leftPts, false );
+
+//--Create common closed curve by joining up all segments-----------------------
+    VspCurve commonCurve;
+    commonCurve.Copy(TopCurve); //............................................. Copy top curve
+    commonCurve.Append(RightCurve); //......................................... Append right curve
+    commonCurve.Append(BottomCurve); //........................................ Append bottom curve
+    commonCurve.Append(LeftCurve); //.......................................... Append bottom curve
+
+//--Round up the corners--------------------------------------------------------
+    /*
+    commonCurve.RoundJoint(m_UppLftRad(), 0 );
+    commonCurve.RoundJoint(m_UppRhtRad(), 2 );
+    commonCurve.RoundJoint(m_LwRhtRad(), 4 );
+    commonCurve.RoundJoint(m_LwLftRad(), 6 );
+    */
+
+//--Tesselate curve-------------------------------------------------------------
+    int Num_TSS = m_TessPtsNum()/4; //......................................... Number of tessellated points on one side
+
+    vector< double > ucache_edge ( Num_TSS ); //............................... List for u parameters on only one edge
+    for (int i=0; i < Num_TSS; i++)
+    {
+        ucache_edge[i] = float(i)/(Num_TSS-1);
+    }
+
+    vector< double > ucache ( 4*(Num_TSS-1)+1 ); //............................... List for u parameters on only one edge
+    for (int i=0; i < (Num_TSS-1); i++)
+    {
+        ucache[i                ] = ucache_edge[i];
+        ucache[i + 1*(Num_TSS-1)] = ucache_edge[i] + 1.0;
+        ucache[i + 2*(Num_TSS-1)] = ucache_edge[i] + 2.0;
+        ucache[i + 3*(Num_TSS-1)] = ucache_edge[i] + 3.0;
+    }
+    ucache[4*(Num_TSS-1)] = 4.0;
+
+    vector< vec3d > TessPts ( 4*(Num_TSS-1)+1 ); //............................ List for tessellated points
+    commonCurve.Tesselate( ucache, TessPts); //................................ Tesselate curve
 
 //--Create line segments--------------------------------------------------------
     int pind = 0;
-    m_LVec.resize(4);
+    m_LVec.resize(TessPts.size()-1);
 
-    for ( int i = 0 ; i < 4; i++ )
+    for ( int i = 0 ; i < TessPts.size()-1; i++ )
     {
-        m_LVec[i].SetSP0( pntVec[pind] );
+        m_LVec[i].SetSP0( TessPts[pind] );
         pind++;
-        m_LVec[i].SetSP1( pntVec[pind] );
+        m_LVec[i].SetSP1( TessPts[pind] );
         m_LVec[i].Update( geom );
     }
 
 //--Update surface--------------------------------------------------------------
     SubSurface::Update();
+
 }
 
 //////////////////////////////////////////////////////

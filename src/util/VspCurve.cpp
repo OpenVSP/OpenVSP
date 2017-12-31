@@ -563,6 +563,34 @@ void VspCurve::ToBinaryCubic( bool wingtype )
 
 }
 
+void VspCurve::SetQuadraticControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag )
+{
+    int ncp = cntrl_pts.size();
+    int nseg = ( ncp - 1 ) / 2;
+
+    m_Curve.clear();
+    m_Curve.set_t0( 0.0 );
+
+    for ( int i = 0; i < nseg; i++ )
+    {
+        curve_segment_type c;
+        c.resize( 2 );
+
+        for ( int j = 0; j < 3; j++ )
+        {
+            int k = i * 2 + j;
+
+            vec3d p = cntrl_pts[k];
+
+            curve_point_type cp;
+            cp << p.x(), p.y(), p.z();
+
+            c.set_control_point( cp, j );
+        }
+        m_Curve.push_back( c );
+    }
+}
+
 void VspCurve::SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag )
 {
     int ncp = cntrl_pts.size();

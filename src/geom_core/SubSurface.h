@@ -11,11 +11,10 @@
 #ifndef SUBSURFACE_INCLUDED_
 #define SUBSURFACE_INCLUDED_
 
-#define PI 3.14159265359
-
 #include <math.h>
 
 #include "VspSurf.h"
+#include "VspCurve.h"
 #include "TMesh.h"
 #include "Vec2d.h"
 #include "Vec3d.h"
@@ -215,17 +214,42 @@ public:
     SSFourVertPoly( string compID, int type = vsp::SS_FOURVERTPOLY );
     virtual ~SSFourVertPoly();
 
-    Parm m_FirstU; //........................... U coordinate of the first vertex of the polygon
-    Parm m_FirstW; //........................... W coordinate of the first vertex of the polygon
+    Parm m_CenterU; //.......................... U component of the mid point
+    Parm m_CenterW; //.......................... W component of the mid point
 
-    Parm m_SecondU; //.......................... U coordinate of the second vertex of the polygon
-    Parm m_SecondW; //.......................... W coordinate of the second vertex of the polygon
+    Parm m_UppLftU; //.......................... U component of upper left corner
+    Parm m_UppLftW; //.......................... W component of upper left corner
 
-    Parm m_ThirdU; //........................... U coordinate of the third vertex of the polygon
-    Parm m_ThirdW; //........................... W coordinate of the third vertex of the polygon
+    Parm m_UppRhtU; //.......................... U component of upper right corner
+    Parm m_UppRhtW; //.......................... W component of upper right corner
 
-    Parm m_FourthU; //.......................... U coordinate of the fourth vertex of the polygon
-    Parm m_FourthW; //.......................... W coordinate of the fourth vertex of the polygon    
+    Parm m_LwRhtU; //.......................... U component of lower right corner
+    Parm m_LwRhtW; //.......................... W component of lower right corner
+
+    Parm m_LwLftU; //.......................... U component of lower left corner
+    Parm m_LwLftW; //.......................... W component of lower left corner
+
+    Parm m_NrmDevUpper; //..................... Normal deviation of the mid point on the upper line
+    Parm m_NrmDevRight; //..................... Normal deviation of the mid point on the right line
+    Parm m_NrmDevBottom; //.................... Normal deviation of the mid point on the bottom line
+    Parm m_NrmDevLeft; //...................... Normal deviation of the mid point on the left line
+
+    Parm m_NrmDevUpperPos; //.................. Position of the normal deviation vector on the upper side [0.0, 1.0]
+    Parm m_NrmDevRightPos; //.................. Position of the normal deviation vector on the right side [0.0, 1.0]
+    Parm m_NrmDevBottomPos; //................. Position of the normal deviation vector on the bottom side [0.0, 1.0]
+    Parm m_NrmDevLeftPos; //................... Position of the normal deviation vector on the left side [0.0, 1.0]
+
+    Parm m_NrmDevUpperAng; //.................. Rotation angle of the normal vector on the upper edge
+    Parm m_NrmDevRightAng; //.................. Rotation angle of the normal vector on the right edge
+    Parm m_NrmDevBottomAng; //................. Rotation angle of the normal vector on the bottom edge
+    Parm m_NrmDevLeftAng; //................... Rotation angle of the normal vector on the left side
+
+    Parm m_UppLftRad; //....................... Radius of the upper left vertex
+    Parm m_UppRhtRad; //....................... Radius of the upper right vertex
+    Parm m_LwRhtRad; //........................ Radius of the lower right vertex
+    Parm m_LwLftRad; //........................ Radius of the lower left vertex
+
+    Parm m_TessPtsNum; //...................... Number of tessellation points per side
 
     virtual void Update();
 };
