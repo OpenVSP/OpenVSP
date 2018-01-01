@@ -362,6 +362,15 @@ public:
     BoolParm m_CpSliceYAxisFlipFlag;
     BoolParm m_CpSlicePlotLinesFlag;
 
+    BoolParm m_UnsteadyXMinIsManual;
+    BoolParm m_UnsteadyXMaxIsManual;
+    BoolParm m_UnsteadyYMinIsManual;
+    BoolParm m_UnsteadyYMaxIsManual;
+    Parm m_UnsteadyXMin;
+    Parm m_UnsteadyXMax;
+    Parm m_UnsteadyYMin;
+    Parm m_UnsteadyYMax;
+
     ProcessUtil m_SolverProcess;
     ProcessUtil m_SlicerThread;
 
@@ -383,7 +392,7 @@ protected:
     // helper functions for VSPAERO files
     void ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
     void ReadLoadFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
-    void ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    void ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType );
     vector <string> ReadDelimLine( FILE * fp, char * delimeters );
     bool CheckForCaseHeader( std::vector<string> headerStr );
     bool CheckForResultHeader( std::vector < string > headerstr );

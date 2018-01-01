@@ -9,7 +9,6 @@ namespace VSPGraphic
 {
 Camera::Camera()
 {
-    changeView( Common::VSP_CAM_TOP );
 
     _vx = _vy = 0;
     _vWidth = _vHeight = 1;
@@ -24,8 +23,6 @@ Camera::Camera()
 
     _projectionMatrix = glm::mat4( 1.0 );
     _modelviewMatrix = glm::mat4( 1.0 );
-
-    _viewMatrix = glm::mat4( 1.0 );
 }
 Camera::~Camera()
 {
@@ -39,11 +36,6 @@ glm::mat4 Camera::getModelViewMatrix()
 glm::mat4 Camera::getProjectionMatrix()
 {
     return _projectionMatrix;
-}
-
-void Camera::resetView()
-{
-    _modelviewMatrix = _viewMatrix * glm::mat4( 1.0f );
 }
 
 void Camera::resize( int x, int y, int width, int height )
@@ -73,51 +65,51 @@ void Camera::changeView( Common::VSPenum type )
     switch( type )
     {
     case Common::VSP_CAM_TOP:
-        _top();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 0, 0, 0 );
         break;
 
     case Common::VSP_CAM_FRONT:
-        _front();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 0.0, - 90.0 * ( M_PI / 180.0 ), - 90.0 * ( M_PI / 180.0 ) );
         break;
 
     case Common::VSP_CAM_LEFT:
-        _left();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 90.0 * ( M_PI / 180.0 ), 0.0, 0.0 );
         break;
 
     case Common::VSP_CAM_LEFT_ISO:
-        _left_Iso();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 0.1959132757121161 * M_PI, -0.25 * M_PI, -M_PI / 3.0 );
         break;
 
     case Common::VSP_CAM_BOTTOM:
-        _bottom();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 0.0, 180.0 * ( M_PI / 180.0 ), 180.0 * ( M_PI / 180.0 ) );
         break;
 
     case Common::VSP_CAM_REAR:
-        _rear();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( 0.0, 90.0 * ( M_PI / 180.0 ), 90.0 * ( M_PI / 180.0 ) );
         break;
 
     case Common::VSP_CAM_RIGHT:
-        _right();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( -90.0 * ( M_PI / 180.0 ), -180.0 * ( M_PI / 180.0 ), 0.0 );
         break;
 
     case Common::VSP_CAM_RIGHT_ISO:
-        _right_Iso();
-        _viewMatrix = glm::lookAt( _eye, _focus, _camUp );
-        resetView();
+        setCOR( 0.0, 0.0, 0.0 );
+        relativePan( 0.0, 0.0 );
+        rotateSphere( -0.1959132757121161 * M_PI, -0.25 * M_PI, -2.0 * M_PI / 3.0 );
         break;
 
     case Common::VSP_CAM_CENTER:
@@ -127,62 +119,6 @@ void Camera::changeView( Common::VSPenum type )
     default:
         break;
     }
-}
-
-void Camera::_top()
-{
-    _eye = glm::vec3( 0.0f, 0.0f, 1.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, 1.0f, 0.0f );
-}
-
-void Camera::_front()
-{
-    _eye = glm::vec3( -1.0f, 0.0f, 0.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, 0.0f, 1.0f );
-}
-
-void Camera::_left()
-{
-    _eye = glm::vec3( 0.0f, -1.0f, 0.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, 0.0f, 1.0f );
-}
-
-void Camera::_left_Iso()
-{
-    _eye = glm::vec3( -1.0f, -1.0f, 1.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 1.0f, 1.0f, 1.0f );
-}
-
-void Camera::_bottom()
-{
-    _eye = glm::vec3( 0.0f, 0.0f, -1.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, -1.0f, 0.0f );
-}
-
-void Camera::_rear()
-{
-    _eye = glm::vec3( 1.0f, 0.0f, 0.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, 0.0f, 1.0f );
-}
-
-void Camera::_right()
-{
-    _eye = glm::vec3( 0.0f, 1.0f, 0.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 0.0f, 0.0f, 1.0f );
-}
-
-void Camera::_right_Iso()
-{
-    _eye = glm::vec3( -1.0f, 1.0f, 1.0f );
-    _focus = glm::vec3( 0.0f, 0.0f, 0.0f );
-    _camUp = glm::vec3( 1.0f, -1.0f, 1.0f );
 }
 
 void Camera::_calculateProjection()

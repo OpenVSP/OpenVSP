@@ -31,16 +31,16 @@ Puw::~Puw()
 //////////////////////////////////////////////////////////////////////
 //==== IPnt Bin ====//
 //////////////////////////////////////////////////////////////////////
-int IPntBin::ComputeID( vec3d & pos )
+long IPntBin::ComputeID( vec3d & pos )
 {
-    int id =    ( int )( pos.x() * 10000.0 ) +
-                ( int )( pos.y() * 10000.0 ) +
-                ( int )( pos.z() * 10000.0 );
+    long id =   ( long )( pos.x() * 100000.0 ) +
+                ( long )( pos.y() * 100000.0 ) +
+                ( long )( pos.z() * 100000.0 );
 
     return id;
 }
 
-IPnt* IPntBin::Match( IPnt* ip, map< int, IPntBin > & binMap )
+IPnt* IPntBin::Match( IPnt* ip, map< long, IPntBin > & binMap )
 {
     IPnt* close_ipnt = NULL;
 
@@ -184,24 +184,6 @@ double IPntGroup::GroupDist( IPntGroup* g )
     return dist( p0, p1 );
 }
 
-// This function is un-used, but it is left here in case it may be used at a later time.
-// At such time, it should be updated to use the surface density map rather than only the
-// mesh density sources.
-double IPntGroup::GroupDistFract( IPntGroup* g, CfdMeshMgrSingleton *MeshMgr )
-{
-    double d = GroupDist( g );
-    vec3d pnt = m_IPntVec[0]->m_Pnt;
-
-    SimpleGridDensity* gdp = MeshMgr->GetGridDensityPtr();
-
-    double target_dist = gdp->GetTargetLen( pnt );
-
-    return ( d / target_dist );
-
-
-}
-
-
 void IPntGroup::AddGroup( IPntGroup* g )
 {
     for ( int i = 0 ; i < ( int )g->m_IPntVec.size() ; i++ )
@@ -326,7 +308,7 @@ void ISeg::JoinFront( ISeg* seg )
     }
 }
 
-ISeg* ISeg::Split( Surf* sPtr, vec2d & uw, CfdMeshMgrSingleton *MeshMgr )
+ISeg* ISeg::Split( Surf* sPtr, vec2d & uw, SurfaceIntersectionSingleton *MeshMgr )
 {
     vec2d uwa, uwb;
     if ( sPtr == m_SurfA )
@@ -472,6 +454,46 @@ void ISegBox::Intersect( ISegBox* box )
     }
 }
 
+void ISegBox::AppendLineSegs( vector < vec3d > &lsegs )
+{
+    vec3d uw;
+    vec3d pnt0, pnt;
+
+    if ( m_Surf )
+    {
+        uw = m_Box.GetCornerPnt( 0 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+        pnt0 = pnt;
+
+        lsegs.push_back( pnt );
+
+        uw = m_Box.GetCornerPnt( 1 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+
+        lsegs.push_back( pnt );
+        lsegs.push_back( pnt );
+
+        uw = m_Box.GetCornerPnt( 3 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+
+        lsegs.push_back( pnt );
+        lsegs.push_back( pnt );
+
+        uw = m_Box.GetCornerPnt( 2 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+
+        lsegs.push_back( pnt );
+        lsegs.push_back( pnt );
+
+        lsegs.push_back( pnt0 );
+    }
+
+    if ( m_SubBox[0] )
+    {
+        m_SubBox[0]->AppendLineSegs( lsegs );
+        m_SubBox[1]->AppendLineSegs( lsegs );
+    }
+}
 
 
 
@@ -1080,7 +1102,7 @@ bool SplitCompare( const ISegSplit* a, const ISegSplit* b )
 }
 
 
-vector< ISegChain* > ISegChain::SortAndSplit( CfdMeshMgrSingleton *MeshMgr )
+vector< ISegChain* > ISegChain::SortAndSplit( SurfaceIntersectionSingleton *MeshMgr )
 {
 //for ( int i = 0 ; i < (int)m_SplitVec.size() ; i++ )
 //  printf("Split Index = %d %f\n", m_SplitVec[i]->m_Index,  m_SplitVec[i]->m_Fract );
@@ -1121,7 +1143,7 @@ vector< ISegChain* > ISegChain::SortAndSplit( CfdMeshMgrSingleton *MeshMgr )
     return new_chains;
 }
 
-vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf, CfdMeshMgrSingleton *MeshMgr )
+vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf, SurfaceIntersectionSingleton *MeshMgr )
 {
     vector< ISegChain* > new_chains;
 
@@ -1209,7 +1231,7 @@ void ISegChain::BuildCurves( )
     }
 
     m_ACurve.SetSurf( m_SurfA );
-    m_ACurve.BuildBezierCurve( auw_pnts, 0.3 );
+    m_ACurve.InterpolateLinear( auw_pnts );
 
     //==== B SCurve ====//
     vector< vec3d > buw_pnts;
@@ -1222,7 +1244,7 @@ void ISegChain::BuildCurves( )
     }
 
     m_BCurve.SetSurf( m_SurfB );
-    m_BCurve.BuildBezierCurve( buw_pnts, 0.3 );
+    m_BCurve.InterpolateLinear( buw_pnts );
 }
 
 void ISegChain::TransferTess( )
@@ -1231,7 +1253,7 @@ void ISegChain::TransferTess( )
     m_BCurve.Tesselate( autess );
 }
 
-void ISegChain::ApplyTess( CfdMeshMgrSingleton *MeshMgr )
+void ISegChain::ApplyTess( SurfaceIntersectionSingleton *MeshMgr )
 {
     //==== Clear Old Tess ====//
     m_TessVec.clear();

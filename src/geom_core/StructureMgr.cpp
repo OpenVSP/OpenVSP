@@ -131,6 +131,16 @@ void StructureMgrSingleton::Wype()
     m_FeaMaterialVec.clear();
 }
 
+void StructureMgrSingleton::AddLinkableContainers( vector< string > & linkable_container_vec )
+{
+    vector< FeaStructure* > feastructvec = GetAllFeaStructs();
+
+    for ( size_t i = 0; i < feastructvec.size(); i++ )
+    {
+        feastructvec[i]->AddLinkableContainers( linkable_container_vec );
+    }
+}
+
 //==== Get All FeaStructures ====//
 vector < FeaStructure* > StructureMgrSingleton::GetAllFeaStructs()
 {

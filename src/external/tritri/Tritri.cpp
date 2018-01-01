@@ -31,9 +31,9 @@
          if |dv|<EPSILON then dv=0.0;
    else no check is done (which is less robust)
 */
-#define USE_EPSILON_TEST TRUE  
-#define EPSILON 0.00000001
-
+#define USE_EPSILON_TEST TRUE
+#define EPSILON 1e-12
+// Was 1e-8
 
 /* some macros */
 #define CROSS(dest,v1,v2)                      \

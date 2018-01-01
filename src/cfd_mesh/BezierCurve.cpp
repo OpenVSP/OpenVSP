@@ -21,6 +21,9 @@
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
 typedef piecewise_curve_type::bounding_box_type curve_bounding_box_type;
+typedef piecewise_curve_type::point_type curve_point_type;
+
+typedef eli::geom::curve::piecewise_linear_creator<double, 3, curve_tolerance_type> piecewise_linear_creator_type;
 
 //===== Constructor  =====//
 Bezier_curve::Bezier_curve()
@@ -388,4 +391,68 @@ void Bezier_curve::GetBBox( BndBox &box )
 
     box.Update( bbox.get_max() );
     box.Update( bbox.get_min() );
+}
+
+//===== Tesselate =====//
+void Bezier_curve::TessAdaptXYZ( const Surf &srf, vector< vec3d > & output, double tol, int Nlimit  )
+{
+    TessAdaptXYZ( srf, m_Curve.get_parameter_min(), m_Curve.get_parameter_max(), output, tol, Nlimit );
+}
+
+void Bezier_curve::TessAdaptXYZ( const Surf &srf, double umin, double umax, std::vector< vec3d > & pnts, double tol, int Nlimit )
+{
+    vec3d uwmin = m_Curve.f( umin );
+    vec3d uwmax = m_Curve.f( umax );
+    vec3d pmin = srf.CompPnt( uwmin.x(), uwmin.y() );
+    vec3d pmax = srf.CompPnt( uwmax.x(), uwmax.y() );
+
+    TessAdaptXYZ( srf, umin, umax, pmin, pmax, pnts, tol, Nlimit );
+
+    pnts.push_back( pmax );
+}
+
+void Bezier_curve::TessAdaptXYZ( const Surf &srf, double umin, double umax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, double tol, int Nlimit, int Nadapt )
+{
+    double umid = ( umin + umax ) * 0.5;
+
+    vec3d uwmid = m_Curve.f( umid );
+    vec3d pmid = srf.CompPnt( uwmid.x(), uwmid.y() );
+
+    double d = dist_pnt_2_line( pmin, pmax, pmid ) / dist( pmin, pmax );
+
+    if ( ( d > tol && Nlimit > 0 ) || Nadapt < 3 )
+    {
+        TessAdaptXYZ( srf, umin, umid, pmin, pmid, pnts, tol, Nlimit - 1, Nadapt + 1 );
+        TessAdaptXYZ( srf, umid, umax, pmid, pmax, pnts, tol, Nlimit - 1, Nadapt + 1 );
+    }
+    else
+    {
+        pnts.push_back( pmin );
+        pnts.push_back( pmid );
+    }
+}
+
+//===== Interpolate Creates piecewise linear curves ===//
+void Bezier_curve::InterpolateLinear( vector< vec3d > & input_pnt_vec )
+{
+    // copy points over to new type
+    vector<curve_point_type> pts( input_pnt_vec.size() );
+    for ( size_t i = 0; i < pts.size(); ++i )
+    {
+        pts[i] << input_pnt_vec[i].x(), input_pnt_vec[i].y(), input_pnt_vec[i].z();
+    }
+
+    int nseg( pts.size() - 1 );
+    piecewise_linear_creator_type plc( nseg );
+
+    // set the polygon corners
+    for ( curve_index_type i = 0; i < static_cast<curve_index_type>( pts.size() ); ++i )
+    {
+        plc.set_corner( pts[i], i );
+    }
+
+    if ( !plc.create( m_Curve ) )
+    {
+        std::cerr << "Failed to create linear curve. " << __LINE__ << std::endl;
+    }
 }

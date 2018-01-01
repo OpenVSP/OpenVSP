@@ -33,10 +33,6 @@ public:
 
 public:
     /*!
-    * Overwrite Camera. Reset camera to default.
-    */
-    void resetView();
-    /*!
     * Center Geometry.
     */
     void center();

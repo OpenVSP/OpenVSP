@@ -30,6 +30,11 @@ void SCurve::BuildBezierCurve( vector< vec3d > & pnts_to_interpolate, double tan
     m_UWCrv.BuildCurve( pnts_to_interpolate, tanStr );
 }
 
+void SCurve::InterpolateLinear(vector<vec3d> &pnts_to_interpolate)
+{
+    m_UWCrv.InterpolateLinear( pnts_to_interpolate );
+}
+
 double SCurve::Length( int num_segs )
 {
     assert ( m_Surf );

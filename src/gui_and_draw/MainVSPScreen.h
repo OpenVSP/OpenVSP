@@ -118,6 +118,7 @@ protected:
     ScreenMenuItem m_PSliceMenuItem;
     ScreenMenuItem m_MassPropMenuItem;
     ScreenMenuItem m_ProjectionMenuItem;
+    ScreenMenuItem m_SurfIntMenuItem;
     ScreenMenuItem m_CFDMeshMenuItem;
     ScreenMenuItem m_StructMenuItem;
     ScreenMenuItem m_DegenGeomMenuItem;

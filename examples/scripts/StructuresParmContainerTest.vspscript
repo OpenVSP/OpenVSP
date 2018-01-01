@@ -1,0 +1,59 @@
+void main()
+{
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+    
+    SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", 5.0 );
+    SetParmValUpdate( pod_id, "X_Rel_Rotation", "XForm", 90 );
+    SetParmValUpdate( pod_id, "Length", "Design", 15.0 );
+
+    Update();
+    
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+    
+    //==== Add Floor ====//
+    string floor_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+    SetParmVal( FindParm( floor_id, "IncludedElements", "FeaPart" ), FEA_SHELL_AND_BEAM );
+    SetParmVal( FindParm( floor_id, "RelCenterLocation", "FeaPart" ), 0.34 );
+    SetParmVal( FindParm( floor_id, "OrientationPlane", "FeaSlice" ), XZ_BODY );
+
+    SetParmVal( FindParm( floor_id, "FeaPropertyIndex", "FeaPart" ), 2 );
+    
+    //==== Add LineArray ====//
+    string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
+
+    SetParmVal( FindParm( line_array_id, "ConstLineType", "SS_LineArray" ), 1 ); // Constant W
+    SetParmVal( FindParm( line_array_id, "Spacing", "SS_LineArray" ), 0.25 );
+    SetParmVal( FindParm( line_array_id, "StartLocation", "SS_LineArray" ), 0.125 );
+    
+    Update();
+    
+    //==== Get Structure Name and Parm Container ID ====// 
+    string parm_container_name = GetFeaStructName( pod_id, struct_ind );
+    string display_name = string("Current Structure Parm Container Name: ") + parm_container_name + string("\n");
+    Print( display_name );
+    
+    string parm_container_id = FindContainer( parm_container_name, struct_ind );
+    string display_id = string("Current Structure Parm Container ID: ") + parm_container_id + string("\n");
+    Print( display_id );
+    
+    //==== Get and List All Parms in the Container ====// 
+    array<string> parm_ids = FindContainerParmIDs( parm_container_id );
+    
+    for ( uint i = 0; i < uint(parm_ids.length()); i++ )
+    {
+        string name_id = GetParmName( parm_ids[i] ) + string(": ") + parm_ids[i] + string("\n");
+        Print( name_id );
+    }
+    
+    // Note: Each FeaStructure is a parm container of other parm containers (FeaParts, FeaSubSurfaces, StructSettings, etc.), hence the 
+    //  duplicate parm names listed.
+    
+    //==== Change the Structure Name ====// 
+    SetFeaStructName( pod_id, struct_ind, "Example_Struct" );
+    parm_container_id = FindContainer( "Example_Struct", struct_ind );
+    display_id = string("New Structure Parm Container ID: ") + parm_container_id + string("\n");
+    Print( display_id );
+}

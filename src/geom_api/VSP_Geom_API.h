@@ -159,6 +159,8 @@ extern std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id );
 
 extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int surfindex = 0 );
 extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_id );
+extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct_id );
+extern void SetFeaStructName( const std::string & geom_id, int fea_struct_id, const std::string & name );
 extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_id, int type );
 extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_id, const std::string & part_id );
 extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_id, int type );
