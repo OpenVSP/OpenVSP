@@ -639,7 +639,7 @@ void Surf::WriteSTL( const char* filename )
     m_Mesh.WriteSTL( filename );
 }
 
-void Surf::Intersect( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr )
+void Surf::Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
 {
     int i;
 
@@ -735,7 +735,7 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
     }
 }
 
-bool Surf::BorderCurveOnSurface( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr )
+bool Surf::BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
 {
     bool retFlag = false;
     double tol = 1.0e-05;
@@ -777,7 +777,7 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr )
     return retFlag;
 }
 
-void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, CfdMeshMgrSingleton *MeshMgr )
+void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceIntersectionSingleton *MeshMgr )
 {
     bool repeat_curve = false;
     bool null_ICurve = false;

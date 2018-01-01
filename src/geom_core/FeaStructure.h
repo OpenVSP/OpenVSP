@@ -22,26 +22,30 @@
 #include "DrawObj.h"
 #include "APIDefines.h"
 #include "SubSurface.h"
-#include "StructSettings.h"
+#include "MeshCommonSettings.h"
 #include "GridDensity.h"
 
 // Forward declaration
 class FeaPart;
 
-class FeaStructure
+class FeaStructure : public ParmContainer
 {
 public:
 
     FeaStructure( string GeomID, int surf_index );
-    ~FeaStructure();
+    virtual ~FeaStructure();
 
-    void Update();
+    virtual void Update();
 
-    xmlNodePtr EncodeXml( xmlNodePtr & node );
-    xmlNodePtr DecodeXml( xmlNodePtr & node );
+    virtual void ParmChanged( Parm* parm_ptr, int type );
 
-    void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
+    virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id = string() );
     void SetDrawFlag( bool flag );
+
+    void ReSuffixGroupNames();
 
     void AddFeaPart( FeaPart* fea_part )
     {
@@ -109,15 +113,6 @@ public:
         return m_MainSurfIndx;
     }
 
-    string GetFeaStructName()
-    {
-        return m_FeaStructName;
-    }
-    void SetFeaStructName( string struct_name )
-    {
-        m_FeaStructName = struct_name;
-    }
-
     StructSettings* GetStructSettingsPtr()
     {
         return &m_StructSettings;
@@ -146,7 +141,6 @@ protected:
     int m_MainSurfIndx;
     int m_FeaPartCount; // Counter used for creating unique name for parts
     int m_FeaSubSurfCount; // Counter used for creating unique name for subsurfaces
-    string m_FeaStructName;
 
     vector < double > m_Usuppress;
     vector < double > m_Wsuppress;
@@ -173,6 +167,8 @@ public:
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
+
+    virtual void SetDisplaySuffix( int num );
 
     virtual void UpdateSymmParts();
     virtual void UpdateSymmIndex();

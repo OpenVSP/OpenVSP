@@ -221,8 +221,10 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 WAVE_DRAG_TXT_TYPE  = 131072,
                                 VSPAERO_PANEL_TRI_TYPE = 262144,
                                 DRAG_BUILD_CSV_TYPE = 524288,
-                                CFD_FACET_TYPE = 1048576,
-                            };
+                                CFD_FACET_TYPE      = 1048576,
+                                CFD_CURV_TYPE       = 2097152,
+                                CFD_PLOT3D_TYPE     = 4194304,
+};
 
 enum SET_TYPE { SET_ALL = 0,
                 SET_SHOWN = 1,
@@ -253,6 +255,8 @@ enum CFD_MESH_EXPORT_TYPE { CFD_STL_FILE_NAME,
                             CFD_SRF_FILE_NAME,
                             CFD_TKEY_FILE_NAME,
                             CFD_FACET_FILE_NAME,
+                            CFD_CURV_FILE_NAME,
+                            CFD_PLOT3D_FILE_NAME,
                             CFD_NUM_FILE_NAMES,
                           };
 
@@ -297,9 +301,17 @@ enum FEA_EXPORT_TYPE { FEA_MASS_FILE_NAME,
                        FEA_CALCULIX_FILE_NAME,
                        FEA_STL_FILE_NAME,
                        FEA_GMSH_FILE_NAME,
+                       FEA_SRF_FILE_NAME,
+                       FEA_CURV_FILE_NAME,
+                       FEA_PLOT3D_FILE_NAME,
                        FEA_NUM_FILE_NAMES
 };
 
+enum INTERSECT_EXPORT_TYPE { INTERSECT_SRF_FILE_NAME,
+                             INTERSECT_CURV_FILE_NAME,
+                             INTERSECT_PLOT3D_FILE_NAME,
+                             INTERSECT_NUM_FILE_NAMES
+};
 
 enum XDDM_QUANTITY_TYPE { XDDM_VAR,
                           XDDM_CONST,

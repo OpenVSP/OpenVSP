@@ -29,6 +29,7 @@
 #include <map>
 using namespace std;
 
+class SurfaceIntersectionSingleton;
 class CfdMeshMgrSingleton;
 class SCurve;
 class ISegChain;
@@ -151,12 +152,12 @@ public:
         return &m_Mesh;
     }
 
-    void Intersect( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr );
+    void Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );
     void IntersectLineSeg( vec3d & p0, vec3d & p1, vector< double > & t_vals );
     void IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_vals );
 
-    bool BorderCurveOnSurface( Surf* surfPtr, CfdMeshMgrSingleton *MeshMgr );
-    void PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, CfdMeshMgrSingleton *MeshMgr );
+    bool BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );
+    void PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceIntersectionSingleton *MeshMgr );
 
     BndBox& GetBBox()
     {

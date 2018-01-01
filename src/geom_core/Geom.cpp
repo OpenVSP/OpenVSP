@@ -2513,7 +2513,7 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
                     if ( feastruct )
                     {
                         string name = XmlUtil::FindString( structnode, "StructureName", string() );
-                        feastruct->SetFeaStructName( name );
+                        feastruct->SetName( name );
                         feastruct->DecodeXml( structnode );
 
                         xmlNodePtr setting_node = XmlUtil::GetNode( structnode, "StructSettings", 0 );
@@ -3845,11 +3845,6 @@ void Geom::AddLinkableParms( vector< string > & linkable_parm_vec, const string 
     {
         m_SubSurfVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
     }
-
-    for ( int i = 0; i < (int)m_FeaStructVec.size(); i++ )
-    {
-        m_FeaStructVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
-    }
 }
 
 void Geom::ChangeID( string id )
@@ -4011,7 +4006,7 @@ FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
         if ( feastruct )
         {
             string defaultname = m_Name + "_Struct" + to_string( m_FeaStructCount );
-            feastruct->SetFeaStructName( defaultname );
+            feastruct->SetName( defaultname );
 
             if ( feastruct->GetStructSettingsPtr() )
             {

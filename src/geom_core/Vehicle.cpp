@@ -211,6 +211,7 @@ void Vehicle::Init()
 
     LinkMgr.RegisterContainer( this->GetID() );
     LinkMgr.RegisterContainer( m_CfdSettings.GetID() );
+    LinkMgr.RegisterContainer( m_ISectSettings.GetID() );
     LinkMgr.RegisterContainer( m_CfdGridDensity.GetID() );
     LinkMgr.RegisterContainer( VSPAEROMgr.GetID() );
     LinkMgr.RegisterContainer( WaveDragMgr.GetID() );
@@ -351,6 +352,7 @@ void Vehicle::SetVSP3FileName( const string & f_name )
     m_VSP3FileName = f_name;
 
     m_CfdSettings.ResetExportFileNames( m_VSP3FileName );
+    m_ISectSettings.ResetExportFileNames( m_VSP3FileName );
     resetExportFileNames();
 }
 
@@ -1423,6 +1425,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
     VSPAEROMgr.EncodeXml( node );
     VarPresetMgr.EncodeXml( node );
     m_CfdSettings.EncodeXml( node );
+    m_ISectSettings.EncodeXml( node );
     m_CfdGridDensity.EncodeXml( node );
     StructureMgr.EncodeXml( node );
     m_ClippingMgr.EncodeXml( node );
@@ -1462,6 +1465,7 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
 
     VSPAEROMgr.DecodeXml( node );
     m_CfdSettings.DecodeXml( node );
+    m_ISectSettings.DecodeXml( node );
     m_CfdGridDensity.DecodeXml( node );
     StructureMgr.DecodeXml( node );
     m_ClippingMgr.DecodeXml( node );
@@ -3391,6 +3395,8 @@ void Vehicle::AddLinkableContainers( vector< string > & linkable_container_vec )
     {
         geom_vec[i]->AddLinkableContainers( linkable_container_vec );
     }
+
+    StructureMgr.AddLinkableContainers( linkable_container_vec );
 }
 
 void Vehicle::UpdateBBox()

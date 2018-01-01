@@ -31,9 +31,6 @@ FeaStructure::FeaStructure( string geomID, int surf_index )
 
     m_FeaPartCount = 0;
     m_FeaSubSurfCount = 0;
-
-    LinkMgr.RegisterContainer( m_StructSettings.GetID() );
-    LinkMgr.RegisterContainer( m_FeaGridDensity.GetID() );
 }
 
 FeaStructure::~FeaStructure()
@@ -59,11 +56,27 @@ void FeaStructure::Update()
     UpdateFeaSubSurfs();
 }
 
+void FeaStructure::ParmChanged( Parm* parm_ptr, int type )
+{
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
+
+    Update();
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
 xmlNodePtr FeaStructure::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr fea_info = xmlNewChild( node, NULL, BAD_CAST "FeaStructureInfo", NULL );
 
-    XmlUtil::AddStringNode( fea_info, "StructureName", m_FeaStructName );
     XmlUtil::AddStringNode( fea_info, "ParentGeomID", m_ParentGeomID );
     XmlUtil::AddIntNode( fea_info, "MainSurfIndx", m_MainSurfIndx );
 
@@ -140,15 +153,20 @@ xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
 
 void FeaStructure::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
 {
+    ReSuffixGroupNames();
+
     for ( size_t i = 0; i < (int)m_FeaPartVec.size(); i++ )
     {
-        m_FeaPartVec[i]->AddLinkableParms( linkable_parm_vec, link_container_id );
+        m_FeaPartVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
     }
 
     for ( size_t i = 0; i < (int)m_FeaSubSurfVec.size(); i++ )
     {
-        m_FeaSubSurfVec[i]->AddLinkableParms( linkable_parm_vec, link_container_id );
+        m_FeaSubSurfVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
     }
+
+    m_StructSettings.AddLinkableParms( linkable_parm_vec, m_ID );
+    m_FeaGridDensity.AddLinkableParms( linkable_parm_vec, m_ID );
 }
 
 void FeaStructure::SetDrawFlag( bool flag )
@@ -161,6 +179,22 @@ void FeaStructure::SetDrawFlag( bool flag )
     for ( size_t i = 0; i < m_FeaSubSurfVec.size(); i++ )
     {
         m_FeaSubSurfVec[i]->m_DrawFeaPartFlag.Set( flag );
+    }
+}
+
+void FeaStructure::ReSuffixGroupNames()
+{
+    // Note: This function differs from SubSurfaceMgr.ReSuffixGroupNames in the use of the FeaPart/SubSurface index
+    //  as the suffix. This avoids different instances of the base FeaPart or SubSurface class having the same suffix. 
+
+    for ( size_t i = 0; i < m_FeaPartVec.size(); i++ )
+    {
+        m_FeaPartVec[i]->SetDisplaySuffix( i );
+    }
+
+    for ( size_t i = 0; i < m_FeaSubSurfVec.size(); i++ )
+    {
+        m_FeaSubSurfVec[i]->SetDisplaySuffix( i );
     }
 }
 
@@ -884,6 +918,19 @@ xmlNodePtr FeaPart::EncodeXml( xmlNodePtr & node )
 xmlNodePtr FeaPart::DecodeXml( xmlNodePtr & node )
 {
     return ParmContainer::DecodeXml( node );
+}
+
+void FeaPart::SetDisplaySuffix( int num )
+{
+    for ( int i = 0; i < (int)m_ParmVec.size(); i++ )
+    {
+        Parm* p = ParmMgr.FindParm( m_ParmVec[i] );
+
+        if ( p )
+        {
+            p->SetGroupDisplaySuffix( num );
+        }
+    }
 }
 
 void FeaPart::UpdateSymmParts()
@@ -4263,7 +4310,7 @@ FeaProperty::FeaProperty() : ParmContainer()
     m_Izy.Init( "Izy", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
     m_Izy.SetDescript( "Area Product of Inertia of FeaElement (I12)" );
 
-    m_Ixx.Init( "Izz", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
+    m_Ixx.Init( "Ixx", "FeaProperty", this, 0.0, -1.0e12, 1.0e12 );
     m_Ixx.SetDescript( "Torsional Constant About FeaElement Neutral Axis (J)" );
 
     m_Dim1.Init( "Dim1", "FeaProperty", this, 0.0, 0.0, 1.0e12 );

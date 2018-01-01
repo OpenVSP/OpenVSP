@@ -70,6 +70,8 @@ public:
 
     void BuildBezierCurve( vector< vec3d > & pnts_to_interpolate, double tanStr );
 
+    void InterpolateLinear(vector<vec3d> &pnts_to_interpolate);
+
     double Length( int num_segs );
 
     void GetBorderCurve( Bezier_curve & crv ) const;

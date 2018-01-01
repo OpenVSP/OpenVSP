@@ -14,6 +14,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "AnalysisMgr.h"
+#include "SurfaceIntersectionMgr.h"
 #include "CfdMeshMgr.h"
 #include "Util.h"
 #include "DesignVarMgr.h"
@@ -381,6 +382,10 @@ void SetComputationFileName( int file_type, const string & file_name )
         GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_SRF_FILE_NAME );
     if ( file_type == CFD_TKEY_TYPE )
         GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_TKEY_FILE_NAME );
+    if ( file_type == CFD_CURV_TYPE )
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_CURV_FILE_NAME );
+    if ( file_type == CFD_PLOT3D_TYPE )
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_PLOT3D_FILE_NAME );
 
     ErrorMgr.NoError();
 }
@@ -662,6 +667,10 @@ void ComputeCFDMesh( int set, int file_export_types )
         veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_SRF_FILE_NAME, true );
     if ( file_export_types & CFD_TKEY_TYPE )
         veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_TKEY_FILE_NAME, true );
+    if ( file_export_types & CFD_CURV_TYPE )
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_CURV_FILE_NAME, true );
+    if ( file_export_types & CFD_PLOT3D_TYPE )
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_PLOT3D_FILE_NAME, true );
 
     veh->GetCfdSettingsPtr()->m_SelectedSetIndex = set;
     CfdMeshMgr.GenerateMesh();
@@ -1847,6 +1856,55 @@ void DeleteFeaStruct( const string & geom_id, int fea_struct_id )
         return;
     }
     geom_ptr->DeleteFeaStruct( fea_struct_id );
+    ErrorMgr.NoError();
+    return;
+}
+
+string GetFeaStructName( const string & geom_id, int fea_struct_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find Geom " + geom_id );
+        return string();
+    }
+    if ( !geom_ptr->ValidGeomFeaStructInd( fea_struct_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
+        return string();
+    }
+    FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !struct_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return struct_ptr->GetName();
+}
+
+void SetFeaStructName( const string & geom_id, int fea_struct_id, const string & name )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find Geom " + geom_id );
+        return;
+    }
+    if ( !geom_ptr->ValidGeomFeaStructInd( fea_struct_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
+        return;
+    }
+    FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !struct_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
+        return;
+    }
+    struct_ptr->SetName( name );
     ErrorMgr.NoError();
     return;
 }

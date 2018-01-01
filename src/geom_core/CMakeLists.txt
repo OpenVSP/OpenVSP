@@ -31,7 +31,6 @@ AnalysisMgr.cpp
 Atmosphere.cpp
 BlankGeom.cpp
 BORGeom.cpp
-CfdMeshSettings.cpp
 ClippingMgr.cpp
 ConformalGeom.cpp
 CustomGeom.cpp
@@ -67,7 +66,6 @@ ResultsMgr.cpp
 ScriptMgr.cpp
 SnapTo.cpp
 StackGeom.cpp
-StructSettings.cpp
 StructureMgr.cpp
 SubSurface.cpp
 SubSurfaceMgr.cpp
@@ -96,7 +94,6 @@ AnalysisMgr.h
 Atmosphere.h
 BlankGeom.h
 BORGeom.h
-CfdMeshSettings.h
 ClippingMgr.h
 Color.h
 ColorMgr.h
@@ -137,7 +134,6 @@ ResultsMgr.h
 ScriptMgr.h
 SnapTo.h
 StackGeom.h
-StructSettings.h
 StructureMgr.h
 SubSurface.h
 SubSurfaceMgr.h

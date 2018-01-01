@@ -43,7 +43,6 @@ public:
            VSP_IGES_OPTIONS_SCREEN,
            VSP_IMPORT_SCREEN,
            VSP_LIGHTING_SCREEN,
-           VSP_MAIN_SCREEN,
            VSP_MANAGE_GEOM_SCREEN,
            VSP_MANAGE_TEXTURE_SCREEN,
            VSP_MASS_PROP_SCREEN,
@@ -61,6 +60,7 @@ public:
            VSP_STEP_OPTIONS_SCREEN,
            VSP_STL_OPTIONS_SCREEN,
            VSP_STRUCT_SCREEN,
+           VSP_SURFACE_INTERSECTION_SCREEN,
            VSP_SVG_OPTIONS_SCREEN,
            VSP_TYPE_EDITOR_SCREEN,
            VSP_USER_PARM_SCREEN,
@@ -70,6 +70,7 @@ public:
            VSP_VSPAERO_SCREEN,
            VSP_XSEC_SCREEN,
            VSP_WAVEDRAG_SCREEN,
+           VSP_MAIN_SCREEN,   /* Leave at end of list, helps draw after update. */
            VSP_NUM_SCREENS
          };
 

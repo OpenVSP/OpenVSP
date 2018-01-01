@@ -122,15 +122,6 @@ void Display::draw( Scene * scene, int x, int y )
     _currLayout->draw( scene, x, y );
 }
 
-void Display::resetView()
-{
-    Camera * camera = getCamera();
-    if( camera )
-    {
-        camera->resetView();
-    }
-}
-
 void Display::center()
 {
     Camera * camera = getCamera();
