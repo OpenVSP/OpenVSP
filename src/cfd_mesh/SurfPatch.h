@@ -109,7 +109,7 @@ public:
     {
         return &bnd_box;
     }
-    friend void intersect( const SurfPatch& bp1, const SurfPatch& bp2, int depth, SurfaceIntersectionSingleton *MeshMgr );
+    friend void intersect( const SurfPatch& bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr );
     void find_closest_uw( const vec3d& pnt_in, double uw[2] ) const;
     vec3d comp_pnt_01( double u, double w ) const;
     vec3d comp_tan_u_01( double u, double w ) const;

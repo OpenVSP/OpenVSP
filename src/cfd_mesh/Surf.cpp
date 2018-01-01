@@ -669,7 +669,7 @@ void Surf::Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
             {
                 if ( Compare( *m_PatchVec[i]->get_bbox(), *otherPatchVec[j]->get_bbox() ) )
                 {
-                    intersect( *m_PatchVec[i], *otherPatchVec[j], 0, MeshMgr );
+                    intersect( *m_PatchVec[i], *otherPatchVec[j], MeshMgr );
                 }
             }
         }

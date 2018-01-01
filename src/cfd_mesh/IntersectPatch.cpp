@@ -12,7 +12,7 @@
 #include "CfdMeshMgr.h"
 #include "Tritri.h"
 
-void intersect( const SurfPatch& bp1, const SurfPatch& bp2, int depth, SurfaceIntersectionSingleton *MeshMgr )
+void intersect( const SurfPatch& bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr )
 {
     int MAX_SUB = 12;
     int MIN_SUB = 3;
@@ -69,10 +69,10 @@ void intersect( const SurfPatch& bp1, const SurfPatch& bp2, int depth, SurfaceIn
 
             bp1.split_patch( bps0, bps1, bps2, bps3 );      // Split Patch1 and Keep Subdividing
 
-            intersect( bps0, bp2, depth, MeshMgr );
-            intersect( bps1, bp2, depth, MeshMgr );
-            intersect( bps2, bp2, depth, MeshMgr );
-            intersect( bps3, bp2, depth, MeshMgr );
+            intersect( bps0, bp2, MeshMgr );
+            intersect( bps1, bp2, MeshMgr );
+            intersect( bps2, bp2, MeshMgr );
+            intersect( bps3, bp2, MeshMgr );
         }
         else
         {
@@ -87,10 +87,10 @@ void intersect( const SurfPatch& bp1, const SurfPatch& bp2, int depth, SurfaceIn
 
             bp2.split_patch( bps0, bps1, bps2, bps3 );      // Split Patch2 and Keep Subdividing
 
-            intersect( bp1, bps0, depth, MeshMgr );
-            intersect( bp1, bps1, depth, MeshMgr );
-            intersect( bp1, bps2, depth, MeshMgr );
-            intersect( bp1, bps3, depth, MeshMgr );
+            intersect( bp1, bps0, MeshMgr );
+            intersect( bp1, bps1, MeshMgr );
+            intersect( bp1, bps2, MeshMgr );
+            intersect( bp1, bps3, MeshMgr );
         }
     }
 }

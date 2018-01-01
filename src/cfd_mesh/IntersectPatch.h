@@ -28,7 +28,7 @@ class SurfaceIntersectionSingleton;
 class CfdMeshMgrSingleton;
 
 //===== Intersect Two Bezier Patches  =====//
-void intersect( const SurfPatch& bp1, const SurfPatch& bp2, int depth, SurfaceIntersectionSingleton *MeshMgr );
+void intersect( const SurfPatch& bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr );
 void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersectionSingleton *MeshMgr );
 
 #endif
