@@ -796,7 +796,7 @@ void SurfaceIntersectionSingleton::Intersect()
     BuildCurves();
 }
 
-void SurfaceIntersectionSingleton::AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3d & ip0, vec3d & ip1 )
+void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, const SurfPatch& pB, const vec3d & ip0, const vec3d & ip1 )
 {
     double d = dist_squared( ip0, ip1 );
     if ( d < DBL_EPSILON )

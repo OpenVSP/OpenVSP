@@ -12,7 +12,7 @@
 #include "CfdMeshMgr.h"
 #include "Tritri.h"
 
-void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth, SurfaceIntersectionSingleton *MeshMgr )
+void intersect( const SurfPatch& bp1, const SurfPatch& bp2, int depth, SurfaceIntersectionSingleton *MeshMgr )
 {
     int MAX_SUB = 12;
     int MIN_SUB = 3;
@@ -95,7 +95,7 @@ void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth, SurfaceIntersectionSi
     }
 }
 
-void intersect_quads( SurfPatch& pa, SurfPatch& pb, SurfaceIntersectionSingleton *MeshMgr )
+void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersectionSingleton *MeshMgr )
 {
     int iflag;
     int coplanar;
