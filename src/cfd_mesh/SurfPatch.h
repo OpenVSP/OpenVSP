@@ -51,6 +51,7 @@ class SurfPatch
 public:
 
     SurfPatch();
+    SurfPatch( int n, int m, int d );
     virtual ~SurfPatch();
 
     void set_surf_ptr( Surf* ptr )
@@ -76,6 +77,11 @@ public:
     void setPatch( const surface_patch_type &p )
     {
         m_Patch = p;
+    }
+
+    surface_patch_type * getPatch( )
+    {
+        return &m_Patch;
     }
 
     long degree_u()

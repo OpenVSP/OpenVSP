@@ -23,6 +23,14 @@ SurfPatch::SurfPatch()
     sub_depth = 0;
 }
 
+SurfPatch::SurfPatch( int n, int m, int d ) : m_Patch( n, m )
+{
+    u_min = w_min = 0.0;
+    u_max = w_max = 1.0;
+    m_SurfPtr = NULL;
+    sub_depth = d;
+}
+
 SurfPatch::~SurfPatch()
 {
 }
@@ -46,19 +54,16 @@ void SurfPatch::compute_bnd_box()
 void SurfPatch::split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, SurfPatch& bp11 )
 {
 
-    surface_patch_type pvlow, pvhi;
-    m_Patch.split_v( pvlow, pvhi, 0.5 );
+    int n = m_Patch.degree_u();
+    int m = m_Patch.degree_v();
+    surface_patch_type pvlow( n, m );
+    surface_patch_type pvhi( n, m );
+    m_Patch.simple_split_v( pvlow, pvhi, 0.5 );
 
     surface_patch_type pulow, puhi;
-    pvlow.split_u( pulow, puhi, 0.5 );
+    pvlow.simple_split_u( *(bp00.getPatch()), *(bp10.getPatch()), 0.5 );
 
-    bp00.setPatch( pulow );
-    bp10.setPatch( puhi );
-
-    pvhi.split_u( pulow, puhi, 0.5 );
-
-    bp01.setPatch( pulow );
-    bp11.setPatch( puhi );
+    pvhi.simple_split_u( *(bp01.getPatch()), *(bp11.getPatch()), 0.5 );
 
     bp00.u_min = u_min;
     bp00.w_min = w_min;
@@ -179,13 +184,21 @@ void SurfPatch::IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vec
         return;
     }
 
-    SurfPatch bps[4];
-    split_patch( bps[0], bps[1], bps[2], bps[3] );      // Split Patch2 and Keep Subdividing
+    int n = degree_u();
+    int m = degree_v();
+    int d = GetSubDepth() + 1;
 
-    bps[0].IntersectLineSeg( p0, p1, line_box, t_vals );
-    bps[1].IntersectLineSeg( p0, p1, line_box, t_vals );
-    bps[2].IntersectLineSeg( p0, p1, line_box, t_vals );
-    bps[3].IntersectLineSeg( p0, p1, line_box, t_vals );
+    SurfPatch bps0( n, m, d );
+    SurfPatch bps1( n, m, d );
+    SurfPatch bps2( n, m, d );
+    SurfPatch bps3( n, m, d );
+
+    split_patch( bps0, bps1, bps2, bps3 );
+
+    bps0.IntersectLineSeg( p0, p1, line_box, t_vals );
+    bps1.IntersectLineSeg( p0, p1, line_box, t_vals );
+    bps2.IntersectLineSeg( p0, p1, line_box, t_vals );
+    bps3.IntersectLineSeg( p0, p1, line_box, t_vals );
 }
 
 void SurfPatch::AddTVal( double t, vector< double > & t_vals )

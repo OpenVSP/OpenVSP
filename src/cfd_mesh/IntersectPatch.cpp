@@ -58,31 +58,39 @@ void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth, SurfaceIntersectionSi
 
         if ( ref1 )
         {
-            SurfPatch bps1[4];
-            bp1.split_patch( bps1[0], bps1[1], bps1[2], bps1[3] );      // Split Patch1 and Keep Subdividing
-            for ( int i = 0 ; i < 4 ; i++ )
-            {
-                bps1[i].SetSubDepth( bp1.GetSubDepth() + 1 );
-            }
+            int n = bp1.degree_u();
+            int m = bp1.degree_v();
+            int d = bp1.GetSubDepth() + 1;
 
-            intersect( bps1[0], bp2, depth, MeshMgr );
-            intersect( bps1[1], bp2, depth, MeshMgr );
-            intersect( bps1[2], bp2, depth, MeshMgr );
-            intersect( bps1[3], bp2, depth, MeshMgr );
+            SurfPatch bps0( n, m, d );
+            SurfPatch bps1( n, m, d );
+            SurfPatch bps2( n, m, d );
+            SurfPatch bps3( n, m, d );
+
+            bp1.split_patch( bps0, bps1, bps2, bps3 );      // Split Patch1 and Keep Subdividing
+
+            intersect( bps0, bp2, depth, MeshMgr );
+            intersect( bps1, bp2, depth, MeshMgr );
+            intersect( bps2, bp2, depth, MeshMgr );
+            intersect( bps3, bp2, depth, MeshMgr );
         }
         else
         {
-            SurfPatch bps2[4];
-            bp2.split_patch( bps2[0], bps2[1], bps2[2], bps2[3] );      // Split Patch2 and Keep Subdividing
-            for ( int i = 0 ; i < 4 ; i++ )
-            {
-                bps2[i].SetSubDepth( bp2.GetSubDepth() + 1 );
-            }
+            int n = bp2.degree_u();
+            int m = bp2.degree_v();
+            int d = bp2.GetSubDepth() + 1;
 
-            intersect( bp1, bps2[0], depth, MeshMgr );
-            intersect( bp1, bps2[1], depth, MeshMgr );
-            intersect( bp1, bps2[2], depth, MeshMgr );
-            intersect( bp1, bps2[3], depth, MeshMgr );
+            SurfPatch bps0( n, m, d );
+            SurfPatch bps1( n, m, d );
+            SurfPatch bps2( n, m, d );
+            SurfPatch bps3( n, m, d );
+
+            bp2.split_patch( bps0, bps1, bps2, bps3 );      // Split Patch2 and Keep Subdividing
+
+            intersect( bp1, bps0, depth, MeshMgr );
+            intersect( bp1, bps1, depth, MeshMgr );
+            intersect( bp1, bps2, depth, MeshMgr );
+            intersect( bp1, bps3, depth, MeshMgr );
         }
     }
 }
