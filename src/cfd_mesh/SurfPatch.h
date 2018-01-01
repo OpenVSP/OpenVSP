@@ -145,6 +145,9 @@ protected:
 
     int sub_depth;
 
+    mutable bool m_wasplanar;
+    mutable double m_lastreltol;
+
 };
 
 
