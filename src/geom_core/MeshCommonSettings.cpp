@@ -36,7 +36,7 @@ void MeshCommonSettings::InitCommonParms()
     m_DrawCurveFlag.Init( "DrawCurveFlag", "DrawMesh", this, true, 0, 1 );
     m_DrawPntsFlag.Init( "DrawPntsFlag", "DrawMesh", this, true, 0, 1 );
 
-    m_RelCurveTol.Init( "RelCurveTol", "Global", this, 0.01, 1e-6, 1.0 );
+    m_RelCurveTol.Init( "RelCurveTol", "Global", this, 0.01, 1e-5, 1.0 );
 
     m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );
     m_IntersectSubSurfs.SetDescript( "Flag to intersect subsurfaces" );
