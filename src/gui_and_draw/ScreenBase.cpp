@@ -672,7 +672,6 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_dU, "Delta U", 1, "%5.4f" );
     m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_dW, "Delta W", 1, "%5.4f" );
-    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_R,  "Radius", 1, "%5.4f" );
     m_SSFOURVERTPOLYGroup.AddYGap();
 
 //--Configure edge selector indexer---------------------------------------------
@@ -686,6 +685,10 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_NormDev, "Norm. deflection", 1, "%5.4f" );
     m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_NormDevPos, "Position", 0.5, "%5.4f" );
     m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_NormDevRot, "Rotation", 90.0, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_Radius_01, "Radius 01", 0.5, "%5.4f" );
+    m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_Radius_02, "Radius 02", 0.5, "%5.4f" );
+
+
 
     //===== SSControl ====//
     m_SSConGroup.SetGroupAndScreen(AddSubGroup(subsurf_tab, 5), this);
@@ -978,22 +981,18 @@ bool GeomScreen::Update()
                 case 1:
                     m_SSFrthPly_dU.Update( sspoly->m_UppLftU.GetID() );
                     m_SSFrthPly_dW.Update( sspoly->m_UppLftW.GetID() );
-                    m_SSFrthPly_R.Update( sspoly->m_UppLftRad.GetID() );
                     break;
                 case 2:
                     m_SSFrthPly_dU.Update( sspoly->m_UppRhtU.GetID() );
                     m_SSFrthPly_dW.Update( sspoly->m_UppRhtW.GetID() );
-                    m_SSFrthPly_R.Update( sspoly->m_UppRhtRad.GetID() );
                     break;
                 case 3:
                     m_SSFrthPly_dU.Update( sspoly->m_LwRhtU.GetID() );
                     m_SSFrthPly_dW.Update( sspoly->m_LwRhtW.GetID() );
-                    m_SSFrthPly_R.Update( sspoly->m_LwRhtRad.GetID() );
                     break;
                 case 4:
                     m_SSFrthPly_dU.Update( sspoly->m_LwLftU.GetID() );
                     m_SSFrthPly_dW.Update( sspoly->m_LwLftW.GetID() );
-                    m_SSFrthPly_R.Update( sspoly->m_LwLftRad.GetID() );
                     break;
             }
 
@@ -1004,21 +1003,29 @@ bool GeomScreen::Update()
                     m_SSFrthPly_NormDev.Update( sspoly->m_NrmDevUpper.GetID() );
                     m_SSFrthPly_NormDevPos.Update( sspoly->m_NrmDevUpperPos.GetID() );
                     m_SSFrthPly_NormDevRot.Update( sspoly->m_NrmDevUpperAng.GetID() );
+                    m_SSFrthPly_Radius_01.Update( sspoly->m_RadUpperL.GetID() );
+                    m_SSFrthPly_Radius_02.Update( sspoly->m_RadUpperR.GetID() );
                     break;
                 case 2:
                     m_SSFrthPly_NormDev.Update( sspoly->m_NrmDevRight.GetID() );
                     m_SSFrthPly_NormDevPos.Update( sspoly->m_NrmDevRightPos.GetID() );
                     m_SSFrthPly_NormDevRot.Update( sspoly->m_NrmDevRightAng.GetID() );
+                    m_SSFrthPly_Radius_01.Update( sspoly->m_RadRightL.GetID() );
+                    m_SSFrthPly_Radius_02.Update( sspoly->m_RadRightR.GetID() );
                     break;
                 case 3:
                     m_SSFrthPly_NormDev.Update( sspoly->m_NrmDevBottom.GetID() );
                     m_SSFrthPly_NormDevPos.Update( sspoly->m_NrmDevBottomPos.GetID() );
                     m_SSFrthPly_NormDevRot.Update( sspoly->m_NrmDevBottomAng.GetID() );
+                    m_SSFrthPly_Radius_01.Update( sspoly->m_RadBottomL.GetID() );
+                    m_SSFrthPly_Radius_02.Update( sspoly->m_RadBottomR.GetID() );
                     break;
                 case 4:
                     m_SSFrthPly_NormDev.Update( sspoly->m_NrmDevLeft.GetID() );
                     m_SSFrthPly_NormDevPos.Update( sspoly->m_NrmDevLeftPos.GetID() );
                     m_SSFrthPly_NormDevRot.Update( sspoly->m_NrmDevLeftAng.GetID() );
+                    m_SSFrthPly_Radius_01.Update( sspoly->m_RadLeftL.GetID() );
+                    m_SSFrthPly_Radius_02.Update( sspoly->m_RadLeftR.GetID() );
                     break;
             }
 
