@@ -314,12 +314,13 @@ public:
     IndexSelector m_FourPolyVertexIndexSelector;
     SliderInput m_SSFrthPly_dU;
     SliderInput m_SSFrthPly_dW;
-    SliderInput m_SSFrthPly_R;
 
     IndexSelector m_FourPolyEdgeIndexSelector;
     SliderInput m_SSFrthPly_NormDev;
     SliderInput m_SSFrthPly_NormDevPos;
     SliderInput m_SSFrthPly_NormDevRot;
+    SliderInput m_SSFrthPly_Radius_01;
+    SliderInput m_SSFrthPly_Radius_02;
 
     // SS_Ellipse
     GroupLayout m_SSEllGroup;

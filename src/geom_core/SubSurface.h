@@ -249,6 +249,15 @@ public:
     Parm m_LwRhtRad; //........................ Radius of the lower right vertex
     Parm m_LwLftRad; //........................ Radius of the lower left vertex
 
+    Parm m_RadUpperL; //....................... Radius parameter on upper left edge    
+    Parm m_RadUpperR; //....................... Radius parameter on upper right edge
+    Parm m_RadRightL; //....................... Radius parameter on right left edge
+    Parm m_RadRightR; //....................... Radius parameter on right right edge
+    Parm m_RadBottomL; //...................... Radius parameter on bottom left edge
+    Parm m_RadBottomR; //...................... Radius parameter on bottom right edge
+    Parm m_RadLeftL; //........................ Radius parameter on left left edge
+    Parm m_RadLeftR; //........................ Radius parameter on left right edge
+
     Parm m_TessPtsNum; //...................... Number of tessellation points per side
 
     virtual void Update();

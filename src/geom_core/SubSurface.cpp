@@ -805,19 +805,32 @@ SSFourVertPoly::SSFourVertPoly( string comp_id, int type ) : SubSurface( comp_id
     m_NrmDevLeftAng.Init( "NrmDevAng_Left", "SSFourVertPoly", this, 0.0, -90.0, 90.0 ); //.... Rotation angle of the normal vector on the left side
     m_NrmDevLeftAng.SetDescript( "Rotation angle of the normal vector on the left side" );
 
-    m_UppLftRad.Init( "Radius_UppLft", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //............ Radius of the upper left vertex
-    m_UppLftRad.SetDescript( "Radius of the upper left vertex" );
+    m_RadUpperL.Init( "Rad_UpperL", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //........... Radius parameter on upper left edge
+    m_RadUpperL.SetDescript( "Radius parameter on upper left edge" );
 
-    m_UppRhtRad.Init( "Radius_UppRht", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //............ Radius of the upper right vertex
-    m_UppRhtRad.SetDescript( "Radius of the upper right vertex" );
+    m_RadUpperR.Init( "Rad_UpperR", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //........... Radius parameter on upper right edge
+    m_RadUpperR.SetDescript( "Radius parameter on upper right edge" );
 
-    m_LwRhtRad.Init( "Radius_LwRht", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //.............. Radius of the lower right vertex
-    m_LwRhtRad.SetDescript( "Radius of the lower right vertex" );
+    m_RadRightL.Init( "Rad_RightL", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //........... Radius parameter on right left edge
+    m_RadRightL.SetDescript( "Radius parameter on right left edge" );
 
-    m_LwLftRad.Init( "Radius_LwLft", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //.............. Radius of the lower left vertex
-    m_LwLftRad.SetDescript( "Radius of the lower left vertex" );
+    m_RadRightR.Init( "Rad_RightR", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //........... Radius parameter on right right edge
+    m_RadRightR.SetDescript( "Radius parameter on right right edge" );
 
-    m_TessPtsNum.Init( "Num_TessPts", "SSFourVertPoly", this, 1000, 12, 1000 ); //............ Number of tessellation points on the polygon
+    m_RadBottomL.Init( "Rad_BottomL", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //......... Radius parameter on bottom left edge
+    m_RadBottomL.SetDescript( "Radius parameter on bottom left edge" );
+
+    m_RadBottomR.Init( "Rad_BottomR", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //......... Radius parameter on bottom right edge
+    m_RadBottomR.SetDescript( "Radius parameter on bottom right edge" );
+
+    m_RadLeftL.Init( "Rad_LeftL", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //............. Radius parameter on left left edge
+    m_RadLeftL.SetDescript( "Radius parameter on left left edge" );
+
+    m_RadLeftR.Init( "Rad_LeftR", "SSFourVertPoly", this, 0.0, 0.0, 1.0 ); //............. Radius parameter on left right edge
+    m_RadLeftR.SetDescript( "Radius parameter on left right edge" );
+
+
+    m_TessPtsNum.Init( "Num_TessPts", "SSFourVertPoly", this, 1000, 24, 1000 ); //............ Number of tessellation points on the polygon
     m_TessPtsNum.SetDescript( "Number of tessellation points on the polygon" );
 
     m_TestType.Init( "Test_Type", "SSFourVertPoly", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
@@ -837,38 +850,44 @@ void SSFourVertPoly::Update()
         return;
     }
 
-    vector< vec3d > pntVec; //................................................. All points
-    pntVec.resize(9);
+//--Scheme of the curve-------------------------------------------------------//
+// 16/0  1     2     3    4                                                   //
+//    +--⨉-----◌-----⨉--+      + : Corner point                               //
+//    |                 |      ⨉ : Radius control point                       //
+// 15 ⨉                 ⨉ 5    ◌ : Control point for edge deflection          //
+//    |                 |                                                     //
+// 14 ◌                 ◌ 6                                                   //
+//    |                 |                                                     //
+// 13 ⨉                 ⨉ 7                                                   //
+//    |                 |                                                     //
+//    +--⨉-----◌-----⨉--+                                                     //
+// 12    11   10     9    8                                                   //
+//----------------------------------------------------------------------------//
 
-    vector< vec3d > SideContrPt; //............................................ Four control points for deflection of edges
-    SideContrPt.resize(4);
-
-    vector< vec3d > nrmVec; //................................................. Normal vectors
-    nrmVec.resize(4);
-
-    vector< float > nrmVec_len; //............................................. Lenght of normal vectors
-    nrmVec_len.resize(4);
+    vector< vec3d > pntVec (17); //............................................ All points of the closed curve
 
 //--Create corner vertices------------------------------------------------------
-    pntVec[0] = vec3d(m_CenterU()-m_UppLftU(), m_CenterW()-m_UppLftW(), 0.0);
-    pntVec[2] = vec3d(m_CenterU()+m_UppRhtU(), m_CenterW()-m_UppRhtW(), 0.0);
-    pntVec[4] = vec3d(m_CenterU()+m_LwRhtU(),  m_CenterW()+m_LwRhtW(),  0.0);
-    pntVec[6] = vec3d(m_CenterU()-m_LwLftU(),  m_CenterW()+m_LwLftW(),  0.0);
-    pntVec[8] = pntVec[0];
+    pntVec[0]  = vec3d(m_CenterU()-m_UppLftU(), m_CenterW()-m_UppLftW(), 0.0);
+    pntVec[4]  = vec3d(m_CenterU()+m_UppRhtU(), m_CenterW()-m_UppRhtW(), 0.0);
+    pntVec[8]  = vec3d(m_CenterU()+m_LwRhtU(),  m_CenterW()+m_LwRhtW(),  0.0);
+    pntVec[12] = vec3d(m_CenterU()-m_LwLftU(),  m_CenterW()+m_LwLftW(),  0.0);
+    pntVec[16] = pntVec[0];
 
-//--Compute mid points ---------------------------------------------------------
-    SideContrPt[0] = pntVec[0] + m_NrmDevUpperPos() * ( pntVec[2] - pntVec[0] ); //...... Top
-    SideContrPt[1] = pntVec[2] + m_NrmDevRightPos() * ( pntVec[4] - pntVec[2] ); //...... Right
-    SideContrPt[2] = pntVec[4] + m_NrmDevBottomPos() * ( pntVec[6] - pntVec[4] ); //..... Bottom
-    SideContrPt[3] = pntVec[6] + m_NrmDevLeftPos() * ( pntVec[8] - pntVec[6] ); //....... Left
+//--Compute points for edge deflection -----------------------------------------
+    pntVec[2]  = pntVec[0]  + m_NrmDevUpperPos()  * ( pntVec[4]  - pntVec[0]  ); //...... Top
+    pntVec[6]  = pntVec[4]  + m_NrmDevRightPos()  * ( pntVec[8]  - pntVec[4]  ); //...... Right
+    pntVec[10] = pntVec[8]  + m_NrmDevBottomPos() * ( pntVec[12] - pntVec[8]  ); //...... Bottom
+    pntVec[14] = pntVec[12] + m_NrmDevLeftPos()   * ( pntVec[16] - pntVec[12] ); //...... Left
 
 //--Compute normal vectors -----------------------------------------------------
-    nrmVec[0] = vec3d( (pntVec[2] - pntVec[0]).y(), -(pntVec[2] - pntVec[0]).x(), 0.0);
-    nrmVec[1] = vec3d( (pntVec[4] - pntVec[2]).y(), -(pntVec[4] - pntVec[2]).x(), 0.0);
-    nrmVec[2] = vec3d( (pntVec[6] - pntVec[4]).y(), -(pntVec[6] - pntVec[4]).x(), 0.0);
-    nrmVec[3] = vec3d( (pntVec[8] - pntVec[6]).y(), -(pntVec[8] - pntVec[6]).x(), 0.0);
+    vector< vec3d > nrmVec (4);
+    nrmVec[0] = vec3d( (pntVec[4] - pntVec[0] ).y(), -(pntVec[4] - pntVec[0] ).x(), 0.0); //...... Top
+    nrmVec[1] = vec3d( (pntVec[8] - pntVec[4] ).y(), -(pntVec[8] - pntVec[4] ).x(), 0.0); //...... Right
+    nrmVec[2] = vec3d( (pntVec[12]- pntVec[8] ).y(), -(pntVec[12]- pntVec[8] ).x(), 0.0); //...... Bottom
+    nrmVec[3] = vec3d( (pntVec[16]- pntVec[12]).y(), -(pntVec[16]- pntVec[12]).x(), 0.0); //...... Left
 
 //--Compute lenght of normal vectors--------------------------------------------
+    vector<double> nrmVec_len (4);
     nrmVec_len[0] = sqrt( nrmVec[0].x()*nrmVec[0].x() + nrmVec[0].y()*nrmVec[0].y() );
     nrmVec_len[1] = sqrt( nrmVec[1].x()*nrmVec[1].x() + nrmVec[1].y()*nrmVec[1].y() );
     nrmVec_len[2] = sqrt( nrmVec[2].x()*nrmVec[2].x() + nrmVec[2].y()*nrmVec[2].y() );
@@ -886,88 +905,113 @@ void SSFourVertPoly::Update()
     nrmVec[2].rotate_z( cos(m_NrmDevBottomAng()*PI/180.0), sin(m_NrmDevBottomAng()*PI/180.0) );
     nrmVec[3].rotate_z( cos(m_NrmDevLeftAng()*PI/180.0  ), sin(m_NrmDevLeftAng()*PI/180.0)   );
 
-//--Estimate mid points---------------------------------------------------------
-    pntVec[1] = SideContrPt[0] + m_NrmDevUpper() * nrmVec[0];
-    pntVec[3] = SideContrPt[1] + m_NrmDevRight() * nrmVec[1];
-    pntVec[5] = SideContrPt[2] + m_NrmDevBottom() * nrmVec[2];
-    pntVec[7] = SideContrPt[3] + m_NrmDevLeft() * nrmVec[3];
+//--Displace control points responsible for deflection using the normal vector--
+    pntVec[2]  = pntVec[2]  + nrmVec[0] * m_NrmDevUpper(); //.................. Top
+    pntVec[6]  = pntVec[6]  + nrmVec[1] * m_NrmDevRight(); //.................. Right
+    pntVec[10] = pntVec[10] + nrmVec[2] * m_NrmDevBottom(); //................. Bottom
+    pntVec[14] = pntVec[14] + nrmVec[3] * m_NrmDevLeft(); //................... Left
 
-//--Create top curve------------------------------------------------------------
-    vector< vec3d > topPts;
-    topPts.resize(3);
-    topPts[0] = pntVec[0];
-    topPts[1] = pntVec[1];
-    topPts[2] = pntVec[2];
+//--Compute vertices for vertex radius control----------------------------------
+    pntVec[1]  = pntVec[0]  + m_RadUpperL()  * (pntVec[2]  - pntVec[0]  );
+    pntVec[5]  = pntVec[4]  + m_RadRightL()  * (pntVec[6]  - pntVec[4]  );
+    pntVec[9]  = pntVec[8]  + m_RadBottomL() * (pntVec[10] - pntVec[8]  );
+    pntVec[13] = pntVec[12] + m_RadLeftL()   * (pntVec[14] - pntVec[12] );
 
-    VspCurve TopCurve;
-    TopCurve.SetQuadraticControlPoints( topPts, false );
+    pntVec[3]  = pntVec[2]  + (1.0 - m_RadUpperR())  * (pntVec[4]  - pntVec[2] );
+    pntVec[7]  = pntVec[6]  + (1.0 - m_RadRightR())  * (pntVec[8]  - pntVec[6] );
+    pntVec[11] = pntVec[10] + (1.0 - m_RadBottomR()) * (pntVec[12] - pntVec[10] );
+    pntVec[15] = pntVec[14] + (1.0 - m_RadLeftR())   * (pntVec[16] - pntVec[14] );
 
-//--Create right curve----------------------------------------------------------
-    vector< vec3d > rightPts;
-    rightPts.resize(3);
-    rightPts[0] = pntVec[2];
-    rightPts[1] = pntVec[3];
-    rightPts[2] = pntVec[4];
+//--Create list of points for 8 piecewise quadratic curves----------------------
+    vector< vec3d > ptsLst_01 (3);
+    ptsLst_01[0] = pntVec[15];
+    ptsLst_01[1] = pntVec[0];
+    ptsLst_01[2] = pntVec[1];
 
-    VspCurve RightCurve;
-    RightCurve.SetQuadraticControlPoints( rightPts, false );
+    vector< vec3d > ptsLst_02 (3);
+    ptsLst_02[0] = pntVec[1];
+    ptsLst_02[1] = pntVec[2];
+    ptsLst_02[2] = pntVec[3];
 
-//--Bottom curve----------------------------------------------------------------
-    vector< vec3d > bottomPts;
-    bottomPts.resize(3);
-    bottomPts[0] = pntVec[4];
-    bottomPts[1] = pntVec[5];
-    bottomPts[2] = pntVec[6];
+    vector< vec3d > ptsLst_03 (3);
+    ptsLst_03[0] = pntVec[3];
+    ptsLst_03[1] = pntVec[4];
+    ptsLst_03[2] = pntVec[5];
 
-    VspCurve BottomCurve;
-    BottomCurve.SetQuadraticControlPoints( bottomPts, false );
+    vector< vec3d > ptsLst_04 (3);
+    ptsLst_04[0] = pntVec[5];
+    ptsLst_04[1] = pntVec[6];
+    ptsLst_04[2] = pntVec[7];
 
-//--Left curve------------------------------------------------------------------
-    vector< vec3d > leftPts;
-    leftPts.resize(3);
-    leftPts[0] = pntVec[6];
-    leftPts[1] = pntVec[7];
-    leftPts[2] = pntVec[8];
+    vector< vec3d > ptsLst_05 (3);
+    ptsLst_05[0] = pntVec[7];
+    ptsLst_05[1] = pntVec[8];
+    ptsLst_05[2] = pntVec[9];
 
-    VspCurve LeftCurve;
-    LeftCurve.SetQuadraticControlPoints( leftPts, false );
+    vector< vec3d > ptsLst_06 (3);
+    ptsLst_06[0] = pntVec[9];
+    ptsLst_06[1] = pntVec[10];
+    ptsLst_06[2] = pntVec[11];
 
-//--Create common closed curve by joining up all segments-----------------------
-    VspCurve commonCurve;
-    commonCurve.Copy(TopCurve); //............................................. Copy top curve
-    commonCurve.Append(RightCurve); //......................................... Append right curve
-    commonCurve.Append(BottomCurve); //........................................ Append bottom curve
-    commonCurve.Append(LeftCurve); //.......................................... Append bottom curve
+    vector< vec3d > ptsLst_07 (3);
+    ptsLst_07[0] = pntVec[11];
+    ptsLst_07[1] = pntVec[12];
+    ptsLst_07[2] = pntVec[13];
 
-//--Round up the corners--------------------------------------------------------
-    /*
-    commonCurve.RoundJoint(m_UppLftRad(), 0 );
-    commonCurve.RoundJoint(m_UppRhtRad(), 2 );
-    commonCurve.RoundJoint(m_LwRhtRad(), 4 );
-    commonCurve.RoundJoint(m_LwLftRad(), 6 );
-    */
+    vector< vec3d > ptsLst_08 (3);
+    ptsLst_08[0] = pntVec[13];
+    ptsLst_08[1] = pntVec[14];
+    ptsLst_08[2] = pntVec[15];
 
-//--Tesselate curve-------------------------------------------------------------
-    int Num_TSS = m_TessPtsNum()/4; //......................................... Number of tessellated points on one side
+//--Create piecewise curves-----------------------------------------------------
+    VspCurve crv01;
+    VspCurve crv02;
+    VspCurve crv03;
+    VspCurve crv04;
+    VspCurve crv05;
+    VspCurve crv06;
+    VspCurve crv07;
+    VspCurve crv08;
 
-    vector< double > ucache_edge ( Num_TSS ); //............................... List for u parameters on only one edge
+    crv01.SetQuadraticControlPoints( ptsLst_01, false );
+    crv02.SetQuadraticControlPoints( ptsLst_02, false );
+    crv03.SetQuadraticControlPoints( ptsLst_03, false );
+    crv04.SetQuadraticControlPoints( ptsLst_04, false );
+    crv05.SetQuadraticControlPoints( ptsLst_05, false );
+    crv06.SetQuadraticControlPoints( ptsLst_06, false );
+    crv07.SetQuadraticControlPoints( ptsLst_07, false );
+    crv08.SetQuadraticControlPoints( ptsLst_08, false );
+
+//--Create one common curve-----------------------------------------------------
+    VspCurve crv;
+    crv.Copy(crv01); //........................................................ Copy first curve
+    crv.Append( crv02 );
+    crv.Append( crv03 );
+    crv.Append( crv04 );
+    crv.Append( crv05 );
+    crv.Append( crv06 );
+    crv.Append( crv07 );
+    crv.Append( crv08 );
+
+//--Tessellate curve------------------------------------------------------------
+    int Num_TSS = m_TessPtsNum()/8; //......................................... Number of tessellated points
+    vector< double > ucache ( 8 * Num_TSS ); //................................ List for u parameters on only one edge
+
+
     for (int i=0; i < Num_TSS; i++)
     {
-        ucache_edge[i] = float(i)/(Num_TSS-1);
+        ucache[i             ] = float(i)/(Num_TSS-1)      ;
+        ucache[i + 1*Num_TSS ] = float(i)/(Num_TSS-1) + 1.0;
+        ucache[i + 2*Num_TSS ] = float(i)/(Num_TSS-1) + 2.0;
+        ucache[i + 3*Num_TSS ] = float(i)/(Num_TSS-1) + 3.0;
+        ucache[i + 4*Num_TSS ] = float(i)/(Num_TSS-1) + 4.0;
+        ucache[i + 5*Num_TSS ] = float(i)/(Num_TSS-1) + 5.0;
+        ucache[i + 6*Num_TSS ] = float(i)/(Num_TSS-1) + 6.0;
+        ucache[i + 7*Num_TSS ] = float(i)/(Num_TSS-1) + 7.0;
     }
 
-    vector< double > ucache ( 4*(Num_TSS-1)+1 ); //............................... List for u parameters on only one edge
-    for (int i=0; i < (Num_TSS-1); i++)
-    {
-        ucache[i                ] = ucache_edge[i];
-        ucache[i + 1*(Num_TSS-1)] = ucache_edge[i] + 1.0;
-        ucache[i + 2*(Num_TSS-1)] = ucache_edge[i] + 2.0;
-        ucache[i + 3*(Num_TSS-1)] = ucache_edge[i] + 3.0;
-    }
-    ucache[4*(Num_TSS-1)] = 4.0;
-
-    vector< vec3d > TessPts ( 4*(Num_TSS-1)+1 ); //............................ List for tessellated points
-    commonCurve.Tesselate( ucache, TessPts); //................................ Tesselate curve
+    vector< vec3d > TessPts ( ucache.size() ); //.............................. List for tessellated points
+    crv.Tesselate( ucache, TessPts); //........................................ Tessellate curve
 
 //--Create line segments--------------------------------------------------------
     int pind = 0;

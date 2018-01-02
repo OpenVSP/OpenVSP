@@ -142,10 +142,11 @@ public:
 
     double Angle( const double & u1, const int &dir1, const double & u2, const int &dir2, const bool & flipflag ) const;
 
+    int GetNumSections() const;
+
 protected:
     piecewise_curve_type m_Curve;
 
-    int GetNumSections() const;
     void GetCurveSegment( curve_segment_type &c, int i ) const;
     double GetCurveDt( int i ) const;
 };
