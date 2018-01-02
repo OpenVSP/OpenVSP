@@ -4434,6 +4434,9 @@ class EllipsoidVV : VV_Base
         SetParmVal( geom_id, "Tess_W", "Shape", 61 );
 
         Update();
+        
+        // Calculate major axis points
+        m_ellispoid_pnt_mat = GetFeatureLinePnts(geom_id);
 
         for ( uint8 a = 0; a < uint8(m_alpha_vec.length()); a++ )
         {
@@ -4476,10 +4479,7 @@ class EllipsoidVV : VV_Base
         array<array<array<array<double>>>> xyz_slicer_mat(num_alpha);
         
         // Calculate Theoretical Results
-        array<vec3d> ellispoid_pnt_mat, ellispoid_cp_mat;
-        
-        ellispoid_pnt_mat = GetEllipsoidSurfPnts(center, abc_rad, u_npts, w_npts);
-        ellispoid_cp_mat = GetEllipsoidCpDist(ellispoid_pnt_mat, abc_rad, Vinf);
+        array<vec3d> ellispoid_cp_mat = GetEllipsoidCpDist(m_ellispoid_pnt_mat, abc_rad, Vinf);
         
         for ( uint8 a = 0; a < num_alpha; a++ )
         {
@@ -4619,11 +4619,11 @@ class EllipsoidVV : VV_Base
                     array<string> data_str_vec1;
 
                     //Google Charts API only supports a single X data vector. The x data from GetEllipsoidSurfPnts and the CpSlicer are different, so must be offset
-                    for( uint x = 0; x < uint(ellispoid_pnt_mat.length()); x++ )
+                    for( uint x = 0; x < uint(m_ellispoid_pnt_mat.length()); x++ )
                     {
-                        if ( abs(ellispoid_pnt_mat[x][0]) < 0.0425 ) // x ~= 0
+                        if ( abs(m_ellispoid_pnt_mat[x][0]) < 1e-6 ) // x ~= 0
                         {
-                            string row = string("\t\t  [") + double( ellispoid_pnt_mat[x][1] ) + string(",") + double( ellispoid_pnt_mat[x][2] ) +
+                            string row = string("\t\t  [") + double( m_ellispoid_pnt_mat[x][1] ) + string(",") + double( m_ellispoid_pnt_mat[x][2] ) +
                                 string(",") + double( ellispoid_cp_mat[x][0] ) + string(",null],\n");
                             
                             data_str_vec1.push_back( row );
@@ -4653,7 +4653,7 @@ class EllipsoidVV : VV_Base
                         double(m_beta_vec[b]) + string("°");
                     c1.m_Legend = string("'X','Ellipsoid','Exact Solution','VSPAERO'");
                     c1.m_PointSize = 3.0;
-                    c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 3 }, 2: { targetAxisIndex: 0 } }");
+                    c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, lineWidth: 0, color: 'gray' }, 2: { targetAxisIndex: 0 } }");
                     c1.m_LegendPos = string("bottom");
                     c1.m_HAxisString = string("hAxis: { title: 'Y', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } }");
                     c1.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true }, viewWindow: { min: -5.0, max: 0.0 } }, 1: { title: 'Z', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } } }");
@@ -4665,11 +4665,11 @@ class EllipsoidVV : VV_Base
                     array<string> data_str_vec2;
                     
                     //Google Charts API only supports a single X data vector. The x data from GetEllipsoidSurfPnts and the CpSlicer are different, so must be offset
-                    for( uint x = 0; x < uint(ellispoid_pnt_mat.length()); x++ )
+                    for( uint x = 0; x < uint(m_ellispoid_pnt_mat.length()); x++ )
                     {
-                        if ( abs(ellispoid_pnt_mat[x][1]) < 0.2 ) // y ~= 0
+                        if ( abs(m_ellispoid_pnt_mat[x][1]) < 1e-6 ) // y ~= 0
                         {
-                            string row = string("\t\t  [") + double( ellispoid_pnt_mat[x][0] ) + string(",") + + double( ellispoid_pnt_mat[x][2] ) +
+                            string row = string("\t\t  [") + double( m_ellispoid_pnt_mat[x][0] ) + string(",") + + double( m_ellispoid_pnt_mat[x][2] ) +
                                 string(",") + double( ellispoid_cp_mat[x][0] ) + string(",null],\n");
                             
                             data_str_vec2.push_back( row );
@@ -4699,7 +4699,7 @@ class EllipsoidVV : VV_Base
                         double(m_beta_vec[b]) + string("°");
                     c2.m_Legend = string("'X','Ellipsoid','Exact Solution','VSPAERO'");
                     c2.m_PointSize = 3.0;
-                    c2.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 3 }, 2: { targetAxisIndex: 0 } }");
+                    c2.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, lineWidth: 0, color: 'gray' }, 2: { targetAxisIndex: 0 } }");
                     c2.m_LegendPos = string("bottom");
                     c2.m_HAxisString = string("hAxis: { title: 'X', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } }");
                     c2.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true } }, 1: { title: 'Z', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } } }");
@@ -4710,11 +4710,11 @@ class EllipsoidVV : VV_Base
                     // Z Cut
                     array<string> data_str_vec3;
                     
-                    for( uint x = 0; x < uint(ellispoid_pnt_mat.length()); x++ )
+                    for( uint x = 0; x < uint(m_ellispoid_pnt_mat.length()); x++ )
                     {
-                        if ( abs( ellispoid_pnt_mat[x][2] ) < 0.1 ) // z ~= 0
+                        if ( abs( m_ellispoid_pnt_mat[x][2] ) < 1e-6 ) // z ~= 0
                         {
-                            string row = string("\t\t  [") + double( ellispoid_pnt_mat[x][0] ) + string(",") + double( ellispoid_pnt_mat[x][1] ) +
+                            string row = string("\t\t  [") + double( m_ellispoid_pnt_mat[x][0] ) + string(",") + double( m_ellispoid_pnt_mat[x][1] ) +
                                 string(",") + double( ellispoid_cp_mat[x][0] ) + string(",null],\n");
                             
                             data_str_vec3.push_back(row);
@@ -4744,7 +4744,7 @@ class EllipsoidVV : VV_Base
                         double(m_beta_vec[b]) + string("°");
                     c3.m_Legend = string("'X','Ellipsoid','Exact Solution','VSPAERO'");
                     c3.m_PointSize = 3.0;
-                    c3.m_Series = string("{ 0: { targetAxisIndex: 1 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 3 }, 2: { targetAxisIndex: 0 } }");
+                    c3.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, lineWidth: 0, color: 'gray' }, 2: { targetAxisIndex: 0 } }");
                     c3.m_LegendPos = string("bottom");
                     c3.m_HAxisString = string("hAxis: { title: 'X', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } }");
                     c3.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true } }, 1: { title: 'Y', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } } }");
@@ -4759,6 +4759,8 @@ class EllipsoidVV : VV_Base
     }
     
     // Ellipsoid Class Properties
+    array<vec3d> m_ellispoid_pnt_mat;
+    
     // Flow Condition Parameters
     private array<double> m_alpha_vec(2);
     private array<double> m_beta_vec(2);
