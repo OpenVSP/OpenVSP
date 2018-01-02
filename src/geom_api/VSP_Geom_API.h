@@ -213,6 +213,7 @@ extern std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double al
 extern std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau );
 extern std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, std::vector<vec3d> xyz_data );
 extern std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d center, const vec3d abc_rad, int u_npts = 20, int w_npts = 20 );
+extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
 extern std::vector<vec3d> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf );
 extern double IntegrateEllipsoidFlow( const vec3d abc_rad, const int abc_index );
 extern std::vector<vec3d> GetAirfoilUpperPnts( const std::string& xsec_id );

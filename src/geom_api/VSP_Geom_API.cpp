@@ -3129,6 +3129,53 @@ std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d center, const vec3d abc_rad
     return surf_pnt_vec;
 }
 
+std::vector<vec3d> GetFeatureLinePnts( const string& geom_id )
+{
+    vector < vec3d > pnt_vec;
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeatureLinePnts::Can't Find Geom " + geom_id );
+        return pnt_vec;
+    }
+
+    vector<VspSurf> surf_vec;
+    geom_ptr->GetSurfVec( surf_vec );
+
+    double tol = 1e-2;
+
+    for ( size_t i = 0; i < surf_vec.size(); i++ )
+    {
+        // U feature lines
+        for ( int j = 0; j < surf_vec[0].GetNumUFeature(); j++ )
+        {
+            vector < vec3d > ptline;
+            surf_vec[i].TessUFeatureLine( j, ptline, tol );
+
+            for ( size_t k = 0; k < ptline.size(); k++ )
+            {
+                pnt_vec.push_back( ptline[k] );
+            }
+        }
+
+        // V feature lines
+        for ( int j = 0; j < surf_vec[0].GetNumWFeature(); j++ )
+        {
+            vector < vec3d > ptline;
+            surf_vec[i].TessWFeatureLine( j, ptline, tol );
+
+            for ( size_t k = 0; k < ptline.size(); k++ )
+            {
+                pnt_vec.push_back( ptline[k] );
+            }
+        }
+    }
+
+    return pnt_vec;
+}
+
 std::vector <vec3d> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf )
 {
     // Generate Analytical Solution for Potential Flow at input ellipsoid surface points for input velocity vector (V).
