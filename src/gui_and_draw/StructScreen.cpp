@@ -846,9 +846,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_DisplayTabLayout.AddButton( m_DrawIsect, "Show Intersection Curves");
     m_DisplayTabLayout.AddButton( m_DrawBorder, "Show Border Curves");
     m_DisplayTabLayout.ForceNewLine();
+    m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowCurve, "Show Curves");
     m_DisplayTabLayout.AddButton( m_ShowPts, "Show Points");
     m_DisplayTabLayout.ForceNewLine();
+    m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
     m_DisplayTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
     m_DisplayTabLayout.ForceNewLine();
