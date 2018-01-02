@@ -99,6 +99,7 @@ public:
     double Min( double x, double y )                { return  (x < y ) ? x : y; }
     double Max( double x, double y )                { return  (x > y ) ? x : y; }
     string GetVSPVersion()                          { return VSPVERSION4; }
+    string GetVSPExePath();
 
 private:
 

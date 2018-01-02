@@ -4028,7 +4028,7 @@ class VKTVV : VV_Base
         array<array<array<double>>> x_slicer_mat_tess(num_CTess), z_slicer_mat_tess(num_CTess), cp_slicer_mat_tess(num_CTess); // index 0: CTess, index 1: STess
         
         // Load XFoil's Cp Distribution for VKT with epsilon = 0.1, kappa = 0.1, && tau = 10°
-        string xfoil_file_name = string("C:\\OpenVSP\\Repo\\examples\\airfoil\\XFoil_VKT_CpDist.txt");
+        string xfoil_file_name = GetVSPExePath() + string("\\airfoil\\XFoil_VKT_CpDist.txt");
         array<vec3d> Xfoil_CpDist = ReadCpDistFile( xfoil_file_name );
         
         for ( uint8 e = 0; e < num_epsilon; e++ )

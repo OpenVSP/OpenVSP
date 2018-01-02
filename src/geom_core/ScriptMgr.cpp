@@ -2342,6 +2342,8 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string GetVSPVersion( )", asMETHOD( ScriptMgrSingleton, GetVSPVersion ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "string GetVSPExePath()", asMETHOD( ScriptMgrSingleton, GetVSPExePath ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
 
 
     //====  Register Proxy Utility Functions ====//
@@ -3108,4 +3110,14 @@ void ScriptMgrSingleton::Print( int data, bool new_line )
 {
     printf( " %d ", data );
     if ( new_line ) printf( "\n" );
+}
+
+string ScriptMgrSingleton::GetVSPExePath()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh );
+    {
+        return veh->GetExePath();
+    }
+    return string();
 }
