@@ -64,12 +64,12 @@ void SurfPatch::split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, 
     int m = m_Patch.degree_v();
     surface_patch_type pvlow( n, m );
     surface_patch_type pvhi( n, m );
-    m_Patch.simple_split_v( pvlow, pvhi, 0.5 );
+    m_Patch.simple_split_v_half( pvlow, pvhi );
 
     surface_patch_type pulow, puhi;
-    pvlow.simple_split_u( *(bp00.getPatch()), *(bp10.getPatch()), 0.5 );
+    pvlow.simple_split_u_half( *(bp00.getPatch()), *(bp10.getPatch()) );
 
-    pvhi.simple_split_u( *(bp01.getPatch()), *(bp11.getPatch()), 0.5 );
+    pvhi.simple_split_u_half( *(bp01.getPatch()), *(bp11.getPatch()) );
 
     bp00.u_min = u_min;
     bp00.w_min = w_min;
