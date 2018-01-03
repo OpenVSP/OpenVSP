@@ -2512,15 +2512,13 @@ xmlNodePtr Geom::DecodeXml( xmlNodePtr & node )
 
                     if ( feastruct )
                     {
-                        string name = XmlUtil::FindString( structnode, "StructureName", string() );
-                        feastruct->SetName( name );
                         feastruct->DecodeXml( structnode );
 
                         xmlNodePtr setting_node = XmlUtil::GetNode( structnode, "StructSettings", 0 );
                         if ( setting_node )
                         {
                             feastruct->GetStructSettingsPtr()->DecodeXml( structnode );
-                            feastruct->GetStructSettingsPtr()->ResetExportFileNames( name );
+                            feastruct->GetStructSettingsPtr()->ResetExportFileNames( feastruct->GetName() );
                         }
 
                         xmlNodePtr dense_node = XmlUtil::GetNode( structnode, "FEAGridDensity", 0 );
