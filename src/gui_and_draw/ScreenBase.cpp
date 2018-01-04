@@ -526,6 +526,8 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
     m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_FOURVERTPOLY) );
+    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_POLYGON) );
+
 // Only add control surface in WingScreen.
 //    m_SubSurfChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL) );
 
@@ -688,7 +690,72 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_Radius_01, "Radius 01", 0.5, "%5.4f" );
     m_SSFOURVERTPOLYGroup.AddSlider( m_SSFrthPly_Radius_02, "Radius 02", 0.5, "%5.4f" );
 
+    //==== SS_POLYGON ====//
+    m_SSPOLYGONGroup.SetGroupAndScreen( AddSubGroup( subsurf_tab, 5 ), this );
+    m_SSPOLYGONGroup.SetY( start_y );
+    remain_x = m_SSPOLYGONGroup.GetRemainX();
 
+    m_SSPOLYGONGroup.SetFitWidthFlag( false );
+    m_SSPOLYGONGroup.SetSameLineFlag( true );
+    m_SSPOLYGONGroup.AddLabel( "Tag", remain_x / 3 );
+    m_SSPOLYGONGroup.SetButtonWidth( remain_x / 3 );
+
+    m_SSPOLYGONGroup.AddButton( m_SSPolyInside, "Inside" );
+    m_SSPOLYGONGroup.AddButton( m_SSPolyOutside, "Outside" );
+
+    m_SSPOLYGONTestToggleGroup.Init( this );
+    m_SSPOLYGONTestToggleGroup.AddButton( m_SSPolyInside.GetFlButton() );
+    m_SSPOLYGONTestToggleGroup.AddButton( m_SSPolyOutside.GetFlButton() );
+
+    m_SSPOLYGONGroup.SetFitWidthFlag( true );
+    m_SSPOLYGONGroup.SetSameLineFlag( false );
+    m_SSPOLYGONGroup.ForceNewLine();
+
+    m_SSPOLYGONGroup.AddSlider( m_SSPoly_CenterU, "Center U", 1, "%5.4f" );
+    m_SSPOLYGONGroup.AddSlider( m_SSPoly_CenterW, "Center W", 1, "%5.4f" );
+    m_SSPOLYGONGroup.AddSlider( m_SSPoly_ScaleU,  "Scale U", 10, "%6.3f" );
+    m_SSPOLYGONGroup.AddSlider( m_SSPoly_ScaleW,  "Scale W", 10, "%6.3f" );
+    m_SSPOLYGONGroup.AddSlider( m_SSPoly_TessNum, "Num", 100, "%4.0f" );
+
+    m_SSPOLYGONGroup.AddYGap();
+
+//--Configure vertex selector indexer-------------------------------------------
+    m_SSPOLYGONGroup.SetButtonWidth( ( m_SSPOLYGONGroup.GetRemainX() - 5 ) / 5 );
+    m_SSPolyVertexIndexSelector.SetIndex( 1 ); //.............................. Set index
+    m_SSPolyVertexIndexSelector.SetMinMaxLimits( 1, 4 ); //.................... Set index range
+    m_SSPOLYGONGroup.AddIndexSelector(m_SSPolyVertexIndexSelector);
+
+    m_SSPOLYGONGroup.SetFitWidthFlag( true );
+    m_SSPOLYGONGroup.SetSameLineFlag( false );
+
+
+//-- Place Insert and Delete button --------------------------------------------
+    m_SSPOLYGONGroup.SetFitWidthFlag( false );
+    m_SSPOLYGONGroup.SetSameLineFlag( true );
+    m_SSPOLYGONGroup.SetButtonWidth(  m_XFormLayout.GetRemainX() / 2 );
+    m_SSPOLYGONGroup.AddButton( m_SSPolyInsertBt, "Insert" );
+    m_SSPOLYGONGroup.AddButton( m_SSPolyDeleteBt, "Delete" );
+    m_SSPOLYGONGroup.SetFitWidthFlag( true );
+    m_SSPOLYGONGroup.SetSameLineFlag( false );
+    m_SSPOLYGONGroup.ForceNewLine();
+
+//------------------------------------------------------------------------------
+    m_SSPOLYGONGroup.SetButtonWidth(  m_XFormLayout.GetRemainX() / 3 );
+    m_SSPOLYGONGroup.AddSlider( m_SSPoly_dU, "Δ U", 1, "%5.4f" );
+    m_SSPOLYGONGroup.AddSlider( m_SSPoly_dW, "Δ W", 1, "%5.4f" );
+    m_SSPOLYGONGroup.AddYGap();
+
+//--Configure edge selector indexer---------------------------------------------
+    m_SSPOLYGONGroup.SetButtonWidth( ( m_SSPOLYGONGroup.GetRemainX() - 5 ) / 5 );
+    m_SSPolyEdgeIndexSelector.SetIndex( 1 ); //.............................. Set index
+    m_SSPolyEdgeIndexSelector.SetMinMaxLimits( 1, 4 ); //.................... Set index range
+    m_SSPOLYGONGroup.AddIndexSelector(m_SSPolyEdgeIndexSelector);
+    m_SSPOLYGONGroup.SetFitWidthFlag( true );
+//------------------------------------------------------------------------------
+    m_SSPOLYGONGroup.SetButtonWidth(  m_XFormLayout.GetRemainX() / 3 );
+    m_SSPOLYGONGroup.AddSlider( m_SSPoly_NormDev, "Deflection", 1, "%5.4f" );
+    m_SSPOLYGONGroup.AddSlider( m_SSPoly_NormDevPos, "Position", 0.5, "%5.4f" );
+    m_SSPOLYGONGroup.AddSlider( m_SSPoly_NormDevRot, "Rotation", 90.0, "%5.4f" );
 
     //===== SSControl ====//
     m_SSConGroup.SetGroupAndScreen(AddSubGroup(subsurf_tab, 5), this);
@@ -1031,7 +1098,49 @@ bool GeomScreen::Update()
 
             SubSurfDispGroup( &m_SSFOURVERTPOLYGroup );
         }
+        else if ( subsurf->GetType() == vsp::SS_POLYGON )
+        {
+            SSPolygon* sspoly = dynamic_cast< SSPolygon* >( subsurf );
+            assert( sspoly );
 
+            m_SSPOLYGONTestToggleGroup.Update( sspoly->m_TestType.GetID() );
+
+        //--Center point--------------------------------------------------------
+            m_SSPoly_CenterU.Update( sspoly->m_CenterU.GetID() );
+            m_SSPoly_CenterW.Update( sspoly->m_CenterW.GetID() );
+
+        //--Scale---------------------------------------------------------------
+            m_SSPoly_ScaleU.Update( sspoly->m_ScaleU.GetID() );
+            m_SSPoly_ScaleW.Update( sspoly->m_ScaleW.GetID() );
+
+        //--Num of tessellated points on every edge-----------------------------
+            m_SSPoly_TessNum.Update( sspoly->m_TessPtsEdge.GetID() );
+
+        //--Modify vertex dU and dW---------------------------------------------
+            Parm *Vrtx_dU, *Vrtx_dW;
+            int VrtxID = m_SSPolyVertexIndexSelector.GetIndex();
+
+            Vrtx_dU = sspoly->Get_VrtUParam( VrtxID-1 );
+            Vrtx_dW = sspoly->Get_VrtWParam( VrtxID-1 );
+
+            m_SSPoly_dU.Update( Vrtx_dU->GetID() );
+            m_SSPoly_dW.Update( Vrtx_dW->GetID() );
+
+        //--Modify edge---------------------------------------------------------
+            Parm *m_dev, *m_devPos, *m_devRot;
+            int EdgID = m_SSPolyEdgeIndexSelector.GetIndex();
+
+            m_dev    = sspoly->Get_NormDev( EdgID-1 );
+            m_devPos = sspoly->Get_NormDevPos( EdgID-1 );
+            m_devRot = sspoly->Get_NormDevRot( EdgID-1 );
+
+            m_SSPoly_NormDev.Update( m_dev->GetID() );
+            m_SSPoly_NormDevPos.Update( m_devPos->GetID() );
+            m_SSPoly_NormDevRot.Update( m_devRot->GetID() );
+        //----------------------------------------------------------------------
+
+            SubSurfDispGroup( &m_SSPOLYGONGroup );
+        }
         else if ( subsurf->GetType() == vsp::SS_ELLIPSE )
         {
             SSEllipse* ssell = dynamic_cast< SSEllipse* >( subsurf );
@@ -1253,6 +1362,10 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             ssurf = geom_ptr->AddSubSurf(vsp::SS_FOURVERTPOLY, m_SSCurrMainSurfIndx);
         }
+        else if (m_SubSurfChoice.GetVal() == vsp::SS_POLYGON)
+        {
+            ssurf = geom_ptr->AddSubSurf(vsp::SS_POLYGON, m_SSCurrMainSurfIndx);
+        }
         else if (m_SubSurfChoice.GetVal() == vsp::SS_CONTROL)
         {
             ssurf = geom_ptr->AddSubSurf(vsp::SS_CONTROL, m_SSCurrMainSurfIndx);
@@ -1282,6 +1395,53 @@ void GeomScreen::GuiDeviceCallBack( GuiDevice* device )
         m_SSCurrMainSurfIndx = m_SubSurfSelectSurface.GetVal();
     }
 
+    else if ( device == &m_SSPolyInsertBt ) //................................. Insert a new index in polygon
+    {
+        assert( m_ScreenMgr );
+        Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+        if ( !geom_ptr ) { Hide(); }
+
+        SubSurface* subsurf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+        if ( subsurf )
+        {
+            if ( subsurf->GetType() == vsp::SS_POLYGON ){
+                SSPolygon* sspoly = dynamic_cast< SSPolygon* >( subsurf );
+                assert( sspoly );
+
+                int vrtIdx = m_SSPolyVertexIndexSelector.GetIndex();
+                sspoly->InsertAfter( vrtIdx-1 );
+
+                m_SSPolyVertexIndexSelector.SetMinMaxLimits(1, sspoly->Num() );
+                m_SSPolyEdgeIndexSelector.SetMinMaxLimits(1, sspoly->Num() );
+
+                sspoly->Update();
+            }
+        }
+    }
+    else if ( device == &m_SSPolyDeleteBt ) //................................. Delete vertex from polygon
+    {
+        assert( m_ScreenMgr );
+        Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+        if ( !geom_ptr ) { Hide(); }
+
+        SubSurface* subsurf = geom_ptr->GetSubSurf( SubSurfaceMgr.GetCurrSurfInd() );
+        if ( subsurf )
+        {
+            if ( subsurf->GetType() == vsp::SS_POLYGON ){
+                SSPolygon* sspoly = dynamic_cast< SSPolygon* >( subsurf );
+                assert( sspoly );
+
+                int vrtIdx = m_SSPolyVertexIndexSelector.GetIndex();
+                sspoly->RemoveVrtx( vrtIdx-1 );
+
+                m_SSPolyVertexIndexSelector.SetMinMaxLimits(1, sspoly->Num() );
+                m_SSPolyEdgeIndexSelector.SetMinMaxLimits(1, sspoly->Num() );
+
+                sspoly->Update();
+            }
+        }
+    }
+
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
@@ -1298,6 +1458,7 @@ void GeomScreen::SubSurfDispGroup( GroupLayout* group )
     m_SSEllGroup.Hide();
     m_SSConGroup.Hide();
     m_SSFOURVERTPOLYGroup.Hide();
+    m_SSPOLYGONGroup.Hide();
 
     m_CurSubDispGroup = group;
 

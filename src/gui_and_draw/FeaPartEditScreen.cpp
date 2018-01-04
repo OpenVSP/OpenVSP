@@ -929,6 +929,100 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_FeaSSEllGroup.AddChoice( m_FeaSSEllPropertyChoice, "Property" );
     m_FeaSSEllGroup.AddChoice( m_FeaSSEllCapPropertyChoice, "Cap Property" );
 
+    //==== SS_POLYGON ====//
+    m_GenLayout.AddSubGroupLayout( m_SSFeaPOLYGONGroup, m_GenLayout.GetRemainX(), m_GenLayout.GetRemainY() );
+    m_SSFeaPOLYGONGroup.SetY( start_y );
+    m_SSFeaPOLYGONGroup.AddDividerBox( "Polygon Sub-Surface" );
+
+    int remain_x = m_SSFeaPOLYGONGroup.GetRemainX();
+    m_SSFeaPOLYGONGroup.SetFitWidthFlag( false );
+    m_SSFeaPOLYGONGroup.SetSameLineFlag( true );
+    m_SSFeaPOLYGONGroup.AddLabel( "Tag", remain_x / 3 );
+    m_SSFeaPOLYGONGroup.SetButtonWidth( remain_x / 3 );
+
+    m_SSFeaPOLYGONGroup.AddButton( m_SSFeaPolyInside, "Inside" );
+    m_SSFeaPOLYGONGroup.AddButton( m_SSFeaPolyOutside, "Outside" );
+
+    m_SSFeaPolyTestToggleGroup.Init( this );
+    m_SSFeaPolyTestToggleGroup.AddButton( m_SSFeaPolyInside.GetFlButton() );
+    m_SSFeaPolyTestToggleGroup.AddButton( m_SSFeaPolyOutside.GetFlButton() );
+
+    m_SSFeaPOLYGONGroup.SetFitWidthFlag( true );
+    m_SSFeaPOLYGONGroup.SetSameLineFlag( false );
+    m_SSFeaPOLYGONGroup.ForceNewLine();
+
+    m_SSFeaPOLYGONGroup.AddSlider( m_SSFeaPoly_CenterU, "Center U", 1, "%5.4f" );
+    m_SSFeaPOLYGONGroup.AddSlider( m_SSFeaPoly_CenterW, "Center W", 1, "%5.4f" );
+    m_SSFeaPOLYGONGroup.AddSlider( m_SSFeaPoly_ScaleU,  "Scale U", 10, "%6.3f" );
+    m_SSFeaPOLYGONGroup.AddSlider( m_SSFeaPoly_ScaleW,  "Scale W", 10, "%6.3f" );
+    m_SSFeaPOLYGONGroup.AddSlider( m_SSFeaPoly_TessNum, "Num", 100, "%4.0f" );
+
+    m_SSFeaPOLYGONGroup.AddYGap();
+
+//--Configure vertex selector indexer-------------------------------------------
+    m_SSFeaPOLYGONGroup.SetButtonWidth( ( m_SSFeaPOLYGONGroup.GetRemainX() - 5 ) / 5 );
+    m_SSFeaPolyVertexIndexSelector.SetIndex( 1 ); //.............................. Set index
+    m_SSFeaPolyVertexIndexSelector.SetMinMaxLimits( 1, 4 ); //.................... Set index range
+    m_SSFeaPOLYGONGroup.AddIndexSelector(m_SSFeaPolyVertexIndexSelector);
+
+    m_SSFeaPOLYGONGroup.SetFitWidthFlag( true );
+    m_SSFeaPOLYGONGroup.SetSameLineFlag( false );
+
+//-- Place Insert and Delete button --------------------------------------------
+    m_SSFeaPOLYGONGroup.SetFitWidthFlag( false );
+    m_SSFeaPOLYGONGroup.SetSameLineFlag( true );
+    m_SSFeaPOLYGONGroup.SetButtonWidth(  m_SSFeaPOLYGONGroup.GetRemainX() / 2 );
+    m_SSFeaPOLYGONGroup.AddButton( m_SSFeaPolyInsertBt, "Insert" );
+    m_SSFeaPOLYGONGroup.AddButton( m_SSFeaPolyDeleteBt, "Delete" );
+    m_SSFeaPOLYGONGroup.SetFitWidthFlag( true );
+    m_SSFeaPOLYGONGroup.SetSameLineFlag( false );
+    m_SSFeaPOLYGONGroup.ForceNewLine();
+
+//------------------------------------------------------------------------------
+    m_SSFeaPOLYGONGroup.SetButtonWidth(  m_SSFeaPOLYGONGroup.GetRemainX() / 3 );
+    m_SSFeaPOLYGONGroup.AddSlider( m_SSFeaPoly_dU, "Δ U", 1, "%5.4f" );
+    m_SSFeaPOLYGONGroup.AddSlider( m_SSFeaPoly_dW, "Δ W", 1, "%5.4f" );
+    m_SSFeaPOLYGONGroup.AddYGap();
+
+//--Configure edge selector indexer---------------------------------------------
+    m_SSFeaPOLYGONGroup.SetButtonWidth( ( m_SSFeaPOLYGONGroup.GetRemainX() - 5 ) / 5 );
+    m_SSFeaPolyEdgeIndexSelector.SetIndex( 1 ); //.............................. Set index
+    m_SSFeaPolyEdgeIndexSelector.SetMinMaxLimits( 1, 4 ); //.................... Set index range
+    m_SSFeaPOLYGONGroup.AddIndexSelector(m_SSFeaPolyEdgeIndexSelector);
+    m_SSFeaPOLYGONGroup.SetFitWidthFlag( true );
+//------------------------------------------------------------------------------
+
+    m_SSFeaPOLYGONGroup.SetButtonWidth(  m_SSFeaPOLYGONGroup.GetRemainX() / 3 );
+    m_SSFeaPOLYGONGroup.AddSlider( m_SSFeaPoly_NormDev, "Deflection", 1, "%5.4f" );
+    m_SSFeaPOLYGONGroup.AddSlider( m_SSFeaPoly_NormDevPos, "Position", 0.5, "%5.4f" );
+    m_SSFeaPOLYGONGroup.AddSlider( m_SSFeaPoly_NormDevRot, "Rotation", 90.0, "%5.4f" );
+
+//--Element settings------------------------------------------------------------
+    m_SSFeaPOLYGONGroup.AddYGap();
+
+    m_SSFeaPOLYGONGroup.AddDividerBox( "Elements" );
+
+    m_SSFeaPOLYGONGroup.SetSameLineFlag( true );
+    m_SSFeaPOLYGONGroup.SetFitWidthFlag( false );
+
+    m_SSFeaPOLYGONGroup.SetButtonWidth( m_SSFeaPOLYGONGroup.GetRemainX() / 3 );
+    m_SSFeaPOLYGONGroup.AddButton( m_SSFeaPolyShellToggle, "Shell" );
+    m_SSFeaPOLYGONGroup.AddButton( m_SSFeaPolyCapToggle, "Cap (No Tris)" );
+    m_SSFeaPOLYGONGroup.AddButton( m_SSFeaPolyShellCapToggle, "Shell and Cap" );
+
+    m_SSFeaPolyShellCapToggleGroup.Init( this );
+    m_SSFeaPolyShellCapToggleGroup.AddButton( m_SSFeaPolyShellToggle.GetFlButton() );
+    m_SSFeaPolyShellCapToggleGroup.AddButton( m_SSFeaPolyCapToggle.GetFlButton() );
+    m_SSFeaPolyShellCapToggleGroup.AddButton( m_SSFeaPolyShellCapToggle.GetFlButton() );
+
+    m_SSFeaPOLYGONGroup.SetSameLineFlag( false );
+    m_SSFeaPOLYGONGroup.SetFitWidthFlag( true );
+    m_SSFeaPOLYGONGroup.ForceNewLine();
+
+    m_SSFeaPOLYGONGroup.AddChoice( m_SSFeaPolyPropertyChoice, "Property" );
+    m_SSFeaPOLYGONGroup.AddChoice( m_SSFeaPolyCapPropertyChoice, "Cap Property" );
+
+
     //===== SSControl ====//
     m_GenLayout.AddSubGroupLayout( m_FeaSSConGroup, m_GenLayout.GetRemainX(), m_GenLayout.GetRemainY() );
     m_FeaSSConGroup.SetY( start_y );
@@ -1703,6 +1797,79 @@ bool FeaPartEditScreen::Update()
 
                         FeaPartDispGroup( &m_FeaSSEllGroup );
                     }
+
+                    else if ( subsurf->GetType() == vsp::SS_POLYGON )
+                    {
+                        SSPolygon* sspoly = dynamic_cast< SSPolygon* >( subsurf );
+                        assert( sspoly );
+
+                        m_SSFeaPolyTestToggleGroup.Update( sspoly->m_TestType.GetID() );
+
+                    //--Center point--------------------------------------------
+                        m_SSFeaPoly_CenterU.Update( sspoly->m_CenterU.GetID() );
+                        m_SSFeaPoly_CenterW.Update( sspoly->m_CenterW.GetID() );
+
+                    //--Scale---------------------------------------------------
+                        m_SSFeaPoly_ScaleU.Update( sspoly->m_ScaleU.GetID() );
+                        m_SSFeaPoly_ScaleW.Update( sspoly->m_ScaleW.GetID() );
+
+                    //--Num of tessellated points on every edge-----------------
+                        m_SSFeaPoly_TessNum.Update( sspoly->m_TessPtsEdge.GetID() );
+
+                    //--Modify vertex dU and dW---------------------------------
+                        Parm *Vrtx_dU, *Vrtx_dW;
+                        int VrtxID = m_SSFeaPolyVertexIndexSelector.GetIndex();
+
+                        Vrtx_dU = sspoly->Get_VrtUParam( VrtxID-1 );
+                        Vrtx_dW = sspoly->Get_VrtWParam( VrtxID-1 );
+
+                        m_SSFeaPoly_dU.Update( Vrtx_dU->GetID() );
+                        m_SSFeaPoly_dW.Update( Vrtx_dW->GetID() );
+
+                    //--Modify edge---------------------------------------------
+                        Parm *m_dev, *m_devPos, *m_devRot;
+                        int EdgID = m_SSFeaPolyEdgeIndexSelector.GetIndex();
+
+                        m_dev    = sspoly->Get_NormDev( EdgID-1 );
+                        m_devPos = sspoly->Get_NormDevPos( EdgID-1 );
+                        m_devRot = sspoly->Get_NormDevRot( EdgID-1 );
+
+                        m_SSFeaPoly_NormDev.Update( m_dev->GetID() );
+                        m_SSFeaPoly_NormDevPos.Update( m_devPos->GetID() );
+                        m_SSFeaPoly_NormDevRot.Update( m_devRot->GetID() );
+
+                    //--Elements------------------------------------------------
+                        m_SSFeaPolyShellCapToggleGroup.Update( sspoly->m_IncludedElements.GetID() );
+
+                        if ( sspoly->m_IncludedElements() == vsp::FEA_BEAM )
+                        {
+                            m_SSFeaPolyCapPropertyChoice.Activate();
+                            m_SSFeaPolyPropertyChoice.Deactivate();
+                            m_SSFeaPolyTestToggleGroup.Deactivate();
+                            sspoly->m_TestType.Set( vsp::INSIDE ); // Inside tris must be set to be removed. Skin tris are saved/removed using FeaSkin parms
+                        }
+                        else if ( sspoly->m_IncludedElements() == vsp::FEA_SHELL )
+                        {
+                            m_SSFeaPolyCapPropertyChoice.Deactivate();
+                            m_SSFeaPolyPropertyChoice.Activate();
+                            m_SSFeaPolyTestToggleGroup.Activate();
+                        }
+                        else if ( sspoly->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
+                        {
+                            m_SSFeaPolyCapPropertyChoice.Activate();
+                            m_SSFeaPolyPropertyChoice.Activate();
+                            m_SSFeaPolyTestToggleGroup.Activate();
+                        }
+
+                        if ( sspoly->m_TestType() == vsp::NONE )
+                        {
+                            m_SSFeaPolyPropertyChoice.Deactivate();
+                        }
+
+                    //----------------------------------------------------------
+                        FeaPartDispGroup( &m_SSFeaPOLYGONGroup );
+                    }
+
                     else if ( subsurf->GetType() == vsp::SS_CONTROL )
                     {
                         SSControlSurf* sscon = dynamic_cast<SSControlSurf*>( subsurf );
@@ -1892,7 +2059,7 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_SkinPropertyChoice || device == &m_SlicePropertyChoice || device == &m_RibPropertyChoice || device == &m_SparPropertyChoice
               || device == &m_DomePropertyChoice || device == &m_RibArrayPropertyChoice || device == &m_FeaSSLinePropertyChoice || device == &m_FeaSSRecPropertyChoice
-              || device == &m_FeaSSEllPropertyChoice || device == &m_FeaSSConPropertyChoice || device == &m_SliceArrayPropertyChoice )
+              || device == &m_FeaSSEllPropertyChoice || device == &m_FeaSSConPropertyChoice || device == &m_SliceArrayPropertyChoice || device == &m_SSFeaPolyPropertyChoice )
     {
         Choice* selected_choice = dynamic_cast<Choice*>( device );
         assert( selected_choice );
@@ -1901,7 +2068,8 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_SliceCapPropertyChoice || device == &m_RibCapPropertyChoice || device == &m_SparCapPropertyChoice || device == &m_DomeCapPropertyChoice
               || device == &m_RibArrayCapPropertyChoice || device == &m_SliceArrayCapPropertyChoice || device == &m_FeaSSLineCapPropertyChoice
-              || device == &m_FeaSSRecCapPropertyChoice || device == &m_FeaSSEllCapPropertyChoice || device == &m_FeaSSConCapPropertyChoice || device == &m_FeaSSLineArrayCapPropertyChoice )
+              || device == &m_FeaSSRecCapPropertyChoice || device == &m_FeaSSEllCapPropertyChoice || device == &m_FeaSSConCapPropertyChoice || device == &m_FeaSSLineArrayCapPropertyChoice
+              || device == &m_SSFeaPolyCapPropertyChoice )
     {
         Choice* selected_choice = dynamic_cast<Choice*>( device );
         assert( selected_choice );
@@ -2039,6 +2207,44 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
+    else if ( device == &m_SSFeaPolyInsertBt )
+    {
+        vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+        SubSurface* subsurf = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaSubSurf( StructureMgr.GetCurrPartIndex() - structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
+
+        if ( subsurf && subsurf->GetType() == vsp::SS_POLYGON )
+        {
+            SSPolygon* sspoly = dynamic_cast< SSPolygon* >( subsurf );
+            assert( sspoly );
+
+            int vrtIdx = m_SSFeaPolyVertexIndexSelector.GetIndex();
+            sspoly->InsertAfter( vrtIdx-1 );
+
+            m_SSFeaPolyVertexIndexSelector.SetMinMaxLimits(1, sspoly->Num() );
+            m_SSFeaPolyEdgeIndexSelector.SetMinMaxLimits(1, sspoly->Num() );
+
+            sspoly->Update();
+        }
+    }
+    else if ( device == &m_SSFeaPolyDeleteBt )
+    {
+        vector< FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+        SubSurface* subsurf = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaSubSurf( StructureMgr.GetCurrPartIndex() - structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() );
+
+        if ( subsurf && subsurf->GetType() == vsp::SS_POLYGON )
+        {
+            SSPolygon* sspoly = dynamic_cast< SSPolygon* >( subsurf );
+            assert( sspoly );
+
+            int vrtIdx = m_SSFeaPolyVertexIndexSelector.GetIndex();
+            sspoly->RemoveVrtx( vrtIdx-1 );
+
+            m_SSFeaPolyVertexIndexSelector.SetMinMaxLimits(1, sspoly->Num() );
+            m_SSFeaPolyEdgeIndexSelector.SetMinMaxLimits(1, sspoly->Num() );
+
+            sspoly->Update();
+        }
+    }
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -2062,6 +2268,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
     m_SliceArrayPropertyChoice.ClearItems();
     m_FeaSSLinePropertyChoice.ClearItems();
     m_FeaSSRecPropertyChoice.ClearItems();
+    m_SSFeaPolyPropertyChoice.ClearItems();
     m_FeaSSEllPropertyChoice.ClearItems();
     m_FeaSSConPropertyChoice.ClearItems();
 
@@ -2075,6 +2282,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
     m_FeaSSLineCapPropertyChoice.ClearItems();
     m_FeaSSRecCapPropertyChoice.ClearItems();
     m_FeaSSEllCapPropertyChoice.ClearItems();
+    m_SSFeaPolyCapPropertyChoice.ClearItems();
     m_FeaSSConCapPropertyChoice.ClearItems();
     m_FeaSSLineArrayCapPropertyChoice.ClearItems();
 
@@ -2096,6 +2304,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
             m_FeaSSLinePropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSRecPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSEllPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_SSFeaPolyPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSConPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
             m_SparCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
@@ -2108,6 +2317,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
             m_FeaSSLineCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSRecCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSEllCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
+            m_SSFeaPolyCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSConCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
             m_FeaSSLineArrayCapPropertyChoice.AddItem( string( property_vec[i]->GetName() ) );
 
@@ -2123,6 +2333,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_FeaSSLinePropertyChoice.SetFlag( i, 0 );
                 m_FeaSSRecPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSEllPropertyChoice.SetFlag( i, 0 );
+                m_SSFeaPolyPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSConPropertyChoice.SetFlag( i, 0 );
 
                 m_SparCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
@@ -2135,6 +2346,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_FeaSSLineCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSRecCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSEllCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_SSFeaPolyCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSConCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSLineArrayCapPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
             }
@@ -2150,6 +2362,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_FeaSSLinePropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSRecPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSEllPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
+                m_SSFeaPolyPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
                 m_FeaSSConPropertyChoice.SetFlag( i, FL_MENU_INACTIVE );
 
                 m_SparCapPropertyChoice.SetFlag( i, 0 );
@@ -2162,6 +2375,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                 m_FeaSSLineCapPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSRecCapPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSEllCapPropertyChoice.SetFlag( i, 0 );
+                m_SSFeaPolyCapPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSConCapPropertyChoice.SetFlag( i, 0 );
                 m_FeaSSLineArrayCapPropertyChoice.SetFlag( i, 0 );
             }
@@ -2177,6 +2391,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
         m_FeaSSLinePropertyChoice.UpdateItems();
         m_FeaSSRecPropertyChoice.UpdateItems();
         m_FeaSSEllPropertyChoice.UpdateItems();
+        m_SSFeaPolyPropertyChoice.UpdateItems();
         m_FeaSSConPropertyChoice.UpdateItems();
 
         m_SparCapPropertyChoice.UpdateItems();
@@ -2189,6 +2404,7 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
         m_FeaSSLineCapPropertyChoice.UpdateItems();
         m_FeaSSRecCapPropertyChoice.UpdateItems();
         m_FeaSSEllCapPropertyChoice.UpdateItems();
+        m_SSFeaPolyCapPropertyChoice.UpdateItems();
         m_FeaSSConCapPropertyChoice.UpdateItems();
         m_FeaSSLineArrayCapPropertyChoice.UpdateItems();
 
@@ -2229,11 +2445,13 @@ void FeaPartEditScreen::UpdateFeaPropertyChoice()
                     m_FeaSSLinePropertyChoice.SetVal( subsurf->m_FeaPropertyIndex() );
                     m_FeaSSRecPropertyChoice.SetVal( subsurf->m_FeaPropertyIndex() );
                     m_FeaSSEllPropertyChoice.SetVal( subsurf->m_FeaPropertyIndex() );
+                    m_SSFeaPolyPropertyChoice.SetVal( subsurf->m_FeaPropertyIndex() );
                     m_FeaSSConPropertyChoice.SetVal( subsurf->m_FeaPropertyIndex() );
 
                     m_FeaSSLineCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
                     m_FeaSSRecCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
                     m_FeaSSEllCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
+                    m_SSFeaPolyCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
                     m_FeaSSConCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
                     m_FeaSSLineArrayCapPropertyChoice.SetVal( subsurf->m_CapFeaPropertyIndex() );
                 }
@@ -2414,6 +2632,7 @@ void FeaPartEditScreen::FeaPartDispGroup( GroupLayout* group )
     m_FeaSSEllGroup.Hide();
     m_FeaSSConGroup.Hide();
     m_FeaSSLineArrayGroup.Hide();
+    m_SSFeaPOLYGONGroup.Hide();
 
     m_CurFeaPartDispGroup = group;
 
