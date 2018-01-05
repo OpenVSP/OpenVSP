@@ -219,6 +219,10 @@ std::string SubSurface::GetTypeName( int type )
     {
         return string( "Four vertex polygon" );
     }
+    if ( type == vsp::SS_POLYGON)
+    {
+        return string( "Polygon" );
+    }
 
     return string( "NONE" );
 }
@@ -1022,6 +1026,425 @@ void SSFourVertPoly::Update()
         m_LVec[i].SetSP0( TessPts[pind] );
         pind++;
         m_LVec[i].SetSP1( TessPts[pind] );
+        m_LVec[i].Update( geom );
+    }
+
+//--Update surface--------------------------------------------------------------
+    SubSurface::Update();
+
+}
+
+//////////////////////////////////////////////////////
+//=================== SSPolygon=====================//
+//////////////////////////////////////////////////////
+
+////////////////////////////////////////////////////////////////////////////////
+// Constructor                                                                //
+////////////////////////////////////////////////////////////////////////////////
+SSPolygon::SSPolygon( string comp_id, int type) : SubSurface( comp_id, type )
+{
+// *****************************************************************************
+//                            VERTEX LIST
+// *****************************************************************************
+    vrt_ULst.resize(0);
+    vrt_WLst.resize(0);
+
+//--Set first vertex------------------------------------------------------------
+    Parm *vrtU0 = new Parm();
+    Parm *vrtW0 = new Parm();
+
+    vrtU0->Init( "", "SSPolygon", this, -0.05, -2, 2 );
+    vrtW0->Init( "", "SSPolygon", this, -0.05, -2, 2 );
+
+    vrt_ULst.push_back( vrtU0 );
+    vrt_WLst.push_back( vrtW0 );
+
+//--Set second vertex-----------------------------------------------------------
+    Parm *vrtU1 = new Parm();
+    Parm *vrtW1 = new Parm();
+
+    vrtU1->Init( "", "SSPolygon", this,  0.05, -2, 2 );
+    vrtW1->Init( "", "SSPolygon", this, -0.05, -2, 2 );
+
+    vrt_ULst.push_back( vrtU1 );
+    vrt_WLst.push_back( vrtW1 );
+
+//--Set third vertex------------------------------------------------------------
+    Parm *vrtU2 = new Parm();
+    Parm *vrtW2 = new Parm();
+
+    vrtU2->Init( "", "SSPolygon", this, 0.05, -2, 2 );
+    vrtW2->Init( "", "SSPolygon", this, 0.05, -2, 2 );
+
+    vrt_ULst.push_back( vrtU2 );
+    vrt_WLst.push_back( vrtW2 );
+
+//--Set fourth vertex-----------------------------------------------------------
+    Parm *vrtU3 = new Parm();
+    Parm *vrtW3 = new Parm();
+
+    vrtU3->Init( "", "SSPolygon", this, -0.05, -2, 2 );
+    vrtW3->Init( "", "SSPolygon", this,  0.05, -2, 2 );
+
+    vrt_ULst.push_back( vrtU3 );
+    vrt_WLst.push_back( vrtW3 );
+
+// *****************************************************************************
+//                            EDGE LIST
+// *****************************************************************************
+    edgNrmDeviation.resize(0);
+    edgNrmDeviationPosition.resize(0);
+    edgNrmDeviationRot.resize(0);
+
+    for(int i=0; i<4; i++){
+        Parm *nrmDev_i = new Parm();
+        Parm *nrmDevPos_i = new Parm();
+        Parm *nrmDevRot_i = new Parm();
+
+        nrmDev_i->Init( "", "SSPolygon", this, 0.0, -1, 1 );
+        nrmDevPos_i->Init( "", "SSPolygon", this, 0.5, 0.01, 0.99 );
+        nrmDevRot_i->Init( "", "SSPolygon", this, 0.0, -89.9, 89.9 );
+
+        edgNrmDeviation.push_back( nrmDev_i );
+        edgNrmDeviationPosition.push_back( nrmDevPos_i );
+        edgNrmDeviationRot.push_back( nrmDevRot_i );
+    }
+
+    UpdateDescription();
+    UpdateVarNames();
+
+// *****************************************************************************
+//                            OTHER PARAMETERS
+// *****************************************************************************
+    m_TessPtsEdge.Init ( "TessPts_edge", "SSPolygon", this, 100, 3, 1000);
+    m_TessPtsEdge.SetDescript( "Number of tessellated points on each side" );
+
+    m_TestType.Init( "Test_Type", "SSPolygon", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
+    m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
+
+    m_CenterU.Init( "CenterU", "SSPolygon", this, 0.5, 0.0, 1.0);
+    m_CenterU.SetDescript( " U component of center points" );
+
+    m_CenterW.Init( "CenterW", "SSPolygon", this, 0.5, 0.0, 1.0);
+    m_CenterW.SetDescript( " W component of center points" );
+
+    m_ScaleU.Init( "ScaleU", "SSPolygon", this, 1.0, 0.0, 100.0);
+    m_ScaleU.SetDescript( " Scale factor in U direction" );
+
+    m_ScaleW.Init( "ScaleW", "SSPolygon", this, 1.0, 0.0, 100.0);
+    m_ScaleW.SetDescript( " Scale factor in W direction" );
+
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Destructor                                                                 //
+////////////////////////////////////////////////////////////////////////////////
+SSPolygon::~SSPolygon()
+{
+//--Clear all parameters in the lists-------------------------------------------
+    for( int i=0; i<Num(); i++){
+
+        delete vrt_ULst[i]; //................................................. U component of the vertex i-th vertex
+        delete vrt_WLst[i]; //................................................. W component of the vertex i-th vertex
+
+        delete edgNrmDeviation[i]; //.......................................... Normal deviation of the i-th edge
+        delete edgNrmDeviationPosition[i]; //.................................. Position of the normal deviation of the i-th edge
+        delete edgNrmDeviationRot[i]; //....................................... Rotation of the normal deviation of the i-th edge
+    }
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Insert a new vertex after given index placing it in the middle of the old  //
+// edge                                                                       //
+////////////////////////////////////////////////////////////////////////////////
+bool SSPolygon::InsertAfter(int edg_idx)
+{
+    if(edg_idx < 0 || edg_idx > Num()-1)
+        return false;
+
+//--- New vertex is inserted on the last edge
+    if ( edg_idx == Num()-1 )
+    {
+        Parm *u_last = vrt_ULst[edg_idx];
+        Parm *w_last = vrt_WLst[edg_idx];
+
+        Parm *u_first = vrt_ULst[0];
+        Parm *w_first = vrt_WLst[0];
+
+        vec3d lastPt, firstPt, newPt;
+        lastPt  = vec3d( u_last->Get(), w_last->Get(), 0.0 );
+        firstPt = vec3d( u_first->Get(), w_first->Get(), 0.0 );
+
+        newPt = 0.5 * (lastPt + firstPt);
+
+    //--Create new parameter and append to list-----------------------------
+        Parm *newPt_u = new Parm();
+        Parm *newPt_w = new Parm();
+        newPt_u->Init( "", "SSPolygon", this, newPt.x(), -2, 2 );
+        newPt_w->Init( "", "SSPolygon", this, newPt.y(), -2, 2 );
+
+        vrt_ULst.push_back( newPt_u );
+        vrt_WLst.push_back( newPt_w );
+
+        Parm *newNrmDev    = new Parm();
+        Parm *newNrmDevPos = new Parm();
+        Parm *newNrmDevRot = new Parm();
+
+        newNrmDev->Init( "", "SSPolygon", this, 0.0, -1, 1 );
+        newNrmDevPos->Init( "", "SSPolygon", this, 0.5, 0.01, 0.99 );
+        newNrmDevRot->Init( "", "SSPolygon", this, 0.0, -89.9, 89.9 );
+
+        edgNrmDeviation.push_back( newNrmDev );
+        edgNrmDeviationPosition.push_back( newNrmDevPos );
+        edgNrmDeviationRot.push_back( newNrmDevRot );
+    }
+    else
+    {
+    //-- Get vertex parameters -------------------------------------------------
+        Parm *u_01, *w_01, *u_02, *w_02;
+
+        u_01 = vrt_ULst[edg_idx];
+        w_01 = vrt_WLst[edg_idx];
+        u_02 = vrt_ULst[edg_idx+1];
+        w_02 = vrt_WLst[edg_idx+1];
+
+        vec3d pt01, pt02, newPt; //............................................ Create 3d vector
+        pt01 = vec3d( u_01->Get(), w_01->Get(), 0.0 );
+        pt02 = vec3d( u_02->Get(), w_02->Get(), 0.0 );
+        newPt = 0.5 * (pt01 + pt02); //........................................ Compute new point
+
+    //--Add the new vertex------------------------------------------------------
+        Parm *newPt_u = new Parm();
+        Parm *newPt_w = new Parm();
+
+        newPt_u->Init( "", "SSPolygon", this, newPt.x(), -2, 2 );
+        newPt_w->Init( "", "SSPolygon", this, newPt.y(), -2, 2 );
+
+        vrt_ULst.insert( vrt_ULst.begin()+edg_idx+1, newPt_u );
+        vrt_WLst.insert( vrt_WLst.begin()+edg_idx+1, newPt_w );
+
+    //--Add default edge parameters---------------------------------------------
+        Parm *newNrmDev = new Parm();
+        Parm *newNrmDevPos = new Parm();
+        Parm *newNrmDevRot = new Parm();
+
+        newNrmDev->Init( "", "SSPolygon", this, 0.0, -1, 1 );
+        newNrmDevPos->Init( "", "SSPolygon", this, 0.5, 0.01, 0.99 );
+        newNrmDevRot->Init( "", "SSPolygon", this, 0.0, -89.9, 89.9 );
+
+        edgNrmDeviation.insert(edgNrmDeviation.begin()+edg_idx+1, newNrmDev );
+        edgNrmDeviationPosition.insert(edgNrmDeviationPosition.begin()+edg_idx+1, newNrmDevPos );
+        edgNrmDeviationRot.insert(edgNrmDeviationRot.begin()+edg_idx+1, newNrmDevRot );
+    }
+
+    UpdateDescription();
+    UpdateVarNames();
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Delete vertex at a given index                                             //
+////////////////////////////////////////////////////////////////////////////////
+bool SSPolygon::RemoveVrtx(int vrtx_idx){
+//--Check index-----------------------------------------------------------------
+    if(vrtx_idx < 0 || vrtx_idx > Num()-1)
+        return false;
+//--If there are only three vertice, abort--------------------------------------
+    if( Num() <= 3 )
+        return false;
+
+    int oldNum = Num();
+
+    Parm *vrtU_i = vrt_ULst[ vrtx_idx ];
+    Parm *vrtW_i = vrt_WLst[ vrtx_idx ];
+
+    delete vrtU_i;
+    delete vrtW_i;
+
+    vrt_ULst.erase (vrt_ULst.begin()+vrtx_idx);
+    vrt_WLst.erase (vrt_WLst.begin()+vrtx_idx);
+
+    Parm *devMag_i = edgNrmDeviation[vrtx_idx];
+    Parm *devPos_i = edgNrmDeviationPosition[vrtx_idx];
+    Parm *devRot_i = edgNrmDeviationRot[vrtx_idx];
+
+    delete devMag_i;
+    delete devPos_i;
+    delete devRot_i;
+
+    edgNrmDeviation.erase (edgNrmDeviation.begin()+vrtx_idx);
+    edgNrmDeviationPosition.erase (edgNrmDeviationPosition.begin()+vrtx_idx);
+    edgNrmDeviationRot.erase (edgNrmDeviationRot.begin()+vrtx_idx);
+
+    UpdateDescription();
+    UpdateVarNames();
+
+    if ( Num() != (oldNum-1) )
+        return false;
+
+    return true;
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Update the description of the parameters                                   //
+////////////////////////////////////////////////////////////////////////////////
+void SSPolygon::UpdateDescription(){
+//--Update description in vrt_ULst----------------------------------------------
+    for(int i=0; i<Num(); i++)
+        vrt_ULst[i]->SetDescript( "Defines u component of vertex at index" + to_string(i+1) );
+//--Update description in vrt_WLst----------------------------------------------
+    for(int i=0; i<Num(); i++)
+        vrt_WLst[i]->SetDescript( "Defines u component of vertex at index" + to_string(i+1) );
+//--Update description in edgNrmDeviation---------------------------------------
+    for(int i=0; i<Num(); i++)
+        edgNrmDeviation[i]->SetDescript( "Normal deviation on the " + to_string(i+1) + "-th edge" );
+//--Update description in edgNrmDeviationPosition-------------------------------
+    for(int i=0; i<Num(); i++)
+        edgNrmDeviationPosition[i]->SetDescript( "Position of the deviation on the " + to_string(i+1) + "-th edge" );
+//--Update description in edgNrmDeviationRot-------------------------------
+    for(int i=0; i<Num(); i++)
+        edgNrmDeviationRot[i]->SetDescript( "Rotation of the deviation on the " + to_string(i+1) + "-th edge" );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Update variable names of the parameters                                    //
+////////////////////////////////////////////////////////////////////////////////
+void SSPolygon::UpdateVarNames(){
+//--Update description in vrt_ULst----------------------------------------------
+    for(int i=0; i<Num(); i++)
+        vrt_ULst[i]->SetName( "Vrt_U" + to_string(i+1) );
+//--Update description in vrt_WLst----------------------------------------------
+    for(int i=0; i<Num(); i++)
+        vrt_WLst[i]->SetName( "Vrt_W" + to_string(i+1) );
+//--Update description in edgNrmDeviation---------------------------------------
+    for(int i=0; i<Num(); i++)
+        edgNrmDeviation[i]->SetName( "NrmDev_" + to_string(i+1) );
+//--Update description in edgNrmDeviationPosition-------------------------------
+    for(int i=0; i<Num(); i++)
+        edgNrmDeviationPosition[i]->SetName( "NrmDevPos_" + to_string(i+1) );
+//--Update description in edgNrmDeviationRot-------------------------------
+    for(int i=0; i<Num(); i++)
+        edgNrmDeviationRot[i]->SetName( "NrmDevRot_" + to_string(i+1) );
+}
+
+////////////////////////////////////////////////////////////////////////////////
+// Update the drawing of the line segments                                    //
+////////////////////////////////////////////////////////////////////////////////
+
+void SSPolygon::Update()
+{
+    Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
+    if ( !geom )
+    {
+        return;
+    }
+
+    //--DESCRIPTION-----------------------------------------------------------//
+    //  Every edge is created by using a second degree Bezier segment with    //
+    //  three control points. First and third control point is defining the   //
+    //  start and end of the curve and the middle the user defined bending:   //
+    //                                                                        //
+    //  +        + : Start and end point of the curve                         //
+    //  | n      ◌ : Position of the normal vector                            //
+    //  ◌->                                                                   //
+    //  |                                                                     //
+    //  |                                                                     //
+    //  +                                                                     //
+    //------------------------------------------------------------------------//
+
+    vector< VspCurve > edgeCurves;
+
+    for(int edgIdx=0; edgIdx<Num(); edgIdx++){
+    //--Get start and end point of the curve------------------------------------
+        Parm *start_u, *start_w;
+        Parm *end_u, *end_w;
+
+        start_u = vrt_ULst[edgIdx];
+        start_w = vrt_WLst[edgIdx];
+
+        if (edgIdx == (Num()-1) )
+        {
+            end_u = vrt_ULst[0];
+            end_w = vrt_WLst[0];
+        }
+        else
+        {
+            end_u = vrt_ULst[edgIdx+1];
+            end_w = vrt_WLst[edgIdx+1];
+        }
+
+        vec3d start_pt, end_pt;
+    //--Compute start point of the edge-----------------------------------------
+        start_pt = vec3d(start_u->Get()*m_ScaleU() + m_CenterU(),
+                         start_w->Get()*m_ScaleW() + m_CenterW(), 0.0 );
+    //--Compute end point of the edge-------------------------------------------
+        end_pt   = vec3d(end_u->Get()*m_ScaleU() + m_CenterU(),
+                         end_w->Get()*m_ScaleW() + m_CenterW(), 0.0 );
+
+    //--Estimate normal vector--------------------------------------------------
+        vec3d nrmVec;
+        nrmVec = vec3d( (end_pt-start_pt).y(), -(end_pt-start_pt).x(), 0.0 );
+        nrmVec.normalize(); //................................................. Normalize lenght
+
+    //--Rotate normal vector----------------------------------------------------
+        double rot_ang = edgNrmDeviationRot[edgIdx]->Get() * PI/180.0; //...... Rotation angle in rad
+        nrmVec.rotate_z( cos(rot_ang), sin(rot_ang) ); //...................... Rotate
+
+    //--Estimate position of the normal vector on unbended edge-----------------
+        double nVecPos = edgNrmDeviationPosition[edgIdx]->Get();
+        vec3d posNrmVecOnEdg;
+        posNrmVecOnEdg = start_pt + nVecPos * (end_pt - start_pt);
+
+    //--Estimate middle control point-------------------------------------------
+        double normDevLen = edgNrmDeviation[edgIdx]->Get();
+        vec3d midCPt;
+        midCPt = posNrmVecOnEdg + normDevLen * nrmVec;
+
+    //--Create bezier segment---------------------------------------------------
+        vector< vec3d > crvCPts;
+        crvCPts.push_back( start_pt );
+        crvCPts.push_back( midCPt );
+        crvCPts.push_back( end_pt );
+
+        VspCurve newCrv;
+        newCrv.SetQuadraticControlPoints( crvCPts, false ); //................. Create new curve segment
+        edgeCurves.push_back( newCrv ); //..................................... and append to list
+    }
+
+//--TESSELLATION----------------------------------------------------------------
+    int Num_TSS = m_TessPtsEdge();
+    vector< vec3d > tessPts;
+
+//--Prepare u parameter list----------------------------------------------------
+    vector< double > ucache (Num_TSS);
+    for( int ui=0; ui<Num_TSS; ui++)
+    {
+        ucache[ui] = float(ui)/(Num_TSS-1);
+    }
+
+//--Run over created curves and tesselate---------------------------------------
+    for( int i=0; i<edgeCurves.size(); i++ )
+    {
+        VspCurve crv;
+        vector< vec3d > tessPts_crv (Num_TSS); //.............................. list for tessellated points
+
+        crv = edgeCurves[i]; //................................................ Pick curves
+        crv.Tesselate( ucache, tessPts_crv ); //............................... Tesselate curve
+
+    //--Append list of tessellated curve points to main list--------------------
+        tessPts.insert(tessPts.end(), tessPts_crv.begin(), tessPts_crv.end());
+    }
+
+//--Create line segments--------------------------------------------------------
+    int pind = 0;
+    m_LVec.resize(tessPts.size()-1);
+
+    for ( int i = 0 ; i < tessPts.size()-1; i++ )
+    {
+        m_LVec[i].SetSP0( tessPts[pind] );
+        pind++;
+        m_LVec[i].SetSP1( tessPts[pind] );
         m_LVec[i].Update( geom );
     }
 

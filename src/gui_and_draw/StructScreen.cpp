@@ -1197,22 +1197,24 @@ void StructScreen::UpdateFeaPartChoice()
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_RECTANGLE ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_ELLIPSE ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_FOURVERTPOLY ) );
+                    m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_POLYGON ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_CONTROL ) );
                     m_FeaPartChoice.AddItem( SubSurface::GetTypeName( vsp::SS_LINE_ARRAY ) );
+
 
                     if ( currgeom->GetType().m_Type == MS_WING_GEOM_TYPE )
                     {
                         m_FeaPartChoice.SetFlag( 1, 0 ); // FEA_RIB
                         m_FeaPartChoice.SetFlag( 2, 0 ); // FEA_SPAR
                         m_FeaPartChoice.SetFlag( 5, 0 ); // FEA_RIB_ARRAY
-                        m_FeaPartChoice.SetFlag( 11, 0 ); // SS_CONTROL
+                        m_FeaPartChoice.SetFlag( 12, 0 ); // SS_CONTROL
                     }
                     else
                     {
                         m_FeaPartChoice.SetFlag( 1, FL_MENU_INACTIVE );
                         m_FeaPartChoice.SetFlag( 2, FL_MENU_INACTIVE );
                         m_FeaPartChoice.SetFlag( 5, FL_MENU_INACTIVE );
-                        m_FeaPartChoice.SetFlag( 11, FL_MENU_INACTIVE );
+                        m_FeaPartChoice.SetFlag( 12, FL_MENU_INACTIVE );
                     }
 
                     if ( currgeom->GetType().m_Type == FUSELAGE_GEOM_TYPE || currgeom->GetType().m_Type == POD_GEOM_TYPE || currgeom->GetType().m_Type == STACK_GEOM_TYPE ) //TODO: Improve
@@ -2629,6 +2631,10 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_FOURVERTPOLY )
                 {
                     ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_FOURVERTPOLY );
+                }
+                else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_POLYGON )
+                {
+                    ssurf = structvec[StructureMgr.GetCurrStructIndex()]->AddFeaSubSurf( vsp::SS_POLYGON );
                 }
                 else if ( m_FeaPartChoice.GetVal() - m_NumFeaPartChoices == vsp::SS_ELLIPSE )
                 {

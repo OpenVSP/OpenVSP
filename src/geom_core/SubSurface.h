@@ -208,6 +208,78 @@ protected:
 
 };
 
+class SSPolygon : public SubSurface
+{
+public:
+    SSPolygon( string compID, int type = vsp::SS_POLYGON );
+    virtual ~SSPolygon();
+    virtual void Update();
+
+//--General parameters----------------------------------------------------------
+    Parm m_TestType;  //..................................... Determines whether or not the inside or outside of the region is tagged
+
+    Parm m_CenterU; //....................................... U component of center points
+    Parm m_CenterW; //....................................... W component of center points
+
+    Parm m_ScaleU; //........................................ Scale factor in U direction
+    Parm m_ScaleW; //........................................ Scale factor in W direction
+
+    Parm m_TessPtsEdge; //................................... Amount of tessellation points on each edge
+
+//--Some basic functions--------------------------------------------------------
+    int Num() { return vrt_ULst.size(); } //................. Number of verts and edges
+
+    Parm *Get_VrtUParam( int idx ){ //....................... Get U parameter of a vertex
+        if(idx < 0 || idx > Num()-1)
+            return NULL;
+        return vrt_ULst[idx];
+    }
+
+    Parm *Get_VrtWParam( int idx ){ //....................... Get U parameter of a vertex
+        if(idx < 0 || idx > Num()-1)
+            return NULL;
+        return vrt_WLst[idx];
+    }
+
+    Parm *Get_NormDev( int idx ){ //......................... Get normal deviation of an edge
+        if(idx < 0 || idx > Num()-1)
+            return NULL;
+        return edgNrmDeviation[idx];
+    }
+
+    Parm *Get_NormDevPos( int idx ){ //...................... Get position of the normal deviation of an edge
+        if(idx < 0 || idx > Num()-1)
+            return NULL;
+        return edgNrmDeviationPosition[idx];
+    }
+
+    Parm *Get_NormDevRot( int idx ){ //...................... Get rotation of the normal deviation of an edge
+        if(idx < 0 || idx > Num()-1)
+            return NULL;
+        return edgNrmDeviationRot[idx];
+    }
+
+//--Inseration of vertices------------------------------------------------------
+    bool InsertAfter(int edg_idx); //............................ Insert a new vertex after index
+    bool InsertAtEnd() { return InsertAfter( Num()-1 ); } //..... Insert a new vertex on the last edge
+    bool InsertAtStart() { return InsertAfter( 0 ); } //......... Insert a new vertex on the first edge
+
+//--Remove vertex---------------------------------------------------------------
+    bool RemoveVrtx(int vrtx_idx); //............................ Removes a vertex at the given index
+
+protected:
+    vector< Parm* > vrt_ULst; //................................. U component of vertices
+    vector< Parm* > vrt_WLst; //................................. W component of vertices
+
+    vector< Parm* > edgNrmDeviation; //.......................... Normal deviation of the edge
+    vector< Parm* > edgNrmDeviationPosition; //.................. Position of the normal deviation of the edge
+    vector< Parm* > edgNrmDeviationRot; //....................... Rotation of the normal deviation of the edge
+
+    void UpdateDescription(); //................................. Update the description of the parameters
+    void UpdateVarNames(); //.................................... Update variable names of the parameters
+
+};
+
 class SSFourVertPoly : public SubSurface
 {
 public:

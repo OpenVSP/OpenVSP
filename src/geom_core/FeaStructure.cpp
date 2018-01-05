@@ -352,6 +352,10 @@ SubSurface* FeaStructure::AddFeaSubSurf( int type )
         ssurf = new SSFourVertPoly( m_ParentGeomID );
         ssurf->SetName( string( "SSFourVertPoly" + to_string( m_FeaSubSurfCount ) ) );        
     }
+    else if ( type == vsp::SS_POLYGON ){
+        ssurf = new SSPolygon( m_ParentGeomID );
+        ssurf->SetName( string( "SSPolygon" + to_string( m_FeaSubSurfCount ) ) );
+    }
     else if ( type == vsp::SS_ELLIPSE )
     {
         ssurf = new SSEllipse( m_ParentGeomID );

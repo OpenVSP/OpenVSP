@@ -15,7 +15,7 @@
 
 
 //==== Constructor ====//
-ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Conformal" )
+ConformalScreen::ConformalScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 625, "Conformal" )
 {
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );

@@ -322,6 +322,34 @@ public:
     SliderInput m_SSFrthPly_Radius_01;
     SliderInput m_SSFrthPly_Radius_02;
 
+
+    //==== SS_POLYGON ====//
+    GroupLayout m_SSPOLYGONGroup;
+
+    ToggleButton m_SSPolyInside;
+    ToggleButton m_SSPolyOutside;
+    ToggleRadioGroup m_SSPOLYGONTestToggleGroup;
+
+    SliderInput m_SSPoly_CenterU;
+    SliderInput m_SSPoly_CenterW;
+    SliderInput m_SSPoly_ScaleU;
+    SliderInput m_SSPoly_ScaleW;
+    SliderAdjRangeInput m_SSPoly_TessNum;
+
+    IndexSelector m_SSPolyVertexIndexSelector;
+
+    TriggerButton m_SSPolyInsertBt;
+    TriggerButton m_SSPolyDeleteBt;
+
+    SliderInput m_SSPoly_dU;
+    SliderInput m_SSPoly_dW;
+
+    IndexSelector m_SSPolyEdgeIndexSelector;
+
+    SliderInput m_SSPoly_NormDev;
+    SliderInput m_SSPoly_NormDevPos;
+    SliderInput m_SSPoly_NormDevRot;
+
     // SS_Ellipse
     GroupLayout m_SSEllGroup;
     SliderInput m_SSEllCentUSlider;
