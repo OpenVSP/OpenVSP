@@ -48,6 +48,7 @@ private:
     GroupLayout m_FeaSSLineGroup;
     GroupLayout m_FeaSSRecGroup;
     GroupLayout m_FeaSSEllGroup;
+    GroupLayout m_SSFeaPOLYGONGroup;
     GroupLayout m_FeaSSConGroup;
     GroupLayout m_FeaSSLineArrayGroup;
 
@@ -262,6 +263,37 @@ private:
     ToggleButton m_FeaSSEllCapToggle;
     ToggleButton m_FeaSSEllShellCapToggle;
     ToggleRadioGroup m_FeaSSEllShellCapToggleGroup;
+
+    // SS_Polygon
+    ToggleButton m_SSFeaPolyInside;
+    ToggleButton m_SSFeaPolyOutside;
+    ToggleRadioGroup m_SSFeaPolyTestToggleGroup;
+
+    SliderInput m_SSFeaPoly_CenterU;
+    SliderInput m_SSFeaPoly_CenterW;
+    SliderInput m_SSFeaPoly_ScaleU;
+    SliderInput m_SSFeaPoly_ScaleW;
+    SliderAdjRangeInput m_SSFeaPoly_TessNum;
+
+    IndexSelector m_SSFeaPolyVertexIndexSelector;
+    TriggerButton m_SSFeaPolyInsertBt;
+    TriggerButton m_SSFeaPolyDeleteBt;
+
+    SliderInput m_SSFeaPoly_dU;
+    SliderInput m_SSFeaPoly_dW;
+
+    IndexSelector m_SSFeaPolyEdgeIndexSelector;
+    SliderInput m_SSFeaPoly_NormDev;
+    SliderInput m_SSFeaPoly_NormDevPos;
+    SliderInput m_SSFeaPoly_NormDevRot;
+
+    ToggleButton m_SSFeaPolyShellToggle;
+    ToggleButton m_SSFeaPolyCapToggle;
+    ToggleButton m_SSFeaPolyShellCapToggle;
+    ToggleRadioGroup m_SSFeaPolyShellCapToggleGroup;
+
+    Choice m_SSFeaPolyPropertyChoice;
+    Choice m_SSFeaPolyCapPropertyChoice;
 
     // SS_Control
     Choice m_FeaSSConPropertyChoice;
