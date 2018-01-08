@@ -785,6 +785,36 @@ double SurfCore::FindNearest( double &u, double &w, const vec3d &pt, double u0, 
     return dist;
 }
 
+double SurfCore::FindNearest( double &u, double &w, const vec3d &pt, double u0, double w0, double umn, double umx, double wmn, double wmx ) const
+{
+    double dist;
+    surface_point_type p;
+    pt.get_pnt( p );
+
+    double slop = 1e-3;
+    if( u0 < (umn - slop) || w0 < (wmn - slop) || u0 > (umx + slop) || w0 > (wmx + slop) )
+    {
+        printf("BAD parameter in SurfCore::FindNearest! %f %f\n", u0, w0 );
+        assert(false);
+    }
+
+    if ( u0 < umn )
+        u0 = umn;
+
+    if ( w0 < wmn )
+        w0 = wmn;
+
+    if ( u0 > umx )
+        u0 = umx;
+
+    if ( w0 > wmx )
+        w0 = wmx;
+
+    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0, w0 );
+
+    return dist;
+}
+
 double SurfCore::FindNearest( double &u, double &w, const vec3d &pt ) const
 {
     double dist;

@@ -113,6 +113,7 @@ public:
     void BuildPatches( Surf* srf ) const;
 
     double FindNearest( double &u, double &w, const vec3d &pt, double u0, double w0 ) const;
+    double FindNearest( double &u, double &w, const vec3d &pt, double u0, double w0, double umin, double umax, double vmin, double vmax ) const;
     double FindNearest( double &u, double &w, const vec3d &pt ) const;
 
 protected:
