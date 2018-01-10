@@ -357,6 +357,8 @@ CfdMeshMgrSingleton::CfdMeshMgrSingleton() : SurfaceIntersectionSingleton()
 
     m_MeshInProgress = false;
 
+    m_MessageName = "CFDMessage";
+
 #ifdef DEBUG_CFD_MESH
     m_DebugDir  = Stringc( "MeshDebug/" );
     _mkdir( m_DebugDir.get_char_star() );

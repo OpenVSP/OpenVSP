@@ -15,9 +15,6 @@
 #include "FeaStructure.h"
 #include "FeaElement.h"
 
-#include <iostream>
-#include <sstream>
-
 using namespace std;
 
 enum

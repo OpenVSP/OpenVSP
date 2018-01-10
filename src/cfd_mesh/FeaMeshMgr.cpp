@@ -29,12 +29,12 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
     m_NumFeaFixPoints = 0;
     m_NumTris = 0;
     m_NumBeams = 0;
+    m_MessageName = "FEAMessage";
 }
 
 FeaMeshMgrSingleton::~FeaMeshMgrSingleton()
 {
     CleanUp();
-    m_OutStream.clear();
 }
 
 void FeaMeshMgrSingleton::CleanUp()

@@ -310,34 +310,11 @@ void * surfintmonitorfun( void *data )
 
     if( cs )
     {
-        unsigned long nread = 1;
-
         bool running = true;
 
-        while( running || nread > 0 )
+        while( running )
         {
             running = SurfaceIntersectionMgr.GetMeshInProgress();
-            nread = 0;
-
-            int ig = SurfaceIntersectionMgr.m_OutStream.tellg();
-            SurfaceIntersectionMgr.m_OutStream.seekg( 0, SurfaceIntersectionMgr.m_OutStream.end );
-            nread = (int)(SurfaceIntersectionMgr.m_OutStream.tellg()) - ig;
-            SurfaceIntersectionMgr.m_OutStream.seekg( ig );
-
-            if( nread > 0 )
-            {
-                char * buffer = new char [nread+1];
-
-                SurfaceIntersectionMgr.m_OutStream.read( buffer, nread );
-                buffer[nread]=0;
-
-                Fl::lock();
-                // Any FL calls must occur between Fl::lock() and Fl::unlock().
-                cs->AddOutputText( buffer );
-                Fl::unlock();
-
-                delete[] buffer;
-            }
             SleepForMilliseconds( 100 );
         }
         cs->GetScreenMgr()->SetUpdateFlag( true );

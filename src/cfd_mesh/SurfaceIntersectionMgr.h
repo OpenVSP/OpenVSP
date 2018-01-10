@@ -78,8 +78,6 @@
 #include <vector>
 #include <list>
 #include <string>
-#include <iostream>
-#include <sstream>
 using namespace std;
 
 
@@ -201,8 +199,6 @@ public:
     vector< vec3d > m_DebugColors;
 #endif
 
-    stringstream m_OutStream;
-
     virtual SimpleIntersectSettings* GetIntersectSettingsPtr()
     {
         return &m_IntersectSettings;
@@ -258,6 +254,8 @@ protected:
 
     //==== Vector of Surfs that may have a border that lies on Surf A ====//
     map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
+
+    string m_MessageName; // Either "SurfIntersectMessage", "CFDMessage", or "FEAMessage"
 
 private:
 

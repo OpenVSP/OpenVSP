@@ -33,6 +33,8 @@ SurfaceIntersectionSingleton::SurfaceIntersectionSingleton() : ParmContainer()
 
     m_MeshInProgress = false;
 
+    m_MessageName = "SurfIntersectMessage";
+
 #ifdef DEBUG_CFD_MESH
     m_DebugDir  = Stringc( "MeshDebug/" );
     _mkdir( m_DebugDir.get_char_star() );
@@ -239,7 +241,11 @@ void SurfaceIntersectionSingleton::addOutputText( const string &str, int output_
 {
     if ( output_type != QUIET_OUTPUT )
     {
-        m_OutStream << str;
+
+        MessageData data;
+        data.m_String = m_MessageName;
+        data.m_StringVec.push_back( str );
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
     }
 }
 

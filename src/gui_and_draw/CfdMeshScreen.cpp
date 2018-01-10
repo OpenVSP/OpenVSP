@@ -992,34 +992,11 @@ void * cfdmonitorfun( void *data )
 
     if( cs )
     {
-        unsigned long nread = 1;
-
         bool running = true;
 
-        while( running || nread > 0 )
+        while( running )
         {
             running = CfdMeshMgr.GetMeshInProgress();
-            nread = 0;
-
-            int ig = CfdMeshMgr.m_OutStream.tellg();
-            CfdMeshMgr.m_OutStream.seekg( 0, CfdMeshMgr.m_OutStream.end );
-            nread = (int)(CfdMeshMgr.m_OutStream.tellg()) - ig;
-            CfdMeshMgr.m_OutStream.seekg( ig );
-
-            if( nread > 0 )
-            {
-                char * buffer = new char [nread+1];
-
-                CfdMeshMgr.m_OutStream.read( buffer, nread );
-                buffer[nread]=0;
-
-                Fl::lock();
-                // Any FL calls must occur between Fl::lock() and Fl::unlock().
-                cs->AddOutputText( buffer );
-                Fl::unlock();
-
-                delete[] buffer;
-            }
             SleepForMilliseconds( 100 );
         }
         cs->GetScreenMgr()->SetUpdateFlag( true );

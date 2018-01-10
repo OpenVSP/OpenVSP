@@ -2314,34 +2314,11 @@ void * feamonitorfun( void *data )
 
     if ( cs && veh )
     {
-        unsigned long nread = 1;
-
         bool running = true;
 
-        while ( running || nread > 0 )
+        while ( running )
         {
             running = FeaMeshMgr.GetFeaMeshInProgress();
-            nread = 0;
-
-            std::streamoff ig = FeaMeshMgr.m_OutStream.tellg();
-            FeaMeshMgr.m_OutStream.seekg( 0, FeaMeshMgr.m_OutStream.end );
-            nread = (int)( FeaMeshMgr.m_OutStream.tellg() ) - ig;
-            FeaMeshMgr.m_OutStream.seekg( ig );
-
-            if ( nread > 0 )
-            {
-                char * buffer = new char[nread + 1];
-
-                FeaMeshMgr.m_OutStream.read( buffer, nread );
-                buffer[nread] = 0;
-
-                Fl::lock();
-                // Any FL calls must occur between Fl::lock() and Fl::unlock().
-                cs->AddOutputText( buffer );
-                Fl::unlock();
-
-                delete[] buffer;
-            }
             SleepForMilliseconds( 100 );
         }
         
