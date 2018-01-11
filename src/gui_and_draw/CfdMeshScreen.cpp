@@ -983,35 +983,18 @@ void CfdMeshScreen::CloseCallBack( Fl_Widget *w )
 }
 
 #ifdef WIN32
-DWORD WINAPI cfdmonitorfun( LPVOID data )
-#else
-void * cfdmonitorfun( void *data )
-#endif
-{
-    CfdMeshScreen *cs = ( CfdMeshScreen * ) data;
-
-    if( cs )
-    {
-        bool running = true;
-
-        while( running )
-        {
-            running = CfdMeshMgr.GetMeshInProgress();
-            SleepForMilliseconds( 100 );
-        }
-        cs->GetScreenMgr()->SetUpdateFlag( true );
-    }
-
-    return 0;
-}
-
-#ifdef WIN32
 DWORD WINAPI cfdmesh_thread_fun( LPVOID data )
 #else
 void * cfdmesh_thread_fun( void *data )
 #endif
 {
     CfdMeshMgr.GenerateMesh();
+
+    CfdMeshScreen *cs = (CfdMeshScreen *)data;
+    if ( cs )
+    {
+        cs->GetScreenMgr()->SetUpdateFlag( true );
+    }
 
     return 0;
 }
@@ -1029,9 +1012,7 @@ void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_MeshAndExport )
     {
         CfdMeshMgr.SetMeshInProgress( true );
-        m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, NULL );
-
-        m_MonitorProcess.StartThread( cfdmonitorfun, ( void* ) this );
+        m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, ( void* ) this );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

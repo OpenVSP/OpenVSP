@@ -2303,38 +2303,18 @@ void StructScreen::CallBack( Fl_Widget* w )
 }
 
 #ifdef WIN32
-DWORD WINAPI feamonitorfun( LPVOID data )
-#else
-void * feamonitorfun( void *data )
-#endif
-{
-    StructScreen *cs = (StructScreen *)data;
-
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( cs && veh )
-    {
-        bool running = true;
-
-        while ( running )
-        {
-            running = FeaMeshMgr.GetFeaMeshInProgress();
-            SleepForMilliseconds( 100 );
-        }
-        
-        cs->GetScreenMgr()->SetUpdateFlag( true ); // FeaParts will not be updated when mesh is in progress
-    }
-
-    return 0;
-}
-
-#ifdef WIN32
 DWORD WINAPI feamesh_thread_fun( LPVOID data )
 #else
 void * feamesh_thread_fun( void *data )
 #endif
 {
     FeaMeshMgr.GenerateFeaMesh();
+
+    StructScreen *cs = (StructScreen *)data;
+    if ( cs )
+    {
+        cs->GetScreenMgr()->SetUpdateFlag( true ); // FeaParts will not be updated when mesh is in progress
+    }
 
     return 0;
 }
@@ -2358,9 +2338,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         // Identify which structure to mesh
         FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.GetCurrStructIndex() );
 
-        m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
-
-        m_MonitorProcess.StartThread( feamonitorfun, ( void* ) this );
+        m_FeaMeshProcess.StartThread( feamesh_thread_fun, ( void* ) this );
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
         {

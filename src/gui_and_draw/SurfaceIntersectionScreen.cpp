@@ -301,35 +301,18 @@ void SurfaceIntersectionScreen::CloseCallBack( Fl_Widget *w )
 }
 
 #ifdef WIN32
-DWORD WINAPI surfintmonitorfun( LPVOID data )
-#else
-void * surfintmonitorfun( void *data )
-#endif
-{
-    SurfaceIntersectionScreen *cs = ( SurfaceIntersectionScreen * ) data;
-
-    if( cs )
-    {
-        bool running = true;
-
-        while( running )
-        {
-            running = SurfaceIntersectionMgr.GetMeshInProgress();
-            SleepForMilliseconds( 100 );
-        }
-        cs->GetScreenMgr()->SetUpdateFlag( true );
-    }
-
-    return 0;
-}
-
-#ifdef WIN32
 DWORD WINAPI surfint_thread_fun( LPVOID data )
 #else
 void * surfint_thread_fun( void *data )
 #endif
 {
     SurfaceIntersectionMgr.IntersectSurfaces();
+
+    SurfaceIntersectionScreen *cs = (SurfaceIntersectionScreen *)data;
+    if ( cs )
+    {
+        cs->GetScreenMgr()->SetUpdateFlag( true );
+    }
 
     return 0;
 }
@@ -344,9 +327,7 @@ void SurfaceIntersectionScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_IntersectAndExport )
     {
         SurfaceIntersectionMgr.SetMeshInProgress( true );
-        m_IntersectProcess.StartThread( surfint_thread_fun, NULL );
-
-        m_MonitorProcess.StartThread( surfintmonitorfun, ( void* ) this );
+        m_IntersectProcess.StartThread( surfint_thread_fun, ( void* ) this );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
