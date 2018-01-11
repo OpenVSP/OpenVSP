@@ -129,11 +129,14 @@ void SurfaceIntersectionScreen::CreateOutputTab()
 
     m_OutputTabLayout.AddButton(m_CurvFile, ".curv");
     m_OutputTabLayout.AddOutput(m_CurvOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectCurvFile, "...");
 
     m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_Plot3DFile, ".p3d");
     m_OutputTabLayout.AddOutput(m_Plot3DOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectPlot3DFile, "...");
 
     m_OutputTabLayout.AddYGap();
@@ -144,8 +147,10 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.SetFitWidthFlag( false );
 
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_SrfFile, ".srf");
     m_OutputTabLayout.AddOutput(m_SrfOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectSrfFile, "...");
     m_OutputTabLayout.ForceNewLine();
 

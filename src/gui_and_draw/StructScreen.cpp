@@ -770,41 +770,24 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_OutputTabLayout.AddButton( m_SelectCalcFile, "..." );
     m_OutputTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddDividerBox("Surfaces and Intersection Curves");
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetFitWidthFlag( false );
-
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton(m_SrfFile, ".srf");
-    m_OutputTabLayout.AddOutput(m_SrfOutput);
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton(m_SelectSrfFile, "...");
-    m_OutputTabLayout.ForceNewLine();
-
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves");
-    m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
-
-    m_OutputTabLayout.InitWidthHeightVals();
 
     m_OutputTabLayout.SetFitWidthFlag( true );
     m_OutputTabLayout.SetSameLineFlag( false );
-
     m_OutputTabLayout.InitWidthHeightVals();
 
-    m_OutputTabLayout.SetButtonWidth( 175 );
+    m_OutputTabLayout.AddDividerBox("Surfaces and Intersection Curves");
+
+    m_OutputTabLayout.AddYGap();
 
     m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
 
+    m_OutputTabLayout.InitWidthHeightVals();
+    m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - 75 - 55 );
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.SetSameLineFlag( true );
 
     m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - 55 - 75 );
-
     m_OutputTabLayout.AddButton(m_CurvFile, ".curv");
     m_OutputTabLayout.AddOutput(m_CurvOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
@@ -816,6 +799,21 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_OutputTabLayout.AddOutput(m_Plot3DOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectPlot3DFile, "...");
+
+    m_OutputTabLayout.AddYGap();
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetButtonWidth( 75 );
+    m_OutputTabLayout.AddButton( m_SrfFile, ".srf" );
+    m_OutputTabLayout.AddOutput( m_SrfOutput );
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
+    m_OutputTabLayout.AddButton( m_SelectSrfFile, "..." );
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.SetSameLineFlag( false );
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves" );
+
+    m_OutputTabLayout.AddYGap();
 
     //=== Display Tab ===//
     m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
