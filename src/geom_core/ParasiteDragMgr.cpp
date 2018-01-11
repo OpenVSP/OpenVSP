@@ -2638,6 +2638,7 @@ void ParasiteDragMgrSingleton::UpdateParmActivity()
     {
         m_Vinf.Activate();
         m_Hinf.Activate();
+        m_DeltaT.Activate();
     }
     else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_R )
     {
@@ -2961,6 +2962,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     res->Add( NameValData( "FC_Alt", m_Hinf.Get() ) );
     res->Add( NameValData( "FC_Vinf", m_Vinf.Get() ) );
     res->Add( NameValData( "FC_Sref", m_Sref.Get() ) );
+    res->Add( NameValData( "FC_dTemp", m_DeltaT.Get() ) );
     res->Add( NameValData( "FC_Temp", m_Temp.Get() ) );
     res->Add( NameValData( "FC_Pres", m_Pres.Get() ) );
     res->Add( NameValData( "FC_Rho", m_Rho.Get() ) );

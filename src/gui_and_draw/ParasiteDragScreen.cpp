@@ -27,7 +27,7 @@ using namespace std;
 #define DRAG_TAB_WIDTH 310          // width of the tab group
 #define DRAG_TABLE_WIDTH 470        // width of the drag build-up table
 #define DRAG_TABLE_PERSISTENT_WIDTH 180 // width of persistent sectino of drag table
-#define TOTAL_WINDOW_HEIGHT 560     // Entire Window Height
+#define TOTAL_WINDOW_HEIGHT 580     // Entire Window Height
 #define EXECUTE_LAYOUT_HEIGHT 65    // height needed for dividerbox and two buttons
 #define TYPICAL_INPUT_WIDTH 70      // input width for most table cells
 
@@ -358,6 +358,13 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_TempUnitChoice.AddItem( temp );
     m_TempUnitChoice.UpdateItems();
     m_TempUnitChoice.SetWidth( choice_list_width );
+    m_OptionsLayout.ForceNewLine();
+    m_OptionsLayout.AddSlider( m_FlowParmDeltaTempSlider, "dTemp", 100.0, "%7.2f" );
+    temp = deg + "F";
+    m_OptionsLayout.AddButton( m_DeltaTempUnitLabel, temp.c_str() );
+    m_DeltaTempUnitLabel.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_DeltaTempUnitLabel.SetWidth( choice_list_width );
+    m_DeltaTempUnitLabel.GetFlButton()->labelcolor( FL_BLACK );
     m_OptionsLayout.ForceNewLine();
 
     // Pressure Input and Units
@@ -763,6 +770,7 @@ void ParasiteDragScreen::UpdateSliderDevices()
     m_SrefSlider.Update( ParasiteDragMgr.m_Sref.GetID() );
     m_FlowParmVinfSlider.Update( ParasiteDragMgr.m_Vinf.GetID() );
     m_FlowParmHinfSlider.Update( ParasiteDragMgr.m_Hinf.GetID() );
+    m_FlowParmDeltaTempSlider.Update( ParasiteDragMgr.m_DeltaT.GetID() );
     m_FlowParmTempSlider.Update( ParasiteDragMgr.m_Temp.GetID() );
     m_FlowParmPresSlider.Update( ParasiteDragMgr.m_Pres.GetID() );
     m_FlowParmRhoSlider.Update( ParasiteDragMgr.m_Rho.GetID() );
@@ -962,6 +970,7 @@ void ParasiteDragScreen::UpdateExcresTab()
 
 void ParasiteDragScreen::UpdateDependentUnitLabels()
 {
+    string deg( 1, 176 );
     string squared( 1, 178 );
     string cubed( 1, 179 );
     string temp;
@@ -1025,6 +1034,27 @@ void ParasiteDragScreen::UpdateDependentUnitLabels()
         m_DynViscUnitLabel.GetFlButton()->copy_label( "kg/m-s" );
         break;
     }
+
+    switch ( ParasiteDragMgr.m_TempUnit() )
+    {
+    case vsp::TEMP_UNIT_K:
+        temp = "K";
+        break;
+
+    case vsp::TEMP_UNIT_C:
+        temp = deg + "C";
+        break;
+
+    case vsp::TEMP_UNIT_F:
+        temp = deg + "F";
+        break;
+
+    case vsp::TEMP_UNIT_R:
+        temp = deg + "R";
+        break;
+    }
+
+    m_DeltaTempUnitLabel.GetFlButton()->copy_label( temp.c_str() );
 }
 
 void ParasiteDragScreen::Show()

@@ -134,6 +134,7 @@ protected:
     SliderAdjRangeInput m_FlowParmHinfSlider;
     SliderAdjRangeInput m_FlowParmReqLSlider;
     SliderAdjRangeInput m_FlowParmMachSlider;
+    SliderAdjRangeInput m_FlowParmDeltaTempSlider;
 
     // Manual Inputs
     SliderAdjRangeInput m_FlowParmTempSlider;
@@ -153,6 +154,7 @@ protected:
     TriggerButton m_RhoUnitLabel;
     TriggerButton m_DynViscUnitLabel;
     TriggerButton m_ReyqLUnitLabel;
+    TriggerButton m_DeltaTempUnitLabel;
 
     //==== Execute Layout ====//
     GroupLayout m_ExecuteLayout;
