@@ -42,6 +42,7 @@
 
 #include "ProjectionMgr.h"
 #include "DXFUtil.h"
+#include "DegenGeom.h"
 
 using namespace vsp;
 
@@ -4534,6 +4535,33 @@ string Vehicle::WriteDegenGeomFile()
             outStr += "\n";
         }
     }
+
+    // Create results object to contain the ids of all of the results associated
+    // with degen geoms
+    Results *res = ResultsMgr.CreateResults( "DegenGeom" );
+    vector < string > degen_results_ids;
+    vector < string > blank_degen_result_ids;
+
+    if ( blankCnt > 0 )
+    {
+        for ( int i = 0; i < ( int ) m_DegenPtMassVec.size(); i++ )
+        {
+            Results *blnk_res = ResultsMgr.CreateResults( "Degen_BlankGeom" );
+            blank_degen_result_ids.push_back( blnk_res->GetID() );
+
+            blnk_res->Add( NameValData( "name", m_DegenPtMassVec[i].name ) );
+            blnk_res->Add( NameValData( "X", m_DegenPtMassVec[i].x ) );
+            blnk_res->Add( NameValData( "mass", m_DegenPtMassVec[i].mass ) );
+        }
+    }
+
+    for ( int i = 0; i < ( int )m_DegenGeomVec.size(); i++ )
+    {
+        m_DegenGeomVec[i].write_degenGeomResultsManager( degen_results_ids );
+    }
+
+    res->Add( NameValData( "Degen_BlankGeoms", blank_degen_result_ids ) );
+    res->Add( NameValData( "Degen_DegenGeoms", degen_results_ids ) );
     return outStr;
 }
 

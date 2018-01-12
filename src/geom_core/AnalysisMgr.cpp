@@ -428,6 +428,11 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     RegisterAnalysis( "CompGeom", cga );
 
 
+    DegenGeomAnalysis *dga = new DegenGeomAnalysis();
+
+    RegisterAnalysis( "DegenGeom", dga );
+
+
     EmintonLordAnalysis *ema = new EmintonLordAnalysis();
 
     RegisterAnalysis( "EmintonLord", ema );
@@ -592,6 +597,70 @@ string CompGeomAnalysis::Execute()
         string geom = veh->CompGeomAndFlatten( geomSet, halfMeshFlag, subSurfFlag );
 
         res = ResultsMgr.FindLatestResultsID( "Comp_Geom" );
+    }
+
+    return res;
+}
+
+//======================================================================================//
+//================================ Degen Geom ==========================================//
+//======================================================================================//
+void DegenGeomAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL ) );
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        m_Inputs.Add( NameValData( "WriteCSVFlag", veh->getExportDegenGeomCsvFile() ) );
+        m_Inputs.Add( NameValData( "WriteMFileFlag", veh->getExportDegenGeomMFile() ) );
+    }
+}
+
+string DegenGeomAnalysis::Execute()
+{
+    string res;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        int set_num = vsp::SET_ALL;
+        bool write_csv_orig = veh->getExportDegenGeomCsvFile();
+        bool write_mfile_orig = veh->getExportDegenGeomMFile();
+        bool write_csv = write_csv_orig;
+        bool write_mfile = write_mfile_orig;
+
+        NameValData *nvd;
+        nvd = m_Inputs.FindPtr( "Set", 0 );
+        if ( nvd )
+        {
+            set_num = nvd->GetInt( 0 );
+        }
+        nvd = m_Inputs.FindPtr( "WriteCSVFlag", 0 );
+        if ( nvd )
+        {
+            write_csv = ( bool )nvd->GetInt( 0 );
+        }
+        nvd = m_Inputs.FindPtr( "WriteMFileFlag", 0 );
+        if ( nvd )
+        {
+            write_mfile = ( bool )nvd->GetInt( 0 );
+        }
+
+        veh->setExportDegenGeomCsvFile( write_csv );
+        veh->setExportDegenGeomMFile( write_mfile );
+
+        veh->CreateDegenGeom( set_num );
+        veh->WriteDegenGeomFile();
+
+
+        veh->setExportDegenGeomCsvFile( write_csv_orig );
+        veh->setExportDegenGeomMFile( write_mfile_orig );
+
+        res = ResultsMgr.FindLatestResultsID( "DegenGeom" );
+
     }
 
     return res;

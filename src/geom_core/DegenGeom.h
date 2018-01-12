@@ -13,6 +13,7 @@
 #include "Vec2d.h"
 #include "Matrix.h"
 #include "SubSurface.h"
+#include "ResultsMgr.h"
 
 using namespace std;
 
@@ -268,6 +269,15 @@ public:
     void write_degenSubSurfM_file( FILE* file_id, int isubsurf );
     void write_degenHingeLineM_file( FILE* file_id, int ihingeline );
 
+    void write_degenGeomResultsManager( vector< string> &degen_results_ids );
+    void write_degenGeomDiskResultsManger( Results * res );
+    void write_degenGeomSurfResultsManager( Results * res );
+    void write_degenGeomPlateResultsManager( vector< string > &plate_ids, const DegenPlate &degenPlate );
+    void write_degenGeomStickResultsManager( vector< string > &stick_ids, const DegenStick &degenStick );
+    void write_degenGeomPointResultsManager( Results * res );
+    void write_degenSubSurfResultsManager( vector< string > &subsurf_ids, const DegenSubSurf &degenSubSurf );
+    void write_degenHingeLineResultsManager( vector< string > &hinge_ids, const DegenHingeLine &degenHingeLine );
+
 protected:
 
     DegenSurface degenSurface;
@@ -286,6 +296,8 @@ protected:
     Geom* parentGeom;
     int   type;
     int   surfNum;
+
+    static void add_vec3dMatrix( const vector< vector< vec3d > > &data, Results *res, const string &prefix );
 };
 
 

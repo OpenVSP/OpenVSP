@@ -134,6 +134,14 @@ public:
 
 };
 
+class DegenGeomAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+};
+
 class EmintonLordAnalysis : public Analysis
 {
 public:
