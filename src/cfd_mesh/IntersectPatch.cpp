@@ -12,6 +12,8 @@
 #include "CfdMeshMgr.h"
 #include "Tritri.h"
 
+#include "eli/geom/intersect/intersect_surface.hpp"
+
 void intersect( const SurfPatch& bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr )
 {
     int MAX_SUB = 12;
@@ -141,5 +143,76 @@ void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersect
     {
         MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1 );
     }
+}
+
+void refine_intersect_pt( const vec3d& pt, const SurfPatch &pA, double uwA[2], const SurfPatch &pB, double uwB[2] )
+{
+
+    if ( false )
+    {
+        vec2d guess_uw( 0.5, 0.5 );
+
+        surface_point_type p;
+        p << pt.x(), pt.y(), pt.z();
+
+        double u01, w01;
+        eli::geom::intersect::minimum_distance( u01, w01, pA.m_Patch, p, guess_uw.x(), guess_uw.y() );
+        double u02, w02;
+        eli::geom::intersect::minimum_distance( u02, w02, pB.m_Patch, p, guess_uw.x(), guess_uw.y() );
+
+        double u1, w1, u2, w2;
+
+
+        eli::geom::intersect::intersect( u1, w1, u2, w2, pA.m_Patch, pB.m_Patch, p, u01, w01, u02, w02 );
+
+        uwA[0] = pA.u_min + u1 * ( pA.u_max - pA.u_min );
+        uwA[1] = pA.w_min + w1 * ( pA.w_max - pA.w_min );
+
+        uwB[0] = pB.u_min + u2 * ( pB.u_max - pB.u_min );
+        uwB[1] = pB.w_min + w2 * ( pB.w_max - pB.w_min );
+
+    }
+    else
+    {
+        double tol = 1e-6;
+
+        surface_point_type p;
+        p << pt.x(), pt.y(), pt.z();
+
+        vec2d uw0A = pA.m_SurfPtr->ClosestUW( pt, ( pA.u_max + pA.u_min ) * 0.5, ( pA.w_max + pA.w_min ) * 0.5 );
+        vec2d uw0B = pB.m_SurfPtr->ClosestUW( pt, ( pB.u_max + pB.u_min ) * 0.5, ( pB.w_max + pB.w_min ) * 0.5 );
+
+
+        double u1, w1, u2, w2;
+
+        eli::geom::intersect::intersect( u1, w1, u2, w2, *( pA.m_SurfPtr->GetSurfCore()->GetSurf() ),
+                                        *( pB.m_SurfPtr->GetSurfCore()->GetSurf() ),
+                                        p, uw0A.x(), uw0A.y(), uw0B.x(), uw0B.y() );
+
+        uwA[0] = u1;
+        uwA[1] = w1;
+        uwB[0] = u2;
+        uwB[1] = w2;
+
+    }
+}
+
+double refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB )
+{
+    surface_point_type p;
+    p << pt.x(), pt.y(), pt.z();
+
+    double u1, w1, u2, w2, d;
+
+    d = eli::geom::intersect::intersect( u1, w1, u2, w2, *( sA->GetSurfCore()->GetSurf() ),
+                                     *( sB->GetSurfCore()->GetSurf() ),
+                                     p, uwA.x(), uwA.y(), uwB.x(), uwB.y() );
+
+    uwA[0] = u1;
+    uwA[1] = w1;
+    uwB[0] = u2;
+    uwB[1] = w2;
+
+    return d;
 }
 

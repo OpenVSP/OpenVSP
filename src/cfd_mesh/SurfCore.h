@@ -95,6 +95,11 @@ public:
         m_Surface = surf;
     }
 
+    piecewise_surface_type * GetSurf()
+    {
+        return &m_Surface;
+    }
+
     void GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv ) const;
 
     bool LessThanY( double val ) const;
