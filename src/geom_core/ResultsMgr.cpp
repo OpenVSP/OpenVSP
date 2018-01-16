@@ -596,7 +596,7 @@ void Results::WriteParasiteDragFile( const string & file_name )
             string type = Find("Excres_Type").GetString(i);
             double input = Find("Excres_Input").GetDouble(i);
             double amount = Find("Excres_Amount").GetDouble(i);
-            double perctotalcd = Find("Excres_PercTotalCd").GetDouble(i);
+            double perctotalcd = Find("Excres_PercTotalCD").GetDouble(i);
 
             fprintf(file_id, " %s, %s, %f, , , , , , , , , %f, %f \n",
                 label.c_str(), type.c_str(), input, amount, perctotalcd);
