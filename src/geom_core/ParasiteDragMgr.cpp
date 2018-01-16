@@ -102,6 +102,9 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_DeltaT.Init( "DeltaTemp", groupname, this, 0.0, -1e12, 1e12 );
     m_DeltaT.SetDescript( "Delta Temperature from STP" );
 
+    m_ExportSubCompFlag.Init( "ExportSubCompFlag", groupname, this, false, false, true );
+    m_ExportSubCompFlag.SetDescript( "Flag to Export Sub-Component Information" );
+
     // Excrescence Parm
     m_ExcresValue.Init( "ExcresVal", groupname, this, 0.0, 0.0, 200 );
     m_ExcresValue.SetDescript( "Excrescence Value" );
@@ -2968,27 +2971,91 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     res->Add( NameValData( "FC_Rho", m_Rho.Get() ) );
 
     // Component Related
-    res->Add( NameValData( "Num_Comp", m_RowSize ) );
-    res->Add( NameValData( "Comp_ID", m_geo_geomID ) );
-    res->Add( NameValData( "Comp_Label", m_geo_label ) );
-    res->Add( NameValData( "Comp_Swet", m_geo_swet ) );
-    res->Add( NameValData( "Comp_Lref", m_geo_lref ) );
-    res->Add( NameValData( "Comp_Re", m_geo_Re ) );
-    res->Add( NameValData( "Comp_PercLam", m_geo_percLam ) );
-    res->Add( NameValData( "Comp_Cf", m_geo_cf ) );
-    res->Add( NameValData( "Comp_FineRat", m_geo_fineRat ) );
-    res->Add( NameValData( "Comp_FFEqn", m_geo_ffType ) );
-    res->Add( NameValData( "Comp_FFEqnName", m_geo_ffName ) );
-    res->Add( NameValData( "Comp_FFIn", m_geo_ffIn ) );
-    res->Add( NameValData( "Comp_FFOut", m_geo_ffOut ) );
-    res->Add( NameValData( "Comp_Roughness", m_geo_Roughness ) );
-    res->Add( NameValData( "Comp_TeTwRatio", m_geo_TeTwRatio ) );
-    res->Add( NameValData( "Comp_TawTwRatio", m_geo_TawTwRatio ) );
-    res->Add( NameValData( "Comp_Q", m_geo_Q ) );
-    res->Add( NameValData( "Comp_f", m_geo_f ) );
-    res->Add( NameValData( "Comp_CD", m_geo_CD ) );
-    res->Add( NameValData( "Comp_PercTotalCD", m_geo_percTotalCD ) );
-    res->Add( NameValData( "Comp_SurfNum", m_geo_surfNum ) );
+    if ( !m_ExportSubCompFlag() )
+    {
+        // Only create results for the primary components
+
+        vector < string > new_ID_vec, new_geo_label, new_geo_ffName;
+        vector < double > new_geo_swet, new_geo_lref, new_geo_Re, new_geo_percLam, new_geo_cf, new_geo_fineRat, 
+            new_geo_ffIn, new_geo_ffOut, new_geo_Roughness, new_geo_TeTwRatio, new_geo_TawTwRatio, new_geo_Q,
+            new_geo_f, new_geo_CD, new_geo_percTotalCD;
+        vector <int> new_geo_ffType, new_geo_surfNum;
+
+        for ( size_t i = 0; i < m_geo_geomID.size(); i++ )
+        {
+            if ( std::find( new_ID_vec.begin(), new_ID_vec.end(), m_geo_geomID[i] ) == new_ID_vec.end() )
+            {
+                new_ID_vec.push_back( m_geo_geomID[i] );
+                new_geo_label.push_back( m_geo_label[i] );
+                new_geo_swet.push_back( m_geo_swet[i] );
+                new_geo_lref.push_back( m_geo_lref[i] );
+                new_geo_Re.push_back( m_geo_Re[i] );
+                new_geo_percLam.push_back( m_geo_percLam[i] );
+                new_geo_cf.push_back( m_geo_cf[i] );
+                new_geo_fineRat.push_back( m_geo_fineRat[i] );
+                new_geo_ffType.push_back( m_geo_ffType[i] );
+                new_geo_ffName.push_back( m_geo_ffName[i] );
+                new_geo_ffIn.push_back( m_geo_ffIn[i] );
+                new_geo_ffOut.push_back( m_geo_ffOut[i] );
+                new_geo_Roughness.push_back( m_geo_Roughness[i] );
+                new_geo_TeTwRatio.push_back( m_geo_TeTwRatio[i] );
+                new_geo_TawTwRatio.push_back( m_geo_TawTwRatio[i] );
+                new_geo_Q.push_back( m_geo_Q[i] );
+                new_geo_f.push_back( m_geo_f[i] );
+                new_geo_CD.push_back( m_geo_CD[i] );
+                new_geo_percTotalCD.push_back( m_geo_percTotalCD[i] );
+                new_geo_surfNum.push_back( m_geo_surfNum[i] );
+            }
+        }
+
+        int num_comp = new_ID_vec.size();
+
+        res->Add( NameValData( "Num_Comp", num_comp ) );
+        res->Add( NameValData( "Comp_ID", new_ID_vec ) );
+        res->Add( NameValData( "Comp_Label", new_geo_label ) );
+        res->Add( NameValData( "Comp_Swet", new_geo_swet ) );
+        res->Add( NameValData( "Comp_Lref", new_geo_lref ) );
+        res->Add( NameValData( "Comp_Re", new_geo_Re ) );
+        res->Add( NameValData( "Comp_PercLam", new_geo_percLam ) );
+        res->Add( NameValData( "Comp_Cf", new_geo_cf ) );
+        res->Add( NameValData( "Comp_FineRat", new_geo_fineRat ) );
+        res->Add( NameValData( "Comp_FFEqn", new_geo_ffType ) );
+        res->Add( NameValData( "Comp_FFEqnName", new_geo_ffName ) );
+        res->Add( NameValData( "Comp_FFIn", new_geo_ffIn ) );
+        res->Add( NameValData( "Comp_FFOut", new_geo_ffOut ) );
+        res->Add( NameValData( "Comp_Roughness", new_geo_Roughness ) );
+        res->Add( NameValData( "Comp_TeTwRatio", new_geo_TeTwRatio ) );
+        res->Add( NameValData( "Comp_TawTwRatio", new_geo_TawTwRatio ) );
+        res->Add( NameValData( "Comp_Q", new_geo_Q ) );
+        res->Add( NameValData( "Comp_f", new_geo_f ) );
+        res->Add( NameValData( "Comp_CD", new_geo_CD ) );
+        res->Add( NameValData( "Comp_PercTotalCD", new_geo_percTotalCD ) );
+        res->Add( NameValData( "Comp_SurfNum", m_geo_surfNum ) );
+    }
+    else
+    {
+        res->Add( NameValData( "Num_Comp", m_RowSize ) );
+        res->Add( NameValData( "Comp_ID", m_geo_geomID ) );
+        res->Add( NameValData( "Comp_Label", m_geo_label ) );
+        res->Add( NameValData( "Comp_Swet", m_geo_swet ) );
+        res->Add( NameValData( "Comp_Lref", m_geo_lref ) );
+        res->Add( NameValData( "Comp_Re", m_geo_Re ) );
+        res->Add( NameValData( "Comp_PercLam", m_geo_percLam ) );
+        res->Add( NameValData( "Comp_Cf", m_geo_cf ) );
+        res->Add( NameValData( "Comp_FineRat", m_geo_fineRat ) );
+        res->Add( NameValData( "Comp_FFEqn", m_geo_ffType ) );
+        res->Add( NameValData( "Comp_FFEqnName", m_geo_ffName ) );
+        res->Add( NameValData( "Comp_FFIn", m_geo_ffIn ) );
+        res->Add( NameValData( "Comp_FFOut", m_geo_ffOut ) );
+        res->Add( NameValData( "Comp_Roughness", m_geo_Roughness ) );
+        res->Add( NameValData( "Comp_TeTwRatio", m_geo_TeTwRatio ) );
+        res->Add( NameValData( "Comp_TawTwRatio", m_geo_TawTwRatio ) );
+        res->Add( NameValData( "Comp_Q", m_geo_Q ) );
+        res->Add( NameValData( "Comp_f", m_geo_f ) );
+        res->Add( NameValData( "Comp_CD", m_geo_CD ) );
+        res->Add( NameValData( "Comp_PercTotalCD", m_geo_percTotalCD ) );
+        res->Add( NameValData( "Comp_SurfNum", m_geo_surfNum ) );
+    }
 
     // Excres Related
     res->Add( NameValData( "Num_Excres", ( int )m_ExcresRowVec.size() ) );

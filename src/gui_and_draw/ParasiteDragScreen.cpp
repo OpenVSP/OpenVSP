@@ -176,7 +176,12 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_ExecuteLayout.SetFitWidthFlag( true );
     m_ExecuteLayout.AddDividerBox( "Execute" );
     m_ExecuteLayout.AddButton( m_calc, "Calculate CD0" );
+    m_ExecuteLayout.SetSameLineFlag( true );
+    m_ExecuteLayout.SetFitWidthFlag( false );
+    m_ExecuteLayout.SetButtonWidth( m_ExecuteLayout.GetW() / 2 );
+    m_ExecuteLayout.AddButton( m_SubCompExportToggle, "Export Sub-Components" );
     m_ExecuteLayout.AddButton( m_export, "Export to *.csv" );
+    m_ExecuteLayout.ForceNewLine();
 
     // Add Final Ouputs
     m_ConstantViewLayout.SetSameLineFlag( true );
@@ -654,6 +659,8 @@ bool ParasiteDragScreen::Update()
         UpdateDependentUnitLabels();
         UpdateChoiceDevices();     // Set Correct Options for Options
         UpdateSliderDevices();
+
+        m_SubCompExportToggle.Update( ParasiteDragMgr.m_ExportSubCompFlag.GetID() );
     }
 
     return false;

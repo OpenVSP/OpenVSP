@@ -287,6 +287,8 @@ public:
     // CSV File Name Default
     string m_FileName;
 
+    BoolParm m_ExportSubCompFlag;
+
     // Labels for Export
     string m_SwetLabel;
     string m_LrefLabel;

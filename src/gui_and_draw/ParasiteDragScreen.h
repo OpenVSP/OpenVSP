@@ -159,6 +159,7 @@ protected:
     //==== Execute Layout ====//
     GroupLayout m_ExecuteLayout;
     TriggerButton m_calc;
+    ToggleButton m_SubCompExportToggle;
     TriggerButton m_export;
 
     //==== Table and Constant View Layout ====//
