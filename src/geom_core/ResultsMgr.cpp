@@ -69,7 +69,11 @@ NameValData::NameValData( const string & name, const vector< vec3d > & v_data )
     Init( name, vsp::VEC3D_DATA );
     m_Vec3dData = v_data;
 }
-
+NameValData::NameValData( const string &name, const vector< vector< double > > &dmat_data )
+{
+    Init( name, vsp::DOUBLE_MATRIX_DATA );
+    m_DoubleMatData = dmat_data;
+}
 void NameValData::Init( const string & name, int type, int index )
 {
     m_Name = name;
@@ -89,6 +93,17 @@ double NameValData::GetDouble( int i ) const
     if ( i < ( int )m_DoubleData.size() )
     {
         return m_DoubleData[i];
+    }
+    return 0;
+}
+double NameValData::GetDouble( int row, int col ) const
+{
+    if ( row < ( int )m_DoubleMatData.size() )
+    {
+        if ( col < ( int )m_DoubleMatData[row].size() )
+        {
+            return m_DoubleMatData[row][col];
+        }
     }
     return 0;
 }
@@ -1051,6 +1066,22 @@ void ResultsMgrSingleton::PrintResults( FILE * outputStream, const string &resul
                 }
                 break;
             }
+            case vsp::RES_DATA_TYPE::DOUBLE_MATRIX_DATA :
+            {
+                vector< vector< double > > current_double_mat_val = GetDoubleMatResults( results_id, results_names[i_result_name], i_val );
+                for ( unsigned int row = 0; row < current_double_mat_val.size(); row++ )
+                {
+                    for ( unsigned int col = 0; col < current_double_mat_val[row].size(); col++ )
+                    {
+                        fprintf( outputStream, "%13.6e ", current_double_mat_val[row][col] );
+                    }
+                    if ( row < current_double_mat_val.size() - 1 )
+                    {
+                        fprintf( outputStream, "\n\t\t%-20s \t\t \t", "");
+                    }
+                }
+                break;
+            }
             case vsp::RES_DATA_TYPE::STRING_DATA :
             {
                 vector<string> current_string_val = GetStringResults( results_id, results_names[i_result_name], i_val );
@@ -1122,6 +1153,25 @@ const vector<double> & ResultsMgrSingleton::GetDoubleResults( const string & res
     }
 
     return rd_ptr->GetDoubleData();
+}
+
+//==== Get Double Matrix Results Given Results ID and Name of Data and Index (Default 0) ====//
+const vector<vector<double>> & ResultsMgrSingleton::GetDoubleMatResults( const string &id, const string &name,
+                          int index )
+{
+    Results* results_ptr = FindResultsPtr( id );
+    if ( !results_ptr )
+    {
+        return m_DefaultDoubleMat;
+    }
+
+    NameValData* rd_ptr = results_ptr->FindPtr( name, index );
+    if ( !rd_ptr )
+    {
+        return m_DefaultDoubleMat;
+    }
+
+    return rd_ptr->GetDoubleMatData();
 }
 
 //==== Get string Results Given Results ID and Name of Data and Index (Default 0) ====//

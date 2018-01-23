@@ -80,6 +80,8 @@ void ScriptMgrSingleton::Init( )
     assert( m_IntArrayType );
     m_DoubleArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<double>" ) );
     assert( m_DoubleArrayType );
+    m_DoubleMatArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<array<double>@>" ) );
+    assert( m_DoubleMatArrayType );
     m_StringArrayType = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<string>" ) );
     assert( m_StringArrayType );
 
@@ -1180,6 +1182,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "DOUBLE_DATA", DOUBLE_DATA );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "RES_DATA_TYPE", "DOUBLE_MATRIX_DATA", DOUBLE_MATRIX_DATA );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "STRING_DATA", STRING_DATA );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "VEC3D_DATA", VEC3D_DATA );
@@ -1916,6 +1920,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<double>@  GetDoubleResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetDoubleResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<array<double>@>@ GetDoubleMatResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetDoubleMatResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<string>@  GetStringResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetStringResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<vec3d>@  GetVec3dResults( const string & in id, const string & in name, int index = 0 )", asMETHOD( ScriptMgrSingleton, GetVec3dResults ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
@@ -2435,6 +2441,21 @@ CScriptArray* ScriptMgrSingleton::GetProxyDoubleArray()
     return sarr;
 }
 
+CScriptArray* ScriptMgrSingleton::GetProxyDoubleMatArray()
+{
+    CScriptArray* sarr = CScriptArray::Create( m_DoubleMatArrayType, m_ProxyDoubleMatArray.size() );
+    for ( int i = 0; i < ( int )sarr->GetSize(); i++ )
+    {
+        CScriptArray* darr = CScriptArray::Create( m_DoubleArrayType, m_ProxyDoubleMatArray[i].size() );
+        for ( int j = 0; j < ( int )darr->GetSize(); j++ )
+        {
+            darr->SetValue( j, &m_ProxyDoubleMatArray[i][j]);
+        }
+        sarr->SetValue( i, &darr );
+    }
+    return sarr;
+}
+
 void ScriptMgrSingleton::FillDoubleArray( vector < double > & in, CScriptArray* out )
 {
     out->Resize( in.size() );
@@ -2587,6 +2608,12 @@ CScriptArray* ScriptMgrSingleton::GetDoubleResults( const string & id, const str
 {
     m_ProxyDoubleArray = vsp::GetDoubleResults( id, name, index );
     return GetProxyDoubleArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetDoubleMatResults(const string &id, const string &name, int index )
+{
+    m_ProxyDoubleMatArray = vsp::GetDoubleMatResults( id, name, index);
+    return GetProxyDoubleMatArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetStringResults( const string & id, const string & name, int index )

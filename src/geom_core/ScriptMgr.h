@@ -79,12 +79,14 @@ public:
     CScriptArray* GetProxyStringArray();
     CScriptArray* GetProxyIntArray();
     CScriptArray* GetProxyDoubleArray();
+    CScriptArray* GetProxyDoubleMatArray();
 
     void FillDoubleArray( vector < double > & in, CScriptArray* out );
 
     //==== Common Types =====//
     asITypeInfo* m_IntArrayType;
     asITypeInfo* m_DoubleArrayType;
+    asITypeInfo* m_DoubleMatArrayType;
     asITypeInfo* m_Vec3dArrayType;
     asITypeInfo* m_StringArrayType;
 
@@ -129,6 +131,7 @@ private:
     vector< string > m_ProxyStringArray;
     vector< int > m_ProxyIntArray;
     vector< double > m_ProxyDoubleArray;
+    vector< vector< double > > m_ProxyDoubleMatArray;
 
     CScriptArray* GetGeomTypes();
     CScriptArray* FindGeoms();
@@ -156,6 +159,7 @@ private:
     CScriptArray* GetAllDataNames( const string & results_id );
     CScriptArray* GetIntResults( const string & id, const string & name, int index );
     CScriptArray* GetDoubleResults( const string & id, const string & name, int index );
+    CScriptArray* GetDoubleMatResults( const string & id, const string & name, int index );
     CScriptArray* GetStringResults( const string & id, const string & name, int index );
     CScriptArray* GetVec3dResults( const string & id, const string & name, int index );
     CScriptArray* FindContainers();

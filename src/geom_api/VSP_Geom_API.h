@@ -110,6 +110,7 @@ extern int GetNumData( const std::string & results_id, const std::string & data_
 extern int GetResultsType( const std::string & results_id, const std::string & data_name );
 extern const std::vector< int > & GetIntResults( const std::string & id, const std::string & name, int index = 0 );
 extern const std::vector< double > & GetDoubleResults( const std::string & id, const std::string & name, int index = 0 );
+extern const std::vector< std::vector< double > > & GetDoubleMatResults( const std::string & id, const std:: string & name, int index = 0 );
 extern const std::vector<std::string> & GetStringResults( const std::string & id, const std::string & name, int index = 0 );
 extern const std::vector< vec3d > & GetVec3dResults( const std::string & id, const std::string & name, int index = 0 );
 extern std::string CreateGeomResults( const std::string & geom_id, const std::string & name );

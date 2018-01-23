@@ -238,7 +238,8 @@ enum RES_DATA_TYPE {    INVALID_TYPE = -1,
                         INT_DATA = 0,
                         DOUBLE_DATA = 1,
                         STRING_DATA = 2,
-                        VEC3D_DATA = 3
+                        VEC3D_DATA = 3,
+                        DOUBLE_MATRIX_DATA = 4,
                    };
 
 enum RES_GEOM_TYPE {    MESH_INDEXED_TRI,

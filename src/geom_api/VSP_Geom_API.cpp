@@ -1083,6 +1083,25 @@ const vector<double> & GetDoubleResults( const string & id, const string & name,
     return ResultsMgr.GetDoubleResults( id, name, index );
 }
 
+/// Return the double matrix given the results id, data name and data index
+const vector< vector<double> > & GetDoubleMatResults( const string & id, const string & name, int index )
+{
+    if ( !ResultsMgr.ValidResultsID( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetDoubleMatResults::Invalid ID " + id  );
+    }
+    else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleMatResults::Can't Find Name " + name  );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return ResultsMgr.GetDoubleMatResults( id, name, index );
+}
+
 /// Return the string data given the results id, data name and data index
 const vector<string> & GetStringResults( const string & id, const string & name, int index )
 {
