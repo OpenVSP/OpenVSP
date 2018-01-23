@@ -2257,15 +2257,30 @@ class HersheyVV : VV_Base
                         c6.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
                         c6.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0, max: 0.15 } }");
                         
-                        // TODO: span_loc_data[x][q][r][0] only corresponds exactly to cl_dist_data[x][q][r][0]. Need to use span_loc_data[x][q][r][1] for cl_dist_data[x][q][r][1], etc. (see VKT plot) (Could call interpNULLS in Google Charts API)
+                        // All load and Cp distributions must be plotted against the x-vector that matches the appropriate data
                         array<string> data_str_vec6;
                         for( uint i = 0; i < uint(span_loc_data[x][q][r][0].length()); i++ )
                         {
                             string row = string("\t\t  [") + double( span_loc_data[x][q][r][0][i] ) + string(",") + double( cl_dist_data[x][q][r][0][i] ) + 
-                                string(",") + double( cl_dist_data[x][q][r][1][i] ) + string(",") + double( cl_dist_data[x][q][r][2][i] )+ string(",") + 
-                                double( cl_dist_theo[x][q][r][i][1] );
+                                string(",null,null,") + double( cl_dist_theo[x][q][r][i][1] ) + string("],\n");
 
-                            if ( i == span_loc_data[x][q][r][0].length() - 1 )
+                            data_str_vec6.push_back( row );
+                        }
+                        
+                        for( uint i = 0; i < uint(span_loc_data[x][q][r][1].length()); i++ )
+                        {
+                            string row = string("\t\t  [") + double( span_loc_data[x][q][r][1][i] ) + string(",null,") + double( cl_dist_data[x][q][r][1][i] ) + 
+                                string(",null,null],");
+                            
+                            data_str_vec6.push_back( row );
+                        }
+                        
+                        for( uint i = 0; i < uint(span_loc_data[x][q][r][2].length()); i++ )
+                        {
+                            string row = string("\t\t  [") + double( span_loc_data[x][q][r][2][i] ) + string(",null,null,") + 
+                            double( cl_dist_data[x][q][r][2][i] )+ string(",null");
+
+                            if ( i == span_loc_data[x][q][r][2].length() - 1 )
                             {
                                 row += string("]\n");
                             }
