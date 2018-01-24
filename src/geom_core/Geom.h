@@ -449,6 +449,10 @@ public:
     virtual void WriteXSecFile( int geom_no, FILE* dump_file );
     virtual void WritePLOT3DFileExtents( FILE* dump_file );
     virtual void WritePLOT3DFileXYZ( FILE* dump_file );
+
+    virtual void SetupPMARCFile( int &ipatch, vector < int > &idpat );
+    virtual void WritePMARCGeomFile(FILE *dump_file, int &ipatch, vector<int> &idpat);
+    virtual void WritePMARCWakeFile(FILE *dump_file, int &ipatch, vector<int> &idpat);
     virtual void WriteStl( FILE* fid ) {};
     virtual void WriteX3D( xmlNodePtr node );
     virtual void WritePovRay( FILE* fid, int comp_num );

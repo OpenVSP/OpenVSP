@@ -3157,6 +3157,126 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
     }
 }
 
+void Vehicle::WritePMARCFile( const string & file_name, int write_set )
+{
+
+    int ntstep = 10;
+    double dtstep = 0.5;
+    double alpha = 10.0;
+    double beta = 0.0;
+
+    double cbar = 1.0;
+    double Sref = 1.0;
+    double b = 1.0;
+
+    //==== Open file ====//
+    FILE* fp = fopen( file_name.c_str(), "w" );
+
+    // PMARC header.
+
+    // Case title.
+    fprintf(fp," OpenVSP_PMARC_Export\n");
+    // Program run/output verbosity options.
+    fprintf(fp," &BINP2   LSTINP=2,    LSTOUT=0,    LSTFRQ=0,    LENRUN=0,    LPLTYP=1,     &END\n");
+    // Detailed printout information (not used with LSTOUT=0).
+    fprintf(fp," &BINP3   LSTGEO=0,    LSTNAB=0,    LSTWAK=0,    LSTCPV=0,                  &END\n");
+    // Matrix solver parameters.
+    fprintf(fp," &BINP4   MAXIT=200,   SOLRES=0.0005, &END\n");
+    // Time stepped wake parameters.
+    fprintf(fp," &BINP5   NTSTPS=%d,   DTSTEP=%10.2f,    &END\n", ntstep, dtstep);
+    //  Global symmetry and solver parameters.  Note that PMARC is globally in asymmetrical mode.
+    fprintf(fp," &BINP6   RSYM=1.0,    RGPR=0.0,    RFF=5.0,  RCORES=0.050,  RCOREW=0.050,  &END\n");
+    // Freestream conditions.  1.0 for nondimensional velocity.
+    fprintf(fp," &BINP7   VINF=1.0,    VSOUND=1116.0, &END\n");
+    // Orientation angle and rotation rates
+    fprintf(fp," &BINP8   ALDEG=%6.2f,   YAWDEG=%6.2f,  PHIDOT=0.0,  THEDOT=0.0, PSIDOT=0.0, &END\n", alpha, beta);
+    // Oscillatory motion magnitude and frequencies.
+    fprintf(fp," &BINP8A  PHIMAX= 0.0, THEMAX=0.0,  PSIMAX=0.0,\n          WRX=0.0,     WRY=0.0,   WRZ=0.0,   &END\n");
+    fprintf(fp," &BINP8B  DXMAX=0.0,   DYMAX=0.0,   DZMAX=0.0,\n          WTX=0.0,     WTY=0.0,   WTZ=0.000, &END\n");
+
+    // Reference conditions.
+    fprintf(fp," &BINP9   CBAR=%6.2f,  SREF= %6.2f, SSPAN= %6.2f,\n          RMPX=0.0,    RMPY=0.00, RMPZ=0.00, &END\n", cbar, Sref, b/2.0);
+
+    // Special options.  Panel neighbor changes, boundary condition changes, internal flow problems.
+    fprintf(fp," &BINP10  NORSET=0,    NBCHGE=0,    NCZONE=0,\n          NCZPCH=0,    CZDUB=0.0, VREF=00.0, &END\n");
+    // Normal velocity specification
+    fprintf(fp," &BINP11  NORPCH=0,    NORF=0,      NORL=0,\n          NOCF=0,      NOCL=0,    VNORM=0.0, &END\n");
+    // Panel neighbor change
+    fprintf(fp," &BINP12  KPAN(1)=0,   KSIDE(1)=0,  NEWNAB(1)=0,    NEWSID(1)=0, &END\n");
+    // Boundary layer calculation.  Requires onbody streamlines
+    fprintf(fp," &BINP13  NBLIT = 0,   &END\n");
+
+    // Geometry section.
+    // Assembly coordinate system position, scale, and rotation.
+    fprintf(fp," &ASEM1   ASEMX=    0.0000, ASEMY=    0.0000, ASEMZ=    0.0000,\n");
+    fprintf(fp,"          ASCAL=    1.0000, ATHET=   0.0,     NODEA=   5,        &END\n");
+    // Assembly coordinate system arbitrary rotation axis.
+    fprintf(fp," &ASEM2   APXX=0.00,        APYY=0.00,        APZZ=0.00,\n");
+    fprintf(fp,"          AHXX=0.00,        AHYY=1.00,        AHZZ=0.00,         &END\n");
+    // Component coordinate system position, scale, and rotation.
+    fprintf(fp," &COMP1   COMPX=    0.0000, COMPY=    0.0000, COMPZ=    0.0000,\n");
+    fprintf(fp,"          CSCAL=    1.0000, CTHET=   0.0,     NODEC=   5,        &END\n");
+    // Component coordinate system arbitrary rotation axis.
+    fprintf(fp," &COMP2   CPXX= 0.0000,     CPYY= 0.0000,     CPZZ= 0.0000,\n");
+    fprintf(fp,"          CHXX= 0.0000,     CHYY=  1.000,     CHZZ= 0.0000,      &END\n");
+
+
+    int ntotal = 0;
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    //==== Write surface boundary points ====//
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            ntotal += geom_vec[i]->GetNumTotalSurfs();
+        }
+    }
+
+    vector < int > idpat( ntotal );
+
+    int ipatch = 0;
+    //==== Write surface boundary points ====//
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            geom_vec[i]->SetupPMARCFile( ipatch, idpat );
+        }
+    }
+
+    ipatch = 0;
+    //==== Write surface boundary points ====//
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            geom_vec[i]->WritePMARCGeomFile(fp, ipatch, idpat);
+        }
+    }
+
+    ipatch = 0;
+    //==== Write surface boundary points ====//
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) )
+        {
+            geom_vec[i]->WritePMARCWakeFile(fp, ipatch, idpat);
+        }
+    }
+
+    // Other inputs (minimal namelists to disable features).
+
+    // On body streamline inputs.
+    fprintf(fp," &ONSTRM  NONSL =0,             &END\n");
+    // Off body velocity scan.
+    fprintf(fp," &VS1     NVOLR= 0,  NVOLC= 0,  &END\n");
+    // Off body streamline inputs.
+    fprintf(fp," &SLIN1   NSTLIN=0,             &END\n");
+
+    fclose(fp);
+}
+
 void Vehicle::WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox )
 {
     bool color = m_DXFColorFlag.Get();

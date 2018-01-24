@@ -3542,6 +3542,140 @@ void Geom::WritePLOT3DFileXYZ( FILE* dump_file )
     }
 }
 
+void Geom::SetupPMARCFile( int &ipatch, vector < int > &idpat )
+{
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF ||
+            m_SurfVec[i].GetSurfType() == vsp::PROP_SURF )
+        {
+            idpat[ipatch] = 1;
+        }
+        else
+        {
+            idpat[ipatch] = 2;
+        }
+
+        ipatch++;
+    }
+}
+
+void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat)
+{
+    bool pmtippatch = false;
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        //==== Tessellate Surface ====//
+        vector< vector< vec3d > > pnts;
+        vector< vector< vec3d > > norms;
+
+        UpdateTesselate( i, pnts, norms, false );
+
+        int irev = 0;
+        if ( !m_SurfVec[i].GetFlipNormal() )
+        {
+            irev = -1;
+        }
+
+        // Start of wing patch.
+        // Patch definition.
+        // IDPAT = 1 -- Wing type, 2 -- Body type
+        fprintf(fp," &PATCH1  IREV= %d, IDPAT= %d, MAKE= 0, KCOMP= 1, KASS= 1, IPATSYM= 0, IPATCOP= 0, &END\n", irev, idpat[ipatch] );
+        fprintf(fp," %s\n", GetName().c_str() );
+
+        for ( int ll = 0; ll < pnts.size(); ll++ )
+        {
+            // Column header.
+            // Section coordinate system information.
+            fprintf(fp, " &SECT1  STX= 0.0, STY= 0.0, STZ= 0.0, SCALE= 1.0,\n   ALF= 0.0, THETA= 0.0,\n");
+
+            // Column header continued.
+            // Last line of column header changes for last row of points.
+            if (ll == pnts.size() - 1)
+            {
+                if ( ipatch < idpat.size() - 1 )
+                {
+                    // Last section of this patch. (TNODS)
+                    fprintf(fp, "   INMODE= 4, TNODS= 3, TNPS= 0, TINTS= 3, &END\n");
+                }
+                else
+                {
+                    // Last section of last patch.
+                    fprintf(fp, "   INMODE= 4, TNODS= 5, TNPS= 0, TINTS= 3, &END\n");
+                }
+            }
+            else
+            {
+                // More sections of this patch to follow.
+                fprintf(fp, "   INMODE= 4, TNODS= 0, TNPS= 0, TINTS= 3, &END\n");
+            }
+
+            // Print out the actual points.
+            // TE bottom surface to LE to TE top surface.
+            for ( int mm  = 0; mm < pnts[ll].size(); mm++ )
+            {
+                for ( int nn = 0; nn < 3; nn++ )
+                {
+                    fprintf(fp, "%10.4f ", pnts[ll][mm].v[nn]);
+                }
+                fprintf(fp, "\n");
+            }
+            // Column footer.
+            // Break point ending this airfoil (section).
+            fprintf(fp, " &BPNODE TNODE= 3, TNPC= 0, TINTC= 3, &END\n");
+        }
+
+        ipatch++;
+    }
+
+
+    // Wing tip patch generation (flat)
+    if ( pmtippatch )
+    {
+        // Patch definition.  Note symmetrical patch is automatically generated.
+        fprintf(fp," &PATCH1  IREV= 0, IDPAT= 2, MAKE=1, KCOMP= 1, KASS= 1,");
+        fprintf(fp," IPATSYM=1, IPATCOP =0, &END\n");
+        fprintf(fp," Wing Tip\n");
+        // Automatic tip patch definition.
+        fprintf(fp," &PATCH2  ITYP=1,   TNODS=5, TNPS=3, TINTS=3,       &END\n");
+    }
+}
+
+void Geom::WritePMARCWakeFile( FILE *fp, int &ipatch, vector<int> &idpat )
+{
+    int ilastwake = -1;
+    for ( int i = 0; i < idpat.size(); i++ )
+    {
+        if ( idpat[i] == 1 ) // Wing-type
+        {
+            ilastwake = i;
+        }
+    }
+
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        if ( idpat[ipatch] == 1 )
+        {
+            int nodew = 3;
+            if ( ipatch == ilastwake )
+            {
+                nodew = 5;
+            }
+
+            // Wake definition
+            fprintf(fp," &WAKE1   IDWAK=1,  IFLXW= 1,   ITRFTZ=1,  INTRW=1,  &END\n" );
+            fprintf(fp," Wing Wake\n");
+            // Wake separation information.  Patch 1, side 2.
+            fprintf(fp," &WAKE2   KWPACH=%d, KWSIDE=2, KWLINE=0,  KWPAN1=0,\n", ipatch + 1 );
+            // More wakes to follow. (NODEW)
+            fprintf(fp,"          KWPAN2=0, NODEW=%d,  INITIAL=0,             &END\n", nodew);
+        }
+
+        ipatch++;
+    }
+}
+
 void Geom::CreateGeomResults( Results* res )
 {
     res->Add( NameValData( "Type", vsp::GEOM_XSECS ) );

@@ -200,6 +200,7 @@ public:
     void WriteBEMFile( const string & file_name, int write_set );
     void WriteDXFFile( const string & file_name, int write_set );
     void WriteSVGFile( const string & file_name, int write_set );
+    void WritePMARCFile( const string & file_name, int write_set );
 
     void WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox );
     void WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox );
