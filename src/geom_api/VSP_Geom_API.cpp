@@ -1909,6 +1909,20 @@ void SetFeaStructName( const string & geom_id, int fea_struct_id, const string &
     return;
 }
 
+void SetFeaPartName( const string & part_id, const string & name )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( part_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPartName::Can't Find FEA Part " + part_id );
+        return;
+    }
+
+    part->SetName( name );
+    ErrorMgr.NoError();
+    return;
+}
+
 /// Add a FeaPart, return FeaPart ID
 string AddFeaPart( const string & geom_id, int fea_struct_id, int type )
 {
