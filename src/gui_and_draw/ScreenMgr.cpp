@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "AdvLinkScreen.h"
+#include "AirfoilExportScreen.h"
 #include "BEMOptionsScreen.h"
 #include "CfdMeshScreen.h"
 #include "ClippingScreen.h"
@@ -192,6 +193,7 @@ void ScreenMgr::Init()
     //==== Build All Screens ====//
     m_ScreenVec.resize( VSP_NUM_SCREENS );
     m_ScreenVec[VSP_ADV_LINK_SCREEN] = new AdvLinkScreen( this );
+    m_ScreenVec[VSP_AIRFOIL_EXPORT_SCREEN] = new AirfoilExportScreen( this );
     m_ScreenVec[VSP_BACKGROUND_SCREEN] = new ManageBackgroundScreen( this );
     m_ScreenVec[VSP_BEM_OPTIONS_SCREEN] = new BEMOptionsScreen( this );
     m_ScreenVec[VSP_CFD_MESH_SCREEN] = new CfdMeshScreen( this );
