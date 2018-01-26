@@ -1394,3 +1394,38 @@ double VspCurve::Angle( const double & u1, const int &dir1, const double & u2, c
 
     return angle( tan1, tan2 );
 }
+
+vector < BezierSegment > VspCurve::GetBezierSegments()
+{
+    vector < BezierSegment > seg_vec;
+
+    double t0 = 0.0;
+    double tmax = m_Curve.get_tmax(); // Get tmax for entire curve so that the sum of dt of all bezier segments = 1.0
+
+    int num_sections = m_Curve.number_segments();
+
+    for ( int i = 0; i < num_sections; i++ )
+    {
+        BezierSegment seg;
+        curve_segment_type c;
+        double dt;
+
+        m_Curve.get( c, dt, i );
+
+        seg.order = c.degree();
+        seg.t0 = t0;
+        seg.tmax = t0 + ( dt / tmax );
+        t0 = seg.tmax;
+
+        for ( int j = 0; j < c.degree() + 1; j++ )
+        {
+            curve_point_type cp = c.get_control_point( j );
+
+            seg.control_pnt_vec.push_back( vec3d( cp ) );
+        }
+
+        seg_vec.push_back( seg );
+    }
+
+    return seg_vec;
+}
