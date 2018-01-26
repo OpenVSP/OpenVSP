@@ -114,6 +114,13 @@ Vehicle::Vehicle()
     m_SVGView3_rot.Init( "BottomLeftRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
     m_SVGView4_rot.Init( "BottomRightRotation", "SVGSettings", this, vsp::ROT_0, vsp::ROT_0, vsp::ROT_270 );
 
+    m_AFExportType.Init( "AFExportType", "AirfoilExport", this, vsp::BEZIER_AF_EXPORT, vsp::SELIG_AF_EXPORT, vsp::BEZIER_AF_EXPORT );
+    m_AFExportType.SetDescript( "Airfoil Representation Written to File" );
+    m_AFWTessFactor.Init( "AFWTessFactor", "AirfoilExport", this, 1.0, 0.01, 100 );
+    m_AFWTessFactor.SetDescript( "Airfoil W Tesselation Factor" );
+    m_AFAppendGeomIDFlag.Init( "AFAppendGeomIDFlag", "AirfoilExport", this, true, false, true );
+    m_AFAppendGeomIDFlag.SetDescript( "Airfoil W Tesselation Factor" );
+
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
 
     m_UpdatingBBox = false;
@@ -267,6 +274,10 @@ void Vehicle::Init()
     m_STLMultiSolid.Set( false );
 
     m_BEMPropID = string();
+
+    m_AFExportType.Set( vsp::BEZIER_AF_EXPORT );
+    m_AFWTessFactor.Set( 1.0 );
+    m_AFAppendGeomIDFlag.Set( true );
 
     m_UpdatingBBox = false;
     m_BbXLen.Set( 0 );

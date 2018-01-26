@@ -361,6 +361,10 @@ public:
 
     string m_BEMPropID;
 
+    IntParm m_AFExportType;
+    Parm m_AFWTessFactor;
+    BoolParm m_AFAppendGeomIDFlag;
+
     BoolParm m_STLMultiSolid;
 
     BoolParm m_exportCompGeomCsvFile;
