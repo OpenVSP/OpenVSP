@@ -2750,6 +2750,29 @@ void Vehicle::WriteBEMFile( const string &file_name, int write_set )
     }
 }
 
+void Vehicle::WriteAirfoilFile( const string &file_name, int write_set )
+{
+    FILE* meta_fid = fopen( file_name.c_str(), "w" );
+    if ( !meta_fid )
+    {
+        return;
+    }
+
+    fprintf( meta_fid, "# AIRFOIL METADATA CSV FILE\n\n" );
+
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+
+    for ( int i = 0; i < (int)geom_vec.size(); i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) && ( geom_vec[i]->GetType().m_Type == MS_WING_GEOM_TYPE || geom_vec[i]->GetType().m_Type == PROP_GEOM_TYPE ) )
+        {
+            geom_vec[i]->WriteAirfoilFiles( meta_fid );
+        }
+    }
+
+    fclose( meta_fid );
+}
+
 void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 {
     FILE* dxf_file = fopen( file_name.c_str(), "w" );
@@ -4316,6 +4339,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     else if ( file_type == EXPORT_PMARC )
     {
         WritePMARCFile(file_name, write_set);
+    }
+    else if ( file_type == EXPORT_AIRFOIL )
+    {
+        WriteAirfoilFile( file_name, write_set );
     }
 }
 

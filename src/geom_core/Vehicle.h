@@ -198,6 +198,7 @@ public:
                         bool labelSurfNo, bool labelSplitNo, int delimType );
 
     void WriteBEMFile( const string & file_name, int write_set );
+    void WriteAirfoilFile( const string & file_name, int write_set );
     void WriteDXFFile( const string & file_name, int write_set );
     void WriteSVGFile( const string & file_name, int write_set );
     void WritePMARCFile( const string & file_name, int write_set );
