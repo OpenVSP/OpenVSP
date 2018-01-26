@@ -446,6 +446,7 @@ public:
         return m_BBox;
     }
 
+    virtual void WriteAirfoilFiles( FILE* meta_fid );
     virtual void WriteBezierAirfoil( const string & file_name, double foilsurf_u_location );
     virtual void WriteSeligAirfoil( const string & file_name, double foilsurf_u_location );
     virtual vector < vec3d > GetAirfoilCoordinates( double foilsurf_u_location );

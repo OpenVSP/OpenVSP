@@ -3584,6 +3584,175 @@ vector < vec3d > Geom::GetAirfoilCoordinates( double foilsurf_u_location )
     return ordered_vec;
 }
 
+void Geom::WriteAirfoilFiles( FILE* meta_fid )
+{
+    // This function writes out the Bezier control points for all untwisted unit length airfoils.
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh || !meta_fid || m_MainSurfVec.size() <= 0 )
+    {
+        return;
+    }
+
+    // Adjust tesselation
+    if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT && abs( veh->m_AFWTessFactor() - 1.0 ) >= FLT_EPSILON )
+    {
+        m_TessW.Set( m_TessW() * veh->m_AFWTessFactor() );
+    }
+
+    // Get sectional U tesselation for interpolated airfoils. Ignore end caps
+    vector < int > utess_vec;
+    int num_foil = 0;
+
+    string xsecsurf_id;
+    int numXsurf = GetNumXSecSurfs(); // Should always be 1 for wing and prop geoms
+
+    for ( size_t i = 0; i < numXsurf; i++ )
+    {
+        XSecSurf* sec_surf = GetXSecSurf( i );
+        if ( sec_surf )
+        {
+            xsecsurf_id = sec_surf->GetID();
+
+            int numXsec = sec_surf->NumXSec();
+
+            for ( size_t j = 1; j < numXsec; j++ )
+            {
+                XSec* sec = sec_surf->FindXSec( j );
+                if ( sec )
+                {
+                    utess_vec.push_back( sec->m_SectTessU() );
+
+                    if ( j > 1 ) // Only inlclude airfoils at start and end of XSec for first XSec
+                    {
+                        num_foil += sec->m_SectTessU() - 1;
+                    }
+                    else
+                    {
+                        num_foil += sec->m_SectTessU();
+                    }
+                }
+            }
+        }
+    }
+
+    // Identify starting and ending U values from end cap options
+    double Umin = 0;
+    if ( m_CapUMinOption() != NO_END_CAP && m_CapUMinSuccess[0] )
+    {
+        Umin = 1.0;
+    }
+
+    double Umax = m_MainSurfVec[0].GetUMax();
+    if ( m_CapUMaxOption() != NO_END_CAP && m_CapUMaxSuccess[0] )
+    {
+        Umax -= 1.0;
+    }
+
+    // Get the untwisted wing surface
+    VspSurf* foil_surf = m_MainSurfVec[0].GetFoilSurf();
+
+    int numU = foil_surf->GetNumSectU();
+
+    double ustep = ( ( Umax - Umin ) / numU ) / m_MainSurfVec[0].GetUMax();
+    double umin = Umin / m_MainSurfVec[0].GetUMax();
+
+    double Vmin = 0.0;
+    double Vmax = m_MainSurfVec[0].GetWMax();
+    double Vle = ( Vmin + Vmax ) * 0.5;
+
+    int foil_cnt = 0;
+    int xsec_cnt = 0;
+
+    for ( size_t i = 0; i < numU; i++ )
+    {
+        double sec_umin = (double)i / numU;
+        double sec_umax = (double)( i + 1 ) / numU;
+
+        size_t j = 1;
+        if ( i == 0 )
+        {
+            j = 0; // Only inlclude airfoils at start and end of XSec for first XSec
+        }
+
+        for ( j; j < utess_vec[i]; j++ )
+        {
+            string af_file_name = m_Name + "_";
+
+            if ( veh->m_AFAppendGeomIDFlag() )
+            {
+                af_file_name += ( m_ID + "_" );
+            }
+
+            af_file_name += to_string( foil_cnt );
+
+            if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT )
+            {
+                af_file_name += ".dat";
+            }
+            else if ( veh->m_AFExportType() == vsp::BEZIER_AF_EXPORT )
+            {
+                af_file_name += ".bz";
+            }
+
+            double u = sec_umin + ( j * ( sec_umax - sec_umin ) / ( utess_vec[i] - 1 ) );
+
+            bool xsec_flag = false;
+            if ( j == 0 || j == utess_vec[i] - 1 )
+            {
+                xsec_flag = true;
+            }
+
+            fprintf( meta_fid, "########################################\n" );
+            fprintf( meta_fid, "Airfoil File Name, %s\n", af_file_name.c_str() );
+            fprintf( meta_fid, "Geom Name, %s\n", m_Name.c_str() );
+            fprintf( meta_fid, "Geom ID, %s\n", m_ID.c_str() );
+            fprintf( meta_fid, "Airfoil Index, %d\n", foil_cnt );
+            fprintf( meta_fid, "XSec Flag, %d\n", xsec_flag );
+
+            if ( xsec_flag )
+            {
+                fprintf( meta_fid, "XSec Index, %d\n", xsec_cnt );
+                fprintf( meta_fid, "XSecSurf ID, %s\n", xsecsurf_id.c_str() );
+            }
+
+            double u_global = umin + u * ustep; // Get u value on main surface
+
+            vec3d le_pnt = m_MainSurfVec[0].CompPnt01( u_global, ( Vle / Vmax ) );
+            vec3d te_pnt = m_MainSurfVec[0].CompPnt01( u_global, ( Vmin / Vmax ) );
+            double chord = dist( le_pnt, te_pnt );
+
+            fprintf( meta_fid, "FoilSurf u Value, %f\n", u );
+            fprintf( meta_fid, "Global u Value, %f\n", u_global );
+            fprintf( meta_fid, "Leading Edge Point, %f, %f, %f\n", le_pnt.x(), le_pnt.y(), le_pnt.z() );
+            fprintf( meta_fid, "Trailing Edge Point, %f, %f, %f\n", te_pnt.x(), te_pnt.y(), te_pnt.z() );
+            fprintf( meta_fid, "Chord, %f\n", chord );
+            fprintf( meta_fid, "########################################\n\n" );
+
+            if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT )
+            {
+                WriteSeligAirfoil( af_file_name, u );
+            }
+            else if ( veh->m_AFExportType() == vsp::BEZIER_AF_EXPORT )
+            {
+                WriteBezierAirfoil( af_file_name, u );
+            }
+
+            foil_cnt++;
+
+            if ( xsec_flag )
+            {
+                xsec_cnt++;
+            }
+        }
+    }
+
+    // Restore tesselation
+    if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT && abs( veh->m_AFWTessFactor() - 1.0 ) >= FLT_EPSILON )
+    {
+        m_TessW.Set( m_TessW.GetLastVal() );
+    }
+}
+
 void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
 {
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
