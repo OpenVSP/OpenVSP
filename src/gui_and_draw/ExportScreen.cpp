@@ -14,10 +14,11 @@
 #include "BEMOptionsScreen.h"
 #include "DXFOptionsScreen.h"
 #include "SVGOptionsScreen.h"
+#include "AirfoilExportScreen.h"
 using namespace vsp;
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+15)*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (17)*20 + 2*15 + 4*6, "Export" )
 {
     m_SelectedSetIndex = 0;
 
@@ -52,6 +53,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+15
     m_GenLayout.AddButton( m_SVGButton, "SVG (.svg)" );
     m_GenLayout.AddButton( m_FacetButton, "Xpatch (.facet)" );
     m_GenLayout.AddButton( m_PMARCButton, "PMARC 12 (.pmin)" );
+    m_GenLayout.AddButton( m_AirfoilButton, "Airfoil (.csv)" );
 }
 
 //==== Update Screen ====//
@@ -170,9 +172,17 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser("Write Facet File?", "*.facet");
     }
+
     else if ( type == EXPORT_PMARC )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser("Write PMARC File?", "*.pmin");
+    }
+    else if ( type == EXPORT_AIRFOIL )
+    {
+        if ( ( (AirfoilExportScreen*)m_ScreenMgr->GetScreen( ScreenMgr::VSP_AIRFOIL_EXPORT_SCREEN ) )->ShowAirfoilExportScreen() )
+        {
+            newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Airfoil Metadata File?", "*.csv" );
+        }
     }
     else if ( type == -1 )
     {
@@ -255,6 +265,10 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_PMARCButton )
     {
         ExportFile(newfile, m_SelectedSetIndex, EXPORT_PMARC);
+    }
+    else if ( device == &m_AirfoilButton )
+    {
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_AIRFOIL );
     }
     else if (  device == &m_ExportSetChoice )
     {
