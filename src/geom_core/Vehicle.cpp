@@ -278,6 +278,7 @@ void Vehicle::Init()
     m_AFExportType.Set( vsp::BEZIER_AF_EXPORT );
     m_AFWTessFactor.Set( 1.0 );
     m_AFAppendGeomIDFlag.Set( true );
+    m_AFFileDir = string();
 
     m_UpdatingBBox = false;
     m_BbXLen.Set( 0 );
@@ -323,6 +324,8 @@ void Vehicle::Wype()
     m_Name = string();
 
     m_VSP3FileName = string();
+
+    m_AFFileDir = string();
 
     m_BEMPropID = string();
 
@@ -2759,6 +2762,14 @@ void Vehicle::WriteAirfoilFile( const string &file_name, int write_set )
     }
 
     fprintf( meta_fid, "# AIRFOIL METADATA CSV FILE\n\n" );
+
+    // Determine directory to place all airfoil files (same directory as metadata file)
+    size_t last_index = file_name.find_last_of( "/\\" );
+    if ( last_index > 0 )
+    {
+        m_AFFileDir = file_name.substr( 0, ( last_index + 1 ) );
+        fprintf( meta_fid, "Airfoil File Directory, %s\n\n", m_AFFileDir );
+    }
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
 

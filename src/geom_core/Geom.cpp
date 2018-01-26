@@ -3730,11 +3730,11 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
 
             if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT )
             {
-                WriteSeligAirfoil( af_file_name, u );
+                WriteSeligAirfoil( ( veh->m_AFFileDir + af_file_name ), u );
             }
             else if ( veh->m_AFExportType() == vsp::BEZIER_AF_EXPORT )
             {
-                WriteBezierAirfoil( af_file_name, u );
+                WriteBezierAirfoil( ( veh->m_AFFileDir + af_file_name ), u );
             }
 
             foil_cnt++;

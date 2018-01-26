@@ -365,6 +365,7 @@ public:
     IntParm m_AFExportType;
     Parm m_AFWTessFactor;
     BoolParm m_AFAppendGeomIDFlag;
+    string m_AFFileDir;
 
     BoolParm m_STLMultiSolid;
 
