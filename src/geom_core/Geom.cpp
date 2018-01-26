@@ -16,6 +16,8 @@
 #include "HingeGeom.h"
 using namespace vsp;
 
+#include <float.h>
+
 //==== Constructor ====//
 GeomType::GeomType()
 {
@@ -3478,6 +3480,110 @@ void Geom::WriteBezierAirfoil( const string & file_name, double foilsurf_u_locat
     fprintf( file_id, "\n" );
     fclose( file_id );
 }
+
+bool GreaterThanCompare( const vec3d a, const vec3d b )
+{
+    return ( a.x() > b.x() );
+}
+
+bool LessThanCompare( const vec3d a, const vec3d b )
+{
+    return ( a.x() < b.x() );
+}
+
+void Geom::WriteSeligAirfoil( const string & file_name, double foilsurf_u_location )
+{
+    // This function writes out the all coordinate points in Selig format for a single
+    //  airfoil (constant u curve). Input foilsurf_u_location must be 0 <= u <= 1
+
+    FILE* file_id = fopen( file_name.c_str(), "w" );
+    if ( !file_id || m_MainSurfVec.size() == 0 || foilsurf_u_location < 0.0 || foilsurf_u_location > 1.0 )
+    {
+        return;
+    }
+
+    vector < vec3d > ordered_vec = GetAirfoilCoordinates( foilsurf_u_location );
+
+    fprintf( file_id, "%s\n", file_name.c_str() ); // Write file name as header
+
+    for ( size_t i = 0; i < ordered_vec.size(); i++ )
+    {
+        fprintf( file_id, "%17.16f, %17.16f\n", ordered_vec[i].x(), ordered_vec[i].y() );
+    }
+
+    fclose( file_id );
+}
+
+vector < vec3d > Geom::GetAirfoilCoordinates( double foilsurf_u_location )
+{
+    // This function returns the coordinate points of a Foil Surf airfoil in Selig format. 
+    //  Input foilsurf_u_location must be 0 <= u <= 1
+
+    vector < vec3d > coord_vec, ordered_vec;
+
+    if ( m_MainSurfVec.size() == 0 || foilsurf_u_location < 0.0 || foilsurf_u_location > 1.0 )
+    {
+        return ordered_vec;
+    }
+
+    VspSurf* foil_surf = m_MainSurfVec[0].GetFoilSurf();
+
+    VspCurve foil_curve;
+    foil_surf->GetU01ConstCurve( foil_curve, foilsurf_u_location );
+
+    // Get V tesselation values
+    vector < double > Vtess, Vup, Vlow;
+    foil_surf->MakeVTess( m_TessW(), Vtess, m_CapUMinTess(), false );
+
+    // Identify upper and lower tesselation values
+    vector < vec3d > lower_pnts, upper_pnts;
+
+    for ( size_t i = 1; i < Vtess.size() - 1; i++ ) // Note: LE and TE not included
+    {
+        if ( Vtess[i] < ( 2.0 - FLT_EPSILON ) )
+        {
+            Vlow.push_back( Vtess[i] );
+        }
+        else if ( Vtess[i] > ( 2.0 + FLT_EPSILON ) )
+        {
+            Vup.push_back( Vtess[i] );
+        }
+    }
+
+    // Tessealte along upper and lower V values
+    foil_curve.Tesselate( Vlow, lower_pnts );
+    foil_curve.Tesselate( Vup, upper_pnts );
+
+    // Sort in ascending/descending order
+    std::sort( upper_pnts.begin(), upper_pnts.end(), GreaterThanCompare );
+    std::sort( lower_pnts.begin(), lower_pnts.end(), LessThanCompare );
+
+    ordered_vec.resize( upper_pnts.size() + lower_pnts.size() + 3 );
+
+    // Identify TE/LE 
+    vec3d LE_pnt = foil_curve.CompPnt01( 0.0 );
+    vec3d TE_pnt = foil_curve.CompPnt01( 0.5 );
+
+    // organize the coordinate points into a single vector
+    ordered_vec[0] = LE_pnt; // Start at LE
+
+    for ( size_t i = 0; i < upper_pnts.size(); i++ )
+    {
+        ordered_vec[i + 1] = upper_pnts[i];
+    }
+
+    ordered_vec[upper_pnts.size() + 1] = TE_pnt; // Include TE
+
+    for ( size_t i = 0; i < lower_pnts.size(); i++ )
+    {
+        ordered_vec[i + upper_pnts.size() + 2] = lower_pnts[i];
+    }
+
+    ordered_vec[upper_pnts.size() + lower_pnts.size() + 2] = LE_pnt; // End at LE
+
+    return ordered_vec;
+}
+
 void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
 {
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
