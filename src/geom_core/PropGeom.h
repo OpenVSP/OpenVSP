@@ -136,6 +136,8 @@ public:
 
     virtual PCurve* GetPCurve( int curveid );
 
+    virtual void WriteAirfoilFiles( FILE* meta_fid );
+
     Parm m_Diameter;
 
     Parm m_Rotate;
