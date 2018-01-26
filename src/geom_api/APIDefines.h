@@ -198,7 +198,8 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_DXF,
                     EXPORT_FACET,
                     EXPORT_SVG,
-                    EXPORT_PMARC
+                    EXPORT_PMARC,
+                    EXPORT_AIRFOIL
                  };
 
 enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
@@ -615,6 +616,10 @@ enum SUBSURF_INCLUDE { SS_INC_TREAT_AS_PARENT,
                        SS_INC_SEPARATE_TREATMENT,
                        SS_INC_ZERO_DRAG,
                      };
+
+enum AIRFOIL_EXPORT_TYPE { SELIG_AF_EXPORT,
+                           BEZIER_AF_EXPORT
+                         };
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)
