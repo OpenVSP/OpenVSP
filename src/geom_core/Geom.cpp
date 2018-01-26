@@ -3435,6 +3435,49 @@ bool Geom::CompTransCoordSys( const double &u, const double &w, Matrix4d &transM
     return false;
 }
 
+void Geom::WriteBezierAirfoil( const string & file_name, double foilsurf_u_location )
+{
+    // This function writes out the all Bezier segments (order, t0, tend, and control points) 
+    //  for a single airfoil (constant u curve). Input foilsurf_u_location must be 0 <= u <= 1
+
+    FILE* file_id = fopen( file_name.c_str(), "w" );
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !file_id || !veh || m_MainSurfVec.size() == 0 || foilsurf_u_location < 0.0 || foilsurf_u_location > 1.0 )
+    {
+        return;
+    }
+
+    // Get the untwisted wing surface
+    VspSurf* foil_surf = m_MainSurfVec[0].GetFoilSurf();
+
+    // Get the unit length airfoil curve
+    VspCurve foil_curve;
+    foil_surf->GetU01ConstCurve( foil_curve, foilsurf_u_location );
+
+    fprintf( file_id, "File Name, %s\n", file_name.c_str() );
+
+    // Get the Bezier segments
+    vector < BezierSegment > seg_vec = foil_curve.GetBezierSegments();
+
+    fprintf( file_id, "Num Bezier Seg, %d\n", seg_vec.size() );
+
+    fprintf( file_id, "# Order, t_0, t_end, Ctrl Pnt X1, Ctrl Pnt Y1, Ctrl Pnt X2, Ctrl Pnt Y2, ...\n" );
+
+    for ( size_t j = 0; j < seg_vec.size(); j++ )
+    {
+        fprintf( file_id, "%d, %f, %f", seg_vec[j].order, seg_vec[j].t0, seg_vec[j].tmax );
+
+        for ( size_t i = 0; i < seg_vec[j].control_pnt_vec.size(); i++ )
+        {
+            fprintf( file_id, ", %17.16f, %17.16f", seg_vec[j].control_pnt_vec[i].x(), seg_vec[j].control_pnt_vec[i].y() );
+        }
+
+        fprintf( file_id, "\n" );
+    }
+
+    fprintf( file_id, "\n" );
+    fclose( file_id );
+}
 void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
 {
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )

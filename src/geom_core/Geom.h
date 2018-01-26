@@ -446,6 +446,7 @@ public:
         return m_BBox;
     }
 
+    virtual void WriteBezierAirfoil( const string & file_name, double foilsurf_u_location );
     virtual void WriteXSecFile( int geom_no, FILE* dump_file );
     virtual void WritePLOT3DFileExtents( FILE* dump_file );
     virtual void WritePLOT3DFileXYZ( FILE* dump_file );
