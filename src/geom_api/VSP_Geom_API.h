@@ -231,6 +231,7 @@ extern void DemoteCSTLower( const std::string& xsec_id );
 extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg );
 
 extern void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u );
+extern void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u );
 //======================== Sets ================================//
 extern int GetNumSets();
 extern void SetSetName( int index, const std::string& name );

@@ -3693,6 +3693,26 @@ void WriteBezierAirfoil( const std::string & file_name, const std::string & geom
     ErrorMgr.NoError();
 }
 
+void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "WriteSeligAirfoil::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "WriteSeligAirfoil::Invalid u Location" );
+        return;
+    }
+
+    geom_ptr->WriteSeligAirfoil( file_name, foilsurf_u );
+    ErrorMgr.NoError();
+}
+
 //===================================================================//
 //===============       Set Functions            ===================//
 //===================================================================//
