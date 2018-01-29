@@ -3713,6 +3713,28 @@ void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_
     ErrorMgr.NoError();
 }
 
+vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const double foilsurf_u )
+{
+    vector < vec3d > ordered_vec;
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilCoordinates::Can't Find Geom " + geom_id );
+        return ordered_vec;
+    }
+
+    if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetAirfoilCoordinates::Invalid u Location" );
+        return ordered_vec;
+    }
+
+    ordered_vec = geom_ptr->GetAirfoilCoordinates( foilsurf_u );
+    ErrorMgr.NoError();
+    return ordered_vec;
+}
+
 //===================================================================//
 //===============       Set Functions            ===================//
 //===================================================================//

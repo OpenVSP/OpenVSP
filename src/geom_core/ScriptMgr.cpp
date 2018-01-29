@@ -2108,6 +2108,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void WriteSeligAirfoil( const string& in file_name, const string& in geom_id, const double foilsurf_u )", asFUNCTION( vsp::WriteSeligAirfoil ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilCoordinates( const string& in geom_id, const double foilsurf_u )", asMETHOD( ScriptMgrSingleton, GetAirfoilCoordinates ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
     //==== Sets Functions ====//
     r = se->RegisterGlobalFunction( "int GetNumSets()", asFUNCTION( vsp::GetNumSets ), asCALL_CDECL );
     assert( r >= 0 );
@@ -2675,16 +2678,11 @@ void ScriptMgrSingleton::SetAirfoilPnts( const string& xsec_id, CScriptArray* up
     vsp::SetAirfoilPnts( xsec_id, up_pnt_vec, low_pnt_vec );
 }
 
-void ScriptMgrSingleton::WriteSeligAirfoilFile( const string& airfoil_name, CScriptArray* ordered_airfoil_pnts )
+CScriptArray* ScriptMgrSingleton::GetAirfoilCoordinates( const std::string & geom_id, const double foilsurf_u )
 {
-    vector< vec3d > xyz_vec;
-    xyz_vec.resize( ordered_airfoil_pnts->GetSize() );
-    for ( int i = 0; i < (int)ordered_airfoil_pnts->GetSize(); i++ )
-    {
-        xyz_vec[i] = *(vec3d*)( ordered_airfoil_pnts->At( i ) );
-    }
+    m_ProxyVec3dArray = vsp::GetAirfoilCoordinates( geom_id, foilsurf_u );
 
-    vsp::WriteSeligAirfoilFile( airfoil_name, xyz_vec );
+    return GetProxyVec3dArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )

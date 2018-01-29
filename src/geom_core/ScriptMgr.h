@@ -179,6 +179,8 @@ private:
     CScriptArray* GetFeatureLinePnts( const string & geom_id );
     CScriptArray* GetEllipsoidCpDist( CScriptArray* surf_pnt_vec, const vec3d& abc_rad, const vec3d& V_inf );
 
+    CScriptArray* GetAirfoilCoordinates( const string & geom_id, const double foilsurf_u );
+
     void SetUpperCST( const string& xsec_id, int deg, CScriptArray* coefs );
     void SetLowerCST( const string& xsec_id, int deg, CScriptArray* coefs );
 
