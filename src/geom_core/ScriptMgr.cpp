@@ -3124,7 +3124,7 @@ void ScriptMgrSingleton::Print( int data, bool new_line )
 string ScriptMgrSingleton::GetVSPExePath()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh );
+    if ( veh )
     {
         return veh->GetExePath();
     }
