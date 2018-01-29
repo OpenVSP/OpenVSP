@@ -3673,6 +3673,26 @@ void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
     ErrorMgr.NoError();
 }
 
+void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "WriteBezierAirfoil::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "WriteBezierAirfoil::Invalid u Location" );
+        return;
+    }
+
+    geom_ptr->WriteBezierAirfoil( file_name, foilsurf_u );
+    ErrorMgr.NoError();
+}
+
 //===================================================================//
 //===============       Set Functions            ===================//
 //===================================================================//
