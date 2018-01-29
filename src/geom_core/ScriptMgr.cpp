@@ -2063,8 +2063,6 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetAirfoilPnts( const string& in xsec_id, array<vec3d>@ up_pnt_vec, array<vec3d>@ low_pnt_vec )", asMETHOD( ScriptMgrSingleton, SetAirfoilPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void WriteSeligAirfoilFile( const string& in airfoil_name, array<vec3d>@ ordered_airfoil_pnts )", asMETHOD( ScriptMgrSingleton, WriteSeligAirfoilFile ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
-    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<vec3d>@ GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false )", asMETHOD( ScriptMgrSingleton, GetHersheyBarLiftDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<vec3d>@ GetHersheyBarDragDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false )", asMETHOD( ScriptMgrSingleton, GetHersheyBarDragDist ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );

@@ -171,8 +171,6 @@ private:
     void SetAirfoilPnts( const string& xsec_id, CScriptArray* up_pnt_arr, CScriptArray* low_pnt_arr );
     void SetVec3dArray( CScriptArray* arr );
 
-    void WriteSeligAirfoilFile( const string& airfoil_name, CScriptArray* ordered_airfoil_pnts );
-
     CScriptArray* GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false );
     CScriptArray* GetHersheyBarDragDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false );
     CScriptArray* GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau );

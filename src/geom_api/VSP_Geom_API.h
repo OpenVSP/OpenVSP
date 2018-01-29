@@ -208,7 +208,6 @@ extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double to
 extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name );
 extern void SetAirfoilPnts( const std::string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
-extern void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d> & ordered_airfoil_pnts );
 extern std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false );
 extern std::vector<vec3d> GetHersheyBarDragDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false );
 extern std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau );

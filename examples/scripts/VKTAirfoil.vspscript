@@ -1,0 +1,41 @@
+void main()
+{
+    Print(string("Begin VKT Airfoil Script\n"));
+
+    const double pi = 3.14159265358979323846;
+    const int npts = 122;
+    const double alpha = 0.0;
+    const double epsilon = 0.1;
+    const double kappa = 0.1; 
+    const double tau = 10;
+    
+    Print(string("-->Getting VKT Airfoil Points\n"));
+    
+    array<vec3d> xyz_airfoil = GetVKTAirfoilPnts(npts, alpha, epsilon, kappa, tau*(pi/180) );
+
+    string filename = string("VKT_e0.1_k0.1_t10.dat");
+    
+    file fid;
+    
+    if( fid.open(filename, "w") < 0 ) 
+    {
+      string message =  string("Error: Failed to Open ") + filename + string("\n");
+      Print( message );
+      return;
+    }
+    
+    fid.writeString( filename );
+    fid.writeString( "\n" );
+    
+    Print(string("-->Writing VKT Airfoil Points\n"));
+    
+    for ( int i = 0; i < xyz_airfoil.length(); i++ )
+    {
+        string line = xyz_airfoil[i][0] + string( ", " ) + xyz_airfoil[i][1] + string( "\n" );
+        fid.writeString( line );
+    }
+    
+    fid.close();
+    
+    Print(string("Done\n"));
+}
