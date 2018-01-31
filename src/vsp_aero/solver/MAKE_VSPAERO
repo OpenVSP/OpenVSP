@@ -28,6 +28,7 @@ C_SRCS	=	matrix.C	        \
                 ControlSurface.C    \
                 ControlSurfaceGroup.C    \
 		MatPrecon.C			\
+		Gradient.C			\
                 vspaero.C
           
         

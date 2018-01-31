@@ -22,6 +22,7 @@
 #include "time.H"
 #include "quat.H"
 #include "MatPrecon.H"
+#include "Gradient.H"
 
 #define SOLVER_JACOBI 1
 #define SOLVER_GMRES  2
@@ -42,6 +43,7 @@
 #define P_ANALYSIS       3
 #define Q_ANALYSIS       4
 #define R_ANALYSIS       5
+#define PATH_ANALYSIS    6
 
 // Small class for stack list
 
@@ -111,6 +113,11 @@ private:
     int NumberOfRotors_;
     
     ROTOR_DISK *RotorDisk_;
+    
+    // Blade analysis
+    
+    int RotorAnalysis_;
+    double BladeRPM_;
 
     // Control Surface Group information (used for case header)
 
@@ -156,6 +163,7 @@ private:
     int NumberOfSurfaceVortexEdges_;
     int NumberOfTrailingVortexEdges_;
     int NumberOfVortexLoops_;
+    int NumberOfSurfaceNodes_;
     
     int NoWakeIteration_;
     int WakeIterations_;
@@ -181,6 +189,8 @@ private:
     
     int NumberOfMatrixPreconditioners_;    
     MATPRECON *MatrixPreconditionerList_;
+    
+    GRADIENT *VorticityGradient_;
     
     double AngleOfAttack_;
     double AngleOfBeta_;
@@ -424,6 +434,7 @@ private:
     
     // File IO
     
+    void WriteOutAerothermalDatabaseHeader(void);    
     void WriteOutAerothermalDatabaseGeometry(void);
     void WriteOutAerothermalDatabaseSolution(void);
     
@@ -574,6 +585,10 @@ public:
     // Calculate the body surface velocities
     
     void CalculateSurfaceMotion(void);
+    
+    // Update the location of the geometry ... or parts of it
+    
+    void UpdateGeometryLocation(void);
 
     // Update the local values of the circulation strengths for each vortex egde
     
@@ -600,13 +615,16 @@ public:
     void CalculateUnsteadyForces(void);    
     void IntegrateForcesAndMoments(int UnsteadyEvaluation);
     void CalculateDeltaCPs(void);
+    void CalculateVorticityGradient(void);    
     void CalculateSurfacePressures(void);
-                                          
+
+void CreateVorticityGradientDataStructure(void);
+
+                                                   
     void CalculateCLmaxLimitedForces(int UnsteadyEvaluation);
     void CalculateVortexBurstLocation(void);
 
     void CalculateSpanWiseLoading(void);
-    void WriteOutAerothermalDatabaseFiles(void);
     void CreateFEMLoadFile(int Case);
     void CreateFEMLoadFileFromVLMSolve(int Case);
     void CreateFEMLoadFileFromPanelSolve(int Case);
@@ -657,6 +675,11 @@ public:
     double Unsteady_AngleRate(void) { return Unsteady_AngleRate_; };
     double &Unsteady_AngleMax(void) { return Unsteady_AngleMax_; };
     double &Unsteady_HMax(void) { return Unsteady_HMax_; };
+    
+    // Blade analysis
+            
+    int &RotorAnalysis(void) { return RotorAnalysis_; };
+    double &BladeRPM(void) { return BladeRPM_; };
     
     // Over ride default edge by edge ssor preconditioner
     

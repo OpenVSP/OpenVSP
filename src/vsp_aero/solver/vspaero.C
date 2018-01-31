@@ -152,7 +152,7 @@ int DoUnsteadyAnalysis_      = 0;
 int UnsteadyAnalysisType_    = 0;
 int NumberOfTimeSteps_       = 0;
 int NumberOfTimeSamples_     = 0;
-int RotatingFreeStreamRun_   = 0;
+int RotorAnalysisRun         = 0;
 
 // Prototypes
 
@@ -166,7 +166,7 @@ void Solve(void);
 void StabilityAndControlSolve(void);
 void CalculateStabilityDerivatives(void);
 void UnsteadyStabilityAndControlSolve(void);
-void RotatingFreeStreamFrameSolve(void);
+void RotorAnalysisSolve(void);
 
 VSP_SOLVER VSP_VLM_;
 VSP_SOLVER &VSP_VLM(void) { return VSP_VLM_; };
@@ -192,7 +192,7 @@ int main(int argc, char **argv)
 
     // Output a header
 
-    printf("VSPAERO v.4.3.0 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
+    printf("VSPAERO v.4.4.0 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
     printf("\n\n\n\n");
     
 #ifdef VSPAERO_OPENMP
@@ -251,6 +251,14 @@ int main(int argc, char **argv)
     // Load in the VSP degenerate geometry file
     
     VSP_VLM().ReadFile(FileName);
+     
+    // Geometry dump, no solver
+    
+    if ( DumpGeom_ ) VSP_VLM().DumpGeom() = 1;
+    
+    // Rotor Analysis... could be either steady state, or unsteady analysis
+    
+    if ( RotorAnalysisRun ) VSP_VLM().RotorAnalysis() = 1;
 
     // Solve
     
@@ -263,11 +271,7 @@ int main(int argc, char **argv)
     // Set number of farfield wake nodes
     
     if ( NumberOfWakeNodes_ > 0 ) VSP_VLM().SetNumberOfWakeTrailingNodes(NumberOfWakeNodes_);
-     
-    // Geometry dump, no solver
-    
-    if ( DumpGeom_ ) VSP_VLM().DumpGeom() = 1;
-    
+
     // Force no wakes for some number of iterations
     
     if ( NoWakeIteration_ > 0 ) VSP_VLM().NoWakeIteration() = NoWakeIteration_;
@@ -286,11 +290,15 @@ int main(int argc, char **argv)
 
     VSP_VLM().SetControlSurfaceGroup( ControlSurfaceGroup_, NumberOfControlGroups_ );
 
+    // Stability and control run
+    
     if ( StabControlRun_ == 1 ) {
        
        StabilityAndControlSolve();
  
     }
+    
+    // Unsteady stability and control run (pqr)
     
     else if ( StabControlRun_ == 2 ||
               StabControlRun_ == 3 ||
@@ -300,9 +308,11 @@ int main(int argc, char **argv)
        
     }
     
-    else if ( RotatingFreeStreamRun_ ) {
-       
-       RotatingFreeStreamFrameSolve();
+    // Steady state rotor analysis
+    
+    else if ( RotorAnalysisRun && !DoUnsteadyAnalysis_ ) {
+  
+       RotorAnalysisSolve();
        
     }
     
@@ -322,7 +332,7 @@ int main(int argc, char **argv)
 
 void PrintUsageHelp()
 {
-       printf("VSPAERO v.4.3.0  --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
+       printf("VSPAERO v.4.4.0  --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
        printf("\n\n\n\n");
 
        printf("Usage: vspaero [options] <FileName>\n");
@@ -341,7 +351,7 @@ void PrintUsageHelp()
        printf(" -groundheight <H>  Do ground effects analysis with cg set to <H> height above the ground. \n");
        printf(" -novortex          Turn off VLM vortex lift model. \n");
        printf(" -lesuction         Turn on VLM leading edge suction model. \n");
-       printf(" -blade <RPM>       Do a rotating body analysis for rotor blades, with specified rotor RPM. \n");
+       printf(" -rotor <RPM>       Do a rotor analysis, with specified rotor RPM. \n");
        printf(" -nokt              Turn off the 2nd order Karman-Tsien Mach number correction. \n");
        printf(" -jacobi            Use Jacobi matrix preconditioner for GMRES solve. \n");
        printf(" -ssor              Use SSOR matrix preconditioner for GMRES solve. \n");
@@ -462,11 +472,15 @@ void ParseInput(int argc, char *argv[])
           
        }
        
-       else if ( strcmp(argv[i],"-blade") == 0 ) {
+       else if ( strcmp(argv[i],"-rotor") == 0 ) {
        
-          RotatingFreeStreamRun_ = 1;
+          RotorAnalysisRun = 1;
           
           BladeRPM_ = atof(argv[++i]);
+          
+          VSP_VLM().BladeRPM() = BladeRPM_;
+          
+          VSP_VLM().CalculateVortexLift() = 0;
           
        }
        
@@ -1713,8 +1727,6 @@ void LoadCaseFile(void)
 
        if ( strstr(DumChar,"UnsteadyAnalysisType") != NULL ) {
 
-           DoUnsteadyAnalysis_ = 1;
-
           printf("Unsteady analysis data: \n");
               
           sscanf(DumChar,"UnsteadyAnalysisType = %s \n",&AnalysisType);
@@ -1755,6 +1767,14 @@ void LoadCaseFile(void)
              
           }
           
+          else if ( strcmp(AnalysisType,"PATH_ANALYSIS") == 0 ) {
+             
+             UnsteadyAnalysisType_ = PATH_ANALYSIS;
+                      
+             VSP_VLM().CalculateVortexLift() = 0;
+
+          }          
+          
           else { 
              
              printf("Unknown unsteady analysis type: %s \n",AnalysisType);
@@ -1764,35 +1784,35 @@ void LoadCaseFile(void)
           fgets(DumChar,200,case_file);
           if (strstr(DumChar, "ReducedFrequency") != NULL)
           {
-              fscanf(case_file,"ReducedFrequency = %lf \n",&ReducedFrequency_);
+              sscanf(DumChar,"ReducedFrequency = %lf \n",&ReducedFrequency_);
               printf("ReducedFrequency: %lf \n",ReducedFrequency_);
               fgets(DumChar,200,case_file); // Only proceed if the proceeding line is found
           }
 
           if (strstr(DumChar, "NumberOfTimeSteps") != NULL)
           {
-              fscanf(case_file,"NumberOfTimeSteps = %d \n",&NumberOfTimeSteps_);
+              sscanf(DumChar,"NumberOfTimeSteps = %d \n",&NumberOfTimeSteps_);
               printf("NumberOfTimeSteps: %d \n",NumberOfTimeSteps_);
               fgets(DumChar,200,case_file);
           }
 
           if (strstr(DumChar, "NumberOfTimeSamples") != NULL)
           {
-              fscanf(case_file,"NumberOfTimeSamples = %d \n",&NumberOfTimeSamples_);
+              sscanf(DumChar,"NumberOfTimeSamples = %d \n",&NumberOfTimeSamples_);
               printf("NumberOfTimeSamples: %d \n",NumberOfTimeSamples_);
               fgets(DumChar,200,case_file);
           }
 
           if (strstr(DumChar, "UnsteadyAngleMax") != NULL)
           {
-              fscanf(case_file,"UnsteadyAngleMax = %lf \n",&UnsteadyAngleMax_);
+              sscanf(DumChar,"UnsteadyAngleMax = %lf \n",&UnsteadyAngleMax_);
               printf("UnsteadyAngleMax: %lf \n",UnsteadyAngleMax_);
               fgets(DumChar,200,case_file);
           }
 
           if (strstr(DumChar, "UnsteadyHMax") != NULL)
           {
-              fscanf(case_file,"UnsteadyHMax = %lf \n",&UnsteadyHMax_);
+              sscanf(DumChar,"UnsteadyHMax = %lf \n",&UnsteadyHMax_);
               printf("UnsteadyHMax: %f \n",UnsteadyHMax_);
               fgets(DumChar,200,case_file); 
           }
@@ -2824,18 +2844,18 @@ void UnsteadyStabilityAndControlSolve(void)
        
     }
     
-    fclose(StabFile);    
+    fclose(StabFile);
     
 }    
 
     
 /*##############################################################################
 #                                                                              #
-#                        RotatingFreeStreamFrameSolve                          #
+#                               RotorAnalysisSolve                             #
 #                                                                              #
 ##############################################################################*/
 
-void RotatingFreeStreamFrameSolve(void)
+void RotorAnalysisSolve(void)
 {
 
     int i, j, k, p, ic, jc, kc, Found, Case, NumCases;
@@ -2843,7 +2863,7 @@ void RotatingFreeStreamFrameSolve(void)
     NumCases = NumberOfBetas_ * NumberOfMachs_ * NumberOfAoAs_;
        
     Case = 0;
-    
+        
     // Loop over all the cases
        
     for ( i = 1 ; i <= NumberOfBetas_ ; i++ ) {
@@ -2859,8 +2879,8 @@ void RotatingFreeStreamFrameSolve(void)
              VSP_VLM().AngleOfBeta()   = BetaList_[i] * TORAD;
              VSP_VLM().Mach()          = MachList_[j];  
              VSP_VLM().AngleOfAttack() = 0.;
-      
-             VSP_VLM().RotationalRate_p() = -BladeRPM_*2.*PI/60.;
+
+             VSP_VLM().RotationalRate_p() = BladeRPM_*2.*PI/60.;
              VSP_VLM().RotationalRate_q() = 0.;
              VSP_VLM().RotationalRate_r() = 0.;
              

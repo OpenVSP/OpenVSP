@@ -13,6 +13,7 @@
 #include <math.h>
 #include <assert.h>
 #include "utils.H"
+#include "quat.H"
 
 // Definition of the VSP_LOOP class
 
@@ -72,6 +73,7 @@ private:
     
     double Gamma_;
     double dCp_;
+    double dCp_Unsteady_;
     double Velocity_[3];
     double CompressibilityFactor_;
         
@@ -190,6 +192,7 @@ public:
     
     double &Gamma(void) { return Gamma_; };
     double &dCp(void) { return dCp_; };
+    double &dCp_Unsteady(void) { return dCp_Unsteady_; };
     double &CompressibilityFactor(void) { return CompressibilityFactor_; };
   
     double &Fx(void) { return Force_[0]; };
@@ -223,6 +226,7 @@ public:
     
     int &LoopUsed(void) { return LoopUsed_; };
    
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };
 

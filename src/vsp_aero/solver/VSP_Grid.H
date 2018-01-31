@@ -174,6 +174,10 @@ public:
     // Write out mesh
     
     void WriteMesh(char *FileName);
+    
+    // Geometry update
+    
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };
 

@@ -1,5 +1,5 @@
 # data file for the Fltk User Interface Designer (fluid)
-version 1.0300 
+version 1.0303 
 header_name {.H} 
 code_name {.C}
 class viewerUI {open
@@ -7,8 +7,8 @@ class viewerUI {open
   Function {viewerUI()} {open
   } {
     Fl_Window mainWindow {
-      label {VSPAERO Viewer 4.3.0} open selected
-      private xywh {634 394 1160 710} type Double labelsize 12 align 0 resizable visible
+      label {VSPAERO Viewer 4.4.0} open selected
+      private xywh {634 369 1160 710} type Double labelsize 12 align 0 resizable visible
     } {
       Fl_Group {} {open
         xywh {0 2 1162 710} box FLAT_BOX labeltype ENGRAVED_LABEL
@@ -252,7 +252,25 @@ glviewer->redraw();}
           label Pressures
           callback {glviewer->DrawCpWasPicked();
 glviewer->redraw();}
-          xywh {15 15 100 20} type Radio divider
+          xywh {15 15 100 20} type Radio
+        }
+        MenuItem ADBMenuPickWallSteadyCpShaded {
+          label {Steady Pressures}
+          callback {glviewer->DrawCpSteadyWasPicked();
+glviewer->redraw();}
+          xywh {25 25 100 20} type Radio
+        }
+        MenuItem ADBMenuPickWallUnsteadyCpShaded {
+          label {Unsteady Pressures}
+          callback {glviewer->DrawUnsteadyCpWasPicked();
+glviewer->redraw();}
+          xywh {25 25 100 20} type Radio
+        }
+        MenuItem ADBMenuPickWallGammaShaded {
+          label Vorticity
+          callback {glviewer->DrawGammaWasPicked();
+glviewer->redraw();}
+          xywh {35 35 100 20} type Radio divider
         }
         MenuItem ADBMenuPickWireFrame {
           label Triangulation

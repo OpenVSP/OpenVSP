@@ -806,4 +806,42 @@ void ROTOR_DISK::Read_Binary_STP_Data(FILE *InputFile)
 
 }
 
+/*##############################################################################
+#                                                                              #
+#                     ROTOR_DISK UpdateGeometryLocation                        #
+#                                                                              #
+##############################################################################*/
+
+void ROTOR_DISK::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+{
+
+    QUAT Vec;
+    
+    // Update location
+    
+    Vec(0) = RotorXYZ_[0] - OVec[0];
+    Vec(1) = RotorXYZ_[1] - OVec[1];
+    Vec(2) = RotorXYZ_[2] - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    RotorXYZ_[0] = Vec(0) + OVec[0] + TVec[0];
+    RotorXYZ_[1] = Vec(1) + OVec[1] + TVec[1];
+    RotorXYZ_[2] = Vec(2) + OVec[2] + TVec[2];    
+    
+    // Update normal
+
+    Vec(0) = RotorNormal_[0];
+    Vec(1) = RotorNormal_[1];
+    Vec(2) = RotorNormal_[2];
+    
+    Vec = Quat * Vec * InvQuat;
+
+    RotorNormal_[0] = Vec(0);
+    RotorNormal_[1] = Vec(1);
+    RotorNormal_[2] = Vec(2);    
+
+}
+
+
 

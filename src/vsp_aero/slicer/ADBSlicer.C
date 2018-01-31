@@ -62,6 +62,8 @@ ADBSLICER::ADBSLICER(void)
     CosRot = SinRot = 0.;
     
     ByteSwapForADB = 0;
+    
+    GnuPlot_ = 0;
 
 }
 
@@ -115,13 +117,13 @@ void ADBSLICER::LoadFile(char *name)
        CreateTriEdges();
               
        // Load ADB Case list
-       
+
        LoadSolutionCaseList();
-       
+ 
        // Load in the cut list file
-       
+
        LoadCutsFile();
-       
+     
        // Load in the solution data and slice it
        
        sprintf(file_name_w_ext,"%s.slc",file_name);
@@ -129,11 +131,11 @@ void ADBSLICER::LoadFile(char *name)
        if ( (SliceFile = fopen(file_name_w_ext,"w")) != NULL ) {
           
           for ( i = 1 ; i <= NumberOfADBCases_ ; i++ ) {
-       
+
              LoadSolutionData(i);
-   
+
              FindSolutionMinMax();
-          
+            
              Slice(i);
              
           }
@@ -155,8 +157,7 @@ void ADBSLICER::LoadFile(char *name)
        exit(1);  
  
     }
-
-
+   
 }
 
 /*##############################################################################
@@ -169,7 +170,7 @@ void ADBSLICER::LoadMeshData(void)
 {
 
     char file_name_w_ext[2000], DumChar[1000], GridName[1000];
-    int i, j, k, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes;
+    int i, j, k, p, DumInt, Level, Edge, NumberOfControlSurfaceNodes, TimeAnalysisType;
     int TotNum, i_size, f_size, c_size;
     float DumFloat;
     FILE *adb_file, *madb_file;
@@ -218,6 +219,10 @@ void ADBSLICER::LoadMeshData(void)
     // Read in symmetry flag
     
     BIO.fread(&SymmetryFlag, i_size, 1, adb_file);    
+    
+    // Read in unsteady analysis flag
+    
+    BIO.fread(&TimeAnalysisType, i_size, 1, adb_file);       
 
     // Read in header
 
@@ -249,9 +254,12 @@ void ADBSLICER::LoadMeshData(void)
 
     TriList = new TRI[NumberOfTris + 1];
 
-    Cp        = new float[NumberOfTris + 1];
-    CpNode    = new float[NumberOfNodes + 1];
-    TotalArea = new float[NumberOfNodes + 1];
+    Cp         = new float[NumberOfTris + 1];
+    CpUnsteady = new float[NumberOfTris + 1];
+    Gamma      = new float[NumberOfTris + 1];
+    
+    CpNode     = new float[NumberOfNodes + 1];
+    TotalArea  = new float[NumberOfNodes + 1];
 
     MachList = new float[NumberOfMachs + 1];
     BetaList = new float[NumberOfBetas + 1];
@@ -364,7 +372,7 @@ void ADBSLICER::LoadMeshData(void)
     NumberOfCourseNodesForLevel = new int[NumberOfMeshLevels + 1];
     NumberOfCourseEdgesForLevel = new int[NumberOfMeshLevels + 1];
     
-    for ( Level = 1 ; Level < NumberOfMeshLevels ; Level++ ) {
+    for ( Level = 1 ; Level <= NumberOfMeshLevels ; Level++ ) {
      
        BIO.fread(&(NumberOfCourseNodesForLevel[Level]), i_size, 1, adb_file);    
        BIO.fread(&(NumberOfCourseEdgesForLevel[Level]), i_size, 1, adb_file);          
@@ -650,7 +658,9 @@ void ADBSLICER::LoadSolutionData(int Case)
    
        for ( m = 1 ; m <= NumberOfTris ; m++ ) {
    
-          BIO.fread(&(Cp[m]), f_size, 1, adb_file); // Cp
+          BIO.fread(&(Cp[m]),         f_size, 1, adb_file); // Cp, Steady
+          BIO.fread(&(CpUnsteady[m]), f_size, 1, adb_file); // Cp, Unsteady
+          BIO.fread(&(Gamma[m]),      f_size, 1, adb_file); // Gamma
     
        }
       
@@ -1501,6 +1511,8 @@ void ADBSLICER::Slice(int Case)
           }
 
        }
+       
+       if ( GnuPlot_ ) fprintf(SliceFile,"\n\n\n");
 
     }
 

@@ -316,6 +316,7 @@ void VSP_EDGE::Setup_(VSP_NODE &Node1, VSP_NODE &Node2)
     Forces_[0] = Forces_[1] = Forces_[2] = 0.;
 
 }
+
 /*##############################################################################
 #                                                                              #
 #                          VSP_EDGE BoundVortex                                #
@@ -752,3 +753,77 @@ void VSP_EDGE::CalculateNormalTrefftzForces(double FreeStream[3])
     Normal_Trefftz_Forces_[2] *= Length_*Gamma_;
 
 }
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_EDGE UpdateGeometryLocation                         #
+#                                                                              #
+##############################################################################*/
+
+void VSP_EDGE::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+{
+
+    QUAT Vec;
+    
+    // Update node 1
+    
+    Vec(0) = X1_ - OVec[0];
+    Vec(1) = Y1_ - OVec[1];
+    Vec(2) = Z1_ - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    X1_ = Vec(0) + OVec[0] + TVec[0];
+    Y1_ = Vec(1) + OVec[1] + TVec[1];
+    Z1_ = Vec(2) + OVec[2] + TVec[2];    
+    
+    // Update node 2
+    
+    Vec(0) = X2_ - OVec[0];
+    Vec(1) = Y2_ - OVec[1];
+    Vec(2) = Z2_ - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    X2_ = Vec(0) + OVec[0] + TVec[0];
+    Y2_ = Vec(1) + OVec[1] + TVec[1];
+    Z2_ = Vec(2) + OVec[2] + TVec[2];        
+
+    // Update centroid
+
+    Vec(0) = XYZc_[0] - OVec[0];
+    Vec(1) = XYZc_[1] - OVec[1];
+    Vec(2) = XYZc_[2] - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    XYZc_[0] = Vec(0) + OVec[0] + TVec[0];
+    XYZc_[1] = Vec(1) + OVec[1] + TVec[1];
+    XYZc_[2] = Vec(2) + OVec[2] + TVec[2];    
+
+    // Update centroid
+
+    Vec(0) = VortexCentroid().x() - OVec[0];
+    Vec(1) = VortexCentroid().y() - OVec[1];
+    Vec(2) = VortexCentroid().z() - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    VortexCentroid().x() = Vec(0) + OVec[0] + TVec[0];
+    VortexCentroid().y() = Vec(1) + OVec[1] + TVec[1];
+    VortexCentroid().z() = Vec(2) + OVec[2] + TVec[2];    
+    
+    // Unit vector in direction of edge
+    
+    Vec(0) = Vec_[0];
+    Vec(1) = Vec_[1];
+    Vec(2) = Vec_[2];
+
+    Vec = Quat * Vec * InvQuat;
+    
+    Vec_[0] = Vec(0);
+    Vec_[1] = Vec(1);
+    Vec_[2] = Vec(2);
+
+}
+     
