@@ -3310,3 +3310,35 @@ void FeaMeshMgrSingleton::UpdateDisplaySettings()
         GetStructSettingsPtr()->m_RelCurveTol = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_RelCurveTol.Get();
     }
 }
+
+void FeaMeshMgrSingleton::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string set_name )
+{
+    if ( set_ids.size() > 0 && Nastran_fid )
+    {
+        fprintf( Nastran_fid, "\nSET %d = ", set_num );
+
+        for ( size_t i = 0; i < set_ids.size(); i++ )
+        {
+            fprintf( Nastran_fid, "%d", set_ids[i] );
+
+            if ( i != set_ids.size() - 1 )
+            {
+                fprintf( Nastran_fid, "," );
+
+                if ( ( i + 1 ) % 9 == 0 ) // 9 IDs per line
+                {
+                    fprintf( Nastran_fid, "\n" );
+                }
+            }
+        }
+
+        fprintf( Nastran_fid, "\n" );
+
+        if ( NKey_fid ) // Write to NASTRAN key file if defined
+        {
+            fprintf( NKey_fid, "%d,%s\n", set_num, set_name.c_str() );
+        }
+
+        set_num++; // Increment set identification number
+    }
+}

@@ -151,6 +151,8 @@ protected:
 
     virtual void GetMassUnit();
 
+    virtual void WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string set_name );
+
     bool m_FeaMeshInProgress;
 
     double m_TotalMass;
