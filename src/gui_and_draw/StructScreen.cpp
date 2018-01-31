@@ -761,6 +761,13 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_OutputTabLayout.AddButton( m_SelectNastFile, "..." );
     m_OutputTabLayout.ForceNewLine();
 
+    m_OutputTabLayout.SetButtonWidth( 75 );
+    m_OutputTabLayout.AddButton( m_NkeyFile, "Nkey" );
+    m_OutputTabLayout.AddOutput( m_NkeyOutput );
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
+    m_OutputTabLayout.AddButton( m_SelectNkeyFile, "..." );
+    m_OutputTabLayout.ForceNewLine();
+
     m_OutputTabLayout.AddYGap();
 
     m_OutputTabLayout.SetButtonWidth( 75 );
@@ -1974,6 +1981,8 @@ bool StructScreen::Update()
             m_MassOutput.Update( truncateFileName( massname, 40 ).c_str() );
             string nastranname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME );
             m_NastOutput.Update( truncateFileName( nastranname, 40 ).c_str() );
+            string nkeyname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NKEY_FILE_NAME );
+            m_NkeyOutput.Update( truncateFileName( nkeyname, 40 ).c_str() );
             string calculixname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME );
             m_CalcOutput.Update( truncateFileName( calculixname, 40 ).c_str() );
             string stlname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME );
@@ -1984,9 +1993,23 @@ bool StructScreen::Update()
             //==== Update File Output Flags ====//
             m_MassFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME )->GetID() );
             m_NastFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME )->GetID() );
+            m_NkeyFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME )->GetID() );
             m_CalcFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME )->GetID() );
             m_StlFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME )->GetID() );
             m_GmshFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME )->GetID() );
+
+            if ( !curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME )->Get() )
+            {
+                m_NkeyFile.Deactivate();
+                m_NkeyOutput.Deactivate();
+                m_SelectNkeyFile.Deactivate();
+            }
+            else
+            {
+                m_NkeyFile.Activate();
+                m_NkeyOutput.Activate();
+                m_SelectNkeyFile.Activate();
+            }
 
             string srfname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME );
             m_SrfOutput.Update( truncateFileName( srfname, 40 ).c_str() );
@@ -2972,6 +2995,19 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_NASTRAN_FILE_NAME );
+            }
+        }
+    }
+    else if ( device == &m_SelectNkeyFile )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASTRAN key file.", "*.nkey" );
+            if ( newfile.compare( "" ) != 0 )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_NKEY_FILE_NAME );
             }
         }
     }

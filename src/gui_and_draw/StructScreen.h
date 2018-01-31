@@ -265,18 +265,21 @@ private:
     ToggleButton m_GmshFile;
     ToggleButton m_MassFile;
     ToggleButton m_NastFile;
+    ToggleButton m_NkeyFile;
     ToggleButton m_CalcFile;
 
     TriggerButton m_SelectStlFile;
     TriggerButton m_SelectGmshFile;
     TriggerButton m_SelectMassFile;
     TriggerButton m_SelectNastFile;
+    TriggerButton m_SelectNkeyFile;
     TriggerButton m_SelectCalcFile;
 
     StringOutput m_StlOutput;
     StringOutput m_GmshOutput;
     StringOutput m_MassOutput;
     StringOutput m_NastOutput;
+    StringOutput m_NkeyOutput;
     StringOutput m_CalcOutput;
 
     ToggleButton m_SrfFile;
