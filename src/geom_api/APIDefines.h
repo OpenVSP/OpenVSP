@@ -299,6 +299,7 @@ enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
 
 enum FEA_EXPORT_TYPE { FEA_MASS_FILE_NAME,
                        FEA_NASTRAN_FILE_NAME,
+                       FEA_NKEY_FILE_NAME,
                        FEA_CALCULIX_FILE_NAME,
                        FEA_STL_FILE_NAME,
                        FEA_GMSH_FILE_NAME,

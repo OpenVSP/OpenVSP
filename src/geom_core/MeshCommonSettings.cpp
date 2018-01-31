@@ -423,6 +423,7 @@ StructSettings::StructSettings() : MeshCommonSettings()
 
     m_ExportFileFlags[ vsp::FEA_MASS_FILE_NAME ].Init( "MASS_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_NASTRAN_FILE_NAME ].Init( "NASTRAN_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::FEA_NKEY_FILE_NAME ].Init( "NKEY_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_CALCULIX_FILE_NAME ].Init( "CALCULIX_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_STL_FILE_NAME ].Init( "STL_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_GMSH_FILE_NAME].Init( "GMSH_Export", "ExportFEA", this, true, 0, 1 );
@@ -526,7 +527,7 @@ void StructSettings::ResetExportFileNames()
 void StructSettings::ResetExportFileNames( string basename )
 {
     int pos;
-    const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_calculix.dat", ".stl", ".msh", ".srf", ".curv", ".p3d" };
+    const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_NASTRAN.nkey", "_calculix.dat", ".stl", ".msh", ".srf", ".curv", ".p3d" };
 
     for ( int i = 0 ; i < vsp::FEA_NUM_FILE_NAMES; i++ )
     {
