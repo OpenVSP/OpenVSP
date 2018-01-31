@@ -2872,10 +2872,10 @@ std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, co
         y_cl_vec.resize( npts );
     }
 
-    const double alpha0 = 0;
-    const double c = 1; // root/tip chord
+    const long double alpha0 = 0.0;
+    const long double c = 1.0; // root/tip chord
 
-    vector < double > theta_vec, y_span_vec, r_vec, a_vec, gamma_vec, cl_vec;
+    vector < long double > theta_vec, y_span_vec, r_vec, a_vec, gamma_vec, cl_vec;
     vector < int > odd_vec;
     theta_vec.resize( npts );
     y_span_vec.resize( npts );
@@ -2885,23 +2885,23 @@ std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, co
     gamma_vec.resize( npts );
     cl_vec.resize( npts );
 
-    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> c_mat;
+    Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> c_mat;
     c_mat.resize( npts, npts );
 
     for ( size_t i = 0; i < npts; i++ )
     {
-        theta_vec[i] = ( i + 1 ) * ( ( PI / 2 ) / npts );
-        y_span_vec[i] = cos( theta_vec[i] ) * ( span / 2 );
+        theta_vec[i] = ( (double)i + 1.0l ) * ( ( M_PI / 2.0l ) / (double)npts );
+        y_span_vec[i] = cos( theta_vec[i] ) * ( span / 2.0l );
         y_cl_vec[i].set_x( y_span_vec[i] );
         odd_vec[i] = 2 * i + 1;
-        r_vec[i] = PI * c / 4 / ( span / 2 ) * ( alpha - alpha0 ) * sin( theta_vec[i] );
+        r_vec[i] = M_PI * c / 4.0l / ( span / 2.0l ) * ( alpha - alpha0 ) * sin( theta_vec[i] );
     }
 
     for ( size_t i = 0; i < npts; i++ )
     {
         for ( size_t j = 0; j < npts; j++ )
         {
-            c_mat( i, j ) = sin( theta_vec[j] * odd_vec[i] ) * ( PI * c * odd_vec[i] / 4 / ( span / 2 ) + sin( theta_vec[j] ) );
+            c_mat( i, j ) = sin( theta_vec[j] * (double)odd_vec[i] ) * ( PI * c * odd_vec[i] / 4.0l / ( span / 2.0l ) + sin( theta_vec[j] ) );
         }
     }
 
@@ -2922,10 +2922,10 @@ std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, co
     {
         for ( size_t j = 0; j < npts; j++ )
         {
-            gamma_vec[i] += 4 * Vinf * ( span / 2 ) * sin( theta_vec[i] * odd_vec[j] ) * a_vec[j];
+            gamma_vec[i] += 4.0l * Vinf * ( span / 2.0l ) * sin( theta_vec[i] * (double)odd_vec[j] ) * a_vec[j];
         }
 
-        cl_vec[i] = 2 * gamma_vec[i] / Vinf;
+        cl_vec[i] = 2.0l * gamma_vec[i] / Vinf;
         y_cl_vec[i].set_y( cl_vec[i] );
     }
 
