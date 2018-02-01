@@ -2858,41 +2858,42 @@ void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d>
     fclose( af );
 }
 
-std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+struct LLT_Data // Struct containing Lifting Line Theory data
 {
-    // Calculation of lift distribution for a Hershey Bar wing with unit chord length using Glauert's Method
+    vector < long double > y_span_vec; // y position across half span
+    vector < long double > gamma_vec; // circulation
+    vector < long double > w_vec; // downwash velocity
+    vector < long double > cl_vec; // lift coefficient
+    vector < long double > cd_vec; // induced drag coefficient
+};
 
-    vector < vec3d > y_cl_vec; // return vector of y position and cl value
-    if ( full_span_flag )
-    {
-        y_cl_vec.resize( 2 * npts );
-    }
-    else
-    {
-        y_cl_vec.resize( npts );
-    }
+LLT_Data GetHersheyLLTData( const unsigned int npts, const long double alpha, const long double Vinf, const long double span )
+{
+    LLT_Data llt_data;
 
-    const long double alpha0 = 0.0;
+    const long double alpha0 = 0.0; // zero lift angle of attack (rad)
     const long double c = 1.0; // root/tip chord
 
-    vector < long double > theta_vec, y_span_vec, r_vec, a_vec, gamma_vec, cl_vec;
+    vector < long double > theta_vec, r_vec, a_vec;
     vector < int > odd_vec;
     theta_vec.resize( npts );
-    y_span_vec.resize( npts );
     odd_vec.resize( npts );
     r_vec.resize( npts );
     a_vec.resize( npts );
-    gamma_vec.resize( npts );
-    cl_vec.resize( npts );
+
+    llt_data.y_span_vec.resize( npts );
+    llt_data.gamma_vec.resize( npts );
+    llt_data.w_vec.resize( npts );
+    llt_data.cl_vec.resize( npts );
+    llt_data.cd_vec.resize( npts );
 
     Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> c_mat;
     c_mat.resize( npts, npts );
 
     for ( size_t i = 0; i < npts; i++ )
     {
-        theta_vec[i] = ( (double)i + 1.0l ) * ( ( M_PI / 2.0l ) / (double)npts );
-        y_span_vec[i] = cos( theta_vec[i] ) * ( span / 2.0l );
-        y_cl_vec[i].set_x( y_span_vec[i] );
+        theta_vec[i] = ( (double)i + 1.0l ) * ( ( M_PI / 2.0l ) / ( (double)npts ) ); // [0 to pi/2]
+        llt_data.y_span_vec[i] = cos( theta_vec[i] ) * ( span / 2.0l ); // [tip to root]
         odd_vec[i] = 2 * i + 1;
         r_vec[i] = M_PI * c / 4.0l / ( span / 2.0l ) * ( alpha - alpha0 ) * sin( theta_vec[i] );
     }
@@ -2922,20 +2923,52 @@ std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, co
     {
         for ( size_t j = 0; j < npts; j++ )
         {
-            gamma_vec[i] += 4.0l * Vinf * ( span / 2.0l ) * sin( theta_vec[i] * (double)odd_vec[j] ) * a_vec[j];
+            llt_data.gamma_vec[i] += 4.0l * Vinf * ( span / 2.0l ) * sin( theta_vec[i] * (double)odd_vec[j] ) * a_vec[j];
+            llt_data.w_vec[i] += Vinf * ( span / 2.0l ) * (double)odd_vec[j] * a_vec[j] * sin( theta_vec[i] * (double)odd_vec[j] ) / sin( theta_vec[i] );
         }
 
-        cl_vec[i] = 2.0l * gamma_vec[i] / Vinf;
-        y_cl_vec[i].set_y( cl_vec[i] );
+        llt_data.cl_vec[i] = 2.0l * llt_data.gamma_vec[i] / Vinf;
+        llt_data.cd_vec[i] = 2.0l * llt_data.w_vec[i] * llt_data.gamma_vec[i] / ( c * span * pow( Vinf, 2.0 ) );
     }
 
+    return llt_data;
+}
+
+std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+{
+    // Calculation of lift distribution for a Hershey Bar wing with unit chord length using Glauert's Method
+    //  Input span is the entire wing span, which half is used in the following calculations. If full_span_flag == true,
+    //  symmetry is applied to the results. Input alpha must be in radians. 
+
+    LLT_Data llt_data = GetHersheyLLTData( npts, alpha, Vinf, span );
+
+    vector < vec3d > y_cl_vec;
     if ( full_span_flag )
     {
+        y_cl_vec.resize( 2 * npts );
+
         for ( size_t i = 0; i < npts; i++ )
         {
-            y_cl_vec[( 2 * npts - 1 ) - i] = y_cl_vec[i]; // Apply symmetry
+            y_cl_vec[i] = vec3d( -1 * llt_data.y_span_vec[i], llt_data.cl_vec[i], 0.0 );
+        }
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cl_vec[( 2 * npts - 1 ) - i] = vec3d( llt_data.y_span_vec[i], llt_data.cl_vec[i], 0.0 ); // Apply symmetry
         }
     }
+    else
+    {
+        y_cl_vec.resize( npts );
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cl_vec[i] = vec3d( llt_data.y_span_vec[i], llt_data.cl_vec[i], 0.0 );
+        }
+
+        std::reverse( y_cl_vec.begin(), y_cl_vec.end() );
+    }
+
 
     return y_cl_vec;
 }
