@@ -2973,6 +2973,44 @@ std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, co
     return y_cl_vec;
 }
 
+std::vector<vec3d> GetHersheyBarDragDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+{
+    // Calculation of drag distribution for a Hershey Bar wing with unit chord length using Glauert's Method.
+    //  Input span is the entire wing span, which half is used in the following calculations. If full_span_flag == true,
+    //  symmetry is applied to the results. Input alpha must be in radians. 
+
+    LLT_Data llt_data = GetHersheyLLTData( npts, alpha, Vinf, span );
+
+    vector < vec3d > y_cd_vec;
+    if ( full_span_flag )
+    {
+        y_cd_vec.resize( 2 * npts );
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cd_vec[i] = vec3d( -1 * llt_data.y_span_vec[i], llt_data.cd_vec[i], 0.0 );
+        }
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cd_vec[( 2 * npts - 1 ) - i] = vec3d( llt_data.y_span_vec[i], llt_data.cd_vec[i], 0.0 ); // Apply symmetry
+        }
+    }
+    else
+    {
+        y_cd_vec.resize( npts );
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cd_vec[i] = vec3d( llt_data.y_span_vec[i], llt_data.cd_vec[i], 0.0 );
+        }
+
+        std::reverse( y_cd_vec.begin(), y_cd_vec.end() );
+    }
+
+    return y_cd_vec;
+}
+
 std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau )
 {
     // alpha = Angle of attack( radian )
