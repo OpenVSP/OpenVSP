@@ -104,6 +104,7 @@ extern void PrintAnalysisInputs( const std::string & analysis_name );
 extern std::vector<std::string> GetAllResultsNames();
 extern std::vector<std::string> GetAllDataNames( const std::string & results_id );
 extern int GetNumResults( const std::string & name );
+extern std::string GetResultsName(const std::string & results_id );
 extern std::string FindResultsID( const std::string & name, int index = 0 );
 extern std::string FindLatestResultsID( const std::string & name );
 extern int GetNumData( const std::string & results_id, const std::string & data_name );

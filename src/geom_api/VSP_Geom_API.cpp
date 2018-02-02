@@ -996,6 +996,19 @@ int GetNumResults( const string & name )
     return ResultsMgr.GetNumResults( name );
 }
 
+/// Get the name of the results object with the given id
+string GetResultsName( const string & results_id )
+{
+    if ( !ResultsMgr.ValidResultsID( results_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultName::Invalid ID " + results_id );
+        string ret_str;
+        return  ret_str;
+    }
+
+    return ResultsMgr.FindResultsPtr( results_id )->GetName();
+}
+
 /// Return the id of the results with the given results name and index
 string FindResultsID( const string & name, int index )
 {
