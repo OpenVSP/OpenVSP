@@ -1897,6 +1897,7 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
         m_PDGeomIDVec.clear();
         for ( int i = 0; i < geomVec.size(); i++ )
         {
+            bool geom_skipped = true;
             Geom* geom = veh->FindGeom( geomVec[i] );
             if ( geom )
             {
@@ -1905,8 +1906,15 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
                     if ( geom->GetSurfPtr( 0 )->GetSurfType() != vsp::DISK_SURF )
                     {
                         m_PDGeomIDVec.push_back(geomVec[i]);
+                        geom_skipped = false;
                     }
                 }
+            }
+
+            if ( geom_skipped )
+            {
+                string message = "Warning: Geom ID " + geomVec[i] + "not included in Parasite Drag calculation\n";
+                printf( message.c_str() );
             }
         }
     }
