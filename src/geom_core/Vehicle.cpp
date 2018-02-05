@@ -2777,7 +2777,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
                 if ( ( m_DXFProjectionFlag() && m_DXFTessFactor.Get() != 1.0 ) )
                 {
                     // Increase tellelation:
-                    geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW() * tessfactor );
+                    geom_vec[i]->m_TessW.Set( (int)( geom_vec[i]->m_TessW() * tessfactor ) );
 
                     int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
 
@@ -2797,7 +2797,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 
                                     if ( curr_xsec )
                                     {
-                                        curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU() * tessfactor );
+                                        curr_xsec->m_SectTessU.Set( (int)( curr_xsec->m_SectTessU() * tessfactor ) );
                                     }
                                 }
                             }
@@ -2805,7 +2805,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
                     }
                     else
                     {
-                        geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU() * tessfactor );
+                        geom_vec[i]->m_TessU.Set((int)( geom_vec[i]->m_TessU() * tessfactor ) );
                     }
                 }
 
@@ -2884,7 +2884,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
                 if ( ( m_DXFProjectionFlag() && tessfactor != 1.0 ) )
                 {
                     // Restore tellelation and update:
-                    geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW.GetLastVal() );
+                    geom_vec[i]->m_TessW.Set( (int)( geom_vec[i]->m_TessW.GetLastVal() ) );
 
                     int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
 
@@ -2904,7 +2904,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 
                                     if ( curr_xsec )
                                     {
-                                        curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU.GetLastVal() );
+                                        curr_xsec->m_SectTessU.Set( (int)( curr_xsec->m_SectTessU.GetLastVal() ) );
                                     }
                                 }
                             }
@@ -2912,7 +2912,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
                     }
                     else
                     {
-                        geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU.GetLastVal() );
+                        geom_vec[i]->m_TessU.Set( (int)( geom_vec[i]->m_TessU.GetLastVal() ) );
                     }
                 }
 
@@ -2984,7 +2984,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
             if ( ( m_SVGProjectionFlag() && tessfactor != 1.0 ) )
             {
                 // Increase tellelation:
-                geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW() * tessfactor );
+                geom_vec[i]->m_TessW.Set( (int)( geom_vec[i]->m_TessW() * tessfactor ) );
 
                 int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
 
@@ -3004,7 +3004,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
 
                                 if ( curr_xsec )
                                 {
-                                    curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU() * tessfactor );
+                                    curr_xsec->m_SectTessU.Set( (int)( curr_xsec->m_SectTessU() * tessfactor ) );
                                 }
                             }
                         }
@@ -3012,7 +3012,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
                 }
                 else
                 {
-                    geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU() * tessfactor );
+                    geom_vec[i]->m_TessU.Set( (int)( geom_vec[i]->m_TessU() * tessfactor ) );
                 }
             }
 
@@ -3092,7 +3092,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
             if ( ( m_SVGProjectionFlag() && tessfactor != 1.0 ) )
             {
                 // Restore tellelation and update:
-                geom_vec[i]->m_TessW.Set( geom_vec[i]->m_TessW.GetLastVal() );
+                geom_vec[i]->m_TessW.Set( (int)( geom_vec[i]->m_TessW.GetLastVal() ) );
 
                 int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
 
@@ -3112,7 +3112,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
 
                                 if ( curr_xsec )
                                 {
-                                    curr_xsec->m_SectTessU.Set( curr_xsec->m_SectTessU.GetLastVal() );
+                                    curr_xsec->m_SectTessU.Set( (int)( curr_xsec->m_SectTessU.GetLastVal() ) );
                                 }
                             }
                         }
@@ -3120,7 +3120,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
                 }
                 else
                 {
-                    geom_vec[i]->m_TessU.Set( geom_vec[i]->m_TessU.GetLastVal() );
+                    geom_vec[i]->m_TessU.Set( (int)( geom_vec[i]->m_TessU.GetLastVal() ) );
                 }
             }
 
