@@ -969,16 +969,16 @@ void ParasiteDragMgrSingleton::Calculate_AvgSweep( vector<DegenStick> degenStick
     for ( int j = 0; j < degenSticks[0].areaTop.size(); j++ )
     {
         width = degenSticks[0].areaTop[j] /
-                ( ( degenSticks[0].perimTop[j] + degenSticks[0].perimTop[j + 1.0] ) / 2.0 );
+                ( ( degenSticks[0].perimTop[j] + degenSticks[0].perimTop[j + 1] ) / 2.0 );
 
         // Section Quarter Chord Sweep
         secSweep25 = atan( tan( degenSticks[0].sweeple[j] * PI / 180.0 ) +
-                           ( 0.25 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1.0] ) / width ) ) ) *
+                           ( 0.25 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1] ) / width ) ) ) *
                      180.0 / PI;
 
         // Section Half Chord Sweep
         secSweep50 = atan( tan( degenSticks[0].sweeple[j] * PI / 180.0 ) +
-                           ( 0.50 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1.0] ) / width ) ) ) *
+                           ( 0.50 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1] ) / width ) ) ) *
                      180.0 / PI;
 
         // Section Area
@@ -3217,7 +3217,7 @@ void ParasiteDragMgrSingleton::SortMapByWettedArea()
 
     vector < ParasiteDragTableRow > temp;
     vector < bool > isSorted( m_TableRowVec.size(), false );
-    double cur_max_ind = 0;
+    int cur_max_ind = 0;
     int i = 0;
 
     while ( !CheckAllTrue( isSorted ) )
