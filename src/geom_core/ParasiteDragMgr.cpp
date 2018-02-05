@@ -2383,11 +2383,11 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
         m_Atmos.USAF1966( m_Hinf(), m_DeltaT(), m_AltLengthUnit(), m_TempUnit.Get(), m_PresUnit(), m_SpecificHeatRatio() );
         if ( m_VinfUnitType() == vsp::V_UNIT_MACH )
         {
-            m_Atmos.UpdateMach( vinf, m_TempUnit(), m_VinfUnitType() );
+            m_Atmos.SetMach( m_Vinf() );
         }
         else
         {
-            m_Atmos.UpdateMach( vinf, m_SpecificHeatRatio(), m_TempUnit() );
+            m_Atmos.UpdateMach( vinf, m_TempUnit(), m_VinfUnitType() );
         }
     }
     else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_R )
