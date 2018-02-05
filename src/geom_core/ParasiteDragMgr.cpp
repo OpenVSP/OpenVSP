@@ -111,6 +111,10 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
 
     m_ExcresType.Init( "ExcresType", groupname, this, vsp::EXCRESCENCE_COUNT, vsp::EXCRESCENCE_COUNT, vsp::EXCRESCENCE_DRAGAREA );
     m_ExcresType.SetDescript( "Excrescence Type" );
+
+    // Recompute flag, if true degen/compgeom will be run even if an existing degen geom and comp geom exist from
+    // a previous calculation
+    m_RecomputeGeom = true;
 }
 
 void ParasiteDragMgrSingleton::Renew()
@@ -391,7 +395,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 void ParasiteDragMgrSingleton::SetupFullCalculation()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh )
+    if ( veh && (m_RecomputeGeom || (m_DegenGeomVec.size() == 0 && !m_CompGeomResults)))
     {
         veh->ClearDegenGeom();
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "Comp_Geom" ) );

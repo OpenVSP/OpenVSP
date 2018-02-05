@@ -1909,6 +1909,9 @@ void ParasiteDragFullAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "RefFlag", ParasiteDragMgr.m_RefFlag.Get() ) );
         m_Inputs.Add( NameValData( "WingID",  " " ) );
         m_Inputs.Add( NameValData( "Sref",    ParasiteDragMgr.m_Sref.Get() ) );
+
+        // Use previous Degen Geom
+        m_Inputs.Add( NameValData( "RecomputeGeom", true ) );
     }
     else
     {
@@ -2061,6 +2064,11 @@ string ParasiteDragFullAnalysis::Execute()
             printf( "\n" );
         }
 
+        // Recompute flag
+        bool recomputeFlagOrig = ParasiteDragMgr.GetRecomputeGeomFlag();
+        nvd = m_Inputs.FindPtr( "RecomputeGeom", 0);
+        ParasiteDragMgr.SetRecomputeGeomFlag( (bool)(nvd->GetInt(0)) );
+
         // Execute analysis
         res_id = ParasiteDragMgr.ComputeBuildUp();
 
@@ -2091,6 +2099,9 @@ string ParasiteDragFullAnalysis::Execute()
         ParasiteDragMgr.m_RefFlag.Set( refFlagOrig );
         ParasiteDragMgr.m_RefGeomID = WingIDOrig;
         ParasiteDragMgr.m_Sref.Set( srefOrig );
+
+        // Recompute Flag
+        ParasiteDragMgr.SetRecomputeGeomFlag( recomputeFlagOrig );
     }
 
     return res_id;
