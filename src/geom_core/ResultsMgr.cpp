@@ -235,7 +235,7 @@ void Results::WriteCSVFile( FILE* fid )
     {
 
         fprintf( fid, "Results_Name,%s\n", m_Name.c_str() );
-        fprintf( fid, "Results_Timestamp,%ld\n", m_Timestamp );
+        fprintf( fid, "Results_Timestamp,%lld\n", m_Timestamp );
         fprintf( fid, "Results_Date,%d,%d,%d\n", m_Month, m_Day, m_Year );
         fprintf( fid, "Results_Time,%d,%d,%d\n", m_Hour, m_Min, m_Sec );
 
