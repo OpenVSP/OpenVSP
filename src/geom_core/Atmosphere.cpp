@@ -26,7 +26,7 @@ void Atmosphere::USStandardAtmosphere1976( double alt, double delta_temp, int al
     m_P0 = 1.013250e5; // N/m2 ( Pa )
 
     m_Hinf = alt;
-    m_DeltaT = ConvertTemperature( m_DeltaT, tempunit, vsp::TEMP_UNIT_K ); // Into K
+    m_DeltaT = ConvertTemperature( delta_temp, tempunit, vsp::TEMP_UNIT_K ) - ConvertTemperature( 0.0, tempunit, vsp::TEMP_UNIT_K ); // Into K
 
     // Conversion if Necessary of Altitude into feet
     if ( altunit == vsp::PD_UNITS_IMPERIAL )
@@ -76,6 +76,7 @@ void Atmosphere::USStandardAtmosphere1976( double alt, double delta_temp, int al
 
     T = ConvertTemperature( T, vsp::TEMP_UNIT_K, tempunit ); // Into Desired
     P = ConvertPressure( P, vsp::PRES_UNIT_PA, presunit ); // Into Desired
+    m_DeltaT = delta_temp; // Back to input value
 
     // Assign Class Varibles Appropriate Values
     m_KEAS = m_A0 * m_Mach * sqrt( m_PressureRatio );
@@ -125,7 +126,7 @@ void Atmosphere::USAF1966( double alt, double delta_temp, int altunit, int tempu
     double T, P, rho;
 
     m_Hinf = alt;
-    m_DeltaT = ConvertTemperature( m_DeltaT, tempunit, vsp::TEMP_UNIT_K ); // Into K
+    m_DeltaT = ConvertTemperature( delta_temp, tempunit, vsp::TEMP_UNIT_K ) - ConvertTemperature( 0.0, tempunit, vsp::TEMP_UNIT_K ); // Into K
 
     // Conversion if Necessary of Altitude into feet
     if ( altunit == vsp::PD_UNITS_METRIC )
@@ -171,6 +172,7 @@ void Atmosphere::USAF1966( double alt, double delta_temp, int altunit, int tempu
 
     T = ConvertTemperature( T, vsp::TEMP_UNIT_K, tempunit ); // Into Desired
     P = ConvertPressure( P, vsp::PRES_UNIT_INCHHG, presunit ); // Into Desired
+    m_DeltaT = delta_temp; // Back to input value
 
     // Assign Class Varibles Appropriate Values
     m_KEAS = m_A0 * m_Mach * sqrt( m_PressureRatio );

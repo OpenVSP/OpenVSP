@@ -2551,7 +2551,7 @@ void ParasiteDragMgrSingleton::UpdateTemp( int newunit )
     double new_temp = ConvertTemperature( m_Temp(), m_TempUnit(), newunit );
     m_Temp.Set( new_temp );
 
-    new_temp = ConvertTemperature( m_DeltaT(), m_TempUnit(), newunit );
+    new_temp = ConvertTemperature( m_DeltaT(), m_TempUnit(), newunit ) - ConvertTemperature( 0.0, m_TempUnit(), newunit );
     m_DeltaT.Set( new_temp );
 
     m_TempUnit.Set( newunit );
