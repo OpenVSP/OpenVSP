@@ -2765,10 +2765,19 @@ void Vehicle::WriteAirfoilFile( const string &file_name, int write_set )
 
     // Determine directory to place all airfoil files (same directory as metadata file)
     size_t last_index = file_name.find_last_of( "/\\" );
-    if ( last_index > 0 )
+    if ( last_index > 0 && last_index != std::string::npos )
     {
         m_AFFileDir = file_name.substr( 0, ( last_index + 1 ) );
-        fprintf( meta_fid, "Airfoil File Directory, %s\n\n", m_AFFileDir );
+        fprintf( meta_fid, "Airfoil File Directory, %s\n\n", m_AFFileDir.c_str() );
+    }
+    else if ( m_ExePath.find_last_of( "/\\" ) > 0 && m_ExePath.find_last_of( "/\\" ) != std::string::npos )
+    {
+        m_AFFileDir = m_ExePath.substr( 0, ( m_ExePath.find_last_of( "/\\" ) + 1 ) ); // place all airfoil files in executable directory
+        fprintf( meta_fid, "Airfoil File Directory, %s\n\n", m_AFFileDir.c_str() );
+    }
+    else
+    {
+        m_AFFileDir = string();
     }
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
