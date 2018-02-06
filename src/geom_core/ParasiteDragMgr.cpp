@@ -1912,6 +1912,7 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
 void ParasiteDragMgrSingleton::SetFreestreamParms()
 {
     m_Temp.Set( m_Atmos.GetTemp() );
+    m_DeltaT.Set( m_Atmos.GetDeltaT() );
     m_Pres.Set( m_Atmos.GetPres() );
     m_Rho.Set( m_Atmos.GetDensity() );
     m_DynaVisc.Set( m_Atmos.GetDynaVisc() );
@@ -2511,6 +2512,10 @@ void ParasiteDragMgrSingleton::UpdateTemp( int newunit )
 {
     double new_temp = ConvertTemperature( m_Temp(), m_TempUnit(), newunit );
     m_Temp.Set( new_temp );
+
+    new_temp = ConvertTemperature( m_DeltaT(), m_TempUnit(), newunit );
+    m_DeltaT.Set( new_temp );
+
     m_TempUnit.Set( newunit );
 }
 
