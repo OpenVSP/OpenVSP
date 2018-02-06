@@ -398,10 +398,37 @@ void ParasiteDragMgrSingleton::SetupFullCalculation()
         ClearInputVectors();
         ClearOutputVectors();
 
+        vector < string > geomIDVec = veh->GetGeomSet( m_SetChoice() );
+
         veh->CreateDegenGeom( m_SetChoice() );
         string meshID = veh->CompGeomAndFlatten( m_SetChoice(), 0 );
         veh->DeleteGeom( meshID );
-        veh->ShowOnlySet( m_SetChoice() );
+
+        // Restore set visibility. At this point, all geoms in the set will only be in the 
+        //  Not_Shown set. We want the Parasite Drag table to contain the same geoms before 
+        //  and after tool execution.
+        if ( m_SetChoice() == vsp::SET_NOT_SHOWN )
+        {
+            veh->ShowSet( 0 ); // show all
+        }
+
+        for ( size_t i = 0; i < geomIDVec.size(); i++ )
+        {
+            Geom* geom = veh->FindGeom( geomIDVec[i] );
+            if ( geom )
+            {
+                if ( m_SetChoice() == vsp::SET_NOT_SHOWN ) // Place back in Not_Shown set 
+                {
+                    geom->SetSetFlag( vsp::SET_SHOWN, false );
+                    geom->SetSetFlag( vsp::SET_NOT_SHOWN, true );
+                }
+                else // Show only indicated set
+                {
+                    geom->SetSetFlag( vsp::SET_SHOWN, true );
+                    geom->SetSetFlag( vsp::SET_NOT_SHOWN, false );
+                }
+            }
+        }
 
         // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
         m_DegenGeomVec = veh->GetDegenGeomVec();
