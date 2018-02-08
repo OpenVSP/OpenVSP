@@ -91,6 +91,11 @@ public:
 
     void RegisterBuiltins();
 
+    double GetLastAnalysisExecutionDuration()
+    {
+        return m_AnalysisExecutionDuration;
+    }
+
 private:
     AnalysisMgrSingleton();
     ~AnalysisMgrSingleton();
@@ -98,6 +103,8 @@ private:
     AnalysisMgrSingleton& operator=( AnalysisMgrSingleton const& copy ); // Not Implemented
 
     map < string, Analysis* > m_AnalysisMap;    // Map unique name to analysis.
+
+    double m_AnalysisExecutionDuration; // Time to execute most recent analysis
 
     //==== Default Return Vectors ====//
     vector< int > m_DefaultIntVec;

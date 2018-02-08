@@ -12,9 +12,10 @@
 #include "Vehicle.h"
 #include "ProjectionMgr.h"
 #include "PropGeom.h"
-
 #include "VSPAEROMgr.h"
 #include "ParasiteDragMgr.h"
+
+#include <ctime>
 
 void RWCollection::Clear()
 {
@@ -115,7 +116,19 @@ string AnalysisMgrSingleton::ExecAnalysis( const string & analysis )
         return ret;
     }
 
-    return analysis_ptr->Execute();
+    std::clock_t start = std::clock();
+
+    string res = analysis_ptr->Execute();
+
+    m_AnalysisExecutionDuration = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
+
+    Results* res_ptr = ResultsMgr.FindResultsPtr( res );
+    if ( res_ptr )
+    {
+        res_ptr->Add( NameValData( "Analysis_Duration_Sec", m_AnalysisExecutionDuration ) );
+    }
+
+    return res;
 }
 
 bool AnalysisMgrSingleton::ValidAnalysisName( const string & analysis )
