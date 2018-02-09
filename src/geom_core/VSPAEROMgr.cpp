@@ -468,9 +468,6 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     m_CutsFile          = string();
     m_SliceFile         = string();
 
-    // Save analysis type for Cp Slicer
-    m_CpSliceAnalysisType = m_AnalysisMethod.Get();
-
     Vehicle *veh = VehicleMgr.GetVehicle();
     if( veh )
     {
@@ -2790,6 +2787,9 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
 string VSPAEROMgrSingleton::ComputeCpSlices( FILE * logFile )
 {
     string resID = string();
+
+    // Save analysis type for Cp Slicer
+    m_CpSliceAnalysisType = m_AnalysisMethod.Get();
 
     CreateCutsFile();
 
