@@ -96,9 +96,14 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     addOutputText( "Build Grid\n" );
     BuildGrid();
 
+    auto t1 = std::chrono::high_resolution_clock::now();
+
     addOutputText( "Intersect\n" );
     Intersect();
     addOutputText( "Finished Intersect\n" );
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+    printf( "Intersect took %lld mus %f ms %f sec\n", std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count(), std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count()/1000.0, std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count()/1000000.0 );
 
     addOutputText( "Binary Adaptation Curve Approximation\n" );
     BinaryAdaptIntCurves();
