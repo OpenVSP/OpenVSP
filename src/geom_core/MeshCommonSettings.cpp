@@ -36,7 +36,7 @@ void MeshCommonSettings::InitCommonParms()
     m_DrawCurveFlag.Init( "DrawCurveFlag", "DrawMesh", this, true, 0, 1 );
     m_DrawPntsFlag.Init( "DrawPntsFlag", "DrawMesh", this, true, 0, 1 );
 
-    m_DrawRelCurveTol.Init( "DrawRelCurveTol", "Global", this, 0.01, 1e-6, 1.0 );
+    m_RelCurveTol.Init( "RelCurveTol", "Global", this, 0.01, 1e-6, 1.0 );
 
     m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );
     m_IntersectSubSurfs.SetDescript( "Flag to intersect subsurfaces" );
@@ -67,7 +67,6 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 {
     m_Name = "SurfaceIntersectSettings";
 
-    m_ExportRelCurveTol.Init( "ExportRelCurveTol", "ExportIntersect", this, 0.01, 1e-6, 1.0 );
     m_ExportRawFlag.Init( "ExportRawFlag", "ExportIntersect", this, false, 0, 1 );
 
     m_SelectedSetIndex.Init( "Set", "Global", this, 0, 0, 12 );
@@ -267,7 +266,6 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportCFD", this, false, 0, 1 );
 
-    m_ExportRelCurveTol.Init( "ExportRelCurveTol", "ExportCFD", this, 0.01, 1e-6, 1.0 );
     m_ExportRawFlag.Init( "ExportRawFlag", "ExportCFD", this, false, 0, 1 );
 
     InitCommonParms();
@@ -434,7 +432,6 @@ StructSettings::StructSettings() : MeshCommonSettings()
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportFEA", this, false, 0, 1 );
 
-    m_ExportRelCurveTol.Init( "ExportRelCurveTol", "ExportFEA", this, 0.01, 1e-6, 1.0 );
     m_ExportRawFlag.Init( "ExportRawFlag", "ExportFEA", this, false, 0, 1 );
 
     m_DrawBorderFlag = false;

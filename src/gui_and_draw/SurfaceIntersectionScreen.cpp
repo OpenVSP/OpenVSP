@@ -67,6 +67,10 @@ void SurfaceIntersectionScreen::CreateGlobalTab()
 
     m_GlobalTabLayout.AddDividerBox( "Geometry Control" );
     m_GlobalTabLayout.AddYGap();
+
+    m_GlobalTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 1.0, "%7.5f" );
+    m_GlobalTabLayout.AddYGap();
+
     m_GlobalTabLayout.AddButton( m_IntersectSubsurfaces, "Intersect Subsurfaces" );
     m_GlobalTabLayout.AddYGap();
 
@@ -94,7 +98,6 @@ void SurfaceIntersectionScreen::CreateDisplayTab()
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
     m_DisplayTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
-    m_DisplayTabLayout.AddSlider( m_DrawRelCurveTolSlider, "Display Curve Tolerance", 1.0, "%7.5f" );
 
     displayTab->show();
 }
@@ -112,7 +115,6 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     m_OutputTabLayout.SetButtonWidth( 175 );
 
     m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
-    m_OutputTabLayout.AddSlider( m_ExportRelCurveTolSlider, "Export Curve Tolerance", 1.0, "%7.5f" );
 
     m_OutputTabLayout.AddYGap();
 
@@ -179,6 +181,17 @@ bool SurfaceIntersectionScreen::Update()
 
 void SurfaceIntersectionScreen::UpdateGlobalTab()
 {
+    m_RelCurveTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_RelCurveTol.GetID() );
+
+    if ( m_Vehicle->GetISectSettingsPtr()->m_DrawBinAdaptFlag() )
+    {
+        m_RelCurveTolSlider.Activate();
+    }
+    else
+    {
+        m_RelCurveTolSlider.Deactivate();
+    }
+
     //===== Geometry Control =====//
     m_IntersectSubsurfaces.Update( m_Vehicle->GetISectSettingsPtr()->m_IntersectSubSurfs.GetID() );
 
@@ -196,17 +209,6 @@ void SurfaceIntersectionScreen::UpdateDisplayTab()
 
     m_ShowCurve.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.GetID() );
     m_ShowPts.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.GetID() );
-
-    m_DrawRelCurveTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawRelCurveTol.GetID() );
-
-    if ( m_Vehicle->GetISectSettingsPtr()->m_DrawBinAdaptFlag() )
-    {
-        m_DrawRelCurveTolSlider.Activate();
-    }
-    else
-    {
-        m_DrawRelCurveTolSlider.Deactivate();
-    }
 
     if ( SurfaceIntersectionMgr.GetIntersectSettingsPtr() )
     {
@@ -230,16 +232,6 @@ void SurfaceIntersectionScreen::UpdateOutputTab()
     m_XYZIntCurves.Update( m_Vehicle->GetISectSettingsPtr()->m_XYZIntCurveFlag.GetID() );
 
     m_ExportRaw.Update( m_Vehicle->GetISectSettingsPtr()->m_ExportRawFlag.GetID() );
-    m_ExportRelCurveTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_ExportRelCurveTol.GetID() );
-
-    if ( m_Vehicle->GetISectSettingsPtr()->m_ExportRawFlag() )
-    {
-        m_ExportRelCurveTolSlider.Deactivate();
-    }
-    else
-    {
-        m_ExportRelCurveTolSlider.Activate();
-    }
 
 }
 

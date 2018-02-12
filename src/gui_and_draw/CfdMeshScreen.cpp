@@ -77,6 +77,8 @@ void CfdMeshScreen::CreateGlobalTab()
     m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.AddButton(m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting");
     m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 1.0, "%7.5f" );
+    m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.AddDividerBox("Global Source Control");
     m_GlobalTabLayout.AddYGap();
 
@@ -144,7 +146,6 @@ void CfdMeshScreen::CreateDisplayTab()
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
     m_DisplayTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
-    m_DisplayTabLayout.AddSlider( m_DrawRelCurveTolSlider, "Display Curve Tolerance", 1.0, "%7.5f" );
 
     displayTab->show();
 }
@@ -246,7 +247,6 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.SetButtonWidth( 175 );
 
     m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
-    m_OutputTabLayout.AddSlider( m_ExportRelCurveTolSlider, "Export Curve Tolerance", 1.0, "%7.5f" );
 
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.SetSameLineFlag( true );
@@ -639,6 +639,17 @@ void CfdMeshScreen::UpdateGlobalTab()
     m_GrowthRatio.Update( m_Vehicle->GetCfdGridDensityPtr()->m_GrowRatio.GetID() );
     m_Rig3dGrowthLimit.Update( m_Vehicle->GetCfdGridDensityPtr()->m_RigorLimit.GetID() );
 
+    m_RelCurveTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_RelCurveTol.GetID() );
+
+    if ( m_Vehicle->GetCfdSettingsPtr()->m_DrawBinAdaptFlag() )
+    {
+        m_RelCurveTolSlider.Activate();
+    }
+    else
+    {
+        m_RelCurveTolSlider.Deactivate();
+    }
+
     //===== Geometry Control =====//
     m_IntersectSubsurfaces.Update( m_Vehicle->GetCfdSettingsPtr()->m_IntersectSubSurfs.GetID() );
 }
@@ -663,17 +674,6 @@ void CfdMeshScreen::UpdateDisplayTab()
 
     m_ShowCurve.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawCurveFlag.GetID() );
     m_ShowPts.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawPntsFlag.GetID() );
-
-    m_DrawRelCurveTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawRelCurveTol.GetID() );
-
-    if ( m_Vehicle->GetCfdSettingsPtr()->m_DrawBinAdaptFlag() )
-    {
-        m_DrawRelCurveTolSlider.Activate();
-    }
-    else
-    {
-        m_DrawRelCurveTolSlider.Deactivate();
-    }
 
     if ( CfdMeshMgr.GetCfdSettingsPtr() )
     {
@@ -730,17 +730,6 @@ void CfdMeshScreen::UpdateOutputTab()
     m_Plot3DFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_PLOT3D_FILE_NAME )->GetID() );
 
     m_ExportRaw.Update( m_Vehicle->GetCfdSettingsPtr()->m_ExportRawFlag.GetID() );
-    m_ExportRelCurveTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_ExportRelCurveTol.GetID() );
-
-    if ( m_Vehicle->GetCfdSettingsPtr()->m_ExportRawFlag() )
-    {
-        m_ExportRelCurveTolSlider.Deactivate();
-    }
-    else
-    {
-        m_ExportRelCurveTolSlider.Activate();
-    }
-
 }
 
 void CfdMeshScreen::UpdateSourcesTab( BaseSource* source )

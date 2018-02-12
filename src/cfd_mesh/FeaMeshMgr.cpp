@@ -298,6 +298,9 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     Intersect();
     addOutputText( "Finished Intersect\n" );
 
+    addOutputText( "Binary Adaptation Curve Approximation\n" );
+    BinaryAdaptIntCurves();
+
     addOutputText( "Build Target Map\n" );
     BuildTargetMap( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
@@ -379,15 +382,13 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME ) )
     {
         WriteGridToolCurvFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME ),
-                               GetStructSettingsPtr()->m_ExportRawFlag,
-                               GetStructSettingsPtr()->m_ExportRelCurveTol );
+                               GetStructSettingsPtr()->m_ExportRawFlag );
     }
 
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME ) )
     {
         WritePlot3DFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ),
-                         GetStructSettingsPtr()->m_ExportRawFlag,
-                         GetStructSettingsPtr()->m_ExportRelCurveTol );
+                         GetStructSettingsPtr()->m_ExportRawFlag );
     }
 
 
@@ -3306,6 +3307,6 @@ void FeaMeshMgrSingleton::UpdateDisplaySettings()
         GetStructSettingsPtr()->m_DrawCurveFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawCurveFlag.Get();
         GetStructSettingsPtr()->m_DrawPntsFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawPntsFlag.Get();
 
-        GetStructSettingsPtr()->m_DrawRelCurveTol = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawRelCurveTol.Get();
+        GetStructSettingsPtr()->m_RelCurveTol = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_RelCurveTol.Get();
     }
 }

@@ -125,8 +125,8 @@ public:
     virtual void CleanMergeSurfs();
 
     virtual void WriteSurfsIntCurves( const string &filename  );
-    virtual void WriteGridToolCurvFile( const string &filename, bool rawflag, double reltol );
-    virtual void WritePlot3DFile( const string &filename, bool rawflag, double reltol );
+    virtual void WriteGridToolCurvFile( const string &filename, bool rawflag );
+    virtual void WritePlot3DFile( const string &filename, bool rawflag );
 
     virtual void ExportFiles();
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );
@@ -148,6 +148,8 @@ public:
 
     virtual void BuildCurves();
     virtual void IntersectSplitChains();
+
+    virtual void BinaryAdaptIntCurves();
 
     virtual void MergeInteriorChainIPnts();
 
@@ -245,6 +247,12 @@ protected:
     vector< ISegChain* > m_DelISegChainVec;
 
     vector< vector< vec3d > > debugRayIsect;
+
+    vector < vector < vec3d > > m_BinAdaptCurveAVec;
+    vector < vector < vec3d > > m_BinAdaptCurveBVec;
+    vector < vector < vec3d > > m_RawCurveAVec;
+    vector < vector < vec3d > > m_RawCurveBVec;
+    vector < bool > m_BorderCurveFlagVec;
 
     SimpleIntersectSettings m_IntersectSettings;
 

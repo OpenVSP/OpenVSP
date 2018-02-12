@@ -419,6 +419,9 @@ void CfdMeshMgrSingleton::GenerateMesh()
     Intersect();
     addOutputText( "Finished Intersect\n" );
 
+    addOutputText( "Binary Adaptation Curve Approximation\n" );
+    BinaryAdaptIntCurves();
+
     addOutputText( "Build Target Map\n" );
     BuildTargetMap( CfdMeshMgrSingleton::VOCAL_OUTPUT );
 
@@ -1241,15 +1244,13 @@ void CfdMeshMgrSingleton::ExportFiles()
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_CURV_FILE_NAME ) )
     {
         WriteGridToolCurvFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_CURV_FILE_NAME ),
-                               GetCfdSettingsPtr()->m_ExportRawFlag,
-                               GetCfdSettingsPtr()->m_ExportRelCurveTol );
+                               GetCfdSettingsPtr()->m_ExportRawFlag );
     }
 
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_PLOT3D_FILE_NAME ) )
     {
         WritePlot3DFile( GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_PLOT3D_FILE_NAME ),
-                         GetCfdSettingsPtr()->m_ExportRawFlag,
-                         GetCfdSettingsPtr()->m_ExportRelCurveTol );
+                         GetCfdSettingsPtr()->m_ExportRawFlag );
     }
 
 }
@@ -3991,7 +3992,7 @@ void CfdMeshMgrSingleton::UpdateDisplaySettings()
         GetCfdSettingsPtr()->m_DrawCurveFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawCurveFlag.Get();
         GetCfdSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawPntsFlag.Get();
 
-        GetCfdSettingsPtr()->m_DrawRelCurveTol = m_Vehicle->GetCfdSettingsPtr()->m_DrawRelCurveTol.Get();
+        GetCfdSettingsPtr()->m_RelCurveTol = m_Vehicle->GetCfdSettingsPtr()->m_RelCurveTol.Get();
 
 //        GetCfdSettingsPtr()->m_IntersectSubSurfs = m_Vehicle->GetCfdSettingsPtr()->m_IntersectSubSurfs.Get();
 //        GetCfdSettingsPtr()->m_SelectedSetIndex = m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex.Get();

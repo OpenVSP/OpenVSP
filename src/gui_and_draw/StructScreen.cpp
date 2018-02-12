@@ -713,7 +713,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddButton( m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting" );
     m_MeshTabLayout.AddYGap();
-
+    m_MeshTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 1.0, "%7.5f" );
+    m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
     m_MeshTabLayout.AddYGap();
 
@@ -797,7 +798,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_OutputTabLayout.SetButtonWidth( 175 );
 
     m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
-    m_OutputTabLayout.AddSlider( m_ExportRelCurveTolSlider, "Export Curve Tolerance", 1.0, "%7.5f" );
 
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.SetSameLineFlag( true );
@@ -850,7 +850,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_DisplayTabLayout.SetFitWidthFlag( true );
     m_DisplayTabLayout.SetSameLineFlag( false );
-    m_DisplayTabLayout.AddSlider( m_DrawRelCurveTolSlider, "Display Curve Tolerance", 1.0, "%7.5f" );
     m_DisplayTabLayout.AddYGap();
 
     m_DisplayTabLayout.AddDividerBox( "Display Element Sets" );
@@ -1939,6 +1938,17 @@ bool StructScreen::Update()
             m_GrowthRatio.Update( curr_struct->GetFeaGridDensityPtr()->m_GrowRatio.GetID() );
             m_Rig3dGrowthLimit.Update( curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.GetID() );
 
+            m_RelCurveTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_RelCurveTol.GetID() );
+
+            if ( curr_struct->GetStructSettingsPtr()->m_DrawBinAdaptFlag() )
+            {
+                m_RelCurveTolSlider.Activate();
+            }
+            else
+            {
+                m_RelCurveTolSlider.Deactivate();
+            }
+
             //===== Geometry Control =====//
             m_HalfMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.GetID() );
 
@@ -1956,17 +1966,6 @@ bool StructScreen::Update()
 
             m_ShowCurve.Update( curr_struct->GetStructSettingsPtr()->m_DrawCurveFlag.GetID() );
             m_ShowPts.Update( curr_struct->GetStructSettingsPtr()->m_DrawPntsFlag.GetID() );
-
-            m_DrawRelCurveTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_DrawRelCurveTol.GetID() );
-
-            if ( curr_struct->GetStructSettingsPtr()->m_DrawBinAdaptFlag() )
-            {
-                m_DrawRelCurveTolSlider.Activate();
-            }
-            else
-            {
-                m_DrawRelCurveTolSlider.Deactivate();
-            }
 
             if ( FeaMeshMgr.GetStructSettingsPtr() )
             {
@@ -2007,16 +2006,6 @@ bool StructScreen::Update()
             m_Plot3DFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME )->GetID() );
 
             m_ExportRaw.Update( curr_struct->GetStructSettingsPtr()->m_ExportRawFlag.GetID() );
-            m_ExportRelCurveTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_ExportRelCurveTol.GetID() );
-
-            if ( curr_struct->GetStructSettingsPtr()->m_ExportRawFlag() )
-            {
-                m_ExportRelCurveTolSlider.Deactivate();
-            }
-            else
-            {
-                m_ExportRelCurveTolSlider.Activate();
-            }
 
             // Update Structure Name
             m_FeaStructNameInput.Update( curr_struct->GetName() );

@@ -86,9 +86,8 @@ class MeshCommonSettings : public ParmContainer
     BoolParm m_DrawCurveFlag;
     BoolParm m_DrawPntsFlag;
 
-    Parm m_DrawRelCurveTol;
+    Parm m_RelCurveTol;
     BoolParm m_ExportRawFlag;
-    Parm m_ExportRelCurveTol;
 
     BoolParm m_IntersectSubSurfs;
 

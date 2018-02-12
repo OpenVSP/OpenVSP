@@ -294,7 +294,6 @@ private:
     StringOutput m_Plot3DOutput;
 
     ToggleButton m_ExportRaw;
-    SliderAdjRangeInput m_ExportRelCurveTolSlider;
 
     //===== Draw Tab Items =====//
     ToggleButton m_DrawMeshButton;
@@ -307,7 +306,7 @@ private:
 
     ToggleButton m_ShowRaw;
     ToggleButton m_ShowBinAdapt;
-    SliderAdjRangeInput m_DrawRelCurveTolSlider;
+    SliderAdjRangeInput m_RelCurveTolSlider;
 
     ToggleButton m_ShowCurve;
     ToggleButton m_ShowPts;
