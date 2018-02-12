@@ -1955,6 +1955,8 @@ void CpSlicerAnalysis::SetDefaults()
 
     if ( veh )
     {
+        m_Inputs.Add( NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get() ) );
+
         // Cuts
         m_Inputs.Add( NameValData( "XSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR ) ) );
         m_Inputs.Add( NameValData( "YSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR ) ) );
@@ -1975,6 +1977,10 @@ string CpSlicerAnalysis::Execute()
     if ( veh )
     {
         NameValData *nvd = NULL;
+
+        int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
+        nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
+        if ( nvd ) VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
 
         // Cuts
         vector < double > xcutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR );
