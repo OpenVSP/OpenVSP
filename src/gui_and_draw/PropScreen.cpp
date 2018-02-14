@@ -137,6 +137,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
     m_CurveChoice.AddItem( "Twist" );
     m_CurveChoice.AddItem( "Rake" );
     m_CurveChoice.AddItem( "Skew" );
+    m_CurveChoice.AddItem( "Sweep" );
 
     m_EditCurve = CHORD;
 
@@ -804,6 +805,9 @@ bool PropScreen::Update()
         break;
     case SKEW:
         m_CurveEditor.Update( &propeller_ptr->m_SkewCurve );
+        break;
+    case SWEEP:
+        m_CurveEditor.Update( &propeller_ptr->m_SweepCurve );
         break;
     }
 

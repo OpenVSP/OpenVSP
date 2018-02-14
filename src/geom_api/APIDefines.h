@@ -469,6 +469,7 @@ enum PROP_PCURVE { PROP_CHORD,
                    PROP_TWIST,
                    PROP_RAKE,
                    PROP_SKEW,
+                   PROP_SWEEP,
                    NUM_PROP_PCURVE
                  };
 

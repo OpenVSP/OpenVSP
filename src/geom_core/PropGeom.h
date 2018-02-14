@@ -36,12 +36,12 @@ public:
     double m_Twist;
     double m_PropRot;
     double m_Feather;
-    double m_XRotate;
     double m_ZRotate;
 
     double m_Radius;
     double m_Rake;
     double m_Skew;
+    double m_Sweep;
 
     vec3d m_FoldOrigin;
     vec3d m_FoldDirection;
@@ -165,6 +165,7 @@ public:
 
     PCurve m_RakeCurve;
     PCurve m_SkewCurve;
+    PCurve m_SweepCurve;
 
     vector < PCurve* > m_pcurve_vec;
 

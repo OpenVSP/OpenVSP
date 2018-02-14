@@ -33,12 +33,12 @@ PropPositioner::PropPositioner()
     m_Twist = 0.0;
     m_PropRot = 0.0;
     m_Feather = 0.0;
-    m_XRotate = 0.0;
     m_ZRotate = 0.0;
 
     m_Radius = 0.0;
     m_Rake = 0.0;
     m_Skew = 0.0;
+    m_Sweep = 0.0;
 
     m_FoldOrigin = vec3d( 0, 0, 0 );
     m_FoldDirection = vec3d( 0, 0, 1 );
@@ -88,11 +88,11 @@ void PropPositioner::Update()
 
     mat.rotateY( m_Reverse * m_Feather );
 
+    mat.rotateX( m_Reverse * m_Sweep ); // About axis of rotation
+
     mat.translatef( 0, m_Radius, 0 );
 
     mat.rotateY( m_Reverse * m_Twist );
-
-    mat.rotateX( m_XRotate ); // About rake direction
 
     mat.translatef( m_Rake, 0, m_Reverse * m_Skew );
 
@@ -395,12 +395,21 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_SkewCurve.m_CurveType = vsp::LINEAR;
     m_SkewCurve.InitCurve( tv3, vv3 );
 
+    m_SweepCurve.SetParentContainer( GetID() );
+    m_SweepCurve.SetDispNames( "r/R", "Sweep" );
+    m_SweepCurve.SetParmNames( "r", "sw" );
+    m_SweepCurve.SetCurveName( "Sweep" );
+    m_SweepCurve.InitParms();
+    m_SweepCurve.m_CurveType = vsp::LINEAR;
+    m_SweepCurve.InitCurve( tv3, vv3 );
+
     // Set up vector to allow treatment as a group.
     m_pcurve_vec.resize( NUM_PROP_PCURVE );
     m_pcurve_vec[ PROP_CHORD ] = &m_ChordCurve;
     m_pcurve_vec[ PROP_TWIST ] = &m_TwistCurve;
     m_pcurve_vec[ PROP_RAKE ] = &m_RakeCurve;
     m_pcurve_vec[ PROP_SKEW ] = &m_SkewCurve;
+    m_pcurve_vec[ PROP_SWEEP ] = &m_SweepCurve;
 
 }
 
@@ -697,11 +706,11 @@ void PropGeom::UpdateSurf()
                 xs->m_PropPos.m_Radius = r * radius;
                 xs->m_PropPos.m_Chord = w;
                 xs->m_PropPos.m_Twist = m_TwistCurve.Comp( r );
-                xs->m_PropPos.m_XRotate = 0.0;
                 xs->m_PropPos.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
 
                 xs->m_PropPos.m_Rake = m_RakeCurve.Comp( r ) * radius;
                 xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
+                xs->m_PropPos.m_Sweep = m_SweepCurve.Comp( r );
                 xs->m_PropPos.m_PropRot = m_Rotate();
                 xs->m_PropPos.m_Feather = m_Feather();
 
@@ -799,11 +808,12 @@ void PropGeom::UpdateSurf()
         pp.m_Chord = m_ChordCurve.Comp( r ) * radius;
         pp.m_Twist = m_TwistCurve.Comp( r );
 
-        pp.m_XRotate = 0.0;
         pp.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
 
         pp.m_Rake = m_RakeCurve.Comp( r ) * radius;
         pp.m_Skew = m_SkewCurve.Comp( r ) * radius;
+
+        pp.m_Sweep = m_SweepCurve.Comp( r );
 
         pp.m_PropRot = m_Rotate();
         pp.m_Feather = m_Feather();
@@ -963,6 +973,7 @@ xmlNodePtr PropGeom::EncodeXml( xmlNodePtr & node )
         m_TwistCurve.EncodeXml( propeller_node );
         m_RakeCurve.EncodeXml( propeller_node );
         m_SkewCurve.EncodeXml( propeller_node );
+        m_SweepCurve.EncodeXml( propeller_node );
     }
     return propeller_node;
 }
@@ -980,6 +991,7 @@ xmlNodePtr PropGeom::DecodeXml( xmlNodePtr & node )
         m_TwistCurve.DecodeXml( propeller_node );
         m_RakeCurve.DecodeXml( propeller_node );
         m_SkewCurve.DecodeXml( propeller_node );
+        m_SweepCurve.DecodeXml( propeller_node );
     }
 
     return propeller_node;
@@ -1101,6 +1113,7 @@ void PropGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const str
     m_TwistCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
     m_RakeCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
     m_SkewCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
+    m_SweepCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
 }
 
 //==== Scale ====//
