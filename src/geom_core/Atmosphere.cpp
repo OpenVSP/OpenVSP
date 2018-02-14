@@ -67,7 +67,7 @@ void Atmosphere::USStandardAtmosphere1976( double alt, double delta_temp, int al
     m_PressureRatio = P / m_P0;
 
     // Modeling Dynamic Viscosity
-    m_DynamicVisc = DynamicViscosityCalc( T, tempunit, altunit );
+    m_DynamicVisc = DynamicViscosityCalc( T, vsp::TEMP_UNIT_K, altunit );
 
     if ( altunit == vsp::PD_UNITS_IMPERIAL )
     {
@@ -161,7 +161,7 @@ void Atmosphere::USAF1966( double alt, double delta_temp, int altunit, int tempu
     m_SoundSpeed = sqrt( gamma * m_Rspecific * T ); // m/s
 
     // Modeling Dynamic Viscosity
-    m_DynamicVisc = DynamicViscosityCalc( T, tempunit, altunit );
+    m_DynamicVisc = DynamicViscosityCalc( T, vsp::TEMP_UNIT_K, altunit );
 
     if ( altunit == vsp::PD_UNITS_METRIC )
     {
