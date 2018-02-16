@@ -1094,7 +1094,7 @@ void LoadCaseFile(void)
 
     // Load in Mach list
     
-    fgets(DumChar,200,case_file);
+    fgets(DumChar,sizeof(DumChar),case_file);
 
     if ( strstr(DumChar,Comma) == NULL ) {
 
@@ -1166,7 +1166,7 @@ void LoadCaseFile(void)
     
     // Load in AoA list
     
-    fgets(DumChar,200,case_file);
+    fgets(DumChar,sizeof(DumChar),case_file);
 
     if ( strstr(DumChar,Comma) == NULL ) {
 
@@ -1238,7 +1238,7 @@ void LoadCaseFile(void)
     
     // Load in Beta list
     
-    fgets(DumChar,200,case_file);
+    fgets(DumChar,sizeof(DumChar),case_file);
 
     if ( strstr(DumChar,Comma) == NULL ) {
 
@@ -1313,7 +1313,7 @@ void LoadCaseFile(void)
 
     // Load in ReCref list
     
-    fgets(DumChar,200,case_file);
+    fgets(DumChar,sizeof(DumChar),case_file);
 
     if ( strstr(DumChar,Comma) == NULL ) {
 
@@ -1434,7 +1434,7 @@ void LoadCaseFile(void)
     
     NumberOfControlGroups_ = 0;
 
-    while ( fgets(DumChar,200,case_file) != NULL ) {
+    while ( fgets(DumChar,sizeof(DumChar),case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberOfControlGroups") != NULL ) {
           
@@ -1456,13 +1456,13 @@ void LoadCaseFile(void)
              
              // Control groupname
              
-             fgets( ControlSurfaceGroup_[i].Name(), 200, case_file );
+             fgets( ControlSurfaceGroup_[i].Name(), 300, case_file );
              
              printf("ControlSurfaceGroup_[%d].Name(): %s \n",i,ControlSurfaceGroup_[i].Name());
              
              // List of control surfaces in this group
              
-             fgets(DumChar,300,case_file);
+             fgets(DumChar,sizeof(DumChar),case_file); // Note: Max number of total characters for control surfaces in group is 2000
         
              // Determine the number of control surfaces in the group
          
@@ -1482,7 +1482,7 @@ void LoadCaseFile(void)
                 
                 // Read in the control surface direction
                 
-                fgets(DumChar,200,case_file);
+                fgets(DumChar,sizeof(DumChar),case_file);
                 
                 ControlSurfaceGroup_[i].ControlSurface_DeflectionDirection(1) = atof(DumChar);
                                                 
@@ -1560,7 +1560,7 @@ void LoadCaseFile(void)
                 
                 // Now read in the control surface directions
                 
-                fgets(DumChar,200,case_file);
+                fgets(DumChar,sizeof(DumChar),case_file);
                 
                 Next = strtok(DumChar,Comma);
   
@@ -1608,7 +1608,7 @@ void LoadCaseFile(void)
     
     Done = 0;
     
-    while ( !Done && fgets(DumChar,200,case_file) != NULL ) {
+    while ( !Done && fgets(DumChar,sizeof(DumChar),case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberOfRotors") != NULL ) {
           
@@ -1620,8 +1620,8 @@ void LoadCaseFile(void)
           
           for ( i = 1 ; i <= NumberOfRotors_ ; i++ ) {
            
-             fgets(DumChar,200,case_file);
-             fgets(DumChar,200,case_file);
+             fgets(DumChar,sizeof(DumChar),case_file);
+             fgets(DumChar,sizeof(DumChar),case_file);
              
              printf("\nLoading data for rotor: %5d \n",i);
              
@@ -1689,7 +1689,7 @@ void LoadCaseFile(void)
     
     Done = 0;
         
-    while ( !Done && fgets(DumChar,200,case_file) != NULL ) {
+    while ( !Done && fgets(DumChar,sizeof(DumChar),case_file) != NULL ) {
 
        if ( strstr(DumChar,"NumberofSurveyPoints") != NULL ) {
 
@@ -1723,7 +1723,7 @@ void LoadCaseFile(void)
     
     Done = 0;
     
-    while ( !Done && fgets(DumChar,200,case_file) != NULL ) {
+    while ( !Done && fgets(DumChar,sizeof(DumChar),case_file) != NULL ) {
 
        if ( strstr(DumChar,"UnsteadyAnalysisType") != NULL ) {
 
@@ -1781,40 +1781,40 @@ void LoadCaseFile(void)
              
           }
                                                            
-          fgets(DumChar,200,case_file);
+          fgets(DumChar,sizeof(DumChar),case_file);
           if (strstr(DumChar, "ReducedFrequency") != NULL)
           {
               sscanf(DumChar,"ReducedFrequency = %lf \n",&ReducedFrequency_);
               printf("ReducedFrequency: %lf \n",ReducedFrequency_);
-              fgets(DumChar,200,case_file); // Only proceed if the proceeding line is found
+              fgets(DumChar,sizeof(DumChar),case_file); // Only proceed if the proceeding line is found
           }
 
           if (strstr(DumChar, "NumberOfTimeSteps") != NULL)
           {
               sscanf(DumChar,"NumberOfTimeSteps = %d \n",&NumberOfTimeSteps_);
               printf("NumberOfTimeSteps: %d \n",NumberOfTimeSteps_);
-              fgets(DumChar,200,case_file);
+              fgets(DumChar,sizeof(DumChar),case_file);
           }
 
           if (strstr(DumChar, "NumberOfTimeSamples") != NULL)
           {
               sscanf(DumChar,"NumberOfTimeSamples = %d \n",&NumberOfTimeSamples_);
               printf("NumberOfTimeSamples: %d \n",NumberOfTimeSamples_);
-              fgets(DumChar,200,case_file);
+              fgets(DumChar,sizeof(DumChar),case_file);
           }
 
           if (strstr(DumChar, "UnsteadyAngleMax") != NULL)
           {
               sscanf(DumChar,"UnsteadyAngleMax = %lf \n",&UnsteadyAngleMax_);
               printf("UnsteadyAngleMax: %lf \n",UnsteadyAngleMax_);
-              fgets(DumChar,200,case_file);
+              fgets(DumChar,sizeof(DumChar),case_file);
           }
 
           if (strstr(DumChar, "UnsteadyHMax") != NULL)
           {
               sscanf(DumChar,"UnsteadyHMax = %lf \n",&UnsteadyHMax_);
               printf("UnsteadyHMax: %f \n",UnsteadyHMax_);
-              fgets(DumChar,200,case_file); 
+              fgets(DumChar,sizeof(DumChar),case_file);
           }
 
           VSP_VLM().TimeAnalysisType()    = UnsteadyAnalysisType_;
