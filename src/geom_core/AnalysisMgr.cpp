@@ -1851,31 +1851,52 @@ string ParasiteDragFullAnalysis::Execute()
         // File Name
         string fileNameOrig = ParasiteDragMgr.m_FileName;
         nvd = m_Inputs.FindPtr( "FileName", 0 );
-        ParasiteDragMgr.m_FileName = nvd->GetString(0);
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_FileName = nvd->GetString( 0 );
+        }
 
         // Geometry Set Choice
         int geomSetOrig = ParasiteDragMgr.m_SetChoice.Get();
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        ParasiteDragMgr.m_SetChoice.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_SetChoice.Set( nvd->GetInt( 0 ) );
+        }
 
         // Friction Coefficient Eqn Choice
         int lamCfEqnChoiceOrig = ParasiteDragMgr.m_LamCfEqnType.Get();
         int turbCfEqnChoiceOrig = ParasiteDragMgr.m_TurbCfEqnType.Get();
         nvd = m_Inputs.FindPtr( "LamCfEqnChoice", 0 );
-        ParasiteDragMgr.m_LamCfEqnType.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_LamCfEqnType.Set( nvd->GetInt( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "TurbCfEqnChoice", 0 );
-        ParasiteDragMgr.m_TurbCfEqnType.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_TurbCfEqnType.Set( nvd->GetInt( 0 ) );
+        }
 
         // Unit Choice
         int lengthUnitChoiceOrig = ParasiteDragMgr.m_LengthUnit.Get();
         int velocityUnitChoiceOrig = ParasiteDragMgr.m_VinfUnitType.Get();
         int tempUnitChoiceOrig = ParasiteDragMgr.m_TempUnit.Get();
         nvd = m_Inputs.FindPtr( "LengthUnit", 0 );
-        ParasiteDragMgr.m_LengthUnit.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_LengthUnit.Set( nvd->GetInt( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "VelocityUnit", 0 );
-        ParasiteDragMgr.m_VinfUnitType.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_VinfUnitType.Set( nvd->GetInt( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "TempUnit", 0 );
-        ParasiteDragMgr.m_TempUnit.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_TempUnit.Set( nvd->GetInt( 0 ) );
+        }
 
         // Freestream Props
         int freestreamPropChoiceOrig = ParasiteDragMgr.m_FreestreamType.Get();
@@ -1887,19 +1908,40 @@ string ParasiteDragFullAnalysis::Execute()
         double densOrig = ParasiteDragMgr.m_Rho.Get();
         //int mediumChoiceOrig = ParasiteDragMgr.m_MediumType.Get();
         nvd = m_Inputs.FindPtr( "FreestreamPropChoice", 0 );
-        ParasiteDragMgr.m_FreestreamType.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_FreestreamType.Set( nvd->GetInt( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Vinf", 0 );
-        ParasiteDragMgr.m_Vinf.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Vinf.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Altitude", 0 );
-        ParasiteDragMgr.m_Hinf.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Hinf.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "DeltaTemp", 0 );
-        ParasiteDragMgr.m_DeltaT.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_DeltaT.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Temperature", 0 );
-        ParasiteDragMgr.m_Temp.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Temp.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Pressure", 0 );
-        ParasiteDragMgr.m_Pres.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Pres.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Density", 0 );
-        ParasiteDragMgr.m_Rho.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Rho.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Medium", 0 );
         //ParasiteDragMgr.m_MediumType.Set( nvd->GetInt(0) );
 
