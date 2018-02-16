@@ -178,7 +178,7 @@ void main()
 
     string ridpd = ExecAnalysis( "ParasiteDrag" );
 
-    array<double>@ dat = GetDoubleResults( ridpd, "Total_Cd_Total", 0 );
+    array<double>@ dat = GetDoubleResults( ridpd, "Total_CD_Total", 0 );
     double tol = 0.018572 * 0.15;
     if ( abs( dat[0] - 0.018572 ) >= tol )        { Print( "---> Error: S-3 Viking Friction Coefficient Mismatch" ); }
 
