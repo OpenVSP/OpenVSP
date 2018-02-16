@@ -1829,6 +1829,7 @@ void ParasiteDragFullAnalysis::SetDefaults()
 
         // Reference Area
         m_Inputs.Add( NameValData( "RefFlag", ParasiteDragMgr.m_RefFlag.Get() ) );
+        m_Inputs.Add( NameValData( "WingID",  " " ) );
         m_Inputs.Add( NameValData( "Sref",    ParasiteDragMgr.m_Sref.Get() ) );
     }
     else
@@ -1904,11 +1905,41 @@ string ParasiteDragFullAnalysis::Execute()
 
         // Reference Area
         int refFlagOrig = ParasiteDragMgr.m_RefFlag.Get();
+        string WingIDOrig = ParasiteDragMgr.m_RefGeomID;
         double srefOrig = ParasiteDragMgr.m_Sref.Get();
         nvd = m_Inputs.FindPtr( "RefFlag", 0 );
-        ParasiteDragMgr.m_RefFlag.Set( nvd->GetInt(0) );
-        nvd = m_Inputs.FindPtr( "Sref", 0 );
-        ParasiteDragMgr.m_Sref.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_RefFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "WingID", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_RefGeomID = nvd->GetString( 0 );
+        }
+
+        if ( ParasiteDragMgr.m_RefFlag.Get() == vsp::MANUAL_REF )
+        {
+            nvd = m_Inputs.FindPtr( "Sref", 0 );
+            if ( nvd )
+            {
+                ParasiteDragMgr.m_Sref.Set( nvd->GetDouble( 0 ) );
+            }
+        }
+        else if ( ParasiteDragMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
+        {
+            ParasiteDragMgr.Update();
+            printf( "Wing Reference Parms: \n" );
+
+            nvd = m_Inputs.FindPtr( "Sref", 0 );
+            if ( nvd )
+            {
+                ParasiteDragMgr.m_Sref.Set( ParasiteDragMgr.m_Sref.Get() );
+            }
+            printf( " Sref: %7.3f \n", ParasiteDragMgr.m_Sref.Get() );
+
+            printf( "\n" );
+        }
 
         // Execute analysis
         res_id = ParasiteDragMgr.ComputeBuildUp();
@@ -1938,6 +1969,7 @@ string ParasiteDragFullAnalysis::Execute()
 
         // Reference Area
         ParasiteDragMgr.m_RefFlag.Set( refFlagOrig );
+        ParasiteDragMgr.m_RefGeomID = WingIDOrig;
         ParasiteDragMgr.m_Sref.Set( srefOrig );
     }
 
