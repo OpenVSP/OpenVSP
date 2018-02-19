@@ -269,11 +269,11 @@ file_xsec_id = vsp.GetXSec(xsurf_id, 0)
 # Build Point Vec
 
 pnt_vec = vsp.Vec3dVec()
-pnt_vec.push_back(vsp.vec3d(0.0, 2.0, 0.0))
 pnt_vec.push_back(vsp.vec3d(1.0, 0.0, 0.0))
-pnt_vec.push_back(vsp.vec3d(0.0, -2.0, 0.0))
+pnt_vec.push_back(vsp.vec3d(0.0, -1.0, 0.0))
 pnt_vec.push_back(vsp.vec3d(-1.0, 0.0, 0.0))
-pnt_vec.push_back(vsp.vec3d(0.0, 2.0, 0.0))
+pnt_vec.push_back(vsp.vec3d(0.0, 1.0, 0.0))
+pnt_vec.push_back(vsp.vec3d(1.0, 0.0, 0.0))
 
 # Load Points Into XSec
 vsp.SetXSecPnts(file_xsec_id, pnt_vec)
