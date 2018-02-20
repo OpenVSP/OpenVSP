@@ -178,6 +178,52 @@ array<vec3d> ReadCpDistFile( string file_name )
     return x_y_cp_vec;
 }
 
+array<vec3d> ReadAVLFSFile( string file_name )
+{
+    // This function reads in an AVL Strip Force file and returns an array<vec3d>
+    //  in the format (y,Cl,Cd)
+    array<vec3d> y_Cl_Cd_vec;
+    file@ fs_file = file();
+
+    if( fs_file.open(file_name, "r") < 0 )
+    {
+      string message =  string("Error: Failed to Open ") + file_name + string("\n");
+      Print( message );
+      return y_Cl_Cd_vec;
+    }
+
+    string line = fs_file.readLine();
+
+    while ( !fs_file.isEndOfFile() )
+    {
+        if ( line.findFirst("Strip Forces referred to Strip Area, Chord",0) > 0 )
+        {
+            line = fs_file.readLine();
+            line = fs_file.readLine();
+            
+            while ( ( line.length() > 10 ) && line.findFirst("--------",0) < 0 )
+            {
+                array<string> line_array = line.split("   ");
+                
+                vec3d y_Cl_Cd;
+                y_Cl_Cd[0] = parseFloat(line_array[2]);
+                y_Cl_Cd[1] = parseFloat(line_array[8]);
+                y_Cl_Cd[2] = parseFloat(line_array[9]);
+                
+                y_Cl_Cd_vec.push_back(y_Cl_Cd);
+                
+                line = fs_file.readLine();
+            }
+        }
+        
+        line = fs_file.readLine();
+    }
+
+    fs_file.close();
+    
+    return y_Cl_Cd_vec;
+}
+
 //============= HTML Support Functions ==============//
 class HTML
 {
@@ -915,7 +961,7 @@ class HTML
                 fid.writeString( string("\t\t<div>\n") );
                 fid.writeString( string("\t\t  <h2 id='HTC'>Tip Clustering Study</h2>\n") );
                 
-                text = string("This next study looks at the influence of tip clustering on \\(C_L\\) distribution along the Hershey Bar wing span. Tip clustering is varied while aspect ratio, chord tesselation, and span tesselation are held constant. The \\(C_L\\) distribution across the span is compared to the lifting line approximate \\(C_L\\) distribution found using Glauert's method. The plots below display how tip clustering effects the error between VSPAERO VLM and LLT.");
+                text = string("This next study looks at the influence of tip clustering on \\(C_L\\) distribution along the Hershey Bar wing span. Tip clustering is varied while aspect ratio, chord tesselation, and span tesselation are held constant. The \\(C_L\\) distribution across the span is compared to the lifting line approximate \\(C_L\\) distribution found using Glauert's method. In addition, lift distribution results are generated in Athena Vortex Lattice v3.37 (AVL) for the Hershey Bar wing using the same setup conditions as VSPAERO. The AVL input file, \"Hershey_AR10.avl\", and results file, \"Hershey_AR10_AVL.dat\", can be found in the same directory as the Master V&V Script. The plots below display how tip clustering effects the error between VSPAERO VLM and LLT.");
                 
                 WriteParagraph( text );
                 
@@ -981,7 +1027,7 @@ class HTML
                 fid.writeString( string("\t\t<div>\n") );
                 fid.writeString( string("\t\t  <h2 id='HST'>Span Tesselation Study</h2>\n") );
                 
-                text = string("The impact of span tesselation on \\(C_L\\) distribution along the Hershey Bar wing span is investigated first in this study. While holding aspect ratio, chord tesselation, and tip clustering constant, span tesselation is varied. The plot below display the \\(C_L\\) distribution across the span compared to the lifting line approximate \\(C_L\\) distribution found using Glauert's method.");
+                text = string("The impact of span tesselation on \\(C_L\\) distribution along the Hershey Bar wing span is investigated first in this study. While holding aspect ratio, chord tesselation, and tip clustering constant, span tesselation is varied. The plot below display the \\(C_L\\) distribution across the span compared to the lifting line approximate \\(C_L\\) distribution found using Glauert's method. In addition, the lift distribution results computed by AVL for an identical geometry and flow condition input are plotted.");
                 
                 WriteParagraph( text );
                 
@@ -1043,7 +1089,7 @@ class HTML
                 
                 fid.writeString( string("\t\t<div>\n") );
                 
-                text = string("The impact of span tesselation on \\(C_{Di}\\) distribution along the Hershey Bar wing span is looked at next. As in the plot above, aspect ratio, chord tesselation, and tip clustering are held constant as span tesselation was varied. The plot below display the \\(C_{Di}\\) distribution across the span compared to the lifting line approximate \\(C_{Di}\\) distribution found using Glauert's method.");
+                text = string("The impact of span tesselation on \\(C_{Di}\\) distribution along the Hershey Bar wing span is looked at next. As in the plot above, aspect ratio, chord tesselation, and tip clustering are held constant as span tesselation was varied. The plot below display the \\(C_{Di}\\) distribution across the span compared to the lifting line approximate \\(C_{Di}\\) distribution, and the drag distribution determined by AVL. The AVL input and results file are located in the same directory as the Master V&V Script (\"Hershey_AR10.avl\" and \"Hershey_AR10_AVL.dat\" respectively).");
                 
                 WriteParagraph( text );
                 
@@ -1055,7 +1101,7 @@ class HTML
                 fid.writeString( string("\t\t<div>\n") );
                 fid.writeString( string("\t\t  <h2 id='HCT'>Chord Tesselation Study</h2>\n") );
                 
-                text = string("This next lift distribution study is similar to the previous one, except here the influence of chord tesselation is presented. Span tesselation, aspect ratio, and tip clustering are all held constant. The plots below compare the VSPAERO \\(C_L\\) distribution for the Hershey Bar wing to the lifting line theory approximate solution.");
+                text = string("This next lift distribution study is similar to the previous one, except here the influence of chord tesselation is presented. Span tesselation, aspect ratio, and tip clustering are all held constant. The plots below compare the VSPAERO \\(C_L\\) distribution for the Hershey Bar wing to the lifting line theory approximate solution. The same geometry and flow condition inputs were run in AVL to generate lift distribution results. The AVL results are read in and plotted as well. The results file, \"Hershey_AR10_AVL.dat\", may be viewed in the scripts directory.");
                 
                 WriteParagraph( text );
                 
@@ -1117,7 +1163,7 @@ class HTML
                 
                 fid.writeString( string("\t\t<div>\n") );
                 
-                text = string("Chord tesselation's influence on induced drag coefficient distribution for the Hershey Bar wing is then looked at. Aspect ratio, span tesselation, and tip clustering are all held constant while chord tesselation is varied. The lifting line approximate \\(C_{Di}\\) distribution determined Glauert's method is plotted below alongside the results generated from VSPAERO.");
+                text = string("Chord tesselation's influence on induced drag coefficient distribution for the Hershey Bar wing is then looked at. Aspect ratio, span tesselation, and tip clustering are all held constant while chord tesselation is varied. The lifting line approximate \\(C_{Di}\\) distribution determined Glauert's method is plotted below alongside the results generated from VSPAERO. In addition, AVL's drag distribution for the Hershey Bar wing is plotted.");
                 
                 WriteParagraph( text );
                 
@@ -2384,6 +2430,9 @@ class HersheyVV : VV_Base
         m_AdvancedWakeVec[0] = 1;
         m_AdvancedWakeVec[1] = 2;
         m_AdvancedWakeVec[2] = 3;
+        
+        string AVL_file_name = GetVSPExePath() + string("\\scripts\\Hershey_AR10_AVL.dat");
+        m_AR10_Y_Cl_Cd_vec = ReadAVLFSFile(AVL_file_name);
     }
     
     void HersheyBarStudy()
@@ -3184,8 +3233,8 @@ class HersheyVV : VV_Base
         // Const AR, WTess, and TC, vary UTess Lift Distribution Study
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("UTess_LD");
-        c1.m_Legend = string("'Span Location','Span Tess: 10','Span Tess: 35','Span Tess: 60','Span Tess: 85','LLT'");
-        c1.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
+        c1.m_Legend = string("'Span Location','Span Tess: 10','Span Tess: 35','Span Tess: 60','Span Tess: 85','LLT','AVL'");
+        c1.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
         c1.m_Title = string("Hershey Bar Lift Distribution Span Tesselation Sensitivity");
         c1.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0, max: 0.15 } }");
@@ -3193,8 +3242,8 @@ class HersheyVV : VV_Base
         // Const AR, WTess, and TC, vary UTess Drag Distribution Study
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("UTess_DD") ;
-        c2.m_Legend = string("'Span Location','Span Tess: 10','Span Tess: 35','Span Tess: 60','Span Tess: 85','LLT'");
-        c2.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
+        c2.m_Legend = string("'Span Location','Span Tess: 10','Span Tess: 35','Span Tess: 60','Span Tess: 85','LLT','AVL'");
+        c2.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
         c2.m_Title = string("Hershey Bar Drag Distribution Span Tesselation Sensitivity");
         c2.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
         c2.m_VAxisString = string("vAxis: { title: 'Cd', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }"); // TODO: set max
@@ -3205,10 +3254,10 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(span_loc_data[0].length()); i++ )
         {
             string row1 = string("\t\t  [") + double( span_loc_data[0][i] ) + string(",") + double( cl_dist_data[0][i] ) + 
-                string(",null,null,null,null],\n");
+                string(",null,null,null,null,null],\n");
 
             string row2 = string("\t\t  [") + double( span_loc_data[0][i] ) + string(",") + double( cd_dist_data[0][i] ) + 
-                string(",null,null,null,null],\n");
+                string(",null,null,null,null,null],\n");
             
             data_str_vec1.push_back( row1 );
             data_str_vec2.push_back( row2 );
@@ -3217,10 +3266,10 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(span_loc_data[1].length()); i++ )
         {
             string row1 = string("\t\t  [") + double( span_loc_data[1][i] ) + string(",null,") + double( cl_dist_data[1][i] ) + 
-                string(",null,null,null],\n");
+                string(",null,null,null,null],\n");
             
             string row2 = string("\t\t  [") + double( span_loc_data[1][i] ) + string(",null,") + double( cd_dist_data[1][i] ) + 
-                string(",null,null,null],\n");
+                string(",null,null,null,null],\n");
             
             data_str_vec1.push_back( row1 );
             data_str_vec2.push_back( row2 );
@@ -3229,10 +3278,10 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(span_loc_data[2].length()); i++ )
         {
             string row1 = string("\t\t  [") + double( span_loc_data[2][i] ) + string(",null,null,") + 
-            double( cl_dist_data[2][i] )+ string(",null,null],\n");
+            double( cl_dist_data[2][i] ) + string(",null,null,null],\n");
             
             string row2 = string("\t\t  [") + double( span_loc_data[2][i] ) + string(",null,null,") + 
-            double( cd_dist_data[2][i] )+ string(",null,null],\n");
+            double( cd_dist_data[2][i] ) + string(",null,null,null],\n");
 
             data_str_vec1.push_back( row1 );
             data_str_vec2.push_back( row2 );
@@ -3241,10 +3290,10 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(span_loc_data[3].length()); i++ )
         {
             string row1 = string("\t\t  [") + double( span_loc_data[3][i] ) + string(",null,null,null,") + 
-            double( cl_dist_data[3][i] )+ string(",null],\n");
+            double( cl_dist_data[3][i] ) + string(",null,null],\n");
             
             string row2 = string("\t\t  [") + double( span_loc_data[3][i] ) + string(",null,null,null,") + 
-            double( cd_dist_data[3][i] )+ string(",null],\n");
+            double( cd_dist_data[3][i] ) + string(",null,null],\n");
             
             data_str_vec1.push_back( row1 );
             data_str_vec2.push_back( row2 );
@@ -3253,12 +3302,24 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(cl_dist_theo.length()); i++ )
         {
             string row1 = string("\t\t  [") + double( cl_dist_theo[i][0] ) + string(",null,null,null,null,") + 
-                double( cl_dist_theo[i][1] );
+                double( cl_dist_theo[i][1] ) + string(",null],\n");
             
             string row2 = string("\t\t  [") + double( cd_dist_theo[i][0] ) + string(",null,null,null,null,") + 
-                double( cd_dist_theo[i][1] );
+                double( cd_dist_theo[i][1] ) + string(",null],\n");
             
-            if ( i == cl_dist_theo.length() - 1 )
+            data_str_vec1.push_back( row1 );
+            data_str_vec2.push_back( row2 );
+        }
+        
+        for( uint i = 0; i < uint(m_AR10_Y_Cl_Cd_vec.length()); i++ )
+        {
+            string row1 = string("\t\t  [") + double( m_AR10_Y_Cl_Cd_vec[i][0] ) + string(",null,null,null,null,null,") + 
+                double( m_AR10_Y_Cl_Cd_vec[i][1] );
+            
+            string row2 = string("\t\t  [") + double( m_AR10_Y_Cl_Cd_vec[i][0] ) + string(",null,null,null,null,null,") + 
+                double( m_AR10_Y_Cl_Cd_vec[i][2] );
+            
+            if ( i == m_AR10_Y_Cl_Cd_vec.length() - 1 )
             {
                 row1 += string("]\n");
                 row2 += string("]\n");
@@ -3375,8 +3436,8 @@ class HersheyVV : VV_Base
         // Const AR, UTess, and TC, vary WTess Lift Distribution Study
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("WTess_LD");
-        c1.m_Legend = string("'Span Location','Chord Tess: 15','Chord Tess: 40','Chord Tess: 65','Chord Tess: 90','LLT'");
-        c1.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
+        c1.m_Legend = string("'Span Location','Chord Tess: 15','Chord Tess: 40','Chord Tess: 65','Chord Tess: 90','LLT','AVL'");
+        c1.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
         c1.m_Title = string("Hershey Bar Lift Distribution Chord Tesselation Sensitivity");
         c1.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0, max: 0.15 } }");
@@ -3384,8 +3445,8 @@ class HersheyVV : VV_Base
         // Const AR, UTess, and TC, vary WTess Lift Distribution Study
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("WTess_DD");
-        c2.m_Legend = string("'Span Location','Chord Tess: 15','Chord Tess: 40','Chord Tess: 65','Chord Tess: 90','LLT'");
-        c2.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
+        c2.m_Legend = string("'Span Location','Chord Tess: 15','Chord Tess: 40','Chord Tess: 65','Chord Tess: 90','LLT','AVL'");
+        c2.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
         c2.m_Title = string("Hershey Bar Drag Distribution Chord Tesselation Sensitivity");
         c2.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
         c2.m_VAxisString = string("vAxis: { title: 'Cd', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }"); // TODO: set max
@@ -3395,10 +3456,10 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(span_loc_data[0].length()); i++ )
         {
             string row1 = string("\t\t  [") + double( span_loc_data[0][i] ) + string(",") + double( cl_dist_data[0][i] ) + 
-                string(",null,null,null,null],\n");
+                string(",null,null,null,null,null],\n");
                 
             string row2 = string("\t\t  [") + double( span_loc_data[0][i] ) + string(",") + double( cd_dist_data[0][i] ) + 
-                string(",null,null,null,null],\n");
+                string(",null,null,null,null,null],\n");
 
             data_str_vec1.push_back( row1 );
             data_str_vec2.push_back( row2 );
@@ -3407,10 +3468,10 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(span_loc_data[1].length()); i++ )
         {
             string row1 = string("\t\t  [") + double( span_loc_data[1][i] ) + string(",null,") + double( cl_dist_data[1][i] ) + 
-                string(",null,null,null],\n");
+                string(",null,null,null,null],\n");
                 
             string row2 = string("\t\t  [") + double( span_loc_data[1][i] ) + string(",null,") + double( cd_dist_data[1][i] ) + 
-                string(",null,null,null],\n");
+                string(",null,null,null,null],\n");
             
             data_str_vec1.push_back( row1 );
             data_str_vec2.push_back( row2 );
@@ -3419,10 +3480,10 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(span_loc_data[2].length()); i++ )
         {
             string row1 = string("\t\t  [") + double( span_loc_data[2][i] ) + string(",null,null,") + 
-                double( cl_dist_data[2][i] )+ string(",null,null],\n");
+                double( cl_dist_data[2][i] )+ string(",null,null,null],\n");
                 
             string row2 = string("\t\t  [") + double( span_loc_data[2][i] ) + string(",null,null,") + 
-                double( cd_dist_data[2][i] )+ string(",null,null],\n");
+                double( cd_dist_data[2][i] )+ string(",null,null,null],\n");
 
             data_str_vec1.push_back( row1 );
             data_str_vec2.push_back( row2 );
@@ -3431,10 +3492,10 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(span_loc_data[3].length()); i++ )
         {
             string row1 = string("\t\t  [") + double( span_loc_data[3][i] ) + string(",null,null,null,") + 
-                double( cl_dist_data[3][i] )+ string(",null],\n");
+                double( cl_dist_data[3][i] ) + string(",null,null],\n");
                 
             string row2 = string("\t\t  [") + double( span_loc_data[3][i] ) + string(",null,null,null,") + 
-                double( cd_dist_data[3][i] )+ string(",null],\n");
+                double( cd_dist_data[3][i] ) + string(",null,null],\n");
             
             data_str_vec1.push_back( row1 );
             data_str_vec2.push_back( row2 );
@@ -3443,12 +3504,24 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(cl_dist_theo.length()); i++ )
         {
             string row1 = string("\t\t  [") + double( cl_dist_theo[i][0] ) + string(",null,null,null,null,") + 
-                double( cl_dist_theo[i][1] );
+                double( cl_dist_theo[i][1] ) + string(",null],\n");
             
             string row2 = string("\t\t  [") + double( cd_dist_theo[i][0] ) + string(",null,null,null,null,") + 
-                double( cd_dist_theo[i][1] );
+                double( cd_dist_theo[i][1] ) + string(",null],\n");
             
-            if ( i == cl_dist_theo.length() - 1 )
+            data_str_vec1.push_back( row1 );
+            data_str_vec2.push_back( row2 );
+        }
+        
+        for( uint i = 0; i < uint(m_AR10_Y_Cl_Cd_vec.length()); i++ )
+        {
+            string row1 = string("\t\t  [") + double( m_AR10_Y_Cl_Cd_vec[i][0] ) + string(",null,null,null,null,null,") + 
+                double( m_AR10_Y_Cl_Cd_vec[i][1] );
+            
+            string row2 = string("\t\t  [") + double( m_AR10_Y_Cl_Cd_vec[i][0] ) + string(",null,null,null,null,null,") + 
+                double( m_AR10_Y_Cl_Cd_vec[i][2] );
+            
+            if ( i == m_AR10_Y_Cl_Cd_vec.length() - 1 )
             {
                 row1 += string("]\n");
                 row2 += string("]\n");
@@ -3807,8 +3880,8 @@ class HersheyVV : VV_Base
         
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("TC_LD") ;
-        c1.m_Legend = string("'Span Location','TC: 0.1','TC: 0.2','TC: 1.0','LLT'");
-        c1.m_Series = string("{ 3: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
+        c1.m_Legend = string("'Span Location','TC: 0.1','TC: 0.2','TC: 1.0','LLT','AVL'");
+        c1.m_Series = string("{ 3: { pointSize: 0, color: 'gray', lineWidth: 3 }, 4: { color: 'purple' } }");
         c1.m_Title = string("Hershey Bar Lift Distribution Tip Clustering Sensitivity");
         c1.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0, max: 0.15 } }");
@@ -3818,7 +3891,7 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(span_loc_data[0].length()); i++ )
         {
             string row = string("\t\t  [") + double( span_loc_data[0][i] ) + string(",") + double( cl_dist_data[0][i] ) + 
-                string(",null,null,null],\n");
+                string(",null,null,null,null],\n");
 
             data_str_vec1.push_back( row );
         }
@@ -3826,7 +3899,7 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(span_loc_data[1].length()); i++ )
         {
             string row = string("\t\t  [") + double( span_loc_data[1][i] ) + string(",null,") + double( cl_dist_data[1][i] ) + 
-                string(",null,null],\n");
+                string(",null,null,null],\n");
             
             data_str_vec1.push_back( row );
         }
@@ -3834,7 +3907,7 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(span_loc_data[2].length()); i++ )
         {
             string row = string("\t\t  [") + double( span_loc_data[2][i] ) + string(",null,null,") + 
-                double( cl_dist_data[2][i] )+ string(",null],\n");
+                double( cl_dist_data[2][i] ) + string(",null,null],\n");
 
             data_str_vec1.push_back( row );
         }
@@ -3842,9 +3915,17 @@ class HersheyVV : VV_Base
         for( uint i = 0; i < uint(cl_dist_theo.length()); i++ )
         {
             string row = string("\t\t  [") + double( cl_dist_theo[i][0] ) + string(",null,null,null,") + 
-                double( cl_dist_theo[i][1] );
+                double( cl_dist_theo[i][1] ) + string(",null],\n");
 
-            if ( i == cl_dist_theo.length() - 1 )
+            data_str_vec1.push_back( row );
+        }
+        
+        for( uint i = 0; i < uint(m_AR10_Y_Cl_Cd_vec.length()); i++ )
+        {
+            string row = string("\t\t  [") + double( m_AR10_Y_Cl_Cd_vec[i][0] ) + string(",null,null,null,null,") + 
+                double( m_AR10_Y_Cl_Cd_vec[i][1] );
+            
+            if ( i == m_AR10_Y_Cl_Cd_vec.length() - 1 )
             {
                 row += string("]\n");
             }
@@ -4243,6 +4324,8 @@ class HersheyVV : VV_Base
     array<string> m_HersheyDDWTessIDVec;
     array<string> m_HersheyLDWakeIDVec;
     array<array<string>> m_HersheyLDAdvancedIDVec;
+    
+    array<vec3d> m_AR10_Y_Cl_Cd_vec;
     
     double m_Hershey_AR60_Cl_alpha_Err;
     double m_Hershey_LA_Err;
@@ -5853,7 +5936,7 @@ class VKTVV : VV_Base
             c1.m_Title = string("VKT Cp distribution at Y = 0 Chord Tesselation Sensitivity: ") + string("Span Tess = ") + int(m_Tess_U[u]);
             c1.m_Legend = string("'X','Airfoil','Exact Solution','Chord Tess = 20','Chord Tess = 50','Chord Tess = 80','XFoil'");
             //c1.m_PointSize = 3.0;
-            c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 5 }, 2: { targetAxisIndex: 0 }, 3: { targetAxisIndex: 0 }, 4: { targetAxisIndex: 0 }, 5: { targetAxisIndex: 0 } }");
+            c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 5 }, 2: { targetAxisIndex: 0 }, 3: { targetAxisIndex: 0 }, 4: { targetAxisIndex: 0, color: 'red' }, 5: { targetAxisIndex: 0, color: 'purple' } }");
             c1.m_LegendPos = string("bottom");
             c1.m_HAxisString = string("hAxis: { title: 'Chord Location (X)', titleTextStyle: { bold: true } }");
             c1.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true } }, 1: { title: 'Z', titleTextStyle: { bold: true } } }");
@@ -5922,7 +6005,7 @@ class VKTVV : VV_Base
             c1.m_Title = string("VKT Cp distribution at Y = 0 Span Tesselation Sensitivity: ") + string("Chord Tess = ") + int(m_Tess_W[w]);
             c1.m_Legend = string("'X','Airfoil','Exact Solution','Span Tess = 20','Span Tess = 60','Span Tess = 100','XFoil'");
             //c1.m_PointSize = 3.0;
-            c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 5 }, 2: { targetAxisIndex: 0 }, 3: { targetAxisIndex: 0 }, 4: { targetAxisIndex: 0 }, 5: { targetAxisIndex: 0 } }");
+            c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 5 }, 2: { targetAxisIndex: 0 }, 3: { targetAxisIndex: 0 }, 4: { targetAxisIndex: 0, color: 'red' }, 5: { targetAxisIndex: 0, color: 'purple' } }");
             c1.m_LegendPos = string("bottom");
             c1.m_HAxisString = string("hAxis: { title: 'Chord Location (X)', titleTextStyle: { bold: true } }");
             c1.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true } }, 1: { title: 'Z', titleTextStyle: { bold: true } } }");
