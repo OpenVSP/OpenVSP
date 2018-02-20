@@ -347,11 +347,6 @@ class HTML
             string fun = string("\t\t") + m_vktvv.m_VKTEpsKapTauIDVec[i] + string("();\n");
             fid.writeString( fun );
         }
-        for ( uint i = 0; i < uint(m_vktvv.m_VKTTessIDVec.length()); i++ )
-        {
-            string fun = string("\t\t") + m_vktvv.m_VKTTessIDVec[i] + string("();\n");
-            fid.writeString( fun );
-        }
         for ( uint i = 0; i < uint(m_vktvv.m_VKTUTessIDVec.length()); i++ )
         {
             string fun = string("\t\t") + m_vktvv.m_VKTUTessIDVec[i] + string("();\n");
@@ -482,10 +477,6 @@ class HTML
             if ( m_vktvv.m_VKTEpsKapTauIDVec.length() > 0 )
             {
                 fid.writeString( string("\t\t\t  <li><a href='#VKTE'>Epsilon Kappa Tau Study</a></li>\n") );
-            }
-            if ( m_vktvv.m_VKTTessIDVec.length() > 0 )
-            {
-                fid.writeString( string("\t\t\t  <li><a href='#VKTT'>Tesselation Study</a></li>\n") );
             }
             if ( m_vktvv.m_VKTWTessIDVec.length() > 0 )
             {
@@ -1715,7 +1706,7 @@ class HTML
         {
             fid.writeString( string( "\t\t<h1 id='VKTW'>Von Karman-Trefftz</h1>\n" ) );
             
-            text = string("A series of Von Karman-Trefftz (VKT) wings are generated using the Karman-Trefftz airfoil available in OpenVSP. Two studies are then conducted with the first varying the VKT airfoil shape and the second varying tesselation in U and W. Two API functions, vsp::GetVKTAirfoilPnts and vsp::GetVKTAirfoilCpDist, are used to determine the theoretical VKT airfoil \\(C_P\\) distribution. The VSP Slicer is executed to identify the \\(C_P\\) distribution at a specified planar slice in each VSPAERO result.");
+            text = string("A series of Von Karman-Trefftz (VKT) wings are generated using the Karman-Trefftz airfoil available in OpenVSP. A series of studies are then conducted with the first varying the VKT airfoil shape and the second and third varying U and W tesselation. Two API functions, vsp::GetVKTAirfoilPnts and vsp::GetVKTAirfoilCpDist, are used to determine the theoretical VKT airfoil \\(C_P\\) distribution. The VSP Slicer is executed to identify the \\(C_P\\) distribution at a specified planar slice in each VSPAERO result.");
             
             WriteParagraph( text );
             
@@ -1793,12 +1784,12 @@ class HTML
                 AddChartsToBody(m_vktvv.m_VKTEpsKapTauIDVec);
             }
             
-            if ( m_vktvv.m_VKTTessIDVec.length() > 0 )
+            if ( m_vktvv.m_VKTWTessIDVec.length() > 0 )
             {
                 fid.writeString( string("\t\t<div>\n") );
-                fid.writeString( string("\t\t  <h2 id='VKTT'>Tesselation Study</h2>\n") );
+                fid.writeString( string("\t\t  <h2 id='VKTCT'>Chord Tesselation Study</h2>\n") );
                 
-                text = string("The next test looks to determine the influence of chord and span tesselation on VSPAERO results for the VKT wing by varying chord and span tesselation to create a matrix of VKT wings. A CpSlicer analysis is then performed on each VSPAERO result with an XZ slice defined at the wing root. The VSPAERO \\(C_P\\) distribution is then compared to the theoretical \\(C_P\\) distribution for the particular VKT airfoil, as seen in the plots below. In addition, XFoil's \\(C_P\\) solution for the VKT airfoil is plotted. This result is obtained by first writting a Selig airfoil file from the same coordinate points used to generate the theoretical VKT Cp distribution. This file is loaded in XFoil 6.99 and run with the identical flow conditions to VSPAERO. In the plots below, a comparison between VSPAERO, XFoil, and theoretical VKT Cp distribution is presented.");
+                text = string("This test looks to determine the influence of chord tesselation on VSPAERO results for the VKT wing by varying chord tesselation while holding all other variables constant. A CpSlicer analysis is then performed on each VSPAERO result with an XZ slice defined at the wing root. The VSPAERO \\(C_P\\) distribution is then compared to the theoretical \\(C_P\\) distribution for the particular VKT airfoil, as seen in the plots below. In addition, XFoil's \\(C_P\\) solution for the VKT airfoil is plotted. This result is obtained by first writting a Selig airfoil file from the same coordinate points used to generate the theoretical VKT Cp distribution. This file is loaded in XFoil 6.99 and run with the identical flow conditions as VSPAERO.");
                 
                 WriteParagraph( text );
                 
@@ -1828,81 +1819,7 @@ class HTML
                 data_mat[0][5] = string("1.0");
                 data_mat[0][6] = string("1.0");
                 data_mat[0][7] = string("0.0");
-                data_mat[0][8] = string("20 to 80");
-                data_mat[0][9] = string("20 to 100");
-                data_mat[0][10] = string("0.5");
-                data_mat[0][11] = string("1.0");
-                
-                t1.m_TableDataMat = data_mat;
-                t1.m_Width = 6;
-                t1.m_Caption = string("VKT Tesselation Study Geometry Setup");
-                
-                t1.WriteHTMLTable();
-                
-                HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(6);
-                head_str[0] = string("Analysis");
-                head_str[1] = string("Method");
-                head_str[2] = string("\\(\\alpha\\) (°)");
-                head_str[3] = string("\\(\\beta\\) (°)");
-                head_str[4] = string("M");
-                head_str[5] = string("Wake Iterations");
-                t2.m_HeaderStringVec = head_str;
-                
-                data_mat.resize(1);
-                data_mat[0].resize(6);
-                data_mat[0][0] = string("Single Point");
-                data_mat[0][1] = string("Panel");
-                data_mat[0][2] = string("0.0");
-                data_mat[0][3] = string("0.0");
-                data_mat[0][4] = m_vktvv.m_MachVec[0];
-                data_mat[0][5] = m_vktvv.m_WakeIterVec[0];
-                
-                t2.m_TableDataMat = data_mat;
-                t2.m_Width = 5;
-                t2.m_Caption = string("VKT Tesselation Study VSPAERO Setup");
-                
-                t2.WriteHTMLTable();
-                
-                AddChartsToBody(m_vktvv.m_VKTTessIDVec);
-            }
-            
-            if ( m_vktvv.m_VKTWTessIDVec.length() > 0 )
-            {
-                fid.writeString( string("\t\t<div>\n") );
-                fid.writeString( string("\t\t  <h2 id='VKTCT'>Chord Tesselation Study</h2>\n") );
-                
-                // text = string("The next test looks to determine the influence of chord and span tesselation on VSPAERO results for the VKT wing by varying chord and span tesselation to create a matrix of VKT wings. A CpSlicer analysis is then performed on each VSPAERO result with an XZ slice defined at the wing root. The VSPAERO \\(C_P\\) distribution is then compared to the theoretical \\(C_P\\) distribution for the particular VKT airfoil, as seen in the plots below. In addition, XFoil's \\(C_P\\) solution for the VKT airfoil is plotted. This result is obtained by first writting a Selig airfoil file from the same coordinate points used to generate the theoretical VKT Cp distribution. This file is loaded in XFoil 6.99 and run with the identical flow conditions to VSPAERO. In the plots below, a comparison between VSPAERO, XFoil, and theoretical VKT Cp distribution is presented.");
-                
-                // WriteParagraph( text );
-                
-                HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(12);
-                head_str[0] = string("Airfoil");
-                head_str[1] = string("\\(\\varepsilon\\)");
-                head_str[2] = string("\\(\\kappa\\)");
-                head_str[3] = string("\\(\\tau\\) (°)");
-                head_str[4] = string("AR");
-                head_str[5] = string("Root Chord");
-                head_str[6] = string("Tip Chord");
-                head_str[7] = string("\\(\\lambda\\) (°)");
-                head_str[8] = string("U Tess");
-                head_str[9] = string("W Tess");
-                head_str[10] = string("LE Clustering");
-                head_str[11] = string("TE Clustering");
-                t1.m_HeaderStringVec = head_str;
-                
-                array<array<string>> data_mat(1);
-                data_mat[0].resize(12);
-                data_mat[0][0] = string("VKT");
-                data_mat[0][1] = string("0.1");
-                data_mat[0][2] = string("0.1");
-                data_mat[0][3] = string("10");
-                data_mat[0][4] = string("15");
-                data_mat[0][5] = string("1.0");
-                data_mat[0][6] = string("1.0");
-                data_mat[0][7] = string("0.0");
-                data_mat[0][8] = string("20 to 80");
+                data_mat[0][8] = string("20");
                 data_mat[0][9] = string("20 to 100");
                 data_mat[0][10] = string("0.5");
                 data_mat[0][11] = string("1.0");
@@ -1946,9 +1863,9 @@ class HTML
                 fid.writeString( string("\t\t<div>\n") );
                 fid.writeString( string("\t\t  <h2 id='VKTST'>Span Tesselation Study</h2>\n") );
                 
-                // text = string("The next test looks to determine the influence of chord and span tesselation on VSPAERO results for the VKT wing by varying chord and span tesselation to create a matrix of VKT wings. A CpSlicer analysis is then performed on each VSPAERO result with an XZ slice defined at the wing root. The VSPAERO \\(C_P\\) distribution is then compared to the theoretical \\(C_P\\) distribution for the particular VKT airfoil, as seen in the plots below. In addition, XFoil's \\(C_P\\) solution for the VKT airfoil is plotted. This result is obtained by first writting a Selig airfoil file from the same coordinate points used to generate the theoretical VKT Cp distribution. This file is loaded in XFoil 6.99 and run with the identical flow conditions to VSPAERO. In the plots below, a comparison between VSPAERO, XFoil, and theoretical VKT Cp distribution is presented.");
+                text = string("This next test is similar to the previous one, but instead looks to determine the influence of span tesselation on VSPAERO results for the VKT wing. Chord tesselation, leading and trailing edge clustering, aspect ratio, and airfoil shape are all held constant. A CpSlicer analysis with a slice located along the wing root is then performed on each VSPAERO result. The VSPAERO \\(C_P\\) distribution is then compared to the theoretical \\(C_P\\) distribution for the VKT airfoil and XFoil's \\(C_P\\) solution. This comparison can be seen in the plots below.");
                 
-                // WriteParagraph( text );
+                WriteParagraph( text );
                 
                 HTMLTable t1 = HTMLTable(); // Initialize Table
                 array<string> head_str(12);
@@ -1977,7 +1894,7 @@ class HTML
                 data_mat[0][6] = string("1.0");
                 data_mat[0][7] = string("0.0");
                 data_mat[0][8] = string("20 to 80");
-                data_mat[0][9] = string("20 to 100");
+                data_mat[0][9] = string("20");
                 data_mat[0][10] = string("0.5");
                 data_mat[0][11] = string("1.0");
                 
@@ -5933,7 +5850,7 @@ class VKTVV : VV_Base
         {
             HTMLChart c1 = HTMLChart();
             c1.m_ChartName = string("VKT_Cp_U") + int(m_Tess_U[u]);
-            c1.m_Title = string("VKT Cp distribution at Y = 0 Chord Tesselation Sensitivity: ") + string(", Span Tess = ") + int(m_Tess_U[u]);
+            c1.m_Title = string("VKT Cp distribution at Y = 0 Chord Tesselation Sensitivity: ") + string("Span Tess = ") + int(m_Tess_U[u]);
             c1.m_Legend = string("'X','Airfoil','Exact Solution','Chord Tess = 20','Chord Tess = 50','Chord Tess = 80','XFoil'");
             //c1.m_PointSize = 3.0;
             c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 5 }, 2: { targetAxisIndex: 0 }, 3: { targetAxisIndex: 0 }, 4: { targetAxisIndex: 0 }, 5: { targetAxisIndex: 0 } }");
@@ -6065,68 +5982,6 @@ class VKTVV : VV_Base
             c1.WriteChartHead( data_str_vec1 );
             m_VKTUTessIDVec.push_back( c1.m_ChartName );
         }
-        
-        // Panel: C_P distribution of Karman-Trefftz Airfoil Tess Study:
-        for ( uint8 u = 0; u < num_TessU; u++ )
-        {
-            for ( uint8 w = 0; w < num_TessW; w++ )
-            {
-                if ( cp_slicer_mat_tess[u][w].length() != 0 && cp_airfoil_mat_tess.length() != 0 && Xfoil_CpDist.length() != 0 )
-                {
-                    
-                    HTMLChart c2 = HTMLChart();
-                    c2.m_ChartName = string("Cp_U") + int(m_Tess_U[u]) + string("_W") + int(m_Tess_W[w]);
-                    c2.m_Title = string("VKT Cp distribution at Y = 0: ") + string("Span Tess = ") + int(m_Tess_U[u]) + 
-                        string(", Chord Tess = ") + int(m_Tess_W[w]);
-                    c2.m_Legend = string("'X','Airfoil','Exact Solution','VSPAERO','XFoil'");
-                    //c2.m_PointSize = 3.0;
-                    c2.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 5 }, 2: { targetAxisIndex: 0 }, 3: { targetAxisIndex: 0 } }");
-                    c2.m_LegendPos = string("bottom");
-                    c2.m_HAxisString = string("hAxis: { title: 'Chord Location (X)', titleTextStyle: { bold: true } }");
-                    c2.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true } }, 1: { title: 'Z', titleTextStyle: { bold: true } } }");
-                    
-                    array<string> data_str_vec2;
-                    
-                    // Google Charts API only supports a single X data vector. The x data from GetVKTAirfoilData and the CpSlicer are different, so must be offset
-                    for( uint x = 0; x < xyz_airfoil_mat_tess.length(); x++ )
-                    {
-                        string row = string("\t\t  [") + double( xyz_airfoil_mat_tess[x][0] ) + string(",") + 
-                        double( xyz_airfoil_mat_tess[x][1] ) + string(",") + double( cp_airfoil_mat_tess[x] ) + 
-                        string(",null,null],\n");
-                        
-                        data_str_vec2.push_back( row );
-                    }
-                    
-                    for( uint x = 0; x < Xfoil_CpDist.length(); x++ )
-                    {
-                        string row = string("\t\t  [") + double( Xfoil_CpDist[x][0] ) + string(",null,null,null,") + 
-                            double(Xfoil_CpDist[x][2]) + string("],\n");
-                        
-                        data_str_vec2.push_back( row );
-                    }
-                    
-                    for( uint x = 0; x < x_slicer_mat_tess[u][w].length(); x++ )
-                    {
-                        string row = string("\t\t  [") + double( x_slicer_mat_tess[u][w][x] ) + string(",null,null,") + 
-                        double( cp_slicer_mat_tess[u][w][x] )+ string(",null") ;
-                        
-                        if ( x == x_slicer_mat_tess[u][w].length() - 1 )
-                        {
-                            row += string("]\n");
-                        }
-                        else
-                        {
-                            row += string("],\n");
-                        }
-                        
-                        data_str_vec2.push_back( row );
-                    }
-                    
-                    c2.WriteChartHead( data_str_vec2 );
-                    m_VKTTessIDVec.push_back( c2.m_ChartName );
-                }
-            }
-        }
     }
     
     // VTK Epsilon Kappa Tau Class Properties
@@ -6140,7 +5995,6 @@ class VKTVV : VV_Base
     array<string> m_VKTEpsKapTauIDVec;
     array<string> m_VKTUTessIDVec;
     array<string> m_VKTWTessIDVec;
-    array<string> m_VKTTessIDVec;
 }
 
 //============= Ellipsoid Study Functions ==============//
