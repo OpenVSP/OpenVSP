@@ -1737,6 +1737,8 @@ void LoadCaseFile(void)
              
              UnsteadyAnalysisType_ = P_ANALYSIS;
              StabControlRun_ = 2;
+
+             VSP_VLM().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
              
           }
           
@@ -1745,6 +1747,7 @@ void LoadCaseFile(void)
              UnsteadyAnalysisType_ = Q_ANALYSIS;
              StabControlRun_ = 3;
              
+             VSP_VLM().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
           }
           
           else if ( strcmp(AnalysisType,"R_ANALYSIS"  ) == 0 ) {
@@ -1752,6 +1755,7 @@ void LoadCaseFile(void)
              UnsteadyAnalysisType_ = R_ANALYSIS;
              StabControlRun_ = 4;
              
+             VSP_VLM().TimeAccurate() = DoUnsteadyAnalysis_ = 1;
           }                    
           
           else if ( strcmp(AnalysisType,"HEAVE"  ) == 0 ) {
