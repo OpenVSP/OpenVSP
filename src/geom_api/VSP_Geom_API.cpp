@@ -4789,6 +4789,13 @@ void DeleteExcrescence(const int & index)
     ErrorMgr.NoError();
 }
 
+void UpdateParasiteDrag()
+{
+    ParasiteDragMgr.Update();
+
+    ErrorMgr.NoError();
+}
+
 void WriteAtmosphereCSVFile(const std::string & file_name, const int atmos_type)
 {
     const static double arr[] = {0.0, 5000.0, 10000.0, 10999.0, 11001.0, 15000.0, 19999.0, 20000.0,

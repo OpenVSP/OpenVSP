@@ -319,6 +319,7 @@ extern int GetNumControlSurfaceGroups();
 //======================== Parasite Drag Tool Functions ======================//
 extern void AddExcrescence(const std::string & excresName, const int & excresType, const double & excresVal);
 extern void DeleteExcrescence(const int & index);
+extern void UpdateParasiteDrag();
 extern void WriteAtmosphereCSVFile( const std::string & file_name, const int atmos_type );
 extern void CalcAtmosphere( const double & alt, const double & delta_temp, const int & atmos_type,
     double & temp, double & pres, double & pres_ratio, double & rho_ratio );
