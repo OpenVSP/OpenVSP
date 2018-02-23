@@ -739,7 +739,7 @@ class HTML
                 
                 WriteParagraph( text );
                 
-                text = string("Next, the lift curve slope (\\(C_{L\\alpha}\\)) is calculated for each vortex lattice and panel method VSPAERO result, defined by a particular AR, by subtracting \\(C_L\\) at two angle of attack flow condition cases and dividing by the total change in \\(\\alpha\\). This method, known as central differencing, cannot be used at the minimum or maximum angle of attack values. For those cases, (\\(C_{L\\alpha}\\)) is identified as the slope of the \\(C_L\\) vs \\(\\alpha\\) immediately before or after the angle of attack endpoint. These methods are known as forward and backward differencing. The calculated \\(C_{L\\alpha}\\) values are compared to \\(C_{L\\alpha}\\) determined by Lifting Line Theory at the associated aspect ratios. A 2D lift curve slope of 0.1096622 per degree is assumed, given a theoretical K ratio of 1.0. This plot can be seen in the middle graph below.");
+                text = string("Next, the lift curve slope (\\(C_{L\\alpha}\\)) is calculated for each vortex lattice and panel method VSPAERO result, defined by a particular AR, by subtracting \\(C_L\\) at two angle of attack flow condition cases and dividing by the total change in \\(\\alpha\\). This method, known as central differencing, cannot be used at the minimum or maximum angle of attack values. For those cases, \\(C_{L\\alpha}\\) is identified as the slope of the \\(C_L\\) vs \\(\\alpha\\) curve immediately before or after the angle of attack endpoint. These methods are known as forward and backward differencing. The calculated \\(C_{L\\alpha}\\) values are compared to \\(C_{L\\alpha}\\) determined by Lifting Line Theory at the associated aspect ratios. A 2D lift curve slope of 0.1096622 per degree is assumed, given a theoretical K ratio of 1.0. This plot can be seen in the second graph below.");
 
                 WriteParagraph( text );
                 
@@ -889,7 +889,7 @@ class HTML
                 fid.writeString( string("\t\t<div>\n") );
                 fid.writeString( string("\t\t  <h2 id='HTess'>Tesselation Study</h2>\n") );
                 
-                text = string("The next Hershey Bar study investigates the effects of tesselation on VSPAERO VLM results by varying U and W tesselation for a certain AR case. Two charts are generated and can be seen below. The chart on the left displays the percent error between VSPAERO and theoretical lifting line \\(C_{L\\alpha}\\) results as chord tesselation increases at various span tesselations. The charts on the right display the same error, but as span tesselation increases at various chord tesselations.");
+                text = string("The next Hershey Bar study investigates the effects of tesselation on VSPAERO VLM results by varying U and W tesselation for a particular AR case. Two charts are generated and can be seen below. The chart on the left displays the percent error between VSPAERO and theoretical lifting line \\(C_{L\\alpha}\\) results as chord tesselation increases at various span tesselations. The charts on the right display the same error, but as span tesselation increases at various chord tesselations.");
                 
                 WriteParagraph( text );
                 
@@ -1052,7 +1052,7 @@ class HTML
                 fid.writeString( string("\t\t<div>\n") );
                 fid.writeString( string("\t\t  <h2 id='HST'>Span Tesselation Study</h2>\n") );
                 
-                text = string("The impact of span tesselation on \\(C_L\\) distribution along the Hershey Bar wing span is investigated first in this study. While holding aspect ratio, chord tesselation, and tip clustering constant, span tesselation is varied. The plot below display the \\(C_L\\) distribution across the span compared to the lifting line approximate \\(C_L\\) distribution found using Glauert's method. In addition, the lift distribution results computed by AVL for an identical geometry and flow condition input are plotted.");
+                text = string("The impact of span tesselation on \\(C_L\\) distribution along the Hershey Bar wing span is investigated first in this study. While holding aspect ratio, chord tesselation, and tip clustering constant, span tesselation is varied. The first plot below displays the \\(C_L\\) distribution across the span compared to the lifting line approximate \\(C_L\\) distribution found using Glauert's method. In addition, the lift distribution results computed by AVL for an identical geometry and flow condition input are plotted.");
                 
                 WriteParagraph( text );
                 
@@ -1234,7 +1234,7 @@ class HTML
                 
                 fid.writeString( string("\t\t<div>\n") );
                 
-                text = string("Chord tesselation's influence on induced drag coefficient distribution for the Hershey Bar wing is then looked at. Aspect ratio, span tesselation, and tip clustering are all held constant while chord tesselation is varied. The lifting line approximate \\(C_{Di}\\) distribution determined Glauert's method is plotted below alongside the results generated from VSPAERO. In addition, AVL's drag distribution for the Hershey Bar wing is plotted.");
+                text = string("Chord tesselation's influence on induced drag coefficient distribution for the Hershey Bar wing is then looked at. Aspect ratio, span tesselation, and tip clustering are all held constant while chord tesselation is varied. The lifting line approximate \\(C_{Di}\\) distribution calculated using Glauert's method is plotted below alongside the results generated from VSPAERO. In addition, AVL's drag distribution for the Hershey Bar wing is displayed.");
                 
                 WriteParagraph( text );
                 
@@ -1331,7 +1331,7 @@ class HTML
                 array<array<string>> data_mat(1);
                 data_mat[0].resize(8);
                 data_mat[0][0] = string("NACA0012");
-                data_mat[0][1] = string("25");
+                data_mat[0][1] = string("15");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
@@ -1619,7 +1619,7 @@ class HTML
             fid.writeString( string("\t\t<div>\n") );
             fid.writeString( string( "\t\t<h1 id='BSW'>Bertin-Smith</h1>\n" ) );
             
-            text = string("A Bertin-Smith Wing is modeled based off of the planform described in <span style='font-style: italic'>Aerodynamics for Engineers</span>, by Bertin and Smith. The book identifies a theoretical approximation for \\(C_{L\\alpha}\\) on page 202 to be 3.433/rad. A VSPAERO angle of attack sweep analysis is then run. For each \\(\\alpha\\) case, the lift coefficient is identified from VSPAERO and displayed alongside the theoretical lift coefficient in the first plot below. \\(C_{L\\alpha}\\) is then calculated for each angle of attack by using central differencing. However, central differencing cannot be used for the angle of attack endpoints, so the forward differencing or backward differencing is used. These results are compared to the theoretical value to calculate a percent difference, which can be seen in the second plot and results table below.");
+            text = string("A Bertin-Smith Wing is modeled based off of the planform described in <span style='font-style: italic'>Aerodynamics for Engineers</span>, by Bertin and Smith. The book identifies a theoretical approximation for \\(C_{L\\alpha}\\) on page 202 to be 3.433/rad. A VSPAERO angle of attack sweep analysis is then run. For each \\(\\alpha\\) case, the lift coefficient is identified from VSPAERO and displayed alongside the theoretical lift coefficient in the first plot below. \\(C_{L\\alpha}\\) is then calculated for each angle of attack by using central differencing. However, central differencing cannot be used for the angle of attack endpoints, so forward differencing or backward differencing is used. These results are compared to the theoretical value to calculate a percent difference, which can be seen in the second plot and results table below.");
 
             WriteParagraph( text );
             
@@ -1714,7 +1714,7 @@ class HTML
             fid.writeString( string("\t\t<div>\n") );
             fid.writeString( string( "\t\t<h1 id='WW'>Warren-12</h1>\n" ) );
             
-            text = string("<span style='font-style: italic'>A New Non-Linear Vortex Lattice Method: Applications to Wing Aerodynamic Optimizations</span> by Oliviu, Andreea, and Ruxandra provides the dimensions for a Warren-12 Wing, a geometry that has been commonly used to verify VLM solvers. This geometry is modeled through the OpenVSP API. Theoretical approximations for \\(C_{L\\alpha}\\) and \\(C_{M\\alpha}\\) are published to be 2.743/rad and -3.10/rad respectively. Also like the Bertin-Smith Study, a VSPAERO sweep analyses is then run. In the first plot below, the lift coefficient determined by VSPAERO is plotted with the theoretical value fore each angle of attack case. \\(C_{L\\alpha}\\) is calculated from these results using central differencing where possible, and forward or backward differencing where it is not possible. The percent difference in \\(C_{L\\alpha}\\) is displayed for each \\(\\alpha\\) case in the second plot. This process is then repeated for the moment coefficient and \\(C_{M\\alpha}\\). Last, the values and differences for \\(C_{L\\alpha}\\) and \\(C_{M\\alpha}\\) are summarizes in a results table.");
+            text = string("<span style='font-style: italic'>A New Non-Linear Vortex Lattice Method: Applications to Wing Aerodynamic Optimizations</span> by Oliviu, Andreea, and Ruxandra provides the dimensions for a Warren-12 Wing, a geometry that has been commonly used to verify VLM solvers. This geometry is modeled through the OpenVSP API. Theoretical approximations for \\(C_{L\\alpha}\\) and \\(C_{M\\alpha}\\) are published to be 2.743/rad and -3.10/rad respectively. Also like the Bertin-Smith Study, a VSPAERO sweep analysis is then run. In the first plot below, the lift coefficient determined by VSPAERO is plotted with the theoretical value for each angle of attack case. \\(C_{L\\alpha}\\) is calculated from these results using central differencing where possible, and forward or backward differencing where it is not possible. The percent difference in \\(C_{L\\alpha}\\) is displayed for each \\(\\alpha\\) case in the second plot. This process is then repeated for \\(C_M\\) and \\(C_{M\\alpha}\\). Last, the values and percent differences for \\(C_{L\\alpha}\\) and \\(C_{M\\alpha}\\) are summarizes in a results table.");
 
             WriteParagraph( text );
             
@@ -1831,7 +1831,7 @@ class HTML
                 fid.writeString( string("\t\t<div>\n") );
                 fid.writeString( string("\t\t  <h2 id='VKTE'>Epsilon Kappa Tau Study</h2>\n") );
 
-                text = string("In this study, the shape of the Von Karman-Trefftz airfoil is manipulated to create a series of unique VKT wings. Theoretical \\(C_P\\) distributions are determined for each VKT airfoil and compared to the results obtained by executing the CpSlicer analysis at the root of the VKT wing. The theoretical and VSPAERO \\(C_P\\) distributions are plotted for each VKT airfoil variation below. Note that if the VKT airfoil is symmetric, there is no difference in the exact \\(C_P\\) solution for the upper and lower surface. When the airfoil is not symmetric, there is a noticeable difference in the \\(C_P\\) distribution between the upper and lower surfaces.");
+                text = string("In this study, the shape of the Von Karman-Trefftz airfoil is manipulated to create a series of unique VKT wings. Theoretical \\(C_P\\) distributions are determined for each VKT airfoil and compared to the results obtained by executing the CpSlicer analysis with an XZ slice placed at the root of the VKT wing. The theoretical and VSPAERO \\(C_P\\) distributions are plotted for each VKT airfoil variation below. Note that if the VKT airfoil is symmetric, there is no difference in the exact \\(C_P\\) solution for the upper and lower surface. When the airfoil is not symmetric, there is a noticeable difference in the \\(C_P\\) distribution between the upper and lower surfaces.");
                 
                 WriteParagraph( text );
                 
@@ -1905,7 +1905,7 @@ class HTML
                 fid.writeString( string("\t\t<div>\n") );
                 fid.writeString( string("\t\t  <h2 id='VKTCT'>Chord Tesselation Study</h2>\n") );
                 
-                text = string("This test looks to determine the influence of chord tesselation on VSPAERO results for the VKT wing by varying chord tesselation while holding all other variables constant. A CpSlicer analysis is then performed on each VSPAERO result with an XZ slice defined at the wing root. The VSPAERO \\(C_P\\) distribution is then compared to the theoretical \\(C_P\\) distribution for the particular VKT airfoil, as seen in the plots below. In addition, XFoil's \\(C_P\\) solution for the VKT airfoil is plotted. This result is obtained by first writting a Selig airfoil file from the same coordinate points used to generate the theoretical VKT Cp distribution. This file is loaded in XFoil 6.99 and run with the identical flow conditions as VSPAERO. The VKT airfoil coordinate file, \"VKT_e0.1_k0.1_t10.dat\", and \\(C_P\\) distribution results file from XFoil, \"XFoil_VKT_CpDist.txt\", can be found in the airfoil directory. ");
+                text = string("This test looks to determine the influence of chord tesselation on VSPAERO results for the VKT wing by varying chord tesselation while holding all other variables constant. A CpSlicer analysis is then performed on each VSPAERO result with an XZ slice defined at the wing root. The VSPAERO \\(C_P\\) distribution is then compared to the theoretical \\(C_P\\) distribution for the particular VKT airfoil, as seen in the plots below. In addition, XFoil's \\(C_P\\) solution for the VKT airfoil is plotted. This result is obtained by first writting a Selig airfoil file from the same coordinate points used to generate the theoretical VKT Cp distribution. This file is loaded in XFoil 6.99 and run with identical flow conditions as VSPAERO. The VKT airfoil coordinate file, \"VKT_e0.1_k0.1_t10.dat\", and \\(C_P\\) distribution results file from XFoil, \"XFoil_VKT_CpDist.txt\", can be found in the airfoil directory of the OpenVSP software. ");
                 
                 WriteParagraph( text );
                 
@@ -2053,7 +2053,7 @@ class HTML
             fid.writeString( string("\t\t<div>\n") );
             fid.writeString( string( "\t\t<h1 id='EW'>Ellipsoid</h1>\n" ) );
 
-            text = string("An ellipsoid geometry is modeled for this V&V test case. Four VSPAERO single point analyses are conducted. To validate the VSPAERO results, the surface coordinate points for the ellipsoid are first calculated using the API function vsp::GetEllipsoidSurfPnts. The \\(C_P\\) is then calculated at each surface point with the API function vsp::GetEllipsoidCpDist with the freestream velocity set to 100 in the X direction, as is default in VSPAERO. The vsp::GetEllipsoidCpDist function is based off the algorithms presented in NACA TN 196 by Max M. Munk. Three plots are generated for each VSPAERO run case, displaying the VSPAERO and theoretical \\(C_P\\) distribution along each major axis of the ellipsoid.");
+            text = string("An ellipsoid geometry is modeled for this V&V test case. Four VSPAERO single point analyses are conducted in which angle of attack and slideslip angle are varied. To validate the VSPAERO results, the surface coordinate points along each major axis of the ellipsoid are first calculated using the API function vsp::GetFeatureLinePnts. The \\(C_P\\) is then calculated at each surface point with the API function vsp::GetEllipsoidCpDist with the freestream velocity set to 100 in the X direction, as is default in VSPAERO. The vsp::GetEllipsoidCpDist function is based off the algorithms presented in NACA TN 196 by Max M. Munk. Three plots are generated for each VSPAERO run case, displaying the VSPAERO and theoretical \\(C_P\\) distribution along each major axis of the ellipsoid.");
             
             WriteParagraph( text );
             
@@ -6532,7 +6532,7 @@ class EllipsoidVV : VV_Base
                     // X Cut
                     array<string> data_str_vec1;
 
-                    //Google Charts API only supports a single X data vector. The x data from GetEllipsoidSurfPnts and the CpSlicer are different, so must be offset
+                    //Google Charts API only supports a single X data vector. The x data from GetFeatureLinePnts and the CpSlicer are different, so must be offset
                     for( uint x = 0; x < uint(m_ellipsoid_pnt_mat.length()); x++ )
                     {
                         if ( abs(m_ellipsoid_pnt_mat[x][0]) < 1e-6 ) // x ~= 0
@@ -6578,7 +6578,7 @@ class EllipsoidVV : VV_Base
                     // Y Cut
                     array<string> data_str_vec2;
                     
-                    //Google Charts API only supports a single X data vector. The x data from GetEllipsoidSurfPnts and the CpSlicer are different, so must be offset
+                    //Google Charts API only supports a single X data vector. The x data from GetFeatureLinePnts and the CpSlicer are different, so must be offset
                     for( uint x = 0; x < uint(m_ellipsoid_pnt_mat.length()); x++ )
                     {
                         if ( abs(m_ellipsoid_pnt_mat[x][1]) < 1e-6 ) // y ~= 0
