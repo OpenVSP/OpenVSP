@@ -18,7 +18,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (17)*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+17)*20 + 2*15 + 4*6, "Export" )
 {
     m_SelectedSetIndex = 0;
 
@@ -54,6 +54,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (17)*
     m_GenLayout.AddButton( m_FacetButton, "Xpatch (.facet)" );
     m_GenLayout.AddButton( m_PMARCButton, "PMARC 12 (.pmin)" );
     m_GenLayout.AddButton( m_AirfoilButton, "Airfoil (.csv)" );
+    m_GenLayout.AddButton( m_OBJButton, "OBJ (.obj" );
 }
 
 //==== Update Screen ====//
@@ -120,6 +121,10 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     else if ( type == EXPORT_CART3D )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Cart3D Files?", "*.tri" );
+    }
+    else if ( type == EXPORT_OBJ )
+    {
+        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write OBJ Files?", "*.obj" );
     }
     else if ( type == EXPORT_GMSH )
     {
@@ -225,6 +230,10 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     else if (  device == &m_TRIButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_CART3D );
+    }
+    else if (  device == &m_OBJButton )
+    {
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_OBJ );
     }
     else if (  device == &m_GMSHButton )
     {

@@ -2113,6 +2113,89 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 
 }
 
+//==== Write OBJ File ====//
+void Vehicle::WriteOBJFile( const string & file_name, int write_set )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    if ( geom_vec.size()==0 )
+    {
+        printf("WARNING: No geometry to write \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
+        return;
+    }
+
+    // Add a new mesh if one does not exist
+    if ( !ExistMesh( write_set ) )
+    {
+        string mesh_id = AddMeshGeom( write_set );
+        if ( mesh_id.compare( "NONE" ) != 0 )
+        {
+            Geom* geom_ptr = FindGeom( mesh_id );
+            if ( geom_ptr )
+            {
+                MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+                mg->SubTagTris( true );
+                geom_vec.push_back( geom_ptr );
+                geom_ptr->Update();
+            }
+            HideAllExcept( mesh_id );
+        }
+    }
+
+    //==== Open file ====//
+    FILE* file_id = fopen( file_name.c_str(), "w" );
+
+    if ( !file_id )
+    {
+        return;
+    }
+
+    //==== Count Number of Points & Tris ====//
+    int num_pnts = 0;
+    int num_tris = 0;
+    int num_parts = 0;
+    int i;
+
+    for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
+            mg->BuildIndexedMesh( num_parts );
+            num_parts += mg->GetNumIndexedParts();
+            num_pnts += mg->GetNumIndexedPnts();
+            num_tris += mg->GetNumIndexedTris();
+        }
+    }
+
+    //==== Dump Points ====//
+    for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) &&
+             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE  )
+        {
+            MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
+            mg->WriteOBJPnts( file_id );
+        }
+    }
+
+    int offset = 0;
+    //==== Dump Tris ====//
+    for ( i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) &&
+             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE  )
+        {
+            MeshGeom* mg = ( MeshGeom* )geom_vec[i];            // Cast
+
+            fprintf( file_id, "g %s\n", geom_vec[i]->GetName().c_str() );
+
+            offset = mg->WriteOBJTris( file_id, offset );
+        }
+    }
+
+    fclose( file_id );
+}
+
 //==== Write Nascart Files ====//
 void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
 {
@@ -4319,6 +4402,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     else if ( file_type == EXPORT_CART3D )
     {
         WriteTRIFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_OBJ )
+    {
+        WriteOBJFile( file_name, write_set );
     }
     else if ( file_type == EXPORT_NASCART )
     {

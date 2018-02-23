@@ -53,6 +53,7 @@ protected:
     TriggerButton m_STLButton;
     TriggerButton m_NASCARTButton;
     TriggerButton m_TRIButton;
+    TriggerButton m_OBJButton;
     TriggerButton m_GMSHButton;
     TriggerButton m_POVButton;
     TriggerButton m_X3DButton;

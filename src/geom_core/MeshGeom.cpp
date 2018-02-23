@@ -795,6 +795,23 @@ void MeshGeom::WriteCart3DPnts( FILE* fp )
     }
 }
 
+void MeshGeom::WriteOBJPnts( FILE* fp )
+{
+    //==== Write Out Nodes ====//
+    vec3d v;
+    Matrix4d XFormMat = GetTotalTransMat();
+    for ( int i = 0 ; i < ( int )m_IndexedNodeVec.size() ; i++ )
+    {
+        TNode* tnode = m_IndexedNodeVec[i];
+        // Apply Transformations
+        if( tnode )
+        {
+            v = XFormMat.xform( tnode->m_Pnt );
+            fprintf( fp, "v %16.10g %16.10g %16.10g\n", v.x(), v.y(),  v.z() );
+        }
+    }
+}
+
 int MeshGeom::WriteGMshNodes( FILE* fp, int node_offset )
 {
     vec3d v;
@@ -852,6 +869,21 @@ int MeshGeom::WriteCart3DTris( FILE* fp, int off )
         if( ttri )
         {
             fprintf( fp, "%d %d %d\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N1->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off );
+        }
+    }
+
+    return ( off + m_IndexedNodeVec.size() );
+}
+
+int MeshGeom::WriteOBJTris( FILE* fp, int off )
+{
+    //==== Write Out Tris ====//
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+    {
+        TTri* ttri = m_IndexedTriVec[t];
+        if( ttri )
+        {
+            fprintf( fp, "f %d %d %d\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N1->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off );
         }
     }
 
