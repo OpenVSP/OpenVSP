@@ -50,6 +50,7 @@ public:
     vec3d( const threed_point_type &a );
 
     vec3d& operator=( const vec3d& a ); // x = y
+    vec3d& operator=( const vec2d& a );
     vec3d& operator=( double a );      // x = 35.
     vec3d& operator=( const threed_point_type &a );
 

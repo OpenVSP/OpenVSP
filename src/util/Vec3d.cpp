@@ -62,6 +62,14 @@ vec3d& vec3d::operator=( const vec3d& a )
     return *this;
 }
 
+vec3d& vec3d::operator=( const vec2d& a )
+{
+    v[0] = a.v[0];
+    v[1] = a.v[1];
+    v[2] = 0.0;
+    return *this;
+}
+
 //******* x = 35. ******//
 vec3d& vec3d::operator=( double a )
 {
