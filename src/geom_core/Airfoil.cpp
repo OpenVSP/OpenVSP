@@ -138,30 +138,48 @@ FourSeries::FourSeries( ) : Airfoil( )
 //==== Update ====//
 void FourSeries::Update()
 {
-    piecewise_curve_type c, d;
-    piecewise_four_digit_creator pwc;
-    pwc.set_sharp_trailing_edge(true);
-
-    pwc.set_thickness( m_ThickChord() * 100.0f );
-    pwc.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
-
-    pwc.create( c );
-
-    d.set_t0( c.get_t0() );
-    for ( int i = 0; i < c.number_segments(); i++ )
-    {
-        piecewise_curve_type::curve_type crv;
-        piecewise_curve_type::data_type dt;
-        c.get( crv, dt, i );
-        d.push_back( crv, dt*2.0 );
-    }
-
     if ( !m_EqArcLen() ) // 'old' code with non-equal arc len parameterization.
     {
+        piecewise_curve_type c, d;
+        piecewise_four_digit_creator pwc;
+        pwc.set_sharp_trailing_edge(true);
+
+        pwc.set_thickness( m_ThickChord() * 100.0f );
+        pwc.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
+
+        pwc.create( c );
+
+        d.set_t0( c.get_t0() );
+        for ( int i = 0; i < c.number_segments(); i++ )
+        {
+            piecewise_curve_type::curve_type crv;
+            piecewise_curve_type::data_type dt;
+            c.get( crv, dt, i );
+            d.push_back( crv, dt*2.0 );
+        }
+
         m_Curve.SetCurve( d );
     }
     else // 'new' code that enforces equal arc len parameterization.
     {
+        piecewise_curve_type c, d;
+        piecewise_four_digit_creator pwc;
+        pwc.set_sharp_trailing_edge(true);
+
+        pwc.set_thickness( m_ThickChord() * 100.0f );
+        pwc.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
+
+        pwc.create( c );
+
+        d.set_t0( c.get_t0() );
+        for ( int i = 0; i < c.number_segments(); i++ )
+        {
+            piecewise_curve_type::curve_type crv;
+            piecewise_curve_type::data_type dt;
+            c.get( crv, dt, i );
+            d.push_back( crv, dt*2.0 );
+        }
+
         int npts = 101; // Must be odd to hit LE point.
 
         double t = 0.0;
