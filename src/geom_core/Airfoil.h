@@ -36,6 +36,7 @@ typedef eli::geom::curve::piecewise_four_digit_creator<double, 3, curve_toleranc
 typedef eli::geom::curve::piecewise_cst_airfoil_creator<double, 3, curve_tolerance_type> piecewise_cst_creator;
 typedef eli::geom::curve::pseudo::cst_airfoil<double> cst_airfoil_type;
 typedef eli::geom::curve::piecewise_cst_airfoil_fitter<double, 3, curve_tolerance_type> cst_fitter_type;
+typedef eli::geom::curve::pseudo::four_digit<double> four_digit_airfoil_type;
 
 #define MAX_CST_DEG 30
 

@@ -13,6 +13,9 @@
 #include "StringUtil.h"
 #include <float.h>
 #include "VKTAirfoil.h"
+#include "Vec2d.h"
+#include "Cluster.h"
+#include "StlHelper.h"
 
 using std::string;
 using namespace vsp;
@@ -162,51 +165,45 @@ void FourSeries::Update()
     }
     else // 'new' code that enforces equal arc len parameterization.
     {
-        piecewise_curve_type c, d;
-        piecewise_four_digit_creator pwc;
-        pwc.set_sharp_trailing_edge(true);
+        four_digit_airfoil_type af;
+        af.set_sharp_trailing_edge( true );
 
-        pwc.set_thickness( m_ThickChord() * 100.0f );
-        pwc.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
+        af.set_thickness( m_ThickChord() * 100.0f );
+        af.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
 
-        pwc.create( c );
+        int npts = 201; // Must be odd to hit LE point.
 
-        d.set_t0( c.get_t0() );
-        for ( int i = 0; i < c.number_segments(); i++ )
-        {
-            piecewise_curve_type::curve_type crv;
-            piecewise_curve_type::data_type dt;
-            c.get( crv, dt, i );
-            d.push_back( crv, dt*2.0 );
-        }
-
-        int npts = 101; // Must be odd to hit LE point.
-
-        double t = 0.0;
-        double dt = 4.0 / ( npts - 1 );
+        double t0 = -1.0;
+        double t = t0;
+        double dt = 2.0 / ( npts - 1 );
         int ile = ( npts - 1 ) / 2;
 
         vector< vec3d > pnts( npts );
         vector< double > arclen( npts );
 
-        pnts[0] = d.f( t );
+        vec2d p2d;
+        p2d = af.f( t );
+        pnts[0] = p2d;
         arclen[0] = 0.0;
         for ( int i = 1 ; i < npts ; i++ )
         {
             if ( i == ile )
             {
-                t = 2.0; // Ensure LE point precision.
+                t = 0.0; // Ensure LE point precision.
             }
             else if ( i == ( npts - 1 ) )
             {
-                t = 4.0;  // Ensure end point precision.
+                t = 1.0;  // Ensure end point precision.
             }
             else
             {
-                t = dt * i; // All other points.
+                t = t0 + dt * i; // All other points.
             }
 
-            pnts[i] = d.f( t );
+            double tc = sgn( t ) * Cluster( std::abs( t ), 0.01, 0.1 );
+
+            p2d = af.f( tc );
+            pnts[i] = p2d;
 
             double ds = dist( pnts[i], pnts[i-1] );
             if ( ds < 1e-8 )
