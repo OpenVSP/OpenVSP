@@ -1617,12 +1617,13 @@ int VORTEX_SHEET::FarAway(double xyz_[3])
     
     for ( i = 1 ; i <= NumVortices ; i++ ) {
 
-       Test = pow(VortexTrail1().VortexEdge(i).Xc() - xyz_[0],2.)
-            + pow(VortexTrail1().VortexEdge(i).Yc() - xyz_[1],2.)
-            + pow(VortexTrail1().VortexEdge(i).Zc() - xyz_[2],2.)
-            + pow(VortexTrail2().VortexEdge(i).Xc() - xyz_[0],2.)
-            + pow(VortexTrail2().VortexEdge(i).Yc() - xyz_[1],2.)
-            + pow(VortexTrail2().VortexEdge(i).Zc() - xyz_[2],2.);
+        Test = ( VortexTrail1().VortexEdge( i ).Xc() - xyz_[0] )*( VortexTrail1().VortexEdge( i ).Xc() - xyz_[0] )
+            + ( VortexTrail1().VortexEdge( i ).Yc() - xyz_[1] )*( VortexTrail1().VortexEdge( i ).Yc() - xyz_[1] )
+            + ( VortexTrail1().VortexEdge( i ).Zc() - xyz_[2] )*( VortexTrail1().VortexEdge( i ).Zc() - xyz_[2] )
+            + ( VortexTrail2().VortexEdge( i ).Xc() - xyz_[0] )*( VortexTrail2().VortexEdge( i ).Xc() - xyz_[0] )
+            + ( VortexTrail2().VortexEdge( i ).Yc() - xyz_[1] )*( VortexTrail2().VortexEdge( i ).Yc() - xyz_[1] )
+            + ( VortexTrail2().VortexEdge( i ).Zc() - xyz_[2] )*( VortexTrail2().VortexEdge( i ).Zc() - xyz_[2] );
+
 
        if ( Test < Distance ) Distance = Test;   
       
