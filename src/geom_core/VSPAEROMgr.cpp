@@ -656,6 +656,8 @@ void VSPAEROMgrSingleton::CleanCompleteControlSurfVec()
 
 void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
 {
+    m_CompleteControlSurfaceVec.clear();
+
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
@@ -673,36 +675,18 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                     {
                         for ( size_t iReflect = 0; iReflect < g->GetNumSymmCopies(); ++iReflect )
                         {
-                            bool contained = false;
                             if ( ssurf->GetType() == vsp::SS_CONTROL || ssurf->GetType() == vsp::SS_RECTANGLE )
                             {
-                                for ( size_t k = 0; k < m_CompleteControlSurfaceVec.size(); ++k )
-                                {
-                                    // If CS and Corresponding Surface Num Already Exists within m_CompleteControlSurfaceVec
-                                    if ( m_CompleteControlSurfaceVec[k].SSID.compare( ssurf->GetID() ) == 0 && m_CompleteControlSurfaceVec[k].iReflect == iReflect )
-                                    {
-                                        char str[256];
-                                        sprintf( str, "%s_Surf%u_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
-                                        m_CompleteControlSurfaceVec[k].fullName = string( str );
-                                        contained = true;
-                                        break;
-                                    }
-                                }
-
-                                // If CS and Corresponding Surface Num Do NOT Exist within m_CompleteControlSurfaceVec
                                 // Create New CS Parm Container
-                                if ( !contained )
-                                {
-                                    VspAeroControlSurf newSurf;
-                                    newSurf.SSID = ssurf->GetID();
-                                    char str[256];
-                                    sprintf( str, "%s_Surf%u_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
-                                    newSurf.fullName = string( str );
-                                    newSurf.parentGeomId = ssurf->GetParentContainer();
-                                    newSurf.iReflect = iReflect;
+                                VspAeroControlSurf newSurf;
+                                newSurf.SSID = ssurf->GetID();
+                                char str[256];
+                                sprintf( str, "%s_Surf%u_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
+                                newSurf.fullName = string( str );
+                                newSurf.parentGeomId = ssurf->GetParentContainer();
+                                newSurf.iReflect = iReflect;
 
-                                    m_CompleteControlSurfaceVec.push_back( newSurf );
-                                }
+                                m_CompleteControlSurfaceVec.push_back( newSurf );
                             }
                         }
                     }
