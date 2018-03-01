@@ -2617,6 +2617,34 @@ string VSPAEROMgrSingleton::GetCurrentCSGGroupName()
     }
 }
 
+vector < VspAeroControlSurf > VSPAEROMgrSingleton::GetAvailableCSVec()
+{
+    vector < VspAeroControlSurf > ungrouped_cs;
+
+    for ( size_t i = 0; i < m_CompleteControlSurfaceVec.size(); i++ )
+    {
+        bool grouped = false;
+
+        for ( size_t j = 0; j < m_ActiveControlSurfaceVec.size(); j++ )
+        {
+            if ( ( strcmp( m_CompleteControlSurfaceVec[i].SSID.c_str(), m_ActiveControlSurfaceVec[j].SSID.c_str() ) == 0 ) && 
+                 ( m_CompleteControlSurfaceVec[i].iReflect == m_ActiveControlSurfaceVec[j].iReflect ) &&
+                 ( strcmp( m_CompleteControlSurfaceVec[i].fullName.c_str(), m_ActiveControlSurfaceVec[j].fullName.c_str() ) == 0 ) )
+            {
+                grouped = true;
+                break;
+            }
+        }
+
+        if ( !grouped )
+        {
+            ungrouped_cs.push_back( m_CompleteControlSurfaceVec[i] );
+        }
+    }
+
+    return ungrouped_cs;
+}
+
 void VSPAEROMgrSingleton::SetCurrentCSGroupName( const string & name )
 {
     if ( m_CurrentCSGroupIndex != -1 )

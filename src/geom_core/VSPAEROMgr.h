@@ -195,6 +195,7 @@ public:
     vector <RotorDisk*> GetRotorDiskVec()                      { return m_RotorDiskVec; };
     vector < VspAeroControlSurf > GetActiveCSVec()          { return m_ActiveControlSurfaceVec; }
     vector < VspAeroControlSurf > GetCompleteCSVec()        { return m_CompleteControlSurfaceVec; }
+    vector < VspAeroControlSurf > GetAvailableCSVec();
     int GetCurrentCSGroupIndex()                            { return m_CurrentCSGroupIndex; }
     string GetCurrentCSGGroupName();
     vector <ControlSurfaceGroup* > GetControlSurfaceGroupVec()   { return m_ControlSurfaceGroupVec; }
