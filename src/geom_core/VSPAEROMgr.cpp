@@ -2533,9 +2533,11 @@ void VSPAEROMgrSingleton::AddSelectedToCSGroup()
     vector < int > selected = m_SelectedUngroupedCS;
     if ( m_CurrentCSGroupIndex != -1 )
     {
+        vector < VspAeroControlSurf > ungrouped_vec = GetAvailableCSVec();
+
         for ( size_t i = 0; i < selected.size(); ++i )
         {
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( m_CompleteControlSurfaceVec[ selected[ i ] - 1 ] );
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( ungrouped_vec[ selected[ i ] - 1 ] );
         }
     }
     m_SelectedUngroupedCS.clear();
@@ -2547,9 +2549,10 @@ void VSPAEROMgrSingleton::AddAllToCSGroup()
 {
     if ( m_CurrentCSGroupIndex != -1 )
     {
-        for ( size_t i = 0; i < m_CompleteControlSurfaceVec.size(); ++i )
+        vector < VspAeroControlSurf > ungrouped_vec = GetAvailableCSVec();
+        for ( size_t i = 0; i < ungrouped_vec.size(); ++i )
         {
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( m_CompleteControlSurfaceVec[ i ] );
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( ungrouped_vec[ i ] );
         }
     }
     m_SelectedUngroupedCS.clear();
@@ -2760,7 +2763,7 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
     if ( m_CurrentCSGroupIndex != -1 )
     {
         vector < VspAeroControlSurf > cont_surf_vec = m_ActiveControlSurfaceVec;
-        vector < VspAeroControlSurf > cont_surf_vec_ungrouped = m_CompleteControlSurfaceVec;
+        vector < VspAeroControlSurf > cont_surf_vec_ungrouped = GetAvailableCSVec();
         if ( m_SelectedGroupedCS.size() == 0 && m_SelectedUngroupedCS.size() == 0 )
         {
             for ( size_t i = 0; i < cont_surf_vec.size(); ++i )
@@ -2782,30 +2785,37 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
         }
         else
         {
-            for ( size_t i = 0; i < m_SelectedUngroupedCS.size(); ++i )
+            if ( cont_surf_vec_ungrouped.size() > 0 )
             {
-                vec3d color( 1, 0, 0 ); // Red
-                parentID = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].parentGeomId;
-                sub_surf_indx = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].iReflect;
-                ssid = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].SSID;
-                Geom* geom = veh->FindGeom( parentID );
-                SubSurface* subsurf = geom->GetSubSurf( ssid );
-                if ( subsurf )
+                for ( size_t i = 0; i < m_SelectedUngroupedCS.size(); ++i )
                 {
-                    subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
+                    vec3d color( 1, 0, 0 ); // Red
+                    parentID = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].parentGeomId;
+                    sub_surf_indx = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].iReflect;
+                    ssid = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].SSID;
+                    Geom* geom = veh->FindGeom( parentID );
+                    SubSurface* subsurf = geom->GetSubSurf( ssid );
+                    if ( subsurf )
+                    {
+                        subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
+                    }
                 }
             }
-            for ( size_t i = 0; i < m_SelectedGroupedCS.size(); ++i )
+
+            if ( cont_surf_vec.size() > 0 )
             {
-                vec3d color( 0, 1, 0 ); // Green
-                parentID = cont_surf_vec[m_SelectedGroupedCS[i] - 1].parentGeomId;
-                sub_surf_indx = cont_surf_vec[m_SelectedGroupedCS[i] - 1].iReflect;
-                ssid = cont_surf_vec[m_SelectedGroupedCS[i] - 1].SSID;
-                Geom* geom = veh->FindGeom( parentID );
-                SubSurface* subsurf = geom->GetSubSurf( ssid );
-                if ( subsurf )
+                for ( size_t i = 0; i < m_SelectedGroupedCS.size(); ++i )
                 {
-                    subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
+                    vec3d color( 0, 1, 0 ); // Green
+                    parentID = cont_surf_vec[m_SelectedGroupedCS[i] - 1].parentGeomId;
+                    sub_surf_indx = cont_surf_vec[m_SelectedGroupedCS[i] - 1].iReflect;
+                    ssid = cont_surf_vec[m_SelectedGroupedCS[i] - 1].SSID;
+                    Geom* geom = veh->FindGeom( parentID );
+                    SubSurface* subsurf = geom->GetSubSurf( ssid );
+                    if ( subsurf )
+                    {
+                        subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
+                    }
                 }
             }
         }
