@@ -89,7 +89,7 @@ protected:
     void SetupHeatTransfer( int index, double tetwratio, double tawtwratio );
     void SetupPercLaminar( int index, double perclam );
     void SetupCf( int index, double cf );
-    void SetupQ( int index, double Q );
+    void SetupQ( int index, double Q, int shapetype, int eqnchoice );
     void Setupf( int index, double f );
     void SetupCD( int index, double CD );
     void SetupPercCD( int index, double percCD );

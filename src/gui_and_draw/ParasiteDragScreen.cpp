@@ -1859,7 +1859,7 @@ void ParasiteDragScreen::AddGeomsToTable()
                 SetupHeatTransfer( i, rowVec[i].TeTwRatio, rowVec[i].TawTwRatio );
                 SetupPercLaminar( i, rowVec[i].PercLam );
                 SetupCf( i, rowVec[i].Cf );
-                SetupQ( i, rowVec[i].Q );
+                SetupQ( i, rowVec[i].Q, rowVec[i].GeomShapeType, rowVec[i].FFEqnChoice );
                 Setupf( i, rowVec[i].f );
                 SetupCD( i, rowVec[i].CD );
                 SetupPercCD( i, rowVec[i].PercTotalCD );
@@ -1906,7 +1906,7 @@ void ParasiteDragScreen::AddGeomsToTable()
                         SetupHeatTransfer( i, rowVec[i].TeTwRatio, rowVec[i].TawTwRatio );
                         SetupPercLaminar( i, rowVec[i].PercLam );
                         SetupCf( i, rowVec[i].Cf );
-                        SetupQ( i, rowVec[i].Q );
+                        SetupQ( i, rowVec[i].Q, rowVec[i].GeomShapeType, rowVec[i].FFEqnChoice );
                     }
                     Setupf( i, rowVec[i].f );
                     SetupCD( i, rowVec[i].CD );
@@ -2232,14 +2232,20 @@ void ParasiteDragScreen::SetupCf( int index, double cf )
     }
 }
 
-void ParasiteDragScreen::SetupQ( int index, double Q )
+void ParasiteDragScreen::SetupQ( int index, double Q, int shapetype, int eqnchoice )
 {
+    // TODO: Update to use output GUI element for Jenkinson Tail
     ostringstream strs;
     int precision = 2;
     m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
     m_TableLayout.AddInput( m_Q[index], "" );
     if ( Q != -1 )
     {
+        if ( shapetype == vsp::WING_SURF && eqnchoice == vsp::FF_W_JENKINSON_TAIL )
+        {
+            Q = 1.2;
+        }
+
         strs << setprecision( precision ) << fixed << Q;
         m_Q[index].Update( strs.str() );
     }
