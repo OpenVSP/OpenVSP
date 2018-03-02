@@ -1017,8 +1017,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     // Get & Display Results
     vsp::PrintResults( results_id );
 
-    vector<string> results_names = vsp::GetAllDataNames( results_id );
-    vector<string>res_id = vsp::GetStringResults( results_id, results_names[0] , 0 );
+    vector<string>res_id = vsp::GetStringResults( results_id, "ResultsVec" , 0 );
 
     vector<double> CL = vsp::GetDoubleResults( res_id[0], "CL", 0 );
     vector<double> cl = vsp::GetDoubleResults( res_id[1], "cl", 0 );
@@ -1181,8 +1180,7 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     // Get & Display Results
     vsp::PrintResults( results_id );
 
-    vector<string> results_names = vsp::GetAllDataNames( results_id );
-    vector<string>res_id = vsp::GetStringResults( results_id, results_names[0] , 0 );
+    vector<string>res_id = vsp::GetStringResults( results_id, "ResultsVec", 0 );
 
     vector<double> CL = vsp::GetDoubleResults( res_id[0], "CL", 0 );
     vector<double> cl = vsp::GetDoubleResults( res_id[1], "cl", 0 );
