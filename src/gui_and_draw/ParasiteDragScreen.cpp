@@ -1389,6 +1389,75 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                     }
                 }
             }
+            if ( device == &m_TawTwRatio[i] )
+            {
+                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->m_TawTwRatio.Set( stod( m_TawTwRatio[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_TawTwRatio.Set( stod( m_TawTwRatio[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+            }
+            if ( device == &m_TeTwRatio[i] )
+            {
+                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->m_TeTwRatio.Set( stod( m_TeTwRatio[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_TeTwRatio.Set( stod( m_TeTwRatio[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+            }
+            if ( device == &m_Roughness[i] )
+            {
+                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->m_Roughness.Set( stod( m_Roughness[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_Roughness.Set( stod( m_Roughness[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+            }
         }
     }
     else
