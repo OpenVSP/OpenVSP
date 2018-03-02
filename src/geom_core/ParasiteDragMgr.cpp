@@ -1409,7 +1409,7 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
 
     case vsp::CF_TURB_ROUGHNESS_WHITE:
         heightRatio = ref_leng / roughness_h;
-        CfOut = pow( ( 1.4 + ( 3.7 * log10( heightRatio ) ) ), -2.0 );
+        CfOut = pow( ( 2.87 + ( 1.58 * log10( heightRatio ) ) ), -2.5 );
         break;
 
     case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL:
