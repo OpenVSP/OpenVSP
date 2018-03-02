@@ -1529,8 +1529,6 @@ void ParasiteDragScreen::RebuildBuildUpTableLabels()
 
     if ( ParasiteDragMgr.m_TurbCfEqnType() == vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
     {
-        AddRoughnessLabel();
-
         m_MainTableLabelsLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH - 20 );
         m_MainTableLabelsLayout.AddButton( m_TeTwLabel, "Te/Tw" );
         m_TeTwLabel.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -2169,7 +2167,7 @@ void ParasiteDragScreen::SetupRoughness( int index, double roughness )
 {
     ostringstream strs;
     int precision = 2;
-    if ( ParasiteDragMgr.m_TurbCfEqnType() >= vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG )
+    if ( ParasiteDragMgr.m_TurbCfEqnType() >= vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG && ParasiteDragMgr.m_TurbCfEqnType() < vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
     {
         m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH + 30 );
         m_TableLayout.AddInput( m_Roughness[index], "" );
@@ -2183,7 +2181,6 @@ void ParasiteDragScreen::SetupRoughness( int index, double roughness )
 
 void ParasiteDragScreen::SetupHeatTransfer( int index, double tetwratio, double tawtwratio )
 {
-    ostringstream strs;
     int precision = 2;
     if ( ParasiteDragMgr.m_TurbCfEqnType() == vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
     {
@@ -2192,6 +2189,7 @@ void ParasiteDragScreen::SetupHeatTransfer( int index, double tetwratio, double 
         m_TableLayout.AddInput( m_TeTwRatio[index], "" );
         if ( tetwratio != -1 )
         {
+            ostringstream strs;
             strs << setprecision( precision ) << fixed << tetwratio;
             m_TeTwRatio[index].Update( strs.str() );
         }
@@ -2201,6 +2199,7 @@ void ParasiteDragScreen::SetupHeatTransfer( int index, double tetwratio, double 
         m_TableLayout.AddInput( m_TawTwRatio[index], "" );
         if ( tawtwratio != -1 )
         {
+            ostringstream strs;
             strs << setprecision( precision ) << fixed << tawtwratio;
             m_TawTwRatio[index].Update( strs.str() );
         }

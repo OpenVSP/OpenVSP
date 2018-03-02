@@ -1429,7 +1429,7 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
         break;
 
     case vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH:
-        f = ( 1 + ( 0.22 * r * ( ( ( roughness_h * multiBy ) - 1.0 ) / 2.0 ) *
+        f = ( 1 + ( 0.22 * r * ( ( roughness_h  - 1.0 ) / 2.0 ) *
                     m_Mach() * m_Mach() * te_tw_ratio ) ) /
             ( 1 + ( 0.3 * ( taw_tw_ratio - 1.0 ) ) );
 
@@ -2706,7 +2706,8 @@ void ParasiteDragMgrSingleton::UpdateParmActivity()
         m_SpecificHeatRatio.Activate();
     }
 
-    if ( m_TurbCfEqnType() == vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION )
+    if ( m_TurbCfEqnType() == vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION ||
+         m_TurbCfEqnType() == vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
     {
         m_SpecificHeatRatio.Activate();
     }
