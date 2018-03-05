@@ -89,7 +89,7 @@ void VSP_SOLVER::init(void)
     Unsteady_HMax_ = 0.;
     
     Preconditioner_ = MATCON;
-    
+
     CalculateVortexLift_ = 1;
 
     CalculateLeadingEdgeSuction_ = 0;
@@ -440,7 +440,7 @@ void VSP_SOLVER::Setup(void)
     
     // If panel solver, or unsteady 
     
-    if ( !DumpGeom_ && ( ModelType_ == PANEL_MODEL || TimeAccurate_) ) CreateVorticityGradientDataStructure();
+    if ( !DumpGeom_ && ( ModelType_ == PANEL_MODEL || TimeAccurate_ ) ) CreateVorticityGradientDataStructure();
     
 }
 
@@ -1426,7 +1426,7 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
              VSP_Node1.x() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeX(j);
              VSP_Node1.y() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeY(j);
              VSP_Node1.z() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeZ(j);
-                    
+
              VSP_Node2.x() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeX(j) + WakeAngle_[0] * 1.e6;
              VSP_Node2.y() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeY(j) + WakeAngle_[1] * 1.e6;
              VSP_Node2.z() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeZ(j) + WakeAngle_[2] * 1.e6;
@@ -1923,7 +1923,7 @@ void VSP_SOLVER::SolveLinearSystem(void)
  double time1, time2;   
   
     // Calculate preconditioners
-    
+  
     if ( CurrentWakeIteration_ == 1 && !DumpGeom_ ) {
 
        if ( Preconditioner_ != MATCON ) CalculateDiagonal();       
@@ -2548,7 +2548,7 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
     
        Temp = 0.;
 
-#pragma omp parallel for reduction(+:Temp) private(xyz,q,VortexEdge)            
+#pragma omp parallel for reduction(+:Temp) private(xyz,q,VortexEdge)   
        for ( j = 1 ; j <= NumberOfVortexEdgesForInteractionListEntry_[i] ; j++ ) {
         
           VortexEdge = SurfaceVortexEdgeInteractionList_[i][j];
@@ -2560,7 +2560,7 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
              VortexEdge->InducedVelocity(VortexLoop(i).xyz_c(), q);
          
              Temp += vector_dot(VortexLoop(i).Normal(), q);
-             
+           
              // If there is ground effects, z plane...
              
              if ( DoGroundEffectsAnalysis() ) {
@@ -2616,7 +2616,7 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
              }             
              
           }
-            
+          
        }
        
        vec_out[i] = Temp;
@@ -2810,7 +2810,7 @@ void VSP_SOLVER::DoMatrixPrecondition(double *vec_in)
        
 #pragma omp parallel for    
        for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
-   
+  
           vec_in[i] *= JacobiRelaxationFactor_*Diagonal_[i];
    
        }
@@ -3173,7 +3173,7 @@ void VSP_SOLVER::CalculateVelocities(void)
 void VSP_SOLVER::UpdateWakeLocations(void)
 {
 
-    int i, j, k, m, Iter, IterMax, Done;
+    int i, j, k, m;
     double xyz[3], xyz_te[3], q[5], U, V, W, Delta, MaxDelta;
 
     // Initialize to free stream values
@@ -3374,58 +3374,96 @@ void VSP_SOLVER::UpdateWakeLocations(void)
        
     }
 
-    // Iterate on wake shape
-    
-    Done = 0;
-    
-    Iter = 1;
-    
-    IterMax = 5; 
-    
-    if ( TimeAccurate_ ) IterMax = 1;
+    // Initialize with freestream, surface induced, and rotor induced velocities... these have not changed
 
-    while ( Iter <= IterMax && !Done ) {
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {    
 
-       // Initialize with freestream, surface induced, and rotor induced velocities... these have not changed
+       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
 
-       for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {    
+          for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
 
-          for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
-   
-             for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
-   
-                VortexSheet(m).TrailingVortexEdge(i).U(j) = VortexSheet(m).TrailingVortexEdge(i).Utmp(j);
-                VortexSheet(m).TrailingVortexEdge(i).V(j) = VortexSheet(m).TrailingVortexEdge(i).Vtmp(j);
-                VortexSheet(m).TrailingVortexEdge(i).W(j) = VortexSheet(m).TrailingVortexEdge(i).Wtmp(j);
-                
-             }
+             VortexSheet(m).TrailingVortexEdge(i).U(j) = VortexSheet(m).TrailingVortexEdge(i).Utmp(j);
+             VortexSheet(m).TrailingVortexEdge(i).V(j) = VortexSheet(m).TrailingVortexEdge(i).Vtmp(j);
+             VortexSheet(m).TrailingVortexEdge(i).W(j) = VortexSheet(m).TrailingVortexEdge(i).Wtmp(j);
              
           }
           
        }
        
-       // Trailing vortex induced velocities
+    }
+    
+    // Trailing vortex induced velocities
 
-       for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+        
+       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+                        
+          for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
+
+             U = V = W = 0.;
+             
+             for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {     
+
+                xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
+                xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
+                xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
+        
+                xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
+                xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
+                xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
+                        
+                VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
            
-          for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
-                           
-             for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
-   
-                U = V = W = 0.;
+                U += q[0];
+                V += q[1];
+                W += q[2];
                 
-                for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {     
-   
+                // If there is ground effects, z plane ...
+      
+                if ( DoGroundEffectsAnalysis() ) {
+
                    xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
                    xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
                    xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
-           
+               
                    xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
                    xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
                    xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
-                           
+                    
+                   xyz[2] *= -1.; xyz_te[2] *= -1.;
+                  
                    VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
-              
+          
+                   q[2] *= -1.;
+                  
+                   U += q[0];
+                   V += q[1];
+                   W += q[2];
+                  
+                }  
+                                   
+                // If there is a symmetry plane, calculate influence of the reflection
+      
+                if ( DoSymmetryPlaneSolve_ ) {
+
+                   xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
+                   xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
+                   xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
+               
+                   xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
+                   xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
+                   xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
+                    
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) { xyz[0] *= -1.; xyz_te[0] *= -1.; };
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) { xyz[1] *= -1.; xyz_te[1] *= -1.; };
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) { xyz[2] *= -1.; xyz_te[2] *= -1.; };
+                  
+                   VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
+          
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+                  
                    U += q[0];
                    V += q[1];
                    W += q[2];
@@ -3434,121 +3472,66 @@ void VSP_SOLVER::UpdateWakeLocations(void)
          
                    if ( DoGroundEffectsAnalysis() ) {
 
-                      xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
-                      xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
-                      xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
-                  
-                      xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
-                      xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
-                      xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
-                       
                       xyz[2] *= -1.; xyz_te[2] *= -1.;
                      
                       VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
              
-                      q[2] *= -1.;
-                     
-                      U += q[0];
-                      V += q[1];
-                      W += q[2];
-                     
-                   }  
-                                      
-                   // If there is a symmetry plane, calculate influence of the reflection
-         
-                   if ( DoSymmetryPlaneSolve_ ) {
-
-                      xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
-                      xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
-                      xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
-                  
-                      xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
-                      xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
-                      xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
-                       
-                      if ( DoSymmetryPlaneSolve_ == SYM_X ) { xyz[0] *= -1.; xyz_te[0] *= -1.; };
-                      if ( DoSymmetryPlaneSolve_ == SYM_Y ) { xyz[1] *= -1.; xyz_te[1] *= -1.; };
-                      if ( DoSymmetryPlaneSolve_ == SYM_Z ) { xyz[2] *= -1.; xyz_te[2] *= -1.; };
-                     
-                      VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
-             
                       if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-                      if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
-                      if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+                      if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;                
+                                                            q[2] *= -1.;
                      
                       U += q[0];
                       V += q[1];
                       W += q[2];
-                      
-                      // If there is ground effects, z plane ...
-            
-                      if ( DoGroundEffectsAnalysis() ) {
-
-                         xyz[2] *= -1.; xyz_te[2] *= -1.;
-                        
-                         VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
-                
-                         if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-                         if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;                
-                                                               q[2] *= -1.;
-                        
-                         U += q[0];
-                         V += q[1];
-                         W += q[2];
-                        
-                      }                        
                      
-                   }                   
+                   }                        
+                  
+                }                   
 
-                }
-                
-                VortexSheet(m).TrailingVortexEdge(i).U(j) += U;
-                VortexSheet(m).TrailingVortexEdge(i).V(j) += V;
-                VortexSheet(m).TrailingVortexEdge(i).W(j) += W;
-                
              }
-           
-          }
-          
-       }
-
-       // Force last segment to free stream conditions
-               
-       for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
-              
-          for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
-
-             j = VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() + 1;
-      
-             VortexSheet(m).TrailingVortexEdge(i).U(j) = FreeStreamVelocity_[0];
-             VortexSheet(m).TrailingVortexEdge(i).V(j) = FreeStreamVelocity_[1];
-             VortexSheet(m).TrailingVortexEdge(i).W(j) = FreeStreamVelocity_[2];
+             
+             VortexSheet(m).TrailingVortexEdge(i).U(j) += U;
+             VortexSheet(m).TrailingVortexEdge(i).V(j) += V;
+             VortexSheet(m).TrailingVortexEdge(i).W(j) += W;
              
           }
-          
-       }       
-       
-       // Now update the location of the wake
-                 
-       MaxDelta = 0.;
-                 
-       for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
-
-          if ( DoGroundEffectsAnalysis() ) VortexSheet(m).DoGroundEffectsAnalysis() = 1;
-
-          Delta = VortexSheet(m).UpdateWakeLocation();
-          
-          MaxDelta = MAX(MaxDelta,Delta);
-
+        
        }
-
-       if ( Iter > 1 && log10(MaxDelta) <= -2. ) Done = 1;
-       
-       if ( Verbose_ ) printf("MaxDelta: %f \n",log10(MaxDelta)); 
-
-       Iter++;
        
     }
+
+    // Force last segment to free stream conditions
+            
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+           
+       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+
+          j = VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() + 1;
+   
+          VortexSheet(m).TrailingVortexEdge(i).U(j) = FreeStreamVelocity_[0];
+          VortexSheet(m).TrailingVortexEdge(i).V(j) = FreeStreamVelocity_[1];
+          VortexSheet(m).TrailingVortexEdge(i).W(j) = FreeStreamVelocity_[2];
+          
+       }
+       
+    }       
+    
+    // Now update the location of the wake
+              
+    MaxDelta = 0.;
+              
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+
+       if ( DoGroundEffectsAnalysis() ) VortexSheet(m).DoGroundEffectsAnalysis() = 1;
+
+       Delta = VortexSheet(m).UpdateWakeLocation();
+       
+       MaxDelta = MAX(MaxDelta,Delta);
+
+    }
+
+    if ( Verbose_ ) printf("MaxDelta: %f \n",log10(MaxDelta)); 
+
 
 }
 
@@ -3808,7 +3791,7 @@ void VSP_SOLVER::CalculateSurfaceMotion(void)
               
        // Do nothing... 
        
-    }    
+    }
 
 }
 
@@ -4807,22 +4790,14 @@ void VSP_SOLVER::CalculateForces(void)
     if ( ModelType_ == PANEL_MODEL || TimeAccurate_  ) CalculateVorticityGradient();
     
     if ( TimeAccurate_ ) CalculateUnsteadyForces();
-   
-    // If subsonic, we do a modified trailing edge induced drag calculation
-    
-    if (  Mach_ < 1 ) {
-       
-       CalculateTrefftzForces();
-       
-    }
-    
+
     // Calculate forces by applying JK theorem to each edge
+
+    CalculateKuttaJukowskiForces();
     
-    else {
-       
-       CalculateKuttaJukowskiForces();
-       
-    }
+    // Modified trailing edge induced drag calculation
+    
+    CalculateTrefftzForces();    
 
     // Calculate Delta-Cps, or surface pressures
     
@@ -5620,7 +5595,7 @@ void VSP_SOLVER::CalculateKuttaJukowskiForces(void)
           SurfaceVortexEdge(j).Fx() = Fx / Hits;
           SurfaceVortexEdge(j).Fy() = Fy / Hits;
           SurfaceVortexEdge(j).Fz() = Fz / Hits;
-          
+        
        }
 
        // If this is a wing leading edge... determine the amount of
@@ -5773,7 +5748,7 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
        // Edge forces
 
        if ( Mach_ < 1. ) {
-          
+        
           Fx = SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx();
           Fy = SurfaceVortexEdge(j).Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy();
           Fz = SurfaceVortexEdge(j).Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz();
@@ -5847,7 +5822,7 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
           }
    
           VortexLoop(i).CompressibilityFactor() = Fact;
-   
+
           VortexLoop(i).dCp() = Cp * Fact;
     
        }
@@ -5883,30 +5858,32 @@ void VSP_SOLVER::CalculateSurfacePressures(void)
        VortexLoop(Loop1).U() -= 0.5*VorticityGradient_[Loop1].dv_dx();
        VortexLoop(Loop1).V() -= 0.5*VorticityGradient_[Loop1].dv_dy();
        VortexLoop(Loop1).W() -= 0.5*VorticityGradient_[Loop1].dv_dz();
-
-       Normal[0] = VortexLoop(Loop1).Nx() * VortexLoop(Loop1).Area();
-       Normal[1] = VortexLoop(Loop1).Ny() * VortexLoop(Loop1).Area();
-       Normal[2] = VortexLoop(Loop1).Nz() * VortexLoop(Loop1).Area();
-
+       
        Area = VortexLoop(Loop1).Area();
-     
+       
+       Normal[0] = VortexLoop(Loop1).Nx() * Area;
+       Normal[1] = VortexLoop(Loop1).Ny() * Area;
+       Normal[2] = VortexLoop(Loop1).Nz() * Area;
+
        for ( i = 1 ; i <= VortexLoop(Loop1).NumberOfEdges() ; i++ ) {
         
           Edge = VortexLoop(Loop1).Edge(i);
       
           Loop2 = SurfaceVortexEdge(Edge).Loop1() + SurfaceVortexEdge(Edge).Loop2() - Loop1;
 
-          Normal[0] += VortexLoop(Loop2).Nx() * VortexLoop(Loop2).Area();
-          Normal[1] += VortexLoop(Loop2).Ny() * VortexLoop(Loop2).Area();
-          Normal[2] += VortexLoop(Loop2).Nz() * VortexLoop(Loop2).Area();       
+          Area = VortexLoop(Loop2).Area();              
 
-          Area += VortexLoop(Loop2).Area();              
-          
+          Normal[0] += VortexLoop(Loop2).Nx() * Area;
+          Normal[1] += VortexLoop(Loop2).Ny() * Area;
+          Normal[2] += VortexLoop(Loop2).Nz() * Area;       
+
        }
 
-       Normal[0] /= Area;
-       Normal[1] /= Area;
-       Normal[2] /= Area;              
+       Dot = sqrt(vector_dot(Normal,Normal));
+       
+       Normal[0] /= Dot;
+       Normal[1] /= Dot;
+       Normal[2] /= Dot;              
 
        Dot = vector_dot(Normal, VortexLoop(Loop1).Velocity());
 
@@ -5950,11 +5927,15 @@ void VSP_SOLVER::CalculateSurfacePressures(void)
           VortexLoop(i).dCp() = QMax_*QMax_*pow(LocalFreeStreamVelocity_[i][4],2.);
 
        } 
-       
+
        q2 = VortexLoop(i).dCp();
 
        VortexLoop(i).dCp() = 1. - VortexLoop(i).dCp(); 
+                                          
+       // Add in Delta Cp due to any rotors
        
+       VortexLoop(i).dCp() += LocalFreeStreamVelocity_[i][3];                            
+              
        // 2nd order correction
  
        Cp = VortexLoop(i).dCp()/pow(LocalFreeStreamVelocity_[i][4],2.);
@@ -6017,7 +5998,7 @@ void VSP_SOLVER::CreateVorticityGradientDataStructure(void)
     double  Wgt, dN, Normal[3], Area, dx, dy, dz;
     double Cp, Fact, Ratio, CpC, q2, CpCrit, Dot;    
     MATRIX *A;
-    
+
     VorticityGradient_ = new GRADIENT[NumberOfVortexLoops_ + 1];
     
     NodeIsMarked = new int[NumberOfSurfaceNodes_ + 1];
@@ -6111,8 +6092,7 @@ void VSP_SOLVER::CreateVorticityGradientDataStructure(void)
        // Linear fit
        
        if ( !QuadraticFit ) {
-          
-printf("Linear! \n");fflush(NULL);          
+       
           A->size(NumberOfEquations,3);
           
           VorticityGradient_[Loop1].SizeList(NumberOfLoops, NumberOfEquations, 3);
@@ -6300,10 +6280,15 @@ void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
              Loop1 = SurfaceVortexEdge(j).LoopL();
              Loop2 = SurfaceVortexEdge(j).LoopR();
              
+             if ( Loop1 == 0 ) Loop1 = Loop2;
+             if ( Loop2 == 0 ) Loop2 = Loop1;
+
+             // Trailing edge theorem, normal velocity component only... for induced drag
+             
              if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
 
                 CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
-   
+
                 // Sum up forces and moments from each edge
                 
                 Fx = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
@@ -6320,10 +6305,12 @@ void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
                   
              }
              
+             // Trailing edge theorem, total velocity component only... for lift
+             
              if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
 
                 CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
-   
+
                 // Sum up forces and moments from each edge
                 
                 Fx = ( SteadyComponent*SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
@@ -6350,10 +6337,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
           for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
        
              if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
-                
-                Loop1 = SurfaceVortexEdge(j).LoopL();
-                Loop2 = SurfaceVortexEdge(j).LoopR();
-                
+
                 // Edge forces
          
                 Fx = SteadyComponent*SurfaceVortexEdge(j).Fx() + SurfaceVortexEdge(j).Unsteady_Fx();
@@ -6392,18 +6376,16 @@ void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
      
           Loop1 = SurfaceVortexEdge(j).LoopL();
           Loop2 = SurfaceVortexEdge(j).LoopR();
-               
-          // Forces based on trailing edge analysis... we will use this to get the induced drag
+         
+          // Trailing edge theorem, normal velocity component only... for induced drag
 
-          if ( SurfaceVortexEdge(j).IsTrailingEdge() ) {
+          if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
 
-             // Approximate KT correction
+             CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
 
-             if ( !NoKarmanTsienCorrection_ ) CompressibilityFactor = pow(1.+0.25*Mach_*Mach_,2.);
-
-             Fx = -( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
-             Fy = -( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
-             Fz = -( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
+             Fx = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
+             Fy = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
+             Fz = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
    
              Cx1 += Fx;
              Cy1 += Fy;
@@ -6415,12 +6397,10 @@ void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
              
           }
           
-          // Forces based on non-TE edges... with KT correction... we will use this to get the lift, side force, and moments
+          // Trailing edge theorem, total velocity component only... for lift
           
           if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
 
-             // KT correction
-             
              CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
 
              Fx = ( SteadyComponent*SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
@@ -6453,7 +6433,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
    
        CS1 =  ( Cx1 * CA + Cz1 * SA ) * SB + Cy1 * CB; 
        CS2 =  ( Cx2 * CA + Cz2 * SA ) * SB + Cy2 * CB; 
-   
+
        if ( Verbose_ ) printf("CL1,2: %f %f \n",CL1,CL2);
        if ( Verbose_ ) printf("CD1,2: %f %f \n",CD1,CD2);
    
@@ -6478,7 +6458,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
        Cz = X(3);
        
     }
-       
+
     LoadCase = 0;
     
     if ( UnsteadyEvaluation ) LoadCase = 2;
@@ -6602,6 +6582,9 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
        Loop1 = SurfaceVortexEdge(j).LoopL();
        Loop2 = SurfaceVortexEdge(j).LoopR();
                  
+       if ( Loop1 == 0 ) Loop1 = Loop2;
+       if ( Loop2 == 0 ) Loop2 = Loop1;
+                 
        if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
           
           // Extract out forces
@@ -6621,7 +6604,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
           }
           
           else {
-             
+       
              Fx  = SteadyComponent*SurfaceVortexEdge(j).Fx() + SurfaceVortexEdge(j).Unsteady_Fx();
              Fy  = SteadyComponent*SurfaceVortexEdge(j).Fy() + SurfaceVortexEdge(j).Unsteady_Fy();
              Fz  = SteadyComponent*SurfaceVortexEdge(j).Fz() + SurfaceVortexEdge(j).Unsteady_Fz();

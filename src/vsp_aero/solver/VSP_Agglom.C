@@ -112,7 +112,7 @@ VSP_GRID* VSP_AGGLOM::SimplifyMesh_(VSP_GRID &Grid)
     InitializeFront_();    
     
     // Merge bad cells together to get rid of slivers
-    
+  
     if ( FineGrid().SurfaceType() == CART3D_SURFACE ) CleanUpMesh_();
 
     // Merge as many tris into quads as possible

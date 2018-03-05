@@ -477,7 +477,7 @@ void VSP_SURFACE::FindSharpEdges(void)
    
           angle = (180./3.141592)*acos(MAX(-1.,MIN(dot,1.)));
    
-          // If angle greater than 120 degrees, mark nodes as sharp
+          // If angle greater than 90 degrees, mark nodes as sharp
    
           if ( angle > 90. ) {
    

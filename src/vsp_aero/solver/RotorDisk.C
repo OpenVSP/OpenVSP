@@ -382,7 +382,7 @@ void ROTOR_DISK::Velocity(double xyz[3], double q[5])
     q[1] = Velocity_X*RotorNormal_[1] + Velocity_R * rvec[1] + Velocity_T * tvec[1];
     q[2] = Velocity_X*RotorNormal_[2] + Velocity_R * rvec[2] + Velocity_T * tvec[2];    
     q[3] = Delta_Cp;
-  
+
     q[4] = 0.;
     if ( z >= 0. && r <= RotorRadius_ ) q[4] = Vh;
 

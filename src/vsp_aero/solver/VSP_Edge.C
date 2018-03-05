@@ -424,7 +424,7 @@ void VSP_EDGE::NewBoundVortex(double xyz_p[3], double q[3])
        
           F1 = Fint(a,b,c,d,s1);
           G1 = Gint(a,b,c,d,s1);
-         
+       
        }
 
        // F and G functions evaluated at node 2
@@ -439,7 +439,7 @@ void VSP_EDGE::NewBoundVortex(double xyz_p[3], double q[3])
       
           F2 = Fint(a,b,c,d,s2);
           G2 = Gint(a,b,c,d,s2);
-         
+  
        }
        
        // Evalulate integrals
@@ -505,8 +505,6 @@ double VSP_EDGE::Fint(double &a, double &b, double &c, double &d, double &s)
 
     if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
 
-    //  Denom = SGN(d)*MAX(ABS(d*sqrt(R),Tolerance_2_);
-
     Denom = d * sqrt(R);
 
     F = 2.*(2.*c*s + b)/Denom;
@@ -537,7 +535,7 @@ double VSP_EDGE::Gint(double &a, double &b, double &c, double &d, double &s)
     return G;
  
 } 
- 
+
 /*##############################################################################
 #                                                                              #
 #                     VSP_EDGE FindLineConicIntersection                       #

@@ -75,7 +75,7 @@ void VORTEX_TRAIL::init(void)
     
     NoKarmanTsienCorrection_ = 0;
     
-    CoreSize_ = 1;
+    CoreSize_ = 1.;
             
 }
 
@@ -549,7 +549,7 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
 void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3])
 {
    
-   CoreSize_ = 1;
+   CoreSize_ = 1.;
    
    InducedVelocity_(xyz_p, q);
 
@@ -629,14 +629,16 @@ void VORTEX_TRAIL::InducedVelocity_(double xyz_p[3], double q[3])
     
    VortexEdgeList(Level)[i].InducedVelocity(xyz_p, dq);
 
-   Fact = MIN(pow(Radius/(CoreSize_*VortexEdgeList(Level)[i].Sigma()),2.),1.);
+   Fact = Radius/(CoreSize_*VortexEdgeList(Level)[i].Sigma());
+   
+   Fact = MIN(Fact*Fact,1.);
 
    q[0] += Fact*dq[0];
    q[1] += Fact*dq[1];
    q[2] += Fact*dq[2];
 //djk
    // Uncomment below to make things 2D
-   //q[0] = q[1] = q[2] = 0.;
+  // q[0] = q[1] = q[2] = 0.;
  
 }
 
@@ -652,7 +654,7 @@ void VORTEX_TRAIL::CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, double xy
    double Vec[3], dq[3], Dot, Dist, Radius, Fact, Ratio, FarAway;
 
    FarAway = 3.;
-   
+
    Dist = sqrt( SQR(VortexEdge.Xc() - xyz_p[0]) 
               + SQR(VortexEdge.Yc() - xyz_p[1]) 
               + SQR(VortexEdge.Zc() - xyz_p[2]) );
@@ -677,7 +679,9 @@ void VORTEX_TRAIL::CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, double xy
       
       VortexEdge.InducedVelocity(xyz_p, dq);
 
-      Fact = MIN(pow(Radius/(CoreSize_*VortexEdge.Sigma()),2.),1.);
+      Fact = Radius/(CoreSize_*VortexEdge.Sigma());
+   
+      Fact = MIN(Fact*Fact,1.);
 
       q[0] += Fact*dq[0];
       q[1] += Fact*dq[1];
@@ -718,8 +722,6 @@ void VORTEX_TRAIL::UpdateGamma(void)
             // Initialize each subvortex
 
             VortexEdgeList(Level)[i].Gamma() = Gamma_[0];
-
-            VortexEdgeList(Level)[i].Mach() = Mach_;
 
          }
          
@@ -1135,9 +1137,9 @@ void VORTEX_TRAIL::SmoothVelocity(double *Velocity)
 
     for ( i = 2 ; i < NumberOfNodes ; i++ ) {
 
-       Ds = sqrt( pow(NodeList_[i].x() - NodeList_[i-1].x(),2.)
-                + pow(NodeList_[i].y() - NodeList_[i-1].y(),2.)
-                + pow(NodeList_[i].z() - NodeList_[i-1].z(),2.) );
+       Ds = sqrt( (NodeList_[i].x() - NodeList_[i-1].x())*(NodeList_[i].x() - NodeList_[i-1].x())
+                + (NodeList_[i].y() - NodeList_[i-1].y())*(NodeList_[i].y() - NodeList_[i-1].y())
+                + (NodeList_[i].z() - NodeList_[i-1].z())*(NodeList_[i].z() - NodeList_[i-1].z()) );
                
        Eps = Ds;
 
@@ -1245,9 +1247,9 @@ void VORTEX_TRAIL::Smooth(void)
 
        for ( i = 2 ; i < NumberOfNodes ; i++ ) {
 
-          Ds = sqrt( pow(NodeList_[i].x() - NodeList_[i-1].x(),2.)
-                   + pow(NodeList_[i].y() - NodeList_[i-1].y(),2.)
-                   + pow(NodeList_[i].z() - NodeList_[i-1].z(),2.) );
+          Ds = sqrt( (NodeList_[i].x() - NodeList_[i-1].x())*(NodeList_[i].x() - NodeList_[i-1].x())
+                   + (NodeList_[i].y() - NodeList_[i-1].y())*(NodeList_[i].y() - NodeList_[i-1].y())
+                   + (NodeList_[i].z() - NodeList_[i-1].z())*(NodeList_[i].z() - NodeList_[i-1].z()) );
                   
           Eps = 0.5*Ds;
                    
@@ -1367,9 +1369,9 @@ void VORTEX_TRAIL::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat
     
     for ( i = 2 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
 
-        dS = sqrt( pow(NodeList_[i].x()-NodeList_[i-1].x(),2.)
-                 + pow(NodeList_[i].y()-NodeList_[i-1].y(),2.)
-                 + pow(NodeList_[i].z()-NodeList_[i-1].z(),2.) );
+        dS = sqrt( (NodeList_[i].x()-NodeList_[i-1].x())*(NodeList_[i].x()-NodeList_[i-1].x())
+                 + (NodeList_[i].y()-NodeList_[i-1].y())*(NodeList_[i].y()-NodeList_[i-1].y())
+                 + (NodeList_[i].z()-NodeList_[i-1].z())*(NodeList_[i].z()-NodeList_[i-1].z()) );
 
         S_[i] = S_[i-1] + dS;
         

@@ -456,12 +456,18 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
              SurfaceParser.GetComponentBBox(VSP_Degen_File, ComponentBBox);
              
              i++;
+ 
+             if ( DoSymmetryPlaneSolve_ == SYM_X ) { Epsilon = MAX(0.025*(ComponentBBox.x_max - ComponentBBox.x_min), 1.e-5); };
              
-             if ( DoSymmetryPlaneSolve_ == SYM_X && ComponentBBox.x_min >= 0. ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
-             
-             if ( DoSymmetryPlaneSolve_ == SYM_Y && ComponentBBox.y_min >= 0. ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
+             if ( DoSymmetryPlaneSolve_ == SYM_Y ) { Epsilon = MAX(0.025*(ComponentBBox.y_max - ComponentBBox.y_min), 1.e-5); };
               
-             if ( DoSymmetryPlaneSolve_ == SYM_Z && ComponentBBox.z_min >= 0. ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
+             if ( DoSymmetryPlaneSolve_ == SYM_Z ) { Epsilon = MAX(0.025*(ComponentBBox.z_max - ComponentBBox.z_min), 1.e-5); };
+
+             if ( DoSymmetryPlaneSolve_ == SYM_X && ComponentBBox.x_min >= -Epsilon ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
+             
+             if ( DoSymmetryPlaneSolve_ == SYM_Y && ComponentBBox.y_min >= -Epsilon ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
+              
+             if ( DoSymmetryPlaneSolve_ == SYM_Z && ComponentBBox.z_min >= -Epsilon ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
                            
           }
                                         
