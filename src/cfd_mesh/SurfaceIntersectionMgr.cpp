@@ -12,6 +12,8 @@
 #include "SubSurfaceMgr.h"
 #include "main.h"
 
+#include <chrono>
+
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>
 #endif
