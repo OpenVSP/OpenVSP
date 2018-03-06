@@ -620,6 +620,9 @@ class HTML
         text = string("\\(\\beta\\equiv\\)\tSideslip Angle");
         WriteParagraph( text );
         
+        text = string("c\\(\\equiv\\)\tWing Chord");
+        WriteParagraph( text );
+        
         text = string("\\(C_{Di}\\equiv\\)\tCoefficient of Induced Drag"); // per rad?
         WriteParagraph( text );
         
@@ -629,13 +632,17 @@ class HTML
         text = string("\\(C_{L\\alpha}\\equiv\\)\tLift Curve Slope");
         WriteParagraph( text );
         
-        text = string("c\\(\\equiv\\)\tWing Chord");
+        text = string("\\(C_M\\equiv\\)\tPitching Moment Coefficient");
         WriteParagraph( text );
         
-        text = string("\\(\\frac{\\partial \\alpha}{\\partial C_L}\\equiv\\)\tLift Angle");
+        text = string("\\(C_{M\\alpha}\\equiv\\)\tPitching Moment Coefficient with Respect to \\(\\alpha\\)");
         WriteParagraph( text );
         
-        text = string("\\Gamma(\\equiv\\)\tCirculation");
+        // text = string("\\(\\frac{\\partial \\alpha}{\\partial C_L}\\equiv\\)\tLift Angle");
+        // WriteParagraph( text );
+        
+        text = string("\\(\\Gamma\\equiv\\)\tCirculation");
+        WriteParagraph( text );
         
         text = string("K\\(\\equiv\\)\tRatio of \\(C_{L\\alpha}\\) to \\(2\\pi\\)");
         WriteParagraph( text );
@@ -748,7 +755,7 @@ class HTML
                 // WriteParagraph( text );
                 
                 HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(8);
+                array<string> head_str(10);
                 head_str[0] = string("Airfoil");
                 head_str[1] = string("AR");
                 head_str[2] = string("Root Chord");
@@ -756,22 +763,26 @@ class HTML
                 head_str[4] = string("\\(\\Lambda\\) (°)");
                 head_str[5] = string("Span Tess (U)");
                 head_str[6] = string("Chord Tess (W)");
-                head_str[7] = string("Tip Clustering");
+                head_str[7] = string("LE Clustering");
+                head_str[8] = string("TE Clustering");
+                head_str[9] = string("Tip Clustering");
                 t1.m_HeaderStringVec = head_str;
                 
                 array<array<string>> data_mat(1);
-                data_mat[0].resize(8);
+                data_mat[0].resize(10);
                 data_mat[0][0] = string("NACA0012");
                 data_mat[0][1] = string("5 to 60");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("10");
-                data_mat[0][6] = string("15");
-                data_mat[0][7] = string("1.0");
+                data_mat[0][5] = string("41");
+                data_mat[0][6] = string("51");
+                data_mat[0][7] = string("0.2");
+                data_mat[0][8] = string("1.0");
+                data_mat[0][9] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
-                t1.m_Width = 5;
+                t1.m_Width = 6;
                 t1.m_Caption = string("Aspect Ratio Study Geometry Setup");
                 
                 t1.WriteHTMLTable();
@@ -825,7 +836,7 @@ class HTML
                 WriteParagraph( text );
                 
                 HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(8);
+                array<string> head_str(10);
                 head_str[0] = string("Airfoil");
                 head_str[1] = string("AR");
                 head_str[2] = string("Root Chord");
@@ -833,22 +844,26 @@ class HTML
                 head_str[4] = string("\\(\\Lambda\\) (°)");
                 head_str[5] = string("Span Tess (U)");
                 head_str[6] = string("Chord Tess (W)");
-                head_str[7] = string("Tip Clustering");
+                head_str[7] = string("LE Clustering");
+                head_str[8] = string("TE Clustering");
+                head_str[9] = string("Tip Clustering");
                 t1.m_HeaderStringVec = head_str;
                 
                 array<array<string>> data_mat(1);
-                data_mat[0].resize(8);
+                data_mat[0].resize(10);
                 data_mat[0][0] = string("NACA0012");
                 data_mat[0][1] = string("10");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("10");
-                data_mat[0][6] = string("15");
-                data_mat[0][7] = string("1.0");
+                data_mat[0][5] = string("41");
+                data_mat[0][6] = string("51");
+                data_mat[0][7] = string("0.2");
+                data_mat[0][8] = string("1.0");
+                data_mat[0][9] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
-                t1.m_Width = 5;
+                t1.m_Width = 6;
                 t1.m_Caption = string("Angle of Attack Study Geometry Setup");
                 
                 t1.WriteHTMLTable();
@@ -894,7 +909,7 @@ class HTML
                 WriteParagraph( text );
                 
                 HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(8);
+                array<string> head_str(10);
                 head_str[0] = string("Airfoil");
                 head_str[1] = string("AR");
                 head_str[2] = string("Root Chord");
@@ -902,22 +917,26 @@ class HTML
                 head_str[4] = string("\\(\\Lambda\\) (°)");
                 head_str[5] = string("Span Tess (U)");
                 head_str[6] = string("Chord Tess (W)");
-                head_str[7] = string("Tip Clustering");
+                head_str[7] = string("LE Clustering");
+                head_str[8] = string("TE Clustering");
+                head_str[9] = string("Tip Clustering");
                 t1.m_HeaderStringVec = head_str;
                 
                 array<array<string>> data_mat(1);
-                data_mat[0].resize(8);
+                data_mat[0].resize(10);
                 data_mat[0][0] = string("NACA0012");
                 data_mat[0][1] = string("10");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("10 to 85");
-                data_mat[0][6] = string("15 to 90");
-                data_mat[0][7] = string("1.0");
+                data_mat[0][5] = string("11 to 66");
+                data_mat[0][6] = string("13 to 69");
+                data_mat[0][7] = string("0.2");
+                data_mat[0][8] = string("1.0");
+                data_mat[0][9] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
-                t1.m_Width = 5;
+                t1.m_Width = 6;
                 t1.m_Caption = string("Tesselation Study Geometry Setup");
                 
                 t1.WriteHTMLTable();
@@ -968,7 +987,7 @@ class HTML
                 WriteParagraph( text );
                 
                 HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(8);
+                array<string> head_str(10);
                 head_str[0] = string("Airfoil");
                 head_str[1] = string("AR");
                 head_str[2] = string("Root Chord");
@@ -976,22 +995,26 @@ class HTML
                 head_str[4] = string("\\(\\Lambda\\) (°)");
                 head_str[5] = string("Span Tess (U)");
                 head_str[6] = string("Chord Tess (W)");
-                head_str[7] = string("Tip Clustering");
+                head_str[7] = string("LE Clustering");
+                head_str[8] = string("TE Clustering");
+                head_str[9] = string("Tip Clustering");
                 t1.m_HeaderStringVec = head_str;
                 
                 array<array<string>> data_mat(1);
-                data_mat[0].resize(8);
+                data_mat[0].resize(10);
                 data_mat[0][0] = string("NACA0012");
                 data_mat[0][1] = string("10");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("35");
-                data_mat[0][6] = string("40");
-                data_mat[0][7] = string("0.1, 0.2, 1.0");
+                data_mat[0][5] = string("41");
+                data_mat[0][6] = string("51");
+                data_mat[0][7] = string("0.2");
+                data_mat[0][8] = string("1.0");
+                data_mat[0][9] = string("0.1, 0.2, 1.0");
                 
                 t1.m_TableDataMat = data_mat;
-                t1.m_Width = 5;
+                t1.m_Width = 6;
                 t1.m_Caption = string("Tip Clustering Study Geometry Setup");
                 
                 t1.WriteHTMLTable();
@@ -1057,7 +1080,7 @@ class HTML
                 WriteParagraph( text );
                 
                 HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(8);
+                array<string> head_str(10);
                 head_str[0] = string("Airfoil");
                 head_str[1] = string("AR");
                 head_str[2] = string("Root Chord");
@@ -1065,22 +1088,26 @@ class HTML
                 head_str[4] = string("\\(\\Lambda\\) (°)");
                 head_str[5] = string("Span Tess (U)");
                 head_str[6] = string("Chord Tess (W)");
-                head_str[7] = string("Tip Clustering");
+                head_str[7] = string("LE Clustering");
+                head_str[8] = string("TE Clustering");
+                head_str[9] = string("Tip Clustering");
                 t1.m_HeaderStringVec = head_str;
                 
                 array<array<string>> data_mat(1);
-                data_mat[0].resize(8);
+                data_mat[0].resize(10);
                 data_mat[0][0] = string("NACA0012");
                 data_mat[0][1] = string("10");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("10 to 85");
-                data_mat[0][6] = string("15");
-                data_mat[0][7] = string("1.0");
+                data_mat[0][5] = string("11 to 66");
+                data_mat[0][6] = string("51");
+                data_mat[0][7] = string("0.2");
+                data_mat[0][8] = string("1.0");
+                data_mat[0][9] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
-                t1.m_Width = 5;
+                t1.m_Width = 6;
                 t1.m_Caption = string("Span Tesselation Study Geometry Setup");
                 
                 t1.WriteHTMLTable();
@@ -1154,7 +1181,7 @@ class HTML
                 WriteParagraph( text );
                 
                 HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(8);
+                array<string> head_str(10);
                 head_str[0] = string("Airfoil");
                 head_str[1] = string("AR");
                 head_str[2] = string("Root Chord");
@@ -1162,22 +1189,26 @@ class HTML
                 head_str[4] = string("\\(\\Lambda\\) (°)");
                 head_str[5] = string("Span Tess (U)");
                 head_str[6] = string("Chord Tess (W)");
-                head_str[7] = string("Tip Clustering");
+                head_str[7] = string("LE Clustering");
+                head_str[8] = string("TE Clustering");
+                head_str[9] = string("Tip Clustering");
                 t1.m_HeaderStringVec = head_str;
                 
                 array<array<string>> data_mat(1);
-                data_mat[0].resize(8);
+                data_mat[0].resize(10);
                 data_mat[0][0] = string("NACA0012");
                 data_mat[0][1] = string("10");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("35");
-                data_mat[0][6] = string("15 to 90");
-                data_mat[0][7] = string("1.0");
+                data_mat[0][5] = string("41");
+                data_mat[0][6] = string("13 to 69");
+                data_mat[0][7] = string("0.2");
+                data_mat[0][8] = string("1.0");
+                data_mat[0][9] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
-                t1.m_Width = 5;
+                t1.m_Width = 6;
                 t1.m_Caption = string("Chord Tesselation Study Geometry Setup");
                 
                 t1.WriteHTMLTable();
@@ -1202,7 +1233,7 @@ class HTML
                 data_mat[0][5] = m_hvv.m_WakeIterVec[0];
                 
                 t2.m_TableDataMat = data_mat;
-                t2.m_Width = 5;
+                t2.m_Width = 6;
                 t2.m_Caption = string("Chord Tesselation Study VSPAERO Setup");
                 
                 t2.WriteHTMLTable();
@@ -1251,7 +1282,7 @@ class HTML
                 WriteParagraph( text );
                 
                 HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(8);
+                array<string> head_str(10);
                 head_str[0] = string("Airfoil");
                 head_str[1] = string("AR");
                 head_str[2] = string("Root Chord");
@@ -1259,22 +1290,26 @@ class HTML
                 head_str[4] = string("\\(\\Lambda\\) (°)");
                 head_str[5] = string("Span Tess (U)");
                 head_str[6] = string("Chord Tess (W)");
-                head_str[7] = string("Tip Clustering");
+                head_str[7] = string("LE Clustering");
+                head_str[8] = string("TE Clustering");
+                head_str[9] = string("Tip Clustering");
                 t1.m_HeaderStringVec = head_str;
                 
                 array<array<string>> data_mat(1);
-                data_mat[0].resize(8);
+                data_mat[0].resize(10);
                 data_mat[0][0] = string("NACA0012");
                 data_mat[0][1] = string("10");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("35");
-                data_mat[0][6] = string("15");
-                data_mat[0][7] = string("1.0");
+                data_mat[0][5] = string("41");
+                data_mat[0][6] = string("51");
+                data_mat[0][7] = string("0.2");
+                data_mat[0][8] = string("1.0");
+                data_mat[0][9] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
-                t1.m_Width = 5;
+                t1.m_Width = 6;
                 t1.m_Caption = string("Wake Iteration Study Geometry Setup");
                 
                 t1.WriteHTMLTable();
@@ -1317,7 +1352,7 @@ class HTML
                 WriteParagraph( text );
                 
                 HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(8);
+                array<string> head_str(10);
                 head_str[0] = string("Airfoil");
                 head_str[1] = string("AR");
                 head_str[2] = string("Root Chord");
@@ -1325,22 +1360,26 @@ class HTML
                 head_str[4] = string("\\(\\Lambda\\) (°)");
                 head_str[5] = string("Span Tess (U)");
                 head_str[6] = string("Chord Tess (W)");
-                head_str[7] = string("Tip Clustering");
+                head_str[7] = string("LE Clustering");
+                head_str[8] = string("TE Clustering");
+                head_str[9] = string("Tip Clustering");
                 t1.m_HeaderStringVec = head_str;
                 
                 array<array<string>> data_mat(1);
-                data_mat[0].resize(8);
+                data_mat[0].resize(10);
                 data_mat[0][0] = string("NACA0012");
                 data_mat[0][1] = string("15");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("35");
-                data_mat[0][6] = string("40");
-                data_mat[0][7] = string("1.0");
+                data_mat[0][5] = string("41");
+                data_mat[0][6] = string("51");
+                data_mat[0][7] = string("0.2");
+                data_mat[0][8] = string("1.0");
+                data_mat[0][9] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
-                t1.m_Width = 5;
+                t1.m_Width = 6;
                 t1.m_Caption = string("Advanced Settings Study Geometry Setup");
                 
                 t1.WriteHTMLTable();
@@ -1863,8 +1902,8 @@ class HTML
                 data_mat[0][7] = string("0.0");
                 data_mat[0][8] = string("60");
                 data_mat[0][9] = string("50");
-                data_mat[0][10] = string("0.35");
-                data_mat[0][11] = string("0.65");
+                data_mat[0][10] = string("0.2");
+                data_mat[0][11] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
                 t1.m_Width = 6;
@@ -1935,9 +1974,9 @@ class HTML
                 data_mat[0][5] = string("1.0");
                 data_mat[0][6] = string("1.0");
                 data_mat[0][7] = string("0.0");
-                data_mat[0][8] = string("20");
-                data_mat[0][9] = string("20 to 100");
-                data_mat[0][10] = string("0.5");
+                data_mat[0][8] = string("20 to 62");
+                data_mat[0][9] = string("20 to 82");
+                data_mat[0][10] = string("0.2");
                 data_mat[0][11] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
@@ -2009,9 +2048,9 @@ class HTML
                 data_mat[0][5] = string("1.0");
                 data_mat[0][6] = string("1.0");
                 data_mat[0][7] = string("0.0");
-                data_mat[0][8] = string("20 to 80");
-                data_mat[0][9] = string("20");
-                data_mat[0][10] = string("0.5");
+                data_mat[0][8] = string("20 to 62");
+                data_mat[0][9] = string("20 to 82");
+                data_mat[0][10] = string("0.2");
                 data_mat[0][11] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
@@ -2489,15 +2528,15 @@ class HersheyVV : VV_Base
         m_Tip_Clus[1] = 0.2;
         m_Tip_Clus[2] = 1;
 
-        m_Tess_U[0] = 10;
-        m_Tess_U[1] = 35;
-        m_Tess_U[2] = 60;
-        m_Tess_U[3] = 85;
+        m_Tess_U[0] = 11;
+        m_Tess_U[1] = 26;
+        m_Tess_U[2] = 41;
+        m_Tess_U[3] = 66;
 
-        m_Tess_W[0] = 15;
-        m_Tess_W[1] = 40;
-        m_Tess_W[2] = 65;
-        m_Tess_W[3] = 90;
+        m_Tess_W[0] = 13;
+        m_Tess_W[1] = 32;
+        m_Tess_W[2] = 51;
+        m_Tess_W[3] = 69;
         
         m_WakeIter[0] = 1;
         m_WakeIter[1] = 2;
@@ -2564,9 +2603,11 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "Sweep", "XSec_1", 0 );
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 );
+        SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
-        const uint8 u = 0; // UTess
-        const uint8 w = 0; // WTess
+        const uint8 u = 2; // UTess
+        const uint8 w = 2; // WTess
         const uint8 t = 2; // Tip Clustering
         
         SetParmVal( wing_id, "SectTess_U", "XSec_1", m_Tess_U[u] ); // Constant U Tess
@@ -2610,9 +2651,11 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "Sweep", "XSec_1", 0 );
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 );
+        SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 x = 1; // AR
-        const uint8 w = 0; // WTess
+        const uint8 w = 2; // WTess
         const uint8 t = 2; // Tip Clustering
         
         SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] ); // Constant AR
@@ -2656,9 +2699,11 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "Sweep", "XSec_1", 0 );
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 );
+        SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 x = 1; // AR
-        const uint8 u = 1; // UTess
+        const uint8 u = 2; // UTess
         const uint8 t = 2; // Tip Clustering
         
         SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] ); // Constant AR
@@ -2702,6 +2747,8 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "Sweep", "XSec_1", 0 );
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 );
+        SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 x = 1; // AR
         const uint8 t = 2; // Tip Clustering
@@ -2750,10 +2797,12 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "Sweep", "XSec_1", 0 );
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 );
+        SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 x = 1; // AR
-        const uint8 u = 1; // UTess
-        const uint8 w = 1; // WTess
+        const uint8 u = 2; // UTess
+        const uint8 w = 2; // WTess
         
         SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] ); // Constant AR
         SetParmVal( wing_id, "SectTess_U", "XSec_1", m_Tess_U[u] ); // Constant U Tess
@@ -2796,10 +2845,12 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "Sweep", "XSec_1", 0 );
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 );
+        SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 x = 1; // AR
-        const uint8 u = 1; // UTess
-        const uint8 w = 0; // WTess
+        const uint8 u = 2; // UTess
+        const uint8 w = 2; // WTess
         const uint8 t = 2; // Tip Clustering
         
         SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] ); // Constant AR
@@ -2840,10 +2891,12 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "Sweep", "XSec_1", 0 );
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 );
+        SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 x = 2; // AR
-        const uint8 u = 1; // UTess
-        const uint8 w = 1; // WTess
+        const uint8 u = 2; // UTess
+        const uint8 w = 2; // WTess
         const uint8 t = 2; // Tip Clustering
         
         SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] ); // Constant AR
@@ -3003,7 +3056,7 @@ class HersheyVV : VV_Base
                         {
                             Cl_alpha_res = ((Cl_res[i+1] - Cl_res[i])/(alpha_res[i+1] - alpha_res[i]));
                         }
-                        else if ( i == m_AlphaNpts - 1 )
+                        else if ( i == uint8(m_AlphaNpts) - 1 )
                         {
                             Cl_alpha_res = ((Cl_res[i] - Cl_res[i-1])/(alpha_res[i] - alpha_res[i-1]));
                         }
@@ -3319,7 +3372,7 @@ class HersheyVV : VV_Base
         // Const AR, WTess, and TC, vary UTess Lift Distribution Study
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("UTess_LD");
-        c1.m_Legend = string("'Span Location','U Tess: 10','U Tess: 35','U Tess: 60','U Tess: 85','LLT','AVL'");
+        c1.m_Legend = string("'Span Location','U Tess: 11','U Tess: 26','U Tess: 41','U Tess: 66','LLT','AVL'");
         c1.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
         c1.m_Title = string("Hershey Bar Lift Distribution Span Tesselation (U Tess) Sensitivity");
         c1.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
@@ -3328,7 +3381,7 @@ class HersheyVV : VV_Base
         // Const AR, WTess, and TC, vary UTess Drag Distribution Study
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("UTess_DD") ;
-        c2.m_Legend = string("'Span Location','U Tess: 10','U Tess: 35','U Tess: 60','U Tess: 85','LLT','AVL'");
+        c2.m_Legend = string("'Span Location','U Tess: 11','U Tess: 26','U Tess: 41','U Tess: 66','LLT','AVL'");
         c2.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
         c2.m_Title = string("Hershey Bar Drag Distribution Span Tesselation (U Tess) Sensitivity");
         c2.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
@@ -3522,7 +3575,7 @@ class HersheyVV : VV_Base
         // Const AR, UTess, and TC, vary WTess Lift Distribution Study
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("WTess_LD");
-        c1.m_Legend = string("'Span Location','W Tess: 15','W Tess: 40','W Tess: 65','W Tess: 90','LLT','AVL'");
+        c1.m_Legend = string("'Span Location','W Tess: 13','W Tess: 32','W Tess: 51','W Tess: 69','LLT','AVL'");
         c1.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
         c1.m_Title = string("Hershey Bar Lift Distribution Chord Tesselation (W Tess) Sensitivity");
         c1.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
@@ -3531,7 +3584,7 @@ class HersheyVV : VV_Base
         // Const AR, UTess, and TC, vary WTess Lift Distribution Study
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("WTess_DD");
-        c2.m_Legend = string("'Span Location','W Tess: 15','W Tess: 40','W Tess: 65','W Tess: 90','LLT','AVL'");
+        c2.m_Legend = string("'Span Location','W Tess: 13','W Tess: 32','W Tess: 51','W Tess: 69','LLT','AVL'");
         c2.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
         c2.m_Title = string("Hershey Bar Drag Distribution Chord Tesselation (W Tess) Sensitivity");
         c2.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
@@ -3705,7 +3758,6 @@ class HersheyVV : VV_Base
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
 
-
                 Update();
 
                 // list inputs, type, and current values
@@ -3748,7 +3800,7 @@ class HersheyVV : VV_Base
         // Chord Tess
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("ChordError");
-        c1.m_Legend = string("'Chord Tesselation (W Tess)','U Tess: 10','U Tess: 35','U Tess: 60','U Tess: 85'");
+        c1.m_Legend = string("'Chord Tesselation (W Tess)','U Tess: 11','U Tess: 26','U Tess: 41','U Tess: 66'");
         c1.m_Title = string("Hershey Bar VLM Cl_alpha Span Tesselation (U Tess) Sensitivity");
         c1.m_HAxisString = string("hAxis: { title: 'Chord Tesselation (W Tess)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
@@ -3778,7 +3830,7 @@ class HersheyVV : VV_Base
         // Span Tess
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("SpanError");
-        c2.m_Legend = string("'Span Tesselation (U Tess)','W Tess: 15','W Tess: 40','W Tess: 65','W Tess: 90'");
+        c2.m_Legend = string("'Span Tesselation (U Tess)','W Tess: 13','W Tess: 32','W Tess: 51','W Tess: 69'");
         c2.m_Title = string("Hershey Bar VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity");
         c2.m_HAxisString = string("hAxis: { title: 'Span Tesselation (U Tess)', titleTextStyle: { bold: true } }");
         c2.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
@@ -3810,7 +3862,7 @@ class HersheyVV : VV_Base
         // Chord Tess
         HTMLChart c3 = HTMLChart(); // Initialize Chart
         c3.m_ChartName = string("ChordTime");
-        c3.m_Legend = string("'Chord Tesselation (W Tess)','U Tess: 10','U Tess: 35','U Tess: 60','U Tess: 85'");
+        c3.m_Legend = string("'Chord Tesselation (W Tess)','U Tess: 11','U Tess: 26','U Tess: 41','U Tess: 66'");
         c3.m_Title = string("Hershey Bar VLM Execution Time Span Tesselation (U Tess) Sensitivity");
         c3.m_HAxisString = string("hAxis: { title: 'Chord Tesselation (W Tess)', titleTextStyle: { bold: true } }");
         c3.m_VAxisString = string("vAxis: { title: 'Time (sec)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
@@ -3840,7 +3892,7 @@ class HersheyVV : VV_Base
         // Span Tess
         HTMLChart c4 = HTMLChart(); // Initialize Chart
         c4.m_ChartName = string("SpanTime");
-        c4.m_Legend = string("'Span Tesselation (U Tess)','W Tess: 15','W Tess: 40','W Tess: 65','W Tess: 90'");
+        c4.m_Legend = string("'Span Tesselation (U Tess)','W Tess: 13','W Tess: 32','W Tess: 51','W Tess: 69'");
         c4.m_Title = string("Hershey Bar VLM Execution Time Chord Tesselation (W Tess) Sensitivity");
         c4.m_HAxisString = string("hAxis: { title: 'Span Tesselation (U Tess)', titleTextStyle: { bold: true } }");
         c4.m_VAxisString = string("vAxis: { title: 'Time (sec)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
@@ -5668,12 +5720,12 @@ class VKTVV : VV_Base
         
         // Add another intermediary chord and span tesselation value?
         m_Tess_U[0] = 20;
-        m_Tess_U[1] = 60;
-        m_Tess_U[2] = 100;
+        m_Tess_U[1] = 41;
+        m_Tess_U[2] = 62;
         
         m_Tess_W[0] = 20;
-        m_Tess_W[1] = 50;
-        m_Tess_W[2] = 80;
+        m_Tess_W[1] = 51;
+        m_Tess_W[2] = 82;
     }
     
     void VKTStudy()
@@ -5722,8 +5774,8 @@ class VKTVV : VV_Base
 
         //TODO: Make consistent with other VKT wing geoms
         SetParmVal( wing_id, "Aspect", "XSec_1", 15.0001 );
-        SetParmVal( wing_id, "TECluster", "WingGeom", 0.65 );
-        SetParmVal( wing_id, "LECluster", "WingGeom", 0.35 );
+        SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 u = 1; // UTess
         const uint8 w = 1; // WTess
@@ -5787,7 +5839,7 @@ class VKTVV : VV_Base
         //TODO: Make consistent with other VKT wing geoms
         SetParmVal( wing_id, "Aspect", "XSec_1", 7.5005 );
         SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
-        SetParmVal( wing_id, "LECluster", "WingGeom", 0.5 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 e = 0; // epsilon
         const uint8 k = 1; // kappa
@@ -6164,7 +6216,7 @@ class VKTVV : VV_Base
             HTMLChart c1 = HTMLChart();
             c1.m_ChartName = string("VKT_Cp_U") + int(m_Tess_U[u]);
             c1.m_Title = string("VKT Cp distribution at Y = 0 Chord Tesselation (W Tess) Sensitivity: ") + string("Span Tess = ") + int(m_Tess_U[u]);
-            c1.m_Legend = string("'X','Airfoil','Exact','W Tess: 20','W Tess: 50','W Tess: 80','XFoil'");
+            c1.m_Legend = string("'X','Airfoil','Exact','W Tess: 20','W Tess: 41','W Tess: 62','XFoil'");
             //c1.m_PointSize = 3.0;
             c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 5 }, 2: { targetAxisIndex: 0 }, 3: { targetAxisIndex: 0 }, 4: { targetAxisIndex: 0, color: 'red' }, 5: { targetAxisIndex: 0, color: 'purple' } }");
             c1.m_LegendPos = string("bottom");
@@ -6233,7 +6285,7 @@ class VKTVV : VV_Base
             HTMLChart c1 = HTMLChart();
             c1.m_ChartName = string("VKT_Cp_W") + int(m_Tess_W[w]);
             c1.m_Title = string("VKT Cp distribution at Y = 0 Span Tesselation (U Tess) Sensitivity: ") + string("Chord Tess = ") + int(m_Tess_W[w]);
-            c1.m_Legend = string("'X','Airfoil','Exact','U Tess: 20','U Tess: 60','U Tess: 100','XFoil'");
+            c1.m_Legend = string("'X','Airfoil','Exact','U Tess: 20','U Tess: 51','U Tess: 82','XFoil'");
             //c1.m_PointSize = 3.0;
             c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 5 }, 2: { targetAxisIndex: 0 }, 3: { targetAxisIndex: 0 }, 4: { targetAxisIndex: 0, color: 'red' }, 5: { targetAxisIndex: 0, color: 'purple' } }");
             c1.m_LegendPos = string("bottom");
