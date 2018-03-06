@@ -2509,7 +2509,7 @@ class HersheyVV : VV_Base
         m_AdvancedWakeVec[1] = 2;
         m_AdvancedWakeVec[2] = 3;
         
-        string AVL_file_name = GetVSPExePath() + string("\\scripts\\Hershey_AR10_AVL.dat");
+        string AVL_file_name = GetVSPExePath() + string("\\airfoil\\Hershey_AR10_AVL.dat");
         m_AR10_Y_Cl_Cd_vec = ReadAVLFSFile(AVL_file_name);
     }
     
