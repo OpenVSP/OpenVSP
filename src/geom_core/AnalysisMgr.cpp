@@ -1059,6 +1059,7 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
     {
         m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get() ) );
         m_Inputs.Add( NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get() ) );
+        m_Inputs.Add( NameValData( "Symmetry", VSPAEROMgr.m_Symmetry.Get() ) );
     }
     else
     {
@@ -1085,12 +1086,20 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
         VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
 
+        bool symmetryOrig = VSPAEROMgr.m_Symmetry.Get();
+        nvd = m_Inputs.FindPtr( "Symmetry", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_Symmetry.Set( nvd->GetInt( 0 ) );
+        }
+
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeGeometry();
 
         //==== Restore Original Values ====//
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
         VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
+        VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
 
     }
     
