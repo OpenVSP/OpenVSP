@@ -2963,6 +2963,8 @@ class HersheyVV : VV_Base
 
             // Set defaults
             SetAnalysisInputDefaults( m_CompGeomAnalysis );
+            
+            SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             // list inputs, type, and current values
             PrintAnalysisInputs( m_CompGeomAnalysis );
@@ -2978,7 +2980,6 @@ class HersheyVV : VV_Base
             //==== Analysis: VSPAero VLM Sweep ====//
             // Set defaults
             SetAnalysisInputDefaults(m_VSPSweepAnalysis);
-            Print(m_VSPSweepAnalysis);
 
             // Reference geometry set
             SetIntAnalysisInput(m_VSPSweepAnalysis, "GeomSet", m_GeomVec, 0);
@@ -3090,6 +3091,8 @@ class HersheyVV : VV_Base
             
             array<int> panel_analysis(1, VSPAERO_ANALYSIS_METHOD::PANEL);
             SetIntAnalysisInput( m_CompGeomAnalysis, "AnalysisMethod", panel_analysis );
+            
+            SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             // list inputs, type, and current values
             PrintAnalysisInputs( m_CompGeomAnalysis );
@@ -3305,6 +3308,8 @@ class HersheyVV : VV_Base
 
             // Set defaults
             SetAnalysisInputDefaults( m_CompGeomAnalysis );
+            
+            SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             // list inputs, type, and current values
             PrintAnalysisInputs( m_CompGeomAnalysis );
@@ -3508,6 +3513,8 @@ class HersheyVV : VV_Base
 
             // Set defaults
             SetAnalysisInputDefaults( m_CompGeomAnalysis );
+            
+            SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             // list inputs, type, and current values
             PrintAnalysisInputs( m_CompGeomAnalysis );
@@ -3728,6 +3735,8 @@ class HersheyVV : VV_Base
 
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
+                
+                SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // list inputs, type, and current values
                 PrintAnalysisInputs( m_CompGeomAnalysis );
@@ -3948,6 +3957,8 @@ class HersheyVV : VV_Base
 
             // Set defaults
             SetAnalysisInputDefaults( m_CompGeomAnalysis );
+            
+            SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
             // list inputs, type, and current values
             PrintAnalysisInputs( m_CompGeomAnalysis );
@@ -4106,6 +4117,8 @@ class HersheyVV : VV_Base
             // Set defaults
             SetAnalysisInputDefaults( m_CompGeomAnalysis );
 
+            SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
+            
             // list inputs, type, and current values
             PrintAnalysisInputs( m_CompGeomAnalysis );
 
@@ -4298,6 +4311,8 @@ class HersheyVV : VV_Base
 
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
+                
+                SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // list inputs, type, and current values
                 PrintAnalysisInputs( m_CompGeomAnalysis );
@@ -4697,6 +4712,8 @@ class SweepVV : VV_Base
 
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
+                
+                SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // list inputs, type, and current values
                 PrintAnalysisInputs( m_CompGeomAnalysis );
@@ -4777,6 +4794,8 @@ class SweepVV : VV_Base
                 
                 array<int> panel_analysis(1, VSPAERO_ANALYSIS_METHOD::PANEL);
                 SetIntAnalysisInput( m_CompGeomAnalysis, "AnalysisMethod", panel_analysis );
+                
+                SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // list inputs, type, and current values
                 PrintAnalysisInputs( m_CompGeomAnalysis );
@@ -5207,6 +5226,8 @@ class BertinVV : VV_Base
 
         // Set defaults
         SetAnalysisInputDefaults( m_CompGeomAnalysis );
+        
+        SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
         // list inputs, type, and current values
         PrintAnalysisInputs( m_CompGeomAnalysis );
@@ -5461,6 +5482,8 @@ class WarrenVV : VV_Base
 
         // Set defaults
         SetAnalysisInputDefaults( m_CompGeomAnalysis );
+        
+        SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
         // list inputs, type, and current values
         PrintAnalysisInputs( m_CompGeomAnalysis );
@@ -6846,6 +6869,8 @@ class SDVV : VV_Base
 
                 // Set defaults
                 SetAnalysisInputDefaults( m_CompGeomAnalysis );
+                
+                SetIntAnalysisInput(m_CompGeomAnalysis, "Symmetry", m_SymFlagVec, 0);
 
                 // list inputs, type, and current values
                 PrintAnalysisInputs( m_CompGeomAnalysis );
