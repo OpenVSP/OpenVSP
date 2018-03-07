@@ -184,13 +184,13 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
     m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
     m_Write2DFEMFlag.SetDescript( "Toggle File Write for 2D FEM" );
-    m_ClMax.Init( "Clmax", groupname, this, -1, 0, 1e3 );
+    m_ClMax.Init( "Clmax", groupname, this, -1, -1, 1e3 );
     m_ClMax.SetDescript( "Cl Max of Aircraft" );
     m_ClMaxToggle.Init( "ClmaxToggle", groupname, this, false, false, true );
-    m_MaxTurnAngle.Init( "MaxTurnAngle", groupname, this, -1, 0, 360 );
+    m_MaxTurnAngle.Init( "MaxTurnAngle", groupname, this, -1, -1, 360 );
     m_MaxTurnAngle.SetDescript( "Max Turning Angle of Aircraft" );
     m_MaxTurnToggle.Init( "MaxTurnToggle", groupname, this, false, false, true );
-    m_FarDist.Init( "FarDist", groupname, this, -1, 0, 1e6 );
+    m_FarDist.Init( "FarDist", groupname, this, -1, -1, 1e6 );
     m_FarDist.SetDescript( "Far Field Distance for Wake Adaptation" );
     m_FarDistToggle.Init( "FarDistToggle", groupname, this, false, false, true );
     m_CpSliceFlag.Init( "CpSliceFlag", groupname, this, true, false, true );
@@ -380,6 +380,8 @@ void VSPAEROMgrSingleton::Update()
     UpdateActiveControlSurfVec();
 
     UpdateControlSurfaceGroups();
+
+    UpdateSetupParmLimits();
 }
 
 void VSPAEROMgrSingleton::UpdateSref()
