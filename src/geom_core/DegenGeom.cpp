@@ -1149,18 +1149,18 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
 
     if( type == SURFACE_TYPE )
     {
-        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
         fprintf( file_id, "\nLIFTING_SURFACE,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
     }
     else if( type == DISK_TYPE )
     {
-        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
         fprintf( file_id, "\nDISK,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
         write_degenGeomDiskCsv_file( file_id );
     }
     else
     {
-        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
         fprintf( file_id, "\nBODY,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
     }
 
@@ -1362,18 +1362,23 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
     if( type == SURFACE_TYPE )
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'LIFTING_SURFACE';" );
-        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
     }
     else if( type == DISK_TYPE )
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'DISK';" );
-        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
-        write_degenGeomDiskM_file( file_id );
     }
     else
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'BODY';" );
-        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
+    }
+
+    fprintf( file_id, "\ndegenGeom(end).name = '%s';", name.c_str() );
+    fprintf( file_id, "\ndegenGeom(end).geom_id = '%s';", parentGeom->GetID().c_str() );
+    fprintf( file_id, "\ndegenGeom(end).surf_index = %d;\n", getSurfNum() );
+
+    if( type == DISK_TYPE )
+    {
+        write_degenGeomDiskM_file(file_id);
     }
 
     write_degenGeomSurfM_file( file_id, nxsecs );
@@ -1417,18 +1422,23 @@ void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_id
     if ( type == SURFACE_TYPE )
     {
         res->Add( NameValData( "type", "LIFTING_SURFACE" ) );
-        res->Add( NameValData( "name", name ) );
     }
     else if ( type == DISK_TYPE )
     {
         res->Add( NameValData( "type", "DISK" ) );
-        res->Add( NameValData( "name", name ) );
-        write_degenGeomDiskResultsManger( res );
     }
     else
     {
         res->Add( NameValData( "type", "BODY" ) );
-        res->Add( NameValData( "name", name ) );
+    }
+
+    res->Add( NameValData( "name", name ) );
+    res->Add( NameValData( "surf_index", getSurfNum() ) );
+    res->Add( NameValData( "geom_id", parentGeom->GetID() ) );
+
+    if ( type == DISK_TYPE )
+    {
+        write_degenGeomDiskResultsManger( res );
     }
 
     write_degenGeomSurfResultsManager( res );

@@ -4390,6 +4390,7 @@ void Vehicle::CreateDegenGeom( int set )
                     pm.name = g->GetName();
                     pm.mass = g->m_PointMass();
                     pm.x = g->m_BlankOrigin;
+                    pm.geom_id = g->GetID();
                     m_DegenPtMassVec.push_back( pm );
                 }
             }
@@ -4465,16 +4466,17 @@ string Vehicle::WriteDegenGeomFile()
             if ( m_DegenPtMassVec.size() > 0 )
             {
                 fprintf(file_id, "BLANK_GEOMS,%d\n", blankCnt);
-                fprintf(file_id, "# Name, xLoc, yLoc, zLoc, Mass");
+                fprintf(file_id, "# Name, xLoc, yLoc, zLoc, Mass, GeomID");
 
                 for ( int i = 0; i < (int)m_DegenPtMassVec.size(); i++ )
                 {
                     // Blank geom translated location
-                    fprintf(file_id, "\n%s,%f,%f,%f,%f", m_DegenPtMassVec[i].name.c_str(), \
+                    fprintf(file_id, "\n%s,%f,%f,%f,%f,%s", m_DegenPtMassVec[i].name.c_str(), \
                                                          m_DegenPtMassVec[i].x.v[0], \
                                                          m_DegenPtMassVec[i].x.v[1], \
                                                          m_DegenPtMassVec[i].x.v[2], \
-                                                         m_DegenPtMassVec[i].mass );
+                                                         m_DegenPtMassVec[i].mass, \
+                                                         m_DegenPtMassVec[i].geom_id.c_str() );
                 }
             }
 
@@ -4515,6 +4517,7 @@ string Vehicle::WriteDegenGeomFile()
                 {
                     fprintf( file_id, "\nblankGeom(end+1).name = '%s';", \
                                      m_DegenPtMassVec[i].name.c_str() );
+                    fprintf( file_id, "\nblankGeom(end).geom_id = '%s';", m_DegenPtMassVec[i].geom_id.c_str() );
 
                     fprintf( file_id, "\nblankGeom(end).X = [%f, %f, %f];", m_DegenPtMassVec[i].x.v[0],\
                                                                             m_DegenPtMassVec[i].x.v[1],\
@@ -4553,6 +4556,7 @@ string Vehicle::WriteDegenGeomFile()
             blank_degen_result_ids.push_back( blnk_res->GetID() );
 
             blnk_res->Add( NameValData( "name", m_DegenPtMassVec[i].name ) );
+            blnk_res->Add( NameValData( "geom_id", m_DegenPtMassVec[i].geom_id ) );
             blnk_res->Add( NameValData( "X", m_DegenPtMassVec[i].x ) );
             blnk_res->Add( NameValData( "mass", m_DegenPtMassVec[i].mass ) );
         }

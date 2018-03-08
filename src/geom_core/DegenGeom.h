@@ -124,6 +124,7 @@ typedef struct
     string                      name;
     double                      mass;
     vec3d                       x;
+    string                      geom_id;
 } DegenPtMass;
 
 class DegenGeom
