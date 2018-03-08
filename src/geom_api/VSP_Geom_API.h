@@ -130,7 +130,7 @@ extern void DeleteGeom( const std::string & geom_id );
 extern void DeleteGeomVec( const std::vector< std::string > & del_vec );
 extern void CutGeomToClipboard( const std::string & geom_id );
 extern void CopyGeomToClipboard( const std::string & geom_id );
-extern void PasteGeomClipboard( const std::string & parent = std::string() );
+extern std::vector<std::string> PasteGeomClipboard( const std::string & parent = std::string() );
 extern std::vector<std::string> FindGeoms();
 extern std::vector<std::string> FindGeomsWithName( const std::string & name );
 extern std::string FindGeom( const std::string & name, int index );

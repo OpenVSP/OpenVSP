@@ -107,7 +107,7 @@ public:
     void CutGeomVec( const vector<string> & cut_vec );
     void RemoveGeomVecFromHierarchy( const vector<string> & cut_vec );
     void DeleteClipBoard();
-    void PasteClipboard();
+    vector< string > PasteClipboard();
     vector< string > CopyGeomVec( const vector<string> & geom_vec );
 
     vector< DrawObj* > GetDrawObjs();

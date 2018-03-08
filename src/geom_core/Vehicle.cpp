@@ -1038,7 +1038,7 @@ void Vehicle::DeleteGeom( const string & geom_id )
 }
 
 //==== Paste All Geoms in Clipboard ====//
-void Vehicle::PasteClipboard()
+vector< string > Vehicle::PasteClipboard()
 {
     //==== Find Current Parent ====//
     string parent_id = "NONE";
@@ -1092,6 +1092,9 @@ void Vehicle::PasteClipboard()
         }
     }
 
+    //==== Store ids of pasted geoms ====//
+    vector<string> pasted_ids = m_ClipBoard;
+
     //==== Move Copied Geoms into ClipBoard ====//
     m_ClipBoard.clear();
     for  ( int i = 0 ; i < ( int )copy_geom.size() ; i++ )
@@ -1099,7 +1102,7 @@ void Vehicle::PasteClipboard()
         m_ClipBoard.push_back( copy_geom[i] );
     }
 
-
+    return pasted_ids;
 }
 
 //==== Copy Geoms In Vec - Create New IDs But Keep Parent/Child ====//

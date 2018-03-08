@@ -1354,7 +1354,7 @@ void CopyGeomToClipboard( const string & geom_id )
 
 /// Paste the geometry in the clipboard to the vehicle.  The geometry is inserted
 /// as a child of the optional parent id
-void PasteGeomClipboard( const string & parent )
+vector< string > PasteGeomClipboard( const string & parent )
 {
     Vehicle* veh = GetVehicle();
 
@@ -1377,8 +1377,10 @@ void PasteGeomClipboard( const string & parent )
         veh->ClearActiveGeom();
     }
 
-    veh->PasteClipboard();
+    vector< string> pasted_ids = veh->PasteClipboard();
     ErrorMgr.NoError();
+
+    return pasted_ids;
 }
 
 /// Find and return all geoms
