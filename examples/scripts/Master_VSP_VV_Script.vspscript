@@ -15,6 +15,7 @@
 
 //============= Define Global Entities ==============//
 file fid;
+int m_FigCount = 1;
 
 //============= Main Functions ==============//
 void main()
@@ -775,8 +776,8 @@ class HTML
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("41");
-                data_mat[0][6] = string("51");
+                data_mat[0][5] = string("12");
+                data_mat[0][6] = string("17");
                 data_mat[0][7] = string("0.2");
                 data_mat[0][8] = string("1.0");
                 data_mat[0][9] = string("1.0");
@@ -856,8 +857,8 @@ class HTML
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("41");
-                data_mat[0][6] = string("51");
+                data_mat[0][5] = string("12");
+                data_mat[0][6] = string("17");
                 data_mat[0][7] = string("0.2");
                 data_mat[0][8] = string("1.0");
                 data_mat[0][9] = string("1.0");
@@ -929,8 +930,8 @@ class HTML
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("11 to 66");
-                data_mat[0][6] = string("13 to 69");
+                data_mat[0][5] = string("5 to 41");
+                data_mat[0][6] = string("9 to 51");
                 data_mat[0][7] = string("0.2");
                 data_mat[0][8] = string("1.0");
                 data_mat[0][9] = string("1.0");
@@ -1007,11 +1008,11 @@ class HTML
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("41");
-                data_mat[0][6] = string("51");
+                data_mat[0][5] = string("12");
+                data_mat[0][6] = string("17");
                 data_mat[0][7] = string("0.2");
                 data_mat[0][8] = string("1.0");
-                data_mat[0][9] = string("0.1, 0.2, 1.0");
+                data_mat[0][9] = string("0.1, 0.5, 1.0");
                 
                 t1.m_TableDataMat = data_mat;
                 t1.m_Width = 6;
@@ -1100,8 +1101,8 @@ class HTML
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("11 to 66");
-                data_mat[0][6] = string("51");
+                data_mat[0][5] = string("5 to 41");
+                data_mat[0][6] = string("17");
                 data_mat[0][7] = string("0.2");
                 data_mat[0][8] = string("1.0");
                 data_mat[0][9] = string("1.0");
@@ -1201,8 +1202,8 @@ class HTML
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("41");
-                data_mat[0][6] = string("13 to 69");
+                data_mat[0][5] = string("12");
+                data_mat[0][6] = string("9 to 51");
                 data_mat[0][7] = string("0.2");
                 data_mat[0][8] = string("1.0");
                 data_mat[0][9] = string("1.0");
@@ -1302,8 +1303,8 @@ class HTML
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("41");
-                data_mat[0][6] = string("51");
+                data_mat[0][5] = string("12");
+                data_mat[0][6] = string("17");
                 data_mat[0][7] = string("0.2");
                 data_mat[0][8] = string("1.0");
                 data_mat[0][9] = string("1.0");
@@ -1372,8 +1373,8 @@ class HTML
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("41");
-                data_mat[0][6] = string("51");
+                data_mat[0][5] = string("12");
+                data_mat[0][6] = string("17");
                 data_mat[0][7] = string("0.2");
                 data_mat[0][8] = string("1.0");
                 data_mat[0][9] = string("1.0");
@@ -1506,7 +1507,7 @@ class HTML
                 WriteParagraph( text );
                 
                 HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(9);
+                array<string> head_str(11);
                 head_str[0] = string("Airfoil");
                 head_str[1] = string("AR");
                 head_str[2] = string("Root Chord");
@@ -1515,23 +1516,27 @@ class HTML
                 head_str[5] = string("\\(\\Lambda\\) Location");
                 head_str[6] = string("Span Tess (U)");
                 head_str[7] = string("Chord Tess (W)");
-                head_str[8] = string("Tip Clustering");
+                head_str[8] = string("LE Clustering");
+                head_str[9] = string("TE Clustering");
+                head_str[10] = string("Tip Clustering");
                 t1.m_HeaderStringVec = head_str;
                 
                 array<array<string>> data_mat(1);
-                data_mat[0].resize(9);
+                data_mat[0].resize(11);
                 data_mat[0][0] = string("NACA0012");
                 data_mat[0][1] = string("10");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("30");
                 data_mat[0][5] = string("0.5");
-                data_mat[0][6] = string("10 to 85");
-                data_mat[0][7] = string("15 to 90");
-                data_mat[0][8] = string("1.0");
+                data_mat[0][6] = string("5 to 41");
+                data_mat[0][7] = string("9 to 51");
+                data_mat[0][8] = string("0.2");
+                data_mat[0][9] = string("1.0");
+                data_mat[0][10] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
-                t1.m_Width = 5;
+                t1.m_Width = 6;
                 t1.m_Caption = string("Tesselation Study Geometry Setup");
                 
                 t1.WriteHTMLTable();
@@ -1576,7 +1581,7 @@ class HTML
                 WriteParagraph( text );
                 
                 HTMLTable t1 = HTMLTable(); // Initialize Table
-                array<string> head_str(9);
+                array<string> head_str(11);
                 head_str[0] = string("Airfoil");
                 head_str[1] = string("AR");
                 head_str[2] = string("Root Chord");
@@ -1585,23 +1590,27 @@ class HTML
                 head_str[5] = string("\\(\\Lambda\\) Location");
                 head_str[6] = string("Span Tess (U)");
                 head_str[7] = string("Chord Tess (W)");
-                head_str[8] = string("Tip Clustering");
+                head_str[8] = string("LE Clustering");
+                head_str[9] = string("TE Clustering");
+                head_str[10] = string("Tip Clustering");
                 t1.m_HeaderStringVec = head_str;
                 
                 array<array<string>> data_mat(1);
-                data_mat[0].resize(9);
+                data_mat[0].resize(11);
                 data_mat[0][0] = string("NACA0012");
                 data_mat[0][1] = string("5 to 60");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
-                data_mat[0][4] = string("10 to 40");
+                data_mat[0][4] = string("0 to 40");
                 data_mat[0][5] = string("0.5");
-                data_mat[0][6] = string("10");
-                data_mat[0][7] = string("15");
-                data_mat[0][8] = string("1.0");
+                data_mat[0][6] = string("12");
+                data_mat[0][7] = string("17");
+                data_mat[0][8] = string("0.2");
+                data_mat[0][9] = string("1.0");
+                data_mat[0][10] = string("1.0");
                 
                 t1.m_TableDataMat = data_mat;
-                t1.m_Width = 6;
+                t1.m_Width = 7;
                 t1.m_Caption = string("Sweep Study Geometry Setup");
                 
                 t1.WriteHTMLTable();
@@ -1900,8 +1909,8 @@ class HTML
                 data_mat[0][5] = string("1.0");
                 data_mat[0][6] = string("1.0");
                 data_mat[0][7] = string("0.0");
-                data_mat[0][8] = string("60");
-                data_mat[0][9] = string("50");
+                data_mat[0][8] = string("41");
+                data_mat[0][9] = string("51");
                 data_mat[0][10] = string("0.2");
                 data_mat[0][11] = string("1.0");
                 
@@ -1974,8 +1983,8 @@ class HTML
                 data_mat[0][5] = string("1.0");
                 data_mat[0][6] = string("1.0");
                 data_mat[0][7] = string("0.0");
-                data_mat[0][8] = string("20 to 62");
-                data_mat[0][9] = string("20 to 82");
+                data_mat[0][8] = string("12 to 41");
+                data_mat[0][9] = string("17 to 51");
                 data_mat[0][10] = string("0.2");
                 data_mat[0][11] = string("1.0");
                 
@@ -2048,8 +2057,8 @@ class HTML
                 data_mat[0][5] = string("1.0");
                 data_mat[0][6] = string("1.0");
                 data_mat[0][7] = string("0.0");
-                data_mat[0][8] = string("20 to 62");
-                data_mat[0][9] = string("20 to 82");
+                data_mat[0][8] = string("12 to 41");
+                data_mat[0][9] = string("17 to 51");
                 data_mat[0][10] = string("0.2");
                 data_mat[0][11] = string("1.0");
                 
@@ -2478,7 +2487,7 @@ class VV_Base
         m_MachVec[0] = 0.1;
         m_GeomVec[0] = 0; // Set: All
         m_RefFlagVec[0] = 1; // Wing Reference
-        m_WakeIterVec[0] = 3; // TODO: Set back to 3
+        m_WakeIterVec[0] = 3;
         m_SymFlagVec[0] = 1;
         
         pi = 3.14159265358979323846;
@@ -2516,7 +2525,7 @@ class HersheyVV : VV_Base
     HersheyVV()
     {
         m_halfAR[0] = 2.5;
-        m_halfAR[1] = 5.0;
+        m_halfAR[1] = 5.0016;
         m_halfAR[2] = 7.5;
         m_halfAR[3] = 12.5;
         m_halfAR[4] = 20.0;
@@ -2525,18 +2534,18 @@ class HersheyVV : VV_Base
         m_AlphaNpts = 9;
         
         m_Tip_Clus[0] = 0.1;
-        m_Tip_Clus[1] = 0.2;
+        m_Tip_Clus[1] = 0.5;
         m_Tip_Clus[2] = 1;
 
-        m_Tess_U[0] = 11;
-        m_Tess_U[1] = 26;
-        m_Tess_U[2] = 41;
-        m_Tess_U[3] = 66;
+        m_Tess_U[0] = 5;
+        m_Tess_U[1] = 12;
+        m_Tess_U[2] = 20;
+        m_Tess_U[3] = 41;
 
-        m_Tess_W[0] = 13;
-        m_Tess_W[1] = 32;
-        m_Tess_W[2] = 51;
-        m_Tess_W[3] = 69;
+        m_Tess_W[0] = 9;
+        m_Tess_W[1] = 17;
+        m_Tess_W[2] = 29;
+        m_Tess_W[3] = 51;
         
         m_WakeIter[0] = 1;
         m_WakeIter[1] = 2;
@@ -2566,10 +2575,10 @@ class HersheyVV : VV_Base
     private void GenerateHersheyBarWings()
     {
         GenerateHersheyBarARWings();
-        GenerateHersheyBarUTessWings();
-        GenerateHersheyBarWTessWings();
         GenerateHersheyBarUWTessWings();
         GenerateHersheyBarTCWings();
+        GenerateHersheyBarUTessWings();
+        GenerateHersheyBarWTessWings();
         GenerateHersheyBarWakeWings();
         GenerateHersheyBarAdvancedWings();
     }
@@ -2577,10 +2586,10 @@ class HersheyVV : VV_Base
     private void TestHersheyBarWings()
     {
         TestHersheyBarARWings();
-        TestHersheyBarUTessWings();
-        TestHersheyBarWTessWings();
         TestHersheyBarUWTessWings();
         TestHersheyBarTCWings();
+        TestHersheyBarUTessWings();
+        TestHersheyBarWTessWings();
         TestHersheyBarWakeWings();
         TestHersheyBarAdvancedWings();
     }
@@ -2606,8 +2615,8 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
         SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
-        const uint8 u = 2; // UTess
-        const uint8 w = 2; // WTess
+        const uint8 u = 1; // UTess
+        const uint8 w = 1; // WTess
         const uint8 t = 2; // Tip Clustering
         
         SetParmVal( wing_id, "SectTess_U", "XSec_1", m_Tess_U[u] ); // Constant U Tess
@@ -2655,7 +2664,7 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 x = 1; // AR
-        const uint8 w = 2; // WTess
+        const uint8 w = 1; // WTess
         const uint8 t = 2; // Tip Clustering
         
         SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] ); // Constant AR
@@ -2703,7 +2712,7 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 x = 1; // AR
-        const uint8 u = 2; // UTess
+        const uint8 u = 1; // UTess
         const uint8 t = 2; // Tip Clustering
         
         SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] ); // Constant AR
@@ -2801,8 +2810,8 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 x = 1; // AR
-        const uint8 u = 2; // UTess
-        const uint8 w = 2; // WTess
+        const uint8 u = 1; // UTess
+        const uint8 w = 1; // WTess
         
         SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] ); // Constant AR
         SetParmVal( wing_id, "SectTess_U", "XSec_1", m_Tess_U[u] ); // Constant U Tess
@@ -2849,8 +2858,8 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 x = 1; // AR
-        const uint8 u = 2; // UTess
-        const uint8 w = 2; // WTess
+        const uint8 u = 1; // UTess
+        const uint8 w = 1; // WTess
         const uint8 t = 2; // Tip Clustering
         
         SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] ); // Constant AR
@@ -2895,8 +2904,8 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
         const uint8 x = 2; // AR
-        const uint8 u = 2; // UTess
-        const uint8 w = 2; // WTess
+        const uint8 u = 1; // UTess
+        const uint8 w = 1; // WTess
         const uint8 t = 2; // Tip Clustering
         
         SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] ); // Constant AR
@@ -3159,7 +3168,8 @@ class HersheyVV : VV_Base
         c1.m_ChartName = string("CLvA");
         c1.m_Series = string("{ 6: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
         c1.m_Legend = string("'Alpha','AR: 5','AR: 10','AR: 15','AR: 25','AR: 40','AR: 60','2*pi'");
-        c1.m_Title = string("Hershey Bar VLM: Cl vs Alpha for Various AR");
+        c1.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar VLM: Cl vs Alpha for Various AR");
+        m_FigCount++;
         c1.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true } }");
         
@@ -3196,7 +3206,8 @@ class HersheyVV : VV_Base
         c2.m_ChartName = string("CLavAR");
         c2.m_Series = string("{ 2: { pointSize: 0,  color: 'gray', lineWidth: 3 } }");
         c2.m_Legend = string("'AR','VSPAERO VLM','VSPAERO Panel','LLT'");
-        c2.m_Title = string("Hershey Bar: Cl_alpha vs AR");
+        c2.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar: Cl_alpha vs AR");
+        m_FigCount++;
         c2.m_HAxisString = string("hAxis: { title: 'AR', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         c2.m_VAxisString = string("vAxis: { title: 'Cl_alpha (°)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         
@@ -3255,7 +3266,8 @@ class HersheyVV : VV_Base
         HTMLChart c4 = HTMLChart(); // Initialize Chart
         c4.m_ChartName = string("HB_ClaErrorvAlpha");
         c4.m_Legend = string("'Alpha','% Error'");
-        c4.m_Title = string("Hershey Bar VLM Cl_alpha Alpha Sensitivity: AR = ") + int(2*m_halfAR[1]); 
+        c4.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar VLM Cl_alpha Alpha Sensitivity: AR = ") + int(2*m_halfAR[1]); 
+        m_FigCount++;
         c4.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
         c4.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         
@@ -3377,18 +3389,20 @@ class HersheyVV : VV_Base
         // Const AR, WTess, and TC, vary UTess Lift Distribution Study
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("UTess_LD");
-        c1.m_Legend = string("'Span Location','U Tess: 11','U Tess: 26','U Tess: 41','U Tess: 66','LLT','AVL'");
+        c1.m_Legend = string("'Span Location','U Tess: 5','U Tess: 12','U Tess: 20','U Tess: 41','LLT','AVL'");
         c1.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
-        c1.m_Title = string("Hershey Bar Lift Distribution Span Tesselation (U Tess) Sensitivity");
+        c1.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar Lift Distribution Span Tesselation (U Tess) Sensitivity");
+        m_FigCount++;
         c1.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0, max: 0.15 } }");
         
         // Const AR, WTess, and TC, vary UTess Drag Distribution Study
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("UTess_DD") ;
-        c2.m_Legend = string("'Span Location','U Tess: 11','U Tess: 26','U Tess: 41','U Tess: 66','LLT','AVL'");
+        c2.m_Legend = string("'Span Location','U Tess: 5','U Tess: 12','U Tess: 20','U Tess: 41','LLT','AVL'");
         c2.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
-        c2.m_Title = string("Hershey Bar Drag Distribution Span Tesselation (U Tess) Sensitivity");
+        c2.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar Drag Distribution Span Tesselation (U Tess) Sensitivity");
+        m_FigCount++;
         c2.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
         c2.m_VAxisString = string("vAxis: { title: 'Cd', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }"); // TODO: set max
         
@@ -3582,18 +3596,20 @@ class HersheyVV : VV_Base
         // Const AR, UTess, and TC, vary WTess Lift Distribution Study
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("WTess_LD");
-        c1.m_Legend = string("'Span Location','W Tess: 13','W Tess: 32','W Tess: 51','W Tess: 69','LLT','AVL'");
+        c1.m_Legend = string("'Span Location','W Tess: 9','W Tess: 17','W Tess: 29','W Tess: 51','LLT','AVL'");
         c1.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
-        c1.m_Title = string("Hershey Bar Lift Distribution Chord Tesselation (W Tess) Sensitivity");
+        c1.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar Lift Distribution Chord Tesselation (W Tess) Sensitivity");
+        m_FigCount++;
         c1.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0, max: 0.15 } }");
         
         // Const AR, UTess, and TC, vary WTess Lift Distribution Study
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("WTess_DD");
-        c2.m_Legend = string("'Span Location','W Tess: 13','W Tess: 32','W Tess: 51','W Tess: 69','LLT','AVL'");
+        c2.m_Legend = string("'Span Location','W Tess: 9','W Tess: 17','W Tess: 29','W Tess: 51','LLT','AVL'");
         c2.m_Series = string("{ 4: { pointSize: 0, color: 'gray', lineWidth: 3 }, 5: { color: 'purple' } }");
-        c2.m_Title = string("Hershey Bar Drag Distribution Chord Tesselation (W Tess) Sensitivity");
+        c2.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar Drag Distribution Chord Tesselation (W Tess) Sensitivity");
+        m_FigCount++;
         c2.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
         c2.m_VAxisString = string("vAxis: { title: 'Cd', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }"); // TODO: set max
         
@@ -3809,8 +3825,9 @@ class HersheyVV : VV_Base
         // Chord Tess
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("ChordError");
-        c1.m_Legend = string("'Chord Tesselation (W Tess)','U Tess: 11','U Tess: 26','U Tess: 41','U Tess: 66'");
-        c1.m_Title = string("Hershey Bar VLM Cl_alpha Span Tesselation (U Tess) Sensitivity");
+        c1.m_Legend = string("'Chord Tesselation (W Tess)','U Tess: 5','U Tess: 12','U Tess: 20','U Tess: 41'");
+        c1.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar VLM Cl_alpha Span Tesselation (U Tess) Sensitivity");
+        m_FigCount++;
         c1.m_HAxisString = string("hAxis: { title: 'Chord Tesselation (W Tess)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         
@@ -3835,12 +3852,13 @@ class HersheyVV : VV_Base
         
         c1.WriteChartHead( data_str_vec1 );
         m_HersheyTessIDVec.push_back( c1.m_ChartName );
-
+        
         // Span Tess
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("SpanError");
-        c2.m_Legend = string("'Span Tesselation (U Tess)','W Tess: 13','W Tess: 32','W Tess: 51','W Tess: 69'");
-        c2.m_Title = string("Hershey Bar VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity");
+        c2.m_Legend = string("'Span Tesselation (U Tess)','W Tess: 9','W Tess: 17','W Tess: 29','W Tess: 51'");
+        c2.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity");
+        m_FigCount++;
         c2.m_HAxisString = string("hAxis: { title: 'Span Tesselation (U Tess)', titleTextStyle: { bold: true } }");
         c2.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         
@@ -3871,8 +3889,9 @@ class HersheyVV : VV_Base
         // Chord Tess
         HTMLChart c3 = HTMLChart(); // Initialize Chart
         c3.m_ChartName = string("ChordTime");
-        c3.m_Legend = string("'Chord Tesselation (W Tess)','U Tess: 11','U Tess: 26','U Tess: 41','U Tess: 66'");
-        c3.m_Title = string("Hershey Bar VLM Execution Time Span Tesselation (U Tess) Sensitivity");
+        c3.m_Legend = string("'Chord Tesselation (W Tess)','U Tess: 5','U Tess: 12','U Tess: 20','U Tess: 41'");
+        c3.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar VLM Execution Time Span Tesselation (U Tess) Sensitivity");
+        m_FigCount++;
         c3.m_HAxisString = string("hAxis: { title: 'Chord Tesselation (W Tess)', titleTextStyle: { bold: true } }");
         c3.m_VAxisString = string("vAxis: { title: 'Time (sec)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         
@@ -3901,8 +3920,9 @@ class HersheyVV : VV_Base
         // Span Tess
         HTMLChart c4 = HTMLChart(); // Initialize Chart
         c4.m_ChartName = string("SpanTime");
-        c4.m_Legend = string("'Span Tesselation (U Tess)','W Tess: 13','W Tess: 32','W Tess: 51','W Tess: 69'");
-        c4.m_Title = string("Hershey Bar VLM Execution Time Chord Tesselation (W Tess) Sensitivity");
+        c4.m_Legend = string("'Span Tesselation (U Tess)','W Tess: 9','W Tess: 17','W Tess: 29','W Tess: 51'");
+        c4.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar VLM Execution Time Chord Tesselation (W Tess) Sensitivity");
+        m_FigCount++;
         c4.m_HAxisString = string("hAxis: { title: 'Span Tesselation (U Tess)', titleTextStyle: { bold: true } }");
         c4.m_VAxisString = string("vAxis: { title: 'Time (sec)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         
@@ -4025,9 +4045,10 @@ class HersheyVV : VV_Base
         
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("TC_LD") ;
-        c1.m_Legend = string("'Span Location','TC: 0.1','TC: 0.2','TC: 1.0','LLT','AVL'");
+        c1.m_Legend = string("'Span Location','TC: 0.1','TC: 0.5','TC: 1.0','LLT','AVL'");
         c1.m_Series = string("{ 3: { pointSize: 0, color: 'gray', lineWidth: 3 }, 4: { color: 'purple' } }");
-        c1.m_Title = string("Hershey Bar Lift Distribution Tip Clustering Sensitivity");
+        c1.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar Lift Distribution Tip Clustering Sensitivity");
+        m_FigCount++;
         c1.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0, max: 0.15 } }");
         
@@ -4194,7 +4215,8 @@ class HersheyVV : VV_Base
         c1.m_ChartName = string("Wake_LD");
         c1.m_Legend = string("'Span Location','Wake Iter: 1','Wake Iter: 2','Wake Iter: 3','Wake Iter: 4','Wake Iter: 5','LLT'");
         c1.m_Series = string("{ 5: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
-        c1.m_Title = string("Hershey Bar Lift Distribution Wake Iteration Sensitivity");
+        c1.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar Lift Distribution Wake Iteration Sensitivity");
+        m_FigCount++;
         c1.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }"); // add max
 
@@ -4250,7 +4272,8 @@ class HersheyVV : VV_Base
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("Wake_Time");
         c2.m_Legend = string("'Wake Iterations','Total Computation Time'");
-        c2.m_Title = string("Hershey Bar VSPAERO Total Computation Time vs. Wake Iterations");
+        c2.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar VSPAERO Total Computation Time vs. Wake Iterations");
+        m_FigCount++;
         c2.m_HAxisString = string("hAxis: { title: 'Wake Iterations', titleTextStyle: { bold: true } }");
         c2.m_VAxisString = string("vAxis: { title: 'Time (sec)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }"); // add max
         
@@ -4417,7 +4440,8 @@ class HersheyVV : VV_Base
             c1.m_ChartName = string("Advanced_LD_W") + int(w + 1);
             c1.m_Legend = string("'Span Location','Default','Case #1','Case #2','Case #3','Case #4','Case #5','LLT'");
             c1.m_Series = string("{ 6: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
-            c1.m_Title = string("Hershey Bar Lift Distribution Advanced Settings Sensitivity: Wake Iterations = ") + int(w + 1);
+            c1.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar Lift Distribution Advanced Settings Sensitivity: Wake Iterations = ") + int(w + 1);
+            m_FigCount++;
             c1.m_HAxisString = string("hAxis: { title: 'Span Location (Y)', titleTextStyle: { bold: true } }");
             c1.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }"); // add max
 
@@ -4456,7 +4480,8 @@ class HersheyVV : VV_Base
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("Advanced_Time_W");
         c2.m_Legend = string("'Wake Iter','Default','Case #1','Case #2','Case #3','Case #4','Case #5'");
-        c2.m_Title = string("Hershey Bar Total Computation Time vs. Wake Iterations Advanced Settings Sensitivity");
+        c2.m_Title = string("Figure ") + m_FigCount + string(". Hershey Bar Total Computation Time vs. Wake Iterations Advanced Settings Sensitivity");
+        m_FigCount++;
         c2.m_HAxisString = string("hAxis: { title: 'Wake Iter', titleTextStyle: { bold: true } }");
         c2.m_VAxisString = string("vAxis: { title: 'Time (Sec)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }"); 
         
@@ -4530,26 +4555,27 @@ class SweepVV : VV_Base
     SweepVV()
     {
         m_halfAR[0] = 2.5;
-        m_halfAR[1] = 5.0;
-        m_halfAR[2] = 7.5;
-        m_halfAR[3] = 12.505;
-        m_halfAR[4] = 20.0;
-        m_halfAR[5] = 30.005;
+        m_halfAR[1] = 5.006975;
+        m_halfAR[2] = 7.5004;
+        m_halfAR[3] = 12.5;
+        m_halfAR[4] = 20.0005;
+        m_halfAR[5] = 30.0005;
         
-        m_Tess_U[0] = 10;
-        m_Tess_U[1] = 35;
-        m_Tess_U[2] = 60;
-        m_Tess_U[3] = 85;
+        m_Tess_U[0] = 5;
+        m_Tess_U[1] = 12;
+        m_Tess_U[2] = 20;
+        m_Tess_U[3] = 41;
 
-        m_Tess_W[0] = 15;
-        m_Tess_W[1] = 40;
-        m_Tess_W[2] = 65;
-        m_Tess_W[3] = 90;
+        m_Tess_W[0] = 9;
+        m_Tess_W[1] = 17;
+        m_Tess_W[2] = 29;
+        m_Tess_W[3] = 51;
         
-        m_Sweep[0] = 10;
-        m_Sweep[1] = 20;
-        m_Sweep[2] = 30;
-        m_Sweep[3] = 40;
+        m_Sweep[0] = 0;
+        m_Sweep[1] = 10.005;
+        m_Sweep[2] = 20;
+        m_Sweep[3] = 30;
+        m_Sweep[4] = 40;
     }
     
     void SweptWingStudy()
@@ -4565,14 +4591,14 @@ class SweepVV : VV_Base
     
     private void GenerateSweepStudyWings()
     {
-        GenerateSweptARSweepWings();
         GenerateSweptUWTessWings();
+        GenerateSweptARSweepWings();
     }
     
     private void TestSweepStudyWings()
     {
-        TestSweptARSweepWings();
         TestSweptUWTessWings();
+        TestSweptARSweepWings();
     }
     
     private void GenerateSweptARSweepWings()
@@ -4591,8 +4617,11 @@ class SweepVV : VV_Base
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 );
         
-        const uint8 u = 0; // UTess
-        const uint8 w = 0; // WTess
+        SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
+        
+        const uint8 u = 1; // UTess
+        const uint8 w = 1; // WTess
         
         SetParmVal( wing_id, "SectTess_U", "XSec_1", m_Tess_U[u] ); // Constant U Tess
         SetParmVal( wing_id, "Tess_W", "Shape", m_Tess_W[w] ); // Constant W Tess
@@ -4639,8 +4668,11 @@ class SweepVV : VV_Base
         SetParmVal( wing_id, "Root_Chord", "XSec_1", 1.0 );
         SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1.0 );
         
+        SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
+        
         const uint8 x = 1; // AR
-        const uint8 s = 2; // Sweep
+        const uint8 s = 3; // Sweep
         
         SetParmVal( wing_id, "Aspect", "XSec_1", m_halfAR[x] ); // Constant AR
         SetParmVal( wing_id, "Sweep", "XSec_1", m_Sweep[s] ); // Constant Sweep
@@ -4905,7 +4937,8 @@ class SweepVV : VV_Base
             c3.m_ChartName = string("Sweep") + int(m_Sweep[s]) + string("_CLavAR");
             c3.m_Legend = string("'AR','VSPAERO VLM','VSPAERO Panel','LLT'");
             c3.m_Series = string("{ 2: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
-            c3.m_Title = int(m_Sweep[s]) + string("° Sweep: Cl_alpha vs. Aspect Ratio"); 
+            c3.m_Title = string("Figure ") + m_FigCount + string(". ") + int(m_Sweep[s]) + string("° Sweep: Cl_alpha vs. Aspect Ratio"); 
+            m_FigCount++;
             c3.m_HAxisString = string("hAxis: { title: 'AR', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
             c3.m_VAxisString = string("vAxis: { title: 'Cl_alpha (°)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
             
@@ -4935,7 +4968,8 @@ class SweepVV : VV_Base
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("ErrorvSweep");
         c2.m_Legend = string("'Sweep','VLM', 'Panel Method'");
-        c2.m_Title = string("Average % Error in Cl_alpha Across All Aspect Ratios Sweep Sensitivity"); 
+        c2.m_Title = string("Figure ") + m_FigCount + string(". Average % Error in Cl_alpha Across All Aspect Ratios Sweep Sensitivity"); 
+        m_FigCount++;
         c2.m_HAxisString = string("hAxis: { title: 'Sweep (°)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         c2.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         
@@ -5071,8 +5105,9 @@ class SweepVV : VV_Base
         // Chord Tess
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("ChordAR") + int(2*m_halfAR[x]) + string("_Sweep") + int( m_Sweep[s] );
-        c1.m_Legend = string("'Chord Tesselation (W Tess)','U Tess: 10','U Tess: 35','U Tess: 60','U Tess: 85'");
-        c1.m_Title = int( m_Sweep[s] ) + string("° Swept Wing VLM Cl_alpha Span Tesselation (U Tess) Sensitivity");
+        c1.m_Legend = string("'Chord Tesselation (W Tess)','U Tess: 5','U Tess: 12','U Tess: 20','U Tess: 41'");
+        c1.m_Title = string("Figure ") + m_FigCount + string(". ") + int( m_Sweep[s] ) + string("° Swept Wing VLM Cl_alpha Span Tesselation (U Tess) Sensitivity");
+        m_FigCount++;
         c1.m_HAxisString = string("hAxis: { title: 'Chord Tesselation (W Tess)', titleTextStyle: { bold: true } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
 
@@ -5101,8 +5136,9 @@ class SweepVV : VV_Base
         // Span Tess
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("SpanAR") + int(2*m_halfAR[x]) + string("_Sweep") + int( m_Sweep[s] );
-        c2.m_Legend = string("'Span Tesselation (U Tess)','W Tess: 15','W Tess: 40','W Tess: 65','W Tess: 90'");
-        c2.m_Title = int( m_Sweep[s] ) + string("° Swept Wing VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity");
+        c2.m_Legend = string("'Span Tesselation (U Tess)','W Tess: 9','W Tess: 17','W Tess: 29','W Tess: 51'");
+        c2.m_Title = string("Figure ") + m_FigCount + string(". ") + int( m_Sweep[s] ) + string("° Swept Wing VLM Cl_alpha Chord Tesselation (W Tess) Sensitivity");
+        m_FigCount++;
         c2.m_HAxisString = string("hAxis: { title: 'Span Tesselation (U Tess)', titleTextStyle: { bold: true } }");
         c2.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Error', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         
@@ -5133,7 +5169,7 @@ class SweepVV : VV_Base
     private array<double> m_halfAR(6);
     private array<int> m_Tess_U(4);
     private array<int> m_Tess_W(4);
-    private array<double> m_Sweep(4);
+    private array<double> m_Sweep(5);
 
     array<string> m_SweepTessIDVec;
     //array<string> m_SweepSweepLAvCRIDVec;
@@ -5326,40 +5362,13 @@ class BertinVV : VV_Base
         
         ClearVSPModel();
         
-        // VLM: Cl_alpha % Difference of VSPAERO/Theoretical Results vs. Alpha
-        HTMLChart c1 = HTMLChart(); // Initialize Chart
-        c1.m_ChartName = string("BS_ClaErrorvAlpha");
-        c1.m_Legend = string("'Alpha','% Difference'");
-        c1.m_Title = string("Bertin-Smith VLM Cl_alpha Alpha Sensitivity"); 
-        c1.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
-        c1.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Difference', titleTextStyle: { bold: true } }");
-        
-        array<string> data_str_vec1;
-        for( uint8 i = 0; i < uint8(m_AlphaNpts); i++ )
-        {
-            string row = string("\t\t  [") + double( m_AlphaSweepVec[i] ) + string(",") + double( m_Cl_alpha_error[i] );
-
-            if ( i == uint8(m_AlphaNpts) - 1 )
-            {
-                row += string("]\n");
-            }
-            else
-            {
-                row += string("],\n");
-            }
-            
-            data_str_vec1.push_back( row );
-        }
-        
-        c1.WriteChartHead( data_str_vec1 );
-        m_BSErrorIDVec.push_back( c1.m_ChartName );
-        
         // VLM: Cl vs alpha
         HTMLChart c2 = HTMLChart(); // Initialize Chart
         c2.m_ChartName = string("BS_ClvA");
         c2.m_Series = string("{ 1: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
         c2.m_Legend = string("'Alpha','VSPAERO','Expected'");
-        c2.m_Title = string("Bertin-Smith VLM: Cl vs Alpha");
+        c2.m_Title = string("Figure ") + m_FigCount + string(". Bertin-Smith VLM: Cl vs Alpha");
+        m_FigCount++;
         c2.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
         c2.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true } }");
         
@@ -5382,6 +5391,35 @@ class BertinVV : VV_Base
         
         c2.WriteChartHead( data_str_vec2 );
         m_BSClAIDVec.push_back( c2.m_ChartName );
+        
+        // VLM: Cl_alpha % Difference of VSPAERO/Theoretical Results vs. Alpha
+        HTMLChart c1 = HTMLChart(); // Initialize Chart
+        c1.m_ChartName = string("BS_ClaErrorvAlpha");
+        c1.m_Legend = string("'Alpha','% Difference'");
+        c1.m_Title = string("Figure ") + m_FigCount + string(". Bertin-Smith VLM Cl_alpha Alpha Sensitivity"); 
+        m_FigCount++;
+        c1.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
+        c1.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Difference', titleTextStyle: { bold: true } }");
+        
+        array<string> data_str_vec1;
+        for( uint8 i = 0; i < uint8(m_AlphaNpts); i++ )
+        {
+            string row = string("\t\t  [") + double( m_AlphaSweepVec[i] ) + string(",") + double( m_Cl_alpha_error[i] );
+
+            if ( i == uint8(m_AlphaNpts) - 1 )
+            {
+                row += string("]\n");
+            }
+            else
+            {
+                row += string("],\n");
+            }
+            
+            data_str_vec1.push_back( row );
+        }
+        
+        c1.WriteChartHead( data_str_vec1 );
+        m_BSErrorIDVec.push_back( c1.m_ChartName );
     }
     
     // Bertin-Smith Class Properties
@@ -5592,68 +5630,13 @@ class WarrenVV : VV_Base
         
         ClearVSPModel();
         
-        // VLM: Cl_alpha % Difference of VSPAERO/Theoretical Results vs. Alpha
-        HTMLChart c1 = HTMLChart(); // Initialize Chart
-        c1.m_ChartName = string("W12_ClaErrorvAlpha");
-        c1.m_Legend = string("'Alpha','% Difference'");
-        c1.m_Title = string("Warren-12 VLM Cl_alpha Alpha Sensitivity"); 
-        c1.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
-        c1.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Difference', titleTextStyle: { bold: true } }");
-        
-        array<string> data_str_vec1;
-        for( uint8 i = 0; i < uint8(m_AlphaNpts); i++ )
-        {
-            string row = string("\t\t  [") + double( m_AlphaSweepVec[i] ) + string(",") + double( m_Cl_alpha_error[i] );
-
-            if ( i == uint8(m_AlphaNpts) - 1 )
-            {
-                row += string("]\n");
-            }
-            else
-            {
-                row += string("],\n");
-            }
-            
-            data_str_vec1.push_back( row );
-        }
-        
-        c1.WriteChartHead( data_str_vec1 );
-        m_W12ClaErrorIDVec.push_back( c1.m_ChartName );
-        
-        // VLM: Cm_alpha % Difference of VSPAERO/Theoretical Results vs. Alpha
-        HTMLChart c2 = HTMLChart(); // Initialize Chart
-        c2.m_ChartName = string("W12_CmaErrorvAlpha");
-        c2.m_Legend = string("'Alpha','% Difference'");
-        c2.m_Title = string("Warren-12 VLM Cm_alpha Alpha Sensitivity"); 
-        c2.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
-        c2.m_VAxisString = string("vAxis: { title: 'Cm_alpha % Difference', titleTextStyle: { bold: true } }");
-        
-        array<string> data_str_vec2;
-        for( uint8 i = 0; i < uint8(m_AlphaNpts); i++ )
-        {
-            string row = string("\t\t  [") + double( m_AlphaSweepVec[i] ) + string(",") + double( m_Cm_alpha_error[i] );
-
-            if ( i == uint8(m_AlphaNpts) - 1 )
-            {
-                row += string("]\n");
-            }
-            else
-            {
-                row += string("],\n");
-            }
-            
-            data_str_vec2.push_back( row );
-        }
-        
-        c2.WriteChartHead( data_str_vec2 );
-        m_W12CmaErrorIDVec.push_back( c2.m_ChartName );
-        
         // VLM: Cl vs alpha
         HTMLChart c3 = HTMLChart(); // Initialize Chart
         c3.m_ChartName = string("W12_ClvA");
         c3.m_Series = string("{ 1: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
         c3.m_Legend = string("'Alpha','VSPAERO','Expected'");
-        c3.m_Title = string("Warren-12 VLM: Cl vs Alpha");
+        c3.m_Title = string("Figure ") + m_FigCount + string(". Warren-12 VLM: Cl vs Alpha");
+        m_FigCount++;
         c3.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
         c3.m_VAxisString = string("vAxis: { title: 'Cl', titleTextStyle: { bold: true } }");
         
@@ -5677,12 +5660,42 @@ class WarrenVV : VV_Base
         c3.WriteChartHead( data_str_vec3 );
         m_W12ClAIDVec.push_back( c3.m_ChartName );
         
+        // VLM: Cl_alpha % Difference of VSPAERO/Theoretical Results vs. Alpha
+        HTMLChart c1 = HTMLChart(); // Initialize Chart
+        c1.m_ChartName = string("W12_ClaErrorvAlpha");
+        c1.m_Legend = string("'Alpha','% Difference'");
+        c1.m_Title = string("Figure ") + m_FigCount + string(". Warren-12 VLM Cl_alpha Alpha Sensitivity"); 
+        m_FigCount++;
+        c1.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
+        c1.m_VAxisString = string("vAxis: { title: 'Cl_alpha % Difference', titleTextStyle: { bold: true } }");
+        
+        array<string> data_str_vec1;
+        for( uint8 i = 0; i < uint8(m_AlphaNpts); i++ )
+        {
+            string row = string("\t\t  [") + double( m_AlphaSweepVec[i] ) + string(",") + double( m_Cl_alpha_error[i] );
+
+            if ( i == uint8(m_AlphaNpts) - 1 )
+            {
+                row += string("]\n");
+            }
+            else
+            {
+                row += string("],\n");
+            }
+            
+            data_str_vec1.push_back( row );
+        }
+        
+        c1.WriteChartHead( data_str_vec1 );
+        m_W12ClaErrorIDVec.push_back( c1.m_ChartName );
+        
         // VLM: Cm vs alpha
         HTMLChart c4 = HTMLChart(); // Initialize Chart
         c4.m_ChartName = string("W12_CmvA");
         c4.m_Series = string("{ 1: { pointSize: 0, color: 'gray', lineWidth: 3 } }");
         c4.m_Legend = string("'Alpha','VSPAERO','Expected'");
-        c4.m_Title = string("Warren-12 VLM: Cm vs Alpha");
+        c4.m_Title = string("Figure ") + m_FigCount + string(". Warren-12 VLM: Cm vs Alpha");
+        m_FigCount++;
         c4.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
         c4.m_VAxisString = string("vAxis: { title: 'Cm', titleTextStyle: { bold: true } }");
         
@@ -5705,6 +5718,35 @@ class WarrenVV : VV_Base
         
         c4.WriteChartHead( data_str_vec4 );
         m_W12CmAIDVec.push_back( c4.m_ChartName );
+        
+        // VLM: Cm_alpha % Difference of VSPAERO/Theoretical Results vs. Alpha
+        HTMLChart c2 = HTMLChart(); // Initialize Chart
+        c2.m_ChartName = string("W12_CmaErrorvAlpha");
+        c2.m_Legend = string("'Alpha','% Difference'");
+        c2.m_Title = string("Figure ") + m_FigCount + string(". Warren-12 VLM Cm_alpha Alpha Sensitivity"); 
+        m_FigCount++;
+        c2.m_HAxisString = string("hAxis: { title: 'Alpha (°)', titleTextStyle: { bold: true } }");
+        c2.m_VAxisString = string("vAxis: { title: 'Cm_alpha % Difference', titleTextStyle: { bold: true } }");
+        
+        array<string> data_str_vec2;
+        for( uint8 i = 0; i < uint8(m_AlphaNpts); i++ )
+        {
+            string row = string("\t\t  [") + double( m_AlphaSweepVec[i] ) + string(",") + double( m_Cm_alpha_error[i] );
+
+            if ( i == uint8(m_AlphaNpts) - 1 )
+            {
+                row += string("]\n");
+            }
+            else
+            {
+                row += string("],\n");
+            }
+            
+            data_str_vec2.push_back( row );
+        }
+        
+        c2.WriteChartHead( data_str_vec2 );
+        m_W12CmaErrorIDVec.push_back( c2.m_ChartName );
     }
     
     // Warren-12 Class Properties
@@ -5742,13 +5784,13 @@ class VKTVV : VV_Base
         m_tau[1] = 10;
         
         // Add another intermediary chord and span tesselation value?
-        m_Tess_U[0] = 20;
-        m_Tess_U[1] = 41;
-        m_Tess_U[2] = 62;
+        m_Tess_U[0] = 12;
+        m_Tess_U[1] = 20;
+        m_Tess_U[2] = 41;
         
-        m_Tess_W[0] = 20;
-        m_Tess_W[1] = 51;
-        m_Tess_W[2] = 82;
+        m_Tess_W[0] = 17;
+        m_Tess_W[1] = 29;
+        m_Tess_W[2] = 51;
     }
     
     void VKTStudy()
@@ -5800,8 +5842,8 @@ class VKTVV : VV_Base
         SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
         SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
-        const uint8 u = 1; // UTess
-        const uint8 w = 1; // WTess
+        const uint8 u = 2; // UTess
+        const uint8 w = 2; // WTess
         
         SetParmVal( wing_id, "SectTess_U", "XSec_1", m_Tess_U[u] ); // Constant U Tess
         SetParmVal( wing_id, "Tess_W", "Shape", m_Tess_W[w] ); // Constant W Tess
@@ -6053,8 +6095,9 @@ class VKTVV : VV_Base
                     {
                         HTMLChart c1 = HTMLChart();
                         c1.m_ChartName = string("Cp_Epsilon") + int(e) + string("_Kappa") + int(k) + string("_Tau") + double(m_tau[t]);
-                        c1.m_Title = string("VKT Cp Distribution at Y = 0: Epsilon = ") + double(m_epsilon[e]) + string(", Kappa = ") + 
+                        c1.m_Title = string("Figure ") + m_FigCount + string(". VKT Cp Distribution at Y = 0: Epsilon = ") + double(m_epsilon[e]) + string(", Kappa = ") + 
                             double(m_kappa[k]) + string(", Tau = ") + double(m_tau[t]) + string("°");
+                        m_FigCount++;
                         c1.m_Legend = string("'X','Airfoil','Exact','VSPAERO'");
                         c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 5 }, 2: { targetAxisIndex: 0} }");
                         c1.m_LegendPos = string("bottom");
@@ -6238,8 +6281,9 @@ class VKTVV : VV_Base
         {
             HTMLChart c1 = HTMLChart();
             c1.m_ChartName = string("VKT_Cp_U") + int(m_Tess_U[u]);
-            c1.m_Title = string("VKT Cp distribution at Y = 0 Chord Tesselation (W Tess) Sensitivity: ") + string("Span Tess = ") + int(m_Tess_U[u]);
-            c1.m_Legend = string("'X','Airfoil','Exact','W Tess: 20','W Tess: 41','W Tess: 62','XFoil'");
+            c1.m_Title = string("Figure ") + m_FigCount + string(". VKT Cp distribution at Y = 0 Chord Tesselation (W Tess) Sensitivity: ") + string("Span Tess = ") + int(m_Tess_U[u]);
+            m_FigCount++;
+            c1.m_Legend = string("'X','Airfoil','Exact','W Tess: 17','W Tess: 29','W Tess: 51','XFoil'");
             //c1.m_PointSize = 3.0;
             c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 5 }, 2: { targetAxisIndex: 0 }, 3: { targetAxisIndex: 0 }, 4: { targetAxisIndex: 0, color: 'red' }, 5: { targetAxisIndex: 0, color: 'purple' } }");
             c1.m_LegendPos = string("bottom");
@@ -6307,8 +6351,9 @@ class VKTVV : VV_Base
         {
             HTMLChart c1 = HTMLChart();
             c1.m_ChartName = string("VKT_Cp_W") + int(m_Tess_W[w]);
-            c1.m_Title = string("VKT Cp distribution at Y = 0 Span Tesselation (U Tess) Sensitivity: ") + string("Chord Tess = ") + int(m_Tess_W[w]);
-            c1.m_Legend = string("'X','Airfoil','Exact','U Tess: 20','U Tess: 51','U Tess: 82','XFoil'");
+            c1.m_Title = string("Figure ") + m_FigCount + string(". VKT Cp distribution at Y = 0 Span Tesselation (U Tess) Sensitivity: ") + string("Chord Tess = ") + int(m_Tess_W[w]);
+            m_FigCount++;
+            c1.m_Legend = string("'X','Airfoil','Exact','U Tess: 12','U Tess: 20','U Tess: 41','XFoil'");
             //c1.m_PointSize = 3.0;
             c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, pointSize: 0, color: 'gray', lineWidth: 5 }, 2: { targetAxisIndex: 0 }, 3: { targetAxisIndex: 0 }, 4: { targetAxisIndex: 0, color: 'red' }, 5: { targetAxisIndex: 0, color: 'purple' } }");
             c1.m_LegendPos = string("bottom");
@@ -6638,8 +6683,9 @@ class EllipsoidVV : VV_Base
                     
                     HTMLChart c1 = HTMLChart();
                     c1.m_ChartName = string("Cp_ellipse_alpha") + double(m_alpha_vec[a]) + string("_beta") + double(m_beta_vec[b]) + string("_X");
-                    c1.m_Title = string("Run #") + run_cnt + string(" Ellipsoid Cp Distribution at X = 0: Alpha = ") + double(m_alpha_vec[a]) + string("°, Beta = ") + 
+                    c1.m_Title = string("Figure ") + m_FigCount + string(". Run #") + run_cnt + string(" Ellipsoid Cp Distribution at X = 0: Alpha = ") + double(m_alpha_vec[a]) + string("°, Beta = ") + 
                         double(m_beta_vec[b]) + string("°");
+                    m_FigCount++;
                     c1.m_Legend = string("'X','Ellipsoid','Exact Solution','VSPAERO'");
                     c1.m_PointSize = 3.0;
                     c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, lineWidth: 0, color: 'gray' }, 2: { targetAxisIndex: 0 } }");
@@ -6684,8 +6730,9 @@ class EllipsoidVV : VV_Base
                     
                     HTMLChart c2 = HTMLChart();
                     c2.m_ChartName = string("Cp_ellipse_alpha") + double(m_alpha_vec[a]) + string("_beta") + double(m_beta_vec[b]) + string("_Y");
-                    c2.m_Title = string("Run #") + run_cnt + string(" Ellipsoid Cp Distribution at Y = 0: Alpha = ") + double(m_alpha_vec[a]) + string("°, Beta = ") + 
+                    c2.m_Title = string("Figure ") + m_FigCount + string(". Run #") + run_cnt + string(" Ellipsoid Cp Distribution at Y = 0: Alpha = ") + double(m_alpha_vec[a]) + string("°, Beta = ") + 
                         double(m_beta_vec[b]) + string("°");
+                    m_FigCount++;
                     c2.m_Legend = string("'X','Ellipsoid','Exact Solution','VSPAERO'");
                     c2.m_PointSize = 3.0;
                     c2.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, lineWidth: 0, color: 'gray' }, 2: { targetAxisIndex: 0 } }");
@@ -6729,8 +6776,9 @@ class EllipsoidVV : VV_Base
                     
                     HTMLChart c3 = HTMLChart();
                     c3.m_ChartName = string("Cp_ellipse_alpha") + double(m_alpha_vec[a]) + string("_beta") + double(m_beta_vec[b]) + string("_Z");
-                    c3.m_Title = string("Run #") + run_cnt + string(" Ellipsoid Cp Distribution at Z = 0: Alpha = ") + double(m_alpha_vec[a]) + string("°, Beta = ") + 
+                    c3.m_Title = string("Figure ") + m_FigCount + string(". Run #") + run_cnt + string(" Ellipsoid Cp Distribution at Z = 0: Alpha = ") + double(m_alpha_vec[a]) + string("°, Beta = ") + 
                         double(m_beta_vec[b]) + string("°");
+                    m_FigCount++;
                     c3.m_Legend = string("'X','Ellipsoid','Exact Solution','VSPAERO'");
                     c3.m_PointSize = 3.0;
                     c3.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, lineWidth: 0, color: 'gray' }, 2: { targetAxisIndex: 0 } }");
@@ -6986,7 +7034,8 @@ class SDVV : VV_Base
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("SuperDelta");
         c1.m_Legend = string("'((M^2 - 1)^0.5)/tan(sweep)','VSPAERO 35° Sweep','VSPAERO 65° Sweep','Experimental Data'");
-        c1.m_Title = string("Supersonic Delta Wing: Cl_alpha*tan(sweep) = f(m)");
+        c1.m_Title = string("Figure ") + m_FigCount + string(". Supersonic Delta Wing: Cl_alpha*tan(sweep) = f(m)");
+        m_FigCount++;
         c1.m_Series = string("{ 2: { pointSize: 3, color: 'gray', lineWidth: 0 } }");
         c1.m_HAxisString = string("hAxis: { title: 'm', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
         c1.m_VAxisString = string("vAxis: { title: 'Cl_alpha*tan(sweep)', titleTextStyle: { bold: true }, viewWindow: { min: 0.0 } }");
