@@ -258,6 +258,9 @@ public:
     void CompCurvature01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w, double &k1, double &k2, double &ka, double &kg);
     double ProjPnt01I(const std::string &geom_id, const vec3d & pt, int &surf_indx, double &u, double &w);
 
+    //=== Surface API ===//
+    string ExportSurfacePatches( int set );
+
     CfdMeshSettings* GetCfdSettingsPtr()
     {
         return &m_CfdSettings;

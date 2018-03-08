@@ -178,6 +178,14 @@ public:
 
 };
 
+class SurfacePatchAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+};
+
 class WaveDragAnalysis : public Analysis
 {
 public:
@@ -241,4 +249,5 @@ class CpSlicerAnalysis : public Analysis
     virtual string Execute();
 
 };
+
 #endif // !defined(ANALYSISMGR__INCLUDED_)

@@ -452,6 +452,10 @@ void AnalysisMgrSingleton::RegisterBuiltins()
 
     RegisterAnalysis( "Projection", proj );
 
+    SurfacePatchAnalysis *spa = new SurfacePatchAnalysis();
+
+    RegisterAnalysis( "c", spa );
+
 
     WaveDragAnalysis *wave = new WaveDragAnalysis();
 
@@ -994,6 +998,39 @@ string ProjectionAnalysis::Execute()
     {
         return res->GetID();
     }
+}
+
+//======================================================================================//
+//================================= Surface Patch ======================================//
+//======================================================================================//
+
+void SurfacePatchAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL ) );
+}
+
+string SurfacePatchAnalysis::Execute()
+{
+    string res;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        int set = vsp::SET_ALL;
+
+        NameValData *nvd = NULL;
+        nvd = m_Inputs.FindPtr( "Set", 0 );
+        if ( nvd )
+        {
+            set = nvd->GetInt( 0 );
+        }
+
+        res = veh->ExportSurfacePatches( set );
+    }
+
+    return res;
 }
 
 //======================================================================================//

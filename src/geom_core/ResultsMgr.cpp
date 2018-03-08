@@ -154,6 +154,28 @@ void NameValCollection::Add( const NameValData & d )
     }
 }
 
+void NameValCollection::Add(const vector<vector<vec3d> > & d, string prefix)
+{
+    string names[] = { prefix + "x", prefix + "y", prefix + "z"};
+    for ( int dim = 0; dim < 3; dim++ )
+    {
+        vector< vector< double > > arr;
+        arr.reserve( d.size() );
+        for ( int i = 0; i < ( int )d.size(); i++ )
+        {
+            vector<double> row;
+            row.reserve( d[i].size() );
+            for ( int j = 0; j < ( int )d[i].size(); j++ )
+            {
+                row.push_back( d[i][j].v[dim] );
+            }
+            arr.push_back( row );
+        }
+
+        Add( NameValData( names[dim], arr ) );
+    }
+}
+
 //==== Get Number of Data Entries For This Name ====//
 int NameValCollection::GetNumData( const string & name )
 {

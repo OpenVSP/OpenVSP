@@ -659,6 +659,8 @@ public:
 
     virtual void UpdateDegenDrawObj();
 
+    virtual void ExportSurfacePatches( vector< string > &surf_res_ids );
+
 protected:
 
     bool m_UpdateBlock;

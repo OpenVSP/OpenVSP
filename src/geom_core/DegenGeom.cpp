@@ -1491,10 +1491,10 @@ void DegenGeom::write_degenGeomSurfResultsManager( Results *res )
 
     surf_res->Add( NameValData( "nxsecs", num_xsecs ) );
     surf_res->Add( NameValData( "num_pnts", num_pnts ) );
-    add_vec3dMatrix( degenSurface.x, surf_res, "" );
+    surf_res->Add( degenSurface.x, "" );
     surf_res->Add( NameValData( "u", degenSurface.u ) );
     surf_res->Add( NameValData( "w", degenSurface.w ) );
-    add_vec3dMatrix( degenSurface.nvec, surf_res, "n" );
+    surf_res->Add( degenSurface.nvec, "n" );
     surf_res->Add( NameValData( "area", degenSurface.area ) );
 }
 
@@ -1507,10 +1507,10 @@ void DegenGeom::write_degenGeomPlateResultsManager( vector< string > &plate_ids,
     plate_res->Add( NameValData( "num_pnts", num_pnts ) );
 
     plate_res->Add( NameValData( "n", degenPlate.nPlate ) );
-    add_vec3dMatrix( degenPlate.x, plate_res, "" );
+    plate_res->Add( degenPlate.x, "" );
     plate_res->Add( NameValData( "zCamber", degenPlate.zcamber ) );
     plate_res->Add( NameValData( "t", degenPlate.t ) );
-    add_vec3dMatrix( degenPlate.nCamber, plate_res, "nCamber_" );
+    plate_res->Add( degenPlate.nCamber, "nCamber_" );
     plate_res->Add( NameValData( "u", degenPlate.u ) );
     plate_res->Add( NameValData( "wTop", degenPlate.wTop ) );
     plate_res->Add( NameValData( "wBot", degenPlate.wBot ) );
@@ -1596,28 +1596,4 @@ void DegenGeom::write_degenHingeLineResultsManager( vector<string> &hinge_ids, c
     hinge_res->Add( NameValData( "wEnd", degenHingeLine.wEnd ) );
     hinge_res->Add( NameValData( "xStart", degenHingeLine.xStart ) );
     hinge_res->Add( NameValData( "xEnd", degenHingeLine.xEnd ) );
-}
-
-void DegenGeom::add_vec3dMatrix( const vector< vector< vec3d> > &data, Results *res, const string &prefix )
-{
-    if ( !res ) { return; }
-
-    string names[] = { prefix + "x", prefix + "y", prefix + "z"};
-    for ( int dim = 0; dim < 3; dim++ )
-    {
-        vector< vector< double > > arr;
-        arr.reserve( data.size() );
-        for ( int i = 0; i < ( int )data.size(); i++ )
-        {
-            vector<double> row;
-            row.reserve( data[i].size() );
-            for ( int j = 0; j < ( int )data[i].size(); j++ )
-            {
-                row.push_back( data[i][j].v[dim] );
-            }
-            arr.push_back( row );
-        }
-
-        res->Add( NameValData( names[dim], arr ) );
-    }
 }

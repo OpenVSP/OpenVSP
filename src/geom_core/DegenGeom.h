@@ -296,8 +296,6 @@ protected:
     Geom* parentGeom;
     int   type;
     int   surfNum;
-
-    static void add_vec3dMatrix( const vector< vector< vec3d > > &data, Results *res, const string &prefix );
 };
 
 

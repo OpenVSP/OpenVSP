@@ -4646,6 +4646,37 @@ void Geom::AppendWakeEdges( vector< vector< vec3d > > & edges )
     }
 }
 
+void Geom::ExportSurfacePatches( vector<string> &surf_res_ids )
+{
+    // Loop over all surfaces and tesselate
+    for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
+    {
+        vector< vector< vector< vec3d > > > pnts, norms;
+        UpdateSplitTesselate(i, pnts, norms);
+
+        // Add a results entity for each patch to the surface
+        Results* res = ResultsMgr.CreateResults( "Surface" );
+        res->Add( NameValData( "comp_id", GetID() ) );
+        res->Add( NameValData( "surf_index", i ) );
+
+        vector< string > patch_ids;
+        for ( int ipatch = 0 ; ipatch < ( int )pnts.size() ; ipatch++ )
+        {
+            Results* patch_res = ResultsMgr.CreateResults( "SurfacePatch" );
+            patch_res->Add( NameValData( "comp_id", GetID() ) );
+            patch_res->Add( NameValData( "surf_index", i ) );
+            patch_res->Add( NameValData( "patch_index", ipatch) );
+            patch_res->Add( pnts[ipatch], "" );
+            patch_res->Add( norms[ipatch], "n" );
+            patch_ids.push_back( patch_res->GetID() );
+        }
+
+        res->Add( NameValData( "patches", patch_ids ) );
+
+        surf_res_ids.push_back( res->GetID() );
+    }
+}
+
 //===============================================================================//
 //===============================================================================//
 //===============================================================================//

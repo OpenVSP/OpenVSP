@@ -4654,3 +4654,39 @@ double Vehicle::ProjPnt01I(const std::string &geom_id, const vec3d & pt, int &su
     }
     return dmin;
 }
+
+// Method to add pnts and normals to results managers for all surfaces
+// in the selected set
+string Vehicle::ExportSurfacePatches( int set )
+{
+    vector< string > geom_vec = GetGeomVec();
+
+    Results* veh_surfaces = ResultsMgr.CreateResults( "VehicleSurfaces" );
+    vector< string > components;
+
+    for ( int i = 0; i < (int)geom_vec.size(); i++ )
+    {
+        Geom* geom = FindGeom( geom_vec[i] );
+
+        if ( geom )
+        {
+            if ( geom->GetSetFlag( set ) )
+            {
+                // Loop over all surfaces adding points to the results manger
+                Results* res = ResultsMgr.CreateResults( "ComponentSurfaces" );
+                res->Add( NameValData( "name", geom->GetName() ) );
+                res->Add( NameValData( "id", geom->GetID() ) );
+
+                vector< string > surfaces;
+                geom->ExportSurfacePatches( surfaces  );
+
+                res->Add( NameValData( "surfaces", surfaces) );
+
+                components.push_back( res->GetID() );
+            }
+        }
+    }
+
+    veh_surfaces->Add( NameValData( "components", components ) );
+    return veh_surfaces->GetID();
+}
