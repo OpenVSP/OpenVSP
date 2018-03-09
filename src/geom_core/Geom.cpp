@@ -3715,7 +3715,7 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
                 fprintf( meta_fid, "XSecSurf ID, %s\n", xsecsurf_id.c_str() );
             }
 
-            double u_global = umin + u * ustep; // Get u value on main surface
+            double u_global = umin + ( i  * ustep ) + ( ustep * ( (double)j / ( utess_vec[i] - 1.0 ) ) ); // Get u value on main surface
 
             vec3d le_pnt = m_MainSurfVec[0].CompPnt01( u_global, ( Vle / Vmax ) );
             vec3d te_pnt = m_MainSurfVec[0].CompPnt01( u_global, ( Vmin / Vmax ) );
