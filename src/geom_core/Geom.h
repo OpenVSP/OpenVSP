@@ -686,6 +686,7 @@ protected:
     vector<VspSurf> m_SurfVec;
     vector<int> m_SurfIndxVec;
     vector< vector< int > > m_SurfSymmMap;
+    vector<int> m_SurfCopyIndx;
     vector< Matrix4d > m_FeaTransMatVec; // Vector of transformation matrixes
     vector<DrawObj> m_WireShadeDrawObj_vec;
     vector<DrawObj> m_FeatureDrawObj_vec;

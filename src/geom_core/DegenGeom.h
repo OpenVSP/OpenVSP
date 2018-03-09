@@ -233,6 +233,33 @@ public:
         surfNum = n;
     }
 
+    bool getFlipNormal()
+    {
+        return flip_normal;
+    }
+    void setFlipNormal( bool flag )
+    {
+        flip_normal = flag;
+    }
+
+    int getMainSurfInd()
+    {
+        return main_surf_ind;
+    }
+    void setMainSurfInd( int n )
+    {
+        main_surf_ind = n;
+    }
+
+    int getSymCopyInd()
+    {
+        return sym_copy_ind;
+    }
+    void setSymCopyInd( int n )
+    {
+        sym_copy_ind = n;
+    }
+
     void build_trans_mat( vec3d x, vec3d y, vec3d z, const vec3d &p, Matrix4d &mat, Matrix4d &invmat );
     void build_basis( const int &startPnt, const vector < vec3d > &sect, vec3d &v1, vec3d &v2, vec3d &v3 );
     void transform_section( const int &startPnt, vector < vec3d > &sect, Matrix4d &trans, Matrix4d &invtrans );
@@ -297,6 +324,9 @@ protected:
     Geom* parentGeom;
     int   type;
     int   surfNum;
+    bool flip_normal;
+    int main_surf_ind;
+    int sym_copy_ind;
 };
 
 

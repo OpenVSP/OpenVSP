@@ -1149,19 +1149,22 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
 
     if( type == SURFACE_TYPE )
     {
-        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
-        fprintf( file_id, "\nLIFTING_SURFACE,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, MainSurfNdx, SymCopyNdx, GeomID" );
+        fprintf( file_id, "\nLIFTING_SURFACE,%s,%d,%d,%d,%s\n", name.c_str(), getSurfNum(), getMainSurfInd(),
+                 getSymCopyInd(), this->parentGeom->GetID().c_str() );
     }
     else if( type == DISK_TYPE )
     {
-        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
-        fprintf( file_id, "\nDISK,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, MainSurfNdx, SymCopyNdx, GeomID" );
+        fprintf( file_id, "\nDISK,%s,%d,%d,%d,%s\n", name.c_str(), getSurfNum(), getMainSurfInd(),
+                 getSymCopyInd(), this->parentGeom->GetID().c_str() );
         write_degenGeomDiskCsv_file( file_id );
     }
     else
     {
-        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
-        fprintf( file_id, "\nBODY,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, MainSurfNdx, SymCopyNdx, GeomID" );
+        fprintf( file_id, "\nBODY,%s,%d,%d,%d,%s\n", name.c_str(), getSurfNum(), getMainSurfInd(),
+                 getSymCopyInd(), this->parentGeom->GetID().c_str() );
     }
 
     write_degenGeomSurfCsv_file( file_id, nxsecs );
@@ -1374,7 +1377,9 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
 
     fprintf( file_id, "\ndegenGeom(end).name = '%s';", name.c_str() );
     fprintf( file_id, "\ndegenGeom(end).geom_id = '%s';", parentGeom->GetID().c_str() );
-    fprintf( file_id, "\ndegenGeom(end).surf_index = %d;\n", getSurfNum() );
+    fprintf( file_id, "\ndegenGeom(end).surf_index = %d;", getSurfNum() );
+    fprintf( file_id, "\ndegenGeom(end).main_surf_index = %d;", getMainSurfInd() );
+    fprintf( file_id, "\ndegenGeom(end).sym_copy_index = %d;\n", getSymCopyInd() );
 
     if( type == DISK_TYPE )
     {
@@ -1435,6 +1440,8 @@ void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_id
     res->Add( NameValData( "name", name ) );
     res->Add( NameValData( "surf_index", getSurfNum() ) );
     res->Add( NameValData( "geom_id", parentGeom->GetID() ) );
+    res->Add( NameValData( "main_surf_index", getMainSurfInd() ) );
+    res->Add( NameValData( "sym_copy_index", getSymCopyInd() ) );
 
     if ( type == DISK_TYPE )
     {
