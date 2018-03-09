@@ -454,7 +454,7 @@ void AnalysisMgrSingleton::RegisterBuiltins()
 
     SurfacePatchAnalysis *spa = new SurfacePatchAnalysis();
 
-    RegisterAnalysis( "c", spa );
+    RegisterAnalysis( "SurfacePatches", spa );
 
 
     WaveDragAnalysis *wave = new WaveDragAnalysis();
