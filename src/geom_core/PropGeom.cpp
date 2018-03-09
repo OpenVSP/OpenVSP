@@ -1545,10 +1545,11 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
             af_file_name += ".bz";
         }
 
-        double u = numUsec * ( j * ( umax - umin ) / ( m_TessU() - 1 ) );
+        double u = (double)j / ( m_TessU() - 1 );
+        double u_global = umin + ( ( umax - umin ) * ( (double)j / ( m_TessU() - 1.0 ) ) ); // Get u value on main surface
 
         bool xsec_flag = false;
-        if ( j == 0 || j == m_TessU() - 1 )
+        if ( j == 0 || j == m_TessU() - 1 || u_global == XSec_u_vec[XSec_index] )
         {
             xsec_flag = true;
         }
@@ -1566,8 +1567,6 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
             fprintf( meta_fid, "XSecSurf ID, %s\n", xsecsurf_id.c_str() );
         }
 
-        double u_global = umin + u * ustep; // Get u value on main surface
-
         vec3d le_pnt = m_MainSurfVec[0].CompPnt01( u_global, ( Vle / Vmax ) );
         vec3d te_pnt = m_MainSurfVec[0].CompPnt01( u_global, ( Vmin / Vmax ) );
         double chord = dist( le_pnt, te_pnt );
@@ -1581,11 +1580,11 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
 
         if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT )
         {
-            WriteSeligAirfoil( af_file_name, u );
+            WriteSeligAirfoil( ( veh->m_AFFileDir + af_file_name ), u );
         }
         else if ( veh->m_AFExportType() == vsp::BEZIER_AF_EXPORT )
         {
-            WriteBezierAirfoil( af_file_name, u );
+            WriteBezierAirfoil( ( veh->m_AFFileDir + af_file_name ), u );
         }
 
         foil_cnt++;
@@ -1598,8 +1597,8 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
         // Add XSec airfoils between tessellated interpolated airfoils
         if ( XSec_u_vec.size() > 0 )
         {
-            double u_main = umin + ( j * ( ustep * numUsec ) / ( m_TessU() - 1 ) );
-            double u_next = umin + ( ( j + 1 ) * ( ustep * numUsec ) / ( m_TessU() - 1 ) );
+            double u_main = u_global;
+            double u_next = umin + ( (double)( j + 1 ) * ( ustep * numUsec ) / ( m_TessU() - 1 ) );
 
             if ( XSec_u_vec[XSec_index] > u_main && XSec_u_vec[XSec_index] < u_next )
             {
@@ -1614,7 +1613,7 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
                 fprintf( meta_fid, "XSec Index, %d\n", xsec_count );
                 fprintf( meta_fid, "XSecSurf ID, %s\n", xsecsurf_id.c_str() );
 
-                u_global = umin + u * ustep; // Get u value on main surface
+                u_global = XSec_u_vec[XSec_index]; // Get u value on main surface
 
                 le_pnt = m_MainSurfVec[0].CompPnt01( u_global, ( Vle / Vmax ) );
                 te_pnt = m_MainSurfVec[0].CompPnt01( u_global, ( Vmin / Vmax ) );
