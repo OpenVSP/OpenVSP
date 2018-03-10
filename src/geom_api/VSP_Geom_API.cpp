@@ -2928,7 +2928,7 @@ LLT_Data GetHersheyLLTData( const unsigned int npts, const long double alpha, co
         }
 
         llt_data.cl_vec[i] = 2.0l * llt_data.gamma_vec[i] / Vinf;
-        llt_data.cd_vec[i] = 2.0l * llt_data.w_vec[i] * llt_data.gamma_vec[i] / ( c * span * pow( Vinf, 2.0 ) );
+        llt_data.cd_vec[i] = 2.0l * llt_data.w_vec[i] * llt_data.gamma_vec[i] / ( c * ( span / 2.0l ) * pow( Vinf, 2.0 ) );
     }
 
     return llt_data;
