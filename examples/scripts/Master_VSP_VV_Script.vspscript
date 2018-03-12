@@ -6464,12 +6464,9 @@ class EllipsoidVV : VV_Base
         SetParmVal( geom_id, "B_Radius", "Design", 2.0 );
         SetParmVal( geom_id, "C_Radius", "Design", 3.0 );
         SetParmVal( geom_id, "Tess_U", "Shape", 40 );
-        SetParmVal( geom_id, "Tess_W", "Shape", 61 );
+        SetParmVal( geom_id, "Tess_W", "Shape", 41 );
 
         Update();
-        
-        // Calculate major axis points
-        m_ellipsoid_pnt_mat = GetFeatureLinePnts(geom_id);
 
         for ( uint8 a = 0; a < uint8(m_alpha_vec.length()); a++ )
         {
@@ -6498,30 +6495,43 @@ class EllipsoidVV : VV_Base
         
         const vec3d center = vec3d(0.0, 0.0, 0.0);
         const vec3d abc_rad = vec3d(1.0, 2.0, 3.0);
-        const vec3d Vinf = vec3d(100.0, 0.0, 0.0);
+        const double V_inf = 100.0;
         
-        // npts defined by tesselation
-        const int u_npts = 40;
-        const int w_npts = 41;
+        const int npts = 101;
         
         // Setup cuts
         array<double> cut(1, 0.0);
         
-        array<array<array<array<double>>>> cp_slicer_mat(num_alpha);
-        array<array<array<array<double>>>> xyz_slicer_mat(num_alpha);
+        array<array<array<array<double>>>> cp_slicer_mat(num_alpha), xyz_slicer_mat(num_alpha), ellipsoid_cp_mat(num_alpha);
         
-        // Calculate Theoretical Results
-        array<vec3d> ellipsoid_cp_mat = GetEllipsoidCpDist(m_ellipsoid_pnt_mat, abc_rad, Vinf);
+        array<vec3d> x_slice_pnt_vec(npts), y_slice_pnt_vec(npts), z_slice_pnt_vec(npts);
+
+        array<double> theta_vec(npts);
+        theta_vec[0] = 0;
+        
+        for ( uint i = 1; i < npts; i++ )
+        {
+            theta_vec[i] = theta_vec[i-1] + (2*pi/(npts-1));
+        }
+        
+        for ( uint i = 0; i < npts; i++ )
+        {
+            x_slice_pnt_vec[i] = vec3d(0,abc_rad[1]*cos(theta_vec[i]),abc_rad[2]*sin(theta_vec[i]));
+            y_slice_pnt_vec[i] = vec3d(abc_rad[0]*cos(theta_vec[i]),0,abc_rad[2]*sin(theta_vec[i]));
+            z_slice_pnt_vec[i] = vec3d(abc_rad[0]*cos(theta_vec[i]),abc_rad[1]*sin(theta_vec[i]),0);
+        }
         
         for ( uint8 a = 0; a < num_alpha; a++ )
         {
             cp_slicer_mat[a].resize(num_beta);
             xyz_slicer_mat[a].resize(num_beta);
+            ellipsoid_cp_mat[a].resize(num_beta);
             
             for ( uint8 b = 0; b < num_beta; b++ )
             {
                 xyz_slicer_mat[a][b].resize(3);
                 cp_slicer_mat[a][b].resize(3);
+                ellipsoid_cp_mat[a][b].resize(3);
                 
                 //==== Open and test generated ellipsoids ====//
                 string fname = "Ellipsoid_alpha" + double(m_alpha_vec[a]) + "_beta" + double(m_beta_vec[b]) + ".vsp3";
@@ -6637,6 +6647,12 @@ class EllipsoidVV : VV_Base
                     cp_slicer_mat[a][b][2] =  GetDoubleResults( rid_vec[2], "Cp" );
                 }
                 
+                // Calculate theoretical distribution
+                vec3d V_vec = vec3d((V_inf*cos(Deg2Rad(m_alpha_vec[a]))*cos(Deg2Rad(m_beta_vec[b]))), (V_inf*sin(Deg2Rad(m_beta_vec[b]))), (V_inf*sin(Deg2Rad(m_alpha_vec[a]))*cos(Deg2Rad(m_beta_vec[b]))));
+                ellipsoid_cp_mat[a][b][0] = GetEllipsoidCpDist(x_slice_pnt_vec, abc_rad, V_vec);
+                ellipsoid_cp_mat[a][b][1] = GetEllipsoidCpDist(y_slice_pnt_vec, abc_rad, V_vec);
+                ellipsoid_cp_mat[a][b][2] = GetEllipsoidCpDist(z_slice_pnt_vec, abc_rad, V_vec);
+                
                 ClearVSPModel();
             }
         }
@@ -6647,21 +6663,18 @@ class EllipsoidVV : VV_Base
         {
             for ( uint8 b = 0; b < num_beta; b++ )
             {
-                if ( ellipsoid_cp_mat.length() != 0 && cp_slicer_mat[a][b][0].length() != 0 )
+                if ( ellipsoid_cp_mat[a][b][0].length() != 0 && cp_slicer_mat[a][b][0].length() != 0 )
                 {
                     // X Cut
                     array<string> data_str_vec1;
 
                     //Google Charts API only supports a single X data vector. The x data from GetFeatureLinePnts and the CpSlicer are different, so must be offset
-                    for( uint x = 0; x < uint(m_ellipsoid_pnt_mat.length()); x++ )
+                    for( uint x = 0; x < uint(x_slice_pnt_vec.length()); x++ )
                     {
-                        if ( abs(m_ellipsoid_pnt_mat[x][0]) < 1e-6 ) // x ~= 0
-                        {
-                            string row = string("\t\t  [") + double( m_ellipsoid_pnt_mat[x][1] ) + string(",") + double( m_ellipsoid_pnt_mat[x][2] ) +
-                                string(",") + double( ellipsoid_cp_mat[x][0] ) + string(",null],\n");
-                            
-                            data_str_vec1.push_back( row );
-                        }
+                        string row = string("\t\t  [") + double( x_slice_pnt_vec[x][1] ) + string(",") + double( x_slice_pnt_vec[x][2] ) +
+                            string(",") + double( ellipsoid_cp_mat[a][b][0][x] ) + string(",null],\n");
+                        
+                        data_str_vec1.push_back( row );
                     }
                     
                     for( uint x = 0; x < uint(xyz_slicer_mat[a][b][0].length()); x++ )
@@ -6688,10 +6701,10 @@ class EllipsoidVV : VV_Base
                     m_FigCount++;
                     c1.m_Legend = string("'X','Ellipsoid','Exact Solution','VSPAERO'");
                     c1.m_PointSize = 3.0;
-                    c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, lineWidth: 0, color: 'gray' }, 2: { targetAxisIndex: 0 } }");
+                    c1.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 2, pointSize: 0 }, 1: { targetAxisIndex: 0, lineWidth: 3, pointSize: 0, color: 'gray' }, 2: { targetAxisIndex: 0, lineWidth: 0 } }");
                     c1.m_LegendPos = string("bottom");
                     c1.m_HAxisString = string("hAxis: { title: 'Y', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } }");
-                    c1.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true }, viewWindow: { min: -5.0, max: 0.0 } }, 1: { title: 'Z', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } } }");
+                    c1.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true }, viewWindow: { min: -5.0, max: 1.5 } }, 1: { title: 'Z', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } } }");
                     
                     c1.WriteChartHead( data_str_vec1 );
                     m_EllipsoidIDVec.push_back( c1.m_ChartName );
@@ -6700,15 +6713,12 @@ class EllipsoidVV : VV_Base
                     array<string> data_str_vec2;
                     
                     //Google Charts API only supports a single X data vector. The x data from GetFeatureLinePnts and the CpSlicer are different, so must be offset
-                    for( uint x = 0; x < uint(m_ellipsoid_pnt_mat.length()); x++ )
+                    for( uint x = 0; x < uint(y_slice_pnt_vec.length()); x++ )
                     {
-                        if ( abs(m_ellipsoid_pnt_mat[x][1]) < 1e-6 ) // y ~= 0
-                        {
-                            string row = string("\t\t  [") + double( m_ellipsoid_pnt_mat[x][0] ) + string(",") + + double( m_ellipsoid_pnt_mat[x][2] ) +
-                                string(",") + double( ellipsoid_cp_mat[x][0] ) + string(",null],\n");
-                            
-                            data_str_vec2.push_back( row );
-                        }
+                        string row = string("\t\t  [") + double( y_slice_pnt_vec[x][0] ) + string(",") + + double( y_slice_pnt_vec[x][2] ) +
+                            string(",") + double( ellipsoid_cp_mat[a][b][1][x] ) + string(",null],\n");
+                        
+                        data_str_vec2.push_back( row );
                     }
                     
                     for( uint x = 0; x < uint(xyz_slicer_mat[a][b][1].length()); x++ )
@@ -6735,10 +6745,10 @@ class EllipsoidVV : VV_Base
                     m_FigCount++;
                     c2.m_Legend = string("'X','Ellipsoid','Exact Solution','VSPAERO'");
                     c2.m_PointSize = 3.0;
-                    c2.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, lineWidth: 0, color: 'gray' }, 2: { targetAxisIndex: 0 } }");
+                    c2.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 2, pointSize: 0 }, 1: { targetAxisIndex: 0, lineWidth: 3, pointSize: 0, color: 'gray' }, 2: { targetAxisIndex: 0, lineWidth: 0 } }");
                     c2.m_LegendPos = string("bottom");
                     c2.m_HAxisString = string("hAxis: { title: 'X', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } }");
-                    c2.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true } }, 1: { title: 'Z', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } } }");
+                    c2.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true }, viewWindow: { min: -5.0, max: 1.5 } }, 1: { title: 'Z', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } } }");
                     
                     c2.WriteChartHead( data_str_vec2 );
                     m_EllipsoidIDVec.push_back( c2.m_ChartName );
@@ -6746,15 +6756,12 @@ class EllipsoidVV : VV_Base
                     // Z Cut
                     array<string> data_str_vec3;
                     
-                    for( uint x = 0; x < uint(m_ellipsoid_pnt_mat.length()); x++ )
+                    for( uint x = 0; x < uint(z_slice_pnt_vec.length()); x++ )
                     {
-                        if ( abs( m_ellipsoid_pnt_mat[x][2] ) < 1e-6 ) // z ~= 0
-                        {
-                            string row = string("\t\t  [") + double( m_ellipsoid_pnt_mat[x][0] ) + string(",") + double( m_ellipsoid_pnt_mat[x][1] ) +
-                                string(",") + double( ellipsoid_cp_mat[x][0] ) + string(",null],\n");
-                            
-                            data_str_vec3.push_back(row);
-                        }
+                        string row = string("\t\t  [") + double( z_slice_pnt_vec[x][0] ) + string(",") + double( z_slice_pnt_vec[x][1] ) +
+                            string(",") + double( ellipsoid_cp_mat[a][b][2][x] ) + string(",null],\n");
+                        
+                        data_str_vec3.push_back(row);
                     }
                     
                     for( uint x = 0; x < uint(xyz_slicer_mat[a][b][2].length()); x++ )
@@ -6781,10 +6788,10 @@ class EllipsoidVV : VV_Base
                     m_FigCount++;
                     c3.m_Legend = string("'X','Ellipsoid','Exact Solution','VSPAERO'");
                     c3.m_PointSize = 3.0;
-                    c3.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 0 }, 1: { targetAxisIndex: 0, lineWidth: 0, color: 'gray' }, 2: { targetAxisIndex: 0 } }");
+                    c3.m_Series = string("{ 0: { targetAxisIndex: 1, lineWidth: 2, pointSize: 0 }, 1: { targetAxisIndex: 0, lineWidth: 3, pointSize: 0, color: 'gray' }, 2: { targetAxisIndex: 0, lineWidth: 0 } }");
                     c3.m_LegendPos = string("bottom");
                     c3.m_HAxisString = string("hAxis: { title: 'X', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } }");
-                    c3.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true } }, 1: { title: 'Y', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } } }");
+                    c3.m_VAxisString = string("vAxes: { 0: { title: 'Cp', titleTextStyle: { bold: true }, viewWindow: { min: -5.0, max: 1.5 } }, 1: { title: 'Y', titleTextStyle: { bold: true }, viewWindow: { min: -3.0, max: 3.0 } } }");
                     
                     c3.WriteChartHead( data_str_vec3 );
                     m_EllipsoidIDVec.push_back( c3.m_ChartName );
@@ -6796,8 +6803,7 @@ class EllipsoidVV : VV_Base
     }
     
     // Ellipsoid Class Properties
-    private array<vec3d> m_ellipsoid_pnt_mat;
-    
+
     // Flow Condition Parameters
     private array<double> m_alpha_vec(2);
     private array<double> m_beta_vec(2);
