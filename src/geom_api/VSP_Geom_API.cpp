@@ -3247,7 +3247,7 @@ std::vector<vec3d> GetFeatureLinePnts( const string& geom_id )
     return pnt_vec;
 }
 
-std::vector <vec3d> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf )
+std::vector <double> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf )
 {
     // Generate Analytical Solution for Potential Flow at input ellipsoid surface points for input velocity vector (V).
     //  Based on Munk, M. M., 'Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally 
@@ -3265,7 +3265,8 @@ std::vector <vec3d> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, c
     double B = k2 + 1;
     double C = k3 + 1;
 
-    vector < vec3d > pot_vec, uvw_vec, cp_vec;
+    vector < vec3d > pot_vec, uvw_vec;
+    vector < double > cp_vec;
     pot_vec.resize( surf_pnt_vec.size() );
     uvw_vec.resize( surf_pnt_vec.size() );
     cp_vec.resize( surf_pnt_vec.size() );
@@ -3293,9 +3294,7 @@ std::vector <vec3d> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, c
         uvw_vec[i] = vec3d( ( Vmax_x - Vnorm * norm.x() ), ( Vmax_y - Vnorm * norm.y() ), ( Vmax_z - Vnorm * norm.z() ) );
 
         // Pressure Coefficient
-        cp_vec[i] = vec3d( ( 1.0 - ( pow( uvw_vec[i].x(), 2.0 ) / pow( V_inf.x(), 2.0 ) ) ),
-            ( 1.0 - ( pow( uvw_vec[i].y(), 2.0 ) / pow( V_inf.y(), 2.0 ) ) ),
-            ( 1.0 - ( pow( uvw_vec[i].z(), 2.0 ) / pow( V_inf.z(), 2.0 ) ) ) );
+        cp_vec[i] = 1.0 - pow( ( uvw_vec[i].mag() / V_inf.mag() ), 2.0 );
     }
 
     return cp_vec;
