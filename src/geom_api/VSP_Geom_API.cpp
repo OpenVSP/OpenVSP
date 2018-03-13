@@ -3039,7 +3039,7 @@ std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const 
     double dmax = -1.0;
     // Evaluate points and track furthest from TE as surrogate for LE.
     // Would be better to identify LE as tightest curvature or similar.
-    for ( size_t p = 0; p < npts - 1; p++ )
+    for ( size_t p = 0; p < npts; p++ )
     {
         // Clockwise from TE
         double theta = 2.0 * PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
@@ -3108,7 +3108,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilo
     double dmax = -1.0;
     // Evaluate points and track furthest from TE as surrogate for LE.
     // Would be better to identify LE as tightest curvature or similar.
-    for ( size_t p = 0; p < npts - 1; p++ )
+    for ( size_t p = 0; p < npts; p++ )
     {
         // Clockwise from TE
         double theta = 2.0 * PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
@@ -3126,7 +3126,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilo
 
         double u, v;
 
-        if ( abs( theta ) <= FLT_EPSILON ) // Special treatment at the trailing edge (theta = 0.0)
+        if ( abs( theta ) <= FLT_EPSILON || abs( theta - 2.0 * PI ) <= FLT_EPSILON ) // Special treatment at the trailing edge (theta = 0.0 or 2*pi)
         {
             if ( abs( tau ) <= FLT_EPSILON ) // Joukowski airfoil (cusped trailing edge: tau = 0.0 )
             {
