@@ -789,7 +789,7 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(7);
+                head_str.resize(8);
                 head_str[0] = string("Case #");
                 head_str[1] = string("Analysis");
                 head_str[2] = string("Method");
@@ -797,10 +797,11 @@ class HTML
                 head_str[4] = string("\\(\\beta\\) (°)");
                 head_str[5] = string("M");
                 head_str[6] = string("Wake Iterations");
+                head_str[7] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(2);
-                data_mat[0].resize(7);
+                data_mat[0].resize(8);
                 data_mat[0][0] = string("1");
                 data_mat[0][1] = string("Sweep");
                 data_mat[0][2] = string("VLM");
@@ -808,8 +809,9 @@ class HTML
                 data_mat[0][4] = string("0.0");
                 data_mat[0][5] = m_hvv.m_MachVec[0];
                 data_mat[0][6] = m_hvv.m_WakeIterVec[0];
+                data_mat[0][7] = string("Off");
                 
-                data_mat[1].resize(7);
+                data_mat[1].resize(8);
                 data_mat[1][0] = string("2");
                 data_mat[1][1] = string("Single Point");
                 data_mat[1][2] = string("Panel");
@@ -817,6 +819,7 @@ class HTML
                 data_mat[1][4] = string("0.0");
                 data_mat[1][5] = m_hvv.m_MachVec[0];
                 data_mat[1][6] = m_hvv.m_WakeIterVec[0];
+                data_mat[1][7] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -870,7 +873,7 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(7);
+                head_str.resize(8);
                 head_str[0] = string("Case #");
                 head_str[1] = string("Analysis");
                 head_str[2] = string("Method");
@@ -878,10 +881,11 @@ class HTML
                 head_str[4] = string("\\(\\beta\\) (°)");
                 head_str[5] = string("M");
                 head_str[6] = string("Wake Iterations");
+                head_str[7] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(1);
-                data_mat[0].resize(7);
+                data_mat[0].resize(8);
                 data_mat[0][0] = string("1");
                 data_mat[0][1] = string("Sweep");
                 data_mat[0][2] = string("VLM");
@@ -890,6 +894,7 @@ class HTML
                 data_mat[0][4] = string("0.0");
                 data_mat[0][5] = m_hvv.m_MachVec[0];
                 data_mat[0][6] = m_hvv.m_WakeIterVec[0];
+                data_mat[0][7] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -943,23 +948,25 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(6);
+                head_str.resize(7);
                 head_str[0] = string("Analysis");
                 head_str[1] = string("Method");
                 head_str[2] = string("\\(\\alpha\\) (°)");
                 head_str[3] = string("\\(\\beta\\) (°)");
                 head_str[4] = string("M");
                 head_str[5] = string("Wake Iterations");
+                head_str[6] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(1);
-                data_mat[0].resize(6);
+                data_mat[0].resize(7);
                 data_mat[0][0] = string("Single Point");
                 data_mat[0][1] = string("VLM");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("0.0");
                 data_mat[0][4] = m_hvv.m_MachVec[0];
                 data_mat[0][5] = m_hvv.m_WakeIterVec[0];
+                data_mat[0][6] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -1021,23 +1028,25 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(6);
+                head_str.resize(7);
                 head_str[0] = string("Analysis");
                 head_str[1] = string("Method");
                 head_str[2] = string("\\(\\alpha\\) (°)");
                 head_str[3] = string("\\(\\beta\\) (°)");
                 head_str[4] = string("M");
                 head_str[5] = string("Wake Iterations");
+                head_str[6] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(1);
-                data_mat[0].resize(6);
+                data_mat[0].resize(7);
                 data_mat[0][0] = string("Single Point");
                 data_mat[0][1] = string("VLM");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("0.0");
                 data_mat[0][4] = m_hvv.m_MachVec[0];
                 data_mat[0][5] = m_hvv.m_WakeIterVec[0];
+                data_mat[0][6] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -1114,23 +1123,25 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(6);
+                head_str.resize(7);
                 head_str[0] = string("Analysis");
                 head_str[1] = string("Method");
                 head_str[2] = string("\\(\\alpha\\) (°)");
                 head_str[3] = string("\\(\\beta\\) (°)");
                 head_str[4] = string("M");
                 head_str[5] = string("Wake Iterations");
+                head_str[6] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(1);
-                data_mat[0].resize(6);
+                data_mat[0].resize(7);
                 data_mat[0][0] = string("Single Point");
                 data_mat[0][1] = string("VLM");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("0.0");
                 data_mat[0][4] = m_hvv.m_MachVec[0];
                 data_mat[0][5] = m_hvv.m_WakeIterVec[0];
+                data_mat[0][6] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -1215,26 +1226,28 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(6);
+                head_str.resize(7);
                 head_str[0] = string("Analysis");
                 head_str[1] = string("Method");
                 head_str[2] = string("\\(\\alpha\\) (°)");
                 head_str[3] = string("\\(\\beta\\) (°)");
                 head_str[4] = string("M");
                 head_str[5] = string("Wake Iterations");
+                head_str[6] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(1);
-                data_mat[0].resize(6);
+                data_mat[0].resize(7);
                 data_mat[0][0] = string("Single Point");
                 data_mat[0][1] = string("VLM");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("0.0");
                 data_mat[0][4] = m_hvv.m_MachVec[0];
                 data_mat[0][5] = m_hvv.m_WakeIterVec[0];
+                data_mat[0][6] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
-                t2.m_Width = 6;
+                t2.m_Width = 5;
                 t2.m_Caption = string("Chord Tesselation Study VSPAERO Setup");
                 
                 t2.WriteHTMLTable();
@@ -1316,23 +1329,25 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(6);
+                head_str.resize(7);
                 head_str[0] = string("Analysis");
                 head_str[1] = string("Method");
                 head_str[2] = string("\\(\\alpha\\) (°)");
                 head_str[3] = string("\\(\\beta\\) (°)");
                 head_str[4] = string("M");
                 head_str[5] = string("Wake Iterations");
+                head_str[6] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(1);
-                data_mat[0].resize(6);
+                data_mat[0].resize(7);
                 data_mat[0][0] = string("Single Point");
                 data_mat[0][1] = string("VLM");
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("0.0");
                 data_mat[0][4] = m_hvv.m_MachVec[0];
                 data_mat[0][5] = string("1 to 5");;
+                data_mat[0][6] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -1542,7 +1557,7 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(7);
+                head_str.resize(8);
                 head_str[0] = string("Case #");
                 head_str[1] = string("Analysis");
                 head_str[2] = string("Method");
@@ -1550,10 +1565,11 @@ class HTML
                 head_str[4] = string("\\(\\beta\\) (°)");
                 head_str[5] = string("M");
                 head_str[6] = string("Wake Iterations");
+                head_str[7] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(1);
-                data_mat[0].resize(7);
+                data_mat[0].resize(8);
                 data_mat[0][0] = string("1");
                 data_mat[0][1] = string("Single Point");
                 data_mat[0][2] = string("VLM");
@@ -1561,6 +1577,7 @@ class HTML
                 data_mat[0][4] = string("0.0");
                 data_mat[0][5] = m_hvv.m_MachVec[0];
                 data_mat[0][6] = m_hvv.m_WakeIterVec[0];
+                data_mat[0][7] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -1616,7 +1633,7 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(7);
+                head_str.resize(8);
                 head_str[0] = string("Case #");
                 head_str[1] = string("Analysis");
                 head_str[2] = string("Method");
@@ -1624,10 +1641,11 @@ class HTML
                 head_str[4] = string("\\(\\beta\\) (°)");
                 head_str[5] = string("M");
                 head_str[6] = string("Wake Iterations");
+                head_str[7] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(2);
-                data_mat[0].resize(7);
+                data_mat[0].resize(8);
                 data_mat[0][0] = string("1");
                 data_mat[0][1] = string("Single Point");
                 data_mat[0][2] = string("VLM");
@@ -1635,8 +1653,9 @@ class HTML
                 data_mat[0][4] = string("0.0");
                 data_mat[0][5] = m_hvv.m_MachVec[0];
                 data_mat[0][6] = m_hvv.m_WakeIterVec[0];
+                data_mat[0][7] = string("Off");
                 
-                data_mat[1].resize(7);
+                data_mat[1].resize(8);
                 data_mat[1][0] = string("2");
                 data_mat[1][1] = string("Single Point");
                 data_mat[1][2] = string("Panel");
@@ -1644,6 +1663,7 @@ class HTML
                 data_mat[1][4] = string("0.0");
                 data_mat[1][5] = m_hvv.m_MachVec[0];
                 data_mat[1][6] = m_hvv.m_WakeIterVec[0];
+                data_mat[1][7] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -1702,17 +1722,18 @@ class HTML
             t1.WriteHTMLTable();
             
             HTMLTable t2 = HTMLTable(); // Initialize Table
-            head_str.resize(6);
+            head_str.resize(7);
             head_str[0] = string("Analysis");
             head_str[1] = string("Method");
             head_str[2] = string("\\(\\alpha\\) (°)");
             head_str[3] = string("\\(\\beta\\) (°)");
             head_str[4] = string("M");
             head_str[5] = string("Wake Iterations");
+            head_str[6] = string("Vortex Lift");
             t2.m_HeaderStringVec = head_str;
 
             data_mat.resize(1);
-            data_mat[0].resize(6);
+            data_mat[0].resize(7);
             data_mat[0][0] = string("Sweep");
             data_mat[0][1] = string("VLM");
             string cell = string("-20.0 to 20.0, npts: ") + m_bvv.m_AlphaNpts;
@@ -1720,6 +1741,7 @@ class HTML
             data_mat[0][3] = string("0.0");
             data_mat[0][4] = m_bvv.m_MachVec[0];
             data_mat[0][5] = m_bvv.m_WakeIterVec[0];
+            data_mat[0][6] = string("Off");
             t2.m_TableDataMat = data_mat;
             t2.m_Width = 5;
             t2.m_Caption = string("Bertin-Smith VSPAERO Setup");
@@ -1797,17 +1819,18 @@ class HTML
             t1.WriteHTMLTable();
             
             HTMLTable t2 = HTMLTable(); // Initialize Table
-            head_str.resize(6);
+            head_str.resize(7);
             head_str[0] = string("Analysis");
             head_str[1] = string("Method");
             head_str[2] = string("\\(\\alpha\\) (°)");
             head_str[3] = string("\\(\\beta\\) (°)");
             head_str[4] = string("M");
             head_str[5] = string("Wake Iterations");
+            head_str[6] = string("Vortex Lift");
             t2.m_HeaderStringVec = head_str;
 
             data_mat.resize(1);
-            data_mat[0].resize(6);
+            data_mat[0].resize(7);
             data_mat[0][0] = string("Sweep");
             data_mat[0][1] = string("VLM");
             string cell = string("-20.0 to 20.0, npts: ") + m_wvv.m_AlphaNpts;
@@ -1815,6 +1838,7 @@ class HTML
             data_mat[0][3] = string("0.0");
             data_mat[0][4] = m_wvv.m_MachVec[0];
             data_mat[0][5] = m_wvv.m_WakeIterVec[0];
+            data_mat[0][6] = string("Off");
             t2.m_TableDataMat = data_mat;
             t2.m_Width = 5;
             t2.m_Caption = string("Warren-12 VSPAERO Setup");
@@ -1921,23 +1945,25 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(6);
+                head_str.resize(7);
                 head_str[0] = string("Analysis");
                 head_str[1] = string("Method");
                 head_str[2] = string("\\(\\alpha\\) (°)");
                 head_str[3] = string("\\(\\beta\\) (°)");
                 head_str[4] = string("M");
                 head_str[5] = string("Wake Iterations");
+                head_str[6] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(1);
-                data_mat[0].resize(6);
+                data_mat[0].resize(7);
                 data_mat[0][0] = string("Single Point");
                 data_mat[0][1] = string("Panel");
                 data_mat[0][2] = string("0.0");
                 data_mat[0][3] = string("0.0");
                 data_mat[0][4] = m_vktvv.m_MachVec[0];
                 data_mat[0][5] = m_vktvv.m_WakeIterVec[0];
+                data_mat[0][6] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -1995,23 +2021,25 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(6);
+                head_str.resize(7);
                 head_str[0] = string("Analysis");
                 head_str[1] = string("Method");
                 head_str[2] = string("\\(\\alpha\\) (°)");
                 head_str[3] = string("\\(\\beta\\) (°)");
                 head_str[4] = string("M");
                 head_str[5] = string("Wake Iterations");
+                head_str[6] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(1);
-                data_mat[0].resize(6);
+                data_mat[0].resize(7);
                 data_mat[0][0] = string("Single Point");
                 data_mat[0][1] = string("Panel");
                 data_mat[0][2] = string("0.0");
                 data_mat[0][3] = string("0.0");
                 data_mat[0][4] = m_vktvv.m_MachVec[0];
                 data_mat[0][5] = m_vktvv.m_WakeIterVec[0];
+                data_mat[0][6] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -2069,23 +2097,25 @@ class HTML
                 t1.WriteHTMLTable();
                 
                 HTMLTable t2 = HTMLTable(); // Initialize Table
-                head_str.resize(6);
+                head_str.resize(7);
                 head_str[0] = string("Analysis");
                 head_str[1] = string("Method");
                 head_str[2] = string("\\(\\alpha\\) (°)");
                 head_str[3] = string("\\(\\beta\\) (°)");
                 head_str[4] = string("M");
                 head_str[5] = string("Wake Iterations");
+                head_str[6] = string("Vortex Lift");
                 t2.m_HeaderStringVec = head_str;
                 
                 data_mat.resize(1);
-                data_mat[0].resize(6);
+                data_mat[0].resize(7);
                 data_mat[0][0] = string("Single Point");
                 data_mat[0][1] = string("Panel");
                 data_mat[0][2] = string("0.0");
                 data_mat[0][3] = string("0.0");
                 data_mat[0][4] = m_vktvv.m_MachVec[0];
                 data_mat[0][5] = m_vktvv.m_WakeIterVec[0];
+                data_mat[0][6] = string("Off");
                 
                 t2.m_TableDataMat = data_mat;
                 t2.m_Width = 5;
@@ -2131,7 +2161,7 @@ class HTML
             t1.WriteHTMLTable();
             
             HTMLTable t2 = HTMLTable(); // Initialize Table
-            head_str.resize(7);
+            head_str.resize(8);
             head_str[0] = string("Run Case #");
             head_str[1] = string("Analysis");
             head_str[2] = string("Method");
@@ -2139,17 +2169,19 @@ class HTML
             head_str[4] = string("\\(\\beta\\) (°)");
             head_str[5] = string("M");
             head_str[6] = string("Wake Iterations");
+            head_str[7] = string("Vortex Lift");
             t2.m_HeaderStringVec = head_str;
             
             data_mat.resize(4);
             for ( uint i = 0; i < uint(data_mat.length()); i++ )
             {
-                data_mat[i].resize(7);
+                data_mat[i].resize(8);
                 data_mat[i][0] = i + 1;
                 data_mat[i][1] = string("Single Point");
                 data_mat[i][2] = string("Panel");
                 data_mat[i][5] = string("0.0");
                 data_mat[i][6] = m_vktvv.m_WakeIterVec[0];
+                data_mat[i][7] = string("Off");;
             }
 
             data_mat[0][3] = string("0.0");
@@ -2225,24 +2257,26 @@ class HTML
             t1.WriteHTMLTable();
             
             HTMLTable t2 = HTMLTable(); // Initialize Table
-            head_str.resize(6);
+            head_str.resize(7);
             head_str[0] = string("Analysis");
             head_str[1] = string("Method");
             head_str[2] = string("\\(\\alpha\\) (°)");
             head_str[3] = string("\\(\\beta\\) (°)");
             head_str[4] = string("M");
             head_str[5] = string("Wake Iterations");
+            head_str[6] = string("Vortex Lift");
             t2.m_HeaderStringVec = head_str;
             
             data_mat.resize(1);
-            data_mat[0].resize(6);
+            data_mat[0].resize(7);
             data_mat[0][0] = string("Single Point");
             data_mat[0][1] = string("VLM");
             data_mat[0][2] = string("1.0");
             data_mat[0][3] = string("0.0");
             data_mat[0][4] = string("1.135, 1.366, 1.894, 2.386, 2.861, 3.369, 3.884, 4.404");
             data_mat[0][5] = m_sdvv.m_WakeIterVec[0];
-            
+            data_mat[0][6] = string("Off");;
+
             t2.m_Width = 5;
             t2.m_TableDataMat = data_mat;
             t2.m_Caption = string("Supersonic Delta Wing VSPAERO Setup");
@@ -2489,6 +2523,7 @@ class VV_Base
         m_RefFlagVec[0] = 1; // Wing Reference
         m_WakeIterVec[0] = 3;
         m_SymFlagVec[0] = 1;
+        m_VorLiftVec[0] = 0;
         
         pi = 3.14159265358979323846;
         b = 0.9949874371; // M = 0.1, b = (1-M^2)^0.5
@@ -2510,6 +2545,7 @@ class VV_Base
     array<int> m_RefFlagVec(1);
     array<int> m_WakeIterVec(1);
     array<int> m_SymFlagVec(1);
+    array<int> m_VorLiftVec(1);
     
     double pi;
     double b;
@@ -2998,6 +3034,7 @@ class HersheyVV : VV_Base
             SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
             SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
             SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+            SetIntAnalysisInput(m_VSPSweepAnalysis, "VortexLift", m_VorLiftVec, 0);
             
             // Freestream Parameters
             array<double> AlphaStart(1, alpha_0);
@@ -3124,6 +3161,7 @@ class HersheyVV : VV_Base
             SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
             SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
             SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+            SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
             SetIntAnalysisInput( m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis );
             SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
             
@@ -3351,6 +3389,7 @@ class HersheyVV : VV_Base
             SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0);
             SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
             SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+            SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
 
             Update();
 
@@ -3558,6 +3597,7 @@ class HersheyVV : VV_Base
             SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0);
             SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
             SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+            SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
 
             Update();
 
@@ -3782,6 +3822,7 @@ class HersheyVV : VV_Base
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0);
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
 
                 Update();
 
@@ -4008,6 +4049,7 @@ class HersheyVV : VV_Base
             SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0);
             SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
             SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+            SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
 
             Update();
 
@@ -4776,6 +4818,7 @@ class SweepVV : VV_Base
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
 
                 Update();
 
@@ -4850,6 +4893,7 @@ class SweepVV : VV_Base
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "RefFlag", m_RefFlagVec, 0);
                 SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis);
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "Symmetry", m_SymFlagVec, 0);
                 
@@ -5067,6 +5111,7 @@ class SweepVV : VV_Base
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", m_AlphaVec, 0);
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
 
                 Update();
 
@@ -5290,6 +5335,7 @@ class BertinVV : VV_Base
         SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
         
         SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+        SetIntAnalysisInput(m_VSPSweepAnalysis, "VortexLift", m_VorLiftVec, 0);
 
         // Freestream Parameters
         array<double> AlphaStart( 1, alpha_0 );
@@ -5548,6 +5594,7 @@ class WarrenVV : VV_Base
         SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
         
         SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+        SetIntAnalysisInput(m_VSPSweepAnalysis, "VortexLift", m_VorLiftVec, 0);
 
         // Freestream Parameters
         array<double> AlphaStart( 1, alpha_0 );
@@ -6024,6 +6071,7 @@ class VKTVV : VV_Base
                     SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
                     SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
                     SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                    SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
 
                     Update();
 
@@ -6220,6 +6268,8 @@ class VKTVV : VV_Base
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
+                SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
                 
                 Update();
 
@@ -6584,6 +6634,7 @@ class EllipsoidVV : VV_Base
                 SetIntAnalysisInput( m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0 ); // Reference geometry set
                 SetIntAnalysisInput( m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis );
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
                 
                 Update();
 
@@ -6956,6 +7007,7 @@ class SDVV : VV_Base
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", Mach, 0);
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
+                SetIntAnalysisInput(m_VSPSingleAnalysis, "VortexLift", m_VorLiftVec, 0);
 
                 Update();
 
