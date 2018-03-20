@@ -6271,6 +6271,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
        Cx  = Cy  = Cz  = Cmx  = Cmy  = Cmz  = 0.;
        Cx1 = Cy1 = Cz1 = Cmx1 = Cmy1 = Cmz1 = 0.;
        Cx2 = Cy2 = Cz2 = Cmx2 = Cmy2 = Cmz2 = 0.;
+       Cx = Cy = Cz = Cmx = Cmy = Cmz = 0.;
        
        if ( Mach_ < 1. ) {
           
@@ -6576,7 +6577,9 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
     }
             
     // Loop over vortex edges and calculate forces via K-J theorem, using only wake induced velocities applied at TE
-
+  
+    Fx = Fy = Fz = Fxi = Fyi = Fzi = CMx = CMy = CMz = 0.;
+    
     for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
        
        Loop1 = SurfaceVortexEdge(j).LoopL();
