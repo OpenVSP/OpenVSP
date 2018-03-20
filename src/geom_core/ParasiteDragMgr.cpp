@@ -169,6 +169,12 @@ void ParasiteDragMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
+
     if ( veh )
     {
         veh->ParmChanged( parm_ptr, type );
