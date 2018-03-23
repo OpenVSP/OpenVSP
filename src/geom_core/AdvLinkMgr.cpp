@@ -137,7 +137,7 @@ void AdvLinkMgrSingleton::CheckLinks()
 
     for ( int i = 0 ; i < ( int )del_indices.size() ; i++ )
     {
-        AdvLink* del_link = m_LinkVec[i];
+        AdvLink* del_link = m_LinkVec[ del_indices[i] ];
         DelLink( del_link );
     }
 }
