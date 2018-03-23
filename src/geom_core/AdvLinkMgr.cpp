@@ -88,9 +88,14 @@ AdvLink* AdvLinkMgrSingleton::AddLink( const string & name )
 void AdvLinkMgrSingleton::DelLink( AdvLink* link_ptr )
 {
     if ( !link_ptr )
+    {
         return;
+    }
+
     if ( m_ActiveLink == link_ptr )
+    {
         m_ActiveLink = NULL;
+    }
     m_EditLinkIndex = -1;
 
     vector_remove_val( m_LinkVec, link_ptr );
