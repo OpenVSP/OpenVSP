@@ -13,7 +13,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-AirfoilExportScreen::AirfoilExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174, "Airfoil Export Options" )
+SeligAirfoilExportScreen::SeligAirfoilExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174, "Selig Airfoil Options" )
 {
     m_OkFlag = false;
 
@@ -22,32 +22,14 @@ AirfoilExportScreen::AirfoilExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 2
 
     m_GenLayout.AddYGap();
 
-    m_GenLayout.AddDividerBox( "File Format" );
-
-    m_GenLayout.SetSameLineFlag( true );
-    m_GenLayout.SetFitWidthFlag( false );
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetW() / 2 );
-
-    m_GenLayout.AddButton( m_SeligToggle, "Selig (.dat)" );
-    m_GenLayout.AddButton( m_BezierToggle, "Bezier (.bz)" );
-
-    m_AirfoilTypeGroup.Init( this );
-    m_AirfoilTypeGroup.AddButton( m_SeligToggle.GetFlButton() );
-    m_AirfoilTypeGroup.AddButton( m_BezierToggle.GetFlButton() );
-
-    m_GenLayout.ForceNewLine();
-    m_GenLayout.AddYGap();
-    m_GenLayout.SetSameLineFlag( false );
-    m_GenLayout.SetFitWidthFlag( true );
-
-    m_GenLayout.AddDividerBox( "Options" );
-
     m_GenLayout.AddButton( m_AppendGeomIDToggle, "Append Geom ID to Airfoil File Names" );
+
+    m_GenLayout.AddYGap();
 
     m_GenLayout.SetButtonWidth( 5 * m_GenLayout.GetW() / 12 );
     m_GenLayout.AddSlider( m_WTessFactorSlider, "W Tess Factor", 9, "%6.2f" );
 
-    m_GenLayout.AddY( 20 );
+    m_GenLayout.AddY( 70 );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetButtonWidth( 100 );
@@ -59,11 +41,11 @@ AirfoilExportScreen::AirfoilExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 2
     m_GenLayout.ForceNewLine();
 }
 
-AirfoilExportScreen::~AirfoilExportScreen()
+SeligAirfoilExportScreen::~SeligAirfoilExportScreen()
 {
 }
 
-bool AirfoilExportScreen::Update()
+bool SeligAirfoilExportScreen::Update()
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     if ( !veh )
@@ -71,19 +53,7 @@ bool AirfoilExportScreen::Update()
         return false;
     }
 
-    m_AirfoilTypeGroup.Update( veh->m_AFExportType.GetID() );
-
     m_WTessFactorSlider.Update( veh->m_AFWTessFactor.GetID() );
-
-    if ( veh->m_AFExportType() == vsp::BEZIER_AF_EXPORT )
-    {
-        m_WTessFactorSlider.Deactivate();
-    }
-    else
-    {
-        m_WTessFactorSlider.Activate();
-    }
-
     m_AppendGeomIDToggle.Update( veh->m_AFAppendGeomIDFlag.GetID() );
 
     m_FLTK_Window->redraw();
@@ -91,12 +61,12 @@ bool AirfoilExportScreen::Update()
     return true;
 }
 
-void AirfoilExportScreen::CallBack( Fl_Widget* w )
+void SeligAirfoilExportScreen::CallBack( Fl_Widget* w )
 {
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void AirfoilExportScreen::GuiDeviceCallBack( GuiDevice* device )
+void SeligAirfoilExportScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
 
@@ -116,13 +86,100 @@ void AirfoilExportScreen::GuiDeviceCallBack( GuiDevice* device )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void AirfoilExportScreen::Show()
+void SeligAirfoilExportScreen::Show()
 {
     Update();
     m_FLTK_Window->show();
 }
 
-bool AirfoilExportScreen::ShowAirfoilExportScreen()
+bool SeligAirfoilExportScreen::ShowAirfoilExportScreen()
+{
+    Show();
+
+    m_OkFlag = false;
+
+    while ( m_FLTK_Window->shown() )
+    {
+        Fl::wait();
+    }
+
+    return m_OkFlag;
+}
+
+BezierAirfoilExportScreen::BezierAirfoilExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174, "Bezier Airfoil Options" )
+{
+    m_OkFlag = false;
+
+    m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_GenLayout.AddY( 25 );
+
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddButton( m_AppendGeomIDToggle, "Append Geom ID to Airfoil File Names" );
+
+    m_GenLayout.AddY( 95 );
+    m_GenLayout.SetSameLineFlag( true );
+    m_GenLayout.SetFitWidthFlag( false );
+    m_GenLayout.SetButtonWidth( 100 );
+
+    m_GenLayout.AddX( 20 );
+    m_GenLayout.AddButton( m_OkButton, "OK" );
+    m_GenLayout.AddX( 10 );
+    m_GenLayout.AddButton( m_CancelButton, "Cancel" );
+    m_GenLayout.ForceNewLine();
+}
+
+BezierAirfoilExportScreen::~BezierAirfoilExportScreen()
+{
+}
+
+bool BezierAirfoilExportScreen::Update()
+{
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    if ( !veh )
+    {
+        return false;
+    }
+
+    m_AppendGeomIDToggle.Update( veh->m_AFAppendGeomIDFlag.GetID() );
+
+    m_FLTK_Window->redraw();
+
+    return true;
+}
+
+void BezierAirfoilExportScreen::CallBack( Fl_Widget* w )
+{
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void BezierAirfoilExportScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    assert( m_ScreenMgr );
+
+    if ( device == &m_OkButton )
+    {
+        m_OkFlag = true;
+        Vehicle *veh = VehicleMgr.GetVehicle();
+
+        Hide();
+    }
+    else if ( device == &m_CancelButton )
+    {
+        m_OkFlag = false;
+        Hide();
+    }
+
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void BezierAirfoilExportScreen::Show()
+{
+    Update();
+    m_FLTK_Window->show();
+}
+
+bool BezierAirfoilExportScreen::ShowAirfoilExportScreen()
 {
     Show();
 

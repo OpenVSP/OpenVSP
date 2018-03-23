@@ -199,8 +199,9 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_FACET,
                     EXPORT_SVG,
                     EXPORT_PMARC,
-                    EXPORT_AIRFOIL,
-                    EXPORT_OBJ
+                    EXPORT_OBJ,
+                    EXPORT_SELIG_AIRFOIL,
+                    EXPORT_BEZIER_AIRFOIL
                  };
 
 enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,

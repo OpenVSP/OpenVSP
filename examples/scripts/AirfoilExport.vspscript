@@ -41,7 +41,6 @@ void main()
     //===== Set Airfoil Export Parms in Vehicle Parm Container ====//
     string veh_id = FindContainer( "Vehicle", 0 );
     
-    SetParmVal( FindParm( veh_id, "AFExportType", "AirfoilExport" ), SELIG_AF_EXPORT );
     SetParmVal( FindParm( veh_id, "AFWTessFactor", "AirfoilExport" ), 2.0 ); // double W tesselation for export
     SetParmVal( FindParm( veh_id, "AFAppendGeomIDFlag", "AirfoilExport" ), 1.0 ); // Note: bool input not supported in SetParmVal
     
@@ -50,7 +49,7 @@ void main()
     //===== Export All Airfoils and Metadata *.csv ====//
     Print( string( "--> Exporting Airfoil Files\n" ) );
     
-    ExportFile( "Airfoil_Metadata.csv", SET_ALL, EXPORT_AIRFOIL );
+    ExportFile( "Airfoil_Metadata.csv", SET_ALL, EXPORT_SELIG_AIRFOIL );
     
     //==== Check For API Errors ====//
     while ( GetNumTotalErrors() > 0 )

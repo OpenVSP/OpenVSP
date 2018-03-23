@@ -15,11 +15,11 @@
 #include "Vehicle.h"
 #include "GuiDevice.h"
 
-class AirfoilExportScreen : public BasicScreen
+class SeligAirfoilExportScreen : public BasicScreen
 {
     public:
-    AirfoilExportScreen( ScreenMgr* mgr );
-    virtual ~AirfoilExportScreen();
+    SeligAirfoilExportScreen( ScreenMgr* mgr );
+    virtual ~SeligAirfoilExportScreen();
 
     void Show();
     bool Update();
@@ -34,13 +34,36 @@ class AirfoilExportScreen : public BasicScreen
 
     GroupLayout m_GenLayout;
 
-    ToggleButton m_SeligToggle;
-    ToggleButton m_BezierToggle;
-    ToggleRadioGroup m_AirfoilTypeGroup;
-
     ToggleButton m_AppendGeomIDToggle;
 
     SliderAdjRangeInput m_WTessFactorSlider;
+
+    TriggerButton m_OkButton;
+    TriggerButton m_CancelButton;
+
+    bool m_OkFlag;
+};
+
+class BezierAirfoilExportScreen : public BasicScreen
+{
+    public:
+    BezierAirfoilExportScreen( ScreenMgr* mgr );
+    virtual ~BezierAirfoilExportScreen();
+
+    void Show();
+    bool Update();
+
+    void CallBack( Fl_Widget *w );
+
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+
+    bool ShowAirfoilExportScreen();
+
+    protected:
+
+    GroupLayout m_GenLayout;
+
+    ToggleButton m_AppendGeomIDToggle;
 
     TriggerButton m_OkButton;
     TriggerButton m_CancelButton;

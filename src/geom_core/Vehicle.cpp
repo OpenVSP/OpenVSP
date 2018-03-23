@@ -4451,8 +4451,14 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     {
         WritePMARCFile(file_name, write_set);
     }
-    else if ( file_type == EXPORT_AIRFOIL )
+    else if ( file_type == EXPORT_SELIG_AIRFOIL )
     {
+        m_AFExportType.Set( vsp::SELIG_AF_EXPORT );
+        WriteAirfoilFile( file_name, write_set );
+    }
+    else if ( file_type == EXPORT_BEZIER_AIRFOIL )
+    {
+        m_AFExportType.Set( vsp::BEZIER_AF_EXPORT );
         WriteAirfoilFile( file_name, write_set );
     }
 }

@@ -64,7 +64,8 @@ protected:
     TriggerButton m_SVGButton;
     TriggerButton m_FacetButton;
     TriggerButton m_PMARCButton;
-    TriggerButton m_AirfoilButton;
+    TriggerButton m_SeligAirfoilButton;
+    TriggerButton m_BezierAirfoilButton;
 
     int m_SelectedSetIndex;
 };

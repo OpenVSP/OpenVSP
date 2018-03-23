@@ -18,7 +18,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+17)*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+18)*20 + 2*15 + 4*6, "Export" )
 {
     m_SelectedSetIndex = 0;
 
@@ -53,8 +53,9 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+17
     m_GenLayout.AddButton( m_SVGButton, "SVG (.svg)" );
     m_GenLayout.AddButton( m_FacetButton, "Xpatch (.facet)" );
     m_GenLayout.AddButton( m_PMARCButton, "PMARC 12 (.pmin)" );
-    m_GenLayout.AddButton( m_AirfoilButton, "Airfoil (.csv)" );
     m_GenLayout.AddButton( m_OBJButton, "OBJ (.obj" );
+    m_GenLayout.AddButton( m_SeligAirfoilButton, "Airfoil Points (.dat)" );
+    m_GenLayout.AddButton( m_BezierAirfoilButton, "Airfoil Curves (.bz)" );
 }
 
 //==== Update Screen ====//
@@ -182,9 +183,16 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
     {
         newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser("Write PMARC File?", "*.pmin");
     }
-    else if ( type == EXPORT_AIRFOIL )
+    else if ( type == EXPORT_SELIG_AIRFOIL )
     {
-        if ( ( (AirfoilExportScreen*)m_ScreenMgr->GetScreen( ScreenMgr::VSP_AIRFOIL_EXPORT_SCREEN ) )->ShowAirfoilExportScreen() )
+        if ( ( (SeligAirfoilExportScreen*)m_ScreenMgr->GetScreen( ScreenMgr::VSP_AIRFOIL_POINTS_EXPORT_SCREEN ) )->ShowAirfoilExportScreen() )
+        {
+            newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Airfoil Metadata File?", "*.csv" );
+        }
+    }
+    else if ( type == EXPORT_BEZIER_AIRFOIL )
+    {
+        if ( ( (BezierAirfoilExportScreen*)m_ScreenMgr->GetScreen( ScreenMgr::VSP_AIRFOIL_CURVES_EXPORT_SCREEN ) )->ShowAirfoilExportScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write Airfoil Metadata File?", "*.csv" );
         }
@@ -210,6 +218,7 @@ void ExportScreen::CallBack( Fl_Widget *w )
 void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     string newfile;
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
     if ( device == &m_XSecButton )
     {
@@ -275,15 +284,25 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         ExportFile(newfile, m_SelectedSetIndex, EXPORT_PMARC);
     }
-    else if ( device == &m_AirfoilButton )
+    else if ( device == &m_SeligAirfoilButton )
     {
-        ExportFile( newfile, m_SelectedSetIndex, EXPORT_AIRFOIL );
+        if ( veh )
+        {
+            veh->m_AFExportType.Set( vsp::SELIG_AF_EXPORT );
+            ExportFile( newfile, m_SelectedSetIndex, EXPORT_SELIG_AIRFOIL );
+        }
+    }
+    else if ( device == &m_BezierAirfoilButton )
+    {
+        if ( veh )
+        {
+            veh->m_AFExportType.Set( vsp::BEZIER_AF_EXPORT );
+            ExportFile( newfile, m_SelectedSetIndex, EXPORT_BEZIER_AIRFOIL );
+        }
     }
     else if (  device == &m_ExportSetChoice )
     {
         m_SelectedSetIndex = m_ExportSetChoice.GetVal();
-
-        Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
         if ( veh )
         {
