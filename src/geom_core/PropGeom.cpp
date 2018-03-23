@@ -592,7 +592,6 @@ void PropGeom::UpdateSurf()
     m_AFLimit.SetLowerLimit( rfirst );
     // Integrate activity factor.
     m_AF.Set( m_ChordCurve.IntegrateAF( m_AFLimit() ) );
-    m_AF.Deactivate();
 
     if ( m_UseBeta34Flag() == 1 )
     {

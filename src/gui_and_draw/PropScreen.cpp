@@ -708,11 +708,9 @@ bool PropScreen::Update()
     m_RootClusterSlider.Update( propeller_ptr->m_RootCluster.GetID() );
     m_TipClusterSlider.Update( propeller_ptr->m_TipCluster.GetID() );
 
-    sprintf( str, "%6.4g", propeller_ptr->m_SmallPanelW() );
-    m_SmallPanelWOutput.Update( str );
+    m_SmallPanelWOutput.Update( propeller_ptr->m_SmallPanelW.GetID() );
 
-    sprintf( str, "%6.3f", propeller_ptr->m_MaxGrowth() );
-    m_MaxGrowthOutput.Update( str );
+    m_MaxGrowthOutput.Update( propeller_ptr->m_MaxGrowth.GetID() );
 
     m_RootCapTypeChoice.Update( propeller_ptr->m_CapUMinOption.GetID() );
     m_TipCapTypeChoice.Update( propeller_ptr->m_CapUMaxOption.GetID() );
