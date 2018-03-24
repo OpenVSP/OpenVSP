@@ -30,6 +30,10 @@ PropPositioner::PropPositioner()
 
     m_Chord = 1.0;
 
+    m_Construct = 0.5;
+    m_RootChord = 1.0;
+    m_RootTwist = 0.0;
+
     m_Twist = 0.0;
     m_PropRot = 0.0;
     m_Feather = 0.0;
@@ -92,11 +96,16 @@ void PropPositioner::Update()
 
     mat.translatef( 0, m_Radius, 0 );
 
+    double x = -m_RootChord * ( 0.5 - m_Construct );
+    mat.translatef( x * sin( m_RootTwist * PI / 180.0), 0, x * cos( m_RootTwist * PI / 180.0) );
+
     mat.rotateY( m_Reverse * m_Twist );
 
     mat.translatef( m_Rake, 0, m_Reverse * m_Skew );
 
     mat.rotateZ( m_ZRotate ); // About chord
+
+    mat.translatef( 0, 0, m_Chord * ( 0.5 - m_Construct ) );
 
     m_TransformedCurve.Transform( mat );
 }
@@ -228,6 +237,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_Rotate.Init( "Rotate", "Design", this, 0.0, -360.0, 360.0 );
     m_Rotate.SetDescript( "Rotation of first propeller blade." );
+
+    m_Construct.Init( "Construct X/C", "Design", this, 0.5, 0.0, 1.0 );
+    m_Construct.SetDescript( "X/C of construction line." );
 
     m_RadFoldAxis.Init( "RFoldAx", "Design", this, 0.2, 0.0, 1.0 );
     m_RadFoldAxis.SetDescript( "Radial position of fold axis as fraction of radius" );
@@ -643,6 +655,9 @@ void PropGeom::UpdateSurf()
     vector< VspCurve > crv_vec;
     crv_vec.resize( nxsec );
 
+    double croot = 0.0;
+    double twroot = 0.0;
+
     //==== Update XSec Location/Rotation ====//
     for ( int i = 0 ; i < nxsec ; i++ )
     {
@@ -654,6 +669,12 @@ void PropGeom::UpdateSurf()
 
             double r = xs->m_RadiusFrac();
             double w = m_ChordCurve.Comp( r ) * radius;
+
+            if ( i == 0 )
+            {
+                croot = w;
+                twroot = m_TwistCurve.Comp( r );
+            }
 
             if ( xsc )
             {
@@ -705,6 +726,11 @@ void PropGeom::UpdateSurf()
                 xs->m_PropPos.m_ParentProp = GetXSecSurf( 0 );
                 xs->m_PropPos.m_Radius = r * radius;
                 xs->m_PropPos.m_Chord = w;
+
+                xs->m_PropPos.m_Construct = m_Construct();
+                xs->m_PropPos.m_RootChord = croot;
+                xs->m_PropPos.m_RootTwist = twroot;
+
                 xs->m_PropPos.m_Twist = m_TwistCurve.Comp( r );
                 xs->m_PropPos.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
 
@@ -807,6 +833,10 @@ void PropGeom::UpdateSurf()
 
         pp.m_Chord = m_ChordCurve.Comp( r ) * radius;
         pp.m_Twist = m_TwistCurve.Comp( r );
+
+        pp.m_Construct = m_Construct();
+        pp.m_RootChord = croot;
+        pp.m_RootTwist = twroot;
 
         pp.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
 
