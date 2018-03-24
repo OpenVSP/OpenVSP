@@ -842,7 +842,7 @@ void TMesh::MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
                 {
                     tri->m_InteriorFlag = 0;
                     tri->m_ID = meshVec[m]->m_PtrID;
-                    tri->m_Mass = meshVec[m]->m_Density;
+                    tri->m_Density = meshVec[m]->m_Density;
                     prior = meshVec[m]->m_MassPrior;
                 }
             }
@@ -1320,7 +1320,7 @@ TTri::TTri()
     m_N0 = m_N1 = m_N2 = 0;
     m_InteriorFlag = 0;
     m_InvalidFlag  = 0;
-    m_Mass = 0.0;
+    m_Density = 0.0;
     m_TMesh = NULL;
     m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = NULL;
 }
@@ -1376,7 +1376,7 @@ void TTri::CopyFrom( const TTri* tri )
     m_N2->CopyFrom( tri->m_N2 );
 
     m_Norm = tri->m_Norm;
-    m_Mass = tri->m_Mass;
+    m_Density = tri->m_Density;
     m_Tags = tri->m_Tags;
     m_ID = tri->m_ID;
     m_InvalidFlag = tri->m_InvalidFlag;
