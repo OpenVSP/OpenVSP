@@ -63,9 +63,6 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_TotalIxz = 0.0;
     m_TotalIyz = 0.0;
 
-    m_MinTriDen = 0.0;
-    m_MaxTriDen = 1.0;
-
     m_ScaleMatrix.loadIdentity();
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12 );
 
@@ -3214,8 +3211,6 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
     //==== Build Tetrahedrons ====//
     double prismLength = sliceW;
     vector< TetraMassProp* > tetraVec;
-    m_MinTriDen = 1.0e06;
-    m_MaxTriDen = 0.0;
 
     for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
     {
@@ -3629,8 +3624,6 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
     //==== Build Tetrahedrons ====//
     double prismLength = sliceW;
     vector< DegenGeomTetraMassProp* > tetraVec;
-    m_MinTriDen = 1.0e06;
-    m_MaxTriDen = 0.0;
 
     for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
     {
@@ -3827,15 +3820,6 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
 //==== Create a Prism Made of Tetras - Extrude Tri +- len/2 ====//
 void MeshGeom::CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len )
 {
-    if ( tri->m_Density < m_MinTriDen )
-    {
-        m_MinTriDen = tri->m_Density;
-    }
-    if ( tri->m_Density > m_MaxTriDen )
-    {
-        m_MaxTriDen = tri->m_Density;
-    }
-
     vec3d cnt = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt + tri->m_N2->m_Pnt ) * ( 1.0 / 3.0 );
 
     vec3d p0 = tri->m_N0->m_Pnt;
@@ -3865,15 +3849,6 @@ void MeshGeom::CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, doubl
 //==== Create a Prism Made of DegenGeomTetras - Extrude Tri +- len/2 ====//
 void MeshGeom::createDegenGeomPrism( vector< DegenGeomTetraMassProp* >& tetraVec, TTri* tri, double len )
 {
-    if ( tri->m_Density < m_MinTriDen )
-    {
-        m_MinTriDen = tri->m_Density;
-    }
-    if ( tri->m_Density > m_MaxTriDen )
-    {
-        m_MaxTriDen = tri->m_Density;
-    }
-
     vec3d cnt = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt + tri->m_N2->m_Pnt ) * ( 1.0 / 3.0 );
 
     vec3d p0 = tri->m_N0->m_Pnt;

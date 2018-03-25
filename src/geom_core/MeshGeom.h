@@ -79,9 +79,6 @@ public:
     double m_TotalIxz;
     double m_TotalIyz;
 
-    double m_MinTriDen;
-    double m_MaxTriDen;
-
     vector < TMesh* > m_TMeshVec;
     vector < vector < vec3d > > m_PolyVec;
 
