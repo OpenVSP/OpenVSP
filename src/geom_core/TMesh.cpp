@@ -1320,7 +1320,7 @@ TTri::TTri()
     m_N0 = m_N1 = m_N2 = 0;
     m_InteriorFlag = 0;
     m_InvalidFlag  = 0;
-    m_Density = 0.0;
+    m_Density = 1.0;
     m_TMesh = NULL;
     m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = NULL;
 }
