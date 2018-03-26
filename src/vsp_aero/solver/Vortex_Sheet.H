@@ -42,6 +42,12 @@ private:
     
     int TimeAccurate_;
     
+    int TimeAnalysisType_;
+    
+    int DoGroundEffectsAnalysis_;
+    
+    int NoKarmanTsienCorrection_;
+    
     double Vinf_;
     
     double FreeStreamVelocity_[3];
@@ -49,7 +55,7 @@ private:
     double TimeStep_;
     
     double MaxConvectedDistance_;
-    
+
     double **TrailingGamma_;
     
     double **StartingGamma_;
@@ -112,6 +118,8 @@ private:
     void InjectCirculation(void);
 
     void StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, double xyz_p[3], double dq[3]);
+    
+    void UpdateGeometryLocation(void);
 
     int Evaluate_;
     
@@ -176,6 +184,8 @@ public:
     
     int &TimeAccurate(void) { return TimeAccurate_; };
     
+    int &TimeAnalysisType(void ) { return TimeAnalysisType_; };
+
     double &Vinf(void) { return Vinf_; };
     
     double &FreeStreamVelocity(int i) { return FreeStreamVelocity_[i]; };
@@ -203,6 +213,14 @@ public:
     void InducedKuttaVelocity(double xyz_p[3], double q[3]);    
     
     double StartingGamma(int i, int j) { return StartingGamma_[i][j]; };
+    
+    int &NoKarmanTsienCorrection(void) { return NoKarmanTsienCorrection_; };
+    
+    int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
+    
+    double UpdateWakeLocation(void);
+    
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };
 

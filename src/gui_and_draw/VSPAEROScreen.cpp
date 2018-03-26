@@ -1392,15 +1392,19 @@ void VSPAEROScreen::UpdateControlSurfaceBrowsers()
     }
 
     m_UngroupedCSBrowser->clear();
-    // For loop on a vector of ungrouped control surfaces
-    vector < VspAeroControlSurf > ungrouped_cs = VSPAEROMgr.GetCompleteCSVec();
-    for (size_t i = 0; i < ungrouped_cs.size(); ++i)
+    if ( VSPAEROMgr.GetCurrentCSGroupIndex() != -1 )
     {
-        m_UngroupedCSBrowser->add(ungrouped_cs[i].fullName.c_str());
-    }
-    for (size_t i = 0; i < VSPAEROMgr.GetSelectedUngroupedItems().size(); ++i)
-    {
-        SelectUngroupedListBrowser(VSPAEROMgr.GetSelectedUngroupedItems()[i]);
+        // For loop on a vector of ungrouped control surfaces
+        vector < VspAeroControlSurf > ungrouped_cs = VSPAEROMgr.GetAvailableCSVec();
+
+        for ( size_t i = 0; i < ungrouped_cs.size(); ++i )
+        {
+            m_UngroupedCSBrowser->add( ungrouped_cs[i].fullName.c_str() );
+        }
+        for ( size_t i = 0; i < VSPAEROMgr.GetSelectedUngroupedItems().size(); ++i )
+        {
+            SelectUngroupedListBrowser( VSPAEROMgr.GetSelectedUngroupedItems()[i] );
+        }
     }
 }
 
@@ -1589,7 +1593,7 @@ void VSPAEROScreen::SelectControlSurfaceBrowser( int cur_index )
 void VSPAEROScreen::UngroupedCSBrowserCallback()
 {
     vector < int > selected;
-    vector < VspAeroControlSurf > ungrouped_vec = VSPAEROMgr.GetCompleteCSVec();
+    vector < VspAeroControlSurf > ungrouped_vec = VSPAEROMgr.GetAvailableCSVec();
     if ( ungrouped_vec.size() != 0 )
     {
         for ( size_t i = 1; i <= m_UngroupedCSBrowser->size(); ++i )
@@ -1605,7 +1609,7 @@ void VSPAEROScreen::UngroupedCSBrowserCallback()
 
 void VSPAEROScreen::SelectUngroupedListBrowser( int cur_index )
 {
-    if ( cur_index > 0 )
+    if ( cur_index > 0 && cur_index <= VSPAEROMgr.GetAvailableCSVec().size() )
     {
         //==== Select If Match ====//
         m_UngroupedCSBrowser->select( cur_index );

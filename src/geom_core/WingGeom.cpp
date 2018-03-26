@@ -1256,6 +1256,9 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_TotalArea.Init( "TotalArea", m_Name, this, 1.0, 1e-10, 1.0e12 );
     m_TotalArea.SetDescript( "Total Planform Area" );
 
+    m_TotalAR.Init( "TotalAR", m_Name, this, 1.0, 1.0e-10, 1.0e12 );
+    m_TotalAR.SetDescript( "Total Aspect Ratio" );
+
     m_LECluster.Init( "LECluster", m_Name, this, 0.25, 1e-4, 10.0 );
     m_LECluster.SetDescript( "LE Tess Cluster Control" );
 
@@ -2086,6 +2089,8 @@ void WingGeom::UpdateSurf()
     m_TotalProjSpan = ComputeTotalProjSpan();
     m_TotalChord = ComputeTotalChord();
     m_TotalArea = ComputeTotalArea();
+
+    m_TotalAR = m_TotalProjSpan() * m_TotalProjSpan() / m_TotalArea() ;
 
     CalculateMeshMetrics();
 }

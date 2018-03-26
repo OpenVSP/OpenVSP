@@ -71,8 +71,8 @@ public:
 
     void ApplyES( vec3d uw, double t );
 
-    vec2d ClosestUW( vec3d & pnt_in, double guess_u, double guess_w ) const;
-    vec2d ClosestUW( vec3d & pnt_in ) const;
+    vec2d ClosestUW( const vec3d & pnt_in, double guess_u, double guess_w ) const;
+    vec2d ClosestUW( const vec3d & pnt_in ) const;
 
     void FindBorderCurves();
 
@@ -250,6 +250,8 @@ public:
     }
 
     void Subtag( bool tag_subs );
+
+    friend double refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB );
 
 protected:
 

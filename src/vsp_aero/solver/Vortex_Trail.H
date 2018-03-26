@@ -20,6 +20,13 @@
 #define EXPLICIT_WAKE_GAMMAS 2
 #define      ALL_WAKE_GAMMAS 3 
 
+#define IMPULSE_ANALYSIS 1
+#define HEAVE_ANALYSIS   2
+#define P_ANALYSIS       3
+#define Q_ANALYSIS       4
+#define R_ANALYSIS       5
+#define PATH_ANALYSIS    6
+
 // Definition of the VORTEX_TRAIL class
 
 class VORTEX_TRAIL {
@@ -78,6 +85,10 @@ private:
     
     double Sigma_;
     
+    // Core size
+    
+    double CoreSize_;
+    
     // Minimum Tolerance
     
     double Tolerance_;
@@ -92,6 +103,7 @@ private:
     int TimeAccurate_;
     int NumberofExactShiftPoints_;
     int ConvectType_;
+    int TimeAnalysisType_;
     
     double TimeStep_;
     double Vinf_;
@@ -99,6 +111,11 @@ private:
     double *Gamma_;
     double *GammaNew_;
     double *GammaSave_;
+    
+    // Blade analysis parameters
+    
+    int RotorAnalysis_;    
+    double BladeRPM_;
     
     // Smooth out the trailing wake shape
     
@@ -113,6 +130,10 @@ private:
     // Ground effects
     
     int DoGroundEffectsAnalysis_;
+    
+    // Induced Velocity calculation
+    
+    void InducedVelocity_(double xyz_p[3], double q[3]);
     
 public:
 
@@ -129,6 +150,7 @@ public:
     // Time accurate flag
     
     int &TimeAccurate(void) { return TimeAccurate_; };
+    int &TimeAnalysisType(void ) { return TimeAnalysisType_; };
     
     // Accesss to Vortex edge data
 
@@ -139,6 +161,8 @@ public:
                                
     void InducedVelocity(double xyz_p[3], double q[3]);
     
+    void InducedVelocity(double xyz_p[3], double q[3], double CorSize);
+
     void CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, double xyz_p[3], double q[3]);
  
     // Access to Mach number
@@ -212,10 +236,11 @@ public:
     
     double *VortexEdgeVelocity(int i) { return VortexEdgeVelocity_[i]; };
     
-    double UpdateLocation(void);     
+    // Update the wake location
+    
+    double UpdateWakeLocation(void);     
     
     void ConvectWakeVorticity(int ConvectType);
-    void ConvectWakeVorticityOld(int ConvectType);
     
     // Ground effects analysis flag
     
@@ -224,6 +249,11 @@ public:
     // KT analysis flag
     
     int &NoKarmanTsienCorrection(void) { return NoKarmanTsienCorrection_; };
+    
+    // Bladed analysis flags
+    
+    int &RotorAnalysis(void) { return RotorAnalysis_; }; 
+    double &BladeRPM(void) { return BladeRPM_; };
     
     // Unsteady analysis
     
@@ -236,6 +266,8 @@ public:
     void SaveVortexState(void);
 
     void WriteToFile(FILE *adb_file);
+    
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };
 

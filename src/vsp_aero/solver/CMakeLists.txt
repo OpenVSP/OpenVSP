@@ -57,6 +57,7 @@ if(BUILD_VSPAERO)
   ControlSurface.C
   ControlSurfaceGroup.C
   FEM_Node.C
+  Gradient.C
   RotorDisk.C
   VSP_Agglom.C
   VSP_Edge.C
@@ -78,7 +79,8 @@ if(BUILD_VSPAERO)
   CharSizes.H
   ControlSurface.H
   ControlSurfaceGroup.H
-  FEM_Node.C
+  FEM_Node.H
+  Gradient.H
   RotorDisk.H
   VSPAERO_OMP.H
   VSP_Agglom.H

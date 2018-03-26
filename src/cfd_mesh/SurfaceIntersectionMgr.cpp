@@ -12,6 +12,8 @@
 #include "SubSurfaceMgr.h"
 #include "main.h"
 
+#include <chrono>
+
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>
 #endif
@@ -32,6 +34,8 @@ SurfaceIntersectionSingleton::SurfaceIntersectionSingleton() : ParmContainer()
     m_NumComps = -10;
 
     m_MeshInProgress = false;
+
+    m_MessageName = "SurfIntersectMessage";
 
 #ifdef DEBUG_CFD_MESH
     m_DebugDir  = Stringc( "MeshDebug/" );
@@ -96,9 +100,17 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     addOutputText( "Build Grid\n" );
     BuildGrid();
 
+//    auto t1 = std::chrono::high_resolution_clock::now();
+
     addOutputText( "Intersect\n" );
     Intersect();
     addOutputText( "Finished Intersect\n" );
+
+//    auto t2 = std::chrono::high_resolution_clock::now();
+//    printf( "Intersect took %lld mus %f ms %f sec\n", std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count(), std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count()/1000.0, std::chrono::duration_cast<std::chrono::microseconds>(t2-t1).count()/1000000.0 );
+
+    addOutputText( "Binary Adaptation Curve Approximation\n" );
+    BinaryAdaptIntCurves();
 
     addOutputText( "Exporting Files\n" );
     ExportFiles();
@@ -231,7 +243,11 @@ void SurfaceIntersectionSingleton::addOutputText( const string &str, int output_
 {
     if ( output_type != QUIET_OUTPUT )
     {
-        m_OutStream << str;
+
+        MessageData data;
+        data.m_String = m_MessageName;
+        data.m_StringVec.push_back( str );
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
     }
 }
 
@@ -456,15 +472,13 @@ void SurfaceIntersectionSingleton::ExportFiles()
     if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME ) )
     {
         WriteGridToolCurvFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME ),
-                               GetIntersectSettingsPtr()->m_ExportRawFlag,
-                               GetIntersectSettingsPtr()->m_ExportRelCurveTol );
+                               GetIntersectSettingsPtr()->m_ExportRawFlag );
     }
 
     if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME ) )
     {
         WritePlot3DFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME ),
-                         GetIntersectSettingsPtr()->m_ExportRawFlag,
-                         GetIntersectSettingsPtr()->m_ExportRelCurveTol );
+                         GetIntersectSettingsPtr()->m_ExportRawFlag );
     }
 
 }
@@ -656,28 +670,34 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
 
 }
 
-void SurfaceIntersectionSingleton::WriteGridToolCurvFile( const string &filename, bool rawflag, double reltol )
+void SurfaceIntersectionSingleton::WriteGridToolCurvFile( const string &filename, bool rawflag )
 {
     FILE* fp = fopen( filename.c_str(), "w" );
     if ( fp )
     {
-        list< ISegChain* >::iterator c;
-        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+        int ncurve = 0;
+        if ( rawflag )
+        {
+            ncurve = m_RawCurveAVec.size();
+        }
+        else
+        {
+            ncurve = m_BinAdaptCurveAVec.size();
+        }
+
+        int indx = 0;
+        for ( int indx = 0; indx < ncurve; indx++ )
         {
             // Assume A and B curves are coincident -- just print A curve.
-            Surf* surf = (*c)->m_ACurve.GetSurf();
-
-            Bezier_curve xyzcrv = (*c)->m_ACurve.GetUWCrv();
             vector<vec3d> ptvec;
 
             if ( rawflag )
             {
-                xyzcrv.UWCurveToXYZCurve( surf );
-                xyzcrv.GetControlPoints( ptvec );
+                ptvec = m_RawCurveAVec[ indx ];
             }
             else
             {
-                xyzcrv.TessAdaptXYZ( *surf, ptvec, reltol, 16 );
+                ptvec = m_BinAdaptCurveAVec[ indx ];
             }
 
             fprintf( fp, "%d\n", ptvec.size() );
@@ -693,58 +713,53 @@ void SurfaceIntersectionSingleton::WriteGridToolCurvFile( const string &filename
     }
 }
 
-void SurfaceIntersectionSingleton::WritePlot3DFile( const string &filename, bool rawflag, double reltol )
+void SurfaceIntersectionSingleton::WritePlot3DFile( const string &filename, bool rawflag )
 {
     FILE* fp = fopen( filename.c_str(), "w" );
     if ( fp )
     {
-        int nchain = m_ISegChainList.size();
+        int nchain = 0;
+        vector < vector < vec3d > > *allpts;
+
+        // Assume A and B curves are coincident -- just print A curve.
+        if ( rawflag )
+        {
+            nchain = m_RawCurveAVec.size();
+            allpts = &m_RawCurveAVec;
+        }
+        else
+        {
+            nchain = m_BinAdaptCurveAVec.size();
+            allpts = &m_BinAdaptCurveAVec;
+        }
+
         fprintf( fp, " %d\n", nchain );
 
-        vector < vector < vec3d > > allpts( nchain );
-
         int ichain = 0;
-        list< ISegChain* >::iterator c;
-        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+        for ( ichain = 0; ichain < nchain; ichain++ )
         {
-            // Assume A and B curves are coincident -- just print A curve.
-            Surf* surf = (*c)->m_ACurve.GetSurf();
-
-            Bezier_curve xyzcrv = (*c)->m_ACurve.GetUWCrv();
-
-            if ( rawflag )
-            {
-                xyzcrv.UWCurveToXYZCurve( surf );
-                xyzcrv.GetControlPoints( allpts[ichain] );
-            }
-            else
-            {
-                xyzcrv.TessAdaptXYZ( *surf, allpts[ichain], reltol, 16 );
-            }
-
-            fprintf( fp, " %d 1 1\n", allpts[ichain].size() );
-            ichain++;
+            fprintf( fp, " %d 1 1\n", (*allpts)[ichain].size() );
         }
 
         for ( ichain = 0; ichain < nchain; ichain++ )
         {
-            for ( int i = 0; i < allpts[ichain].size(); i++ )
+            for ( int i = 0; i < (*allpts)[ichain].size(); i++ )
             {
-                vec3d pt = allpts[ichain][i];
+                vec3d pt = (*allpts)[ichain][i];
                 fprintf( fp, "%25.17e ", pt.x() );
             }
             fprintf( fp, "\n" );
 
-            for ( int i = 0; i < allpts[ichain].size(); i++ )
+            for ( int i = 0; i < (*allpts)[ichain].size(); i++ )
             {
-                vec3d pt = allpts[ichain][i];
+                vec3d pt = (*allpts)[ichain][i];
                 fprintf( fp, "%25.17e ", pt.y() );
             }
             fprintf( fp, "\n" );
 
-            for ( int i = 0; i < allpts[ichain].size(); i++ )
+            for ( int i = 0; i < (*allpts)[ichain].size(); i++ )
             {
-                vec3d pt = allpts[ichain][i];
+                vec3d pt = (*allpts)[ichain][i];
                 fprintf( fp, "%25.17e ", pt.z() );
             }
             fprintf( fp, "\n" );
@@ -794,7 +809,7 @@ void SurfaceIntersectionSingleton::Intersect()
     BuildCurves();
 }
 
-void SurfaceIntersectionSingleton::AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3d & ip0, vec3d & ip1 )
+void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, const SurfPatch& pB, const vec3d & ip0, const vec3d & ip1 )
 {
     double d = dist_squared( ip0, ip1 );
     if ( d < DBL_EPSILON )
@@ -1959,6 +1974,48 @@ void SurfaceIntersectionSingleton::TestStuff()
     d = dist( psurf, ppatch );
 }
 
+void SurfaceIntersectionSingleton::BinaryAdaptIntCurves()
+{
+    m_BinAdaptCurveAVec.clear();
+    m_BinAdaptCurveBVec.clear();
+    m_RawCurveAVec.clear();
+    m_RawCurveBVec.clear();
+    m_BorderCurveFlagVec.clear();
+
+    list<ISegChain *>::iterator c;
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    {
+        m_BorderCurveFlagVec.push_back( (*c)->m_BorderFlag );
+
+        vector<vec3d> ptvec;
+        vector<vec3d> rawptvec;
+
+        Bezier_curve xyzcrvA = (*c)->m_ACurve.GetUWCrv();
+        xyzcrvA.TessAdaptXYZ( *(*c)->m_ACurve.GetSurf(), ptvec, GetSettingsPtr()->m_RelCurveTol, 16 );
+
+        m_BinAdaptCurveAVec.push_back( ptvec );
+
+        xyzcrvA.UWCurveToXYZCurve( (*c)->m_ACurve.GetSurf() );
+        xyzcrvA.GetControlPoints( rawptvec );
+
+        m_RawCurveAVec.push_back( rawptvec );
+
+
+        ptvec.clear();
+        rawptvec.clear();
+        Bezier_curve xyzcrvB = (*c)->m_BCurve.GetUWCrv();
+        xyzcrvB.TessAdaptXYZ( *(*c)->m_BCurve.GetSurf(), ptvec, GetSettingsPtr()->m_RelCurveTol, 16 );
+
+        m_BinAdaptCurveBVec.push_back( ptvec );
+
+        xyzcrvB.UWCurveToXYZCurve( (*c)->m_BCurve.GetSurf() );
+        xyzcrvB.GetControlPoints( rawptvec );
+
+        m_RawCurveBVec.push_back( rawptvec );
+
+    }
+}
+
 void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
     if ( m_MeshInProgress )
@@ -2047,15 +2104,14 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
     m_RawBorderPtsDO.m_PntVec.clear();
     m_ApproxPlanesDO.m_PntVec.clear();
 
-    list<ISegChain *>::iterator c;
-    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    for ( int indx = 0; indx < m_RawCurveAVec.size(); indx++ )
     {
         DrawObj *curveDO;
         DrawObj *ptsDO;
         DrawObj *rawcurveDO;
         DrawObj *rawptsDO;
 
-        if ( (*c)->m_BorderFlag )
+        if ( m_BorderCurveFlagVec[indx] )
         {
             curveDO = &m_BorderCurveDO;
             ptsDO = &m_BorderPtsDO;
@@ -2074,12 +2130,9 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
             vector<vec3d> ptvec;
             vector<vec3d> rawptvec;
 
-            Bezier_curve xyzcrvA = (*c)->m_ACurve.GetUWCrv();
-            xyzcrvA.TessAdaptXYZ( *(*c)->m_ACurve.GetSurf(), ptvec, GetSettingsPtr()->m_DrawRelCurveTol, 16 );
+            ptvec = m_BinAdaptCurveAVec[ indx ];
 
-            xyzcrvA.UWCurveToXYZCurve( (*c)->m_ACurve.GetSurf() );
-            xyzcrvA.GetControlPoints( rawptvec );
-
+            rawptvec = m_RawCurveAVec[ indx ];
 
             ptsDO->m_PntVec.insert( ptsDO->m_PntVec.end(), ptvec.begin(), ptvec.end() );
             rawptsDO->m_PntVec.insert( rawptsDO->m_PntVec.end(), rawptvec.begin(), rawptvec.end() );
@@ -2100,11 +2153,9 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
             ptvec.clear();
             rawptvec.clear();
 
-            Bezier_curve xyzcrvB = (*c)->m_BCurve.GetUWCrv();
-            xyzcrvB.TessAdaptXYZ( *(*c)->m_BCurve.GetSurf(), ptvec, GetSettingsPtr()->m_DrawRelCurveTol, 16 );
+            ptvec = m_BinAdaptCurveBVec[ indx ];
 
-            xyzcrvB.UWCurveToXYZCurve( (*c)->m_BCurve.GetSurf() );
-            xyzcrvB.GetControlPoints( rawptvec );
+            rawptvec = m_RawCurveBVec[ indx ];
 
             ptsDO->m_PntVec.insert( ptsDO->m_PntVec.end(), ptvec.begin(), ptvec.end() );
             rawptsDO->m_PntVec.insert( rawptsDO->m_PntVec.end(), rawptvec.begin(), rawptvec.end() );
@@ -2121,7 +2172,11 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
                 rawcurveDO->m_PntVec.push_back( rawptvec[j] );
             }
         }
+    }
 
+    list<ISegChain *>::iterator c;
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    {
         if ( !(*c)->m_BorderFlag )
         {
             (*c)->m_ISegBoxA.AppendLineSegs( m_ApproxPlanesDO.m_PntVec );
@@ -2173,7 +2228,7 @@ void SurfaceIntersectionSingleton::UpdateDisplaySettings()
         GetIntersectSettingsPtr()->m_DrawCurveFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.Get();
         GetIntersectSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.Get();
 
-        GetIntersectSettingsPtr()->m_DrawRelCurveTol = m_Vehicle->GetISectSettingsPtr()->m_DrawRelCurveTol.Get();
+        GetIntersectSettingsPtr()->m_RelCurveTol = m_Vehicle->GetISectSettingsPtr()->m_RelCurveTol.Get();
 
         GetIntersectSettingsPtr()->m_IntersectSubSurfs = m_Vehicle->GetISectSettingsPtr()->m_IntersectSubSurfs.Get();
         GetIntersectSettingsPtr()->m_SelectedSetIndex = m_Vehicle->GetISectSettingsPtr()->m_SelectedSetIndex.Get();

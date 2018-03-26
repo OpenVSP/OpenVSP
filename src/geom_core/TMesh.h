@@ -328,7 +328,7 @@ public:
     int m_InteriorFlag;
     string m_ID;
     vector<int> m_Tags;
-    double m_Mass;
+    double m_Density;
     int m_InvalidFlag;
 
     TEdge* m_E0;

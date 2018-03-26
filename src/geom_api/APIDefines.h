@@ -197,7 +197,11 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_BEM,
                     EXPORT_DXF,
                     EXPORT_FACET,
-                    EXPORT_SVG
+                    EXPORT_SVG,
+                    EXPORT_PMARC,
+                    EXPORT_OBJ,
+                    EXPORT_SELIG_AIRFOIL,
+                    EXPORT_BEZIER_AIRFOIL
                  };
 
 enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
@@ -236,7 +240,8 @@ enum RES_DATA_TYPE {    INVALID_TYPE = -1,
                         INT_DATA = 0,
                         DOUBLE_DATA = 1,
                         STRING_DATA = 2,
-                        VEC3D_DATA = 3
+                        VEC3D_DATA = 3,
+                        DOUBLE_MATRIX_DATA = 4,
                    };
 
 enum RES_GEOM_TYPE {    MESH_INDEXED_TRI,
@@ -298,6 +303,7 @@ enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
 
 enum FEA_EXPORT_TYPE { FEA_MASS_FILE_NAME,
                        FEA_NASTRAN_FILE_NAME,
+                       FEA_NKEY_FILE_NAME,
                        FEA_CALCULIX_FILE_NAME,
                        FEA_STL_FILE_NAME,
                        FEA_GMSH_FILE_NAME,
@@ -465,6 +471,7 @@ enum PROP_PCURVE { PROP_CHORD,
                    PROP_TWIST,
                    PROP_RAKE,
                    PROP_SKEW,
+                   PROP_SWEEP,
                    NUM_PROP_PCURVE
                  };
 
@@ -613,6 +620,10 @@ enum SUBSURF_INCLUDE { SS_INC_TREAT_AS_PARENT,
                        SS_INC_SEPARATE_TREATMENT,
                        SS_INC_ZERO_DRAG,
                      };
+
+enum AIRFOIL_EXPORT_TYPE { SELIG_AF_EXPORT,
+                           BEZIER_AF_EXPORT
+                         };
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)

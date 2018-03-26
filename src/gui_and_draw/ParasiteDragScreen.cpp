@@ -27,7 +27,7 @@ using namespace std;
 #define DRAG_TAB_WIDTH 310          // width of the tab group
 #define DRAG_TABLE_WIDTH 470        // width of the drag build-up table
 #define DRAG_TABLE_PERSISTENT_WIDTH 180 // width of persistent sectino of drag table
-#define TOTAL_WINDOW_HEIGHT 560     // Entire Window Height
+#define TOTAL_WINDOW_HEIGHT 580     // Entire Window Height
 #define EXECUTE_LAYOUT_HEIGHT 65    // height needed for dividerbox and two buttons
 #define TYPICAL_INPUT_WIDTH 70      // input width for most table cells
 
@@ -176,7 +176,12 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_ExecuteLayout.SetFitWidthFlag( true );
     m_ExecuteLayout.AddDividerBox( "Execute" );
     m_ExecuteLayout.AddButton( m_calc, "Calculate CD0" );
+    m_ExecuteLayout.SetSameLineFlag( true );
+    m_ExecuteLayout.SetFitWidthFlag( false );
+    m_ExecuteLayout.SetButtonWidth( m_ExecuteLayout.GetW() / 2 );
+    m_ExecuteLayout.AddButton( m_SubCompExportToggle, "Export Sub-Components" );
     m_ExecuteLayout.AddButton( m_export, "Export to *.csv" );
+    m_ExecuteLayout.ForceNewLine();
 
     // Add Final Ouputs
     m_ConstantViewLayout.SetSameLineFlag( true );
@@ -358,6 +363,13 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_TempUnitChoice.AddItem( temp );
     m_TempUnitChoice.UpdateItems();
     m_TempUnitChoice.SetWidth( choice_list_width );
+    m_OptionsLayout.ForceNewLine();
+    m_OptionsLayout.AddSlider( m_FlowParmDeltaTempSlider, "dTemp", 100.0, "%7.2f" );
+    temp = deg + "F";
+    m_OptionsLayout.AddButton( m_DeltaTempUnitLabel, temp.c_str() );
+    m_DeltaTempUnitLabel.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_DeltaTempUnitLabel.SetWidth( choice_list_width );
+    m_DeltaTempUnitLabel.GetFlButton()->labelcolor( FL_BLACK );
     m_OptionsLayout.ForceNewLine();
 
     // Pressure Input and Units
@@ -647,6 +659,8 @@ bool ParasiteDragScreen::Update()
         UpdateDependentUnitLabels();
         UpdateChoiceDevices();     // Set Correct Options for Options
         UpdateSliderDevices();
+
+        m_SubCompExportToggle.Update( ParasiteDragMgr.m_ExportSubCompFlag.GetID() );
     }
 
     return false;
@@ -763,6 +777,7 @@ void ParasiteDragScreen::UpdateSliderDevices()
     m_SrefSlider.Update( ParasiteDragMgr.m_Sref.GetID() );
     m_FlowParmVinfSlider.Update( ParasiteDragMgr.m_Vinf.GetID() );
     m_FlowParmHinfSlider.Update( ParasiteDragMgr.m_Hinf.GetID() );
+    m_FlowParmDeltaTempSlider.Update( ParasiteDragMgr.m_DeltaT.GetID() );
     m_FlowParmTempSlider.Update( ParasiteDragMgr.m_Temp.GetID() );
     m_FlowParmPresSlider.Update( ParasiteDragMgr.m_Pres.GetID() );
     m_FlowParmRhoSlider.Update( ParasiteDragMgr.m_Rho.GetID() );
@@ -962,6 +977,7 @@ void ParasiteDragScreen::UpdateExcresTab()
 
 void ParasiteDragScreen::UpdateDependentUnitLabels()
 {
+    string deg( 1, 176 );
     string squared( 1, 178 );
     string cubed( 1, 179 );
     string temp;
@@ -1025,6 +1041,27 @@ void ParasiteDragScreen::UpdateDependentUnitLabels()
         m_DynViscUnitLabel.GetFlButton()->copy_label( "kg/m-s" );
         break;
     }
+
+    switch ( ParasiteDragMgr.m_TempUnit() )
+    {
+    case vsp::TEMP_UNIT_K:
+        temp = "K";
+        break;
+
+    case vsp::TEMP_UNIT_C:
+        temp = deg + "C";
+        break;
+
+    case vsp::TEMP_UNIT_F:
+        temp = deg + "F";
+        break;
+
+    case vsp::TEMP_UNIT_R:
+        temp = deg + "R";
+        break;
+    }
+
+    m_DeltaTempUnitLabel.GetFlButton()->copy_label( temp.c_str() );
 }
 
 void ParasiteDragScreen::Show()
@@ -1352,6 +1389,75 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
                     }
                 }
             }
+            if ( device == &m_TawTwRatio[i] )
+            {
+                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->m_TawTwRatio.Set( stod( m_TawTwRatio[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_TawTwRatio.Set( stod( m_TawTwRatio[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+            }
+            if ( device == &m_TeTwRatio[i] )
+            {
+                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->m_TeTwRatio.Set( stod( m_TeTwRatio[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_TeTwRatio.Set( stod( m_TeTwRatio[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+            }
+            if ( device == &m_Roughness[i] )
+            {
+                if ( rowVec[i].SubSurfID.compare( "" ) == 0 )
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->m_Roughness.Set( stod( m_Roughness[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+                else
+                {
+                    try
+                    {
+                        vptr->FindGeom( rowVec[i].GeomID )->GetSubSurf( rowVec[i].SubSurfID )->m_Roughness.Set( stod( m_Roughness[i].GetString() ) );
+                    }
+                    catch ( const std::exception& )
+                    {
+                    }
+                }
+            }
         }
     }
     else
@@ -1423,8 +1529,6 @@ void ParasiteDragScreen::RebuildBuildUpTableLabels()
 
     if ( ParasiteDragMgr.m_TurbCfEqnType() == vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
     {
-        AddRoughnessLabel();
-
         m_MainTableLabelsLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH - 20 );
         m_MainTableLabelsLayout.AddButton( m_TeTwLabel, "Te/Tw" );
         m_TeTwLabel.GetFlButton()->box( FL_THIN_UP_BOX );
@@ -1755,7 +1859,7 @@ void ParasiteDragScreen::AddGeomsToTable()
                 SetupHeatTransfer( i, rowVec[i].TeTwRatio, rowVec[i].TawTwRatio );
                 SetupPercLaminar( i, rowVec[i].PercLam );
                 SetupCf( i, rowVec[i].Cf );
-                SetupQ( i, rowVec[i].Q );
+                SetupQ( i, rowVec[i].Q, rowVec[i].GeomShapeType, rowVec[i].FFEqnChoice );
                 Setupf( i, rowVec[i].f );
                 SetupCD( i, rowVec[i].CD );
                 SetupPercCD( i, rowVec[i].PercTotalCD );
@@ -1802,7 +1906,7 @@ void ParasiteDragScreen::AddGeomsToTable()
                         SetupHeatTransfer( i, rowVec[i].TeTwRatio, rowVec[i].TawTwRatio );
                         SetupPercLaminar( i, rowVec[i].PercLam );
                         SetupCf( i, rowVec[i].Cf );
-                        SetupQ( i, rowVec[i].Q );
+                        SetupQ( i, rowVec[i].Q, rowVec[i].GeomShapeType, rowVec[i].FFEqnChoice );
                     }
                     Setupf( i, rowVec[i].f );
                     SetupCD( i, rowVec[i].CD );
@@ -2063,7 +2167,7 @@ void ParasiteDragScreen::SetupRoughness( int index, double roughness )
 {
     ostringstream strs;
     int precision = 2;
-    if ( ParasiteDragMgr.m_TurbCfEqnType() >= vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG )
+    if ( ParasiteDragMgr.m_TurbCfEqnType() >= vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG && ParasiteDragMgr.m_TurbCfEqnType() < vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
     {
         m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH + 30 );
         m_TableLayout.AddInput( m_Roughness[index], "" );
@@ -2077,7 +2181,6 @@ void ParasiteDragScreen::SetupRoughness( int index, double roughness )
 
 void ParasiteDragScreen::SetupHeatTransfer( int index, double tetwratio, double tawtwratio )
 {
-    ostringstream strs;
     int precision = 2;
     if ( ParasiteDragMgr.m_TurbCfEqnType() == vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
     {
@@ -2086,6 +2189,7 @@ void ParasiteDragScreen::SetupHeatTransfer( int index, double tetwratio, double 
         m_TableLayout.AddInput( m_TeTwRatio[index], "" );
         if ( tetwratio != -1 )
         {
+            ostringstream strs;
             strs << setprecision( precision ) << fixed << tetwratio;
             m_TeTwRatio[index].Update( strs.str() );
         }
@@ -2095,6 +2199,7 @@ void ParasiteDragScreen::SetupHeatTransfer( int index, double tetwratio, double 
         m_TableLayout.AddInput( m_TawTwRatio[index], "" );
         if ( tawtwratio != -1 )
         {
+            ostringstream strs;
             strs << setprecision( precision ) << fixed << tawtwratio;
             m_TawTwRatio[index].Update( strs.str() );
         }
@@ -2127,14 +2232,20 @@ void ParasiteDragScreen::SetupCf( int index, double cf )
     }
 }
 
-void ParasiteDragScreen::SetupQ( int index, double Q )
+void ParasiteDragScreen::SetupQ( int index, double Q, int shapetype, int eqnchoice )
 {
+    // TODO: Update to use output GUI element for Jenkinson Tail
     ostringstream strs;
     int precision = 2;
     m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 20 );
     m_TableLayout.AddInput( m_Q[index], "" );
     if ( Q != -1 )
     {
+        if ( shapetype == vsp::WING_SURF && eqnchoice == vsp::FF_W_JENKINSON_TAIL )
+        {
+            Q = 1.2;
+        }
+
         strs << setprecision( precision ) << fixed << Q;
         m_Q[index].Update( strs.str() );
     }

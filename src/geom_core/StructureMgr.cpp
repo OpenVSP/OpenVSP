@@ -458,11 +458,23 @@ void StructureMgrSingleton::UpdateStructUnit( int new_unit )
             }
             else if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_BEAM )
             {
-                m_FeaPropertyVec[i]->m_CrossSecArea.Set( ConvertLength2( m_FeaPropertyVec[i]->m_CrossSecArea.Get(), length_unit_old, length_unit_new ) );
-                m_FeaPropertyVec[i]->m_Ixx.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Ixx.Get(), length_unit_old, length_unit_new ) );
-                m_FeaPropertyVec[i]->m_Iyy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Iyy.Get(), length_unit_old, length_unit_new ) );
-                m_FeaPropertyVec[i]->m_Izy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izy.Get(), length_unit_old, length_unit_new ) );
-                m_FeaPropertyVec[i]->m_Izz.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izz.Get(), length_unit_old, length_unit_new ) );
+                if ( m_FeaPropertyVec[i]->m_CrossSectType() == vsp::FEA_XSEC_GENERAL )
+                {
+                    m_FeaPropertyVec[i]->m_CrossSecArea.Set( ConvertLength2( m_FeaPropertyVec[i]->m_CrossSecArea.Get(), length_unit_old, length_unit_new ) );
+                    m_FeaPropertyVec[i]->m_Ixx.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Ixx.Get(), length_unit_old, length_unit_new ) );
+                    m_FeaPropertyVec[i]->m_Iyy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Iyy.Get(), length_unit_old, length_unit_new ) );
+                    m_FeaPropertyVec[i]->m_Izy.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izy.Get(), length_unit_old, length_unit_new ) );
+                    m_FeaPropertyVec[i]->m_Izz.Set( ConvertLength4( m_FeaPropertyVec[i]->m_Izz.Get(), length_unit_old, length_unit_new ) );
+                }
+                else
+                {
+                    m_FeaPropertyVec[i]->m_Dim1.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim1.Get(), length_unit_old, length_unit_new ) );
+                    m_FeaPropertyVec[i]->m_Dim2.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim2.Get(), length_unit_old, length_unit_new ) );
+                    m_FeaPropertyVec[i]->m_Dim3.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim3.Get(), length_unit_old, length_unit_new ) );
+                    m_FeaPropertyVec[i]->m_Dim4.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim4.Get(), length_unit_old, length_unit_new ) );
+                    m_FeaPropertyVec[i]->m_Dim5.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim5.Get(), length_unit_old, length_unit_new ) );
+                    m_FeaPropertyVec[i]->m_Dim6.Set( ConvertLength( m_FeaPropertyVec[i]->m_Dim6.Get(), length_unit_old, length_unit_new ) );
+                }
             }
         }
 

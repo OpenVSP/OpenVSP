@@ -88,9 +88,14 @@ AdvLink* AdvLinkMgrSingleton::AddLink( const string & name )
 void AdvLinkMgrSingleton::DelLink( AdvLink* link_ptr )
 {
     if ( !link_ptr )
+    {
         return;
+    }
+
     if ( m_ActiveLink == link_ptr )
+    {
         m_ActiveLink = NULL;
+    }
     m_EditLinkIndex = -1;
 
     vector_remove_val( m_LinkVec, link_ptr );
@@ -137,7 +142,7 @@ void AdvLinkMgrSingleton::CheckLinks()
 
     for ( int i = 0 ; i < ( int )del_indices.size() ; i++ )
     {
-        AdvLink* del_link = m_LinkVec[i];
+        AdvLink* del_link = m_LinkVec[ del_indices[i] ];
         DelLink( del_link );
     }
 }

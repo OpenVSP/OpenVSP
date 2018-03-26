@@ -446,9 +446,18 @@ public:
         return m_BBox;
     }
 
+    virtual void WriteAirfoilFiles( FILE* meta_fid );
+    virtual void WriteBezierAirfoil( const string & file_name, double foilsurf_u_location );
+    virtual void WriteSeligAirfoil( const string & file_name, double foilsurf_u_location );
+    virtual vector < vec3d > GetAirfoilCoordinates( double foilsurf_u_location );
+
     virtual void WriteXSecFile( int geom_no, FILE* dump_file );
     virtual void WritePLOT3DFileExtents( FILE* dump_file );
     virtual void WritePLOT3DFileXYZ( FILE* dump_file );
+
+    virtual void SetupPMARCFile( int &ipatch, vector < int > &idpat );
+    virtual void WritePMARCGeomFile(FILE *dump_file, int &ipatch, vector<int> &idpat);
+    virtual void WritePMARCWakeFile(FILE *dump_file, int &ipatch, vector<int> &idpat);
     virtual void WriteStl( FILE* fid ) {};
     virtual void WriteX3D( xmlNodePtr node );
     virtual void WritePovRay( FILE* fid, int comp_num );
@@ -649,6 +658,8 @@ public:
     virtual void OffsetXSecs( double off )          {}
 
     virtual void UpdateDegenDrawObj();
+
+    virtual void ExportSurfacePatches( vector< string > &surf_res_ids );
 
 protected:
 

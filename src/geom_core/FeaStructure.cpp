@@ -77,6 +77,8 @@ xmlNodePtr FeaStructure::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr fea_info = xmlNewChild( node, NULL, BAD_CAST "FeaStructureInfo", NULL );
 
+    ParmContainer::EncodeXml( fea_info );
+
     XmlUtil::AddStringNode( fea_info, "ParentGeomID", m_ParentGeomID );
     XmlUtil::AddIntNode( fea_info, "MainSurfIndx", m_MainSurfIndx );
 
@@ -103,6 +105,8 @@ xmlNodePtr FeaStructure::EncodeXml( xmlNodePtr & node )
 
 xmlNodePtr FeaStructure::DecodeXml( xmlNodePtr & node )
 {
+    ParmContainer::DecodeXml( node );
+
     int numparts = XmlUtil::GetNumNames( node, "FeaPartInfo" );
 
     for ( unsigned int i = 0; i < numparts; i++ )

@@ -52,11 +52,13 @@ private:
     int NumberOfEdgesOnBoundary_;
 
     int *EdgeIsOnFront_;
+    int *NodeIsOnFront_;
     int *VortexLoopWasAgglomerated_;
     int *CoarseEdgeList_;    
     int *CoarseNodeList_;
     int *EdgeDegree_;
     int *FrontEdgeQueue_;
+
     int NextEdgeInQueue_;
     int NumberOfEdgesInQueue_;
     int NextBestEdgeOnFront_;
@@ -80,12 +82,12 @@ private:
     void InitializeFront_(void);
     
     int NextAgglomerationEdge_(void);
-    int NextAgglomerationEdgeOld_(void);
-    
+
     void UpdateFront_(void);
     
     void MergeVortexLoops_(void);
-    
+    void MergeVortexLoopsOld_(void);
+
     void CheckLoopQuality_(void);
     
     void CreateCoarseMesh_(void);

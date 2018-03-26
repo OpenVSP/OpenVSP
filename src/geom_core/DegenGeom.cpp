@@ -1149,18 +1149,18 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
 
     if( type == SURFACE_TYPE )
     {
-        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
         fprintf( file_id, "\nLIFTING_SURFACE,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
     }
     else if( type == DISK_TYPE )
     {
-        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
         fprintf( file_id, "\nDISK,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
         write_degenGeomDiskCsv_file( file_id );
     }
     else
     {
-        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
         fprintf( file_id, "\nBODY,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
     }
 
@@ -1362,18 +1362,23 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
     if( type == SURFACE_TYPE )
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'LIFTING_SURFACE';" );
-        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
     }
     else if( type == DISK_TYPE )
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'DISK';" );
-        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
-        write_degenGeomDiskM_file( file_id );
     }
     else
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'BODY';" );
-        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
+    }
+
+    fprintf( file_id, "\ndegenGeom(end).name = '%s';", name.c_str() );
+    fprintf( file_id, "\ndegenGeom(end).geom_id = '%s';", parentGeom->GetID().c_str() );
+    fprintf( file_id, "\ndegenGeom(end).surf_index = %d;\n", getSurfNum() );
+
+    if( type == DISK_TYPE )
+    {
+        write_degenGeomDiskM_file(file_id);
     }
 
     write_degenGeomSurfM_file( file_id, nxsecs );
@@ -1408,4 +1413,197 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
     {
         write_degenHingeLineM_file( file_id, i );
     }
+}
+
+void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_ids )
+{
+    Results *res = ResultsMgr.CreateResults( "Degen_DegenGeom" );
+    degen_results_ids.push_back( res->GetID() );
+    if ( type == SURFACE_TYPE )
+    {
+        res->Add( NameValData( "type", "LIFTING_SURFACE" ) );
+    }
+    else if ( type == DISK_TYPE )
+    {
+        res->Add( NameValData( "type", "DISK" ) );
+    }
+    else
+    {
+        res->Add( NameValData( "type", "BODY" ) );
+    }
+
+    res->Add( NameValData( "name", name ) );
+    res->Add( NameValData( "surf_index", getSurfNum() ) );
+    res->Add( NameValData( "geom_id", parentGeom->GetID() ) );
+
+    if ( type == DISK_TYPE )
+    {
+        write_degenGeomDiskResultsManger( res );
+    }
+
+    write_degenGeomSurfResultsManager( res );
+
+    if ( type == DISK_TYPE )
+    {
+        return;
+    }
+
+    vector< string > plate_ids;
+    for ( unsigned int i = 0; i < degenPlates.size(); i++ )
+    {
+        write_degenGeomPlateResultsManager( plate_ids, degenPlates[i] );
+    }
+    res->Add( NameValData( "plates", plate_ids ) );
+
+    vector< string > stick_ids;
+    for ( unsigned int i = 0; i < degenSticks.size(); i++ )
+    {
+        write_degenGeomStickResultsManager( stick_ids, degenSticks[i] );
+    }
+    res->Add( NameValData( "sticks", stick_ids ) );
+
+    write_degenGeomPointResultsManager( res );
+
+    vector< string > subsurf_ids;
+    for ( unsigned int i = 0; i < degenSubSurfs.size(); i++ )
+    {
+        write_degenSubSurfResultsManager( subsurf_ids, degenSubSurfs[i] );
+    }
+    res->Add( NameValData( "subsurfs", subsurf_ids ) );
+
+    vector< string > hinge_ids;
+    for ( unsigned int i = 0; i < degenHingeLines.size(); i++ )
+    {
+        write_degenHingeLineResultsManager( hinge_ids, degenHingeLines[i] );
+    }
+    res->Add( NameValData( "hinges", hinge_ids ) );
+}
+
+void DegenGeom::write_degenGeomDiskResultsManger( Results *res )
+{
+    if ( !res ) { return; }
+
+    Results *disk_res = ResultsMgr.CreateResults( "Degen_disk" );
+    res->Add( NameValData( "disk", disk_res->GetID() ) );
+
+    disk_res->Add( NameValData( "diameter", degenDisk.d ) );
+    disk_res->Add( NameValData( "pos", degenDisk.x ) );
+    disk_res->Add( NameValData( "n", degenDisk.nvec ) );
+
+}
+
+void DegenGeom::write_degenGeomSurfResultsManager( Results *res )
+{
+    if ( !res ) { return; }
+
+    Results *surf_res = ResultsMgr.CreateResults( "Degen_surf" );
+    res->Add( NameValData ( "surf", surf_res->GetID() ) );
+
+    surf_res->Add( NameValData( "nxsecs", num_xsecs ) );
+    surf_res->Add( NameValData( "num_pnts", num_pnts ) );
+    surf_res->Add( degenSurface.x, "" );
+    surf_res->Add( NameValData( "u", degenSurface.u ) );
+    surf_res->Add( NameValData( "w", degenSurface.w ) );
+    surf_res->Add( degenSurface.nvec, "n" );
+    surf_res->Add( NameValData( "area", degenSurface.area ) );
+}
+
+void DegenGeom::write_degenGeomPlateResultsManager( vector< string > &plate_ids, const DegenPlate &degenPlate )
+{
+    Results *plate_res = ResultsMgr.CreateResults( "Degen_plate" );
+    plate_ids.push_back( plate_res->GetID() );
+
+    plate_res->Add( NameValData( "nxsecs", num_xsecs ) );
+    plate_res->Add( NameValData( "num_pnts", num_pnts ) );
+
+    plate_res->Add( NameValData( "n", degenPlate.nPlate ) );
+    plate_res->Add( degenPlate.x, "" );
+    plate_res->Add( NameValData( "zCamber", degenPlate.zcamber ) );
+    plate_res->Add( NameValData( "t", degenPlate.t ) );
+    plate_res->Add( degenPlate.nCamber, "nCamber_" );
+    plate_res->Add( NameValData( "u", degenPlate.u ) );
+    plate_res->Add( NameValData( "wTop", degenPlate.wTop ) );
+    plate_res->Add( NameValData( "wBot", degenPlate.wBot ) );
+}
+
+void DegenGeom::write_degenGeomStickResultsManager( vector<string> &stick_ids, const DegenStick &degenStick )
+{
+    Results *stick_res = ResultsMgr.CreateResults( "Degen_stick" );
+    stick_ids.push_back( stick_res->GetID() );
+
+    stick_res->Add( NameValData( "nxsecs", num_xsecs ) );
+    stick_res->Add( NameValData( "le", degenStick.xle ) );
+    stick_res->Add( NameValData( "te", degenStick.xte ) );
+    stick_res->Add( NameValData( "cgShell", degenStick.xcgShell ) );
+    stick_res->Add( NameValData( "cgSolid", degenStick.xcgSolid ) );
+    stick_res->Add( NameValData( "toc", degenStick.toc ) );
+    stick_res->Add( NameValData( "tLoc", degenStick.tLoc ) );
+    stick_res->Add( NameValData( "chord", degenStick.chord ) );
+    stick_res->Add( NameValData( "Ishell", degenStick.Ishell ) );
+    stick_res->Add( NameValData( "Isolid", degenStick.Isolid ) );
+    stick_res->Add( NameValData( "sectArea", degenStick.sectarea ) );
+    stick_res->Add( NameValData( "sectNormal", degenStick.sectnvec ) );
+    stick_res->Add( NameValData( "perimTop", degenStick.perimTop ) );
+    stick_res->Add( NameValData( "perimBot", degenStick.perimBot ) );
+    stick_res->Add( NameValData( "u", degenStick.u ) );
+    stick_res->Add( NameValData( "transmat", degenStick.transmat ) );
+    stick_res->Add( NameValData( "invtransmat", degenStick.invtransmat ) );
+    stick_res->Add( NameValData( "toc2", degenStick.toc2 ) );
+    stick_res->Add( NameValData( "tLoc2", degenStick.tLoc2 ) );
+    stick_res->Add( NameValData( "anglele", degenStick.anglele ) );
+    stick_res->Add( NameValData( "anglete", degenStick.anglete ) );
+    stick_res->Add( NameValData( "radleTop", degenStick.radleTop ) );
+    stick_res->Add( NameValData( "radleBot", degenStick.radleBot ) );
+
+    stick_res->Add( NameValData( "sweeple", degenStick.sweeple ) );
+    stick_res->Add( NameValData( "sweepte", degenStick.sweepte ) );
+    stick_res->Add( NameValData( "areaTop", degenStick.areaTop ) );
+    stick_res->Add( NameValData( "areaBot", degenStick.areaBot ) );
+}
+
+void DegenGeom::write_degenGeomPointResultsManager( Results *res )
+{
+    if ( !res ) { return; }
+
+    Results *point_res = ResultsMgr.CreateResults( "point" );
+    res->Add( NameValData( "point", point_res->GetID() ) );
+
+    point_res->Add( NameValData( "vol", degenPoint.vol[0] ) );
+    point_res->Add( NameValData( "volWet", degenPoint.volWet[0] ) );
+    point_res->Add( NameValData( "area", degenPoint.area[0] ) );
+    point_res->Add( NameValData( "areaWet", degenPoint.areaWet[0] ) );
+    point_res->Add( NameValData( "Ishell", degenPoint.Ishell[0] ) );
+    point_res->Add( NameValData( "Isolid", degenPoint.Isolid[0] ) );
+    point_res->Add( NameValData( "cgShell", degenPoint.xcgShell ) );
+    point_res->Add( NameValData( "cgSolid", degenPoint.xcgSolid ) );
+}
+
+void DegenGeom::write_degenSubSurfResultsManager( vector<string> &subsurf_ids, const DegenSubSurf &degenSubSurf )
+{
+    Results* subsurf_res = ResultsMgr.CreateResults( "Degen_subsurf" );
+    subsurf_ids.push_back( subsurf_res->GetID() );
+
+    subsurf_res->Add( NameValData( "name", degenSubSurf.name ) );
+    subsurf_res->Add( NameValData( "typeName", degenSubSurf.typeName ) );
+    subsurf_res->Add( NameValData( "typeId", degenSubSurf.typeId ) );
+    subsurf_res->Add( NameValData( "fullName", degenSubSurf.fullName ) );
+    subsurf_res->Add( NameValData( "testType", degenSubSurf.testType ) );
+
+    subsurf_res->Add( NameValData( "u", degenSubSurf.u ) );
+    subsurf_res->Add( NameValData( "w", degenSubSurf.w ) );
+    subsurf_res->Add( NameValData( "x", degenSubSurf.x ) );
+}
+
+void DegenGeom::write_degenHingeLineResultsManager( vector<string> &hinge_ids, const DegenHingeLine &degenHingeLine )
+{
+    Results *hinge_res = ResultsMgr.CreateResults( "Degen_hinge" );
+    hinge_ids.push_back( hinge_res->GetID() );
+
+    hinge_res->Add( NameValData( "name", degenHingeLine.name ) );
+    hinge_res->Add( NameValData( "uStart", degenHingeLine.uStart ) );
+    hinge_res->Add( NameValData( "uEnd", degenHingeLine.uEnd ) );
+    hinge_res->Add( NameValData( "wStart", degenHingeLine.wStart ) );
+    hinge_res->Add( NameValData( "wEnd", degenHingeLine.wEnd ) );
+    hinge_res->Add( NameValData( "xStart", degenHingeLine.xStart ) );
+    hinge_res->Add( NameValData( "xEnd", degenHingeLine.xEnd ) );
 }

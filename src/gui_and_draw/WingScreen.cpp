@@ -24,13 +24,12 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
 
     m_PlanLayout.AddDividerBox( "Total Planform" );
 
+    m_PlanLayout.SetButtonWidth( 100 );
     m_PlanLayout.AddSlider( m_PlanSpanSlider, "Span", 10, "%6.5f" );
     m_PlanLayout.AddSlider( m_PlanProjSpanSlider, "Proj Span", 10, "%6.5f" );
     m_PlanLayout.AddSlider( m_PlanChordSlider, "Chord", 10, "%6.5f" );
     m_PlanLayout.AddSlider( m_PlanAreaSlider, "Area", 10, "%6.5f" );
-
-    m_PlanLayout.SetButtonWidth( 100 );
-    m_PlanLayout.AddOutput( m_PlanAROutput, "Aspect Ratio" );
+    m_PlanLayout.AddOutput( m_PlanAROutput, "Aspect Ratio", "%6.5f" );
 
     m_PlanLayout.AddYGap();
     
@@ -719,9 +718,7 @@ bool WingScreen::Update()
 
     m_SmallPanelWOutput.Update( wing_ptr->m_SmallPanelW.GetID() );
     m_MaxGrowthOutput.Update( wing_ptr->m_MaxGrowth.GetID() );
-
-    sprintf( str, "%6.4f", wing_ptr->m_TotalProjSpan() * wing_ptr->m_TotalProjSpan() / wing_ptr->m_TotalArea() );
-    m_PlanAROutput.Update( str );
+    m_PlanAROutput.Update( wing_ptr->m_TotalAR.GetID() );
 
     m_RootCapTypeChoice.Update( wing_ptr->m_CapUMinOption.GetID() );
     m_TipCapTypeChoice.Update( wing_ptr->m_CapUMaxOption.GetID() );

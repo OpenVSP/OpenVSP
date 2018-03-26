@@ -69,11 +69,13 @@ void VORTEX_TRAIL::init(void)
     
     GammaSave_ = NULL;
 
-    MaxConvectedDistance_ = 1.e12;
+    MaxConvectedDistance_ = 0.;
     
     DoGroundEffectsAnalysis_ = 0;
     
     NoKarmanTsienCorrection_ = 0;
+    
+    CoreSize_ = 1.;
             
 }
 
@@ -213,6 +215,10 @@ VORTEX_TRAIL& VORTEX_TRAIL::operator=(const VORTEX_TRAIL &Trailing_Vortex)
     
     Vinf_ = Trailing_Vortex.Vinf_;
     
+    RotorAnalysis_ = Trailing_Vortex.RotorAnalysis_;
+    
+    BladeRPM_ = Trailing_Vortex.BladeRPM_;
+    
     NoKarmanTsienCorrection_ = Trailing_Vortex.NoKarmanTsienCorrection_;
     
     return *this;
@@ -278,7 +284,7 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
 {
 
     int i, j, k, m, Level, Done;
-    double Vec[3], Theta, DTheta, Ds, Eps;
+    double Vec[3], Theta, DTheta, Ds, Eps, Omega, Time, Radius;
     VSP_NODE NodeA, NodeB;
     
     FarDist_ = FarDist;   
@@ -407,13 +413,41 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
        
     }    
     
-    for ( i = 1 ; i <= NumberOfNodes_  ; i++ ) {
-
-       NodeList_[i].x() = TE_Node_.x() + Vec[0]*S_[i];
-       NodeList_[i].y() = TE_Node_.y() + Vec[1]*S_[i];
-       NodeList_[i].z() = TE_Node_.z() + Vec[2]*S_[i];
+    // Simple free stream, planar wakes
+    
+    if ( !RotorAnalysis_ ) {
        
-    }    
+       for ( i = 1 ; i <= NumberOfNodes_  ; i++ ) {
+   
+          NodeList_[i].x() = TE_Node_.x() + Vec[0]*S_[i];
+          NodeList_[i].y() = TE_Node_.y() + Vec[1]*S_[i];
+          NodeList_[i].z() = TE_Node_.z() + Vec[2]*S_[i];
+          
+       }  
+       
+    }
+    
+    // Helical wake
+    
+    else {  
+
+       Omega = -BladeRPM_ * 2. * PI / 60.;
+           
+       for ( i = 1 ; i <= NumberOfNodes_  ; i++ ) {
+   
+          Time = S_[i] / Vinf_;
+          
+          Radius = sqrt( TE_Node_.y()*TE_Node_.y() + TE_Node_.z()*TE_Node_.z() );
+          
+          Theta = atan2(TE_Node_.y(), TE_Node_.z());
+          
+          NodeList_[i].x() = TE_Node_.x() + S_[i];
+          NodeList_[i].y() = Radius * sin(Omega * Time + Theta);
+          NodeList_[i].z() = Radius * cos(Omega * Time + Theta);
+          
+       }  
+              
+    }
 
     // Now merge vortices to create course grids
         
@@ -514,11 +548,45 @@ void VORTEX_TRAIL::Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VS
 
 void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3])
 {
+   
+   CoreSize_ = 1.;
+   
+   InducedVelocity_(xyz_p, q);
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VORTEX_TRAIL SimpleVortex                            #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3], double CoreSize)
+{
+   
+   CoreSize_ = CoreSize;
+   
+   InducedVelocity_(xyz_p, q);
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VORTEX_TRAIL SimpleVortex                            #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_TRAIL::InducedVelocity_(double xyz_p[3], double q[3])
+{
  
    int i, Level;
    double dq[3], Fact;
    double Vec1[3], Vec2[3], Radius;
 
+   // Set core size to 1
+   
+   CoreSize_ = 1.;
+   
    // Update the vortex strengths for all of the sub vortex elements
    // This has to be here... since the wake agglomeration routine, 
    // at the vortex sheet level, may change gamma
@@ -561,14 +629,16 @@ void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3])
     
    VortexEdgeList(Level)[i].InducedVelocity(xyz_p, dq);
 
-   Fact = MIN(Radius/pow(VortexEdgeList(Level)[i].Sigma(),2.),1.);
+   Fact = Radius/(CoreSize_*VortexEdgeList(Level)[i].Sigma());
+   
+   Fact = MIN(Fact*Fact,1.);
 
    q[0] += Fact*dq[0];
    q[1] += Fact*dq[1];
    q[2] += Fact*dq[2];
 //djk
    // Uncomment below to make things 2D
-   //q[0] = q[1] = q[2] = 0.;
+  // q[0] = q[1] = q[2] = 0.;
  
 }
 
@@ -584,7 +654,7 @@ void VORTEX_TRAIL::CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, double xy
    double Vec[3], dq[3], Dot, Dist, Radius, Fact, Ratio, FarAway;
 
    FarAway = 3.;
-   
+
    Dist = sqrt( SQR(VortexEdge.Xc() - xyz_p[0]) 
               + SQR(VortexEdge.Yc() - xyz_p[1]) 
               + SQR(VortexEdge.Zc() - xyz_p[2]) );
@@ -609,7 +679,9 @@ void VORTEX_TRAIL::CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, double xy
       
       VortexEdge.InducedVelocity(xyz_p, dq);
 
-      Fact = MIN(Radius/pow(VortexEdge.Sigma(),2.),1.);
+      Fact = Radius/(CoreSize_*VortexEdge.Sigma());
+   
+      Fact = MIN(Fact*Fact,1.);
 
       q[0] += Fact*dq[0];
       q[1] += Fact*dq[1];
@@ -650,8 +722,6 @@ void VORTEX_TRAIL::UpdateGamma(void)
             // Initialize each subvortex
 
             VortexEdgeList(Level)[i].Gamma() = Gamma_[0];
-
-            VortexEdgeList(Level)[i].Mach() = Mach_;
 
          }
          
@@ -697,11 +767,11 @@ void VORTEX_TRAIL::UpdateGamma(void)
   
 /*##############################################################################
 #                                                                              #
-#                        VORTEX_TRAIL UpdateLocation                           #
+#                    VORTEX_TRAIL UpdateWakeLocation                           #
 #                                                                              #
 ##############################################################################*/
 
-double VORTEX_TRAIL::UpdateLocation(void)
+double VORTEX_TRAIL::UpdateWakeLocation(void)
 {
  
     int i, j, m, Level;
@@ -716,13 +786,13 @@ double VORTEX_TRAIL::UpdateLocation(void)
    
     for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
      
-        LimitVelocity(VortexEdgeVelocity(i));
+  //  LimitVelocity(VortexEdgeVelocity(i));
 
         U[i] = VortexEdgeVelocity(i)[0];
         V[i] = VortexEdgeVelocity(i)[1];
         W[i] = VortexEdgeVelocity(i)[2];
         
-        if ( S_[i] <= 0.25*Sigma_  ) {
+        if ( S_[i] <= Sigma_  ) {
          
            U[i] = TEVec_[0];
            V[i] = TEVec_[1];
@@ -732,6 +802,8 @@ double VORTEX_TRAIL::UpdateLocation(void)
 
     }
 
+    // Align wake with streamlines
+    
     NodeList_[1].x() = TE_Node_.x();
     NodeList_[1].y() = TE_Node_.y(); 
     NodeList_[1].z() = TE_Node_.z();
@@ -761,6 +833,8 @@ double VORTEX_TRAIL::UpdateLocation(void)
         Relax = 0.85;
         
         if ( Mag >= 2. ) Relax = 0.5;
+        
+        if ( RotorAnalysis_ ) Relax = 0.1;
 
         NodeList_[i+1].x() += Relax*dx;
         NodeList_[i+1].y() += Relax*dy;
@@ -774,7 +848,7 @@ double VORTEX_TRAIL::UpdateLocation(void)
 
     MaxDelta = sqrt(MaxDelta);
 
-    // Update trailing vortex shape
+    // Update the agglomerated trailing wake approximations
     
     m = 1;
     
@@ -850,7 +924,7 @@ void VORTEX_TRAIL::SaveVortexState(void)
 void VORTEX_TRAIL::ConvectWakeVorticity(int ConvectType)
 {
  
-    int i;
+    int i, n;
     double dS, CFL, Fact;
 
     // Set convection type
@@ -865,7 +939,7 @@ void VORTEX_TRAIL::ConvectWakeVorticity(int ConvectType)
     
     if ( ConvectType_ == IMPLICIT_WAKE_GAMMAS ) {
        
-       // Zero out everything except trailing edge ( j = 0) vorticity
+       // Zero out everything except trailing edge ( i = 0 ) vorticity
              
        for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
        
@@ -953,158 +1027,41 @@ void VORTEX_TRAIL::ConvectWakeVorticity(int ConvectType)
     
     // Don't let errors from upwind scheme propagate further than
     // physically possible
-          
-    for ( i = 2 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
-
-       if ( S_[i] > MaxConvectedDistance_ ) Gamma_[i] = 0.;
-
-    }    
     
-    // Do a weighted update for final trailing vortex
+    if ( TimeAnalysisType_ == PATH_ANALYSIS ) { 
+    
+       n = MIN( (int) MaxConvectedDistance_, NumberOfSubVortices() + 2);
    
-    i = NumberOfSubVortices() + 1;
-    
-    if ( S_[i] <= MaxConvectedDistance_ ) {
-       
-       Fact = ( MaxConvectedDistance_ - S_[i] ) / ( S_[i+1] - S_[i] );
-       
-      Gamma_[i] = Fact * GammaNew_[i];
-       
-    }
-
-}
-
-/*##############################################################################
-#                                                                              #
-#                        VORTEX_TRAIL ConvectWakeVorticity                     #
-#                                                                              #
-##############################################################################*/
-
-void VORTEX_TRAIL::ConvectWakeVorticityOld(int ConvectType)
-{
+       for ( i = n ; i <= NumberOfSubVortices() + 1 ; i++ ) {
  
-    int i;
-    double dS, CFL, Temp, Fact;
-  
-    // Convect vorticity down stream along streamlines
-    
-    zero_double_array(GammaNew_, NumberOfSubVortices() + 2);
-    
-    // Just convecting the implicit portion of the wake
-    
-    if ( ConvectType == IMPLICIT_WAKE_GAMMAS ) {
-       
-       Temp = Gamma_[1];
-      
-       for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
-       
           Gamma_[i] = 0.;
-       
-       }
-       
-       Gamma_[0] = Temp;
-           
-    }
-    
-    // Just convecting the explicit portion of the wake
-    
-    else if ( ConvectType == EXPLICIT_WAKE_GAMMAS ) {
-  
-       for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
-       
-          Gamma_[i] = GammaSave_[i];
-       
-       }
-       
-       Gamma_[0] = 0.;
-                     
-    }
-    
-    // Convect and use the entire trailing wake
-    
-    else if ( ConvectType == ALL_WAKE_GAMMAS ) {
-       
-       Temp = Gamma_[1];
-              
-       for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
-       
-          Gamma_[i] = GammaSave_[i];
-       
-       }
-       
-       Gamma_[0] = Temp;
-       
-    }
-    
-    else {
-       
-       printf("Unknown convection option! \n");
-       
-       exit(1);
-       
-    }
-    
-    // Exact shift
-    
-    GammaNew_[1] = Gamma_[0];
-    
-    for ( i = 1 ; i <= NumberofExactShiftPoints_ ; i++ ) {
-       
-       GammaNew_[i] = Gamma_[i-1];
-       
-    }
-    
-    // Integrate rest of wake
-    
-    for ( i = NumberofExactShiftPoints_ + 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
 
-        dS = S_[i] - S_[i-1];
-
-        CFL = TimeStep_ / dS;
-        
-        // First order upwind
-        
-        if ( i < 2 ) {
-        
-           GammaNew_[i] = (Gamma_[i] + CFL * GammaNew_[i-1])/(1. + CFL);
-           
-        }
-        
-        // Second order upwind
-        
-        else {
-           
-           GammaNew_[i] = (Gamma_[i] + 0.5*CFL * (4.*GammaNew_[i-1] - GammaNew_[i-2]))/(1. + 1.5*CFL);
-
-        }
-
-    }
-
-    // Update gamma
-    
-    for ( i = 1 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
-       
-       Gamma_[i] = GammaNew_[i];
-       
-       // Don't let errors from upwind scheme propagate further than
-       // physically possible
-       
-       if ( S_[i] > MaxConvectedDistance_ ) Gamma_[i] = 0.;
+       }    
 
     }
     
-    // Do a weighted update for final trailing vortex
+    else {       
+                
+       for ( i = 2 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
    
-    i = NumberOfSubVortices() + 1;
-    
-    if ( S_[i] <= MaxConvectedDistance_ ) {
+          if ( S_[i] > MaxConvectedDistance_ ) Gamma_[i] = 0.;
+   
+       }    
        
-       Fact = ( S_[i] - MaxConvectedDistance_ ) / ( S_[i+1] - S_[i] );
+       // Do a weighted update for final trailing vortex
+      
+       i = NumberOfSubVortices() + 1;
        
-       Gamma_[i] = Fact * GammaNew_[i];
+       if ( S_[i] <= MaxConvectedDistance_ ) {
+          
+          Fact = ( MaxConvectedDistance_ - S_[i] ) / ( S_[i+1] - S_[i] );
+          
+          Gamma_[i] = Fact * GammaNew_[i];
+          
+       }       
        
     }
-
+    
 }
 
 /*##############################################################################
@@ -1180,9 +1137,9 @@ void VORTEX_TRAIL::SmoothVelocity(double *Velocity)
 
     for ( i = 2 ; i < NumberOfNodes ; i++ ) {
 
-       Ds = sqrt( pow(NodeList_[i].x() - NodeList_[i-1].x(),2.)
-                + pow(NodeList_[i].y() - NodeList_[i-1].y(),2.)
-                + pow(NodeList_[i].z() - NodeList_[i-1].z(),2.) );
+       Ds = sqrt( (NodeList_[i].x() - NodeList_[i-1].x())*(NodeList_[i].x() - NodeList_[i-1].x())
+                + (NodeList_[i].y() - NodeList_[i-1].y())*(NodeList_[i].y() - NodeList_[i-1].y())
+                + (NodeList_[i].z() - NodeList_[i-1].z())*(NodeList_[i].z() - NodeList_[i-1].z()) );
                
        Eps = Ds;
 
@@ -1290,9 +1247,9 @@ void VORTEX_TRAIL::Smooth(void)
 
        for ( i = 2 ; i < NumberOfNodes ; i++ ) {
 
-          Ds = sqrt( pow(NodeList_[i].x() - NodeList_[i-1].x(),2.)
-                   + pow(NodeList_[i].y() - NodeList_[i-1].y(),2.)
-                   + pow(NodeList_[i].z() - NodeList_[i-1].z(),2.) );
+          Ds = sqrt( (NodeList_[i].x() - NodeList_[i-1].x())*(NodeList_[i].x() - NodeList_[i-1].x())
+                   + (NodeList_[i].y() - NodeList_[i-1].y())*(NodeList_[i].y() - NodeList_[i-1].y())
+                   + (NodeList_[i].z() - NodeList_[i-1].z())*(NodeList_[i].z() - NodeList_[i-1].z()) );
                   
           Eps = 0.5*Ds;
                    
@@ -1348,6 +1305,124 @@ void VORTEX_TRAIL::Smooth(void)
 
 /*##############################################################################
 #                                                                              #
+#                    VORTEX_TRAIL UpdateGeometryLocation                       #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_TRAIL::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+{
+ 
+    int i, j, m, Level;
+    double U, V, W, dS;
+    VSP_NODE NodeA, NodeB;
+    QUAT Vec;
+
+    // Update the wake location... 'convect it back'
+    
+    for ( i = NumberOfSubVortices() + 1 ; i >= 2 ; i-- ) {
+
+       NodeList_[i].x() = NodeList_[i-1].x();
+       NodeList_[i].y() = NodeList_[i-1].y();
+       NodeList_[i].z() = NodeList_[i-1].z();
+
+    }
+
+    // Update location
+    
+    Vec(0) = TE_Node_.x() - OVec[0];
+    Vec(1) = TE_Node_.y() - OVec[1];
+    Vec(2) = TE_Node_.z() - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    TE_Node_.x() = Vec(0) + OVec[0] + TVec[0];
+    TE_Node_.y() = Vec(1) + OVec[1] + TVec[1];
+    TE_Node_.z() = Vec(2) + OVec[2] + TVec[2];    
+    
+    // Update TE location
+
+    NodeList_[1].x() = TE_Node_.x();
+    NodeList_[1].y() = TE_Node_.y(); 
+    NodeList_[1].z() = TE_Node_.z();    
+
+    // Now do a time step and convect
+
+    for ( i = 2 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+
+       U = 0.5*( VortexEdgeVelocity_[i][0] + VortexEdgeVelocity_[i-1][0] )*Vinf_;
+       V = 0.5*( VortexEdgeVelocity_[i][1] + VortexEdgeVelocity_[i-1][1] )*Vinf_;
+       W = 0.5*( VortexEdgeVelocity_[i][2] + VortexEdgeVelocity_[i-1][2] )*Vinf_;
+
+       NodeList_[i].x() += U * TimeStep_;
+       NodeList_[i].y() += V * TimeStep_;
+       NodeList_[i].z() += W * TimeStep_;
+
+    }    
+    
+    i = NumberOfSubVortices() + 2;
+
+    NodeList_[i].x() = NodeList_[i-1].x() + U * TimeStep_;
+    NodeList_[i].y() = NodeList_[i-1].y() + V * TimeStep_;
+    NodeList_[i].z() = NodeList_[i-1].z() + W * TimeStep_;
+    
+    S_[1] = 0.;
+    
+    for ( i = 2 ; i <= NumberOfSubVortices() + 1 ; i++ ) {
+
+        dS = sqrt( (NodeList_[i].x()-NodeList_[i-1].x())*(NodeList_[i].x()-NodeList_[i-1].x())
+                 + (NodeList_[i].y()-NodeList_[i-1].y())*(NodeList_[i].y()-NodeList_[i-1].y())
+                 + (NodeList_[i].z()-NodeList_[i-1].z())*(NodeList_[i].z()-NodeList_[i-1].z()) );
+
+        S_[i] = S_[i-1] + dS;
+        
+    }      
+    
+    NumberofExactShiftPoints_ = NumberOfSubVortices();
+    
+    // Update the agglomerated trailing wake approximations
+    
+    m = 1;
+    
+    for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
+
+       j = 0;
+
+       for ( i = 1 ; i <= NumberOfSubVortices() ; i+=m ) {
+        
+          j++;
+          
+          NodeA.x() = NodeList_[i  ].x();
+          NodeA.y() = NodeList_[i  ].y();
+          NodeA.z() = NodeList_[i  ].z();
+          
+          NodeB.x() = NodeList_[i+m].x();
+          NodeB.y() = NodeList_[i+m].y();
+          NodeB.z() = NodeList_[i+m].z();
+                    
+          VortexEdgeList(Level)[j].Setup(NodeA, NodeB);          
+          
+       }
+
+       // Final vortex edge trails off to infinity...
+       
+       NodeA.x() = NodeList_[NumberOfSubVortices()+1].x();
+       NodeA.y() = NodeList_[NumberOfSubVortices()+1].y();
+       NodeA.z() = NodeList_[NumberOfSubVortices()+1].z();
+       
+       NodeB.x() = NodeList_[NumberOfSubVortices()+2].x();
+       NodeB.y() = NodeList_[NumberOfSubVortices()+2].y();
+       NodeB.z() = NodeList_[NumberOfSubVortices()+2].z();
+
+       VortexEdgeList(Level)[j+1].Setup(NodeA, NodeB);
+          
+       m *= 2;
+       
+    }    
+
+}
+
+/*##############################################################################
+#                                                                              #
 #                          VORTEX_TRAIL WriteToFile                            #
 #                                                                              #
 ##############################################################################*/
@@ -1357,57 +1432,60 @@ void VORTEX_TRAIL::WriteToFile(FILE *adb_file)
  
     int i, n, Done, i_size, c_size, f_size;
     float x, y, z;
-    VSP_NODE NodeA, NodeB;
     
     // Sizeof int and float
 
     i_size = sizeof(int);
     c_size = sizeof(char);
     f_size = sizeof(float);
-     
-    // Write out trailing wake, up to, but not including portion that trails
-    // off to infinity...
-    
-    NodeA.x() = TE_Node_.x();
-    NodeA.y() = TE_Node_.y();
-    NodeA.z() = TE_Node_.z();
-    
-    x = NodeList_[1].x();
-    y = NodeList_[1].y();
-    z = NodeList_[1].z();
-    
+
     n = NumberOfSubVortices() + 2;
     
     Done = 0;
     
     if ( TimeAccurate_ ) {
-       
-       i = 1;
-       
-       while ( i <= NumberOfSubVortices() + 1 && !Done ) {
+  
+  
+       if ( TimeAnalysisType_ == PATH_ANALYSIS ) { 
           
-          if ( S_[i] > MaxConvectedDistance_ ) Done = 1;
-          
-          i++;
+          n = MIN( (int) MaxConvectedDistance_, NumberOfSubVortices() + 2);
           
        }
        
-       n = i;
+       else {
+       
+          i = 1;
+          
+          while ( i <= NumberOfSubVortices() + 1 && !Done ) {
+             
+             if ( S_[i] > MaxConvectedDistance_ ) Done = 1;
+             
+             i++;
+             
+          }
+          
+          n = i;
+         
+       }
        
     }
      
     fwrite(&(n), i_size, 1, adb_file);
     
+    x = NodeList_[1].x();
+    y = NodeList_[1].y();
+    z = NodeList_[1].z();
+     
     fwrite(&(x), f_size, 1, adb_file);
     fwrite(&(y), f_size, 1, adb_file);
     fwrite(&(z), f_size, 1, adb_file);
 
-    for ( i = 1 ; i <= n - 1 ; i++ ) {
+    for ( i = 2 ; i <= n ; i++ ) {
 
-       x = NodeList_[i+1].x();
-       y = NodeList_[i+1].y();
-       z = NodeList_[i+1].z();
-    
+       x = NodeList_[i].x();
+       y = NodeList_[i].y();
+       z = NodeList_[i].z();
+
        fwrite(&(x), f_size, 1, adb_file);
        fwrite(&(y), f_size, 1, adb_file);
        fwrite(&(z), f_size, 1, adb_file);

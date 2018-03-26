@@ -38,7 +38,7 @@ public:
     bool m_DrawCurveFlag;
     bool m_DrawPntsFlag;
 
-    double m_DrawRelCurveTol;
+    double m_RelCurveTol;
     bool m_ExportRawFlag;
     double m_ExportRelCurveTol;
 

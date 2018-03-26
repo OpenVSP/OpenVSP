@@ -26,7 +26,7 @@ void Atmosphere::USStandardAtmosphere1976( double alt, double delta_temp, int al
     m_P0 = 1.013250e5; // N/m2 ( Pa )
 
     m_Hinf = alt;
-    m_DeltaT = delta_temp;
+    m_DeltaT = ConvertTemperature( delta_temp, tempunit, vsp::TEMP_UNIT_K ) - ConvertTemperature( 0.0, tempunit, vsp::TEMP_UNIT_K ); // Into K
 
     // Conversion if Necessary of Altitude into feet
     if ( altunit == vsp::PD_UNITS_IMPERIAL )
@@ -35,7 +35,7 @@ void Atmosphere::USStandardAtmosphere1976( double alt, double delta_temp, int al
     }
     alt /= 1000; // Into Kilometers
 
-    double T = m_T0;
+    double T = ( m_T0 + m_DeltaT );
     double P = m_P0;
     for ( size_t i = 0; i < StdAtmosAltSteps.size(); ++i )
     {
@@ -67,7 +67,7 @@ void Atmosphere::USStandardAtmosphere1976( double alt, double delta_temp, int al
     m_PressureRatio = P / m_P0;
 
     // Modeling Dynamic Viscosity
-    m_DynamicVisc = DynamicViscosityCalc( T, tempunit, altunit );
+    m_DynamicVisc = DynamicViscosityCalc( T, vsp::TEMP_UNIT_K, altunit );
 
     if ( altunit == vsp::PD_UNITS_IMPERIAL )
     {
@@ -76,6 +76,7 @@ void Atmosphere::USStandardAtmosphere1976( double alt, double delta_temp, int al
 
     T = ConvertTemperature( T, vsp::TEMP_UNIT_K, tempunit ); // Into Desired
     P = ConvertPressure( P, vsp::PRES_UNIT_PA, presunit ); // Into Desired
+    m_DeltaT = delta_temp; // Back to input value
 
     // Assign Class Varibles Appropriate Values
     m_KEAS = m_A0 * m_Mach * sqrt( m_PressureRatio );
@@ -125,7 +126,7 @@ void Atmosphere::USAF1966( double alt, double delta_temp, int altunit, int tempu
     double T, P, rho;
 
     m_Hinf = alt;
-    m_DeltaT = delta_temp;
+    m_DeltaT = ConvertTemperature( delta_temp, tempunit, vsp::TEMP_UNIT_K ) - ConvertTemperature( 0.0, tempunit, vsp::TEMP_UNIT_K ); // Into K
 
     // Conversion if Necessary of Altitude into feet
     if ( altunit == vsp::PD_UNITS_METRIC )
@@ -136,21 +137,21 @@ void Atmosphere::USAF1966( double alt, double delta_temp, int altunit, int tempu
     // Using Herrington 1966 Model
     if ( alt < 36089 )
     {
-        T = m_T0 * ( 1 - K1 * alt );
+        T = ( m_T0 + m_DeltaT ) * ( 1 - K1 * alt );
         P = m_P0 * pow( ( 1 - K1 * alt ), 5.2561 );
         rho = m_RHO0 * pow( ( 1 - K1 * alt ), 4.2561 );
     }
     else if ( alt > 36089 && alt < 82021 )
     {
         // T = 216.66; // Kelvin
-        T = m_T0 * ( 1 - K1 * K3 );
+        T = ( m_T0 + m_DeltaT ) * ( 1 - K1 * K3 );
         P = m_P0 * ( 0.223358 * exp( -1 * K2 * ( alt - K3 ) ) );
         rho = m_RHO0 * ( 0.29707 * exp( -1 * K2 * ( alt - K3 ) ) );
     }
     else // Less than 0, Greater than 82021
     {
         alt = 82021;
-        T = m_T0 * ( 1 - K1 * K3 );
+        T = ( m_T0 + m_DeltaT ) * ( 1 - K1 * K3 );
         P = m_P0 * ( 0.223358 * exp( -1 * K2 * ( alt - K3 ) ) );
         rho = m_RHO0 * ( 0.29707 * exp( -1 * K2 * ( alt - K3 ) ) );
     }
@@ -161,7 +162,7 @@ void Atmosphere::USAF1966( double alt, double delta_temp, int altunit, int tempu
     m_SoundSpeed = sqrt( gamma * m_Rspecific * T ); // m/s
 
     // Modeling Dynamic Viscosity
-    m_DynamicVisc = DynamicViscosityCalc( T, tempunit, altunit );
+    m_DynamicVisc = DynamicViscosityCalc( T, vsp::TEMP_UNIT_K, altunit );
 
     if ( altunit == vsp::PD_UNITS_METRIC )
     {
@@ -171,6 +172,7 @@ void Atmosphere::USAF1966( double alt, double delta_temp, int altunit, int tempu
 
     T = ConvertTemperature( T, vsp::TEMP_UNIT_K, tempunit ); // Into Desired
     P = ConvertPressure( P, vsp::PRES_UNIT_INCHHG, presunit ); // Into Desired
+    m_DeltaT = delta_temp; // Back to input value
 
     // Assign Class Varibles Appropriate Values
     m_KEAS = m_A0 * m_Mach * sqrt( m_PressureRatio );
@@ -303,6 +305,7 @@ void Atmosphere::SetManualQualities( double & vinf, double & temp, double & pres
     m_Pres = pres;
     m_Density = rho;
     m_Temp = temp;
+    m_DeltaT = 0.0;
     m_DensityRatio = sqrt( RHO0 / rho );
     m_PressureRatio = sqrt( pres / P0 );
     m_KEAS = A0 * m_Mach * m_PressureRatio;

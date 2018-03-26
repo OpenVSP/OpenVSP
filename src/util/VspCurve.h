@@ -28,6 +28,14 @@ typedef eli::geom::curve::piecewise<eli::geom::curve::bezier, double, 3> piecewi
 
 #define TMAGIC 0.004
 
+struct BezierSegment
+{
+    int order;
+    double t0;
+    double tmax;
+    vector < vec3d > control_pnt_vec;
+};
+
 class VspCurve
 {
 public:
@@ -140,6 +148,8 @@ public:
     double CalculateThick( double &loc ) const;
 
     double Angle( const double & u1, const int &dir1, const double & u2, const int &dir2, const bool & flipflag ) const;
+
+    vector < BezierSegment > GetBezierSegments();
 
 protected:
     piecewise_curve_type m_Curve;

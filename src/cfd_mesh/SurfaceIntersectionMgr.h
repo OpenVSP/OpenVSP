@@ -78,8 +78,6 @@
 #include <vector>
 #include <list>
 #include <string>
-#include <iostream>
-#include <sstream>
 using namespace std;
 
 
@@ -125,8 +123,8 @@ public:
     virtual void CleanMergeSurfs();
 
     virtual void WriteSurfsIntCurves( const string &filename  );
-    virtual void WriteGridToolCurvFile( const string &filename, bool rawflag, double reltol );
-    virtual void WritePlot3DFile( const string &filename, bool rawflag, double reltol );
+    virtual void WriteGridToolCurvFile( const string &filename, bool rawflag );
+    virtual void WritePlot3DFile( const string &filename, bool rawflag );
 
     virtual void ExportFiles();
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );
@@ -139,7 +137,7 @@ public:
     virtual void Intersect();
 
 //  virtual void AddISeg( Surf* sA, Surf* sB, vec2d & sAuw0, vec2d & sAuw1,  vec2d & sBuw0, vec2d & sBuw1 );
-    virtual void AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3d & ip0, vec3d & ip1 );
+    virtual void AddIntersectionSeg( const SurfPatch& pA, const SurfPatch& pB, const vec3d & ip0, const vec3d & ip1 );
 //  virtual ISeg* CreateSurfaceSeg( Surf* sPtr, vec3d & p0, vec3d & p1, vec2d & uw0, vec2d & uw1 );
     virtual ISeg* CreateSurfaceSeg( Surf* surfA, vec2d & uwA0, vec2d & uwA1, Surf* surfB, vec2d & uwB0, vec2d & uwB1  );
 
@@ -148,6 +146,8 @@ public:
 
     virtual void BuildCurves();
     virtual void IntersectSplitChains();
+
+    virtual void BinaryAdaptIntCurves();
 
     virtual void MergeInteriorChainIPnts();
 
@@ -199,8 +199,6 @@ public:
     vector< vec3d > m_DebugColors;
 #endif
 
-    stringstream m_OutStream;
-
     virtual SimpleIntersectSettings* GetIntersectSettingsPtr()
     {
         return &m_IntersectSettings;
@@ -246,10 +244,18 @@ protected:
 
     vector< vector< vec3d > > debugRayIsect;
 
+    vector < vector < vec3d > > m_BinAdaptCurveAVec;
+    vector < vector < vec3d > > m_BinAdaptCurveBVec;
+    vector < vector < vec3d > > m_RawCurveAVec;
+    vector < vector < vec3d > > m_RawCurveBVec;
+    vector < bool > m_BorderCurveFlagVec;
+
     SimpleIntersectSettings m_IntersectSettings;
 
     //==== Vector of Surfs that may have a border that lies on Surf A ====//
     map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
+
+    string m_MessageName; // Either "SurfIntersectMessage", "CFDMessage", or "FEAMessage"
 
 private:
 

@@ -67,6 +67,10 @@ void SurfaceIntersectionScreen::CreateGlobalTab()
 
     m_GlobalTabLayout.AddDividerBox( "Geometry Control" );
     m_GlobalTabLayout.AddYGap();
+
+    m_GlobalTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 1.0, "%7.5f" );
+    m_GlobalTabLayout.AddYGap();
+
     m_GlobalTabLayout.AddButton( m_IntersectSubsurfaces, "Intersect Subsurfaces" );
     m_GlobalTabLayout.AddYGap();
 
@@ -94,7 +98,6 @@ void SurfaceIntersectionScreen::CreateDisplayTab()
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
     m_DisplayTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
-    m_DisplayTabLayout.AddSlider( m_DrawRelCurveTolSlider, "Display Curve Tolerance", 1.0, "%7.5f" );
 
     displayTab->show();
 }
@@ -112,7 +115,6 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     m_OutputTabLayout.SetButtonWidth( 175 );
 
     m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
-    m_OutputTabLayout.AddSlider( m_ExportRelCurveTolSlider, "Export Curve Tolerance", 1.0, "%7.5f" );
 
     m_OutputTabLayout.AddYGap();
 
@@ -127,11 +129,14 @@ void SurfaceIntersectionScreen::CreateOutputTab()
 
     m_OutputTabLayout.AddButton(m_CurvFile, ".curv");
     m_OutputTabLayout.AddOutput(m_CurvOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectCurvFile, "...");
 
     m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_Plot3DFile, ".p3d");
     m_OutputTabLayout.AddOutput(m_Plot3DOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectPlot3DFile, "...");
 
     m_OutputTabLayout.AddYGap();
@@ -142,8 +147,10 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.SetFitWidthFlag( false );
 
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_SrfFile, ".srf");
     m_OutputTabLayout.AddOutput(m_SrfOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectSrfFile, "...");
     m_OutputTabLayout.ForceNewLine();
 
@@ -179,6 +186,17 @@ bool SurfaceIntersectionScreen::Update()
 
 void SurfaceIntersectionScreen::UpdateGlobalTab()
 {
+    m_RelCurveTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_RelCurveTol.GetID() );
+
+    if ( m_Vehicle->GetISectSettingsPtr()->m_DrawBinAdaptFlag() )
+    {
+        m_RelCurveTolSlider.Activate();
+    }
+    else
+    {
+        m_RelCurveTolSlider.Deactivate();
+    }
+
     //===== Geometry Control =====//
     m_IntersectSubsurfaces.Update( m_Vehicle->GetISectSettingsPtr()->m_IntersectSubSurfs.GetID() );
 
@@ -196,17 +214,6 @@ void SurfaceIntersectionScreen::UpdateDisplayTab()
 
     m_ShowCurve.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawCurveFlag.GetID() );
     m_ShowPts.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawPntsFlag.GetID() );
-
-    m_DrawRelCurveTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawRelCurveTol.GetID() );
-
-    if ( m_Vehicle->GetISectSettingsPtr()->m_DrawBinAdaptFlag() )
-    {
-        m_DrawRelCurveTolSlider.Activate();
-    }
-    else
-    {
-        m_DrawRelCurveTolSlider.Deactivate();
-    }
 
     if ( SurfaceIntersectionMgr.GetIntersectSettingsPtr() )
     {
@@ -230,16 +237,6 @@ void SurfaceIntersectionScreen::UpdateOutputTab()
     m_XYZIntCurves.Update( m_Vehicle->GetISectSettingsPtr()->m_XYZIntCurveFlag.GetID() );
 
     m_ExportRaw.Update( m_Vehicle->GetISectSettingsPtr()->m_ExportRawFlag.GetID() );
-    m_ExportRelCurveTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_ExportRelCurveTol.GetID() );
-
-    if ( m_Vehicle->GetISectSettingsPtr()->m_ExportRawFlag() )
-    {
-        m_ExportRelCurveTolSlider.Deactivate();
-    }
-    else
-    {
-        m_ExportRelCurveTolSlider.Activate();
-    }
 
 }
 
@@ -309,58 +306,18 @@ void SurfaceIntersectionScreen::CloseCallBack( Fl_Widget *w )
 }
 
 #ifdef WIN32
-DWORD WINAPI surfintmonitorfun( LPVOID data )
-#else
-void * surfintmonitorfun( void *data )
-#endif
-{
-    SurfaceIntersectionScreen *cs = ( SurfaceIntersectionScreen * ) data;
-
-    if( cs )
-    {
-        unsigned long nread = 1;
-
-        bool running = true;
-
-        while( running || nread > 0 )
-        {
-            running = SurfaceIntersectionMgr.GetMeshInProgress();
-            nread = 0;
-
-            int ig = SurfaceIntersectionMgr.m_OutStream.tellg();
-            SurfaceIntersectionMgr.m_OutStream.seekg( 0, SurfaceIntersectionMgr.m_OutStream.end );
-            nread = (int)(SurfaceIntersectionMgr.m_OutStream.tellg()) - ig;
-            SurfaceIntersectionMgr.m_OutStream.seekg( ig );
-
-            if( nread > 0 )
-            {
-                char * buffer = new char [nread+1];
-
-                SurfaceIntersectionMgr.m_OutStream.read( buffer, nread );
-                buffer[nread]=0;
-
-                Fl::lock();
-                // Any FL calls must occur between Fl::lock() and Fl::unlock().
-                cs->AddOutputText( buffer );
-                Fl::unlock();
-
-                delete[] buffer;
-            }
-            SleepForMilliseconds( 100 );
-        }
-        cs->GetScreenMgr()->SetUpdateFlag( true );
-    }
-
-    return 0;
-}
-
-#ifdef WIN32
 DWORD WINAPI surfint_thread_fun( LPVOID data )
 #else
 void * surfint_thread_fun( void *data )
 #endif
 {
     SurfaceIntersectionMgr.IntersectSurfaces();
+
+    SurfaceIntersectionScreen *cs = (SurfaceIntersectionScreen *)data;
+    if ( cs )
+    {
+        cs->GetScreenMgr()->SetUpdateFlag( true );
+    }
 
     return 0;
 }
@@ -375,9 +332,7 @@ void SurfaceIntersectionScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_IntersectAndExport )
     {
         SurfaceIntersectionMgr.SetMeshInProgress( true );
-        m_IntersectProcess.StartThread( surfint_thread_fun, NULL );
-
-        m_MonitorProcess.StartThread( surfintmonitorfun, ( void* ) this );
+        m_IntersectProcess.StartThread( surfint_thread_fun, ( void* ) this );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

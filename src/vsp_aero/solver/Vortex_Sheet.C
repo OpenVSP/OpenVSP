@@ -70,7 +70,11 @@ void VORTEX_SHEET::init(void)
     
     Evaluate_ = 0;
     
-    MaxConvectedDistance_ = 1.e12;
+    DoGroundEffectsAnalysis_ = 0;
+    
+    NoKarmanTsienCorrection_ = 0;
+    
+    MaxConvectedDistance_ = 0.;
     
 }
 
@@ -209,7 +213,7 @@ void VORTEX_SHEET::SizeTrailingVortexList(int NumberOfTrailingVortices)
     StartingGamma_ = new double*[NumberOfTrailingVortices_ + 2]; 
 
     AgglomeratedTrailingVortexList_= new VORTEX_TRAIL*[NumberOfTrailingVortices_ + 2];
-      
+          
 }
 
 /*##############################################################################
@@ -254,7 +258,7 @@ void VORTEX_SHEET::SetupVortexSheets(void)
        zero_double_array(StartingGamma_[i], NumberOfSubVortices() + 1);
            
     }
-  
+    
 }
 
 /*##############################################################################
@@ -695,7 +699,7 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
 {
 
     int i, j, NumberOfTrailingVortices;
-    
+ 
     // Update strengths along entire trailing wake
     
     NumberOfTrailingVortices = NumberOfTrailingVortices_;
@@ -752,7 +756,7 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
        
        for ( i = 0 ; i <= NumberOfTrailingVortices  ; i++ ) {
           
-          for ( j = 0 ; j <= NumberOfSubVortices() ; j++ ) {
+          for ( j = 0 ; j <= NumberOfSubVortices() + 1 ; j++ ) {
    
              StartingGamma_[i][j] = 0.;
              
@@ -779,7 +783,7 @@ void VORTEX_SHEET::UpdateVortexStrengths(int UpdateType)
           for ( j = 1 ; j < NumberOfSubVortices() + 1 ; j++ ) {
    
              StartingGamma_[i][j] -= StartingGamma_[i][j+1];
-   
+
           }   
                  
        }    
@@ -802,7 +806,6 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3])
     double TotalTime;
     VORTEX_TRAIL *TrailingVortex;
     VORTEX_SHEET *VortexSheet;
-
 
     // Zero evaluation level and initialize trailing and shed vortex gammas
 
@@ -952,7 +955,7 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3], double xyz_te[3
 {
 
     int i, j;
-    double U, V, W, dq[3], Dist;
+    double U, V, W, dq[3], Dist, CoreSize;
     VORTEX_TRAIL *TrailingVortex;
     VORTEX_SHEET *VortexSheet;
  
@@ -1025,10 +1028,14 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3], double xyz_te[3
 
        if ( TrailingVortexList_[i].Evaluate() ) {
           
-          Dist = sqrt( pow(xyz_te[0] - TrailingVortexList_[i].TE_Node().x(),2.)
-                     + pow(xyz_te[1] - TrailingVortexList_[i].TE_Node().y(),2.)
-                     + pow(xyz_te[2] - TrailingVortexList_[i].TE_Node().z(),2.) );
-                     
+      //    Dist = sqrt( pow(xyz_te[0] - TrailingVortexList_[i].TE_Node().x(),2.)
+      //               + pow(xyz_te[1] - TrailingVortexList_[i].TE_Node().y(),2.)
+      //               + pow(xyz_te[2] - TrailingVortexList_[i].TE_Node().z(),2.) );
+ 
+          Dist = sqrt( (xyz_te[0] - TrailingVortexList_[i].TE_Node().x())*(xyz_te[0] - TrailingVortexList_[i].TE_Node().x())
+                     + (xyz_te[1] - TrailingVortexList_[i].TE_Node().y())*(xyz_te[1] - TrailingVortexList_[i].TE_Node().y())
+                     + (xyz_te[2] - TrailingVortexList_[i].TE_Node().z())*(xyz_te[2] - TrailingVortexList_[i].TE_Node().z()) ); 
+                                         
           // Don't do self induced velocities                     
           
           if ( Dist >= 0.5*TrailingVortexList_[i].Sigma() ) AgglomeratedTrailingVortexList_[++NumberOfAgglomeratedTrailingVortices_] = &TrailingVortexList_[i];
@@ -1039,6 +1046,8 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3], double xyz_te[3
 
     // Evalulate the agglomerated trailing vortices
     
+    CoreSize = 1.;
+    
     q[0] = q[1] = q[2] = U = V = W = 0.;
 
 #pragma omp parallel for reduction(+:U,V,W) private(dq,TrailingVortex)      
@@ -1046,7 +1055,7 @@ void VORTEX_SHEET::InducedVelocity(double xyz_p[3], double q[3], double xyz_te[3
 
        TrailingVortex = AgglomeratedTrailingVortexList_[i];
       
-       TrailingVortex->InducedVelocity(xyz_p,dq);
+       TrailingVortex->InducedVelocity(xyz_p,dq,CoreSize);
   
        U += dq[0];
        V += dq[1];
@@ -1202,7 +1211,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
        
        Mag = vector_dot(Vec,Vec); 
               
-       if ( Mag > 0.01*TrailingVortex->Sigma() ) {
+       if ( Mag >= 0.1*TrailingVortex->Sigma() ) {
                  
           U += dq[0];
           V += dq[1];
@@ -1214,12 +1223,14 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
 
     // Approximate KT correction
 
-    if ( !TrailingVortexList_[1].NoKarmanTsienCorrection() ) {
+    if ( !NoKarmanTsienCorrection_ ) {
        
+       Fact = 1.+0.25*TrailingVortexList_[1].Mach()*TrailingVortexList_[1].Mach();
+   
+       U *= Fact*Fact;
+       V *= Fact*Fact;
+       W *= Fact*Fact;
 
-       U *= pow(1.+0.25*TrailingVortexList_[1].Mach()*TrailingVortexList_[1].Mach(),2.);
-       V *= pow(1.+0.25*TrailingVortexList_[1].Mach()*TrailingVortexList_[1].Mach(),2.);
-       W *= pow(1.+0.25*TrailingVortexList_[1].Mach()*TrailingVortexList_[1].Mach(),2.);
     }
     
     // If this is an unsteady solution, we have to evaluate the starting
@@ -1236,6 +1247,7 @@ void VORTEX_SHEET::InducedKuttaVelocity(double xyz_p[3], double q[3])
           dq[0] = dq[1] = dq[2] = 0.;
           
           xyz_k[0] = VortexSheet->Child1().VortexTrail1().TE_Node().x();
+          
           xyz_k[1] = xyz_p[1];
           xyz_k[2] = xyz_p[2];          
        
@@ -1378,13 +1390,31 @@ void VORTEX_SHEET::StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, do
 
       for ( j = 1 ; j <= VortexSheet.NumberOfStartingVortices() ; j++ ) {
 
-         if ( VortexSheet.StartingVortexList(j).S() <= MaxConvectedDistance_ ) {
+         if ( TimeAnalysisType_ == PATH_ANALYSIS ) {
+         
+            if ( j <= MaxConvectedDistance_ ) {
+               
+               VortexSheet.StartingVortexList(j).InducedVelocity(xyz_p, q);
+               
+               dq[0] += q[0];
+               dq[1] += q[1];
+               dq[2] += q[2];
+               
+            }
+                     
+         }
+         
+         else {
             
-            VortexSheet.StartingVortexList(j).InducedVelocity(xyz_p, q);
-            
-            dq[0] += q[0];
-            dq[1] += q[1];
-            dq[2] += q[2];
+            if ( VortexSheet.StartingVortexList(j).S() <= MaxConvectedDistance_ ) {
+               
+               VortexSheet.StartingVortexList(j).InducedVelocity(xyz_p, q);
+               
+               dq[0] += q[0];
+               dq[1] += q[1];
+               dq[2] += q[2];
+               
+            }
             
          }
 
@@ -1402,7 +1432,6 @@ void VORTEX_SHEET::StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, do
   
 }
 
-
 /*##############################################################################
 #                                                                              #
 #                            VORTEX_SHEET Setup                                #
@@ -1416,16 +1445,16 @@ void VORTEX_SHEET::Setup(void)
     VSP_NODE NodeA, NodeB;
 
     // Span of this vortex sheet
-    
-    Span_ = sqrt( pow(VortexTrail1().TE_Node().y() - VortexTrail2().TE_Node().y(),2.)
-                + pow(VortexTrail1().TE_Node().z() - VortexTrail2().TE_Node().z(),2.) );
-    
+
+    Span_ = sqrt( (VortexTrail1().TE_Node().y() - VortexTrail2().TE_Node().y())*(VortexTrail1().TE_Node().y() - VortexTrail2().TE_Node().y())
+                + (VortexTrail1().TE_Node().z() - VortexTrail2().TE_Node().z())*(VortexTrail1().TE_Node().z() - VortexTrail2().TE_Node().z()) );
+        
     // Mid span location
                
     MidSpan_[0] = 0.5*( VortexTrail1().TE_Node().x() + VortexTrail2().TE_Node().x() );         
     MidSpan_[1] = 0.5*( VortexTrail1().TE_Node().y() + VortexTrail2().TE_Node().y() ); 
     MidSpan_[2] = 0.5*( VortexTrail1().TE_Node().z() + VortexTrail2().TE_Node().z() ); 
-    
+
     // Unsteady parameters
     
     VortexTrail1().TimeAccurate() = VortexTrail2().TimeAccurate() = TimeAccurate_;
@@ -1470,6 +1499,115 @@ void VORTEX_SHEET::Setup(void)
 
 /*##############################################################################
 #                                                                              #
+#                    VORTEX_TRAIL UpdateWakeLocation                           #
+#                                                                              #
+##############################################################################*/
+
+double VORTEX_SHEET::UpdateWakeLocation(void)
+{
+
+    int i, Level;
+    double Delta, MaxDelta;
+    
+    MaxDelta = 0.;
+    
+    for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+
+       if ( DoGroundEffectsAnalysis_ ) TrailingVortexList_[i].DoGroundEffectsAnalysis() = 1;
+       
+       Delta = TrailingVortexList_[i].UpdateWakeLocation();
+       
+       MaxDelta = MAX(MaxDelta,Delta);
+       
+    }
+
+    // Update bound vortices
+    
+    if ( TimeAccurate_ ) {
+
+       for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
+          
+          for ( i = 1 ; i <= NumberOfVortexSheetsForLevel_[Level] ; i++ ) {
+   
+             VortexSheetListForLevel_[Level][i].UpdateGeometryLocation();
+             
+          }
+          
+       }
+       
+    }
+
+    return MaxDelta;
+    
+}
+
+/*##############################################################################
+#                                                                              #
+#                    VORTEX_SHEET UpdateGeometryLocation                       #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_SHEET::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+{
+   
+    int i, Level;
+    
+    // Update each trailing wake shape
+    
+    for ( i = 1 ; i <= NumberOfTrailingVortices_ ; i++ ) {
+       
+       TrailingVortexList_[i].UpdateGeometryLocation(TVec, OVec, Quat, InvQuat);
+       
+    }
+
+    // Update bound vortices
+    
+    for ( Level = 1 ; Level <= NumberOfLevels_ ; Level++ ) {
+       
+       for ( i = 1 ; i <= NumberOfVortexSheetsForLevel_[Level] ; i++ ) {
+
+          VortexSheetListForLevel_[Level][i].UpdateGeometryLocation();
+          
+       }
+       
+    }
+  
+}
+
+/*##############################################################################
+#                                                                              #
+#                    VORTEX_SHEET UpdateGeometryLocation                       #
+#                                                                              #
+##############################################################################*/
+
+void VORTEX_SHEET::UpdateGeometryLocation(void)
+{
+
+    int i;
+    VSP_NODE NodeA, NodeB;
+
+    for ( i = 1 ; i <= NumberOfStartingVortices_ ; i++ ) {
+       
+       NodeA.x() = VortexTrail1().VortexEdge(i).X2();
+       NodeA.y() = VortexTrail1().VortexEdge(i).Y2();
+       NodeA.z() = VortexTrail1().VortexEdge(i).Z2();
+      
+       NodeB.x() = VortexTrail2().VortexEdge(i).X2();
+       NodeB.y() = VortexTrail2().VortexEdge(i).Y2();
+       NodeB.z() = VortexTrail2().VortexEdge(i).Z2();
+
+       StartingVortexList_[i].Sigma()          = VortexTrail1().Sigma();
+       
+       StartingVortexList_[i].S()              = VortexTrail1().S(i);
+   
+       StartingVortexList_[i].Setup(NodeA, NodeB);      
+       
+    }
+       
+}
+
+/*##############################################################################
+#                                                                              #
 #                            VORTEX_SHEET FarAway                              #
 #                                                                              #
 ##############################################################################*/
@@ -1477,19 +1615,35 @@ void VORTEX_SHEET::Setup(void)
 int VORTEX_SHEET::FarAway(double xyz_[3])
 {
 
-    double Distance;
+    int i, NumVortices;
+    double Distance, Test;
 
-    Distance = sqrt( pow(xyz_[1] - MidSpan_[1],2.) 
-                   + pow(xyz_[2] - MidSpan_[2],2.) );
-                   
-    if ( Distance / Span_ > 2. ) return 1;
+    NumVortices = VortexTrail1().NumberOfSubVortices();
     
-    return 0;               
+    if ( TimeAccurate_ ) NumVortices = (int) MaxConvectedDistance_;
+    
+    Distance = 1.e9;
+    
+    for ( i = 1 ; i <= NumVortices ; i++ ) {
+
+       Test = (VortexTrail1().VortexEdge(i).Xc() - xyz_[0])*(VortexTrail1().VortexEdge(i).Xc() - xyz_[0])
+            + (VortexTrail1().VortexEdge(i).Yc() - xyz_[1])*(VortexTrail1().VortexEdge(i).Yc() - xyz_[1])
+            + (VortexTrail1().VortexEdge(i).Zc() - xyz_[2])*(VortexTrail1().VortexEdge(i).Zc() - xyz_[2])
+            + (VortexTrail2().VortexEdge(i).Xc() - xyz_[0])*(VortexTrail2().VortexEdge(i).Xc() - xyz_[0])
+            + (VortexTrail2().VortexEdge(i).Yc() - xyz_[1])*(VortexTrail2().VortexEdge(i).Yc() - xyz_[1])
+            + (VortexTrail2().VortexEdge(i).Zc() - xyz_[2])*(VortexTrail2().VortexEdge(i).Zc() - xyz_[2]);
+       
+       if ( Test < Distance ) Distance = Test;   
+      
+    }
+
+    Distance = sqrt(0.5*Distance);
+
+    if ( Distance > 2.*Span_ ) return 1;
+    
+    return 0;
 
 }
-
-
-
 
 
 

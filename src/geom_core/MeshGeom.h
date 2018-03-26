@@ -79,9 +79,6 @@ public:
     double m_TotalIxz;
     double m_TotalIyz;
 
-    double m_MinTriDen;
-    double m_MaxTriDen;
-
     vector < TMesh* > m_TMeshVec;
     vector < vector < vec3d > > m_PolyVec;
 
@@ -125,10 +122,12 @@ public:
 
     virtual void WriteNascartPnts( FILE* file_id );
     virtual void WriteCart3DPnts( FILE* file_id );
+    virtual void WriteOBJPnts( FILE* file_id );
     virtual int  WriteGMshNodes( FILE* file_id, int node_offset );
     virtual void WriteFacetNodes( FILE* file_id );
     virtual int  WriteNascartTris( FILE* file_id, int offset );
     virtual int  WriteCart3DTris( FILE* file_id, int offset );
+    virtual int  WriteOBJTris( FILE* file_id, int offset );
     virtual int  WriteGMshTris( FILE* file_id, int node_offset, int tri_offset );
     virtual void WriteFacetTriParts( FILE* file_id, int &offset, int &tri_count, int &part_count );
     virtual int  WriteNascartParts( FILE* file_id, int offset );

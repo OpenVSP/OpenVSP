@@ -69,7 +69,7 @@ protected:
 
     ToggleButton m_ShowRaw;
     ToggleButton m_ShowBinAdapt;
-    SliderAdjRangeInput m_DrawRelCurveTolSlider;
+    SliderAdjRangeInput m_RelCurveTolSlider;
 
     ToggleButton m_ShowCurve;
     ToggleButton m_ShowPts;
@@ -91,7 +91,6 @@ protected:
     StringOutput m_SrfOutput;
 
     ToggleButton m_ExportRaw;
-    SliderAdjRangeInput m_ExportRelCurveTolSlider;
 
     //===== Console Items =====//
 

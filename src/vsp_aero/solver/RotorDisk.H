@@ -112,6 +112,11 @@ public:
     void Write_Binary_STP_Data(FILE *InputFile); 
     void Read_Binary_STP_Data(FILE *InputFile);    
     
+    // Geometry update
+    
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
+
+    
 };
 
 #endif

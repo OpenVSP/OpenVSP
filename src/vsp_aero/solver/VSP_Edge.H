@@ -15,6 +15,7 @@
 #include "quat.H"
 #include "VSP_Node.H"
 #include "VSP_Loop.H"
+#include "quat.H"
 
 #define INT_BOUNDARY_EDGE 1
 #define VLM_BOUNDARY_EDGE 2  
@@ -227,6 +228,8 @@ public:
 
     void Setup(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };
                                
+    void Update(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };
+
     void InducedVelocity(double xyz_p[3], double q[3]);
     
     void CalculateForces(VSP_LOOP &VortexLoop);
@@ -308,6 +311,10 @@ public:
     double &ThicknessToChord(void) { return ThicknessToChord_; };
     double &LocationOfMaxThickness(void ) { return LocationOfMaxThickness_; };
     double &RadiusToChord(void) { return RadiusToChord_; };        
+
+    // Update geometry
+    
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
 
 
 };

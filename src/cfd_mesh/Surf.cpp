@@ -501,14 +501,14 @@ void Surf::ApplyES( vec3d uw, double t )
     }
 }
 
-vec2d Surf::ClosestUW( vec3d & pnt_in, double guess_u, double guess_w ) const
+vec2d Surf::ClosestUW( const vec3d & pnt_in, double guess_u, double guess_w ) const
 {
     double u, w;
     m_SurfCore.FindNearest( u, w, pnt_in, guess_u, guess_w );
     return vec2d( u, w );
 }
 
-vec2d Surf::ClosestUW( vec3d & pnt_in ) const
+vec2d Surf::ClosestUW( const vec3d & pnt_in ) const
 {
     double u, w;
     m_SurfCore.FindNearest( u, w, pnt_in );
@@ -669,7 +669,7 @@ void Surf::Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
             {
                 if ( Compare( *m_PatchVec[i]->get_bbox(), *otherPatchVec[j]->get_bbox() ) )
                 {
-                    intersect( *m_PatchVec[i], *otherPatchVec[j], 0, MeshMgr );
+                    intersect( *m_PatchVec[i], *otherPatchVec[j], MeshMgr );
                 }
             }
         }

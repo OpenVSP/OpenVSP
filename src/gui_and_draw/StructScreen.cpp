@@ -713,7 +713,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddButton( m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting" );
     m_MeshTabLayout.AddYGap();
-
+    m_MeshTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 1.0, "%7.5f" );
+    m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
     m_MeshTabLayout.AddYGap();
 
@@ -760,6 +761,13 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_OutputTabLayout.AddButton( m_SelectNastFile, "..." );
     m_OutputTabLayout.ForceNewLine();
 
+    m_OutputTabLayout.SetButtonWidth( 75 );
+    m_OutputTabLayout.AddButton( m_NkeyFile, "Nkey" );
+    m_OutputTabLayout.AddOutput( m_NkeyOutput );
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
+    m_OutputTabLayout.AddButton( m_SelectNkeyFile, "..." );
+    m_OutputTabLayout.ForceNewLine();
+
     m_OutputTabLayout.AddYGap();
 
     m_OutputTabLayout.SetButtonWidth( 75 );
@@ -769,42 +777,24 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_OutputTabLayout.AddButton( m_SelectCalcFile, "..." );
     m_OutputTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddDividerBox("Surfaces and Intersection Curves");
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetFitWidthFlag( false );
-
-    m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.AddButton(m_SrfFile, ".srf");
-    m_OutputTabLayout.AddOutput(m_SrfOutput);
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
-    m_OutputTabLayout.AddButton(m_SelectSrfFile, "...");
-    m_OutputTabLayout.ForceNewLine();
-
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves");
-    m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
-
-    m_OutputTabLayout.InitWidthHeightVals();
 
     m_OutputTabLayout.SetFitWidthFlag( true );
     m_OutputTabLayout.SetSameLineFlag( false );
-
     m_OutputTabLayout.InitWidthHeightVals();
 
-    m_OutputTabLayout.SetButtonWidth( 175 );
+    m_OutputTabLayout.AddDividerBox("Surfaces and Intersection Curves");
+
+    m_OutputTabLayout.AddYGap();
 
     m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
-    m_OutputTabLayout.AddSlider( m_ExportRelCurveTolSlider, "Export Curve Tolerance", 1.0, "%7.5f" );
 
+    m_OutputTabLayout.InitWidthHeightVals();
+    m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - 75 - 55 );
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.SetSameLineFlag( true );
 
     m_OutputTabLayout.SetButtonWidth( 75 );
-    m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - 55 - 75 );
-
     m_OutputTabLayout.AddButton(m_CurvFile, ".curv");
     m_OutputTabLayout.AddOutput(m_CurvOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
@@ -816,6 +806,21 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_OutputTabLayout.AddOutput(m_Plot3DOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectPlot3DFile, "...");
+
+    m_OutputTabLayout.AddYGap();
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetButtonWidth( 75 );
+    m_OutputTabLayout.AddButton( m_SrfFile, ".srf" );
+    m_OutputTabLayout.AddOutput( m_SrfOutput );
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
+    m_OutputTabLayout.AddButton( m_SelectSrfFile, "..." );
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.SetSameLineFlag( false );
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves" );
+
+    m_OutputTabLayout.AddYGap();
 
     //=== Display Tab ===//
     m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
@@ -841,16 +846,17 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_DisplayTabLayout.AddButton( m_DrawIsect, "Show Intersection Curves");
     m_DisplayTabLayout.AddButton( m_DrawBorder, "Show Border Curves");
     m_DisplayTabLayout.ForceNewLine();
+    m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowCurve, "Show Curves");
     m_DisplayTabLayout.AddButton( m_ShowPts, "Show Points");
     m_DisplayTabLayout.ForceNewLine();
+    m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
     m_DisplayTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
     m_DisplayTabLayout.ForceNewLine();
 
     m_DisplayTabLayout.SetFitWidthFlag( true );
     m_DisplayTabLayout.SetSameLineFlag( false );
-    m_DisplayTabLayout.AddSlider( m_DrawRelCurveTolSlider, "Display Curve Tolerance", 1.0, "%7.5f" );
     m_DisplayTabLayout.AddYGap();
 
     m_DisplayTabLayout.AddDividerBox( "Display Element Sets" );
@@ -1939,6 +1945,17 @@ bool StructScreen::Update()
             m_GrowthRatio.Update( curr_struct->GetFeaGridDensityPtr()->m_GrowRatio.GetID() );
             m_Rig3dGrowthLimit.Update( curr_struct->GetFeaGridDensityPtr()->m_RigorLimit.GetID() );
 
+            m_RelCurveTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_RelCurveTol.GetID() );
+
+            if ( curr_struct->GetStructSettingsPtr()->m_DrawBinAdaptFlag() )
+            {
+                m_RelCurveTolSlider.Activate();
+            }
+            else
+            {
+                m_RelCurveTolSlider.Deactivate();
+            }
+
             //===== Geometry Control =====//
             m_HalfMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.GetID() );
 
@@ -1957,17 +1974,6 @@ bool StructScreen::Update()
             m_ShowCurve.Update( curr_struct->GetStructSettingsPtr()->m_DrawCurveFlag.GetID() );
             m_ShowPts.Update( curr_struct->GetStructSettingsPtr()->m_DrawPntsFlag.GetID() );
 
-            m_DrawRelCurveTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_DrawRelCurveTol.GetID() );
-
-            if ( curr_struct->GetStructSettingsPtr()->m_DrawBinAdaptFlag() )
-            {
-                m_DrawRelCurveTolSlider.Activate();
-            }
-            else
-            {
-                m_DrawRelCurveTolSlider.Deactivate();
-            }
-
             if ( FeaMeshMgr.GetStructSettingsPtr() )
             {
                 FeaMeshMgr.UpdateDisplaySettings();
@@ -1977,6 +1983,8 @@ bool StructScreen::Update()
             m_MassOutput.Update( truncateFileName( massname, 40 ).c_str() );
             string nastranname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME );
             m_NastOutput.Update( truncateFileName( nastranname, 40 ).c_str() );
+            string nkeyname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NKEY_FILE_NAME );
+            m_NkeyOutput.Update( truncateFileName( nkeyname, 40 ).c_str() );
             string calculixname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME );
             m_CalcOutput.Update( truncateFileName( calculixname, 40 ).c_str() );
             string stlname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME );
@@ -1987,9 +1995,23 @@ bool StructScreen::Update()
             //==== Update File Output Flags ====//
             m_MassFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME )->GetID() );
             m_NastFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME )->GetID() );
+            m_NkeyFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NKEY_FILE_NAME )->GetID() );
             m_CalcFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME )->GetID() );
             m_StlFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME )->GetID() );
             m_GmshFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME )->GetID() );
+
+            if ( !curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME )->Get() )
+            {
+                m_NkeyFile.Deactivate();
+                m_NkeyOutput.Deactivate();
+                m_SelectNkeyFile.Deactivate();
+            }
+            else
+            {
+                m_NkeyFile.Activate();
+                m_NkeyOutput.Activate();
+                m_SelectNkeyFile.Activate();
+            }
 
             string srfname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME );
             m_SrfOutput.Update( truncateFileName( srfname, 40 ).c_str() );
@@ -2007,16 +2029,6 @@ bool StructScreen::Update()
             m_Plot3DFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME )->GetID() );
 
             m_ExportRaw.Update( curr_struct->GetStructSettingsPtr()->m_ExportRawFlag.GetID() );
-            m_ExportRelCurveTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_ExportRelCurveTol.GetID() );
-
-            if ( curr_struct->GetStructSettingsPtr()->m_ExportRawFlag() )
-            {
-                m_ExportRelCurveTolSlider.Deactivate();
-            }
-            else
-            {
-                m_ExportRelCurveTolSlider.Activate();
-            }
 
             // Update Structure Name
             m_FeaStructNameInput.Update( curr_struct->GetName() );
@@ -2314,61 +2326,18 @@ void StructScreen::CallBack( Fl_Widget* w )
 }
 
 #ifdef WIN32
-DWORD WINAPI feamonitorfun( LPVOID data )
-#else
-void * feamonitorfun( void *data )
-#endif
-{
-    StructScreen *cs = (StructScreen *)data;
-
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( cs && veh )
-    {
-        unsigned long nread = 1;
-
-        bool running = true;
-
-        while ( running || nread > 0 )
-        {
-            running = FeaMeshMgr.GetFeaMeshInProgress();
-            nread = 0;
-
-            std::streamoff ig = FeaMeshMgr.m_OutStream.tellg();
-            FeaMeshMgr.m_OutStream.seekg( 0, FeaMeshMgr.m_OutStream.end );
-            nread = (int)( FeaMeshMgr.m_OutStream.tellg() ) - ig;
-            FeaMeshMgr.m_OutStream.seekg( ig );
-
-            if ( nread > 0 )
-            {
-                char * buffer = new char[nread + 1];
-
-                FeaMeshMgr.m_OutStream.read( buffer, nread );
-                buffer[nread] = 0;
-
-                Fl::lock();
-                // Any FL calls must occur between Fl::lock() and Fl::unlock().
-                cs->AddOutputText( buffer );
-                Fl::unlock();
-
-                delete[] buffer;
-            }
-            SleepForMilliseconds( 100 );
-        }
-        
-        cs->GetScreenMgr()->SetUpdateFlag( true ); // FeaParts will not be updated when mesh is in progress
-    }
-
-    return 0;
-}
-
-#ifdef WIN32
 DWORD WINAPI feamesh_thread_fun( LPVOID data )
 #else
 void * feamesh_thread_fun( void *data )
 #endif
 {
     FeaMeshMgr.GenerateFeaMesh();
+
+    StructScreen *cs = (StructScreen *)data;
+    if ( cs )
+    {
+        cs->GetScreenMgr()->SetUpdateFlag( true ); // FeaParts will not be updated when mesh is in progress
+    }
 
     return 0;
 }
@@ -2392,9 +2361,7 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
         // Identify which structure to mesh
         FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.GetCurrStructIndex() );
 
-        m_FeaMeshProcess.StartThread( feamesh_thread_fun, NULL );
-
-        m_MonitorProcess.StartThread( feamonitorfun, ( void* ) this );
+        m_FeaMeshProcess.StartThread( feamesh_thread_fun, ( void* ) this );
 
         if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
         {
@@ -3030,6 +2997,19 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
             if ( newfile.compare( "" ) != 0 )
             {
                 structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_NASTRAN_FILE_NAME );
+            }
+        }
+    }
+    else if ( device == &m_SelectNkeyFile )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select NASTRAN key file.", "*.nkey" );
+            if ( newfile.compare( "" ) != 0 )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_NKEY_FILE_NAME );
             }
         }
     }

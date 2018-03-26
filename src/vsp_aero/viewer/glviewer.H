@@ -62,6 +62,13 @@
 #define   VLM_MODEL 1
 #define PANEL_MODEL 2
 
+#define IMPULSE_ANALYSIS 1
+#define HEAVE_ANALYSIS   2
+#define P_ANALYSIS       3
+#define Q_ANALYSIS       4
+#define R_ANALYSIS       5
+#define PATH_ANALYSIS    6
+
 // Forward declarations
 
 class viewerUI;
@@ -159,6 +166,10 @@ private:
     
     int SymmetryFlag;
     
+    // Unsteady Analysis Type
+    
+    int TimeAnalysisType_;
+    
     // Cpmin, and Cpmax
     
     int UserSetPlotLimits;
@@ -242,7 +253,7 @@ private:
     float *BetaList;
     float *AlphaList;
 
-    float *Cp;
+    float *Cp, *CpSteady, *CpUnsteady, *Gamma;
     
     float *TempTriangleArray;
     float *TempNodalArray;
@@ -294,6 +305,16 @@ private:
 
     float CpMinActual, CpMaxActual;
     float CpMin, CpMax;
+
+    float CpSteadyMinActual, CpSteadyMaxActual;
+    float CpSteadyMin, CpSteadyMax;
+    
+    float CpUnsteadyMinActual, CpUnsteadyMaxActual;
+    float CpUnsteadyMin, CpUnsteadyMax;
+    
+    float GammaMinActual, GammaMaxActual;
+    float GammaMin, GammaMax;      
+      
     char LegendTitle[80];
     float LegendMinClip, LegendMaxClip;
     float LegendMin, LegendMax;
@@ -388,6 +409,9 @@ private:
     int DrawComGeomTagsBordersIsOn;
 
     int DrawCpIsOn;
+    int DrawCpSteadyIsOn;
+    int DrawCpUnsteadyIsOn;
+    int DrawGammaIsOn;
     void DrawRotorSurfacesShaded(void);
 
     void percent_to_rgb(float per, float col[3], int colmap);
@@ -443,6 +467,9 @@ private:
     void DrawShadedSolutionPerNode(float *Function, float FMin, float FMax);
 
     void DrawCp(void);
+    void DrawCpSteady(void);
+    void DrawCpUnsteady(void);
+    void DrawGamma(void);
  
     void Draw(void);
     void DrawLegend(void);
@@ -467,7 +494,7 @@ private:
     // I/O Code
 
     void LoadMeshData(void);
-    
+    void UpdateMeshData(FILE *adb_file);
     void LoadCaseFile(char *FileName);
  
     // Allows byte swapping on read/writes of binary files
@@ -549,6 +576,7 @@ public:
 
     void FindMeshMinMax(void);
     void FindSolutionMinMax(void);
+    void FindSolutionMinMax(float *Function, float &FMinActual, float &FmaxActual, float &FMin, float &FMax);
     void FixViewingBox(float x1, float x2, float y1, float y2, float z1, float z2 );
 
     int ForceView_;
@@ -611,11 +639,11 @@ public:
 
     void DrawOnlySelectedWasPicked(void)             { ToggleFlag(DrawOnlySelectedIsOn,                          "DrawOnlySelectedIs");};
 
-    void DrawShadedWasPicked(void)                   { ToggleFlag(DrawShadedIsOn,                                "DrawShadedIs");
-                                                       ToggleFlag(DrawCpIsOn,                                    "DrawCpIs");     };
-
-    void DrawCpWasPicked(void)                       { ToggleFlag(DrawShadedIsOn,                                "DrawShadedIs");
-                                                       ToggleFlag(DrawCpIsOn,                                    "DrawCpIs");     };
+    void DrawShadedWasPicked(void)                   { if ( DrawShadedIsOn     == 0 ) { DrawShadedIsOn = 1; DrawCpIsOn = 0; DrawCpSteadyIsOn = 0; DrawCpUnsteadyIsOn = 0; DrawGammaIsOn = 0; }; };
+    void DrawCpWasPicked(void)                       { if ( DrawCpIsOn         == 0 ) { DrawShadedIsOn = 0; DrawCpIsOn = 1; DrawCpSteadyIsOn = 0; DrawCpUnsteadyIsOn = 0; DrawGammaIsOn = 0; }; };
+    void DrawCpSteadyWasPicked(void)                 { if ( DrawCpSteadyIsOn   == 0 ) { DrawShadedIsOn = 0; DrawCpIsOn = 0; DrawCpSteadyIsOn = 1; DrawCpUnsteadyIsOn = 0; DrawGammaIsOn = 0; }; };
+    void DrawUnsteadyCpWasPicked(void)               { if ( DrawCpUnsteadyIsOn == 0 ) { DrawShadedIsOn = 0; DrawCpIsOn = 0; DrawCpSteadyIsOn = 0; DrawCpUnsteadyIsOn = 1; DrawGammaIsOn = 0; }; };
+    void DrawGammaWasPicked(void)                    { if ( DrawGammaIsOn      == 0 ) { DrawShadedIsOn = 0; DrawCpIsOn = 0; DrawCpSteadyIsOn = 0; DrawCpUnsteadyIsOn = 0; DrawGammaIsOn = 1; }; };
 
     void DrawCoarseMeshWasPicked(void)               { ToggleFlag(DrawCoarseMeshesIsOn,                          "DrawCoarseMeshesIs"); };
 
@@ -707,6 +735,10 @@ public:
 
     void TurnByteSwapForALLReadsOn(void) { ByteSwapForADB = 1; };
     void TurnByteSwapForALLReadsOff(void) { ByteSwapForADB = 0; };
+    
+    // Make a movie
+    
+    void MakeMovie(void);
 
 };
 

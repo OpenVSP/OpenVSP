@@ -107,7 +107,7 @@ public:
     void CutGeomVec( const vector<string> & cut_vec );
     void RemoveGeomVecFromHierarchy( const vector<string> & cut_vec );
     void DeleteClipBoard();
-    void PasteClipboard();
+    vector< string > PasteClipboard();
     vector< string > CopyGeomVec( const vector<string> & geom_vec );
 
     vector< DrawObj* > GetDrawObjs();
@@ -184,6 +184,7 @@ public:
     void WriteTaggedMSSTLFile( const string & file_name, int write_set );
     void WriteFacetFile( const string & file_name, int write_set );
     void WriteTRIFile( const string & file_name, int write_set );
+    void WriteOBJFile( const string & file_name, int write_set );
     void WriteNascartFiles( const string & file_name, int write_set );
     void WriteGmshFile( const string & file_name, int write_set );
     void WriteX3DFile( const string & file_name, int write_set );
@@ -198,8 +199,10 @@ public:
                         bool labelSurfNo, bool labelSplitNo, int delimType );
 
     void WriteBEMFile( const string & file_name, int write_set );
+    void WriteAirfoilFile( const string & file_name, int write_set );
     void WriteDXFFile( const string & file_name, int write_set );
     void WriteSVGFile( const string & file_name, int write_set );
+    void WritePMARCFile( const string & file_name, int write_set );
 
     void WriteVehProjectionLinesDXF( FILE * file_name, const BndBox &dxfbox );
     void WriteVehProjectionLinesSVG( xmlNodePtr root, const BndBox &svgbox );
@@ -255,6 +258,9 @@ public:
     vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
     void CompCurvature01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w, double &k1, double &k2, double &ka, double &kg);
     double ProjPnt01I(const std::string &geom_id, const vec3d & pt, int &surf_indx, double &u, double &w);
+
+    //=== Surface API ===//
+    string ExportSurfacePatches( int set );
 
     CfdMeshSettings* GetCfdSettingsPtr()
     {
@@ -359,6 +365,11 @@ public:
     IntParm m_SVGView4_rot;
 
     string m_BEMPropID;
+
+    IntParm m_AFExportType;
+    Parm m_AFWTessFactor;
+    BoolParm m_AFAppendGeomIDFlag;
+    string m_AFFileDir;
 
     BoolParm m_STLMultiSolid;
 

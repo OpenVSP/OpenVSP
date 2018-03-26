@@ -77,6 +77,8 @@ void CfdMeshScreen::CreateGlobalTab()
     m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.AddButton(m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting");
     m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 1.0, "%7.5f" );
+    m_GlobalTabLayout.AddYGap();
     m_GlobalTabLayout.AddDividerBox("Global Source Control");
     m_GlobalTabLayout.AddYGap();
 
@@ -144,7 +146,6 @@ void CfdMeshScreen::CreateDisplayTab()
     m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_ShowRaw, "Show Raw Curve");
     m_DisplayTabLayout.AddButton( m_ShowBinAdapt, "Show Binary Adapted");
-    m_DisplayTabLayout.AddSlider( m_DrawRelCurveTolSlider, "Display Curve Tolerance", 1.0, "%7.5f" );
 
     displayTab->show();
 }
@@ -166,6 +167,7 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.SetInputWidth(300);
     m_OutputTabLayout.AddButton(m_StlFile, ".stl");
     m_OutputTabLayout.AddOutput(m_StlOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectStlFile, "...");
     m_OutputTabLayout.ForceNewLine();
 
@@ -175,24 +177,34 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
 
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_PolyFile, ".poly");
     m_OutputTabLayout.AddOutput(m_PolyOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectPolyFile, "...");
     m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_TriFile, ".tri");
     m_OutputTabLayout.AddOutput(m_TriOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectTriFile, "...");
     m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton( m_FacFile, ".facet" );
     m_OutputTabLayout.AddOutput( m_FacOutput );
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton( m_SelectFacFile, "..." );
     m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_ObjFile, ".obj");
     m_OutputTabLayout.AddOutput(m_ObjOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectObjFile, "...");
     m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_MshFile, ".msh");
     m_OutputTabLayout.AddOutput(m_MshOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectMshFile, "...");
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
@@ -202,12 +214,16 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.SetFitWidthFlag( false );
 
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_DatFile, ".dat");
     m_OutputTabLayout.AddOutput(m_DatOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectDatFile, "...");
     m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_KeyFile, ".key");
     m_OutputTabLayout.AddOutput(m_KeyOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectKeyFile, "...");
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
@@ -217,8 +233,10 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.SetFitWidthFlag( false );
 
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_TkeyFile, ".tkey");
     m_OutputTabLayout.AddOutput(m_TkeyOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectTkeyFile, "...");
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
@@ -228,17 +246,6 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.SetFitWidthFlag( false );
 
-    m_OutputTabLayout.AddButton(m_SrfFile, ".srf");
-    m_OutputTabLayout.AddOutput(m_SrfOutput);
-    m_OutputTabLayout.AddButton(m_SelectSrfFile, "...");
-    m_OutputTabLayout.ForceNewLine();
-
-    m_OutputTabLayout.SetFitWidthFlag( true );
-    m_OutputTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves");
-    m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.AddYGap();
-
     m_OutputTabLayout.InitWidthHeightVals();
 
     m_OutputTabLayout.SetFitWidthFlag( true );
@@ -246,7 +253,6 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.SetButtonWidth( 175 );
 
     m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
-    m_OutputTabLayout.AddSlider( m_ExportRelCurveTolSlider, "Export Curve Tolerance", 1.0, "%7.5f" );
 
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.SetSameLineFlag( true );
@@ -256,12 +262,31 @@ void CfdMeshScreen::CreateOutputTab()
 
     m_OutputTabLayout.AddButton(m_CurvFile, ".curv");
     m_OutputTabLayout.AddOutput(m_CurvOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectCurvFile, "...");
 
     m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetButtonWidth( 55 );
     m_OutputTabLayout.AddButton(m_Plot3DFile, ".p3d");
     m_OutputTabLayout.AddOutput(m_Plot3DOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectPlot3DFile, "...");
+
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.AddYGap();
+
+    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.AddButton( m_SrfFile, ".srf" );
+    m_OutputTabLayout.AddOutput( m_SrfOutput );
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
+    m_OutputTabLayout.AddButton( m_SelectSrfFile, "..." );
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves" );
+    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.AddYGap();
 
     outputTab->show();
 }
@@ -639,6 +664,17 @@ void CfdMeshScreen::UpdateGlobalTab()
     m_GrowthRatio.Update( m_Vehicle->GetCfdGridDensityPtr()->m_GrowRatio.GetID() );
     m_Rig3dGrowthLimit.Update( m_Vehicle->GetCfdGridDensityPtr()->m_RigorLimit.GetID() );
 
+    m_RelCurveTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_RelCurveTol.GetID() );
+
+    if ( m_Vehicle->GetCfdSettingsPtr()->m_DrawBinAdaptFlag() )
+    {
+        m_RelCurveTolSlider.Activate();
+    }
+    else
+    {
+        m_RelCurveTolSlider.Deactivate();
+    }
+
     //===== Geometry Control =====//
     m_IntersectSubsurfaces.Update( m_Vehicle->GetCfdSettingsPtr()->m_IntersectSubSurfs.GetID() );
 }
@@ -663,17 +699,6 @@ void CfdMeshScreen::UpdateDisplayTab()
 
     m_ShowCurve.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawCurveFlag.GetID() );
     m_ShowPts.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawPntsFlag.GetID() );
-
-    m_DrawRelCurveTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawRelCurveTol.GetID() );
-
-    if ( m_Vehicle->GetCfdSettingsPtr()->m_DrawBinAdaptFlag() )
-    {
-        m_DrawRelCurveTolSlider.Activate();
-    }
-    else
-    {
-        m_DrawRelCurveTolSlider.Deactivate();
-    }
 
     if ( CfdMeshMgr.GetCfdSettingsPtr() )
     {
@@ -730,17 +755,6 @@ void CfdMeshScreen::UpdateOutputTab()
     m_Plot3DFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_PLOT3D_FILE_NAME )->GetID() );
 
     m_ExportRaw.Update( m_Vehicle->GetCfdSettingsPtr()->m_ExportRawFlag.GetID() );
-    m_ExportRelCurveTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_ExportRelCurveTol.GetID() );
-
-    if ( m_Vehicle->GetCfdSettingsPtr()->m_ExportRawFlag() )
-    {
-        m_ExportRelCurveTolSlider.Deactivate();
-    }
-    else
-    {
-        m_ExportRelCurveTolSlider.Activate();
-    }
-
 }
 
 void CfdMeshScreen::UpdateSourcesTab( BaseSource* source )
@@ -994,58 +1008,18 @@ void CfdMeshScreen::CloseCallBack( Fl_Widget *w )
 }
 
 #ifdef WIN32
-DWORD WINAPI cfdmonitorfun( LPVOID data )
-#else
-void * cfdmonitorfun( void *data )
-#endif
-{
-    CfdMeshScreen *cs = ( CfdMeshScreen * ) data;
-
-    if( cs )
-    {
-        unsigned long nread = 1;
-
-        bool running = true;
-
-        while( running || nread > 0 )
-        {
-            running = CfdMeshMgr.GetMeshInProgress();
-            nread = 0;
-
-            int ig = CfdMeshMgr.m_OutStream.tellg();
-            CfdMeshMgr.m_OutStream.seekg( 0, CfdMeshMgr.m_OutStream.end );
-            nread = (int)(CfdMeshMgr.m_OutStream.tellg()) - ig;
-            CfdMeshMgr.m_OutStream.seekg( ig );
-
-            if( nread > 0 )
-            {
-                char * buffer = new char [nread+1];
-
-                CfdMeshMgr.m_OutStream.read( buffer, nread );
-                buffer[nread]=0;
-
-                Fl::lock();
-                // Any FL calls must occur between Fl::lock() and Fl::unlock().
-                cs->AddOutputText( buffer );
-                Fl::unlock();
-
-                delete[] buffer;
-            }
-            SleepForMilliseconds( 100 );
-        }
-        cs->GetScreenMgr()->SetUpdateFlag( true );
-    }
-
-    return 0;
-}
-
-#ifdef WIN32
 DWORD WINAPI cfdmesh_thread_fun( LPVOID data )
 #else
 void * cfdmesh_thread_fun( void *data )
 #endif
 {
     CfdMeshMgr.GenerateMesh();
+
+    CfdMeshScreen *cs = (CfdMeshScreen *)data;
+    if ( cs )
+    {
+        cs->GetScreenMgr()->SetUpdateFlag( true );
+    }
 
     return 0;
 }
@@ -1063,9 +1037,7 @@ void CfdMeshScreen::GuiDeviceCallBack( GuiDevice* device )
     if ( device == &m_MeshAndExport )
     {
         CfdMeshMgr.SetMeshInProgress( true );
-        m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, NULL );
-
-        m_MonitorProcess.StartThread( cfdmonitorfun, ( void* ) this );
+        m_CFDMeshProcess.StartThread( cfdmesh_thread_fun, ( void* ) this );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

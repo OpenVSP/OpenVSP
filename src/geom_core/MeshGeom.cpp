@@ -63,9 +63,6 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_TotalIxz = 0.0;
     m_TotalIyz = 0.0;
 
-    m_MinTriDen = 0.0;
-    m_MaxTriDen = 1.0;
-
     m_ScaleMatrix.loadIdentity();
     m_ScaleFromOrig.Init( "Scale_From_Original", "XForm", this, 1, 1.0e-5, 1.0e12 );
 
@@ -795,6 +792,23 @@ void MeshGeom::WriteCart3DPnts( FILE* fp )
     }
 }
 
+void MeshGeom::WriteOBJPnts( FILE* fp )
+{
+    //==== Write Out Nodes ====//
+    vec3d v;
+    Matrix4d XFormMat = GetTotalTransMat();
+    for ( int i = 0 ; i < ( int )m_IndexedNodeVec.size() ; i++ )
+    {
+        TNode* tnode = m_IndexedNodeVec[i];
+        // Apply Transformations
+        if( tnode )
+        {
+            v = XFormMat.xform( tnode->m_Pnt );
+            fprintf( fp, "v %16.10g %16.10g %16.10g\n", v.x(), v.y(),  v.z() );
+        }
+    }
+}
+
 int MeshGeom::WriteGMshNodes( FILE* fp, int node_offset )
 {
     vec3d v;
@@ -852,6 +866,21 @@ int MeshGeom::WriteCart3DTris( FILE* fp, int off )
         if( ttri )
         {
             fprintf( fp, "%d %d %d\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N1->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off );
+        }
+    }
+
+    return ( off + m_IndexedNodeVec.size() );
+}
+
+int MeshGeom::WriteOBJTris( FILE* fp, int off )
+{
+    //==== Write Out Tris ====//
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+    {
+        TTri* ttri = m_IndexedTriVec[t];
+        if( ttri )
+        {
+            fprintf( fp, "f %d %d %d\n", ttri->m_N0->m_ID + 1 + off,  ttri->m_N1->m_ID + 1 + off, ttri->m_N2->m_ID + 1 + off );
         }
     }
 
@@ -3182,8 +3211,6 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
     //==== Build Tetrahedrons ====//
     double prismLength = sliceW;
     vector< TetraMassProp* > tetraVec;
-    m_MinTriDen = 1.0e06;
-    m_MaxTriDen = 0.0;
 
     for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
     {
@@ -3597,8 +3624,6 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
     //==== Build Tetrahedrons ====//
     double prismLength = sliceW;
     vector< DegenGeomTetraMassProp* > tetraVec;
-    m_MinTriDen = 1.0e06;
-    m_MaxTriDen = 0.0;
 
     for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
     {
@@ -3795,15 +3820,6 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
 //==== Create a Prism Made of Tetras - Extrude Tri +- len/2 ====//
 void MeshGeom::CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len )
 {
-    if ( tri->m_Mass < m_MinTriDen )
-    {
-        m_MinTriDen = tri->m_Mass;
-    }
-    if ( tri->m_Mass > m_MaxTriDen )
-    {
-        m_MaxTriDen = tri->m_Mass;
-    }
-
     vec3d cnt = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt + tri->m_N2->m_Pnt ) * ( 1.0 / 3.0 );
 
     vec3d p0 = tri->m_N0->m_Pnt;
@@ -3820,28 +3836,19 @@ void MeshGeom::CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, doubl
     p4.offset_x( -len / 2.0 );
     p5.offset_x( -len / 2.0 );
 
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Mass, cnt, p0, p1, p2 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Mass, cnt, p3, p4, p5 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Mass, cnt, p0, p1, p3 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Mass, cnt, p3, p4, p1 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Mass, cnt, p1, p2, p4 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Mass, cnt, p4, p5, p2 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Mass, cnt, p0, p2, p3 ) );
-    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Mass, cnt, p3, p5, p2 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p0, p1, p2 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p3, p4, p5 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p0, p1, p3 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p3, p4, p1 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p1, p2, p4 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p4, p5, p2 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p0, p2, p3 ) );
+    tetraVec.push_back( new TetraMassProp( tri->m_ID, tri->m_Density, cnt, p3, p5, p2 ) );
 }
 
 //==== Create a Prism Made of DegenGeomTetras - Extrude Tri +- len/2 ====//
 void MeshGeom::createDegenGeomPrism( vector< DegenGeomTetraMassProp* >& tetraVec, TTri* tri, double len )
 {
-    if ( tri->m_Mass < m_MinTriDen )
-    {
-        m_MinTriDen = tri->m_Mass;
-    }
-    if ( tri->m_Mass > m_MaxTriDen )
-    {
-        m_MaxTriDen = tri->m_Mass;
-    }
-
     vec3d cnt = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt + tri->m_N2->m_Pnt ) * ( 1.0 / 3.0 );
 
     vec3d p0 = tri->m_N0->m_Pnt;

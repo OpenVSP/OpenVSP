@@ -1,0 +1,62 @@
+
+void main()
+{
+    Print( string( "Begin Airfoil Export Script\n" ) );
+    
+    Print( string( "--> Creating Wing Geometry\n" ) );
+
+    //==== Add Wing Geometry ====//
+    string wing_id = AddGeom( "WING" );
+
+    //==== Turn Symmetry OFF ====//
+    SetParmVal( FindParm( wing_id, "Sym_Planar_Flag", "Sym"), 0.0 ); // Note: bool input not supported in SetParmVal
+    
+    // Note: The shape of this wing was selected for demonstration purposes only
+    
+    //===== Add XSec ====//
+    InsertXSec( wing_id, 1, XS_SIX_SERIES );
+    
+    //===== Change Some Parameters 1st Section ====//
+    SetParmVal( wing_id, "Twist", "XSec_1", 20.0 );
+    SetParmVal( wing_id, "InLEMode", "XSec_1", BLEND_MATCH_OUT_LE_TRAP );
+    SetParmVal( wing_id, "InTEMode", "XSec_1", BLEND_MATCH_OUT_TE_TRAP );
+    
+    SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.2 );
+    
+    //===== Define Number of Airfoils to Interpolate in Section 1 ====//
+    SetParmVal( wing_id, "SectTess_U", "XSec_1", 9 );
+    
+    Update();
+    
+    //===== Change Some Parameters 2nd Section ====//
+    SetParmVal( wing_id, "Span", "XSec_2", 3.0 );
+    SetParmVal( wing_id, "Root_Chord", "XSec_2", 1.5 );
+    SetParmVal( wing_id, "Tip_Chord", "XSec_2", 0.5 );
+    SetParmVal( wing_id, "Sweep", "XSec_2", 50.0 );
+    SetParmVal( wing_id, "Twist", "XSec_2", 20.0 );
+    SetParmVal( wing_id, "Dihedral", "XSec_2", 20.0 );
+    
+    Update();
+    
+    //===== Set Airfoil Export Parms in Vehicle Parm Container ====//
+    string veh_id = FindContainer( "Vehicle", 0 );
+    
+    SetParmVal( FindParm( veh_id, "AFWTessFactor", "AirfoilExport" ), 2.0 ); // double W tesselation for export
+    SetParmVal( FindParm( veh_id, "AFAppendGeomIDFlag", "AirfoilExport" ), 1.0 ); // Note: bool input not supported in SetParmVal
+    
+    Update();
+    
+    //===== Export All Airfoils and Metadata *.csv ====//
+    Print( string( "--> Exporting Airfoil Files\n" ) );
+    
+    ExportFile( "Airfoil_Metadata.csv", SET_ALL, EXPORT_SELIG_AIRFOIL );
+    
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+    
+    Print( string( "COMPLETE\n" ) );
+}

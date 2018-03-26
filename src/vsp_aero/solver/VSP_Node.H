@@ -12,6 +12,7 @@
 #include <string.h>
 #include <math.h>
 #include <assert.h>
+#include "quat.H"
 
 // Definition of the VSP_NODE class
 
@@ -64,6 +65,8 @@ public:
     
     int &CoarseGridNode(void) { return CoarseGridNode_; };
     int &FineGridNode(void) { return FineGridNode_; };
+    
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };
 

@@ -12,9 +12,10 @@
 #include "Vehicle.h"
 #include "ProjectionMgr.h"
 #include "PropGeom.h"
-
 #include "VSPAEROMgr.h"
 #include "ParasiteDragMgr.h"
+
+#include <ctime>
 
 void RWCollection::Clear()
 {
@@ -115,7 +116,19 @@ string AnalysisMgrSingleton::ExecAnalysis( const string & analysis )
         return ret;
     }
 
-    return analysis_ptr->Execute();
+    std::clock_t start = std::clock();
+
+    string res = analysis_ptr->Execute();
+
+    m_AnalysisExecutionDuration = ( std::clock() - start ) / (double)CLOCKS_PER_SEC;
+
+    Results* res_ptr = ResultsMgr.FindResultsPtr( res );
+    if ( res_ptr )
+    {
+        res_ptr->Add( NameValData( "Analysis_Duration_Sec", m_AnalysisExecutionDuration ) );
+    }
+
+    return res;
 }
 
 bool AnalysisMgrSingleton::ValidAnalysisName( const string & analysis )
@@ -415,6 +428,11 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     RegisterAnalysis( "CompGeom", cga );
 
 
+    DegenGeomAnalysis *dga = new DegenGeomAnalysis();
+
+    RegisterAnalysis( "DegenGeom", dga );
+
+
     EmintonLordAnalysis *ema = new EmintonLordAnalysis();
 
     RegisterAnalysis( "EmintonLord", ema );
@@ -433,6 +451,10 @@ void AnalysisMgrSingleton::RegisterBuiltins()
     ProjectionAnalysis *proj = new ProjectionAnalysis();
 
     RegisterAnalysis( "Projection", proj );
+
+    SurfacePatchAnalysis *spa = new SurfacePatchAnalysis();
+
+    RegisterAnalysis( "c", spa );
 
 
     WaveDragAnalysis *wave = new WaveDragAnalysis();
@@ -579,6 +601,70 @@ string CompGeomAnalysis::Execute()
         string geom = veh->CompGeomAndFlatten( geomSet, halfMeshFlag, subSurfFlag );
 
         res = ResultsMgr.FindLatestResultsID( "Comp_Geom" );
+    }
+
+    return res;
+}
+
+//======================================================================================//
+//================================ Degen Geom ==========================================//
+//======================================================================================//
+void DegenGeomAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL ) );
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        m_Inputs.Add( NameValData( "WriteCSVFlag", veh->getExportDegenGeomCsvFile() ) );
+        m_Inputs.Add( NameValData( "WriteMFileFlag", veh->getExportDegenGeomMFile() ) );
+    }
+}
+
+string DegenGeomAnalysis::Execute()
+{
+    string res;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        int set_num = vsp::SET_ALL;
+        bool write_csv_orig = veh->getExportDegenGeomCsvFile();
+        bool write_mfile_orig = veh->getExportDegenGeomMFile();
+        bool write_csv = write_csv_orig;
+        bool write_mfile = write_mfile_orig;
+
+        NameValData *nvd;
+        nvd = m_Inputs.FindPtr( "Set", 0 );
+        if ( nvd )
+        {
+            set_num = nvd->GetInt( 0 );
+        }
+        nvd = m_Inputs.FindPtr( "WriteCSVFlag", 0 );
+        if ( nvd )
+        {
+            write_csv = ( bool )nvd->GetInt( 0 );
+        }
+        nvd = m_Inputs.FindPtr( "WriteMFileFlag", 0 );
+        if ( nvd )
+        {
+            write_mfile = ( bool )nvd->GetInt( 0 );
+        }
+
+        veh->setExportDegenGeomCsvFile( write_csv );
+        veh->setExportDegenGeomMFile( write_mfile );
+
+        veh->CreateDegenGeom( set_num );
+        veh->WriteDegenGeomFile();
+
+
+        veh->setExportDegenGeomCsvFile( write_csv_orig );
+        veh->setExportDegenGeomMFile( write_mfile_orig );
+
+        res = ResultsMgr.FindLatestResultsID( "DegenGeom" );
+
     }
 
     return res;
@@ -915,6 +1001,39 @@ string ProjectionAnalysis::Execute()
 }
 
 //======================================================================================//
+//================================= Surface Patch ======================================//
+//======================================================================================//
+
+void SurfacePatchAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    m_Inputs.Add( NameValData( "Set", vsp::SET_ALL ) );
+}
+
+string SurfacePatchAnalysis::Execute()
+{
+    string res;
+
+    Vehicle *veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        int set = vsp::SET_ALL;
+
+        NameValData *nvd = NULL;
+        nvd = m_Inputs.FindPtr( "Set", 0 );
+        if ( nvd )
+        {
+            set = nvd->GetInt( 0 );
+        }
+
+        res = veh->ExportSurfacePatches( set );
+    }
+
+    return res;
+}
+
+//======================================================================================//
 //================================= Wave Drag ==========================================//
 //======================================================================================//
 
@@ -1046,6 +1165,7 @@ void VSPAEROComputeGeometryAnalysis::SetDefaults()
     {
         m_Inputs.Add( NameValData( "GeomSet", VSPAEROMgr.m_GeomSet.Get() ) );
         m_Inputs.Add( NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get() ) );
+        m_Inputs.Add( NameValData( "Symmetry", VSPAEROMgr.m_Symmetry.Get() ) );
     }
     else
     {
@@ -1072,12 +1192,20 @@ string VSPAEROComputeGeometryAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
         VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
 
+        bool symmetryOrig = VSPAEROMgr.m_Symmetry.Get();
+        nvd = m_Inputs.FindPtr( "Symmetry", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_Symmetry.Set( nvd->GetInt( 0 ) );
+        }
+
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeGeometry();
 
         //==== Restore Original Values ====//
         VSPAEROMgr.m_GeomSet.Set( geomSetOrig );
         VSPAEROMgr.m_AnalysisMethod.Set( analysisMethodOrig );
+        VSPAEROMgr.m_Symmetry.Set( symmetryOrig );
 
     }
     
@@ -1816,7 +1944,11 @@ void ParasiteDragFullAnalysis::SetDefaults()
 
         // Reference Area
         m_Inputs.Add( NameValData( "RefFlag", ParasiteDragMgr.m_RefFlag.Get() ) );
+        m_Inputs.Add( NameValData( "WingID",  " " ) );
         m_Inputs.Add( NameValData( "Sref",    ParasiteDragMgr.m_Sref.Get() ) );
+
+        // Use previous Degen Geom
+        m_Inputs.Add( NameValData( "RecomputeGeom", true ) );
     }
     else
     {
@@ -1837,31 +1969,52 @@ string ParasiteDragFullAnalysis::Execute()
         // File Name
         string fileNameOrig = ParasiteDragMgr.m_FileName;
         nvd = m_Inputs.FindPtr( "FileName", 0 );
-        ParasiteDragMgr.m_FileName = nvd->GetString(0);
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_FileName = nvd->GetString( 0 );
+        }
 
         // Geometry Set Choice
         int geomSetOrig = ParasiteDragMgr.m_SetChoice.Get();
         nvd = m_Inputs.FindPtr( "GeomSet", 0 );
-        ParasiteDragMgr.m_SetChoice.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_SetChoice.Set( nvd->GetInt( 0 ) );
+        }
 
         // Friction Coefficient Eqn Choice
         int lamCfEqnChoiceOrig = ParasiteDragMgr.m_LamCfEqnType.Get();
         int turbCfEqnChoiceOrig = ParasiteDragMgr.m_TurbCfEqnType.Get();
         nvd = m_Inputs.FindPtr( "LamCfEqnChoice", 0 );
-        ParasiteDragMgr.m_LamCfEqnType.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_LamCfEqnType.Set( nvd->GetInt( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "TurbCfEqnChoice", 0 );
-        ParasiteDragMgr.m_TurbCfEqnType.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_TurbCfEqnType.Set( nvd->GetInt( 0 ) );
+        }
 
         // Unit Choice
         int lengthUnitChoiceOrig = ParasiteDragMgr.m_LengthUnit.Get();
         int velocityUnitChoiceOrig = ParasiteDragMgr.m_VinfUnitType.Get();
         int tempUnitChoiceOrig = ParasiteDragMgr.m_TempUnit.Get();
         nvd = m_Inputs.FindPtr( "LengthUnit", 0 );
-        ParasiteDragMgr.m_LengthUnit.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_LengthUnit.Set( nvd->GetInt( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "VelocityUnit", 0 );
-        ParasiteDragMgr.m_VinfUnitType.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_VinfUnitType.Set( nvd->GetInt( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "TempUnit", 0 );
-        ParasiteDragMgr.m_TempUnit.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_TempUnit.Set( nvd->GetInt( 0 ) );
+        }
 
         // Freestream Props
         int freestreamPropChoiceOrig = ParasiteDragMgr.m_FreestreamType.Get();
@@ -1873,29 +2026,85 @@ string ParasiteDragFullAnalysis::Execute()
         double densOrig = ParasiteDragMgr.m_Rho.Get();
         //int mediumChoiceOrig = ParasiteDragMgr.m_MediumType.Get();
         nvd = m_Inputs.FindPtr( "FreestreamPropChoice", 0 );
-        ParasiteDragMgr.m_FreestreamType.Set( nvd->GetInt(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_FreestreamType.Set( nvd->GetInt( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Vinf", 0 );
-        ParasiteDragMgr.m_Vinf.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Vinf.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Altitude", 0 );
-        ParasiteDragMgr.m_Hinf.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Hinf.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "DeltaTemp", 0 );
-        ParasiteDragMgr.m_DeltaT.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_DeltaT.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Temperature", 0 );
-        ParasiteDragMgr.m_Temp.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Temp.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Pressure", 0 );
-        ParasiteDragMgr.m_Pres.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Pres.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Density", 0 );
-        ParasiteDragMgr.m_Rho.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_Rho.Set( nvd->GetDouble( 0 ) );
+        }
         nvd = m_Inputs.FindPtr( "Medium", 0 );
         //ParasiteDragMgr.m_MediumType.Set( nvd->GetInt(0) );
 
         // Reference Area
         int refFlagOrig = ParasiteDragMgr.m_RefFlag.Get();
+        string WingIDOrig = ParasiteDragMgr.m_RefGeomID;
         double srefOrig = ParasiteDragMgr.m_Sref.Get();
         nvd = m_Inputs.FindPtr( "RefFlag", 0 );
-        ParasiteDragMgr.m_RefFlag.Set( nvd->GetInt(0) );
-        nvd = m_Inputs.FindPtr( "Sref", 0 );
-        ParasiteDragMgr.m_Sref.Set( nvd->GetDouble(0) );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_RefFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "WingID", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_RefGeomID = nvd->GetString( 0 );
+        }
+
+        if ( ParasiteDragMgr.m_RefFlag.Get() == vsp::MANUAL_REF )
+        {
+            nvd = m_Inputs.FindPtr( "Sref", 0 );
+            if ( nvd )
+            {
+                ParasiteDragMgr.m_Sref.Set( nvd->GetDouble( 0 ) );
+            }
+        }
+        else if ( ParasiteDragMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
+        {
+            ParasiteDragMgr.Update();
+            printf( "Wing Reference Parms: \n" );
+
+            nvd = m_Inputs.FindPtr( "Sref", 0 );
+            if ( nvd )
+            {
+                ParasiteDragMgr.m_Sref.Set( ParasiteDragMgr.m_Sref.Get() );
+            }
+            printf( " Sref: %7.3f \n", ParasiteDragMgr.m_Sref.Get() );
+
+            printf( "\n" );
+        }
+
+        // Recompute flag
+        bool recomputeFlagOrig = ParasiteDragMgr.GetRecomputeGeomFlag();
+        nvd = m_Inputs.FindPtr( "RecomputeGeom", 0);
+        ParasiteDragMgr.SetRecomputeGeomFlag( (bool)(nvd->GetInt(0)) );
 
         // Execute analysis
         res_id = ParasiteDragMgr.ComputeBuildUp();
@@ -1925,7 +2134,11 @@ string ParasiteDragFullAnalysis::Execute()
 
         // Reference Area
         ParasiteDragMgr.m_RefFlag.Set( refFlagOrig );
+        ParasiteDragMgr.m_RefGeomID = WingIDOrig;
         ParasiteDragMgr.m_Sref.Set( srefOrig );
+
+        // Recompute Flag
+        ParasiteDragMgr.SetRecomputeGeomFlag( recomputeFlagOrig );
     }
 
     return res_id;
@@ -1942,6 +2155,8 @@ void CpSlicerAnalysis::SetDefaults()
 
     if ( veh )
     {
+        m_Inputs.Add( NameValData( "AnalysisMethod", VSPAEROMgr.m_AnalysisMethod.Get() ) );
+
         // Cuts
         m_Inputs.Add( NameValData( "XSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR ) ) );
         m_Inputs.Add( NameValData( "YSlicePosVec", VSPAEROMgr.GetCpSlicePosVec( vsp::Y_DIR ) ) );
@@ -1962,6 +2177,10 @@ string CpSlicerAnalysis::Execute()
     if ( veh )
     {
         NameValData *nvd = NULL;
+
+        int analysisMethodOrig = VSPAEROMgr.m_AnalysisMethod.Get();
+        nvd = m_Inputs.FindPtr( "AnalysisMethod", 0 );
+        if ( nvd ) VSPAEROMgr.m_AnalysisMethod.Set( nvd->GetInt( 0 ) );
 
         // Cuts
         vector < double > xcutsOrig = VSPAEROMgr.GetCpSlicePosVec( vsp::X_DIR );

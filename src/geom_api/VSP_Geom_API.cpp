@@ -996,6 +996,19 @@ int GetNumResults( const string & name )
     return ResultsMgr.GetNumResults( name );
 }
 
+/// Get the name of the results object with the given id
+string GetResultsName( const string & results_id )
+{
+    if ( !ResultsMgr.ValidResultsID( results_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultName::Invalid ID " + results_id );
+        string ret_str;
+        return  ret_str;
+    }
+
+    return ResultsMgr.FindResultsPtr( results_id )->GetName();
+}
+
 /// Return the id of the results with the given results name and index
 string FindResultsID( const string & name, int index )
 {
@@ -1081,6 +1094,25 @@ const vector<double> & GetDoubleResults( const string & id, const string & name,
     }
 
     return ResultsMgr.GetDoubleResults( id, name, index );
+}
+
+/// Return the double matrix given the results id, data name and data index
+const vector< vector<double> > & GetDoubleMatResults( const string & id, const string & name, int index )
+{
+    if ( !ResultsMgr.ValidResultsID( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetDoubleMatResults::Invalid ID " + id  );
+    }
+    else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleMatResults::Can't Find Name " + name  );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return ResultsMgr.GetDoubleMatResults( id, name, index );
 }
 
 /// Return the string data given the results id, data name and data index
@@ -1335,7 +1367,7 @@ void CopyGeomToClipboard( const string & geom_id )
 
 /// Paste the geometry in the clipboard to the vehicle.  The geometry is inserted
 /// as a child of the optional parent id
-void PasteGeomClipboard( const string & parent )
+vector< string > PasteGeomClipboard( const string & parent )
 {
     Vehicle* veh = GetVehicle();
 
@@ -1358,8 +1390,10 @@ void PasteGeomClipboard( const string & parent )
         veh->ClearActiveGeom();
     }
 
-    veh->PasteClipboard();
+    vector< string> pasted_ids = veh->PasteClipboard();
     ErrorMgr.NoError();
+
+    return pasted_ids;
 }
 
 /// Find and return all geoms
@@ -1905,6 +1939,20 @@ void SetFeaStructName( const string & geom_id, int fea_struct_id, const string &
         return;
     }
     struct_ptr->SetName( name );
+    ErrorMgr.NoError();
+    return;
+}
+
+void SetFeaPartName( const string & part_id, const string & name )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( part_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPartName::Can't Find FEA Part " + part_id );
+        return;
+    }
+
+    part->SetName( name );
     ErrorMgr.NoError();
     return;
 }
@@ -2844,50 +2892,51 @@ void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d>
     fclose( af );
 }
 
-std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+struct LLT_Data // Struct containing Lifting Line Theory data
 {
-    // Calculation of lift distribution for a Hershey Bar wing with unit chord length using Glauert's Method
+    vector < long double > y_span_vec; // y position across half span
+    vector < long double > gamma_vec; // circulation
+    vector < long double > w_vec; // downwash velocity
+    vector < long double > cl_vec; // lift coefficient
+    vector < long double > cd_vec; // induced drag coefficient
+};
 
-    vector < vec3d > y_cl_vec; // return vector of y position and cl value
-    if ( full_span_flag )
-    {
-        y_cl_vec.resize( 2 * npts );
-    }
-    else
-    {
-        y_cl_vec.resize( npts );
-    }
+LLT_Data GetHersheyLLTData( const unsigned int npts, const long double alpha, const long double Vinf, const long double span )
+{
+    LLT_Data llt_data;
 
-    const double alpha0 = 0;
-    const double c = 1; // root/tip chord
+    const long double alpha0 = 0.0; // zero lift angle of attack (rad)
+    const long double c = 1.0; // root/tip chord
 
-    vector < double > theta_vec, y_span_vec, r_vec, a_vec, gamma_vec, cl_vec;
+    vector < long double > theta_vec, r_vec, a_vec;
     vector < int > odd_vec;
     theta_vec.resize( npts );
-    y_span_vec.resize( npts );
     odd_vec.resize( npts );
     r_vec.resize( npts );
     a_vec.resize( npts );
-    gamma_vec.resize( npts );
-    cl_vec.resize( npts );
 
-    Eigen::Matrix<double, Eigen::Dynamic, Eigen::Dynamic> c_mat;
+    llt_data.y_span_vec.resize( npts );
+    llt_data.gamma_vec.resize( npts );
+    llt_data.w_vec.resize( npts );
+    llt_data.cl_vec.resize( npts );
+    llt_data.cd_vec.resize( npts );
+
+    Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> c_mat;
     c_mat.resize( npts, npts );
 
     for ( size_t i = 0; i < npts; i++ )
     {
-        theta_vec[i] = ( i + 1 ) * ( ( PI / 2 ) / npts );
-        y_span_vec[i] = cos( theta_vec[i] ) * ( span / 2 );
-        y_cl_vec[i].set_x( y_span_vec[i] );
+        theta_vec[i] = ( (double)i + 1.0l ) * ( ( M_PI / 2.0l ) / ( (double)npts ) ); // [0 to pi/2]
+        llt_data.y_span_vec[i] = cos( theta_vec[i] ) * ( span / 2.0l ); // [tip to root]
         odd_vec[i] = 2 * i + 1;
-        r_vec[i] = PI * c / 4 / ( span / 2 ) * ( alpha - alpha0 ) * sin( theta_vec[i] );
+        r_vec[i] = M_PI * c / 4.0l / ( span / 2.0l ) * ( alpha - alpha0 ) * sin( theta_vec[i] );
     }
 
     for ( size_t i = 0; i < npts; i++ )
     {
         for ( size_t j = 0; j < npts; j++ )
         {
-            c_mat( i, j ) = sin( theta_vec[j] * odd_vec[i] ) * ( PI * c * odd_vec[i] / 4 / ( span / 2 ) + sin( theta_vec[j] ) );
+            c_mat( i, j ) = sin( theta_vec[j] * (double)odd_vec[i] ) * ( PI * c * odd_vec[i] / 4.0l / ( span / 2.0l ) + sin( theta_vec[j] ) );
         }
     }
 
@@ -2908,22 +2957,92 @@ std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, co
     {
         for ( size_t j = 0; j < npts; j++ )
         {
-            gamma_vec[i] += 4 * Vinf * ( span / 2 ) * sin( theta_vec[i] * odd_vec[j] ) * a_vec[j];
+            llt_data.gamma_vec[i] += 4.0l * Vinf * ( span / 2.0l ) * sin( theta_vec[i] * (double)odd_vec[j] ) * a_vec[j];
+            llt_data.w_vec[i] += Vinf * ( span / 2.0l ) * (double)odd_vec[j] * a_vec[j] * sin( theta_vec[i] * (double)odd_vec[j] ) / sin( theta_vec[i] );
         }
 
-        cl_vec[i] = 2 * gamma_vec[i] / Vinf;
-        y_cl_vec[i].set_y( cl_vec[i] );
+        llt_data.cl_vec[i] = 2.0l * llt_data.gamma_vec[i] / Vinf;
+        llt_data.cd_vec[i] = 2.0l * llt_data.w_vec[i] * llt_data.gamma_vec[i] / ( c * ( span / 2.0l ) * pow( Vinf, 2.0 ) );
     }
 
+    return llt_data;
+}
+
+std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+{
+    // Calculation of lift distribution for a Hershey Bar wing with unit chord length using Glauert's Method
+    //  Input span is the entire wing span, which half is used in the following calculations. If full_span_flag == true,
+    //  symmetry is applied to the results. Input alpha must be in radians. 
+
+    LLT_Data llt_data = GetHersheyLLTData( npts, alpha, Vinf, span );
+
+    vector < vec3d > y_cl_vec;
     if ( full_span_flag )
     {
+        y_cl_vec.resize( 2 * npts );
+
         for ( size_t i = 0; i < npts; i++ )
         {
-            y_cl_vec[( 2 * npts - 1 ) - i] = y_cl_vec[i]; // Apply symmetry
+            y_cl_vec[i] = vec3d( -1 * llt_data.y_span_vec[i], llt_data.cl_vec[i], 0.0 );
+        }
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cl_vec[( 2 * npts - 1 ) - i] = vec3d( llt_data.y_span_vec[i], llt_data.cl_vec[i], 0.0 ); // Apply symmetry
         }
     }
+    else
+    {
+        y_cl_vec.resize( npts );
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cl_vec[i] = vec3d( llt_data.y_span_vec[i], llt_data.cl_vec[i], 0.0 );
+        }
+
+        std::reverse( y_cl_vec.begin(), y_cl_vec.end() );
+    }
+
 
     return y_cl_vec;
+}
+
+std::vector<vec3d> GetHersheyBarDragDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+{
+    // Calculation of drag distribution for a Hershey Bar wing with unit chord length using Glauert's Method.
+    //  Input span is the entire wing span, which half is used in the following calculations. If full_span_flag == true,
+    //  symmetry is applied to the results. Input alpha must be in radians. 
+
+    LLT_Data llt_data = GetHersheyLLTData( npts, alpha, Vinf, span );
+
+    vector < vec3d > y_cd_vec;
+    if ( full_span_flag )
+    {
+        y_cd_vec.resize( 2 * npts );
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cd_vec[i] = vec3d( -1 * llt_data.y_span_vec[i], llt_data.cd_vec[i], 0.0 );
+        }
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cd_vec[( 2 * npts - 1 ) - i] = vec3d( llt_data.y_span_vec[i], llt_data.cd_vec[i], 0.0 ); // Apply symmetry
+        }
+    }
+    else
+    {
+        y_cd_vec.resize( npts );
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cd_vec[i] = vec3d( llt_data.y_span_vec[i], llt_data.cd_vec[i], 0.0 );
+        }
+
+        std::reverse( y_cd_vec.begin(), y_cd_vec.end() );
+    }
+
+    return y_cd_vec;
 }
 
 std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau )
@@ -2954,7 +3073,7 @@ std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const 
     double dmax = -1.0;
     // Evaluate points and track furthest from TE as surrogate for LE.
     // Would be better to identify LE as tightest curvature or similar.
-    for ( size_t p = 0; p < npts - 1; p++ )
+    for ( size_t p = 0; p < npts; p++ )
     {
         // Clockwise from TE
         double theta = 2.0 * PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
@@ -3003,7 +3122,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilo
     doublec i( 0, 1 );
     const double ell = 0.25; // chord length = 4 * ell
 
-    const double npts = xyzdata.size();
+    const int npts = xyzdata.size();
 
     vector < double > cpdata;
     cpdata.resize( npts );
@@ -3023,7 +3142,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilo
     double dmax = -1.0;
     // Evaluate points and track furthest from TE as surrogate for LE.
     // Would be better to identify LE as tightest curvature or similar.
-    for ( size_t p = 0; p < npts - 1; p++ )
+    for ( size_t p = 0; p < npts; p++ )
     {
         // Clockwise from TE
         double theta = 2.0 * PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
@@ -3041,7 +3160,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilo
 
         double u, v;
 
-        if ( abs( theta ) <= FLT_EPSILON ) // Special treatment at the trailing edge (theta = 0.0)
+        if ( abs( theta ) <= FLT_EPSILON || abs( theta - 2.0 * PI ) <= FLT_EPSILON ) // Special treatment at the trailing edge (theta = 0.0 or 2*pi)
         {
             if ( abs( tau ) <= FLT_EPSILON ) // Joukowski airfoil (cusped trailing edge: tau = 0.0 )
             {
@@ -3115,7 +3234,54 @@ std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d center, const vec3d abc_rad
     return surf_pnt_vec;
 }
 
-std::vector <vec3d> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf )
+std::vector<vec3d> GetFeatureLinePnts( const string& geom_id )
+{
+    vector < vec3d > pnt_vec;
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeatureLinePnts::Can't Find Geom " + geom_id );
+        return pnt_vec;
+    }
+
+    vector<VspSurf> surf_vec;
+    geom_ptr->GetSurfVec( surf_vec );
+
+    double tol = 1e-2;
+
+    for ( size_t i = 0; i < surf_vec.size(); i++ )
+    {
+        // U feature lines
+        for ( int j = 0; j < surf_vec[0].GetNumUFeature(); j++ )
+        {
+            vector < vec3d > ptline;
+            surf_vec[i].TessUFeatureLine( j, ptline, tol );
+
+            for ( size_t k = 0; k < ptline.size(); k++ )
+            {
+                pnt_vec.push_back( ptline[k] );
+            }
+        }
+
+        // V feature lines
+        for ( int j = 0; j < surf_vec[0].GetNumWFeature(); j++ )
+        {
+            vector < vec3d > ptline;
+            surf_vec[i].TessWFeatureLine( j, ptline, tol );
+
+            for ( size_t k = 0; k < ptline.size(); k++ )
+            {
+                pnt_vec.push_back( ptline[k] );
+            }
+        }
+    }
+
+    return pnt_vec;
+}
+
+std::vector <double> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf )
 {
     // Generate Analytical Solution for Potential Flow at input ellipsoid surface points for input velocity vector (V).
     //  Based on Munk, M. M., 'Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally 
@@ -3133,7 +3299,8 @@ std::vector <vec3d> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, c
     double B = k2 + 1;
     double C = k3 + 1;
 
-    vector < vec3d > pot_vec, uvw_vec, cp_vec;
+    vector < vec3d > pot_vec, uvw_vec;
+    vector < double > cp_vec;
     pot_vec.resize( surf_pnt_vec.size() );
     uvw_vec.resize( surf_pnt_vec.size() );
     cp_vec.resize( surf_pnt_vec.size() );
@@ -3161,9 +3328,7 @@ std::vector <vec3d> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, c
         uvw_vec[i] = vec3d( ( Vmax_x - Vnorm * norm.x() ), ( Vmax_y - Vnorm * norm.y() ), ( Vmax_z - Vnorm * norm.z() ) );
 
         // Pressure Coefficient
-        cp_vec[i] = vec3d( ( 1.0 - ( pow( uvw_vec[i].x(), 2.0 ) / pow( V_inf.x(), 2.0 ) ) ),
-            ( 1.0 - ( pow( uvw_vec[i].y(), 2.0 ) / pow( V_inf.y(), 2.0 ) ) ),
-            ( 1.0 - ( pow( uvw_vec[i].z(), 2.0 ) / pow( V_inf.z(), 2.0 ) ) ) );
+        cp_vec[i] = 1.0 - pow( ( uvw_vec[i].mag() / V_inf.mag() ), 2.0 );
     }
 
     return cp_vec;
@@ -3539,6 +3704,68 @@ void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
     cst_xs->FitCurve( c, deg );
 
     ErrorMgr.NoError();
+}
+
+void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "WriteBezierAirfoil::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "WriteBezierAirfoil::Invalid u Location" );
+        return;
+    }
+
+    geom_ptr->WriteBezierAirfoil( file_name, foilsurf_u );
+    ErrorMgr.NoError();
+}
+
+void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "WriteSeligAirfoil::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "WriteSeligAirfoil::Invalid u Location" );
+        return;
+    }
+
+    geom_ptr->WriteSeligAirfoil( file_name, foilsurf_u );
+    ErrorMgr.NoError();
+}
+
+vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const double foilsurf_u )
+{
+    vector < vec3d > ordered_vec;
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilCoordinates::Can't Find Geom " + geom_id );
+        return ordered_vec;
+    }
+
+    if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetAirfoilCoordinates::Invalid u Location" );
+        return ordered_vec;
+    }
+
+    ordered_vec = geom_ptr->GetAirfoilCoordinates( foilsurf_u );
+    ErrorMgr.NoError();
+    return ordered_vec;
 }
 
 //===================================================================//
@@ -4591,6 +4818,13 @@ void AddExcrescence(const std::string &excresName, const int & excresType, const
 void DeleteExcrescence(const int & index)
 {
     ParasiteDragMgr.DeleteExcrescence(index);
+
+    ErrorMgr.NoError();
+}
+
+void UpdateParasiteDrag()
+{
+    ParasiteDragMgr.Update();
 
     ErrorMgr.NoError();
 }

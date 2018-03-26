@@ -47,6 +47,10 @@ VSP_LOOP::VSP_LOOP(void)
     
     Gamma_ = 0.;
     
+    dCp_ = 0.;
+    
+    dCp_Unsteady_ = 0.;
+    
     NormalForce_ = 0.;
     
     SurfaceType_ = 0;
@@ -301,4 +305,79 @@ void VSP_LOOP::SizeFineGridLoopList(int NumberOfLoops)
     FineGridLoopList_ = new int[NumberOfFineGridLoops_ + 1];
 
 }
+
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_LOOP UpdateGeometryLocation                         #
+#                                                                              #
+##############################################################################*/
+
+void VSP_LOOP::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+{
+
+    QUAT Vec;
+
+    // Update centroid
+
+    Vec(0) = XYZc_[0] - OVec[0];
+    Vec(1) = XYZc_[1] - OVec[1];
+    Vec(2) = XYZc_[2] - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    XYZc_[0] = Vec(0) + OVec[0] + TVec[0];
+    XYZc_[1] = Vec(1) + OVec[1] + TVec[1];
+    XYZc_[2] = Vec(2) + OVec[2] + TVec[2];    
+    
+    // Update normal
+    
+    Vec(0) = Normal_[0];
+    Vec(1) = Normal_[1];
+    Vec(2) = Normal_[2];
+
+    Vec = Quat * Vec * InvQuat;
+    
+    Normal_[0] = Vec(0);
+    Normal_[1] = Vec(1);
+    Normal_[2] = Vec(2);
+        
+    // Update flat plate normal
+    
+    Vec(0) = FlatPlateNormal_[0];
+    Vec(1) = FlatPlateNormal_[1];
+    Vec(2) = FlatPlateNormal_[2];
+
+    Vec = Quat * Vec * InvQuat;
+    
+    FlatPlateNormal_[0] = Vec(0);
+    FlatPlateNormal_[1] = Vec(1);
+    FlatPlateNormal_[2] = Vec(2);
+    
+    // Update bounding box min
+    
+    Vec(0) = BoundBox_.x_min - OVec[0];
+    Vec(1) = BoundBox_.y_min - OVec[1];
+    Vec(2) = BoundBox_.z_min - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    BoundBox_.x_min = Vec(0) + OVec[0] + TVec[0];
+    BoundBox_.y_min = Vec(1) + OVec[1] + TVec[1];
+    BoundBox_.z_min = Vec(2) + OVec[2] + TVec[2];      
+    
+    // Update bounding box max
+    
+    Vec(0) = BoundBox_.x_max - OVec[0];
+    Vec(1) = BoundBox_.y_max - OVec[1];
+    Vec(2) = BoundBox_.z_max - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    BoundBox_.x_max = Vec(0) + OVec[0] + TVec[0];
+    BoundBox_.y_max = Vec(1) + OVec[1] + TVec[1];
+    BoundBox_.z_max = Vec(2) + OVec[2] + TVec[2];            
+
+}
+
 

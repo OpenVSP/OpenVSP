@@ -8,6 +8,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "AdvLinkScreen.h"
+#include "AirfoilExportScreen.h"
 #include "BEMOptionsScreen.h"
 #include "CfdMeshScreen.h"
 #include "ClippingScreen.h"
@@ -146,6 +147,28 @@ void ScreenMgr::MessageCallback( const MessageBase* from, const MessageData& dat
             }
         }
     }
+    else if ( data.m_String == string( "CFDMessage" ) )
+    {
+        CfdMeshScreen* scr = (CfdMeshScreen*)m_ScreenVec[VSP_CFD_MESH_SCREEN];
+        if ( scr )
+        {
+            for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
+            {
+                scr->AddOutputText( data.m_StringVec[i] );
+            }
+        }
+    }
+    else if ( data.m_String == string( "SurfIntersectMessage" ) )
+    {
+        SurfaceIntersectionScreen* scr = (SurfaceIntersectionScreen*)m_ScreenVec[VSP_SURFACE_INTERSECTION_SCREEN];
+        if ( scr )
+        {
+            for ( int i = 0; i < (int)data.m_StringVec.size(); i++ )
+            {
+                scr->AddOutputText( data.m_StringVec[i] );
+            }
+        }
+    }
     else if ( data.m_String == string( "Error" ) )
     {
         const char* msg = data.m_StringVec[0].c_str();
@@ -170,6 +193,8 @@ void ScreenMgr::Init()
     //==== Build All Screens ====//
     m_ScreenVec.resize( VSP_NUM_SCREENS );
     m_ScreenVec[VSP_ADV_LINK_SCREEN] = new AdvLinkScreen( this );
+    m_ScreenVec[VSP_AIRFOIL_CURVES_EXPORT_SCREEN] = new BezierAirfoilExportScreen( this );
+    m_ScreenVec[VSP_AIRFOIL_POINTS_EXPORT_SCREEN] = new SeligAirfoilExportScreen( this );
     m_ScreenVec[VSP_BACKGROUND_SCREEN] = new ManageBackgroundScreen( this );
     m_ScreenVec[VSP_BEM_OPTIONS_SCREEN] = new BEMOptionsScreen( this );
     m_ScreenVec[VSP_CFD_MESH_SCREEN] = new CfdMeshScreen( this );

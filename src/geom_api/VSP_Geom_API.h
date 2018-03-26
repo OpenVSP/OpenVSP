@@ -104,12 +104,14 @@ extern void PrintAnalysisInputs( const std::string & analysis_name );
 extern std::vector<std::string> GetAllResultsNames();
 extern std::vector<std::string> GetAllDataNames( const std::string & results_id );
 extern int GetNumResults( const std::string & name );
+extern std::string GetResultsName(const std::string & results_id );
 extern std::string FindResultsID( const std::string & name, int index = 0 );
 extern std::string FindLatestResultsID( const std::string & name );
 extern int GetNumData( const std::string & results_id, const std::string & data_name );
 extern int GetResultsType( const std::string & results_id, const std::string & data_name );
 extern const std::vector< int > & GetIntResults( const std::string & id, const std::string & name, int index = 0 );
 extern const std::vector< double > & GetDoubleResults( const std::string & id, const std::string & name, int index = 0 );
+extern const std::vector< std::vector< double > > & GetDoubleMatResults( const std::string & id, const std:: string & name, int index = 0 );
 extern const std::vector<std::string> & GetStringResults( const std::string & id, const std::string & name, int index = 0 );
 extern const std::vector< vec3d > & GetVec3dResults( const std::string & id, const std::string & name, int index = 0 );
 extern std::string CreateGeomResults( const std::string & geom_id, const std::string & name );
@@ -129,7 +131,7 @@ extern void DeleteGeom( const std::string & geom_id );
 extern void DeleteGeomVec( const std::vector< std::string > & del_vec );
 extern void CutGeomToClipboard( const std::string & geom_id );
 extern void CopyGeomToClipboard( const std::string & geom_id );
-extern void PasteGeomClipboard( const std::string & parent = std::string() );
+extern std::vector<std::string> PasteGeomClipboard( const std::string & parent = std::string() );
 extern std::vector<std::string> FindGeoms();
 extern std::vector<std::string> FindGeomsWithName( const std::string & name );
 extern std::string FindGeom( const std::string & name, int index );
@@ -161,6 +163,7 @@ extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int
 extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_id );
 extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct_id );
 extern void SetFeaStructName( const std::string & geom_id, int fea_struct_id, const std::string & name );
+extern void SetFeaPartName( const std::string & part_id, const std::string & name );
 extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_id, int type );
 extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_id, const std::string & part_id );
 extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_id, int type );
@@ -207,12 +210,13 @@ extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double to
 extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name );
 extern void SetAirfoilPnts( const std::string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
-extern void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d> & ordered_airfoil_pnts );
 extern std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false );
+extern std::vector<vec3d> GetHersheyBarDragDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false );
 extern std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau );
 extern std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, std::vector<vec3d> xyz_data );
 extern std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d center, const vec3d abc_rad, int u_npts = 20, int w_npts = 20 );
-extern std::vector<vec3d> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf );
+extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
+extern std::vector<double> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf );
 extern double IntegrateEllipsoidFlow( const vec3d abc_rad, const int abc_index );
 extern std::vector<vec3d> GetAirfoilUpperPnts( const std::string& xsec_id );
 extern std::vector<vec3d> GetAirfoilLowerPnts( const std::string& xsec_id );
@@ -227,6 +231,10 @@ extern void PromoteCSTLower( const std::string& xsec_id );
 extern void DemoteCSTUpper( const std::string& xsec_id );
 extern void DemoteCSTLower( const std::string& xsec_id );
 extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg );
+
+extern void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u );
+extern void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u );
+extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const double foilsurf_u );
 
 //======================== Sets ================================//
 extern int GetNumSets();
@@ -313,6 +321,7 @@ extern int GetNumControlSurfaceGroups();
 //======================== Parasite Drag Tool Functions ======================//
 extern void AddExcrescence(const std::string & excresName, const int & excresType, const double & excresVal);
 extern void DeleteExcrescence(const int & index);
+extern void UpdateParasiteDrag();
 extern void WriteAtmosphereCSVFile( const std::string & file_name, const int atmos_type );
 extern void CalcAtmosphere( const double & alt, const double & delta_temp, const int & atmos_type,
     double & temp, double & pres, double & pres_ratio, double & rho_ratio );

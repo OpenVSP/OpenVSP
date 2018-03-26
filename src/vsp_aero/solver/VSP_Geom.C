@@ -456,12 +456,18 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
              SurfaceParser.GetComponentBBox(VSP_Degen_File, ComponentBBox);
              
              i++;
+ 
+             if ( DoSymmetryPlaneSolve_ == SYM_X ) { Epsilon = MAX(0.025*(ComponentBBox.x_max - ComponentBBox.x_min), 1.e-5); };
              
-             if ( DoSymmetryPlaneSolve_ == SYM_X && ComponentBBox.x_min >= 0. ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
-             
-             if ( DoSymmetryPlaneSolve_ == SYM_Y && ComponentBBox.y_min >= 0. ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
+             if ( DoSymmetryPlaneSolve_ == SYM_Y ) { Epsilon = MAX(0.025*(ComponentBBox.y_max - ComponentBBox.y_min), 1.e-5); };
               
-             if ( DoSymmetryPlaneSolve_ == SYM_Z && ComponentBBox.z_min >= 0. ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
+             if ( DoSymmetryPlaneSolve_ == SYM_Z ) { Epsilon = MAX(0.025*(ComponentBBox.z_max - ComponentBBox.z_min), 1.e-5); };
+
+             if ( DoSymmetryPlaneSolve_ == SYM_X && ComponentBBox.x_min >= -Epsilon ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
+             
+             if ( DoSymmetryPlaneSolve_ == SYM_Y && ComponentBBox.y_min >= -Epsilon ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
+              
+             if ( DoSymmetryPlaneSolve_ == SYM_Z && ComponentBBox.z_min >= -Epsilon ) { NumberOfDegenWings_++ ; ReadInThisWing[i] = 1; };
                            
           }
                                         
@@ -1151,7 +1157,8 @@ void VSP_GEOM::MeshGeom(void)
        
     }
     
-    Grid().MinLoopArea() = AreaTotal/200.;
+    //Grid().MinLoopArea() = AreaTotal/50.;
+    Grid().MinLoopArea() = AreaTotal;
    
     printf("Total NumberOfNodes:      %d \n",Grid().NumberOfNodes());
     printf("Total NumberOfLoops:      %d \n",Grid().NumberOfLoops());
@@ -1189,7 +1196,7 @@ void VSP_GEOM::MeshGeom(void)
        
        if (     Grid_[i]->NumberOfLoops() > 0 &&
                 Grid_[i]->NumberOfEdges() > 0 &&
-            1.5*Grid_[i]->NumberOfLoops() <= Grid_[i-1]->NumberOfLoops() ) {
+             2.*Grid_[i]->NumberOfLoops() <= Grid_[i-1]->NumberOfLoops() ) {
           
           Grid_[i]->CalculateUpwindEdges();   
        
@@ -1202,10 +1209,8 @@ void VSP_GEOM::MeshGeom(void)
        }
        
        else {
-          
-          printf("Stopped agglomeration at.... Grid:%d --> # loops: %10d ...# Edges: %10d  \n",i,Grid_[i]->NumberOfLoops(),Grid_[i]->NumberOfEdges());
-          
-          if ( Grid_[i]->NumberOfLoops() == Grid_[i-1]->NumberOfLoops() ) i--;
+
+          i--;
           
           Done = 1;
           
@@ -1213,9 +1218,10 @@ void VSP_GEOM::MeshGeom(void)
 
     }
 
-    NumberOfGridLevels_ = i;
+    NumberOfGridLevels_ = i-1;
 
     printf("NumberOfGridLevels_: %d \n",NumberOfGridLevels_);    
+    printf("NumberOfSurfacePatches_: %d \n",NumberOfSurfacePatches_);
     
     // Ouput the coarse grid mesh info
     

@@ -33,7 +33,7 @@ public:
 
 protected:
 
-    enum { CHORD, TWIST, RAKE, SKEW };
+    enum { CHORD, TWIST, RAKE, SKEW, SWEEP };
 
     GroupLayout m_DesignLayout;
 
@@ -48,6 +48,8 @@ protected:
     ToggleButton m_Beta34Toggle;
     ToggleButton m_FeatherToggle;
     ToggleRadioGroup m_BetaToggle;
+
+    SliderAdjRangeInput m_ConstructSlider;
 
     ToggleButton m_ReverseToggle;
 
