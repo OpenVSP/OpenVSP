@@ -10,6 +10,12 @@ IF( SWIG_FOUND )
 	FIND_PACKAGE(PythonLibs)
 ENDIF( SWIG_FOUND )
 
+# CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of
+# the cache entry storing the find_library result.  Use the
+# value if it was set by the project or user.
+if(DEFINED LIBXML2_LIBRARY AND NOT DEFINED LIBXML2_LIBRARIES)
+  set(LIBXML2_LIBRARIES ${LIBXML2_LIBRARY})
+endif()
 
 IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 

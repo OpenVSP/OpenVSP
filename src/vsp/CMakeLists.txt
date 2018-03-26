@@ -11,6 +11,13 @@ ELSE()
 	SET ( LINUX_LIBS )
 ENDIF()
 
+# CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of
+# the cache entry storing the find_library result.  Use the
+# value if it was set by the project or user.
+if(DEFINED LIBXML2_LIBRARY AND NOT DEFINED LIBXML2_LIBRARIES)
+  set(LIBXML2_LIBRARIES ${LIBXML2_LIBRARY})
+endif()
+
 INCLUDE_DIRECTORIES( ${VSP_SOURCE_DIR}
 	${UTIL_INCLUDE_DIR}
 	${GEOM_CORE_INCLUDE_DIR}
