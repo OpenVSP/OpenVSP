@@ -238,7 +238,7 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Rotate.Init( "Rotate", "Design", this, 0.0, -360.0, 360.0 );
     m_Rotate.SetDescript( "Rotation of first propeller blade." );
 
-    m_Construct.Init( "Construct X/C", "Design", this, 0.5, 0.0, 1.0 );
+    m_Construct.Init( "ConstructXoC", "Design", this, 0.5, 0.0, 1.0 );
     m_Construct.SetDescript( "X/C of construction line." );
 
     m_RadFoldAxis.Init( "RFoldAx", "Design", this, 0.2, 0.0, 1.0 );
