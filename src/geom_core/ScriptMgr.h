@@ -134,6 +134,7 @@ private:
     vector< vector< double > > m_ProxyDoubleMatArray;
 
     CScriptArray* GetGeomTypes();
+    CScriptArray* PasteGeomClipboard( const string & parent );
     CScriptArray* FindGeoms();
     CScriptArray* FindGeomsWithName( const string & name );
     CScriptArray* GetGeomParmIDs( const string & geom_id );

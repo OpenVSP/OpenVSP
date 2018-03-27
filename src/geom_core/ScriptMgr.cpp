@@ -1964,7 +1964,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void CopyGeomToClipboard(const string & in geom_id)", asFUNCTION( vsp::CopyGeomToClipboard ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void PasteGeomClipboard(const string & in parent_id = string() )", asFUNCTION( vsp::PasteGeomClipboard ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "array<string>@  PasteGeomClipboard( const string & in parent_id = string() )", asMETHOD( ScriptMgrSingleton, PasteGeomClipboard ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
     r = se->RegisterGlobalFunction( "array<string>@  FindGeoms()", asMETHOD( ScriptMgrSingleton, FindGeoms ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
@@ -2477,6 +2477,12 @@ void ScriptMgrSingleton::FillDoubleArray( vector < double > & in, CScriptArray* 
 CScriptArray* ScriptMgrSingleton::GetGeomTypes()
 {
     m_ProxyStringArray = vsp::GetGeomTypes();
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::PasteGeomClipboard( const string & parent )
+{
+    m_ProxyStringArray = vsp::PasteGeomClipboard( parent );
     return GetProxyStringArray();
 }
 
