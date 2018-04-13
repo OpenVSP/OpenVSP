@@ -365,6 +365,7 @@ private:
     vector < string > m_excres_Label;
     vector < string > m_excres_Type;
     vector < double > m_excres_Input;
+    vector < double > m_excres_f;
     vector < double> m_excres_Amount;
     vector < double > m_excres_PercTotalCD;
 

@@ -2218,6 +2218,7 @@ void ParasiteDragMgrSingleton::ConsolidateExcres()
     m_excres_Label.clear();
     m_excres_Type.clear();
     m_excres_Input.clear();
+    m_excres_f.clear();
     m_excres_Amount.clear();
     m_excres_PercTotalCD.clear();
     ExcrescenceTableRow excresRowStruct;
@@ -2226,6 +2227,7 @@ void ParasiteDragMgrSingleton::ConsolidateExcres()
         m_excres_Label.push_back( m_ExcresRowVec[i].Label.c_str() );
         m_excres_Type.push_back( m_ExcresRowVec[i].TypeString.c_str() );
         m_excres_Input.push_back( m_ExcresRowVec[i].Input );
+        m_excres_f.push_back( m_ExcresRowVec[i].f );
         m_excres_Amount.push_back( m_ExcresRowVec[i].Amount );
         m_excres_PercTotalCD.push_back( m_ExcresRowVec[i].PercTotalCD );
     }
@@ -3102,6 +3104,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     res->Add( NameValData( "Excres_Label", m_excres_Label ) );
     res->Add( NameValData( "Excres_Type", m_excres_Type ) );
     res->Add( NameValData( "Excres_Input", m_excres_Input ) );
+    res->Add( NameValData( "Excres_f", m_excres_f ) );
     res->Add( NameValData( "Excres_Amount", m_excres_Amount ) );
     res->Add( NameValData( "Excres_PercTotalCD", m_excres_PercTotalCD ) );
 
