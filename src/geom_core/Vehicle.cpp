@@ -2657,6 +2657,8 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 {
     STEPutil step( m_STEPLenUnit(), m_STEPTol() );
 
+	string name = "''";
+
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -2700,8 +2702,10 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
                         }
                     }
                 }
+				// Component name
+				name = geom_vec[i]->GetName();
 
-                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit );
+                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit, name );
             }
         }
     }

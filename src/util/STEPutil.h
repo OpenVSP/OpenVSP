@@ -31,7 +31,7 @@ public:
 
     void  WriteFile( string fname );
     SdaiCartesian_point * MakePoint( const double & x, const double & y, const double & z );
-    void AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit );
+    void AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit, string name = "''" );
 
     Registry * registry;
     InstMgr * instance_list;
