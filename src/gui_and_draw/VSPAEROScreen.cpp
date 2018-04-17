@@ -856,7 +856,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         }
         else if ( device == &m_PreviewDegenButton )
         {
-            DisplayDegenCamberPreview();
+            DisplayDegenVLMPreview();
         }
         else if( device == &m_RefWingChoice )
         {
@@ -1656,7 +1656,7 @@ void VSPAEROScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 }
 
-void VSPAEROScreen::DisplayDegenCamberPreview()
+void VSPAEROScreen::DisplayDegenVLMPreview()
 {
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -1681,9 +1681,13 @@ void VSPAEROScreen::DisplayDegenCamberPreview()
                 {
                     geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_SURF );
                 }
-                else
+                else if ( surf_type == vsp::WING_SURF )
                 {
                     geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_CAMBER );
+                }
+                else
+                {
+                    geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_PLATE );
                 }
             }
 

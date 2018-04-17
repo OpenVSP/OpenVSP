@@ -89,7 +89,7 @@ public:
     void UpdateCpSlices();
     void UpdateCpSliceBrowser();
 
-    void DisplayDegenCamberPreview();
+    void DisplayDegenVLMPreview();
 
     void LoadDrawObjs( vector < DrawObj* > & draw_obj_vec );
 
