@@ -377,9 +377,10 @@ void VSPAEROMgrSingleton::Update()
     UpdateRotorDisks();
 
     UpdateCompleteControlSurfVec();
-    UpdateActiveControlSurfVec();
 
     UpdateControlSurfaceGroups();
+
+    UpdateActiveControlSurfVec();
 
     UpdateSetupParmLimits();
 }
@@ -904,7 +905,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
 {
     string retStr = string();
 
-    UpdateFilenames();
+    Update(); // Ensure correct control surface and rotor groups when this function is called through the API
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
