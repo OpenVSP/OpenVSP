@@ -62,7 +62,7 @@ void GeomType::CopyFrom( const GeomType & t )
 //==== Constructor ====//
 GeomGuiDraw::GeomGuiDraw()
 {
-    m_DisplayType = DISPLAY_BEZIER;
+    m_DisplayType = DISPLAY_TYPE::DISPLAY_BEZIER;
     m_DrawType = GEOM_DRAW_WIRE;
     m_NoShowFlag = false;
     m_DisplayChildrenFlag = true;
@@ -2871,31 +2871,31 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         switch ( m_GuiDraw.GetDrawType() )
         {
-            case GeomGuiDraw::GEOM_DRAW_WIRE:
+            case DRAW_TYPE::GEOM_DRAW_WIRE:
                 m_WireShadeDrawObj_vec[i].m_LineWidth = 1.0;
                 m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_MESH;
                 draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+            case DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_MESH;
                 draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_SHADE:
+            case DRAW_TYPE::GEOM_DRAW_SHADE:
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
                 draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_NONE:
+            case DRAW_TYPE::GEOM_DRAW_NONE:
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
                 m_WireShadeDrawObj_vec[i].m_Visible = false;
                 draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+            case DRAW_TYPE::GEOM_DRAW_TEXTURE:
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_TEXTURED_MESH;
 
                 // Reload texture infos.
@@ -2927,7 +2927,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     char str[256];
 
-    if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         LoadMainDrawObjs( draw_obj_vec );
     }
@@ -2957,7 +2957,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         }
     }
 
-    if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         // Load Feature Lines
         if ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() )
@@ -2982,7 +2982,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             }
         }
     }
-    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_SURF )
+    else if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_DEGEN_SURF )
     {
         // Load DegenGeom
         for ( int i = 0; i < m_DegenSurfDrawObj_vec.size(); i++ )
@@ -3015,38 +3015,38 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             switch ( m_GuiDraw.GetDrawType() )
             {
-            case GeomGuiDraw::GEOM_DRAW_WIRE:
+            case DRAW_TYPE::GEOM_DRAW_WIRE:
                 m_DegenSurfDrawObj_vec[i].m_LineWidth = 1.0;
                 m_DegenSurfDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+            case DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_DegenSurfDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
                 draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_SHADE:
+            case DRAW_TYPE::GEOM_DRAW_SHADE:
                 m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_NONE:
+            case DRAW_TYPE::GEOM_DRAW_NONE:
                 m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 m_DegenSurfDrawObj_vec[i].m_Visible = false;
                 draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+            case DRAW_TYPE::GEOM_DRAW_TEXTURE:
                 m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
                 break;
             }
         }
     }
-    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_PLATE )
+    else if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_DEGEN_PLATE )
     {
         for ( int i = 0; i < m_DegenPlateDrawObj_vec.size(); i++ )
         {
@@ -3078,38 +3078,38 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             switch ( m_GuiDraw.GetDrawType() )
             {
-            case GeomGuiDraw::GEOM_DRAW_WIRE:
+            case vsp::DRAW_TYPE::GEOM_DRAW_WIRE:
                 m_DegenPlateDrawObj_vec[i].m_LineWidth = 1.0;
                 m_DegenPlateDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+            case vsp::DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_DegenPlateDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
                 draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_SHADE:
+            case vsp::DRAW_TYPE::GEOM_DRAW_SHADE:
                 m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_NONE:
+            case vsp::DRAW_TYPE::GEOM_DRAW_NONE:
                 m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 m_DegenPlateDrawObj_vec[i].m_Visible = false;
                 draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+            case vsp::DRAW_TYPE::GEOM_DRAW_TEXTURE:
                 m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
             }
         }
     }
-    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_CAMBER )
+    else if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_DEGEN_CAMBER )
     {
         for ( int i = 0; i < m_DegenCamberPlateDrawObj_vec.size(); i++ )
         {
@@ -3141,31 +3141,31 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             switch ( m_GuiDraw.GetDrawType() )
             {
-            case GeomGuiDraw::GEOM_DRAW_WIRE:
+            case DRAW_TYPE::GEOM_DRAW_WIRE:
                 m_DegenCamberPlateDrawObj_vec[i].m_LineWidth = 1.0;
                 m_DegenCamberPlateDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+            case DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_DegenCamberPlateDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
                 draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_SHADE:
+            case DRAW_TYPE::GEOM_DRAW_SHADE:
                 m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_NONE:
+            case DRAW_TYPE::GEOM_DRAW_NONE:
                 m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 m_DegenCamberPlateDrawObj_vec[i].m_Visible = false;
                 draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+            case DRAW_TYPE::GEOM_DRAW_TEXTURE:
                 m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
                 break;
@@ -3173,7 +3173,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         }
     }
 
-    if ( m_GuiDraw.GetDispSubSurfFlag() && m_GuiDraw.GetDisplayType() != GeomGuiDraw::DISPLAY_BEZIER )
+    if ( m_GuiDraw.GetDispSubSurfFlag() && m_GuiDraw.GetDisplayType() != DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         for ( int i = 0; i < m_DegenSubSurfDrawObj_vec.size(); i++ )
         {
@@ -4801,7 +4801,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     Geom::LoadDrawObjs( draw_obj_vec );
 
 
-    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         char str[256];
 

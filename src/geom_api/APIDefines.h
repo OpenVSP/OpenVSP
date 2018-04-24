@@ -81,6 +81,19 @@ enum DIMENSION_SET { SET_3D,
                      SET_2D,
                    };
 
+enum DISPLAY_TYPE { DISPLAY_BEZIER,
+                    DISPLAY_DEGEN_SURF,
+                    DISPLAY_DEGEN_PLATE,
+                    DISPLAY_DEGEN_CAMBER
+                  };
+
+enum DRAW_TYPE { GEOM_DRAW_WIRE,
+                 GEOM_DRAW_HIDDEN,
+                 GEOM_DRAW_SHADE,
+                 GEOM_DRAW_TEXTURE,
+                 GEOM_DRAW_NONE
+               };
+
 enum VIEW_TYPE { VIEW_LEFT,
                  VIEW_RIGHT,
                  VIEW_TOP,

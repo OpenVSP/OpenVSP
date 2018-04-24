@@ -1679,11 +1679,15 @@ void VSPAEROScreen::DisplayDegenVLMPreview()
 
                 if ( surf_type == vsp::DISK_SURF )
                 {
-                    geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_SURF );
+                    geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_SURF );
                 }
                 else if ( surf_type == vsp::WING_SURF )
                 {
-                    geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_CAMBER );
+                    geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_CAMBER );
+                }
+                else if ( surf_type == vsp::WING_SURF )
+                {
+                    geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_PLATE );
                 }
                 else
                 {
@@ -1691,7 +1695,7 @@ void VSPAEROScreen::DisplayDegenVLMPreview()
                 }
             }
 
-            geom_vec[i]->m_GuiDraw.SetDrawType( GeomGuiDraw::GEOM_DRAW_SHADE );
+            geom_vec[i]->m_GuiDraw.SetDrawType( vsp::DRAW_TYPE::GEOM_DRAW_SHADE );
             geom_vec[i]->m_GuiDraw.SetDispSubSurfFlag( true );
             geom_vec[i]->SetSetFlag( vsp::SET_SHOWN, true );
             geom_vec[i]->SetSetFlag( vsp::SET_NOT_SHOWN, false );

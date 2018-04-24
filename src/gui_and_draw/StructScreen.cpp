@@ -3102,14 +3102,14 @@ void StructScreen::OrientStructure( VSPGraphic::Common::VSPenum type )
         {
             if ( type == VSPGraphic::Common::VSP_CAM_FRONT )
             {
-                curr_geom->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_SURF );
+                curr_geom->m_GuiDraw.SetDisplayType( DISPLAY_TYPE::DISPLAY_DEGEN_SURF );
             }
             else
             {
-                curr_geom->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_CAMBER );
+                curr_geom->m_GuiDraw.SetDisplayType( DISPLAY_TYPE::DISPLAY_DEGEN_CAMBER );
             }
 
-            curr_geom->m_GuiDraw.SetDrawType( GeomGuiDraw::GEOM_DRAW_SHADE );
+            curr_geom->m_GuiDraw.SetDrawType( vsp::DRAW_TYPE::GEOM_DRAW_SHADE );
             curr_geom->m_GuiDraw.SetDispSubSurfFlag( true );
 
             veh->ShowSet( 0 );

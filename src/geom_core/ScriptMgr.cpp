@@ -558,6 +558,30 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "DIMENSION_SET", "SET_2D", SET_2D );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "DISPLAY_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DISPLAY_TYPE", "DISPLAY_BEZIER", DISPLAY_BEZIER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DISPLAY_TYPE", "DISPLAY_DEGEN_SURF", DISPLAY_DEGEN_SURF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DISPLAY_TYPE", "DISPLAY_DEGEN_PLATE", DISPLAY_DEGEN_PLATE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DISPLAY_TYPE", "DISPLAY_DEGEN_CAMBER", DISPLAY_DEGEN_CAMBER );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "DRAW_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DRAW_TYPE", "GEOM_DRAW_WIRE", GEOM_DRAW_WIRE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DRAW_TYPE", "GEOM_DRAW_HIDDEN", GEOM_DRAW_HIDDEN );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DRAW_TYPE", "GEOM_DRAW_SHADE", GEOM_DRAW_SHADE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DRAW_TYPE", "GEOM_DRAW_TEXTURE", GEOM_DRAW_TEXTURE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "DRAW_TYPE", "GEOM_DRAW_NONE", GEOM_DRAW_NONE );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "VIEW_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VIEW_TYPE", "VIEW_LEFT", VIEW_LEFT );

@@ -82,10 +82,6 @@ public:
     GeomGuiDraw();
     virtual ~GeomGuiDraw();
 
-    enum { DISPLAY_BEZIER, DISPLAY_DEGEN_SURF, DISPLAY_DEGEN_PLATE, DISPLAY_DEGEN_CAMBER };
-
-    enum { GEOM_DRAW_WIRE, GEOM_DRAW_HIDDEN, GEOM_DRAW_SHADE, GEOM_DRAW_TEXTURE, GEOM_DRAW_NONE };
-
     void SetDisplayType( int t )
     {
         m_DisplayType = t;
