@@ -103,3 +103,17 @@ void GuiInterface::ScreenGrab( const std::string &fname, int w, int h )
     }
 #endif
 }
+
+void GuiInterface::SetViewAxis( bool vaxis )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->SetViewAxis( vaxis );
+        }
+    }
+#endif
+}

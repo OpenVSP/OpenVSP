@@ -1240,6 +1240,12 @@ void ScreenGrab( const string & fname, int w, int h )
 #endif
 }
 
+void SetViewAxis( bool vaxis )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetViewAxis( vaxis );
+#endif
+}
 
 //===================================================================//
 //===============       Geom Functions            ===================//

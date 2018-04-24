@@ -626,3 +626,12 @@ void MainVSPScreen::ScreenGrab( const string & fname, int w, int h )
         m_GlWin->getGraphicEngine()->dumpScreenImage( fname, w, h, framebufferSupported, VSPGraphic::GraphicEngine::PNG );
     }
 }
+
+void MainVSPScreen::SetViewAxis( bool vaxis )
+{
+    if ( m_GlWin )
+    {
+        m_ShowXYZArrow = vaxis;
+        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showXYZArrows( m_ShowXYZArrow );
+    }
+}

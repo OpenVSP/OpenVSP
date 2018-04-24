@@ -40,6 +40,7 @@ public:
     void PopupMsg( const char * message, bool lock_out );
 
     void ScreenGrab( const std::string & fname, int w, int h );
+    void SetViewAxis( bool vaxis );
 };
 
 #endif // !defined(GUIINTERFACE__INCLUDED_)
