@@ -11,6 +11,8 @@
 #if !defined(GUIINTERFACE__INCLUDED_)
 #define GUIINTERFACE__INCLUDED_
 
+#include <string>
+
 class ScreenMgr;
 class Vehicle;
 
@@ -36,6 +38,8 @@ public:
     void StartGuiAPI( );
     void UpdateGui( );
     void PopupMsg( const char * message, bool lock_out );
+
+    void ScreenGrab( const std::string & fname, int w, int h );
 };
 
 #endif // !defined(GUIINTERFACE__INCLUDED_)

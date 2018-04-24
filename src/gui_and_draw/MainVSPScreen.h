@@ -44,6 +44,8 @@ public:
         return m_GlWin;
     }
 
+    void ScreenGrab( const string & fname, int w, int h );
+
 protected:
 
     virtual void ActionCB( void * data );

@@ -612,3 +612,17 @@ void MainVSPScreen::ActionCB( void * data )
 
     m_ScreenMgr->SetUpdateFlag( true );
 }
+
+void MainVSPScreen::ScreenGrab( const string & fname, int w, int h )
+{
+    if ( m_GlWin )
+    {
+        bool framebufferSupported = true;
+        if ( !glewIsSupported( "GL_ARB_framebuffer_object" ) )
+        {
+            framebufferSupported = false;
+        }
+
+        m_GlWin->getGraphicEngine()->dumpScreenImage( fname, w, h, framebufferSupported, VSPGraphic::GraphicEngine::PNG );
+    }
+}

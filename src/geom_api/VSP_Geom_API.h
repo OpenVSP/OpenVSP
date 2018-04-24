@@ -122,6 +122,7 @@ extern void PrintResults( const std::string &results_id );
 
 //======================== GUI Functions ================================//
 extern void StartGui( );
+extern void ScreenGrab( const string & fname, int w, int h );
 
 //======================== Geom Functions ================================//
 extern std::vector<std::string> GetGeomTypes();
