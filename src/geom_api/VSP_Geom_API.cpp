@@ -1282,6 +1282,13 @@ void SetGeomDisplayType(const string &geom_id, int type)
     ErrorMgr.NoError();
 }
 
+void SetBackground( double r, double g, double b )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetBackground( r, g, b );
+#endif
+}
+
 //===================================================================//
 //===============       Geom Functions            ===================//
 //===================================================================//

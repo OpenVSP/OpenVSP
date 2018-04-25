@@ -18,6 +18,7 @@
 #include "Camera.h"
 #include "LayoutMgr.h"
 #include "Viewport.h"
+#include "Background.h"
 #include <FL/fl_ask.H>
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
@@ -641,5 +642,19 @@ void MainVSPScreen::SetShowBorders( bool brdr )
     if ( m_GlWin )
     {
         m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showBorders( brdr );
+    }
+}
+
+void MainVSPScreen::SetBackground( double r, double g, double b )
+{
+    if ( m_GlWin ) {
+
+        VSPGraphic::Viewport *viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
+        if (viewport)
+        {
+            viewport->getBackground()->setRed((float) (r));
+            viewport->getBackground()->setGreen((float) (g));
+            viewport->getBackground()->setBlue((float) (b));
+        }
     }
 }

@@ -131,3 +131,17 @@ void GuiInterface::SetShowBorders( bool brdr )
     }
 #endif
 }
+
+void GuiInterface::SetBackground( double r, double g, double b )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->SetBackground( r, g, b );
+        }
+    }
+#endif
+}

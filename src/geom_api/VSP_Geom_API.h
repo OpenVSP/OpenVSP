@@ -127,6 +127,7 @@ extern void SetViewAxis( bool vaxis );
 extern void SetShowBorders( bool brdr );
 extern void SetGeomDrawType(const string &geom_id, int type);
 extern void SetGeomDisplayType(const string &geom_id, int type);
+extern void SetBackground( double r, double g, double b );
 
 //======================== Geom Functions ================================//
 extern std::vector<std::string> GetGeomTypes();
