@@ -284,10 +284,10 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     MergeCoplanarParts();
 
+    CleanMergeSurfs();
+
     addOutputText( "Add Structure Parts\n" );
     AddStructureParts();
-
-    CleanMergeSurfs();
 
     // TODO: Update and Build Domain for Half Mesh?
 
