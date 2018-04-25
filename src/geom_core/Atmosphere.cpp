@@ -184,15 +184,17 @@ void Atmosphere::USAF1966( double alt, double delta_temp, int altunit, int tempu
 
 double Atmosphere::DynamicViscosityCalc( double T, int tempunit, int altunit )
 {
-    // Modeling Dynamic Viscosity Using NASA Sutherland Model
-    double uKnot = 3.62e-7; // slug/ft-s
-    double TKnot = 518.7; // Rankine
-    double Tsutherland = T;
-    Tsutherland = ConvertTemperature( Tsutherland, tempunit, vsp::TEMP_UNIT_R );
-    double dynavisc = uKnot * pow( ( Tsutherland / TKnot ), 1.5 ) * ( ( TKnot + 198.72 ) / ( Tsutherland + 198.72 ) ); //slug/ft-s
-    if ( altunit == vsp::PD_UNITS_METRIC )
-    { dynavisc *= 47.8803; } // slug/ft-s --> kg/m-s
+    // Modeling Dynamic Viscosity Using NASA US Std Atm 1976 Equation
+    // https://ntrs.nasa.gov/archive/nasa/casi.ntrs.nasa.gov/19770009539.pdf
+    double Beta = 1.458E-6; // kg/(s*m*K^1/2)
+    double S = 110.4; // Sunderland's constant (K) 
+    double T_atm = ConvertTemperature( T, tempunit, vsp::TEMP_UNIT_K );
+    double dynavisc = Beta * pow( T_atm, 1.5 ) / ( T_atm + S ); // kg/m-s
 
+    if ( altunit == vsp::PD_UNITS_IMPERIAL )
+    {
+        dynavisc /= 47.8803; // kg/m-s --> slug/ft-s
+    }
 
     return dynavisc;
 
