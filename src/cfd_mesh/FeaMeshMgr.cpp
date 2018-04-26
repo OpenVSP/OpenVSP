@@ -2928,10 +2928,10 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
         return;
     }
 
-    SurfaceIntersectionSingleton::LoadDrawObjs( draw_obj_vec );
-
     if ( !GetFeaMeshInProgress() && ( m_DrawElementFlagVec.size() == m_NumFeaParts + m_NumFeaSubSurfs ) )
     {
+        SurfaceIntersectionSingleton::LoadDrawObjs( draw_obj_vec );
+
         // FeaParts:
         m_FeaNodeDO.resize( m_NumFeaParts );
         m_FeaElementDO.resize( m_NumFeaParts );
