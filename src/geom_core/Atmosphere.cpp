@@ -318,7 +318,7 @@ void Atmosphere::UpdateMach( double vinf, int tempunit, int vinfunit )
 {
     double T = ConvertTemperature( m_Temp, tempunit, vsp::TEMP_UNIT_K );
 
-    if ( vinfunit == vsp::V_UNIT_KEAS )
+    if ( vinfunit == vsp::V_UNIT_KEAS ) // KEAS to KTAS
     {
         vinf *= sqrt( 1.0 / m_DensityRatio );
     }
