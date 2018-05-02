@@ -496,6 +496,7 @@ public:
     }
     virtual FeaStructure* AddFeaStruct( bool initskin, int surf_index );
     virtual FeaStructure* GetFeaStruct( int fea_struct_ind );
+    virtual int GetFeaStructIndex( const string & structure_id );
     virtual void DeleteFeaStruct( int index );
     virtual bool ValidGeomFeaStructInd( int index );
     virtual int NumGeomFeaStructs()
