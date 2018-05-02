@@ -5079,7 +5079,6 @@ void WriteCfEqnCSVFile(const std::string & file_name)
 void WritePartialCfMethodCSVFile(const std::string & file_name)
 {
     Results* res = ResultsMgr.CreateResults("Friction_Coefficient");
-    char str[256];
     vector < double > cf_vec, ref_leng;
     vector < double > lam_perc_array = linspace( 0, 100, 1000 );
     vector < double > ReyIn_array, reql_array;
