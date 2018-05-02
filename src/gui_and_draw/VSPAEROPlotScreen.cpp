@@ -2508,7 +2508,7 @@ void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetN
         }
 
         m_UnsteadyPlotCanvas->current_y()->copy_label( labelStr.c_str() );
-        m_UnsteadyPlotCanvas->current_x()->label( "Time" );
+        m_UnsteadyPlotCanvas->current_x()->label( "Time (sec)" );
     }
     else
     {
