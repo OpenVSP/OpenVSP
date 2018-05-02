@@ -2448,7 +2448,6 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
     }
     else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_RE_L )
     {
-        vinf = m_Atmos.GetMach() * m_Atmos.GetSoundSpeed();
         UpdateVinf( m_VinfUnitType() );
     }
 
@@ -2463,7 +2462,7 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
 
         if ( m_VinfUnitType() != vsp::V_UNIT_MACH )
         {
-            if ( m_VinfUnitType() == vsp::V_UNIT_KEAS ) // Convert to KTAS
+            if ( m_VinfUnitType() == vsp::V_UNIT_KEAS ) // KEAS to KTAS
             {
                 vinf *= sqrt( 1.0 / m_Atmos.GetDensityRatio() );
             }
@@ -2505,23 +2504,33 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
 
 void ParasiteDragMgrSingleton::UpdateVinf( int newunit )
 {
+    if ( newunit == m_VinfUnitType() )
+    {
+        return;
+    }
+
     double new_vinf;
     if ( newunit != vsp::V_UNIT_MACH )
     {
         if ( m_VinfUnitType() == vsp::V_UNIT_MACH )
         {
             m_Vinf *= m_Atmos.GetSoundSpeed(); // m/s
-            new_vinf = ConvertVelocity( m_Vinf(), vsp::V_UNIT_M_S, newunit );
+            new_vinf = ConvertVelocity( m_Vinf(), vsp::V_UNIT_M_S, newunit ); // KTAS
+
+            if ( newunit == vsp::V_UNIT_KEAS )
+            {
+                new_vinf /= sqrt( 1.0 / m_Atmos.GetDensityRatio() ); // KTAS to KEAS
+            }
         }
         else if ( m_VinfUnitType() == vsp::V_UNIT_KEAS )
         {
-            m_Vinf *= sqrt( 1.0 / m_Atmos.GetDensityRatio() );
+            m_Vinf *= sqrt( 1.0 / m_Atmos.GetDensityRatio() ); // KEAS to KTAS
             new_vinf = ConvertVelocity( m_Vinf(), m_VinfUnitType(), newunit );
         }
         else if ( newunit == vsp::V_UNIT_KEAS )
         {
-            new_vinf = ConvertVelocity( m_Vinf(), m_VinfUnitType(), newunit );
-            new_vinf /= sqrt( 1.0 / m_Atmos.GetDensityRatio() );
+            new_vinf = ConvertVelocity( m_Vinf(), m_VinfUnitType(), newunit ); // KTAS
+            new_vinf /= sqrt( 1.0 / m_Atmos.GetDensityRatio() ); // KTAS to KEAS
         }
         else
         {
