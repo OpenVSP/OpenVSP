@@ -1904,6 +1904,41 @@ void DeleteFeaStruct( const string & geom_id, int fea_struct_ind )
     return;
 }
 
+string GetFeaStructID( const string & geom_id, int fea_struct_ind )
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return string();
+    }
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaStruct::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_ind );
+    if ( !struct_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_ind );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return struct_ptr->GetID();
+}
+
+int GetFeaStructIndex( const string & struct_id )
+{
+    return StructureMgr.GetGeomFeaStructIndex( struct_id );
+}
+
+string GetFeaStructParentGeomID( const string & struct_id )
+{
+    return StructureMgr.GetFeaStructParentID( struct_id );
+}
+
 string GetFeaStructName( const string & geom_id, int fea_struct_ind )
 {
     Vehicle* veh = GetVehicle();
@@ -2234,6 +2269,26 @@ void ComputeFeaMesh( const string & geom_id, int fea_struct_ind, int file_type )
     if ( !feastruct )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeFEAMesh::Invalid FeaStructure Ptr " );
+        return;
+    }
+
+    feastruct->GetStructSettingsPtr()->SetAllFileExportFlags( false );
+    feastruct->GetStructSettingsPtr()->SetFileExportFlag( file_type, true );
+
+    FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.GetTotFeaStructIndex( feastruct ) );
+
+    FeaMeshMgr.GenerateFeaMesh();
+    ErrorMgr.NoError();
+}
+
+void ComputeFeaMesh( const string & struct_id, int file_type )
+{
+    Update(); // Not sure if this is needed
+
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeFEAMesh::Can't Find Structure " + struct_id );
         return;
     }
 
