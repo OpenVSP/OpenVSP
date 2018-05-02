@@ -2543,16 +2543,24 @@ void ParasiteDragMgrSingleton::UpdateVinf( int newunit )
 void ParasiteDragMgrSingleton::UpdateAlt( int newunit )
 {
     double new_alt = m_Hinf();
+    double new_rho = m_Rho();
+    double new_dyvisc = m_DynaVisc();
     if ( newunit == vsp::PD_UNITS_IMPERIAL && m_AltLengthUnit() == vsp::PD_UNITS_METRIC )
     {
         new_alt = ConvertLength( m_Hinf(), vsp::LEN_M, vsp::LEN_FT );
+        new_rho = ConvertDensity( new_rho, vsp::RHO_UNIT_KG_M3, vsp::RHO_UNIT_SLUG_FT3 ); // slug/ft^3
+        new_dyvisc = ConvertDynaVis( new_dyvisc, vsp::PD_UNITS_METRIC, vsp::PD_UNITS_IMPERIAL ); // slug/ft*s
     }
     else if ( newunit == vsp::PD_UNITS_METRIC && m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL )
     {
         new_alt = ConvertLength( m_Hinf(), vsp::LEN_FT, vsp::LEN_M );
+        new_rho = ConvertDensity( new_rho, vsp::RHO_UNIT_SLUG_FT3, vsp::RHO_UNIT_KG_M3 ); // kg/m^3
+        new_dyvisc = ConvertDynaVis( new_dyvisc, vsp::PD_UNITS_IMPERIAL, vsp::PD_UNITS_METRIC ); // kg/m*s
     }
 
     m_Hinf.Set( new_alt );
+    m_Rho.Set( new_rho );
+    m_DynaVisc.Set( new_dyvisc );
     m_AltLengthUnit.Set( newunit );
 }
 
