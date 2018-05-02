@@ -2563,6 +2563,11 @@ void ParasiteDragMgrSingleton::UpdateAlt( int newunit )
 
 void ParasiteDragMgrSingleton::UpdateTemp( int newunit )
 {
+    // Temporarily decrease lower limit of m_Temp to allow setting to lower value than previous limit. 
+    //  For example, if m_Temp == 200 K, the conversion would set it to -73.15 F which would be below 
+    //  the current limit
+    m_Temp.SetLowerLimit( -500 );
+
     double new_temp = ConvertTemperature( m_Temp(), m_TempUnit(), newunit );
     m_Temp.Set( new_temp );
 
@@ -2570,6 +2575,7 @@ void ParasiteDragMgrSingleton::UpdateTemp( int newunit )
     m_DeltaT.Set( new_temp );
 
     m_TempUnit.Set( newunit );
+    UpdateTempLimits();
 }
 
 void ParasiteDragMgrSingleton::UpdateTempLimits()
