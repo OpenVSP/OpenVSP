@@ -225,90 +225,78 @@ double Atmosphere::DynamicViscosityCalc( double T, int tempunit, int altunit )
 }
 
 void Atmosphere::SetManualQualities( double & vinf, double & temp, double & pres, double & rho,
-                                     double & dynavisc, double gamma, int altunit, int vinfunit, int tempunit, int flowstream )
+                                     double & dynavisc, double gamma, double alt, int altunit, 
+                                     int vinfunit, int tempunit, int pressunit, int flowstream )
 {
     double Rspecific = 287.058; // J/kg-K
     double A0 = 661.48; // knots
     double P0 = 29.92126; // "Hg
     double RHO0 = 0.0023769; // slug/ft3
 
-    double prestemp = pres;
+    double prestemp = ConvertPressure( pres, pressunit, vsp::PRES_UNIT_KPA ); // kPA;
     double rhotemp = rho;
-    double temptemp = temp;
+    if ( altunit == vsp::PD_UNITS_IMPERIAL )
+    {
+        rhotemp = ConvertDensity( rhotemp, vsp::RHO_UNIT_SLUG_FT3, vsp::RHO_UNIT_KG_M3 ); // kg/m3
+    }
+
+    double temptemp = ConvertTemperature( temp, tempunit, vsp::TEMP_UNIT_K ); // K 
 
     RHO0 = ConvertDensity( RHO0, vsp::RHO_UNIT_SLUG_FT3, vsp::RHO_UNIT_KG_M3 ); // kg/m3
     P0 = ConvertPressure( P0, vsp::PRES_UNIT_INCHHG, vsp::PRES_UNIT_KPA ); // kPA
 
     if ( flowstream == vsp::ATMOS_TYPE_MANUAL_P_R )
     {
-        if ( altunit == vsp::PD_UNITS_IMPERIAL )
-        {
-            prestemp = ConvertPressure( prestemp, vsp::PRES_UNIT_PSF, vsp::PRES_UNIT_KPA );
-            rhotemp = ConvertDensity( rhotemp, vsp::RHO_UNIT_SLUG_FT3, vsp::RHO_UNIT_KG_M3 );
+        temptemp = ( 1000.0 * prestemp / rhotemp ) / Rspecific; // kPa --> Pa ( In Kelvin )
 
-            temptemp = ( 1000.0 * prestemp / rhotemp ) / Rspecific; // kPa --> Pa ( In Kelvin )
-        }
-        else if ( altunit == vsp::PD_UNITS_METRIC )
-        {
-            temptemp = ( prestemp / rho ) / Rspecific; // ( In Kelvin )
-        }
-        temptemp = ConvertTemperature( temptemp, tempunit, vsp::TEMP_UNIT_K ); // K --> TempUnit
-        temp = temptemp;
-        temptemp = ConvertTemperature( temptemp, vsp::TEMP_UNIT_K, tempunit ); // TempUnit --> K
+        temp = ConvertTemperature( temptemp, vsp::TEMP_UNIT_K, tempunit ); // K --> TempUnit
     }
     else if ( flowstream == vsp::ATMOS_TYPE_MANUAL_P_T )
     {
+        rhotemp = ( 1000.0 * prestemp ) / ( Rspecific * temptemp ); // kg/m3
+
         if ( altunit == vsp::PD_UNITS_IMPERIAL )
         {
-            prestemp = ConvertPressure( prestemp, vsp::PRES_UNIT_PSF, vsp::PRES_UNIT_KPA );
-            temptemp = ConvertTemperature( temptemp, tempunit, vsp::TEMP_UNIT_K );
-
-            rhotemp = ( 1000.0 * prestemp ) / ( Rspecific * temptemp );
-
-            rhotemp = ConvertDensity( rhotemp, vsp::RHO_UNIT_KG_M3, vsp::RHO_UNIT_SLUG_FT3 );
+            rho = ConvertDensity( rhotemp, vsp::RHO_UNIT_KG_M3, vsp::RHO_UNIT_SLUG_FT3 );
         }
         else if ( altunit == vsp::PD_UNITS_METRIC )
         {
-            temptemp = ConvertTemperature( temptemp, tempunit, vsp::TEMP_UNIT_K );
-
-            rhotemp = ( 1000.0 * prestemp ) / ( Rspecific * temptemp );
+            rho = rhotemp;
         }
-        rho = rhotemp;
     }
     else if ( flowstream == vsp::ATMOS_TYPE_MANUAL_R_T )
     {
-        if ( altunit == vsp::PD_UNITS_IMPERIAL )
-        {
-            rhotemp = ConvertDensity( rhotemp, vsp::RHO_UNIT_SLUG_FT3, vsp::RHO_UNIT_KG_M3 );
-            temptemp = ConvertTemperature( temptemp, tempunit, vsp::TEMP_UNIT_K );
-
-            prestemp = Rspecific * temptemp * rhotemp;
-            prestemp /= 1000; // Pa --> kPa
-
-            prestemp = ConvertPressure( prestemp, vsp::PRES_UNIT_KPA, vsp::PRES_UNIT_PSF );
-        }
-        else if ( altunit == vsp::PD_UNITS_METRIC )
-        {
-            temptemp = ConvertTemperature( temptemp, tempunit, vsp::TEMP_UNIT_K );
-            prestemp = Rspecific * temptemp * rhotemp;
-            prestemp /= 1000; // Pa --> kPa
-        }
-        pres = prestemp;
+        prestemp = Rspecific * temptemp * rhotemp;
+        prestemp /= 1000; // Pa --> kPa
+        pres = ConvertPressure( prestemp, vsp::PRES_UNIT_KPA, pressunit ); // kPa --> PressUint
     }
 
-    m_DynamicVisc = DynamicViscosityCalc( temptemp, tempunit, altunit ); // Into Rankine
+    m_DynamicVisc = DynamicViscosityCalc( temptemp, vsp::TEMP_UNIT_K, altunit );
+    m_DensityRatio = rhotemp / m_RHO0;
+    m_SoundSpeed = sqrt( gamma * ( prestemp * 1000 ) / rhotemp ); // m/s (pressure converted from kPa to Pa)
 
-    vinf = ConvertVelocity( vinf, vinfunit, vsp::V_UNIT_M_S );
+    if ( vinfunit == vsp::V_UNIT_MACH )
+    {
+        m_Mach = vinf;
+    }
+    else
+    {
+        double vtemp = vinf;
+        if ( vinfunit == vsp::V_UNIT_KEAS )
+        {
+            vtemp *= sqrt( 1.0 / m_DensityRatio ); // KEAS to KTAS
+        }
+        
+        vtemp = ConvertVelocity( vtemp, vinfunit, vsp::V_UNIT_M_S ); // m/s
+        m_Mach = vtemp / m_SoundSpeed;
+    }
 
-    m_SoundSpeed = sqrt( gamma * pres / rho );
-    m_SoundSpeed = ConvertVelocity( m_SoundSpeed, vinfunit, vsp::V_UNIT_M_S );
-    m_Mach = vinf / m_SoundSpeed;
-
+    m_Hinf = alt;
+    m_Vinf = vinf;
     m_Pres = pres;
     m_Density = rho;
     m_Temp = temp;
     m_DeltaT = 0.0;
-    m_DensityRatio = sqrt( RHO0 / rho );
     m_PressureRatio = sqrt( pres / P0 );
     m_KEAS = A0 * m_Mach * m_PressureRatio;
     m_KTAS = m_KEAS * m_DensityRatio;
