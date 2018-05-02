@@ -1953,11 +1953,13 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
 
 void ParasiteDragMgrSingleton::SetFreestreamParms()
 {
+    m_Hinf.Set( m_Atmos.GetAlt() );
     m_Temp.Set( m_Atmos.GetTemp() );
     m_DeltaT.Set( m_Atmos.GetDeltaT() );
     m_Pres.Set( m_Atmos.GetPres() );
     m_Rho.Set( m_Atmos.GetDensity() );
     m_DynaVisc.Set( m_Atmos.GetDynaVisc() );
+    m_Mach.Set( m_Atmos.GetMach() );
 }
 
 void ParasiteDragMgrSingleton::SetExcresLabel( const string & newLabel )
@@ -2245,8 +2247,6 @@ void ParasiteDragMgrSingleton::Update()
 
     UpdateParmActivity();
 
-    SetFreestreamParms();
-
     UpdateExcres();
 }
 
@@ -2453,12 +2453,7 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
 
     if ( m_FreestreamType() != vsp::ATMOS_TYPE_MANUAL_RE_L )
     {
-        m_Hinf.Set( m_Atmos.GetAlt() );
-        m_DeltaT.Set( m_Atmos.GetDeltaT() );
-        m_Temp.Set( m_Atmos.GetTemp() );
-        m_Pres.Set( m_Atmos.GetPres() );
-        m_Rho.Set( m_Atmos.GetDensity() );
-        m_Mach.Set( m_Atmos.GetMach() );
+        SetFreestreamParms();
 
         if ( m_VinfUnitType() != vsp::V_UNIT_MACH )
         {
