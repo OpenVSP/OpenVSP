@@ -4480,6 +4480,18 @@ FeaStructure* Geom::GetFeaStruct( int fea_struct_ind )
     return NULL;
 }
 
+int Geom::GetFeaStructIndex( const string & structure_id )
+{
+    for ( size_t i = 0; i < m_FeaStructVec.size(); i++ )
+    {
+        if ( strcmp( m_FeaStructVec[i]->GetID().c_str(), structure_id.c_str() ) == 0 )
+        {
+            return i;
+        }
+    }
+    return -1; // indicates an error
+}
+
 //==== Delete FeaStructure =====//
 void Geom::DeleteFeaStruct( int index )
 {
