@@ -32,7 +32,8 @@ public:
     // NRL MSISE00
 
     void SetManualQualities( double & vinf, double & temp, double & pres, double & rho,
-                             double & dynavisc, double gamma, int altunit, int vinfunit, int tempunit, int flowstream );
+                             double & dynavisc, double gamma, double alt,  int altunit, 
+                             int vinfunit, int tempunit, int pressunit, int flowstream );
     void SetMach( double mach ) { m_Mach = mach; }
 
     void UpdateMach( double vinf, int tempunit, int vinfunit );

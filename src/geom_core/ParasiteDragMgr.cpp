@@ -2431,20 +2431,11 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
             m_Atmos.UpdateMach( vinf, m_TempUnit(), m_VinfUnitType() );
         }
     }
-    else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_R )
+    else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_R || m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_T || m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_R_T )
     {
         m_Atmos.SetManualQualities( vinf, temp, pres, rho, dynavisc, m_SpecificHeatRatio(),
-                                    m_AltLengthUnit(), m_VinfUnitType(), m_TempUnit(), m_FreestreamType() );
-    }
-    else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_T )
-    {
-        m_Atmos.SetManualQualities( vinf, temp, pres, rho, dynavisc, m_SpecificHeatRatio(),
-                                    m_AltLengthUnit(), m_VinfUnitType(), m_TempUnit(), m_FreestreamType() );
-    }
-    else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_R_T )
-    {
-        m_Atmos.SetManualQualities( vinf, temp, pres, rho, dynavisc, m_SpecificHeatRatio(),
-                                    m_AltLengthUnit(), m_VinfUnitType(), m_TempUnit(), m_FreestreamType() );
+                                    m_Hinf(), m_AltLengthUnit(), m_VinfUnitType(), 
+                                    m_TempUnit(), m_PresUnit(), m_FreestreamType() );
     }
     else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_RE_L )
     {
