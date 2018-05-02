@@ -38,10 +38,13 @@ public:
 
     //==== FeaStructure Management ====//
     vector < FeaStructure* > GetAllFeaStructs();
-    FeaStructure* GetFeaStruct( int struct_ind );
+    FeaStructure* GetFeaStruct( int total_struct_ind );
+    FeaStructure* GetFeaStruct( const string & struct_id );
+    string GetFeaStructParentID( const string & struct_id );
     bool ValidTotalFeaStructInd( int index );
     int NumFeaStructures();
     int GetTotFeaStructIndex( FeaStructure* fea_struct );
+    int GetGeomFeaStructIndex( const string & struct_id );
     FeaPart* GetFeaPart( const string & feapart_id );
     int GetFeaPartIndex( const string & feapart_id );
     int GetFeaSubSurfIndex( const string & ss_id );
