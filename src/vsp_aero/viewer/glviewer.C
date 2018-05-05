@@ -268,9 +268,12 @@ void GL_VIEWER::LoadInitialData(char *name)
 
     sprintf(file_name,"%s",name);
 
-    // Determine if an adb file exists
+    // Determine if an adb file exists. Add the .adb extension if not already present.
     
-    sprintf(file_name_w_ext,"%s.adb",file_name);
+    if (strstr(file_name,".adb") )    
+        sprintf(file_name_w_ext,"%s",file_name);
+    else
+        sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) != NULL ) {
      
@@ -440,9 +443,12 @@ void GL_VIEWER::LoadMeshData(void)
 
     if ( ByteSwapForADB ) BIO.TurnByteSwapForReadsOn();
 
-    // Open the aerothermal data base file
+    // Open the aerothermal data base file. Add the .adb extension if not already present.
 
-    sprintf(file_name_w_ext,"%s.adb",file_name);
+    if (strstr(file_name,".adb") )    
+        sprintf(file_name_w_ext,"%s",file_name);
+    else
+        sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) == NULL ) {
 
@@ -1066,9 +1072,12 @@ void GL_VIEWER::LoadSolutionCaseList(void)
     char file_name_w_ext[2000], DumChar[2000];
     FILE *adb_file;
     
-    // Open the solution case list
+    // Open the solution case list. Add the .adb extension if not already present.
 
-    sprintf(file_name_w_ext,"%s.adb.cases",file_name);
+    if (strstr(file_name,".adb") )    
+        sprintf(file_name_w_ext,"%s.cases",file_name);
+    else
+        sprintf(file_name_w_ext,"%s.adb.cases",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"r")) == NULL ) {
 
@@ -1190,9 +1199,12 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
 
     if ( ByteSwapForADB ) BIO.TurnByteSwapForReadsOn();
 
-    // Open the aerothermal data base file
+    // Open the aerothermal data base file. Add the .adb extension if not already present.
 
-    sprintf(file_name_w_ext,"%s.adb",file_name);
+    if (strstr(file_name,".adb") )    
+        sprintf(file_name_w_ext,"%s",file_name);
+    else
+        sprintf(file_name_w_ext,"%s.adb",file_name);
 
     if ( (adb_file = fopen(file_name_w_ext,"rb")) == NULL ) {
 
