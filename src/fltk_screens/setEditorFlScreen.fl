@@ -33,7 +33,7 @@ class SetEditorUI {open
         xywh {175 60 150 15} box BORDER_BOX labelfont 1 labelcolor 15
       }
       Fl_Check_Browser geomInSetBrowser {
-        xywh {175 75 150 185} when 4 textsize 12
+        xywh {175 75 150 185} when 6 textsize 12
       }
       Fl_Button highlightSetButton {
         label {Highlight Selected Set} selected

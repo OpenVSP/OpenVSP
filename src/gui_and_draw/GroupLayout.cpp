@@ -1097,7 +1097,7 @@ Fl_Check_Browser* GroupLayout::AddCheckBrowser( int h )
     Fl_Check_Browser* check_browser = new Fl_Check_Browser( m_X, m_Y, w, h );
     check_browser->labelfont( 1 );
     check_browser->textsize( 12 );
-    check_browser->when( FL_WHEN_RELEASE );
+    check_browser->when( FL_WHEN_RELEASE_ALWAYS );
     m_Group->add( check_browser );
     AddX( w );
 
