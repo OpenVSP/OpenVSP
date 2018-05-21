@@ -1381,6 +1381,8 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
 {
     int nxsecs = num_xsecs;
 
+    WriteVecDoubleM writeVecDouble;
+
     if( type == SURFACE_TYPE )
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'LIFTING_SURFACE';" );
@@ -1398,7 +1400,10 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
     fprintf( file_id, "\ndegenGeom(end).geom_id = '%s';", parentGeom->GetID().c_str() );
     fprintf( file_id, "\ndegenGeom(end).surf_index = %d;", getSurfNum() );
     fprintf( file_id, "\ndegenGeom(end).main_surf_index = %d;", getMainSurfInd() );
-    fprintf( file_id, "\ndegenGeom(end).sym_copy_index = %d;\n", getSymCopyInd() );
+    fprintf( file_id, "\ndegenGeom(end).sym_copy_index = %d;", getSymCopyInd() );
+    fprintf( file_id, "\ndegenGeom(end).flip_normal = %d;\n", getFlipNormal() );
+
+    writeVecDouble.write( file_id, transmat, "degenGeom(end).transmat",    16 );
 
     if( type == DISK_TYPE )
     {
