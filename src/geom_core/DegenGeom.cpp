@@ -1163,8 +1163,23 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
     }
 
     fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, MainSurfNdx, SymCopyNdx, GeomID, FlipNormal," );
+    fprintf( file_id, "t00,t01,t02,t03,t10,t11,t12,t13,t20,t21,t22,t23,t30,t31,t32,t33" );
     fprintf( file_id, "\n%s,%s,%d,%d,%d,%s,%d,", typestr.c_str(), name.c_str(), getSurfNum(), getMainSurfInd(),
              getSymCopyInd(), this->parentGeom->GetID().c_str(), getFlipNormal() );
+
+    for( int j = 0; j < 16; j ++ )
+    {
+        fprintf( file_id, makeCsvFmt( 1, false ).c_str(), transmat[j] );
+
+        if( j < 16 - 1 )
+        {
+            fprintf( file_id, ", " );
+        }
+        else
+        {
+            fprintf( file_id, "\n" );
+        }
+    }
 
     if( type == DISK_TYPE )
     {

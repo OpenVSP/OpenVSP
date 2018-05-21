@@ -260,6 +260,15 @@ public:
         sym_copy_ind = n;
     }
 
+    vector < double > getTransMat()
+    {
+        return transmat;
+    }
+    void setTransMat( vector < double > M )
+    {
+        transmat = M;
+    }
+
     void build_trans_mat( vec3d x, vec3d y, vec3d z, const vec3d &p, Matrix4d &mat, Matrix4d &invmat );
     void build_basis( const int &startPnt, const vector < vec3d > &sect, vec3d &v1, vec3d &v2, vec3d &v3 );
     void transform_section( const int &startPnt, vector < vec3d > &sect, Matrix4d &trans, Matrix4d &invtrans );
@@ -327,6 +336,7 @@ protected:
     bool flip_normal;
     int main_surf_ind;
     int sym_copy_ind;
+    vector< double > transmat;
 };
 
 

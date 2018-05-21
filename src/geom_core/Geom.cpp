@@ -3279,6 +3279,13 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d 
     degenGeom.setMainSurfInd( m_SurfIndxVec[isurf] );
     degenGeom.setSymCopyInd( m_SurfCopyIndx[isurf] );
 
+    vector < double > tmatvec;
+    for ( int j = 0; j < 16; j++ )
+    {
+        tmatvec.push_back( m_TransMatVec[isurf].data()[ j ] );
+    }
+    degenGeom.setTransMat( tmatvec );
+
     degenGeom.setNumXSecs( pnts.size() );
     degenGeom.setNumPnts( pnts[0].size() );
     degenGeom.setName( GetName() );
