@@ -1263,8 +1263,7 @@ void Geom::UpdateSymmAttach()
         m_SurfCopyIndx[i] = 0;
     }
 
-    vector<Matrix4d> transMats;
-    transMats.resize( num_surf, Matrix4d() );
+    m_TransMatVec.resize( num_surf, Matrix4d() );
     // Compute Relative Translation Matrix
     Matrix4d symmOriginMat;
     Matrix4d relTrans;
@@ -1280,9 +1279,9 @@ void Geom::UpdateSymmAttach()
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
 
-    for ( int i = 0 ; i < ( int )transMats.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TransMatVec.size() ; i++ )
     {
-        transMats[i].initMat( relTrans.data() );
+        m_TransMatVec[i].initMat( relTrans.data() );
     }
 
     // Copy main surfs
@@ -1359,8 +1358,8 @@ void Geom::UpdateSymmAttach()
                         m_SurfIndxVec[j + k * numAddSurfs] = m_SurfIndxVec[j - currentIndex];
                         m_SurfCopyIndx[j + k * numAddSurfs] = m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].size();
                         m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].push_back( j + k * numAddSurfs );
-                        transMats[j + k * numAddSurfs].initMat( transMats[j - currentIndex].data() );
-                        transMats[j + k * numAddSurfs].postMult( Ref.data() ); // Apply Reflection
+                        m_TransMatVec[j + k * numAddSurfs].initMat( m_TransMatVec[j - currentIndex].data() );
+                        m_TransMatVec[j + k * numAddSurfs].postMult( Ref.data() ); // Apply Reflection
 
                         // Increment rotation by the angle
                         Ref.postMult( Ref_Orig.data() );
@@ -1376,8 +1375,8 @@ void Geom::UpdateSymmAttach()
                     m_SurfIndxVec[j] = m_SurfIndxVec[j - currentIndex];
                     m_SurfCopyIndx[j] = m_SurfSymmMap[ m_SurfIndxVec[j] ].size();
                     m_SurfSymmMap[ m_SurfIndxVec[ j ] ].push_back( j );
-                    transMats[j].initMat( transMats[j - currentIndex].data() );
-                    transMats[j].postMult( Ref.data() ); // Apply Reflection
+                    m_TransMatVec[j].initMat( m_TransMatVec[j - currentIndex].data() );
+                    m_TransMatVec[j].postMult( Ref.data() ); // Apply Reflection
                     addIndex++;
                 }
             }
@@ -1396,10 +1395,10 @@ void Geom::UpdateSymmAttach()
     //==== Save Transformation Matrix and Apply Transformations ====//
     for ( int i = 0 ; i < num_surf ; i++ )
     {
-        transMats[i].postMult( symmOriginMat.data() );
-        m_SurfVec[i].Transform( transMats[i] ); // Apply total transformation to main surfaces
+        m_TransMatVec[i].postMult( symmOriginMat.data() );
+        m_SurfVec[i].Transform( m_TransMatVec[i] ); // Apply total transformation to main surfaces
 
-        m_FeaTransMatVec[i] = transMats[i];
+        m_FeaTransMatVec[i] = m_TransMatVec[i];
         m_FeaTransMatVec[i].matMult( retrun_relTrans.data() ); // m_FeaTransMatVec does not inclde the relTrans matrix
     }
 }
