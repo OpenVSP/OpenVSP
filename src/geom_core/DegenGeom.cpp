@@ -1466,6 +1466,9 @@ void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_id
     res->Add( NameValData( "geom_id", parentGeom->GetID() ) );
     res->Add( NameValData( "main_surf_index", getMainSurfInd() ) );
     res->Add( NameValData( "sym_copy_index", getSymCopyInd() ) );
+    res->Add( NameValData( "flip_normal", getFlipNormal() ) );
+
+    res->Add( NameValData( "transmat", transmat ) );
 
     if ( type == DISK_TYPE )
     {
