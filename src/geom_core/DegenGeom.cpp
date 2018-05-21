@@ -1164,7 +1164,7 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
 
     fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, MainSurfNdx, SymCopyNdx, GeomID, FlipNormal," );
     fprintf( file_id, "\n%s,%s,%d,%d,%d,%s,%d,", typestr.c_str(), name.c_str(), getSurfNum(), getMainSurfInd(),
-             getSymCopyInd(), this->parentGeom->GetID().c_str() );
+             getSymCopyInd(), this->parentGeom->GetID().c_str(), getFlipNormal() );
 
     if( type == DISK_TYPE )
     {
