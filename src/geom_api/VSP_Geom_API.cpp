@@ -1500,6 +1500,21 @@ vector< string > GetGeomParmIDs( const string & geom_id  )
     return parm_vec;
 }
 
+/// Get the type of for this geometry
+string GetGeomTypeName( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GeomGeomType::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    string typ = string( geom_ptr->GetType().m_Name );
+    return typ;
+}
+
 /// Get the parm id given geom id, parm name, and group name
 string GetParm( const string & geom_id, const string & name, const string & group )
 {

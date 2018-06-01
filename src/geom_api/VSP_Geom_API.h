@@ -138,6 +138,7 @@ extern std::string FindGeom( const std::string & name, int index );
 extern void SetGeomName( const std::string & geom_id, const std::string & name );
 extern std::string GetGeomName( const std::string & geom_id );
 extern std::vector<std::string> GetGeomParmIDs( const std::string & geom_id );
+extern std::string GetGeomTypeName( const std::string & geom_id );
 extern std::string GetParm( const std::string & geom_id, const std::string & name, const std::string & group );
 extern int GetNumXSecSurfs( const std::string & geom_id );
 extern int GetNumMainSurfs( const std::string & geom_id );
