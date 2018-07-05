@@ -1646,6 +1646,24 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
             {
                 u = ( ( XSec_index + 1 ) / (double)numUsec );
 
+                af_file_name = m_Name + "_";
+
+                if ( veh->m_AFAppendGeomIDFlag() )
+                {
+                    af_file_name += ( m_ID + "_" );
+                }
+
+                af_file_name += to_string( foil_cnt );
+
+                if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT )
+                {
+                    af_file_name += ".dat";
+                }
+                else if ( veh->m_AFExportType() == vsp::BEZIER_AF_EXPORT )
+                {
+                    af_file_name += ".bz";
+                }
+
                 fprintf( meta_fid, "########################################\n" );
                 fprintf( meta_fid, "Airfoil File Name, %s\n", af_file_name.c_str() );
                 fprintf( meta_fid, "Geom Name, %s\n", m_Name.c_str() );
