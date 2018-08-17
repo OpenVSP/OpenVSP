@@ -21,6 +21,7 @@
 
 #include <api/dll_iges.h>
 #include <api/dll_entity128.h>
+#include <api/dll_entity406.h>
 
 #include "eli/code_eli.hpp"
 
@@ -51,7 +52,7 @@ public:
     virtual ~VspSurf();
 
     // create surface as a body of revolution using the specified curve
-    void CreateBodyRevolution( const VspCurve &input_crv );
+    void CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm = false );
 
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < double > & param, bool closed_flag );
@@ -78,6 +79,7 @@ public:
     void SwapUWDirections();
     void Transform( Matrix4d & mat );
     void GetBoundingBox( BndBox &bb ) const;
+    void GetLimitedBoundingBox( BndBox &bb, const double U0, const double Uf, const double W0, const double Wf );
     bool IsClosedU() const;
     bool IsClosedW() const;
 
@@ -87,6 +89,9 @@ public:
 
     bool IsMagicVParm() const { return m_MagicVParm; }
     void SetMagicVParm( bool t ) { m_MagicVParm = t; }
+
+    bool IsHalfBOR() const { return m_HalfBOR; }
+    void SetHalfBOR( bool t ) { m_HalfBOR = t; }
 
     int GetSurfType() { return m_SurfType; }
     void SetSurfType( int type ) { m_SurfType = type; }
@@ -130,6 +135,9 @@ public:
     vec3d CompNorm( double u, double v ) const;
     vec3d CompNorm01( double u, double v ) const;
 
+    void CompCurvature( double u, double w, double& k1, double& k2, double& ka, double& kg ) const;
+    void CompCurvature01( double u, double w, double& k1, double& k2, double& ka, double& kg ) const;
+
     int GetNumUFeature()
     {
         return m_UFeature.size();
@@ -139,11 +147,19 @@ public:
         return m_WFeature.size();
     }
     void BuildFeatureLines( bool force_xsec_flag = false );
+    vector < double > GetUFeature()
+    {
+        return m_UFeature;
+    }
+    vector < double > GetWFeature()
+    {
+        return m_WFeature;
+    }
     bool CapUMin(int capType, double len, double str, double offset, bool swflag);
     bool CapUMax(int capType, double len, double str, double offset, bool swflag);
     bool CapWMin(int capType);
     bool CapWMax(int capType);
-    void FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs );
+    void FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >() );
 
     void ResetUWSkip();
     void FlagDuplicate( VspSurf *othersurf );
@@ -169,6 +185,7 @@ public:
     void TessAdaptLine( double umin, double umax, double wmin, double wmax, std::vector< vec3d > & pts, double tol, int Nlimit );
     void TessAdaptLine( double umin, double umax, double wmin, double wmax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pts, double tol, int Nlimit, int Nadapt = 0 );
 
+    void SplitSurfs( vector< piecewise_surface_type > &surfvec, const vector < double > &usuppress, const vector < double > &wsuppress );
     void SplitSurfs( vector< piecewise_surface_type > &surfvec );
 
     void ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &ptindxs, vector< vec3d > &allPntVec,
@@ -179,7 +196,7 @@ public:
     void ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs );
     void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit );
 
-    void ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit );
+    void ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string labelprefix, bool labelSplitNo, string delim );
 
     void SetUSkipFirst( bool f );
     void SetUSkipLast( bool f );
@@ -223,6 +240,11 @@ public:
     void ScaleY( double s );
     void ScaleZ( double s );
 
+    void SetFoilSurf( VspSurf *s )                           { m_FoilSurf = s; }
+    VspSurf *GetFoilSurf()                                   { return m_FoilSurf; }
+
+    void MakePlaneSurf( const vec3d &ptA, const vec3d &ptB, const vec3d &ptC, const vec3d &ptD );
+
 protected:
 
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
@@ -234,6 +256,7 @@ protected:
 
     bool m_FlipNormal;
     bool m_MagicVParm;
+    bool m_HalfBOR;
     int m_SurfType;
     int m_SurfCfdType;
     piecewise_surface_type m_Surface;
@@ -261,6 +284,8 @@ protected:
 
     int m_CloneIndex;
     Matrix4d m_CloneMat;
+
+    VspSurf *m_FoilSurf;
 
 };
 #endif

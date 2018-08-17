@@ -842,7 +842,7 @@ void TMesh::MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
                 {
                     tri->m_InteriorFlag = 0;
                     tri->m_ID = meshVec[m]->m_PtrID;
-                    tri->m_Mass = meshVec[m]->m_Density;
+                    tri->m_Density = meshVec[m]->m_Density;
                     prior = meshVec[m]->m_MassPrior;
                 }
             }
@@ -1063,6 +1063,25 @@ double TMesh::ComputeTrimVol()
         }
     }
     return trimVol;
+}
+
+void TMesh::AddTri( const vec3d & p0, const vec3d & p1, const vec3d & p2 )
+{
+    double dist_tol = 1.0e-12;
+
+    vec3d v01 = p1 - p0;
+    vec3d v02 = p2 - p0;
+    vec3d v12 = p2 - p1;
+
+    if ( v01.mag() < dist_tol || v02.mag() < dist_tol || v12.mag() < dist_tol )
+    {
+        return;
+    }
+
+    vec3d norm = cross( v01, v02 );
+    norm.normalize();
+
+    AddTri( p0, p1, p2, norm );
 }
 
 void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm )
@@ -1301,7 +1320,7 @@ TTri::TTri()
     m_N0 = m_N1 = m_N2 = 0;
     m_InteriorFlag = 0;
     m_InvalidFlag  = 0;
-    m_Mass = 0.0;
+    m_Density = 1.0;
     m_TMesh = NULL;
     m_PEArr[0] = m_PEArr[1] = m_PEArr[2] = NULL;
 }
@@ -1357,7 +1376,7 @@ void TTri::CopyFrom( const TTri* tri )
     m_N2->CopyFrom( tri->m_N2 );
 
     m_Norm = tri->m_Norm;
-    m_Mass = tri->m_Mass;
+    m_Density = tri->m_Density;
     m_Tags = tri->m_Tags;
     m_ID = tri->m_ID;
     m_InvalidFlag = tri->m_InvalidFlag;

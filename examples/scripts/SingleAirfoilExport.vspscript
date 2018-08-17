@@ -1,0 +1,72 @@
+
+void main()
+{
+    Print(string("Begin Single Airfoil Export Script\n"));
+
+    const double epsilon = 0.1;
+    const double kappa = 0.1; 
+    const double tau = 10;
+    
+    Print(string("--> Creating Wing Geometry\n"));
+    
+    //==== Add Wing Geometry and Set Parms ====//
+    string wing_id = AddGeom( "WING", "" );
+    
+    // Set VKT airfoil
+    string xsec_surf = GetXSecSurf( wing_id, 0 );
+    ChangeXSecShape( xsec_surf, 0, XS_VKT_AIRFOIL );
+    string xsec_surf1 = GetXSecSurf(wing_id, 1);
+    ChangeXSecShape( xsec_surf1, 1, XS_VKT_AIRFOIL );
+        
+    //==== Set Wing Section Controls ====//
+    SetDriverGroup( wing_id, 1, AR_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
+    
+    Update();
+    
+    //==== Set Parms ====//
+    SetParmVal( wing_id, "Sweep", "XSec_1", 0 );
+    SetParmVal( wing_id, "Root_Chord", "XSec_1", 1 );
+    SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 );
+    
+    SetParmVal( wing_id, "Epsilon", "XSecCurve_0", epsilon );
+    SetParmVal( wing_id, "Epsilon", "XSecCurve_1", epsilon );
+    SetParmVal( wing_id, "Kappa", "XSecCurve_0", kappa );
+    SetParmVal( wing_id, "Kappa", "XSecCurve_1", kappa );
+    SetParmVal( wing_id, "Tau", "XSecCurve_0", tau );
+    SetParmVal( wing_id, "Tau", "XSecCurve_1", tau );
+
+    SetParmVal( wing_id, "Aspect", "XSec_1", 7.5005 );
+    SetParmVal( wing_id, "Tess_W", "Shape", 122 );
+    SetParmVal( wing_id, "SectTess_U", "XSec_1", 30 );
+    SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+    SetParmVal( wing_id, "LECluster", "WingGeom", 0.5 );
+    
+    Update();
+    
+    //==== Setup filenames, save, and export ====//
+    string vsp_fname = "VKT_e" + double(epsilon) + "_k" + double(kappa) + "_t" + double(tau) + ".vsp3";
+    string selig_fname = "VKT_e" + double(epsilon) + "_k" + double(kappa) + "_t" + double(tau) + ".dat";
+    string bezier_fname = "VKT_e" + double(epsilon) + "_k" + double(kappa) + "_t" + double(tau) + ".bz";
+
+    //==== Save Vehicle to File ====//
+    string message = string("-->Saving vehicle file to: ") + vsp_fname + string("\n");
+    Print( message );
+    WriteVSPFile( vsp_fname, SET_ALL );
+    Print( "COMPLETE\n" );
+    
+    const double u = 0.5; // export airfoil at mid span location
+    
+    //==== Write Selig Airfoil File ====//
+    message = string("-->Writing Selig airfoil file to: ") + selig_fname + string("\n");
+    Print( message );
+    WriteSeligAirfoil( selig_fname, wing_id, u );
+    Print( "COMPLETE\n" );
+    
+    //==== Write Bezier Airfoil File ====//
+    message = string("-->Writing Bezier airfoil file to: ") + bezier_fname + string("\n");
+    Print( message );
+    WriteBezierAirfoil( bezier_fname, wing_id, u );
+    Print( "COMPLETE\n" );
+    
+    Print(string("Done\n"));
+}

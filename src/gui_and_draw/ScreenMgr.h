@@ -27,6 +27,8 @@ class ScreenMgr : MessageBase
 {
 public:
     enum { VSP_ADV_LINK_SCREEN,
+           VSP_AIRFOIL_CURVES_EXPORT_SCREEN,
+           VSP_AIRFOIL_POINTS_EXPORT_SCREEN,
            VSP_BACKGROUND_SCREEN,
            VSP_BEM_OPTIONS_SCREEN,
            VSP_CFD_MESH_SCREEN,
@@ -37,17 +39,17 @@ public:
            VSP_DESIGN_VAR_SCREEN,
            VSP_DXF_OPTIONS_SCREEN,
            VSP_EXPORT_SCREEN,
-           VSP_FEA_MESH_SCREEN,
+           VSP_FEA_PART_EDIT_SCREEN,
+           VSP_FEA_XSEC_SCREEN,
            VSP_FIT_MODEL_SCREEN,
            VSP_IGES_OPTIONS_SCREEN,
            VSP_IMPORT_SCREEN,
-           VSP_LABEL_SCREEN,
            VSP_LIGHTING_SCREEN,
-           VSP_MAIN_SCREEN,
            VSP_MANAGE_GEOM_SCREEN,
            VSP_MANAGE_TEXTURE_SCREEN,
            VSP_MASS_PROP_SCREEN,
            VSP_MATERIAL_EDIT_SCREEN,
+           VSP_MEASURE_SCREEN,
            VSP_SNAP_TO_SCREEN,
            VSP_PARASITE_DRAG_SCREEN,
            VSP_PARM_DEBUG_SCREEN,
@@ -59,6 +61,8 @@ public:
            VSP_SET_EDITOR_SCREEN,
            VSP_STEP_OPTIONS_SCREEN,
            VSP_STL_OPTIONS_SCREEN,
+           VSP_STRUCT_SCREEN,
+           VSP_SURFACE_INTERSECTION_SCREEN,
            VSP_SVG_OPTIONS_SCREEN,
            VSP_TYPE_EDITOR_SCREEN,
            VSP_USER_PARM_SCREEN,
@@ -68,6 +72,7 @@ public:
            VSP_VSPAERO_SCREEN,
            VSP_XSEC_SCREEN,
            VSP_WAVEDRAG_SCREEN,
+           VSP_MAIN_SCREEN,   /* Leave at end of list, helps draw after update. */
            VSP_NUM_SCREENS
          };
 

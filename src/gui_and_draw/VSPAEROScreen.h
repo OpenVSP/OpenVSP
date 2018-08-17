@@ -55,11 +55,13 @@ public:
     void ControlSurfaceGroupBrowserCallback();
     void UngroupedCSBrowserCallback();
     void GroupedCSBrowserCallback();
+    void CpSliceBrowserCallback();
 
     void SelectPropBrowser( int cur_index );
     void SelectControlSurfaceBrowser( int cur_index );
     void SelectUngroupedListBrowser( int cur_index );
     void SelectGroupedListBrowser( int cur_index );
+    void SelectCpSliceBrowser( int cur_index );
 
     void AddOutputText( Fl_Text_Display *display, const string &text );
 
@@ -84,6 +86,8 @@ public:
     void UpdateDeflectionAngleScrollGroup();
     void UpdateControlSurfaceGroupNames();
     void UpdateDeflectionGainScrollGroup();
+    void UpdateCpSlices();
+    void UpdateCpSliceBrowser();
 
     void DisplayDegenCamberPreview();
 
@@ -161,6 +165,8 @@ protected:
     GroupLayout m_WakeLayout;
     GroupLayout m_OtherParmsLayout;
     GroupLayout m_UnsteadyLayout;
+    GroupLayout m_CpSlicerLayout;
+    GroupLayout m_CpSlicerSubLayout;
 
     // Advanced Case Setup Layout
     //  Degengeom (VLM & Panel)
@@ -173,7 +179,10 @@ protected:
     ToggleButton m_BatchCalculationToggle;
     ToggleButton m_SymmetryToggle;
     ToggleButton m_Write2DFEMToggle;
-    ToggleButton m_JacobiPreconditionToggle;
+    Choice m_PreconditionChoice;
+    ToggleButton m_VortexLiftToggle;
+    ToggleButton m_LeadingEdgeSuctionToggle;
+    ToggleButton m_KTCorrectionToggle;
 
     // Wake calculation options
     SliderAdjRangeInput m_WakeNumIterSlider;
@@ -191,6 +200,18 @@ protected:
     // Unsteady Setup
     ToggleButton m_StabilityCalcToggle;
     Choice m_StabilityTypeChoice;
+
+    // Cp Slice Setup
+    ToggleButton m_CpSlicerActivateToggle;
+    TriggerButton m_CpSliceLastADBButton;
+    Fl_Browser* m_CpSliceBrowser;
+    TriggerButton m_AddCpSliceButton;
+    TriggerButton m_DeleteCpSliceButton;
+    TriggerButton m_DeleteAllCpSliceButton;
+    Choice m_CpSliceTypeChoice;
+    SliderAdjRangeInput m_CpSliceLocation;
+    StringInput m_CpSliceNameInput;
+    ToggleButton m_CpSliceShowToggle;
 
     //==== Rotor Disk Tab ====//
     GroupLayout m_PropGeneralLayout;

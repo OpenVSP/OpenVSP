@@ -115,60 +115,10 @@ void Airfoil::ReadV2File( xmlNodePtr &root )
 
 }
 
-// This routine estimates the thickness of an airfoil from the curves directly.
-// It constructs the equiparameteric distance squared curve.  Rather than maximizing
-// that curve, it simply checks the bounding box of the control points.  For a well
-// behaved airfoil, this should be close to the curve.
-double Airfoil::EstimateThick()
+double Airfoil::CalculateThick()
 {
-    piecewise_curve_type crv , c1, c2, c3;
-    crv = m_Curve.GetCurve();
-
-    double tmid = ( crv.get_parameter_max() + crv.get_parameter_min() ) / 2.0;
-
-    crv.split( c1, c2, tmid );  // Split at LE
-    c2.reverse();
-    c2.set_t0( c1.get_t0() );
-
-    vector < double > pmap;
-    c1.get_pmap( pmap );
-
-    vector < double > pmap2;
-    c2.get_pmap( pmap2 );
-
-    pmap.insert( pmap.end(), pmap2.begin(), pmap2.end() );
-    std::sort( pmap.begin(), pmap.end() );
-    auto pmit = std::unique( pmap.begin(), pmap.end() );
-    pmap.erase( pmit, pmap.end() );
-
-    for( int i = 0; i < pmap.size(); i++ )
-    {
-        c1.split( pmap[i] );
-        c2.split( pmap[i] );
-    }
-
-    c1.scale( -1.0 );
-    c3.sum( c1, c2 );
-
-    c1.clear(); // Clear before re-using c1
-    c1.square( c3 );
-
-    typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
-    onedpwc sumsq;
-
-    typedef onedpwc::bounding_box_type onedbox;
-    onedbox box;
-
-    typedef onedpwc::point_type onedpt;
-    onedpt p;
-
-    sumsq = c1.sumcompcurve();
-
-    sumsq.get_bounding_box( box );
-
-    p = box.get_max();
-
-    return sqrt( p.x() );
+    double tloc;
+    return m_Curve.CalculateThick( tloc );
 }
 
 
@@ -687,7 +637,7 @@ xmlNodePtr FileAirfoil::DecodeXml( xmlNodePtr & node )
 
 void FileAirfoil::OffsetCurve( double offset_val )
 {
-    double t = EstimateThick();
+    double t = CalculateThick();
     double c = m_Chord();
 
     double offset_c = c - 2.0*offset_val;
@@ -1512,7 +1462,7 @@ void CSTAirfoil::CheckLERad()
 
 void CSTAirfoil::OffsetCurve( double offset_val )
 {
-    double t = EstimateThick();
+    double t = CalculateThick();
     double c = m_Chord();
 
     double offset_c = c - 2.0*offset_val;
@@ -1616,7 +1566,7 @@ void VKTAirfoil::Update()
 
 void VKTAirfoil::OffsetCurve( double offset_val )
 {
-    double t = EstimateThick();
+    double t = CalculateThick();
     double c = m_Chord();
 
     double offset_c = c - 2.0*offset_val;

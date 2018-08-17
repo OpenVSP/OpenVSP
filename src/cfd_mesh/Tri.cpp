@@ -681,38 +681,11 @@ void Tri::ComputeCosAngles( Node* n0, Node* n1, Node* n2, double* ang0, double* 
     *ang2 = ( -dsqr01 + dsqr12 + dsqr20 ) / ( 2.0 * d12 * d20 );
 }
 
+// XOR (^) of anything with itself will return zero.  So, by performing a bitwise XOR chain of all the pointers
+// n0^n1^n2^a^b, a and b clobber their match among n0,n1,n2 leaving just the odd pointer out to be returned.
 Node* Tri::OtherNode( Node* a, Node* b )
 {
-    if      ( n0 == a && n1 == b )
-    {
-        return n2;
-    }
-    else if ( n0 == b && n1 == a )
-    {
-        return n2;
-    }
-    else if ( n1 == a && n2 == b )
-    {
-        return n0;
-    }
-    else if ( n1 == b && n2 == a )
-    {
-        return n0;
-    }
-    else if ( n0 == a && n2 == b )
-    {
-        return n1;
-    }
-    else if ( n0 == b && n2 == a )
-    {
-        return n1;
-    }
-    else
-    {
-        assert( 0 );
-    }
-
-    return NULL;
+    return (Node *) ((uintptr_t) n0 ^ (uintptr_t) n1 ^ (uintptr_t) n2 ^ (uintptr_t) a ^ (uintptr_t) b);
 }
 
 bool Tri::Contains( Node* a, Node* b )

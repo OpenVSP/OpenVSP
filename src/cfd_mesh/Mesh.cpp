@@ -37,6 +37,8 @@ Mesh::Mesh()
 
     m_Surf = NULL;
     m_GridDensity = NULL;
+
+    m_NumFixPointIter = 0;
 }
 
 Mesh::~Mesh()
@@ -71,7 +73,7 @@ void Mesh::Clear()
 
     nodeList.clear();
 
-
+    m_NumFixPointIter = 0;
 }
 
 void Mesh::LimitTargetEdgeLength( Node* n )
@@ -86,7 +88,7 @@ void Mesh::LimitTargetEdgeLength( Node* n )
     el.sort( ShortEdgeTargetLengthCompare );
 
     e = el.begin();
-    double limitlen = ( *e )->target_len * m_GridDensity->m_GrowRatio();
+    double limitlen = ( *e )->target_len * m_GridDensity->m_GrowRatio;
     e++;
 
     for ( ; e != el.end(); e++ )
@@ -101,7 +103,7 @@ void Mesh::LimitTargetEdgeLength( Node* n )
 void Mesh::LimitTargetEdgeLength( Edge* e, Node* notn )
 {
     vector< Edge* >::iterator ne;
-    double growratio = m_GridDensity->m_GrowRatio();
+    double growratio = m_GridDensity->m_GrowRatio;
 
     Node *n = e->OtherNode( notn );
 
@@ -119,7 +121,7 @@ void Mesh::LimitTargetEdgeLength( Edge* e )
 {
     Node *n;
     vector< Edge* >::iterator ne;
-    double growratio = m_GridDensity->m_GrowRatio();
+    double growratio = m_GridDensity->m_GrowRatio;
 
     n = e->n0;
     for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
@@ -147,7 +149,7 @@ void Mesh::LimitTargetEdgeLength()
     Node *n;
     list< Edge* >::iterator e;
     vector< Edge* >::iterator ne;
-    double growratio = m_GridDensity->m_GrowRatio();
+    double growratio = m_GridDensity->m_GrowRatio;
     double limitlen;
 
     edgeList.sort( ShortEdgeTargetLengthCompare );
@@ -261,13 +263,15 @@ void Mesh::CondenseSimpTris()
         reMap.push_back( CheckDupOrAdd( simpTriVec[i].ind2, indMap, simpPntVec ) );
     }
 
-    //==== Reduce Point Vec ====//
+    //==== Reduce Point and UW Vec ====//
     vector< vec3d > rePntVec;
+    vector < vec2d > reUWVec;
     for ( int i = 0 ; i < ( int )reMap.size() ; i++ )
     {
         if ( i == reMap[i] )
         {
             rePntVec.push_back( simpPntVec[reMap[i]] );
+            reUWVec.push_back( simpUWPntVec[reMap[i]] );
             reMap[i] = rePntVec.size() - 1;
         }
         else
@@ -278,6 +282,7 @@ void Mesh::CondenseSimpTris()
     }
 
     simpPntVec = rePntVec;
+    simpUWPntVec = reUWVec;
     for ( int i = 0 ; i < ( int )simpTriVec.size() ; i++ )
     {
         simpTriVec[i].ind0 = reMap[3 * i];
@@ -1296,6 +1301,83 @@ void Mesh::OptSmooth( int num_iter )
     }
 }
 
+bool Mesh::SetFixPoint( vec3d fix_pnt, vec2d fix_uw )
+{
+    double min_dist = FLT_MAX;
+    Node* closest_node = NULL;
+    double tol = m_GridDensity->m_MinLen;
+
+    m_NumFixPointIter++;
+
+    list< Node* >::iterator n;
+    for ( n = nodeList.begin(); n != nodeList.end(); n++ )
+    {
+        if ( !( *n )->fixed )
+        {
+            double space = dist( fix_pnt, ( *n )->pnt );
+            if ( space < min_dist )
+            {
+                min_dist = space;
+                closest_node = ( *n );
+            }
+        }
+    }
+
+    if ( closest_node && m_Surf->ValidUW( fix_uw ) )
+    {
+        // Check lengths of connected edges and split if longer than tolerance
+        vector < Edge* > check_edge_vec = closest_node->edgeVec;
+        bool long_edge = false;
+
+        for ( size_t i = 0; i < check_edge_vec.size(); i++ )
+        {
+            if ( !check_edge_vec[i]->border && check_edge_vec[i]->ComputeLength() > tol )
+            {
+                long_edge = true;
+                break;
+            }
+        }
+
+        if ( !long_edge )
+        {
+            // Move closest node to fixed point location
+            closest_node->uw = m_Surf->ClosestUW( fix_pnt, fix_uw.x(), fix_uw.y() );
+            closest_node->pnt = m_Surf->CompPnt( closest_node->uw.x(), closest_node->uw.y() );
+            closest_node->fixed = true;
+            return true;
+        }
+    }
+
+    int num_long_edges = 0;
+    list< Edge* >::iterator e;
+
+    //===== Split if no nodes found ====//
+    vector < Edge* > split_edge_vec;
+    split_edge_vec.reserve( edgeList.size() );
+    for ( e = edgeList.begin(); e != edgeList.end(); e++ )
+    {
+        if ( !( *e )->border )
+        {
+            split_edge_vec.push_back( ( *e ) );
+        }
+    }
+
+    int num_split = split_edge_vec.size();
+
+    for ( int i = 0; i < num_split; i++ )
+    {
+        SplitEdge( split_edge_vec[i] );
+    }
+
+    DumpGarbage();
+
+    if ( num_split > 0 )
+    {
+        return SetFixPoint( fix_pnt, fix_uw );
+    }
+
+    return false; // Indicates no closest node was found
+}
 
 void Mesh::AdjustEdgeLengths()
 {
@@ -1336,7 +1418,7 @@ void Mesh::ComputeTargetEdgeLength( Edge* edge )
 {
     assert( m_GridDensity );
 
-    if( edge->border && edge->m_Length > m_GridDensity->m_MinLen() )
+    if( edge->border && edge->m_Length > m_GridDensity->m_MinLen )
     {
         edge->target_len = edge->m_Length;
     }

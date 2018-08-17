@@ -39,7 +39,8 @@ public:
     void FormInverse(void);
 
     void FormRotationQuat(double *Vec, double Theta);
-    void FormRotationQuat_f(float *Vec, float Theta);
+    void FormRotationQuat(float *Vec, float Theta);
+    void FormRotationQuatf(float *Vec, float Theta);
 
 };
 

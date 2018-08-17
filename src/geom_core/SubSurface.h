@@ -29,7 +29,7 @@ public:
 
     virtual void Update( Geom* geom );
 
-    enum { GT, LT };
+    enum { GT, LT, NO };
     int m_TestType;
 
     virtual ~SSLineSeg();
@@ -62,7 +62,7 @@ public:
     {
         return m_P1;
     }
-    virtual void GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, const int *num_pnts_ptr );
+    virtual void GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, int num_pnts );
     virtual int CompNumDrawPnts( VspSurf* surf, Geom* geom );
 
 protected:
@@ -94,6 +94,10 @@ public:
     virtual std::vector< std::vector< SSLineSeg > >& GetSplitSegs()
     {
         return m_SplitLVec;
+    }
+    virtual std::vector< SSLineSeg >& GetLVec()
+    {
+        return m_LVec;
     }
     virtual bool GetPolyFlag()
     {
@@ -132,6 +136,9 @@ public:
     // Save, Load
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
 
+    virtual int GetFeaMaterialIndex();
+    virtual void SetFeaMaterialIndex( int index );
+
     int m_Tag;
     IntParm m_TestType;
     IntParm m_MainSurfIndx;
@@ -146,6 +153,11 @@ public:
     Parm m_Roughness;
     Parm m_TeTwRatio;
     Parm m_TawTwRatio;
+
+    IntParm m_IncludedElements;
+    BoolParm m_DrawFeaPartFlag;
+    IntParm m_FeaPropertyIndex;
+    IntParm m_CapFeaPropertyIndex;
 
 protected:
     string m_CompID; // Component ID used to match Subsurface to a specific geom
@@ -180,7 +192,6 @@ public:
     SSLine( string compID, int type = vsp::SS_LINE );
     virtual ~SSLine();
 
-    enum { CONST_U, CONST_W };
     IntParm m_ConstType; // Either constant u or constant w line
     Parm m_ConstVal; // Either the const u value or const w value of line
 
@@ -274,6 +285,42 @@ protected:
 
     void RefVec( vector < vec3d > &pt_vec, int nref );
 
+};
+
+class SSLineArray : public SubSurface
+{
+    // Array of Const U or Const W Lines used to define beam elements for FeaMesh
+    public:
+
+    SSLineArray( string compID, int type = vsp::SS_LINE_ARRAY );
+    virtual ~SSLineArray();
+
+    enum
+    {
+        CONST_U, CONST_W
+    };
+
+    virtual void Update();
+
+    virtual void CalcNumLines();
+
+    virtual SSLine* AddSSLine( double location, int ind );
+
+    virtual int GetNumLines()
+    {
+        return m_NumLines;
+    }
+
+    IntParm m_ConstType;
+    BoolParm m_PositiveDirectionFlag;
+    Parm m_Spacing; // Spacing (U or W) between each constant line
+    Parm m_StartLocation;
+    Parm m_EndLocation;
+
+    protected:
+    virtual int CompNumDrawPnts( Geom* geom ); // Remove?
+
+    int m_NumLines;
 };
 
 #endif

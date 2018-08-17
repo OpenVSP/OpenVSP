@@ -11,7 +11,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 
-ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "Parm Link  ( B = A*scale + offset)" )
+ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "Parm Link: ( A * Scale + Offset = B )" )
 {
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_MainLayout.AddY( 25 );
@@ -49,15 +49,15 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "
     m_GenLayout.ForceNewLine();
     m_GenLayout.AddY( 65 );
 
+    m_GenLayout.SetButtonWidth( 62 );
+
     // Add 'Offfset' On/Off toggle button and slider
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
-    m_GenLayout.SetButtonWidth( 62 );
-    m_GenLayout.SetSliderWidth( 404 );
     m_GenLayout.AddButton( m_OffsetTog, "Offset" );
+    m_GenLayout.SetFitWidthFlag( true );
     m_GenLayout.AddSlider( m_OffsetSlider, "Offset", 100, " %7.3f" );
     m_GenLayout.ForceNewLine();
-    m_GenLayout.SetFitWidthFlag( true );
     m_GenLayout.SetSameLineFlag( false );
 
     m_GenLayout.AddY( 5 );
@@ -66,9 +66,9 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.AddButton( m_ScaleTog, "Scale" );
-    m_GenLayout.AddSlider( m_ScaleSlider, "Scale", 1, " %7.5f" );
-    m_GenLayout.ForceNewLine();
     m_GenLayout.SetFitWidthFlag( true );
+    m_GenLayout.AddSlider( m_ScaleSlider, "Scale", 2, " %7.5f" );
+    m_GenLayout.ForceNewLine();
     m_GenLayout.SetSameLineFlag( false );
 
     m_GenLayout.AddY( 10 );
@@ -78,9 +78,9 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.AddButton( m_LowerTog, "Lower" );
+    m_GenLayout.SetFitWidthFlag( true );
     m_GenLayout.AddSlider( m_LowerLimitSlider, "Lower", 10.0, "%7.1f" );
     m_GenLayout.ForceNewLine();
-    m_GenLayout.SetFitWidthFlag( true );
     m_GenLayout.SetSameLineFlag( false );
 
     m_GenLayout.AddY( 5 );
@@ -89,13 +89,13 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.AddButton( m_UpperTog, "Upper" );
+    m_GenLayout.SetFitWidthFlag( true );
     m_GenLayout.AddSlider( m_UpperLimitSlider, "Upper", 10.0, "%7.1f" );
     m_GenLayout.ForceNewLine();
-    m_GenLayout.SetFitWidthFlag( true );
     m_GenLayout.SetSameLineFlag( false );
 
     m_GenLayout.AddY( 10 );
-    m_GenLayout.AddSubGroupLayout( m_ConstraintsButtons, m_GenLayout.GetW(), 50 );
+    m_GenLayout.AddSubGroupLayout( m_ConstraintsButtons, m_GenLayout.GetW(), 70 );
 
     // Set the Add and Delete buttons under 'Constraints'
     m_ConstraintsButtons.SetFitWidthFlag( false );
@@ -107,9 +107,17 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 595, "
     m_ConstraintsButtons.AddX( 15 );
     m_ConstraintsButtons.AddButton( m_DeleteAllLinks, "Delete All Links" );
 
+    m_ConstraintsButtons.ForceNewLine();
+    m_ConstraintsButtons.AddYGap();
+
+    m_ConstraintsButtons.AddX( 93-15 );
+    m_ConstraintsButtons.AddButton( m_ASort, "Sort by A" );
+    m_ConstraintsButtons.AddX( 60 );
+    m_ConstraintsButtons.AddButton( m_BSort, "Sort by B" );
+
     // Place the Parm Link List box
     m_GenLayout.ForceNewLine();
-    m_GenLayout.AddY( 10 );
+    m_GenLayout.AddY( 30 );
 
     // Add Link Browser
     m_GenLayout.AddDividerBox( "Parm Link List" );
@@ -386,6 +394,14 @@ void ParmLinkScreen::GuiDeviceCallBack( GuiDevice* device )
             m_UpperLimitSlider.Deactivate();
         }
         LinkMgr.ParmChanged( currLink->GetParmA(), true );
+    }
+    else if ( device == &m_ASort )
+    {
+        LinkMgr.SortLinksByA();
+    }
+    else if ( device == &m_BSort )
+    {
+        LinkMgr.SortLinksByB();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

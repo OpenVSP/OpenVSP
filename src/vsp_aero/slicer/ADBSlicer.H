@@ -163,6 +163,8 @@ private:
     float *AlphaList;
 
     float *Cp;
+    float *CpUnsteady;
+    float *Gamma;
     
     float *CpNode;
     float *TotalArea;
@@ -256,6 +258,10 @@ private:
     // ADB file pointers
 
     fpos_t StartOfWallTemperatureData;
+    
+    // File format stuff
+    
+    int GnuPlot_;
 
 public:
 
@@ -265,6 +271,8 @@ public:
    ~ADBSLICER(void);
 
     void LoadFile(char *name);
+    
+    int &GnuPlot(void) { return GnuPlot_; };
 
 };
 

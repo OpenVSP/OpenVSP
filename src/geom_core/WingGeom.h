@@ -204,6 +204,7 @@ public:
     Parm m_TotalProjSpan;
     Parm m_TotalChord;
     Parm m_TotalArea;
+    Parm m_TotalAR;
 
     Parm m_LECluster;
     Parm m_TECluster;
@@ -261,6 +262,7 @@ protected:
 
     bool m_Closed;
 
+    VspSurf m_FoilSurf;
 
 };
 #endif // !defined(VSPWINGGEOM__INCLUDED_)

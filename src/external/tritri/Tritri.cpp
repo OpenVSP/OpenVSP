@@ -31,9 +31,9 @@
          if |dv|<EPSILON then dv=0.0;
    else no check is done (which is less robust)
 */
-#define USE_EPSILON_TEST TRUE  
-#define EPSILON 0.00000001
-
+#define USE_EPSILON_TEST TRUE
+#define EPSILON 1e-12
+// Was 1e-8
 
 /* some macros */
 #define CROSS(dest,v1,v2)                      \
@@ -575,8 +575,24 @@ int tri_tri_intersect_with_isectline(double V0[3],double V1[3],double V2[3],
   double du0,du1,du2,dv0,dv1,dv2;
   double D[3];
   double isect1[2], isect2[2];
+  isect1[0] = 0.0;
+  isect1[1] = 0.0;
+  isect2[0] = 0.0;
+  isect2[1] = 0.0;
   double isectpointA1[3],isectpointA2[3];
   double isectpointB1[3],isectpointB2[3];
+  isectpointA1[0] = 0.0;
+  isectpointA1[1] = 0.0;
+  isectpointA1[2] = 0.0;
+  isectpointA2[0] = 0.0;
+  isectpointA2[1] = 0.0;
+  isectpointA2[2] = 0.0;
+  isectpointB1[0] = 0.0;
+  isectpointB1[1] = 0.0;
+  isectpointB1[2] = 0.0;
+  isectpointB2[0] = 0.0;
+  isectpointB2[1] = 0.0;
+  isectpointB2[2] = 0.0;
   double du0du1,du0du2,dv0dv1,dv0dv2;
   short index;
   double vp0,vp1,vp2;

@@ -36,7 +36,7 @@ public:
 //=====================================================================================//
 
 //==== Advanced Link ====//
-class AdvLink : public ParmContainer
+class AdvLink
 {
 
 public:

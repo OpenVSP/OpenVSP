@@ -119,6 +119,7 @@ public:
     void SetInputWidth( int w )         { m_InputWidth = w; }
     int GetInputWidth()                 { return m_InputWidth; }
     void SetSliderWidth( int w )        { m_SliderWidth = w; }
+    int GetSliderWidth()                { return m_SliderWidth; }
     int GetCanvasWidth()                { return m_CanvasWidth; }
     void SetCanvasWdith( int w )        { m_CanvasWidth = w; }
     int GetCanvasHeight()               { return m_CanvasHeight; }
@@ -141,7 +142,7 @@ public:
     void AddButton(  CheckButton& check_button, const char* label );
     void AddButton(  ToggleButton& toggle_button, const char* label );
     void AddButton(  CheckButtonBit& check_bit_button, const char* label, int val );
-    void AddButton(  TriggerButton& trigger_button, const char* label );
+    void AddButton(  TriggerButton& trigger_button, const char* label, int used_w  = 0 );
     void AddButton(  ParmButton& parm_button, const char* label );
     void AddButton( RadioButton& radio_button, const char* label, int val = 0);
     void AddInput(  StringInput& string_input, const char* label, int used_w = 0 );
@@ -149,7 +150,8 @@ public:
     void AddInputEvenSpacedVector(Input& start_input, Input& end_input, Input& npts_input,const char * label,const char * format);
     void AddOutput( StringOutput& string_output );
     void AddOutput( StringOutput& string_output, const char* label, int used_w = 0 );
-    void AddIndexSelector( IndexSelector& selector, int used_w = 0 );
+    void AddOutput( Output& output, const char* label, const char* format, int used_w = 0 );
+    void AddIndexSelector( IndexSelector& selector, const char* label = NULL, int used_w = 0 );
     void AddColorPicker( ColorPicker& picker );
     void AddChoice( Choice & choice, const char* label, int used_w = 0 );
     void AddCounter( Counter & count, const char* label, int used_w = 0 );
@@ -160,7 +162,7 @@ public:
                              double range, const char* format );
     void AddSkinControl( SkinControl & skin_control, const char* label, double range, const char* format );
     void AddSkinHeader( SkinHeader & skin_header, bool addcontchoice = true );
-    void AddGeomPicker( GeomPicker & geom_picker, int used_w = 0 );
+    void AddGeomPicker( GeomPicker & geom_picker, int used_w = 0, string text = string() );
     void AddPCurveEditor( PCurveEditor & curve_editor );
 
     Fl_Browser* AddFlBrowser( int height );

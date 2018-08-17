@@ -269,6 +269,7 @@ public:
         return m_Height();
     }
     virtual void SetWidthHeight( double w, double h );
+    virtual void SetScale( double scale );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );

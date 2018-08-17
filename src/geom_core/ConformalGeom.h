@@ -109,6 +109,8 @@ public:
     vec3d FindCenterGivenU( double u ) const;
 
 
+    double FindUGivenLengthAlongSpine( double length ) const;
+    double GetSpineLength() const;
 
 protected:
 

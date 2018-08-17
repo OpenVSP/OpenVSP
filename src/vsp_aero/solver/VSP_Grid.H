@@ -51,8 +51,8 @@ private:
     int NumberOfKuttaNodes_;
 
     int *KuttaNode_;
-    int *WingSurface_;
-    int *WingSurfaceIsPeriodic_;
+    int *WingSurfaceForKuttaNode_;
+    int *WingSurfaceForKuttaNodeIsPeriodic_;
         
     double *WakeTrailingEdgeX_;
     double *WakeTrailingEdgeY_;
@@ -145,8 +145,8 @@ public:
     
     int NumberOfKuttaNodes(void) { return NumberOfKuttaNodes_; };
     int &KuttaNode(int i) { return KuttaNode_[i]; };
-    int &WingSurface(int i) { return WingSurface_[i]; };
-    int &WingSurfaceIsPeriodic(int i) { return WingSurfaceIsPeriodic_[i]; };
+    int &WingSurfaceForKuttaNode(int i) { return WingSurfaceForKuttaNode_[i]; };
+    int &WingSurfaceForKuttaNodeIsPeriodic(int i) { return WingSurfaceForKuttaNodeIsPeriodic_[i]; };
     
     double &WakeTrailingEdgeX(int i) { return WakeTrailingEdgeX_[i]; };
     double &WakeTrailingEdgeY(int i) { return WakeTrailingEdgeY_[i]; };
@@ -174,6 +174,10 @@ public:
     // Write out mesh
     
     void WriteMesh(char *FileName);
+    
+    // Geometry update
+    
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };
 

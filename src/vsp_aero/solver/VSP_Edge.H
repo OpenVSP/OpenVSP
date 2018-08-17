@@ -15,6 +15,7 @@
 #include "quat.H"
 #include "VSP_Node.H"
 #include "VSP_Loop.H"
+#include "quat.H"
 
 #define INT_BOUNDARY_EDGE 1
 #define VLM_BOUNDARY_EDGE 2  
@@ -64,7 +65,6 @@ private:
     int CourseGridEdge_;
     int FineGridEdge_;
     
-    int ThereAreChildren_;
     VSP_EDGE *Child1_;
     VSP_EDGE *Child2_;
     
@@ -75,6 +75,7 @@ private:
     double Length_;
     double Forces_[3];
     double Trefftz_Forces_[3];
+    double Normal_Trefftz_Forces_[3];
     double Unsteady_Forces_[3];
     
     // Vortex solution data
@@ -87,12 +88,6 @@ private:
     int DegenBody_;
     int Cart3DSurface_;
     int Node_;
-
-    // Rotation Quaternions
-    
-    QUAT Quat_;
-    QUAT InverseQuat_;
-    QUAT VecA_, VecB_;
 
     // Edge nodes - true geometry (camber line, or actual)
     
@@ -157,6 +152,12 @@ private:
                                    double &X1, double &Y1, double &Z1,
                                    double &Xd, double &Yd, double &Zd,
                                    double &t1, double &t2);    
+                                   
+    // Airfoil data
+
+    double ThicknessToChord_;
+    double LocationOfMaxThickness_;
+    double RadiusToChord_;                                   
 
 public:
 
@@ -227,11 +228,15 @@ public:
 
     void Setup(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };
                                
+    void Update(VSP_NODE &Node1, VSP_NODE &Node2) { Setup_(Node1,Node2); };
+
     void InducedVelocity(double xyz_p[3], double q[3]);
     
     void CalculateForces(VSP_LOOP &VortexLoop);
    
     void CalculateTrefftzForces(double FreeStream[3]);
+    
+    void CalculateNormalTrefftzForces(double FreeStream[3]);
     
     double GeneralizedPrincipalPartOfDownWash(void);
     
@@ -264,7 +269,11 @@ public:
     double &Trefftz_Fx(void) { return Trefftz_Forces_[0]; };
     double &Trefftz_Fy(void) { return Trefftz_Forces_[1]; };
     double &Trefftz_Fz(void) { return Trefftz_Forces_[2]; };
-    
+
+    double &Normal_Trefftz_Fx(void) { return Normal_Trefftz_Forces_[0]; };
+    double &Normal_Trefftz_Fy(void) { return Normal_Trefftz_Forces_[1]; };
+    double &Normal_Trefftz_Fz(void) { return Normal_Trefftz_Forces_[2]; };
+        
     double &Unsteady_Fx(void) { return Unsteady_Forces_[0]; };
     double &Unsteady_Fy(void) { return Unsteady_Forces_[1]; };
     double &Unsteady_Fz(void) { return Unsteady_Forces_[2]; };    
@@ -296,6 +305,17 @@ public:
     // Vortex unit vector
     
     double *Vec(void) { return Vec_; };    
+    
+    // Airfoil data
+    
+    double &ThicknessToChord(void) { return ThicknessToChord_; };
+    double &LocationOfMaxThickness(void ) { return LocationOfMaxThickness_; };
+    double &RadiusToChord(void) { return RadiusToChord_; };        
+
+    // Update geometry
+    
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
+
 
 };
 

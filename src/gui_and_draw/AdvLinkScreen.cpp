@@ -15,7 +15,7 @@
 
 
 //==== Constructor ====//
-AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 429, 645, "Advanced Parameter Links" )
+AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Advanced Parameter Links" )
 {
     m_InputBrowserSelect = -1;
     m_OutputBrowserSelect = -1;
@@ -201,7 +201,7 @@ bool AdvLinkScreen::Update()
     m_OutputBrowser->clear();
     if ( edit_link )
     {
-        static int widths[] = { 75, 75, 75, 75, 0 };
+        static int widths[] = { 175, 175, 75, 75, 0 };
         m_InputBrowser->column_widths( widths );
         m_InputBrowser->column_char( ':' );
 

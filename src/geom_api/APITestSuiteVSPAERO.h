@@ -41,6 +41,8 @@ public:
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroReadControlSurfaceGroupsFromFile );
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroReadRotorDisksFromFile );
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroParmContainersAccessibleAfterSave );
+        // CpSlicer Tests
+        TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroCpSlicer );
     }
 
 private:
@@ -66,6 +68,8 @@ private:
     void TestVSPAeroReadControlSurfaceGroupsFromFile();
     void TestVSPAeroReadRotorDisksFromFile();
     void TestVSPAeroParmContainersAccessibleAfterSave();
+    // CpSlicer Test
+    void TestVSPAeroCpSlicer();
 
     double calcTessWCheckVal( double t_tess_w );
 

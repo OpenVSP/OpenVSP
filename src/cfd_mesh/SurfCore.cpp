@@ -722,27 +722,16 @@ void SurfCore::BuildPatches( Surf* srf ) const
     }
     patchVec.clear();
 
-    piecewise_surface_type s( m_Surface );
-
-    piecewise_surface_type::data_type ttol = 1e-5;
-    s.to_cubic( ttol );
-
-    for ( int ip = 0; ip < s.number_u_patches(); ip++ )
+    for ( int ip = 0; ip < m_Surface.number_u_patches(); ip++ )
     {
-        for ( int jp = 0; jp < s.number_v_patches(); jp++ )
+        for ( int jp = 0; jp < m_Surface.number_v_patches(); jp++ )
         {
             double umin, du, vmin, dv;
-            const surface_patch_type *epatch = s.get_patch( ip, jp, umin, du, vmin, dv );
+            const surface_patch_type *epatch = m_Surface.get_patch( ip, jp, umin, du, vmin, dv );
 
             SurfPatch* patch = new SurfPatch();
 
-            for ( int pi = 0 ; pi < 4 ; pi++ )
-            {
-                for ( int pj = 0 ; pj < 4 ; pj++ )
-                {
-                    patch->put_pnt( pi, pj, epatch->get_control_point( pi, pj ) );
-                }
-            }
+            patch->setPatch( *epatch );
 
             patch->set_u_min_max( umin, umin + du );
             patch->set_w_min_max( vmin, vmin + dv );
@@ -792,6 +781,47 @@ double SurfCore::FindNearest( double &u, double &w, const vec3d &pt, double u0, 
         w0 = wmx;
 
     dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0, w0 );
+
+    return dist;
+}
+
+double SurfCore::FindNearest( double &u, double &w, const vec3d &pt, double u0, double w0, double umn, double umx, double wmn, double wmx ) const
+{
+    double dist;
+    surface_point_type p;
+    pt.get_pnt( p );
+
+    double slop = 1e-3;
+    if( u0 < (umn - slop) || w0 < (wmn - slop) || u0 > (umx + slop) || w0 > (wmx + slop) )
+    {
+        printf("BAD parameter in SurfCore::FindNearest! %f %f\n", u0, w0 );
+        assert(false);
+    }
+
+    if ( u0 < umn )
+        u0 = umn;
+
+    if ( w0 < wmn )
+        w0 = wmn;
+
+    if ( u0 > umx )
+        u0 = umx;
+
+    if ( w0 > wmx )
+        w0 = wmx;
+
+    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p, u0, w0 );
+
+    return dist;
+}
+
+double SurfCore::FindNearest( double &u, double &w, const vec3d &pt ) const
+{
+    double dist;
+    surface_point_type p;
+    pt.get_pnt( p );
+
+    dist = eli::geom::intersect::minimum_distance( u, w, m_Surface, p );
 
     return dist;
 }

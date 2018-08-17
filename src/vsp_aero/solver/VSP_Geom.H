@@ -93,9 +93,24 @@ private:
     
     int LoadDeformationFile_;
     
+    // Ground effects analysis
+    
+    int DoGroundEffectsAnalysis_;
+    
+    double VehicleRotationAngleVector_[3];
+    
+    double VehicleRotationAxisLocation_[3];
+    
+    double HeightAboveGround_;
+    
     // Control surface routines
     
     void FindControlSurfaceVortexLoops(void);
+    
+    // Coarse grid information routines
+    
+    void OutputCoarseGridInfo(void);
+    int CalculateNumberOfFineLoops(int Level, VSP_LOOP &Loop);
 
 public:
 
@@ -146,7 +161,16 @@ public:
     ROTOR_DISK &RotorDisk(int i) { return RotorDisk_[i]; };
     
     int &DoSymmetryPlaneSolve(void) { return DoSymmetryPlaneSolve_; };
-
+    
+    int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
+    
+    double &VehicleRotationAngleVector(int i) { return VehicleRotationAngleVector_[i]; };
+    
+    double &VehicleRotationAxisLocation(int i) { return VehicleRotationAxisLocation_[i]; };
+    
+    double &HeightAboveGround(void) { return HeightAboveGround_; };
+    
+    
 };
 
 #endif

@@ -12,6 +12,7 @@
 #include "Geom.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
+#include "StructureMgr.h"
 
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 
@@ -55,6 +56,18 @@ SubSurface::SubSurface( string compID, int type )
 
     m_TawTwRatio.Init("TawTwRatio", "ParasiteDragProps", this, -1, -1, 1e6 );
     m_TawTwRatio.SetDescript("Temperature Ratio of Ambient Wall to Wall" );
+
+    m_IncludedElements.Init( "IncludedElements", "SubSurface", this, vsp::FEA_SHELL, vsp::FEA_SHELL, vsp::FEA_SHELL_AND_BEAM );
+    m_IncludedElements.SetDescript( "Indicates the FeaElements to be Included for the SubSurface" );
+
+    m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "FeaSubSurface", this, true, false, true );
+    m_DrawFeaPartFlag.SetDescript( "Flag to Draw FEA SubSurface" );
+
+    m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaSubSurface", this, 0, 0, 1e12 );; // Shell property default
+    m_FeaPropertyIndex.SetDescript( "FeaPropertyIndex for Shell Elements" );
+
+    m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaSubSurface", this, 1, 0, 1e12 );; // Beam property default
+    m_CapFeaPropertyIndex.SetDescript( "FeaPropertyIndex for Beam (Cap) Elements" );
 }
 
 SubSurface::~SubSurface()
@@ -152,11 +165,6 @@ void SubSurface::UpdateDrawObjs()
         {
             ind = 0;
             int num_pnts = CompNumDrawPnts( geom );
-            int *num_pnts_ptr = NULL;
-            if ( num_pnts > 0 )
-            {
-                num_pnts_ptr = &num_pnts;
-            }
 
             int isurf = m_MainSurfIndx();
 
@@ -166,10 +174,10 @@ void SubSurface::UpdateDrawObjs()
             for ( int s = 0 ; s < ncopy ; s++ )
             {
                 vector < vec3d > pts;
-                m_LVec[ls].GetDOPts( &surf_vec[symms[s]], geom, pts, num_pnts_ptr );
-                m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.begin(), pts.begin(), pts.end() );
+                m_LVec[ls].GetDOPts( &surf_vec[symms[s]], geom, pts, num_pnts );
+                m_SubSurfDO.m_PntVec.insert( m_SubSurfDO.m_PntVec.end(), pts.begin(), pts.end() );
 
-                m_SubSurfHighlightDO[ind].m_PntVec.insert( m_SubSurfHighlightDO[ind].m_PntVec.begin(), pts.begin(), pts.end());
+                m_SubSurfHighlightDO[ind].m_PntVec.insert( m_SubSurfHighlightDO[ind].m_PntVec.end(), pts.begin(), pts.end());
                 m_SubSurfHighlightDO[ind].m_Type = DrawObj::VSP_LINES;
                 m_SubSurfHighlightDO[ind].m_LineWidth = 5.0;
                 ++ind;
@@ -203,6 +211,10 @@ std::string SubSurface::GetTypeName( int type )
     {
         return string( "Control_Surf" );
     }
+    if ( type == vsp::SS_LINE_ARRAY )
+    {
+        return string( "Line_Array" );
+    }
     return string( "NONE" );
 }
 
@@ -221,6 +233,11 @@ xmlNodePtr SubSurface::EncodeXml( xmlNodePtr & node )
 bool SubSurface::Subtag( const vec3d & center )
 {
     UpdatePolygonPnts(); // Update polygon vector
+
+    if ( m_TestType() == vsp::NONE )
+    {
+        return false;
+    }
 
     for ( int p = 0; p < ( int )m_PolyPntsVec.size(); p++ )
     {
@@ -242,6 +259,20 @@ bool SubSurface::Subtag( const vec3d & center )
     }
 
     return false;
+}
+
+int SubSurface::GetFeaMaterialIndex()
+{
+    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex() );
+
+    return fea_prop->m_FeaMaterialIndex();
+}
+
+void SubSurface::SetFeaMaterialIndex( int index )
+{
+    FeaProperty* fea_prop = StructureMgr.GetFeaProperty( m_FeaPropertyIndex() );
+
+    fea_prop->m_FeaMaterialIndex.Set( index );
 }
 
 //==================================//
@@ -439,6 +470,11 @@ bool SSLineSeg::Subtag( const vec3d & center ) const
     vec3d v0c = center - m_P0;
     vec3d c_prod = cross( m_line, v0c );
 
+    if ( m_TestType == NO )
+    {
+        return false;
+    }
+
     if ( m_TestType == GT && c_prod.z() > 0 )
     {
         return true;
@@ -488,14 +524,9 @@ int SSLineSeg::CompNumDrawPnts( VspSurf* surf, Geom* geom )
     return ( int )( ( avg_num_secs ) * ( avg_tess - 1 ) );
 }
 
-void SSLineSeg::GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, const int *num_pnts_ptr )
+void SSLineSeg::GetDOPts( VspSurf* surf, Geom* geom, vector < vec3d > &pts, int num_pnts )
 {
-    int num_pnts;
-    if ( num_pnts_ptr )
-    {
-        num_pnts = *num_pnts_ptr;
-    }
-    else
+    if ( num_pnts < 0 )
     {
         num_pnts = CompNumDrawPnts( surf, geom );
     }
@@ -627,10 +658,10 @@ void SSLineSeg::AddToTMesh( TMesh* tmesh )
 
 SSLine::SSLine( string comp_id, int type ) : SubSurface( comp_id, type )
 {
-    m_ConstType.Init( "Const_Line_Type", "SubSurface", this, CONST_U, 0, 1 );
+    m_ConstType.Init( "Const_Line_Type", "SubSurface", this, vsp::CONST_U, 0, 1 );
     m_ConstVal.Init( "Const_Line_Value", "SubSurface", this, 0.5, 0, 1 );
     m_ConstVal.SetDescript( "Either the U or V value of the line depending on what constant line type is choosen." );
-    m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::LT );
+    m_TestType.Init( "Test_Type", "SubSurface", this, SSLineSeg::GT, SSLineSeg::GT, SSLineSeg::NO );
     m_TestType.SetDescript( "Tag surface as being either greater than or less than const value line" );
 
     m_LVec.resize( 1 );
@@ -644,12 +675,12 @@ void SSLine::Update()
 {
     // Using m_LVec[0] since SSLine should always only have one line segment
     // Update SSegLine points based on current values
-    if ( m_ConstType() == CONST_U )
+    if ( m_ConstType() == vsp::CONST_U )
     {
         m_LVec[0].SetSP0( vec3d( m_ConstVal(), 1, 0 ) );
         m_LVec[0].SetSP1( vec3d( m_ConstVal(), 0, 0 ) );
     }
-    else if ( m_ConstType() == CONST_W )
+    else if ( m_ConstType() == vsp::CONST_W )
     {
         m_LVec[0].SetSP0( vec3d( 0, m_ConstVal(), 0 ) );
         m_LVec[0].SetSP1( vec3d( 1, m_ConstVal(), 0 ) );
@@ -668,17 +699,17 @@ void SSLine::Update()
 
 int SSLine::CompNumDrawPnts( Geom* geom )
 {
-    VspSurf* surf = geom->GetSurfPtr();
+    VspSurf* surf = geom->GetSurfPtr( m_MainSurfIndx() );
     if ( !surf )
     {
         return 0;
     }
 
-    if ( m_ConstType() == CONST_W )
+    if ( m_ConstType() == vsp::CONST_W )
     {
         return ( int )( surf->GetUMax() * ( geom->m_TessU() - 2 ) );
     }
-    else if ( m_ConstType() == CONST_U )
+    else if ( m_ConstType() == vsp::CONST_U )
     {
         return ( int )( surf->GetWMax() * ( geom->m_TessW() - 4 ) );
     }
@@ -713,7 +744,7 @@ SSRectangle::SSRectangle( string comp_id, int type ) : SubSurface( comp_id, type
     m_WLength.SetDescript( "Defines length of rectangle in W direction before rotation" );
     m_Theta.Init( "Theta", "SS_Rectangle", this, 0, -90, 90 );
     m_Theta.SetDescript( "Defines angle in degrees from U axis to rotate the rectangle" );
-    m_TestType.Init( "Test_Type", "SS_Rectangle", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
+    m_TestType.Init( "Test_Type", "SS_Rectangle", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
     m_LVec.resize(4);
@@ -793,7 +824,7 @@ SSEllipse::SSEllipse( string comp_id, int type ) : SubSurface( comp_id, type )
     m_Theta.SetDescript( "Defines angle in degrees from U axis to rotate the rectangle" );
     m_Tess.Init( "Tess_Num", "SS_Ellipse", this, 15, 3, 1000 );
     m_Tess.SetDescript( " Number of points to discretize curve" );
-    m_TestType.Init( "Test_Type", "SS_Ellipse", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
+    m_TestType.Init( "Test_Type", "SS_Ellipse", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
     m_PolyFlag = false;
@@ -881,7 +912,7 @@ SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, ty
     m_UEnd.Init( "UEnd", "SS_Control", this, 0.6, 0, 1 );
     m_UEnd.SetDescript( "The U ending location of the control surface" );
 
-    m_TestType.Init( "Test_Type", "SS_Control", this, vsp::INSIDE, vsp::INSIDE, vsp::OUTSIDE );
+    m_TestType.Init( "Test_Type", "SS_Control", this, vsp::INSIDE, vsp::INSIDE, vsp::NONE );
     m_TestType.SetDescript( "Determines whether or not the inside or outside of the region is tagged" );
 
     m_SurfType.Init( "Surf_Type", "SS_Control", this, BOTH_SURF, UPPER_SURF, BOTH_SURF );
@@ -2003,4 +2034,174 @@ void SSControlSurf::PrepareSplitVec()
             cnt = 0;
         }
     }
+}
+
+//////////////////////////////////////////////////////
+//================== SSLineArray ===================//
+//////////////////////////////////////////////////////
+
+SSLineArray::SSLineArray( string comp_id, int type ) : SubSurface( comp_id, type )
+{
+    m_ConstType.Init( "ConstLineType", "SS_LineArray", this, CONST_U, CONST_U, CONST_W );
+    m_ConstType.SetDescript( "Either Constant U or Constant W SSLines" );
+
+    m_PositiveDirectionFlag.Init( "PositiveDirectionFlag", "SS_LineArray", this, true, false, true );
+    m_PositiveDirectionFlag.SetDescript( "Flag to Increment SSLines in Positive or Negative Direction" );
+
+    m_Spacing.Init( "Spacing", "SS_LineArray", this, 0.2, 1e-6, 1.0 );
+    m_Spacing.SetDescript( "Spacing Between SSLines in Array" );
+
+    m_StartLocation.Init( "StartLocation", "SS_LineArray", this, 0.0, 0.0, 1.0 );
+    m_StartLocation.SetDescript( "Location of First SSLine in Array" );
+
+    m_EndLocation.Init( "EndLocation", "SS_LineArray", this, 1.0, 0.0, 1.0 );
+    m_EndLocation.SetDescript( "Location for Final SSLine in Array" );
+
+    // Set to only Beam elements (cap) with no tags (tris)
+    m_TestType = SSLineSeg::NO;
+    m_IncludedElements.Set( vsp::FEA_BEAM );
+
+    m_NumLines = 0;
+}
+
+SSLineArray::~SSLineArray()
+{
+}
+
+void SSLineArray::Update()
+{
+    CalcNumLines();
+
+    m_LVec.resize( m_NumLines );
+
+    for ( size_t i = 0; i < m_NumLines; i++ )
+    {
+        double dir = 1;
+        if ( !m_PositiveDirectionFlag() )
+        {
+            dir = -1;
+        }
+
+        double const_val = m_StartLocation() + dir * i * m_Spacing();
+
+        if ( m_ConstType() == CONST_U )
+        {
+            m_LVec[i].SetSP0( vec3d( const_val, 1, 0 ) );
+            m_LVec[i].SetSP1( vec3d( const_val, 0, 0 ) );
+        }
+        else if ( m_ConstType() == CONST_W )
+        {
+            m_LVec[i].SetSP0( vec3d( 0, const_val, 0 ) );
+            m_LVec[i].SetSP1( vec3d( 1, const_val, 0 ) );
+        }
+
+        m_LVec[i].m_TestType = m_TestType();
+
+        Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
+
+        if ( !geom )
+        {
+            return;
+        }
+
+        m_LVec[i].Update( geom );
+    }
+
+    SubSurface::Update();
+}
+
+void SSLineArray::CalcNumLines()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        Geom* current_geom = veh->FindGeom( m_CompID );
+
+        if ( !current_geom )
+        {
+            return;
+        }
+
+        vector< VspSurf > surf_vec;
+        current_geom->GetSurfVec( surf_vec );
+        VspSurf current_surf = surf_vec[m_MainSurfIndx()];
+
+        if ( m_PositiveDirectionFlag() )
+        {
+            if ( m_EndLocation() < m_StartLocation() )
+            {
+                double temp_end = m_EndLocation();
+                m_EndLocation.Set( m_StartLocation() );
+                m_StartLocation.Set( temp_end );
+            }
+
+            m_EndLocation.SetLowerUpperLimits( m_StartLocation(), 1.0 );
+            m_StartLocation.SetLowerUpperLimits( 0.0, m_EndLocation() );
+
+            m_Spacing.SetLowerUpperLimits( ( m_EndLocation() - m_StartLocation() ) / 100, ( m_EndLocation() - m_StartLocation() ) ); // Limit to 100 lines
+            m_NumLines = 1 + (int)floor( ( m_EndLocation() - m_StartLocation() ) / m_Spacing() );
+        }
+        else
+        {
+            if ( m_StartLocation() < m_EndLocation() )
+            {
+                double temp_start = m_StartLocation();
+                m_StartLocation.Set( m_EndLocation() );
+                m_EndLocation.Set( temp_start );
+            }
+
+            m_StartLocation.SetLowerUpperLimits( m_EndLocation(), 1.0 );
+            m_EndLocation.SetLowerUpperLimits( 0.0, m_StartLocation() );
+
+            m_Spacing.SetLowerUpperLimits( ( m_StartLocation() - m_EndLocation() ) / 100, ( m_StartLocation() - m_EndLocation() ) ); // Limit to 100 lines
+            m_NumLines = 1 + (int)floor( ( m_StartLocation() - m_EndLocation() ) / m_Spacing() );
+        }
+
+        if ( m_NumLines < 1 || m_NumLines > 101 )
+        {
+            m_NumLines = 1;
+        }
+    }
+}
+
+SSLine* SSLineArray::AddSSLine( double location, int ind )
+{
+    SSLine* ssline = new SSLine( m_CompID );
+
+    if ( ssline )
+    {
+        ssline->m_IncludedElements.Set( m_IncludedElements() );
+        ssline->m_ConstType.Set( m_ConstType() );
+        ssline->m_ConstVal.Set( location );
+        ssline->m_TestType.Set( m_TestType() );
+        ssline->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
+        ssline->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
+
+        ssline->SetName( string( m_Name + "_SSLine_" + std::to_string( ind ) ) );
+
+        ssline->Update();
+    }
+
+    return ssline;
+}
+
+int SSLineArray::CompNumDrawPnts( Geom* geom )
+{
+    VspSurf* surf = geom->GetSurfPtr();
+    if ( !surf )
+    {
+        return 0;
+    }
+
+    if ( m_ConstType() == CONST_W )
+    {
+        return (int)( surf->GetUMax() * ( geom->m_TessU() - 2 ) );
+    }
+    else if ( m_ConstType() == CONST_U )
+    {
+        return (int)( surf->GetWMax() * ( geom->m_TessW() - 4 ) );
+    }
+
+    return -1;
 }

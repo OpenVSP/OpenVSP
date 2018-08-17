@@ -28,14 +28,15 @@ class NameValData
 public:
     NameValData();
     NameValData( const string & name );
-    NameValData( const string & name, int i_data );
-    NameValData( const string & name, double d_data );
+    NameValData( const string & name, const int & i_data );
+    NameValData( const string & name, const double & d_data );
     NameValData( const string & name, const string & s_data );
     NameValData( const string & name, const vec3d & v_data );
-    NameValData( const string & name, vector< int > & i_data );
-    NameValData( const string & name, vector< double > & d_data );
-    NameValData( const string & name, vector< string > & s_data );
-    NameValData( const string & name, vector< vec3d > & v_data );
+    NameValData( const string & name, const vector< int > & i_data );
+    NameValData( const string & name, const vector< double > & d_data );
+    NameValData( const string & name, const vector< string > & s_data );
+    NameValData( const string & name, const vector< vec3d > & v_data );
+    NameValData( const string & name, const vector< vector< double > > &dmat_data );
 
     void Init( const string & name, int type = 0, int index = 0 );
 
@@ -64,9 +65,14 @@ public:
     {
         return m_Vec3dData;
     }
+    const vector< vector< double > > & GetDoubleMatData() const
+    {
+        return m_DoubleMatData;
+    }
 
     int GetInt( int index ) const;
     double GetDouble( int index ) const;
+    double GetDouble( int row, int col ) const;
     string GetString( int index ) const;
     vec3d GetVec3d( int index ) const;
 
@@ -86,6 +92,10 @@ public:
     {
         m_Vec3dData = d;
     }
+    void SetDoubleMatData( const vector< vector< double > > & d )
+    {
+        m_DoubleMatData = d;
+    }
 
 protected:
 
@@ -95,6 +105,7 @@ protected:
     vector< double > m_DoubleData;
     vector< string > m_StringData;
     vector< vec3d > m_Vec3dData;
+    vector< vector< double > >  m_DoubleMatData;
 
 };
 
@@ -121,6 +132,7 @@ public:
     }
 
     void Add( const NameValData & d );
+    void Add( const vector< vector< vec3d > > & d, string prefix );
 
     int GetNumData( const string & name );
     vector< string > GetAllDataNames();
@@ -213,6 +225,7 @@ public:
 
     const vector<int> & GetIntResults( const string & id, const string & name, int index = 0 );
     const vector<double> & GetDoubleResults( const string & id, const string & name, int index = 0 );
+    const vector<vector<double>> & GetDoubleMatResults( const string & id, const string & name, int index = 0 );
     const vector<string> & GetStringResults( const string & id, const string & name, int index = 0 );
     const vector<vec3d> & GetVec3dResults( const string & id, const string & name, int index = 0 );
     time_t GetResultsTimestamp( const string & results_id );
@@ -239,6 +252,7 @@ private:
     vector< double > m_DefaultDoubleVec;
     vector< string > m_DefaultStringVec;
     vector< vec3d > m_DefaultVec3dVec;
+    vector< vector< double > > m_DefaultDoubleMat;
 
 
 };

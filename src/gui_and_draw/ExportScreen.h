@@ -53,6 +53,7 @@ protected:
     TriggerButton m_STLButton;
     TriggerButton m_NASCARTButton;
     TriggerButton m_TRIButton;
+    TriggerButton m_OBJButton;
     TriggerButton m_GMSHButton;
     TriggerButton m_POVButton;
     TriggerButton m_X3DButton;
@@ -62,6 +63,9 @@ protected:
     TriggerButton m_DXFButton;
     TriggerButton m_SVGButton;
     TriggerButton m_FacetButton;
+    TriggerButton m_PMARCButton;
+    TriggerButton m_SeligAirfoilButton;
+    TriggerButton m_BezierAirfoilButton;
 
     int m_SelectedSetIndex;
 };

@@ -102,12 +102,19 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_DeltaT.Init( "DeltaTemp", groupname, this, 0.0, -1e12, 1e12 );
     m_DeltaT.SetDescript( "Delta Temperature from STP" );
 
+    m_ExportSubCompFlag.Init( "ExportSubCompFlag", groupname, this, false, false, true );
+    m_ExportSubCompFlag.SetDescript( "Flag to Export Sub-Component Information" );
+
     // Excrescence Parm
     m_ExcresValue.Init( "ExcresVal", groupname, this, 0.0, 0.0, 200 );
     m_ExcresValue.SetDescript( "Excrescence Value" );
 
     m_ExcresType.Init( "ExcresType", groupname, this, vsp::EXCRESCENCE_COUNT, vsp::EXCRESCENCE_COUNT, vsp::EXCRESCENCE_DRAGAREA );
     m_ExcresType.SetDescript( "Excrescence Type" );
+
+    // Recompute flag, if true degen/compgeom will be run even if an existing degen geom and comp geom exist from
+    // a previous calculation
+    m_RecomputeGeom = true;
 }
 
 void ParasiteDragMgrSingleton::Renew()
@@ -140,9 +147,9 @@ void ParasiteDragMgrSingleton::SetDefaultStruct()
     m_DefaultStruct.Swet = -1;
     m_DefaultStruct.Lref = -1;
     m_DefaultStruct.Re = -1;
-    m_DefaultStruct.Roughness = -1;
-    m_DefaultStruct.TeTwRatio = -1;
-    m_DefaultStruct.TawTwRatio = -1;
+    m_DefaultStruct.Roughness = 0.0;
+    m_DefaultStruct.TeTwRatio = 1;
+    m_DefaultStruct.TawTwRatio = 1;
     m_DefaultStruct.PercLam = 0.0;
     m_DefaultStruct.Cf = -1;
     m_DefaultStruct.fineRat = -1;
@@ -388,17 +395,44 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 void ParasiteDragMgrSingleton::SetupFullCalculation()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh )
+    if ( veh && (m_RecomputeGeom || (m_DegenGeomVec.size() == 0 && !m_CompGeomResults)))
     {
         veh->ClearDegenGeom();
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "Comp_Geom" ) );
         ClearInputVectors();
         ClearOutputVectors();
 
+        vector < string > geomIDVec = veh->GetGeomSet( m_SetChoice() );
+
         veh->CreateDegenGeom( m_SetChoice() );
         string meshID = veh->CompGeomAndFlatten( m_SetChoice(), 0 );
         veh->DeleteGeom( meshID );
-        veh->ShowOnlySet( m_SetChoice() );
+
+        // Restore set visibility. At this point, all geoms in the set will only be in the 
+        //  Not_Shown set. We want the Parasite Drag table to contain the same geoms before 
+        //  and after tool execution.
+        if ( m_SetChoice() == vsp::SET_NOT_SHOWN )
+        {
+            veh->ShowSet( 0 ); // show all
+        }
+
+        for ( size_t i = 0; i < geomIDVec.size(); i++ )
+        {
+            Geom* geom = veh->FindGeom( geomIDVec[i] );
+            if ( geom )
+            {
+                if ( m_SetChoice() == vsp::SET_NOT_SHOWN ) // Place back in Not_Shown set 
+                {
+                    geom->SetSetFlag( vsp::SET_SHOWN, false );
+                    geom->SetSetFlag( vsp::SET_NOT_SHOWN, true );
+                }
+                else // Show only indicated set
+                {
+                    geom->SetSetFlag( vsp::SET_SHOWN, true );
+                    geom->SetSetFlag( vsp::SET_NOT_SHOWN, false );
+                }
+            }
+        }
 
         // First Assignment of DegenGeomVec, Will Carry Through to Rest of Calculate_X
         m_DegenGeomVec = veh->GetDegenGeomVec();
@@ -469,7 +503,7 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
                     vector < string > tagnamevec = m_CompGeomResults->Find( "Tag_Name" ).GetStringData();
                     if ( m_geo_subsurfID[i].compare( "" ) == 0 )
                     {
-                        sprintf( str, "%s%i", geom->GetName().c_str(), m_geo_surfNum[i] );
+                        sprintf( str, "%s_Surf%i", geom->GetName().c_str(), m_geo_surfNum[i] );
                         newstr = str;
                         searchIndex = vector_find_val( tagnamevec, newstr );
                         m_geo_swet.push_back( m_CompGeomResults->Find( "Tag_Wet_Area" ).GetDouble( searchIndex ) );
@@ -477,7 +511,7 @@ void ParasiteDragMgrSingleton::Calculate_Swet()
                     }
                     else
                     {
-                        sprintf( str, "%s%i,%s", geom->GetName().c_str(), m_geo_surfNum[i],
+                        sprintf( str, "%s_Surf%i,%s", geom->GetName().c_str(), m_geo_surfNum[i],
                              geom->GetSubSurf( m_geo_subsurfID[i] )->GetName().c_str() );
                         newstr = str;
                         searchIndex = vector_find_val( tagnamevec, newstr );
@@ -738,17 +772,9 @@ void ParasiteDragMgrSingleton::Calculate_Cf()
                 lref = ConvertLength( m_geo_lref[i], m_LengthUnit(), vsp::LEN_M );
                 kineVisc = m_Atmos.GetDynaVisc() / rho;
 
-                if ( m_geo_percLam[i] == 0 || m_geo_percLam[i] == -1 )
-                {
-                    // Assume full turbulence
-                    m_geo_cf.push_back( CalcTurbCf( m_geo_Re[i], m_geo_lref[i], m_TurbCfEqnType(),
-                                                  m_SpecificHeatRatio(), m_geo_Roughness[i], m_geo_TawTwRatio[i], m_geo_TeTwRatio[i] ) );
-                }
-                else
-                {
-                    // Not full turbulence
-                    CalcPartialTurbulence( i, lref, vinf, kineVisc );
-                }
+                // Will calculate full turbulence
+                m_geo_cf.push_back( CalcPartialTurbulence( m_geo_percLam[i], m_geo_Re[i], m_geo_lref[i], m_ReqL(),
+                   m_geo_Roughness[i], m_geo_TawTwRatio[i], m_geo_TeTwRatio[i] ) );
             }
             else
             {
@@ -763,34 +789,30 @@ void ParasiteDragMgrSingleton::Calculate_Cf()
     }
 }
 
-void ParasiteDragMgrSingleton::CalcPartialTurbulence( int i, double lref, double vinf, double kineVisc )
+double ParasiteDragMgrSingleton::CalcPartialTurbulence( double perclam, double re, double lref, double reqL,
+    double roughness, double tawtwrat, double tetwrat )
 {
-    if ( m_geo_Re[i] != 0 )
+    double cf = 0;
+    if ( re > 0 )
     {
         // Prevent dividing by 0 in some equations
-        double LamPerc = ( m_geo_percLam[i] / 100 );
-        double CffullTurb = CalcTurbCf( m_geo_Re[i], m_geo_lref[i], m_TurbCfEqnType(),
-                                        m_SpecificHeatRatio(), m_geo_Roughness[i], m_geo_TawTwRatio[i], m_geo_TeTwRatio[i] );
-        double CffullLam = CalcLamCf( m_geo_Re[i], m_LamCfEqnType.Get() );
+        double LamPerc = ( perclam / 100 );
+        double CffullTurb = CalcTurbCf( re, lref, m_TurbCfEqnType(), roughness, m_SpecificHeatRatio(), tawtwrat, tetwrat );
+        double CffullLam = CalcLamCf( re, m_LamCfEqnType.Get() );
 
         double LamPercRefLen = LamPerc * lref;
 
-        double ReLam = ( vinf * LamPercRefLen ) / kineVisc;
+        double ReLam = reqL * LamPercRefLen;
 
         double CfpartLam = CalcLamCf( ReLam, m_LamCfEqnType() );
-        double CfpartTurb = CalcTurbCf( ReLam, m_geo_lref[i], m_TurbCfEqnType(),
-                                        m_SpecificHeatRatio(), m_geo_Roughness[i], m_geo_TawTwRatio[i], m_geo_TeTwRatio[i] );
+        double CfpartTurb = CalcTurbCf( ReLam, lref, m_TurbCfEqnType(), roughness, m_SpecificHeatRatio(), tawtwrat, tetwrat );
 
         m_TurbCfEqnName = AssignTurbCfEqnName( m_TurbCfEqnType() );
         m_LamCfEqnName = AssignLamCfEqnName( m_LamCfEqnType() );
 
-        m_geo_cf.push_back( CffullTurb - ( CfpartTurb * LamPerc ) +
-                          ( CfpartLam * LamPerc ) );
+        cf = CffullTurb - ( CfpartTurb * LamPerc ) + ( CfpartLam * LamPerc );
     }
-    else
-    {
-        m_geo_cf.push_back( 0 );
-    }
+    return cf;
 }
 
 void ParasiteDragMgrSingleton::Calculate_fineRat()
@@ -978,16 +1000,16 @@ void ParasiteDragMgrSingleton::Calculate_AvgSweep( vector<DegenStick> degenStick
     for ( int j = 0; j < degenSticks[0].areaTop.size(); j++ )
     {
         width = degenSticks[0].areaTop[j] /
-                ( ( degenSticks[0].perimTop[j] + degenSticks[0].perimTop[j + 1.0] ) / 2.0 );
+                ( ( degenSticks[0].perimTop[j] + degenSticks[0].perimTop[j + 1] ) / 2.0 );
 
         // Section Quarter Chord Sweep
         secSweep25 = atan( tan( degenSticks[0].sweeple[j] * PI / 180.0 ) +
-                           ( 0.25 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1.0] ) / width ) ) ) *
+                           ( 0.25 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1] ) / width ) ) ) *
                      180.0 / PI;
 
         // Section Half Chord Sweep
         secSweep50 = atan( tan( degenSticks[0].sweeple[j] * PI / 180.0 ) +
-                           ( 0.50 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1.0] ) / width ) ) ) *
+                           ( 0.50 * ( ( degenSticks[0].chord[j] - degenSticks[0].chord[j + 1] ) / width ) ) ) *
                      180.0 / PI;
 
         // Section Area
@@ -1278,9 +1300,15 @@ struct Karman_Schoenherr_p_functor
 double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int cf_case,
         double roughness_h = 0, double gamma = 1.4, double taw_tw_ratio = 0, double te_tw_ratio = 0 )
 {
-    double CfOut, CfGuess, f, heightRatio, multiBy = 1.0;
+    double CfOut = 0;
+    double CfGuess, f, heightRatio, multiBy = 1.0;
     double r = 0.89; // Recovery Factor
     double n = 0.67; // Viscosity Power-Law Exponent
+
+    if (ReyIn == 0)
+    {
+        return CfOut;
+    }
 
     eli::mutil::nls::newton_raphson_method < double > nrm;
 
@@ -1385,7 +1413,7 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
 
     case vsp::CF_TURB_ROUGHNESS_WHITE:
         heightRatio = ref_leng / roughness_h;
-        CfOut = pow( ( 1.4 + ( 3.7 * log10( heightRatio ) ) ), -2.0 );
+        CfOut = pow( ( 2.87 + ( 1.58 * log10( heightRatio ) ) ), -2.5 );
         break;
 
     case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL:
@@ -1405,7 +1433,7 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
         break;
 
     case vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH:
-        f = ( 1 + ( 0.22 * r * ( ( ( roughness_h * multiBy ) - 1.0 ) / 2.0 ) *
+        f = ( 1 + ( 0.22 * r * ( ( roughness_h  - 1.0 ) / 2.0 ) *
                     m_Mach() * m_Mach() * te_tw_ratio ) ) /
             ( 1 + ( 0.3 * ( taw_tw_ratio - 1.0 ) ) );
 
@@ -1424,20 +1452,20 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
 
 double ParasiteDragMgrSingleton::CalcLamCf( double ReyIn, int cf_case )
 {
-    double CfOut;
+    double CfOut = 0;
 
-    switch ( cf_case )
+    if (ReyIn != 0)
     {
-    case vsp::CF_LAM_BLASIUS:
-        CfOut = 1.32824 / pow( ReyIn, 0.5 );
-        break;
+        switch (cf_case)
+        {
+        case vsp::CF_LAM_BLASIUS:
+            CfOut = 1.32824 / pow(ReyIn, 0.5);
+            break;
 
-    case vsp::CF_LAM_BLASIUS_W_HEAT:
-        CfOut = 0;
-        break;
-
-    default:
-        CfOut = 0;
+        case vsp::CF_LAM_BLASIUS_W_HEAT:
+            CfOut = 0;
+            break;
+        }
     }
 
     return CfOut;
@@ -1900,16 +1928,24 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
         m_PDGeomIDVec.clear();
         for ( int i = 0; i < geomVec.size(); i++ )
         {
+            bool geom_skipped = true;
             Geom* geom = veh->FindGeom( geomVec[i] );
             if ( geom )
             {
-                if ( geom->GetType().m_Type != HINGE_GEOM_TYPE && geom->GetType().m_Type != BLANK_GEOM_TYPE )
+                if ( geom->GetType().m_Type != HINGE_GEOM_TYPE && geom->GetType().m_Type != BLANK_GEOM_TYPE && geom->GetType().m_Type != MESH_GEOM_TYPE )
                 {
                     if ( geom->GetSurfPtr( 0 )->GetSurfType() != vsp::DISK_SURF )
                     {
                         m_PDGeomIDVec.push_back(geomVec[i]);
+                        geom_skipped = false;
                     }
                 }
+            }
+
+            if ( geom_skipped )
+            {
+                string message = "Warning: Geom ID " + geomVec[i] + "not included in Parasite Drag calculation\n";
+                printf( message.c_str() );
             }
         }
     }
@@ -1918,6 +1954,7 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
 void ParasiteDragMgrSingleton::SetFreestreamParms()
 {
     m_Temp.Set( m_Atmos.GetTemp() );
+    m_DeltaT.Set( m_Atmos.GetDeltaT() );
     m_Pres.Set( m_Atmos.GetPres() );
     m_Rho.Set( m_Atmos.GetDensity() );
     m_DynaVisc.Set( m_Atmos.GetDynaVisc() );
@@ -2385,11 +2422,11 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
         m_Atmos.USAF1966( m_Hinf(), m_DeltaT(), m_AltLengthUnit(), m_TempUnit.Get(), m_PresUnit(), m_SpecificHeatRatio() );
         if ( m_VinfUnitType() == vsp::V_UNIT_MACH )
         {
-            m_Atmos.UpdateMach( vinf, m_TempUnit(), m_VinfUnitType() );
+            m_Atmos.SetMach( m_Vinf() );
         }
         else
         {
-            m_Atmos.UpdateMach( vinf, m_SpecificHeatRatio(), m_TempUnit() );
+            m_Atmos.UpdateMach( vinf, m_TempUnit(), m_VinfUnitType() );
         }
     }
     else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_R )
@@ -2517,6 +2554,10 @@ void ParasiteDragMgrSingleton::UpdateTemp( int newunit )
 {
     double new_temp = ConvertTemperature( m_Temp(), m_TempUnit(), newunit );
     m_Temp.Set( new_temp );
+
+    new_temp = ConvertTemperature( m_DeltaT(), m_TempUnit(), newunit ) - ConvertTemperature( 0.0, m_TempUnit(), newunit );
+    m_DeltaT.Set( new_temp );
+
     m_TempUnit.Set( newunit );
 }
 
@@ -2639,6 +2680,7 @@ void ParasiteDragMgrSingleton::UpdateParmActivity()
     {
         m_Vinf.Activate();
         m_Hinf.Activate();
+        m_DeltaT.Activate();
     }
     else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_R )
     {
@@ -2665,6 +2707,12 @@ void ParasiteDragMgrSingleton::UpdateParmActivity()
     {
         m_ReqL.Activate();
         m_Mach.Activate();
+        m_SpecificHeatRatio.Activate();
+    }
+
+    if ( m_TurbCfEqnType() == vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION ||
+         m_TurbCfEqnType() == vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH )
+    {
         m_SpecificHeatRatio.Activate();
     }
 }
@@ -2957,32 +3005,97 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     res->Add( NameValData( "FC_Alt", m_Hinf.Get() ) );
     res->Add( NameValData( "FC_Vinf", m_Vinf.Get() ) );
     res->Add( NameValData( "FC_Sref", m_Sref.Get() ) );
+    res->Add( NameValData( "FC_dTemp", m_DeltaT.Get() ) );
     res->Add( NameValData( "FC_Temp", m_Temp.Get() ) );
     res->Add( NameValData( "FC_Pres", m_Pres.Get() ) );
     res->Add( NameValData( "FC_Rho", m_Rho.Get() ) );
 
     // Component Related
-    res->Add( NameValData( "Num_Comp", m_RowSize ) );
-    res->Add( NameValData( "Comp_ID", m_geo_geomID ) );
-    res->Add( NameValData( "Comp_Label", m_geo_label ) );
-    res->Add( NameValData( "Comp_Swet", m_geo_swet ) );
-    res->Add( NameValData( "Comp_Lref", m_geo_lref ) );
-    res->Add( NameValData( "Comp_Re", m_geo_Re ) );
-    res->Add( NameValData( "Comp_PercLam", m_geo_percLam ) );
-    res->Add( NameValData( "Comp_Cf", m_geo_cf ) );
-    res->Add( NameValData( "Comp_FineRat", m_geo_fineRat ) );
-    res->Add( NameValData( "Comp_FFEqn", m_geo_ffType ) );
-    res->Add( NameValData( "Comp_FFEqnName", m_geo_ffName ) );
-    res->Add( NameValData( "Comp_FFIn", m_geo_ffIn ) );
-    res->Add( NameValData( "Comp_FFOut", m_geo_ffOut ) );
-    res->Add( NameValData( "Comp_Roughness", m_geo_Roughness ) );
-    res->Add( NameValData( "Comp_TeTwRatio", m_geo_TeTwRatio ) );
-    res->Add( NameValData( "Comp_TawTwRatio", m_geo_TawTwRatio ) );
-    res->Add( NameValData( "Comp_Q", m_geo_Q ) );
-    res->Add( NameValData( "Comp_f", m_geo_f ) );
-    res->Add( NameValData( "Comp_CD", m_geo_CD ) );
-    res->Add( NameValData( "Comp_PercTotalCD", m_geo_percTotalCD ) );
-    res->Add( NameValData( "Comp_SurfNum", m_geo_surfNum ) );
+    if ( !m_ExportSubCompFlag() )
+    {
+        // Only create results for the primary components
+
+        vector < string > new_ID_vec, new_geo_label, new_geo_ffName;
+        vector < double > new_geo_swet, new_geo_lref, new_geo_Re, new_geo_percLam, new_geo_cf, new_geo_fineRat, 
+            new_geo_ffIn, new_geo_ffOut, new_geo_Roughness, new_geo_TeTwRatio, new_geo_TawTwRatio, new_geo_Q,
+            new_geo_f, new_geo_CD, new_geo_percTotalCD;
+        vector <int> new_geo_ffType, new_geo_surfNum;
+
+        for ( size_t i = 0; i < m_geo_geomID.size(); i++ )
+        {
+            if ( std::find( new_ID_vec.begin(), new_ID_vec.end(), m_geo_geomID[i] ) == new_ID_vec.end() )
+            {
+                new_ID_vec.push_back( m_geo_geomID[i] );
+                new_geo_label.push_back( m_geo_label[i] );
+                new_geo_swet.push_back( m_geo_swet[i] );
+                new_geo_lref.push_back( m_geo_lref[i] );
+                new_geo_Re.push_back( m_geo_Re[i] );
+                new_geo_percLam.push_back( m_geo_percLam[i] );
+                new_geo_cf.push_back( m_geo_cf[i] );
+                new_geo_fineRat.push_back( m_geo_fineRat[i] );
+                new_geo_ffType.push_back( m_geo_ffType[i] );
+                new_geo_ffName.push_back( m_geo_ffName[i] );
+                new_geo_ffIn.push_back( m_geo_ffIn[i] );
+                new_geo_ffOut.push_back( m_geo_ffOut[i] );
+                new_geo_Roughness.push_back( m_geo_Roughness[i] );
+                new_geo_TeTwRatio.push_back( m_geo_TeTwRatio[i] );
+                new_geo_TawTwRatio.push_back( m_geo_TawTwRatio[i] );
+                new_geo_Q.push_back( m_geo_Q[i] );
+                new_geo_f.push_back( m_geo_f[i] );
+                new_geo_CD.push_back( m_geo_CD[i] );
+                new_geo_percTotalCD.push_back( m_geo_percTotalCD[i] );
+                new_geo_surfNum.push_back( m_geo_surfNum[i] );
+            }
+        }
+
+        int num_comp = new_ID_vec.size();
+
+        res->Add( NameValData( "Num_Comp", num_comp ) );
+        res->Add( NameValData( "Comp_ID", new_ID_vec ) );
+        res->Add( NameValData( "Comp_Label", new_geo_label ) );
+        res->Add( NameValData( "Comp_Swet", new_geo_swet ) );
+        res->Add( NameValData( "Comp_Lref", new_geo_lref ) );
+        res->Add( NameValData( "Comp_Re", new_geo_Re ) );
+        res->Add( NameValData( "Comp_PercLam", new_geo_percLam ) );
+        res->Add( NameValData( "Comp_Cf", new_geo_cf ) );
+        res->Add( NameValData( "Comp_FineRat", new_geo_fineRat ) );
+        res->Add( NameValData( "Comp_FFEqn", new_geo_ffType ) );
+        res->Add( NameValData( "Comp_FFEqnName", new_geo_ffName ) );
+        res->Add( NameValData( "Comp_FFIn", new_geo_ffIn ) );
+        res->Add( NameValData( "Comp_FFOut", new_geo_ffOut ) );
+        res->Add( NameValData( "Comp_Roughness", new_geo_Roughness ) );
+        res->Add( NameValData( "Comp_TeTwRatio", new_geo_TeTwRatio ) );
+        res->Add( NameValData( "Comp_TawTwRatio", new_geo_TawTwRatio ) );
+        res->Add( NameValData( "Comp_Q", new_geo_Q ) );
+        res->Add( NameValData( "Comp_f", new_geo_f ) );
+        res->Add( NameValData( "Comp_CD", new_geo_CD ) );
+        res->Add( NameValData( "Comp_PercTotalCD", new_geo_percTotalCD ) );
+        res->Add( NameValData( "Comp_SurfNum", m_geo_surfNum ) );
+    }
+    else
+    {
+        res->Add( NameValData( "Num_Comp", m_RowSize ) );
+        res->Add( NameValData( "Comp_ID", m_geo_geomID ) );
+        res->Add( NameValData( "Comp_Label", m_geo_label ) );
+        res->Add( NameValData( "Comp_Swet", m_geo_swet ) );
+        res->Add( NameValData( "Comp_Lref", m_geo_lref ) );
+        res->Add( NameValData( "Comp_Re", m_geo_Re ) );
+        res->Add( NameValData( "Comp_PercLam", m_geo_percLam ) );
+        res->Add( NameValData( "Comp_Cf", m_geo_cf ) );
+        res->Add( NameValData( "Comp_FineRat", m_geo_fineRat ) );
+        res->Add( NameValData( "Comp_FFEqn", m_geo_ffType ) );
+        res->Add( NameValData( "Comp_FFEqnName", m_geo_ffName ) );
+        res->Add( NameValData( "Comp_FFIn", m_geo_ffIn ) );
+        res->Add( NameValData( "Comp_FFOut", m_geo_ffOut ) );
+        res->Add( NameValData( "Comp_Roughness", m_geo_Roughness ) );
+        res->Add( NameValData( "Comp_TeTwRatio", m_geo_TeTwRatio ) );
+        res->Add( NameValData( "Comp_TawTwRatio", m_geo_TawTwRatio ) );
+        res->Add( NameValData( "Comp_Q", m_geo_Q ) );
+        res->Add( NameValData( "Comp_f", m_geo_f ) );
+        res->Add( NameValData( "Comp_CD", m_geo_CD ) );
+        res->Add( NameValData( "Comp_PercTotalCD", m_geo_percTotalCD ) );
+        res->Add( NameValData( "Comp_SurfNum", m_geo_surfNum ) );
+    }
 
     // Excres Related
     res->Add( NameValData( "Num_Excres", ( int )m_ExcresRowVec.size() ) );
@@ -3144,7 +3257,7 @@ void ParasiteDragMgrSingleton::SortMapByWettedArea()
 
     vector < ParasiteDragTableRow > temp;
     vector < bool > isSorted( m_TableRowVec.size(), false );
-    double cur_max_ind = 0;
+    int cur_max_ind = 0;
     int i = 0;
 
     while ( !CheckAllTrue( isSorted ) )

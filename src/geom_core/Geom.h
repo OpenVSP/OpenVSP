@@ -30,6 +30,7 @@
 #include "XSec.h"
 #include "XSecCurve.h"
 #include "XSecSurf.h"
+#include "FeaStructure.h"
 
 #include <string>
 #include <vector>
@@ -49,7 +50,7 @@ class XSecSurf;
 enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_GEOM_TYPE,
        MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE,
        PT_CLOUD_GEOM_TYPE, PROP_GEOM_TYPE, HINGE_GEOM_TYPE, CONFORMAL_GEOM_TYPE,
-       ELLIPSOID_GEOM_TYPE, NUM_GEOM_TYPE
+       ELLIPSOID_GEOM_TYPE, BOR_GEOM_TYPE, WIRE_FRAME_GEOM_TYPE, NUM_GEOM_TYPE
      };
 
 class GeomType
@@ -275,6 +276,7 @@ public:
         m_Scale = 1;
     }
 
+    // TODO: Move these to APIDefines.h and register in ScriptMgr.cpp
     enum { ATTACH_TRANS_NONE = 0, ATTACH_TRANS_COMP, ATTACH_TRANS_UV, };
     enum { ATTACH_ROT_NONE = 0, ATTACH_ROT_COMP, ATTACH_ROT_UV, }; // Attachment Flags
     enum { ABSOLUTE_XFORM = 0, RELATIVE_XFORM, };
@@ -347,6 +349,7 @@ public:
     virtual ~Geom();
 
     virtual void Update( bool fullupdate = true );
+    virtual void LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec );
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
     virtual void SetColor( int r, int g, int b );
@@ -377,6 +380,7 @@ public:
     virtual void GetMainSurfVec( vector<VspSurf> &surf_vec )    { surf_vec = m_MainSurfVec; }
     virtual int GetNumSymFlags();
     virtual int GetNumTotalSurfs();
+    virtual int GetNumTotalHrmSurfs();
     virtual int GetNumSymmCopies();
 
     virtual vector < int > & GetSymmIndexs( int imain )
@@ -401,11 +405,17 @@ public:
     */
     virtual void ResetGeomChangedFlag();
 
-    virtual vec3d GetUWPt( const double &u, const double &w );
-    virtual vec3d GetUWPt( const int &indx, const double &u, const double &w );
+    virtual vec3d CompPnt01(const double &u, const double &w);
+    virtual vec3d CompPnt01(const int &indx, const double &u, const double &w);
+    virtual void GetUWTess01( int indx, vector < double > &u, vector < double > &w );
 
     virtual bool CompRotCoordSys( const double &u, const double &w, Matrix4d &rotmat );
     virtual bool CompTransCoordSys( const double &u, const double &w, Matrix4d &transmat );
+
+    virtual vector < Matrix4d > GetFeaTransMatVec()
+    {
+        return m_FeaTransMatVec;
+    }
 
     //==== XSec Surfs ====//
     virtual int GetNumXSecSurfs()
@@ -436,9 +446,18 @@ public:
         return m_BBox;
     }
 
+    virtual void WriteAirfoilFiles( FILE* meta_fid );
+    virtual void WriteBezierAirfoil( const string & file_name, double foilsurf_u_location );
+    virtual void WriteSeligAirfoil( const string & file_name, double foilsurf_u_location );
+    virtual vector < vec3d > GetAirfoilCoordinates( double foilsurf_u_location );
+
     virtual void WriteXSecFile( int geom_no, FILE* dump_file );
     virtual void WritePLOT3DFileExtents( FILE* dump_file );
     virtual void WritePLOT3DFileXYZ( FILE* dump_file );
+
+    virtual void SetupPMARCFile( int &ipatch, vector < int > &idpat );
+    virtual void WritePMARCGeomFile(FILE *dump_file, int &ipatch, vector<int> &idpat);
+    virtual void WritePMARCWakeFile(FILE *dump_file, int &ipatch, vector<int> &idpat);
     virtual void WriteStl( FILE* fid ) {};
     virtual void WriteX3D( xmlNodePtr node );
     virtual void WritePovRay( FILE* fid, int comp_num );
@@ -470,12 +489,27 @@ public:
     }
     virtual void RecolorSubSurfs( int active_ind );
 
+    //==== FeaStructure Data =====//
+    vector < FeaStructure* > GetFeaStructVec()
+    {
+        return m_FeaStructVec;
+    }
+    virtual FeaStructure* AddFeaStruct( bool initskin, int surf_index );
+    virtual FeaStructure* GetFeaStruct( int fea_struct_ind );
+    virtual void DeleteFeaStruct( int index );
+    virtual bool ValidGeomFeaStructInd( int index );
+    virtual int NumGeomFeaStructs()
+    {
+        return m_FeaStructVec.size();
+    }
+
     //==== Set Drag Factors ====//
     virtual void LoadDragFactors( DragFactors& drag_factors )   {};
 
     //===== Degenerate Geometry =====//
-    virtual void CreateDegenGeom( vector<DegenGeom> &dgs);
-    virtual void CreateDegenGeomPreview( vector<DegenGeom> &dgs );
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d > > &pnts, const vector< vector< vec3d > > &nrms, const vector< vector< vec3d > > &uwpnts,
+                                  bool urootcap, int isurf, bool preview, bool flipnormal, int surftype, VspSurf *fs );
 
     IntParm m_TessU;
     LimIntParm m_TessW;
@@ -592,6 +626,7 @@ public:
     Parm m_CapUMaxOffset;
     Parm m_CapUMaxStrength;
     BoolParm m_CapUMaxSweepFlag;
+    bool m_CappingDone;
 
     //==== Wake for CFD Mesh ====//
     BoolParm m_WakeActiveFlag;
@@ -624,6 +659,8 @@ public:
 
     virtual void UpdateDegenDrawObj();
 
+    virtual void ExportSurfacePatches( vector< string > &surf_res_ids );
+
 protected:
 
     bool m_UpdateBlock;
@@ -648,6 +685,7 @@ protected:
     vector<VspSurf> m_SurfVec;
     vector<int> m_SurfIndxVec;
     vector< vector< int > > m_SurfSymmMap;
+    vector< Matrix4d > m_FeaTransMatVec; // Vector of transformation matrixes
     vector<DrawObj> m_WireShadeDrawObj_vec;
     vector<DrawObj> m_FeatureDrawObj_vec;
     DrawObj m_HighlightDrawObj;
@@ -667,8 +705,9 @@ protected:
     bool m_ForceXSecFlag; // Flag to force feature lines at xsecs
 
 //  //==== Structure Parts ====//
-//  int currPartID;
-//  vector< Part* > partVec;
+
+    vector< FeaStructure* > m_FeaStructVec;     // Vector of FeaStructures for this Geom
+    int m_FeaStructCount; // Counter used for creating unique name for structures
 
     //==== CFD Mesh Sources ====//
     int currSourceID;

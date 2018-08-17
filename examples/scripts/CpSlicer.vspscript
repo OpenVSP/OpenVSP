@@ -1,0 +1,145 @@
+
+void main()
+{
+    //==== Generate Geometrey ====//
+    CreateGeometry();
+
+    //==== Calculate DegenGeom ====//
+    ComputeGeometry();
+    
+    //==== Create *.adb File ====//
+    VSPAEROSinglePoint();
+
+    //==== Execute Cp Slicer ====//
+    CpSlice();
+}
+
+void CreateGeometry()
+{
+    //==== Create Geometries ====//
+    Print( string( "--> Generating Geometries" ) );
+    Print( string( "" ) );
+    
+    string pid = AddGeom( "POD", "" );              // Add Pod
+    string wid = AddGeom( "WING", "" );              // Add Wing
+    
+    SetParmVal( wid, "X_Rel_Location", "XForm", 2.25 );
+    
+    Update();
+    
+    //==== Setup Export File Names ====//
+    string fname = "CpSliceTest.vsp3";
+
+    //==== Save Vehicle to File ====//
+    Print( "-->Saving Vehicle File: ", false );
+    Print( fname, true );
+    Print( "" );
+    WriteVSPFile( fname, SET_ALL );
+    Print( "COMPLETE\n" );
+    
+    // Close and open the file
+    ClearVSPModel();
+    Update();
+    ReadVSPFile( fname ); // Sets VSP3 file name
+    Update();
+}
+
+void ComputeGeometry()
+{
+    Print( string( "--> Computing Geometry" ) );
+    Print( string( "" ) );
+
+    //==== Analysis: VSPAero Compute Geometry ====//
+    string analysis_name = "VSPAEROComputeGeometry";
+    Print( analysis_name );
+
+    // Set defaults
+    SetAnalysisInputDefaults( analysis_name );
+
+    // Set to panel method
+    array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
+    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs( analysis_name );
+    Print( "" );
+
+    // Execute
+    Print( "\tExecuting..." );
+    string rid = ExecAnalysis( analysis_name );
+    Print( "COMPLETE" );
+
+    // Get & Display Results
+    PrintResults( rid );
+    Print( string( "" ) );
+}
+
+void VSPAEROSinglePoint()
+{
+    Print( string( "--> Computing VSPAERO Geometry" ) );
+    Print( string( "" ) );
+
+    //==== Analysis: VSPAERO Single Point ====//
+    string analysis_name = "VSPAEROSinglePoint";
+    Print( analysis_name );
+
+    // Set defaults
+    SetAnalysisInputDefaults( analysis_name );
+
+    // Set to panel method
+    array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
+    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs( analysis_name );
+    Print( "" );
+
+    // Execute
+    Print( "\tExecuting..." );
+    string rid = ExecAnalysis( analysis_name );
+    Print( "COMPLETE" );
+
+    // Get & Display Results
+    PrintResults( rid );
+    Print( string( "" ) );
+}
+
+void CpSlice()
+{
+    Print( string( "--> Generating Cp Slices" ) );
+    Print( string( "" ) );
+
+   //==== Analysis: CpSlicer ====//
+    string analysis_name = "CpSlicer";
+    Print( analysis_name );
+
+    // Set defaults
+    SetAnalysisInputDefaults( analysis_name );
+    
+    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
+    
+    // Setup cuts
+    array < double > ycuts;
+    ycuts.push_back( 2.0 );
+    ycuts.push_back( 4.5 );
+    ycuts.push_back( 8.0 );
+    
+    SetDoubleAnalysisInput( analysis_name, "YSlicePosVec", ycuts, 0 );
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs( analysis_name );
+    Print( "" );
+
+    // Execute
+    Print( "\tExecuting..." );
+    string rid = ExecAnalysis( analysis_name );
+    Print( "COMPLETE" );
+
+    // Get & Display Results
+    PrintResults( rid );
+    Print( string( "" ) );
+}
+

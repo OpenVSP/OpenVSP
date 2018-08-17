@@ -41,10 +41,10 @@ public:
     virtual void Init( const string& name, const string& group, ParmContainer* container,
                        double val, double lower, double upper );
 
-    virtual string GetName()                             { return m_Name; }
+    virtual string GetName() const                       { return m_Name; }
     virtual void SetName( const string & name )          { m_Name = name; }
 
-    virtual string GetGroupName()                        { return m_GroupName; }
+    virtual string GetGroupName() const                  { return m_GroupName; }
     virtual void SetGroupName( const string & name )     { m_GroupName = name; }
     virtual void SetGroupDisplaySuffix( int num )        { m_GroupDisplaySuffix = num; }
 
@@ -54,25 +54,25 @@ public:
     {
         m_Descript = d;
     }
-    virtual string GetDescript()
+    virtual string GetDescript() const
     {
         return m_Descript;
     }
 
-    virtual ParmContainer* GetContainer()       { return m_Container; }
+    virtual ParmContainer* GetContainer() const          { return m_Container; }
     virtual string GetContainerID();
 
-    virtual string GetID()
+    virtual string GetID() const
     {
         return m_ID;
     }
     virtual void ChangeID( const string& newID );
 
-    virtual int  GetType()
+    virtual int  GetType() const
     {
         return m_Type;
     }
-    virtual int GetChangeCnt()                  { return m_ChangeCnt; }
+    virtual int GetChangeCnt() const            { return m_ChangeCnt; }
 
     enum { SET, SET_FROM_LINK, SET_FROM_DEVICE, };
     virtual double Set( double val );
@@ -82,20 +82,20 @@ public:
     virtual void SetLowerLimit( double limit );
     virtual void SetUpperLimit( double limit );
     virtual void SetLowerUpperLimits( double lower_limit, double upper_limit );
-    virtual double GetLowerLimit()
+    virtual double GetLowerLimit() const
     {
         return m_LowerLimit;
     }
-    virtual double GetUpperLimit()
+    virtual double GetUpperLimit() const
     {
         return m_UpperLimit;
     }
 
-    double Get()
+    double Get() const
     {
         return m_Val;
     }
-    double GetLastVal()
+    double GetLastVal() const
     {
         return m_LastVal;
     }
@@ -133,7 +133,7 @@ public:
     {
         SetActiveFlag( false );
     }
-    virtual bool GetActiveFlag()
+    virtual bool GetActiveFlag() const
     {
         return m_ActiveFlag;
     }
@@ -142,7 +142,7 @@ public:
     {
         m_LinkUpdateFlag = flag;
     }
-    virtual bool GetLinkUpdateFlag()
+    virtual bool GetLinkUpdateFlag() const
     {
         return m_LinkUpdateFlag;
     }
@@ -152,11 +152,11 @@ public:
         m_LinkContainerID = id;
     }
     virtual void ReSetLinkContainerID();
-    virtual string GetLinkContainerID()
+    virtual string GetLinkContainerID() const
     {
         return m_LinkContainerID;
     }
-    virtual ParmContainer* GetLinkContainer();
+    virtual ParmContainer* GetLinkContainer() const;
 
     virtual void EncodeXml( xmlNodePtr & node, bool detailed = false );
     virtual void DecodeXml( xmlNodePtr & node, bool detailed = false );

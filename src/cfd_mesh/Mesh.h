@@ -16,7 +16,7 @@
 #include "Tri.h"
 
 class Surf;
-class GridDensity;
+class SimpleGridDensity;
 
 #ifndef WIN32
 #  ifndef NDEBUG
@@ -85,6 +85,8 @@ public:
     void LaplacianSmooth( int num_iter );
     void OptSmooth( int num_iter );
 
+    bool SetFixPoint( vec3d fix_pnt, vec2d fix_uw );
+
     void DumpGarbage();
 
     void AdjustEdgeLengths();
@@ -120,7 +122,7 @@ public:
     {
         m_Surf = sptr;
     }
-    void SetGridDensityPtr ( GridDensity* gptr )
+    void SetGridDensityPtr ( SimpleGridDensity* gptr )
     {
         m_GridDensity = gptr;
     }
@@ -160,10 +162,19 @@ public:
 
     void RemoveInteriorTrisEdgesNodes();
 
+    int GetNumFixPointIter()
+    {
+        return m_NumFixPointIter;
+    }
+    void ResetNumFixPointIter()
+    {
+        m_NumFixPointIter = 0;
+    }
+
 protected:
 
     Surf* m_Surf;
-    GridDensity* m_GridDensity;
+    SimpleGridDensity* m_GridDensity;
 
     list < Tri* > triList;
     list < Edge* > edgeList;
@@ -180,6 +191,7 @@ protected:
     vector< vec2d > simpUWPntVec;
     vector< SimpTri > simpTriVec;
 
+    int m_NumFixPointIter;
 };
 
 

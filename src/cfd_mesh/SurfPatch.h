@@ -15,12 +15,6 @@
 #include "Vec3d.h"
 #include "BndBox.h"
 
-//Original
-//#define DEFAULT_PLANE_TOL (0.0002)
-//jrg 8/25/2010
-//#define DEFAULT_PLANE_TOL (0.0002)
-#define DEFAULT_PLANE_TOL (1.0e-5)
-
 #include <assert.h>
 #include <cmath>
 #include <float.h>
@@ -29,8 +23,27 @@
 #include <list>
 using namespace std;
 
+#include "Vec3d.h"
+
+#include "eli/code_eli.hpp"
+
+#include "eli/geom/surface/bezier.hpp"
+#include "eli/geom/surface/piecewise.hpp"
+#include "eli/geom/curve/piecewise_creator.hpp"
+#include "eli/geom/surface/piecewise_general_skinning_surface_creator.hpp"
+#include "eli/geom/intersect/minimum_distance_surface.hpp"
+
+typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
+typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
+typedef piecewise_surface_type::point_type surface_point_type;
+
+typedef piecewise_surface_type::tolerance_type surface_tolerance_type;
+
+
 class Surf;
 class SurfPatch;
+class SurfaceIntersectionSingleton;
+class CfdMeshMgrSingleton;
 
 //////////////////////////////////////////////////////////////////////
 class SurfPatch
@@ -38,13 +51,14 @@ class SurfPatch
 public:
 
     SurfPatch();
+    SurfPatch( int n, int m, int d );
     virtual ~SurfPatch();
 
     void set_surf_ptr( Surf* ptr )
     {
         m_SurfPtr = ptr;
     }
-    Surf* get_surf_ptr()
+    Surf* get_surf_ptr() const
     {
         return m_SurfPtr;
     }
@@ -60,60 +74,82 @@ public:
         w_max = max;
     }
 
+    void setPatch( const surface_patch_type &p )
+    {
+        m_Patch = p;
+    }
+
+    surface_patch_type * getPatch( )
+    {
+        return &m_Patch;
+    }
+
+    long degree_u() const
+    {
+        return m_Patch.degree_u();
+    }
+
+    long degree_v() const
+    {
+        return m_Patch.degree_v();
+    }
+
+    double get_u_min() const   { return u_min; }
+    double get_u_max() const   { return u_max; }
+    double get_w_min() const   { return w_min; }
+    double get_w_max() const   { return w_max; }
 
     void compute_bnd_box();
-    void put_pnt( int iu, int iw, const vec3d& pnt_in )
-    {
-        pnts[iu][iw] = pnt_in;
-    }
-    vec3d comp_pnt( double u, double w );
 
-    void split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, SurfPatch& bp11 );
-    bool test_planar( double tol );
+    void split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, SurfPatch& bp11 ) const;
+    bool test_planar( double tol ) const;
+    bool test_planar_rel( double reltol ) const;
 
-    BndBox* get_bbox()
+    const BndBox* get_bbox() const
     {
         return &bnd_box;
     }
-    friend void intersect( SurfPatch& bp1, SurfPatch& bp2, int depth );
-    void find_closest_uw( vec3d& pnt_in, double guess_uw[2], double uw[2] );
-    void find_closest_uw( vec3d& pnt_in, double uw[2] );
-    vec3d comp_pnt_01( double u, double w );
-    vec3d comp_tan_u_01( double u, double w );
-    vec3d comp_tan_w_01( double u, double w );
+    friend void intersect( const SurfPatch& bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr );
+    void find_closest_uw( const vec3d& pnt_in, double uw[2] ) const;
 
+    friend void refine_intersect_pt( const vec3d& pt, const SurfPatch &pA, double uwA[2], const SurfPatch &pB, double uwB[2] );
 
-    void comp_delta_uw( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2], double delta_uw[2] );
+    vec3d comp_pnt_01( double u, double w ) const;
+    vec3d comp_tan_u_01( double u, double w ) const;
+    vec3d comp_tan_w_01( double u, double w ) const;
+
 
     void Draw();
 
-    void IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vector< double > & t_vals );
-    void AddTVal( double t, vector< double > & t_vals );
+    void IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vector< double > & t_vals ) const;
+    void AddTVal( double t, vector< double > & t_vals ) const;
 
     void SetSubDepth( int d )
     {
         sub_depth = d;
     }
-    int  GetSubDepth()
+    int  GetSubDepth() const
     {
         return sub_depth;
     }
 
-    friend void intersect_quads( SurfPatch&  bp1, SurfPatch& bp2 );
+    friend void intersect_quads( const SurfPatch&  bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr );
 
 protected:
 
     Surf* m_SurfPtr;
 
+    surface_patch_type m_Patch;
+
     double u_min, u_max;
     double w_min, w_max;
-    vec3d pnts[4][4];
+
     BndBox bnd_box;
 
     int sub_depth;
 
-//  list <int_curve*> int_curve_ptr_list;
-    void blend_funcs( double u, double& F1, double& F2, double& F3, double& F4 );
+    mutable bool m_wasplanar;
+    mutable double m_lastreltol;
 
 };
 

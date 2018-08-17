@@ -68,7 +68,7 @@ public:
 
 protected:
 
-    virtual double EstimateThick();
+    virtual double CalculateThick();
 
     VspCurve m_OrigCurve;
 };

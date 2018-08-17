@@ -70,6 +70,8 @@ void VSP_SOLVER::init(void)
     
     TimeAccurate_ = 0;
     
+    TimeStep_ = 0.;
+    
     TimeAnalysisType_ = 0;
 
     NumberOfTimeSteps_ = 1;
@@ -86,8 +88,14 @@ void VSP_SOLVER::init(void)
     
     Unsteady_HMax_ = 0.;
     
-    Preconditioner_ = SSOR;
+    Preconditioner_ = MATCON;
+
+    CalculateVortexLift_ = 1;
+
+    CalculateLeadingEdgeSuction_ = 0;
     
+    NoKarmanTsienCorrection_ = 0;
+
     sprintf(CaseString_,"No Comment");
     
     VortexSheet_ = NULL;
@@ -104,6 +112,12 @@ void VSP_SOLVER::init(void)
  
     AngleZero_ = 0.;
     
+    RotorAnalysis_ = 0;
+    
+    BladeRPM_ = 0.;
+    
+    NumberOfSurfaceNodes_ = 0;
+
 }
 
 /*##############################################################################
@@ -167,7 +181,7 @@ void VSP_SOLVER::Setup(void)
     
     MGLevel_ = 1;
     
-    NumberOfMGLevels_ = VSPGeom().NumberOfGridLevels() - 1;
+    NumberOfMGLevels_ = VSPGeom().NumberOfGridLevels();
 
     // Size the lists and determine the size of the domain
     
@@ -194,6 +208,8 @@ void VSP_SOLVER::Setup(void)
     }
 
     // Allocate space for the vortex edges
+    
+    NumberOfSurfaceNodes_        = VSPGeom().Grid(MGLevel_).NumberOfNodes();
 
     NumberOfSurfaceVortexEdges_  = VSPGeom().Grid(MGLevel_).NumberOfEdges();
     
@@ -297,29 +313,33 @@ void VSP_SOLVER::Setup(void)
        
        LocalBodySurfaceVelocity_[i][0] = 0.;
        LocalBodySurfaceVelocity_[i][1] = 0.;
-       LocalBodySurfaceVelocity_[i][2] = 0.;             
-       
+       LocalBodySurfaceVelocity_[i][2] = 0.;         
+
     }      
     
     // Allocate space for span loading data
         
-    Span_Cx_  = new double*[VSPGeom().NumberOfSurfaces() + 1];
-    Span_Cy_  = new double*[VSPGeom().NumberOfSurfaces() + 1];
-    Span_Cz_  = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Cx_    = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Cy_    = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Cz_    = new double*[VSPGeom().NumberOfSurfaces() + 1];
 
-    Span_Cn_  = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Cxi_   = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Cyi_   = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Czi_   = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    
+    Span_Cn_    = new double*[VSPGeom().NumberOfSurfaces() + 1];
 
-    Span_Cl_  = new double*[VSPGeom().NumberOfSurfaces() + 1];
-    Span_Cs_  = new double*[VSPGeom().NumberOfSurfaces() + 1];
-    Span_Cd_  = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Cl_    = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Cs_    = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Cd_    = new double*[VSPGeom().NumberOfSurfaces() + 1];
     
-    Span_Cmx_ = new double*[VSPGeom().NumberOfSurfaces() + 1];
-    Span_Cmy_ = new double*[VSPGeom().NumberOfSurfaces() + 1];
-    Span_Cmz_ = new double*[VSPGeom().NumberOfSurfaces() + 1];    
+    Span_Cmx_   = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Cmy_   = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Cmz_   = new double*[VSPGeom().NumberOfSurfaces() + 1];    
     
-    Span_LE_   = new double*[VSPGeom().NumberOfSurfaces() + 1];
-    Span_Yavg_ = new double*[VSPGeom().NumberOfSurfaces() + 1];
-    Span_Area_ = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_LE_    = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Yavg_  = new double*[VSPGeom().NumberOfSurfaces() + 1];
+    Span_Area_  = new double*[VSPGeom().NumberOfSurfaces() + 1];
     
     Local_Vel_ = new double*[VSPGeom().NumberOfSurfaces() + 1];
     
@@ -327,53 +347,63 @@ void VSP_SOLVER::Setup(void)
         
        NumberOfStations = VSPGeom().VSP_Surface(i).NumberOfSpanStations();
  
-       Span_Cx_[i]   = new double[NumberOfStations + 1];
+       Span_Cx_[i]    = new double[NumberOfStations + 1];
 
-       Span_Cy_[i]   = new double[NumberOfStations + 1];
+       Span_Cy_[i]    = new double[NumberOfStations + 1];
 
-       Span_Cz_[i]   = new double[NumberOfStations + 1];
+       Span_Cz_[i]    = new double[NumberOfStations + 1];
 
-       Span_Cmx_[i]  = new double[NumberOfStations + 1];
+       Span_Cxi_[i]    = new double[NumberOfStations + 1];
 
-       Span_Cmy_[i]  = new double[NumberOfStations + 1];
+       Span_Cyi_[i]    = new double[NumberOfStations + 1];
 
-       Span_Cmz_[i]  = new double[NumberOfStations + 1];
+       Span_Czi_[i]    = new double[NumberOfStations + 1];
+
+       Span_Cmx_[i]   = new double[NumberOfStations + 1];
+
+       Span_Cmy_[i]   = new double[NumberOfStations + 1];
+
+       Span_Cmz_[i]   = new double[NumberOfStations + 1];
        
-       Span_Cn_[i]   = new double[NumberOfStations + 1];
+       Span_Cn_[i]    = new double[NumberOfStations + 1];
      
-       Span_Cl_[i]   = new double[NumberOfStations + 1];
+       Span_Cl_[i]    = new double[NumberOfStations + 1];
 
-       Span_Cs_[i]   = new double[NumberOfStations + 1];
-       
-       Span_Cd_[i]   = new double[NumberOfStations + 1];
-       
-       Span_LE_[i]   = new double[NumberOfStations + 1];
-                     
-       Span_Yavg_[i] = new double[NumberOfStations + 1];
-       
-       Span_Area_[i] = new double[NumberOfStations + 1];
-       
-       Local_Vel_[i] = new double[NumberOfStations + 1];
- 
-       zero_double_array(Span_Cx_[i],   NumberOfStations);
-       zero_double_array(Span_Cy_[i],   NumberOfStations);
-       zero_double_array(Span_Cz_[i],   NumberOfStations);      
- 
-       zero_double_array(Span_Cn_[i],   NumberOfStations);       
-
-       zero_double_array(Span_Cl_[i],   NumberOfStations);
-       zero_double_array(Span_Cs_[i],   NumberOfStations);
-       zero_double_array(Span_Cd_[i],   NumberOfStations);      
-       
-       zero_double_array(Span_Cmx_[i],  NumberOfStations);
-       zero_double_array(Span_Cmy_[i],  NumberOfStations);
-       zero_double_array(Span_Cmz_[i],  NumberOfStations);       
+       Span_Cs_[i]    = new double[NumberOfStations + 1];
         
-       zero_double_array(Span_LE_[i],   NumberOfStations);    
-       zero_double_array(Span_Yavg_[i], NumberOfStations);       
-       zero_double_array(Span_Area_[i], NumberOfStations);
+       Span_Cd_[i]    = new double[NumberOfStations + 1];
+
+       Span_LE_[i]    = new double[NumberOfStations + 1];
+                     
+       Span_Yavg_[i]  = new double[NumberOfStations + 1];
        
-       zero_double_array(Local_Vel_[i], NumberOfStations);
+       Span_Area_[i]  = new double[NumberOfStations + 1];
+       
+       Local_Vel_[i]  = new double[NumberOfStations + 1];
+ 
+       zero_double_array(Span_Cx_[i],    NumberOfStations);
+       zero_double_array(Span_Cy_[i],    NumberOfStations);
+       zero_double_array(Span_Cz_[i],    NumberOfStations);      
+
+       zero_double_array(Span_Cxi_[i],   NumberOfStations);
+       zero_double_array(Span_Cyi_[i],   NumberOfStations);
+       zero_double_array(Span_Czi_[i],   NumberOfStations);      
+        
+       zero_double_array(Span_Cn_[i],    NumberOfStations);       
+
+       zero_double_array(Span_Cl_[i],    NumberOfStations);
+       zero_double_array(Span_Cs_[i],    NumberOfStations);
+       zero_double_array(Span_Cd_[i],    NumberOfStations); 
+       
+       zero_double_array(Span_Cmx_[i],   NumberOfStations);
+       zero_double_array(Span_Cmy_[i],   NumberOfStations);
+       zero_double_array(Span_Cmz_[i],   NumberOfStations);       
+        
+       zero_double_array(Span_LE_[i],    NumberOfStations);    
+       zero_double_array(Span_Yavg_[i],  NumberOfStations);       
+       zero_double_array(Span_Area_[i],  NumberOfStations);
+       
+       zero_double_array(Local_Vel_[i],  NumberOfStations);
      
     }    
 
@@ -406,7 +436,11 @@ void VSP_SOLVER::Setup(void)
     
     // Create interaction list
 
-    CreateSurfaceVorticesInteractionList();
+    if ( !DumpGeom_ ) CreateSurfaceVorticesInteractionList();
+    
+    // If panel solver, or unsteady 
+    
+    if ( !DumpGeom_ && ( ModelType_ == PANEL_MODEL || TimeAccurate_ ) ) CreateVorticityGradientDataStructure();
     
 }
 
@@ -419,8 +453,8 @@ void VSP_SOLVER::Setup(void)
 void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
 {
    
-    int j, k, p, Edge, Node, Loop, Loop1, Loop2, Next, StackSize, Done, FoundOne;
-    int Node1, Node2, *LoopStack, NumberOfVortexSheets, NotFlipped, KelvinGroup;
+    int j, k, p, n, q, Edge, Node, Loop, Loop1, Loop2, Next, StackSize, Done, FoundOne;
+    int Node1, Node2, *LoopStack, NotFlipped, KelvinGroup, Wing;
     double Vec1[3], Vec2[3], Dot;
         
     MGLevel_ = 1;
@@ -431,16 +465,16 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
     
     LoopStack = new int[NumberOfVortexLoops_ + 1];
     
+    LoopIsOnBaseRegion_ = new int[NumberOfVortexLoops_ + 1];
+    
     LoopInKelvinConstraintGroup_ = new int[NumberOfVortexLoops_ + 1];
     
     zero_int_array(LoopStack, NumberOfVortexLoops_);
     
+    zero_int_array(LoopIsOnBaseRegion_, NumberOfVortexLoops_);
+    
     zero_int_array(LoopInKelvinConstraintGroup_, NumberOfVortexLoops_);
     
-    LoopIsOnBaseRegion_ = new int[NumberOfVortexLoops_ + 1];
-    
-    zero_int_array(LoopIsOnBaseRegion_, NumberOfVortexLoops_);
-        
     NumberOfKelvinConstraints_ = 1;
 
     StackSize = Next = 1;
@@ -513,261 +547,286 @@ void VSP_SOLVER::DetermineNumberOfKelvinConstrains(void)
        
     }
     
-    // Check if there are any periodic wakes that might break a region in two
-
-    NumberOfVortexSheets = 0;
-  
+    // Determine the number of vortex sheets
+    
+    NumberOfVortexSheets_ = 0;
+    
     for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() ; j++ ) {
 
-       NumberOfVortexSheets = MAX(NumberOfVortexSheets, VSPGeom().Grid(MGLevel_).WingSurface(j));
+       NumberOfVortexSheets_ = MAX(NumberOfVortexSheets_, VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(j));
        
-    }    
-    
-    printf("There are: %10d Vortex Sheets \n", NumberOfVortexSheets);
-    
-    for ( k = 1 ; k <= NumberOfVortexSheets ; k++ ) {
-    
-       Done = 0;
+    }   
+
+    printf("There are: %10d Vortex Sheets \n", NumberOfVortexSheets_);
+             
+    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+
+       // Find a node on this vortex sheet
+       
+       FoundOne = 0;
        
        j = 1;
-       
-       while ( j <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() && !Done ) {
+            
+       while ( !FoundOne && j <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() ) {
+   
+          Wing = VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(j);
           
-          // Search for a kutta node on this vortex sheet
-          
-          if ( VSPGeom().Grid(MGLevel_).WingSurface(j) == k ) {
-          
-             // If it's periodic... we must check if it creates a closed region
+          if ( Wing == k && VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNodeIsPeriodic(j) ) {
+  
+             Node = VSPGeom().Grid(MGLevel_).KuttaNode(j);;
              
-             if ( VSPGeom().Grid(MGLevel_).WingSurfaceIsPeriodic(j) ) {
-
-               Node = VSPGeom().Grid(MGLevel_).KuttaNode(j);
-               
-               // Grab a loop that contains this kutta node
-               
-               FoundOne = 0;
-               
-               k = 1;
-               
-               while ( !FoundOne ) {
-                  
-                  p = 1;
-                  
-                  while ( p <= VSPGeom().Grid(MGLevel_).LoopList(k).NumberOfEdges()  && !FoundOne ) {
-
-                     Edge = VSPGeom().Grid(MGLevel_).LoopList(k).Edge(p);
-                     
-                     Node1 = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Node1();
-                     Node2 = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Node2();
-                     
-                     if ( Node == Node1 || Node == Node2 ) {
-                        
-                        Loop = k;
-                        
-                        FoundOne = 1;
-                        
-                     }
-                     
-                     p++;
-                     
-                  }
-                  
-                  k++;
-                  
-               }
-                              
-               // Go edge, by edge and see if we cover the entire kelvin region
-               
-               zero_int_array(LoopStack, NumberOfVortexLoops_);
-               
-               StackSize = Next = 1;
-                
-               LoopStack[Next] = Loop;
-               
-               KelvinGroup = LoopInKelvinConstraintGroup_[Loop];
-                   
-               while ( Next <= StackSize ) {
-                   
-                  Loop = LoopStack[Next];
-                   
-                  for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).LoopList(Loop).NumberOfEdges() ; j++ ) {
-                      
-                     Edge = VSPGeom().Grid(MGLevel_).LoopList(Loop).Edge(j);
-                     
-                     if ( !VSPGeom().Grid(MGLevel_).EdgeList(Edge).IsTrailingEdge() ) {
-                     
-                        Loop1 = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Loop1();
-                         
-                        Loop2 = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Loop2();
-                         
-                        if ( LoopInKelvinConstraintGroup_[Loop1] == KelvinGroup ) {
-                            
-                           LoopInKelvinConstraintGroup_[Loop1] = -KelvinGroup;
-                            
-                           LoopStack[++StackSize] = Loop1;
-                            
-                        }
-                        
-                        else if ( LoopInKelvinConstraintGroup_[Loop1] != -KelvinGroup ){
-                           
-                           printf("WTF... how did we jump to another Kelvin Group... \n"); fflush(NULL);
-                           exit(1);
-                           
-                        }
-                         
-                        if ( LoopInKelvinConstraintGroup_[Loop2] == KelvinGroup ) {
-                            
-                           LoopInKelvinConstraintGroup_[Loop2] = -KelvinGroup;
-                            
-                           LoopStack[++StackSize] = Loop2;
-                    
-                        }    
-                        
-                        else if ( LoopInKelvinConstraintGroup_[Loop1] != -KelvinGroup ){
-                           
-                           printf("WTF... how did we jump to another Kelvin Group... \n"); fflush(NULL);
-                           exit(1);
-                           
-                        }    
-                        
-                     }                       
-                       
-                  }
-                   
-                  Next++;   
-           
-               }
-               
-               // Check and see if there are any loops in this Kelvin group that were not flipped
-               
-               NotFlipped = 0;
-               
-               for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
-                        
-                  if ( LoopInKelvinConstraintGroup_[j] == KelvinGroup ) {
-                     
-                     NotFlipped++;
-                     
-                  }
-                  
-               }
-               
-               printf("Base region found for vortex sheet system: %d \n",k);fflush(NULL);
-          
-               // If not all were flipped... then there is a base region
-               
-               if ( NotFlipped > 0 ) {
-                                    
-                  // Determine which region ... + or - ... is the base region
-                  
-                  Vec1[0] = Vec1[1] = Vec1[2] = 0.;
-                  
-                  Vec2[0] = Vec2[1] = Vec2[2] = 0.;
-
-                  for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
-                           
-                     if ( LoopInKelvinConstraintGroup_[j] ==  KelvinGroup ) {
-                        
-                        Vec1[0] += VSPGeom().Grid(MGLevel_).LoopList(j).Nx();
-                        Vec1[1] += VSPGeom().Grid(MGLevel_).LoopList(j).Ny();
-                        Vec1[2] += VSPGeom().Grid(MGLevel_).LoopList(j).Nz();
-                        
-                     }
-                     
-                     if ( LoopInKelvinConstraintGroup_[j] == -KelvinGroup ) {
-                        
-                        Vec2[0] += VSPGeom().Grid(MGLevel_).LoopList(j).Nx();
-                        Vec2[1] += VSPGeom().Grid(MGLevel_).LoopList(j).Ny();
-                        Vec2[2] += VSPGeom().Grid(MGLevel_).LoopList(j).Nz();
-                        
-                     }                     
-                     
-                  }
-                  
-                  Dot = sqrt(vector_dot(Vec1,Vec1));
-                  
-                  Vec1[0] /= Dot; 
-                  Vec1[1] /= Dot; 
-                  Vec1[2] /= Dot; 
-                  
-                  Dot = sqrt(vector_dot(Vec2,Vec2));
-                  
-                  Vec2[0] /= Dot; 
-                  Vec2[1] /= Dot; 
-                  Vec2[2] /= Dot;
-                  
-                  // Remove those loops in the base region from the Kelvin group, and add them
-                  // to the base region list
-                  
-                  if ( Vec1[0] > Vec2[0] ) {
-                 
-                     for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
-                           
-                        if ( LoopInKelvinConstraintGroup_[j] == KelvinGroup ) {
-                           
-                           LoopIsOnBaseRegion_[j] = 1;
-                           
-                           LoopInKelvinConstraintGroup_[j] = KelvinGroup;
-                    
-                        }
-                        
-                     }
-                     
-                     for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
-                           
-                        if ( LoopInKelvinConstraintGroup_[j] == -KelvinGroup ) {
-                        
-                           LoopInKelvinConstraintGroup_[j] = KelvinGroup;
-                    
-                        }
-                        
-                     }                     
-                     
-                  }
-                  
-                  else {
-             
-                     for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
-                           
-                        if ( LoopInKelvinConstraintGroup_[j] == -KelvinGroup ) {
-                           
-                           LoopIsOnBaseRegion_[j] = 1;
-                           
-                           LoopInKelvinConstraintGroup_[j] = KelvinGroup;
-                           
-                        }
-                        
-                     }
-                     
-                     for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; j++ ) {                  
-                           
-                        if ( LoopInKelvinConstraintGroup_[j] == KelvinGroup ) {
-                         
-                           LoopInKelvinConstraintGroup_[j] = KelvinGroup;
-                    
-                        }
-                        
-                     }                        
-                     
-                  }  
-                         
-               }                 
-               
-               Done = 1;
-               
-             }
+             FoundOne = 1;
              
           }
           
           j++;
           
        }
+
+       if ( FoundOne ) {
+
+          printf("Looking for node: %d \n",Node);fflush(NULL);
+          
+          // Grab a loop that contains this kutta node
+         
+          FoundOne = 0;
+         
+          n = 1;
+         
+          while ( !FoundOne && n <= NumberOfVortexLoops_ ) {
+            
+             p = 1;
+                        
+             while ( p <= VSPGeom().Grid(MGLevel_).LoopList(n).NumberOfEdges() && !FoundOne ) {
+      
+                Edge = VSPGeom().Grid(MGLevel_).LoopList(n).Edge(p);
+               
+                Node1 = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Node1();
+                Node2 = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Node2();
+               
+                if ( Node == Node1 || Node == Node2 ) {
+                  
+                   Loop = n;
+                  
+                   FoundOne = 1;
+                  
+                }
+               
+                p++;
+               
+             }
+            
+             n++;
+            
+          }
+         
+          if ( !FoundOne ) {
+            
+             printf("Error in determining number of Kelvin regions for a periodic wake surface! \n");
+             printf("Looking for node: %d \n",Node);
+             fflush(NULL);
+             exit(1);
+            
+          }
+         
+          // Go edge, by edge and see if we cover the entire kelvin region
+         
+          zero_int_array(LoopStack, NumberOfVortexLoops_);
+         
+          StackSize = Next = 1;
+          
+          LoopStack[Next] = Loop;
+         
+          KelvinGroup = LoopInKelvinConstraintGroup_[Loop];
+
+          while ( Next <= StackSize ) {
+             
+             Loop = LoopStack[Next];
+             
+             for ( p = 1 ; p <= VSPGeom().Grid(MGLevel_).LoopList(Loop).NumberOfEdges() ; p++ ) {
+                
+                Edge = VSPGeom().Grid(MGLevel_).LoopList(Loop).Edge(p);
+               
+                if ( !VSPGeom().Grid(MGLevel_).EdgeList(Edge).IsTrailingEdge() ) {
+               
+                   Loop1 = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Loop1();
+                   
+                   Loop2 = VSPGeom().Grid(MGLevel_).EdgeList(Edge).Loop2();
+
+                   if ( LoopInKelvinConstraintGroup_[Loop1] == KelvinGroup ) {
+                      
+                      LoopInKelvinConstraintGroup_[Loop1] = -KelvinGroup;
+                      
+                      LoopStack[++StackSize] = Loop1;
+                      
+                   }
+                  
+                   else if ( LoopInKelvinConstraintGroup_[Loop1] != -KelvinGroup ){
+                     
+                      printf("WTF... how did we jump to another Kelvin Group... \n"); fflush(NULL);
+                      exit(1);
+                      
+                   }
+                   
+                   if ( LoopInKelvinConstraintGroup_[Loop2] == KelvinGroup ) {
+                      
+                      LoopInKelvinConstraintGroup_[Loop2] = -KelvinGroup;
+                      
+                      LoopStack[++StackSize] = Loop2;
+              
+                   }    
+                  
+                   else if ( LoopInKelvinConstraintGroup_[Loop2] != -KelvinGroup ){
+                     
+                      printf("WTF... how did we jump to another Kelvin Group... \n"); fflush(NULL);
+                      exit(1);
+                     
+                   }    
+                  
+                }                       
+                 
+             }
+             
+             Next++;   
+     
+          }
+      
+          // Check and see if there are any loops in this Kelvin group that were not flipped
+         
+          NotFlipped = 0;
+
+          for ( p = 1 ; p <= NumberOfVortexLoops_ ; p++ ) {                  
+                  
+             if ( LoopInKelvinConstraintGroup_[p] == KelvinGroup ) {
+               
+                NotFlipped++;
+               
+             }
+            
+          }
+            
+          // If not all were flipped... then there is a base region
+         
+          if ( NotFlipped > 0 ) {
+                              
+             printf("Base region found for vortex sheet system: %d \n",k);fflush(NULL);
+                                        
+             // Determine which region ... + or - ... is the base region
+            
+             Vec1[0] = Vec1[1] = Vec1[2] = 0.;
+            
+             Vec2[0] = Vec2[1] = Vec2[2] = 0.;
+
+             for ( p = 1 ; p <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; p++ ) {                  
+                     
+                if ( LoopInKelvinConstraintGroup_[p] ==  KelvinGroup ) {
+                  
+                   Vec1[0] += VSPGeom().Grid(MGLevel_).LoopList(p).Nx();
+                   Vec1[1] += VSPGeom().Grid(MGLevel_).LoopList(p).Ny();
+                   Vec1[2] += VSPGeom().Grid(MGLevel_).LoopList(p).Nz();
+                  
+                }
+               
+                if ( LoopInKelvinConstraintGroup_[p] == -KelvinGroup ) {
+                  
+                   Vec2[0] += VSPGeom().Grid(MGLevel_).LoopList(p).Nx();
+                   Vec2[1] += VSPGeom().Grid(MGLevel_).LoopList(p).Ny();
+                   Vec2[2] += VSPGeom().Grid(MGLevel_).LoopList(p).Nz();
+                  
+                }                     
+               
+             }
+            
+             Dot = sqrt(vector_dot(Vec1,Vec1));
+            
+             Vec1[0] /= Dot; 
+             Vec1[1] /= Dot; 
+             Vec1[2] /= Dot; 
+            
+             Dot = sqrt(vector_dot(Vec2,Vec2));
+            
+             Vec2[0] /= Dot; 
+             Vec2[1] /= Dot; 
+             Vec2[2] /= Dot;
+            
+             // Remove those loops in the base region from the Kelvin group, and add them
+             // to the base region list
+            
+             if ( Vec1[0] > Vec2[0] ) {
+           
+                for ( p = 1 ; p <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; p++ ) {                  
+                     
+                   if ( LoopInKelvinConstraintGroup_[p] == KelvinGroup ) {
+                     
+                      LoopIsOnBaseRegion_[p] = 1;
+                     
+                      LoopInKelvinConstraintGroup_[p] = KelvinGroup;
+              
+                   }
+                  
+                }
+               
+                for ( p = 1 ; p <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; p++ ) {                  
+                     
+                   if ( LoopInKelvinConstraintGroup_[p] == -KelvinGroup ) {
+                  
+                      LoopInKelvinConstraintGroup_[p] = KelvinGroup;
+              
+                   }
+                  
+                }                     
+               
+             }
+            
+             else {
+       
+                for ( p = 1 ; p <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; p++ ) {                  
+                     
+                   if ( LoopInKelvinConstraintGroup_[p] == -KelvinGroup ) {
+                     
+                      LoopIsOnBaseRegion_[p] = 1;
+                     
+                      LoopInKelvinConstraintGroup_[p] = KelvinGroup;
+                     
+                   }
+                  
+                }
+               
+                for ( p = 1 ; p <= VSPGeom().Grid(MGLevel_).NumberOfLoops() ; p++ ) {                  
+                     
+                   if ( LoopInKelvinConstraintGroup_[p] == KelvinGroup ) {
+                   
+                      LoopInKelvinConstraintGroup_[p] = KelvinGroup;
+              
+                   }
+                  
+                }                        
+               
+             }  
+                   
+          }
+          
+          else {
+             
+             for ( p = 1 ; p <= NumberOfVortexLoops_ ; p++ ) {                  
+                  
+                if ( LoopInKelvinConstraintGroup_[p] == -KelvinGroup ) {
+                  
+                   LoopInKelvinConstraintGroup_[p] = KelvinGroup;
+                  
+                }
+            
+             }
+          
+          }
+         
+       }                 
        
     }
 
     printf("There are %d Kelvin constraints \n",NumberOfKelvinConstraints_);
     
-    delete [] LoopStack;
+    delete [] LoopStack; 
  
 }
 
@@ -787,23 +846,23 @@ void VSP_SOLVER::Setup_VortexLoops(void)
     for ( Level = 1 ; Level <= NumberOfMGLevels_ ; Level++ ) {
 
        for ( j = 1 ; j <= VSPGeom().Grid(Level).NumberOfLoops() ; j++ ) {
-   
+
           VSPGeom().Grid(Level).LoopList(j).VortexLoop() = j;
-          
+
        }
        
     }
-       
+   
     for ( j = 1 ; j <= VSPGeom().Grid(1).NumberOfLoops() ; j++ ) {
 
-       VortexLoop_[j] = &(VSPGeom().Grid(1).LoopList(j));
+       VortexLoop_[j] = &(VSPGeom().Grid(1).LoopList(j)); 
        
     }
-       
+          
     // Set up a dummy loop at 0
     
     VortexLoop_[0] = new VSP_LOOP;
-   
+
 }    
 
 /*##############################################################################
@@ -873,32 +932,30 @@ void VSP_SOLVER::InitializeFreeStream(void)
  
     int i, j;
     double xyz[3], q[5], CA, SA, CB, SB, Rate_P, Rate_Q, Rate_R;
-    double gamma, gm1, gm2, gm3, f1, pinf, rho;
+    double gamma, f1, gm1, gm2, gm3;
     VSP_NODE VSP_Node1, VSP_Node2;
 
     // Limits on max velocity, and min/max pressures
     
+    if ( Mach_ <= 0. ) Mach_ = 0.001;
+
     gamma = 1.4;
-    
+
     gm1 = gamma - 1.;
 
     gm2 = 0.5*gm1*SQR(Mach_);
 
     gm3 = 1./gm1;
 
-    pinf = 1./(gamma*SQR(Mach_));
-
-    QMax_ = 0.75*sqrt( 1./gm2 + 1. );
-
-    rho = pow( 1. - gm2*( QMax_ - 1. ), gm3 );
-
-    CpMin_ = 2.*( pow( rho, gamma ) - 1. )*pinf;
-
-    CpMin_ = -2.;
+    QMax_ = 0.75*sqrt( 1./gm2 + 1. );    
+    
+    CpMin_ = -2./(gamma*Mach_*Mach_);
 
     f1 = 1. + 0.5*(gamma-1.)*Mach_*Mach_;
 
     CpMax_ = 2.*( pow(f1,(gamma)/(gamma-1)) - 1. ) / ( 1.4*Mach_*Mach_ );
+    
+    DCpMax_ = CpMax_ - CpMin_;
 
     // Base pressure
     
@@ -938,9 +995,13 @@ void VSP_SOLVER::InitializeFreeStream(void)
        
        // Zero out local body surface velocities
        
-       LocalBodySurfaceVelocity_[i][0] = 0.;
-       LocalBodySurfaceVelocity_[i][1] = 0.;
-       LocalBodySurfaceVelocity_[i][2] = 0.;             
+       if ( !TimeAccurate_ ) {
+          
+          LocalBodySurfaceVelocity_[i][0] = 0.;
+          LocalBodySurfaceVelocity_[i][1] = 0.;
+          LocalBodySurfaceVelocity_[i][2] = 0.;            
+       
+       } 
        
     }
 
@@ -951,7 +1012,7 @@ void VSP_SOLVER::InitializeFreeStream(void)
     if ( TimeAccurate_ && TimeAnalysisType_ == Q_ANALYSIS ) AngleOfAttack_ = Unsteady_Angle_;
     
     if ( TimeAccurate_ && TimeAnalysisType_ == R_ANALYSIS )   AngleOfBeta_ = -Unsteady_Angle_;
-    
+
     // Free stream velocity vector
 
     CA = cos(AngleOfAttack_);
@@ -1017,11 +1078,11 @@ void VSP_SOLVER::InitializeFreeStream(void)
 
     for ( j = 1 ; j <= NumberOfRotors_ ; j++ ) {
      
-     RotorDisk(j).Density() = Density_;
+       RotorDisk(j).Density() = Density_;
  
-     RotorDisk(j).Vinf(0) = FreeStreamVelocity_[0] * Vinf_;
-     RotorDisk(j).Vinf(1) = FreeStreamVelocity_[1] * Vinf_;
-     RotorDisk(j).Vinf(2) = FreeStreamVelocity_[2] * Vinf_;
+       RotorDisk(j).Vinf(0) = FreeStreamVelocity_[0] * Vinf_;
+       RotorDisk(j).Vinf(1) = FreeStreamVelocity_[1] * Vinf_;
+       RotorDisk(j).Vinf(2) = FreeStreamVelocity_[2] * Vinf_;
      
     }
         
@@ -1040,11 +1101,37 @@ void VSP_SOLVER::InitializeFreeStream(void)
           LocalFreeStreamVelocity_[i][2] += q[2] / Vinf_;
           LocalFreeStreamVelocity_[i][3] += q[3];
           LocalFreeStreamVelocity_[i][4] += q[4] / Vinf_;
+     
+          // If there is a ground effects, z - plane
           
+          if ( DoGroundEffectsAnalysis() ) {
+
+             xyz[0] = VortexLoop(i).Xc();            
+             xyz[1] = VortexLoop(i).Yc();           
+             xyz[2] = VortexLoop(i).Zc();
+          
+             xyz[2] *= -1.;
+            
+             RotorDisk(j).Velocity(xyz, q);      
+   
+             q[2] *= -1.;
+            
+             LocalFreeStreamVelocity_[i][0] += q[0] / Vinf_;
+             LocalFreeStreamVelocity_[i][1] += q[1] / Vinf_;
+             LocalFreeStreamVelocity_[i][2] += q[2] / Vinf_;
+             LocalFreeStreamVelocity_[i][3] += q[3];
+             LocalFreeStreamVelocity_[i][4] += q[4] / Vinf_;
+               
+          }      
+                    
           // If there is a symmetry plane, calculate influence of the reflection
           
           if ( DoSymmetryPlaneSolve_ ) {
 
+             xyz[0] = VortexLoop(i).Xc();            
+             xyz[1] = VortexLoop(i).Yc();           
+             xyz[2] = VortexLoop(i).Zc();
+             
              if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
              if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
              if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
@@ -1060,6 +1147,26 @@ void VSP_SOLVER::InitializeFreeStream(void)
              LocalFreeStreamVelocity_[i][2] += q[2] / Vinf_;
              LocalFreeStreamVelocity_[i][3] += q[3];
              LocalFreeStreamVelocity_[i][4] += q[4] / Vinf_;
+             
+             // If there is a ground effects, z - plane
+             
+             if ( DoGroundEffectsAnalysis() ) {
+  
+                xyz[2] *= -1.;
+               
+                RotorDisk(j).Velocity(xyz, q);      
+      
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;      
+                                                      q[2] *= -1.;
+               
+                LocalFreeStreamVelocity_[i][0] += q[0] / Vinf_;
+                LocalFreeStreamVelocity_[i][1] += q[1] / Vinf_;
+                LocalFreeStreamVelocity_[i][2] += q[2] / Vinf_;
+                LocalFreeStreamVelocity_[i][3] += q[3];
+                LocalFreeStreamVelocity_[i][4] += q[4] / Vinf_;
+                  
+             }    
                
           }             
           
@@ -1234,10 +1341,10 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
     
     for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() ; j++ ) {
 
-       NumberOfVortexSheets_ = MAX(NumberOfVortexSheets_, VSPGeom().Grid(MGLevel_).WingSurface(j));
+       NumberOfVortexSheets_ = MAX(NumberOfVortexSheets_, VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(j));
        
     }    
-    
+
     printf("There are: %10d Vortex Sheets \n", NumberOfVortexSheets_);
 
     if ( VortexSheet_ != NULL ) delete [] VortexSheet_;
@@ -1250,11 +1357,9 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
        
        for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() ; j++ ) {
           
-          if ( VSPGeom().Grid(MGLevel_).WingSurface(j) == k ) NumberOfKuttaNodes++;
+          if ( VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(j) == k ) NumberOfKuttaNodes++;
           
        }
-       
-       printf("There are: %10d kutta nodes for vortex sheet: %10d \n",NumberOfKuttaNodes,k);
        
        VortexSheet(k).SizeTrailingVortexList(NumberOfKuttaNodes);
        
@@ -1266,20 +1371,42 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
        
        VortexSheet(k).TimeAccurate() = TimeAccurate_;
        
+       VortexSheet(k).TimeAnalysisType() = TimeAnalysisType_;
+       
        VortexSheet(k).Vinf() = 1.;
     
+       if ( ( TimeAccurate_ && TimeAnalysisType_ == PATH_ANALYSIS ) || RotorAnalysis_ ) VortexSheet(k).Vinf() = Vinf_;
+    
        VortexSheet(k).TimeStep() = TimeStep_;       
+       
+       VortexSheet(k).FreeStreamVelocity(0) = FreeStreamVelocity_[0];
+       VortexSheet(k).FreeStreamVelocity(1) = FreeStreamVelocity_[1];
+       VortexSheet(k).FreeStreamVelocity(2) = FreeStreamVelocity_[2];
               
+       // Turn on/off KT correction
+       
+       VortexSheet(k).NoKarmanTsienCorrection() = NoKarmanTsienCorrection_;
+                     
        for ( j = 1 ; j <= VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes() ; j++ ) {
           
-          if ( VSPGeom().Grid(MGLevel_).WingSurface(j) == k ) {
+          if ( VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(j) == k ) {
           
              NumEdges++;
              
              VortexSheet(k).TrailingVortexEdge(NumEdges).TimeAccurate() = TimeAccurate_;
+             
+             VortexSheet(k).TrailingVortexEdge(NumEdges).TimeAnalysisType() = TimeAnalysisType_;
+
+             VortexSheet(k).TrailingVortexEdge(NumEdges).RotorAnalysis() = 0;
 
              VortexSheet(k).TrailingVortexEdge(NumEdges).Vinf() = 1.;
-          
+             
+             if ( RotorAnalysis_ ) VortexSheet(k).TrailingVortexEdge(NumEdges).RotorAnalysis() = 1;
+                
+             if ( ( TimeAccurate_ && TimeAnalysisType_ == PATH_ANALYSIS ) || RotorAnalysis_ ) VortexSheet(k).TrailingVortexEdge(NumEdges).Vinf() = Vinf_;
+
+             VortexSheet(k).TrailingVortexEdge(NumEdges).BladeRPM() = BladeRPM_;
+             
              VortexSheet(k).TrailingVortexEdge(NumEdges).TimeStep() = TimeStep_;                
                           
              // Pointer to the wing this trailing vortex leaves from
@@ -1288,27 +1415,25 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
              
              // Flag if the vortex sheet is periodic (eg would be a nacelle)
              
-             VortexSheet(k).IsPeriodic() = VSPGeom().Grid(MGLevel_).WingSurfaceIsPeriodic(j);
+             VortexSheet(k).IsPeriodic() = VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNodeIsPeriodic(j);
 
              // Pointer to the kutta node
              
              VortexSheet(k).TrailingVortexEdge(NumEdges).Node() = VSPGeom().Grid(MGLevel_).KuttaNode(j);
-                         
+                     
              // Pass in edge data and create edge cofficients
              
              VSP_Node1.x() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeX(j);
              VSP_Node1.y() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeY(j);
              VSP_Node1.z() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeZ(j);
-                    
+
              VSP_Node2.x() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeX(j) + WakeAngle_[0] * 1.e6;
              VSP_Node2.y() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeY(j) + WakeAngle_[1] * 1.e6;
              VSP_Node2.z() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeZ(j) + WakeAngle_[2] * 1.e6;
        
              // Set sigma
-           
+
              VortexSheet(k).TrailingVortexEdge(NumEdges).Sigma() = 0.5*Sigma[VSPGeom().Grid(MGLevel_).KuttaNode(j)];
-             
-             VortexSheet(k).TrailingVortexEdge(NumEdges).Sigma() = Sigma[VSPGeom().Grid(MGLevel_).KuttaNode(j)];
 
              // Set trailing edge direction 
              
@@ -1322,12 +1447,28 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
       
              VortexSheet(k).TrailingVortexEdge(NumEdges).Setup(NumberOfWakeTrailingNodes_,WakeDist,VSP_Node1,VSP_Node2);
              
+             // Turn on/off KT correction
+             
+             VortexSheet(k).TrailingVortexEdge(NumEdges).NoKarmanTsienCorrection() = NoKarmanTsienCorrection_;
+             
           }
              
        }
        
        VortexSheet(k).SetupVortexSheets();
        
+       if ( VortexSheet(k).IsPeriodic() ) {
+          
+          printf("There are: %10d kutta nodes for vortex sheet: %10d     <----- Periodic Wake \n",VortexSheet(k).NumberOfTrailingVortices(),k); fflush(NULL);
+          
+       }
+       
+       else {
+          
+          printf("There are: %10d kutta nodes for vortex sheet: %10d  \n",VortexSheet(k).NumberOfTrailingVortices(),k); fflush(NULL);
+          
+       }
+
     }
 
     delete [] Sigma;
@@ -1356,9 +1497,7 @@ void VSP_SOLVER::Solve(int Case)
     zero_double_array(GammaNM1_, NumberOfVortexLoops_); GammaNM1_[0] = 0.;
     zero_double_array(GammaNM2_, NumberOfVortexLoops_); GammaNM2_[0] = 0.;
     zero_double_array(Delta_,    NumberOfVortexLoops_);    Delta_[0] = 0.;
-    
-    ZeroVortexState();
-    
+        
     CurrentTime_ = 0.;
        
     // Keep track of unsteady forces and moments
@@ -1417,7 +1556,7 @@ void VSP_SOLVER::Solve(int Case)
        if ( TimeAnalysisType_ == R_ANALYSIS ) AngleZero_ = AngleOfBeta_;
  
     }
-           
+             
     // Initialize free stream
     
     InitializeFreeStream();
@@ -1425,7 +1564,9 @@ void VSP_SOLVER::Solve(int Case)
     // Initialize the wake trailing vortices
     
     InitializeTrailingVortices();
-        
+    
+    ZeroVortexState();
+
     // Calculate the right hand side
     
     CalculateRightHandSide();
@@ -1433,7 +1574,7 @@ void VSP_SOLVER::Solve(int Case)
     // Do a restart
     
     if ( DoRestart_ == 1 ) {
-     
+  
        LoadRestartFile();
        
        for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
@@ -1495,22 +1636,22 @@ void VSP_SOLVER::Solve(int Case)
        
        if ( TimeAnalysisType_ == HEAVE_ANALYSIS ) {
                  
-                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789         
-          fprintf(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS      H    \n");
+                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789     
+          fprintf(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS      H       CL_Un     CDi_Un    CS_Un     CFx_Un     CFy_Un    CFz_Un   CMx_Un    CMy_Un    CMz_Un \n");
 
        }
        
        else if ( TimeAnalysisType_ == P_ANALYSIS || TimeAnalysisType_ == Q_ANALYSIS ||  TimeAnalysisType_ == R_ANALYSIS ) {
          
-                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789         
-          fprintf(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS  UnstdyAng \n");
+                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789          
+          fprintf(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS  UnstdyAng   CL_Un     CDi_Un    CS_Un     CFx_Un     CFy_Un    CFz_Un   CMx_Un    CMy_Un    CMz_Un \n");
 
        }
        
        else {
 
-                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789          
-          fprintf(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS    \n");
+                             //123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789
+          fprintf(StatusFile_,"  Time      Mach       AoA      Beta       CL         CDo       CDi      CDtot      CS        L/D        E        CFx       CFy       CFz       CMx       CMy       CMz       T/QS    CL_Un     CDi_Un    CS_Un     CFx_Un     CFy_Un    CFz_Un   CMx_Un    CMy_Un    CMz_Un \n");
       
        }
    
@@ -1541,10 +1682,12 @@ void VSP_SOLVER::Solve(int Case)
        }       
        
     }    
-    
+
     // Write out ADB Geometry
     
     if ( Case == 0 || Case == 1 ) {
+
+       WriteOutAerothermalDatabaseHeader();
 
        WriteOutAerothermalDatabaseGeometry();
        
@@ -1563,7 +1706,7 @@ void VSP_SOLVER::Solve(int Case)
     if ( !TimeAccurate_ ) NumberOfTimeSteps_ = 1;
     
     for ( Time_ = 1 ; Time_ <= NumberOfTimeSteps_ ; Time_++ ) {
-       
+
        CurrentTime_ = Time_*TimeStep_;
        
        // If time accurate we save the trailing vorticity state
@@ -1578,6 +1721,8 @@ void VSP_SOLVER::Solve(int Case)
              
              // Update free stream for unsteady cases
               
+             if ( TimeAnalysisType_ == PATH_ANALYSIS ) UpdateGeometryLocation();
+                                        
              InitializeFreeStream();
              
              // Update right hand side
@@ -1592,12 +1737,12 @@ void VSP_SOLVER::Solve(int Case)
     
           // Update wake locations
 
-          if ( WakeIterations_ > 1 || TimeAccurate_ ) UpdateWakeLocations();
+          if ( WakeIterations_ > 1 || ( TimeAccurate_  && TimeAnalysisType_ != PATH_ANALYSIS ) ) UpdateWakeLocations();
 
           // Calculate forces
    
           CalculateForces();
-   
+          
           // Output status
    
           OutputStatusFile(0);
@@ -1615,13 +1760,15 @@ void VSP_SOLVER::Solve(int Case)
        if ( TimeAccurate_ ) {
           
           sprintf(CaseString_,"Time: %-f ...",CurrentTime_);
+          
+          if ( TimeAnalysisType_ == PATH_ANALYSIS ) WriteOutAerothermalDatabaseGeometry();
 
           InterpolateSolutionFromGrid(1);
           
           WriteOutAerothermalDatabaseSolution();
-          
+                    
        }
-                   
+          
     }
 
     if ( ForceType_ == FORCE_AVERAGE ) OutputStatusFile(1);
@@ -1650,7 +1797,7 @@ void VSP_SOLVER::Solve(int Case)
     
     // Write out FEM loading file
     
-    CreateFEMLoadFile();
+    CreateFEMLoadFile(Case);
 
     // Interpolate solution from grid 1 to 0
     
@@ -1667,7 +1814,7 @@ void VSP_SOLVER::Solve(int Case)
        if ( Write2DFEMFile_ ) WriteFEM2DGeometry();
        
     }          
-    
+
     // Write out ADB Solution
 
     if ( !TimeAccurate_ ) WriteOutAerothermalDatabaseSolution();
@@ -1682,8 +1829,9 @@ void VSP_SOLVER::Solve(int Case)
     if ( Case <= 0                    ) fclose(LoadFile_);
     if ( Case <= 0                    ) fclose(ADBFile_);
     if ( Case <= 0                    ) fclose(ADBCaseListFile_);
+    if ( Case <= 0                    ) fclose(FEMLoadFile_);
     if ( Case <= 0 && Write2DFEMFile_ ) fclose(FEM2DLoadFile_);
-
+    
 }
 
 /*##############################################################################
@@ -1771,12 +1919,20 @@ void VSP_SOLVER::CalculateRightHandSide(void)
 
 void VSP_SOLVER::SolveLinearSystem(void)
 {
-    
-    // Calculate matrix diagonal and nearest neighbor edge coefficients
+ 
+ double time1, time2;   
+  
+    // Calculate preconditioners
+  
+    if ( CurrentWakeIteration_ == 1 && !DumpGeom_ ) {
 
-    CalculateDiagonal();       
+       if ( Preconditioner_ != MATCON ) CalculateDiagonal();       
+          
+       if ( Preconditioner_ == SSOR   ) CalculateNeighborCoefs();
+    
+       if ( Preconditioner_ == MATCON ) CreateMatrixPreconditioners();
        
-    CalculateNeighborCoefs();
+    }
 
     // Solver the linear system
 
@@ -2009,6 +2165,312 @@ void VSP_SOLVER::CalculateNeighborCoefs(void)
 
 /*##############################################################################
 #                                                                              #
+#                    VSP_SOLVER CreateMatrixPreconditioners                    #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CreateMatrixPreconditioners(void)
+{
+
+    int i, j, k, m, Neq, iLoop, jLoop, Edge;
+    double q[4], *Diagonal, Ws;
+
+#pragma omp parallel for private(Neq,i,j,m,iLoop,jLoop,Edge,q)
+    for ( k = 1 ; k <= NumberOfMatrixPreconditioners_ ; k++ ) {
+       
+       Neq = MatrixPreconditionerList_[k].NumberOfVortexLoops();
+       
+       for ( i = 1 ; i <= Neq ; i++ ) {
+          
+          iLoop = MatrixPreconditionerList_[k].VortexLoopList(i);
+
+          for ( j = 1 ; j <= Neq ; j++ ) {
+             
+             jLoop = MatrixPreconditionerList_[k].VortexLoopList(j);
+             
+             MatrixPreconditionerList_[k].A()(i,j) = 0.;
+             
+             for ( m = 1 ; m <= VortexLoop(jLoop).NumberOfEdges() ; m++ ) {
+                
+                Edge = VortexLoop(jLoop).Edge(m);
+                
+                if ( !SurfaceVortexEdge(Edge).IsTrailingEdge() ) {
+                   
+                   SurfaceVortexEdge(Edge).Gamma() = 1.;
+                   
+                   if ( SurfaceVortexEdge(Edge).VortexLoop1() != jLoop ) SurfaceVortexEdge(Edge).Gamma() = -1.;
+                   
+                   SurfaceVortexEdge(Edge).InducedVelocity(VortexLoop(iLoop).xyz_c(), q);
+                   
+                   MatrixPreconditionerList_[k].A()(i,j) += vector_dot(VortexLoop(iLoop).Normal(), q);
+                   
+                }
+ 
+             }
+
+          }
+
+       }
+
+    }
+    
+    // If flow is supersonic add in generalized principart part of downwash
+    
+    if ( Mach_ > 1. ) {
+       
+       Diagonal = new double[NumberOfVortexLoops_ + 1];
+       
+       zero_double_array(Diagonal, NumberOfVortexLoops_);
+
+       for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
+
+          Ws = SurfaceVortexEdge(j).GeneralizedPrincipalPartOfDownWash();
+        
+          // Loop 1
+           
+          if ( SurfaceVortexEdge(j).VortexLoop1IsDownWind() ) {
+           
+             i = SurfaceVortexEdge(j).VortexLoop1();
+        
+             Diagonal[i] += Ws * SurfaceVortexEdge(j).VortexLoop1DownWindWeight();
+       
+          }
+
+          // Loop 2
+
+          if ( SurfaceVortexEdge(j).VortexLoop2IsDownWind() ) {
+           
+             i = SurfaceVortexEdge(j).VortexLoop2();
+
+             Diagonal[i] += Ws * SurfaceVortexEdge(j).VortexLoop2DownWindWeight();
+       
+          }
+
+       }
+       
+       for ( k = 1 ; k <= NumberOfMatrixPreconditioners_ ; k++ ) {
+          
+          Neq = MatrixPreconditionerList_[k].NumberOfVortexLoops();
+          
+          for ( i = 1 ; i <= Neq ; i++ ) {
+             
+             iLoop = MatrixPreconditionerList_[k].VortexLoopList(i);
+
+             MatrixPreconditionerList_[k].A()(i,i) += Diagonal[iLoop];
+          
+          }
+
+       }
+   
+       delete [] Diagonal;
+       
+    }
+
+    // Form LU decomposition
+    
+#pragma omp parallel for 
+    for ( k = 1 ; k <= NumberOfMatrixPreconditioners_ ; k++ ) {
+       
+       MatrixPreconditionerList_[k].LU();
+       
+    }
+                       
+}
+
+/*##############################################################################
+#                                                                              #
+#           VSP_SOLVER CreateMatrixPreconditionersDataStructure                #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CreateMatrixPreconditionersDataStructure(void)
+{
+
+    int i, j, k, p, r, Done, Loops, Edge, Level, *LoopList, *NumLoops;
+    int MinLoops, MaxLoops, AvgLoops;
+    
+    printf("Creating matrix preconditioners... \n");
+    
+    LoopList = new int[NumberOfVortexLoops_ + 1];
+    
+    NumLoops = new int[NumberOfVortexLoops_ + 1];
+    
+    zero_int_array(LoopList, NumberOfVortexLoops_);
+    
+    zero_int_array(NumLoops, NumberOfVortexLoops_);
+
+    // Determine level to start at
+    
+    MaxLoops = 500;
+    
+    Done = 0;
+    
+    Level = VSPGeom().NumberOfGridLevels();
+    
+    while ( !Done && Level >= 1 ) {
+
+       Loops = 0;
+
+       for ( i = 1 ; i <= VSPGeom().Grid(Level).NumberOfLoops() ; i++ ) {
+  
+          NumLoops[i] = CalculateNumberOfFineLoops(Level, VSPGeom().Grid(Level).LoopList(i), LoopList);
+ 
+          Loops = MAX(Loops,NumLoops[i]);
+
+       }
+       
+       if ( Loops <= 1.25*MaxLoops ) Done = 1;
+
+       Level--;
+       
+    }
+    
+    Level++;
+    
+    printf("Starting at level: %d \n",Level); fflush(NULL);
+    
+    // Now group vortex loops into groups, one each per matrix preconditioner
+
+    MatrixPreconditionerList_ = new MATPRECON[VSPGeom().Grid(Level).NumberOfLoops() + 1];
+
+    i = 1; 
+
+    Done = Loops = p = 0;
+    
+    zero_int_array(LoopList, NumberOfVortexLoops_);
+    
+    MinLoops = 1.e9;
+    MaxLoops = -MinLoops;
+    AvgLoops = 0;
+    
+    while ( i <= VSPGeom().Grid(Level).NumberOfLoops() && !Done ) {
+  
+       Loops += CalculateNumberOfFineLoops(Level, VSPGeom().Grid(Level).LoopList(i), LoopList);
+
+       if ( ( Loops >= MaxLoops || Loops + NumLoops[i+1] > 1.25*MaxLoops ) || i == VSPGeom().Grid(Level).NumberOfLoops() ) {
+/*       
+          // Now buffer this region 
+          
+          for ( j = 1 ; j <= NumberOfVortexLoops_ ; j++ ) {
+             
+             if ( LoopList[j] == 1 ) {
+                
+                for ( k = 1 ; k <= VSPGeom().Grid(1).LoopList(j).NumberOfEdges() ; k++ ) {
+
+                   Edge = VSPGeom().Grid(1).LoopList(j).Edge(k);
+                
+                   r = VSPGeom().Grid(1).EdgeList(Edge).Loop1()
+                     + VSPGeom().Grid(1).EdgeList(Edge).Loop2() - j;
+                        
+                   if ( r > 0 && LoopList[r] == 0 ) {
+                      
+                      LoopList[r] = 2;
+                      
+                      Loops++;
+                      
+                   }
+                   
+                }
+                
+             }
+             
+          }
+*/
+          MinLoops = MIN(MinLoops,Loops);
+          MaxLoops = MAX(MaxLoops,Loops);
+          AvgLoops += Loops;
+          
+          p++;
+          
+          if ( Verbose_ ) printf("Preconditioning Matrix %d contains %d fine loops \n",p,Loops); fflush(NULL);
+   
+          MatrixPreconditionerList_[p].Size(Loops);
+
+          k = 0;
+          
+          for ( j = 1 ; j <= NumberOfVortexLoops_ ; j++ ) {
+             
+             if ( LoopList[j] ) MatrixPreconditionerList_[p].VortexLoopList(++k) = j;
+
+          }
+          
+          if ( k != Loops ) {
+             
+             printf("Error in creating preconditioning matrix data structure! \n");
+             
+             fflush(NULL);
+             
+             exit(1);
+             
+          }
+   
+          zero_int_array(LoopList, NumberOfVortexLoops_);
+          
+          Loops = 0;
+          
+       }
+       
+       i++;
+       
+    }
+    
+    AvgLoops /= p;
+    
+    printf("Min matrix: %d Loops \n",MinLoops);
+    printf("Max matrix: %d Loops \n",MaxLoops);
+    printf("Avg matrix: %d Loops \n",AvgLoops);
+
+    printf("\n");
+    
+    NumberOfMatrixPreconditioners_ = p;
+    
+    delete [] LoopList;
+    delete [] NumLoops;
+    
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                     VSP_SOLVER CalculateNumberOfFineLoops                    #
+#                                                                              #
+##############################################################################*/
+
+int VSP_SOLVER::CalculateNumberOfFineLoops(int Level, VSP_LOOP &Loop, int *LoopList)
+{
+
+    int i, FineLoops;
+
+    FineLoops = 0;
+    
+    if ( Level == 2 ) {
+
+       for ( i = 1 ; i <= Loop.NumberOfFineGridLoops() ; i++ ) {
+    
+          FineLoops++;
+          
+          LoopList[Loop.FineGridLoop(i)] = 1;
+
+       }
+       
+    }
+    
+    else {
+  
+       for ( i = 1 ; i <= Loop.NumberOfFineGridLoops() ; i++ ) {
+    
+          FineLoops += CalculateNumberOfFineLoops(Level-1,VSPGeom().Grid(Level-1).LoopList(Loop.FineGridLoop(i)),LoopList);
+
+       }
+       
+    }
+    
+    return FineLoops;
+
+}
+
+/*##############################################################################
+#                                                                              #
 #                 VSP_SOLVER DoPreconditionedMatrixMultiply                    #
 #                                                                              #
 ##############################################################################*/
@@ -2017,7 +2479,7 @@ void VSP_SOLVER::DoPreconditionedMatrixMultiply(double *vec_in, double *vec_out)
 {
  
     DoMatrixMultiply(vec_in,vec_out);
-    
+
     DoMatrixPrecondition(vec_out);
    
 }
@@ -2038,11 +2500,11 @@ void VSP_SOLVER::DoMatrixMultiply(double *vec_in, double *vec_out)
     }
    
     else if ( ModelType_ == PANEL_MODEL ) {
-       
+
        MatrixMultiply(vec_in, MatrixVecTemp_);
-      
+    
        MatrixTransposeMultiply(MatrixVecTemp_, vec_out);
-      
+
     }
 
 }
@@ -2069,7 +2531,7 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
        Gamma_[i] = vec_in[i];
       
     }
-    
+
     UpdateVortexEdgeStrengths(1, IMPLICIT_WAKE_GAMMAS);
               
     // Surface vortex induced velocities
@@ -2086,7 +2548,7 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
     
        Temp = 0.;
 
-#pragma omp parallel for reduction(+:Temp) private(xyz,q,VortexEdge)            
+#pragma omp parallel for reduction(+:Temp) private(xyz,q,VortexEdge)   
        for ( j = 1 ; j <= NumberOfVortexEdgesForInteractionListEntry_[i] ; j++ ) {
         
           VortexEdge = SurfaceVortexEdgeInteractionList_[i][j];
@@ -2098,31 +2560,63 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
              VortexEdge->InducedVelocity(VortexLoop(i).xyz_c(), q);
          
              Temp += vector_dot(VortexLoop(i).Normal(), q);
+           
+             // If there is ground effects, z plane...
              
-             // If there is a symmetry plane, calculate influence of the reflection
-             
-             if ( DoSymmetryPlaneSolve_ ) {
+             if ( DoGroundEffectsAnalysis() ) {
 
                xyz[0] = VortexLoop(i).xyz_c()[0];
                xyz[1] = VortexLoop(i).xyz_c()[1];
                xyz[2] = VortexLoop(i).xyz_c()[2];
                
-               if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+               xyz[2] *= -1.;
                
                VortexEdge->InducedVelocity(xyz, q);
          
-               if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+               q[2] *= -1.;
      
                Temp += vector_dot(VortexLoop(i).Normal(), q);
+               
+             }    
+                          
+             // If there is a symmetry plane, calculate influence of the reflection
+             
+             if ( DoSymmetryPlaneSolve_ ) {
+
+                xyz[0] = VortexLoop(i).xyz_c()[0];
+                xyz[1] = VortexLoop(i).xyz_c()[1];
+                xyz[2] = VortexLoop(i).xyz_c()[2];
+               
+                if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+               
+                VortexEdge->InducedVelocity(xyz, q);
+         
+                if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+     
+                Temp += vector_dot(VortexLoop(i).Normal(), q);
+                  
+                if ( DoGroundEffectsAnalysis() ) {
+   
+                  xyz[2] *= -1.;
+                  
+                  VortexEdge->InducedVelocity(xyz, q);
+            
+                  if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                  if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                                                        q[2] *= -1.;
+
+                  Temp += vector_dot(VortexLoop(i).Normal(), q);
+                  
+                }                   
                
              }             
              
           }
-            
+          
        }
        
        vec_out[i] = Temp;
@@ -2165,7 +2659,7 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
        }
        
     }    
-
+ 
     // Trailing vortex induced velocities
      
     for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
@@ -2180,6 +2674,24 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
 
          Temp = vector_dot(VortexLoop(i).Normal(), q);
 
+         // If there is ground effects, z plane...
+       
+         if ( DoGroundEffectsAnalysis() ) {
+          
+           xyz[0] = VortexLoop(i).xyz_c()[0];
+           xyz[1] = VortexLoop(i).xyz_c()[1];
+           xyz[2] = VortexLoop(i).xyz_c()[2];
+         
+           xyz[2] *= -1.;
+         
+           VortexSheet(k).InducedVelocity(xyz, q);
+   
+           q[2] *= -1.;
+         
+           Temp += vector_dot(VortexLoop(i).Normal(), q);
+         
+         }   
+         
          // If there is a symmetry plane, calculate influence of the reflection
        
          if ( DoSymmetryPlaneSolve_ ) {
@@ -2188,18 +2700,34 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
            xyz[1] = VortexLoop(i).xyz_c()[1];
            xyz[2] = VortexLoop(i).xyz_c()[2];
          
-           if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1;
-           if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1;
-           if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1;
+           if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+           if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+           if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
          
            VortexSheet(k).InducedVelocity(xyz, q);
    
-           if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1;
-           if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1;
-           if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1;
+           if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+           if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+           if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
          
            Temp += vector_dot(VortexLoop(i).Normal(), q);
-         
+           
+            // If there is ground effects, z plane...
+          
+            if ( DoGroundEffectsAnalysis() ) {
+
+              xyz[2] *= -1.;
+            
+              VortexSheet(k).InducedVelocity(xyz, q);
+   
+              if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+              if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                                                    q[2] *= -1.;
+            
+              Temp += vector_dot(VortexLoop(i).Normal(), q);
+            
+            }   
+        
          }   
 
          vec_out[i] += Temp;
@@ -2209,7 +2737,7 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
     }
 
     vec_out[0] = vec_in[0];
-    
+
     // Kelvin constraint
     
     if ( ModelType_ == PANEL_MODEL ) {
@@ -2227,7 +2755,7 @@ void VSP_SOLVER::MatrixMultiply(double *vec_in, double *vec_out)
        }
 
     }
-    
+
     // Base region
     
     if ( ModelType_ == PANEL_MODEL ) {
@@ -2274,7 +2802,7 @@ void VSP_SOLVER::MatrixTransposeMultiply(double *vec_in, double *vec_out)
 void VSP_SOLVER::DoMatrixPrecondition(double *vec_in)
 {
 
-    int i, j;
+    int i, j, k;
 
     // Precondition using Jacobi
 
@@ -2282,12 +2810,14 @@ void VSP_SOLVER::DoMatrixPrecondition(double *vec_in)
        
 #pragma omp parallel for    
        for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
-   
+  
           vec_in[i] *= JacobiRelaxationFactor_*Diagonal_[i];
    
        }
        
     }
+
+    // Edge SSOR
 
     else if ( Preconditioner_ == SSOR ) {
 
@@ -2297,8 +2827,6 @@ void VSP_SOLVER::DoMatrixPrecondition(double *vec_in)
          vec_in[i] *= (2.-JacobiRelaxationFactor_)*Diagonal_[i] / JacobiRelaxationFactor_;
 
        }
-   
-       // Edge SSOR
    
 #pragma omp parallel for       
        for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
@@ -2348,6 +2876,31 @@ void VSP_SOLVER::DoMatrixPrecondition(double *vec_in)
 
     }
     
+    // Matrix precondtioner
+    
+    else if ( Preconditioner_ == MATCON ) {
+
+#pragma omp parallel for private(i)                    
+       for ( k = 1 ; k <= NumberOfMatrixPreconditioners_ ; k++ ) {
+
+          for ( i = 1 ; i <= MatrixPreconditionerList_[k].NumberOfVortexLoops() ; i++ ) {
+
+             MatrixPreconditionerList_[k].x(i) = vec_in[MatrixPreconditionerList_[k].VortexLoopList(i)];
+             
+          }
+          
+          MatrixPreconditionerList_[k].Solve();
+          
+          for ( i = 1 ; i <= MatrixPreconditionerList_[k].NumberOfVortexLoops() ; i++ ) {
+      
+             vec_in[MatrixPreconditionerList_[k].VortexLoopList(i)] = MatrixPreconditionerList_[k].x(i);
+ 
+          }          
+          
+       }
+
+    }
+
     else {
        
        printf("Unknown preconditioner! \n");fflush(NULL);
@@ -2399,7 +2952,7 @@ void VSP_SOLVER::CalculateVelocities(void)
     
        U = V = W = 0.;
 
-#pragma omp parallel for reduction(+:U,V,W) private(q,VortexEdge)            
+#pragma omp parallel for reduction(+:U,V,W) private(q,VortexEdge,xyz)            
        for ( j = 1 ; j <= NumberOfVortexEdgesForInteractionListEntry_[i] ; j++ ) {
         
           VortexEdge = SurfaceVortexEdgeInteractionList_[i][j];
@@ -2412,6 +2965,26 @@ void VSP_SOLVER::CalculateVelocities(void)
              V += q[1];
              W += q[2];
           
+             // If there is ground effects, z plane...
+             
+             if ( DoGroundEffectsAnalysis() ) {
+                
+                xyz[0] = VortexLoop(i).xyz_c()[0];
+                xyz[1] = VortexLoop(i).xyz_c()[1];
+                xyz[2] = VortexLoop(i).xyz_c()[2];
+      
+                xyz[2] *= -1.;
+               
+                VortexEdge->InducedVelocity(xyz, q);        
+      
+                q[2] *= -1.;
+               
+                U += q[0];
+                V += q[1];
+                W += q[2];
+               
+             }     
+                       
              // If there is a symmetry plane, calculate influence of the reflection
              
              if ( DoSymmetryPlaneSolve_ ) {
@@ -2433,6 +3006,24 @@ void VSP_SOLVER::CalculateVelocities(void)
                 U += q[0];
                 V += q[1];
                 W += q[2];
+                
+                // If there is ground effects, z plane...
+                
+                if ( DoGroundEffectsAnalysis() ) {
+      
+                   xyz[2] *= -1.;
+                  
+                   VortexEdge->InducedVelocity(xyz, q);        
+         
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;         
+                                                         q[2] *= -1.;
+                  
+                   U += q[0];
+                   V += q[1];
+                   W += q[2];
+                  
+                }                     
                
              }                
                          
@@ -2466,8 +3057,28 @@ void VSP_SOLVER::CalculateVelocities(void)
    
           // If there is a symmetry plane, calculate influence of the reflection
              
+          if ( DoGroundEffectsAnalysis() ) {
+             
+             xyz[2] *= -1.;
+            
+             VortexSheet(k).InducedVelocity(xyz, q);
+   
+             q[2] *= -1.;
+            
+             U += q[0];
+             V += q[1];
+             W += q[2];
+            
+          }   
+             
+          // If there is a symmetry plane, calculate influence of the reflection
+             
           if ( DoSymmetryPlaneSolve_ ) {
              
+             xyz[0] = VortexLoop(i).xyz_c()[0];
+             xyz[1] = VortexLoop(i).xyz_c()[1];
+             xyz[2] = VortexLoop(i).xyz_c()[2];
+                       
              if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
              if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
              if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
@@ -2482,6 +3093,24 @@ void VSP_SOLVER::CalculateVelocities(void)
              V += q[1];
              W += q[2];
             
+             // If there is a symmetry plane, calculate influence of the reflection
+                
+             if ( DoGroundEffectsAnalysis() ) {
+                
+                xyz[2] *= -1.;
+               
+                VortexSheet(k).InducedVelocity(xyz, q);
+      
+                if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                                                      q[2] *= -1.;
+               
+                U += q[0];
+                V += q[1];
+                W += q[2];
+               
+             }   
+                      
           }   
 
        }
@@ -2544,8 +3173,8 @@ void VSP_SOLVER::CalculateVelocities(void)
 void VSP_SOLVER::UpdateWakeLocations(void)
 {
 
-    int i, j, k, m, Iter, IterMax;
-    double xyz[3], xyz_te[3], q[5], U, V, W;
+    int i, j, k, m;
+    double xyz[3], xyz_te[3], q[5], U, V, W, Delta, MaxDelta;
 
     // Initialize to free stream values
 
@@ -2588,25 +3217,67 @@ void VSP_SOLVER::UpdateWakeLocations(void)
                 VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0] / Vinf_;
                 VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1] / Vinf_;
                 VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2] / Vinf_;
+             
+                // If there is ground effects, z plane...
                 
+                if ( DoGroundEffectsAnalysis() ) {
+        
+                   xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0]; 
+                   xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];        
+                   xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2]; 
+                        
+                   xyz[2] *= -1.;
+                  
+                   RotorDisk(k).Velocity(xyz, q);        
+         
+                   q[2] *= -1.;
+                  
+                   VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0] / Vinf_;
+                   VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1] / Vinf_;
+                   VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2] / Vinf_;
+                  
+                }     
+                                
                 // If there is a symmetry plane, calculate influence of the reflection
                 
                 if ( DoSymmetryPlaneSolve_ ) {
         
-                  if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
-                  if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
-                  if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+                   xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0]; 
+                   xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];        
+                   xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2]; 
+        
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
                   
-                  RotorDisk(k).Velocity(xyz, q);        
+                   RotorDisk(k).Velocity(xyz, q);        
          
-                  if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-                  if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
-                  if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
                   
-                  VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0] / Vinf_;
-                  VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1] / Vinf_;
-                  VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2] / Vinf_;
+                   VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0] / Vinf_;
+                   VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1] / Vinf_;
+                   VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2] / Vinf_;
                   
+                   // If there is ground effects, z plane...
+                   
+                   if ( DoGroundEffectsAnalysis() ) {
+   
+                      xyz[2] *= -1.;
+                     
+                      RotorDisk(k).Velocity(xyz, q);        
+            
+                      if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                      if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;            
+                                                            q[2] *= -1.;
+                     
+                      VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0] / Vinf_;
+                      VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1] / Vinf_;
+                      VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2] / Vinf_;
+                     
+                   }  
+                                  
                 }                
    
              }
@@ -2634,25 +3305,67 @@ void VSP_SOLVER::UpdateWakeLocations(void)
              VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0];
              VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1];
              VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2];
+         
+             // If there is ground effects, z plane ...
              
+             if ( DoGroundEffectsAnalysis() ) {
+     
+                xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0]; 
+                xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];        
+                xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2]; 
+                     
+                xyz[2] *= -1.;
+               
+                CalculateSurfaceInducedVelocityAtPoint(xyz, q);
+      
+                q[2] *= -1.;
+               
+                VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0];
+                VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1];
+                VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2];
+                
+             }
+                          
              // If there is a symmetry plane, calculate influence of the reflection
              
              if ( DoSymmetryPlaneSolve_ ) {
      
-               if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+                xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0]; 
+                xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];        
+                xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2]; 
+             
+                if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
                
-               CalculateSurfaceInducedVelocityAtPoint(xyz, q);
+                CalculateSurfaceInducedVelocityAtPoint(xyz, q);
       
-               if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
-               if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
                
-               VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0];
-               VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1];
-               VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2];
+                VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0];
+                VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1];
+                VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2];
                 
+                // If there is ground effects, z plane ...
+                
+                if ( DoGroundEffectsAnalysis() ) {
+ 
+                   xyz[2] *= -1.;
+                  
+                   CalculateSurfaceInducedVelocityAtPoint(xyz, q);
+         
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;         
+                                                         q[2] *= -1.;
+                  
+                   VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0];
+                   VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1];
+                   VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2];
+                   
+                }
+                             
              }
              
           }
@@ -2661,127 +3374,164 @@ void VSP_SOLVER::UpdateWakeLocations(void)
        
     }
 
-    // Iterate on wake shape
-    
-    IterMax = 5; 
-    
-    if ( TimeAccurate_ ) IterMax = 1;
-    
-    for ( Iter = 1 ; Iter <= IterMax ; Iter++ ) {
- 
-       // Initialize with freestream, surface induced, and rotor induced velocities... these have not changed
+    // Initialize with freestream, surface induced, and rotor induced velocities... these have not changed
 
-       for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {    
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {    
 
-          for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
-   
-             for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
-   
-                VortexSheet(m).TrailingVortexEdge(i).U(j) = VortexSheet(m).TrailingVortexEdge(i).Utmp(j);
-                VortexSheet(m).TrailingVortexEdge(i).V(j) = VortexSheet(m).TrailingVortexEdge(i).Vtmp(j);
-                VortexSheet(m).TrailingVortexEdge(i).W(j) = VortexSheet(m).TrailingVortexEdge(i).Wtmp(j);
-                
-             }
+       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+
+          for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
+
+             VortexSheet(m).TrailingVortexEdge(i).U(j) = VortexSheet(m).TrailingVortexEdge(i).Utmp(j);
+             VortexSheet(m).TrailingVortexEdge(i).V(j) = VortexSheet(m).TrailingVortexEdge(i).Vtmp(j);
+             VortexSheet(m).TrailingVortexEdge(i).W(j) = VortexSheet(m).TrailingVortexEdge(i).Wtmp(j);
              
           }
           
        }
        
-       // Trailing vortex induced velocities
+    }
+    
+    // Trailing vortex induced velocities
 
-       for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+        
+       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+                        
+          for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
+
+             U = V = W = 0.;
+             
+             for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {     
+
+                xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
+                xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
+                xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
+        
+                xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
+                xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
+                xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
+                        
+                VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
            
-          for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
-                           
-             for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
-   
-                U = V = W = 0.;
+                U += q[0];
+                V += q[1];
+                W += q[2];
                 
-                for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {     
-   
+                // If there is ground effects, z plane ...
+      
+                if ( DoGroundEffectsAnalysis() ) {
+
                    xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
                    xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
                    xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
-           
+               
                    xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
                    xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
                    xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
-                           
+                    
+                   xyz[2] *= -1.; xyz_te[2] *= -1.;
+                  
                    VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
-              
+          
+                   q[2] *= -1.;
+                  
+                   U += q[0];
+                   V += q[1];
+                   W += q[2];
+                  
+                }  
+                                   
+                // If there is a symmetry plane, calculate influence of the reflection
+      
+                if ( DoSymmetryPlaneSolve_ ) {
+
+                   xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
+                   xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
+                   xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
+               
+                   xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
+                   xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
+                   xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
+                    
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) { xyz[0] *= -1.; xyz_te[0] *= -1.; };
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) { xyz[1] *= -1.; xyz_te[1] *= -1.; };
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) { xyz[2] *= -1.; xyz_te[2] *= -1.; };
+                  
+                   VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
+          
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+                  
                    U += q[0];
                    V += q[1];
                    W += q[2];
                    
-                   // If there is a symmetry plane, calculate influence of the reflection
+                   // If there is ground effects, z plane ...
          
-                   if ( DoSymmetryPlaneSolve_ ) {
+                   if ( DoGroundEffectsAnalysis() ) {
 
-                      xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
-                      xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
-                      xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
-                  
-                      xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
-                      xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
-                      xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
-                       
-                      if ( DoSymmetryPlaneSolve_ == SYM_X ) { xyz[0] *= -1.; xyz_te[0] *= -1.; };
-                      if ( DoSymmetryPlaneSolve_ == SYM_Y ) { xyz[1] *= -1.; xyz_te[1] *= -1.; };
-                      if ( DoSymmetryPlaneSolve_ == SYM_Z ) { xyz[2] *= -1.; xyz_te[2] *= -1.; };
+                      xyz[2] *= -1.; xyz_te[2] *= -1.;
                      
                       VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
              
                       if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-                      if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
-                      if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+                      if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;                
+                                                            q[2] *= -1.;
                      
                       U += q[0];
                       V += q[1];
                       W += q[2];
                      
-                   }                   
+                   }                        
+                  
+                }                   
 
-                }
-                
-                VortexSheet(m).TrailingVortexEdge(i).U(j) += U;
-                VortexSheet(m).TrailingVortexEdge(i).V(j) += V;
-                VortexSheet(m).TrailingVortexEdge(i).W(j) += W;
-                
              }
-           
+             
+             VortexSheet(m).TrailingVortexEdge(i).U(j) += U;
+             VortexSheet(m).TrailingVortexEdge(i).V(j) += V;
+             VortexSheet(m).TrailingVortexEdge(i).W(j) += W;
+             
           }
-          
+        
        }
-
-       // Force last segment to free stream conditions
-               
-       for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
-              
-          for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
-
-             j = VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() + 1;
-      
-             VortexSheet(m).TrailingVortexEdge(i).U(j) = FreeStreamVelocity_[0];
-             VortexSheet(m).TrailingVortexEdge(i).V(j) = FreeStreamVelocity_[1];
-             VortexSheet(m).TrailingVortexEdge(i).W(j) = FreeStreamVelocity_[2];
-             
-          }
-          
-       }       
-       
-       // Now update the location of the wake
-                 
-       for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
-              
-          for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
-
-             VortexSheet(m).TrailingVortexEdge(i).UpdateLocation();
-             
-          }
-
-       } 
        
     }
+
+    // Force last segment to free stream conditions
+            
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+           
+       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+
+          j = VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() + 1;
+   
+          VortexSheet(m).TrailingVortexEdge(i).U(j) = FreeStreamVelocity_[0];
+          VortexSheet(m).TrailingVortexEdge(i).V(j) = FreeStreamVelocity_[1];
+          VortexSheet(m).TrailingVortexEdge(i).W(j) = FreeStreamVelocity_[2];
+          
+       }
+       
+    }       
+    
+    // Now update the location of the wake
+              
+    MaxDelta = 0.;
+              
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+
+       if ( DoGroundEffectsAnalysis() ) VortexSheet(m).DoGroundEffectsAnalysis() = 1;
+
+       Delta = VortexSheet(m).UpdateWakeLocation();
+       
+       MaxDelta = MAX(MaxDelta,Delta);
+
+    }
+
+    if ( Verbose_ ) printf("MaxDelta: %f \n",log10(MaxDelta)); 
+
 
 }
 
@@ -2838,10 +3588,34 @@ void VSP_SOLVER::ConvectWakeVorticity(void)
           V += q[1];
           W += q[2];
    
+          // If there is ground effects, z plane ...
+             
+          if ( DoGroundEffectsAnalysis() ) {
+             
+             xyz[0] = VortexLoop(i).xyz_c()[0];
+             xyz[1] = VortexLoop(i).xyz_c()[1];
+             xyz[2] = VortexLoop(i).xyz_c()[2];
+                       
+             xyz[2] *= -1.;
+            
+             VortexSheet(k).InducedVelocity(xyz, q);
+   
+             q[2] *= -1.;
+            
+             U += q[0];
+             V += q[1];
+             W += q[2];
+            
+          }   
+             
           // If there is a symmetry plane, calculate influence of the reflection
              
           if ( DoSymmetryPlaneSolve_ ) {
              
+             xyz[0] = VortexLoop(i).xyz_c()[0];
+             xyz[1] = VortexLoop(i).xyz_c()[1];
+             xyz[2] = VortexLoop(i).xyz_c()[2];
+                          
              if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
              if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
              if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
@@ -2855,6 +3629,24 @@ void VSP_SOLVER::ConvectWakeVorticity(void)
              U += q[0];
              V += q[1];
              W += q[2];
+             
+             // If there is ground effects, z plane ...
+                
+             if ( DoGroundEffectsAnalysis() ) {
+  
+                xyz[2] *= -1.;
+               
+                VortexSheet(k).InducedVelocity(xyz, q);
+   
+                if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                                                      q[2] *= -1.;
+               
+                U += q[0];
+                V += q[1];
+                W += q[2];
+               
+             }                
             
           }   
 
@@ -2892,9 +3684,9 @@ void VSP_SOLVER::CalculateSurfaceMotion(void)
        for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
         
           Unsteady_H_ =  Unsteady_HMax_ * sin ( Unsteady_AngleRate_*CurrentTime_ );     
-                   
-          Hdot = Unsteady_HMax_ * cos ( Unsteady_AngleRate_*(CurrentTime_ - 0.5*TimeStep_ ) - 0.5*PI) * Unsteady_AngleRate_;   
-
+          
+          Hdot = Unsteady_HMax_ * cos ( Unsteady_AngleRate_*CurrentTime_) * Unsteady_AngleRate_;   
+ 
           // Calculate body velocities
           
           LocalBodySurfaceVelocity_[i][0] = 0.;
@@ -2938,7 +3730,7 @@ void VSP_SOLVER::CalculateSurfaceMotion(void)
        for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
    
           // Surface location at t - dt
-          
+//djk          
           Unsteady_Angle_ = AngleZero_ + Unsteady_AngleMax_ * TORAD * sin ( Unsteady_AngleRate_*(CurrentTime_ - TimeStep_) - 0.5*PI);  
 
           Quat.FormRotationQuat(RotVec,Unsteady_Angle_);
@@ -2960,7 +3752,7 @@ void VSP_SOLVER::CalculateSurfaceMotion(void)
           Vec1(2) += Zcg();
                    
           // Surface location at t
-          
+//djk          
           Unsteady_Angle_ = AngleZero_ + Unsteady_AngleMax_ * TORAD * sin ( Unsteady_AngleRate_*CurrentTime_ - 0.5*PI);  
           
           Quat.FormRotationQuat(RotVec,Unsteady_Angle_);
@@ -2988,12 +3780,486 @@ void VSP_SOLVER::CalculateSurfaceMotion(void)
           LocalBodySurfaceVelocity_[i][2] = ( Vec2(2) - Vec1(2) ) / TimeStep_;
                     
           // Angle at time t
-          
+//djk          
           Unsteady_Angle_ = AngleZero_ + Unsteady_AngleMax_ * TORAD * sin ( Unsteady_AngleRate_*(CurrentTime_) - 0.5*PI);  
            
        }
        
+    }
+    
+    else {
+              
+       // Do nothing... 
+       
+    }
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                       VSP_SOLVER UpdateGeometryLocation                      #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::UpdateGeometryLocation(void)
+{
+
+    int i, j, k, m, jMax, Level;
+    double OVec[3], TVec[3], RVec[3], Angle, Rate;
+    double xyz[3], xyz_te[3], q[5], U, V, W;
+    QUAT Quat, InvQuat, Vec1, Vec2, DQuatDt, Omega, BodyVelocity, WQuat;
+
+    // Initialize to free stream values
+
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {
+
+       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+        
+          VortexSheet(m).TrailingVortexEdge(i).FreeStreamVelocity(0) = FreeStreamVelocity_[0];
+          VortexSheet(m).TrailingVortexEdge(i).FreeStreamVelocity(1) = FreeStreamVelocity_[1];
+          VortexSheet(m).TrailingVortexEdge(i).FreeStreamVelocity(2) = FreeStreamVelocity_[2];
+             
+          for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
+      
+             VortexSheet(m).TrailingVortexEdge(i).Utmp(j) = FreeStreamVelocity_[0];
+             VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) = FreeStreamVelocity_[1];
+             VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) = FreeStreamVelocity_[2];
+             
+          }
+   
+       }
+       
+    }
+    
+    // Add in the rotor induced velocities
+ 
+    for ( k = 1 ; k <= NumberOfRotors_ ; k++ ) {
+     
+       for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+
+          for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+            
+             for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
+   
+                xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0]; 
+                xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];        
+                xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2]; 
+             
+                RotorDisk(k).Velocity(xyz, q);                   
+   
+                VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0] / Vinf_;
+                VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1] / Vinf_;
+                VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2] / Vinf_;
+             
+                // If there is ground effects, z plane...
+                
+                if ( DoGroundEffectsAnalysis() ) {
+        
+                   xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0]; 
+                   xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];        
+                   xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2]; 
+                        
+                   xyz[2] *= -1.;
+                  
+                   RotorDisk(k).Velocity(xyz, q);        
+         
+                   q[2] *= -1.;
+                  
+                   VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0] / Vinf_;
+                   VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1] / Vinf_;
+                   VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2] / Vinf_;
+                  
+                }     
+                                
+                // If there is a symmetry plane, calculate influence of the reflection
+                
+                if ( DoSymmetryPlaneSolve_ ) {
+        
+                   xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0]; 
+                   xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];        
+                   xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2]; 
+        
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+                  
+                   RotorDisk(k).Velocity(xyz, q);        
+         
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+                  
+                   VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0] / Vinf_;
+                   VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1] / Vinf_;
+                   VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2] / Vinf_;
+                  
+                   // If there is ground effects, z plane...
+                   
+                   if ( DoGroundEffectsAnalysis() ) {
+   
+                      xyz[2] *= -1.;
+                     
+                      RotorDisk(k).Velocity(xyz, q);        
+            
+                      if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                      if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;            
+                                                            q[2] *= -1.;
+                     
+                      VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0] / Vinf_;
+                      VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1] / Vinf_;
+                      VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2] / Vinf_;
+                     
+                   }  
+                                  
+                }                
+   
+             }
+             
+          }    
+
+       }
+       
+    }
+    
+    // Wing surface vortex induced velocities
+
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+              
+       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+                         
+          for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
+           
+             xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0]; 
+             xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];        
+             xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2]; 
+                
+             CalculateSurfaceInducedVelocityAtPoint(xyz, q);
+   
+             VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0];
+             VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1];
+             VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2];
+         
+             // If there is ground effects, z plane ...
+             
+             if ( DoGroundEffectsAnalysis() ) {
+     
+                xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0]; 
+                xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];        
+                xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2]; 
+                     
+                xyz[2] *= -1.;
+               
+                CalculateSurfaceInducedVelocityAtPoint(xyz, q);
+      
+                q[2] *= -1.;
+               
+                VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0];
+                VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1];
+                VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2];
+                
+             }
+                          
+             // If there is a symmetry plane, calculate influence of the reflection
+             
+             if ( DoSymmetryPlaneSolve_ ) {
+     
+                xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0]; 
+                xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];        
+                xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2]; 
+             
+                if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+               
+                CalculateSurfaceInducedVelocityAtPoint(xyz, q);
+      
+                if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+               
+                VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0];
+                VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1];
+                VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2];
+                
+                // If there is ground effects, z plane ...
+                
+                if ( DoGroundEffectsAnalysis() ) {
+ 
+                   xyz[2] *= -1.;
+                  
+                   CalculateSurfaceInducedVelocityAtPoint(xyz, q);
+         
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;         
+                                                         q[2] *= -1.;
+                  
+                   VortexSheet(m).TrailingVortexEdge(i).Utmp(j) += q[0];
+                   VortexSheet(m).TrailingVortexEdge(i).Vtmp(j) += q[1];
+                   VortexSheet(m).TrailingVortexEdge(i).Wtmp(j) += q[2];
+                   
+                }
+                             
+             }
+             
+          }
+          
+       }
+       
+    }        
+
+    // Initialize with freestream, surface induced, and rotor induced velocities... these have not changed
+
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {    
+
+       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+
+          for ( j = 1 ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
+
+             VortexSheet(m).TrailingVortexEdge(i).U(j) = VortexSheet(m).TrailingVortexEdge(i).Utmp(j);
+             VortexSheet(m).TrailingVortexEdge(i).V(j) = VortexSheet(m).TrailingVortexEdge(i).Vtmp(j);
+             VortexSheet(m).TrailingVortexEdge(i).W(j) = VortexSheet(m).TrailingVortexEdge(i).Wtmp(j);
+             
+          }
+          
+       }
+       
+    }
+    
+    // Trailing vortex induced velocities
+
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+        
+       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+                        
+          jMax = MIN(VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices(), Time_);
+          
+          for ( j = 1 ; j < jMax ; j++ ) {
+
+             U = V = W = 0.;
+             
+             for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {     
+
+                xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
+                xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
+                xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
+        
+                xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
+                xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
+                xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
+                        
+                VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
+           
+                U += q[0];
+                V += q[1];
+                W += q[2];
+                
+                // If there is ground effects, z plane ...
+      
+                if ( DoGroundEffectsAnalysis() ) {
+
+                   xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
+                   xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
+                   xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
+               
+                   xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
+                   xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
+                   xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
+                    
+                   xyz[2] *= -1.; xyz_te[2] *= -1.;
+                  
+                   VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
+          
+                   q[2] *= -1.;
+                  
+                   U += q[0];
+                   V += q[1];
+                   W += q[2];
+                  
+                }  
+                                   
+                // If there is a symmetry plane, calculate influence of the reflection
+      
+                if ( DoSymmetryPlaneSolve_ ) {
+
+                   xyz_te[0] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().x();
+                   xyz_te[1] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().y();
+                   xyz_te[2] = VortexSheet(m).TrailingVortexEdge(i).TE_Node().z();
+               
+                   xyz[0] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[0];
+                   xyz[1] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[1];
+                   xyz[2] = VortexSheet(m).TrailingVortexEdge(i).xyz_c(j)[2];
+                    
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) { xyz[0] *= -1.; xyz_te[0] *= -1.; };
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) { xyz[1] *= -1.; xyz_te[1] *= -1.; };
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) { xyz[2] *= -1.; xyz_te[2] *= -1.; };
+                  
+                   VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
+          
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+                  
+                   U += q[0];
+                   V += q[1];
+                   W += q[2];
+                   
+                   // If there is ground effects, z plane ...
+         
+                   if ( DoGroundEffectsAnalysis() ) {
+
+                      xyz[2] *= -1.; xyz_te[2] *= -1.;
+                     
+                      VortexSheet(k).InducedVelocity(xyz, q, xyz_te);
+             
+                      if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                      if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;                
+                                                            q[2] *= -1.;
+                     
+                      U += q[0];
+                      V += q[1];
+                      W += q[2];
+                     
+                   }                        
+                  
+                }                   
+
+             }
+             
+             VortexSheet(m).TrailingVortexEdge(i).U(j) += U;
+             VortexSheet(m).TrailingVortexEdge(i).V(j) += V;
+             VortexSheet(m).TrailingVortexEdge(i).W(j) += W;
+             
+          }
+        
+       }
+       
+    }
+ 
+    // Force last segment to free stream conditions
+
+    for ( m = 1 ; m <= NumberOfVortexSheets_ ; m++ ) {     
+           
+       for ( i = 1 ; i <= VortexSheet(m).NumberOfTrailingVortices() ; i++ ) {
+
+          jMax = MIN(VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices(), Time_);
+
+          for ( j = jMax ; j <= VortexSheet(m).TrailingVortexEdge(i).NumberOfSubVortices() ; j++ ) {
+      
+             VortexSheet(m).TrailingVortexEdge(i).U(j) = FreeStreamVelocity_[0];
+             VortexSheet(m).TrailingVortexEdge(i).V(j) = FreeStreamVelocity_[1];
+             VortexSheet(m).TrailingVortexEdge(i).W(j) = FreeStreamVelocity_[2];
+             
+          }
+          
+       }
+       
+    }     
+   
+    OVec[0] = 0.; // Rotation origin
+    OVec[1] = 0.;
+    OVec[2] = 0.;
+    
+    RVec[0] = 1.; // Rotation vector
+    RVec[1] = 0.;
+    RVec[2] = 0.;
+    
+    TVec[0] = 0.; // Translation vector
+    TVec[1] = 0.;
+    TVec[2] = 0.;
+    
+    // Angular rate
+    
+    Rate = BladeRPM_ * 2. * PI / 60.;
+    
+    Omega(0) = -Rate;
+    Omega(1) =  0.;
+    Omega(2) =  0.;
+            
+    // Current angle change over this time step
+            
+    Angle = -Rate * TimeStep_;
+
+    // Quaternion for this rotation, and it's inverse
+    
+    Quat.FormRotationQuat(RVec,Angle);
+    
+    InvQuat = Quat;
+   
+    InvQuat.FormInverse();   
+ 
+    // Quaternion rates
+    
+    DQuatDt = Omega * Quat;
+    
+    WQuat = DQuatDt * InvQuat; // There is a factor of 1/2 missing here, but it gets multiplied away below
+
+    // Calculate suface velocity
+    
+    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+
+       Vec1(0) = VortexLoop(i).Xc() - OVec[0];
+       Vec1(1) = VortexLoop(i).Yc() - OVec[1];
+       Vec1(2) = VortexLoop(i).Zc() - OVec[2];
+   
+       // Body point location after rotation
+       
+       Vec2 = Quat * Vec1 * InvQuat;
+   
+       // Body point velocity
+       
+       BodyVelocity = WQuat * Vec2;
+       
+       LocalBodySurfaceVelocity_[i][0] = BodyVelocity(0);
+       LocalBodySurfaceVelocity_[i][1] = BodyVelocity(1);
+       LocalBodySurfaceVelocity_[i][2] = BodyVelocity(2);
+              
+       // Body point locaiton after translation
+   
+       Vec2(0) += OVec[0] + TVec[0];
+       Vec2(1) += OVec[1] + TVec[1];
+       Vec2(2) += OVec[2] + TVec[2];           
+
+  //    LocalBodySurfaceVelocity_[i][0] = (Vec2(0) - VortexLoop(i).Xc())/TimeStep_;
+  //    LocalBodySurfaceVelocity_[i][1] = (Vec2(1) - VortexLoop(i).Yc())/TimeStep_;
+  //    LocalBodySurfaceVelocity_[i][2] = (Vec2(2) - VortexLoop(i).Zc())/TimeStep_;
+
+//printf("LocalV: %f %f %f ..... %f %f %f \n",
+//LocalBodySurfaceVelocity_[i][0],
+//LocalBodySurfaceVelocity_[i][1],
+//LocalBodySurfaceVelocity_[i][2],
+//BodyVelocity(0),
+//BodyVelocity(1),
+//BodyVelocity(2));
+
+       LocalBodySurfaceVelocity_[i][0] /= Vinf_;
+       LocalBodySurfaceVelocity_[i][1] /= Vinf_;
+       LocalBodySurfaceVelocity_[i][2] /= Vinf_;
+
     }    
+            
+    // Update grids
+    
+    for ( Level = 0 ; Level <= NumberOfMGLevels_ ; Level++ ) {
+
+       VSPGeom().Grid(Level).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat);
+
+    }      
+    
+    // Update vortex sheet locations
+
+    for ( i = 1 ; i <= NumberOfVortexSheets_ ; i++ ) {
+
+       VortexSheet(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat);
+
+    }
+    
+    // Update acuator disk locations
+ 
+    for ( i = 1 ; i <= NumberOfRotors_ ; i++ ) {
+     
+       RotorDisk(i).UpdateGeometryLocation(TVec,OVec,Quat,InvQuat);
+       
+    }
 
 }
 
@@ -3007,7 +4273,7 @@ void VSP_SOLVER::Do_GMRES_Solve(void)
 {
 
     int i, Iters;
-    double ResMax, MinError,MaxError;
+    double ResMax, ResRed, ResFin, Fact;
 
 #pragma omp parallel for
     for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
@@ -3019,23 +4285,41 @@ void VSP_SOLVER::Do_GMRES_Solve(void)
        Delta_[i] = 0.;
        
     }
+    
+    // Calculate the initial, preconditioned, residual
 
     CalculateResidual();
     
     DoMatrixPrecondition(Residual_);
 
-    MinError = 0.1;
-    MaxError = 0.1;
-   
+    // VLM model convergence criteria
+    
+    if ( ModelType_ == VLM_MODEL ) {
+       
+       ResMax = 0.1;
+       ResRed = 0.1;
+
+    }
+    
+    // Panel model convergence criteria
+     
+    else {
+
+       ResMax = 0.1;
+       ResRed = 0.1;
+    }       
+    
+    // Use preconditioned GMRES to solve the linear system
+     
     GMRES_Solver(NumberOfVortexLoops_+1,  // Number of Equations, 0 <= i < Neq
                  3,                       // Max number of outer iterations
                  500,                     // Max number of inner (restart) iterations
                  1,                       // Output flag, verbose = 0, or 1
                  Delta_,                  // Initial guess and solution vector
                  Residual_,               // Right hand side of Ax = b
-                 MinError,                // Maximum error tolerance
-                 MaxError,                // Residual reduction factor
-                 ResMax,                  // Final log10 of residual reduction   
+                 ResMax,                  // Maximum error tolerance
+                 ResRed,                  // Residual reduction factor
+                 ResFin,                  // Final log10 of residual reduction   
                  Iters);                  // Final iteration count      
 
     // Update solution vector
@@ -3047,6 +4331,20 @@ void VSP_SOLVER::Do_GMRES_Solve(void)
 
     }
 
+    if ( Verbose_ ) {
+       
+       double KelvinSum = 0.;
+   
+       for ( i = 0 ; i <= NumberOfVortexLoops_ ; i++ ) {
+   
+          KelvinSum += Gamma_[i];
+   
+       }
+       
+       printf("\n\nKelvin Sum: %f \n",KelvinSum);
+       
+    }
+    
     if ( Verbose_) printf("log10(ABS(L2Residual_)): %lf \n",L2Residual_);
 
 }
@@ -3229,12 +4527,12 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                   // Number of Equations,
       rho = sqrt(VectorDot(Neq,r,r));
 
       if ( Iter == 0 ) rho_zero = rho;
-     
-      if ( Verbose && Iter == 0 && !TimeAccurate_ ) printf("Wake Iteration: %5d / %d ... GMRES Iteration: %5d ... Reduction: %10.5f ...  Maximum: %10.5f \r",CurrentWakeIteration_, WakeIterations_, 0,log10(rho/rho_zero),log10(rho)); fflush(NULL);
-      if ( Verbose && Iter == 0 &&  TimeAccurate_ ) printf("TimeStep: %5d / %d ... Time: %10.5f ... GMRES Iteration: %5d ... Reduction: %10.5f ...  Maximum: %10.5f \r",Time_,NumberOfTimeSteps_,CurrentTime_, 0,log10(rho/rho_zero),log10(rho)); fflush(NULL);
-      
+
       if ( Iter == 0 ) rho_tol = rho * ErrorReduction;
     
+      if ( Verbose && Iter == 0 && !TimeAccurate_ ) printf("Wake Iteration: %5d / %-5d ... GMRES Iteration: %5d ... Reduction: %10.5f / %-10.5f ...  Maximum: %10.5f / %-10.5f \r",CurrentWakeIteration_, WakeIterations_, 0,log10(rho/rho_zero),log10(ErrorReduction), log10(rho), log10(ErrorMax)); fflush(NULL);
+      if ( Verbose && Iter == 0 &&  TimeAccurate_ ) printf("TimeStep: %-5d / %-5d ... Time: %10.5f ... GMRES Iteration: %5d ... Reduction: %10.5f / %-10.5f ...  Maximum: %-10.5f / %10.5f \r",Time_,NumberOfTimeSteps_,CurrentTime_, 0,log10(rho/rho_zero),log10(ErrorReduction), log10(rho), log10(ErrorMax)); fflush(NULL);
+          
       for ( i = 0; i < Neq; i++ ) {
       
          v[0][i] = r[i] / rho;
@@ -3354,9 +4652,9 @@ void VSP_SOLVER::GMRES_Solver(int Neq,                   // Number of Equations,
 
          TotalIterations = TotalIterations + 1;
     
-         if ( Verbose && !TimeAccurate_) printf("Wake Iteration: %5d / %d ... GMRES Iteration: %5d ... Reduction: %10.5f ...  Maximum: %10.5f \r",CurrentWakeIteration_,WakeIterations_,TotalIterations,log10(rho/rho_zero),log10(rho)); fflush(NULL);
-         if ( Verbose &&  TimeAccurate_) printf("TimeStep: %5d / %d ... Time: %10.5f ... GMRES Iteration: %5d ... Reduction: %10.5f ...  Maximum: %10.5f \r",Time_,NumberOfTimeSteps_,CurrentTime_,TotalIterations,log10(rho/rho_zero),log10(rho)); fflush(NULL);
-         
+         if ( Verbose && !TimeAccurate_) printf("Wake Iteration: %5d / %-5d ... GMRES Iteration: %5d ... Reduction: %10.5f / %-10.5f ...  Maximum: %10.5f / %-10.5f \r",CurrentWakeIteration_,WakeIterations_,TotalIterations,log10(rho/rho_zero),log10(ErrorReduction), log10(rho), log10(ErrorMax)); fflush(NULL);
+         if ( Verbose &&  TimeAccurate_) printf("TimeStep: %5d / %-5d ... Time: %10.5f ... GMRES Iteration: %5d ... Reduction: %10.5f / %-10.5f ...  Maximum: %10.5f / %-10.5f \r",Time_,NumberOfTimeSteps_,CurrentTime_,TotalIterations,log10(rho/rho_zero),log10(ErrorReduction), log10(rho), log10(ErrorMax)); fflush(NULL);
+
          if ( rho <= ErrorMax && rho <= rho_tol ) Done = 1;
 
          k++;
@@ -3487,39 +4785,425 @@ void VSP_SOLVER::CalculateForces(void)
 
     CalculateVelocities();
    
+    // Calculate vorticity gradient
+    
+    if ( ModelType_ == PANEL_MODEL || TimeAccurate_  ) CalculateVorticityGradient();
+    
     if ( TimeAccurate_ ) CalculateUnsteadyForces();
-   
-    // If subsonic, we do a modified trailing edge induced drag calculation
-    
-    if ( Mach_ < 1 ) {
-       
-       CalculateTrefftzForces();
-       
-    }
-    
+
     // Calculate forces by applying JK theorem to each edge
+
+    CalculateKuttaJukowskiForces();
     
-    else {
-       
-       CalculateKuttaJukowskiForces();
-       
-    }
+    // Modified trailing edge induced drag calculation
+    
+    CalculateTrefftzForces();    
 
     // Calculate Delta-Cps, or surface pressures
     
     if ( ModelType_ == VLM_MODEL ) CalculateDeltaCPs();
       
     if ( ModelType_ == PANEL_MODEL ) CalculateSurfacePressures();
-    
+   
+    // Apply vortex burst model
+
+    if ( ModelType_ == VLM_MODEL && CalculateVortexLift_ ) CalculateVortexBurstLocation();
+
     // Integrate forces and moments
     
-    IntegrateForcesAndMoments();
-
+    if ( TimeAccurate_ ) IntegrateForcesAndMoments(1);
+     
+    IntegrateForcesAndMoments(0);
+    
     // Calculate 2D clmax limited forces and moments, as well as span wide
     // loading information
     
-    if ( ModelType_ == VLM_MODEL ) CalculateCLmaxLimitedForces();
+    if ( ModelType_ == VLM_MODEL ) {
+       
+       if ( TimeAccurate_ ) CalculateCLmaxLimitedForces(1);
+       
+       CalculateCLmaxLimitedForces(0);
 
+    }
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_SOLVER ReCalculateForces                         #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::ReCalculateForces(void)
+{
+   
+    // Calculate 2D clmax limited forces and moments, as well as span wide
+    // loading information... this routine is likely to be called after 
+    // simply changing the value of ReCref_ - so user is really looking for
+    // the change in viscous drag for the new value of ReCref_
+    
+    if ( ModelType_ == VLM_MODEL ) CalculateCLmaxLimitedForces(0);   
+   
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_SOLVER CalculateTrefftzForces                    #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CalculateTrefftzForcesOld(void)
+{
+
+    int i, j, k, p, Loop, Loop1, Loop2, Surf, Level, Hits;
+    double xyz[3], q[3], qtot[3], Factor, AttachedForce[3];
+    double Normal[3], Dot, VortexLift, LeadingEdgeSuction, LeadingEdgeThrust, Sign, Sweep;
+    double mag1, mag2, dot, angle, Theta, ToC, RoC, EtaToC, Kt, Area, DeltaCp, Fact;
+    double xyzLE[3], xyzTE[3], S[3], WingCref;
+    double *u, *v, *w, *Denom, Wgt;
+    
+    // Calculate velocities at trailing edge of each vortex sheet
+    
+    Level = 1;
+    
+    u = new double[VSPGeom().Grid(Level).NumberOfNodes() + 1];
+    v = new double[VSPGeom().Grid(Level).NumberOfNodes() + 1];
+    w = new double[VSPGeom().Grid(Level).NumberOfNodes() + 1];
+    
+    Denom = new double[VSPGeom().Grid(Level).NumberOfNodes() + 1];
+    
+    zero_double_array(u, VSPGeom().Grid(Level).NumberOfNodes());
+    zero_double_array(v, VSPGeom().Grid(Level).NumberOfNodes());
+    zero_double_array(w, VSPGeom().Grid(Level).NumberOfNodes());
+    
+    zero_double_array(Denom, VSPGeom().Grid(Level).NumberOfNodes());
+
+    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+
+       mag1 = sqrt(vector_dot(FreeStreamVelocity_,FreeStreamVelocity_));
+       
+       mag2 = sqrt(vector_dot(VortexLoop(i).Normal(),VortexLoop(i).Normal()));
+       
+       dot = vector_dot(FreeStreamVelocity_, VortexLoop(i).Normal());
+       
+       dot /= (mag1*mag2);
+       
+       dot = MIN(MAX(-1.,dot),1.);
+       
+       angle = ABS(acos(dot) - 0.5*PI)/TORAD;
+       
+       Factor = 1.;
+   
+       // Limit maximum turning angle
+       
+       if ( MaxTurningAngle_ > 0. && angle > MaxTurningAngle_ ) Factor = MaxTurningAngle_/angle;
+   
+       qtot[0] = LocalFreeStreamVelocity_[i][0] * Factor;
+       qtot[1] = LocalFreeStreamVelocity_[i][1] * Factor;
+       qtot[2] = LocalFreeStreamVelocity_[i][2] * Factor;
+       
+       Wgt = VortexLoop(i).Area() / VortexLoop(i).NumberOfNodes();
+   
+       for ( i = 1 ; i <= VortexLoop(j).NumberOfNodes() ; i++ ) {
+          
+          u[VortexLoop(i).Node(j)] += qtot[0] * Wgt;
+          v[VortexLoop(i).Node(j)] += qtot[1] * Wgt;
+          v[VortexLoop(i).Node(j)] += qtot[2] * Wgt;
+          
+          Denom[VortexLoop(i).Node(j)] += Wgt;
+          
+       }
+       
+    }
+
+    for ( i = 1 ; i <= VSPGeom().Grid(Level).NumberOfNodes() ; i++ ) {
+
+       u[i] /= Denom[i];
+       v[i] /= Denom[i];
+       v[i] /= Denom[i];
+          
+    }
+
+    for ( p = 1 ; p <= NumberOfVortexSheets_ ; p++ ) {
+
+       for ( i = 1 ; i <= VortexSheet(p).NumberOfTrailingVortices() ; i++ ) {
+          
+          j = VortexSheet(p).TrailingVortexEdge(i).Node();
+          
+          VortexSheet(p).TrailingVortexEdge(i).LocalVelocityAtTrailingEdge(0) = u[j];
+          VortexSheet(p).TrailingVortexEdge(i).LocalVelocityAtTrailingEdge(1) = v[j];
+          VortexSheet(p).TrailingVortexEdge(i).LocalVelocityAtTrailingEdge(2) = w[j];
+          
+       }
+       
+    }
+    
+    delete [] u;
+    delete [] v;
+    delete [] w;
+    delete [] Denom;
+                          
+    // Loop over vortex edges and calculate forces via K-J theorem, using only wake induced velocities applied at TE
+
+    for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
+
+       // Calculate an averaged normal
+
+       Normal[0] = Normal[1] = Normal[2] = 0.;
+
+       Hits = 0;
+       
+       for ( k = 1 ; k <= 2 ; k++ ) {
+          
+          if ( k == 1 ) Loop = SurfaceVortexEdge(j).VortexLoop1();
+          if ( k == 2 ) Loop = SurfaceVortexEdge(j).VortexLoop2();
+       
+          if ( Loop != 0 ) {
+           
+             // Normal
+             
+             Normal[0] += VortexLoop(Loop).FlatPlateNormal()[0];
+             Normal[1] += VortexLoop(Loop).FlatPlateNormal()[1];
+             Normal[2] += VortexLoop(Loop).FlatPlateNormal()[2];
+
+             Hits++;
+          
+          }
+          
+       }
+
+       Normal[0] /= Hits;
+       Normal[1] /= Hits;
+       Normal[2] /= Hits;
+
+       // Trailing vortices induced velocities... shift the current bound vortex to the 
+       // 'trailing edge' of the trailing vortex.
+
+       for ( p = 1 ; p <= NumberOfVortexSheets_ ; p++ ) {
+
+          // Evaluation location
+
+          xyz[0] = SurfaceVortexEdge(j).Xc();
+          xyz[1] = SurfaceVortexEdge(j).Yc();
+          xyz[2] = SurfaceVortexEdge(j).Zc();
+
+          VortexSheet(p).InducedKuttaVelocity(xyz, q);
+
+          qtot[0] += q[0];
+          qtot[1] += q[1];
+          qtot[2] += q[2];
+
+          // If there is ground effects, z plane ...
+          
+          if ( DoGroundEffectsAnalysis() ) {
+
+             xyz[0] = SurfaceVortexEdge(j).Xc();
+             xyz[1] = SurfaceVortexEdge(j).Yc();
+             xyz[2] = SurfaceVortexEdge(j).Zc();
+
+             xyz[2] *= -1.;
+            
+             VortexSheet(p).InducedKuttaVelocity(xyz, q);
+      
+             q[2] *= -1.;
+  
+             qtot[0] += q[0];
+             qtot[1] += q[1];
+             qtot[2] += q[2];
+            
+          }
+          
+          // If there is a symmetry plane, calculate influence of the reflection
+          
+          if ( DoSymmetryPlaneSolve_ ) {
+
+             xyz[0] = SurfaceVortexEdge(j).Xc();
+             xyz[1] = SurfaceVortexEdge(j).Yc();
+             xyz[2] = SurfaceVortexEdge(j).Zc();
+          
+             if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+            
+             VortexSheet(p).InducedKuttaVelocity(xyz, q);
+      
+             if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+  
+             qtot[0] += q[0];
+             qtot[1] += q[1];
+             qtot[2] += q[2];
+            
+             // If there is ground effects, z plane ...
+             
+             if ( DoGroundEffectsAnalysis() ) {
+
+                xyz[2] *= -1.;
+               
+                VortexSheet(p).InducedKuttaVelocity(xyz, q);
+         
+                if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;         
+                                                      q[2] *= -1.;
+     
+                qtot[0] += q[0];
+                qtot[1] += q[1];
+                qtot[2] += q[2];
+               
+             }
+              
+          }
+        
+       }
+
+       // Calculate fully attached induced drag
+
+       SurfaceVortexEdge(j).CalculateTrefftzForces(qtot);
+       
+       // If this is a wing leading edge... determine the amount of
+       // leading edge suction and vortex lift we may have
+       
+       if ( ( CalculateVortexLift_ || CalculateLeadingEdgeSuction_ ) && SurfaceVortexEdge(j).IsLeadingEdge() ) {
+
+          // Surface ID
+          
+          Surf = SurfaceVortexEdge(j).DegenWing();
+          
+          // Root LE, TE locations
+
+          xyzLE[0] = VSPGeom().VSP_Surface(Surf).Root_LE(0);
+          xyzLE[1] = VSPGeom().VSP_Surface(Surf).Root_LE(1);
+          xyzLE[2] = VSPGeom().VSP_Surface(Surf).Root_LE(2);
+          
+          xyzTE[0] = VSPGeom().VSP_Surface(Surf).Root_TE(0);
+          xyzTE[1] = VSPGeom().VSP_Surface(Surf).Root_TE(1);
+          xyzTE[2] = VSPGeom().VSP_Surface(Surf).Root_TE(2);          
+          
+          // Root chord vector and length
+          
+          S[0] = xyzTE[0] - xyzLE[0];
+          S[1] = xyzTE[1] - xyzLE[1];
+          S[2] = xyzTE[2] - xyzLE[2];
+          
+          WingCref = sqrt(vector_dot(S,S));
+          
+          S[0] /= WingCref;
+          S[1] /= WingCref;
+          S[2] /= WingCref;
+         
+          // Save fully attached force values
+          
+          AttachedForce[0] = SurfaceVortexEdge(j).Trefftz_Fx();
+          AttachedForce[1] = SurfaceVortexEdge(j).Trefftz_Fy();
+          AttachedForce[2] = SurfaceVortexEdge(j).Trefftz_Fz();    
+          
+          Sign = 1.;
+          
+          if ( vector_dot(AttachedForce, Normal) < 0. ) Sign = -1.;
+          
+          // Local angle of attack
+        
+          Dot = vector_dot(Normal, FreeStreamVelocity_);
+          
+          Dot = MAX(-1.,MIN(1.,Dot));
+          
+          Theta = 0.5*PI - acos(Dot);
+
+          // Calculate the local leading edge sweep
+
+          Dot = vector_dot(S,SurfaceVortexEdge(j).Vec());
+          
+          Dot = MIN(1.,MAX(-1.,Dot));
+          
+          Sweep = acos(Dot);
+          
+          Sweep = 0.5*PI - Sweep;
+             
+          // Calculate fraction of attached flow
+          
+          Kt = 1.;
+          
+          if ( CalculateLeadingEdgeSuction_ ) {
+             
+             ToC    = SurfaceVortexEdge(j).ThicknessToChord();
+             EtaToC = SurfaceVortexEdge(j).LocationOfMaxThickness();
+             RoC    = SurfaceVortexEdge(j).RadiusToChord();
+
+             Kt = CalculateLeadingEdgeSuctionFraction(Mach_, ToC, RoC, EtaToC, ABS(Theta), Sweep);
+             
+          }
+
+          // Calculate component of downwash that is normal to local surface
+
+          Dot = vector_dot(qtot,Normal);
+
+          qtot[0] = Dot * Normal[0];
+          qtot[1] = Dot * Normal[1]; 
+          qtot[2] = Dot * Normal[2]; 
+
+          // Calculate leading edge thrust component
+
+          SurfaceVortexEdge(j).CalculateTrefftzForces(qtot);
+
+          LeadingEdgeThrust = sqrt( pow(SurfaceVortexEdge(j).Trefftz_Fx(),2.)
+                                  + pow(SurfaceVortexEdge(j).Trefftz_Fy(),2.)
+                                  + pow(SurfaceVortexEdge(j).Trefftz_Fz(),2.) );
+                                   
+                                                                  
+          // Loop for the leading edge... one is zero, one is real... door 1 or 2?
+          
+          Loop = SurfaceVortexEdge(j).VortexLoop1() + SurfaceVortexEdge(j).VortexLoop2();
+                   
+          if ( VortexLoop(Loop).NumberOfEdges() == 3 ) LeadingEdgeThrust *= 1.25;
+
+          LeadingEdgeSuction = LeadingEdgeThrust/cos(Sweep);
+                
+          // Calculate onset of vortex lift
+
+          VortexLift = 0.;
+        
+          if ( Sweep >= 45.*TORAD ) {
+
+             VortexLift = Sign * LeadingEdgeSuction;
+             
+             Kt = 0.;
+             
+             VortexLoop(SurfaceVortexEdge(j).VortexLoop1()).CompressibilityFactor() = 1.;
+             VortexLoop(SurfaceVortexEdge(j).VortexLoop2()).CompressibilityFactor() = 1.;
+
+          }
+
+          // Sum up forces = attached + vortex - lost leading edge thrust
+   
+          SurfaceVortexEdge(j).Trefftz_Fx() = AttachedForce[0] + VortexLift*Normal[0] + (1.-Kt)*LeadingEdgeSuction*cos(AngleOfAttack_);
+          SurfaceVortexEdge(j).Trefftz_Fy() = AttachedForce[1] + VortexLift*Normal[1];
+          SurfaceVortexEdge(j).Trefftz_Fz() = AttachedForce[2] + VortexLift*Normal[2] + (1.-Kt)*LeadingEdgeSuction*sin(AngleOfAttack_);                 
+
+          // Limit forces to something sane...
+
+          Area = VortexLoop(Loop).Area();
+
+          DeltaCp = ( SurfaceVortexEdge(j).Trefftz_Fx() * Normal[0]
+                    + SurfaceVortexEdge(j).Trefftz_Fy() * Normal[1]
+                    + SurfaceVortexEdge(j).Trefftz_Fz() * Normal[2] ) / Area;
+                    
+          if ( ABS(DeltaCp) > 2.*DCpMax_ ) {
+             
+             Fact = sqrt(DCpMax_/ABS(DeltaCp));
+             
+             VortexLift *= Fact;
+
+             SurfaceVortexEdge(j).Trefftz_Fx() = AttachedForce[0] + VortexLift*Normal[0] + (1.-Kt)*LeadingEdgeSuction*cos(AngleOfAttack_);
+             SurfaceVortexEdge(j).Trefftz_Fy() = AttachedForce[1] + VortexLift*Normal[1];
+             SurfaceVortexEdge(j).Trefftz_Fz() = AttachedForce[2] + VortexLift*Normal[2] + (1.-Kt)*LeadingEdgeSuction*sin(AngleOfAttack_);                 
+
+          }   
+
+       }   
+           
+    }
+   
 }
 
 /*##############################################################################
@@ -3531,22 +5215,22 @@ void VSP_SOLVER::CalculateForces(void)
 void VSP_SOLVER::CalculateTrefftzForces(void)
 {
 
-    int j, k, p, Loop, Loop1, Loop2, Hits;
-    double xyz[3], q[3], qtot[3], Factor, Camber, Normal[3];
-    double mag1, mag2, dot, angle;
-
+    int j, k, p, Loop, Loop1, Loop2, Hits, Surf;
+    double xyz[3], q[3], qtot[3], LocalVelocity[3], Factor, AttachedForce[3];
+    double Normal[3], Dot, VortexLift, LeadingEdgeSuction, LeadingEdgeThrust, Sign, Sweep;
+    double mag1, mag2, dot, angle, Theta, ToC, RoC, EtaToC, Kt, Area, DeltaCp, Fact;
+    double xyzLE[3], xyzTE[3], S[3], WingCref;
+ 
     // Loop over vortex edges and calculate forces via K-J theorem, using only wake induced velocities applied at TE
 
     for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
 
        // Calculate an averaged local velocity using the left/right loops
 
-       qtot[0] = qtot[1] = qtot[2] = 0.;
+       LocalVelocity[0] = LocalVelocity[1] = LocalVelocity[2] = 0.;
        
        Normal[0] = Normal[1] = Normal[2] = 0.;
-       
-       Camber = 0.;
-       
+
        Hits = 0;
        
        for ( k = 1 ; k <= 2 ; k++ ) {
@@ -3574,75 +5258,264 @@ void VSP_SOLVER::CalculateTrefftzForces(void)
              
              if ( MaxTurningAngle_ > 0. && angle > MaxTurningAngle_ ) Factor = MaxTurningAngle_/angle;
  
-             qtot[0] += LocalFreeStreamVelocity_[Loop][0] * Factor;
-             qtot[1] += LocalFreeStreamVelocity_[Loop][1] * Factor;
-             qtot[2] += LocalFreeStreamVelocity_[Loop][2] * Factor;
+             LocalVelocity[0] += LocalFreeStreamVelocity_[Loop][0] * Factor;
+             LocalVelocity[1] += LocalFreeStreamVelocity_[Loop][1] * Factor;
+             LocalVelocity[2] += LocalFreeStreamVelocity_[Loop][2] * Factor;
+                               
+             // Normal
              
-             // Camber information
-             
-             Normal[0] += VortexLoop(Loop).NormalCamber()[0];
-             Normal[1] += VortexLoop(Loop).NormalCamber()[1];
-             Normal[2] += VortexLoop(Loop).NormalCamber()[2];
-             
-             Camber += VortexLoop(Loop).Camber();
-   
+             Normal[0] += VortexLoop(Loop).FlatPlateNormal()[0];
+             Normal[1] += VortexLoop(Loop).FlatPlateNormal()[1];
+             Normal[2] += VortexLoop(Loop).FlatPlateNormal()[2];
+
              Hits++;
           
           }
           
        }
 
-       qtot[0] /= Hits;
-       qtot[1] /= Hits;
-       qtot[2] /= Hits;
+       LocalVelocity[0] /= Hits;
+       LocalVelocity[1] /= Hits;
+       LocalVelocity[2] /= Hits;
        
        Normal[0] /= Hits;
        Normal[1] /= Hits;
        Normal[2] /= Hits;
-       
-       Camber /= Hits;
-         
+
        // Trailing vortices induced velocities... shift the current bound vortex to the 
        // 'trailing edge' of the trailing vortex.
 
-       for ( p = 1 ; p <= NumberOfVortexSheets_ ; p++ ) {
-          
-          // Evaluate on the flat plate representation
+       qtot[0] = qtot[1] = qtot[2] = 0.;
 
-          xyz[0] = SurfaceVortexEdge(j).Xc() - Camber * Normal[0];
-          xyz[1] = SurfaceVortexEdge(j).Yc() - Camber * Normal[1];
-          xyz[2] = SurfaceVortexEdge(j).Zc() - Camber * Normal[2];
+       for ( p = 1 ; p <= NumberOfVortexSheets_ ; p++ ) {
+
+          // Evaluation location
+
+          xyz[0] = SurfaceVortexEdge(j).Xc();
+          xyz[1] = SurfaceVortexEdge(j).Yc();
+          xyz[2] = SurfaceVortexEdge(j).Zc();
 
           VortexSheet(p).InducedKuttaVelocity(xyz, q);
 
           qtot[0] += q[0];
           qtot[1] += q[1];
           qtot[2] += q[2];
-     
+
+          // If there is ground effects, z plane ...
+          
+          if ( DoGroundEffectsAnalysis() ) {
+
+             xyz[0] = SurfaceVortexEdge(j).Xc();
+             xyz[1] = SurfaceVortexEdge(j).Yc();
+             xyz[2] = SurfaceVortexEdge(j).Zc();
+
+             xyz[2] *= -1.;
+            
+             VortexSheet(p).InducedKuttaVelocity(xyz, q);
+      
+             q[2] *= -1.;
+  
+             qtot[0] += q[0];
+             qtot[1] += q[1];
+             qtot[2] += q[2];
+            
+          }
+          
           // If there is a symmetry plane, calculate influence of the reflection
           
           if ( DoSymmetryPlaneSolve_ ) {
 
-            if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
-            if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
-            if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+             xyz[0] = SurfaceVortexEdge(j).Xc();
+             xyz[1] = SurfaceVortexEdge(j).Yc();
+             xyz[2] = SurfaceVortexEdge(j).Zc();
+          
+             if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
             
-            VortexSheet(p).InducedKuttaVelocity(xyz, q);
+             VortexSheet(p).InducedKuttaVelocity(xyz, q);
       
-            if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-            if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
-            if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
   
-            qtot[0] += q[0];
-            qtot[1] += q[1];
-            qtot[2] += q[2];
+             qtot[0] += q[0];
+             qtot[1] += q[1];
+             qtot[2] += q[2];
             
+             // If there is ground effects, z plane ...
+             
+             if ( DoGroundEffectsAnalysis() ) {
+
+                xyz[2] *= -1.;
+               
+                VortexSheet(p).InducedKuttaVelocity(xyz, q);
+         
+                if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;         
+                                                      q[2] *= -1.;
+     
+                qtot[0] += q[0];
+                qtot[1] += q[1];
+                qtot[2] += q[2];
+               
+             }
+              
           }
         
        }
 
+       // Calculate fully attached induced drag
+           
+       SurfaceVortexEdge(j).CalculateNormalTrefftzForces(qtot);
+       
+       qtot[0] += LocalVelocity[0];
+       qtot[1] += LocalVelocity[1];
+       qtot[2] += LocalVelocity[2];
+       
        SurfaceVortexEdge(j).CalculateTrefftzForces(qtot);
        
+       // If this is a wing leading edge... determine the amount of
+       // leading edge suction and vortex lift we may have
+       
+       if ( ( CalculateVortexLift_ || CalculateLeadingEdgeSuction_ ) && SurfaceVortexEdge(j).IsLeadingEdge() ) {
+
+          // Surface ID
+          
+          Surf = SurfaceVortexEdge(j).DegenWing();
+          
+          // Root LE, TE locations
+
+          xyzLE[0] = VSPGeom().VSP_Surface(Surf).Root_LE(0);
+          xyzLE[1] = VSPGeom().VSP_Surface(Surf).Root_LE(1);
+          xyzLE[2] = VSPGeom().VSP_Surface(Surf).Root_LE(2);
+          
+          xyzTE[0] = VSPGeom().VSP_Surface(Surf).Root_TE(0);
+          xyzTE[1] = VSPGeom().VSP_Surface(Surf).Root_TE(1);
+          xyzTE[2] = VSPGeom().VSP_Surface(Surf).Root_TE(2);          
+          
+          // Root chord vector and length
+          
+          S[0] = xyzTE[0] - xyzLE[0];
+          S[1] = xyzTE[1] - xyzLE[1];
+          S[2] = xyzTE[2] - xyzLE[2];
+          
+          WingCref = sqrt(vector_dot(S,S));
+          
+          S[0] /= WingCref;
+          S[1] /= WingCref;
+          S[2] /= WingCref;
+         
+          // Save fully attached force values
+          
+          AttachedForce[0] = SurfaceVortexEdge(j).Trefftz_Fx();
+          AttachedForce[1] = SurfaceVortexEdge(j).Trefftz_Fy();
+          AttachedForce[2] = SurfaceVortexEdge(j).Trefftz_Fz();    
+          
+          Sign = 1.;
+          
+          if ( vector_dot(AttachedForce, Normal) < 0. ) Sign = -1.;
+          
+          // Local angle of attack
+        
+          Dot = vector_dot(Normal, FreeStreamVelocity_);
+          
+          Dot = MAX(-1.,MIN(1.,Dot));
+          
+          Theta = 0.5*PI - acos(Dot);
+
+          // Calculate the local leading edge sweep
+
+          Dot = vector_dot(S,SurfaceVortexEdge(j).Vec());
+          
+          Dot = MIN(1.,MAX(-1.,Dot));
+          
+          Sweep = acos(Dot);
+          
+          Sweep = 0.5*PI - Sweep;
+             
+          // Calculate fraction of attached flow
+          
+          Kt = 1.;
+          
+          if ( CalculateLeadingEdgeSuction_ ) {
+             
+             ToC    = SurfaceVortexEdge(j).ThicknessToChord();
+             EtaToC = SurfaceVortexEdge(j).LocationOfMaxThickness();
+             RoC    = SurfaceVortexEdge(j).RadiusToChord();
+
+             Kt = CalculateLeadingEdgeSuctionFraction(Mach_, ToC, RoC, EtaToC, ABS(Theta), Sweep);
+             
+          }
+
+          // Calculate component of downwash that is normal to local surface
+
+          Dot = vector_dot(qtot,Normal);
+
+          qtot[0] = Dot * Normal[0];
+          qtot[1] = Dot * Normal[1]; 
+          qtot[2] = Dot * Normal[2]; 
+
+          // Calculate leading edge thrust component
+
+          SurfaceVortexEdge(j).CalculateTrefftzForces(qtot);
+
+          LeadingEdgeThrust = sqrt( pow(SurfaceVortexEdge(j).Trefftz_Fx(),2.)
+                                  + pow(SurfaceVortexEdge(j).Trefftz_Fy(),2.)
+                                  + pow(SurfaceVortexEdge(j).Trefftz_Fz(),2.) );
+                                   
+                                                                  
+          // Loop for the leading edge... one is zero, one is real... door 1 or 2?
+          
+          Loop = SurfaceVortexEdge(j).VortexLoop1() + SurfaceVortexEdge(j).VortexLoop2();
+                   
+          if ( VortexLoop(Loop).NumberOfEdges() == 3 ) LeadingEdgeThrust *= 1.25;
+
+          LeadingEdgeSuction = LeadingEdgeThrust/cos(Sweep);
+                
+          // Calculate onset of vortex lift
+
+          VortexLift = 0.;
+        
+          if ( Sweep >= 45.*TORAD ) {
+
+             VortexLift = Sign * LeadingEdgeSuction;
+             
+             Kt = 0.;
+             
+             VortexLoop(SurfaceVortexEdge(j).VortexLoop1()).CompressibilityFactor() = 1.;
+             VortexLoop(SurfaceVortexEdge(j).VortexLoop2()).CompressibilityFactor() = 1.;
+
+          }
+
+          // Sum up forces = attached + vortex - lost leading edge thrust
+   
+          SurfaceVortexEdge(j).Trefftz_Fx() = AttachedForce[0] + VortexLift*Normal[0] + (1.-Kt)*LeadingEdgeSuction*cos(AngleOfAttack_);
+          SurfaceVortexEdge(j).Trefftz_Fy() = AttachedForce[1] + VortexLift*Normal[1];
+          SurfaceVortexEdge(j).Trefftz_Fz() = AttachedForce[2] + VortexLift*Normal[2] + (1.-Kt)*LeadingEdgeSuction*sin(AngleOfAttack_);                 
+
+          // Limit forces to something sane...
+
+          Area = VortexLoop(Loop).Area();
+
+          DeltaCp = ( SurfaceVortexEdge(j).Trefftz_Fx() * Normal[0]
+                    + SurfaceVortexEdge(j).Trefftz_Fy() * Normal[1]
+                    + SurfaceVortexEdge(j).Trefftz_Fz() * Normal[2] ) / Area;
+                    
+          if ( ABS(DeltaCp) > 2.*DCpMax_ ) {
+             
+             Fact = sqrt(DCpMax_/ABS(DeltaCp));
+             
+             VortexLift *= Fact;
+
+             SurfaceVortexEdge(j).Trefftz_Fx() = AttachedForce[0] + VortexLift*Normal[0] + (1.-Kt)*LeadingEdgeSuction*cos(AngleOfAttack_);
+             SurfaceVortexEdge(j).Trefftz_Fy() = AttachedForce[1] + VortexLift*Normal[1];
+             SurfaceVortexEdge(j).Trefftz_Fz() = AttachedForce[2] + VortexLift*Normal[2] + (1.-Kt)*LeadingEdgeSuction*sin(AngleOfAttack_);                 
+
+          }   
+
+       }   
+           
     }
    
 }
@@ -3656,17 +5529,20 @@ void VSP_SOLVER::CalculateTrefftzForces(void)
 void VSP_SOLVER::CalculateKuttaJukowskiForces(void)
 {
 
-    int j, Loop1, Loop2;
+    int j, Loop, Loop1, Loop2;
     double Fx, Fy, Fz, Hits;
+    double AttachedForce[3];
+    double Normal[3], Dot, VortexLift, LeadingEdgeThrust, Sign, Sweep, Theta;
+    VSP_LOOP VLoop;
 
     // Loop over vortex edges and calculate forces via K-J theorem
 
-#pragma omp parallel for private(Loop1, Loop2, Fx, Fy, Fz, Hits)
+#pragma omp parallel for private(Loop, Loop1, Loop2, Fx, Fy, Fz, Hits, Normal, Sweep, Dot, VortexLift, LeadingEdgeThrust, Sign, Theta)
     for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
      
-       Fx = SurfaceVortexEdge(j).Fx() = 0.;
-       Fy = SurfaceVortexEdge(j).Fy() = 0.;
-       Fz = SurfaceVortexEdge(j).Fz() = 0.;
+       Fx = SurfaceVortexEdge(j).Fx() = Normal[0] = 0.;
+       Fy = SurfaceVortexEdge(j).Fy() = Normal[1] = 0.;
+       Fz = SurfaceVortexEdge(j).Fz() = Normal[2] = 0.;
           
        if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
         
@@ -3681,6 +5557,10 @@ void VSP_SOLVER::CalculateKuttaJukowskiForces(void)
              Fx += SurfaceVortexEdge(j).Fx();
              Fy += SurfaceVortexEdge(j).Fy();
              Fz += SurfaceVortexEdge(j).Fz();
+
+             Normal[0] += VortexLoop(Loop1).FlatPlateNormal()[0];
+             Normal[1] += VortexLoop(Loop1).FlatPlateNormal()[1];
+             Normal[2] += VortexLoop(Loop1).FlatPlateNormal()[2];             
              
              Hits += 1.;
             
@@ -3695,21 +5575,100 @@ void VSP_SOLVER::CalculateKuttaJukowskiForces(void)
              Fx += SurfaceVortexEdge(j).Fx();
              Fy += SurfaceVortexEdge(j).Fy();
              Fz += SurfaceVortexEdge(j).Fz();
+
+             Normal[0] += VortexLoop(Loop2).FlatPlateNormal()[0];
+             Normal[1] += VortexLoop(Loop2).FlatPlateNormal()[1];
+             Normal[2] += VortexLoop(Loop2).FlatPlateNormal()[2];                  
              
              Hits += 1.;
              
           }       
+
+          // Local Normal
+          
+          Normal[0] /= Hits;
+          Normal[1] /= Hits;
+          Normal[2] /= Hits;          
                    
           // Edge forces
           
           SurfaceVortexEdge(j).Fx() = Fx / Hits;
           SurfaceVortexEdge(j).Fy() = Fy / Hits;
           SurfaceVortexEdge(j).Fz() = Fz / Hits;
-          
+        
        }
+
+       // If this is a wing leading edge... determine the amount of
+       // leading edge suction and vortex lift we may have
+       
+       if ( CalculateVortexLift_ && SurfaceVortexEdge(j).IsLeadingEdge() ) {
+
+          // Save fully attached force values
           
-    }
+          AttachedForce[0] = SurfaceVortexEdge(j).Fx();
+          AttachedForce[1] = SurfaceVortexEdge(j).Fy();
+          AttachedForce[2] = SurfaceVortexEdge(j).Fz();    
+          
+          Sign = 1.;
+          
+          if ( vector_dot(AttachedForce, Normal) < 0. ) Sign = -1.;
+          
+          // Local angle of attack
+        
+          Dot = vector_dot(Normal, FreeStreamVelocity_);
+          
+          Dot = MAX(-1.,MIN(1.,Dot));
+          
+          Theta = 0.5*PI - acos(Dot);
+
+          // Determine the effective sweep angle of the leading edge
+          
+          Sweep = vector_dot(FreeStreamVelocity_,SurfaceVortexEdge(j).Vec());
+          
+          Sweep = MAX(-1.,MIN(1.,Sweep));
+          
+          Sweep = acos(Sweep);
+          
+          if ( Sweep > PI ) Sweep -= PI;
+          
+          Sweep = 0.5*PI - Sweep;
+          
+          Sweep /= pow(cos(Theta),2.);     
+        
+          LeadingEdgeThrust = sqrt( pow(SurfaceVortexEdge(j).Fx(),2.)
+                                  + pow(SurfaceVortexEdge(j).Fy(),2.)
+                                  + pow(SurfaceVortexEdge(j).Fz(),2.) )*cos(Sweep);
+                                         
+          // Double up if the leading edge loop is a tri... I really want the loading on the
+          // entire leading edge region.
+          
+          Loop = SurfaceVortexEdge(j).VortexLoop1() + SurfaceVortexEdge(j).VortexLoop2();
          
+          if ( VortexLoop(Loop).NumberOfEdges() == 3 ) LeadingEdgeThrust *= 1.5;
+
+          // Calculate onset of vortex lift
+
+          VortexLift = 0.;
+        
+          if ( Sweep >= 45.*TORAD ) {
+
+             VortexLift = Sign * LeadingEdgeThrust/cos(Sweep);
+  
+             VortexLoop(SurfaceVortexEdge(j).VortexLoop1()).CompressibilityFactor() = 1.;
+             VortexLoop(SurfaceVortexEdge(j).VortexLoop2()).CompressibilityFactor() = 1.;
+
+          }
+
+          // Sum up forces = attached + vortex - lost leading edge thrust
+   
+          SurfaceVortexEdge(j).Fx() = AttachedForce[0] + VortexLift*Normal[0] + LeadingEdgeThrust*cos(AngleOfAttack_);
+          SurfaceVortexEdge(j).Fy() = AttachedForce[1] + VortexLift*Normal[1];
+          SurfaceVortexEdge(j).Fz() = AttachedForce[2] + VortexLift*Normal[2] + LeadingEdgeThrust*sin(AngleOfAttack_);                 
+
+       }   
+               
+    }
+                 
 }
 
 /*##############################################################################
@@ -3722,7 +5681,7 @@ void VSP_SOLVER::CalculateUnsteadyForces(void)
 {
 
     int i, j, Edge;
-    double DeltaCp;
+    double DeltaCp, DGammaDt;
 
 #pragma omp parallel for       
     for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
@@ -3730,13 +5689,19 @@ void VSP_SOLVER::CalculateUnsteadyForces(void)
        SurfaceVortexEdge(j).Unsteady_Fx() = 0.;
        SurfaceVortexEdge(j).Unsteady_Fy() = 0.;
        SurfaceVortexEdge(j).Unsteady_Fz() = 0.;
-       
+ 
     }
     
-#pragma omp parallel for private(DeltaCp,Edge,j)             
+#pragma omp parallel for private(DeltaCp,DGammaDt,Edge,j)             
     for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
 
-       DeltaCp = ( Gamma_[i] - GammaNM1_[i] ) / TimeStep_;
+   //    DGammaDt = ( Gamma_[i] - GammaNM1_[i] ) / TimeStep_;
+
+       DGammaDt = ( 3.*Gamma_[i] - 4.*GammaNM1_[i] + GammaNM2_[i] ) / (2.*TimeStep_);
+
+       DeltaCp = 2.*DGammaDt;
+
+       VortexLoop(i).dCp_Unsteady() = DeltaCp;
 
        for ( j = 1 ; j <= VortexLoop(i).NumberOfEdges() ; j++ ) {
           
@@ -3763,7 +5728,7 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
 
     int i, j, Loop1, Loop2;
     double Fx, Fy, Fz, Wgt1, Wgt2;
-    double Fact1, Fact2, CpI, Cp;
+    double Fact, CpI, Cp, Mc, Fc;
 
     // Loop over vortex edges and calculate forces via K-J theorem
  
@@ -3783,7 +5748,7 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
        // Edge forces
 
        if ( Mach_ < 1. ) {
-          
+        
           Fx = SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx();
           Fy = SurfaceVortexEdge(j).Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy();
           Fz = SurfaceVortexEdge(j).Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz();
@@ -3819,6 +5784,9 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
     }
     
     // Calculate normal force on each vortex loop
+    
+    Mc = 0.75; // Max Mach number at which Karman Tsien correction is applied
+               // - Above this we linearly drop the correction to zero by Mach 1.
        
     for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
    
@@ -3830,22 +5798,33 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
        
        // 2nd order correction
        
-       if ( Mach_ < 1. ) {
+       if ( !NoKarmanTsienCorrection_ && Mach_ < 1. ) {
        
           Cp = VortexLoop(i).dCp();
+
+          CpI = ABS(Cp)/pow(LocalFreeStreamVelocity_[i][4],2.);
           
-          CpI = sqrt(1.-Mach_*Mach_)*Cp;
+          // Adjust 2nd order correction model, phase out after Mc ~ 0.75 based on
+          // NACA airfoil data
           
-          CpI = ABS(Cp);
+          if ( Mach_ < Mc ) {
+
+             Fact = 1. + 0.25*CpI*Mach_*Mach_; 
+             
+          }
           
-          Fact1 = 1./sqrt(1.-Mach_*Mach_);
-          
-          Fact2 = 1. + 0.25*CpI*Mach_*Mach_/sqrt(1.-Mach_*Mach_); 
+          else {
+             
+             Fc = 0.25*CpI*Mc*Mc;
+             
+             Fact = 1. + Fc*(1. - (Mach_*Mach_ - Mc*Mc)/(1. - Mc*Mc));
+             
+          }
    
-          VortexLoop(i).CompressibilityFactor() = Fact2;
-   
-          VortexLoop(i).dCp() = Cp * Fact2;
-          
+          VortexLoop(i).CompressibilityFactor() = Fact;
+
+          VortexLoop(i).dCp() = Cp * Fact;
+    
        }
        
        else {
@@ -3867,115 +5846,107 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
 void VSP_SOLVER::CalculateSurfacePressures(void)
 {
 
-    int i, j, Loop1, Loop2;
-    double Vec[3], Mag, Mag1, Mag2, Gradient;
-    double *U, *V, *W, *UDenom, *VDenom, *WDenom;
-    double Cp, Fact, Ratio, CpC, q2;
-    
-    U = new double[NumberOfVortexLoops_ + 1];
-    V = new double[NumberOfVortexLoops_ + 1];
-    W = new double[NumberOfVortexLoops_ + 1];
-
-    UDenom = new double[NumberOfVortexLoops_ + 1];
-    VDenom = new double[NumberOfVortexLoops_ + 1];
-    WDenom = new double[NumberOfVortexLoops_ + 1];
-    
-    zero_double_array(U, NumberOfVortexLoops_);
-    zero_double_array(V, NumberOfVortexLoops_);
-    zero_double_array(W, NumberOfVortexLoops_);
-    
-    zero_double_array(UDenom, NumberOfVortexLoops_);
-    zero_double_array(VDenom, NumberOfVortexLoops_);
-    zero_double_array(WDenom, NumberOfVortexLoops_);
-    
-    for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
-
-       Loop1 = SurfaceVortexEdge(j).LoopL();
-       Loop2 = SurfaceVortexEdge(j).LoopR();
-
-       Mag = vector_dot(VortexLoop(Loop1).Normal(), VortexLoop(Loop2).Normal());
-
-       if ( Mag > 0.95 && !SurfaceVortexEdge(j).IsTrailingEdge() ) {
-   
-          Vec[0] = VortexLoop(Loop1).Xc() - SurfaceVortexEdge(j).Xc();
-          Vec[1] = VortexLoop(Loop1).Yc() - SurfaceVortexEdge(j).Yc();
-          Vec[2] = VortexLoop(Loop1).Zc() - SurfaceVortexEdge(j).Zc();
-          
-          Mag1 = sqrt(vector_dot(Vec,Vec));
-
-          Vec[0] = VortexLoop(Loop2).Xc() - SurfaceVortexEdge(j).Xc();
-          Vec[1] = VortexLoop(Loop2).Yc() - SurfaceVortexEdge(j).Yc();
-          Vec[2] = VortexLoop(Loop2).Zc() - SurfaceVortexEdge(j).Zc();
-          
-          Mag2 = sqrt(vector_dot(Vec,Vec));
-   
-          Vec[0] = VortexLoop(Loop2).Xc() - VortexLoop(Loop1).Xc();
-          Vec[1] = VortexLoop(Loop2).Yc() - VortexLoop(Loop1).Yc();
-          Vec[2] = VortexLoop(Loop2).Zc() - VortexLoop(Loop1).Zc();
-          
-          Mag = sqrt(vector_dot(Vec,Vec));
-          
-          Vec[0] /= Mag;
-          Vec[1] /= Mag;
-          Vec[2] /= Mag;
-          
-          Gradient = -0.5*( VortexLoop(Loop2).Gamma() - VortexLoop(Loop1).Gamma() ) / ( Mag1 + Mag2 );
-   
-          U[Loop1] += Gradient * Vec[0] * ABS(Vec[0]); UDenom[Loop1] += ABS(Vec[0]);
-          V[Loop1] += Gradient * Vec[1] * ABS(Vec[1]); VDenom[Loop1] += ABS(Vec[1]);
-          W[Loop1] += Gradient * Vec[2] * ABS(Vec[2]); WDenom[Loop1] += ABS(Vec[2]);
-          
-          U[Loop2] += Gradient * Vec[0] * ABS(Vec[0]); UDenom[Loop2] += ABS(Vec[0]);
-          V[Loop2] += Gradient * Vec[1] * ABS(Vec[1]); VDenom[Loop2] += ABS(Vec[1]);
-          W[Loop2] += Gradient * Vec[2] * ABS(Vec[2]); WDenom[Loop2] += ABS(Vec[2]);
-          
-       }
+    int i, j, Loop1, Loop2, Edge;
+    double Vec1[3], Vec2[3], Vec[3], Dot;
+    double Normal[3], Area;
+    double Cp, Fact, Ratio, CpC, q2, CpCrit;
        
-    }
+    // Subtract out normal component
     
-    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+    for ( Loop1 = 1 ; Loop1 <= NumberOfVortexLoops_ ; Loop1++ ) {
        
-       if ( UDenom[i] > 0. ) { U[i] /= UDenom[i]; VortexLoop(i).U() += U[i]; }
-       if ( VDenom[i] > 0. ) { V[i] /= VDenom[i]; VortexLoop(i).V() += V[i]; }
-       if ( WDenom[i] > 0. ) { W[i] /= WDenom[i]; VortexLoop(i).W() += W[i]; }
+       VortexLoop(Loop1).U() -= 0.5*VorticityGradient_[Loop1].dv_dx();
+       VortexLoop(Loop1).V() -= 0.5*VorticityGradient_[Loop1].dv_dy();
+       VortexLoop(Loop1).W() -= 0.5*VorticityGradient_[Loop1].dv_dz();
+       
+       Area = VortexLoop(Loop1).Area();
+       
+       Normal[0] = VortexLoop(Loop1).Nx() * Area;
+       Normal[1] = VortexLoop(Loop1).Ny() * Area;
+       Normal[2] = VortexLoop(Loop1).Nz() * Area;
+
+       for ( i = 1 ; i <= VortexLoop(Loop1).NumberOfEdges() ; i++ ) {
+        
+          Edge = VortexLoop(Loop1).Edge(i);
       
-    }    
-    
-    for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
+          Loop2 = SurfaceVortexEdge(Edge).Loop1() + SurfaceVortexEdge(Edge).Loop2() - Loop1;
+
+          Area = VortexLoop(Loop2).Area();              
+
+          Normal[0] += VortexLoop(Loop2).Nx() * Area;
+          Normal[1] += VortexLoop(Loop2).Ny() * Area;
+          Normal[2] += VortexLoop(Loop2).Nz() * Area;       
+
+       }
+
+       Dot = sqrt(vector_dot(Normal,Normal));
        
-       Mag = vector_dot(VortexLoop(i).Normal(), VortexLoop(i).Velocity());
-       
-       VortexLoop(i).U() -= Mag * VortexLoop(i).Nx();
-       VortexLoop(i).V() -= Mag * VortexLoop(i).Ny();
-       VortexLoop(i).W() -= Mag * VortexLoop(i).Nz();
+       Normal[0] /= Dot;
+       Normal[1] /= Dot;
+       Normal[2] /= Dot;              
+
+       Dot = vector_dot(Normal, VortexLoop(Loop1).Velocity());
+
+       VortexLoop(Loop1).U() -= Dot * Normal[0];
+       VortexLoop(Loop1).V() -= Dot * Normal[1];
+       VortexLoop(Loop1).W() -= Dot * Normal[2];
       
     }       
     
+    for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
+
+       if ( SurfaceVortexEdge(j).IsTrailingEdge() ) {
+
+          Loop1 = SurfaceVortexEdge(j).LoopL();
+          Loop2 = SurfaceVortexEdge(j).LoopR();
+
+          VortexLoop(Loop1).U() = 0.;
+          VortexLoop(Loop1).V() = 0.;
+          VortexLoop(Loop1).W() = 0.;
+
+          VortexLoop(Loop2).U() = 0.;
+          VortexLoop(Loop2).V() = 0.;
+          VortexLoop(Loop2).W() = 0.;          
+          
+       }
+
+    }
+        
     // Calculate Cp
-                   
+
+    CpCrit = 1./(1.4*Mach_*Mach_)*(pow( (1.+0.5*(1.4-1)*Mach_*Mach_)/(1+0.5*(1.4-1)),1.4/(1.4-1))-1.);
+ 
     for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
  
        VortexLoop(i).dCp() =  pow(VortexLoop(i).U(),2.)
                             + pow(VortexLoop(i).V(),2.)
                             + pow(VortexLoop(i).W(),2.);
 
-       if ( VortexLoop(i).dCp() > QMax_*QMax_ ) {
+       if ( VortexLoop(i).dCp() > QMax_*QMax_*pow(LocalFreeStreamVelocity_[i][4],2.) ) {
        
-          VortexLoop(i).dCp() = QMax_*QMax_;
+          VortexLoop(i).dCp() = QMax_*QMax_*pow(LocalFreeStreamVelocity_[i][4],2.);
 
        } 
-       
+
        q2 = VortexLoop(i).dCp();
 
        VortexLoop(i).dCp() = 1. - VortexLoop(i).dCp(); 
+                                          
+       // Add in Delta Cp due to any rotors
        
+       VortexLoop(i).dCp() += LocalFreeStreamVelocity_[i][3];                            
+              
        // 2nd order correction
  
-       Cp = VortexLoop(i).dCp();
+       Cp = VortexLoop(i).dCp()/pow(LocalFreeStreamVelocity_[i][4],2.);
 
-       Fact = 1. - 0.25*Cp*Mach_*Mach_*Cp;
-Fact = 1.;       
+       Fact = 1.;
+       
+       if ( !NoKarmanTsienCorrection_ ) Fact = 1. - 0.25*Mach_*Mach_*MAX(Cp,CpCrit);
+
        CpC = Cp*Fact; 
+       
+       CpC = MIN(MAX(CpMin_*pow(LocalFreeStreamVelocity_[i][4],2.), CpC),CpMax_);
  
        Ratio = 1;
        
@@ -3986,7 +5957,7 @@ Fact = 1.;
        }
        
        if ( Ratio <= 0. ) Ratio = 1.;
-Ratio = 1.;             
+
        // Update Cp, and keep track of the ratio
 
        VortexLoop(i).CompressibilityFactor() = Ratio;
@@ -4002,7 +5973,7 @@ Ratio = 1.;
        }
  
     }  
-    
+
     // Enforce base pressures
   
     for ( i = 1 ; i <= NumberOfVortexLoops_ ; i++ ) {
@@ -4010,15 +5981,259 @@ Ratio = 1.;
        if ( LoopIsOnBaseRegion_[i] ) VortexLoop(i).dCp() = CpBase_;
        
     }
-    
-    delete [] U;
-    delete [] V;
-    delete [] W;
-
-    delete [] UDenom;
-    delete [] VDenom;
-    delete [] WDenom;
             
+}
+
+/*##############################################################################
+#                                                                              #
+#              VSP_SOLVER CreateVorticityGradientDataStructure                 #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CreateVorticityGradientDataStructure(void)
+{
+
+    int i, j, k, Loop1, Loop2, Loop3, Edge1, Edge2, *NodeIsMarked, *NeighborLoop;
+    int Found, QuadraticFit, NumberOfLoops, NumberOfEquations;
+    double  Wgt, dN, Normal[3], Area, dx, dy, dz;
+    double Cp, Fact, Ratio, CpC, q2, CpCrit, Dot;    
+    MATRIX *A;
+
+    VorticityGradient_ = new GRADIENT[NumberOfVortexLoops_ + 1];
+    
+    NodeIsMarked = new int[NumberOfSurfaceNodes_ + 1];
+    
+    zero_int_array(NodeIsMarked, NumberOfSurfaceNodes_);
+
+    NeighborLoop = new int[NumberOfVortexLoops_ + 1];
+    
+    zero_int_array(NeighborLoop, NumberOfVortexLoops_);
+
+    for ( Loop1 = 1 ; Loop1 <= NumberOfVortexLoops_ ; Loop1++ ) {
+       
+       for ( i = 1 ; i <= VortexLoop(Loop1).NumberOfNodes() ; i++ ) {
+        
+          NodeIsMarked[VortexLoop(Loop1).Node(i)] = 1;
+          
+       }
+              
+       NumberOfLoops = 0;
+              
+       for ( Loop2 = 1 ; Loop2 <= NumberOfVortexLoops_ ; Loop2++ ) {
+          
+          Found = 0;
+          
+          i = 1;
+          
+          while ( i <= VortexLoop(Loop2).NumberOfNodes() && !Found ) {
+             
+             if ( NodeIsMarked[VortexLoop(Loop2).Node(i)] ) Found = 1;
+             
+             i++;
+             
+          }
+                
+          if ( Found && Loop2 != Loop1 && NeighborLoop[Loop2] == 0 ) {
+             
+             NumberOfLoops++;
+             
+             NeighborLoop[Loop2] = 1;
+             
+          }
+          
+       }
+       
+       for ( Loop2 = 1 ; Loop2 <= NumberOfVortexLoops_ ; Loop2++ ) {
+          
+          if ( NeighborLoop[Loop2] ) {
+          
+             for  ( i = 1 ; i <= VortexLoop(Loop2).NumberOfNodes() ; i++ ) {
+                
+                if ( NodeIsMarked[VortexLoop(Loop2).Node(i)] == 0 ) NodeIsMarked[VortexLoop(Loop2).Node(i)] = 2;
+   
+             }
+          
+          }
+          
+       }
+
+       for ( Loop2 = 1 ; Loop2 <= NumberOfVortexLoops_ ; Loop2++ ) {
+          
+          Found = 0;
+          
+          i = 1;
+          
+          while ( i <= VortexLoop(Loop2).NumberOfNodes() && !Found ) {
+             
+             if ( NodeIsMarked[VortexLoop(Loop2).Node(i)] == 2 ) Found = 1;
+             
+             i++;
+             
+          }
+                
+          if ( Found && Loop2 != Loop1 && NeighborLoop[Loop2] == 0 ) {
+             
+             NumberOfLoops++;
+             
+             NeighborLoop[Loop2] = 1;
+             
+          }
+          
+       }                 
+
+       QuadraticFit = 1;
+       
+       if ( NumberOfLoops >= 5 ) QuadraticFit = 1;
+       
+       NumberOfEquations = NumberOfLoops + 2;
+       
+       A = new MATRIX;
+        
+       // Linear fit
+       
+       if ( !QuadraticFit ) {
+       
+          A->size(NumberOfEquations,3);
+          
+          VorticityGradient_[Loop1].SizeList(NumberOfLoops, NumberOfEquations, 3);
+          
+       }
+        
+       // Quadratic fit
+        
+       else {
+          
+          A->size(NumberOfEquations,6);
+          
+          VorticityGradient_[Loop1].SizeList(NumberOfLoops, NumberOfEquations, 6);
+          
+       }          
+       
+       k = 0;
+          
+       for ( Loop2 = 1 ; Loop2 <= NumberOfVortexLoops_ ; Loop2++ ) {
+          
+          if ( NeighborLoop[Loop2] ) {
+             
+             k++;
+             
+             VorticityGradient_[Loop1].LoopList(k) = Loop2;
+   
+             dx = VortexLoop(Loop2).Xc() - VortexLoop(Loop1).Xc();
+             dy = VortexLoop(Loop2).Yc() - VortexLoop(Loop1).Yc();
+             dz = VortexLoop(Loop2).Zc() - VortexLoop(Loop1).Zc();
+   
+             Wgt = MAX(vector_dot(VortexLoop(Loop1).Normal(), VortexLoop(Loop2).Normal()),0.000001);
+             
+             (*A)(k,1) = dx*Wgt;
+             (*A)(k,2) = dy*Wgt;
+             (*A)(k,3) = dz*Wgt;
+                          
+             if ( QuadraticFit ) {
+               
+                (*A)(k,4) = 0.5*dx*dx*Wgt;
+                (*A)(k,5) = 0.5*dy*dy*Wgt;
+                (*A)(k,6) = 0.5*dz*dz*Wgt;
+
+             }
+                
+          }  
+
+       }
+       
+       dN = sqrt(VortexLoop(Loop1).Area());
+       
+       dx = VortexLoop(Loop1).Nx() * dN;
+       dy = VortexLoop(Loop1).Ny() * dN;
+       dz = VortexLoop(Loop1).Nz() * dN;
+       
+       (*A)(NumberOfEquations-1,1) = dx;
+       (*A)(NumberOfEquations-1,2) = dy;
+       (*A)(NumberOfEquations-1,3) = dz;
+       
+       if ( QuadraticFit ) {
+          
+          (*A)(NumberOfEquations-1,4) = 0.5*dx*dx;
+          (*A)(NumberOfEquations-1,5) = 0.5*dy*dy;
+          (*A)(NumberOfEquations-1,6) = 0.5*dz*dz;
+          
+       }
+
+       dN = 2.*sqrt(VortexLoop(Loop1).Area());
+       
+       dx = VortexLoop(Loop1).Nx() * dN;
+       dy = VortexLoop(Loop1).Ny() * dN;
+       dz = VortexLoop(Loop1).Nz() * dN;
+       
+       (*A)(NumberOfEquations,1) = dx;
+       (*A)(NumberOfEquations,2) = dy;
+       (*A)(NumberOfEquations,3) = dz;
+       
+       if ( QuadraticFit ) {
+          
+          (*A)(NumberOfEquations,4) = 0.5*dx*dx;
+          (*A)(NumberOfEquations,5) = 0.5*dy*dy;
+          (*A)(NumberOfEquations,6) = 0.5*dz*dz;
+          
+       }
+     
+       VorticityGradient_[Loop1].At() = (*A).transpose();
+
+       VorticityGradient_[Loop1].AA() = VorticityGradient_[Loop1].At() * (*A);
+       
+       VorticityGradient_[Loop1].LU();
+       
+       zero_int_array(NeighborLoop, NumberOfVortexLoops_); 
+       
+       zero_int_array(NodeIsMarked, NumberOfSurfaceNodes_ );    
+       
+       delete A; 
+
+    }  
+    
+    delete [] NodeIsMarked;
+    delete [] NeighborLoop;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                  VSP_SOLVER CalculateVorticityGradient                       #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CalculateVorticityGradient(void)
+{
+
+    int i, j, k, Loop1, Loop2, Edge1, Edge2;
+    int Found;
+    double Wgt, dN, Normal[3], Area;
+    double Cp, Fact, Ratio, CpC, q2, CpCrit, Dot, b[7];    
+
+    for ( Loop1 = 1 ; Loop1 <= NumberOfVortexLoops_ ; Loop1++ ) {
+       
+       for ( k = 1 ; k <= VorticityGradient_[Loop1].NumberOfLoops() ; k++ ) {
+          
+          Loop2 = VorticityGradient_[Loop1].LoopList(k);
+
+          Wgt = MAX(vector_dot(VortexLoop(Loop1).Normal(), VortexLoop(Loop2).Normal()),0.000001);
+         
+          VorticityGradient_[Loop1].b(k) = ( VortexLoop(Loop2).Gamma() - VortexLoop(Loop1).Gamma() ) * Wgt;    
+
+       }
+       
+       dN = sqrt(VortexLoop(Loop1).Area());
+
+       VorticityGradient_[Loop1].b(VorticityGradient_[Loop1].NumberOfEquations()-1) = -dN * vector_dot(LocalFreeStreamVelocity_[Loop1], VortexLoop(Loop1).Normal());       
+       
+       dN = 2.*sqrt(VortexLoop(Loop1).Area());
+
+       VorticityGradient_[Loop1].b(VorticityGradient_[Loop1].NumberOfEquations()  ) = -dN * vector_dot(LocalFreeStreamVelocity_[Loop1], VortexLoop(Loop1).Normal());
+         
+       VorticityGradient_[Loop1].Solve();
+
+    }   
+
 }
 
 /*##############################################################################
@@ -4027,166 +6242,268 @@ Ratio = 1.;
 #                                                                              #
 ##############################################################################*/
 
-void VSP_SOLVER::IntegrateForcesAndMoments(void)
+void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
 {
 
-    int j, Loop1, Loop2;
+    int j, Loop1, Loop2, LoadCase;
     double Fx, Fy, Fz;
     double CA, SA, CB, SB;
-    double Cx, Cy, Cz, Cmx, Cmy, Cmz, CompressibilityFactor;
-
+    double Cx, Cy, Cz, Cmx, Cmy, Cmz, SteadyComponent, CompressibilityFactor;
+    double Cx1, Cy1, Cz1, Cmx1, Cmy1, Cmz1;
+    double Cx2, Cy2, Cz2, Cmx2, Cmy2, Cmz2;
+    double CL1, CL2, CD1, CD2, CS1, CS2;
+    MATRIX T(3,3), X(3), B(3);
+    
     CA = cos(AngleOfAttack_);
     SA = sin(AngleOfAttack_);
 
     CB = cos(AngleOfBeta_);
     SB = sin(AngleOfBeta_);
+    
+    SteadyComponent = 1.;
+    
+    if ( UnsteadyEvaluation == 1 ) SteadyComponent = 0.;
 
     // Loop over vortex edges and integrate the forces / moments
     
-    Cx = Cy = Cz = Cmx = Cmy = Cmz = 0.;
-
-    if ( Mach_ < 1. ) {
-   
-#pragma omp parallel for reduction(+:Cx, Cy, Cz, Cmx, Cmy, Cmz) private(Loop1, Loop2, Fx, Fy, Fz, CompressibilityFactor)
-       for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
-     
-          Loop1 = SurfaceVortexEdge(j).LoopL();
-          Loop2 = SurfaceVortexEdge(j).LoopR();
-                
-          // Integrate forces
+    if ( ModelType_ == VLM_MODEL ) {
+ 
+       Cx  = Cy  = Cz  = Cmx  = Cmy  = Cmz  = 0.;
+       Cx1 = Cy1 = Cz1 = Cmx1 = Cmy1 = Cmz1 = 0.;
+       Cx2 = Cy2 = Cz2 = Cmx2 = Cmy2 = Cmz2 = 0.;
+       Cx = Cy = Cz = Cmx = Cmy = Cmz = 0.;
+       
+       if ( Mach_ < 1. ) {
           
-          if ( ModelType_ == PANEL_MODEL ) {
+#pragma omp parallel for reduction(+:Cx1, Cy1, Cz1, Cmx1, Cmy1, Cmz1, Cx2, Cy2, Cz2, Cmx2, Cmy2, Cmz2) private(Loop1, Loop2, Fx, Fy, Fz, CompressibilityFactor)
+          for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
+   
+             Loop1 = SurfaceVortexEdge(j).LoopL();
+             Loop2 = SurfaceVortexEdge(j).LoopR();
              
-             if ( SurfaceVortexEdge(j).IsTrailingEdge() ) {
+             if ( Loop1 == 0 ) Loop1 = Loop2;
+             if ( Loop2 == 0 ) Loop2 = Loop1;
 
-                // Simplified compressibility factor for TE calculation
+             // Trailing edge theorem, normal velocity component only... for induced drag
+             
+             if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
+
+                CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
+
+                // Sum up forces and moments from each edge
                 
-                CompressibilityFactor = 1. + 0.25*Mach_*Mach_;
+                Fx = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
+                Fy = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
+                Fz = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
+                             
+                Cx1 += Fx;
+                Cy1 += Fy;
+                Cz1 += Fz;
+                
+                Cmx1 += Fz * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] ) - Fy * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] );   // Roll
+                Cmy1 += Fx * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] ) - Fz * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] );   // Pitch
+                Cmz1 += Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw
+                  
+             }
+             
+             // Trailing edge theorem, total velocity component only... for lift
+             
+             if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
 
-                Fx = ( -SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
-                Fy = ( -SurfaceVortexEdge(j).Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
-                Fz = ( -SurfaceVortexEdge(j).Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
+                CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
+
+                // Sum up forces and moments from each edge
+                
+                Fx = ( SteadyComponent*SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
+                Fy = ( SteadyComponent*SurfaceVortexEdge(j).Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
+                Fz = ( SteadyComponent*SurfaceVortexEdge(j).Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
+                             
+                Cx2 += Fx;
+                Cy2 += Fy;
+                Cz2 += Fz;
+                
+                Cmx2 += Fz * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] ) - Fy * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] );   // Roll
+                Cmy2 += Fx * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] ) - Fz * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] );   // Pitch
+                Cmz2 += Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw
+                  
+             }             
+             
+          }
+          
+       }
+       
+       else {       
+      
+#pragma omp parallel for reduction(+:Cx, Cy, Cz, Cmx, Cmy, Cmz) private(Loop1, Loop2, Fx, Fy, Fz)
+          for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
+       
+             if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
+
+                // Edge forces
+         
+                Fx = SteadyComponent*SurfaceVortexEdge(j).Fx() + SurfaceVortexEdge(j).Unsteady_Fx();
+                Fy = SteadyComponent*SurfaceVortexEdge(j).Fy() + SurfaceVortexEdge(j).Unsteady_Fy();
+                Fz = SteadyComponent*SurfaceVortexEdge(j).Fz() + SurfaceVortexEdge(j).Unsteady_Fz();
+                                
+                // Integrate forces
                 
                 Cx += Fx;
                 Cy += Fy;
                 Cz += Fz;
                 
-             }
-                
-             if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
-                
-                CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
-                
-                Fx = ( SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
-                Fy = ( SurfaceVortexEdge(j).Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
-                Fz = ( SurfaceVortexEdge(j).Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
-                                
+                // Integrate moments
+      
                 Cmx += Fz * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] ) - Fy * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] );   // Roll
                 Cmy += Fx * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] ) - Fz * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] );   // Pitch
                 Cmz += Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw
-                
-             }      
-         
-          }
-          
-          else if ( ModelType_ == VLM_MODEL && !SurfaceVortexEdge(j).IsTrailingEdge() ) {
-             
-             CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
-             
-             Fx = ( SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
-             Fy = ( SurfaceVortexEdge(j).Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
-             Fz = ( SurfaceVortexEdge(j).Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
-                          
-             Cx += Fx;
-             Cy += Fy;
-             Cz += Fz;
-             
-             Cmx += Fz * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] ) - Fy * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] );   // Roll
-             Cmy += Fx * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] ) - Fz * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] );   // Pitch
-             Cmz += Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw
+                  
+             }
                
-          }             
-          
-       }
+          }
              
+       }
+
     }
     
-    else {
+    // Integrate forces for Panel model
     
-#pragma omp parallel for reduction(+:Cx, Cy, Cz, Cmx, Cmy, Cmz) private(Loop1, Loop2, Fx, Fy, Fz)
+    else if ( ModelType_ == PANEL_MODEL ) {
+    
+       Cx1 = Cy1 = Cz1 = Cmx1 = Cmy1 = Cmz1 = 0.;
+       Cx2 = Cy2 = Cz2 = Cmx2 = Cmy2 = Cmz2 = 0.;
+
+#pragma omp parallel for reduction(+:Cx1, Cy1, Cz1, Cmx1, Cmy1, Cmz1, Cx2, Cy2, Cz2, Cmx2, Cmy2, Cmz2) private(Loop1, Loop2, Fx, Fy, Fz, CompressibilityFactor)
        for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
-    
+     
           Loop1 = SurfaceVortexEdge(j).LoopL();
           Loop2 = SurfaceVortexEdge(j).LoopR();
-          
-          // Edge forces
-   
-          Fx = SurfaceVortexEdge(j).Fx() + SurfaceVortexEdge(j).Unsteady_Fx();
-          Fy = SurfaceVortexEdge(j).Fy() + SurfaceVortexEdge(j).Unsteady_Fy();
-          Fz = SurfaceVortexEdge(j).Fz() + SurfaceVortexEdge(j).Unsteady_Fz();
-  
-          if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
-             
-             // Integrate forces
-             
-             Cx += Fx;
-             Cy += Fy;
-             Cz += Fz;
-             
-             // Integrate moments
-   
-             Cmx += Fz * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] ) - Fy * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] );   // Roll
-   
-             Cmy += Fx * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] ) - Fz * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] );   // Pitch
-                   
-             Cmz += Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw
-               
-          }
-            
-       }
-          
-    }
- 
-    CFx_[0] = Cx;
-    CFy_[0] = Cy;
-    CFz_[0] = Cz;
-    
-    CMx_[0] = Cmx;
-    CMy_[0] = Cmy;
-    CMz_[0] = Cmz;
+         
+          // Trailing edge theorem, normal velocity component only... for induced drag
 
-    CFx_[0] /= (0.5*Sref_);
-    CFy_[0] /= (0.5*Sref_);
-    CFz_[0] /= (0.5*Sref_);
+          if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
+
+             CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
+
+             Fx = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
+             Fy = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
+             Fz = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
+   
+             Cx1 += Fx;
+             Cy1 += Fy;
+             Cz1 += Fz;
+                   
+             Cmx1 += Fz * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] ) - Fy * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] );   // Roll
+             Cmy1 += Fx * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] ) - Fz * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] );   // Pitch
+             Cmz1 += Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw
+             
+          }
+          
+          // Trailing edge theorem, total velocity component only... for lift
+          
+          if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
+
+             CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
+
+             Fx = ( SteadyComponent*SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
+             Fy = ( SteadyComponent*SurfaceVortexEdge(j).Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
+             Fz = ( SteadyComponent*SurfaceVortexEdge(j).Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
+
+             Cx2 += Fx;
+             Cy2 += Fy;
+             Cz2 += Fz;
+                   
+             Cmx2 += Fz * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] ) - Fy * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] );   // Roll
+             Cmy2 += Fx * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] ) - Fz * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] );   // Pitch
+             Cmz2 += Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw
+             
+          }
+          
+       }
+
+    }  
+
+    if ( Mach_ < 1. ) {
+       
+       // Calculate lift and drag using both integrations
+       
+       CL1 = -Cx1 * SA + Cz1 * CA;
+       CL2 = -Cx2 * SA + Cz2 * CA;
+   
+       CD1 =  ( Cx1 * CA + Cz1 * SA ) * CB - Cy1 * SB;
+       CD2 =  ( Cx2 * CA + Cz2 * SA ) * CB - Cy2 * SB;
+   
+       CS1 =  ( Cx1 * CA + Cz1 * SA ) * SB + Cy1 * CB; 
+       CS2 =  ( Cx2 * CA + Cz2 * SA ) * SB + Cy2 * CB; 
+
+       if ( Verbose_ ) printf("CL1,2: %f %f \n",CL1,CL2);
+       if ( Verbose_ ) printf("CD1,2: %f %f \n",CD1,CD2);
+   
+       B(1) = CD1; // Based on normal velocity, corrected for KT
+       B(2) = CS2; // Based on full   velocity
+       B(3) = CL2; // Based on full   velocity
+   
+       Cmx = Cmx2;
+       Cmy = Cmy2;
+       Cmz = Cmz2;       
+       
+       // Transform back to xyz space
+       
+       T(1,1) =  CA*CB ; T(1,2) = -SB ; T(1,3) = SA*CB;  // CD
+       T(2,1) =  CA*SB ; T(2,2) =  CB ; T(2,3) = SA*SB;  // CS
+       T(3,1) = -SA    ; T(3,2) =  0. ; T(3,3) = CA;     // CL
+              
+       X = B/T;
+   
+       Cx = X(1);
+       Cy = X(2);
+       Cz = X(3);
+       
+    }
+
+    LoadCase = 0;
     
-    CMx_[0] /= (0.5*Sref_*Bref_); // Roll
-    CMy_[0] /= (0.5*Sref_*Cref_); // Pitch
-    CMz_[0] /= (0.5*Sref_*Bref_); // Yaw
+    if ( UnsteadyEvaluation ) LoadCase = 2;
+    
+    CFx_[LoadCase] = Cx;
+    CFy_[LoadCase] = Cy;
+    CFz_[LoadCase] = Cz;
+    
+    CMx_[LoadCase] = Cmx;
+    CMy_[LoadCase] = Cmy;
+    CMz_[LoadCase] = Cmz;
+
+    CFx_[LoadCase] /= (0.5*Sref_);
+    CFy_[LoadCase] /= (0.5*Sref_);
+    CFz_[LoadCase] /= (0.5*Sref_);
+    
+    CMx_[LoadCase] /= (0.5*Sref_*Bref_); // Roll
+    CMy_[LoadCase] /= (0.5*Sref_*Cref_); // Pitch
+    CMz_[LoadCase] /= (0.5*Sref_*Bref_); // Yaw
 
     // Adjust for symmetry
-    
+  
     if ( DoSymmetryPlaneSolve_ ) {
        
-       CFx_[0] *= 2.;
-       CFy_[0] *= 2.; 
-       CFz_[0] *= 2.; 
+       CFx_[LoadCase] *= 2.;
+       CFy_[LoadCase] *= 2.; 
+       CFz_[LoadCase] *= 2.; 
    
-       CMx_[0] *= 2.; 
-       CMy_[0] *= 2.; 
-       CMz_[0] *= 2.; 
+       CMx_[LoadCase] *= 2.; 
+       CMy_[LoadCase] *= 2.; 
+       CMz_[LoadCase] *= 2.; 
        
     }
    
-    if ( DoSymmetryPlaneSolve_ == SYM_X ) CMy_[0] = CMz_[0] = CFx_[0] = 0.;
-    if ( DoSymmetryPlaneSolve_ == SYM_Y ) CMx_[0] = CMz_[0] = CFy_[0] = 0.;
-    if ( DoSymmetryPlaneSolve_ == SYM_Z ) CMx_[0] = CMy_[0] = CFz_[0] = 0.;
+    if ( DoSymmetryPlaneSolve_ == SYM_X ) CMy_[LoadCase] = CMz_[LoadCase] = CFx_[LoadCase] = 0.;
+    if ( DoSymmetryPlaneSolve_ == SYM_Y ) CMx_[LoadCase] = CMz_[LoadCase] = CFy_[LoadCase] = 0.;
+    if ( DoSymmetryPlaneSolve_ == SYM_Z ) CMx_[LoadCase] = CMy_[LoadCase] = CFz_[LoadCase] = 0.;
     
     // Now calculate CL, CD, CS
  
-    CL_[0] = (-CFx_[0] * SA + CFz_[0] * CA );
-    CD_[0] = ( CFx_[0] * CA + CFz_[0] * SA ) * CB - CFy_[0] * SB;
-    CS_[0] = ( CFx_[0] * CA + CFz_[0] * SA ) * SB + CFy_[0] * CB; 
-        
+    CL_[LoadCase] = (-CFx_[LoadCase] * SA + CFz_[LoadCase] * CA );
+    CD_[LoadCase] = ( CFx_[LoadCase] * CA + CFz_[LoadCase] * SA ) * CB - CFy_[LoadCase] * SB;
+    CS_[LoadCase] = ( CFx_[LoadCase] * CA + CFz_[LoadCase] * SA ) * SB + CFy_[LoadCase] * CB;
+
 }
 
 /*##############################################################################
@@ -4195,15 +6512,16 @@ void VSP_SOLVER::IntegrateForcesAndMoments(void)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
+void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
 {
 
-    int i, j, k, Loop, Loop1, Loop2;
+    int i, j, k, Loop, Loop1, Loop2, LoadCase;
     int NumberOfStations, SpanStation, SurfaceID; 
-    double Fx, Fy, Fz, Wgt, Area1, Area2;
-    double Length, Re, Cf, Cl, Cd, Cs, Ct, Cn, Cx, Cy, Cz;
+    double Fx, Fy, Fz, Fxi, Fyi, Fzi, Wgt, Area1, Area2;
+    double Length, Re, Cf, Cl, Cd, Cdi, Cs, Ct, Cn, Cx, Cy, Cz;
     double Swet, SwetTotal, StallFact, CompressibilityFactor;
     double CA, SA, CB, SB, CMx, CMy, CMz, Cmx, Cmy, Cmz, Cl_2d, dCD;
+    double Normal[3], Mag, SteadyComponent;
 
     CA = cos(AngleOfAttack_);
     SA = sin(AngleOfAttack_);
@@ -4211,30 +6529,38 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
     CB = cos(AngleOfBeta_);
     SB = sin(AngleOfBeta_);
     
+    SteadyComponent = 1.;
+    
+    if ( UnsteadyEvaluation == 1 ) SteadyComponent = 0.;
+        
     // Zero out spanwise loading arrays
     
     for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) { 
       
        NumberOfStations = VSPGeom().VSP_Surface(i).NumberOfSpanStations();
  
-       zero_double_array(Span_Cx_[i],   NumberOfStations);
-       zero_double_array(Span_Cy_[i],   NumberOfStations);
-       zero_double_array(Span_Cz_[i],   NumberOfStations);       
+       zero_double_array(Span_Cx_[i],    NumberOfStations);
+       zero_double_array(Span_Cy_[i],    NumberOfStations);
+       zero_double_array(Span_Cz_[i],    NumberOfStations);       
+
+       zero_double_array(Span_Cxi_[i],   NumberOfStations);
+       zero_double_array(Span_Cyi_[i],   NumberOfStations);
+       zero_double_array(Span_Czi_[i],   NumberOfStations);     
+        
+       zero_double_array(Span_Cn_[i],    NumberOfStations);       
  
-       zero_double_array(Span_Cn_[i],   NumberOfStations);       
- 
-       zero_double_array(Span_Cl_[i],   NumberOfStations);
-       zero_double_array(Span_Cd_[i],   NumberOfStations);
-       zero_double_array(Span_Cs_[i],   NumberOfStations);       
+       zero_double_array(Span_Cl_[i],    NumberOfStations);
+       zero_double_array(Span_Cd_[i],    NumberOfStations);
+       zero_double_array(Span_Cs_[i],    NumberOfStations);       
       
-       zero_double_array(Span_Cmx_[i],  NumberOfStations);
-       zero_double_array(Span_Cmy_[i],  NumberOfStations);
-       zero_double_array(Span_Cmz_[i],  NumberOfStations);       
+       zero_double_array(Span_Cmx_[i],   NumberOfStations);
+       zero_double_array(Span_Cmy_[i],   NumberOfStations);
+       zero_double_array(Span_Cmz_[i],   NumberOfStations);       
       
-       zero_double_array(Span_Yavg_[i], NumberOfStations);       
-       zero_double_array(Span_Area_[i], NumberOfStations);
+       zero_double_array(Span_Yavg_[i],  NumberOfStations);       
+       zero_double_array(Span_Area_[i],  NumberOfStations);
        
-       zero_double_array(Local_Vel_[i], NumberOfStations);
+       zero_double_array(Local_Vel_[i],  NumberOfStations);
          
     }   
     
@@ -4252,49 +6578,48 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
             
     // Loop over vortex edges and calculate forces via K-J theorem, using only wake induced velocities applied at TE
   
-    Fx = Fy = Fz = CMx = CMy = CMz = 0.;
+    Fx = Fy = Fz = Fxi = Fyi = Fzi = CMx = CMy = CMz = 0.;
     
     for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
        
        Loop1 = SurfaceVortexEdge(j).LoopL();
        Loop2 = SurfaceVortexEdge(j).LoopR();
                  
-       CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
-
+       if ( Loop1 == 0 ) Loop1 = Loop2;
+       if ( Loop2 == 0 ) Loop2 = Loop1;
+                 
        if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
           
           // Extract out forces
           
           if ( Mach_ < 1. ) {
-             
-             if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
-                
-                Fx = ( SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
-                Fy = ( SurfaceVortexEdge(j).Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
-                Fz = ( SurfaceVortexEdge(j).Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
-                
-             }
-             
-             else {
-                
-                Fx = ( SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
-                Fy = ( SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
-                Fz = ( SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
-                                
-             }
-             
+
+             CompressibilityFactor = 0.5*( VortexLoop(Loop1).CompressibilityFactor() + VortexLoop(Loop2).CompressibilityFactor() );
+
+             Fx  = ( SteadyComponent*SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
+             Fy  = ( SteadyComponent*SurfaceVortexEdge(j).Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
+             Fz  = ( SteadyComponent*SurfaceVortexEdge(j).Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
+
+             Fxi = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
+             Fyi = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
+             Fzi = ( SteadyComponent*SurfaceVortexEdge(j).Normal_Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
+
           }
           
           else {
+       
+             Fx  = SteadyComponent*SurfaceVortexEdge(j).Fx() + SurfaceVortexEdge(j).Unsteady_Fx();
+             Fy  = SteadyComponent*SurfaceVortexEdge(j).Fy() + SurfaceVortexEdge(j).Unsteady_Fy();
+             Fz  = SteadyComponent*SurfaceVortexEdge(j).Fz() + SurfaceVortexEdge(j).Unsteady_Fz();
              
-             Fx = SurfaceVortexEdge(j).Fx() + SurfaceVortexEdge(j).Unsteady_Fx();
-             Fy = SurfaceVortexEdge(j).Fy() + SurfaceVortexEdge(j).Unsteady_Fy();
-             Fz = SurfaceVortexEdge(j).Fz() + SurfaceVortexEdge(j).Unsteady_Fz();
+             Fxi = SteadyComponent*SurfaceVortexEdge(j).Fx() + SurfaceVortexEdge(j).Unsteady_Fx();
+             Fyi = SteadyComponent*SurfaceVortexEdge(j).Fy() + SurfaceVortexEdge(j).Unsteady_Fy();
+             Fzi = SteadyComponent*SurfaceVortexEdge(j).Fz() + SurfaceVortexEdge(j).Unsteady_Fz();
              
           }
-          
+         
           // Sum up span wise loading
-
+   
           for ( k = 1 ; k <= 2 ; k++ ) {
            
              if ( k == 1 ) Loop = SurfaceVortexEdge(j).Loop1();
@@ -4302,7 +6627,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
              if ( k == 2 ) Loop = SurfaceVortexEdge(j).Loop2();
              
              Wgt = VortexLoop(Loop).Area() / ( VortexLoop(SurfaceVortexEdge(j).Loop1()).Area() + VortexLoop(SurfaceVortexEdge(j).Loop2()).Area() );
-
+   
              // Wing Surface
              
              if ( VortexLoop(Loop).DegenWingID() > 0 ) {
@@ -4312,16 +6637,24 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
                 SpanStation = VortexLoop(Loop).SpanStation();
                 
                 // Chordwise integrated forces
-
+   
                 Span_Cx_[SurfaceID][SpanStation] += Wgt*Fx;
-
+   
                 Span_Cy_[SurfaceID][SpanStation] += Wgt*Fy;
-
+   
                 Span_Cz_[SurfaceID][SpanStation] += Wgt*Fz;
-                               
+                                               
                 Span_Cn_[SurfaceID][SpanStation] += Wgt * Fx * VortexLoop(Loop).Nx()
                                                   + Wgt * Fy * VortexLoop(Loop).Ny()
                                                   + Wgt * Fz * VortexLoop(Loop).Nz();
+                                                                  
+                // Chordwise integrated induced forces
+                
+                Span_Cxi_[SurfaceID][SpanStation] += Wgt*Fxi;
+   
+                Span_Cyi_[SurfaceID][SpanStation] += Wgt*Fyi;
+   
+                Span_Czi_[SurfaceID][SpanStation] += Wgt*Fzi;                
 
                 // Chordwise integrated moments
    
@@ -4329,8 +6662,9 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
             
                 Span_Cmy_[SurfaceID][SpanStation] += Wgt * Fx * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] ) - Wgt * Fz * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] );   // Pitch
                       
-                Span_Cmz_[SurfaceID][SpanStation] += Wgt * Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - Wgt * Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw      
-             
+                Span_Cmz_[SurfaceID][SpanStation] += Wgt * Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - Wgt * Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw    
+
+                
              }
              
              // Body Surface
@@ -4342,16 +6676,28 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
                 SpanStation = 1;
            
                 // Chordwise integrated forces
+                
+                if ( Mach_ < 1. ) {
                        
-                Span_Cx_[SurfaceID][SpanStation] += Wgt*Fx;
-
-                Span_Cy_[SurfaceID][SpanStation] += Wgt*Fy;
-
-                Span_Cz_[SurfaceID][SpanStation] += Wgt*Fz;
-                               
-                Span_Cn_[SurfaceID][SpanStation] += Wgt * Fx * VortexLoop(Loop).Nx()
-                                                  + Wgt * Fy * VortexLoop(Loop).Ny()
-                                                  + Wgt * Fz * VortexLoop(Loop).Nz();
+                   Span_Cx_[SurfaceID][SpanStation] += Wgt*Fx;
+   
+                   Span_Cy_[SurfaceID][SpanStation] += Wgt*Fy;
+   
+                   Span_Cz_[SurfaceID][SpanStation] += Wgt*Fz;
+                                  
+                   Span_Cn_[SurfaceID][SpanStation] += Wgt * Fx * VortexLoop(Loop).Nx()
+                                                     + Wgt * Fy * VortexLoop(Loop).Ny()
+                                                     + Wgt * Fz * VortexLoop(Loop).Nz();
+                                                     
+                   // Chordwise integrated induced forces
+                   
+                   Span_Cxi_[SurfaceID][SpanStation] += Wgt*Fxi;
+      
+                   Span_Cyi_[SurfaceID][SpanStation] += Wgt*Fyi;
+      
+                   Span_Czi_[SurfaceID][SpanStation] += Wgt*Fzi;                
+                                                      
+                }
                 
                 // Chordwise integrated moments
                        
@@ -4360,13 +6706,13 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
                 Span_Cmy_[SurfaceID][SpanStation] += Wgt * Fx * ( SurfaceVortexEdge(j).Zc() - XYZcg_[2] ) - Wgt * Fz * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] );   // Pitch
                          
                 Span_Cmz_[SurfaceID][SpanStation] += Wgt * Fy * ( SurfaceVortexEdge(j).Xc() - XYZcg_[0] ) - Wgt * Fx * ( SurfaceVortexEdge(j).Yc() - XYZcg_[1] );   // Yaw
-
+   
              }
              
-          }       
-
-       }
+          }      
        
+       }
+        
     }
     
     // Calculate span station areas and y values
@@ -4428,8 +6774,12 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
     }    
 
     // Calculate maximum CL... imposing local 2D Clmax limits
+        
+    LoadCase = 0;
     
-    CL_[0] = CS_[0] = CD_[0] = CFx_[0] = CFy_[0] = CFz_[0]= CMx_[0] = CMy_[0] = CMz_[0] = SwetTotal = CDo_ = 0.;  
+    if ( UnsteadyEvaluation ) LoadCase = 2;
+        
+    CL_[LoadCase] = CS_[LoadCase] = CD_[LoadCase] = CFx_[LoadCase] = CFy_[LoadCase] = CFz_[LoadCase]= CMx_[LoadCase] = CMy_[LoadCase] = CMz_[LoadCase] = SwetTotal = CDo_ = 0.;  
 
     for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) { 
      
@@ -4457,11 +6807,13 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
           
           Cn = Span_Cn_[SurfaceID][SpanStation] / (0.5*Span_Area_[i][k]);
                     
-          Cl =   ( -Span_Cx_[i][k] * SA + Span_Cz_[i][k] * CA )                              / (0.5*Span_Area_[i][k]);
+          Cl =    ( -Span_Cx_[i][k] * SA + Span_Cz_[i][k] * CA )                              / (0.5*Span_Area_[i][k]);
    
-          Cd = ( (  Span_Cx_[i][k] * CA + Span_Cz_[i][k] * SA ) * CB - Span_Cy_[i][k] * SB ) / (0.5*Span_Area_[i][k]);
+          Cd =  ( (  Span_Cx_[i][k] * CA + Span_Cz_[i][k] * SA ) * CB - Span_Cy_[i][k] * SB ) / (0.5*Span_Area_[i][k]);
    
-          Cs = ( (  Span_Cx_[i][k] * CA + Span_Cz_[i][k] * SA ) * SB + Span_Cy_[i][k] * CB ) / (0.5*Span_Area_[i][k]);
+          Cs =  ( (  Span_Cx_[i][k] * CA + Span_Cz_[i][k] * SA ) * SB + Span_Cy_[i][k] * CB ) / (0.5*Span_Area_[i][k]);
+
+          Cdi = ( (  Span_Cxi_[i][k] * CA + Span_Czi_[i][k] * SA ) * CB - Span_Cyi_[i][k] * SB ) / (0.5*Span_Area_[i][k]);
 
           Ct = sqrt( Cl*Cl + Cs*Cs );
           
@@ -4482,9 +6834,9 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
              if ( ABS(Ct) > 0. ) StallFact = ABS(MIN(ABS(Ct), Cl_2d) / ABS(Ct));
              
           }
-          
+
           Span_Cl_[i][k] = StallFact * Cl;
-          Span_Cd_[i][k] = StallFact * Cd;
+          Span_Cd_[i][k] = StallFact * Cdi;
           Span_Cs_[i][k] = StallFact * Cs;
           
           Span_Cx_[i][k] = StallFact * Cx;
@@ -4497,17 +6849,17 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
 
           // Integrate spanwise forces and moments
           
-           CL_[0] += 0.5 *  Span_Cl_[i][k] * Span_Area_[i][k];
-           CD_[0] += 0.5 *  Span_Cd_[i][k] * Span_Area_[i][k];
-           CS_[0] += 0.5 *  Span_Cs_[i][k] * Span_Area_[i][k];
+           CL_[LoadCase] += 0.5 *  Span_Cl_[i][k] * Span_Area_[i][k];
+           CD_[LoadCase] += 0.5 *  Span_Cd_[i][k] * Span_Area_[i][k];
+           CS_[LoadCase] += 0.5 *  Span_Cs_[i][k] * Span_Area_[i][k];
  
-          CFx_[0] += 0.5 *  Span_Cx_[i][k] * Span_Area_[i][k];
-          CFy_[0] += 0.5 *  Span_Cy_[i][k] * Span_Area_[i][k];
-          CFz_[0] += 0.5 *  Span_Cz_[i][k] * Span_Area_[i][k];
+          CFx_[LoadCase] += 0.5 *  Span_Cx_[i][k] * Span_Area_[i][k];
+          CFy_[LoadCase] += 0.5 *  Span_Cy_[i][k] * Span_Area_[i][k];
+          CFz_[LoadCase] += 0.5 *  Span_Cz_[i][k] * Span_Area_[i][k];
           
-          CMx_[0] += 0.5 * Span_Cmx_[i][k] * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
-          CMy_[0] += 0.5 * Span_Cmy_[i][k] * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
-          CMz_[0] += 0.5 * Span_Cmz_[i][k] * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
+          CMx_[LoadCase] += 0.5 * Span_Cmx_[i][k] * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
+          CMy_[LoadCase] += 0.5 * Span_Cmy_[i][k] * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
+          CMz_[LoadCase] += 0.5 * Span_Cmz_[i][k] * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
           
           // Spanwise viscous drag for wings
           
@@ -4544,41 +6896,40 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(void)
        }
          
     }    
-    
-    CL_[0] /= 0.5*Sref_;
-    CD_[0] /= 0.5*Sref_;
-    CS_[0] /= 0.5*Sref_;
-    
-    CFx_[0] /= 0.5*Sref_;
-    CFy_[0] /= 0.5*Sref_;
-    CFz_[0] /= 0.5*Sref_;
 
-    CMx_[0] /= 0.5*Bref_*Sref_;
-    CMy_[0] /= 0.5*Cref_*Sref_;
-    CMz_[0] /= 0.5*Bref_*Sref_;
+    CL_[LoadCase] /= 0.5*Sref_;
+    CD_[LoadCase] /= 0.5*Sref_;
+    CS_[LoadCase] /= 0.5*Sref_;
+    
+    CFx_[LoadCase] /= 0.5*Sref_;
+    CFy_[LoadCase] /= 0.5*Sref_;
+    CFz_[LoadCase] /= 0.5*Sref_;
 
-          
+    CMx_[LoadCase] /= 0.5*Bref_*Sref_;
+    CMy_[LoadCase] /= 0.5*Cref_*Sref_;
+    CMz_[LoadCase] /= 0.5*Bref_*Sref_;
+  
     // Adjust for symmetry
     
-    if ( DoSymmetryPlaneSolve_ ) {
+    if ( DoSymmetryPlaneSolve_  ) {
        
-       CFx_[0] *= 2.;
-       CFy_[0] *= 2.; 
-       CFz_[0] *= 2.; 
+       CFx_[LoadCase] *= 2.;
+       CFy_[LoadCase] *= 2.; 
+       CFz_[LoadCase] *= 2.; 
    
-       CMx_[0] *= 2.; 
-       CMy_[0] *= 2.; 
-       CMz_[0] *= 2.; 
+       CMx_[LoadCase] *= 2.; 
+       CMy_[LoadCase] *= 2.; 
+       CMz_[LoadCase] *= 2.; 
        
-       CL_[0] *= 2.; 
-       CD_[0] *= 2.; 
-       CS_[0] *= 2.; 
+       CL_[LoadCase] *= 2.; 
+       CD_[LoadCase] *= 2.; 
+       CS_[LoadCase] *= 2.; 
        
     }
         
-    if ( DoSymmetryPlaneSolve_ == SYM_X ) CMy_[0] = CMz_[0] = CFx_[0] = 0.;
-    if ( DoSymmetryPlaneSolve_ == SYM_Y ) CMx_[0] = CMz_[0] = CFy_[0] = CS_[0] = 0.;
-    if ( DoSymmetryPlaneSolve_ == SYM_Z ) CMx_[0] = CMy_[0] = CFz_[0] = 0.;
+    if ( DoSymmetryPlaneSolve_ == SYM_X ) CMy_[LoadCase] = CMz_[LoadCase] = CFx_[LoadCase] = 0.;
+    if ( DoSymmetryPlaneSolve_ == SYM_Y ) CMx_[LoadCase] = CMz_[LoadCase] = CFy_[LoadCase] = CS_[LoadCase] = 0.;
+    if ( DoSymmetryPlaneSolve_ == SYM_Z ) CMx_[LoadCase] = CMy_[LoadCase] = CFz_[LoadCase] = 0.;
               
     // Loop over body surfaces and calculate skin friction drag
     
@@ -4829,6 +7180,168 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
 
     TotalLift /= 0.5*Sref_;
 
+}
+
+/*##############################################################################
+#                                                                              #
+#                    VSP_SOLVER CalculateVortexBurstLocation                   #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CalculateVortexBurstLocation(void)
+{
+ 
+    int i, j, k, Loop, SurfaceID, NumberOfStations, Burst;
+    double X, WingCref, Vec[3], S[3], xyzLE[3], xyzTE[3], XBurst, CL, Area;
+    
+    double Normal[3], Sweep, Dot, LocalSweep, Length, Fact;
+
+    // Calculate strip wise forces, as we need them below
+    
+    CalculateCLmaxLimitedForces(0);
+    
+    // Loop over each surface
+    
+    for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) { 
+    
+       // If it's a wing, check it's sweep and see if the vortex has burst
+       
+       if ( VSPGeom().VSP_Surface(i).SurfaceType() == DEGEN_WING_SURFACE ) {
+
+          // Calculate the local lift coefficient
+          
+          CL = Area = 0.;
+          
+          for ( k = 1 ; k <= VSPGeom().VSP_Surface(i).NumberOfSpanStations() ; k++ ) {
+
+             CL += 0.5 * Span_Cl_[i][k] * Span_Area_[i][k];
+ 
+             Area += Span_Area_[i][k];
+      
+          }
+          
+          CL /= 0.5*Area;
+          
+          CL = ABS(CL);
+
+          // Root LE, TE locations
+
+          xyzLE[0] = VSPGeom().VSP_Surface(i).Root_LE(0);
+          xyzLE[1] = VSPGeom().VSP_Surface(i).Root_LE(1);
+          xyzLE[2] = VSPGeom().VSP_Surface(i).Root_LE(2);
+          
+          xyzTE[0] = VSPGeom().VSP_Surface(i).Root_TE(0);
+          xyzTE[1] = VSPGeom().VSP_Surface(i).Root_TE(1);
+          xyzTE[2] = VSPGeom().VSP_Surface(i).Root_TE(2);          
+          
+          // Root chord vector and length
+          
+          S[0] = xyzTE[0] - xyzLE[0];
+          S[1] = xyzTE[1] - xyzLE[1];
+          S[2] = xyzTE[2] - xyzLE[2];
+          
+          WingCref = sqrt(vector_dot(S,S));
+          
+          S[0] /= WingCref;
+          S[1] /= WingCref;
+          S[2] /= WingCref;
+
+          // Calculate average leading edge sweep
+          
+          Sweep = Length = 0;
+          
+          for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
+             
+             if ( SurfaceVortexEdge(j).DegenWing() == i ) {
+                
+                if ( SurfaceVortexEdge(j).IsLeadingEdge() ) {
+        
+                   // Calculate normal
+         
+                   Loop = SurfaceVortexEdge(j).VortexLoop1() + SurfaceVortexEdge(j).VortexLoop2();
+        
+                   Normal[0] = VortexLoop(Loop).FlatPlateNormal()[0];
+                   Normal[1] = VortexLoop(Loop).FlatPlateNormal()[1];
+                   Normal[2] = VortexLoop(Loop).FlatPlateNormal()[2];
+
+                   // Determine local sweep angle
+                   
+                   Dot = vector_dot(S,SurfaceVortexEdge(j).Vec());
+                   
+                   Dot = MIN(1.,MAX(-1.,Dot));
+                   
+                   LocalSweep = acos(Dot);
+                   
+                   LocalSweep = 0.5*PI - LocalSweep;
+
+                   // Average sweep
+                   
+                   Sweep += LocalSweep * SurfaceVortexEdge(j).Length();
+                   
+                   Length += SurfaceVortexEdge(j).Length();
+                   
+                }
+                
+             }
+             
+          }
+          
+          // Average sweep and angle of attack across wing LE
+          
+          Sweep /= Length;
+          
+          // Decide if trailing edge bursting has occurred 
+
+          if ( Sweep >= 40.*TORAD && CL > 0.9 ) {
+             
+             // Calculate the burst location
+
+             XBurst = 2./(1.+exp(5.0*(CL - 0.9)))*WingCref;
+
+             // Apply bursting model to edges down stream of burst location
+     
+             if ( XBurst >= 0.1 ) {
+               
+                Fact = 1.4*sin(Sweep)/CL;
+               
+             }
+            
+             else {
+    
+               Fact = (1.4*sin(Sweep)/CL)/pow(CL/(1.4*sin(Sweep)),0.3);
+    
+             }               
+            
+             for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
+        
+                if ( SurfaceVortexEdge(j).DegenWing() == i ) {
+
+                   Vec[0] = SurfaceVortexEdge(j).Xc() - xyzLE[0];
+                   Vec[1] = SurfaceVortexEdge(j).Yc() - xyzLE[1];
+                   Vec[2] = SurfaceVortexEdge(j).Zc() - xyzLE[2];
+    
+                   X = sqrt(vector_dot(Vec,Vec));
+                   
+                   if ( X >= XBurst ) {
+
+                      if ( SurfaceVortexEdge(j).VortexLoop1() > 0 ) VortexLoop(SurfaceVortexEdge(j).VortexLoop1()).dCp() *= Fact;
+                      if ( SurfaceVortexEdge(j).VortexLoop2() > 0 ) VortexLoop(SurfaceVortexEdge(j).VortexLoop2()).dCp() *= Fact;
+
+                      SurfaceVortexEdge(j).Trefftz_Fx() *= Fact;
+                      SurfaceVortexEdge(j).Trefftz_Fy() *= Fact;
+                      SurfaceVortexEdge(j).Trefftz_Fz() *= Fact;
+          
+                   }
+                   
+                }
+                
+             }      
+             
+          }
+          
+       }
+       
+    }           
 
 }
 
@@ -4838,26 +7351,59 @@ void VSP_SOLVER::CalculateSpanWiseLoading(void)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_SOLVER::CreateFEMLoadFile(void)
+void VSP_SOLVER::CreateFEMLoadFile(int Case)
+{
+   
+    char LoadFileName[2000];
+   
+    if ( Case == 0 || Case == 1 ) {
+       
+       // Open the fem load file
+    
+       sprintf(LoadFileName,"%s.fem",FileName_);
+       
+       if ( (FEMLoadFile_ = fopen(LoadFileName, "w")) == NULL ) {
+   
+          printf("Could not open the fem load file for output! \n");
+   
+          exit(1);
+   
+       }
+       
+    }
+    
+    WriteCaseHeader(FEMLoadFile_);
+       
+    // Write out FEM beam load file for VLM model
+    
+    if ( ModelType_ == VLM_MODEL ) {
+       
+      CreateFEMLoadFileFromVLMSolve(Case);
+       
+    }
+    
+    // Write out FEM beam load file for Panel model
+    
+    else if ( ModelType_ == PANEL_MODEL ) {
+       
+       CreateFEMLoadFileFromPanelSolve(Case);
+       
+    }
+      
+}
+
+/*##############################################################################
+#                                                                              #
+#              VSP_SOLVER CreateFEMLoadFileFromVLMSolve                        #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CreateFEMLoadFileFromVLMSolve(int Case)
 {
  
     int i, k, NumberOfStations;
     double TotalLift;
-    double Vec[3], VecQC[3], VecQC_Def[3], RVec[3], Force[3], Moment[3], Chord;
-    char LoadFileName[2000];
-    FILE *LoadFile;
-    
-    // Open the fem load file
-    
-    sprintf(LoadFileName,"%s.fem",FileName_);
-    
-    if ( (LoadFile = fopen(LoadFileName, "w")) == NULL ) {
-
-       printf("Could not open the fem load file for output! \n");
-
-       exit(1);
-
-    }
+    double Vec[3], VecQC[3], VecQC_Def[3], RVec[3], Force[3], Moment[3], Chord;    
 
     TotalLift = 0.;  
 
@@ -4865,12 +7411,12 @@ void VSP_SOLVER::CreateFEMLoadFile(void)
      
        if ( VSPGeom().VSP_Surface(i).SurfaceType() == DEGEN_WING_SURFACE ) {
         
-          fprintf(LoadFile,"Wing Surface: %d \n",i);
-          fprintf(LoadFile,"SpanStations: %d \n",VSPGeom().VSP_Surface(i).NumberOfSpanStations());
-          fprintf(LoadFile,"\n");
+          fprintf(FEMLoadFile_,"Wing Surface: %d \n",i);
+          fprintf(FEMLoadFile_,"SpanStations: %d \n",VSPGeom().VSP_Surface(i).NumberOfSpanStations());
+          fprintf(FEMLoadFile_,"\n");
           
-          //                123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  
-          fprintf(LoadFile,"   Wing    XLE_ORIG  YLE_ORIG  ZLE_ORIG  XTE_ORIG  YTE_ORIG  ZTE_ORIG  XQC_ORIG  YQC_ORIG  ZQC_ORIG  S_ORIG     Area     Chord     XLE_DEF   YLE_DEF   ZLE_DEF   XTE_DEF   YTE_DEF   ZTE_DEF   XQC_DEF   YQC_DEF   ZQC_DEF    S_DEF       Cl        Cd        Cs        Cx        Cy        Cz       Cmx       Cmy       Cmz \n");
+          //                    123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789  
+          fprintf(FEMLoadFile_,"   Wing    XLE_ORIG  YLE_ORIG  ZLE_ORIG  XTE_ORIG  YTE_ORIG  ZTE_ORIG  XQC_ORIG  YQC_ORIG  ZQC_ORIG  S_ORIG     Area     Chord     XLE_DEF   YLE_DEF   ZLE_DEF   XTE_DEF   YTE_DEF   ZTE_DEF   XQC_DEF   YQC_DEF   ZQC_DEF    S_DEF       Cl        Cd        Cs        Cx        Cy        Cz       Cmx       Cmy       Cmz \n");
 
           NumberOfStations = VSPGeom().VSP_Surface(i).NumberOfSpanStations();
               
@@ -4931,7 +7477,7 @@ void VSP_SOLVER::CreateFEMLoadFile(void)
              // Note... all forces and moments are referenced to the local chord and local quarter chord
              // Ie... these are '2D' coefficients
 
-             fprintf(LoadFile,"%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
+             fprintf(FEMLoadFile_,"%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf \n",
                      i,
                      VSPGeom().VSP_Surface(i).xLE(k),
                      VSPGeom().VSP_Surface(i).yLE(k),
@@ -4967,46 +7513,168 @@ void VSP_SOLVER::CreateFEMLoadFile(void)
          
           }
           
-          fprintf(LoadFile,"\n");
-          fprintf(LoadFile,"   Planform:\n");
-          fprintf(LoadFile,"\n");
+          fprintf(FEMLoadFile_,"\n");
+          fprintf(FEMLoadFile_,"   Planform:\n");
+          fprintf(FEMLoadFile_,"\n");
 
-          fprintf(LoadFile,"   Root LE: %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Root_LE(0),VSPGeom().VSP_Surface(i).Root_LE(1),VSPGeom().VSP_Surface(i).Root_LE(2));
-          fprintf(LoadFile,"   Root TE: %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Root_TE(0),VSPGeom().VSP_Surface(i).Root_TE(1),VSPGeom().VSP_Surface(i).Root_TE(2));
-          fprintf(LoadFile,"   Root QC: %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Root_QC(0),VSPGeom().VSP_Surface(i).Root_QC(1),VSPGeom().VSP_Surface(i).Root_QC(2));
+          fprintf(FEMLoadFile_,"   Root LE: %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Root_LE(0),VSPGeom().VSP_Surface(i).Root_LE(1),VSPGeom().VSP_Surface(i).Root_LE(2));
+          fprintf(FEMLoadFile_,"   Root TE: %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Root_TE(0),VSPGeom().VSP_Surface(i).Root_TE(1),VSPGeom().VSP_Surface(i).Root_TE(2));
+          fprintf(FEMLoadFile_,"   Root QC: %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Root_QC(0),VSPGeom().VSP_Surface(i).Root_QC(1),VSPGeom().VSP_Surface(i).Root_QC(2));
 
-          fprintf(LoadFile,"\n");
+          fprintf(FEMLoadFile_,"\n");
 
-          fprintf(LoadFile,"   Tip LE:  %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Tip_LE(0),VSPGeom().VSP_Surface(i).Tip_LE(1),VSPGeom().VSP_Surface(i).Tip_LE(2));
-          fprintf(LoadFile,"   Tip TE:  %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Tip_TE(0),VSPGeom().VSP_Surface(i).Tip_TE(1),VSPGeom().VSP_Surface(i).Tip_TE(2));
-          fprintf(LoadFile,"   Tip QC:  %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Tip_QC(0),VSPGeom().VSP_Surface(i).Tip_QC(1),VSPGeom().VSP_Surface(i).Tip_QC(2));
+          fprintf(FEMLoadFile_,"   Tip LE:  %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Tip_LE(0),VSPGeom().VSP_Surface(i).Tip_LE(1),VSPGeom().VSP_Surface(i).Tip_LE(2));
+          fprintf(FEMLoadFile_,"   Tip TE:  %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Tip_TE(0),VSPGeom().VSP_Surface(i).Tip_TE(1),VSPGeom().VSP_Surface(i).Tip_TE(2));
+          fprintf(FEMLoadFile_,"   Tip QC:  %9.5lf %9.5lf %9.5lf \n",VSPGeom().VSP_Surface(i).Tip_QC(0),VSPGeom().VSP_Surface(i).Tip_QC(1),VSPGeom().VSP_Surface(i).Tip_QC(2));
                       
        }
                  
     }
     
-    fprintf(LoadFile,"\n\n");
-    fprintf(LoadFile,"Total Forces and Moments \n");
-    fprintf(LoadFile,"\n\n");
+    fprintf(FEMLoadFile_,"\n\n");
+    fprintf(FEMLoadFile_,"Total Forces and Moments \n");
+    fprintf(FEMLoadFile_,"\n\n");
      
-    fprintf(LoadFile,"Total CL:  %lf \n", CL_[0]);
-    fprintf(LoadFile,"Total CD:  %lf \n", CD_[0]);
-    fprintf(LoadFile,"Total CS:  %lf \n", CS_[0]);
+    fprintf(FEMLoadFile_,"Total CL:  %lf \n", CL_[0]);
+    fprintf(FEMLoadFile_,"Total CD:  %lf \n", CD_[0]);
+    fprintf(FEMLoadFile_,"Total CS:  %lf \n", CS_[0]);
     
-    fprintf(LoadFile,"Total CFx: %lf \n", CFx_[0]);
-    fprintf(LoadFile,"Total CFy: %lf \n", CFy_[0]);
-    fprintf(LoadFile,"Total CFz: %lf \n", CFz_[0]);
+    fprintf(FEMLoadFile_,"Total CFx: %lf \n", CFx_[0]);
+    fprintf(FEMLoadFile_,"Total CFy: %lf \n", CFy_[0]);
+    fprintf(FEMLoadFile_,"Total CFz: %lf \n", CFz_[0]);
 
-    fprintf(LoadFile,"Total CMx: %lf \n", CMx_[0]);
-    fprintf(LoadFile,"Total CMy: %lf \n", CMy_[0]);
-    fprintf(LoadFile,"Total CMz: %lf \n", CMz_[0]);
-    
-
- 
-    fclose(LoadFile);
+    fprintf(FEMLoadFile_,"Total CMx: %lf \n", CMx_[0]);
+    fprintf(FEMLoadFile_,"Total CMy: %lf \n", CMy_[0]);
+    fprintf(FEMLoadFile_,"Total CMz: %lf \n", CMz_[0]);
 
 }
 
+/*##############################################################################
+#                                                                              #
+#              VSP_SOLVER CreateFEMLoadFileFromPanelSolve                      #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SOLVER::CreateFEMLoadFileFromPanelSolve(int Case)
+{
+ 
+    int i, j, k, Node, Node1, Node2, *OnVortexSheet;
+    double *Fx, *Fy, *Fz, fx, fy, fz, Cl, Cd, Cs, CompressibilityFactor;
+    double CA, SA, CB, SB;
+
+    CA = cos(AngleOfAttack_);
+    SA = sin(AngleOfAttack_);
+
+    CB = cos(AngleOfBeta_);
+    SB = sin(AngleOfBeta_);
+        
+    // Mark nodes on trailing edge of each lifting surface
+    
+    OnVortexSheet = new int[VSPGeom().Grid(1).NumberOfNodes() + 1];
+    
+    zero_int_array(OnVortexSheet, VSPGeom().Grid(1).NumberOfNodes());
+    
+    Fx  = new double[VSPGeom().Grid(1).NumberOfNodes() + 1];
+    Fy  = new double[VSPGeom().Grid(1).NumberOfNodes() + 1];
+    Fz  = new double[VSPGeom().Grid(1).NumberOfNodes() + 1];
+    
+    zero_double_array(Fx, VSPGeom().Grid(1).NumberOfNodes());
+    zero_double_array(Fy, VSPGeom().Grid(1).NumberOfNodes());
+    zero_double_array(Fz, VSPGeom().Grid(1).NumberOfNodes());
+        
+    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+
+       for ( i = 1 ; i <= VortexSheet(k).NumberOfTrailingVortices() ; i++ ) {
+
+          Node = VortexSheet(k).TrailingVortexEdge(i).Node();
+
+          OnVortexSheet[Node] = k;     
+
+       }
+       
+    }
+   
+    // Calculate forces for each lifting surface
+    
+    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+             
+       for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
+     
+          if ( SurfaceVortexEdge(j).IsTrailingEdge() ) {
+             
+             Node1 = SurfaceVortexEdge(j).Node1();
+             Node2 = SurfaceVortexEdge(j).Node2();
+             
+             if ( OnVortexSheet[Node1] == k && OnVortexSheet[Node2] == k ) {
+
+                // Assume trailing edge is at CpMax_ and calculate KT factor accordingly
+                
+                CompressibilityFactor = 1. + 0.25*Mach_*Mach_*CpMax_;
+
+                fx = ( -SurfaceVortexEdge(j).Trefftz_Fx() + SurfaceVortexEdge(j).Unsteady_Fx() ) * CompressibilityFactor;
+                fy = ( -SurfaceVortexEdge(j).Trefftz_Fy() + SurfaceVortexEdge(j).Unsteady_Fy() ) * CompressibilityFactor;
+                fz = ( -SurfaceVortexEdge(j).Trefftz_Fz() + SurfaceVortexEdge(j).Unsteady_Fz() ) * CompressibilityFactor;
+                
+                Fx[Node1] += 0.5*fx;
+                Fy[Node1] += 0.5*fy;
+                Fz[Node1] += 0.5*fz;
+                
+                Fx[Node2] += 0.5*fx;
+                Fy[Node2] += 0.5*fy;
+                Fz[Node2] += 0.5*fz;                
+                
+             }
+             
+          }
+          
+       }
+       
+    }
+    
+    // Write out data
+    
+    //                    123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 
+    fprintf(FEMLoadFile_,"   Wing       X         Y         Z         Cx        Cy        Cz        CL        CD        CS \n");
+
+    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+
+       for ( i = 1 ; i <= VortexSheet(k).NumberOfTrailingVortices() ; i++ ) {
+
+          Node = VortexSheet(k).TrailingVortexEdge(i).Node();
+          
+          // Nodal forces, non-dimensionalized by Sref
+          
+          fx = Fx[Node] / (0.5*Sref_);
+          fy = Fy[Node] / (0.5*Sref_);
+          fz = Fz[Node] / (0.5*Sref_);
+          
+          // Nodal force coefficients, again non-dimensionalized by Sref
+          
+          Cl =   ( -fx * SA + fz * CA );
+          Cd = ( (  fx * CA + fz * SA ) * CB - fy * SB );
+          Cs = ( (  fx * CA + fz * SA ) * SB + fy * CB );
+
+          fprintf(FEMLoadFile_,"%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+          k,   
+          VSPGeom().Grid(1).NodeList(Node).x(),
+          VSPGeom().Grid(1).NodeList(Node).y(),
+          VSPGeom().Grid(1).NodeList(Node).z(),
+          fx,
+          fy,
+          fz,
+          Cl,
+          Cd,
+          Cs);
+          
+       }
+       
+    }
+    
+    fprintf(FEMLoadFile_,"\n");
+    fprintf(FEMLoadFile_,"Note: Force coefficients are NOT 2D - they are the full 3D forces, non-dimensionalized by 1/2 Sref \n");
+
+}         
+          
 /*##############################################################################
 #                                                                              #
 #                         VSP_SOLVER WriteFEM2DGeometry                        #
@@ -5172,25 +7840,67 @@ void VSP_SOLVER::CalculateVelocitySurvey(void)
           V[i] += q[1] / Vinf_;
           W[i] += q[2] / Vinf_;
           
+          // If ground effects... add in ground effects ... z plane
+          
+          if ( DoGroundEffectsAnalysis() ) {
+   
+             xyz[0] = SurveyPointList(i).x();
+             xyz[1] = SurveyPointList(i).y();
+             xyz[2] = SurveyPointList(i).z();
+                
+             xyz[2] *= -1.;
+            
+             RotorDisk(k).Velocity(xyz, q);        
+   
+             q[2] *= -1.;
+            
+             U[i] += q[0] / Vinf_;
+             V[i] += q[1] / Vinf_;
+             W[i] += q[2] / Vinf_;
+   
+          }             
+          
           // If there is a symmetry plane, calculate influence of the reflection
           
           if ( DoSymmetryPlaneSolve_ ) {
    
-            if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
-            if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
-            if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
-            
-            RotorDisk(k).Velocity(xyz, q);        
+             xyz[0] = SurveyPointList(i).x();
+             xyz[1] = SurveyPointList(i).y();
+             xyz[2] = SurveyPointList(i).z();
+             
+             if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+             
+             RotorDisk(k).Velocity(xyz, q);        
    
-            if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-            if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
-            if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+             if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
             
-            U[i] += q[0] / Vinf_;
-            V[i] += q[1] / Vinf_;
-            W[i] += q[2] / Vinf_;
+             U[i] += q[0] / Vinf_;
+             V[i] += q[1] / Vinf_;
+             W[i] += q[2] / Vinf_;
+             
+             // If ground effects... add in ground effects ... z plane
+             
+             if ( DoGroundEffectsAnalysis() ) {
+
+                xyz[2] *= -1.;
+               
+                RotorDisk(k).Velocity(xyz, q);        
+      
+                if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                                                      q[2] *= -1.;
+               
+                U[i] += q[0] / Vinf_;
+                V[i] += q[1] / Vinf_;
+                W[i] += q[2] / Vinf_;
    
-          }           
+             }
+               
+          }            
          
        }    
        
@@ -5210,24 +7920,66 @@ void VSP_SOLVER::CalculateVelocitySurvey(void)
        V[i] += q[1];
        W[i] += q[2];
        
-       // If there is a symmetry plane, calculate influence of the reflection
+       // If ground effects... add in ground effects ... z plane
        
-       if ( DoSymmetryPlaneSolve_ ) {
+       if ( DoGroundEffectsAnalysis() ) {
 
-         if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
-         if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
-         if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+         xyz[0] = SurveyPointList(i).x();
+         xyz[1] = SurveyPointList(i).y();
+         xyz[2] = SurveyPointList(i).z();
+       
+         xyz[2] *= -1.;
          
          CalculateSurfaceInducedVelocityAtPoint(xyz, q);
 
-         if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
-         if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
-         if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+         q[2] *= -1.;
          
          U[i] += q[0];
          V[i] += q[1];
          W[i] += q[2];
          
+       }
+              
+       // If there is a symmetry plane, calculate influence of the reflection
+       
+       if ( DoSymmetryPlaneSolve_ ) {
+
+          xyz[0] = SurveyPointList(i).x();
+          xyz[1] = SurveyPointList(i).y();
+          xyz[2] = SurveyPointList(i).z();
+         
+          if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
+          if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
+          if ( DoSymmetryPlaneSolve_ == SYM_Z ) xyz[2] *= -1.;
+         
+          CalculateSurfaceInducedVelocityAtPoint(xyz, q);
+
+          if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+          if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+          if ( DoSymmetryPlaneSolve_ == SYM_Z ) q[2] *= -1.;
+         
+          U[i] += q[0];
+          V[i] += q[1];
+          W[i] += q[2];
+
+          // If ground effects... add in ground effects ... z plane
+          
+          if ( DoGroundEffectsAnalysis() ) {
+
+            xyz[2] *= -1.;
+            
+            CalculateSurfaceInducedVelocityAtPoint(xyz, q);
+   
+            if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+            if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                                                  q[2] *= -1.;
+            
+            U[i] += q[0];
+            V[i] += q[1];
+            W[i] += q[2];
+            
+          }
+                
        }
        
     }
@@ -5249,7 +8001,27 @@ void VSP_SOLVER::CalculateVelocitySurvey(void)
              U[i] += q[0];
              V[i] += q[1];
              W[i] += q[2];
-                
+               
+             // If ground effects... add in ground effects ... z plane
+   
+             if ( DoGroundEffectsAnalysis() ) {
+   
+                xyz[0] = SurveyPointList(i).x();
+                xyz[1] = SurveyPointList(i).y();
+                xyz[2] = SurveyPointList(i).z();
+                        
+                xyz[2] *= -1.;
+               
+                VortexSheet(p).TrailingVortexEdge(k).InducedVelocity(xyz, q);
+      
+                q[2] *= -1.;
+               
+                U[i] += q[0];
+                V[i] += q[1];
+                W[i] += q[2];
+               
+             }      
+                             
              // If there is a symmetry plane, calculate influence of the reflection
    
              if ( DoSymmetryPlaneSolve_ ) {
@@ -5271,6 +8043,24 @@ void VSP_SOLVER::CalculateVelocitySurvey(void)
                 U[i] += q[0];
                 V[i] += q[1];
                 W[i] += q[2];
+                
+                // If ground effects... add in ground effects ... z plane
+      
+                if ( DoGroundEffectsAnalysis() ) {
+  
+                   xyz[2] *= -1.;
+                  
+                   VortexSheet(p).TrailingVortexEdge(k).InducedVelocity(xyz, q);
+         
+                   if ( DoSymmetryPlaneSolve_ == SYM_X ) q[0] *= -1.;
+                   if ( DoSymmetryPlaneSolve_ == SYM_Y ) q[1] *= -1.;
+                                                         q[2] *= -1.;
+                  
+                   U[i] += q[0];
+                   V[i] += q[1];
+                   W[i] += q[2];
+                  
+                }                      
                
              }                   
    
@@ -5320,23 +8110,17 @@ void VSP_SOLVER::CalculateVelocitySurvey(void)
 
 /*##############################################################################
 #                                                                              #
-#                VSP_SOLVER WriteOutAerothermalDatabaseFiles                   #
+#                VSP_SOLVER WriteOutAerothermalDatabaseGeometry                #
 #                                                                              #
 ##############################################################################*/
 
-void VSP_SOLVER::WriteOutAerothermalDatabaseFiles(void)
+void VSP_SOLVER::WriteOutAerothermalDatabaseHeader(void)
 {
+   
+    char DumChar[2000];
+    int i, j, k, p, r, SurfaceType, SurfaceID, number_of_nodes, number_of_tris;
+    int i_size, c_size, f_size, DumInt;
 
-    FILE *ADBFile_;
-    char ADBFileName[2000], DumChar[2000];
-    int i, j, k, Node1, Node2, Node3, SurfaceType, SurfaceID;
-    int i_size, c_size, f_size, DumInt, number_of_nodes, number_of_tris;
-    int Level, NumberOfCoarseEdges, NumberOfCoarseNodes, MaxLevels;
-    int NumberOfKuttaTE, NumberOfKuttaNodes;
-    int NumberOfControlSurfaces;
-    
-    int num_Mach = 1;
-    int num_Alpha = 1;
     
     float Sref = Sref_;
     float Cref = Cref_;
@@ -5345,13 +8129,8 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseFiles(void)
     float Y_cg = XYZcg_[1];
     float Z_cg = XYZcg_[2];
 
-    float FreeStreamPressure         = 1000;
-    float DynamicPressure            = 100000.;
-
     float DumFloat;
-    
-    float Cp;
-    
+
     float Area;
     
     float x, y, z;
@@ -5361,31 +8140,37 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseFiles(void)
     i_size = sizeof(int);
     c_size = sizeof(char);
     f_size = sizeof(float);
-    
-    sprintf(ADBFileName,"%s.adb",FileName_);
-    
-    if ( (ADBFile_ = fopen(ADBFileName, "wb")) == NULL ) {
 
-       printf("Could not open the aerothermal data base file for binary output! \n");
-
-       exit(1);
-
-    }
-    
     // Write out coded id to allow us to determine endiannes of files
 
-    DumInt = -123789456; // Version 1 of the ADB file
+    DumInt = -123789456; // Version 2 of the ADB file
 
     fwrite(&DumInt, i_size, 1, ADBFile_);
     
     // Write out model type... VLM or PANEL
     
     fwrite(&ModelType_, i_size, 1, ADBFile_);
-    
+
     // Write out symmetry flag
     
     fwrite(&DoSymmetryPlaneSolve_, i_size, 1, ADBFile_);
 
+    // Write out unsteady analysis flag
+    
+    if ( TimeAccurate_) {
+    
+       fwrite(&TimeAnalysisType_, i_size, 1, ADBFile_);    
+       
+    }
+    
+    else {
+       
+       DumInt = 0;
+       
+       fwrite(&DumInt, i_size, 1, ADBFile_);    
+       
+    }       
+    
     // Write out header to aerodynamics file
 
     number_of_tris  = VSPGeom().Grid().NumberOfLoops();
@@ -5393,26 +8178,12 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseFiles(void)
 
     fwrite(&number_of_nodes, i_size, 1, ADBFile_);
     fwrite(&number_of_tris,  i_size, 1, ADBFile_);
-    fwrite(&num_Mach,        i_size, 1, ADBFile_);
-    fwrite(&num_Alpha,       i_size, 1, ADBFile_);
     fwrite(&Sref,            f_size, 1, ADBFile_);
     fwrite(&Cref,            f_size, 1, ADBFile_);
     fwrite(&Bref,            f_size, 1, ADBFile_);
     fwrite(&X_cg,            f_size, 1, ADBFile_);
     fwrite(&Y_cg,            f_size, 1, ADBFile_);
     fwrite(&Z_cg,            f_size, 1, ADBFile_);
-
-    DumFloat = Mach_;
-
-    fwrite(&DumFloat, f_size, 1, ADBFile_);
-
-    DumFloat = AngleOfAttack_;
-
-    fwrite(&DumFloat, f_size, 1, ADBFile_);
-
-    DumFloat = AngleOfBeta_;
-
-    fwrite(&DumFloat, f_size, 1, ADBFile_);
     
     // Write out wing ID flags, names...
 
@@ -5474,260 +8245,8 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseFiles(void)
      
     }    
     
-    // Write out triangulated surface mesh
-
-    for ( j = 1 ; j <= VSPGeom().Grid().NumberOfLoops() ; j++ ) {
-
-       Node1       = VSPGeom().Grid().LoopList(j).Node1();
-       Node2       = VSPGeom().Grid().LoopList(j).Node2();
-       Node3       = VSPGeom().Grid().LoopList(j).Node3();
-
-       SurfaceType = VSPGeom().Grid().LoopList(j).SurfaceType();
-       
-       SurfaceID   = VSPGeom().Grid().LoopList(j).DegenBodyID()
-                   + VSPGeom().Grid().LoopList(j).DegenWingID()
-                   + VSPGeom().Grid().LoopList(j).Cart3dID();
-
-       Area        = VSPGeom().Grid().LoopList(j).Area();
-       
-       fwrite(&(Node1),       i_size, 1, ADBFile_);
-       fwrite(&(Node2),       i_size, 1, ADBFile_);
-       fwrite(&(Node3),       i_size, 1, ADBFile_);
-       fwrite(&(SurfaceType), i_size, 1, ADBFile_);
-       fwrite(&(SurfaceID),   i_size, 1, ADBFile_);
-       fwrite(&Area,          f_size, 1, ADBFile_);
-
-    }
-
-    // Write out node data
-
-    for ( j = 1 ; j <= VSPGeom().Grid().NumberOfNodes() ; j++ ) {
-
-       x = VSPGeom().Grid().NodeList(j).x();
-       y = VSPGeom().Grid().NodeList(j).y();
-       z = VSPGeom().Grid().NodeList(j).z();
-       
-       fwrite(&(x), f_size, 1, ADBFile_);
-       fwrite(&(y), f_size, 1, ADBFile_);
-       fwrite(&(z), f_size, 1, ADBFile_);
-       
-    }
-
-    // Write out aero data base file
+}   
  
-    fwrite(&(FreeStreamPressure), f_size, 1, ADBFile_); // Freestream static pressure
-    fwrite(&(DynamicPressure),    f_size, 1, ADBFile_); // Freestream dynamic pressure
-    
-    // Write out min and min and max Cp
-    
-    DumFloat = CpMin_;
-    
-    fwrite(&(DumFloat), f_size, 1, ADBFile_);
-    
-    DumFloat = CpMax_;
-    
-    fwrite(&(DumFloat), f_size, 1, ADBFile_);
-        
-    // Loop over surfaces and write out solution
-
-    for ( j = 1 ; j <= VSPGeom().Grid().NumberOfLoops() ; j++ ) {
-  
-       Cp = VSPGeom().Grid().LoopList(j).dCp();
-       
-       fwrite(&Cp, f_size, 1, ADBFile_); // Wall or Edge Pressure, Pa
-
-    }
-
-    // Write out wake shape
-    
-    fwrite(&NumberOfTrailingVortexEdges_, i_size, 1, ADBFile_);
-    
-    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
-      
-       for ( i = 1 ; i <= VortexSheet(k).NumberOfTrailingVortices() ; i++ ) {
-
-          VortexSheet(k).TrailingVortexEdge(i).WriteToFile(ADBFile_);
-
-       }
-       
-    }     
-
-    // Write out the rotor data
-    
-    fwrite(&NumberOfRotors_, i_size, 1, ADBFile_);
-
-    for ( i = 1 ; i <= NumberOfRotors_ ; i++ ) {
-     
-       RotorDisk(i).Write_Binary_STP_Data(ADBFile_);
-     
-    }
-    
-    // Write out the edges for each grid level
-        
-    MaxLevels = VSPGeom().NumberOfGridLevels();
-
-    fwrite(&MaxLevels, i_size, 1, ADBFile_); 
-   
-    // Loop over each level
-
-    for ( Level = 1 ; Level < MaxLevels ; Level++ ) {
-
-       NumberOfCoarseNodes = VSPGeom().Grid(Level).NumberOfNodes();
-
-       NumberOfCoarseEdges = VSPGeom().Grid(Level).NumberOfEdges();
- 
-       fwrite(&NumberOfCoarseNodes, i_size, 1, ADBFile_); 
-
-       fwrite(&NumberOfCoarseEdges, i_size, 1, ADBFile_); 
-
-       for ( j = 1 ; j <= VSPGeom().Grid(Level).NumberOfNodes() ; j++ ) {
-
-          x = VSPGeom().Grid(Level).NodeList(j).x();
-          y = VSPGeom().Grid(Level).NodeList(j).y();
-          z = VSPGeom().Grid(Level).NodeList(j).z();
-          
-          fwrite(&(x), f_size, 1, ADBFile_);
-          fwrite(&(y), f_size, 1, ADBFile_);
-          fwrite(&(z), f_size, 1, ADBFile_);         
-     
-       }
-       
-       for ( j = 1 ; j <= VSPGeom().Grid(Level).NumberOfEdges() ; j++ ) {
-
-          SurfaceID = VSPGeom().Grid(Level).EdgeList(j).DegenBody()
-                    + VSPGeom().Grid(Level).EdgeList(j).DegenWing()
-                    + VSPGeom().Grid(Level).EdgeList(j).Cart3DSurface();
-                    
-          if ( VSPGeom().Grid(Level).EdgeList(j).Loop1() == VSPGeom().Grid(Level).EdgeList(j).Loop2() )  SurfaceID = 999;             
-
-          Node1 = VSPGeom().Grid(Level).EdgeList(j).Node1();
-          Node2 = VSPGeom().Grid(Level).EdgeList(j).Node2();  
-
-          fwrite(&SurfaceID, i_size, 1, ADBFile_);
-          
-          fwrite(&Node1, i_size, 1, ADBFile_);
-          fwrite(&Node2, i_size, 1, ADBFile_);
-
-       }
-  
-    }
-    
-    // Write out kutta edges
-    
-    Level = 1;
-    
-    NumberOfKuttaTE = 0;
-    
-    for ( i = 1 ; i <= VSPGeom().Grid(Level).NumberOfEdges() ; i++ ) {
- 
-       if ( VSPGeom().Grid(Level).EdgeList(i).IsTrailingEdge() ) {     
-          
-          NumberOfKuttaTE++;
-          
-       }
-       
-    }
-    
-    fwrite(&NumberOfKuttaTE, i_size, 1, ADBFile_);
-    
-    for ( i = 1 ; i <= VSPGeom().Grid(Level).NumberOfEdges() ; i++ ) {
- 
-       if ( VSPGeom().Grid(Level).EdgeList(i).IsTrailingEdge() ) {     
-
-          fwrite(&i, i_size, 1, ADBFile_); 
-          
-       }
-       
-    }
-    
-    // Write out kutta nodes
-    
-    NumberOfKuttaNodes = 0;
-    
-    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
-            
-       NumberOfKuttaNodes += VortexSheet(k).NumberOfTrailingVortices();
-       
-    }
-
-    fwrite(&NumberOfKuttaNodes, i_size, 1, ADBFile_);
- 
-    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
-            
-       for ( i = 1 ; i <= VortexSheet(k).NumberOfTrailingVortices() ; i++ ) {
-
-          Node1 = VortexSheet(k).TrailingVortexEdge(i).Node();
-  
-          fwrite(&Node1, i_size, 1, ADBFile_); 
-
-       }
-    
-    }
-    
-    // Write out control surfaces
-    
-    NumberOfControlSurfaces = 0;
-    
-    for ( j = 1 ; j <= VSPGeom().NumberOfSurfaces() ; j++ ) {
-       
-       if ( VSPGeom().VSP_Surface(j).SurfaceType() == DEGEN_WING_SURFACE ) {
-       
-          NumberOfControlSurfaces += VSPGeom().VSP_Surface(j).NumberOfControlSurfaces();
-          
-       }
- 
-    }
-
-    fwrite(&NumberOfControlSurfaces, i_size, 1, ADBFile_); 
-    
-    for ( j = 1 ; j <= VSPGeom().NumberOfSurfaces() ; j++ ) {
-       
-       if ( VSPGeom().VSP_Surface(j).SurfaceType() == DEGEN_WING_SURFACE ) {
-       
-          for ( k = 1 ; k <= VSPGeom().VSP_Surface(j).NumberOfControlSurfaces() ; k++ ) {
-       
-             x = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_1(0);
-             y = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_1(1);
-             z = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_1(2);
-             
-             fwrite(&x, f_size, 1, ADBFile_); 
-             fwrite(&y, f_size, 1, ADBFile_); 
-             fwrite(&z, f_size, 1, ADBFile_); 
-             
-             x = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_2(0);
-             y = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_2(1);
-             z = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_2(2);
-             
-             fwrite(&x, f_size, 1, ADBFile_); 
-             fwrite(&y, f_size, 1, ADBFile_); 
-             fwrite(&z, f_size, 1, ADBFile_); 
-             
-             x = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_3(0);
-             y = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_3(1);
-             z = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_3(2);
-             
-             fwrite(&x, f_size, 1, ADBFile_); 
-             fwrite(&y, f_size, 1, ADBFile_); 
-             fwrite(&z, f_size, 1, ADBFile_); 
-             
-             x = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_4(0);
-             y = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_4(1);
-             z = VSPGeom().VSP_Surface(j).ControlSurface(k).XYZ_Node_4(2);
-             
-             fwrite(&x, f_size, 1, ADBFile_); 
-             fwrite(&y, f_size, 1, ADBFile_); 
-             fwrite(&z, f_size, 1, ADBFile_);                              
-                          
-          }
-          
-       }
-       
-    }    
-        
-    fclose(ADBFile_);
-
-}
-
 /*##############################################################################
 #                                                                              #
 #                VSP_SOLVER WriteOutAerothermalDatabaseGeometry                #
@@ -5766,94 +8285,6 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseGeometry(void)
     c_size = sizeof(char);
     f_size = sizeof(float);
 
-    // Write out coded id to allow us to determine endiannes of files
-
-    DumInt = -123789456; // Version 1 of the ADB file
-
-    fwrite(&DumInt, i_size, 1, ADBFile_);
-    
-    // Write out model type... VLM or PANEL
-    
-    fwrite(&ModelType_, i_size, 1, ADBFile_);
-    
-    // Write out symmetry flag
-    
-    fwrite(&DoSymmetryPlaneSolve_, i_size, 1, ADBFile_);
-
-    // Write out header to aerodynamics file
-
-    number_of_tris  = VSPGeom().Grid().NumberOfLoops();
-    number_of_nodes = VSPGeom().Grid().NumberOfNodes();
-
-    fwrite(&number_of_nodes, i_size, 1, ADBFile_);
-    fwrite(&number_of_tris,  i_size, 1, ADBFile_);
-    fwrite(&Sref,            f_size, 1, ADBFile_);
-    fwrite(&Cref,            f_size, 1, ADBFile_);
-    fwrite(&Bref,            f_size, 1, ADBFile_);
-    fwrite(&X_cg,            f_size, 1, ADBFile_);
-    fwrite(&Y_cg,            f_size, 1, ADBFile_);
-    fwrite(&Z_cg,            f_size, 1, ADBFile_);
-    
-    // Write out wing ID flags, names...
-
-    DumInt = VSPGeom().NumberOfDegenWings();
-    
-    fwrite(&DumInt, i_size, 1, ADBFile_);
-
-    for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) { 
-     
-       if ( VSPGeom().VSP_Surface(i).SurfaceType() == DEGEN_WING_SURFACE ) {
-        
-          fwrite(&(i), i_size, 1, ADBFile_);
-    
-          sprintf(DumChar,"%s",VSPGeom().VSP_Surface(i).ComponentName());
-          
-          fwrite(DumChar, c_size, 100, ADBFile_);
-          
-       }
-     
-    }
-    
-    // Write out body ID flags, names...
- 
-    DumInt = VSPGeom().NumberOfDegenBodies();
-    
-    fwrite(&DumInt, i_size, 1, ADBFile_);
-
-    for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) { 
-     
-       if ( VSPGeom().VSP_Surface(i).SurfaceType() == DEGEN_BODY_SURFACE ) {
-        
-          fwrite(&(i), i_size, 1, ADBFile_);
-    
-          sprintf(DumChar,"%s",VSPGeom().VSP_Surface(i).ComponentName());
-          
-          fwrite(DumChar, c_size, 100, ADBFile_);
-          
-       }
-     
-    }
-    
-    // Write out Cart3d ID flags, names...
- 
-    DumInt = VSPGeom().NumberOfCart3dSurfaces();
-    
-    fwrite(&DumInt, i_size, 1, ADBFile_);
-
-    for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) { 
-     
-       if ( VSPGeom().VSP_Surface(i).SurfaceType() == CART3D_SURFACE ) {
-        
-          fwrite(&(i), i_size, 1, ADBFile_);
-    
-          sprintf(DumChar,"%s",VSPGeom().VSP_Surface(i).ComponentName());
-          
-          fwrite(DumChar, c_size, 100, ADBFile_);
-          
-       }
-     
-    }    
-    
     // Write out triangulated surface mesh
 
     for ( j = 1 ; j <= VSPGeom().Grid().NumberOfLoops() ; j++ ) {
@@ -5911,7 +8342,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseGeometry(void)
    
     // Loop over each level
 
-    for ( Level = 1 ; Level < MaxLevels ; Level++ ) {
+    for ( Level = 1 ; Level <= MaxLevels ; Level++ ) {
 
        NumberOfCoarseNodes = VSPGeom().Grid(Level).NumberOfNodes();
 
@@ -5939,7 +8370,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseGeometry(void)
                     + VSPGeom().Grid(Level).EdgeList(j).DegenWing()
                     + VSPGeom().Grid(Level).EdgeList(j).Cart3DSurface();
                     
-          if ( VSPGeom().Grid(Level).EdgeList(j).Loop1() == VSPGeom().Grid(Level).EdgeList(j).Loop2() )  SurfaceID = 999;             
+          if ( VSPGeom().Grid(Level).EdgeList(j).Loop1() == VSPGeom().Grid(Level).EdgeList(j).Loop2() )  SurfaceID *= -1;         
 
           Node1 = VSPGeom().Grid(Level).EdgeList(j).Node1();
           Node2 = VSPGeom().Grid(Level).EdgeList(j).Node2();  
@@ -6121,7 +8552,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseSolution(void)
 
     float DumFloat;
     
-    float Cp;
+    float Cp, Cp_Unsteady, Gamma;
 
     // Write out case data to adb case file
     
@@ -6161,9 +8592,13 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseSolution(void)
 
     for ( j = 1 ; j <= VSPGeom().Grid().NumberOfLoops() ; j++ ) {
   
-       Cp = VSPGeom().Grid().LoopList(j).dCp();
+       Gamma       = VSPGeom().Grid().LoopList(j).Gamma();
+       Cp          = VSPGeom().Grid().LoopList(j).dCp();
+       Cp_Unsteady = VSPGeom().Grid().LoopList(j).dCp_Unsteady();
 
-       fwrite(&Cp, f_size, 1, ADBFile_); // Wall or Edge Pressure, Pa
+       fwrite(&Cp,          f_size, 1, ADBFile_); // Delta Cp, or CP
+       fwrite(&Cp_Unsteady, f_size, 1, ADBFile_); // Unsteady Delta Cp, or Cp
+       fwrite(&Gamma,       f_size, 1, ADBFile_); // Circulation strength
 
     }
 
@@ -6340,8 +8775,8 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(void)
           xyz[0] = VortexLoop(k).Xc();
           xyz[1] = VortexLoop(k).Yc();
           xyz[2] = VortexLoop(k).Zc();
-   
-          SurfaceVortexEdgeInteractionList_[k] = CreateInteractionList(xyz, NumberOfEdges);
+  
+          SurfaceVortexEdgeInteractionList_[k] = CreateInteractionList(VortexLoop(k).ComponentID(),xyz, NumberOfEdges);
                                 
           NumberOfVortexEdgesForInteractionListEntry_[k] = NumberOfEdges;    
           
@@ -6375,7 +8810,7 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(void)
        
        SpeedRatio = NumberOfVortexLoops_ * NumberOfSurfaceVortexEdges_ /SpeedRatio;
 
-       if ( Verbose_ ) printf("\nSpeed Up Ratio: %lf \n\n\n",SpeedRatio);fflush(NULL);
+       if (1|| Verbose_ ) printf("\nSpeed Up Ratio: %lf \n\n\n",SpeedRatio);fflush(NULL);
        
     }
 
@@ -6396,7 +8831,7 @@ void VSP_SOLVER::CalculateSurfaceInducedVelocityAtPoint(double xyz[3], double q[
      
     // Create interaction list for this xyz location
 
-    InteractionList = CreateInteractionList(xyz, NumberOfEdges);
+    InteractionList = CreateInteractionList(0,xyz, NumberOfEdges);
 
     U = V = W = 0.;
 
@@ -6440,7 +8875,7 @@ void VSP_SOLVER::CalculateWingSurfaceInducedVelocityAtPoint(double xyz[3], doubl
      
     // Create interaction list for this xyz location
 
-    InteractionList = CreateInteractionList(xyz, NumberOfEdges);
+    InteractionList = CreateInteractionList(0, xyz, NumberOfEdges);
 
     U = V = W = 0.;
 
@@ -6475,13 +8910,13 @@ void VSP_SOLVER::CalculateWingSurfaceInducedVelocityAtPoint(double xyz[3], doubl
 #                                                                              #
 ##############################################################################*/
 
-VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInteractionEdges)
+VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, double xyz[3], int &NumberOfInteractionEdges)
 {
 
     int i, j, Level, Loop;
     int Level_1, Level_2, Used, i_1, i_2;
-    int StackSize, MoveDownLevel, Next, Found;
-    double Distance, FarAway, Mu, Test;
+    int StackSize, MoveDownLevel, Next, Found, AddEdges;
+    double Distance, FarAway, Mu, Test, NormalDistance, Vec[3], Tolerance, Ratio;
     VSP_EDGE **InteractionEdgeList;
 
     // Allocate space if this is the first time through
@@ -6492,7 +8927,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
        
        EdgeIsUsed_ = new int*[VSPGeom().NumberOfGridLevels() + 1];
       
-       for ( Level = VSPGeom().NumberOfGridLevels() - 1 ; Level >= 1  ; Level-- ) {
+       for ( Level = VSPGeom().NumberOfGridLevels() ; Level >= 1  ; Level-- ) {
         
           EdgeIsUsed_[Level] = new int[VSPGeom().Grid(Level).NumberOfEdges() + 1];
         
@@ -6504,28 +8939,32 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
 
        // Loop over all grid levels for this surface
        
-       for ( Level = VSPGeom().NumberOfGridLevels() - 1 ; Level >= 1  ; Level-- ) {
+       for ( Level = VSPGeom().NumberOfGridLevels() ; Level >= 1  ; Level-- ) {
 
           // Loop over all vortex loops
           
-         MaxStackSize_ += VSPGeom().Grid(Level).NumberOfLoops();
+          MaxStackSize_ += VSPGeom().Grid(Level).NumberOfLoops();
          
        }
 
        LoopStackList_ = new STACK_ENTRY[MaxStackSize_ + 1];
        
+       // Create Matrix preconditioner
+       
+       if ( Preconditioner_ == MATCON ) CreateMatrixPreconditionersDataStructure();
+
        FirstTimeSetup_ = 0;
        
     }
 
     // Define faraway criteria... how far away we need to be from a loop to treat it as faraway
     // Ratio of distance to maximum loop size
-    
-    FarAway = 3.0;
+
+    FarAway = 5.;
 
     // Insert loops on coarsest level into stack
     
-    Level = VSPGeom().NumberOfGridLevels() - 1;
+    Level = VSPGeom().NumberOfGridLevels();
  
     StackSize = 0;
 
@@ -6538,13 +8977,13 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
 
     }
       
-    // Update the search ID value... reset things after we done all the loops
+    // Update the search ID value... reset things after we have done all the loops
     
     SearchID_++;
     
     if ( SearchID_ > NumberOfVortexLoops_ ) {
      
-       for ( Level = 1 ; Level < VSPGeom().NumberOfGridLevels() ; Level++ ) {
+       for ( Level = 1 ; Level <= VSPGeom().NumberOfGridLevels() ; Level++ ) {
       
           zero_int_array(EdgeIsUsed_[Level], VSPGeom().Grid(Level).NumberOfEdges()); 
           
@@ -6571,19 +9010,45 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
                       + pow(xyz[1] - VSPGeom().Grid(Level).LoopList(Loop).Yc(),2.)
                       + pow(xyz[2] - VSPGeom().Grid(Level).LoopList(Loop).Zc(),2.) );
 
-       Test = VSPGeom().Grid(Level).LoopList(Loop).Length();
-  
-       Test = FarAway * ( Test + VSPGeom().Grid(Level).LoopList(Loop).CentroidOffSet() );
-       
+       Test = FarAway * ( VSPGeom().Grid(Level).LoopList(Loop).Length() + VSPGeom().Grid(Level).LoopList(Loop).CentroidOffSet() );
+
        if ( Level == 1 || ( Test <= Distance && !inside_box(VSPGeom().Grid(Level).LoopList(Loop).BoundBox(), xyz) ) ) {
       
+          // Check for nearly planar, and close, panels on different surfaces
+
+          Ratio = Distance / ( VSPGeom().Grid(Level).LoopList(Loop).Length() + VSPGeom().Grid(Level).LoopList(Loop).CentroidOffSet() );
+
+          AddEdges = 1;
+        
+          if ( ComponentID > 0 && ComponentID != VSPGeom().Grid(Level).LoopList(Loop).ComponentID() && Level == 1 && Ratio <= 2. ) {
+             
+             // Calculate normal distance
+             
+             Vec[0] = xyz[0] - VSPGeom().Grid(Level).LoopList(Loop).Xc();
+             Vec[1] = xyz[1] - VSPGeom().Grid(Level).LoopList(Loop).Yc();
+             Vec[2] = xyz[2] - VSPGeom().Grid(Level).LoopList(Loop).Zc();
+             
+             NormalDistance = ABS(vector_dot(Vec,VSPGeom().Grid(Level).LoopList(Loop).Normal()));
+             
+             // Tolerance
+             
+             Tolerance = sqrt(VSPGeom().Grid(Level).LoopList(Loop).Area());
+      
+             if ( ABS(NormalDistance) <= 0.25*Tolerance ) AddEdges = 0;
+
+          }
+     
           // Add these edges to the list
           
-          for ( i = 1 ; i <= VSPGeom().Grid(Level).LoopList(Loop).NumberOfEdges() ; i++ ) {
-    
-             j = VSPGeom().Grid(Level).LoopList(Loop).Edge(i);
-             
-             EdgeIsUsed_[Level][j] = SearchID_;
+          if ( AddEdges ) {
+ 
+             for ( i = 1 ; i <= VSPGeom().Grid(Level).LoopList(Loop).NumberOfEdges() ; i++ ) {
+       
+                j = VSPGeom().Grid(Level).LoopList(Loop).Edge(i);
+                
+                EdgeIsUsed_[Level][j] = SearchID_;
+                
+             }
              
           }
           
@@ -6631,7 +9096,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
 
     NumberOfInteractionEdges = 0;
     
-    for ( Level = VSPGeom().NumberOfGridLevels() - 1 ; Level >= 1  ; Level-- ) {
+    for ( Level = VSPGeom().NumberOfGridLevels() ; Level >= 1  ; Level-- ) {
      
        for ( i = 1 ; i <= VSPGeom().Grid(Level).NumberOfEdges() ; i++ ) {
         
@@ -6641,7 +9106,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
           
              // Check that the edge is not already used on a coarser grid
              
-             if ( Level + 1 < VSPGeom().NumberOfGridLevels() ) {
+             if ( Level + 1 <= VSPGeom().NumberOfGridLevels() ) {
               
                 i_1 = i ; Level_1 = Level;
               
@@ -6651,7 +9116,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
                 
                 // Loop down grid levels to check if it's used on a coarser grid
                 
-                while ( Level_2 < VSPGeom().NumberOfGridLevels() && !Used ) {
+                while ( Level_2 <= VSPGeom().NumberOfGridLevels() && !Used ) {
               
                   i_2 = VSPGeom().Grid(Level_1).EdgeList(i_1).CourseGridEdge();
 
@@ -6703,7 +9168,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
 
     // Force any trailing edges to be evaluated at the finest grid level
      
-    for ( Level = VSPGeom().NumberOfGridLevels() - 1 ; Level >= 1  ; Level-- ) {
+    for ( Level = VSPGeom().NumberOfGridLevels() ; Level >= 1  ; Level-- ) {
      
        for ( i = 1 ; i <= VSPGeom().Grid(Level).NumberOfEdges() ; i++ ) {
         
@@ -6761,7 +9226,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(double xyz[3], int &NumberOfInterac
      
     // Create the final interaction list
     
-    for ( Level = VSPGeom().NumberOfGridLevels() - 1 ; Level >= 1  ; Level-- ) {
+    for ( Level = VSPGeom().NumberOfGridLevels() ; Level >= 1  ; Level-- ) {
         
        for ( i = 1 ; i <= VSPGeom().Grid(Level).NumberOfEdges() ; i++ ) {
         
@@ -6926,8 +9391,8 @@ void VSP_SOLVER::InterpolateSolutionFromGrid(int Level)
 {
  
     int i, j, i_c, i_f, g_c, g_f, Edge, Iter, Node, Node1, Node2;
-    int *FixedNode,  NodeHits;
-    double Fact, *dCp, *Denom, *Res, *Dif, *Sum, Delta, Eps;
+    int *FixedNode,  NodeHits, Loop1, Loop2;
+    double Fact, *dCp, *Denom, *Res, *Dif, *Sum, Delta, Eps, Ds;
     double Wgt1, Wgt2, CpAvg;
     
     g_c = Level;
@@ -6996,7 +9461,7 @@ void VSP_SOLVER::InterpolateSolutionFromGrid(int Level)
    
           Node = VSPGeom().Grid(g_c).KuttaNode(i);
    
-          dCp[Node] = 1.;
+          dCp[Node] = CpMax_;
           
           FixedNode[Node] = 1.;
    
@@ -7044,14 +9509,18 @@ void VSP_SOLVER::InterpolateSolutionFromGrid(int Level)
 
     for ( i = 1 ; i <= VSPGeom().Grid(g_c).NumberOfEdges() ; i++ ) {
 
-      // Edge to node pointers
+       // Edge to node pointers
 
-      Node1 = VSPGeom().Grid(g_c).EdgeList(i).Node1();
-      Node2 = VSPGeom().Grid(g_c).EdgeList(i).Node2();
-     
-      Sum[Node1] += 1.;
-      Sum[Node2] += 1.;
+       Node1 = VSPGeom().Grid(g_c).EdgeList(i).Node1();
+       Node2 = VSPGeom().Grid(g_c).EdgeList(i).Node2();
 
+       Ds = sqrt( pow(VSPGeom().Grid(g_c).NodeList(Node2).x() - VSPGeom().Grid(g_c).NodeList(Node1).x(),2.)
+                + pow(VSPGeom().Grid(g_c).NodeList(Node2).y() - VSPGeom().Grid(g_c).NodeList(Node1).y(),2.)
+                + pow(VSPGeom().Grid(g_c).NodeList(Node2).z() - VSPGeom().Grid(g_c).NodeList(Node1).z(),2.) );
+
+       Sum[Node1] += 1./(Ds);
+       Sum[Node2] += 1./(Ds);
+      
     }
 
     // Loop over and smooth all residuals
@@ -7077,7 +9546,11 @@ void VSP_SOLVER::InterpolateSolutionFromGrid(int Level)
            Node1 = VSPGeom().Grid(g_c).EdgeList(i).Node1();
            Node2 = VSPGeom().Grid(g_c).EdgeList(i).Node2();
      
-           Delta = ( Res[Node1] - Res[Node2] );
+           Ds = sqrt( pow(VSPGeom().Grid(g_c).NodeList(Node2).x() - VSPGeom().Grid(g_c).NodeList(Node1).x(),2.)
+                    + pow(VSPGeom().Grid(g_c).NodeList(Node2).y() - VSPGeom().Grid(g_c).NodeList(Node1).y(),2.)
+                    + pow(VSPGeom().Grid(g_c).NodeList(Node2).z() - VSPGeom().Grid(g_c).NodeList(Node1).z(),2.) );
+ 
+           Delta = ( Res[Node1] - Res[Node2] )/(Ds);
 
            Dif[Node1] -= Delta;
            Dif[Node2] += Delta;
@@ -7085,7 +9558,7 @@ void VSP_SOLVER::InterpolateSolutionFromGrid(int Level)
        }
 
        Eps = 0.001;
-       
+
        for ( i = 1 ; i <= VSPGeom().Grid(g_c).NumberOfNodes() ; i++ ) {
 
           if ( !FixedNode[i] ) {
@@ -7127,39 +9600,43 @@ void VSP_SOLVER::InterpolateSolutionFromGrid(int Level)
           
           Wgt1 = Wgt2 = 0.;
           
-          if ( ModelType_ == VLM_MODEL || Sum[Node1] > 2. ) { Wgt1 = 1.; NodeHits++; }
-          if ( ModelType_ == VLM_MODEL || Sum[Node2] > 2. ) { Wgt2 = 1.; NodeHits++; }
+          if ( ModelType_ == VLM_MODEL || Sum[Node1] > 0. ) { Wgt1 = 1.; NodeHits++; }
+          if ( ModelType_ == VLM_MODEL || Sum[Node2] > 0. ) { Wgt2 = 1.; NodeHits++; }
           
           CpAvg += Wgt1*dCp[Node1] + Wgt2*dCp[Node2];
           
        }
-       
+
        if ( NodeHits > 0 ) VSPGeom().Grid(g_c).LoopList(i_c).dCp() = CpAvg / NodeHits;
        
     }
     
-    // Enforce base pressures
+    // Enforce base pressures and TE stagnation points
     
     if ( ModelType_ == PANEL_MODEL ) {
+       
+       // Base
        
        for ( i_c = 1 ; i_c <= NumberOfVortexLoops_ ; i_c++ ) {
           
           if ( LoopIsOnBaseRegion_[i_c] ) VSPGeom().Grid(g_c).LoopList(i_c).dCp() = CpBase_;
           
-       }  
+       }            
     
     }
     
-    // Prolongate solution from course grid at Level, to finer grid and Level - 1
+    // Prolongate solution from coarse to fine grid
 
 #pragma omp parallel for private(i_c)
     for ( i_f = 1 ; i_f <= VSPGeom().Grid(g_f).NumberOfLoops() ; i_f++ ) {
 
        i_c = VSPGeom().Grid(g_f).LoopList(i_f).CoarseGridLoop();
 
-       VSPGeom().Grid(g_f).LoopList(i_f).dCp() = VSPGeom().Grid(g_c).LoopList(i_c).dCp();
+       VSPGeom().Grid(g_f).LoopList(i_f).dCp()          = VSPGeom().Grid(g_c).LoopList(i_c).dCp();
+       
+       VSPGeom().Grid(g_f).LoopList(i_f).dCp_Unsteady() = VSPGeom().Grid(g_c).LoopList(i_c).dCp_Unsteady();
 
-       VSPGeom().Grid(g_f).LoopList(i_f).Gamma() = VSPGeom().Grid(g_c).LoopList(i_c).Gamma();
+       VSPGeom().Grid(g_f).LoopList(i_f).Gamma()        = VSPGeom().Grid(g_c).LoopList(i_c).Gamma();
 
     }  
     
@@ -7241,13 +9718,15 @@ void VSP_SOLVER::UpdateVortexEdgeStrengths(int Level, int UpdateType)
           }
           
           if ( TimeAccurate_ ) VortexSheet(k).MaxConvectedDistance() = CurrentTime_;
+          
+          if ( TimeAccurate_ && TimeAnalysisType_ == PATH_ANALYSIS ) VortexSheet(k).MaxConvectedDistance() = Time_ + 1;
        
           VortexSheet(k).UpdateVortexStrengths(UpdateType);
           
        }
-  
+
     }
-    
+  
 }
 
 /*##############################################################################
@@ -7312,7 +9791,7 @@ void VSP_SOLVER::ZeroVortexState(void)
        }
        
     }
-    
+
 }
 
 /*##############################################################################
@@ -7384,10 +9863,10 @@ void VSP_SOLVER::OutputStatusFile(int Type)
        CMx_Unsteady_[Time_] = CMx(Type);
        CMy_Unsteady_[Time_] = CMy(Type);
        CMz_Unsteady_[Time_] = CMz(Type);
-       
+
        if ( TimeAnalysisType_ == HEAVE_ANALYSIS ) {
           
-          fprintf(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+          fprintf(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
                   CurrentTime_,
                   Mach_,
                   AngleOfAttack_/TORAD,
@@ -7406,13 +9885,22 @@ void VSP_SOLVER::OutputStatusFile(int Type)
                   CMy(Type),
                   CMz(Type),
                   ToQS,
-                  Unsteady_H_);
+                  Unsteady_H_,
+                  CL(2),
+                  CD(2),
+                  CS(2),
+                  CFx(2),
+                  CFy(2),
+                  CFz(2),
+                  CMx(2),
+                  CMy(2),
+                  CMz(2));
                   
        }
        
        else if ( TimeAnalysisType_ == P_ANALYSIS || TimeAnalysisType_ == Q_ANALYSIS || TimeAnalysisType_ == R_ANALYSIS ) {
           
-          fprintf(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+          fprintf(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
                   CurrentTime_,
                   Mach_,
                   AngleOfAttack_/TORAD,
@@ -7431,13 +9919,22 @@ void VSP_SOLVER::OutputStatusFile(int Type)
                   CMy(Type),
                   CMz(Type),
                   ToQS,
-                  Unsteady_Angle_*180./3.14159);
+                  Unsteady_Angle_*180./3.14159,
+                  CL(2),
+                  CD(2),
+                  CS(2),
+                  CFx(2),
+                  CFy(2),
+                  CFz(2),
+                  CMx(2),
+                  CMy(2),
+                  CMz(2));                  
                   
        }        
        
        else {
           
-          fprintf(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
+          fprintf(StatusFile_,"%9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf\n",
                   CurrentTime_,
                   Mach_,
                   AngleOfAttack_/TORAD,
@@ -7455,7 +9952,16 @@ void VSP_SOLVER::OutputStatusFile(int Type)
                   CMx(Type),
                   CMy(Type),
                   CMz(Type),
-                  ToQS);
+                  ToQS,
+                  CL(2),
+                  CD(2),
+                  CS(2),
+                  CFx(2),
+                  CFy(2),
+                  CFz(2),
+                  CMx(2),
+                  CMy(2),
+                  CMz(2));                  
                
        }            
                
@@ -7534,4 +10040,70 @@ void VSP_SOLVER::WriteCaseHeader(FILE *fid)
     
     fprintf(fid,"\n");
 }
+
+/*##############################################################################
+#                                                                              #
+#                VSP_SOLVER CalculateLeadingEdgeSuctionFraction                #
+#                                                                              #
+##############################################################################*/
+
+double VSP_SOLVER::CalculateLeadingEdgeSuctionFraction(double Mach, double ToC, double RoC, double EtaToC, double AoA, double Sweep)
+{
+   
+   double Rin, RoCn, ToCn, Machn, Betan, Ctn;
+   double e1, e2, e3, Ptt, Pat, k, Kt;
+   
+   // Normal RoC
+   
+   RoCn = RoC / pow(cos(Sweep),2.);
+   
+   // Normal ToC
+   
+   ToCn = ToC / cos(Sweep);   
+
+   // Normal Leading edge radius index
+   
+   Rin = RoCn * EtaToC / pow(ToCn,2.);
+   
+   // Exponents
+   
+   e1 =  0.40*pow(Rin,0.16) - 0.7;
+   e2 =  1.60*pow(Rin,0.10) - 3.0;
+   e3 = -0.32*pow(Rin,0.10) - 0.3;
+   
+   // Normal Mach
+   
+   Machn = Mach * cos(Sweep);
+   
+   // Catch supersonic case
+   
+   if ( Machn >= 1. ) return 0.;   
+   
+   // Betan
+   
+   Betan = sqrt(1. - pow(Machn,2.));
+   
+   // Ctn
+   
+   Ctn = 2.*PI*pow(sin(AoA),2.) / ( Betan * pow(cos(Sweep),3.) );
+   
+   // Ptt
+   
+   Ptt = Ctn * Betan * pow( ToCn * pow(EtaToC/0.5,e1) / 0.09, e2);
+   
+   // k
+   
+   k = ( 0.14*(1. - (1. - sqrt(Rin)*pow(Machn,5.))) + 0.11*sqrt(Rin))*pow((1.-Machn)/Machn,0.48*(1.+pow(Rin,0.3)));
+   
+   // Kt
+
+   Kt = (1. + sqrt(pow(ToCn,1.2))) * k * pow(Ptt,e3);
+   
+   Kt = MAX(0.,MIN(Kt,1.));
+   
+   return Kt;
+ 
+}
+
+
 

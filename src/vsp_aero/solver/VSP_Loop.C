@@ -37,7 +37,7 @@ VSP_LOOP::VSP_LOOP(void)
 
     Normal_[0] = Normal_[1] = Normal_[2] = 0.;
     
-    NormalCamber_[0] = NormalCamber_[1] = NormalCamber_[2] = 0.;
+    FlatPlateNormal_[0] = FlatPlateNormal_[1] = FlatPlateNormal_[2] = 0.;
     
     Velocity_[0] = Velocity_[1] = Velocity_[2] = 0.;
     
@@ -46,6 +46,10 @@ VSP_LOOP::VSP_LOOP(void)
     Area_ = 0.;
     
     Gamma_ = 0.;
+    
+    dCp_ = 0.;
+    
+    dCp_Unsteady_ = 0.;
     
     NormalForce_ = 0.;
     
@@ -56,6 +60,10 @@ VSP_LOOP::VSP_LOOP(void)
     DegenWingID_ = 0;    
     
     CompressibilityFactor_ = 0.;
+    
+    SurfaceID_ = 0;
+    
+    ComponentID_ = 0;
 
 }
 
@@ -115,55 +123,60 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
        
     }
 
-    SurfaceID_             = VSPTri.SurfaceID_;
-    IsTrailingEdgeTri_     = VSPTri.IsTrailingEdgeTri_;
-    IsLeadingEdgeTri_      = VSPTri.IsLeadingEdgeTri_;
-    VortexLoop_            = VSPTri.VortexLoop_;
+    SurfaceID_              = VSPTri.SurfaceID_;
+    ComponentID_            = VSPTri.ComponentID_;
+    IsTrailingEdgeTri_      = VSPTri.IsTrailingEdgeTri_;
+    IsLeadingEdgeTri_       = VSPTri.IsLeadingEdgeTri_;
+    VortexLoop_             = VSPTri.VortexLoop_;
     
-    SpanStation_           = VSPTri.SpanStation_;
+    SpanStation_            = VSPTri.SpanStation_;
+    
+    ThicknessToChord_       = VSPTri.ThicknessToChord_;
+    LocationOfMaxThickness_ = VSPTri.LocationOfMaxThickness_;
+    RadiusToChord_          = VSPTri.RadiusToChord_;          
 
-    Area_                  = VSPTri.Area_;
-    Length_                = VSPTri.Length_;
-    CentroidOffSet_        = VSPTri.CentroidOffSet_;
+    Area_                   = VSPTri.Area_;
+    Length_                 = VSPTri.Length_;
+    CentroidOffSet_         = VSPTri.CentroidOffSet_;
    
-    Normal_[0]             = VSPTri.Normal_[0];
-    Normal_[1]             = VSPTri.Normal_[1];
-    Normal_[2]             = VSPTri.Normal_[2]; 
+    Normal_[0]              = VSPTri.Normal_[0];
+    Normal_[1]              = VSPTri.Normal_[1];
+    Normal_[2]              = VSPTri.Normal_[2]; 
     
-    NormalCamber_[0]       = VSPTri.NormalCamber_[0];
-    NormalCamber_[1]       = VSPTri.NormalCamber_[1];
-    NormalCamber_[2]       = VSPTri.NormalCamber_[2];
+    FlatPlateNormal_[0]     = VSPTri.FlatPlateNormal_[0];
+    FlatPlateNormal_[1]     = VSPTri.FlatPlateNormal_[1];
+    FlatPlateNormal_[2]     = VSPTri.FlatPlateNormal_[2];
 
-    XYZc_[0]               = VSPTri.XYZc_[0];
-    XYZc_[1]               = VSPTri.XYZc_[1];
-    XYZc_[2]               = VSPTri.XYZc_[2];
+    XYZc_[0]                = VSPTri.XYZc_[0];
+    XYZc_[1]                = VSPTri.XYZc_[1];
+    XYZc_[2]                = VSPTri.XYZc_[2];
     
-    Camber_                = VSPTri.Camber_;
+    Camber_                 = VSPTri.Camber_;
     
-    UVc_[0]                = VSPTri.UVc_[0];
-    UVc_[1]                = VSPTri.UVc_[1];
+    UVc_[0]                 = VSPTri.UVc_[0];
+    UVc_[1]                 = VSPTri.UVc_[1];
 
-    Gamma_                 = VSPTri.Gamma_;
-    dCp_                   = VSPTri.dCp_;
+    Gamma_                  = VSPTri.Gamma_;
+    dCp_                    = VSPTri.dCp_;
     
-    Velocity_[0]           = VSPTri.Velocity_[0];
-    Velocity_[1]           = VSPTri.Velocity_[1];
-    Velocity_[2]           = VSPTri.Velocity_[2];
+    Velocity_[0]            = VSPTri.Velocity_[0];
+    Velocity_[1]            = VSPTri.Velocity_[1];
+    Velocity_[2]            = VSPTri.Velocity_[2];
 
-    Force_[0]              = VSPTri.Force_[0];
-    Force_[1]              = VSPTri.Force_[1];
-    Force_[2]              = VSPTri.Force_[2];
+    Force_[0]               = VSPTri.Force_[0];
+    Force_[1]               = VSPTri.Force_[1];
+    Force_[2]               = VSPTri.Force_[2];
     
-    NormalForce_           = VSPTri.NormalForce_;
+    NormalForce_            = VSPTri.NormalForce_;
     
-    SurfaceType_           = VSPTri.SurfaceType_;
-    DegenBodyID_           = VSPTri.DegenBodyID_;
-    DegenWingID_           = VSPTri.DegenWingID_;
-    Cart3dID_              = VSPTri.Cart3dID_;
+    SurfaceType_            = VSPTri.SurfaceType_;
+    DegenBodyID_            = VSPTri.DegenBodyID_;
+    DegenWingID_            = VSPTri.DegenWingID_;
+    Cart3dID_               = VSPTri.Cart3dID_;
     
-    CoarseGridLoop_        = VSPTri.CoarseGridLoop_;
+    CoarseGridLoop_         = VSPTri.CoarseGridLoop_;
     
-    NumberOfFineGridLoops_ = VSPTri.NumberOfFineGridLoops_;
+    NumberOfFineGridLoops_  = VSPTri.NumberOfFineGridLoops_;
     
     SizeFineGridLoopList(NumberOfFineGridLoops_);
 
@@ -292,4 +305,79 @@ void VSP_LOOP::SizeFineGridLoopList(int NumberOfLoops)
     FineGridLoopList_ = new int[NumberOfFineGridLoops_ + 1];
 
 }
+
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_LOOP UpdateGeometryLocation                         #
+#                                                                              #
+##############################################################################*/
+
+void VSP_LOOP::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+{
+
+    QUAT Vec;
+
+    // Update centroid
+
+    Vec(0) = XYZc_[0] - OVec[0];
+    Vec(1) = XYZc_[1] - OVec[1];
+    Vec(2) = XYZc_[2] - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    XYZc_[0] = Vec(0) + OVec[0] + TVec[0];
+    XYZc_[1] = Vec(1) + OVec[1] + TVec[1];
+    XYZc_[2] = Vec(2) + OVec[2] + TVec[2];    
+    
+    // Update normal
+    
+    Vec(0) = Normal_[0];
+    Vec(1) = Normal_[1];
+    Vec(2) = Normal_[2];
+
+    Vec = Quat * Vec * InvQuat;
+    
+    Normal_[0] = Vec(0);
+    Normal_[1] = Vec(1);
+    Normal_[2] = Vec(2);
+        
+    // Update flat plate normal
+    
+    Vec(0) = FlatPlateNormal_[0];
+    Vec(1) = FlatPlateNormal_[1];
+    Vec(2) = FlatPlateNormal_[2];
+
+    Vec = Quat * Vec * InvQuat;
+    
+    FlatPlateNormal_[0] = Vec(0);
+    FlatPlateNormal_[1] = Vec(1);
+    FlatPlateNormal_[2] = Vec(2);
+    
+    // Update bounding box min
+    
+    Vec(0) = BoundBox_.x_min - OVec[0];
+    Vec(1) = BoundBox_.y_min - OVec[1];
+    Vec(2) = BoundBox_.z_min - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    BoundBox_.x_min = Vec(0) + OVec[0] + TVec[0];
+    BoundBox_.y_min = Vec(1) + OVec[1] + TVec[1];
+    BoundBox_.z_min = Vec(2) + OVec[2] + TVec[2];      
+    
+    // Update bounding box max
+    
+    Vec(0) = BoundBox_.x_max - OVec[0];
+    Vec(1) = BoundBox_.y_max - OVec[1];
+    Vec(2) = BoundBox_.z_max - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    BoundBox_.x_max = Vec(0) + OVec[0] + TVec[0];
+    BoundBox_.y_max = Vec(1) + OVec[1] + TVec[1];
+    BoundBox_.z_max = Vec(2) + OVec[2] + TVec[2];            
+
+}
+
 

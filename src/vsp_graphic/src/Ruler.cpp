@@ -42,28 +42,29 @@ void Ruler::updateMouseLocation(glm::vec3 mouseLocInWorld)
     _mouseLocInWorld = mouseLocInWorld;
 }
 
-void Ruler::placeRuler(glm::vec3 v1)
+void Ruler::placeRuler(glm::vec3 v1 )
 {
     reset();
 
     _v1 = v1;
 }
 
-void Ruler::placeRuler(glm::vec3 v1, glm::vec3 v2)
+void Ruler::placeRuler(glm::vec3 v1, glm::vec3 v2, const std::string & lbl )
 {
     reset();
 
     _v1 = v1;
     _v2 = v2;
+    _label = lbl;
 }
 
-void Ruler::placeRuler(glm::vec3 v1, glm::vec3 v2, glm::vec3 offset)
+void Ruler::placeRuler(glm::vec3 v1, glm::vec3 v2, glm::vec3 offset, const std::string & lbl )
 {
     reset();
 
     _v1 = v1;
     _v2 = v2;
-
+    _label = lbl;
     _offset = calculateOffset(_v1, _v2, offset);;
 }
 
@@ -83,9 +84,6 @@ void Ruler::_draw()
     glm::vec3 rulerEnd;
 
     glm::vec3 textLocation = glm::vec3(0);
-    std::string text = "Ruler";
-
-    char str[256];
 
     glColor3f(1.0, 0.5, 0.0);
     glLineWidth(3.0f * Display::getScreenSizeDiffRatio() );
@@ -110,9 +108,6 @@ void Ruler::_draw()
         glEnd();
 
         textLocation = (rulerStart + rulerEnd) * 0.5f;
-
-        sprintf(str, "%f", glm::distance(rulerStart, rulerEnd));
-        text = std::string(str);
     }
     // Second stage of ruler.
     else if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 != glm::vec3(0xFFFFFFFF))
@@ -138,9 +133,6 @@ void Ruler::_draw()
         glEnd();
 
         textLocation = (rulerStart + rulerEnd) * 0.5f;
-
-        sprintf(str, "%f", glm::distance(rulerStart, rulerEnd));
-        text = std::string(str);
     }
     // First stage of ruler.
     else if(_v1 != glm::vec3(0xFFFFFFFF) && _v2 == glm::vec3(0xFFFFFFFF))
@@ -186,7 +178,7 @@ void Ruler::_draw()
 
         glColor4f(textColor.red, textColor.green, textColor.blue, textColor.alpha);
         glDepthFunc(GL_ALWAYS);
-        _textMgr.drawText(_textMgr.loadFont(), _getTextSize(), text, 0.0f, 0.0f, 0.0f, 0.75f);
+        _textMgr.drawText(_textMgr.loadFont(), _getTextSize(), _label, 0.0f, 0.0f, 0.0f, 0.75f);
         glDepthFunc(GL_LEQUAL);
 
         glMatrixMode(GL_PROJECTION);

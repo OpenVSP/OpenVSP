@@ -48,16 +48,19 @@ protected:
     TriggerButton m_DeleteLink;
     TriggerButton m_DeleteAllLinks;
 
+    TriggerButton m_ASort;
+    TriggerButton m_BSort;
+
     // Used to activate and deactivate sliders
     ToggleButton m_OffsetTog;
     ToggleButton m_ScaleTog;
     ToggleButton m_LowerTog;
     ToggleButton m_UpperTog;
 
-    SliderInput m_OffsetSlider;
-    SliderInput m_ScaleSlider;
-    SliderInput m_LowerLimitSlider;
-    SliderInput m_UpperLimitSlider;
+    SliderAdjRangeInput m_OffsetSlider;
+    SliderAdjRangeInput m_ScaleSlider;
+    SliderAdjRangeInput m_LowerLimitSlider;
+    SliderAdjRangeInput m_UpperLimitSlider;
 
     Fl_Browser* m_LinkBrowser;
 };

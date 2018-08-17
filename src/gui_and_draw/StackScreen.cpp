@@ -68,6 +68,7 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_XSecLayout.AddSlider( m_XSecXRotSlider, "Rot X", 90.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecYRotSlider, "Rot Y", 90.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecZRotSlider, "Rot Z", 90.0, "%6.5f" );
+    m_XSecLayout.AddSlider( m_XSecSpinSlider, "Spin",  2.0, "%6.5f" );
     m_XSecLayout.AddYGap();
 
     m_XSecLayout.AddDividerBox( "Type" );
@@ -302,6 +303,8 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_VKTGroup.AddSlider( m_VKTEpsilonSlider, "Epsilon", 1, "%7.5f" );
     m_VKTGroup.AddSlider( m_VKTKappaSlider, "Kappa", 1, "%7.5f" );
     m_VKTGroup.AddSlider( m_VKTTauSlider, "Tau", 10, "%7.5f" );
+    m_VKTGroup.AddYGap();
+    m_VKTGroup.AddButton( m_VKTInvertButton, "Invert Airfoil" );
 
     DisplayGroup( &m_PointGroup );
 
@@ -359,6 +362,7 @@ bool StackScreen::Update()
         m_XSecXRotSlider.Update( xs->m_XRotate.GetID() );
         m_XSecYRotSlider.Update( xs->m_YRotate.GetID() );
         m_XSecZRotSlider.Update( xs->m_ZRotate.GetID() );
+        m_XSecSpinSlider.Update( xs->m_Spin.GetID() );
 
         if ( firstxs )
         {
@@ -369,6 +373,7 @@ bool StackScreen::Update()
             m_XSecXRotSlider.Deactivate();
             m_XSecYRotSlider.Deactivate();
             m_XSecZRotSlider.Deactivate();
+            m_XSecSpinSlider.Deactivate();
         }
         else
         {
@@ -379,6 +384,7 @@ bool StackScreen::Update()
             m_XSecXRotSlider.Activate();
             m_XSecYRotSlider.Activate();
             m_XSecZRotSlider.Activate();
+            m_XSecSpinSlider.Activate();
         }
 
         if ( lastxs && stackgeom_ptr->m_OrderPolicy() == StackGeom::STACK_LOOP)
@@ -389,6 +395,7 @@ bool StackScreen::Update()
             m_XSecXRotSlider.Deactivate();
             m_XSecYRotSlider.Deactivate();
             m_XSecZRotSlider.Deactivate();
+            m_XSecSpinSlider.Deactivate();
         }
 
         XSecCurve* xsc = xs->GetXSecCurve();
@@ -597,6 +604,7 @@ bool StackScreen::Update()
                 m_VKTEpsilonSlider.Update( vkt_xs->m_Epsilon.GetID() );
                 m_VKTKappaSlider.Update( vkt_xs->m_Kappa.GetID() );
                 m_VKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
+                m_VKTInvertButton.Update( vkt_xs->m_Invert.GetID() );
             }
         }
     }

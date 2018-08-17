@@ -50,6 +50,7 @@ public:
     * VSP_WIRE_TRIS - Render Triangles to wire frame.
     * VSP_HIDDEN_TRIS - Render Triangles to solid wire frame.
     * VSP_SHADED_TRIS - Render Triangles to mesh with lighting.
+    * VSP_WIRE_SHADED_TRIS - Render Triangles to wire frame mesh with lighting
     * VSP_SETTING - This drawObj provides Global Setting Info(lighting, etc...).  Does not render anything.
     * VSP_RULER - Render Ruler.
     * VSP_PICK_VERTEX - This type drawObj enables vertex picking for a specific geometry.
@@ -59,6 +60,7 @@ public:
     * VSP_HIDDEN_QUADS - Render Quads to solid wire frame.
     * VSP_SHADED_QUADS - Render Quads to mesh with lighting.
     * VSP_WIRE_QUADS - Render Quads to wire frame.
+    * VSP_WIRE_SHADED_QUADS - Render Quads to wire frame mesh with lighting
     */
 
     vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
@@ -75,6 +77,7 @@ public:
         VSP_WIRE_TRIS,
         VSP_HIDDEN_TRIS,
         VSP_SHADED_TRIS,
+        VSP_WIRE_SHADED_TRIS,
         VSP_HIDDEN_TRIS_CFD,
         VSP_HIDDEN_QUADS,
         VSP_SETTING,
@@ -82,9 +85,11 @@ public:
         VSP_PICK_VERTEX,
         VSP_PICK_GEOM,
         VSP_PICK_LOCATION,
+        VSP_PROBE,
         VSP_CLIP,
         VSP_SHADED_QUADS,
         VSP_WIRE_QUADS,
+        VSP_WIRE_SHADED_QUADS,
     };
 
     /*
@@ -94,12 +99,28 @@ public:
     *
     * VSP_MAIN_SCREEN - Main VSP display window.
     * VSP_XSEC_SCREEN - 2D display window in XSec Panel.
+    * VSP_FEA_XEC_SCREEN - 2D dimensioned drawing of FEA beam element XSec
     */
     enum ScreenEnum
     {
         VSP_MAIN_SCREEN,
         VSP_XSEC_SCREEN,
         VSP_TEX_PREVIEW,
+        VSP_FEA_XSEC_SCREEN,
+    };
+
+    /*
+    * Probe step enum.
+    * A probe requires two steps to complete.  On first
+    * step, only start point is given.  Probe label is drawn
+    * between start point and mouse location.
+    */
+    enum ProbeEnum
+    {
+        VSP_PROBE_STEP_ZERO,
+        VSP_PROBE_STEP_ONE,
+        VSP_PROBE_STEP_TWO,
+        VSP_PROBE_STEP_COMPLETE,
     };
 
     /*
@@ -120,6 +141,22 @@ public:
     };
 
     /*
+    * Probe Information.
+    * Step - Current step of building a probe.
+    * Pt - Probe surface point.
+    * Norm - Surface normal at probe point.
+    * Len - Length of label from point.
+    */
+    struct Probe
+    {
+        ProbeEnum Step;
+        vec3d Pt;
+        vec3d Norm;
+        double Len;
+        string Label;
+    };
+
+    /*
     * Ruler Information.
     * Step - Current step of building a ruler.
     * Start - Vertex Information of starting point.
@@ -132,6 +169,7 @@ public:
         vec3d Start;
         vec3d End;
         vec3d Offset;
+        string Label;
     };
 
     /*
@@ -267,6 +305,11 @@ public:
     ScreenEnum m_Screen;
 
     /*
+     * Holds probe information.
+     */
+    Probe m_Probe;
+
+    /*
     * Holds ruler information.
     * A ruler requires three steps to complete.  On first
     * step, only start point is given.  Ruler is drawn
@@ -371,8 +414,8 @@ protected:
 void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, vector < vec3d > &pts );
 void MakeArrowhead( const vec3d &ptip, const vec3d &uref, double len, DrawObj &dobj );
 
-void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, vector < vec3d > &pts );
-void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vector < vec3d > &pts );
+void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, vector < vec3d > &pts, int nseg = 48 );
+void MakeCircle( const vec3d &pcen, const vec3d &norm, const vec3d &pstart, vector < vec3d > &pts, int nseg = 48 );
 void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj );
 
 void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj, DrawObj &arrow );

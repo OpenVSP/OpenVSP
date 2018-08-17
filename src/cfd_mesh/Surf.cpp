@@ -29,9 +29,10 @@ Surf::Surf()
     m_FarFlag = false;
     m_WakeParentSurfID = -1;
     m_Mesh.SetSurfPtr( this );
-    m_NumMap = 10;
+    m_NumMap = 11;
     m_BaseTag = 1;
     m_MainSurfID = 0;
+    m_FeaPartIndex = -1;
 }
 
 Surf::~Surf()
@@ -169,11 +170,16 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
             len = min( len, curv_len );
 
             // apply minimum edge length as safety on curvature
-            len = max( len, m_GridDensityPtr->m_MinLen() );
+            len = max( len, m_GridDensityPtr->m_MinLen );
 
             // apply sources
             vec3d p = m_SurfCore.CompPnt( u, w );
-            double grid_len = m_GridDensityPtr->GetTargetLen( p, limitFlag );
+
+            // The last four parameters passed here (m_GeomID, m_MainSurfID, u, w)
+            // represent a significant layering violation.  This is needed to allow
+            // constant U/W line sources to do some evaluation in u,w space instead
+            // of just x,y,z space.
+            double grid_len = m_GridDensityPtr->GetTargetLen( p, limitFlag, m_GeomID, m_MainSurfID, u, w );
             len = min( len, grid_len );
 
             // finally check max size
@@ -193,11 +199,11 @@ void Surf::SetSymPlaneFlag( bool flag )
     // Refine background map for symmetry plane.
     if( m_SymPlaneFlag )
     {
-        m_NumMap = 100;
+        m_NumMap = 101;
     }
     else
     {
-        m_NumMap = 10;
+        m_NumMap = 11;
     }
 }
 
@@ -238,7 +244,7 @@ void Surf::WalkMap( int istart, int jstart, int kstart )
 
             double targetstr = m_SrcMap[istart][jstart].m_str +
                     ( m_SrcMap[ icurrent ][ jcurrent ].m_pt - m_SrcMap[istart][jstart].m_pt ).mag() *
-                    (m_GridDensityPtr->m_GrowRatio() - 1.0);
+                    (m_GridDensityPtr->m_GrowRatio - 1.0);
 
             if( m_SrcMap[ icurrent ][ jcurrent ].m_str > targetstr )
             {
@@ -288,7 +294,7 @@ void Surf::WalkMap( int istart, int jstart )
 
         double targetstr = m_SrcMap[istart][jstart].m_str +
                 ( m_SrcMap[ icurrent ][ jcurrent ].m_pt - m_SrcMap[istart][jstart].m_pt ).mag() *
-                (m_GridDensityPtr->m_GrowRatio() - 1.0);
+                (m_GridDensityPtr->m_GrowRatio - 1.0);
 
 
         if( m_SrcMap[ icurrent ][ jcurrent ].m_str > targetstr )
@@ -355,7 +361,7 @@ void Surf::LimitTargetMap()
 
 void Surf::LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap )
 {
-    double grm1 = m_GridDensityPtr->m_GrowRatio() - 1.0;
+    double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
 
     double tmin = min( minmap, es_cloud.sources[0]->m_str );
 
@@ -462,7 +468,7 @@ void Surf::UWtoTargetMapij( double u, double w, int &i, int &j )
 
 void Surf::ApplyES( vec3d uw, double t )
 {
-    double grm1 = m_GridDensityPtr->m_GrowRatio() - 1.0;
+    double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
     int nmapu = m_SrcMap.size();
     int nmapw = m_SrcMap[0].size();
 
@@ -495,10 +501,17 @@ void Surf::ApplyES( vec3d uw, double t )
     }
 }
 
-vec2d Surf::ClosestUW( vec3d & pnt_in, double guess_u, double guess_w ) const
+vec2d Surf::ClosestUW( const vec3d & pnt_in, double guess_u, double guess_w ) const
 {
     double u, w;
     m_SurfCore.FindNearest( u, w, pnt_in, guess_u, guess_w );
+    return vec2d( u, w );
+}
+
+vec2d Surf::ClosestUW( const vec3d & pnt_in ) const
+{
+    double u, w;
+    m_SurfCore.FindNearest( u, w, pnt_in );
     return vec2d( u, w );
 }
 
@@ -626,7 +639,7 @@ void Surf::WriteSTL( const char* filename )
     m_Mesh.WriteSTL( filename );
 }
 
-void Surf::Intersect( Surf* surfPtr )
+void Surf::Intersect( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
 {
     int i;
 
@@ -639,11 +652,11 @@ void Surf::Intersect( Surf* surfPtr )
     {
         return;
     }
-    if ( BorderCurveOnSurface( surfPtr ) )
+    if ( BorderCurveOnSurface( surfPtr, MeshMgr ) )
     {
         return;
     }
-    if ( surfPtr->BorderCurveOnSurface( this ) )
+    if ( surfPtr->BorderCurveOnSurface( this, MeshMgr ) )
     {
         return;
     }
@@ -656,7 +669,7 @@ void Surf::Intersect( Surf* surfPtr )
             {
                 if ( Compare( *m_PatchVec[i]->get_bbox(), *otherPatchVec[j]->get_bbox() ) )
                 {
-                    intersect( *m_PatchVec[i], *otherPatchVec[j], 0 );
+                    intersect( *m_PatchVec[i], *otherPatchVec[j], MeshMgr );
                 }
             }
         }
@@ -722,10 +735,15 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
     }
 }
 
-bool Surf::BorderCurveOnSurface( Surf* surfPtr )
+bool Surf::BorderCurveOnSurface( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr )
 {
     bool retFlag = false;
     double tol = 1.0e-05;
+
+    if ( this->GetSurfaceCfdType() == vsp::CFD_STRUCTURE )
+    {
+        return retFlag;
+    }
 
     vector< SCurve* > border_curves;
     surfPtr->LoadSCurves( border_curves );
@@ -746,16 +764,12 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
 
             int num_pnts_on_surf = crv.CountMatch( projcrv, tol );
 
-            if ( num_pnts_on_surf > 0 )
-            {
-                retFlag = true;
-            }
-
             if ( num_pnts_on_surf > 2 || ( num_pnts_on_surf == 2 && crv.SingleLinear() ) )
             {
+                retFlag = true;
                 //==== If Surface Add To List ====//
-                CfdMeshMgr.AddPossCoPlanarSurf( this, surfPtr );
-                PlaneBorderCurveIntersect( surfPtr, border_curves[i] );
+                MeshMgr->AddPossCoPlanarSurf( this, surfPtr );
+                PlaneBorderCurveIntersect( surfPtr, border_curves[i], MeshMgr );
             }
         }
     }
@@ -763,7 +777,7 @@ bool Surf::BorderCurveOnSurface( Surf* surfPtr )
     return retFlag;
 }
 
-void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
+void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr, SurfaceIntersectionSingleton *MeshMgr )
 {
     bool repeat_curve = false;
     bool null_ICurve = false;
@@ -791,7 +805,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
         ICurve* bICurve = pICurve;
         ICurve* obICurve = brdPtr->GetICurve();
 
-        vector< ICurve* > ICurves = CfdMeshMgr.GetICurveVec();
+        vector< ICurve* > ICurves = MeshMgr->GetICurveVec();
         int ICurveVecIndex;
 
         Bezier_curve crv = brdPtr->GetUWCrv();
@@ -818,7 +832,7 @@ void Surf::PlaneBorderCurveIntersect( Surf* surfPtr, SCurve* brdPtr )
             ICurveVecIndex = distance( ICurves.begin(), find( ICurves.begin(), ICurves.end(), obICurve ) );
             if ( ICurveVecIndex < (int)ICurves.size() )
             {
-                CfdMeshMgr.SetICurveVec( brdPtr->GetICurve(), ICurveVecIndex );
+                MeshMgr->SetICurveVec( brdPtr->GetICurve(), ICurveVecIndex );
             }
         }
         else
@@ -1239,11 +1253,11 @@ bool Surf::ValidUW( vec2d & uw )
 {
     //return true;
     double slop = 1.0e-4;
-    if ( uw[0] < -slop )
+    if ( uw[0] < m_SurfCore.GetMinU() - slop )
     {
         return false;
     }
-    if ( uw[1] < -slop )
+    if ( uw[1] < m_SurfCore.GetMinW() - slop )
     {
         return false;
     }
@@ -1256,13 +1270,13 @@ bool Surf::ValidUW( vec2d & uw )
         return false;
     }
 
-    if ( uw[0] < 0.0 )
+    if ( uw[0] < m_SurfCore.GetMinU() )
     {
-        uw[0] = 0.0;
+        uw[0] = m_SurfCore.GetMinU();
     }
-    if ( uw[1] < 0.0 )
+    if ( uw[1] < m_SurfCore.GetMinW() )
     {
-        uw[1] = 0.0;
+        uw[1] = m_SurfCore.GetMinW();
     }
     if ( uw[0] > m_SurfCore.GetMaxU() )
     {
@@ -1428,4 +1442,9 @@ void Surf::Draw()
 vec3d Surf::CompPnt( double u, double w ) const
 {
     return m_SurfCore.CompPnt( u, w );
+}
+
+vec3d Surf::CompPnt01( double u, double w ) const
+{
+    return m_SurfCore.CompPnt01( u, w );
 }

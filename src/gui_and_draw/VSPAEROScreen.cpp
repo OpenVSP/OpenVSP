@@ -244,7 +244,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Advanced Case Setup Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_AdvancedCaseSetupLayout,
         m_AdvancedLeftLayout.GetW(),
-        8 * m_AdvancedLeftLayout.GetStdHeight() );
+        11 * m_AdvancedLeftLayout.GetStdHeight() );
     m_AdvancedLeftLayout.AddY( m_AdvancedCaseSetupLayout.GetH() );
 
     m_AdvancedCaseSetupLayout.AddDividerBox( "Advanced Case Setup" );
@@ -283,7 +283,15 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedCaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
     m_AdvancedCaseSetupLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
-    m_AdvancedCaseSetupLayout.AddButton( m_JacobiPreconditionToggle, "Jacobi Preconditioner");
+
+    m_PreconditionChoice.AddItem( "Matrix" );
+    m_PreconditionChoice.AddItem( "Jacobi" );
+    m_PreconditionChoice.AddItem( "SSOR" );
+    m_AdvancedCaseSetupLayout.AddChoice( m_PreconditionChoice, "Preconditioner");
+
+    m_AdvancedCaseSetupLayout.AddButton( m_VortexLiftToggle, "Vortex Lift" );
+    m_AdvancedCaseSetupLayout.AddButton( m_LeadingEdgeSuctionToggle, "Leading Edge Suction" );
+    m_AdvancedCaseSetupLayout.AddButton( m_KTCorrectionToggle, "2nd Order Karman-Tsien Mach Correction" );
     m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
     m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
 
@@ -333,7 +341,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     int button_width = 130;
     m_AdvancedRightLayout.AddSubGroupLayout( m_UnsteadyLayout,
         m_AdvancedRightLayout.GetW(),
-        m_AdvancedRightLayout.GetH());
+        3 * m_AdvancedRightLayout.GetStdHeight() );
+    m_AdvancedRightLayout.AddY( m_UnsteadyLayout.GetH() );
     m_UnsteadyLayout.SetButtonWidth( button_width );
     m_UnsteadyLayout.AddDividerBox( "Unsteady" );
     m_UnsteadyLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
@@ -345,6 +354,78 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     //m_StabilityTypeChoice.AddItem( "Heave" ); // To Be Implemented
     //m_StabilityTypeChoice.AddItem( "Impulse" ); // To Be Implemented
     m_StabilityTypeChoice.UpdateItems();
+
+    m_AdvancedRightLayout.AddSubGroupLayout( m_CpSlicerLayout,
+                                             m_AdvancedRightLayout.GetW(),
+                                             10 * m_AdvancedRightLayout.GetStdHeight() );
+    m_AdvancedRightLayout.AddY( m_CpSlicerLayout.GetH() );
+
+    m_CpSlicerLayout.AddDividerBox( "Cp Slicer" );
+
+    m_CpSlicerLayout.SetSameLineFlag( true );
+    m_CpSlicerLayout.SetFitWidthFlag( false );
+
+    m_CpSlicerLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 2 );
+
+    m_CpSlicerLayout.AddButton( m_CpSlicerActivateToggle, "Activate Cp Slicer" );
+    m_CpSlicerLayout.AddButton( m_CpSliceLastADBButton, "Slice Latest *.adb File" );
+
+    m_CpSlicerLayout.AddYGap();
+    m_CpSlicerLayout.ForceNewLine();
+    m_CpSlicerLayout.SetSameLineFlag( false );
+    m_CpSlicerLayout.SetFitWidthFlag( true );
+
+    int CpBrowserHeight = 75;
+
+    m_CpSliceBrowser = m_CpSlicerLayout.AddFlBrowser( 0 );
+    m_CpSliceBrowser->resize( m_CpSlicerLayout.GetX(), m_CpSlicerLayout.GetY(), m_CpSlicerLayout.GetW(), CpBrowserHeight );
+    m_CpSliceBrowser->type( FL_MULTI_BROWSER );
+    m_CpSliceBrowser->labelfont( 13 );
+    m_CpSliceBrowser->textsize( 12 );
+    m_CpSliceBrowser->callback( staticScreenCB, this );
+
+    m_CpSlicerLayout.AddY( CpBrowserHeight );
+
+    m_CpSlicerLayout.SetSameLineFlag( true );
+    m_CpSlicerLayout.SetFitWidthFlag( false );
+
+    m_CpSlicerLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
+
+    m_CpSlicerLayout.AddButton( m_AddCpSliceButton, "Add Slice" );
+    m_CpSlicerLayout.AddButton( m_DeleteCpSliceButton, "Delete Slice" );
+    m_CpSlicerLayout.AddButton( m_DeleteAllCpSliceButton, "Delete All" );
+
+    m_CpSlicerLayout.AddYGap();
+    m_CpSlicerLayout.ForceNewLine();
+
+    m_CpSlicerLayout.AddSubGroupLayout( m_CpSlicerSubLayout,
+                                        m_CpSlicerLayout.GetW(),
+                                        10 * m_CpSlicerLayout.GetStdHeight() );
+    m_CpSlicerLayout.AddY( m_CpSlicerSubLayout.GetH() );
+
+    m_CpSlicerSubLayout.SetButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
+    m_CpSlicerSubLayout.SetChoiceButtonWidth( m_CpSlicerLayout.GetRemainX() / 3 );
+    int input_width = m_CpSlicerSubLayout.GetInputWidth();
+    m_CpSlicerSubLayout.SetInputWidth( m_CpSlicerLayout.GetRemainX() / 3 );
+
+    m_CpSlicerSubLayout.SetSameLineFlag( true );
+    m_CpSlicerSubLayout.SetFitWidthFlag( false );
+
+    m_CpSlicerSubLayout.AddInput( m_CpSliceNameInput, "Name" );
+    m_CpSlicerSubLayout.AddButton( m_CpSliceShowToggle, "Show Cut" );
+
+    m_CpSlicerSubLayout.ForceNewLine();
+    m_CpSlicerSubLayout.SetSameLineFlag( false );
+    m_CpSlicerSubLayout.SetFitWidthFlag( true );
+    m_CpSlicerSubLayout.SetInputWidth( input_width );
+
+    m_CpSliceTypeChoice.AddItem( "X" );
+    m_CpSliceTypeChoice.AddItem( "Y" );
+    m_CpSliceTypeChoice.AddItem( "Z" );
+    m_CpSlicerSubLayout.AddChoice( m_CpSliceTypeChoice, "Slice Type" );
+    m_CpSliceTypeChoice.UpdateItems();
+
+    m_CpSlicerSubLayout.AddSlider( m_CpSliceLocation, "Position", 100, "%7.3f" );
 
     //==== Rotor Disk Tab ==== //
     Fl_Group* rotor_tab = AddTab( "Rotor" );
@@ -379,7 +460,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_PropElemLayout.AddY( prop_elem_browser_h );
 
-    int input_width = 60;
+    input_width = 60;
     int XYZ_button_width = 20;
     int else_button_width = 60;
     int browser_augment = 40;
@@ -549,6 +630,8 @@ bool VSPAEROScreen::Update()
         UpdateVSPAEROButtons();
 
         UpdateAdvancedTabDevices();
+        UpdateCpSlices();
+        UpdateCpSliceBrowser();
 
         UpdatePropElemDevices();
 
@@ -597,6 +680,10 @@ void VSPAEROScreen::CallBack( Fl_Widget* w )
     else if ( w == m_GroupedCSBrowser )
     {
         GroupedCSBrowserCallback();
+    }
+    else if ( w == m_CpSliceBrowser )
+    {
+        CpSliceBrowserCallback();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -817,6 +904,48 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             VSPAEROMgr.m_StabilityType = m_StabilityTypeChoice.GetVal();
         }
+        else if ( device == &m_CpSliceLastADBButton )
+        {
+            // Clear out previous results
+            VSPAEROMgr.ClearCpSliceResults();
+
+            VSPAEROMgr.ComputeCpSlices();
+        }
+        else if ( device == &m_AddCpSliceButton )
+        {
+            CpSlice* slice = VSPAEROMgr.AddCpSlice();
+
+            if ( slice )
+            {
+                VSPAEROMgr.SetCurrentCpSliceIndex( VSPAEROMgr.GetCpSliceVec().size() - 1 );
+            }
+        }
+        else if ( device == &m_DeleteCpSliceButton )
+        {
+            VSPAEROMgr.DelCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
+
+            if ( VSPAEROMgr.ValidCpSliceInd( VSPAEROMgr.GetCurrentCpSliceIndex() - 1 ) )
+            {
+                VSPAEROMgr.SetCurrentCpSliceIndex( VSPAEROMgr.GetCurrentCpSliceIndex() );
+            }
+            else
+            {
+                VSPAEROMgr.SetCurrentCpSliceIndex( -1 );
+            }
+        }
+        else if ( device == &m_DeleteAllCpSliceButton )
+        {
+            VSPAEROMgr.ClearCpSliceVec();
+            VSPAEROMgr.SetCurrentCpSliceIndex( -1 );
+        }
+        else if ( device == &m_CpSliceNameInput )
+        {
+            CpSlice* slice = VSPAEROMgr.GetCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
+            if ( slice )
+            {
+                slice->SetName( m_CpSliceNameInput.GetString() );
+            }
+        }
         else if ( device == &m_GroupEditNameInput )
         {
             VSPAEROMgr.SetCurrentCSGroupName( m_GroupEditNameInput.GetString() );
@@ -1035,7 +1164,10 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
 
     m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
     m_BatchCalculationToggle.Update(VSPAEROMgr.m_BatchModeFlag.GetID());
-    m_JacobiPreconditionToggle.Update(VSPAEROMgr.m_JacobiPrecondition.GetID());
+    m_PreconditionChoice.Update(VSPAEROMgr.m_Precondition.GetID());
+    m_VortexLiftToggle.Update(VSPAEROMgr.m_VortexLift.GetID());
+    m_LeadingEdgeSuctionToggle.Update(VSPAEROMgr.m_LeadingEdgeSuction.GetID());
+    m_KTCorrectionToggle.Update( VSPAEROMgr.m_KTCorrection.GetID() );
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
     m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
 
@@ -1062,6 +1194,8 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     {
         m_StabilityCalcToggle.Update(VSPAEROMgr.m_StabilityCalcFlag.GetID());
     }
+
+    m_StabilityTypeChoice.Update( VSPAEROMgr.m_StabilityType.GetID() );
 
     if (!VSPAEROMgr.m_StabilityCalcFlag())
     {
@@ -1172,7 +1306,7 @@ void VSPAEROScreen::UpdatePropElemDevices()
 {
     vector < RotorDisk* > rotordiskvec = VSPAEROMgr.GetRotorDiskVec();
     int index = VSPAEROMgr.GetCurrentRotorDiskIndex();
-    if (index >= 0)
+    if (index >= 0 && index < rotordiskvec.size())
     {
         rotordiskvec[ index ]->m_Diameter.Activate();
         rotordiskvec[ index ]->m_HubDiameter.Activate();
@@ -1187,6 +1321,11 @@ void VSPAEROScreen::UpdatePropElemDevices()
         m_PropElemRPM.Update( rotordiskvec[ index ]->m_RPM.GetID());
         m_PropElemCP.Update( rotordiskvec[ index ]->m_CP.GetID());
         m_PropElemCT.Update( rotordiskvec[ index ]->m_CT.GetID());
+    }
+
+    if (index > rotordiskvec.size())
+    {
+        VSPAEROMgr.SetCurrentRotorDiskIndex( -1 );
     }
 }
 
@@ -1229,11 +1368,6 @@ void VSPAEROScreen::UpdateControlSurfaceBrowsers()
             sprintf( str, "%i %s", curr_cs_group->m_GroupSuffix, curr_cs_group->GetName().c_str());
             m_CSGroupBrowser->add( str );
         }
-        vector < VspAeroControlSurf > sub_surf_vec = VSPAEROMgr.GetActiveCSVec();
-        for (size_t j = 0; j < sub_surf_vec.size(); ++j)
-        {
-            VSPAEROMgr.RemoveFromUngrouped(sub_surf_vec[j].SSID, sub_surf_vec[j].iReflect);
-        }
     }
     SelectControlSurfaceBrowser(curr_cs_index + 1);
 
@@ -1258,15 +1392,19 @@ void VSPAEROScreen::UpdateControlSurfaceBrowsers()
     }
 
     m_UngroupedCSBrowser->clear();
-    // For loop on a vector of ungrouped control surfaces
-    vector < VspAeroControlSurf > ungrouped_cs = VSPAEROMgr.GetUngroupedCSVec();
-    for (size_t i = 0; i < ungrouped_cs.size(); ++i)
+    if ( VSPAEROMgr.GetCurrentCSGroupIndex() != -1 )
     {
-        m_UngroupedCSBrowser->add(ungrouped_cs[i].fullName.c_str());
-    }
-    for (size_t i = 0; i < VSPAEROMgr.GetSelectedUngroupedItems().size(); ++i)
-    {
-        SelectUngroupedListBrowser(VSPAEROMgr.GetSelectedUngroupedItems()[i]);
+        // For loop on a vector of ungrouped control surfaces
+        vector < VspAeroControlSurf > ungrouped_cs = VSPAEROMgr.GetAvailableCSVec();
+
+        for ( size_t i = 0; i < ungrouped_cs.size(); ++i )
+        {
+            m_UngroupedCSBrowser->add( ungrouped_cs[i].fullName.c_str() );
+        }
+        for ( size_t i = 0; i < VSPAEROMgr.GetSelectedUngroupedItems().size(); ++i )
+        {
+            SelectUngroupedListBrowser( VSPAEROMgr.GetSelectedUngroupedItems()[i] );
+        }
     }
 }
 
@@ -1455,7 +1593,7 @@ void VSPAEROScreen::SelectControlSurfaceBrowser( int cur_index )
 void VSPAEROScreen::UngroupedCSBrowserCallback()
 {
     vector < int > selected;
-    vector < VspAeroControlSurf > ungrouped_vec = VSPAEROMgr.GetUngroupedCSVec();
+    vector < VspAeroControlSurf > ungrouped_vec = VSPAEROMgr.GetAvailableCSVec();
     if ( ungrouped_vec.size() != 0 )
     {
         for ( size_t i = 1; i <= m_UngroupedCSBrowser->size(); ++i )
@@ -1471,7 +1609,7 @@ void VSPAEROScreen::UngroupedCSBrowserCallback()
 
 void VSPAEROScreen::SelectUngroupedListBrowser( int cur_index )
 {
-    if ( cur_index > 0 )
+    if ( cur_index > 0 && cur_index <= VSPAEROMgr.GetAvailableCSVec().size() )
     {
         //==== Select If Match ====//
         m_UngroupedCSBrowser->select( cur_index );
@@ -1563,4 +1701,79 @@ void VSPAEROScreen::DisplayDegenCamberPreview()
 
     }
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void VSPAEROScreen::UpdateCpSlices()
+{
+    m_CpSlicerActivateToggle.Update( VSPAEROMgr.m_CpSliceFlag.GetID() );
+
+    if ( VSPAEROMgr.GetCpSliceVec().size() <= 0 )
+    {
+        m_CpSlicerActivateToggle.Deactivate();
+    }
+    else
+    {
+        m_CpSlicerActivateToggle.Activate();
+    }
+
+    CpSlice* slice = VSPAEROMgr.GetCpSlice( VSPAEROMgr.GetCurrentCpSliceIndex() );
+    if ( slice )
+    {
+        m_CpSlicerSubLayout.Show();
+        m_CpSliceNameInput.Update( slice->GetName() );
+        m_CpSliceTypeChoice.Update( slice->m_CutType.GetID() );
+        m_CpSliceLocation.Update( slice->m_CutPosition.GetID() );
+        m_CpSliceShowToggle.Update( slice->m_DrawCutFlag.GetID() );
+    }
+    else
+    {
+        m_CpSlicerSubLayout.Hide();
+    }
+}
+
+void VSPAEROScreen::UpdateCpSliceBrowser()
+{
+    char str[256];
+    m_CpSliceBrowser->clear();
+    static int widths[] = { m_CpSlicerLayout.GetW() / 3, m_CpSlicerLayout.GetW() / 3, m_CpSlicerLayout.GetW() / 3 }; // widths for each column
+    m_CpSliceBrowser->column_widths( widths );    // assign array to widget
+    m_CpSliceBrowser->column_char( ':' );         // use : as the column character
+
+    m_CpSliceBrowser->add( "@b@.Name:@b@.Type:@b@.Position" );
+
+    for ( size_t i = 0; i < VSPAEROMgr.GetCpSliceVec().size(); ++i )
+    {
+        CpSlice* slice = VSPAEROMgr.GetCpSliceVec()[i];
+        if ( slice )
+        {
+            char type = 88 + slice->m_CutType(); // ASCII X: 88; Y: 89; Z: 90
+
+            sprintf( str, "%s:%c:%4.2f", slice->GetName().c_str(), type, slice->m_CutPosition() );
+            m_CpSliceBrowser->add( str );
+        }
+    }
+
+    SelectCpSliceBrowser( VSPAEROMgr.GetCurrentCpSliceIndex() + 2 );
+}
+
+void VSPAEROScreen::SelectCpSliceBrowser( int cur_index )
+{
+    if ( cur_index > 0 )
+    {
+        //==== Select If Match ====//
+        m_CpSliceBrowser->select( cur_index );
+
+        //==== Position Browser ====//
+        m_CpSliceBrowser->topline( cur_index );
+    }
+}
+
+void VSPAEROScreen::CpSliceBrowserCallback()
+{
+    //==== Find Last Selected CpSlice ====//
+    int last = m_CpSliceBrowser->value();
+    if ( last >= 2 )
+    {
+        VSPAEROMgr.SetCurrentCpSliceIndex( last - 2 );
+    }
 }

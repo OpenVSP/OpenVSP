@@ -13,7 +13,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174 + 50, "IGES Options" )
+IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 174 + 50 + 120, "IGES Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -23,6 +23,12 @@ IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_PrevSplitSub = false;
     m_PrevCubic = false;
     m_PrevToCubicTol = 1e-6;
+
+    m_PrevLabelID = true;
+    m_PrevLabelName = true;
+    m_PrevLabelSurfNo = true;
+    m_PrevLabelSplitNo = true;
+    m_PrevLabelDelim = vsp::DELIM_COMMA;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_GenLayout.AddY( 25 );
@@ -45,8 +51,21 @@ IGESOptionsScreen::IGESOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_ToCubicToggle, "Convert to Cubic" );
     m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
+    m_GenLayout.AddYGap();
 
-    m_GenLayout.AddY( 25 );
+    m_GenLayout.AddDividerBox( "Surface Name" );
+    m_GenLayout.AddButton( m_LabelIDToggle, "Geom ID" );
+    m_GenLayout.AddButton( m_LabelNameToggle, "Geom Name" );
+    m_GenLayout.AddButton( m_LabelSurfNoToggle, "Surface Number" );
+    m_GenLayout.AddButton( m_LabelSplitNoToggle, "Split Number" );
+
+    m_LabelDelimChoice.AddItem( "Comma" );
+    m_LabelDelimChoice.AddItem( "Underscore" );
+    m_LabelDelimChoice.AddItem( "Space" );
+    m_LabelDelimChoice.AddItem( "None" );
+    m_GenLayout.AddChoice( m_LabelDelimChoice, "Delimeter" );
+
+    m_GenLayout.AddYGap();
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetButtonWidth( 100 );
@@ -74,6 +93,12 @@ bool IGESOptionsScreen::Update()
         m_ToCubicToggle.Update( veh->m_IGESToCubic.GetID() );
         m_ToCubicTolSlider.Update( veh->m_IGESToCubicTol.GetID() );
         m_TrimTEToggle.Update( veh->m_IGESTrimTE.GetID() );
+
+        m_LabelIDToggle.Update( veh->m_IGESLabelID.GetID() );
+        m_LabelNameToggle.Update( veh->m_IGESLabelName.GetID() );
+        m_LabelSurfNoToggle.Update( veh->m_IGESLabelSurfNo.GetID() );
+        m_LabelSplitNoToggle.Update( veh->m_IGESLabelSplitNo.GetID() );
+        m_LabelDelimChoice.Update( veh->m_IGESLabelDelim.GetID() );
 
         if ( !veh->m_IGESToCubic() )
         {
@@ -119,6 +144,13 @@ void IGESOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_IGESToCubic.Set( m_PrevCubic );
             veh->m_IGESToCubicTol.Set( m_PrevToCubicTol );
             veh->m_IGESTrimTE.Set( m_PrevTrimTE );
+
+            veh->m_IGESLabelID.Set( m_PrevLabelID );
+            veh->m_IGESLabelName.Set( m_PrevLabelName );
+            veh->m_IGESLabelSurfNo.Set( m_PrevLabelSurfNo );
+            veh->m_IGESLabelSplitNo.Set( m_PrevLabelSplitNo );
+            veh->m_IGESLabelDelim.Set( m_PrevLabelDelim );
+
         }
         Hide();
     }
@@ -142,6 +174,12 @@ bool IGESOptionsScreen::ShowIGESOptionsScreen()
         m_PrevCubic = veh->m_IGESToCubic();
         m_PrevToCubicTol = veh->m_IGESToCubicTol();
         m_PrevTrimTE = veh->m_IGESTrimTE();
+
+        m_PrevLabelID = veh->m_IGESLabelID();
+        m_PrevLabelName = veh->m_IGESLabelName();
+        m_PrevLabelSurfNo = veh->m_IGESLabelSurfNo();
+        m_PrevLabelSplitNo = veh->m_IGESLabelSplitNo();
+        m_PrevLabelDelim = veh->m_IGESLabelDelim();
     }
 
     while( m_FLTK_Window->shown() )
@@ -166,6 +204,12 @@ void IGESOptionsScreen::CloseCallBack( Fl_Widget *w )
         veh->m_IGESToCubic.Set( m_PrevCubic );
         veh->m_IGESToCubicTol.Set( m_PrevToCubicTol );
         veh->m_IGESTrimTE.Set( m_PrevTrimTE );
+
+        veh->m_IGESLabelID.Set( m_PrevLabelID );
+        veh->m_IGESLabelName.Set( m_PrevLabelName );
+        veh->m_IGESLabelSurfNo.Set( m_PrevLabelSurfNo );
+        veh->m_IGESLabelSplitNo.Set( m_PrevLabelSplitNo );
+        veh->m_IGESLabelDelim.Set( m_PrevLabelDelim );
     }
 
     Hide();

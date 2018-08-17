@@ -31,16 +31,16 @@ Puw::~Puw()
 //////////////////////////////////////////////////////////////////////
 //==== IPnt Bin ====//
 //////////////////////////////////////////////////////////////////////
-int IPntBin::ComputeID( vec3d & pos )
+long IPntBin::ComputeID( vec3d & pos )
 {
-    int id =    ( int )( pos.x() * 10000.0 ) +
-                ( int )( pos.y() * 10000.0 ) +
-                ( int )( pos.z() * 10000.0 );
+    long id =   ( long )( pos.x() * 100000.0 ) +
+                ( long )( pos.y() * 100000.0 ) +
+                ( long )( pos.z() * 100000.0 );
 
     return id;
 }
 
-IPnt* IPntBin::Match( IPnt* ip, map< int, IPntBin > & binMap )
+IPnt* IPntBin::Match( IPnt* ip, map< long, IPntBin > & binMap )
 {
     IPnt* close_ipnt = NULL;
 
@@ -184,24 +184,6 @@ double IPntGroup::GroupDist( IPntGroup* g )
     return dist( p0, p1 );
 }
 
-// This function is un-used, but it is left here in case it may be used at a later time.
-// At such time, it should be updated to use the surface density map rather than only the
-// mesh density sources.
-double IPntGroup::GroupDistFract( IPntGroup* g )
-{
-    double d = GroupDist( g );
-    vec3d pnt = m_IPntVec[0]->m_Pnt;
-
-    GridDensity* gdp = CfdMeshMgr.GetGridDensityPtr();
-
-    double target_dist = gdp->GetTargetLen( pnt );
-
-    return ( d / target_dist );
-
-
-}
-
-
 void IPntGroup::AddGroup( IPntGroup* g )
 {
     for ( int i = 0 ; i < ( int )g->m_IPntVec.size() ; i++ )
@@ -326,7 +308,7 @@ void ISeg::JoinFront( ISeg* seg )
     }
 }
 
-ISeg* ISeg::Split( Surf* sPtr, vec2d & uw )
+ISeg* ISeg::Split( Surf* sPtr, vec2d & uw, SurfaceIntersectionSingleton *MeshMgr )
 {
     vec2d uwa, uwb;
     if ( sPtr == m_SurfA )
@@ -359,11 +341,11 @@ ISeg* ISeg::Split( Surf* sPtr, vec2d & uw )
     if ( m_SurfA->ValidUW( uwa ) && m_SurfB->ValidUW( uwb ) )
     {
         Puw* pwa = new Puw( m_SurfA, uwa );
-        CfdMeshMgr.AddDelPuw( pwa );
+        MeshMgr->AddDelPuw( pwa );
         Puw* pwb = new Puw( m_SurfB, uwb );
-        CfdMeshMgr.AddDelPuw( pwb );
+        MeshMgr->AddDelPuw( pwb );
         IPnt* ip = new IPnt( pwa, pwb );
-        CfdMeshMgr.AddDelIPnt( ip );
+        MeshMgr->AddDelIPnt( ip );
         ip->CompPnt();
         ISeg* sseg = new ISeg( m_SurfA, m_SurfB, ip, m_IPnt[1] );
         m_IPnt[1] = ip;
@@ -472,6 +454,46 @@ void ISegBox::Intersect( ISegBox* box )
     }
 }
 
+void ISegBox::AppendLineSegs( vector < vec3d > &lsegs )
+{
+    vec3d uw;
+    vec3d pnt0, pnt;
+
+    if ( m_Surf )
+    {
+        uw = m_Box.GetCornerPnt( 0 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+        pnt0 = pnt;
+
+        lsegs.push_back( pnt );
+
+        uw = m_Box.GetCornerPnt( 1 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+
+        lsegs.push_back( pnt );
+        lsegs.push_back( pnt );
+
+        uw = m_Box.GetCornerPnt( 3 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+
+        lsegs.push_back( pnt );
+        lsegs.push_back( pnt );
+
+        uw = m_Box.GetCornerPnt( 2 );
+        pnt = m_Surf->CompPnt( uw.x(), uw.y() );
+
+        lsegs.push_back( pnt );
+        lsegs.push_back( pnt );
+
+        lsegs.push_back( pnt0 );
+    }
+
+    if ( m_SubBox[0] )
+    {
+        m_SubBox[0]->AppendLineSegs( lsegs );
+        m_SubBox[1]->AppendLineSegs( lsegs );
+    }
+}
 
 
 
@@ -519,7 +541,7 @@ ISegChain::ISegChain()
     m_SurfA = m_SurfB = NULL;
     m_BorderFlag = false;
     m_WakeAttachChain = NULL;
-
+    m_SSIntersectIndex = -1;
 }
 
 ISegChain::~ISegChain()
@@ -844,7 +866,7 @@ void ISegChain::AddSplit( Surf* surfPtr, int index, vec2d int_pnt )
     m_SplitVec.push_back( split );
 
 }
-void ISegChain::AddBorderSplit( IPnt* ip, Puw* uw )
+bool ISegChain::AddBorderSplit( IPnt* ip, Puw* uw )
 {
 
 //  double tol = 0.000001;
@@ -862,7 +884,8 @@ void ISegChain::AddBorderSplit( IPnt* ip, Puw* uw )
         vec2d iuw0 = m_ISegDeque[i]->m_IPnt[0]->GetPuw( surfPtr )->m_UW;
         vec2d iuw1 = m_ISegDeque[i]->m_IPnt[1]->GetPuw( surfPtr )->m_UW;
         double u = proj_pnt_on_line_u( iuw0, iuw1, uw->m_UW );
-        if ( u > 0.0 && u < 1.0 )
+        if ( ( u >= 0.0 && u <= 1.0 ) && 
+            ( !( u >= ( 1.0 - 1e-5 ) && i == m_ISegDeque.size() - 1 ) && !( u <= 1e-5 && i == 0 ) ) ) // Do not split endpoints of m_ISegDeque
         {
             vec2d proj = iuw0 + ( iuw1 - iuw0 ) * u;
 
@@ -896,7 +919,9 @@ void ISegChain::AddBorderSplit( IPnt* ip, Puw* uw )
         split->m_Fract = closest_fract;
         split->m_UW    = uw->m_UW;
         m_SplitVec.push_back( split );
+        return true; // AddBorderSplit success
     }
+    return false; // AddBorderSplit failure
 
 #ifdef DEBUG_CFD_MESH
     static bool once = true;
@@ -1077,7 +1102,7 @@ bool SplitCompare( const ISegSplit* a, const ISegSplit* b )
 }
 
 
-vector< ISegChain* > ISegChain::SortAndSplit()
+vector< ISegChain* > ISegChain::SortAndSplit( SurfaceIntersectionSingleton *MeshMgr )
 {
 //for ( int i = 0 ; i < (int)m_SplitVec.size() ; i++ )
 //  printf("Split Index = %d %f\n", m_SplitVec[i]->m_Index,  m_SplitVec[i]->m_Fract );
@@ -1092,7 +1117,7 @@ vector< ISegChain* > ISegChain::SortAndSplit()
     for ( int i = 0 ; i < ( int )m_SplitVec.size() ; i++ )
     {
         ISegSplit* s = m_SplitVec[i];
-        ISeg* new_seg = m_ISegDeque[s->m_Index]->Split( s->m_Surf, s->m_UW );
+        ISeg* new_seg = m_ISegDeque[s->m_Index]->Split( s->m_Surf, s->m_UW, MeshMgr );
 
         if ( new_seg )
         {
@@ -1118,7 +1143,7 @@ vector< ISegChain* > ISegChain::SortAndSplit()
     return new_chains;
 }
 
-vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf )
+vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf, SurfaceIntersectionSingleton *MeshMgr )
 {
     vector< ISegChain* > new_chains;
 
@@ -1137,10 +1162,10 @@ vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf )
         if ( dist( p, sp ) < tol )
         {
             Puw* puwa = new Puw( sPtr, vec2d( uw[0], uw[1] ) );
-            CfdMeshMgr.AddDelPuw( puwa );
+            MeshMgr->AddDelPuw( puwa );
 
             Puw* puwb = new Puw( sPtr, vec2d( uw[0], uw[1] ) );
-            CfdMeshMgr.AddDelPuw( puwb );
+            MeshMgr->AddDelPuw( puwb );
 
             IPnt* newip  = new IPnt( puwa, puwb );
             m_CreatedIPnts.push_back( newip );
@@ -1206,7 +1231,7 @@ void ISegChain::BuildCurves( )
     }
 
     m_ACurve.SetSurf( m_SurfA );
-    m_ACurve.BuildBezierCurve( auw_pnts, 0.3 );
+    m_ACurve.InterpolateLinear( auw_pnts );
 
     //==== B SCurve ====//
     vector< vec3d > buw_pnts;
@@ -1219,7 +1244,7 @@ void ISegChain::BuildCurves( )
     }
 
     m_BCurve.SetSurf( m_SurfB );
-    m_BCurve.BuildBezierCurve( buw_pnts, 0.3 );
+    m_BCurve.InterpolateLinear( buw_pnts );
 }
 
 void ISegChain::TransferTess( )
@@ -1228,7 +1253,7 @@ void ISegChain::TransferTess( )
     m_BCurve.Tesselate( autess );
 }
 
-void ISegChain::ApplyTess( )
+void ISegChain::ApplyTess( SurfaceIntersectionSingleton *MeshMgr )
 {
     //==== Clear Old Tess ====//
     m_TessVec.clear();
@@ -1241,9 +1266,9 @@ void ISegChain::ApplyTess( )
     for ( int i = 0 ; i < ( int )tuwa.size() ; i++ )
     {
         Puw* puwa = new Puw( m_SurfA, vec2d( tuwa[i][0], tuwa[i][1] ) );
-        CfdMeshMgr.AddDelPuw( puwa );
+        MeshMgr->AddDelPuw( puwa );
         Puw* puwb = new Puw( m_SurfB, vec2d( tuwb[i][0], tuwb[i][1] ) );
-        CfdMeshMgr.AddDelPuw( puwb );
+        MeshMgr->AddDelPuw( puwb );
 
         IPnt* ip  = new IPnt( puwa, puwb );
 
@@ -1270,7 +1295,7 @@ void ISegChain::SpreadDensity( )
     m_ACurve.SpreadDensity( &m_BCurve );
 }
 
-void ISegChain::CalcDensity( GridDensity* grid_den, list< MapSource* > & splitSources )
+void ISegChain::CalcDensity( SimpleGridDensity* grid_den, list< MapSource* > & splitSources )
 {
     m_ACurve.CalcDensity( grid_den, &m_BCurve, splitSources );
 }

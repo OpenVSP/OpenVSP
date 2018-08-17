@@ -4,6 +4,7 @@
 #include "Camera.h"
 #include "Scene.h"
 #include "Ruler.h"
+#include "Probe.h"
 
 #include <assert.h>
 
@@ -150,6 +151,7 @@ void LayoutMgr::draw( Scene * scene, int x, int y )
         // Set mouse location for ruler.
         glm::vec3 mouseInWorld = _viewportList[i]->screenToWorld( glm::vec2( x, y ) );
         Ruler::updateMouseLocation( mouseInWorld );
+        Probe::updateMouseLocation( mouseInWorld );
 
         // Clear Color and Depth Buffer.
         glClearColor( 0.95f, 0.95f, 0.95f, 1.0f );

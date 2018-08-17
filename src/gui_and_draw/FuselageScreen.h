@@ -169,6 +169,7 @@ protected:
     SliderAdjRangeInput m_VKTEpsilonSlider;
     SliderAdjRangeInput m_VKTKappaSlider;
     SliderAdjRangeInput m_VKTTauSlider;
+    CheckButton m_VKTInvertButton;
 
     GroupLayout* m_CurrDisplayGroup;
     void DisplayGroup( GroupLayout* group );

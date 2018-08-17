@@ -5,6 +5,7 @@
 #include "Entity.h"
 #include "Marker.h"
 #include "Ruler.h"
+#include "Probe.h"
 #include "PickablePnts.h"
 #include "PickableGeom.h"
 #include "PickableLoc.h"
@@ -15,6 +16,7 @@
 #include "ByteOperationUtil.h"
 
 #include <assert.h>
+#include <stdlib.h>
 
 namespace VSPGraphic
 {
@@ -71,7 +73,11 @@ void Scene::createObject(Common::VSPenum objectType, unsigned int * id_out)
         object = new Ruler();
         break;
 
-    default:
+    case Common::VSP_OBJECT_PROBE:
+        object = new Probe();
+        break;
+
+        default:
         break;
     }
 

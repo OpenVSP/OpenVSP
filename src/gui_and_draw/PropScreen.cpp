@@ -62,12 +62,14 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
     m_DesignLayout.SetSameLineFlag( false );
     m_DesignLayout.SetButtonWidth( 100 );
 
+    m_DesignLayout.AddSlider( m_ConstructSlider, "Construct X/C", 1, "%5.3f" );
+
     m_BetaToggle.Init( this );
     m_BetaToggle.AddButton( m_FeatherToggle.GetFlButton() );
     m_BetaToggle.AddButton( m_Beta34Toggle.GetFlButton() );
 
     m_DesignLayout.SetSameLineFlag( true );
-    m_DesignLayout.AddOutput( m_AFOutput, "Activity Factor", m_DesignLayout.GetW() / 2 );
+    m_DesignLayout.AddOutput( m_AFOutput, "Activity Factor", "%6.2f", m_DesignLayout.GetW() / 2 );
     m_DesignLayout.SetButtonWidth( 50 );
     m_DesignLayout.AddSlider( m_AFLimitSlider, "r_0", 1, "%6.5f" );
     m_DesignLayout.SetButtonWidth( 100 );
@@ -118,8 +120,8 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
 
     m_DesignLayout.AddYGap();
     m_DesignLayout.SetButtonWidth( 200 );
-    m_DesignLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width" );
-    m_DesignLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio" );
+    m_DesignLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width", "%6.4g" );
+    m_DesignLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio", "%6.3f" );
 
     //==== Blade Tab ====//
     Fl_Group* plot_tab = AddTab( "Blade" );
@@ -137,6 +139,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
     m_CurveChoice.AddItem( "Twist" );
     m_CurveChoice.AddItem( "Rake" );
     m_CurveChoice.AddItem( "Skew" );
+    m_CurveChoice.AddItem( "Sweep" );
 
     m_EditCurve = CHORD;
 
@@ -680,6 +683,8 @@ bool PropScreen::Update()
 
     m_BetaToggle.Update( propeller_ptr->m_UseBeta34Flag.GetID() );
 
+    m_ConstructSlider.Update( propeller_ptr->m_Construct.GetID() );
+
     if ( propeller_ptr->m_UseBeta34Flag() == 1 )
     {
         m_Beta34Slider.Activate();
@@ -694,8 +699,7 @@ bool PropScreen::Update()
     m_AFLimitSlider.Update( propeller_ptr->m_AFLimit.GetID() );
 
     char str[255];
-    sprintf( str, "%6.2f", propeller_ptr->m_AF() );
-    m_AFOutput.Update( string( str ) );
+    m_AFOutput.Update( propeller_ptr->m_AF.GetID() );
 
     m_RFoldSlider.Update( propeller_ptr->m_RadFoldAxis.GetID() );
     m_AxFoldSlider.Update( propeller_ptr->m_AxialFoldAxis.GetID() );
@@ -709,11 +713,9 @@ bool PropScreen::Update()
     m_RootClusterSlider.Update( propeller_ptr->m_RootCluster.GetID() );
     m_TipClusterSlider.Update( propeller_ptr->m_TipCluster.GetID() );
 
-    sprintf( str, "%6.4g", propeller_ptr->m_SmallPanelW() );
-    m_SmallPanelWOutput.Update( str );
+    m_SmallPanelWOutput.Update( propeller_ptr->m_SmallPanelW.GetID() );
 
-    sprintf( str, "%6.3f", propeller_ptr->m_MaxGrowth() );
-    m_MaxGrowthOutput.Update( str );
+    m_MaxGrowthOutput.Update( propeller_ptr->m_MaxGrowth.GetID() );
 
     m_RootCapTypeChoice.Update( propeller_ptr->m_CapUMinOption.GetID() );
     m_TipCapTypeChoice.Update( propeller_ptr->m_CapUMaxOption.GetID() );
@@ -807,6 +809,9 @@ bool PropScreen::Update()
         break;
     case SKEW:
         m_CurveEditor.Update( &propeller_ptr->m_SkewCurve );
+        break;
+    case SWEEP:
+        m_CurveEditor.Update( &propeller_ptr->m_SweepCurve );
         break;
     }
 

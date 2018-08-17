@@ -91,6 +91,11 @@ public:
 
     void RegisterBuiltins();
 
+    double GetLastAnalysisExecutionDuration()
+    {
+        return m_AnalysisExecutionDuration;
+    }
+
 private:
     AnalysisMgrSingleton();
     ~AnalysisMgrSingleton();
@@ -98,6 +103,8 @@ private:
     AnalysisMgrSingleton& operator=( AnalysisMgrSingleton const& copy ); // Not Implemented
 
     map < string, Analysis* > m_AnalysisMap;    // Map unique name to analysis.
+
+    double m_AnalysisExecutionDuration; // Time to execute most recent analysis
 
     //==== Default Return Vectors ====//
     vector< int > m_DefaultIntVec;
@@ -125,6 +132,14 @@ public:
     virtual void SetDefaults();
     virtual string Execute();
 
+};
+
+class DegenGeomAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
 };
 
 class EmintonLordAnalysis : public Analysis
@@ -161,6 +176,14 @@ public:
     virtual void SetDefaults();
     virtual string Execute();
 
+};
+
+class SurfacePatchAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
 };
 
 class WaveDragAnalysis : public Analysis
@@ -217,4 +240,14 @@ public:
     virtual string Execute();
 
 };
+
+class CpSlicerAnalysis : public Analysis
+{
+    public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
+};
+
 #endif // !defined(ANALYSISMGR__INCLUDED_)

@@ -142,6 +142,29 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_SweepYMin.Init( "m_SweepYMin", groupname, this, -1, -1e12, 1e12 );
     m_SweepYMax.Init( "m_SweepYMax", groupname, this, 1, -1e12, 1e12 );
 
+    m_CpSliceXMinIsManual.Init( "m_CpSliceXMinIsManual", groupname, this, 0, 0, 1 );
+    m_CpSliceXMaxIsManual.Init( "m_CpSliceXMaxIsManual", groupname, this, 0, 0, 1 );
+    m_CpSliceYMinIsManual.Init( "m_CpSliceYMinIsManual", groupname, this, 0, 0, 1 );
+    m_CpSliceYMaxIsManual.Init( "m_CpSliceYMaxIsManual", groupname, this, 0, 0, 1 );
+    m_CpSliceXMin.Init( "m_CpSliceXMin", groupname, this, -1, -1e12, 1e12 );
+    m_CpSliceXMax.Init( "m_CpSliceXMax", groupname, this, 1, -1e12, 1e12 );
+    m_CpSliceYMin.Init( "m_CpSliceYMin", groupname, this, -1, -1e12, 1e12 );
+    m_CpSliceYMax.Init( "m_CpSliceYMax", groupname, this, 1, -1e12, 1e12 );
+
+    m_CpSliceYAxisFlipFlag.Init( "CpSliceYAxisFlipFlag", groupname, this, false, false, true );
+    m_CpSliceYAxisFlipFlag.SetDescript( "Flag to Flip Y Axis in Cp Slice Plot" );
+    m_CpSlicePlotLinesFlag.Init( "CpSlicePlotLinesFlag", groupname, this, true, false, true );
+    m_CpSlicePlotLinesFlag.SetDescript( "Flag to Plot Lines" );
+
+    m_UnsteadyXMinIsManual.Init( "m_UnsteadyXMinIsManual", groupname, this, 0, 0, 1 );
+    m_UnsteadyXMaxIsManual.Init( "m_UnsteadyXMaxIsManual", groupname, this, 0, 0, 1 );
+    m_UnsteadyYMinIsManual.Init( "m_UnsteadyYMinIsManual", groupname, this, 0, 0, 1 );
+    m_UnsteadyYMaxIsManual.Init( "m_UnsteadyYMaxIsManual", groupname, this, 0, 0, 1 );
+    m_UnsteadyXMin.Init( "m_UnsteadyXMin", groupname, this, -1, -1e12, 1e12 );
+    m_UnsteadyXMax.Init( "m_UnsteadyXMax", groupname, this, 1, -1e12, 1e12 );
+    m_UnsteadyYMin.Init( "m_UnsteadyYMin", groupname, this, -1, -1e12, 1e12 );
+    m_UnsteadyYMax.Init( "m_UnsteadyYMax", groupname, this, 1, -1e12, 1e12 );
+
     // Other Setup Parameters
     m_Vinf.Init( "Vinf", groupname, this, 100, 0, 1e6 );
     m_Vinf.SetDescript( "Freestream Velocity Through Disk Component" );
@@ -149,21 +172,29 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Rho.SetDescript( "Freestream Density" );
     m_ReCref.Init( "ReCref", groupname, this, 10000000., 0, 1e12 );
     m_ReCref.SetDescript( "Reynolds Number along Reference Chord" );
-    m_JacobiPrecondition.Init( "JacobiPrecondition", groupname, this, false, false, true );
-    m_JacobiPrecondition.SetDescript( "Activate Jacobi Preconditioner" );
+    m_Precondition.Init( "Precondition", groupname, this, vsp::PRECON_MATRIX, vsp::PRECON_MATRIX, vsp::PRECON_SSOR );
+    m_Precondition.SetDescript( "Preconditioner Choice" );
+    m_VortexLift.Init( "VortexLift", groupname, this, true, false, true );
+    m_VortexLift.SetDescript( "Activate Vortex Lift" );
+    m_LeadingEdgeSuction.Init( "LeadingEdgeSuction", groupname, this, false, false, true );
+    m_LeadingEdgeSuction.SetDescript( "Activate Leading Edge Suction" );
+    m_KTCorrection.Init( "KTCorrection", groupname, this, true, false, true );
+    m_KTCorrection.SetDescript( "Activate 2nd Order Karman-Tsien Mach Number Correction" );
     m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
     m_Write2DFEMFlag.Init( "Write2DFEMFlag", groupname, this, false, false, true );
     m_Write2DFEMFlag.SetDescript( "Toggle File Write for 2D FEM" );
-    m_ClMax.Init( "Clmax", groupname, this, -1, 0, 1e3 );
+    m_ClMax.Init( "Clmax", groupname, this, -1, -1, 1e3 );
     m_ClMax.SetDescript( "Cl Max of Aircraft" );
     m_ClMaxToggle.Init( "ClmaxToggle", groupname, this, false, false, true );
-    m_MaxTurnAngle.Init( "MaxTurnAngle", groupname, this, -1, 0, 360 );
+    m_MaxTurnAngle.Init( "MaxTurnAngle", groupname, this, -1, -1, 360 );
     m_MaxTurnAngle.SetDescript( "Max Turning Angle of Aircraft" );
     m_MaxTurnToggle.Init( "MaxTurnToggle", groupname, this, false, false, true );
-    m_FarDist.Init( "FarDist", groupname, this, -1, 0, 1e6 );
+    m_FarDist.Init( "FarDist", groupname, this, -1, -1, 1e6 );
     m_FarDist.SetDescript( "Far Field Distance for Wake Adaptation" );
     m_FarDistToggle.Init( "FarDistToggle", groupname, this, false, false, true );
+    m_CpSliceFlag.Init( "CpSliceFlag", groupname, this, true, false, true );
+    m_CpSliceFlag.SetDescript( "Flag to Calculate Cp Slices for Each Run Case" );
 
     // Unsteady
     m_StabilityCalcFlag.Init( "StabilityCalcFlag", groupname, this, false, false, true );
@@ -175,6 +206,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
     m_LastSelectedType = -1;
+    m_CurrentCpSliceIndex = -1;
 
     m_Verbose = false;
 }
@@ -207,11 +239,49 @@ void VSPAEROMgrSingleton::Renew()
     }
     m_RotorDiskVec.clear();
 
+    ClearCpSliceVec();
+
     m_DegenGeomVec.clear();
 
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
     m_LastSelectedType = -1;
+
+    m_AnalysisMethod.Set( vsp::VORTEX_LATTICE );
+    m_GeomSet.Set( vsp::SET_ALL );
+    m_RefFlag.Set( MANUAL_REF );
+    m_Sref.Set( 100 );
+    m_bref.Set( 1.0 );
+    m_cref.Set( 1.0 );
+
+    m_CGGeomSet.Set( vsp::SET_ALL );
+    m_NumMassSlice.Set( 10 );
+    m_Xcg.Set( 0.0 );
+    m_Ycg.Set( 0.0 );
+    m_Zcg.Set( 0.0 );
+
+    m_AlphaStart.Set( 1.0 ); m_AlphaEnd.Set( 10 ); m_AlphaNpts.Set( 3 );
+    m_BetaStart.Set( 0.0 ); m_BetaEnd.Set( 0.0 ); m_BetaNpts.Set( 1 );
+    m_MachStart.Set( 0.0 ); m_MachEnd.Set( 0.0 ); m_MachNpts.Set( 1 );
+
+    m_BatchModeFlag.Set( true );
+    m_Precondition.Set( vsp::PRECON_MATRIX );
+    m_VortexLift.Set( true );
+    m_LeadingEdgeSuction.Set( false );
+    m_KTCorrection.Set( true );
+    m_Symmetry.Set( false );
+    m_StabilityCalcFlag.Set( false );
+    m_StabilityType.Set( vsp::STABILITY_DEFAULT );
+
+    m_NCPU.Set( 4 );
+
+    m_WakeNumIter.Set( 5 );
+    m_WakeAvgStartIter.Set( 0 );
+    m_WakeSkipUntilIter.Set( 0 );
+
+    m_ClMaxToggle.Set( false );
+    m_MaxTurnToggle.Set( false );
+    m_FarDistToggle.Set( false );
 }
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
@@ -234,6 +304,14 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
     {
         xmlNodePtr rotornode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "Rotor", NULL );
         m_RotorDiskVec[i]->EncodeXml( rotornode );
+    }
+
+    // Encode CpSlices using Internal Encode Method
+    XmlUtil::AddIntNode( VSPAEROsetnode, "CpSliceCount", m_CpSliceVec.size() );
+    for ( size_t i = 0; i < m_CpSliceVec.size(); ++i )
+    {
+        xmlNodePtr cpslicenode = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "CpSlice", NULL );
+        m_CpSliceVec[i]->EncodeXml( cpslicenode );
     }
 
     return VSPAEROsetnode;
@@ -269,6 +347,18 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
                 m_RotorDiskVec.back()->DecodeXml( rotornode );
             }
         }
+
+        // Decode CpSlices using Internal Decode Method
+        int num_slice = XmlUtil::FindInt( VSPAEROsetnode, "CpSliceCount", 0 );
+        for ( size_t i = 0; i < num_slice; ++i )
+        {
+            xmlNodePtr cpslicenode = XmlUtil::GetNode( VSPAEROsetnode, "CpSlice", i );
+            if ( cpslicenode )
+            {
+                AddCpSlice();
+                m_CpSliceVec.back()->DecodeXml( cpslicenode );
+            }
+        }
     }
 
     UpdateControlSurfaceGroupSuffix();
@@ -287,10 +377,11 @@ void VSPAEROMgrSingleton::Update()
     UpdateRotorDisks();
 
     UpdateCompleteControlSurfVec();
-    UpdateUngroupedVec();
     UpdateActiveControlSurfVec();
 
     UpdateControlSurfaceGroups();
+
+    UpdateSetupParmLimits();
 }
 
 void VSPAEROMgrSingleton::UpdateSref()
@@ -376,6 +467,8 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     m_HistoryFile       = string();
     m_LoadFile          = string();
     m_StabFile          = string();
+    m_CutsFile          = string();
+    m_SliceFile         = string();
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if( veh )
@@ -402,6 +495,8 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             m_HistoryFile       = m_ModelNameBase + string( ".history" );
             m_LoadFile          = m_ModelNameBase + string( ".lod" );
             m_StabFile          = m_ModelNameBase + string( ".stab" );
+            m_CutsFile          = m_ModelNameBase + string( ".cuts" );
+            m_SliceFile         = m_ModelNameBase + string( ".slc" );
 
             break;
 
@@ -421,6 +516,8 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             m_HistoryFile       = m_ModelNameBase + string( ".history" );
             m_LoadFile          = m_ModelNameBase + string( ".lod" );
             m_StabFile          = m_ModelNameBase + string( ".stab" );
+            m_CutsFile          = m_ModelNameBase + string( ".cuts" );
+            m_SliceFile         = m_ModelNameBase + string( ".slc" );
 
             break;
 
@@ -458,7 +555,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                         for (size_t j = 0; j < m_RotorDiskVec.size(); ++j)
                         {
                             // If Rotor Disk and Corresponding Surface Num Already Exists within m_RotorDiskVec
-                            if (m_RotorDiskVec[j]->m_ParentGeomId == veh->GetGeomVec()[i] && m_RotorDiskVec[j]->GetSurfNum() == iSubsurf)
+                            if (m_RotorDiskVec[j]->m_ParentGeomId == currgeomvec[i] && m_RotorDiskVec[j]->GetSurfNum() == iSubsurf)
                             {
                                 contained = true;
                                 temp.push_back(m_RotorDiskVec[j]);
@@ -483,7 +580,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                         {
                             RotorDisk *rotor = new RotorDisk();
                             temp.push_back(rotor);
-                            temp.back()->m_ParentGeomId = veh->GetGeomVec()[i];
+                            temp.back()->m_ParentGeomId = currgeomvec[i];
                             temp.back()->m_ParentGeomSurfNdx = iSubsurf;
                             sprintf(str, "%s_%u", geom->GetName().c_str(), iSubsurf);
                             temp.back()->SetName(str);
@@ -561,6 +658,8 @@ void VSPAEROMgrSingleton::CleanCompleteControlSurfVec()
 
 void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
 {
+    m_CompleteControlSurfaceVec.clear();
+
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
@@ -578,36 +677,18 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                     {
                         for ( size_t iReflect = 0; iReflect < g->GetNumSymmCopies(); ++iReflect )
                         {
-                            bool contained = false;
                             if ( ssurf->GetType() == vsp::SS_CONTROL || ssurf->GetType() == vsp::SS_RECTANGLE )
                             {
-                                for ( size_t k = 0; k < m_CompleteControlSurfaceVec.size(); ++k )
-                                {
-                                    // If CS and Corresponding Surface Num Already Exists within m_CompleteControlSurfaceVec
-                                    if ( m_CompleteControlSurfaceVec[k].SSID.compare( ssurf->GetID() ) == 0 && m_CompleteControlSurfaceVec[k].iReflect == iReflect )
-                                    {
-                                        char str[256];
-                                        sprintf( str, "%s_Surf%u_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
-                                        m_CompleteControlSurfaceVec[k].fullName = string( str );
-                                        contained = true;
-                                        break;
-                                    }
-                                }
-
-                                // If CS and Corresponding Surface Num Do NOT Exist within m_CompleteControlSurfaceVec
                                 // Create New CS Parm Container
-                                if ( !contained )
-                                {
-                                    VspAeroControlSurf newSurf;
-                                    newSurf.SSID = ssurf->GetID();
-                                    char str[256];
-                                    sprintf( str, "%s_Surf%u_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
-                                    newSurf.fullName = string( str );
-                                    newSurf.parentGeomId = ssurf->GetParentContainer();
-                                    newSurf.iReflect = iReflect;
+                                VspAeroControlSurf newSurf;
+                                newSurf.SSID = ssurf->GetID();
+                                char str[256];
+                                sprintf( str, "%s_Surf%u_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
+                                newSurf.fullName = string( str );
+                                newSurf.parentGeomId = ssurf->GetParentContainer();
+                                newSurf.iReflect = iReflect;
 
-                                    m_CompleteControlSurfaceVec.push_back( newSurf );
-                                }
+                                m_CompleteControlSurfaceVec.push_back( newSurf );
                             }
                         }
                     }
@@ -616,18 +697,6 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
         }
 
         CleanCompleteControlSurfVec();
-    }
-}
-
-void VSPAEROMgrSingleton::UpdateUngroupedVec()
-{
-    m_UngroupedCS.clear();
-    for ( size_t i = 0; i < m_CompleteControlSurfaceVec.size(); ++i )
-    {
-        if ( !m_CompleteControlSurfaceVec[i].isGrouped )
-        {
-            m_UngroupedCS.push_back( m_CompleteControlSurfaceVec[i] );
-        }
     }
 }
 
@@ -657,6 +726,11 @@ void VSPAEROMgrSingleton::AddLinkableParms( vector < string > & linkable_parm_ve
     {
         m_RotorDiskVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
     }
+
+    for ( size_t i = 0; i < m_CpSliceVec.size(); ++i )
+    {
+        m_CpSliceVec[i]->AddLinkableParms( linkable_parm_vec, m_ID );
+    }
 }
 
 // InitControlSurfaceGroups - creates the initial default grouping for the control surfaces
@@ -674,10 +748,10 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
     char str [256];
     bool exists = false;
 
-    for ( size_t i = 0 ; i < m_UngroupedCS.size(); ++i )
+    for ( size_t i = 0 ; i < m_CompleteControlSurfaceVec.size(); ++i )
     {
         // Construct a default group name
-        string curr_csg_id = m_UngroupedCS[i].parentGeomId + "_" + m_UngroupedCS[i].SSID;
+        string curr_csg_id = m_CompleteControlSurfaceVec[i].parentGeomId + "_" + m_CompleteControlSurfaceVec[i].SSID;
         exists = false;
 
         // Has CS been placed into init group?
@@ -692,15 +766,8 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
                 if ( curr_csg_id == str ) // Update Existing Control Surface Group
                 {
                     csg = m_ControlSurfaceGroupVec[j];
-                    csg->AddSubSurface( m_UngroupedCS[i] );
+                    csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
                     m_ControlSurfaceGroupVec.back() = csg;
-                    for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
-                    {
-                        if ( m_UngroupedCS[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
-                        {
-                            m_CompleteControlSurfaceVec[j].isGrouped = true;
-                        }
-                    }
                     exists = true;
                     break;
                 }
@@ -709,28 +776,20 @@ void VSPAEROMgrSingleton::InitControlSurfaceGroups()
 
         if ( !exists ) // Create New Control Surface Group
         {
-            Geom* geom = veh->FindGeom( m_UngroupedCS[i].parentGeomId );
+            Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[i].parentGeomId );
             if ( geom )
             {
                 csg = new ControlSurfaceGroup;
-                csg->AddSubSurface( m_UngroupedCS[i] );
+                csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
                 sprintf( str, "%s_%s", geom->GetName().c_str(),
-                         geom->GetSubSurf( m_UngroupedCS[i].SSID )->GetName().c_str() );
+                         geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID )->GetName().c_str() );
                 csg->SetName( str );
-                csg->m_ParentGeomBaseID = m_UngroupedCS[i].parentGeomId;
+                csg->m_ParentGeomBaseID = m_CompleteControlSurfaceVec[i].parentGeomId;
                 m_ControlSurfaceGroupVec.push_back( csg );
-                for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
-                {
-                    if ( m_UngroupedCS[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
-                    {
-                        m_CompleteControlSurfaceVec[j].isGrouped = true;
-                    }
-                }
             }
         }
     }
 
-    UpdateUngroupedVec();
     UpdateControlSurfaceGroupSuffix();
 }
 
@@ -743,36 +802,19 @@ string VSPAEROMgrSingleton::ComputeGeometry()
         return string();
     }
 
-    // Loop through control sub surfaces and set NumPoints to 1 before generating degengeom
-    vector<std::pair<string, int>> tNumPointsParmIdValVec;
-    for ( size_t iControlSurf = 0; iControlSurf < m_CompleteControlSurfaceVec.size(); iControlSurf++ )
+    // Cleanup previously created meshGeom IDs created from VSPAEROMgr
+    if ( veh->FindGeom( m_LastPanelMeshGeomId ) )
     {
-        Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[iControlSurf].parentGeomId );
-        string tSubSurfId = m_CompleteControlSurfaceVec[iControlSurf].SSID.substr( 0, 10 );
-        string tNumPointsId = geom->GetSubSurf( tSubSurfId )->FindParm( "Tess_Num", "SS_Control" );
-        IntParm* tNumPointsParm = ( IntParm* )ParmMgr.FindParm( tNumPointsId );
-        if ( tNumPointsParm && tNumPointsParm->Get() != 1 )
+        veh->DeleteGeom( m_LastPanelMeshGeomId );
+        if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE )
         {
-            tNumPointsParmIdValVec.push_back( std::make_pair( tNumPointsId, tNumPointsParm->Get() ) );
-
-            // Send warning message to user
-            fprintf( stderr, "NOTE: Temporarily setting Control_Surf NumPoints = 1 for VSPAERO compatible DegenGeom generation for Control_Surf: %s.\n",
-                     geom->GetSubSurf( tSubSurfId )->GetName().c_str() );
-
-            tNumPointsParm->Set( 1 );
-            geom->Update();
+            veh->ShowOnlySet( m_GeomSet() );
         }
     }
 
     m_DegenGeomVec.clear();
     veh->CreateDegenGeom( m_GeomSet() );
     m_DegenGeomVec = veh->GetDegenGeomVec();
-
-    // Reset ControlSurf NumPoints
-    for ( size_t i = 0; i < tNumPointsParmIdValVec.size(); i++ )
-    {
-        ParmMgr.FindParm( tNumPointsParmIdValVec[i].first )->Set( tNumPointsParmIdValVec[i].second );
-    }
 
     //Update information derived from the degenerate geometry
     UpdateRotorDisks();
@@ -808,14 +850,14 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     // Generate *.tri geometry file for Panel method
     if ( m_AnalysisMethod.Get() == vsp::PANEL )
     {
-        // Cleanup previously created meshGeom IDs created from VSPAEROMgr
-        if ( veh->FindGeom( m_LastPanelMeshGeomId ) )
-        {
-            veh->DeleteGeom( m_LastPanelMeshGeomId );
-        }
-
         // Compute intersected and trimmed geometry
         int halfFlag = 0;
+
+        if ( m_Symmetry() )
+        {
+            halfFlag = 1;
+        }
+
         m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag );
 
         // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
@@ -994,11 +1036,56 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
 
     // Preconditioner
-
-    if ( m_JacobiPrecondition() )
+    string precon;
+    if ( m_Precondition() == vsp::PRECON_MATRIX )
     {
-        fprintf( case_file, "PreconditionerType = %s \n", "JACOBI" );
+        precon = "Matrix";
     }
+    else if ( m_Precondition() == vsp::PRECON_JACOBI )
+    {
+        precon = "Jacobi";
+    }
+    else if ( m_Precondition() == vsp::PRECON_SSOR )
+    {
+        precon = "SSOR";
+    }
+    fprintf( case_file, "Preconditioner = %s \n", precon.c_str() );
+
+    // Vortex Lift
+    string vorlift;
+    if ( m_VortexLift() )
+    {
+        vorlift = "Y";
+    }
+    else
+    {
+        vorlift = "N";
+    }
+    fprintf( case_file, "Vortex Lift = %s \n", vorlift.c_str() );
+
+    // Leading Edge Suction
+    string lesuction;
+    if ( m_LeadingEdgeSuction() )
+    {
+        lesuction = "Y";
+    }
+    else
+    {
+        lesuction = "N";
+    }
+    fprintf( case_file, "LE Suction = %s \n", lesuction.c_str());
+
+    // 2nd Order Karman-Tsien Mach Number Correction
+    string ktcorrect;
+    if ( m_KTCorrection() )
+    {
+        ktcorrect = "Y";
+    }
+    else
+    {
+        ktcorrect = "N";
+    }
+    fprintf( case_file, "Karman-Tsien Correction = %s \n", ktcorrect.c_str() );
 
     // Unsteady Setup
     if ( m_StabilityCalcFlag() )
@@ -1149,6 +1236,10 @@ Optional input of logFile allows outputting to a log file or the console
 string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 {
     UpdateFilenames();
+    if ( m_CpSliceFlag() )
+    {
+        ClearCpSliceResults();
+    }
     if ( m_BatchModeFlag.Get() )
     {
         return ComputeSolverBatch( logFile );
@@ -1180,6 +1271,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 
         bool stabilityFlag = m_StabilityCalcFlag.Get();
         vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
+        vsp::VSPAERO_STABILITY_TYPE stabilityType = ( vsp::VSPAERO_STABILITY_TYPE )m_StabilityType.Get();
 
         int ncpu = m_NCPU.Get();
 
@@ -1265,6 +1357,30 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                         args.push_back( "-write2dfem" );
                     }
 
+                    if ( m_Precondition() == vsp::PRECON_JACOBI )
+                    {
+                        args.push_back( "-jacobi" );
+                    }
+                    else if ( m_Precondition() == vsp::PRECON_SSOR )
+                    {
+                        args.push_back( "-ssor" );
+                    }
+
+                    if ( !m_VortexLift() )
+                    {
+                        args.push_back( "-novortex" );
+                    }
+
+                    if ( m_LeadingEdgeSuction() )
+                    {
+                        args.push_back( "-lesuction" );
+                    }
+
+                    if ( !m_KTCorrection() )
+                    {
+                        args.push_back( "-nokt" );
+                    }
+
                     // Add model file name
                     args.push_back( modelNameBase );
 
@@ -1304,7 +1420,13 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
                     if ( stabilityFlag )
                     {
-                        ReadStabFile( stabFileName, res_id_vector, analysisMethod );      //*.STAB stability coeff file
+                        ReadStabFile( stabFileName, res_id_vector, analysisMethod, stabilityType );      //*.STAB stability coeff file
+                    }
+
+                    // CpSlice Latest *.adb File if slices are defined
+                    if ( m_CpSliceFlag() && m_CpSliceVec.size() > 0 )
+                    {
+                        ComputeCpSlices();
                     }
 
                     // Send the message to update the screens
@@ -1352,6 +1474,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
         bool stabilityFlag = m_StabilityCalcFlag.Get();
         vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
+        vsp::VSPAERO_STABILITY_TYPE stabilityType = ( vsp::VSPAERO_STABILITY_TYPE )m_StabilityType.Get();
 
         int ncpu = m_NCPU.Get();
 
@@ -1441,6 +1564,30 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             args.push_back( "-write2dfem" );
         }
 
+        if ( m_Precondition() == vsp::PRECON_JACOBI )
+        {
+            args.push_back( "-jacobi" );
+        }
+        else if ( m_Precondition() == vsp::PRECON_SSOR )
+        {
+            args.push_back( "-ssor" );
+        }
+
+        if ( !m_VortexLift() )
+        {
+            args.push_back( "-novortex" );
+        }
+
+        if ( m_LeadingEdgeSuction() )
+        {
+            args.push_back( "-lesuction" );
+        }
+
+        if ( !m_KTCorrection() )
+        {
+            args.push_back( "-nokt" );
+        }
+
         // Add model file name
         args.push_back( modelNameBase );
 
@@ -1479,7 +1626,13 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
         if ( stabilityFlag )
         {
-            ReadStabFile( stabFileName, res_id_vector, analysisMethod );      //*.STAB stability coeff file
+            ReadStabFile( stabFileName, res_id_vector, analysisMethod, stabilityType );      //*.STAB stability coeff file
+        }
+
+        // CpSlice *.adb File and slices are defined
+        if ( m_CpSliceFlag() && m_CpSliceVec.size() > 0 )
+        {
+            ComputeCpSlices();
         }
 
         // Send the message to update the screens
@@ -1644,13 +1797,22 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
         ...
         */
         int wake_iter_table_columns = 18;
-        if( data_string_array.size() == wake_iter_table_columns )
+
+        bool unsteady = false;
+        int unsteady_table_columns = 28;
+        if ( data_string_array.size() == unsteady_table_columns )
+        {
+            unsteady = true;
+        }
+
+        if( data_string_array.size() >= wake_iter_table_columns )
         {
             //discard the header row and read the next line assuming that it is numeric
             data_string_array = ReadDelimLine( fp, seps );
 
             // create new vectors for this set of results information
             std::vector<int> i;
+            std::vector<double> time;
             std::vector<double> Mach;
             std::vector<double> Alpha;
             std::vector<double> Beta;
@@ -1668,10 +1830,27 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
             std::vector<double> CMy;
             std::vector<double> CMz;
             std::vector<double> ToQS;
+            std::vector<double> UnstdAng;
+            std::vector<double> CL_Un;
+            std::vector<double> CDi_Un;
+            std::vector<double> CS_Un;
+            std::vector<double> CFx_Un;
+            std::vector<double> CFy_Un;
+            std::vector<double> CFz_Un;
+            std::vector<double> CMx_Un;
+            std::vector<double> CMy_Un;
+            std::vector<double> CMz_Un;
 
-            while ( data_string_array.size() == wake_iter_table_columns )
+            while ( data_string_array.size() >= wake_iter_table_columns )
             {
-                i.push_back(        std::stoi( data_string_array[0] ) );
+                if ( unsteady )
+                {
+                    time.push_back( std::stod( data_string_array[0] ) );
+                }
+                else
+                {
+                    i.push_back( std::stoi( data_string_array[0] ) );
+                }
 
                 Mach.push_back(     std::stod( data_string_array[1] ) );
                 Alpha.push_back(    std::stod( data_string_array[2] ) );
@@ -1696,13 +1875,34 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
                 ToQS.push_back(     std::stod( data_string_array[17] ) );
 
+                if ( unsteady ) // Additional columns for unsteady analysis
+                {
+                    UnstdAng.push_back( std::stod( data_string_array[18] ) );
+                    CL_Un.push_back( std::stod( data_string_array[19] ) );
+                    CDi_Un.push_back( std::stod( data_string_array[20] ) );
+                    CS_Un.push_back( std::stod( data_string_array[21] ) );
+                    CFx_Un.push_back( std::stod( data_string_array[22] ) );
+                    CFy_Un.push_back( std::stod( data_string_array[23] ) );
+                    CFz_Un.push_back( std::stod( data_string_array[24] ) );
+                    CMx_Un.push_back( std::stod( data_string_array[25] ) );
+                    CMy_Un.push_back( std::stod( data_string_array[26] ) );
+                    CMz_Un.push_back( std::stod( data_string_array[27] ) );
+                }
+
                 data_string_array = ReadDelimLine( fp, seps );
             }
 
             //add to the results manager
             if ( res )
             {
-                res->Add( NameValData( "WakeIter", i ) );
+                if ( unsteady )
+                {
+                    res->Add( NameValData( "Time", time ) );
+                }
+                else
+                {
+                    res->Add( NameValData( "WakeIter", i ) );
+                }
                 res->Add( NameValData( "Mach", Mach ) );
                 res->Add( NameValData( "Alpha", Alpha ) );
                 res->Add( NameValData( "Beta", Beta ) );
@@ -1720,6 +1920,20 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 res->Add( NameValData( "CMy", CMy ) );
                 res->Add( NameValData( "CMz", CMz ) );
                 res->Add( NameValData( "T/QS", ToQS ) );
+
+                if ( unsteady )
+                {
+                    res->Add( NameValData( "UnstdyAng", UnstdAng ) );
+                    res->Add( NameValData( "CL_Un", CL_Un ) );
+                    res->Add( NameValData( "CDi_Un", CDi_Un ) );
+                    res->Add( NameValData( "CS_Un", CS_Un ) );
+                    res->Add( NameValData( "CFx_Un", CFx_Un ) );
+                    res->Add( NameValData( "CFy_Un", CFy_Un ) );
+                    res->Add( NameValData( "CFz_Un", CFz_Un ) );
+                    res->Add( NameValData( "CMx_Un", CMx_Un ) );
+                    res->Add( NameValData( "CMy_Un", CMy_Un ) );
+                    res->Add( NameValData( "CMz_Un", CMz_Un ) );
+                }
             }
 
         } // end of wake iteration
@@ -1888,7 +2102,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
 Read .STAB file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -1906,7 +2120,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
     std::vector<string> data_string_array;
 
     // Read in all of the data into the results manager
-    char seps[]   = " :,\t\n";
+    char seps[] = " :,\t\n";
     while ( !feof( fp ) )
     {
         data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
@@ -1914,6 +2128,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
         if ( CheckForCaseHeader( data_string_array ) )
         {
             res = ResultsMgr.CreateResults( "VSPAERO_Stab" );
+            res->Add( NameValData( "StabilityType", stabilityType ) );
             res_id_vector.push_back( res->GetID() );
 
             if ( ReadVSPAEROCaseHeader( res, fp, analysisMethod ) != 0 )
@@ -1923,51 +2138,105 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
                 return;
             }
         }
+        else if ( res && CheckForResultHeader( data_string_array ) )
+        {
+            data_string_array = ReadDelimLine( fp, seps );
+
+            // Read result table
+            double value;
+
+            // Parse if this is not a comment line
+            while ( !feof( fp ) && strncmp( data_string_array[0].c_str(), "#", 1 ) != 0 )
+            {
+                if ( ( data_string_array.size() == 3 ) )
+                {
+                    // assumption that the 2nd entry is a number
+                    if ( sscanf( data_string_array[1].c_str(), "%lf", &value ) == 1 )
+                    {
+                        res->Add( NameValData( data_string_array[0], value ) );
+                    }
+                }
+
+                // read the next line
+                data_string_array = ReadDelimLine( fp, seps );
+            } // end while
+        }
         else if ( data_string_array.size() > 0 )
         {
             // Parse if this is not a comment line
             if ( res && strncmp( data_string_array[0].c_str(), "#", 1 ) != 0 )
             {
-                //================ Table Data ================//
-                // Checks for table header format
-                if ( ( data_string_array.size() != table_column_names.size() ) || ( table_column_names.size() == 0 ) )
+                if ( stabilityType != vsp::STABILITY_DEFAULT )
                 {
-                    //Indicator that the data table has changed or has not been initialized.
-                    table_column_names.clear();
-                    table_column_names = data_string_array;
+                    // Support file format for P, Q, or R uinsteady analysis types
+                    string name = data_string_array[0];
 
-                    // map control group names to full control surface group names
-                    int i_field_offset = -1;
-                    for ( unsigned int i_field = 0; i_field < data_string_array.size(); i_field++ )
+                    for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
                     {
-                        if ( strstr( table_column_names[i_field].c_str(), "ConGrp_" ) )
+                        //attempt to read a double if that fails then treat it as a string result and add to result name to account for spaces
+                        double temp_val = 0;
+                        int result = 0;
+                        result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
+
+                        if ( result == 1 )
                         {
-                            //  Set field offset based on the first ConGrp_ found
-                            if ( i_field_offset == -1 )
-                            {
-                                i_field_offset = i_field;
-                            }
-
-                            if ( m_Verbose ) { printf( "\tMapping table col name to CSG name: \n" ); }
-                            if ( m_Verbose ) { printf( "\ti_field = %d --> i_field_offset = %d\n", i_field, i_field - i_field_offset ); }
-                            if ( ( i_field - i_field_offset ) < m_ControlSurfaceGroupVec.size() )
-                            {
-                                if ( m_Verbose ) { printf( "\t%s --> %s\n", table_column_names[i_field].c_str(), m_ControlSurfaceGroupVec[i_field - i_field_offset]->GetName().c_str() ); }
-                                table_column_names[i_field] = m_ControlSurfaceGroupVec[i_field - i_field_offset]->GetName();
-                            }
-                            else
-                            {
-                                printf( "\tERROR (i_field - i_field_offset) > m_ControlSurfaceGroupVec.size()\n" );
-                                printf( "\t      (  %d    -    %d         ) >            %lu             \n", i_field, i_field_offset, m_ControlSurfaceGroupVec.size() );
-                            }
-
+                            res->Add( NameValData( name, temp_val ) );
+                        }
+                        else
+                        {
+                            name += data_string_array[i_field];
                         }
                     }
-
                 }
                 else
                 {
-                    if ( m_StabilityType() == vsp::STABILITY_DEFAULT )
+                    //================ Table Data ================//
+                    // Checks for table header format
+                    if ( ( data_string_array.size() != table_column_names.size() ) || ( table_column_names.size() == 0 ) )
+                    {
+                        //Indicator that the data table has changed or has not been initialized.
+                        table_column_names.clear();
+                        table_column_names = data_string_array;
+
+                        // map control group names to full control surface group names
+                        int i_field_offset = -1;
+                        for ( unsigned int i_field = 0; i_field < data_string_array.size(); i_field++ )
+                        {
+                            if ( strstr( table_column_names[i_field].c_str(), "ConGrp_" ) )
+                            {
+                                //  Set field offset based on the first ConGrp_ found
+                                if ( i_field_offset == -1 )
+                                {
+                                    i_field_offset = i_field;
+                                }
+
+                                if ( m_Verbose )
+                                {
+                                    printf( "\tMapping table col name to CSG name: \n" );
+                                }
+                                if ( m_Verbose )
+                                {
+                                    printf( "\ti_field = %d --> i_field_offset = %d\n", i_field, i_field - i_field_offset );
+                                }
+                                if ( ( i_field - i_field_offset ) < m_ControlSurfaceGroupVec.size() )
+                                {
+                                    if ( m_Verbose )
+                                    {
+                                        printf( "\t%s --> %s\n", table_column_names[i_field].c_str(), m_ControlSurfaceGroupVec[i_field - i_field_offset]->GetName().c_str() );
+                                    }
+                                    table_column_names[i_field] = m_ControlSurfaceGroupVec[i_field - i_field_offset]->GetName();
+                                }
+                                else
+                                {
+                                    printf( "\tERROR (i_field - i_field_offset) > m_ControlSurfaceGroupVec.size()\n" );
+                                    printf( "\t      (  %d    -    %d         ) >            %lu             \n", i_field, i_field_offset, m_ControlSurfaceGroupVec.size() );
+                                }
+
+                            }
+                        }
+
+                    }
+                    else
                     {
                         //This is a continuation of the current table and add this row to the results manager
                         for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
@@ -1985,28 +2254,9 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
                                 res->Add( NameValData( data_string_array[0] + "_" + table_column_names[i_field], data_string_array[i_field] ) );
                             }
                         }
-                    }
-                    else
-                    {
-                        // TODO: Add if for stability calcs other than stability if NOT StabilityType = 0
-                        //This is a continuation of the current table and add this row to the results manager
-                        for ( unsigned int i_field = 1; i_field < data_string_array.size(); i_field++ )
-                        {
-                            //attempt to read a double if that fails then treat it as a string result
-                            double temp_val = 0;
-                            int result = 0;
-                            result = sscanf( data_string_array[i_field].c_str(), "%lf", &temp_val );
-                            if ( result == 1 )
-                            {
-                                res->Add( NameValData( data_string_array[0], temp_val ) );
-                            }
-                            else
-                            {
-                                res->Add( NameValData( data_string_array[0], data_string_array[i_field] ) );
-                            }
-                        }
-                    }
-                } //end new table check
+                    } //end new table check
+
+                } // end unsteady check
 
             } // end comment line check
 
@@ -2044,6 +2294,19 @@ bool VSPAEROMgrSingleton::CheckForCaseHeader( std::vector<string> headerStr )
     if ( headerStr.size() == 1 )
     {
         if ( strcmp( headerStr[0].c_str(), "*****************************************************************************************************************************************************************************************" ) == 0 )
+        {
+            return true;
+        }
+    }
+
+    return false;
+}
+
+bool VSPAEROMgrSingleton::CheckForResultHeader( std::vector<string> headerStr )
+{
+    if ( headerStr.size() == 4 )
+    {
+        if ( strcmp( headerStr[0].c_str(), "#" ) == 0 && strcmp( headerStr[1].c_str(), "Result" ) == 0 )
         {
             return true;
         }
@@ -2198,18 +2461,6 @@ void VSPAEROMgrSingleton::UpdateRotorDiskSuffix()
     }
 }
 
-void VSPAEROMgrSingleton::RemoveFromUngrouped( const string & ssid, int reflec_num )
-{
-    for ( size_t i = 0; i < m_UngroupedCS.size(); ++i )
-    {
-        if ( m_UngroupedCS[i].SSID.compare( ssid ) == 0 && m_UngroupedCS[i].iReflect == reflec_num )
-        {
-            m_UngroupedCS.erase( m_UngroupedCS.begin() + i );
-            break;
-        }
-    }
-}
-
 void VSPAEROMgrSingleton::UpdateControlSurfaceGroupSuffix()
 {
     for (int i = 0 ; i < (int) m_ControlSurfaceGroupVec.size(); ++i)
@@ -2268,20 +2519,11 @@ void VSPAEROMgrSingleton::AddSelectedToCSGroup()
     vector < int > selected = m_SelectedUngroupedCS;
     if ( m_CurrentCSGroupIndex != -1 )
     {
+        vector < VspAeroControlSurf > ungrouped_vec = GetAvailableCSVec();
+
         for ( size_t i = 0; i < selected.size(); ++i )
         {
-
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( m_UngroupedCS[ selected[ i ] - 1 ] );
-            for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
-            {
-                if ( m_UngroupedCS[selected[i] - 1].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
-                {
-                    if ( m_UngroupedCS[selected[i] - 1].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
-                    {
-                        m_CompleteControlSurfaceVec[ j ].isGrouped = true;
-                    }
-                }
-            }
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( ungrouped_vec[ selected[ i ] - 1 ] );
         }
     }
     m_SelectedUngroupedCS.clear();
@@ -2293,19 +2535,10 @@ void VSPAEROMgrSingleton::AddAllToCSGroup()
 {
     if ( m_CurrentCSGroupIndex != -1 )
     {
-        for ( size_t i = 0; i < m_UngroupedCS.size(); ++i )
+        vector < VspAeroControlSurf > ungrouped_vec = GetAvailableCSVec();
+        for ( size_t i = 0; i < ungrouped_vec.size(); ++i )
         {
-            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( m_UngroupedCS[ i ] );
-            for ( size_t j = 0; j < m_CompleteControlSurfaceVec.size(); ++j )
-            {
-                if ( m_UngroupedCS[i].SSID.compare( m_CompleteControlSurfaceVec[j].SSID ) == 0 )
-                {
-                    if ( m_UngroupedCS[i].iReflect == m_CompleteControlSurfaceVec[j].iReflect )
-                    {
-                        m_CompleteControlSurfaceVec[ j ].isGrouped = true;
-                    }
-                }
-            }
+            m_ControlSurfaceGroupVec[ m_CurrentCSGroupIndex ]->AddSubSurface( ungrouped_vec[ i ] );
         }
     }
     m_SelectedUngroupedCS.clear();
@@ -2335,7 +2568,6 @@ void VSPAEROMgrSingleton::RemoveSelectedFromCSGroup()
         }
     }
     m_SelectedGroupedCS.clear();
-    UpdateUngroupedVec();
     UpdateActiveControlSurfVec();
 }
 
@@ -2359,7 +2591,6 @@ void VSPAEROMgrSingleton::RemoveAllFromCSGroup()
         }
     }
     m_SelectedGroupedCS.clear();
-    UpdateUngroupedVec();
     UpdateActiveControlSurfVec();
 }
 
@@ -2373,6 +2604,34 @@ string VSPAEROMgrSingleton::GetCurrentCSGGroupName()
     {
         return "";
     }
+}
+
+vector < VspAeroControlSurf > VSPAEROMgrSingleton::GetAvailableCSVec()
+{
+    vector < VspAeroControlSurf > ungrouped_cs;
+
+    for ( size_t i = 0; i < m_CompleteControlSurfaceVec.size(); i++ )
+    {
+        bool grouped = false;
+
+        for ( size_t j = 0; j < m_ActiveControlSurfaceVec.size(); j++ )
+        {
+            if ( ( strcmp( m_CompleteControlSurfaceVec[i].SSID.c_str(), m_ActiveControlSurfaceVec[j].SSID.c_str() ) == 0 ) && 
+                 ( m_CompleteControlSurfaceVec[i].iReflect == m_ActiveControlSurfaceVec[j].iReflect ) &&
+                 ( strcmp( m_CompleteControlSurfaceVec[i].fullName.c_str(), m_ActiveControlSurfaceVec[j].fullName.c_str() ) == 0 ) )
+            {
+                grouped = true;
+                break;
+            }
+        }
+
+        if ( !grouped )
+        {
+            ungrouped_cs.push_back( m_CompleteControlSurfaceVec[i] );
+        }
+    }
+
+    return ungrouped_cs;
 }
 
 void VSPAEROMgrSingleton::SetCurrentCSGroupName( const string & name )
@@ -2418,6 +2677,17 @@ void VSPAEROMgrSingleton::LoadDrawObjs( vector < DrawObj* > & draw_obj_vec )
     else if ( m_LastSelectedType == CONTROL_SURFACE )
     {
         UpdateHighlighted( draw_obj_vec );
+    }
+
+    for ( size_t i = 0; i < m_CpSliceVec.size(); i++ )
+    {
+        bool highlight = false;
+        if ( m_CurrentCpSliceIndex == i )
+        {
+            highlight = true;
+        }
+
+        m_CpSliceVec[i]->LoadDrawObj( draw_obj_vec, i, highlight );
     }
 }
 
@@ -2479,7 +2749,7 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
     if ( m_CurrentCSGroupIndex != -1 )
     {
         vector < VspAeroControlSurf > cont_surf_vec = m_ActiveControlSurfaceVec;
-        vector < VspAeroControlSurf > cont_surf_vec_ungrouped = m_UngroupedCS;
+        vector < VspAeroControlSurf > cont_surf_vec_ungrouped = GetAvailableCSVec();
         if ( m_SelectedGroupedCS.size() == 0 && m_SelectedUngroupedCS.size() == 0 )
         {
             for ( size_t i = 0; i < cont_surf_vec.size(); ++i )
@@ -2501,36 +2771,521 @@ void VSPAEROMgrSingleton::UpdateHighlighted( vector < DrawObj* > & draw_obj_vec 
         }
         else
         {
-            for ( size_t i = 0; i < m_SelectedGroupedCS.size(); ++i )
+            if ( cont_surf_vec_ungrouped.size() > 0 )
             {
-                vec3d color( 0, 1, 0 ); // Green
-                parentID = cont_surf_vec[m_SelectedGroupedCS[i] - 1].parentGeomId;
-                sub_surf_indx = cont_surf_vec[m_SelectedGroupedCS[i] - 1].iReflect;
-                ssid = cont_surf_vec[m_SelectedGroupedCS[i] - 1].SSID;
-                Geom* geom = veh->FindGeom( parentID );
-                SubSurface* subsurf = geom->GetSubSurf( ssid );
-                if ( subsurf )
+                for ( size_t i = 0; i < m_SelectedUngroupedCS.size(); ++i )
                 {
-                    subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
+                    vec3d color( 1, 0, 0 ); // Red
+                    parentID = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].parentGeomId;
+                    sub_surf_indx = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].iReflect;
+                    ssid = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].SSID;
+                    Geom* geom = veh->FindGeom( parentID );
+                    SubSurface* subsurf = geom->GetSubSurf( ssid );
+                    if ( subsurf )
+                    {
+                        subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
+                    }
                 }
             }
-            for ( size_t i = 0; i < m_SelectedUngroupedCS.size(); ++i )
+
+            if ( cont_surf_vec.size() > 0 )
             {
-                vec3d color( 1, 0, 0 ); // Red
-                parentID = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].parentGeomId;
-                sub_surf_indx = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].iReflect;
-                ssid = cont_surf_vec_ungrouped[m_SelectedUngroupedCS[i] - 1].SSID;
-                Geom* geom = veh->FindGeom( parentID );
-                SubSurface* subsurf = geom->GetSubSurf( ssid );
-                if ( subsurf )
+                for ( size_t i = 0; i < m_SelectedGroupedCS.size(); ++i )
                 {
-                    subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
+                    vec3d color( 0, 1, 0 ); // Green
+                    parentID = cont_surf_vec[m_SelectedGroupedCS[i] - 1].parentGeomId;
+                    sub_surf_indx = cont_surf_vec[m_SelectedGroupedCS[i] - 1].iReflect;
+                    ssid = cont_surf_vec[m_SelectedGroupedCS[i] - 1].SSID;
+                    Geom* geom = veh->FindGeom( parentID );
+                    SubSurface* subsurf = geom->GetSubSurf( ssid );
+                    if ( subsurf )
+                    {
+                        subsurf->LoadPartialColoredDrawObjs( ssid, sub_surf_indx, draw_obj_vec, color );
+                    }
                 }
             }
         }
     }
 }
 
+string VSPAEROMgrSingleton::ComputeCpSlices( FILE * logFile )
+{
+    string resID = string();
+
+    // Save analysis type for Cp Slicer
+    m_CpSliceAnalysisType = m_AnalysisMethod.Get();
+
+    CreateCutsFile();
+
+    resID = ExecuteCpSlicer( logFile );
+
+    vector < string > resIDvec;
+    ReadSliceFile( m_SliceFile, resIDvec );
+
+    // Add Case Result IDs to CpSlice Wrapper Result
+    Results* res = ResultsMgr.FindResultsPtr( resID );
+    if ( res )
+    {
+        res->Add( NameValData( "CpSlice_Case_ID_Vec", resIDvec ) );
+    }
+
+    return resID;
+}
+
+string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return string();
+    }
+
+    WaitForFile( m_AdbFile );
+    if ( !FileExist( m_AdbFile ) )
+    {
+        fprintf( stderr, "WARNING: Aerothermal database file not found: %s\n\tFile: %s \tLine:%d\n", m_AdbFile.c_str(), __FILE__, __LINE__ );
+    }
+
+    WaitForFile( m_CutsFile );
+    if ( !FileExist( m_CutsFile ) )
+    {
+        fprintf( stderr, "WARNING: Cuts file not found: %s\n\tFile: %s \tLine:%d\n", m_CutsFile.c_str(), __FILE__, __LINE__ );
+    }
+
+    //====== Send command to be executed by the system at the command prompt ======//
+    vector<string> args;
+
+    // Add model file name
+    args.push_back( m_ModelNameBase );
+
+    //====== Execute VSPAERO Slicer ======//
+    m_SlicerThread.ForkCmd( veh->GetExePath(), veh->GetSLICERCmd(), args );
+
+    // ==== MonitorSolverProcess ==== //
+    MonitorSolver( logFile );
+
+    // Write out new results
+    Results* res = ResultsMgr.CreateResults( "CpSlice_Wrapper" );
+    if ( !res )
+    {
+        fprintf( stderr, "ERROR: Unable to create result in result manager \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
+        return string();
+    }
+    else
+    {
+        int num_slice = m_CpSliceVec.size();
+        res->Add( NameValData( "Num_Cuts", num_slice ) );
+    }
+
+    return res->GetID();
+}
+
+void VSPAEROMgrSingleton::ClearCpSliceResults()
+{
+    // Clear previous results
+    while ( ResultsMgr.GetNumResults( "CpSlicer_Case" ) > 0 )
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "CpSlicer_Case", 0 ) );
+    }
+    while ( ResultsMgr.GetNumResults( "CpSlicer_Wrapper" ) > 0 )
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "CpSlicer_Wrapper", 0 ) );
+    }
+}
+
+void VSPAEROMgrSingleton::CreateCutsFile()
+{
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        fprintf( stderr, "ERROR %d: Unable to get vehicle \n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
+        return ;
+    }
+
+    // Clear existing cuts file
+    if ( FileExist( m_CutsFile ) )
+    {
+        remove( m_CutsFile.c_str() );
+    }
+
+    FILE * cut_file = fopen( m_CutsFile.c_str(), "w" );
+    if ( cut_file == NULL )
+    {
+        fprintf( stderr, "ERROR %d: Unable to create cuts file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, m_CutsFile.c_str(), __FILE__, __LINE__ );
+        return;
+    }
+
+    int numcuts = m_CpSliceVec.size();
+
+    fprintf( cut_file, "%d\n", numcuts );
+
+    for ( size_t i = 0; i < numcuts; i++ )
+    {
+        fprintf( cut_file, "%c %f\n", 120 + m_CpSliceVec[i]->m_CutType(),
+                 m_CpSliceVec[i]->m_CutPosition() );
+    }
+
+    //Finish up by closing the file and making sure that it appears in the file system
+    fclose( cut_file );
+
+    // Wait until the setup file shows up on the file system
+    WaitForFile( m_SetupFile );
+
+}
+
+void VSPAEROMgrSingleton::AddCpSliceVec( int cut_type, vector< double > cut_vec )
+{
+    for ( size_t i = 0; i < cut_vec.size(); i++ )
+    {
+        CpSlice* slice = AddCpSlice();
+
+        if ( slice )
+        {
+            slice->m_CutType.Set( cut_type );
+            slice->m_CutPosition.Set( cut_vec[i] );
+        }
+    }
+}
+
+vector < double > VSPAEROMgrSingleton::GetCpSlicePosVec( int type )
+{
+    vector < double > cut_pos_vec;
+
+    for ( size_t i = 0; i < m_CpSliceVec.size(); i++ )
+    {
+        if ( m_CpSliceVec[i]->m_CutType() == type )
+        {
+            cut_pos_vec.push_back( m_CpSliceVec[i]->m_CutPosition() );
+        }
+    }
+    return cut_pos_vec;
+}
+
+bool VSPAEROMgrSingleton::ValidCpSliceInd( int ind )
+{
+    if ( (int)m_CpSliceVec.size() > 0 && ind >= 0 && ind < (int)m_CpSliceVec.size() )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void VSPAEROMgrSingleton::DelCpSlice( int ind )
+{
+    if ( ValidCpSliceInd( ind ) )
+    {
+        delete m_CpSliceVec[ind];
+        m_CpSliceVec.erase( m_CpSliceVec.begin() + ind );
+    }
+}
+
+CpSlice* VSPAEROMgrSingleton::AddCpSlice( )
+{
+    CpSlice* slice = NULL;
+    slice = new CpSlice();
+
+    if ( slice )
+    {
+        slice->SetName( string( "CpSlice_" + to_string( (long long)m_CpSliceVec.size() ) ) );
+        slice->SetParentContainer( GetID() );
+        AddCpSlice( slice );
+    }
+
+    return slice;
+}
+
+CpSlice* VSPAEROMgrSingleton::GetCpSlice( int ind )
+{
+    if ( ValidCpSliceInd( ind ) )
+    {
+        return m_CpSliceVec[ind];
+    }
+    return NULL;
+}
+
+int VSPAEROMgrSingleton::GetCpSliceIndex( const string & id )
+{
+    for ( int i = 0; i < (int)m_CpSliceVec.size(); i++ )
+    {
+        if ( m_CpSliceVec[i]->GetID() == id && ValidCpSliceInd( i ) )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+void VSPAEROMgrSingleton::ClearCpSliceVec()
+{
+    for ( size_t i = 0; i < m_CpSliceVec.size(); ++i )
+    {
+        delete m_CpSliceVec[i];
+        m_CpSliceVec.erase( m_CpSliceVec.begin() + i );
+    }
+    m_CpSliceVec.clear();
+}
+
+void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_id_vector )
+{
+    FILE *fp = NULL;
+    bool read_success = false;
+    WaitForFile( filename );
+    fp = fopen( filename.c_str(), "r" );
+    if ( fp == NULL )
+    {
+        fprintf( stderr, "ERROR %d: Could not open Slice file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_SliceFile.c_str(), __FILE__, __LINE__ );
+        return;
+    }
+
+    Results* res = NULL;
+    std::vector<string> data_string_array;
+    int num_table_columns = 4;
+
+    // Read in all of the data into the results manager
+    char seps[] = " :,_\t\n";
+    bool skip = false;
+
+    while ( !feof( fp ) )
+    {
+        if ( !skip )
+        {
+            data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
+        }
+        skip = false;
+
+        if ( data_string_array.size() > 0 )
+        {
+            if ( strcmp( data_string_array[0].c_str(), "BLOCK" ) == 0 )
+            {
+                res = ResultsMgr.CreateResults( "CpSlicer_Case" );
+                res_id_vector.push_back( res->GetID() );
+
+                res->Add( NameValData( "Cut_Type", (int)( data_string_array[4][0] - 88 ) ) ); // ASCII X: 88; Y: 89; Z: 90
+                res->Add( NameValData( "Cut_Loc", std::stod( data_string_array[5] ) ) );
+                res->Add( NameValData( "Cut_Num", std::stoi( data_string_array[2] ) ) );
+            }
+            else if ( res && strcmp( data_string_array[0].c_str(), "Case" ) == 0 )
+            {
+                res->Add( NameValData( "Case", std::stoi( data_string_array[1] ) ) );
+                res->Add( NameValData( "Mach", std::stod( data_string_array[4] ) ) );
+                res->Add( NameValData( "Alpha", std::stod( data_string_array[7] ) ) );
+                res->Add( NameValData( "Beta", std::stod( data_string_array[10] ) ) );
+            }
+            //READ slc table
+            /* Example slc table
+            BLOCK Cut_1_at_X:_2.000000
+            Case: 1 ... Mach: 0.001000 ... Alpha: 1.000000 ... Beta: 0.000000 ...     Case: 1 ...
+            x          y          z         dCp/Cp
+            2.0000     0.0000    -0.6063    -0.0000
+            2.0000     0.0000    -0.5610    -0.0000
+            2.0000     0.0000    -0.4286    -0.0000
+            2.0000     0.0000    -0.1093    -0.0000
+            */
+            else if ( res && data_string_array.size() == num_table_columns && strcmp( data_string_array[0].c_str(), "x" ) != 0 )
+            {
+                // create new vectors for this set of results information
+                vector < double > x_data_vec, y_data_vec, z_data_vec, Cp_data_vec;
+
+                while ( data_string_array.size() == num_table_columns )
+                {
+                    x_data_vec.push_back( std::stod( data_string_array[0] ) );
+                    y_data_vec.push_back( std::stod( data_string_array[1] ) );
+                    z_data_vec.push_back( std::stod( data_string_array[2] ) );
+                    Cp_data_vec.push_back( std::stod( data_string_array[3] ) );
+
+                    data_string_array = ReadDelimLine( fp, seps );
+                }
+
+                skip = true;
+
+                //Add to the results manager
+                res->Add( NameValData( "X_Loc", x_data_vec ) );
+                res->Add( NameValData( "Y_Loc", y_data_vec ) );
+                res->Add( NameValData( "Z_Loc", z_data_vec ) );
+
+                if ( m_CpSliceAnalysisType == vsp::VORTEX_LATTICE )
+                {
+                    res->Add( NameValData( "dCp", Cp_data_vec ) );
+                }
+                else if ( m_CpSliceAnalysisType == vsp::PANEL )
+                {
+                    res->Add( NameValData( "Cp", Cp_data_vec ) );
+                }
+            } // end of cut data
+        }
+    }
+
+    std::fclose( fp );
+
+    return;
+}
+
+/*##############################################################################
+#                                                                              #
+#                               CpSlice                                        #
+#                                                                              #
+##############################################################################*/
+
+CpSlice::CpSlice() : ParmContainer()
+{
+    m_CutType.Init( "CutType", "CpSlice", this, vsp::Y_DIR, vsp::X_DIR, vsp::Z_DIR );
+    m_CutType.SetDescript( "Perpendicular Axis for the Cut" );
+
+    m_CutPosition.Init( "CutPosition", "CpSlice", this, 0.0, -1e12, 1e12 );
+    m_CutPosition.SetDescript( "Position of the Cut from Orgin Along Perpendicular Axis" );
+
+    m_DrawCutFlag.Init( "DrawCutFlag", "CpSlice", this, true, false, true );
+    m_DrawCutFlag.SetDescript( "Flag to Draw the CpSlice Cutting Plane" );
+}
+
+CpSlice::~CpSlice( )
+{
+
+}
+
+void CpSlice::ParmChanged( Parm* parm_ptr, int type )
+{
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+VspSurf CpSlice::CreateSurf()
+{
+    VspSurf slice_surf = VspSurf();
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        vec3d pnt0, pnt1, pnt2, pnt3;
+
+        // TODO: Improve Surface Sizing 
+        double size = veh->GetBndBox().GetLargestDist() / 2;
+        if ( size <= 1.0e-7 )
+        {
+            size = 0.5; // Make a unit square plane if no vehicle bounding box
+        }
+
+        double to_corner = size / sin( DEG_2_RAD * 45 );
+        vec3d veh_center = veh->GetBndBox().GetCenter();
+
+        // Center at vehicle bounding box center
+        if ( m_CutType() == vsp::X_DIR )
+        {
+            pnt0 = vec3d( m_CutPosition(), to_corner + veh_center.y(), to_corner + veh_center.z() );
+            pnt1 = vec3d( m_CutPosition(), -1 * to_corner + veh_center.y(), to_corner + veh_center.z() );
+            pnt2 = vec3d( m_CutPosition(), to_corner + veh_center.y(), -1 * to_corner + veh_center.z() );
+            pnt3 = vec3d( m_CutPosition(), -1 * to_corner + veh_center.y(), -1 * to_corner + veh_center.z() );
+        }
+        else if ( m_CutType() == vsp::Y_DIR )
+        {
+            pnt0 = vec3d( to_corner + veh_center.x(), m_CutPosition(), to_corner + veh_center.z() );
+            pnt1 = vec3d( -1 * to_corner + veh_center.x(), m_CutPosition(), to_corner + veh_center.z() );
+            pnt2 = vec3d( to_corner + veh_center.x(), m_CutPosition(), -1 * to_corner + veh_center.z() );
+            pnt3 = vec3d( -1 * to_corner + veh_center.x(), m_CutPosition(), -1 * to_corner + veh_center.z() );
+        }
+        else if ( m_CutType() == vsp::Z_DIR )
+        {
+            pnt0 = vec3d( to_corner + veh_center.x(), to_corner + veh_center.y(), m_CutPosition() );
+            pnt1 = vec3d( -1 * to_corner + veh_center.x(), to_corner + veh_center.y(), m_CutPosition() );
+            pnt2 = vec3d( to_corner + veh_center.x(), -1 * to_corner + veh_center.y(), m_CutPosition() );
+            pnt3 = vec3d( -1 * to_corner + veh_center.x(), -1 * to_corner + veh_center.y(), m_CutPosition() );
+        }
+
+        slice_surf.MakePlaneSurf( pnt0, pnt1, pnt2, pnt3 );
+    }
+
+    return slice_surf;
+}
+
+void CpSlice::LoadDrawObj( vector < DrawObj* > &draw_obj_vec, int id, bool highlight )
+{
+    // One DrawObj for plane and one for border. This is done to avoid DrawObj ordering transparancy issues
+    m_CpSliceDOVec.clear();
+    m_CpSliceDOVec.resize( 2 );
+
+    if ( m_DrawCutFlag() )
+    {
+        VspSurf slice_surf = CreateSurf();
+
+        m_CpSliceDOVec[0].m_GeomID = m_Name + "_Plane_" + std::to_string( id );
+        m_CpSliceDOVec[0].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        m_CpSliceDOVec[1].m_GeomID = m_Name + "_Border_" + std::to_string( id );
+        m_CpSliceDOVec[1].m_Screen = DrawObj::VSP_MAIN_SCREEN;
+
+        if ( highlight )
+        {
+            m_CpSliceDOVec[1].m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+            m_CpSliceDOVec[1].m_LineWidth = 3.0;
+        }
+        else
+        {
+            m_CpSliceDOVec[1].m_LineColor = vec3d( 96.0 / 255.0, 96.0 / 255.0, 96.0 / 255.0 );
+            m_CpSliceDOVec[1].m_LineWidth = 1.0;
+        }
+
+        m_CpSliceDOVec[0].m_Type = DrawObj::VSP_SHADED_QUADS;
+        m_CpSliceDOVec[1].m_Type = DrawObj::VSP_LINE_LOOP;
+
+        vec3d p00 = slice_surf.CompPnt01( 0, 0 );
+        vec3d p10 = slice_surf.CompPnt01( 1, 0 );
+        vec3d p11 = slice_surf.CompPnt01( 1, 1 );
+        vec3d p01 = slice_surf.CompPnt01( 0, 1 );
+
+        m_CpSliceDOVec[0].m_PntVec.push_back( p00 );
+        m_CpSliceDOVec[0].m_PntVec.push_back( p10 );
+        m_CpSliceDOVec[0].m_PntVec.push_back( p11 );
+        m_CpSliceDOVec[0].m_PntVec.push_back( p01 );
+
+        m_CpSliceDOVec[1].m_PntVec.push_back( p00 );
+        m_CpSliceDOVec[1].m_PntVec.push_back( p10 );
+        m_CpSliceDOVec[1].m_PntVec.push_back( p11 );
+        m_CpSliceDOVec[1].m_PntVec.push_back( p01 );
+
+        // Get new normal and set plane color to medium glass
+        vec3d quadnorm = cross( p10 - p00, p01 - p00 );
+        quadnorm.normalize();
+
+        for ( size_t i = 0; i < 4; i++ )
+        {
+            m_CpSliceDOVec[0].m_MaterialInfo.Ambient[i] = 0.2f;
+            m_CpSliceDOVec[0].m_MaterialInfo.Diffuse[i] = 0.1f;
+            m_CpSliceDOVec[0].m_MaterialInfo.Specular[i] = 0.7f;
+            m_CpSliceDOVec[0].m_MaterialInfo.Emission[i] = 0.0f;
+
+            m_CpSliceDOVec[0].m_NormVec.push_back( quadnorm );
+        }
+
+        if ( highlight )
+        {
+            m_CpSliceDOVec[0].m_MaterialInfo.Diffuse[3] = 0.67f;
+        }
+        else
+        {
+            m_CpSliceDOVec[0].m_MaterialInfo.Diffuse[3] = 0.33f;
+        }
+
+        m_CpSliceDOVec[0].m_MaterialInfo.Shininess = 5.0f;
+
+        m_CpSliceDOVec[0].m_GeomChanged = true;
+        draw_obj_vec.push_back( &m_CpSliceDOVec[0] );
+
+        m_CpSliceDOVec[1].m_GeomChanged = true;
+        draw_obj_vec.push_back( &m_CpSliceDOVec[1] );
+    }
+}
 
 /*##############################################################################
 #                                                                              #

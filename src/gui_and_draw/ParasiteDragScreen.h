@@ -89,7 +89,7 @@ protected:
     void SetupHeatTransfer( int index, double tetwratio, double tawtwratio );
     void SetupPercLaminar( int index, double perclam );
     void SetupCf( int index, double cf );
-    void SetupQ( int index, double Q );
+    void SetupQ( int index, double Q, int shapetype, int eqnchoice );
     void Setupf( int index, double f );
     void SetupCD( int index, double CD );
     void SetupPercCD( int index, double percCD );
@@ -134,6 +134,7 @@ protected:
     SliderAdjRangeInput m_FlowParmHinfSlider;
     SliderAdjRangeInput m_FlowParmReqLSlider;
     SliderAdjRangeInput m_FlowParmMachSlider;
+    SliderAdjRangeInput m_FlowParmDeltaTempSlider;
 
     // Manual Inputs
     SliderAdjRangeInput m_FlowParmTempSlider;
@@ -153,10 +154,12 @@ protected:
     TriggerButton m_RhoUnitLabel;
     TriggerButton m_DynViscUnitLabel;
     TriggerButton m_ReyqLUnitLabel;
+    TriggerButton m_DeltaTempUnitLabel;
 
     //==== Execute Layout ====//
     GroupLayout m_ExecuteLayout;
     TriggerButton m_calc;
+    ToggleButton m_SubCompExportToggle;
     TriggerButton m_export;
 
     //==== Table and Constant View Layout ====//

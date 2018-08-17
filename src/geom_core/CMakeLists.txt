@@ -30,13 +30,14 @@ Airfoil.cpp
 AnalysisMgr.cpp
 Atmosphere.cpp
 BlankGeom.cpp
-CfdMeshSettings.cpp
+BORGeom.cpp
 ClippingMgr.cpp
 ConformalGeom.cpp
 CustomGeom.cpp
 DegenGeom.cpp
 DesignVarMgr.cpp
 EllipsoidGeom.cpp
+FeaStructure.cpp
 FitModelMgr.cpp
 FuselageGeom.cpp
 Geom.cpp
@@ -47,6 +48,9 @@ HingeGeom.cpp
 Link.cpp
 LinkMgr.cpp
 MaterialMgr.cpp
+Measure.cpp
+MeasureMgr.cpp
+MeshCommonSettings.cpp
 MeshGeom.cpp
 ParasiteDragMgr.cpp
 Parm.cpp
@@ -62,6 +66,7 @@ ResultsMgr.cpp
 ScriptMgr.cpp
 SnapTo.cpp
 StackGeom.cpp
+StructureMgr.cpp
 SubSurface.cpp
 SubSurfaceMgr.cpp
 SVGUtil.cpp
@@ -73,11 +78,10 @@ Vehicle.cpp
 VehicleMgr.cpp
 WaveDragMgr.cpp
 WingGeom.cpp
+WireGeom.cpp
 XSec.cpp
 XSecCurve.cpp
 XSecSurf.cpp
-Label.cpp
-LabelMgr.cpp
 Light.cpp
 LightMgr.cpp
 Color.cpp
@@ -89,7 +93,7 @@ Airfoil.h
 AnalysisMgr.h
 Atmosphere.h
 BlankGeom.h
-CfdMeshSettings.h
+BORGeom.h
 ClippingMgr.h
 Color.h
 ColorMgr.h
@@ -99,6 +103,7 @@ DegenGeom.h
 DesignVarMgr.h
 DragFactors.h
 EllipsoidGeom.h
+FeaStructure.h
 FitModelMgr.h
 FuselageGeom.h
 Geom.h
@@ -106,13 +111,14 @@ GeomCoreTestSuite.h
 GridDensity.h
 GroupTransformations.h
 HingeGeom.h
-Label.h
-LabelMgr.h
 Light.h
 LightMgr.h
 Link.h
 LinkMgr.h
 MaterialMgr.h
+Measure.h
+MeasureMgr.h
+MeshCommonSettings.h
 MeshGeom.h
 ParasiteDragMgr.h
 Parm.h
@@ -128,6 +134,7 @@ ResultsMgr.h
 ScriptMgr.h
 SnapTo.h
 StackGeom.h
+StructureMgr.h
 SubSurface.h
 SubSurfaceMgr.h
 SWIGDefines.h
@@ -141,6 +148,7 @@ VehicleMgr.h
 VSPAEROMgr.h
 WaveDragMgr.h
 WingGeom.h
+WireGeom.h
 XSec.h
 XSecCurve.h
 XSecSurf.h

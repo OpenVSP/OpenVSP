@@ -24,13 +24,12 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
 
     m_PlanLayout.AddDividerBox( "Total Planform" );
 
+    m_PlanLayout.SetButtonWidth( 100 );
     m_PlanLayout.AddSlider( m_PlanSpanSlider, "Span", 10, "%6.5f" );
     m_PlanLayout.AddSlider( m_PlanProjSpanSlider, "Proj Span", 10, "%6.5f" );
     m_PlanLayout.AddSlider( m_PlanChordSlider, "Chord", 10, "%6.5f" );
     m_PlanLayout.AddSlider( m_PlanAreaSlider, "Area", 10, "%6.5f" );
-
-    m_PlanLayout.SetButtonWidth( 100 );
-    m_PlanLayout.AddOutput( m_PlanAROutput, "Aspect Ratio" );
+    m_PlanLayout.AddOutput( m_PlanAROutput, "Aspect Ratio", "%6.5f" );
 
     m_PlanLayout.AddYGap();
     
@@ -76,8 +75,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_PlanLayout.AddSlider( m_TEClusterSlider, "TE Clustering", 1, "%6.5f" );
     m_PlanLayout.AddYGap();
     m_PlanLayout.SetButtonWidth( 200 );
-    m_PlanLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width" );
-    m_PlanLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio" );
+    m_PlanLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width","%6.4g" );
+    m_PlanLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio", "%6.3f" );
 
     Fl_Group* sect_tab = AddTab( "Sect", 4 );
     Fl_Group* sect_group = AddSubGroup( sect_tab, 5 );
@@ -479,6 +478,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_VKTGroup.AddSlider( m_VKTKappaSlider, "Kappa", 1, "%7.5f" );
     m_VKTGroup.AddSlider( m_VKTTauSlider, "Tau", 10, "%7.5f" );
     m_VKTGroup.AddYGap();
+    m_VKTGroup.AddButton( m_VKTInvertButton, "Invert Airfoil" );
+    m_VKTGroup.AddYGap();
     m_VKTGroup.SetSameLineFlag( true );
     m_VKTGroup.SetFitWidthFlag( false );
     m_VKTGroup.SetButtonWidth( 125 );
@@ -715,27 +716,14 @@ bool WingScreen::Update()
     m_LEClusterSlider.Update( wing_ptr->m_LECluster.GetID() );
     m_TEClusterSlider.Update( wing_ptr->m_TECluster.GetID() );
 
-    sprintf( str, "%6.4g", wing_ptr->m_SmallPanelW() );
-    m_SmallPanelWOutput.Update( str );
-
-    sprintf( str, "%6.3f", wing_ptr->m_MaxGrowth() );
-    m_MaxGrowthOutput.Update( str );
-
-    sprintf( str, "%6.4f", wing_ptr->m_TotalProjSpan() * wing_ptr->m_TotalProjSpan() / wing_ptr->m_TotalArea() );
-    m_PlanAROutput.Update( str );
+    m_SmallPanelWOutput.Update( wing_ptr->m_SmallPanelW.GetID() );
+    m_MaxGrowthOutput.Update( wing_ptr->m_MaxGrowth.GetID() );
+    m_PlanAROutput.Update( wing_ptr->m_TotalAR.GetID() );
 
     m_RootCapTypeChoice.Update( wing_ptr->m_CapUMinOption.GetID() );
     m_TipCapTypeChoice.Update( wing_ptr->m_CapUMaxOption.GetID() );
 
-    if ( wing_ptr->m_CapUMinOption() == NO_END_CAP &&
-         wing_ptr->m_CapUMaxOption() == NO_END_CAP )
-    {
-        m_CapTessSlider.Deactivate();
-    }
-    else
-    {
-        m_CapTessSlider.Update( wing_ptr->m_CapUMinTess.GetID() );
-    }
+    m_CapTessSlider.Update( wing_ptr->m_CapUMinTess.GetID() );
 
     m_RootCapLenSlider.Update( wing_ptr->m_CapUMinLength.GetID() );
     m_RootCapOffsetSlider.Update( wing_ptr->m_CapUMinOffset.GetID() );
@@ -1066,6 +1054,7 @@ bool WingScreen::Update()
                 m_VKTKappaSlider.Update( vkt_xs->m_Kappa.GetID() );
                 m_VKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
                 m_VKTDegreeCounter.Update( vkt_xs->m_FitDegree.GetID() );
+                m_VKTInvertButton.Update( vkt_xs->m_Invert.GetID() );
             }
 
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );

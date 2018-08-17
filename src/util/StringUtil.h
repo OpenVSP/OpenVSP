@@ -32,6 +32,9 @@ string vec3d_to_string( const vec3d & vec, const char* format );
 int count_char_matches( string & str, char c );
 
 int compute_hash( const string & str );
+
+string get_delim( int delim_type );
+
 }
 
 

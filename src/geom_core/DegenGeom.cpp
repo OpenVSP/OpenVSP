@@ -320,10 +320,10 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
 {
     int platePnts = ( num_pnts + 1 ) / 2;
 
-    vector< vector<vec3d>  >    xMat = degenPlate.x;
-    vector< vector<vec3d>  >    nCamberMat = degenPlate.nCamber;
-    vector< vector<double> >    tMat = degenPlate.t;
-    vector< vector<double> >    zMat = degenPlate.zcamber;
+    vector< vector <vec3d> > xMat;
+    vector< vector <vec3d> > nCamberMat;
+    vector< vector <double> > tMat;
+    vector< vector <double> > zMat;
 
     vector<vec3d>   xVec(  platePnts );
     vector<vec3d>   nCVec( platePnts );
@@ -398,14 +398,16 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
 
             xVec[j]  = chordPnt;
 
+            // This portion of the code implicitly assumes each section is flat.  For
+            // bodies with extreme skinning, this is likley not the case and unexpected results
+            // may occur.
+
             vec3d zv = camberPnt - chordPnt;
-            if ( dot( zv, nCVec[j] ) >= 0.0 )
+            zVec[j] = zv.mag();
+
+            if ( dot( zv, nCVec[j] ) <= -1e-12 )
             {
-                zVec[j] = zv.mag();
-            }
-            else
-            {
-                zVec[j] = -zv.mag();
+                zVec[j] *= -1;
             }
         }
 
@@ -446,7 +448,7 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
     degenPlate.zcamber  = zMat;
 }
 
-void DegenGeom::createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts )
+void DegenGeom::createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const VspSurf *foilSurf, const bool &urootcap )
 {
     int nLow = 0, nHigh = num_xsecs;
     vec3d chordVec, camberPnt, prevCamberPnt;
@@ -455,6 +457,15 @@ void DegenGeom::createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, 
 
     int startPnt = 0;
     createDegenStick( degenSticks[0], pntsarr, uw_pnts, nLow, nHigh, startPnt );
+
+    if ( foilSurf ) // Calculate surface based exact values
+    {
+        augmentFoilSurfDegenStick( degenSticks[0], foilSurf, uw_pnts, urootcap );
+    }
+    else // Calculate discrete approximations
+    {
+        augmentFoilSurfDegenStick( degenSticks[0], pntsarr, uw_pnts, urootcap );
+    }
 
 }
 
@@ -569,6 +580,14 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
         perimTop += dist( pntsarr[ i ][ startPnt + platePnts ], pntsarr[ i ][ startPnt + platePnts - 1 ] );
         degenStick.perimTop.push_back( perimTop );
         degenStick.perimBot.push_back( perimBot );
+
+        // Pad values to be calculated later for wings using foilSurf.
+        degenStick.toc2.push_back( 0.0 );
+        degenStick.tLoc2.push_back( 0.0 );
+        degenStick.anglele.push_back( 0.0 );
+        degenStick.anglete.push_back( 0.0 );
+        degenStick.radleTop.push_back( 0.0 );
+        degenStick.radleBot.push_back( 0.0 );
     }
 
     // Calculate sweep angle
@@ -641,6 +660,84 @@ void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< 
     }
 }
 
+void DegenGeom::augmentFoilSurfDegenStick( DegenStick &degenStick, const VspSurf *foilSurf, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap )
+{
+
+    for ( int i = 0; i < uw_pnts.size(); i++ )
+    {
+        double u = uw_pnts[i][0].x();
+
+        if( urootcap ) // Shift u because foilSurf isn't capped.
+        {
+            u = u - 1.0;
+        }
+
+        VspCurve c;
+        foilSurf->GetUConstCurve( c, u );
+
+        double tloc;
+        double t = c.CalculateThick( tloc );
+
+        double te_angle = c.Angle( TMAGIC, VspCurve::AFTER, 4.0 - TMAGIC, VspCurve::BEFORE, true ) * 180.0 / PI;
+        double le_angle = c.Angle( 2.0 + TMAGIC, VspCurve::AFTER, 2.0-TMAGIC, VspCurve::BEFORE, true ) * 180.0 / PI;
+
+        double le_crv_low = c.CompCurve( 2.0 - TMAGIC, VspCurve::BEFORE );
+        double le_crv_up = c.CompCurve( 2.0 + TMAGIC, VspCurve::AFTER );
+
+        degenStick.toc2[i] = t;
+        degenStick.tLoc2[i] =  tloc;
+        degenStick.anglele[i] =  le_angle;
+        degenStick.anglete[i] =  te_angle;
+        degenStick.radleTop[i] =  1.0/le_crv_up;
+        degenStick.radleBot[i] =  1.0/le_crv_low;
+    }
+}
+
+void DegenGeom::augmentFoilSurfDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap )
+{
+    int platePnts = ( num_pnts + 1 ) / 2;
+    int jle = platePnts - 1;
+    int jte0 = 0;
+    int jte1 = num_pnts - 1;
+
+    for ( int i = 0; i < uw_pnts.size(); i++ )
+    {
+        double u = uw_pnts[i][0].x();
+
+        if( urootcap ) // Shift u because foilSurf isn't capped.
+        {
+            u = u - 1.0;
+        }
+
+        vector < vec3d > section( num_pnts );
+        for ( int j = 0; j < num_pnts; j++ )
+        {
+            section[j] = pntsarr[ i ][ j ];
+        }
+
+        vec3d ute0 = pntsarr[ i ][ jte0 + 1 ] - pntsarr[ i ][ jte0 ];
+        vec3d ute1 = pntsarr[ i ][ jte1 - 1 ] - pntsarr[ i ][ jte1 ];
+
+        double te_angle = angle( ute0, ute1 ) * 180.0 / PI;
+
+        vec3d ule0 = pntsarr[ i ][ jle + 1 ] - pntsarr[ i ][ jle ];
+        vec3d ule1 = pntsarr[ i ][ jle - 1 ] - pntsarr[ i ][ jle ];
+
+        double le_angle = angle( ule0, ule1 ) * 180.0 / PI;
+
+        double le_rad = radius_of_circle( pntsarr[ i ][ jle + 1 ], pntsarr[ i ][ jle ], pntsarr[ i ][ jle - 1 ] );
+        le_rad = le_rad / degenStick.chord[i];
+
+        degenStick.toc2[i] = degenStick.toc[i];
+        degenStick.tLoc2[i] = degenStick.tLoc[i];
+        degenStick.anglele[i] = le_angle;
+        degenStick.anglete[i] = te_angle;
+        degenStick.radleTop[i] = le_rad;
+        degenStick.radleBot[i] = le_rad;
+    }
+}
+
+
 void DegenGeom::createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool flipnormal )
 {
     vec3d origin = pntsarr[0][0];
@@ -685,66 +782,83 @@ void DegenGeom::addDegenSubSurf( SubSurface *ssurf, int surfIndx )
     std::vector< std::vector< vec2d > > ppvec = ssurf->GetPolyPntsVec();
 
     Vehicle * veh;
-    Geom * ssurfParentGeom;
-    string ssurfParentGeomId = "";
-    string ssurfParentName = "";
     veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        ssurfParentGeomId = ssurf->GetCompID();
-        ssurfParentGeom = veh->FindGeom( ssurfParentGeomId );
+        string ssurfParentGeomId = ssurf->GetCompID();
+        Geom *ssurfParentGeom = veh->FindGeom( ssurfParentGeomId );
         if ( ssurfParentGeom )
         {
-            ssurfParentName = ssurfParentGeom->GetName();
+            string ssurfParentName = ssurfParentGeom->GetName();
+
+            VspSurf *surf = ssurfParentGeom->GetSurfPtr( surfIndx );
+
+            for ( int i = 0; i < ppvec.size(); i++ )
+            {
+                DegenSubSurf dgss;
+                dgss.name = ssurf->GetName();
+                dgss.fullName = ssurfParentName + "_Surf" + std::to_string( surfIndx ) + "_" + dgss.name;
+                dgss.typeName = ssurf->GetTypeName(ssurf->GetType());
+                dgss.typeId = (vsp::SUBSURF_TYPE)ssurf->GetType();
+                dgss.testType = ssurf->m_TestType();
+
+                int npt = ppvec[i].size();
+
+                dgss.u.resize( npt );
+                dgss.w.resize( npt );
+                dgss.x.resize( npt );
+
+                for ( int j = 0; j < ppvec[i].size(); j++ )
+                {
+                    dgss.u[j] = ppvec[i][j].x();
+                    dgss.w[j] = ppvec[i][j].y();
+                    dgss.x[j] = surf->CompPnt( dgss.u[j], dgss.w[j] );
+                }
+
+                degenSubSurfs.push_back( dgss );
+            }
         }
-    }
-
-    for ( int i = 0; i < ppvec.size(); i++ )
-    {
-        DegenSubSurf dgss;
-        dgss.name = ssurf->GetName();
-        dgss.fullName = ssurfParentName + "_Surf" + std::to_string( surfIndx ) + "_" + dgss.name;
-        dgss.typeName = ssurf->GetTypeName(ssurf->GetType());
-        dgss.typeId = (vsp::SUBSURF_TYPE)ssurf->GetType();
-        dgss.testType = ssurf->m_TestType();
-
-        int npt = ppvec[i].size();
-
-        dgss.u.resize( npt );
-        dgss.w.resize( npt );
-
-        for ( int j = 0; j < ppvec[i].size(); j++ )
-        {
-            dgss.u[j] = ppvec[i][j].x();
-            dgss.w[j] = ppvec[i][j].y();
-        }
-
-        degenSubSurfs.push_back( dgss );
     }
 }
 
-void DegenGeom::addDegenHingeLine( SSControlSurf *csurf )
+void DegenGeom::addDegenHingeLine( SSControlSurf *csurf, int surfIndx )
 {
-    DegenHingeLine dghl;
-
-    dghl.name = csurf->GetName();
-
-    int npt = csurf->m_UWStart.size();
-
-    dghl.uStart.resize( npt );
-    dghl.uEnd.resize( npt );
-    dghl.wStart.resize( npt );
-    dghl.wEnd.resize( npt );
-
-    for ( int i = 0; i < npt; i++ )
+    Vehicle * veh;
+    veh = VehicleMgr.GetVehicle();
+    if ( veh )
     {
-        dghl.uStart[i] = csurf->m_UWStart[i].x();
-        dghl.uEnd[i] = csurf->m_UWEnd[i].x();
-        dghl.wStart[i] = csurf->m_UWStart[i].y();
-        dghl.wEnd[i] = csurf->m_UWEnd[i].y();
-    }
+        string ssurfParentGeomId = csurf->GetCompID();
+        Geom *ssurfParentGeom = veh->FindGeom( ssurfParentGeomId );
+        if ( ssurfParentGeom )
+        {
+            VspSurf *surf = ssurfParentGeom->GetSurfPtr( surfIndx );
 
-    degenHingeLines.push_back( dghl );
+            DegenHingeLine dghl;
+
+            dghl.name = csurf->GetName();
+
+            int npt = csurf->m_UWStart.size();
+
+            dghl.uStart.resize( npt );
+            dghl.uEnd.resize( npt );
+            dghl.wStart.resize( npt );
+            dghl.wEnd.resize( npt );
+            dghl.xStart.resize( npt );
+            dghl.xEnd.resize( npt );
+
+            for ( int i = 0; i < npt; i++ )
+            {
+                dghl.uStart[i] = csurf->m_UWStart[i].x();
+                dghl.uEnd[i] = csurf->m_UWEnd[i].x();
+                dghl.wStart[i] = csurf->m_UWStart[i].y();
+                dghl.wEnd[i] = csurf->m_UWEnd[i].y();
+                dghl.xStart[i] = surf->CompPnt( dghl.uStart[i], dghl.wStart[i] );
+                dghl.xEnd[i] = surf->CompPnt( dghl.uEnd[i], dghl.wEnd[i] );
+            }
+
+            degenHingeLines.push_back( dghl );
+        }
+    }
 }
 
 string DegenGeom::makeCsvFmt( int n, bool newline )
@@ -849,7 +963,8 @@ void DegenGeom::write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, DegenSt
              "Ishell12,Isolid11,Isolid22,Isolid12,sectArea,sectNormalx,"
              "sectNormaly,sectNormalz,perimTop,perimBot,u," );
     fprintf( file_id, "t00,t01,t02,t03,t10,t11,t12,t13,t20,t21,t22,t23,t30,t31,t32,t33," );
-    fprintf( file_id, "it00,it01,it02,it03,it10,it11,it12,it13,it20,it21,it22,it23,it30,it31,it32,it33,\n" );
+    fprintf( file_id, "it00,it01,it02,it03,it10,it11,it12,it13,it20,it21,it22,it23,it30,it31,it32,it33," );
+    fprintf( file_id, "toc2,tLoc2,anglele,anglete,radleTop,radleBot,\n" );
 
     for ( int i = 0; i < nxsecs; i++ )
     {
@@ -895,9 +1010,16 @@ void DegenGeom::write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, DegenSt
         for( int j = 0; j < 16; j ++ )
         {
             fprintf( file_id, makeCsvFmt( 1, false ).c_str(), degenStick.invtransmat[i][j] );
-            if ( j < 16 - 1 )
-                fprintf( file_id, ", " );
+            fprintf( file_id, ", " );
         }
+
+        fprintf( file_id, makeCsvFmt( 6, false ).c_str(), \
+                 degenStick.toc2[i],                      \
+                 degenStick.tLoc2[i],                     \
+                 degenStick.anglele[i],                   \
+                 degenStick.anglete[i],                   \
+                 degenStick.radleTop[i],                  \
+                 degenStick.radleBot[i]              );
 
         fprintf( file_id, "\n" );
     }
@@ -985,12 +1107,15 @@ void DegenGeom::write_degenSubSurfCsv_file( FILE* file_id, int isubsurf )
 
     fprintf( file_id, "# DegenGeom Type, nPts\n" );
     fprintf( file_id, "SUBSURF_BNDY, %d\n", n );
-    fprintf( file_id, "# u,w,\n" );
+    fprintf( file_id, "# u,w,x,y,z\n" );
     for ( int i = 0; i < n; i++ )
     {
-        fprintf( file_id, makeCsvFmt( 2 ).c_str(), \
+        fprintf( file_id, makeCsvFmt( 5 ).c_str(), \
                  degenSubSurfs[isubsurf].u[i],                  \
-                 degenSubSurfs[isubsurf].w[i] );
+                 degenSubSurfs[isubsurf].w[i],                  \
+                 degenSubSurfs[isubsurf].x[i].x(),              \
+                 degenSubSurfs[isubsurf].x[i].y(),              \
+                 degenSubSurfs[isubsurf].x[i].z() );
     }
 }
 
@@ -1001,14 +1126,20 @@ void DegenGeom::write_degenHingeLineCsv_file( FILE* file_id, int ihingeline )
     fprintf( file_id, "# DegenGeom Type, name, nPts\n" );
     fprintf( file_id, "HINGELINE,%s, %d\n", degenHingeLines[ihingeline].name.c_str(), n );
 
-    fprintf( file_id, "# uStart,uEnd,wStart,wEnd\n" );
+    fprintf( file_id, "# uStart,uEnd,wStart,wEnd,xStart,yStart,zStart,xEnd,yEnd,zEnd\n" );
     for ( int i = 0; i < n; i++ )
     {
-        fprintf( file_id, makeCsvFmt( 4 ).c_str(), \
+        fprintf( file_id, makeCsvFmt( 10 ).c_str(), \
                 degenHingeLines[ihingeline].uStart[i], \
                 degenHingeLines[ihingeline].uEnd[i], \
                 degenHingeLines[ihingeline].wStart[i], \
-                degenHingeLines[ihingeline].wEnd[i] );
+                degenHingeLines[ihingeline].wEnd[i], \
+                degenHingeLines[ihingeline].xStart[i].x(), \
+                degenHingeLines[ihingeline].xStart[i].y(), \
+                degenHingeLines[ihingeline].xStart[i].z(), \
+                degenHingeLines[ihingeline].xEnd[i].x(), \
+                degenHingeLines[ihingeline].xEnd[i].y(), \
+                degenHingeLines[ihingeline].xEnd[i].z() );
     }
 }
 
@@ -1018,18 +1149,18 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
 
     if( type == SURFACE_TYPE )
     {
-        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
         fprintf( file_id, "\nLIFTING_SURFACE,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
     }
     else if( type == DISK_TYPE )
     {
-        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
         fprintf( file_id, "\nDISK,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
         write_degenGeomDiskCsv_file( file_id );
     }
     else
     {
-        fprintf( file_id, "\n# DegenGeom Type, SurfNdx, GeomID" );
+        fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID" );
         fprintf( file_id, "\nBODY,%s,%d,%s\n", name.c_str(), getSurfNum(), this->parentGeom->GetID().c_str() );
     }
 
@@ -1137,6 +1268,12 @@ void DegenGeom::write_degenGeomStickM_file( FILE* file_id, int nxsecs, DegenStic
     writeVecDouble.write( file_id, degenStick.u,          basename + "u",          nxsecs );
     writeMatDouble.write( file_id, degenStick.transmat,   basename + "transmat",   nxsecs,        16 );
     writeMatDouble.write( file_id, degenStick.invtransmat, basename + "invtransmat", nxsecs,        16 );
+    writeVecDouble.write( file_id, degenStick.toc2,       basename + "toc2",       nxsecs );
+    writeVecDouble.write( file_id, degenStick.tLoc2,      basename + "tLoc2",      nxsecs );
+    writeVecDouble.write( file_id, degenStick.anglele,    basename + "anglele",    nxsecs );
+    writeVecDouble.write( file_id, degenStick.anglete,    basename + "anglete",    nxsecs );
+    writeVecDouble.write( file_id, degenStick.radleTop,   basename + "radleTop",   nxsecs );
+    writeVecDouble.write( file_id, degenStick.radleBot,   basename + "radleBot",   nxsecs );
 
     writeVecDouble.write( file_id, degenStick.sweeple,    basename + "sweeple",    nxsecs - 1 );
     writeVecDouble.write( file_id, degenStick.sweepte,    basename + "sweepte",    nxsecs - 1 );
@@ -1182,6 +1319,7 @@ void DegenGeom::write_degenSubSurfM_file( FILE* file_id, int isubsurf )
     string basename = string( num );
 
     WriteVecDoubleM writeVecDouble;
+    WriteVecVec3dM writeVecVec3d;
 
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).name = '%s';\n", isubsurf + 1, degenSubSurfs[isubsurf].name.c_str() );
     fprintf( file_id, "\ndegenGeom(end).subsurf(%d).typeName = %d;\n", isubsurf + 1, degenSubSurfs[isubsurf].testType );
@@ -1193,6 +1331,7 @@ void DegenGeom::write_degenSubSurfM_file( FILE* file_id, int isubsurf )
 
     writeVecDouble.write( file_id, degenSubSurfs[isubsurf].u,        basename + "u",        n );
     writeVecDouble.write( file_id, degenSubSurfs[isubsurf].w,        basename + "w",        n );
+    writeVecVec3d.write( file_id, degenSubSurfs[isubsurf].x,         basename + "x",        n );
 }
 
 void DegenGeom::write_degenHingeLineM_file( FILE* file_id, int ihingeline )
@@ -1202,6 +1341,7 @@ void DegenGeom::write_degenHingeLineM_file( FILE* file_id, int ihingeline )
     string basename = string( num );
 
     WriteVecDoubleM writeVecDouble;
+    WriteVecVec3dM writeVecVec3d;
 
     fprintf( file_id, "\ndegenGeom(end).hingeline(%d).name = '%s';\n", ihingeline + 1, degenHingeLines[ihingeline].name.c_str() );
 
@@ -1211,6 +1351,8 @@ void DegenGeom::write_degenHingeLineM_file( FILE* file_id, int ihingeline )
     writeVecDouble.write( file_id, degenHingeLines[ihingeline].uEnd,          basename + "uEnd",          n );
     writeVecDouble.write( file_id, degenHingeLines[ihingeline].wStart,        basename + "wStart",        n );
     writeVecDouble.write( file_id, degenHingeLines[ihingeline].wEnd,          basename + "wEnd",          n );
+    writeVecVec3d.write( file_id, degenHingeLines[ihingeline].xStart,         basename + "xStart",        n );
+    writeVecVec3d.write( file_id, degenHingeLines[ihingeline].xEnd,           basename + "xEnd",        n );
 }
 
 void DegenGeom::write_degenGeomM_file( FILE* file_id )
@@ -1220,18 +1362,23 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
     if( type == SURFACE_TYPE )
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'LIFTING_SURFACE';" );
-        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
     }
     else if( type == DISK_TYPE )
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'DISK';" );
-        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
-        write_degenGeomDiskM_file( file_id );
     }
     else
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'BODY';" );
-        fprintf( file_id, "\ndegenGeom(end).name = '%s';\n", name.c_str() );
+    }
+
+    fprintf( file_id, "\ndegenGeom(end).name = '%s';", name.c_str() );
+    fprintf( file_id, "\ndegenGeom(end).geom_id = '%s';", parentGeom->GetID().c_str() );
+    fprintf( file_id, "\ndegenGeom(end).surf_index = %d;\n", getSurfNum() );
+
+    if( type == DISK_TYPE )
+    {
+        write_degenGeomDiskM_file(file_id);
     }
 
     write_degenGeomSurfM_file( file_id, nxsecs );
@@ -1266,4 +1413,197 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
     {
         write_degenHingeLineM_file( file_id, i );
     }
+}
+
+void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_ids )
+{
+    Results *res = ResultsMgr.CreateResults( "Degen_DegenGeom" );
+    degen_results_ids.push_back( res->GetID() );
+    if ( type == SURFACE_TYPE )
+    {
+        res->Add( NameValData( "type", "LIFTING_SURFACE" ) );
+    }
+    else if ( type == DISK_TYPE )
+    {
+        res->Add( NameValData( "type", "DISK" ) );
+    }
+    else
+    {
+        res->Add( NameValData( "type", "BODY" ) );
+    }
+
+    res->Add( NameValData( "name", name ) );
+    res->Add( NameValData( "surf_index", getSurfNum() ) );
+    res->Add( NameValData( "geom_id", parentGeom->GetID() ) );
+
+    if ( type == DISK_TYPE )
+    {
+        write_degenGeomDiskResultsManger( res );
+    }
+
+    write_degenGeomSurfResultsManager( res );
+
+    if ( type == DISK_TYPE )
+    {
+        return;
+    }
+
+    vector< string > plate_ids;
+    for ( unsigned int i = 0; i < degenPlates.size(); i++ )
+    {
+        write_degenGeomPlateResultsManager( plate_ids, degenPlates[i] );
+    }
+    res->Add( NameValData( "plates", plate_ids ) );
+
+    vector< string > stick_ids;
+    for ( unsigned int i = 0; i < degenSticks.size(); i++ )
+    {
+        write_degenGeomStickResultsManager( stick_ids, degenSticks[i] );
+    }
+    res->Add( NameValData( "sticks", stick_ids ) );
+
+    write_degenGeomPointResultsManager( res );
+
+    vector< string > subsurf_ids;
+    for ( unsigned int i = 0; i < degenSubSurfs.size(); i++ )
+    {
+        write_degenSubSurfResultsManager( subsurf_ids, degenSubSurfs[i] );
+    }
+    res->Add( NameValData( "subsurfs", subsurf_ids ) );
+
+    vector< string > hinge_ids;
+    for ( unsigned int i = 0; i < degenHingeLines.size(); i++ )
+    {
+        write_degenHingeLineResultsManager( hinge_ids, degenHingeLines[i] );
+    }
+    res->Add( NameValData( "hinges", hinge_ids ) );
+}
+
+void DegenGeom::write_degenGeomDiskResultsManger( Results *res )
+{
+    if ( !res ) { return; }
+
+    Results *disk_res = ResultsMgr.CreateResults( "Degen_disk" );
+    res->Add( NameValData( "disk", disk_res->GetID() ) );
+
+    disk_res->Add( NameValData( "diameter", degenDisk.d ) );
+    disk_res->Add( NameValData( "pos", degenDisk.x ) );
+    disk_res->Add( NameValData( "n", degenDisk.nvec ) );
+
+}
+
+void DegenGeom::write_degenGeomSurfResultsManager( Results *res )
+{
+    if ( !res ) { return; }
+
+    Results *surf_res = ResultsMgr.CreateResults( "Degen_surf" );
+    res->Add( NameValData ( "surf", surf_res->GetID() ) );
+
+    surf_res->Add( NameValData( "nxsecs", num_xsecs ) );
+    surf_res->Add( NameValData( "num_pnts", num_pnts ) );
+    surf_res->Add( degenSurface.x, "" );
+    surf_res->Add( NameValData( "u", degenSurface.u ) );
+    surf_res->Add( NameValData( "w", degenSurface.w ) );
+    surf_res->Add( degenSurface.nvec, "n" );
+    surf_res->Add( NameValData( "area", degenSurface.area ) );
+}
+
+void DegenGeom::write_degenGeomPlateResultsManager( vector< string > &plate_ids, const DegenPlate &degenPlate )
+{
+    Results *plate_res = ResultsMgr.CreateResults( "Degen_plate" );
+    plate_ids.push_back( plate_res->GetID() );
+
+    plate_res->Add( NameValData( "nxsecs", num_xsecs ) );
+    plate_res->Add( NameValData( "num_pnts", num_pnts ) );
+
+    plate_res->Add( NameValData( "n", degenPlate.nPlate ) );
+    plate_res->Add( degenPlate.x, "" );
+    plate_res->Add( NameValData( "zCamber", degenPlate.zcamber ) );
+    plate_res->Add( NameValData( "t", degenPlate.t ) );
+    plate_res->Add( degenPlate.nCamber, "nCamber_" );
+    plate_res->Add( NameValData( "u", degenPlate.u ) );
+    plate_res->Add( NameValData( "wTop", degenPlate.wTop ) );
+    plate_res->Add( NameValData( "wBot", degenPlate.wBot ) );
+}
+
+void DegenGeom::write_degenGeomStickResultsManager( vector<string> &stick_ids, const DegenStick &degenStick )
+{
+    Results *stick_res = ResultsMgr.CreateResults( "Degen_stick" );
+    stick_ids.push_back( stick_res->GetID() );
+
+    stick_res->Add( NameValData( "nxsecs", num_xsecs ) );
+    stick_res->Add( NameValData( "le", degenStick.xle ) );
+    stick_res->Add( NameValData( "te", degenStick.xte ) );
+    stick_res->Add( NameValData( "cgShell", degenStick.xcgShell ) );
+    stick_res->Add( NameValData( "cgSolid", degenStick.xcgSolid ) );
+    stick_res->Add( NameValData( "toc", degenStick.toc ) );
+    stick_res->Add( NameValData( "tLoc", degenStick.tLoc ) );
+    stick_res->Add( NameValData( "chord", degenStick.chord ) );
+    stick_res->Add( NameValData( "Ishell", degenStick.Ishell ) );
+    stick_res->Add( NameValData( "Isolid", degenStick.Isolid ) );
+    stick_res->Add( NameValData( "sectArea", degenStick.sectarea ) );
+    stick_res->Add( NameValData( "sectNormal", degenStick.sectnvec ) );
+    stick_res->Add( NameValData( "perimTop", degenStick.perimTop ) );
+    stick_res->Add( NameValData( "perimBot", degenStick.perimBot ) );
+    stick_res->Add( NameValData( "u", degenStick.u ) );
+    stick_res->Add( NameValData( "transmat", degenStick.transmat ) );
+    stick_res->Add( NameValData( "invtransmat", degenStick.invtransmat ) );
+    stick_res->Add( NameValData( "toc2", degenStick.toc2 ) );
+    stick_res->Add( NameValData( "tLoc2", degenStick.tLoc2 ) );
+    stick_res->Add( NameValData( "anglele", degenStick.anglele ) );
+    stick_res->Add( NameValData( "anglete", degenStick.anglete ) );
+    stick_res->Add( NameValData( "radleTop", degenStick.radleTop ) );
+    stick_res->Add( NameValData( "radleBot", degenStick.radleBot ) );
+
+    stick_res->Add( NameValData( "sweeple", degenStick.sweeple ) );
+    stick_res->Add( NameValData( "sweepte", degenStick.sweepte ) );
+    stick_res->Add( NameValData( "areaTop", degenStick.areaTop ) );
+    stick_res->Add( NameValData( "areaBot", degenStick.areaBot ) );
+}
+
+void DegenGeom::write_degenGeomPointResultsManager( Results *res )
+{
+    if ( !res ) { return; }
+
+    Results *point_res = ResultsMgr.CreateResults( "point" );
+    res->Add( NameValData( "point", point_res->GetID() ) );
+
+    point_res->Add( NameValData( "vol", degenPoint.vol[0] ) );
+    point_res->Add( NameValData( "volWet", degenPoint.volWet[0] ) );
+    point_res->Add( NameValData( "area", degenPoint.area[0] ) );
+    point_res->Add( NameValData( "areaWet", degenPoint.areaWet[0] ) );
+    point_res->Add( NameValData( "Ishell", degenPoint.Ishell[0] ) );
+    point_res->Add( NameValData( "Isolid", degenPoint.Isolid[0] ) );
+    point_res->Add( NameValData( "cgShell", degenPoint.xcgShell ) );
+    point_res->Add( NameValData( "cgSolid", degenPoint.xcgSolid ) );
+}
+
+void DegenGeom::write_degenSubSurfResultsManager( vector<string> &subsurf_ids, const DegenSubSurf &degenSubSurf )
+{
+    Results* subsurf_res = ResultsMgr.CreateResults( "Degen_subsurf" );
+    subsurf_ids.push_back( subsurf_res->GetID() );
+
+    subsurf_res->Add( NameValData( "name", degenSubSurf.name ) );
+    subsurf_res->Add( NameValData( "typeName", degenSubSurf.typeName ) );
+    subsurf_res->Add( NameValData( "typeId", degenSubSurf.typeId ) );
+    subsurf_res->Add( NameValData( "fullName", degenSubSurf.fullName ) );
+    subsurf_res->Add( NameValData( "testType", degenSubSurf.testType ) );
+
+    subsurf_res->Add( NameValData( "u", degenSubSurf.u ) );
+    subsurf_res->Add( NameValData( "w", degenSubSurf.w ) );
+    subsurf_res->Add( NameValData( "x", degenSubSurf.x ) );
+}
+
+void DegenGeom::write_degenHingeLineResultsManager( vector<string> &hinge_ids, const DegenHingeLine &degenHingeLine )
+{
+    Results *hinge_res = ResultsMgr.CreateResults( "Degen_hinge" );
+    hinge_ids.push_back( hinge_res->GetID() );
+
+    hinge_res->Add( NameValData( "name", degenHingeLine.name ) );
+    hinge_res->Add( NameValData( "uStart", degenHingeLine.uStart ) );
+    hinge_res->Add( NameValData( "uEnd", degenHingeLine.uEnd ) );
+    hinge_res->Add( NameValData( "wStart", degenHingeLine.wStart ) );
+    hinge_res->Add( NameValData( "wEnd", degenHingeLine.wEnd ) );
+    hinge_res->Add( NameValData( "xStart", degenHingeLine.xStart ) );
+    hinge_res->Add( NameValData( "xEnd", degenHingeLine.xEnd ) );
 }

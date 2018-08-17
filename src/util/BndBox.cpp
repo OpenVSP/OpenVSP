@@ -148,6 +148,27 @@ double BndBox::GetLargestDist() const
     }
 }
 
+//==== Get Smallest Dimension ====//
+double BndBox::GetSmallestDist() const
+{
+    double del_x = m_Max[0] - m_Min[0];
+    double del_y = m_Max[1] - m_Min[1];
+    double del_z = m_Max[2] - m_Min[2];
+
+    if ( del_x < del_y && del_x < del_z )
+    {
+        return( del_x );
+    }
+    else if ( del_y < del_z )
+    {
+        return( del_y );
+    }
+    else
+    {
+        return( del_z );
+    }
+}
+
 //==== Get Estimated Area ====//
 double BndBox::GetEstArea() const
 {

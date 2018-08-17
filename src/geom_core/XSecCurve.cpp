@@ -13,7 +13,7 @@
 #include "ParmMgr.h"
 #include "StlHelper.h"
 #include "FuselageGeom.h"
-
+#include "BORGeom.h"
 #include "Vehicle.h"
 
 #include "eli/geom/curve/length.hpp"
@@ -134,7 +134,13 @@ string XSecCurve::GetName()
     {
         char str[256];
         sprintf( str, "_%d", m_GroupSuffix );
-        return pc->GetParentContainerPtr()->GetName() + " " + m_GroupName + string(str);
+
+        ParmContainer* ppc = pc->GetParentContainerPtr();
+        if ( ppc )
+        {
+            return ppc->GetName() + " " + m_GroupName + string(str);
+        }
+        return pc->GetName();
     }
     return ParmContainer::GetName();
 }
@@ -244,6 +250,15 @@ void XSecCurve::Update()
     if ( xs )
     {
         if ( xs->GetType() == XSEC_WING || xs->GetType() == XSEC_PROP )
+        {
+            wingtype = true;
+        }
+    }
+    else
+    {
+        BORGeom* bg = dynamic_cast< BORGeom* > (pc);
+
+        if ( bg )
         {
             wingtype = true;
         }
@@ -1732,6 +1747,12 @@ void RoundedRectXSec::SetWidthHeight( double w, double h )
     m_Height = h;
 }
 
+void RoundedRectXSec::SetScale( double scale )
+{
+    XSecCurve::SetScale( scale );
+
+    m_Radius.Set( m_Radius() * scale );
+}
 
 void RoundedRectXSec::ReadV2FileFuse2( xmlNodePtr &root )
 {

@@ -10,6 +10,9 @@
 #include "SurfPatch.h"
 #include "Surf.h"
 
+#include "eli/geom/intersect/minimum_distance_surface.hpp"
+typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
+
 //////////////////////////////////////////////////////////////////////
 
 SurfPatch::SurfPatch()
@@ -18,141 +21,55 @@ SurfPatch::SurfPatch()
     u_max = w_max = 1.0;
     m_SurfPtr = NULL;
     sub_depth = 0;
+
+    m_wasplanar = false;
+    m_lastreltol = 12345.678;
+}
+
+SurfPatch::SurfPatch( int n, int m, int d ) : m_Patch( n, m )
+{
+    u_min = w_min = 0.0;
+    u_max = w_max = 1.0;
+    m_SurfPtr = NULL;
+    sub_depth = d;
+
+    m_wasplanar = false;
+    m_lastreltol = 12345.678;
 }
 
 SurfPatch::~SurfPatch()
 {
 }
 
-//===== Compute Blending Functions  =====//
-void SurfPatch::blend_funcs( double u, double& F1, double& F2, double& F3, double& F4 )
-{
-    double uu = u * u;
-    double one_u = 1.0 - u;
-    double one_u_sqr = one_u * one_u;
-
-    F1 = one_u * one_u_sqr;
-    F2 = 3.0 * u * one_u_sqr;
-    F3 = 3.0 * uu * one_u;
-    F4 = uu * u;
-}
-
 //==== Compute Bounding Box ====//
 void SurfPatch::compute_bnd_box()
 {
+    surface_bounding_box_type bbx;
+
+    m_Patch.get_bounding_box( bbx );
+
+    vec3d v3min( bbx.get_min() );
+    vec3d v3max( bbx.get_max() );
+
     bnd_box.Reset();
-    for ( int iu = 0 ; iu < 4 ; iu++ )
-    {
-        for ( int iw = 0 ; iw < 4 ; iw++ )
-        {
-            bnd_box.Update( pnts[iu][iw] );
-        }
-    }
-
-}
-
-//===== Compute Point On Patch Given  U and W =====//
-vec3d SurfPatch::comp_pnt( double u, double w )
-{
-    double F1u, F2u, F3u, F4u;
-    double F1w, F2w, F3w, F4w;
-    if ( u <= u_min )
-    {
-        F1u = 1.0;
-        F2u = F3u = F4u = 0.0;
-    }
-    else if ( u >= u_max )
-    {
-        F1u = F2u = F3u = 0.0;
-        F4u = 1.0;
-    }
-    else
-    {
-        blend_funcs( ( u - u_min ) / ( u_max - u_min ), F1u, F2u, F3u, F4u );
-    }
-
-    if ( w <= w_min )
-    {
-        F1w = 1.0;
-        F2w = F3w = F4w = 0.0;
-    }
-    else if ( w >= w_max )
-    {
-        F1w = F2w = F3w = 0.0;
-        F4w = 1.0;
-    }
-    else
-    {
-        blend_funcs( ( w - w_min ) / ( w_max - w_min ), F1w, F2w, F3w, F4w );
-    }
-
-    vec3d new_pnt =
-        ( ( pnts[0][0] * F1u + pnts[1][0] * F2u + pnts[2][0] * F3u + pnts[3][0] * F4u ) * F1w ) +
-        ( ( pnts[0][1] * F1u + pnts[1][1] * F2u + pnts[2][1] * F3u + pnts[3][1] * F4u ) * F2w ) +
-        ( ( pnts[0][2] * F1u + pnts[1][2] * F2u + pnts[2][2] * F3u + pnts[3][2] * F4u ) * F3w ) +
-        ( ( pnts[0][3] * F1u + pnts[1][3] * F2u + pnts[2][3] * F3u + pnts[3][3] * F4u ) * F4w );
-
-    return( new_pnt );
+    bnd_box.Update( v3min );
+    bnd_box.Update( v3max );
 }
 
 //===== Split Patch =====//
-void SurfPatch::split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, SurfPatch& bp11 )
+void SurfPatch::split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, SurfPatch& bp11 ) const
 {
-    int iu, iw;
-    vec3d tmp_hull[4][7];
-    vec3d tmp0, tmp1;
 
-    // === Hold u Constant and Insert in W Direction ===//
-    for ( iu = 0 ; iu < 4 ; iu++ )
-    {
-        tmp_hull[iu][0] = pnts[iu][0];
-        tmp_hull[iu][1] = ( pnts[iu][0] + pnts[iu][1] ) * 0.5;
-        tmp0 = ( pnts[iu][1] + pnts[iu][2] ) * 0.5;
-        tmp1 = ( pnts[iu][2] + pnts[iu][3] ) * 0.5;
+    int n = m_Patch.degree_u();
+    int m = m_Patch.degree_v();
+    surface_patch_type pvlow( n, m );
+    surface_patch_type pvhi( n, m );
+    m_Patch.simple_split_v_half( pvlow, pvhi );
 
-        tmp_hull[iu][2] = ( tmp_hull[iu][1] + tmp0 ) * 0.5;
-        tmp0 = ( tmp0 + tmp1 ) * 0.5;
+    surface_patch_type pulow, puhi;
+    pvlow.simple_split_u_half( *(bp00.getPatch()), *(bp10.getPatch()) );
 
-        tmp_hull[iu][3] = ( tmp_hull[iu][2] + tmp0 ) * 0.5;
-        tmp_hull[iu][4] = tmp0;
-        tmp_hull[iu][5] = tmp1;
-        tmp_hull[iu][6] = pnts[iu][3];
-    }
-
-    // === Hold W Constant and Insert in U Direction ===//
-    for (  iw = 0 ; iw < 4 ; iw++ )
-    {
-        bp00.pnts[0][iw] =  tmp_hull[0][iw];
-        bp00.pnts[1][iw] = ( tmp_hull[0][iw] + tmp_hull[1][iw] ) * 0.5;
-        tmp0 = ( tmp_hull[1][iw] + tmp_hull[2][iw] ) * 0.5;
-        tmp1 = ( tmp_hull[2][iw] + tmp_hull[3][iw] ) * 0.5;
-
-        bp00.pnts[2][iw] = ( bp00.pnts[1][iw] + tmp0 ) * 0.5;
-        tmp0 = ( tmp0 + tmp1 ) * 0.5;
-
-        bp00.pnts[3][iw] = ( bp00.pnts[2][iw] + tmp0 ) * 0.5;
-        bp10.pnts[0][iw] = bp00.pnts[3][iw];
-        bp10.pnts[1][iw] = tmp0;
-        bp10.pnts[2][iw] = tmp1;
-        bp10.pnts[3][iw] = tmp_hull[3][iw];
-    }
-
-    for ( iw = 3 ; iw < 7 ; iw++ )
-    {
-        bp01.pnts[0][iw - 3] =  tmp_hull[0][iw];
-        bp01.pnts[1][iw - 3] = ( tmp_hull[0][iw] + tmp_hull[1][iw] ) * 0.5;
-        tmp0 = ( tmp_hull[1][iw] + tmp_hull[2][iw] ) * 0.5;
-        tmp1 = ( tmp_hull[2][iw] + tmp_hull[3][iw] ) * 0.5;
-
-        bp01.pnts[2][iw - 3] = ( bp01.pnts[1][iw - 3] + tmp0 ) * 0.5;
-        tmp0 = ( tmp0 + tmp1 ) * 0.5;
-
-        bp01.pnts[3][iw - 3] = ( bp01.pnts[2][iw - 3] + tmp0 ) * 0.5;
-        bp11.pnts[0][iw - 3] = bp01.pnts[3][iw - 3];
-        bp11.pnts[1][iw - 3] = tmp0;
-        bp11.pnts[2][iw - 3] = tmp1;
-        bp11.pnts[3][iw - 3] = tmp_hull[3][iw];
-    }
+    pvhi.simple_split_u_half( *(bp01.getPatch()), *(bp11.getPatch()) );
 
     bp00.u_min = u_min;
     bp00.w_min = w_min;
@@ -187,260 +104,73 @@ void SurfPatch::split_patch( SurfPatch& bp00, SurfPatch& bp10, SurfPatch& bp01, 
 }
 
 //===== Test If Patch Is Planar (within tol)  =====//
-bool SurfPatch::test_planar( double tol )
+bool SurfPatch::test_planar( double tol ) const
 {
-    vec3d org = pnts[0][0];
-    vec3d v1 = pnts[3][0] - pnts[0][0];
-    vec3d v2 = pnts[0][3] - pnts[0][0];
+    return test_planar_rel( tol / bnd_box.DiagDist() );
+}
 
-    vec3d norm = cross( v1, v2 );
-
-    norm.normalize();
-
-    if ( dist_pnt_2_plane( org, norm, pnts[3][3] ) > tol )
+//===== Test If Patch Is Planar (within relative tol)  =====//
+bool SurfPatch::test_planar_rel( double reltol ) const
+{
+    if ( reltol == m_lastreltol )
     {
-        return false;
-    }
-    if ( dist_pnt_2_plane( org, norm, pnts[1][1] ) > tol )
-    {
-        return false;
-    }
-    if ( dist_pnt_2_plane( org, norm, pnts[2][1] ) > tol )
-    {
-        return false;
-    }
-    if ( dist_pnt_2_plane( org, norm, pnts[1][2] ) > tol )
-    {
-        return false;
-    }
-    if ( dist_pnt_2_plane( org, norm, pnts[2][2] ) > tol )
-    {
-        return false;
+        return m_wasplanar;
     }
 
-    if ( dist_pnt_2_line( pnts[0][0], pnts[3][0], pnts[1][0] ) > tol )
-    {
-        return false;
-    }
-    if ( dist_pnt_2_line( pnts[0][0], pnts[3][0], pnts[2][0] ) > tol )
-    {
-        return false;
-    }
-    if ( dist_pnt_2_line( pnts[0][0], pnts[0][3], pnts[0][1] ) > tol )
-    {
-        return false;
-    }
-    if ( dist_pnt_2_line( pnts[0][0], pnts[0][3], pnts[0][2] ) > tol )
-    {
-        return false;
-    }
-    if ( dist_pnt_2_line( pnts[3][3], pnts[0][3], pnts[1][3] ) > tol )
-    {
-        return false;
-    }
-    if ( dist_pnt_2_line( pnts[3][3], pnts[0][3], pnts[2][3] ) > tol )
-    {
-        return false;
-    }
-    if ( dist_pnt_2_line( pnts[3][3], pnts[3][0], pnts[3][1] ) > tol )
-    {
-        return false;
-    }
-    if ( dist_pnt_2_line( pnts[3][3], pnts[3][0], pnts[3][2] ) > tol )
-    {
-        return false;
-    }
+    surface_patch_type approx = m_Patch;
+    approx.planar_approx();
 
-    return true;
+    double dst = m_Patch.simple_eqp_distance_bound( approx );
+
+    // These variables are mutable -- to allow this to still be a const method.
+    // Set m_lastreltol after setting m_wasplanar as a defense against any future race
+    // condition.
+    m_wasplanar = dst < ( reltol * bnd_box.DiagDist() );
+    m_lastreltol = reltol;
+
+    return m_wasplanar;
 }
 
 //===== Find Closest UW On Patch to Given Point  =====//
-void SurfPatch::find_closest_uw( vec3d& pnt_in, double guess_uw[2], double uw[2] )
+void SurfPatch::find_closest_uw( const vec3d& pnt_in, double uw[2] ) const
 {
-    int Max_Iter  = 10;
-    double UW_Tol = 1.0e-14;
-    double norm_uw[2];
-    double del_uw[2];
-    vec3d guess_pnt;
+    vec2d guess_uw( 0.5, 0.5 );
 
-    //==== Normalize uw Values Between 0 and 1 ====//
-    norm_uw[0] = ( guess_uw[0] - u_min ) / ( u_max - u_min );
-    norm_uw[1] = ( guess_uw[1] - w_min ) / ( w_max - w_min );
+    surface_point_type p;
+    p << pnt_in.x(), pnt_in.y(), pnt_in.z();
 
-    //===== Loop Until U and W Stops Changing or Max Iterations is Hit  =====//
-    int cnt = 0;
-    int stop_flag = false;
-    while ( !stop_flag )
-    {
-        guess_pnt = comp_pnt_01( norm_uw[0], norm_uw[1] );
+    double u, w;
+    eli::geom::intersect::minimum_distance( u, w, m_Patch, p, guess_uw.x(), guess_uw.y() );
 
-        //==== Find Delta U and W Values ====//
-        comp_delta_uw( pnt_in, guess_pnt, norm_uw, del_uw );
-
-        norm_uw[0] += del_uw[0];
-        norm_uw[1] -= del_uw[1];
-
-        //==== Test To Stop Iteration ====//
-        if ( ( std::abs( del_uw[0] ) + std::abs( del_uw[1] ) ) < UW_Tol )
-        {
-            stop_flag = true;
-        }
-        else if ( cnt > Max_Iter )
-        {
-            stop_flag = true;
-        }
-        else
-        {
-            cnt++;
-        }
-    }
-
-    //==== Convert uw Values Back to Original Space ====//
-    uw[0] = norm_uw[0] * ( u_max - u_min ) + u_min;
-    uw[1] = norm_uw[1] * ( w_max - w_min ) + w_min;
-
-    //==== Clamp Values At Bounds  ====//
-    if      ( uw[0] < u_min )
-    {
-        uw[0] = u_min;
-    }
-    else if ( uw[0] > u_max )
-    {
-        uw[0] = u_max;
-    }
-
-    if      ( uw[1] < w_min )
-    {
-        uw[1] = w_min;
-    }
-    else if ( uw[1] > w_max )
-    {
-        uw[1] = w_max;
-    }
-}
-
-//===== Find Closest UW On Patch to Given Point  =====//
-void SurfPatch::find_closest_uw( vec3d& pnt_in, double uw[2] )
-{
-    vec2d guess_uw( 0.5 * ( u_max + u_min ), 0.5 * ( w_max + w_min ) );
-
-    find_closest_uw( pnt_in, guess_uw.v, uw );
+    uw[0] = u_min + u * ( u_max - u_min );
+    uw[1] = w_min + w * ( w_max - w_min );
 }
 
 //===== Compute Point On Patch  =====//
-vec3d SurfPatch::comp_pnt_01( double u, double w )
+vec3d SurfPatch::comp_pnt_01( double u, double w ) const
 {
-    double uu    = u * u;
-    double one_u = 1.0 - u;
-    double F1u   = one_u * one_u * one_u;
-    double F2u   = 3.0 * one_u * one_u * u;
-    double F3u   = 3.0 * one_u * uu;
-    double F4u   = uu * u;
-
-    double ww    = w * w;
-    double one_w = 1.0 - w;
-    double F1w   = one_w * one_w * one_w;
-    double F2w   = 3.0 * one_w * one_w * w;
-    double F3w   = 3.0 * one_w * ww;
-    double F4w   = ww * w;
-
-    //==== Compute Point On Surface ====//
-    vec3d new_pnt =
-        ( ( pnts[0][0] * F1u + pnts[1][0] * F2u + pnts[2][0] * F3u + pnts[3][0] * F4u ) * F1w ) +
-        ( ( pnts[0][1] * F1u + pnts[1][1] * F2u + pnts[2][1] * F3u + pnts[3][1] * F4u ) * F2w ) +
-        ( ( pnts[0][2] * F1u + pnts[1][2] * F2u + pnts[2][2] * F3u + pnts[3][2] * F4u ) * F3w ) +
-        ( ( pnts[0][3] * F1u + pnts[1][3] * F2u + pnts[2][3] * F3u + pnts[3][3] * F4u ) * F4w );
-
-    return( new_pnt );
+    surface_point_type p = m_Patch.f( u, w );
+    vec3d new_pnt( p.x(), p.y(), p.z() );
+    return new_pnt;
 }
 
 //===== Compute Tangent In U Direction   =====//
-vec3d SurfPatch::comp_tan_u_01( double u, double w )
+vec3d SurfPatch::comp_tan_u_01( double u, double w ) const
 {
-    double uu    = u * u;
-    double one_u = 1.0 - u;
-    double F1u   = -3.0 * one_u * one_u;
-    double F2u   = 3.0 - 12.0 * u + 9.0 * uu;
-    double F3u   = 6.0 * u - 9.0 * uu;
-    double F4u   = 3.0 * uu;
-
-    double ww    = w * w;
-    double one_w = 1.0 - w;
-    double F1w   = one_w * one_w * one_w;
-    double F2w   = 3.0 * one_w * one_w * w;
-    double F3w   = 3.0 * one_w * ww;
-    double F4w   = ww * w;
-
-    //==== Compute Tangent In U Direction ====//
-    vec3d new_pnt =
-        ( ( pnts[0][0] * F1u + pnts[1][0] * F2u + pnts[2][0] * F3u + pnts[3][0] * F4u ) * F1w ) +
-        ( ( pnts[0][1] * F1u + pnts[1][1] * F2u + pnts[2][1] * F3u + pnts[3][1] * F4u ) * F2w ) +
-        ( ( pnts[0][2] * F1u + pnts[1][2] * F2u + pnts[2][2] * F3u + pnts[3][2] * F4u ) * F3w ) +
-        ( ( pnts[0][3] * F1u + pnts[1][3] * F2u + pnts[2][3] * F3u + pnts[3][3] * F4u ) * F4w );
-
-    return( new_pnt );
-
+    surface_point_type p = m_Patch.f_u( u, w );
+    vec3d new_pnt( p.x(), p.y(), p.z() );
+    return new_pnt;
 }
 
 //===== Compute Tangent In W Direction   =====//
-vec3d SurfPatch::comp_tan_w_01( double u, double w )
+vec3d SurfPatch::comp_tan_w_01( double u, double w ) const
 {
-    double uu    = u * u;
-    double one_u = 1.0 - u;
-    double F1u   = one_u * one_u * one_u;
-    double F2u   = 3.0 * one_u * one_u * u;
-    double F3u   = 3.0 * one_u * uu;
-    double F4u   = uu * u;
-
-    double ww    = w * w;
-    double one_w = 1.0 - w;
-    double F1w   = -3.0 * one_w * one_w;
-    double F2w   = 3.0 - 12.0 * w + 9.0 * ww;
-    double F3w   = 6.0 * w - 9.0 * ww;
-    double F4w   = 3.0 * ww;
-
-    //==== Compute Point On Surface ====//
-    vec3d new_pnt =
-        ( ( pnts[0][0] * F1u + pnts[1][0] * F2u + pnts[2][0] * F3u + pnts[3][0] * F4u ) * F1w ) +
-        ( ( pnts[0][1] * F1u + pnts[1][1] * F2u + pnts[2][1] * F3u + pnts[3][1] * F4u ) * F2w ) +
-        ( ( pnts[0][2] * F1u + pnts[1][2] * F2u + pnts[2][2] * F3u + pnts[3][2] * F4u ) * F3w ) +
-        ( ( pnts[0][3] * F1u + pnts[1][3] * F2u + pnts[2][3] * F3u + pnts[3][3] * F4u ) * F4w );
-
-    return( new_pnt );
-
+    surface_point_type p = m_Patch.f_v( u, w );
+    vec3d new_pnt( p.x(), p.y(), p.z() );
+    return new_pnt;
 }
 
-//===== Compute Point On Patch  =====//
-void SurfPatch::comp_delta_uw( vec3d& pnt_in, vec3d& guess_pnt, double norm_uw[2], double delta_uw[2] )
-{
-    vec3d tan_u = comp_tan_u_01( norm_uw[0], norm_uw[1] );
-    vec3d tan_w = comp_tan_w_01( norm_uw[0], norm_uw[1] );
-
-    vec3d dist_vec = guess_pnt - pnt_in;
-
-//static double max_mag = 0.0;
-//if ( dist_vec.mag() > max_mag ) max_mag = dist_vec.mag();
-//printf( "DistVec Mag = %f Mx = %f\n", dist_vec.mag(), max_mag );
-
-    vec3d A = cross( tan_w, dist_vec );
-    vec3d B = cross( tan_u, dist_vec );
-    vec3d norm = cross( tan_u, tan_w );
-
-    double N = dot( norm, norm );
-
-    if( std::abs( N ) > DBL_EPSILON )
-    {
-        delta_uw[0] = dot( A, norm ) / N;
-        delta_uw[1] = dot( B, norm ) / N;
-    }
-    else
-    {
-        delta_uw[0] = 0.0;
-        delta_uw[1] = 0.0;
-    }
-}
-
-void SurfPatch::IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vector< double > & t_vals )
+void SurfPatch::IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vector< double > & t_vals ) const
 {
     if ( !Compare( line_box, bnd_box ) )
     {
@@ -448,13 +178,16 @@ void SurfPatch::IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vec
     }
 
     //==== Do Tri Seg intersection ====//
-    if ( test_planar( DEFAULT_PLANE_TOL ) )
+    if ( test_planar( 1.0e-5 ) )  // Uses a dimensional tolerance in test.
     {
+        int n( m_Patch.degree_u() ), m( m_Patch.degree_v() );
+
         double r, s, t;
-        vec3d OA1 = pnts[0][0];
-        vec3d A1 = pnts[3][3] - pnts[0][0];
-        vec3d B1 = pnts[3][0] - pnts[0][0];
-        vec3d C1 = pnts[0][3] - pnts[0][0];
+        vec3d OA1 = m_Patch.get_control_point( 0, 0 );
+        vec3d A1 = m_Patch.get_control_point( n, m ) - OA1;
+        vec3d B1 = m_Patch.get_control_point( n, 0 ) - OA1;
+        vec3d C1 = m_Patch.get_control_point( 0, m ) - OA1;
+
         vec3d p1p0 = p1 - p0;
 
         if ( tri_seg_intersect( OA1, A1, B1, p0, p1p0, r, s, t ) )
@@ -468,16 +201,24 @@ void SurfPatch::IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vec
         return;
     }
 
-    SurfPatch bps[4];
-    split_patch( bps[0], bps[1], bps[2], bps[3] );      // Split Patch2 and Keep Subdividing
+    int n = degree_u();
+    int m = degree_v();
+    int d = GetSubDepth() + 1;
 
-    bps[0].IntersectLineSeg( p0, p1, line_box, t_vals );
-    bps[1].IntersectLineSeg( p0, p1, line_box, t_vals );
-    bps[2].IntersectLineSeg( p0, p1, line_box, t_vals );
-    bps[3].IntersectLineSeg( p0, p1, line_box, t_vals );
+    SurfPatch bps0( n, m, d );
+    SurfPatch bps1( n, m, d );
+    SurfPatch bps2( n, m, d );
+    SurfPatch bps3( n, m, d );
+
+    split_patch( bps0, bps1, bps2, bps3 );
+
+    bps0.IntersectLineSeg( p0, p1, line_box, t_vals );
+    bps1.IntersectLineSeg( p0, p1, line_box, t_vals );
+    bps2.IntersectLineSeg( p0, p1, line_box, t_vals );
+    bps3.IntersectLineSeg( p0, p1, line_box, t_vals );
 }
 
-void SurfPatch::AddTVal( double t, vector< double > & t_vals )
+void SurfPatch::AddTVal( double t, vector< double > & t_vals ) const
 {
     bool add_flag = true;
     for ( int i = 0 ; i < ( int )t_vals.size() ; i++ )

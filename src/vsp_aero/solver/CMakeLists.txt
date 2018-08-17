@@ -6,7 +6,7 @@ endif()
 
 FIND_PACKAGE( OpenMP )
 
-if(OPENMP_FOUND)
+if(OPENMP_FOUND AND NOT CXX_OMP_COMPILER)
   set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS} -DVSPAERO_OPENMP")
   set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS} -DVSPAERO_OPENMP")
 
@@ -57,6 +57,7 @@ if(BUILD_VSPAERO)
   ControlSurface.C
   ControlSurfaceGroup.C
   FEM_Node.C
+  Gradient.C
   RotorDisk.C
   VSP_Agglom.C
   VSP_Edge.C
@@ -70,6 +71,7 @@ if(BUILD_VSPAERO)
   Vortex_Sheet.C
   Vortex_Trail.C
   matrix.C
+  MatPrecon.C
   quat.C
   time.C
   utils.C
@@ -77,7 +79,8 @@ if(BUILD_VSPAERO)
   CharSizes.H
   ControlSurface.H
   ControlSurfaceGroup.H
-  FEM_Node.C
+  FEM_Node.H
+  Gradient.H
   RotorDisk.H
   VSPAERO_OMP.H
   VSP_Agglom.H
@@ -92,6 +95,7 @@ if(BUILD_VSPAERO)
   Vortex_Sheet.H
   Vortex_Trail.H
   matrix.H
+  MatPrecon.H
   quat.H
   time.H
   utils.H

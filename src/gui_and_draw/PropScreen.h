@@ -33,7 +33,7 @@ public:
 
 protected:
 
-    enum { CHORD, TWIST, RAKE, SKEW };
+    enum { CHORD, TWIST, RAKE, SKEW, SWEEP };
 
     GroupLayout m_DesignLayout;
 
@@ -49,10 +49,12 @@ protected:
     ToggleButton m_FeatherToggle;
     ToggleRadioGroup m_BetaToggle;
 
+    SliderAdjRangeInput m_ConstructSlider;
+
     ToggleButton m_ReverseToggle;
 
     SliderInput m_AFLimitSlider;
-    StringOutput m_AFOutput;
+    Output m_AFOutput;
 
     Choice m_RootCapTypeChoice;
     SliderAdjRangeInput m_RootCapLenSlider;
@@ -72,8 +74,8 @@ protected:
     SliderAdjRangeInput m_TEClusterSlider;
     SliderAdjRangeInput m_RootClusterSlider;
     SliderAdjRangeInput m_TipClusterSlider;
-    StringOutput m_SmallPanelWOutput;
-    StringOutput m_MaxGrowthOutput;
+    Output m_SmallPanelWOutput;
+    Output m_MaxGrowthOutput;
 
     GroupLayout m_XSecLayout;
 

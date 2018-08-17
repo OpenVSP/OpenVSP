@@ -479,12 +479,12 @@ void GroupLayout::AddButton( CheckButtonBit& cbutton, const char* label, int val
 
 
 //==== Create & Init Gui TriggerButton  ====//
-void GroupLayout::AddButton( TriggerButton& tbutton, const char* label )
+void GroupLayout::AddButton( TriggerButton& tbutton, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
     //==== Add Check Button ====//
-    int bw = FitWidth( 0, m_ButtonWidth );
+    int bw = FitWidth( used_w, m_ButtonWidth );
     Fl_Button* flbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, label );
     flbutton->labelfont( 1 );
     flbutton->labelsize( 12 );
@@ -781,6 +781,30 @@ void GroupLayout::AddOutput( StringOutput& string_output, const char* label, int
     string_output.Init( m_Screen, output );
 }
 
+void GroupLayout::AddOutput( Output& output, const char* label, const char* format, int used_w )
+{
+    assert( m_Group && m_Screen );
+
+    //==== Parm Button ====//
+    VspButton* button = AddParmButton( label );
+
+    //==== Add Text Input ====//
+    int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
+    Fl_Output* floutput = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
+    floutput->color( ( Fl_Color )23 );
+    floutput->labelfont( 1 );
+    floutput->labelsize( 12 );
+    floutput->textfont( 1 );
+    floutput->textsize( 12 );
+
+    m_Group->add( floutput );
+    AddX( iw );
+
+    AddY( m_StdHeight );
+    NewLineX();
+
+    output.Init( m_Screen, floutput, format, button );
+}
 
 //==== Create & Init Float Input  ====//
 void GroupLayout::AddInput( Input& input, const char* label, const char* format )
@@ -846,11 +870,20 @@ void GroupLayout::AddInputEvenSpacedVector(Input& start_input, Input& end_input,
 }
 
 //==== Create & Init Index Selector  ====//
-void GroupLayout::AddIndexSelector( IndexSelector& selector, int used_w )
+void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, int used_w )
 {
     assert( m_Group && m_Screen );
 
     int butw = 5 * m_ButtonWidth / 6;
+
+    VspButton* button = NULL;
+    if ( label )
+    {
+        button = AddParmButton( label );
+        // Shrink arrows.
+        butw = butw / 2;
+        used_w = used_w + m_ButtonWidth;
+    }
 
     Fl_Button* but_ll = new Fl_Button( m_X, m_Y, butw, m_StdHeight, "<<" );
     but_ll->box( FL_THIN_UP_BOX );
@@ -858,7 +891,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, int used_w )
     but_ll->labelsize( 20 );
     but_ll->labelcolor( ( Fl_Color )4 );
     but_ll->align( Fl_Align( FL_ALIGN_CLIP ) );
-
+    m_Group->add( but_ll );
     AddX( butw );
 
     Fl_Button* but_l = new Fl_Button( m_X, m_Y, butw, m_StdHeight, "<" );
@@ -867,7 +900,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, int used_w )
     but_l->labelsize( 20 );
     but_l->labelcolor( ( Fl_Color )4 );
     but_l->align( Fl_Align( FL_ALIGN_CLIP ) );
-
+    m_Group->add( but_l );
     AddX( butw );
 
     int iw = FitWidth( 4 * butw + used_w, m_InputWidth );
@@ -879,7 +912,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, int used_w )
     int_inp->textsize( 14 );
     int_inp->align( Fl_Align( FL_ALIGN_CENTER ) );
     int_inp->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
-
+    m_Group->add( int_inp );
     AddX( iw );
 
     Fl_Button* but_r = new Fl_Button( m_X, m_Y, butw, m_StdHeight, ">" );
@@ -888,7 +921,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, int used_w )
     but_r->labelsize( 20 );
     but_r->labelcolor( ( Fl_Color )4 );
     but_r->align( Fl_Align( FL_ALIGN_CLIP ) );
-
+    m_Group->add( but_r );
     AddX( butw );
 
     Fl_Button* but_rr = new Fl_Button( m_X, m_Y, butw, m_StdHeight, ">>" );
@@ -897,10 +930,10 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, int used_w )
     but_rr->labelsize( 20 );
     but_rr->labelcolor( ( Fl_Color )4 );
     but_rr->align( Fl_Align( FL_ALIGN_CLIP ) );
-
+    m_Group->add( but_rr );
     AddX( butw );
 
-    selector.Init( m_Screen, but_ll, but_l, int_inp, but_r, but_rr );
+    selector.Init( m_Screen, but_ll, but_l, int_inp, but_r, but_rr, button );
 
     AddY( m_StdHeight );
     NewLineX();
@@ -1415,7 +1448,7 @@ void GroupLayout::AddSkinHeader( SkinHeader & skin_header, bool addcontchoice )
 }
 
 //==== Add Geom Picker ====//
-void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w )
+void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w, string text )
 {
 
     assert( m_Group && m_Screen );
@@ -1423,7 +1456,12 @@ void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w )
     //==== Geom Button ====//
     if ( m_ChoiceButtonWidth > 0 )
     {
-        Fl_Button* button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, "Geom" );
+        if ( text.length() == 0 )
+        {
+            text = string( "Geom" );
+        }
+        Fl_Button* button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight );
+        button->copy_label( text.c_str() );
         button->box( FL_THIN_UP_BOX );
         button->labelfont( 1 );
         button->labelsize( 12 );

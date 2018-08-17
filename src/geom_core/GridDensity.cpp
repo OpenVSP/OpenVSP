@@ -11,7 +11,7 @@
 #include "Geom.h"
 #include "Vehicle.h"
 #include "ParmMgr.h"
-
+#include "APIDefines.h"
 
 /////////////////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -85,6 +85,14 @@ void PointSource::SetNamedVal( string name, double val )
     {
         m_WLoc = val;
     }
+    else if ( name == "Length" )
+    {
+        m_Len = val;
+    }
+    else if ( name == "Radius" )
+    {
+        m_Rad = val;
+    }
 }
 
 void PointSource::ReadV2File( xmlNodePtr &root )
@@ -148,6 +156,14 @@ void LineSource::SetNamedVal( string name, double val )
     else if ( name == "W2" )
     {
         m_WLoc2 = val;
+    }
+    else if ( name == "Length" )
+    {
+        m_Len = val;
+    }
+    else if ( name == "Radius" )
+    {
+        m_Rad = val;
     }
     else if ( name == "Length2" )
     {
@@ -228,6 +244,14 @@ void BoxSource::SetNamedVal( string name, double val )
     {
         m_WLoc2 = val;
     }
+    else if ( name == "Length" )
+    {
+        m_Len = val;
+    }
+    else if ( name == "Radius" )
+    {
+        m_Rad = val;
+    }
 }
 
 void BoxSource::ReadV2File( xmlNodePtr &root )
@@ -242,6 +266,50 @@ void BoxSource::ReadV2File( xmlNodePtr &root )
 
     m_ULoc2 = XmlUtil::FindDouble( root, "U2", m_ULoc2() );
     m_WLoc2 = XmlUtil::FindDouble( root, "W2", m_WLoc2() );
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+ConstLineSource::ConstLineSource()
+{
+    m_Val.Init( "Val", m_GroupName, this, 0.5, 0.0, 1.0 );
+    m_Val.SetDescript( "Constant line source parameter value" );
+
+}
+
+void ConstLineSource::SetNamedVal( string name, double val )
+{
+    if ( name == "UVal" )
+    {
+        m_Val = val;
+    }
+    else if ( name == "Length" )
+    {
+        m_Len = val;
+    }
+    else if ( name == "Radius" )
+    {
+        m_Rad = val;
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+ULineSource::ULineSource()
+{
+    m_Type = vsp::ULINE_SOURCE;
+    m_Name = "ULine_Name";
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+WLineSource::WLineSource()
+{
+    m_Type = vsp::WLINE_SOURCE;
+    m_Name = "WLine_Name";
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -316,7 +384,7 @@ void PointSimpleSource::CopyFrom( BaseSource* s )
     m_WLoc = ( ( PointSource* )s )->m_WLoc();
 }
 
-double PointSimpleSource::GetTargetLen( double base_len, vec3d &  pos )
+double PointSimpleSource::GetTargetLen( double base_len, vec3d &  pos, const string & geomid, const int & surfindx, const double & u, const double &w )
 {
     double dist2 = dist_squared( pos, m_Loc );
 
@@ -334,7 +402,7 @@ double PointSimpleSource::GetTargetLen( double base_len, vec3d &  pos )
 
 void PointSimpleSource::Update( Geom* geomPtr )
 {
-    m_Loc = geomPtr->GetUWPt( m_SurfIndx, m_ULoc, m_WLoc );
+    m_Loc = geomPtr->CompPnt01(m_SurfIndx, m_ULoc, m_WLoc);
 }
 
 void PointSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
@@ -438,7 +506,7 @@ void LineSimpleSource::AdjustLen( double val )
     m_Len2 = m_Len2 * val;
 }
 
-double LineSimpleSource::GetTargetLen( double base_len, vec3d &  pos )
+double LineSimpleSource::GetTargetLen( double base_len, vec3d & pos, const string & geomid, const int & surfindx, const double & u, const double &w )
 {
 
     double retlen = base_len;
@@ -507,8 +575,8 @@ double LineSimpleSource::GetTargetLen( double base_len, vec3d &  pos )
 
 void LineSimpleSource::Update( Geom* geomPtr )
 {
-    vec3d p1 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc1, m_WLoc1 );
-    vec3d p2 = geomPtr->GetUWPt( m_SurfIndx, m_ULoc2, m_WLoc2 );
+    vec3d p1 = geomPtr->CompPnt01(m_SurfIndx, m_ULoc1, m_WLoc1);
+    vec3d p2 = geomPtr->CompPnt01(m_SurfIndx, m_ULoc2, m_WLoc2);
     m_RadSquared1 = m_Rad * m_Rad;
     m_RadSquared2 = m_Rad2 * m_Rad2;
     SetEndPnts( p1, p2 );
@@ -627,7 +695,7 @@ void BoxSimpleSource::SetMinMaxPnts( const vec3d & min_pnt, const vec3d & max_pn
     m_Box.Update( m_CullMaxPnt );
 }
 
-double BoxSimpleSource::GetTargetLen( double base_len, vec3d &  pos )
+double BoxSimpleSource::GetTargetLen( double base_len, vec3d & pos, const string & geomid, const int & surfindx, const double & u, const double &w )
 {
     if ( pos[0] <= m_CullMinPnt[0] )
     {
@@ -692,7 +760,7 @@ void BoxSimpleSource::Update( Geom* geomPtr )
         for ( int j = 0 ; j < num_segs ; j++ )
         {
             double w = m_WLoc1 + fu * ( m_WLoc2 - m_WLoc1 );
-            vec3d p = geomPtr->GetUWPt( m_SurfIndx, u, w );
+            vec3d p = geomPtr->CompPnt01(m_SurfIndx, u, w);
             pVec.push_back( p );
             box.Update( p );
         }
@@ -755,6 +823,282 @@ void BoxSimpleSource::Highlight( bool flag )
         m_BoxDO2.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
         m_BoxDO3.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
     }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+ConstLineSimpleSource::ConstLineSimpleSource()
+{
+
+    m_Val = 0.0;
+
+    m_SpheresDO.m_GeomID = m_DrawObjID + "1";
+    m_SpheresDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_SpheresDO.m_Type = DrawObj::VSP_WIRE_MESH;
+    m_SpheresDO.m_LineWidth = 1.0;
+    m_SpheresDO.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
+
+    m_LinesDO.m_GeomID = m_DrawObjID + "2";
+    m_LinesDO.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_LinesDO.m_Type = DrawObj::VSP_LINE_STRIP;
+    m_LinesDO.m_LineWidth = 1.0;
+    m_LinesDO.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
+
+    m_GeomPtr = NULL;
+}
+
+void ConstLineSimpleSource::CopyFrom( BaseSource* s )
+{
+    m_Len = s->m_Len();
+    m_Rad = s->m_Rad();
+
+    m_OrigSourceID = s->GetID();
+
+    m_Val = ( ( ConstLineSource* )s )->m_Val();
+}
+
+void ConstLineSimpleSource::UpdateBBox()
+{
+    m_Box.Reset();
+
+    for ( int i = 0; i < m_Pts.size(); i++ )
+    {
+        m_Box.Update( m_Pts[i] );
+    }
+}
+
+void ConstLineSimpleSource::AdjustLen( double val )
+{
+    m_Len = m_Len * val;
+}
+
+double ConstLineSimpleSource::GetTargetLen( double base_len, vec3d & pos, const string & geomid, const int & surfindx, const double & u, const double &w )
+{
+    double dmin2 = std::numeric_limits<double>::max();
+
+    int imatch = -1;
+    for ( int i = 0; i < m_Pts.size() - 1; i++ )
+    {
+        double t;
+        double d2 = pointSegDistSquared( pos, m_Pts[i], m_Pts[i + 1], &t );
+        if ( d2 < dmin2 )
+        {
+            dmin2 = d2;
+            imatch = i;
+        }
+    }
+
+
+    // Using this pointer is a massive layering violation.
+    // Simple sources were designed to evaluate based on xyz coordinates only, with no
+    // relationship back to the original surface.
+    // High quality U,W line sources are enabled by evaluating the nearest point in U,W
+    // coordinates.  This requires a surface query - that requires this pointer.
+    // The pointer is stored instead of the GeomID for performance reasons.  The GeomID
+    // represents the same layering violation.
+    if ( m_GeomPtr )
+    {
+        string parentGeomID = m_GeomPtr->GetID();
+
+        if ( parentGeomID == geomid && imatch >= 0 )
+        {
+            int imain = m_GeomPtr->GetMainSurfID( m_SurfIndx );
+
+            if ( surfindx == imain )
+            {
+                double t;
+
+                double umax = m_GeomPtr->GetSurfPtr( m_SurfIndx )->GetUMax();
+                double wmax = m_GeomPtr->GetSurfPtr( m_SurfIndx )->GetWMax();
+
+                vec3d uw( u / umax, w / wmax, 0.0 );
+
+                pointSegDistSquared( uw, m_UWPts[imatch], m_UWPts[imatch + 1], &t );
+
+                uw = m_UWPts[imatch] + t * ( m_UWPts[imatch + 1] - m_UWPts[imatch] );
+
+                vec3d p = m_GeomPtr->CompPnt01( m_SurfIndx, uw.x(), uw.y() );
+
+                double d2 = dist_squared( pos, p );
+
+                if ( d2 < dmin2 )
+                {
+                    dmin2 = d2;
+                }
+            }
+        }
+    }
+
+
+    double radSquared = m_Rad * m_Rad;
+
+    if ( dmin2 > radSquared )
+    {
+        return base_len;
+    }
+
+    double fract = dmin2 / radSquared;
+
+    return ( m_Len + fract * ( base_len - m_Len  ) );
+}
+
+
+
+void ConstLineSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+{
+
+    double tol = 1.0e-6;
+
+    int n = m_Pts.size();
+    int nseg = 8;
+
+    bool closed = false;
+    if ( dist( m_Pts[ 0 ], m_Pts[ n - 1 ] ) < tol )
+    {
+        closed = true;
+    }
+
+    vector < vector < vec3d > > circpts;
+    vector < vector < vec3d > > norms;
+    vector < vector < double > > parm;
+    circpts.resize( n );
+    norms.resize( n );
+    parm.resize( n );
+
+    for ( int i = 0; i < m_Pts.size(); i++ )
+    {
+        int inext = i + 1;
+        if ( inext >= n ) // On final point.
+        {
+            if ( closed )
+            {
+                inext = 1;
+            }
+            else
+            {
+                inext = n - 1;
+            }
+        }
+
+        int iprev = i - 1;
+        if ( iprev < 0 ) // On first point.
+        {
+            if ( closed )
+            {
+                iprev = n - 2;
+            }
+            else
+            {
+                iprev = 0;
+            }
+        }
+
+        vec3d norm = m_Pts[ inext ] - m_Pts[ iprev ];
+        norm.normalize();
+
+        vector < vec3d > cpts;
+        MakeCircle( m_Pts[i], norm, m_Rad, cpts, nseg );
+
+        circpts[i].resize( nseg + 1 );
+        norms[i].resize( nseg + 1 );
+        parm[i].resize( nseg + 1);
+        for ( int j = 0; j < nseg; j++ )
+        {
+            circpts[ i ][ j ] = cpts[ 2 * j ];
+            parm[i][j] = 0.0;
+        }
+        circpts[ i ][ nseg ] = cpts[ 2 * nseg - 1 ];
+        parm[ i ][ nseg ] = 0.0;
+    }
+
+    m_SpheresDO.m_PntMesh.resize( 1 );
+    m_SpheresDO.m_NormMesh.resize( 1 );
+    m_SpheresDO.m_uTexMesh.resize( 1 );
+    m_SpheresDO.m_vTexMesh.resize( 1 );
+
+    m_SpheresDO.m_PntMesh[0] = circpts;
+    m_SpheresDO.m_NormMesh[0] = norms;
+    m_SpheresDO.m_uTexMesh[0] = parm;
+    m_SpheresDO.m_vTexMesh[0] = parm;
+
+
+    m_LinesDO.m_PntVec = m_Pts;
+
+    draw_obj_vec.push_back( &m_SpheresDO );
+    draw_obj_vec.push_back( &m_LinesDO );
+}
+
+void ConstLineSimpleSource::Show( bool flag )
+{
+    m_SpheresDO.m_Visible = flag;
+    m_LinesDO.m_Visible = flag;
+}
+
+void ConstLineSimpleSource::Highlight( bool flag )
+{
+    if( flag )
+    {
+        m_SpheresDO.m_LineColor = vec3d( 1, 100.0 / 255, 0 );
+        m_LinesDO.m_LineColor = vec3d( 1, 100.0 / 255, 0 );
+    }
+    else
+    {
+        m_SpheresDO.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
+        m_LinesDO.m_LineColor = vec3d( 100.0 / 255, 100.0 / 255, 100.0 / 255 );
+    }
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+void ULineSimpleSource::Update( Geom* geomPtr )
+{
+
+    int N = 10;
+    m_Pts.resize( N );
+    m_UWPts.resize( N );
+
+    for ( int i = 0; i < N; i++ )
+    {
+        double w = i * 1.0 / ( N - 1 );
+        m_Pts[i] = geomPtr->CompPnt01( m_SurfIndx, m_Val, w );
+        m_UWPts[i] = vec3d( m_Val, w, 0.0 );
+    }
+
+    // Storing this pointer is a massive layering violation.
+    // Simple sources were designed to evaluate based on xyz coordinates only, with no
+    // relationship back to the original surface.
+    // High quality U,W line sources are enabled by evaluating the nearest point in U,W
+    // coordinates.  This requires a surface query - that requires this pointer.
+    // The pointer is stored instead of the GeomID for performance reasons.  The GeomID
+    // represents the same layering violation.
+    m_GeomPtr = geomPtr;
+
+}
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+
+void WLineSimpleSource::Update( Geom* geomPtr )
+{
+
+    int N = 10;
+    m_Pts.resize( N );
+    m_UWPts.resize( N );
+
+    for ( int i = 0; i < N; i++ )
+    {
+        double u = i * 1.0 / ( N - 1 );
+        m_Pts[i] = geomPtr->CompPnt01( m_SurfIndx, u, m_Val );
+        m_UWPts[i] = vec3d( u, m_Val, 0.0 );
+    }
+
+    // Storing this pointer is a massive layering violation.
+    // Simple sources were designed to evaluate based on xyz coordinates only, with no
+    // relationship back to the original surface.
+    // High quality U,W line sources are enabled by evaluating the nearest point in U,W
+    // coordinates.  This requires a surface query - that requires this pointer.
+    // The pointer is stored instead of the GeomID for performance reasons.  The GeomID
+    // represents the same layering violation.
+    m_GeomPtr = geomPtr;
 }
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -879,7 +1223,10 @@ double GridDensity::GetFarRadFrac()
     return radFrac;
 }
 
-double GridDensity::GetTargetLen( vec3d& pos, bool farFlag )
+// The last four parameters (geomid, surfindx, u, w) passed to this routine -- and down
+// to the source GetTargetLen are a layering violation.  Be careful of this hack in later
+// changes to this code.
+double GridDensity::GetTargetLen( vec3d& pos, bool farFlag, const string & geomid, const int & surfindx, const double & u, const double & w )
 {
     double target_len;
     double base_len;
@@ -896,7 +1243,7 @@ double GridDensity::GetTargetLen( vec3d& pos, bool farFlag )
 
     for ( int i = 0 ; i < ( int )m_Sources.size() ; i++ )
     {
-        double len = m_Sources[i]->GetTargetLen( base_len, pos );
+        double len = m_Sources[i]->GetTargetLen( base_len, pos, geomid, surfindx, u, w );
         if ( len < target_len )
         {
             target_len = len;

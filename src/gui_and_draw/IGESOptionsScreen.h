@@ -45,12 +45,24 @@ protected:
     SliderInput m_ToCubicTolSlider;
     ToggleButton m_TrimTEToggle;
 
+    ToggleButton m_LabelIDToggle;
+    ToggleButton m_LabelNameToggle;
+    ToggleButton m_LabelSurfNoToggle;
+    ToggleButton m_LabelSplitNoToggle;
+    Choice m_LabelDelimChoice;
+
     int m_PrevUnit;
     bool m_PrevSplit;
     bool m_PrevSplitSub;
     bool m_PrevCubic;
     double m_PrevToCubicTol;
     bool m_PrevTrimTE;
+
+    bool m_PrevLabelID;
+    bool m_PrevLabelName;
+    bool m_PrevLabelSurfNo;
+    bool m_PrevLabelSplitNo;
+    int m_PrevLabelDelim;
 
     TriggerButton m_OkButton;
     TriggerButton m_CancelButton;

@@ -59,7 +59,7 @@ public:
     }
 
     void GetBasicTransformation( double w, Matrix4d &mat );
-    void GetBasicTransformation( int pdir, int wdir, int wshift, bool flip, double w, Matrix4d &mat );
+    static void GetBasicTransformation( int pdir, int wdir, int wshift, bool flip, double w, Matrix4d &mat );
 
     void SetGlobalXForm( const Matrix4d &mat )            { m_GlobalXForm = mat; }
     Matrix4d GetGlobalXForm()                            { return m_GlobalXForm; }
@@ -87,12 +87,13 @@ public:
 
     virtual string GetName();
 
+    static XSecCurve* CreateXSecCurve( int type );
+
 protected:
 
     virtual void ChangeID( string id );
 
     XSec* CreateXSec( int type );
-    XSecCurve* CreateXSecCurve( int type );
 
     vector< XSec* > m_XSecPtrVec;
     deque< string > m_XSecIDDeque;

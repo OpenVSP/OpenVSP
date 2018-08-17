@@ -97,7 +97,8 @@ public:
     void CalcRePowerDivisor();
     void ReynoldsNumCalc( int index );
     void Calculate_Cf();
-    void CalcPartialTurbulence( int i, double lref, double vinf, double kineVisc );
+    double CalcPartialTurbulence( double perclam, double re, double lref, double reqL,
+        double roughness, double tawtwrat, double tetwrat );
     void Calculate_fineRat();
     double CalculateFinessRatio( int isurf, int irow );
     void Calculate_FF();
@@ -137,6 +138,10 @@ public:
         m_CurrentExcresIndex = val;
     }
     void SetExcresLabel( const string & newLabel );
+    void SetRecomputeGeomFlag( const bool & val )
+    {
+        m_RecomputeGeom = val;
+    }
 
     // Getter Methods
     vector < ParasiteDragTableRow > GetMainTableVec()
@@ -183,6 +188,10 @@ public:
     int GetCurrExcresIndex()
     {
         return m_CurrentExcresIndex;
+    }
+    bool GetRecomputeGeomFlag()
+    {
+        return m_RecomputeGeom;
     }
     double GetGeometryCD();
     double GetSubTotalCD();
@@ -286,6 +295,8 @@ public:
     // CSV File Name Default
     string m_FileName;
 
+    BoolParm m_ExportSubCompFlag;
+
     // Labels for Export
     string m_SwetLabel;
     string m_LrefLabel;
@@ -363,6 +374,9 @@ private:
 
     double m_ExcresfTotal;
     double m_ExcresPercTotal;
+
+    // Execution Control
+    bool m_RecomputeGeom;
 };
 
 #define ParasiteDragMgr ParasiteDragMgrSingleton::getInstance()

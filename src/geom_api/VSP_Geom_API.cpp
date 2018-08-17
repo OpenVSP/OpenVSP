@@ -14,6 +14,7 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "AnalysisMgr.h"
+#include "SurfaceIntersectionMgr.h"
 #include "CfdMeshMgr.h"
 #include "Util.h"
 #include "DesignVarMgr.h"
@@ -22,6 +23,15 @@
 #include "WingGeom.h"
 #include "PropGeom.h"
 #include "VSPAEROMgr.h"
+#include "MeasureMgr.h"
+#include "SubSurfaceMgr.h"
+#include "VKTAirfoil.h"
+#include "FeaStructure.h"
+#include "StructureMgr.h"
+#include "FeaMeshMgr.h"
+
+#include "eli/mutil/quad/simpson.hpp"
+#include "Eigen/src/Core/Matrix.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"
@@ -353,25 +363,29 @@ void SetComputationFileName( int file_type, const string & file_name )
     GetVehicle()->setExportFileName( file_type, file_name );
 
     if ( file_type == CFD_STL_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_STL_FILE_NAME );
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_STL_FILE_NAME );
     if ( file_type == CFD_POLY_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_POLY_FILE_NAME );
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_POLY_FILE_NAME );
     if ( file_type == CFD_TRI_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_TRI_FILE_NAME );
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_TRI_FILE_NAME );
     if ( file_type == CFD_FACET_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_FACET_FILE_NAME );
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_FACET_FILE_NAME );
     if ( file_type == CFD_OBJ_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_OBJ_FILE_NAME );
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_OBJ_FILE_NAME );
     if ( file_type == CFD_DAT_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_DAT_FILE_NAME );
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_DAT_FILE_NAME );
     if ( file_type == CFD_KEY_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_KEY_FILE_NAME );
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_KEY_FILE_NAME );
     if ( file_type == CFD_GMSH_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_GMSH_FILE_NAME );
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_GMSH_FILE_NAME );
     if ( file_type == CFD_SRF_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_SRF_FILE_NAME );
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_SRF_FILE_NAME );
     if ( file_type == CFD_TKEY_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_TKEY_FILE_NAME );
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_TKEY_FILE_NAME );
+    if ( file_type == CFD_CURV_TYPE )
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_CURV_FILE_NAME );
+    if ( file_type == CFD_PLOT3D_TYPE )
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_PLOT3D_FILE_NAME );
 
     ErrorMgr.NoError();
 }
@@ -474,57 +488,57 @@ string ComputePlaneSlice( int set, int num_slices, const vec3d & norm, bool auto
 void SetCFDMeshVal( int type, double val )
 {
     if ( type == CFD_MIN_EDGE_LEN )
-        CfdMeshMgr.GetGridDensityPtr()->m_MinLen = val;
+        GetVehicle()->GetCfdGridDensityPtr()->m_MinLen = val;
     else if ( type == CFD_MAX_EDGE_LEN )
-        CfdMeshMgr.GetGridDensityPtr()->m_BaseLen = val;
+        GetVehicle()->GetCfdGridDensityPtr()->m_BaseLen = val;
     else if ( type == CFD_MAX_GAP )
-        CfdMeshMgr.GetGridDensityPtr()->m_MaxGap  = val;
+        GetVehicle()->GetCfdGridDensityPtr()->m_MaxGap  = val;
     else if ( type == CFD_NUM_CIRCLE_SEGS )
-        CfdMeshMgr.GetGridDensityPtr()->m_NCircSeg = val;
+        GetVehicle()->GetCfdGridDensityPtr()->m_NCircSeg = val;
     else if ( type == CFD_GROWTH_RATIO )
-        CfdMeshMgr.GetGridDensityPtr()->m_GrowRatio = val;
+        GetVehicle()->GetCfdGridDensityPtr()->m_GrowRatio = val;
     else if ( type == CFD_LIMIT_GROWTH_FLAG )
-        CfdMeshMgr.GetGridDensityPtr()->SetRigorLimit( ToBool(val) );
+        GetVehicle()->GetCfdGridDensityPtr()->SetRigorLimit( ToBool(val) );
     else if ( type == CFD_INTERSECT_SUBSURFACE_FLAG )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_IntersectSubSurfs = ToBool(val);
+        GetVehicle()->GetCfdSettingsPtr()->m_IntersectSubSurfs = ToBool(val);
     else if ( type == CFD_HALF_MESH_FLAG )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetHalfMeshFlag( ToBool(val) );
+        GetVehicle()->GetCfdSettingsPtr()->SetHalfMeshFlag( ToBool(val) );
     else if ( type == CFD_FAR_FIELD_FLAG )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFarMeshFlag( ToBool(val) );
+        GetVehicle()->GetCfdSettingsPtr()->SetFarMeshFlag( ToBool(val) );
     else if ( type == CFD_FAR_MAX_EDGE_LEN )
-        CfdMeshMgr.GetGridDensityPtr()->m_FarMaxLen = val;
+        GetVehicle()->GetCfdGridDensityPtr()->m_FarMaxLen = val;
     else if ( type == CFD_FAR_MAX_GAP )
-        CfdMeshMgr.GetGridDensityPtr()->m_FarMaxGap = val;
+        GetVehicle()->GetCfdGridDensityPtr()->m_FarMaxGap = val;
     else if ( type == CFD_FAR_NUM_CIRCLE_SEGS )
-        CfdMeshMgr.GetGridDensityPtr()->m_FarNCircSeg = val;
+        GetVehicle()->GetCfdGridDensityPtr()->m_FarNCircSeg = val;
     else if ( type == CFD_FAR_SIZE_ABS_FLAG )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFarAbsSizeFlag( ToBool(val) );
+        GetVehicle()->GetCfdSettingsPtr()->SetFarAbsSizeFlag( ToBool(val) );
     else if ( type == CFD_FAR_LENGTH )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_FarLength = val;
+        GetVehicle()->GetCfdSettingsPtr()->m_FarLength = val;
     else if ( type == CFD_FAR_WIDTH )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_FarWidth = val;
+        GetVehicle()->GetCfdSettingsPtr()->m_FarWidth = val;
     else if ( type == CFD_FAR_HEIGHT )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_FarHeight = val;
+        GetVehicle()->GetCfdSettingsPtr()->m_FarHeight = val;
     else if ( type == CFD_FAR_X_SCALE )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_FarXScale = val;
+        GetVehicle()->GetCfdSettingsPtr()->m_FarXScale = val;
     else if ( type == CFD_FAR_Y_SCALE )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_FarYScale = val;
+        GetVehicle()->GetCfdSettingsPtr()->m_FarYScale = val;
     else if ( type == CFD_FAR_Z_SCALE )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_FarZScale = val;
+        GetVehicle()->GetCfdSettingsPtr()->m_FarZScale = val;
     else if ( type == CFD_FAR_LOC_MAN_FLAG )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFarManLocFlag( ToBool(val) );
+        GetVehicle()->GetCfdSettingsPtr()->SetFarManLocFlag( ToBool(val) );
     else if ( type == CFD_FAR_LOC_X )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_FarXLocation = val;
+        GetVehicle()->GetCfdSettingsPtr()->m_FarXLocation = val;
     else if ( type == CFD_FAR_LOC_Y )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_FarYLocation = val;
+        GetVehicle()->GetCfdSettingsPtr()->m_FarYLocation = val;
     else if ( type == CFD_FAR_LOC_Z )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_FarZLocation = val;
+        GetVehicle()->GetCfdSettingsPtr()->m_FarZLocation = val;
     else if ( type == CFD_WAKE_SCALE )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale = val;
+        GetVehicle()->GetCfdSettingsPtr()->m_WakeScale = val;
     else if ( type == CFD_WAKE_ANGLE )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_WakeAngle = val;
+        GetVehicle()->GetCfdSettingsPtr()->m_WakeAngle = val;
     else if ( type == CFD_SRF_XYZ_FLAG )
-        CfdMeshMgr.GetCfdSettingsPtr()->m_XYZIntCurveFlag = ToBool(val);
+        GetVehicle()->GetCfdSettingsPtr()->m_XYZIntCurveFlag = ToBool(val);
     else
     {
         ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetCFDMeshVal::Can't Find Type " + to_string( ( long long )type ) );
@@ -597,6 +611,16 @@ void AddCFDSource( int type, const string & geom_id, int surf_index,
         bs->m_ULoc2 = u2;
         bs->m_WLoc2 = w2;
     }
+    else if ( source->GetType() == ULINE_SOURCE )
+    {
+        ULineSource* bs = dynamic_cast< ULineSource* > (source);
+        bs->m_Val = u1;
+    }
+    else if ( source->GetType() == WLINE_SOURCE )
+    {
+        WLineSource* bs = dynamic_cast< WLineSource* > (source);
+        bs->m_Val = w1;
+    }
     ErrorMgr.NoError();
 
 }
@@ -621,30 +645,34 @@ void ComputeCFDMesh( int set, int file_export_types )
     Update();
     Vehicle* veh = GetVehicle();
 
-    CfdMeshMgr.GetCfdSettingsPtr()->SetAllFileExportFlags( false );
+    veh->GetCfdSettingsPtr()->SetAllFileExportFlags( false );
 
     if ( file_export_types & CFD_STL_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_STL_FILE_NAME, true );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_STL_FILE_NAME, true );
     if ( file_export_types & CFD_POLY_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_POLY_FILE_NAME, true );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_POLY_FILE_NAME, true );
     if ( file_export_types & CFD_TRI_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_TRI_FILE_NAME, true );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_TRI_FILE_NAME, true );
     if ( file_export_types & CFD_FACET_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_FACET_FILE_NAME, true );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_FACET_FILE_NAME, true );
     if ( file_export_types & CFD_OBJ_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_OBJ_FILE_NAME, true );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_OBJ_FILE_NAME, true );
     if ( file_export_types & CFD_DAT_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_DAT_FILE_NAME, true );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_DAT_FILE_NAME, true );
     if ( file_export_types & CFD_KEY_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_KEY_FILE_NAME, true );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_KEY_FILE_NAME, true );
     if ( file_export_types & CFD_GMSH_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_GMSH_FILE_NAME, true );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_GMSH_FILE_NAME, true );
     if ( file_export_types & CFD_SRF_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_SRF_FILE_NAME, true );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_SRF_FILE_NAME, true );
     if ( file_export_types & CFD_TKEY_TYPE )
-        CfdMeshMgr.GetCfdSettingsPtr()->SetFileExportFlag( CFD_TKEY_FILE_NAME, true );
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_TKEY_FILE_NAME, true );
+    if ( file_export_types & CFD_CURV_TYPE )
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_CURV_FILE_NAME, true );
+    if ( file_export_types & CFD_PLOT3D_TYPE )
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_PLOT3D_FILE_NAME, true );
 
-    CfdMeshMgr.GetCfdSettingsPtr()->m_SelectedSetIndex = set;
+    veh->GetCfdSettingsPtr()->m_SelectedSetIndex = set;
     CfdMeshMgr.GenerateMesh();
     ErrorMgr.NoError();
 }
@@ -968,6 +996,19 @@ int GetNumResults( const string & name )
     return ResultsMgr.GetNumResults( name );
 }
 
+/// Get the name of the results object with the given id
+string GetResultsName( const string & results_id )
+{
+    if ( !ResultsMgr.ValidResultsID( results_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultName::Invalid ID " + results_id );
+        string ret_str;
+        return  ret_str;
+    }
+
+    return ResultsMgr.FindResultsPtr( results_id )->GetName();
+}
+
 /// Return the id of the results with the given results name and index
 string FindResultsID( const string & name, int index )
 {
@@ -1053,6 +1094,25 @@ const vector<double> & GetDoubleResults( const string & id, const string & name,
     }
 
     return ResultsMgr.GetDoubleResults( id, name, index );
+}
+
+/// Return the double matrix given the results id, data name and data index
+const vector< vector<double> > & GetDoubleMatResults( const string & id, const string & name, int index )
+{
+    if ( !ResultsMgr.ValidResultsID( id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetDoubleMatResults::Invalid ID " + id  );
+    }
+    else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleMatResults::Can't Find Name " + name  );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
+
+    return ResultsMgr.GetDoubleMatResults( id, name, index );
 }
 
 /// Return the string data given the results id, data name and data index
@@ -1253,6 +1313,16 @@ string AddGeom( const string & type, const string & parent  )
     return ret_id;
 }
 
+void UpdateGeom( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+
+    veh->UpdateGeom( geom_id );
+
+    ErrorMgr.NoError();
+}
+
+
 void DeleteGeom( const string & geom_id )
 {
     Vehicle* veh = GetVehicle();
@@ -1297,7 +1367,7 @@ void CopyGeomToClipboard( const string & geom_id )
 
 /// Paste the geometry in the clipboard to the vehicle.  The geometry is inserted
 /// as a child of the optional parent id
-void PasteGeomClipboard( const string & parent )
+vector< string > PasteGeomClipboard( const string & parent )
 {
     Vehicle* veh = GetVehicle();
 
@@ -1320,8 +1390,10 @@ void PasteGeomClipboard( const string & parent )
         veh->ClearActiveGeom();
     }
 
-    veh->PasteClipboard();
+    vector< string> pasted_ids = veh->PasteClipboard();
     ErrorMgr.NoError();
+
+    return pasted_ids;
 }
 
 /// Find and return all geoms
@@ -1529,6 +1601,35 @@ string GetSubSurf( const string & geom_id, int index )
     return ssurf->GetID();
 }
 
+/// Get IDs for all sub surface with parent geom ID and name
+std::vector<std::string> GetSubSurf( const string & geom_id, const string & name )
+{
+    vector<string> ID_vec;
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Can't Find Geom " + geom_id );
+        return ID_vec;
+    }
+    vector<SubSurface*> ss_vec = geom_ptr->GetSubSurfVec();
+    for ( size_t i = 0; i < ss_vec.size(); i++ )
+    {
+        if ( strcmp( ss_vec[i]->GetName().c_str(), name.c_str() ) == 0 )
+        {
+            ID_vec.push_back( ss_vec[i]->GetID() );
+        }
+    }
+
+    if ( ID_vec.size() == 0 )
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetSubSurf::Can't Find Sub Surface with Name " + name );
+        return ID_vec;
+    }
+    ErrorMgr.NoError();
+    return ID_vec;
+}
+
 void DeleteSubSurf( const string & geom_id, const string & sub_id )
 {
     Vehicle* veh = GetVehicle();
@@ -1542,6 +1643,32 @@ void DeleteSubSurf( const string & geom_id, const string & sub_id )
     if ( index == -1 )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + geom_id );
+        return;
+    }
+    geom_ptr->DelSubSurf( index );
+    ErrorMgr.NoError();
+    return;
+}
+
+void DeleteSubSurf( const string & sub_id )
+{
+    SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ss_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
+        return;
+    }
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( ss_ptr->GetCompID() );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find Geom " + ss_ptr->GetCompID() );
+        return;
+    }
+    int index = geom_ptr->GetSubSurfIndex( sub_id );
+    if ( index == -1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
         return;
     }
     geom_ptr->DelSubSurf( index );
@@ -1570,6 +1697,19 @@ void SetSubSurfName( const std::string & geom_id, const std::string & sub_id, co
     return;
 }
 
+void SetSubSurfName( const std::string & sub_id, const std::string & name )
+{
+    SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ss_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Invalid Sub Surface Ptr " );
+        return;
+    }
+    ss_ptr->SetName( name );
+    ErrorMgr.NoError();
+    return;
+}
+
 std::string GetSubSurfName( const std::string & geom_id, const std::string & sub_id )
 {
     Vehicle* veh = GetVehicle();
@@ -1588,6 +1728,476 @@ std::string GetSubSurfName( const std::string & geom_id, const std::string & sub
     }
     ErrorMgr.NoError();
     return ssurf->GetName();
+}
+
+std::string GetSubSurfName( const std::string & sub_id )
+{
+    SubSurface* ssurf = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Invalid Sub Surface Ptr " );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return ssurf->GetName();
+}
+
+/// Get index for sub surface given ID
+int GetSubSurfIndex( const std::string & sub_id )
+{
+    SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ss_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfIndex::Invalid Sub Surface Ptr " );
+        return -1;
+    }
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( ss_ptr->GetCompID() );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfIndex::Can't Find Geom " + ss_ptr->GetCompID() );
+        return -1;
+    }
+
+    int ss_ind = geom_ptr->GetSubSurfIndex( sub_id );;
+
+    ErrorMgr.NoError();
+    return ss_ind;
+}
+
+/// Get vector of sub surface IDs for a Geom
+std::vector<std::string> GetSubSurfIDVec( const std::string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfIDVec::Can't Find Geom " + geom_id );
+        return vector<string>();
+    }
+
+    vector<SubSurface*> ss_vec = geom_ptr->GetSubSurfVec();
+    vector<string> ID_vec;
+    ID_vec.resize( ss_vec.size() );
+
+    for ( size_t i = 0; i < ss_vec.size(); i++ )
+    {
+        ID_vec[i] = ss_vec[i]->GetID();
+    }
+
+    ErrorMgr.NoError();
+    return ID_vec;
+}
+
+/// Get vector of all sub surface IDs
+std::vector<std::string> GetAllSubSurfIDs()
+{
+    vector<SubSurface*> ss_vec = SubSurfaceMgr.GetSubSurfs();
+    vector<string> ID_vec;
+    ID_vec.resize( ss_vec.size() );
+
+    for ( size_t i = 0; i < ss_vec.size(); i++ )
+    {
+        ID_vec[i] = ss_vec[i]->GetID();
+    }
+
+    ErrorMgr.NoError();
+    return ID_vec;
+}
+
+/// Get # of sub surfaces for a geom
+int GetNumSubSurf( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumSubSurf::Can't Find Geom " + geom_id );
+        return -1;
+    }
+    ErrorMgr.NoError();
+    return geom_ptr->NumSubSurfs();
+}
+
+/// Get sub surface type
+int GetSubSurfType( const string & sub_id )
+{
+    SubSurface* ssurf = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ssurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfType::Invalid Sub Surface Ptr " );
+        return -1;
+    }
+    ErrorMgr.NoError();
+    return ssurf->GetType();
+}
+
+/// Get of the linkable parms ids for this sub surface
+std::vector<std::string> GetSubSurfParmIDs( const string & sub_id )
+{
+    vector< string > parm_vec;
+
+    Vehicle* veh = GetVehicle();
+    SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
+    if ( !ss_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfParmIDs::Can't Find SubSurface " + sub_id );
+        return parm_vec;
+    }
+
+    ss_ptr->AddLinkableParms( parm_vec );
+
+    ErrorMgr.NoError();
+    return parm_vec;
+}
+
+/// Add an FeaStructure, return FeaStructure index
+int AddFeaStruct( const string & geom_id, bool init_skin, int surfindex )
+{
+    StructureMgr.InitFeaProperties();
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaStruct::Can't Find Geom " + geom_id );
+        return -1;
+    }
+
+    FeaStructure* feastruct = NULL;
+    feastruct = geom_ptr->AddFeaStruct( init_skin, surfindex );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaStruct::Invalid FeaStructure Ptr" );
+        return -1;
+    }
+    ErrorMgr.NoError();
+    return ( geom_ptr->NumGeomFeaStructs() - 1 );
+}
+
+void DeleteFeaStruct( const string & geom_id, int fea_struct_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaStruct::Can't Find Geom " + geom_id );
+        return;
+    }
+    if ( !geom_ptr->ValidGeomFeaStructInd( fea_struct_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaStruct::Can't Find FeaStructure " + geom_id );
+        return;
+    }
+    geom_ptr->DeleteFeaStruct( fea_struct_id );
+    ErrorMgr.NoError();
+    return;
+}
+
+string GetFeaStructName( const string & geom_id, int fea_struct_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find Geom " + geom_id );
+        return string();
+    }
+    if ( !geom_ptr->ValidGeomFeaStructInd( fea_struct_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
+        return string();
+    }
+    FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !struct_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return struct_ptr->GetName();
+}
+
+void SetFeaStructName( const string & geom_id, int fea_struct_id, const string & name )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find Geom " + geom_id );
+        return;
+    }
+    if ( !geom_ptr->ValidGeomFeaStructInd( fea_struct_id ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
+        return;
+    }
+    FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !struct_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
+        return;
+    }
+    struct_ptr->SetName( name );
+    ErrorMgr.NoError();
+    return;
+}
+
+void SetFeaPartName( const string & part_id, const string & name )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( part_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPartName::Can't Find FEA Part " + part_id );
+        return;
+    }
+
+    part->SetName( name );
+    ErrorMgr.NoError();
+    return;
+}
+
+/// Add a FeaPart, return FeaPart ID
+string AddFeaPart( const string & geom_id, int fea_struct_id, int type )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaPart::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    FeaStructure* feastruct = NULL;
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaPart::Invalid FeaStructure Ptr" );
+        return string();
+    }
+
+    FeaPart* feapart = NULL;
+    feapart = feastruct->AddFeaPart( type );
+    if ( !feapart )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaPart::Invalid FeaPart Ptr" );
+        return string();
+    }
+    feastruct->Update();
+    ErrorMgr.NoError();
+    return feapart->GetID();
+}
+
+void DeleteFeaPart( const string & geom_id, int fea_struct_id, const string & part_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaPart::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    FeaStructure* feastruct = NULL;
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaPart::Invalid FeaStructure Ptr" );
+        return;
+    }
+
+    int index = StructureMgr.GetFeaPartIndex( part_id );
+    if ( index == -1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaPart::Can't Find FeaPart " + part_id );
+        return;
+    }
+    feastruct->DelFeaPart( index );
+    ErrorMgr.NoError();
+    return;
+}
+
+/// Add a FeaSubSurface, return FeaSubSurface ID
+string AddFeaSubSurf( const string & geom_id, int fea_struct_id, int type )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FeaSubSurface::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    FeaStructure* feastruct = NULL;
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FeaSubSurface::Invalid FeaStructure Ptr" );
+        return string();
+    }
+
+    SubSurface* feasubsurf = NULL;
+    feasubsurf = feastruct->AddFeaSubSurf( type );
+    if ( !feasubsurf )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FeaSubSurface::Invalid FeaSubSurface Ptr" );
+        return string();
+    }
+    feastruct->Update();
+    ErrorMgr.NoError();
+    return feasubsurf->GetID();
+}
+
+void DeleteFeaSubSurf( const string & geom_id, int fea_struct_id, const string & ss_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaSubSurf::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    FeaStructure* feastruct = NULL;
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaSubSurf::Invalid FeaStructure Ptr" );
+        return;
+    }
+
+    int index = StructureMgr.GetFeaSubSurfIndex( ss_id );
+    if ( index == -1 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaSubSurf::Can't Find FeaSubSurf " + ss_id );
+        return;
+    }
+    feastruct->DelFeaSubSurf( index );
+    ErrorMgr.NoError();
+    return;
+}
+
+/// Add an FeaMaterial, return FeaMaterial ID
+string AddFeaMaterial()
+{
+    FeaMaterial* feamat = NULL;
+    feamat = StructureMgr.AddFeaMaterial();
+    if ( !feamat )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaMaterial::Invalid FeaMaterial Ptr" );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return feamat->GetID();
+}
+
+/// Add an FeaProperty, return FeaProperty ID. The default is shell property type
+string AddFeaProperty( int property_type ) 
+{
+    FeaProperty* feaprop = NULL;
+    feaprop = StructureMgr.AddFeaProperty( property_type );
+    if ( !feaprop )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaProperty::Invalid FeaProperty Ptr" );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return feaprop->GetID();
+}
+
+//==== Set a FEA Mesh Control Val =====//
+void SetFeaMeshVal( const string & geom_id, int fea_struct_id, int type, double val )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFEAMeshVal::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    FeaStructure* feastruct = NULL;
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFEAMeshVal::Invalid FeaStructure Ptr" );
+        return;
+    }
+
+    // Type as CFD or FEA Mesh Setting Enums?
+    if ( type == CFD_MIN_EDGE_LEN )
+        feastruct->GetFeaGridDensityPtr()->m_MinLen = val;
+    else if ( type == CFD_MAX_EDGE_LEN )
+        feastruct->GetFeaGridDensityPtr()->m_BaseLen = val;
+    else if ( type == CFD_MAX_GAP )
+        feastruct->GetFeaGridDensityPtr()->m_MaxGap = val;
+    else if ( type == CFD_NUM_CIRCLE_SEGS )
+        feastruct->GetFeaGridDensityPtr()->m_NCircSeg = val;
+    else if ( type == CFD_GROWTH_RATIO )
+        feastruct->GetFeaGridDensityPtr()->m_GrowRatio = val;
+    else if ( type == CFD_LIMIT_GROWTH_FLAG )
+        feastruct->GetFeaGridDensityPtr()->SetRigorLimit( ToBool( val ) );
+    else if ( type == CFD_HALF_MESH_FLAG )
+        feastruct->GetStructSettingsPtr()->SetHalfMeshFlag( ToBool( val ) );
+    else
+    {
+        ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "SetFEAMeshVal::Can't Find Type " + to_string( (long long)type ) );
+        return;
+    }
+
+    ErrorMgr.NoError();
+}
+
+void SetFeaMeshFileName( const string & geom_id, int fea_struct_id, int file_type, const string & file_name )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaMeshFileNames::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    FeaStructure* feastruct = NULL;
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaMeshFileNames::Invalid FeaStructure Ptr " );
+        return;
+    }
+
+    feastruct->GetStructSettingsPtr()->SetExportFileName( file_name, file_type );
+
+    ErrorMgr.NoError();
+}
+
+/// Compute the FEA Mesh
+void ComputeFeaMesh( const string & geom_id, int fea_struct_id, int file_type )
+{
+    Update();
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeFEAMesh::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    FeaStructure* feastruct = NULL;
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeFEAMesh::Invalid FeaStructure Ptr " );
+        return;
+    }
+
+    feastruct->GetStructSettingsPtr()->SetAllFileExportFlags( false );
+    feastruct->GetStructSettingsPtr()->SetFileExportFlag( file_type, true );
+
+    FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.GetTotFeaStructIndex( feastruct ) );
+
+    FeaMeshMgr.GenerateFeaMesh();
+    ErrorMgr.NoError();
 }
 
 void CutXSec( const string & geom_id, int index )
@@ -2255,6 +2865,498 @@ void SetAirfoilPnts( const string& xsec_id, std::vector< vec3d > & up_pnt_vec, s
     ErrorMgr.NoError();
 }
 
+void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d> & ordered_airfoil_pnts )
+{
+    // Note, the input airfoil coordinate points must be ordered in the correct Selig format: Start at X = 1, proceed 
+    //  along the top of the airfoil to x = 0.0 at the leading edge, and return to X = 1 along the bottom surface
+
+    //==== Open file ====//
+    string file_name = airfoil_name + ".dat";
+    FILE* af = fopen( file_name.c_str(), "w" );
+    if ( !af )
+    {
+        return;
+    }
+
+    string header = airfoil_name + " AIRFOIL\n";
+    fprintf( af, header.c_str() );
+
+    char buff[256];
+
+    for ( size_t i = 0; i < ordered_airfoil_pnts.size(); i++ )
+    {
+        sprintf( buff, " %7.6f     %7.6f\n", ordered_airfoil_pnts[i].x(), ordered_airfoil_pnts[i].y() );
+        fprintf( af, buff );
+    }
+
+    fclose( af );
+}
+
+struct LLT_Data // Struct containing Lifting Line Theory data
+{
+    vector < long double > y_span_vec; // y position across half span
+    vector < long double > gamma_vec; // circulation
+    vector < long double > w_vec; // downwash velocity
+    vector < long double > cl_vec; // lift coefficient
+    vector < long double > cd_vec; // induced drag coefficient
+};
+
+LLT_Data GetHersheyLLTData( const unsigned int npts, const long double alpha, const long double Vinf, const long double span )
+{
+    LLT_Data llt_data;
+
+    const long double alpha0 = 0.0; // zero lift angle of attack (rad)
+    const long double c = 1.0; // root/tip chord
+
+    vector < long double > theta_vec, r_vec, a_vec;
+    vector < int > odd_vec;
+    theta_vec.resize( npts );
+    odd_vec.resize( npts );
+    r_vec.resize( npts );
+    a_vec.resize( npts );
+
+    llt_data.y_span_vec.resize( npts );
+    llt_data.gamma_vec.resize( npts );
+    llt_data.w_vec.resize( npts );
+    llt_data.cl_vec.resize( npts );
+    llt_data.cd_vec.resize( npts );
+
+    Eigen::Matrix<long double, Eigen::Dynamic, Eigen::Dynamic> c_mat;
+    c_mat.resize( npts, npts );
+
+    for ( size_t i = 0; i < npts; i++ )
+    {
+        theta_vec[i] = ( (double)i + 1.0l ) * ( ( M_PI / 2.0l ) / ( (double)npts ) ); // [0 to pi/2]
+        llt_data.y_span_vec[i] = cos( theta_vec[i] ) * ( span / 2.0l ); // [tip to root]
+        odd_vec[i] = 2 * i + 1;
+        r_vec[i] = M_PI * c / 4.0l / ( span / 2.0l ) * ( alpha - alpha0 ) * sin( theta_vec[i] );
+    }
+
+    for ( size_t i = 0; i < npts; i++ )
+    {
+        for ( size_t j = 0; j < npts; j++ )
+        {
+            c_mat( i, j ) = sin( theta_vec[j] * (double)odd_vec[i] ) * ( PI * c * odd_vec[i] / 4.0l / ( span / 2.0l ) + sin( theta_vec[j] ) );
+        }
+    }
+
+    // Invert the matrix
+    c_mat = c_mat.inverse();
+
+    // Matrix multiplication: [N,N]x[N,1]
+    for ( size_t i = 0; i < npts; i++ )
+    {
+        for ( size_t j = 0; j < npts; j++ )
+        {
+            a_vec[i] += c_mat( j, i ) * r_vec[j];
+        }
+    }
+
+    // Matrix multiplication: [N,N]x[N,1]
+    for ( size_t i = 0; i < npts; i++ )
+    {
+        for ( size_t j = 0; j < npts; j++ )
+        {
+            llt_data.gamma_vec[i] += 4.0l * Vinf * ( span / 2.0l ) * sin( theta_vec[i] * (double)odd_vec[j] ) * a_vec[j];
+            llt_data.w_vec[i] += Vinf * ( span / 2.0l ) * (double)odd_vec[j] * a_vec[j] * sin( theta_vec[i] * (double)odd_vec[j] ) / sin( theta_vec[i] );
+        }
+
+        llt_data.cl_vec[i] = 2.0l * llt_data.gamma_vec[i] / Vinf;
+        llt_data.cd_vec[i] = 2.0l * llt_data.w_vec[i] * llt_data.gamma_vec[i] / ( c * ( span / 2.0l ) * pow( Vinf, 2.0 ) );
+    }
+
+    return llt_data;
+}
+
+std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+{
+    // Calculation of lift distribution for a Hershey Bar wing with unit chord length using Glauert's Method
+    //  Input span is the entire wing span, which half is used in the following calculations. If full_span_flag == true,
+    //  symmetry is applied to the results. Input alpha must be in radians. 
+
+    LLT_Data llt_data = GetHersheyLLTData( npts, alpha, Vinf, span );
+
+    vector < vec3d > y_cl_vec;
+    if ( full_span_flag )
+    {
+        y_cl_vec.resize( 2 * npts );
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cl_vec[i] = vec3d( -1 * llt_data.y_span_vec[i], llt_data.cl_vec[i], 0.0 );
+        }
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cl_vec[( 2 * npts - 1 ) - i] = vec3d( llt_data.y_span_vec[i], llt_data.cl_vec[i], 0.0 ); // Apply symmetry
+        }
+    }
+    else
+    {
+        y_cl_vec.resize( npts );
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cl_vec[i] = vec3d( llt_data.y_span_vec[i], llt_data.cl_vec[i], 0.0 );
+        }
+
+        std::reverse( y_cl_vec.begin(), y_cl_vec.end() );
+    }
+
+
+    return y_cl_vec;
+}
+
+std::vector<vec3d> GetHersheyBarDragDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+{
+    // Calculation of drag distribution for a Hershey Bar wing with unit chord length using Glauert's Method.
+    //  Input span is the entire wing span, which half is used in the following calculations. If full_span_flag == true,
+    //  symmetry is applied to the results. Input alpha must be in radians. 
+
+    LLT_Data llt_data = GetHersheyLLTData( npts, alpha, Vinf, span );
+
+    vector < vec3d > y_cd_vec;
+    if ( full_span_flag )
+    {
+        y_cd_vec.resize( 2 * npts );
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cd_vec[i] = vec3d( -1 * llt_data.y_span_vec[i], llt_data.cd_vec[i], 0.0 );
+        }
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cd_vec[( 2 * npts - 1 ) - i] = vec3d( llt_data.y_span_vec[i], llt_data.cd_vec[i], 0.0 ); // Apply symmetry
+        }
+    }
+    else
+    {
+        y_cd_vec.resize( npts );
+
+        for ( size_t i = 0; i < npts; i++ )
+        {
+            y_cd_vec[i] = vec3d( llt_data.y_span_vec[i], llt_data.cd_vec[i], 0.0 );
+        }
+
+        std::reverse( y_cd_vec.begin(), y_cd_vec.end() );
+    }
+
+    return y_cd_vec;
+}
+
+std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau )
+{
+    // alpha = Angle of attack( radian )
+    // epsilon = Thisckness
+    // kappa = Camber
+    // tau = Trailing edge angle( radian )
+    // npts = # of nodes in the circumferential direction
+
+    const double ell = 0.25; // chord length = 4 * ell
+
+    vector < vec3d > xyzdata;
+    xyzdata.resize( npts );
+
+    double a = ell * sqrt( ( 1.0 + epsilon ) * ( 1.0 + epsilon ) + kappa * kappa ); // Radius of circle
+    double beta = asin( ell * kappa / a ); // Angle of TE location (rad)
+    double n = 2.0 - tau / PI;
+    doublec mu = doublec( -ell * epsilon, ell * kappa ); // Center of circle
+
+    if ( ( ell * kappa / a ) > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetVKTAirfoilPnts: Camber parameter, kappa, is too large" );
+        return xyzdata;
+    }
+
+    int ile = 0;
+    double dmax = -1.0;
+    // Evaluate points and track furthest from TE as surrogate for LE.
+    // Would be better to identify LE as tightest curvature or similar.
+    for ( size_t p = 0; p < npts; p++ )
+    {
+        // Clockwise from TE
+        double theta = 2.0 * PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
+
+        double xi = a * cos( theta - beta ) + mu.real();
+        double eta = a * sin( theta - beta ) + mu.imag();
+        doublec zeta = doublec( xi, eta );
+
+        // Karman-Trefftz transformation
+        doublec temp = pow( zeta - ell, n ) / pow( zeta + ell, n );
+        doublec z = n * ell * ( 1.0 + temp ) / ( 1.0 - temp );
+        xyzdata[p].set_xyz( z.real(), z.imag(), 0.0 );
+
+        // Find point furthest from TE.  Declare that the LE.
+        double d = dist( xyzdata[p], xyzdata[0] );
+        if ( d > dmax )
+        {
+            dmax = d;
+            ile = p;
+        }
+    }
+
+    xyzdata[npts - 1] = xyzdata[0]; // Ensure closure
+
+    // Shift and scale airfoil such that xle=0 and xte=1.
+    double scale = xyzdata[0].x() - xyzdata[ile].x();
+    double xshift = xyzdata[ile].x();
+
+    for ( size_t j = 0; j < npts; j++ )
+    {
+        xyzdata[j].offset_x( -1 * xshift );
+        xyzdata[j] = xyzdata[j] / scale;
+    }
+
+    return xyzdata;
+}
+
+std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, std::vector<vec3d> xyzdata )
+{
+    // alpha = Angle of attack( radian )
+    // epsilon = Thisckness
+    // kappa = Camber
+    // tau = Trailing edge angle( radian )
+    // xyzdata = output from vsp::GetVKTAirfoilPnts
+
+    doublec i( 0, 1 );
+    const double ell = 0.25; // chord length = 4 * ell
+
+    const int npts = xyzdata.size();
+
+    vector < double > cpdata;
+    cpdata.resize( npts );
+
+    double a = ell * sqrt( ( 1.0 + epsilon ) * ( 1.0 + epsilon ) + kappa * kappa ); // Radius of circle
+    double beta = asin( ell * kappa / a ); // Angle of TE location (rad)
+    double n = 2.0 - tau / PI;
+    doublec mu = doublec( -ell * epsilon, ell * kappa ); // Center of circle
+
+    if ( ( ell * kappa / a ) > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetVKTAirfoilCpDist: Camber parameter, kappa, is too large" );
+        return cpdata;
+    }
+
+    int ile = 0;
+    double dmax = -1.0;
+    // Evaluate points and track furthest from TE as surrogate for LE.
+    // Would be better to identify LE as tightest curvature or similar.
+    for ( size_t p = 0; p < npts; p++ )
+    {
+        // Clockwise from TE
+        double theta = 2.0 * PI * ( 1.0 - p * 1.0 / ( npts - 1 ) ); // rad
+
+        double xi = a * cos( theta - beta ) + mu.real();
+        double eta = a * sin( theta - beta ) + mu.imag();
+        doublec zeta = doublec( xi, eta );
+
+        // w(zeta): Complex velocity in the circle plane (a flow around a cylinder)
+        doublec w = cmplx_velocity( zeta, alpha, beta, a, mu );
+
+        // Compute the velocity in the airfoil plane : ( u, v ) = w / ( dZ / dzeta )
+        // Derivative of the Karman - Trefftz transformation:
+        doublec dzdzeta = derivative( zeta, ell, n );
+
+        double u, v;
+
+        if ( abs( theta ) <= FLT_EPSILON || abs( theta - 2.0 * PI ) <= FLT_EPSILON ) // Special treatment at the trailing edge (theta = 0.0 or 2*pi)
+        {
+            if ( abs( tau ) <= FLT_EPSILON ) // Joukowski airfoil (cusped trailing edge: tau = 0.0 )
+            {
+                doublec uv = ( ell / a ) * exp( 2.0 * i * beta ) * cos( alpha + beta );
+                u = uv.real();
+                v = -1 * uv.imag();
+            }
+            else // Karman-Trefftz airfoil (finite angle: tau > 0.0), TE must be a stagnation point.
+            {
+                u = 0.0;
+                v = 0.0;
+            }
+        }
+        else
+        {
+            doublec uv = w / dzdzeta;
+            u = uv.real();
+            v = -1 * uv.imag();
+        }
+
+        cpdata[p] = 1.0 - ( pow( u, 2.0 ) + ( pow( v, 2.0 ) ) );
+    }
+
+    return cpdata;
+}
+
+std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d center, const vec3d abc_rad, int u_npts, int w_npts )
+{
+    // Generate the surface points for a ellipsoid of input abc radius vector at center. Based on the Matlab function ellipsoid.m
+    if ( u_npts < 20 )
+    {
+        u_npts = 20;
+    }
+    if ( w_npts < 20 )
+    {
+        w_npts = 20;
+    }
+
+    vector < vec3d > surf_pnt_vec;
+
+    vector < double > theta_vec, phi_vec;
+    theta_vec.resize( u_npts );
+    phi_vec.resize( w_npts );
+
+    theta_vec[0] = 0.0; // theta: [0,2PI] 
+    phi_vec[0] = 0.0; // phi: [0,PI]
+
+    const double theta_step = 2 * PI / ( u_npts - 1 );
+    const double phi_step = PI / ( w_npts - 1 );
+
+    for ( size_t i = 1; i < u_npts; i++ )
+    {
+        theta_vec[i] = theta_vec[i - 1] + theta_step;
+    }
+
+    for ( size_t i = 1; i < w_npts; i++ )
+    {
+        phi_vec[i] = phi_vec[i - 1] + phi_step;
+    }
+
+    for ( size_t u = 0; u < u_npts; u++ )
+    {
+        for ( size_t w = 0; w < w_npts; w++ )
+        {
+            surf_pnt_vec.push_back( vec3d( ( abc_rad.x() * cos( theta_vec[u] ) * sin( phi_vec[w] ) + center.x() ),
+                ( abc_rad.y() * sin( theta_vec[u] ) * sin( phi_vec[w] ) + center.y() ),
+                ( abc_rad.z() * cos( phi_vec[w] ) + center.z() ) ) );
+        }
+    }
+
+    return surf_pnt_vec;
+}
+
+std::vector<vec3d> GetFeatureLinePnts( const string& geom_id )
+{
+    vector < vec3d > pnt_vec;
+
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeatureLinePnts::Can't Find Geom " + geom_id );
+        return pnt_vec;
+    }
+
+    vector<VspSurf> surf_vec;
+    geom_ptr->GetSurfVec( surf_vec );
+
+    double tol = 1e-2;
+
+    for ( size_t i = 0; i < surf_vec.size(); i++ )
+    {
+        // U feature lines
+        for ( int j = 0; j < surf_vec[0].GetNumUFeature(); j++ )
+        {
+            vector < vec3d > ptline;
+            surf_vec[i].TessUFeatureLine( j, ptline, tol );
+
+            for ( size_t k = 0; k < ptline.size(); k++ )
+            {
+                pnt_vec.push_back( ptline[k] );
+            }
+        }
+
+        // V feature lines
+        for ( int j = 0; j < surf_vec[0].GetNumWFeature(); j++ )
+        {
+            vector < vec3d > ptline;
+            surf_vec[i].TessWFeatureLine( j, ptline, tol );
+
+            for ( size_t k = 0; k < ptline.size(); k++ )
+            {
+                pnt_vec.push_back( ptline[k] );
+            }
+        }
+    }
+
+    return pnt_vec;
+}
+
+std::vector <double> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf )
+{
+    // Generate Analytical Solution for Potential Flow at input ellipsoid surface points for input velocity vector (V).
+    //  Based on Munk, M. M., 'Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally 
+    //  Through a Perfect Fluid,' NACA TN-196, June 1924.
+
+    double alpha = abc_rad.x() * abc_rad.y() * abc_rad.z() * IntegrateEllipsoidFlow( abc_rad, 0 );
+    double beta = abc_rad.x() * abc_rad.y() * abc_rad.z() * IntegrateEllipsoidFlow( abc_rad, 1 );
+    double gamma = abc_rad.x() * abc_rad.y() * abc_rad.z() * IntegrateEllipsoidFlow( abc_rad, 2 );
+
+    double k1 = alpha / ( 2.0 - alpha );
+    double k2 = beta / ( 2.0 - beta );
+    double k3 = gamma / ( 2.0 - gamma );
+
+    double A = k1 + 1;
+    double B = k2 + 1;
+    double C = k3 + 1;
+
+    vector < vec3d > pot_vec, uvw_vec;
+    vector < double > cp_vec;
+    pot_vec.resize( surf_pnt_vec.size() );
+    uvw_vec.resize( surf_pnt_vec.size() );
+    cp_vec.resize( surf_pnt_vec.size() );
+
+    double Vmax_x = A * V_inf.x();
+    double Vmax_y = B * V_inf.y();
+    double Vmax_z = C * V_inf.z();
+
+    for ( size_t i = 0; i < surf_pnt_vec.size(); i++ )
+    {
+        // Velocity potential
+        pot_vec[i] = vec3d( ( Vmax_x * surf_pnt_vec[i].x() ), ( Vmax_y * surf_pnt_vec[i].y() ), ( Vmax_z * surf_pnt_vec[i].z() ) );
+
+        // Normal vector
+        vec3d norm( ( 2.0 * surf_pnt_vec[i].x() / pow( abc_rad.x(), 2.0 ) ), 
+            ( 2.0 * surf_pnt_vec[i].y() / pow( abc_rad.y(), 2.0 ) ), 
+            ( 2.0 * surf_pnt_vec[i].z() / pow( abc_rad.z(), 2.0 ) ) );
+
+        norm.normalize();
+
+        // Vmax component in panel normal direction
+        double Vnorm = Vmax_x * norm.x() + Vmax_y * norm.y() + Vmax_z * norm.z();
+
+        // Surface velocity
+        uvw_vec[i] = vec3d( ( Vmax_x - Vnorm * norm.x() ), ( Vmax_y - Vnorm * norm.y() ), ( Vmax_z - Vnorm * norm.z() ) );
+
+        // Pressure Coefficient
+        cp_vec[i] = 1.0 - pow( ( uvw_vec[i].mag() / V_inf.mag() ), 2.0 );
+    }
+
+    return cp_vec;
+}
+
+struct ellipsoid_flow_functor
+{
+    double operator()( const double &t )
+    {
+        return ( 1.0 / ( ( pow( abc_rad[abc_index], 2.0 ) + t ) * sqrt( ( pow( abc_rad.x(), 2.0 ) + t ) * ( pow( abc_rad.y(), 2.0 ) + t ) * ( pow( abc_rad.z(), 2.0 ) + t ) ) ) );
+    }
+    vec3d abc_rad;
+    int abc_index; // a: 0, b: 1, c: 2
+};
+
+double IntegrateEllipsoidFlow( const vec3d abc_rad, const int abc_index )
+{
+    // Integration of Equations 6 and 7 for alpha, beta, and gamma in "Hydrodynamics" by Horace Lamb, Ch.5, Section 111, pg. 162. 
+    //  abc_index corresponds to a:0 for alpha, b:1 for beta, and c:2 for gamma
+    ellipsoid_flow_functor fun;
+    fun.abc_rad = abc_rad;
+    fun.abc_index = abc_index;
+
+    eli::mutil::quad::simpson< double > quad;
+
+    return quad( fun, 0.0, 1.0e8 ); // Integrate from 0 to inf (Note: an upper limit greater than 1.0e8 will produce errors)
+}
+
 std::vector<vec3d> GetAirfoilUpperPnts( const string& xsec_id )
 {
     vector< vec3d > pnt_vec;
@@ -2602,6 +3704,68 @@ void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
     cst_xs->FitCurve( c, deg );
 
     ErrorMgr.NoError();
+}
+
+void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "WriteBezierAirfoil::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "WriteBezierAirfoil::Invalid u Location" );
+        return;
+    }
+
+    geom_ptr->WriteBezierAirfoil( file_name, foilsurf_u );
+    ErrorMgr.NoError();
+}
+
+void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "WriteSeligAirfoil::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "WriteSeligAirfoil::Invalid u Location" );
+        return;
+    }
+
+    geom_ptr->WriteSeligAirfoil( file_name, foilsurf_u );
+    ErrorMgr.NoError();
+}
+
+vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const double foilsurf_u )
+{
+    vector < vec3d > ordered_vec;
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilCoordinates::Can't Find Geom " + geom_id );
+        return ordered_vec;
+    }
+
+    if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetAirfoilCoordinates::Invalid u Location" );
+        return ordered_vec;
+    }
+
+    ordered_vec = geom_ptr->GetAirfoilCoordinates( foilsurf_u );
+    ErrorMgr.NoError();
+    return ordered_vec;
 }
 
 //===================================================================//
@@ -3658,6 +4822,13 @@ void DeleteExcrescence(const int & index)
     ErrorMgr.NoError();
 }
 
+void UpdateParasiteDrag()
+{
+    ParasiteDragMgr.Update();
+
+    ErrorMgr.NoError();
+}
+
 void WriteAtmosphereCSVFile(const std::string & file_name, const int atmos_type)
 {
     const static double arr[] = {0.0, 5000.0, 10000.0, 10999.0, 11001.0, 15000.0, 19999.0, 20000.0,
@@ -3804,5 +4975,525 @@ void WriteCfEqnCSVFile(const std::string & file_name)
     res->WriteCSVFile( file_name );
 }
 
+void WritePartialCfMethodCSVFile(const std::string & file_name)
+{
+    Results* res = ResultsMgr.CreateResults("Friction_Coefficient");
+    char str[256];
+    vector < double > cf_vec, ref_leng;
+    vector < double > lam_perc_array = linspace( 0, 100, 1000 );
+    vector < double > ReyIn_array, reql_array;
+    ReyIn_array.push_back( 1.0e7 );
+    reql_array.push_back( 1.0e7 );
+    vector < double > roughness, taw_tw_ratio, te_tw_ratio;
+    roughness.push_back(0.0);
+    taw_tw_ratio.push_back(1.0);
+    te_tw_ratio.push_back(1.0);
+    ref_leng.push_back(1.0);
+
+    for (size_t i = 0; i < lam_perc_array.size(); ++i )
+    {
+        cf_vec.push_back( ParasiteDragMgr.CalcPartialTurbulence( lam_perc_array[i], ReyIn_array[0], ref_leng[0], reql_array[0],
+            roughness[0], taw_tw_ratio[0], te_tw_ratio[0]) );
+    }
+
+    res->Add(NameValData("LamPerc", lam_perc_array));
+    res->Add(NameValData("Cf", cf_vec));
+    res->Add(NameValData("ReyIn", ReyIn_array));
+    res->Add(NameValData("Ref_Leng", ref_leng));
+    res->Add(NameValData("Re\/L", reql_array));
+    res->Add(NameValData("Roughness", roughness));
+    res->Add(NameValData("Taw\/Tw", taw_tw_ratio));
+    res->Add(NameValData("Te\/Tw", te_tw_ratio));
+    res->WriteCSVFile( file_name );
+}
+
 //============================================================================//
+
+vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    vec3d ret;
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompPnt01::Can't Find Geom " + geom_id );
+        return ret;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompPnt01::Invalid Surface Index " + to_string( surf_indx ) );
+        return ret;
+    }
+
+    ret = geom_ptr->CompPnt01(surf_indx, clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ) );
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vec3d CompNorm01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    vec3d ret;
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompNorm01::Can't Find Geom " + geom_id );
+        return ret;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompNorm01::Invalid Surface Index " + to_string( surf_indx ) );
+        return ret;
+    }
+
+    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    ret = surf->CompNorm01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ) );
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vec3d CompTanU01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    vec3d ret;
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompTanU01::Can't Find Geom " + geom_id );
+        return ret;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompTanU01::Invalid Surface Index " + to_string( surf_indx ) );
+        return ret;
+    }
+
+    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    ret = surf->CompTanU01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ) );
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+vec3d CompTanW01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    vec3d ret;
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompTanW01::Can't Find Geom " + geom_id );
+        return ret;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompTanW01::Invalid Surface Index " + to_string( surf_indx ) );
+        return ret;
+    }
+
+    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    ret = surf->CompTanW01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ) );
+
+    ErrorMgr.NoError();
+    return ret;
+}
+
+void CompCurvature01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w, double &k1,
+                     double &k2, double &ka, double &kg)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    k1 = 0.0;
+    k2 = 0.0;
+    ka = 0.0;
+    kg = 0.0;
+
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompCurvature01::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompCurvature01::Invalid Surface Index " + to_string( surf_indx ) );
+        return;
+    }
+
+    VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+    surf->CompCurvature01( clamp( u, 0.0, 1.0 ), clamp( w, 0.0, 1.0 ), k1, k2, ka, kg );
+
+    ErrorMgr.NoError();
+}
+
+double ProjPnt01(const std::string &geom_id, const int &surf_indx, const vec3d &pt, double &u, double &w)
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    double dmin = std::numeric_limits<double>::max();
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjPnt01::Can't Find Geom " + geom_id );
+        return dmin;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01::Invalid Surface Index " + to_string( surf_indx ) );
+        return dmin;
+    }
+
+    dmin = geom->GetSurfPtr( surf_indx )->FindNearest01( u, w, pt );
+
+    ErrorMgr.NoError();
+
+    return dmin;
+}
+
+double ProjPnt01I(const std::string &geom_id, const vec3d &pt, int &surf_indx,
+                  double &u, double &w)
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    double dmin = std::numeric_limits<double>::max();
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjPnt01I::Can't Find Geom " + geom_id );
+        return dmin;
+    }
+
+    dmin = vPtr->ProjPnt01I( geom_id, pt, surf_indx, u, w );
+
+    ErrorMgr.NoError();
+
+    return dmin;
+}
+
+double ProjPnt01Guess(const std::string &geom_id, const int &surf_indx, const vec3d &pt, const double &u0, const double &w0, double &u, double &w)
+{
+    Vehicle* vPtr = VehicleMgr.GetVehicle();
+    Geom * geom = vPtr->FindGeom( geom_id );
+
+    double dmin = std::numeric_limits<double>::max();
+
+    if ( !geom )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjPnt01Guess::Can't Find Geom " + geom_id );
+        return dmin;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01Guess::Invalid Surface Index " + to_string( surf_indx ) );
+        return dmin;
+    }
+
+    dmin = geom->GetSurfPtr( surf_indx )->FindNearest01( u, w, pt, clamp( u0, 0.0, 1.0 ), clamp( w0, 0.0, 1.0 ) );
+
+    ErrorMgr.NoError();
+
+    return dmin;
+}
+
+vector < vec3d > CompVecPnt01( const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    vector < vec3d > pts;
+    pts.resize( 0 );
+
+    if ( geom_ptr )
+    {
+        if ( us.size() == ws.size() )
+        {
+            VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+
+            if ( surf )
+            {
+                pts.resize( us.size() );
+
+                for ( int i = 0; i < us.size(); i++ )
+                {
+                    pts[i] = surf->CompPnt01( clamp( us[i], 0.0, 1.0 ), clamp( ws[i], 0.0, 1.0 ) );
+                }
+            }
+            else
+            {
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompPnt01::Invalid surf index." );
+                return pts;
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompPnt01::Input size mismatch." );
+            return pts;
+        }
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompPnt01::Can't Find Geom " + geom_id );
+        return pts;
+    }
+    ErrorMgr.NoError();
+    return pts;
+}
+
+vector < vec3d > CompVecNorm01( const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    vector < vec3d > norms;
+    norms.resize( 0 );
+
+    if ( geom_ptr )
+    {
+        if ( us.size() == ws.size() )
+        {
+            VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+
+            if ( surf )
+            {
+                norms.resize( us.size() );
+
+                for ( int i = 0; i < us.size(); i++ )
+                {
+                    norms[i] = surf->CompNorm01( clamp( us[i], 0.0, 1.0 ), clamp( ws[i], 0.0, 1.0 ) );
+                }
+            }
+            else
+            {
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompNorm01::Invalid surf index." );
+                return norms;
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompNorm01::Input size mismatch." );
+            return norms;
+        }
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompNorm01::Can't Find Geom " + geom_id );
+        return norms;
+    }
+    ErrorMgr.NoError();
+    return norms;
+}
+
+void CompVecCurvature01( const std::string &geom_id, const int &surf_indx, const vector < double > &us, const vector < double > &ws, vector < double > &k1s, vector < double > &k2s, vector < double > &kas, vector < double > &kgs )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    k1s.resize( 0 );
+    k2s.resize( 0 );
+    kas.resize( 0 );
+    kgs.resize( 0 );
+
+    if ( geom_ptr )
+    {
+        if ( us.size() == ws.size() )
+        {
+            VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+
+            if ( surf )
+            {
+                k1s.resize( us.size() );
+                k2s.resize( us.size() );
+                kas.resize( us.size() );
+                kgs.resize( us.size() );
+
+                for ( int i = 0; i < us.size(); i++ )
+                {
+                    surf->CompCurvature01( clamp( us[i], 0.0, 1.0 ), clamp( ws[i], 0.0, 1.0 ), k1s[i], k2s[i], kas[i], kgs[i] );
+                }
+            }
+            else
+            {
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompCurvature01::Invalid surf index." );
+                return;
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompCurvature01::Input size mismatch." );
+            return;
+        }
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CompCurvature01::Can't Find Geom " + geom_id );
+        return;
+    }
+    ErrorMgr.NoError();
+}
+
+void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const vector < vec3d > &pts, vector < double > &us, vector < double > &ws, vector < double > &ds )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    us.resize( 0 );
+    ws.resize( 0 );
+    ds.resize( 0 );
+
+    if ( geom_ptr )
+    {
+        VspSurf *surf = geom_ptr->GetSurfPtr( surf_indx );
+
+        if ( surf )
+        {
+            us.resize( pts.size() );
+            ws.resize( pts.size() );
+            ds.resize( pts.size() );
+
+            for ( int i = 0; i < pts.size(); i++ )
+            {
+                ds[i] = surf->FindNearest01( us[i], ws[i], pts[i] );
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01::Invalid surf index." );
+            return;
+        }
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjPnt01::Can't Find Geom " + geom_id );
+        return;
+    }
+    ErrorMgr.NoError();
+}
+
+void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const vector < vec3d > &pts, const vector < double > &u0s, const vector < double > &w0s, vector < double > &us, vector < double > &ws, vector < double > &ds )
+{
+    Vehicle* veh = GetVehicle();
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    us.resize( 0 );
+    ws.resize( 0 );
+    ds.resize( 0 );
+
+    if ( geom_ptr )
+    {
+        if ( pts.size() == u0s.size() && pts.size() == w0s.size() )
+        {
+            VspSurf *surf = geom_ptr->GetSurfPtr(surf_indx);
+
+            if ( surf )
+            {
+                us.resize( pts.size() );
+                ws.resize( pts.size() );
+                ds.resize( pts.size() );
+
+                for ( int i = 0; i < pts.size(); i++ )
+                {
+                    ds[i] = surf->FindNearest01( us[i], ws[i], pts[i], clamp( u0s[i], 0.0, 1.0 ), clamp( w0s[i], 0.0, 1.0 ) );
+                }
+            }
+            else
+            {
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01Guess::Invalid surf index." );
+                return;
+            }
+        }
+        else
+        {
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01Guess::Input size mismatch." );
+            return;
+        }
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ProjPnt01Guess::Can't Find Geom " + geom_id );
+        return;
+    }
+    ErrorMgr.NoError();
+}
+
+void GetUWTess01(const std::string &geom_id, const int &surf_indx, std::vector < double > &u_out_vec, std::vector < double > &w_out_vec)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "GetUWTess01::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( surf_indx < 0 || surf_indx >= geom_ptr->GetNumTotalSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUWTess01::Invalid Surface Index " + to_string( surf_indx ) );
+        return;
+    }
+
+    geom_ptr->GetUWTess01( surf_indx, u_out_vec, w_out_vec );
+
+    ErrorMgr.NoError();
+    return;
+}
+
+string AddRuler( const string & startgeomid, int startsurfindx, double startu, double startw,
+                 const string & endgeomid, int endsurfindx, double endu, double endw, const string & name )
+{
+    return MeasureMgr.CreateAndAddRuler( startgeomid, startsurfindx, startu, startw,
+                                         endgeomid, endsurfindx, endu, endw, name );
+}
+
+vector < string > GetAllRulers()
+{
+    return MeasureMgr.GetAllRulers();
+}
+
+void DelRuler( const string &id )
+{
+    MeasureMgr.DelRuler( id );
+}
+
+void DeleteAllRulers()
+{
+    MeasureMgr.DelAllRulers();
+}
+
+string AddProbe( const string & geomid, int surfindx, double u, double w, const string & name )
+{
+    return MeasureMgr.CreateAndAddProbe( geomid, surfindx, u, w, name );
+}
+
+vector < string > GetAllProbes()
+{
+    return MeasureMgr.GetAllProbes();
+}
+
+void DelProbe( const string &id )
+{
+    MeasureMgr.DelProbe( id );
+}
+
+void DeleteAllProbes()
+{
+    MeasureMgr.DelAllProbes();
+}
+
 }   // vsp namespace

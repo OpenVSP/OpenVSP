@@ -145,6 +145,34 @@ public:
 };
 
 //////////////////////////////////////////////////////////////////////
+class ConstLineSource : public BaseSource
+{
+public:
+    ConstLineSource();
+    virtual ~ConstLineSource()       {}
+
+    void SetNamedVal( string name, double val );
+
+    virtual void ReadV2File( xmlNodePtr &root )  {};
+
+    Parm m_Val;
+};
+
+class ULineSource : public ConstLineSource
+{
+public:
+    ULineSource();
+    virtual ~ULineSource()       {}
+};
+
+class WLineSource : public ConstLineSource
+{
+public:
+    WLineSource();
+    virtual ~WLineSource()       {}
+};
+
+//////////////////////////////////////////////////////////////////////
 
 class BaseSimpleSource
 {
@@ -155,7 +183,7 @@ public:
 
     virtual void AdjustLen( double val );
 
-    virtual double GetTargetLen( double base_len, vec3d &  pos ) = 0;
+    virtual double GetTargetLen( double base_len, vec3d &  pos, const string & geomid, const int & surfindx, const double & u, const double &w ) = 0;
 
     virtual void Draw()                                             {}
 
@@ -189,7 +217,7 @@ public:
     PointSimpleSource();
     virtual ~PointSimpleSource()      {}
 
-    double GetTargetLen( double base_len, vec3d &  pos );
+    virtual double GetTargetLen( double base_len, vec3d &  pos, const string & geomid, const int & surfindx, const double & u, const double &w );
 
     virtual void Update( Geom* geomPtr );
 
@@ -221,7 +249,7 @@ public:
 
     virtual void AdjustLen( double val );
 
-    double GetTargetLen( double base_len, vec3d &  pos );
+    virtual double GetTargetLen( double base_len, vec3d &  pos, const string & geomid, const int & surfindx, const double & u, const double &w );
 
     virtual void Update( Geom* geomPtr );
 
@@ -267,7 +295,7 @@ public:
 
     void ComputeCullPnts();
 
-    double GetTargetLen( double base_len, vec3d &  pos );
+    virtual double GetTargetLen( double base_len, vec3d &  pos, const string & geomid, const int & surfindx, const double & u, const double &w );
 
     void Update( Geom* geomPtr );
 
@@ -294,6 +322,55 @@ protected:
     DrawObj m_BoxDO1;
     DrawObj m_BoxDO2;
     DrawObj m_BoxDO3;
+};
+
+//////////////////////////////////////////////////////////////////////
+
+class ConstLineSimpleSource : public BaseSimpleSource
+{
+public:
+    ConstLineSimpleSource();
+    virtual ~ConstLineSimpleSource()       {}
+
+    void UpdateBBox();
+
+    virtual void AdjustLen( double val );
+
+    virtual double GetTargetLen( double base_len, vec3d &  pos, const string & geomid, const int & surfindx, const double & u, const double &w );
+
+    virtual void CopyFrom( BaseSource* s );
+
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+    virtual void Show( bool flag );
+    virtual void Highlight( bool flag );
+
+    double m_Val;
+
+protected:
+
+    Geom * m_GeomPtr;
+
+    vector < vec3d > m_Pts;
+    vector < vec3d > m_UWPts;
+
+    DrawObj m_SpheresDO;
+    DrawObj m_LinesDO;
+};
+
+//////////////////////////////////////////////////////////////////////
+
+class ULineSimpleSource : public ConstLineSimpleSource
+{
+public:
+    virtual void Update( Geom* geomPtr );
+};
+
+//////////////////////////////////////////////////////////////////////
+
+class WLineSimpleSource : public ConstLineSimpleSource
+{
+public:
+    virtual void Update( Geom* geomPtr );
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -350,7 +427,7 @@ public:
 
     double GetFarRadFrac();
 
-    double GetTargetLen( vec3d& pos, bool farFlag = false );
+    double GetTargetLen( vec3d& pos, bool farFlag = false, const string & geomid = string(), const int & surfindx = 0, const double & u = 0.0, const double &w = 0.0 );
 
     void ClearSources()
     {
@@ -363,6 +440,11 @@ public:
     int  GetNumSources()
     {
         return m_Sources.size();
+    }
+
+    vector< BaseSimpleSource* > GetSimpleSourceVec()
+    {
+        return m_Sources;
     }
 
     void ScaleAllSources( double scale );

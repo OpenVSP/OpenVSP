@@ -34,6 +34,7 @@ class ISegChain;
 class SharedPnt;
 class ISeg;
 class IPntBin;
+class CfdMeshMgrSingleton;
 
 //==== UW Point on Surface ====//
 class Puw
@@ -73,15 +74,15 @@ public:
 class IPntBin
 {
 public:
-    int m_ID;                           // x*1000 + y*1000 + z*1000
+    long m_ID;                           // x*1000 + y*1000 + z*1000
 
     deque< IPnt* > m_IPnts;
-    vector< int > m_AdjBins;            // Adjancent Bins
+    vector< long > m_AdjBins;            // Adjancent Bins
 
-    IPnt* Match( IPnt* ip, map< int, IPntBin > & binMap );
+    IPnt* Match( IPnt* ip, map< long, IPntBin > & binMap );
     void AddCompareIPnts( IPnt* ip, vector< IPnt* > & compareIPntVec );
 
-    static int ComputeID( vec3d & pos );
+    static long ComputeID( vec3d & pos );
 
 
 };
@@ -105,7 +106,7 @@ public:
     double MinDist( IPnt* ip  );
     void JoinBack( ISeg* seg );
     void JoinFront( ISeg* seg );
-    ISeg* Split( Surf* sPtr, vec2d & uw );
+    ISeg* Split( Surf* sPtr, vec2d & uw, SurfaceIntersectionSingleton *MeshMgr );
 
     bool Match( ISeg* seg );
 
@@ -154,6 +155,8 @@ public:
 
     void Draw();
 
+    void AppendLineSegs( vector < vec3d > &lsegs );
+
 };
 
 //==== ISeg Chain - Intersection Between Two Surfaces ====//
@@ -178,20 +181,20 @@ public:
     void Intersect( Surf* surfPtr, ISegChain* B );
 
     void AddSplit( Surf* surfPtr, int index, vec2d int_pnt );
-    void AddBorderSplit( IPnt* ip, Puw* uw );
+    bool AddBorderSplit( IPnt* ip, Puw* uw ); // Return true if split successfully added
 
     void MergeSplits();
     void RemoveChainEndSplits();
-    vector< ISegChain* > SortAndSplit();
-    vector< ISegChain* > FindCoPlanarChains( Surf* surfPtr, Surf* adjSurf );
+    vector< ISegChain* > SortAndSplit( SurfaceIntersectionSingleton *MeshMgr );
+    vector< ISegChain* > FindCoPlanarChains( Surf* surfPtr, Surf* adjSurf, SurfaceIntersectionSingleton *MeshMgr );
     void MergeInteriorIPnts();
 
     void BuildCurves();
     void TransferTess();
-    void ApplyTess();
+    void ApplyTess( SurfaceIntersectionSingleton *MeshMgr );
 
     void SpreadDensity( );
-    void CalcDensity( GridDensity* grid_den, list< MapSource* > & splitSources );
+    void CalcDensity( SimpleGridDensity* grid_den, list< MapSource* > & splitSources );
     void Tessellate();
     void TessEndPts();
 
@@ -211,6 +214,7 @@ public:
     bool Valid();
 
     bool m_BorderFlag;
+    int m_SSIntersectIndex; // Corresponds to index in FeaStructure m_FeaSubSurfVec
 
     ISegChain* m_WakeAttachChain;
 
@@ -245,7 +249,6 @@ public:
     vector< IPnt* > m_IPntVec;
 
     double GroupDist( IPntGroup* g );
-    double GroupDistFract( IPntGroup* g );
     void AddGroup( IPntGroup* g );
 };
 

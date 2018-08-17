@@ -30,6 +30,11 @@ void SCurve::BuildBezierCurve( vector< vec3d > & pnts_to_interpolate, double tan
     m_UWCrv.BuildCurve( pnts_to_interpolate, tanStr );
 }
 
+void SCurve::InterpolateLinear(vector<vec3d> &pnts_to_interpolate)
+{
+    m_UWCrv.InterpolateLinear( pnts_to_interpolate );
+}
+
 double SCurve::Length( int num_segs )
 {
     assert ( m_Surf );
@@ -56,7 +61,7 @@ void SCurve::GetBorderCurve( Bezier_curve & crv ) const
     m_Surf->GetBorderCurve( uw0, uw1, crv );
 }
 
-double SCurve::GetTargetLen( GridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u )
+double SCurve::GetTargetLen( SimpleGridDensity* grid_den, SCurve* BCurve, vec3d p, vec3d uw, double u )
 {
     bool limitFlag = false;
     if ( m_Surf->GetFarFlag() )
@@ -227,7 +232,7 @@ void SCurve::InterpDistTable( double idouble, double &t, double &u, double &s, d
 
 }
 
-void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
+void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
 {
     assert( m_Surf );
 
@@ -268,7 +273,7 @@ void SCurve::BuildDistTable( GridDensity* grid_den, SCurve* BCurve, list< MapSou
         last_p = p;
     }
 
-    double grm1 = grid_den->m_GrowRatio() - 1.0;
+    double grm1 = grid_den->m_GrowRatio - 1.0;
 
     // Indices of first and last points in table.
     int indx[2] = { 0, num_segs - 1 };
@@ -308,10 +313,10 @@ void SCurve::CleanupDistTable()
     pnt_vec.clear();
 }
 
-void SCurve::LimitTarget( GridDensity* grid_den )
+void SCurve::LimitTarget( SimpleGridDensity* grid_den )
 {
     // Walk the curve forward limiting target length.
-    double growratio = grid_den->m_GrowRatio();
+    double growratio = grid_den->m_GrowRatio;
 
     for ( int i = 1 ; i < num_segs ; i++ )
     {
@@ -632,7 +637,7 @@ void SCurve::SpreadDensity( SCurve* BCurve )
     }
 }
 
-void SCurve::CalcDensity( GridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
+void SCurve::CalcDensity( SimpleGridDensity* grid_den, SCurve* BCurve, list< MapSource* > & splitSources )
 {
     BuildDistTable( grid_den, BCurve, splitSources );
 

@@ -1,0 +1,107 @@
+
+void main()
+{
+    Print( string( "Begin FEA Mesh Script" ) );
+    Print( string( "" ) );
+
+    Print( string( "--> Adding Geometry and Creating Structure" ) );
+
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+    double length = 15.0;
+
+    SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", 5.0 );
+    SetParmValUpdate( pod_id, "X_Rel_Rotation", "XForm", 90 );
+    SetParmValUpdate( pod_id, "Length", "Design", length );
+
+    Update();
+
+    //==== Set Structure Units ====//
+    string veh_id = FindContainer( "Vehicle", 0 );
+    SetParmVal( FindParm( veh_id, "StructUnit", "FeaStructure" ), BFT_UNIT );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    //==== Create FeaMaterial ====//
+    string mat_id = AddFeaMaterial();
+
+    SetParmVal( FindParm( mat_id, "MassDensity", "FeaMaterial" ), 0.016 );
+    SetParmVal( FindParm( mat_id, "ElasticModulus", "FeaMaterial" ), 2.0e6 );
+    SetParmVal( FindParm( mat_id, "PoissonRatio", "FeaMaterial" ), 0.4 );
+
+    //==== Create FeaProperty ====//
+    string prop_id = AddFeaProperty();
+
+    SetParmVal( FindParm( prop_id, "FeaMaterialIndex", "FeaProperty" ), 4 );
+    SetParmVal( FindParm( prop_id, "Thickness", "FeaProperty" ), 0.01 );
+
+    //==== Adjust FeaMeshSettings ====//
+    SetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 );
+    SetFeaMeshVal( pod_id, struct_ind, CFD_MIN_EDGE_LEN, 0.2 );
+
+    //==== Add Floor ====//
+    string floor_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+    SetParmVal( FindParm( floor_id, "IncludedElements", "FeaPart" ), FEA_SHELL_AND_BEAM );
+    SetParmVal( FindParm( floor_id, "RelCenterLocation", "FeaPart" ), 0.34 );
+    SetParmVal( FindParm( floor_id, "OrientationPlane", "FeaSlice" ), XZ_BODY );
+
+    SetParmVal( FindParm( floor_id, "FeaPropertyIndex", "FeaPart" ), 2 );
+
+    //==== Add Bulkead ====//
+    string bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+    SetParmVal( FindParm( bulkhead_id, "IncludedElements", "FeaPart" ), FEA_SHELL_AND_BEAM );
+    SetParmVal( FindParm( bulkhead_id, "RelCenterLocation", "FeaPart" ), 0.15 );
+    SetParmVal( FindParm( bulkhead_id, "OrientationPlane", "FeaSlice" ), SPINE_NORMAL );
+
+    //==== Add Dome ====//
+    string dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME );
+
+    SetParmVal( FindParm( dome_id, "IncludedElements", "FeaPart" ), FEA_SHELL );
+    SetParmVal( FindParm( dome_id, "X_Location", "FeaDome" ), 0.7 * length );
+    SetParmVal( FindParm( dome_id, "A_Radius", "FeaDome" ), 1.5 );
+
+    //==== Add Stiffener ====//
+    string stiffener_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+    SetParmVal( FindParm( stiffener_id, "IncludedElements", "FeaPart" ), FEA_BEAM );
+    SetParmVal( FindParm( stiffener_id, "RelCenterLocation", "FeaPart" ), 0.45 );
+    SetParmVal( FindParm( stiffener_id, "OrientationPlane", "FeaSlice" ), SPINE_NORMAL );
+
+    //==== Add LineArray ====//
+    string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
+
+    SetParmVal( FindParm( line_array_id, "ConstLineType", "SS_LineArray" ), 1 ); // Constant W
+    SetParmVal( FindParm( line_array_id, "Spacing", "SS_LineArray" ), 0.25 );
+    SetParmVal( FindParm( line_array_id, "StartLocation", "SS_LineArray" ), 0.125 );
+
+    //==== Add Hole ====//
+    string hole_id = AddFeaSubSurf( pod_id, struct_ind, SS_RECTANGLE );
+
+    SetParmVal( FindParm( hole_id, "IncludedElements", "SubSurface" ), FEA_BEAM );
+    SetParmVal( FindParm( hole_id, "Center_U", "SS_Rectangle" ), 0.65 );
+    SetParmVal( FindParm( hole_id, "Center_W", "SS_Rectangle" ), 0.5 );
+    SetParmVal( FindParm( hole_id, "U_Length", "SS_Rectangle" ), 0.1 );
+    SetParmVal( FindParm( hole_id, "W_Length", "SS_Rectangle" ), 0.1 );
+    SetParmVal( FindParm( hole_id, "Test_Type", "SS_Rectangle" ), INSIDE );
+
+    Update();
+    
+    //==== Save Vehicle to File ====//
+    Print( string( "--> Saving Vehicle to FEAMeshTest.vsp3" ) );
+    string fname = "FEAMeshTest.vsp3";
+    WriteVSPFile( fname, 0 );
+
+    //=== Set Export File Name ===//
+    string export_name = "FEAMeshTest_calculix.dat";
+    SetFeaMeshFileName( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME, export_name );
+    Print( string( "--> FEA Mesh Export File Name Set to FEAMeshTest_calculix.dat" ) );
+
+    //==== Generate FEA Mesh and Export ====//
+    Print( string( "--> Generating FeaMesh " ) );
+    ComputeFeaMesh( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME );
+    
+    Print( string( "COMPLETE\n" ) );
+}

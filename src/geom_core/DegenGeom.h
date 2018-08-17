@@ -13,6 +13,7 @@
 #include "Vec2d.h"
 #include "Matrix.h"
 #include "SubSurface.h"
+#include "ResultsMgr.h"
 
 using namespace std;
 
@@ -68,6 +69,12 @@ typedef struct
     vector< double >            areaTop;    //!
     vector< double >            areaBot;    //!
     vector< double >            u;          //!
+    vector< double >            toc2;       //!
+    vector< double >            tLoc2;      //!
+    vector< double >            anglele;    //!
+    vector< double >            anglete;    //!
+    vector< double >            radleTop;   //!
+    vector< double >            radleBot;   //!
 } DegenStick;
 
 typedef struct
@@ -91,6 +98,7 @@ typedef struct
     vsp::SUBSURF_TYPE           typeId;     //! enumeration for the typeName; vsp::SUBSURF_TYPE
     vector< double >            u;          //!
     vector< double >            w;          //!
+    vector< vec3d >             x;          //!
 } DegenSubSurf;
 
 typedef struct
@@ -100,6 +108,8 @@ typedef struct
     vector < double >           uEnd;
     vector < double >           wStart;
     vector < double >           wEnd;
+    vector < vec3d >            xStart;
+    vector < vec3d >            xEnd;
 } DegenHingeLine;
 
 typedef struct
@@ -114,6 +124,7 @@ typedef struct
     string                      name;
     double                      mass;
     vec3d                       x;
+    string                      geom_id;
 } DegenPtMass;
 
 class DegenGeom
@@ -231,12 +242,14 @@ public:
     void createSurfDegenPlate( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createBodyDegenPlate( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createDegenPlate( DegenPlate &degenPlate, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt );
-    void createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
+    void createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const VspSurf *foilSurf, const bool &urootcap );
     void createBodyDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt );
+    void augmentFoilSurfDegenStick( DegenStick &degenStick, const VspSurf *foilSurf, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap );
+    void augmentFoilSurfDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap );
     void createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool flipnormal );
     void addDegenSubSurf( SubSurface *ssurf, int surfIndx );
-    void addDegenHingeLine( SSControlSurf *csurf );
+    void addDegenHingeLine( SSControlSurf *csurf, int surfIndx );
 
     string makeCsvFmt( int n, bool newline = true );
     void write_degenGeomCsv_file( FILE* file_id );
@@ -256,6 +269,15 @@ public:
     void write_degenGeomDiskM_file( FILE* file_id );
     void write_degenSubSurfM_file( FILE* file_id, int isubsurf );
     void write_degenHingeLineM_file( FILE* file_id, int ihingeline );
+
+    void write_degenGeomResultsManager( vector< string> &degen_results_ids );
+    void write_degenGeomDiskResultsManger( Results * res );
+    void write_degenGeomSurfResultsManager( Results * res );
+    void write_degenGeomPlateResultsManager( vector< string > &plate_ids, const DegenPlate &degenPlate );
+    void write_degenGeomStickResultsManager( vector< string > &stick_ids, const DegenStick &degenStick );
+    void write_degenGeomPointResultsManager( Results * res );
+    void write_degenSubSurfResultsManager( vector< string > &subsurf_ids, const DegenSubSurf &degenSubSurf );
+    void write_degenHingeLineResultsManager( vector< string > &hinge_ids, const DegenHingeLine &degenHingeLine );
 
 protected:
 

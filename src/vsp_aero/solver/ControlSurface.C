@@ -209,11 +209,17 @@ CONTROL_SURFACE::~CONTROL_SURFACE(void)
 void CONTROL_SURFACE::RotateNormal(double *Normal) 
 {
    
+    double Angle;
     QUAT Quat, InvQuat, Vec;
    
+    // Modify angle ... assume lift ~ cos (alpha) * sin (alpha)... so add in
+    // the cos part...
+
+    Angle = cos(DeflectionAngle_)*DeflectionAngle_;
+    
     // Build quaternion about this hinge vector
 
-    Quat.FormRotationQuat(HingeVec_,DeflectionAngle_);
+    Quat.FormRotationQuat(HingeVec_,Angle);
 
     InvQuat = Quat;
    

@@ -54,6 +54,7 @@ protected:
     SliderAdjRangeInput m_XSecXRotSlider;
     SliderAdjRangeInput m_XSecYRotSlider;
     SliderAdjRangeInput m_XSecZRotSlider;
+    SliderAdjRangeInput m_XSecSpinSlider;
 
     Choice m_XSecTypeChoice;
     TriggerButton m_ShowXSecButton;
@@ -165,6 +166,7 @@ protected:
     SliderAdjRangeInput m_VKTEpsilonSlider;
     SliderAdjRangeInput m_VKTKappaSlider;
     SliderAdjRangeInput m_VKTTauSlider;
+    CheckButton m_VKTInvertButton;
 
     GroupLayout* m_CurrDisplayGroup;
     void DisplayGroup( GroupLayout* group );

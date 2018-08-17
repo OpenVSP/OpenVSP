@@ -13,6 +13,7 @@
 #include <math.h>
 #include <assert.h>
 #include "utils.H"
+#include "quat.H"
 
 // Definition of the VSP_LOOP class
 
@@ -35,6 +36,7 @@ private:
     double *EdgeUpwindWeight_;
 
     int SurfaceID_;
+    int ComponentID_;
     int IsTrailingEdgeTri_;
     int IsLeadingEdgeTri_;
     int VortexLoop_;
@@ -53,7 +55,7 @@ private:
     
     // Local Camber Line Normal
     
-    double NormalCamber_[3];
+    double FlatPlateNormal_[3];
 
     // Centroid
     
@@ -71,6 +73,7 @@ private:
     
     double Gamma_;
     double dCp_;
+    double dCp_Unsteady_;
     double Velocity_[3];
     double CompressibilityFactor_;
         
@@ -81,6 +84,12 @@ private:
     int DegenBodyID_;
     int DegenWingID_;        
     int Cart3dID_;
+    
+    // Airfoil data
+
+    double ThicknessToChord_;
+    double LocationOfMaxThickness_;
+    double RadiusToChord_;      
     
     // Agglomeration data
     
@@ -141,6 +150,7 @@ public:
     double &EdgeUpwindWeight(int i) { return EdgeUpwindWeight_[i-1]; };
    
     int &SurfaceID(void) { return SurfaceID_; };
+    int &ComponentID(void) { return ComponentID_; };    
     int &IsTrailingEdgeTri(void) { return IsTrailingEdgeTri_; };
     int &IsLeadingEdgeTri(void) { return IsLeadingEdgeTri_; };
     int &VortexLoop(void) { return VortexLoop_; };
@@ -158,10 +168,10 @@ public:
     double &Nz(void) { return Normal_[2]; };
     double *Normal(void) { return Normal_; };
 
-    double &NxCamber(void) { return NormalCamber_[0]; };
-    double &NyCamber(void) { return NormalCamber_[1]; };
-    double &NzCamber(void) { return NormalCamber_[2]; };
-    double *NormalCamber(void) { return NormalCamber_; };
+    double &NxFlatPlate(void) { return FlatPlateNormal_[0]; };
+    double &NyFlatPlate(void) { return FlatPlateNormal_[1]; };
+    double &NzFlatPlate(void) { return FlatPlateNormal_[2]; };
+    double *FlatPlateNormal(void) { return FlatPlateNormal_; };
     
     double &Camber(void) { return Camber_; };
     
@@ -182,6 +192,7 @@ public:
     
     double &Gamma(void) { return Gamma_; };
     double &dCp(void) { return dCp_; };
+    double &dCp_Unsteady(void) { return dCp_Unsteady_; };
     double &CompressibilityFactor(void) { return CompressibilityFactor_; };
   
     double &Fx(void) { return Force_[0]; };
@@ -194,8 +205,14 @@ public:
     int &SurfaceType(void) { return SurfaceType_; };
     int &DegenBodyID(void) { return DegenBodyID_; };
     int &DegenWingID(void) { return DegenWingID_; };    
-    int &Cart3dID(void) { return Cart3dID_; };    
+    int &Cart3dID(void) { return Cart3dID_; };        
     
+    // Airfoil data
+    
+    double &ThicknessToChord(void) { return ThicknessToChord_; };
+    double &LocationOfMaxThickness(void ) { return LocationOfMaxThickness_; };
+    double &RadiusToChord(void) { return RadiusToChord_; };    
+        
     // Agglomeration data
     
     int &CoarseGridLoop(void) { return CoarseGridLoop_; };
@@ -208,6 +225,8 @@ public:
     BBOX &BoundBox(void) { return BoundBox_; };
     
     int &LoopUsed(void) { return LoopUsed_; };
+   
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };
 

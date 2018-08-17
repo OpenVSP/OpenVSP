@@ -71,7 +71,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_XSecLayout.AddSlider( m_XSecXRotSlider, "Rot X", 90.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecYRotSlider, "Rot Y", 90.0, "%6.5f" );
     m_XSecLayout.AddSlider( m_XSecZRotSlider, "Rot Z", 90.0, "%6.5f" );
-    m_XSecLayout.AddSlider( m_XSecSpinSlider, "Spin",  90.0, "%6.5f" );
+    m_XSecLayout.AddSlider( m_XSecSpinSlider, "Spin",  2.0, "%6.5f" );
 
     m_XSecLayout.AddYGap();
 
@@ -179,7 +179,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.AddButton( m_FourInvertButton, "Invert Airfoil" );
 
-    //==== Sex Series AF ====//
+    //==== Six Series AF ====//
     m_SixSeriesGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
     m_SixSeriesGroup.SetY( start_y );
     m_SixSeriesGroup.AddYGap();
@@ -307,6 +307,8 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_VKTGroup.AddSlider( m_VKTEpsilonSlider, "Epsilon", 1, "%7.5f" );
     m_VKTGroup.AddSlider( m_VKTKappaSlider, "Kappa", 1, "%7.5f" );
     m_VKTGroup.AddSlider( m_VKTTauSlider, "Tau", 10, "%7.5f" );
+    m_VKTGroup.AddYGap();
+    m_VKTGroup.AddButton( m_VKTInvertButton, "Invert Airfoil" );
 
     DisplayGroup( &m_PointGroup );
 
@@ -613,6 +615,7 @@ bool FuselageScreen::Update()
                 m_VKTEpsilonSlider.Update( vkt_xs->m_Epsilon.GetID() );
                 m_VKTKappaSlider.Update( vkt_xs->m_Kappa.GetID() );
                 m_VKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
+                m_VKTInvertButton.Update( vkt_xs->m_Invert.GetID() );
             }
         }
     }

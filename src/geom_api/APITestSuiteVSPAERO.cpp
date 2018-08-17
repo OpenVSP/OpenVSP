@@ -687,9 +687,9 @@ void APITestSuiteVSPAERO::TestVSPAeroSinglePointUnsteady()
     std::vector< int > stabilityCalcFlag; stabilityCalcFlag.push_back( 1 );
     vsp::SetIntAnalysisInput( analysis_name, "StabilityCalcFlag", stabilityCalcFlag );
     std::vector< int> stabilityCalcType; stabilityCalcType.push_back( vsp::STABILITY_P_ANALYSIS );
-    vsp::SetIntAnalysisInput( analysis_name, "StabilityCalcType", stabilityCalcType );
-    std::vector< int > jacobiPrecondition; jacobiPrecondition.push_back( 1 );
-    vsp::SetIntAnalysisInput( analysis_name, "JacobiPrecondition", jacobiPrecondition );
+    vsp::SetIntAnalysisInput( analysis_name, "UnsteadyType", stabilityCalcType );
+    std::vector< int > jacobiPrecondition; jacobiPrecondition.push_back( vsp::PRECON_JACOBI );
+    vsp::SetIntAnalysisInput( analysis_name, "Precondition", jacobiPrecondition );
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf("COMPLETE\n");
@@ -1017,8 +1017,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     // Get & Display Results
     vsp::PrintResults( results_id );
 
-    vector<string> results_names = vsp::GetAllDataNames( results_id );
-    vector<string>res_id = vsp::GetStringResults( results_id, results_names[0] , 0 );
+    vector<string>res_id = vsp::GetStringResults( results_id, "ResultsVec" , 0 );
 
     vector<double> CL = vsp::GetDoubleResults( res_id[0], "CL", 0 );
     vector<double> cl = vsp::GetDoubleResults( res_id[1], "cl", 0 );
@@ -1181,8 +1180,7 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     // Get & Display Results
     vsp::PrintResults( results_id );
 
-    vector<string> results_names = vsp::GetAllDataNames( results_id );
-    vector<string>res_id = vsp::GetStringResults( results_id, results_names[0] , 0 );
+    vector<string>res_id = vsp::GetStringResults( results_id, "ResultsVec", 0 );
 
     vector<double> CL = vsp::GetDoubleResults( res_id[0], "CL", 0 );
     vector<double> cl = vsp::GetDoubleResults( res_id[1], "cl", 0 );
@@ -1685,6 +1683,59 @@ void APITestSuiteVSPAERO::TestVSPAeroParmContainersAccessibleAfterSave()
     deflection_gain_id = vsp::FindParm( control_group_settings_container_id, "DeflectionAngle", "ControlSurfaceGroup_2");
     TEST_ASSERT_DELTA( vsp::GetParmVal( deflection_gain_id ), angle2, TEST_TOL );
     printf("COMPLETE.\n");
+}
+
+void APITestSuiteVSPAERO::TestVSPAeroCpSlicer()
+{
+    printf( "APITestSuiteVSPAERO::TestVSPAeroCpSlicer()\n" );
+
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //open the file created in TestVSPAeroCreateModel
+    vsp::ReadVSPFile( m_vspfname_for_vspaerotests );
+    if ( m_vspfname_for_vspaerotests == string() )
+    {
+        TEST_FAIL( "m_vspfname_for_vspaerotests = NULL, need to run: APITestSuite::TestVSPAeroComputeGeomPanel" );
+        return;
+    }
+    if ( vsp::ErrorMgr.PopErrorAndPrint( stdout ) )
+    {
+        TEST_FAIL( "m_vspfname_for_vspaerotests failed to open" );
+        return;
+    }
+
+    //==== Analysis: CpSlicer ====//
+    string analysis_name = "CpSlicer";
+    printf( "\t%s\n", analysis_name.c_str() );
+    // Set defaults
+    vsp::SetAnalysisInputDefaults( analysis_name );
+
+    // Setup cuts
+    vector < double > ycuts;
+    ycuts.push_back( 2.0 );
+    ycuts.push_back( 4.5 );
+    ycuts.push_back( 8.0 );
+
+    vsp::SetDoubleAnalysisInput( analysis_name, "YSlicePosVec", ycuts, 0 );
+
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // list inputs, type, and current values
+    vsp::PrintAnalysisInputs( analysis_name );
+
+    // Execute
+    printf( "\n\t\tExecuting..." );
+    string results_id = vsp::ExecAnalysis( analysis_name );
+    printf( "COMPLETE\n\n" );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    // Get & Display Results
+    vsp::PrintResults( results_id );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "\n" );
 }
 
 double  APITestSuiteVSPAERO::calcTessWCheckVal( double t_tess_w )

@@ -64,7 +64,10 @@
 #include "GridDensity.h"
 #include "BezierCurve.h"
 #include "Vehicle.h"
-#include "CfdMeshSettings.h"
+#include "SurfaceIntersectionMgr.h"
+#include "MeshCommonSettings.h"
+#include "SimpleSubSurface.h"
+#include "SimpleMeshSettings.h"
 
 #include "Vec2d.h"
 #include "Vec3d.h"
@@ -78,8 +81,6 @@
 #include <vector>
 #include <list>
 #include <string>
-#include <iostream>
-#include <sstream>
 using namespace std;
 
 class WakeMgr;
@@ -161,7 +162,7 @@ protected:
 };
 
 //////////////////////////////////////////////////////////////////////
-class CfdMeshMgrSingleton : public ParmContainer
+class CfdMeshMgrSingleton : public SurfaceIntersectionSingleton
 {
 protected:
     CfdMeshMgrSingleton();
@@ -177,23 +178,21 @@ public:
     }
 
 
-    virtual ~CfdMeshMgrSingleton();
-    virtual void CleanUp();
+    ~CfdMeshMgrSingleton() override;
+    void CleanUp() override;
 
-    virtual void ParmChanged( Parm* parm_ptr, int type );
+    SimpleMeshCommonSettings* GetSettingsPtr() override
+    {
+        return (SimpleMeshCommonSettings* ) &m_CfdSettings;
+    }
 
     virtual void GenerateMesh();
 
-    virtual void addOutputText( const string &str, int output_type = CFD_OUTPUT );
+    void TransferMeshSettings() override;
 
     virtual void GUI_Val( string name, double val );
     virtual void GUI_Val( string name, int val );
     virtual void GUI_Val( string name, string val );
-
-    virtual GridDensity* GetGridDensityPtr()
-    {
-        return m_Vehicle->GetCfdGridDensityPtr();
-    }
 
     virtual string GetCurrSourceGeomID()
     {
@@ -235,21 +234,17 @@ public:
 
 //  virtual void Draw();
 //  virtual void Draw_BBox( BndBox box );
-    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
+    void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec ) override;
 
-    virtual void FetchSurfs( vector< XferSurf > &xfersurfs );
-    virtual void LoadSurfs( vector< XferSurf > &xfersurfs );
-
-    virtual void CleanMergeSurfs();
+    void UpdateDisplaySettings() override;
 
     virtual void WriteSTL( const string &filename );
     virtual void WriteTaggedSTL( const string &filename );
     virtual void WriteTetGen( const string &filename );
     virtual void WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const string &key_fn, const string &obj_fn, const string &tri_fn, const string &gmsh_fn );
     virtual void WriteFacet( const string &facet_fn );
-    virtual void WriteSurfsIntCurves( const string &filename  );
 
-    virtual void ExportFiles();
+    void ExportFiles() override;
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );
     virtual int BuildIndMap( vector< vec3d* > & allPntVec, map< int, vector< int > >& indMap, vector< int > & pntShift );
     virtual int  FindPntIndex( vec3d& pnt, vector< vec3d* > & allPntVec,
@@ -259,36 +254,18 @@ public:
     virtual Edge* FindAddEdge( map< int, vector<Edge*> > & edgeMap, vector< Node* > & nodeVec, int ind1, int ind2 );
 
     virtual void BuildDomain();
-    virtual void DeleteDuplicateSurfs();
-    virtual void BuildGrid();
+    void BuildGrid() override;
 
-    enum { NO_OUTPUT, CFD_OUTPUT, FEA_OUTPUT, };
+    enum { QUIET_OUTPUT, VOCAL_OUTPUT, };
     virtual void Remesh( int output_type );
     virtual void RemeshSingleComp( int comp_id, int output_type );
 
-    virtual void Intersect();
     virtual void InitMesh();
 
-    virtual void PrintQual();
     virtual string GetQualString();
-
-//  virtual void AddISeg( Surf* sA, Surf* sB, vec2d & sAuw0, vec2d & sAuw1,  vec2d & sBuw0, vec2d & sBuw1 );
-    virtual void AddIntersectionSeg( SurfPatch& pA, SurfPatch& pB, vec3d & ip0, vec3d & ip1 );
-//  virtual ISeg* CreateSurfaceSeg( Surf* sPtr, vec3d & p0, vec3d & p1, vec2d & uw0, vec2d & uw1 );
-    virtual ISeg* CreateSurfaceSeg( Surf* surfA, vec2d & uwA0, vec2d & uwA1, Surf* surfB, vec2d & uwB0, vec2d & uwB1  );
-
-    virtual void BuildChains();
-    virtual void ExpandChain( ISegChain* chain );
-
-    virtual void BuildCurves();
-    virtual void IntersectSplitChains();
 
     virtual vector< Surf* > CreateDomainSurfs();
 
-    virtual void MergeInteriorChainIPnts();
-
-    virtual void LoadBorderCurves();
-    virtual void SplitBorderCurves();
     virtual void MergeBorderEndPoints();
     virtual void MergeIPntGroups( list< IPntGroup* > & iPntGroupList, double tol );
     virtual void TessellateChains();
@@ -302,39 +279,10 @@ public:
     virtual void ConnectBorderEdges( bool wakeOnly );
     virtual void MatchBorderEdges( list< Edge* > edgeList );
 
-    virtual void DebugWriteChains( const char* name, bool tessFlag );
-
     // SubSurface Methods
-    virtual void BuildSubSurfIntChains();
-    virtual void BuildTestIntChains();
     virtual void SubTagTris();
-
-    virtual void HighlightNextChain();
-
-    virtual void AddDelPuw( Puw* puw )
-    {
-        m_DelPuwVec.push_back( puw );
-    }
-    virtual void AddDelIPnt( IPnt* ip )
-    {
-        m_DelIPntVec.push_back( ip );
-    }
-
-    virtual void WriteChains();
-
-    void AddPossCoPlanarSurf( Surf* surfA, Surf* surfB );
-    vector< Surf* > GetPossCoPlanarSurfs( Surf* surfPtr );
-
-    void TestStuff();
-    vector< vec3d > debugPnts;
-    vector< vec2d > debugUWs;
-    vector< SurfPatch* > debugPatches;
-
-    vector< ICurve* > GetICurveVec()
-    {
-        return m_ICurveVec;
-    }
-    virtual void SetICurveVec( ICurve* newcurve, int loc );
+    virtual void SetSimpSubSurfTags( int tag_offset );
+    virtual void Subtag( Surf* surf );
 
     virtual bool SetDeleteTriFlag( int aType, bool symPlane, vector < bool > aInB );
 
@@ -347,21 +295,14 @@ public:
     vector< vec3d > m_DebugColors;
 #endif
 
-    stringstream m_OutStream;
-
-
-    CfdMeshSettings* GetCfdSettingsPtr()
+    virtual SimpleCfdMeshSettings* GetCfdSettingsPtr()
     {
-        return m_Vehicle->GetCfdSettingsPtr();
+        return &m_CfdSettings;
     }
 
-    bool GetMeshInProgress()
+    virtual SimpleGridDensity* GetGridDensityPtr()
     {
-        return m_MeshInProgress;
-    }
-    virtual void SetMeshInProgress( bool progress_flag )
-    {
-        m_MeshInProgress = progress_flag;
+        return &m_CfdGridDensity;
     }
 
 protected:
@@ -372,42 +313,19 @@ protected:
     virtual void UpdateBBoxDO( BndBox box );
     virtual void UpdateBBoxDOSymSplit( BndBox box );
 
-    Vehicle* m_Vehicle;
-
-    bool m_MeshInProgress;
-
     string m_CurrSourceGeomID;
     int m_CurrMainSurfIndx;
     string m_WakeGeomID;
 
-    vector< Surf* > m_SurfVec;
+    SimpleCfdMeshSettings m_CfdSettings;
+    SimpleCfdGridDensity m_CfdGridDensity;
 
     //==== Wakes ====//
     WakeMgr m_WakeMgr;
 
-    vector< ICurve* > m_ICurveVec;
-
-    list< ISegChain* > m_ISegChainList;
-
-    map< int, IPntBin > m_BinMap;
-
-    //vector< ISegSplit* > m_ISegSplitVec;
-
-    int m_NumComps;
-    int m_HighlightChainIndex;
-
     BndBox m_Domain;
 
-    vector< Puw* > m_DelPuwVec;             // Store Created Puw and Ipnts
-    vector< IPnt* > m_DelIPntVec;
-    vector< IPntGroup* > m_DelIPntGroupVec;
-    vector< ISegChain* > m_DelISegChainVec;
-
     vector< vector< vec3d > > debugRayIsect;
-
-
-    //==== Vector of Surfs that may have a border that lies on Surf A ====//
-    map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
 
     vector<Edge*> m_BadEdges;
     vector<Tri*> m_BadTris;
@@ -422,8 +340,6 @@ private:
     DrawObj m_BBoxLineSymSplit;
     vector< DrawObj > m_TagDO;
 
-//    DrawObj m_ISegChainDO;
-//    DrawObj m_ISegChainPtsDO;
 };
 
 #define CfdMeshMgr CfdMeshMgrSingleton::getInstance()

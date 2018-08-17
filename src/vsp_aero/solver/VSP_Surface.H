@@ -69,6 +69,8 @@ private:
     
     int SurfaceType_;
     
+    int ComponentID_;
+    
     // Degenerate mesh flags
     
     int NoseIsClosed_;
@@ -106,11 +108,17 @@ private:
     double *u_plate_;
     double *v_plate_;
    
-    // Surface normals
+    // Surface normals.. these define the camber line normal
     
-    double *Nx_plate_;
-    double *Ny_plate_;
-    double *Nz_plate_;
+    double *Nx_Camber_;
+    double *Ny_Camber_;
+    double *Nz_Camber_;
+    
+    // Flat plate normal 
+    
+    double *Nx_FlatPlateNormal_;
+    double *Ny_FlatPlateNormal_;
+    double *Nz_FlatPlateNormal_;
     
     // Camber 
     
@@ -150,9 +158,9 @@ private:
     double &y_plate(int i) { return y_plate_[i]; };
     double &z_plate(int i) { return z_plate_[i]; };
 
-    double &Nx_plate(int i) { return Nx_plate_[i]; };
-    double &Ny_plate(int i) { return Ny_plate_[i]; };
-    double &Nz_plate(int i) { return Nz_plate_[i]; };
+    double &Nx_Camber(int i) { return Nx_Camber_[i]; };
+    double &Ny_Camber(int i) { return Ny_Camber_[i]; };
+    double &Nz_Camber(int i) { return Nz_Camber_[i]; };
     
     double &u_plate(int i) { return u_plate_[i]; };
     double &v_plate(int i) { return v_plate_[i]; };
@@ -163,9 +171,9 @@ private:
     double &y_plate(int i, int j) { return y_plate_[(i-1)*NumPlateJ_ + j]; };
     double &z_plate(int i, int j) { return z_plate_[(i-1)*NumPlateJ_ + j]; };
 
-    double &Nx_plate(int i, int j) { return Nx_plate_[(i-1)*NumPlateJ_ + j]; };
-    double &Ny_plate(int i, int j) { return Ny_plate_[(i-1)*NumPlateJ_ + j]; };
-    double &Nz_plate(int i, int j) { return Nz_plate_[(i-1)*NumPlateJ_ + j]; };
+    double &Nx_Camber(int i, int j) { return Nx_Camber_[(i-1)*NumPlateJ_ + j]; };
+    double &Ny_Camber(int i, int j) { return Ny_Camber_[(i-1)*NumPlateJ_ + j]; };
+    double &Nz_Camber(int i, int j) { return Nz_Camber_[(i-1)*NumPlateJ_ + j]; };
     
     double &u_plate(int i, int j) { return u_plate_[(i-1)*NumPlateJ_ + j]; };
     double &v_plate(int i, int j) { return v_plate_[(i-1)*NumPlateJ_ + j]; };
@@ -219,7 +227,19 @@ private:
     // Average chord
     
     double AverageChord_;
+
+    // Thickness to chord
+        
+    double *ThicknessToChord_;
     
+    // Location of maximum thickness to chord
+    
+    double *LocationOfMaxThickness_;
+    
+    // Radius to chord ratio
+    
+    double *RadiusToChord_;
+
     // Wetted area
     
     double WettedArea_;
@@ -269,7 +289,16 @@ private:
     // Control surface routines
     
     void Interpolate_XYZ_From_UV(double u, double v, double *xyz); 
-
+    
+    // Ground effects data
+    
+    int DoGroundEffectsAnalysis_;
+    double GroundEffectsRotationAngle_;
+    double GroundEffectsCGLocation_[3];
+    double GroundEffectsHeightAboveGround_;
+    
+    void RotateGeometry_About_Y_Axis(void);    
+    
 public:
 
     // Constructor, Destructor, Copy
@@ -374,6 +403,10 @@ public:
     
     int SurfaceType(void) { return SurfaceType_; };
     
+    // Internal component ID
+    
+    int &ComponentID(void) { return ComponentID_; };
+    
     // Number of surface patches
     
     int NumberOfSurfacePatches(void) { return NumberOfSurfacePatches_; };
@@ -382,6 +415,13 @@ public:
     
     void FEMUnDeformGeometry(double xyz_p[3]);
     
+    // Ground effects analysis
+    
+    int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
+    double &GroundEffectsRotationAngle(void) { return GroundEffectsRotationAngle_; };
+    double &GroundEffectsCGLocation(int i) { return GroundEffectsCGLocation_[i]; };
+    double &GroundEffectsHeightAboveGround(void) { return GroundEffectsHeightAboveGround_; };
+
     // Control surfaces
     
     int NumberOfControlSurfaces(void) { return NumberOfControlSurfaces_; };

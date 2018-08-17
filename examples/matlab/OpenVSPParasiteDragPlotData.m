@@ -261,3 +261,56 @@ g.PaperSize = [width height];
 
 print('-dpng','-r600','wing_form_factor_api_output')
 
+%% Collect Data (Partial Friction Coefficient)
+% Data Type
+Data_Type = 'PartialFrictionMethod';
+
+File_Name = sprintf('%sData.csv', Data_Type);
+
+fid = fopen(File_Name,'r');
+
+for i = 1:4
+    fgetl(fid);
+end
+
+structnum = 1;
+tline = fgetl(fid);
+while tline ~= -1
+    data = textscan(tline, '%s','Delimiter',',');
+    name = data{1,1}(1);
+    numbers = zeros(1,length(data{1,1})-1);
+    for j = 2:length(data{1,1})
+        numbers(j-1) = str2double(cell2mat(data{1,1}(j)));
+    end
+
+    if strcmpi(name, 'Cf')
+        cf = numbers;
+    elseif strcmpi(name, 'Manual')
+        % Skip
+    elseif strcmpi(name, 'LamPerc')
+        lamperc = numbers;
+    end
+    tline = fgetl(fid);
+end
+fclose(fid);
+
+% Plotting
+g = figure(5);
+plot( lamperc, cf, 'LineWidth', 2 );
+
+grid on
+xlabel( 'Laminar Percent','FontSize', labelfontsize );
+ylabel( 'Equivalent C_f','FontSize', labelfontsize );
+
+box on;
+grid on;
+%set(gca, 'gridlinestyle','--','LineWidth',1.0,'GridColor',[0.05 0.05 0.05],'GridAlpha',0.3);
+set(g,'units','inches','position',[0 0 width height]);
+
+% Print it to a PNG
+g.PaperUnits = 'inches';
+g.PaperPosition = [0 0 width height];
+print('PowerTradeSpaceDownSelect','-dpng','-r300')
+g.PaperSize = [width height];
+
+print('-dpng','-r600','partial_turbulence_api_output')

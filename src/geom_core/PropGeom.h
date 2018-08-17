@@ -33,15 +33,19 @@ public:
 
     double m_Chord;
 
+    double m_Construct;
+    double m_RootChord;
+    double m_RootTwist;
+
     double m_Twist;
     double m_PropRot;
     double m_Feather;
-    double m_XRotate;
     double m_ZRotate;
 
     double m_Radius;
     double m_Rake;
     double m_Skew;
+    double m_Sweep;
 
     vec3d m_FoldOrigin;
     vec3d m_FoldDirection;
@@ -136,12 +140,16 @@ public:
 
     virtual PCurve* GetPCurve( int curveid );
 
+    virtual void WriteAirfoilFiles( FILE* meta_fid );
+
     Parm m_Diameter;
 
     Parm m_Rotate;
     Parm m_Beta34;
     Parm m_Feather;
     IntParm m_UseBeta34Flag;
+
+    Parm m_Construct;
 
     BoolParm m_ReverseFlag;
 
@@ -163,6 +171,7 @@ public:
 
     PCurve m_RakeCurve;
     PCurve m_SkewCurve;
+    PCurve m_SweepCurve;
 
     vector < PCurve* > m_pcurve_vec;
 

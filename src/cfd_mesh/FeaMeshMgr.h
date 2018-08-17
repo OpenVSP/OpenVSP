@@ -12,59 +12,14 @@
 #define FeaMeshMgr_FeaMeshMgr__INCLUDED_
 
 #include "CfdMeshMgr.h"
-#include "FeaPart.h"
+#include "FeaStructure.h"
+#include "FeaElement.h"
 
-class SectionEdge
+using namespace std;
+
+enum
 {
-public:
-    SectionEdge()                   {}
-    virtual ~SectionEdge()          {}
-
-    vector< double > m_LineFractVec;
-    vector< vec2d  > m_UWVec;
-    vector< vec3d  > m_PntVec;
-};
-
-class WingSection
-{
-public:
-
-    WingSection();
-    virtual ~WingSection();
-
-    void BuildClean();
-    void Load( Surf* upper_surf, Surf* lower_surf );
-
-    void WriteData( xmlNodePtr root );
-    void ReadData(  xmlNodePtr root );
-
-
-    vec2d GetUW( int edge_id, double fract );
-    vec3d CompPnt( int edge_id, double fract );
-    bool IntersectPlaneEdge( int edge_id, vec3d & orig, vec3d & norm, vec2d & result );
-    void ComputePerSpanChord( vec3d & pnt, double* per_span, double* per_chord );
-//  void Draw( bool highlight );
-
-    Surf* m_UpperSurfPtr;
-    Surf* m_LowerSurfPtr;
-
-    vec3d m_Normal;
-    vec3d m_ChordNormal;
-    double m_SweepLE;
-
-    enum { UW00, UW10, UW01, UW11, NUM_CORNER_PNTS };
-    vec3d m_CornerPnts[NUM_CORNER_PNTS];
-
-    enum { LE, TE, IN_CHORD, OUT_CHORD, NUM_EDGES };
-    SectionEdge m_Edges[NUM_EDGES];
-
-    vector< FeaRib* > m_RibVec;
-    vector< FeaSpar* > m_SparVec;
-
-    FeaSkin m_UpperSkin;
-    FeaSkin m_LowerSkin;
-
-
+    SURFACE_FIX_POINT, BORDER_FIX_POINT, INTERSECT_FIX_POINT
 };
 
 //////////////////////////////////////////////////////////////////////
@@ -72,8 +27,8 @@ class FeaMeshMgrSingleton : public CfdMeshMgrSingleton
 {
 protected:
     FeaMeshMgrSingleton();
-    FeaMeshMgrSingleton( FeaMeshMgrSingleton const& copy );          // Not Implemented
-    FeaMeshMgrSingleton& operator=( FeaMeshMgrSingleton const& copy ); // Not Implemented
+    //FeaMeshMgrSingleton( FeaMeshMgrSingleton const& copy );          // Not Implemented
+    //FeaMeshMgrSingleton& operator=( FeaMeshMgrSingleton const& copy ); // Not Implemented
 
 public:
 
@@ -86,203 +41,180 @@ public:
     virtual ~FeaMeshMgrSingleton();
     virtual void CleanUp();
 
-    virtual GridDensity* GetGridDensityPtr()
+    virtual SimpleGridDensity* GetGridDensityPtr()
     {
-        return m_Vehicle->GetFeaGridDensityPtr();
+        return &m_FeaGridDensity;
+    }
+
+    virtual SimpleFeaMeshSettings* GetStructSettingsPtr()
+    {
+        return &m_StructSettings;
+    }
+
+    virtual SimpleMeshCommonSettings* GetSettingsPtr()
+    {
+        return (SimpleMeshCommonSettings* ) &m_StructSettings;
     }
 
     virtual bool LoadSurfaces();
-    virtual void Build();
-    virtual void Export();
-    virtual void BuildClean();
-    virtual void Intersect();
-    virtual void IdentifyUpperLowerSurfaces();
-
+    virtual void LoadSkins();
+    virtual void GenerateFeaMesh();
+    virtual void ExportFeaMesh();
+    virtual void TransferMeshSettings();
+    virtual void TransferFeaData();
+    virtual void TransferSubSurfData();
+    virtual void MergeCoplanarParts();
     virtual void AddStructureParts();
-    virtual void RemoveSliceSurfaces();
+    virtual void SetFixPointSurfaceNodes();
+    virtual void SetFixPointBorderNodes();
+    virtual void CheckFixPointIntersects();
+    virtual void BuildFeaMesh();
+    virtual void CheckSubSurfBorderIntersect();
+    virtual void CheckDuplicateSSIntersects();
+    virtual void MergeFeaPartSSEdgeOverlap();
+    virtual void RemoveSubSurfFeaTris();
+    virtual void RemoveSkinTris();
+    virtual void TagFeaNodes();
 
-    virtual bool WriteWingBezierFile( const char* file_name );
-
-    virtual vec3d ComputePoint( vec2d & uw, bool upperFlag );
-    virtual vec3d GetNormal( int sectID );
-    virtual WingSection* GetWingSection( int sectID );
-
-    virtual int GetNumSections()
+    virtual int GetTotalNumSurfs()
     {
-        return m_UpperSurfVec.size();
+        return m_SurfVec.size();
     }
-
-    virtual void LoadChains( Surf* sliceSurf, bool upperFlag, int sect_id,
-                             list< ISegChain* > & chain_list );
-    virtual void LoadCapChains( Surf* s0, Surf* s1, list< ISegChain* > & chain_list );
-    virtual void LoadCapChains( Surf* s0, double w, list< ISegChain* > & chain_list );
-
-    virtual void BuildSliceMesh();
 
     virtual void WriteCalculix( );
     virtual void WriteNASTRAN( const string &base_filename );
+    virtual void WriteGmsh();
 
     virtual void ComputeWriteMass();
-
-//  virtual void Draw();
 
     virtual double GetTotalMass()
     {
         return m_TotalMass;
     }
 
-    virtual int GetCurrSectID()
+    virtual void SetFeaMeshStructIndex( int index )
     {
-        return m_CurrSectID;
-    }
-    virtual void SetCurrSectID( int id );
-
-    virtual int GetNumSpars();
-    virtual int GetCurrSparID()
-    {
-        return m_CurrSparID;
-    }
-    virtual void SetCurrSparID( int id );
-
-    virtual int GetNumRibs();
-    virtual int GetCurrRibID()
-    {
-        return m_CurrRibID;
-    }
-    virtual void SetCurrRibID( int id );
-
-    virtual int GetNumPointMasses();
-    virtual int GetCurrPointMassID()
-    {
-        return m_CurrPointMassID;
-    }
-    virtual void SetCurrPointMassID( int id );
-
-    //virtual int GetNumUpSkinSpliceLines();
-    //virtual int GetCurrUpSkinSliceLineID()        { return m_CurrUpSkinSpliceLineID; }
-    //virtual void SetCurrUpSkinSpliceLineID( int id );
-
-    virtual FeaRib* GetCurrRib();
-    virtual FeaSpar* GetCurrSpar();
-    virtual FeaSkin* GetCurrUpperSkin();
-    virtual FeaSkin* GetCurrLowerSkin();
-    virtual FeaPointMass* GetCurrPointMass();
-
-    virtual FeaNode* FindNode( vector< FeaNode* > nodeVec, int id );
-
-    virtual void AddRib();
-    virtual void DelCurrRib();
-    virtual void AddSpar();
-    virtual void DelCurrSpar();
-    virtual void AddPointMass();
-    virtual void DelCurrPointMass();
-
-    enum { UP_SKIN_EDIT, LOW_SKIN_EDIT, SPAR_EDIT, RIB_EDIT, POINT_MASS_EDIT };
-    virtual void SetCurrEditType( int t )
-    {
-        m_CurrEditType = t;
-    }
-    virtual int  GetCurrEditType()
-    {
-        return m_CurrEditType;
+        m_FeaMeshStructIndex = index;
     }
 
-    virtual bool GetDrawMeshFlag()
+    virtual bool GetFeaMeshInProgress()
     {
-        return m_DrawMeshFlag;
+        return m_FeaMeshInProgress;
     }
-    virtual void SetDrawMeshFlag( bool f )
+    virtual void SetFeaMeshInProgress( bool progress_flag )
     {
-        m_DrawMeshFlag = f;
-    }
-    virtual void SetDrawFlag( bool f )
-    {
-        m_DrawFlag = f;
-    }
-    virtual void SetBatchFlag( bool f )
-    {
-        m_BatchFlag = f;
-    }
-    virtual bool GetBatchFlag()
-    {
-        return m_BatchFlag;
-    }
-    virtual void SetDrawAttachPointsFlag( bool f )
-    {
-        m_DrawAttachPoints = f;
-    }
-    virtual bool GetDrawAttachPointsFlag()
-    {
-        return m_DrawAttachPoints;
+        m_FeaMeshInProgress = progress_flag;
     }
 
-    virtual void SaveData();
-    virtual void WriteFeaStructData( Geom* geom_ptr, xmlNodePtr root );
-    virtual void SetFeaStructData( Geom* geom_ptr, xmlNodePtr root );
-    virtual void ReadFeaStructData( );
-    virtual void CopyGeomPtr( Geom* from_geom, Geom* to_geom );
-    virtual void LoadAttachPoints();
+    virtual void TransferDrawObjData();
+    virtual bool FeaDataAvailable();
+    virtual void SetAllDisplayFlags( bool flag );
+    virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    virtual void CursorPos( vec2d & cursor );
-    virtual void MouseClick( vec2d & cursor );
+    virtual void UpdateDisplaySettings();
 
-    enum { MASS_FILE_NAME, NASTRAN_FILE_NAME, GEOM_FILE_NAME, THICK_FILE_NAME, STL_FEA_NAME, NUM_FEA_FILE_NAMES };
-    string GetFeaExportFileName( int type );
-    void SetFeaExportFileName( const string &fn, int type );
-    bool GetFeaExportFileFlag( int type );
-    void SetFeaExportFileFlag( bool flag, int type );
-    void ResetFeaExportFileNames();
+    virtual vector < string > GetDrawBrowserNameVec()
+    {
+        return m_DrawBrowserNameVec;
+    }
 
-    Parm m_ThickScale;
+    virtual vector < int > GetDrawBrowserIndexVec()
+    {
+        return m_DrawBrowserPartIndexVec;
+    }
+
+    virtual vector < bool > GetDrawElementFlagVec()
+    {
+        return m_DrawElementFlagVec;
+    }
+
+    virtual void SetDrawElementFlag( int index, bool flag );
+
+    virtual vector < bool > GetDrawCapFlagVec()
+    {
+        return m_DrawCapFlagVec;
+    }
+
+    virtual void SetDrawCapFlag( int index, bool flag );
+
+    virtual vector < SimpleFeaProperty > GetSimplePropertyVec()
+    {
+        return m_SimplePropertyVec;
+    }
+
+    virtual vector < SimpleFeaMaterial > GetSimpleMaterialVec()
+    {
+        return m_SimpleMaterialVec;
+    }
 
 protected:
 
-    Geom* m_WingGeom;
+    virtual void GetMassUnit();
 
-    bool m_BatchFlag;
+    virtual void WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string set_name );
 
-    bool m_DrawFlag;
-    bool m_DrawMeshFlag;
-
-    xmlNodePtr m_XmlDataNode;
-    vector< Geom* > m_DataGeomVec;
-
-    int m_CurrSectID;
+    bool m_FeaMeshInProgress;
 
     double m_TotalMass;
+    string m_MassUnit;
 
-    int m_CurrSparID;
-    int m_CurrRibID;
-    int m_CurrPointMassID;
+    string m_StructName;
+    int m_FeaMeshStructIndex;
 
-    int m_CurrEditType;
+    int m_NumFeaParts;
+    int m_NumFeaSubSurfs;
+    int m_NumFeaFixPoints;
+    int m_NumTris;
+    int m_NumBeams;
 
-    vector< Surf* > m_UpperSurfVec;
-    vector< Surf* > m_LowerSurfVec;
+    bool m_RemoveSkinTris;
 
-    vector< WingSection > m_WingSections;
+    vector < string > m_FeaPartNameVec;
+    vector < int > m_FeaPartTypeVec;
+    vector < int > m_FeaPartIncludedElementsVec;
+    vector < int > m_FeaPartPropertyIndexVec;
+    vector < int > m_FeaPartCapPropertyIndexVec;
 
-    vector< FeaSlice* > m_SliceVec;
-    vector< FeaSkin* > m_SkinVec;
+    // The following vectors are mapped to FeaFixPoint count index
+    map < int, vector < vec3d > > m_FixPntMap; // Vector 3D coordinates for FeaFixPoints 
+    map < int, vector < vec2d > > m_FixUWMap; // Vector UW coordinates for FeaFixPoints
+    map < int, vector < int > > m_FixPntFeaPartIndexMap; // Vector of FixPoint FeaPart indexes
+    map < int, vector < int > > m_FixPntBorderFlagMap; // Indicates if the FixPoint lies on a surface, border, or intersection
+    map < int, vector < vector < int > > > m_FixPntSurfIndMap; // Vector of FeaFixPoint parent surface index, corresponding to index in m_SurfVec
+    map < int, vector < bool > > m_FixPointMassFlagMap;
+    map < int, vector < double > > m_FixPointMassMap;
 
-    bool m_DrawAttachPoints;
-    int m_ClosestAttachPoint;
-    vector< vec3d > m_AttachPoints;
+    vector < string > m_DrawBrowserNameVec;
+    vector < int > m_DrawBrowserPartIndexVec;
+    vector < bool > m_DrawElementFlagVec;
+    vector < bool > m_FixPointFeaPartFlagVec;
+    vector < bool > m_DrawCapFlagVec;
 
-    vector< FeaPointMass* > m_PointMassVec;
+    vector< FeaElement* > m_FeaElementVec;
+    vector < SimpleFeaProperty > m_SimplePropertyVec;
+    vector < SimpleFeaMaterial > m_SimpleMaterialVec;
 
-    bool m_ExportFeaFileFlags[NUM_FEA_FILE_NAMES];
-    string m_ExportFeaFileNames[NUM_FEA_FILE_NAMES];
+    vector< FeaNode* > m_FeaNodeVec;
+    vector< vec3d* > m_AllPntVec;
+    map< int, vector< int > > m_IndMap;
+    vector< int > m_PntShift;
 
+    SimpleFeaMeshSettings m_StructSettings;
+    SimpleGridDensity m_FeaGridDensity;
 
-    vector< vec3d >debugPnts;
+private:
 
+    vector< DrawObj > m_FeaElementDO;
+    vector< DrawObj > m_CapFeaElementDO;
+    vector< DrawObj > m_FeaNodeDO;
+    vector< DrawObj > m_TriOrientationDO;
+    vector< DrawObj > m_CapNormDO;
+    vector< DrawObj > m_SSFeaElementDO;
+    vector< DrawObj > m_SSCapFeaElementDO;
+    vector< DrawObj > m_SSFeaNodeDO;
+    vector< DrawObj > m_SSTriOrientationDO;
+    vector< DrawObj > m_SSCapNormDO;
 };
-//FEAMesh:
-//feamass.dat        -> [modelname]_mass.dat
-//feaNASTRAN.dat -> [modelname]_NASTRAN.dat
-//feageom.dat        -> [modelname]_calculix_geom.dat
-//feanodethick.dat ->  [modelname]_calculix_thick.dat
 
 #define FeaMeshMgr FeaMeshMgrSingleton::getInstance()
 

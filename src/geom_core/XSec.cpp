@@ -1654,7 +1654,8 @@ FuseXSec::FuseXSec( XSecCurve *xsc ) : SkinXSec( xsc)
     m_ZRotate.Init( "ZRotate", m_GroupName, this,  0.0, -180.0, 180.0 );
     m_ZRotate.SetDescript( "Rotation about z-axis of cross section" );
 
-    m_Spin.Init( "Spin", m_GroupName, this, 0.0, -180.0, 180.0 );
+    m_Spin.Init( "Spin", m_GroupName, this, 0.0, -1.0, 1.0 );
+    m_Spin.SetDescript( "Shift curve parameterization" );
 
     m_RefLength.Init( "RefLength", m_GroupName, this, 1.0, 1e-8, 1e12 );
 
@@ -1677,10 +1678,8 @@ void FuseXSec::Update()
 
     //==== Apply Transform ====//
     m_TransformedCurve = baseCurve;
-    if ( std::abs( m_Spin() ) > DBL_EPSILON )
-    {
-        std::cerr << "XSec spin not implemented." << std::endl;
-    }
+
+    m_TransformedCurve.Spin01( m_Spin() );
 
     m_Transform.loadIdentity();
 
@@ -1888,6 +1887,9 @@ StackXSec::StackXSec( XSecCurve *xsc ) : SkinXSec( xsc)
     m_ZCenterRot.Init( "m_ZCenterRot", m_GroupName, this,  0.0, -1.0e12, 1.0e12 );
     m_ZCenterRot.SetDescript( "Z Center Of Rotation" );
 
+    m_Spin.Init( "Spin", m_GroupName, this, 0.0, -1.0, 1.0 );
+    m_Spin.SetDescript( "Shift curve parameterization" );
+
     SetV2DefaultBehavior();
 
 }
@@ -1920,6 +1922,8 @@ void StackXSec::Update()
 
     //==== Apply Transform ====//
     m_TransformedCurve = baseCurve;
+
+    m_TransformedCurve.Spin01( m_Spin() );
 
     m_Transform.loadIdentity();
 

@@ -34,7 +34,8 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_INVALID_VARPRESET_SETNAME,
                     VSP_INVALID_VARPRESET_GROUPNAME,
                     VSP_CONFORMAL_PARENT_UNSUPPORTED,
-                    VSP_UNEXPECTED_RESET_REMAP_ID
+                    VSP_UNEXPECTED_RESET_REMAP_ID,
+                    VSP_INVALID_INPUT_VAL
                 };
 
 enum SYM_FLAG {  SYM_XY = ( 1 << 0 ),
@@ -68,6 +69,13 @@ enum LEN_UNITS { LEN_MM,
                  LEN_YD,
                  LEN_UNITLESS
                };
+
+enum DELIM_TYPE { DELIM_COMMA,
+                  DELIM_USCORE,
+                  DELIM_SPACE,
+                  DELIM_NONE,
+                  DELIM_NUM_TYPES
+                };
 
 enum DIMENSION_SET { SET_3D,
                      SET_2D,
@@ -147,6 +155,12 @@ enum XSEC_TRIM_TYPE { TRIM_NONE,
                       TRIM_NUM_TYPES
                     };
 
+enum BOR_MODE { BOR_FLOWTHROUGH,
+                BOR_UPPER,
+                BOR_LOWER,
+                BOR_NUM_MODES
+              };
+
 enum ABS_REL_FLAG { ABS,
                     REL
                   };
@@ -162,7 +176,8 @@ enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_XSEC_MESH,
                     IMPORT_PTS,
                     IMPORT_V2,
-                    IMPORT_BEM
+                    IMPORT_BEM,
+                    IMPORT_XSEC_WIRE
                  };
 
 enum EXPORT_TYPE {  EXPORT_FELISA,
@@ -182,7 +197,11 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_BEM,
                     EXPORT_DXF,
                     EXPORT_FACET,
-                    EXPORT_SVG
+                    EXPORT_SVG,
+                    EXPORT_PMARC,
+                    EXPORT_OBJ,
+                    EXPORT_SELIG_AIRFOIL,
+                    EXPORT_BEZIER_AIRFOIL
                  };
 
 enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
@@ -206,8 +225,10 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 WAVE_DRAG_TXT_TYPE  = 131072,
                                 VSPAERO_PANEL_TRI_TYPE = 262144,
                                 DRAG_BUILD_CSV_TYPE = 524288,
-                                CFD_FACET_TYPE = 1048576,
-                            };
+                                CFD_FACET_TYPE      = 1048576,
+                                CFD_CURV_TYPE       = 2097152,
+                                CFD_PLOT3D_TYPE     = 4194304,
+};
 
 enum SET_TYPE { SET_ALL = 0,
                 SET_SHOWN = 1,
@@ -219,7 +240,8 @@ enum RES_DATA_TYPE {    INVALID_TYPE = -1,
                         INT_DATA = 0,
                         DOUBLE_DATA = 1,
                         STRING_DATA = 2,
-                        VEC3D_DATA = 3
+                        VEC3D_DATA = 3,
+                        DOUBLE_MATRIX_DATA = 4,
                    };
 
 enum RES_GEOM_TYPE {    MESH_INDEXED_TRI,
@@ -238,6 +260,8 @@ enum CFD_MESH_EXPORT_TYPE { CFD_STL_FILE_NAME,
                             CFD_SRF_FILE_NAME,
                             CFD_TKEY_FILE_NAME,
                             CFD_FACET_FILE_NAME,
+                            CFD_CURV_FILE_NAME,
+                            CFD_PLOT3D_FILE_NAME,
                             CFD_NUM_FILE_NAMES,
                           };
 
@@ -272,8 +296,28 @@ enum CFD_CONTROL_TYPE {     CFD_MIN_EDGE_LEN,
 enum CFD_MESH_SOURCE_TYPE { POINT_SOURCE,
                             LINE_SOURCE,
                             BOX_SOURCE,
+                            ULINE_SOURCE,
+                            WLINE_SOURCE,
                             NUM_SOURCE_TYPES,
                           };
+
+enum FEA_EXPORT_TYPE { FEA_MASS_FILE_NAME,
+                       FEA_NASTRAN_FILE_NAME,
+                       FEA_NKEY_FILE_NAME,
+                       FEA_CALCULIX_FILE_NAME,
+                       FEA_STL_FILE_NAME,
+                       FEA_GMSH_FILE_NAME,
+                       FEA_SRF_FILE_NAME,
+                       FEA_CURV_FILE_NAME,
+                       FEA_PLOT3D_FILE_NAME,
+                       FEA_NUM_FILE_NAMES
+};
+
+enum INTERSECT_EXPORT_TYPE { INTERSECT_SRF_FILE_NAME,
+                             INTERSECT_CURV_FILE_NAME,
+                             INTERSECT_PLOT3D_FILE_NAME,
+                             INTERSECT_NUM_FILE_NAMES
+};
 
 enum XDDM_QUANTITY_TYPE { XDDM_VAR,
                           XDDM_CONST,
@@ -290,6 +334,8 @@ enum VSP_SURF_TYPE { NORMAL_SURF,
 enum VSP_SURF_CFD_TYPE { CFD_NORMAL,
                          CFD_NEGATIVE,
                          CFD_TRANSPARENT,
+                         CFD_STRUCTURE,
+                         CFD_STIFFENER,
                          CFD_NUM_TYPES,
                        };
 
@@ -297,12 +343,58 @@ enum SUBSURF_TYPE { SS_LINE,
                     SS_RECTANGLE,
                     SS_ELLIPSE,
                     SS_CONTROL,
+                    SS_LINE_ARRAY,
                     SS_NUM_TYPES
                   };
 
+enum SUBSURF_LINE_TYPE { CONST_U,
+                         CONST_W
+                       };
+
 enum SUBSURF_INOUT { INSIDE,
-                     OUTSIDE
+                     OUTSIDE,
+                     NONE
+};
+
+enum FEA_PART_TYPE { FEA_SLICE = 0,
+                     FEA_RIB,
+                     FEA_SPAR,
+                     FEA_FIX_POINT,
+                     FEA_DOME,
+                     FEA_RIB_ARRAY,
+                     FEA_SLICE_ARRAY,
+                     FEA_SKIN,
+                     FEA_NUM_TYPES 
                    };
+
+enum FEA_PART_ELEMENT_TYPE { FEA_SHELL = 0,
+                             FEA_BEAM,
+                             FEA_SHELL_AND_BEAM 
+                           };
+
+enum FEA_SLICE_TYPE { XY_BODY = 0,
+                      YZ_BODY,
+                      XZ_BODY,
+                      XY_ABS,
+                      YZ_ABS,
+                      XZ_ABS,
+                      SPINE_NORMAL
+                    };
+
+enum FEA_UNIT_TYPE { SI_UNIT = 0, // m, kg
+                     CGS_UNIT, // cm, g
+                     MPA_UNIT, // mm, tonne
+                     BFT_UNIT, // ft, slug
+                     BIN_UNIT // in, lbf*sec^2/in
+                   };
+
+enum FEA_CROSS_SECT_TYPE { FEA_XSEC_GENERAL = 0,
+                           FEA_XSEC_CIRC,
+                           FEA_XSEC_PIPE,
+                           FEA_XSEC_I,
+                           FEA_XSEC_RECT,
+                           FEA_XSEC_BOX
+                         };
 
 enum WING_DRIVERS { AR_WSECT_DRIVER,
                     SPAN_WSECT_DRIVER,
@@ -342,6 +434,14 @@ enum CAP_TYPE { NO_END_CAP,
                 NUM_END_CAP_OPTIONS
               };
 
+enum PATCH_TYPE { PATCH_NONE,
+                  PATCH_POINT,
+                  PATCH_LINE,
+                  PATCH_COPY,
+                  PATCH_HALFWAY,
+                  PATCH_NUM_TYPES
+                };
+
 enum PROJ_TGT_TYPE { SET_TARGET,
                      GEOM_TARGET,
                      NUM_PROJ_TGT_OPTIONS
@@ -371,6 +471,7 @@ enum PROP_PCURVE { PROP_CHORD,
                    PROP_TWIST,
                    PROP_RAKE,
                    PROP_SKEW,
+                   PROP_SWEEP,
                    NUM_PROP_PCURVE
                  };
 
@@ -392,6 +493,11 @@ enum VSPAERO_STABILITY_TYPE { STABILITY_DEFAULT = 0,
                              STABILITY_IMPULSE, // TODO: Implement with later VSPAERO version
                            };
 
+enum VSPAERO_PRECONDITION { PRECON_MATRIX = 0,
+                            PRECON_JACOBI,
+                            PRECON_SSOR,
+                          };
+
 enum FREESTREAM_PD_UNITS { PD_UNITS_IMPERIAL = 0,
                            PD_UNITS_METRIC
                          }; // Parasite Drag Freestream Units
@@ -411,10 +517,20 @@ enum TEMP_UNITS { TEMP_UNIT_K = 0,
                   TEMP_UNIT_R,
                 }; // Temp Units ENUM
 
+enum MASS_UNIT { MASS_UNIT_G = 0,
+                 MASS_UNIT_KG,
+                 MASS_UNIT_TONNE,
+                 MASS_UNIT_LBM,
+                 MASS_UNIT_SLUG,
+                 MASS_LBFSEC2IN // lbf*sec^2/in
+               }; // Mass Units ENUM
+
 enum PRES_UNITS { PRES_UNIT_PSF = 0,
                   PRES_UNIT_PSI,
+                  PRES_UNIT_BA,
                   PRES_UNIT_PA,
                   PRES_UNIT_KPA,
+                  PRES_UNIT_MPA,
                   PRES_UNIT_INCHHG,
                   PRES_UNIT_MMHG,
                   PRES_UNIT_MMH20,
@@ -423,8 +539,11 @@ enum PRES_UNITS { PRES_UNIT_PSF = 0,
                 }; // Pres Units ENUM
 
 enum RHO_UNITS { RHO_UNIT_SLUG_FT3 = 0,
+                 RHO_UNIT_G_CM3,
                  RHO_UNIT_KG_M3,
-                 RHO_UNIT_LBF_FT3
+                 RHO_UNIT_TONNE_MM3,
+                 RHO_UNIT_LBF_FT3,
+                 RHO_UNIT_LBFSEC2_IN4
                }; // Rho Units ENUM
 
 enum ATMOS_TYPE { ATMOS_TYPE_US_STANDARD_1976 = 0,
@@ -501,6 +620,10 @@ enum SUBSURF_INCLUDE { SS_INC_TREAT_AS_PARENT,
                        SS_INC_SEPARATE_TREATMENT,
                        SS_INC_ZERO_DRAG,
                      };
+
+enum AIRFOIL_EXPORT_TYPE { SELIG_AF_EXPORT,
+                           BEZIER_AF_EXPORT
+                         };
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)

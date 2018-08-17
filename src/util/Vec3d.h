@@ -220,7 +220,7 @@ public:
     friend double angle( const vec3d& a, const vec3d& b );
     friend double signed_angle( const vec3d& a, const vec3d& b, const vec3d& ref );
     friend double cos_angle( const vec3d& a, const vec3d& b );
-    friend double radius_of_circle( vec3d& p1, vec3d& p2, vec3d& p3 );
+    friend double radius_of_circle( const vec3d& p1, const vec3d& p2, const vec3d& p3 );
     friend void center_of_circle( vec3d& p1, vec3d& p2, vec3d& p3, vec3d& center );
     friend double dist_pnt_2_plane( vec3d& org, vec3d& norm, vec3d& pnt );
     friend double dist_pnt_2_line( const vec3d& line_pt1, const vec3d& line_pt2, const vec3d& pnt );

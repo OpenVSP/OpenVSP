@@ -450,4 +450,19 @@ protected:
     VSPGUI::VspSubGlWindow * m_GlWin;
 };
 
+class FeaXSecScreen : public BasicScreen
+{
+    public:
+    FeaXSecScreen( ScreenMgr* mgr );
+    virtual ~FeaXSecScreen()
+    {
+    }
+    virtual bool Update();
+    virtual void Show();
+
+    protected:
+
+    VSPGUI::VspSubGlWindow * m_GlWin;
+};
+
 #endif // !defined(SCREENBASE__INCLUDED_)

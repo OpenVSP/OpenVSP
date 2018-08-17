@@ -95,6 +95,11 @@ public:
         m_Surface = surf;
     }
 
+    piecewise_surface_type * GetSurf()
+    {
+        return &m_Surface;
+    }
+
     void GetBorderCurve( const vec3d &uw0, const vec3d &uw1, Bezier_curve &crv ) const;
 
     bool LessThanY( double val ) const;
@@ -113,6 +118,8 @@ public:
     void BuildPatches( Surf* srf ) const;
 
     double FindNearest( double &u, double &w, const vec3d &pt, double u0, double w0 ) const;
+    double FindNearest( double &u, double &w, const vec3d &pt, double u0, double w0, double umin, double umax, double vmin, double vmax ) const;
+    double FindNearest( double &u, double &w, const vec3d &pt ) const;
 
 protected:
     piecewise_surface_type m_Surface;

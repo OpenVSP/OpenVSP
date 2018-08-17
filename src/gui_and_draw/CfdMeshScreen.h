@@ -92,6 +92,16 @@ protected:
     ToggleButton m_ShowBadEdgesAndTriangles;
     ToggleButton m_ColorTags;
 
+    ToggleButton m_DrawIsect;
+    ToggleButton m_DrawBorder;
+
+    ToggleButton m_ShowRaw;
+    ToggleButton m_ShowBinAdapt;
+    SliderAdjRangeInput m_RelCurveTolSlider;
+
+    ToggleButton m_ShowCurve;
+    ToggleButton m_ShowPts;
+
     //===== Output Tab Items =====//
 
     ToggleButton m_StlFile;
@@ -128,6 +138,17 @@ protected:
     StringOutput m_KeyOutput;
     StringOutput m_SrfOutput;
     StringOutput m_TkeyOutput;
+
+    ToggleButton m_CurvFile;
+    ToggleButton m_Plot3DFile;
+
+    TriggerButton m_SelectCurvFile;
+    TriggerButton m_SelectPlot3DFile;
+
+    StringOutput m_CurvOutput;
+    StringOutput m_Plot3DOutput;
+
+    ToggleButton m_ExportRaw;
 
     //===== Sources Tab Items =====//
 

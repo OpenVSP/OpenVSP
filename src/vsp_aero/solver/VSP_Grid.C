@@ -46,9 +46,9 @@ void VSP_GRID::init(void)
     
     KuttaNode_ = NULL;
     
-    WingSurface_ = NULL;
+    WingSurfaceForKuttaNode_ = NULL;
     
-    WingSurfaceIsPeriodic_ = NULL;   
+    WingSurfaceForKuttaNodeIsPeriodic_ = NULL;   
     
     Verbose_ = 0;
 
@@ -137,13 +137,13 @@ void VSP_GRID::SizeKuttaNodeList(int NumberOfKuttaNodes)
 
     KuttaNode_ = new int[NumberOfKuttaNodes_ + 1];
     
-    WingSurface_ = new int[NumberOfKuttaNodes_ + 1];
+    WingSurfaceForKuttaNode_ = new int[NumberOfKuttaNodes_ + 1];
     
-    WingSurfaceIsPeriodic_ = new int[NumberOfKuttaNodes_ + 1];
+    WingSurfaceForKuttaNodeIsPeriodic_ = new int[NumberOfKuttaNodes_ + 1];
     
     zero_int_array(KuttaNode_ ,NumberOfKuttaNodes_);
-    zero_int_array(WingSurface_ ,NumberOfKuttaNodes_);
-    zero_int_array(WingSurfaceIsPeriodic_ ,NumberOfKuttaNodes_);
+    zero_int_array(WingSurfaceForKuttaNode_ ,NumberOfKuttaNodes_);
+    zero_int_array(WingSurfaceForKuttaNodeIsPeriodic_ ,NumberOfKuttaNodes_);
     
     WakeTrailingEdgeX_ = new double[NumberOfKuttaNodes_ + 1];
     WakeTrailingEdgeY_ = new double[NumberOfKuttaNodes_ + 1];
@@ -721,7 +721,21 @@ void VSP_GRID::CreateTriEdges(void)
        EdgeList(j).Length() = sqrt( pow(x2-x1,2.) + pow(y2-y1,2.) + pow(z2-z1,2.) );    
        
     }
+    
+    // Store airfoil information on leading edges
 
+    for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
+       
+       if ( EdgeList(i).IsLeadingEdge() ) {
+
+          EdgeList(i).ThicknessToChord()       = TriList(EdgeList(i).Tri1()).ThicknessToChord();
+          EdgeList(i).LocationOfMaxThickness() = TriList(EdgeList(i).Tri1()).LocationOfMaxThickness();
+          EdgeList(i).RadiusToChord()          = TriList(EdgeList(i).Tri1()).RadiusToChord();      
+          
+       }
+       
+    }
+         
 }
 
 /*##############################################################################
@@ -735,6 +749,7 @@ void VSP_GRID::CalculateUpwindEdges(void)
  
    int j, k,  Edge, Node1, Node2, TotalUpwind;
    double xVec[3], Vec[3], *Flux, TotalFlux, LoopNormal[3], Normal[3], Mag;
+   double Ds, DsMin, DsMax;
    
    // Loop over triangles and determine which nodes, and then edges are upwind
    
@@ -837,7 +852,34 @@ void VSP_GRID::CalculateUpwindEdges(void)
        // Calculate reference length for this loop
   
        LoopList(k).Length() = sqrt(LoopList(k).Area());
+       
+       // Calculate cell aspect ratio
 
+       DsMin = 1.e9;
+       DsMax = -DsMin;
+       
+       for ( j = 1 ; j <= LoopList(k).NumberOfNodes() ; j++ ) {
+       
+          Node1 = LoopList(k).Node(j);
+          
+          Vec[0] = NodeList(Node1).x() - LoopList(k).Xc();
+          Vec[1] = NodeList(Node1).y() - LoopList(k).Yc();
+          Vec[2] = NodeList(Node1).z() - LoopList(k).Zc();
+    
+          Ds = sqrt(vector_dot(Vec,Vec));
+          
+          DsMin = MIN(Ds,DsMin);
+          DsMax = MAX(Ds,DsMax);
+
+       }   
+       
+    //   printf("AR: %f \n",DsMax/DsMin);
+       
+       
+   //    LoopList(k).Length() *= MAX(DsMax/DsMin,1.);
+       
+    //   LoopList(k).Length() *= 2.;
+       
     } 
 
 }
@@ -1092,4 +1134,60 @@ void VSP_GRID::WriteMesh(char *FileName)
     }
 
 }
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_GRID UpdateGeometryLocation                         #
+#                                                                              #
+##############################################################################*/
+
+void VSP_GRID::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+{
+ 
+    int i;
+    QUAT Vec;
+    
+    // Update nodal data
+    
+    for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
+       
+       NodeList(i).UpdateGeometryLocation(TVec, OVec, Quat, InvQuat);
+    
+    }
+    
+    // Update edge data
+        
+    for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
+
+       EdgeList(i).UpdateGeometryLocation(TVec, OVec, Quat, InvQuat);
+       
+    }
+            
+    // Update loop data
+    
+    for ( i = 1 ; i <= NumberOfLoops_ ; i++ ) {
+     
+       LoopList(i).UpdateGeometryLocation(TVec, OVec, Quat, InvQuat);
+
+    }
+    
+    // Update wake trailing edge locations
+
+    
+    for ( i = 1 ; i <= NumberOfKuttaNodes_ ; i++ ) {
+    
+       Vec(0) = WakeTrailingEdgeX_[i] - OVec[0];
+       Vec(1) = WakeTrailingEdgeY_[i] - OVec[1];
+       Vec(2) = WakeTrailingEdgeZ_[i] - OVec[2];
+   
+       Vec = Quat * Vec * InvQuat;
+   
+       WakeTrailingEdgeX_[i] = Vec(0) + OVec[0] + TVec[0];
+       WakeTrailingEdgeY_[i] = Vec(1) + OVec[1] + TVec[1];
+       WakeTrailingEdgeZ_[i] = Vec(2) + OVec[2] + TVec[2];    
+       
+    }  
+          
+}
+
 

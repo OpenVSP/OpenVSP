@@ -43,6 +43,7 @@ public:
     void Update( const BndBox& bb );
     double DiagDist() const;
     double GetLargestDist() const;
+    double GetSmallestDist() const;
     double GetEstArea() const;
     vec3d GetCenter() const;
     vec3d GetCornerPnt( int  i ) const;

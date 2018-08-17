@@ -41,9 +41,7 @@ void VSP_EDGE::init(void)
     Mach_ = 0.;
     
     Verbose_ = 1;
-    
-    ThereAreChildren_ = 0;
-    
+        
     Child1_ = Child2_ = NULL;
     
     Node1_ = 0;
@@ -108,7 +106,13 @@ void VSP_EDGE::init(void)
     VortexLoop2DownWindWeight_ = 0.;
 
     Gamma_ = 0.;   
+
+    ThicknessToChord_ = 0.;   
     
+    LocationOfMaxThickness_ = 0.;   
+    
+    RadiusToChord_ = 0.;                                    
+  
 }
 
 /*##############################################################################
@@ -210,14 +214,42 @@ VSP_EDGE& VSP_EDGE::operator=(const VSP_EDGE &VSPEdge)
     Vec_[0] = VSPEdge.Vec_[0];
     Vec_[1] = VSPEdge.Vec_[1];
     Vec_[2] = VSPEdge.Vec_[2];
+    
+    Sigma_ = VSPEdge.Sigma_;
 
     Length_ = VSPEdge.Length_;
+    
+    LocalSpacing_ = VSPEdge.LocalSpacing_;
 
+    Mach_ = VSPEdge.Mach_;
+    
     // Tolerances
     
     Tolerance_1_ = VSPEdge.Tolerance_1_;
     Tolerance_2_ = VSPEdge.Tolerance_2_;
     Tolerance_4_ = VSPEdge.Tolerance_4_;
+    
+    // Children
+
+    Child1_ = VSPEdge.Child1_;
+    Child2_ = VSPEdge.Child2_;
+    
+    // Edge coefs
+    
+    EdgeCoef_[0] = VSPEdge.EdgeCoef_[0];
+    EdgeCoef_[1] = VSPEdge.EdgeCoef_[1];
+    
+    // Circulation strength
+    
+    Gamma_ = VSPEdge.Gamma_;
+    
+    // Airfoil information                                  
+  
+    ThicknessToChord_ = VSPEdge.ThicknessToChord_;
+    
+    LocationOfMaxThickness_ = VSPEdge.LocationOfMaxThickness_;
+    
+    RadiusToChord_ = VSPEdge.RadiusToChord_;    
     
     return *this;
     
@@ -233,7 +265,7 @@ VSP_EDGE::~VSP_EDGE(void)
 {
 
    // Nothing to do...
-   
+
 }
 
 /*##############################################################################
@@ -284,6 +316,7 @@ void VSP_EDGE::Setup_(VSP_NODE &Node1, VSP_NODE &Node2)
     Forces_[0] = Forces_[1] = Forces_[2] = 0.;
 
 }
+
 /*##############################################################################
 #                                                                              #
 #                          VSP_EDGE BoundVortex                                #
@@ -391,7 +424,7 @@ void VSP_EDGE::NewBoundVortex(double xyz_p[3], double q[3])
        
           F1 = Fint(a,b,c,d,s1);
           G1 = Gint(a,b,c,d,s1);
-         
+       
        }
 
        // F and G functions evaluated at node 2
@@ -406,7 +439,7 @@ void VSP_EDGE::NewBoundVortex(double xyz_p[3], double q[3])
       
           F2 = Fint(a,b,c,d,s2);
           G2 = Gint(a,b,c,d,s2);
-         
+  
        }
        
        // Evalulate integrals
@@ -472,8 +505,6 @@ double VSP_EDGE::Fint(double &a, double &b, double &c, double &d, double &s)
 
     if ( ABS(d) < Tolerance_2_ || R < Tolerance_1_ ) return 0.;
 
-    //  Denom = SGN(d)*MAX(ABS(d*sqrt(R),Tolerance_2_);
-
     Denom = d * sqrt(R);
 
     F = 2.*(2.*c*s + b)/Denom;
@@ -504,7 +535,7 @@ double VSP_EDGE::Gint(double &a, double &b, double &c, double &d, double &s)
     return G;
  
 } 
- 
+
 /*##############################################################################
 #                                                                              #
 #                     VSP_EDGE FindLineConicIntersection                       #
@@ -704,3 +735,93 @@ void VSP_EDGE::CalculateTrefftzForces(double FreeStream[3])
 }
 
 
+/*##############################################################################
+#                                                                              #
+#                   VSP_EDGE CalculateNormalTrefftzForces                      #
+#                                                                              #
+##############################################################################*/
+
+void VSP_EDGE::CalculateNormalTrefftzForces(double FreeStream[3])
+{
+
+    vector_cross(FreeStream, Vec_, Normal_Trefftz_Forces_);
+   
+    Normal_Trefftz_Forces_[0] *= Length_*Gamma_;
+    Normal_Trefftz_Forces_[1] *= Length_*Gamma_;
+    Normal_Trefftz_Forces_[2] *= Length_*Gamma_;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                      VSP_EDGE UpdateGeometryLocation                         #
+#                                                                              #
+##############################################################################*/
+
+void VSP_EDGE::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+{
+
+    QUAT Vec;
+    
+    // Update node 1
+    
+    Vec(0) = X1_ - OVec[0];
+    Vec(1) = Y1_ - OVec[1];
+    Vec(2) = Z1_ - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    X1_ = Vec(0) + OVec[0] + TVec[0];
+    Y1_ = Vec(1) + OVec[1] + TVec[1];
+    Z1_ = Vec(2) + OVec[2] + TVec[2];    
+    
+    // Update node 2
+    
+    Vec(0) = X2_ - OVec[0];
+    Vec(1) = Y2_ - OVec[1];
+    Vec(2) = Z2_ - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    X2_ = Vec(0) + OVec[0] + TVec[0];
+    Y2_ = Vec(1) + OVec[1] + TVec[1];
+    Z2_ = Vec(2) + OVec[2] + TVec[2];        
+
+    // Update centroid
+
+    Vec(0) = XYZc_[0] - OVec[0];
+    Vec(1) = XYZc_[1] - OVec[1];
+    Vec(2) = XYZc_[2] - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    XYZc_[0] = Vec(0) + OVec[0] + TVec[0];
+    XYZc_[1] = Vec(1) + OVec[1] + TVec[1];
+    XYZc_[2] = Vec(2) + OVec[2] + TVec[2];    
+
+    // Update centroid
+
+    Vec(0) = VortexCentroid().x() - OVec[0];
+    Vec(1) = VortexCentroid().y() - OVec[1];
+    Vec(2) = VortexCentroid().z() - OVec[2];
+
+    Vec = Quat * Vec * InvQuat;
+
+    VortexCentroid().x() = Vec(0) + OVec[0] + TVec[0];
+    VortexCentroid().y() = Vec(1) + OVec[1] + TVec[1];
+    VortexCentroid().z() = Vec(2) + OVec[2] + TVec[2];    
+    
+    // Unit vector in direction of edge
+    
+    Vec(0) = Vec_[0];
+    Vec(1) = Vec_[1];
+    Vec(2) = Vec_[2];
+
+    Vec = Quat * Vec * InvQuat;
+    
+    Vec_[0] = Vec(0);
+    Vec_[1] = Vec(1);
+    Vec_[2] = Vec(2);
+
+}
+     

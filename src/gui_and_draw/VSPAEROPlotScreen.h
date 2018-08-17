@@ -52,6 +52,8 @@ protected:
     void UpdateConvergenceAutoManualAxisLimits();
     void UpdateLoadDistAutoManualAxisLimits();
     void UpdateSweepAutoManualAxisLimits();
+    void UpdateCpSliceAutoManualAxisLimits();
+    void UpdateUnsteadyAutoManualAxisLimits();
     string MakeAxisLabelStr( vector <string> dataSetNames );
     void UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expand_only );
     void UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero = false );
@@ -149,6 +151,78 @@ protected:
     void UpdateSweepXYDataBrowser();
 
     void RedrawSweepPlot();
+
+    //==== Cp Slice Tab ====//
+    Fl_Group* m_CpSliceTab;
+    GroupLayout m_CpSliceLayout;
+    GroupLayout m_CpSliceControlLayout;
+    GroupLayout m_CpSlicePlotLayout;
+    Ca_Canvas*  m_CpSlicePlotCanvas;
+
+    GroupLayout m_CpSliceLegendLayout;
+    Fl_Scroll* m_CpSliceLegendGroup;
+
+    Fl_Browser * m_CpSliceCutBrowser;
+    vector < Choice* > m_CpSlicePosTypeChoiceVec;
+    Choice m_XCpSlicePosTypeChoice;
+    Choice m_YCpSlicePosTypeChoice;
+    Choice m_ZCpSlicePosTypeChoice;
+    Fl_Browser * m_CpSliceCaseBrowser;
+    vector< string > m_CpSliceCaseSelectedResultIDs;
+    map < int, vector < string > >  m_CpSliceCutResultIDMap;
+    vector< string > m_CpSliceCutSelectedResultIDs;
+
+    ToggleButton m_CpSliceManualXMinToggle;
+    ToggleButton m_CpSliceManualXMaxToggle;
+    ToggleButton m_CpSliceManualYMinToggle;
+    ToggleButton m_CpSliceManualYMaxToggle;
+    SliderAdjRangeInput m_CpSliceXMinSlider;
+    SliderAdjRangeInput m_CpSliceXMaxSlider;
+    SliderAdjRangeInput  m_CpSliceYMinSlider;
+    SliderAdjRangeInput  m_CpSliceYMaxSlider;
+
+    ToggleButton m_CpSliceFlipYToggle;
+    ToggleButton m_CpSlicePlotLinesToggle;
+
+    int m_NumCpCuts; // Number of CpSlice Cuts
+    int m_NumCpCases; // Number of Flow Condition Cases
+
+    void UpdateCpSliceCaseBrowser();
+    void ConstructCpSliceCaseString( char* strbuf, Results* res, int case_num = 1 );
+    void UpdateCpSliceCutBrowser();
+
+    void RedrawCpSlicePlot();
+
+    //==== Unsteady Tab ====//
+    Fl_Group* m_UnsteadyTab;
+    GroupLayout m_UnsteadyLayout;
+    GroupLayout m_UnsteadyControlLayout;
+    GroupLayout m_UnsteadyPlotLayout;
+    Ca_Canvas*  m_UnsteadyPlotCanvas;
+
+    GroupLayout m_UnsteadyLegendLayout;
+    Fl_Scroll* m_UnsteadyLegendGroup;
+    int m_UnsteadyNLines;
+    int m_UnsteadyiPlot;
+
+    Fl_Browser * m_UnsteadyYDataBrowser;
+    Fl_Browser * m_UnsteadyFlowConditionBrowser;
+    vector< string > m_UnsteadyFlowConditionSelectedResultIDs;
+
+    ToggleButton m_UnsteadyManualXMinToggle;
+    ToggleButton m_UnsteadyManualXMaxToggle;
+    ToggleButton m_UnsteadyManualYMinToggle;
+    ToggleButton m_UnsteadyManualYMaxToggle;
+    SliderAdjRangeInput m_UnsteadyXMinSlider;
+    SliderAdjRangeInput m_UnsteadyXMaxSlider;
+    SliderAdjRangeInput  m_UnsteadyYMinSlider;
+    SliderAdjRangeInput  m_UnsteadyYMaxSlider;
+
+    void UpdateUnsteadyFlowConditionBrowser();
+    void UpdateUnsteadyYDataBrowser();
+
+    void RedrawUnsteadyPlot();
+    void PlotUnsteady( string resultID, vector <string> yDataSetNames, bool expand_only, int icase );
 
 };
 
