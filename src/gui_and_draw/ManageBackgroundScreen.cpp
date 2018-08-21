@@ -132,6 +132,9 @@ bool ManageBackgroundScreen::Update()
         m_ImageLayout.GetGroup()->activate();
     }
 
+    colorChooser->rgb( viewport->getBackground()->getRed(), viewport->getBackground()->getGreen(),
+                       viewport->getBackground()->getBlue() );
+
     if ( m_PreserveAspect.GetFlButton()->value() )
     {
         m_PreserveAspectLayout.GetGroup()->deactivate();
