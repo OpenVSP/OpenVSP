@@ -43,12 +43,27 @@ void main()
     double t = t0;
     double dt = 1.0 / fps;
 
+//    bool shown = true;
+
     int i = 0;
     while ( t <= tfinal )                                           // Loop through time
     {
         SetParmVal( zoom, interp(t, ts, zs) );                      // Set parameters, interpolating for value
         SetParmVal( fr, interp(t, ts, frs) );
         SetParmVal( roty, interp(t, tth, ry) );
+
+//        if ( shown && t > 3.0 )
+//        {
+//            SetSetFlag( pod1, SET_SHOWN, false );
+//            SetSetFlag( pod1, SET_NOT_SHOWN, true );
+//            shown = false;
+//        }
+//        if ( !shown && t > 6.0 )
+//        {
+//            SetSetFlag( pod1, SET_SHOWN, true );
+//            SetSetFlag( pod1, SET_NOT_SHOWN, false );
+//            shown = true;
+//        }
 
         Update();                                                   // Update model
         string fname = "vspanim_" + formatInt(i, '0', 4) + ".png";  // Build numbered file name
