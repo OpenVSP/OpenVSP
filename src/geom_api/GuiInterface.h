@@ -41,6 +41,7 @@ public:
 
     void ScreenGrab( const std::string & fname, int w, int h );
     void SetViewAxis( bool vaxis );
+    void SetShowBorders( bool brdr );
 };
 
 #endif // !defined(GUIINTERFACE__INCLUDED_)

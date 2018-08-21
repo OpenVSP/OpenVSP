@@ -117,3 +117,17 @@ void GuiInterface::SetViewAxis( bool vaxis )
     }
 #endif
 }
+
+void GuiInterface::SetShowBorders( bool brdr )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->SetShowBorders( brdr );
+        }
+    }
+#endif
+}

@@ -635,3 +635,11 @@ void MainVSPScreen::SetViewAxis( bool vaxis )
         m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showXYZArrows( m_ShowXYZArrow );
     }
 }
+
+void MainVSPScreen::SetShowBorders( bool brdr )
+{
+    if ( m_GlWin )
+    {
+        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showBorders( brdr );
+    }
+}

@@ -1247,6 +1247,13 @@ void SetViewAxis( bool vaxis )
 #endif
 }
 
+void SetShowBorders( bool brdr )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetShowBorders( brdr );
+#endif
+}
+
 void SetGeomDrawType(const string &geom_id, int type)
 {
     Vehicle* veh = GetVehicle();

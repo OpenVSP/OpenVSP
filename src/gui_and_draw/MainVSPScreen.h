@@ -46,6 +46,7 @@ public:
 
     void ScreenGrab( const string & fname, int w, int h );
     void SetViewAxis( bool vaxis );
+    void SetShowBorders( bool brdr );
 
 protected:
 
