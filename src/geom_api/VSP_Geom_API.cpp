@@ -1247,6 +1247,34 @@ void SetViewAxis( bool vaxis )
 #endif
 }
 
+void SetGeomDrawType(const string &geom_id, int type)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomDrawType::Can't Find Geom " + geom_id  );
+        return;
+    }
+    geom_ptr->m_GuiDraw.SetDrawType( type );
+
+    ErrorMgr.NoError();
+}
+
+void SetGeomDisplayType(const string &geom_id, int type)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomDisplayType::Can't Find Geom " + geom_id  );
+        return;
+    }
+    geom_ptr->m_GuiDraw.SetDisplayType( type );
+
+    ErrorMgr.NoError();
+}
+
 //===================================================================//
 //===============       Geom Functions            ===================//
 //===================================================================//
