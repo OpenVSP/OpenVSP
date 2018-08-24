@@ -7,8 +7,15 @@ FIND_PACKAGE(SWIG)
 
 IF( SWIG_FOUND )
 	INCLUDE(${SWIG_USE_FILE})
-	FIND_PACKAGE(PythonLibs)
+	message(STATUS "SWIG Found")
 ENDIF( SWIG_FOUND )
+
+FIND_PACKAGE(PythonLibs)
+IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
+  message(STATUS "SWIG & PYTHON Found")
+ELSE(SWIG_FOUND AND PYTHONLIBS_FOUND)
+  MESSAGE("SWIG & PYTHON not found... python API will NOT be built.")
+ENDIF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
 # CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of
 # the cache entry storing the find_library result.  Use the

@@ -786,7 +786,7 @@ string ExecAnalysis( const string & analysis )
         string ret;
         return ret;
     }
-    printf( "Executing from: string ExecAnalysis( const string & analysis )" );
+
     return AnalysisMgr.ExecAnalysis( analysis );
 }
 

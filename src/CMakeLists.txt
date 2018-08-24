@@ -81,6 +81,7 @@ ENDIF()
 ADD_SUBDIRECTORY( geom_api )
 ADD_SUBDIRECTORY( vsp )
 ADD_SUBDIRECTORY( python_api )
+ADD_SUBDIRECTORY( matlab_api )
 
 ADD_SUBDIRECTORY( vsp_aero )
 

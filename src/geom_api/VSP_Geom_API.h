@@ -15,7 +15,7 @@
 
 #include "APIErrorMgr.h"
 #include "Vec3d.h"
-#include "Matrix.h"
+#include "..\util\Matrix.h"
 
 #include <string>
 #include <stack>
