@@ -26,6 +26,7 @@
 #include "eli/geom/curve/piecewise_cst_airfoil_fitter.hpp"
 #include "eli/geom/curve/pseudo/cst_airfoil.hpp"
 #include "eli/geom/curve/pseudo/four_digit.hpp"
+#include "eli/geom/curve/pseudo/four_digit_mod.hpp"
 
 
 typedef piecewise_curve_type::index_type curve_index_type;
@@ -37,6 +38,7 @@ typedef eli::geom::curve::piecewise_cst_airfoil_creator<double, 3, curve_toleran
 typedef eli::geom::curve::pseudo::cst_airfoil<double> cst_airfoil_type;
 typedef eli::geom::curve::piecewise_cst_airfoil_fitter<double, 3, curve_tolerance_type> cst_fitter_type;
 typedef eli::geom::curve::pseudo::four_digit<double> four_digit_airfoil_type;
+typedef eli::geom::curve::pseudo::four_digit_mod<double> four_digit_mod_airfoil_type;
 
 #define MAX_CST_DEG 30
 
@@ -93,6 +95,26 @@ public:
     Parm m_Camber;
     Parm m_CamberLoc;
     BoolParm m_EqArcLen;
+};
+
+//==========================================================================//
+//=======================  Four Digit Modified Airfoil   ===================//
+//==========================================================================//
+
+class FourDigMod : public Airfoil
+{
+public:
+
+    FourDigMod( );
+
+    virtual void Update();
+
+    virtual string GetAirfoilName();
+
+    Parm m_Camber;
+    Parm m_CamberLoc;
+    Parm m_ThickLoc;
+    Parm m_LERadIndx;
 };
 
 //==========================================================================//

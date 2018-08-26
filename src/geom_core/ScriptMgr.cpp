@@ -689,6 +689,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_VKT_AIRFOIL", XS_VKT_AIRFOIL );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_FOUR_DIGIT_MOD", XS_FOUR_DIGIT_MOD );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "XSEC_CLOSE_TYPE" );
     assert( r >= 0 );

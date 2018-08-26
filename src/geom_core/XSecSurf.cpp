@@ -172,6 +172,10 @@ XSecCurve* XSecSurf::CreateXSecCurve( int type )
     {
         xscrv_ptr = new VKTAirfoil( );
     }
+    else if ( type == XS_FOUR_DIGIT_MOD )
+    {
+        xscrv_ptr = new FourDigMod( );
+    }
 
     return xscrv_ptr;
 }

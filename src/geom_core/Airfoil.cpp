@@ -276,6 +276,118 @@ void FourSeries::ReadV2File( xmlNodePtr &root )
 //==========================================================================//
 
 //==== Constructor ====//
+FourDigMod::FourDigMod( ) : Airfoil( )
+{
+    m_Type = XS_FOUR_DIGIT_MOD;
+    m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
+    m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.1, 0.9 );
+    m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.3, 0.2, 0.6 );
+    m_LERadIndx.Init( "LERadIndx", m_GroupName, this, 6.0, 0.0, 9.0 );
+}
+
+//==== Update ====//
+void FourDigMod::Update()
+{
+    four_digit_mod_airfoil_type af( m_Camber() * 100.0f, m_CamberLoc() * 10.0f, m_ThickChord() * 100.0f, m_LERadIndx(),  m_ThickLoc() * 10.0f, true );
+
+    int npts = 201; // Must be odd to hit LE point.
+
+    double t0 = -1.0;
+    double t = t0;
+    double dt = 2.0 / ( npts - 1 );
+    int ile = ( npts - 1 ) / 2;
+
+    vector< vec3d > pnts( npts );
+    vector< double > arclen( npts );
+
+    vec2d p2d;
+    p2d = af.f( t );
+    pnts[0] = p2d;
+    arclen[0] = 0.0;
+    for ( int i = 1 ; i < npts ; i++ )
+    {
+        if ( i == ile )
+        {
+            t = 0.0; // Ensure LE point precision.
+        }
+        else if ( i == ( npts - 1 ) )
+        {
+            t = 1.0;  // Ensure end point precision.
+        }
+        else
+        {
+            t = t0 + dt * i; // All other points.
+        }
+
+        double tc = sgn( t ) * Cluster( std::abs( t ), 0.01, 0.1 );
+
+        p2d = af.f( tc );
+        pnts[i] = p2d;
+
+        double ds = dist( pnts[i], pnts[i-1] );
+        if ( ds < 1e-8 )
+        {
+            ds = 1.0/npts;
+        }
+        arclen[i] = arclen[i-1] + ds;
+    }
+
+    double lenlower = arclen[ile];
+    double lenupper = arclen[npts-1] - lenlower;
+
+    double lowerscale = 2.0/lenlower;
+    int i;
+    for ( i = 1; i < ile; i++ )
+    {
+        arclen[i] = arclen[i] * lowerscale;
+    }
+    arclen[ile] = 2.0;
+    i++;
+
+    double upperscale = 2.0/lenupper;
+    for ( ; i < npts - 1; i++ )
+    {
+        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
+    }
+    arclen[npts-1] = 4.0;
+
+    m_Curve.InterpolatePCHIP( pnts, arclen, false );
+
+    Airfoil::Update();
+}
+
+//===== Load Name And Number of 4 Series =====//
+string FourDigMod::GetAirfoilName()
+{
+    int icam     = int( m_Camber() * 100.0f + 0.5f );
+    int icam_loc = int( m_CamberLoc() * 10.0f + 0.5f );
+    int ithick   = int( m_ThickChord() * 100.0f + 0.5f );
+    int ilerad   = int( m_LERadIndx() + 0.5 );
+    int ithick_loc = int( m_ThickLoc() * 10.0f + 0.5f );
+
+    if ( icam == 0 )
+    {
+        icam_loc = 0;
+    }
+
+    char str[255];
+    if ( ithick < 10 )
+    {
+        sprintf( str, "  NACA %d%d0%d-%d%d", icam, icam_loc, ithick, ilerad, ithick_loc );
+    }
+    else
+    {
+        sprintf( str, "  NACA %d%d%d-%d%d", icam, icam_loc, ithick, ilerad, ithick_loc );
+    }
+
+    return string( str );
+}
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+//==== Constructor ====//
 SixSeries::SixSeries( ) : Airfoil( )
 {
     m_Type = XS_SIX_SERIES;
