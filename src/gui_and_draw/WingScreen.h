@@ -250,6 +250,43 @@ protected:
     TriggerButton m_FourModFitCSTButton;
     Counter m_FourModDegreeCounter;
 
+    GroupLayout m_FiveDigitGroup;
+    StringOutput m_FiveNameOutput;
+    CheckButton m_FiveInvertButton;
+    SliderAdjRangeInput m_FiveChordSlider;
+    SliderAdjRangeInput m_FiveThickChordSlider;
+    SliderAdjRangeInput m_FiveCLiSlider;
+    SliderAdjRangeInput m_FiveCamberLocSlider;
+
+    TriggerButton m_FiveFitCSTButton;
+    Counter m_FiveDegreeCounter;
+
+    GroupLayout m_FiveDigitModGroup;
+    StringOutput m_FiveModNameOutput;
+    CheckButton m_FiveModInvertButton;
+    SliderAdjRangeInput m_FiveModChordSlider;
+    SliderAdjRangeInput m_FiveModThickChordSlider;
+    SliderAdjRangeInput m_FiveModCLiSlider;
+    SliderAdjRangeInput m_FiveModCamberLocSlider;
+    SliderAdjRangeInput m_FiveModThicknessLocSlider;
+    SliderAdjRangeInput m_FiveModLERadIndexSlider;
+
+    TriggerButton m_FiveModFitCSTButton;
+    Counter m_FiveModDegreeCounter;
+
+    GroupLayout m_OneSixSeriesGroup;
+    StringOutput m_OneSixSeriesNameOutput;
+    CheckButton m_OneSixSeriesInvertButton;
+    SliderAdjRangeInput m_OneSixSeriesChordSlider;
+    SliderAdjRangeInput m_OneSixSeriesThickChordSlider;
+    SliderAdjRangeInput m_OneSixSeriesCLiSlider;
+    SliderAdjRangeInput m_OneSixSeriesCamberLocSlider;
+    SliderAdjRangeInput m_OneSixSeriesThicknessLocSlider;
+    SliderAdjRangeInput m_OneSixSeriesLERadIndexSlider;
+
+    TriggerButton m_OneSixSeriesFitCSTButton;
+    Counter m_OneSixSeriesDegreeCounter;
+
     // Overall planform tab
     GroupLayout m_ModifyLayout;
 
