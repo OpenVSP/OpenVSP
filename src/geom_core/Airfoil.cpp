@@ -136,6 +136,7 @@ FourSeries::FourSeries( ) : Airfoil( )
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.0, 1.0 );
     m_EqArcLen.Init( "EqArcLenFlag", m_GroupName, this, true, 0, 1 );
+    m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
 }
 
 //==== Update ====//
@@ -145,7 +146,7 @@ void FourSeries::Update()
     {
         piecewise_curve_type c, d;
         piecewise_four_digit_creator pwc;
-        pwc.set_sharp_trailing_edge(true);
+        pwc.set_sharp_trailing_edge( m_SharpTE() );
 
         pwc.set_thickness( m_ThickChord() * 100.0f );
         pwc.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
@@ -166,7 +167,7 @@ void FourSeries::Update()
     else // 'new' code that enforces equal arc len parameterization.
     {
         four_digit_airfoil_type af;
-        af.set_sharp_trailing_edge( true );
+        af.set_sharp_trailing_edge( m_SharpTE() );
 
         af.set_thickness( m_ThickChord() * 100.0f );
         af.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );

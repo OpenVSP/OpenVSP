@@ -101,6 +101,7 @@ public:
     Parm m_Camber;
     Parm m_CamberLoc;
     BoolParm m_EqArcLen;
+    BoolParm m_SharpTE;
 };
 
 //==========================================================================//
