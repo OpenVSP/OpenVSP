@@ -744,15 +744,9 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
         {
             x = y = 100000.0;
             sscanf( buff, "%f %f", &x, &y );
-            if ( x >= 0.0 && x <= 1.0 && y >= -1.0 && y <= 1.0 )
-            {
-                xvec.push_back( x );
-                yvec.push_back( y );
-            }
-            else
-            {
-                more_data_flag = 0;
-            }
+
+            xvec.push_back( x );
+            yvec.push_back( y );
         }
     }
 
