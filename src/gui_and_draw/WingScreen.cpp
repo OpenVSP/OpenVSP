@@ -232,6 +232,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_AfTypeChoice.AddItem( "AF_FILE" );
     m_AfTypeChoice.AddItem( "CST_AIRFOIL" );
     m_AfTypeChoice.AddItem( "KARMAN_TREFFTZ" );
+    m_AfTypeChoice.AddItem( "FOUR_DIGIT_MOD" );
 
     m_AfLayout.SetChoiceButtonWidth( 85 );
     m_AfLayout.SetButtonWidth( 40 );
@@ -487,6 +488,31 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_VKTGroup.InitWidthHeightVals();
     m_VKTGroup.SetFitWidthFlag( true );
     m_VKTGroup.AddCounter( m_VKTDegreeCounter, "Degree", 125 );
+
+    //==== Four Series AF ====//
+    m_FourDigitModGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
+    m_FourDigitModGroup.SetY( start_y );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.AddOutput( m_FourModNameOutput, "Name" );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.AddSlider( m_FourModChordSlider, "Chord", 10, "%7.3f" );
+    m_FourDigitModGroup.AddSlider( m_FourModThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.AddSlider( m_FourModCamberSlider, "Camber", 0.2, "%7.5f" );
+    m_FourDigitModGroup.AddSlider( m_FourModCamberLocSlider, "CamberLoc", 1, "%7.5f" );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.AddSlider( m_FourModThicknessLocSlider, "T/CLoc", 0.5, "%7.5f" );
+    m_FourDigitModGroup.AddSlider( m_FourModLERadIndexSlider, "LERadIndx", 5, "%7.5f" );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.AddButton( m_FourModInvertButton, "Invert Airfoil" );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.SetSameLineFlag( true );
+    m_FourDigitModGroup.SetFitWidthFlag( false );
+    m_FourDigitModGroup.SetButtonWidth( 125 );
+    m_FourDigitModGroup.AddButton( m_FourModFitCSTButton, "Fit CST" );
+    m_FourDigitModGroup.InitWidthHeightVals();
+    m_FourDigitModGroup.SetFitWidthFlag( true );
+    m_FourDigitModGroup.AddCounter( m_FourModDegreeCounter, "Degree", 125 );
 
     DisplayGroup( &m_PointGroup );
 
@@ -1056,6 +1082,22 @@ bool WingScreen::Update()
                 m_VKTDegreeCounter.Update( vkt_xs->m_FitDegree.GetID() );
                 m_VKTInvertButton.Update( vkt_xs->m_Invert.GetID() );
             }
+            else if ( xsc->GetType() == XS_FOUR_DIGIT_MOD )
+            {
+                DisplayGroup( &m_FourDigitModGroup );
+                FourDigMod* fs_xs = dynamic_cast< FourDigMod* >( xsc );
+                assert( fs_xs );
+
+                m_FourModChordSlider.Update( fs_xs->m_Chord.GetID() );
+                m_FourModThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
+                m_FourModCamberSlider.Update( fs_xs->m_Camber.GetID() );
+                m_FourModCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
+                m_FourModInvertButton.Update( fs_xs->m_Invert.GetID() );
+                m_FourModNameOutput.Update( fs_xs->GetAirfoilName() );
+                m_FourModDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
+                m_FourModThicknessLocSlider.Update( fs_xs->m_ThickLoc.GetID() );
+                m_FourModLERadIndexSlider.Update( fs_xs->m_LERadIndx.GetID() );
+            }
 
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
             m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
@@ -1325,6 +1367,7 @@ void WingScreen::DisplayGroup( GroupLayout* group )
     m_AfFileGroup.Hide();
     m_CSTAirfoilGroup.Hide();
     m_VKTGroup.Hide();
+    m_FourDigitModGroup.Hide();
 
     m_CurrDisplayGroup = group;
 
@@ -1551,7 +1594,8 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     else if ( ( gui_device == &m_FourFitCSTButton ) ||
               ( gui_device == &m_SixFitCSTButton ) ||
               ( gui_device == &m_AfFileFitCSTButton ) ||
-              ( gui_device == &m_VKTFitCSTButton ) )
+              ( gui_device == &m_VKTFitCSTButton ) ||
+              ( gui_device == &m_FourModFitCSTButton ))
     {
         int xsid = wing_ptr->GetActiveAirfoilIndex();
         XSec* xs = wing_ptr->GetXSec( xsid );

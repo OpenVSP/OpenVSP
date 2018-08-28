@@ -237,6 +237,19 @@ protected:
     TriggerButton m_VKTFitCSTButton;
     Counter m_VKTDegreeCounter;
 
+    GroupLayout m_FourDigitModGroup;
+    StringOutput m_FourModNameOutput;
+    CheckButton m_FourModInvertButton;
+    SliderAdjRangeInput m_FourModChordSlider;
+    SliderAdjRangeInput m_FourModThickChordSlider;
+    SliderAdjRangeInput m_FourModCamberSlider;
+    SliderAdjRangeInput m_FourModCamberLocSlider;
+    SliderAdjRangeInput m_FourModThicknessLocSlider;
+    SliderAdjRangeInput m_FourModLERadIndexSlider;
+
+    TriggerButton m_FourModFitCSTButton;
+    Counter m_FourModDegreeCounter;
+
     // Overall planform tab
     GroupLayout m_ModifyLayout;
 
