@@ -176,6 +176,18 @@ XSecCurve* XSecSurf::CreateXSecCurve( int type )
     {
         xscrv_ptr = new FourDigMod( );
     }
+    else if ( type == XS_FIVE_DIGIT )
+    {
+        xscrv_ptr = new FiveDig( );
+    }
+    else if ( type == XS_FIVE_DIGIT_MOD )
+    {
+        xscrv_ptr = new FiveDigMod( );
+    }
+    else if ( type == XS_ONE_SIX_SERIES )
+    {
+        xscrv_ptr = new OneSixSeries( );
+    }
 
     return xscrv_ptr;
 }

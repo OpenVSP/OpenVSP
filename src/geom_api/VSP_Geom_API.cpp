@@ -3826,6 +3826,9 @@ void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
     if ( ( xsec->GetXSecCurve()->GetType() != XS_FOUR_SERIES ) ||
          ( xsec->GetXSecCurve()->GetType() != XS_SIX_SERIES ) ||
          ( xsec->GetXSecCurve()->GetType() != XS_FOUR_DIGIT_MOD ) ||
+         ( xsec->GetXSecCurve()->GetType() != XS_FIVE_DIGIT ) ||
+         ( xsec->GetXSecCurve()->GetType() != XS_FIVE_DIGIT_MOD ) ||
+         ( xsec->GetXSecCurve()->GetType() != XS_ONE_SIX_SERIES ) ||
          ( xsec->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL ) )
     {
         ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitAfCST::XSec Not Fittable Airfoil Type"  );

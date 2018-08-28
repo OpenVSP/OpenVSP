@@ -25,8 +25,11 @@
 #include "eli/geom/curve/piecewise_cst_airfoil_creator.hpp"
 #include "eli/geom/curve/piecewise_cst_airfoil_fitter.hpp"
 #include "eli/geom/curve/pseudo/cst_airfoil.hpp"
+#include "eli/geom/curve/pseudo/five_digit.hpp"
+#include "eli/geom/curve/pseudo/five_digit_mod.hpp"
 #include "eli/geom/curve/pseudo/four_digit.hpp"
 #include "eli/geom/curve/pseudo/four_digit_mod.hpp"
+#include "eli/geom/curve/pseudo/one_six_series.hpp"
 
 
 typedef piecewise_curve_type::index_type curve_index_type;
@@ -37,8 +40,11 @@ typedef eli::geom::curve::piecewise_four_digit_creator<double, 3, curve_toleranc
 typedef eli::geom::curve::piecewise_cst_airfoil_creator<double, 3, curve_tolerance_type> piecewise_cst_creator;
 typedef eli::geom::curve::pseudo::cst_airfoil<double> cst_airfoil_type;
 typedef eli::geom::curve::piecewise_cst_airfoil_fitter<double, 3, curve_tolerance_type> cst_fitter_type;
+typedef eli::geom::curve::pseudo::five_digit<double> five_digit_airfoil_type;
+typedef eli::geom::curve::pseudo::five_digit_mod<double> five_digit_mod_airfoil_type;
 typedef eli::geom::curve::pseudo::four_digit<double> four_digit_airfoil_type;
 typedef eli::geom::curve::pseudo::four_digit_mod<double> four_digit_mod_airfoil_type;
+typedef eli::geom::curve::pseudo::one_six_series<double> one_six_series_airfoil_type;
 
 #define MAX_CST_DEG 30
 
@@ -115,6 +121,61 @@ public:
     Parm m_CamberLoc;
     Parm m_ThickLoc;
     Parm m_LERadIndx;
+};
+
+//==========================================================================//
+//=======================  Five Digit Airfoil   ============================//
+//==========================================================================//
+
+class FiveDig : public Airfoil
+{
+public:
+
+    FiveDig( );
+
+    virtual void Update();
+
+    virtual string GetAirfoilName();
+
+    Parm m_CLi;
+    Parm m_CamberLoc;
+};
+
+//==========================================================================//
+//=======================  Five Digit Mod Airfoil   ========================//
+//==========================================================================//
+
+class FiveDigMod : public Airfoil
+{
+public:
+
+    FiveDigMod( );
+
+    virtual void Update();
+
+    virtual string GetAirfoilName();
+
+    Parm m_CLi;
+    Parm m_CamberLoc;
+    Parm m_ThickLoc;
+    Parm m_LERadIndx;
+};
+
+//==========================================================================//
+//=======================  16 Series Airfoil   =============================//
+//==========================================================================//
+
+class OneSixSeries : public Airfoil
+{
+public:
+
+    OneSixSeries( );
+
+    virtual void Update();
+
+    virtual string GetAirfoilName();
+
+    Parm m_CLi;
 };
 
 //==========================================================================//

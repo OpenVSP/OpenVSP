@@ -151,6 +151,9 @@ enum XSEC_CRV_TYPE {XS_POINT,
                     XS_CST_AIRFOIL,
                     XS_VKT_AIRFOIL,
                     XS_FOUR_DIGIT_MOD,
+                    XS_FIVE_DIGIT,
+                    XS_FIVE_DIGIT_MOD,
+                    XS_ONE_SIX_SERIES,
                     XS_NUM_TYPES
                    };
 
