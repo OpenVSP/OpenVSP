@@ -163,6 +163,7 @@ protected:
     SliderAdjRangeInput m_FourCamberSlider;
     SliderAdjRangeInput m_FourCamberLocSlider;
     CheckButton m_FourEqArcLenButton;
+    CheckButton m_FourSharpTEButton;
 
     TriggerButton m_FourFitCSTButton;
     Counter m_FourDegreeCounter;
