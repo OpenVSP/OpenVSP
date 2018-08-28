@@ -284,12 +284,13 @@ FourDigMod::FourDigMod( ) : Airfoil( )
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.1, 0.9 );
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.3, 0.2, 0.6 );
     m_LERadIndx.Init( "LERadIndx", m_GroupName, this, 6.0, 0.0, 9.0 );
+    m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
 }
 
 //==== Update ====//
 void FourDigMod::Update()
 {
-    four_digit_mod_airfoil_type af( m_Camber() * 100.0f, m_CamberLoc() * 10.0f, m_ThickChord() * 100.0f, m_LERadIndx(),  m_ThickLoc() * 10.0f, true );
+    four_digit_mod_airfoil_type af( m_Camber() * 100.0f, m_CamberLoc() * 10.0f, m_ThickChord() * 100.0f, m_LERadIndx(),  m_ThickLoc() * 10.0f, m_SharpTE() );
 
     int npts = 201; // Must be odd to hit LE point.
 
@@ -394,12 +395,13 @@ FiveDig::FiveDig( ) : Airfoil( )
     m_Type = XS_FIVE_DIGIT;
     m_CLi.Init( "CLi", m_GroupName, this, 0.3, 0.0, 1.0 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.44 );
+    m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
 }
 
 //==== Update ====//
 void FiveDig::Update()
 {
-    five_digit_airfoil_type af( m_ThickChord(), m_CLi(), m_CamberLoc(), true );
+    five_digit_airfoil_type af( m_ThickChord(), m_CLi(), m_CamberLoc(), m_SharpTE() );
 
     int npts = 201; // Must be odd to hit LE point.
 
@@ -512,12 +514,13 @@ FiveDigMod::FiveDigMod( ) : Airfoil( )
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.44 );
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.3, 0.2, 0.6 );
     m_LERadIndx.Init( "LERadIndx", m_GroupName, this, 6.0, 0.0, 9.0 );
+    m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
 }
 
 //==== Update ====//
 void FiveDigMod::Update()
 {
-    five_digit_mod_airfoil_type af( m_ThickChord(), m_CLi(), m_CamberLoc(), m_LERadIndx(), m_ThickLoc(), true );
+    five_digit_mod_airfoil_type af( m_ThickChord(), m_CLi(), m_CamberLoc(), m_LERadIndx(), m_ThickLoc(), m_SharpTE() );
 
     int npts = 201; // Must be odd to hit LE point.
 
@@ -629,12 +632,13 @@ OneSixSeries::OneSixSeries( ) : Airfoil( )
 {
     m_Type = XS_ONE_SIX_SERIES;
     m_CLi.Init( "CLi", m_GroupName, this, 0.2, 0.0, 1.0 );
+    m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
 }
 
 //==== Update ====//
 void OneSixSeries::Update()
 {
-    one_six_series_airfoil_type af( m_ThickChord(), m_CLi(), true );
+    one_six_series_airfoil_type af( m_ThickChord(), m_CLi(), m_SharpTE() );
 
     int npts = 201; // Must be odd to hit LE point.
 

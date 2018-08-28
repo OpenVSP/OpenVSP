@@ -122,6 +122,7 @@ public:
     Parm m_CamberLoc;
     Parm m_ThickLoc;
     Parm m_LERadIndx;
+    BoolParm m_SharpTE;
 };
 
 //==========================================================================//
@@ -140,6 +141,7 @@ public:
 
     Parm m_CLi;
     Parm m_CamberLoc;
+    BoolParm m_SharpTE;
 };
 
 //==========================================================================//
@@ -160,6 +162,7 @@ public:
     Parm m_CamberLoc;
     Parm m_ThickLoc;
     Parm m_LERadIndx;
+    BoolParm m_SharpTE;
 };
 
 //==========================================================================//
@@ -177,6 +180,7 @@ public:
     virtual string GetAirfoilName();
 
     Parm m_CLi;
+    BoolParm m_SharpTE;
 };
 
 //==========================================================================//
