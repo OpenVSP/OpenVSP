@@ -105,6 +105,7 @@ protected:
     SliderAdjRangeInput m_FourThickChordSlider;
     SliderAdjRangeInput m_FourCamberSlider;
     SliderAdjRangeInput m_FourCamberLocSlider;
+    CheckButton m_FourSharpTEButton;
 
     GroupLayout m_SixSeriesGroup;
     StringOutput m_SixNameOutput;

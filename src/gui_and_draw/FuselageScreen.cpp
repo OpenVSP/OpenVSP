@@ -178,6 +178,8 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_FourSeriesGroup.AddSlider( m_FourCamberLocSlider, "CamberLoc", 1, "%7.5f" );
     m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.AddButton( m_FourInvertButton, "Invert Airfoil" );
+    m_FourSeriesGroup.AddYGap();
+    m_FourSeriesGroup.AddButton( m_FourSharpTEButton, "Sharpen TE" );
 
     //==== Six Series AF ====//
     m_SixSeriesGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -504,6 +506,7 @@ bool FuselageScreen::Update()
                 m_FourCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
                 m_FourInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FourNameOutput.Update( fs_xs->GetAirfoilName() );
+                m_FourSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
             }
             else if ( xsc->GetType() == XS_SIX_SERIES )
             {
