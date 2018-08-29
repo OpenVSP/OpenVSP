@@ -511,6 +511,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_FourDigitModGroup.AddYGap();
     m_FourDigitModGroup.AddButton( m_FourModInvertButton, "Invert Airfoil" );
     m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.AddButton( m_FourModSharpTEButton, "Sharpen TE" );
+    m_FourDigitModGroup.AddYGap();
     m_FourDigitModGroup.SetSameLineFlag( true );
     m_FourDigitModGroup.SetFitWidthFlag( false );
     m_FourDigitModGroup.SetButtonWidth( 125 );
@@ -532,6 +534,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_FiveDigitGroup.AddSlider( m_FiveCamberLocSlider, "CamberLoc", 1, "%7.5f" );
     m_FiveDigitGroup.AddYGap();
     m_FiveDigitGroup.AddButton( m_FiveInvertButton, "Invert Airfoil" );
+    m_FiveDigitGroup.AddYGap();
+    m_FiveDigitGroup.AddButton( m_FiveSharpTEButton, "Sharpen TE" );
     m_FiveDigitGroup.AddYGap();
     m_FiveDigitGroup.SetSameLineFlag( true );
     m_FiveDigitGroup.SetFitWidthFlag( false );
@@ -558,6 +562,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_FiveDigitModGroup.AddYGap();
     m_FiveDigitModGroup.AddButton( m_FiveModInvertButton, "Invert Airfoil" );
     m_FiveDigitModGroup.AddYGap();
+    m_FiveDigitModGroup.AddButton( m_FiveModSharpTEButton, "Sharpen TE" );
+    m_FiveDigitModGroup.AddYGap();
     m_FiveDigitModGroup.SetSameLineFlag( true );
     m_FiveDigitModGroup.SetFitWidthFlag( false );
     m_FiveDigitModGroup.SetButtonWidth( 125 );
@@ -578,6 +584,8 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_OneSixSeriesGroup.AddSlider( m_OneSixSeriesCLiSlider, "CLi", 1, "%7.5f" );
     m_OneSixSeriesGroup.AddYGap();
     m_OneSixSeriesGroup.AddButton( m_OneSixSeriesInvertButton, "Invert Airfoil" );
+    m_OneSixSeriesGroup.AddYGap();
+    m_OneSixSeriesGroup.AddButton( m_OneSixSeriesSharpTEButton, "Sharpen TE" );
     m_OneSixSeriesGroup.AddYGap();
     m_OneSixSeriesGroup.SetSameLineFlag( true );
     m_OneSixSeriesGroup.SetFitWidthFlag( false );
@@ -1171,6 +1179,7 @@ bool WingScreen::Update()
                 m_FourModDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
                 m_FourModThicknessLocSlider.Update( fs_xs->m_ThickLoc.GetID() );
                 m_FourModLERadIndexSlider.Update( fs_xs->m_LERadIndx.GetID() );
+                m_FourModSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
             }
             else if ( xsc->GetType() == XS_FIVE_DIGIT )
             {
@@ -1185,6 +1194,7 @@ bool WingScreen::Update()
                 m_FiveInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FiveNameOutput.Update( fs_xs->GetAirfoilName() );
                 m_FiveDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
+                m_FiveSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
             }
             else if ( xsc->GetType() == XS_FIVE_DIGIT_MOD )
             {
@@ -1201,6 +1211,7 @@ bool WingScreen::Update()
                 m_FiveModDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
                 m_FiveModThicknessLocSlider.Update( fs_xs->m_ThickLoc.GetID() );
                 m_FiveModLERadIndexSlider.Update( fs_xs->m_LERadIndx.GetID() );
+                m_FiveModSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
             }
             else if ( xsc->GetType() == XS_ONE_SIX_SERIES )
             {
@@ -1214,6 +1225,7 @@ bool WingScreen::Update()
                 m_OneSixSeriesInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_OneSixSeriesNameOutput.Update( fs_xs->GetAirfoilName() );
                 m_OneSixSeriesDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
+                m_OneSixSeriesSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
             }
 
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );

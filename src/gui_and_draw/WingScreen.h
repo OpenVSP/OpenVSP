@@ -247,6 +247,7 @@ protected:
     SliderAdjRangeInput m_FourModCamberLocSlider;
     SliderAdjRangeInput m_FourModThicknessLocSlider;
     SliderAdjRangeInput m_FourModLERadIndexSlider;
+    CheckButton m_FourModSharpTEButton;
 
     TriggerButton m_FourModFitCSTButton;
     Counter m_FourModDegreeCounter;
@@ -258,6 +259,7 @@ protected:
     SliderAdjRangeInput m_FiveThickChordSlider;
     SliderAdjRangeInput m_FiveCLiSlider;
     SliderAdjRangeInput m_FiveCamberLocSlider;
+    CheckButton m_FiveSharpTEButton;
 
     TriggerButton m_FiveFitCSTButton;
     Counter m_FiveDegreeCounter;
@@ -271,6 +273,7 @@ protected:
     SliderAdjRangeInput m_FiveModCamberLocSlider;
     SliderAdjRangeInput m_FiveModThicknessLocSlider;
     SliderAdjRangeInput m_FiveModLERadIndexSlider;
+    CheckButton m_FiveModSharpTEButton;
 
     TriggerButton m_FiveModFitCSTButton;
     Counter m_FiveModDegreeCounter;
@@ -284,6 +287,7 @@ protected:
     SliderAdjRangeInput m_OneSixSeriesCamberLocSlider;
     SliderAdjRangeInput m_OneSixSeriesThicknessLocSlider;
     SliderAdjRangeInput m_OneSixSeriesLERadIndexSlider;
+    CheckButton m_OneSixSeriesSharpTEButton;
 
     TriggerButton m_OneSixSeriesFitCSTButton;
     Counter m_OneSixSeriesDegreeCounter;
