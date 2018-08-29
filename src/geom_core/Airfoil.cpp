@@ -394,7 +394,7 @@ FiveDig::FiveDig( ) : Airfoil( )
 {
     m_Type = XS_FIVE_DIGIT;
     m_CLi.Init( "CLi", m_GroupName, this, 0.3, 0.0, 1.0 );
-    m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.44 );
+    m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.423 );
     m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
 }
 
@@ -511,7 +511,7 @@ FiveDigMod::FiveDigMod( ) : Airfoil( )
 {
     m_Type = XS_FIVE_DIGIT_MOD;
     m_CLi.Init( "CLi", m_GroupName, this, 0.3, 0.0, 1.0 );
-    m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.44 );
+    m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.423 );
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.3, 0.2, 0.6 );
     m_LERadIndx.Init( "LERadIndx", m_GroupName, this, 6.0, 0.0, 9.0 );
     m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
