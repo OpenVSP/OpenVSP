@@ -345,7 +345,7 @@ string FourDigMod::GetAirfoilName()
 FiveDig::FiveDig( ) : NACABase( )
 {
     m_Type = XS_FIVE_DIGIT;
-    m_CLi.Init( "CLi", m_GroupName, this, 0.3, 0.0, 1.0 );
+    m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.3, 0.0, 1.0 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.423 );
     m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
 }
@@ -353,7 +353,7 @@ FiveDig::FiveDig( ) : NACABase( )
 //==== Update ====//
 void FiveDig::Update()
 {
-    five_digit_airfoil_type m_AF( m_ThickChord(), m_CLi(), m_CamberLoc(), m_SharpTE() );
+    five_digit_airfoil_type m_AF( m_ThickChord(), m_IdealCl(), m_CamberLoc(), m_SharpTE() );
 
     BuildCurve( m_AF );
     Airfoil::Update();
@@ -362,7 +362,7 @@ void FiveDig::Update()
 //===== Load Name And Number of 4 Series =====//
 string FiveDig::GetAirfoilName()
 {
-    int icl     = int( m_CLi() * ( 2.0f / 3.0f ) * 10.0f + 0.5f );
+    int icl     = int( m_IdealCl() * ( 2.0f / 3.0f ) * 10.0f + 0.5f );
     int icam_loc = int( m_CamberLoc() * 2.0f * 100.0f + 0.5f );
     int ithick   = int( m_ThickChord() * 100.0f + 0.5f );
 
@@ -400,7 +400,7 @@ string FiveDig::GetAirfoilName()
 FiveDigMod::FiveDigMod( ) : NACABase( )
 {
     m_Type = XS_FIVE_DIGIT_MOD;
-    m_CLi.Init( "CLi", m_GroupName, this, 0.3, 0.0, 1.0 );
+    m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.3, 0.0, 1.0 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.423 );
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.3, 0.2, 0.6 );
     m_LERadIndx.Init( "LERadIndx", m_GroupName, this, 6.0, 0.0, 9.0 );
@@ -410,7 +410,7 @@ FiveDigMod::FiveDigMod( ) : NACABase( )
 //==== Update ====//
 void FiveDigMod::Update()
 {
-    five_digit_mod_airfoil_type m_AF( m_ThickChord(), m_CLi(), m_CamberLoc(), m_LERadIndx(), m_ThickLoc(), m_SharpTE() );
+    five_digit_mod_airfoil_type m_AF( m_ThickChord(), m_IdealCl(), m_CamberLoc(), m_LERadIndx(), m_ThickLoc(), m_SharpTE() );
 
     BuildCurve( m_AF );
     Airfoil::Update();
@@ -419,7 +419,7 @@ void FiveDigMod::Update()
 //===== Load Name And Number of 4 Series =====//
 string FiveDigMod::GetAirfoilName()
 {
-    int icl     = int( m_CLi() * ( 2.0f / 3.0f ) * 10.0f + 0.5f );
+    int icl     = int( m_IdealCl() * ( 2.0f / 3.0f ) * 10.0f + 0.5f );
     int icam_loc = int( m_CamberLoc() * 2.0f * 100.0f + 0.5f );
     int ithick   = int( m_ThickChord() * 100.0f + 0.5f );
     int ilerad   = int( m_LERadIndx() + 0.5 );
@@ -459,14 +459,14 @@ string FiveDigMod::GetAirfoilName()
 OneSixSeries::OneSixSeries( ) : NACABase( )
 {
     m_Type = XS_ONE_SIX_SERIES;
-    m_CLi.Init( "CLi", m_GroupName, this, 0.2, 0.0, 1.0 );
+    m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.2, 0.0, 1.0 );
     m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
 }
 
 //==== Update ====//
 void OneSixSeries::Update()
 {
-    one_six_series_airfoil_type m_AF( m_ThickChord(), m_CLi(), m_SharpTE() );
+    one_six_series_airfoil_type m_AF( m_ThickChord(), m_IdealCl(), m_SharpTE() );
 
     BuildCurve( m_AF );
     Airfoil::Update();
@@ -475,7 +475,7 @@ void OneSixSeries::Update()
 //===== Load Name And Number of 4 Series =====//
 string OneSixSeries::GetAirfoilName()
 {
-    int icl     = int( m_CLi() * 10.0f + 0.5f );
+    int icl     = int( m_IdealCl() * 10.0f + 0.5f );
     int ithick   = int( m_ThickChord() * 100.0f + 0.5f );
 
     char str[255];

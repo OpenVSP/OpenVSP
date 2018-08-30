@@ -344,7 +344,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_FiveDigitGroup.AddSlider( m_FiveChordSlider, "Chord", 10, "%7.3f" );
     m_FiveDigitGroup.AddSlider( m_FiveThickChordSlider, "T/C", 1, "%7.5f" );
     m_FiveDigitGroup.AddYGap();
-    m_FiveDigitGroup.AddSlider( m_FiveCLiSlider, "CLi", 1, "%7.5f" );
+    m_FiveDigitGroup.AddSlider( m_FiveCLiSlider, "Ideal CL", 1, "%7.5f" );
     m_FiveDigitGroup.AddSlider( m_FiveCamberLocSlider, "CamberLoc", 1, "%7.5f" );
     m_FiveDigitGroup.AddYGap();
     m_FiveDigitGroup.AddButton( m_FiveInvertButton, "Invert Airfoil" );
@@ -360,7 +360,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_FiveDigitModGroup.AddSlider( m_FiveModChordSlider, "Chord", 10, "%7.3f" );
     m_FiveDigitModGroup.AddSlider( m_FiveModThickChordSlider, "T/C", 1, "%7.5f" );
     m_FiveDigitModGroup.AddYGap();
-    m_FiveDigitModGroup.AddSlider( m_FiveModCLiSlider, "CLi", 1, "%7.5f" );
+    m_FiveDigitModGroup.AddSlider( m_FiveModCLiSlider, "Ideal CL", 1, "%7.5f" );
     m_FiveDigitModGroup.AddSlider( m_FiveModCamberLocSlider, "CamberLoc", 1, "%7.5f" );
     m_FiveDigitModGroup.AddYGap();
     m_FiveDigitModGroup.AddSlider( m_FiveModThicknessLocSlider, "T/CLoc", 0.5, "%7.5f" );
@@ -379,7 +379,7 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_OneSixSeriesGroup.AddSlider( m_OneSixSeriesChordSlider, "Chord", 10, "%7.3f" );
     m_OneSixSeriesGroup.AddSlider( m_OneSixSeriesThickChordSlider, "T/C", 1, "%7.5f" );
     m_OneSixSeriesGroup.AddYGap();
-    m_OneSixSeriesGroup.AddSlider( m_OneSixSeriesCLiSlider, "CLi", 1, "%7.5f" );
+    m_OneSixSeriesGroup.AddSlider( m_OneSixSeriesCLiSlider, "Ideal CL", 1, "%7.5f" );
     m_OneSixSeriesGroup.AddYGap();
     m_OneSixSeriesGroup.AddButton( m_OneSixSeriesInvertButton, "Invert Airfoil" );
     m_OneSixSeriesGroup.AddYGap();
@@ -717,7 +717,7 @@ bool FuselageScreen::Update()
 
                 m_FiveChordSlider.Update( fs_xs->m_Chord.GetID() );
                 m_FiveThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
-                m_FiveCLiSlider.Update( fs_xs->m_CLi.GetID() );
+                m_FiveCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
                 m_FiveCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
                 m_FiveInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FiveNameOutput.Update( fs_xs->GetAirfoilName() );
@@ -731,7 +731,7 @@ bool FuselageScreen::Update()
 
                 m_FiveModChordSlider.Update( fs_xs->m_Chord.GetID() );
                 m_FiveModThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
-                m_FiveModCLiSlider.Update( fs_xs->m_CLi.GetID() );
+                m_FiveModCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
                 m_FiveModCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
                 m_FiveModInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FiveModNameOutput.Update( fs_xs->GetAirfoilName() );
@@ -747,7 +747,7 @@ bool FuselageScreen::Update()
 
                 m_OneSixSeriesChordSlider.Update( fs_xs->m_Chord.GetID() );
                 m_OneSixSeriesThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
-                m_OneSixSeriesCLiSlider.Update( fs_xs->m_CLi.GetID() );
+                m_OneSixSeriesCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
                 m_OneSixSeriesInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_OneSixSeriesNameOutput.Update( fs_xs->GetAirfoilName() );
                 m_OneSixSeriesSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );

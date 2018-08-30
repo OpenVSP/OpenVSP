@@ -156,7 +156,7 @@ public:
 
     virtual string GetAirfoilName();
 
-    Parm m_CLi;
+    Parm m_IdealCl;
     Parm m_CamberLoc;
     BoolParm m_SharpTE;
 };
@@ -175,7 +175,7 @@ public:
 
     virtual string GetAirfoilName();
 
-    Parm m_CLi;
+    Parm m_IdealCl;
     Parm m_CamberLoc;
     Parm m_ThickLoc;
     Parm m_LERadIndx;
@@ -196,7 +196,7 @@ public:
 
     virtual string GetAirfoilName();
 
-    Parm m_CLi;
+    Parm m_IdealCl;
     BoolParm m_SharpTE;
 };
 
