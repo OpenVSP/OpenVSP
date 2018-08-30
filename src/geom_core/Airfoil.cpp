@@ -148,8 +148,8 @@ void FourSeries::Update()
         piecewise_four_digit_creator pwc;
         pwc.set_sharp_trailing_edge( m_SharpTE() );
 
-        pwc.set_thickness( m_ThickChord() * 100.0f );
-        pwc.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
+        pwc.set_thickness( m_ThickChord() );
+        pwc.set_camber( m_Camber(), m_CamberLoc() );
 
         pwc.create( c );
 
@@ -169,8 +169,8 @@ void FourSeries::Update()
         four_digit_airfoil_type af;
         af.set_sharp_trailing_edge( m_SharpTE() );
 
-        af.set_thickness( m_ThickChord() * 100.0f );
-        af.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
+        af.set_thickness( m_ThickChord() );
+        af.set_camber( m_Camber(), m_CamberLoc() );
 
         int npts = 201; // Must be odd to hit LE point.
 
@@ -290,7 +290,7 @@ FourDigMod::FourDigMod( ) : Airfoil( )
 //==== Update ====//
 void FourDigMod::Update()
 {
-    four_digit_mod_airfoil_type af( m_Camber() * 100.0f, m_CamberLoc() * 10.0f, m_ThickChord() * 100.0f, m_LERadIndx(),  m_ThickLoc() * 10.0f, m_SharpTE() );
+    four_digit_mod_airfoil_type af( m_Camber(), m_CamberLoc(), m_ThickChord(), m_LERadIndx(),  m_ThickLoc(), m_SharpTE() );
 
     int npts = 201; // Must be odd to hit LE point.
 
