@@ -129,8 +129,83 @@ double Airfoil::CalculateThick()
 //==========================================================================//
 //==========================================================================//
 
+
+NACABase::NACABase() : Airfoil( )
+{
+}
+
+void NACABase::BuildCurve( const naca_airfoil_type & af )
+{
+    int npts = 201; // Must be odd to hit LE point.
+
+    double t0 = -1.0;
+    double t = t0;
+    double dt = 2.0 / ( npts - 1 );
+    int ile = ( npts - 1 ) / 2;
+
+    vector< vec3d > pnts( npts );
+    vector< double > arclen( npts );
+
+    vec2d p2d;
+    p2d = af.f( t );
+    pnts[0] = p2d;
+    arclen[0] = 0.0;
+    for ( int i = 1 ; i < npts ; i++ )
+    {
+        if ( i == ile )
+        {
+            t = 0.0; // Ensure LE point precision.
+        }
+        else if ( i == ( npts - 1 ) )
+        {
+            t = 1.0;  // Ensure end point precision.
+        }
+        else
+        {
+            t = t0 + dt * i; // All other points.
+        }
+
+        double tc = sgn( t ) * Cluster( std::abs( t ), 0.01, 0.1 );
+
+        p2d = af.f( tc );
+        pnts[i] = p2d;
+
+        double ds = dist( pnts[i], pnts[i-1] );
+        if ( ds < 1e-8 )
+        {
+            ds = 1.0/npts;
+        }
+        arclen[i] = arclen[i-1] + ds;
+    }
+
+    double lenlower = arclen[ile];
+    double lenupper = arclen[npts-1] - lenlower;
+
+    double lowerscale = 2.0/lenlower;
+    int i;
+    for ( i = 1; i < ile; i++ )
+    {
+        arclen[i] = arclen[i] * lowerscale;
+    }
+    arclen[ile] = 2.0;
+    i++;
+
+    double upperscale = 2.0/lenupper;
+    for ( ; i < npts - 1; i++ )
+    {
+        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
+    }
+    arclen[npts-1] = 4.0;
+
+    m_Curve.InterpolatePCHIP( pnts, arclen, false );
+}
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
 //==== Constructor ====//
-FourSeries::FourSeries( ) : Airfoil( )
+FourSeries::FourSeries( ) : NACABase( )
 {
     m_Type = XS_FOUR_SERIES;
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
@@ -172,68 +247,7 @@ void FourSeries::Update()
         af.set_thickness( m_ThickChord() );
         af.set_camber( m_Camber(), m_CamberLoc() );
 
-        int npts = 201; // Must be odd to hit LE point.
-
-        double t0 = -1.0;
-        double t = t0;
-        double dt = 2.0 / ( npts - 1 );
-        int ile = ( npts - 1 ) / 2;
-
-        vector< vec3d > pnts( npts );
-        vector< double > arclen( npts );
-
-        vec2d p2d;
-        p2d = af.f( t );
-        pnts[0] = p2d;
-        arclen[0] = 0.0;
-        for ( int i = 1 ; i < npts ; i++ )
-        {
-            if ( i == ile )
-            {
-                t = 0.0; // Ensure LE point precision.
-            }
-            else if ( i == ( npts - 1 ) )
-            {
-                t = 1.0;  // Ensure end point precision.
-            }
-            else
-            {
-                t = t0 + dt * i; // All other points.
-            }
-
-            double tc = sgn( t ) * Cluster( std::abs( t ), 0.01, 0.1 );
-
-            p2d = af.f( tc );
-            pnts[i] = p2d;
-
-            double ds = dist( pnts[i], pnts[i-1] );
-            if ( ds < 1e-8 )
-            {
-                ds = 1.0/npts;
-            }
-            arclen[i] = arclen[i-1] + ds;
-        }
-
-        double lenlower = arclen[ile];
-        double lenupper = arclen[npts-1] - lenlower;
-
-        double lowerscale = 2.0/lenlower;
-        int i;
-        for ( i = 1; i < ile; i++ )
-        {
-            arclen[i] = arclen[i] * lowerscale;
-        }
-        arclen[ile] = 2.0;
-        i++;
-
-        double upperscale = 2.0/lenupper;
-        for ( ; i < npts - 1; i++ )
-        {
-            arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
-        }
-        arclen[npts-1] = 4.0;
-
-        m_Curve.InterpolatePCHIP( pnts, arclen, false );
+        BuildCurve( af );
     }
 
     Airfoil::Update();
@@ -277,7 +291,7 @@ void FourSeries::ReadV2File( xmlNodePtr &root )
 //==========================================================================//
 
 //==== Constructor ====//
-FourDigMod::FourDigMod( ) : Airfoil( )
+FourDigMod::FourDigMod( ) : NACABase( )
 {
     m_Type = XS_FOUR_DIGIT_MOD;
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
@@ -292,69 +306,7 @@ void FourDigMod::Update()
 {
     four_digit_mod_airfoil_type af( m_Camber(), m_CamberLoc(), m_ThickChord(), m_LERadIndx(),  m_ThickLoc(), m_SharpTE() );
 
-    int npts = 201; // Must be odd to hit LE point.
-
-    double t0 = -1.0;
-    double t = t0;
-    double dt = 2.0 / ( npts - 1 );
-    int ile = ( npts - 1 ) / 2;
-
-    vector< vec3d > pnts( npts );
-    vector< double > arclen( npts );
-
-    vec2d p2d;
-    p2d = af.f( t );
-    pnts[0] = p2d;
-    arclen[0] = 0.0;
-    for ( int i = 1 ; i < npts ; i++ )
-    {
-        if ( i == ile )
-        {
-            t = 0.0; // Ensure LE point precision.
-        }
-        else if ( i == ( npts - 1 ) )
-        {
-            t = 1.0;  // Ensure end point precision.
-        }
-        else
-        {
-            t = t0 + dt * i; // All other points.
-        }
-
-        double tc = sgn( t ) * Cluster( std::abs( t ), 0.01, 0.1 );
-
-        p2d = af.f( tc );
-        pnts[i] = p2d;
-
-        double ds = dist( pnts[i], pnts[i-1] );
-        if ( ds < 1e-8 )
-        {
-            ds = 1.0/npts;
-        }
-        arclen[i] = arclen[i-1] + ds;
-    }
-
-    double lenlower = arclen[ile];
-    double lenupper = arclen[npts-1] - lenlower;
-
-    double lowerscale = 2.0/lenlower;
-    int i;
-    for ( i = 1; i < ile; i++ )
-    {
-        arclen[i] = arclen[i] * lowerscale;
-    }
-    arclen[ile] = 2.0;
-    i++;
-
-    double upperscale = 2.0/lenupper;
-    for ( ; i < npts - 1; i++ )
-    {
-        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
-    }
-    arclen[npts-1] = 4.0;
-
-    m_Curve.InterpolatePCHIP( pnts, arclen, false );
-
+    BuildCurve( af );
     Airfoil::Update();
 }
 
@@ -390,7 +342,7 @@ string FourDigMod::GetAirfoilName()
 //==========================================================================//
 
 //==== Constructor ====//
-FiveDig::FiveDig( ) : Airfoil( )
+FiveDig::FiveDig( ) : NACABase( )
 {
     m_Type = XS_FIVE_DIGIT;
     m_CLi.Init( "CLi", m_GroupName, this, 0.3, 0.0, 1.0 );
@@ -401,71 +353,9 @@ FiveDig::FiveDig( ) : Airfoil( )
 //==== Update ====//
 void FiveDig::Update()
 {
-    five_digit_airfoil_type af( m_ThickChord(), m_CLi(), m_CamberLoc(), m_SharpTE() );
+    five_digit_airfoil_type m_AF( m_ThickChord(), m_CLi(), m_CamberLoc(), m_SharpTE() );
 
-    int npts = 201; // Must be odd to hit LE point.
-
-    double t0 = -1.0;
-    double t = t0;
-    double dt = 2.0 / ( npts - 1 );
-    int ile = ( npts - 1 ) / 2;
-
-    vector< vec3d > pnts( npts );
-    vector< double > arclen( npts );
-
-    vec2d p2d;
-    p2d = af.f( t );
-    pnts[0] = p2d;
-    arclen[0] = 0.0;
-    for ( int i = 1 ; i < npts ; i++ )
-    {
-        if ( i == ile )
-        {
-            t = 0.0; // Ensure LE point precision.
-        }
-        else if ( i == ( npts - 1 ) )
-        {
-            t = 1.0;  // Ensure end point precision.
-        }
-        else
-        {
-            t = t0 + dt * i; // All other points.
-        }
-
-        double tc = sgn( t ) * Cluster( std::abs( t ), 0.01, 0.1 );
-
-        p2d = af.f( tc );
-        pnts[i] = p2d;
-
-        double ds = dist( pnts[i], pnts[i-1] );
-        if ( ds < 1e-8 )
-        {
-            ds = 1.0/npts;
-        }
-        arclen[i] = arclen[i-1] + ds;
-    }
-
-    double lenlower = arclen[ile];
-    double lenupper = arclen[npts-1] - lenlower;
-
-    double lowerscale = 2.0/lenlower;
-    int i;
-    for ( i = 1; i < ile; i++ )
-    {
-        arclen[i] = arclen[i] * lowerscale;
-    }
-    arclen[ile] = 2.0;
-    i++;
-
-    double upperscale = 2.0/lenupper;
-    for ( ; i < npts - 1; i++ )
-    {
-        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
-    }
-    arclen[npts-1] = 4.0;
-
-    m_Curve.InterpolatePCHIP( pnts, arclen, false );
-
+    BuildCurve( m_AF );
     Airfoil::Update();
 }
 
@@ -507,7 +397,7 @@ string FiveDig::GetAirfoilName()
 //==========================================================================//
 
 //==== Constructor ====//
-FiveDigMod::FiveDigMod( ) : Airfoil( )
+FiveDigMod::FiveDigMod( ) : NACABase( )
 {
     m_Type = XS_FIVE_DIGIT_MOD;
     m_CLi.Init( "CLi", m_GroupName, this, 0.3, 0.0, 1.0 );
@@ -520,71 +410,9 @@ FiveDigMod::FiveDigMod( ) : Airfoil( )
 //==== Update ====//
 void FiveDigMod::Update()
 {
-    five_digit_mod_airfoil_type af( m_ThickChord(), m_CLi(), m_CamberLoc(), m_LERadIndx(), m_ThickLoc(), m_SharpTE() );
+    five_digit_mod_airfoil_type m_AF( m_ThickChord(), m_CLi(), m_CamberLoc(), m_LERadIndx(), m_ThickLoc(), m_SharpTE() );
 
-    int npts = 201; // Must be odd to hit LE point.
-
-    double t0 = -1.0;
-    double t = t0;
-    double dt = 2.0 / ( npts - 1 );
-    int ile = ( npts - 1 ) / 2;
-
-    vector< vec3d > pnts( npts );
-    vector< double > arclen( npts );
-
-    vec2d p2d;
-    p2d = af.f( t );
-    pnts[0] = p2d;
-    arclen[0] = 0.0;
-    for ( int i = 1 ; i < npts ; i++ )
-    {
-        if ( i == ile )
-        {
-            t = 0.0; // Ensure LE point precision.
-        }
-        else if ( i == ( npts - 1 ) )
-        {
-            t = 1.0;  // Ensure end point precision.
-        }
-        else
-        {
-            t = t0 + dt * i; // All other points.
-        }
-
-        double tc = sgn( t ) * Cluster( std::abs( t ), 0.01, 0.1 );
-
-        p2d = af.f( tc );
-        pnts[i] = p2d;
-
-        double ds = dist( pnts[i], pnts[i-1] );
-        if ( ds < 1e-8 )
-        {
-            ds = 1.0/npts;
-        }
-        arclen[i] = arclen[i-1] + ds;
-    }
-
-    double lenlower = arclen[ile];
-    double lenupper = arclen[npts-1] - lenlower;
-
-    double lowerscale = 2.0/lenlower;
-    int i;
-    for ( i = 1; i < ile; i++ )
-    {
-        arclen[i] = arclen[i] * lowerscale;
-    }
-    arclen[ile] = 2.0;
-    i++;
-
-    double upperscale = 2.0/lenupper;
-    for ( ; i < npts - 1; i++ )
-    {
-        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
-    }
-    arclen[npts-1] = 4.0;
-
-    m_Curve.InterpolatePCHIP( pnts, arclen, false );
-
+    BuildCurve( m_AF );
     Airfoil::Update();
 }
 
@@ -628,7 +456,7 @@ string FiveDigMod::GetAirfoilName()
 //==========================================================================//
 
 //==== Constructor ====//
-OneSixSeries::OneSixSeries( ) : Airfoil( )
+OneSixSeries::OneSixSeries( ) : NACABase( )
 {
     m_Type = XS_ONE_SIX_SERIES;
     m_CLi.Init( "CLi", m_GroupName, this, 0.2, 0.0, 1.0 );
@@ -638,71 +466,9 @@ OneSixSeries::OneSixSeries( ) : Airfoil( )
 //==== Update ====//
 void OneSixSeries::Update()
 {
-    one_six_series_airfoil_type af( m_ThickChord(), m_CLi(), m_SharpTE() );
+    one_six_series_airfoil_type m_AF( m_ThickChord(), m_CLi(), m_SharpTE() );
 
-    int npts = 201; // Must be odd to hit LE point.
-
-    double t0 = -1.0;
-    double t = t0;
-    double dt = 2.0 / ( npts - 1 );
-    int ile = ( npts - 1 ) / 2;
-
-    vector< vec3d > pnts( npts );
-    vector< double > arclen( npts );
-
-    vec2d p2d;
-    p2d = af.f( t );
-    pnts[0] = p2d;
-    arclen[0] = 0.0;
-    for ( int i = 1 ; i < npts ; i++ )
-    {
-        if ( i == ile )
-        {
-            t = 0.0; // Ensure LE point precision.
-        }
-        else if ( i == ( npts - 1 ) )
-        {
-            t = 1.0;  // Ensure end point precision.
-        }
-        else
-        {
-            t = t0 + dt * i; // All other points.
-        }
-
-        double tc = sgn( t ) * Cluster( std::abs( t ), 0.01, 0.1 );
-
-        p2d = af.f( tc );
-        pnts[i] = p2d;
-
-        double ds = dist( pnts[i], pnts[i-1] );
-        if ( ds < 1e-8 )
-        {
-            ds = 1.0/npts;
-        }
-        arclen[i] = arclen[i-1] + ds;
-    }
-
-    double lenlower = arclen[ile];
-    double lenupper = arclen[npts-1] - lenlower;
-
-    double lowerscale = 2.0/lenlower;
-    int i;
-    for ( i = 1; i < ile; i++ )
-    {
-        arclen[i] = arclen[i] * lowerscale;
-    }
-    arclen[ile] = 2.0;
-    i++;
-
-    double upperscale = 2.0/lenupper;
-    for ( ; i < npts - 1; i++ )
-    {
-        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
-    }
-    arclen[npts-1] = 4.0;
-
-    m_Curve.InterpolatePCHIP( pnts, arclen, false );
-
+    BuildCurve( m_AF );
     Airfoil::Update();
 }
 

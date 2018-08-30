@@ -25,6 +25,7 @@
 #include "eli/geom/curve/piecewise_cst_airfoil_creator.hpp"
 #include "eli/geom/curve/piecewise_cst_airfoil_fitter.hpp"
 #include "eli/geom/curve/pseudo/cst_airfoil.hpp"
+#include "eli/geom/curve/pseudo/naca_af.hpp"
 #include "eli/geom/curve/pseudo/five_digit.hpp"
 #include "eli/geom/curve/pseudo/five_digit_mod.hpp"
 #include "eli/geom/curve/pseudo/four_digit.hpp"
@@ -40,6 +41,7 @@ typedef eli::geom::curve::piecewise_four_digit_creator<double, 3, curve_toleranc
 typedef eli::geom::curve::piecewise_cst_airfoil_creator<double, 3, curve_tolerance_type> piecewise_cst_creator;
 typedef eli::geom::curve::pseudo::cst_airfoil<double> cst_airfoil_type;
 typedef eli::geom::curve::piecewise_cst_airfoil_fitter<double, 3, curve_tolerance_type> cst_fitter_type;
+typedef eli::geom::curve::pseudo::naca_af<double> naca_airfoil_type;
 typedef eli::geom::curve::pseudo::five_digit<double> five_digit_airfoil_type;
 typedef eli::geom::curve::pseudo::five_digit_mod<double> five_digit_mod_airfoil_type;
 typedef eli::geom::curve::pseudo::four_digit<double> four_digit_airfoil_type;
@@ -83,10 +85,25 @@ protected:
 };
 
 //==========================================================================//
+//=======================  NACA Base Airfoil   =============================//
+//==========================================================================//
+
+class NACABase : public Airfoil
+{
+public:
+
+    NACABase();
+
+    virtual void BuildCurve( const naca_airfoil_type & af );
+
+    virtual string GetAirfoilName() = 0;
+};
+
+//==========================================================================//
 //=======================  Four Series Airfoil   ===========================//
 //==========================================================================//
 
-class FourSeries : public Airfoil
+class FourSeries : public NACABase
 {
 public:
 
@@ -108,7 +125,7 @@ public:
 //=======================  Four Digit Modified Airfoil   ===================//
 //==========================================================================//
 
-class FourDigMod : public Airfoil
+class FourDigMod : public NACABase
 {
 public:
 
@@ -129,7 +146,7 @@ public:
 //=======================  Five Digit Airfoil   ============================//
 //==========================================================================//
 
-class FiveDig : public Airfoil
+class FiveDig : public NACABase
 {
 public:
 
@@ -148,7 +165,7 @@ public:
 //=======================  Five Digit Mod Airfoil   ========================//
 //==========================================================================//
 
-class FiveDigMod : public Airfoil
+class FiveDigMod : public NACABase
 {
 public:
 
@@ -169,7 +186,7 @@ public:
 //=======================  16 Series Airfoil   =============================//
 //==========================================================================//
 
-class OneSixSeries : public Airfoil
+class OneSixSeries : public NACABase
 {
 public:
 
