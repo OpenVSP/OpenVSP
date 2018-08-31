@@ -30,6 +30,39 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_DesignPolicyChoice.AddItem( "LOOP" );
     m_DesignLayout.AddChoice( m_DesignPolicyChoice, "XSec Order: " );
 
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddDividerBox( "Tip Treatment" );
+
+    m_NoseCapTypeChoice.AddItem("None");
+    m_NoseCapTypeChoice.AddItem("Flat");
+    m_NoseCapTypeChoice.AddItem("Round");
+    m_NoseCapTypeChoice.AddItem("Edge");
+    m_NoseCapTypeChoice.AddItem("Sharp");
+    m_DesignLayout.AddChoice(m_NoseCapTypeChoice, "Nose Cap Type");
+
+    m_DesignLayout.AddSlider( m_NoseCapLenSlider, "Length", 1, "%6.5f" );
+    m_DesignLayout.AddSlider( m_NoseCapOffsetSlider, "Offset", 1, "%6.5f" );
+    m_DesignLayout.AddSlider( m_NoseCapStrengthSlider, "Strength", 1, "%6.5f" );
+    m_DesignLayout.AddButton( m_NoseCapSweepFlagButton, "Sweep Stretch" );
+
+    m_DesignLayout.AddYGap();
+
+    m_TailCapTypeChoice.AddItem("None");
+    m_TailCapTypeChoice.AddItem("Flat");
+    m_TailCapTypeChoice.AddItem("Round");
+    m_TailCapTypeChoice.AddItem("Edge");
+    m_TailCapTypeChoice.AddItem("Sharp");
+    m_DesignLayout.AddChoice(m_TailCapTypeChoice, "Tail Cap Type");
+
+    m_DesignLayout.AddSlider( m_TailCapLenSlider, "Length", 1, "%6.5f" );
+    m_DesignLayout.AddSlider( m_TailCapOffsetSlider, "Offset", 1, "%6.5f" );
+    m_DesignLayout.AddSlider( m_TailCapStrengthSlider, "Strength", 1, "%6.5f" );
+    m_DesignLayout.AddButton( m_TailCapSweepFlagButton, "Sweep Stretch" );
+
+    m_DesignLayout.AddYGap();
+
+    m_DesignLayout.AddSlider( m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
+
     Fl_Group* xsec_tab = AddTab( "XSec" );
     Fl_Group* xsec_group = AddSubGroup( xsec_tab, 5 );
 
@@ -418,6 +451,77 @@ bool StackScreen::Update()
     assert( stackgeom_ptr );
 
     m_DesignPolicyChoice.Update( stackgeom_ptr->m_OrderPolicy.GetID() );
+
+    m_NoseCapTypeChoice.Update( stackgeom_ptr->m_CapUMinOption.GetID() );
+    m_TailCapTypeChoice.Update( stackgeom_ptr->m_CapUMaxOption.GetID() );
+
+    m_CapTessSlider.Update( stackgeom_ptr->m_CapUMinTess.GetID() );
+
+    m_NoseCapLenSlider.Update( stackgeom_ptr->m_CapUMinLength.GetID() );
+    m_NoseCapOffsetSlider.Update( stackgeom_ptr->m_CapUMinOffset.GetID() );
+    m_NoseCapStrengthSlider.Update( stackgeom_ptr->m_CapUMinStrength.GetID() );
+    m_NoseCapSweepFlagButton.Update( stackgeom_ptr->m_CapUMinSweepFlag.GetID() );
+
+    m_NoseCapLenSlider.Deactivate();
+    m_NoseCapOffsetSlider.Deactivate();
+    m_NoseCapStrengthSlider.Deactivate();
+    m_NoseCapSweepFlagButton.Deactivate();
+
+    switch( stackgeom_ptr->m_CapUMinOption() ){
+        case NO_END_CAP:
+            break;
+        case FLAT_END_CAP:
+            break;
+        case ROUND_END_CAP:
+            m_NoseCapLenSlider.Activate();
+            m_NoseCapOffsetSlider.Activate();
+            m_NoseCapSweepFlagButton.Activate();
+            break;
+        case EDGE_END_CAP:
+            m_NoseCapLenSlider.Activate();
+            m_NoseCapOffsetSlider.Activate();
+            m_NoseCapSweepFlagButton.Activate();
+            break;
+        case SHARP_END_CAP:
+            m_NoseCapLenSlider.Activate();
+            m_NoseCapOffsetSlider.Activate();
+            m_NoseCapStrengthSlider.Activate();
+            m_NoseCapSweepFlagButton.Activate();
+            break;
+    }
+
+    m_TailCapLenSlider.Update( stackgeom_ptr->m_CapUMaxLength.GetID() );
+    m_TailCapOffsetSlider.Update( stackgeom_ptr->m_CapUMaxOffset.GetID() );
+    m_TailCapStrengthSlider.Update( stackgeom_ptr->m_CapUMaxStrength.GetID() );
+    m_TailCapSweepFlagButton.Update( stackgeom_ptr->m_CapUMaxSweepFlag.GetID() );
+
+    m_TailCapLenSlider.Deactivate();
+    m_TailCapOffsetSlider.Deactivate();
+    m_TailCapStrengthSlider.Deactivate();
+    m_TailCapSweepFlagButton.Deactivate();
+
+    switch( stackgeom_ptr->m_CapUMaxOption() ){
+        case NO_END_CAP:
+            break;
+        case FLAT_END_CAP:
+            break;
+        case ROUND_END_CAP:
+            m_TailCapLenSlider.Activate();
+            m_TailCapOffsetSlider.Activate();
+            m_TailCapSweepFlagButton.Activate();
+            break;
+        case EDGE_END_CAP:
+            m_TailCapLenSlider.Activate();
+            m_TailCapOffsetSlider.Activate();
+            m_TailCapSweepFlagButton.Activate();
+            break;
+        case SHARP_END_CAP:
+            m_TailCapLenSlider.Activate();
+            m_TailCapOffsetSlider.Activate();
+            m_TailCapStrengthSlider.Activate();
+            m_TailCapSweepFlagButton.Activate();
+            break;
+    }
 
     //==== XSec Index Display ===//
     int xsid = stackgeom_ptr->GetActiveXSecIndex();
