@@ -1691,7 +1691,7 @@ void VSPAEROScreen::DisplayDegenVLMPreview()
                 }
                 else
                 {
-                    geom_vec[i]->m_GuiDraw.SetDisplayType( GeomGuiDraw::DISPLAY_DEGEN_PLATE );
+                    geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_PLATE );
                 }
             }
 
