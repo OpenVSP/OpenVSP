@@ -1239,6 +1239,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PROP_PCURVE", "PROP_SWEEP", PROP_SWEEP );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_PCURVE", "PROP_THICK", PROP_THICK );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_PCURVE", "PROP_CLI", PROP_CLI );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "PROP_PCURVE", "NUM_PROP_PCURVE", NUM_PROP_PCURVE );
     assert( r >= 0 );
 

@@ -417,6 +417,44 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_SweepCurve.m_CurveType = vsp::LINEAR;
     m_SweepCurve.InitCurve( tv3, vv3 );
 
+    m_ThickCurve.SetParentContainer( GetID() );
+    m_ThickCurve.SetDispNames( "r/R", "Thick/C" );
+    m_ThickCurve.SetParmNames( "r", "toc" );
+    m_ThickCurve.SetCurveName( "Thick" );
+    m_ThickCurve.InitParms();
+    m_ThickCurve.m_CurveType = vsp::CEDIT;
+    static const double t4[] =                    {0.2, 0.2 + 0.2 / 3.0,
+                                  0.4 - 0.2 / 3.0, 0.4, 0.4 + 0.2 / 3.0,
+                                  0.6 - 0.2 / 3.0, 0.6, 0.6 + 0.35 / 3.0,
+                                0.95 - 0.35 / 3.0, 0.95, 0.95 + 0.05 / 3.0,
+                                 1.0 - 0.05 / 3.0, 1.0};
+    static const double v4[] =       {1.00, 0.40,
+                                0.15, 0.10, 0.05,
+                                0.05, 0.05, 0.05,
+                                0.05, 0.05, 0.05,
+                                0.05, 0.03};
+    vector < double > tv4( t4, t4 + sizeof( t4 ) / sizeof( t4[0] ) );
+    vector < double > vv4( v4, v4 + sizeof( v4 ) / sizeof( v4[0] ) );
+    m_ThickCurve.InitCurve( tv4, vv4 );
+
+    m_CLICurve.SetParentContainer( GetID() );
+    m_CLICurve.SetDispNames( "r/R", "CLi" );
+    m_CLICurve.SetParmNames( "r", "cli" );
+    m_CLICurve.SetCurveName( "CLI" );
+    m_CLICurve.InitParms();
+    m_CLICurve.m_CurveType = vsp::CEDIT;
+    static const double t5[] =                    {0.2, 0.2 + 0.2 / 3.0,
+                                  0.4 - 0.2 / 3.0, 0.4, 0.4 + 0.4 / 3.0,
+                                  0.8 - 0.4 / 3.0, 0.8, 0.8 + 0.2 / 3.0,
+                                  1.0 - 0.2 / 3.0, 1.0};
+    static const double v5[] =       {0.0, 0.2,
+                                 0.2, 0.2, 0.2,
+                                 0.2, 0.2, 0.2,
+                                 0.2, 0.0};
+    vector < double > tv5( t5, t5 + sizeof( t5 ) / sizeof( t5[0] ) );
+    vector < double > vv5( v5, v5 + sizeof( v5 ) / sizeof( v5[0] ) );
+    m_CLICurve.InitCurve( tv5, vv5 );
+
     // Set up vector to allow treatment as a group.
     m_pcurve_vec.resize( NUM_PROP_PCURVE );
     m_pcurve_vec[ PROP_CHORD ] = &m_ChordCurve;
@@ -424,6 +462,8 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_pcurve_vec[ PROP_RAKE ] = &m_RakeCurve;
     m_pcurve_vec[ PROP_SKEW ] = &m_SkewCurve;
     m_pcurve_vec[ PROP_SWEEP ] = &m_SweepCurve;
+    m_pcurve_vec[ PROP_THICK ] = &m_ThickCurve;
+    m_pcurve_vec[ PROP_CLI ] = &m_CLICurve;
 
 }
 
@@ -1080,6 +1120,8 @@ xmlNodePtr PropGeom::EncodeXml( xmlNodePtr & node )
         m_RakeCurve.EncodeXml( propeller_node );
         m_SkewCurve.EncodeXml( propeller_node );
         m_SweepCurve.EncodeXml( propeller_node );
+        m_ThickCurve.EncodeXml( propeller_node );
+        m_CLICurve.EncodeXml( propeller_node );
     }
     return propeller_node;
 }
@@ -1098,6 +1140,8 @@ xmlNodePtr PropGeom::DecodeXml( xmlNodePtr & node )
         m_RakeCurve.DecodeXml( propeller_node );
         m_SkewCurve.DecodeXml( propeller_node );
         m_SweepCurve.DecodeXml( propeller_node );
+        m_ThickCurve.DecodeXml( propeller_node );
+        m_CLICurve.DecodeXml( propeller_node );
     }
 
     return propeller_node;
@@ -1220,6 +1264,8 @@ void PropGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const str
     m_RakeCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
     m_SkewCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
     m_SweepCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
+    m_ThickCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
+    m_CLICurve.AddLinkableParms( linkable_parm_vec, m_ID  );
 }
 
 //==== Scale ====//

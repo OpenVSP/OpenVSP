@@ -178,6 +178,8 @@ public:
     PCurve m_RakeCurve;
     PCurve m_SkewCurve;
     PCurve m_SweepCurve;
+    PCurve m_ThickCurve;
+    PCurve m_CLICurve;
 
     vector < PCurve* > m_pcurve_vec;
 
