@@ -209,6 +209,19 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CurrentCpSliceIndex = -1;
 
     m_Verbose = false;
+
+    // VSPAERO commands
+    m_VSPAEROPath = "";
+#ifdef WIN32
+    m_VSPAEROCmd = string( "vspaero.exe" );
+    m_VIEWERCmd = string( "vspviewer.exe" );
+    m_SLICERCmd = string( "vspslicer.exe" );
+#else
+    m_VSPAEROCmd = string( "vspaero" );
+    m_VIEWERCmd = string( "vspviewer" );
+    m_SLICERCmd = string( "vspslicer" );
+#endif
+
 }
 
 void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
@@ -455,6 +468,65 @@ void VSPAEROMgrSingleton::UpdateSetupParmLimits()
         m_FarDist.Set( -1.0 );
         m_FarDist.Deactivate();
     }
+}
+
+bool VSPAEROMgrSingleton::SetVSPAEROPath( string path )
+{
+    if ( CheckForVSPAERO( path ) )
+    {
+        m_VSPAEROPath = path;
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+bool VSPAEROMgrSingleton::CheckForVSPAERO( string path )
+{
+    bool retVal = true;
+    string pathfile;
+
+    // VSPAERO Solver
+    pathfile = path + string( "/" ) + m_VSPAEROCmd;
+    if ( !FileExist( pathfile ) )
+    {
+        fprintf( stderr, "ERROR %d: VSPAERO solver not found.\n"
+            "\tExpected here: %s\n"
+            "\tFile: %s \tLine:%d\n",
+            vsp::VSP_FILE_DOES_NOT_EXIST,
+            pathfile,
+            __FILE__, __LINE__ );
+        retVal = false;
+    }
+
+    // VSPAERO Viewer
+    pathfile = path + string( "/" ) + m_VIEWERCmd;
+    if ( !FileExist( pathfile ) )
+    {
+        fprintf( stderr, "ERROR %d: VSPAERO solver not found.\n"
+            "\tExpected here: %s\n"
+            "\tFile: %s \tLine:%d\n",
+            vsp::VSP_FILE_DOES_NOT_EXIST,
+            pathfile,
+            __FILE__, __LINE__ );
+        retVal = false;
+    }
+
+    // VSPAERO Slicer
+    pathfile = path + string( "/" ) + m_SLICERCmd;
+    if ( !FileExist( pathfile ) )
+    {
+        fprintf( stderr, "ERROR %d: VSPAERO solver not found.\n"
+            "\tExpected here: %s\n"
+            "\tFile: %s \tLine:%d\n",
+            vsp::VSP_FILE_DOES_NOT_EXIST,
+            pathfile,
+            __FILE__, __LINE__ );
+        retVal = false;
+    }
+    return retVal;
 }
 
 void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
@@ -1386,7 +1458,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     args.push_back( modelNameBase );
 
                     //Print out execute command
-                    string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
+                    string cmdStr = m_SolverProcess.PrettyCmd( m_VSPAEROPath, m_VSPAEROCmd, args );
                     if( logFile )
                     {
                         fprintf( logFile, "%s", cmdStr.c_str() );
@@ -1400,7 +1472,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     }
 
                     // Execute VSPAero
-                    m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
+                    m_SolverProcess.ForkCmd( m_VSPAEROPath, m_VSPAEROCmd, args );
 
                     // ==== MonitorSolverProcess ==== //
                     MonitorSolver( logFile );
@@ -1593,7 +1665,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         args.push_back( modelNameBase );
 
         //Print out execute command
-        string cmdStr = m_SolverProcess.PrettyCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
+        string cmdStr = m_SolverProcess.PrettyCmd( m_VSPAEROPath, m_VSPAEROCmd, args );
         if( logFile )
         {
             fprintf( logFile, "%s", cmdStr.c_str() );
@@ -1607,7 +1679,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         }
 
         // Execute VSPAero
-        m_SolverProcess.ForkCmd( veh->GetExePath(), veh->GetVSPAEROCmd(), args );
+        m_SolverProcess.ForkCmd( m_VSPAEROPath, m_VSPAEROCmd, args );
 
         // ==== MonitorSolverProcess ==== //
         MonitorSolver( logFile );
@@ -2860,7 +2932,7 @@ string VSPAEROMgrSingleton::ExecuteCpSlicer( FILE * logFile )
     args.push_back( m_ModelNameBase );
 
     //====== Execute VSPAERO Slicer ======//
-    m_SlicerThread.ForkCmd( veh->GetExePath(), veh->GetSLICERCmd(), args );
+    m_SlicerThread.ForkCmd( m_VSPAEROPath, GetSLICERCmd(), args );
 
     // ==== MonitorSolverProcess ==== //
     MonitorSolver( logFile );

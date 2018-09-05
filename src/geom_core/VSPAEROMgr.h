@@ -202,6 +202,18 @@ public:
     vector < int > GetSelectedGroupedItems()                { return m_SelectedGroupedCS; }
     vector < int > GetSelectedUngroupedItems()              { return m_SelectedUngroupedCS; }
 
+    // VSP Aero Set\Get path to exe functions
+    string m_VSPAEROPath;
+    string m_VSPAEROCmd;
+    string m_VIEWERCmd;
+    string m_SLICERCmd;
+    bool SetVSPAEROPath( string path );
+    string GetVSPAEROPath() { return m_VSPAEROPath; }
+    bool CheckForVSPAERO( string path );
+    string GetVSPAEROCmd() { return m_VSPAEROCmd; }
+    string GetVIEWERCmd() { return m_VIEWERCmd; }
+    string GetSLICERCmd() { return m_SLICERCmd; }
+
     // VSP Aero Functionality and Variables
     string ComputeGeometry();
     string CreateSetupFile();                          // natively creates a *.vspaero template setup file

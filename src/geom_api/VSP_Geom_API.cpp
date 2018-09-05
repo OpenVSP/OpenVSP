@@ -726,6 +726,19 @@ string SetVSPAERORefWingID( const string & geom_id )
     return VSPAEROMgr.m_RefGeomID;
 }
 
+bool SetVSPAEROPath( string path )
+{
+    return VSPAEROMgr.SetVSPAEROPath( path );
+}
+string GetVSPAEROPath()
+{
+    return VSPAEROMgr.GetVSPAEROPath();
+}
+bool CheckForVSPAERO( string path )
+{
+    return VSPAEROMgr.CheckForVSPAERO( path );
+}
+
 void AutoGroupVSPAEROControlSurfaces()
 {
     VSPAEROMgr.Update();
@@ -773,7 +786,7 @@ string ExecAnalysis( const string & analysis )
         string ret;
         return ret;
     }
-
+    printf( "Executing from: string ExecAnalysis( const string & analysis )" );
     return AnalysisMgr.ExecAnalysis( analysis );
 }
 

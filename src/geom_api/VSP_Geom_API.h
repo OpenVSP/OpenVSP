@@ -319,6 +319,9 @@ extern void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, c
 extern void PCurveSplit( const std::string & geom_id, const int & pcurveid, const double & tsplit );
 
 //======================== VSPAERO Functions ======================//
+extern bool SetVSPAEROPath( string path );
+extern std::string GetVSPAEROPath();
+extern bool CheckForVSPAERO( string path ); 
 extern void AutoGroupVSPAEROControlSurfaces();
 extern int GetNumControlSurfaceGroups();
 

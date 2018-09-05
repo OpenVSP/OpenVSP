@@ -157,7 +157,6 @@ Vehicle::Vehicle()
     // Initialize the group transformations object
     m_GroupTransformations.Init( this );
 
-    SetupPaths();
     m_VehProjectVec3d.resize( 3 );
     m_ColorCount = 0;
 }
@@ -176,6 +175,8 @@ Vehicle::~Vehicle()
 //=== Init ====//
 void Vehicle::Init()
 {
+    SetupPaths();
+
     //==== Init Custom Geom and Script Mgr ====//
     CustomGeomMgr.Init();
     ScriptMgr.Init();
@@ -349,6 +350,8 @@ void Vehicle::Wype()
 
     m_ExportFileNames.clear();
 
+    m_CustomScriptDirs.clear();
+
     // Clear out various managers...
     LinkMgr.Renew();
     AdvLinkMgr.Renew();
@@ -376,28 +379,7 @@ void Vehicle::SetupPaths()
     m_ExePath = PathToExe();
     m_HomePath = PathToHome();
 
-#ifdef WIN32
-    m_VSPAEROCmd = string( "vspaero.exe" );
-    m_VIEWERCmd = string( "vspviewer.exe" );
-    m_SLICERCmd = string( "vspslicer.exe" );
-#else
-    m_VSPAEROCmd = string( "vspaero" );
-    m_VIEWERCmd = string( "vspviewer" );
-    m_SLICERCmd = string( "vspslicer" );
-#endif
-
-    if( !CheckForFile( m_ExePath, m_VSPAEROCmd ) )
-    {
-        printf("VSPAERO solver not found.\n");
-    }
-    if( !CheckForFile( m_ExePath, m_VIEWERCmd ) )
-    {
-        printf("VSPAERO viewer not found.\n");
-    }
-    if ( !CheckForFile( m_ExePath, m_SLICERCmd ) )
-    {
-        printf( "VSPAERO slicer not found.\n" );
-    }
+    VSPAEROMgr.SetVSPAEROPath( m_ExePath );
 
     m_CustomScriptDirs.push_back( string( "./CustomScripts/" ) );
     m_CustomScriptDirs.push_back( m_HomePath + string( "/CustomScripts/" ) );
