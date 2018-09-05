@@ -725,6 +725,56 @@ void PropGeom::UpdateSurf()
     m_FoldAxDirection = fold.xform( vec3d( 0, 0, 1 ) );
     m_FoldAxOrigin = vec3d( m_AxialFoldAxis() * radius, m_RadFoldAxis() * radius, m_OffsetFoldAxis() * radius );
 
+    // Find the union of stations required to approximate the blade parameters
+    // with cubic functions.
+    vector < double > tmap = rvec;  // Initialize with specified XSecs.
+    vector < double > tdisc;
+    tdisc.push_back( rfirst );
+    tdisc.push_back( rlast );
+    for ( int i = 0; i < m_pcurve_vec.size(); i++ )
+    {
+        vector < double > tm;
+        vector < double > tmout;
+        vector < double > td;
+        m_pcurve_vec[i]->GetTMap( tm, td );
+
+        std::set_union( tmap.begin(), tmap.end(), tm.begin(), tm.end(), std::back_inserter(tmout), &aboutcomp );
+        std::swap( tmout, tmap );
+    }
+
+    // Not sure why above set_union leaves duplicate entries, but
+    // sort and force unique just to be sure.
+    std::sort( tmap.begin(), tmap.end() );
+    auto tmit = std::unique( tmap.begin(), tmap.end(), &abouteq );
+    tmap.erase( tmit, tmap.end() );
+
+    // Treat all control points as possible discontinuities.
+    tdisc = tmap;
+
+    // Refine by adding two intermediate points to each cubic section
+    // this is needed because the adaptive algorithm above uses derivatives
+    // while our later reconstruction does not.
+    vector < double > tref( ( tmap.size() - 1 ) * 3 + 1 );
+    for ( int i = 0; i < tmap.size() - 1; i++ )
+    {
+        int iref = 3*i;
+        double t = tmap[i];
+        double tnxt = tmap[i+1];
+        double dt = (tnxt-t)/3.0;
+
+        tref[iref] = t;
+        tref[iref+1] = t + dt;
+        tref[iref+2] = t + 2 * dt;
+    }
+    tref.back() = tmap.back();
+    std::swap( tmap, tref );
+
+    // Convert tdisc to final parameterization.
+    for ( int i = 0; i < tdisc.size(); i++ )
+    {
+        tdisc[i] = ( tdisc[i] - rfirst ) / ( rlast - rfirst );
+    }
+
     //==== Cross Section Curves & joint info ====//
     vector< VspCurve > crv_vec;
     crv_vec.resize( nxsec );
@@ -831,56 +881,6 @@ void PropGeom::UpdateSurf()
     // transformed to their final position before skinning.
     m_FoilSurf = VspSurf();
     m_FoilSurf.SkinC0( crv_vec, false );
-
-    // Find the union of stations required to approximate the blade parameters
-    // with cubic functions.
-    vector < double > tmap = rvec;  // Initialize with specified XSecs.
-    vector < double > tdisc;
-    tdisc.push_back( rfirst );
-    tdisc.push_back( rlast );
-    for ( int i = 0; i < m_pcurve_vec.size(); i++ )
-    {
-        vector < double > tm;
-        vector < double > tmout;
-        vector < double > td;
-        m_pcurve_vec[i]->GetTMap( tm, td );
-
-        std::set_union( tmap.begin(), tmap.end(), tm.begin(), tm.end(), std::back_inserter(tmout), &aboutcomp );
-        std::swap( tmout, tmap );
-    }
-
-    // Not sure why above set_union leaves duplicate entries, but
-    // sort and force unique just to be sure.
-    std::sort( tmap.begin(), tmap.end() );
-    auto tmit = std::unique( tmap.begin(), tmap.end(), &abouteq );
-    tmap.erase( tmit, tmap.end() );
-
-    // Treat all control points as possible discontinuities.
-    tdisc = tmap;
-
-    // Refine by adding two intermediate points to each cubic section
-    // this is needed because the adaptive algorithm above uses derivatives
-    // while our later reconstruction does not.
-    vector < double > tref( ( tmap.size() - 1 ) * 3 + 1 );
-    for ( int i = 0; i < tmap.size() - 1; i++ )
-    {
-        int iref = 3*i;
-        double t = tmap[i];
-        double tnxt = tmap[i+1];
-        double dt = (tnxt-t)/3.0;
-
-        tref[iref] = t;
-        tref[iref+1] = t + dt;
-        tref[iref+2] = t + 2 * dt;
-    }
-    tref.back() = tmap.back();
-    std::swap( tmap, tref );
-
-    // Convert tdisc to final parameterization.
-    for ( int i = 0; i < tdisc.size(); i++ )
-    {
-        tdisc[i] = ( tdisc[i] - rfirst ) / ( rlast - rfirst );
-    }
 
     // Pseudo cross sections
     // Not directly user-controlled, but an intermediate step in lofting the
