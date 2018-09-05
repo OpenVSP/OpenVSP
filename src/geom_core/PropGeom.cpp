@@ -815,12 +815,62 @@ void PropGeom::UpdateSurf()
         tdisc[i] = ( tdisc[i] - rfirst ) / ( rlast - rfirst );
     }
 
+
+    // Find blade root chord and twist, for later calculations.
+    double croot = 0.0;
+    double twroot = 0.0;
+
+    PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( 0 );
+
+    if ( xs )
+    {
+        double r = xs->m_RadiusFrac();
+        double w = m_ChordCurve.Comp( r ) * radius;
+
+        croot = w;
+        twroot = m_TwistCurve.Comp( r );
+    }
+
+    //==== Update XSec Prop Positioner for highlight curves ====//
+    for ( int i = 0 ; i < nxsec ; i++ )
+    {
+        PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( i );
+
+        if ( xs )
+        {
+            double r = xs->m_RadiusFrac();
+            double w = m_ChordCurve.Comp( r ) * radius;
+
+            // Set up prop positioner for highlight curves - not lofting.
+            xs->m_PropPos.m_ParentProp = GetXSecSurf( 0 );
+            xs->m_PropPos.m_Radius = r * radius;
+            xs->m_PropPos.m_Chord = w;
+
+            xs->m_PropPos.m_Construct = m_Construct();
+            xs->m_PropPos.m_RootChord = croot;
+            xs->m_PropPos.m_RootTwist = twroot;
+
+            xs->m_PropPos.m_Twist = m_TwistCurve.Comp( r );
+            xs->m_PropPos.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
+
+            xs->m_PropPos.m_Rake = m_RakeCurve.Comp( r ) * radius;
+            xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
+            xs->m_PropPos.m_Sweep = m_SweepCurve.Comp( r );
+            xs->m_PropPos.m_PropRot = m_Rotate();
+            xs->m_PropPos.m_Feather = m_Feather();
+
+            xs->m_PropPos.m_FoldOrigin = m_FoldAxOrigin;
+            xs->m_PropPos.m_FoldDirection = m_FoldAxDirection;
+            xs->m_PropPos.m_FoldAngle = m_FoldAngle();
+
+            xs->m_PropPos.m_Reverse = rev;
+        }
+    }
+
+
     //==== Cross Section Curves & joint info ====//
     vector< VspCurve > crv_vec;
     crv_vec.resize( nxsec );
-
-    double croot = 0.0;
-    double twroot = 0.0;
 
     //==== Update XSec Location/Rotation ====//
     for ( int i = 0 ; i < nxsec ; i++ )
@@ -833,12 +883,6 @@ void PropGeom::UpdateSurf()
 
             double r = xs->m_RadiusFrac();
             double w = m_ChordCurve.Comp( r ) * radius;
-
-            if ( i == 0 )
-            {
-                croot = w;
-                twroot = m_TwistCurve.Comp( r );
-            }
 
             if ( xsc )
             {
@@ -885,30 +929,6 @@ void PropGeom::UpdateSurf()
                 {
                     pwc = xs->GetCurve().GetCurve();
                 }
-
-                // Set up prop positioner for highlight curves - not lofting.
-                xs->m_PropPos.m_ParentProp = GetXSecSurf( 0 );
-                xs->m_PropPos.m_Radius = r * radius;
-                xs->m_PropPos.m_Chord = w;
-
-                xs->m_PropPos.m_Construct = m_Construct();
-                xs->m_PropPos.m_RootChord = croot;
-                xs->m_PropPos.m_RootTwist = twroot;
-
-                xs->m_PropPos.m_Twist = m_TwistCurve.Comp( r );
-                xs->m_PropPos.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
-
-                xs->m_PropPos.m_Rake = m_RakeCurve.Comp( r ) * radius;
-                xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
-                xs->m_PropPos.m_Sweep = m_SweepCurve.Comp( r );
-                xs->m_PropPos.m_PropRot = m_Rotate();
-                xs->m_PropPos.m_Feather = m_Feather();
-
-                xs->m_PropPos.m_FoldOrigin = m_FoldAxOrigin;
-                xs->m_PropPos.m_FoldDirection = m_FoldAxDirection;
-                xs->m_PropPos.m_FoldAngle = m_FoldAngle();
-
-                xs->m_PropPos.m_Reverse = rev;
 
                 crv_vec[i].SetCurve( pwc );
             }
