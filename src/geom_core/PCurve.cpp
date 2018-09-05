@@ -760,10 +760,20 @@ double PCurve::IntegrateAF( double r0 )
 
 void PCurve::BinCubicTMap( vector < double > &tmap, vector < double > &tdisc )
 {
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
     m_Curve.BinCubicTMap( tmap, tdisc );
 }
 
 void PCurve::GetTMap( vector < double > &tmap, vector < double > &tdisc )
 {
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
     m_Curve.GetTMap( tmap, tdisc );
 }
