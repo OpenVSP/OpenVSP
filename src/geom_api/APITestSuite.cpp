@@ -36,11 +36,23 @@ void APITestSuite::CreateGeometry()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     printf( "\t[geom_id]\t[geom_name]\n" );
+    string geom_id;
+    int n_extra_geoms = 0;
     for ( unsigned int i_geom_type = 0; i_geom_type < types.size(); i_geom_type++ )
     {
         //==== Create geometry =====//
-        string geom_id = vsp::AddGeom( types[i_geom_type] );
         printf( "\t%s", geom_id.c_str() );
+        if ( types[i_geom_type] != "CONFORMAL" )
+        {
+            geom_id = vsp::AddGeom( types[i_geom_type] );
+        }
+        else if ( types[i_geom_type] == "CONFORMAL")
+        {
+            string pod_id;
+            pod_id = vsp::AddGeom( "POD" );    // add POD as parent
+            geom_id = vsp::AddGeom( types[i_geom_type], pod_id );
+            n_extra_geoms = n_extra_geoms + 1;
+        }
         TEST_ASSERT( geom_id.c_str() != NULL );
         TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
