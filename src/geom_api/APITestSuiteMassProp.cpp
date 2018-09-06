@@ -17,6 +17,16 @@
 //Default tolerance to use for tests.  Most calculations are done as doubles and choosing single precision FLT_MIN gives some allowance for precision stackup in calculations
 #define TEST_TOL FLT_MIN
 
+#ifdef VERBOSE_TEST
+#define TEST_PRINTF printf
+#define TEST_PRINT_ANALYSIS_INPUTS vsp::PrintAnalysisInputs
+#define TEST_PRINT_RESULTS vsp::PrintResults
+#else
+#define TEST_PRINTF //printf
+#define TEST_PRINT_ANALYSIS_INPUTS //vsp::PrintAnalysisInputs
+#define TEST_PRINT_RESULTS //vsp::PrintResults
+#endif
+
 double APITestSuiteMassProp::GetTol( double val )
 {
     double TOL;
@@ -67,13 +77,13 @@ double APITestSuiteMassProp::GetInertiaTol( double val, double mass )
 
 void APITestSuiteMassProp::TestSolidCylinder()
 {
-    printf( "APITestSuiteMassProp::TestSolidCylinder()\n" );
+    TEST_PRINTF( "APITestSuiteMassProp::TestSolidCylinder()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "--> Generating Solid Cylinder Geometry\n" );
+    TEST_PRINTF( "--> Generating Solid Cylinder Geometry\n" );
 
     //==== Add Fuselage Geom and Set Parameters =====//
     string fus_id = vsp::AddGeom( "FUSELAGE" );
@@ -161,12 +171,12 @@ void APITestSuiteMassProp::TestSolidCylinder()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "   Cylinder Radius: %d \n", 2 );
-    printf( "   Cylinder length: %f \n", length );
-    printf( "   Cylinder Density: %f \n", rho );
+    TEST_PRINTF( "   Cylinder Radius: %d \n", 2 );
+    TEST_PRINTF( "   Cylinder length: %f \n", length );
+    TEST_PRINTF( "   Cylinder Density: %f \n", rho );
 
     //==== Save Vehicle to File ====//
-    printf( "-->Saving VSP model\n" );
+    TEST_PRINTF( "-->Saving VSP model\n" );
     string fname = "APITestSolidCylinder.vsp3";
     vsp::WriteVSPFile( fname, vsp::SET_ALL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -175,19 +185,19 @@ void APITestSuiteMassProp::TestSolidCylinder()
     vsp::SetAnalysisInputDefaults( "MassProp" );
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs( "MassProp" );
+    TEST_PRINT_ANALYSIS_INPUTS( "MassProp" );
 
     //==== Execute Mass Properties Analysis ====//
-    printf( "-->Executing Mass Properties Analysis\n" );
+    TEST_PRINTF( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf( "COMPLETE\n" );
+    TEST_PRINTF( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults( results_id );
+    TEST_PRINT_RESULTS( results_id );
 
     // Compare to Analytical Solution:
     vector<vec3d> resCG = vsp::GetVec3dResults( results_id, "Total_CG", 0 );
@@ -224,31 +234,31 @@ void APITestSuiteMassProp::TestSolidCylinder()
     TEST_ASSERT_DELTA( resMass[0], mass, MASS_TOL );
     TEST_ASSERT_DELTA( resVolume[0], volume, VOLUME_TOL );
 
-    printf( "-->Analytical Mass Properties:\n" );
-    printf( "   Cylinder_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
-    printf( "   Cylinder_Ixx: %7.3f \n", I_xx );
-    printf( "   Cylinder_Ixy: %7.3f \n", I_xy );
-    printf( "   Cylinder_Ixz: %7.3f \n", I_xz );
-    printf( "   Cylinder_Iyy: %7.3f \n", I_yy );
-    printf( "   Cylinder_Iyz: %7.3f \n", I_yz );
-    printf( "   Cylinder_Izz: %7.3f \n", I_zz );
-    printf( "   Cylinder Mass: %7.3f \n", mass );
-    printf( "   Cylinder Volume: %7.3f \n", volume );
+    TEST_PRINTF( "-->Analytical Mass Properties:\n" );
+    TEST_PRINTF( "   Cylinder_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
+    TEST_PRINTF( "   Cylinder_Ixx: %7.3f \n", I_xx );
+    TEST_PRINTF( "   Cylinder_Ixy: %7.3f \n", I_xy );
+    TEST_PRINTF( "   Cylinder_Ixz: %7.3f \n", I_xz );
+    TEST_PRINTF( "   Cylinder_Iyy: %7.3f \n", I_yy );
+    TEST_PRINTF( "   Cylinder_Iyz: %7.3f \n", I_yz );
+    TEST_PRINTF( "   Cylinder_Izz: %7.3f \n", I_zz );
+    TEST_PRINTF( "   Cylinder Mass: %7.3f \n", mass );
+    TEST_PRINTF( "   Cylinder Volume: %7.3f \n", volume );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf( "\n" );
+    TEST_PRINTF( "\n" );
 }
 
 void APITestSuiteMassProp::TestThickWallCylinder()
 {
-    printf( "APITestSuiteMassProp::TestThickWallCylinder()\n" );
+    TEST_PRINTF( "APITestSuiteMassProp::TestThickWallCylinder()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "--> Generating Thick Wall Cylinder Geometry\n" );
+    TEST_PRINTF( "--> Generating Thick Wall Cylinder Geometry\n" );
 
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = vsp::AddGeom( "STACK" );
@@ -354,13 +364,13 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "   Cylinder Outer Radius: %f \n", R_out );
-    printf( "   Cylinder Inner Radius: %f \n", r_in );
-    printf( "   Cylinder Length: %f \n", length );
-    printf( "   Cylinder Density: %f \n", rho );
+    TEST_PRINTF( "   Cylinder Outer Radius: %f \n", R_out );
+    TEST_PRINTF( "   Cylinder Inner Radius: %f \n", r_in );
+    TEST_PRINTF( "   Cylinder Length: %f \n", length );
+    TEST_PRINTF( "   Cylinder Density: %f \n", rho );
 
     //==== Save Vehicle to File ====//
-    printf( "-->Saving VSP model\n" );
+    TEST_PRINTF( "-->Saving VSP model\n" );
     string fname = "APITestThickWallCylinder.vsp3";
     vsp::WriteVSPFile( fname, vsp::SET_ALL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -369,19 +379,19 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     vsp::SetAnalysisInputDefaults( "MassProp" );
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs( "MassProp" );
+    TEST_PRINT_ANALYSIS_INPUTS( "MassProp" );
 
     //==== Execute Mass Properties Analysis ====//
-    printf( "-->Executing Mass Properties Analysis\n" );
+    TEST_PRINTF( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf( "COMPLETE\n" );
+    TEST_PRINTF( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults( results_id );
+    TEST_PRINT_RESULTS( results_id );
 
     // Compare to Analytical Solution:
     vector<vec3d> resCG = vsp::GetVec3dResults( results_id, "Total_CG", 0 );
@@ -418,31 +428,31 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     TEST_ASSERT_DELTA( resMass[0], mass, MASS_TOL );
     TEST_ASSERT_DELTA( resVolume[0], volume, VOLUME_TOL );
 
-    printf( "-->Analytical Mass Properties:\n" );
-    printf( "   Cylinder_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
-    printf( "   Cylinder_Ixx: %7.3f \n", I_xx );
-    printf( "   Cylinder_Ixy: %7.3f \n", I_xy );
-    printf( "   Cylinder_Ixz: %7.3f \n", I_xz );
-    printf( "   Cylinder_Iyy: %7.3f \n", I_yy );
-    printf( "   Cylinder_Iyz: %7.3f \n", I_yz );
-    printf( "   Cylinder_Izz: %7.3f \n", I_zz );
-    printf( "   Cylinder Mass: %7.3f \n", mass );
-    printf( "   Cylinder Volume: %7.3f \n", volume );
+    TEST_PRINTF( "-->Analytical Mass Properties:\n" );
+    TEST_PRINTF( "   Cylinder_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
+    TEST_PRINTF( "   Cylinder_Ixx: %7.3f \n", I_xx );
+    TEST_PRINTF( "   Cylinder_Ixy: %7.3f \n", I_xy );
+    TEST_PRINTF( "   Cylinder_Ixz: %7.3f \n", I_xz );
+    TEST_PRINTF( "   Cylinder_Iyy: %7.3f \n", I_yy );
+    TEST_PRINTF( "   Cylinder_Iyz: %7.3f \n", I_yz );
+    TEST_PRINTF( "   Cylinder_Izz: %7.3f \n", I_zz );
+    TEST_PRINTF( "   Cylinder Mass: %7.3f \n", mass );
+    TEST_PRINTF( "   Cylinder Volume: %7.3f \n", volume );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf( "\n" );
+    TEST_PRINTF( "\n" );
 }
 
 void APITestSuiteMassProp::TestCylindricalShell()
 {
-    printf( "APITestSuiteMassProp::TestCylindricalShell()\n" );
+    TEST_PRINTF( "APITestSuiteMassProp::TestCylindricalShell()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "--> Generating Cylindrical Shell Geometry\n" );
+    TEST_PRINTF( "--> Generating Cylindrical Shell Geometry\n" );
 
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = vsp::AddGeom( "STACK" );
@@ -548,13 +558,13 @@ void APITestSuiteMassProp::TestCylindricalShell()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "   Cylinder Radius: %d \n", 2 );
-    printf( "   Cylinder Length: %f \n", length );
-    printf( "   Cylinder Density: %7.3f \n", rho );
-    printf( "   Cylinder Area Density: %7.3f \n", rho_A );
+    TEST_PRINTF( "   Cylinder Radius: %d \n", 2 );
+    TEST_PRINTF( "   Cylinder Length: %f \n", length );
+    TEST_PRINTF( "   Cylinder Density: %7.3f \n", rho );
+    TEST_PRINTF( "   Cylinder Area Density: %7.3f \n", rho_A );
 
     //==== Save Vehicle to File ====//
-    printf( "-->Saving VSP model\n" );
+    TEST_PRINTF( "-->Saving VSP model\n" );
     string fname = "APITestCylindricalShell.vsp3";
     vsp::WriteVSPFile( fname, vsp::SET_ALL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -563,19 +573,19 @@ void APITestSuiteMassProp::TestCylindricalShell()
     vsp::SetAnalysisInputDefaults( "MassProp" );
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs( "MassProp" );
+    TEST_PRINT_ANALYSIS_INPUTS( "MassProp" );
 
     //==== Execute Mass Properties Analysis ====//
-    printf( "-->Executing Mass Properties Analysis\n" );
+    TEST_PRINTF( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf( "COMPLETE\n" );
+    TEST_PRINTF( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults( results_id );
+    TEST_PRINT_RESULTS( results_id );
 
     // Compare to Analytical Solution:
     vector<vec3d> resCG = vsp::GetVec3dResults( results_id, "Total_CG", 0 );
@@ -610,31 +620,31 @@ void APITestSuiteMassProp::TestCylindricalShell()
     TEST_ASSERT_DELTA( resIzz[0], I_zz, IZZ_TOL );
     TEST_ASSERT_DELTA( resMass[0], mass, MASS_TOL );
 
-    printf( "-->Analytical Mass Properties:\n" );
-    printf( "   Cylinder_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
-    printf( "   Cylinder_Ixx: %7.3f \n", I_xx );
-    printf( "   Cylinder_Ixy: %7.3f \n", I_xy );
-    printf( "   Cylinder_Ixz: %7.3f \n", I_xz );
-    printf( "   Cylinder_Iyy: %7.3f \n", I_yy );
-    printf( "   Cylinder_Iyz: %7.3f \n", I_yz );
-    printf( "   Cylinder_Izz: %7.3f \n", I_zz );
-    printf( "   Cylinder Mass: %7.3f \n", mass );
-    printf( "   Cylinder Surface Area: %7.3f \n", shellSA );
+    TEST_PRINTF( "-->Analytical Mass Properties:\n" );
+    TEST_PRINTF( "   Cylinder_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
+    TEST_PRINTF( "   Cylinder_Ixx: %7.3f \n", I_xx );
+    TEST_PRINTF( "   Cylinder_Ixy: %7.3f \n", I_xy );
+    TEST_PRINTF( "   Cylinder_Ixz: %7.3f \n", I_xz );
+    TEST_PRINTF( "   Cylinder_Iyy: %7.3f \n", I_yy );
+    TEST_PRINTF( "   Cylinder_Iyz: %7.3f \n", I_yz );
+    TEST_PRINTF( "   Cylinder_Izz: %7.3f \n", I_zz );
+    TEST_PRINTF( "   Cylinder Mass: %7.3f \n", mass );
+    TEST_PRINTF( "   Cylinder Surface Area: %7.3f \n", shellSA );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf( "\n" );
+    TEST_PRINTF( "\n" );
 }
 
 void APITestSuiteMassProp::TestSphere()
 {
-    printf( "APITestSuiteMassProp::TestSphere()\n" );
+    TEST_PRINTF( "APITestSuiteMassProp::TestSphere()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "--> Generating Sphere Geometry\n" );
+    TEST_PRINTF( "--> Generating Sphere Geometry\n" );
 
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = vsp::AddGeom( "STACK" );
@@ -727,11 +737,11 @@ void APITestSuiteMassProp::TestSphere()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "   Sphere Radius: %d \n", 2 );
-    printf( "   Sphere Density: %d \n", 5 );
+    TEST_PRINTF( "   Sphere Radius: %d \n", 2 );
+    TEST_PRINTF( "   Sphere Density: %d \n", 5 );
 
     //==== Save Vehicle to File ====//
-    printf( "-->Saving VSP model\n" );
+    TEST_PRINTF( "-->Saving VSP model\n" );
     string fname = "APITestSphere.vsp3";
     vsp::WriteVSPFile( fname, vsp::SET_ALL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -740,19 +750,19 @@ void APITestSuiteMassProp::TestSphere()
     vsp::SetAnalysisInputDefaults( "MassProp" );
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs( "MassProp" );
+    TEST_PRINT_ANALYSIS_INPUTS( "MassProp" );
 
     //==== Execute Mass Properties Analysis ====//
-    printf( "-->Executing Mass Properties Analysis\n" );
+    TEST_PRINTF( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf( "COMPLETE\n" );
+    TEST_PRINTF( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults( results_id );
+    TEST_PRINT_RESULTS( results_id );
 
     // Compare to Analytical Solution:
     vector<vec3d> resCG = vsp::GetVec3dResults( results_id, "Total_CG", 0 );
@@ -789,31 +799,31 @@ void APITestSuiteMassProp::TestSphere()
     TEST_ASSERT_DELTA( resMass[0], mass, MASS_TOL );
     TEST_ASSERT_DELTA( resVolume[0], volume, VOLUME_TOL );
 
-    printf( "-->Analytical Mass Properties:\n" );
-    printf( "   Sphere_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
-    printf( "   Sphere_Ixx: %7.3f \n", I_xx );
-    printf( "   Sphere_Ixy: %7.3f \n", I_xy );
-    printf( "   Sphere_Ixz: %7.3f \n", I_xz );
-    printf( "   Sphere_Iyy: %7.3f \n", I_yy );
-    printf( "   Sphere_Iyz: %7.3f \n", I_yz );
-    printf( "   Sphere_Izz: %7.3f \n", I_zz );
-    printf( "   Sphere Mass: %7.3f \n", mass );
-    printf( "   Sphere Volume: %7.3f \n", volume );
+    TEST_PRINTF( "-->Analytical Mass Properties:\n" );
+    TEST_PRINTF( "   Sphere_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
+    TEST_PRINTF( "   Sphere_Ixx: %7.3f \n", I_xx );
+    TEST_PRINTF( "   Sphere_Ixy: %7.3f \n", I_xy );
+    TEST_PRINTF( "   Sphere_Ixz: %7.3f \n", I_xz );
+    TEST_PRINTF( "   Sphere_Iyy: %7.3f \n", I_yy );
+    TEST_PRINTF( "   Sphere_Iyz: %7.3f \n", I_yz );
+    TEST_PRINTF( "   Sphere_Izz: %7.3f \n", I_zz );
+    TEST_PRINTF( "   Sphere Mass: %7.3f \n", mass );
+    TEST_PRINTF( "   Sphere Volume: %7.3f \n", volume );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf( "\n" );
+    TEST_PRINTF( "\n" );
 }
 
 void APITestSuiteMassProp::TestSolidCone()
 {
-    printf( "APITestSuiteMassProp::TestSolidCone()\n" );
+    TEST_PRINTF( "APITestSuiteMassProp::TestSolidCone()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "--> Generating Cone Geometry\n" );
+    TEST_PRINTF( "--> Generating Cone Geometry\n" );
 
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = vsp::AddGeom( "STACK" );
@@ -896,12 +906,12 @@ void APITestSuiteMassProp::TestSolidCone()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "   Cone Radius: %d \n", 2 );
-    printf( "   Cone Length: %f \n", length );
-    printf( "   Cone Density: %d \n", 5 );
+    TEST_PRINTF( "   Cone Radius: %d \n", 2 );
+    TEST_PRINTF( "   Cone Length: %f \n", length );
+    TEST_PRINTF( "   Cone Density: %d \n", 5 );
 
     //==== Save Vehicle to File ====//
-    printf( "-->Saving VSP model\n" );
+    TEST_PRINTF( "-->Saving VSP model\n" );
     string fname = "APITestSolidCone.vsp3";
     vsp::WriteVSPFile( fname, vsp::SET_ALL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -910,19 +920,19 @@ void APITestSuiteMassProp::TestSolidCone()
     vsp::SetAnalysisInputDefaults( "MassProp" );
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs( "MassProp" );
+    TEST_PRINT_ANALYSIS_INPUTS( "MassProp" );
 
     //==== Execute Mass Properties Analysis ====//
-    printf( "-->Executing Mass Properties Analysis\n" );
+    TEST_PRINTF( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf( "COMPLETE\n" );
+    TEST_PRINTF( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults( results_id );
+    TEST_PRINT_RESULTS( results_id );
 
     // Compare to Analytical Solution:
     vector<vec3d> resCG = vsp::GetVec3dResults( results_id, "Total_CG", 0 );
@@ -959,31 +969,31 @@ void APITestSuiteMassProp::TestSolidCone()
     TEST_ASSERT_DELTA( resMass[0], mass, MASS_TOL );
     TEST_ASSERT_DELTA( resVolume[0], volume, VOLUME_TOL );
 
-    printf( "-->Analytical Mass Properties:\n" );
-    printf( "   Cone_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
-    printf( "   Cone_Ixx: %7.3f \n", I_xx );
-    printf( "   Cone_Ixy: %7.3f \n", I_xy );
-    printf( "   Cone_Ixz: %7.3f \n", I_xz );
-    printf( "   Cone_Iyy: %7.3f \n", I_yy );
-    printf( "   Cone_Iyz: %7.3f \n", I_yz );
-    printf( "   Cone_Izz: %7.3f \n", I_zz );
-    printf( "   Cone Mass: %7.3f \n", mass );
-    printf( "   Cone Volume: %7.3f \n", volume );
+    TEST_PRINTF( "-->Analytical Mass Properties:\n" );
+    TEST_PRINTF( "   Cone_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
+    TEST_PRINTF( "   Cone_Ixx: %7.3f \n", I_xx );
+    TEST_PRINTF( "   Cone_Ixy: %7.3f \n", I_xy );
+    TEST_PRINTF( "   Cone_Ixz: %7.3f \n", I_xz );
+    TEST_PRINTF( "   Cone_Iyy: %7.3f \n", I_yy );
+    TEST_PRINTF( "   Cone_Iyz: %7.3f \n", I_yz );
+    TEST_PRINTF( "   Cone_Izz: %7.3f \n", I_zz );
+    TEST_PRINTF( "   Cone Mass: %7.3f \n", mass );
+    TEST_PRINTF( "   Cone Volume: %7.3f \n", volume );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf( "\n" );
+    TEST_PRINTF( "\n" );
 }
 
 void APITestSuiteMassProp::TestShellCone()
 {
-    printf( "APITestSuiteMassProp::TestShellCone()\n" );
+    TEST_PRINTF( "APITestSuiteMassProp::TestShellCone()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "--> Generating Shell Cone Geometry\n" );
+    TEST_PRINTF( "--> Generating Shell Cone Geometry\n" );
 
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = vsp::AddGeom( "STACK" );
@@ -1082,13 +1092,13 @@ void APITestSuiteMassProp::TestShellCone()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "   Cone Radius: %d \n", 2 );
-    printf( "   Cone Length: %f \n", length );
-    printf( "   Cone Density: %7.3f \n", rho );
-    printf( "   Cone Area Density: %7.3f \n", rho_A );
+    TEST_PRINTF( "   Cone Radius: %d \n", 2 );
+    TEST_PRINTF( "   Cone Length: %f \n", length );
+    TEST_PRINTF( "   Cone Density: %7.3f \n", rho );
+    TEST_PRINTF( "   Cone Area Density: %7.3f \n", rho_A );
 
     //==== Save Vehicle to File ====//
-    printf( "-->Saving VSP model\n" );
+    TEST_PRINTF( "-->Saving VSP model\n" );
     string fname = "APITestShellCone.vsp3";
     vsp::WriteVSPFile( fname, vsp::SET_ALL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -1097,19 +1107,19 @@ void APITestSuiteMassProp::TestShellCone()
     vsp::SetAnalysisInputDefaults( "MassProp" );
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs( "MassProp" );
+    TEST_PRINT_ANALYSIS_INPUTS( "MassProp" );
 
     //==== Execute Mass Properties Analysis ====//
-    printf( "-->Executing Mass Properties Analysis\n" );
+    TEST_PRINTF( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf( "COMPLETE\n" );
+    TEST_PRINTF( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults( results_id );
+    TEST_PRINT_RESULTS( results_id );
 
     // Compare to Analytical Solution:
     vector<vec3d> resCG = vsp::GetVec3dResults( results_id, "Total_CG", 0 );
@@ -1144,31 +1154,31 @@ void APITestSuiteMassProp::TestShellCone()
     TEST_ASSERT_DELTA( resIzz[0], I_zz, IZZ_TOL );
     TEST_ASSERT_DELTA( resMass[0], mass, MASS_TOL );
 
-    printf( "-->Analytical Mass Properties:\n" );
-    printf( "   Cone_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
-    printf( "   Cone_Ixx: %7.3f \n", I_xx );
-    printf( "   Cone_Ixy: %7.3f \n", I_xy );
-    printf( "   Cone_Ixz: %7.3f \n", I_xz );
-    printf( "   Cone_Iyy: %7.3f \n", I_yy );
-    printf( "   Cone_Iyz: %7.3f \n", I_yz );
-    printf( "   Cone_Izz: %7.3f \n", I_zz );
-    printf( "   Cone Mass: %7.3f \n", mass );
-    printf( "   Cone Surface Area: %7.3f \n", SA );
+    TEST_PRINTF( "-->Analytical Mass Properties:\n" );
+    TEST_PRINTF( "   Cone_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
+    TEST_PRINTF( "   Cone_Ixx: %7.3f \n", I_xx );
+    TEST_PRINTF( "   Cone_Ixy: %7.3f \n", I_xy );
+    TEST_PRINTF( "   Cone_Ixz: %7.3f \n", I_xz );
+    TEST_PRINTF( "   Cone_Iyy: %7.3f \n", I_yy );
+    TEST_PRINTF( "   Cone_Iyz: %7.3f \n", I_yz );
+    TEST_PRINTF( "   Cone_Izz: %7.3f \n", I_zz );
+    TEST_PRINTF( "   Cone Mass: %7.3f \n", mass );
+    TEST_PRINTF( "   Cone Surface Area: %7.3f \n", SA );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf( "\n" );
+    TEST_PRINTF( "\n" );
 }
 
 void APITestSuiteMassProp::TestRectangularPrism()
 {
-    printf( "APITestSuiteMassProp::TestRectangularPrism()\n" );
+    TEST_PRINTF( "APITestSuiteMassProp::TestRectangularPrism()\n" );
     // make sure setup works
     vsp::VSPCheckSetup();
     vsp::VSPRenew();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "--> Generating Rectangular Prism Geometry\n" );
+    TEST_PRINTF( "--> Generating Rectangular Prism Geometry\n" );
 
     //==== Add Stack Geom and Set Parameters =====//
     string stack_id = vsp::AddGeom( "STACK" );
@@ -1279,13 +1289,13 @@ void APITestSuiteMassProp::TestRectangularPrism()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    printf( "   Rectangular Prism Width: %f \n", width );
-    printf( "   Rectangular Prism Height: %f \n", height );
-    printf( "   Rectangular Prism Length: %f \n", length );
-    printf( "   Rectangular Prism Density: %f \n", rho );
+    TEST_PRINTF( "   Rectangular Prism Width: %f \n", width );
+    TEST_PRINTF( "   Rectangular Prism Height: %f \n", height );
+    TEST_PRINTF( "   Rectangular Prism Length: %f \n", length );
+    TEST_PRINTF( "   Rectangular Prism Density: %f \n", rho );
 
     //==== Save Vehicle to File ====//
-    printf( "-->Saving VSP model\n" );
+    TEST_PRINTF( "-->Saving VSP model\n" );
     string fname = "APITestRectangularPrism.vsp3";
     vsp::WriteVSPFile( fname, vsp::SET_ALL );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
@@ -1294,19 +1304,19 @@ void APITestSuiteMassProp::TestRectangularPrism()
     vsp::SetAnalysisInputDefaults( "MassProp" );
 
     // list inputs, type, and current values
-    vsp::PrintAnalysisInputs( "MassProp" );
+    TEST_PRINT_ANALYSIS_INPUTS( "MassProp" );
 
     //==== Execute Mass Properties Analysis ====//
-    printf( "-->Executing Mass Properties Analysis\n" );
+    TEST_PRINTF( "-->Executing Mass Properties Analysis\n" );
     string results_id = vsp::ExecAnalysis( "MassProp" );
-    printf( "COMPLETE\n" );
+    TEST_PRINTF( "COMPLETE\n" );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     vsp::DeleteGeomVec( vsp::GetStringResults( results_id, "Mesh_GeomID" ) );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
     // Get & Display Results
-    vsp::PrintResults( results_id );
+    TEST_PRINT_RESULTS( results_id );
 
     // Compare to Analytical Solution:
     vector<vec3d> resCG = vsp::GetVec3dResults( results_id, "Total_CG", 0 );
@@ -1343,18 +1353,18 @@ void APITestSuiteMassProp::TestRectangularPrism()
     TEST_ASSERT_DELTA( resMass[0], mass, MASS_TOL );
     TEST_ASSERT_DELTA( resVolume[0], volume, VOLUME_TOL );
 
-    printf( "-->Analytical Mass Properties:\n" );
-    printf( "   RectangularPrism_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
-    printf( "   RectangularPrism_Ixx: %7.3f \n", I_xx );
-    printf( "   RectangularPrism_Ixy: %7.3f \n", I_xy );
-    printf( "   RectangularPrism_Ixz: %7.3f \n", I_xz );
-    printf( "   RectangularPrism_Iyy: %7.3f \n", I_yy );
-    printf( "   RectangularPrism_Iyz: %7.3f \n", I_yz );
-    printf( "   RectangularPrism_Izz: %7.3f \n", I_zz );
-    printf( "   Rectangular Prism Mass: %7.3f \n", mass );
-    printf( "   Rectangular Prism Volume: %7.3f \n", volume );
+    TEST_PRINTF( "-->Analytical Mass Properties:\n" );
+    TEST_PRINTF( "   RectangularPrism_CG: %7.3f %7.3f %7.3f \n", Cx, Cy, Cz );
+    TEST_PRINTF( "   RectangularPrism_Ixx: %7.3f \n", I_xx );
+    TEST_PRINTF( "   RectangularPrism_Ixy: %7.3f \n", I_xy );
+    TEST_PRINTF( "   RectangularPrism_Ixz: %7.3f \n", I_xz );
+    TEST_PRINTF( "   RectangularPrism_Iyy: %7.3f \n", I_yy );
+    TEST_PRINTF( "   RectangularPrism_Iyz: %7.3f \n", I_yz );
+    TEST_PRINTF( "   RectangularPrism_Izz: %7.3f \n", I_zz );
+    TEST_PRINTF( "   Rectangular Prism Mass: %7.3f \n", mass );
+    TEST_PRINTF( "   Rectangular Prism Volume: %7.3f \n", volume );
 
     // Final check for errors
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
-    printf( "\n" );
+    TEST_PRINTF( "\n" );
 }

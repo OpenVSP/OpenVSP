@@ -1257,6 +1257,10 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "Beta",              VSPAEROMgr.m_BetaStart.Get()         ) );
         m_Inputs.Add( NameValData( "Mach",              VSPAEROMgr.m_MachStart.Get()         ) );
 
+        //AnalysisMgr options
+        m_Inputs.Add( NameValData( "ExecutionVerbosity",    vsp::VSPAERO_ANALYSIS_VERBSITY::VERBOSE_TO_STDOUT ) ); 
+        m_Inputs.Add( NameValData( "ExecutionLogFile",      "vspaeroLogFile.log" ) );
+
     }
     else
     {
@@ -1326,28 +1330,28 @@ string VSPAEROSinglePointAnalysis::Execute()
         else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
         {
             VSPAEROMgr.Update(); // TODO: Check if Update() in VSPAEROMgr.CreateSetupFile() can allow this call to be removed
-            printf( "Wing Reference Parms: \n" );
+            //printf( "Wing Reference Parms: \n" );
 
             nvd = m_Inputs.FindPtr( "Sref", 0 );
             if ( nvd )
             {
                 VSPAEROMgr.m_Sref.Set( VSPAEROMgr.m_Sref.Get() );
             }
-            printf( " Sref: %7.3f \n", VSPAEROMgr.m_Sref.Get() );
+            //printf( " Sref: %7.3f \n", VSPAEROMgr.m_Sref.Get() );
             nvd = m_Inputs.FindPtr( "bref", 0 );
             if ( nvd )
             {
                 VSPAEROMgr.m_bref.Set( VSPAEROMgr.m_bref.Get() );
             }
-            printf( " bref: %7.3f \n", VSPAEROMgr.m_bref.Get() );
+            //printf( " bref: %7.3f \n", VSPAEROMgr.m_bref.Get() );
             nvd = m_Inputs.FindPtr( "cref", 0 );
             if ( nvd )
             {
                 VSPAEROMgr.m_cref.Set( VSPAEROMgr.m_cref.Get() );
             }
-            printf( " cref: %7.3f \n", VSPAEROMgr.m_cref.Get() );
+            //printf( " cref: %7.3f \n", VSPAEROMgr.m_cref.Get() );
 
-            printf( "\n" );
+            //printf( "\n" );
         }
 
         //    Mass properties
@@ -1408,7 +1412,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         }
         VSPAEROMgr.m_MachNpts.Set( 1 );                    // note: this is NOT an input
 
-        //Case Setup
+        // Case Setup
         int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
         int wakeAvgStartIterOrig     = VSPAEROMgr.m_WakeAvgStartIter.Get();
@@ -1489,9 +1493,39 @@ string VSPAEROSinglePointAnalysis::Execute()
             VSPAEROMgr.m_Write2DFEMFlag.Set( nvd->GetInt( 0 ) );
         }
 
-        //==== Execute Analysis ====//
-        resId = VSPAEROMgr.ComputeSolver(stdout);
+        // AnalysisMgr Execution Options
+        nvd = m_Inputs.FindPtr( "ExecutionVerbosity", 0 );
+        int executionVerbosity;
+        if ( nvd )
+        {
+            executionVerbosity = nvd->GetInt( 0 );
+        }
+        nvd = m_Inputs.FindPtr( "ExecutionLogFile", 0 );
+        string executionLogFile;
+        if ( nvd )
+        {
+            executionLogFile = nvd->GetString( 0 );
+        }
 
+        //==== Execute Analysis ====//
+        switch ( executionVerbosity )
+        {
+            case vsp::VSPAERO_ANALYSIS_VERBSITY::NO_OUTPUT:
+                resId = VSPAEROMgr.ComputeSolver( NULL );
+                break;
+            case vsp::VSPAERO_ANALYSIS_VERBSITY::VERBOSE_TO_FILE:
+            {
+                FILE * filePtr = fopen( executionLogFile.c_str(), "w" );
+                resId = VSPAEROMgr.ComputeSolver( filePtr );
+                fclose( filePtr );
+                break;
+            }
+            case vsp::VSPAERO_ANALYSIS_VERBSITY::VERBOSE_TO_STDOUT:
+                resId = VSPAEROMgr.ComputeSolver( stdout );
+                break;
+            default:
+                break;
+        }
 
         //==== Restore Original Values ====//
         //    Geometry set
@@ -1573,7 +1607,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
 
         //Moment center
         //TODO add flag to indentify if this is manual or computed
-        m_Inputs.Add( NameValData( "CGGeomSet",           VSPAEROMgr.m_CGGeomSet.Get()         ) );
+        m_Inputs.Add( NameValData( "CGGeomSet",         VSPAEROMgr.m_CGGeomSet.Get()         ) );
         m_Inputs.Add( NameValData( "NumMassSlice",      VSPAEROMgr.m_NumMassSlice.Get()      ) );
         m_Inputs.Add( NameValData( "Xcg",               VSPAEROMgr.m_Xcg.Get()               ) );
         m_Inputs.Add( NameValData( "Ycg",               VSPAEROMgr.m_Ycg.Get()               ) );
@@ -1589,6 +1623,10 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "MachStart",         VSPAEROMgr.m_MachStart.Get()         ) );
         m_Inputs.Add( NameValData( "MachEnd",           VSPAEROMgr.m_MachEnd.Get()           ) );
         m_Inputs.Add( NameValData( "MachNpts",          VSPAEROMgr.m_MachNpts.Get()          ) );
+
+        //AnalysisMgr options
+        m_Inputs.Add( NameValData( "ExecutionVerbosity",    vsp::VSPAERO_ANALYSIS_VERBSITY::VERBOSE_TO_STDOUT ) );
+        m_Inputs.Add( NameValData( "ExecutionLogFile",      "vspaeroLogFile.log" ) );
 
     }
     else
@@ -1659,28 +1697,28 @@ string VSPAEROSweepAnalysis::Execute()
         else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
         {
             VSPAEROMgr.Update(); // TODO: Check if Update() in VSPAEROMgr.CreateSetupFile() can allow this call to be removed
-            printf( "Wing Reference Parms: \n" );
+            //printf( "Wing Reference Parms: \n" );
 
             nvd = m_Inputs.FindPtr( "Sref", 0 );
             if ( nvd )
             {
                 VSPAEROMgr.m_Sref.Set( VSPAEROMgr.m_Sref.Get() );
             }
-            printf( " Sref: %7.3f \n", VSPAEROMgr.m_Sref.Get() );
+            //printf( " Sref: %7.3f \n", VSPAEROMgr.m_Sref.Get() );
             nvd = m_Inputs.FindPtr( "bref", 0 );
             if ( nvd )
             {
                 VSPAEROMgr.m_bref.Set( VSPAEROMgr.m_bref.Get() );
             }
-            printf( " bref: %7.3f \n", VSPAEROMgr.m_bref.Get() );
+            //printf( " bref: %7.3f \n", VSPAEROMgr.m_bref.Get() );
             nvd = m_Inputs.FindPtr( "cref", 0 );
             if ( nvd )
             {
                 VSPAEROMgr.m_cref.Set( VSPAEROMgr.m_cref.Get() );
             }
-            printf( " cref: %7.3f \n", VSPAEROMgr.m_cref.Get() );
+            //printf( " cref: %7.3f \n", VSPAEROMgr.m_cref.Get() );
 
-            printf( "\n" );
+            //printf( "\n" );
         }
 
         //    Mass properties
@@ -1852,10 +1890,39 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_KTCorrection.Set( nvd->GetInt( 0 ) );
         }
 
+        // AnalysisMgr Execution Options
+        nvd = m_Inputs.FindPtr( "ExecutionVerbosity", 0 );
+        int executionVerbosity;
+        if ( nvd )
+        {
+            executionVerbosity = nvd->GetInt( 0 );
+        }
+        nvd = m_Inputs.FindPtr( "ExecutionLogFile", 0 );
+        string executionLogFile;
+        if ( nvd )
+        {
+            executionLogFile = nvd->GetString( 0 );
+        }
 
         //==== Execute Analysis ====//
-        resId = VSPAEROMgr.ComputeSolver(stdout);
-
+        switch ( executionVerbosity )
+        {
+            case vsp::VSPAERO_ANALYSIS_VERBSITY::NO_OUTPUT:
+                resId = VSPAEROMgr.ComputeSolver();
+                break;
+            case vsp::VSPAERO_ANALYSIS_VERBSITY::VERBOSE_TO_FILE:
+            {
+                FILE * filePtr = fopen( executionLogFile.c_str(), "w" );
+                resId = VSPAEROMgr.ComputeSolver( filePtr );
+                fclose( filePtr );
+                break;
+            }
+            case vsp::VSPAERO_ANALYSIS_VERBSITY::VERBOSE_TO_STDOUT:
+                resId = VSPAEROMgr.ComputeSolver( stdout );
+                break;
+            default:
+                break;
+        }
 
         //==== Restore Original Values ====//
         //    Geometry set
@@ -2089,16 +2156,16 @@ string ParasiteDragFullAnalysis::Execute()
         else if ( ParasiteDragMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
         {
             ParasiteDragMgr.Update();
-            printf( "Wing Reference Parms: \n" );
+            //printf( "Wing Reference Parms: \n" );
 
             nvd = m_Inputs.FindPtr( "Sref", 0 );
             if ( nvd )
             {
                 ParasiteDragMgr.m_Sref.Set( ParasiteDragMgr.m_Sref.Get() );
             }
-            printf( " Sref: %7.3f \n", ParasiteDragMgr.m_Sref.Get() );
+            //printf( " Sref: %7.3f \n", ParasiteDragMgr.m_Sref.Get() );
 
-            printf( "\n" );
+            //printf( "\n" );
         }
 
         // Recompute flag

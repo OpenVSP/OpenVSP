@@ -41,7 +41,7 @@ public:
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroReadControlSurfaceGroupsFromFile );
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroReadRotorDisksFromFile );
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroParmContainersAccessibleAfterSave );
-        // CpSlicer Tests
+        //// CpSlicer Tests
         TEST_ADD( APITestSuiteVSPAERO::TestVSPAeroCpSlicer );
     }
 

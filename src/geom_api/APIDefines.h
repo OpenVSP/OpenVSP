@@ -479,6 +479,11 @@ enum VSPAERO_ANALYSIS_METHOD { VORTEX_LATTICE,
                                PANEL
                              };
 
+enum VSPAERO_ANALYSIS_VERBSITY { NO_OUTPUT = 0,
+                                 VERBOSE_TO_STDOUT,
+                                 VERBOSE_TO_FILE,
+                               };
+
 // Aerodynamic reference area and length
 enum VSPAERO_REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the reference areas and lengths
                              COMPONENT_REF,      // use a particular wing to calculate the reference area and lengths
