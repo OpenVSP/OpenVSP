@@ -900,10 +900,10 @@ void PropGeom::UpdateSurf()
                     if ( af )
                     {
                         width_parm->Set( 1.0 );
-                        xs->GetXSecCurve()->SetFakeWidth( w );
-                        xs->GetXSecCurve()->SetUseFakeWidth( true );
+                        af->SetFakeWidth( w );
+                        af->SetUseFakeWidth( true );
                         pwc = xs->GetCurve().GetCurve();
-                        xs->GetXSecCurve()->SetUseFakeWidth( false );
+                        af->SetUseFakeWidth( false );
                         width_parm->Set( w );
                     }
                     else
@@ -917,7 +917,7 @@ void PropGeom::UpdateSurf()
                         }
                         else
                         {
-                            double h = xs->GetXSecCurve()->GetHeight();
+                            double h = xsc->GetHeight();
                             xsc->SetWidthHeight( 1.0, h/w );
                             pwc = xs->GetCurve().GetCurve();
                             xsc->SetWidthHeight( w, h );
