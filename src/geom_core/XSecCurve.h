@@ -86,6 +86,7 @@ public:
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
 
     virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
+    static void InterpCurve( VspCurve & cout, XSecCurve *start, XSecCurve *end, double frac );
 
     IntParm m_TECloseType;
     IntParm m_TECloseAbsRel;

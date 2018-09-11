@@ -1407,6 +1407,35 @@ void XSecCurve::Interp( XSecCurve *start, XSecCurve *end, double frac )
     INTERP_PARM( start, end, frac, m_ShiftLE );
 }
 
+void XSecCurve::InterpCurve( VspCurve & cout, XSecCurve *start, XSecCurve *end, double frac )
+{
+    vector< VspCurve > crv_vec;
+    crv_vec.resize( 2 );
+
+    start->SetLateUpdateFlag(true);
+    crv_vec[0] = start->GetCurve();
+
+    double wc = start->GetWidth();
+    if ( wc != 0 )
+    {
+        crv_vec[0].Scale( 1.0 / wc );
+    }
+
+    end->SetLateUpdateFlag(true);
+    crv_vec[1] = end->GetCurve();
+
+    wc = end->GetWidth();
+    if ( wc != 0 )
+    {
+        crv_vec[1].Scale( 1.0 / wc );
+    }
+
+    VspSurf srf;
+    srf.SkinC0( crv_vec, false );
+
+    srf.GetUConstCurve( cout, frac );
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
