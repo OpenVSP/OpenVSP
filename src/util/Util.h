@@ -46,6 +46,8 @@ double ceil2scale( double x, double scale );
 vector <double> linspace( double a, double b, double n );
 vector <double> logspace( double a, double b, double n);
 
+double linterp( double a, double b, double frac );
+
 template <typename T> T clamp( T val, T min, T max )
 {
     if ( val < min )
