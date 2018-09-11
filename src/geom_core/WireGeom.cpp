@@ -777,6 +777,7 @@ vector< TMesh* > WireGeom::CreateTMeshVec()
             }
         }
     }
+    tMesh->LoadGeomAttributes( this );
 
     tmeshvec.push_back( tMesh );
     return tmeshvec;
