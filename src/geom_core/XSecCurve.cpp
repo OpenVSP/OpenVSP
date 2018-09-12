@@ -1942,15 +1942,6 @@ void FileXSec::Update()
             ibot = i;
         }
 
-        if ( m_UnityFilePnts[ileft].x() > 0 && m_UnityFilePnts[i].x() < 0 )
-        {
-            ileft = i;
-        }
-
-        if ( m_UnityFilePnts[i].x() < 0 && std::abs( m_UnityFilePnts[i].y() ) < std::abs(m_UnityFilePnts[ileft].y() ) )
-        {
-            ileft = i;
-        }
         if ( m_UnityFilePnts[i].y() > 0 && std::abs( m_UnityFilePnts[i].x() ) < std::abs(m_UnityFilePnts[itop].x() ) )
         {
             itop = i;
@@ -1983,6 +1974,8 @@ void FileXSec::Update()
             arclen.push_back( arclen[i] + ds );
         }
     }
+
+    ileft = ibot * 2; // Make ileft symmetrical.
 
     double arcend1 = arclen[ibot];
     double arcend2 = arclen[ileft];
