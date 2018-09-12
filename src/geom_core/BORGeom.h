@@ -29,6 +29,7 @@ public:
     virtual void OffsetXSecs( double off );
 
     virtual void SetXSecCurveType( int type );
+    virtual int GetXSecCurveType();
 
     XSecCurve* GetXSecCurve()       { return m_XSCurve; }
 

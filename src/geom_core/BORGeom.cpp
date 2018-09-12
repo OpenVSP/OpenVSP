@@ -235,6 +235,11 @@ void BORGeom::SetXSecCurveType( int type )
     Update();
 }
 
+int BORGeom::GetXSecCurveType()
+{
+    return m_XSCurve->GetType();
+}
+
 void BORGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
