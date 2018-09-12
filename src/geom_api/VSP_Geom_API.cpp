@@ -22,6 +22,7 @@
 #include "ParasiteDragMgr.h"
 #include "WingGeom.h"
 #include "PropGeom.h"
+#include "BORGeom.h"
 #include "VSPAEROMgr.h"
 #include "MeasureMgr.h"
 #include "SubSurfaceMgr.h"
@@ -2983,6 +2984,50 @@ void SetXSecCurvatures( const string& xsec_id, int side, double top, double righ
 
     skinxs->SetCurvatures( side, top, right, bottom, left );
     ErrorMgr.NoError();
+}
+
+//==== Specialized Geom Functions ====//
+void ChangeBORXSecShape( const string & geom_id, int type )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeBORXSecShape::Can't Find Geom " + geom_id  );
+        return;
+    }
+
+    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    if ( !bor_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ChangeBORXSecShape::Geom " + geom_id + " is not a body of revolution" );
+        return;
+    }
+
+    bor_ptr->SetXSecCurveType( type );
+    ErrorMgr.NoError();
+}
+
+//==== Specialized Geom Functions ====//
+int GetBORXSecShape( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORXSecShape::Can't Find Geom " + geom_id  );
+        return XS_UNDEFINED;
+    }
+
+    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    if ( !bor_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORXSecShape::Geom " + geom_id + " is not a body of revolution" );
+        return XS_UNDEFINED;
+    }
+
+    ErrorMgr.NoError();
+    return bor_ptr->GetXSecCurveType();
 }
 
 void ReadFileAirfoil( const string& xsec_id, const string& file_name )

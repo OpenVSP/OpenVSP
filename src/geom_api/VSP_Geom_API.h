@@ -219,6 +219,8 @@ extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, 
 extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
+extern void ChangeBORXSecShape( const string & geom_id, int type );
+extern int GetBORXSecShape( const string & geom_id );
 extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name );
 extern void SetAirfoilPnts( const std::string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
 extern std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false );

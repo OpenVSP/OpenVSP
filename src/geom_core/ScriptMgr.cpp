@@ -2175,6 +2175,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilCoordinates( const string& in geom_id, const double foilsurf_u )", asMETHOD( ScriptMgrSingleton, GetAirfoilCoordinates ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
 
+    //==== Specialized Geom Functions ====//
+    r = se->RegisterGlobalFunction( "void ChangeBORXSecShape( const string & in geom_id, int type )", asFUNCTION( vsp::ChangeBORXSecShape ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "int GetBORXSecShape( const string & in geom_id )", asFUNCTION( vsp::GetBORXSecShape ), asCALL_CDECL );
+    assert( r >= 0 );
+
     //==== Sets Functions ====//
     r = se->RegisterGlobalFunction( "int GetNumSets()", asFUNCTION( vsp::GetNumSets ), asCALL_CDECL );
     assert( r >= 0 );
