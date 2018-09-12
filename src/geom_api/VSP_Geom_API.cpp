@@ -2678,7 +2678,7 @@ int GetXSecShape( const string& xsec_id )
     if ( !xs )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecShape::Can't Find XSec " + xsec_id  );
-        return 0;
+        return XS_UNDEFINED;
     }
 
     ErrorMgr.NoError();
