@@ -3569,8 +3569,8 @@ vector < vec3d > Geom::GetAirfoilCoordinates( double foilsurf_u_location )
     foil_curve.Tesselate( Vup, upper_pnts );
 
     // Sort in ascending/descending order
-    std::sort( upper_pnts.begin(), upper_pnts.end(), GreaterThanCompare );
-    std::sort( lower_pnts.begin(), lower_pnts.end(), LessThanCompare );
+    std::reverse( upper_pnts.begin(), upper_pnts.end() );
+    std::reverse( lower_pnts.begin(), lower_pnts.end() );
 
     ordered_vec.resize( upper_pnts.size() + lower_pnts.size() + 3 );
 
