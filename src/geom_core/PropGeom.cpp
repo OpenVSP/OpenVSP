@@ -871,6 +871,8 @@ void PropGeom::UpdateSurf()
     m_MainSurfVec[0].SetMagicVParm( true );
     m_MainSurfVec[0].SetSurfType( PROP_SURF );
     m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
+    m_FoilSurf.SetClustering(m_LECluster(), m_TECluster());
+    m_FoilSurf.SetMagicVParm(m_MainSurfVec[0].IsMagicVParm());
     m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
 
     if ( m_XSecSurf.GetFlipUD() )
