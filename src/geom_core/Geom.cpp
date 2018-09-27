@@ -3495,16 +3495,6 @@ void Geom::WriteBezierAirfoil( const string & file_name, double foilsurf_u_locat
     fclose( file_id );
 }
 
-bool GreaterThanCompare( const vec3d a, const vec3d b )
-{
-    return ( a.x() > b.x() );
-}
-
-bool LessThanCompare( const vec3d a, const vec3d b )
-{
-    return ( a.x() < b.x() );
-}
-
 void Geom::WriteSeligAirfoil( const string & file_name, double foilsurf_u_location )
 {
     // This function writes out the all coordinate points in Selig format for a single
