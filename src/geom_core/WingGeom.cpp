@@ -2080,6 +2080,9 @@ void WingGeom::UpdateSurf()
     }
     m_MainSurfVec[0].SetSurfType( vsp::WING_SURF );
     m_MainSurfVec[0].SetMagicVParm( true );
+
+    m_FoilSurf.SetMagicVParm( true );
+    m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
     m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
 
     m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
