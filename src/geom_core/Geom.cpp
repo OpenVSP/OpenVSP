@@ -3565,25 +3565,25 @@ vector < vec3d > Geom::GetAirfoilCoordinates( double foilsurf_u_location )
     ordered_vec.resize( upper_pnts.size() + lower_pnts.size() + 3 );
 
     // Identify TE/LE 
-    vec3d LE_pnt = foil_curve.CompPnt01( 0.0 );
-    vec3d TE_pnt = foil_curve.CompPnt01( 0.5 );
+    vec3d TE_pnt = foil_curve.CompPnt01( 0.0 );
+    vec3d LE_pnt = foil_curve.CompPnt01( 0.5 );
 
     // organize the coordinate points into a single vector
-    ordered_vec[0] = LE_pnt; // Start at LE
+    ordered_vec[0] = TE_pnt; // Start at TE
 
     for ( size_t i = 0; i < upper_pnts.size(); i++ )
     {
         ordered_vec[i + 1] = upper_pnts[i];
     }
 
-    ordered_vec[upper_pnts.size() + 1] = TE_pnt; // Include TE
+    ordered_vec[upper_pnts.size() + 1] = LE_pnt; // Include LE
 
     for ( size_t i = 0; i < lower_pnts.size(); i++ )
     {
         ordered_vec[i + upper_pnts.size() + 2] = lower_pnts[i];
     }
 
-    ordered_vec[upper_pnts.size() + lower_pnts.size() + 2] = LE_pnt; // End at LE
+    ordered_vec[upper_pnts.size() + lower_pnts.size() + 2] = TE_pnt; // End at TE
 
     return ordered_vec;
 }
