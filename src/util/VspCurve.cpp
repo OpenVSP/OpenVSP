@@ -1375,6 +1375,72 @@ double VspCurve::CalculateThick( double &loc ) const
     return tmax;
 }
 
+void VspCurve::MatchThick( const double & ttarget )
+{
+    piecewise_curve_type crv , c1, c2, c3, c4, clow, cup, cmid;
+    crv = m_Curve;
+
+    double tmid = ( crv.get_parameter_max() + crv.get_parameter_min() ) / 2.0;
+
+    crv.split( c1, c2, tmid );  // Split at LE
+    c2.reverse();
+    c2.set_t0( c1.get_t0() );
+
+    vector < double > pmap;
+    c1.get_pmap( pmap );
+
+    vector < double > pmap2;
+    c2.get_pmap( pmap2 );
+
+    pmap.insert( pmap.end(), pmap2.begin(), pmap2.end() );
+    std::sort( pmap.begin(), pmap.end() );
+    auto pmit = std::unique( pmap.begin(), pmap.end() );
+    pmap.erase( pmit, pmap.end() );
+
+    for( int i = 0; i < pmap.size(); i++ )
+    {
+        c1.split( pmap[i] );
+        c2.split( pmap[i] );
+    }
+
+    cmid.sum( c1, c2 );
+    cmid.scale( 0.5 );
+
+    c1.scale( -1.0 );
+    c3.sum( c1, c2 );
+
+    c4.square( c3 );
+
+    typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
+    onedpwc sumsq;
+
+    typedef onedpwc::bounding_box_type onedbox;
+    onedbox box;
+
+    typedef onedpwc::point_type onedpt;
+    onedpt p;
+
+    sumsq = c4.sumcompcurve();
+
+    // Negate to allow minimization instead of maximization.
+    sumsq.scale( -1.0 );
+
+    double utmax;
+    double tmax = sqrt( -1.0 * eli::geom::intersect::minimum_dimension( utmax, sumsq, 0 ) );
+
+    double sf = ( ttarget / tmax ) * 0.5; // half because we need to add half thickness up and down.
+
+    c3.scale( sf ); // Scale delta by scale factor.
+
+    cup.sum( cmid, c3 ); // Construct upper surface.
+    c3.scale( -1.0 );
+    clow.sum( cmid, c3 );  // Construct lower surface.
+
+    cup.reverse();
+    clow.push_back( cup );  // Append top/bottom curves into one again.
+
+    m_Curve = clow; // Set thickness scaled curve back to m_Curve.
+}
 
 // Find the angle between two points on a curve.
 // First point: u1, considering curve dir1 = BEFORE or AFTER the point
