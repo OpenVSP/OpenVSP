@@ -710,8 +710,8 @@ void ConformalGeom::SetWingTrimParms(  VspSurf & surf )
         vec3d pmax = p0 + (p1 - p0)*m_ChordTrimMax();
 
         double u, vmin, vmax;
-        surf.FindNearest01( u, vmin, pmin, 0, m_ChordTrimMin() );
-        surf.FindNearest01( u, vmax, pmax, 0, m_ChordTrimMax() );
+        surf.FindNearest01( u, vmin, pmin, 0, m_ChordTrimMin()/2.0 );
+        surf.FindNearest01( u, vmax, pmax, 0, m_ChordTrimMax()/2.0 );
 
         if ( vmin < 0.5 )
         {
