@@ -416,7 +416,9 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PARM_TYPE", "PARM_FRACTION_TYPE", PARM_FRACTION_TYPE );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "PARM_TYPE", "PARM_STRING_TYPE", PARM_STRING_TYPE );
+    r = se->RegisterEnumValue( "PARM_TYPE", "PARM_LIMITED_INT_TYPE", PARM_LIMITED_INT_TYPE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PARM_TYPE", "PARM_NOTEQ_TYPE", PARM_NOTEQ_TYPE );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "SYM_FLAG" );

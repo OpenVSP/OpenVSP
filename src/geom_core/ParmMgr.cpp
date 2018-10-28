@@ -306,21 +306,29 @@ void ParmMgrSingleton::GetNames( const string& parm_id, string& container_name,
 Parm* ParmMgrSingleton::CreateParm( int type )
 {
     Parm* p = NULL;
-    if ( type == PARM_DOUBLE_TYPE )
+    if ( type == vsp::PARM_DOUBLE_TYPE )
     {
         p = new Parm();
     }
-    else if ( type == PARM_INT_TYPE )
+    else if ( type == vsp::PARM_INT_TYPE )
     {
         p = new IntParm();
     }
-    else if ( type == PARM_BOOL_TYPE )
+    else if ( type == vsp::PARM_BOOL_TYPE )
     {
         p = new BoolParm();
     }
-    else if ( type == PARM_FRACTION_TYPE )
+    else if ( type == vsp::PARM_FRACTION_TYPE )
     {
         p = new FractionParm();
+    }
+    else if ( type == vsp::PARM_LIMITED_INT_TYPE )
+    {
+        p = new LimIntParm();
+    }
+    else if ( type == vsp::PARM_NOTEQ_TYPE )
+    {
+        p = new NotEqParm();
     }
     return p;
 }

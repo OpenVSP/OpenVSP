@@ -253,9 +253,9 @@ void UserParmScreen::GuiDeviceCallBack( GuiDevice* gui_device )
 {
     if ( gui_device == &m_CreateParm )
     {
-        int type = PARM_DOUBLE_TYPE;
+        int type = vsp::PARM_DOUBLE_TYPE;
         if ( m_ParmTypeChoice.GetVal() == 1 )
-            type = PARM_INT_TYPE;
+            type = vsp::PARM_INT_TYPE;
 
         m_NameText = m_ParmNameInput.GetString();
         m_GroupText = m_ParmGroupInput.GetString();

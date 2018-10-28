@@ -642,6 +642,14 @@ enum SUBSURF_INCLUDE { SS_INC_TREAT_AS_PARENT,
 enum AIRFOIL_EXPORT_TYPE { SELIG_AF_EXPORT,
                            BEZIER_AF_EXPORT
                          };
+
+enum PARM_TYPE { PARM_DOUBLE_TYPE,
+                 PARM_INT_TYPE,
+                 PARM_BOOL_TYPE,
+                 PARM_FRACTION_TYPE,
+                 PARM_LIMITED_INT_TYPE,
+                 PARM_NOTEQ_TYPE
+               };
 }   // Namespace
 
 #endif // !defined(VSPDEFINES__INCLUDED_)

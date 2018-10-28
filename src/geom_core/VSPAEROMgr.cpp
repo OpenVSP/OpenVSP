@@ -3555,7 +3555,7 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
 void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
 {
     // Add deflection gain parm to ControlSurfaceGroup container
-    Parm* p = ParmMgr.CreateParm( PARM_DOUBLE_TYPE );
+    Parm* p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
     char str[256];
 
     if ( p )

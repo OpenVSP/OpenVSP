@@ -102,7 +102,7 @@ xmlNodePtr PCurve::DecodeXml( xmlNodePtr & node )
 
 void PCurve::AddPt()
 {
-    Parm* p = ParmMgr.CreateParm( PARM_DOUBLE_TYPE );
+    Parm* p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
     if ( p )
     {
         int i = m_TParmVec.size();
@@ -114,7 +114,7 @@ void PCurve::AddPt()
     }
 
 
-    p = ParmMgr.CreateParm( PARM_DOUBLE_TYPE );
+    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
     if ( p )
     {
         int i = m_ValParmVec.size();

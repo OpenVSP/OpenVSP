@@ -25,7 +25,7 @@ Parm::Parm()
     m_GroupName = string( "Default_Group_Name" );
     m_GroupDisplaySuffix = -1;
     m_Descript = string( "Default Description" );
-    m_Type = PARM_DOUBLE_TYPE;
+    m_Type = vsp::PARM_DOUBLE_TYPE;
     m_Val = 0.0;
     m_LastVal = 0.0;
     m_UpperLimit =  1.0e16;
@@ -340,7 +340,7 @@ ParmContainer* Parm::GetLinkContainer() const
 //==== Constructor ====//
 IntParm::IntParm() : Parm()
 {
-    m_Type = PARM_INT_TYPE;
+    m_Type = vsp::PARM_INT_TYPE;
     m_UpperLimit = INT_MAX;
     m_LowerLimit = INT_MIN;
 
@@ -389,7 +389,7 @@ bool IntParm::SetValCheckLimits( double val )
 //==== Constructor ====//
 LimIntParm::LimIntParm() : IntParm()
 {
-    m_Type = PARM_LIMITED_INT_TYPE;
+    m_Type = vsp::PARM_LIMITED_INT_TYPE;
 
     m_Shift = 0;
     m_Mult = 1;
@@ -422,7 +422,7 @@ void LimIntParm::SetMultShift( int mult, int shift )
 //==== Constructor ====//
 NotEqParm::NotEqParm() : Parm()
 {
-    m_Type = PARM_NOTEQ_TYPE;
+    m_Type = vsp::PARM_NOTEQ_TYPE;
     m_Tol = 1e-4;
     m_CheckFlag = true;
 }
@@ -488,7 +488,7 @@ void NotEqParm::DecodeXml( xmlNodePtr & node, bool detailed )
 //==== Constructor ====//
 BoolParm::BoolParm() : Parm()
 {
-    m_Type = PARM_BOOL_TYPE;
+    m_Type = vsp::PARM_BOOL_TYPE;
     m_UpperLimit = 1;
     m_LowerLimit = 0;
 
@@ -517,7 +517,7 @@ bool BoolParm::Set( bool val )
 //==== Constructor ====//
 FractionParm::FractionParm() : Parm()
 {
-    m_Type = PARM_FRACTION_TYPE;
+    m_Type = vsp::PARM_FRACTION_TYPE;
     m_RefVal = 0.0;
     m_ResultVal = 0.0;
 
