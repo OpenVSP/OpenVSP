@@ -246,7 +246,7 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 CFD_FACET_TYPE      = 1048576,
                                 CFD_CURV_TYPE       = 2097152,
                                 CFD_PLOT3D_TYPE     = 4194304,
-};
+                            };
 
 enum SET_TYPE { SET_ALL = 0,
                 SET_SHOWN = 1,
@@ -329,13 +329,13 @@ enum FEA_EXPORT_TYPE { FEA_MASS_FILE_NAME,
                        FEA_CURV_FILE_NAME,
                        FEA_PLOT3D_FILE_NAME,
                        FEA_NUM_FILE_NAMES
-};
+                     };
 
 enum INTERSECT_EXPORT_TYPE { INTERSECT_SRF_FILE_NAME,
                              INTERSECT_CURV_FILE_NAME,
                              INTERSECT_PLOT3D_FILE_NAME,
                              INTERSECT_NUM_FILE_NAMES
-};
+                           };
 
 enum XDDM_QUANTITY_TYPE { XDDM_VAR,
                           XDDM_CONST,
@@ -372,7 +372,7 @@ enum SUBSURF_LINE_TYPE { CONST_U,
 enum SUBSURF_INOUT { INSIDE,
                      OUTSIDE,
                      NONE
-};
+                   };
 
 enum FEA_PART_TYPE { FEA_SLICE = 0,
                      FEA_RIB,
@@ -382,12 +382,12 @@ enum FEA_PART_TYPE { FEA_SLICE = 0,
                      FEA_RIB_ARRAY,
                      FEA_SLICE_ARRAY,
                      FEA_SKIN,
-                     FEA_NUM_TYPES 
+                     FEA_NUM_TYPES
                    };
 
 enum FEA_PART_ELEMENT_TYPE { FEA_SHELL = 0,
                              FEA_BEAM,
-                             FEA_SHELL_AND_BEAM 
+                             FEA_SHELL_AND_BEAM
                            };
 
 enum FEA_SLICE_TYPE { XY_BODY = 0,
@@ -504,12 +504,12 @@ enum VSPAERO_REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the referen
                            };
 
 enum VSPAERO_STABILITY_TYPE { STABILITY_DEFAULT = 0,
-                             STABILITY_P_ANALYSIS,
-                             STABILITY_Q_ANALYSIS,
-                             STABILITY_R_ANALYSIS,
-                             STABILITY_HEAVE, // TODO: Implement with later VSPAERO version
-                             STABILITY_IMPULSE, // TODO: Implement with later VSPAERO version
-                           };
+                              STABILITY_P_ANALYSIS,
+                              STABILITY_Q_ANALYSIS,
+                              STABILITY_R_ANALYSIS,
+                              STABILITY_HEAVE, // TODO: Implement with later VSPAERO version
+                              STABILITY_IMPULSE, // TODO: Implement with later VSPAERO version
+                            };
 
 enum VSPAERO_PRECONDITION { PRECON_MATRIX = 0,
                             PRECON_JACOBI,
