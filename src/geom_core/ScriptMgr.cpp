@@ -540,6 +540,21 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "LEN_UNITS", "LEN_UNITLESS", LEN_UNITLESS );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "MASS_UNIT" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MASS_UNIT", "MASS_UNIT_G", MASS_UNIT_G );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MASS_UNIT", "MASS_UNIT_KG", MASS_UNIT_KG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MASS_UNIT", "MASS_UNIT_TONNE", MASS_UNIT_TONNE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MASS_UNIT", "MASS_UNIT_LBM", MASS_UNIT_LBM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MASS_UNIT", "MASS_UNIT_SLUG", MASS_UNIT_SLUG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "MASS_UNIT", "MASS_LBFSEC2IN", MASS_LBFSEC2IN );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "DELIM_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "DELIM_TYPE", "DELIM_COMMA", DELIM_COMMA );
@@ -701,6 +716,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_ONE_SIX_SERIES", XS_ONE_SIX_SERIES );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_NUM_TYPES", XS_NUM_TYPES );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "XSEC_CLOSE_TYPE" );
     assert( r >= 0 );
@@ -767,6 +784,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "SET_TYPE", "SET_FIRST_USER", SET_FIRST_USER );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "SUBSURF_INCLUDE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_INCLUDE", "SS_INC_TREAT_AS_PARENT", SS_INC_TREAT_AS_PARENT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_INCLUDE", "SS_INC_SEPARATE_TREATMENT", SS_INC_SEPARATE_TREATMENT );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SUBSURF_INCLUDE", "SS_INC_ZERO_DRAG", SS_INC_ZERO_DRAG );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "IMPORT_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_STL", IMPORT_STL );
@@ -784,6 +810,17 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_BEM", IMPORT_BEM );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_XSEC_WIRE", IMPORT_XSEC_WIRE );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "INTERSECT_EXPORT_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INTERSECT_EXPORT_TYPE", "INTERSECT_SRF_FILE_NAME", INTERSECT_SRF_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INTERSECT_EXPORT_TYPE", "INTERSECT_CURV_FILE_NAME", INTERSECT_CURV_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INTERSECT_EXPORT_TYPE", "INTERSECT_PLOT3D_FILE_NAME", INTERSECT_PLOT3D_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INTERSECT_EXPORT_TYPE", "INTERSECT_NUM_FILE_NAMES", INTERSECT_NUM_FILE_NAMES );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "EXPORT_TYPE" );
@@ -939,6 +976,35 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_SRF_XYZ_FLAG", CFD_SRF_XYZ_FLAG );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "CFD_MESH_EXPORT_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_STL_FILE_NAME", CFD_STL_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_POLY_FILE_NAME", CFD_POLY_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_TRI_FILE_NAME", CFD_TRI_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_OBJ_FILE_NAME", CFD_OBJ_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_DAT_FILE_NAME", CFD_DAT_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_KEY_FILE_NAME", CFD_KEY_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_GMSH_FILE_NAME", CFD_GMSH_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_SRF_FILE_NAME", CFD_SRF_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_TKEY_FILE_NAME", CFD_TKEY_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_FACET_FILE_NAME", CFD_FACET_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_CURV_FILE_NAME", CFD_CURV_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_PLOT3D_FILE_NAME", CFD_PLOT3D_FILE_NAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_NUM_FILE_NAMES", CFD_NUM_FILE_NAMES );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "CFD_MESH_SOURCE_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_SOURCE_TYPE", "POINT_SOURCE", POINT_SOURCE );
@@ -951,6 +1017,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_SOURCE_TYPE", "WLINE_SOURCE", WLINE_SOURCE );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_SOURCE_TYPE", "NUM_SOURCE_TYPES", NUM_SOURCE_TYPES );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "VSP_SURF_TYPE" );
     assert( r >= 0 );
@@ -961,6 +1029,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSP_SURF_TYPE", "DISK_SURF", DISK_SURF );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSP_SURF_TYPE", "PROP_SURF", PROP_SURF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSP_SURF_TYPE", "NUM_SURF_TYPES", NUM_SURF_TYPES );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "VSP_SURF_CFD_TYPE" );
@@ -1132,6 +1202,14 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "WING_DRIVERS", "SECSWEEP_WSECT_DRIVER", vsp::SECSWEEP_WSECT_DRIVER );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_DRIVERS", "NUM_WSECT_DRIVER", vsp::NUM_WSECT_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_DRIVERS", "SWEEP_WSECT_DRIVER", vsp::SWEEP_WSECT_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_DRIVERS", "SWEEPLOC_WSECT_DRIVER", vsp::SWEEPLOC_WSECT_DRIVER );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "WING_DRIVERS", "SECSWEEPLOC_WSECT_DRIVER", vsp::SECSWEEPLOC_WSECT_DRIVER );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "CAP_TYPE" );
     assert( r >= 0 );
@@ -1190,6 +1268,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_INVALID_PTR", vsp::VSP_INVALID_PTR );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_INVALID_TYPE", vsp::VSP_INVALID_TYPE );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_CANT_FIND_TYPE", vsp::VSP_CANT_FIND_TYPE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_CANT_FIND_PARM", vsp::VSP_CANT_FIND_PARM );
@@ -1210,9 +1290,22 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_INVALID_XSEC_ID", vsp::VSP_INVALID_XSEC_ID );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_INVALID_ID", vsp::VSP_INVALID_ID );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_CANT_SET_NOT_EQ_PARM", vsp::VSP_CANT_SET_NOT_EQ_PARM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_AMBIGUOUS_SUBSURF", vsp::VSP_AMBIGUOUS_SUBSURF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_INVALID_VARPRESET_SETNAME", vsp::VSP_INVALID_VARPRESET_SETNAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_INVALID_VARPRESET_GROUPNAME", vsp::VSP_INVALID_VARPRESET_GROUPNAME );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_CONFORMAL_PARENT_UNSUPPORTED", vsp::VSP_CONFORMAL_PARENT_UNSUPPORTED );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ERROR_CODE", "VSP_UNEXPECTED_RESET_REMAP_ID", vsp::VSP_UNEXPECTED_RESET_REMAP_ID );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "ERROR_CODE", "VSP_INVALID_INPUT_VAL", vsp::VSP_INVALID_INPUT_VAL );
     assert( r >= 0 );
-
 
     r = se->RegisterEnum( "RES_DATA_TYPE" );
     assert( r >= 0 );
@@ -1317,6 +1410,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_REF_WING_TYPE", "COMPONENT_REF", COMPONENT_REF );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_REF_WING_TYPE", "NUM_REF_TYPES", NUM_REF_TYPES );
+    assert( r >= 0 );
 
     r = se->RegisterEnum( "VSPAERO_STABILITY_TYPE" );
     assert( r >= 0 );
@@ -1381,16 +1476,40 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_PSF", PRES_UNIT_PSF );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_PSI", PRES_UNIT_PSI );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_BA", PRES_UNIT_BA );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_PA", PRES_UNIT_PA );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_KPA", PRES_UNIT_KPA );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_MPA", PRES_UNIT_MPA );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_INCHHG", PRES_UNIT_INCHHG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_MMHG", PRES_UNIT_MMHG );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_MMH20", PRES_UNIT_MMH20 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_MB", PRES_UNIT_MB );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PRES_UNITS", "PRES_UNIT_ATM", PRES_UNIT_ATM );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "RHO_UNITS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_SLUG_FT3", RHO_UNIT_SLUG_FT3 );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_G_CM3", RHO_UNIT_G_CM3 );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_KG_M3", RHO_UNIT_KG_M3 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_TONNE_MM3", RHO_UNIT_TONNE_MM3 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_LBF_FT3", RHO_UNIT_LBF_FT3 );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_LBFSEC2_IN4", RHO_UNIT_LBFSEC2_IN4 );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "ATMOS_TYPE" );
@@ -1460,6 +1579,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "CF_TURB_EQN", "CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH", CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "COLLISION_ERRORS" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "COLLISION_ERRORS", "COLLISION_OK", COLLISION_OK );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "COLLISION_ERRORS", "COLLISION_INTERSECT_NO_SOLUTION", COLLISION_INTERSECT_NO_SOLUTION );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "COLLISION_ERRORS", "COLLISION_CLEAR_NO_SOLUTION", COLLISION_CLEAR_NO_SOLUTION );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "FF_W_EQN" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FF_W_EQN", "FF_W_MANUAL", FF_W_MANUAL );
@@ -1521,6 +1649,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_CD", EXCRESCENCE_CD );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_PERCENT_GEOM", EXCRESCENCE_PERCENT_GEOM );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_MARGIN", EXCRESCENCE_MARGIN );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "EXCRES_TYPE", "EXCRESCENCE_DRAGAREA", EXCRESCENCE_DRAGAREA );
     assert( r >= 0 );
