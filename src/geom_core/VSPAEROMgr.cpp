@@ -1690,6 +1690,16 @@ void VSPAEROMgrSingleton::MonitorSolver( FILE * logFile )
         SleepForMilliseconds( 100 );
         runflag = m_SolverProcess.IsRunning();
     }
+
+#ifdef WIN32
+    CloseHandle( m_SolverProcess.m_StdoutPipe[0] );
+    m_SolverProcess.m_StdoutPipe[0] = NULL;
+#else
+    close( m_SolverProcess.m_StdoutPipe[0] );
+    m_SolverProcess.m_StdoutPipe[0] = -1;
+#endif
+
+    free( buf );
 }
 
 void VSPAEROMgrSingleton::AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
