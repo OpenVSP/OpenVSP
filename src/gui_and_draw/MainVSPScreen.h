@@ -88,6 +88,7 @@ protected:
     ScreenMenuItem m_BackgroundMenuItem;
     ScreenMenuItem m_ScreenshotMenuItem;
     ActionMenuItem m_AxisMenuItem;
+    ActionMenuItem m_BorderMenuItem;
 
     ActionMenuItem m_TopMenuItem;
     ActionMenuItem m_FrontMenuItem;
@@ -143,7 +144,7 @@ protected:
     Fl_Box * m_FileNameBox;
 
     bool m_ShowXYZArrow;
-
+    bool m_ShowBorder;
 };
 
 

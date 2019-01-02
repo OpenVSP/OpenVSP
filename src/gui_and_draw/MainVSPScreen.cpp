@@ -35,6 +35,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_GlWin = NULL;
 
     m_ShowXYZArrow = true;
+    m_ShowBorder = true;
 
     int x, y, w, h, side;
     w = 500;
@@ -94,6 +95,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_BackgroundMenuItem.Init( mgr, m_MenuBar, "Window/Background...", ScreenMgr::VSP_BACKGROUND_SCREEN );
     m_ScreenshotMenuItem.Init( mgr, m_MenuBar, "Window/Screenshot...", ScreenMgr::VSP_SCREENSHOT_SCREEN );
     m_AxisMenuItem.Init( this, m_MenuBar, "Window/Axis Toggle" );
+    m_BorderMenuItem.Init( this, m_MenuBar, "Window/Border Toggle" );
 
     m_TopMenuItem.Init( this, m_MenuBar, "View/Top", FL_F + 5 );
     m_FrontMenuItem.Init( this, m_MenuBar, "View/Front", FL_F + 6 );
@@ -415,6 +417,11 @@ void MainVSPScreen::ActionCB( void * data )
         m_ShowXYZArrow = !m_ShowXYZArrow;
         m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showXYZArrows( m_ShowXYZArrow );
     }
+    else if ( data == &m_BorderMenuItem )
+    {
+        m_ShowBorder = !m_ShowBorder;
+        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showBorders( m_ShowBorder );
+    }
     else if ( data == &m_TopMenuItem )
     {
         m_GlWin->setView( VSPGraphic::Common::VSP_CAM_TOP );
@@ -641,7 +648,8 @@ void MainVSPScreen::SetShowBorders( bool brdr )
 {
     if ( m_GlWin )
     {
-        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showBorders( brdr );
+        m_ShowBorder = brdr;
+        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showBorders( m_ShowBorder );
     }
 }
 
