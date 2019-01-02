@@ -85,6 +85,10 @@ public:
     * Set Blue value of the background.
     */
     virtual void setBlue( float blue );
+    /*!
+    * Set Alpha value of the background.
+    */
+    virtual void setAlpha( float alpha );
 
     virtual void setWidthHeight( int w, int h);
 
