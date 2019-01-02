@@ -614,7 +614,7 @@ void MainVSPScreen::ActionCB( void * data )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void MainVSPScreen::ScreenGrab( const string & fname, int w, int h )
+void MainVSPScreen::ScreenGrab( const string & fname, int w, int h, bool transparentBG )
 {
     if ( m_GlWin )
     {
@@ -624,7 +624,7 @@ void MainVSPScreen::ScreenGrab( const string & fname, int w, int h )
             framebufferSupported = false;
         }
 
-        m_GlWin->getGraphicEngine()->dumpScreenImage( fname, w, h, framebufferSupported, VSPGraphic::GraphicEngine::PNG );
+        m_GlWin->getGraphicEngine()->dumpScreenImage( fname, w, h, transparentBG, framebufferSupported, VSPGraphic::GraphicEngine::PNG );
     }
 }
 

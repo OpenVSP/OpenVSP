@@ -1990,7 +1990,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r );
 
     //==== Visualization Functions ====//
-    r = se->RegisterGlobalFunction( "void ScreenGrab( const string & in file_name, int w, int h )", asFUNCTION( vsp::ScreenGrab ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void ScreenGrab( const string & in file_name, int w, int h, bool transparentBG )", asFUNCTION( vsp::ScreenGrab ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void SetViewAxis( bool vaxis )", asFUNCTION( vsp::SetViewAxis ), asCALL_CDECL );
     assert( r >= 0 );

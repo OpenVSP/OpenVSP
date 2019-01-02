@@ -122,7 +122,7 @@ extern void PrintResults( const std::string &results_id );
 
 //======================== GUI Functions ================================//
 extern void StartGui( );
-extern void ScreenGrab( const string & fname, int w, int h );
+extern void ScreenGrab( const string & fname, int w, int h, bool transparentBG );
 extern void SetViewAxis( bool vaxis );
 extern void SetShowBorders( bool brdr );
 extern void SetGeomDrawType(const string &geom_id, int type);

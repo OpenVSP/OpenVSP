@@ -1234,10 +1234,10 @@ extern void StartGui( )
 #endif
 }
 
-void ScreenGrab( const string & fname, int w, int h )
+void ScreenGrab( const string & fname, int w, int h, bool transparentBG )
 {
 #ifdef VSP_USE_FLTK
-    GuiInterface::getInstance().ScreenGrab( fname, w, h );
+    GuiInterface::getInstance().ScreenGrab( fname, w, h, transparentBG );
 #endif
 }
 

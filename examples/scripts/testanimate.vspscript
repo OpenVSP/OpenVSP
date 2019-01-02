@@ -67,7 +67,7 @@ void main()
 
         Update();                                                   // Update model
         string fname = "vspanim_" + formatInt(i, '0', 4) + ".png";  // Build numbered file name
-        ScreenGrab( fname, screenw, screenh );                      // Take PNG screenshot
+        ScreenGrab( fname, screenw, screenh, true );                // Take PNG screenshot
 
         t += dt;                                                    // Increment time and index
         i++;
