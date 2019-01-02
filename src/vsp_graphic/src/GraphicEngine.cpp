@@ -2,6 +2,8 @@
 
 #include "Scene.h"
 #include "Display.h"
+#include "Viewport.h"
+#include "Background.h"
 
 #include "OpenGLHeaders.h"
 #include "stb_image_write.h"
@@ -34,14 +36,19 @@ void GraphicEngine::draw( int mouseX, int mouseY )
     _display->draw( _scene, mouseX, mouseY );
 }
 
-void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height, bool framebufferSupported, int filetype )
+void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height, bool transparentBG, bool framebufferSupported, int filetype )
 {
     GLuint color;
     GLuint depth;
     GLuint fbo;
     int oldWidth, oldHeight;
     // width * height * RGB
-    std::vector<unsigned char> data(width * height * 3, 0);
+    std::vector<unsigned char> data(width * height * 4, 0);
+
+    if ( transparentBG )
+    {
+        getDisplay()->getViewport()->getBackground()->setAlpha( 0.0f );
+    }
 
     if ( framebufferSupported )
     {
@@ -54,7 +61,7 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
         glBindTexture(GL_TEXTURE_2D, color);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
         glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, NULL);
+        glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
         glBindTexture(GL_TEXTURE_2D, 0);
 
         glGenRenderbuffers(1, &depth);
@@ -72,7 +79,7 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
 
         glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
         glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-        glReadPixels( 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, &data[0] );
+        glReadPixels( 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &data[0] );
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
     }
     else
@@ -83,12 +90,14 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
 
         glPixelStorei( GL_UNPACK_ALIGNMENT, 1 );
         glPixelStorei( GL_PACK_ALIGNMENT, 1 );
-        glReadPixels( 0, 0, width, height, GL_RGB, GL_UNSIGNED_BYTE, &data[0] );
+        glReadPixels( 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &data[0] );
     }
 
+    getDisplay()->getViewport()->getBackground()->setAlpha( 1.0f );
+
     // Flip data top to bottom.
-    std::vector<unsigned char> flipdat(width * height * 3, 0);
-    int scanLen = 3 * width;
+    std::vector<unsigned char> flipdat(width * height * 4, 0);
+    int scanLen = 4 * width;
     for ( int i = 0 ; i < height; i++ )
     {
         unsigned char* srcLine = &data[ i * scanLen ];
@@ -98,7 +107,7 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
 
     if ( filetype == PNG )
     {
-        stbi_write_png( fileName.c_str(), width, height, 3, &flipdat[0], width * 3 );
+        stbi_write_png( fileName.c_str(), width, height, 4, &flipdat[0], width * 4 );
     }
     else
     {
