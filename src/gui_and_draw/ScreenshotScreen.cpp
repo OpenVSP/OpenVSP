@@ -15,7 +15,7 @@
 
 #include "FL/Fl_File_Chooser.H"
 
-ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 233, "Screenshot" )
+ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 233+48, "Screenshot" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -79,6 +79,18 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 23
 
     m_ViewportSizeLayout.AddButton(m_SetToCurrentSize, "Reset to Viewport Size");
 
+    int htransparent = m_TransparentLayout.GetDividerHeight() +
+                    1 * m_TransparentLayout.GetStdHeight() +
+                    1 * m_TransparentLayout.GetGapHeight();
+
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddSubGroupLayout( m_TransparentLayout, m_BorderLayout.GetRemainX(), hviewport );
+    m_BorderLayout.AddY( htransparent );
+
+    m_TransparentLayout.AddDividerBox( "Transparency" );
+    m_TransparentLayout.AddYGap();
+    m_TransparentLayout.AddButton( m_TransparentBG, "Transparent Background" );
+
     m_BorderLayout.AddYGap();
     m_BorderLayout.AddButton(m_CapturePNG, "Capture PNG");
 
@@ -90,7 +102,7 @@ ScreenshotScreen::ScreenshotScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 270, 23
     m_NewRatioValue.Init("Ratio", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
     m_NewWidthValue.Init("Width", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
     m_NewHeightValue.Init("Height", "Screenshot", NULL, 1.0, 0.0, 1.0e12);
-
+    m_TransparentBGFlag.Init("TransparentBGFlag", "Screenshot", NULL, 1, 0, 1 );
     m_NewWidth.SetRange( 10.0 );
     m_NewHeight.SetRange( 10.0 );
 
@@ -186,6 +198,8 @@ bool ScreenshotScreen::Update()
         m_NewHeight.Activate();
     }
 
+    m_TransparentBG.Update( m_TransparentBGFlag.GetID() );
+
     m_FLTK_Window->redraw();
     return false;
 }
@@ -247,7 +261,7 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
 
         if( !fileName.empty() )
         {
-            glwin->getGraphicEngine()->dumpScreenImage( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_framebufferSupported, VSPGraphic::GraphicEngine::PNG );
+            glwin->getGraphicEngine()->dumpScreenImage( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_TransparentBGFlag.Get(), m_framebufferSupported, VSPGraphic::GraphicEngine::PNG );
         }
     }
     m_ScreenMgr->SetUpdateFlag( true );
