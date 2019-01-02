@@ -95,7 +95,9 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_BackgroundMenuItem.Init( mgr, m_MenuBar, "Window/Background...", ScreenMgr::VSP_BACKGROUND_SCREEN );
     m_ScreenshotMenuItem.Init( mgr, m_MenuBar, "Window/Screenshot...", ScreenMgr::VSP_SCREENSHOT_SCREEN );
     m_AxisMenuItem.Init( this, m_MenuBar, "Window/Axis Toggle" );
+    m_AxisMenuItem.Update( m_ShowXYZArrow );
     m_BorderMenuItem.Init( this, m_MenuBar, "Window/Border Toggle" );
+    m_BorderMenuItem.Update( m_ShowBorder );
 
     m_TopMenuItem.Init( this, m_MenuBar, "View/Top", FL_F + 5 );
     m_FrontMenuItem.Init( this, m_MenuBar, "View/Front", FL_F + 6 );
@@ -198,6 +200,9 @@ bool MainVSPScreen::Update()
     // Not sure all three of these are needed.
     m_GlWin->update();
     m_GlWin->redraw();
+
+    m_AxisMenuItem.Update( m_ShowXYZArrow );
+    m_BorderMenuItem.Update( m_ShowBorder );
 
     m_FLTK_Window->redraw();
     return true;

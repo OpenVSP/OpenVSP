@@ -87,8 +87,8 @@ protected:
     ActionMenuItem m_TwoVMenuItem;
     ScreenMenuItem m_BackgroundMenuItem;
     ScreenMenuItem m_ScreenshotMenuItem;
-    ActionMenuItem m_AxisMenuItem;
-    ActionMenuItem m_BorderMenuItem;
+    VSPCheckMenuItem m_AxisMenuItem;
+    VSPCheckMenuItem m_BorderMenuItem;
 
     ActionMenuItem m_TopMenuItem;
     ActionMenuItem m_FrontMenuItem;
