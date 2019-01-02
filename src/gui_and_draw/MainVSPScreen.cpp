@@ -404,28 +404,34 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_OneMenuItem )
     {
         m_GlWin->setWindowLayout( 1, 1 );
+        SetViewAxis( m_ShowXYZArrow );
+        SetShowBorders( m_ShowBorder );
     }
     else if ( data == &m_FourMenuItem )
     {
         m_GlWin->setWindowLayout( 2, 2 );
+        SetViewAxis( m_ShowXYZArrow );
+        SetShowBorders( m_ShowBorder );
     }
     else if ( data == &m_TwoHMenuItem )
     {
         m_GlWin->setWindowLayout( 1, 2 );
+        SetViewAxis( m_ShowXYZArrow );
+        SetShowBorders( m_ShowBorder );
     }
     else if ( data == &m_TwoVMenuItem )
     {
         m_GlWin->setWindowLayout( 2, 1 );
+        SetViewAxis( m_ShowXYZArrow );
+        SetShowBorders( m_ShowBorder );
     }
     else if ( data == &m_AxisMenuItem )
     {
-        m_ShowXYZArrow = !m_ShowXYZArrow;
-        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showXYZArrows( m_ShowXYZArrow );
+        SetViewAxis( !m_ShowXYZArrow );
     }
     else if ( data == &m_BorderMenuItem )
     {
-        m_ShowBorder = !m_ShowBorder;
-        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showBorders( m_ShowBorder );
+        SetShowBorders( !m_ShowBorder );
     }
     else if ( data == &m_TopMenuItem )
     {
@@ -645,7 +651,15 @@ void MainVSPScreen::SetViewAxis( bool vaxis )
     if ( m_GlWin )
     {
         m_ShowXYZArrow = vaxis;
-        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showXYZArrows( m_ShowXYZArrow );
+
+        vector< VSPGraphic::Viewport * > vports = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+        for ( int i = 0; i < vports.size(); i++ )
+        {
+            if ( vports[i] )
+            {
+                vports[i]->showXYZArrows( m_ShowXYZArrow );
+            }
+        }
     }
 }
 
@@ -654,7 +668,15 @@ void MainVSPScreen::SetShowBorders( bool brdr )
     if ( m_GlWin )
     {
         m_ShowBorder = brdr;
-        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showBorders( m_ShowBorder );
+
+        vector< VSPGraphic::Viewport * > vports = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+        for ( int i = 0; i < vports.size(); i++ )
+        {
+            if ( vports[i] )
+            {
+                vports[i]->showBorders( m_ShowBorder );
+            }
+        }
     }
 }
 
