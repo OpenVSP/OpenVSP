@@ -1871,6 +1871,8 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
             Geom* gPtr = FindGeom( mesh_id );
             if ( gPtr )
             {
+                MeshGeom* mg = dynamic_cast<MeshGeom*>( gPtr );
+                mg->SubTagTris( true );
                 geom_vec.push_back( gPtr );
                 gPtr->Update();
             }
