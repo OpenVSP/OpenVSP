@@ -1901,7 +1901,7 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
         for ( int i = 0; i < ( int ) tags.size(); i++ )
         {
             std::string tagname = SubSurfaceMgr.GetTagNames( i );
-            fprintf( file_id, "solid %s\n", tagname.c_str() );
+            fprintf( file_id, "solid %d_%s\n", tags[i], tagname.c_str() );
 
             for ( int j = 0 ; j < ( int )geom_vec.size() ; j++ )
             {
@@ -1912,7 +1912,7 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
                     mg->WriteStl( file_id, tags[i] );
                 }
             }
-            fprintf( file_id, "endsolid %s\n", tagname.c_str() );
+            fprintf( file_id, "endsolid %d_%s\n", tags[i], tagname.c_str() );
         }
 
         fclose( file_id );
