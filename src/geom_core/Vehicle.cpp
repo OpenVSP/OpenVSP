@@ -1171,7 +1171,7 @@ vector< DrawObj* > Vehicle::GetDrawObjs()
     vector< DrawObj* > draw_obj_vec;
 
     //==== Traverse All Active Displayed Geom and Load DrawObjs ====//
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         geom_vec[i]->LoadDrawObjs( draw_obj_vec );
@@ -1182,7 +1182,7 @@ vector< DrawObj* > Vehicle::GetDrawObjs()
 
 void Vehicle::ResetDrawObjsGeomChangedFlags()
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         geom_vec[i]->ResetGeomChangedFlag();
@@ -1209,7 +1209,7 @@ void Vehicle::SetSetName( int index, const string& name )
 //=== Set 'Show' set to specified index set ===//
 void Vehicle::ShowOnlySet( int index )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         bool f = geom_vec[i]->GetSetFlag( index );
@@ -1221,7 +1221,7 @@ void Vehicle::ShowOnlySet( int index )
 
 void Vehicle::NoShowSet( int index )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         bool f = geom_vec[i]->GetSetFlag( index );
@@ -1236,7 +1236,7 @@ void Vehicle::NoShowSet( int index )
 
 void Vehicle::ShowSet( int index )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         bool f = geom_vec[i]->GetSetFlag( index );
@@ -1254,7 +1254,7 @@ vector< string > Vehicle::GetGeomSet( int index )
 {
     vector< string > geom_id_vec;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i]->GetSetFlag( index ) )
@@ -1269,7 +1269,7 @@ void Vehicle::HideAllExcept( string id )
 {
     vector< string > geom_id_vec;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         Geom* geom_ptr = geom_vec[i];
@@ -1290,7 +1290,7 @@ void Vehicle::HideAll()
 {
     vector< string > geom_id_vec;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         Geom* geom_ptr = geom_vec[i];
@@ -1364,7 +1364,7 @@ void Vehicle::AddType( const string & geom_id )
 vector< string > Vehicle::GetValidTypeGeoms()
 {
     vector< string > geom_id_vec;
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i]->GetType().m_Type != CUSTOM_GEOM_TYPE )
@@ -1429,7 +1429,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 
     MaterialMgr.EncodeXml( node );
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i]->GetSetFlag( set ) )
@@ -1703,7 +1703,7 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
 //==== Write Cross Section File ====//
 void Vehicle::WriteXSecFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     int geom_cnt = 0;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -1734,7 +1734,7 @@ void Vehicle::WriteXSecFile( const string & file_name, int write_set )
 //==== Write Formatted PLOT3D File ====//
 void Vehicle::WritePLOT3DFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     int geom_cnt = 0;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -1775,7 +1775,7 @@ void Vehicle::WritePLOT3DFile( const string & file_name, int write_set )
 //==== Check for an existing mesh in set ====//
 bool Vehicle::ExistMesh( int set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return false;
@@ -1798,7 +1798,7 @@ vector < string > Vehicle::GetPtCloudGeoms()
 {
     vector < string > ptclouds;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return ptclouds;
@@ -1818,7 +1818,7 @@ vector < string > Vehicle::GetPtCloudGeoms()
 //==== Write STL File ====//
 void Vehicle::WriteSTLFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -1857,7 +1857,7 @@ void Vehicle::WriteSTLFile( const string & file_name, int write_set )
 //==== Write STL File ====//
 void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -1924,7 +1924,7 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
 //==== Write Facet File ====//
 void Vehicle::WriteFacetFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -2021,7 +2021,7 @@ void Vehicle::WriteFacetFile( const string & file_name, int write_set )
 //==== Write Tri File ====//
 void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( geom_vec.size()==0 )
     {
         printf("WARNING: No geometry to write \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
@@ -2118,7 +2118,7 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 //==== Write OBJ File ====//
 void Vehicle::WriteOBJFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( geom_vec.size()==0 )
     {
         printf("WARNING: No geometry to write \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
@@ -2201,7 +2201,7 @@ void Vehicle::WriteOBJFile( const string & file_name, int write_set )
 //==== Write Nascart Files ====//
 void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -2292,7 +2292,7 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
 
 void Vehicle::WriteGmshFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -2380,7 +2380,7 @@ void Vehicle::WriteGmshFile( const string & file_name, int write_set )
 
 void Vehicle::WriteX3DFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -2548,7 +2548,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set )
     UpdateBBox();
     int i;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -2636,7 +2636,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set )
 
 void Vehicle::FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     int icomp = 0;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -2659,7 +2659,7 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 {
     STEPutil step( m_STEPLenUnit(), m_STEPTol() );
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if( geom_vec[i]->GetSetFlag( write_set ) )
@@ -2748,7 +2748,7 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
 
     model.SetNativeSystemID( VSPVERSION4 );
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if( geom_vec[i]->GetSetFlag( write_set ) )
@@ -2869,7 +2869,7 @@ void Vehicle::WriteAirfoilFile( const string &file_name, int write_set )
         m_AFFileDir = string();
     }
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     for ( int i = 0; i < (int)geom_vec.size(); i++ )
     {
@@ -2888,7 +2888,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 
     if ( dxf_file )
     {
-        vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+        vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
         if ( geom_vec.size() == 0 )
         {
@@ -3091,7 +3091,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 
 void Vehicle::WriteSVGFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     if ( geom_vec.size() == 0 )
     {
@@ -3366,7 +3366,7 @@ void Vehicle::WritePMARCFile( const string & file_name, int write_set )
 
     int ntotal = 0;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     //==== Write surface boundary points ====//
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -4471,7 +4471,7 @@ void Vehicle::CreateDegenGeom( int set )
     m_DegenGeomVec.clear();
     m_DegenPtMassVec.clear();
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i]->GetSetFlag( set ) )

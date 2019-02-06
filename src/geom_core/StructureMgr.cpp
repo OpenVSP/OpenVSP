@@ -150,7 +150,7 @@ vector < FeaStructure* > StructureMgrSingleton::GetAllFeaStructs()
 
     if ( veh )
     {
-        vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec( false ) );
+        vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
 
         for ( unsigned int i = 0; i < geom_vec.size(); i++ )
         {

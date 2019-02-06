@@ -36,7 +36,7 @@ bool ManageCORScreen::Update()
     }
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    std::vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec( false ) );
+    std::vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
 
     for(int i = 0; i < (int)geom_vec.size(); i++)
     {

@@ -739,7 +739,7 @@ void ManageMeasureScreen::UpdatePickList()
     // Load all geom.
 
     Vehicle* veh = VehicleMgr.GetVehicle();
-    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec( false ) );
+    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
 
     m_PickList.clear();
 

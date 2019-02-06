@@ -921,7 +921,7 @@ void ManageGeomScreen::UpdateDrawObjs()
 
     if( m_PickButton.GetFlButton()->value() == 1 )
     {
-        vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( m_VehiclePtr->GetGeomVec( false ) );
+        vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( m_VehiclePtr->GetGeomVec() );
         for( int i = 0; i < ( int )geom_vec.size(); i++ )
         {
             std::vector< DrawObj* > geom_drawobj_vec;

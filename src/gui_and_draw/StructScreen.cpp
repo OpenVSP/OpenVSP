@@ -895,7 +895,7 @@ void StructScreen::LoadGeomChoice()
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     if ( veh )
     {
-        vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec( false ) );
+        vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
 
         map <string, int> CompIDMap;
         int icomp = 0;
