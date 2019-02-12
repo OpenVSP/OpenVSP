@@ -1605,7 +1605,7 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
     m_Radius.Init( "RoundRectXSec_Radius", m_GroupName,  this,  0.2, 0.0, 1.0e12 );
     m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -10, 10);
     m_Keystone.Init("RoundRect_Keystone", m_GroupName, this, 0.5, 0.0, 1.0 );
-    m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, false, 0, 1 );
+    m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, true, 0, 1 );
 }
 
 //==== Update Geometry ====//
