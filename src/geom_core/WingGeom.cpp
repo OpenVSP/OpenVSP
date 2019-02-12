@@ -2692,6 +2692,14 @@ void WingGeom::ReadV2File( xmlNodePtr &root )
             }
         }
     }
+
+    //==== Load Totals ====//
+    m_TotalSpan = ComputeTotalSpan();
+    m_TotalProjSpan = ComputeTotalProjSpan();
+    m_TotalChord = ComputeTotalChord();
+    m_TotalArea = ComputeTotalArea();
+
+    m_TotalAR = m_TotalProjSpan() * m_TotalProjSpan() / m_TotalArea() ;
 }
 
 void WingGeom::OffsetXSecs( double off )
