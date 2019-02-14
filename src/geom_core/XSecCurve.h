@@ -61,6 +61,9 @@ public:
     virtual void SetScale( double scale );
     virtual string GetWidthParmID()                                    { return string(); }
 
+    virtual void SetDesignLiftCoeff( double cli )               {}
+    virtual double GetDesignLiftCoeff()                                { return 0.0; }
+
     virtual void OffsetCurve( double offset_val );
 
     // FakeWidth is introduced to provide a scale value for leading/trailing edge

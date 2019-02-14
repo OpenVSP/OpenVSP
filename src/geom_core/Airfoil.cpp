@@ -253,8 +253,7 @@ FourSeries::FourSeries( ) : NACABase( )
     m_CamberInputFlag.Init( "CamberInputFlag", m_GroupName, this, MAX_CAMB, MAX_CAMB, DESIGN_CL );
 }
 
-//==== Update ====//
-void FourSeries::Update()
+void FourSeries::UpdateDesignLiftCoeff()
 {
     if ( m_CamberInputFlag() == MAX_CAMB )
     {
@@ -264,6 +263,12 @@ void FourSeries::Update()
     {
         m_Camber.Set( CalcFourDigitCamber( m_IdealCl(), m_CamberLoc() ) );
     }
+}
+
+//==== Update ====//
+void FourSeries::Update()
+{
+    UpdateDesignLiftCoeff();
 
     if ( !m_EqArcLen() ) // 'old' code with non-equal arc len parameterization.
     {
@@ -299,6 +304,18 @@ void FourSeries::Update()
     }
 
     Airfoil::Update();
+}
+
+void FourSeries::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl.Set( cli );
+    m_Camber.Set( CalcFourDigitCamber( cli, m_CamberLoc() ) );
+}
+
+double FourSeries::GetDesignLiftCoeff()
+{
+    UpdateDesignLiftCoeff();
+    return m_IdealCl();
 }
 
 //===== Load Name And Number of 4 Series =====//
@@ -353,8 +370,7 @@ FourDigMod::FourDigMod( ) : NACABase( )
     m_CamberInputFlag.Init( "CamberInputFlag", m_GroupName, this, MAX_CAMB, MAX_CAMB, DESIGN_CL );
 }
 
-//==== Update ====//
-void FourDigMod::Update()
+void FourDigMod::UpdateDesignLiftCoeff()
 {
     if ( m_CamberInputFlag() == MAX_CAMB )
     {
@@ -364,11 +380,29 @@ void FourDigMod::Update()
     {
         m_Camber.Set( CalcFourDigitCamber( m_IdealCl(), m_CamberLoc() ) );
     }
+}
+
+//==== Update ====//
+void FourDigMod::Update()
+{
+    UpdateDesignLiftCoeff();
 
     four_digit_mod_airfoil_type af( m_Camber(), m_CamberLoc(), m_ThickChord(), m_LERadIndx(),  m_ThickLoc(), m_SharpTE() );
 
     BuildCurve( af );
     Airfoil::Update();
+}
+
+void FourDigMod::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl.Set( cli );
+    m_Camber.Set( CalcFourDigitCamber( cli, m_CamberLoc() ) );
+}
+
+double FourDigMod::GetDesignLiftCoeff()
+{
+    UpdateDesignLiftCoeff();
+    return m_IdealCl();
 }
 
 //===== Load Name And Number of 4 Series =====//
@@ -418,6 +452,16 @@ void FiveDig::Update()
 
     BuildCurve( m_AF );
     Airfoil::Update();
+}
+
+void FiveDig::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl = cli;
+}
+
+double FiveDig::GetDesignLiftCoeff()
+{
+    return m_IdealCl();
 }
 
 //===== Load Name And Number of 4 Series =====//
@@ -477,6 +521,16 @@ void FiveDigMod::Update()
     Airfoil::Update();
 }
 
+void FiveDigMod::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl = cli;
+}
+
+double FiveDigMod::GetDesignLiftCoeff()
+{
+    return m_IdealCl();
+}
+
 //===== Load Name And Number of 4 Series =====//
 string FiveDigMod::GetAirfoilName()
 {
@@ -531,6 +585,16 @@ void OneSixSeries::Update()
 
     BuildCurve( m_AF );
     Airfoil::Update();
+}
+
+void OneSixSeries::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl = cli;
+}
+
+double OneSixSeries::GetDesignLiftCoeff()
+{
+    return m_IdealCl();
 }
 
 //===== Load Name And Number of 4 Series =====//
@@ -648,6 +712,16 @@ void SixSeries::Update()
     m_Curve.InterpolatePCHIP( pnts, arclen, false );
 
     Airfoil::Update();
+}
+
+void SixSeries::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl = cli;
+}
+
+double SixSeries::GetDesignLiftCoeff()
+{
+    return m_IdealCl();
 }
 
 //===== Load Name And Number of 4 Series =====//

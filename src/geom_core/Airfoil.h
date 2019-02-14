@@ -113,6 +113,9 @@ public:
     FourSeries( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
+    virtual void UpdateDesignLiftCoeff();
 
     virtual string GetAirfoilName();
 
@@ -138,6 +141,9 @@ public:
     FourDigMod( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
+    virtual void UpdateDesignLiftCoeff();
 
     virtual string GetAirfoilName();
 
@@ -162,6 +168,8 @@ public:
     FiveDig( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
 
     virtual string GetAirfoilName();
 
@@ -181,6 +189,8 @@ public:
     FiveDigMod( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
 
     virtual string GetAirfoilName();
 
@@ -202,6 +212,8 @@ public:
     OneSixSeries( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
 
     virtual string GetAirfoilName();
 
@@ -238,6 +250,8 @@ public:
     SixSeries( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
 
     virtual string GetAirfoilName();
 
