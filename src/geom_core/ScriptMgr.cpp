@@ -453,6 +453,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "BOR_MODE", "BOR_NUM_MODES", BOR_NUM_MODES );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "CAMBER_INPUT_FLAG" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMBER_INPUT_FLAG", "MAX_CAMB", MAX_CAMB );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "CAMBER_INPUT_FLAG", "DESIGN_CL", DESIGN_CL );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "CAP_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CAP_TYPE", "NO_END_CAP", vsp::NO_END_CAP );

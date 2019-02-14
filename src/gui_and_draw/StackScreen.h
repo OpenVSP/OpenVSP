@@ -118,6 +118,10 @@ protected:
     SliderAdjRangeInput m_FourChordSlider;
     SliderAdjRangeInput m_FourThickChordSlider;
     SliderAdjRangeInput m_FourCamberSlider;
+    SliderAdjRangeInput m_FourCLiSlider;
+    ToggleButton m_FourCamberButton;
+    ToggleButton m_FourCLiButton;
+    ToggleRadioGroup m_FourCamberGroup;
     SliderAdjRangeInput m_FourCamberLocSlider;
     CheckButton m_FourSharpTEButton;
 
@@ -189,6 +193,10 @@ protected:
     SliderAdjRangeInput m_FourModChordSlider;
     SliderAdjRangeInput m_FourModThickChordSlider;
     SliderAdjRangeInput m_FourModCamberSlider;
+    SliderAdjRangeInput m_FourModCLiSlider;
+    ToggleButton m_FourModCamberButton;
+    ToggleButton m_FourModCLiButton;
+    ToggleRadioGroup m_FourModCamberGroup;
     SliderAdjRangeInput m_FourModCamberLocSlider;
     SliderAdjRangeInput m_FourModThicknessLocSlider;
     SliderAdjRangeInput m_FourModLERadIndexSlider;

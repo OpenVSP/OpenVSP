@@ -52,6 +52,9 @@ typedef eli::geom::curve::pseudo::one_six_series<double> one_six_series_airfoil_
 
 using std::string;
 
+double CalcFourDigitCLi( double m, double p );
+double CalcFourDigitCamber( double CLi, double p );
+
 //==== Base Class For Airfoils ====//
 class Airfoil : public XSecCurve
 {
@@ -119,6 +122,9 @@ public:
     Parm m_CamberLoc;
     BoolParm m_EqArcLen;
     BoolParm m_SharpTE;
+
+    Parm m_IdealCl;
+    IntParm m_CamberInputFlag;
 };
 
 //==========================================================================//
@@ -140,6 +146,9 @@ public:
     Parm m_ThickLoc;
     Parm m_LERadIndx;
     BoolParm m_SharpTE;
+
+    Parm m_IdealCl;
+    IntParm m_CamberInputFlag;
 };
 
 //==========================================================================//

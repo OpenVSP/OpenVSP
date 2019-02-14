@@ -171,7 +171,42 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
     m_FourSeriesGroup.AddSlider( m_FourChordSlider, "Chord", 10, "%7.3f" );
     m_FourSeriesGroup.AddSlider( m_FourThickChordSlider, "T/C", 1, "%7.5f" );
     m_FourSeriesGroup.AddYGap();
+
+    int actionToggleButtonWidth = 15;
+    int actionSliderButtonWidth = m_FourSeriesGroup.GetButtonWidth() - actionToggleButtonWidth;
+
+    m_FourSeriesGroup.SetSameLineFlag( true );
+
+    m_FourSeriesGroup.SetFitWidthFlag( false );
+    m_FourSeriesGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FourSeriesGroup.AddButton( m_FourCamberButton, "" );
+    m_FourSeriesGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FourSeriesGroup.SetFitWidthFlag( true );
     m_FourSeriesGroup.AddSlider( m_FourCamberSlider, "Camber", 0.2, "%7.5f" );
+
+    m_FourSeriesGroup.ForceNewLine();
+
+    m_FourSeriesGroup.SetFitWidthFlag( false );
+    m_FourSeriesGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FourSeriesGroup.AddButton( m_FourCLiButton, "" );
+    m_FourSeriesGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FourSeriesGroup.SetFitWidthFlag( true );
+    m_FourSeriesGroup.AddSlider( m_FourCLiSlider, "Ideal CL", 1, "%7.5f" );
+
+    m_FourSeriesGroup.ForceNewLine();
+
+    m_FourSeriesGroup.SetSameLineFlag( false );
+    m_FourSeriesGroup.SetButtonWidth( actionSliderButtonWidth + actionToggleButtonWidth );
+
+    m_FourCamberGroup.Init( this );
+    m_FourCamberGroup.AddButton( m_FourCamberButton.GetFlButton() );
+    m_FourCamberGroup.AddButton( m_FourCLiButton.GetFlButton() );
+
+    vector< int > camb_val_map;
+    camb_val_map.push_back( vsp::MAX_CAMB );
+    camb_val_map.push_back( vsp::DESIGN_CL );
+    m_FourCamberGroup.SetValMapVec( camb_val_map );
+
     m_FourSeriesGroup.AddSlider( m_FourCamberLocSlider, "CamberLoc", 1, "%7.5f" );
     m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.AddButton( m_FourInvertButton, "Invert Airfoil" );
@@ -318,7 +353,36 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
     m_FourDigitModGroup.AddSlider( m_FourModChordSlider, "Chord", 10, "%7.3f" );
     m_FourDigitModGroup.AddSlider( m_FourModThickChordSlider, "T/C", 1, "%7.5f" );
     m_FourDigitModGroup.AddYGap();
+
+    m_FourDigitModGroup.SetSameLineFlag( true );
+
+    m_FourDigitModGroup.SetFitWidthFlag( false );
+    m_FourDigitModGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FourDigitModGroup.AddButton( m_FourModCamberButton, "" );
+    m_FourDigitModGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FourDigitModGroup.SetFitWidthFlag( true );
     m_FourDigitModGroup.AddSlider( m_FourModCamberSlider, "Camber", 0.2, "%7.5f" );
+
+    m_FourDigitModGroup.ForceNewLine();
+
+    m_FourDigitModGroup.SetFitWidthFlag( false );
+    m_FourDigitModGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FourDigitModGroup.AddButton( m_FourModCLiButton, "" );
+    m_FourDigitModGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FourDigitModGroup.SetFitWidthFlag( true );
+    m_FourDigitModGroup.AddSlider( m_FourModCLiSlider, "Ideal CL", 1, "%7.5f" );
+
+    m_FourDigitModGroup.ForceNewLine();
+
+    m_FourDigitModGroup.SetSameLineFlag( false );
+    m_FourDigitModGroup.SetButtonWidth( actionSliderButtonWidth + actionToggleButtonWidth );
+
+    m_FourModCamberGroup.Init( this );
+    m_FourModCamberGroup.AddButton( m_FourModCamberButton.GetFlButton() );
+    m_FourModCamberGroup.AddButton( m_FourModCLiButton.GetFlButton() );
+
+    m_FourModCamberGroup.SetValMapVec( camb_val_map );
+
     m_FourDigitModGroup.AddSlider( m_FourModCamberLocSlider, "CamberLoc", 1, "%7.5f" );
     m_FourDigitModGroup.AddYGap();
     m_FourDigitModGroup.AddSlider( m_FourModThicknessLocSlider, "T/CLoc", 0.5, "%7.5f" );
@@ -712,6 +776,18 @@ bool BORScreen::Update()
             m_FourChordSlider.Update( fs_xs->m_Chord.GetID() );
             m_FourThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
             m_FourCamberSlider.Update( fs_xs->m_Camber.GetID() );
+            m_FourCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+            m_FourCamberGroup.Update( fs_xs->m_CamberInputFlag.GetID() );
+            if ( fs_xs->m_CamberInputFlag() == vsp::MAX_CAMB )
+            {
+                m_FourCamberSlider.Activate();
+                m_FourCLiSlider.Deactivate();
+            }
+            else
+            {
+                m_FourCamberSlider.Deactivate();
+                m_FourCLiSlider.Activate();
+            }
             m_FourCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
             m_FourInvertButton.Update( fs_xs->m_Invert.GetID() );
             m_FourNameOutput.Update( fs_xs->GetAirfoilName() );
@@ -838,6 +914,18 @@ bool BORScreen::Update()
             m_FourModChordSlider.Update( fs_xs->m_Chord.GetID() );
             m_FourModThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
             m_FourModCamberSlider.Update( fs_xs->m_Camber.GetID() );
+            m_FourModCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+            m_FourModCamberGroup.Update( fs_xs->m_CamberInputFlag.GetID() );
+            if ( fs_xs->m_CamberInputFlag() == vsp::MAX_CAMB )
+            {
+                m_FourModCamberSlider.Activate();
+                m_FourModCLiSlider.Deactivate();
+            }
+            else
+            {
+                m_FourModCamberSlider.Deactivate();
+                m_FourModCLiSlider.Activate();
+            }
             m_FourModCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
             m_FourModInvertButton.Update( fs_xs->m_Invert.GetID() );
             m_FourModNameOutput.Update( fs_xs->GetAirfoilName() );

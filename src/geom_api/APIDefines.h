@@ -39,6 +39,10 @@ enum BOR_MODE { BOR_FLOWTHROUGH,
                 BOR_NUM_MODES
               };
 
+enum CAMBER_INPUT_FLAG { MAX_CAMB,
+                         DESIGN_CL
+};
+
 enum CAP_TYPE { NO_END_CAP,
                 FLAT_END_CAP,
                 ROUND_END_CAP,

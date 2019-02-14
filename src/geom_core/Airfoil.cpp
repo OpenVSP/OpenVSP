@@ -20,6 +20,40 @@
 using std::string;
 using namespace vsp;
 
+/* Equations for NACA 4-Digit camber line derived using computer algebra software maxima.
+x: (1-cos(theta))/2;
+thp: %pi-acos(2*p-1);
+dydx1: 2*m*(p-x)/(p^2);
+dydx2: 2*m*(p-x)/((1-p)^2);
+z1: 2* dydx1*cos(theta);
+z2: 2* dydx2*cos(theta);
+cliexpr: ratsimp(integrate( z1, theta, 0, thp ) + integrate( z2, theta, thp, %pi ));
+cli(m,p):= ''(cliexpr);
+fortran(cliexpr);
+pcli:[[0.2, 0.923], [0.3, 0.816], [0.4, 0.767], [0.5, 0.754], [0.6, 0.767], [0.7, 0.816]];
+wxplot2d([[discrete, pcli], cli(0.06,p)], [p,0.05,0.95], [style, points, lines], [color, red, blue],[point_type, asterisk],[legend, "TOWS", "eq"],[xlabel, "p"],[ylabel, "cli"],[gnuplot_postamble, "set zeroaxis;"]);
+*/
+
+double CalcFourDigitCLi( double m, double p )
+{
+    double p2 = p * p;
+    double p3 = p2 * p;
+    double p4 = p2 * p2;
+
+    double CLi = -((m-2.0*m*p)*sin(2.0*acos(2.0*p-1.0))+(2.0*m-4.0*m*p)*acos(2.0*p-1.0)+
+    sqrt(4.0*p-4.0*p2)*(16.0*m*p2-16.0*m*p+4.0*m)-2.0*PI*m*p2+4.0*PI*m*p-2.0*PI*m)
+    /(2.0*p4-4.0*p3+2.0*p2);
+
+    return CLi;
+}
+
+double CalcFourDigitCamber( double CLi, double p )
+{
+    double CLi1 = CalcFourDigitCLi( 1.0, p );
+
+    return CLi / CLi1;
+}
+
 //==== Default Constructor ====//
 Airfoil::Airfoil( ) : XSecCurve( )
 {
@@ -212,11 +246,25 @@ FourSeries::FourSeries( ) : NACABase( )
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.0, 1.0 );
     m_EqArcLen.Init( "EqArcLenFlag", m_GroupName, this, true, 0, 1 );
     m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
+
+    // Output only parameter.
+    m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.0, 0.0, 1e12 );
+
+    m_CamberInputFlag.Init( "CamberInputFlag", m_GroupName, this, MAX_CAMB, MAX_CAMB, DESIGN_CL );
 }
 
 //==== Update ====//
 void FourSeries::Update()
 {
+    if ( m_CamberInputFlag() == MAX_CAMB )
+    {
+        m_IdealCl.Set( CalcFourDigitCLi( m_Camber(), m_CamberLoc() ) );
+    }
+    else
+    {
+        m_Camber.Set( CalcFourDigitCamber( m_IdealCl(), m_CamberLoc() ) );
+    }
+
     if ( !m_EqArcLen() ) // 'old' code with non-equal arc len parameterization.
     {
         piecewise_curve_type c, d;
@@ -299,11 +347,24 @@ FourDigMod::FourDigMod( ) : NACABase( )
     m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.3, 0.2, 0.6 );
     m_LERadIndx.Init( "LERadIndx", m_GroupName, this, 6.0, 0.0, 9.0 );
     m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
+
+    // Output only parameter.
+    m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.0, 0.0, 1e12 );
+    m_CamberInputFlag.Init( "CamberInputFlag", m_GroupName, this, MAX_CAMB, MAX_CAMB, DESIGN_CL );
 }
 
 //==== Update ====//
 void FourDigMod::Update()
 {
+    if ( m_CamberInputFlag() == MAX_CAMB )
+    {
+        m_IdealCl.Set( CalcFourDigitCLi( m_Camber(), m_CamberLoc() ) );
+    }
+    else
+    {
+        m_Camber.Set( CalcFourDigitCamber( m_IdealCl(), m_CamberLoc() ) );
+    }
+
     four_digit_mod_airfoil_type af( m_Camber(), m_CamberLoc(), m_ThickChord(), m_LERadIndx(),  m_ThickLoc(), m_SharpTE() );
 
     BuildCurve( af );
