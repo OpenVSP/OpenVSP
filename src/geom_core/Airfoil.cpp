@@ -16,6 +16,7 @@
 #include "Vec2d.h"
 #include "Cluster.h"
 #include "StlHelper.h"
+#include "Util.h"
 
 using std::string;
 using namespace vsp;
@@ -357,6 +358,20 @@ void FourSeries::ReadV2File( xmlNodePtr &root )
     m_CamberLoc = XmlUtil::FindDouble( root, "Camber_Loc", m_CamberLoc() );
 }
 
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void FourSeries::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    FourSeries *s = dynamic_cast< FourSeries* > ( start );
+    FourSeries *e = dynamic_cast< FourSeries* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_Camber );
+        INTERP_PARM( s, e, frac, m_CamberLoc );
+    }
+    XSecCurve::Interp( start, end, frac );
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -444,6 +459,22 @@ string FourDigMod::GetAirfoilName()
     return string( str );
 }
 
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void FourDigMod::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    FourDigMod *s = dynamic_cast< FourDigMod* > ( start );
+    FourDigMod *e = dynamic_cast< FourDigMod* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_Camber );
+        INTERP_PARM( s, e, frac, m_CamberLoc );
+        INTERP_PARM( s, e, frac, m_ThickLoc );
+        INTERP_PARM( s, e, frac, m_LERadIndx );
+    }
+    XSecCurve::Interp( start, end, frac );
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -514,6 +545,18 @@ string FiveDig::GetAirfoilName()
     return string( str );
 }
 
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void FiveDig::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    FiveDig *s = dynamic_cast< FiveDig* > ( start );
+    FiveDig *e = dynamic_cast< FiveDig* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_CamberLoc );
+    }
+    XSecCurve::Interp( start, end, frac );
+}
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -586,6 +629,21 @@ string FiveDigMod::GetAirfoilName()
     }
 
     return string( str );
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void FiveDigMod::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    FiveDigMod *s = dynamic_cast< FiveDigMod* > ( start );
+    FiveDigMod *e = dynamic_cast< FiveDigMod* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_CamberLoc );
+        INTERP_PARM( s, e, frac, m_ThickLoc );
+        INTERP_PARM( s, e, frac, m_LERadIndx );
+    }
+    XSecCurve::Interp( start, end, frac );
 }
 
 //==========================================================================//
@@ -818,6 +876,19 @@ void SixSeries::ReadV2File( xmlNodePtr &root )
     m_A = XmlUtil::FindDouble( root, "A", m_A() );
 }
 
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void SixSeries::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    SixSeries *s = dynamic_cast< SixSeries* > ( start );
+    SixSeries *e = dynamic_cast< SixSeries* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_A );
+    }
+    XSecCurve::Interp( start, end, frac );
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//
@@ -923,6 +994,19 @@ void Wedge::ReadV2File( xmlNodePtr &root )
     Airfoil::ReadV2File( root );
 
     m_ThickLoc = XmlUtil::FindDouble( root, "Thickness_Loc", m_ThickLoc() );
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void Wedge::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    Wedge *s = dynamic_cast< Wedge* > ( start );
+    Wedge *e = dynamic_cast< Wedge* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_ThickLoc );
+    }
+    XSecCurve::Interp( start, end, frac );
 }
 
 //==========================================================================//
@@ -1987,4 +2071,19 @@ void VKTAirfoil::OffsetCurve( double offset_val )
     }
 
     m_yscale = ( offset_t / offset_c ) / ( t / c );
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void VKTAirfoil::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    VKTAirfoil *s = dynamic_cast< VKTAirfoil* > ( start );
+    VKTAirfoil *e = dynamic_cast< VKTAirfoil* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_Epsilon );
+        INTERP_PARM( s, e, frac, m_Kappa );
+        INTERP_PARM( s, e, frac, m_Tau );
+    }
+    XSecCurve::Interp( start, end, frac );
 }

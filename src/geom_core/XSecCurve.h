@@ -85,6 +85,8 @@ public:
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
 
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
+
     IntParm m_TECloseType;
     IntParm m_TECloseAbsRel;
 
@@ -240,6 +242,8 @@ public:
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
 
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
+
     Parm m_Width;
     Parm m_Height;
     Parm m_M;
@@ -277,6 +281,8 @@ public:
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
 
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
+
     Parm m_Width;
     Parm m_Height;
     Parm m_Radius;
@@ -310,6 +316,8 @@ public:
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
+
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_Width;
     Parm m_Height;

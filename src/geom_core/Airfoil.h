@@ -122,6 +122,7 @@ public:
     virtual string GetAirfoilName();
 
     virtual void ReadV2File( xmlNodePtr &root );
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_Camber;
     Parm m_CamberLoc;
@@ -149,6 +150,7 @@ public:
     virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_Camber;
     Parm m_CamberLoc;
@@ -176,6 +178,7 @@ public:
     virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_IdealCl;
     Parm m_CamberLoc;
@@ -198,6 +201,7 @@ public:
     virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_IdealCl;
     Parm m_CamberLoc;
@@ -263,6 +267,7 @@ public:
     virtual string GetAirfoilName();
 
     virtual void ReadV2File( xmlNodePtr &root );
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     IntParm m_Series;
     Parm m_IdealCl;
@@ -306,6 +311,7 @@ public:
     virtual void Update();
 
     virtual void ReadV2File( xmlNodePtr &root );
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_ThickLoc;
 
@@ -447,6 +453,7 @@ public:
     virtual void Update();
 
     virtual void OffsetCurve( double offset_val );
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_Epsilon;
     Parm m_Kappa;
