@@ -11,6 +11,7 @@
 #include "StlHelper.h"
 #include <float.h>
 #include "Cluster.h"
+#include "Util.h"
 
 using namespace vsp;
 
@@ -148,12 +149,6 @@ void PropXSec::Update()
 
     //==== Apply Transform ====//
     m_TransformedCurve = GetUntransformedCurve();
-
-    m_Transform.loadIdentity();
-
-    m_Transform.translatef( 0, 0, m_RadiusFrac() );
-
-    m_TransformedCurve.Transform( m_Transform );
 }
 
 //==== Set Ref Length ====//
@@ -869,8 +864,11 @@ void PropGeom::UpdateSurf()
 
 
     //==== Cross Section Curves & joint info ====//
-    vector< VspCurve > crv_vec;
-    crv_vec.resize( nxsec );
+    vector< XSecCurve* > xsc_vec;
+    xsc_vec.resize( nxsec, NULL );
+
+    vector< VspCurve > base_crv_vec;
+    base_crv_vec.resize( nxsec );
 
     //==== Update XSec Location/Rotation ====//
     for ( int i = 0 ; i < nxsec ; i++ )
@@ -883,14 +881,26 @@ void PropGeom::UpdateSurf()
 
             double r = xs->m_RadiusFrac();
             double w = m_ChordCurve.Comp( r ) * radius;
+            double t = m_ThickCurve.Comp( r );
+            double cli = m_CLICurve.Comp( r );
+
+            xsc_vec[i] = xsc;
 
             if ( xsc )
             {
+                string height_id = xsc->GetHeightParmID();
+                Parm* height_parm = ParmMgr.FindParm( height_id );
+
+                if ( height_parm )
+                {
+                    height_parm->Deactivate();
+                }
+
                 //==== Find Width Parm ====//
                 string width_id = xsc->GetWidthParmID();
                 Parm* width_parm = ParmMgr.FindParm( width_id );
 
-                piecewise_curve_type pwc;
+                xsc->SetDesignLiftCoeff( cli );
 
                 if ( width_parm )
                 {
@@ -899,53 +909,52 @@ void PropGeom::UpdateSurf()
                     Airfoil* af = dynamic_cast < Airfoil* > ( xsc );
                     if ( af )
                     {
-                        width_parm->Set( 1.0 );
-                        af->SetFakeWidth( w );
-                        af->SetUseFakeWidth( true );
-                        pwc = xs->GetCurve().GetCurve();
-                        af->SetUseFakeWidth( false );
                         width_parm->Set( w );
+                        af->m_ThickChord = t;
+
+                        vector < string > cambids;
+                        af->GetLiftCamberParmID( cambids );
+
+                        for ( int j = 0; j < cambids.size(); j++ )
+                        {
+                            Parm * p = ParmMgr.FindParm( cambids[j] );
+                            if ( p )
+                            {
+                                p->Deactivate();
+                            }
+                        }
                     }
                     else
                     {
                         CircleXSec* cir = dynamic_cast < CircleXSec* > ( xsc );
                         if ( cir )
                         {
-                            width_parm->Set( 1.0 );
-                            pwc = xs->GetCurve().GetCurve();
                             width_parm->Set( w );
                         }
                         else
                         {
-                            double h = xsc->GetHeight();
-                            xsc->SetWidthHeight( 1.0, h/w );
-                            pwc = xs->GetCurve().GetCurve();
-                            xsc->SetWidthHeight( w, h );
+                            xsc->SetWidthHeight( w, t * w );
                         }
                     }
 
                 }
-                else
-                {
-                    pwc = xs->GetCurve().GetCurve();
-                }
 
-                crv_vec[i].SetCurve( pwc );
+                base_crv_vec[i] = xsc->GetCurve();
+                if ( w != 0 )
+                {
+                    base_crv_vec[i].Scale( 1.0 / w );
+                }
             }
         }
     }
-
-    // This surface linearly interpolates the airfoil sections without
-    // any other transformations.
-    // These sections can be extracted (as u-const curves) and then
-    // transformed to their final position before skinning.
-    m_FoilSurf = VspSurf();
-    m_FoilSurf.SkinC0( crv_vec, false );
 
     // Pseudo cross sections
     // Not directly user-controlled, but an intermediate step in lofting the
     // surface.
     int npseudo = tmap.size();
+
+    vector< VspCurve > crv_vec;
+    crv_vec.resize( npseudo );
 
     vector < rib_data_type > rib_vec( npseudo );
     vector < double > u_pseudo( npseudo );
@@ -953,12 +962,26 @@ void PropGeom::UpdateSurf()
     {
         // Assume linear interpolation means linear u/r relationship.
         double r = tmap[i];
+
+        // u is a floating point coordinate where integers correspond to XSec indices
         double u = m_rtou.CompPnt( r );
 
-        VspCurve c;
-        m_FoilSurf.GetUConstCurve( c, u );
-        vec3d v = c.CompPnt( 0 );
-        c.OffsetZ( -v.z() );
+        int istart = std::floor( u );
+        int iend = istart + 1;
+        double frac = ( r - rvec[istart] ) / ( rvec[iend] - rvec[istart] );
+        if ( iend >= nxsec ) // Make sure index doesn't go off the end.
+        {
+            iend = istart;
+            frac = 0;
+        }
+
+        double t = m_ThickCurve.Comp( r );
+        double cli = m_CLICurve.Comp( r );
+        double w = m_ChordCurve.Comp( r ) * radius;
+
+        // Interpolate foil as needed here.
+        InterpXSecCurve( crv_vec[i], xsc_vec[ istart ], xsc_vec[ iend ], frac, w, t, cli );
+
 
         PropPositioner pp;
 
@@ -989,12 +1012,20 @@ void PropGeom::UpdateSurf()
         pp.m_Reverse = rev;
 
         // Set a bunch of other pp variables.
-        pp.SetCurve( c );
+        pp.SetCurve( crv_vec[i] );
         pp.Update();
 
         rib_vec[i].set_f( pp.GetCurve().GetCurve() );
+        // u_pseudo is 0-1 out the span of the blade.
         u_pseudo[i] = ( r - rfirst ) / ( rlast - rfirst );
     }
+
+    // This surface linearly interpolates the airfoil sections without
+    // any other transformations.
+    // These sections can be extracted (as u-const curves) and then
+    // transformed to their final position before skinning.
+    m_FoilSurf = VspSurf();
+    m_FoilSurf.SkinC0( crv_vec, u_pseudo, false );
 
     m_MainSurfVec.resize( 1 );
     m_MainSurfVec.reserve( m_Nblade() );
@@ -1005,8 +1036,10 @@ void PropGeom::UpdateSurf()
     m_MainSurfVec[0].SetMagicVParm( true );
     m_MainSurfVec[0].SetSurfType( PROP_SURF );
     m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
-    m_FoilSurf.SetClustering(m_LECluster(), m_TECluster());
-    m_FoilSurf.SetMagicVParm(m_MainSurfVec[0].IsMagicVParm());
+
+    m_FoilSurf.SetMagicVParm( true );
+    m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
+
     m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
 
     if ( m_XSecSurf.GetFlipUD() )

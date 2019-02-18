@@ -68,6 +68,7 @@ public:
     virtual double GetHeight();
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                { return m_Chord.GetID(); }
+    virtual string GetHeightParmID()                               { return m_ThickChord.GetID(); }
     virtual void GetLiftCamberParmID( vector < string > &ids )     {};
     virtual void OffsetCurve( double offset_val );
 

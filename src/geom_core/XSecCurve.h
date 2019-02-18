@@ -60,6 +60,7 @@ public:
     virtual void SetWidthHeight( double w, double h )           {}
     virtual void SetScale( double scale );
     virtual string GetWidthParmID()                                    { return string(); }
+    virtual string GetHeightParmID()                                   { return string(); }
 
     virtual void SetDesignLiftCoeff( double cli )               {}
     virtual double GetDesignLiftCoeff()                                { return 0.0; }
@@ -214,6 +215,7 @@ public:
     }
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
 
     Parm m_Width;
     Parm m_Height;
@@ -242,6 +244,7 @@ public:
     }
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
 
     virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
@@ -279,6 +282,7 @@ public:
     virtual void SetWidthHeight( double w, double h );
     virtual void SetScale( double scale );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
 
@@ -315,6 +319,7 @@ public:
     }
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
 
@@ -362,6 +367,7 @@ public:
         return m_UnityFilePnts;
     }
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
 
     //===== Read File ====//
     bool ReadXsecFile( string file_name );
