@@ -68,6 +68,7 @@ public:
     virtual double GetHeight();
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                { return m_Chord.GetID(); }
+    virtual void GetLiftCamberParmID( vector < string > &ids )     {};
     virtual void OffsetCurve( double offset_val );
 
     virtual VspCurve& GetOrigCurve();
@@ -116,6 +117,7 @@ public:
     virtual void SetDesignLiftCoeff( double cli );
     virtual double GetDesignLiftCoeff();
     virtual void UpdateDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
 
@@ -144,6 +146,7 @@ public:
     virtual void SetDesignLiftCoeff( double cli );
     virtual double GetDesignLiftCoeff();
     virtual void UpdateDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
 
@@ -170,6 +173,7 @@ public:
     virtual void Update();
     virtual void SetDesignLiftCoeff( double cli );
     virtual double GetDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
 
@@ -191,6 +195,7 @@ public:
     virtual void Update();
     virtual void SetDesignLiftCoeff( double cli );
     virtual double GetDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
 
@@ -214,6 +219,7 @@ public:
     virtual void Update();
     virtual void SetDesignLiftCoeff( double cli );
     virtual double GetDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
 
@@ -252,6 +258,7 @@ public:
     virtual void Update();
     virtual void SetDesignLiftCoeff( double cli );
     virtual double GetDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
 

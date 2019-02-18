@@ -318,6 +318,12 @@ double FourSeries::GetDesignLiftCoeff()
     return m_IdealCl();
 }
 
+void FourSeries::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_Camber.GetID() );
+    ids.push_back( m_IdealCl.GetID() );
+}
+
 //===== Load Name And Number of 4 Series =====//
 string FourSeries::GetAirfoilName()
 {
@@ -405,6 +411,12 @@ double FourDigMod::GetDesignLiftCoeff()
     return m_IdealCl();
 }
 
+void FourDigMod::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_Camber.GetID() );
+    ids.push_back( m_IdealCl.GetID() );
+}
+
 //===== Load Name And Number of 4 Series =====//
 string FourDigMod::GetAirfoilName()
 {
@@ -462,6 +474,11 @@ void FiveDig::SetDesignLiftCoeff( double cli )
 double FiveDig::GetDesignLiftCoeff()
 {
     return m_IdealCl();
+}
+
+void FiveDig::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_IdealCl.GetID() );
 }
 
 //===== Load Name And Number of 4 Series =====//
@@ -531,6 +548,11 @@ double FiveDigMod::GetDesignLiftCoeff()
     return m_IdealCl();
 }
 
+void FiveDigMod::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_IdealCl.GetID() );
+}
+
 //===== Load Name And Number of 4 Series =====//
 string FiveDigMod::GetAirfoilName()
 {
@@ -595,6 +617,11 @@ void OneSixSeries::SetDesignLiftCoeff( double cli )
 double OneSixSeries::GetDesignLiftCoeff()
 {
     return m_IdealCl();
+}
+
+void OneSixSeries::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_IdealCl.GetID() );
 }
 
 //===== Load Name And Number of 4 Series =====//
@@ -722,6 +749,11 @@ void SixSeries::SetDesignLiftCoeff( double cli )
 double SixSeries::GetDesignLiftCoeff()
 {
     return m_IdealCl();
+}
+
+void SixSeries::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_IdealCl.GetID() );
 }
 
 //===== Load Name And Number of 4 Series =====//
