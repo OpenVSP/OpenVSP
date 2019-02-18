@@ -1117,16 +1117,6 @@ bool PropScreen::Update()
                 m_FourCamberSlider.Update( fs_xs->m_Camber.GetID() );
                 m_FourCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
                 m_FourCamberGroup.Update( fs_xs->m_CamberInputFlag.GetID() );
-                if ( fs_xs->m_CamberInputFlag() == MAX_CAMB )
-                {
-                    m_FourCamberSlider.Activate();
-                    m_FourCLiSlider.Deactivate();
-                }
-                else
-                {
-                    m_FourCamberSlider.Deactivate();
-                    m_FourCLiSlider.Activate();
-                }
                 m_FourCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
                 m_FourInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FourNameOutput.Update( fs_xs->GetAirfoilName() );
@@ -1256,16 +1246,6 @@ bool PropScreen::Update()
                 m_FourModCamberSlider.Update( fs_xs->m_Camber.GetID() );
                 m_FourModCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
                 m_FourModCamberGroup.Update( fs_xs->m_CamberInputFlag.GetID() );
-                if ( fs_xs->m_CamberInputFlag() == MAX_CAMB )
-                {
-                    m_FourModCamberSlider.Activate();
-                    m_FourModCLiSlider.Deactivate();
-                }
-                else
-                {
-                    m_FourModCamberSlider.Deactivate();
-                    m_FourModCLiSlider.Activate();
-                }
                 m_FourModCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
                 m_FourModInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FourModNameOutput.Update( fs_xs->GetAirfoilName() );
