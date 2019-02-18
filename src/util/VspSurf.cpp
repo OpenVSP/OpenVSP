@@ -543,7 +543,7 @@ void VspSurf::SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<d
     SkinCubicSpline( ribs, param, tdisc, degree, closed_flag );
 }
 
-void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector< int > &degree, bool closed_flag )
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector < int > &degree, const vector<double> &param, bool closed_flag )
 {
     general_creator_type gc;
     surface_index_type i, ncrv;
@@ -563,7 +563,45 @@ void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int
     }
 
     // create surface
-    SkinRibs( ribs, degree, closed_flag );
+    SkinRibs( ribs, degree, param, closed_flag );
+}
+
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector< int > &degree, bool closed_flag )
+{
+    surface_index_type ncrv;
+    ncrv = input_crv_vec.size();
+    vector< double > param( ncrv );
+    for ( int i = 0; i < ncrv; i++ )
+    {
+        param[i] = 1.0 * i;
+    }
+
+    SkinCX( input_crv_vec, cx, degree, param, closed_flag );
+}
+
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector< double > &param, bool closed_flag )
+{
+    surface_index_type ncrv;
+
+    ncrv = input_crv_vec.size();
+    vector< int > degree( ncrv - 1, 0 );
+
+    SkinCX( input_crv_vec, cx, degree, param, closed_flag );
+}
+
+void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, int cx, const vector< double > &param, bool closed_flag )
+{
+    surface_index_type ncrv;
+
+    ncrv = input_crv_vec.size();
+
+    vector < int > cxv( ncrv, cx );
+    cxv[ 0 ] = 0;
+    cxv[ ncrv - 1 ] = 0;
+
+    vector< int > degree( ncrv - 1, 0 );
+
+    SkinCX( input_crv_vec, cxv, degree, param, closed_flag );
 }
 
 void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, bool closed_flag )
@@ -587,6 +625,11 @@ void VspSurf::SkinCX( const vector< VspCurve > &input_crv_vec, int cx, bool clos
     cxv[ ncrv - 1 ] = 0;
 
     SkinCX( input_crv_vec, cxv, closed_flag );
+}
+
+void VspSurf::SkinC0( const vector< VspCurve > &input_crv_vec, const vector<double> &param, bool closed_flag )
+{
+    SkinCX( input_crv_vec, rib_data_type::C0, param, closed_flag );
 }
 
 //==== Interpolate A Set Of Points =====//
