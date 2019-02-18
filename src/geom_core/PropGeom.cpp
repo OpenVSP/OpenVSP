@@ -1193,8 +1193,79 @@ xmlNodePtr PropGeom::DecodeXml( xmlNodePtr & node )
         m_RakeCurve.DecodeXml( propeller_node );
         m_SkewCurve.DecodeXml( propeller_node );
         m_SweepCurve.DecodeXml( propeller_node );
-        m_ThickCurve.DecodeXml( propeller_node );
-        m_CLICurve.DecodeXml( propeller_node );
+
+        xmlNodePtr thick_curve_node = XmlUtil::GetNode( propeller_node, m_ThickCurve.GetCurveName().c_str(), 0 );
+        if ( thick_curve_node )
+        {
+            m_ThickCurve.DecodeXml( propeller_node );
+        }
+        else
+        {
+            int nxsec = m_XSecSurf.NumXSec();
+
+            vector < double > rvec( nxsec, 0.0 );
+            vector < double > tvec( nxsec, 0.0 );
+
+            for ( int i = 0; i < nxsec; i++ )
+            {
+                PropXSec *xs = ( PropXSec * ) m_XSecSurf.FindXSec( i );
+
+                if ( xs )
+                {
+                    XSecCurve* xsc = xs->GetXSecCurve();
+
+                    double t = 1.0;
+                    if ( xsc )
+                    {
+                        double w = xsc->GetWidth();
+                        double h = xsc->GetHeight();
+
+                        t = h;
+                        if ( w > 0 )
+                        {
+                            t = h / w;
+                        }
+                    }
+
+                    rvec[i] = xs->m_RadiusFrac();
+                    tvec[i] = t;
+                }
+            }
+            m_ThickCurve.m_CurveType = vsp::LINEAR;
+            m_ThickCurve.InitCurve( rvec, tvec );
+        }
+
+        xmlNodePtr cli_curve_node = XmlUtil::GetNode( propeller_node, m_CLICurve.GetCurveName().c_str(), 0 );
+        if ( cli_curve_node )
+        {
+            m_CLICurve.DecodeXml( propeller_node );
+        }
+        else
+        {
+            int nxsec = m_XSecSurf.NumXSec();
+
+            vector < double > rvec( nxsec, 0.0 );
+            vector < double > clivec( nxsec, 0.0 );
+
+            for ( int i = 0; i < nxsec; i++ )
+            {
+                PropXSec *xs = ( PropXSec * ) m_XSecSurf.FindXSec( i );
+
+                if ( xs )
+                {
+                    XSecCurve* xsc = xs->GetXSecCurve();
+
+                    rvec[i] = xs->m_RadiusFrac();
+
+                    if ( xsc )
+                    {
+                        clivec[i] = xsc->GetDesignLiftCoeff();
+                    }
+                }
+            }
+            m_CLICurve.m_CurveType = vsp::LINEAR;
+            m_CLICurve.InitCurve( rvec, clivec );
+        }
     }
 
     return propeller_node;
