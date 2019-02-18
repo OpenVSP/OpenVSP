@@ -68,7 +68,7 @@ public:
     virtual void OffsetCurve( double offset_val );
 
     // FakeWidth is introduced to provide a scale value for leading/trailing edge
-    // modifications when a unit-chord is forced for a propeller.
+    // modifications when a unit-chord is forced for lofting blended wings.
     virtual double GetFakeWidth()                                      { return m_FakeWidth; }
     virtual void SetFakeWidth( double w )                              { m_FakeWidth = w; }
     virtual void SetUseFakeWidth( double b )                           { m_UseFakeWidth = b; }
