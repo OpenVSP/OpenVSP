@@ -34,6 +34,7 @@ public:
     virtual void ReservePts( int n );
 
     virtual void SetCurveName( const string & name );
+    virtual string GetCurveName()     { return m_CurveName; }
 
     xmlNodePtr EncodeXml( xmlNodePtr & node );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
