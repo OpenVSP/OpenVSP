@@ -303,10 +303,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_XSecSurf.SetXSecType( XSEC_PROP );
 
-    m_XSecSurf.AddXSec( XS_CIRCLE );
-    m_XSecSurf.AddXSec( XS_FOUR_SERIES );
-    m_XSecSurf.AddXSec( XS_FOUR_SERIES );
-    m_XSecSurf.AddXSec( XS_FOUR_SERIES );
+    m_XSecSurf.AddXSec( XS_ELLIPSE );
+    m_XSecSurf.AddXSec( XS_ONE_SIX_SERIES );
+    m_XSecSurf.AddXSec( XS_ONE_SIX_SERIES );
 
     int j;
     PropXSec* xs;
@@ -319,39 +318,12 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     ++j;
     xs = ( PropXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
-    xs->m_RadiusFrac = 0.45;
-    FourSeries* af = dynamic_cast< FourSeries* >( xs->GetXSecCurve() );
-    if ( af )
-    {
-        af->m_ThickChord.Set( 0.12 );
-        af->m_Camber.Set( .05 );
-        af->m_CamberLoc.Set( 0.4 );
-    }
-
-    ++j;
-    xs = ( PropXSec* ) m_XSecSurf.FindXSec( j );
-    xs->SetGroupDisplaySuffix( j );
-    xs->m_RadiusFrac = 0.7;
-    af = dynamic_cast< FourSeries* >( xs->GetXSecCurve() );
-    if ( af )
-    {
-        af->m_ThickChord.Set( 0.05 );
-        af->m_Camber.Set( .05 );
-        af->m_CamberLoc.Set( 0.4 );
-    }
+    xs->m_RadiusFrac = 0.4;
 
     ++j;
     xs = ( PropXSec* ) m_XSecSurf.FindXSec( j );
     xs->SetGroupDisplaySuffix( j );
     xs->m_RadiusFrac = 1.0;
-    af = dynamic_cast< FourSeries* >( xs->GetXSecCurve() );
-    if ( af )
-    {
-        af->m_ThickChord.Set( 0.03 );
-        af->m_Camber.Set( .01 );
-        af->m_CamberLoc.Set( 0.4 );
-    }
-
 
     m_ChordCurve.SetParentContainer( GetID() );
     m_ChordCurve.SetDispNames( "r/R", "Chord/R" );
@@ -418,16 +390,14 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_ThickCurve.SetCurveName( "Thick" );
     m_ThickCurve.InitParms();
     m_ThickCurve.m_CurveType = vsp::CEDIT;
-    static const double t4[] =                    {0.2, 0.2 + 0.2 / 3.0,
-                                  0.4 - 0.2 / 3.0, 0.4, 0.4 + 0.2 / 3.0,
-                                  0.6 - 0.2 / 3.0, 0.6, 0.6 + 0.35 / 3.0,
-                                0.95 - 0.35 / 3.0, 0.95, 0.95 + 0.05 / 3.0,
-                                 1.0 - 0.05 / 3.0, 1.0};
-    static const double v4[] =       {1.00, 0.40,
-                                0.15, 0.10, 0.05,
-                                0.05, 0.05, 0.05,
-                                0.05, 0.05, 0.05,
-                                0.05, 0.03};
+    static const double t4[] =                    {0.2, 0.2 + 0.1 / 3.0,
+                                  0.3 - 0.1 / 3.0, 0.3, 0.3 + 0.3 / 3.0,
+                                  0.6 - 0.3 / 3.0, 0.6, 0.6 + 0.4 / 3.0,
+                                  1.0 - 0.4 / 3.0, 1.0};
+    static const double v4[] =        {0.50, 0.300,
+                                0.225, 0.20, 0.125,
+                                0.115, 0.10, 0.075,
+                                0.055, 0.03};
     vector < double > tv4( t4, t4 + sizeof( t4 ) / sizeof( t4[0] ) );
     vector < double > vv4( v4, v4 + sizeof( v4 ) / sizeof( v4[0] ) );
     m_ThickCurve.InitCurve( tv4, vv4 );
@@ -439,13 +409,13 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_CLICurve.InitParms();
     m_CLICurve.m_CurveType = vsp::CEDIT;
     static const double t5[] =                    {0.2, 0.2 + 0.2 / 3.0,
-                                  0.4 - 0.2 / 3.0, 0.4, 0.4 + 0.4 / 3.0,
-                                  0.8 - 0.4 / 3.0, 0.8, 0.8 + 0.2 / 3.0,
-                                  1.0 - 0.2 / 3.0, 1.0};
-    static const double v5[] =       {0.0, 0.2,
-                                 0.2, 0.2, 0.2,
-                                 0.2, 0.2, 0.2,
-                                 0.2, 0.0};
+                                  0.4 - 0.2 / 3.0, 0.4, 0.4 + 0.2 / 3.0,
+                                  0.6 - 0.2 / 3.0, 0.6, 0.6 + 0.4 / 3.0,
+                                  1.0 - 0.4 / 3.0, 1.0};
+    static const double v5[] =       {0.0, 0.7,
+                                 0.7, 0.7, 0.7,
+                                 0.7, 0.7, 0.7,
+                                 0.7, 0.2};
     vector < double > tv5( t5, t5 + sizeof( t5 ) / sizeof( t5[0] ) );
     vector < double > vv5( v5, v5 + sizeof( v5 ) / sizeof( v5[0] ) );
     m_CLICurve.InitCurve( tv5, vv5 );
