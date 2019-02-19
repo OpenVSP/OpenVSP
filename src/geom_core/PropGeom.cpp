@@ -97,7 +97,7 @@ void PropPositioner::Update()
     mat.translatef( 0, m_Radius, 0 );
 
     double x = -m_RootChord * ( 0.5 - m_Construct );
-    mat.translatef( x * sin( m_RootTwist * PI / 180.0), 0, x * cos( m_RootTwist * PI / 180.0) );
+    mat.translatef( x * sin( m_RootTwist * PI / 180.0), 0, m_Reverse * x * cos( m_RootTwist * PI / 180.0) );
 
     mat.rotateY( m_Reverse * m_Twist );
 
@@ -105,7 +105,7 @@ void PropPositioner::Update()
 
     mat.rotateZ( m_ZRotate ); // About chord
 
-    mat.translatef( 0, 0, m_Chord * ( 0.5 - m_Construct ) );
+    mat.translatef( 0, 0, m_Reverse * m_Chord * ( 0.5 - m_Construct ) );
 
     m_TransformedCurve.Transform( mat );
 }
