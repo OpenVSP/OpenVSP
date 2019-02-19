@@ -77,6 +77,8 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
     m_DesignLayout.ForceNewLine();
     m_DesignLayout.SetSameLineFlag( false );
 
+    m_DesignLayout.AddOutput( m_CLiOutput, "CLi", "%6.2f" );
+
     m_DesignLayout.AddYGap();
 
     m_DesignLayout.AddDividerBox( "Tip Treatment" );
@@ -883,6 +885,7 @@ bool PropScreen::Update()
 
     char str[255];
     m_AFOutput.Update( propeller_ptr->m_AF.GetID() );
+    m_CLiOutput.Update( propeller_ptr->m_CLi.GetID() );
 
     m_RFoldSlider.Update( propeller_ptr->m_RadFoldAxis.GetID() );
     m_AxFoldSlider.Update( propeller_ptr->m_AxialFoldAxis.GetID() );

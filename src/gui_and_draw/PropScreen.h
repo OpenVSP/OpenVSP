@@ -55,6 +55,7 @@ protected:
 
     SliderInput m_AFLimitSlider;
     Output m_AFOutput;
+    Output m_CLiOutput;
 
     Choice m_RootCapTypeChoice;
     SliderAdjRangeInput m_RootCapLenSlider;
