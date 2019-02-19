@@ -81,6 +81,7 @@ public:
     virtual void SetParmNames( const string & xname, const string & yname );
 
     virtual double IntegrateAF( double r0 );
+    virtual double IntegrateCLi( double r0 );
 
     virtual void EnforcePtOrder( double rfirst, double rlast );
     virtual void EnforcePtOrder( );
