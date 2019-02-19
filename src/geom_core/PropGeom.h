@@ -193,6 +193,7 @@ public:
 
     Parm m_AFLimit;
     Parm m_AF;
+    Parm m_CLi;
 
 protected:
     virtual void ChangeID( string id );
