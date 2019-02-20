@@ -1540,6 +1540,9 @@ string PropGeom::BuildBEMResults()
     vector < double > twist_vec(n);
     vector < double > rake_vec(n);
     vector < double > skew_vec(n);
+    vector < double > sweep_vec(n);
+    vector < double > thick_vec(n);
+    vector < double > cli_vec(n);
 
     double rspan = rlast - rfirst;
     for ( int i = 0; i < n; i++ )
@@ -1575,6 +1578,9 @@ string PropGeom::BuildBEMResults()
         twist_vec[i] = m_TwistCurve.Comp( r );
         rake_vec[i] = m_RakeCurve.Comp( r );
         skew_vec[i] = m_SkewCurve.Comp( r );
+        sweep_vec[i] = m_SweepCurve.Comp( r );
+        thick_vec[i] = m_ThickCurve.Comp( r );
+        cli_vec[i] = m_CLICurve.Comp( r );
     }
 
     res->Add( NameValData( "Radius", r_vec ) );
@@ -1582,6 +1588,9 @@ string PropGeom::BuildBEMResults()
     res->Add( NameValData( "Twist", twist_vec ) );
     res->Add( NameValData( "Rake", rake_vec ) );
     res->Add( NameValData( "Skew", skew_vec ) );
+    res->Add( NameValData( "Sweep", sweep_vec ) );
+    res->Add( NameValData( "Thick", thick_vec ) );
+    res->Add( NameValData( "CLi", cli_vec ) );
 
     return res->GetID();
 }
@@ -1601,6 +1610,9 @@ int PropGeom::ReadBEM( const string &file_name )
     vector < double > twist_vec;
     vector < double > rake_vec;
     vector < double > skew_vec;
+    vector < double > sweep_vec;
+    vector < double > thick_vec;
+    vector < double > cli_vec;
 
     FILE* fid = fopen( file_name.c_str(), "r" );
 
@@ -1629,12 +1641,15 @@ int PropGeom::ReadBEM( const string &file_name )
         twist_vec.resize( num_sect );
         rake_vec.resize( num_sect );
         skew_vec.resize( num_sect );
+        sweep_vec.resize( num_sect );
+        thick_vec.resize( num_sect );
+        cli_vec.resize( num_sect );
 
-        fgets( buf, 255, fid );  // Advance past "Radius/R, Chord/R, Twist (deg), Rake/R, Skew/R"
+        fgets( buf, 255, fid );  // Advance past "Radius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi"
 
         for ( int i = 0; i < num_sect; i++ )
         {
-            fscanf( fid, "%lf, %lf, %lf, %lf, %lf\n", &r_vec[i], &chord_vec[i], &twist_vec[i], &rake_vec[i], &skew_vec[i] );
+            fscanf( fid, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", &r_vec[i], &chord_vec[i], &twist_vec[i], &rake_vec[i], &skew_vec[i], &sweep_vec[i], &thick_vec[i], &cli_vec[i] );
         }
 
         fclose( fid );
@@ -1650,10 +1665,10 @@ int PropGeom::ReadBEM( const string &file_name )
         printf( "Center: %.8f, %.8f, %.8f\n", cen.x(), cen.y(), cen.z() );
         printf( "Normal: %.8f, %.8f, %.8f\n", norm.x(), norm.y(), norm.z() );
 
-        printf( "\nRadius/R, Chord/R, Twist (deg), Rake/R, Skew/R\n" );
+        printf( "\nRadius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi\n" );
         for ( int i = 0; i < num_sect; i++ )
         {
-            printf( "%.8f, %.8f, %.8f, %.8f, %.8f\n", r_vec[i], chord_vec[i], twist_vec[i], rake_vec[i], skew_vec[i] );
+            printf( "%.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f\n", r_vec[i], chord_vec[i], twist_vec[i], rake_vec[i], skew_vec[i], sweep_vec[i], thick_vec[i], cli_vec[i] );
         }
     }
 
@@ -1663,16 +1678,23 @@ int PropGeom::ReadBEM( const string &file_name )
     int nxsec = m_XSecSurf.NumXSec();
 
     PropXSec* xs;
+    m_XSecSurf.ChangeXSecShape( 0, XS_ONE_SIX_SERIES );
     xs = ( PropXSec* ) m_XSecSurf.FindXSec( 0 );
     if ( xs )
     {
         xs->m_RadiusFrac = rfirst;
     }
 
+    m_XSecSurf.ChangeXSecShape( nxsec - 1, XS_ONE_SIX_SERIES );
     xs = ( PropXSec* ) m_XSecSurf.FindXSec( nxsec - 1 );
     if ( xs )
     {
         xs->m_RadiusFrac = rlast;
+    }
+
+    for ( int i = nxsec - 2; i > 0; i-- )
+    {
+        m_XSecSurf.CutXSec( i );
     }
 
     m_Diameter = diam;
@@ -1705,6 +1727,9 @@ int PropGeom::ReadBEM( const string &file_name )
     m_TwistCurve.SetCurve( r_vec, twist_vec, vsp::PCHIP );
     m_RakeCurve.SetCurve( r_vec, rake_vec, vsp::PCHIP );
     m_SkewCurve.SetCurve( r_vec, skew_vec, vsp::PCHIP );
+    m_SweepCurve.SetCurve( r_vec, sweep_vec, vsp::PCHIP );
+    m_ThickCurve.SetCurve( r_vec, thick_vec, vsp::PCHIP );
+    m_CLICurve.SetCurve( r_vec, cli_vec, vsp::PCHIP );
 
     return 1;
 }
