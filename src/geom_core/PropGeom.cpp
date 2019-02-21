@@ -32,6 +32,8 @@ PropPositioner::PropPositioner()
     m_Chord = 1.0;
 
     m_Construct = 0.5;
+    m_FeatherOffset = 0.0;
+    m_FeatherAxis = 0.5;
     m_RootChord = 1.0;
     m_RootTwist = 0.0;
 
@@ -91,7 +93,12 @@ void PropPositioner::Update()
     mat.rotate( m_FoldAngle * PI / 180.0, m_FoldDirection );
     mat.translatef( -m_FoldOrigin.x(), -m_FoldOrigin.y(), -m_FoldOrigin.z() );
 
+    mat.translatef( 0, 0, m_RootChord * m_FeatherOffset );
+
     mat.rotateY( m_Reverse * m_Feather );
+
+    double xb = m_RootChord * ( 0.5 - m_FeatherAxis );
+    mat.translatef( xb * sin( m_RootTwist * PI / 180.0), 0, m_Reverse * xb * cos( m_RootTwist * PI / 180.0) );
 
     mat.rotateX( m_Reverse * m_Sweep ); // About axis of rotation
 
@@ -237,6 +244,12 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_Construct.Init( "ConstructXoC", "Design", this, 0.5, 0.0, 1.0 );
     m_Construct.SetDescript( "X/C of construction line." );
+
+    m_FeatherAxis.Init( "FeatherAxisXoC", "Design", this, 0.5, -100.0, 100.0 );
+    m_FeatherAxis.SetDescript( "Location of feather axis along chord." );
+
+    m_FeatherOffset.Init( "FeatherOffsetXoC", "Design", this, 0.0, -100.0, 100.0 );
+    m_FeatherOffset.SetDescript( "Offset of feather axis line." );
 
     m_RadFoldAxis.Init( "RFoldAx", "Design", this, 0.2, 0.0, 1.0 );
     m_RadFoldAxis.SetDescript( "Radial position of fold axis as fraction of radius" );
@@ -816,6 +829,8 @@ void PropGeom::UpdateSurf()
             xs->m_PropPos.m_Chord = w;
 
             xs->m_PropPos.m_Construct = m_Construct();
+            xs->m_PropPos.m_FeatherOffset = m_FeatherOffset();
+            xs->m_PropPos.m_FeatherAxis = m_FeatherAxis();
             xs->m_PropPos.m_RootChord = croot;
             xs->m_PropPos.m_RootTwist = twroot;
 
@@ -966,6 +981,8 @@ void PropGeom::UpdateSurf()
         pp.m_Twist = m_TwistCurve.Comp( r );
 
         pp.m_Construct = m_Construct();
+        pp.m_FeatherOffset = m_FeatherOffset();
+        pp.m_FeatherAxis = m_FeatherAxis();
         pp.m_RootChord = croot;
         pp.m_RootTwist = twroot;
 

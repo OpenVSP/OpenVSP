@@ -63,6 +63,8 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
     m_DesignLayout.SetButtonWidth( 100 );
 
     m_DesignLayout.AddSlider( m_ConstructSlider, "Construct X/C", 1, "%5.3f" );
+    m_DesignLayout.AddSlider( m_FeatherAxisSlider, "Feather Axis", 1, "%5.3f" );
+    m_DesignLayout.AddSlider( m_FeatherOffsetSlider, "Feather Offset", 1, "%5.3f" );
 
     m_BetaToggle.Init( this );
     m_BetaToggle.AddButton( m_FeatherToggle.GetFlButton() );
@@ -869,6 +871,9 @@ bool PropScreen::Update()
     m_BetaToggle.Update( propeller_ptr->m_UseBeta34Flag.GetID() );
 
     m_ConstructSlider.Update( propeller_ptr->m_Construct.GetID() );
+
+    m_FeatherAxisSlider.Update( propeller_ptr->m_FeatherAxis.GetID() );
+    m_FeatherOffsetSlider.Update( propeller_ptr->m_FeatherOffset.GetID() );
 
     if ( propeller_ptr->m_UseBeta34Flag() == 1 )
     {

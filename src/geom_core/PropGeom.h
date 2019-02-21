@@ -34,6 +34,8 @@ public:
     double m_Chord;
 
     double m_Construct;
+    double m_FeatherOffset;
+    double m_FeatherAxis;
     double m_RootChord;
     double m_RootTwist;
 
@@ -156,6 +158,9 @@ public:
     IntParm m_UseBeta34Flag;
 
     Parm m_Construct;
+
+    Parm m_FeatherOffset;
+    Parm m_FeatherAxis;
 
     BoolParm m_ReverseFlag;
 

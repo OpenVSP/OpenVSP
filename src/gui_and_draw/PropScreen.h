@@ -50,6 +50,8 @@ protected:
     ToggleRadioGroup m_BetaToggle;
 
     SliderAdjRangeInput m_ConstructSlider;
+    SliderAdjRangeInput m_FeatherOffsetSlider;
+    SliderAdjRangeInput m_FeatherAxisSlider;
 
     ToggleButton m_ReverseToggle;
 
