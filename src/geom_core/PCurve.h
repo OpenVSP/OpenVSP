@@ -88,6 +88,8 @@ public:
     void BinCubicTMap( vector < double > &tmap, vector < double > &tdisc );
     void GetTMap( vector < double > &tmap, vector < double > &tdisc );
 
+    virtual Vsp1DCurve * GetCurve()    { return &m_Curve; }
+
 protected:
 
     virtual void ValidateCEDIT();
