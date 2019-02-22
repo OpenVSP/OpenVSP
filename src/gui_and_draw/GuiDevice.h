@@ -121,6 +121,17 @@ public:
     Vsp_Canvas(int x, int y, int w, int h, const char *label=0);
 
     int handle( int event );
+
+    void SetMainY();
+    void SetSecondaryY();
+    void HideSecondaryY();
+    void ShowSecondaryY();
+
+    Ca_Y_Axis* m_Ymain;
+    Ca_Y_Axis* m_Ysecondary;
+
+    int m_Wwide;
+    int m_Wnarrow;
 };
 
 
@@ -1197,6 +1208,7 @@ public:
     virtual void DeviceCB( Fl_Widget* w );
 
     virtual void Update( PCurve *curve );
+    virtual void Update( PCurve *curve, PCurve *curveb, string labelb );
 
     virtual bool hittest( int mx, int my, double datax, double datay, int r );
 
@@ -1219,6 +1231,8 @@ protected:
     int m_LastHit;
 
     PCurve *m_Curve;
+    PCurve *m_CurveB;
+    string m_LabelB;
 
     Vsp_Canvas* m_canvas;
 
