@@ -965,8 +965,19 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
             x = y = 100000.0;
             sscanf( buff, "%f %f", &x, &y );
 
-            xvec.push_back( x );
-            yvec.push_back( y );
+            // This check is actually a test to determine the input file format.  Lednicer files will
+            // read in the number of points on the top/bottom into these numbers.  Those values will
+            // fail this test -- while reasonable airfoil points (even with some leading edge leakage,
+            // or high lift devices) will pass.
+            if ( x <= 3.0 && y <= 3.0 )
+            {
+                xvec.push_back( x );
+                yvec.push_back( y );
+            }
+            else
+            {
+                more_data_flag = 0;
+            }
         }
     }
 
