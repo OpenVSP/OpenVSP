@@ -1000,7 +1000,7 @@ bool PropScreen::Update()
         m_CurveEditor.Update( &propeller_ptr->m_SweepCurve );
         break;
     case THICK:
-        m_CurveEditor.Update( &propeller_ptr->m_ThickCurve );
+        m_CurveEditor.Update( &propeller_ptr->m_ThickCurve, &propeller_ptr->m_ChordCurve, string( "Thick/R" ) );
         break;
     case CLI:
         m_CurveEditor.Update( &propeller_ptr->m_CLICurve );
