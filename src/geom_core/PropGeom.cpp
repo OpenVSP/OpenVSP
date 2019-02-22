@@ -542,6 +542,78 @@ bool abouteq(const double &a, const double &b)
     return std::abs( a - b ) < 0.001;
 }
 
+void InterpXSecCurve( VspCurve & cout, XSecCurve *c1, XSecCurve *c2, const double & frac, const double & w, const double & t, const double & cli )
+{
+    // Shortcut for exact match.
+    double tol = 1e-6;
+    if ( std::abs( frac ) <= tol )
+    {
+        c1->SetLateUpdateFlag(true);
+        cout = c1->GetCurve();
+
+        double wc = c1->GetWidth();
+        if ( wc != 0 )
+        {
+            cout.Scale( 1.0 / wc );
+        }
+
+        return;
+    }
+
+    if ( std::abs( frac - 1.0 ) <= tol )
+    {
+        c2->SetLateUpdateFlag(true);
+        cout = c2->GetCurve();
+
+        double wc = c1->GetWidth();
+        if ( wc != 0 )
+        {
+            cout.Scale( 1.0 / wc );
+        }
+
+        return;
+    }
+
+
+    if ( c1->GetType() == c2->GetType() )
+    {
+        if ( c1->GetType() != XS_FILE_AIRFOIL &&
+             c1->GetType() != XS_CST_AIRFOIL &&
+             c1->GetType() != XS_FILE_FUSE )
+        {
+            XSecCurve *c3 = XSecSurf::CreateXSecCurve( c1->GetType() );
+
+            c3->CopyVals( c1 );
+
+            c3->Interp( c1, c2, frac );
+
+            c3->SetWidthHeight( w, t * w );
+            c3->SetDesignLiftCoeff( cli );
+
+            c3->SetLateUpdateFlag( true );
+
+            cout = c3->GetCurve();
+
+            delete c3;
+
+            if ( w != 0 )
+            {
+                cout.Scale( 1.0 / w );
+            }
+
+            return;
+        }
+    }
+
+    // If all else fails, linear interpolation between curves.
+    XSecCurve::InterpCurve( cout, c1, c2, frac );
+
+    // Force thickness to match target.
+    cout.MatchThick( t );
+
+    return;
+}
+
 //==== Update Fuselage And Cross Section Placement ====//
 void PropGeom::UpdateSurf()
 {
