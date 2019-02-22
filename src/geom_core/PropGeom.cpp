@@ -1092,7 +1092,7 @@ void PropGeom::PasteActiveXSec()
 //==== Insert XSec ====//
 void PropGeom::InsertXSec( )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 )
+    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
     {
         return;
     }
@@ -1107,7 +1107,7 @@ void PropGeom::InsertXSec( )
 //==== Insert XSec ====//
 void PropGeom::InsertXSec( int type )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 )
+    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
     {
         return;
     }

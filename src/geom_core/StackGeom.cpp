@@ -333,7 +333,7 @@ void StackGeom::PasteActiveXSec()
 //==== Insert XSec ====//
 void StackGeom::InsertXSec( )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 )
+    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
     {
         return;
     }
@@ -348,7 +348,7 @@ void StackGeom::InsertXSec( )
 //==== Insert XSec ====//
 void StackGeom::InsertXSec( int type )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 )
+    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
     {
         return;
     }
