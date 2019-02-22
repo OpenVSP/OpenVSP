@@ -80,6 +80,8 @@ public:
 
     void Reverse();
 
+    void product( Vsp1DCurve c1, Vsp1DCurve c2 );
+
     bool IsEqual( const Vsp1DCurve & crv );
 
     double IntegrateAF( double r0 );

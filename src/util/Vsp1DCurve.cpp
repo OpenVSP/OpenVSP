@@ -598,6 +598,27 @@ void Vsp1DCurve::Reverse()
     m_Curve.reverse();
 }
 
+void Vsp1DCurve::product( Vsp1DCurve c1, Vsp1DCurve c2 )
+{
+    vector < double > pmap;
+    c1.m_Curve.get_pmap( pmap );
+
+    vector < double > pmap2;
+    c2.m_Curve.get_pmap( pmap2 );
+
+    pmap.insert( pmap.end(), pmap2.begin(), pmap2.end() );
+    std::sort( pmap.begin(), pmap.end() );
+    auto pmit = std::unique( pmap.begin(), pmap.end() );
+    pmap.erase( pmit, pmap.end() );
+
+    for( int i = 0; i < pmap.size(); i++ )
+    {
+        c1.m_Curve.split( pmap[i] );
+        c2.m_Curve.split( pmap[i] );
+    }
+
+    m_Curve.product1d( c1.m_Curve, c2.m_Curve );
+}
 
 bool Vsp1DCurve::IsEqual( const Vsp1DCurve & crv )
 {
