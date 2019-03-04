@@ -108,6 +108,7 @@ XSecCurve::XSecCurve()
 
     m_FakeWidth = 1.0;
     m_UseFakeWidth = false;
+    m_ForceWingType = false;
 
     m_yscale = 1.0;
 }
@@ -262,6 +263,11 @@ void XSecCurve::Update()
         {
             wingtype = true;
         }
+    }
+
+    if ( m_ForceWingType )
+    {
+        wingtype = true;
     }
 
     // Order of these curve modifiers matters.

@@ -610,6 +610,7 @@ void InterpXSecCurve( VspCurve & cout, XSecCurve *c1, XSecCurve *c2, const doubl
 
             c3->SetWidthHeight( w, t * w );
             c3->SetDesignLiftCoeff( cli );
+            c3->SetForceWingType( true );
 
             c3->SetLateUpdateFlag( true );
 

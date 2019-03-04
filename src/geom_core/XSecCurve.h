@@ -73,6 +73,8 @@ public:
     virtual void SetFakeWidth( double w )                              { m_FakeWidth = w; }
     virtual void SetUseFakeWidth( double b )                           { m_UseFakeWidth = b; }
 
+    virtual void SetForceWingType( double f )                          { m_ForceWingType = f; }
+
     virtual double ComputeArea();
 
     virtual void CloseTE( bool wingtype );
@@ -137,6 +139,7 @@ public:
 protected:
 
     bool m_UseFakeWidth;
+    bool m_ForceWingType;
     double m_FakeWidth;
 
     double m_yscale;
