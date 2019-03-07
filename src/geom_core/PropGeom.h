@@ -146,6 +146,8 @@ public:
 
     virtual void SetExportMainSurf( bool b )         { m_ExportMainSurf = b; }
 
+    virtual void GetSurfVec( vector<VspSurf> &surf_vec );
+
     Parm m_Diameter;
 
     Parm m_Rotate;

@@ -57,6 +57,7 @@ Vehicle::Vehicle()
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPToCubicTol.Init( "ToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPTrimTE.Init( "TrimTE", "STEPSettings", this, false, 0, 1 );
+    m_STEPExportPropMainSurf.Init( "ExportPropMainSurf", "STEPSettings", this, false, 0, 1 );
 
     m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_FT );
     m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
@@ -64,6 +65,7 @@ Vehicle::Vehicle()
     m_IGESToCubic.Init( "ToCubic", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
     m_IGESTrimTE.Init( "TrimTE", "IGESSettings", this, false, 0, 1 );
+    m_IGESExportPropMainSurf.Init( "ExportPropMainSurf", "IGESSettings", this, false, 0, 1 );
 
     m_IGESLabelID.Init( "LabelID", "IGESSettings", this, true, 0, 1 );
     m_IGESLabelName.Init( "LabelName", "IGESSettings", this, true, 0, 1 );
@@ -4439,11 +4441,31 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     }
     else if ( file_type == EXPORT_STEP )
     {
+        if ( m_STEPExportPropMainSurf() )
+        {
+            SetExportPropMainSurf( true );
+        }
+
         WriteSTEPFile( file_name, write_set );
+
+        if ( m_STEPExportPropMainSurf() )
+        {
+            SetExportPropMainSurf( false );
+        }
     }
     else if ( file_type == EXPORT_IGES )
     {
+        if ( m_IGESExportPropMainSurf() )
+        {
+            SetExportPropMainSurf( true );
+        }
+
         WriteIGESFile( file_name, write_set );
+
+        if ( m_IGESExportPropMainSurf() )
+        {
+            SetExportPropMainSurf( false );
+        }
     }
     else if ( file_type == EXPORT_BEM )
     {

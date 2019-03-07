@@ -315,6 +315,7 @@ public:
     BoolParm m_STEPToCubic;
     Parm m_STEPToCubicTol;
     BoolParm m_STEPTrimTE;
+    BoolParm m_STEPExportPropMainSurf;
 
     IntParm m_IGESLenUnit;
     BoolParm m_IGESSplitSurfs;
@@ -322,6 +323,7 @@ public:
     BoolParm m_IGESToCubic;
     Parm m_IGESToCubicTol;
     BoolParm m_IGESTrimTE;
+    BoolParm m_IGESExportPropMainSurf;
 
     BoolParm m_IGESLabelID;
     BoolParm m_IGESLabelName;

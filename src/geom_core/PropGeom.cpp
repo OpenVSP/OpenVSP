@@ -1739,3 +1739,15 @@ vector< TMesh* > PropGeom::CreateTMeshVec()
 
     return TMeshVec;
 }
+
+void PropGeom::GetSurfVec( vector<VspSurf> &surf_vec )
+{
+    if ( m_ExportMainSurf )
+    {
+        GetMainSurfVec( surf_vec );
+    }
+    else
+    {
+        Geom::GetSurfVec( surf_vec );
+    }
+}
