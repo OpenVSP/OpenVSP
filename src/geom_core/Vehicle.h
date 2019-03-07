@@ -372,6 +372,7 @@ public:
     string m_AFFileDir;
 
     BoolParm m_STLMultiSolid;
+    BoolParm m_STLExportPropMainSurf;
 
     BoolParm m_exportCompGeomCsvFile;
     BoolParm m_exportDragBuildTsvFile;

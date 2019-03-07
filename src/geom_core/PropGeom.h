@@ -142,6 +142,10 @@ public:
 
     virtual void WriteAirfoilFiles( FILE* meta_fid );
 
+    virtual vector< TMesh* > CreateTMeshVec();
+
+    virtual void SetExportMainSurf( bool b )         { m_ExportMainSurf = b; }
+
     Parm m_Diameter;
 
     Parm m_Rotate;
@@ -204,6 +208,8 @@ protected:
 
     Vsp1DCurve m_rtou;
     VspSurf m_FoilSurf;
+
+    bool m_ExportMainSurf;
 
 };
 #endif // !defined(VSPPROPGEOM__INCLUDED_)

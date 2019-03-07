@@ -39,8 +39,10 @@ protected:
     GroupLayout m_GenLayout;
 
     ToggleButton m_MultiSolidToggle;
+    ToggleButton m_PropExportOriginToggle;
 
     bool m_PrevMultiSolid;
+    bool m_PrevPropExportOrigin;
 
     TriggerButton m_OkButton;
     TriggerButton m_CancelButton;

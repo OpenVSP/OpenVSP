@@ -220,6 +220,8 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Type.m_Name = "Propeller";
     m_Type.m_Type = PROP_GEOM_TYPE;
 
+    m_ExportMainSurf = false;
+
     m_XSecSurf.SetBasicOrientation( Y_DIR, Z_DIR, XS_SHIFT_MID, true );
 
     m_XSecSurf.SetParentContainer( GetID() );
@@ -1717,4 +1719,23 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
     {
         m_TessW.Set( m_TessW.GetLastVal() );
     }
+}
+
+vector< TMesh* > PropGeom::CreateTMeshVec()
+{
+    vector< TMesh* > TMeshVec;
+
+    if ( m_ExportMainSurf )
+    {
+        m_MainSurfVec.swap( m_SurfVec );
+    }
+
+    TMeshVec = Geom::CreateTMeshVec();
+
+    if ( m_ExportMainSurf )
+    {
+        m_MainSurfVec.swap( m_SurfVec );
+    }
+
+    return TMeshVec;
 }

@@ -123,6 +123,7 @@ Vehicle::Vehicle()
     m_AFAppendGeomIDFlag.SetDescript( "Airfoil W Tesselation Factor" );
 
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
+    m_STLExportPropMainSurf.Init( "ExportPropMainSurf", "STLSettings", this, false, 0, 1 );
 
     m_UpdatingBBox = false;
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
@@ -273,6 +274,7 @@ void Vehicle::Init()
     m_SVGView4_rot.Set( vsp::ROT_0 );
 
     m_STLMultiSolid.Set( false );
+    m_STLExportPropMainSurf.Set( false );
 
     m_BEMPropID = string();
 
@@ -4392,6 +4394,19 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     }
     else if ( file_type == EXPORT_STL )
     {
+        if ( m_STLExportPropMainSurf() )
+        {
+            vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
+            for ( int i = 0; i < (int) geom_vec.size(); i++ )
+            {
+                PropGeom *pg = dynamic_cast< PropGeom * > ( geom_vec[i] );
+                if ( pg )
+                {
+                    pg->SetExportMainSurf( true );
+                }
+            }
+        }
+
         if ( !m_STLMultiSolid() )
         {
             WriteSTLFile( file_name, write_set );
@@ -4399,6 +4414,19 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
         else
         {
             WriteTaggedMSSTLFile( file_name, write_set );
+        }
+
+        if ( m_STLExportPropMainSurf() )
+        {
+            vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
+            for ( int i = 0; i < (int) geom_vec.size(); i++ )
+            {
+                PropGeom *pg = dynamic_cast< PropGeom * > ( geom_vec[i] );
+                if ( pg )
+                {
+                    pg->SetExportMainSurf( false );
+                }
+            }
         }
     }
     else if ( file_type == EXPORT_CART3D )
