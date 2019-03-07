@@ -4396,15 +4396,7 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     {
         if ( m_STLExportPropMainSurf() )
         {
-            vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-            for ( int i = 0; i < (int) geom_vec.size(); i++ )
-            {
-                PropGeom *pg = dynamic_cast< PropGeom * > ( geom_vec[i] );
-                if ( pg )
-                {
-                    pg->SetExportMainSurf( true );
-                }
-            }
+            SetExportPropMainSurf( true );
         }
 
         if ( !m_STLMultiSolid() )
@@ -4418,15 +4410,7 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
 
         if ( m_STLExportPropMainSurf() )
         {
-            vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
-            for ( int i = 0; i < (int) geom_vec.size(); i++ )
-            {
-                PropGeom *pg = dynamic_cast< PropGeom * > ( geom_vec[i] );
-                if ( pg )
-                {
-                    pg->SetExportMainSurf( false );
-                }
-            }
+            SetExportPropMainSurf( false );
         }
     }
     else if ( file_type == EXPORT_CART3D )
@@ -4816,4 +4800,17 @@ string Vehicle::ExportSurfacePatches( int set )
 
     veh_surfaces->Add( NameValData( "components", components ) );
     return veh_surfaces->GetID();
+}
+
+void Vehicle::SetExportPropMainSurf( bool b )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
+    for ( int i = 0; i < (int) geom_vec.size(); i++ )
+    {
+        PropGeom *pg = dynamic_cast< PropGeom * > ( geom_vec[i] );
+        if ( pg )
+        {
+            pg->SetExportMainSurf( b );
+        }
+    }
 }

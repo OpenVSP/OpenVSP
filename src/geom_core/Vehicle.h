@@ -388,6 +388,8 @@ public:
 
 protected:
 
+    virtual void SetExportPropMainSurf( bool b );
+
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs
 
     vector< DegenGeom > m_DegenGeomVec;         // Vector of components in degenerate representation
