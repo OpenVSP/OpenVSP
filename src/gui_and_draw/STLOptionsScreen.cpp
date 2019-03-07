@@ -19,6 +19,7 @@ STLOptionsScreen::STLOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 17
 
     m_OkFlag = false;
     m_PrevMultiSolid = false;
+    m_PrevPropExportOrigin = false;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_GenLayout.AddY( 25 );
