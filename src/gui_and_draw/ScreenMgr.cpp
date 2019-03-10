@@ -41,6 +41,7 @@
 #include "ScreenshotScreen.h"
 #include "SetEditorScreen.h"
 #include "STEPOptionsScreen.h"
+#include "STEPStructureOptionsScreen.h"
 #include "STLOptionsScreen.h"
 #include "StructScreen.h"
 #include "SurfaceIntersectionScreen.h"
@@ -229,6 +230,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_SCREENSHOT_SCREEN] = new ScreenshotScreen( this );
     m_ScreenVec[VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );
     m_ScreenVec[VSP_STEP_OPTIONS_SCREEN] = new STEPOptionsScreen( this );
+    m_ScreenVec[VSP_STEP_STRUCTURE_OPTIONS_SCREEN] = new STEPStructureOptionsScreen( this );
     m_ScreenVec[VSP_STL_OPTIONS_SCREEN] = new STLOptionsScreen( this );
     m_ScreenVec[VSP_STRUCT_SCREEN] = new StructScreen( this );
     m_ScreenVec[VSP_SURFACE_INTERSECTION_SCREEN] = new SurfaceIntersectionScreen( this );

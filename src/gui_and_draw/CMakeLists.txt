@@ -84,6 +84,7 @@ SnapToScreen.cpp
 StackScreen.cpp
 StructScreen.cpp
 STEPOptionsScreen.cpp
+STEPStructureOptionsScreen.cpp
 STLOptionsScreen.cpp
 SubGLWindow.cpp
 SurfaceIntersectionScreen.cpp
@@ -155,6 +156,7 @@ SnapToScreen.h
 StackScreen.h
 StructScreen.h
 STEPOptionsScreen.h
+STEPStructureOptionsScreen.h
 STLOptionsScreen.h
 SubGLWindow.h
 SurfaceIntersectionScreen.h

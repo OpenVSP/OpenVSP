@@ -9,6 +9,7 @@
 #include "ScreenMgr.h"
 #include "StlHelper.h"
 #include "STEPOptionsScreen.h"
+#include "STEPStructureOptionsScreen.h"
 #include "IGESOptionsScreen.h"
 #include "IGESStructureOptionsScreen.h"
 #include "STLOptionsScreen.h"
@@ -19,7 +20,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+19)*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+20)*20 + 2*15 + 4*6, "Export" )
 {
     m_SelectedSetIndex = 0;
 
@@ -48,6 +49,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+19
     m_GenLayout.AddButton( m_POVButton, "POVRAY (.pov)" );
     m_GenLayout.AddButton( m_X3DButton, "X3D (.x3d)" );
     m_GenLayout.AddButton( m_STEPButton, "STEP (.stp)" );
+    m_GenLayout.AddButton( m_STEPStructureButton, "STEP Structure (.stp)" );
     m_GenLayout.AddButton( m_IGESButton, "IGES (.igs)" );
     m_GenLayout.AddButton( m_IGESStructureButton, "IGES Structure (.igs)" );
     m_GenLayout.AddButton( m_BEMButton, "Blade Element (.bem)" );
@@ -146,6 +148,13 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
         if ( (( STEPOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_STEP_OPTIONS_SCREEN ))->ShowSTEPOptionsScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STEP File?", "*.stp" );
+        }
+    }
+    else if ( type == EXPORT_STEP_STRUCTURE )
+    {
+        if ( (( STEPStructureOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_STEP_STRUCTURE_OPTIONS_SCREEN ))->ShowSTEPOptionsScreen() )
+        {
+            newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write STEP Structures File?", "*.stp" );
         }
     }
     else if ( type == EXPORT_IGES )
@@ -268,6 +277,10 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     else if (  device == &m_STEPButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_STEP );
+    }
+    else if (  device == &m_STEPStructureButton )
+    {
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_STEP_STRUCTURE );
     }
     else if ( device == &m_IGESButton )
     {
