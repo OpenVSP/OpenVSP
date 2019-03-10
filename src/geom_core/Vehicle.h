@@ -197,6 +197,10 @@ public:
     void WriteIGESFile( const string & file_name, int write_set, int lenUnit, bool splitSubSurfs, bool splitSurfs,
                         bool toCubic, double toCubicTol, bool trimTE, bool labelID, bool labelName,
                         bool labelSurfNo, bool labelSplitNo, int delimType );
+    void WriteStructureIGESFile( const string & file_name );
+    void WriteStructureIGESFile( const string & file_name, int feaMeshStructIndex, bool splitSurfs,
+                        bool toCubic, double toCubicTol, bool labelID, bool labelName,
+                        bool labelSurfNo, bool labelSplitNo, int delimType );
 
     void WriteBEMFile( const string & file_name, int write_set );
     void WriteAirfoilFile( const string & file_name, int write_set );
@@ -330,6 +334,17 @@ public:
     BoolParm m_IGESLabelSurfNo;
     BoolParm m_IGESLabelSplitNo;
     IntParm m_IGESLabelDelim;
+
+    IntParm m_IGESStructureExportIndex;
+    BoolParm m_IGESStructureSplitSurfs;
+    BoolParm m_IGESStructureToCubic;
+    Parm m_IGESStructureToCubicTol;
+
+    BoolParm m_IGESStructureLabelID;
+    BoolParm m_IGESStructureLabelName;
+    BoolParm m_IGESStructureLabelSurfNo;
+    BoolParm m_IGESStructureLabelSplitNo;
+    IntParm m_IGESStructureLabelDelim;
 
     //==== DXF Export ====//
     IntParm m_DXFLenUnit;

@@ -241,7 +241,8 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_PMARC,
                     EXPORT_OBJ,
                     EXPORT_SELIG_AIRFOIL,
-                    EXPORT_BEZIER_AIRFOIL
+                    EXPORT_BEZIER_AIRFOIL,
+                    EXPORT_IGES_STRUCTURE
                  };
 
 enum FEA_CROSS_SECT_TYPE { FEA_XSEC_GENERAL = 0,

@@ -73,6 +73,17 @@ Vehicle::Vehicle()
     m_IGESLabelSplitNo.Init( "LabelSplitNo", "IGESSettings", this, true, 0, 1 );
     m_IGESLabelDelim.Init( "LabelDelim", "IGESSettings", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
 
+    m_IGESStructureExportIndex.Init( "StructureToCubicTol", "IGESSettings", this, 0, 0, 1000 );
+    m_IGESStructureSplitSurfs.Init( "StructureSplitSurfs", "IGESSettings", this, true, 0, 1 );
+    m_IGESStructureToCubic.Init( "StructureToCubic", "IGESSettings", this, false, 0, 1 );
+    m_IGESStructureToCubicTol.Init( "StructureToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
+
+    m_IGESStructureLabelID.Init( "StructureLabelID", "IGESSettings", this, true, 0, 1 );
+    m_IGESStructureLabelName.Init( "StructureLabelName", "IGESSettings", this, true, 0, 1 );
+    m_IGESStructureLabelSurfNo.Init( "StructureLabelSurfNo", "IGESSettings", this, true, 0, 1 );
+    m_IGESStructureLabelSplitNo.Init( "StructureLabelSplitNo", "IGESSettings", this, true, 0, 1 );
+    m_IGESStructureLabelDelim.Init( "StructureLabelDelim", "IGESSettings", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
+
     m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
     m_DXFLenUnit.SetDescript( "Sets DXF Header Units; Numeric Values Unchanged" );
     m_DXFProjectionFlag.Init( "DXFProjectionFlag", "DXFSettings", this , false, 0, 1 );
@@ -2827,6 +2838,96 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
     model.Write( file_name.c_str(), true );
 }
 
+void Vehicle::WriteStructureIGESFile( const string & file_name )
+{
+    WriteStructureIGESFile( file_name, m_IGESStructureExportIndex(), m_IGESStructureSplitSurfs(), m_IGESStructureToCubic(),
+                   m_IGESStructureToCubicTol(), m_IGESStructureLabelID(), m_IGESStructureLabelName(), m_IGESStructureLabelSurfNo(),
+                   m_IGESStructureLabelSplitNo(), m_IGESStructureLabelDelim() );
+}
+
+void Vehicle::WriteStructureIGESFile( const string & file_name, int feaMeshStructIndex,
+                             bool splitSurfs, bool toCubic, double toCubicTol, bool labelID,
+                             bool labelName, bool labelSurfNo, bool labelSplitNo, int delimType )
+{
+    string delim = StringUtil::get_delim( delimType );
+
+    DLL_IGES model;
+
+    // Note, YD not handled by libIGES.
+    switch ( m_StructUnit() )
+    {
+        case vsp::SI_UNIT:
+            model.SetUnitsFlag( UNIT_METER );
+            break;
+
+        case vsp::CGS_UNIT:
+            model.SetUnitsFlag( UNIT_CENTIMETER );
+            break;
+
+        case vsp::MPA_UNIT:
+            model.SetUnitsFlag( UNIT_MM );
+            break;
+
+        case vsp::BFT_UNIT:
+            model.SetUnitsFlag( UNIT_FOOT );
+            break;
+
+        case vsp::BIN_UNIT:
+            model.SetUnitsFlag( UNIT_IN );
+
+            break;
+    }
+
+
+    model.SetNativeSystemID( VSPVERSION4 );
+
+    vector < double > usplit;
+    vector < double > wsplit;
+
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( feaMeshStructIndex );
+    fea_struct->Update();
+
+    vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
+
+    for ( int i = 0; i < fea_part_vec.size(); i++ )
+    {
+        FeaPart* part = fea_part_vec[i];
+        vector < VspSurf > surf_vec = part->GetFeaPartSurfVec();
+
+        for ( int j = 0; j < surf_vec.size(); j++ )
+        {
+            string prefix;
+
+            if ( labelID )
+            {
+                prefix = fea_struct->GetParentGeomID();
+            }
+
+            if ( labelName )
+            {
+                if ( prefix.size() > 0 )
+                {
+                    prefix.append( delim );
+                }
+                prefix.append( part->GetName() );
+            }
+
+            if ( labelSurfNo )
+            {
+                if ( prefix.size() > 0 )
+                {
+                    prefix.append( delim );
+                }
+                prefix.append( to_string( j ) );
+            }
+
+            surf_vec[j].ToIGES( model, splitSurfs, toCubic, toCubicTol, false, usplit, wsplit, prefix, labelSplitNo, delim );
+        }
+    }
+
+    model.Write( file_name.c_str(), true );
+}
+
 void Vehicle::WriteBEMFile( const string &file_name, int write_set )
 {
     Geom* geom = FindGeom( m_BEMPropID );
@@ -4462,6 +4563,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
         {
             SetExportPropMainSurf( false );
         }
+    }
+    else if ( file_type == EXPORT_IGES_STRUCTURE )
+    {
+        WriteStructureIGESFile( file_name );
     }
     else if ( file_type == EXPORT_BEM )
     {
