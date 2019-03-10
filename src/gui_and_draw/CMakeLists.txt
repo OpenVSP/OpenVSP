@@ -48,6 +48,7 @@ GroupLayout.cpp
 GuiDevice.cpp
 HingeScreen.cpp
 IGESOptionsScreen.cpp
+IGESStructureOptionsScreen.cpp
 ImportScreen.cpp
 MainGLWindow.cpp
 MainGLWindow.cpp
@@ -118,6 +119,7 @@ GroupLayout.h
 GuiDevice.h
 HingeScreen.h
 IGESOptionsScreen.h
+IGESStructureOptionsScreen.h
 ImportScreen.h
 MainGLWindow.h
 MainGLWindow.h

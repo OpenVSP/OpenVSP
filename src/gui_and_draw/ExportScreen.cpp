@@ -10,6 +10,7 @@
 #include "StlHelper.h"
 #include "STEPOptionsScreen.h"
 #include "IGESOptionsScreen.h"
+#include "IGESStructureOptionsScreen.h"
 #include "STLOptionsScreen.h"
 #include "BEMOptionsScreen.h"
 #include "DXFOptionsScreen.h"
@@ -18,7 +19,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+18)*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+19)*20 + 2*15 + 4*6, "Export" )
 {
     m_SelectedSetIndex = 0;
 
@@ -48,6 +49,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+18
     m_GenLayout.AddButton( m_X3DButton, "X3D (.x3d)" );
     m_GenLayout.AddButton( m_STEPButton, "STEP (.stp)" );
     m_GenLayout.AddButton( m_IGESButton, "IGES (.igs)" );
+    m_GenLayout.AddButton( m_IGESStructureButton, "IGES Structure (.igs)" );
     m_GenLayout.AddButton( m_BEMButton, "Blade Element (.bem)" );
     m_GenLayout.AddButton( m_DXFButton, "AutoCAD (.dxf)" );
     m_GenLayout.AddButton( m_SVGButton, "SVG (.svg)" );
@@ -151,6 +153,13 @@ void ExportScreen::ExportFile( string &newfile, int write_set, int type )
         if ( (( IGESOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_IGES_OPTIONS_SCREEN ))->ShowIGESOptionsScreen() )
         {
             newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write IGES File?", "*.igs" );
+        }
+    }
+    else if ( type == EXPORT_IGES_STRUCTURE )
+    {
+        if ( (( IGESStructureOptionsScreen* ) m_ScreenMgr->GetScreen( ScreenMgr::VSP_IGES_STRUCTURE_OPTIONS_SCREEN ))->ShowIGESOptionsScreen() )
+        {
+            newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Write IGES Structures File?", "*.igs" );
         }
     }
     else if ( type == EXPORT_BEM )
@@ -263,6 +272,10 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_IGESButton )
     {
         ExportFile( newfile, m_SelectedSetIndex, EXPORT_IGES );
+    }
+    else if ( device == &m_IGESStructureButton )
+    {
+        ExportFile( newfile, m_SelectedSetIndex, EXPORT_IGES_STRUCTURE );
     }
     else if ( device == &m_BEMButton )
     {

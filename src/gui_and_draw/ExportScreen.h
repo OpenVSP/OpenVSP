@@ -59,6 +59,7 @@ protected:
     TriggerButton m_X3DButton;
     TriggerButton m_STEPButton;
     TriggerButton m_IGESButton;
+    TriggerButton m_IGESStructureButton;
     TriggerButton m_BEMButton;
     TriggerButton m_DXFButton;
     TriggerButton m_SVGButton;
