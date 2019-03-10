@@ -59,6 +59,12 @@ Vehicle::Vehicle()
     m_STEPTrimTE.Init( "TrimTE", "STEPSettings", this, false, 0, 1 );
     m_STEPExportPropMainSurf.Init( "ExportPropMainSurf", "STEPSettings", this, false, 0, 1 );
 
+    m_STEPStructureTol.Init( "StructureTolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
+    m_STEPStructureSplitSurfs.Init( "StructureSplitSurfs", "STEPSettings", this, true, 0, 1 );
+    m_STEPStructureMergePoints.Init( "StructureMergePoints", "STEPSettings", this, true, 0, 1 );
+    m_STEPStructureToCubic.Init( "StructureToCubic", "STEPSettings", this, false, 0, 1 );
+    m_STEPStructureToCubicTol.Init( "StructureToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
+
     m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_FT );
     m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
     m_IGESSplitSubSurfs.Init( "SplitSubSurfs", "IGESSettings", this, false, 0, 1 );
@@ -2724,6 +2730,56 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
     step.WriteFile( file_name );
 }
 
+void Vehicle::WriteStructureSTEPFile( const string & file_name )
+{
+    int len;
+    switch ( m_StructUnit() )
+    {
+        case vsp::SI_UNIT:
+            len = UNIT_METER;
+            break;
+
+        case vsp::CGS_UNIT:
+            len =  UNIT_CENTIMETER;
+            break;
+
+        case vsp::MPA_UNIT:
+            len =  UNIT_MM;
+            break;
+
+        case vsp::BFT_UNIT:
+            len = UNIT_FOOT;
+            break;
+
+        case vsp::BIN_UNIT:
+            len =  UNIT_IN;
+            break;
+    }
+
+    STEPutil step( len, m_STEPStructureTol() );
+
+    vector < double > usplit;
+    vector < double > wsplit;
+
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_STEPStructureExportIndex() );
+    fea_struct->Update();
+
+    vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
+
+    for ( int i = 0; i < fea_part_vec.size(); i++ )
+    {
+        FeaPart* part = fea_part_vec[i];
+        vector < VspSurf > surf_vec = part->GetFeaPartSurfVec();
+
+        for ( int j = 0; j < surf_vec.size(); j++ )
+        {
+            step.AddSurf( &surf_vec[j], m_STEPStructureSplitSurfs(), m_STEPStructureMergePoints(), m_STEPStructureToCubic(), m_STEPStructureToCubicTol(), false, usplit, wsplit );
+        }
+    }
+
+    step.WriteFile( file_name );
+}
+
 void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 {
     WriteIGESFile( file_name, write_set, m_IGESLenUnit(), m_IGESSplitSubSurfs(), m_IGESSplitSurfs(), m_IGESToCubic(),
@@ -4549,6 +4605,10 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
         {
             SetExportPropMainSurf( false );
         }
+    }
+    else if ( file_type == EXPORT_STEP_STRUCTURE )
+    {
+        WriteStructureSTEPFile( file_name );
     }
     else if ( file_type == EXPORT_IGES )
     {
