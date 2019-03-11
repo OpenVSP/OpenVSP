@@ -1331,11 +1331,11 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     vector<string> args;
                     // Set mach, alpha, beta (save to local "current*" variables to use as header information in the results manager)
                     args.push_back( "-fs" );       // "freestream" override flag
-                    args.push_back( StringUtil::double_to_string( current_mach, "%f" ) );
+                    args.push_back( StringUtil::double_to_string( current_mach, "%.2f" ) );
                     args.push_back( "END" );
-                    args.push_back( StringUtil::double_to_string( current_alpha, "%f" ) );
+                    args.push_back( StringUtil::double_to_string( current_alpha, "%.3f" ) );
                     args.push_back( "END" );
-                    args.push_back( StringUtil::double_to_string( current_beta, "%f" ) );
+                    args.push_back( StringUtil::double_to_string( current_beta, "%.3f" ) );
                     args.push_back( "END" );
                     // Set number of openmp threads
                     args.push_back( "-omp" );
@@ -1558,19 +1558,19 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         // Mach
         for ( int iMach = 0; iMach < machVec.size(); iMach++ )
         {
-            args.push_back( StringUtil::double_to_string( machVec[iMach], "%f " ) );
+            args.push_back( StringUtil::double_to_string( machVec[iMach], "%.2f" ) );
         }
         args.push_back( "END" );
         // Alpha
         for ( int iAlpha = 0; iAlpha < alphaVec.size(); iAlpha++ )
         {
-            args.push_back( StringUtil::double_to_string( alphaVec[iAlpha], "%f " ) );
+            args.push_back( StringUtil::double_to_string( alphaVec[iAlpha], "%.3f" ) );
         }
         args.push_back( "END" );
         // Beta
         for ( int iBeta = 0; iBeta < betaVec.size(); iBeta++ )
         {
-            args.push_back( StringUtil::double_to_string( betaVec[iBeta], "%f " ) );
+            args.push_back( StringUtil::double_to_string( betaVec[iBeta], "%.3f" ) );
         }
         args.push_back( "END" );
 
