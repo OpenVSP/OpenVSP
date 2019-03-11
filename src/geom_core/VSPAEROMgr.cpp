@@ -377,9 +377,10 @@ void VSPAEROMgrSingleton::Update()
     UpdateRotorDisks();
 
     UpdateCompleteControlSurfVec();
-    UpdateActiveControlSurfVec();
 
     UpdateControlSurfaceGroups();
+
+    UpdateActiveControlSurfVec();
 
     UpdateSetupParmLimits();
 }
@@ -904,7 +905,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
 {
     string retStr = string();
 
-    UpdateFilenames();
+    Update(); // Ensure correct control surface and rotor groups when this function is called through the API
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
@@ -3554,7 +3555,7 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
 void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
 {
     // Add deflection gain parm to ControlSurfaceGroup container
-    Parm* p = ParmMgr.CreateParm( PARM_DOUBLE_TYPE );
+    Parm* p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
     char str[256];
 
     if ( p )

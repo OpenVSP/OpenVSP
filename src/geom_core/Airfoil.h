@@ -25,7 +25,12 @@
 #include "eli/geom/curve/piecewise_cst_airfoil_creator.hpp"
 #include "eli/geom/curve/piecewise_cst_airfoil_fitter.hpp"
 #include "eli/geom/curve/pseudo/cst_airfoil.hpp"
+#include "eli/geom/curve/pseudo/naca_af.hpp"
+#include "eli/geom/curve/pseudo/five_digit.hpp"
+#include "eli/geom/curve/pseudo/five_digit_mod.hpp"
 #include "eli/geom/curve/pseudo/four_digit.hpp"
+#include "eli/geom/curve/pseudo/four_digit_mod.hpp"
+#include "eli/geom/curve/pseudo/one_six_series.hpp"
 
 
 typedef piecewise_curve_type::index_type curve_index_type;
@@ -36,6 +41,12 @@ typedef eli::geom::curve::piecewise_four_digit_creator<double, 3, curve_toleranc
 typedef eli::geom::curve::piecewise_cst_airfoil_creator<double, 3, curve_tolerance_type> piecewise_cst_creator;
 typedef eli::geom::curve::pseudo::cst_airfoil<double> cst_airfoil_type;
 typedef eli::geom::curve::piecewise_cst_airfoil_fitter<double, 3, curve_tolerance_type> cst_fitter_type;
+typedef eli::geom::curve::pseudo::naca_af<double> naca_airfoil_type;
+typedef eli::geom::curve::pseudo::five_digit<double> five_digit_airfoil_type;
+typedef eli::geom::curve::pseudo::five_digit_mod<double> five_digit_mod_airfoil_type;
+typedef eli::geom::curve::pseudo::four_digit<double> four_digit_airfoil_type;
+typedef eli::geom::curve::pseudo::four_digit_mod<double> four_digit_mod_airfoil_type;
+typedef eli::geom::curve::pseudo::one_six_series<double> one_six_series_airfoil_type;
 
 #define MAX_CST_DEG 30
 
@@ -74,10 +85,25 @@ protected:
 };
 
 //==========================================================================//
+//=======================  NACA Base Airfoil   =============================//
+//==========================================================================//
+
+class NACABase : public Airfoil
+{
+public:
+
+    NACABase();
+
+    virtual void BuildCurve( const naca_airfoil_type & af );
+
+    virtual string GetAirfoilName() = 0;
+};
+
+//==========================================================================//
 //=======================  Four Series Airfoil   ===========================//
 //==========================================================================//
 
-class FourSeries : public Airfoil
+class FourSeries : public NACABase
 {
 public:
 
@@ -92,6 +118,86 @@ public:
     Parm m_Camber;
     Parm m_CamberLoc;
     BoolParm m_EqArcLen;
+    BoolParm m_SharpTE;
+};
+
+//==========================================================================//
+//=======================  Four Digit Modified Airfoil   ===================//
+//==========================================================================//
+
+class FourDigMod : public NACABase
+{
+public:
+
+    FourDigMod( );
+
+    virtual void Update();
+
+    virtual string GetAirfoilName();
+
+    Parm m_Camber;
+    Parm m_CamberLoc;
+    Parm m_ThickLoc;
+    Parm m_LERadIndx;
+    BoolParm m_SharpTE;
+};
+
+//==========================================================================//
+//=======================  Five Digit Airfoil   ============================//
+//==========================================================================//
+
+class FiveDig : public NACABase
+{
+public:
+
+    FiveDig( );
+
+    virtual void Update();
+
+    virtual string GetAirfoilName();
+
+    Parm m_IdealCl;
+    Parm m_CamberLoc;
+    BoolParm m_SharpTE;
+};
+
+//==========================================================================//
+//=======================  Five Digit Mod Airfoil   ========================//
+//==========================================================================//
+
+class FiveDigMod : public NACABase
+{
+public:
+
+    FiveDigMod( );
+
+    virtual void Update();
+
+    virtual string GetAirfoilName();
+
+    Parm m_IdealCl;
+    Parm m_CamberLoc;
+    Parm m_ThickLoc;
+    Parm m_LERadIndx;
+    BoolParm m_SharpTE;
+};
+
+//==========================================================================//
+//=======================  16 Series Airfoil   =============================//
+//==========================================================================//
+
+class OneSixSeries : public NACABase
+{
+public:
+
+    OneSixSeries( );
+
+    virtual void Update();
+
+    virtual string GetAirfoilName();
+
+    Parm m_IdealCl;
+    BoolParm m_SharpTE;
 };
 
 //==========================================================================//

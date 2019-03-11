@@ -871,6 +871,8 @@ void PropGeom::UpdateSurf()
     m_MainSurfVec[0].SetMagicVParm( true );
     m_MainSurfVec[0].SetSurfType( PROP_SURF );
     m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
+    m_FoilSurf.SetClustering(m_LECluster(), m_TECluster());
+    m_FoilSurf.SetMagicVParm(m_MainSurfVec[0].IsMagicVParm());
     m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
 
     if ( m_XSecSurf.GetFlipUD() )
@@ -1645,6 +1647,24 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
             if ( XSec_u_vec[XSec_index] > u_main && XSec_u_vec[XSec_index] < u_next )
             {
                 u = ( ( XSec_index + 1 ) / (double)numUsec );
+
+                af_file_name = m_Name + "_";
+
+                if ( veh->m_AFAppendGeomIDFlag() )
+                {
+                    af_file_name += ( m_ID + "_" );
+                }
+
+                af_file_name += to_string( foil_cnt );
+
+                if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT )
+                {
+                    af_file_name += ".dat";
+                }
+                else if ( veh->m_AFExportType() == vsp::BEZIER_AF_EXPORT )
+                {
+                    af_file_name += ".bz";
+                }
 
                 fprintf( meta_fid, "########################################\n" );
                 fprintf( meta_fid, "Airfoil File Name, %s\n", af_file_name.c_str() );

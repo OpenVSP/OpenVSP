@@ -2,6 +2,11 @@ CMAKE_MINIMUM_REQUIRED(VERSION 2.8)
 
 SET(UTIL_INCLUDE_DIR ${CMAKE_CURRENT_SOURCE_DIR} CACHE PATH "Path to util headers")
 
+# set to allow /bigobj when building under Microsoft Visual C
+IF (MSVC)
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} /bigobj")
+ENDIF()
+
 INCLUDE_DIRECTORIES(
     ${LIBXML2_INCLUDE_DIR}
     ${NANOFLANN_INCLUDE_DIR}

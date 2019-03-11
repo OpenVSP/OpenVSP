@@ -100,6 +100,7 @@ protected:
     SliderAdjRangeInput m_FourThickChordSlider;
     SliderAdjRangeInput m_FourCamberSlider;
     SliderAdjRangeInput m_FourCamberLocSlider;
+    CheckButton m_FourSharpTEButton;
 
     GroupLayout m_SixSeriesGroup;
     StringOutput m_SixNameOutput;
@@ -162,6 +163,48 @@ protected:
     SliderAdjRangeInput m_VKTKappaSlider;
     SliderAdjRangeInput m_VKTTauSlider;
     CheckButton m_VKTInvertButton;
+
+    GroupLayout m_FourDigitModGroup;
+    StringOutput m_FourModNameOutput;
+    CheckButton m_FourModInvertButton;
+    SliderAdjRangeInput m_FourModChordSlider;
+    SliderAdjRangeInput m_FourModThickChordSlider;
+    SliderAdjRangeInput m_FourModCamberSlider;
+    SliderAdjRangeInput m_FourModCamberLocSlider;
+    SliderAdjRangeInput m_FourModThicknessLocSlider;
+    SliderAdjRangeInput m_FourModLERadIndexSlider;
+    CheckButton m_FourModSharpTEButton;
+
+    GroupLayout m_FiveDigitGroup;
+    StringOutput m_FiveNameOutput;
+    CheckButton m_FiveInvertButton;
+    SliderAdjRangeInput m_FiveChordSlider;
+    SliderAdjRangeInput m_FiveThickChordSlider;
+    SliderAdjRangeInput m_FiveCLiSlider;
+    SliderAdjRangeInput m_FiveCamberLocSlider;
+    CheckButton m_FiveSharpTEButton;
+
+    GroupLayout m_FiveDigitModGroup;
+    StringOutput m_FiveModNameOutput;
+    CheckButton m_FiveModInvertButton;
+    SliderAdjRangeInput m_FiveModChordSlider;
+    SliderAdjRangeInput m_FiveModThickChordSlider;
+    SliderAdjRangeInput m_FiveModCLiSlider;
+    SliderAdjRangeInput m_FiveModCamberLocSlider;
+    SliderAdjRangeInput m_FiveModThicknessLocSlider;
+    SliderAdjRangeInput m_FiveModLERadIndexSlider;
+    CheckButton m_FiveModSharpTEButton;
+
+    GroupLayout m_OneSixSeriesGroup;
+    StringOutput m_OneSixSeriesNameOutput;
+    CheckButton m_OneSixSeriesInvertButton;
+    SliderAdjRangeInput m_OneSixSeriesChordSlider;
+    SliderAdjRangeInput m_OneSixSeriesThickChordSlider;
+    SliderAdjRangeInput m_OneSixSeriesCLiSlider;
+    SliderAdjRangeInput m_OneSixSeriesCamberLocSlider;
+    SliderAdjRangeInput m_OneSixSeriesThicknessLocSlider;
+    SliderAdjRangeInput m_OneSixSeriesLERadIndexSlider;
+    CheckButton m_OneSixSeriesSharpTEButton;
 
     // Modify tab
     GroupLayout m_ModifyLayout;

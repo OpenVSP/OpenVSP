@@ -34,6 +34,13 @@ FuselageGeom::FuselageGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_OrderPolicy.Init( "OrderPolicy", "Design", this, FUSE_MONOTONIC, FUSE_MONOTONIC, NUM_FUSE_POLICY - 1 );
     m_OrderPolicy.SetDescript( "XSec ordering policy for fuselage" );
 
+    //==== rename capping controls for fuselage specific terminology ====//
+    m_CapUMinOption.SetDescript("Type of End Cap on Fuselage Nose");
+    m_CapUMinOption.Parm::Set(NO_END_CAP);
+    m_CapUMinTess.SetDescript("Number of tessellated curves on Fuselage Nose and Tail");
+    m_CapUMaxOption.SetDescript("Type of End Cap on Fuselage Tail");
+    m_CapUMaxOption.Parm::Set(NO_END_CAP);
+
     m_ActiveXSec = 0;
 
     m_XSecSurf.SetXSecType( XSEC_FUSE );
@@ -179,12 +186,46 @@ void FuselageGeom::UpdateSurf()
 
 void FuselageGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen )
 {
-    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
+    vector < int > tessvec;
+
+    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+
+    for ( int i = 0; i < m_TessUVec.size(); i++ )
+    {
+        tessvec.push_back( m_TessUVec[i] );
+    }
+
+    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+
+    m_SurfVec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
 void FuselageGeom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
 {
-    m_SurfVec[indx].SplitTesselate( m_TessUVec, m_TessW(), pnts, norms, m_CapUMinTess() );
+    vector < int > tessvec;
+
+    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+
+    for ( int i = 0; i < m_TessUVec.size(); i++ )
+    {
+        tessvec.push_back( m_TessUVec[i] );
+    }
+
+    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+
+    m_SurfVec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess() );
 }
 
 //==== Compute Rotation Center ====//

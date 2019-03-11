@@ -62,7 +62,7 @@ void GeomType::CopyFrom( const GeomType & t )
 //==== Constructor ====//
 GeomGuiDraw::GeomGuiDraw()
 {
-    m_DisplayType = DISPLAY_BEZIER;
+    m_DisplayType = DISPLAY_TYPE::DISPLAY_BEZIER;
     m_DrawType = GEOM_DRAW_WIRE;
     m_NoShowFlag = false;
     m_DisplayChildrenFlag = true;
@@ -1248,9 +1248,11 @@ void Geom::UpdateSymmAttach()
     m_SurfVec.clear();
     m_SurfIndxVec.clear();
     m_SurfSymmMap.clear();
+    m_SurfCopyIndx.clear();
     m_SurfVec.resize( num_surf, VspSurf() );
     m_SurfIndxVec.resize( num_surf, -1 );
     m_SurfSymmMap.resize( num_surf );
+    m_SurfCopyIndx.resize( num_surf );
 
     int num_main = GetNumMainSurfs();
     for ( int i = 0 ; i < ( int )num_main ; i++ )
@@ -1258,10 +1260,10 @@ void Geom::UpdateSymmAttach()
         m_SurfVec[i] = m_MainSurfVec[i];
         m_SurfIndxVec[i] = i;
         m_SurfSymmMap[ m_SurfIndxVec[i] ].push_back( i );
+        m_SurfCopyIndx[i] = 0;
     }
 
-    vector<Matrix4d> transMats;
-    transMats.resize( num_surf, Matrix4d() );
+    m_TransMatVec.resize( num_surf, Matrix4d() );
     // Compute Relative Translation Matrix
     Matrix4d symmOriginMat;
     Matrix4d relTrans;
@@ -1277,9 +1279,9 @@ void Geom::UpdateSymmAttach()
     relTrans.affineInverse();
     relTrans.matMult( m_ModelMatrix.data() );
 
-    for ( int i = 0 ; i < ( int )transMats.size() ; i++ )
+    for ( int i = 0 ; i < ( int )m_TransMatVec.size() ; i++ )
     {
-        transMats[i].initMat( relTrans.data() );
+        m_TransMatVec[i].initMat( relTrans.data() );
     }
 
     // Copy main surfs
@@ -1354,9 +1356,10 @@ void Geom::UpdateSymmAttach()
                     {
                         m_SurfVec[j + k * numAddSurfs] = m_SurfVec[j - currentIndex];
                         m_SurfIndxVec[j + k * numAddSurfs] = m_SurfIndxVec[j - currentIndex];
+                        m_SurfCopyIndx[j + k * numAddSurfs] = m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].size();
                         m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].push_back( j + k * numAddSurfs );
-                        transMats[j + k * numAddSurfs].initMat( transMats[j - currentIndex].data() );
-                        transMats[j + k * numAddSurfs].postMult( Ref.data() ); // Apply Reflection
+                        m_TransMatVec[j + k * numAddSurfs].initMat( m_TransMatVec[j - currentIndex].data() );
+                        m_TransMatVec[j + k * numAddSurfs].postMult( Ref.data() ); // Apply Reflection
 
                         // Increment rotation by the angle
                         Ref.postMult( Ref_Orig.data() );
@@ -1370,9 +1373,10 @@ void Geom::UpdateSymmAttach()
                     m_SurfVec[j] = m_SurfVec[j - currentIndex];
                     m_SurfVec[j].FlipNormal();
                     m_SurfIndxVec[j] = m_SurfIndxVec[j - currentIndex];
+                    m_SurfCopyIndx[j] = m_SurfSymmMap[ m_SurfIndxVec[j] ].size();
                     m_SurfSymmMap[ m_SurfIndxVec[ j ] ].push_back( j );
-                    transMats[j].initMat( transMats[j - currentIndex].data() );
-                    transMats[j].postMult( Ref.data() ); // Apply Reflection
+                    m_TransMatVec[j].initMat( m_TransMatVec[j - currentIndex].data() );
+                    m_TransMatVec[j].postMult( Ref.data() ); // Apply Reflection
                     addIndex++;
                 }
             }
@@ -1391,10 +1395,10 @@ void Geom::UpdateSymmAttach()
     //==== Save Transformation Matrix and Apply Transformations ====//
     for ( int i = 0 ; i < num_surf ; i++ )
     {
-        transMats[i].postMult( symmOriginMat.data() );
-        m_SurfVec[i].Transform( transMats[i] ); // Apply total transformation to main surfaces
+        m_TransMatVec[i].postMult( symmOriginMat.data() );
+        m_SurfVec[i].Transform( m_TransMatVec[i] ); // Apply total transformation to main surfaces
 
-        m_FeaTransMatVec[i] = transMats[i];
+        m_FeaTransMatVec[i] = m_TransMatVec[i];
         m_FeaTransMatVec[i].matMult( retrun_relTrans.data() ); // m_FeaTransMatVec does not inclde the relTrans matrix
     }
 }
@@ -2867,31 +2871,31 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         switch ( m_GuiDraw.GetDrawType() )
         {
-            case GeomGuiDraw::GEOM_DRAW_WIRE:
+            case DRAW_TYPE::GEOM_DRAW_WIRE:
                 m_WireShadeDrawObj_vec[i].m_LineWidth = 1.0;
                 m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_MESH;
                 draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+            case DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_WireShadeDrawObj_vec[i].m_LineColor = lineColor;
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_MESH;
                 draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_SHADE:
+            case DRAW_TYPE::GEOM_DRAW_SHADE:
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
                 draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_NONE:
+            case DRAW_TYPE::GEOM_DRAW_NONE:
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_MESH;
                 m_WireShadeDrawObj_vec[i].m_Visible = false;
                 draw_obj_vec.push_back( &m_WireShadeDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+            case DRAW_TYPE::GEOM_DRAW_TEXTURE:
                 m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_TEXTURED_MESH;
 
                 // Reload texture infos.
@@ -2923,7 +2927,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     char str[256];
 
-    if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         LoadMainDrawObjs( draw_obj_vec );
     }
@@ -2953,7 +2957,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         }
     }
 
-    if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         // Load Feature Lines
         if ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() )
@@ -2978,7 +2982,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             }
         }
     }
-    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_SURF )
+    else if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_DEGEN_SURF )
     {
         // Load DegenGeom
         for ( int i = 0; i < m_DegenSurfDrawObj_vec.size(); i++ )
@@ -3011,38 +3015,38 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             switch ( m_GuiDraw.GetDrawType() )
             {
-            case GeomGuiDraw::GEOM_DRAW_WIRE:
+            case DRAW_TYPE::GEOM_DRAW_WIRE:
                 m_DegenSurfDrawObj_vec[i].m_LineWidth = 1.0;
                 m_DegenSurfDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+            case DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_DegenSurfDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
                 draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_SHADE:
+            case DRAW_TYPE::GEOM_DRAW_SHADE:
                 m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_NONE:
+            case DRAW_TYPE::GEOM_DRAW_NONE:
                 m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 m_DegenSurfDrawObj_vec[i].m_Visible = false;
                 draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+            case DRAW_TYPE::GEOM_DRAW_TEXTURE:
                 m_DegenSurfDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenSurfDrawObj_vec[i] );
                 break;
             }
         }
     }
-    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_PLATE )
+    else if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_DEGEN_PLATE )
     {
         for ( int i = 0; i < m_DegenPlateDrawObj_vec.size(); i++ )
         {
@@ -3074,38 +3078,38 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             switch ( m_GuiDraw.GetDrawType() )
             {
-            case GeomGuiDraw::GEOM_DRAW_WIRE:
+            case vsp::DRAW_TYPE::GEOM_DRAW_WIRE:
                 m_DegenPlateDrawObj_vec[i].m_LineWidth = 1.0;
                 m_DegenPlateDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+            case vsp::DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_DegenPlateDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
                 draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_SHADE:
+            case vsp::DRAW_TYPE::GEOM_DRAW_SHADE:
                 m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_NONE:
+            case vsp::DRAW_TYPE::GEOM_DRAW_NONE:
                 m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 m_DegenPlateDrawObj_vec[i].m_Visible = false;
                 draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+            case vsp::DRAW_TYPE::GEOM_DRAW_TEXTURE:
                 m_DegenPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenPlateDrawObj_vec[i] );
                 break;
             }
         }
     }
-    else if ( m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_DEGEN_CAMBER )
+    else if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_DEGEN_CAMBER )
     {
         for ( int i = 0; i < m_DegenCamberPlateDrawObj_vec.size(); i++ )
         {
@@ -3137,31 +3141,31 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
             switch ( m_GuiDraw.GetDrawType() )
             {
-            case GeomGuiDraw::GEOM_DRAW_WIRE:
+            case DRAW_TYPE::GEOM_DRAW_WIRE:
                 m_DegenCamberPlateDrawObj_vec[i].m_LineWidth = 1.0;
                 m_DegenCamberPlateDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+            case DRAW_TYPE::GEOM_DRAW_HIDDEN:
                 m_DegenCamberPlateDrawObj_vec[i].m_LineColor = lineColor;
                 m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_QUADS;
                 draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_SHADE:
+            case DRAW_TYPE::GEOM_DRAW_SHADE:
                 m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_NONE:
+            case DRAW_TYPE::GEOM_DRAW_NONE:
                 m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_QUADS;
                 m_DegenCamberPlateDrawObj_vec[i].m_Visible = false;
                 draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
                 break;
 
-            case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+            case DRAW_TYPE::GEOM_DRAW_TEXTURE:
                 m_DegenCamberPlateDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_QUADS;
                 draw_obj_vec.push_back( &m_DegenCamberPlateDrawObj_vec[i] );
                 break;
@@ -3169,7 +3173,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         }
     }
 
-    if ( m_GuiDraw.GetDispSubSurfFlag() && m_GuiDraw.GetDisplayType() != GeomGuiDraw::DISPLAY_BEZIER )
+    if ( m_GuiDraw.GetDispSubSurfFlag() && m_GuiDraw.GetDisplayType() != DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         for ( int i = 0; i < m_DegenSubSurfDrawObj_vec.size(); i++ )
         {
@@ -3271,6 +3275,16 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d 
     DegenGeom degenGeom;
     degenGeom.setParentGeom( this );
     degenGeom.setSurfNum( isurf );
+    degenGeom.setFlipNormal( flipnormal );
+    degenGeom.setMainSurfInd( m_SurfIndxVec[isurf] );
+    degenGeom.setSymCopyInd( m_SurfCopyIndx[isurf] );
+
+    vector < double > tmatvec;
+    for ( int j = 0; j < 16; j++ )
+    {
+        tmatvec.push_back( m_TransMatVec[isurf].data()[ j ] );
+    }
+    degenGeom.setTransMat( tmatvec );
 
     degenGeom.setNumXSecs( pnts.size() );
     degenGeom.setNumPnts( pnts[0].size() );
@@ -3481,16 +3495,6 @@ void Geom::WriteBezierAirfoil( const string & file_name, double foilsurf_u_locat
     fclose( file_id );
 }
 
-bool GreaterThanCompare( const vec3d a, const vec3d b )
-{
-    return ( a.x() > b.x() );
-}
-
-bool LessThanCompare( const vec3d a, const vec3d b )
-{
-    return ( a.x() < b.x() );
-}
-
 void Geom::WriteSeligAirfoil( const string & file_name, double foilsurf_u_location )
 {
     // This function writes out the all coordinate points in Selig format for a single
@@ -3555,31 +3559,31 @@ vector < vec3d > Geom::GetAirfoilCoordinates( double foilsurf_u_location )
     foil_curve.Tesselate( Vup, upper_pnts );
 
     // Sort in ascending/descending order
-    std::sort( upper_pnts.begin(), upper_pnts.end(), GreaterThanCompare );
-    std::sort( lower_pnts.begin(), lower_pnts.end(), LessThanCompare );
+    std::reverse( upper_pnts.begin(), upper_pnts.end() );
+    std::reverse( lower_pnts.begin(), lower_pnts.end() );
 
     ordered_vec.resize( upper_pnts.size() + lower_pnts.size() + 3 );
 
     // Identify TE/LE 
-    vec3d LE_pnt = foil_curve.CompPnt01( 0.0 );
-    vec3d TE_pnt = foil_curve.CompPnt01( 0.5 );
+    vec3d TE_pnt = foil_curve.CompPnt01( 0.0 );
+    vec3d LE_pnt = foil_curve.CompPnt01( 0.5 );
 
     // organize the coordinate points into a single vector
-    ordered_vec[0] = LE_pnt; // Start at LE
+    ordered_vec[0] = TE_pnt; // Start at TE
 
     for ( size_t i = 0; i < upper_pnts.size(); i++ )
     {
         ordered_vec[i + 1] = upper_pnts[i];
     }
 
-    ordered_vec[upper_pnts.size() + 1] = TE_pnt; // Include TE
+    ordered_vec[upper_pnts.size() + 1] = LE_pnt; // Include LE
 
     for ( size_t i = 0; i < lower_pnts.size(); i++ )
     {
         ordered_vec[i + upper_pnts.size() + 2] = lower_pnts[i];
     }
 
-    ordered_vec[upper_pnts.size() + lower_pnts.size() + 2] = LE_pnt; // End at LE
+    ordered_vec[upper_pnts.size() + lower_pnts.size() + 2] = TE_pnt; // End at TE
 
     return ordered_vec;
 }
@@ -4480,6 +4484,18 @@ FeaStructure* Geom::GetFeaStruct( int fea_struct_ind )
     return NULL;
 }
 
+int Geom::GetFeaStructIndex( const string & structure_id )
+{
+    for ( size_t i = 0; i < m_FeaStructVec.size(); i++ )
+    {
+        if ( strcmp( m_FeaStructVec[i]->GetID().c_str(), structure_id.c_str() ) == 0 )
+        {
+            return i;
+        }
+    }
+    return -1; // indicates an error
+}
+
 //==== Delete FeaStructure =====//
 void Geom::DeleteFeaStruct( int index )
 {
@@ -4775,7 +4791,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     Geom::LoadDrawObjs( draw_obj_vec );
 
 
-    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         char str[256];
 

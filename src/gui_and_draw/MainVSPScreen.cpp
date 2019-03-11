@@ -18,6 +18,7 @@
 #include "Camera.h"
 #include "LayoutMgr.h"
 #include "Viewport.h"
+#include "Background.h"
 #include <FL/fl_ask.H>
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
@@ -611,4 +612,49 @@ void MainVSPScreen::ActionCB( void * data )
     // }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void MainVSPScreen::ScreenGrab( const string & fname, int w, int h )
+{
+    if ( m_GlWin )
+    {
+        bool framebufferSupported = true;
+        if ( !glewIsSupported( "GL_ARB_framebuffer_object" ) )
+        {
+            framebufferSupported = false;
+        }
+
+        m_GlWin->getGraphicEngine()->dumpScreenImage( fname, w, h, framebufferSupported, VSPGraphic::GraphicEngine::PNG );
+    }
+}
+
+void MainVSPScreen::SetViewAxis( bool vaxis )
+{
+    if ( m_GlWin )
+    {
+        m_ShowXYZArrow = vaxis;
+        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showXYZArrows( m_ShowXYZArrow );
+    }
+}
+
+void MainVSPScreen::SetShowBorders( bool brdr )
+{
+    if ( m_GlWin )
+    {
+        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showBorders( brdr );
+    }
+}
+
+void MainVSPScreen::SetBackground( double r, double g, double b )
+{
+    if ( m_GlWin ) {
+
+        VSPGraphic::Viewport *viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
+        if (viewport)
+        {
+            viewport->getBackground()->setRed((float) (r));
+            viewport->getBackground()->setGreen((float) (g));
+            viewport->getBackground()->setBlue((float) (b));
+        }
+    }
 }

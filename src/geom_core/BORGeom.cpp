@@ -235,6 +235,11 @@ void BORGeom::SetXSecCurveType( int type )
     Update();
 }
 
+int BORGeom::GetXSecCurveType()
+{
+    return m_XSCurve->GetType();
+}
+
 void BORGeom::UpdateDrawObj()
 {
     Geom::UpdateDrawObj();
@@ -264,7 +269,7 @@ void BORGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     Geom::LoadDrawObjs( draw_obj_vec );
 
-    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == vsp::DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
         m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";

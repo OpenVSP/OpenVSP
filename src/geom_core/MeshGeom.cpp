@@ -1340,25 +1340,25 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         }
         switch( m_GuiDraw.GetDrawType() )
         {
-        case GeomGuiDraw::GEOM_DRAW_WIRE:
+        case vsp::DRAW_TYPE::GEOM_DRAW_WIRE:
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_WIRE_TRIS;
             break;
 
-        case GeomGuiDraw::GEOM_DRAW_HIDDEN:
+        case vsp::DRAW_TYPE::GEOM_DRAW_HIDDEN:
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_HIDDEN_TRIS;
             break;
 
-        case GeomGuiDraw::GEOM_DRAW_SHADE:
+        case vsp::DRAW_TYPE::GEOM_DRAW_SHADE:
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
             break;
 
-        case GeomGuiDraw::GEOM_DRAW_NONE:
+        case vsp::DRAW_TYPE::GEOM_DRAW_NONE:
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
             m_WireShadeDrawObj_vec[i].m_Visible = false;
             break;
 
         // Does not support Texture Mapping.  Render Shaded instead.
-        case GeomGuiDraw::GEOM_DRAW_TEXTURE:
+        case vsp::DRAW_TYPE::GEOM_DRAW_TEXTURE:
             m_WireShadeDrawObj_vec[i].m_Type = DrawObj::VSP_SHADED_TRIS;
             break;
         }

@@ -18,22 +18,22 @@ ManageViewScreen::ManageViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 44
 {
     //===== Initialize Values for Sliders =====//
 
-    m_ViewportSizeXValue.Init( "ViewportX", "AdjustView", NULL, 0.0, 0, 1.0e12 );
-    m_ViewportSizeYValue.Init( "ViewportY", "AdjustView", NULL, 0.0, 0, 1.0e12 );
+    m_ViewportSizeXValue.Init( "ViewportX", "AdjustView", VehicleMgr.GetVehicle(), 0.0, 0, 1.0e12 );
+    m_ViewportSizeYValue.Init( "ViewportY", "AdjustView", VehicleMgr.GetVehicle(), 0.0, 0, 1.0e12 );
 
-    m_CORXValue.Init( "CORX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-    m_CORYValue.Init( "CORY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-    m_CORZValue.Init( "CORZ", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+    m_CORXValue.Init( "CORX", "AdjustView", VehicleMgr.GetVehicle(), 0.0, -1.0e12, 1.0e12 );
+    m_CORYValue.Init( "CORY", "AdjustView", VehicleMgr.GetVehicle(), 0.0, -1.0e12, 1.0e12 );
+    m_CORZValue.Init( "CORZ", "AdjustView", VehicleMgr.GetVehicle(), 0.0, -1.0e12, 1.0e12 );
 
-    m_PanXPosValue.Init( "PanX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-    m_PanYPosValue.Init( "PanY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+    m_PanXPosValue.Init( "PanX", "AdjustView", VehicleMgr.GetVehicle(), 0.0, -1.0e12, 1.0e12 );
+    m_PanYPosValue.Init( "PanY", "AdjustView", VehicleMgr.GetVehicle(), 0.0, -1.0e12, 1.0e12 );
 
-    m_ZoomValue.Init( "Zoom", "AdjustView", NULL, 1e-3, 1e-6, 10 );
+    m_ZoomValue.Init( "Zoom", "AdjustView", VehicleMgr.GetVehicle(), 1e-3, 1e-6, 10 );
 
     //===== Attempt at Euler Angle Rotation =====//
-    m_XRotationValue.Init( "RotationX", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-    m_YRotationValue.Init( "RotationY", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
-    m_ZRotationValue.Init( "RotationZ", "AdjustView", NULL, 0.0, -1.0e12, 1.0e12 );
+    m_XRotationValue.Init( "RotationX", "AdjustView", VehicleMgr.GetVehicle(), 0.0, -1.0e12, 1.0e12 );
+    m_YRotationValue.Init( "RotationY", "AdjustView", VehicleMgr.GetVehicle(), 0.0, -1.0e12, 1.0e12 );
+    m_ZRotationValue.Init( "RotationZ", "AdjustView", VehicleMgr.GetVehicle(), 0.0, -1.0e12, 1.0e12 );
 
 
     m_FLTK_Window->callback( staticCloseCB, this );

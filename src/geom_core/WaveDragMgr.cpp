@@ -295,6 +295,8 @@ string WaveDragSingleton::SliceAndAnalyze( int set, int numSlices, int numRots, 
     //==== Create Results ====//
     Results* res = ResultsMgr.CreateResults( "WaveDrag" );
 
+    res->Add( NameValData( "Mach", Mach ) );
+
     res->Add( NameValData( "Mesh_GeomID", m_lastmeshgeomID ) );
 
     PushSliceResults( res );

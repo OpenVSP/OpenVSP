@@ -1456,7 +1456,9 @@ void LoadCaseFile(void)
              
              // Control groupname
              
-             fgets( ControlSurfaceGroup_[i].Name(), 2000, case_file );
+             fgets( DumChar, 2000, case_file );
+             sscanf( DumChar, "%s", ControlSurfaceGroup_[i].Name() ); // Trims whitespace
+
              
              printf("ControlSurfaceGroup_[%d].Name(): %s \n",i,ControlSurfaceGroup_[i].Name());
              

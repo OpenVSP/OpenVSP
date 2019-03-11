@@ -24,11 +24,6 @@ using std::map;
 
 class ParmContainer;
 
-enum PARM_TYPE { PARM_DOUBLE_TYPE = 0, PARM_INT_TYPE = 1, PARM_BOOL_TYPE = 2,
-                 PARM_FRACTION_TYPE = 3, PARM_STRING_TYPE = 4, PARM_LIMITED_INT_TYPE = 5,
-                 PARM_NOTEQ_TYPE = 6
-               };
-
 //==== Parm ====//
 class Parm
 {

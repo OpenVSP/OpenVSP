@@ -62,6 +62,14 @@ vec3d& vec3d::operator=( const vec3d& a )
     return *this;
 }
 
+vec3d& vec3d::operator=( const vec2d& a )
+{
+    v[0] = a.v[0];
+    v[1] = a.v[1];
+    v[2] = 0.0;
+    return *this;
+}
+
 //******* x = 35. ******//
 vec3d& vec3d::operator=( double a )
 {
@@ -796,22 +804,35 @@ double tetra_volume( vec3d& A, vec3d& B, vec3d& C )
 
 //******* Area of tri defined by            ******//
 //******* three vectors from common point   ******//
+// Do not use naive Heron's formula.  Instead, use an algorithm that is stable in the case of slivers
+// and degenerate triangles http://http.cs.berkeley.edu/~wkahan/Triangle.pdf
 double area( vec3d& A, vec3d& B, vec3d& C )
 {
-    double mBA = ( B - A ).mag();
-    double mCA = ( C - A ).mag();
-    double mCB = ( C - B ).mag();
+    double a = ( B - A ).mag();
+    double b = ( C - A ).mag();
+    double c = ( C - B ).mag();
 
-    double s = 0.5 * ( mBA + mCA + mCB );
-
-    double area = s * ( s - mBA ) * ( s - mCA ) * ( s - mCB );
-
-    if ( area <= 0.0 )
+    // Place in increasing order a, b, c.
+    if ( a < b )
     {
-        return( 0.0 );
+        std::swap( a, b );
+    }
+    if ( a < c )
+    {
+        std::swap( a, c );
+    }
+    if ( b < c )
+    {
+        std::swap( b, c );
     }
 
-    return( sqrt( area ) );
+    if ( c-(a-b) < 0.0 )
+    {
+        // Not a real triangle.
+        return 0.0;
+    }
+
+    return 0.25 * sqrt( ( a + ( b + c ) ) * ( c - ( a - b ) ) * ( c + ( a - b ) ) * ( a + ( b - c ) ) );
 }
 
 // dist3D_Segment_to_Segment based on code by Dan Sunday
