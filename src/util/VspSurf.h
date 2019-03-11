@@ -54,6 +54,8 @@ public:
     // create surface as a body of revolution using the specified curve
     void CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm = false );
 
+    void CreateDisk( double dia, int ix = vsp::X_DIR, int iy = vsp::Y_DIR );
+
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < double > & param, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );

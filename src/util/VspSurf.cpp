@@ -24,6 +24,7 @@
 #include "eli/geom/surface/piecewise_multicap_surface_creator.hpp"
 #include "eli/geom/intersect/minimum_distance_surface.hpp"
 #include "eli/geom/intersect/distance_angle_surface.hpp"
+#include "eli/geom/curve/piecewise.hpp"
 
 typedef piecewise_surface_type::index_type surface_index_type;
 typedef piecewise_surface_type::point_type surface_point_type;
@@ -33,6 +34,14 @@ typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
 typedef eli::geom::surface::piecewise_general_skinning_surface_creator<double, 3, surface_tolerance_type> general_creator_type;
 typedef eli::geom::surface::piecewise_multicap_surface_creator<double, 3, surface_tolerance_type> multicap_creator_type;
 typedef eli::geom::surface::piecewise_cubic_spline_skinning_surface_creator<double, 3, surface_tolerance_type> spline_creator_type;
+
+typedef piecewise_curve_type::index_type curve_index_type;
+typedef piecewise_curve_type::point_type curve_point_type;
+typedef piecewise_curve_type::rotation_matrix_type curve_rotation_matrix_type;
+typedef piecewise_curve_type::tolerance_type curve_tolerance_type;
+
+typedef eli::geom::curve::piecewise_point_creator<double, 3, curve_tolerance_type> piecewise_point_creator;
+typedef eli::geom::curve::piecewise_circle_creator<double, 3, curve_tolerance_type> piecewise_circle_creator;
 
 //===== Constructor  =====//
 VspSurf::VspSurf()
@@ -394,6 +403,66 @@ void VspSurf::CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm 
     //==== Store Skining Data ====//
     m_SkinType = SKIN_BODY_REV;
     m_BodyRevCurve = input_crv;
+}
+
+void VspSurf::CreateDisk( double dia, int ix, int iy )
+{
+    vector< VspCurve > crv_vec(2);
+
+    piecewise_curve_type c;
+    curve_point_type origin;
+    origin << 0, 0, 0;
+
+    // create point with 4 segments
+    piecewise_point_creator ppc( 4 );
+
+    // set point, make sure have 4 sections that go from 0 to 4
+    ppc.set_point( origin );
+    ppc.set_t0( 0 );
+    ppc.set_segment_dt( 1, 0 );
+    ppc.set_segment_dt( 1, 1 );
+    ppc.set_segment_dt( 1, 2 );
+    ppc.set_segment_dt( 1, 3 );
+
+    if ( !ppc.create( c ) )
+    {
+        std::cerr << "Failed to create point for disk. " << __LINE__ << std::endl;
+    }
+    else
+    {
+        crv_vec[0].SetCurve( c );
+    }
+
+    piecewise_circle_creator pcc( 4 );
+    curve_point_type start, xdir, ydir;
+
+    xdir = origin;
+    ydir = origin;
+
+    xdir( ix ) = 1.0;
+    ydir( iy ) = 1.0;
+
+    // set circle params, make sure that entire curve goes from 0 to 4
+    pcc.set_origin( origin );
+    pcc.set_radius( dia / 2.0 );
+    pcc.set_xy_directions( xdir, ydir );
+    pcc.set_t0( 0 );
+    pcc.set_segment_dt( 1, 0 );
+    pcc.set_segment_dt( 1, 1 );
+    pcc.set_segment_dt( 1, 2 );
+    pcc.set_segment_dt( 1, 3 );
+
+    if ( !pcc.create( c ) )
+    {
+        std::cerr << "Failed to create circle for disk. " << __LINE__ << std::endl;
+    }
+    else
+    {
+        c.reverse();
+        crv_vec[1].SetCurve( c );
+    }
+
+    SkinC0( crv_vec, false );
 }
 
 void VspSurf::SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag )
