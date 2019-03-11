@@ -1227,6 +1227,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "PROJ_TGT_TYPE", "NUM_PROJ_TGT_OPTIONS", NUM_PROJ_TGT_OPTIONS );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "PROP_MODE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_MODE", "PROP_BLADES", PROP_BLADES );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_MODE", "PROP_BOTH", PROP_BOTH );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_MODE", "PROP_DISK", PROP_DISK );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "PROP_PCURVE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PROP_PCURVE", "PROP_CHORD", PROP_CHORD );

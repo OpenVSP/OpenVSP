@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller" )
+PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 720, "Propeller" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -23,6 +23,15 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 690, "Propeller
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
 
     m_DesignLayout.SetGroupAndScreen( design_group, this );
+
+    m_DesignLayout.AddDividerBox( "Modeling" );
+    m_PropModeChoice.AddItem( "Blades" );
+    m_PropModeChoice.AddItem( "Both" );
+    m_PropModeChoice.AddItem( "Disk" );
+    m_DesignLayout.AddChoice( m_PropModeChoice, "Prop Mode" );
+
+    m_DesignLayout.AddYGap();
+
     m_DesignLayout.AddDividerBox( "Design" );
 
     m_DesignLayout.SetButtonWidth( 100 );
@@ -891,6 +900,8 @@ bool PropScreen::Update()
     char str[255];
     m_AFOutput.Update( propeller_ptr->m_AF.GetID() );
     m_CLiOutput.Update( propeller_ptr->m_CLi.GetID() );
+
+    m_PropModeChoice.Update( propeller_ptr->m_PropMode.GetID() );
 
     m_RFoldSlider.Update( propeller_ptr->m_RadFoldAxis.GetID() );
     m_AxFoldSlider.Update( propeller_ptr->m_AxialFoldAxis.GetID() );

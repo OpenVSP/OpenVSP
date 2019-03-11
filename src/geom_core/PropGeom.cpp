@@ -239,6 +239,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Nblade.Init( "NumBlade", "Design", this, 3, 1, 1000 );
     m_Nblade.SetDescript( "Number of propeller blades" );
 
+    m_PropMode.Init( "PropMode", "Design", this, PROP_BLADES, PROP_BLADES, PROP_DISK );
+    m_PropMode.SetDescript( "Propeller model mode." );
+
     m_Rotate.Init( "Rotate", "Design", this, 0.0, -360.0, 360.0 );
     m_Rotate.SetDescript( "Rotation of first propeller blade." );
 
@@ -458,64 +461,69 @@ void PropGeom::UpdateDrawObj()
 {
     GeomXSec::UpdateDrawObj();
 
-    double axlen = 1.0;
-
-    Vehicle *veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        axlen = veh->m_AxisLength();
-    }
-
-    double rev = 1.0;
-    if ( m_ReverseFlag() )
-    {
-        rev = -1.0;
-    }
-
-    double data[16];
-    m_ModelMatrix.getMat( data );
-
-    vec3d cen( 0, 0, 0 );
-    vec3d rotdir( -1, 0, 0 );
-    vec3d thrustdir( -1, 0, 0 );
-    rotdir = rotdir * rev;
-
-    cen = m_ModelMatrix.xform( cen );
-    rotdir = m_ModelMatrix.xform( rotdir ) - cen;
-    thrustdir = m_ModelMatrix.xform( thrustdir ) - cen;
-
-    Matrix4d mat;
-    mat.loadIdentity();
-    mat.rotateX( -rev * m_Rotate() );
-    mat.postMult( data );
-
-    vec3d pmid = mat.xform( m_FoldAxOrigin );
-    vec3d ptstart = mat.xform( m_FoldAxOrigin + m_FoldAxDirection * axlen / 2.0 );
-    vec3d ptend = mat.xform( m_FoldAxOrigin - m_FoldAxDirection * axlen / 2.0 );
-
-
-    vec3d dir = ptend - ptstart;
-    dir.normalize();
-
     m_ArrowLinesDO.m_PntVec.clear();
     m_ArrowHeadDO.m_PntVec.clear();
 
-    m_ArrowLinesDO.m_PntVec.push_back( ptstart );
-    m_ArrowLinesDO.m_PntVec.push_back( ptend );
-    m_ArrowLinesDO.m_PntVec.push_back( cen );
-    m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir * axlen );
+    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
+    {
+        double axlen = 1.0;
 
-    MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec );
-    MakeCircleArrow( pmid, dir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
-    MakeCircleArrow( cen, rotdir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+        Vehicle *veh = VehicleMgr.GetVehicle();
+        if ( veh )
+        {
+            axlen = veh->m_AxisLength();
+        }
 
+        double rev = 1.0;
+        if ( m_ReverseFlag() )
+        {
+            rev = -1.0;
+        }
+
+        double data[16];
+        m_ModelMatrix.getMat( data );
+
+        vec3d cen( 0, 0, 0 );
+        vec3d rotdir( -1, 0, 0 );
+        vec3d thrustdir( -1, 0, 0 );
+        rotdir = rotdir * rev;
+
+        cen = m_ModelMatrix.xform( cen );
+        rotdir = m_ModelMatrix.xform( rotdir ) - cen;
+        thrustdir = m_ModelMatrix.xform( thrustdir ) - cen;
+
+        Matrix4d mat;
+        mat.loadIdentity();
+        mat.rotateX( -rev * m_Rotate() );
+        mat.postMult( data );
+
+        vec3d pmid = mat.xform( m_FoldAxOrigin );
+        vec3d ptstart = mat.xform( m_FoldAxOrigin + m_FoldAxDirection * axlen / 2.0 );
+        vec3d ptend = mat.xform( m_FoldAxOrigin - m_FoldAxDirection * axlen / 2.0 );
+
+
+        vec3d dir = ptend - ptstart;
+        dir.normalize();
+
+
+
+        m_ArrowLinesDO.m_PntVec.push_back( ptstart );
+        m_ArrowLinesDO.m_PntVec.push_back( ptend );
+        m_ArrowLinesDO.m_PntVec.push_back( cen );
+        m_ArrowLinesDO.m_PntVec.push_back( cen + thrustdir * axlen );
+
+        MakeArrowhead( cen + thrustdir * axlen, thrustdir, 0.25 * axlen, m_ArrowHeadDO.m_PntVec );
+        MakeCircleArrow( pmid, dir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+        MakeCircleArrow( cen, rotdir, 0.5 * axlen, m_ArrowLinesDO, m_ArrowHeadDO );
+    }
 }
 
 void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     GeomXSec::LoadDrawObjs( draw_obj_vec );
 
-    if ( ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() ) || m_Vehicle->IsGeomActive( m_ID ) )
+    if ( m_PropMode() <= PROP_MODE::PROP_BOTH  &&
+         ( ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() ) || m_Vehicle->IsGeomActive( m_ID ) ) )
     {
         m_ArrowHeadDO.m_GeomID = m_ID + "Arrows";
         m_ArrowHeadDO.m_LineWidth = 1.0;
@@ -748,110 +756,6 @@ void PropGeom::UpdateSurf()
     m_FoldAxDirection = fold.xform( vec3d( 0, 0, 1 ) );
     m_FoldAxOrigin = vec3d( m_AxialFoldAxis() * radius, m_RadFoldAxis() * radius, m_OffsetFoldAxis() * radius );
 
-    // Find the union of stations required to approximate the blade parameters
-    // with cubic functions.
-    vector < double > tmap = rvec;  // Initialize with specified XSecs.
-    vector < double > tdisc;
-    tdisc.push_back( rfirst );
-    tdisc.push_back( rlast );
-    for ( int i = 0; i < m_pcurve_vec.size(); i++ )
-    {
-        vector < double > tm;
-        vector < double > tmout;
-        vector < double > td;
-        m_pcurve_vec[i]->GetTMap( tm, td );
-
-        std::set_union( tmap.begin(), tmap.end(), tm.begin(), tm.end(), std::back_inserter(tmout), &aboutcomp );
-        std::swap( tmout, tmap );
-    }
-
-    // Not sure why above set_union leaves duplicate entries, but
-    // sort and force unique just to be sure.
-    std::sort( tmap.begin(), tmap.end() );
-    auto tmit = std::unique( tmap.begin(), tmap.end(), &abouteq );
-    tmap.erase( tmit, tmap.end() );
-
-    // Treat all control points as possible discontinuities.
-    tdisc = tmap;
-
-    // Refine by adding two intermediate points to each cubic section
-    // this is needed because the adaptive algorithm above uses derivatives
-    // while our later reconstruction does not.
-    vector < double > tref( ( tmap.size() - 1 ) * 3 + 1 );
-    for ( int i = 0; i < tmap.size() - 1; i++ )
-    {
-        int iref = 3*i;
-        double t = tmap[i];
-        double tnxt = tmap[i+1];
-        double dt = (tnxt-t)/3.0;
-
-        tref[iref] = t;
-        tref[iref+1] = t + dt;
-        tref[iref+2] = t + 2 * dt;
-    }
-    tref.back() = tmap.back();
-    std::swap( tmap, tref );
-
-    // Convert tdisc to final parameterization.
-    for ( int i = 0; i < tdisc.size(); i++ )
-    {
-        tdisc[i] = ( tdisc[i] - rfirst ) / ( rlast - rfirst );
-    }
-
-
-    // Find blade root chord and twist, for later calculations.
-    double croot = 0.0;
-    double twroot = 0.0;
-
-    PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( 0 );
-
-    if ( xs )
-    {
-        double r = xs->m_RadiusFrac();
-        double w = m_ChordCurve.Comp( r ) * radius;
-
-        croot = w;
-        twroot = m_TwistCurve.Comp( r );
-    }
-
-    //==== Update XSec Prop Positioner for highlight curves ====//
-    for ( int i = 0 ; i < nxsec ; i++ )
-    {
-        PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( i );
-
-        if ( xs )
-        {
-            double r = xs->m_RadiusFrac();
-            double w = m_ChordCurve.Comp( r ) * radius;
-
-            // Set up prop positioner for highlight curves - not lofting.
-            xs->m_PropPos.m_ParentProp = GetXSecSurf( 0 );
-            xs->m_PropPos.m_Radius = r * radius;
-            xs->m_PropPos.m_Chord = w;
-
-            xs->m_PropPos.m_Construct = m_Construct();
-            xs->m_PropPos.m_FeatherOffset = m_FeatherOffset();
-            xs->m_PropPos.m_FeatherAxis = m_FeatherAxis();
-            xs->m_PropPos.m_RootChord = croot;
-            xs->m_PropPos.m_RootTwist = twroot;
-
-            xs->m_PropPos.m_Twist = m_TwistCurve.Comp( r );
-            xs->m_PropPos.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
-
-            xs->m_PropPos.m_Rake = m_RakeCurve.Comp( r ) * radius;
-            xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
-            xs->m_PropPos.m_Sweep = m_SweepCurve.Comp( r );
-            xs->m_PropPos.m_PropRot = m_Rotate();
-            xs->m_PropPos.m_Feather = m_Feather();
-
-            xs->m_PropPos.m_FoldOrigin = m_FoldAxOrigin;
-            xs->m_PropPos.m_FoldDirection = m_FoldAxDirection;
-            xs->m_PropPos.m_FoldAngle = m_FoldAngle();
-
-            xs->m_PropPos.m_Reverse = rev;
-        }
-    }
-
 
     //==== Cross Section Curves & joint info ====//
     vector< XSecCurve* > xsc_vec;
@@ -938,134 +842,276 @@ void PropGeom::UpdateSurf()
         }
     }
 
-    // Pseudo cross sections
-    // Not directly user-controlled, but an intermediate step in lofting the
-    // surface.
-    int npseudo = tmap.size();
+    m_MainSurfVec.clear();
 
-    vector< VspCurve > crv_vec;
-    crv_vec.resize( npseudo );
-
-    vector < rib_data_type > rib_vec( npseudo );
-    vector < double > u_pseudo( npseudo );
-    for ( int i = 0; i < npseudo; i++ )
+    if ( m_PropMode() <= PROP_MODE::PROP_BOTH )
     {
-        // Assume linear interpolation means linear u/r relationship.
-        double r = tmap[i];
-
-        // u is a floating point coordinate where integers correspond to XSec indices
-        double u = m_rtou.CompPnt( r );
-
-        int istart = std::floor( u );
-        int iend = istart + 1;
-        double frac = ( r - rvec[istart] ) / ( rvec[iend] - rvec[istart] );
-        if ( iend >= nxsec ) // Make sure index doesn't go off the end.
+        // Find the union of stations required to approximate the blade parameters
+        // with cubic functions.
+        vector < double > tmap = rvec;  // Initialize with specified XSecs.
+        vector < double > tdisc;
+        tdisc.push_back( rfirst );
+        tdisc.push_back( rlast );
+        for ( int i = 0; i < m_pcurve_vec.size(); i++ )
         {
-            iend = istart;
-            frac = 0;
+            vector < double > tm;
+            vector < double > tmout;
+            vector < double > td;
+            m_pcurve_vec[i]->GetTMap( tm, td );
+
+            std::set_union( tmap.begin(), tmap.end(), tm.begin(), tm.end(), std::back_inserter(tmout), &aboutcomp );
+            std::swap( tmout, tmap );
         }
 
-        double t = m_ThickCurve.Comp( r );
-        double cli = m_CLICurve.Comp( r );
-        double w = m_ChordCurve.Comp( r ) * radius;
+        // Not sure why above set_union leaves duplicate entries, but
+        // sort and force unique just to be sure.
+        std::sort( tmap.begin(), tmap.end() );
+        auto tmit = std::unique( tmap.begin(), tmap.end(), &abouteq );
+        tmap.erase( tmit, tmap.end() );
 
-        // Interpolate foil as needed here.
-        InterpXSecCurve( crv_vec[i], xsc_vec[ istart ], xsc_vec[ iend ], frac, w, t, cli );
+        // Treat all control points as possible discontinuities.
+        tdisc = tmap;
+
+        // Refine by adding two intermediate points to each cubic section
+        // this is needed because the adaptive algorithm above uses derivatives
+        // while our later reconstruction does not.
+        vector < double > tref( ( tmap.size() - 1 ) * 3 + 1 );
+        for ( int i = 0; i < tmap.size() - 1; i++ )
+        {
+            int iref = 3*i;
+            double t = tmap[i];
+            double tnxt = tmap[i+1];
+            double dt = (tnxt-t)/3.0;
+
+            tref[iref] = t;
+            tref[iref+1] = t + dt;
+            tref[iref+2] = t + 2 * dt;
+        }
+        tref.back() = tmap.back();
+        std::swap( tmap, tref );
+
+        // Convert tdisc to final parameterization.
+        for ( int i = 0; i < tdisc.size(); i++ )
+        {
+            tdisc[i] = ( tdisc[i] - rfirst ) / ( rlast - rfirst );
+        }
 
 
-        PropPositioner pp;
+        // Find blade root chord and twist, for later calculations.
+        double croot = 0.0;
+        double twroot = 0.0;
 
-        pp.m_ParentProp = this->GetXSecSurf( 0 );
-        pp.m_Radius = r * radius;
+        PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( 0 );
 
-        pp.m_Chord = m_ChordCurve.Comp( r ) * radius;
-        pp.m_Twist = m_TwistCurve.Comp( r );
+        if ( xs )
+        {
+            double r = xs->m_RadiusFrac();
+            double w = m_ChordCurve.Comp( r ) * radius;
 
-        pp.m_Construct = m_Construct();
-        pp.m_FeatherOffset = m_FeatherOffset();
-        pp.m_FeatherAxis = m_FeatherAxis();
-        pp.m_RootChord = croot;
-        pp.m_RootTwist = twroot;
+            croot = w;
+            twroot = m_TwistCurve.Comp( r );
+        }
 
-        pp.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
+        //==== Update XSec Prop Positioner for highlight curves ====//
+        for ( int i = 0 ; i < nxsec ; i++ )
+        {
+            PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( i );
 
-        pp.m_Rake = m_RakeCurve.Comp( r ) * radius;
-        pp.m_Skew = m_SkewCurve.Comp( r ) * radius;
+            if ( xs )
+            {
+                double r = xs->m_RadiusFrac();
+                double w = m_ChordCurve.Comp( r ) * radius;
 
-        pp.m_Sweep = m_SweepCurve.Comp( r );
+                // Set up prop positioner for highlight curves - not lofting.
+                xs->m_PropPos.m_ParentProp = GetXSecSurf( 0 );
+                xs->m_PropPos.m_Radius = r * radius;
+                xs->m_PropPos.m_Chord = w;
 
-        pp.m_PropRot = m_Rotate();
-        pp.m_Feather = m_Feather();
+                xs->m_PropPos.m_Construct = m_Construct();
+                xs->m_PropPos.m_FeatherOffset = m_FeatherOffset();
+                xs->m_PropPos.m_FeatherAxis = m_FeatherAxis();
+                xs->m_PropPos.m_RootChord = croot;
+                xs->m_PropPos.m_RootTwist = twroot;
 
-        pp.m_FoldOrigin = m_FoldAxOrigin;
-        pp.m_FoldDirection = m_FoldAxDirection;
-        pp.m_FoldAngle = m_FoldAngle();
+                xs->m_PropPos.m_Twist = m_TwistCurve.Comp( r );
+                xs->m_PropPos.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
 
-        pp.m_Reverse = rev;
+                xs->m_PropPos.m_Rake = m_RakeCurve.Comp( r ) * radius;
+                xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
+                xs->m_PropPos.m_Sweep = m_SweepCurve.Comp( r );
+                xs->m_PropPos.m_PropRot = m_Rotate();
+                xs->m_PropPos.m_Feather = m_Feather();
 
-        // Set a bunch of other pp variables.
-        pp.SetCurve( crv_vec[i] );
-        pp.Update();
+                xs->m_PropPos.m_FoldOrigin = m_FoldAxOrigin;
+                xs->m_PropPos.m_FoldDirection = m_FoldAxDirection;
+                xs->m_PropPos.m_FoldAngle = m_FoldAngle();
 
-        rib_vec[i].set_f( pp.GetCurve().GetCurve() );
-        // u_pseudo is 0-1 out the span of the blade.
-        u_pseudo[i] = ( r - rfirst ) / ( rlast - rfirst );
+                xs->m_PropPos.m_Reverse = rev;
+            }
+        }
+
+        // Pseudo cross sections
+        // Not directly user-controlled, but an intermediate step in lofting the
+        // surface.
+        int npseudo = tmap.size();
+
+        vector< VspCurve > crv_vec;
+        crv_vec.resize( npseudo );
+
+        vector < rib_data_type > rib_vec( npseudo );
+        vector < double > u_pseudo( npseudo );
+        for ( int i = 0; i < npseudo; i++ )
+        {
+            // Assume linear interpolation means linear u/r relationship.
+            double r = tmap[i];
+
+            // u is a floating point coordinate where integers correspond to XSec indices
+            double u = m_rtou.CompPnt( r );
+
+            int istart = std::floor( u );
+            int iend = istart + 1;
+            double frac = ( r - rvec[istart] ) / ( rvec[iend] - rvec[istart] );
+            if ( iend >= nxsec ) // Make sure index doesn't go off the end.
+            {
+                iend = istart;
+                frac = 0;
+            }
+
+            double t = m_ThickCurve.Comp( r );
+            double cli = m_CLICurve.Comp( r );
+            double w = m_ChordCurve.Comp( r ) * radius;
+
+            // Interpolate foil as needed here.
+            InterpXSecCurve( crv_vec[i], xsc_vec[ istart ], xsc_vec[ iend ], frac, w, t, cli );
+
+
+            PropPositioner pp;
+
+            pp.m_ParentProp = this->GetXSecSurf( 0 );
+            pp.m_Radius = r * radius;
+
+            pp.m_Chord = m_ChordCurve.Comp( r ) * radius;
+            pp.m_Twist = m_TwistCurve.Comp( r );
+
+            pp.m_Construct = m_Construct();
+            pp.m_FeatherOffset = m_FeatherOffset();
+            pp.m_FeatherAxis = m_FeatherAxis();
+            pp.m_RootChord = croot;
+            pp.m_RootTwist = twroot;
+
+            pp.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
+
+            pp.m_Rake = m_RakeCurve.Comp( r ) * radius;
+            pp.m_Skew = m_SkewCurve.Comp( r ) * radius;
+
+            pp.m_Sweep = m_SweepCurve.Comp( r );
+
+            pp.m_PropRot = m_Rotate();
+            pp.m_Feather = m_Feather();
+
+            pp.m_FoldOrigin = m_FoldAxOrigin;
+            pp.m_FoldDirection = m_FoldAxDirection;
+            pp.m_FoldAngle = m_FoldAngle();
+
+            pp.m_Reverse = rev;
+
+            // Set a bunch of other pp variables.
+            pp.SetCurve( crv_vec[i] );
+            pp.Update();
+
+            rib_vec[i].set_f( pp.GetCurve().GetCurve() );
+            // u_pseudo is 0-1 out the span of the blade.
+            u_pseudo[i] = ( r - rfirst ) / ( rlast - rfirst );
+        }
+
+        // This surface linearly interpolates the airfoil sections without
+        // any other transformations.
+        // These sections can be extracted (as u-const curves) and then
+        // transformed to their final position before skinning.
+        m_FoilSurf = VspSurf();
+        m_FoilSurf.SkinC0( crv_vec, u_pseudo, false );
+
+        m_MainSurfVec.reserve( m_Nblade() + 1 );
+        m_MainSurfVec.resize( 1 );
+
+        m_MainSurfVec[0].SetMagicVParm( false );
+        m_MainSurfVec[0].SkinCubicSpline( rib_vec, u_pseudo, tdisc, false );
+
+        m_MainSurfVec[0].SetMagicVParm( true );
+        m_MainSurfVec[0].SetSurfType( PROP_SURF );
+        m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
+        m_MainSurfVec[0].SetSurfCfdType( vsp::CFD_NORMAL );  // Make sure set to default, can be updated later.
+
+        m_FoilSurf.SetMagicVParm( true );
+        m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
+
+        m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
+
+        if ( m_XSecSurf.GetFlipUD() )
+        {
+            m_MainSurfVec[0].FlipNormal();
+        }
+
+        if ( this->m_ReverseFlag() )
+        {
+            m_MainSurfVec[0].FlipNormal();
+        }
+
+        // UpdateEndCaps here so we only have to cap one blade.
+        UpdateEndCaps();
+
+        m_MainSurfVec.resize( m_Nblade(), m_MainSurfVec[0] );
+
+        // Duplicate capping variables
+        m_CapUMinSuccess.resize( m_Nblade(), m_CapUMinSuccess[0] );
+        m_CapUMaxSuccess.resize( m_Nblade(), m_CapUMaxSuccess[0] );
+        m_CapWMinSuccess.resize( m_Nblade(), m_CapWMinSuccess[0] );
+        m_CapWMaxSuccess.resize( m_Nblade(), m_CapWMaxSuccess[0] );
+
+        Matrix4d rot;
+        for ( int i = 1; i < m_Nblade(); i++ )
+        {
+            double theta = 360.0 * i / ( double )m_Nblade();
+            rot.loadIdentity();
+            rot.rotateX( theta );
+
+            m_MainSurfVec[i].Transform( rot );
+        }
+
+        CalculateMeshMetrics( u_pseudo );
     }
 
-    // This surface linearly interpolates the airfoil sections without
-    // any other transformations.
-    // These sections can be extracted (as u-const curves) and then
-    // transformed to their final position before skinning.
-    m_FoilSurf = VspSurf();
-    m_FoilSurf.SkinC0( crv_vec, u_pseudo, false );
-
-    m_MainSurfVec.resize( 1 );
-    m_MainSurfVec.reserve( m_Nblade() );
-
-    m_MainSurfVec[0].SetMagicVParm( false );
-    m_MainSurfVec[0].SkinCubicSpline( rib_vec, u_pseudo, tdisc, false );
-
-    m_MainSurfVec[0].SetMagicVParm( true );
-    m_MainSurfVec[0].SetSurfType( PROP_SURF );
-    m_MainSurfVec[0].SetClustering( m_LECluster(), m_TECluster() );
-
-    m_FoilSurf.SetMagicVParm( true );
-    m_FoilSurf.SetClustering( m_LECluster(), m_TECluster() );
-
-    m_MainSurfVec[0].SetFoilSurf( &m_FoilSurf );
-
-    if ( m_XSecSurf.GetFlipUD() )
+    // Build disk surface.
+    if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
     {
-        m_MainSurfVec[0].FlipNormal();
+        int nsurf = m_MainSurfVec.size() + 1;
+        int idisk = nsurf - 1;
+
+        m_MainSurfVec.resize( nsurf );
+        m_CapUMinSuccess.resize( nsurf );
+        m_CapUMaxSuccess.resize( nsurf );
+        m_CapWMinSuccess.resize( nsurf );
+        m_CapWMaxSuccess.resize( nsurf );
+
+        m_MainSurfVec[ idisk ].CreateDisk( m_Diameter(), Y_DIR, Z_DIR );
+        m_MainSurfVec[ idisk ].SetSurfType( vsp::DISK_SURF );
+        m_MainSurfVec[ idisk ].SetSurfCfdType( vsp::CFD_TRANSPARENT );
+        m_MainSurfVec[ idisk ].SetMagicVParm( false );
+
+        m_CapUMinSuccess[ idisk ] = false;
+        m_CapUMaxSuccess[ idisk ] = false;
+        m_CapWMinSuccess[ idisk ] = false;
+        m_CapWMaxSuccess[ idisk ] = false;
+
+        if ( m_PropMode() == PROP_MODE::PROP_DISK )
+        {
+            // Provide fake mesh metric values.
+            m_SmallPanelW = 0.0;
+            m_MaxGrowth = 1.0;
+
+            m_CappingDone = true;
+        }
     }
-
-    if ( this->m_ReverseFlag() )
-    {
-        m_MainSurfVec[0].FlipNormal();
-    }
-
-    // UpdateEndCaps here so we only have to cap one blade.
-    UpdateEndCaps();
-
-    m_MainSurfVec.resize( m_Nblade(), m_MainSurfVec[0] );
-
-    // Duplicate capping variables
-    m_CapUMinSuccess.resize( m_Nblade(), m_CapUMinSuccess[0] );
-    m_CapUMaxSuccess.resize( m_Nblade(), m_CapUMaxSuccess[0] );
-    m_CapWMinSuccess.resize( m_Nblade(), m_CapWMinSuccess[0] );
-    m_CapWMaxSuccess.resize( m_Nblade(), m_CapWMaxSuccess[0] );
-
-    Matrix4d rot;
-    for ( int i = 1; i < m_Nblade(); i++ )
-    {
-        double theta = 360.0 * i / ( double )m_Nblade();
-        rot.loadIdentity();
-        rot.rotateX( theta );
-
-        m_MainSurfVec[i].Transform( rot );
-    }
-
-    CalculateMeshMetrics( u_pseudo );
 }
 
 void PropGeom::CalculateMeshMetrics( const vector < double > &u_pseudo  )

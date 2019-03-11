@@ -415,6 +415,11 @@ enum PROJ_TGT_TYPE { SET_TARGET,
                      NUM_PROJ_TGT_OPTIONS
                    };
 
+enum PROP_MODE { PROP_BLADES,
+                 PROP_BOTH,
+                 PROP_DISK
+               };
+
 enum PROP_PCURVE { PROP_CHORD,
                    PROP_TWIST,
                    PROP_RAKE,

@@ -175,6 +175,7 @@ public:
     vec3d m_FoldAxDirection;
 
     IntParm m_Nblade;
+    IntParm m_PropMode;
 
     PCurve m_ChordCurve;
 
