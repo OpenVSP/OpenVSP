@@ -1984,11 +1984,16 @@ void Geom::UpdateDrawObj()
     double tol = 1e-2;
 
     m_WireShadeDrawObj_vec.clear();
-    m_WireShadeDrawObj_vec.resize( 2 );
+    m_WireShadeDrawObj_vec.resize( 4 );
     m_WireShadeDrawObj_vec[0].m_FlipNormals = false;
     m_WireShadeDrawObj_vec[1].m_FlipNormals = true;
+    m_WireShadeDrawObj_vec[2].m_FlipNormals = false;
+    m_WireShadeDrawObj_vec[3].m_FlipNormals = true;
+
     m_WireShadeDrawObj_vec[0].m_GeomChanged = true;
     m_WireShadeDrawObj_vec[1].m_GeomChanged = true;
+    m_WireShadeDrawObj_vec[2].m_GeomChanged = true;
+    m_WireShadeDrawObj_vec[3].m_GeomChanged = true;
 
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
@@ -2007,6 +2012,11 @@ void Geom::UpdateDrawObj()
         if ( m_SurfVec[i].GetFlipNormal() )
         {
             iflip = 1;
+        }
+
+        if ( m_SurfVec[i].GetSurfCfdType() == vsp::CFD_TRANSPARENT )
+        {
+            iflip += 2;
         }
 
         m_WireShadeDrawObj_vec[iflip].m_PntMesh.insert( m_WireShadeDrawObj_vec[iflip].m_PntMesh.end(),
@@ -2867,6 +2877,15 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[j] = (float)material->m_Emis[j];
 
         m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
+
+        // Surfaces with vsp::CFD_TRANSPARENT set -- i.e. propeller disk.
+        if ( i >= 2 )
+        {
+            if ( m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] == (float)1.0 )
+            {
+                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] = 0.5;
+            }
+        }
 
         vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
                                  m_GuiDraw.GetWireColor().y() / 255.0,
