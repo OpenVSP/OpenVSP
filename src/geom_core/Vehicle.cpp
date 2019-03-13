@@ -1558,8 +1558,6 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
         }
     }
 
-    ForceUpdate();
-
     LinkMgr.DecodeXml( node );
     AdvLinkMgr.DecodeXml( node );
     VarPresetMgr.DecodeXml( node );
@@ -4345,8 +4343,6 @@ string Vehicle::ImportV2File( const string & file_name )
             }
         }
     }
-
-    ForceUpdate();
 
     m_CfdSettings.ReadV2File( root );
     m_CfdGridDensity.ReadV2File( root );
