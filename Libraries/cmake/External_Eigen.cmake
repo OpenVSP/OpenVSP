@@ -1,5 +1,5 @@
 ExternalProject_Add( EIGEN
-	URL ${CMAKE_SOURCE_DIR}/eigen-eigen-b9cd8366d4e8.tar.gz
+	URL ${CMAKE_SOURCE_DIR}/eigen-eigen-323c052e1731.tar.gz
 	UPDATE_COMMAND ""
 	CONFIGURE_COMMAND ""
 	BUILD_COMMAND ""
