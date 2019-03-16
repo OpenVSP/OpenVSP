@@ -3232,6 +3232,7 @@ xmlNodePtr ParasiteDragMgrSingleton::DecodeXml( xmlNodePtr & node )
 
             m_ExcresType.Set( XmlUtil::FindInt( excresqualnode, "Type", 0 ) );
             m_ExcresValue.Set( XmlUtil::FindDouble( excresqualnode, "Input", 0.0 ) );
+            m_ExcresName = XmlUtil::FindString(excresqualnode, "Label", "");
 
             AddExcrescence();
         }
