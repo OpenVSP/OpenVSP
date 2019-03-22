@@ -45,9 +45,16 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
     // width * height * RGB
     std::vector<unsigned char> data(width * height * 4, 0);
 
+    std::vector< VSPGraphic::Viewport * > vports = _display->getLayoutMgr()->getViewports();
     if ( transparentBG )
     {
-        getDisplay()->getViewport()->getBackground()->setAlpha( 0.0f );
+        for ( int i = 0; i < vports.size(); i++ )
+        {
+            if ( vports[i] )
+            {
+                vports[i]->getBackground()->setAlpha( 0.0f );
+            }
+        }
     }
 
     if ( framebufferSupported )
@@ -93,7 +100,13 @@ void GraphicEngine::dumpScreenImage( std::string fileName, int width, int height
         glReadPixels( 0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, &data[0] );
     }
 
-    getDisplay()->getViewport()->getBackground()->setAlpha( 1.0f );
+    for ( int i = 0; i < vports.size(); i++ )
+    {
+        if ( vports[i] )
+        {
+            vports[i]->getBackground()->setAlpha( 1.0f );
+        }
+    }
 
     // Flip data top to bottom.
     std::vector<unsigned char> flipdat(width * height * 4, 0);
