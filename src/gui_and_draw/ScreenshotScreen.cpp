@@ -251,15 +251,18 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_SetToCurrentSize )
     {
         m_NewRatioValue.Set( 1.0 );
-        m_NewWidthValue.Set( glwin->pixel_w() );
-        m_NewHeightValue.Set( glwin->pixel_h() );
+        if ( glwin )
+        {
+            m_NewWidthValue.Set( glwin->pixel_w() );
+            m_NewHeightValue.Set( glwin->pixel_h() );
+        }
     }
     else if ( device == &m_CapturePNG )
     {
         std::string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser(
                 "Create or Select a PNG File", "*.png" );
 
-        if( !fileName.empty() )
+        if( !fileName.empty() && glwin )
         {
             glwin->getGraphicEngine()->dumpScreenImage( fileName, m_NewWidthValue.Get(), m_NewHeightValue.Get(), m_TransparentBGFlag.Get(), m_framebufferSupported, VSPGraphic::GraphicEngine::PNG );
         }
