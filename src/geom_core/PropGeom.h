@@ -11,6 +11,7 @@
 #if !defined(VSPPROPGEOM__INCLUDED_)
 #define VSPPROPGEOM__INCLUDED_
 
+#include "Defines.h"
 #include "Geom.h"
 #include "XSec.h"
 #include "XSecCurve.h"

@@ -11,6 +11,7 @@
 #if !defined(SCRIPTMGR__INCLUDED_)
 #define SCRIPTMGR__INCLUDED_
 
+#include "Defines.h"
 
 #include <angelscript.h>
 #include <scriptstdstring/scriptstdstring.h>

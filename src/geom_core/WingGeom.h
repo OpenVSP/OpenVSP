@@ -11,6 +11,7 @@
 #if !defined(VSPWINGGEOM__INCLUDED_)
 #define VSPWINGGEOM__INCLUDED_
 
+#include "Defines.h"
 #include "Geom.h"
 #include "StackGeom.h"
 #include "XSec.h"

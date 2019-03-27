@@ -8,6 +8,7 @@
 #ifndef VSP_geom_degen_h
 #define VSP_geom_degen_h
 
+#include "Defines.h"
 #include <vector>
 #include "Vec3d.h"
 #include "Vec2d.h"

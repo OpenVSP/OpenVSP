@@ -13,6 +13,7 @@
 #if !defined(VSPCONFORMALGEOM__INCLUDED_)
 #define VSPCONFORMALGEOM__INCLUDED_
 
+#include "Defines.h"
 #include "Geom.h"
 #include "XSec.h"
 #include "XSecSurf.h"

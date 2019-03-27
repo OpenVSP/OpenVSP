@@ -10,6 +10,7 @@
 //   J.R. Gloudemans - 7/7/93
 //******************************************************************************
 
+#include "Defines.h"
 #include <cmath>
 #include <float.h> //For DBL_EPSILON
 #include <stdio.h>

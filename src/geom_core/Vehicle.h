@@ -11,6 +11,7 @@
 #if !defined(VEHICLE__INCLUDED_)
 #define VEHICLE__INCLUDED_
 
+#include "Defines.h"
 #include "Parm.h"
 #include "ParmContainer.h"
 #include "ParmUndo.h"

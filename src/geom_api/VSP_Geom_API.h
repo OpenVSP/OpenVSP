@@ -12,6 +12,7 @@
 #if !defined(VSPAPI__INCLUDED_)
 #define VSPAPI__INCLUDED_
 
+#include "Defines.h"
 
 #include "APIErrorMgr.h"
 #include "Vec3d.h"

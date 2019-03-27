@@ -11,6 +11,7 @@
 #if !defined(AIRFOIL__INCLUDED_)
 #define AIRFOIL__INCLUDED_
 
+#include "Defines.h"
 #include "XSecCurve.h"
 #include "Vec3d.h"
 #include "VspCurve.h"

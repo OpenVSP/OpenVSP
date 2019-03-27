@@ -7,6 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include "Defines.h"
 #include "APIDefines.h"
 #include "LinkMgr.h"
 #include "MeshGeom.h"

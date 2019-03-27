@@ -6,6 +6,7 @@
 #if !defined(UTIL_UTIL__INCLUDED_)
 #define UTIL_UTIL__INCLUDED_
 
+#include "Defines.h"
 #include <vector>
 #include "Vec3d.h"
 using namespace std;

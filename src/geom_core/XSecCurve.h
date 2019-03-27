@@ -11,6 +11,7 @@
 #if !defined(XSECCURVE__INCLUDED_)
 #define XSECCURVE__INCLUDED_
 
+#include "Defines.h"
 #include "Parm.h"
 #include "ParmContainer.h"
 #include "Vec3d.h"
