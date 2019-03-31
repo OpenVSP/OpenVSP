@@ -106,8 +106,8 @@ class ParasiteDragResults:
 
         plt.xlabel(self.Vinf_Label[0])
         plt.ylabel('CD_0')
-        plt.xlim(xmin=0.0)
-        plt.ylim(ymin=0.0)
+        plt.xlim(left=0.0)
+        plt.ylim(bottom=0.0)
         plt.legend(leg_str)
         plt.show()
 
