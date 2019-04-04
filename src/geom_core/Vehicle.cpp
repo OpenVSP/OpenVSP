@@ -59,6 +59,7 @@ Vehicle::Vehicle()
     m_STEPTrimTE.Init( "TrimTE", "STEPSettings", this, false, 0, 1 );
     m_STEPExportPropMainSurf.Init( "ExportPropMainSurf", "STEPSettings", this, false, 0, 1 );
 
+    m_STEPStructureExportIndex.Init( "StructureExportIndex", "STEPSettings", this, 0, 0, 1000 );
     m_STEPStructureTol.Init( "StructureTolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPStructureSplitSurfs.Init( "StructureSplitSurfs", "STEPSettings", this, true, 0, 1 );
     m_STEPStructureMergePoints.Init( "StructureMergePoints", "STEPSettings", this, true, 0, 1 );

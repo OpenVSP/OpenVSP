@@ -20,7 +20,9 @@ STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : Basic
 
     m_OkFlag = false;
     m_PrevStructureChoice = 0;
+    m_PrevTol = 1e-6;
     m_PrevSplit = false;
+    m_PrevMerge = true;
     m_PrevCubic = false;
     m_PrevToCubicTol = 1e-6;
 
@@ -33,7 +35,11 @@ STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : Basic
     m_GenLayout.AddYGap();
 
     m_GenLayout.AddDividerBox( "Options" );
+    m_GenLayout.AddSlider( m_TolSlider, "Tolerance", 10, "%5.4g", 0, true );
+    m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_SplitSurfsToggle, "Split Surfaces" );
+    m_GenLayout.AddYGap();
+    m_GenLayout.AddButton( m_MergePointsToggle, "Merge Points" );
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_ToCubicToggle, "Convert to Cubic" );
     m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
@@ -69,7 +75,9 @@ bool STEPStructureOptionsScreen::Update()
         m_StructureChoice.UpdateItems();
         m_StructureChoice.SetVal( veh->m_STEPStructureExportIndex() );
 
+        m_TolSlider.Update( veh->m_STEPStructureTol.GetID() );
         m_SplitSurfsToggle.Update( veh->m_STEPStructureSplitSurfs.GetID() );
+        m_MergePointsToggle.Update( veh->m_STEPStructureMergePoints.GetID() );
         m_ToCubicToggle.Update( veh->m_STEPStructureToCubic.GetID() );
         m_ToCubicTolSlider.Update( veh->m_STEPStructureToCubicTol.GetID() );
 
@@ -111,7 +119,9 @@ void STEPStructureOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
         if( veh )
         {
             veh->m_STEPStructureExportIndex.Set( m_PrevStructureChoice );
+            veh->m_STEPStructureTol.Set( m_PrevTol );
             veh->m_STEPStructureSplitSurfs.Set( m_PrevSplit );
+            veh->m_STEPStructureMergePoints.Set( m_PrevMerge );
             veh->m_STEPStructureToCubic.Set( m_PrevCubic );
             veh->m_STEPStructureToCubicTol.Set( m_PrevToCubicTol );
 
@@ -142,7 +152,9 @@ bool STEPStructureOptionsScreen::ShowSTEPOptionsScreen()
     if( veh )
     {
         m_PrevStructureChoice = veh->m_STEPStructureExportIndex();
+        m_PrevTol = veh->m_STEPStructureTol();
         m_PrevSplit = veh->m_STEPStructureSplitSurfs();
+        m_PrevMerge = veh->m_STEPStructureMergePoints();
         m_PrevCubic = veh->m_STEPStructureToCubic();
         m_PrevToCubicTol = veh->m_STEPStructureToCubicTol();
     }
@@ -164,7 +176,9 @@ void STEPStructureOptionsScreen::CloseCallBack( Fl_Widget *w )
     if( veh )
     {
         veh->m_STEPStructureExportIndex.Set( m_PrevStructureChoice );
+        veh->m_STEPStructureTol.Set( m_PrevTol );
         veh->m_STEPStructureSplitSurfs.Set( m_PrevSplit );
+        veh->m_STEPStructureMergePoints.Set( m_PrevMerge );
         veh->m_STEPStructureToCubic.Set( m_PrevCubic );
         veh->m_STEPStructureToCubicTol.Set( m_PrevToCubicTol );
     }

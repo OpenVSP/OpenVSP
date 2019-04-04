@@ -39,13 +39,16 @@ protected:
     GroupLayout m_GenLayout;
 
     Choice m_StructureChoice;
-
+    SliderInput m_TolSlider;
     ToggleButton m_SplitSurfsToggle;
+    ToggleButton m_MergePointsToggle;
     ToggleButton m_ToCubicToggle;
     SliderInput m_ToCubicTolSlider;
 
     int m_PrevStructureChoice;
+    double m_PrevTol;
     bool m_PrevSplit;
+    bool m_PrevMerge;
     bool m_PrevCubic;
     double m_PrevToCubicTol;
 
