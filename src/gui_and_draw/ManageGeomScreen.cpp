@@ -810,23 +810,23 @@ void ManageGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_WireGeomButton )
     {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_WIRE );
+        SetGeomDisplayType( DRAW_TYPE::GEOM_DRAW_WIRE );
     }
     else if ( device == &m_HiddenGeomButton )
     {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_HIDDEN );
+        SetGeomDisplayType( DRAW_TYPE::GEOM_DRAW_HIDDEN );
     }
     else if ( device == &m_ShadeGeomButton )
     {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_SHADE );
+        SetGeomDisplayType( DRAW_TYPE::GEOM_DRAW_SHADE );
     }
     else if ( device == &m_TextureGeomButton )
     {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_TEXTURE );
+        SetGeomDisplayType( DRAW_TYPE::GEOM_DRAW_TEXTURE );
     }
     else if ( device == &m_NoneGeomButton )
     {
-        SetGeomDisplayType( GeomGuiDraw::GEOM_DRAW_NONE );
+        SetGeomDisplayType( DRAW_TYPE::GEOM_DRAW_NONE );
     }
     else if ( device == &m_MoveUpButton )
     {
@@ -921,7 +921,7 @@ void ManageGeomScreen::UpdateDrawObjs()
 
     if( m_PickButton.GetFlButton()->value() == 1 )
     {
-        vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( m_VehiclePtr->GetGeomVec( false ) );
+        vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( m_VehiclePtr->GetGeomVec() );
         for( int i = 0; i < ( int )geom_vec.size(); i++ )
         {
             std::vector< DrawObj* > geom_drawobj_vec;

@@ -1,0 +1,5 @@
+include openvsp/_vsp.so 
+
+recursive-include openvsp *.py
+
+include MANIFEST.in

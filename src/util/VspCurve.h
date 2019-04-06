@@ -146,6 +146,7 @@ public:
     void GetBoundingBox( BndBox &bb ) const;
 
     double CalculateThick( double &loc ) const;
+    void MatchThick( const double & ttarget );
 
     double Angle( const double & u1, const int &dir1, const double & u2, const int &dir2, const bool & flipflag ) const;
 

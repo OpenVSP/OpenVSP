@@ -46,7 +46,7 @@ Background::Background() : Renderable()
 
     _mode = Common::VSP_BACKGROUND_COLOR;
 
-    setMeshColor( 0.95f, 0.95f, 0.95f );
+    setMeshColor( 0.95f, 0.95f, 0.95f, 1.0f );
     setPrimType( Common::VSP_QUADS );
 }
 Background::~Background()
@@ -125,17 +125,22 @@ void Background::removeImage()
 
 void Background::setRed( float red )
 {
-    setMeshColor( red, _getMeshColor().green, _getMeshColor().blue );
+    setMeshColor( red, _getMeshColor().green, _getMeshColor().blue, _getMeshColor().alpha );
 }
 
 void Background::setGreen( float green )
 {
-    setMeshColor( _getMeshColor().red, green, _getMeshColor().blue );
+    setMeshColor( _getMeshColor().red, green, _getMeshColor().blue, _getMeshColor().alpha );
 }
 
 void Background::setBlue( float blue )
 {
-    setMeshColor( _getMeshColor().red, _getMeshColor().green, blue );
+    setMeshColor( _getMeshColor().red, _getMeshColor().green, blue, _getMeshColor().alpha );
+}
+
+void Background::setAlpha( float alpha )
+{
+    setMeshColor( _getMeshColor().red, _getMeshColor().green, _getMeshColor().blue, alpha );
 }
 
 void Background::setBackgroundMode( Common::VSPenum mode )
@@ -153,7 +158,7 @@ void Background::reset()
     _offsetY = 0;
 
     removeImage();
-    setMeshColor( 242.0/255.0, 242.0/255.0, 242/255.0 );
+    setMeshColor( 242.0/255.0, 242.0/255.0, 242/255.0, 1.0f );
 
     _hasChanged = true;
 }

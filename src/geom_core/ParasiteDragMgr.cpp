@@ -169,6 +169,12 @@ void ParasiteDragMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
 
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
+
     if ( veh )
     {
         veh->ParmChanged( parm_ptr, type );
@@ -1953,11 +1959,13 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
 
 void ParasiteDragMgrSingleton::SetFreestreamParms()
 {
+    m_Hinf.Set( m_Atmos.GetAlt() );
     m_Temp.Set( m_Atmos.GetTemp() );
     m_DeltaT.Set( m_Atmos.GetDeltaT() );
     m_Pres.Set( m_Atmos.GetPres() );
     m_Rho.Set( m_Atmos.GetDensity() );
     m_DynaVisc.Set( m_Atmos.GetDynaVisc() );
+    m_Mach.Set( m_Atmos.GetMach() );
 }
 
 void ParasiteDragMgrSingleton::SetExcresLabel( const string & newLabel )
@@ -2218,6 +2226,7 @@ void ParasiteDragMgrSingleton::ConsolidateExcres()
     m_excres_Label.clear();
     m_excres_Type.clear();
     m_excres_Input.clear();
+    m_excres_f.clear();
     m_excres_Amount.clear();
     m_excres_PercTotalCD.clear();
     ExcrescenceTableRow excresRowStruct;
@@ -2226,6 +2235,7 @@ void ParasiteDragMgrSingleton::ConsolidateExcres()
         m_excres_Label.push_back( m_ExcresRowVec[i].Label.c_str() );
         m_excres_Type.push_back( m_ExcresRowVec[i].TypeString.c_str() );
         m_excres_Input.push_back( m_ExcresRowVec[i].Input );
+        m_excres_f.push_back( m_ExcresRowVec[i].f );
         m_excres_Amount.push_back( m_ExcresRowVec[i].Amount );
         m_excres_PercTotalCD.push_back( m_ExcresRowVec[i].PercTotalCD );
     }
@@ -2242,8 +2252,6 @@ void ParasiteDragMgrSingleton::Update()
     UpdateAtmos();
 
     UpdateParmActivity();
-
-    SetFreestreamParms();
 
     UpdateExcres();
 }
@@ -2429,39 +2437,24 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
             m_Atmos.UpdateMach( vinf, m_TempUnit(), m_VinfUnitType() );
         }
     }
-    else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_R )
+    else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_R || m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_T || m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_R_T )
     {
         m_Atmos.SetManualQualities( vinf, temp, pres, rho, dynavisc, m_SpecificHeatRatio(),
-                                    m_AltLengthUnit(), m_VinfUnitType(), m_TempUnit(), m_FreestreamType() );
-    }
-    else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_P_T )
-    {
-        m_Atmos.SetManualQualities( vinf, temp, pres, rho, dynavisc, m_SpecificHeatRatio(),
-                                    m_AltLengthUnit(), m_VinfUnitType(), m_TempUnit(), m_FreestreamType() );
-    }
-    else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_R_T )
-    {
-        m_Atmos.SetManualQualities( vinf, temp, pres, rho, dynavisc, m_SpecificHeatRatio(),
-                                    m_AltLengthUnit(), m_VinfUnitType(), m_TempUnit(), m_FreestreamType() );
+                                    m_Hinf(), m_AltLengthUnit(), m_VinfUnitType(), 
+                                    m_TempUnit(), m_PresUnit(), m_FreestreamType() );
     }
     else if ( m_FreestreamType() == vsp::ATMOS_TYPE_MANUAL_RE_L )
     {
-        vinf = m_Atmos.GetMach() * m_Atmos.GetSoundSpeed();
         UpdateVinf( m_VinfUnitType() );
     }
 
     if ( m_FreestreamType() != vsp::ATMOS_TYPE_MANUAL_RE_L )
     {
-        m_Hinf.Set( m_Atmos.GetAlt() );
-        m_DeltaT.Set( m_Atmos.GetDeltaT() );
-        m_Temp.Set( m_Atmos.GetTemp() );
-        m_Pres.Set( m_Atmos.GetPres() );
-        m_Rho.Set( m_Atmos.GetDensity() );
-        m_Mach.Set( m_Atmos.GetMach() );
+        SetFreestreamParms();
 
         if ( m_VinfUnitType() != vsp::V_UNIT_MACH )
         {
-            if ( m_VinfUnitType() == vsp::V_UNIT_KEAS ) // Convert to KTAS
+            if ( m_VinfUnitType() == vsp::V_UNIT_KEAS ) // KEAS to KTAS
             {
                 vinf *= sqrt( 1.0 / m_Atmos.GetDensityRatio() );
             }
@@ -2503,23 +2496,33 @@ void ParasiteDragMgrSingleton::UpdateAtmos()
 
 void ParasiteDragMgrSingleton::UpdateVinf( int newunit )
 {
+    if ( newunit == m_VinfUnitType() )
+    {
+        return;
+    }
+
     double new_vinf;
     if ( newunit != vsp::V_UNIT_MACH )
     {
         if ( m_VinfUnitType() == vsp::V_UNIT_MACH )
         {
             m_Vinf *= m_Atmos.GetSoundSpeed(); // m/s
-            new_vinf = ConvertVelocity( m_Vinf(), vsp::V_UNIT_M_S, newunit );
+            new_vinf = ConvertVelocity( m_Vinf(), vsp::V_UNIT_M_S, newunit ); // KTAS
+
+            if ( newunit == vsp::V_UNIT_KEAS )
+            {
+                new_vinf /= sqrt( 1.0 / m_Atmos.GetDensityRatio() ); // KTAS to KEAS
+            }
         }
         else if ( m_VinfUnitType() == vsp::V_UNIT_KEAS )
         {
-            m_Vinf *= sqrt( 1.0 / m_Atmos.GetDensityRatio() );
+            m_Vinf *= sqrt( 1.0 / m_Atmos.GetDensityRatio() ); // KEAS to KTAS
             new_vinf = ConvertVelocity( m_Vinf(), m_VinfUnitType(), newunit );
         }
         else if ( newunit == vsp::V_UNIT_KEAS )
         {
-            new_vinf = ConvertVelocity( m_Vinf(), m_VinfUnitType(), newunit );
-            new_vinf /= sqrt( 1.0 / m_Atmos.GetDensityRatio() );
+            new_vinf = ConvertVelocity( m_Vinf(), m_VinfUnitType(), newunit ); // KTAS
+            new_vinf /= sqrt( 1.0 / m_Atmos.GetDensityRatio() ); // KTAS to KEAS
         }
         else
         {
@@ -2537,21 +2540,34 @@ void ParasiteDragMgrSingleton::UpdateVinf( int newunit )
 void ParasiteDragMgrSingleton::UpdateAlt( int newunit )
 {
     double new_alt = m_Hinf();
+    double new_rho = m_Rho();
+    double new_dyvisc = m_DynaVisc();
     if ( newunit == vsp::PD_UNITS_IMPERIAL && m_AltLengthUnit() == vsp::PD_UNITS_METRIC )
     {
         new_alt = ConvertLength( m_Hinf(), vsp::LEN_M, vsp::LEN_FT );
+        new_rho = ConvertDensity( new_rho, vsp::RHO_UNIT_KG_M3, vsp::RHO_UNIT_SLUG_FT3 ); // slug/ft^3
+        new_dyvisc = ConvertDynaVis( new_dyvisc, vsp::PD_UNITS_METRIC, vsp::PD_UNITS_IMPERIAL ); // slug/ft*s
     }
     else if ( newunit == vsp::PD_UNITS_METRIC && m_AltLengthUnit() == vsp::PD_UNITS_IMPERIAL )
     {
         new_alt = ConvertLength( m_Hinf(), vsp::LEN_FT, vsp::LEN_M );
+        new_rho = ConvertDensity( new_rho, vsp::RHO_UNIT_SLUG_FT3, vsp::RHO_UNIT_KG_M3 ); // kg/m^3
+        new_dyvisc = ConvertDynaVis( new_dyvisc, vsp::PD_UNITS_IMPERIAL, vsp::PD_UNITS_METRIC ); // kg/m*s
     }
 
     m_Hinf.Set( new_alt );
+    m_Rho.Set( new_rho );
+    m_DynaVisc.Set( new_dyvisc );
     m_AltLengthUnit.Set( newunit );
 }
 
 void ParasiteDragMgrSingleton::UpdateTemp( int newunit )
 {
+    // Temporarily decrease lower limit of m_Temp to allow setting to lower value than previous limit. 
+    //  For example, if m_Temp == 200 K, the conversion would set it to -73.15 F which would be below 
+    //  the current limit
+    m_Temp.SetLowerLimit( -500 );
+
     double new_temp = ConvertTemperature( m_Temp(), m_TempUnit(), newunit );
     m_Temp.Set( new_temp );
 
@@ -2559,6 +2575,7 @@ void ParasiteDragMgrSingleton::UpdateTemp( int newunit )
     m_DeltaT.Set( new_temp );
 
     m_TempUnit.Set( newunit );
+    UpdateTempLimits();
 }
 
 void ParasiteDragMgrSingleton::UpdateTempLimits()
@@ -3102,6 +3119,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
     res->Add( NameValData( "Excres_Label", m_excres_Label ) );
     res->Add( NameValData( "Excres_Type", m_excres_Type ) );
     res->Add( NameValData( "Excres_Input", m_excres_Input ) );
+    res->Add( NameValData( "Excres_f", m_excres_f ) );
     res->Add( NameValData( "Excres_Amount", m_excres_Amount ) );
     res->Add( NameValData( "Excres_PercTotalCD", m_excres_PercTotalCD ) );
 
@@ -3214,6 +3232,7 @@ xmlNodePtr ParasiteDragMgrSingleton::DecodeXml( xmlNodePtr & node )
 
             m_ExcresType.Set( XmlUtil::FindInt( excresqualnode, "Type", 0 ) );
             m_ExcresValue.Set( XmlUtil::FindDouble( excresqualnode, "Input", 0.0 ) );
+            m_ExcresName = XmlUtil::FindString(excresqualnode, "Label", "");
 
             AddExcrescence();
         }

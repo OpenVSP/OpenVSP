@@ -3242,6 +3242,13 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     SurfaceIntersectionSingleton::LoadDrawObjs( draw_obj_vec );
 
+    GetGridDensityPtr()->Highlight( GetCurrSource() );
+    GetGridDensityPtr()->Show( GetCfdSettingsPtr()->m_DrawSourceFlag );
+    GetGridDensityPtr()->LoadDrawObjs( draw_obj_vec );
+
+    m_WakeMgr.Show( GetCfdSettingsPtr()->m_DrawSourceFlag );
+    m_WakeMgr.LoadDrawObjs( draw_obj_vec );
+
     if( GetCfdSettingsPtr()->m_DrawFarPreFlag && GetCfdSettingsPtr()->m_FarMeshFlag )
     {
         UpdateBBoxDO( m_Domain );

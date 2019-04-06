@@ -454,7 +454,7 @@ void AnalysisMgrSingleton::RegisterBuiltins()
 
     SurfacePatchAnalysis *spa = new SurfacePatchAnalysis();
 
-    RegisterAnalysis( "c", spa );
+    RegisterAnalysis( "SurfacePatches", spa );
 
 
     WaveDragAnalysis *wave = new WaveDragAnalysis();
@@ -1325,7 +1325,7 @@ string VSPAEROSinglePointAnalysis::Execute()
         }
         else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
         {
-            VSPAEROMgr.Update();
+            VSPAEROMgr.Update(); // TODO: Check if Update() in VSPAEROMgr.CreateSetupFile() can allow this call to be removed
             printf( "Wing Reference Parms: \n" );
 
             nvd = m_Inputs.FindPtr( "Sref", 0 );
@@ -1658,7 +1658,7 @@ string VSPAEROSweepAnalysis::Execute()
         }
         else if ( VSPAEROMgr.m_RefFlag.Get() == vsp::COMPONENT_REF )
         {
-            VSPAEROMgr.Update();
+            VSPAEROMgr.Update(); // TODO: Check if Update() in VSPAEROMgr.CreateSetupFile() can allow this call to be removed
             printf( "Wing Reference Parms: \n" );
 
             nvd = m_Inputs.FindPtr( "Sref", 0 );

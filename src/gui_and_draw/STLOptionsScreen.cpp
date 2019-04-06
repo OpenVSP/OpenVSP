@@ -19,6 +19,7 @@ STLOptionsScreen::STLOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 17
 
     m_OkFlag = false;
     m_PrevMultiSolid = false;
+    m_PrevPropExportOrigin = false;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_GenLayout.AddY( 25 );
@@ -26,8 +27,9 @@ STLOptionsScreen::STLOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 17
     m_GenLayout.AddYGap();
 
     m_GenLayout.AddButton( m_MultiSolidToggle, "Tagged Multi Solid File (Non-Standard)" );
+    m_GenLayout.AddButton( m_PropExportOriginToggle, "Export Unintersected Props At Origin" );
 
-    m_GenLayout.AddY( 95 );
+    m_GenLayout.AddY( 75 );
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetButtonWidth( 100 );
@@ -50,6 +52,7 @@ bool STLOptionsScreen::Update()
     if( veh )
     {
         m_MultiSolidToggle.Update( veh->m_STLMultiSolid.GetID() );
+        m_PropExportOriginToggle.Update( veh->m_STLExportPropMainSurf.GetID() );
     }
 
     m_FLTK_Window->redraw();
@@ -85,6 +88,7 @@ void STLOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
         if( veh )
         {
             veh->m_STLMultiSolid.Set( m_PrevMultiSolid );
+            veh->m_STLExportPropMainSurf.Set( m_PrevPropExportOrigin );
         }
         Hide();
     }
@@ -103,6 +107,7 @@ bool STLOptionsScreen::ShowSTLOptionsScreen()
     if( veh )
     {
         m_PrevMultiSolid = veh->m_STLMultiSolid();
+        m_PrevPropExportOrigin = veh->m_STLExportPropMainSurf();
     }
 
     while( m_FLTK_Window->shown() )
@@ -122,6 +127,7 @@ void STLOptionsScreen::CloseCallBack( Fl_Widget *w )
     if( veh )
     {
         veh->m_STLMultiSolid.Set( m_PrevMultiSolid );
+        veh->m_STLExportPropMainSurf.Set( m_PrevPropExportOrigin );
     }
 
     Hide();

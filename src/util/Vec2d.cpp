@@ -56,6 +56,13 @@ vec2d& vec2d::operator=( double a )
     return *this;
 }
 
+vec2d& vec2d::operator=( const twod_point_type &a )
+{
+    v[0] = a.x();
+    v[1] = a.y();
+    return *this;
+}
+
 //******* Set Point Values *******//
 vec2d& vec2d::set_xy( double xx, double yy )
 {

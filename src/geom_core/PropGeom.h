@@ -11,6 +11,7 @@
 #if !defined(VSPPROPGEOM__INCLUDED_)
 #define VSPPROPGEOM__INCLUDED_
 
+#include "Defines.h"
 #include "Geom.h"
 #include "XSec.h"
 #include "XSecCurve.h"
@@ -34,6 +35,8 @@ public:
     double m_Chord;
 
     double m_Construct;
+    double m_FeatherOffset;
+    double m_FeatherAxis;
     double m_RootChord;
     double m_RootTwist;
 
@@ -142,6 +145,12 @@ public:
 
     virtual void WriteAirfoilFiles( FILE* meta_fid );
 
+    virtual vector< TMesh* > CreateTMeshVec();
+
+    virtual void SetExportMainSurf( bool b )         { m_ExportMainSurf = b; }
+
+    virtual void GetSurfVec( vector<VspSurf> &surf_vec );
+
     Parm m_Diameter;
 
     Parm m_Rotate;
@@ -150,6 +159,9 @@ public:
     IntParm m_UseBeta34Flag;
 
     Parm m_Construct;
+
+    Parm m_FeatherOffset;
+    Parm m_FeatherAxis;
 
     BoolParm m_ReverseFlag;
 
@@ -164,6 +176,7 @@ public:
     vec3d m_FoldAxDirection;
 
     IntParm m_Nblade;
+    IntParm m_PropMode;
 
     PCurve m_ChordCurve;
 
@@ -172,6 +185,8 @@ public:
     PCurve m_RakeCurve;
     PCurve m_SkewCurve;
     PCurve m_SweepCurve;
+    PCurve m_ThickCurve;
+    PCurve m_CLICurve;
 
     vector < PCurve* > m_pcurve_vec;
 
@@ -185,6 +200,7 @@ public:
 
     Parm m_AFLimit;
     Parm m_AF;
+    Parm m_CLi;
 
 protected:
     virtual void ChangeID( string id );
@@ -204,6 +220,8 @@ protected:
 
     Vsp1DCurve m_rtou;
     VspSurf m_FoilSurf;
+
+    bool m_ExportMainSurf;
 
 };
 #endif // !defined(VSPPROPGEOM__INCLUDED_)

@@ -206,7 +206,7 @@ void BORGeom::SetXSecCurveType( int type )
     double w = 1;
     double h = 1;
 
-    XSecCurve *oldXSCurve = NULL;
+    XSecCurve *oldXSCurve = m_XSCurve;
 
     if ( m_XSCurve )
     {
@@ -217,22 +217,33 @@ void BORGeom::SetXSecCurveType( int type )
 
         w = m_XSCurve->GetWidth();
         h = m_XSCurve->GetHeight();
-
-        oldXSCurve = m_XSCurve;
     }
 
     m_XSCurve = XSecSurf::CreateXSecCurve( type ) ;
-    m_XSCurve->SetParentContainer( m_ID );
 
-    if ( oldXSCurve )
+    if ( m_XSCurve )
     {
-        m_XSCurve->CopyFrom( oldXSCurve );
-        delete oldXSCurve;
+        m_XSCurve->SetParentContainer( m_ID );
+
+        if ( oldXSCurve )
+        {
+            m_XSCurve->CopyFrom( oldXSCurve );
+            delete oldXSCurve;
+        }
+
+        m_XSCurve->SetWidthHeight( w, h );
+    }
+    else  // Failed to create new curve, revert to saved.
+    {
+        m_XSCurve = oldXSCurve;
     }
 
-    m_XSCurve->SetWidthHeight( w, h );
-
     Update();
+}
+
+int BORGeom::GetXSecCurveType()
+{
+    return m_XSCurve->GetType();
 }
 
 void BORGeom::UpdateDrawObj()
@@ -264,7 +275,7 @@ void BORGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
     Geom::LoadDrawObjs( draw_obj_vec );
 
-    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == GeomGuiDraw::DISPLAY_BEZIER )
+    if ( m_Vehicle->IsGeomActive( m_ID ) && m_GuiDraw.GetDisplayType() == vsp::DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
         m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";

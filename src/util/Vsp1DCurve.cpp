@@ -598,6 +598,27 @@ void Vsp1DCurve::Reverse()
     m_Curve.reverse();
 }
 
+void Vsp1DCurve::product( Vsp1DCurve c1, Vsp1DCurve c2 )
+{
+    vector < double > pmap;
+    c1.m_Curve.get_pmap( pmap );
+
+    vector < double > pmap2;
+    c2.m_Curve.get_pmap( pmap2 );
+
+    pmap.insert( pmap.end(), pmap2.begin(), pmap2.end() );
+    std::sort( pmap.begin(), pmap.end() );
+    auto pmit = std::unique( pmap.begin(), pmap.end() );
+    pmap.erase( pmit, pmap.end() );
+
+    for( int i = 0; i < pmap.size(); i++ )
+    {
+        c1.m_Curve.split( pmap[i] );
+        c2.m_Curve.split( pmap[i] );
+    }
+
+    m_Curve.product1d( c1.m_Curve, c2.m_Curve );
+}
 
 bool Vsp1DCurve::IsEqual( const Vsp1DCurve & crv )
 {
@@ -660,6 +681,34 @@ double Vsp1DCurve::IntegrateAF( double r0 )
 
     AF_functor fun;
     fun.m_crd = this;
+
+    eli::mutil::quad::simpson< double > quad;
+
+    return quad( fun, r0, 1.0 );
+}
+
+struct CLi_functor
+{
+    double operator()( const double &r )
+    {
+        return 4.0 * m_cli->CompPnt( r ) * r * r * r;
+    }
+    Vsp1DCurve *m_cli;
+};
+
+// Calculate integrated design lift coefficient
+// The curve itself is assumed to be blade chord/R.
+// The parameter itself is fraction of the radius.
+double Vsp1DCurve::IntegrateCLi( double r0 )
+{
+    double rmin = m_Curve.get_t0();
+    if ( r0 < rmin )
+    {
+        r0 = rmin;
+    }
+
+    CLi_functor fun;
+    fun.m_cli = this;
 
     eli::mutil::quad::simpson< double > quad;
 

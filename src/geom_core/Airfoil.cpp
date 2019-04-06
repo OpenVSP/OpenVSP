@@ -13,9 +13,47 @@
 #include "StringUtil.h"
 #include <float.h>
 #include "VKTAirfoil.h"
+#include "Vec2d.h"
+#include "Cluster.h"
+#include "StlHelper.h"
+#include "Util.h"
 
 using std::string;
 using namespace vsp;
+
+/* Equations for NACA 4-Digit camber line derived using computer algebra software maxima.
+x: (1-cos(theta))/2;
+thp: %pi-acos(2*p-1);
+dydx1: 2*m*(p-x)/(p^2);
+dydx2: 2*m*(p-x)/((1-p)^2);
+z1: 2* dydx1*cos(theta);
+z2: 2* dydx2*cos(theta);
+cliexpr: ratsimp(integrate( z1, theta, 0, thp ) + integrate( z2, theta, thp, %pi ));
+cli(m,p):= ''(cliexpr);
+fortran(cliexpr);
+pcli:[[0.2, 0.923], [0.3, 0.816], [0.4, 0.767], [0.5, 0.754], [0.6, 0.767], [0.7, 0.816]];
+wxplot2d([[discrete, pcli], cli(0.06,p)], [p,0.05,0.95], [style, points, lines], [color, red, blue],[point_type, asterisk],[legend, "TOWS", "eq"],[xlabel, "p"],[ylabel, "cli"],[gnuplot_postamble, "set zeroaxis;"]);
+*/
+
+double CalcFourDigitCLi( double m, double p )
+{
+    double p2 = p * p;
+    double p3 = p2 * p;
+    double p4 = p2 * p2;
+
+    double CLi = -((m-2.0*m*p)*sin(2.0*acos(2.0*p-1.0))+(2.0*m-4.0*m*p)*acos(2.0*p-1.0)+
+    sqrt(4.0*p-4.0*p2)*(16.0*m*p2-16.0*m*p+4.0*m)-2.0*PI*m*p2+4.0*PI*m*p-2.0*PI*m)
+    /(2.0*p4-4.0*p3+2.0*p2);
+
+    return CLi;
+}
+
+double CalcFourDigitCamber( double CLi, double p )
+{
+    double CLi1 = CalcFourDigitCLi( 1.0, p );
+
+    return CLi / CLi1;
+}
 
 //==== Default Constructor ====//
 Airfoil::Airfoil( ) : XSecCurve( )
@@ -126,101 +164,165 @@ double Airfoil::CalculateThick()
 //==========================================================================//
 //==========================================================================//
 
+
+NACABase::NACABase() : Airfoil( )
+{
+}
+
+void NACABase::BuildCurve( const naca_airfoil_type & af )
+{
+    int npts = 201; // Must be odd to hit LE point.
+
+    double t0 = -1.0;
+    double t = t0;
+    double dt = 2.0 / ( npts - 1 );
+    int ile = ( npts - 1 ) / 2;
+
+    vector< vec3d > pnts( npts );
+    vector< double > arclen( npts );
+
+    vec2d p2d;
+    p2d = af.f( t );
+    pnts[0] = p2d;
+    arclen[0] = 0.0;
+    for ( int i = 1 ; i < npts ; i++ )
+    {
+        if ( i == ile )
+        {
+            t = 0.0; // Ensure LE point precision.
+        }
+        else if ( i == ( npts - 1 ) )
+        {
+            t = 1.0;  // Ensure end point precision.
+        }
+        else
+        {
+            t = t0 + dt * i; // All other points.
+        }
+
+        double tc = sgn( t ) * Cluster( std::abs( t ), 0.01, 0.1 );
+
+        p2d = af.f( tc );
+        pnts[i] = p2d;
+
+        double ds = dist( pnts[i], pnts[i-1] );
+        if ( ds < 1e-8 )
+        {
+            ds = 1.0/npts;
+        }
+        arclen[i] = arclen[i-1] + ds;
+    }
+
+    double lenlower = arclen[ile];
+    double lenupper = arclen[npts-1] - lenlower;
+
+    double lowerscale = 2.0/lenlower;
+    int i;
+    for ( i = 1; i < ile; i++ )
+    {
+        arclen[i] = arclen[i] * lowerscale;
+    }
+    arclen[ile] = 2.0;
+    i++;
+
+    double upperscale = 2.0/lenupper;
+    for ( ; i < npts - 1; i++ )
+    {
+        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
+    }
+    arclen[npts-1] = 4.0;
+
+    m_Curve.InterpolatePCHIP( pnts, arclen, false );
+}
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
 //==== Constructor ====//
-FourSeries::FourSeries( ) : Airfoil( )
+FourSeries::FourSeries( ) : NACABase( )
 {
     m_Type = XS_FOUR_SERIES;
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.0, 1.0 );
     m_EqArcLen.Init( "EqArcLenFlag", m_GroupName, this, true, 0, 1 );
+    m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
+
+    // Output only parameter.
+    m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.0, 0.0, 1e12 );
+
+    m_CamberInputFlag.Init( "CamberInputFlag", m_GroupName, this, MAX_CAMB, MAX_CAMB, DESIGN_CL );
+}
+
+void FourSeries::UpdateDesignLiftCoeff()
+{
+    if ( m_CamberInputFlag() == MAX_CAMB )
+    {
+        m_IdealCl.Set( CalcFourDigitCLi( m_Camber(), m_CamberLoc() ) );
+    }
+    else
+    {
+        m_Camber.Set( CalcFourDigitCamber( m_IdealCl(), m_CamberLoc() ) );
+    }
 }
 
 //==== Update ====//
 void FourSeries::Update()
 {
-    piecewise_curve_type c, d;
-    piecewise_four_digit_creator pwc;
-    pwc.set_sharp_trailing_edge(true);
-
-    pwc.set_thickness( m_ThickChord() * 100.0f );
-    pwc.set_camber( m_Camber() * 100.0f, m_CamberLoc() * 10.0f );
-
-    pwc.create( c );
-
-    d.set_t0( c.get_t0() );
-    for ( int i = 0; i < c.number_segments(); i++ )
-    {
-        piecewise_curve_type::curve_type crv;
-        piecewise_curve_type::data_type dt;
-        c.get( crv, dt, i );
-        d.push_back( crv, dt*2.0 );
-    }
+    UpdateDesignLiftCoeff();
 
     if ( !m_EqArcLen() ) // 'old' code with non-equal arc len parameterization.
     {
+        piecewise_curve_type c, d;
+        piecewise_four_digit_creator pwc;
+        pwc.set_sharp_trailing_edge( m_SharpTE() );
+
+        pwc.set_thickness( m_ThickChord() );
+        pwc.set_camber( m_Camber(), m_CamberLoc() );
+
+        pwc.create( c );
+
+        d.set_t0( c.get_t0() );
+        for ( int i = 0; i < c.number_segments(); i++ )
+        {
+            piecewise_curve_type::curve_type crv;
+            piecewise_curve_type::data_type dt;
+            c.get( crv, dt, i );
+            d.push_back( crv, dt*2.0 );
+        }
+
         m_Curve.SetCurve( d );
     }
     else // 'new' code that enforces equal arc len parameterization.
     {
-        int npts = 101; // Must be odd to hit LE point.
+        four_digit_airfoil_type af;
+        af.set_sharp_trailing_edge( m_SharpTE() );
 
-        double t = 0.0;
-        double dt = 4.0 / ( npts - 1 );
-        int ile = ( npts - 1 ) / 2;
+        af.set_thickness( m_ThickChord() );
+        af.set_camber( m_Camber(), m_CamberLoc() );
 
-        vector< vec3d > pnts( npts );
-        vector< double > arclen( npts );
-
-        pnts[0] = d.f( t );
-        arclen[0] = 0.0;
-        for ( int i = 1 ; i < npts ; i++ )
-        {
-            if ( i == ile )
-            {
-                t = 2.0; // Ensure LE point precision.
-            }
-            else if ( i == ( npts - 1 ) )
-            {
-                t = 4.0;  // Ensure end point precision.
-            }
-            else
-            {
-                t = dt * i; // All other points.
-            }
-
-            pnts[i] = d.f( t );
-
-            double ds = dist( pnts[i], pnts[i-1] );
-            if ( ds < 1e-8 )
-            {
-                ds = 1.0/npts;
-            }
-            arclen[i] = arclen[i-1] + ds;
-        }
-
-        double lenlower = arclen[ile];
-        double lenupper = arclen[npts-1] - lenlower;
-
-        double lowerscale = 2.0/lenlower;
-        int i;
-        for ( i = 1; i < ile; i++ )
-        {
-            arclen[i] = arclen[i] * lowerscale;
-        }
-        arclen[ile] = 2.0;
-        i++;
-
-        double upperscale = 2.0/lenupper;
-        for ( ; i < npts - 1; i++ )
-        {
-            arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
-        }
-        arclen[npts-1] = 4.0;
-
-        m_Curve.InterpolatePCHIP( pnts, arclen, false );
+        BuildCurve( af );
     }
 
     Airfoil::Update();
+}
+
+void FourSeries::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl.Set( cli );
+    m_Camber.Set( CalcFourDigitCamber( cli, m_CamberLoc() ) );
+}
+
+double FourSeries::GetDesignLiftCoeff()
+{
+    UpdateDesignLiftCoeff();
+    return m_IdealCl();
+}
+
+void FourSeries::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_Camber.GetID() );
+    ids.push_back( m_IdealCl.GetID() );
 }
 
 //===== Load Name And Number of 4 Series =====//
@@ -254,6 +356,349 @@ void FourSeries::ReadV2File( xmlNodePtr &root )
 
     m_Camber = XmlUtil::FindDouble( root, "Camber", m_Camber() );
     m_CamberLoc = XmlUtil::FindDouble( root, "Camber_Loc", m_CamberLoc() );
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void FourSeries::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    FourSeries *s = dynamic_cast< FourSeries* > ( start );
+    FourSeries *e = dynamic_cast< FourSeries* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_Camber );
+        INTERP_PARM( s, e, frac, m_CamberLoc );
+    }
+    XSecCurve::Interp( start, end, frac );
+}
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+//==== Constructor ====//
+FourDigMod::FourDigMod( ) : NACABase( )
+{
+    m_Type = XS_FOUR_DIGIT_MOD;
+    m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
+    m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.1, 0.9 );
+    m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.3, 0.2, 0.6 );
+    m_LERadIndx.Init( "LERadIndx", m_GroupName, this, 6.0, 0.0, 9.0 );
+    m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
+
+    // Output only parameter.
+    m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.0, 0.0, 1e12 );
+    m_CamberInputFlag.Init( "CamberInputFlag", m_GroupName, this, MAX_CAMB, MAX_CAMB, DESIGN_CL );
+}
+
+void FourDigMod::UpdateDesignLiftCoeff()
+{
+    if ( m_CamberInputFlag() == MAX_CAMB )
+    {
+        m_IdealCl.Set( CalcFourDigitCLi( m_Camber(), m_CamberLoc() ) );
+    }
+    else
+    {
+        m_Camber.Set( CalcFourDigitCamber( m_IdealCl(), m_CamberLoc() ) );
+    }
+}
+
+//==== Update ====//
+void FourDigMod::Update()
+{
+    UpdateDesignLiftCoeff();
+
+    four_digit_mod_airfoil_type af( m_Camber(), m_CamberLoc(), m_ThickChord(), m_LERadIndx(),  m_ThickLoc(), m_SharpTE() );
+
+    BuildCurve( af );
+    Airfoil::Update();
+}
+
+void FourDigMod::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl.Set( cli );
+    m_Camber.Set( CalcFourDigitCamber( cli, m_CamberLoc() ) );
+}
+
+double FourDigMod::GetDesignLiftCoeff()
+{
+    UpdateDesignLiftCoeff();
+    return m_IdealCl();
+}
+
+void FourDigMod::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_Camber.GetID() );
+    ids.push_back( m_IdealCl.GetID() );
+}
+
+//===== Load Name And Number of 4 Series =====//
+string FourDigMod::GetAirfoilName()
+{
+    int icam     = int( m_Camber() * 100.0f + 0.5f );
+    int icam_loc = int( m_CamberLoc() * 10.0f + 0.5f );
+    int ithick   = int( m_ThickChord() * 100.0f + 0.5f );
+    int ilerad   = int( m_LERadIndx() + 0.5 );
+    int ithick_loc = int( m_ThickLoc() * 10.0f + 0.5f );
+
+    if ( icam == 0 )
+    {
+        icam_loc = 0;
+    }
+
+    char str[255];
+    if ( ithick < 10 )
+    {
+        sprintf( str, "  NACA %d%d0%d-%d%d", icam, icam_loc, ithick, ilerad, ithick_loc );
+    }
+    else
+    {
+        sprintf( str, "  NACA %d%d%d-%d%d", icam, icam_loc, ithick, ilerad, ithick_loc );
+    }
+
+    return string( str );
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void FourDigMod::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    FourDigMod *s = dynamic_cast< FourDigMod* > ( start );
+    FourDigMod *e = dynamic_cast< FourDigMod* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_Camber );
+        INTERP_PARM( s, e, frac, m_CamberLoc );
+        INTERP_PARM( s, e, frac, m_ThickLoc );
+        INTERP_PARM( s, e, frac, m_LERadIndx );
+    }
+    XSecCurve::Interp( start, end, frac );
+}
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+//==== Constructor ====//
+FiveDig::FiveDig( ) : NACABase( )
+{
+    m_Type = XS_FIVE_DIGIT;
+    m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.3, 0.0, 1.0 );
+    m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.423 );
+    m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
+}
+
+//==== Update ====//
+void FiveDig::Update()
+{
+    five_digit_airfoil_type m_AF( m_ThickChord(), m_IdealCl(), m_CamberLoc(), m_SharpTE() );
+
+    BuildCurve( m_AF );
+    Airfoil::Update();
+}
+
+void FiveDig::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl = cli;
+}
+
+double FiveDig::GetDesignLiftCoeff()
+{
+    return m_IdealCl();
+}
+
+void FiveDig::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_IdealCl.GetID() );
+}
+
+//===== Load Name And Number of 4 Series =====//
+string FiveDig::GetAirfoilName()
+{
+    int icl     = int( m_IdealCl() * ( 2.0f / 3.0f ) * 10.0f + 0.5f );
+    int icam_loc = int( m_CamberLoc() * 2.0f * 100.0f + 0.5f );
+    int ithick   = int( m_ThickChord() * 100.0f + 0.5f );
+
+    if ( icl == 0 )
+    {
+        icam_loc = 0;
+    }
+
+    char str[255];
+    if ( ithick < 10 && icam_loc < 10 )
+    {
+        sprintf( str, "  NACA %d0%d0%d", icl, icam_loc, ithick );
+    }
+    if ( ithick < 10 )
+    {
+        sprintf( str, "  NACA %d%d0%d", icl, icam_loc, ithick );
+    }
+    if ( icam_loc < 10 )
+    {
+        sprintf( str, "  NACA %d0%d%d", icl, icam_loc, ithick );
+    }
+    else
+    {
+        sprintf( str, "  NACA %d%d%d", icl, icam_loc, ithick );
+    }
+
+    return string( str );
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void FiveDig::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    FiveDig *s = dynamic_cast< FiveDig* > ( start );
+    FiveDig *e = dynamic_cast< FiveDig* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_CamberLoc );
+    }
+    XSecCurve::Interp( start, end, frac );
+}
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+//==== Constructor ====//
+FiveDigMod::FiveDigMod( ) : NACABase( )
+{
+    m_Type = XS_FIVE_DIGIT_MOD;
+    m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.3, 0.0, 1.0 );
+    m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.15, 0.0, 0.423 );
+    m_ThickLoc.Init( "ThickLoc", m_GroupName, this, 0.3, 0.2, 0.6 );
+    m_LERadIndx.Init( "LERadIndx", m_GroupName, this, 6.0, 0.0, 9.0 );
+    m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
+}
+
+//==== Update ====//
+void FiveDigMod::Update()
+{
+    five_digit_mod_airfoil_type m_AF( m_ThickChord(), m_IdealCl(), m_CamberLoc(), m_LERadIndx(), m_ThickLoc(), m_SharpTE() );
+
+    BuildCurve( m_AF );
+    Airfoil::Update();
+}
+
+void FiveDigMod::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl = cli;
+}
+
+double FiveDigMod::GetDesignLiftCoeff()
+{
+    return m_IdealCl();
+}
+
+void FiveDigMod::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_IdealCl.GetID() );
+}
+
+//===== Load Name And Number of 4 Series =====//
+string FiveDigMod::GetAirfoilName()
+{
+    int icl     = int( m_IdealCl() * ( 2.0f / 3.0f ) * 10.0f + 0.5f );
+    int icam_loc = int( m_CamberLoc() * 2.0f * 100.0f + 0.5f );
+    int ithick   = int( m_ThickChord() * 100.0f + 0.5f );
+    int ilerad   = int( m_LERadIndx() + 0.5 );
+    int ithick_loc = int( m_ThickLoc() * 10.0f + 0.5f );
+
+    if ( icl == 0 )
+    {
+        icam_loc = 0;
+    }
+
+    char str[255];
+    if ( ithick < 10 && icam_loc < 10 )
+    {
+        sprintf( str, "  NACA %d0%d0%d-%d%d", icl, icam_loc, ithick, ilerad, ithick_loc );
+    }
+    if ( ithick < 10 )
+    {
+        sprintf( str, "  NACA %d%d0%d-%d%d", icl, icam_loc, ithick, ilerad, ithick_loc );
+    }
+    if ( icam_loc < 10 )
+    {
+        sprintf( str, "  NACA %d0%d%d-%d%d", icl, icam_loc, ithick, ilerad, ithick_loc );
+    }
+    else
+    {
+        sprintf( str, "  NACA %d%d%d-%d%d", icl, icam_loc, ithick, ilerad, ithick_loc );
+    }
+
+    return string( str );
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void FiveDigMod::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    FiveDigMod *s = dynamic_cast< FiveDigMod* > ( start );
+    FiveDigMod *e = dynamic_cast< FiveDigMod* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_CamberLoc );
+        INTERP_PARM( s, e, frac, m_ThickLoc );
+        INTERP_PARM( s, e, frac, m_LERadIndx );
+    }
+    XSecCurve::Interp( start, end, frac );
+}
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+//==== Constructor ====//
+OneSixSeries::OneSixSeries( ) : NACABase( )
+{
+    m_Type = XS_ONE_SIX_SERIES;
+    m_IdealCl.Init( "IdealCl", m_GroupName, this, 0.2, 0.0, 1.0 );
+    m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
+}
+
+//==== Update ====//
+void OneSixSeries::Update()
+{
+    one_six_series_airfoil_type m_AF( m_ThickChord(), m_IdealCl(), m_SharpTE() );
+
+    BuildCurve( m_AF );
+    Airfoil::Update();
+}
+
+void OneSixSeries::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl = cli;
+}
+
+double OneSixSeries::GetDesignLiftCoeff()
+{
+    return m_IdealCl();
+}
+
+void OneSixSeries::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_IdealCl.GetID() );
+}
+
+//===== Load Name And Number of 4 Series =====//
+string OneSixSeries::GetAirfoilName()
+{
+    int icl     = int( m_IdealCl() * 10.0f + 0.5f );
+    int ithick   = int( m_ThickChord() * 100.0f + 0.5f );
+
+    char str[255];
+    if ( ithick < 10 )
+    {
+        sprintf( str, "  NACA 16-%d0%d", icl, ithick );
+    }
+    else
+    {
+        sprintf( str, "  NACA 16-%d%d", icl, ithick );
+    }
+
+    return string( str );
 }
 
 //==========================================================================//
@@ -354,6 +799,21 @@ void SixSeries::Update()
     Airfoil::Update();
 }
 
+void SixSeries::SetDesignLiftCoeff( double cli )
+{
+    m_IdealCl = cli;
+}
+
+double SixSeries::GetDesignLiftCoeff()
+{
+    return m_IdealCl();
+}
+
+void SixSeries::GetLiftCamberParmID( vector < string > &ids )
+{
+    ids.push_back( m_IdealCl.GetID() );
+}
+
 //===== Load Name And Number of 4 Series =====//
 string SixSeries::GetAirfoilName()
 {
@@ -414,6 +874,19 @@ void SixSeries::ReadV2File( xmlNodePtr &root )
 
     m_IdealCl = XmlUtil::FindDouble( root, "Ideal_Cl", m_IdealCl() );
     m_A = XmlUtil::FindDouble( root, "A", m_A() );
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void SixSeries::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    SixSeries *s = dynamic_cast< SixSeries* > ( start );
+    SixSeries *e = dynamic_cast< SixSeries* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_A );
+    }
+    XSecCurve::Interp( start, end, frac );
 }
 
 //==========================================================================//
@@ -521,6 +994,19 @@ void Wedge::ReadV2File( xmlNodePtr &root )
     Airfoil::ReadV2File( root );
 
     m_ThickLoc = XmlUtil::FindDouble( root, "Thickness_Loc", m_ThickLoc() );
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void Wedge::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    Wedge *s = dynamic_cast< Wedge* > ( start );
+    Wedge *e = dynamic_cast< Wedge* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_ThickLoc );
+    }
+    XSecCurve::Interp( start, end, frac );
 }
 
 //==========================================================================//
@@ -729,7 +1215,12 @@ bool FileAirfoil::ReadSeligAirfoil( FILE* file_id )
         {
             x = y = 100000.0;
             sscanf( buff, "%f %f", &x, &y );
-            if ( x >= 0.0 && x <= 1.0 && y >= -1.0 && y <= 1.0 )
+
+            // This check is actually a test to determine the input file format.  Lednicer files will
+            // read in the number of points on the top/bottom into these numbers.  Those values will
+            // fail this test -- while reasonable airfoil points (even with some leading edge leakage,
+            // or high lift devices) will pass.
+            if ( x <= 3.0 && y <= 3.0 )
             {
                 xvec.push_back( x );
                 yvec.push_back( y );
@@ -1580,4 +2071,19 @@ void VKTAirfoil::OffsetCurve( double offset_val )
     }
 
     m_yscale = ( offset_t / offset_c ) / ( t / c );
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void VKTAirfoil::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    VKTAirfoil *s = dynamic_cast< VKTAirfoil* > ( start );
+    VKTAirfoil *e = dynamic_cast< VKTAirfoil* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_Epsilon );
+        INTERP_PARM( s, e, frac, m_Kappa );
+        INTERP_PARM( s, e, frac, m_Tau );
+    }
+    XSecCurve::Interp( start, end, frac );
 }

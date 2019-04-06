@@ -150,7 +150,7 @@ vector < FeaStructure* > StructureMgrSingleton::GetAllFeaStructs()
 
     if ( veh )
     {
-        vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec( false ) );
+        vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
 
         for ( unsigned int i = 0; i < geom_vec.size(); i++ )
         {
@@ -166,18 +166,46 @@ vector < FeaStructure* > StructureMgrSingleton::GetAllFeaStructs()
     return feastructvec;
 }
 
-//==== Get FeaStructure from Index ====//
-FeaStructure* StructureMgrSingleton::GetFeaStruct( int ind )
+//==== Get FeaStructure from Total Structure Index ====//
+FeaStructure* StructureMgrSingleton::GetFeaStruct( int total_struct_ind )
 {
     FeaStructure* fea_struct = NULL;
 
     vector < FeaStructure* > struct_vec = GetAllFeaStructs();
 
-    if ( ValidTotalFeaStructInd( ind ) )
+    if ( ValidTotalFeaStructInd( total_struct_ind ) )
     {
-        fea_struct = struct_vec[ind];
+        fea_struct = struct_vec[total_struct_ind];
     }
     return fea_struct;
+}
+
+//==== Get FeaStructure from Structure ID ====//
+FeaStructure* StructureMgrSingleton::GetFeaStruct( const string & struct_id )
+{
+    FeaStructure* fea_struct = NULL;
+
+    vector < FeaStructure* > struct_vec = GetAllFeaStructs();
+
+    for ( size_t i = 0; i < struct_vec.size(); i++ )
+    {
+        if ( strcmp( struct_vec[i]->GetID().c_str(), struct_id.c_str() ) == 0 )
+        {
+            fea_struct = struct_vec[i];
+        }
+    }
+    return fea_struct;
+}
+
+//==== Get FeaStructure Parent Geom ID from Structure ID ====//
+string StructureMgrSingleton::GetFeaStructParentID( const string & struct_id )
+{
+    FeaStructure* fea_struct = GetFeaStruct( struct_id );
+    if ( fea_struct )
+    {
+        return fea_struct->GetParentGeomID();
+    }
+    return string(); // indicates an error
 }
 
 //==== Validate FeaStructure Index ====//
@@ -206,6 +234,22 @@ int StructureMgrSingleton::GetTotFeaStructIndex( FeaStructure* fea_struct )
         if ( fea_struct_vec[i] == fea_struct )
         {
             return i;
+        }
+    }
+    return -1; // indicates an error
+}
+
+//==== Get FeaStructure Geom Index Structure ID ====//
+int StructureMgrSingleton::GetGeomFeaStructIndex( const string & struct_id )
+{
+    string parent_id = GetFeaStructParentID( struct_id );
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        Geom* parent_geom = veh->FindGeom( parent_id );
+        if ( parent_geom )
+        {
+            return parent_geom->GetFeaStructIndex( struct_id );
         }
     }
     return -1; // indicates an error

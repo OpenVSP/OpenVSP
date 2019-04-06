@@ -6,6 +6,7 @@
 #if !defined(UTIL_UTIL__INCLUDED_)
 #define UTIL_UTIL__INCLUDED_
 
+#include "Defines.h"
 #include <vector>
 #include "Vec3d.h"
 using namespace std;
@@ -19,6 +20,7 @@ using namespace std;
 #define SIGN(x,y) (((x)*(y) > 0.0) ? (x):(-x))
 #define DEG2RAD(x) ( x*0.017453293 )
 
+#define INTERP_PARM( ptr_a, ptr_b, f, parm_name ) ((parm_name) = linterp( (ptr_a)->parm_name(), (ptr_b)->parm_name(), (f) ))
 
 #include <float.h>  /* for DBL_EPSILON */
 
@@ -45,6 +47,8 @@ double floor2scale( double x, double scale );
 double ceil2scale( double x, double scale );
 vector <double> linspace( double a, double b, double n );
 vector <double> logspace( double a, double b, double n);
+
+double linterp( double a, double b, double frac );
 
 template <typename T> T clamp( T val, T min, T max )
 {

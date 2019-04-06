@@ -18,6 +18,7 @@
 #include "Camera.h"
 #include "LayoutMgr.h"
 #include "Viewport.h"
+#include "Background.h"
 #include <FL/fl_ask.H>
 #include "ManageCORScreen.h"
 #include "ManageGeomScreen.h"
@@ -34,6 +35,7 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_GlWin = NULL;
 
     m_ShowXYZArrow = true;
+    m_ShowBorder = true;
 
     int x, y, w, h, side;
     w = 500;
@@ -93,6 +95,9 @@ MainVSPScreen::MainVSPScreen( ScreenMgr* mgr ) : ActionScreen( mgr )
     m_BackgroundMenuItem.Init( mgr, m_MenuBar, "Window/Background...", ScreenMgr::VSP_BACKGROUND_SCREEN );
     m_ScreenshotMenuItem.Init( mgr, m_MenuBar, "Window/Screenshot...", ScreenMgr::VSP_SCREENSHOT_SCREEN );
     m_AxisMenuItem.Init( this, m_MenuBar, "Window/Axis Toggle" );
+    m_AxisMenuItem.Update( m_ShowXYZArrow );
+    m_BorderMenuItem.Init( this, m_MenuBar, "Window/Border Toggle" );
+    m_BorderMenuItem.Update( m_ShowBorder );
 
     m_TopMenuItem.Init( this, m_MenuBar, "View/Top", FL_F + 5 );
     m_FrontMenuItem.Init( this, m_MenuBar, "View/Front", FL_F + 6 );
@@ -195,6 +200,9 @@ bool MainVSPScreen::Update()
     // Not sure all three of these are needed.
     m_GlWin->update();
     m_GlWin->redraw();
+
+    m_AxisMenuItem.Update( m_ShowXYZArrow );
+    m_BorderMenuItem.Update( m_ShowBorder );
 
     m_FLTK_Window->redraw();
     return true;
@@ -396,23 +404,34 @@ void MainVSPScreen::ActionCB( void * data )
     else if ( data == &m_OneMenuItem )
     {
         m_GlWin->setWindowLayout( 1, 1 );
+        SetViewAxis( m_ShowXYZArrow );
+        SetShowBorders( m_ShowBorder );
     }
     else if ( data == &m_FourMenuItem )
     {
         m_GlWin->setWindowLayout( 2, 2 );
+        SetViewAxis( m_ShowXYZArrow );
+        SetShowBorders( m_ShowBorder );
     }
     else if ( data == &m_TwoHMenuItem )
     {
         m_GlWin->setWindowLayout( 1, 2 );
+        SetViewAxis( m_ShowXYZArrow );
+        SetShowBorders( m_ShowBorder );
     }
     else if ( data == &m_TwoVMenuItem )
     {
         m_GlWin->setWindowLayout( 2, 1 );
+        SetViewAxis( m_ShowXYZArrow );
+        SetShowBorders( m_ShowBorder );
     }
     else if ( data == &m_AxisMenuItem )
     {
-        m_ShowXYZArrow = !m_ShowXYZArrow;
-        m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewport()->showXYZArrows( m_ShowXYZArrow );
+        SetViewAxis( !m_ShowXYZArrow );
+    }
+    else if ( data == &m_BorderMenuItem )
+    {
+        SetShowBorders( !m_ShowBorder );
     }
     else if ( data == &m_TopMenuItem )
     {
@@ -611,4 +630,66 @@ void MainVSPScreen::ActionCB( void * data )
     // }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void MainVSPScreen::ScreenGrab( const string & fname, int w, int h, bool transparentBG )
+{
+    if ( m_GlWin )
+    {
+        bool framebufferSupported = true;
+        if ( !glewIsSupported( "GL_ARB_framebuffer_object" ) )
+        {
+            framebufferSupported = false;
+        }
+
+        m_GlWin->getGraphicEngine()->dumpScreenImage( fname, w, h, transparentBG, framebufferSupported, VSPGraphic::GraphicEngine::PNG );
+    }
+}
+
+void MainVSPScreen::SetViewAxis( bool vaxis )
+{
+    if ( m_GlWin )
+    {
+        m_ShowXYZArrow = vaxis;
+
+        vector< VSPGraphic::Viewport * > vports = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+        for ( int i = 0; i < vports.size(); i++ )
+        {
+            if ( vports[i] )
+            {
+                vports[i]->showXYZArrows( m_ShowXYZArrow );
+            }
+        }
+    }
+}
+
+void MainVSPScreen::SetShowBorders( bool brdr )
+{
+    if ( m_GlWin )
+    {
+        m_ShowBorder = brdr;
+
+        vector< VSPGraphic::Viewport * > vports = m_GlWin->getGraphicEngine()->getDisplay()->getLayoutMgr()->getViewports();
+        for ( int i = 0; i < vports.size(); i++ )
+        {
+            if ( vports[i] )
+            {
+                vports[i]->showBorders( m_ShowBorder );
+            }
+        }
+    }
+}
+
+void MainVSPScreen::SetBackground( double r, double g, double b )
+{
+    if ( m_GlWin ) {
+
+        VSPGraphic::Viewport *viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
+        if (viewport)
+        {
+            viewport->getBackground()->setRed((float) (r));
+            viewport->getBackground()->setGreen((float) (g));
+            viewport->getBackground()->setBlue((float) (b));
+        }
+    }
 }

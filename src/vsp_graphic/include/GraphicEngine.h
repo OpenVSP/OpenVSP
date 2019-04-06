@@ -42,7 +42,7 @@ public:
     /*!
     * Dump screen data to JPEG image.
     */
-    void dumpScreenImage( std::string fileName, int width, int height, bool framebufferSupported, int filetype );
+    void dumpScreenImage( std::string fileName, int width, int height, bool transparentBG, bool framebufferSupported, int filetype );
 
 public:
     /*!

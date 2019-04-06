@@ -30,6 +30,39 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_DesignPolicyChoice.AddItem( "LOOP" );
     m_DesignLayout.AddChoice( m_DesignPolicyChoice, "XSec Order: " );
 
+    m_DesignLayout.AddYGap();
+    m_DesignLayout.AddDividerBox( "Tip Treatment" );
+
+    m_NoseCapTypeChoice.AddItem("None");
+    m_NoseCapTypeChoice.AddItem("Flat");
+    m_NoseCapTypeChoice.AddItem("Round");
+    m_NoseCapTypeChoice.AddItem("Edge");
+    m_NoseCapTypeChoice.AddItem("Sharp");
+    m_DesignLayout.AddChoice(m_NoseCapTypeChoice, "Nose Cap Type");
+
+    m_DesignLayout.AddSlider( m_NoseCapLenSlider, "Length", 1, "%6.5f" );
+    m_DesignLayout.AddSlider( m_NoseCapOffsetSlider, "Offset", 1, "%6.5f" );
+    m_DesignLayout.AddSlider( m_NoseCapStrengthSlider, "Strength", 1, "%6.5f" );
+    m_DesignLayout.AddButton( m_NoseCapSweepFlagButton, "Sweep Stretch" );
+
+    m_DesignLayout.AddYGap();
+
+    m_TailCapTypeChoice.AddItem("None");
+    m_TailCapTypeChoice.AddItem("Flat");
+    m_TailCapTypeChoice.AddItem("Round");
+    m_TailCapTypeChoice.AddItem("Edge");
+    m_TailCapTypeChoice.AddItem("Sharp");
+    m_DesignLayout.AddChoice(m_TailCapTypeChoice, "Tail Cap Type");
+
+    m_DesignLayout.AddSlider( m_TailCapLenSlider, "Length", 1, "%6.5f" );
+    m_DesignLayout.AddSlider( m_TailCapOffsetSlider, "Offset", 1, "%6.5f" );
+    m_DesignLayout.AddSlider( m_TailCapStrengthSlider, "Strength", 1, "%6.5f" );
+    m_DesignLayout.AddButton( m_TailCapSweepFlagButton, "Sweep Stretch" );
+
+    m_DesignLayout.AddYGap();
+
+    m_DesignLayout.AddSlider( m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
+
     Fl_Group* xsec_tab = AddTab( "XSec" );
     Fl_Group* xsec_group = AddSubGroup( xsec_tab, 5 );
 
@@ -88,6 +121,10 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_XSecTypeChoice.AddItem( "AF_FILE" );
     m_XSecTypeChoice.AddItem( "CST_AIRFOIL" );
     m_XSecTypeChoice.AddItem( "KARMAN_TREFFTZ" );
+    m_XSecTypeChoice.AddItem( "FOUR_DIGIT_MOD" );
+    m_XSecTypeChoice.AddItem( "FIVE_DIGIT" );
+    m_XSecTypeChoice.AddItem( "FIVE_DIGIT_MOD" );
+    m_XSecTypeChoice.AddItem( "16_SERIES" );
 
     m_XSecLayout.SetSameLineFlag( true );
     m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:", m_XSecLayout.GetButtonWidth() );
@@ -170,10 +207,47 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_FourSeriesGroup.AddSlider( m_FourChordSlider, "Chord", 10, "%7.3f" );
     m_FourSeriesGroup.AddSlider( m_FourThickChordSlider, "T/C", 1, "%7.5f" );
     m_FourSeriesGroup.AddYGap();
+
+    int actionToggleButtonWidth = 15;
+    int actionSliderButtonWidth = m_FourSeriesGroup.GetButtonWidth() - actionToggleButtonWidth;
+
+    m_FourSeriesGroup.SetSameLineFlag( true );
+
+    m_FourSeriesGroup.SetFitWidthFlag( false );
+    m_FourSeriesGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FourSeriesGroup.AddButton( m_FourCamberButton, "" );
+    m_FourSeriesGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FourSeriesGroup.SetFitWidthFlag( true );
     m_FourSeriesGroup.AddSlider( m_FourCamberSlider, "Camber", 0.2, "%7.5f" );
+
+    m_FourSeriesGroup.ForceNewLine();
+
+    m_FourSeriesGroup.SetFitWidthFlag( false );
+    m_FourSeriesGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FourSeriesGroup.AddButton( m_FourCLiButton, "" );
+    m_FourSeriesGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FourSeriesGroup.SetFitWidthFlag( true );
+    m_FourSeriesGroup.AddSlider( m_FourCLiSlider, "Ideal CL", 1, "%7.5f" );
+
+    m_FourSeriesGroup.ForceNewLine();
+
+    m_FourSeriesGroup.SetSameLineFlag( false );
+    m_FourSeriesGroup.SetButtonWidth( actionSliderButtonWidth + actionToggleButtonWidth );
+
+    m_FourCamberGroup.Init( this );
+    m_FourCamberGroup.AddButton( m_FourCamberButton.GetFlButton() );
+    m_FourCamberGroup.AddButton( m_FourCLiButton.GetFlButton() );
+
+    vector< int > camb_val_map;
+    camb_val_map.push_back( vsp::MAX_CAMB );
+    camb_val_map.push_back( vsp::DESIGN_CL );
+    m_FourCamberGroup.SetValMapVec( camb_val_map );
+
     m_FourSeriesGroup.AddSlider( m_FourCamberLocSlider, "CamberLoc", 1, "%7.5f" );
     m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.AddButton( m_FourInvertButton, "Invert Airfoil" );
+    m_FourSeriesGroup.AddYGap();
+    m_FourSeriesGroup.AddButton( m_FourSharpTEButton, "Sharpen TE" );
 
     //==== Sex Series AF ====//
     m_SixSeriesGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -306,6 +380,104 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_VKTGroup.AddYGap();
     m_VKTGroup.AddButton( m_VKTInvertButton, "Invert Airfoil" );
 
+    //==== Four Series AF ====//
+    m_FourDigitModGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_FourDigitModGroup.SetY( start_y );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.AddOutput( m_FourModNameOutput, "Name" );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.AddSlider( m_FourModChordSlider, "Chord", 10, "%7.3f" );
+    m_FourDigitModGroup.AddSlider( m_FourModThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FourDigitModGroup.AddYGap();
+
+    m_FourDigitModGroup.SetSameLineFlag( true );
+
+    m_FourDigitModGroup.SetFitWidthFlag( false );
+    m_FourDigitModGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FourDigitModGroup.AddButton( m_FourModCamberButton, "" );
+    m_FourDigitModGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FourDigitModGroup.SetFitWidthFlag( true );
+    m_FourDigitModGroup.AddSlider( m_FourModCamberSlider, "Camber", 0.2, "%7.5f" );
+
+    m_FourDigitModGroup.ForceNewLine();
+
+    m_FourDigitModGroup.SetFitWidthFlag( false );
+    m_FourDigitModGroup.SetButtonWidth( actionToggleButtonWidth );
+    m_FourDigitModGroup.AddButton( m_FourModCLiButton, "" );
+    m_FourDigitModGroup.SetButtonWidth( actionSliderButtonWidth );
+    m_FourDigitModGroup.SetFitWidthFlag( true );
+    m_FourDigitModGroup.AddSlider( m_FourModCLiSlider, "Ideal CL", 1, "%7.5f" );
+
+    m_FourDigitModGroup.ForceNewLine();
+
+    m_FourDigitModGroup.SetSameLineFlag( false );
+    m_FourDigitModGroup.SetButtonWidth( actionSliderButtonWidth + actionToggleButtonWidth );
+
+    m_FourModCamberGroup.Init( this );
+    m_FourModCamberGroup.AddButton( m_FourModCamberButton.GetFlButton() );
+    m_FourModCamberGroup.AddButton( m_FourModCLiButton.GetFlButton() );
+
+    m_FourModCamberGroup.SetValMapVec( camb_val_map );
+
+    m_FourDigitModGroup.AddSlider( m_FourModCamberLocSlider, "CamberLoc", 1, "%7.5f" );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.AddSlider( m_FourModThicknessLocSlider, "T/CLoc", 0.5, "%7.5f" );
+    m_FourDigitModGroup.AddSlider( m_FourModLERadIndexSlider, "LERadIndx", 5, "%7.5f" );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.AddButton( m_FourModInvertButton, "Invert Airfoil" );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.AddButton( m_FourModSharpTEButton, "Sharpen TE" );
+
+    //==== Five Digit AF ====//
+    m_FiveDigitGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_FiveDigitGroup.SetY( start_y );
+    m_FiveDigitGroup.AddYGap();
+    m_FiveDigitGroup.AddOutput( m_FiveNameOutput, "Name" );
+    m_FiveDigitGroup.AddYGap();
+    m_FiveDigitGroup.AddSlider( m_FiveChordSlider, "Chord", 10, "%7.3f" );
+    m_FiveDigitGroup.AddSlider( m_FiveThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FiveDigitGroup.AddYGap();
+    m_FiveDigitGroup.AddSlider( m_FiveCLiSlider, "Ideal CL", 1, "%7.5f" );
+    m_FiveDigitGroup.AddSlider( m_FiveCamberLocSlider, "CamberLoc", 1, "%7.5f" );
+    m_FiveDigitGroup.AddYGap();
+    m_FiveDigitGroup.AddButton( m_FiveInvertButton, "Invert Airfoil" );
+    m_FiveDigitGroup.AddYGap();
+    m_FiveDigitGroup.AddButton( m_FiveSharpTEButton, "Sharpen TE" );
+
+    //==== Five Digit Mod AF ====//
+    m_FiveDigitModGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_FiveDigitModGroup.SetY( start_y );
+    m_FiveDigitModGroup.AddYGap();
+    m_FiveDigitModGroup.AddOutput( m_FiveModNameOutput, "Name" );
+    m_FiveDigitModGroup.AddYGap();
+    m_FiveDigitModGroup.AddSlider( m_FiveModChordSlider, "Chord", 10, "%7.3f" );
+    m_FiveDigitModGroup.AddSlider( m_FiveModThickChordSlider, "T/C", 1, "%7.5f" );
+    m_FiveDigitModGroup.AddYGap();
+    m_FiveDigitModGroup.AddSlider( m_FiveModCLiSlider, "Ideal CL", 1, "%7.5f" );
+    m_FiveDigitModGroup.AddSlider( m_FiveModCamberLocSlider, "CamberLoc", 1, "%7.5f" );
+    m_FiveDigitModGroup.AddYGap();
+    m_FiveDigitModGroup.AddSlider( m_FiveModThicknessLocSlider, "T/CLoc", 0.5, "%7.5f" );
+    m_FiveDigitModGroup.AddSlider( m_FiveModLERadIndexSlider, "LERadIndx", 5, "%7.5f" );
+    m_FiveDigitModGroup.AddYGap();
+    m_FiveDigitModGroup.AddButton( m_FiveModInvertButton, "Invert Airfoil" );
+    m_FiveDigitModGroup.AddYGap();
+    m_FiveDigitModGroup.AddButton( m_FiveModSharpTEButton, "Sharpen TE" );
+
+    //==== 16 Series AF ====//
+    m_OneSixSeriesGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_OneSixSeriesGroup.SetY( start_y );
+    m_OneSixSeriesGroup.AddYGap();
+    m_OneSixSeriesGroup.AddOutput( m_OneSixSeriesNameOutput, "Name" );
+    m_OneSixSeriesGroup.AddYGap();
+    m_OneSixSeriesGroup.AddSlider( m_OneSixSeriesChordSlider, "Chord", 10, "%7.3f" );
+    m_OneSixSeriesGroup.AddSlider( m_OneSixSeriesThickChordSlider, "T/C", 1, "%7.5f" );
+    m_OneSixSeriesGroup.AddYGap();
+    m_OneSixSeriesGroup.AddSlider( m_OneSixSeriesCLiSlider, "Ideal CL", 1, "%7.5f" );
+    m_OneSixSeriesGroup.AddYGap();
+    m_OneSixSeriesGroup.AddButton( m_OneSixSeriesInvertButton, "Invert Airfoil" );
+    m_OneSixSeriesGroup.AddYGap();
+    m_OneSixSeriesGroup.AddButton( m_OneSixSeriesSharpTEButton, "Sharpen TE" );
+
     DisplayGroup( &m_PointGroup );
 
 }
@@ -343,6 +515,77 @@ bool StackScreen::Update()
     assert( stackgeom_ptr );
 
     m_DesignPolicyChoice.Update( stackgeom_ptr->m_OrderPolicy.GetID() );
+
+    m_NoseCapTypeChoice.Update( stackgeom_ptr->m_CapUMinOption.GetID() );
+    m_TailCapTypeChoice.Update( stackgeom_ptr->m_CapUMaxOption.GetID() );
+
+    m_CapTessSlider.Update( stackgeom_ptr->m_CapUMinTess.GetID() );
+
+    m_NoseCapLenSlider.Update( stackgeom_ptr->m_CapUMinLength.GetID() );
+    m_NoseCapOffsetSlider.Update( stackgeom_ptr->m_CapUMinOffset.GetID() );
+    m_NoseCapStrengthSlider.Update( stackgeom_ptr->m_CapUMinStrength.GetID() );
+    m_NoseCapSweepFlagButton.Update( stackgeom_ptr->m_CapUMinSweepFlag.GetID() );
+
+    m_NoseCapLenSlider.Deactivate();
+    m_NoseCapOffsetSlider.Deactivate();
+    m_NoseCapStrengthSlider.Deactivate();
+    m_NoseCapSweepFlagButton.Deactivate();
+
+    switch( stackgeom_ptr->m_CapUMinOption() ){
+        case NO_END_CAP:
+            break;
+        case FLAT_END_CAP:
+            break;
+        case ROUND_END_CAP:
+            m_NoseCapLenSlider.Activate();
+            m_NoseCapOffsetSlider.Activate();
+            m_NoseCapSweepFlagButton.Activate();
+            break;
+        case EDGE_END_CAP:
+            m_NoseCapLenSlider.Activate();
+            m_NoseCapOffsetSlider.Activate();
+            m_NoseCapSweepFlagButton.Activate();
+            break;
+        case SHARP_END_CAP:
+            m_NoseCapLenSlider.Activate();
+            m_NoseCapOffsetSlider.Activate();
+            m_NoseCapStrengthSlider.Activate();
+            m_NoseCapSweepFlagButton.Activate();
+            break;
+    }
+
+    m_TailCapLenSlider.Update( stackgeom_ptr->m_CapUMaxLength.GetID() );
+    m_TailCapOffsetSlider.Update( stackgeom_ptr->m_CapUMaxOffset.GetID() );
+    m_TailCapStrengthSlider.Update( stackgeom_ptr->m_CapUMaxStrength.GetID() );
+    m_TailCapSweepFlagButton.Update( stackgeom_ptr->m_CapUMaxSweepFlag.GetID() );
+
+    m_TailCapLenSlider.Deactivate();
+    m_TailCapOffsetSlider.Deactivate();
+    m_TailCapStrengthSlider.Deactivate();
+    m_TailCapSweepFlagButton.Deactivate();
+
+    switch( stackgeom_ptr->m_CapUMaxOption() ){
+        case NO_END_CAP:
+            break;
+        case FLAT_END_CAP:
+            break;
+        case ROUND_END_CAP:
+            m_TailCapLenSlider.Activate();
+            m_TailCapOffsetSlider.Activate();
+            m_TailCapSweepFlagButton.Activate();
+            break;
+        case EDGE_END_CAP:
+            m_TailCapLenSlider.Activate();
+            m_TailCapOffsetSlider.Activate();
+            m_TailCapSweepFlagButton.Activate();
+            break;
+        case SHARP_END_CAP:
+            m_TailCapLenSlider.Activate();
+            m_TailCapOffsetSlider.Activate();
+            m_TailCapStrengthSlider.Activate();
+            m_TailCapSweepFlagButton.Activate();
+            break;
+    }
 
     //==== XSec Index Display ===//
     int xsid = stackgeom_ptr->GetActiveXSecIndex();
@@ -489,9 +732,22 @@ bool StackScreen::Update()
                 m_FourChordSlider.Update( fs_xs->m_Chord.GetID() );
                 m_FourThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
                 m_FourCamberSlider.Update( fs_xs->m_Camber.GetID() );
+                m_FourCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+                m_FourCamberGroup.Update( fs_xs->m_CamberInputFlag.GetID() );
+                if ( fs_xs->m_CamberInputFlag() == MAX_CAMB )
+                {
+                    m_FourCamberSlider.Activate();
+                    m_FourCLiSlider.Deactivate();
+                }
+                else
+                {
+                    m_FourCamberSlider.Deactivate();
+                    m_FourCLiSlider.Activate();
+                }
                 m_FourCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
                 m_FourInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FourNameOutput.Update( fs_xs->GetAirfoilName() );
+                m_FourSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
             }
             else if ( xsc->GetType() == XS_SIX_SERIES )
             {
@@ -606,6 +862,77 @@ bool StackScreen::Update()
                 m_VKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
                 m_VKTInvertButton.Update( vkt_xs->m_Invert.GetID() );
             }
+            else if ( xsc->GetType() == XS_FOUR_DIGIT_MOD )
+            {
+                DisplayGroup( &m_FourDigitModGroup );
+                FourDigMod* fs_xs = dynamic_cast< FourDigMod* >( xsc );
+                assert( fs_xs );
+
+                m_FourModChordSlider.Update( fs_xs->m_Chord.GetID() );
+                m_FourModThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
+                m_FourModCamberSlider.Update( fs_xs->m_Camber.GetID() );
+                m_FourModCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+                m_FourModCamberGroup.Update( fs_xs->m_CamberInputFlag.GetID() );
+                if ( fs_xs->m_CamberInputFlag() == MAX_CAMB )
+                {
+                    m_FourModCamberSlider.Activate();
+                    m_FourModCLiSlider.Deactivate();
+                }
+                else
+                {
+                    m_FourModCamberSlider.Deactivate();
+                    m_FourModCLiSlider.Activate();
+                }
+                m_FourModCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
+                m_FourModInvertButton.Update( fs_xs->m_Invert.GetID() );
+                m_FourModNameOutput.Update( fs_xs->GetAirfoilName() );
+                m_FourModThicknessLocSlider.Update( fs_xs->m_ThickLoc.GetID() );
+                m_FourModLERadIndexSlider.Update( fs_xs->m_LERadIndx.GetID() );
+                m_FourModSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+            }
+            else if ( xsc->GetType() == XS_FIVE_DIGIT )
+            {
+                DisplayGroup( &m_FiveDigitGroup );
+                FiveDig* fs_xs = dynamic_cast< FiveDig* >( xsc );
+                assert( fs_xs );
+
+                m_FiveChordSlider.Update( fs_xs->m_Chord.GetID() );
+                m_FiveThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
+                m_FiveCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+                m_FiveCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
+                m_FiveInvertButton.Update( fs_xs->m_Invert.GetID() );
+                m_FiveNameOutput.Update( fs_xs->GetAirfoilName() );
+                m_FiveSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+            }
+            else if ( xsc->GetType() == XS_FIVE_DIGIT_MOD )
+            {
+                DisplayGroup( &m_FiveDigitModGroup );
+                FiveDigMod* fs_xs = dynamic_cast< FiveDigMod* >( xsc );
+                assert( fs_xs );
+
+                m_FiveModChordSlider.Update( fs_xs->m_Chord.GetID() );
+                m_FiveModThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
+                m_FiveModCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+                m_FiveModCamberLocSlider.Update( fs_xs->m_CamberLoc.GetID() );
+                m_FiveModInvertButton.Update( fs_xs->m_Invert.GetID() );
+                m_FiveModNameOutput.Update( fs_xs->GetAirfoilName() );
+                m_FiveModThicknessLocSlider.Update( fs_xs->m_ThickLoc.GetID() );
+                m_FiveModLERadIndexSlider.Update( fs_xs->m_LERadIndx.GetID() );
+                m_FiveModSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+            }
+            else if ( xsc->GetType() == XS_ONE_SIX_SERIES )
+            {
+                DisplayGroup( &m_OneSixSeriesGroup );
+                OneSixSeries* fs_xs = dynamic_cast< OneSixSeries* >( xsc );
+                assert( fs_xs );
+
+                m_OneSixSeriesChordSlider.Update( fs_xs->m_Chord.GetID() );
+                m_OneSixSeriesThickChordSlider.Update( fs_xs->m_ThickChord.GetID() );
+                m_OneSixSeriesCLiSlider.Update( fs_xs->m_IdealCl.GetID() );
+                m_OneSixSeriesInvertButton.Update( fs_xs->m_Invert.GetID() );
+                m_OneSixSeriesNameOutput.Update( fs_xs->GetAirfoilName() );
+                m_OneSixSeriesSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+            }
         }
     }
     return true;
@@ -631,6 +958,10 @@ void StackScreen::DisplayGroup( GroupLayout* group )
     m_AfFileGroup.Hide();
     m_CSTAirfoilGroup.Hide();
     m_VKTGroup.Hide();
+    m_FourDigitModGroup.Hide();
+    m_FiveDigitGroup.Hide();
+    m_FiveDigitModGroup.Hide();
+    m_OneSixSeriesGroup.Hide();
 
     m_CurrDisplayGroup = group;
 

@@ -22,6 +22,7 @@
 #include "ParasiteDragMgr.h"
 #include "WingGeom.h"
 #include "PropGeom.h"
+#include "BORGeom.h"
 #include "VSPAEROMgr.h"
 #include "MeasureMgr.h"
 #include "SubSurfaceMgr.h"
@@ -1233,6 +1234,61 @@ extern void StartGui( )
 #endif
 }
 
+void ScreenGrab( const string & fname, int w, int h, bool transparentBG )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().ScreenGrab( fname, w, h, transparentBG );
+#endif
+}
+
+void SetViewAxis( bool vaxis )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetViewAxis( vaxis );
+#endif
+}
+
+void SetShowBorders( bool brdr )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetShowBorders( brdr );
+#endif
+}
+
+void SetGeomDrawType(const string &geom_id, int type)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomDrawType::Can't Find Geom " + geom_id  );
+        return;
+    }
+    geom_ptr->m_GuiDraw.SetDrawType( type );
+
+    ErrorMgr.NoError();
+}
+
+void SetGeomDisplayType(const string &geom_id, int type)
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomDisplayType::Can't Find Geom " + geom_id  );
+        return;
+    }
+    geom_ptr->m_GuiDraw.SetDisplayType( type );
+
+    ErrorMgr.NoError();
+}
+
+void SetBackground( double r, double g, double b )
+{
+#ifdef VSP_USE_FLTK
+    GuiInterface::getInstance().SetBackground( r, g, b );
+#endif
+}
 
 //===================================================================//
 //===============       Geom Functions            ===================//
@@ -1498,6 +1554,21 @@ vector< string > GetGeomParmIDs( const string & geom_id  )
 
     ErrorMgr.NoError();
     return parm_vec;
+}
+
+/// Get the type of for this geometry
+string GetGeomTypeName( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GeomGeomType::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    string typ = string( geom_ptr->GetType().m_Name );
+    return typ;
 }
 
 /// Get the parm id given geom id, parm name, and group name
@@ -1857,6 +1928,11 @@ int AddFeaStruct( const string & geom_id, bool init_skin, int surfindex )
     StructureMgr.InitFeaProperties();
 
     Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return -1;
+    }
+
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
@@ -1875,67 +1951,109 @@ int AddFeaStruct( const string & geom_id, bool init_skin, int surfindex )
     return ( geom_ptr->NumGeomFeaStructs() - 1 );
 }
 
-void DeleteFeaStruct( const string & geom_id, int fea_struct_id )
+void DeleteFeaStruct( const string & geom_id, int fea_struct_ind )
 {
     Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaStruct::Can't Find Geom " + geom_id );
         return;
     }
-    if ( !geom_ptr->ValidGeomFeaStructInd( fea_struct_id ) )
+    if ( !geom_ptr->ValidGeomFeaStructInd( fea_struct_ind ) )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaStruct::Can't Find FeaStructure " + geom_id );
         return;
     }
-    geom_ptr->DeleteFeaStruct( fea_struct_id );
+    geom_ptr->DeleteFeaStruct( fea_struct_ind );
     ErrorMgr.NoError();
     return;
 }
 
-string GetFeaStructName( const string & geom_id, int fea_struct_id )
+string GetFeaStructID( const string & geom_id, int fea_struct_ind )
 {
     Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return string();
+    }
+
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaStruct::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_ind );
+    if ( !struct_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_ind );
+        return string();
+    }
+    ErrorMgr.NoError();
+    return struct_ptr->GetID();
+}
+
+int GetFeaStructIndex( const string & struct_id )
+{
+    return StructureMgr.GetGeomFeaStructIndex( struct_id );
+}
+
+string GetFeaStructParentGeomID( const string & struct_id )
+{
+    return StructureMgr.GetFeaStructParentID( struct_id );
+}
+
+string GetFeaStructName( const string & geom_id, int fea_struct_ind )
+{
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return string();
+    }
+
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find Geom " + geom_id );
         return string();
     }
-    if ( !geom_ptr->ValidGeomFeaStructInd( fea_struct_id ) )
-    {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
-        return string();
-    }
-    FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_id );
+
+    FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !struct_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_ind );
         return string();
     }
     ErrorMgr.NoError();
     return struct_ptr->GetName();
 }
 
-void SetFeaStructName( const string & geom_id, int fea_struct_id, const string & name )
+void SetFeaStructName( const string & geom_id, int fea_struct_ind, const string & name )
 {
     Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find Geom " + geom_id );
         return;
     }
-    if ( !geom_ptr->ValidGeomFeaStructInd( fea_struct_id ) )
-    {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
-        return;
-    }
-    FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_id );
+
+    FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !struct_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_id );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_ind );
         return;
     }
     struct_ptr->SetName( name );
@@ -1958,9 +2076,14 @@ void SetFeaPartName( const string & part_id, const string & name )
 }
 
 /// Add a FeaPart, return FeaPart ID
-string AddFeaPart( const string & geom_id, int fea_struct_id, int type )
+string AddFeaPart( const string & geom_id, int fea_struct_ind, int type )
 {
     Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return string();
+    }
+
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
@@ -1969,7 +2092,7 @@ string AddFeaPart( const string & geom_id, int fea_struct_id, int type )
     }
 
     FeaStructure* feastruct = NULL;
-    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaPart::Invalid FeaStructure Ptr" );
@@ -1988,9 +2111,14 @@ string AddFeaPart( const string & geom_id, int fea_struct_id, int type )
     return feapart->GetID();
 }
 
-void DeleteFeaPart( const string & geom_id, int fea_struct_id, const string & part_id )
+void DeleteFeaPart( const string & geom_id, int fea_struct_ind, const string & part_id )
 {
     Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
@@ -1999,7 +2127,7 @@ void DeleteFeaPart( const string & geom_id, int fea_struct_id, const string & pa
     }
 
     FeaStructure* feastruct = NULL;
-    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaPart::Invalid FeaStructure Ptr" );
@@ -2018,9 +2146,14 @@ void DeleteFeaPart( const string & geom_id, int fea_struct_id, const string & pa
 }
 
 /// Add a FeaSubSurface, return FeaSubSurface ID
-string AddFeaSubSurf( const string & geom_id, int fea_struct_id, int type )
+string AddFeaSubSurf( const string & geom_id, int fea_struct_ind, int type )
 {
     Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return string();
+
+    }
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
@@ -2029,7 +2162,7 @@ string AddFeaSubSurf( const string & geom_id, int fea_struct_id, int type )
     }
 
     FeaStructure* feastruct = NULL;
-    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "FeaSubSurface::Invalid FeaStructure Ptr" );
@@ -2048,9 +2181,14 @@ string AddFeaSubSurf( const string & geom_id, int fea_struct_id, int type )
     return feasubsurf->GetID();
 }
 
-void DeleteFeaSubSurf( const string & geom_id, int fea_struct_id, const string & ss_id )
+void DeleteFeaSubSurf( const string & geom_id, int fea_struct_ind, const string & ss_id )
 {
     Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
@@ -2059,7 +2197,7 @@ void DeleteFeaSubSurf( const string & geom_id, int fea_struct_id, const string &
     }
 
     FeaStructure* feastruct = NULL;
-    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaSubSurf::Invalid FeaStructure Ptr" );
@@ -2106,9 +2244,14 @@ string AddFeaProperty( int property_type )
 }
 
 //==== Set a FEA Mesh Control Val =====//
-void SetFeaMeshVal( const string & geom_id, int fea_struct_id, int type, double val )
+void SetFeaMeshVal( const string & geom_id, int fea_struct_ind, int type, double val )
 {
     Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
@@ -2117,7 +2260,7 @@ void SetFeaMeshVal( const string & geom_id, int fea_struct_id, int type, double 
     }
 
     FeaStructure* feastruct = NULL;
-    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetFEAMeshVal::Invalid FeaStructure Ptr" );
@@ -2148,9 +2291,14 @@ void SetFeaMeshVal( const string & geom_id, int fea_struct_id, int type, double 
     ErrorMgr.NoError();
 }
 
-void SetFeaMeshFileName( const string & geom_id, int fea_struct_id, int file_type, const string & file_name )
+void SetFeaMeshFileName( const string & geom_id, int fea_struct_ind, int file_type, const string & file_name )
 {
     Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
@@ -2159,7 +2307,7 @@ void SetFeaMeshFileName( const string & geom_id, int fea_struct_id, int file_typ
     }
 
     FeaStructure* feastruct = NULL;
-    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaMeshFileNames::Invalid FeaStructure Ptr " );
@@ -2172,10 +2320,15 @@ void SetFeaMeshFileName( const string & geom_id, int fea_struct_id, int file_typ
 }
 
 /// Compute the FEA Mesh
-void ComputeFeaMesh( const string & geom_id, int fea_struct_id, int file_type )
+void ComputeFeaMesh( const string & geom_id, int fea_struct_ind, int file_type )
 {
-    Update();
+    Update(); // Remove?
     Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
@@ -2183,11 +2336,30 @@ void ComputeFeaMesh( const string & geom_id, int fea_struct_id, int file_type )
         return;
     }
 
-    FeaStructure* feastruct = NULL;
-    feastruct = geom_ptr->GetFeaStruct( fea_struct_id );
+    FeaStructure* feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeFEAMesh::Invalid FeaStructure Ptr " );
+        return;
+    }
+
+    feastruct->GetStructSettingsPtr()->SetAllFileExportFlags( false );
+    feastruct->GetStructSettingsPtr()->SetFileExportFlag( file_type, true );
+
+    FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.GetTotFeaStructIndex( feastruct ) );
+
+    FeaMeshMgr.GenerateFeaMesh();
+    ErrorMgr.NoError();
+}
+
+void ComputeFeaMesh( const string & struct_id, int file_type )
+{
+    Update(); // Not sure if this is needed
+
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeFEAMesh::Can't Find Structure " + struct_id );
         return;
     }
 
@@ -2507,7 +2679,7 @@ int GetXSecShape( const string& xsec_id )
     if ( !xs )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecShape::Can't Find XSec " + xsec_id  );
-        return 0;
+        return XS_UNDEFINED;
     }
 
     ErrorMgr.NoError();
@@ -2812,6 +2984,50 @@ void SetXSecCurvatures( const string& xsec_id, int side, double top, double righ
 
     skinxs->SetCurvatures( side, top, right, bottom, left );
     ErrorMgr.NoError();
+}
+
+//==== Specialized Geom Functions ====//
+void ChangeBORXSecShape( const string & geom_id, int type )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeBORXSecShape::Can't Find Geom " + geom_id  );
+        return;
+    }
+
+    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    if ( !bor_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "ChangeBORXSecShape::Geom " + geom_id + " is not a body of revolution" );
+        return;
+    }
+
+    bor_ptr->SetXSecCurveType( type );
+    ErrorMgr.NoError();
+}
+
+//==== Specialized Geom Functions ====//
+int GetBORXSecShape( const string & geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORXSecShape::Can't Find Geom " + geom_id  );
+        return XS_UNDEFINED;
+    }
+
+    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
+    if ( !bor_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORXSecShape::Geom " + geom_id + " is not a body of revolution" );
+        return XS_UNDEFINED;
+    }
+
+    ErrorMgr.NoError();
+    return bor_ptr->GetXSecCurveType();
 }
 
 void ReadFileAirfoil( const string& xsec_id, const string& file_name )
@@ -3654,6 +3870,10 @@ void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
 
     if ( ( xsec->GetXSecCurve()->GetType() != XS_FOUR_SERIES ) ||
          ( xsec->GetXSecCurve()->GetType() != XS_SIX_SERIES ) ||
+         ( xsec->GetXSecCurve()->GetType() != XS_FOUR_DIGIT_MOD ) ||
+         ( xsec->GetXSecCurve()->GetType() != XS_FIVE_DIGIT ) ||
+         ( xsec->GetXSecCurve()->GetType() != XS_FIVE_DIGIT_MOD ) ||
+         ( xsec->GetXSecCurve()->GetType() != XS_ONE_SIX_SERIES ) ||
          ( xsec->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL ) )
     {
         ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitAfCST::XSec Not Fittable Airfoil Type"  );
@@ -4978,7 +5198,6 @@ void WriteCfEqnCSVFile(const std::string & file_name)
 void WritePartialCfMethodCSVFile(const std::string & file_name)
 {
     Results* res = ResultsMgr.CreateResults("Friction_Coefficient");
-    char str[256];
     vector < double > cf_vec, ref_leng;
     vector < double > lam_perc_array = linspace( 0, 100, 1000 );
     vector < double > ReyIn_array, reql_array;

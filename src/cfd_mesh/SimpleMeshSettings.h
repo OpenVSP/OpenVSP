@@ -10,6 +10,7 @@
 #if !defined(SIMPLEMESHSETTINGS_SIMPLEMESHSETTINGS__INCLUDED_)
 #define SIMPLEMESHSETTINGS_SIMPLEMESHSETTINGS__INCLUDED_
 
+#include "Defines.h"
 #include "APIDefines.h"
 #include "Vehicle.h"
 #include "MeshCommonSettings.h"

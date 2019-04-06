@@ -585,7 +585,7 @@ void Results::WriteParasiteDragFile( const string & file_name )
         string LrefLabel = Find("Lref_Label").GetString(0);
         string fLabel = Find("f_Label").GetString(0);
 
-        fprintf(file_id, "Component Name,%s,%s,t/c or d/l,FF,FF Eqn Type,Re (1e6),%% Lam,Cf (1e-3),Q (Interference Factor),f,Cd,%% Total \n",
+        fprintf(file_id, "Component Name,%s,%s,t/c or d/l,FF,FF Eqn Type,Re,%% Lam,Cf (1e-3),Q (Interference Factor),f,Cd,%% Total \n",
             SwetLabel.c_str(), LrefLabel.c_str() ); //, fLabel.c_str());
 
         int num_comp = Find("Num_Comp").GetInt(0);
@@ -624,7 +624,7 @@ void Results::WriteParasiteDragFile( const string & file_name )
         }
 
         fprintf(file_id, "\n");
-        fprintf(file_id, "%s \n", "Excrescences");
+        fprintf(file_id, "Excrescences, Type, Input\n");
 
         int num_excres = Find("Num_Excres").GetInt(0);
         for (int i = 0; i < num_excres; i++)
@@ -632,11 +632,12 @@ void Results::WriteParasiteDragFile( const string & file_name )
             string label = Find("Excres_Label").GetString(i);
             string type = Find("Excres_Type").GetString(i);
             double input = Find("Excres_Input").GetDouble(i);
+            double f = Find( "Excres_f" ).GetDouble( i );
             double amount = Find("Excres_Amount").GetDouble(i);
             double perctotalcd = Find("Excres_PercTotalCD").GetDouble(i);
 
-            fprintf(file_id, " %s, %s, %f, , , , , , , , , %f, %f \n",
-                label.c_str(), type.c_str(), input, amount, perctotalcd);
+            fprintf(file_id, " %s, %s, %f, , , , , , , ,%f, %f, %f \n",
+                label.c_str(), type.c_str(), input, f, amount, perctotalcd);
         }
 
         double geomftotal = Find("Geom_f_Total").GetDouble(0);
@@ -760,11 +761,14 @@ void Results::WriteBEMFile( const string & file_name )
         vector < double > twist_vec = Find( "Twist" ).GetDoubleData();
         vector < double > rake_vec = Find( "Rake" ).GetDoubleData();
         vector < double > skew_vec = Find( "Skew" ).GetDoubleData();
+        vector < double > sweep_vec = Find( "Sweep" ).GetDoubleData();
+        vector < double > thick_vec = Find( "Thick" ).GetDoubleData();
+        vector < double > cli_vec = Find( "CLi" ).GetDoubleData();
 
-        fprintf( fid, "\nRadius/R, Chord/R, Twist (deg), Rake/R, Skew/R\n" );
+        fprintf( fid, "\nRadius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi\n" );
         for ( int i = 0; i < num_sect; i++ )
         {
-            fprintf( fid, "%.8f, %.8f, %.8f, %.8f, %.8f\n", r_vec[i], chord_vec[i], twist_vec[i], rake_vec[i], skew_vec[i] );
+            fprintf( fid, "%.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f\n", r_vec[i], chord_vec[i], twist_vec[i], rake_vec[i], skew_vec[i], sweep_vec[i], thick_vec[i], cli_vec[i] );
         }
 
         for ( int i = 0; i < num_sect; i++ )

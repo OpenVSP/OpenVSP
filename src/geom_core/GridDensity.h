@@ -15,6 +15,7 @@
 #include <windows.h>
 #endif
 
+#include "Defines.h"
 #include <stdio.h>
 #include "Vec2d.h"
 #include "Vec3d.h"

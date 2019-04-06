@@ -89,19 +89,51 @@ void main()
 
     Update();
     
+    string struct_id = GetFeaStructID( pod_id, struct_ind );
+    
     //==== Save Vehicle to File ====//
     Print( string( "--> Saving Vehicle to FEAMeshTest.vsp3" ) );
     string fname = "FEAMeshTest.vsp3";
-    WriteVSPFile( fname, 0 );
+    WriteVSPFile( fname, 0 ); // SET_ALL
 
+    //==== Clear and Reload the Model ====//
+    ClearVSPModel();
+    
+    ReadVSPFile( fname );
+    
+    //==== Get Parent Geom ID and Index ====//
+    string parent_id = GetFeaStructParentGeomID( struct_id );
+    if ( parent_id != pod_id )
+    {
+        Print( "Error: FEA Structure Parent Geom ID Does Not Match\n");
+    }
+    
+    struct_ind = GetFeaStructIndex( struct_id );
+    
+    //==== Add Fixed Point ====//
+    string fix_pnt_id = AddFeaPart( parent_id, struct_ind, FEA_FIX_POINT );
+    
+    SetParmVal( FindParm( fix_pnt_id, "PosU", "FeaFixPoint" ), 0.2 );
+    SetParmVal( FindParm( fix_pnt_id, "PosW", "FeaFixPoint" ), 0.7 );
+    
+    Update();
+    
     //=== Set Export File Name ===//
     string export_name = "FEAMeshTest_calculix.dat";
-    SetFeaMeshFileName( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME, export_name );
+    SetFeaMeshFileName( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME, export_name );
     Print( string( "--> FEA Mesh Export File Name Set to FEAMeshTest_calculix.dat" ) );
 
     //==== Generate FEA Mesh and Export ====//
     Print( string( "--> Generating FeaMesh " ) );
-    ComputeFeaMesh( pod_id, struct_ind, FEA_CALCULIX_FILE_NAME );
+    ComputeFeaMesh( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME );
+    // Could also call ComputeFeaMesh ( struct_id, FEA_CALCULIX_FILE_NAME );
+    
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
     
     Print( string( "COMPLETE\n" ) );
 }

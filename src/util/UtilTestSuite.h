@@ -11,7 +11,7 @@
 #if !defined(VSPUTILTESTSUITE__INCLUDED_)
 #define VSPUTILTESTSUITE__INCLUDED_
 
-
+#include "Defines.h"
 #include "UsingCpp11.h"
 #include "cpptest.h"
 #include "MessageMgr.h"

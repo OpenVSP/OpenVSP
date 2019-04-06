@@ -1,7 +1,7 @@
 """Test the OpenVSP Python Interface."""
 from __future__ import print_function
 
-import vsp as vsp
+import openvsp as vsp
 
 stdout = vsp.cvar.cstdout
 errorMgr = vsp.ErrorMgrSingleton_getInstance()

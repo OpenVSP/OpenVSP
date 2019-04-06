@@ -11,6 +11,7 @@
 #if !defined(SCRIPTMGR__INCLUDED_)
 #define SCRIPTMGR__INCLUDED_
 
+#include "Defines.h"
 
 #include <angelscript.h>
 #include <scriptstdstring/scriptstdstring.h>
@@ -134,6 +135,7 @@ private:
     vector< vector< double > > m_ProxyDoubleMatArray;
 
     CScriptArray* GetGeomTypes();
+    CScriptArray* PasteGeomClipboard( const string & parent );
     CScriptArray* FindGeoms();
     CScriptArray* FindGeomsWithName( const string & name );
     CScriptArray* GetGeomParmIDs( const string & geom_id );

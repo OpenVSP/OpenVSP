@@ -48,6 +48,7 @@ GroupLayout.cpp
 GuiDevice.cpp
 HingeScreen.cpp
 IGESOptionsScreen.cpp
+IGESStructureOptionsScreen.cpp
 ImportScreen.cpp
 MainGLWindow.cpp
 MainGLWindow.cpp
@@ -83,6 +84,7 @@ SnapToScreen.cpp
 StackScreen.cpp
 StructScreen.cpp
 STEPOptionsScreen.cpp
+STEPStructureOptionsScreen.cpp
 STLOptionsScreen.cpp
 SubGLWindow.cpp
 SurfaceIntersectionScreen.cpp
@@ -118,6 +120,7 @@ GroupLayout.h
 GuiDevice.h
 HingeScreen.h
 IGESOptionsScreen.h
+IGESStructureOptionsScreen.h
 ImportScreen.h
 MainGLWindow.h
 MainGLWindow.h
@@ -153,6 +156,7 @@ SnapToScreen.h
 StackScreen.h
 StructScreen.h
 STEPOptionsScreen.h
+STEPStructureOptionsScreen.h
 STLOptionsScreen.h
 SubGLWindow.h
 SurfaceIntersectionScreen.h
