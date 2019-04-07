@@ -89,6 +89,59 @@ void GuiInterface::PopupMsg( const char* message, bool lock_out )
 
 }
 
+void GuiInterface::ScreenGrab( const std::string &fname, int w, int h, bool transparentBG )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        m_ScreenMgr->ForceUpdate();
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->ScreenGrab( fname, w, h, transparentBG );
+        }
+    }
+#endif
+}
 
+void GuiInterface::SetViewAxis( bool vaxis )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->SetViewAxis( vaxis );
+        }
+    }
+#endif
+}
 
+void GuiInterface::SetShowBorders( bool brdr )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->SetShowBorders( brdr );
+        }
+    }
+#endif
+}
 
+void GuiInterface::SetBackground( double r, double g, double b )
+{
+#ifdef VSP_USE_FLTK
+    if ( m_ScreenMgr )
+    {
+        MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
+        if( main )
+        {
+            main->SetBackground( r, g, b );
+        }
+    }
+#endif
+}

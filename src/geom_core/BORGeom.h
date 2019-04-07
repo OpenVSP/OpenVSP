@@ -11,6 +11,7 @@
 #if !defined(VSP_BOR_GEOM__INCLUDED_)
 #define VSP_BOR_GEOM__INCLUDED_
 
+#include "Defines.h"
 #include "Geom.h"
 #include "XSec.h"
 
@@ -29,6 +30,7 @@ public:
     virtual void OffsetXSecs( double off );
 
     virtual void SetXSecCurveType( int type );
+    virtual int GetXSecCurveType();
 
     XSecCurve* GetXSecCurve()       { return m_XSCurve; }
 

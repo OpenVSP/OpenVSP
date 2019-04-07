@@ -45,7 +45,7 @@ protected:
 
 };
 
-class ActionMenuItem : BaseMenuItem
+class ActionMenuItem : public BaseMenuItem
 {
 public:
 
@@ -63,5 +63,20 @@ protected:
 
 };
 
+class VSPCheckMenuItem : ActionMenuItem
+{
+public:
+
+    void Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, std::string mpath, int scut = 0 );
+
+    static void staticActionCB( Fl_Widget *w, void* data )
+    {
+        ( ( VSPCheckMenuItem* )data )->ActionCallBack( data );
+    }
+
+    void Update( bool val );
+
+protected:
+};
 
 #endif // !defined(MENUITEM__INCLUDED_)

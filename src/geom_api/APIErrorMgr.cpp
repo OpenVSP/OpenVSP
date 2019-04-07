@@ -45,6 +45,8 @@ ErrorMgrSingleton::ErrorMgrSingleton()
 
 ErrorMgrSingleton::~ErrorMgrSingleton()
 {
+    while ( !m_ErrorStack.empty() )
+        m_ErrorStack.pop();
     MessageMgr::getInstance().UnRegister( this );
 }
 

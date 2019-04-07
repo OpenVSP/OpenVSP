@@ -102,7 +102,7 @@ xmlNodePtr PCurve::DecodeXml( xmlNodePtr & node )
 
 void PCurve::AddPt()
 {
-    Parm* p = ParmMgr.CreateParm( PARM_DOUBLE_TYPE );
+    Parm* p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
     if ( p )
     {
         int i = m_TParmVec.size();
@@ -114,7 +114,7 @@ void PCurve::AddPt()
     }
 
 
-    p = ParmMgr.CreateParm( PARM_DOUBLE_TYPE );
+    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
     if ( p )
     {
         int i = m_ValParmVec.size();
@@ -758,12 +758,32 @@ double PCurve::IntegrateAF( double r0 )
     return m_Curve.IntegrateAF( r0 );
 }
 
+double PCurve::IntegrateCLi( double r0 )
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_Curve.IntegrateCLi( r0 );
+}
+
 void PCurve::BinCubicTMap( vector < double > &tmap, vector < double > &tdisc )
 {
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
     m_Curve.BinCubicTMap( tmap, tdisc );
 }
 
 void PCurve::GetTMap( vector < double > &tmap, vector < double > &tdisc )
 {
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
     m_Curve.GetTMap( tmap, tdisc );
 }

@@ -11,6 +11,7 @@
 #if !defined(VEHICLE__INCLUDED_)
 #define VEHICLE__INCLUDED_
 
+#include "Defines.h"
 #include "Parm.h"
 #include "ParmContainer.h"
 #include "ParmUndo.h"
@@ -193,9 +194,14 @@ public:
     void WriteX3DViewpointProps( xmlNodePtr node, string orients, string cents, string posits, string sfov, string name );
     void WritePovRayFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set );
+    void WriteStructureSTEPFile( const string & file_name );
     void WriteIGESFile( const string & file_name, int write_set );
     void WriteIGESFile( const string & file_name, int write_set, int lenUnit, bool splitSubSurfs, bool splitSurfs,
                         bool toCubic, double toCubicTol, bool trimTE, bool labelID, bool labelName,
+                        bool labelSurfNo, bool labelSplitNo, int delimType );
+    void WriteStructureIGESFile( const string & file_name );
+    void WriteStructureIGESFile( const string & file_name, int feaMeshStructIndex, bool splitSurfs,
+                        bool toCubic, double toCubicTol, bool labelID, bool labelName,
                         bool labelSurfNo, bool labelSplitNo, int delimType );
 
     void WriteBEMFile( const string & file_name, int write_set );
@@ -315,6 +321,14 @@ public:
     BoolParm m_STEPToCubic;
     Parm m_STEPToCubicTol;
     BoolParm m_STEPTrimTE;
+    BoolParm m_STEPExportPropMainSurf;
+
+    IntParm m_STEPStructureExportIndex;
+    Parm m_STEPStructureTol;
+    BoolParm m_STEPStructureSplitSurfs;
+    BoolParm m_STEPStructureMergePoints;
+    BoolParm m_STEPStructureToCubic;
+    Parm m_STEPStructureToCubicTol;
 
     IntParm m_IGESLenUnit;
     BoolParm m_IGESSplitSurfs;
@@ -322,12 +336,24 @@ public:
     BoolParm m_IGESToCubic;
     Parm m_IGESToCubicTol;
     BoolParm m_IGESTrimTE;
+    BoolParm m_IGESExportPropMainSurf;
 
     BoolParm m_IGESLabelID;
     BoolParm m_IGESLabelName;
     BoolParm m_IGESLabelSurfNo;
     BoolParm m_IGESLabelSplitNo;
     IntParm m_IGESLabelDelim;
+
+    IntParm m_IGESStructureExportIndex;
+    BoolParm m_IGESStructureSplitSurfs;
+    BoolParm m_IGESStructureToCubic;
+    Parm m_IGESStructureToCubicTol;
+
+    BoolParm m_IGESStructureLabelID;
+    BoolParm m_IGESStructureLabelName;
+    BoolParm m_IGESStructureLabelSurfNo;
+    BoolParm m_IGESStructureLabelSplitNo;
+    IntParm m_IGESStructureLabelDelim;
 
     //==== DXF Export ====//
     IntParm m_DXFLenUnit;
@@ -372,6 +398,7 @@ public:
     string m_AFFileDir;
 
     BoolParm m_STLMultiSolid;
+    BoolParm m_STLExportPropMainSurf;
 
     BoolParm m_exportCompGeomCsvFile;
     BoolParm m_exportDragBuildTsvFile;
@@ -386,6 +413,8 @@ public:
     IntParm m_StructUnit;
 
 protected:
+
+    virtual void SetExportPropMainSurf( bool b );
 
     vector< Geom* > m_GeomStoreVec;                 // All Geom Ptrs
 

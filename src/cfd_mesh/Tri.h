@@ -11,6 +11,7 @@
 #if !defined(TRI_TRI__INCLUDED_)
 #define TRI_TRI__INCLUDED_
 
+#include "Defines.h"
 #include "Vec2d.h"
 #include "Vec3d.h"
 

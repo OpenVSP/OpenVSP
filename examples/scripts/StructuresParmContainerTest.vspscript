@@ -56,4 +56,11 @@ void main()
     parm_container_id = FindContainer( "Example_Struct", struct_ind );
     display_id = string("New Structure Parm Container ID: ") + parm_container_id + string("\n");
     Print( display_id );
+    
+        //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
 }

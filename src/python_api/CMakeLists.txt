@@ -10,6 +10,12 @@ IF( SWIG_FOUND )
 	FIND_PACKAGE(PythonLibs)
 ENDIF( SWIG_FOUND )
 
+# CMake 3.9 and below used 'LIBXML2_LIBRARIES' as the name of
+# the cache entry storing the find_library result.  Use the
+# value if it was set by the project or user.
+if(DEFINED LIBXML2_LIBRARY AND NOT DEFINED LIBXML2_LIBRARIES)
+  set(LIBXML2_LIBRARIES ${LIBXML2_LIBRARY})
+endif()
 
 IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 
@@ -84,9 +90,18 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		${LIBIGES_LIBRARIES}
 	)
 
-	INSTALL( TARGETS _vsp LIBRARY DESTINATION python )
-	INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp.py DESTINATION python )
-	INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/test.py DESTINATION python )
+	CONFIGURE_FILE(packages/openvsp/setup.py.in python/packages/openvsp/setup.py)
+	CONFIGURE_FILE(packages/openvsp/conda-recipe/meta.yaml.in python/packages/openvsp/conda-recipe/meta.yaml)
+
+	INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/packages/ DESTINATION python
+			PATTERN setup.py.in EXCLUDE
+			PATTERN meta.yaml.in EXCLUDE)
+
+	INSTALL( TARGETS _vsp LIBRARY DESTINATION python/openvsp/openvsp )
+	INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp.py DESTINATION python/openvsp/openvsp )
+	INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/test.py DESTINATION python/openvsp/openvsp/tests )
+	INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/setup.py DESTINATION python/openvsp)
+	INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/conda-recipe/meta.yaml DESTINATION python/openvsp/conda-recipe)
 
 	IF( NOT VSP_NO_GRAPHICS )
 

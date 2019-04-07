@@ -154,7 +154,8 @@ void LayoutMgr::draw( Scene * scene, int x, int y )
         Probe::updateMouseLocation( mouseInWorld );
 
         // Clear Color and Depth Buffer.
-        glClearColor( 0.95f, 0.95f, 0.95f, 1.0f );
+        glClearColor( 1.0f, 1.0f, 1.0f, 0.0f );
+
         glClearDepth( 1.0 );
 
         glDepthMask( GL_TRUE );
@@ -166,7 +167,7 @@ void LayoutMgr::draw( Scene * scene, int x, int y )
         glHint( GL_POLYGON_SMOOTH_HINT, GL_NICEST );
         glHint( GL_LINE_SMOOTH_HINT, GL_NICEST );
 
-        glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );
+        glBlendFuncSeparate( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA, GL_ONE_MINUS_DST_ALPHA, GL_ONE );
         glEnable( GL_BLEND );
 
         glAlphaFunc( GL_GREATER, 0 );

@@ -10,6 +10,7 @@
 #ifndef WAVEDRAGSCREEN_H
 #define WAVEDRAGSCREEN_H
 
+#include "Defines.h"
 #include "ScreenMgr.h"
 #include "ScreenBase.h"
 #include "GuiDevice.h"

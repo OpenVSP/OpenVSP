@@ -82,10 +82,6 @@ public:
     GeomGuiDraw();
     virtual ~GeomGuiDraw();
 
-    enum { DISPLAY_BEZIER, DISPLAY_DEGEN_SURF, DISPLAY_DEGEN_PLATE, DISPLAY_DEGEN_CAMBER };
-
-    enum { GEOM_DRAW_WIRE, GEOM_DRAW_HIDDEN, GEOM_DRAW_SHADE, GEOM_DRAW_TEXTURE, GEOM_DRAW_NONE };
-
     void SetDisplayType( int t )
     {
         m_DisplayType = t;
@@ -496,6 +492,7 @@ public:
     }
     virtual FeaStructure* AddFeaStruct( bool initskin, int surf_index );
     virtual FeaStructure* GetFeaStruct( int fea_struct_ind );
+    virtual int GetFeaStructIndex( const string & structure_id );
     virtual void DeleteFeaStruct( int index );
     virtual bool ValidGeomFeaStructInd( int index );
     virtual int NumGeomFeaStructs()
@@ -685,6 +682,8 @@ protected:
     vector<VspSurf> m_SurfVec;
     vector<int> m_SurfIndxVec;
     vector< vector< int > > m_SurfSymmMap;
+    vector<int> m_SurfCopyIndx;
+    vector< Matrix4d > m_TransMatVec; // Vector of transformation matrixes
     vector< Matrix4d > m_FeaTransMatVec; // Vector of transformation matrixes
     vector<DrawObj> m_WireShadeDrawObj_vec;
     vector<DrawObj> m_FeatureDrawObj_vec;

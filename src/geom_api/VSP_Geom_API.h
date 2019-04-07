@@ -12,6 +12,7 @@
 #if !defined(VSPAPI__INCLUDED_)
 #define VSPAPI__INCLUDED_
 
+#include "Defines.h"
 
 #include "APIErrorMgr.h"
 #include "Vec3d.h"
@@ -122,6 +123,12 @@ extern void PrintResults( const std::string &results_id );
 
 //======================== GUI Functions ================================//
 extern void StartGui( );
+extern void ScreenGrab( const string & fname, int w, int h, bool transparentBG );
+extern void SetViewAxis( bool vaxis );
+extern void SetShowBorders( bool brdr );
+extern void SetGeomDrawType(const string &geom_id, int type);
+extern void SetGeomDisplayType(const string &geom_id, int type);
+extern void SetBackground( double r, double g, double b );
 
 //======================== Geom Functions ================================//
 extern std::vector<std::string> GetGeomTypes();
@@ -138,6 +145,7 @@ extern std::string FindGeom( const std::string & name, int index );
 extern void SetGeomName( const std::string & geom_id, const std::string & name );
 extern std::string GetGeomName( const std::string & geom_id );
 extern std::vector<std::string> GetGeomParmIDs( const std::string & geom_id );
+extern std::string GetGeomTypeName( const std::string & geom_id );
 extern std::string GetParm( const std::string & geom_id, const std::string & name, const std::string & group );
 extern int GetNumXSecSurfs( const std::string & geom_id );
 extern int GetNumMainSurfs( const std::string & geom_id );
@@ -160,19 +168,23 @@ extern int GetSubSurfType( const std::string & sub_id );
 extern std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id );
 
 extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int surfindex = 0 );
-extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_id );
-extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct_id );
-extern void SetFeaStructName( const std::string & geom_id, int fea_struct_id, const std::string & name );
+extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_ind );
+extern std::string GetFeaStructID( const std::string & geom_id, int fea_struct_ind );
+extern int GetFeaStructIndex( const std::string & struct_id );
+extern std::string GetFeaStructParentGeomID( const std::string & struct_id );
+extern std::string GetFeaStructName( const std::string & geom_id, int fea_struct_ind );
+extern void SetFeaStructName( const std::string & geom_id, int fea_struct_ind, const std::string & name );
 extern void SetFeaPartName( const std::string & part_id, const std::string & name );
-extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_id, int type );
-extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_id, const std::string & part_id );
-extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_id, int type );
-extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_id, const std::string & ss_id );
+extern std::string AddFeaPart( const std::string & geom_id, int fea_struct_ind, int type );
+extern void DeleteFeaPart( const std::string & geom_id, int fea_struct_ind, const std::string & part_id );
+extern std::string AddFeaSubSurf( const std::string & geom_id, int fea_struct_ind, int type );
+extern void DeleteFeaSubSurf( const std::string & geom_id, int fea_struct_ind, const std::string & ss_id );
 extern std::string AddFeaMaterial();
 extern std::string AddFeaProperty( int property_type = 0 );
-extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_id, int type, double val );
-extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_id, int file_type, const string & file_name );
-extern void ComputeFeaMesh( const std::string & geom_id, int fea_struct_id, int file_type );
+extern void SetFeaMeshVal( const std::string & geom_id, int fea_struct_ind, int type, double val );
+extern void SetFeaMeshFileName( const std::string & geom_id, int fea_struct_ind, int file_type, const string & file_name );
+extern void ComputeFeaMesh( const std::string & geom_id, int fea_struct_ind, int file_type );
+extern void ComputeFeaMesh( const std::string & struct_id, int file_type );
 
 extern void CutXSec( const std::string & geom_id, int index );
 extern void CopyXSec( const std::string & geom_id, int index );
@@ -208,6 +220,8 @@ extern void SetXSecTanAngles( const std::string& xsec_id, int side, double top, 
 extern void SetXSecTanSlews( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecTanStrengths( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
 extern void SetXSecCurvatures( const std::string& xsec_id, int side, double top, double right, double bottom, double left );
+extern void ChangeBORXSecShape( const string & geom_id, int type );
+extern int GetBORXSecShape( const string & geom_id );
 extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name );
 extern void SetAirfoilPnts( const std::string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
 extern std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false );

@@ -28,6 +28,13 @@ StackGeom::StackGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_OrderPolicy.Init( "OrderPolicy", "Design", this, STACK_FREE, STACK_FREE, NUM_STACK_POLICY - 1 );
     m_OrderPolicy.SetDescript( "XSec ordering policy for stack" );
 
+    //==== rename capping controls for stack specific terminology ====//
+    m_CapUMinOption.SetDescript("Type of End Cap on Stack Nose");
+    m_CapUMinOption.Parm::Set(NO_END_CAP);
+    m_CapUMinTess.SetDescript("Number of tessellated curves on Stack Nose and Tail");
+    m_CapUMaxOption.SetDescript("Type of End Cap on Stack Tail");
+    m_CapUMaxOption.Parm::Set(NO_END_CAP);
+
     //==== Init Parms ====//
     m_TessU = 16;
     m_TessW = 17;
@@ -176,12 +183,46 @@ void StackGeom::UpdateSurf()
 
 void StackGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen  )
 {
-    m_SurfVec[indx].Tesselate( m_TessUVec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
+    vector < int > tessvec;
+
+    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+
+    for ( int i = 0; i < m_TessUVec.size(); i++ )
+    {
+        tessvec.push_back( m_TessUVec[i] );
+    }
+
+    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+
+    m_SurfVec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
 void StackGeom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
 {
-    m_SurfVec[indx].SplitTesselate( m_TessUVec, m_TessW(), pnts, norms, m_CapUMinTess() );
+    vector < int > tessvec;
+
+    if (m_CapUMinOption()!=NO_END_CAP && m_CapUMinSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+
+    for ( int i = 0; i < m_TessUVec.size(); i++ )
+    {
+        tessvec.push_back( m_TessUVec[i] );
+    }
+
+    if (m_CapUMaxOption()!=NO_END_CAP && m_CapUMaxSuccess[ m_SurfIndxVec[indx] ] )
+    {
+        tessvec.push_back( m_CapUMinTess() );
+    }
+
+    m_SurfVec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess() );
 }
 
 //==== Compute Rotation Center ====//
@@ -292,7 +333,7 @@ void StackGeom::PasteActiveXSec()
 //==== Insert XSec ====//
 void StackGeom::InsertXSec( )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 )
+    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
     {
         return;
     }
@@ -307,7 +348,7 @@ void StackGeom::InsertXSec( )
 //==== Insert XSec ====//
 void StackGeom::InsertXSec( int type )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 )
+    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
     {
         return;
     }

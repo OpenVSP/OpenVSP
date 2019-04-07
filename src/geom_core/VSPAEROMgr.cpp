@@ -7,6 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include "Defines.h"
 #include "APIDefines.h"
 #include "LinkMgr.h"
 #include "MeshGeom.h"
@@ -377,9 +378,10 @@ void VSPAEROMgrSingleton::Update()
     UpdateRotorDisks();
 
     UpdateCompleteControlSurfVec();
-    UpdateActiveControlSurfVec();
 
     UpdateControlSurfaceGroups();
+
+    UpdateActiveControlSurfVec();
 
     UpdateSetupParmLimits();
 }
@@ -904,7 +906,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
 {
     string retStr = string();
 
-    UpdateFilenames();
+    Update(); // Ensure correct control surface and rotor groups when this function is called through the API
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( !veh )
@@ -1689,6 +1691,16 @@ void VSPAEROMgrSingleton::MonitorSolver( FILE * logFile )
         SleepForMilliseconds( 100 );
         runflag = m_SolverProcess.IsRunning();
     }
+
+#ifdef WIN32
+    CloseHandle( m_SolverProcess.m_StdoutPipe[0] );
+    m_SolverProcess.m_StdoutPipe[0] = NULL;
+#else
+    close( m_SolverProcess.m_StdoutPipe[0] );
+    m_SolverProcess.m_StdoutPipe[0] = -1;
+#endif
+
+    free( buf );
 }
 
 void VSPAEROMgrSingleton::AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
@@ -3554,7 +3566,7 @@ xmlNodePtr ControlSurfaceGroup::DecodeXml( xmlNodePtr & node )
 void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
 {
     // Add deflection gain parm to ControlSurfaceGroup container
-    Parm* p = ParmMgr.CreateParm( PARM_DOUBLE_TYPE );
+    Parm* p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
     char str[256];
 
     if ( p )

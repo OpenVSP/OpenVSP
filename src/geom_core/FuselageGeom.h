@@ -11,6 +11,7 @@
 #if !defined(VSPFUSELAGEGEOM__INCLUDED_)
 #define VSPFUSELAGEGEOM__INCLUDED_
 
+#include "Defines.h"
 #include "Geom.h"
 #include "XSec.h"
 #include "XSecCurve.h"

@@ -57,6 +57,13 @@ Vehicle::Vehicle()
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPToCubicTol.Init( "ToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPTrimTE.Init( "TrimTE", "STEPSettings", this, false, 0, 1 );
+    m_STEPExportPropMainSurf.Init( "ExportPropMainSurf", "STEPSettings", this, false, 0, 1 );
+
+    m_STEPStructureTol.Init( "StructureTolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
+    m_STEPStructureSplitSurfs.Init( "StructureSplitSurfs", "STEPSettings", this, true, 0, 1 );
+    m_STEPStructureMergePoints.Init( "StructureMergePoints", "STEPSettings", this, true, 0, 1 );
+    m_STEPStructureToCubic.Init( "StructureToCubic", "STEPSettings", this, false, 0, 1 );
+    m_STEPStructureToCubicTol.Init( "StructureToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
 
     m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_FT );
     m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
@@ -64,12 +71,24 @@ Vehicle::Vehicle()
     m_IGESToCubic.Init( "ToCubic", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
     m_IGESTrimTE.Init( "TrimTE", "IGESSettings", this, false, 0, 1 );
+    m_IGESExportPropMainSurf.Init( "ExportPropMainSurf", "IGESSettings", this, false, 0, 1 );
 
     m_IGESLabelID.Init( "LabelID", "IGESSettings", this, true, 0, 1 );
     m_IGESLabelName.Init( "LabelName", "IGESSettings", this, true, 0, 1 );
     m_IGESLabelSurfNo.Init( "LabelSurfNo", "IGESSettings", this, true, 0, 1 );
     m_IGESLabelSplitNo.Init( "LabelSplitNo", "IGESSettings", this, true, 0, 1 );
     m_IGESLabelDelim.Init( "LabelDelim", "IGESSettings", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
+
+    m_IGESStructureExportIndex.Init( "StructureToCubicTol", "IGESSettings", this, 0, 0, 1000 );
+    m_IGESStructureSplitSurfs.Init( "StructureSplitSurfs", "IGESSettings", this, true, 0, 1 );
+    m_IGESStructureToCubic.Init( "StructureToCubic", "IGESSettings", this, false, 0, 1 );
+    m_IGESStructureToCubicTol.Init( "StructureToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
+
+    m_IGESStructureLabelID.Init( "StructureLabelID", "IGESSettings", this, true, 0, 1 );
+    m_IGESStructureLabelName.Init( "StructureLabelName", "IGESSettings", this, true, 0, 1 );
+    m_IGESStructureLabelSurfNo.Init( "StructureLabelSurfNo", "IGESSettings", this, true, 0, 1 );
+    m_IGESStructureLabelSplitNo.Init( "StructureLabelSplitNo", "IGESSettings", this, true, 0, 1 );
+    m_IGESStructureLabelDelim.Init( "StructureLabelDelim", "IGESSettings", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
 
     m_DXFLenUnit.Init( "LenUnit", "DXFSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_UNITLESS );
     m_DXFLenUnit.SetDescript( "Sets DXF Header Units; Numeric Values Unchanged" );
@@ -123,6 +142,7 @@ Vehicle::Vehicle()
     m_AFAppendGeomIDFlag.SetDescript( "Airfoil W Tesselation Factor" );
 
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
+    m_STLExportPropMainSurf.Init( "ExportPropMainSurf", "STLSettings", this, false, 0, 1 );
 
     m_UpdatingBBox = false;
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
@@ -273,6 +293,7 @@ void Vehicle::Init()
     m_SVGView4_rot.Set( vsp::ROT_0 );
 
     m_STLMultiSolid.Set( false );
+    m_STLExportPropMainSurf.Set( false );
 
     m_BEMPropID = string();
 
@@ -1171,7 +1192,7 @@ vector< DrawObj* > Vehicle::GetDrawObjs()
     vector< DrawObj* > draw_obj_vec;
 
     //==== Traverse All Active Displayed Geom and Load DrawObjs ====//
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         geom_vec[i]->LoadDrawObjs( draw_obj_vec );
@@ -1182,7 +1203,7 @@ vector< DrawObj* > Vehicle::GetDrawObjs()
 
 void Vehicle::ResetDrawObjsGeomChangedFlags()
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         geom_vec[i]->ResetGeomChangedFlag();
@@ -1209,7 +1230,7 @@ void Vehicle::SetSetName( int index, const string& name )
 //=== Set 'Show' set to specified index set ===//
 void Vehicle::ShowOnlySet( int index )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         bool f = geom_vec[i]->GetSetFlag( index );
@@ -1221,7 +1242,7 @@ void Vehicle::ShowOnlySet( int index )
 
 void Vehicle::NoShowSet( int index )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         bool f = geom_vec[i]->GetSetFlag( index );
@@ -1236,7 +1257,7 @@ void Vehicle::NoShowSet( int index )
 
 void Vehicle::ShowSet( int index )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         bool f = geom_vec[i]->GetSetFlag( index );
@@ -1254,7 +1275,7 @@ vector< string > Vehicle::GetGeomSet( int index )
 {
     vector< string > geom_id_vec;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i]->GetSetFlag( index ) )
@@ -1269,7 +1290,7 @@ void Vehicle::HideAllExcept( string id )
 {
     vector< string > geom_id_vec;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         Geom* geom_ptr = geom_vec[i];
@@ -1290,7 +1311,7 @@ void Vehicle::HideAll()
 {
     vector< string > geom_id_vec;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         Geom* geom_ptr = geom_vec[i];
@@ -1364,7 +1385,7 @@ void Vehicle::AddType( const string & geom_id )
 vector< string > Vehicle::GetValidTypeGeoms()
 {
     vector< string > geom_id_vec;
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i]->GetType().m_Type != CUSTOM_GEOM_TYPE )
@@ -1429,7 +1450,7 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
 
     MaterialMgr.EncodeXml( node );
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i]->GetSetFlag( set ) )
@@ -1553,8 +1574,6 @@ xmlNodePtr Vehicle::DecodeXmlGeomsOnly( xmlNodePtr & node )
             }
         }
     }
-
-    ForceUpdate();
 
     LinkMgr.DecodeXml( node );
     AdvLinkMgr.DecodeXml( node );
@@ -1703,7 +1722,7 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
 //==== Write Cross Section File ====//
 void Vehicle::WriteXSecFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     int geom_cnt = 0;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -1734,7 +1753,7 @@ void Vehicle::WriteXSecFile( const string & file_name, int write_set )
 //==== Write Formatted PLOT3D File ====//
 void Vehicle::WritePLOT3DFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     int geom_cnt = 0;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -1775,7 +1794,7 @@ void Vehicle::WritePLOT3DFile( const string & file_name, int write_set )
 //==== Check for an existing mesh in set ====//
 bool Vehicle::ExistMesh( int set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return false;
@@ -1798,7 +1817,7 @@ vector < string > Vehicle::GetPtCloudGeoms()
 {
     vector < string > ptclouds;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return ptclouds;
@@ -1818,7 +1837,7 @@ vector < string > Vehicle::GetPtCloudGeoms()
 //==== Write STL File ====//
 void Vehicle::WriteSTLFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -1857,7 +1876,7 @@ void Vehicle::WriteSTLFile( const string & file_name, int write_set )
 //==== Write STL File ====//
 void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -1871,6 +1890,8 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
             Geom* gPtr = FindGeom( mesh_id );
             if ( gPtr )
             {
+                MeshGeom* mg = dynamic_cast<MeshGeom*>( gPtr );
+                mg->SubTagTris( true );
                 geom_vec.push_back( gPtr );
                 gPtr->Update();
             }
@@ -1901,7 +1922,7 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
         for ( int i = 0; i < ( int ) tags.size(); i++ )
         {
             std::string tagname = SubSurfaceMgr.GetTagNames( i );
-            fprintf( file_id, "solid %s\n", tagname.c_str() );
+            fprintf( file_id, "solid %d_%s\n", tags[i], tagname.c_str() );
 
             for ( int j = 0 ; j < ( int )geom_vec.size() ; j++ )
             {
@@ -1912,7 +1933,7 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
                     mg->WriteStl( file_id, tags[i] );
                 }
             }
-            fprintf( file_id, "endsolid %s\n", tagname.c_str() );
+            fprintf( file_id, "endsolid %d_%s\n", tags[i], tagname.c_str() );
         }
 
         fclose( file_id );
@@ -1922,7 +1943,7 @@ void Vehicle::WriteTaggedMSSTLFile( const string & file_name, int write_set )
 //==== Write Facet File ====//
 void Vehicle::WriteFacetFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -2019,7 +2040,7 @@ void Vehicle::WriteFacetFile( const string & file_name, int write_set )
 //==== Write Tri File ====//
 void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( geom_vec.size()==0 )
     {
         printf("WARNING: No geometry to write \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
@@ -2116,7 +2137,7 @@ void Vehicle::WriteTRIFile( const string & file_name, int write_set )
 //==== Write OBJ File ====//
 void Vehicle::WriteOBJFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( geom_vec.size()==0 )
     {
         printf("WARNING: No geometry to write \n\tFile: %s \tLine:%d\n",__FILE__,__LINE__);
@@ -2199,7 +2220,7 @@ void Vehicle::WriteOBJFile( const string & file_name, int write_set )
 //==== Write Nascart Files ====//
 void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -2290,7 +2311,7 @@ void Vehicle::WriteNascartFiles( const string & file_name, int write_set )
 
 void Vehicle::WriteGmshFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -2378,7 +2399,7 @@ void Vehicle::WriteGmshFile( const string & file_name, int write_set )
 
 void Vehicle::WriteX3DFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -2546,7 +2567,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set )
     UpdateBBox();
     int i;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     if ( !geom_vec[0] )
     {
         return;
@@ -2634,7 +2655,7 @@ void Vehicle::WritePovRayFile( const string & file_name, int write_set )
 
 void Vehicle::FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     int icomp = 0;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -2657,9 +2678,9 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 {
     STEPutil step( m_STEPLenUnit(), m_STEPTol() );
 
-	string name = "''";
+	  string name = "''";
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if( geom_vec[i]->GetSetFlag( write_set ) )
@@ -2713,6 +2734,56 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
     step.WriteFile( file_name );
 }
 
+void Vehicle::WriteStructureSTEPFile( const string & file_name )
+{
+    int len;
+    switch ( m_StructUnit() )
+    {
+        case vsp::SI_UNIT:
+            len = UNIT_METER;
+            break;
+
+        case vsp::CGS_UNIT:
+            len =  UNIT_CENTIMETER;
+            break;
+
+        case vsp::MPA_UNIT:
+            len =  UNIT_MM;
+            break;
+
+        case vsp::BFT_UNIT:
+            len = UNIT_FOOT;
+            break;
+
+        case vsp::BIN_UNIT:
+            len =  UNIT_IN;
+            break;
+    }
+
+    STEPutil step( len, m_STEPStructureTol() );
+
+    vector < double > usplit;
+    vector < double > wsplit;
+
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_STEPStructureExportIndex() );
+    fea_struct->Update();
+
+    vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
+
+    for ( int i = 0; i < fea_part_vec.size(); i++ )
+    {
+        FeaPart* part = fea_part_vec[i];
+        vector < VspSurf > surf_vec = part->GetFeaPartSurfVec();
+
+        for ( int j = 0; j < surf_vec.size(); j++ )
+        {
+            step.AddSurf( &surf_vec[j], m_STEPStructureSplitSurfs(), m_STEPStructureMergePoints(), m_STEPStructureToCubic(), m_STEPStructureToCubicTol(), false, usplit, wsplit );
+        }
+    }
+
+    step.WriteFile( file_name );
+}
+
 void Vehicle::WriteIGESFile( const string & file_name, int write_set )
 {
     WriteIGESFile( file_name, write_set, m_IGESLenUnit(), m_IGESSplitSubSurfs(), m_IGESSplitSurfs(), m_IGESToCubic(),
@@ -2750,7 +2821,7 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
 
     model.SetNativeSystemID( VSPVERSION4 );
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if( geom_vec[i]->GetSetFlag( write_set ) )
@@ -2827,6 +2898,96 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
     model.Write( file_name.c_str(), true );
 }
 
+void Vehicle::WriteStructureIGESFile( const string & file_name )
+{
+    WriteStructureIGESFile( file_name, m_IGESStructureExportIndex(), m_IGESStructureSplitSurfs(), m_IGESStructureToCubic(),
+                   m_IGESStructureToCubicTol(), m_IGESStructureLabelID(), m_IGESStructureLabelName(), m_IGESStructureLabelSurfNo(),
+                   m_IGESStructureLabelSplitNo(), m_IGESStructureLabelDelim() );
+}
+
+void Vehicle::WriteStructureIGESFile( const string & file_name, int feaMeshStructIndex,
+                             bool splitSurfs, bool toCubic, double toCubicTol, bool labelID,
+                             bool labelName, bool labelSurfNo, bool labelSplitNo, int delimType )
+{
+    string delim = StringUtil::get_delim( delimType );
+
+    DLL_IGES model;
+
+    // Note, YD not handled by libIGES.
+    switch ( m_StructUnit() )
+    {
+        case vsp::SI_UNIT:
+            model.SetUnitsFlag( UNIT_METER );
+            break;
+
+        case vsp::CGS_UNIT:
+            model.SetUnitsFlag( UNIT_CENTIMETER );
+            break;
+
+        case vsp::MPA_UNIT:
+            model.SetUnitsFlag( UNIT_MM );
+            break;
+
+        case vsp::BFT_UNIT:
+            model.SetUnitsFlag( UNIT_FOOT );
+            break;
+
+        case vsp::BIN_UNIT:
+            model.SetUnitsFlag( UNIT_IN );
+
+            break;
+    }
+
+
+    model.SetNativeSystemID( VSPVERSION4 );
+
+    vector < double > usplit;
+    vector < double > wsplit;
+
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( feaMeshStructIndex );
+    fea_struct->Update();
+
+    vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
+
+    for ( int i = 0; i < fea_part_vec.size(); i++ )
+    {
+        FeaPart* part = fea_part_vec[i];
+        vector < VspSurf > surf_vec = part->GetFeaPartSurfVec();
+
+        for ( int j = 0; j < surf_vec.size(); j++ )
+        {
+            string prefix;
+
+            if ( labelID )
+            {
+                prefix = fea_struct->GetParentGeomID();
+            }
+
+            if ( labelName )
+            {
+                if ( prefix.size() > 0 )
+                {
+                    prefix.append( delim );
+                }
+                prefix.append( part->GetName() );
+            }
+
+            if ( labelSurfNo )
+            {
+                if ( prefix.size() > 0 )
+                {
+                    prefix.append( delim );
+                }
+                prefix.append( to_string( j ) );
+            }
+
+            surf_vec[j].ToIGES( model, splitSurfs, toCubic, toCubicTol, false, usplit, wsplit, prefix, labelSplitNo, delim );
+        }
+    }
+
+    model.Write( file_name.c_str(), true );
+}
+
 void Vehicle::WriteBEMFile( const string &file_name, int write_set )
 {
     Geom* geom = FindGeom( m_BEMPropID );
@@ -2871,7 +3032,7 @@ void Vehicle::WriteAirfoilFile( const string &file_name, int write_set )
         m_AFFileDir = string();
     }
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     for ( int i = 0; i < (int)geom_vec.size(); i++ )
     {
@@ -2890,7 +3051,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 
     if ( dxf_file )
     {
-        vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+        vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
         if ( geom_vec.size() == 0 )
         {
@@ -3093,7 +3254,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 
 void Vehicle::WriteSVGFile( const string & file_name, int write_set )
 {
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
 
     if ( geom_vec.size() == 0 )
     {
@@ -3368,7 +3529,7 @@ void Vehicle::WritePMARCFile( const string & file_name, int write_set )
 
     int ntotal = 0;
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     //==== Write surface boundary points ====//
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
@@ -4344,8 +4505,6 @@ string Vehicle::ImportV2File( const string & file_name )
         }
     }
 
-    ForceUpdate();
-
     m_CfdSettings.ReadV2File( root );
     m_CfdGridDensity.ReadV2File( root );
 
@@ -4394,6 +4553,11 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     }
     else if ( file_type == EXPORT_STL )
     {
+        if ( m_STLExportPropMainSurf() )
+        {
+            SetExportPropMainSurf( true );
+        }
+
         if ( !m_STLMultiSolid() )
         {
             WriteSTLFile( file_name, write_set );
@@ -4401,6 +4565,11 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
         else
         {
             WriteTaggedMSSTLFile( file_name, write_set );
+        }
+
+        if ( m_STLExportPropMainSurf() )
+        {
+            SetExportPropMainSurf( false );
         }
     }
     else if ( file_type == EXPORT_CART3D )
@@ -4429,11 +4598,39 @@ void Vehicle::ExportFile( const string & file_name, int write_set, int file_type
     }
     else if ( file_type == EXPORT_STEP )
     {
+        if ( m_STEPExportPropMainSurf() )
+        {
+            SetExportPropMainSurf( true );
+        }
+
         WriteSTEPFile( file_name, write_set );
+
+        if ( m_STEPExportPropMainSurf() )
+        {
+            SetExportPropMainSurf( false );
+        }
+    }
+    else if ( file_type == EXPORT_STEP_STRUCTURE )
+    {
+        WriteStructureSTEPFile( file_name );
     }
     else if ( file_type == EXPORT_IGES )
     {
+        if ( m_IGESExportPropMainSurf() )
+        {
+            SetExportPropMainSurf( true );
+        }
+
         WriteIGESFile( file_name, write_set );
+
+        if ( m_IGESExportPropMainSurf() )
+        {
+            SetExportPropMainSurf( false );
+        }
+    }
+    else if ( file_type == EXPORT_IGES_STRUCTURE )
+    {
+        WriteStructureIGESFile( file_name );
     }
     else if ( file_type == EXPORT_BEM )
     {
@@ -4473,7 +4670,7 @@ void Vehicle::CreateDegenGeom( int set )
     m_DegenGeomVec.clear();
     m_DegenPtMassVec.clear();
 
-    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i]->GetSetFlag( set ) )
@@ -4790,4 +4987,17 @@ string Vehicle::ExportSurfacePatches( int set )
 
     veh_surfaces->Add( NameValData( "components", components ) );
     return veh_surfaces->GetID();
+}
+
+void Vehicle::SetExportPropMainSurf( bool b )
+{
+    vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
+    for ( int i = 0; i < (int) geom_vec.size(); i++ )
+    {
+        PropGeom *pg = dynamic_cast< PropGeom * > ( geom_vec[i] );
+        if ( pg )
+        {
+            pg->SetExportMainSurf( b );
+        }
+    }
 }

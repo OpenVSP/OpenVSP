@@ -11,6 +11,7 @@
 #if !defined(XSEC__INCLUDED_)
 #define XSEC__INCLUDED_
 
+#include "Defines.h"
 #include "Parm.h"
 #include "ParmContainer.h"
 #include "Vec3d.h"

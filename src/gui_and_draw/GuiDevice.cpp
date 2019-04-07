@@ -85,7 +85,8 @@ int Vsp_Group::handle(int event)
 
 Vsp_Canvas::Vsp_Canvas( int x, int y, int w, int h, const char *label ) : Ca_Canvas( x, y, w, h, label )
 {
-
+    m_Ymain = NULL;
+    m_Ysecondary = NULL;
 }
 
 int Vsp_Canvas::handle( int event )
@@ -103,6 +104,28 @@ int Vsp_Canvas::handle( int event )
         break;
     }
     return Ca_Canvas::handle( event );
+}
+
+void Vsp_Canvas::SetMainY()
+{
+    current_y( m_Ymain );
+}
+
+void Vsp_Canvas::SetSecondaryY()
+{
+    current_y( m_Ysecondary );
+}
+
+void Vsp_Canvas::HideSecondaryY()
+{
+    m_Ysecondary->hide();
+    this->w( m_Wwide );
+}
+
+void Vsp_Canvas::ShowSecondaryY()
+{
+    m_Ysecondary->show();
+    this->w( m_Wnarrow );
 }
 
 //=====================================================================//
@@ -3246,6 +3269,7 @@ void GeomPicker::ClearIncludeType()
 PCurveEditor::PCurveEditor()
 {
     m_Curve = NULL;
+    m_CurveB = NULL;
 
     m_canvas = NULL;
     m_PtLayout = NULL;
@@ -3355,10 +3379,19 @@ void PCurveEditor::DeviceCB( Fl_Widget* w )
     m_Screen->GuiDeviceCallBack( this );
 }
 
+void PCurveEditor::Update( PCurve *curve, PCurve *curveb, string labelb )
+{
+    m_Curve = curve;
+    m_CurveB = curveb;
+    m_LabelB = labelb;
+    Update();
+}
+
 
 void PCurveEditor::Update( PCurve *curve )
 {
     m_Curve = curve;
+    m_CurveB = NULL;
     Update();
 }
 
@@ -3382,6 +3415,41 @@ void PCurveEditor::Update()
 
         //add the data to the plot
         AddPointLine( xt, yt, 2, FL_BLUE );
+
+        if ( m_CurveB )
+        {
+            vector < double > xb;
+            vector < double > yb;
+
+            Vsp1DCurve prodcurv;
+            prodcurv.product( *(m_Curve->GetCurve()), *(m_CurveB->GetCurve()) );
+            prodcurv.TessAdapt( yb, xb, 1e-3, 8 );
+
+            double maxy = 0;
+            for( int i = 0; i < yb.size(); i++ )
+            {
+                if ( yb[i] > maxy )
+                {
+                    maxy = yb[i];
+                }
+            }
+
+            m_canvas->ShowSecondaryY();
+            m_canvas->SetSecondaryY();
+
+            //add the data to the plot
+            AddPointLine( xb, yb, 2, FL_BLACK );
+
+            m_canvas->m_Ysecondary->minimum( 0.0 );
+            m_canvas->m_Ysecondary->maximum( magroundup( maxy ) );
+            m_canvas->m_Ysecondary->copy_label( m_LabelB.c_str() );
+
+            m_canvas->SetMainY();
+        }
+        else
+        {
+            m_canvas->HideSecondaryY();
+        }
 
         vector < double > xdata = m_Curve->GetTVec();
         vector < double > ydata = m_Curve->GetValVec();

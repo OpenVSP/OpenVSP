@@ -1,0 +1,97 @@
+// ffmpeg -r 24 -i vspanim_%4d.png -c:v libx264 -preset veryslow -y new.avi
+// -r 24                 Render images to video at 24fps.
+// -i vspanim_%4d.png    Use input files with 4-digit integer numbering
+// -c:v libx264          Use x.264 video codec
+// -preset veryslow      Take our time to find the best compression possible
+// -y new.avi            Write output to new.avi -- overwriting any existing file
+
+void main()
+{
+    SetViewAxis( false );                                           // Turn off axis marker in corner of viewscreen
+    SetBackground( 1.0, 1.0, 1.0 );                                 // Set background to bright white
+    SetShowBorders( false );                                        // Turn off red/black border on active window
+
+    int screenw = 2000;                                             // Set screenshot width and height
+    int screenh = 2000;
+
+    string veh = FindContainer( "Vehicle", 0 );                     // Find Vehicle container
+
+    string panx = FindParm( veh, "PanX", "AdjustView" );            // Find view Parms in Vehicle
+    string pany = FindParm( veh, "PanY", "AdjustView" );
+    string zoom = FindParm( veh, "Zoom", "AdjustView" );
+    string rotx = FindParm( veh, "RotationX", "AdjustView" );
+    string roty = FindParm( veh, "RotationY", "AdjustView" );
+    string rotz = FindParm( veh, "RotationZ", "AdjustView" );
+
+    string pod1 = AddGeom( "POD", "" );                             // Add Pod for testing
+    string fr = FindParm( pod1, "FineRatio", "Design" );            // Find fineness ratio to demo changing Parms
+    SetParmVal( FindParm( pod1, "Tess_U", "Shape" ), 30 );          // Increase tess resolution for prettier picture
+    SetParmVal( FindParm( pod1, "Tess_W", "Shape" ), 25 );
+    SetGeomDrawType( pod1, GEOM_DRAW_SHADE );                       // Make pod appear as shaded
+
+    array<double> ts = {0.0, 3.0, 10.0};                            // Set vectors of time & parameter values
+    array<double> zs = {.02, .02, .001};
+    array<double> frs = {15.0, 5.0, 5.0};
+
+    array<double> tth = {0.0, 10.0};
+    array<double> ry = {0.0, 720.0};
+
+    double t0 = 0;                                                  // Set time bounds for animation
+    double tfinal = 10.0;
+    double fps = 24.0;
+
+    double t = t0;
+    double dt = 1.0 / fps;
+
+//    bool shown = true;
+
+    int i = 0;
+    while ( t <= tfinal )                                           // Loop through time
+    {
+        SetParmVal( zoom, interp(t, ts, zs) );                      // Set parameters, interpolating for value
+        SetParmVal( fr, interp(t, ts, frs) );
+        SetParmVal( roty, interp(t, tth, ry) );
+
+//        if ( shown && t > 3.0 )
+//        {
+//            SetSetFlag( pod1, SET_SHOWN, false );
+//            SetSetFlag( pod1, SET_NOT_SHOWN, true );
+//            shown = false;
+//        }
+//        if ( !shown && t > 6.0 )
+//        {
+//            SetSetFlag( pod1, SET_SHOWN, true );
+//            SetSetFlag( pod1, SET_NOT_SHOWN, false );
+//            shown = true;
+//        }
+
+        Update();                                                   // Update model
+        string fname = "vspanim_" + formatInt(i, '0', 4) + ".png";  // Build numbered file name
+        ScreenGrab( fname, screenw, screenh, true );                // Take PNG screenshot
+
+        t += dt;                                                    // Increment time and index
+        i++;
+    }
+}
+
+double interp( double t, array<double> ts, array<double> xs )       // Simple linear interpolator
+{
+    double x = xs[0];
+
+    if ( t <= ts[0] )
+    {
+        return x;
+    }
+
+    for ( uint i = 1; i < ts.length(); i++ )
+    {
+        if ( ts[i] > t )
+        {
+            x += (t-ts[i-1]) * (xs[i]-xs[i-1]) / (ts[i]-ts[i-1]);
+            break;
+        }
+        x = xs[i];
+    }
+
+    return x;
+}
