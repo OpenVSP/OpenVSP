@@ -970,7 +970,16 @@ void PropGeom::UpdateSurf()
 
             int istart = std::floor( u );
             int iend = istart + 1;
-            double frac = ( r - rvec[istart] ) / ( rvec[iend] - rvec[istart] );
+            double denom = ( rvec[iend] - rvec[istart] );
+
+            if ( denom <= 1e-6 && iend < nxsec - 1 )
+            {
+                istart = iend;
+                iend = istart + 1;
+                denom = ( rvec[iend] - rvec[istart] );
+            }
+            double frac = ( r - rvec[istart] ) / denom;
+
             if ( iend >= nxsec ) // Make sure index doesn't go off the end.
             {
                 iend = istart;
