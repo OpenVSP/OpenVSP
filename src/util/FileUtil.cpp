@@ -110,6 +110,7 @@ bail:
 
 string PathToExe()
 {
+
     int bufsize = 255;
     char *path = NULL;
     bool done = false;
