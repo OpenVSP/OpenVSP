@@ -955,9 +955,8 @@ void PropGeom::UpdateSurf()
         // surface.
         int npseudo = tmap.size();
 
-        vector< VspCurve > crv_vec;
-        crv_vec.resize( npseudo );
 
+        vector< VspCurve > crv_vec( npseudo );
         vector < rib_data_type > rib_vec( npseudo );
         vector < double > u_pseudo( npseudo );
         for ( int i = 0; i < npseudo; i++ )
@@ -999,7 +998,7 @@ void PropGeom::UpdateSurf()
             pp.m_ParentProp = this->GetXSecSurf( 0 );
             pp.m_Radius = r * radius;
 
-            pp.m_Chord = m_ChordCurve.Comp( r ) * radius;
+            pp.m_Chord = w;
             pp.m_Twist = m_TwistCurve.Comp( r );
 
             pp.m_Construct = m_Construct();
