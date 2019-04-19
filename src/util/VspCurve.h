@@ -152,6 +152,8 @@ public:
 
     vector < BezierSegment > GetBezierSegments();
 
+    double CreateRoundedRectangle( double w, double h, double k, double sk, double r, bool keycorner = true );
+
 protected:
     piecewise_curve_type m_Curve;
 

@@ -1495,3 +1495,127 @@ vector < BezierSegment > VspCurve::GetBezierSegments()
 
     return seg_vec;
 }
+
+double VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, double r, bool keycorner )
+{
+    VspCurve edge;
+    vector<vec3d> pt;
+    vector<double> u;
+
+    bool round_curve( true );
+
+    double wt = 2.0 * k * w;
+    double wb = 2.0 * ( 1 - k ) * w;
+    double wt2 = 0.5 * wt;
+    double wb2 = 0.5 * wb;
+    double w2 = 0.5 * w;
+    double off = sk * w2;
+    double h2 = 0.5 * h;
+
+    if ( r > wt2 )
+    {
+        r = wt2;
+    }
+    if ( r > wb2 )
+    {
+        r = wb2;
+    }
+    if ( r > h2 )
+    {
+        r = h2;
+    }
+
+    // catch special cases of degenerate cases
+    if ( ( w2 == 0 ) || ( h2 == 0 ) )
+    {
+        pt.resize( 4 );
+        u.resize( 5 );
+
+        // set the segment points
+        pt[0].set_xyz(  w,   0, 0 );
+        pt[1].set_xyz( w2, -h2, 0 );
+        pt[2].set_xyz(  0,   0, 0 );
+        pt[3].set_xyz( w2,  h2, 0 );
+
+        // set the corresponding parameters
+        u[0] = 0;
+        u[1] = 1;
+        u[2] = 2;
+        u[3] = 3;
+        u[4] = 4;
+
+        round_curve = false;
+    }
+    // create rectangle
+    else
+    {
+        pt.resize( 8 );
+        u.resize( 9 );
+
+        // set the segment points
+        pt[0].set_xyz( w,                0, 0 );
+        pt[1].set_xyz( w2 + wb2 - off, -h2, 0 );
+        pt[2].set_xyz( w2 - off,       -h2, 0 );
+        pt[3].set_xyz( w2 - wb2 - off, -h2, 0 );
+        pt[4].set_xyz( 0,                0, 0 );
+        pt[5].set_xyz( w2 - wt2 + off,  h2, 0 );
+        pt[6].set_xyz( w2 + off,        h2, 0 );
+        pt[7].set_xyz( w2 + wt2 + off,  h2, 0 );
+
+        // set the corresponding parameters
+        u[0] = 0;
+        u[2] = 1;
+        u[4] = 2;
+        u[6] = 3;
+        u[8] = 4;
+
+        if ( keycorner )
+        {
+            u[1] = 0.5;
+            u[3] = 1.5;
+            u[5] = 2.5;
+            u[7] = 3.5;
+        }
+        else
+        {
+            double d1 = dist( pt[0], pt[1] );
+            double d2 = dist( pt[1], pt[2] );
+            double du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[1] = du;
+
+            d1 = dist( pt[2], pt[3] );
+            d2 = dist( pt[3], pt[4] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[3] = 1 + du;
+
+            d1 = dist( pt[4], pt[5] );
+            d2 = dist( pt[5], pt[6] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[5] = 2 + du;
+
+            d1 = dist( pt[6], pt[7] );
+            d2 = dist( pt[7], pt[0] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[7] = 3 + du;
+        }
+    }
+
+    // build the polygon
+    InterpolateLinear( pt, u, true );
+
+    // round all joints if needed
+    if ( round_curve )
+    {
+        RoundAllJoints( r );
+    }
+
+    return r;
+}
