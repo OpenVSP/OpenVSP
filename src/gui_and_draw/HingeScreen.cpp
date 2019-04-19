@@ -358,7 +358,7 @@ bool HingeScreen::Update()
     }
 
     m_PrimVecAbsRelToggle.Update( hinge_geom_ptr->m_PrimVecAbsRelFlag.GetID() );
-    if ( hinge_geom_ptr->m_PrimVecAbsRelFlag() ==  GeomXForm::RELATIVE_XFORM )
+    if ( hinge_geom_ptr->m_PrimVecAbsRelFlag() ==  vsp::REL )
     {
         hinge_geom_ptr->m_PrimXVecRel.Activate();
         hinge_geom_ptr->m_PrimYVecRel.Activate();
@@ -384,7 +384,7 @@ bool HingeScreen::Update()
     }
 
     m_PrimOffAbsRelToggle.Update( hinge_geom_ptr->m_PrimOffAbsRelFlag.GetID() );
-    if ( hinge_geom_ptr->m_PrimOffAbsRelFlag() ==  GeomXForm::RELATIVE_XFORM )
+    if ( hinge_geom_ptr->m_PrimOffAbsRelFlag() ==  vsp::REL )
     {
         hinge_geom_ptr->m_PrimXOffRel.Activate();
         hinge_geom_ptr->m_PrimYOffRel.Activate();

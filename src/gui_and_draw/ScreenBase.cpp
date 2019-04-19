@@ -764,7 +764,7 @@ bool GeomScreen::Update()
     m_XRotSlider.Activate();
     m_YRotSlider.Activate();
     m_ZRotSlider.Activate();
-    if ( geom_ptr->m_AbsRelFlag() ==  GeomXForm::RELATIVE_XFORM )
+    if ( geom_ptr->m_AbsRelFlag() ==  vsp::REL )
     {
         m_XLocSlider.Update( 1, geom_ptr->m_XRelLoc.GetID(), geom_ptr->m_XLoc.GetID() );
         m_YLocSlider.Update( 1, geom_ptr->m_YRelLoc.GetID(), geom_ptr->m_YLoc.GetID() );

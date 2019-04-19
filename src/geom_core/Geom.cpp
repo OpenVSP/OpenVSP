@@ -363,7 +363,7 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_ZRelRot.SetDescript( "Z Rotation Relative to Parent" );
 
     // Attachment Parms
-    m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, RELATIVE_XFORM, ABSOLUTE_XFORM, RELATIVE_XFORM );
+    m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, vsp::REL, vsp::ABS, vsp::REL );
     m_TransAttachFlag.Init( "Trans_Attach_Flag", "Attach", this, ATTACH_TRANS_NONE, ATTACH_TRANS_NONE, ATTACH_TRANS_UV );
     m_TransAttachFlag.SetDescript( "Determines relative translation coordinate system" );
     m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, ATTACH_ROT_NONE, ATTACH_ROT_NONE, ATTACH_ROT_UV );
@@ -428,7 +428,7 @@ void GeomXForm::ComposeModelMatrix()
     // Get Attament Matrix
     Matrix4d attachedMat = ComposeAttachMatrix();
 
-    if (  m_AbsRelFlag() ==  RELATIVE_XFORM || ( m_ignoreAbsFlag && m_applyIgnoreAbsFlag ) )
+    if (  m_AbsRelFlag() ==  vsp::REL || ( m_ignoreAbsFlag && m_applyIgnoreAbsFlag ) )
     {
         // Apply normal translations
         m_ModelMatrix.translatef( m_XRelLoc(), m_YRelLoc(), m_ZRelLoc() );
@@ -454,7 +454,7 @@ void GeomXForm::ComposeModelMatrix()
         m_YRot = angles.y();
         m_ZRot = angles.z();
     }
-    else if ( m_AbsRelFlag() ==  ABSOLUTE_XFORM )
+    else if ( m_AbsRelFlag() ==  vsp::ABS )
     {
         // Apply normal translations
         m_ModelMatrix.translatef( m_XLoc(), m_YLoc(), m_ZLoc() );
@@ -560,7 +560,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
 void GeomXForm::DeactivateXForms()
 {
     // Deactivate non driving parms and Activate driving parms
-    if ( m_AbsRelFlag() ==  RELATIVE_XFORM  )
+    if ( m_AbsRelFlag() ==  vsp::REL  )
     {
         m_XLoc.Deactivate();
         m_YLoc.Deactivate();
@@ -2723,7 +2723,7 @@ void Geom::ReadV2File( xmlNodePtr &root )
         overrideRelTrans = true;
 
         // override the AbsRelFlag, the only valid value for this attachment mode is relative
-        m_AbsRelFlag = RELATIVE_XFORM;
+        m_AbsRelFlag = vsp::REL;
     }
 
     if ( overrideRelTrans )
