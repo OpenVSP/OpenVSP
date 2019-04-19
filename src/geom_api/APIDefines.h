@@ -33,6 +33,16 @@ enum ATMOS_TYPE { ATMOS_TYPE_US_STANDARD_1976 = 0,
                   ATMOS_TYPE_MANUAL_RE_L
                 }; // Flowstream Type
 
+enum ATTACH_TRANS_TYPE { ATTACH_TRANS_NONE = 0,
+                         ATTACH_TRANS_COMP,
+                         ATTACH_TRANS_UV
+};
+
+enum ATTACH_ROT_TYPE { ATTACH_ROT_NONE = 0,
+                       ATTACH_ROT_COMP,
+                       ATTACH_ROT_UV
+};
+
 enum BOR_MODE { BOR_FLOWTHROUGH,
                 BOR_UPPER,
                 BOR_LOWER,

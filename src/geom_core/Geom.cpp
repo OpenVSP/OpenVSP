@@ -364,9 +364,9 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
 
     // Attachment Parms
     m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, vsp::REL, vsp::ABS, vsp::REL );
-    m_TransAttachFlag.Init( "Trans_Attach_Flag", "Attach", this, ATTACH_TRANS_NONE, ATTACH_TRANS_NONE, ATTACH_TRANS_UV );
+    m_TransAttachFlag.Init( "Trans_Attach_Flag", "Attach", this, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_UV );
     m_TransAttachFlag.SetDescript( "Determines relative translation coordinate system" );
-    m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, ATTACH_ROT_NONE, ATTACH_ROT_NONE, ATTACH_ROT_UV );
+    m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_UV );
     m_RotAttachFlag.SetDescript( "Determines relative rotation axes" );
     m_ULoc.Init( "U_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
     m_ULoc.SetDescript( "U Location of Parent's Surface" );
@@ -500,7 +500,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
     }
 
     // If both attachment flags set to none, return identity
-    if ( m_TransAttachFlag() == ATTACH_TRANS_NONE && m_RotAttachFlag() == ATTACH_ROT_NONE )
+    if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_NONE && m_RotAttachFlag() == vsp::ATTACH_ROT_NONE )
     {
         return attachedMat;
     }
@@ -521,7 +521,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
         // Parent CompXXXCoordSys methods query the positioned m_SurfVec[0] surface,
         // not m_MainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
         // these calculations and does not need to be applied again.
-        if ( m_TransAttachFlag() == ATTACH_TRANS_UV )
+        if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_UV )
         {
             if ( !( parent->CompTransCoordSys( m_ULoc(), m_WLoc(), transMat ) ) )
             {
@@ -529,7 +529,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
             }
         }
 
-        if ( m_RotAttachFlag() == ATTACH_ROT_UV )
+        if ( m_RotAttachFlag() == vsp::ATTACH_ROT_UV )
         {
             if ( !( parent->CompRotCoordSys( m_ULoc(), m_WLoc(), rotMat ) ) )
             {
@@ -537,12 +537,12 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
             }
         }
 
-        if ( m_TransAttachFlag() == ATTACH_TRANS_COMP || revertCompTrans )
+        if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_COMP || revertCompTrans )
         {
             transMat.translatef( tempMat[12], tempMat[13], tempMat[14] );
         }
 
-        if ( m_RotAttachFlag() == ATTACH_ROT_COMP || revertCompRot )
+        if ( m_RotAttachFlag() == vsp::ATTACH_ROT_COMP || revertCompRot )
         {
             // Only take rotation matrix from parent so set translation part to zero
             tempMat[12] = tempMat[13] = tempMat[14] = 0;
@@ -2696,8 +2696,8 @@ void Geom::ReadV2File( xmlNodePtr &root )
 
     if ( posAttachFlag == V2_POS_ATTACH_NONE )
     {
-        m_TransAttachFlag = ATTACH_TRANS_NONE;
-        m_RotAttachFlag = ATTACH_ROT_NONE;
+        m_TransAttachFlag = vsp::ATTACH_TRANS_NONE;
+        m_RotAttachFlag = vsp::ATTACH_ROT_NONE;
 
         // override relative translation since the relative coordinates are arbitrary
         // when not attached to anything in V2
@@ -2705,18 +2705,18 @@ void Geom::ReadV2File( xmlNodePtr &root )
     }
     else if ( posAttachFlag == V2_POS_ATTACH_FIXED )
     {
-        m_TransAttachFlag = ATTACH_TRANS_COMP;
-        m_RotAttachFlag = ATTACH_ROT_NONE;
+        m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
+        m_RotAttachFlag = vsp::ATTACH_ROT_NONE;
     }
     else if ( posAttachFlag == V2_POS_ATTACH_UV )
     {
-        m_TransAttachFlag = ATTACH_TRANS_UV;
-        m_RotAttachFlag = ATTACH_ROT_NONE;
+        m_TransAttachFlag = vsp::ATTACH_TRANS_UV;
+        m_RotAttachFlag = vsp::ATTACH_ROT_NONE;
     }
     else if ( posAttachFlag == V2_POS_ATTACH_MATRIX )
     {
-        m_TransAttachFlag = ATTACH_TRANS_COMP;
-        m_RotAttachFlag = ATTACH_ROT_COMP;
+        m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
+        m_RotAttachFlag = vsp::ATTACH_ROT_COMP;
 
         // override relative translation since the relative coordinates are arbitrary
         // when attached in matrix mode

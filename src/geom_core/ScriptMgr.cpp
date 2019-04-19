@@ -442,6 +442,24 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_MANUAL_RE_L", ATMOS_TYPE_MANUAL_RE_L );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "ATTACH_TRANS_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_TRANS_TYPE", "ATTACH_TRANS_NONE", ATTACH_TRANS_NONE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_TRANS_TYPE", "ATTACH_TRANS_COMP", ATTACH_TRANS_COMP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_TRANS_TYPE", "ATTACH_TRANS_UV", ATTACH_TRANS_UV );
+    assert( r >= 0 );
+
+    r = se->RegisterEnum( "ATTACH_ROT_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_NONE", ATTACH_ROT_NONE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_COMP", ATTACH_ROT_COMP );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "ATTACH_ROT_TYPE", "ATTACH_ROT_UV", ATTACH_ROT_UV );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "BOR_MODE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "BOR_MODE", "BOR_FLOWTHROUGH", BOR_FLOWTHROUGH );

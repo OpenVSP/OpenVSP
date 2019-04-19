@@ -216,8 +216,8 @@ void ManageGeomScreen::LoadBrowser()
             {
                 str.append( "^^ " );
             }
-            else if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
-                      gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
+            else if ( gPtr->m_TransAttachFlag() == vsp::ATTACH_TRANS_NONE &&
+                      gPtr->m_RotAttachFlag() == vsp::ATTACH_ROT_NONE )
             {
                 str.append( "> " );
             }

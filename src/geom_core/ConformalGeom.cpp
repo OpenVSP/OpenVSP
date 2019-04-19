@@ -192,8 +192,8 @@ void ConformalGeom::UpdateSurf()
 void ConformalGeom::CopyDataFrom( Geom* geom_ptr )
 {
     //==== Force Attached So Conformal Moves With Parent =====//
-    m_TransAttachFlag = ATTACH_TRANS_COMP;
-    m_RotAttachFlag = ATTACH_ROT_COMP;
+    m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
+    m_RotAttachFlag = vsp::ATTACH_ROT_COMP;
 
     m_TransAttachFlag.Deactivate();
     m_RotAttachFlag.Deactivate();

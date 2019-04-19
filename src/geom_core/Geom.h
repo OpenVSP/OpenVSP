@@ -272,10 +272,6 @@ public:
         m_Scale = 1;
     }
 
-    // TODO: Move these to APIDefines.h and register in ScriptMgr.cpp
-    enum { ATTACH_TRANS_NONE = 0, ATTACH_TRANS_COMP, ATTACH_TRANS_UV, };
-    enum { ATTACH_ROT_NONE = 0, ATTACH_ROT_COMP, ATTACH_ROT_UV, }; // Attachment Flags
-
     virtual void DeactivateXForms();
     virtual void SetIgnoreAbsFlag( bool val )
     {
