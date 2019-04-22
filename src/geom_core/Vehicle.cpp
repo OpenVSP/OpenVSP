@@ -1658,6 +1658,10 @@ int Vehicle::ReadXMLFile( const string & file_name )
 
     ParmMgr.ResetRemapID( lastreset );
 
+    // This triggers an Update().  It was previously in a code path that was 'above' this ResetRemapID.
+    // Which triggered an 'Unexpected ResetRemapID' warning.
+    VarPresetMgr.GroupChange( VarPresetMgr.GetActiveGroupIndex() );
+
     Update();
 
     return 0;
