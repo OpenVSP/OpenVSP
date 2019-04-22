@@ -273,7 +273,7 @@ string ParmMgrSingleton::ResetRemapID( const string & lastReset )
         MessageData errMsgData;
         errMsgData.m_String = "Error";
         errMsgData.m_IntVec.push_back( vsp::VSP_UNEXPECTED_RESET_REMAP_ID );
-        errMsgData.m_StringVec.push_back( "Error:  Unexpected intermediate ResetRemapID." );
+        errMsgData.m_StringVec.push_back( "Error:  Unexpected intermediate ResetRemapID.  This should be harmless, but please contact rob.a.mcdonald@gmail.com to help debug this issue." );
 
         MessageMgr::getInstance().SendAll( errMsgData );
     }
