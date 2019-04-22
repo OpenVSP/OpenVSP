@@ -37,6 +37,11 @@ wxplot2d([[discrete, pcli], cli(0.06,p)], [p,0.05,0.95], [style, points, lines],
 
 double CalcFourDigitCLi( double m, double p )
 {
+    if ( m <= 0 || p < 0.1 || p > 0.9 )
+    {
+        return 0.0;
+    }
+
     double p2 = p * p;
     double p3 = p2 * p;
     double p4 = p2 * p2;
@@ -50,6 +55,11 @@ double CalcFourDigitCLi( double m, double p )
 
 double CalcFourDigitCamber( double CLi, double p )
 {
+    if ( p < 0.1 || p > 0.9 )
+    {
+        return 0.0;
+    }
+
     double CLi1 = CalcFourDigitCLi( 1.0, p );
 
     return CLi / CLi1;
@@ -244,7 +254,7 @@ FourSeries::FourSeries( ) : NACABase( )
 {
     m_Type = XS_FOUR_SERIES;
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
-    m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.0, 1.0 );
+    m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.1, 0.9 );
     m_EqArcLen.Init( "EqArcLenFlag", m_GroupName, this, true, 0, 1 );
     m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
 
