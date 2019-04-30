@@ -1661,7 +1661,10 @@ int Vehicle::ReadXMLFile( const string & file_name )
 
     // This triggers an Update().  It was previously in a code path that was 'above' this ResetRemapID.
     // Which triggered an 'Unexpected ResetRemapID' warning.
-    VarPresetMgr.GroupChange( VarPresetMgr.GetActiveGroupIndex() );
+    if ( VarPresetMgr.GetActiveGroupIndex() >= 0 )
+    {
+        VarPresetMgr.GroupChange( VarPresetMgr.GetActiveGroupIndex() );
+    }
 
     Update();
 
