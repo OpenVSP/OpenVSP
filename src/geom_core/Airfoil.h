@@ -370,6 +370,7 @@ protected:
     virtual bool ReadLednicerAirfoil( FILE* file_id );
     virtual bool ReadVspAirfoil( FILE* file_id );
 
+    virtual void MakeCurve();
 
     string m_AirfoilName;
     vector< vec3d > m_UpperPnts;

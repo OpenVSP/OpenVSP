@@ -1039,8 +1039,7 @@ FileAirfoil::FileAirfoil( ) : Airfoil( )
     }
 }
 
-//==== Update ====//
-void FileAirfoil::Update()
+void FileAirfoil::MakeCurve()
 {
     //==== Load Points ====//
     vector< vec3d > pnts;
@@ -1089,6 +1088,13 @@ void FileAirfoil::Update()
     }
 
     m_Curve.InterpolatePCHIP( pnts, arclen, false );
+}
+
+//==== Update ====//
+void FileAirfoil::Update()
+{
+    MakeCurve();
+
 
     Airfoil::Update();
 }
