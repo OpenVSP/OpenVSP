@@ -1647,6 +1647,7 @@ int Vehicle::ReadXMLFile( const string & file_name )
     {
         fprintf( stderr, "document version not supported \n");
         xmlFreeDoc( doc );
+        m_FileOpenVersion = -1;
         return 4;
     }
 
@@ -1664,6 +1665,7 @@ int Vehicle::ReadXMLFile( const string & file_name )
 
     Update();
 
+    m_FileOpenVersion = -1;
     return 0;
 }
 
@@ -1708,6 +1710,7 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
     {
         fprintf( stderr, "document version not supported \n");
         xmlFreeDoc( doc );
+        m_FileOpenVersion = -1;
         return 4;
     }
 
@@ -1721,6 +1724,7 @@ int Vehicle::ReadXMLFileGeomsOnly( const string & file_name )
 
     Update();
 
+    m_FileOpenVersion = -1;
     return 0;
 }
 

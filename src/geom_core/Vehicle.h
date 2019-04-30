@@ -37,7 +37,7 @@
 #include <stack>
 #include <memory>
 
-
+// File versions must be integers.
 #define MIN_FILE_VER 4 // Lowest file version number for 3.X vsp file
 #define CURRENT_FILE_VER 4 // File version number for 3.X files that this executable writes
 
@@ -158,6 +158,7 @@ public:
 
     void SetVSP3FileName( const string & f_name );
     string GetVSP3FileName()                                { return m_VSP3FileName; }
+    int GetFileVersion()                                    { return m_FileOpenVersion; }
 
     void SetupPaths();
 
