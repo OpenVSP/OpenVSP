@@ -310,6 +310,8 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_AfFileGroup.AddOutput( m_AfFileNameOutput, "Name" );
     m_AfFileGroup.AddYGap();
     m_AfFileGroup.AddSlider( m_AfFileChordSlider, "Chord", 10, "%7.3f" );
+    m_AfFileGroup.AddSlider( m_AfFileThickChordSlider, "T/C", 1, "%7.5f" );
+    m_AfFileGroup.AddOutput( m_AfFileBaseThickChordOutput, "Base T/C", "%7.5f" );
     m_AfFileGroup.AddYGap();
     m_AfFileGroup.AddButton( m_AfFileInvertButton, "Invert Airfoil" );
     
@@ -799,6 +801,8 @@ bool StackScreen::Update()
                 assert( affile_xs );
 
                 m_AfFileChordSlider.Update( affile_xs->m_Chord.GetID() );
+                m_AfFileThickChordSlider.Update( affile_xs->m_ThickChord.GetID() );
+                m_AfFileBaseThickChordOutput.Update( affile_xs->m_BaseThickness.GetID() );
                 m_AfFileInvertButton.Update( affile_xs->m_Invert.GetID() );
                 m_AfFileNameOutput.Update( affile_xs->GetAirfoilName() );
             }

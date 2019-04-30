@@ -182,6 +182,8 @@ protected:
     StringOutput m_AfFileNameOutput;
     CheckButton m_AfFileInvertButton;
     SliderAdjRangeInput m_AfFileChordSlider;
+    SliderAdjRangeInput m_AfFileThickChordSlider;
+    Output m_AfFileBaseThickChordOutput;
 
     TriggerButton m_AfFileFitCSTButton;
     Counter m_AfFileDegreeCounter;

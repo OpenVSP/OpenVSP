@@ -156,7 +156,9 @@ protected:
     StringOutput m_AfFileNameOutput;
     CheckButton m_AfFileInvertButton;
     SliderAdjRangeInput m_AfFileChordSlider;
-    
+    SliderAdjRangeInput m_AfFileThickChordSlider;
+    Output m_AfFileBaseThickChordOutput;
+
     GroupLayout m_CSTAirfoilGroup;
 
     SliderAdjRangeInput m_CSTChordSlider;
