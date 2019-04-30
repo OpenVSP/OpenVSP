@@ -364,6 +364,8 @@ public:
 
     virtual void ReadV2File( xmlNodePtr &root );
 
+    Parm m_BaseThickness;
+
 protected:
 
     virtual bool ReadSeligAirfoil( FILE* file_id );
@@ -375,7 +377,6 @@ protected:
     string m_AirfoilName;
     vector< vec3d > m_UpperPnts;
     vector< vec3d > m_LowerPnts;
-
 
 };
 
