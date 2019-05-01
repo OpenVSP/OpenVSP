@@ -1250,6 +1250,40 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_XSEC_SCREEN );
     }
+    else if ( gui_device == &m_ReadFuseFileButton  )
+    {
+        XSecCurve* xsc = bor_ptr->GetXSecCurve();
+        if ( xsc )
+        {
+            if ( xsc->GetType() == vsp::XS_FILE_FUSE  )
+            {
+                FileXSec* file_xs = dynamic_cast< FileXSec* >( xsc );
+                assert( file_xs );
+                string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Fuselage Cross Section", "*.fxs" );
+
+                file_xs->ReadXsecFile( newfile );
+                file_xs->Update();
+                bor_ptr->Update();
+            }
+        }
+    }
+    else if ( gui_device == &m_AfReadFileButton   )
+    {
+        XSecCurve* xsc = bor_ptr->GetXSecCurve();
+        if ( xsc )
+        {
+            if ( xsc->GetType() == vsp::XS_FILE_AIRFOIL  )
+            {
+                FileAirfoil* affile_xs = dynamic_cast< FileAirfoil* >( xsc );
+                assert( affile_xs );
+                string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Airfoil File", "*.{af,dat}", false  );
+
+                affile_xs->ReadFile( newfile );
+                affile_xs->Update();
+                bor_ptr->Update();
+            }
+        }
+    }
 
     GeomScreen::GuiDeviceCallBack( gui_device );
 }
