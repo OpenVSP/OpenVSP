@@ -1993,7 +1993,7 @@ string GetFeaStructID( const string & geom_id, int fea_struct_ind )
     FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !struct_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_ind );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + to_string( ( long long ) fea_struct_ind ) );
         return string();
     }
     ErrorMgr.NoError();
@@ -2028,7 +2028,7 @@ string GetFeaStructName( const string & geom_id, int fea_struct_ind )
     FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !struct_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_ind );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + to_string( ( long long ) fea_struct_ind ) );
         return string();
     }
     ErrorMgr.NoError();
@@ -2053,7 +2053,7 @@ void SetFeaStructName( const string & geom_id, int fea_struct_ind, const string 
     FeaStructure* struct_ptr = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !struct_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + fea_struct_ind );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaStructName::Can't Find FeaStructure " + to_string( ( long long ) fea_struct_ind ) );
         return;
     }
     struct_ptr->SetName( name );
