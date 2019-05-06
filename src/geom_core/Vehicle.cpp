@@ -186,6 +186,9 @@ Vehicle::Vehicle()
     SetupPaths();
     m_VehProjectVec3d.resize( 3 );
     m_ColorCount = 0;
+
+    // Protect required enum value.
+    assert( CUSTOM_GEOM_TYPE == 9 );
 }
 
 //==== Destructor ====//
