@@ -1,6 +1,10 @@
 #ifndef GL_VIEWER_H
 #define GL_VIEWER_H
 
+#ifdef __APPLE__
+#define GL_SILENCE_DEPRECATION
+#endif
+
 #include <stdlib.h>
 #include <math.h>
 #include <stdio.h>
