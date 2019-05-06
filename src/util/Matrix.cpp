@@ -126,6 +126,20 @@ void Matrix4d::postMult( double* m )
     memcpy( mat, res, 16 * sizeof( double ) );
 }
 
+void Matrix4d::matMult( Matrix4d &m )
+{
+    double tmat[16];
+    m.getMat( tmat );
+    matMult( tmat );
+}
+
+void Matrix4d::postMult( Matrix4d & m )
+{
+    double tmat[16];
+    m.getMat( tmat );
+    postMult( tmat );
+}
+
 void Matrix4d::getMat( double* m )
 {
     memcpy( m, mat, 16 * sizeof( double ) );
@@ -340,3 +354,60 @@ void Matrix4d::setBasis( const vec3d &xdir, const vec3d &ydir, const vec3d &zdir
         mat[ i + 8 ] = zdir.v[i];
     }
 }
+
+void Matrix4d::toQuat( double &qw, double &qx, double &qy, double &qz, double &tx, double &ty, double &tz ) const
+{
+    // Copy out translations.
+    tx = mat[12];
+    ty = mat[13];
+    tz = mat[14];
+
+    float trace = mat[0] + mat[5] + mat[10]; // I removed + 1.0f; see discussion with Ethan
+    if( trace > 0 )    // I changed M_EPSILON to 0
+    {
+        float s = 0.5f / sqrtf( trace + 1.0f );
+        qw = 0.25f / s;
+        qx = ( mat[6] - mat[9] ) * s;
+        qy = ( mat[8] - mat[2] ) * s;
+        qz = ( mat[1] - mat[4] ) * s;
+    }
+    else
+    {
+        if ( mat[0] > mat[5] && mat[0] > mat[10] )
+        {
+            float s = 2.0f * sqrtf( 1.0f + mat[0] - mat[5] - mat[10] );
+            qw = ( mat[6] - mat[9] ) / s;
+            qx = 0.25f * s;
+            qy = ( mat[4] + mat[1] ) / s;
+            qz = ( mat[8] + mat[2] ) / s;
+        }
+        else if ( mat[5] > mat[10])
+        {
+            float s = 2.0f * sqrtf( 1.0f + mat[5] - mat[0] - mat[10] );
+            qw = ( mat[8] - mat[2] ) / s;
+            qx = ( mat[4] + mat[1] ) / s;
+            qy = 0.25f * s;
+            qz = ( mat[9] + mat[6] ) / s;
+        }
+        else
+        {
+            float s = 2.0f * sqrtf( 1.0f + mat[10] - mat[0] - mat[5] );
+            qw = ( mat[1] - mat[4] ) / s;
+            qx = ( mat[8] + mat[2] ) / s;
+            qy = ( mat[9] + mat[6] ) / s;
+            qz = 0.25f * s;
+        }
+    }
+}
+
+/*
+ [0][0]       [0][1]       [0][2]     [0][3]
+ [1][0]       [1][1]       [1][2]     [1][3]
+ [2][0]       [2][1]       [2][2]     [2][3]
+ [3][0]       [3][1]       [3][2]     [3][3]
+
+ mat[0]       mat[4]       mat[8]       mat[12]
+ mat[1]       mat[5]       mat[9]       mat[13]
+ mat[2]       mat[6]       mat[10]      mat[14]
+ mat[3]       mat[7]       mat[11]      mat[15]
+ */

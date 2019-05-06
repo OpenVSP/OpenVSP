@@ -38,6 +38,8 @@ public:
     void getMat( double* m );
     void matMult( double* m );
     void postMult( double* m );
+    void matMult( Matrix4d &m );
+    void postMult( Matrix4d & m );
 
 
     void initMat( double* m );
@@ -59,6 +61,8 @@ public:
 
     void getBasis( vec3d &xdir, vec3d &ydir, vec3d &zdir );
     void setBasis( const vec3d &xdir, const vec3d &ydir, const vec3d &zdir );
+
+    void toQuat( double &qw, double &qx, double &qy, double &qz, double &tx, double &ty, double &tz ) const;
 
 private:
 
