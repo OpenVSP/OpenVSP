@@ -166,7 +166,7 @@ glviewer->WriteTiffFile(dum);
         MenuItem FileMenuPickQuit {
           label Quit
           callback {int val;
-val = fl_ask("Quit Application?");
+val = fl_choice("Quit Application?", fl_no, fl_yes, 0);
 if ( val == 1 ) {
    glviewer->Exit(1);
 }}
