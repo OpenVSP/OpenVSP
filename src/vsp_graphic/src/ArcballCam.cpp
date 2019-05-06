@@ -80,7 +80,7 @@ void ArcballCam::load( int index )
     // Apply saved values.
     _calculateProjection();
     _rMat = _toMatrix( _globalQuat );
-    _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
+    _tMat = glm::translate( glm::mat4( static_cast<float>(1) ), glm::vec3(_pan.x, _pan.y, 0.0f) );
     _cMat = _saves[index].cor;
     _modelviewMatrix = _tMat * _rMat * _cMat;
 }
@@ -198,7 +198,7 @@ void ArcballCam::pan( int px, int py, int cx, int cy )
     _pan.x += P_SENSITIVITY * _oZoom * ( float )( cx - px );
     _pan.y += P_SENSITIVITY * _oZoom * ( float )( cy - py );
 
-    _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
+    _tMat = glm::translate( glm::mat4( static_cast<float>(1) ), glm::vec3(_pan.x, _pan.y, 0.0f) );
 
     _modelviewMatrix = _tMat * _rMat * _cMat;
 }
@@ -214,7 +214,7 @@ void ArcballCam::relativePan( float x, float y )
     _pan.x = x;
     _pan.y = y;
 
-    _tMat = glm::translate( glm::vec3(_pan.x, _pan.y, 0.0f) );
+    _tMat = glm::translate( glm::mat4( static_cast<float>(1) ), glm::vec3(_pan.x, _pan.y, 0.0f) );
 
     _modelviewMatrix = _tMat * _rMat * _cMat;
 }
@@ -288,7 +288,8 @@ float ArcballCam::getRelativeZoomValue()
 
 void ArcballCam::setCOR( float x, float y, float z )
 {
-    _cMat = glm::translate( glm::vec3( x, y, z ) );
+    _cMat = glm::translate( glm::mat4( static_cast<float>(1) ), glm::vec3( x, y, z ) );
+
     _modelviewMatrix = _tMat * _rMat * _cMat;
 }
 

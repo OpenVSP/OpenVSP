@@ -7,6 +7,9 @@
 #include "glm/glm.hpp"
 #include "glm/ext.hpp"
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include "glm/gtx/euler_angles.hpp"
+
 // Return int with sign of passed val.
 template < typename T >
 int sgn( T val )

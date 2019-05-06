@@ -165,7 +165,7 @@ void Ruler::_draw()
 
         glm::vec4 textInNDC = glm::vec4(textLocation, 1);
         textInNDC = pMat * (mvMat * textInNDC);
-        glm::mat4 textTMat = glm::translate(glm::vec3(glm::vec2(textInNDC), 0));
+        glm::mat4 textTMat = glm::translate( glm::mat4( static_cast<float>(1) ), glm::vec3(glm::vec2(textInNDC), 0));
 
         Color textColor = _getTextColor();
 
