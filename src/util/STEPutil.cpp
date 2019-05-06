@@ -64,6 +64,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
     case vsp::LEN_IN:
     case vsp::LEN_FT:
     case vsp::LEN_YD:
+    case vsp::LEN_UNITLESS:
         break;
     }
 
@@ -118,6 +119,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         case vsp::LEN_MM:
         case vsp::LEN_CM:
         case vsp::LEN_M:
+        case vsp::LEN_UNITLESS:
             break;
         }
 
