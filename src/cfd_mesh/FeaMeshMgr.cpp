@@ -2453,7 +2453,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         }
 
         // The whole file is now loaded in the memory buffer. Write to NASTRAN file
-        fprintf( fp, buffer );
+        fprintf( fp, "%s", buffer );
 
         // Close open files and free memmory
         fclose( fp );

@@ -644,13 +644,13 @@ void APITestSuite::TestFEAMesh()
     vsp::WriteVSPFile( fname );
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     string print_str = "\tVehicle Saved to " + fname + " \n";
-    printf( print_str.c_str() );
+    printf( "%s", print_str.c_str() );
 
     //=== Set Export File Name ===//
     string export_name = "apitest_FEAMesh_calculix.dat";
     vsp::SetFeaMeshFileName( pod_id, struct_ind, vsp::FEA_CALCULIX_FILE_NAME, export_name );
     print_str = "\tExport File Name Set to " + export_name + " \n";
-    printf( print_str.c_str() );
+    printf( "%s", print_str.c_str() );
 
     //==== Generate FEA Mesh and Export ====//
     printf( "\tGenerating FEA Mesh\n" );

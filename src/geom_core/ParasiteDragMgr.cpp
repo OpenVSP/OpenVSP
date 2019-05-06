@@ -1951,7 +1951,7 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
             if ( geom_skipped )
             {
                 string message = "Warning: Geom ID " + geomVec[i] + "not included in Parasite Drag calculation\n";
-                printf( message.c_str() );
+                printf( "%s", message.c_str() );
             }
         }
     }

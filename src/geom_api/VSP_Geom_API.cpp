@@ -3095,14 +3095,14 @@ void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d>
     }
 
     string header = airfoil_name + " AIRFOIL\n";
-    fprintf( af, header.c_str() );
+    fprintf( af, "%s", header.c_str() );
 
     char buff[256];
 
     for ( size_t i = 0; i < ordered_airfoil_pnts.size(); i++ )
     {
         sprintf( buff, " %7.6f     %7.6f\n", ordered_airfoil_pnts[i].x(), ordered_airfoil_pnts[i].y() );
-        fprintf( af, buff );
+        fprintf( af, "%s", buff );
     }
 
     fclose( af );
