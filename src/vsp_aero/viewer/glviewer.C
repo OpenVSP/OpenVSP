@@ -126,7 +126,7 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
 
     WriteFontFile();
 
-    glfLoadFont("cbviewer_font.glf");\
+    glfLoadFont( (char *) "cbviewer_font.glf");\
 
     sprintf(tempname,"cbviewer_font.glf");
 
