@@ -897,6 +897,7 @@ void StructScreen::LoadGeomChoice()
     {
         vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
 
+        // TODO:  This looks like it would be much easier to use a GeomPicker and the AddExcludeType() method.
         map <string, int> CompIDMap;
         int icomp = 0;
         for ( int i = 0; i < (int)geom_vec.size(); ++i )
@@ -904,7 +905,11 @@ void StructScreen::LoadGeomChoice()
             string disp_geom_name = std::to_string( icomp + 1 ) + ". " + geom_vec[i]->GetName();
             int geom_type = geom_vec[i]->GetType().m_Type;
 
-            if ( geom_type != BLANK_GEOM_TYPE && geom_type != PT_CLOUD_GEOM_TYPE && geom_type != HINGE_GEOM_TYPE && geom_type != MESH_GEOM_TYPE )
+            if ( geom_type != BLANK_GEOM_TYPE &&
+                 geom_type != PT_CLOUD_GEOM_TYPE &&
+                 geom_type != HINGE_GEOM_TYPE &&
+                 geom_type != MESH_GEOM_TYPE &&
+                 geom_type != HUMAN_GEOM_TYPE )
             {
                 m_GeomChoice.AddItem( disp_geom_name );
                 CompIDMap[geom_vec[i]->GetID()] = icomp;

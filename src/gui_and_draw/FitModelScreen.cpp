@@ -94,6 +94,7 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
     m_PickPtsLayout.AddY( browser_h );
 
     m_TargetGeomPicker.AddExcludeType( MESH_GEOM_TYPE );
+    m_TargetGeomPicker.AddExcludeType( HUMAN_GEOM_TYPE );
     m_TargetGeomPicker.AddExcludeType( PT_CLOUD_GEOM_TYPE );
     m_TargetGeomPicker.AddExcludeType( WIRE_FRAME_GEOM_TYPE );
     m_TargetGeomPicker.AddExcludeType( BLANK_GEOM_TYPE );

@@ -657,6 +657,7 @@ string Vehicle::AddGeom( const GeomType & type )
             {
                 if ( par->GetType().m_Type == BLANK_GEOM_TYPE ||
                      par->GetType().m_Type == MESH_GEOM_TYPE ||
+                     par->GetType().m_Type == HUMAN_GEOM_TYPE ||
                      par->GetType().m_Type == PT_CLOUD_GEOM_TYPE ||
                      par->GetType().m_Type == HINGE_GEOM_TYPE ||
                      par->GetType().m_Type == CONFORMAL_GEOM_TYPE ||
