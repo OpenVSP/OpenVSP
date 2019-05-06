@@ -3700,7 +3700,7 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
             j = 0; // Only inlclude airfoils at start and end of XSec for first XSec
         }
 
-        for ( j; j < utess_vec[i]; j++ )
+        for ( /* j */; j < utess_vec[i]; j++ )
         {
             string af_file_name = m_Name + "_";
 
