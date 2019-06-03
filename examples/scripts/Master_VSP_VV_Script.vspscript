@@ -2983,7 +2983,7 @@ class HersheyVV : VV_Base
         const double d_alpha = alpha_f - alpha_0;
         const double Vinf = 100;
         const double alpha_step = d_alpha/(m_AlphaNpts - 1);
-        const uint8 alpha_mid_index = (m_AlphaNpts - 1)/2.0;
+        const uint8 alpha_mid_index = uint8((m_AlphaNpts - 1)/2.0);
 
         array<array<double>> alpha_vlm(num_AR), Cl_vlm(num_AR), Cl_approx(num_AR);
         array<double> Cl_alpha_vlm(num_AR), Lift_angle_vlm(num_AR), Lift_angle_theo(num_AR), AR(num_AR), C_ratio(num_AR), 
