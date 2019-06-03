@@ -2269,6 +2269,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert(r >= 0);
     r = se->RegisterGlobalFunction( "int GetNumControlSurfaceGroups()", asFUNCTION( vsp::GetNumControlSurfaceGroups ), asCALL_CDECL );
     assert( r >= 0 );
+    r = se->RegisterGlobalFunction("void CreateVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::CreateVSPAEROControlSurfaceGroup), asCALL_CDECL);
+    assert(r >= 0);
+    r = se->RegisterGlobalFunction("void AddAllVSPAEROControlSurfaces()", asFUNCTION(vsp::AddAllVSPAEROControlSurfaces), asCALL_CDECL);
+    assert(r >= 0);
+    r = se->RegisterGlobalFunction("void RemoveAllVSPAEROControlSurfaces()", asFUNCTION(vsp::RemoveAllVSPAEROControlSurfaces), asCALL_CDECL);
+    assert(r >= 0);
+    r = se->RegisterGlobalFunction("void SetVSPAEROControlGroupName( const string & name )", asFUNCTION(vsp::SetVSPAEROControlGroupName), asCALL_CDECL);
+    assert(r >= 0);
     r = se->RegisterGlobalFunction( "void CutXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CutXSec ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void CopyXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CopyXSec ), asCALL_CDECL );

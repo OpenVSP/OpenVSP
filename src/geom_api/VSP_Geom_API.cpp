@@ -733,6 +733,47 @@ void AutoGroupVSPAEROControlSurfaces()
     VSPAEROMgr.InitControlSurfaceGroups();
 }
 
+void CreateVSPAEROControlSurfaceGroup()
+{
+    VSPAEROMgr.Update();
+    VSPAEROMgr.AddControlSurfaceGroup();
+}
+
+void AddAllVSPAEROControlSurfaces()
+{
+    VSPAEROMgr.Update;
+    VSPAEROMgr.AddAllToCSGroup();
+}
+
+void RemoveAllVSPAEROControlSurfaces()
+{
+    VSPAEROMgr.Update;
+    VSPAEROMgr.RemoveAllFromCSGroup();
+}
+
+void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex)
+{
+    VSPAEROMgr.Update();
+    VSPAEROMgr.m_CurrentCSGroupIndex = CSGroupIndex
+    VSPAEROMgr.SetCurrentCSGroupName(name);
+}
+
+void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex)
+{
+    VSPAEROMgr.Update;
+    VSPAEROMgr.m_SelectedUngroupedCS = selected;
+    VSPAEROMgr.m_CurrentCSGroupIndex = CSGroupIndex;
+    VSPAEROMgr.AddSelectedToCSGroup();
+}
+
+void RemoveSelectedFromCSGroup(vector <int> selected, int CSGroupIndex)
+{
+    VSPAEROMgr.Update;
+    VSPAEROMgr.m_SelectedGroupedCS = selected;
+    VSPAEROMgr.m_CurrentCSGroupIndex = CSGroupIndex;
+    VSPAEROMgr.RemoveSelectedFromCSGroup();
+}
+
 int GetNumControlSurfaceGroups()
 {
     return VSPAEROMgr.GetControlSurfaceGroupVec().size();
