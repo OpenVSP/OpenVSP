@@ -12,6 +12,8 @@ void main()
 
     //==== Execute Cp Slicer ====//
     CpSlice();
+    
+    Print( string( "CpSlicer Completed Successfully" ) );
 }
 
 void CreateGeometry()
@@ -118,6 +120,7 @@ void CpSlice()
     // Set defaults
     SetAnalysisInputDefaults( analysis_name );
     
+    array< int > analysis_method = GetIntAnalysisInput( analysis_name, "AnalysisMethod" );
     analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
     SetIntAnalysisInput( analysis_name, "AnalysisMethod", analysis_method );
     
