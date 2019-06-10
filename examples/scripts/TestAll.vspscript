@@ -304,7 +304,7 @@ void TestAPIScript()
     Print( string( "---> Test Read Fuse File" ) );
     ChangeXSecShape( xsec_surf, 2, XS_FILE_FUSE );
     xsec = GetXSec( xsec_surf, 2 );
-    array< vec3d > @vec_array = ReadFileXSec( xsec, "../../TestXSec.fxs" );
+    array< vec3d > @vec_array = ReadFileXSec( xsec, "TestXSec.fxs" ); // FIXME: File is not transferred from REPO
 
     if ( vec_array.size() > 0 )
     {
@@ -319,7 +319,7 @@ void TestAPIScript()
     Print( string( "---> Test Read Airfoil File" ) );
     ChangeXSecShape( xsec_surf, 1, XS_FILE_AIRFOIL );
     xsec = GetXSec( xsec_surf, 1 );
-    ReadFileAirfoil( xsec, "../../N0012_VSP.af" );
+    ReadFileAirfoil( xsec, "airfoil/N0012_VSP.af" );
 
     array< vec3d > @up_array = GetAirfoilUpperPnts( xsec );
     array< vec3d > @low_array = GetAirfoilLowerPnts( xsec );
@@ -506,7 +506,7 @@ void TestAPIScript()
     ClearVSPModel();
 
     array<string> @ctr_arr = FindContainers();
-    if ( ctr_arr.size() != 7 )            { Print( "---> Error: API FindContainers " ); }
+    if ( ctr_arr.size() != 8 )            { Print( "---> Error: API FindContainers " ); }
 
     ctr_arr = FindContainersWithName( "UserParms" );
     if ( ctr_arr.size() != 1 )            { Print( "---> Error: API FindContainersWithName " ); }
