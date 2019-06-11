@@ -1695,7 +1695,7 @@ void VSPAEROMgrSingleton::MonitorSolver( FILE * logFile )
     buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
     unsigned long nread = 1;
     bool runflag = m_SolverProcess.IsRunning();
-    while ( runflag || nread > 0 )
+    while ( runflag || ( nread > 0 && nread != ( unsigned long ) - 1 ) )
     {
         m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
         if( nread > 0 && nread != ( unsigned long ) - 1 )
