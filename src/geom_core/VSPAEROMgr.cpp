@@ -3214,37 +3214,35 @@ VspSurf CpSlice::CreateSurf()
     {
         vec3d pnt0, pnt1, pnt2, pnt3;
 
-        // TODO: Improve Surface Sizing 
-        double size = veh->GetBndBox().GetLargestDist() / 2;
-        if ( size <= 1.0e-7 )
-        {
-            size = 0.5; // Make a unit square plane if no vehicle bounding box
-        }
+        vec3d max_pnt = veh->GetBndBox().GetMax();
+        vec3d min_pnt = veh->GetBndBox().GetMin();
+        double del_x = ( max_pnt.x() - min_pnt.x() ) / 2;
+        double del_y = ( max_pnt.y() - min_pnt.y() ) / 2;
+        double del_z = ( max_pnt.z() - min_pnt.z() ) / 2;
 
-        double to_corner = size / sin( DEG_2_RAD * 45 );
         vec3d veh_center = veh->GetBndBox().GetCenter();
 
         // Center at vehicle bounding box center
         if ( m_CutType() == vsp::X_DIR )
         {
-            pnt0 = vec3d( m_CutPosition(), to_corner + veh_center.y(), to_corner + veh_center.z() );
-            pnt1 = vec3d( m_CutPosition(), -1 * to_corner + veh_center.y(), to_corner + veh_center.z() );
-            pnt2 = vec3d( m_CutPosition(), to_corner + veh_center.y(), -1 * to_corner + veh_center.z() );
-            pnt3 = vec3d( m_CutPosition(), -1 * to_corner + veh_center.y(), -1 * to_corner + veh_center.z() );
+            pnt0 = vec3d( m_CutPosition(), del_y + veh_center.y(), del_z + veh_center.z() );
+            pnt1 = vec3d( m_CutPosition(), -1 * del_y + veh_center.y(), del_z + veh_center.z() );
+            pnt2 = vec3d( m_CutPosition(), del_y + veh_center.y(), -1 * del_z + veh_center.z() );
+            pnt3 = vec3d( m_CutPosition(), -1 * del_y + veh_center.y(), -1 * del_z + veh_center.z() );
         }
         else if ( m_CutType() == vsp::Y_DIR )
         {
-            pnt0 = vec3d( to_corner + veh_center.x(), m_CutPosition(), to_corner + veh_center.z() );
-            pnt1 = vec3d( -1 * to_corner + veh_center.x(), m_CutPosition(), to_corner + veh_center.z() );
-            pnt2 = vec3d( to_corner + veh_center.x(), m_CutPosition(), -1 * to_corner + veh_center.z() );
-            pnt3 = vec3d( -1 * to_corner + veh_center.x(), m_CutPosition(), -1 * to_corner + veh_center.z() );
+            pnt0 = vec3d(del_x + veh_center.x(), m_CutPosition(), del_z + veh_center.z() );
+            pnt1 = vec3d( -1 * del_x + veh_center.x(), m_CutPosition(), del_z + veh_center.z() );
+            pnt2 = vec3d(del_x + veh_center.x(), m_CutPosition(), -1 * del_z + veh_center.z() );
+            pnt3 = vec3d( -1 * del_x + veh_center.x(), m_CutPosition(), -1 * del_z + veh_center.z() );
         }
         else if ( m_CutType() == vsp::Z_DIR )
         {
-            pnt0 = vec3d( to_corner + veh_center.x(), to_corner + veh_center.y(), m_CutPosition() );
-            pnt1 = vec3d( -1 * to_corner + veh_center.x(), to_corner + veh_center.y(), m_CutPosition() );
-            pnt2 = vec3d( to_corner + veh_center.x(), -1 * to_corner + veh_center.y(), m_CutPosition() );
-            pnt3 = vec3d( -1 * to_corner + veh_center.x(), -1 * to_corner + veh_center.y(), m_CutPosition() );
+            pnt0 = vec3d(del_x + veh_center.x(), del_y + veh_center.y(), m_CutPosition() );
+            pnt1 = vec3d( -1 * del_x + veh_center.x(), del_y + veh_center.y(), m_CutPosition() );
+            pnt2 = vec3d(del_x + veh_center.x(), -1 * del_y + veh_center.y(), m_CutPosition() );
+            pnt3 = vec3d( -1 * del_x + veh_center.x(), -1 * del_y + veh_center.y(), m_CutPosition() );
         }
 
         slice_surf.MakePlaneSurf( pnt0, pnt1, pnt2, pnt3 );
