@@ -353,6 +353,10 @@ void APITestSuiteParasiteDrag::TestSubSurfaceHandling()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
     printf( "COMPLETE\n" );
 
+    std::vector< int > export_subcomps; export_subcomps.push_back( 1 );
+    vsp::SetIntAnalysisInput( "ParasiteDrag", "ExportSubCompFlag", export_subcomps, 0 );
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
     // Execute
     printf( "\tExecuting...\n" );
     string results_id = vsp::ExecAnalysis( "ParasiteDrag" );
