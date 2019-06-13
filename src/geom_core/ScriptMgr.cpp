@@ -2619,7 +2619,10 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string GetVSPExePath()", asMETHOD( ScriptMgrSingleton, GetVSPExePath ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
-
+    r = se->RegisterGlobalFunction( "void VSPCheckSetup()", asFUNCTION( vsp::VSPCheckSetup ), asCALL_CDECL );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void VSPRenew()", asFUNCTION( vsp::VSPRenew ), asCALL_CDECL );
+    assert( r >= 0 );
 
     //====  Register Proxy Utility Functions ====//
     r = se->RegisterGlobalFunction( "array<vec3d>@ GetProxyVec3dArray()", asMETHOD( ScriptMgrSingleton, GetProxyVec3dArray ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
