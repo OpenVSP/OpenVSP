@@ -472,40 +472,21 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
                         }
                         else 
                         {
-                            // Coplanar surfaces are symmetric. Delete one surface and significantly oversize the other. 
+                            // Coplanar surfaces are symmetric. Delete one surface resize the other. 
                             // Note: Fixed points on the oversized surface will not be at the same UW coordinate
-                            vec3d orgin, all_max, all_min;
 
-                            if ( dist( maxA, orgin ) > dist( maxB, orgin ) )
-                            {
-                                all_max = maxA;
-                            }
-                            else
-                            {
-                                all_max = maxB;
-                            }
-
-                            if ( dist( minA, orgin ) > dist( minB, orgin ) )
-                            {
-                                all_min = minA;
-                            }
-                            else
-                            {
-                                all_min = minB;
-                            }
+                            // Identify how much larger to make the new surface (Note: May result in undesired surface intersections)
+                            BndBox new_bbox = bboxA;
+                            new_bbox.Update( bboxB );
+                            double scale_factor = 1 + ( new_bbox.GetLargestDist() - bboxA.GetLargestDist() ) / bboxA.GetLargestDist();
 
                             // Move center of the surface to the orgin prior to expanding
                             vec3d centerA = ( maxA + minA ) / 2;
+                            vec3d new_center = new_bbox.GetCenter();
+
                             new_surf.Offset( -1 * centerA );
-
-                            vec3d diag_vec = all_max - all_min;
-
-                            // Note: The scaling may need adjustment. Errors can result if the surface becomes extremely large from merging multiple surfaces
-                            new_surf.ScaleX( 1 + abs( diag_vec[0] ) );
-                            new_surf.ScaleY( 1 + abs( diag_vec[1] ) );
-                            new_surf.ScaleZ( 1 + abs( diag_vec[2] ) );
-
-                            new_surf.Offset( centerA );
+                            new_surf.Scale( scale_factor );
+                            new_surf.Offset( new_center );
                         }
 
                         fea_part_vec[all_feaprt_ind_vec[i]]->DeleteFeaPartSurf( feaprt_surf_ind_vec[i] );
@@ -532,9 +513,11 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
 
                         // Add merged surface
                         fea_part_vec[all_feaprt_ind_vec[i]]->AddFeaPartSurf( new_surf );
+                        // Update surface index
+                        feaprt_surf_ind_vec[i] = fea_part_vec[all_feaprt_ind_vec[i]]->GetFeaPartSurfVec().size() - 1;
                         all_surf_vec[i] = new_surf;
                         all_surf_vec[j] = new_surf;
-                        all_norm_vec[j] = vec3d();
+                        all_norm_vec[j] = vec3d(); // Only clear normal vector of deleted surface
 
                         // Output warning if FeaParts are different due to data loss (symmetric parts retain all FeaPart data)
                         if ( all_feaprt_ind_vec[i] != all_feaprt_ind_vec[j] )
