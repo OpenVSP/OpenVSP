@@ -687,6 +687,147 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     vector < SimpTri > all_tri_vec;
     vector < int > tri_surf_ind_vec; // Vector of surface index for each SimpTri
 
+    // Build FeaBeam Intersections
+    list< ISegChain* >::iterator c;
+
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    {
+        if ( !( *c )->m_BorderFlag ) // Only include intersection curves
+        {
+            // Check at least one surface intersection cap flag is true
+            int FeaPartCapA = m_FeaPartIncludedElementsVec[( *c )->m_SurfA->GetFeaPartIndex()];
+            int FeaPartCapB = m_FeaPartIncludedElementsVec[( *c )->m_SurfB->GetFeaPartIndex()];
+
+            vector < vec3d > ipntVec, inormVec;
+            vector < vec2d > iuwVec;
+            vector < int > ssindexVec;
+            Surf* NormSurf;
+            int FeaPartIndex = -1;
+
+            // Check if one surface is a skin and one is an FeaPart (m_CompID = -9999)
+            if ( ( ( FeaPartCapA == vsp::FEA_BEAM || FeaPartCapA == vsp::FEA_SHELL_AND_BEAM ) || ( FeaPartCapB == vsp::FEA_BEAM || FeaPartCapB == vsp::FEA_SHELL_AND_BEAM ) ) &&
+                ( ( ( *c )->m_SurfA->GetCompID() < 0 && ( *c )->m_SurfB->GetCompID() >= 0 ) || ( ( *c )->m_SurfB->GetCompID() < 0 && ( *c )->m_SurfA->GetCompID() >= 0 ) ) )
+            {
+                vec3d center;
+
+                if ( ( *c )->m_SurfA->GetCompID() < 0 && ( FeaPartCapA == vsp::FEA_BEAM || FeaPartCapA == vsp::FEA_SHELL_AND_BEAM ) )
+                {
+                    FeaPartIndex = ( *c )->m_SurfA->GetFeaPartIndex();
+                    center = ( *c )->m_SurfA->GetBBox().GetCenter();
+                }
+                else if ( ( *c )->m_SurfB->GetCompID() < 0 && ( FeaPartCapB == vsp::FEA_BEAM || FeaPartCapB == vsp::FEA_SHELL_AND_BEAM ) )
+                {
+                    FeaPartIndex = ( *c )->m_SurfB->GetFeaPartIndex();
+                    center = ( *c )->m_SurfB->GetBBox().GetCenter();
+                }
+
+                // Identify the normal surface as the skin surface
+                if ( ( *c )->m_SurfA->GetCompID() >= 0 )
+                {
+                    NormSurf = ( *c )->m_SurfA;
+                }
+                else if ( ( *c )->m_SurfB->GetCompID() >= 0 )
+                {
+                    NormSurf = ( *c )->m_SurfB;
+                }
+
+                // Get points and compute normals
+                for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j++ )
+                {
+                    Puw* Puw = ( *c )->m_TessVec[j]->GetPuw( NormSurf );
+                    iuwVec.push_back( vec2d( Puw->m_UW[0], Puw->m_UW[1] ) );
+                    vec3d norm = NormSurf->GetSurfCore()->CompNorm( Puw->m_UW[0], Puw->m_UW[1] );
+                    norm.normalize();
+
+                    if ( NormSurf->GetFlipFlag() )
+                    {
+                        norm = -1 * norm;
+                    }
+
+                    inormVec.push_back( norm );
+                    ipntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
+                    ssindexVec.push_back( -1 ); // Indicates not a subsurface intersection
+                }
+
+                // Check if the direction of ipntVec. Reverse point and norm vec order if negative
+                double theta = signed_angle( ipntVec[0] - center, ipntVec.back() - center, center );
+                if ( theta < 0 )
+                {
+                    reverse( inormVec.begin(), inormVec.end() );
+                    reverse( ipntVec.begin(), ipntVec.end() );
+                }
+            }
+            // Check for an intersection with the same component ID -> indicates a subsurface intersection
+            else if ( ( *c )->m_SurfA->GetCompID() == ( *c )->m_SurfB->GetCompID() && ( *c )->m_SurfA->GetCompID() >= 0 )
+            {
+                if ( ( *c )->m_SSIntersectIndex >= 0 )
+                {
+                    FeaPartIndex = ( *c )->m_SurfA->GetFeaPartIndex();
+                    NormSurf = ( *c )->m_SurfA;
+
+                    // Get points and compute normals
+                    for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j++ )
+                    {
+                        Puw* Puw = ( *c )->m_TessVec[j]->GetPuw( NormSurf );
+                        iuwVec.push_back( vec2d( Puw->m_UW[0], Puw->m_UW[1] ) );
+                        vec3d norm = NormSurf->GetSurfCore()->CompNorm( Puw->m_UW[0], Puw->m_UW[1] );
+                        norm.normalize();
+
+                        if ( NormSurf->GetFlipFlag() )
+                        {
+                            norm = -1 * norm;
+                        }
+
+                        inormVec.push_back( norm );
+                        ipntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
+                        ssindexVec.push_back( ( *c )->m_SSIntersectIndex );
+                    }
+                }
+            }
+            // Define FeaBeam elements
+            for ( int j = 1; j < (int)ipntVec.size(); j++ )
+            {
+                FeaBeam* beam = new FeaBeam;
+
+                vec3d start_pnt = ipntVec[j - 1];
+                vec3d end_pnt = ipntVec[j];
+
+                // Check for collapsed beam elements (caused by bug in Intersect where invalid intersection points are added to m_BinMap)
+                if ( dist( start_pnt, end_pnt ) < FLT_EPSILON )
+                {
+                    printf( "Warning: Collapsed Beam Element Skipped\n" );
+                    break;
+                }
+
+                //// Use node point if close to beam endpoints (avoids tolerance errors in BuildIndMap and FindPntInd)
+                //for ( size_t k = 0; k < node_vec.size(); k++ )
+                //{
+                //    if ( dist( node_vec[k], start_pnt ) <= FLT_EPSILON )
+                //    {
+                //        start_pnt = node_vec[k];
+                //    }
+                //    else if ( dist( node_vec[k], end_pnt ) <= FLT_EPSILON )
+                //    {
+                //        end_pnt = node_vec[k];
+                //    }
+                //}
+
+                all_pnt_vec.push_back( start_pnt );
+                all_pnt_vec.push_back( end_pnt );
+                uw_surf_ind_vec.push_back( NormSurf->GetSurfID() );
+                uw_surf_ind_vec.push_back( NormSurf->GetSurfID() );
+                all_uw_vec.push_back( iuwVec[j - 1] );
+                all_uw_vec.push_back( iuwVec[j] );
+
+                beam->Create( start_pnt, end_pnt, inormVec[j - 1] );
+                beam->SetFeaPartIndex( FeaPartIndex );
+                beam->SetFeaSSIndex( ssindexVec[j] );
+                m_FeaElementVec.push_back( beam );
+                m_NumBeams++;
+            }
+        }
+    }
+
     for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
     {
         vector < vec2d > uw_vec_curr = m_SurfVec[s]->GetMesh()->GetSimpUWPntVec();
@@ -840,136 +981,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         m_NumTris++;
     }
 
-    // Build FeaBeam Intersections
-    list< ISegChain* >::iterator c;
-
-    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
-    {
-        if ( !( *c )->m_BorderFlag ) // Only include intersection curves
-        {
-            // Check at least one surface intersection cap flag is true
-            int FeaPartCapA = m_FeaPartIncludedElementsVec[( *c )->m_SurfA->GetFeaPartIndex()];
-            int FeaPartCapB = m_FeaPartIncludedElementsVec[( *c )->m_SurfB->GetFeaPartIndex()];
-
-            vector< vec3d > ipntVec, inormVec;
-            vector < int > ssindexVec;
-            Surf* NormSurf;
-            int FeaPartIndex = -1;
-
-            // Check if one surface is a skin and one is an FeaPart (m_CompID = -9999)
-            if ( ( ( FeaPartCapA == vsp::FEA_BEAM || FeaPartCapA == vsp::FEA_SHELL_AND_BEAM ) || ( FeaPartCapB == vsp::FEA_BEAM || FeaPartCapB == vsp::FEA_SHELL_AND_BEAM ) ) &&
-                ( ( ( *c )->m_SurfA->GetCompID() < 0 && ( *c )->m_SurfB->GetCompID() >= 0 ) || ( ( *c )->m_SurfB->GetCompID() < 0 && ( *c )->m_SurfA->GetCompID() >= 0 ) ) )
-            {
-                vec3d center;
-
-                if ( ( *c )->m_SurfA->GetCompID() < 0 && ( FeaPartCapA == vsp::FEA_BEAM || FeaPartCapA == vsp::FEA_SHELL_AND_BEAM ) )
-                {
-                    FeaPartIndex = ( *c )->m_SurfA->GetFeaPartIndex();
-                    center = ( *c )->m_SurfA->GetBBox().GetCenter();
-                }
-                else if ( ( *c )->m_SurfB->GetCompID() < 0 && ( FeaPartCapB == vsp::FEA_BEAM || FeaPartCapB == vsp::FEA_SHELL_AND_BEAM ) )
-                {
-                    FeaPartIndex = ( *c )->m_SurfB->GetFeaPartIndex();
-                    center = ( *c )->m_SurfB->GetBBox().GetCenter();
-                }
-
-                // Identify the normal surface as the skin surface
-                if ( ( *c )->m_SurfA->GetCompID() >= 0 )
-                {
-                    NormSurf = ( *c )->m_SurfA;
-                }
-                else if ( ( *c )->m_SurfB->GetCompID() >= 0 )
-                {
-                    NormSurf = ( *c )->m_SurfB;
-                }
-
-                // Get points and compute normals
-                for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j++ )
-                {
-                    Puw* Puw = ( *c )->m_TessVec[j]->GetPuw( NormSurf );
-                    vec3d norm = NormSurf->GetSurfCore()->CompNorm( Puw->m_UW[0], Puw->m_UW[1] );
-                    norm.normalize();
-
-                    if ( NormSurf->GetFlipFlag() )
-                    {
-                        norm = -1 * norm;
-                    }
-
-                    inormVec.push_back( norm );
-                    ipntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
-                    ssindexVec.push_back( -1 ); // Indicates not a subsurface intersection
-                }
-
-                // Check if the direction of ipntVec. Reverse point and norm vec order if negative
-                double theta = signed_angle( ipntVec[0] - center, ipntVec.back() - center, center );
-                if ( theta < 0 )
-                {
-                    reverse( inormVec.begin(), inormVec.end() );
-                    reverse( ipntVec.begin(), ipntVec.end() );
-                }
-            }
-            // Check for an intersection with the same component ID -> indicates a subsurface intersection
-            else if ( ( *c )->m_SurfA->GetCompID() == ( *c )->m_SurfB->GetCompID() && ( *c )->m_SurfA->GetCompID() >= 0 )
-            {
-                if ( ( *c )->m_SSIntersectIndex >= 0 )
-                {
-                    FeaPartIndex = ( *c )->m_SurfA->GetFeaPartIndex();
-                    NormSurf = ( *c )->m_SurfA;
-
-                    // Get points and compute normals
-                    for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j++ )
-                    {
-                        Puw* Puw = ( *c )->m_TessVec[j]->GetPuw( NormSurf );
-                        vec3d norm = NormSurf->GetSurfCore()->CompNorm( Puw->m_UW[0], Puw->m_UW[1] );
-                        norm.normalize();
-
-                        if ( NormSurf->GetFlipFlag() )
-                        {
-                            norm = -1 * norm;
-                        }
-
-                        inormVec.push_back( norm );
-                        ipntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
-                        ssindexVec.push_back( ( *c )->m_SSIntersectIndex );
-                    }
-                }
-            }
-            // Define FeaBeam elements
-            for ( int j = 1; j < (int)ipntVec.size(); j++ )
-            {
-                FeaBeam* beam = new FeaBeam;
-
-                vec3d start_pnt = ipntVec[j - 1];
-                vec3d end_pnt = ipntVec[j];
-
-                // Check for collapsed beam elements (caused by bug in Intersect where invalid intersection points are added to m_BinMap)
-                if ( dist( start_pnt, end_pnt ) < FLT_EPSILON )
-                {
-                    printf( "Warning: Collapsed Beam Element Skipped\n" );
-                    break;
-                }
-
-                // Use node point if close to beam endpoints (avoids tolerance errors in BuildIndMap and FindPntInd)
-                for ( size_t k = 0; k < node_vec.size(); k++ )
-                {
-                    if ( dist( node_vec[k], start_pnt ) <= FLT_EPSILON )
-                    {
-                        start_pnt = node_vec[k];
-                    }
-                    else if ( dist( node_vec[k], end_pnt ) <= FLT_EPSILON )
-                    {
-                        end_pnt = node_vec[k];
-                    }
-                }
-
-                beam->Create( start_pnt, end_pnt, inormVec[j - 1] );
-                beam->SetFeaPartIndex( FeaPartIndex );
-                beam->SetFeaSSIndex( ssindexVec[j] );
-                m_FeaElementVec.push_back( beam );
-                m_NumBeams++;
-            }
-        }
-    }
+ 
 }
 
 void FeaMeshMgrSingleton::ComputeWriteMass()
