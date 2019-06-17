@@ -647,7 +647,7 @@ void StructureMgrSingleton::DeleteFeaProperty( int index )
     int shell_cnt = 0;
     int beam_cnt = 0;
 
-    for ( size_t i = 0; i  < m_FeaPropertyVec.size(); i++ )
+    for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
     {
         if ( m_FeaPropertyVec[i]->m_FeaPropertyType() == vsp::FEA_SHELL )
         {
@@ -670,6 +670,52 @@ void StructureMgrSingleton::DeleteFeaProperty( int index )
 
     delete m_FeaPropertyVec[index];
     m_FeaPropertyVec.erase( m_FeaPropertyVec.begin() + index );
+
+    // Reset FEA Property index for FEA Parts using deleted property
+    vector < FeaStructure* > struct_vec = GetAllFeaStructs();
+
+    for ( size_t i = 0; i < struct_vec.size(); i++ )
+    {
+        vector < FeaPart* > part_vec = struct_vec[i]->GetFeaPartVec();
+
+        for ( size_t j = 0; j < part_vec.size(); j++ )
+        {
+            if ( part_vec[j]->m_FeaPropertyIndex() == index )
+            {
+                for ( size_t k = 0; k < m_FeaPropertyVec.size(); k++ )
+                {
+                    if ( m_FeaPropertyVec[k]->m_FeaPropertyType() == vsp::FEA_SHELL )
+                    {
+                        part_vec[j]->m_FeaPropertyIndex.Set( k );
+                        break;
+                    }
+                }
+            }
+
+            if ( part_vec[j]->m_CapFeaPropertyIndex() == index )
+            {
+                for ( size_t k = 0; k < m_FeaPropertyVec.size(); k++ )
+                {
+                    if ( m_FeaPropertyVec[k]->m_FeaPropertyType() == vsp::FEA_BEAM )
+                    {
+                        part_vec[j]->m_CapFeaPropertyIndex.Set( k );
+                        break;
+                    }
+                }
+            }
+
+            // Decrease FEA Property index for FEA Parts with index greater than the removed index
+            if ( part_vec[j]->m_FeaPropertyIndex() > index )
+            {
+                part_vec[j]->m_FeaPropertyIndex.Set( part_vec[j]->m_FeaPropertyIndex() - 1 );
+            }
+            
+            if ( part_vec[j]->m_CapFeaPropertyIndex() > index )
+            {
+                part_vec[j]->m_CapFeaPropertyIndex.Set( part_vec[j]->m_CapFeaPropertyIndex() - 1 );
+            }
+        }
+    }
 }
 
 //==== Validate FeaProperty Index ====//
@@ -757,6 +803,8 @@ void StructureMgrSingleton::DeleteFeaMaterial( int index )
 
     delete m_FeaMaterialVec[index];
     m_FeaMaterialVec.erase( m_FeaMaterialVec.begin() + index );
+
+    // TODO: Reset FEA Material index for FEA Properties using deleted material
 }
 
 //==== Validate FeaMaterial Index ====//
