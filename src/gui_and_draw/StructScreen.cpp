@@ -2242,7 +2242,14 @@ void StructScreen::CallBack( Fl_Widget* w )
 
                         if ( feaprt )
                         {
-                            m_FeaPartChoice.SetVal( feaprt->GetType() );
+                            if ( feaprt->GetType() == vsp::FEA_SKIN )
+                            {
+                                m_SelectedFeaPartChoice = 0; // No dropdown available
+                            }
+                            else
+                            {
+                                m_SelectedFeaPartChoice = feaprt->GetType();
+                            }
                         }
                     }
                     else if ( m_SelectedPartIndexVec[0] >= structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
@@ -2251,7 +2258,7 @@ void StructScreen::CallBack( Fl_Widget* w )
 
                         if ( subsurf )
                         {
-                            m_FeaPartChoice.SetVal( subsurf->GetType() );
+                            m_SelectedFeaPartChoice = subsurf->GetType() + m_NumFeaPartChoices;
                         }
                     }
                 }
