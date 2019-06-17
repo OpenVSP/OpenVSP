@@ -804,7 +804,15 @@ void StructureMgrSingleton::DeleteFeaMaterial( int index )
     delete m_FeaMaterialVec[index];
     m_FeaMaterialVec.erase( m_FeaMaterialVec.begin() + index );
 
-    // TODO: Reset FEA Material index for FEA Properties using deleted material
+    // Reset FEA Material index for FEA Properties using deleted material
+    for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
+    {
+        // Decrease FEA Material index for FEA Properties with index >= removed index
+        if ( m_FeaPropertyVec[i]->m_FeaMaterialIndex() >= index )
+        {
+            m_FeaPropertyVec[i]->m_FeaMaterialIndex.Set( m_FeaPropertyVec[i]->m_FeaMaterialIndex() - 1 );
+        }
+    }
 }
 
 //==== Validate FeaMaterial Index ====//
