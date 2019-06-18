@@ -1279,6 +1279,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "PROP_PCURVE", "NUM_PROP_PCURVE", NUM_PROP_PCURVE );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "REF_WING_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "REF_WING_TYPE", "MANUAL_REF", MANUAL_REF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "REF_WING_TYPE", "COMPONENT_REF", COMPONENT_REF );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "REF_WING_TYPE", "NUM_REF_TYPES", NUM_REF_TYPES );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "RES_DATA_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "RES_DATA_TYPE", "INVALID_TYPE", INVALID_TYPE );
@@ -1491,15 +1500,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "VSPAERO_PRECONDITION", "PRECON_JACOBI", PRECON_JACOBI );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_PRECONDITION", "PRECON_SSOR", PRECON_SSOR );
-    assert( r >= 0 );
-
-    r = se->RegisterEnum( "VSPAERO_REF_WING_TYPE" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_REF_WING_TYPE", "MANUAL_REF", MANUAL_REF );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_REF_WING_TYPE", "COMPONENT_REF", COMPONENT_REF );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_REF_WING_TYPE", "NUM_REF_TYPES", NUM_REF_TYPES );
     assert( r >= 0 );
 
     r = se->RegisterEnum( "VSPAERO_STABILITY_TYPE" );

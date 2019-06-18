@@ -150,13 +150,6 @@ public:
         ROTORDISK = 0,      // user has selected a rotor disk
         CONTROL_SURFACE,    // user has selected a control surface
     };
-    // Aerodynamic reference area and length
-    enum REF_WING_TYPE
-    {
-        MANUAL_REF = 0,     // manually specify the reference areas and lengths
-        COMPONENT_REF,      // use a particular wing to calculate the reference area and lengths
-        NUM_REF_TYPES,
-    };
 
     static VSPAEROMgrSingleton& getInstance()
     {

@@ -152,8 +152,6 @@ public:
     double m_CDWave;
     int m_iMaxDrag;
 
-    enum { MANUAL_REF = 0, COMPONENT_REF, };
-
 private:
 
     WaveDragSingleton();

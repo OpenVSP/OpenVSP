@@ -39,7 +39,7 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_SortByFlag.Init( "SortBy", groupname, this, PD_SORT_NONE, PD_SORT_NONE, PD_SORT_PERC_CD );
     m_SortByFlag.SetDescript( "Flag to determine what geometries are sorted by" );
 
-    m_RefFlag.Init( "RefFlag", groupname, this, MANUAL_REF, MANUAL_REF, COMPONENT_REF );
+    m_RefFlag.Init( "RefFlag", groupname, this, vsp::MANUAL_REF, vsp::MANUAL_REF, vsp::COMPONENT_REF );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
     m_Sref.Init( "Sref", groupname, this, 100.0, 0.0, 1e12 );
@@ -2487,7 +2487,7 @@ bool ParasiteDragMgrSingleton::ShouldAddGeomToMasterGeom( const size_t &i, const
 void ParasiteDragMgrSingleton::UpdateRefWing()
 {
     // Update Reference Area Section
-    if ( m_RefFlag() == MANUAL_REF )
+    if ( m_RefFlag() == vsp::MANUAL_REF )
     {
         // Allow Manual Input
         m_Sref.Activate();

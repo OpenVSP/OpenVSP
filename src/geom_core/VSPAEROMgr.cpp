@@ -250,7 +250,7 @@ void VSPAEROMgrSingleton::Renew()
 
     m_AnalysisMethod.Set( vsp::VORTEX_LATTICE );
     m_GeomSet.Set( vsp::SET_ALL );
-    m_RefFlag.Set( MANUAL_REF );
+    m_RefFlag.Set( vsp::MANUAL_REF );
     m_Sref.Set( 100 );
     m_bref.Set( 1.0 );
     m_cref.Set( 1.0 );

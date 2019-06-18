@@ -983,7 +983,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     geom_set.push_back( 0 );
     vsp::SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
     vector< int > ref_flag;
-    ref_flag.push_back( vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF );
+    ref_flag.push_back( vsp::REF_WING_TYPE::COMPONENT_REF );
     vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag, 0 );
     vector< string > wid = vsp::FindGeomsWithName( "WingGeom" );
     vsp::SetStringAnalysisInput( analysis_name, "WingID", wid, 0 );
@@ -1146,7 +1146,7 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     geom_set.push_back( 0 );
     vsp::SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
     vector< int > ref_flag;
-    ref_flag.push_back( vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF );
+    ref_flag.push_back( vsp::REF_WING_TYPE::COMPONENT_REF );
     vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag, 0 );
     vector< string > wid = vsp::FindGeomsWithName( "WingGeom" );
     vsp::SetStringAnalysisInput( analysis_name, "WingID", wid, 0 );
@@ -1301,7 +1301,7 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     geom_set.push_back( 0 );
     vsp::SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
     vector< int > ref_flag;
-    ref_flag.push_back( vsp::VSPAERO_REF_WING_TYPE::COMPONENT_REF );
+    ref_flag.push_back( vsp::REF_WING_TYPE::COMPONENT_REF );
     vsp::SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag, 0 );
     vector< string > wid = vsp::FindGeomsWithName( "WingGeom" );
     vsp::SetStringAnalysisInput( analysis_name, "WingID", wid, 0 );

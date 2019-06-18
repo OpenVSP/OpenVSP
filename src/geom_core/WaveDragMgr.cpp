@@ -30,7 +30,7 @@ WaveDragSingleton::WaveDragSingleton() : ParmContainer()
     m_SelectedSetIndex.Init( "SelSetIndex", "WaveDrag", this, 0, 0, 1.0e12 );
     m_SelectedSetIndex.SetDescript( "Selected Set Index" );
 
-    m_RefFlag.Init( "RefFlag", "WaveDrag", this, MANUAL_REF, MANUAL_REF, COMPONENT_REF );
+    m_RefFlag.Init( "RefFlag", "WaveDrag", this, vsp::MANUAL_REF, vsp::MANUAL_REF, vsp::COMPONENT_REF );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
     m_Sref.Init( "Sref", "WaveDrag", this, 100, 0.001, 1.0e12 );
@@ -123,7 +123,7 @@ void WaveDragSingleton::ParmChanged( Parm* parm_ptr, int type )
 
 void WaveDragSingleton::Update()
 {
-    if( m_RefFlag() == MANUAL_REF )
+    if( m_RefFlag() == vsp::MANUAL_REF )
     {
         m_Sref.Activate();
     }

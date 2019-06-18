@@ -64,7 +64,6 @@ class ParasiteDragMgrSingleton : public ParmContainer
 {
 public:
     // ==== ENUMERATORS ==== //
-    enum { MANUAL_REF = 0, COMPONENT_REF, }; // Ref Flag
     enum { PD_SORT_NONE = 0, PD_SORT_WETTED_AREA, PD_SORT_PERC_CD }; // Sort by
 
     // Required Refresh function for NEW file

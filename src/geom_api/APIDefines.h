@@ -443,6 +443,12 @@ enum PROP_PCURVE { PROP_CHORD,
                    NUM_PROP_PCURVE
                  };
 
+// Aerodynamic reference area and length
+enum REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the reference areas and lengths
+                     COMPONENT_REF,      // use a particular wing to calculate the reference area and lengths
+                     NUM_REF_TYPES
+                   };
+
 enum RES_DATA_TYPE {    INVALID_TYPE = -1,
                         INT_DATA = 0,
                         DOUBLE_DATA = 1,
@@ -558,12 +564,6 @@ enum VSPAERO_PRECONDITION { PRECON_MATRIX = 0,
                             PRECON_JACOBI,
                             PRECON_SSOR,
                           };
-
-// Aerodynamic reference area and length
-enum VSPAERO_REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the reference areas and lengths
-                             COMPONENT_REF,      // use a particular wing to calculate the reference area and lengths
-                             NUM_REF_TYPES
-                           };
 
 enum VSPAERO_STABILITY_TYPE { STABILITY_DEFAULT = 0,
                               STABILITY_P_ANALYSIS,
