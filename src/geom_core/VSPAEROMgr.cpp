@@ -2520,6 +2520,8 @@ void VSPAEROMgrSingleton::AddControlSurfaceGroup()
 
     m_SelectedGroupedCS.clear();
     UpdateActiveControlSurfVec();
+
+    HighlightSelected( CONTROL_SURFACE );
 }
 
 void VSPAEROMgrSingleton::RemoveControlSurfaceGroup()
