@@ -2641,7 +2641,7 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "string GetVSPVersion( )", asMETHOD( ScriptMgrSingleton, GetVSPVersion ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "string GetVSPExePath()", asMETHOD( ScriptMgrSingleton, GetVSPExePath ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    r = se->RegisterGlobalFunction( "string GetVSPExePath()", asFUNCTION( vsp::GetVSPExePath ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void VSPCheckSetup()", asFUNCTION( vsp::VSPCheckSetup ), asCALL_CDECL );
     assert( r >= 0 );
@@ -3448,14 +3448,4 @@ void ScriptMgrSingleton::Print( int data, bool new_line )
 {
     printf( " %d ", data );
     if ( new_line ) printf( "\n" );
-}
-
-string ScriptMgrSingleton::GetVSPExePath()
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( veh )
-    {
-        return veh->GetExePath();
-    }
-    return string();
 }

@@ -5717,4 +5717,14 @@ void DeleteAllProbes()
     MeasureMgr.DelAllProbes();
 }
 
-}   // vsp namespace
+string GetVSPExePath()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        return veh->GetExePath();
+    }
+    return string();
+}   
+
+}// vsp namespace
