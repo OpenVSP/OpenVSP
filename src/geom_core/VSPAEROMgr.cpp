@@ -746,48 +746,76 @@ void VSPAEROMgrSingleton::AddLinkableParms( vector < string > & linkable_parm_ve
 void VSPAEROMgrSingleton::InitControlSurfaceGroups()
 {
     Vehicle * veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
     ControlSurfaceGroup * csg;
     char str [256];
-    bool exists = false;
 
     for ( size_t i = 0 ; i < m_CompleteControlSurfaceVec.size(); ++i )
     {
-        // Construct a default group name
-        string curr_csg_id = m_CompleteControlSurfaceVec[i].parentGeomId + "_" + m_CompleteControlSurfaceVec[i].SSID;
-        exists = false;
-
-        // Has CS been placed into init group?
-        // --> No create group with any reflected groups
-        // --> Yes Skip
-        for ( size_t j = 0; j < m_ControlSurfaceGroupVec.size(); ++j )
+        // Only Autogroup Ungrouped Control Surfaces
+        if ( !m_CompleteControlSurfaceVec[i].isGrouped )
         {
-            if ( m_ControlSurfaceGroupVec[j]->m_ControlSurfVec.size() > 0 )
+            bool exists = false;
+
+            // Has CS been placed into init group?
+            // --> No create group with any reflected groups
+            // --> Yes Skip
+            for ( size_t j = 0; j < m_ControlSurfaceGroupVec.size(); ++j )
             {
-                sprintf( str, "%s_%s", m_ControlSurfaceGroupVec[j]->m_ParentGeomBaseID.c_str(),
-                         m_ControlSurfaceGroupVec[j]->m_ControlSurfVec[0].SSID.c_str() );
-                if ( curr_csg_id == str ) // Update Existing Control Surface Group
+                // Check if the control surface is available
+                m_CurrentCSGroupIndex = j;
+                UpdateActiveControlSurfVec();
+                vector < VspAeroControlSurf > ungrouped_vec = GetAvailableCSVec();
+                bool is_available = false;
+
+                for ( size_t k = 0; k < ungrouped_vec.size(); k++ )
                 {
-                    csg = m_ControlSurfaceGroupVec[j];
-                    csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
-                    m_ControlSurfaceGroupVec.back() = csg;
-                    exists = true;
-                    break;
+                    if ( ( m_CompleteControlSurfaceVec[i].fullName == ungrouped_vec[k].fullName ) &&
+                        ( m_CompleteControlSurfaceVec[i].parentGeomId == ungrouped_vec[k].parentGeomId ) &&
+                        ( m_CompleteControlSurfaceVec[i].SSID == ungrouped_vec[k].SSID ) &&
+                        ( m_CompleteControlSurfaceVec[i].isGrouped == ungrouped_vec[k].isGrouped ) &&
+                        ( m_CompleteControlSurfaceVec[i].iReflect == ungrouped_vec[k].iReflect ) )
+                    {
+                        is_available = true;
+                        break;
+                    }
+                }
+
+                if ( m_ControlSurfaceGroupVec[j]->m_ControlSurfVec.size() > 0 && is_available )
+                {
+                    // Construct a default group name
+                    string curr_csg_id = m_CompleteControlSurfaceVec[i].parentGeomId + "_" + m_CompleteControlSurfaceVec[i].SSID;
+
+                    sprintf( str, "%s_%s", m_ControlSurfaceGroupVec[j]->m_ParentGeomBaseID.c_str(),
+                        m_ControlSurfaceGroupVec[j]->m_ControlSurfVec[0].SSID.c_str() );
+                    if ( curr_csg_id == str ) // Update Existing Control Surface Group
+                    {
+                        csg = m_ControlSurfaceGroupVec[j];
+                        csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
+                        m_ControlSurfaceGroupVec.back() = csg;
+                        exists = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        if ( !exists ) // Create New Control Surface Group
-        {
-            Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[i].parentGeomId );
-            if ( geom )
+            if ( !exists ) // Create New Control Surface Group
             {
-                csg = new ControlSurfaceGroup;
-                csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
-                sprintf( str, "%s_%s", geom->GetName().c_str(),
-                         geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID )->GetName().c_str() );
-                csg->SetName( str );
-                csg->m_ParentGeomBaseID = m_CompleteControlSurfaceVec[i].parentGeomId;
-                m_ControlSurfaceGroupVec.push_back( csg );
+                Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[i].parentGeomId );
+                if ( geom )
+                {
+                    csg = new ControlSurfaceGroup;
+                    csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
+                    sprintf( str, "%s_%s", geom->GetName().c_str(),
+                        geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID )->GetName().c_str() );
+                    csg->SetName( str );
+                    csg->m_ParentGeomBaseID = m_CompleteControlSurfaceVec[i].parentGeomId;
+                    m_ControlSurfaceGroupVec.push_back( csg );
+                }
             }
         }
     }
