@@ -408,9 +408,9 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
         // Collect all surfaces and compute norms
-        for ( size_t k = 1; k < m_NumFeaParts; k++ )
+        for ( size_t k = 0; k < m_NumFeaParts; k++ )
         {
-            if ( fea_part_vec[k]->GetType() != vsp::FEA_DOME )
+            if ( fea_part_vec[k]->GetType() != vsp::FEA_DOME && fea_part_vec[k]->GetType() != vsp::FEA_SKIN )
             {
                 vector < VspSurf > surf_vec = fea_part_vec[k]->GetFeaPartSurfVec();
 
@@ -544,16 +544,16 @@ void FeaMeshMgrSingleton::AddStructureParts()
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
         //===== Add FeaParts ====//
-        for ( int i = 1; i < m_NumFeaParts; i++ ) // FeaSkin is index 0 and has been added already
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ ) // Do Not Assume Skin is Index 0
         {
-            if ( !fea_struct->FeaPartIsFixPoint( i ) )
+            if ( !fea_struct->FeaPartIsFixPoint( i ) && fea_part_vec[i]->GetType() != vsp::FEA_SKIN )
             {
                 int part_index = fea_struct->GetFeaPartIndex( fea_part_vec[i] );
                 vector< XferSurf > partxfersurfs;
 
                 fea_part_vec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ) );
 
-                // Load Rib XFerSurf to m_SurfVec
+                // Load FeaPart XFerSurf to m_SurfVec
                 LoadSurfs( partxfersurfs );
 
                 // Identify the FeaPart index and add to m_FeaPartSurfVec
