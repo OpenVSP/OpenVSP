@@ -1248,7 +1248,7 @@ struct Schoenherr_functor
 {
     double operator()( const double &Cf ) const
     {
-        return ( 0.242 / ( sqrt( Cf ) * log10( Re * Cf ) ) ) - 1.0;
+        return ( 0.242 / ( sqrt( Cf ) * log10( Re * Cf ) ) ) - 1.0;            // Hoerner 2-5 eq 25
     }
     double Re;
 };
@@ -1267,7 +1267,7 @@ struct Karman_functor
 {
     double operator()( const double &Cf ) const
     {
-        return ( ( 4.15 * log10( Re * Cf ) + 1.70 ) * sqrt( Cf ) ) - 1.0;
+        return ( ( 4.15 * log10( Re * Cf ) + 1.70 ) * sqrt( Cf ) ) - 1.0;   // Local coeff (wrong) White 7-120, White & Christoph 1971 p. 46 eq 59
     }
     double Re;
 };
@@ -1285,7 +1285,7 @@ struct Karman_Schoenherr_functor
 {
     double operator()( const double &Cf ) const
     {
-        return ( ( 4.13 * log10( Re * Cf ) ) * sqrt( Cf ) ) - 1.0;
+        return ( ( 4.13 * log10( Re * Cf ) ) * sqrt( Cf ) ) - 1.0;         // White below 7-123, Schlicting 21-17
     }
     double Re;
 };
@@ -1327,58 +1327,94 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
         multiBy = 39.3701;
     }
 
+    // Unfortunately, there is substantial opportunity for confusion around these equations.  The primary source of
+    // confusion is inconsistent nomenclature in the literature around two related quantities -- the local skin friction
+    // coefficient vs. the flat plate average skin coefficient.  Different references use inconsistent nomenclature to
+    // differentiate these quantities.  A reader must be pedantic to verify that they understand the notation for any
+    // given publication.  Often, the nomenclature is defined far away from where the equations are presented.
+    //
+    // Without clear definition of nomenclature, one can sometimes fall back to observe which type of Reynolds
+    // number is used in the equation -- the local Reynolds number (often Re_x) or the Reynolds number at the end of
+    // the flat plate (often Re_l).  The former would be used in a local coefficient and the latter in a plate average
+    // coefficient.
+    //
+    //  Local       Average      Reference
+    //    C_f         C_D          White
+    //    C_tau       C_f          Hoerner
+    //    c_f'        c_f          Schlicting
+    //    c_f         C_f          Anderson
+    //    C_f         C_D          White & Christoph 1971
+
+
     switch ( cf_case )
     {
-    case vsp::CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE:
-        CfOut = 0.42 / pow( log( 0.056 * ReyIn ), 2.0 );
+    case vsp::DO_NOT_USE_CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE:
+        // CfOut = 0.42 / pow( log( 0.056 * ReyIn ), 2.0 );        // Local equation (wrong) White & Christoph 1971, p. 46 eq 59
+        // Covert p. 139 -- appears correct, but is in error.
+        CfOut = -1.0e-3;
         break;
 
-    case vsp::CF_TURB_SCHLICHTING_PRANDTL:
-        CfOut = 1 / pow( ( 2 * log10( ReyIn ) - 0.65 ), 2.3 );
+    case vsp::DO_NOT_USE_CF_TURB_SCHLICHTING_PRANDTL:
+        // CfOut = 1 / pow( ( 2 * log10( ReyIn ) - 0.65 ), 2.3 );    // Local equation (wrong) White & Christoph 1971 p. 46 eq 59
+        CfOut = -1.0e-3;
         break;
 
     case vsp::CF_TURB_SCHLICHTING_COMPRESSIBLE:
-        CfOut = 0.455 / pow( log10( ReyIn ), 2.58 );
+        CfOut = 0.455 / pow( log10( ReyIn ), 2.58 );       // Hoerner 2-5 eq 24, Schlicting 21.16
         break;
 
-    case vsp::CF_TURB_SCHLICHTING_INCOMPRESSIBLE:
-        CfOut = 0.472 / pow( log10( ReyIn ), 2.5 );
+    case vsp::DO_NOT_USE_CF_TURB_SCHLICHTING_INCOMPRESSIBLE:
+        //CfOut = 0.472 / pow( log10( ReyIn ), 2.5 );        // Can not verify to base reference.  Appears too high.
+        CfOut = -1.0e-3;
         break;
 
     case vsp::CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR:
-        CfOut = 0.427 / pow( ( log10( ReyIn ) - 0.407 ), 2.64 );
+        CfOut = 0.427 / pow( ( log10( ReyIn ) - 0.407 ), 2.64 );    // Hoerner 2-5 eq 27, Schlicting 21.19b
         break;
 
-    case vsp::CF_TURB_SCHULTZ_GRUNOW_HIGH_RE:
-        CfOut = 0.37 / pow( log10( ReyIn ), 2.584 );
+    case vsp::DO_NOT_USE_CF_TURB_SCHULTZ_GRUNOW_HIGH_RE:
+        // CfOut = 0.37 / pow( log10( ReyIn ), 2.584 );         // Local equation (wrong) Hoerner.
+        // Should be CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR
+        CfOut = -1.0e-3;
         break;
 
     case vsp::CF_TURB_POWER_LAW_BLASIUS:
-        CfOut = 0.0592 / pow( ReyIn, 0.2 );
+        // CfOut = 0.0592 / pow( ReyIn, 0.2 );               // Local equation ( wrong ) White & Christoph 1971 p. 46 eq 59
+        // 0.0592 integrates up to 0.074 equation below.
+        // CfOut = 0.0576 / pow( ReyIn, 0.2 );               // Local equation ( wrong ) White & Christoph 1971 p. 46 eq 59
+        // 0.0576 integrates up to 0.072
+        CfOut = 0.072 / pow( ReyIn, 0.2 );               // Schlicting above 21.11, immediate below equation better.
+        // Not recommended
         break;
 
     case vsp::CF_TURB_POWER_LAW_PRANDTL_LOW_RE:
-        CfOut = 0.074 / pow( ReyIn, 0.2 );
+        CfOut = 0.074 / pow( ReyIn, 0.2 );                // Hoerner 2-5 eq 23, Schlicting 21.11
+        // Not recommended
         break;
 
     case vsp::CF_TURB_POWER_LAW_PRANDTL_MEDIUM_RE:
-        CfOut = 0.027 / pow( ReyIn, 1.0 / 7.0 );
+        // CfOut = 0.027 / pow( ReyIn, 1.0 / 7.0 );          // Local equation (wrong) White 6-70
+        CfOut = 0.0315 / pow( ReyIn, 1.0 / 7.0 );          // White 6-80
         break;
 
     case vsp::CF_TURB_POWER_LAW_PRANDTL_HIGH_RE:
-        CfOut = 0.058 / pow( ReyIn, 0.2 );
+        // CfOut = 0.058 / pow( ReyIn, 0.2 );                // Local equation (wrong) White 6-72
+        CfOut = 0.0725 / pow( ReyIn, 0.2 );               // Symbolic computer integral in wxMaxima 'integrate( 0.058 / (x^0.2),x,0,L)/L;'
+        // Not recommended
         break;
 
     case vsp::CF_TURB_EXPLICIT_FIT_SPALDING:
-        CfOut = 0.455 / pow( log( 0.06 * ReyIn ), 2.0 );
+        // CfOut = 0.455 / pow( log( 0.06 * ReyIn ), 2.0 );  // Local equation (wrong) White 6-78
+        CfOut = 0.523 / pow( log( 0.06 * ReyIn ), 2.0 );  // White 6-81
         break;
 
     case vsp::CF_TURB_EXPLICIT_FIT_SPALDING_CHI:
-        CfOut = 0.225 / pow( log10( ReyIn ), 2.32 );
+        // CfOut = 0.225 / pow( log10( ReyIn ), 2.32 );         // Local equation ( wrong) White & Christoph 1971, p. 48, eq 62
+        CfOut = 0.430 / pow( log10( ReyIn ), 2.56 );         // White & Christoph 1971, p. 48, eq 62
         break;
 
     case vsp::CF_TURB_EXPLICIT_FIT_SCHOENHERR:
-        CfOut = pow( ( 1.0 / ( ( 3.46 * log10( ReyIn ) ) - 5.6 ) ), 2.0 );
+        CfOut = pow( ( 1.0 / ( ( 3.46 * log10( ReyIn ) ) - 5.6 ) ), 2.0 );        // Hoerner
         break;
 
     case vsp::CF_TURB_IMPLICIT_SCHOENHERR:
@@ -1393,16 +1429,17 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
         nrm.find_root( CfOut, sfun, sfunprm, 0.0 );
         break;
 
-    case vsp::CF_TURB_IMPLICIT_KARMAN:
-        Karman_functor kfun;
-        kfun.Re = ReyIn;
-        Karman_p_functor kfunprm;
-        kfunprm.Re = ReyIn;
-
-        CfGuess = 0.455 / pow( log10( ReyIn ), 2.58 );
-
-        nrm.set_initial_guess( CfGuess );
-        nrm.find_root( CfOut, kfun, kfunprm, 0.0 );
+    case vsp::DO_NOT_USE_CF_TURB_IMPLICIT_KARMAN:
+        // Karman_functor kfun;
+        // kfun.Re = ReyIn;
+        // Karman_p_functor kfunprm;
+        // kfunprm.Re = ReyIn;
+        //
+        // CfGuess = 0.455 / pow( log10( ReyIn ), 2.58 );
+        //
+        // nrm.set_initial_guess( CfGuess );
+        // nrm.find_root( CfOut, kfun, kfunprm, 0.0 );
+        CfOut = -1.0e-3;
         break;
 
     case vsp::CF_TURB_IMPLICIT_KARMAN_SCHOENHERR:
@@ -1417,19 +1454,22 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
         nrm.find_root( CfOut, ksfun, ksfunprm, 0.0 );
         break;
 
-    case vsp::CF_TURB_ROUGHNESS_WHITE:
+    case vsp::DO_NOT_USE_CF_TURB_ROUGHNESS_WHITE:
         heightRatio = ref_leng / roughness_h;
-        CfOut = pow( ( 2.87 + ( 1.58 * log10( heightRatio ) ) ), -2.5 );
+        // CfOut = pow( ( 2.87 + ( 1.58 * log10( heightRatio ) ) ), -2.5 );    // Local equation (wrong) White 6-84a, Schlicting 21.37
+        // Should be CF_TURB_ROUGHNESS_SCHLICHTING_AVG.
+        CfOut = -1.0e-3;
         break;
 
-    case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL:
+    case vsp::DO_NOT_USE_CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL:
         heightRatio = ref_leng / roughness_h;
-        CfOut = pow( ( 1.4 + ( 3.7 * log10( heightRatio ) ) ), -2.0 );
+        // CfOut = pow( ( 1.4 + ( 3.7 * log10( heightRatio ) ) ), -2.0 );    // Local equation (wrong) White 6-83
+        CfOut = -1.0e-3;
         break;
 
     case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG:
         heightRatio = ref_leng / ( roughness_h * multiBy );
-        CfOut = pow( ( 1.89 + ( 1.62 * log10( heightRatio ) ) ), -2.5 );
+        CfOut = pow( ( 1.89 + ( 1.62 * log10( heightRatio ) ) ), -2.5 );    // White 6-84b, Schlicting 21.38
         break;
 
     case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION:
@@ -1482,28 +1522,28 @@ string ParasiteDragMgrSingleton::AssignTurbCfEqnName( int cf_case )
     string eqn_name;
     switch ( cf_case )
     {
-    case vsp::CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE:
-        eqn_name = "Compressible White-Christoph";
+    case vsp::DO_NOT_USE_CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE:
+        eqn_name = "(Do Not Use) Compressible White-Christoph";
         break;
 
-    case vsp::CF_TURB_SCHLICHTING_PRANDTL:
-        eqn_name = "Schlichting-Prandtl";
+    case vsp::DO_NOT_USE_CF_TURB_SCHLICHTING_PRANDTL:
+        eqn_name = "(Do Not Use) Schlichting-Prandtl";
         break;
 
     case vsp::CF_TURB_SCHLICHTING_COMPRESSIBLE:
         eqn_name = "Compressible Schlichting";
         break;
 
-    case vsp::CF_TURB_SCHLICHTING_INCOMPRESSIBLE:
-        eqn_name = "Incompressible Schlichting";
+    case vsp::DO_NOT_USE_CF_TURB_SCHLICHTING_INCOMPRESSIBLE:
+        eqn_name = "(Do Not Use) Incompressible Schlichting";
         break;
 
     case vsp::CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR:
         eqn_name = "Schultz-Grunow Schoenherr";
         break;
 
-    case vsp::CF_TURB_SCHULTZ_GRUNOW_HIGH_RE:
-        eqn_name = "High Reynolds Number Schultz-Grunow";
+    case vsp::DO_NOT_USE_CF_TURB_SCHULTZ_GRUNOW_HIGH_RE:
+        eqn_name = "(Do Not Use) High Reynolds Number Schultz-Grunow";
         break;
 
     case vsp::CF_TURB_POWER_LAW_BLASIUS:
@@ -1538,20 +1578,20 @@ string ParasiteDragMgrSingleton::AssignTurbCfEqnName( int cf_case )
         eqn_name = "Schoenherr Implicit";
         break;
 
-    case vsp::CF_TURB_IMPLICIT_KARMAN:
-        eqn_name = "Von Karman Implicit";
+    case vsp::DO_NOT_USE_CF_TURB_IMPLICIT_KARMAN:
+        eqn_name = "(Do Not Use) Von Karman Implicit";
         break;
 
     case vsp::CF_TURB_IMPLICIT_KARMAN_SCHOENHERR:
         eqn_name = "Karman-Schoenherr Implicit";
         break;
 
-    case vsp::CF_TURB_ROUGHNESS_WHITE:
-        eqn_name = "White Roughness";
+    case vsp::DO_NOT_USE_CF_TURB_ROUGHNESS_WHITE:
+        eqn_name = "(Do Not Use) White Roughness";
         break;
 
-    case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL:
-        eqn_name = "Schlichting Local Roughness";
+    case vsp::DO_NOT_USE_CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL:
+        eqn_name = "(Do Not Use) Schlichting Local Roughness";
         break;
 
     case vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG:
