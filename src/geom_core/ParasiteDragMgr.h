@@ -119,6 +119,8 @@ public:
     string AssignTurbCfEqnName( int cf_case );
     string AssignLamCfEqnName( int cf_case );
 
+    bool IsTurbBlacklisted( int cf_case );
+    int FindAlternateTurb( int cf_case );
     // Switch Case Methods for Form Factor Selections
     double CalcFFWing( double toc, int ff_case, double perc_lam,
                        double sweep25, double sweep50 );
@@ -378,6 +380,9 @@ private:
 
     // Execution Control
     bool m_RecomputeGeom;
+
+    vector<int> m_TurbBlackList;
+    vector<int> m_TurbAlternateList;
 
     const int m_TurbTypeDefault = vsp::CF_TURB_SCHLICHTING_COMPRESSIBLE;
 };

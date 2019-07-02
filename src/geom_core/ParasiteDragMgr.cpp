@@ -115,6 +115,27 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     // Recompute flag, if true degen/compgeom will be run even if an existing degen geom and comp geom exist from
     // a previous calculation
     m_RecomputeGeom = true;
+
+    // Populate black-list of equations to not use.
+    int tmp[] = { vsp::DO_NOT_USE_CF_TURB_IMPLICIT_KARMAN,
+                  vsp::DO_NOT_USE_CF_TURB_SCHLICHTING_INCOMPRESSIBLE,
+                  vsp::DO_NOT_USE_CF_TURB_SCHLICHTING_PRANDTL,
+                  vsp::DO_NOT_USE_CF_TURB_SCHULTZ_GRUNOW_HIGH_RE,
+                  vsp::DO_NOT_USE_CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE,
+                  vsp::DO_NOT_USE_CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL,
+                  vsp::DO_NOT_USE_CF_TURB_ROUGHNESS_WHITE };
+    m_TurbBlackList.insert( m_TurbBlackList.begin(), tmp, &tmp[ sizeof( tmp ) / sizeof( *tmp ) ] );
+
+    // Populate list of alternate equations for black-listed ones.
+    int tmp2[] = { m_TurbTypeDefault,
+                   m_TurbTypeDefault,
+                   m_TurbTypeDefault,
+                   vsp::CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR,
+                   m_TurbTypeDefault,
+                   m_TurbTypeDefault,
+                   vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG };
+    m_TurbAlternateList.insert( m_TurbAlternateList.begin(), tmp2, &tmp2[ sizeof( tmp2 ) / sizeof( *tmp2 ) ] );
+
 }
 
 void ParasiteDragMgrSingleton::Renew()
@@ -1630,6 +1651,21 @@ string ParasiteDragMgrSingleton::AssignLamCfEqnName( int cf_case )
         eqn_name = "ERROR";
     }
     return eqn_name;
+}
+
+bool ParasiteDragMgrSingleton::IsTurbBlacklisted( int cf_case )
+{
+    return vector_contains_val( m_TurbBlackList, cf_case );
+}
+
+int ParasiteDragMgrSingleton::FindAlternateTurb( int cf_case )
+{
+    int indx = vector_find_val( m_TurbBlackList, cf_case );
+    if( indx != -1 )
+    {
+        return m_TurbAlternateList[ indx ];
+    }
+    return cf_case;
 }
 
 double ParasiteDragMgrSingleton::CalcFFWing( double toc, int ff_case,
