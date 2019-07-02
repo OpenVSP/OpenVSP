@@ -1563,7 +1563,9 @@ double ParasiteDragMgrSingleton::CalcLamCf( double ReyIn, int cf_case )
         switch (cf_case)
         {
         case vsp::CF_LAM_BLASIUS:
-            CfOut = 1.32824 / pow(ReyIn, 0.5);
+            CfOut = 1.32824 / sqrt( ReyIn );             // Verified RM 6/30/19 (White)
+
+            //CfOut = 1.32824 * (Tw/Te)^(-1/3) / sqrt( ReyIn );             // White 7-39 (times 2)
             break;
 
         case vsp::CF_LAM_BLASIUS_W_HEAT:
