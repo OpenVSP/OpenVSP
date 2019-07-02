@@ -121,6 +121,8 @@ public:
 
     bool IsTurbBlacklisted( int cf_case );
     int FindAlternateTurb( int cf_case );
+    void CorrectTurbEquation();
+
     // Switch Case Methods for Form Factor Selections
     double CalcFFWing( double toc, int ff_case, double perc_lam,
                        double sweep25, double sweep50 );

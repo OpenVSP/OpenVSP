@@ -763,6 +763,8 @@ void ParasiteDragScreen::UpdateChoiceDevices()
     m_SortToggle.Update( ParasiteDragMgr.m_SortByFlag.GetID() );
     m_RefToggle.Update( ParasiteDragMgr.m_RefFlag.GetID() );
     m_LamCfEqnChoice.SetVal( ParasiteDragMgr.m_LamCfEqnType() );
+
+    ParasiteDragMgr.CorrectTurbEquation();
     m_TurbCfEqnChoice.SetVal( ParasiteDragMgr.m_TurbCfEqnType() );
     m_FreestreamTypeChoice.SetVal( ParasiteDragMgr.m_FreestreamType() );
     m_ModelLengthUnitChoice.SetVal( ParasiteDragMgr.m_LengthUnit() );

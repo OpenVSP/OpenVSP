@@ -1208,11 +1208,36 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
     }
 }
 
+void ParasiteDragMgrSingleton::CorrectTurbEquation()
+{
+    if ( IsTurbBlacklisted( m_TurbCfEqnType() ) )
+    {
+        int newcf = FindAlternateTurb( m_TurbCfEqnType() );
+
+        string oname = AssignTurbCfEqnName( m_TurbCfEqnType() );
+        string nname = AssignTurbCfEqnName( newcf );
+
+        m_TurbCfEqnType.Set( newcf );
+
+
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+        errMsgData.m_IntVec.push_back( vsp::VSP_INVALID_CF_EQN );
+        string msg = "Error:  Attempt to use turbulent C_f equation " + oname + " marked DO_NOT_USE.  Using " + nname + " instead.";
+
+        errMsgData.m_StringVec.push_back( msg );
+
+        MessageMgr::getInstance().SendAll( errMsgData );
+    }
+}
+
 string ParasiteDragMgrSingleton::ComputeBuildUp()
 {
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
+        CorrectTurbEquation();
+
         SetupFullCalculation();
         SetActiveGeomVec();
         CalcRowSize();

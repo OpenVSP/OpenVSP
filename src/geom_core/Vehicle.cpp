@@ -1512,6 +1512,8 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
     WaveDragMgr.DecodeXml( node );
     ParasiteDragMgr.DecodeXml( node );
 
+    ParasiteDragMgr.CorrectTurbEquation();
+
     xmlNodePtr setnamenode = XmlUtil::GetNode( node, "SetNames", 0 );
     if ( setnamenode )
     {
