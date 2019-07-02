@@ -48,7 +48,7 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_LamCfEqnType.Init( "LamCfEqnType", groupname, this, vsp::CF_LAM_BLASIUS, vsp::CF_LAM_BLASIUS, vsp::CF_LAM_BLASIUS_W_HEAT );
     m_LamCfEqnType.SetDescript( "Laminar Cf Equation Choice" );
 
-    m_TurbCfEqnType.Init( "TurbCfEqnType", groupname, this, vsp::CF_TURB_POWER_LAW_BLASIUS, vsp::CF_TURB_EXPLICIT_FIT_SPALDING,
+    m_TurbCfEqnType.Init( "TurbCfEqnType", groupname, this, m_TurbTypeDefault, vsp::CF_TURB_EXPLICIT_FIT_SPALDING,
                           vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH );
     m_TurbCfEqnType.SetDescript( "Turbulent Cf Equation Choice" );
 

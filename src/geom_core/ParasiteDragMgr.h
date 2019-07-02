@@ -378,6 +378,8 @@ private:
 
     // Execution Control
     bool m_RecomputeGeom;
+
+    const int m_TurbTypeDefault = vsp::CF_TURB_SCHLICHTING_COMPRESSIBLE;
 };
 
 #define ParasiteDragMgr ParasiteDragMgrSingleton::getInstance()
