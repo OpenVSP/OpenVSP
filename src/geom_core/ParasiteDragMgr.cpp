@@ -1539,6 +1539,18 @@ double ParasiteDragMgrSingleton::CalcTurbCf( double ReyIn, double ref_leng, int 
         break;
     }
 
+    if ( CfOut < 0 ) // Should be impossible.
+    {
+        MessageData errMsgData;
+        errMsgData.m_String = "Error";
+        errMsgData.m_IntVec.push_back( vsp::VSP_INVALID_CF_EQN );
+        string msg = "Error:  C_f equation resulted in negative C_f.";
+
+        errMsgData.m_StringVec.push_back( msg );
+
+        MessageMgr::getInstance().SendAll( errMsgData );
+    }
+
     return CfOut;
 }
 
