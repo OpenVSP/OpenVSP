@@ -13,6 +13,7 @@
 #include "APIDefines.h"
 #include "StringUtil.h"
 #include "FileUtil.h"
+#include "StlHelper.h"
 
 #include <utility>
 #include <string>
@@ -244,27 +245,36 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_TurbCfEqnChoice.AddItem( "Explicit Fit of Spalding-Chi" );
     m_TurbCfEqnChoice.AddItem( "Explicit Fit of Schoenherr" );
     m_TurbCfEqnChoice.AddItem( "Implicit Schoenherr" );
-    m_TurbCfEqnChoice.AddItem( "Implicit Von Karman" );
     m_TurbCfEqnChoice.AddItem( "Implicit Karman-Schoenherr" );
     m_TurbCfEqnChoice.AddItem( "Power Law Blasius" );
     m_TurbCfEqnChoice.AddItem( "Power Law Prandtl Low Re" );
     m_TurbCfEqnChoice.AddItem( "Power Law Prandtl Medium Re" );
     m_TurbCfEqnChoice.AddItem( "Power Law Prandtl High Re" );
     m_TurbCfEqnChoice.AddItem( "Schlichting Compressible" );
-    m_TurbCfEqnChoice.AddItem( "Schlichting Incompressible" );
-    m_TurbCfEqnChoice.AddItem( "Schlichting-Prandtl" );
-    m_TurbCfEqnChoice.AddItem( "Schultz-Grunow High Re" );
-    m_TurbCfEqnChoice.AddItem( "Schultz-Grunow Estimate of Schoenherr" );
-    m_TurbCfEqnChoice.AddItem( "_White-Christoph Compressible" );
+    m_TurbCfEqnChoice.AddItem( "_Schultz-Grunow Estimate of Schoenherr" );
 
-    m_TurbCfEqnChoice.AddItem( "Roughness Schlichting Avg" );
-    m_TurbCfEqnChoice.AddItem( "Roughness Schlichting Local" );
-    m_TurbCfEqnChoice.AddItem( "_Roughness White" );
+    m_TurbCfEqnChoice.AddItem( "_Roughness Schlichting Avg" );
 
     m_TurbCfEqnChoice.AddItem( "_Roughness Schlichting Avg Compressible" );
 
     m_TurbCfEqnChoice.AddItem( "Heat Transfer White-Christoph" );
     m_TurbCfEqnChoice.UpdateItems();
+
+    int tmp[] = { vsp::CF_TURB_EXPLICIT_FIT_SPALDING,
+                  vsp::CF_TURB_EXPLICIT_FIT_SPALDING_CHI,
+                  vsp::CF_TURB_EXPLICIT_FIT_SCHOENHERR,
+                  vsp::CF_TURB_IMPLICIT_SCHOENHERR,
+                  vsp::CF_TURB_IMPLICIT_KARMAN_SCHOENHERR,
+                  vsp::CF_TURB_POWER_LAW_BLASIUS,
+                  vsp::CF_TURB_POWER_LAW_PRANDTL_LOW_RE,
+                  vsp::CF_TURB_POWER_LAW_PRANDTL_MEDIUM_RE,
+                  vsp::CF_TURB_POWER_LAW_PRANDTL_HIGH_RE,
+                  vsp::CF_TURB_SCHLICHTING_COMPRESSIBLE,
+                  vsp::CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR,
+                  vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG,
+                  vsp::CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION,
+                  vsp::CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH };
+    m_TurbChoiceToEnum.insert( m_TurbChoiceToEnum.begin(), tmp, &tmp[ sizeof( tmp ) / sizeof( *tmp ) ] );
 
     m_OptionsLayout.AddYGap();
 
@@ -765,7 +775,10 @@ void ParasiteDragScreen::UpdateChoiceDevices()
     m_LamCfEqnChoice.SetVal( ParasiteDragMgr.m_LamCfEqnType() );
 
     ParasiteDragMgr.CorrectTurbEquation();
-    m_TurbCfEqnChoice.SetVal( ParasiteDragMgr.m_TurbCfEqnType() );
+
+    int indx = vector_find_val( m_TurbChoiceToEnum, ParasiteDragMgr.m_TurbCfEqnType() );
+    m_TurbCfEqnChoice.SetVal( indx );
+
     m_FreestreamTypeChoice.SetVal( ParasiteDragMgr.m_FreestreamType() );
     m_ModelLengthUnitChoice.SetVal( ParasiteDragMgr.m_LengthUnit() );
     m_AltUnitChoice.SetVal( ParasiteDragMgr.m_AltLengthUnit() );
@@ -1165,7 +1178,7 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == &m_TurbCfEqnChoice )
     {
-        ParasiteDragMgr.m_TurbCfEqnType.Set( m_TurbCfEqnChoice.GetVal() );
+        ParasiteDragMgr.m_TurbCfEqnType.Set( m_TurbChoiceToEnum[ m_TurbCfEqnChoice.GetVal() ] );
     }
     else if ( device == &m_EqnDocumentation )
     {
