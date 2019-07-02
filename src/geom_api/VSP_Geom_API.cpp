@@ -5170,13 +5170,15 @@ void WriteCfEqnCSVFile(const std::string & file_name)
 
     for (size_t cf_case = 0; cf_case <= vsp::DO_NOT_USE_CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE; ++cf_case )
     {
-        for (size_t j = 0; j < ReyIn_array.size(); ++j )
-        {
-            turb_cf_vec.push_back( ParasiteDragMgr.CalcTurbCf( ReyIn_array[j], ref_leng[0], cf_case, roughness[0], gamma[0], taw_tw_ratio[0], te_tw_ratio[0]) );
+        if ( !ParasiteDragMgr.IsTurbBlacklisted(cf_case ) ) {
+            for ( size_t j = 0; j < ReyIn_array.size(); ++j )
+            {
+                turb_cf_vec.push_back( ParasiteDragMgr.CalcTurbCf( ReyIn_array[j], ref_leng[0], cf_case, roughness[0], gamma[0], taw_tw_ratio[0], te_tw_ratio[0]) );
+            }
+            sprintf( str, "%s", ParasiteDragMgr.AssignTurbCfEqnName( cf_case ).c_str() );
+            res->Add( NameValData( str, turb_cf_vec ) );
+            turb_cf_vec.clear();
         }
-        sprintf( str, "%s", ParasiteDragMgr.AssignTurbCfEqnName( cf_case ).c_str());
-        res->Add(NameValData(str, turb_cf_vec));
-        turb_cf_vec.clear();
     }
 
     for (size_t cf_case = 0; cf_case < vsp::CF_LAM_BLASIUS_W_HEAT; ++cf_case)
