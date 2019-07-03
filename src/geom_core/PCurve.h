@@ -80,8 +80,6 @@ public:
 
     virtual void SetParmNames( const string & xname, const string & yname );
 
-    virtual double IntegrateAF( double r0 );
-    virtual double IntegrateCLi( double r0 );
     virtual double IntegrateCrv( );
     virtual double IntegrateCrv( double r0 );
     virtual double IntegrateCrv_r( );

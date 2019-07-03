@@ -748,26 +748,6 @@ void PCurve::SetParmNames( const string & xname, const string & yname )
     m_YParmName = yname;
 }
 
-double PCurve::IntegrateAF( double r0 )
-{
-    if ( m_LateUpdateFlag )
-    {
-        Update();
-    }
-
-    return m_Curve.IntegrateAF( r0 );
-}
-
-double PCurve::IntegrateCLi( double r0 )
-{
-    if ( m_LateUpdateFlag )
-    {
-        Update();
-    }
-
-    return m_Curve.IntegrateCLi( r0 );
-}
-
 double PCurve::IntegrateCrv( )
 {
     if ( m_LateUpdateFlag )
