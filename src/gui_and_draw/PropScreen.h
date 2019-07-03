@@ -58,6 +58,7 @@ protected:
     SliderInput m_AFLimitSlider;
     Output m_AFOutput;
     Output m_CLiOutput;
+    Output m_SolidityOutput;
 
     Choice m_PropModeChoice;
 

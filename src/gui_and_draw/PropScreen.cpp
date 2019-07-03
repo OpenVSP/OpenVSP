@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 720, "Propeller" )
+PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 740, "Propeller" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -89,6 +89,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 720, "Propeller
     m_DesignLayout.SetSameLineFlag( false );
 
     m_DesignLayout.AddOutput( m_CLiOutput, "CLi", "%6.2f" );
+    m_DesignLayout.AddOutput( m_SolidityOutput, "Solidity", "%7.4f" );
 
     m_DesignLayout.AddYGap();
 
@@ -902,6 +903,7 @@ bool PropScreen::Update()
     char str[255];
     m_AFOutput.Update( propeller_ptr->m_AF.GetID() );
     m_CLiOutput.Update( propeller_ptr->m_CLi.GetID() );
+    m_SolidityOutput.Update( propeller_ptr->m_Solidity.GetID() );
 
     m_PropModeChoice.Update( propeller_ptr->m_PropMode.GetID() );
 
