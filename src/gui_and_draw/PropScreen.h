@@ -59,6 +59,11 @@ protected:
     Output m_AFOutput;
     Output m_CLiOutput;
     Output m_SolidityOutput;
+    Output m_TSolidityOutput;
+    Output m_PSolidityOutput;
+    Output m_ChordOutput;
+    Output m_TChordOutput;
+    Output m_PChordOutput;
 
     Choice m_PropModeChoice;
 

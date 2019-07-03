@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 740, "Propeller" )
+PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 760, "Propeller" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -89,7 +89,37 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 740, "Propeller
     m_DesignLayout.SetSameLineFlag( false );
 
     m_DesignLayout.AddOutput( m_CLiOutput, "CLi", "%6.2f" );
-    m_DesignLayout.AddOutput( m_SolidityOutput, "Solidity", "%7.4f" );
+
+    m_DesignLayout.SetButtonWidth( m_DesignLayout.GetW() / 6 );
+    m_DesignLayout.SetInputWidth( m_DesignLayout.GetButtonWidth() );
+
+    m_DesignLayout.SetFitWidthFlag( false );
+    m_DesignLayout.SetSameLineFlag( true );
+
+    m_DesignLayout.AddOutput( m_ChordOutput, "C/R", "%7.4f" );
+    m_DesignLayout.AddOutput( m_TChordOutput, "C_T/R", "%7.4f" );
+    m_DesignLayout.AddOutput( m_PChordOutput, "C_P/R", "%7.4f" );
+
+    char buf[16];
+    int indx = 0;
+    indx += fl_utf8encode( 963, &buf[ indx ] ); // Greek character sigma
+    buf[ indx ] = 0;
+    m_DesignLayout.ForceNewLine();
+    m_DesignLayout.AddOutput( m_SolidityOutput, buf, "%7.4f" );
+
+    buf[ indx ] = '_';
+    buf[ indx + 1 ] = 'T';
+    buf[ indx + 2 ] = 0;
+    m_DesignLayout.AddOutput( m_TSolidityOutput, buf, "%7.4f" );
+
+    buf[ indx + 1 ] = 'P';
+    m_DesignLayout.AddOutput( m_PSolidityOutput, buf, "%7.4f" );
+
+    m_DesignLayout.ForceNewLine();
+    m_DesignLayout.SetFitWidthFlag( true );
+    m_DesignLayout.SetSameLineFlag( false );
+
+    m_DesignLayout.SetButtonWidth( 100 );
 
     m_DesignLayout.AddYGap();
 
@@ -904,6 +934,11 @@ bool PropScreen::Update()
     m_AFOutput.Update( propeller_ptr->m_AF.GetID() );
     m_CLiOutput.Update( propeller_ptr->m_CLi.GetID() );
     m_SolidityOutput.Update( propeller_ptr->m_Solidity.GetID() );
+    m_TSolidityOutput.Update( propeller_ptr->m_TSolidity.GetID() );
+    m_PSolidityOutput.Update( propeller_ptr->m_PSolidity.GetID() );
+    m_ChordOutput.Update( propeller_ptr->m_Chord.GetID() );
+    m_TChordOutput.Update( propeller_ptr->m_TChord.GetID() );
+    m_PChordOutput.Update( propeller_ptr->m_PChord.GetID() );
 
     m_PropModeChoice.Update( propeller_ptr->m_PropMode.GetID() );
 
