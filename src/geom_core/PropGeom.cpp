@@ -293,6 +293,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_CLi.Init( "CLi", "Design", this, 0.5, 0, 1e12 );
     m_CLi.SetDescript( "Integrated design lift coefficient" );
 
+    m_Solidity.Init( "Solidity", "Design", this, 0.5, 0, 1.0 );
+    m_Solidity.SetDescript( "Blade solidity" );
+
     m_LECluster.Init( "LECluster", "Design", this, 0.25, 1e-4, 10.0 );
     m_LECluster.SetDescript( "LE Tess Cluster Control" );
 
@@ -718,6 +721,7 @@ void PropGeom::UpdateSurf()
     // Integrate activity factor.
     m_AF.Set( ( 100000.0 / 16.0 ) * 0.5 * m_ChordCurve.IntegrateCrv_rcub( m_AFLimit() ) );
     m_CLi.Set( 4.0 * m_CLICurve.IntegrateCrv_rcub( m_AFLimit() ) );
+    m_Solidity.Set( m_ChordCurve.IntegrateCrv() * m_Nblade() / PI );
 
     if ( m_UseBeta34Flag() == 1 )
     {
