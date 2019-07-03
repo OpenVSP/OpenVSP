@@ -694,64 +694,6 @@ struct crv_rcub_functor
     Vsp1DCurve *m_crv;
 };
 
-struct AF_functor
-{
-    double operator()( const double &r )
-    {
-        return ( 100000.0 / 16.0 ) * ( 0.5 *  m_crd->CompPnt( r ) ) * r * r * r;
-    }
-    Vsp1DCurve *m_crd;
-};
-
-// Integrate activity factor.
-// The curve itself is assumed to be blade chord/R.
-// The parameter itself is fraction of the radius.
-double Vsp1DCurve::IntegrateAF( double r0 )
-{
-    double rmin = m_Curve.get_t0();
-    if ( r0 < rmin )
-    {
-        r0 = rmin;
-    }
-
-    AF_functor fun;
-    fun.m_crd = this;
-
-    eli::mutil::quad::simpson< double > quad;
-
-    return quad( fun, r0, 1.0 );
-}
-
-struct CLi_functor
-{
-    double operator()( const double &r )
-    {
-        return 4.0 * m_cli->CompPnt( r ) * r * r * r;
-    }
-    Vsp1DCurve *m_cli;
-};
-
-// Calculate integrated design lift coefficient
-// The curve itself is assumed to be blade chord/R.
-// The parameter itself is fraction of the radius.
-double Vsp1DCurve::IntegrateCLi( double r0 )
-{
-    double rmin = m_Curve.get_t0();
-    if ( r0 < rmin )
-    {
-        r0 = rmin;
-    }
-
-    CLi_functor fun;
-    fun.m_cli = this;
-
-    eli::mutil::quad::simpson< double > quad;
-
-    return quad( fun, r0, 1.0 );
-}
-
-// Calculate the integral of a given curve.
-// The parameter itself is fraction of the radius.
 double Vsp1DCurve::IntegrateCrv()
 {
     return IntegrateCrv( 0 );

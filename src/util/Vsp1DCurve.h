@@ -84,8 +84,6 @@ public:
 
     bool IsEqual( const Vsp1DCurve & crv );
 
-    double IntegrateAF( double r0 );
-    double IntegrateCLi( double r0 );
     double IntegrateCrv( );
     double IntegrateCrv( double r0 );
     double IntegrateCrv_r( );
