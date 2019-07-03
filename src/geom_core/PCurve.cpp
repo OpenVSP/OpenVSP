@@ -768,6 +768,86 @@ double PCurve::IntegrateCLi( double r0 )
     return m_Curve.IntegrateCLi( r0 );
 }
 
+double PCurve::IntegrateCrv( )
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_Curve.IntegrateCrv( );
+}
+
+double PCurve::IntegrateCrv( double r0 )
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_Curve.IntegrateCrv( r0 );
+}
+
+double PCurve::IntegrateCrv_r( )
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_Curve.IntegrateCrv_r( );
+}
+
+double PCurve::IntegrateCrv_r( double r0 )
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_Curve.IntegrateCrv_r( r0 );
+}
+
+double PCurve::IntegrateCrv_rsq( )
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_Curve.IntegrateCrv_rsq( );
+}
+
+double PCurve::IntegrateCrv_rsq( double r0 )
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_Curve.IntegrateCrv_rsq( r0 );
+}
+
+double PCurve::IntegrateCrv_rcub( )
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_Curve.IntegrateCrv_rcub( );
+}
+
+double PCurve::IntegrateCrv_rcub( double r0 )
+{
+    if ( m_LateUpdateFlag )
+    {
+        Update();
+    }
+
+    return m_Curve.IntegrateCrv_rcub( r0 );
+}
+
 void PCurve::BinCubicTMap( vector < double > &tmap, vector < double > &tdisc )
 {
     if ( m_LateUpdateFlag )

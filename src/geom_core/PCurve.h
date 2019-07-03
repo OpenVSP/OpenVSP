@@ -82,6 +82,14 @@ public:
 
     virtual double IntegrateAF( double r0 );
     virtual double IntegrateCLi( double r0 );
+    virtual double IntegrateCrv( );
+    virtual double IntegrateCrv( double r0 );
+    virtual double IntegrateCrv_r( );
+    virtual double IntegrateCrv_r( double r0 );
+    virtual double IntegrateCrv_rsq( );
+    virtual double IntegrateCrv_rsq( double r0 );
+    virtual double IntegrateCrv_rcub( );
+    virtual double IntegrateCrv_rcub( double r0 );
 
     virtual void EnforcePtOrder( double rfirst, double rlast );
     virtual void EnforcePtOrder( );
