@@ -716,8 +716,8 @@ void PropGeom::UpdateSurf()
     // Set lower limit for activity factor integration limit
     m_AFLimit.SetLowerLimit( rfirst );
     // Integrate activity factor.
-    m_AF.Set( m_ChordCurve.IntegrateAF( m_AFLimit() ) );
-    m_CLi.Set( m_CLICurve.IntegrateCLi( m_AFLimit() ) );
+    m_AF.Set( ( 100000.0 / 16.0 ) * 0.5 * m_ChordCurve.IntegrateCrv_rcub( m_AFLimit() ) );
+    m_CLi.Set( 4.0 * m_CLICurve.IntegrateCrv_rcub( m_AFLimit() ) );
 
     if ( m_UseBeta34Flag() == 1 )
     {
