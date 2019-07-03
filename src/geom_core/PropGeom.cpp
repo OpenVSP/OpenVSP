@@ -294,7 +294,22 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_CLi.SetDescript( "Integrated design lift coefficient" );
 
     m_Solidity.Init( "Solidity", "Design", this, 0.5, 0, 1.0 );
-    m_Solidity.SetDescript( "Blade solidity" );
+    m_Solidity.SetDescript( "Geometric blade solidity" );
+
+    m_TSolidity.Init( "TSolidity", "Design", this, 0.5, 0, 1.0 );
+    m_TSolidity.SetDescript( "Thrust weighted blade solidity" );
+
+    m_PSolidity.Init( "PSolidity", "Design", this, 0.5, 0, 1.0 );
+    m_PSolidity.SetDescript( "Power weighted blade solidity" );
+
+    m_Chord.Init( "Chord", "Design", this, 0.5, 0, 1.0 );
+    m_Chord.SetDescript( "Geometric blade chord" );
+
+    m_TChord.Init( "TChord", "Design", this, 0.5, 0, 1.0 );
+    m_TChord.SetDescript( "Thrust weighted blade chord" );
+
+    m_PChord.Init( "PChord", "Design", this, 0.5, 0, 1.0 );
+    m_PChord.SetDescript( "Power weighted blade chord" );
 
     m_LECluster.Init( "LECluster", "Design", this, 0.25, 1e-4, 10.0 );
     m_LECluster.SetDescript( "LE Tess Cluster Control" );
@@ -721,7 +736,16 @@ void PropGeom::UpdateSurf()
     // Integrate activity factor.
     m_AF.Set( ( 100000.0 / 16.0 ) * 0.5 * m_ChordCurve.IntegrateCrv_rcub( m_AFLimit() ) );
     m_CLi.Set( 4.0 * m_CLICurve.IntegrateCrv_rcub( m_AFLimit() ) );
-    m_Solidity.Set( m_ChordCurve.IntegrateCrv() * m_Nblade() / PI );
+
+    double r03 = rfirst * rfirst * rfirst;
+    double r04 = r03 * rfirst;
+    m_Chord.Set( m_ChordCurve.IntegrateCrv( rfirst ) / ( 1.0 - rfirst ) );
+    m_TChord.Set( 3.0 * m_ChordCurve.IntegrateCrv_rsq( rfirst ) / ( 1.0 - r03 ) );
+    m_PChord.Set( 4.0 * m_ChordCurve.IntegrateCrv_rcub( rfirst ) / ( 1.0 - r04 ) );
+
+    m_Solidity.Set( m_Chord() * m_Nblade() / PI );
+    m_TSolidity.Set( m_TChord() * m_Nblade() / PI );
+    m_PSolidity.Set( m_PChord() * m_Nblade() / PI );
 
     if ( m_UseBeta34Flag() == 1 )
     {

@@ -202,6 +202,11 @@ public:
     Parm m_AF;
     Parm m_CLi;
     Parm m_Solidity;
+    Parm m_TSolidity;
+    Parm m_PSolidity;
+    Parm m_Chord;
+    Parm m_TChord;
+    Parm m_PChord;
 
 protected:
     virtual void ChangeID( string id );
