@@ -969,20 +969,24 @@ void PropGeom::UpdateSurf()
 
             int istart = std::floor( u );
             int iend = istart + 1;
-            double denom = ( rvec[iend] - rvec[istart] );
 
-            if ( denom <= 1e-6 && iend < nxsec - 1 )
-            {
-                istart = iend;
-                iend = istart + 1;
-                denom = ( rvec[iend] - rvec[istart] );
-            }
-            double frac = ( r - rvec[istart] ) / denom;
-
+            double frac = 0;
             if ( iend >= nxsec ) // Make sure index doesn't go off the end.
             {
                 iend = istart;
-                frac = 0;
+            }
+            else
+            {
+                // Try to be safe to overlapping sections.
+                double denom = ( rvec[iend] - rvec[istart] );
+
+                if ( denom <= 1e-6 && iend < nxsec - 1 )
+                {
+                    istart = iend;
+                    iend = istart + 1;
+                    denom = ( rvec[iend] - rvec[istart] );
+                }
+                frac = ( r - rvec[istart] ) / denom;
             }
 
             double t = m_ThickCurve.Comp( r );
