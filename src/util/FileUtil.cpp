@@ -19,6 +19,9 @@
 #include <pwd.h>
 #endif
 
+#ifdef __FreeBSD__
+#include <libgen.h>
+#endif
 
 vector< string > ScanFolder( const char* dir_path )
 {
@@ -110,6 +113,14 @@ string PathToExe()
     int bufsize = 255;
     char *path = NULL;
     bool done = false;
+
+#ifdef __FreeBSD__
+    char exepath[PATH_MAX];
+
+    ::realpath("/proc/curproc/file", exepath);
+
+    return dirname(exepath);
+#endif
 
 // Pre-loop initialization.
 #ifdef WIN32
