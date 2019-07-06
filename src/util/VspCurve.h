@@ -62,6 +62,7 @@ public:
 
     // creates C1 continuous Piecewise Cubic Hermite Interpolating Polynomial
     void InterpolatePCHIP( vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
+    void InterpolateEqArcLenPCHIP( const piecewise_curve_type &c );
 
     // creates C2 continuous piecewise cubic spline polynomial with not-a-knot or closed end conditions
     void InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
