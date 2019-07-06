@@ -1651,7 +1651,7 @@ void SuperXSec::Update()
     else
     {
         c.reverse();
-        m_Curve.SetCurve( c );
+        m_Curve.InterpolateEqArcLenPCHIP( c );
 
         XSecCurve::Update();
     }
