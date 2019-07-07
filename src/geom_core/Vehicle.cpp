@@ -59,6 +59,11 @@ Vehicle::Vehicle()
     m_STEPTrimTE.Init( "TrimTE", "STEPSettings", this, false, 0, 1 );
     m_STEPExportPropMainSurf.Init( "ExportPropMainSurf", "STEPSettings", this, false, 0, 1 );
 
+    m_STEPLabelID.Init( "LabelID", "STEPSettings", this, true, 0, 1 );
+    m_STEPLabelName.Init( "LabelName", "STEPSettings", this, true, 0, 1 );
+    m_STEPLabelSurfNo.Init( "LabelSurfNo", "STEPSettings", this, true, 0, 1 );
+    m_STEPLabelDelim.Init( "LabelDelim", "STEPSettings", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
+
     m_STEPStructureExportIndex.Init( "StructureExportIndex", "STEPSettings", this, 0, 0, 1000 );
     m_STEPStructureTol.Init( "StructureTolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPStructureSplitSurfs.Init( "StructureSplitSurfs", "STEPSettings", this, true, 0, 1 );
@@ -2690,9 +2695,15 @@ void Vehicle::FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs )
 
 void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
 {
-    STEPutil step( m_STEPLenUnit(), m_STEPTol() );
+    WriteSTEPFile( file_name, write_set, m_STEPLabelID(), m_STEPLabelName(), m_STEPLabelSurfNo(), m_STEPLabelDelim() );
+}
 
-    string name = "''";
+void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool labelID,
+                             bool labelName, bool labelSurfNo, int delimType )
+{
+    string delim = StringUtil::get_delim( delimType );
+
+    STEPutil step( m_STEPLenUnit(), m_STEPTol() );
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -2737,10 +2748,33 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set )
                         }
                     }
                 }
-                // Component name
-                name = geom_vec[i]->GetName();
 
-                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit, name );
+                string prefix;
+
+                if ( labelID )
+                {
+                    prefix = geom_vec[i]->GetID();
+                }
+
+                if ( labelName )
+                {
+                    if ( prefix.size() > 0 )
+                    {
+                        prefix.append( delim );
+                    }
+                    prefix.append( geom_vec[i]->GetName() );
+                }
+
+                if ( labelSurfNo )
+                {
+                    if ( prefix.size() > 0 )
+                    {
+                        prefix.append( delim );
+                    }
+                    prefix.append( to_string( j ) );
+                }
+
+                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit, prefix );
             }
         }
     }

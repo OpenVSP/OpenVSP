@@ -203,6 +203,8 @@ public:
     void WriteX3DViewpointProps( xmlNodePtr node, string orients, string cents, string posits, string sfov, string name );
     void WritePovRayFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set );
+    void WriteSTEPFile( const string & file_name, int write_set, bool labelID,
+                        bool labelName, bool labelSurfNo, int delimType );
     void WriteStructureSTEPFile( const string & file_name );
     void WriteIGESFile( const string & file_name, int write_set );
     void WriteIGESFile( const string & file_name, int write_set, int lenUnit, bool splitSubSurfs, bool splitSurfs,
@@ -331,6 +333,11 @@ public:
     Parm m_STEPToCubicTol;
     BoolParm m_STEPTrimTE;
     BoolParm m_STEPExportPropMainSurf;
+
+    BoolParm m_STEPLabelID;
+    BoolParm m_STEPLabelName;
+    BoolParm m_STEPLabelSurfNo;
+    IntParm m_STEPLabelDelim;
 
     IntParm m_STEPStructureExportIndex;
     Parm m_STEPStructureTol;

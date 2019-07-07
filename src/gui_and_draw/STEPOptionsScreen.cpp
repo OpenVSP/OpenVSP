@@ -13,7 +13,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 296, "STEP Options" )
+STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 391, "STEP Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -55,6 +55,17 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_PropExportOriginToggle, "Export Props At Origin" );
 
+    m_GenLayout.AddDividerBox( "Surface Name" );
+    m_GenLayout.AddButton( m_LabelIDToggle, "Geom ID" );
+    m_GenLayout.AddButton( m_LabelNameToggle, "Geom Name" );
+    m_GenLayout.AddButton( m_LabelSurfNoToggle, "Surface Number" );
+
+    m_LabelDelimChoice.AddItem( "Comma" );
+    m_LabelDelimChoice.AddItem( "Underscore" );
+    m_LabelDelimChoice.AddItem( "Space" );
+    m_LabelDelimChoice.AddItem( "None" );
+    m_GenLayout.AddChoice( m_LabelDelimChoice, "Delimeter" );
+
     m_GenLayout.AddY( 25 );
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
@@ -86,6 +97,11 @@ bool STEPOptionsScreen::Update()
         m_ToCubicTolSlider.Update( veh->m_STEPToCubicTol.GetID() );
         m_TrimTEToggle.Update( veh->m_STEPTrimTE.GetID() );
         m_PropExportOriginToggle.Update( veh->m_STEPExportPropMainSurf.GetID() );
+
+        m_LabelIDToggle.Update( veh->m_STEPLabelID.GetID() );
+        m_LabelNameToggle.Update( veh->m_STEPLabelName.GetID() );
+        m_LabelSurfNoToggle.Update( veh->m_STEPLabelSurfNo.GetID() );
+        m_LabelDelimChoice.Update( veh->m_STEPLabelDelim.GetID() );
 
         if ( !veh->m_STEPToCubic() )
         {
@@ -134,6 +150,12 @@ void STEPOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_STEPToCubicTol.Set( m_PrevToCubicTol );
             veh->m_STEPTrimTE.Set( m_PrevTrimTE );
             veh->m_STEPExportPropMainSurf.Set( m_PrevPropExportOrigin );
+
+            veh->m_STEPLabelID.Set( m_PrevLabelID );
+            veh->m_STEPLabelName.Set( m_PrevLabelName );
+            veh->m_STEPLabelSurfNo.Set( m_PrevLabelSurfNo );
+            veh->m_STEPLabelDelim.Set( m_PrevLabelDelim );
+
         }
         Hide();
     }
@@ -160,6 +182,11 @@ bool STEPOptionsScreen::ShowSTEPOptionsScreen()
         m_PrevToCubicTol = veh->m_STEPToCubicTol();
         m_PrevTrimTE = veh->m_STEPTrimTE();
         m_PrevPropExportOrigin = veh->m_STEPExportPropMainSurf();
+
+        m_PrevLabelID = veh->m_STEPLabelID();
+        m_PrevLabelName = veh->m_STEPLabelName();
+        m_PrevLabelSurfNo = veh->m_STEPLabelSurfNo();
+        m_PrevLabelDelim = veh->m_STEPLabelDelim();
     }
 
     while( m_FLTK_Window->shown() )
@@ -187,6 +214,11 @@ void STEPOptionsScreen::CloseCallBack( Fl_Widget *w )
         veh->m_STEPToCubicTol.Set( m_PrevToCubicTol );
         veh->m_STEPTrimTE.Set( m_PrevTrimTE );
         veh->m_STEPExportPropMainSurf.Set( m_PrevPropExportOrigin );
+
+        veh->m_STEPLabelID.Set( m_PrevLabelID );
+        veh->m_STEPLabelName.Set( m_PrevLabelName );
+        veh->m_STEPLabelSurfNo.Set( m_PrevLabelSurfNo );
+        veh->m_STEPLabelDelim.Set( m_PrevLabelDelim );
     }
 
     Hide();
