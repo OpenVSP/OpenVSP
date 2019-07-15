@@ -64,6 +64,7 @@ ADD_SUBDIRECTORY( tritri )
 ADD_SUBDIRECTORY( clipper )
 
 ADD_SUBDIRECTORY( wavedragEL )
+ADD_SUBDIRECTORY( Pinocchio )
 
 INCLUDE( ExternalProject )
 INCLUDE( External_STEPCode )

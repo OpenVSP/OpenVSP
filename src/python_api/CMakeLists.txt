@@ -81,6 +81,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		clipper
 		Angelscript
 		wavedragEL
+		pinocchio
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${WINSOCK_LIBRARIES}
@@ -146,6 +147,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			sixseries
 			cartesian
 			wavedragEL
+			pinocchio
 			${CPPTEST_LIBRARIES}
 			${LIBXML2_LIBRARIES}
 			${FLTK_LIBRARIES}

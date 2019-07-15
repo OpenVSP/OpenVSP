@@ -23,6 +23,7 @@ INCLUDE_DIRECTORIES(
     ${LIBIGES_INCLUDE_DIR}
     ${GUI_AND_DRAW_INCLUDE_DIR}
     ${CARTESIAN_INCLUDE_DIR}
+    ${PINOCCHIO_INCLUDE_DIR}
 )
 
 ADD_LIBRARY(gui_and_draw
@@ -47,6 +48,7 @@ FuselageScreen.cpp
 GroupLayout.cpp
 GuiDevice.cpp
 HingeScreen.cpp
+HumanGeomScreen.cpp
 IGESOptionsScreen.cpp
 IGESStructureOptionsScreen.cpp
 ImportScreen.cpp
@@ -119,6 +121,7 @@ FuselageScreen.h
 GroupLayout.h
 GuiDevice.h
 HingeScreen.h
+HumanGeomScreen.h
 IGESOptionsScreen.h
 IGESStructureOptionsScreen.h
 ImportScreen.h
