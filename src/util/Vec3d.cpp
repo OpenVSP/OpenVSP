@@ -49,6 +49,27 @@ vec3d::vec3d( const threed_point_type &a )
     v[2] = a.z();
 }
 
+vec3d::vec3d( const double a[3] )
+{
+    v[0] = a[0];
+    v[1] = a[1];
+    v[2] = a[2];
+}
+
+vec3d::vec3d( const float a[3] )
+{
+    v[0] = a[0];
+    v[1] = a[1];
+    v[2] = a[2];
+}
+
+vec3d::vec3d( const std::vector<double> &a )
+{
+    v[0] = a[0];
+    v[1] = a[1];
+    v[2] = a[2];
+}
+
 //****** Equals:  x = y ******
 vec3d& vec3d::operator=( const vec3d& a )
 {
@@ -95,6 +116,30 @@ vec3d& vec3d::set_xyz( double xx, double yy, double zz )
     return *this;
 }
 
+vec3d& vec3d::set_vec( const std::vector<double> &a )
+{
+    v[0] = a[0];
+    v[1] = a[1];
+    v[2] = a[2];
+    return *this;
+}
+
+vec3d& vec3d::set_arr( const double a[] )
+{
+    v[0] = a[0];
+    v[1] = a[1];
+    v[2] = a[2];
+    return *this;
+}
+
+vec3d& vec3d::set_arr( const float a[] )
+{
+    v[0] = a[0];
+    v[1] = a[1];
+    v[2] = a[2];
+    return *this;
+}
+
 //******* Set Point Values *******//
 vec3d& vec3d::set_x( double xx )
 {
@@ -116,6 +161,29 @@ vec3d& vec3d::set_z( double zz )
     return *this;
 }
 
+vec3d& vec3d::set_refx( const vec3d &a )
+{
+    v[0] = -a[0];
+    v[1] = a[1];
+    v[2] = a[2];
+    return *this;
+}
+
+vec3d& vec3d::set_refy( const vec3d &a )
+{
+    v[0] = a[0];
+    v[1] = -a[1];
+    v[2] = a[2];
+    return *this;
+}
+
+vec3d& vec3d::set_refz( const vec3d &a )
+{
+    v[0] = a[0];
+    v[1] = a[1];
+    v[2] = -a[2];
+    return *this;
+}
 
 ////******* Transform *******//
 // vec3d vec3d::transform(float mat[4][4])
@@ -187,6 +255,73 @@ vec3d operator/( const vec3d& a, double b )
     return ret;
 }
 
+vec3d& vec3d::operator+=( const vec3d& b )
+{
+    v[0] += b.v[0];
+    v[1] += b.v[1];
+    v[2] += b.v[2];
+
+    return *this;
+}
+
+vec3d& vec3d::operator-=( const vec3d& b )
+{
+    v[0] -= b.v[0];
+    v[1] -= b.v[1];
+    v[2] -= b.v[2];
+
+    return *this;
+}
+
+vec3d& vec3d::operator*=( double b )
+{
+    v[0] *= b;
+    v[1] *= b;
+    v[2] *= b;
+
+    return *this;
+}
+
+vec3d& vec3d::operator+=( double b[] )
+{
+    v[0] += b[0];
+    v[1] += b[1];
+    v[2] += b[2];
+
+    return *this;
+}
+
+vec3d& vec3d::operator-=( double b[] )
+{
+    v[0] -= b[0];
+    v[1] -= b[1];
+    v[2] -= b[2];
+
+    return *this;
+}
+
+vec3d& vec3d::operator+=( float b[] )
+{
+    v[0] += b[0];
+    v[1] += b[1];
+    v[2] += b[2];
+
+    return *this;
+}
+
+vec3d& vec3d::operator-=( float b[] )
+{
+    v[0] -= b[0];
+    v[1] -= b[1];
+    v[2] -= b[2];
+
+    return *this;
+}
+
+vec3d operator-( const vec3d & in )
+{
+    return -1.0 * in;
+}
 
 //******* cout << a ******//
 //ostream& operator<< (ostream& out, const vec3d& a)
