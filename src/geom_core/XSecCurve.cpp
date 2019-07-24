@@ -1845,7 +1845,7 @@ void GeneralFuseXSec::Update()
         roll_pnts.push_back( bez_pnts[i] + offset );
     }
 
-    m_Curve.SetCubicControlPoints( roll_pnts, true );
+    m_Curve.SetCubicControlPoints( roll_pnts );
 
     //==== Corner Points ====//
     VspCurve corner_curve;

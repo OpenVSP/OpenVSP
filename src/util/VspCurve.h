@@ -72,7 +72,7 @@ public:
 
     void ToBinaryCubic( bool wingtype );
 
-    void SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag );
+    void SetCubicControlPoints( const vector< vec3d > & cntrl_pts );
 
     const piecewise_curve_type & GetCurve() const;
     void SetCurve( const piecewise_curve_type &c );

@@ -563,7 +563,7 @@ void VspCurve::ToBinaryCubic( bool wingtype )
 
 }
 
-void VspCurve::SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag )
+void VspCurve::SetCubicControlPoints( const vector< vec3d > & cntrl_pts )
 {
     int ncp = cntrl_pts.size();
     int nseg = ( ncp - 1 ) / 3;
