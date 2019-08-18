@@ -31,6 +31,7 @@
 #include "ConformalScreen.h"
 #include "EllipsoidScreen.h"
 #include "WireScreen.h"
+#include "HumanGeomScreen.h"
 
 using std::string;
 using std::vector;
@@ -44,7 +45,8 @@ public:
     enum { POD_GEOM_SCREEN, FUSELAGE_GEOM_SCREEN, MS_WING_GEOM_SCREEN, BLANK_GEOM_SCREEN,
            MESH_GEOM_SCREEN, STACK_GEOM_SCREEN, CUSTOM_GEOM_SCREEN, PT_CLOUD_GEOM_SCREEN,
            PROP_GEOM_SCREEN, HINGE_GEOM_SCREEN, MULT_GEOM_SCREEN, CONFORMAL_SCREEN,
-           ELLIPSOID_GEOM_SCREEN, BOR_GEOM_SCREEN, WIRE_FRAME_GEOM_SCREEN, NUM_GEOM_SCREENS
+           ELLIPSOID_GEOM_SCREEN, BOR_GEOM_SCREEN, WIRE_FRAME_GEOM_SCREEN, HUMAN_GEOM_SCREEN,
+           NUM_GEOM_SCREENS
          };
 
     void Show();
