@@ -485,6 +485,48 @@ double Vsp1DCurve::GetCurveDt( int i ) const
     return dt;
 }
 
+double Vsp1DCurve::FindNearest( double &u, const double &pt ) const
+{
+    double dist;
+    oned_curve_point_type p( pt );
+
+    dist = eli::geom::intersect::minimum_distance( u, m_Curve, p );
+
+    return dist;
+}
+
+double Vsp1DCurve::FindNearest( double &u, const double &pt, const double &u0 ) const
+{
+    double dist;
+    oned_curve_point_type p( pt );
+
+    dist = eli::geom::intersect::minimum_distance( u, m_Curve, p, u0 );
+
+    return dist;
+}
+
+double Vsp1DCurve::FindNearest01( double &u, const double &pt ) const
+{
+    double dist;
+
+    dist = FindNearest( u, pt );
+
+    u = u / m_Curve.get_tmax();
+
+    return dist;
+}
+
+double Vsp1DCurve::FindNearest01( double &u, const double &pt, const double &u0 ) const
+{
+    double dist;
+
+    dist = FindNearest( u, pt, u0 * m_Curve.get_tmax() );
+
+    u = u / m_Curve.get_tmax();
+
+    return dist;
+}
+
 void Vsp1DCurve::AppendCurveSegment( oned_curve_segment_type &c )
 {
     m_Curve.push_back( c, 1 );

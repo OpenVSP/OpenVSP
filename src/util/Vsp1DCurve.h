@@ -63,6 +63,12 @@ public:
     void SetCurve( const oned_piecewise_curve_type &c );
     void AppendCurveSegment( oned_curve_segment_type &c );
 
+    double FindNearest( double &u, const double &pt ) const;
+    double FindNearest( double &u, const double &pt, const double &u0 ) const;
+
+    double FindNearest01( double &u, const double &pt ) const;
+    double FindNearest01( double &u, const double &pt, const double &u0 ) const;
+
     //===== Bezier Funcs ====//
     double CompPnt( double u );
     double CompTan( double u );
