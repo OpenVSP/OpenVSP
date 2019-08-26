@@ -350,14 +350,7 @@ string FourSeries::GetAirfoilName()
     }
 
     char str[255];
-    if ( ithick < 10 )
-    {
-        sprintf( str, "  NACA %d%d0%d", icam, icam_loc, ithick );
-    }
-    else
-    {
-        sprintf( str, "  NACA %d%d%d", icam, icam_loc, ithick );
-    }
+    sprintf( str, "  NACA %d%d%02d", icam, icam_loc, ithick );
 
     return string( str );
 }
@@ -459,14 +452,7 @@ string FourDigMod::GetAirfoilName()
     }
 
     char str[255];
-    if ( ithick < 10 )
-    {
-        sprintf( str, "  NACA %d%d0%d-%d%d", icam, icam_loc, ithick, ilerad, ithick_loc );
-    }
-    else
-    {
-        sprintf( str, "  NACA %d%d%d-%d%d", icam, icam_loc, ithick, ilerad, ithick_loc );
-    }
+    sprintf( str, "  NACA %d%d%02d-%d%d", icam, icam_loc, ithick, ilerad, ithick_loc );
 
     return string( str );
 }
@@ -537,22 +523,7 @@ string FiveDig::GetAirfoilName()
     }
 
     char str[255];
-    if ( ithick < 10 && icam_loc < 10 )
-    {
-        sprintf( str, "  NACA %d0%d0%d", icl, icam_loc, ithick );
-    }
-    if ( ithick < 10 )
-    {
-        sprintf( str, "  NACA %d%d0%d", icl, icam_loc, ithick );
-    }
-    if ( icam_loc < 10 )
-    {
-        sprintf( str, "  NACA %d0%d%d", icl, icam_loc, ithick );
-    }
-    else
-    {
-        sprintf( str, "  NACA %d%d%d", icl, icam_loc, ithick );
-    }
+    sprintf( str, "  NACA %d%02d%02d", icl, icam_loc, ithick );
 
     return string( str );
 }
@@ -623,22 +594,7 @@ string FiveDigMod::GetAirfoilName()
     }
 
     char str[255];
-    if ( ithick < 10 && icam_loc < 10 )
-    {
-        sprintf( str, "  NACA %d0%d0%d-%d%d", icl, icam_loc, ithick, ilerad, ithick_loc );
-    }
-    if ( ithick < 10 )
-    {
-        sprintf( str, "  NACA %d%d0%d-%d%d", icl, icam_loc, ithick, ilerad, ithick_loc );
-    }
-    if ( icam_loc < 10 )
-    {
-        sprintf( str, "  NACA %d0%d%d-%d%d", icl, icam_loc, ithick, ilerad, ithick_loc );
-    }
-    else
-    {
-        sprintf( str, "  NACA %d%d%d-%d%d", icl, icam_loc, ithick, ilerad, ithick_loc );
-    }
+    sprintf( str, "  NACA %d%02d%02d-%d%d", icl, icam_loc, ithick, ilerad, ithick_loc );
 
     return string( str );
 }
@@ -701,14 +657,7 @@ string OneSixSeries::GetAirfoilName()
     int ithick   = int( m_ThickChord() * 100.0f + 0.5f );
 
     char str[255];
-    if ( ithick < 10 )
-    {
-        sprintf( str, "  NACA 16-%d0%d", icl, ithick );
-    }
-    else
-    {
-        sprintf( str, "  NACA 16-%d%d", icl, ithick );
-    }
+    sprintf( str, "  NACA 16-%d%02d", icl, ithick );
 
     return string( str );
 }
@@ -829,9 +778,10 @@ void SixSeries::GetLiftCamberParmID( vector < string > &ids )
 //===== Load Name And Number of 4 Series =====//
 string SixSeries::GetAirfoilName()
 {
+    // int() truncates, +0.5 makes it round.
     int ithick   = int( m_ThickChord() * 100.0 + 0.5f );
     int icl = int( m_IdealCl() * 10.0 + 0.5f );
-    int ia = int( m_A() * 10.0 + 0.5f );
+    float fa = int( m_A() * 10.0 + 0.5f ) / 10.0;
 
     int sixser = 63;
     if ( m_Series() < SERIES_67 )
@@ -846,25 +796,11 @@ string SixSeries::GetAirfoilName()
     char str[255];
     if ( sixser > 0 )
     {
-        if ( ithick < 10 )
-        {
-            sprintf( str, "  NACA %d%d0%d  a=0.%d", sixser, icl, ithick, ia );
-        }
-        else
-        {
-            sprintf( str, "  NACA %d%d%d  a=0.%d",  sixser, icl, ithick, ia );
-        }
+        sprintf( str, "  NACA %d%d%02d  a=%.1f",  sixser, icl, ithick, fa );
     }
     else
     {
-        if ( ithick < 10 )
-        {
-            sprintf( str, "  NACA %dA%d0%d  a=0.%d", -sixser, icl, ithick, ia );
-        }
-        else
-        {
-            sprintf( str, "  NACA %dA%d%d  a=0.%d",  -sixser, icl, ithick, ia );
-        }
+        sprintf( str, "  NACA %dA%d%02d  a=%.1f",  -sixser, icl, ithick, fa );
     }
     return string( str );
 }
