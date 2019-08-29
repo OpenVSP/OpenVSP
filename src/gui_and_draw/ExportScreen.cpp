@@ -40,7 +40,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+20
     m_GenLayout.AddDividerBox( "File Format" );
     m_GenLayout.AddYGap();
 
-    m_GenLayout.AddButton( m_XSecButton, "XSec (*.hrm)" );
+    m_GenLayout.AddButton( m_XSecButton, "XSec (.hrm)" );
     m_GenLayout.AddButton( m_Plot3DButton, "PLOT3D (.p3d)" );
     m_GenLayout.AddButton( m_STLButton, "Stereolith (.stl)" );
     m_GenLayout.AddButton( m_NASCARTButton, "NASCART (.dat)" );
@@ -57,7 +57,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+20
     m_GenLayout.AddButton( m_SVGButton, "SVG (.svg)" );
     m_GenLayout.AddButton( m_FacetButton, "Xpatch (.facet)" );
     m_GenLayout.AddButton( m_PMARCButton, "PMARC 12 (.pmin)" );
-    m_GenLayout.AddButton( m_OBJButton, "OBJ (.obj" );
+    m_GenLayout.AddButton( m_OBJButton, "OBJ (.obj)" );
     m_GenLayout.AddButton( m_SeligAirfoilButton, "Airfoil Points (.dat)" );
     m_GenLayout.AddButton( m_BezierAirfoilButton, "Airfoil Curves (.bz)" );
 }
