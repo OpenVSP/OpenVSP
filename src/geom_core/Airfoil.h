@@ -128,7 +128,6 @@ public:
 
     Parm m_Camber;
     Parm m_CamberLoc;
-    BoolParm m_EqArcLen;
     BoolParm m_SharpTE;
 
     Parm m_IdealCl;
@@ -422,7 +421,6 @@ public:
     vector< Parm* > m_LowCoeffParmVec;
 
     BoolParm m_ContLERad;
-    BoolParm m_EqArcLen;
 
 protected:
 

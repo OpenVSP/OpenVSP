@@ -321,7 +321,6 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_CSTAirfoilGroup.AddYGap();
     m_CSTAirfoilGroup.AddButton( m_CSTContLERadButton, "Enforce Continuous LE Radius" );
     m_CSTAirfoilGroup.AddButton( m_CSTInvertButton, "Invert Airfoil" );
-    m_CSTAirfoilGroup.AddButton( m_CSTEqArcLenButton, "Equal Arc Length Parameterization" );
 
     m_CSTAirfoilGroup.AddYGap();
     m_CSTAirfoilGroup.AddSlider( m_CSTChordSlider, "Chord", 10, "%7.3f");
@@ -824,7 +823,6 @@ bool StackScreen::Update()
                 m_CSTChordSlider.Update(cst_xs->m_Chord.GetID());
                 m_CSTInvertButton.Update( cst_xs->m_Invert.GetID() );
                 m_CSTContLERadButton.Update( cst_xs->m_ContLERad.GetID() );
-                m_CSTEqArcLenButton.Update( cst_xs->m_EqArcLen.GetID() );
 
                 if ( ( m_UpCoeffSliderVec.size() != num_up ) || ( m_LowCoeffSliderVec.size() != num_low ) )
                 {

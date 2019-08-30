@@ -361,8 +361,6 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.AddButton( m_FourInvertButton, "Invert Airfoil" );
     m_FourSeriesGroup.AddYGap();
-    m_FourSeriesGroup.AddButton( m_FourEqArcLenButton, "Equal Arc Length Parameterization" );
-    m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.AddButton( m_FourSharpTEButton, "Sharpen TE" );
     m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.SetSameLineFlag( true );
@@ -464,7 +462,6 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_CSTAirfoilGroup.AddYGap();
     m_CSTAirfoilGroup.AddButton( m_CSTInvertButton, "Invert Airfoil" );
     m_CSTAirfoilGroup.AddYGap();
-    m_CSTAirfoilGroup.AddButton( m_CSTEqArcLenButton, "Equal Arc Length Parameterization" );
 
     m_CSTAirfoilGroup.AddYGap();
     m_CSTAirfoilGroup.AddDividerBox( "Upper Surface" );
@@ -1125,7 +1122,6 @@ bool WingScreen::Update()
                 m_FourInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FourNameOutput.Update( fs_xs->GetAirfoilName() );
                 m_FourDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
-                m_FourEqArcLenButton.Update( fs_xs->m_EqArcLen.GetID() );
                 m_FourSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
             }
             else if ( xsc->GetType() == XS_SIX_SERIES )
@@ -1201,7 +1197,6 @@ bool WingScreen::Update()
 
                 m_CSTInvertButton.Update( cst_xs->m_Invert.GetID() );
                 m_CSTContLERadButton.Update( cst_xs->m_ContLERad.GetID() );
-                m_CSTEqArcLenButton.Update( cst_xs->m_EqArcLen.GetID() );
 
                 if ( ( m_UpCoeffSliderVec.size() != num_up ) || ( m_LowCoeffSliderVec.size() != num_low ) )
                 {

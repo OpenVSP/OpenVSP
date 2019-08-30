@@ -161,7 +161,6 @@ protected:
 
     CheckButton m_CSTInvertButton;
     CheckButton m_CSTContLERadButton;
-    CheckButton m_CSTEqArcLenButton;
 
     GroupLayout m_VKTGroup;
     SliderAdjRangeInput m_VKTChordSlider;

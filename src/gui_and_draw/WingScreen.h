@@ -166,7 +166,6 @@ protected:
     ToggleButton m_FourCLiButton;
     ToggleRadioGroup m_FourCamberGroup;
     SliderAdjRangeInput m_FourCamberLocSlider;
-    CheckButton m_FourEqArcLenButton;
     CheckButton m_FourSharpTEButton;
 
     TriggerButton m_FourFitCSTButton;
@@ -232,7 +231,6 @@ protected:
 
     CheckButton m_CSTInvertButton;
     CheckButton m_CSTContLERadButton;
-    CheckButton m_CSTEqArcLenButton;
 
     GroupLayout m_VKTGroup;
     SliderAdjRangeInput m_VKTChordSlider;

@@ -257,7 +257,6 @@ FourSeries::FourSeries( ) : NACABase( )
     m_Type = XS_FOUR_SERIES;
     m_Camber.Init( "Camber", m_GroupName, this, 0.0, 0.0, 0.09 );
     m_CamberLoc.Init( "CamberLoc", m_GroupName, this, 0.2, 0.1, 0.9 );
-    m_EqArcLen.Init( "EqArcLenFlag", m_GroupName, this, true, 0, 1 );
     m_SharpTE.Init( "SharpTEFlag", m_GroupName, this, true, 0, 1 );
 
     // Output only parameter.
@@ -283,38 +282,13 @@ void FourSeries::Update()
 {
     UpdateDesignLiftCoeff();
 
-    if ( !m_EqArcLen() ) // 'old' code with non-equal arc len parameterization.
-    {
-        piecewise_curve_type c, d;
-        piecewise_four_digit_creator pwc;
-        pwc.set_sharp_trailing_edge( m_SharpTE() );
+    four_digit_airfoil_type af;
+    af.set_sharp_trailing_edge( m_SharpTE() );
 
-        pwc.set_thickness( m_ThickChord() );
-        pwc.set_camber( m_Camber(), m_CamberLoc() );
+    af.set_thickness( m_ThickChord() );
+    af.set_camber( m_Camber(), m_CamberLoc() );
 
-        pwc.create( c );
-
-        d.set_t0( c.get_t0() );
-        for ( int i = 0; i < c.number_segments(); i++ )
-        {
-            piecewise_curve_type::curve_type crv;
-            piecewise_curve_type::data_type dt;
-            c.get( crv, dt, i );
-            d.push_back( crv, dt*2.0 );
-        }
-
-        m_Curve.SetCurve( d );
-    }
-    else // 'new' code that enforces equal arc len parameterization.
-    {
-        four_digit_airfoil_type af;
-        af.set_sharp_trailing_edge( m_SharpTE() );
-
-        af.set_thickness( m_ThickChord() );
-        af.set_camber( m_Camber(), m_CamberLoc() );
-
-        BuildCurve( af );
-    }
+    BuildCurve( af );
 
     Airfoil::Update();
 }
@@ -1420,8 +1394,6 @@ CSTAirfoil::CSTAirfoil( ) : Airfoil( )
 
     m_ContLERad.Init( "ContLERad", m_GroupName, this, 1, 0, 1 );
 
-    m_EqArcLen.Init( "EqArcLenFlag", m_GroupName, this, true, 0, 1 );
-
     for ( int i = 0; i <= m_UpDeg(); i++ )
     {
         Parm* p = m_UpCoeffParmVec[i];
@@ -1456,69 +1428,62 @@ void CSTAirfoil::Update()
     piecewise_curve_type pc;
     pcst.create( pc );
 
-    if ( !m_EqArcLen() )
+    int npts = 101; // Must be odd to hit LE point.
+
+    double t = 0.0;
+    double dt = 4.0 / ( npts - 1 );
+    int ile = ( npts - 1 ) / 2;
+
+    vector< vec3d > pnts( npts );
+    vector< double > arclen( npts );
+
+    pnts[0] = pc.f( t );
+    arclen[0] = 0.0;
+    for ( int i = 1 ; i < npts ; i++ )
     {
-        m_Curve.SetCurve( pc );
+        if ( i == ile )
+        {
+            t = 2.0; // Ensure LE point precision.
+        }
+        else if ( i == ( npts - 1 ) )
+        {
+            t = 4.0;  // Ensure end point precision.
+        }
+        else
+        {
+            t = dt * i; // All other points.
+        }
+
+        pnts[i] = pc.f( t );
+
+        double ds = dist( pnts[i], pnts[i-1] );
+        if ( ds < 1e-8 )
+        {
+            ds = 1.0/npts;
+        }
+        arclen[i] = arclen[i-1] + ds;
     }
-    else
+
+    double lenlower = arclen[ile];
+    double lenupper = arclen[npts-1] - lenlower;
+
+    double lowerscale = 2.0/lenlower;
+    int i;
+    for ( i = 1; i < ile; i++ )
     {
-        int npts = 101; // Must be odd to hit LE point.
-
-        double t = 0.0;
-        double dt = 4.0 / ( npts - 1 );
-        int ile = ( npts - 1 ) / 2;
-
-        vector< vec3d > pnts( npts );
-        vector< double > arclen( npts );
-
-        pnts[0] = pc.f( t );
-        arclen[0] = 0.0;
-        for ( int i = 1 ; i < npts ; i++ )
-        {
-            if ( i == ile )
-            {
-                t = 2.0; // Ensure LE point precision.
-            }
-            else if ( i == ( npts - 1 ) )
-            {
-                t = 4.0;  // Ensure end point precision.
-            }
-            else
-            {
-                t = dt * i; // All other points.
-            }
-
-            pnts[i] = pc.f( t );
-
-            double ds = dist( pnts[i], pnts[i-1] );
-            if ( ds < 1e-8 )
-            {
-                ds = 1.0/npts;
-            }
-            arclen[i] = arclen[i-1] + ds;
-        }
-
-        double lenlower = arclen[ile];
-        double lenupper = arclen[npts-1] - lenlower;
-
-        double lowerscale = 2.0/lenlower;
-        int i;
-        for ( i = 1; i < ile; i++ )
-        {
-            arclen[i] = arclen[i] * lowerscale;
-        }
-        arclen[ile] = 2.0;
-        i++;
-
-        double upperscale = 2.0/lenupper;
-        for ( ; i < npts - 1; i++ )
-        {
-            arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
-        }
-        arclen[npts-1] = 4.0;
-
-        m_Curve.InterpolatePCHIP( pnts, arclen, false );
+        arclen[i] = arclen[i] * lowerscale;
     }
+    arclen[ile] = 2.0;
+    i++;
+
+    double upperscale = 2.0/lenupper;
+    for ( ; i < npts - 1; i++ )
+    {
+        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
+    }
+    arclen[npts-1] = 4.0;
+
+    m_Curve.InterpolatePCHIP( pnts, arclen, false );
 
     Airfoil::Update();
 }
