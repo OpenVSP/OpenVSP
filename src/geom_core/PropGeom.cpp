@@ -538,7 +538,16 @@ void PropGeom::UpdateDrawObj()
 
 void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 {
-    GeomXSec::LoadDrawObjs( draw_obj_vec );
+    if ( m_PropMode() == PROP_MODE::PROP_DISK )
+    {
+        // Bypass XSec drawing for disk
+        Geom::LoadDrawObjs( draw_obj_vec );
+        // TODO: Don't draw subsurfaces for disk mode?
+    }
+    else
+    {
+        GeomXSec::LoadDrawObjs( draw_obj_vec );
+    }
 
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH  &&
          ( ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() ) || m_Vehicle->IsGeomActive( m_ID ) ) )
