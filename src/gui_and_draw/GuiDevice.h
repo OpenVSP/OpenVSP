@@ -1214,7 +1214,7 @@ public:
 
     virtual int ihit( int mx, int my, int r );
 
-    SliderInput m_SplitPtSlider;
+    SliderAdjRangeInput m_SplitPtSlider;
     Fl_Button* m_SplitButton;
 
     Fl_Light_Button* m_DeleteButton;

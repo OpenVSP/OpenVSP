@@ -27,9 +27,9 @@ protected:
     SliderAdjRangeInput m_YPosSlider;
     SliderAdjRangeInput m_ZPosSlider;
 
-    SliderInput m_AmbSlider;
-    SliderInput m_DiffSlider;
-    SliderInput m_SpecSlider;
+    SliderAdjRangeInput m_AmbSlider;
+    SliderAdjRangeInput m_DiffSlider;
+    SliderAdjRangeInput m_SpecSlider;
 
     Choice m_LightChoice;
 

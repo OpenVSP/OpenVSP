@@ -55,7 +55,7 @@ protected:
 
     ToggleButton m_ReverseToggle;
 
-    SliderInput m_AFLimitSlider;
+    SliderAdjRangeInput m_AFLimitSlider;
     Output m_AFOutput;
     Output m_CLiOutput;
     Output m_SolidityOutput;
