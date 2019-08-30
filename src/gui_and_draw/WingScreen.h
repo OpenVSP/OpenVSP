@@ -78,7 +78,7 @@ protected:
     TriggerButton m_PasteSectButton;
     TriggerButton m_InsertSectButton;
 
-    SliderInput m_SectUTessSlider;
+    SliderAdjRangeInput m_SectUTessSlider;
     SliderAdjRangeInput m_RootClusterSlider;
     SliderAdjRangeInput m_TipClusterSlider;
 

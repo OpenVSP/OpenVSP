@@ -60,7 +60,7 @@ protected:
     TriggerButton m_CopyXSec;
     TriggerButton m_PasteXSec;
 
-    SliderInput m_SectUTessSlider;
+    SliderAdjRangeInput m_SectUTessSlider;
 
     SliderAdjRangeInput m_XSecXDeltaSlider;
     SliderAdjRangeInput m_XSecYDeltaSlider;
