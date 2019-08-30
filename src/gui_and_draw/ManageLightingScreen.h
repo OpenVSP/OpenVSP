@@ -23,9 +23,9 @@ protected:
 
     GroupLayout m_GenLayout;
 
-    SliderInput m_XPosSlider;
-    SliderInput m_YPosSlider;
-    SliderInput m_ZPosSlider;
+    SliderAdjRangeInput m_XPosSlider;
+    SliderAdjRangeInput m_YPosSlider;
+    SliderAdjRangeInput m_ZPosSlider;
 
     SliderInput m_AmbSlider;
     SliderInput m_DiffSlider;

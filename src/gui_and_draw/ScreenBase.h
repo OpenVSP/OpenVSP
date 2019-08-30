@@ -240,9 +240,9 @@ public:
     ToggleButton m_AxialYToggle;
     ToggleButton m_AxialZToggle;
     ToggleRadioGroup m_AxialToggleGroup;
-    SliderInput m_AxialNSlider;
+    SliderAdjRangeInput m_AxialNSlider;
 
-    SliderInput m_ScaleSlider;
+    SliderAdjRangeInput m_ScaleSlider;
     TriggerButton m_ScaleResetButton;
     TriggerButton m_ScaleAcceptButton;
 

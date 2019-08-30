@@ -42,7 +42,7 @@ protected:
 
     ToggleButton m_SplitSurfsToggle;
     ToggleButton m_ToCubicToggle;
-    SliderInput m_ToCubicTolSlider;
+    SliderAdjRangeInput m_ToCubicTolSlider;
 
     ToggleButton m_LabelIDToggle;
     ToggleButton m_LabelNameToggle;

@@ -39,12 +39,12 @@ protected:
     GroupLayout m_GenLayout;
 
     Choice m_LenUnitChoice;
-    SliderInput m_TolSlider;
+    SliderAdjRangeInput m_TolSlider;
     ToggleButton m_SplitSurfsToggle;
     ToggleButton m_SplitSubSurfsToggle;
     ToggleButton m_MergePointsToggle;
     ToggleButton m_ToCubicToggle;
-    SliderInput m_ToCubicTolSlider;
+    SliderAdjRangeInput m_ToCubicTolSlider;
     ToggleButton m_TrimTEToggle;
     ToggleButton m_PropExportOriginToggle;
 

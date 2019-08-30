@@ -139,7 +139,7 @@ protected:
     // Moment reference location
     Choice m_CGSetChoice;
     TriggerButton m_MassPropButton;
-    SliderInput m_NumSliceSlider;
+    SliderAdjRangeInput m_NumSliceSlider;
     SliderAdjRangeInput m_XcgSlider;
     SliderAdjRangeInput m_YcgSlider;
     SliderAdjRangeInput m_ZcgSlider;

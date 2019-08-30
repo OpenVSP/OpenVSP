@@ -39,7 +39,7 @@ protected:
 
     SliderAdjRangeInput m_PropDiameterSlider;
 
-    SliderInput m_NBladeSlider;
+    SliderAdjRangeInput m_NBladeSlider;
 
     SliderAdjRangeInput m_PropRotateSlider;
     SliderAdjRangeInput m_Beta34Slider;
