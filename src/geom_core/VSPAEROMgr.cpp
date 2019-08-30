@@ -599,6 +599,23 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
             }
         }
 
+        // Check for and delete any disks that no longer exist
+        for ( size_t i = 0; i < m_RotorDiskVec.size(); ++i )
+        {
+            bool delete_flag = true;
+            for ( size_t j = 0; j < temp.size(); ++j )
+            {
+                if ( temp[j] == m_RotorDiskVec[i] )
+                {
+                    delete_flag = false;
+                }
+            }
+            if ( delete_flag )
+            {
+                delete m_RotorDiskVec[i];
+                m_RotorDiskVec.erase( m_RotorDiskVec.begin() + i );
+            }
+        }
         m_RotorDiskVec.clear();
         m_RotorDiskVec = temp;
     }
