@@ -2963,7 +2963,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
-        m_HighlightDrawObj.m_LineWidth = 2.0;
+        m_HighlightDrawObj.m_LineWidth = 4.0;
         m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_HighlightDrawObj );
@@ -4835,7 +4835,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_HighlightXSecDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_HighlightXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "ACTIVE";
         m_HighlightXSecDrawObj.m_LineWidth = 4.0;
-        m_HighlightXSecDrawObj.m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+        m_HighlightXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 1.0 );
         m_HighlightXSecDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
         m_HighlightXSecDrawObj.m_Visible = !m_GuiDraw.GetNoShowFlag();
         draw_obj_vec.push_back( &m_HighlightXSecDrawObj );
