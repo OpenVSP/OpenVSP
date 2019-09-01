@@ -341,6 +341,10 @@ enum FREESTREAM_PD_UNITS { PD_UNITS_IMPERIAL = 0,
                            PD_UNITS_METRIC
                          }; // Parasite Drag Freestream Units
 
+enum GENDER { MALE,
+              FEMALE
+            };
+
 enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_NASCART,
                     IMPORT_CART3D_TRI,

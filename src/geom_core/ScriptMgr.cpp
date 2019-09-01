@@ -1088,6 +1088,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "GDEV", "GDEV_SET_FORMAT", GDEV_SET_FORMAT );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "GENDER" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GENDER", "MALE", MALE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "GENDER", "FEMALE", FEMALE );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "IMPORT_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_STL", IMPORT_STL );
