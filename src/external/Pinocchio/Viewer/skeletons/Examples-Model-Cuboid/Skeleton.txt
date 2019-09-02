@@ -1,0 +1,33 @@
+# Skeleton file
+#
+# File: Skeleton.txt
+#
+
+# name of joint                   X              Y              Z  parent name
+
+tag_torso                         0              0         4.0075  ""                    Cuboid: 1  4.00 8.00 4.00  2 2 0  0.00  0.00 0.00 -2.00  0.00 0.00 0.00  0 0 #   0
+"Left Leg"                        0            3.5             -7  tag_torso             Cuboid: 0  2.00 2.00 12.00  0 16 1  0.00  0.00 0.00 -6.00  0.00 0.00 0.00  1 0 #   1
+"Left Knee"                       0              0          -10.5  -successor-           Cuboid: 2  4.00 4.00 12.00  0 16 1  0.00  0.00 0.00 -6.00  0.00 0.00 0.00  0 0 #   2
+"Right Leg"                       0           -3.5             -7  tag_torso             Cuboid: 0  2.00 2.00 12.00  0 16 0  0.00  0.00 0.00 -6.00  0.00 0.00 0.00  1 0 #   3
+"Right Knee"                      0              0          -10.5  -successor-           Cuboid: 2  4.00 4.00 12.00  0 16 0  0.00  0.00 0.00 -6.00  0.00 0.00 0.00  0 0 #   4
+Upper                             0              0             14  tag_torso             Cuboid: 0  4.00 8.00 12.00  16 16 0  0.00  0.00 0.00 -6.00  0.00 0.00 0.00  1 1 #   5
+tag_head                          0              0              0  Upper                 Cuboid: 0  8.00 8.00 8.00  0 0 0  0.00  0.00 0.00 4.00  0.00 0.00 0.00  1 2 #   6
+Headwear                          0              0              0  -successor-           Cuboid: 3  8.00 8.00 8.00  32 0 0  0.20  0.00 0.00 4.00  0.00 0.00 0.00  1 2 #   7
+"Left Arm"                        0           8.75           -3.5  Upper                 Cuboid: 0  2.00 2.00 12.00  40 16 1  0.00  0.00 1.00 -4.00  0.00 0.00 0.00  1 1 #   8
+"Left Elbow"                      0           1.75             -7  -successor-           Cuboid: 2  4.00 4.00 12.00  40 16 1  0.00  0.00 1.00 -4.00  0.00 0.00 0.00  0 0 #   9
+"Tag:Left Hand"                   0              0          -8.75  -successor-           Angles: 0.000  90.000  0.000  Cuboid: 1  4.00 4.00 12.00  40 16 1  0.00  0.00 1.00 -4.00  0.00 0.00 0.00  0 0 #  10
+"Right Arm"                       0          -8.75           -3.5  Upper                 Cuboid: 0  2.00 2.00 12.00  40 16 0  0.00  0.00 -1.00 -4.00  0.00 0.00 0.00  1 1 #  11
+"Right Elbow"                     0          -1.75             -7  -successor-           Cuboid: 2  4.00 4.00 12.00  40 16 0  0.00  0.00 -1.00 -4.00  0.00 0.00 0.00  0 0 #  12
+Tag:weapon                        0             -0          -8.75  -successor-           Angles: 0.000  90.000  0.000  Cuboid: 1  4.00 4.00 12.00  40 16 0  0.00  0.00 -1.00 -4.00  0.00 0.00 0.00  0 0 #  13
+
+#--CuboidConfig: 1.75  32.00 32.00 56.00 -24.00  1 0
+#--CuboidMesh: "Lower-l_legs" 64 32 "Resources/Cuboid-Skins/Skeleton/skeleton.png"
+#--CuboidMesh: "Upper-u_torso" 64 32 "Resources/Cuboid-Skins/Skeleton/skeleton.png"
+#--CuboidMesh: "Head-h_head" 64 32 "Resources/Cuboid-Skins/Skeleton/skeleton.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+
+# End Of File

@@ -1,0 +1,40 @@
+# Skeleton file
+#
+# File: Quadruped-01.txt
+#
+# A skeleton with four legs.
+# The orginal skeleton data was picked from
+#   Pinocchio library for automatic character rigging
+#   File skeleton.cpp, function QuadSkeleton(). 
+#
+# 31.03.2015 RR: First editon of this file
+#
+
+# name of joint   X       Y       Z       parent name
+
+shoulders         0.5     0.0     0.0                     #  0  - Render Torso
+neck              0.6     0.0     0.35    -successor-     #  1
+neck2             0.6     0.0     0.25    neck            #  2
+head              0.2     0.0    -0.1     -successor-     #  3
+
+hips             -0.5     0.0     0.0     shoulders       #  4
+
+lthigh           -0.5     0.15    0.0     hips            #  5  - Back Left Leg
+lhknee           -0.5     0.2    -0.4     -successor-     #  6
+lhfoot           -0.5     0.2    -0.8     -successor-     #  7
+
+rthigh           -0.5    -0.15    0.0     hips            #  8  - Back Right Leg
+rhknee           -0.5    -0.2    -0.4     -successor-     #  9
+rhfoot           -0.5    -0.2    -0.8     -successor-     # 10
+
+lshoulder         0.5     0.2     0.0     shoulders       # 11  - Front Left Leg
+lfknee            0.5     0.2    -0.4     -successor-     # 12
+lffoot            0.5     0.2    -0.8     -successor-     # 13
+
+rshoulder         0.5    -0.2     0.0     shoulders       # 14  - Front Right Leg
+rfknee            0.5    -0.2    -0.4     -successor-     # 15
+rffoot            0.5    -0.2    -0.8     -successor-     # 16
+
+tail             -0.7     0.0     0.2     hips            # 17
+
+# End Of File

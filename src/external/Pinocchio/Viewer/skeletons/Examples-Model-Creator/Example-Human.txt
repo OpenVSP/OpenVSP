@@ -1,0 +1,34 @@
+# Skeleton file
+#
+# File: Example-Human.txt.txt
+#
+
+# name of joint                   X              Y              Z  parent name
+
+HipCenter                 -0.360706      0.0897382        25.9199  ""                    1           2.33           0.48              0           0.41  0              0  #   0
+Spine                     -0.127308  -2.98023e-008        20.7225  HipCenter             1           1.22           0.41              0           0.71  0              0  #   1
+Joint-022                         0              0        1.68444  Spine                 0            0.4          0.205              0          0.855  0              0  #   2
+Joint-023                  0.507982              0        2.60079  -successor-           1            0.4         0.1025              0         0.9275  0              0  #   3
+Neck                         1.4549              0        1.42841  -successor-           0           0.79              0              0              1  0              0  #   4
+chin                       0.858142              0      -0.863226  Neck                  0            0.5              0              0              1  0              0  #   5
+Head                       -1.15195              0        1.94453  Neck                  1           1.15            0.3              0              1  0              0  #   6
+ShoulderLeft               0.207053        3.86494       0.152266  Spine                 0            0.5              0              0              1  0              0  #   7
+ElbowLeft                  0.115063        5.98724       0.322468  -successor-           1           0.49              0              0              1  0              0  #   8
+WristLeft                 -0.133431        7.56528      -0.286092  -successor-           1           0.49              0              0              1  0              0  #   9
+HandLeft                   0.481891        2.07771      0.0947256  -successor-           1           0.85           0.64              0           0.84  0              0  #  10
+ShoulderRight              0.207053       -3.86494       0.152266  Spine                 0            0.5              0              0              1  0              0  #  11
+ElbowRight                 0.115063       -5.98724       0.322468  -successor-           1           0.49              0              0              1  0              0  #  12
+WristRight                -0.133431       -7.56528      -0.286092  -successor-           1           0.49              0              0              1  0              0  #  13
+HandRight                  0.481891       -2.07771      0.0947256  -successor-           1           0.85           0.64              0           0.84  0              0  #  14
+HipLeft                    0.244126         6.1151       -1.88006  HipCenter             0            0.5              0              0              1  0              0  #  15
+KneeLeft                   0.122062       0.341512       -8.51416  -successor-           1           0.49              0              0              1  0              0  #  16
+AnkleLeft                 -0.122063       -1.09856       -14.4591  -successor-           1           0.49              0              0              1  0              0  #  17
+FootLeft                     3.5945              0      -0.610317  -successor-           1            0.8           0.22              0           0.64  0              0  #  18
+HipRight                   0.244126        -6.1151       -1.88006  HipCenter             0            0.5              0              0              1  0              0  #  19
+KneeRight                  0.122062      -0.341512       -8.51416  -successor-           1           0.49              0              0              1  0              0  #  20
+AnkleRight                -0.122063        1.09856       -14.4591  -successor-           1           0.49              0              0              1  0              0  #  21
+FootRight                    3.5945              0      -0.610317  -successor-           1            0.8           0.22              0           0.64  0              0  #  22
+
+#--MetaConfig: 32.00 64.00 64.00  1.00  85  0.50  0  0.00  0.15
+
+# End Of File

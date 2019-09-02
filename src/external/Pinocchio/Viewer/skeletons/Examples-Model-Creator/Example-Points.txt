@@ -1,0 +1,18 @@
+# Skeleton file
+#
+# File: Example-Points.txt.txt
+#
+
+# name of joint                   X              Y              Z  parent name
+
+Joint-001                        16             16              8  ""                    1              6              0              0              1  0              0  #   0
+Joint-002                         0             16              8  ""                    1              6              0              0              1  0            0.5  #   1
+Joint-003                       -16             16              8  ""                    1              6              0              0              1  0              1  #   2
+Joint-004                        16              0              8  ""                    1           5.98              0              0            0.5  0              0  #   3
+Joint-005                       -16              0              8  ""                    1              6              0              0            0.5  0              1  #   4
+Joint-006                        16            -16              8  ""                    1              6            0.5              0              1  0              0  #   5
+Joint-007                       -16            -16              8  ""                    1              6              0              0              1  0              1  #   6
+
+#--MetaConfig: 48.00 48.00 16.00  1.00  0  0.50  0  0.00  0.60
+
+# End Of File

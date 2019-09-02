@@ -1,0 +1,22 @@
+# Skeleton file
+#
+# File: Chest.txt
+#
+
+# name of joint                   X              Y              Z  parent name
+
+Below                             0              0           8.75  ""                    Cuboid: 0  14.00 14.00 10.00  0 19 0  0.00  0.00 0.00 0.00  0.00 0.00 0.00  0 0 #   0
+Lid                          -12.25              0           17.5  ""                    Cuboid: 0  14.00 14.00 5.00  0 0 0  0.00  7.00 0.00 2.50  0.00 0.00 0.00  0 0 #   1
+Knob                         25.375              0              0  -successor-           Cuboid: 0  1.00 2.00 4.00  0 0 0  0.00  0.00 0.00 0.00  0.00 0.00 0.00  0 0 #   2
+
+#--CuboidConfig: 1.75  24.50 24.50 26.00 0.00  1 0
+#--CuboidMesh: "Mesh" 64 64 "Resources/Cuboid-Skins/Chest/normal.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+
+# End Of File

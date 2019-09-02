@@ -1,0 +1,27 @@
+# Skeleton file
+#
+# File: Book.txt
+#
+
+# name of joint                   X              Y              Z  parent name
+
+tag:Book                          0              0           8.75  ""                    Angles: 0.000  0.000  0.000  Cuboid: 1  4.00 4.00 4.00  0 0 0  0.00  0.00 0.00 0.00  0.00 0.00 0.00  0 0 #   0
+"Book Spine"                      0              0              0  tag:Book              Cuboid: 0  0.00 2.00 10.00  12 0 0  0.00  0.00 0.00 0.00  0.00 0.00 90.00  0 0 #   1
+"Flipping Page Left"              0        1.66072              0  tag:Book              Cuboid: 0  0.00 5.00 8.00  24 10 0  0.00  0.00 2.50 0.00  0.00 0.00 -65.00  0 0 #   2
+"Flipping Page Right"              0        1.66072              0  tag:Book              Cuboid: 0  0.00 5.00 8.00  24 10 0  0.00  0.00 2.50 0.00  0.00 0.00 65.00  0 0 #   3
+"Pages Left"                      0        1.66072              0  tag:Book              Cuboid: 0  1.00 5.00 8.00  12 10 0  0.00  -0.49 2.50 0.00  0.00 0.00 -71.62  0 0 #   4
+"Pages Right"                     0        1.66072              0  tag:Book              Cuboid: 0  1.00 5.00 8.00  0 10 0  0.00  0.49 2.50 0.00  0.00 0.00 71.62  0 0 #   5
+"Cover Left"                  -1.75              0              0  tag:Book              Cuboid: 0  0.00 6.00 10.00  16 0 0  0.00  0.00 3.00 0.00  0.00 0.00 -71.62  0 0 #   6
+"Cover Right"                  1.75              0              0  tag:Book              Cuboid: 0  0.00 6.00 10.00  0 0 0  0.00  0.00 -3.00 0.00  0.00 0.00 251.62  0 0 #   7
+
+#--CuboidConfig: 1.75  3.50 21.00 17.50 0.00  1 0
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Book/enchanting_table_book.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+
+# End Of File

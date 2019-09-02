@@ -1,0 +1,22 @@
+# Skeleton file
+#
+# File: Egoboo-01.txt
+#
+
+# name of joint                   X              Y              Z  parent name
+
+HipCenter                 -0.149466              0        5.91064                        #   0
+Spine                    -0.0527528              0         1.2458  HipCenter             #   1
+Head                       0.105506              0        2.76133  Spine                 #   2
+ShoulderLeft              -0.294865        3.41269       0.246201  Spine                 #   3
+ElbowLeft                 0.0476788        3.42245      -0.445766  -successor-           #   4
+HandLeft                   0.144392        1.67823       -1.09322  -successor-           #   5
+ShoulderRight             -0.294865       -3.41269       0.246201  Spine                 #   6
+ElbowRight                0.0476788       -3.42245      -0.445766  -successor-           #   7
+HandRight                  0.144392       -1.67823       -1.09322  -successor-           #   8
+HipLeft                    0.101159        2.19629       -2.33706  HipCenter             #   9
+FootLeft                  0.0505794       0.357265       -2.78296  -successor-           #  10
+HipRight                   0.101159       -2.19629       -2.33706  HipCenter             #  11
+FootRight                 0.0505794      -0.357265       -2.78296  -successor-           #  12
+
+# End Of File

@@ -1,0 +1,40 @@
+# Skeleton file
+#
+# File: Human-Kinect-1.txt
+#
+# A Human skeleton.
+# For joint names and order the kinect sdk standard is used.
+#
+# 28.03.2015 RR: First editon of this file
+# 09.04.2016 RR: Niced coordinates to have n0 or only 1 afterpoint
+#                digit and many zeros.
+#
+
+# name of joint                   X              Y              Z  parent name
+
+HipCenter                         0              0           16.0                        #   0  - Render Torso
+Spine                             0              0            4.0  HipCenter             #   1
+ShoulderCenter                    0              0            3.7  Spine                 #   2
+Head                           0.35              0            1.5  -successor-           #   3
+
+ShoulderLeft                      0            2.4            2.1  Spine                 #   4  - Left Arm
+ElbowLeft                         0            2.8              0  -successor-           #   5
+WristLeft                         0            3.6              0  -successor-           #   6
+HandLeft                          0            1.0              0  -successor-           #   7
+
+ShoulderRight                     0           -2.4            2.1  Spine                 #   8  - Right Arm
+ElbowRight                        0           -2.8              0  -successor-           #   9
+WristRight                        0           -3.6              0  -successor-           #  10
+HandRight                         0           -1.0              0  -successor-           #  11
+
+HipLeft                           0            1.6           -1.1  HipCenter             #  12  - Left Leg
+KneeLeft                          0              0           -6.8  -successor-           #  13
+AnkleLeft                         0              0           -6.8  -successor-           #  14
+FootLeft                        1.7              0              0  -successor-           #  15
+
+HipRight                          0           -1.6           -1.1  HipCenter             #  16  - Right Leg
+KneeRight                         0              0           -6.8  -successor-           #  17
+AnkleRight                        0              0           -6.8  -successor-           #  18
+FootRight                       1.7              0              0  -successor-           #  19
+
+# End Of File

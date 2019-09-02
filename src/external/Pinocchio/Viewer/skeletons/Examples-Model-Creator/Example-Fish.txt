@@ -1,0 +1,20 @@
+# Skeleton file
+#
+# File: Example-Fish.txt.txt
+#
+
+# name of joint                   X              Y              Z  parent name
+
+HipCenter                     9.911              0          3.094  ""                    1              2           0.48              0              1  0              0  #   0
+r-Flosse                   -4.29262       -5.41433      -0.149683  HipCenter             0           1.83          -0.38             11           0.18  0              0  #   1
+l-Flosse                   -4.29262        5.41433      -0.149683  HipCenter             0           1.83          -0.38            -11           0.18  0              0  #   2
+r-eye                       2.84708       -2.97231        2.34208  HipCenter             0            0.5              0              0              1  1              0  #   3
+l-eye                       2.84708        2.97231        2.34208  HipCenter             0            0.5              0              0              1  1              0  #   4
+Joint-003                  -17.7034              0      -0.110718  HipCenter             1              1           -0.4              0              1  0              0  #   5
+Joint-008                  -1.95007              0              0  -successor-           1              2           -0.8              0           0.71  0              0  #   6
+Joint-009                  -2.20136              0              0  -successor-           1            2.4           -0.8              0           0.43  0              0  #   7
+META:                         7.416              0          5.006  ""                    1              2          -0.56              0           0.68  1              0  #   8
+
+#--MetaConfig: 40.00 40.00 40.00  1.00  76  0.50  0  0.00  0.31
+
+# End Of File
