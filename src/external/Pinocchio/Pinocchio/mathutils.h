@@ -73,8 +73,8 @@ template<class T> class construct {
 };
 
 #ifdef _WIN32
-inline bool operator==(const string &s1, const string &s2) { return s1.compare(s2) == 0; }
-inline bool operator<(const string &s1, const string &s2) { return s1.compare(s2) < 0; }
+inline bool operator==(const std::string &s1, const std::string &s2) { return s1.compare(s2) == 0; }
+inline bool operator<(const std::string &s1, const std::string &s2) { return s1.compare(s2) < 0; }
 #endif
 
 #endif // MATHUTILS_H_2686C802_462F_11E9_BF34_F7BC72BBEB09
