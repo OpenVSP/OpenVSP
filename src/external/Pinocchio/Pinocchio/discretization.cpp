@@ -173,7 +173,7 @@ std::vector<Sphere> sampleMedialSurface(TreeType *distanceField, double tol)
 
   Debugging::out() << "Medial axis points = " << out.size() << std::endl;
 
-  sort(out.begin(), out.end(), sphereComp);
+  std::sort(out.begin(), out.end(), sphereComp);
 
   return out;
 }

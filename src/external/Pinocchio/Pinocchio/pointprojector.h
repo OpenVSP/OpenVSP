@@ -68,7 +68,7 @@ class ObjectProjector
         for(i = 0; i < (int)objs.size(); ++i) {
           orders[d].push_back(i);
         }
-        sort(orders[d].begin(), orders[d].end(), DLess(d, objs));
+        std::sort(orders[d].begin(), orders[d].end(), DLess(d, objs));
       }
 
       rnodes.reserve((int)objs.size() * 2 - 1);
