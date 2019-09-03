@@ -15,6 +15,7 @@
     License along with this library; if not, write to the Free Software
     Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
 */
+#include <algorithm>
 
 #include "graphutils.h"
 #include "debugging.h"
@@ -38,7 +39,7 @@ bool PtGraph::integrityCheck() const
       //no self edges
       CHECK(cur != i);
 
-      std::vector<int>::const_iterator it = find(edges[cur].begin(), edges[cur].end(), i);
+      std::vector<int>::const_iterator it = std::find(edges[cur].begin(), edges[cur].end(), i);
       CHECK(it != edges[cur].end());
 
       //duplicates
