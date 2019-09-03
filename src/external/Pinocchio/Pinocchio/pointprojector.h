@@ -20,6 +20,7 @@
 #define POINTPROJECTOR_H_BFCF2002_4190_11E9_AA8F_EFB66606E782
 
 #include <set>
+#include <algorithm>
 
 #include "vector.h"
 #include "rect.h"
