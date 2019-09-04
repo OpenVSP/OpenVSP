@@ -682,6 +682,8 @@ Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, doub
     AddY( h );
     NewLineX();
 
+    canvas->HideSecondaryY();
+
     return canvas;
 }
 
