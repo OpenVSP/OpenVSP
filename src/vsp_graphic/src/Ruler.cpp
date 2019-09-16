@@ -65,7 +65,7 @@ void Ruler::placeRuler( const glm::vec3 &v1, const glm::vec3 &v2, const glm::vec
     _v1 = v1;
     _v2 = v2;
     _label = lbl;
-    _offset = calculateOffset(_v1, _v2, offset);;
+    _offset = calculateOffset(_v1, _v2, offset);
 }
 
 void Ruler::reset()

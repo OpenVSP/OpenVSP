@@ -542,7 +542,7 @@ CustomXSec::CustomXSec( XSecCurve *xsc ) : SkinXSec( xsc)
 {
     m_Type = vsp::XSEC_CUSTOM;
 
-};
+}
 
 //==== Update ====//
 void CustomXSec::Update()
@@ -902,7 +902,7 @@ void CustomGeom::SkinXSecSurf( bool closed_flag )
                 if ( j == 0 )
                 {
                     xsec_vec.push_back( xs );
-                    last_crv = xs->GetCurve();;
+                    last_crv = xs->GetCurve();
                 }
                 else
                 {

@@ -24,7 +24,7 @@ bool NameCompare( const string &parmID_A, const string &parmID_B )
 
     if ( pA && pB )
     {
-        string c_name_A, g_name_A, p_name_A, c_name_B, g_name_B, p_name_B;;
+        string c_name_A, g_name_A, p_name_A, c_name_B, g_name_B, p_name_B;
         ParmMgr.GetNames( parmID_A, c_name_A, g_name_A, p_name_A );
         ParmMgr.GetNames( parmID_B, c_name_B, g_name_B, p_name_B );
 

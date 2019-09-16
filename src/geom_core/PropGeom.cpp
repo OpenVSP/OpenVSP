@@ -27,7 +27,7 @@ using namespace vsp;
 
 PropPositioner::PropPositioner()
 {
-    m_ParentProp = NULL;;
+    m_ParentProp = NULL;
 
     m_Chord = 1.0;
 

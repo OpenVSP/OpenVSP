@@ -3739,7 +3739,7 @@ void TMesh::SplitAliasEdges( TTri* orig_tri, TEdge* isect_edge )
     vector < vec3d > exyzs(2);
 
     es[0] = isect_edge->m_N0->GetUWPnt();
-    es[1] = isect_edge->m_N1->GetUWPnt();;
+    es[1] = isect_edge->m_N1->GetUWPnt();
     exyzs[0] = isect_edge->m_N0->GetXYZPnt();
     exyzs[1] = isect_edge->m_N1->GetXYZPnt();
 

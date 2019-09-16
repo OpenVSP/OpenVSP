@@ -1830,7 +1830,7 @@ int GetSubSurfIndex( const std::string & sub_id )
         return -1;
     }
 
-    int ss_ind = geom_ptr->GetSubSurfIndex( sub_id );;
+    int ss_ind = geom_ptr->GetSubSurfIndex( sub_id );
 
     ErrorMgr.NoError();
     return ss_ind;

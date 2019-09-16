@@ -747,7 +747,7 @@ void ProjectionMgrSingleton::Poly3dToPoly2d( vector < vector < vec3d > > & invec
         outvec[i].resize( invec[i].size() );
         for ( int j = 0; j < invec[i].size(); j++ )
         {
-            outvec[i][j] = vec2d( invec[i][j].y(), invec[i][j].z() );;
+            outvec[i][j] = vec2d( invec[i][j].y(), invec[i][j].z() );
         }
     }
 }

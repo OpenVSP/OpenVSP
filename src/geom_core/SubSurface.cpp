@@ -63,10 +63,10 @@ SubSurface::SubSurface( string compID, int type )
     m_DrawFeaPartFlag.Init( "DrawFeaPartFlag", "FeaSubSurface", this, true, false, true );
     m_DrawFeaPartFlag.SetDescript( "Flag to Draw FEA SubSurface" );
 
-    m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaSubSurface", this, 0, 0, 1e12 );; // Shell property default
+    m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaSubSurface", this, 0, 0, 1e12 ); // Shell property default
     m_FeaPropertyIndex.SetDescript( "FeaPropertyIndex for Shell Elements" );
 
-    m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaSubSurface", this, 1, 0, 1e12 );; // Beam property default
+    m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaSubSurface", this, 1, 0, 1e12 ); // Beam property default
     m_CapFeaPropertyIndex.SetDescript( "FeaPropertyIndex for Beam (Cap) Elements" );
 }
 

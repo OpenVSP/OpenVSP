@@ -376,7 +376,7 @@ int MeshGeom::ReadSTL( const char* file_name )
 
                 //==== Put Nodes Into Tri ====//
                 tPtr->m_N0 = new TNode();
-                tPtr->m_N1 = new TNode();;
+                tPtr->m_N1 = new TNode();
                 tPtr->m_N2 = new TNode();
                 tPtr->m_N0->m_Pnt = vec3d( v0[0], v0[1], v0[2] );
                 tPtr->m_N1->m_Pnt = vec3d( v1[0], v1[1], v1[2] );
@@ -1338,9 +1338,9 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[2] = 0.04f + 0.7f * (float)rgb.z();
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Specular[3] = 1.0f;
 
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = (float)rgb.x()/20.0f;;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = (float)rgb.y()/20.0f;;
-            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = (float)rgb.z()/20.0f;;
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[0] = (float)rgb.x()/20.0f;
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[1] = (float)rgb.y()/20.0f;
+            m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[2] = (float)rgb.z()/20.0f;
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Emission[3] = 1.0f;
 
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = 32.0f;

@@ -1375,7 +1375,7 @@ void WingGeom::AddDefaultSources( double base_len )
 
     if ( m_CapUMaxOption() != NO_END_CAP )
     {
-        nseg = nseg + 1.0;;
+        nseg = nseg + 1.0;
     }
 
     char str[256];

@@ -873,10 +873,10 @@ FeaPart::FeaPart( string geomID, int type )
     m_RelCenterLocation.Init( "RelCenterLocation", "FeaPart", this, 0.5, 0.0, 1.0 );
     m_RelCenterLocation.SetDescript( "The Relative Location of the Center of the FeaPart" );
 
-    m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaPart", this, 0, 0, 1e12 );; // Shell property default
+    m_FeaPropertyIndex.Init( "FeaPropertyIndex", "FeaPart", this, 0, 0, 1e12 ); // Shell property default
     m_FeaPropertyIndex.SetDescript( "FeaPropertyIndex for Shell Elements" );
 
-    m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaPart", this, 1, 0, 1e12 );; // Beam property default
+    m_CapFeaPropertyIndex.Init( "CapFeaPropertyIndex", "FeaPart", this, 1, 0, 1e12 ); // Beam property default
     m_CapFeaPropertyIndex.SetDescript( "FeaPropertyIndex for Beam (Cap) Elements" );
 }
 
