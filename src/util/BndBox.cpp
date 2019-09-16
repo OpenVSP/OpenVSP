@@ -326,11 +326,11 @@ std::vector< vec3d > BndBox::GetBBoxDrawLines() const
                             2, 6, 3, 7, 4, 5, 4, 6, 5, 7, 6, 7
                            };
 
-    std::vector< vec3d > lines;
+    std::vector< vec3d > lines(24);
 
     for ( int i = 0 ; i < 24 ; i++ )
     {
-        lines.push_back( GetCornerPnt( index[i] ) );
+        lines[i] = GetCornerPnt( index[i] );
     }
     return lines;
 }

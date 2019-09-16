@@ -189,11 +189,11 @@ Clipping * Scene::GetClipping()
 
 std::vector<unsigned int> Scene::getIds()
 {
-    std::vector<unsigned int> ids;
+    std::vector<unsigned int> ids( _sceneList.size() );
 
     for(int i = 0; i < (int)_sceneList.size(); i++)
     {
-        ids.push_back(_sceneList[i]->getID());
+        ids[i] = _sceneList[i]->getID();
     }
     return ids;
 }

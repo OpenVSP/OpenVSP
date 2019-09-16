@@ -439,10 +439,10 @@ float TextureMgr::getScaleR( unsigned int id )
 
 std::vector<unsigned int> TextureMgr::getIds()
 {
-    std::vector<unsigned int> ids;
+    std::vector<unsigned int> ids( _coordList.size() );
     for( int i = 0; i < ( int )_coordList.size(); i++ )
     {
-        ids.push_back( _coordList[i].id );
+        ids[i] = _coordList[i].id;
     }
     return ids;
 }
