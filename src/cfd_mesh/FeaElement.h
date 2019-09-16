@@ -194,7 +194,7 @@ class SimpleFeaProperty
     void CopyFrom( FeaProperty* fea_prop );
 
     void WriteNASTRAN( FILE* fp, int id );
-    void WriteCalculix( FILE* fp, string ELSET );
+    void WriteCalculix( FILE* fp, const string &ELSET );
 
     int GetSimpFeaMatIndex()
     {

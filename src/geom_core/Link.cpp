@@ -35,12 +35,12 @@ Link::~Link()
 
 }
 
-void Link::SetParmA( string id  )
+void Link::SetParmA( const string &id  )
 {
     m_ParmA = id;
 }
 
-void Link::SetParmB( string id )
+void Link::SetParmB( const string &id )
 {
     m_ParmB = id;
 }

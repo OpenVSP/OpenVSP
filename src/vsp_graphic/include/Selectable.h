@@ -27,7 +27,7 @@ public:
     * Set this Selectable to a group. Group identifies who
     * the feedback is for.
     */
-    void setGroup(std::string group);
+    void setGroup( const std::string &group);
     /*!
     * Get group name.
     */

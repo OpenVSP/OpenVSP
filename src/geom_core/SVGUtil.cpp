@@ -49,7 +49,7 @@ void WriteSVGHeader( xmlNodePtr root, const BndBox &svgbox )
     XmlUtil::SetDoubleProp( rect_node, "stroke-width", stroke_width );
 }
 
-void WriteSVGScaleBar( xmlNodePtr root, const int View, const BndBox &svgbox, const int LenUnit, const double convert_scale )
+void WriteSVGScaleBar( xmlNodePtr root, const int &View, const BndBox &svgbox, const int &LenUnit, const double &convert_scale )
 {
     vec3d scalevec = svgbox.GetMax() - svgbox.GetMin();
     double scale = svgbox.GetLargestDist();
@@ -231,7 +231,7 @@ void WriteSVGScaleBar( xmlNodePtr root, const int View, const BndBox &svgbox, co
 
 }
 
-xmlNodePtr AddDefaultScalBarProps( xmlNodePtr & node, const double convert_scale )
+xmlNodePtr AddDefaultScalBarProps( xmlNodePtr & node, const double &convert_scale )
 {
     double height = convert_scale / 22;
     double stroke_width = convert_scale / 250;

@@ -1186,7 +1186,7 @@ void VspCurve::TessAdapt( double umin, double umax, const vec3d & pmin, const ve
 
 
 //===== Offset =====//
-void VspCurve::Offset( vec3d offvec )
+void VspCurve::Offset( const vec3d &offvec )
 {
     curve_point_type tr;
     tr << offvec.x(), offvec.y(), offvec.z();
@@ -1306,7 +1306,7 @@ void VspCurve::ReflectYZ()
     m_Curve.reflect_yz();
 }
 
-void VspCurve::Reflect( vec3d axis )
+void VspCurve::Reflect( const vec3d &axis )
 {
     curve_point_type a;
 
@@ -1314,7 +1314,7 @@ void VspCurve::Reflect( vec3d axis )
     m_Curve.reflect( a );
 }
 
-void VspCurve::Reflect( vec3d axis, double d )
+void VspCurve::Reflect( const vec3d &axis, double d )
 {
     curve_point_type a;
 

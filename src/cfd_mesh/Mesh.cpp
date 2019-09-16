@@ -1301,7 +1301,7 @@ void Mesh::OptSmooth( int num_iter )
     }
 }
 
-bool Mesh::SetFixPoint( vec3d fix_pnt, vec2d fix_uw )
+bool Mesh::SetFixPoint( const vec3d &fix_pnt, vec2d fix_uw )
 {
     double min_dist = FLT_MAX;
     Node* closest_node = NULL;
@@ -1494,7 +1494,7 @@ void Mesh::CheckValidEdge( Edge* edge )
     }
 }
 
-void Mesh::TriangulateBorder( vector< vec3d > uw_border )
+void Mesh::TriangulateBorder( const vector< vec3d > &uw_border )
 {
 
 }

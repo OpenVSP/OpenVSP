@@ -48,7 +48,7 @@ struct MapSource
         m_surfid = -1;
     };
 
-    MapSource( vec3d pt, double str, int surfid )
+    MapSource( const vec3d &pt, double str, int surfid )
     {
         m_pt = pt;
         m_str = str;

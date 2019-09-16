@@ -117,11 +117,11 @@ public:
     /*!
     * Get last Selectable Object with a specific group name.
     */
-    virtual Selectable * getLastSelected(std::string group);
+    virtual Selectable * getLastSelected( const std::string &group);
     /*!
     * Get all Selectable Objects with a specific group name.
     */
-    virtual std::vector<Selectable*> getSelected(std::string group);
+    virtual std::vector<Selectable*> getSelected( const std::string &group);
 
     virtual std::vector<Selectable*> getSelected();
 

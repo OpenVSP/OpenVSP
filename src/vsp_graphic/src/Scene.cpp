@@ -442,7 +442,7 @@ void Scene::removeSelected(Selectable* selected)
     }
 }
 
-Selectable * Scene::getLastSelected(std::string group)
+Selectable * Scene::getLastSelected( const std::string &group)
 {
     int lastIndex = _selections.size() - 1;
 
@@ -456,7 +456,7 @@ Selectable * Scene::getLastSelected(std::string group)
     return NULL;
 }
 
-std::vector<Selectable*> Scene::getSelected(std::string group)
+std::vector<Selectable*> Scene::getSelected( const std::string &group)
 {
     std::vector<Selectable*> groupSelect;
 

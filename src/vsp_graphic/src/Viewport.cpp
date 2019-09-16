@@ -324,7 +324,7 @@ void Viewport::showGridOverlay( bool showFlag )
     _showGrid = showFlag;
 }
 
-glm::vec3 Viewport::screenToWorld(glm::vec2 screenCoord)
+glm::vec3 Viewport::screenToWorld( const glm::vec2 &screenCoord)
 {
     return glm::unProject(glm::vec3(screenCoord, 0.5), 
         _camera->getModelViewMatrix(),
@@ -332,7 +332,7 @@ glm::vec3 Viewport::screenToWorld(glm::vec2 screenCoord)
         glm::vec4(_x, _y, _vWidth, _vHeight));
 }
 
-glm::vec2 Viewport::screenToNDC(glm::vec2 screenCoord)
+glm::vec2 Viewport::screenToNDC( const glm::vec2 &screenCoord)
 {
     glm::vec2 NDC = screenCoord;
 

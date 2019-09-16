@@ -226,14 +226,14 @@ extern void ChangeBORXSecShape( const string & geom_id, int type );
 extern int GetBORXSecShape( const string & geom_id );
 extern void ReadFileAirfoil( const std::string& xsec_id, const std::string& file_name );
 extern void SetAirfoilPnts( const std::string& xsec_id, std::vector< vec3d > & up_pnt_vec, std::vector< vec3d > & low_pnt_vec );
-extern std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false );
-extern std::vector<vec3d> GetHersheyBarDragDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag = false );
-extern std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau );
-extern std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, std::vector<vec3d> xyz_data );
-extern std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d center, const vec3d abc_rad, int u_npts = 20, int w_npts = 20 );
+extern std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
+extern std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag = false );
+extern std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, const double &epsilon, const double &kappa, const double &tau );
+extern std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, std::vector<vec3d> xyz_data );
+extern std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d &center, const vec3d &abc_rad, int u_npts = 20, int w_npts = 20 );
 extern std::vector<vec3d> GetFeatureLinePnts( const string& geom_id );
-extern std::vector<double> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf );
-extern double IntegrateEllipsoidFlow( const vec3d abc_rad, const int abc_index );
+extern std::vector<double> GetEllipsoidCpDist( const std::vector<vec3d> &surf_pnt_vec, const vec3d &abc_rad, const vec3d &V_inf );
+extern double IntegrateEllipsoidFlow( const vec3d &abc_rad, const int &abc_index );
 extern std::vector<vec3d> GetAirfoilUpperPnts( const std::string& xsec_id );
 extern std::vector<vec3d> GetAirfoilLowerPnts( const std::string& xsec_id );
 extern std::vector<double> GetUpperCSTCoefs( const std::string& xsec_id );
@@ -248,9 +248,9 @@ extern void DemoteCSTUpper( const std::string& xsec_id );
 extern void DemoteCSTLower( const std::string& xsec_id );
 extern void FitAfCST( const std::string & xsec_surf_id, int xsec_index, int deg );
 
-extern void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u );
-extern void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u );
-extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const double foilsurf_u );
+extern void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u );
+extern void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u );
+extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const double &foilsurf_u );
 
 //======================== Sets ================================//
 extern int GetNumSets();
@@ -344,7 +344,7 @@ extern int GetNumControlSurfaceGroups();
 extern void AddExcrescence(const std::string & excresName, const int & excresType, const double & excresVal);
 extern void DeleteExcrescence(const int & index);
 extern void UpdateParasiteDrag();
-extern void WriteAtmosphereCSVFile( const std::string & file_name, const int atmos_type );
+extern void WriteAtmosphereCSVFile( const std::string & file_name, const int &atmos_type );
 extern void CalcAtmosphere( const double & alt, const double & delta_temp, const int & atmos_type,
     double & temp, double & pres, double & pres_ratio, double & rho_ratio );
 extern void WriteBodyFFCSVFile( const std::string & file_name );

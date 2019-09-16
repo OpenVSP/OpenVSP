@@ -3419,7 +3419,7 @@ void FeaMeshMgrSingleton::UpdateDisplaySettings()
     }
 }
 
-void FeaMeshMgrSingleton::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string set_name )
+void FeaMeshMgrSingleton::WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string &set_name )
 {
     if ( set_ids.size() > 0 && Nastran_fid )
     {

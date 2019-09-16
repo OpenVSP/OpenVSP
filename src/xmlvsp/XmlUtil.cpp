@@ -281,7 +281,7 @@ void XmlUtil::SetStringProp( xmlNodePtr root, const char * name, string & val )
 }
 
 //==== Get Number of Items in Array ====//
-int XmlUtil::GetNumArray( xmlNodePtr node, const char sep )
+int XmlUtil::GetNumArray( xmlNodePtr node, const char &sep )
 {
     char* str;
     int i, len, num, elemcnt;
@@ -319,7 +319,7 @@ int XmlUtil::GetNumArray( xmlNodePtr node, const char sep )
 }
 
 //==== Extract Double Array ====//
-int XmlUtil::ExtractDoubleArray( xmlNodePtr node, const char sep, double * array, int size )
+int XmlUtil::ExtractDoubleArray( xmlNodePtr node, const char &sep, double * array, int size )
 {
     char elem[255];
     char* str;
@@ -365,7 +365,7 @@ int XmlUtil::ExtractDoubleArray( xmlNodePtr node, const char sep, double * array
 }
 
 //==== Extract Int Array ====//
-int XmlUtil::ExtractIntArray( xmlNodePtr node, const char sep, int * array, int size )
+int XmlUtil::ExtractIntArray( xmlNodePtr node, const char &sep, int * array, int size )
 {
     char elem[255];
     char* str;

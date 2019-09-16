@@ -85,7 +85,7 @@ public:
     void SwapUWDirections();
     void Transform( Matrix4d & mat );
     void GetBoundingBox( BndBox &bb ) const;
-    void GetLimitedBoundingBox( BndBox &bb, const double U0, const double Uf, const double W0, const double Wf );
+    void GetLimitedBoundingBox( BndBox &bb, const double &U0, const double &Uf, const double &W0, const double &Wf );
     bool IsClosedU() const;
     bool IsClosedW() const;
 
@@ -202,7 +202,7 @@ public:
     void ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs );
     void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit );
 
-    void ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string labelprefix, bool labelSplitNo, string delim );
+    void ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string &labelprefix, bool labelSplitNo, const string &delim );
 
     void SetUSkipFirst( bool f );
     void SetUSkipLast( bool f );
@@ -235,7 +235,7 @@ public:
     int GetNumSectU() const;
     int GetNumSectW() const;
 
-    void Offset( vec3d offvec );
+    void Offset( const vec3d &offvec );
     void OffsetX( double x );
     void OffsetY( double y );
     void OffsetZ( double Z );

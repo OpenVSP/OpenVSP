@@ -85,7 +85,7 @@ public:
     void LaplacianSmooth( int num_iter );
     void OptSmooth( int num_iter );
 
-    bool SetFixPoint( vec3d fix_pnt, vec2d fix_uw );
+    bool SetFixPoint( const vec3d &fix_pnt, vec2d fix_uw );
 
     void DumpGarbage();
 

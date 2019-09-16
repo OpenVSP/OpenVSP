@@ -3117,7 +3117,7 @@ struct LLT_Data // Struct containing Lifting Line Theory data
     vector < long double > cd_vec; // induced drag coefficient
 };
 
-LLT_Data GetHersheyLLTData( const unsigned int npts, const long double alpha, const long double Vinf, const long double span )
+LLT_Data GetHersheyLLTData( const unsigned int &npts, const long double &alpha, const long double &Vinf, const long double &span )
 {
     LLT_Data llt_data;
 
@@ -3184,7 +3184,7 @@ LLT_Data GetHersheyLLTData( const unsigned int npts, const long double alpha, co
     return llt_data;
 }
 
-std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+std::vector<vec3d> GetHersheyBarLiftDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag )
 {
     // Calculation of lift distribution for a Hershey Bar wing with unit chord length using Glauert's Method
     //  Input span is the entire wing span, which half is used in the following calculations. If full_span_flag == true,
@@ -3223,7 +3223,7 @@ std::vector<vec3d> GetHersheyBarLiftDist( const int npts, const double alpha, co
     return y_cl_vec;
 }
 
-std::vector<vec3d> GetHersheyBarDragDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag )
 {
     // Calculation of drag distribution for a Hershey Bar wing with unit chord length using Glauert's Method.
     //  Input span is the entire wing span, which half is used in the following calculations. If full_span_flag == true,
@@ -3261,7 +3261,7 @@ std::vector<vec3d> GetHersheyBarDragDist( const int npts, const double alpha, co
     return y_cd_vec;
 }
 
-std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau )
+std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, const double &epsilon, const double &kappa, const double &tau )
 {
     // alpha = Angle of attack( radian )
     // epsilon = Thisckness
@@ -3327,7 +3327,7 @@ std::vector<vec3d> GetVKTAirfoilPnts( const int npts, const double alpha, const 
     return xyzdata;
 }
 
-std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, std::vector<vec3d> xyzdata )
+std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, std::vector<vec3d> xyzdata )
 {
     // alpha = Angle of attack( radian )
     // epsilon = Thisckness
@@ -3403,7 +3403,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double alpha, const double epsilo
     return cpdata;
 }
 
-std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d center, const vec3d abc_rad, int u_npts, int w_npts )
+std::vector<vec3d> GetEllipsoidSurfPnts( const vec3d &center, const vec3d &abc_rad, int u_npts, int w_npts )
 {
     // Generate the surface points for a ellipsoid of input abc radius vector at center. Based on the Matlab function ellipsoid.m
     if ( u_npts < 20 )
@@ -3497,7 +3497,7 @@ std::vector<vec3d> GetFeatureLinePnts( const string& geom_id )
     return pnt_vec;
 }
 
-std::vector <double> GetEllipsoidCpDist( const std::vector<vec3d> surf_pnt_vec, const vec3d abc_rad, const vec3d V_inf )
+std::vector <double> GetEllipsoidCpDist( const std::vector<vec3d> &surf_pnt_vec, const vec3d &abc_rad, const vec3d &V_inf )
 {
     // Generate Analytical Solution for Potential Flow at input ellipsoid surface points for input velocity vector (V).
     //  Based on Munk, M. M., 'Remarks on the Pressure Distribution over the Surface of an Ellipsoid, Moving Translationally 
@@ -3560,7 +3560,7 @@ struct ellipsoid_flow_functor
     int abc_index; // a: 0, b: 1, c: 2
 };
 
-double IntegrateEllipsoidFlow( const vec3d abc_rad, const int abc_index )
+double IntegrateEllipsoidFlow( const vec3d &abc_rad, const int &abc_index )
 {
     // Integration of Equations 6 and 7 for alpha, beta, and gamma in "Hydrodynamics" by Horace Lamb, Ch.5, Section 111, pg. 162. 
     //  abc_index corresponds to a:0 for alpha, b:1 for beta, and c:2 for gamma
@@ -3926,7 +3926,7 @@ void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
     ErrorMgr.NoError();
 }
 
-void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u )
+void WriteBezierAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
@@ -3946,7 +3946,7 @@ void WriteBezierAirfoil( const std::string & file_name, const std::string & geom
     ErrorMgr.NoError();
 }
 
-void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double foilsurf_u )
+void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
@@ -3966,7 +3966,7 @@ void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_
     ErrorMgr.NoError();
 }
 
-vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const double foilsurf_u )
+vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const double &foilsurf_u )
 {
     vector < vec3d > ordered_vec;
     Vehicle* veh = GetVehicle();
@@ -5156,7 +5156,7 @@ void UpdateParasiteDrag()
     ErrorMgr.NoError();
 }
 
-void WriteAtmosphereCSVFile(const std::string & file_name, const int atmos_type)
+void WriteAtmosphereCSVFile(const std::string & file_name, const int &atmos_type)
 {
     const static double arr[] = {0.0, 5000.0, 10000.0, 10999.0, 11001.0, 15000.0, 19999.0, 20000.0,
     20001.0, 25000.0, 30000.0, 31999.0, 32001.0, 35000.0, 40000.0, 45000.0, 46999.0, 47001.0, 50000.0,

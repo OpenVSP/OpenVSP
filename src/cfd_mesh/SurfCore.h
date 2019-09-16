@@ -90,7 +90,7 @@ public:
         return ( m_Surface.get_v0() + m_Surface.get_vmax() ) / 2.0;
     }
 
-    void SetSurf( piecewise_surface_type surf )
+    void SetSurf( const piecewise_surface_type &surf )
     {
         m_Surface = surf;
     }

@@ -114,11 +114,11 @@ public:
     /*
     * Transform screen coordinate to world coordinates.
     */
-    glm::vec3 screenToWorld(glm::vec2 screenCoord);
+    glm::vec3 screenToWorld( const glm::vec2 &screenCoord);
     /*
     * Transform screen coordinate to normalized device coordinate.
     */
-    glm::vec2 screenToNDC(glm::vec2 screenCoord);
+    glm::vec2 screenToNDC( const glm::vec2 &screenCoord);
 
     void drawRectangle( int sx, int sy, int x, int y );
 

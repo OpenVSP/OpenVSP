@@ -30,7 +30,7 @@ public:
     * Update current mouse location.  The mouse location is a glm::vec3
     * and must transformed to world space.
     */
-    static void updateMouseLocation(glm::vec3 mouseLocInWorld);
+    static void updateMouseLocation(const glm::vec3 &mouseLocInWorld);
 
     /*!
     * Place probe at initial point. The probe stretch from initial point
@@ -38,7 +38,7 @@ public:
     * v1 - initial or starting point of probe.
     * norm - normal vector at v1.
     */
-    void placeProbe(glm::vec3 v1, glm::vec3 norm, const std::string & lbl );
+    void placeProbe( const glm::vec3 &v1, const glm::vec3 &norm, const std::string & lbl );
 
     /*!
     * Place probe in between initial point and finish point.  The offset
@@ -47,7 +47,7 @@ public:
     * norm - normal vector at v1.
     * len - length of probe line
     */
-    void placeProbe(glm::vec3 v1, glm::vec3 norm, float len, const std::string & lbl );
+    void placeProbe( const glm::vec3 &v1, const glm::vec3 &norm, float len, const std::string & lbl );
 
 public:
     /*!

@@ -226,7 +226,7 @@ public:
 
     vector< vector < vec3d > > GetVehProjectionLines( int view, vec3d offset );
 
-    virtual void SetVehProjectVec3d( vector < vector < vec3d > > polyvec, int dir_index )
+    virtual void SetVehProjectVec3d( const vector < vector < vec3d > > &polyvec, int dir_index )
     {
         m_VehProjectVec3d[dir_index] = polyvec;
     }

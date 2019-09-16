@@ -6,7 +6,7 @@
 #include "StringUtil.h"
 #include "APIDefines.h"
 
-void StringUtil::change_from_to( char *str, const char from, const char to )
+void StringUtil::change_from_to( char *str, const char &from, const char &to )
 {
     int i = 0;
     while( str[i] != 0 )
@@ -20,7 +20,7 @@ void StringUtil::change_from_to( char *str, const char from, const char to )
 }
 
 //==== Change All "from" Characters -> "to" Characters ====//
-void StringUtil::change_from_to( string & str, const char from, const char to )
+void StringUtil::change_from_to( string & str, const char &from, const char &to )
 {
     for ( int i = 0 ; i < ( int )str.size() ; i++ )
     {

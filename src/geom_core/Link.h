@@ -26,8 +26,8 @@ public:
     Link();
     virtual ~Link();
 
-    virtual void SetParmA( string id );
-    virtual void SetParmB( string id );
+    virtual void SetParmA( const string &id );
+    virtual void SetParmB( const string &id );
     virtual string GetParmA() const             { return m_ParmA; }
     virtual string GetParmB() const             { return m_ParmB; }
     virtual void InitOffsetScale();

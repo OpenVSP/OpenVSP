@@ -142,7 +142,7 @@ void VspSurf::GetBoundingBox( BndBox &bb ) const
     bb.Update( v3max );
 }
 
-void VspSurf::GetLimitedBoundingBox( BndBox &bb, const double U0, const double Uf, const double W0, const double Wf )
+void VspSurf::GetLimitedBoundingBox( BndBox &bb, const double &U0, const double &Uf, const double &W0, const double &Wf )
 {
     surface_bounding_box_type bbx;
     vec3d v3min, v3max;
@@ -2285,7 +2285,7 @@ void VspSurf::ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> 
     }
 }
 
-void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string labelprefix, bool labelSplitNo, string delim )
+void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string &labelprefix, bool labelSplitNo, const string &delim )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
@@ -2415,7 +2415,7 @@ void VspSurf::IGESKnots( int deg, int npatch, vector< double > &knot )
     }
 }
 
-void VspSurf::Offset( vec3d offvec )
+void VspSurf::Offset( const vec3d &offvec )
 {
     threed_point_type p;
     p << offvec.x(), offvec.y(), offvec.z();

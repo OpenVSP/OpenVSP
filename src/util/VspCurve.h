@@ -117,7 +117,7 @@ public:
     void TessAdapt( double umin, double umax, std::vector< vec3d > & pnts, double tol, int Nlimit );
     void TessAdapt( double umin, double umax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, double tol, int Nlimit, int Nadapt = 0 );
 
-    void Offset( vec3d offvec );
+    void Offset( const vec3d &offvec );
     void OffsetX( double x );
     void OffsetY( double y );
     void OffsetZ( double Z );
@@ -137,8 +137,8 @@ public:
     void ReflectXY();
     void ReflectXZ();
     void ReflectYZ();
-    void Reflect( vec3d axis );
-    void Reflect( vec3d axis, double d );
+    void Reflect( const vec3d &axis );
+    void Reflect( const vec3d &axis, double d );
 
     void Reverse();
 

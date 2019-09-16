@@ -56,7 +56,7 @@ namespace VSPGraphic
         return texfont;
     }
 
-    void TextMgr::drawText( GLFont * font, float scale, std::string str, float x0, float y0, float xoffset, float yoffset )
+    void TextMgr::drawText( GLFont * font, float scale, const std::string &str, float x0, float y0, float xoffset, float yoffset )
     {
         glEnable( GL_TEXTURE_2D );
         glBlendFunc( GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA );

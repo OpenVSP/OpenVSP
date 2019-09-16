@@ -38,10 +38,10 @@ double FindDoubleProp( xmlNodePtr node, const char * name, double def );
 int FindIntProp( xmlNodePtr node, const char * name, int def );
 string FindStringProp( xmlNodePtr node, const char * name, const string & def );
 
-int GetNumArray( xmlNodePtr node, const char delim );
+int GetNumArray( xmlNodePtr node, const char &delim );
 
-int ExtractDoubleArray( xmlNodePtr node, const char sep, double * arr, int size );
-int ExtractIntArray( xmlNodePtr node, const char sep, int * arr, int size );
+int ExtractDoubleArray( xmlNodePtr node, const char &sep, double * arr, int size );
+int ExtractIntArray( xmlNodePtr node, const char &sep, int * arr, int size );
 
 xmlNodePtr AddIntNode( xmlNodePtr root, const char * name, int val );
 xmlNodePtr AddDoubleNode( xmlNodePtr root, const char * name, double val );

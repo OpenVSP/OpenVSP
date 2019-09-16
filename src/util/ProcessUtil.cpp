@@ -53,7 +53,7 @@ ProcessUtil::ProcessUtil()
 // C++ wrapper for execv.
 // Note, this automatically makes cmd the first argument in the list.
 // This also automatically NULL terminates the list of arguments.
-int cppexecv( string cmd, vector< string > options )
+int cppexecv( const string &cmd, vector< string > options )
 {
     int narg = options.size();
     const char **argv = new const char*[narg + 2];

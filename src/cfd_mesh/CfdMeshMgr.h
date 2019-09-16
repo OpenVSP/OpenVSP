@@ -206,7 +206,7 @@ public:
     {
         return m_WakeGeomID;
     }
-    virtual void SetWakeGeomID( string gid )
+    virtual void SetWakeGeomID( const string &gid )
     {
         m_WakeGeomID = gid;
     }

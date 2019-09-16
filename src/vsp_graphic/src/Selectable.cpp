@@ -11,7 +11,7 @@ Selectable::~Selectable()
 {
 }
 
-void Selectable::setGroup(std::string group)
+void Selectable::setGroup( const std::string &group)
 {
     _groupName = group;
 }

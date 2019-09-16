@@ -85,7 +85,7 @@ void WriteDXFHeader( FILE* dxf_file, int LenUnitChoice )
     }
 }
 
-void FeatureLinesManipulate( vector < vector < vec3d > > &allflines, int view, int ang, vec3d shiftvec )
+void FeatureLinesManipulate( vector < vector < vec3d > > &allflines, int view, int ang, const vec3d &shiftvec )
 {
     if ( view == vsp::VIEW_TYPE::VIEW_NONE )
     {
@@ -190,7 +190,7 @@ void FeatureLinesManipulate( vector < vector < vec3d > > &allflines, int view, i
     }
 }
 
-void FeatureLinesShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, int shift, int ang1, int ang2 )
+void FeatureLinesShift( vector < vector < vec3d > > &allflines, const vec3d &shiftvec, int shift, int ang1, int ang2 )
 {
     vec3d shiftvec_temp = shiftvec;
 
@@ -227,7 +227,7 @@ void FeatureLinesShift( vector < vector < vec3d > > &allflines, vec3d shiftvec, 
     }
 }
 
-void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer, bool colorflag, int color_count )
+void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, const string &layer, bool colorflag, int color_count )
 {
     if ( dxf_file )
     {
@@ -301,7 +301,7 @@ void WriteDXFPolylines3D( FILE* dxf_file, const vector < vector < vec3d > > &all
     }
 }
 
-void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, string layer, bool colorflag, int color_count )
+void WriteDXFPolylines2D( FILE* dxf_file, const vector < vector < vec3d > > &allflines, const string &layer, bool colorflag, int color_count )
 {
     if ( dxf_file )
     {

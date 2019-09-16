@@ -19,12 +19,12 @@ Probe::~Probe()
 {
 }
 
-void Probe::updateMouseLocation(glm::vec3 mouseLocInWorld)
+void Probe::updateMouseLocation(const glm::vec3 &mouseLocInWorld)
 {
     _mouseLocInWorld = mouseLocInWorld;
 }
 
-void Probe::placeProbe(glm::vec3 v1, glm::vec3 norm, const std::string & lbl )
+void Probe::placeProbe( const glm::vec3 &v1, const glm::vec3 &norm, const std::string & lbl )
 {
     reset();
 
@@ -35,7 +35,7 @@ void Probe::placeProbe(glm::vec3 v1, glm::vec3 norm, const std::string & lbl )
     _label = lbl;
 }
 
-void Probe::placeProbe(glm::vec3 v1, glm::vec3 norm, float len, const std::string & lbl)
+void Probe::placeProbe( const glm::vec3 &v1, const glm::vec3 &norm, float len, const std::string & lbl)
 {
     reset();
 

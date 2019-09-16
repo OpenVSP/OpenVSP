@@ -546,7 +546,7 @@ void SimpleFeaProperty::WriteNASTRAN( FILE* fp, int prop_id )
     }
 }
 
-void SimpleFeaProperty::WriteCalculix( FILE* fp, string ELSET )
+void SimpleFeaProperty::WriteCalculix( FILE* fp, const string &ELSET )
 {
     if ( m_FeaPropertyType == vsp::FEA_SHELL )
     {

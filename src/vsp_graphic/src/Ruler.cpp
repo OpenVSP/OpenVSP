@@ -19,7 +19,7 @@ Ruler::~Ruler()
 {
 }
 
-static glm::vec3 calculateOffset(glm::vec3 vStart, glm::vec3 vEnd, glm::vec3 vCursor)
+static glm::vec3 calculateOffset( const glm::vec3 &vStart, const glm::vec3 &vEnd, const glm::vec3 &vCursor)
 {
     // Project cursor vector onto ruler base vector.
     float magSq = (vEnd.x - vStart.x) * (vEnd.x - vStart.x) + 
@@ -37,19 +37,19 @@ static glm::vec3 calculateOffset(glm::vec3 vStart, glm::vec3 vEnd, glm::vec3 vCu
     return glm::vec3(0);
 }
 
-void Ruler::updateMouseLocation(glm::vec3 mouseLocInWorld)
+void Ruler::updateMouseLocation( const glm::vec3 &mouseLocInWorld)
 {
     _mouseLocInWorld = mouseLocInWorld;
 }
 
-void Ruler::placeRuler(glm::vec3 v1 )
+void Ruler::placeRuler( const glm::vec3 &v1 )
 {
     reset();
 
     _v1 = v1;
 }
 
-void Ruler::placeRuler(glm::vec3 v1, glm::vec3 v2, const std::string & lbl )
+void Ruler::placeRuler( const glm::vec3 &v1, const glm::vec3 &v2, const std::string & lbl )
 {
     reset();
 
@@ -58,7 +58,7 @@ void Ruler::placeRuler(glm::vec3 v1, glm::vec3 v2, const std::string & lbl )
     _label = lbl;
 }
 
-void Ruler::placeRuler(glm::vec3 v1, glm::vec3 v2, glm::vec3 offset, const std::string & lbl )
+void Ruler::placeRuler( const glm::vec3 &v1, const glm::vec3 &v2, const glm::vec3 &offset, const std::string & lbl )
 {
     reset();
 

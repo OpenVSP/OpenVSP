@@ -204,7 +204,7 @@ public:
     virtual int CountParents( int count );
     virtual bool IsParentJoint();
 
-    virtual void SetParentID( string id )
+    virtual void SetParentID( const string &id )
     {
         m_ParentID = id ;
     }
@@ -214,7 +214,7 @@ public:
     }
     virtual string GetAncestorID( int gen );
     virtual void BuildAncestorList( vector< string > &ancestors );
-    virtual void AddChildID( string id )
+    virtual void AddChildID( const string &id )
     {
         m_ChildIDVec.push_back( id );
     }
@@ -536,7 +536,7 @@ public:
 //Display Flags
 //OtherData
 
-    virtual void SetGeomProjectVec3d( vector < vector < vec3d > > polyvec, int dir_index )
+    virtual void SetGeomProjectVec3d( const vector < vector < vec3d > > &polyvec, int dir_index )
     {
         m_GeomProjectVec3d[dir_index] = polyvec;
     }

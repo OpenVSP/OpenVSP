@@ -3005,35 +3005,35 @@ void ScriptMgrSingleton::SetAirfoilPnts( const string& xsec_id, CScriptArray* up
     vsp::SetAirfoilPnts( xsec_id, up_pnt_vec, low_pnt_vec );
 }
 
-CScriptArray* ScriptMgrSingleton::GetAirfoilCoordinates( const std::string & geom_id, const double foilsurf_u )
+CScriptArray* ScriptMgrSingleton::GetAirfoilCoordinates( const std::string & geom_id, const double &foilsurf_u )
 {
     m_ProxyVec3dArray = vsp::GetAirfoilCoordinates( geom_id, foilsurf_u );
 
     return GetProxyVec3dArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetHersheyBarLiftDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+CScriptArray* ScriptMgrSingleton::GetHersheyBarLiftDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag )
 {
     m_ProxyVec3dArray = vsp::GetHersheyBarLiftDist( npts, alpha, Vinf, span, full_span_flag );
 
     return GetProxyVec3dArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetHersheyBarDragDist( const int npts, const double alpha, const double Vinf, const double span, bool full_span_flag )
+CScriptArray* ScriptMgrSingleton::GetHersheyBarDragDist( const int &npts, const double &alpha, const double &Vinf, const double &span, bool full_span_flag )
 {
     m_ProxyVec3dArray = vsp::GetHersheyBarDragDist( npts, alpha, Vinf, span, full_span_flag );
 
     return GetProxyVec3dArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetVKTAirfoilPnts( const int npts, const double alpha, const double epsilon, const double kappa, const double tau )
+CScriptArray* ScriptMgrSingleton::GetVKTAirfoilPnts( const int &npts, const double &alpha, const double &epsilon, const double &kappa, const double &tau )
 {
     m_ProxyVec3dArray = vsp::GetVKTAirfoilPnts( npts, alpha, epsilon, kappa, tau );
 
     return GetProxyVec3dArray();
 }
 
-CScriptArray* ScriptMgrSingleton::GetVKTAirfoilCpDist( const double alpha, const double epsilon, const double kappa, const double tau, CScriptArray* xyzdata )
+CScriptArray* ScriptMgrSingleton::GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, CScriptArray* xyzdata )
 {
     vector< vec3d > xyz_vec;
     xyz_vec.resize( xyzdata->GetSize() );
