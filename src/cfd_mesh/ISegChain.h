@@ -111,7 +111,7 @@ public:
     bool Match( ISeg* seg );
 
 
-    void Draw();
+    // void Draw();
 
 };
 
@@ -155,7 +155,7 @@ public:
 
     void Intersect( ISegBox* box );
 
-    void Draw();
+    // void Draw();
 
     void AppendLineSegs( vector < vec3d > &lsegs );
 
@@ -211,7 +211,7 @@ public:
 
     void BuildBoxes();
 
-    void Draw();
+    // void Draw();
 
     bool Valid();
 

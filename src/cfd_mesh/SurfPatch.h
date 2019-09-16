@@ -119,7 +119,7 @@ public:
     vec3d comp_tan_w_01( double u, double w ) const;
 
 
-    void Draw();
+    // void Draw();
 
     void IntersectLineSeg( vec3d & p0, vec3d & p1, BndBox & line_box, vector< double > & t_vals ) const;
     void AddTVal( double t, vector< double > & t_vals ) const;

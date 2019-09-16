@@ -389,7 +389,6 @@ protected:
 
     vector< vec3d > m_UnityFilePnts;
 
-    bool ReadOldXSecFile( FILE* file_id );
     bool ReadXSecFile( FILE* file_id );
 
 

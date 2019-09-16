@@ -108,7 +108,7 @@ public:
 
     void FlipDir();
 
-    void Draw();
+    // void Draw();
 
     vec3d CompPntUW( double u );
 

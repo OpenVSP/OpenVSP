@@ -140,7 +140,7 @@ public:
         return m_FeaPartIndex;
     }
 
-    void Draw();
+    // void Draw();
 
     void LoadSCurves( vector< SCurve* > & scurve_vec );
     void BuildGrid();

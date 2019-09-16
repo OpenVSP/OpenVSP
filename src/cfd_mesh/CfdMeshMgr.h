@@ -92,7 +92,7 @@ public:
     Wake( WakeMgr* mgr );
     virtual ~Wake();
 
-    void Draw();
+    // void Draw();
     void MatchBorderCurve( ICurve* curve );
     void BuildSurfs();
     double DistToClosestLeadingEdgePnt( vec3d & p );

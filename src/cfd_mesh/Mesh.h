@@ -52,7 +52,7 @@ public:
 
     void Clear();
 
-    void Draw();
+    // void Draw();
 
     void Remesh();
     void LoadSimpTris();
