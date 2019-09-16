@@ -150,7 +150,7 @@ public:
 
     virtual void WaveStartEnd( const double &sliceAngle, const vec3d &center );
     virtual void WaveDragSlice( int numSlices, double sliceAngle, int coneSections,
-                             const vector <string> & Flow_vec, bool Symm = 0 );
+                             const vector <string> & Flow_vec, bool Symm = false );
     virtual vector<vec3d> TessTriangles( vector<vec3d> &tri );
     virtual vector<vec3d> TessTri( vec3d t1, vec3d t2, vec3d t3, int iterations );
 
