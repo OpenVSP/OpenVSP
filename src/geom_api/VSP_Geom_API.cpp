@@ -5328,10 +5328,10 @@ void WritePartialCfMethodCSVFile(const std::string & file_name)
     res->Add(NameValData("Cf", cf_vec));
     res->Add(NameValData("ReyIn", ReyIn_array));
     res->Add(NameValData("Ref_Leng", ref_leng));
-    res->Add(NameValData("Re\/L", reql_array));
+    res->Add(NameValData("Re/L", reql_array));
     res->Add(NameValData("Roughness", roughness));
-    res->Add(NameValData("Taw\/Tw", taw_tw_ratio));
-    res->Add(NameValData("Te\/Tw", te_tw_ratio));
+    res->Add(NameValData("Taw/Tw", taw_tw_ratio));
+    res->Add(NameValData("Te/Tw", te_tw_ratio));
     res->WriteCSVFile( file_name );
 }
 
