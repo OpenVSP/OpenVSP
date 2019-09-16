@@ -785,7 +785,7 @@ void XSecCurve::TrimTE( bool wingtype )
                 ttrim = m_TETrimThickChord() * GetWidth();
             }
 
-            int ncache = 20;
+            const unsigned int ncache = 20;
             vector< vec3d > ptcache( ncache );
             vector< double > ucache( ncache );
             vector< double > dcache( ncache );
@@ -796,7 +796,7 @@ void XSecCurve::TrimTE( bool wingtype )
             m_Curve.TesselateNoCorner( ncache, umin, umax, ptcache, ucache );
 
             // Find most distant point.
-            int imax = -1;
+            unsigned int imax = 0;
             double mindu = 2.0 * umax;
             for ( int i = 0; i < ncache; i++ )
             {
@@ -1063,7 +1063,7 @@ void XSecCurve::TrimLE( bool wingtype )
                 ttrim = m_LETrimThickChord() * GetWidth();
             }
 
-            int ncache = 21;
+            const unsigned int ncache = 21;
             vector< vec3d > ptcache( ncache );
             vector< double > ucache( ncache );
             vector< double > dcache( ncache );
@@ -1074,7 +1074,7 @@ void XSecCurve::TrimLE( bool wingtype )
             m_Curve.TesselateNoCorner( ncache, umin, umax, ptcache, ucache );
 
             // Find most distant point.
-            int isplit = -1;
+            unsigned int isplit = 0;
             double mindu = 2.0 * umax;
             for ( int i = 0; i < ncache; i++ )
             {

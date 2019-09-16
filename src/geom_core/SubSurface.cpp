@@ -588,8 +588,8 @@ TMesh* SSLineSeg::CreateTMesh()
 void SSLineSeg::AddToTMesh( TMesh* tmesh )
 {
 
-    int num_cut_lines = 0;
-    int num_z_lines = 0;
+    unsigned int num_cut_lines = 0;
+    unsigned int num_z_lines = 0;
 
     double tol = 1.0e-6;
 
@@ -845,7 +845,7 @@ void SSEllipse::Update()
         return;
     }
 
-    int num_pnts = m_Tess();
+    unsigned int num_pnts = m_Tess();
     m_LVec.resize( num_pnts );
 
     vec3d center;
@@ -1944,7 +1944,7 @@ void SSControlSurf::RefVec( vector < vec3d > &pt_vec, int nref )
 {
     vector < vec3d > pnt_ref;
 
-    int nseg = ( pt_vec.size() - 1 ) / 3;
+    unsigned int nseg = ( pt_vec.size() - 1 ) / 3;
     pnt_ref.reserve( nref * nseg + 1 );
 
     vector < double > parm(4,0);

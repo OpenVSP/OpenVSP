@@ -374,8 +374,8 @@ protected:
 
     string m_Name;
 
-    int m_Nvar;
-    int m_Nchoice;
+    unsigned int m_Nvar;
+    unsigned int m_Nchoice;
     vector< int > m_CurrChoices;
 };
 

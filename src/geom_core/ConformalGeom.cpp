@@ -382,7 +382,7 @@ void ConformalGeom::AdjustShape( VspSurf & surf, VspSurf &  ref_surf, double off
     double del_scale = 0.01;
     double fraction_target_scale = 0.9;
 
-    int num_ribs = rib_vec.size();
+    unsigned int num_ribs = rib_vec.size();
     vector< double > orig_offset_r(num_ribs, 0.0);
     vector< double > change_offset_r(num_ribs, 0.0);
     vector< double > orig_offset_l(num_ribs, 0.0);
@@ -1003,7 +1003,7 @@ double ConformalGeom::ComputeAvgOffset( VspSurf & surf, VspSurf &  ref_surf, dou
     piecewise_curve_type samp_crv = crv.GetCurve();
 
     vector< double > dist_vec;
-    int num_samps = 4;
+    const unsigned int num_samps = 4;
     dist_vec.resize( num_samps, 0.0 );
 
     FindDists( ref_surf, samp_crv, u, dist_vec );
@@ -1070,7 +1070,7 @@ void ConformalSpine::Build( VspSurf & surf )
     m_DistVec.clear();
     m_MaxDist = 0.0;
 
-    int num_samps = 100;
+    const unsigned int num_samps = 100;
     m_UVec.reserve( num_samps );
     m_CenterVec.reserve( num_samps );
     m_DistVec.reserve( num_samps );

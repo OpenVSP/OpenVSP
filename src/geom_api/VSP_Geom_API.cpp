@@ -3338,7 +3338,7 @@ std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsi
     doublec i( 0, 1 );
     const double ell = 0.25; // chord length = 4 * ell
 
-    const int npts = xyzdata.size();
+    const unsigned int npts = xyzdata.size();
 
     vector < double > cpdata;
     cpdata.resize( npts );

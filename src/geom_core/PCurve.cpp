@@ -422,7 +422,7 @@ void PCurve::Tessellate( vector < double > & t, vector < double > & v )
 
 vector < double > PCurve::GetTVec()
 {
-    int n = m_TParmVec.size();
+    unsigned int n = m_TParmVec.size();
 
     vector < double > retvec( n );
 
@@ -440,7 +440,7 @@ vector < double > PCurve::GetTVec()
 
 vector < double > PCurve::GetValVec()
 {
-    int n = m_ValParmVec.size();
+    unsigned int n = m_ValParmVec.size();
 
     vector < double > retvec( n );
 

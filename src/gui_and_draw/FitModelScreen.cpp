@@ -472,7 +472,7 @@ void FitModelScreen::RebuildAdjustTab()
 
     m_ParmSliderVec.clear();
 
-    int num_vars = FitModelMgr.GetNumVars();
+    unsigned int num_vars = FitModelMgr.GetNumVars();
     m_ParmSliderVec.resize( num_vars );
 
     string lastContID;

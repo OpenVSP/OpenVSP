@@ -294,7 +294,7 @@ xmlNodePtr AdvLink::DecodeXml( xmlNodePtr & adv_link_node )
 
         //==== Input Vars ====//
         xmlNodePtr input_node = XmlUtil::GetNode( adv_link_node, "InputVars", 0 );
-        int num_input = XmlUtil::GetNumNames( input_node, "VarDef" );
+        unsigned int num_input = XmlUtil::GetNumNames( input_node, "VarDef" );
         m_InputVars.resize(num_input);
         for ( int i = 0 ; i < num_input ; i++ )
         {
@@ -304,7 +304,7 @@ xmlNodePtr AdvLink::DecodeXml( xmlNodePtr & adv_link_node )
 
         //==== Output Vars ====//
         xmlNodePtr output_node = XmlUtil::GetNode( adv_link_node, "OutputVars", 0 );
-        int num_output = XmlUtil::GetNumNames( output_node, "VarDef" );
+        unsigned int num_output = XmlUtil::GetNumNames( output_node, "VarDef" );
         m_OutputVars.resize(num_output);
         for ( int i = 0 ; i < num_output ; i++ )
         {

@@ -129,7 +129,7 @@ xmlNodePtr MeshGeom::DecodeXml( xmlNodePtr & node )
         m_TMeshVec.clear();
 
         xmlNodePtr numMeshes_node = XmlUtil::GetNode( mesh_node, "Num_Meshes", 0 );
-        int numMeshes = 0;
+        unsigned int numMeshes = 0;
         if ( numMeshes_node )
         {
             numMeshes = XmlUtil::ExtractInt( numMeshes_node );
@@ -191,7 +191,7 @@ int MeshGeom::ReadXSec( const char* file_name )
         char name_str[256];
         float x, y, z;
         int group_num, type;
-        int num_pnts, num_cross;
+        unsigned int num_pnts, num_cross;
         vector < vector < vec3d > > crossVec;
 
         fgets( name_str, 256, fp );
@@ -575,7 +575,7 @@ int MeshGeom::ReadTriFile( const char * file_name )
     //==== Read Number Tris and Nodes ====//
     float x, y, z;
     int n0, n1, n2;
-    int num_tris, num_nodes;
+    unsigned int num_tris, num_nodes;
 
     fscanf( file_id, "%d", &num_nodes );
     fscanf( file_id, "%d", &num_tris  );
@@ -1112,9 +1112,9 @@ void MeshGeom::UpdateBBox()
 void MeshGeom::UpdateDrawObj()
 {
     // Add in SubSurfaces to TMeshVec if m_DrawSubSurfs is true
-    int num_meshes = m_TMeshVec.size();
+    unsigned int num_meshes = m_TMeshVec.size();
 
-    int num_uniq_tags = SubSurfaceMgr.GetNumTags();
+    unsigned int num_uniq_tags = SubSurfaceMgr.GetNumTags();
 
     // Update Draw type based on if the disp subsurface is true
     if ( m_GuiDraw.GetDispSubSurfFlag() )
@@ -1168,8 +1168,8 @@ void MeshGeom::UpdateDrawObj()
         {
             for ( int m = 0 ; m < ( int )m_TMeshVec.size() ; m++ )
             {
-                int num_tris = m_TMeshVec[m]->m_TVec.size();
-                int pi = 0;
+                unsigned int num_tris = m_TMeshVec[m]->m_TVec.size();
+                unsigned int pi = 0;
                 vector<TTri*>& tris = m_TMeshVec[m]->m_TVec;
                 m_WireShadeDrawObj_vec[m].m_PntVec.resize( num_tris * 3 );
                 m_WireShadeDrawObj_vec[m].m_NormVec.resize( num_tris * 3 );
@@ -1460,7 +1460,7 @@ void MeshGeom::CreatePtCloudGeom()
 {
     BuildIndexedMesh( 0 );
     vector < TNode* > nvec = m_IndexedNodeVec;
-    int npts = nvec.size();
+    unsigned int npts = nvec.size();
 
     if ( npts > 0 )
     {
@@ -2787,7 +2787,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
             double theta = WaveDragMgr.m_ThetaRad[itheta];
 
             // Establish generic plane
-            int ngp = 4;
+            const unsigned int ngp = 4;
             vector< vec3d > gp(ngp);
             gp[0].set_xyz( 0,  2.5*size,  2.5*size );
             gp[1].set_xyz( 0, -2.5*size,  2.5*size );
@@ -2840,7 +2840,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         double xcenter = (double)tubeslicesX[itube];
 
         // Establish generic plane
-        int ngp = 4;
+        const unsigned int ngp = 4;
         vector< vec3d > gp(ngp);
         gp[0].set_xyz( 0,  2.5*size,  2.5*size );
         gp[1].set_xyz( 0, -2.5*size,  2.5*size );

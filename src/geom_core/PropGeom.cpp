@@ -674,7 +674,7 @@ void InterpXSecCurve( VspCurve & cout, XSecCurve *c1, XSecCurve *c2, const doubl
 //==== Update Fuselage And Cross Section Placement ====//
 void PropGeom::UpdateSurf()
 {
-    int nxsec = m_XSecSurf.NumXSec();
+    unsigned int nxsec = m_XSecSurf.NumXSec();
 
     double radius = m_Diameter() / 2.0;
 
@@ -990,7 +990,7 @@ void PropGeom::UpdateSurf()
         // Pseudo cross sections
         // Not directly user-controlled, but an intermediate step in lofting the
         // surface.
-        int npseudo = tmap.size();
+        unsigned int npseudo = tmap.size();
 
 
         vector< VspCurve > crv_vec( npseudo );
@@ -1133,8 +1133,8 @@ void PropGeom::UpdateSurf()
     // Build disk surface.
     if ( m_PropMode() >= PROP_MODE::PROP_BOTH )
     {
-        int nsurf = m_MainSurfVec.size() + 1;
-        int idisk = nsurf - 1;
+        unsigned int nsurf = m_MainSurfVec.size() + 1;
+        unsigned int idisk = nsurf - 1;
 
         m_MainSurfVec.resize( nsurf );
         m_CapUMinSuccess.resize( nsurf );
@@ -1288,7 +1288,7 @@ xmlNodePtr PropGeom::DecodeXml( xmlNodePtr & node )
         }
         else
         {
-            int nxsec = m_XSecSurf.NumXSec();
+            unsigned int nxsec = m_XSecSurf.NumXSec();
 
             vector < double > rvec( nxsec, 0.0 );
             vector < double > tvec( nxsec, 0.0 );
@@ -1329,7 +1329,7 @@ xmlNodePtr PropGeom::DecodeXml( xmlNodePtr & node )
         }
         else
         {
-            int nxsec = m_XSecSurf.NumXSec();
+            unsigned int nxsec = m_XSecSurf.NumXSec();
 
             vector < double > rvec( nxsec, 0.0 );
             vector < double > clivec( nxsec, 0.0 );
@@ -1710,8 +1710,8 @@ string PropGeom::BuildBEMResults()
 
 int PropGeom::ReadBEM( const string &file_name )
 {
-    int num_sect;
-    int num_blade;
+    unsigned int num_sect;
+    unsigned int num_blade;
     double diam;
     double beta34;
     double feather;
@@ -1889,7 +1889,7 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
     // Get the untwisted wing surface
     VspSurf* foil_surf = m_MainSurfVec[0].GetFoilSurf();
 
-    int numUsec = foil_surf->GetNumSectU();
+    unsigned int numUsec = foil_surf->GetNumSectU();
 
     // Identify starting and ending U values from end cap options
     double Umin = 0;

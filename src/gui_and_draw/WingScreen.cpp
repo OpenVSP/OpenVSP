@@ -1898,7 +1898,7 @@ void WingScreen::RebuildCSTGroup( CSTAirfoil* cst_xs)
 
     m_UpCoeffSliderVec.clear();
 
-    int num_up = cst_xs->m_UpDeg() + 1;
+    unsigned int num_up = cst_xs->m_UpDeg() + 1;
 
     m_UpCoeffSliderVec.resize( num_up );
 
@@ -1916,7 +1916,7 @@ void WingScreen::RebuildCSTGroup( CSTAirfoil* cst_xs)
 
     m_LowCoeffSliderVec.clear();
 
-    int num_low = cst_xs->m_LowDeg() + 1;
+    unsigned int num_low = cst_xs->m_LowDeg() + 1;
 
     m_LowCoeffSliderVec.resize( num_low );
 

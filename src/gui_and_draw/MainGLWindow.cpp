@@ -1384,8 +1384,8 @@ void VspGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
 
     int num_mesh = drawObj->m_PntMesh.size();
 
-    int vtotal = 0;
-    int etotal = 0;
+    unsigned int vtotal = 0;
+    unsigned int etotal = 0;
 
     for ( int k = 0; k < num_mesh; k++ )
     {
@@ -1402,7 +1402,7 @@ void VspGlWindow::_loadXSecData( Renderable * destObj, DrawObj * drawObj )
     vdata.reserve( vtotal * 8 );
     edata.reserve( etotal * 4 );
 
-    int offset = 0;
+    unsigned int offset = 0;
 
     for ( int k = 0; k < num_mesh; k++ )
     {
@@ -1464,7 +1464,7 @@ void VspGlWindow::_loadTrisData( Renderable * destObj, DrawObj * drawObj )
 {
     assert( drawObj->m_PntVec.size() == drawObj->m_NormVec.size() );
 
-    int n = drawObj->m_PntVec.size();
+    unsigned int n = drawObj->m_PntVec.size();
 
     std::vector<float> data( n * 8, 0.0f );
 
@@ -1493,7 +1493,7 @@ void VspGlWindow::_loadQuadsData( Renderable * destObj, DrawObj * drawObj )
 {
     assert( drawObj->m_PntVec.size() == drawObj->m_NormVec.size() );
 
-    int n = drawObj->m_PntVec.size();
+    unsigned int n = drawObj->m_PntVec.size();
 
     std::vector<float> data( n * 8, 0.0f );
 
@@ -1516,7 +1516,7 @@ void VspGlWindow::_loadQuadsData( Renderable * destObj, DrawObj * drawObj )
 
 void VspGlWindow::_loadMarkData( Renderable * destObj, DrawObj * drawObj )
 {
-    int n = drawObj->m_PntVec.size();
+    unsigned int n = drawObj->m_PntVec.size();
     std::vector<float> data( n * 8, 0.0f );
 
     for ( int i = 0; i < n; i++ )
@@ -1546,7 +1546,7 @@ void VspGlWindow::_setLighting( DrawObj * drawObj )
 
     Lighting * lights = m_GEngine->getScene()->getLights();
 
-    for( int i = 0; i < (int)drawObj->m_LightingInfos.size(); i++ )
+    for( unsigned int i = 0; i < (int)drawObj->m_LightingInfos.size(); i++ )
     {
         lInfo = drawObj->m_LightingInfos[i];
 
@@ -2084,7 +2084,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
                 ID * id = _findID( e->getID() );
                 if( id )
                 {
-                    int index = id->geomID.find_last_of( '_' );
+                    unsigned int index = id->geomID.find_last_of( '_' );
                     std::string baseId = id->geomID.substr( 0, index );
                     glm::vec3 placement = e->getVertexVec(pnt->getIndex());
                     measureScreen->Set( vec3d( placement.x, placement.y, placement.z ), baseId );
@@ -2109,7 +2109,7 @@ void VspGlWindow::_sendFeedback( Selectable * selected )
             ID * id = _findID( geom->getSource()->getID() );
             if( id )
             {
-                int index = id->geomID.find_last_of( '_' );
+                unsigned int index = id->geomID.find_last_of( '_' );
                 std::string baseId = id->geomID.substr( 0, index );
                 geomScreen->Set( baseId );
 

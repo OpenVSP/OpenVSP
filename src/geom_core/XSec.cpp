@@ -334,18 +334,18 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
         const vector< double > &angstr, const vector< double > &crvstr,
         piecewise_curve_type &tangentcrv, piecewise_curve_type &normcrv )
 {
-    int nts = ts.size();
+    unsigned int nts = ts.size();
 
     // Set up cubic spline of desired controls
     piecewise_cubic_spline_creator_type pcc( nts - 1 );
     pcc.set_t0( ts[0] );
-    for ( int i = 0; i < nts - 1; ++i)
+    for ( unsigned int i = 0; i < nts - 1; ++i)
     {
         pcc.set_segment_dt( ts[i+1] - ts[i], i );
     }
 
     vector< curve_point_type > pts(nts), phipts(nts);
-    for( int i = 0; i < nts; i++ )
+    for( unsigned int i = 0; i < nts; i++ )
     {
         pts[i] << thetas[i], angstr[i], crvstr[i];
         phipts[i] << phis[i], 0.0, 0.0;
@@ -372,7 +372,7 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
 
     // Evaluate controls and build tan & norm vectors at piecewise endpoints
     vector< curve_point_type > tanpts(ntcrv), nrmpts(ntcrv);
-    for( int i = 0; i < ntcrv; i++ )
+    for( unsigned int i = 0; i < ntcrv; i++ )
     {
         curve_point_type crvparm = crvcntrl.f( crvts[i] );
         curve_point_type crvphiparm = crvphi.f( crvts[i] );
@@ -390,7 +390,7 @@ void XSec::GetTanNormCrv( const vector< double > &ts, const vector< double > &th
 
     pcc.set_number_segments( ntcrv - 1 );
     pcc.set_t0( crvts[0] );
-    for ( int i = 0; i < ntcrv - 1; ++i)
+    for ( unsigned int i = 0; i < ntcrv - 1; ++i)
     {
         pcc.set_segment_dt( crvts[i+1] - crvts[i], i );
     }

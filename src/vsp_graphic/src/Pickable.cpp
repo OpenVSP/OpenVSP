@@ -58,7 +58,7 @@ void Pickable::_genColorBlock(bool geomPicking)
     // free block before create.
     _delColorBlock();
 
-    int vbSize = _rSource->getVBuffer()->getVertexSize();
+    unsigned int vbSize = _rSource->getVBuffer()->getVertexSize();
 
     // Allocate enough space for the block (four bytes per vertex).
     std::vector<unsigned char> colorblock;

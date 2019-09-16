@@ -183,7 +183,7 @@ NACABase::NACABase() : Airfoil( )
 
 void NACABase::BuildCurve( const naca_airfoil_type & af )
 {
-    int npts = 201; // Must be odd to hit LE point.
+    const unsigned int npts = 201; // Must be odd to hit LE point.
 
     double t0 = -1.0;
     double t = t0;
@@ -671,8 +671,8 @@ void SixSeries::Update()
     //==== Generate Airfoil ====//
     sixseries_( &sixser, &toc, &cli, &ta );
 
-    int num_pnts_upper = sixpnts_.nmu;
-    int num_pnts_lower = sixpnts_.nml;
+    unsigned int num_pnts_upper = sixpnts_.nmu;
+    unsigned int num_pnts_lower = sixpnts_.nml;
 
     // Force trailing edge point closed and x = 1.0.
     double yte = ( sixpnts_.yyl[ num_pnts_lower - 1 ] + sixpnts_.yyu[ num_pnts_upper - 1 ] ) * 0.5;
@@ -698,7 +698,7 @@ void SixSeries::Update()
     }
 
     vector< double > arclen;
-    int npts = pnts.size();
+    unsigned int npts = pnts.size();
     arclen.resize( npts );
     arclen[0] = 0.0;
 
@@ -826,7 +826,7 @@ void Biconvex::Update()
 {
     double x, xu, yu;
 
-    int nbase = 21;
+    unsigned int nbase = 21;
 
     //==== Initialize Array For Points ====//
     vector< vec3d > upnts( nbase );
@@ -974,7 +974,7 @@ void FileAirfoil::MakeCurve()
     int num_pnts_lower = m_LowerPnts.size();
 
     vector< double > arclen;
-    int npts = pnts.size();
+    unsigned int npts = pnts.size();
     arclen.resize( npts );
     arclen[0] = 0.0;
 
@@ -1428,7 +1428,7 @@ void CSTAirfoil::Update()
     piecewise_curve_type pc;
     pcst.create( pc );
 
-    int npts = 101; // Must be odd to hit LE point.
+    const unsigned int npts = 101; // Must be odd to hit LE point.
 
     double t = 0.0;
     double dt = 4.0 / ( npts - 1 );
@@ -1547,7 +1547,7 @@ void CSTAirfoil::FitCurve( VspCurve c, int deg )
     piecewise_curve_type pwc;
     pwc = c.GetCurve();
 
-    int n = 101;
+    const unsigned int n = 101;
 
     vector < curve_point_type > lpt( n );
     vector < curve_point_type > upt( n );
@@ -1927,7 +1927,7 @@ VKTAirfoil::VKTAirfoil( ) : Airfoil( )
 //==== Update ====//
 void VKTAirfoil::Update()
 {
-    int npts = 101;
+    const unsigned int npts = 101;
 
     vector< vec3d > pnts( npts );
 

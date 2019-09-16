@@ -234,7 +234,7 @@ protected:
 
     //vector< ISegSplit* > m_ISegSplitVec;
 
-    int m_NumComps;
+    unsigned int m_NumComps;
     int m_HighlightChainIndex;
 
     vector< Puw* > m_DelPuwVec;             // Store Created Puw and Ipnts

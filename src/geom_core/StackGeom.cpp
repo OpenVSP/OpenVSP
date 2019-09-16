@@ -108,7 +108,7 @@ void StackGeom::UpdateSurf()
 {
     m_TessUVec.clear();
 
-    int nxsec = m_XSecSurf.NumXSec();
+    unsigned int nxsec = m_XSecSurf.NumXSec();
 
     if ( m_OrderPolicy() == STACK_LOOP )
     {

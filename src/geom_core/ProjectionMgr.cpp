@@ -655,15 +655,15 @@ void ProjectionMgrSingleton::UpdateBBox( vector < TMesh* > & tmv )
 
 void ProjectionMgrSingleton::MeshToPaths( const vector < TMesh* > & tmv, ClipperLib::Paths & pths )
 {
-    int ntri = 0;
-    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    unsigned int ntri = 0;
+    for ( unsigned int i = 0 ; i < ( int )tmv.size() ; i++ )
     {
         ntri += tmv[i]->m_TVec.size();
     }
     pths.resize( ntri );
 
-    int itri = 0;
-    for ( int i = 0 ; i < ( int )tmv.size() ; i++ )
+    unsigned int itri = 0;
+    for ( unsigned int i = 0 ; i < ( int )tmv.size() ; i++ )
     {
         for ( int j = 0 ; j < ( int )tmv[i]->m_TVec.size() ; j++ )
         {

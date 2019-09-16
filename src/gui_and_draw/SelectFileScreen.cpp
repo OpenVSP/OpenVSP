@@ -199,10 +199,10 @@ void SelectFileScreen::screenCB( Fl_Widget* w )
         {
             if ( StringUtil::count_char_matches( m_DirString, '/' ) > 1 )
             {
-                int dirLen = m_DirString.size();
+                unsigned int dirLen = m_DirString.size();
                 m_DirString.erase( dirLen - 1, 1 );
 
-                int slashLoc = m_DirString.find_last_of( '/' );
+                unsigned int slashLoc = m_DirString.find_last_of( '/' );
 
                 if ( slashLoc + 1 <= ( dirLen - 1 ) )
                 {

@@ -3072,7 +3072,7 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
 
     int i, j, k;
 //  int num_grid = 10;
-    int num_grid = 1;  // jrg change back to 10????
+    unsigned int num_grid = 1;  // jrg change back to 10????
 
     vector< vector< vector< list< Edge* > > > > edgeGrid;
     edgeGrid.resize( num_grid );
@@ -3268,7 +3268,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     draw_obj_vec.push_back( &m_BBoxLineSymSplit );
 
     // Render Tag Colors
-    int num_tags = SubSurfaceMgr.GetNumTags();
+    unsigned int num_tags = SubSurfaceMgr.GetNumTags();
     m_TagDO.resize( num_tags );
     map<int, DrawObj*> tag_dobj_map;
     map< std::vector<int>, int >::const_iterator mit;

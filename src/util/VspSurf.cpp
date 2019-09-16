@@ -1073,7 +1073,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
 {
     if ( umerge.size() != 0 )
     {
-        const int nusect = num_u.size();
+        const unsigned int nusect = num_u.size();
 
         // Build merged version of m_USkip as uskip.
         vector <bool> uskip( nusect, false );
@@ -1093,7 +1093,7 @@ void VspSurf::MakeUTess( const vector<int> &num_u, vector<double> &u, const std:
         }
         assert( uskip.size() == nusect );
 
-        int nu = 1;
+        unsigned int nu = 1;
         for ( int i = 0; i < nusect; i++ )
         {
             if ( !uskip[i] )
@@ -1415,8 +1415,8 @@ void VspSurf::SplitTesselate( const vector<int> &num_u, int num_v, std::vector< 
 
 void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const
 {
-    int nu = u.size();
-    int nv = v.size();
+    unsigned int nu = u.size();
+    unsigned int nv = v.size();
 
     vector < vector < surface_point_type > > ptmat, nmat;
 
@@ -1521,10 +1521,10 @@ void VspSurf::SplitTesselate( const vector<double> &usplit, const vector<double>
         }
     }
 
-    int nu = usplit.size() - 1;
-    int nv = vsplit.size() - 1;
+    unsigned int nu = usplit.size() - 1;
+    unsigned int nv = vsplit.size() - 1;
 
-    int n = nu * nv;
+    unsigned int n = nu * nv;
 
     pnts.resize( n );
     norms.resize( n );

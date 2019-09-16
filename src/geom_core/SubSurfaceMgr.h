@@ -65,7 +65,7 @@ public:
     std::vector< int > GetAllTags();
 
     // Returns number of tags +1 for dummy tag.
-    int GetNumTags()
+    unsigned int GetNumTags()
     {
         return m_SingleTagMap.size();
     }

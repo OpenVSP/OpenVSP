@@ -134,7 +134,7 @@ public:
     vector < double > m_Length;
     double m_MaxMaxArea;
 
-    int m_NumPtsFit;
+    unsigned int m_NumPtsFit;
     vector < double > m_XNormFit;
     vector < vector < vector < double > > > m_CompFitAreaDist;
     vector < vector < vector < double > > > m_BuildupFitAreaDist;

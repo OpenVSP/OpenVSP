@@ -272,7 +272,7 @@ void VarPresetScreen::RebuildAdjustTab()
 
     m_ParmSliderVec.clear();
 
-    int num_vars = VarPresetMgr.GetNumVars();
+    unsigned int num_vars = VarPresetMgr.GetNumVars();
     m_ParmSliderVec.resize( num_vars );
 
     string lastContID;

@@ -3464,7 +3464,7 @@ void PCurveEditor::Update()
             }
             else
             {
-                int nseg = ( ndata - 1 ) / 3;
+                unsigned int nseg = ( ndata - 1 ) / 3;
 
                 vector < double > xend( nseg + 1 ); // Cubic segment endpoints
                 vector < double > yend( nseg + 1 );
@@ -3592,7 +3592,7 @@ void PCurveEditor::Update()
             m_canvas->current_y()->copy_label( m_Curve->GetYDsipName().c_str() );
         }
 
-        int n = m_Curve->GetNumPts();
+        unsigned int n = m_Curve->GetNumPts();
 
         m_SplitPtSlider.Update( m_Curve->m_SplitPt.GetID() );
 

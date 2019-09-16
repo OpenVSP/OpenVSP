@@ -578,7 +578,7 @@ bool SurfCore::MatchThisOrientation( const piecewise_surface_type &osurf ) const
 void SurfCore::WriteSurf( FILE* fp ) const
 {
     vector< vector< vec3d > > pntVec;
-    int numU, numW;
+    unsigned int numU, numW;
 
     int ip, jp, nupatch, nwpatch, ioffset, joffset;
     int icp, jcp, udeg = 0, wdeg = 0;

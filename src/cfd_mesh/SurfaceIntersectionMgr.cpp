@@ -374,7 +374,7 @@ void SurfaceIntersectionSingleton::CleanMergeSurfs()
 
 void SurfaceIntersectionSingleton::DeleteDuplicateSurfs()
 {
-    int nsurf = m_SurfVec.size();
+    unsigned int nsurf = m_SurfVec.size();
 
     vector < bool > delflag( nsurf );
     for ( int i = 0 ; i < nsurf ; i++ )
@@ -1330,7 +1330,7 @@ void SurfaceIntersectionSingleton::BuildSubSurfIntChains()
     // Adds subsurface intersection chains
     vec2d uw_pnt0;
     vec2d uw_pnt1;
-    int num_sects = 100; // Number of segments to break subsurface segments up into
+    const unsigned int num_sects = 100; // Number of segments to break subsurface segments up into
 
     // If there is an issue with having a watertight mesh between the intersection of two
     // components near a forced subsurface line, try increasing num_sects especially for highly

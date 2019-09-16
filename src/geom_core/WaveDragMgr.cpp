@@ -402,7 +402,7 @@ string WaveDragSingleton::WaveDragSlice( int set, int numSlices, int numRots, do
 
 double WaveDragSingleton::WaveDrag( int r )
 {
-    int n = m_XNorm.size();
+    unsigned int n = m_XNorm.size();
     vector<double> x( n );
     m_SliceAreaDistFlow[r].resize( n );
     for ( int i = 0; i < n; i++ )
@@ -653,9 +653,9 @@ void WaveDragSingleton::EvalELCurve( const vector < double > & conpnts, const ve
 void WaveDragSingleton::SearsHaack( const vector < double > &xvec, vector < double > & Svec, double Vol, double len ) const
 {
     // Sears-Haack curve
-    int n = xvec.size();
+    unsigned int n = xvec.size();
     Svec.resize( n );
-    for ( int i = 0; i < n; i++ )
+    for ( unsigned int i = 0; i < n; i++ )
     {
         double x = xvec[i];
         Svec[i] = ( 16.0 * Vol / ( 3.0 * PI * len ) ) * pow( ( ( 4.0 * x ) * ( 1.0 - x ) ), 1.5 );
@@ -665,9 +665,9 @@ void WaveDragSingleton::SearsHaack( const vector < double > &xvec, vector < doub
 // von Karman Ogive
 void WaveDragSingleton::vonKarman( const vector < double > &xvec, vector < double > & Svec, double Sbase ) const
 {
-    int n = xvec.size();
+    unsigned int n = xvec.size();
     Svec.resize( n );
-    for ( int i = 0; i < n; i++ )
+    for ( unsigned int i = 0; i < n; i++ )
     {
         double x = xvec[i];
         Svec[i] = ( 2.0 / PI ) * Sbase * ( asin( sqrt( x ) ) - ( 1.0 - 2.0 * x ) * sqrt( x * ( 1.0 - x ) ) );
@@ -678,9 +678,9 @@ void WaveDragSingleton::vonKarman( const vector < double > &xvec, vector < doubl
 void WaveDragSingleton::Lighthill( const vector < double > &xvec, vector < double > & Svec, double Smax ) const
 {
     // Sears-Haack curve
-    int n = xvec.size();
+    unsigned int n = xvec.size();
     Svec.resize( n );
-    for ( int i = 0; i < n; i++ )
+    for ( unsigned int i = 0; i < n; i++ )
     {
         double x = xvec[i];
         Svec[i] = Smax * ( 2.0 * sqrt( x * ( 1 - x ) ) - ( 1.0 - 2.0 * x ) * ( 1.0 - 2.0 * x ) * acosh( std::abs( 1.0 / ( 1.0 - 2.0 * x ) ) ) );

@@ -68,7 +68,7 @@ void Bezier_curve::BuildCurve( const vector< vec3d > & pVec, double tanStr )
     vec3d tan;
 
     //==== Allocate Space ====//
-    int num_sections = pVec.size() - 1;
+    unsigned int num_sections = pVec.size() - 1;
 
     vector < vec3d > pnts;
 

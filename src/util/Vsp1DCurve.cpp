@@ -401,9 +401,9 @@ void Vsp1DCurve::SetCubicControlPoints( const vector< double > & cntrl_pts, cons
 
 void Vsp1DCurve::GetCubicControlPoints( vector< double > & cntrl_pts, vector< double > & param )
 {
-    int nseg = m_Curve.number_segments();
+    unsigned int nseg = m_Curve.number_segments();
 
-    int ncp = nseg * 3  + 1;
+    unsigned int ncp = nseg * 3  + 1;
 
     cntrl_pts.clear();
     param.clear();
@@ -582,7 +582,7 @@ void Vsp1DCurve::TesselateNoCorner( int num_pnts_u, double umin, double umax, ve
 
 void Vsp1DCurve::Tesselate( const vector< double > &u, vector< double > & output )
 {
-    int num_pnts_u = u.size();
+    unsigned int num_pnts_u = u.size();
     oned_curve_index_type i;
     oned_curve_point_type p;
 

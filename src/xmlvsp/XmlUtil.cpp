@@ -9,7 +9,7 @@
 #include <cfloat>
 
 //==== Get Number of Same Names ====//
-int XmlUtil::GetNumNames( xmlNodePtr node, const char * name )
+unsigned int XmlUtil::GetNumNames( xmlNodePtr node, const char * name )
 {
     int num;
     xmlNodePtr iter_node;

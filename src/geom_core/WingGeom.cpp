@@ -1704,7 +1704,7 @@ void WingGeom::UpdateSurf()
     m_TipClusterVec.clear();
     m_UMergeVec.clear();
 
-    int nxsec = m_XSecSurf.NumXSec();
+    unsigned int nxsec = m_XSecSurf.NumXSec();
     vector< VspCurve > crv_vec( nxsec );
     vector< VspCurve > untransformed_crv_vec( nxsec );
 
@@ -1930,7 +1930,7 @@ void WingGeom::UpdateSurf()
         cle.get( csle, i );
         if ( cste.degree() > 1 || csle.degree() > 1 )
         {
-            int nref = 3;
+            const unsigned int nref = 3;
 
             vector < double > ulocalvec;
             ulocalvec.reserve( nref + 2 );
@@ -2263,7 +2263,7 @@ void WingGeom::UpdateDrawObj()
     relTrans.matMult( m_ModelMatrix.data() );
     relTrans.postMult( attachMat.data() );
 
-    int nxsec = m_XSecSurf.NumXSec();
+    unsigned int nxsec = m_XSecSurf.NumXSec();
     m_XSecDrawObj_vec.resize( nxsec, DrawObj() );
 
     //==== Tesselate Surface ====//

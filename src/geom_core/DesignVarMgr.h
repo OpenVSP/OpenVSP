@@ -61,9 +61,9 @@ public:
 
     virtual bool SortVars();
 
-    virtual int GetNumVars()
+    virtual unsigned int GetNumVars()
     {
-        return ( int )m_VarVec.size();
+        return ( unsigned int )m_VarVec.size();
     }
     virtual DesignVar* GetVar( int index );
 

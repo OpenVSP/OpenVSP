@@ -185,7 +185,7 @@ void DesignVarScreen::RebuildAdjustTab()
 
     m_ParmSliderVec.clear();
 
-    int num_vars = DesignVarMgr.GetNumVars();
+    unsigned int num_vars = DesignVarMgr.GetNumVars();
     m_ParmSliderVec.resize( num_vars );
 
     string lastContID;

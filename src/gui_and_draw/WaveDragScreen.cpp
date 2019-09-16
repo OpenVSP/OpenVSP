@@ -514,20 +514,20 @@ void WaveDragScreen::RedrawPlot()
     m_canvas->current_y()->minimum( 0 );
     m_canvas->current_y()->maximum( ymax );
 
-    int numpts = WaveDragMgr.m_NumPtsFit;
+    unsigned int numpts = WaveDragMgr.m_NumPtsFit;
     vector< double > xfit(numpts);
-    for ( int i = 0; i < numpts; i++ )
+    for ( unsigned int i = 0; i < numpts; i++ )
     {
         xfit[i] = WaveDragMgr.m_StartX[itheta] + WaveDragMgr.m_XNormFit[i] * ( WaveDragMgr.m_EndX[itheta] - WaveDragMgr.m_StartX[itheta] );
     }
 
     vector < double > xvec( WaveDragMgr.m_NSlice );
-    for ( int i = 0; i < WaveDragMgr.m_NSlice; i++ )
+    for ( unsigned int i = 0; i < WaveDragMgr.m_NSlice; i++ )
     {
         xvec[i] = WaveDragMgr.m_StartX[itheta] + WaveDragMgr.m_XNorm[i] * ( WaveDragMgr.m_EndX[itheta] - WaveDragMgr.m_StartX[itheta] );
     }
 
-    int nstyle = 5; // Number of CA line styles.
+    unsigned int nstyle = 5; // Number of CA line styles.
 
     if ( WaveDragMgr.m_AreaPlotType() == WaveDragSingleton::AREA_TOTAL )
     {

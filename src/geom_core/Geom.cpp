@@ -1068,7 +1068,7 @@ void Geom::CalcTexCoords( int indx, vector< vector< vector< double > > > &utex, 
     int nu = m_SurfVec[indx].GetNumUFeature() - 1;
     int nv = m_SurfVec[indx].GetNumWFeature() - 1;
 
-    int n = nu * nv;
+    unsigned int n = nu * nv;
 
     utex.resize(n);
     vtex.resize(n);
@@ -1079,13 +1079,13 @@ void Geom::CalcTexCoords( int indx, vector< vector< vector< double > > > &utex, 
 
         for ( int j = 0; j < nv; j++ )
         {
-            int nui = pnts[k].size();
+            unsigned int nui = pnts[k].size();
 
             utex[k].resize(nui);
             vtex[k].resize(nui);
             for ( int ii = 0; ii < nui; ii++ )
             {
-                int nvj = pnts[k][0].size();
+                unsigned int nvj = pnts[k][0].size();
 
                 utex[k][ii].resize(nvj);
                 vtex[k][ii].resize(nvj);
@@ -1178,7 +1178,7 @@ void Geom::UpdateEndCaps()
     }
     m_CappingDone = true;
 
-    int nmain = m_MainSurfVec.size();
+    unsigned int nmain = m_MainSurfVec.size();
     m_CapUMinSuccess.resize( nmain );
     m_CapUMaxSuccess.resize( nmain );
     m_CapWMinSuccess.resize( nmain );
@@ -1244,7 +1244,7 @@ void Geom::UpdateFeatureLines( )
 
 void Geom::UpdateSymmAttach()
 {
-    int num_surf = GetNumTotalSurfs();
+    unsigned int num_surf = GetNumTotalSurfs();
     m_SurfVec.clear();
     m_SurfIndxVec.clear();
     m_SurfSymmMap.clear();
@@ -1484,8 +1484,8 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
 
         if ( m_GuiDraw.GetDispFeatureFlag() )
         {
-            int nu = m_SurfVec[i].GetNumUFeature();
-            int nw = m_SurfVec[i].GetNumWFeature();
+            unsigned int nu = m_SurfVec[i].GetNumUFeature();
+            unsigned int nw = m_SurfVec[i].GetNumWFeature();
             allflines.resize( nu + nw );
             for ( int j = 0; j < nu; j++ )
             {
@@ -1803,8 +1803,8 @@ void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
 
         if( m_GuiDraw.GetDispFeatureFlag() )
         {
-            int nu = m_SurfVec[i].GetNumUFeature();
-            int nw = m_SurfVec[i].GetNumWFeature();
+            unsigned int nu = m_SurfVec[i].GetNumUFeature();
+            unsigned int nw = m_SurfVec[i].GetNumWFeature();
             allflines.resize( nw + nu );
             for( int j = 0; j < nw; j++ )
             {
@@ -4070,8 +4070,8 @@ void Geom::WriteX3D( xmlNodePtr node )
         vector< vector< vec3d > > pnts;
         vector< vector< vec3d > > norms;
         UpdateTesselate( i, pnts, norms, false );
-        int num_xsecs = pnts.size();
-        int num_pnts = pnts[0].size();
+        unsigned int num_xsecs = pnts.size();
+        unsigned int num_pnts = pnts[0].size();
         bool f_norm = m_SurfVec[i].GetFlipNormal();
         vector< vector<int> > pntIndex;
         // Resize vector
@@ -4751,7 +4751,7 @@ void GeomXSec::UpdateDrawObj()
     relTrans.matMult( m_ModelMatrix.data() );
     relTrans.postMult( attachMat.data() );
 
-    int nxsec = m_XSecSurf.NumXSec();
+    unsigned int nxsec = m_XSecSurf.NumXSec();
     m_XSecDrawObj_vec.resize( nxsec, DrawObj() );
 
     for ( int i = 0 ; i < nxsec ; i++ )

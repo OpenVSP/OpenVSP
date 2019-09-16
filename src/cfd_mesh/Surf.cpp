@@ -131,8 +131,8 @@ void Surf::BuildTargetMap( vector< MapSource* > &sources, int sid )
     int npatchu = m_SurfCore.GetNumUPatches();
     int npatchw = m_SurfCore.GetNumWPatches();
 
-    int nmapu = npatchu * ( m_NumMap - 1 ) + 1;
-    int nmapw = npatchw * ( m_NumMap - 1 ) + 1;
+    unsigned int nmapu = npatchu * ( m_NumMap - 1 ) + 1;
+    unsigned int nmapw = npatchw * ( m_NumMap - 1 ) + 1;
 
     double umin = m_SurfCore.GetMinU();
     double du = m_SurfCore.GetMaxU() - umin;
@@ -1023,7 +1023,7 @@ void Surf::InitMesh( vector< ISegChain* > chains )
 void Surf::BuildDistMap()
 {
     int i, j;
-    int nump = 101;
+    const unsigned int nump = 101;
 
     double VspMinU = m_SurfCore.GetMinU();
     double VspMinW = m_SurfCore.GetMinW();

@@ -622,8 +622,8 @@ void FitModelMgrSingleton::UpdateNumOptVars()
 
 void FitModelMgrSingleton::BuildPtrVec()
 {
-    int nvar = m_VarVec.size();
-    int npt = m_TargetPts.size();
+    unsigned int nvar = m_VarVec.size();
+    unsigned int npt = m_TargetPts.size();
 
     UpdateNumOptVars();
 

@@ -22,7 +22,7 @@ using std::vector;
 //==== String Functions =====//
 namespace XmlUtil
 {
-int GetNumNames( xmlNodePtr node, const char * name );
+unsigned int GetNumNames( xmlNodePtr node, const char * name );
 
 #define GetNode( node, name, num ) GetNodeDbg( node, name, num, __FILE__, __LINE__ )
 xmlNodePtr GetNodeDbg( xmlNodePtr node, const char * name, int num, const char* file, int lineno );

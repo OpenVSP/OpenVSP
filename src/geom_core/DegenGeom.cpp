@@ -218,7 +218,7 @@ void DegenGeom::createDegenSurface( const vector< vector< vec3d > > &pntsarr, co
 
     vec3d nVec;
 
-    int nxs = nHigh - nLow;
+    unsigned int nxs = nHigh - nLow;
     degenSurface.x.resize( nxs );
 
     for ( int i = nLow; i < nHigh; i++ )
@@ -318,7 +318,7 @@ void DegenGeom::createBodyDegenPlate( const vector< vector< vec3d > > &pntsarr, 
 
 void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt )
 {
-    int platePnts = ( num_pnts + 1 ) / 2;
+    unsigned int platePnts = ( num_pnts + 1 ) / 2;
 
     vector< vector <vec3d> > xMat;
     vector< vector <vec3d> > nCamberMat;
@@ -485,7 +485,7 @@ void DegenGeom::createBodyDegenStick( const vector< vector< vec3d > > &pntsarr, 
 
 void DegenGeom::createDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt )
 {
-    int platePnts = ( num_pnts + 1 ) / 2;
+    unsigned int platePnts = ( num_pnts + 1 ) / 2;
     vec3d camberPnt;
 
     for ( int i = nLow; i < nHigh; i++ )

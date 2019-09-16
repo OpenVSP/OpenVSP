@@ -48,7 +48,7 @@ public:
 private:
     struct _freeblock
     {
-        int start;
+        unsigned int start;
         int end;
     };
     std::vector<_freeblock> _freelist;

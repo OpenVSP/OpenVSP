@@ -746,7 +746,7 @@ void VspCurve::SetCurve( const piecewise_curve_type &c )
 
 void VspCurve::InterpolateEqArcLenPCHIP( const piecewise_curve_type &c )
 {
-    int npts = 201; // Must be odd to hit LE point.
+    const unsigned int npts = 201; // Must be odd to hit LE point.
 
     double t0 = c.get_parameter_min();
     double tmax = c.get_parameter_max();
@@ -1135,7 +1135,7 @@ void VspCurve::TesselateNoCorner( int num_pnts_u, double umin, double umax, vect
 
 void VspCurve::Tesselate( const vector< double > &u, vector< vec3d > & output )
 {
-    int num_pnts_u = u.size();
+    unsigned int num_pnts_u = u.size();
     curve_index_type i;
     curve_point_type p;
 

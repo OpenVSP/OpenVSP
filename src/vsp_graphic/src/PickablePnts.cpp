@@ -59,7 +59,7 @@ std::vector<glm::vec3> PickablePnts::getAllPnts()
     std::vector<glm::vec3> vertList;
     int numOfVert = _rSource->getVBuffer()->getVertexSize();
 
-    for(int i = 0; i < numOfVert; i++)
+    for( unsigned int i = 0; i < numOfVert; i++)
     {
         vertList.push_back(_rSource->getVertexVec(i));
     }
@@ -90,7 +90,7 @@ void PickablePnts::_draw()
     if(_highlighted)
     {
         std::vector< int > index = getIndex();
-        for ( int i = 0; i < index.size(); i++ )
+        for ( unsigned int i = 0; i < index.size(); i++ )
         {
 
             glm::vec3 hlPoint = _rSource->getVertexVec( index[i] );

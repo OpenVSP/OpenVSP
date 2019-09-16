@@ -904,7 +904,7 @@ double TMesh::ComputeTheoArea()
 {
     m_TheoArea = 0;
     m_TagTheoAreaVec.clear();
-    int ntags = SubSurfaceMgr.GetNumTags() - 1;
+    unsigned int ntags = SubSurfaceMgr.GetNumTags() - 1;
     if ( ntags > 0 )
     {
         m_TagTheoAreaVec.resize( ntags, 0.0);

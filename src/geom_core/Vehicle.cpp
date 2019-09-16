@@ -3585,7 +3585,7 @@ void Vehicle::WritePMARCFile( const string & file_name, int write_set )
     fprintf(fp,"          CHXX= 0.0000,     CHYY=  1.000,     CHZZ= 0.0000,      &END\n");
 
 
-    int ntotal = 0;
+    unsigned int ntotal = 0;
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     //==== Write surface boundary points ====//

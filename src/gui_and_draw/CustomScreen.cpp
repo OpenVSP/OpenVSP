@@ -252,7 +252,7 @@ void CustomScreen::ShowTabs( const string & custom_type_name )
     //==== Remove Add Tabs ====//
     for ( iter = m_DeviceVecMap.begin() ; iter != m_DeviceVecMap.end() ; iter++ )
     {
-        for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
+        for ( unsigned int i = 0 ; i < ( int )iter->second.size() ; i++ )
         {
             GuiDevice* gd = iter->second.at( i );
             if ( gd && gd->GetType() == GDEV_TAB )
@@ -268,7 +268,7 @@ void CustomScreen::ShowTabs( const string & custom_type_name )
     iter = m_DeviceVecMap.find( custom_type_name );
     if ( iter != m_DeviceVecMap.end() )
     {
-        for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
+        for ( unsigned int i = 0 ; i < ( int )iter->second.size() ; i++ )
         {
             GuiDevice* gd = iter->second.at( i );
             if ( gd && gd->GetType() == GDEV_TAB )

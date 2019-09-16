@@ -34,7 +34,7 @@ UserParmScreen::UserParmScreen( ScreenMgr* mgr ) : TabScreen( mgr, 570, 580, "Us
     //===== Predefined ====//
     m_PredefGroup.SetGroupAndScreen( predef_group, this );
     m_PredefGroup.AddDividerBox( "Predefined" );
-    int num_sliders = LinkMgr.GetNumPredefinedUserParms();
+    unsigned int num_sliders = LinkMgr.GetNumPredefinedUserParms();
     m_PredefSliderVec.resize( num_sliders );
 
     for ( int i = 0 ; i < num_sliders ; i++ )
@@ -197,8 +197,8 @@ void UserParmScreen::RebuildAdjustGroup()
 
     m_ParmSliderVec.clear();
 
-    int num_predef_vars = LinkMgr.GetNumPredefinedUserParms();
-    int num_vars =  LinkMgr.GetNumUserParms() - num_predef_vars;
+    unsigned int num_predef_vars = LinkMgr.GetNumPredefinedUserParms();
+    unsigned int num_vars =  LinkMgr.GetNumUserParms() - num_predef_vars;
     m_ParmSliderVec.resize( num_vars );
 
     string lastGroupName;

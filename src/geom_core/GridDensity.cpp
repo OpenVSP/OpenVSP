@@ -949,8 +949,8 @@ void ConstLineSimpleSource::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
     double tol = 1.0e-6;
 
-    int n = m_Pts.size();
-    int nseg = 8;
+    unsigned int n = m_Pts.size();
+    const unsigned int nseg = 8;
 
     bool closed = false;
     if ( dist( m_Pts[ 0 ], m_Pts[ n - 1 ] ) < tol )
@@ -1053,7 +1053,7 @@ void ConstLineSimpleSource::Highlight( bool flag )
 void ULineSimpleSource::Update( Geom* geomPtr )
 {
 
-    int N = 10;
+    const unsigned int N = 10;
     m_Pts.resize( N );
     m_UWPts.resize( N );
 

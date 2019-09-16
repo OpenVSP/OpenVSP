@@ -161,11 +161,11 @@ protected:
     string m_StructName;
     int m_FeaMeshStructIndex;
 
-    int m_NumFeaParts;
-    int m_NumFeaSubSurfs;
-    int m_NumFeaFixPoints;
-    int m_NumTris;
-    int m_NumBeams;
+    unsigned int m_NumFeaParts;
+    unsigned int m_NumFeaSubSurfs;
+    unsigned int m_NumFeaFixPoints;
+    unsigned int m_NumTris;
+    unsigned int m_NumBeams;
 
     bool m_RemoveSkinTris;
 

@@ -794,7 +794,7 @@ void FeaStructure::BuildSuppressList()
 
         for ( int i = 0; i < ufeature.size(); i++ )
         {
-            int npts = 5;
+            const unsigned int npts = 5;
             vector < vec3d > pnts( npts );
 
             for ( int j = 0; j < npts; j++ )
@@ -811,7 +811,7 @@ void FeaStructure::BuildSuppressList()
 
         for ( int i = 0; i < wfeature.size(); i++ )
         {
-            int npts = 5;
+            const unsigned int npts = 5;
             vector < vec3d > pnts( npts );
 
             for ( int j = 0; j < npts; j++ )

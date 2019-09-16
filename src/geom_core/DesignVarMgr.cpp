@@ -263,8 +263,8 @@ void DesignVarMgrSingleton::ReadDesVarsDES( const string &newfile )
             fgets( temp, 255, fp );
             line = temp;
 
-            int istart = 0;
-            int iend = line.find( ':', istart );
+            unsigned int istart = 0;
+            unsigned int iend = line.find( ':', istart );
             string id = line.substr( istart, iend - istart );
 
             istart = iend + 1;

@@ -150,7 +150,7 @@ void SCurve::BorderTesselate( )
 
 void SCurve::CheapTesselate( )
 {
-    int npts = 10000;
+    const unsigned int npts = 10000;
 
     m_UTess.clear();
     m_UTess.resize( npts );
@@ -172,7 +172,7 @@ void SCurve::ProjectTessToSurf( SCurve* othercurve )
     double uguess = SurfA->GetSurfCore()->GetMidU();
     double wguess = SurfA->GetSurfCore()->GetMidW();
 
-    int npts = UWTessB.size();
+    unsigned int npts = UWTessB.size();
     m_UWTess.clear();
     m_UWTess.resize( npts );
     for ( int i = 0 ; i < npts ; i++ )

@@ -236,7 +236,7 @@ void PtCloudGeom::InitPts()
     UpdateBBox();
     UniquePts();
 
-    int n = m_Pts.size();
+    unsigned int n = m_Pts.size();
     m_Selected.assign( n, false );
     m_Hidden.assign( n, false );
 }
@@ -343,7 +343,7 @@ void PtCloudGeom::SelectAllShown()
 
 void PtCloudGeom::SelectNone()
 {
-    int n = m_Pts.size();
+    unsigned int n = m_Pts.size();
     m_Selected.assign( n, false );
     m_NumSelected = 0;
 }
@@ -395,7 +395,7 @@ void PtCloudGeom::HideUnselected()
 
 void PtCloudGeom::HideAll()
 {
-    int n = m_Pts.size();
+    unsigned int n = m_Pts.size();
     m_Hidden.assign( n, true );
     SelectNone();
 }
@@ -419,7 +419,7 @@ void PtCloudGeom::HideInv()
 
 void PtCloudGeom::ShowAll()
 {
-    int n = m_Pts.size();
+    unsigned int n = m_Pts.size();
     m_Hidden.assign( n, false );
 }
 

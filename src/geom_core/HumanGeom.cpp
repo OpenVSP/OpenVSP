@@ -580,7 +580,7 @@ void HumanGeom::UpdateSurf()
 
 
     // Transfer transformations to Pinocchio vector form.
-    int nbones = m_SkelVerts.size();
+    unsigned int nbones = m_SkelVerts.size();
     std::vector< Pinocchio::Transform<> > trs( nbones );
 
     Mat2Trans( t_waist, trs[LOWSPINE] );
@@ -687,7 +687,7 @@ void HumanGeom::UpdateBBox()
 // This is substantially similar to Geom::UpdateSymmAttach() and could probably be combined in a meaningful way.
 void HumanGeom::UpdateSymmAttach()
 {
-    int num_surf = GetNumTotalMeshs();
+    unsigned int num_surf = GetNumTotalMeshs();
     m_Verts.clear();
     m_FlipNormal.clear();
 
@@ -865,9 +865,9 @@ void HumanGeom::UpdateDrawObj()
     m_WireShadeDrawObj_vec.resize( 1, DrawObj() );
 
     vec3d zeroV = m_ModelMatrix.xform( vec3d( 0.0, 0.0, 0.0 ) );
-    int pi = 0;
-    int ido = 0;
-    int isize = 0;
+    unsigned int pi = 0;
+    unsigned int ido = 0;
+    unsigned int isize = 0;
 
     for ( int m = 0 ; m < ( int )num_meshes ; m++ )
     {

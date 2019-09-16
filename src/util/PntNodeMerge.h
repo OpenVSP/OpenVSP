@@ -63,7 +63,7 @@ struct PntNodeCloud
     // Underlying storage a vector.
     vector< PntNode > m_PntNodes;
 
-    int m_NumUsedPts;
+    unsigned int m_NumUsedPts;
 
     // Must return the number of data points
     inline size_t kdtree_get_point_count() const

@@ -834,7 +834,7 @@ xmlNodePtr VarPresetMgrSingleton::DecodeXml( xmlNodePtr & node )
     }
 
     // Decode # of Presets
-    int numGroup = XmlUtil::FindInt( varpresetnode, "NumGroups", 0 );
+    unsigned int numGroup = XmlUtil::FindInt( varpresetnode, "NumGroups", 0 );
 
     // Resize PresetVec
     m_PresetVec.resize(numGroup);

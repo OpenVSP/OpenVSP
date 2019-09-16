@@ -88,10 +88,10 @@ void WireGeom::UpdateSurf()
     // Perform transformation on base points.
     Matrix4d transMat = GetTotalTransMat();
     m_XFormPts.resize( num_i );
-    for ( int i = 0 ; i < num_i ; i++ )
+    for ( unsigned int i = 0 ; i < num_i ; i++ )
     {
         m_XFormPts[i].resize( num_j );
-        for ( int j = 0 ; j < num_j ; j++ )
+        for ( unsigned int j = 0 ; j < num_j ; j++ )
         {
             m_XFormPts[i][j] = transMat.xform( m_WirePts[i][j] );
         }
@@ -105,14 +105,14 @@ void WireGeom::UpdateSurf()
         vector < vector < vec3d > > tmppts;
 
         tmppts.resize( num_j );
-        for ( int j = 0 ; j < num_j ; j++ )
+        for ( unsigned int j = 0 ; j < num_j ; j++ )
         {
             tmppts[j].resize( num_i );
         }
 
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
-            for ( int j = 0 ; j < num_j ; j++ )
+            for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
                 tmppts[j][i] = m_XFormPts[i][j];
             }
@@ -133,16 +133,16 @@ void WireGeom::UpdateSurf()
         vector < vector < vec3d > > tmppts;
 
         tmppts.resize( num_i );
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
             tmppts[i].resize( num_j );
         }
 
 
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
-            int k = num_i - i - 1;
-            for ( int j = 0 ; j < num_j ; j++ )
+            unsigned int k = num_i - i - 1;
+            for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
                 tmppts[k][j] = m_XFormPts[i][j];
             }
@@ -159,17 +159,17 @@ void WireGeom::UpdateSurf()
         vector < vector < vec3d > > tmppts;
 
         tmppts.resize( num_i );
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
             tmppts[i].resize( num_j );
         }
 
 
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
-            for ( int j = 0 ; j < num_j ; j++ )
+            for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
-                int k = num_j - j - 1;
+                unsigned int k = num_j - j - 1;
                 tmppts[i][k] = m_XFormPts[i][j];
             }
         }
@@ -192,7 +192,7 @@ void WireGeom::UpdateSurf()
         vector < vector < vec3d > > tmppts;
         tmppts.resize( num_i + 1 );
         tmppts[0] = newrow;
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
             tmppts[i+1] = m_XFormPts[i];
         }
@@ -227,7 +227,7 @@ void WireGeom::UpdateSurf()
         oldrow.resize( num_i );
         oppositerow = oldrow;
 
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
             oldrow[i] = m_XFormPts[i][0];
             oppositerow[i] = m_XFormPts[i][num_j - 1];
@@ -238,16 +238,16 @@ void WireGeom::UpdateSurf()
         vector < vector < vec3d > > tmppts;
         tmppts.resize( num_i );
 
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
             tmppts[i].resize( num_j + 1 );
         }
 
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
             tmppts[i][0] = newrow[i];
 
-            for ( int j = 0 ; j < num_j ; j++ )
+            for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
                 tmppts[i][j+1] = m_XFormPts[i][j];
             }
@@ -267,7 +267,7 @@ void WireGeom::UpdateSurf()
         oldrow.resize( num_i );
         oppositerow = oldrow;
 
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
             oldrow[i] = m_XFormPts[i][num_j - 1];
             oppositerow[i] = m_XFormPts[i][0];
@@ -278,14 +278,14 @@ void WireGeom::UpdateSurf()
         vector < vector < vec3d > > tmppts;
         tmppts.resize( num_i );
 
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
             tmppts[i].resize( num_j + 1 );
         }
 
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
-            for ( int j = 0 ; j < num_j ; j++ )
+            for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
                 tmppts[i][j] = m_XFormPts[i][j];
             }
@@ -311,10 +311,10 @@ void WireGeom::UpdateSurf()
 
         vector < vector < vec3d > > tmppts;
         tmppts.resize( num_i );
-        for ( int i = 0 ; i < num_i ; i++ )
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
         {
             tmppts[i].resize( num_j );
-            for ( int j = 0 ; j < num_j ; j++ )
+            for ( unsigned int j = 0 ; j < num_j ; j++ )
             {
                 tmppts[i][j] =  m_XFormPts[i + m_ISkipStart()][j + m_JSkipStart()];
             }
@@ -327,8 +327,8 @@ void WireGeom::UpdateSurf()
     {
         vector < vector < vec3d > > tmppts;
 
-        int ilast;
-        for ( int i = 0 ; i < num_i ; i = i + m_IStride() )
+        unsigned int ilast = 0;
+        for ( unsigned int i = 0 ; i < num_i ; i = i + m_IStride() )
         {
             tmppts.push_back( m_XFormPts[i] );
             ilast = i;
@@ -348,10 +348,10 @@ void WireGeom::UpdateSurf()
         vector < vector < vec3d > > tmppts;
         tmppts.resize( num_i );
 
-        int jlast;
-        for ( int j = 0 ; j < num_j ; j = j + m_JStride() )
+        unsigned int jlast = 0;
+        for ( unsigned int j = 0 ; j < num_j ; j = j + m_JStride() )
         {
-            for ( int i = 0 ; i < num_i ; i++ )
+            for ( unsigned int i = 0 ; i < num_i ; i++ )
             {
                 tmppts[i].push_back( m_XFormPts[i][j] );
             }
@@ -359,7 +359,7 @@ void WireGeom::UpdateSurf()
         }
         if ( jlast != num_j - 1 )
         {
-            for ( int i = 0 ; i < num_i ; i++ )
+            for ( unsigned int i = 0 ; i < num_i ; i++ )
             {
                 tmppts[i].push_back( m_XFormPts[i][num_j - 1] );
             }
@@ -638,13 +638,13 @@ xmlNodePtr WireGeom::DecodeXml( xmlNodePtr & node )
     xmlNodePtr wire_node = XmlUtil::GetNode( node, "WireGeom", 0 );
     if ( wire_node )
     {
-        int num_cross = XmlUtil::FindInt( wire_node, "Num_Cross", 0 );
-        int num_pnts = XmlUtil::FindInt( wire_node, "Num_Pnts", 0 );
+        unsigned int num_cross = XmlUtil::FindInt( wire_node, "Num_Cross", 0 );
+        unsigned int num_pnts = XmlUtil::FindInt( wire_node, "Num_Pnts", 0 );
 
         xmlNodePtr pt_list_node = XmlUtil::GetNode( wire_node, "Pt_List", 0 );
         if ( pt_list_node )
         {
-            int num_pts = XmlUtil::GetNumNames( pt_list_node, "Pt" );
+            unsigned int num_pts = XmlUtil::GetNumNames( pt_list_node, "Pt" );
 
             if ( num_pts == num_cross * num_pnts )
             {
@@ -664,13 +664,13 @@ xmlNodePtr WireGeom::DecodeXml( xmlNodePtr & node )
 
 
                 // Transfer vector of points to matrix storage.
-                int k = 0;
+                unsigned int k = 0;
                 m_WirePts.resize( num_cross );
-                for ( int i = 0; i < num_cross; i++ )
+                for ( unsigned int i = 0; i < num_cross; i++ )
                 {
                     m_WirePts[i].resize( num_pnts );
 
-                    for ( int j = 0; j < num_pnts; j++ )
+                    for ( unsigned int j = 0; j < num_pnts; j++ )
                     {
                         m_WirePts[i][j] = tmppts[k];
                         k++;
@@ -788,7 +788,7 @@ vector< TMesh* > WireGeom::CreateTMeshVec()
 // required degen plate,surface, and subsurface for updating the preview DrawObj vectors
 void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
 {
-    int num_pnts, num_cross;
+    unsigned int num_pnts, num_cross;
 
     num_cross = ( int ) m_XFormPts.size();
 
@@ -807,10 +807,10 @@ void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
     vector< vector< vec3d > > uwpnts;
     uwpnts.resize( num_cross );
 
-    for ( int i = 0; i < num_cross; i++ )
+    for ( unsigned int i = 0; i < num_cross; i++ )
     {
         uwpnts[i].resize( num_pnts );
-        for ( int j = 0; j < num_pnts; j++ )
+        for ( unsigned int j = 0; j < num_pnts; j++ )
         {
             uwpnts[i][j] = vec3d( i * 1.0 / num_cross, j * 1.0 / num_pnts, 0.0 );
         }

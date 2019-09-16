@@ -71,7 +71,7 @@ void StringUtil::chance_space_to_underscore( string & str )
 //==== Remove Leading Characters that match c =====//
 void StringUtil::remove_leading( string & str, char c )
 {
-    int i;
+    unsigned int i;
     for ( i = 0 ; i < ( int )str.size() ; i++ )
     {
         if ( str[i] != c )

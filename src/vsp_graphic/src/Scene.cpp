@@ -397,7 +397,7 @@ void Scene::selectAll(PickablePnts * target)
 {
     // Select all points on target.
     std::vector<glm::vec3> pnts = target->getAllPnts();
-    for(int i = 0; i < (int)pnts.size(); i++)
+    for( unsigned int i = 0; i < (int)pnts.size(); i++)
     {
         SelectedPnt * selected = new SelectedPnt(target->getSource(), i);
         selected->setGroup(target->getGroup());
