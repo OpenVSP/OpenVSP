@@ -106,8 +106,8 @@ vector<double> logspace(double a, double b, double n)
     std::vector<double> logarray;
     for(size_t i = 0; i < linarray.size(); ++i)
     {
-        double a = pow(10.0, linarray[i]);
-        logarray.push_back(a);
+        double v = pow(10.0, linarray[i]);
+        logarray.push_back(v);
     }
     return logarray;
 }
