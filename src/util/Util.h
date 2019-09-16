@@ -17,7 +17,7 @@ using namespace std;
 #ifndef MIN
 #define MIN(x,y) (((x) < (y)) ? (x):(y))
 #endif
-#define DEG2RAD(x) ( x*0.017453293 )
+#define DEG2RAD(x) ( (x)*0.017453293 )
 
 #define INTERP_PARM( ptr_a, ptr_b, f, parm_name ) ((parm_name) = linterp( (ptr_a)->parm_name(), (ptr_b)->parm_name(), (f) ))
 
