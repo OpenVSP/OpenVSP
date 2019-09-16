@@ -21,7 +21,7 @@ namespace vsp
 const FILE* cstdout = stdout;
 void AddVec3D( std::vector< vec3d > &INOUT, double x, double y, double z )
 {
-    INOUT.push_back( vec3d( x, y, z ) );
+    INOUT.emplace_back( vec3d( x, y, z ) );
 }
 }
 

@@ -358,7 +358,7 @@ int Mesh::Split( int num_iter )
                 double rat = ( *e )->GetLength() / ( *e )->target_len;
                 if ( rat > 1.41 )
                 {
-                    longEdges.push_back( pair< Edge*, double >( ( *e ), rat ) );
+                    longEdges.emplace_back( pair< Edge*, double >( ( *e ), rat ) );
                 }
             }
         }
@@ -406,7 +406,7 @@ int Mesh::Collapse( int num_iter )
                 double rat = ( *e )->GetLength() / ( *e )->target_len;
                 if ( rat < 0.707 )
                 {
-                    shortEdges.push_back( pair< Edge*, double >( ( *e ), rat ) );
+                    shortEdges.emplace_back( pair< Edge*, double >( ( *e ), rat ) );
                 }
             }
         }

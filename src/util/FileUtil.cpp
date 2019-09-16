@@ -47,7 +47,7 @@ vector< string > ScanFolder( const char* dir_path )
         }
         else
         {
-            file_vec.push_back( file.name );
+            file_vec.emplace_back( file.name );
         }
         tinydir_next( &dir );
     }
@@ -309,7 +309,7 @@ string GetFilename( const string &pathfile )
     while ( pch != NULL )
     {
         n_parts++;
-        fileParts.push_back( pch );
+        fileParts.emplace_back( pch );
         pch = strtok ( NULL, sepToken.c_str() );
     }
 

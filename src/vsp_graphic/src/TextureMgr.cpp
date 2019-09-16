@@ -514,7 +514,7 @@ std::vector<glm::vec4> TextureMgr::_getLightSwitches()
     {
         for( int i = 0; i < 8; i++ )
         {
-            lightColorList.push_back( glm::vec4( 0.f, 0.f, 0.f, 0.f ) );
+            lightColorList.emplace_back( glm::vec4( 0.f, 0.f, 0.f, 0.f ) );
         }
     }
 
@@ -526,11 +526,11 @@ std::vector<glm::vec4> TextureMgr::_getLightSwitches()
         // This light switch color is multiplied with light color to enable / disable light source.
         if( lightEnableList[i] )
         {
-            lightColorList.push_back( glm::vec4( 1.f, 1.f, 1.f, 1.f ) );
+            lightColorList.emplace_back( glm::vec4( 1.f, 1.f, 1.f, 1.f ) );
         }
         else
         {
-            lightColorList.push_back( glm::vec4( 0.f, 0.f, 0.f, 0.f ) );
+            lightColorList.emplace_back( glm::vec4( 0.f, 0.f, 0.f, 0.f ) );
         }
     }
     assert( lightColorList.size() == 8 );

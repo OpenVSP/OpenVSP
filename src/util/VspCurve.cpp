@@ -1549,7 +1549,7 @@ vector < BezierSegment > VspCurve::GetBezierSegments()
         {
             curve_point_type cp = c.get_control_point( j );
 
-            seg.control_pnt_vec.push_back( vec3d( cp ) );
+            seg.control_pnt_vec.emplace_back( vec3d( cp ) );
         }
 
         seg_vec.push_back( seg );

@@ -199,7 +199,7 @@ void Bezier_curve::GetControlPoints( vector< vec3d > &pnts_out )
         for ( int j = 0; j < c.degree() + 1; j++ )
         {
             curve_point_type cp = c.get_control_point( j );
-            pnts_out.push_back( vec3d( cp ) );
+            pnts_out.emplace_back( vec3d( cp ) );
         }
     }
 }

@@ -19,7 +19,7 @@ void PntNodeCloud::AddPntNodes( const vector< vec3d > & pnts )
     m_PntNodes.reserve( m_PntNodes.size() + pnts.size() );
     for ( size_t i = 0 ; i < pnts.size() ; i++ )
     {
-        m_PntNodes.push_back( PntNode( pnts[i] ) );
+        m_PntNodes.emplace_back( PntNode( pnts[i] ) );
     }
 }
 
@@ -30,7 +30,7 @@ void PntNodeCloud::ReserveMorePntNodes( int n )
 
 void PntNodeCloud::AddPntNode( const vec3d & pnt )
 {
-    m_PntNodes.push_back( pnt );
+    m_PntNodes.emplace_back( pnt );
 }
 
 bool PntNodeCloud::UsedNode( int i )

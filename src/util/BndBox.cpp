@@ -225,14 +225,14 @@ vec3d  BndBox::GetCornerPnt( int ind ) const
 std::vector< vec3d > BndBox::GetCornerPnts() const
 {
     std::vector< vec3d > pnt_vec;
-    pnt_vec.push_back( vec3d( m_Min.x(), m_Min.y(), m_Min.z() ) );
-    pnt_vec.push_back( vec3d( m_Min.x(), m_Max.y(), m_Min.z() ) );
-    pnt_vec.push_back( vec3d( m_Max.x(), m_Max.y(), m_Min.z() ) );
-    pnt_vec.push_back( vec3d( m_Max.x(), m_Min.y(), m_Min.z() ) );
-    pnt_vec.push_back( vec3d( m_Min.x(), m_Min.y(), m_Max.z() ) );
-    pnt_vec.push_back( vec3d( m_Min.x(), m_Max.y(), m_Max.z() ) );
-    pnt_vec.push_back( vec3d( m_Max.x(), m_Max.y(), m_Max.z() ) );
-    pnt_vec.push_back( vec3d( m_Max.x(), m_Min.y(), m_Max.z() ) );
+    pnt_vec.emplace_back( vec3d( m_Min.x(), m_Min.y(), m_Min.z() ) );
+    pnt_vec.emplace_back( vec3d( m_Min.x(), m_Max.y(), m_Min.z() ) );
+    pnt_vec.emplace_back( vec3d( m_Max.x(), m_Max.y(), m_Min.z() ) );
+    pnt_vec.emplace_back( vec3d( m_Max.x(), m_Min.y(), m_Min.z() ) );
+    pnt_vec.emplace_back( vec3d( m_Min.x(), m_Min.y(), m_Max.z() ) );
+    pnt_vec.emplace_back( vec3d( m_Min.x(), m_Max.y(), m_Max.z() ) );
+    pnt_vec.emplace_back( vec3d( m_Max.x(), m_Max.y(), m_Max.z() ) );
+    pnt_vec.emplace_back( vec3d( m_Max.x(), m_Min.y(), m_Max.z() ) );
     return pnt_vec;
 }
 
