@@ -15,9 +15,9 @@
 #include "Vec3d.h"
 #include "BndBox.h"
 
-#include <assert.h>
+#include <cassert>
 #include <cmath>
-#include <float.h>
+#include <cfloat>
 
 #include <vector>
 #include <list>

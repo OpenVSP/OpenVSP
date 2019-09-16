@@ -74,7 +74,7 @@
 #include "DrawObj.h"
 #include "XferSurf.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include <set>
 #include <map>

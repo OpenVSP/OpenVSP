@@ -6,7 +6,7 @@
 // Leak Detection http://www.codeproject.com/KB/applications/visualleakdetector.aspx
 //#include "vld.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include <sys/stat.h>
 #include <sys/types.h>

@@ -10,7 +10,7 @@
 #include "Parm.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
-#include <float.h>
+#include <cfloat>
 
 #include "StringUtil.h"
 #include "Combination.h"

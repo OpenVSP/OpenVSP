@@ -15,6 +15,7 @@ typedef eli::geom::surface::bezier<double, 3> surface_patch_type;
 typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
 
 #include <string>
+#include <APIDefines.h>
 using std::string;
 
 class XferSurf

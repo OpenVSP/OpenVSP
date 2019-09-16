@@ -9,7 +9,7 @@
 
 #include "Defines.h"
 #include <cmath>
-#include <string.h>
+#include <cstring>
 #include "Vec3d.h"
 
 

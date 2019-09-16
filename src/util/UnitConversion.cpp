@@ -9,7 +9,7 @@
 
 #include "APIDefines.h"
 #include "UnitConversion.h"
-#include <math.h>
+#include <cmath>
 
 //==================================//
 //=========== Velocity =============//

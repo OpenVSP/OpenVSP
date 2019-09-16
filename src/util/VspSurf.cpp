@@ -9,7 +9,7 @@
 //////////////////////////////////////////////////////////////////////
 
 
-#include <stdio.h>
+#include <cstdio>
 #include <cmath>
 #include <algorithm>
 #include <set>

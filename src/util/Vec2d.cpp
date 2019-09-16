@@ -13,7 +13,7 @@
 //******************************************************************************
 
 #include <cmath>
-#include <float.h>  //For DBL_EPSILON
+#include <cfloat>  //For DBL_EPSILON
 #include "Vec2d.h"
 
 //****** Constructor:  vec2d x() ******//

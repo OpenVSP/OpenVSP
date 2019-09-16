@@ -17,7 +17,7 @@
 #include "ScreenMgr.h"
 #endif
 
-#include <stddef.h>
+#include <cstddef>
 
 //==== Constructor ====//
 GuiInterface::GuiInterface()

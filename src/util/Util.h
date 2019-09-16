@@ -21,7 +21,7 @@ using namespace std;
 
 #define INTERP_PARM( ptr_a, ptr_b, f, parm_name ) ((parm_name) = linterp( (ptr_a)->parm_name(), (ptr_b)->parm_name(), (f) ))
 
-#include <float.h>  /* for DBL_EPSILON */
+#include <cfloat>  /* for DBL_EPSILON */
 
 template <class T> bool ContainsVal( vector< T > & vec, T const & val )
 {

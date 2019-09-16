@@ -11,7 +11,7 @@
 #if !defined(SWIGDEFINES__INCLUDED_)
 #define SWIGDEFINES__INCLUDED_
 
-#include <stdio.h>
+#include <cstdio>
 #include "APIErrorMgr.h"
 #include <vector>
 #include "Vec3d.h"

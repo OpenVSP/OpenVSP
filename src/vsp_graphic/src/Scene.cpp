@@ -15,8 +15,8 @@
 #include "Clipping.h"
 #include "ByteOperationUtil.h"
 
-#include <assert.h>
-#include <stdlib.h>
+#include <cassert>
+#include <cstdlib>
 
 namespace VSPGraphic
 {

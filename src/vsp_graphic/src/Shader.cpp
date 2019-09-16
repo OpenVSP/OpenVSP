@@ -1,6 +1,6 @@
-#include <assert.h>
+#include <cassert>
 #include <string>
-#include <stdlib.h>
+#include <cstdlib>
 
 #include "Shader.h"
 

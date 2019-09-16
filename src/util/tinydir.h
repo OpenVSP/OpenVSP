@@ -25,9 +25,9 @@ SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #ifndef TINYDIR_H
 #define TINYDIR_H
 
-#include <errno.h>
-#include <stdlib.h>
-#include <string.h>
+#include <cerrno>
+#include <cstdlib>
+#include <cstring>
 #ifdef _MSC_VER
 #define WIN32_LEAN_AND_MEAN
 #include <windows.h>

@@ -12,9 +12,10 @@
 
 #include "Defines.h"
 #include <cmath>
-#include <float.h> //For DBL_EPSILON
-#include <stdio.h>
+#include <cfloat> //For DBL_EPSILON
+#include <cstdio>
 #include "Vec3d.h"
+#include <algorithm>
 
 using std::cout;
 using std::endl;

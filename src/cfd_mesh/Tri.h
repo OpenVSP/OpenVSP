@@ -17,7 +17,7 @@
 
 #define _USE_MATH_DEFINES
 #include <cmath>
-#include <assert.h>
+#include <cassert>
 
 #include <list>
 #include <vector>

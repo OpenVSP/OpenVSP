@@ -12,7 +12,7 @@
 #define VSP_LINK__INCLUDED_
 
 #include <string>
-#include <limits.h>
+#include <climits>
 
 #include "Parm.h"
 #include "ParmContainer.h"

@@ -21,7 +21,7 @@
 #include "Surf.h"
 
 #include <vector>               //jrg windows?? 
-#include <stdio.h>
+#include <cstdio>
 #include <cmath>
 
 #include "eli/code_eli.hpp"

@@ -16,9 +16,9 @@
 #include "BndBox.h"
 #include "SurfPatch.h"
 
-#include <assert.h>
+#include <cassert>
 #include <cmath>
-#include <float.h>
+#include <cfloat>
 
 #include <vector>
 #include <list>

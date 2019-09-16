@@ -1,4 +1,4 @@
-#include <assert.h>
+#include <cassert>
 #include <cstddef>
 
 #include "ShaderRepo.h"

@@ -19,7 +19,7 @@
 
 #include "BndBox.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include <vector>
 #include <deque>

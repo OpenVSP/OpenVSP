@@ -14,7 +14,7 @@
 #include <string>
 #include <map>
 
-#include <limits.h>
+#include <climits>
 
 #include "XmlUtil.h"
 

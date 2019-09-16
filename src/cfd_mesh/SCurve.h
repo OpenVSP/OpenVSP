@@ -20,7 +20,7 @@
 
 #include "MapSource.h"
 
-#include <assert.h>
+#include <cassert>
 
 #include <vector>
 #include <list>

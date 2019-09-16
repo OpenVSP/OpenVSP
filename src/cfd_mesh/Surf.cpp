@@ -15,6 +15,7 @@
 #include "CfdMeshMgr.h"
 #include "StlHelper.h"
 #include "SubSurfaceMgr.h"
+#include "IntersectPatch.h"
 
 Surf::Surf()
 {
