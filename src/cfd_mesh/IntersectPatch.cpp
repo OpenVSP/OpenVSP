@@ -174,8 +174,6 @@ void refine_intersect_pt( const vec3d& pt, const SurfPatch &pA, double uwA[2], c
     }
     else
     {
-        double tol = 1e-6;
-
         surface_point_type p;
         p << pt.x(), pt.y(), pt.z();
 

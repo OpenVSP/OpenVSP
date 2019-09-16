@@ -382,7 +382,10 @@ void StructureMgrSingleton::UpdateStructUnit( int new_unit )
         // Update FeaMaterial Units
         for ( size_t i = 0; i < m_FeaMaterialVec.size(); i++ )
         {
-            int density_unit_new, density_unit_old, pressure_unit_new, pressure_unit_old;
+            int density_unit_new = vsp::RHO_UNIT_KG_M3;
+            int density_unit_old = vsp::RHO_UNIT_KG_M3;
+            int pressure_unit_new = vsp::PRES_UNIT_PA;
+            int pressure_unit_old = vsp::PRES_UNIT_PA;
 
             switch ( new_unit )
             {
@@ -448,7 +451,8 @@ void StructureMgrSingleton::UpdateStructUnit( int new_unit )
         // Update FeaProperty Units
         for ( size_t i = 0; i < m_FeaPropertyVec.size(); i++ )
         {
-            int length_unit_new, length_unit_old;
+            int length_unit_new = vsp::LEN_FT;
+            int length_unit_old = vsp::LEN_FT;
 
             switch ( new_unit )
             {

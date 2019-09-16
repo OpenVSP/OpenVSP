@@ -1411,8 +1411,8 @@ void SSControlSurf::Update()
         midangleflag = false;
     }
 
-    double midangle;
-    double umid;
+    double midangle = 0;
+    double umid = 0;
 
     double angle1 = m_StartAngle() + ( m_EndAngle() - m_StartAngle() ) / 3.0;
     double u1 = m_UStart() + ( m_UEnd() - m_UStart() ) / 3.0;

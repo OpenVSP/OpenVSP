@@ -24,6 +24,11 @@ public:
 
     XferSurf()
     {
+        m_FlipNormal = false;
+        m_CompIndx = 0;
+        m_SurfIndx = 0;
+        m_SurfType = vsp::NORMAL_SURF;
+        m_SurfCfdType = vsp::CFD_NORMAL;
     };
 
     ~XferSurf()

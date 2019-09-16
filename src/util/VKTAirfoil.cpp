@@ -38,8 +38,6 @@ vec3d vkt_airfoil_point( double theta, double epsilon, double kappa, double tau 
 {
     vec3d p;
 
-    doublec i(0,1);
-
     double ell = 0.25;
 
     double a = ell * sqrt( ( 1.0 + epsilon ) * ( 1.0 + epsilon ) + kappa * kappa );

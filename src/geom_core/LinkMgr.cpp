@@ -18,6 +18,7 @@ bool LinkMgrSingleton::m_firsttime = true;
 //==== Constructor ====//
 LinkMgrSingleton::LinkMgrSingleton()
 {
+    m_CurrLinkIndex = -1;
     m_WorkingLink = NULL;
     m_NumPredefinedUserParms = 16;
     m_UserParms.SetNumPredefined( m_NumPredefinedUserParms );

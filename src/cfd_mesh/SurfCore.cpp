@@ -726,7 +726,10 @@ void SurfCore::BuildPatches( Surf* srf ) const
     {
         for ( int jp = 0; jp < m_Surface.number_v_patches(); jp++ )
         {
-            double umin, du, vmin, dv;
+            double umin = 0;
+            double du = 0;
+            double vmin = 0;
+            double dv = 0;
             const surface_patch_type *epatch = m_Surface.get_patch( ip, jp, umin, du, vmin, dv );
 
             SurfPatch* patch = new SurfPatch();

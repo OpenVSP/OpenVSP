@@ -2248,8 +2248,10 @@ void Geom::UpdateDegenDrawObj()
             {
                 if ( degen_subsurf_vec[j].u[0] == degen_subsurf_vec[j].u.back() ) // Constant U
                 {
-                    int u_index_low, u_index_high;
-                    double u_value_low, u_value_high;
+                    int u_index_low = 0;
+                    int u_index_high = 0;
+                    double u_value_low = 0;
+                    double u_value_high = 0;
 
                     // Find uw indexes and values next to DegenSubSurface const u value
                     for ( int m = 1; m < degen_surf.u.size(); m++ )
@@ -2281,8 +2283,10 @@ void Geom::UpdateDegenDrawObj()
                 }
                 else if ( degen_subsurf_vec[j].w[0] == degen_subsurf_vec[j].w.back() ) // Constant W
                 {
-                    int w_index_low, w_index_high;
-                    double w_value_low, w_value_high;
+                    int w_index_low = 0;
+                    int w_index_high = 0;
+                    double w_value_low = 0;
+                    double w_value_high = 0;
 
                     // Find uw indexes and values next to DegenSubSurface const u value
                     for ( int m = 1; m < degen_surf.w.size(); m++ )

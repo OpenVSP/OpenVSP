@@ -22,6 +22,12 @@ SimpleSubSurface::SimpleSubSurface()
     m_PolyPntsReadyFlag = false;
     m_FirstSplit = true;
     m_PolyFlag = true;
+    m_TestType = vsp::INSIDE;
+    m_MainSurfIndx = 0;
+    m_IncludedElements = 0;
+    m_Type = vsp::SS_LINE;
+    m_FeaPropertyIndex = 0;
+    m_CapFeaPropertyIndex = 0;
 }
 
 SimpleSubSurface::~SimpleSubSurface()
@@ -204,11 +210,6 @@ bool SimpleSubSurface::Subtag( const vec3d & center )
         for ( int p = 0; p < (int)m_PolyPntsVec.size(); p++ )
         {
             bool inPoly = PointInPolygon( vec2d( center.x(), center.y() ), m_PolyPntsVec[p] );
-
-            if ( inPoly )
-            {
-                bool test = true;
-            }
 
             if ( inPoly && m_TestType == vsp::INSIDE )
             {

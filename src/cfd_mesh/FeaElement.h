@@ -145,7 +145,7 @@ public:
 class FeaBeam : public FeaElement
 {
 public:
-    FeaBeam()    {};
+    FeaBeam()    { m_ElementIndex = -1; };
     virtual ~FeaBeam()    {};
 
     virtual void Create( vec3d & p0, vec3d & p1 , vec3d & norm );
@@ -166,7 +166,7 @@ private:
 class FeaPointMass : public FeaElement
 {
 public:
-    FeaPointMass()    {};
+    FeaPointMass()    { m_Mass = 0; };
     virtual ~FeaPointMass()    {};
 
     virtual void Create( vec3d & p0, double mass );
@@ -188,7 +188,23 @@ private:
 class SimpleFeaProperty
 {
     public:
-    SimpleFeaProperty()    {};
+    SimpleFeaProperty()    {
+        m_FeaPropertyType = vsp::FEA_SHELL;
+        m_Thickness = 0;
+        m_CrossSecArea = 0;
+        m_Izz = 0;
+        m_Iyy = 0;
+        m_Izy = 0;
+        m_Ixx = 0;
+        m_Dim1 = 0;
+        m_Dim2 = 0;
+        m_Dim3 = 0;
+        m_Dim4 = 0;
+        m_Dim5 = 0;
+        m_Dim6 = 0;
+        m_CrossSectType = vsp::FEA_XSEC_GENERAL;
+        m_SimpleFeaMatIndex = 0;
+    };
     ~SimpleFeaProperty()    {};
 
     void CopyFrom( FeaProperty* fea_prop );
@@ -226,7 +242,12 @@ protected:
 class SimpleFeaMaterial
 {
 public:
-    SimpleFeaMaterial()    {};
+    SimpleFeaMaterial()    {
+        m_MassDensity = 0;
+        m_ElasticModulus = 0;
+        m_PoissonRatio = 0;
+        m_ThermalExpanCoeff = 0;
+    };
     ~SimpleFeaMaterial()    {};
 
     void CopyFrom( FeaMaterial* fea_mat );

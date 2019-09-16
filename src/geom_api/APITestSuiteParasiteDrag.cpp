@@ -97,7 +97,8 @@ void APITestSuiteParasiteDrag::TestFirstParasiteDragCalc()
 
     // Find Index Via Name
     vector < string > labelnamevec = vsp::GetStringResults( results_id, "Comp_Label" );
-    int wingindex, podindex;
+    int wingindex = 0;
+    int podindex = 0;
     for ( size_t i = 0; i < labelnamevec.size(); ++i )
     {
         if ( labelnamevec[i].compare( "MainWing" ) == 0 )

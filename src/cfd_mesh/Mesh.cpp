@@ -1348,7 +1348,6 @@ bool Mesh::SetFixPoint( const vec3d &fix_pnt, vec2d fix_uw )
         }
     }
 
-    int num_long_edges = 0;
     list< Edge* >::iterator e;
 
     //===== Split if no nodes found ====//

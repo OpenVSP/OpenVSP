@@ -1713,6 +1713,7 @@ double ParasiteDragMgrSingleton::CalcFFWing( double toc, int ff_case,
     // Values recreated using Plot Digitizer and fitted to a 3rd power polynomial
     double Interval[] = { 0.25, 0.6, 0.8, 0.9 };
     double ff;
+    double Rls = 1.0;
 
     double mach = m_Atmos.GetMach();
 
@@ -1760,7 +1761,7 @@ double ParasiteDragMgrSingleton::CalcFFWing( double toc, int ff_case,
         break;
 
     case vsp::FF_W_DATCOM:
-        double L, Rls, x, RLS_Low, RLS_High;;
+        double L, x, RLS_Low, RLS_High;
 
         // L value Decided based on xtrans/c
         if ( perc_lam <= 30.0 )

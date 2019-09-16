@@ -447,6 +447,7 @@ Tri::Tri()
     n0 = n1 = n2 = NULL;
     e0 = e1 = e2 = NULL;
     deleteFlag = false;
+    rgb[0] = rgb[1] = rgb[2] = 0;
 }
 
 Tri::Tri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 )

@@ -19,7 +19,7 @@
 
 double APITestSuiteMassProp::GetTol( double val )
 {
-    double TOL;
+    double TOL = 0.1;
 
     if ( val != 0 )
     {
@@ -35,7 +35,7 @@ double APITestSuiteMassProp::GetTol( double val )
 
 double APITestSuiteMassProp::GetCGTol( double val, double mass )
 {
-    double TOL;
+    double TOL = 0.005;
 
     if ( val != 0 )
     {
@@ -51,7 +51,7 @@ double APITestSuiteMassProp::GetCGTol( double val, double mass )
 
 double APITestSuiteMassProp::GetInertiaTol( double val, double mass )
 {
-    double TOL;
+    double TOL = 0.005;
 
     if ( val != 0 )
     {

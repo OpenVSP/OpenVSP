@@ -8,6 +8,8 @@ namespace VSPGraphic
     {
         _textureID = 0;
         _initialize( image );
+        _imWidth = 0;
+        _imHeight = 0;
     }
     Texture2D::~Texture2D()
     {

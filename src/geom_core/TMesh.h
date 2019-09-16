@@ -48,7 +48,19 @@ class TetraMassProp
 {
 public:
     TetraMassProp( string id, double den, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 );
-    TetraMassProp()         {}
+    TetraMassProp()         {
+        m_Density = 0;
+        m_Vol = 0;
+        m_Mass = 0;
+
+        m_Ixx = 0;
+        m_Iyy = 0;
+        m_Izz = 0;
+
+        m_Ixy = 0;
+        m_Ixz = 0;
+        m_Iyz = 0;
+    }
     ~TetraMassProp()        {}
 
     void SetPointMass( double massIn, vec3d& posIn );           // For Point Mass
@@ -112,7 +124,17 @@ class DegenGeomTetraMassProp
 {
 public:
     DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 );
-    DegenGeomTetraMassProp()        {}
+    DegenGeomTetraMassProp()        {
+        m_Vol = 0;
+
+        m_Ixx = 0;
+        m_Iyy = 0;
+        m_Izz = 0;
+
+        m_Ixy = 0;
+        m_Ixz = 0;
+        m_Iyz = 0;
+    }
     ~DegenGeomTetraMassProp()       {}
 
     vec3d m_v0;

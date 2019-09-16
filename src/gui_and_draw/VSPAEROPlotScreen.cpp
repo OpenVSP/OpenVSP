@@ -1661,7 +1661,7 @@ void VSPAEROPlotScreen::UpdateCpSliceCutBrowser()
 
             int type = 0;
             double location = 0;
-            int cut_num;
+            int cut_num = 0;
 
             nvd = res->FindPtr( "Cut_Type" );
             if ( nvd )
@@ -2008,9 +2008,11 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
             {
                 if ( m_CpSliceCutSelectedResultIDs[iCut] == m_CpSliceCaseSelectedResultIDs[iCase] )
                 {
-                    NameValData* tResultDataPtr;
+                    NameValData* tResultDataPtr = NULL;
                     vector <double> CpData, locData;
-                    int type, cut_num, case_num;
+                    int type = 0;
+                    int cut_num = 0;
+                    int case_num = 0;
 
                     Results* res = ResultsMgr.FindResultsPtr( m_CpSliceCutSelectedResultIDs[iCut] );
                     if ( res )

@@ -14,6 +14,7 @@ namespace VSPGraphic
     TextMgr::TextMgr()
     {
         _font = NULL;
+        texID = 0;
     }
     TextMgr::~TextMgr()
     {

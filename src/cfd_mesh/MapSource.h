@@ -43,6 +43,7 @@ struct MapSource
 {
     MapSource()
     {
+        m_str = 0;
         m_dominated = false;
         m_maxvisited = -1;
         m_surfid = -1;

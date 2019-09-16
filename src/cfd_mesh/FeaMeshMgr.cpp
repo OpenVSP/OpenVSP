@@ -701,7 +701,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
             vector < vec3d > ipntVec, inormVec;
             vector < vec2d > iuwVec;
             vector < int > ssindexVec;
-            Surf* NormSurf;
+            Surf* NormSurf = NULL;
             int FeaPartIndex = -1;
 
             // Check if one surface is a skin and one is an FeaPart (m_CompID = -9999)

@@ -2794,7 +2794,7 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool label
 
 void Vehicle::WriteStructureSTEPFile( const string & file_name )
 {
-    int len;
+    int len = UNIT_FOOT;
     switch ( m_StructUnit() )
     {
         case vsp::SI_UNIT:

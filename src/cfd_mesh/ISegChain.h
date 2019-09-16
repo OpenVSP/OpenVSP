@@ -133,6 +133,8 @@ public:
 
     ISegBox()
     {
+        m_BeginInd = 0;
+        m_EndInd = 0;
         m_SubBox[0] = m_SubBox[1] = NULL;
         m_ChainPtr = NULL;
         m_Surf = NULL;

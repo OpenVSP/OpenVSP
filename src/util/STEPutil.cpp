@@ -4,6 +4,9 @@
 
 STEPutil::STEPutil( const int & len, const double & tol )
 {
+    context = NULL;
+    shape_rep = NULL;
+
     // The registry contains information about types present in the current schema; SchemaInit is a function in the schema-specific SDAI library
     registry = new Registry( SchemaInit );
 

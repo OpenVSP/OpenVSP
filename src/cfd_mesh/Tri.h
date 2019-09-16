@@ -37,12 +37,14 @@ public:
     Node()
     {
         fixed = m_DeleteMeFlag = false;
+        id = 0;
     }
     Node( vec3d& p, vec2d& uw_in )
     {
         pnt = p;
         uw = uw_in;
         fixed = m_DeleteMeFlag = false;
+        id = 0;
     }
     virtual ~Node();
 
@@ -84,6 +86,8 @@ public:
         n0 = n1 = NULL;
         t0 = t1 = NULL;
         ridge = border = debugFlag = m_DeleteMeFlag = false;
+        target_len = 0;
+        m_Length = 0;
     }
     Edge( Node* node0, Node* node1 )
     {
@@ -91,6 +95,8 @@ public:
         n1 = node1;
         t0 = t1 = NULL;
         ridge = border = debugFlag = m_DeleteMeFlag = false;
+        target_len = 0;
+        m_Length = 0;
     }
     virtual ~Edge()                         {}
 

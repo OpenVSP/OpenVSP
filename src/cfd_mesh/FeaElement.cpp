@@ -146,6 +146,7 @@ void FeaNode::WriteGmsh( FILE* fp )
 
 FeaElement::FeaElement()
 {
+    m_ElementType = FEA_TRI_6;
     m_FeaPartIndex = -1;
     m_FeaSSIndex = -1;
 }

@@ -19,6 +19,10 @@ SnapTo::SnapTo() : ParmContainer()
     m_CollisionErrorFlag = vsp::COLLISION_OK;
     m_CollisionMinDist = 0.0;
 
+    m_LastParmVal = 0;
+    m_LastMinDist = 0;
+    m_LastTargetDist = 0;
+    m_LastIncFlag = 0;
 }
 
 SnapTo::~SnapTo()
