@@ -67,14 +67,14 @@ private:
     int m_CurrRulerIndex;
     int m_CurrProbeIndex;
 
-    void UpdateDrawObjs();
+    static void UpdateDrawObjs();
 
 
     MeasureMgrSingleton();
     MeasureMgrSingleton( MeasureMgrSingleton const& copy );          // Not Implemented
     MeasureMgrSingleton& operator=( MeasureMgrSingleton const& copy ); // Not Implemented
 
-    void Init();
+    static void Init();
     void Wype();
 };
 

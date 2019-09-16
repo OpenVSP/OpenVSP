@@ -40,7 +40,7 @@ public:
     * x0, y0 - center location of the text.
     * xoffset, yoffset - offset from the center.
     */
-    void drawText( glfont::GLFont * font, float scale, std::string str, float x0, float y0, float xoffset, float yoffset );
+    static void drawText( glfont::GLFont * font, float scale, const std::string &str, float x0, float y0, float xoffset, float yoffset );
 
 private:
 

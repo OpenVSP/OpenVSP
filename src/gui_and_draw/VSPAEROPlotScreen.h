@@ -54,11 +54,11 @@ protected:
     void UpdateSweepAutoManualAxisLimits();
     void UpdateCpSliceAutoManualAxisLimits();
     void UpdateUnsteadyAutoManualAxisLimits();
-    string MakeAxisLabelStr( vector <string> dataSetNames );
+    static string MakeAxisLabelStr( vector <string> dataSetNames );
     void UpdateAxisLimits( Ca_Canvas * canvas, vector <double> xDoubleData, vector <double> yDoubleData, bool expand_only );
-    void UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero = false );
+    static void UpdateSingleAxisLimits( Ca_Axis_ * tAxis, vector <double> doubleData, bool expandOnly, bool keepZero = false );
     //  general utility
-    void ConstructFlowConditionString( char * strbuf, Results * res, bool includeResultId );
+    static void ConstructFlowConditionString( char * strbuf, Results * res, bool includeResultId );
 
     //==== Convergence Tab ====//
     Fl_Group* m_ConvergenceTab;
@@ -188,7 +188,7 @@ protected:
     int m_NumCpCases; // Number of Flow Condition Cases
 
     void UpdateCpSliceCaseBrowser();
-    void ConstructCpSliceCaseString( char* strbuf, Results* res, int case_num = 1 );
+    static void ConstructCpSliceCaseString( char* strbuf, Results* res, int case_num = 1 );
     void UpdateCpSliceCutBrowser();
 
     void RedrawCpSlicePlot();

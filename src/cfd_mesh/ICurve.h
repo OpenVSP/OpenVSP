@@ -41,14 +41,14 @@ public:
 
     bool Match( SCurve* crv_A, SCurve* crv_B );
     void BorderTesselate( );
-    void PlaneBorderTesselate( SCurve* sca, SCurve* scb );
+    static void PlaneBorderTesselate( SCurve* sca, SCurve* scb );
     void SetACurve( SCurve* crv_A )
     {
         m_SCurve_A = crv_A;
     }
 
 
-    void Draw();
+    static void Draw();
 
     void DebugEdgeMatching( FILE* fp );
 

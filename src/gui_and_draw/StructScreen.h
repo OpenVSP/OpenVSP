@@ -64,7 +64,7 @@ public:
 
     virtual void AddOutputText( const string &text );
 
-    string truncateFileName( const string &fn, int len );
+    static string truncateFileName( const string &fn, int len );
 
     virtual bool Update();
 

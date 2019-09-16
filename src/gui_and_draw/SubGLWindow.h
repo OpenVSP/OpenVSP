@@ -73,8 +73,8 @@ protected:
     virtual void _update( std::vector<DrawObj *> objects );
 
 private:
-    void _loadPointData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
-    void _loadLineData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
+    static void _loadPointData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
+    static void _loadLineData( VSPGraphic::Renderable * destObj, DrawObj * drawObj );
 
 protected:
     /*

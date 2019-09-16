@@ -30,7 +30,7 @@ public:
 
     ProcessUtil();
 
-    int SystemCmd( const string &path, const string &cmd, const vector<string> &opts );
+    static int SystemCmd( const string &path, const string &cmd, const vector<string> &opts );
 
     int ForkCmd( const string &path, const string &cmd, const vector<string> &opts );
 
@@ -41,7 +41,7 @@ public:
 
     void ReadStdoutPipe(char * buf, int bufsize, unsigned long * nread );
 
-    string PrettyCmd( const string &path, const string &cmd, const vector<string> &opts ); //returns a command string that could be used on the command line
+    static string PrettyCmd( const string &path, const string &cmd, const vector<string> &opts ); //returns a command string that could be used on the command line
 
 #ifdef WIN32
     string QuoteString( const string &str );

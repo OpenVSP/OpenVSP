@@ -80,7 +80,7 @@ protected:
 
 private:
     // Helper to force rotations to be between +/- 180
-    double MakeValidRotation( const double &rotation );
+    static double MakeValidRotation( const double &rotation );
 };
 
 #endif

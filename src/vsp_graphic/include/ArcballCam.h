@@ -147,14 +147,14 @@ public:
     virtual void load( int index );
 
 private:
-    glm::vec4 _normalizeQuat( glm::vec4 quat );
+    static glm::vec4 _normalizeQuat( glm::vec4 quat );
     glm::vec4 _multiplyQuats( glm::vec4 quat1, glm::vec4 quat2 );
-    glm::quat _multiplyGLMQuats( glm::quat quat1, glm::quat quat2 );
+    static glm::quat _multiplyGLMQuats( glm::quat quat1, glm::quat quat2 );
 
     glm::vec3 _toSphere3D( int x, int y );
-    glm::vec4 _toQuat( glm::vec3 axis, float angle );
-    glm::mat4 _toMatrix( glm::vec4 quat );
-    glm::vec4 _matrixToQuat ( glm::mat4 mat );
+    static glm::vec4 _toQuat( glm::vec3 axis, float angle );
+    static glm::mat4 _toMatrix( glm::vec4 quat );
+    static glm::vec4 _matrixToQuat ( glm::mat4 mat );
 
     // Normalize to [-1, 1] on x and y axis.
     glm::vec2 _toNDC2f( float x, float y );

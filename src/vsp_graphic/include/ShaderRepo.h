@@ -53,7 +53,7 @@ public:
 
 private:
     struct ShaderInfo;
-    void _build( ShaderInfo * sInfo );
+    static void _build( ShaderInfo * sInfo );
 
 private:
     struct ShaderInfo

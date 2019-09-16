@@ -38,7 +38,7 @@ public:
 
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
-    void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
+    static void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
 
 protected:
 

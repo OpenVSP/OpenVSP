@@ -51,7 +51,7 @@ public:
     string ReadScriptFromFile( const string & module_name, const string &  file_name );
 
     //==== Read All Scripts In Dir and Return Module Names ====//
-    vector< string > ReadScriptsFromDir( const string & dir_name, const string & suffix );
+    static vector< string > ReadScriptsFromDir( const string & dir_name, const string & suffix );
 
     //==== Read Script From Memory - Return Module Name ====//
     string ReadScriptFromMemory( const string &  module_name, const string & script_content );
@@ -66,7 +66,7 @@ public:
     string GetMessages()                                    { return m_ScriptMessages; }   
 
     string FindModuleContent( const string & module_name );
-    string ExtractContent( const string & file_name );
+    static string ExtractContent( const string & file_name );
     int SaveScriptContentToFile( const string & module_name, const string & file_name );
     string ReplaceIncludes( const string & script_contents, const string & inc_file_path );
 
@@ -82,7 +82,7 @@ public:
     CScriptArray* GetProxyDoubleArray();
     CScriptArray* GetProxyDoubleMatArray();
 
-    void FillDoubleArray( vector < double > & in, CScriptArray* out );
+    static void FillDoubleArray( vector < double > & in, CScriptArray* out );
 
     //==== Common Types =====//
     asITypeInfo* m_IntArrayType;
@@ -109,14 +109,14 @@ private:
     ScriptMgrSingleton( ScriptMgrSingleton const& copy );          // Not Implemented
     ScriptMgrSingleton& operator=( ScriptMgrSingleton const& copy ); // Not Implemented
 
-    void RegisterEnums( asIScriptEngine* se );
-    void RegisterVec3d( asIScriptEngine* se );
-    void RegisterMatrix4d( asIScriptEngine* se );
-    void RegisterCustomGeomMgr( asIScriptEngine* se );
-    void RegisterAdvLinkMgr( asIScriptEngine* se );
-    void RegisterAPIErrorObj( asIScriptEngine* se );
-    void RegisterAPI( asIScriptEngine* se );
-    void RegisterUtility( asIScriptEngine* se );
+    static void RegisterEnums( asIScriptEngine* se );
+    static void RegisterVec3d( asIScriptEngine* se );
+    static void RegisterMatrix4d( asIScriptEngine* se );
+    static void RegisterCustomGeomMgr( asIScriptEngine* se );
+    static void RegisterAdvLinkMgr( asIScriptEngine* se );
+    static void RegisterAPIErrorObj( asIScriptEngine* se );
+    static void RegisterAPI( asIScriptEngine* se );
+    static void RegisterUtility( asIScriptEngine* se );
 
     //==== Member Variables ====//
     asIScriptEngine* m_ScriptEngine;
@@ -202,16 +202,16 @@ private:
     CScriptArray* GetVarPresetParmValsWNames( string group_name, string setting_name );
     CScriptArray* GetVarPresetParmIDs();
     CScriptArray* GetVarPresetParmIDsWName( string group_name );
-    void AddVarPresetGroup( const string &group_name );
-    void AddVarPresetSetting( const string &setting_name );
-    void AddVarPresetParm( const string &parm_ID );
-    void AddVarPresetParm( const string &parm_ID, string group_name );
-    void EditVarPresetParm( const string &parm_ID, double parm_val );
-    void EditVarPresetParm( const string &parm_ID, double parm_val, string group_name, string setting_name );
-    void DeleteVarPresetParm( const string &parm_ID );
-    void DeleteVarPresetParm( const string &parm_ID, string group_name );
-    void SwitchVarPreset( string group_name, string setting_name );
-    void DeleteVarPresetSet( string group_name, string setting_name );
+    static void AddVarPresetGroup( const string &group_name );
+    static void AddVarPresetSetting( const string &setting_name );
+    static void AddVarPresetParm( const string &parm_ID );
+    static void AddVarPresetParm( const string &parm_ID, string group_name );
+    static void EditVarPresetParm( const string &parm_ID, double parm_val );
+    static void EditVarPresetParm( const string &parm_ID, double parm_val, string group_name, string setting_name );
+    static void DeleteVarPresetParm( const string &parm_ID );
+    static void DeleteVarPresetParm( const string &parm_ID, string group_name );
+    static void SwitchVarPreset( string group_name, string setting_name );
+    static void DeleteVarPresetSet( string group_name, string setting_name );
 
     // ==== PCurve Functions ====//
     void SetPCurve( const string& geom_id, const int & pcurveid, CScriptArray* tvec, CScriptArray* valvec, const int & newtype );
@@ -219,8 +219,8 @@ private:
     CScriptArray* PCurveGetValVec( const std::string & geom_id, const int & pcurveid );
 
     // ==== Parasite Drag Tool Functions ====//
-    void AddExcrescence(const std::string & excresName, int excresType, double excresVal);
-    void DeleteExcrescence(int index);
+    static void AddExcrescence(const std::string & excresName, int excresType, double excresVal);
+    static void DeleteExcrescence(int index);
 
     //=== Register Measure Functions ===//
     CScriptArray* GetAllRulers();

@@ -44,7 +44,7 @@ public:
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    string truncateFileName( const string &fn, int len );
+    static string truncateFileName( const string &fn, int len );
 
 protected:
 

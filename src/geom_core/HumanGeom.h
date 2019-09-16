@@ -121,7 +121,7 @@ public:
 
     virtual void SetupMesh( Pinocchio::Mesh &m );
     template < typename vertmat > void SetupSkel( const vertmat & vm, Pinocchio::DataSkeleton &skeleton );
-    Pinocchio::Attachment * SetupAttach( const Pinocchio::Mesh &m, const Pinocchio::Skeleton &skeleton );
+    static Pinocchio::Attachment * SetupAttach( const Pinocchio::Mesh &m, const Pinocchio::Skeleton &skeleton );
 
     template < typename vertmat > void CopyVertsToMesh( const vertmat & vm, Pinocchio::Mesh &m );
     template < typename vertmat > void CopyMeshToVerts( const Pinocchio::Mesh &m, vertmat & vm );
@@ -247,7 +247,7 @@ private:
 
     double Get_mm2UX();
 
-    void DebugDump();
+    static void DebugDump();
 };
 
 #endif // !defined(VSP_HUMAN_GEOM__INCLUDED_)

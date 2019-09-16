@@ -26,7 +26,7 @@ public:
     void SplitSegsW( const double & w ); // Split line segments that cross a constant W value
     void SplitSegsU( const double & u, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant U value
     void SplitSegsW( const double & w, vector<SSLineSeg> &splitvec ); // Split line segments that cross a constant W value
-    void ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec );
+    static void ReorderSplitSegs( int ind, vector<SSLineSeg> &splitvec );
     bool Subtag( const vec3d & center );
 
     std::vector< std::vector< SSLineSeg > >& GetSplitSegs()

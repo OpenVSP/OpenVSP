@@ -39,7 +39,7 @@ private:
     void CompareMeshes( Vehicle & veh, string mesh_a, string mesh_b );
     void CompareVec3ds( const vec3d & v1, const vec3d & v2, const char * msg = NULL );
 
-    void WritePnts( std::vector< vec3d > & pnt_vec, std::string file_name );
+    static void WritePnts( std::vector< vec3d > & pnt_vec, std::string file_name );
 
 };
 

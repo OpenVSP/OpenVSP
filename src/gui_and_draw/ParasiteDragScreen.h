@@ -76,7 +76,7 @@ protected:
 
     void GetTableFlags( int index, const string &lastID, const string &lastIncorporatedID, int lastShape,
                         int &skipFlag, int &subsurfFlag, int &grayFlag );
-    string GetComponentTableLabel( int subsurfFlag, const string &lastID, int index );
+    static string GetComponentTableLabel( int subsurfFlag, const string &lastID, int index );
 
     void SetupRowLabel( int subsurfFlag, const string &lastID, int index );
     void SetupSwet( int index, double swet );

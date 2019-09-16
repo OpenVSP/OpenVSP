@@ -163,8 +163,8 @@ public:
     }
     bool CapUMin(int capType, double len, double str, double offset, bool swflag);
     bool CapUMax(int capType, double len, double str, double offset, bool swflag);
-    bool CapWMin(int capType);
-    bool CapWMax(int capType);
+    static bool CapWMin(int capType);
+    static bool CapWMax(int capType);
     void FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >() );
 
     void ResetUWSkip();
@@ -194,7 +194,7 @@ public:
     void SplitSurfs( vector< piecewise_surface_type > &surfvec, const vector < double > &usuppress, const vector < double > &wsuppress );
     void SplitSurfs( vector< piecewise_surface_type > &surfvec );
 
-    void ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &ptindxs, vector< vec3d > &allPntVec,
+    static void ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &ptindxs, vector< vec3d > &allPntVec,
                       piecewise_surface_type::index_type &maxu, piecewise_surface_type::index_type &maxv,
                       piecewise_surface_type::index_type &nupatch, piecewise_surface_type::index_type &nvpatch,
                       piecewise_surface_type::index_type &nupts, piecewise_surface_type::index_type &nvpts );
@@ -258,7 +258,7 @@ protected:
 
     static void IGESKnots( int deg, int npatch, vector< double > &knot );
 
-    bool CheckValidPatch( const piecewise_surface_type &surf );
+    static bool CheckValidPatch( const piecewise_surface_type &surf );
 
     bool m_FlipNormal;
     bool m_MagicVParm;

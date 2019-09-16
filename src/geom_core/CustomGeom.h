@@ -53,7 +53,7 @@ public:
         static CustomGeomMgrSingleton instance;
         return instance;
     }
-    void Init()                                         {}
+    static void Init()                                         {}
 
     //==== Init Geom ====//
     void InitGeom( const string& id, const string& module_name, const string& display_name );
@@ -114,7 +114,7 @@ public:
     vector< string > GetCustomScriptModuleNames();
 
     //==== Save Custom Script Content To File ====//
-    int SaveScriptContentToFile( const string & module_name, const string & file_name );
+    static int SaveScriptContentToFile( const string & module_name, const string & file_name );
 
 
 private:

@@ -68,7 +68,7 @@ public:
 
     void FlipCurve();
     void BuildWakeTECurve( const Bezier_curve &lecrv, double endx, double angle );
-    curve_point_type ComputeWakeTrailEdgePnt( const curve_point_type &pnt, double endx, double angle );
+    static curve_point_type ComputeWakeTrailEdgePnt( const curve_point_type &pnt, double endx, double angle );
 
     void UWCurveToXYZCurve( const Surf *srf );
     void XYZCurveToUWCurve( const Surf *srf );

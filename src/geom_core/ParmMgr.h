@@ -69,7 +69,7 @@ public:
     void AddToUndoStack( Parm* parm_ptr, bool drag_flag );
     void UnDo();
 
-    string GenerateID( int length );
+    static string GenerateID( int length );
 
     string ForceRemapID( const string & oldID, int size );
     string RemapID( const string & oldID, const string & suggestID = "" );
@@ -81,7 +81,7 @@ public:
     void IncNumParmChanges()                { m_NumParmChanges++; }
     int GetChangeCnt()                      { m_ChangeCnt++; return m_ChangeCnt; }
 
-    Parm* CreateParm( int type );
+    static Parm* CreateParm( int type );
 
     //=== Get Container, Group and Parm Name Given Parm ID ====//
     void GetNames( const string& parm_id, string& container_name, string& group_name, string& parm_name );

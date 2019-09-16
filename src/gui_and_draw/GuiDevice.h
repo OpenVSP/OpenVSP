@@ -936,7 +936,7 @@ public:
 
     virtual void Update( );
 
-    vector< string > FindParmNames( vector< string > & parm_id_vec );
+    static vector< string > FindParmNames( vector< string > & parm_id_vec );
 
     string GetParmChoice()
     {

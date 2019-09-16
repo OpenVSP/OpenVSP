@@ -226,10 +226,10 @@ public:
     void SelectNone();
     void SelectInv();
     void HideSelection();
-    void HideUnselected();
+    static void HideUnselected();
     void HideAll();
     void HideInv();
-    void ShowAll();
+    static void ShowAll();
     void SetSelectOne();
     void SetSelectBox();
 
@@ -292,7 +292,7 @@ private:
     void BuildPtrVec();
     void ParmToX( double *x );
     void XtoParm( const double *x );
-    double Clamp01( double x, bool closed );
+    static double Clamp01( double x, bool closed );
 
     bool m_GUIShown;
 

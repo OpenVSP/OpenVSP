@@ -143,8 +143,8 @@ private:
     ProjectionMgrSingleton( ProjectionMgrSingleton const& copy );            // Not Implemented
     ProjectionMgrSingleton& operator=( ProjectionMgrSingleton const& copy ); // Not Implemented
 
-    void Init();
-    void Wype();
+    static void Init();
+    static void Wype();
 
 };
 

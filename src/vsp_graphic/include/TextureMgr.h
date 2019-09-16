@@ -105,11 +105,11 @@ public:
     /*!
     * Get hardware limitation of max texture size.
     */
-    int getMaxTextureSize();
+    static int getMaxTextureSize();
     /*!
     * Get hardware limitation of max number of combined textures.
     */
-    int getMaxCombineTextures();
+    static int getMaxCombineTextures();
 
     /*!
     * Get translate value of s.
@@ -188,7 +188,7 @@ protected:
     std::vector<TexInfo> _coordList;
 
 private:
-    glm::vec2 _flipToVector( bool flipU, bool flipW );
+    static glm::vec2 _flipToVector( bool flipU, bool flipW );
     std::vector<glm::vec4> _getLightSwitches();
 
     Lighting * _lights;

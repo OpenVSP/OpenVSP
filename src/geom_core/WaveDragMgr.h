@@ -50,12 +50,12 @@ public:
     void SetupTheta( int ntheta );
     void Setup( int nslice, int ncomp );
 
-    string WaveDragSlice( int set, int numSlices, int numRots, double Mach,
+    static string WaveDragSlice( int set, int numSlices, int numRots, double Mach,
                        const vector <string> & Flow_vec, bool Symm );
 
     double WaveDrag( int r );
 
-    double WaveDrag( const vector <double> & x_vec, const vector <double> & area_vec, vector <double> &coeff );
+    static double WaveDrag( const vector <double> & x_vec, const vector <double> & area_vec, vector <double> &coeff );
 
     void CalcDrag();
 

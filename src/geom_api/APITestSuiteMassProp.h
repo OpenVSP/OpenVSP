@@ -31,9 +31,9 @@ public:
 private:
 
     // Test Tolerance
-    double GetTol( double val );
-    double GetCGTol( double val, double mass );
-    double GetInertiaTol( double val, double mass );
+    static double GetTol( double val );
+    static double GetCGTol( double val, double mass );
+    static double GetInertiaTol( double val, double mass );
 
     // Analysis
     void TestSolidCylinder();

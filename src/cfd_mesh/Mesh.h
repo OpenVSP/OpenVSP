@@ -57,17 +57,17 @@ public:
     void Remesh();
     void LoadSimpTris();
     void CondenseSimpTris();
-    int CheckDupOrAdd( int ind, map< int, vector< int > > & indMap, vector< vec3d > & pntVec );
+    static int CheckDupOrAdd( int ind, map< int, vector< int > > & indMap, vector< vec3d > & pntVec );
 
 
     int Split( int num_iter );
     void SplitEdge( Edge* edge );
 
-    bool ThreeEdgesThreeTris( Edge* edge );
+    static bool ThreeEdgesThreeTris( Edge* edge );
     void SwapEdge( Edge* edge );
 
     int Collapse( int num_iter );
-    bool ValidCollapse( Edge* edge );
+    static bool ValidCollapse( Edge* edge );
     void CollapseEdge( Edge* edge );
 
     int RemoveRevTris();
@@ -91,14 +91,14 @@ public:
 
     void AdjustEdgeLengths();
 
-    void CheckValidEdge( Edge* e );
+    static void CheckValidEdge( Edge* e );
     void CheckValidAllEdges();
 
     Node* AddNode( vec3d p, vec2d uw_in );
     void  RemoveNode( Node* nptr );
     Node* FindNode( const vec3d& p );
 
-    bool ValidNodeMove( Node* nptr, vec3d & move_to, Tri* ignoreTri = NULL );
+    static bool ValidNodeMove( Node* nptr, vec3d & move_to, Tri* ignoreTri = NULL );
 
     Edge* AddEdge( Node* n0, Node* n1 );
     void  RemoveEdge( Edge* eptr );
@@ -107,11 +107,11 @@ public:
     Tri* AddTri( Node* nn0, Node* nn1, Node* nn2, Edge* ee0, Edge* ee1, Edge* ee2 );
     void  RemoveTri( Tri* tptr );
 
-    void TriangulateBorder( vector< vec3d > uw_border );
+    static void TriangulateBorder( const vector< vec3d > &uw_border );
 
     void InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes );
 
-    void CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes );
+    static void CheckValidTriInput( vector< vec2d > & uw_points, vector< MeshSeg > & segs_indexes );
 
 
     void ReadSTL( const char* file_name );

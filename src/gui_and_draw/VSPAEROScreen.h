@@ -63,7 +63,7 @@ public:
     void SelectGroupedListBrowser( int cur_index );
     void SelectCpSliceBrowser( int cur_index );
 
-    void AddOutputText( Fl_Text_Display *display, const string &text );
+    static void AddOutputText( Fl_Text_Display *display, const string &text );
 
     ProcessUtil *GetProcess( int id );
     Fl_Text_Display *GetDisplay( int id );

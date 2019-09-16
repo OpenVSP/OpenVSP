@@ -28,7 +28,7 @@ public:
         return instance;
     }
 
-    void Init();
+    static void Init();
     void Wype();
     void Renew();
 

@@ -270,10 +270,10 @@ public:
         transmat = M;
     }
 
-    void build_trans_mat( vec3d x, vec3d y, vec3d z, const vec3d &p, Matrix4d &mat, Matrix4d &invmat );
+    static void build_trans_mat( vec3d x, vec3d y, vec3d z, const vec3d &p, Matrix4d &mat, Matrix4d &invmat );
     void build_basis( const int &startPnt, const vector < vec3d > &sect, vec3d &v1, vec3d &v2, vec3d &v3 );
     void transform_section( const int &startPnt, vector < vec3d > &sect, Matrix4d &trans, Matrix4d &invtrans );
-    void calculate_section_prop( const vector < vec3d > &sect, double &len, double &area, vec3d &xcgshell, vec3d &xcgsolid, vector < double > &Ishell, vector < double > &Isolid );
+    static void calculate_section_prop( const vector < vec3d > &sect, double &len, double &area, vec3d &xcgshell, vec3d &xcgsolid, vector < double > &Ishell, vector < double > &Isolid );
 
     void createDegenSurface( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, bool flipnormal );
     void createSurfDegenPlate( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
@@ -282,13 +282,13 @@ public:
     void createSurfDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const VspSurf *foilSurf, const bool &urootcap );
     void createBodyDegenStick( const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts );
     void createDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, int nLow, int nHigh, int startPnt );
-    void augmentFoilSurfDegenStick( DegenStick &degenStick, const VspSurf *foilSurf, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap );
+    static void augmentFoilSurfDegenStick( DegenStick &degenStick, const VspSurf *foilSurf, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap );
     void augmentFoilSurfDegenStick( DegenStick &degenStick, const vector< vector< vec3d > > &pntsarr, const vector< vector< vec3d > > &uw_pnts, const bool &urootcap );
     void createDegenDisk(  const vector< vector< vec3d > > &pntsarr, bool flipnormal );
     void addDegenSubSurf( SubSurface *ssurf, int surfIndx );
     void addDegenHingeLine( SSControlSurf *csurf, int surfIndx );
 
-    string makeCsvFmt( int n, bool newline = true );
+    static string makeCsvFmt( int n, bool newline = true );
     void write_degenGeomCsv_file( FILE* file_id );
     void write_degenGeomSurfCsv_file( FILE* file_id, int nxsecs );
     void write_degenGeomPlateCsv_file( FILE* file_id, int nxsecs, DegenPlate &degenPlate );
@@ -301,7 +301,7 @@ public:
     void write_degenGeomM_file( FILE* file_id );
     void write_degenGeomSurfM_file( FILE* file_id, int nxsecs );
     void write_degenGeomPlateM_file( FILE* file_id, int nxsecs, DegenPlate &degenPlate, int iplate );
-    void write_degenGeomStickM_file( FILE* file_id, int nxsecs, DegenStick &degenStick, int istick );
+    static void write_degenGeomStickM_file( FILE* file_id, int nxsecs, DegenStick &degenStick, int istick );
     void write_degenGeomPointM_file( FILE* file_id, int nxsecs );
     void write_degenGeomDiskM_file( FILE* file_id );
     void write_degenSubSurfM_file( FILE* file_id, int isubsurf );
@@ -313,8 +313,8 @@ public:
     void write_degenGeomPlateResultsManager( vector< string > &plate_ids, const DegenPlate &degenPlate );
     void write_degenGeomStickResultsManager( vector< string > &stick_ids, const DegenStick &degenStick );
     void write_degenGeomPointResultsManager( Results * res );
-    void write_degenSubSurfResultsManager( vector< string > &subsurf_ids, const DegenSubSurf &degenSubSurf );
-    void write_degenHingeLineResultsManager( vector< string > &hinge_ids, const DegenHingeLine &degenHingeLine );
+    static void write_degenSubSurfResultsManager( vector< string > &subsurf_ids, const DegenSubSurf &degenSubSurf );
+    static void write_degenHingeLineResultsManager( vector< string > &hinge_ids, const DegenHingeLine &degenHingeLine );
 
 protected:
 

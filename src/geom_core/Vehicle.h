@@ -73,17 +73,17 @@ public:
     virtual ~Vehicle();
 
     void Init();
-    void RunTestScripts();
+    static void RunTestScripts();
     void Renew();
 
     void ParmChanged( Parm* parm_ptr, int type );
-    void UnDo();
+    static void UnDo();
 
     void Update( bool fullupdate = true );
     void UpdateGeom( const string &geom_id );
     void ForceUpdate();
-    void UpdateGui();
-    void RunScript( const string & file_name, const string & function_name = "void main()" );
+    static void UpdateGui();
+    static void RunScript( const string & file_name, const string & function_name = "void main()" );
 
     Geom* FindGeom( const string & geom_id );
     vector< Geom* > FindGeomVec( const vector< string > & geom_id_vec );
@@ -198,9 +198,9 @@ public:
     void WriteNascartFiles( const string & file_name, int write_set );
     void WriteGmshFile( const string & file_name, int write_set );
     void WriteX3DFile( const string & file_name, int write_set );
-    void WriteX3DMaterial( xmlNodePtr node, Material * material );
+    static void WriteX3DMaterial( xmlNodePtr node, Material * material );
     void WriteX3DViewpoints( xmlNodePtr node );
-    void WriteX3DViewpointProps( xmlNodePtr node, string orients, string cents, string posits, string sfov, string name );
+    static void WriteX3DViewpointProps( xmlNodePtr node, string orients, string cents, string posits, string sfov, string name );
     void WritePovRayFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set );
     void WriteSTEPFile( const string & file_name, int write_set, bool labelID,

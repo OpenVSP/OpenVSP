@@ -63,7 +63,8 @@ public:
     * VSP_WIRE_SHADED_QUADS - Render Quads to wire frame mesh with lighting
     */
 
-    vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
+    static vec3d ColorWheel( double angle ); // Returns rgb for an angle given in degrees
+
     enum TypeEnum
     {
         VSP_POINTS,

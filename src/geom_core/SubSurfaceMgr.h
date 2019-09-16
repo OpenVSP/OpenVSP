@@ -40,8 +40,8 @@ public:
 
     std::vector< SubSurface* > GetSubSurfs( std::string comp_id, int surfnum );
     std::vector< SubSurface* > GetSubSurfs( std::string comp_id );
-    std::vector< SubSurface* > GetSubSurfs();
-    SubSurface* GetSubSurf( std::string subsurf_id );
+    static std::vector< SubSurface* > GetSubSurfs();
+    static SubSurface* GetSubSurf( std::string subsurf_id );
 
     void SetCurrSubSurfInd( int index );
 
@@ -92,7 +92,7 @@ protected:
     std::vector< std::vector<int> > m_TagKeys;
     std::map< std::vector<int>, int > m_SingleTagMap;
 
-    Geom* GetGeom( std::string comp_id );
+    static Geom* GetGeom( std::string comp_id );
 };
 
 #define SubSurfaceMgr SubSurfaceMgrSingleton::GetInstance()

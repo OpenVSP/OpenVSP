@@ -66,7 +66,7 @@ private:
     bool _loadWithExt( std::string fileName, std::string ext );
     bool _loadWithoutExt( std::string fileName );
 
-    std::vector<ImageLoader *> _initLoaders();
+    static std::vector<ImageLoader *> _initLoaders();
 
 private:
     std::string _fileName;

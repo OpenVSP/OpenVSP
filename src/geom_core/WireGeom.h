@@ -76,7 +76,7 @@ protected:
 
     bool CheckInverted();
 
-    void PatchRow( const vector < vec3d > &oldrow, const vector < vec3d > &oppositerow, int type, vector < vec3d > &newrow );
+    static void PatchRow( const vector < vec3d > &oldrow, const vector < vec3d > &oppositerow, int type, vector < vec3d > &newrow );
 
 };
 

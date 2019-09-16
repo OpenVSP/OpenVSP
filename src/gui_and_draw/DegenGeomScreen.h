@@ -34,7 +34,7 @@ public:
     }
 
     void LoadSetChoice();
-    string truncateFileName( const string &fn, int len );
+    static string truncateFileName( const string &fn, int len );
 
 protected:
 

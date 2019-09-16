@@ -33,7 +33,7 @@ public:
         ( ( ManageBackgroundScreen* )data )->CallBack( w );
     }
 
-    string truncateFileName( const string &fn, int len );
+    static string truncateFileName( const string &fn, int len );
 
 protected:
 

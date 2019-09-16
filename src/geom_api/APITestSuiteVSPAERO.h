@@ -71,7 +71,7 @@ private:
     // CpSlicer Test
     void TestVSPAeroCpSlicer();
 
-    double calcTessWCheckVal( double t_tess_w );
+    static double calcTessWCheckVal( double t_tess_w );
 
     string m_vspfname_for_vspaerotests;
     string m_vspfname_for_vspaerofunctionalitytests;

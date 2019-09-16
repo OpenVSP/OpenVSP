@@ -37,7 +37,7 @@ public:
     void AddLinkableContainers( vector< string > & linkable_container_vec );
 
     //==== FeaStructure Management ====//
-    vector < FeaStructure* > GetAllFeaStructs();
+    static vector < FeaStructure* > GetAllFeaStructs();
     FeaStructure* GetFeaStruct( int total_struct_ind );
     FeaStructure* GetFeaStruct( const string & struct_id );
     string GetFeaStructParentID( const string & struct_id );

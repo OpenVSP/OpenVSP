@@ -114,9 +114,9 @@ public:
     // Switch Case Methods For Friction Coefficient Selections
     double CalcTurbCf( double ReyIn, double ref_leng, int cf_case, double roughness_h,
                        double gamma, double taw_tw_ratio, double te_tw_ratio );
-    double CalcLamCf( double ReyIn, int cf_case );
+    static double CalcLamCf( double ReyIn, int cf_case );
     string AssignTurbCfEqnName( int cf_case );
-    string AssignLamCfEqnName( int cf_case );
+    static string AssignLamCfEqnName( int cf_case );
 
     bool IsTurbBlacklisted( int cf_case );
     int FindAlternateTurb( int cf_case );
@@ -126,8 +126,8 @@ public:
     double CalcFFWing( double toc, int ff_case, double perc_lam,
                        double sweep25, double sweep50 );
     double CalcFFBody( double longF, double FR, int ff_case, double ref_leng, double max_x_area );
-    string AssignFFWingEqnName( int ff_case );
-    string AssignFFBodyEqnName( int ff_case );
+    static string AssignFFWingEqnName( int ff_case );
+    static string AssignFFBodyEqnName( int ff_case );
 
     // Setter Methods
     void SetSref( double sref )
@@ -250,7 +250,7 @@ public:
     void SortGeometryByPercTotalCD();
     void SortExcresByPercTotalCD();
     void SortMainTableVecByGroupedAncestorGeoms();
-    bool CheckAllTrue( vector < bool > vec );
+    static bool CheckAllTrue( vector < bool > vec );
     void DeactivateParms();
     bool IsSameGeomSet();
     bool IsNotZeroLineItem( int index );

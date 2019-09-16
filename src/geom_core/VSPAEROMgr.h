@@ -126,7 +126,7 @@ public:
 
     // Setup File I/O
     void Write_STP_Data( FILE * InputFile );
-    void Load_STP_Data( FILE * InputFile );
+    static void Load_STP_Data( FILE * InputFile );
 
     // vsp3 file xml I/O
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
@@ -158,7 +158,7 @@ public:
     }
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
-    void ClearAllPreviousResults();
+    static void ClearAllPreviousResults();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -212,7 +212,7 @@ public:
     // CpSlicer Functionality and Variables
     string ComputeCpSlices( FILE * logFile = NULL );
     string ExecuteCpSlicer( FILE * logFile = NULL );
-    void ClearCpSliceResults();
+    static void ClearCpSliceResults();
     void CreateCutsFile();
     void AddCpSlice( CpSlice* slice )                      { m_CpSliceVec.push_back( slice ); }
     CpSlice* AddCpSlice();
@@ -377,7 +377,7 @@ protected:
 
     string m_LastPanelMeshGeomId;
 
-    int WaitForFile( string filename );  // function is used to wait for the result to show up on the file system
+    static int WaitForFile( string filename );  // function is used to wait for the result to show up on the file system
     void GetSweepVectors( vector<double> &alphaVec, vector<double> &betaVec, vector<double> &machVec );
 
     void MonitorSolver( FILE * logFile );
@@ -387,13 +387,13 @@ protected:
     void ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
     void ReadLoadFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
     void ReadStabFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, vsp::VSPAERO_STABILITY_TYPE stabilityType );
-    vector <string> ReadDelimLine( FILE * fp, char * delimeters );
-    bool CheckForCaseHeader( std::vector<string> headerStr );
-    bool CheckForResultHeader( std::vector < string > headerstr );
-    int ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    static vector <string> ReadDelimLine( FILE * fp, char * delimeters );
+    static bool CheckForCaseHeader( std::vector<string> headerStr );
+    static bool CheckForResultHeader( std::vector < string > headerstr );
+    static int ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
     void ReadSliceFile( string filename, vector <string> &res_id_vector );
 
-    void AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    static void AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
 
 
 private:
