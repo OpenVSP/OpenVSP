@@ -35,6 +35,7 @@ VBO::VBO( GLenum type )
 
     _buffer_Type = type;
 
+    _id = 0;
     // Generate a buffer ID for vertex buffer.
     glGenBuffers( 1, &_id );
 
