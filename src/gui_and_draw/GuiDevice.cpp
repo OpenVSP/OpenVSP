@@ -1082,14 +1082,22 @@ void CheckButtonBit::SetValAndLimits( Parm* p )
         return;
     }
 
-    IntParm* iparm = dynamic_cast< IntParm* >( p );
-    if ( iparm->Get() & m_value )
+    if ( !m_Button )
     {
-        m_Button->set();
+        return;
     }
-    else
+
+    IntParm* iparm = dynamic_cast< IntParm* >( p );
+    if ( iparm )
     {
-        m_Button->clear();
+        if ( iparm->Get() & m_value )
+        {
+            m_Button->set();
+        }
+        else
+        {
+            m_Button->clear();
+        }
     }
 }
 
