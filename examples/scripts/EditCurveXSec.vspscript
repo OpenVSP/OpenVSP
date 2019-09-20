@@ -1,0 +1,126 @@
+//
+// EditCurveXSec.vspscript - Example script demonstrating how to set geometry XSecs to "XS_EDIT_CURVE"
+// type and modify the curve shape.
+// 
+// Justin Gravett, ESAero, 7/11/19
+/////////////////////////////////////////////////////////////////////////////////////////
+
+void main()
+{
+    Print( string("Begin EditCurveXSec Example Script\n") );
+
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    SetParmVal( sid, "Tess_W", "Shape", 41 );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    // Set XSec 1 & 2 to Edit Curve type
+    ChangeXSecShape( xsec_surf, 1, XS_EDIT_CURVE );
+    ChangeXSecShape( xsec_surf, 2, XS_EDIT_CURVE );
+
+    // Force Surface Update
+    Update();
+
+    // Identify XSec 1
+    string xsec_1 = GetXSec( xsec_surf, 1 );
+
+    // Set XSec 1 to Cubic Bezier (default)
+    EditXSecConvertTo( xsec_1, CEDIT );
+
+    // Get the control points for the default shape
+    array < vec3d > xsec1_pts = GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
+
+    // Identify a control point that lies on the curve and shift it in Y
+    int move_pnt_ind = 3;
+    vec3d new_pnt = vec3d( xsec1_pts[move_pnt_ind].x(), 2 * xsec1_pts[move_pnt_ind].y(), 0.0 );
+
+    // Move the control point
+    MoveEditXSecPnt( xsec_1, move_pnt_ind, new_pnt );
+
+    // Copy XSec To Clipboard
+    CopyXSec( sid, 1 );
+    // Paste To XSec 3
+    PasteXSec( sid, 3 );
+
+    Update();
+
+    // Identify XSec 2
+    string xsec_2 = GetXSec( xsec_surf, 2 );
+
+    // Turn off R/L symmetry
+    SetParmVal( GetXSecParm( xsec_2, "SymType"), SYM_NONE );
+
+    // Set XSec 2 to linear
+    EditXSecConvertTo( xsec_2, LINEAR );
+
+    // Define a square 
+    array < vec3d > xsec2_pts(5);
+    xsec2_pts[0] = vec3d( 1.5, 1.5, 0.0 );
+    xsec2_pts[1] = vec3d( 1.5, -1.5, 0.0 );
+    xsec2_pts[2] = vec3d( -1.5, -1.5, 0.0 );
+    xsec2_pts[3] = vec3d( -1.5, 1.5, 0.0 );
+    xsec2_pts[4] = vec3d( 1.5, 1.5, 0.0 );
+
+    // u vec must start at 0.0 and end at 1.0
+    array < double > u_vec(5);
+    u_vec[0] = 0.0;
+    u_vec[1] = 0.25;
+    u_vec[2] = 0.5;
+    u_vec[3] = 0.75;
+    u_vec[4] = 1.0;
+
+    SetEditXSecPnts( xsec_2, u_vec, xsec2_pts ); // Note: points are unscaled by the width and height parms
+
+    SetXSecWidthHeight( xsec_2, 1.5, 1.5 );
+
+    // Split the square halfway along one edge
+    int new_pnt_ind = EditXSecSplit01( xsec_2, 0.375 );
+
+    // Identify the new control point and shift in Y
+    xsec2_pts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+    new_pnt = vec3d( xsec2_pts[new_pnt_ind].x(), xsec2_pts[new_pnt_ind].y() - 1.0, 0.0 );
+    MoveEditXSecPnt( xsec_2, new_pnt_ind, new_pnt );
+
+    // Reset u parameter values to align with previous and next XSec
+    xsec2_pts = GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+    u_vec.resize(6);
+    u_vec[0] = 0.0;
+    u_vec[1] = 0.125;
+    u_vec[2] = 0.25;
+    u_vec[3] = 0.375;
+    u_vec[4] = 0.5;
+    u_vec[5] = 1.0;
+    
+    SetEditXSecPnts( xsec_2, u_vec, xsec2_pts );
+    
+    // Change Positions of XSecs
+    SetParmVal( sid, "XDelta", "XSec_1", 0.0 );
+    SetParmVal( sid, "XDelta", "XSec_2", 2.5 );
+    SetParmVal( sid, "XDelta", "XSec_3", 2.5 );
+    SetParmVal( sid, "XDelta", "XSec_4", 0.0 );
+
+    Update();
+    
+    // Flatten ends
+    int num_xsecs = GetNumXSec( xsec_surf );
+    for ( int i = 0 ; i < num_xsecs ; i++ )
+    {
+        string xsec = GetXSec( xsec_surf, i );
+        SetXSecTanAngles( xsec, XSEC_BOTH_SIDES, 0 );       // Set Tangent Angles At Cross Section
+        SetXSecTanStrengths( xsec, XSEC_BOTH_SIDES, 0.0 );  // Set Tangent Strengths At Cross Section
+    }
+    
+    Update();
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+
+    Print( string("EditCurveXSec Complete\n") );
+}
