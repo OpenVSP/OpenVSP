@@ -1507,13 +1507,13 @@ void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w, string te
 }
 
 //==== Add Curve Editor ====//
-void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
+void GroupLayout::AddCurveEditor( CurveEditor& curve_editor, const string split_label, bool one_to_one_AR )
 {
     assert( m_Group && m_Screen );
 
     SetSameLineFlag( true );
 
-    AddOutput( curve_editor.m_CurveType, "Type", GetW()/2 );
+    AddOutput( curve_editor.m_CurveType, "Type", GetW() / 2 );
 
     Fl_Button* convbutton = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Convert" );
     convbutton->labelfont( 1 );
@@ -1529,7 +1529,7 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     curve_editor.m_ConvertChoice.AddItem( "Cubic Bezier" );
 
     m_ChoiceButtonWidth = 0;
-    AddChoice( curve_editor.m_ConvertChoice, "Convert to:", GetW()/2 + m_ButtonWidth );
+    AddChoice( curve_editor.m_ConvertChoice, "Convert to:", GetW() / 2 + m_ButtonWidth );
 
     AddY( m_StdHeight );
     NewLineX();
@@ -1540,9 +1540,23 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     AddYGap();
 
     int canvas_w = FitWidth( 0, m_CanvasWidth ) - 5;
+    Vsp_Canvas* canvas = NULL;
 
     AddY( 25 );
-    Vsp_Canvas *canvas = AddCanvas( canvas_w, m_CanvasHeight, 0, 1, 0, 1, "", "X", "Y" );
+
+    if ( one_to_one_AR ) // Force the aspect ratio to be 1
+    {
+        int x_prev = GetX();
+        int x_shift = max( 0.0, ( m_W - ( min( canvas_w, m_CanvasHeight ) + 80 ) ) / 2.0 );
+        AddX( x_shift );
+        canvas = AddCanvas( min( canvas_w, m_CanvasHeight ) + 60, min( canvas_w, m_CanvasHeight ) + 30, 0, 1, 0, 1, "", "X", "Y" );
+        SetX( x_prev );
+    }
+    else
+    {
+        canvas = AddCanvas( canvas_w, m_CanvasHeight, 0, 1, 0, 1, "", "X", "Y" );
+    }
+
     AddY( 25 );
 
     SetFitWidthFlag( false );
@@ -1559,49 +1573,62 @@ void GroupLayout::AddPCurveEditor( PCurveEditor & curve_editor )
     AddX( bw );
 
     SetFitWidthFlag( true );
-    AddSlider( curve_editor.m_SplitPtSlider, "r/R Split", 1, "%3.2f", m_ButtonWidth );
+    AddSlider( curve_editor.m_SplitPtSlider, split_label.c_str(), 1, "%3.2f", m_ButtonWidth );
 
-
-    Fl_Light_Button* splitpickbutton = new Fl_Light_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Pick" );
+    Fl_Light_Button* splitpickbutton = new Fl_Light_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Split Pick" );
     splitpickbutton->labelfont( 1 );
     splitpickbutton->labelsize( 12 );
     splitpickbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
-    splitpickbutton->copy_label( "Pick" );
+    splitpickbutton->copy_label( "Split Pick" );
     splitpickbutton->labelcolor( FL_DARK_BLUE );
     m_Group->add( splitpickbutton );
 
 
     ForceNewLine();
 
-    SetFitWidthFlag( true );
-    SetSameLineFlag( false );
+    SetFitWidthFlag( false );
 
-    //==== Add Delete Button ====//
+    //==== Add Delete Button and Toggle ====//
     bw = FitWidth( 0, m_ButtonWidth );
-    Fl_Light_Button* deletebutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, "Delete Control Point" );
+    Fl_Button* deletebutton = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Del" );
     deletebutton->labelfont( 1 );
     deletebutton->labelsize( 12 );
-    deletebutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
-    deletebutton->copy_label( "Delete Control Point" );
     deletebutton->labelcolor( FL_DARK_BLUE );
+    deletebutton->copy_label( "Del" );
     m_Group->add( deletebutton );
     AddX( bw );
-    AddY( m_StdHeight );
-    NewLineX();
 
+    m_ButtonWidth -= 15;
 
+    SetFitWidthFlag( true );
+
+    AddIndexSelector( curve_editor.m_PntSelector, NULL , 2 * ( m_ButtonWidth + 15 ) );
+
+    m_ButtonWidth += 15;
+
+    Fl_Light_Button* deletetoggle = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, "Del Pick" );
+    deletetoggle->labelfont( 1 );
+    deletetoggle->labelsize( 12 );
+    deletetoggle->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
+    deletetoggle->copy_label( "Del Pick" );
+    deletetoggle->labelcolor( FL_DARK_BLUE );
+    m_Group->add( deletetoggle );
+
+    ForceNewLine();
+
+    SetFitWidthFlag( true );
     SetSameLineFlag( false );
 
     AddYGap();
     AddDividerBox( "Control Points" );
 
-    Fl_Scroll *ptscroll = AddFlScroll( GetRemainY() );
+    Fl_Scroll* ptscroll = AddFlScroll( GetRemainY() );
     ptscroll->type( Fl_Scroll::VERTICAL_ALWAYS );
     ptscroll->box( FL_BORDER_BOX );
-    GroupLayout *ptlayout = new GroupLayout();
+    GroupLayout* ptlayout = new GroupLayout();
     ptlayout->SetGroupAndScreen( ptscroll, this->m_Screen );
 
-    curve_editor.Init( m_Screen, canvas, ptscroll, spbutton, convbutton, deletebutton, splitpickbutton, ptlayout );
+    curve_editor.Init( m_Screen, canvas, ptscroll, spbutton, convbutton, deletebutton, deletetoggle, splitpickbutton, ptlayout );
 }
 
 //==== Add Fl Browser ====//
