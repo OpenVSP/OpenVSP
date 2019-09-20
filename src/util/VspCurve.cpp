@@ -621,6 +621,54 @@ void VspCurve::SetCubicControlPoints( const vector< vec3d >& cntrl_pts, const ve
     }
 }
 
+void VspCurve::GetCubicControlPoints( vector< vec3d >& cntrl_pts, vector< double >& param )
+{
+    int nseg = m_Curve.number_segments();
+
+    int ncp = nseg * 3 + 1;
+
+    cntrl_pts.clear();
+    param.clear();
+
+    cntrl_pts.reserve( ncp );
+    param.reserve( ncp );
+
+    vector < double > pmap;
+    m_Curve.get_pmap( pmap );
+
+    for ( size_t i = 0; i < nseg; i++ )
+    {
+        curve_segment_type c;
+
+        m_Curve.get( c, i );
+
+        for ( size_t j = 0; j < c.degree(); j++ )
+        {
+            curve_point_type p;
+            p = c.get_control_point( j );
+
+            cntrl_pts.push_back( p );
+        }
+
+        double tstart = pmap[i];
+        double tend = pmap[i + 1];
+        double dt = tend - tstart;
+
+        param.push_back( tstart );
+        param.push_back( tstart + dt / 3.0 );
+        param.push_back( tend - dt / 3.0 );
+
+        if ( i == nseg - 1 )
+        {
+            curve_point_type p;
+            p = c.get_control_point( 3 );
+
+            cntrl_pts.push_back( p );
+            param.push_back( tend );
+        }
+    }
+}
+
 //===== Interpolate ====//
 //void VspCurve::Interpolate( vector< vec3d > & ip_vec, vector< VspPntData > & data_vec, bool closed_flag )
 //{
