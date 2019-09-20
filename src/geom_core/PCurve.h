@@ -63,8 +63,8 @@ public:
 
     virtual void SetPt( double t, double v, int indx );
 
-    virtual void Split();
-    virtual void Split( const double & tsplit );
+    virtual int Split();
+    virtual int Split( const double & tsplit );
 
     virtual double GetRFirst();
     virtual double GetRLast();
@@ -98,6 +98,9 @@ public:
 
     virtual Vsp1DCurve * GetCurve()    { return &m_Curve; }
 
+    virtual void SetSelectPntID( int id );
+    virtual int GetSelectedPntID() { return m_SelectPntID; }
+
 protected:
 
     virtual void ValidateCEDIT();
@@ -115,6 +118,9 @@ protected:
 
     string m_XParmName;
     string m_YParmName;
+
+    int m_SelectPntID;
+
 };
 
 #endif // !defined(VSP_PCURVE__INCLUDED_)

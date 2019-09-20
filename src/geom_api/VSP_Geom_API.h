@@ -334,7 +334,7 @@ extern int PCurveGetType( const std::string & geom_id, const int & pcurveid );
 extern std::vector < double > PCurveGetTVec( const std::string & geom_id, const int & pcurveid );
 extern std::vector < double > PCurveGetValVec( const std::string & geom_id, const int & pcurveid );
 extern void PCurveDeletePt( const std::string & geom_id, const int & pcurveid, const int & indx );
-extern void PCurveSplit( const std::string & geom_id, const int & pcurveid, const double & tsplit );
+extern int PCurveSplit( const std::string & geom_id, const int & pcurveid, const double & tsplit );
 
 //======================== VSPAERO Functions ======================//
 extern void AutoGroupVSPAEROControlSurfaces();

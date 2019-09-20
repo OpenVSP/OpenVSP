@@ -5096,21 +5096,21 @@ void PCurveDeletePt( const string & geom_id, const int & pcurveid, const int & i
     ErrorMgr.NoError();
 }
 
-void PCurveSplit( const string & geom_id, const int & pcurveid, const double & tsplit )
+int PCurveSplit( const string & geom_id, const int & pcurveid, const double & tsplit )
 {
     Vehicle* veh = GetVehicle();
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveSplit::Can't Find Geom " + geom_id );
-        return;
+        return -1;
     }
 
     PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
     if ( !prop_ptr )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveSplit::Geom doesn't support PCurves " + geom_id );
-        return;
+        return -1;
     }
 
     PCurve *pc = NULL;
@@ -5123,7 +5123,7 @@ void PCurveSplit( const string & geom_id, const int & pcurveid, const double & t
     if ( !pc )
     {
         ErrorMgr.AddError( VSP_INVALID_ID, "PCurveSplit::PCurve not found " + geom_id + " " + to_string( pcurveid ) );
-        return;
+        return -1;
     }
 
     return pc->Split( tsplit );

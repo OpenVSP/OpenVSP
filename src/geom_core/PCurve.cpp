@@ -27,6 +27,8 @@ void PCurve::InitParms()
 
     m_SplitPt.Init( "SplitPt", m_GroupName, this, 0.5, -1.0e12, 1.0e12 );
     m_SplitPt.SetDescript( "Curve split location" );
+
+    m_SelectPntID = 0;
 }
 
 void PCurve::ReservePts( int n )
@@ -166,6 +168,8 @@ void PCurve::DeletePt( int indx )
         }
 
         RenameParms();
+
+        m_SelectPntID = 0;
 
         m_LateUpdateFlag = true;
         ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
@@ -561,14 +565,44 @@ void PCurve::SetPt( double t, double v, int indx )
     }
 }
 
-void PCurve::Split()
+int PCurve::Split()
 {
     double tsplit = m_SplitPt();
-    Split( tsplit );
+    return Split( tsplit );
 }
 
-void PCurve::Split( const double & tsplit )
+int PCurve::Split( const double & tsplit )
 {
+    // Identify the index of the new point
+    m_SelectPntID = 0;
+
+    vector < double > tvec = GetTVec();
+
+    if ( m_CurveType() == vsp::CEDIT )
+    {
+        int nseg = ( (int)tvec.size() - 1 ) / 3;
+
+        for ( size_t i = 0; i < nseg; i++ )
+        {
+            if ( tsplit > tvec[i * 3] && tsplit < tvec[3 * ( i + 1 )] )
+            {
+                m_SelectPntID = 3 * ( (int)i + 1 );
+                break;
+            }
+        }
+    }
+    else
+    {
+        for ( size_t i = 0; i < tvec.size() - 1; i++ )
+        {
+            if ( tsplit > tvec[i] && tsplit < tvec[i + 1] )
+            {
+                m_SelectPntID = (int)i + 1;
+                break;
+            }
+        }
+    }
+
     switch( m_CurveType() )
     {
     case vsp::LINEAR:
@@ -632,6 +666,8 @@ void PCurve::Split( const double & tsplit )
 
     m_LateUpdateFlag = true;
     ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+
+    return m_SelectPntID;
 }
 
 void PCurve::ConvertTo( int newtype )
@@ -724,6 +760,9 @@ void PCurve::ConvertTo( int newtype )
     }
 
     RenameParms();
+
+    // Reset selected control point (due to potentially added/removed points)
+    m_SelectPntID = 0;
 
     m_LateUpdateFlag = true;
     ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
@@ -852,4 +891,26 @@ void PCurve::GetTMap( vector < double > &tmap, vector < double > &tdisc )
     }
 
     m_Curve.GetTMap( tmap, tdisc );
+}
+
+void PCurve::SetSelectPntID( int id )
+{
+    if ( id < 0 || id > m_TParmVec.size() - 1 )
+    {
+        return;
+    }
+
+    if ( m_CurveType() == vsp::CEDIT )
+    {
+        if ( id % 3 == 1 )
+        {
+            m_EnforceG1Next = true;
+        }
+        else if ( id % 3 == 2 )
+        {
+            m_EnforceG1Next = false;
+        }
+    }
+
+    m_SelectPntID = id;
 }
