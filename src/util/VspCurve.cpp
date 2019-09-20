@@ -591,6 +591,36 @@ void VspCurve::SetCubicControlPoints( const vector< vec3d > & cntrl_pts )
     }
 }
 
+void VspCurve::SetCubicControlPoints( const vector< vec3d >& cntrl_pts, const vector< double >& param )
+{
+    int ncp = cntrl_pts.size();
+    int nseg = ( ncp - 1 ) / 3;
+
+    assert( ncp == param.size() );
+
+    m_Curve.clear();
+    m_Curve.set_t0( param[0] );
+
+    for ( int i = 0; i < nseg; i++ )
+    {
+        curve_segment_type c;
+        c.resize( 3 );
+
+        for ( int j = 0; j < 4; j++ )
+        {
+            int k = i * 3 + j;
+
+            vec3d p = cntrl_pts[k];
+
+            curve_point_type cp;
+            cp << p.x(), p.y(), p.z();
+
+            c.set_control_point( cp, j );
+        }
+        m_Curve.push_back( c, param[3 * ( i + 1 )] - param[3 * i] );
+    }
+}
+
 //===== Interpolate ====//
 //void VspCurve::Interpolate( vector< vec3d > & ip_vec, vector< VspPntData > & data_vec, bool closed_flag )
 //{

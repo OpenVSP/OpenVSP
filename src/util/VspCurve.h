@@ -72,7 +72,8 @@ public:
 
     void ToBinaryCubic( bool wingtype );
 
-    void SetCubicControlPoints( const vector< vec3d > & cntrl_pts );
+    void SetCubicControlPoints( const vector< vec3d > & cntrl_pts ); // Automatic curve parameterization
+    void SetCubicControlPoints( const vector < vec3d > & cntrl_pts, const vector < double > & param ); // Specify curve parameterization
 
     const piecewise_curve_type & GetCurve() const;
     void SetCurve( const piecewise_curve_type &c );
