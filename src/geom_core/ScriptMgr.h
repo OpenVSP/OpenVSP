@@ -170,6 +170,10 @@ private:
     CScriptArray* GetUpperCSTCoefs( const string & xsec_id );
     CScriptArray* GetLowerCSTCoefs( const string & xsec_id );
 
+    CScriptArray* GetEditXSecUVec( const string& xsec_id );
+    CScriptArray* GetEditXSecCtrlVec( const string & xsec_id, const bool non_dimensional );
+    void SetEditXSecPnts( const string & xsec_id, CScriptArray* t_vec, CScriptArray* control_pts );
+
     void DeleteGeomVec( CScriptArray* del_arr );
 
     void SetXSecPnts( const string& xsec_id, CScriptArray* pnt_arr );

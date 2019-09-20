@@ -1095,6 +1095,19 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "GENDER", "FEMALE", FEMALE );
     assert( r >= 0 );
 
+//    comment_str = R"(
+///*!
+//    EditCurveEXec initialization types
+//*/)";
+    r = se->RegisterEnum( "INIT_EDIT_XSEC_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_CIRCLE", EDIT_XSEC_CIRCLE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_ELLIPSE", EDIT_XSEC_ELLIPSE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_RECTANGLE", EDIT_XSEC_RECTANGLE );
+    assert( r >= 0 );
+
     r = se->RegisterEnum( "IMPORT_TYPE" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_STL", IMPORT_STL );
@@ -1415,6 +1428,12 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "SYM_FLAG", "SYM_NUM_TYPES", SYM_NUM_TYPES );
     assert( r >= 0 );
 
+    r = se->RegisterEnum( "SYM_XSEC_TYPE" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_XSEC_TYPE", "SYM_NONE", SYM_NONE );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "SYM_XSEC_TYPE", "SYM_RL", SYM_RL );
+
     r = se->RegisterEnum( "TEMP_UNITS" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "TEMP_UNITS", "TEMP_UNIT_K", TEMP_UNIT_K );
@@ -1648,7 +1667,7 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_WEDGE", XS_WEDGE );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_BEZIER", XS_BEZIER );
+    r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_EDIT_CURVE", XS_EDIT_CURVE );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "XSEC_CRV_TYPE", "XS_FILE_AIRFOIL", XS_FILE_AIRFOIL );
     assert( r >= 0 );
@@ -2366,6 +2385,98 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void WriteSeligAirfoil( const string& in file_name, const string& in geom_id, const double foilsurf_u )", asFUNCTION( vsp::WriteSeligAirfoil ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "array<vec3d>@ GetAirfoilCoordinates( const string& in geom_id, const double foilsurf_u )", asMETHOD( ScriptMgrSingleton, GetAirfoilCoordinates ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+    //==== Edit Curve XSec Functions ====//
+//    comment_str = R"(
+///*!
+//    Initialize the EditCurveXSec to the current value of m_ShapeType (i.e. EDIT_XSEC_ELLIPSE)
+//    \sa INIT_EDIT_XSEC_TYPE
+//    \param xsec_id XSec ID
+//*/)";
+    r = se->RegisterGlobalFunction( "void EditXSecInitShape( const string& in xsec_id )", asFUNCTION( vsp::EditXSecInitShape ), asCALL_CDECL );
+    assert( r >= 0 );
+
+//    comment_str = R"(
+///*!
+//    Convert the EditCurveXSec curve type to the specified new type. Note, EditCurveXSec uses the same enumerations for PCurve to identify curve type.
+//    \sa PCURV_TYPE
+//    \param newtype New curve type enum (i.e. CEDIT)
+//    \param xsec_id XSec ID
+//*/)";
+    r = se->RegisterGlobalFunction( "void EditXSecConvertTo( const string& in xsec_id, const int& in newtype )", asFUNCTION( vsp::EditXSecConvertTo ), asCALL_CDECL );
+    assert( r >= 0 );
+
+//    comment_str = R"(
+///*!
+//    Get the U parameter vector for an EditCurveXSec. The vector will be in increasing order with a range of 0 - 1. 
+//    \param xsec_id XSec ID
+//    \return Array of U parameter values
+//*/)";
+    r = se->RegisterGlobalFunction( "array<double>@ GetEditXSecUVec( const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetEditXSecUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+//    comment_str = R"(
+///*!
+//    Get the control point vector for an EditCurveXSec. Note, the returned array of vec3d values will be represented in 2D with Z set to 0.
+//    \param xsec_id XSec ID
+//    \param non_dimensional True to get the points non-dimensionalized, False to get them scaled by m_Width and m_Height
+//    \return Array of control points
+//*/)";
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetEditXSecCtrlVec( const string& in xsec_id, const bool non_dimensional = true )", asMETHOD( ScriptMgrSingleton, GetEditXSecCtrlVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+//    comment_str = R"(
+///*!
+//    Set the U parameter vector and the control point vector for an EditCurveXSec. The arrays must be of equal length, with the values for U defined in 
+//    increasing order and range 0 - 1. The XSec is nondimentionalized and 2D, so the input control points wil be scaled by m_Width and m_Height and the 
+//    Z values will be ignred. 
+//    \param xsec_id XSec ID
+//    \param u_vec Array of U parameter values
+//    \param control_pts Array of control points
+//*/)";
+    r = se->RegisterGlobalFunction( "void SetEditXSecPnts( const string& in xsec_id, array<double>@ u_vec, array<vec3d>@ control_pts )", asMETHOD( ScriptMgrSingleton, SetEditXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+
+//    comment_str = R"(
+///*!
+//    Delete an EditCurveXSec control point. Note, cubic Bezier intermediate control points (those not on the curve) cannot be deleted.
+//    The previous and next Bezier control point will be deleted along with the point on the curve. Regardless of curve type, the first
+//    and last points may not be deleted. 
+//    \param xsec_id XSec ID
+//    \param indx Control point index
+//*/)";
+    r = se->RegisterGlobalFunction( "void EditXSecDelPnt( const string& in xsec_id, const int& in indx )", asFUNCTION( vsp::EditXSecDelPnt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+//    comment_str = R"(
+///*!
+//    Split the EditCurveXSec at the specified U value
+//    \param xsec_id XSec ID
+//    \param u U value to split the curve at (0 - 1)
+//    \return Index of the point added from the split
+//*/)";
+    r = se->RegisterGlobalFunction( "int EditXSecSplit01( const string& in xsec_id, const double& in u )", asFUNCTION( vsp::EditXSecSplit01 ), asCALL_CDECL );
+    assert( r >= 0 );
+
+//    comment_str = R"(
+///*!
+//    Move an EditCurveXSec control point. The XSec points are nondimensionalized by m_Width and m_Height and 
+//    defined in 2D, so the Z value of the new coordinate point will be ignored.
+//    \param xsec_id XSec ID
+//    \param xndx Control point index
+//    \param new_pnt Coordinate of the new point
+//*/)";
+    r = se->RegisterGlobalFunction( "void MoveEditXSecPnt( const string& in xsec_id, const int& in indx, const vec3d& in new_pnt )", asFUNCTION( vsp::MoveEditXSecPnt ), asCALL_CDECL );
+    assert( r >= 0 );
+
+//    comment_str = R"(
+///*!
+//    Convert any XSec type into an EditCurveXSec. This function will work for BOR Geoms, in which case the input XSec index is ignored.
+//    \param geom_id Geom ID
+//    \param indx XSec index
+//*/)";
+    r = se->RegisterGlobalFunction( "void ConvertXSecToEdit( const string& in geom_id, const int& in indx = 0 )", asFUNCTION( vsp::ConvertXSecToEdit ), asCALL_CDECL );
     assert( r >= 0 );
 
     //==== Specialized Geom Functions ====//
@@ -3099,6 +3210,40 @@ void ScriptMgrSingleton::SetLowerCST( const string& xsec_id, int deg, CScriptArr
     }
 
     vsp::SetLowerCST( xsec_id, deg, coefs_vec );
+}
+
+//==== Edit Curve XSec Functions ====//
+CScriptArray* ScriptMgrSingleton::GetEditXSecUVec( const std::string& xsec_id )
+{
+    m_ProxyDoubleArray = vsp::GetEditXSecUVec( xsec_id );
+
+    return GetProxyDoubleArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetEditXSecCtrlVec( const std::string & xsec_id, const bool non_dimensional )
+{
+    m_ProxyVec3dArray = vsp::GetEditXSecCtrlVec( xsec_id, non_dimensional );
+
+    return GetProxyVec3dArray();
+}
+
+void ScriptMgrSingleton::SetEditXSecPnts( const string & xsec_id, CScriptArray* u_vec, CScriptArray* control_pts )
+{
+    vector < vec3d > control_pnt_vec( control_pts->GetSize() );
+
+    for ( int i = 0; i < (int)control_pts->GetSize(); i++ )
+    {
+        control_pnt_vec[i] = *(vec3d*)( control_pts->At( i ) );
+    }
+
+    vector < double > new_u_vec( u_vec->GetSize() );
+
+    for ( int i = 0; i < (int)u_vec->GetSize(); i++ )
+    {
+        new_u_vec[i] = *(double*)( u_vec->At( i ) );
+    }
+
+    vsp::SetEditXSecPnts( xsec_id, new_u_vec, control_pnt_vec );
 }
 
 //==== Variable Preset Functions ====//
