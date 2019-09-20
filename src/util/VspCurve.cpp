@@ -1759,3 +1759,8 @@ double VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk
 
     return r;
 }
+
+void VspCurve::ToCubic( double tol )
+{
+    m_Curve.to_cubic( tol );
+}

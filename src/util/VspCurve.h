@@ -157,6 +157,8 @@ public:
 
     double CreateRoundedRectangle( double w, double h, double k, double sk, double r, bool keycorner = true );
 
+    void ToCubic( double tol = 0.1 );
+
 protected:
     piecewise_curve_type m_Curve;
 
