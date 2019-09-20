@@ -117,7 +117,7 @@ StackScreen::StackScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "Stack" 
     m_XSecTypeChoice.AddItem( "SIX_SERIES" );
     m_XSecTypeChoice.AddItem( "BICONVEX" );
     m_XSecTypeChoice.AddItem( "WEDGE" );
-    m_XSecTypeChoice.AddItem( "BEZIER" );
+    m_XSecTypeChoice.AddItem( "EDIT_CURVE" );
     m_XSecTypeChoice.AddItem( "AF_FILE" );
     m_XSecTypeChoice.AddItem( "CST_AIRFOIL" );
     m_XSecTypeChoice.AddItem( "KARMAN_TREFFTZ" );
@@ -935,6 +935,11 @@ bool StackScreen::Update()
                 m_OneSixSeriesNameOutput.Update( fs_xs->GetAirfoilName() );
                 m_OneSixSeriesSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
             }
+            else if ( xsc->GetType() == XS_EDIT_CURVE )
+            {
+                DisplayGroup( NULL );
+            }
+
         }
     }
     return true;

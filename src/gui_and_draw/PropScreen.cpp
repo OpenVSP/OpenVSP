@@ -242,7 +242,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 760, "Propeller
     m_XSecTypeChoice.AddItem( "SIX_SERIES" );
     m_XSecTypeChoice.AddItem( "BICONVEX" );
     m_XSecTypeChoice.AddItem( "WEDGE" );
-    m_XSecTypeChoice.AddItem( "BEZIER" );
+    m_XSecTypeChoice.AddItem( "EDIT_CURVE" );
     m_XSecTypeChoice.AddItem( "AF_FILE" );
     m_XSecTypeChoice.AddItem( "CST_AIRFOIL" );
     m_XSecTypeChoice.AddItem( "KARMAN_TREFFTZ" );
@@ -1358,6 +1358,11 @@ bool PropScreen::Update()
                 m_OneSixSeriesDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
                 m_OneSixSeriesSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
             }
+            else if ( xsc->GetType() == XS_EDIT_CURVE )
+            {
+                DisplayGroup( NULL );
+            }
+
         }
 
 

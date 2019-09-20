@@ -228,7 +228,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_AfTypeChoice.AddItem( "SIX_SERIES" );
     m_AfTypeChoice.AddItem( "BICONVEX" );
     m_AfTypeChoice.AddItem( "WEDGE" );
-    m_AfTypeChoice.AddItem( "BEZIER" );
+    m_AfTypeChoice.AddItem( "EDIT_CURVE" );
     m_AfTypeChoice.AddItem( "AF_FILE" );
     m_AfTypeChoice.AddItem( "CST_AIRFOIL" );
     m_AfTypeChoice.AddItem( "KARMAN_TREFFTZ" );
@@ -1314,6 +1314,11 @@ bool WingScreen::Update()
                 m_OneSixSeriesDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
                 m_OneSixSeriesSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
             }
+            else if ( xsc->GetType() == XS_EDIT_CURVE )
+            {
+                DisplayGroup( NULL );
+            }
+
 
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
             m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );

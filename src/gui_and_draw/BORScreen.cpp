@@ -82,7 +82,7 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
     m_XSecTypeChoice.AddItem( "SIX_SERIES" );
     m_XSecTypeChoice.AddItem( "BICONVEX" );
     m_XSecTypeChoice.AddItem( "WEDGE" );
-    m_XSecTypeChoice.AddItem( "BEZIER" );
+    m_XSecTypeChoice.AddItem( "EDIT_CURVE" );
     m_XSecTypeChoice.AddItem( "AF_FILE" );
     m_XSecTypeChoice.AddItem( "CST_AIRFOIL" );
     m_XSecTypeChoice.AddItem( "KARMAN_TREFFTZ" );
@@ -980,6 +980,11 @@ bool BORScreen::Update()
             m_OneSixSeriesNameOutput.Update( fs_xs->GetAirfoilName() );
             m_OneSixSeriesSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
         }
+        else if ( xsc->GetType() == vsp::XS_EDIT_CURVE )
+        {
+            DisplayGroup( NULL );
+        }
+
 
         m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
         m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
