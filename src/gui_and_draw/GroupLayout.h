@@ -116,6 +116,7 @@ public:
     void SetChoiceButtonWidth( int w )  { m_ChoiceButtonWidth = w; }
     int GetChoiceButtonWidth()          { return m_ChoiceButtonWidth; }
     void SetRangeButtonWidth( int w )   { m_RangeButtonWidth = w; }
+    int GetRangeButtonWidth()           { return m_RangeButtonWidth; }
     void SetInputWidth( int w )         { m_InputWidth = w; }
     int GetInputWidth()                 { return m_InputWidth; }
     void SetSliderWidth( int w )        { m_SliderWidth = w; }
