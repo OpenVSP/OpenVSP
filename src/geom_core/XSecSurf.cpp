@@ -188,6 +188,10 @@ XSecCurve* XSecSurf::CreateXSecCurve( int type )
     {
         xscrv_ptr = new OneSixSeries( );
     }
+    else if ( type == XS_EDIT_CURVE )
+    {
+        xscrv_ptr = new EditCurveXSec( );
+    }
 
     return xscrv_ptr;
 }
