@@ -3989,6 +3989,245 @@ vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const doubl
 }
 
 //===================================================================//
+//===============      Edit XSec Functions        ===================//
+//===================================================================//
+
+void EditXSecInitShape( const std::string & xsec_id )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "EditXSecInitShape::Can't Find XSec " + xsec_id );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecInitShape::XSec Not XS_EDIT_CURVE Type" );
+        return;
+    }
+
+    EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
+    assert( edit_xs );
+
+    ErrorMgr.NoError();
+
+    edit_xs->InitShape();
+}
+
+void EditXSecConvertTo( const std::string & xsec_id, const int & newtype )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "EditXSecConvertTo::Can't Find XSec " + xsec_id );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecConvertTo::XSec Not XS_EDIT_CURVE Type" );
+        return;
+    }
+
+    EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
+    assert( edit_xs );
+
+    ErrorMgr.NoError();
+    
+    edit_xs->ConvertTo( newtype );
+}
+
+vector < double > GetEditXSecUVec( const std::string& xsec_id )
+{
+    vector < double > ret_vec;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetEditXSecUVec::Can't Find XSec " + xsec_id );
+        return ret_vec;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetEditXSecUVec::XSec Not XS_EDIT_CURVE Type" );
+        return ret_vec;
+    }
+
+    EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
+    assert( edit_xs );
+
+    ErrorMgr.NoError();
+
+    return edit_xs->GetUVec();
+}
+
+vector < vec3d > GetEditXSecCtrlVec( const std::string& xsec_id, const bool non_dimensional )
+{
+    vector < vec3d > ret_vec;
+
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetEditXSecCtrlVec::Can't Find XSec " + xsec_id );
+        return ret_vec;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetEditXSecCtrlVec::XSec Not XS_EDIT_CURVE Type" );
+        return ret_vec;
+    }
+
+    EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
+    assert( edit_xs );
+
+    ErrorMgr.NoError();
+
+    return edit_xs->GetCtrlPntVec( non_dimensional );
+}
+
+void SetEditXSecPnts( const std::string & xsec_id, vector < double > u_vec, vector < vec3d > control_pts )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetEditXSecPnts::Can't Find XSec " + xsec_id );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetEditXSecPnts::XSec Not XS_EDIT_CURVE Type" );
+        return;
+    }
+
+    EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
+    assert( edit_xs );
+
+    ErrorMgr.NoError();
+
+    edit_xs->SetPntVecs( u_vec, control_pts );
+}
+
+void EditXSecDelPnt( const std::string & xsec_id, const int & indx )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "EditXSecDelPnt::Can't Find XSec " + xsec_id );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecDelPnt::XSec Not XS_EDIT_CURVE Type" );
+        return;
+    }
+
+    EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
+    assert( edit_xs );
+
+    ErrorMgr.NoError();
+
+    return edit_xs->DeletePt( indx );
+}
+
+int EditXSecSplit01( const std::string & xsec_id, const double & u )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "EditXSecSplit01::Can't Find XSec " + xsec_id );
+        return -1;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "EditXSecSplit01::XSec Not XS_EDIT_CURVE Type" );
+        return -1;
+    }
+
+    EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
+    assert( edit_xs );
+
+    ErrorMgr.NoError();
+
+    return edit_xs->Split01( u );
+}
+
+void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d & new_pnt )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "MoveEditXSecPnt::Can't Find XSec " + xsec_id );
+        return;
+    }
+
+    if ( xs->GetXSecCurve()->GetType() != XS_EDIT_CURVE )
+    {
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "MoveEditXSecPnt::XSec Not XS_EDIT_CURVE Type" );
+        return;
+    }
+
+    EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
+    assert( edit_xs );
+
+    ErrorMgr.NoError();
+
+    return edit_xs->MovePnt(  indx, new_pnt, true );
+
+}
+
+void ConvertXSecToEdit( const std::string & geom_id, const int & indx )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ConvertXSecToEdit::Can't Find Geom " + geom_id );
+        return;
+    }
+
+    if ( geom_ptr->GetType().m_Type == BOR_GEOM_TYPE )
+    {
+        BORGeom* bor_ptr = dynamic_cast<BORGeom*> ( geom_ptr );
+        if ( !bor_ptr )
+        {
+            ErrorMgr.AddError( VSP_INVALID_TYPE, "ConvertXSecToEdit::Geom " + geom_id + " is not a body of revolution" );
+            return;
+        }
+
+        bor_ptr->ConvertToEdit();
+        ErrorMgr.NoError();
+        return;
+    }
+    else
+    {
+        GeomXSec* geom_xsec = dynamic_cast <GeomXSec*> ( geom_ptr );
+        if ( !geom_xsec )
+        {
+            ErrorMgr.AddError( VSP_INVALID_TYPE, "ConvertXSecToEdit::Geom " + geom_id + " is not a GeomXSec" );
+            return;
+        }
+
+        XSec* xs = geom_xsec->GetXSec( indx );
+
+        if ( !xs )
+        {
+            ErrorMgr.AddError( VSP_INVALID_PTR, "ConvertXSecToEdit::Can't Find XSec " + to_string( indx ) );
+            return;
+        }
+
+        xs->ConvertToEdit( );
+        ErrorMgr.NoError();
+        return;
+    }
+}
+
+//===================================================================//
 //===============       Set Functions            ===================//
 //===================================================================//
 

@@ -252,6 +252,17 @@ extern void WriteBezierAirfoil( const std::string & file_name, const std::string
 extern void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_id, const double &foilsurf_u );
 extern std::vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const double &foilsurf_u );
 
+//======================== Edit Curve XSec Functions ======================//
+extern void EditXSecInitShape( const std::string & xsec_id );
+extern void EditXSecConvertTo( const std::string & xsec_id, const int & newtype );
+extern std::vector < double > GetEditXSecUVec( const std::string& xsec_id );
+extern std::vector < vec3d > GetEditXSecCtrlVec( const std::string & xsec_id, const bool non_dimensional = true );
+extern void SetEditXSecPnts( const std::string & xsec_id, vector < double > u_vec, vector < vec3d > control_pts );
+extern void EditXSecDelPnt( const std::string & xsec_id, const int & indx );
+extern int EditXSecSplit01( const std::string & xsec_id, const double & u );
+extern void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d & new_pnt );
+extern void ConvertXSecToEdit( const std::string & geom_id, const int & indx = 0 );
+
 //======================== Sets ================================//
 extern int GetNumSets();
 extern void SetSetName( int index, const std::string& name );
