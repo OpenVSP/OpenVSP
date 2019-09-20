@@ -662,3 +662,134 @@ void APITestSuite::TestFEAMesh()
 
     printf( "COMPLETE\n" );
 }
+
+void APITestSuite::TestEditXSec()
+{
+    printf( "APITestSuite::TestEditXSec()\n" );
+
+    // Make sure setup works
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+
+    // Add Stack
+    string sid = vsp::AddGeom( "STACK", "" );
+    TEST_ASSERT( sid.c_str() != NULL );
+
+    TEST_ASSERT_DELTA( vsp::SetParmVal( sid, "Tess_W", "Shape", 41 ), 41, TEST_TOL );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = vsp::GetXSecSurf( sid, 0 );
+    TEST_ASSERT( xsec_surf.c_str() != NULL );
+
+    // Set XSec 1 & 2 to Edit Curve type
+    vsp::ChangeXSecShape( xsec_surf, 1, vsp::XS_EDIT_CURVE );
+    vsp::ChangeXSecShape( xsec_surf, 2, vsp::XS_EDIT_CURVE );
+
+    // Force Surface Update
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+
+    // Identify XSec 1
+    string xsec_1 = vsp::GetXSec( xsec_surf, 1 );
+    TEST_ASSERT( xsec_1.c_str() != NULL );
+
+    // Set XSec 1 to Cubic Bezier (default)
+    vsp::EditXSecConvertTo( xsec_1, vsp::CEDIT );
+
+    // Get the control points for the default shape
+    vector < vec3d > xsec1_pts = vsp::GetEditXSecCtrlVec( xsec_1, true ); // The returned control points will not be scaled by width and height
+
+    // Identify a control point that lies on the curve and shift it in X and Y
+    int move_pnt_ind = 3;
+    vec3d new_pnt = vec3d( 2 * xsec1_pts[move_pnt_ind].x(), 2 * xsec1_pts[move_pnt_ind].y(), 0.0 );
+
+    // Move the control point
+    vsp::MoveEditXSecPnt( xsec_1, move_pnt_ind, new_pnt );
+
+    // Copy XSec To Clipboard
+    vsp::CopyXSec( sid, 1 );
+    // Paste To XSec 3
+    vsp::PasteXSec( sid, 3 );
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+
+    // Identify XSec 2
+    string xsec_2 = vsp::GetXSec( xsec_surf, 2 );
+    TEST_ASSERT( xsec_2.c_str() != NULL );
+
+    // Turn off R/L symmetry
+    TEST_ASSERT_DELTA( vsp::SetParmVal( vsp::GetXSecParm( xsec_2, "SymType" ), vsp::SYM_NONE ), vsp::SYM_NONE, TEST_TOL ); // TODO: Use enum
+
+    // Set XSec 2 to linear
+    vsp::EditXSecConvertTo( xsec_2, vsp::LINEAR );
+
+    // Define a square 
+    vector < vec3d > xsec2_pts( 5 );
+    xsec2_pts[0] = vec3d( 1.5, 1.5, 0.0 );
+    xsec2_pts[1] = vec3d( 1.5, -1.5, 0.0 );
+    xsec2_pts[2] = vec3d( -1.5, -1.5, 0.0 );
+    xsec2_pts[3] = vec3d( -1.5, 1.5, 0.0 );
+    xsec2_pts[4] = vec3d( 1.5, 1.5, 0.0 );
+
+    // u vec must start at 0.0 and end at 1.0
+    vector < double > u_vec( 5 );
+    u_vec[0] = 0.0;
+    u_vec[1] = 0.25;
+    u_vec[2] = 0.5;
+    u_vec[3] = 0.75;
+    u_vec[4] = 1.0;
+
+    vsp::SetEditXSecPnts( xsec_2, u_vec, xsec2_pts );  // Note: points are unscaled by the width and height parms
+
+    vsp::SetXSecWidthHeight( xsec_2, 1.5, 1.5 );
+
+    // Split the square halfway along one edge
+    int new_pnt_ind = vsp::EditXSecSplit01( xsec_2, 0.375 );
+
+    // Identify the new control point and shift in Y
+    xsec2_pts = vsp::GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+    new_pnt = vec3d( xsec2_pts[new_pnt_ind].x(), xsec2_pts[new_pnt_ind].y() - 1.0, 0.0 );
+    vsp::MoveEditXSecPnt( xsec_2, new_pnt_ind, new_pnt );
+    
+    // Reset T parameter values to align with previous and next XSec
+    xsec2_pts = vsp::GetEditXSecCtrlVec( xsec_2, true ); // The returned control points will not be scaled by width and height
+    u_vec.resize( 6 );
+    u_vec[0] = 0.0;
+    u_vec[1] = 0.125;
+    u_vec[2] = 0.25;
+    u_vec[3] = 0.375;
+    u_vec[4] = 0.5;
+    u_vec[5] = 1.0;
+
+    vsp::SetEditXSecPnts( xsec_2, u_vec, xsec2_pts );
+
+    // Change Positions of XSecs
+    TEST_ASSERT_DELTA( vsp::SetParmVal( sid, "XDelta", "XSec_1", 0.0 ), 0.0, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( sid, "XDelta", "XSec_2", 2.5 ), 2.5, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( sid, "XDelta", "XSec_3", 2.5 ), 2.5, TEST_TOL );
+    TEST_ASSERT_DELTA( vsp::SetParmVal( sid, "XDelta", "XSec_4", 0.0 ), 0.0, TEST_TOL );
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+
+    // Flatten ends
+    int num_xsecs = vsp::GetNumXSec( xsec_surf );
+    for ( int i = 0; i < num_xsecs; i++ )
+    {
+        string xsec = vsp::GetXSec( xsec_surf, i );
+        TEST_ASSERT( xsec.c_str() != NULL );
+        vsp::SetXSecTanAngles( xsec, vsp::XSEC_BOTH_SIDES, 0, -1.0e12, -1.0e12, -1.0e12 );       // Set Tangent Angles At Cross Section
+        vsp::SetXSecTanStrengths( xsec, vsp::XSEC_BOTH_SIDES, 0, -1.0e12, -1.0e12, -1.0e12 );  // Set Tangent Strengths At Cross Section
+    }
+
+    vsp::Update();
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );
+    printf( "\n" );
+
+    printf( "COMPLETE\n" );
+}

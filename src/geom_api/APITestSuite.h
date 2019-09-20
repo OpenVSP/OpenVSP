@@ -37,6 +37,8 @@ public:
         TEST_ADD( APITestSuite::TestSaveLoad )
         // FEA Mesh
         TEST_ADD( APITestSuite::TestFEAMesh )
+        // XSec
+        TEST_ADD( APITestSuite::TestEditXSec )
     }
 
 private:
@@ -57,6 +59,8 @@ private:
     void TestSaveLoad();
     // FEA Mesh
     void TestFEAMesh();
+    // XSec
+    void TestEditXSec();
 };
 
 #endif // !defined(VSPAPITESTSUITE__INCLUDED_)
