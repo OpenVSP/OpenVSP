@@ -196,6 +196,16 @@ public:
     virtual void DeviceCB( Fl_Widget* w );
     virtual void SetButtonNameUpdate( bool flag )   { m_ButtonNameUpdate = flag; }
 
+    virtual void SetLabelColor( Fl_Color color )
+    {
+        m_Button->labelcolor( color );
+    }
+
+    virtual void ResetLabelColor()
+    {
+        m_Button->labelcolor( FL_BLACK );
+    }
+
 protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr );
@@ -638,6 +648,16 @@ public:
         m_ParmButton.SetIndex( index );
     }
     virtual void DeviceCB( Fl_Widget* w )           {}
+
+    virtual void SetLabelColor( Fl_Color color )
+    {
+        m_ParmButton.SetLabelColor( color );
+    }
+
+    virtual void ResetLabelColor()
+    {
+        m_ParmButton.ResetLabelColor();
+    }
 
 protected:
 
