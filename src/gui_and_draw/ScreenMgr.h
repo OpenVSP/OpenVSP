@@ -35,6 +35,7 @@ public:
            VSP_CLIPPING_SCREEN,
            VSP_COMP_GEOM_SCREEN,
            VSP_COR_SCREEN,
+           VSP_CURVE_EDIT_SCREEN,
            VSP_DEGEN_GEOM_SCREEN,
            VSP_DESIGN_VAR_SCREEN,
            VSP_DXF_OPTIONS_SCREEN,

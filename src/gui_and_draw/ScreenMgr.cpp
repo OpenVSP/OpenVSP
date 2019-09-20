@@ -13,6 +13,7 @@
 #include "CfdMeshScreen.h"
 #include "ClippingScreen.h"
 #include "CompGeomScreen.h"
+#include "CurveEditScreen.h"
 #include "DegenGeomScreen.h"
 #include "DesignVarScreen.h"
 #include "DXFOptionsScreen.h"
@@ -203,6 +204,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_CLIPPING_SCREEN] = new ClippingScreen( this );
     m_ScreenVec[VSP_COMP_GEOM_SCREEN] = new CompGeomScreen( this );
     m_ScreenVec[VSP_COR_SCREEN] = new ManageCORScreen( this );
+    m_ScreenVec[VSP_CURVE_EDIT_SCREEN] = new CurveEditScreen( this );
     m_ScreenVec[VSP_DEGEN_GEOM_SCREEN] = new DegenGeomScreen( this );
     m_ScreenVec[VSP_DESIGN_VAR_SCREEN] = new DesignVarScreen( this );
     m_ScreenVec[VSP_DXF_OPTIONS_SCREEN] = new DXFOptionsScreen( this);

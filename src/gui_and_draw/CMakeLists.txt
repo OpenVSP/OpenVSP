@@ -36,6 +36,7 @@ CfdMeshScreen.cpp
 ClippingScreen.cpp
 CompGeomScreen.cpp
 ConformalScreen.cpp
+CurveEditScreen.cpp
 CustomScreen.cpp
 DegenGeomScreen.cpp
 DesignVarScreen.cpp
@@ -109,6 +110,7 @@ CfdMeshScreen.h
 ClippingScreen.h
 CompGeomScreen.h
 ConformalScreen.h
+CurveEditScreen.h
 CustomScreen.h
 DegenGeomScreen.h
 DesignVarScreen.h
