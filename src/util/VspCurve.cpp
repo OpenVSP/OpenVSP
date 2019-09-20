@@ -504,7 +504,7 @@ void VspCurve::InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vec3d 
     }
 }
 
-void VspCurve::ToBinaryCubic( bool wingtype )
+void VspCurve::ToBinaryCubic( bool wingtype, double ttol, double atol, int dmin, int dmax )
 {
     piecewise_binary_cubic_creator pbcc;
 
@@ -526,11 +526,11 @@ void VspCurve::ToBinaryCubic( bool wingtype )
 
         // Setup copies base curve into creator.
         // tolerance, min adapt levels, max adapt levels
-        pbcc.setup( low, 1e-6, 0.01, 2, 15 );
+        pbcc.setup( low, ttol, atol, dmin, dmax );
         // Create makes new curve
         pbcc.corner_create( low );
 
-        pbcc.setup( up, 1e-6, 0.01, 2, 15 );
+        pbcc.setup( up, ttol, atol, dmin, dmax );
         pbcc.corner_create( up );
 
         m_Curve = telow;
@@ -549,11 +549,11 @@ void VspCurve::ToBinaryCubic( bool wingtype )
 
         // Setup copies base curve into creator.
         // tolerance, min adapt levels, max adapt levels
-        pbcc.setup( low, 1e-6, 0.01, 2, 15 );
+        pbcc.setup( low, ttol, atol, dmin, dmax );
         // Create makes new curve
         pbcc.corner_create( m_Curve );
 
-        pbcc.setup( up, 1e-6, 0.01, 2, 15 );
+        pbcc.setup( up, ttol, atol, dmin, dmax );
         pbcc.corner_create( up );
 
         m_Curve.push_back( up );
