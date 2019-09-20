@@ -124,6 +124,12 @@ void PCurve::AddPt()
         p->SetDescript( "Curve point value" );
         m_ValParmVec.push_back( p );
     }
+
+}
+
+void PCurve::DeletePt()
+{
+    DeletePt( m_SelectPntID );
 }
 
 void PCurve::DeletePt( int indx )
