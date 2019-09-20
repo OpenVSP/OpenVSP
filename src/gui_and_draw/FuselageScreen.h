@@ -76,6 +76,12 @@ protected:
     Choice m_XSecTypeChoice;
     TriggerButton m_ShowXSecButton;
 
+    TriggerButton m_ConvertCEDITButton;
+    GroupLayout m_ConvertCEDITGroup;
+
+    GroupLayout m_EditCEDITGroup;
+    TriggerButton m_EditCEDITButton;
+
     GroupLayout m_PointGroup;
 
     GroupLayout m_SuperGroup;

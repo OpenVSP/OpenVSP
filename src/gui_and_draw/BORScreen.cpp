@@ -91,10 +91,31 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
     m_XSecTypeChoice.AddItem( "FIVE_DIGIT_MOD" );
     m_XSecTypeChoice.AddItem( "16_SERIES" );
 
-    m_XSecLayout.SetSameLineFlag( true );
-    m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:", m_XSecLayout.GetButtonWidth() );
+    m_XSecLayout.SetFitWidthFlag( true );
+    m_XSecLayout.SetSameLineFlag( false );
+
+    m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:" );
+
     m_XSecLayout.SetFitWidthFlag( false );
+    m_XSecLayout.SetSameLineFlag( true );
+
+    m_XSecLayout.SetButtonWidth( m_XSecLayout.GetW() / 2 );
     m_XSecLayout.AddButton( m_ShowXSecButton, "Show" );
+
+    m_ConvertCEDITGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_ConvertCEDITGroup.SetY( m_XSecLayout.GetY() );
+    m_ConvertCEDITGroup.SetX( m_XSecLayout.GetX() );
+    m_ConvertCEDITGroup.SetButtonWidth( m_XSecLayout.GetW() / 2 );
+    m_ConvertCEDITGroup.SetFitWidthFlag( false );
+    m_ConvertCEDITGroup.AddButton( m_ConvertCEDITButton, "Convert CEDIT" );
+
+    m_EditCEDITGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_EditCEDITGroup.SetFitWidthFlag( false );
+    m_EditCEDITGroup.SetY( m_XSecLayout.GetY() );
+    m_EditCEDITGroup.SetX( m_XSecLayout.GetX() );
+    m_EditCEDITGroup.SetButtonWidth( m_XSecLayout.GetW() / 2 );
+    m_EditCEDITGroup.AddButton( m_EditCEDITButton, "Edit Curve" );
+
     m_XSecLayout.ForceNewLine();
 
     m_XSecLayout.SetFitWidthFlag( true );
@@ -982,9 +1003,16 @@ bool BORScreen::Update()
         }
         else if ( xsc->GetType() == vsp::XS_EDIT_CURVE )
         {
+            m_EditCEDITGroup.Show();
+            m_ConvertCEDITGroup.Hide();
             DisplayGroup( NULL );
         }
 
+        if ( xsc->GetType() != vsp::XS_EDIT_CURVE )
+        {
+            m_EditCEDITGroup.Hide();
+            m_ConvertCEDITGroup.Show();
+        }
 
         m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
         m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
@@ -1250,10 +1278,28 @@ void BORScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         int t = m_XSecTypeChoice.GetVal();
         bor_ptr->SetXSecCurveType( t );
+
+        if ( t == vsp::XS_EDIT_CURVE )
+        {
+            m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+        }
     }
     else if ( gui_device == &m_ShowXSecButton )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_XSEC_SCREEN );
+    }
+    else if ( gui_device == &m_ConvertCEDITButton )
+    {
+        EditCurveXSec* edit_xsec = bor_ptr->ConvertToEdit();
+
+        if ( edit_xsec )
+        {
+            m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+        }
+    }
+    else if ( gui_device == &m_EditCEDITButton )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
     }
     else if ( gui_device == &m_ReadFuseFileButton  )
     {

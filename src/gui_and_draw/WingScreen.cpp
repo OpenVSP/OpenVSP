@@ -237,13 +237,30 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_AfTypeChoice.AddItem( "FIVE_DIGIT_MOD" );
     m_AfTypeChoice.AddItem( "16_SERIES" );
 
-    m_AfLayout.SetChoiceButtonWidth( 85 );
-    m_AfLayout.SetButtonWidth( 40 );
-    m_AfLayout.SetSameLineFlag( true );
-    m_AfLayout.AddChoice( m_AfTypeChoice, "Choose Type:", m_AfLayout.GetButtonWidth() );
-    m_AfLayout.SetFitWidthFlag( false );
+    int show_w = 50;
+    int convert_w = 100;
 
+    m_AfLayout.SetChoiceButtonWidth( 85 );
+    m_AfLayout.SetSameLineFlag( true );
+    m_AfLayout.AddChoice( m_AfTypeChoice, "Choose Type:", ( show_w + convert_w ) );
+    m_AfLayout.SetFitWidthFlag( false );
+    m_AfLayout.SetButtonWidth( show_w );
     m_AfLayout.AddButton( m_ShowXSecButton, "Show" );
+
+    m_ConvertCEDITGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
+    m_ConvertCEDITGroup.SetY( m_AfLayout.GetY() );
+    m_ConvertCEDITGroup.SetX( m_AfLayout.GetX() );
+    m_ConvertCEDITGroup.SetButtonWidth( convert_w );
+    m_ConvertCEDITGroup.SetFitWidthFlag( false );
+    m_ConvertCEDITGroup.AddButton( m_ConvertCEDITButton, "Convert CEDIT" );
+
+    m_EditCEDITGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
+    m_EditCEDITGroup.SetFitWidthFlag( false );
+    m_EditCEDITGroup.SetY( m_AfLayout.GetY() );
+    m_EditCEDITGroup.SetX( m_AfLayout.GetX() );
+    m_EditCEDITGroup.SetButtonWidth( convert_w );
+    m_EditCEDITGroup.AddButton( m_EditCEDITButton, "Edit Curve" );
+
     m_AfLayout.ForceNewLine();
 
     m_AfLayout.SetFitWidthFlag( true );
@@ -1316,9 +1333,16 @@ bool WingScreen::Update()
             }
             else if ( xsc->GetType() == XS_EDIT_CURVE )
             {
+                m_EditCEDITGroup.Show();
+                m_ConvertCEDITGroup.Hide();
                 DisplayGroup( NULL );
             }
 
+            if ( xsc->GetType() != XS_EDIT_CURVE )
+            {
+                m_EditCEDITGroup.Hide();
+                m_ConvertCEDITGroup.Show();
+            }
 
             m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
             m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
@@ -1662,10 +1686,33 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         int t = m_AfTypeChoice.GetVal();
         wing_ptr->SetActiveAirfoilType( t );
         wing_ptr->Update();
+
+        if ( t == XS_EDIT_CURVE )
+        {
+            m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+        }
     }
     else if ( gui_device == &m_ShowXSecButton )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_XSEC_SCREEN );
+    }
+    else if ( gui_device == &m_ConvertCEDITButton )
+    {
+        XSec* xs = wing_ptr->GetXSec( wing_ptr->GetActiveXSecIndex() );
+
+        if ( xs )
+        {
+            EditCurveXSec* edit_xsec = xs->ConvertToEdit();
+
+            if ( edit_xsec )
+            {
+                m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+            }
+        }
+    }
+    else if ( gui_device == &m_EditCEDITButton )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
     }
     else if ( gui_device == &m_CopyAfButton   )
     {

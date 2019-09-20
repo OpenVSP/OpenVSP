@@ -251,12 +251,33 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 760, "Propeller
     m_XSecTypeChoice.AddItem( "FIVE_DIGIT_MOD" );
     m_XSecTypeChoice.AddItem( "16_SERIES" );
 
+    m_XSecLayout.SetChoiceButtonWidth( 85 );
+    int show_w = 50;
+    int convert_w = 100;
+
     m_XSecLayout.SetSameLineFlag( true );
-    m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:", m_XSecLayout.GetButtonWidth() );
+    m_XSecLayout.AddChoice( m_XSecTypeChoice, "Choose Type:", ( show_w + convert_w ) );
     m_XSecLayout.SetFitWidthFlag( false );
+    m_XSecLayout.SetButtonWidth( show_w );
     m_XSecLayout.AddButton( m_ShowXSecButton, "Show" );
+
+    m_ConvertCEDITGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_ConvertCEDITGroup.SetY( m_XSecLayout.GetY() );
+    m_ConvertCEDITGroup.SetX( m_XSecLayout.GetX() );
+    m_ConvertCEDITGroup.SetButtonWidth( convert_w );
+    m_ConvertCEDITGroup.SetFitWidthFlag( false );
+    m_ConvertCEDITGroup.AddButton( m_ConvertCEDITButton, "Convert CEDIT" );
+
+    m_EditCEDITGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
+    m_EditCEDITGroup.SetFitWidthFlag( false );
+    m_EditCEDITGroup.SetY( m_XSecLayout.GetY() );
+    m_EditCEDITGroup.SetX( m_XSecLayout.GetX() );
+    m_EditCEDITGroup.SetButtonWidth( convert_w );
+    m_EditCEDITGroup.AddButton( m_EditCEDITButton, "Edit Curve" );
+
     m_XSecLayout.ForceNewLine();
 
+    m_XSecLayout.InitWidthHeightVals();
     m_XSecLayout.SetFitWidthFlag( true );
     m_XSecLayout.SetSameLineFlag( false );
 
@@ -1360,9 +1381,16 @@ bool PropScreen::Update()
             }
             else if ( xsc->GetType() == XS_EDIT_CURVE )
             {
+                m_EditCEDITGroup.Show();
+                m_ConvertCEDITGroup.Hide();
                 DisplayGroup( NULL );
             }
 
+            if ( xsc->GetType() != XS_EDIT_CURVE )
+            {
+                m_EditCEDITGroup.Hide();
+                m_ConvertCEDITGroup.Show();
+            }
         }
 
 
@@ -1672,10 +1700,33 @@ void PropScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         int t = m_XSecTypeChoice.GetVal() + 1; // +1 to skip over POINT type XSec.
         propeller_ptr->SetActiveXSecType( t );
+
+        if ( t == XS_EDIT_CURVE )
+        {
+            m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+        }
     }
     else if ( gui_device == &m_ShowXSecButton )
     {
         m_ScreenMgr->ShowScreen( ScreenMgr::VSP_XSEC_SCREEN );
+    }
+    else if ( gui_device == &m_ConvertCEDITButton )
+    {
+        XSec* xs = propeller_ptr->GetXSec( propeller_ptr->GetActiveXSecIndex() );
+
+        if ( xs )
+        {
+            EditCurveXSec* edit_xsec = xs->ConvertToEdit();
+
+            if ( edit_xsec )
+            {
+                m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+            }
+        }
+    }
+    else if ( gui_device == &m_EditCEDITButton )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
     }
     else if ( gui_device == &m_CutXSec )
     {
