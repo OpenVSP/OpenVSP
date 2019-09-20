@@ -397,8 +397,138 @@ protected:
 
 };
 
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
 
+class EditCurveXSec : public XSecCurve
+{
+public:
 
+    EditCurveXSec();
 
+    virtual void Update();
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr& node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr& node );
+
+    // Used to enforce G1 and trigger updated
+    virtual void ParmChanged( Parm* parm_ptr, int type );
+
+    // Initialize a circle, ellipse, or rectangle XSec to provide an initial starting point
+    virtual void InitShape();
+
+    // Ensure the control points have the required parameter values and limits. For instance, 
+    // intermediate bezier control points are required to be parameterized in 1/3 fractions between
+    // points on the curve. 
+    virtual void EnforcePtOrder( double rfirst = 0.0, double rlast = 1.0 );
+
+    // Get either the relative or absolute control point vector
+    virtual vector< vec3d > GetCtrlPntVec( bool non_dimensional = false );
+
+    // Functions to set the control point vector, parameterization, and G1 enforcement vector
+    virtual void SetPntVecs( vector < double > u_vec, vector < double > x_pnt_vec, vector < double > y_pnt_vec, vector < bool > g1_vec = {}, bool force_update = true );
+    virtual void SetPntVecs( vector < double > u_vec, vector < vec3d > pnt_vec, vector < bool > g1_vec = {}, bool force_update = true );
+
+    // Move a control point of input index to a new 2D location. If the point moving is 
+    // cubic Bezier and located on the curve, the neighboring points will move with it. 
+    // Note, this is an anlternative to directly adjusting the parm values. The force_update
+    // flag is automatically set to true when called from the API.
+    virtual void MovePnt( int index, vec3d new_pnt, bool force_update = false );
+    // Move the currently selected control point to the new x and y position. The 
+    // neighbors_only flag is used to move CEDIT neighbors when the point on the
+    // curve is set by GUI elements
+    virtual void MovePnt( double x, double y, bool neighbors_only = false );
+
+    // Setter and getter for the currently selected point index
+    virtual void SetSelectPntID( int id );
+    virtual int GetSelectedPntID() { return m_SelectPntID; }
+
+    // Append a new point to the parameter vectors (i.e. m_XParmVec). Note, this does not ensure 
+    // proper parameterization
+    virtual void AddPt( double default_u = 0.0, double default_x = 0.0, double default_y = 0.0, bool default_g1 = false );
+
+    // Delete the currently selected point, or the input index. Intermediate cubic bezier control
+    // points can not be deleted.
+    virtual void DeletePt();
+    virtual void DeletePt( int indx );
+
+    // Get the number of control points for the XSec
+    virtual int GetNumPts() { return (int)m_XParmVec.size(); }
+
+    // Update Parm names for the parameter vectors by simply appending their point index
+    virtual void RenameParms();
+
+    // Function to convert between CEDIT, LINEAR, and PCHIP
+    virtual void ConvertTo( int newtype );
+
+    // Return the values from the parameter vectors
+    virtual vector < double > GetUVec();
+    virtual vector < double > GetTVec();
+    virtual vector < double > GetXVec();
+    virtual vector < double > GetYVec();
+    virtual vector < bool > GetG1Vec();
+
+    // Split the curve at the current u (0-1) value or input value
+    virtual int Split01();
+    virtual int Split01( double u_split );
+
+    // Required functions for all XSec types. These allow for instance a wing chord to 
+    // set the width of the XSec
+    virtual double GetWidth()
+    {
+        return m_Width();
+    }
+    virtual double GetHeight()
+    {
+        return m_Height();
+    }
+
+    virtual void SetWidthHeight( double w, double h );
+
+    virtual string GetWidthParmID() { return m_Width.GetID(); }
+    virtual string GetHeightParmID() { return m_Height.GetID(); }
+
+    BoolParm m_CloseFlag;
+    IntParm m_SymType;
+    IntParm m_ShapeType;
+    Parm m_Width;
+    Parm m_Height;
+    IntParm m_CurveType;
+    IntParm m_ConvType;
+    Parm m_SplitU;
+    BoolParm m_AbsoluteFlag;
+
+    vector < Parm* > m_UParmVec; // vector of U (0-1) values for each control point (in reallity 0-4 for XSec curves; T)
+    vector < Parm* > m_XParmVec; // vector of control point x coordinates
+    vector < Parm* > m_YParmVec; // vector of control point y coordinates
+    vector < BoolParm* > m_EnforceG1Vec; // indicates whether or not to enforce G1 continuity for each CEDIT point on the curve,
+
+protected:
+
+    // Enforce left/right symmetry for the XSec. Forces control points at the 0.25 and 0.75 u 
+    // locations (y-axis). The right side of the XSec is the "master" that gets mirrored.
+    virtual void EnforceSymmetry();
+
+    // Restricts cubic Bezier intermediate control points from enforcing G1 continuity and
+    // deactivates the left side of the XSec if symmetry is active
+    virtual void UpdateG1Parms();
+
+    // Force the starting and ending control point of the XSec to coincide
+    virtual void EnforceClosure();
+
+    // Resets the limits of the parmameter vectors (should be renamed)
+    virtual void ClearPtOrder();
+
+    // Enforce G1 continuity for cubic Bezier control points on the curve. The input 
+    // index is used to enforce G1 on a new point by averaging the existing tangent slopes.
+    // (called from ParmChanged)
+    virtual void EnforceG1( int new_index = -1 );
+
+    int m_SelectPntID; // Index of the currently selected control point
+
+    bool m_EnforceG1Next; // Flag to indicate if G1 should be enforced with the next or previous point
+
+};
 
 #endif // !defined(XSECCURVE__INCLUDED_)

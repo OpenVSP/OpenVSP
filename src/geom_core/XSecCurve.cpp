@@ -2307,3 +2307,1702 @@ void FileXSec::ReadV2FileFuse2( xmlNodePtr &root )
         }
     }
 }
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+EditCurveXSec::EditCurveXSec() : XSecCurve()
+{
+    m_Type = XS_EDIT_CURVE;
+
+    m_CloseFlag.Init( "CloseFlag", m_GroupName, this, true, false, true );
+    m_CloseFlag.SetDescript( "Closed Curve Flag" );
+
+    m_SymType.Init( "SymType", m_GroupName, this, SYM_RL, SYM_NONE, SYM_RL );
+    m_SymType.SetDescript( "2D Symmetry Type" );
+
+    m_ShapeType.Init( "ShapeType", m_GroupName, this, EDIT_XSEC_CIRCLE, EDIT_XSEC_CIRCLE, EDIT_XSEC_RECTANGLE );
+    m_ShapeType.SetDescript( "Initial Shape Type" );
+
+    m_Width.Init( "Width", m_GroupName, this, 1.0, 1.0e-12, 1.0e12 );
+    m_Width.SetDescript( "Edit Curve XSec Width" );
+
+    m_Height.Init( "Height", m_GroupName, this, 1.0, 1.0e-12, 1.0e12 );
+    m_Height.SetDescript( "Edit Curve XSec Height" );
+
+    m_CurveType.Init( "CurveType", m_GroupName, this, vsp::CEDIT, vsp::LINEAR, vsp::CEDIT );
+    m_CurveType.SetDescript( "Curve Type" );
+
+    m_ConvType.Init( "ConvType", m_GroupName, this, vsp::CEDIT, vsp::LINEAR, vsp::CEDIT );
+    m_ConvType.SetDescript( "Curve Conversion Type" );
+
+    m_SplitU.Init( "SplitU", m_GroupName, this, 0.5, 0.0, 1.0 );
+    m_SplitU.SetDescript( "Curve Split u Location (0.0 <= u <= 1.0)" );
+
+    m_AbsoluteFlag.Init( "AbsoluteFlag", m_GroupName, this, false, false, true );
+    m_AbsoluteFlag.SetDescript( "Flag indicating if control points are non-dimensional or absolute" );
+
+    m_SelectPntID = 0;
+    m_EnforceG1Next = true;
+}
+
+void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
+{
+    for ( size_t i = 0; i < m_EnforceG1Vec.size(); i++ )
+    {
+        Parm* g1_parm = dynamic_cast<Parm*> ( m_EnforceG1Vec[i] );
+
+        if ( parm_ptr == g1_parm )
+        {
+            EnforceG1( (int)i );
+            break;
+        }
+    }
+
+    if ( m_CurveType() == vsp::CEDIT )
+    {
+        for ( size_t i = 0; i < m_UParmVec.size(); i++ )
+        {
+            Parm* x_parm = dynamic_cast<Parm*> ( m_XParmVec[i] );
+            Parm* y_parm = dynamic_cast<Parm*> ( m_YParmVec[i] );
+
+            if ( parm_ptr == x_parm || parm_ptr == y_parm )
+            {
+                // Identify if next or previous control point is master G1 enforcer
+                if ( i % 3 == 1 )
+                {
+                    m_EnforceG1Next = true;
+                }
+                else if ( i % 3 == 2 )
+                {
+                    m_EnforceG1Next = false;
+                }
+                else if ( i % 3 == 0 && m_EnforceG1Vec[i]->Get() && type == Parm::SET_FROM_DEVICE )
+                {                    
+                    // Move the neighboring control points if G1 is active and GUI slider is adjusted (not used for a click-and-drag event)
+                    if ( parm_ptr == x_parm && !( m_SymType() == SYM_RL && ( m_UParmVec[i]->Get() == 0.25 || m_UParmVec[i]->Get() == 0.75 ) ) )
+                    {
+                        int prev_index = GetSelectedPntID();
+                        SetSelectPntID( i );
+
+                        // Adjust the X coordinates of the neighboring control points only. Parm for point on the curve already updated
+                        double dx = x_parm->Get() - x_parm->GetLastVal();
+
+                        MovePnt( x_parm->Get() + dx, y_parm->Get(), true );
+
+                        SetSelectPntID( prev_index );
+                    }
+                    else if ( parm_ptr == y_parm )
+                    {
+                        int prev_index = GetSelectedPntID();
+                        SetSelectPntID( i );
+
+                        // Adjust the Y coordinates of the neighboring control points. Parm for point on the curve already updated
+                        double dy = y_parm->Get() - y_parm->GetLastVal();
+
+                        MovePnt( x_parm->Get(), y_parm->Get() + dy, true );
+
+                        SetSelectPntID( prev_index );
+                    }
+                }
+
+                break;
+            }
+        }
+    }
+
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+
+        //==== Notify Parent Container (XSecSurf) ====//
+        ParmContainer* pc = GetParentContainerPtr();
+        if ( pc )
+        {
+            pc->ParmChanged( parm_ptr, type );
+        }
+
+        return;
+    }
+
+    Update();
+
+    //==== Notify Parent Container (XSecSurf) ====//
+    ParmContainer* pc = GetParentContainerPtr();
+    if ( pc )
+    {
+        pc->ParmChanged( parm_ptr, type );
+    }
+}
+
+xmlNodePtr EditCurveXSec::EncodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr child_node = xmlNewChild( node, NULL, BAD_CAST "EditCurveXSec", NULL );
+    if ( child_node )
+    {
+        XmlUtil::AddIntNode( child_node, "NumPts", (int)m_XParmVec.size() );
+    }
+
+    XSecCurve::EncodeXml( node );
+
+    return child_node;
+}
+
+xmlNodePtr EditCurveXSec::DecodeXml( xmlNodePtr & node )
+{
+    xmlNodePtr child_node = XmlUtil::GetNode( node, "EditCurveXSec", 0 );
+    if ( child_node )
+    {
+        int npt = XmlUtil::FindInt( child_node, "NumPts", 0 );
+
+        while ( m_XParmVec.size() < npt )
+        {
+            AddPt();
+        }
+    }
+
+    XSecCurve::DecodeXml( node );
+
+    return node;
+}
+
+void EditCurveXSec::InitShape()
+{
+    vector < vec3d > ctrl_pnts;
+    vector < double > t_vec;
+
+    // Initialize each shape to X:[-0.5, 0.5], Y:[-0.5, 0.5]
+
+    if ( m_ShapeType() == EDIT_XSEC_CIRCLE )
+    {
+        m_CurveType.Set( vsp::CEDIT );
+
+        vec3d pnt;
+
+        ctrl_pnts.push_back( vec3d( 0.5, 0.0, 0.0 ) );
+
+        pnt = vec3d( 0.5, 0.0, 0.0 ) + vec3d( 0.0, -0.5, 0.0 ) * ( ( 4 * sqrt( 2 ) - 4 ) / 3 );
+        ctrl_pnts.push_back( pnt );
+
+        pnt = vec3d( 0.0, -0.5, 0.0 ) + vec3d( 0.5, 0.0, 0.0 ) * ( ( 4 * sqrt( 2 ) - 4 ) / 3 );
+        ctrl_pnts.push_back( pnt );
+
+        ctrl_pnts.push_back( vec3d( 0.0, -0.5, 0.0 ) );
+
+        pnt = vec3d( 0.0, -0.5, 0.0 ) + vec3d( -0.5, 0.0, 0.0 ) * ( ( 4 * sqrt( 2 ) - 4 ) / 3 );
+        ctrl_pnts.push_back( pnt );
+
+        pnt = vec3d( -0.5, 0.0, 0.0 ) + vec3d( 0.0, -0.5, 0.0 ) * ( ( 4 * sqrt( 2 ) - 4 ) / 3 );
+        ctrl_pnts.push_back( pnt );
+
+        ctrl_pnts.push_back( vec3d( -0.5, 0.0, 0.0 ) );
+
+        // Apply X Symmetry
+        size_t n_pts = ctrl_pnts.size();
+        for ( size_t i = 2; i <= n_pts; i++ )
+        {
+            vec3d p = ctrl_pnts[n_pts - i];
+            p.set_y( -p.y() );
+            ctrl_pnts.push_back( p );
+        }
+
+        m_Curve.SetCubicControlPoints( ctrl_pnts ); // initialize curve as CEDIT
+        m_Curve.GetCubicControlPoints( ctrl_pnts, t_vec );
+    }
+    else if ( m_ShapeType() == EDIT_XSEC_RECTANGLE ) 
+    {
+        m_CurveType.Set( vsp::LINEAR );
+
+        ctrl_pnts.resize( 9 );
+        ctrl_pnts[0].set_xyz( 0.5, 0.0, 0.0 );
+        ctrl_pnts[1].set_xyz( 0.5, -0.5, 0.0 );
+        ctrl_pnts[2].set_xyz( 0.0, -0.5, 0.0 );
+        ctrl_pnts[3].set_xyz( -0.5, -0.5, 0.0 );
+        ctrl_pnts[4].set_xyz( -0.5, 0.0, 0.0 );
+        ctrl_pnts[5].set_xyz( -0.5, 0.5, 0.0 );
+        ctrl_pnts[6].set_xyz( 0.0, 0.5, 0.0 );
+        ctrl_pnts[7].set_xyz( 0.5, 0.5, 0.0 );
+        ctrl_pnts[8].set_xyz( 0.5, 0.0, 0.0 );
+
+        t_vec.resize( 9 );
+        t_vec[0] = 0;
+        t_vec[1] = 0.5;
+        t_vec[2] = 1;
+        t_vec[3] = 1.5;
+        t_vec[4] = 2;
+        t_vec[5] = 2.5;
+        t_vec[6] = 3;
+        t_vec[7] = 3.5;
+        t_vec[8] = 4;
+
+    }
+    else if ( m_ShapeType() == EDIT_XSEC_ELLIPSE )
+    {
+        m_CurveType.Set( vsp::PCHIP );
+
+        piecewise_curve_type c;
+        piecewise_superellipse_creator psc( 16 );
+        curve_point_type origin;
+
+        origin << 0, 0, 0; // Will be shifted by 1/2 width during update
+
+        // set hyperellipse params, make sure that entire curve goes from 0 to 4
+        psc.set_axis( 0.5, 1.0 );
+        psc.set_max_degree( 3 );
+        psc.set_exponents( 2.0, 2.0 );
+        psc.set_exponents_bot( 2.0, 2.0 );
+        psc.set_origin( origin );
+        psc.set_max_width_loc( 0.0 );
+
+        psc.set_t0( 0 );
+        for ( int i = 0; i < psc.get_number_segments(); ++i )
+        {
+            psc.set_segment_dt( 4.0 / psc.get_number_segments(), i );
+        }
+
+        if ( !psc.create( c ) )
+        {
+            std::cerr << "Failed to create superellipse XSec. " << __LINE__ << std::endl;
+        }
+        else
+        {
+            c.reverse();
+            m_Curve.SetCurve( c );
+        }
+
+        vector < BezierSegment > segs = m_Curve.GetBezierSegments();
+        double t_max = m_Curve.GetCurve().get_tmax();
+
+        for ( size_t i = 0; i < segs.size(); i++ )
+        {
+            ctrl_pnts.push_back( segs[i].control_pnt_vec[0] );
+            t_vec.push_back( t_max * segs[i].t0 );
+
+            if ( i == segs.size() - 1 )
+            {
+                ctrl_pnts.push_back( segs[i].control_pnt_vec.back() );
+            }
+        }
+
+        t_vec.push_back( t_max );
+    }
+
+    vector < double > ctrl_pnts_x( ctrl_pnts.size() );
+    vector < double > ctrl_pnts_y( ctrl_pnts.size() );
+    vector < double > u_vec( t_vec.size() ); // Set control pont parameter values (0-4), but show the user (0-1)
+
+    for ( size_t i = 0; i < ctrl_pnts.size(); i++ )
+    {
+        ctrl_pnts_x[i] = ctrl_pnts[i].x();
+        ctrl_pnts_y[i] = ctrl_pnts[i].y();
+        u_vec[i] = t_vec[i] / 4.0;
+    }
+
+    m_SelectPntID = 0; // Ensure selected point is not greater than # of control points
+
+    //==== Load Control Points ====//
+    SetPntVecs( u_vec, ctrl_pnts_x, ctrl_pnts_y ); // initialize all 
+}
+
+void EditCurveXSec::AddPt( double default_u, double default_x, double default_y, bool default_g1 )
+{
+    Parm* p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
+    if ( p )
+    {
+        int i = (int)m_UParmVec.size();
+        char str[15];
+        sprintf( str, "U_%d", i );
+        p->Init( string( str ), m_GroupName, this, default_u, 0, 1.0 );
+        p->SetDescript( "Curve point parameter (0-1)" );
+        m_UParmVec.push_back( p );
+    }
+
+    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
+    if ( p )
+    {
+        int i = (int)m_XParmVec.size();
+        char str[15];
+        sprintf( str, "X_%d", i );
+        p->Init( string( str ), m_GroupName, this, default_x, -1.0e12, 1.0e12 );
+        p->SetDescript( "Control Point 2D X Location" );
+        m_XParmVec.push_back( p );
+    }
+
+    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
+    if ( p )
+    {
+        int i = (int)m_YParmVec.size();
+        char str[15];
+        sprintf( str, "Y_%d", i );
+        p->Init( string( str ), m_GroupName, this, default_y, -1.0e12, 1.0e12 );
+        p->SetDescript( "Control Point 2D Y Location" );
+        m_YParmVec.push_back( p );
+    }
+
+    BoolParm* bp = dynamic_cast< BoolParm* >( ParmMgr.CreateParm( vsp::PARM_BOOL_TYPE ) );
+    if ( bp )
+    {
+        int i = (int)m_EnforceG1Vec.size();
+        char str[15];
+        sprintf( str, "G1_%d", i );
+        bp->Init( string( str ), m_GroupName, this, default_g1, false, true );
+        bp->SetDescript( "G1 Enforcement Flag" );
+        m_EnforceG1Vec.push_back( bp );
+    }
+}
+
+//==== Update Geometry ====//
+void EditCurveXSec::Update()
+{
+    if ( m_UParmVec.empty() )
+    {
+        InitShape(); // Must always have a valid curve
+    }
+    
+    ClearPtOrder();
+
+    EnforcePtOrder();
+
+    EnforceG1();
+
+    // Symmetry enforcement must come after G1 enforcement
+    EnforceSymmetry();
+
+    // Enforce Closure
+    EnforceClosure();
+
+    vector< vec3d > ctrl_pnts = GetCtrlPntVec( false );
+    vector < double > t_vec = GetTVec(); // Set control pont parameter values (0-4), but show the user (0-1)
+
+    switch ( m_CurveType() )
+    {
+        case vsp::LINEAR:
+            m_Curve.InterpolateLinear( ctrl_pnts, t_vec, false );
+            break;
+        case vsp::PCHIP:
+            if ( ctrl_pnts.size() > 3 ) // Note, slighlty different than PCurve
+            {
+                m_Curve.InterpolatePCHIP( ctrl_pnts, t_vec, false );
+            }
+            else
+            {
+                m_Curve.InterpolateLinear( ctrl_pnts, t_vec, false );
+            }
+            break;
+        case vsp::CEDIT:
+            m_Curve.SetCubicControlPoints( ctrl_pnts, t_vec );
+            break;
+    }
+
+    XSecCurve::Update(); // Note, this will add TE and LE Bezier Segments if Wing or BOR type
+
+    m_Curve.OffsetX( 0.5 * m_Width() ); // Shift by 1/2 width (all XSec types are centered at (m_Width/2, 0, 0))
+
+    UpdateG1Parms();
+
+    EnforcePtOrder();
+
+    return;
+}
+
+void EditCurveXSec::EnforceClosure()
+{
+    if ( m_CloseFlag() )
+    {
+        m_XParmVec[m_XParmVec.size() - 1]->Set( m_XParmVec[0]->Get() );
+        m_YParmVec[m_YParmVec.size() - 1]->Set( m_YParmVec[0]->Get() );
+
+        m_XParmVec[m_XParmVec.size() - 1]->Deactivate();
+        m_YParmVec[m_YParmVec.size() - 1]->Deactivate();
+        m_EnforceG1Vec[0]->Activate();
+    }
+    else
+    {
+        m_XParmVec[m_XParmVec.size() - 1]->Activate();
+        m_YParmVec[m_YParmVec.size() - 1]->Activate();
+        m_EnforceG1Vec[0]->Deactivate();
+    }
+}
+
+void EditCurveXSec::UpdateG1Parms()
+{
+    if ( m_CurveType() == vsp::CEDIT )
+    {
+        for ( size_t i = 1; i < m_EnforceG1Vec.size() - 1; i++ )
+        {
+            BoolParm* p = m_EnforceG1Vec[i];
+            
+            if ( p )
+            {
+                if ( i % 3 != 0 ) // Deactivate G1 for interior control points
+                {
+                    p->Set( false );
+                    p->Deactivate();
+                }
+                else if ( !( m_SymType() == SYM_RL && m_UParmVec[i]->Get() > 0.25 && m_UParmVec[i]->Get() < 0.75 ) )
+                {
+                    p->Activate();
+
+                    if ( p->Get() )
+                    {
+                        if ( m_SymType() == SYM_RL && ( m_UParmVec[i]->Get() == 0.25 || m_UParmVec[i]->Get() == 0.75 ) )
+                        {
+                            // Force horizontal tanget at axis of symmetry
+                            m_YParmVec[i + 1]->Deactivate();
+                        }
+                        else
+                        {
+                            // Set next control point as master over previous point
+                            m_YParmVec[i + 1]->Activate();
+                        }
+                    }
+                }
+                else if ( m_SymType() == SYM_RL && m_UParmVec[i]->Get() > 0.25 && m_UParmVec[i]->Get() < 0.75 )
+                {
+                    p->Set( false );
+                    p->Deactivate();
+                }
+            }
+        }
+    }
+    else
+    {
+        for ( int j = 0; j < m_EnforceG1Vec.size() - 1; j++ )
+        {
+            m_EnforceG1Vec[j]->Set( false );
+            m_EnforceG1Vec[j]->Deactivate(); // No G1 enforcement for linear or PCHIP
+        }
+    }
+
+    if ( !m_CloseFlag() )
+    {
+        m_EnforceG1Vec[0]->Deactivate();
+        m_EnforceG1Vec[0]->Set( false );
+    }
+
+    m_EnforceG1Vec[m_EnforceG1Vec.size() - 1]->Set( false );
+    m_EnforceG1Vec[m_EnforceG1Vec.size() - 1]->Deactivate();
+}
+
+void EditCurveXSec::EnforcePtOrder( double rfirst, double rlast )
+{
+    double offset = 1e-4;
+
+    if ( m_CurveType() == vsp::CEDIT )
+    {
+        int npt = (int)m_UParmVec.size();
+        int nseg = ( npt - 1 ) / 3;
+
+        Parm* pprev = NULL;
+        for ( int i = 0; i < nseg; i++ )
+        {
+            int istart = i * 3;
+            int iend = ( i + 1 ) * 3;
+
+            Parm* pstart = m_UParmVec[istart];
+            Parm* pend = m_UParmVec[iend];
+
+            if ( i == 0 && pstart )
+            {
+                pstart->Set( rfirst );
+                pstart->Deactivate();
+                pstart->SetLowerLimit( rfirst );
+                pstart->SetUpperLimit( rfirst );
+            }
+
+            if ( i == nseg - 1 && pend )
+            {
+                pend->Set( rlast );
+                pend->Deactivate();
+                pend->SetUpperLimit( rlast );
+                pend->SetLowerLimit( rlast );
+            }
+
+            if ( pstart && pend )
+            {
+                pstart->SetUpperLimit( pend->Get() - offset );
+                pend->SetLowerLimit( pstart->Get() + offset );
+
+                // Keep intermediate points valid.
+                double dt = pend->Get() - pstart->Get();
+                m_UParmVec[iend - 1]->Set( pend->Get() - dt / 3.0 );
+                m_UParmVec[istart + 1]->Set( pstart->Get() + dt / 3.0 );
+            }
+        }
+
+        // Deactivate interior control points without setting limits.
+        for ( int i = 0; i < npt; i++ )
+        {
+            int m = i % 3;
+            if ( m == 1 || m == 2 )
+            {
+                Parm* p = m_UParmVec[i];
+                if ( p )
+                {
+                    p->Deactivate();
+                }
+            }
+        }
+    }
+    else  // LINEAR or PCHIP
+    {
+        Parm* pprev = NULL;
+        for ( int j = 0; j < m_UParmVec.size(); j++ )
+        {
+            Parm* p = m_UParmVec[j];
+            Parm* pnxt = NULL;
+            if ( j < m_UParmVec.size() - 1 )
+            {
+                pnxt = m_UParmVec[j + 1];
+            }
+            if ( p )
+            {
+                if ( j == 0 )
+                {
+                    p->Set( rfirst );
+                    p->Deactivate();
+                    p->SetLowerLimit( rfirst );
+                    p->SetUpperLimit( rfirst );
+                }
+                else if ( j == m_UParmVec.size() - 1 )
+                {
+                    p->Set( rlast );
+                    p->Deactivate();
+                    p->SetUpperLimit( rlast );
+                    p->SetLowerLimit( rlast );
+                }
+                else
+                {
+                    if ( pprev )
+                    {
+                        p->SetLowerLimit( pprev->Get() + offset );
+                    }
+                    if ( pnxt )
+                    {
+                        p->SetUpperLimit( pnxt->Get() - offset );
+                    }
+                }
+            }
+            pprev = p;
+        }
+    }
+}
+
+void EditCurveXSec::ClearPtOrder()
+{
+    for ( int j = 0; j < m_UParmVec.size(); j++ )
+    {
+        Parm* p = m_UParmVec[j];
+
+        if ( p )
+        {
+            p->SetLowerLimit( 0.0 );
+            p->SetUpperLimit( 1.0 );
+            p->Activate();
+        }
+
+        p = m_XParmVec[j];
+
+        if ( p )
+        {
+            p->SetLowerLimit( -1.0e12 );
+            p->SetUpperLimit( 1.0e12 );
+            p->Activate();
+        }
+
+        p = m_YParmVec[j];
+
+        if ( p )
+        {
+            p->SetLowerLimit( -1.0e12 );
+            p->SetUpperLimit( 1.0e12 );
+            p->Activate();
+        }
+    }
+}
+
+bool CompareUFunc( const std::pair<double, vec3d>& a, const std::pair<double, vec3d>& b )
+{
+    return a.first < b.first;
+}
+
+void EditCurveXSec::EnforceSymmetry()
+{
+    // Note: control points must lie on axis of symmetry or they will be forced there
+
+    if ( m_SymType() == SYM_RL ) // Left/Right Symmetry
+    {
+        if ( !m_CloseFlag() )
+        {
+            EnforceClosure();
+        }
+
+        m_CloseFlag.Set( true ); // Must be closed to allow symmetry
+        m_CloseFlag.Deactivate();
+
+        bool found_top = false, found_bottom = false;
+        double bottom_u = 0.25;
+        double top_u = 0.75;
+
+        for ( size_t i = 0; i < m_UParmVec.size(); i++ )
+        {
+            int prev_ind = (int)i - 1;
+            int next_ind = (int)i + 1;
+
+            if ( i == 0 )
+            {
+                prev_ind = (int)m_UParmVec.size() - 2; // Shouldn't need to define this
+            }
+
+            double current_u = m_UParmVec[i]->Get();
+            // Force top and bottom point on Y-axis
+            if ( current_u == bottom_u && ( m_CurveType() != CEDIT || i % 3 == 0 ) )
+            {
+                // Shift neighboring control points as well
+                if ( m_CurveType() == CEDIT )
+                {
+                    double dx = -m_XParmVec[i]->Get();
+                    m_XParmVec[prev_ind]->Set( m_XParmVec[prev_ind]->Get() + dx );
+                    m_XParmVec[next_ind]->Set( m_XParmVec[next_ind]->Get() + dx );
+                }
+
+                found_bottom = true;
+                m_XParmVec[i]->Set( 0.0 );
+            }
+            else if ( current_u == top_u && ( m_CurveType() != CEDIT || i % 3 == 0 ) )
+            {
+                // Shift neighboring control points as well
+                if ( m_CurveType() == CEDIT )
+                {
+                    double dx = -m_XParmVec[i]->Get();
+                    m_XParmVec[prev_ind]->Set( m_XParmVec[prev_ind]->Get() + dx );
+                    m_XParmVec[next_ind]->Set( m_XParmVec[next_ind]->Get() + dx );
+                }
+
+                found_top = true;
+                m_XParmVec[i]->Set( 0.0 );
+            }
+        }
+
+        // Sort T vec and reorder X, Y, and G1 simultaneously
+        // Weird, but place G1 in Z coordinate of vec3d to ensure everything is later sorted together
+        vector < pair < double, vec3d > > sort_vec;
+
+        // Force T of 1.0 and 3.0 on the Y axis
+        if ( m_CurveType() != CEDIT )
+        {
+            if ( !found_top )
+            {
+                // Identify midpoint to use for Y
+                for ( size_t i = 0; i < m_UParmVec.size() - 1; i++ )
+                {
+                    if ( m_UParmVec[i]->Get() < top_u && m_UParmVec[i + 1]->Get() > top_u )
+                    {
+                        sort_vec.push_back( make_pair( top_u, vec3d( 0.0, ( m_YParmVec[i]->Get() + m_YParmVec[i + 1]->Get() ) / 2.0, false ) ) );
+
+                        break;
+                    }
+                }
+            }
+            if ( !found_bottom )
+            {
+                // Identify midpoint to use for Y
+                for ( size_t i = 0; i < m_UParmVec.size() - 1; i++ )
+                {
+                    if ( m_UParmVec[i]->Get() < bottom_u && m_UParmVec[i + 1]->Get() > bottom_u )
+                    {
+                        sort_vec.push_back( make_pair( bottom_u, vec3d( 0.0, ( m_YParmVec[i]->Get() + m_YParmVec[i + 1]->Get() ) / 2.0, false ) ) );
+                        
+                        break;
+                    }
+                }
+            }
+        }
+        else
+        {
+            int nseg = ( (int)m_UParmVec.size() - 1 ) / 3;
+
+            if ( !found_top )
+            {
+                // Identify midpoint to use for Y
+                for ( int i = 0; i < nseg; i++ )
+                {
+                    int istart = i * 3;
+                    int iend = ( i + 1 ) * 3;
+
+                    Parm* pend = m_UParmVec[iend];
+
+                    if ( m_UParmVec[istart]->Get() < top_u && pend->Get() > top_u )
+                    {
+                        // Keep intermediate points valid.
+                        double dt = pend->Get() - top_u;
+
+                        // Shift U of next right side control point 
+                        m_UParmVec[iend - 1]->Set( pend->Get() - dt / 3.0 );
+
+                        // Add point on Y axis
+                        sort_vec.push_back( make_pair( top_u, vec3d( 0.0, ( m_YParmVec[istart]->Get() + m_YParmVec[iend]->Get() ) / 2.0, false ) ) );
+
+                        // Add intermediate control point
+                        sort_vec.push_back( make_pair( top_u + dt / 3.0, vec3d( 0.1 * m_Width(), ( m_YParmVec[istart]->Get() + m_YParmVec[iend]->Get() ) / 2.0, false ) ) );
+                        
+                        break;
+                    }
+                }
+            }
+            if ( !found_bottom )
+            {
+                // Identify midpoint to use for Y
+                for ( int i = 0; i < nseg; i++ )
+                {
+                    int istart = i * 3;
+                    int iend = ( i + 1 ) * 3;
+
+                    Parm* pstart = m_UParmVec[istart];
+
+                    if ( pstart->Get() < bottom_u && m_UParmVec[iend]->Get() > bottom_u )
+                    {
+                        // Keep intermediate points valid.
+                        double dt = bottom_u - pstart->Get();
+
+                        // Shift U of previous right side control point 
+                        m_UParmVec[istart + 1]->Set( pstart->Get() + dt / 3.0 );
+
+                        // Add point on Y axis
+                        sort_vec.push_back( make_pair( bottom_u, vec3d( 0.0, ( m_YParmVec[istart]->Get() + m_YParmVec[iend]->Get() ) / 2.0, false ) ) );
+
+                        // Add intermediate control point
+                        sort_vec.push_back( make_pair( bottom_u - dt / 3.0, vec3d( 0.1 * m_Width(), ( m_YParmVec[istart]->Get() + m_YParmVec[iend]->Get() ) / 2.0, false ) ) );
+
+                        break;
+                    }
+                }
+            }
+        }
+
+        if ( m_CurveType() == vsp::CEDIT )
+        {
+            // Include last two points
+            sort_vec.push_back( make_pair( m_UParmVec[m_UParmVec.size() - 1]->Get(), vec3d( m_XParmVec[m_UParmVec.size() - 1]->Get(), m_YParmVec[m_UParmVec.size() - 1]->Get(), m_EnforceG1Vec[m_UParmVec.size() - 1]->Get() ) ) );
+            sort_vec.push_back( make_pair( m_UParmVec[m_UParmVec.size() - 2]->Get(), vec3d( m_XParmVec[m_UParmVec.size() - 2]->Get(), m_YParmVec[m_UParmVec.size() - 2]->Get(), m_EnforceG1Vec[m_UParmVec.size() - 2]->Get() ) ) );
+
+            // Include first two points
+            sort_vec.push_back( make_pair( m_UParmVec[0]->Get(), vec3d( m_XParmVec[0]->Get(), m_YParmVec[0]->Get(), m_EnforceG1Vec[0]->Get() ) ) );
+            sort_vec.push_back( make_pair( m_UParmVec[1]->Get(), vec3d( m_XParmVec[1]->Get(), m_YParmVec[1]->Get(), m_EnforceG1Vec[1]->Get() ) ) );
+
+            int nseg = ( (int)m_UParmVec.size() - 1 ) / 3;
+
+            for ( int i = 1; i < nseg; i++ )
+            {
+                int iseg = i * 3;
+                int prev_ind = iseg - 1;
+                int next_ind = iseg + 1;
+
+                if ( m_UParmVec[iseg]->Get() == bottom_u )
+                {
+                    // Only keep right side (left will be reflected later)
+                    sort_vec.push_back( make_pair( m_UParmVec[prev_ind]->Get(), vec3d( m_XParmVec[prev_ind]->Get(), m_YParmVec[prev_ind]->Get(), m_EnforceG1Vec[prev_ind]->Get() ) ) );
+                    sort_vec.push_back( make_pair( m_UParmVec[iseg]->Get(), vec3d( m_XParmVec[iseg]->Get(), m_YParmVec[iseg]->Get(), m_EnforceG1Vec[iseg]->Get() ) ) );
+                }
+                else if ( m_UParmVec[iseg]->Get() == top_u )
+                {
+                    // Only keep right side (left will be reflected later)
+                    sort_vec.push_back( make_pair( m_UParmVec[iseg]->Get(), vec3d( m_XParmVec[iseg]->Get(), m_YParmVec[iseg]->Get(), m_EnforceG1Vec[iseg]->Get() ) ) );
+                    sort_vec.push_back( make_pair( m_UParmVec[next_ind]->Get(), vec3d( m_XParmVec[next_ind]->Get(), m_YParmVec[next_ind]->Get(), m_EnforceG1Vec[next_ind]->Get() ) ) );
+                }
+                else if ( ( m_UParmVec[iseg]->Get() <= bottom_u && m_UParmVec[prev_ind]->Get() <= bottom_u && m_UParmVec[next_ind]->Get() <= bottom_u ) ||
+                    ( m_UParmVec[iseg]->Get() >= top_u && m_UParmVec[prev_ind]->Get() >= top_u && m_UParmVec[next_ind]->Get() >= top_u ) )
+                {
+                    // Only inlcude this control point if both neighbors are less than 0.25 or greater than 0.75
+                    sort_vec.push_back( make_pair( m_UParmVec[prev_ind]->Get(), vec3d( m_XParmVec[prev_ind]->Get(), m_YParmVec[prev_ind]->Get(), m_EnforceG1Vec[prev_ind]->Get() ) ) );
+                    sort_vec.push_back( make_pair( m_UParmVec[iseg]->Get(), vec3d( m_XParmVec[iseg]->Get(), m_YParmVec[iseg]->Get(), m_EnforceG1Vec[iseg]->Get() ) ) );
+                    sort_vec.push_back( make_pair( m_UParmVec[next_ind]->Get(), vec3d( m_XParmVec[next_ind]->Get(), m_YParmVec[next_ind]->Get(), m_EnforceG1Vec[next_ind]->Get() ) ) );
+                }
+            }
+        }
+        else
+        {
+            for ( size_t i = 0; i < m_UParmVec.size(); i++ )
+            {
+                if ( m_UParmVec[i]->Get() <= bottom_u || m_UParmVec[i]->Get() >= top_u )
+                {
+                    sort_vec.push_back( make_pair( m_UParmVec[i]->Get(), vec3d( m_XParmVec[i]->Get(), m_YParmVec[i]->Get(), m_EnforceG1Vec[i]->Get() ) ) );
+                }
+            }
+        }
+
+        vector < pair < double, vec3d > > left_sort_vec;
+
+        for ( size_t i = 0; i < sort_vec.size(); i++ )
+        {
+            double right_u = sort_vec[i].first;
+            double right_x = sort_vec[i].second.x();
+            double right_y = sort_vec[i].second.y();
+            bool right_g1 = (bool)sort_vec[i].second.z();
+
+            if ( right_u < bottom_u )
+            {
+                left_sort_vec.push_back( make_pair( 0.5 - right_u, vec3d( -right_x, right_y, right_g1 ) ) );
+            }
+            else if ( right_u > top_u && right_u != 1.0 )
+            {
+                left_sort_vec.push_back( make_pair( 1.5 - right_u, vec3d( -right_x, right_y, right_g1 ) ) );
+            }
+        }
+
+        // Concatenate left and right
+        sort_vec.insert( sort_vec.end(), left_sort_vec.begin(), left_sort_vec.end() );
+
+        // Sort the vector by u value and reorder x, y, and g1 the same way
+        sort( sort_vec.begin(), sort_vec.end(), CompareUFunc );
+
+        vector < double > new_u_vec( sort_vec.size() );
+        vector < vec3d > new_pnt_vec( sort_vec.size() );
+        vector < bool > new_g1_vec( sort_vec.size() );
+
+        for ( size_t i = 0; i < sort_vec.size(); i++ )
+        {
+            new_u_vec[i] = sort_vec[i].first;
+            new_pnt_vec[i].set_x( sort_vec[i].second.x() );
+            new_pnt_vec[i].set_y( sort_vec[i].second.y() );
+            new_g1_vec[i] = (bool)sort_vec[i].second.z();
+        }
+
+        if ( new_u_vec.size() != m_UParmVec.size() )
+        {
+            SetPntVecs( new_u_vec, new_pnt_vec, new_g1_vec, false );
+        }
+        else
+        {
+            for ( size_t i = 0; i < new_u_vec.size(); i++ )
+            {
+                m_UParmVec[i]->Set( new_u_vec[i] );
+                m_XParmVec[i]->Set( new_pnt_vec[i].x() );
+                m_YParmVec[i]->Set( new_pnt_vec[i].y() );
+                m_EnforceG1Vec[i]->Set( new_g1_vec[i] );
+            }
+        }
+
+        // Deactivate left side parms and points on the axis of symmetry
+        for ( size_t i = 0; i < m_UParmVec.size(); i++ )
+        {
+            if ( m_UParmVec[i]->Get() > bottom_u && m_UParmVec[i]->Get() < top_u )
+            {
+                m_UParmVec[i]->Deactivate();
+                m_XParmVec[i]->Deactivate();
+                m_YParmVec[i]->Deactivate();
+                m_EnforceG1Vec[i]->Deactivate();
+            }
+            else if ( m_UParmVec[i]->Get() == bottom_u || m_UParmVec[i]->Get() == top_u )
+            {
+                m_UParmVec[i]->Deactivate();
+                m_XParmVec[i]->Deactivate();
+                // Allow translation along Y
+            }
+        }
+    }
+    else
+    {
+        m_CloseFlag.Activate();
+    }
+}
+
+void EditCurveXSec::ConvertTo( int newtype )
+{
+    int prev_type = m_CurveType();
+    m_CurveType = newtype;
+
+    switch ( prev_type )
+    {
+        case vsp::LINEAR:
+        {
+            switch ( newtype )
+            {
+                case vsp::LINEAR:
+                {
+                    return;
+                    break;
+                }
+                case vsp::PCHIP:
+                {
+                    break;
+                }
+                case vsp::CEDIT:
+                {
+                    vector < bool > prev_g1_vec = GetG1Vec();
+                    m_BaseEditCurve.ToCubic(); // Promote the curve
+
+                    vector < double > t_vec;
+                    vector < vec3d> ctrl_pts;
+
+                    m_BaseEditCurve.GetCubicControlPoints( ctrl_pts, t_vec );
+
+                    vector < bool > new_g1_vec( ctrl_pts.size() );
+                    vector < double > u_vec( t_vec.size() );
+
+                    double offset = -m_Width() / 2.0;
+
+                    for ( size_t i = 0; i < ctrl_pts.size(); i++ )
+                    {
+                        u_vec[i] = t_vec[i] / 4.0; // Store point parameter (0-1) internally
+
+                        // Nondimensionalize by width and height
+                        ctrl_pts[i].scale_x( 1.0 / m_Width() );
+                        ctrl_pts[i].scale_y( 1.0 / m_Height() );
+
+                        if ( i % 3 == 0 )
+                        {
+                            new_g1_vec[i] = prev_g1_vec[i / 3];
+                        }
+                        else
+                        {
+                            new_g1_vec[i] = false;
+                        }
+                    }
+
+                    SetPntVecs( u_vec, ctrl_pts, new_g1_vec );
+                    break;
+                }
+            }
+        }
+        break;
+        case vsp::PCHIP:
+        {
+            switch ( newtype )
+            {
+                case vsp::LINEAR:
+                {
+                    break;
+                }
+                case vsp::PCHIP:
+                {
+                    return;
+                    break;
+                }
+                case vsp::CEDIT:
+                {
+                    vector < bool > prev_g1_vec = GetG1Vec();
+
+                    vector < double > t_vec;
+                    vector < vec3d> ctrl_pts;
+
+                    m_BaseEditCurve.GetCubicControlPoints( ctrl_pts, t_vec );
+
+                    vector < double > u_vec( t_vec.size() );
+                    vector < bool > new_g1_vec( ctrl_pts.size() );
+
+                    double offset = -m_Width() / 2.0;
+
+                    for ( size_t i = 0; i < ctrl_pts.size(); i++ )
+                    {
+                        u_vec[i] = t_vec[i] / 4.0; // Store point parameter (0-1) internally
+
+                        // Nondimensionalize by width and height
+                        ctrl_pts[i].scale_x( 1.0 / m_Width() );
+                        ctrl_pts[i].scale_y( 1.0 / m_Height() );
+
+                        if ( i % 3 == 0 )
+                        {
+                            new_g1_vec[i] = prev_g1_vec[i / 3];
+                        }
+                        else
+                        {
+                            new_g1_vec[i] = false;
+                        }
+                    }
+
+                    SetPntVecs( u_vec, ctrl_pts, new_g1_vec );
+                    break;
+                }
+            }
+        }
+        break;
+        case vsp::CEDIT:
+        {
+            switch ( newtype )
+            {
+                case vsp::LINEAR:
+                case vsp::PCHIP:
+                {
+                    vector < double > u_vec = GetUVec();
+                    vector < double > x_vec = GetXVec();
+                    vector < double > y_vec = GetYVec();
+                    vector < bool > g1_vec = GetG1Vec();
+
+                    vector < double > new_u_vec, new_x_vec, new_y_vec;
+                    vector < bool > new_g1_vec;
+
+                    int nseg = ( (int)x_vec.size() - 1 ) / 3;
+
+                    for ( int i = 0; i < nseg + 1; i++ )
+                    {
+                        int ipt = 3 * i;
+                        new_u_vec.push_back( u_vec[ipt] );
+                        new_x_vec.push_back( x_vec[ipt] );
+                        new_y_vec.push_back( y_vec[ipt] );
+                        new_g1_vec.push_back( g1_vec[ipt] );
+                    }
+
+                    SetPntVecs( new_u_vec, new_x_vec, new_y_vec, new_g1_vec );
+                }
+                break;
+                case vsp::CEDIT:
+                {
+                    return;
+                }
+            }
+        }
+        break;
+    }
+
+    RenameParms();
+
+    // Reset selected control point (due to potentially added/removed points)
+    m_SelectPntID = 0;
+
+    m_LateUpdateFlag = true;
+    ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+}
+
+vector < double > EditCurveXSec::GetTVec()
+{
+    vector < double > retvec( m_UParmVec.size() );
+
+    for ( size_t i = 0; i < m_UParmVec.size(); ++i )
+    {
+        Parm* p = m_UParmVec[i];
+        if ( p )
+        {
+            retvec[i] = p->Get() * 4.0; // Convert from U to T 
+        }
+    }
+
+    return retvec;
+}
+
+vector < double > EditCurveXSec::GetUVec()
+{
+    vector < double > retvec( m_UParmVec.size() );
+
+    for ( size_t i = 0; i < m_UParmVec.size(); ++i )
+    {
+        Parm* p = m_UParmVec[i];
+        if ( p )
+        {
+            retvec[i] = p->Get();
+        }
+    }
+
+    return retvec;
+}
+
+vector < double > EditCurveXSec::GetXVec()
+{
+    vector < double > retvec( m_XParmVec.size() );
+
+    for ( size_t i = 0; i < m_XParmVec.size(); ++i )
+    {
+        Parm* p = m_XParmVec[i];
+        if ( p )
+        {
+            retvec[i] = p->Get();
+        }
+    }
+
+    return retvec;
+}
+
+vector < double > EditCurveXSec::GetYVec()
+{
+    vector < double > retvec( m_YParmVec.size() );
+
+    for ( size_t i = 0; i < m_YParmVec.size(); ++i )
+    {
+        Parm* p = m_YParmVec[i];
+        if ( p )
+        {
+            retvec[i] = p->Get();
+        }
+    }
+
+    return retvec;
+}
+
+vector < bool > EditCurveXSec::GetG1Vec()
+{
+    vector < bool > retvec( m_EnforceG1Vec.size() );
+
+    for ( size_t i = 0; i < m_EnforceG1Vec.size(); ++i )
+    {
+        BoolParm* p = m_EnforceG1Vec[i];
+        if ( p )
+        {
+            retvec[i] = p->Get();
+        }
+    }
+
+    return retvec;
+}
+
+void EditCurveXSec::SetWidthHeight( double w, double h )
+{
+    m_Width.Set( w );
+    m_Height.Set( h );
+}
+
+void EditCurveXSec::SetSelectPntID( int id )
+{
+    if ( id < 0 || id > m_XParmVec.size() - 1 )
+    {
+        return;
+    }
+
+    if ( m_CurveType() == vsp::CEDIT )
+    {
+        if ( id % 3 == 1 )
+        {
+            m_EnforceG1Next = true;
+        }
+        else if ( id % 3 == 2 )
+        {
+            m_EnforceG1Next = false;
+        }
+    }
+
+    m_SelectPntID = id;
+}
+
+void EditCurveXSec::MovePnt( int index, vec3d new_pnt, bool force_update )
+{
+    SetSelectPntID( index );
+    MovePnt( new_pnt.x(), new_pnt.y() );
+
+    if ( force_update )
+    {
+        ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+    }
+}
+
+void EditCurveXSec::MovePnt( double x, double y, bool neighbors_only )
+{
+    if ( m_SelectPntID < 0 || m_SelectPntID >= m_XParmVec.size() )
+    {
+        return;
+    }
+
+    Parm *xp = m_XParmVec[m_SelectPntID];
+    Parm *yp = m_YParmVec[m_SelectPntID];
+
+    if ( xp && yp )
+    {
+
+        switch ( this->m_CurveType() )
+        {
+            case vsp::LINEAR:
+            case vsp::PCHIP:
+                xp->Set( x );
+                yp->Set( y );
+                break;
+            case vsp::CEDIT:
+            {
+                int m = m_SelectPntID % 3;
+                if ( m == 0 )  // Changing an end point
+                {
+                    if ( !( m_SymType() == SYM_RL && ( m_UParmVec[m_SelectPntID]->Get() == 0.25 || m_UParmVec[m_SelectPntID]->Get() == 0.75 ) ) )
+                    {
+                        // Adjust the X coordinates of the neighboring control points
+                        double dx = x - xp->Get();
+
+                        Parm* xprev = NULL;
+                        if ( m_SelectPntID > 0 )
+                        {
+                            xprev = m_XParmVec[m_SelectPntID - 1];
+                            xprev->Set( xprev->Get() + dx );
+                        }
+                        else if ( m_SelectPntID == 0 && m_CloseFlag() )
+                        {
+                            xprev = m_XParmVec[m_XParmVec.size() - 2];
+                            xprev->Set( xprev->Get() + dx );
+                        }
+                        Parm* xnext = NULL;
+                        if ( m_SelectPntID < m_XParmVec.size() - 1 )
+                        {
+                            xnext = m_XParmVec[m_SelectPntID + 1];
+                            xnext->Set( xnext->Get() + dx );
+                        }
+                        else if ( ( m_SelectPntID == m_XParmVec.size() - 1 ) && m_CloseFlag() )
+                        {
+                            xnext = m_XParmVec[1];
+                            xnext->Set( xnext->Get() + dx );
+                        }
+
+                        if ( !neighbors_only )
+                        {
+                            xp->Set( x );
+                        }
+                    }
+
+                    // Adjust the Y coordinates of the neighboring control points
+                    double dy = y - yp->Get();
+
+                    Parm *yprev = NULL;
+                    if ( m_SelectPntID > 0 )
+                    {
+                        yprev = m_YParmVec[m_SelectPntID - 1];
+                        yprev->Set( yprev->Get() + dy );
+                    }
+                    else if ( m_SelectPntID == 0 && m_CloseFlag() )
+                    {
+                        yprev = m_YParmVec[m_YParmVec.size() - 2];
+                        yprev->Set( yprev->Get() + dy );
+                    }
+                    Parm *ynext = NULL;
+                    if ( m_SelectPntID < m_YParmVec.size() - 1 )
+                    {
+                        ynext = m_YParmVec[m_SelectPntID + 1];
+                        ynext->Set( ynext->Get() + dy );
+                    }
+                    else if ( ( m_SelectPntID == m_YParmVec.size() - 1 ) && m_CloseFlag() )
+                    {
+                        ynext = m_YParmVec[1];
+                        ynext->Set( ynext->Get() + dy );
+                    }
+                }
+                else if ( !neighbors_only )
+                {
+                    xp->Set( x );
+                }
+
+                if ( !neighbors_only )
+                {
+                    yp->Set( y );
+                }
+
+                break;
+            }
+        }
+    }
+
+    Update();
+}
+
+vector < vec3d > EditCurveXSec::GetCtrlPntVec( bool non_dimensional )
+{
+    vector < vec3d > return_vec( m_XParmVec.size() );
+    for ( size_t i = 0; i < m_XParmVec.size(); i++ )
+    {
+        if ( non_dimensional )
+        {
+            return_vec[i] = vec3d( m_XParmVec[i]->Get(), m_YParmVec[i]->Get(), 0.0 );
+        }
+        else // Scale by width and height
+        {
+            return_vec[i] = vec3d( m_Width() * m_XParmVec[i]->Get(), m_Height() * m_YParmVec[i]->Get(), 0.0 );
+        }
+    }
+
+    return return_vec;
+}
+
+void EditCurveXSec::SetPntVecs( vector < double > u_vec, vector < vec3d > pnt_vec, vector < bool > g1_vec, bool force_update )
+{
+    vector < double > x_vec( pnt_vec.size() );
+    vector < double > y_vec( pnt_vec.size() );
+
+    for ( size_t i = 0; i < pnt_vec.size(); i++ )
+    {
+        x_vec[i] = pnt_vec[i].x();
+        y_vec[i] = pnt_vec[i].y();
+    }
+
+    SetPntVecs( u_vec, x_vec, y_vec, g1_vec, force_update );
+}
+
+void EditCurveXSec::SetPntVecs( vector < double > u_vec, vector < double > x_pnt_vec, vector < double > y_pnt_vec, vector < bool > g1_vec, bool force_update )
+{
+    // TODO: Limit the number of times this function is called, since it will cause parm IDs to be reset, 
+    // causing links design variables, etc. to become broken.
+
+    if ( u_vec.size() != x_pnt_vec.size() && u_vec.size() != y_pnt_vec.size() )
+    {
+        std::cerr << "Failed to Set Control Points: Number of U, X, and Y points must be equal " << __LINE__ << std::endl;
+        assert( false );
+        return;
+    }
+
+    if ( g1_vec.size() != u_vec.size() )
+    {
+        g1_vec = vector < bool > (u_vec.size(), false );
+    }
+
+    //==== Load Control Points ====//
+    for ( size_t i = 0; i < m_UParmVec.size(); i++ ) // FIXME: Data lost 
+    {
+        delete m_UParmVec[i];
+        delete m_XParmVec[i];
+        delete m_YParmVec[i];
+        delete m_EnforceG1Vec[i];
+    }
+
+    m_UParmVec.clear();
+    m_XParmVec.clear();
+    m_YParmVec.clear();
+    m_EnforceG1Vec.clear();
+
+    //==== Load Control Points ====//
+    for ( size_t i = 0; i < u_vec.size(); i++ )
+    {
+        AddPt( u_vec[i], x_pnt_vec[i], y_pnt_vec[i], g1_vec[i] );
+    }
+
+    RenameParms();
+    EnforcePtOrder();
+
+    if ( force_update )
+    {
+        m_LateUpdateFlag = true;
+        ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+    }
+}
+
+void EditCurveXSec::DeletePt()
+{
+    DeletePt( m_SelectPntID );
+}
+
+void EditCurveXSec::DeletePt( int indx )
+{
+    int nseg = ( (int)m_XParmVec.size() - 1 ) / 3;
+
+    // TODO: Delete symmetric copy?
+
+    if ( indx > 0 && indx < ( m_XParmVec.size() - 1 ) )
+    {
+        // Can only delete control points on the cubic Bezier curve. Must have at least 4 segments
+        if ( ( m_CurveType() == vsp::CEDIT ) && ( ( indx % 3 ) == 0 ) && nseg >= 0 )
+        {
+            delete m_UParmVec[indx - 1];
+            delete m_UParmVec[indx];
+            delete m_UParmVec[indx + 1];
+
+            m_UParmVec.erase( m_UParmVec.begin() + indx - 1, m_UParmVec.begin() + indx + 2 );
+
+            delete m_XParmVec[indx - 1];
+            delete m_XParmVec[indx];
+            delete m_XParmVec[indx + 1];
+
+            m_XParmVec.erase( m_XParmVec.begin() + indx - 1, m_XParmVec.begin() + indx + 2 );
+
+            delete m_YParmVec[indx - 1];
+            delete m_YParmVec[indx];
+            delete m_YParmVec[indx + 1];
+            m_YParmVec.erase( m_YParmVec.begin() + indx - 1, m_YParmVec.begin() + indx + 2 );
+
+            delete m_EnforceG1Vec[indx - 1];
+            delete m_EnforceG1Vec[indx];
+            delete m_EnforceG1Vec[indx + 1];
+            m_EnforceG1Vec.erase( m_EnforceG1Vec.begin() + indx - 1, m_EnforceG1Vec.begin() + indx + 2 );
+        }
+        else if ( m_CurveType() != vsp::CEDIT )
+        {
+            delete m_UParmVec[indx];
+            m_UParmVec.erase( m_UParmVec.begin() + indx );
+
+            delete m_XParmVec[indx];
+            m_XParmVec.erase( m_XParmVec.begin() + indx );
+
+            delete m_YParmVec[indx];
+            m_YParmVec.erase( m_YParmVec.begin() + indx );
+
+            delete m_EnforceG1Vec[indx];
+            m_EnforceG1Vec.erase( m_EnforceG1Vec.begin() + indx );
+        }
+
+        RenameParms();
+
+        // Reset selected control point (due to potentially added/removed points)
+        m_SelectPntID = 0;
+
+        m_LateUpdateFlag = true;
+        ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
+    }
+}
+
+void EditCurveXSec::RenameParms()
+{
+    for ( int i = 0; i < m_XParmVec.size(); i++ )
+    {
+        char str[15];
+        sprintf( str, "X_%d", i );
+        m_XParmVec[i]->SetName( string( str ) );
+
+        sprintf( str, "Y_%d", i );
+        m_YParmVec[i]->SetName( string( str ) );
+
+        sprintf( str, "U_%d", i );
+        m_UParmVec[i]->SetName( string( str ) );
+
+        sprintf( str, "G1_%d", i );
+        m_EnforceG1Vec[i]->SetName( string( str ) );
+    }
+}
+
+int EditCurveXSec::Split01()
+{
+    double u_split = m_SplitU();
+    return Split01( u_split );
+}
+
+int EditCurveXSec::Split01( double u_split )
+{
+    // Note, the curve will not be split if a control point already exists at the split location. 
+    
+    // Identify the index of the new point
+    m_SelectPntID = 0;
+
+    vector < double > u_vec = GetUVec(); 
+
+    if ( m_CurveType() == CEDIT )
+    {
+        int nseg = ( (int)u_vec.size() - 1 ) / 3;
+
+        for ( size_t i = 0; i < nseg; i++ )
+        {
+            if ( u_split > u_vec[i * 3] && u_split < u_vec[3 * (i + 1)] )
+            {
+                m_SelectPntID = 3 * ( (int)i + 1 );
+                break;
+            }
+        }
+    }
+    else
+    {
+        for ( size_t i = 0; i < u_vec.size() - 1; i++ )
+        {
+            if ( u_split > u_vec[i] && u_split < u_vec[i + 1] )
+            {
+                m_SelectPntID = (int)i + 1;
+                break;
+            }
+        }
+    }
+
+    if ( m_SymType() == SYM_RL && u_split > 0.75 )
+    {
+        // Correct for the additional reflected control point
+        if ( m_CurveType() == vsp::CEDIT )
+        {
+            m_SelectPntID += 3;
+        }
+        else
+        {
+            m_SelectPntID += 1;
+        }
+    }
+
+    switch ( m_CurveType() )
+    {
+        case vsp::LINEAR:
+        case vsp::PCHIP:
+        {
+            vec3d split_pnt = m_BaseEditCurve.CompPnt( 4.0 * u_split );
+
+            // Nondimensionalize by width and height
+            split_pnt.scale_x( 1.0 / m_Width() );
+            split_pnt.scale_y( 1.0 / m_Height() );
+
+            u_vec = GetUVec();
+            vector < double > x_vec = GetXVec();
+            vector < double > y_vec = GetYVec();
+            vector < bool > g1_vec = GetG1Vec();
+
+            vector < double > new_u_vec, new_x_vec, new_y_vec;
+            vector < bool > new_g1_vec;
+            new_u_vec.reserve( u_vec.size() + 1 );
+            new_x_vec.reserve( x_vec.size() + 1 );
+            new_y_vec.reserve( y_vec.size() + 1 );
+            new_g1_vec.reserve( g1_vec.size() + 1 );
+
+            if ( u_split < u_vec[0] )
+            {
+                new_u_vec.push_back( u_split );
+                new_x_vec.push_back( split_pnt.x() );
+                new_y_vec.push_back( split_pnt.y() );
+                new_g1_vec.push_back( false );
+            }
+
+            new_u_vec.push_back( u_vec[0] );
+            new_x_vec.push_back( x_vec[0] );
+            new_y_vec.push_back( y_vec[0] );
+            new_g1_vec.push_back( g1_vec[0] );
+
+            for ( size_t i = 1; i < u_vec.size(); i++ )
+            {
+                if ( u_split >= u_vec[i - 1] && u_split < u_vec[i] )
+                {
+                    new_u_vec.push_back( u_split );
+                    new_x_vec.push_back( split_pnt.x() );
+                    new_y_vec.push_back( split_pnt.y() );
+                    new_g1_vec.push_back( false );
+                }
+                new_u_vec.push_back( u_vec[i] );
+                new_x_vec.push_back( x_vec[i] );
+                new_y_vec.push_back( y_vec[i] );
+                new_g1_vec.push_back( g1_vec[i] );
+            }
+
+            if ( u_split >= u_vec.back() )
+            {
+                new_u_vec.push_back( u_split );
+                new_x_vec.push_back( split_pnt.x() );
+                new_x_vec.push_back( split_pnt.y() );
+                new_g1_vec.push_back( false );
+            }
+
+            SetPntVecs( new_u_vec, new_x_vec, new_y_vec, new_g1_vec );
+        }
+        break;
+        case vsp::CEDIT:
+        {
+            vector < bool > prev_g1_vec = GetG1Vec();
+            m_BaseEditCurve.Split( 4.0 * u_split );
+
+            u_vec.clear();
+            vector < double > t_vec;
+            vector < vec3d > ctrl_pnts;
+
+            m_BaseEditCurve.GetCubicControlPoints( ctrl_pnts, t_vec );
+
+            u_vec.resize( t_vec.size() );
+            vector < bool > new_g1_vec( ctrl_pnts.size() );
+
+            for ( size_t i = 0; i < ctrl_pnts.size(); i++ )
+            {
+                u_vec[i] = t_vec[i] / 4.0;
+
+                // Nondimensionalize by width and height
+                ctrl_pnts[i].scale_x( 1.0 / m_Width() );
+                ctrl_pnts[i].scale_y( 1.0 / m_Height() );
+
+                if ( ( i >= m_SelectPntID - 1 ) && ( i <= m_SelectPntID + 1 ) )
+                {
+                    new_g1_vec[i] = false;
+                }
+                else if ( i < m_SelectPntID - 1 )
+                {
+                    new_g1_vec[i] = prev_g1_vec[i];
+                }
+                else
+                {
+                    new_g1_vec[i] = prev_g1_vec[i - 3];
+                }
+            }
+
+            SetPntVecs( u_vec, ctrl_pnts, new_g1_vec );
+        }
+        break;
+    }
+
+    RenameParms();
+
+    return m_SelectPntID;
+}
+
+void EditCurveXSec::EnforceG1( int new_index )
+{
+    if ( m_CurveType() != vsp::CEDIT )
+    {
+        return;
+    }
+
+    for ( size_t i = 0; i < m_EnforceG1Vec.size() - 1; i++ )
+    {
+        if ( m_EnforceG1Vec[i]->Get() )
+        {
+            int prev_ind = (int)i - 1;
+            int next_ind = (int)i + 1;
+
+            if ( i == 0 )
+            {
+                prev_ind = (int)m_EnforceG1Vec.size() - 2;
+            }
+
+            vec3d prev_pnt = vec3d( m_XParmVec[prev_ind]->Get(), m_YParmVec[prev_ind]->Get(), 0.0 );
+            vec3d curr_pnt = vec3d( m_XParmVec[i]->Get(), m_YParmVec[i]->Get(), 0.0 );
+            vec3d next_pnt = vec3d( m_XParmVec[next_ind]->Get(), m_YParmVec[next_ind]->Get(), 0.0 );
+
+            // Identify distances from point on the curve
+            double prev_dist = dist( prev_pnt, curr_pnt );
+            double next_dist = dist( next_pnt, curr_pnt );
+
+            // Identify slopes
+            double prev_m = ( curr_pnt.y() - prev_pnt.y() ) / ( curr_pnt.x() - prev_pnt.x() );
+            double next_m = ( curr_pnt.y() - next_pnt.y() ) / ( curr_pnt.x() - next_pnt.x() );
+
+            double prev_theta = atan( prev_m );
+            double next_theta = atan( next_m );
+            double avg_theta = ( prev_theta + next_theta ) / 2;
+
+            vec3d next_to_center_vec = curr_pnt - next_pnt;
+            vec3d prev_to_center_vec = curr_pnt - prev_pnt;
+            next_to_center_vec.normalize();
+            prev_to_center_vec.normalize();
+
+            if ( abs( curr_pnt.x() - prev_pnt.x() ) < FLT_EPSILON && abs( curr_pnt.x() - next_pnt.x() ) < FLT_EPSILON )
+            {
+                continue; // Do nothing if both vertical
+            }
+            else if ( new_index == i )
+            {
+                // Rotate tangents to match average slope
+                double next_rot, prev_rot;
+                if ( ( next_theta < 0 && prev_theta > 0 ) || ( prev_theta < 0 && next_theta > 0 ) )
+                {
+                    next_rot = next_theta - avg_theta;
+                    prev_rot = avg_theta - prev_theta;
+                }
+                else
+                {
+                    next_rot = avg_theta - next_theta;
+                    prev_rot = prev_theta - avg_theta;
+                }
+                next_to_center_vec.rotate_z( cos( next_rot ), sin( next_rot ) );
+                vec3d new_prev_pnt = curr_pnt + prev_dist * next_to_center_vec;
+
+                m_XParmVec[prev_ind]->Set( new_prev_pnt.x() );
+                m_YParmVec[prev_ind]->Set( new_prev_pnt.y() );
+
+                prev_to_center_vec.rotate_z( cos( prev_rot ), sin( prev_rot ) );
+                vec3d new_next_pnt = curr_pnt + next_dist * prev_to_center_vec;
+
+                m_XParmVec[next_ind]->Set( new_next_pnt.x() );
+                m_YParmVec[next_ind]->Set( new_next_pnt.y() );
+            }
+            else if ( m_SymType() == SYM_RL && ( m_UParmVec[i]->Get() == 0.25 || m_UParmVec[i]->Get() == 0.75 ) )
+            {
+                // Force horizontal tanget at axis of symmetry
+                m_YParmVec[prev_ind]->Set( m_YParmVec[i]->Get() );
+                m_YParmVec[next_ind]->Set( m_YParmVec[i]->Get() );
+            }
+            else if ( ( abs( prev_theta - next_theta ) > FLT_EPSILON ) ) 
+            {
+                // Identify the "master" vector and extend it to find the new point
+                if ( m_EnforceG1Next )
+                {
+                    vec3d new_prev_pnt = curr_pnt + prev_dist * next_to_center_vec;
+
+                    m_XParmVec[prev_ind]->Set( new_prev_pnt.x() );
+                    m_YParmVec[prev_ind]->Set( new_prev_pnt.y() );
+                }
+                else
+                {
+                    vec3d new_next_pnt = curr_pnt + next_dist * prev_to_center_vec;
+
+                    m_XParmVec[next_ind]->Set( new_next_pnt.x() );
+                    m_YParmVec[next_ind]->Set( new_next_pnt.y() );
+                }
+            }
+        }
+    }
+}

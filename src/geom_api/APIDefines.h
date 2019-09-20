@@ -345,6 +345,11 @@ enum GENDER { MALE,
               FEMALE
             };
 
+enum INIT_EDIT_XSEC_TYPE { EDIT_XSEC_CIRCLE,
+                           EDIT_XSEC_ELLIPSE,
+                           EDIT_XSEC_RECTANGLE
+                         };
+
 enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_NASCART,
                     IMPORT_CART3D_TRI,
@@ -517,6 +522,11 @@ enum SYM_FLAG {  SYM_XY = ( 1 << 0 ),
                  SYM_PLANAR_TYPES = 3,
                  SYM_NUM_TYPES = 6
               }; // Symmetry Flags
+
+enum SYM_XSEC_TYP { SYM_NONE,
+                    SYM_RL // Right/Left Symmetry
+                    //SYM_TB  // Top/Bottom Symmetry
+                  };
 
 enum TEMP_UNITS { TEMP_UNIT_K = 0,
                   TEMP_UNIT_C,
