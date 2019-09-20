@@ -852,6 +852,9 @@ public:
     virtual void SetMinMaxLimits( int min, int max );
     virtual void SetBigSmallIncrements( int big_inc, int small_inc );
 
+    virtual int GetMinIndex()               { return m_MinIndex; }
+    virtual int GetMaxIndex()               { return m_MaxIndex; }
+
 protected:
 
     virtual void SetValAndLimits( Parm* parm_ptr );
