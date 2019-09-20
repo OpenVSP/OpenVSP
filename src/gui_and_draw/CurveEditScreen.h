@@ -27,6 +27,25 @@ public:
 
 private:
 
+    XSecCurve* GetXSecCurve();
+
+    GroupLayout m_MainLayout;
+    GroupLayout m_GenLayout;
+
+    Choice m_ShapeChoice;
+    TriggerButton m_InitShapeButton;
+    Choice m_SymChoice;
+    ToggleButton m_ClosedCurveToggle;
+
+    SliderAdjRangeInput m_WidthSlider;
+    SliderAdjRangeInput m_HeightSlider;
+
+    ToggleButton m_AbsDimToggle;
+
+    SliderAdjRangeInput m_SelectedUSlider;
+
+    XSecCurveEditor m_CurveEditor;
+
 };
 
 #endif // !defined(CURVE_EDIT_H)
