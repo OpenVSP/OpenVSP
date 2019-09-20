@@ -28,6 +28,7 @@ public:
 
     vector< Parm* > m_TParmVec;
     vector< Parm* > m_ValParmVec;
+    vector < BoolParm* > m_EnforceG1Vec; // indicates whether or not to enforce G1 continuity for each CEDIT point on the curve,
 
     virtual void InitParms();
 
@@ -55,9 +56,11 @@ public:
 
     virtual vector < double > GetTVec();
     virtual vector < double > GetValVec();
+    virtual vector < bool > GetG1Vec();
 
     virtual void SetTVec( const vector < double > & vec );
     virtual void SetValVec( const vector < double > & vec );
+    virtual void SetG1Vec( const vector < bool >& vec );
 
     virtual void RenameParms();
 
@@ -71,9 +74,9 @@ public:
 
     virtual void ConvertTo( int newtype );
 
-    virtual void InitCurve( const vector < double > & tvec, const vector < double > & valvec );
+    virtual void InitCurve( const vector < double >& tvec, const vector < double >& valvec, vector < bool > c1vec = {} );
 
-    virtual void SetCurve( const vector < double > & tvec, const vector < double > & valvec, int newtype );
+    virtual void SetCurve( const vector < double > & tvec, const vector < double > & valvec, int newtype, vector < bool > c1vec = {} );
 
     virtual void SetDispNames( const string & xname, const string & yname );
     virtual string GetXDsipName()    { return m_XDispName; }
@@ -106,7 +109,11 @@ protected:
     virtual void ValidateCEDIT();
     virtual void ValidateCEDIT( vector < double > & vec );
 
+    virtual void UpdateG1Parms();
+
     virtual void ClearPtOrder();
+
+    virtual void EnforceG1( int new_index = -1 );
 
     Vsp1DCurve m_Curve;
 
@@ -121,6 +128,7 @@ protected:
 
     int m_SelectPntID;
 
+    bool m_EnforceG1Next; // flag to indicate if G1 should be enforced with the next or previous point. 
 };
 
 #endif // !defined(VSP_PCURVE__INCLUDED_)

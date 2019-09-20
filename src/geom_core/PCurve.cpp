@@ -10,7 +10,7 @@
 
 #include "PCurve.h"
 #include "ParmMgr.h"
-
+#include <cfloat>
 
 PCurve::PCurve() : ParmContainer()
 {
@@ -29,6 +29,7 @@ void PCurve::InitParms()
     m_SplitPt.SetDescript( "Curve split location" );
 
     m_SelectPntID = 0;
+    m_EnforceG1Next = true;
 }
 
 void PCurve::ReservePts( int n )
@@ -37,20 +38,24 @@ void PCurve::ReservePts( int n )
     {
         vector< Parm* > tparms( n );
         vector< Parm* > vparms( n );
+        vector< BoolParm* > g1parms( n );
 
         int i;
         for ( i = 0; i < n; i++ )
         {
             tparms[i] = m_TParmVec[i];
             vparms[i] = m_ValParmVec[i];
+            g1parms[i] = m_EnforceG1Vec[i];
         }
         for ( ; i < m_TParmVec.size(); i++ )
         {
             delete m_TParmVec[i];
             delete m_ValParmVec[i];
+            delete m_EnforceG1Vec[i];
         }
         m_TParmVec = tparms;
         m_ValParmVec = vparms;
+        m_EnforceG1Vec = g1parms;
     }
     else
     {
@@ -127,6 +132,16 @@ void PCurve::AddPt()
         m_ValParmVec.push_back( p );
     }
 
+    BoolParm* bp = dynamic_cast<BoolParm*>( ParmMgr.CreateParm( vsp::PARM_BOOL_TYPE ) );
+    if ( bp )
+    {
+        int i = (int)m_EnforceG1Vec.size();
+        char str[15];
+        sprintf( str, "G1_%d", i );
+        bp->Init( string( str ), m_GroupName, this, false, false, true );
+        bp->SetDescript( "G1 Enforcement Flag" );
+        m_EnforceG1Vec.push_back( bp );
+    }
 }
 
 void PCurve::DeletePt()
@@ -153,6 +168,11 @@ void PCurve::DeletePt( int indx )
                 delete m_ValParmVec[indx+1];
                 m_ValParmVec.erase( m_ValParmVec.begin() + indx - 1, m_ValParmVec.begin() + indx + 2 );
 
+                delete m_EnforceG1Vec[indx - 1];
+                delete m_EnforceG1Vec[indx];
+                delete m_EnforceG1Vec[indx + 1];
+                m_EnforceG1Vec.erase( m_EnforceG1Vec.begin() + indx - 1, m_EnforceG1Vec.begin() + indx + 2 );
+
                 ValidateCEDIT();
             }
         }
@@ -163,6 +183,9 @@ void PCurve::DeletePt( int indx )
 
             delete m_ValParmVec[indx];
             m_ValParmVec.erase( m_ValParmVec.begin() + indx );
+
+            delete m_EnforceG1Vec[indx];
+            m_EnforceG1Vec.erase( m_EnforceG1Vec.begin() + indx );
 
             EnforcePtOrder();
         }
@@ -178,6 +201,58 @@ void PCurve::DeletePt( int indx )
 
 void PCurve::ParmChanged( Parm* parm_ptr, int type )
 {
+    for ( size_t i = 0; i < m_EnforceG1Vec.size(); i++ )
+    {
+        Parm* g1_parm = dynamic_cast<Parm*> ( m_EnforceG1Vec[i] );
+
+        if ( g1_parm == parm_ptr )
+        {
+            EnforceG1( i );
+            break;
+        }
+    }
+
+    if ( m_CurveType() == vsp::CEDIT )
+    {
+        for ( size_t i = 0; i < m_TParmVec.size(); i++ )
+        {
+            Parm* t_parm = dynamic_cast<Parm*> ( m_TParmVec[i] );
+            Parm* v_parm = dynamic_cast<Parm*> ( m_ValParmVec[i] );
+
+            if ( parm_ptr == t_parm || parm_ptr == v_parm )
+            {
+                if ( i % 3 == 1 )
+                {
+                    m_EnforceG1Next = true;
+                }
+                else if ( i % 3 == 2 )
+                {
+                    m_EnforceG1Next = false;
+                }
+                else if ( i % 3 == 0 && m_EnforceG1Vec[i]->Get() && parm_ptr == v_parm && type == Parm::SET_FROM_DEVICE )
+                {
+                    // Adjust the value of the neighboring control points if GUI slider is adjusted (not used for a click-and-drag event)
+                    double dv = v_parm->Get() - v_parm->GetLastVal();
+
+                    Parm* vprev = NULL;
+                    if ( i > 0 )
+                    {
+                        vprev = m_ValParmVec[i - 1];
+                        vprev->Set( vprev->Get() + dv );
+                    }
+                    Parm* vnext = NULL;
+                    if ( i < m_ValParmVec.size() - 1 )
+                    {
+                        vnext = m_ValParmVec[i + 1];
+                        vnext->Set( vnext->Get() + dv );
+                    }
+                }
+
+                break;
+            }
+        }
+    }
+
     if ( type == Parm::SET )
     {
         m_LateUpdateFlag = true;
@@ -205,6 +280,8 @@ void PCurve::ParmChanged( Parm* parm_ptr, int type )
 
 void PCurve::Update()
 {
+    EnforceG1();
+
     vector < double > tvec = GetTVec();
     vector < double > valvec = GetValVec();
 
@@ -227,6 +304,8 @@ void PCurve::Update()
         m_Curve.SetCubicControlPoints( valvec, tvec, false );
         break;
     }
+
+    UpdateG1Parms();
 
     m_LateUpdateFlag = false;
 }
@@ -466,6 +545,23 @@ vector < double > PCurve::GetValVec()
     return retvec;
 }
 
+vector < bool > PCurve::GetG1Vec()
+{
+    vector < bool > retvec( m_EnforceG1Vec.size() );
+
+    for ( size_t i = 0; i < m_EnforceG1Vec.size(); ++i )
+    {
+        BoolParm* p = m_EnforceG1Vec[i];
+        if ( p )
+        {
+            retvec[i] = p->Get();
+        }
+    }
+
+    return retvec;
+}
+
+
 void PCurve::SetTVec( const vector < double > & vec )
 {
     ClearPtOrder();
@@ -501,6 +597,21 @@ void PCurve::SetValVec( const vector < double > & vec )
     m_LateUpdateFlag = true;
 }
 
+void PCurve::SetG1Vec( const vector < bool >& vec )
+{
+    int n = (int)vec.size();
+    ReservePts( n );
+    for ( int i = 0; i < n; ++i )
+    {
+        BoolParm* bp = m_EnforceG1Vec[i];
+        if ( bp )
+        {
+            bp->Set( vec[i] );
+        }
+    }
+    m_LateUpdateFlag = true;
+}
+
 void PCurve::RenameParms()
 {
     for ( int i = 0; i < m_TParmVec.size(); i++ )
@@ -511,10 +622,13 @@ void PCurve::RenameParms()
 
         sprintf( str, "%s_%d", m_YParmName.c_str(), i );
         m_ValParmVec[i]->SetName( string( str ) );
+
+        sprintf( str, "G1_%d", i );
+        m_EnforceG1Vec[i]->SetName( string( str ) );
     }
 }
 
-void PCurve::SetPt( double t, double v, int indx )
+void PCurve::SetPt( double t, double v, int indx, bool force_update )
 {
     Parm *tp = m_TParmVec[ indx ];
     Parm *vp = m_ValParmVec[ indx ];
@@ -610,21 +724,26 @@ int PCurve::Split( const double & tsplit )
       {
           double vsplit = Comp( tsplit );
 
-          vector < double > tvec = GetTVec();
+          tvec = GetTVec();
           vector < double > valvec = GetValVec();
+          vector < bool > g1_vec = GetG1Vec();
 
           vector < double > newtv, newvalv;
+          vector < bool > new_g1_vec;
           newtv.reserve( tvec.size() + 1 );
           newvalv.reserve( valvec.size() + 1 );
+          new_g1_vec.reserve( g1_vec.size() + 1 );
 
           if ( tsplit < tvec[0] )
           {
               newtv.push_back( tsplit );
               newvalv.push_back( vsplit );
+              new_g1_vec.push_back( false );
           }
 
           newtv.push_back( tvec[0] );
           newvalv.push_back( valvec[0] );
+          new_g1_vec.push_back( g1_vec[0] );
 
           for ( int i = 1; i < tvec.size(); i++ )
           {
@@ -632,31 +751,52 @@ int PCurve::Split( const double & tsplit )
               {
                   newtv.push_back( tsplit );
                   newvalv.push_back( vsplit );
+                  new_g1_vec.push_back( false );
               }
               newtv.push_back( tvec[i] );
               newvalv.push_back( valvec[i] );
+              new_g1_vec.push_back( g1_vec[i] );
           }
 
           if ( tsplit >= tvec.back() )
           {
               newtv.push_back( tsplit );
               newvalv.push_back( vsplit );
+              new_g1_vec.push_back( false );
           }
 
-          InitCurve( newtv, newvalv );
+          InitCurve( newtv, newvalv, new_g1_vec );
 
       }
         break;
     case vsp::CEDIT:
       {
+          vector < bool > prev_g1_vec = GetG1Vec();
           m_Curve.Split( tsplit );
 
-          vector < double > tvec;
           vector < double > valvec;
 
           m_Curve.GetCubicControlPoints( valvec, tvec );
 
-          InitCurve( tvec, valvec );
+          vector < bool > new_g1_vec( valvec.size() );
+
+          for ( size_t i = 0; i < valvec.size(); i++ )
+          {
+              if ( ( i >= m_SelectPntID - 1 ) && ( i <= m_SelectPntID + 1 ) )
+              {
+                  new_g1_vec[i] = false;
+              }
+              else if ( i < m_SelectPntID - 1 )
+              {
+                  new_g1_vec[i] = prev_g1_vec[i];
+              }
+              else
+              {
+                  new_g1_vec[i] = prev_g1_vec[i - 3];
+              }
+          }
+
+          InitCurve( tvec, valvec, new_g1_vec );
 
       }
         break;
@@ -685,6 +825,8 @@ void PCurve::ConvertTo( int newtype )
                 m_CurveType = vsp::PCHIP;
                 break;
             case vsp::CEDIT:
+                vector < bool > prev_g1_vec = GetG1Vec();
+
                 m_Curve.ToCubic();
 
                 vector < double > tvec;
@@ -692,9 +834,23 @@ void PCurve::ConvertTo( int newtype )
 
                 m_Curve.GetCubicControlPoints( valvec, tvec );
 
+                vector < bool > new_g1_vec( valvec.size() );
+
+                for ( size_t i = 0; i < valvec.size(); i++ )
+                {
+                    if ( i % 3 == 0 )
+                    {
+                        new_g1_vec[i] = prev_g1_vec[i / 3];
+                    }
+                    else
+                    {
+                        new_g1_vec[i] = false;
+                    }
+                }
+
                 m_CurveType = vsp::CEDIT;
 
-                InitCurve( tvec, valvec );
+                InitCurve( tvec, valvec, new_g1_vec );
 
                 break;
             }
@@ -712,13 +868,28 @@ void PCurve::ConvertTo( int newtype )
                 break;
             case vsp::CEDIT:
 
+                vector < bool > prev_g1_vec = GetG1Vec();
                 vector < double > tvec;
                 vector < double > valvec;
 
                 m_Curve.GetCubicControlPoints( valvec, tvec );
 
+                vector < bool > new_g1_vec( valvec.size() );
+
+                for ( size_t i = 0; i < valvec.size(); i++ )
+                {
+                    if ( i % 3 == 0 )
+                    {
+                        new_g1_vec[i] = prev_g1_vec[i / 3];
+                    }
+                    else
+                    {
+                        new_g1_vec[i] = false;
+                    }
+                }
+
                 m_CurveType = vsp::CEDIT;
-                InitCurve( tvec, valvec );
+                InitCurve( tvec, valvec, new_g1_vec );
 
                 break;
             }
@@ -733,9 +904,10 @@ void PCurve::ConvertTo( int newtype )
                 {
                     vector < double > tvec = GetTVec();
                     vector < double > valvec = GetValVec();
+                    vector < bool > g1_vec = GetG1Vec();
 
-                    vector < double > newtvec;
-                    vector < double > newvalvec;
+                    vector < double > newtvec, newvalvec;
+                    vector < bool > new_g1_vec;
 
                     int npt = tvec.size();
                     int nseg = ( npt - 1 ) / 3;
@@ -744,11 +916,12 @@ void PCurve::ConvertTo( int newtype )
                         int ipt = 3 * i;
                         newtvec.push_back( tvec[ipt] );
                         newvalvec.push_back( valvec[ipt] );
+                        new_g1_vec.push_back( g1_vec[ipt] );
                     }
 
                     m_CurveType = newtype;
 
-                    InitCurve( newtvec, newvalvec );
+                    InitCurve( newtvec, newvalvec, new_g1_vec );
                 }
                 break;
             case vsp::CEDIT:
@@ -768,10 +941,17 @@ void PCurve::ConvertTo( int newtype )
     ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
 }
 
-void PCurve::InitCurve( const vector < double > & tvec, const vector < double > & valvec )
+void PCurve::InitCurve( const vector < double > & tvec, const vector < double > & valvec, vector < bool > g1vec )
 {
     SetTVec( tvec );
     SetValVec( valvec );
+
+    if ( g1vec.size() != tvec.size() )
+    {
+        g1vec = vector < bool >( tvec.size(), false );
+    }
+
+    SetG1Vec( g1vec );
 }
 
 void PCurve::SetDispNames( const string & xname, const string & yname )
@@ -780,10 +960,10 @@ void PCurve::SetDispNames( const string & xname, const string & yname )
     m_YDispName = yname;
 }
 
-void PCurve::SetCurve( const vector < double > & tvec, const vector < double > & valvec, int newtype )
+void PCurve::SetCurve( const vector < double > & tvec, const vector < double > & valvec, int newtype, vector < bool > g1vec )
 {
     ConvertTo( newtype );
-    InitCurve( tvec, valvec );
+    InitCurve( tvec, valvec, g1vec );
     RenameParms();
 }
 
@@ -913,4 +1093,93 @@ void PCurve::SetSelectPntID( int id )
     }
 
     m_SelectPntID = id;
+}
+
+void PCurve::UpdateG1Parms()
+{
+    if ( m_CurveType() == vsp::CEDIT )
+    {
+        for ( int i = 1; i < m_EnforceG1Vec.size() - 1; i++ )
+        {
+            BoolParm* p = m_EnforceG1Vec[i];
+
+            if ( p )
+            {
+                if ( i % 3 != 0 ) // Deactivate G1 for interior control points
+                {
+                    p->Set( false );
+                    p->Deactivate();
+                }
+                else
+                {
+                    p->Activate();
+                }
+            }
+        }
+    }
+    else
+    {
+        for ( int j = 1; j < m_EnforceG1Vec.size() - 1; j++ )
+        {
+            m_EnforceG1Vec[j]->Set( false );
+            m_EnforceG1Vec[j]->Deactivate(); // No G1 enforcement for linear or PCHIP
+        }
+    }
+
+    m_EnforceG1Vec[0]->Set( false );
+    m_EnforceG1Vec[m_EnforceG1Vec.size() - 1]->Set( false );
+    m_EnforceG1Vec[0]->Deactivate();
+    m_EnforceG1Vec[m_EnforceG1Vec.size() - 1]->Deactivate();
+}
+
+void PCurve::EnforceG1( int new_index )
+{
+    if ( m_CurveType() != vsp::CEDIT )
+    {
+        return;
+    }
+
+    for ( size_t i = 0; i < m_EnforceG1Vec.size(); i++ )
+    {
+        if ( m_EnforceG1Vec[i]->Get() )
+        {
+            int prev_ind = i - 1;
+            int next_ind = i + 1;
+
+            vec3d prev_pnt = vec3d( m_TParmVec[prev_ind]->Get(), m_ValParmVec[prev_ind]->Get(), 0.0 );
+            vec3d curr_pnt = vec3d( m_TParmVec[i]->Get(), m_ValParmVec[i]->Get(), 0.0 );
+            vec3d next_pnt = vec3d( m_TParmVec[next_ind]->Get(), m_ValParmVec[next_ind]->Get(), 0.0 );
+
+            // Identify average slope
+            double prev_m = ( curr_pnt.y() - prev_pnt.y() ) / ( curr_pnt.x() - prev_pnt.x() );
+            double next_m = ( next_pnt.y() - curr_pnt.y() ) / ( next_pnt.x() - curr_pnt.x() );
+
+            if ( new_index == i )
+            {
+                double avg_m = ( prev_m + next_m ) / 2;
+
+                // Anforce average tangent slope on left and right side
+                double prev_val = curr_pnt.y() - avg_m * ( curr_pnt.x() - prev_pnt.x() );
+                m_ValParmVec[prev_ind]->Set( prev_val );
+
+                double next_val = curr_pnt.y() + avg_m * ( next_pnt.x() - curr_pnt.x() );
+                m_ValParmVec[next_ind]->Set( next_val );
+            }
+            else if ( abs( prev_m - next_m ) > FLT_EPSILON )
+            {
+                if ( m_EnforceG1Next )
+                {
+                    // Enforce next point tangent slope on previous point
+                    double prev_val = curr_pnt.y() - next_m * ( curr_pnt.x() - prev_pnt.x() );
+                    m_ValParmVec[prev_ind]->Set( prev_val );
+                }
+                else
+                {
+                    // Enforce previous point tangent slope on next point
+                    double next_val = curr_pnt.y() + prev_m * ( next_pnt.x() - curr_pnt.x() );
+                    m_ValParmVec[next_ind]->Set( next_val );
+                }
+            }
+        }
+    }
 }
