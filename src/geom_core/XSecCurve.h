@@ -40,6 +40,8 @@ public:
 
     virtual VspCurve& GetCurve();
 
+    virtual VspCurve& GetBaseEditCurve()                { return m_BaseEditCurve; }
+
     virtual int  GetType()
     {
         return m_Type;
@@ -151,6 +153,7 @@ protected:
     int m_GroupSuffix;
 
     VspCurve m_Curve;
+    VspCurve m_BaseEditCurve;
 };
 
 //==========================================================================//
