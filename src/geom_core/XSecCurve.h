@@ -25,6 +25,7 @@
 using std::string;
 
 class Geom;
+class EditCurveXSec;
 
 class XSecCurve : public ParmContainer
 {
@@ -93,6 +94,10 @@ public:
 
     virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
     static void InterpCurve( VspCurve & cout, XSecCurve *start, XSecCurve *end, double frac );
+
+    // Convert any XSec into an editable type. This function will default the XSec to 
+    // cubic Bezier with symmetry off.
+    static EditCurveXSec* ConvertToEdit( XSecCurve* original_curve );
 
     IntParm m_TECloseType;
     IntParm m_TECloseAbsRel;

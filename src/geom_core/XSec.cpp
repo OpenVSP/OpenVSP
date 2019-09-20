@@ -506,6 +506,15 @@ void XSec::ReadV2FileFuse1( xmlNodePtr &root )
     m_XSCurve->ReadV2FileFuse2( omlNode );
 }
 
+EditCurveXSec* XSec::ConvertToEdit()
+{
+    EditCurveXSec* xscrv_ptr = XSecCurve::ConvertToEdit( m_XSCurve );
+
+    SetXSecCurve( xscrv_ptr );
+
+    return xscrv_ptr;
+}
+
 //==========================================================================//
 //==========================================================================//
 //==========================================================================//

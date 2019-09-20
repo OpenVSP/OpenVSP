@@ -41,6 +41,9 @@ public:
 
     virtual void AddLinkableParms( vector< string > & parm_vec, const string & link_container_id = string() );
 
+    // Alternative to XSecSurf::ConvertToEdit for BOR components
+    virtual EditCurveXSec* ConvertToEdit();
+
     Parm m_Diameter;
 
     Parm m_Angle;

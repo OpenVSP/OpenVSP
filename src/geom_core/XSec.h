@@ -94,6 +94,8 @@ public:
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
     virtual void ReadV2FileFuse1( xmlNodePtr &root );
 
+    virtual EditCurveXSec* ConvertToEdit();
+
     IntParm m_SectTessU;
 
 protected:

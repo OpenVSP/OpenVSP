@@ -114,6 +114,50 @@ XSecCurve::XSecCurve()
     m_yscale = 1.0;
 }
 
+//==== Convert Any XSec to Cubic Bezier Edit Curve ====//
+EditCurveXSec* XSecCurve::ConvertToEdit( XSecCurve* orig_curve )
+{
+    if ( orig_curve->GetType() == vsp::XS_EDIT_CURVE )
+    {
+        return dynamic_cast<EditCurveXSec*>( orig_curve );
+    }
+
+    VspCurve vsp_curve = orig_curve->GetBaseEditCurve();
+
+    // Make the curve more coarse. Force wingtype to false to avoid TMAGIC curve spitting, since 
+    // XSecCurve::Update() already does it.
+    vsp_curve.ToBinaryCubic( false, 1e-3, 0.01, 0, 3 );
+
+    vector < vec3d > point_vec;
+    vector < double > param_vec;
+
+    vsp_curve.GetCubicControlPoints( point_vec, param_vec );
+
+    double offset = orig_curve->GetWidth() / 2;
+
+    for ( size_t i = 0; i < param_vec.size(); i++ )
+    {
+        param_vec[i] = param_vec[i] / 4.0; // Store point parameter (0-1) internally
+        // Shift by 1/2 width and nondimensionalize
+        point_vec[i].set_x( ( point_vec[i].x() - offset ) / max( orig_curve->GetWidth(), 1E-9 ) );
+        point_vec[i].set_y( point_vec[i].y() / max( orig_curve->GetHeight(), 1E-9 ) );
+    }
+
+    EditCurveXSec* xscrv_ptr = new EditCurveXSec();
+
+    xscrv_ptr->CopyFrom( orig_curve );
+    xscrv_ptr->m_SymType.Set( vsp::SYM_NONE );
+    // TODO: Transfer symmetry and G1 continuity qualities
+
+    // Transfer width and height parm values
+    xscrv_ptr->SetWidthHeight( orig_curve->GetWidth(), orig_curve->GetHeight() );
+
+    // Set Bezier control points
+    xscrv_ptr->SetPntVecs( param_vec, point_vec );
+
+    return xscrv_ptr;
+}
+
 void XSecCurve::SetGroupDisplaySuffix( int num )
 {
     m_GroupSuffix = num;

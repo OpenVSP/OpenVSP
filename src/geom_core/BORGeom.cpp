@@ -339,3 +339,13 @@ void BORGeom::AddLinkableParms( vector< string > & parm_vec, const string & link
         m_XSCurve->AddLinkableParms( parm_vec, m_ID );
     }
 }
+
+EditCurveXSec* BORGeom::ConvertToEdit()
+{
+    EditCurveXSec* xscrv_ptr = XSecCurve::ConvertToEdit( m_XSCurve );
+
+    delete m_XSCurve;
+    m_XSCurve = xscrv_ptr;
+
+    return xscrv_ptr;
+}
