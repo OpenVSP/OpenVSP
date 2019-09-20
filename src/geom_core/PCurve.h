@@ -64,7 +64,7 @@ public:
 
     virtual void RenameParms();
 
-    virtual void SetPt( double t, double v, int indx );
+    virtual void SetPt( double t, double v, int indx, bool force_update = false );
 
     virtual int Split();
     virtual int Split( const double & tsplit );

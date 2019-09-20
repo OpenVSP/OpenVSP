@@ -674,8 +674,11 @@ void PCurve::SetPt( double t, double v, int indx, bool force_update )
           }
         }
         m_LateUpdateFlag = true;
-        ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
 
+        if ( force_update )
+        {
+            ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+        }
     }
 }
 
