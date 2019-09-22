@@ -19,7 +19,7 @@ int vsp_add_and_get_estatus( unsigned int ecode )
 
 void vsp_exit()
 {
-    int exit_status = vsp_add_and_get_estatus( ESTATUS_NO_ERRORS );
+    int exit_status = vsp_add_and_get_estatus( (unsigned int) ESTATUS_NO_ERRORS );
     exit( exit_status );
 }
 
