@@ -66,8 +66,8 @@ class Vector {
     Real operator*(const Self &other) const { return accumulate(std::multiplies<Real>(), std::plus<Real>(), other); }
     Self operator+(const Self &other) const { return apply(std::plus<Real>(), other); }
     Self operator-(const Self &other) const { return apply(std::minus<Real>(), other); }
-    Self operator*(const Real &scalar) const { return apply(bind2nd(std::multiplies<Real>(), scalar)); }
-    Self operator/(const Real &scalar) const { return apply(bind2nd(std::divides<Real>(), scalar)); }
+    Self operator*(const Real &scalar) const { return apply(bind(std::multiplies<Real>(), std::placeholders::_1, scalar)); }
+    Self operator/(const Real &scalar) const { return apply(bind(std::divides<Real>(), std::placeholders::_1, scalar)); }
     Self operator-() const { return apply(std::negate<Real>()); }
     bool operator==(const Self &other) const { return accumulate(std::equal_to<Real>(), std::logical_and<Real>(), other); }
 
@@ -163,8 +163,8 @@ class Vector<Real, -1> {
     Real operator*(const Self &other) const { return accumulate(std::multiplies<Real>(), std::plus<Real>(), other); }
     Self operator+(const Self &other) const { return apply(std::plus<Real>(), other); }
     Self operator-(const Self &other) const { return apply(std::minus<Real>(), other); }
-    Self operator*(const Real &scalar) const { return apply(bind2nd(std::multiplies<Real>(), scalar)); }
-    Self operator/(const Real &scalar) const { return apply(bind2nd(std::divides<Real>(), scalar)); }
+    Self operator*(const Real &scalar) const { return apply(bind(std::multiplies<Real>(), std::placeholders::_1, scalar)); }
+    Self operator/(const Real &scalar) const { return apply(bind(std::divides<Real>(), std::placeholders::_1, scalar)); }
     Self operator-() const { return apply(std::negate<Real>()); }
 
     #define OPAS(op, typ) Self &operator op##=(const typ &x) { (*this) = (*this) op x; return *this; }
