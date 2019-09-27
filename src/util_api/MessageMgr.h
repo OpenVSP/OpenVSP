@@ -135,6 +135,7 @@ public:
     void SendAll( const MessageData& data  );
     void SendAll( const MessageBase* from_base, const MessageData& data );
 
+    void SendError( const char* msg, const char* func, const char* file, int line, string stackdump );
 };
 
 

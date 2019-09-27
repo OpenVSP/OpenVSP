@@ -70,6 +70,7 @@ UtilTestSuite.h
 VKTAirfoil.h
 Vsp1DCurve.h
 VspCurve.h
+VspError.h
 VspSurf.h
 VspUtil.h
 WriteMatlab.h

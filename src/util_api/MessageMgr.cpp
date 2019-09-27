@@ -5,6 +5,7 @@
 #include <cassert>
 
 #include "MessageMgr.h"
+
 using std::unordered_map;
 using std::string;
 using std::deque;
@@ -151,4 +152,15 @@ void MessageMgr::SendAll( const MessageBase* from_base, const MessageData& data 
             iter->second[i]->MessageCallback( from_base, data );
         }
     }
+}
+
+void MessageMgr::SendError( const char* msg, const char* func, const char* file, int line, string stackdump )
+{
+    MessageData errMsgData;
+    errMsgData.m_String = "Error";
+    errMsgData.m_IntVec.push_back( -1 ); // vsp::VSP_UNKNOWN
+    string message = string( msg ) + "\nIn: " + func + "\nOn Line: " + std::to_string( line ) + "\nIn File: " + file + "\n\n" + stackdump.c_str();
+    errMsgData.m_StringVec.push_back( message );
+
+    SendAll( errMsgData );
 }

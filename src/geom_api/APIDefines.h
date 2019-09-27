@@ -505,7 +505,8 @@ enum ENGINE_MODE_TYPE { ENGINE_MODE_FLOWTHROUGH,	/*!< Represent integrated flowp
 	\ingroup Enumerations
 */
 /*! Enum for OpenVSP API error codes. */
-enum ERROR_CODE {   VSP_OK,	/*!< No error */
+enum ERROR_CODE {   VSP_UNKNOWN = -1,	/*!< Unknown error */
+                    VSP_OK,	/*!< No error */
                     VSP_INVALID_PTR,	/*!< Invalid pointer error */
                     VSP_INVALID_TYPE,	/*!< Invalid type error */
                     VSP_CANT_FIND_TYPE,	/*!< Can't find type error */
