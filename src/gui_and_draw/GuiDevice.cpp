@@ -1217,16 +1217,24 @@ void ToggleButton::SetValAndLimits( Parm* p )
         return;
     }
 
+    if ( !m_Button )
+    {
+        return;
+    }
+
     BoolParm* bool_p = dynamic_cast<BoolParm*>( p );
     assert( bool_p );
 
-    if ( bool_p->Get() )
+    if ( bool_p )
     {
-        m_Button->set();
-    }
-    else
-    {
-        m_Button->clear();
+        if (bool_p->Get())
+        {
+            m_Button->set();
+        }
+        else
+        {
+            m_Button->clear();
+        }
     }
 }
 
