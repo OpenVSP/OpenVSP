@@ -4110,6 +4110,113 @@ void SetSetFlag( const string & geom_id, int set_index, bool flag )
     geom_ptr->SetSetFlag( set_index, flag );
 }
 
+//================================================================//
+//=============== Group Modifications for Sets ===================//
+//================================================================//
+
+void ScaleSet( int set_index, double scale )
+{
+    Vehicle* veh = GetVehicle();
+    GroupTransformations* group_trans = veh->GetGroupTransformationsPtr();
+    if ( !group_trans )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ScaleSet::Can't Get Group Transformation Pointer" );
+        return;
+    }
+
+    vector < string > geom_id_vec = veh->GetGeomSet( set_index );
+
+    veh->ClearActiveGeom();
+    veh->SetActiveGeomVec( geom_id_vec );
+    group_trans->ReInitialize();
+
+    group_trans->m_GroupScale.Set( scale );
+    group_trans->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+
+    veh->ClearActiveGeom();
+    group_trans->ReInitialize();
+}
+
+void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_deg )
+{
+    Vehicle* veh = GetVehicle();
+    GroupTransformations* group_trans = veh->GetGroupTransformationsPtr();
+    if ( !group_trans )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ScaleSet::Can't Get Group Transformation Pointer" );
+        return;
+    }
+
+    vector < string > geom_id_vec = veh->GetGeomSet( set_index );
+
+    veh->ClearActiveGeom();
+    veh->SetActiveGeomVec( geom_id_vec );
+    group_trans->ReInitialize();
+
+    group_trans->m_GroupXRot.Set( x_rot_deg );
+    group_trans->m_GroupYRot.Set( y_rot_deg );
+    group_trans->m_GroupZRot.Set( z_rot_deg );
+    group_trans->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+
+    veh->ClearActiveGeom();
+    group_trans->ReInitialize();
+}
+
+void TranslateSet( int set_index, vec3d translation_vec )
+{
+    Vehicle* veh = GetVehicle();
+    GroupTransformations* group_trans = veh->GetGroupTransformationsPtr();
+    if ( !group_trans )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ScaleSet::Can't Get Group Transformation Pointer" );
+        return;
+    }
+
+    vector < string > geom_id_vec = veh->GetGeomSet( set_index );
+
+    veh->ClearActiveGeom();
+    veh->SetActiveGeomVec( geom_id_vec );
+    group_trans->ReInitialize();
+
+    group_trans->m_GroupXLoc.Set( translation_vec.x() );
+    group_trans->m_GroupYLoc.Set( translation_vec.y() );
+    group_trans->m_GroupZLoc.Set( translation_vec.z() );
+    group_trans->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+
+    veh->ClearActiveGeom();
+    group_trans->ReInitialize();
+}
+
+void TransformSet( int set_index, vec3d translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag )
+{
+    Vehicle* veh = GetVehicle();
+    GroupTransformations* group_trans = veh->GetGroupTransformationsPtr();
+    if ( !group_trans )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ScaleSet::Can't Get Group Transformation Pointer" );
+        return;
+    }
+
+    vector < string > geom_id_vec = veh->GetGeomSet( set_index );
+
+    veh->ClearActiveGeom();
+    veh->SetActiveGeomVec( geom_id_vec );
+    group_trans->ReInitialize();
+
+    group_trans->m_GroupXLoc.Set( translation_vec.x() );
+    group_trans->m_GroupYLoc.Set( translation_vec.y() );
+    group_trans->m_GroupZLoc.Set( translation_vec.z() );
+    group_trans->m_GroupXRot.Set( x_rot_deg );
+    group_trans->m_GroupYRot.Set( y_rot_deg );
+    group_trans->m_GroupZRot.Set( z_rot_deg );
+    group_trans->m_GroupScale.Set( scale );
+    group_trans->m_scaleGroupTranslations.Set( scale_translations_flag );
+    group_trans->ParmChanged( NULL, Parm::SET_FROM_DEVICE );
+
+    veh->ClearActiveGeom();
+    group_trans->ReInitialize();
+}
+
 //===================================================================//
 //===============       Parm Functions            ===================//
 //===================================================================//

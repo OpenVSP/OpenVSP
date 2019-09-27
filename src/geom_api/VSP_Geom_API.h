@@ -262,6 +262,12 @@ extern int GetSetIndex( const std::string & name );
 extern bool GetSetFlag( const std::string & geom_id, int set_index );
 extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
 
+//======================== Group Modifications ================================//
+extern void ScaleSet( int set_index, double scale );
+extern void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_deg );
+extern void TranslateSet( int set_index, vec3d translation_vec );
+extern void TransformSet( int set_index, vec3d translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag );
+
 //======================== Parm Functions ================================//
 extern bool ValidParm( const std::string & id );
 extern double SetParmVal( const std::string & parm_id, double val );
