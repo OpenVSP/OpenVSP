@@ -87,4 +87,6 @@ void MeshScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         mesh_ptr->CreatePtCloudGeom();
     }
+
+    GeomScreen::GuiDeviceCallBack( gui_device );
 }
