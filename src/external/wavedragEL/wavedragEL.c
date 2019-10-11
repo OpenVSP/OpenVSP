@@ -39,13 +39,25 @@ void matinv(double ***a, int prts,double *rhs,double **soln) {
                         }
                     }
                     else if (ipivot[k]>1) {
+                        free(ipivot);
+                        for (l=0;l<(prts+1);l++) {
+                            free(iwk[l]);
+                        }
+                        free(iwk);
                         return;
                     }
                 }
             }
         }
         if (amax<=0)
+        {
+            free(ipivot);
+            for (i=0;i<(prts+1);i++) {
+                free(iwk[i]);
+            }
+            free(iwk);
             return;
+        }
         else
             ipivot[icolum] = 1;
 
