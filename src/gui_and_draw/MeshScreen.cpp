@@ -32,6 +32,10 @@ MeshScreen::MeshScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 525, "Mesh" )
     m_OtherLayout.AddButton( m_ViewMeshToggle, "Mesh" );
     m_OtherLayout.AddButton( m_ViewSliceToggle, "Slices" );
 
+    m_OtherLayout.AddYGap();
+    m_OtherLayout.SetButtonWidth( 2 * m_OtherLayout.GetRemainX() / 5 );
+    m_OtherLayout.AddSlider( m_StartColorDegree, "Start Color Degree", 100, " %5.0f" );
+
 }
 
 
@@ -62,6 +66,7 @@ bool MeshScreen::Update()
 
     m_ViewMeshToggle.Update( mesh_ptr->m_ViewMeshFlag.GetID() );
     m_ViewSliceToggle.Update( mesh_ptr->m_ViewSliceFlag.GetID() );
+    m_StartColorDegree.Update( mesh_ptr->m_StartColorDegree.GetID() );
 
     return true;
 }

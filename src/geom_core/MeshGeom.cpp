@@ -69,6 +69,9 @@ MeshGeom::MeshGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_ViewMeshFlag.Init( "MeshFlag", "Draw", this, true, 0, 1 );
     m_ViewSliceFlag.Init( "SliceFlag", "Draw", this, true, 0, 1 );
 
+    m_StartColorDegree.Init( "StartColorDegree", "Draw", this, 0, 0, 359 ); 
+    m_StartColorDegree.SetDescript( "Color degree on color wheel for 1st mesh, where 0 degrees is red, 120 degrees is green, 240 degrees is blue" );
+
     // Debug
     m_DrawType.Init( "Draw_Type", "Draw", this, DRAW_XYZ, DRAW_XYZ, DRAW_TAGS );
     m_DrawSubSurfs.Init( "Draw_Sub_UV", "Debug", this, 0, 0, 1 );
@@ -1311,7 +1314,13 @@ void MeshGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             // Color sequence -- go around color wheel ncstep times with slight
             // offset from ncgrp basic colors.
             // Note, (cnt/ncgrp) uses integer division resulting in floor.
-            double deg = ((i % ncgrp) * ncstep + (i / ncgrp)) * nctodeg;
+            double deg = m_StartColorDegree() + ( ( i % ncgrp ) * ncstep + ( i / ncgrp ) ) * nctodeg;
+
+            if ( deg > 360 )
+            {
+                deg = (int)deg % 360;
+            }
+
             vec3d rgb = m_WireShadeDrawObj_vec[i].ColorWheel( deg );
             rgb.normalize();
             m_WireShadeDrawObj_vec[i].m_MaterialInfo.Ambient[0] = (float)rgb.x()/5.0f;

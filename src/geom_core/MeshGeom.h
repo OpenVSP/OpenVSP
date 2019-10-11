@@ -190,6 +190,7 @@ public:
 
     BoolParm m_ViewMeshFlag;
     BoolParm m_ViewSliceFlag;
+    IntParm m_StartColorDegree;
 
     // Debug Attributes
 

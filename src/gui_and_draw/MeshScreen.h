@@ -34,6 +34,8 @@ protected:
     ToggleButton m_ViewMeshToggle;
     ToggleButton m_ViewSliceToggle;
 
+    SliderAdjRangeInput m_StartColorDegree;
+
 };
 
 #endif /* MESHSCREEN_H_ */
