@@ -48,6 +48,8 @@ IF( NOT VSP_NO_GRAPHICS )
 	ENDIF()
 ENDIF()
 
+INCLUDE( External_STEPCode )
+
 # Set targeted variables in file to be read by VSP's CMake
 configure_file(
    ${CMAKE_SOURCE_DIR}/cmake/VSP_Libraries_Config.cmake.in
