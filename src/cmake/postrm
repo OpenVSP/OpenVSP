@@ -6,3 +6,6 @@ rm -f /usr/local/bin/vspaero;
 rm -f /usr/local/bin/vspscript;
 rm -f /usr/local/bin/vspslicer;
 rm -f /usr/local/bin/vspviewer;
+echo "Removing desktop entry ...";
+rm -f /usr/share/pixmaps/vspIcon.png
+rm -f /usr/share/applications/vsp.desktop
