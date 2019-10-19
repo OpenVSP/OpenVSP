@@ -1,5 +1,4 @@
-sudo: false
-
+---
 language: cpp
 
 env:
@@ -19,22 +18,32 @@ matrix:
 addons:
   apt:
     packages:
+      - python3-dev
       - libxml2-dev
       - libfltk1.3-dev
       - fluid
-      - libcpptest-dev
       - libjpeg-dev
       - libglm-dev
       - libcminpack-dev
       - libglew-dev
+      - swig
+      - doxygen
+      - graphviz
+      - texlive-latex-base
 script:
-  - mkdir build; cd build
+  - mkdir build buildlibs;
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
+     cd build;
      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" -DVSP_INSTALL_API_TEST=true ../SuperProject;
+     make;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
-     cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_CPPTEST=true -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" -DVSP_INSTALL_API_TEST=true ../SuperProject; 
+     cd $TRAVIS_BUILD_DIR/buildlibs;
+     cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true -DVSP_USE_SYSTEM_LIBIGES=false -DVSP_USE_SYSTEM_EIGEN=false -DVSP_USE_SYSTEM_CODEELI=false -DVSP_USE_SYSTEM_CPPTEST=false ../Libraries;
+     make;
+     cd $TRAVIS_BUILD_DIR/build;
+     cmake -DCMAKE_BUILD_TYPE=Release -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$TRAVIS_BUILD_DIR/buildlibs ../src;
+     make package;
+     DEBFILE=$TRAVIS_BUILD_DIR/build/OpenVSP-*-Linux.deb;
+     ls $DEBFILE && echo "DEB CREATION SUCCESSFUL" || echo "DEB CREATION FAILED";
     fi
-  - make
-  - ~/OpenVSP_Install/vspscript -script ../examples/scripts/TestAll.vspscript
-  - ~/OpenVSP_Install/apitest
