@@ -761,7 +761,7 @@ double Vsp1DCurve::IntegrateCrv( double r0 )
 // The parameter itself is fraction of the radius.
 double Vsp1DCurve::IntegrateCrv_r()
 {
-    return IntegrateCrv( 0 );
+    return IntegrateCrv_r( 0 );
 }
 
 double Vsp1DCurve::IntegrateCrv_r( double r0 )
@@ -784,7 +784,7 @@ double Vsp1DCurve::IntegrateCrv_r( double r0 )
 // The parameter itself is fraction of the radius.
 double Vsp1DCurve::IntegrateCrv_rsq()
 {
-    return IntegrateCrv( 0 );
+    return IntegrateCrv_rsq( 0 );
 }
 
 double Vsp1DCurve::IntegrateCrv_rsq( double r0 )
@@ -807,7 +807,7 @@ double Vsp1DCurve::IntegrateCrv_rsq( double r0 )
 // The parameter itself is fraction of the radius.
 double Vsp1DCurve::IntegrateCrv_rcub()
 {
-    return IntegrateCrv( 0 );
+    return IntegrateCrv_rcub( 0 );
 }
 
 double Vsp1DCurve::IntegrateCrv_rcub( double r0 )
