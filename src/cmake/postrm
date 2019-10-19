@@ -1,0 +1,8 @@
+#!/bin/bash
+set -e;
+echo "Removing symlinks ...";
+rm -f /usr/local/bin/vsp;
+rm -f /usr/local/bin/vspaero;
+rm -f /usr/local/bin/vspscript;
+rm -f /usr/local/bin/vspslicer;
+rm -f /usr/local/bin/vspviewer;
