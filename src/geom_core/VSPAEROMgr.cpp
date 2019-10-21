@@ -178,7 +178,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_ReCref.SetDescript( "Reynolds Number along Reference Chord" );
     m_Precondition.Init( "Precondition", groupname, this, vsp::PRECON_MATRIX, vsp::PRECON_MATRIX, vsp::PRECON_SSOR );
     m_Precondition.SetDescript( "Preconditioner Choice" );
-    m_KTCorrection.Init( "KTCorrection", groupname, this, true, false, true );
+    m_KTCorrection.Init( "KTCorrection", groupname, this, false, false, true );
     m_KTCorrection.SetDescript( "Activate 2nd Order Karman-Tsien Mach Number Correction" );
     m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
     m_Symmetry.SetDescript( "Toggle X-Z Symmetry to Improve Calculation Time" );
@@ -271,7 +271,7 @@ void VSPAEROMgrSingleton::Renew()
 
     m_BatchModeFlag.Set( true );
     m_Precondition.Set( vsp::PRECON_MATRIX );
-    m_KTCorrection.Set( true );
+    m_KTCorrection.Set( false );
     m_Symmetry.Set( false );
     m_StabilityCalcFlag.Set( false );
     m_StabilityType.Set( vsp::STABILITY_DEFAULT );
@@ -1102,7 +1102,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         }
     }
 
-    // Preconditioner
+    // Preconditioner (not read from setup file)
     string precon;
     if ( m_Precondition() == vsp::PRECON_MATRIX )
     {
@@ -1118,7 +1118,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
     fprintf( case_file, "Preconditioner = %s \n", precon.c_str() );
 
-    // 2nd Order Karman-Tsien Mach Number Correction
+    // 2nd Order Karman-Tsien Mach Number Correction (not read from setup file)
     string ktcorrect;
     if ( m_KTCorrection() )
     {
@@ -1414,9 +1414,9 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                         args.push_back( "-ssor" );
                     }
 
-                    if ( !m_KTCorrection() )
+                    if ( m_KTCorrection() )
                     {
-                        args.push_back( "-nokt" );
+                        args.push_back( "-dokt" );
                     }
 
                     // Add model file name
@@ -1652,9 +1652,9 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             args.push_back( "-ssor" );
         }
 
-        if ( !m_KTCorrection() )
+        if ( m_KTCorrection() )
         {
-            args.push_back( "-nokt" );
+            args.push_back( "-dokt" );
         }
 
         // Add model file name
