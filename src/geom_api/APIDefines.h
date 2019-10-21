@@ -388,7 +388,8 @@ enum PARM_TYPE { PARM_DOUBLE_TYPE,
                  PARM_BOOL_TYPE,
                  PARM_FRACTION_TYPE,
                  PARM_LIMITED_INT_TYPE,
-                 PARM_NOTEQ_TYPE
+                 PARM_NOTEQ_TYPE,
+                 PARM_POWER_INT_TYPE
                };
 
 enum PATCH_TYPE { PATCH_NONE,

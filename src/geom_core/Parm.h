@@ -275,6 +275,27 @@ protected:
     int m_Shift;
 };
 
+//==== Power Integer Parm ====//
+// IntParm restricted to values of pow(m_Base, n) + m_Shift, where n is an integer
+class PowIntParm : public IntParm
+{
+public:
+    PowIntParm();
+
+    virtual int operator= ( int val )
+    {
+        return IntParm::operator=( val );
+    }
+
+    virtual bool SetValCheckLimits( double val );
+
+    virtual void SetPowShift( int power, int shift ); // This must be called before Init 
+
+protected:
+    int m_Base;
+    int m_Shift;
+};
+
 //==== Not Equal Parm ====//
 class NotEqParm : public Parm
 {

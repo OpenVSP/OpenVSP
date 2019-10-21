@@ -416,6 +416,48 @@ void LimIntParm::SetMultShift( int mult, int shift )
     m_Shift = shift;
 }
 
+
+//=========================================================================//
+//=======================      PowIntParm      ============================//
+//=========================================================================//
+
+//==== Constructor ====//
+PowIntParm::PowIntParm() : IntParm()
+{
+    m_Type = vsp::PARM_POWER_INT_TYPE;
+
+    m_Shift = 0;
+    m_Base = 1;
+}
+
+//==== Set Val And Check Limts ====//
+bool PowIntParm::SetValCheckLimits( double val )
+{
+    if ( !IntParm::SetValCheckLimits( val ) )
+    {
+        return false;
+    }
+    
+    // Check that value obeys the limits.
+    if ( val < 0 )
+    {
+        m_Val = 0;
+    }
+    else
+    {
+        m_Val = pow( m_Base, round( log( val - m_Shift ) / log( m_Base ) ) ) + m_Shift;
+    }
+
+    return true;
+}
+
+void PowIntParm::SetPowShift( int base, int shift )
+{
+    m_Base = base;
+    m_Shift = shift;
+}
+
+
 //=========================================================================//
 //=======================       NotEqParm      ============================//
 //=========================================================================//
