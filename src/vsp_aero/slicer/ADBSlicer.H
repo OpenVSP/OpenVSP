@@ -203,6 +203,8 @@ private:
     int NumberOfTris;
     int NumberOfNodes;
     int NumberOfEdges;
+    int NumberOfVortexLoops;
+    int NumberOfSurfaceVortexEdges;
 
     TRI *TriList;
     NODE *NodeList;

@@ -226,8 +226,11 @@ void ADBSLICER::LoadMeshData(void)
 
     // Read in header
 
-    BIO.fread(&NumberOfNodes,  i_size, 1, adb_file);
-    BIO.fread(&NumberOfTris,   i_size, 1, adb_file);
+    BIO.fread(&NumberOfVortexLoops,        i_size, 1, adb_file);
+    BIO.fread(&NumberOfNodes,              i_size, 1, adb_file);
+    BIO.fread(&NumberOfTris,               i_size, 1, adb_file);
+    BIO.fread(&NumberOfSurfaceVortexEdges, i_size, 1, adb_file);
+    
     BIO.fread(&Sref,           f_size, 1, adb_file);
     BIO.fread(&Cref,           f_size, 1, adb_file);
     BIO.fread(&Bref,           f_size, 1, adb_file);
@@ -280,6 +283,10 @@ void ADBSLICER::LoadMeshData(void)
        fread(WingListName_[i], c_size, 100, adb_file);
        
        printf("Wing: %d ... %s \n",i,WingListName_[i]);fflush(NULL);
+       
+       fread(&DumInt, i_size, 1, adb_file);
+       
+       printf("ComponentID: %d \n",DumInt);
      
     }
     
@@ -298,7 +305,11 @@ void ADBSLICER::LoadMeshData(void)
        fread(BodyListName_[i], c_size, 100, adb_file);
        
        printf("Body: %d ... %s \n",i,BodyListName_[i]);fflush(NULL);
-     
+
+       fread(&DumInt, i_size, 1, adb_file);
+       
+       printf("ComponentID: %d \n",DumInt);
+            
     } 
     
     // Read in Cart3d ID flags, names...
@@ -594,7 +605,7 @@ void ADBSLICER::LoadSolutionData(int Case)
 
     char file_name_w_ext[2000], DumChar[100], GridName[100];
     int i, j, k, m, p, Level, node1, node2, node3;
-    int i_size, f_size, c_size;
+    int i_size, f_size, c_size, d_size;
     int DumInt, nod1, nod2, nod3, CFDCaseFlag, Edge;
     float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Fx, Fy, Fz, Cf;
     float BoundaryLayerThicknessCode, LaminarDelta, TurbulentDelta, DumFloat;
@@ -602,11 +613,13 @@ void ADBSLICER::LoadSolutionData(int Case)
     FILE *adb_file, *madb_file;
     BINARYIO BIO;
     long OffSet;
+    double DumDouble;
 
     // Sizeof ints and floats
 
     i_size = sizeof(int);
     f_size = sizeof(float);
+    d_size = sizeof(double);    
     c_size = sizeof(char);
 
     // Check on endian issues
@@ -656,6 +669,35 @@ void ADBSLICER::LoadSolutionData(int Case)
        BIO.fread(&(CpMinSoln), f_size, 1, adb_file); // Min Cp from solver
        BIO.fread(&(CpMaxSoln), f_size, 1, adb_file); // Max Cp from solver
    
+       // Solution on computational mesh
+       
+       for ( m = 1 ; m <= NumberOfVortexLoops ; m++ ) {
+ 
+          BIO.fread(&(DumDouble), d_size, 1, adb_file); // Gamma
+          BIO.fread(&(DumDouble), d_size, 1, adb_file); // Unsteady dCP
+
+       }
+
+       // Vortex edge forces on computational mesh
+       
+       for ( m = 1 ; m <= NumberOfSurfaceVortexEdges ; m++ ) {
+ 
+          BIO.fread(&(DumDouble), d_size, 1, adb_file); 
+          BIO.fread(&(DumDouble), d_size, 1, adb_file); 
+          BIO.fread(&(DumDouble), d_size, 1, adb_file);
+
+       }
+      
+       // Solution on computational mesh
+      
+       for ( m = 1 ; m <= NumberOfVortexLoops ; m++ ) {
+   
+          BIO.fread(&(DumDouble), d_size, 1, adb_file); // U
+          BIO.fread(&(DumDouble), d_size, 1, adb_file); // V
+          BIO.fread(&(DumDouble), d_size, 1, adb_file); // W
+
+       }
+          
        for ( m = 1 ; m <= NumberOfTris ; m++ ) {
    
           BIO.fread(&(Cp[m]),         f_size, 1, adb_file); // Cp, Steady
@@ -673,6 +715,10 @@ void ADBSLICER::LoadSolutionData(int Case)
        ZWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
        
        for ( i = 1 ; i <= NumberOfTrailingVortexEdges_ ; i++ ) {
+
+          BIO.fread(&DumInt, i_size, 1, adb_file); // Wing ID
+          
+          BIO.fread(&DumFloat, f_size, 1, adb_file); // Span Location
         
           BIO.fread(&(NumberOfSubVortexNodes_), i_size, 1, adb_file); // Number of sub vortices
    

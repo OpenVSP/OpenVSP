@@ -25,6 +25,7 @@ private:
     int SwapOnWrite_;
 
     void SwapFloat(float &Word);
+    void SwapDouble(double &Word);    
     void SwapInt(int &Word);
     void SwapChar(char &Word);
 
@@ -58,6 +59,11 @@ public:
 
    size_t fread(float *Word, int WordSize, int NumWords , FILE *File);
    size_t fwrite(float *Word, int WordSize, int NumWords , FILE *File);
+
+   // Read or write a double
+
+   size_t fread(double *Word, int WordSize, int NumWords , FILE *File);
+   size_t fwrite(double *Word, int WordSize, int NumWords , FILE *File);
 
    // Read or write a char
 
