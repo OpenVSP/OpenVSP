@@ -2055,17 +2055,18 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
         }
 
         // Sectional distribution table
-        int nSectionalDataTableCols = 13;
-        if ( data_string_array.size() == nSectionalDataTableCols )
+        int nSectionalDataTableCols = 14;
+        if ( data_string_array.size() == nSectionalDataTableCols && data_string_array[0].find( "Comp" ) == std::string::npos && !isdigit( data_string_array[0][0] ) ) // TODO: Test more thoroughly
         {
             //discard the header row and read the next line assuming that it is numeric
             data_string_array = ReadDelimLine( fp, seps );
 
             // Raw data vectors
             std::vector<int> WingId;
+            std::vector<double> S;
             std::vector<double> Yavg;
             std::vector<double> Chord;
-            std::vector<double> VoVinf;
+            std::vector<double> VoVref;
             std::vector<double> Cl;
             std::vector<double> Cd;
             std::vector<double> Cs;
@@ -2090,22 +2091,23 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
             double chordRatio;
 
             // read the data rows
-            while ( data_string_array.size() == nSectionalDataTableCols )
+            while ( data_string_array.size() == nSectionalDataTableCols && data_string_array[0].find( "Comp" ) == std::string::npos )
             {
                 // Store the raw data
                 WingId.push_back( std::stoi( data_string_array[0] ) );
-                Yavg.push_back(   std::stod( data_string_array[1] ) );
-                Chord.push_back(  std::stod( data_string_array[2] ) );
-                VoVinf.push_back( std::stod( data_string_array[3] ) );
-                Cl.push_back(     std::stod( data_string_array[4] ) );
-                Cd.push_back(     std::stod( data_string_array[5] ) );
-                Cs.push_back(     std::stod( data_string_array[6] ) );
-                Cx.push_back(     std::stod( data_string_array[7] ) );
-                Cy.push_back(     std::stod( data_string_array[8] ) );
-                Cz.push_back(     std::stod( data_string_array[9] ) );
-                Cmx.push_back(    std::stod( data_string_array[10] ) );
-                Cmy.push_back(    std::stod( data_string_array[11] ) );
-                Cmz.push_back(    std::stod( data_string_array[12] ) );
+                S.push_back( std::stod( data_string_array[1] ) );
+                Yavg.push_back(   std::stod( data_string_array[2] ) );
+                Chord.push_back(  std::stod( data_string_array[3] ) );
+                VoVref.push_back( std::stod( data_string_array[4] ) );
+                Cl.push_back(     std::stod( data_string_array[5] ) );
+                Cd.push_back(     std::stod( data_string_array[6] ) );
+                Cs.push_back(     std::stod( data_string_array[7] ) );
+                Cx.push_back(     std::stod( data_string_array[8] ) );
+                Cy.push_back(     std::stod( data_string_array[9] ) );
+                Cz.push_back(     std::stod( data_string_array[10] ) );
+                Cmx.push_back(    std::stod( data_string_array[11] ) );
+                Cmy.push_back(    std::stod( data_string_array[12] ) );
+                Cmz.push_back(    std::stod( data_string_array[13] ) );
 
                 chordRatio = Chord.back() / cref;
 
@@ -2126,9 +2128,10 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
 
             // Finish up by adding the data to the result res
             res->Add( NameValData( "WingId", WingId ) );
+            res->Add( NameValData( "S", S ) );
             res->Add( NameValData( "Yavg", Yavg ) );
             res->Add( NameValData( "Chord", Chord ) );
-            res->Add( NameValData( "V/Vinf", Chord ) );
+            res->Add( NameValData( "V/Vref", VoVref ) );
             res->Add( NameValData( "cl", Cl ) );
             res->Add( NameValData( "cd", Cd ) );
             res->Add( NameValData( "cs", Cs ) );
