@@ -2164,17 +2164,16 @@ class HTML
             fid.writeString( string( "\t\t  <p>$$m = \\frac{B}{tan(\\Lambda)}$$</p>\n" ) );
             
             HTMLTable t1 = HTMLTable(); // Initialize Table
-            array<string> head_str(10);
+            array<string> head_str(9);
             head_str[0] = string("Case #");
-            head_str[1] = string("Airfoil");
-            head_str[2] = string("Span");
-            head_str[3] = string("Root Chord");
-            head_str[4] = string("\\(\\Lambda\\) (°)");
-            head_str[5] = string("\\(\\Lambda\\) Location");
-            head_str[6] = string("Section \\(\\Lambda\\) (°)");
-            head_str[7] = string("Section \\(\\Lambda\\) Location");
-            head_str[8] = string("Span Tess (U)");
-            head_str[9] = string("Chord Tess (W)");
+            head_str[1] = string("Root Airfoil");
+            head_str[2] = string("Tip Airfoil");
+            head_str[3] = string("Span");
+            head_str[4] = string("Root Chord");
+            head_str[5] = string("\\(\\Lambda\\) (°)");
+            head_str[6] = string("\\(\\Lambda\\) Location");
+            head_str[7] = string("Span Tess (U)");
+            head_str[8] = string("Chord Tess (W)");
             t1.m_HeaderStringVec = head_str;
             
             array<array<string>> data_mat(2);
@@ -2182,20 +2181,17 @@ class HTML
             {
                 data_mat[i].resize(10);
                 data_mat[i][0] = i + 1;
-                data_mat[i][1] = string("NACA0012");
-                data_mat[i][3] = string("6.0");
-                data_mat[i][5] = string("0.0");
+                data_mat[i][3] = string("20");
+                data_mat[i][1] = string("NACA004");
+                data_mat[i][2] = string("NACA006");
+                data_mat[i][4] = string("11.0");
                 data_mat[i][6] = string("0.0");
-                data_mat[i][7] = string("1.0");
-                data_mat[i][8] = string("6");
-                data_mat[i][9] = string("33");
+                data_mat[i][7] = string("30");
+                data_mat[i][8] = string("33");
             }
             
-            data_mat[0][2] = string("20");
-            data_mat[0][4] = m_sdvv.m_Sweep[0];
-            
-            data_mat[1][2] = string("7");
-            data_mat[1][4] = m_sdvv.m_Sweep[1];
+            data_mat[0][5] = m_sdvv.m_Sweep[0];
+            data_mat[1][5] = m_sdvv.m_Sweep[1];
             
             t1.m_Width = 5;
             t1.m_TableDataMat = data_mat;
@@ -2217,7 +2213,7 @@ class HTML
             data_mat[0].resize(6);
             data_mat[0][0] = string("Single Point");
             data_mat[0][1] = string("VLM");
-            data_mat[0][2] = string("1.0");
+            data_mat[0][2] = string("5.0");
             data_mat[0][3] = string("0.0");
             data_mat[0][4] = string("1.135, 1.366, 1.894, 2.386, 2.861, 3.369, 3.884, 4.404");
             data_mat[0][5] = m_sdvv.m_WakeIterVec[0];
@@ -6785,17 +6781,17 @@ class SDVV : VV_Base
 {
     SDVV()
     {
-        m_Sweep[0] = 35;
+        m_Sweep[0] = 45;
         m_Sweep[1] = 65;
         
-        m_SuperMachVec[0] = 1.135;
-        m_SuperMachVec[1] = 1.366;
-        m_SuperMachVec[2] = 1.894;
-        m_SuperMachVec[3] = 2.386; // Note m_SuperMachVec[3] = 2.366 will cause VSPAERO to crash for the 65° swept delta wing;
-        m_SuperMachVec[4] = 2.861;
-        m_SuperMachVec[5] = 3.369;
-        m_SuperMachVec[6] = 3.884;
-        m_SuperMachVec[7] = 4.404;
+        m_SuperMachVec[0] = 1.1347;
+        m_SuperMachVec[1] = 1.4662;
+        m_SuperMachVec[2] = 1.8939;
+        m_SuperMachVec[3] = 2.3662; // Note m_SuperMachVec[3] = 2.366 will cause VSPAERO to crash for the 65° swept delta wing;
+        m_SuperMachVec[4] = 2.8611;
+        m_SuperMachVec[5] = 3.3686;
+        m_SuperMachVec[6] = 3.8838;
+        m_SuperMachVec[7] = 4.4040;
     }
     
     void TestSupersonicDeltaWing()
@@ -6815,17 +6811,20 @@ class SDVV : VV_Base
         string wing_id = AddGeom( "WING", "" );
 
         //==== Set Wing Section ====//
-        SetDriverGroup( wing_id, 1, SPAN_WSECT_DRIVER, ROOTC_WSECT_DRIVER, SECSWEEP_WSECT_DRIVER );
+        SetDriverGroup( wing_id, 1, SPAN_WSECT_DRIVER, ROOTC_WSECT_DRIVER, TIPC_WSECT_DRIVER );
         
         Update();
 
         //==== Set Airfoil to NACA 0012 Airfoil and Set Common Parms====//
-        SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.12 );
-        SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.12 );
+        SetParmVal( wing_id, "ThickChord", "XSecCurve_0", 0.04 );
+        SetParmVal( wing_id, "ThickChord", "XSecCurve_1", 0.06 );
         SetParmVal( wing_id, "Sweep_Location", "XSec_1", 0 );
         SetParmVal( wing_id, "Sec_Sweep_Location", "XSec_1", 1 );
-        SetParmVal( wing_id, "Sec_Sweep", "XSec_1", 0 );
-        SetParmVal( wing_id, "Root_Chord", "XSec_1", 8 );
+        SetParmVal( wing_id, "Tip_Chord", "XSec_1", 1 );
+        SetParmVal( wing_id, "Span", "XSec_1", 10.00004 );
+        SetParmVal( wing_id, "SectTess_U", "XSec_1", 30 );
+        SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
+        SetParmVal( wing_id, "LECluster", "WingGeom", 1.0 );
         
         Update();
         
@@ -6833,13 +6832,13 @@ class SDVV : VV_Base
         {
             SetParmVal( wing_id, "Sweep", "XSec_1", m_Sweep[s] );
             
-            if (m_Sweep[s] == 35)
+            if (m_Sweep[s] == 45)
             {
-                SetParmVal( wing_id, "Span", "XSec_1", 10.0 );
+                SetParmVal( wing_id, "Root_Chord", "XSec_1", 11 );
             }
             else if (m_Sweep[s] == 65)
             {
-                SetParmVal( wing_id, "Span", "XSec_1", 3.5 );
+                SetParmVal( wing_id, "Root_Chord", "XSec_1", 22.39583 );
             }
 
             Update();
@@ -6920,7 +6919,7 @@ class SDVV : VV_Base
                 SetStringAnalysisInput(m_VSPSingleAnalysis, "WingID", wid, 0);
 
                 // Freestream Parameters
-                array<double> Alpha( 1, 1 );
+                array<double> Alpha( 1, 5.0 );
                 array<double> Mach( 1, m_SuperMachVec[m] );
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", Mach, 0);
@@ -6948,8 +6947,8 @@ class SDVV : VV_Base
                     // Get History Results (rid_vec[0]) from Final Wake Iteration in History Result
                     array<double> cl_vec = GetDoubleResults( rid_vec[0], "CL" );
                     double Cl_res = cl_vec[int(cl_vec.length()) - 1];
-                    double Cl_alpha_vsp = Cl_res; // alpha = 1.0 (deg)
-                    Cl_alpha_vsp = Cl_res*(180/pi); // deg -> rad 
+                    double Cl_alpha_vsp = Cl_res / 5.0; // alpha = 5.0 (deg)
+                    Cl_alpha_vsp = Cl_alpha_vsp*(180/pi); // deg -> rad 
                     
                     Cl_alpha_tan_sweep[s][m] = Cl_alpha_vsp * tan( Deg2Rad(m_Sweep[s]) );
                     M_sweep_fun[s][m] = sqrt( pow( m_SuperMachVec[m], 2.0 ) - 1 ) / tan( Deg2Rad(m_Sweep[s]) );
@@ -7008,7 +7007,7 @@ class SDVV : VV_Base
         // Supersonic Delta Wing Plot: Cl_alpha*tan(sweep) = f(((M^2 - 1)^0.5)/tan(sweep)) 
         HTMLChart c1 = HTMLChart(); // Initialize Chart
         c1.m_ChartName = string("SuperDelta");
-        c1.m_Legend = string("'((M^2 - 1)^0.5)/tan(sweep)','VSPAERO 35° Sweep','VSPAERO 65° Sweep','Experimental Data'");
+        c1.m_Legend = string("'((M^2 - 1)^0.5)/tan(sweep)','VSPAERO 45° Sweep','VSPAERO 65° Sweep','Experimental Data'");
         c1.m_Title = string("Figure ") + m_FigCount + string(". Supersonic Delta Wing: Cl_alpha*tan(sweep) = f(m)");
         m_FigCount++;
         c1.m_Series = string("{ 2: { pointSize: 3, color: 'gray', lineWidth: 0 } }");
