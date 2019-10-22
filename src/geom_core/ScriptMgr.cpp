@@ -1349,14 +1349,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "RHO_UNITS", "RHO_UNIT_LBFSEC2_IN4", RHO_UNIT_LBFSEC2_IN4 );
     assert( r >= 0 );
 
-    r = se->RegisterEnum( "SCALE_FLAG" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "SCALE_FLAG", "MANUAL", MANUAL );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "SCALE_FLAG", "REFERENCE", REFERENCE );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "SCALE_FLAG", "NOSCALE", NOSCALE );
-    assert( r >= 0 );
 
     r = se->RegisterEnum( "SET_TYPE" );
     assert( r >= 0 );
