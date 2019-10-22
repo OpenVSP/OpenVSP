@@ -61,6 +61,7 @@ set(ANGELSCRIPT_HEADERS
         ./angelscript/source/as_tokenizer.h
         ./angelscript/source/as_typeinfo.h
         ./angelscript/source/as_variablescope.h
+	./angelscript/include/asDocgen.h
         ./add_on/scriptstdstring/scriptstdstring.h
         ./add_on/scriptarray/scriptarray.h
         ./add_on/scriptany/scriptany.h
