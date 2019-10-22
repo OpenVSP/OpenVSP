@@ -651,6 +651,12 @@ asUINT asGetTypeTraits()
 
 #endif // c++11
 
+struct asDocInfo
+{
+    const char* comment = NULL;
+    const char* group = NULL;
+};
+
 // Interface declarations
 
 class asIScriptEngine
@@ -676,12 +682,15 @@ public:
 
 	// Global functions
 	virtual int                RegisterGlobalFunction(const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary = 0) = 0;
+	virtual int                RegisterGlobalFunction(const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary, asDocInfo doc_info ) = 0;
+	virtual int                RegisterGlobalFunction(const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, asDocInfo doc_info ) = 0;
 	virtual asUINT             GetGlobalFunctionCount() const = 0;
 	virtual asIScriptFunction *GetGlobalFunctionByIndex(asUINT index) const = 0;
 	virtual asIScriptFunction *GetGlobalFunctionByDecl(const char *declaration) const = 0;
 
 	// Global properties
 	virtual int    RegisterGlobalProperty(const char *declaration, void *pointer) = 0;
+	virtual int    RegisterGlobalProperty(const char *declaration, void *pointer, const char *comment ) = 0;
 	virtual asUINT GetGlobalPropertyCount() const = 0;
 	virtual int    GetGlobalPropertyByIndex(asUINT index, const char **name, const char **nameSpace = 0, int *typeId = 0, bool *isConst = 0, const char **configGroup = 0, void **pointer = 0, asDWORD *accessMask = 0) const = 0;
 	virtual int    GetGlobalPropertyIndexByName(const char *name) const = 0;
@@ -692,6 +701,12 @@ public:
 	virtual int            RegisterObjectProperty(const char *obj, const char *declaration, int byteOffset) = 0;
 	virtual int            RegisterObjectMethod(const char *obj, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary = 0) = 0;
 	virtual int            RegisterObjectBehaviour(const char *obj, asEBehaviours behaviour, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary = 0) = 0;
+	virtual int            RegisterObjectType(const char *obj, int byteSize, asDWORD flags, asDocInfo doc_info ) = 0;
+	virtual int            RegisterObjectProperty(const char *obj, const char *declaration, int byteOffset, asDocInfo doc_info ) = 0;
+	virtual int            RegisterObjectMethod(const char *obj, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary, asDocInfo doc_info ) = 0;
+	virtual int            RegisterObjectMethod(const char *obj, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, asDocInfo doc_info ) = 0;
+	virtual int            RegisterObjectBehaviour(const char *obj, asEBehaviours behaviour, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary, asDocInfo doc_info ) = 0;
+	virtual int            RegisterObjectBehaviour(const char *obj, asEBehaviours behaviour, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, asDocInfo doc_info ) = 0;
 	virtual int            RegisterInterface(const char *name) = 0;
 	virtual int            RegisterInterfaceMethod(const char *intf, const char *declaration) = 0;
 	virtual asUINT         GetObjectTypeCount() const = 0;
@@ -701,6 +716,9 @@ public:
 	virtual asITypeInfo   *GetObjectTypeByName(const char *name) const = 0;
 	virtual asITypeInfo   *GetObjectTypeByDecl(const char *decl) const = 0;
 #endif
+
+    virtual void          AddSkipComment( const char* declaration, const char* comment ) = 0;
+    virtual void          AddGroup( const char* group, const char* title, const char* description ) = 0;
 
 	// String factory
 	virtual int RegisterStringFactory(const char *datatype, const asSFuncPtr &factoryFunc, asDWORD callConv, void *auxiliary = 0) = 0;
@@ -713,6 +731,8 @@ public:
 	// Enums
 	virtual int          RegisterEnum(const char *type) = 0;
 	virtual int          RegisterEnumValue(const char *type, const char *name, int value) = 0;
+	virtual int          RegisterEnum(const char *type, asDocInfo doc_info ) = 0;
+	virtual int          RegisterEnumValue(const char *type, const char *name, int value, const char *comment ) = 0;
 	virtual asUINT       GetEnumCount() const = 0;
 	virtual asITypeInfo *GetEnumByIndex(asUINT index) const = 0;
 #ifdef AS_DEPRECATED

@@ -87,12 +87,15 @@ public:
 
 	// Global functions
 	virtual int                RegisterGlobalFunction(const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary = 0);
+	virtual int                RegisterGlobalFunction(const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary, asDocInfo doc_info );
+	virtual int                RegisterGlobalFunction(const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, asDocInfo doc_info );
 	virtual asUINT             GetGlobalFunctionCount() const;
 	virtual asIScriptFunction *GetGlobalFunctionByIndex(asUINT index) const;
 	virtual asIScriptFunction *GetGlobalFunctionByDecl(const char *declaration) const;
 
 	// Global properties
 	virtual int    RegisterGlobalProperty(const char *declaration, void *pointer);
+	virtual int    RegisterGlobalProperty(const char *declaration, void *pointer, const char *comment );
 	virtual asUINT GetGlobalPropertyCount() const;
 	virtual int    GetGlobalPropertyByIndex(asUINT index, const char **name, const char **nameSpace = 0, int *typeId = 0, bool *isConst = 0, const char **configGroup = 0, void **pointer = 0, asDWORD *accessMask = 0) const;
 	virtual int    GetGlobalPropertyIndexByName(const char *name) const;
@@ -103,6 +106,12 @@ public:
 	virtual int            RegisterObjectProperty(const char *obj, const char *declaration, int byteOffset);
 	virtual int            RegisterObjectMethod(const char *obj, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary = 0);
 	virtual int            RegisterObjectBehaviour(const char *obj, asEBehaviours behaviour, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary = 0);
+	virtual int            RegisterObjectType(const char *obj, int byteSize, asDWORD flags, asDocInfo doc_info );
+	virtual int            RegisterObjectProperty(const char *obj, const char *declaration, int byteOffset, asDocInfo doc_info );
+	virtual int            RegisterObjectMethod(const char *obj, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary, asDocInfo doc_info );
+	virtual int            RegisterObjectMethod(const char *obj, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, asDocInfo doc_info );
+	virtual int            RegisterObjectBehaviour(const char *obj, asEBehaviours behaviour, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary, asDocInfo doc_info );
+	virtual int            RegisterObjectBehaviour(const char *obj, asEBehaviours behaviour, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, asDocInfo doc_info );
 	virtual int            RegisterInterface(const char *name);
 	virtual int            RegisterInterfaceMethod(const char *intf, const char *declaration);
 	virtual asUINT         GetObjectTypeCount() const;
@@ -112,6 +121,9 @@ public:
 	virtual asITypeInfo   *GetObjectTypeByName(const char *name) const;
 	virtual asITypeInfo   *GetObjectTypeByDecl(const char *decl) const;
 #endif
+
+    virtual void          AddSkipComment( const char* declaration, const char* comment );
+    virtual void          AddGroup( const char* group, const char* title, const char* description );
 
 	// String factory
 	virtual int RegisterStringFactory(const char *datatype, const asSFuncPtr &factoryFunc, asDWORD callConv, void *auxiliary = 0);
@@ -124,6 +136,8 @@ public:
 	// Enums
 	virtual int          RegisterEnum(const char *type);
 	virtual int          RegisterEnumValue(const char *type, const char *name, int value);
+	virtual int          RegisterEnum(const char *type, asDocInfo doc_info );
+	virtual int          RegisterEnumValue(const char *type, const char *name, int value, const char *comment );
 	virtual asUINT       GetEnumCount() const;
 	virtual asITypeInfo *GetEnumByIndex(asUINT index) const;
 #ifdef AS_DEPRECATED
@@ -481,6 +495,9 @@ public:
 
 	// User data
 	asCArray<asPWORD>       userData;
+
+	// Map to identify member and function names after they've been reformatted by Angelscript registration
+	asCMap < asCString, unsigned int > m_ObjTypeMap;
 
 	struct SEngineClean    { asPWORD type; asCLEANENGINEFUNC_t       cleanFunc; };
 	asCArray<SEngineClean>    cleanEngineFuncs;

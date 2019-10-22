@@ -53,6 +53,8 @@
 #include "as_bytecode.h"
 #include "as_debug.h"
 
+#include "asDocgen.h"
+
 BEGIN_AS_NAMESPACE
 
 
@@ -1459,6 +1461,12 @@ int asCScriptEngine::RegisterObjectProperty(const char *obj, const char *declara
 	return asSUCCESS;
 }
 
+int asCScriptEngine::RegisterObjectProperty(const char *obj, const char *declaration, int byteOffset, asDocInfo doc_info )
+{
+    asDocgen::AddTypeMemberComment( obj, declaration, doc_info.comment );
+    return asCScriptEngine::RegisterObjectProperty(obj, declaration, byteOffset);
+}
+
 // interface
 int asCScriptEngine::RegisterInterface(const char *name)
 {
@@ -1882,6 +1890,15 @@ int asCScriptEngine::RegisterObjectType(const char *name, int byteSize, asDWORD 
 	return GetTypeIdByDecl(name);
 }
 
+int asCScriptEngine::RegisterObjectType(const char *obj, int byteSize, asDWORD flags, asDocInfo doc_info )
+{
+    int reg_id = asCScriptEngine::RegisterObjectType( obj, byteSize, flags );
+    m_ObjTypeMap.Insert( asCString( obj ), GetObjectTypeCount() - 1 );
+    asDocgen::AddTypeComment( obj, doc_info.comment);
+    asDocgen::AddTypeGroup( obj, doc_info.group );
+    return reg_id;
+}
+
 // interface
 int asCScriptEngine::RegisterObjectBehaviour(const char *datatype, asEBehaviours behaviour, const char *decl, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary)
 {
@@ -1910,6 +1927,20 @@ int asCScriptEngine::RegisterObjectBehaviour(const char *datatype, asEBehaviours
 		return ConfigError(asINVALID_TYPE, "RegisterObjectBehaviour", datatype, decl);
 
 	return RegisterBehaviourToObjectType(CastToObjectType(type.GetTypeInfo()), behaviour, decl, funcPointer, callConv, auxiliary);
+}
+
+int asCScriptEngine::RegisterObjectBehaviour(const char *datatype, asEBehaviours behaviour, const char *decl, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary, asDocInfo doc_info )
+{
+    int reg_id = asCScriptEngine::RegisterObjectBehaviour( datatype, behaviour, decl, funcPointer, callConv, auxiliary );
+    asDocgen::AddTypeMemberComment( datatype, decl, doc_info.comment );
+    return reg_id;
+}
+
+int asCScriptEngine::RegisterObjectBehaviour(const char *datatype, asEBehaviours behaviour, const char *decl, const asSFuncPtr &funcPointer, asDWORD callConv, asDocInfo doc_info )
+{
+    int reg_id = asCScriptEngine::RegisterObjectBehaviour( datatype, behaviour, decl, funcPointer, callConv );
+    asDocgen::AddTypeMemberComment( datatype, decl, doc_info.comment );
+    return reg_id;
 }
 
 // internal
@@ -2577,6 +2608,12 @@ int asCScriptEngine::RegisterGlobalProperty(const char *declaration, void *point
 	return asSUCCESS;
 }
 
+int asCScriptEngine::RegisterGlobalProperty(const char *declaration, void *pointer, const char *comment )
+{
+    asDocgen::AddGlobalPropertyComment( declaration, comment );
+    return asCScriptEngine::RegisterGlobalProperty( declaration, pointer );
+}
+
 // internal
 asCGlobalProperty *asCScriptEngine::AllocateGlobalProperty()
 {
@@ -2728,6 +2765,63 @@ int asCScriptEngine::RegisterObjectMethod(const char *obj, const char *declarati
 		return ConfigError(asINVALID_TYPE, "RegisterObjectMethod", obj, declaration);
 
 	return RegisterMethodToObjectType(CastToObjectType(dt.GetTypeInfo()), declaration, funcPointer, callConv, auxiliary);
+}
+
+int asCScriptEngine::RegisterObjectMethod(const char *obj, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary, asDocInfo doc_info )
+{
+    int reg_id = asCScriptEngine::RegisterObjectMethod( obj, declaration, funcPointer, callConv, auxiliary );
+    asSMapNode < asCString, unsigned int > *cursor = 0;
+
+    int obj_index = -1;
+    m_ObjTypeMap.MoveFirst( &cursor );
+    while ( cursor )
+    {
+        if ( m_ObjTypeMap.GetKey( cursor ) == asCString( obj ) )
+        {
+            obj_index = m_ObjTypeMap.GetValue( cursor );
+            break;
+        }
+        m_ObjTypeMap.MoveNext( &cursor, cursor );
+    }
+
+    if ( obj_index >= 0 )
+    {
+        asITypeInfo *objtype = GetObjectTypeByIndex( obj_index );
+        std::string format_member = objtype->GetMethodByIndex( objtype->GetMethodCount() - 1 )->GetDeclaration( false, true, true );  // Object name, namespace, parm names
+        asDocgen::AddTypeMemberComment( obj, format_member, doc_info.comment );
+        asDocgen::AddTypeMemberGroup( obj, format_member, doc_info.group );
+    }
+
+    return reg_id;
+}
+
+int asCScriptEngine::RegisterObjectMethod(const char *obj, const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, asDocInfo doc_info )
+{
+    int reg_id = asCScriptEngine::RegisterObjectMethod( obj, declaration, funcPointer, callConv );
+    asSMapNode < asCString, unsigned int > *cursor = 0;
+
+    int obj_index = -1;
+    m_ObjTypeMap.MoveFirst( &cursor );
+    while ( cursor )
+    {
+        if ( m_ObjTypeMap.GetKey( cursor ) == asCString( obj ) )
+        {
+            obj_index = m_ObjTypeMap.GetValue( cursor );
+            break;
+        }
+        m_ObjTypeMap.MoveNext( &cursor, cursor );
+    }
+
+    if ( obj_index >= 0 )
+    {
+        asITypeInfo *objtype = GetObjectTypeByIndex( obj_index );
+        std::string format_member = objtype->GetMethodByIndex( objtype->GetMethodCount() - 1 )->GetDeclaration( false, true, true );  // Object name, namespace, parm names
+        asDocgen::ProcessFunctionDecleration( format_member );
+        asDocgen::AddTypeMemberComment( obj, format_member, doc_info.comment );
+        asDocgen::AddTypeMemberGroup( obj, format_member, doc_info.group );
+    }
+
+    return reg_id;
 }
 
 // internal
@@ -2940,6 +3034,36 @@ int asCScriptEngine::RegisterGlobalFunction(const char *declaration, const asSFu
 
 	// Return the function id as success
 	return func->id;
+}
+
+int asCScriptEngine::RegisterGlobalFunction(const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, void *auxiliary, asDocInfo doc_info )
+{
+    int reg_id = asCScriptEngine::RegisterGlobalFunction( declaration, funcPointer, callConv, auxiliary );
+    std::string format_decl = GetGlobalFunctionByIndex( GetGlobalFunctionCount() - 1 )->GetDeclaration( false, true, true );  // Object name, namespace, parm names
+    asDocgen::AddGlobalFunctionComment( format_decl, doc_info.comment );
+    asDocgen::AddGlobalFunctionGroup( format_decl, doc_info.group );
+
+    return reg_id;
+}
+
+int asCScriptEngine::RegisterGlobalFunction(const char *declaration, const asSFuncPtr &funcPointer, asDWORD callConv, asDocInfo doc_info )
+{
+    int reg_id = asCScriptEngine::RegisterGlobalFunction( declaration, funcPointer, callConv );
+    std::string format_decl = GetGlobalFunctionByIndex( GetGlobalFunctionCount() - 1 )->GetDeclaration( false, true, true );  // Object name, namespace, parm names
+    asDocgen::AddGlobalFunctionComment( format_decl, doc_info.comment );
+    asDocgen::AddGlobalFunctionGroup( format_decl, doc_info.group );
+
+    return reg_id;
+}
+
+void asCScriptEngine::AddSkipComment( const char* declaration, const char* comment )
+{
+    asDocgen::AddSkippedComment( declaration, comment );
+}
+
+void asCScriptEngine::AddGroup( const char* group, const char* title, const char* description )
+{
+    asDocgen::AddGroup( group, title, description );
 }
 
 // interface
@@ -5857,6 +5981,13 @@ int asCScriptEngine::RegisterEnum(const char *name)
 	return asSUCCESS;
 }
 
+int asCScriptEngine::RegisterEnum(const char *name, asDocInfo doc_info )
+{
+    asDocgen::AddEnumerationComment(name, doc_info.comment);
+    asDocgen::AddEnumerationGroup( name, doc_info.group );
+    return asCScriptEngine::RegisterEnum( name );
+}
+
 // interface
 int asCScriptEngine::RegisterEnumValue(const char *typeName, const char *valueName, int value)
 {
@@ -5900,6 +6031,12 @@ int asCScriptEngine::RegisterEnumValue(const char *typeName, const char *valueNa
 	ot->enumValues.PushLast(e);
 
 	return asSUCCESS;
+}
+
+int asCScriptEngine::RegisterEnumValue(const char *typeName, const char *valueName, int value, const char *comment)
+{
+    asDocgen::AddEnumeratorComment(typeName, valueName, comment);
+    return asCScriptEngine::RegisterEnumValue( typeName, valueName, value );
 }
 
 // interface
