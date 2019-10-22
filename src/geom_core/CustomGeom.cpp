@@ -961,7 +961,7 @@ void CustomGeom::CloneSurf( int index, Matrix4d & mat )
     }
 }
 
-//==== Make A Copy Of MainSurf at Index and Apply XForm ====//
+//==== Apply Transformation for a Main Surface ====//
 void CustomGeom::TransformSurf( int index, Matrix4d & mat )
 {
     if ( index >= 0 && index < (int)m_MainSurfVec.size() )

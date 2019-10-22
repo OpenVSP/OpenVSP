@@ -68,7 +68,7 @@ public:
     string GetCustomParm( int index );
 
     //==== Add A Gui Device Constructor to Current Custom Geom - Gui Will Be Created By Custom Screen (if connected) ===//
-    int AddGui( int type, const string & label, const string & parm_name, const string & group_name, double range );
+    int AddGui( int type, const string & label = string(), const string & parm_name = string(), const string & group_name = string(), double range = 10 );
     vector< GuiDef > GetGuiDefVec( const string & geom_id );
 
     //==== Add Gui->Parm Pairing To Update Vec ====//

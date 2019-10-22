@@ -96,11 +96,11 @@ class PSliceUI {open
         }
       }
       Fl_Box {} {
-        label {Start Locaction}
+        label {Start Location}
         xywh {3 112 125 20} box BORDER_BOX labelfont 1 labelsize 13
       }
       Fl_Box {} {
-        label {End Locaction}
+        label {End Location}
         xywh {3 133 125 20} box BORDER_BOX labelfont 1 labelsize 13
       }
       Fl_Light_Button AutoBoundsButton {

@@ -85,7 +85,7 @@ ErrorObj ErrorMgrSingleton::PopLastError()
 
 }
 
-//==== Return Error and Pop Off Stack =====//
+//==== Return Error =====//
 ErrorObj ErrorMgrSingleton::GetLastError()
 {
     ErrorObj ret_err;

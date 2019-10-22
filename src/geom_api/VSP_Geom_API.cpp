@@ -2801,7 +2801,7 @@ string GetXSec( const string & xsec_surf_id, int xsec_index )
 //    return id;
 //}
 
-/// Create an xsec of type and insert it after xsec_index
+/// Change the shape of a particular XSec
 void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type )
 {
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
@@ -3438,7 +3438,7 @@ std::vector<vec3d> GetHersheyBarDragDist( const int &npts, const double &alpha, 
 std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, const double &epsilon, const double &kappa, const double &tau )
 {
     // alpha = Angle of attack( radian )
-    // epsilon = Thisckness
+    // epsilon = Thickness
     // kappa = Camber
     // tau = Trailing edge angle( radian )
     // npts = # of nodes in the circumferential direction
@@ -3504,7 +3504,7 @@ std::vector<vec3d> GetVKTAirfoilPnts( const int &npts, const double &alpha, cons
 std::vector<double> GetVKTAirfoilCpDist( const double &alpha, const double &epsilon, const double &kappa, const double &tau, std::vector<vec3d> xyzdata )
 {
     // alpha = Angle of attack( radian )
-    // epsilon = Thisckness
+    // epsilon = Thickness
     // kappa = Camber
     // tau = Trailing edge angle( radian )
     // xyzdata = output from vsp::GetVKTAirfoilPnts
