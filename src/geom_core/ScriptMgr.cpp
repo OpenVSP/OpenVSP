@@ -69,11 +69,58 @@ void ScriptMgrSingleton::Init( )
 
     //==== Register Addons ====//
     RegisterStdString( m_ScriptEngine );
+
+    string comment_str = R"(
+  //!  AngelScript ScriptExtension for representing the C++ std::string
+  /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_string.html">Angelscript string Documentation </a>
+  */)";
+
+    se->AddSkipComment( "string", comment_str.c_str() );
+
     RegisterScriptArray( m_ScriptEngine, true );
+
+    comment_str = R"(
+  //!  AngelScript ScriptExtension for representing the C++ std::vector
+  /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_datatypes_arrays.html">Angelscript array Documentation </a>
+  */)";
+
+    se->AddSkipComment( "array", comment_str.c_str() );
+
     RegisterScriptFile( m_ScriptEngine );
+
+    comment_str = R"(
+  //!  AngelScript ScriptExtension for representing the C++ std::FILE
+  /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_script_stdlib_file.html">Angelscript file Documentation </a>
+  */)";
+
+    se->AddSkipComment( "file", comment_str.c_str() );
+
     RegisterStdStringUtils( m_ScriptEngine );
+
+    comment_str = R"(
+  //!  AngelScript ScriptExtension for representing the C++ std::string
+  /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_datatypes_arrays.html">Angelscript string Documentation </a>
+  */)";
+
+    se->AddSkipComment( "string_util", comment_str.c_str() );  // FIXME
+
     RegisterScriptMath( m_ScriptEngine );
+
+    comment_str = R"(
+  //!  AngelScript ScriptExtension for representing the C++ std::math collection of functions
+  /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_math.html">Angelscript array Documentation </a>
+  */)";
+
+    se->AddSkipComment( "math", comment_str.c_str() ); // FIXME
+
     RegisterScriptAny( m_ScriptEngine );
+
+    comment_str = R"(
+  //!  AngelScript ScriptExtension for representing generic container that can hold any value
+  /*! <a href="https://www.angelcode.com/angelscript/sdk/docs/manual/doc_addon_any.html">Angelscript any Documentation </a>
+  */)";
+
+    se->AddSkipComment( "any", comment_str.c_str() );
 
     //==== Cache Some Commom Types ====//
     m_IntArrayType    = se->GetTypeInfoById( se->GetTypeIdByDecl( "array<int>" ) );

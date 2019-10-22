@@ -551,12 +551,6 @@ enum VIEW_ROT { ROT_0,
                 ROT_270,
               };
 
-enum VIEW_SHIFT { LEFT,
-                  RIGHT,
-                  UP,
-                  DOWN,
-                };
-
 enum VIEW_TYPE { VIEW_LEFT,
                  VIEW_RIGHT,
                  VIEW_TOP,

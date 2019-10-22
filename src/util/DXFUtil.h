@@ -22,6 +22,14 @@
 using std::vector;
 using std::string;
 
+enum VIEW_SHIFT
+{
+    LEFT,
+    RIGHT,
+    UP,
+    DOWN,
+};
+
 void WriteDXFHeader( FILE* dxf_file, int LenUnitChoice );
 void FeatureLinesManipulate( vector < vector < vec3d > > &allflines, int view, int ang, const vec3d &shiftvec );
 void FeatureLinesShift( vector < vector < vec3d > > &allflines, const vec3d &shiftvec, int shift, int ang1, int ang2 );

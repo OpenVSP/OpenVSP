@@ -207,19 +207,19 @@ void FeatureLinesShift( vector < vector < vec3d > > &allflines, const vec3d &shi
     {
         for ( unsigned int j = 0; j < allflines[l].size(); j++ )
         {
-            if ( shift == vsp::VIEW_SHIFT::LEFT )
+            if ( shift == VIEW_SHIFT::LEFT )
             {
                 allflines[l][j].offset_x( -std::abs( shiftvec_temp.x() ) );
             }
-            else if ( shift == vsp::VIEW_SHIFT::RIGHT )
+            else if ( shift == VIEW_SHIFT::RIGHT )
             {
                 allflines[l][j].offset_x( std::abs( shiftvec_temp.x() ) );
             }
-            else if ( shift == vsp::VIEW_SHIFT::UP )
+            else if ( shift == VIEW_SHIFT::UP )
             {
                 allflines[l][j].offset_y( std::abs( shiftvec_temp.y() ) );
             }
-            else if ( shift == vsp::VIEW_SHIFT::DOWN )
+            else if ( shift == VIEW_SHIFT::DOWN )
             {
                 allflines[l][j].offset_y( -std::abs( shiftvec_temp.y() ) );
             }
