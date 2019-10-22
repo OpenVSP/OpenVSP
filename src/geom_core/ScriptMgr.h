@@ -103,6 +103,11 @@ public:
     double Max( double x, double y )                { return  (x > y ) ? x : y; }
     string GetVSPVersion()                          { return VSPVERSION4; }
 
+    void GenAPIDocs( const string & file_name )
+    {
+        GenerateDocument( m_ScriptEngine, file_name.c_str() );
+    }
+
 private:
 
     ScriptMgrSingleton();

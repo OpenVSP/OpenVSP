@@ -76,6 +76,8 @@ public:
     static void RunTestScripts();
     void Renew();
 
+    void GenAPIDocs( const string & file_name );
+
     void ParmChanged( Parm* parm_ptr, int type );
     static void UnDo();
 

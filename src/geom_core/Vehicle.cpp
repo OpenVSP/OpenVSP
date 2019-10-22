@@ -444,6 +444,11 @@ void Vehicle::Renew()
     Init();
 }
 
+void Vehicle::GenAPIDocs( const string & file_name )
+{
+    ScriptMgr.GenAPIDocs( file_name );
+}
+
 //==== Parm Changed ====//
 void Vehicle::ParmChanged( Parm* parm_ptr, int type )
 {
