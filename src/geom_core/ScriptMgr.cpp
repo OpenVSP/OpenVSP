@@ -2337,43 +2337,147 @@ static void Matrix4dDefaultConstructor( Matrix4d *self )
 //==== Register Matrix4d Object ====//
 void ScriptMgrSingleton::RegisterMatrix4d( asIScriptEngine* se )
 {
+    asDocInfo doc_struct;
+
+    string group = "Matrix4d";
+    doc_struct.group = group.c_str();
+
+    string group_description = R"(
+    \brief API functions that utilize the Matrix4d class are grouped here. For details of the class, including member functions, see Matrix4d. \n\n
+    \ref index "Click here to return to the main page" )";
+    se->AddGroup( group.c_str(), "Matrix4d Functions", group_description.c_str() );
+
     //==== Register Matrix4d Object =====//
-    int r = se->RegisterObjectType( "Matrix4d", sizeof( Matrix4d ), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA );
+    doc_struct.comment = R"(
+//!  A class for representing 4x4 matricies. 
+/*!
+    Matrix4d is typically used to perform rotations, translations, scaling, projections, and other transformations in 3D space.
+*/)";
+
+    int r = se->RegisterObjectType( "Matrix4d", sizeof( Matrix4d ), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA, doc_struct );
     assert( r >= 0 );
+
+    //===== Register the Matrix4d constructor =====//
     r = se->RegisterObjectBehaviour( "Matrix4d", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION( Matrix4dDefaultConstructor ), asCALL_CDECL_OBJLAST );
+    assert( r >= 0 ); // TODO?
+
+    //===== Register the Matrix4d methods =====//
+
+    doc_struct.comment = R"(
+/*!
+    Create a 4x4 indentity matrix
+    \return Identity Matrix4d
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "void loadIdentity()", asMETHOD( Matrix4d, loadIdentity ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void loadIdentity()", asMETHOD( Matrix4d, loadIdentity ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void translatef( const double & in x, const double & in y, const double & in z)", asMETHOD( Matrix4d, translatef ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotateX( const double & in ang )", asMETHOD( Matrix4d, rotateX ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotateY( const double & in ang )", asMETHOD( Matrix4d, rotateY ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotateZ( const double & in ang )", asMETHOD( Matrix4d, rotateZ ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void rotate( const double & in ang, const vec3d & in axis )", asMETHOD( Matrix4d, rotate ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void scale( const double & in scale )", asMETHOD( Matrix4d, scale ), asCALL_THISCALL );
+    doc_struct.comment = R"(
+/*!
+    Translate the Matrix4d along the given axes values
+    \param [in] x Translation along the X axis
+    \param [in] y Translation along the Y axis
+    \param [in] z Translation along the Z axis
+    \return Translated Matrix4d
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "void translatef( const double & in x, const double & in y, const double & in z)", asMETHOD( Matrix4d, translatef ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "Matrix4d", "vec3d xform( const vec3d & in v )", asMETHOD( Matrix4d, xform ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "vec3d getAngles()", asMETHOD( Matrix4d, getAngles ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void loadXZRef()", asMETHOD( Matrix4d, loadXZRef ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void loadXYRef()", asMETHOD( Matrix4d, loadXYRef ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "Matrix4d", "void loadYZRef()", asMETHOD( Matrix4d, loadYZRef ), asCALL_THISCALL );
+    doc_struct.comment = R"(
+/*!
+    Rotate the Matrix4d about the X axis 
+    \param [in] ang Angle of rotation (degrees)
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotateX( const double & in ang )", asMETHOD( Matrix4d, rotateX ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void affineInverse()", asMETHOD( Matrix4d, affineInverse ), asCALL_THISCALL );
+    doc_struct.comment = R"(
+/*!
+    Rotate the Matrix4d about the Y axis
+    \param [in] ang Angle of rotation (degrees)
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotateY( const double & in ang )", asMETHOD( Matrix4d, rotateY ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "Matrix4d", "void buildXForm( const vec3d & in pos, const vec3d & in rot, const vec3d & in cent_rot )", asMETHOD( Matrix4d, buildXForm ), asCALL_THISCALL );
+    doc_struct.comment = R"(
+/*!
+    Rotate the Matrix4d about the Z axis
+    \param [in] ang Angle of rotation (degrees)
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotateZ( const double & in ang )", asMETHOD( Matrix4d, rotateZ ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Rotate the Matrix4d about an arbitrary axis
+    \param [in] ang Angle of rotation (degrees)
+    \param [in] axis Vector to rotate about
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "void rotate( const double & in ang, const vec3d & in axis )", asMETHOD( Matrix4d, rotate ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Multiply the Matrix4d by a scalar value
+    \param [in] scale Value to scale by
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "void scale( const double & in scale )", asMETHOD( Matrix4d, scale ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Transform the Matrix4d by the given vector 
+    \param [in] v Tranformation vector
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "vec3d xform( const vec3d & in v )", asMETHOD( Matrix4d, xform ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Calculate the Matrix4d's angles between the X, Y and Z axes
+    \return Angle measurement between each axis (degrees)
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "vec3d getAngles()", asMETHOD( Matrix4d, getAngles ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Load an identy Matrix4d and set the Y coordinate of the diagonal (index 5) to -1
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "void loadXZRef()", asMETHOD( Matrix4d, loadXZRef ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Load an identy Matrix4d and set the Z coordinate of the diagonal (index 10) to -1
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "void loadXYRef()", asMETHOD( Matrix4d, loadXYRef ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Load an identy Matrix4d and set the X coordinate of the diagonal (index 0) to -1
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "void loadYZRef()", asMETHOD( Matrix4d, loadYZRef ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Perform an affine transform on the Matrix4d
+*/)";
+    r = se->RegisterObjectMethod( "Matrix4d", "void affineInverse()", asMETHOD( Matrix4d, affineInverse ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Translate the Matrix4d to a given position and rotate it a about a given center of rotation 
+    \param [in] pos Position to translate to
+    \param [in] rot Angle of rotation (degrees)
+    \param [in] cent_rot Center of rotation
+*/)";
+    r = se->RegisterObjectMethod("Matrix4d", "void buildXForm( const vec3d & in pos, const vec3d & in rot, const vec3d & in cent_rot )", asMETHOD(Matrix4d, buildXForm), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+
+    //TODO: Expose additional functions to the API (i.e. matMult)
 
 }
 
@@ -2490,12 +2594,38 @@ void ScriptMgrSingleton::RegisterAdvLinkMgr( asIScriptEngine* se )
 //==== Register API E Functions ====//
 void ScriptMgrSingleton::RegisterAPIErrorObj( asIScriptEngine* se )
 {
-    //==== Register vec3d Object =====//
-    int r = se->RegisterObjectType( "ErrorObj", sizeof( vsp::ErrorObj ), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CDA );
+    asDocInfo doc_struct;
+
+    string group = "ErrorObj";
+    doc_struct.group = group.c_str();
+
+    // Note: No group needed for object methods only
+
+    doc_struct.comment = R"(
+//!  A class for representing API Errors
+/*!
+    ErrorObj is defined by an error code enum and associated error string. 
+*/)";
+
+    //==== Register ErrorObj Object =====//
+    int r = se->RegisterObjectType( "ErrorObj", sizeof( vsp::ErrorObj ), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CDA, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterObjectMethod( "ErrorObj", "ERROR_CODE GetErrorCode()", asMETHOD( vsp::ErrorObj, GetErrorCode ), asCALL_THISCALL );
+
+    doc_struct.comment = R"(
+/*!
+    Get the ERROR_CODE enum of the last raised error
+    \sa ERROR_CODE
+    \return ERROR_CODE error code enum
+*/)";
+    r = se->RegisterObjectMethod( "ErrorObj", "ERROR_CODE GetErrorCode()", asMETHOD( vsp::ErrorObj, GetErrorCode ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterObjectMethod( "ErrorObj", "string GetErrorString()", asMETHOD( vsp::ErrorObj, GetErrorString ), asCALL_THISCALL );
+
+    doc_struct.comment = R"(
+/*!
+    Get the error string of the last raised error
+    \return Error string
+*/)";
+    r = se->RegisterObjectMethod( "ErrorObj", "string GetErrorString()", asMETHOD( vsp::ErrorObj, GetErrorString ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
 
 
