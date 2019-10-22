@@ -651,6 +651,9 @@ asUINT asGetTypeTraits()
 
 #endif // c++11
 
+// Documentation generation from asDocgen.h
+void GenerateDocument(asIScriptEngine *engine, const char *filename);
+
 struct asDocInfo
 {
     const char* comment = NULL;
