@@ -1949,97 +1949,380 @@ static void Vec3dInitConstructor( double x, double y, double z, vec3d *self )
 //==== Register Vec3d Object ====//
 void ScriptMgrSingleton::RegisterVec3d( asIScriptEngine* se )
 {
+    asDocInfo doc_struct;
+
+    string group = "vec3d";
+    doc_struct.group = group.c_str();
+
+    string group_description = R"(
+    \brief API functions that utilize the vec3d class are grouped here. For details of the class, including member functions, see vec3d. \n\n
+    \ref index "Click here to return to the main page" )";
+    se->AddGroup( group.c_str(), "Vec3D Functions", group_description.c_str() );
+
+    doc_struct.comment = R"(
+  //!  A class for representing 3D vectors. 
+  /*!
+    vec3d is typically used to describe coordinate points and vectors in 3D space.
+    All 3 elements in the vector are of type double.
+  */)";
     //==== Register vec3d Object =====//
-    int r = se->RegisterObjectType( "vec3d", sizeof( vec3d ), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA );
+    int r = se->RegisterObjectType( "vec3d", sizeof( vec3d ), asOBJ_VALUE | asOBJ_POD | asOBJ_APP_CLASS_CA, doc_struct );
     assert( r >= 0 );
 
     //==== Register the vec3d Constructors  ====//
-    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION( Vec3dDefaultConstructor ), asCALL_CDECL_OBJLAST );
+    doc_struct.comment = R"(
+  /*!
+    Initialize a vec3d object with X, Y, and Z set to 0.
+  */)"; // Not shown in header
+    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f()", asFUNCTION( Vec3dDefaultConstructor ), asCALL_CDECL_OBJLAST, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f(double, double, double)", asFUNCTION( Vec3dInitConstructor ), asCALL_CDECL_OBJLAST );
+
+    doc_struct.comment = R"(
+  /*!
+    Initialize a vec3d object with input X, Y, and Z values. 
+  */)"; // Not shown in header
+    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f(double, double, double)", asFUNCTION( Vec3dInitConstructor ), asCALL_CDECL_OBJLAST, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f(const vec3d &in)", asFUNCTION( Vec3dCopyConstructor ), asCALL_CDECL_OBJLAST );
+
+    doc_struct.comment = R"(
+  /*!
+    Initialize a vec3d with another vec3d. Equivalent to the "=" operator.
+  */)"; // Not shown in header
+    r = se->RegisterObjectBehaviour( "vec3d", asBEHAVE_CONSTRUCT, "void f(const vec3d &in)", asFUNCTION( Vec3dCopyConstructor ), asCALL_CDECL_OBJLAST, doc_struct );
     assert( r >= 0 );
 
     //==== Register the vec3d Methods  ====//
-    r = se->RegisterObjectMethod( "vec3d", "double& opIndex(int) const", asMETHODPR( vec3d, operator[], ( int ), double& ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "double x() const", asMETHOD( vec3d, x ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "double y() const", asMETHOD( vec3d, y ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "double z() const", asMETHOD( vec3d, z ), asCALL_THISCALL );
+    doc_struct.comment = R"(
+  /*!
+    Indexing operator for vec3d. Supported indexes are 0 (X), 1 (Y), and 2 (Z).
+  */)";
+    r = se->RegisterObjectMethod( "vec3d", "double& opIndex(int) const", asMETHODPR( vec3d, operator[], ( int ), double& ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_xyz(double x, double y, double z)", asMETHOD( vec3d, set_xyz ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_x(double x)", asMETHOD( vec3d, set_x ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_y(double y)", asMETHOD( vec3d, set_y ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_z(double z)", asMETHOD( vec3d, set_z ), asCALL_THISCALL );
-    assert( r >= 0 );
-
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_x(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_x ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_y(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_y ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_z(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_z ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "void scale_x(double scale)", asMETHOD( vec3d, scale_x ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "void scale_y(double scale)", asMETHOD( vec3d, scale_y ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "void scale_z(double scale)", asMETHOD( vec3d, scale_z ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "void offset_x(double offset)", asMETHOD( vec3d, offset_x ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "void offset_y(double offset)", asMETHOD( vec3d, offset_y ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "void offset_z(double offset)", asMETHOD( vec3d, offset_z ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_z_zero_x(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_z_zero_x ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "void rotate_z_zero_y(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_z_zero_y ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_xy()", asMETHOD( vec3d, reflect_xy ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_xz()", asMETHOD( vec3d, reflect_xz ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_yz()", asMETHOD( vec3d, reflect_yz ), asCALL_THISCALL );
+    doc_struct.comment = R"(
+  /*!
+    Get the X coordinate (index 0) of the vec3d
+    \return X value
+  */)";
+    r = se->RegisterObjectMethod( "vec3d", "double x() const", asMETHOD( vec3d, x ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "vec3d opAdd(const vec3d &in) const", asFUNCTIONPR( operator+, ( const vec3d&, const vec3d& ), vec3d ), asCALL_CDECL_OBJFIRST );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "vec3d opSub(const vec3d &in) const", asFUNCTIONPR( operator-, ( const vec3d&, const vec3d& ), vec3d ), asCALL_CDECL_OBJFIRST );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "vec3d opMul(double b) const", asFUNCTIONPR( operator*, ( const vec3d & a, double b ), vec3d ), asCALL_CDECL_OBJFIRST );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "vec3d opMul_r(const vec3d &in) const", asFUNCTIONPR( operator*, ( const vec3d&, const vec3d& ), vec3d ), asCALL_CDECL_OBJFIRST );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "vec3d opDiv(double b) const", asFUNCTIONPR( operator/, ( const vec3d&, double b ), vec3d ), asCALL_CDECL_OBJFIRST );
+    doc_struct.comment = R"(
+  /*!
+    Get the Y coordinate (index 1) of the vec3d
+    \return Y value
+  */)";
+    r = se->RegisterObjectMethod( "vec3d", "double y() const", asMETHOD( vec3d, y ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
 
-    r = se->RegisterObjectMethod( "vec3d", "double mag() const", asMETHOD( vec3d, mag ), asCALL_THISCALL );
-    assert( r >= 0 );
-    r = se->RegisterObjectMethod( "vec3d", "void normalize()", asMETHOD( vec3d, normalize ), asCALL_THISCALL );
+    doc_struct.comment = R"(
+  /*!
+    Get the Z coordinate (index 2) of the vec3d
+    \return Z value
+  */)";
+    r = se->RegisterObjectMethod( "vec3d", "double z() const", asMETHOD( vec3d, z ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
 
-    r = se->RegisterGlobalFunction( "double dist(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( dist, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL );
+    doc_struct.comment = R"(
+  /*!
+    Set all three elements of the vec3d vector
+    \param [in] x New X value
+    \param [in] y New Y value
+    \param [in] z New Z value
+    \return Updated vec3d
+  */)";
+    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_xyz(double x, double y, double z)", asMETHOD( vec3d, set_xyz ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "double dist_squared(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( dist_squared, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL );
+
+    doc_struct.comment = R"(
+  /*!
+    Set the X coordinate (index 0) of the vec3d
+    \param [in] x New X value
+    \return Updated vec3d
+  */)";
+
+    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_x(double x)", asMETHOD( vec3d, set_x ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "double dot(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( dot, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL );
+
+    doc_struct.comment = R"(
+  /*!
+    Set the Y coordinate (index 1) of the vec3d
+    \param [in] y New Y value
+    \return Updated vec3d
+  */)";
+
+    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_y(double y)", asMETHOD( vec3d, set_y ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "vec3d cross(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( cross, ( const vec3d&, const vec3d& ), vec3d  ), asCALL_CDECL );
+
+    doc_struct.comment = R"(
+  /*!
+    Set the z coordinate (index 2) of the vec3d
+    \param [in] z in double new z value
+    \return vec3d result
+  */)";
+
+    r = se->RegisterObjectMethod( "vec3d", "vec3d& set_z(double z)", asMETHOD( vec3d, set_z ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "double angle(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( angle, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL );
+
+    doc_struct.comment = R"(
+  /*!
+    Rotate the vec3d about the X axis. 
+    \f{equation}{x = cos \textunderscore alpha * x + sin \textunderscore alpha * z\f}
+    \f{equation}{y = -sin \textunderscore alpha * old_y + cos \textunderscore alpha * z\f}
+    \param [in] cos_alpha Cosine of rotation angle
+    \param [in] sin_alpha Sine of rotation angle
+  */)";
+
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_x(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_x ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "double signed_angle(const vec3d& in a, const vec3d& in b, const vec3d& in ref )", asFUNCTIONPR( signed_angle, ( const vec3d & a, const vec3d & b, const vec3d & ref ), double  ), asCALL_CDECL );
+
+    doc_struct.comment = R"(
+  /*!
+    Rotate the vec3d about the Y axis. 
+    \f{equation}{x = cos \textunderscore alpha * x - sin \textunderscore alpha * z\f}
+    \f{equation}{z =  sin \textunderscore alpha * old_x + cos \textunderscore alpha * z\f}
+    \param [in] cos_alpha Cosine of rotation angle
+    \param [in] sin_alpha Sine of rotation angle
+  */)";
+
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_y(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_y ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "double cos_angle(const vec3d& in a, const vec3d& in b )", asFUNCTIONPR( cos_angle, ( const vec3d & a, const vec3d & b ), double  ), asCALL_CDECL );
+
+    doc_struct.comment = R"(
+  /*!
+    Rotate the vec3d about the Z axis.
+    \f{equation}{x = cos \textunderscore alpha * x + sin \textunderscore alpha * y\f}
+    \f{equation}{y = -sin \textunderscore alpha * old_x + cos \textunderscore alpha * y\f}
+    \param [in] cos_alpha Cosine of rotation angle
+    \param [in] sin_alpha Sine of rotation angle
+  */)";
+
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_z(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_z ), asCALL_THISCALL, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "vec3d RotateArbAxis(const vec3d& in p, double theta, const vec3d& in axis )", asFUNCTIONPR( RotateArbAxis, ( const vec3d & p, double theta, const vec3d & axis ), vec3d ), asCALL_CDECL );
+
+    doc_struct.comment = R"(
+/*!
+    Scale the X coordinate of the vec3d
+    \param [in] scale Scaling factor for the X value
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "void scale_x(double scale)", asMETHOD( vec3d, scale_x ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+
+	doc_struct.comment = R"(
+/*!
+	Scale the Y coordinate of the vec3d
+	\param [in] scale Scaling factor for the Y value
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "void scale_y(double scale)", asMETHOD( vec3d, scale_y ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Scale the Z coordinate of the vec3d
+    \param [in] scale Scaling factor for the Z value
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "void scale_z(double scale)", asMETHOD( vec3d, scale_z ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Offset the X coordinate of the vec3d
+    \param [in] offset Offset for the X value
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "void offset_x(double offset)", asMETHOD( vec3d, offset_x ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Offset the Y coordinate of the vec3d
+    \param [in] offset Offset for the Y value
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "void offset_y(double offset)", asMETHOD( vec3d, offset_y ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Offset the Z coordinate of the vec3d
+    \param [in] offset Offset for the Z value
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "void offset_z(double offset)", asMETHOD( vec3d, offset_z ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Rotate the vec3d about the Z axis assuming zero X coordinate value 
+    \param [in] cos_alpha Cosine of rotation angle
+    \param [in] sin_alpha Sine of rotation angle
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_z_zero_x(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_z_zero_x ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Rotate the vec3d about the Z axis assuming zero Y coordinate value 
+    \param [in] cos_alpha Cosine of rotation angle
+    \param [in] sin_alpha Sine of rotation angle
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "void rotate_z_zero_y(double cos_alpha, double sin_alpha)", asMETHOD( vec3d, rotate_z_zero_y ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Reflect the vec3d accross the XY plane
+    \return Reflected vec3d
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_xy()", asMETHOD( vec3d, reflect_xy ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Reflect the vec3d accross the XZ plane
+    \return Reflected vec3d
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_xz()", asMETHOD( vec3d, reflect_xz ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Reflect the vec3d accross the YZ plane
+    \return Reflected vec3d
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "vec3d reflect_yz()", asMETHOD( vec3d, reflect_yz ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+  /*!
+    Addition operator for two vec3d objects, performed by the addition of each corresponding component
+  */)";
+    r = se->RegisterObjectMethod( "vec3d", "vec3d opAdd(const vec3d &in) const", asFUNCTIONPR( operator+, ( const vec3d&, const vec3d& ), vec3d ), asCALL_CDECL_OBJFIRST, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+  /*!
+    Subtraction operator for two vec3d objects, performed by the subtraction of each corresponding component
+  */)";
+    r = se->RegisterObjectMethod( "vec3d", "vec3d opSub(const vec3d &in) const", asFUNCTIONPR( operator-, ( const vec3d&, const vec3d& ), vec3d ), asCALL_CDECL_OBJFIRST, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+  /*!
+    Scalar multiplication operator for a vec3d, performed by the multiplication of each vec3d component and the scalar
+  */)";
+    r = se->RegisterObjectMethod( "vec3d", "vec3d opMul(double b) const", asFUNCTIONPR( operator*, ( const vec3d & a, double b ), vec3d ), asCALL_CDECL_OBJFIRST, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+  /*!
+    Multiplication operator for two vec3d objects, performed by the multiplication of each corresponding component
+  */)";
+    r = se->RegisterObjectMethod( "vec3d", "vec3d opMul_r(const vec3d &in) const", asFUNCTIONPR( operator*, ( const vec3d&, const vec3d& ), vec3d ), asCALL_CDECL_OBJFIRST, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+  /*!
+    Scalar division operator for a vec3d, performed by the division of of each vec3d component by the scalar
+  */)";
+    r = se->RegisterObjectMethod( "vec3d", "vec3d opDiv(double b) const", asFUNCTIONPR( operator/, ( const vec3d&, double b ), vec3d ), asCALL_CDECL_OBJFIRST, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Get the magnitude of a vec3d
+    \return Magnitude
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "double mag() const", asMETHOD( vec3d, mag ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Normalize the vec3d
+*/)";
+    r = se->RegisterObjectMethod( "vec3d", "void normalize()", asMETHOD( vec3d, normalize ), asCALL_THISCALL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Calculate the distance between two vec3d inputs
+    \sa dist_squared
+    \param [in] a First vec3d
+    \param [in] b Second vec3d
+    \return Distance
+*/)";
+    r = se->RegisterGlobalFunction( "double dist(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( dist, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Calculate distance squared between two vec3d inputs
+    \sa dist
+    \param [in] a First vec3d
+    \param [in] b Second vec3d
+    \return Distance squared
+*/)";
+    r = se->RegisterGlobalFunction( "double dist_squared(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( dist_squared, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+    
+    doc_struct.comment = R"(
+/*!
+    Calculate the dot product between two vec3d inputs
+    \param [in] a First vec3d
+    \param [in] b Second vec3d
+    \return Dot product
+*/)";
+    r = se->RegisterGlobalFunction( "double dot(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( dot, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Calculate the cross product between two vec3d inputs
+    \param [in] a First vec3d
+    \param [in] b Second vec3d
+    \return Cross product
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d cross(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( cross, ( const vec3d&, const vec3d& ), vec3d  ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Calculate the angle between two vec3d inputs (dot product divided by their magnitudes multiplied)
+    \param [in] a First vec3d
+    \param [in] b Second vec3d
+    \return Angle in Radians
+*/)";
+    r = se->RegisterGlobalFunction( "double angle(const vec3d& in a, const vec3d& in b)", asFUNCTIONPR( angle, ( const vec3d&, const vec3d& ), double  ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Calculate the signed angle between two vec3d inputs (dot product divided by their magnitudes multiplied) and an input reference axis
+    \param [in] a First vec3d
+    \param [in] b Second vec3d
+    \param [in] ref Reference axis
+    \return Angle in Radians
+*/)";
+    r = se->RegisterGlobalFunction( "double signed_angle(const vec3d& in a, const vec3d& in b, const vec3d& in ref )", asFUNCTIONPR( signed_angle, ( const vec3d & a, const vec3d & b, const vec3d & ref ), double  ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Calculate the cosine of angle between two vec3d inputs
+    \sa angle
+    \param [in] a First vec3d
+    \param [in] b Second vec3d
+    \return Angle in Radians
+*/)"; // TODO: verify description
+    r = se->RegisterGlobalFunction( "double cos_angle(const vec3d& in a, const vec3d& in b )", asFUNCTIONPR( cos_angle, ( const vec3d & a, const vec3d & b ), double  ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Rotate a input point by specified angle around an arbitrary axis. Assume right hand coordinate system
+    \param [in] p Coordinate point to rotate
+    \param [in] theta Angle of rotation in Radians
+    \param [in] axis Reference axis for rotation
+    \return Coordinates of rotated point
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d RotateArbAxis(const vec3d& in p, double theta, const vec3d& in axis )", asFUNCTIONPR( RotateArbAxis, ( const vec3d & p, double theta, const vec3d & axis ), vec3d ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
 
