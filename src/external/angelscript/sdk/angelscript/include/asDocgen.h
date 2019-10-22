@@ -43,6 +43,16 @@ namespace asDocgen
     std::map<string, string> enumerationComment;
     std::map<string, string> globalPropertyComments;
 
+    std::map<string, string> skippedComments;
+    std::map<string, string> groupTitles;
+    std::map<string, string> groupDescriptions;
+
+    std::map<string, ScriptTypeComment> typeGroups;
+    std::map<string, string> globalGroups;
+    std::map<string, std::map<string, string>> enumeratorGroups;
+    std::map<string, string> enumerationGroups;
+    std::map<string, string> globalPropertyGroups;
+
     void AddTypeComment( const string& name, const string& comment )
     {
         if ( typeComments.count( name ) )
@@ -98,6 +108,72 @@ namespace asDocgen
         }
     }
 
+    void AddSkippedComment( const string& decl, const string& comment )
+    {
+        skippedComments[decl] = comment;
+    }
+
+    void AddGroup( const string& group, const string& title, const string& description )
+    {
+        groupTitles[group] = title;
+        groupDescriptions[group] = description;
+    }
+
+    void AddTypeGroup( const string& name, const string& group )
+    {
+        if ( typeGroups.count( name ) )
+        {
+            typeGroups[name].comment = group;
+        }
+        else
+        {
+            typeGroups[name] = ScriptTypeComment();
+            typeGroups[name].comment = group;
+        }
+    }
+
+    void AddTypeMemberGroup( const string& name, const string& member, const string& group )
+    {
+        if ( typeGroups.count( name ) )
+        {
+            typeGroups[name].members[member] = group;
+        }
+        else
+        {
+            typeGroups[name].comment = "// TODO, add comment";
+            typeGroups[name] = ScriptTypeComment();
+            typeGroups[name].members[member] = group;
+        }
+    }
+
+    void AddGlobalFunctionGroup( const string& decl, const string& group )
+    {
+        globalGroups[decl] = group;
+    }
+
+    void AddGlobalPropertyGroup( const string& decl, const string& group )
+    {
+        globalPropertyGroups[decl] = group;
+    }
+
+    void AddEnumerationGroup( const string& decl, const string& group )
+    {
+        enumerationGroups[decl] = group;
+    }
+
+    void AddEnumeratorGroup( const string& enumname, const string& enummember, const string& group )
+    {
+        if ( enumeratorGroups.count( enumname ) )
+        {
+            enumeratorGroups[enumname][enummember] = group;
+        }
+        else
+        {
+            enumeratorGroups[enumname] = std::map<string, string>();
+            enumeratorGroups[enumname][enummember] = group;
+        }
+    }
+
     void ClearComments()
     {
         typeComments.clear();
@@ -105,6 +181,18 @@ namespace asDocgen
         enumeratorComments.clear();
         enumerationComment.clear();
         globalPropertyComments.clear();
+
+        skippedComments.clear();
+    }
+
+    void ClearGroups()
+    {
+        typeGroups.clear();
+        globalGroups.clear();
+        enumeratorGroups.clear();
+        enumerationGroups.clear();
+        globalPropertyGroups.clear();
+    }
 
     void replaceSubStr( std::string& str, const std::string& from, const std::string& to )
     {
