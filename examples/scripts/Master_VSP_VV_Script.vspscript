@@ -2532,7 +2532,7 @@ class HersheyVV : VV_Base
         m_AdvancedWakeVec[1] = 2;
         m_AdvancedWakeVec[2] = 3;
         
-        string AVL_file_name = GetVSPExePath() + string("\\airfoil\\Hershey_AR10_AVL.dat");
+        string AVL_file_name = GetVSPExePath() + string("/airfoil/Hershey_AR10_AVL.dat");
         m_AR10_Y_Cl_Cd_vec = ReadAVLFSFile(AVL_file_name);
     }
     
@@ -2973,7 +2973,7 @@ class HersheyVV : VV_Base
             SetStringAnalysisInput(m_VSPSweepAnalysis, "WingID", wid, 0);
             SetIntAnalysisInput(m_VSPSweepAnalysis, "Symmetry", m_SymFlagVec, 0);
             SetIntAnalysisInput(m_VSPSweepAnalysis, "WakeNumIter", m_WakeIterVec, 0);
-            
+
             // Freestream Parameters
             array<double> AlphaStart(1, alpha_0);
             array<double> AlphaEnd(1, alpha_f);
@@ -4524,7 +4524,7 @@ class SweepVV : VV_Base
         m_halfAR[2] = 7.5;
         m_halfAR[3] = 12.5;
         m_halfAR[4] = 20.000;
-        m_halfAR[5] = 30.0005;
+        m_halfAR[5] = 30;
         
         m_Tess_U[0] = 5;
         m_Tess_U[1] = 12;
@@ -4532,14 +4532,14 @@ class SweepVV : VV_Base
         m_Tess_U[3] = 41;
 
         m_Tess_W[0] = 9;
-        m_Tess_W[1] = 17;
+        m_Tess_W[1] = 18;
         m_Tess_W[2] = 29;
         m_Tess_W[3] = 51;
         
         m_Sweep[0] = 0;
         m_Sweep[1] = 10.005;
         m_Sweep[2] = 20;
-        m_Sweep[3] = 30;
+        m_Sweep[3] = 30.005;
         m_Sweep[4] = 40;
     }
     
@@ -6124,7 +6124,7 @@ class VKTVV : VV_Base
         array<double> Alpha(1, 0.0);
         
         // Load XFoil's Cp Distribution for VKT with epsilon = 0.1, kappa = 0.1, && tau = 10°
-        string xfoil_file_name = GetVSPExePath() + string("\\airfoil\\XFoil_VKT_CpDist.txt");
+        string xfoil_file_name = GetVSPExePath() + string("/airfoil/XFoil_VKT_CpDist.txt");
         array<vec3d> Xfoil_CpDist = ReadCpDistFile( xfoil_file_name );
         
         // Calculate Analytical Solution
@@ -6185,7 +6185,7 @@ class VKTVV : VV_Base
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Alpha", Alpha, 0);
                 SetDoubleAnalysisInput(m_VSPSingleAnalysis, "Mach", m_MachVec, 0);
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
-                
+
                 Update();
 
                 // list inputs, type, and current values
@@ -6549,7 +6549,7 @@ class EllipsoidVV : VV_Base
                 SetIntAnalysisInput( m_VSPSingleAnalysis, "GeomSet", m_GeomVec, 0 ); // Reference geometry set
                 SetIntAnalysisInput( m_VSPSingleAnalysis, "AnalysisMethod", panel_analysis );
                 SetIntAnalysisInput(m_VSPSingleAnalysis, "WakeNumIter", m_WakeIterVec, 0);
-                
+
                 Update();
 
                 // list inputs, type, and current values
