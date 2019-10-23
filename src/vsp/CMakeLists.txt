@@ -66,6 +66,7 @@ IF( NOT VSP_NO_GRAPHICS )
         Angelscript
         cartesian
         wavedragEL
+        pinocchio
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
@@ -106,6 +107,7 @@ IF( NOT VSP_NO_GRAPHICS )
 		sixseries
 		cartesian
 		wavedragEL
+		pinocchio
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${FLTK_LIBRARIES}
@@ -141,6 +143,7 @@ TARGET_LINK_LIBRARIES(apitest
 	clipper
     Angelscript
     wavedragEL
+    pinocchio
 	${CPPTEST_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${WINSOCK_LIBRARIES}
@@ -172,6 +175,7 @@ TARGET_LINK_LIBRARIES(vspscript
 	clipper
 	Angelscript
 	wavedragEL
+	pinocchio
 	${CPPTEST_LIBRARIES}
 	${LIBXML2_LIBRARIES}
 	${WINSOCK_LIBRARIES}

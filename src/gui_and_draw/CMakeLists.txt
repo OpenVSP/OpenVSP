@@ -23,6 +23,7 @@ INCLUDE_DIRECTORIES(
     ${LIBIGES_INCLUDE_DIR}
     ${GUI_AND_DRAW_INCLUDE_DIR}
     ${CARTESIAN_INCLUDE_DIR}
+    ${PINOCCHIO_INCLUDE_DIR}
 )
 
 ADD_LIBRARY(gui_and_draw
@@ -47,7 +48,9 @@ FuselageScreen.cpp
 GroupLayout.cpp
 GuiDevice.cpp
 HingeScreen.cpp
+HumanGeomScreen.cpp
 IGESOptionsScreen.cpp
+IGESStructureOptionsScreen.cpp
 ImportScreen.cpp
 MainGLWindow.cpp
 MainGLWindow.cpp
@@ -83,6 +86,7 @@ SnapToScreen.cpp
 StackScreen.cpp
 StructScreen.cpp
 STEPOptionsScreen.cpp
+STEPStructureOptionsScreen.cpp
 STLOptionsScreen.cpp
 SubGLWindow.cpp
 SurfaceIntersectionScreen.cpp
@@ -117,7 +121,9 @@ FuselageScreen.h
 GroupLayout.h
 GuiDevice.h
 HingeScreen.h
+HumanGeomScreen.h
 IGESOptionsScreen.h
+IGESStructureOptionsScreen.h
 ImportScreen.h
 MainGLWindow.h
 MainGLWindow.h
@@ -153,6 +159,7 @@ SnapToScreen.h
 StackScreen.h
 StructScreen.h
 STEPOptionsScreen.h
+STEPStructureOptionsScreen.h
 STLOptionsScreen.h
 SubGLWindow.h
 SurfaceIntersectionScreen.h

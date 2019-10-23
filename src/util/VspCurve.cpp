@@ -14,7 +14,7 @@
 
 #include "VspCurve.h"
 #include "APIDefines.h"
-
+#include "Cluster.h"
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
@@ -563,7 +563,7 @@ void VspCurve::ToBinaryCubic( bool wingtype )
 
 }
 
-void VspCurve::SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag )
+void VspCurve::SetCubicControlPoints( const vector< vec3d > & cntrl_pts )
 {
     int ncp = cntrl_pts.size();
     int nseg = ( ncp - 1 ) / 3;
@@ -742,6 +742,68 @@ const piecewise_curve_type & VspCurve::GetCurve() const
 void VspCurve::SetCurve( const piecewise_curve_type &c )
 {
     m_Curve = c;
+}
+
+void VspCurve::InterpolateEqArcLenPCHIP( const piecewise_curve_type &c )
+{
+    int npts = 201; // Must be odd to hit LE point.
+
+    double t0 = c.get_parameter_min();
+    double tmax = c.get_parameter_max();
+    double t = t0;
+    double dt = ( tmax - t0 ) / ( npts - 1 );
+    int ile = ( npts - 1 ) / 2;
+
+    vector< vec3d > pnts( npts );
+    vector< double > arclen( npts );
+
+    pnts[0] = c.f( t );
+    arclen[0] = 0.0;
+    for ( int i = 1 ; i < npts ; i++ )
+    {
+        if ( i == ile )
+        {
+            t = 2.0; // Ensure LE point precision.
+        }
+        else if ( i == ( npts - 1 ) )
+        {
+            t = 4.0;  // Ensure end point precision.
+        }
+        else
+        {
+            t = dt * i; // All other points.
+        }
+
+        pnts[i] = c.f( t );
+
+        double ds = dist( pnts[i], pnts[i-1] );
+        if ( ds < 1e-8 )
+        {
+            ds = 1.0/npts;
+        }
+        arclen[i] = arclen[i-1] + ds;
+    }
+
+    double lenlower = arclen[ile];
+    double lenupper = arclen[npts-1] - lenlower;
+
+    double lowerscale = 2.0/lenlower;
+    int i;
+    for ( i = 1; i < ile; i++ )
+    {
+        arclen[i] = arclen[i] * lowerscale;
+    }
+    arclen[ile] = 2.0;
+    i++;
+
+    double upperscale = 2.0/lenupper;
+    for ( ; i < npts - 1; i++ )
+    {
+        arclen[i] = 2.0 + ( arclen[i] - lenlower) * upperscale;
+    }
+    arclen[npts-1] = 4.0;
+
+    InterpolatePCHIP( pnts, arclen, false );
 }
 
 void VspCurve::GetCurveSegment( curve_segment_type &c, int i ) const
@@ -1375,6 +1437,72 @@ double VspCurve::CalculateThick( double &loc ) const
     return tmax;
 }
 
+void VspCurve::MatchThick( const double & ttarget )
+{
+    piecewise_curve_type crv , c1, c2, c3, c4, clow, cup, cmid;
+    crv = m_Curve;
+
+    double tmid = ( crv.get_parameter_max() + crv.get_parameter_min() ) / 2.0;
+
+    crv.split( c1, c2, tmid );  // Split at LE
+    c2.reverse();
+    c2.set_t0( c1.get_t0() );
+
+    vector < double > pmap;
+    c1.get_pmap( pmap );
+
+    vector < double > pmap2;
+    c2.get_pmap( pmap2 );
+
+    pmap.insert( pmap.end(), pmap2.begin(), pmap2.end() );
+    std::sort( pmap.begin(), pmap.end() );
+    auto pmit = std::unique( pmap.begin(), pmap.end() );
+    pmap.erase( pmit, pmap.end() );
+
+    for( int i = 0; i < pmap.size(); i++ )
+    {
+        c1.split( pmap[i] );
+        c2.split( pmap[i] );
+    }
+
+    cmid.sum( c1, c2 );
+    cmid.scale( 0.5 );
+
+    c1.scale( -1.0 );
+    c3.sum( c1, c2 );
+
+    c4.square( c3 );
+
+    typedef piecewise_curve_type::onedpiecewisecurve onedpwc;
+    onedpwc sumsq;
+
+    typedef onedpwc::bounding_box_type onedbox;
+    onedbox box;
+
+    typedef onedpwc::point_type onedpt;
+    onedpt p;
+
+    sumsq = c4.sumcompcurve();
+
+    // Negate to allow minimization instead of maximization.
+    sumsq.scale( -1.0 );
+
+    double utmax;
+    double tmax = sqrt( -1.0 * eli::geom::intersect::minimum_dimension( utmax, sumsq, 0 ) );
+
+    double sf = ( ttarget / tmax ) * 0.5; // half because we need to add half thickness up and down.
+
+    c3.scale( sf ); // Scale delta by scale factor.
+
+    cup.sum( cmid, c3 ); // Construct upper surface.
+    c3.scale( -1.0 );
+    clow.sum( cmid, c3 );  // Construct lower surface.
+
+    cup.reverse();
+    clow.push_back( cup );  // Append top/bottom curves into one again.
+
+    m_Curve = clow; // Set thickness scaled curve back to m_Curve.
+}
 
 // Find the angle between two points on a curve.
 // First point: u1, considering curve dir1 = BEFORE or AFTER the point
@@ -1428,4 +1556,128 @@ vector < BezierSegment > VspCurve::GetBezierSegments()
     }
 
     return seg_vec;
+}
+
+double VspCurve::CreateRoundedRectangle( double w, double h, double k, double sk, double r, bool keycorner )
+{
+    VspCurve edge;
+    vector<vec3d> pt;
+    vector<double> u;
+
+    bool round_curve( true );
+
+    double wt = 2.0 * k * w;
+    double wb = 2.0 * ( 1 - k ) * w;
+    double wt2 = 0.5 * wt;
+    double wb2 = 0.5 * wb;
+    double w2 = 0.5 * w;
+    double off = sk * w2;
+    double h2 = 0.5 * h;
+
+    if ( r > wt2 )
+    {
+        r = wt2;
+    }
+    if ( r > wb2 )
+    {
+        r = wb2;
+    }
+    if ( r > h2 )
+    {
+        r = h2;
+    }
+
+    // catch special cases of degenerate cases
+    if ( ( w2 == 0 ) || ( h2 == 0 ) )
+    {
+        pt.resize( 4 );
+        u.resize( 5 );
+
+        // set the segment points
+        pt[0].set_xyz(  w,   0, 0 );
+        pt[1].set_xyz( w2, -h2, 0 );
+        pt[2].set_xyz(  0,   0, 0 );
+        pt[3].set_xyz( w2,  h2, 0 );
+
+        // set the corresponding parameters
+        u[0] = 0;
+        u[1] = 1;
+        u[2] = 2;
+        u[3] = 3;
+        u[4] = 4;
+
+        round_curve = false;
+    }
+    // create rectangle
+    else
+    {
+        pt.resize( 8 );
+        u.resize( 9 );
+
+        // set the segment points
+        pt[0].set_xyz( w,                0, 0 );
+        pt[1].set_xyz( w2 + wb2 - off, -h2, 0 );
+        pt[2].set_xyz( w2 - off,       -h2, 0 );
+        pt[3].set_xyz( w2 - wb2 - off, -h2, 0 );
+        pt[4].set_xyz( 0,                0, 0 );
+        pt[5].set_xyz( w2 - wt2 + off,  h2, 0 );
+        pt[6].set_xyz( w2 + off,        h2, 0 );
+        pt[7].set_xyz( w2 + wt2 + off,  h2, 0 );
+
+        // set the corresponding parameters
+        u[0] = 0;
+        u[2] = 1;
+        u[4] = 2;
+        u[6] = 3;
+        u[8] = 4;
+
+        if ( keycorner )
+        {
+            u[1] = 0.5;
+            u[3] = 1.5;
+            u[5] = 2.5;
+            u[7] = 3.5;
+        }
+        else
+        {
+            double d1 = dist( pt[0], pt[1] );
+            double d2 = dist( pt[1], pt[2] );
+            double du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[1] = du;
+
+            d1 = dist( pt[2], pt[3] );
+            d2 = dist( pt[3], pt[4] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[3] = 1 + du;
+
+            d1 = dist( pt[4], pt[5] );
+            d2 = dist( pt[5], pt[6] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[5] = 2 + du;
+
+            d1 = dist( pt[6], pt[7] );
+            d2 = dist( pt[7], pt[0] );
+            du = d1 / ( d1 + d2 );
+            if ( du < 0.001 ) du = 0.001;
+            if ( du > 0.999 ) du = 0.999;
+            u[7] = 3 + du;
+        }
+    }
+
+    // build the polygon
+    InterpolateLinear( pt, u, true );
+
+    // round all joints if needed
+    if ( round_curve )
+    {
+        RoundAllJoints( r );
+    }
+
+    return r;
 }

@@ -1731,7 +1731,7 @@ void LoadCaseFile(void)
 
           printf("Unsteady analysis data: \n");
               
-          sscanf(DumChar,"UnsteadyAnalysisType = %s \n",&AnalysisType);
+          sscanf(DumChar,"UnsteadyAnalysisType = %s \n", AnalysisType);
           
           printf("UnsteadyAnalysisType: %s \n",AnalysisType);
                    

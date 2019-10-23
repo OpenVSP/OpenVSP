@@ -7,6 +7,7 @@
 #ifndef _VSP_GUI_VIEW_MANAGER_SCREEN_H
 #define _VSP_GUI_VIEW_MANAGER_SCREEN_H
 
+#include "Defines.h"
 #include "ScreenBase.h"
 #include "Parm.h"
 #include <cmath>
@@ -88,7 +89,7 @@ protected:
 
     SliderAdjRangeInput m_PanXPos;
     SliderAdjRangeInput m_PanYPos;
-    SliderInput m_Zoom;
+    SliderAdjRangeInput m_Zoom;
 
     //===== Attempt at Euler Angle Rotation =====//
     SliderAdjRangeInput m_XRotation;

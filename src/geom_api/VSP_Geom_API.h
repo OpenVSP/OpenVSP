@@ -12,6 +12,7 @@
 #if !defined(VSPAPI__INCLUDED_)
 #define VSPAPI__INCLUDED_
 
+#include "Defines.h"
 
 #include "APIErrorMgr.h"
 #include "Vec3d.h"
@@ -35,6 +36,8 @@ extern void VSPRenew();
 
 extern void Update();
 extern void VSPExit( int error_code );
+
+extern std::string GetVSPExePath();
 
 //======================== File I/O ================================//
 extern void ReadVSPFile( const std::string & file_name );
@@ -122,7 +125,7 @@ extern void PrintResults( const std::string &results_id );
 
 //======================== GUI Functions ================================//
 extern void StartGui( );
-extern void ScreenGrab( const string & fname, int w, int h );
+extern void ScreenGrab( const string & fname, int w, int h, bool transparentBG );
 extern void SetViewAxis( bool vaxis );
 extern void SetShowBorders( bool brdr );
 extern void SetGeomDrawType(const string &geom_id, int type);

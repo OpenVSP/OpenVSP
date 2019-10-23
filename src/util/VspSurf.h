@@ -54,6 +54,8 @@ public:
     // create surface as a body of revolution using the specified curve
     void CreateBodyRevolution( const VspCurve &input_crv, bool match_uparm = false );
 
+    void CreateDisk( double dia, int ix = vsp::X_DIR, int iy = vsp::Y_DIR );
+
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, const vector < double > & param, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < double > & param, bool closed_flag );
     void SkinRibs( const vector<rib_data_type> &ribs, const vector < int > &degree, bool closed_flag );
@@ -63,10 +65,14 @@ public:
     void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, const vector <double> &tdisc, bool closed_flag );
     void SkinCubicSpline( const vector<rib_data_type> &ribs, const vector<double> &param, bool closed_flag );
 
+    void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector < int > &degree, const vector<double> &param, bool closed_flag );
     void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector < int > &degree, bool closed_flag );
+    void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, const vector< double > &param, bool closed_flag );
     void SkinCX( const vector< VspCurve > &input_crv_vec, const vector< int > &cx, bool closed_flag );
+    void SkinCX( const vector< VspCurve > &input_crv_vec, int cx, const vector< double > &param, bool closed_flag );
     void SkinCX( const vector< VspCurve > &input_crv_vec, int cx, bool closed_flag );
 
+    void SkinC0( const vector< VspCurve > &input_crv_vec, const vector<double> &param, bool closed_flag );
     void SkinC0( const vector< VspCurve > &input_crv_vec, bool closed_flag );
     void SkinC1( const vector< VspCurve > &input_crv_vec, bool closed_flag );
     void SkinC2( const vector< VspCurve > &input_crv_vec, bool closed_flag );

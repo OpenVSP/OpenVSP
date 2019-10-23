@@ -33,3 +33,29 @@ void ActionMenuItem::ActionCallBack( void* data )
 {
     m_ActionScreen->ActionCB( data );
 }
+
+void VSPCheckMenuItem::Init( ActionScreen *ascreen, Fl_Sys_Menu_Bar *mbar, std::string mpath, int scut )
+{
+    m_ActionScreen = ascreen;
+    m_MenuBar = mbar;
+    m_MenuPath = mpath;
+
+    m_MenuBar->add( m_MenuPath.c_str(), scut, staticActionCB, this, FL_MENU_TOGGLE );
+}
+
+void VSPCheckMenuItem::Update( bool val )
+{
+    Fl_Menu_Item * mitem = (Fl_Menu_Item *) m_MenuBar->find_item( m_MenuPath.c_str() );
+
+    if ( mitem )
+    {
+        if ( val )
+        {
+            mitem->check();
+        }
+        else
+        {
+            mitem->uncheck();
+        }
+    }
+}

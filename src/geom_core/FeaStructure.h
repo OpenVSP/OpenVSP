@@ -268,11 +268,6 @@ protected:
     vec3d m_Center;
 };
 
-enum
-{
-    PARALLEL_NONE, PARALLEL_LEAD_EDGE, PARALLEL_TRAIL_EDGE
-};
-
 class FeaSpar : public FeaSlice
 {
 public:
@@ -296,11 +291,6 @@ private:
 
     double m_U_sec_min, m_U_sec_max;
 
-};
-
-enum
-{
-    PERPENDICULAR_NONE, PERPENDICULAR_LEAD_EDGE, PERPENDICULAR_TRAIL_EDGE
 };
 
 class FeaRib : public FeaSlice

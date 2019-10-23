@@ -240,9 +240,9 @@ public:
     ToggleButton m_AxialYToggle;
     ToggleButton m_AxialZToggle;
     ToggleRadioGroup m_AxialToggleGroup;
-    SliderInput m_AxialNSlider;
+    SliderAdjRangeInput m_AxialNSlider;
 
-    SliderInput m_ScaleSlider;
+    SliderAdjRangeInput m_ScaleSlider;
     TriggerButton m_ScaleResetButton;
     TriggerButton m_ScaleAcceptButton;
 
@@ -275,7 +275,7 @@ public:
 
     // SS_Line
     GroupLayout m_SSLineGroup;
-    SliderInput m_SSLineConstSlider; // Either Constant U or W
+    SliderAdjRangeInput m_SSLineConstSlider; // Either Constant U or W
     ToggleButton m_SSLineConstUButton;
     ToggleButton m_SSLineConstWButton;
     ToggleRadioGroup m_SSLineConstToggleGroup;
@@ -286,10 +286,10 @@ public:
 
     // SS_Rectangle
     GroupLayout m_SSRecGroup;
-    SliderInput m_SSRecCentUSlider;
-    SliderInput m_SSRecCentWSlider;
-    SliderInput m_SSRecULenSlider;
-    SliderInput m_SSRecWLenSlider;
+    SliderAdjRangeInput m_SSRecCentUSlider;
+    SliderAdjRangeInput m_SSRecCentWSlider;
+    SliderAdjRangeInput m_SSRecULenSlider;
+    SliderAdjRangeInput m_SSRecWLenSlider;
     SliderAdjRangeInput m_SSRecThetaSlider;
     ToggleButton m_SSRecInsideButton;
     ToggleButton m_SSRecOutsideButton;
@@ -297,11 +297,11 @@ public:
 
     // SS_Ellipse
     GroupLayout m_SSEllGroup;
-    SliderInput m_SSEllCentUSlider;
-    SliderInput m_SSEllCentWSlider;
-    SliderInput m_SSEllULenSlider;
-    SliderInput m_SSEllWLenSlider;
-    SliderInput m_SSEllTessSlider;
+    SliderAdjRangeInput m_SSEllTessSlider;
+    SliderAdjRangeInput m_SSEllCentUSlider;
+    SliderAdjRangeInput m_SSEllCentWSlider;
+    SliderAdjRangeInput m_SSEllULenSlider;
+    SliderAdjRangeInput m_SSEllWLenSlider;
     SliderAdjRangeInput m_SSEllThetaSlider;
     ToggleButton m_SSEllInsideButton;
     ToggleButton m_SSEllOutsideButton;
@@ -335,7 +335,7 @@ public:
     ToggleButton m_SSConEAngleButton;
     ToggleButton m_SSConSameAngleButton;
 
-    SliderInput m_SSConTessSlider;
+    SliderAdjRangeInput m_SSConTessSlider;
 
 protected:
     bool m_RotActive;

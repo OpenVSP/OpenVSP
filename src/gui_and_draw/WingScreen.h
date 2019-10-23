@@ -78,7 +78,7 @@ protected:
     TriggerButton m_PasteSectButton;
     TriggerButton m_InsertSectButton;
 
-    SliderInput m_SectUTessSlider;
+    SliderAdjRangeInput m_SectUTessSlider;
     SliderAdjRangeInput m_RootClusterSlider;
     SliderAdjRangeInput m_TipClusterSlider;
 
@@ -161,8 +161,11 @@ protected:
     SliderAdjRangeInput m_FourChordSlider;
     SliderAdjRangeInput m_FourThickChordSlider;
     SliderAdjRangeInput m_FourCamberSlider;
+    SliderAdjRangeInput m_FourCLiSlider;
+    ToggleButton m_FourCamberButton;
+    ToggleButton m_FourCLiButton;
+    ToggleRadioGroup m_FourCamberGroup;
     SliderAdjRangeInput m_FourCamberLocSlider;
-    CheckButton m_FourEqArcLenButton;
     CheckButton m_FourSharpTEButton;
 
     TriggerButton m_FourFitCSTButton;
@@ -199,6 +202,8 @@ protected:
     StringOutput m_AfFileNameOutput;
     CheckButton m_AfFileInvertButton;
     SliderAdjRangeInput m_AfFileChordSlider;
+    SliderAdjRangeInput m_AfFileThickChordSlider;
+    Output m_AfFileBaseThickChordOutput;
 
     TriggerButton m_AfFileFitCSTButton;
     Counter m_AfFileDegreeCounter;
@@ -226,7 +231,6 @@ protected:
 
     CheckButton m_CSTInvertButton;
     CheckButton m_CSTContLERadButton;
-    CheckButton m_CSTEqArcLenButton;
 
     GroupLayout m_VKTGroup;
     SliderAdjRangeInput m_VKTChordSlider;
@@ -244,6 +248,10 @@ protected:
     SliderAdjRangeInput m_FourModChordSlider;
     SliderAdjRangeInput m_FourModThickChordSlider;
     SliderAdjRangeInput m_FourModCamberSlider;
+    SliderAdjRangeInput m_FourModCLiSlider;
+    ToggleButton m_FourModCamberButton;
+    ToggleButton m_FourModCLiButton;
+    ToggleRadioGroup m_FourModCamberGroup;
     SliderAdjRangeInput m_FourModCamberLocSlider;
     SliderAdjRangeInput m_FourModThicknessLocSlider;
     SliderAdjRangeInput m_FourModLERadIndexSlider;

@@ -118,6 +118,8 @@ protected:
     Choice m_LamCfEqnChoice;
     Choice m_TurbCfEqnChoice;
 
+    vector <int> m_TurbChoiceToEnum;
+
     //---- Reference Area ----//
     ToggleButton m_RefManualToggle;
     ToggleButton m_RefChoiceToggle;

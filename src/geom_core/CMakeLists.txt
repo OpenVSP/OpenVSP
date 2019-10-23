@@ -21,7 +21,10 @@ INCLUDE_DIRECTORIES(
     ${STEPCODE_INCLUDE_DIR}
     ${LIBIGES_INCLUDE_DIR}
     ${WAVEDRAGEL_INCLUDE_DIR}
+    ${PINOCCHIO_INCLUDE_DIR}
    )
+
+MESSAGE( STATUS "PINOCCHIO_INCLUDE_DIR " ${PINOCCHIO_INCLUDE_DIR})
 
 ADD_LIBRARY(geom_core
 AdvLink.cpp
@@ -45,6 +48,7 @@ GeomCoreTestSuite.cpp
 GridDensity.cpp
 GroupTransformations.cpp
 HingeGeom.cpp
+HumanGeom.cpp
 Link.cpp
 LinkMgr.cpp
 MaterialMgr.cpp
@@ -111,6 +115,8 @@ GeomCoreTestSuite.h
 GridDensity.h
 GroupTransformations.h
 HingeGeom.h
+HumanGeom.h
+HumanGeomData.h
 Light.h
 LightMgr.h
 Link.h

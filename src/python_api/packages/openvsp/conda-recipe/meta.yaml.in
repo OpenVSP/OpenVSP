@@ -1,0 +1,15 @@
+package:
+  name: openvsp
+  version: @VSPVER_MAJOR@.@VSPVER_MINOR@.@VSPVER_PATCH@
+
+source:
+  path: ../
+
+requirements:
+  build:
+    - python
+    - setuptools
+    - degen_geom
+
+  run:
+    - python

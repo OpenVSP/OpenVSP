@@ -481,6 +481,27 @@ void ParmContainer::AddLinkableParms( vector< string > & linkable_parm_vec, cons
     }
 }
 
+// This copies Parm values from one ParmContainer to another.  It does not recurse into 'child' containers.  It does
+// not create missing parms or groups.  All parm names must be unique -- and exact matches.
+void ParmContainer::CopyVals( ParmContainer *from )
+{
+    for ( int i = 0 ; i < ( int )m_ParmVec.size() ; i++ )
+    {
+        Parm *p = ParmMgr.FindParm( m_ParmVec[i] );
+        if ( p )
+        {
+            string n = p->GetName();
+
+            string fid = from->FindParm( n );
+
+            Parm *fp = ParmMgr.FindParm( fid );
+            if ( fp )
+            {
+                p->Set( fp->Get() );
+            }
+        }
+    }
+}
 
 //=========================================================================//
 //==================        User Parm Container       =====================//

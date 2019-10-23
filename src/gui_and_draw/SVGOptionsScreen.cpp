@@ -334,7 +334,7 @@ void SVGOptionsScreen::GetScale( int write_set )
 
     Vehicle *veh = VehicleMgr.GetVehicle();
 
-    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec( false ) );
+    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
     BndBox svgbox;
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {

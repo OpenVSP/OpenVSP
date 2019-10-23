@@ -44,7 +44,7 @@ public:
         return m_GlWin;
     }
 
-    void ScreenGrab( const string & fname, int w, int h );
+    void ScreenGrab( const string & fname, int w, int h, bool transparentBG );
     void SetViewAxis( bool vaxis );
     void SetShowBorders( bool brdr );
     void SetBackground( double r, double g, double b );
@@ -87,7 +87,8 @@ protected:
     ActionMenuItem m_TwoVMenuItem;
     ScreenMenuItem m_BackgroundMenuItem;
     ScreenMenuItem m_ScreenshotMenuItem;
-    ActionMenuItem m_AxisMenuItem;
+    VSPCheckMenuItem m_AxisMenuItem;
+    VSPCheckMenuItem m_BorderMenuItem;
 
     ActionMenuItem m_TopMenuItem;
     ActionMenuItem m_FrontMenuItem;
@@ -143,7 +144,7 @@ protected:
     Fl_Box * m_FileNameBox;
 
     bool m_ShowXYZArrow;
-
+    bool m_ShowBorder;
 };
 
 

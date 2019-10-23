@@ -1317,7 +1317,7 @@ Ca_LinePoint::Ca_LinePoint( Ca_LinePoint *_previous, double _x, double _y,int _l
 };
 
 Ca_LinePoint::Ca_LinePoint(Ca_LinePoint *_previous, double _x, double _y)
-:Ca_Point(_x, _y, previous->color, previous->style, previous->size,previous->border_color, previous->border_width),
+:Ca_Point(_x, _y, _previous->color, _previous->style, _previous->size, _previous->border_color, _previous->border_width),
 previous(_previous)
 {
   if(_previous)

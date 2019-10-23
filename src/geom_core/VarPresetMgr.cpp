@@ -855,9 +855,6 @@ xmlNodePtr VarPresetMgrSingleton::DecodeXml( xmlNodePtr & node )
         // Assign Current Setting Name
         m_CurSettingText = m_PresetVec[ m_CurGroupIndex ].GetSettingName( m_CurSettingIndex );
         m_PresetVec[ m_CurGroupIndex ].SetCurSetName( m_CurSettingText );
-
-        // Set Active Group and Setting
-        GroupChange( m_CurGroupIndex );
     }
 
     return varpresetnode;

@@ -323,7 +323,7 @@ void FuselageGeom::PasteActiveXSec()
 //==== Insert XSec ====//
 void FuselageGeom::InsertXSec( )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 )
+    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
     {
         return;
     }
@@ -338,7 +338,7 @@ void FuselageGeom::InsertXSec( )
 //==== Insert XSec ====//
 void FuselageGeom::InsertXSec( int type )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 )
+    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
     {
         return;
     }

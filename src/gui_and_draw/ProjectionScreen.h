@@ -65,9 +65,9 @@ protected:
     ToggleButton m_DirectionTypeGeom;
     ToggleButton m_DirectionTypeVector;
 
-    SliderInput m_XSlider;
-    SliderInput m_YSlider;
-    SliderInput m_ZSlider;
+    SliderAdjRangeInput m_XSlider;
+    SliderAdjRangeInput m_YSlider;
+    SliderAdjRangeInput m_ZSlider;
 
     GeomPicker m_DirectionGeom;
 

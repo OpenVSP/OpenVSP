@@ -33,11 +33,25 @@ enum ATMOS_TYPE { ATMOS_TYPE_US_STANDARD_1976 = 0,
                   ATMOS_TYPE_MANUAL_RE_L
                 }; // Flowstream Type
 
+enum ATTACH_TRANS_TYPE { ATTACH_TRANS_NONE = 0,
+                         ATTACH_TRANS_COMP,
+                         ATTACH_TRANS_UV
+};
+
+enum ATTACH_ROT_TYPE { ATTACH_ROT_NONE = 0,
+                       ATTACH_ROT_COMP,
+                       ATTACH_ROT_UV
+};
+
 enum BOR_MODE { BOR_FLOWTHROUGH,
                 BOR_UPPER,
                 BOR_LOWER,
                 BOR_NUM_MODES
               };
+
+enum CAMBER_INPUT_FLAG { MAX_CAMB,
+                         DESIGN_CL
+};
 
 enum CAP_TYPE { NO_END_CAP,
                 FLAT_END_CAP,
@@ -105,7 +119,7 @@ enum CF_LAM_EQN { CF_LAM_BLASIUS = 0,
 enum CF_TURB_EQN { CF_TURB_EXPLICIT_FIT_SPALDING = 0,
                    CF_TURB_EXPLICIT_FIT_SPALDING_CHI,
                    CF_TURB_EXPLICIT_FIT_SCHOENHERR,
-                   CF_TURB_IMPLICIT_KARMAN,
+                   DO_NOT_USE_CF_TURB_IMPLICIT_KARMAN,
                    CF_TURB_IMPLICIT_SCHOENHERR,
                    CF_TURB_IMPLICIT_KARMAN_SCHOENHERR,
                    CF_TURB_POWER_LAW_BLASIUS,
@@ -113,14 +127,14 @@ enum CF_TURB_EQN { CF_TURB_EXPLICIT_FIT_SPALDING = 0,
                    CF_TURB_POWER_LAW_PRANDTL_MEDIUM_RE,
                    CF_TURB_POWER_LAW_PRANDTL_HIGH_RE,
                    CF_TURB_SCHLICHTING_COMPRESSIBLE,
-                   CF_TURB_SCHLICHTING_INCOMPRESSIBLE,
-                   CF_TURB_SCHLICHTING_PRANDTL,
-                   CF_TURB_SCHULTZ_GRUNOW_HIGH_RE,
+                   DO_NOT_USE_CF_TURB_SCHLICHTING_INCOMPRESSIBLE,
+                   DO_NOT_USE_CF_TURB_SCHLICHTING_PRANDTL,
+                   DO_NOT_USE_CF_TURB_SCHULTZ_GRUNOW_HIGH_RE,
                    CF_TURB_SCHULTZ_GRUNOW_SCHOENHERR,
-                   CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE,
+                   DO_NOT_USE_CF_TURB_WHITE_CHRISTOPH_COMPRESSIBLE,
                    CF_TURB_ROUGHNESS_SCHLICHTING_AVG,
-                   CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL,
-                   CF_TURB_ROUGHNESS_WHITE,
+                   DO_NOT_USE_CF_TURB_ROUGHNESS_SCHLICHTING_LOCAL,
+                   DO_NOT_USE_CF_TURB_ROUGHNESS_WHITE,
                    CF_TURB_ROUGHNESS_SCHLICHTING_AVG_FLOW_CORRECTION,
                    CF_TURB_HEATTRANSFER_WHITE_CHRISTOPH
                  }; // Friction Coefficient Turbulent Eqns ENUM
@@ -206,7 +220,8 @@ enum ERROR_CODE {   VSP_OK,
                     VSP_INVALID_VARPRESET_GROUPNAME,
                     VSP_CONFORMAL_PARENT_UNSUPPORTED,
                     VSP_UNEXPECTED_RESET_REMAP_ID,
-                    VSP_INVALID_INPUT_VAL
+                    VSP_INVALID_INPUT_VAL,
+                    VSP_INVALID_CF_EQN
                 };
 
 enum EXCRES_TYPE { EXCRESCENCE_COUNT = 0,
@@ -237,7 +252,9 @@ enum EXPORT_TYPE {  EXPORT_FELISA,
                     EXPORT_PMARC,
                     EXPORT_OBJ,
                     EXPORT_SELIG_AIRFOIL,
-                    EXPORT_BEZIER_AIRFOIL
+                    EXPORT_BEZIER_AIRFOIL,
+                    EXPORT_IGES_STRUCTURE,
+                    EXPORT_STEP_STRUCTURE
                  };
 
 enum FEA_CROSS_SECT_TYPE { FEA_XSEC_GENERAL = 0,
@@ -323,6 +340,10 @@ enum FF_W_EQN { FF_W_MANUAL = 0,
 enum FREESTREAM_PD_UNITS { PD_UNITS_IMPERIAL = 0,
                            PD_UNITS_METRIC
                          }; // Parasite Drag Freestream Units
+
+enum GENDER { MALE,
+              FEMALE
+            };
 
 enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_NASCART,
@@ -411,13 +432,26 @@ enum PROJ_TGT_TYPE { SET_TARGET,
                      NUM_PROJ_TGT_OPTIONS
                    };
 
+enum PROP_MODE { PROP_BLADES,
+                 PROP_BOTH,
+                 PROP_DISK
+               };
+
 enum PROP_PCURVE { PROP_CHORD,
                    PROP_TWIST,
                    PROP_RAKE,
                    PROP_SKEW,
                    PROP_SWEEP,
+                   PROP_THICK,
+                   PROP_CLI,
                    NUM_PROP_PCURVE
                  };
+
+// Aerodynamic reference area and length
+enum REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the reference areas and lengths
+                     COMPONENT_REF,      // use a particular wing to calculate the reference area and lengths
+                     NUM_REF_TYPES
+                   };
 
 enum RES_DATA_TYPE {    INVALID_TYPE = -1,
                         INT_DATA = 0,
@@ -534,12 +568,6 @@ enum VSPAERO_PRECONDITION { PRECON_MATRIX = 0,
                             PRECON_JACOBI,
                             PRECON_SSOR,
                           };
-
-// Aerodynamic reference area and length
-enum VSPAERO_REF_WING_TYPE { MANUAL_REF = 0,     // manually specify the reference areas and lengths
-                             COMPONENT_REF,      // use a particular wing to calculate the reference area and lengths
-                             NUM_REF_TYPES
-                           };
 
 enum VSPAERO_STABILITY_TYPE { STABILITY_DEFAULT = 0,
                               STABILITY_P_ANALYSIS,

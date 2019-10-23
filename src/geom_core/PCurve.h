@@ -34,6 +34,7 @@ public:
     virtual void ReservePts( int n );
 
     virtual void SetCurveName( const string & name );
+    virtual string GetCurveName()     { return m_CurveName; }
 
     xmlNodePtr EncodeXml( xmlNodePtr & node );
     xmlNodePtr DecodeXml( xmlNodePtr & node );
@@ -79,13 +80,22 @@ public:
 
     virtual void SetParmNames( const string & xname, const string & yname );
 
-    virtual double IntegrateAF( double r0 );
+    virtual double IntegrateCrv( );
+    virtual double IntegrateCrv( double r0 );
+    virtual double IntegrateCrv_r( );
+    virtual double IntegrateCrv_r( double r0 );
+    virtual double IntegrateCrv_rsq( );
+    virtual double IntegrateCrv_rsq( double r0 );
+    virtual double IntegrateCrv_rcub( );
+    virtual double IntegrateCrv_rcub( double r0 );
 
     virtual void EnforcePtOrder( double rfirst, double rlast );
     virtual void EnforcePtOrder( );
 
     void BinCubicTMap( vector < double > &tmap, vector < double > &tdisc );
     void GetTMap( vector < double > &tmap, vector < double > &tdisc );
+
+    virtual Vsp1DCurve * GetCurve()    { return &m_Curve; }
 
 protected:
 

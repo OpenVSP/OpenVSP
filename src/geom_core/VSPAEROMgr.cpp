@@ -7,6 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#include "Defines.h"
 #include "APIDefines.h"
 #include "LinkMgr.h"
 #include "MeshGeom.h"
@@ -249,7 +250,7 @@ void VSPAEROMgrSingleton::Renew()
 
     m_AnalysisMethod.Set( vsp::VORTEX_LATTICE );
     m_GeomSet.Set( vsp::SET_ALL );
-    m_RefFlag.Set( MANUAL_REF );
+    m_RefFlag.Set( vsp::MANUAL_REF );
     m_Sref.Set( 100 );
     m_bref.Set( 1.0 );
     m_cref.Set( 1.0 );
@@ -598,6 +599,23 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
             }
         }
 
+        // Check for and delete any disks that no longer exist
+        for ( size_t i = 0; i < m_RotorDiskVec.size(); ++i )
+        {
+            bool delete_flag = true;
+            for ( size_t j = 0; j < temp.size(); ++j )
+            {
+                if ( temp[j] == m_RotorDiskVec[i] )
+                {
+                    delete_flag = false;
+                }
+            }
+            if ( delete_flag )
+            {
+                delete m_RotorDiskVec[i];
+                m_RotorDiskVec.erase( m_RotorDiskVec.begin() + i );
+            }
+        }
         m_RotorDiskVec.clear();
         m_RotorDiskVec = temp;
     }
@@ -622,11 +640,13 @@ void VSPAEROMgrSingleton::UpdateControlSurfaceGroups()
                     m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].isGrouped = true;
                 }
             }
-            // Remove Sub Surfaces with Parent Geoms That No Longer Exist
-            if ( !VehicleMgr.GetVehicle()->FindGeom( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].parentGeomId ) )
+            // Remove Deleted Sub Surfaces and Sub Surfaces with Parent Geoms That No Longer Exist
+            Geom* parent = VehicleMgr.GetVehicle()->FindGeom( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].parentGeomId );
+            if ( !parent || !parent->GetSubSurf( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID ) )
             {
                 m_ControlSurfaceGroupVec[i]->RemoveSubSurface( m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].SSID,
                         m_ControlSurfaceGroupVec[i]->m_ControlSurfVec[k].iReflect );
+                k--;
             }
         }
     }
@@ -745,48 +765,76 @@ void VSPAEROMgrSingleton::AddLinkableParms( vector < string > & linkable_parm_ve
 void VSPAEROMgrSingleton::InitControlSurfaceGroups()
 {
     Vehicle * veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
     ControlSurfaceGroup * csg;
     char str [256];
-    bool exists = false;
 
     for ( size_t i = 0 ; i < m_CompleteControlSurfaceVec.size(); ++i )
     {
-        // Construct a default group name
-        string curr_csg_id = m_CompleteControlSurfaceVec[i].parentGeomId + "_" + m_CompleteControlSurfaceVec[i].SSID;
-        exists = false;
-
-        // Has CS been placed into init group?
-        // --> No create group with any reflected groups
-        // --> Yes Skip
-        for ( size_t j = 0; j < m_ControlSurfaceGroupVec.size(); ++j )
+        // Only Autogroup Ungrouped Control Surfaces
+        if ( !m_CompleteControlSurfaceVec[i].isGrouped )
         {
-            if ( m_ControlSurfaceGroupVec[j]->m_ControlSurfVec.size() > 0 )
+            bool exists = false;
+
+            // Has CS been placed into init group?
+            // --> No create group with any reflected groups
+            // --> Yes Skip
+            for ( size_t j = 0; j < m_ControlSurfaceGroupVec.size(); ++j )
             {
-                sprintf( str, "%s_%s", m_ControlSurfaceGroupVec[j]->m_ParentGeomBaseID.c_str(),
-                         m_ControlSurfaceGroupVec[j]->m_ControlSurfVec[0].SSID.c_str() );
-                if ( curr_csg_id == str ) // Update Existing Control Surface Group
+                // Check if the control surface is available
+                m_CurrentCSGroupIndex = j;
+                UpdateActiveControlSurfVec();
+                vector < VspAeroControlSurf > ungrouped_vec = GetAvailableCSVec();
+                bool is_available = false;
+
+                for ( size_t k = 0; k < ungrouped_vec.size(); k++ )
                 {
-                    csg = m_ControlSurfaceGroupVec[j];
-                    csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
-                    m_ControlSurfaceGroupVec.back() = csg;
-                    exists = true;
-                    break;
+                    if ( ( m_CompleteControlSurfaceVec[i].fullName == ungrouped_vec[k].fullName ) &&
+                        ( m_CompleteControlSurfaceVec[i].parentGeomId == ungrouped_vec[k].parentGeomId ) &&
+                        ( m_CompleteControlSurfaceVec[i].SSID == ungrouped_vec[k].SSID ) &&
+                        ( m_CompleteControlSurfaceVec[i].isGrouped == ungrouped_vec[k].isGrouped ) &&
+                        ( m_CompleteControlSurfaceVec[i].iReflect == ungrouped_vec[k].iReflect ) )
+                    {
+                        is_available = true;
+                        break;
+                    }
+                }
+
+                if ( m_ControlSurfaceGroupVec[j]->m_ControlSurfVec.size() > 0 && is_available )
+                {
+                    // Construct a default group name
+                    string curr_csg_id = m_CompleteControlSurfaceVec[i].parentGeomId + "_" + m_CompleteControlSurfaceVec[i].SSID;
+
+                    sprintf( str, "%s_%s", m_ControlSurfaceGroupVec[j]->m_ParentGeomBaseID.c_str(),
+                        m_ControlSurfaceGroupVec[j]->m_ControlSurfVec[0].SSID.c_str() );
+                    if ( curr_csg_id == str ) // Update Existing Control Surface Group
+                    {
+                        csg = m_ControlSurfaceGroupVec[j];
+                        csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
+                        m_ControlSurfaceGroupVec.back() = csg;
+                        exists = true;
+                        break;
+                    }
                 }
             }
-        }
 
-        if ( !exists ) // Create New Control Surface Group
-        {
-            Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[i].parentGeomId );
-            if ( geom )
+            if ( !exists ) // Create New Control Surface Group
             {
-                csg = new ControlSurfaceGroup;
-                csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
-                sprintf( str, "%s_%s", geom->GetName().c_str(),
-                         geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID )->GetName().c_str() );
-                csg->SetName( str );
-                csg->m_ParentGeomBaseID = m_CompleteControlSurfaceVec[i].parentGeomId;
-                m_ControlSurfaceGroupVec.push_back( csg );
+                Geom* geom = veh->FindGeom( m_CompleteControlSurfaceVec[i].parentGeomId );
+                if ( geom )
+                {
+                    csg = new ControlSurfaceGroup;
+                    csg->AddSubSurface( m_CompleteControlSurfaceVec[i] );
+                    sprintf( str, "%s_%s", geom->GetName().c_str(),
+                        geom->GetSubSurf( m_CompleteControlSurfaceVec[i].SSID )->GetName().c_str() );
+                    csg->SetName( str );
+                    csg->m_ParentGeomBaseID = m_CompleteControlSurfaceVec[i].parentGeomId;
+                    m_ControlSurfaceGroupVec.push_back( csg );
+                }
             }
         }
     }
@@ -1664,7 +1712,7 @@ void VSPAEROMgrSingleton::MonitorSolver( FILE * logFile )
     buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
     unsigned long nread = 1;
     bool runflag = m_SolverProcess.IsRunning();
-    while ( runflag || nread > 0 )
+    while ( runflag || ( nread > 0 && nread != ( unsigned long ) - 1 ) )
     {
         m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
         if( nread > 0 && nread != ( unsigned long ) - 1 )
@@ -1690,6 +1738,16 @@ void VSPAEROMgrSingleton::MonitorSolver( FILE * logFile )
         SleepForMilliseconds( 100 );
         runflag = m_SolverProcess.IsRunning();
     }
+
+#ifdef WIN32
+    CloseHandle( m_SolverProcess.m_StdoutPipe[0] );
+    m_SolverProcess.m_StdoutPipe[0] = NULL;
+#else
+    close( m_SolverProcess.m_StdoutPipe[0] );
+    m_SolverProcess.m_StdoutPipe[0] = -1;
+#endif
+
+    free( buf );
 }
 
 void VSPAEROMgrSingleton::AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
@@ -2481,6 +2539,8 @@ void VSPAEROMgrSingleton::AddControlSurfaceGroup()
 
     m_SelectedGroupedCS.clear();
     UpdateActiveControlSurfVec();
+
+    HighlightSelected( CONTROL_SURFACE );
 }
 
 void VSPAEROMgrSingleton::RemoveControlSurfaceGroup()
@@ -3171,37 +3231,35 @@ VspSurf CpSlice::CreateSurf()
     {
         vec3d pnt0, pnt1, pnt2, pnt3;
 
-        // TODO: Improve Surface Sizing 
-        double size = veh->GetBndBox().GetLargestDist() / 2;
-        if ( size <= 1.0e-7 )
-        {
-            size = 0.5; // Make a unit square plane if no vehicle bounding box
-        }
+        vec3d max_pnt = veh->GetBndBox().GetMax();
+        vec3d min_pnt = veh->GetBndBox().GetMin();
+        double del_x = ( max_pnt.x() - min_pnt.x() ) / 2;
+        double del_y = ( max_pnt.y() - min_pnt.y() ) / 2;
+        double del_z = ( max_pnt.z() - min_pnt.z() ) / 2;
 
-        double to_corner = size / sin( DEG_2_RAD * 45 );
         vec3d veh_center = veh->GetBndBox().GetCenter();
 
         // Center at vehicle bounding box center
         if ( m_CutType() == vsp::X_DIR )
         {
-            pnt0 = vec3d( m_CutPosition(), to_corner + veh_center.y(), to_corner + veh_center.z() );
-            pnt1 = vec3d( m_CutPosition(), -1 * to_corner + veh_center.y(), to_corner + veh_center.z() );
-            pnt2 = vec3d( m_CutPosition(), to_corner + veh_center.y(), -1 * to_corner + veh_center.z() );
-            pnt3 = vec3d( m_CutPosition(), -1 * to_corner + veh_center.y(), -1 * to_corner + veh_center.z() );
+            pnt0 = vec3d( m_CutPosition(), del_y + veh_center.y(), del_z + veh_center.z() );
+            pnt1 = vec3d( m_CutPosition(), -1 * del_y + veh_center.y(), del_z + veh_center.z() );
+            pnt2 = vec3d( m_CutPosition(), del_y + veh_center.y(), -1 * del_z + veh_center.z() );
+            pnt3 = vec3d( m_CutPosition(), -1 * del_y + veh_center.y(), -1 * del_z + veh_center.z() );
         }
         else if ( m_CutType() == vsp::Y_DIR )
         {
-            pnt0 = vec3d( to_corner + veh_center.x(), m_CutPosition(), to_corner + veh_center.z() );
-            pnt1 = vec3d( -1 * to_corner + veh_center.x(), m_CutPosition(), to_corner + veh_center.z() );
-            pnt2 = vec3d( to_corner + veh_center.x(), m_CutPosition(), -1 * to_corner + veh_center.z() );
-            pnt3 = vec3d( -1 * to_corner + veh_center.x(), m_CutPosition(), -1 * to_corner + veh_center.z() );
+            pnt0 = vec3d(del_x + veh_center.x(), m_CutPosition(), del_z + veh_center.z() );
+            pnt1 = vec3d( -1 * del_x + veh_center.x(), m_CutPosition(), del_z + veh_center.z() );
+            pnt2 = vec3d(del_x + veh_center.x(), m_CutPosition(), -1 * del_z + veh_center.z() );
+            pnt3 = vec3d( -1 * del_x + veh_center.x(), m_CutPosition(), -1 * del_z + veh_center.z() );
         }
         else if ( m_CutType() == vsp::Z_DIR )
         {
-            pnt0 = vec3d( to_corner + veh_center.x(), to_corner + veh_center.y(), m_CutPosition() );
-            pnt1 = vec3d( -1 * to_corner + veh_center.x(), to_corner + veh_center.y(), m_CutPosition() );
-            pnt2 = vec3d( to_corner + veh_center.x(), -1 * to_corner + veh_center.y(), m_CutPosition() );
-            pnt3 = vec3d( -1 * to_corner + veh_center.x(), -1 * to_corner + veh_center.y(), m_CutPosition() );
+            pnt0 = vec3d(del_x + veh_center.x(), del_y + veh_center.y(), m_CutPosition() );
+            pnt1 = vec3d( -1 * del_x + veh_center.x(), del_y + veh_center.y(), m_CutPosition() );
+            pnt2 = vec3d(del_x + veh_center.x(), -1 * del_y + veh_center.y(), m_CutPosition() );
+            pnt3 = vec3d( -1 * del_x + veh_center.x(), -1 * del_y + veh_center.y(), m_CutPosition() );
         }
 
         slice_surf.MakePlaneSurf( pnt0, pnt1, pnt2, pnt3 );

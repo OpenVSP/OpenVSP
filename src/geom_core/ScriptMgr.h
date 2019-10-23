@@ -11,6 +11,7 @@
 #if !defined(SCRIPTMGR__INCLUDED_)
 #define SCRIPTMGR__INCLUDED_
 
+#include "Defines.h"
 
 #include <angelscript.h>
 #include <scriptstdstring/scriptstdstring.h>
@@ -101,7 +102,6 @@ public:
     double Min( double x, double y )                { return  (x < y ) ? x : y; }
     double Max( double x, double y )                { return  (x > y ) ? x : y; }
     string GetVSPVersion()                          { return VSPVERSION4; }
-    string GetVSPExePath();
 
 private:
 

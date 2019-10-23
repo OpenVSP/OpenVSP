@@ -39,13 +39,19 @@ protected:
     GroupLayout m_GenLayout;
 
     Choice m_LenUnitChoice;
-    SliderInput m_TolSlider;
+    SliderAdjRangeInput m_TolSlider;
     ToggleButton m_SplitSurfsToggle;
     ToggleButton m_SplitSubSurfsToggle;
     ToggleButton m_MergePointsToggle;
     ToggleButton m_ToCubicToggle;
-    SliderInput m_ToCubicTolSlider;
+    SliderAdjRangeInput m_ToCubicTolSlider;
     ToggleButton m_TrimTEToggle;
+    ToggleButton m_PropExportOriginToggle;
+
+    ToggleButton m_LabelIDToggle;
+    ToggleButton m_LabelNameToggle;
+    ToggleButton m_LabelSurfNoToggle;
+    Choice m_LabelDelimChoice;
 
     int m_PrevUnit;
     double m_PrevTol;
@@ -55,6 +61,12 @@ protected:
     bool m_PrevCubic;
     double m_PrevToCubicTol;
     bool m_PrevTrimTE;
+    bool m_PrevPropExportOrigin;
+
+    bool m_PrevLabelID;
+    bool m_PrevLabelName;
+    bool m_PrevLabelSurfNo;
+    int m_PrevLabelDelim;
 
     TriggerButton m_OkButton;
     TriggerButton m_CancelButton;

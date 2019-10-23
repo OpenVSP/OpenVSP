@@ -408,9 +408,9 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
         // Collect all surfaces and compute norms
-        for ( size_t k = 1; k < m_NumFeaParts; k++ )
+        for ( size_t k = 0; k < m_NumFeaParts; k++ )
         {
-            if ( fea_part_vec[k]->GetType() != vsp::FEA_DOME )
+            if ( fea_part_vec[k]->GetType() != vsp::FEA_DOME && fea_part_vec[k]->GetType() != vsp::FEA_SKIN )
             {
                 vector < VspSurf > surf_vec = fea_part_vec[k]->GetFeaPartSurfVec();
 
@@ -472,40 +472,21 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
                         }
                         else 
                         {
-                            // Coplanar surfaces are symmetric. Delete one surface and significantly oversize the other. 
+                            // Coplanar surfaces are symmetric. Delete one surface resize the other. 
                             // Note: Fixed points on the oversized surface will not be at the same UW coordinate
-                            vec3d orgin, all_max, all_min;
 
-                            if ( dist( maxA, orgin ) > dist( maxB, orgin ) )
-                            {
-                                all_max = maxA;
-                            }
-                            else
-                            {
-                                all_max = maxB;
-                            }
-
-                            if ( dist( minA, orgin ) > dist( minB, orgin ) )
-                            {
-                                all_min = minA;
-                            }
-                            else
-                            {
-                                all_min = minB;
-                            }
+                            // Identify how much larger to make the new surface (Note: May result in undesired surface intersections)
+                            BndBox new_bbox = bboxA;
+                            new_bbox.Update( bboxB );
+                            double scale_factor = 1 + ( new_bbox.GetLargestDist() - bboxA.GetLargestDist() ) / bboxA.GetLargestDist();
 
                             // Move center of the surface to the orgin prior to expanding
                             vec3d centerA = ( maxA + minA ) / 2;
+                            vec3d new_center = new_bbox.GetCenter();
+
                             new_surf.Offset( -1 * centerA );
-
-                            vec3d diag_vec = all_max - all_min;
-
-                            // Note: The scaling may need adjustment. Errors can result if the surface becomes extremely large from merging multiple surfaces
-                            new_surf.ScaleX( 1 + abs( diag_vec[0] ) );
-                            new_surf.ScaleY( 1 + abs( diag_vec[1] ) );
-                            new_surf.ScaleZ( 1 + abs( diag_vec[2] ) );
-
-                            new_surf.Offset( centerA );
+                            new_surf.Scale( scale_factor );
+                            new_surf.Offset( new_center );
                         }
 
                         fea_part_vec[all_feaprt_ind_vec[i]]->DeleteFeaPartSurf( feaprt_surf_ind_vec[i] );
@@ -532,9 +513,11 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
 
                         // Add merged surface
                         fea_part_vec[all_feaprt_ind_vec[i]]->AddFeaPartSurf( new_surf );
+                        // Update surface index
+                        feaprt_surf_ind_vec[i] = fea_part_vec[all_feaprt_ind_vec[i]]->GetFeaPartSurfVec().size() - 1;
                         all_surf_vec[i] = new_surf;
                         all_surf_vec[j] = new_surf;
-                        all_norm_vec[j] = vec3d();
+                        all_norm_vec[j] = vec3d(); // Only clear normal vector of deleted surface
 
                         // Output warning if FeaParts are different due to data loss (symmetric parts retain all FeaPart data)
                         if ( all_feaprt_ind_vec[i] != all_feaprt_ind_vec[j] )
@@ -561,16 +544,16 @@ void FeaMeshMgrSingleton::AddStructureParts()
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
         //===== Add FeaParts ====//
-        for ( int i = 1; i < m_NumFeaParts; i++ ) // FeaSkin is index 0 and has been added already
+        for ( unsigned int i = 0; i < m_NumFeaParts; i++ ) // Do Not Assume Skin is Index 0
         {
-            if ( !fea_struct->FeaPartIsFixPoint( i ) )
+            if ( !fea_struct->FeaPartIsFixPoint( i ) && fea_part_vec[i]->GetType() != vsp::FEA_SKIN )
             {
                 int part_index = fea_struct->GetFeaPartIndex( fea_part_vec[i] );
                 vector< XferSurf > partxfersurfs;
 
                 fea_part_vec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ) );
 
-                // Load Rib XFerSurf to m_SurfVec
+                // Load FeaPart XFerSurf to m_SurfVec
                 LoadSurfs( partxfersurfs );
 
                 // Identify the FeaPart index and add to m_FeaPartSurfVec
@@ -703,6 +686,147 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     vector < vec3d > all_pnt_vec;
     vector < SimpTri > all_tri_vec;
     vector < int > tri_surf_ind_vec; // Vector of surface index for each SimpTri
+
+    // Build FeaBeam Intersections
+    list< ISegChain* >::iterator c;
+
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    {
+        if ( !( *c )->m_BorderFlag ) // Only include intersection curves
+        {
+            // Check at least one surface intersection cap flag is true
+            int FeaPartCapA = m_FeaPartIncludedElementsVec[( *c )->m_SurfA->GetFeaPartIndex()];
+            int FeaPartCapB = m_FeaPartIncludedElementsVec[( *c )->m_SurfB->GetFeaPartIndex()];
+
+            vector < vec3d > ipntVec, inormVec;
+            vector < vec2d > iuwVec;
+            vector < int > ssindexVec;
+            Surf* NormSurf;
+            int FeaPartIndex = -1;
+
+            // Check if one surface is a skin and one is an FeaPart (m_CompID = -9999)
+            if ( ( ( FeaPartCapA == vsp::FEA_BEAM || FeaPartCapA == vsp::FEA_SHELL_AND_BEAM ) || ( FeaPartCapB == vsp::FEA_BEAM || FeaPartCapB == vsp::FEA_SHELL_AND_BEAM ) ) &&
+                ( ( ( *c )->m_SurfA->GetCompID() < 0 && ( *c )->m_SurfB->GetCompID() >= 0 ) || ( ( *c )->m_SurfB->GetCompID() < 0 && ( *c )->m_SurfA->GetCompID() >= 0 ) ) )
+            {
+                vec3d center;
+
+                if ( ( *c )->m_SurfA->GetCompID() < 0 && ( FeaPartCapA == vsp::FEA_BEAM || FeaPartCapA == vsp::FEA_SHELL_AND_BEAM ) )
+                {
+                    FeaPartIndex = ( *c )->m_SurfA->GetFeaPartIndex();
+                    center = ( *c )->m_SurfA->GetBBox().GetCenter();
+                }
+                else if ( ( *c )->m_SurfB->GetCompID() < 0 && ( FeaPartCapB == vsp::FEA_BEAM || FeaPartCapB == vsp::FEA_SHELL_AND_BEAM ) )
+                {
+                    FeaPartIndex = ( *c )->m_SurfB->GetFeaPartIndex();
+                    center = ( *c )->m_SurfB->GetBBox().GetCenter();
+                }
+
+                // Identify the normal surface as the skin surface
+                if ( ( *c )->m_SurfA->GetCompID() >= 0 )
+                {
+                    NormSurf = ( *c )->m_SurfA;
+                }
+                else if ( ( *c )->m_SurfB->GetCompID() >= 0 )
+                {
+                    NormSurf = ( *c )->m_SurfB;
+                }
+
+                // Get points and compute normals
+                for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j++ )
+                {
+                    Puw* Puw = ( *c )->m_TessVec[j]->GetPuw( NormSurf );
+                    iuwVec.push_back( vec2d( Puw->m_UW[0], Puw->m_UW[1] ) );
+                    vec3d norm = NormSurf->GetSurfCore()->CompNorm( Puw->m_UW[0], Puw->m_UW[1] );
+                    norm.normalize();
+
+                    if ( NormSurf->GetFlipFlag() )
+                    {
+                        norm = -1 * norm;
+                    }
+
+                    inormVec.push_back( norm );
+                    ipntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
+                    ssindexVec.push_back( -1 ); // Indicates not a subsurface intersection
+                }
+
+                // Check if the direction of ipntVec. Reverse point and norm vec order if negative
+                double theta = signed_angle( ipntVec[0] - center, ipntVec.back() - center, center );
+                if ( theta < 0 )
+                {
+                    reverse( inormVec.begin(), inormVec.end() );
+                    reverse( ipntVec.begin(), ipntVec.end() );
+                }
+            }
+            // Check for an intersection with the same component ID -> indicates a subsurface intersection
+            else if ( ( *c )->m_SurfA->GetCompID() == ( *c )->m_SurfB->GetCompID() && ( *c )->m_SurfA->GetCompID() >= 0 )
+            {
+                if ( ( *c )->m_SSIntersectIndex >= 0 )
+                {
+                    FeaPartIndex = ( *c )->m_SurfA->GetFeaPartIndex();
+                    NormSurf = ( *c )->m_SurfA;
+
+                    // Get points and compute normals
+                    for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j++ )
+                    {
+                        Puw* Puw = ( *c )->m_TessVec[j]->GetPuw( NormSurf );
+                        iuwVec.push_back( vec2d( Puw->m_UW[0], Puw->m_UW[1] ) );
+                        vec3d norm = NormSurf->GetSurfCore()->CompNorm( Puw->m_UW[0], Puw->m_UW[1] );
+                        norm.normalize();
+
+                        if ( NormSurf->GetFlipFlag() )
+                        {
+                            norm = -1 * norm;
+                        }
+
+                        inormVec.push_back( norm );
+                        ipntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
+                        ssindexVec.push_back( ( *c )->m_SSIntersectIndex );
+                    }
+                }
+            }
+            // Define FeaBeam elements
+            for ( int j = 1; j < (int)ipntVec.size(); j++ )
+            {
+                FeaBeam* beam = new FeaBeam;
+
+                vec3d start_pnt = ipntVec[j - 1];
+                vec3d end_pnt = ipntVec[j];
+
+                // Check for collapsed beam elements (caused by bug in Intersect where invalid intersection points are added to m_BinMap)
+                if ( dist( start_pnt, end_pnt ) < FLT_EPSILON )
+                {
+                    printf( "Warning: Collapsed Beam Element Skipped\n" );
+                    break;
+                }
+
+                //// Use node point if close to beam endpoints (avoids tolerance errors in BuildIndMap and FindPntInd)
+                //for ( size_t k = 0; k < node_vec.size(); k++ )
+                //{
+                //    if ( dist( node_vec[k], start_pnt ) <= FLT_EPSILON )
+                //    {
+                //        start_pnt = node_vec[k];
+                //    }
+                //    else if ( dist( node_vec[k], end_pnt ) <= FLT_EPSILON )
+                //    {
+                //        end_pnt = node_vec[k];
+                //    }
+                //}
+
+                all_pnt_vec.push_back( start_pnt );
+                all_pnt_vec.push_back( end_pnt );
+                uw_surf_ind_vec.push_back( NormSurf->GetSurfID() );
+                uw_surf_ind_vec.push_back( NormSurf->GetSurfID() );
+                all_uw_vec.push_back( iuwVec[j - 1] );
+                all_uw_vec.push_back( iuwVec[j] );
+
+                beam->Create( start_pnt, end_pnt, inormVec[j - 1] );
+                beam->SetFeaPartIndex( FeaPartIndex );
+                beam->SetFeaSSIndex( ssindexVec[j] );
+                m_FeaElementVec.push_back( beam );
+                m_NumBeams++;
+            }
+        }
+    }
 
     for ( int s = 0; s < (int)m_SurfVec.size(); s++ )
     {
@@ -857,136 +981,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
         m_NumTris++;
     }
 
-    // Build FeaBeam Intersections
-    list< ISegChain* >::iterator c;
-
-    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
-    {
-        if ( !( *c )->m_BorderFlag ) // Only include intersection curves
-        {
-            // Check at least one surface intersection cap flag is true
-            int FeaPartCapA = m_FeaPartIncludedElementsVec[( *c )->m_SurfA->GetFeaPartIndex()];
-            int FeaPartCapB = m_FeaPartIncludedElementsVec[( *c )->m_SurfB->GetFeaPartIndex()];
-
-            vector< vec3d > ipntVec, inormVec;
-            vector < int > ssindexVec;
-            Surf* NormSurf;
-            int FeaPartIndex = -1;
-
-            // Check if one surface is a skin and one is an FeaPart (m_CompID = -9999)
-            if ( ( ( FeaPartCapA == vsp::FEA_BEAM || FeaPartCapA == vsp::FEA_SHELL_AND_BEAM ) || ( FeaPartCapB == vsp::FEA_BEAM || FeaPartCapB == vsp::FEA_SHELL_AND_BEAM ) ) &&
-                ( ( ( *c )->m_SurfA->GetCompID() < 0 && ( *c )->m_SurfB->GetCompID() >= 0 ) || ( ( *c )->m_SurfB->GetCompID() < 0 && ( *c )->m_SurfA->GetCompID() >= 0 ) ) )
-            {
-                vec3d center;
-
-                if ( ( *c )->m_SurfA->GetCompID() < 0 && ( FeaPartCapA == vsp::FEA_BEAM || FeaPartCapA == vsp::FEA_SHELL_AND_BEAM ) )
-                {
-                    FeaPartIndex = ( *c )->m_SurfA->GetFeaPartIndex();
-                    center = ( *c )->m_SurfA->GetBBox().GetCenter();
-                }
-                else if ( ( *c )->m_SurfB->GetCompID() < 0 && ( FeaPartCapB == vsp::FEA_BEAM || FeaPartCapB == vsp::FEA_SHELL_AND_BEAM ) )
-                {
-                    FeaPartIndex = ( *c )->m_SurfB->GetFeaPartIndex();
-                    center = ( *c )->m_SurfB->GetBBox().GetCenter();
-                }
-
-                // Identify the normal surface as the skin surface
-                if ( ( *c )->m_SurfA->GetCompID() >= 0 )
-                {
-                    NormSurf = ( *c )->m_SurfA;
-                }
-                else if ( ( *c )->m_SurfB->GetCompID() >= 0 )
-                {
-                    NormSurf = ( *c )->m_SurfB;
-                }
-
-                // Get points and compute normals
-                for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j++ )
-                {
-                    Puw* Puw = ( *c )->m_TessVec[j]->GetPuw( NormSurf );
-                    vec3d norm = NormSurf->GetSurfCore()->CompNorm( Puw->m_UW[0], Puw->m_UW[1] );
-                    norm.normalize();
-
-                    if ( NormSurf->GetFlipFlag() )
-                    {
-                        norm = -1 * norm;
-                    }
-
-                    inormVec.push_back( norm );
-                    ipntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
-                    ssindexVec.push_back( -1 ); // Indicates not a subsurface intersection
-                }
-
-                // Check if the direction of ipntVec. Reverse point and norm vec order if negative
-                double theta = signed_angle( ipntVec[0] - center, ipntVec.back() - center, center );
-                if ( theta < 0 )
-                {
-                    reverse( inormVec.begin(), inormVec.end() );
-                    reverse( ipntVec.begin(), ipntVec.end() );
-                }
-            }
-            // Check for an intersection with the same component ID -> indicates a subsurface intersection
-            else if ( ( *c )->m_SurfA->GetCompID() == ( *c )->m_SurfB->GetCompID() && ( *c )->m_SurfA->GetCompID() >= 0 )
-            {
-                if ( ( *c )->m_SSIntersectIndex >= 0 )
-                {
-                    FeaPartIndex = ( *c )->m_SurfA->GetFeaPartIndex();
-                    NormSurf = ( *c )->m_SurfA;
-
-                    // Get points and compute normals
-                    for ( int j = 0; j < (int)( *c )->m_TessVec.size(); j++ )
-                    {
-                        Puw* Puw = ( *c )->m_TessVec[j]->GetPuw( NormSurf );
-                        vec3d norm = NormSurf->GetSurfCore()->CompNorm( Puw->m_UW[0], Puw->m_UW[1] );
-                        norm.normalize();
-
-                        if ( NormSurf->GetFlipFlag() )
-                        {
-                            norm = -1 * norm;
-                        }
-
-                        inormVec.push_back( norm );
-                        ipntVec.push_back( ( *c )->m_TessVec[j]->m_Pnt );
-                        ssindexVec.push_back( ( *c )->m_SSIntersectIndex );
-                    }
-                }
-            }
-            // Define FeaBeam elements
-            for ( int j = 1; j < (int)ipntVec.size(); j++ )
-            {
-                FeaBeam* beam = new FeaBeam;
-
-                vec3d start_pnt = ipntVec[j - 1];
-                vec3d end_pnt = ipntVec[j];
-
-                // Check for collapsed beam elements (caused by bug in Intersect where invalid intersection points are added to m_BinMap)
-                if ( dist( start_pnt, end_pnt ) < FLT_EPSILON )
-                {
-                    printf( "Warning: Collapsed Beam Element Skipped\n" );
-                    break;
-                }
-
-                // Use node point if close to beam endpoints (avoids tolerance errors in BuildIndMap and FindPntInd)
-                for ( size_t k = 0; k < node_vec.size(); k++ )
-                {
-                    if ( dist( node_vec[k], start_pnt ) <= FLT_EPSILON )
-                    {
-                        start_pnt = node_vec[k];
-                    }
-                    else if ( dist( node_vec[k], end_pnt ) <= FLT_EPSILON )
-                    {
-                        end_pnt = node_vec[k];
-                    }
-                }
-
-                beam->Create( start_pnt, end_pnt, inormVec[j - 1] );
-                beam->SetFeaPartIndex( FeaPartIndex );
-                beam->SetFeaSSIndex( ssindexVec[j] );
-                m_FeaElementVec.push_back( beam );
-                m_NumBeams++;
-            }
-        }
-    }
+ 
 }
 
 void FeaMeshMgrSingleton::ComputeWriteMass()
@@ -2453,7 +2448,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         }
 
         // The whole file is now loaded in the memory buffer. Write to NASTRAN file
-        fprintf( fp, buffer );
+        fprintf( fp, "%s", buffer );
 
         // Close open files and free memmory
         fclose( fp );

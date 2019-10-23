@@ -1932,6 +1932,9 @@ void ParasiteDragFullAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "VelocityUnit",      ParasiteDragMgr.m_VinfUnitType.Get() ) );
         m_Inputs.Add( NameValData( "TempUnit",          ParasiteDragMgr.m_TempUnit.Get() ) );
 
+        // Sub-Components
+        m_Inputs.Add( NameValData( "ExportSubCompFlag",    ParasiteDragMgr.m_ExportSubCompFlag.Get() ) );
+
         // Freestream Props
         m_Inputs.Add( NameValData( "FreestreamPropChoice", ParasiteDragMgr.m_FreestreamType.Get() ) );
         m_Inputs.Add( NameValData( "Vinf",                 ParasiteDragMgr.m_Vinf.Get() ) );
@@ -2014,6 +2017,14 @@ string ParasiteDragFullAnalysis::Execute()
         if ( nvd )
         {
             ParasiteDragMgr.m_TempUnit.Set( nvd->GetInt( 0 ) );
+        }
+
+        // Sub-Components
+        bool exportSubCompFlagOrig = ParasiteDragMgr.m_ExportSubCompFlag.Get();
+        nvd = m_Inputs.FindPtr( "ExportSubCompFlag", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_ExportSubCompFlag.Set( nvd->GetInt( 0 ) );
         }
 
         // Freestream Props
@@ -2121,6 +2132,9 @@ string ParasiteDragFullAnalysis::Execute()
         ParasiteDragMgr.m_LengthUnit.Set( lengthUnitChoiceOrig );
         ParasiteDragMgr.m_VinfUnitType.Set( velocityUnitChoiceOrig );
         ParasiteDragMgr.m_TempUnit.Set( tempUnitChoiceOrig );
+
+        // Sub-Components
+        ParasiteDragMgr.m_ExportSubCompFlag.Set( exportSubCompFlagOrig );
 
         // Freestream Props
         ParasiteDragMgr.m_FreestreamType.Set( freestreamPropChoiceOrig );

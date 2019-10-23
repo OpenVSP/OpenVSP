@@ -42,8 +42,9 @@ protected:
     ToggleButton m_SplitSurfsToggle;
     ToggleButton m_SplitSubSurfsToggle;
     ToggleButton m_ToCubicToggle;
-    SliderInput m_ToCubicTolSlider;
+    SliderAdjRangeInput m_ToCubicTolSlider;
     ToggleButton m_TrimTEToggle;
+    ToggleButton m_PropExportOriginToggle;
 
     ToggleButton m_LabelIDToggle;
     ToggleButton m_LabelNameToggle;
@@ -57,6 +58,7 @@ protected:
     bool m_PrevCubic;
     double m_PrevToCubicTol;
     bool m_PrevTrimTE;
+    bool m_PrevPropExportOrigin;
 
     bool m_PrevLabelID;
     bool m_PrevLabelName;

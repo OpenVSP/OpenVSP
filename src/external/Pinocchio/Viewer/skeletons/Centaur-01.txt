@@ -1,0 +1,50 @@
+# Skeleton file
+#
+# File: Quad-01.txt
+#
+# A skeleton with four legs.
+# The orginal skeleton data was picked from
+#   Pinocchio library for automatic character rigging
+#   File skeleton.cpp, function CentaurSkeleton(). 
+#
+# 31.03.2015 RR: First editon of this file
+#
+
+# name of joint   X       Y       Z       parent name
+
+shoulders         0.5     0.0     0.0                     #  0  - Render Torso
+hback             0.5     0.0     0.25    shoulders       #  1
+hshoulders        0.5     0.0     0.5     -successor-     #  2
+neck              0.0     0.0     0.35    -successor-     #  3
+head              0.0     0.0     0.35    -successor-     #  4
+
+hips             -0.5     0.0     0.0     shoulders       #  5
+tail             -0.7     0.0     0.3     -successor-     #  6
+
+lthigh           -0.5     0.15    0.0     hips            #  7  - Back Left Leg
+lhknee           -0.45    0.2    -0.4     -successor-     #  8
+lhfoot           -0.5     0.2    -0.8     -successor-     #  9
+
+rthigh           -0.5    -0.15    0.0     hips            # 10  - Back Right Leg
+rhknee           -0.45   -0.2    -0.4     -successor-     # 11
+rhfoot           -0.5    -0.2    -0.8     -successor-     # 12
+
+lshoulder         0.5     0.2     0.0     shoulders       # 13  - Front Left Leg
+lfknee            0.5     0.2    -0.4     -successor-     # 14
+lffoot            0.5     0.2    -0.8     -successor-     # 15
+
+rshoulder         0.5    -0.2     0.0     shoulders       # 16  - Front Right Leg
+rfknee            0.5    -0.2    -0.4     -successor-     # 17
+rffoot            0.5    -0.2    -0.8     -successor-     # 18
+
+hlshoulder        0.1     0.2     0.2     hshoulders      # 19  - Left Arm
+lelbow            0.0     0.4     0.0     -successor-     # 20
+lwrist            0.0     0.4     0.0     -successor-     # 21
+lhand             0.0     0.1     0.0     -successor-     # 22
+
+hrshoulder        0.1    -0.2     0.2     hshoulders      # 23  - Right Arm
+relbow            0.0    -0.4     0.0     -successor-     # 24
+rwrist            0.0    -0.4     0.0     -successor-     # 25
+rhand             0.0    -0.1     0.0     -successor-     # 26
+
+# End Of File

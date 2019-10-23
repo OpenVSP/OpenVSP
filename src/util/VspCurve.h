@@ -62,6 +62,7 @@ public:
 
     // creates C1 continuous Piecewise Cubic Hermite Interpolating Polynomial
     void InterpolatePCHIP( vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
+    void InterpolateEqArcLenPCHIP( const piecewise_curve_type &c );
 
     // creates C2 continuous piecewise cubic spline polynomial with not-a-knot or closed end conditions
     void InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vector<double> &param, bool closed_flag );
@@ -71,7 +72,7 @@ public:
 
     void ToBinaryCubic( bool wingtype );
 
-    void SetCubicControlPoints( const vector< vec3d > & cntrl_pts, bool closed_flag );
+    void SetCubicControlPoints( const vector< vec3d > & cntrl_pts );
 
     const piecewise_curve_type & GetCurve() const;
     void SetCurve( const piecewise_curve_type &c );
@@ -146,10 +147,13 @@ public:
     void GetBoundingBox( BndBox &bb ) const;
 
     double CalculateThick( double &loc ) const;
+    void MatchThick( const double & ttarget );
 
     double Angle( const double & u1, const int &dir1, const double & u2, const int &dir2, const bool & flipflag ) const;
 
     vector < BezierSegment > GetBezierSegments();
+
+    double CreateRoundedRectangle( double w, double h, double k, double sk, double r, bool keycorner = true );
 
 protected:
     piecewise_curve_type m_Curve;

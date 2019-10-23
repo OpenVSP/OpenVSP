@@ -89,7 +89,7 @@ void GuiInterface::PopupMsg( const char* message, bool lock_out )
 
 }
 
-void GuiInterface::ScreenGrab( const std::string &fname, int w, int h )
+void GuiInterface::ScreenGrab( const std::string &fname, int w, int h, bool transparentBG )
 {
 #ifdef VSP_USE_FLTK
     if ( m_ScreenMgr )
@@ -98,7 +98,7 @@ void GuiInterface::ScreenGrab( const std::string &fname, int w, int h )
         MainVSPScreen* main = dynamic_cast < MainVSPScreen * >( m_ScreenMgr->GetScreen( m_ScreenMgr->VSP_MAIN_SCREEN ) );
         if( main )
         {
-            main->ScreenGrab( fname, w, h );
+            main->ScreenGrab( fname, w, h, transparentBG );
         }
     }
 #endif

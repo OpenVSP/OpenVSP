@@ -1,0 +1,25 @@
+# Skeleton file
+#
+# File: Minecart.txt
+#
+
+# name of joint                   X              Y              Z  parent name
+
+Bottom                            0              0           1.75  ""                    Cuboid: 0  2.00 20.00 16.00  0 10 0  0.00  0.00 0.00 0.00  0.00 -90.00 90.00  0 0 #   0
+Front                         15.75              0           10.5  ""                    Cuboid: 0  2.00 16.00 8.00  0 0 0  0.00  0.00 0.00 0.00  0.00 0.00 180.00  0 0 #   1
+Back                         -15.75              0           10.5  ""                    Cuboid: 0  2.00 16.00 8.00  0 0 0  0.00  0.00 0.00 0.00  0.00 0.00 0.00  0 0 #   2
+Left                              0          12.25           10.5  ""                    Cuboid: 0  2.00 16.00 8.00  0 0 0  0.00  0.00 0.00 0.00  0.00 0.00 90.00  0 0 #   3
+Right                             0         -12.25           10.5  ""                    Cuboid: 0  2.00 16.00 8.00  0 0 0  0.00  0.00 0.00 0.00  0.00 0.00 -90.00  0 0 #   4
+Leather                           0              0          4.375  ""                    Cuboid: 0  1.00 18.00 14.00  44 10 0  0.00  0.00 0.00 0.00  0.00 90.00 90.00  0 0 #   5
+
+#--CuboidConfig: 1.75  34.50 28.00 17.50 0.00  1 0
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Minecart/minecart.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+
+# End Of File

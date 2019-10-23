@@ -42,9 +42,9 @@ HingeGeom::HingeGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_PrimYVecRel.Init( "PrimYVecRel", "Hinge", this, 0.0, -1e12, 1e12 );
     m_PrimZVecRel.Init( "PrimZVecRel", "Hinge", this, 0.0, -1e12, 1e12 );
 
-    m_PrimVecAbsRelFlag.Init( "PrimVecAbsRelFlag", "Hinge", this, RELATIVE_XFORM, ABSOLUTE_XFORM, RELATIVE_XFORM );
+    m_PrimVecAbsRelFlag.Init( "PrimVecAbsRelFlag", "Hinge", this, vsp::REL, vsp::ABS, vsp::REL );
 
-    m_SecVecAbsRelFlag.Init( "SecVecAbsRelFlag", "Hinge", this, RELATIVE_XFORM, ABSOLUTE_XFORM, RELATIVE_XFORM );
+    m_SecVecAbsRelFlag.Init( "SecVecAbsRelFlag", "Hinge", this, vsp::REL, vsp::ABS, vsp::REL );
     m_SecondaryVecDir.Init( "SecondaryVecDir", "Hinge", this, vsp::Y_DIR, vsp::X_DIR, vsp::Z_DIR );
 
     m_PrimXOff.Init( "PrimXOff", "Hinge", this, 0.0, -1e12, 1e12 );
@@ -55,7 +55,7 @@ HingeGeom::HingeGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_PrimYOffRel.Init( "PrimYOffRel", "Hinge", this, 0.0, -1e12, 1e12 );
     m_PrimZOffRel.Init( "PrimZOffRel", "Hinge", this, 0.0, -1e12, 1e12 );
 
-    m_PrimOffAbsRelFlag.Init( "PrimOffAbsRelFlag", "Hinge", this, RELATIVE_XFORM, ABSOLUTE_XFORM, RELATIVE_XFORM );
+    m_PrimOffAbsRelFlag.Init( "PrimOffAbsRelFlag", "Hinge", this, vsp::REL, vsp::ABS, vsp::REL );
 
     m_PrimULoc.Init( "PrimULoc", "Hinge", this, 0, 0, 1 );
     m_PrimWLoc.Init( "PrimWLoc", "Hinge", this, 0, 0, 1 );
@@ -130,7 +130,7 @@ void HingeGeom::UpdateSurf()
 
         if ( m_PrimaryType() == VECTOR3D )
         {
-            if ( m_PrimVecAbsRelFlag() == RELATIVE_XFORM )
+            if ( m_PrimVecAbsRelFlag() == vsp::REL )
             {
                 prim.set_xyz( m_PrimXVecRel(), m_PrimYVecRel(), m_PrimZVecRel() );
                 prim.normalize();
@@ -145,7 +145,7 @@ void HingeGeom::UpdateSurf()
         else if ( m_PrimaryType() == POINT3D )
         {
             vec3d endpt;
-            if ( m_PrimOffAbsRelFlag() == RELATIVE_XFORM )
+            if ( m_PrimOffAbsRelFlag() == vsp::REL )
             {
                 endpt.set_xyz( m_PrimXOffRel(), m_PrimYOffRel(), m_PrimZOffRel() );
                 endpt = attachedMat.xform( endpt );
@@ -194,7 +194,7 @@ void HingeGeom::UpdateSurf()
                 {
 
                     vec3d off;
-                    if ( m_PrimOffAbsRelFlag() == RELATIVE_XFORM )
+                    if ( m_PrimOffAbsRelFlag() == vsp::REL )
                     {
                         off.set_xyz( m_PrimXOffRel(), m_PrimYOffRel(), m_PrimZOffRel() );
                         off = parentRotMat.xform( off );
@@ -330,7 +330,7 @@ void HingeGeom::UpdateSurf()
 
 
     // Back-fill global vector coordinates if input specified relative.
-    if ( m_OrientType() == ORIENT_ROT || m_PrimaryType() != VECTOR3D || m_PrimVecAbsRelFlag() == RELATIVE_XFORM )
+    if ( m_OrientType() == ORIENT_ROT || m_PrimaryType() != VECTOR3D || m_PrimVecAbsRelFlag() == vsp::REL )
     {
         m_PrimXVec = dirs[ m_PrimaryDir() ].x();
         m_PrimYVec = dirs[ m_PrimaryDir() ].y();
@@ -341,7 +341,7 @@ void HingeGeom::UpdateSurf()
     basismat.matMult( m_ModelMatrix.data() );
     basismat.getBasis( dirs[ vsp::X_DIR ], dirs[ vsp::Y_DIR ], dirs[ vsp::Z_DIR ] );
 
-    if ( m_OrientType() == ORIENT_ROT || m_PrimaryType() != VECTOR3D || m_PrimVecAbsRelFlag() == ABSOLUTE_XFORM )
+    if ( m_OrientType() == ORIENT_ROT || m_PrimaryType() != VECTOR3D || m_PrimVecAbsRelFlag() == vsp::ABS )
     {
         m_PrimXVecRel = dirs[ m_PrimaryDir() ].x();
         m_PrimYVecRel = dirs[ m_PrimaryDir() ].y();

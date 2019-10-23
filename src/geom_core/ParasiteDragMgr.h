@@ -64,7 +64,6 @@ class ParasiteDragMgrSingleton : public ParmContainer
 {
 public:
     // ==== ENUMERATORS ==== //
-    enum { MANUAL_REF = 0, COMPONENT_REF, }; // Ref Flag
     enum { PD_SORT_NONE = 0, PD_SORT_WETTED_AREA, PD_SORT_PERC_CD }; // Sort by
 
     // Required Refresh function for NEW file
@@ -118,6 +117,10 @@ public:
     double CalcLamCf( double ReyIn, int cf_case );
     string AssignTurbCfEqnName( int cf_case );
     string AssignLamCfEqnName( int cf_case );
+
+    bool IsTurbBlacklisted( int cf_case );
+    int FindAlternateTurb( int cf_case );
+    void CorrectTurbEquation();
 
     // Switch Case Methods for Form Factor Selections
     double CalcFFWing( double toc, int ff_case, double perc_lam,
@@ -378,6 +381,11 @@ private:
 
     // Execution Control
     bool m_RecomputeGeom;
+
+    vector<int> m_TurbBlackList;
+    vector<int> m_TurbAlternateList;
+
+    const int m_TurbTypeDefault = vsp::CF_TURB_SCHLICHTING_COMPRESSIBLE;
 };
 
 #define ParasiteDragMgr ParasiteDragMgrSingleton::getInstance()

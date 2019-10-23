@@ -63,6 +63,12 @@ public:
     void SetCurve( const oned_piecewise_curve_type &c );
     void AppendCurveSegment( oned_curve_segment_type &c );
 
+    double FindNearest( double &u, const double &pt ) const;
+    double FindNearest( double &u, const double &pt, const double &u0 ) const;
+
+    double FindNearest01( double &u, const double &pt ) const;
+    double FindNearest01( double &u, const double &pt, const double &u0 ) const;
+
     //===== Bezier Funcs ====//
     double CompPnt( double u );
     double CompTan( double u );
@@ -80,10 +86,18 @@ public:
 
     void Reverse();
 
+    void product( Vsp1DCurve c1, Vsp1DCurve c2 );
+
     bool IsEqual( const Vsp1DCurve & crv );
 
-    double IntegrateAF( double r0 );
-
+    double IntegrateCrv( );
+    double IntegrateCrv( double r0 );
+    double IntegrateCrv_r( );
+    double IntegrateCrv_r( double r0 );
+    double IntegrateCrv_rsq( );
+    double IntegrateCrv_rsq( double r0 );
+    double IntegrateCrv_rcub( );
+    double IntegrateCrv_rcub( double r0 );
 
 protected:
     oned_piecewise_curve_type m_Curve;

@@ -50,7 +50,8 @@ class XSecSurf;
 enum { BASE_GEOM_TYPE, XFORM_GEOM_TYPE, GEOM_GEOM_TYPE, POD_GEOM_TYPE, FUSELAGE_GEOM_TYPE,
        MS_WING_GEOM_TYPE, BLANK_GEOM_TYPE, MESH_GEOM_TYPE, STACK_GEOM_TYPE, CUSTOM_GEOM_TYPE,
        PT_CLOUD_GEOM_TYPE, PROP_GEOM_TYPE, HINGE_GEOM_TYPE, CONFORMAL_GEOM_TYPE,
-       ELLIPSOID_GEOM_TYPE, BOR_GEOM_TYPE, WIRE_FRAME_GEOM_TYPE, NUM_GEOM_TYPE
+       ELLIPSOID_GEOM_TYPE, BOR_GEOM_TYPE, WIRE_FRAME_GEOM_TYPE, HUMAN_GEOM_TYPE,
+       NUM_GEOM_TYPE
      };
 
 class GeomType
@@ -271,11 +272,6 @@ public:
     {
         m_Scale = 1;
     }
-
-    // TODO: Move these to APIDefines.h and register in ScriptMgr.cpp
-    enum { ATTACH_TRANS_NONE = 0, ATTACH_TRANS_COMP, ATTACH_TRANS_UV, };
-    enum { ATTACH_ROT_NONE = 0, ATTACH_ROT_COMP, ATTACH_ROT_UV, }; // Attachment Flags
-    enum { ABSOLUTE_XFORM = 0, RELATIVE_XFORM, };
 
     virtual void DeactivateXForms();
     virtual void SetIgnoreAbsFlag( bool val )

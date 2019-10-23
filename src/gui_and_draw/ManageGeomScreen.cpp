@@ -216,8 +216,8 @@ void ManageGeomScreen::LoadBrowser()
             {
                 str.append( "^^ " );
             }
-            else if ( gPtr->m_TransAttachFlag() == GeomXForm::ATTACH_TRANS_NONE &&
-                      gPtr->m_RotAttachFlag() == GeomXForm::ATTACH_ROT_NONE )
+            else if ( gPtr->m_TransAttachFlag() == vsp::ATTACH_TRANS_NONE &&
+                      gPtr->m_RotAttachFlag() == vsp::ATTACH_ROT_NONE )
             {
                 str.append( "> " );
             }
@@ -689,6 +689,7 @@ void ManageGeomScreen::CreateScreens()
     m_GeomScreenVec[CONFORMAL_SCREEN] = new ConformalScreen( m_ScreenMgr );
     m_GeomScreenVec[ELLIPSOID_GEOM_SCREEN] = new EllipsoidScreen( m_ScreenMgr );
     m_GeomScreenVec[BOR_GEOM_SCREEN] = new BORScreen( m_ScreenMgr );
+    m_GeomScreenVec[HUMAN_GEOM_SCREEN] = new HumanGeomScreen( m_ScreenMgr );
     m_GeomScreenVec[WIRE_FRAME_GEOM_SCREEN] = new WireScreen( m_ScreenMgr );
 
     for ( int i = 0 ; i < ( int )m_GeomScreenVec.size() ; i++ )
@@ -921,7 +922,7 @@ void ManageGeomScreen::UpdateDrawObjs()
 
     if( m_PickButton.GetFlButton()->value() == 1 )
     {
-        vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( m_VehiclePtr->GetGeomVec( false ) );
+        vector< Geom* > geom_vec = m_VehiclePtr->FindGeomVec( m_VehiclePtr->GetGeomVec() );
         for( int i = 0; i < ( int )geom_vec.size(); i++ )
         {
             std::vector< DrawObj* > geom_drawobj_vec;

@@ -1,0 +1,12 @@
+22 dec 2014
+* converted C++ obj parser to C - just a matter of changing pointer deref.
+style for in-function malloc
+
+21 dec 2014
+* initial commit
+* changed window title to mesh name
+* MSAA set up
+* normals visualisation toggle with 'n'
+* light bkgrnd colour
+* wireframe modes with 'p'
+* can specify shaders to use on CL

@@ -1,0 +1,43 @@
+# Skeleton file
+#
+# File: Q3-Player-2.txt
+#
+
+# name of joint                   X              Y              Z  parent name
+
+tag_torso                         0              0         4.0075  ""                    Cuboid: 1  4.00 8.00 4.00  2 2 0  0.00  0.00 0.00 -2.00  0.00 0.00 0.00  0 0 #   0
+"Left Leg"                        0            3.5             -7  tag_torso             Cuboid: 0  4.00 4.00 12.00  0 16 1  0.00  0.00 0.00 -6.00  0.00 0.00 0.00  1 0 #   1
+"Left Knee"                       0              0          -10.5  "Left Leg"            Cuboid: 2  4.00 4.00 12.00  0 16 1  0.00  0.00 0.00 -6.00  0.00 0.00 0.00  0 0 #   2
+"Armor left leg"                  0              0              0  "Left Leg"            Cuboid: 3  4.00 4.00 12.00  0 16 0  0.20  0.00 0.00 -6.00  0.00 0.00 0.00  1 3 #   3
+"Boot Left"                       0              0              0  "Left Leg"            Cuboid: 3  4.00 4.00 12.00  0 16 0  0.40  0.00 0.00 -6.00  0.00 0.00 0.00  1 4 #   4
+"Right Leg"                       0           -3.5             -7  tag_torso             Cuboid: 0  4.00 4.00 12.00  0 16 0  0.00  0.00 0.00 -6.00  0.00 0.00 0.00  1 0 #   5
+"Right Knee"                      0              0          -10.5  "Right Leg"           Cuboid: 2  4.00 4.00 12.00  0 16 0  0.00  0.00 0.00 -6.00  0.00 0.00 0.00  0 0 #   6
+"Armor Right leg"                 0              0              0  "Right Leg"           Cuboid: 3  4.00 4.00 12.00  0 16 1  0.20  0.00 0.00 -6.00  0.00 0.00 0.00  1 3 #   7
+"Boot Right"                      0              0              0  "Right Leg"           Cuboid: 3  4.00 4.00 12.00  0 16 1  0.40  0.00 0.00 -6.00  0.00 0.00 0.00  1 4 #   8
+Upper                             0              0             14  tag_torso             Cuboid: 0  4.00 8.00 12.00  16 16 0  0.00  0.00 0.00 -6.00  0.00 0.00 0.00  1 1 #   9
+"Armor chestplate"                0              0              0  Upper                 Cuboid: 3  4.00 8.00 12.00  16 16 0  0.40  0.00 0.00 -6.00  0.00 0.00 0.00  1 5 #  10
+"Armor chestplate 2"              0              0              0  Upper                 Cuboid: 3  4.00 8.00 12.00  16 16 0  0.20  0.00 0.00 -6.00  0.00 0.00 0.00  1 7 #  11
+tag_head                          0              0              0  Upper                 Cuboid: 0  8.00 8.00 8.00  0 0 0  0.00  0.00 0.00 4.00  0.00 0.00 0.00  1 2 #  12
+Headwear                          0              0              0  tag_head              Cuboid: 3  8.00 8.00 8.00  32 0 0  0.20  0.00 0.00 4.00  0.00 0.00 0.00  1 2 #  13
+"Armor head"                      0              0              0  tag_head              Cuboid: 3  8.00 8.00 8.00  0 0 0  0.40  0.00 0.00 4.00  0.00 0.00 0.00  1 6 #  14
+"Armor head outer"                0              0              0  tag_head              Cuboid: 3  8.00 8.00 8.00  32 0 0  0.60  0.00 0.00 4.00  0.00 0.00 0.00  1 6 #  15
+"Left Arm"                        0           8.75           -3.5  Upper                 Cuboid: 0  4.00 4.00 12.00  40 16 1  0.00  0.00 1.00 -4.00  0.00 0.00 0.00  1 1 #  16
+"Armor left arm"                  0              0              0  "Left Arm"            Cuboid: 3  4.00 4.00 12.00  40 16 0  0.40  0.00 1.00 -4.00  0.00 0.00 0.00  1 5 #  17
+"Left Elbow"                      0           1.75             -7  "Left Arm"            Cuboid: 2  4.00 4.00 12.00  40 16 1  0.00  0.00 1.00 -4.00  0.00 0.00 0.00  0 0 #  18
+"Tag:Left Hand"                   0              0          -8.75  -successor-           Angles: 0.000  90.000  0.000  Cuboid: 1  4.00 4.00 12.00  40 16 1  0.00  0.00 1.00 -4.00  0.00 0.00 0.00  0 0 #  19
+"Right Arm"                       0          -8.75           -3.5  Upper                 Cuboid: 0  4.00 4.00 12.00  40 16 0  0.00  0.00 -1.00 -4.00  0.00 0.00 0.00  1 1 #  20
+"Armor right arm"                 0              0              0  "Right Arm"           Cuboid: 3  4.00 4.00 12.00  40 16 1  0.40  0.00 -1.00 -4.00  0.00 0.00 0.00  1 5 #  21
+"Right Elbow"                     0          -1.75             -7  "Right Arm"           Cuboid: 2  4.00 4.00 12.00  40 16 0  0.00  0.00 -1.00 -4.00  0.00 0.00 0.00  0 0 #  22
+Tag:weapon                        0             -0          -8.75  -successor-           Angles: 0.000  90.000  0.000  Cuboid: 1  4.00 4.00 12.00  40 16 0  0.00  0.00 -1.00 -4.00  0.00 0.00 0.00  0 0 #  23
+
+#--CuboidConfig: 1.75  32.00 32.00 56.00 -24.00  1 0
+#--CuboidMesh: "Lower-l_legs" 64 32 "Resources/Cuboid-Skins/Q3-Player-Skin/vDC/Steve.png"
+#--CuboidMesh: "Upper-u_torso" 64 32 "Resources/Cuboid-Skins/Q3-Player-Skin/vDC/Steve.png"
+#--CuboidMesh: "Head-h_head" 64 32 "Resources/Cuboid-Skins/Q3-Player-Skin/vDC/Steve.png"
+#--CuboidMesh: "Lower-l_leggins" 64 32 "Resources/Cuboid-Skins/Q3-Player-Armor/vDC/gold_layer_2.png"
+#--CuboidMesh: "Lower-l_boots" 64 32 "Resources/Cuboid-Skins/Q3-Player-Armor/vDC/gold_layer_1.png"
+#--CuboidMesh: "Upper-u_chestplate" 64 32 "Resources/Cuboid-Skins/Q3-Player-Armor/vDC/gold_layer_1.png"
+#--CuboidMesh: "Head-h_helmet" 64 32 "Resources/Cuboid-Skins/Q3-Player-Armor/vDC/gold_layer_1.png"
+#--CuboidMesh: "Upper-u_leggins" 64 32 "Resources/Cuboid-Skins/Q3-Player-Armor/vDC/gold_layer_2.png"
+
+# End Of File

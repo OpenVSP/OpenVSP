@@ -485,6 +485,48 @@ double Vsp1DCurve::GetCurveDt( int i ) const
     return dt;
 }
 
+double Vsp1DCurve::FindNearest( double &u, const double &pt ) const
+{
+    double dist;
+    oned_curve_point_type p( pt );
+
+    dist = eli::geom::intersect::minimum_distance( u, m_Curve, p );
+
+    return dist;
+}
+
+double Vsp1DCurve::FindNearest( double &u, const double &pt, const double &u0 ) const
+{
+    double dist;
+    oned_curve_point_type p( pt );
+
+    dist = eli::geom::intersect::minimum_distance( u, m_Curve, p, u0 );
+
+    return dist;
+}
+
+double Vsp1DCurve::FindNearest01( double &u, const double &pt ) const
+{
+    double dist;
+
+    dist = FindNearest( u, pt );
+
+    u = u / m_Curve.get_tmax();
+
+    return dist;
+}
+
+double Vsp1DCurve::FindNearest01( double &u, const double &pt, const double &u0 ) const
+{
+    double dist;
+
+    dist = FindNearest( u, pt, u0 * m_Curve.get_tmax() );
+
+    u = u / m_Curve.get_tmax();
+
+    return dist;
+}
+
 void Vsp1DCurve::AppendCurveSegment( oned_curve_segment_type &c )
 {
     m_Curve.push_back( c, 1 );
@@ -598,6 +640,27 @@ void Vsp1DCurve::Reverse()
     m_Curve.reverse();
 }
 
+void Vsp1DCurve::product( Vsp1DCurve c1, Vsp1DCurve c2 )
+{
+    vector < double > pmap;
+    c1.m_Curve.get_pmap( pmap );
+
+    vector < double > pmap2;
+    c2.m_Curve.get_pmap( pmap2 );
+
+    pmap.insert( pmap.end(), pmap2.begin(), pmap2.end() );
+    std::sort( pmap.begin(), pmap.end() );
+    auto pmit = std::unique( pmap.begin(), pmap.end() );
+    pmap.erase( pmit, pmap.end() );
+
+    for( int i = 0; i < pmap.size(); i++ )
+    {
+        c1.m_Curve.split( pmap[i] );
+        c2.m_Curve.split( pmap[i] );
+    }
+
+    m_Curve.product1d( c1.m_Curve, c2.m_Curve );
+}
 
 bool Vsp1DCurve::IsEqual( const Vsp1DCurve & crv )
 {
@@ -637,20 +700,48 @@ bool Vsp1DCurve::IsEqual( const Vsp1DCurve & crv )
 
 }
 
-
-struct AF_functor
+struct crv_functor
 {
     double operator()( const double &r )
     {
-        return ( 100000.0 / 16.0 ) * ( 0.5 *  m_crd->CompPnt( r ) ) * r * r * r;
+        return m_crv->CompPnt( r );
     }
-    Vsp1DCurve *m_crd;
+    Vsp1DCurve *m_crv;
 };
 
-// Integrate activity factor.
-// The curve itself is assumed to be blade chord/R.
-// The parameter itself is fraction of the radius.
-double Vsp1DCurve::IntegrateAF( double r0 )
+struct crv_r_functor
+{
+    double operator()( const double &r )
+    {
+        return m_crv->CompPnt( r ) * r;
+    }
+    Vsp1DCurve *m_crv;
+};
+
+struct crv_rsq_functor
+{
+    double operator()( const double &r )
+    {
+        return m_crv->CompPnt( r ) * r * r;
+    }
+    Vsp1DCurve *m_crv;
+};
+
+struct crv_rcub_functor
+{
+    double operator()( const double &r )
+    {
+        return m_crv->CompPnt( r ) * r * r * r;
+    }
+    Vsp1DCurve *m_crv;
+};
+
+double Vsp1DCurve::IntegrateCrv()
+{
+    return IntegrateCrv( 0 );
+}
+
+double Vsp1DCurve::IntegrateCrv( double r0 )
 {
     double rmin = m_Curve.get_t0();
     if ( r0 < rmin )
@@ -658,8 +749,77 @@ double Vsp1DCurve::IntegrateAF( double r0 )
         r0 = rmin;
     }
 
-    AF_functor fun;
-    fun.m_crd = this;
+    crv_functor fun;
+    fun.m_crv = this;
+
+    eli::mutil::quad::simpson< double > quad;
+
+    return quad( fun, r0, 1.0 );
+}
+
+// Calculate the integral of a given curve weighted by radius.
+// The parameter itself is fraction of the radius.
+double Vsp1DCurve::IntegrateCrv_r()
+{
+    return IntegrateCrv( 0 );
+}
+
+double Vsp1DCurve::IntegrateCrv_r( double r0 )
+{
+    double rmin = m_Curve.get_t0();
+    if ( r0 < rmin )
+    {
+        r0 = rmin;
+    }
+
+    crv_r_functor fun;
+    fun.m_crv = this;
+
+    eli::mutil::quad::simpson< double > quad;
+
+    return quad( fun, r0, 1.0 );
+}
+
+// Calculate the integral of a given curve weighted by radius squared.
+// The parameter itself is fraction of the radius.
+double Vsp1DCurve::IntegrateCrv_rsq()
+{
+    return IntegrateCrv( 0 );
+}
+
+double Vsp1DCurve::IntegrateCrv_rsq( double r0 )
+{
+    double rmin = m_Curve.get_t0();
+    if ( r0 < rmin )
+    {
+        r0 = rmin;
+    }
+
+    crv_rsq_functor fun;
+    fun.m_crv = this;
+
+    eli::mutil::quad::simpson< double > quad;
+
+    return quad( fun, r0, 1.0 );
+}
+
+// Calculate the integral of a given curve weighted by radius cubed.
+// The parameter itself is fraction of the radius.
+double Vsp1DCurve::IntegrateCrv_rcub()
+{
+    return IntegrateCrv( 0 );
+}
+
+double Vsp1DCurve::IntegrateCrv_rcub( double r0 )
+{
+    double rmin = m_Curve.get_t0();
+    if ( r0 < rmin )
+    {
+        r0 = rmin;
+    }
+
+    crv_rcub_functor fun;
+    fun.m_crv = this;
 
     eli::mutil::quad::simpson< double > quad;
 

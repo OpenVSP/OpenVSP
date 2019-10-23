@@ -81,6 +81,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		clipper
 		Angelscript
 		wavedragEL
+		pinocchio
 		${CPPTEST_LIBRARIES}
 		${LIBXML2_LIBRARIES}
 		${WINSOCK_LIBRARIES}
@@ -90,9 +91,18 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		${LIBIGES_LIBRARIES}
 	)
 
-	INSTALL( TARGETS _vsp LIBRARY DESTINATION python )
-	INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp.py DESTINATION python )
-	INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/test.py DESTINATION python )
+	CONFIGURE_FILE(packages/openvsp/setup.py.in python/packages/openvsp/setup.py)
+	CONFIGURE_FILE(packages/openvsp/conda-recipe/meta.yaml.in python/packages/openvsp/conda-recipe/meta.yaml)
+
+	INSTALL( DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR}/packages/ DESTINATION python
+			PATTERN setup.py.in EXCLUDE
+			PATTERN meta.yaml.in EXCLUDE)
+
+	INSTALL( TARGETS _vsp LIBRARY DESTINATION python/openvsp/openvsp )
+	INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/vsp.py DESTINATION python/openvsp/openvsp )
+	INSTALL( FILES ${CMAKE_CURRENT_SOURCE_DIR}/test.py DESTINATION python/openvsp/openvsp/tests )
+	INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/setup.py DESTINATION python/openvsp)
+	INSTALL( FILES ${CMAKE_CURRENT_BINARY_DIR}/python/packages/openvsp/conda-recipe/meta.yaml DESTINATION python/openvsp/conda-recipe)
 
 	IF( NOT VSP_NO_GRAPHICS )
 
@@ -137,6 +147,7 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			sixseries
 			cartesian
 			wavedragEL
+			pinocchio
 			${CPPTEST_LIBRARIES}
 			${LIBXML2_LIBRARIES}
 			${FLTK_LIBRARIES}

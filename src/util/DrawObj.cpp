@@ -128,7 +128,8 @@ void MakeCircle( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj
 
 void MakeCircleArrow( const vec3d &pcen, const vec3d &norm, double rad, DrawObj &dobj, DrawObj &arrow )
 {
-    double lenfrac = 0.5;
+    double lenfrac = 0.6;
+
     vec3d n = norm;
     n.normalize();
 

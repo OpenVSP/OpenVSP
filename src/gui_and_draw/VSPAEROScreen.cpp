@@ -1665,7 +1665,7 @@ void VSPAEROScreen::DisplayDegenVLMPreview()
         return;
     }
 
-    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec( false ) );
+    vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
     for ( size_t i = 0; i < (int)geom_vec.size(); i++ )
     {
         if ( geom_vec[i]->GetSetFlag( VSPAEROMgr.m_GeomSet() ) )

@@ -72,6 +72,7 @@ ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 39
     m_BorderLayout.AddButton( m_BoundaryTypeGeom, "Geom" );
     m_BorderLayout.SetFitWidthFlag( true );
     m_BoundaryGeom.AddExcludeType( MESH_GEOM_TYPE );
+    m_BoundaryGeom.AddExcludeType( HUMAN_GEOM_TYPE );   // QUESTION THESE
     m_BoundaryGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
     m_BoundaryGeom.AddExcludeType( WIRE_FRAME_GEOM_TYPE );
     m_BoundaryGeom.AddExcludeType( BLANK_GEOM_TYPE );
@@ -137,6 +138,7 @@ ProjectionScreen::ProjectionScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 39
     m_BorderLayout.AddButton( m_DirectionTypeGeom, "Geom" );
     m_BorderLayout.SetFitWidthFlag( true );
     m_DirectionGeom.AddExcludeType( MESH_GEOM_TYPE );
+    m_DirectionGeom.AddExcludeType( HUMAN_GEOM_TYPE );
     m_DirectionGeom.AddExcludeType( PT_CLOUD_GEOM_TYPE );
     m_DirectionGeom.AddExcludeType( WIRE_FRAME_GEOM_TYPE );
     m_DirectionGeom.AddExcludeType( BLANK_GEOM_TYPE );

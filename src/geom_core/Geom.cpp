@@ -363,10 +363,10 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_ZRelRot.SetDescript( "Z Rotation Relative to Parent" );
 
     // Attachment Parms
-    m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, RELATIVE_XFORM, ABSOLUTE_XFORM, RELATIVE_XFORM );
-    m_TransAttachFlag.Init( "Trans_Attach_Flag", "Attach", this, ATTACH_TRANS_NONE, ATTACH_TRANS_NONE, ATTACH_TRANS_UV );
+    m_AbsRelFlag.Init( "Abs_Or_Relitive_flag", "XForm", this, vsp::REL, vsp::ABS, vsp::REL );
+    m_TransAttachFlag.Init( "Trans_Attach_Flag", "Attach", this, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_NONE, vsp::ATTACH_TRANS_UV );
     m_TransAttachFlag.SetDescript( "Determines relative translation coordinate system" );
-    m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, ATTACH_ROT_NONE, ATTACH_ROT_NONE, ATTACH_ROT_UV );
+    m_RotAttachFlag.Init( "Rots_Attach_Flag", "Attach", this, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_NONE, vsp::ATTACH_ROT_UV );
     m_RotAttachFlag.SetDescript( "Determines relative rotation axes" );
     m_ULoc.Init( "U_Attach_Location", "Attach", this, 1e-6, 1e-6, 1 - 1e-6 );
     m_ULoc.SetDescript( "U Location of Parent's Surface" );
@@ -428,7 +428,7 @@ void GeomXForm::ComposeModelMatrix()
     // Get Attament Matrix
     Matrix4d attachedMat = ComposeAttachMatrix();
 
-    if (  m_AbsRelFlag() ==  RELATIVE_XFORM || ( m_ignoreAbsFlag && m_applyIgnoreAbsFlag ) )
+    if (  m_AbsRelFlag() ==  vsp::REL || ( m_ignoreAbsFlag && m_applyIgnoreAbsFlag ) )
     {
         // Apply normal translations
         m_ModelMatrix.translatef( m_XRelLoc(), m_YRelLoc(), m_ZRelLoc() );
@@ -454,7 +454,7 @@ void GeomXForm::ComposeModelMatrix()
         m_YRot = angles.y();
         m_ZRot = angles.z();
     }
-    else if ( m_AbsRelFlag() ==  ABSOLUTE_XFORM )
+    else if ( m_AbsRelFlag() ==  vsp::ABS )
     {
         // Apply normal translations
         m_ModelMatrix.translatef( m_XLoc(), m_YLoc(), m_ZLoc() );
@@ -500,7 +500,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
     }
 
     // If both attachment flags set to none, return identity
-    if ( m_TransAttachFlag() == ATTACH_TRANS_NONE && m_RotAttachFlag() == ATTACH_ROT_NONE )
+    if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_NONE && m_RotAttachFlag() == vsp::ATTACH_ROT_NONE )
     {
         return attachedMat;
     }
@@ -521,7 +521,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
         // Parent CompXXXCoordSys methods query the positioned m_SurfVec[0] surface,
         // not m_MainSurfVec[0].  Consequently, m_ModelMatrix is already implied in
         // these calculations and does not need to be applied again.
-        if ( m_TransAttachFlag() == ATTACH_TRANS_UV )
+        if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_UV )
         {
             if ( !( parent->CompTransCoordSys( m_ULoc(), m_WLoc(), transMat ) ) )
             {
@@ -529,7 +529,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
             }
         }
 
-        if ( m_RotAttachFlag() == ATTACH_ROT_UV )
+        if ( m_RotAttachFlag() == vsp::ATTACH_ROT_UV )
         {
             if ( !( parent->CompRotCoordSys( m_ULoc(), m_WLoc(), rotMat ) ) )
             {
@@ -537,12 +537,12 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
             }
         }
 
-        if ( m_TransAttachFlag() == ATTACH_TRANS_COMP || revertCompTrans )
+        if ( m_TransAttachFlag() == vsp::ATTACH_TRANS_COMP || revertCompTrans )
         {
             transMat.translatef( tempMat[12], tempMat[13], tempMat[14] );
         }
 
-        if ( m_RotAttachFlag() == ATTACH_ROT_COMP || revertCompRot )
+        if ( m_RotAttachFlag() == vsp::ATTACH_ROT_COMP || revertCompRot )
         {
             // Only take rotation matrix from parent so set translation part to zero
             tempMat[12] = tempMat[13] = tempMat[14] = 0;
@@ -560,7 +560,7 @@ Matrix4d GeomXForm::ComposeAttachMatrix()
 void GeomXForm::DeactivateXForms()
 {
     // Deactivate non driving parms and Activate driving parms
-    if ( m_AbsRelFlag() ==  RELATIVE_XFORM  )
+    if ( m_AbsRelFlag() ==  vsp::REL  )
     {
         m_XLoc.Deactivate();
         m_YLoc.Deactivate();
@@ -755,7 +755,7 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 
     m_TessU.Init( "Tess_U", "Shape", this, 8, 2,  1000 );
     m_TessU.SetDescript( "Number of tessellated curves in the U direction" );
-    m_TessW.Init( "Tess_W", "Shape", this, 9, 2,  1000 );
+    m_TessW.Init( "Tess_W", "Shape", this, 9, 2,  1001 );
     m_TessW.SetDescript( "Number of tessellated curves in the W direction" );
     m_TessW.SetMultShift( 4, 1 );
 
@@ -1459,7 +1459,10 @@ void Geom::UpdateFlags( )
 {
     for( int i = 0; i < (int)m_MainSurfVec.size(); i++ )
     {
-        m_MainSurfVec[i].SetSurfCfdType( m_NegativeVolumeFlag.Get() );
+        if ( m_MainSurfVec[i].GetSurfCfdType() == vsp::CFD_NORMAL )  // Only update if currently normal.
+        {
+            m_MainSurfVec[i].SetSurfCfdType( m_NegativeVolumeFlag.Get() );
+        }
     }
 }
 
@@ -1981,11 +1984,16 @@ void Geom::UpdateDrawObj()
     double tol = 1e-2;
 
     m_WireShadeDrawObj_vec.clear();
-    m_WireShadeDrawObj_vec.resize( 2 );
+    m_WireShadeDrawObj_vec.resize( 4 );
     m_WireShadeDrawObj_vec[0].m_FlipNormals = false;
     m_WireShadeDrawObj_vec[1].m_FlipNormals = true;
+    m_WireShadeDrawObj_vec[2].m_FlipNormals = false;
+    m_WireShadeDrawObj_vec[3].m_FlipNormals = true;
+
     m_WireShadeDrawObj_vec[0].m_GeomChanged = true;
     m_WireShadeDrawObj_vec[1].m_GeomChanged = true;
+    m_WireShadeDrawObj_vec[2].m_GeomChanged = true;
+    m_WireShadeDrawObj_vec[3].m_GeomChanged = true;
 
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
@@ -2004,6 +2012,11 @@ void Geom::UpdateDrawObj()
         if ( m_SurfVec[i].GetFlipNormal() )
         {
             iflip = 1;
+        }
+
+        if ( m_SurfVec[i].GetSurfCfdType() == vsp::CFD_TRANSPARENT )
+        {
+            iflip += 2;
         }
 
         m_WireShadeDrawObj_vec[iflip].m_PntMesh.insert( m_WireShadeDrawObj_vec[iflip].m_PntMesh.end(),
@@ -2683,8 +2696,8 @@ void Geom::ReadV2File( xmlNodePtr &root )
 
     if ( posAttachFlag == V2_POS_ATTACH_NONE )
     {
-        m_TransAttachFlag = ATTACH_TRANS_NONE;
-        m_RotAttachFlag = ATTACH_ROT_NONE;
+        m_TransAttachFlag = vsp::ATTACH_TRANS_NONE;
+        m_RotAttachFlag = vsp::ATTACH_ROT_NONE;
 
         // override relative translation since the relative coordinates are arbitrary
         // when not attached to anything in V2
@@ -2692,25 +2705,25 @@ void Geom::ReadV2File( xmlNodePtr &root )
     }
     else if ( posAttachFlag == V2_POS_ATTACH_FIXED )
     {
-        m_TransAttachFlag = ATTACH_TRANS_COMP;
-        m_RotAttachFlag = ATTACH_ROT_NONE;
+        m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
+        m_RotAttachFlag = vsp::ATTACH_ROT_NONE;
     }
     else if ( posAttachFlag == V2_POS_ATTACH_UV )
     {
-        m_TransAttachFlag = ATTACH_TRANS_UV;
-        m_RotAttachFlag = ATTACH_ROT_NONE;
+        m_TransAttachFlag = vsp::ATTACH_TRANS_UV;
+        m_RotAttachFlag = vsp::ATTACH_ROT_NONE;
     }
     else if ( posAttachFlag == V2_POS_ATTACH_MATRIX )
     {
-        m_TransAttachFlag = ATTACH_TRANS_COMP;
-        m_RotAttachFlag = ATTACH_ROT_COMP;
+        m_TransAttachFlag = vsp::ATTACH_TRANS_COMP;
+        m_RotAttachFlag = vsp::ATTACH_ROT_COMP;
 
         // override relative translation since the relative coordinates are arbitrary
         // when attached in matrix mode
         overrideRelTrans = true;
 
         // override the AbsRelFlag, the only valid value for this attachment mode is relative
-        m_AbsRelFlag = RELATIVE_XFORM;
+        m_AbsRelFlag = vsp::REL;
     }
 
     if ( overrideRelTrans )
@@ -2865,6 +2878,15 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         m_WireShadeDrawObj_vec[i].m_MaterialInfo.Shininess = (float)material->m_Shininess;
 
+        // Surfaces with vsp::CFD_TRANSPARENT set -- i.e. propeller disk.
+        if ( i >= 2 )
+        {
+            if ( m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] == (float)1.0 )
+            {
+                m_WireShadeDrawObj_vec[i].m_MaterialInfo.Diffuse[3] = 0.5;
+            }
+        }
+
         vec3d lineColor = vec3d( m_GuiDraw.GetWireColor().x() / 255.0,
                                  m_GuiDraw.GetWireColor().y() / 255.0,
                                  m_GuiDraw.GetWireColor().z() / 255.0 );
@@ -2941,7 +2963,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     {
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
-        m_HighlightDrawObj.m_LineWidth = 2.0;
+        m_HighlightDrawObj.m_LineWidth = 4.0;
         m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
         m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
         draw_obj_vec.push_back( &m_HighlightDrawObj );
@@ -3678,7 +3700,7 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
             j = 0; // Only inlclude airfoils at start and end of XSec for first XSec
         }
 
-        for ( j; j < utess_vec[i]; j++ )
+        for ( /* j */; j < utess_vec[i]; j++ )
         {
             string af_file_name = m_Name + "_";
 
@@ -4448,7 +4470,9 @@ FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
         return feastruct;
     }
 
-    if ( GetType().m_Type != BLANK_GEOM_TYPE && GetType().m_Type != PT_CLOUD_GEOM_TYPE && GetType().m_Type != HINGE_GEOM_TYPE && GetType().m_Type != MESH_GEOM_TYPE )
+    if ( GetType().m_Type != BLANK_GEOM_TYPE && GetType().m_Type != PT_CLOUD_GEOM_TYPE &&
+         GetType().m_Type != HINGE_GEOM_TYPE && GetType().m_Type != MESH_GEOM_TYPE &&
+         GetType().m_Type != HUMAN_GEOM_TYPE )
     {
         feastruct = new FeaStructure( GetID(), surf_index );
 
@@ -4811,7 +4835,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_HighlightXSecDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
         m_HighlightXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "ACTIVE";
         m_HighlightXSecDrawObj.m_LineWidth = 4.0;
-        m_HighlightXSecDrawObj.m_LineColor = vec3d( 1.0, 0.0, 0.0 );
+        m_HighlightXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 1.0 );
         m_HighlightXSecDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
         m_HighlightXSecDrawObj.m_Visible = !m_GuiDraw.GetNoShowFlag();
         draw_obj_vec.push_back( &m_HighlightXSecDrawObj );

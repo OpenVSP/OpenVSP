@@ -30,8 +30,8 @@ public:
     ColorPicker m_SpecularColorPicker;
     ColorPicker m_EmissiveColorPicker;
 
-    SliderInput m_AlphaSlider;
-    SliderInput m_ShininessSlider;
+    SliderAdjRangeInput m_AlphaSlider;
+    SliderAdjRangeInput m_ShininessSlider;
 
     StringInput m_MaterialNameInput;
     TriggerButton m_SaveApplyButton;

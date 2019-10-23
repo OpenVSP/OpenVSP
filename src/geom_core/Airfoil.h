@@ -11,6 +11,7 @@
 #if !defined(AIRFOIL__INCLUDED_)
 #define AIRFOIL__INCLUDED_
 
+#include "Defines.h"
 #include "XSecCurve.h"
 #include "Vec3d.h"
 #include "VspCurve.h"
@@ -52,6 +53,9 @@ typedef eli::geom::curve::pseudo::one_six_series<double> one_six_series_airfoil_
 
 using std::string;
 
+double CalcFourDigitCLi( double m, double p );
+double CalcFourDigitCamber( double CLi, double p );
+
 //==== Base Class For Airfoils ====//
 class Airfoil : public XSecCurve
 {
@@ -65,6 +69,8 @@ public:
     virtual double GetHeight();
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                { return m_Chord.GetID(); }
+    virtual string GetHeightParmID()                               { return m_ThickChord.GetID(); }
+    virtual void GetLiftCamberParmID( vector < string > &ids )     {};
     virtual void OffsetCurve( double offset_val );
 
     virtual VspCurve& GetOrigCurve();
@@ -110,15 +116,22 @@ public:
     FourSeries( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
+    virtual void UpdateDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
 
     virtual void ReadV2File( xmlNodePtr &root );
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_Camber;
     Parm m_CamberLoc;
-    BoolParm m_EqArcLen;
     BoolParm m_SharpTE;
+
+    Parm m_IdealCl;
+    IntParm m_CamberInputFlag;
 };
 
 //==========================================================================//
@@ -132,14 +145,22 @@ public:
     FourDigMod( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
+    virtual void UpdateDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_Camber;
     Parm m_CamberLoc;
     Parm m_ThickLoc;
     Parm m_LERadIndx;
     BoolParm m_SharpTE;
+
+    Parm m_IdealCl;
+    IntParm m_CamberInputFlag;
 };
 
 //==========================================================================//
@@ -153,8 +174,12 @@ public:
     FiveDig( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_IdealCl;
     Parm m_CamberLoc;
@@ -172,8 +197,12 @@ public:
     FiveDigMod( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_IdealCl;
     Parm m_CamberLoc;
@@ -193,6 +222,9 @@ public:
     OneSixSeries( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
 
@@ -229,10 +261,14 @@ public:
     SixSeries( );
 
     virtual void Update();
+    virtual void SetDesignLiftCoeff( double cli );
+    virtual double GetDesignLiftCoeff();
+    virtual void GetLiftCamberParmID( vector < string > &ids );
 
     virtual string GetAirfoilName();
 
     virtual void ReadV2File( xmlNodePtr &root );
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     IntParm m_Series;
     Parm m_IdealCl;
@@ -276,6 +312,7 @@ public:
     virtual void Update();
 
     virtual void ReadV2File( xmlNodePtr &root );
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_ThickLoc;
 
@@ -326,17 +363,19 @@ public:
 
     virtual void ReadV2File( xmlNodePtr &root );
 
+    Parm m_BaseThickness;
+
 protected:
 
     virtual bool ReadSeligAirfoil( FILE* file_id );
     virtual bool ReadLednicerAirfoil( FILE* file_id );
     virtual bool ReadVspAirfoil( FILE* file_id );
 
+    virtual void MakeCurve();
 
     string m_AirfoilName;
     vector< vec3d > m_UpperPnts;
     vector< vec3d > m_LowerPnts;
-
 
 };
 
@@ -382,7 +421,6 @@ public:
     vector< Parm* > m_LowCoeffParmVec;
 
     BoolParm m_ContLERad;
-    BoolParm m_EqArcLen;
 
 protected:
 
@@ -417,6 +455,7 @@ public:
     virtual void Update();
 
     virtual void OffsetCurve( double offset_val );
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_Epsilon;
     Parm m_Kappa;

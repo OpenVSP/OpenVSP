@@ -1,0 +1,13 @@
+*~
+*.o
+*.a
+*.so
+*.so.*
+*.out
+*.patch
+.depend
+Pinocchio/libpinocchio.a
+DemoUI/DemoUI
+AttachWeights/AttachWeights
+ViewObj/ViewObj
+Viewer/Viewer

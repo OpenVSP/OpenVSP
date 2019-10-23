@@ -1,0 +1,30 @@
+# Skeleton file
+#
+# File: Creeper.txt
+#
+
+# name of joint                   X              Y              Z  parent name
+
+tag_torso                         0              0              0  ""                    Cuboid: 1  4.00 4.00 4.00  0 0 0  0.00  0.00 0.00 0.00  0.00 0.00 0.00  0 0 #   0
+"Left Front Leg"                  7            3.5          -13.5  tag_torso             Cuboid: 0  4.00 4.00 6.00  0 16 1  0.00  0.00 0.00 -3.00  0.00 0.00 0.00  1 0 #   1
+"Right Front Leg"                 7           -3.5          -13.5  tag_torso             Cuboid: 0  4.00 4.00 6.00  0 16 0  0.00  0.00 0.00 -3.00  0.00 0.00 0.00  1 0 #   2
+"Left Back Leg"                  -7            3.5          -13.5  tag_torso             Cuboid: 0  4.00 4.00 6.00  0 16 1  0.00  0.00 0.00 -3.00  0.00 0.00 0.00  1 0 #   3
+"Right Back Leg"                 -7           -3.5          -13.5  tag_torso             Cuboid: 0  4.00 4.00 6.00  0 16 0  0.00  0.00 0.00 -3.00  0.00 0.00 0.00  1 0 #   4
+Body                              0              0            7.5  tag_torso             Cuboid: 0  4.00 8.00 12.00  16 16 0  0.00  0.00 0.00 -6.00  0.00 0.00 0.00  0 1 #   5
+tag_head                          0              0              0  Body                  Cuboid: 0  8.00 8.00 8.00  0 0 0  0.00  0.00 0.00 4.00  0.00 0.00 0.00  0 2 #   6
+"Right Arm"                       0          -8.75          -1.75  Body                  Cuboid: 0  4.00 4.00 12.00  40 16 0  0.00  0.00 -1.00 -5.00  0.00 0.00 0.00  0 1 #   7
+Tag:weapon                        0          -1.75          -17.5  -successor-           Angles: 0.000  90.000  0.000  Cuboid: 1  4.00 4.00 12.00  40 16 0  0.00  0.00 -1.00 -5.00  0.00 0.00 0.00  0 1 #   8
+"Left Arm"                        0           8.75          -1.75  Body                  Cuboid: 0  4.00 4.00 12.00  40 16 1  0.00  0.00 1.00 -5.00  0.00 0.00 0.00  0 1 #   9
+"Tag:Left Hand"                   0           1.75          -17.5  -successor-           Angles: 0.000  90.000  0.000  Cuboid: 2  4.00 4.00 12.00  40 16 1  0.00  0.00 1.00 -5.00  0.00 0.00 0.00  0 1 #  10
+
+#--CuboidConfig: 1.75  21.00 14.00 45.50 -24.00  1 0
+#--CuboidMesh: "Lower-l_legs" 64 32 "Resources/Cuboid-Skins/Creeper/creeper.png"
+#--CuboidMesh: "Upper-u_torso" 64 32 "Resources/Cuboid-Skins/Creeper/creeper.png"
+#--CuboidMesh: "Head-h_head" 64 32 "Resources/Cuboid-Skins/Creeper/creeper.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+#--CuboidMesh: "Mesh" 64 32 "Resources/Cuboid-Skins/Template-Skin-64x32.png"
+
+# End Of File

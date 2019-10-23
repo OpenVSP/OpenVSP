@@ -49,6 +49,10 @@ public:
 
     vec3d( const threed_point_type &a );
 
+    vec3d( const double a[3] );
+    vec3d( const float a[3] );
+    vec3d( const std::vector<double> &a );
+
     vec3d& operator=( const vec3d& a ); // x = y
     vec3d& operator=( const vec2d& a );
     vec3d& operator=( double a );      // x = 35.
@@ -66,9 +70,16 @@ public:
 
     // Set Point Values
     vec3d& set_xyz( double xx, double yy, double zz );
+    vec3d& set_vec( const std::vector<double> &a );
+    vec3d& set_arr( const double a[] );
+    vec3d& set_arr( const float a[] );
     vec3d& set_x( double xx );
     vec3d& set_y( double yy );
     vec3d& set_z( double zz );
+
+    vec3d& set_refx( const vec3d &a );
+    vec3d& set_refy( const vec3d &a );
+    vec3d& set_refz( const vec3d &a );
 
     // Get Point Values
     void get_pnt( double pnt[3] ) const
@@ -203,6 +214,15 @@ public:
     friend vec3d operator*( double b, const vec3d& a );
     friend vec3d operator*( const vec3d& a, const vec3d& b );
     friend vec3d operator/( const vec3d& a, double b );
+    vec3d& operator+=( const vec3d& b );
+    vec3d& operator-=( const vec3d& b );
+    vec3d& operator*=( double b );
+    vec3d& operator+=( double b[] );
+    vec3d& operator-=( double b[] );
+    vec3d& operator+=( float b[] );
+    vec3d& operator-=( float b[] );
+
+    friend vec3d operator-( const vec3d & in );
 
     // cout << a
 //    friend ostream& operator<< (ostream& out, const vec3d& a);

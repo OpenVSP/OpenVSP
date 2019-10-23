@@ -3,3 +3,5 @@ build/
 inst/
 *.bak
 .idea/
+__pycache__/
+python/openvsp.egg-info/

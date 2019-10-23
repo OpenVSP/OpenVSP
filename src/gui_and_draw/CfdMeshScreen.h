@@ -169,13 +169,13 @@ protected:
 
     StringInput m_SourceName;
 
-    SliderInput m_SourceU1;
-    SliderInput m_SourceW1;
+    SliderAdjRangeInput m_SourceU1;
+    SliderAdjRangeInput m_SourceW1;
     SliderAdjRangeInput m_SourceRad1;
     SliderAdjRangeInput m_SourceLen1;
 
-    SliderInput m_SourceU2;
-    SliderInput m_SourceW2;
+    SliderAdjRangeInput m_SourceU2;
+    SliderAdjRangeInput m_SourceW2;
     SliderAdjRangeInput m_SourceRad2;
     SliderAdjRangeInput m_SourceLen2;
 

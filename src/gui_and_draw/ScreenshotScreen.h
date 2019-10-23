@@ -41,6 +41,7 @@ protected:
     GroupLayout m_BorderLayout;
     GroupLayout m_CurrentViewportSizeLayout;
     GroupLayout m_ViewportSizeLayout;
+    GroupLayout m_TransparentLayout;
 
     StringOutput m_CurrentWidth;
     StringOutput m_CurrentHeight;
@@ -54,11 +55,14 @@ protected:
 
     TriggerButton m_SetToCurrentSize;
 
+    ToggleButton m_TransparentBG;
+
     TriggerButton m_CapturePNG;
 
     FractionParm m_NewRatioValue;
     IntParm m_NewWidthValue;
     IntParm m_NewHeightValue;
+    BoolParm m_TransparentBGFlag;
 
     bool m_framebufferSupported;
     bool m_showedOpenGLErrorMessage;

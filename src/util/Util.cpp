@@ -124,3 +124,8 @@ vector<double> linspace(double a, double b, double n)
     }
     return linarray;
 }
+
+double linterp( double a, double b, double frac )
+{
+    return a + frac * ( b - a );
+}

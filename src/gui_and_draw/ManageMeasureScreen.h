@@ -44,7 +44,7 @@ protected:
 
     Choice m_RulerLengthUnitChoice;
 
-    SliderInput m_PrecisionSlider;
+    SliderAdjRangeInput m_PrecisionSlider;
 
     TriggerButton m_AddRulerButton;
     TriggerButton m_RemoveRulerButton;
@@ -106,7 +106,7 @@ protected:
 
     SliderAdjRangeInput m_ProbeLenSlider;
 
-    SliderInput m_ProbePrecisionSlider;
+    SliderAdjRangeInput m_ProbePrecisionSlider;
 
     Output m_XOutput;
     Output m_YOutput;

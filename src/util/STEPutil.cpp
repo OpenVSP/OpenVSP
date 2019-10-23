@@ -64,6 +64,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
     case vsp::LEN_IN:
     case vsp::LEN_FT:
     case vsp::LEN_YD:
+    case vsp::LEN_UNITLESS:
         break;
     }
 
@@ -118,6 +119,7 @@ STEPcomplex * STEPutil::Geometric_Context( const vsp::LEN_UNITS & len, const vsp
         case vsp::LEN_MM:
         case vsp::LEN_CM:
         case vsp::LEN_M:
+        case vsp::LEN_UNITLESS:
             break;
         }
 
@@ -739,7 +741,7 @@ void STEPutil::WriteFile( string fname )
     }
 }
 
-void STEPutil::AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit )
+void STEPutil::AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit, string name )
 {
 //  vector<SdaiBezier_surface *> surfs;
 //  s->ToSTEP_Bez_Patches( this, surfs );
@@ -749,7 +751,7 @@ void STEPutil::AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic,
 
     SdaiGeometric_set *gset = ( SdaiGeometric_set* ) registry->ObjCreate( "GEOMETRIC_SET" );
     instance_list->Append( ( SDAI_Application_instance * ) gset, completeSE );
-    gset->name_( "''" );
+    gset->name_( "'" + name + "'" );
 
     for( int i = 0; i < surfs.size(); ++i )
     {

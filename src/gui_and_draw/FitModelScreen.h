@@ -77,8 +77,8 @@ protected:
     ToggleButton m_WFixButton;
     ToggleButton m_WFreeButton;
     ToggleRadioGroup m_WToggleGroup;
-    SliderInput m_USlider;
-    SliderInput m_WSlider;
+    SliderAdjRangeInput m_USlider;
+    SliderAdjRangeInput m_WSlider;
 
     TriggerButton m_AddTargetPtButton;
     TriggerButton m_DelTargetPtButton;

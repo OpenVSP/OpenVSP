@@ -11,6 +11,7 @@
 #if !defined(XSECCURVE__INCLUDED_)
 #define XSECCURVE__INCLUDED_
 
+#include "Defines.h"
 #include "Parm.h"
 #include "ParmContainer.h"
 #include "Vec3d.h"
@@ -60,14 +61,20 @@ public:
     virtual void SetWidthHeight( double w, double h )           {}
     virtual void SetScale( double scale );
     virtual string GetWidthParmID()                                    { return string(); }
+    virtual string GetHeightParmID()                                   { return string(); }
+
+    virtual void SetDesignLiftCoeff( double cli )               {}
+    virtual double GetDesignLiftCoeff()                                { return 0.0; }
 
     virtual void OffsetCurve( double offset_val );
 
     // FakeWidth is introduced to provide a scale value for leading/trailing edge
-    // modifications when a unit-chord is forced for a propeller.
+    // modifications when a unit-chord is forced for lofting blended wings.
     virtual double GetFakeWidth()                                      { return m_FakeWidth; }
     virtual void SetFakeWidth( double w )                              { m_FakeWidth = w; }
     virtual void SetUseFakeWidth( double b )                           { m_UseFakeWidth = b; }
+
+    virtual void SetForceWingType( double f )                          { m_ForceWingType = f; }
 
     virtual double ComputeArea();
 
@@ -81,6 +88,9 @@ public:
     virtual void RotTransScale();
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
+
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
+    static void InterpCurve( VspCurve & cout, XSecCurve *start, XSecCurve *end, double frac );
 
     IntParm m_TECloseType;
     IntParm m_TECloseAbsRel;
@@ -130,6 +140,7 @@ public:
 protected:
 
     bool m_UseFakeWidth;
+    bool m_ForceWingType;
     double m_FakeWidth;
 
     double m_yscale;
@@ -208,6 +219,7 @@ public:
     }
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
 
     Parm m_Width;
     Parm m_Height;
@@ -236,6 +248,9 @@ public:
     }
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
+
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_Width;
     Parm m_Height;
@@ -271,8 +286,11 @@ public:
     virtual void SetWidthHeight( double w, double h );
     virtual void SetScale( double scale );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
+
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_Width;
     Parm m_Height;
@@ -305,8 +323,11 @@ public:
     }
     virtual void SetWidthHeight( double w, double h );
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
 
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
+
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
 
     Parm m_Width;
     Parm m_Height;
@@ -350,6 +371,7 @@ public:
         return m_UnityFilePnts;
     }
     virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
 
     //===== Read File ====//
     bool ReadXsecFile( string file_name );

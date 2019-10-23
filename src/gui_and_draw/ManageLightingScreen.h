@@ -23,13 +23,13 @@ protected:
 
     GroupLayout m_GenLayout;
 
-    SliderInput m_XPosSlider;
-    SliderInput m_YPosSlider;
-    SliderInput m_ZPosSlider;
+    SliderAdjRangeInput m_XPosSlider;
+    SliderAdjRangeInput m_YPosSlider;
+    SliderAdjRangeInput m_ZPosSlider;
 
-    SliderInput m_AmbSlider;
-    SliderInput m_DiffSlider;
-    SliderInput m_SpecSlider;
+    SliderAdjRangeInput m_AmbSlider;
+    SliderAdjRangeInput m_DiffSlider;
+    SliderAdjRangeInput m_SpecSlider;
 
     Choice m_LightChoice;
 

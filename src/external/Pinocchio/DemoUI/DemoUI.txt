@@ -1,0 +1,5 @@
+Using your own motion data
+
+The short answer is that unfortunately, with DemoUI, you can't. The package comes with several sequences that DemoUI can read, but my skeleton is hard-coded in the code and the format is non-standard. If you would like to animate meshes rigged by Pinocchio with your own motions, you have to write your own front end. If you don't care about skeleton embedding, but only skinning weights, Blender's "Bone Heat" and the PM_heatWeight plugin for Maya are implementations of my algorithm (neither was implemented by me, so I can't answer questions about them). If you are very stubborn and/or foolish and would still like to try feeding your own mocap data to DemoUI, here's a rough format description:
+
+The format is that each row in the motion file corresponds to a frame. Each row consists of 19 bone specifications (which are then internally mapped to the 17 bones in the skeleton Pinocchio embeds--see Motion::readH). Each bone specification is relative to the parent and consists of 3 values specifying an axis-angle rotation (axis is vector, its length is angle in radians) followed by three values specifying the translation.

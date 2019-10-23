@@ -15,7 +15,7 @@
 #include "FuselageGeom.h"
 #include "BORGeom.h"
 #include "Vehicle.h"
-
+#include "Util.h"
 #include "eli/geom/curve/length.hpp"
 
 typedef piecewise_curve_type::index_type curve_index_type;
@@ -108,6 +108,7 @@ XSecCurve::XSecCurve()
 
     m_FakeWidth = 1.0;
     m_UseFakeWidth = false;
+    m_ForceWingType = false;
 
     m_yscale = 1.0;
 }
@@ -262,6 +263,11 @@ void XSecCurve::Update()
         {
             wingtype = true;
         }
+    }
+
+    if ( m_ForceWingType )
+    {
+        wingtype = true;
     }
 
     // Order of these curve modifiers matters.
@@ -1368,6 +1374,73 @@ void XSecCurve::ReadV2FileFuse2( xmlNodePtr &root )
     SetWidthHeight( width, height );
 }
 
+// *this was initialized as a copy of *start.
+// All IntParms (Type and AbsRel) flags will be set from that copy.
+// All Parms will be set based on linear interpolation of values.  Independent of flag
+// settings and linearity or nonlinearity of chord changes between sections.  Reconcillation
+// of the values (absolute vs. relative) will occur when the modifications are applied (i.e.
+// in CloseXX(), TrimXX(), CapXX(), etc.).
+void XSecCurve::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    INTERP_PARM( start, end, frac, m_TECloseThick );
+    INTERP_PARM( start, end, frac, m_TECloseThickChord );
+
+    INTERP_PARM( start, end, frac, m_LECloseThick );
+    INTERP_PARM( start, end, frac, m_LECloseThickChord );
+
+    INTERP_PARM( start, end, frac, m_TETrimX );
+    INTERP_PARM( start, end, frac, m_TETrimXChord );
+    INTERP_PARM( start, end, frac, m_TETrimThick );
+    INTERP_PARM( start, end, frac, m_TETrimThickChord );
+
+    INTERP_PARM( start, end, frac, m_LETrimX );
+    INTERP_PARM( start, end, frac, m_LETrimXChord );
+    INTERP_PARM( start, end, frac, m_LETrimThick );
+    INTERP_PARM( start, end, frac, m_LETrimThickChord );
+
+    INTERP_PARM( start, end, frac, m_TECapLength );
+    INTERP_PARM( start, end, frac, m_TECapOffset );
+    INTERP_PARM( start, end, frac, m_TECapStrength );
+
+    INTERP_PARM( start, end, frac, m_LECapLength );
+    INTERP_PARM( start, end, frac, m_LECapOffset );
+    INTERP_PARM( start, end, frac, m_LECapStrength );
+
+    INTERP_PARM( start, end, frac, m_Theta );
+    INTERP_PARM( start, end, frac, m_Scale );
+    INTERP_PARM( start, end, frac, m_DeltaX );
+    INTERP_PARM( start, end, frac, m_DeltaY );
+    INTERP_PARM( start, end, frac, m_ShiftLE );
+}
+
+void XSecCurve::InterpCurve( VspCurve & cout, XSecCurve *start, XSecCurve *end, double frac )
+{
+    vector< VspCurve > crv_vec;
+    crv_vec.resize( 2 );
+
+    start->SetLateUpdateFlag(true);
+    crv_vec[0] = start->GetCurve();
+
+    double wc = start->GetWidth();
+    if ( wc != 0 )
+    {
+        crv_vec[0].Scale( 1.0 / wc );
+    }
+
+    end->SetLateUpdateFlag(true);
+    crv_vec[1] = end->GetCurve();
+
+    wc = end->GetWidth();
+    if ( wc != 0 )
+    {
+        crv_vec[1].Scale( 1.0 / wc );
+    }
+
+    VspSurf srf;
+    srf.SkinC0( crv_vec, false );
+
+    srf.GetUConstCurve( cout, frac );
+}
 
 //==========================================================================//
 //==========================================================================//
@@ -1578,7 +1651,7 @@ void SuperXSec::Update()
     else
     {
         c.reverse();
-        m_Curve.SetCurve( c );
+        m_Curve.InterpolateEqArcLenPCHIP( c );
 
         XSecCurve::Update();
     }
@@ -1589,6 +1662,23 @@ void SuperXSec::SetWidthHeight( double w, double h )
 {
     m_Width  = w;
     m_Height = h;
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void SuperXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    SuperXSec *s = dynamic_cast< SuperXSec* > ( start );
+    SuperXSec *e = dynamic_cast< SuperXSec* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_M );
+        INTERP_PARM( s, e, frac, m_N );
+        INTERP_PARM( s, e, frac, m_M_bot );
+        INTERP_PARM( s, e, frac, m_N_bot );
+        INTERP_PARM( s, e, frac, m_MaxWidthLoc );
+    }
+    XSecCurve::Interp( start, end, frac );
 }
 
 //==========================================================================//
@@ -1605,135 +1695,14 @@ RoundedRectXSec::RoundedRectXSec( ) : XSecCurve( )
     m_Radius.Init( "RoundRectXSec_Radius", m_GroupName,  this,  0.2, 0.0, 1.0e12 );
     m_Skew.Init("RoundRect_Skew", m_GroupName, this, 0.0, -10, 10);
     m_Keystone.Init("RoundRect_Keystone", m_GroupName, this, 0.5, 0.0, 1.0 );
-    m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, false, 0, 1 );
+    m_KeyCornerParm.Init( "RoundRectXSec_KeyCorner", m_GroupName, this, true, 0, 1 );
 }
 
 //==== Update Geometry ====//
 void RoundedRectXSec::Update()
 {
-    VspCurve edge;
-    vector<vec3d> pt;
-    vector<double> u;
-    double w = m_Width();
-    double h = m_Height();
-    double k = m_Keystone();
-    double sk = m_Skew();
-    bool round_curve( true );
-
-    double wt = 2.0 * k * w;
-    double wb = 2.0 * ( 1 - k ) * w;
-    double wt2 = 0.5 * wt;
-    double wb2 = 0.5 * wb;
-    double w2 = 0.5 * w;
-    double off = sk * w2;
-    double h2 = 0.5 * h;
-    double r;
-
-    if ( m_Radius() > wt2 )
-    {
-        m_Radius.Set( wt2 );
-    }
-    if ( m_Radius() > wb2 )
-    {
-        m_Radius.Set( wb2 );
-    }
-    if ( m_Radius() > h2 )
-    {
-        m_Radius.Set( h2 );
-    }
-    r = m_Radius();
-
-    // catch special cases of degenerate cases
-    if ( ( w2 == 0 ) || ( h2 == 0 ) )
-    {
-        pt.resize( 4 );
-        u.resize( 5 );
-
-        // set the segment points
-        pt[0].set_xyz(  w,   0, 0 );
-        pt[1].set_xyz( w2, -h2, 0 );
-        pt[2].set_xyz(  0,   0, 0 );
-        pt[3].set_xyz( w2,  h2, 0 );
-
-        // set the corresponding parameters
-        u[0] = 0;
-        u[1] = 1;
-        u[2] = 2;
-        u[3] = 3;
-        u[4] = 4;
-
-        round_curve = false;
-    }
-    // create rectangle
-    else
-    {
-        pt.resize( 8 );
-        u.resize( 9 );
-
-        // set the segment points
-        pt[0].set_xyz( w,                0, 0 );
-        pt[1].set_xyz( w2 + wb2 - off, -h2, 0 );
-        pt[2].set_xyz( w2 - off,       -h2, 0 );
-        pt[3].set_xyz( w2 - wb2 - off, -h2, 0 );
-        pt[4].set_xyz( 0,                0, 0 );
-        pt[5].set_xyz( w2 - wt2 + off,  h2, 0 );
-        pt[6].set_xyz( w2 + off,        h2, 0 );
-        pt[7].set_xyz( w2 + wt2 + off,  h2, 0 );
-
-        // set the corresponding parameters
-        u[0] = 0;
-        u[2] = 1;
-        u[4] = 2;
-        u[6] = 3;
-        u[8] = 4;
-
-        if ( m_KeyCornerParm() )
-        {
-            u[1] = 0.5;
-            u[3] = 1.5;
-            u[5] = 2.5;
-            u[7] = 3.5;
-        }
-        else
-        {
-            double d1 = dist( pt[0], pt[1] );
-            double d2 = dist( pt[1], pt[2] );
-            double du = d1 / ( d1 + d2 );
-            if ( du < 0.001 ) du = 0.001;
-            if ( du > 0.999 ) du = 0.999;
-            u[1] = du;
-
-            d1 = dist( pt[2], pt[3] );
-            d2 = dist( pt[3], pt[4] );
-            du = d1 / ( d1 + d2 );
-            if ( du < 0.001 ) du = 0.001;
-            if ( du > 0.999 ) du = 0.999;
-            u[3] = 1 + du;
-
-            d1 = dist( pt[4], pt[5] );
-            d2 = dist( pt[5], pt[6] );
-            du = d1 / ( d1 + d2 );
-            if ( du < 0.001 ) du = 0.001;
-            if ( du > 0.999 ) du = 0.999;
-            u[5] = 2 + du;
-
-            d1 = dist( pt[6], pt[7] );
-            d2 = dist( pt[7], pt[0] );
-            du = d1 / ( d1 + d2 );
-            if ( du < 0.001 ) du = 0.001;
-            if ( du > 0.999 ) du = 0.999;
-            u[7] = 3 + du;
-        }
-    }
-
-    // build the polygon
-    m_Curve.InterpolateLinear( pt, u, true );
-
-    // round all joints if needed
-    if ( round_curve )
-    {
-        m_Curve.RoundAllJoints( r );
-    }
+    double r = m_Curve.CreateRoundedRectangle( m_Width(), m_Height(), m_Keystone(), m_Skew(), m_Radius(), m_KeyCornerParm() );
+    m_Radius.Set( r );
 
     XSecCurve::Update();
     return;
@@ -1768,6 +1737,21 @@ void RoundedRectXSec::ReadV2FileFuse2( xmlNodePtr &root )
     {
         m_Radius = 0.0;
     }
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void RoundedRectXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    RoundedRectXSec *s = dynamic_cast< RoundedRectXSec* > ( start );
+    RoundedRectXSec *e = dynamic_cast< RoundedRectXSec* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_Radius );
+        INTERP_PARM( s, e, frac, m_Skew );
+        INTERP_PARM( s, e, frac, m_Keystone );
+    }
+    XSecCurve::Interp( start, end, frac );
 }
 
 //==========================================================================//
@@ -1861,7 +1845,7 @@ void GeneralFuseXSec::Update()
         roll_pnts.push_back( bez_pnts[i] + offset );
     }
 
-    m_Curve.SetCubicControlPoints( roll_pnts, true );
+    m_Curve.SetCubicControlPoints( roll_pnts );
 
     //==== Corner Points ====//
     VspCurve corner_curve;
@@ -1888,6 +1872,26 @@ void GeneralFuseXSec::ReadV2FileFuse2( xmlNodePtr &root )
     m_UpStr = XmlUtil::FindDouble( root, "Upper_Tan_Strength", m_UpStr() );
     m_LowStr = XmlUtil::FindDouble( root, "Lower_Tan_Strength", m_LowStr() );
     m_BotStr = XmlUtil::FindDouble( root, "Bottom_Tan_Strength", m_BotStr() );
+}
+
+// Interpolate all parameters of like-type XSecCurves -- except width, height, and cli.
+void GeneralFuseXSec::Interp( XSecCurve *start, XSecCurve *end, double frac )
+{
+    GeneralFuseXSec *s = dynamic_cast< GeneralFuseXSec* > ( start );
+    GeneralFuseXSec *e = dynamic_cast< GeneralFuseXSec* > ( end );
+
+    if ( s && e )
+    {
+        INTERP_PARM( s, e, frac, m_MaxWidthLoc );
+        INTERP_PARM( s, e, frac, m_CornerRad );
+        INTERP_PARM( s, e, frac, m_TopTanAngle );
+        INTERP_PARM( s, e, frac, m_BotTanAngle );
+        INTERP_PARM( s, e, frac, m_TopStr );
+        INTERP_PARM( s, e, frac, m_BotStr );
+        INTERP_PARM( s, e, frac, m_UpStr );
+        INTERP_PARM( s, e, frac, m_LowStr );
+    }
+    XSecCurve::Interp( start, end, frac );
 }
 
 //==========================================================================//

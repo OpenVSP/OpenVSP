@@ -1,0 +1,43 @@
+# Skeleton file
+#
+# File: Example-Dog.txt.txt
+#
+
+# name of joint                   X              Y              Z  parent name
+
+shoulders                   2.27066              0        19.9436  ""                    1           3.15          -0.15              0           0.89  0              0  #   0
+neck                        5.08471              0        3.56525  shoulders             0            0.5              0              0              1  0              0  #   1
+neck2                      0.813407              0       0.702793  -successor-           #   2
+neck3                       1.62423              0        2.39647  -successor-           0           2.12           0.35              0              1  0              0  #   3
+rear-a                    -0.175294        -3.4324        2.15867  neck3                 0           1.22           0.65              0              1  0              0  #   4
+rear-b                     0.789259       -2.29893        2.40883  -successor-           1            0.5            0.4              0              1  0              0  #   5
+lear-a                    -0.175294         3.4324        2.15867  neck3                 0           1.22           0.65              0              1  0              0  #   6
+lear-b                     0.789259        2.29893        2.40883  -successor-           1            0.5            0.4              0              1  0              0  #   7
+Joint-029                   2.34012              0       -3.71012  neck3                 1           1.63           0.33              0              1  0              0  #   8
+Joint-030                   3.39751              0       -1.34882  Joint-029             1           1.15           0.31              0              1  0              0  #   9
+head                        1.93512              0       -3.81137  Joint-029             1           1.15           0.31              0              1  0              0  #  10
+Joint-031              7.45058e-009              0        2.10896  -successor-           0            2.5           0.87              0           0.52  0              0  #  11
+Joint-032                    4.1287              0       -3.58528  -successor-           1            2.5           0.75              0              1  2              0  #  12
+hips                       -10.3225              0       -1.23367  shoulders             1           2.15          -0.15              0            0.9  0              0  #  13
+lthigh                     0.716771        3.64483       -1.98385  hips                  0              1          -0.33              0              1  0              0  #  14
+lhknee                            0              0       -7.76513  -successor-           #  15
+lhfoot                            0              0       -8.33133  -successor-           1           0.61              0              0              1  0              0  #  16
+lhfootb                     2.05778             -0      -0.272575  -successor-           #  17
+rthigh                     0.716771       -3.64483       -1.98385  hips                  0              1          -0.33              0              1  0              0  #  18
+rhknee                            0             -0       -7.76513  -successor-           #  19
+rhfoot                            0             -0       -8.33133  -successor-           1           0.61              0              0              1  0              0  #  20
+rhfootb                     2.05778              0      -0.272575  -successor-           #  21
+lshoulder                  0.398126        4.23499       -3.40649  shoulders             0           1.25          -0.36              0              1  0              0  #  22
+lfknee                            0              0       -7.63092  -successor-           #  23
+lffoot                            0              0         -8.331  -successor-           1           0.61              0              0              1  0              0  #  24
+lffootb                     1.83531              0      -0.272411  -successor-           #  25
+rshoulder                  0.398126       -4.23499       -3.40649  shoulders             0           1.25          -0.36              0              1  0              0  #  26
+rfknee                            0             -0       -7.63092  -successor-           #  27
+rffoot                            0             -0         -8.331  -successor-           1           0.61              0              0              1  0              0  #  28
+rffootb                     1.83531             -0      -0.272411  -successor-           #  29
+Joint-019                  -2.91572              0        3.19827  hips                  0            0.5              0              0              1  0              0  #  30
+tail                       -3.06642              0        2.39363  -successor-           1            0.5              0              0              1  0              0  #  31
+
+#--MetaConfig: 50.00 40.00 40.00  1.00  80  0.50  0  0.00  0.00
+
+# End Of File
