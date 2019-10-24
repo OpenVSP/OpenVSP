@@ -45,5 +45,5 @@ script:
      cmake -DCMAKE_BUILD_TYPE=Release -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$TRAVIS_BUILD_DIR/buildlibs ../src;
      make package;
      DEBFILE=$TRAVIS_BUILD_DIR/build/OpenVSP-*-Linux.deb;
-     ls $DEBFILE && echo "DEB CREATION SUCCESSFUL" || echo "DEB CREATION FAILED";
+     ls $DEBFILE && (echo "DEB CREATION SUCCESSFUL" && exit 0) || (echo "DEB CREATION FAILED" && exit 1);
     fi
