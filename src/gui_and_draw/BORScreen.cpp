@@ -14,6 +14,8 @@
 //==== Constructor ====//
 BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
 {
+    m_CurrDisplayGroup = NULL;
+
     Fl_Group* design_tab = AddTab( "Design" );
     Fl_Group* design_group = AddSubGroup( design_tab, 5 );
 
