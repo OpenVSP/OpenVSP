@@ -74,6 +74,7 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportIntersect", this, false, 0, 1 );
 
+    m_ExportFileFlags.resize( vsp::INTERSECT_NUM_FILE_NAMES );
     m_ExportFileFlags[ vsp::INTERSECT_SRF_FILE_NAME ].Init( "SRF_Export", "ExportIntersect", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::INTERSECT_CURV_FILE_NAME ].Init( "CURV_Export", "ExportIntersect", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::INTERSECT_PLOT3D_FILE_NAME ].Init( "PLOT3D_Export", "ExportIntersect", this, true, 0, 1 );

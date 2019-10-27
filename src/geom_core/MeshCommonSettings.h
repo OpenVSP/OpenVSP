@@ -117,7 +117,7 @@ public:
     void SetFileExportFlag( int type, bool flag );
     vector < string > GetExportFileNames();
 
-    BoolParm m_ExportFileFlags[ vsp::INTERSECT_NUM_FILE_NAMES ];
+    vector <BoolParm> m_ExportFileFlags;
     IntParm m_SelectedSetIndex;
 
     BoolParm m_XYZIntCurveFlag;
