@@ -190,8 +190,15 @@ MainVSPScreen::~MainVSPScreen()
 //==== Show Main VSP Screen ====//
 void MainVSPScreen::Show()
 {
-    m_FLTK_Window->show();
-    m_GlWin->show();
+    if ( m_FLTK_Window )
+    {
+        m_FLTK_Window->show();
+    }
+
+    if ( m_GlWin )
+    {
+        m_GlWin->show();
+    }
 }
 
 //==== Update Main VSP Screen ====//
