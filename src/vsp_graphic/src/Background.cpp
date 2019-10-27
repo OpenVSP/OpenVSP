@@ -38,6 +38,9 @@ Background::Background() : Renderable()
     _offsetX = 0;
     _offsetY = 0;
 
+    _vWidth = -1;
+    _vHeight = -1;
+
     _textureMgr = new TextureMgr();
     _texId = 0xFFFFFFFF;
 
