@@ -1060,8 +1060,9 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     unsigned int numUsedCSGs = 0;
     for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
     {
-        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() )
+        if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.size() > 0 )
         {
+            // Don't "use" if no control surfaces are assigned to the group
             numUsedCSGs++;
         }
     }
@@ -1077,7 +1078,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         fprintf( case_file, "NumberOfControlGroups = %d \n", numUsedCSGs );
         for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
         {
-            if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() )
+            if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.size() > 0 )
             {
                 m_ControlSurfaceGroupVec[iCSG]->Write_STP_Data( case_file );
             }
