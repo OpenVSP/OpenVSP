@@ -31,6 +31,7 @@ IF( NOT VSP_NO_GRAPHICS )
     VSP_Tris.C
     VSP_Wing.C
     binaryio.C
+    FEM_Node.C
     glf.C
     glviewer.C
     quat.C
@@ -54,6 +55,7 @@ IF( NOT VSP_NO_GRAPHICS )
     VSP_Tris.H
     VSP_Wing.H
     binaryio.H
+    FEM_Node.H
     glf.H
     glviewer.H
     quat.H

@@ -193,9 +193,23 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
     
     UserSetPlotLimits = 0;
     
-    TimeAnalysisType_ = 0;
+    TimeAccurate_ = 0;
     
     NumberOfTrailingVortexEdges_ = 0;
+    
+    DrawBEAM3DFEMIsOn = 0;
+    
+    XWake_ = NULL;
+    YWake_ = NULL;
+    ZWake_ = NULL;
+    SWake_ = NULL;
+    WingWake_ = NULL;
+    
+    DrawWakeLinesIsOn = 1;
+    
+    DrawWakePointsIsOn = 0;    
+    
+    DrawWakesColored_ = 0;
     
 }
 
@@ -277,6 +291,10 @@ void GL_VIEWER::LoadInitialData(char *name)
        // Load in the solution data
        
        LoadSolutionData();
+       
+       // Load in BEAM3D FEM data
+       
+       LoadBeam3DFEMData();
        
     }
     
@@ -458,18 +476,21 @@ void GL_VIEWER::LoadMeshData(void)
     
     // Read in unsteady analysis flag
     
-    BIO.fread(&TimeAnalysisType_, i_size, 1, adb_file);        
+    BIO.fread(&TimeAccurate_, i_size, 1, adb_file);        
 
     // Read in header
 
-    BIO.fread(&NumberOfNodes,  i_size, 1, adb_file);
-    BIO.fread(&NumberOfTris,   i_size, 1, adb_file);
-    BIO.fread(&Sref,           f_size, 1, adb_file);
-    BIO.fread(&Cref,           f_size, 1, adb_file);
-    BIO.fread(&Bref,           f_size, 1, adb_file);
-    BIO.fread(&Xcg,            f_size, 1, adb_file);
-    BIO.fread(&Ycg,            f_size, 1, adb_file);
-    BIO.fread(&Zcg,            f_size, 1, adb_file);
+    BIO.fread(&NumberOfVortexLoops,        i_size, 1, adb_file);
+    BIO.fread(&NumberOfNodes,              i_size, 1, adb_file);
+    BIO.fread(&NumberOfTris,               i_size, 1, adb_file);
+    BIO.fread(&NumberOfSurfaceVortexEdges, i_size, 1, adb_file);
+    
+    BIO.fread(&Sref,                f_size, 1, adb_file);
+    BIO.fread(&Cref,                f_size, 1, adb_file);
+    BIO.fread(&Bref,                f_size, 1, adb_file);
+    BIO.fread(&Xcg,                 f_size, 1, adb_file);
+    BIO.fread(&Ycg,                 f_size, 1, adb_file);
+    BIO.fread(&Zcg,                 f_size, 1, adb_file);
     
     NumberOfMachs = NumberOfAlphas = NumberOfBetas = 1;
 
@@ -494,9 +515,20 @@ void GL_VIEWER::LoadMeshData(void)
     CpSteady   = new float[NumberOfTris + 1];
     CpUnsteady = new float[NumberOfTris + 1];
     Gamma      = new float[NumberOfTris + 1];
+    
+    GammaN       = new double[NumberOfVortexLoops + 1];
+    dCp_Unsteady = new double[NumberOfVortexLoops + 1];
 
-    TempNodalArray          = new float[NumberOfNodes + 1];
-    TempTotalArea           = new float[NumberOfNodes + 1];
+    Fx  = new double[NumberOfSurfaceVortexEdges + 1];
+    Fy  = new double[NumberOfSurfaceVortexEdges + 1];
+    Fz  = new double[NumberOfSurfaceVortexEdges + 1];
+
+    U = new double[NumberOfVortexLoops + 1];
+    V = new double[NumberOfVortexLoops + 1];
+    W = new double[NumberOfVortexLoops + 1];
+    
+    TempNodalArray = new float[NumberOfNodes + 1];
+    TempTotalArea  = new float[NumberOfNodes + 1];
 
     MachList = new float[NumberOfMachs + 1];
     BetaList = new float[NumberOfBetas + 1];
@@ -507,6 +539,8 @@ void GL_VIEWER::LoadMeshData(void)
     fread(&NumberOfWings_, i_size, 1, adb_file);
     
     WingListName_ = new char*[NumberOfWings_ + 1];
+    
+    WingGroupID_ = new int[NumberOfWings_ + 1];
   
     for ( i = 1 ; i <= NumberOfWings_ ; i++ ) { 
      
@@ -516,8 +550,8 @@ void GL_VIEWER::LoadMeshData(void)
  
        fread(WingListName_[i], c_size, 100, adb_file);
        
-       printf("Wing: %d ... %s \n",i,WingListName_[i]);fflush(NULL);
-     
+       fread(&(WingGroupID_[i]), i_size, 1, adb_file);
+ 
     }
     
     // Read in body ID flags, names...
@@ -526,6 +560,8 @@ void GL_VIEWER::LoadMeshData(void)
     
     BodyListName_ = new char*[NumberOfBodies_ + 1];
     
+    BodyGroupID_ = new int[NumberOfBodies_ + 1];
+     
     for ( i = 1 ; i <= NumberOfBodies_ ; i++ ) { 
      
        fread(&DumInt, i_size, 1, adb_file);
@@ -534,14 +570,16 @@ void GL_VIEWER::LoadMeshData(void)
 
        fread(BodyListName_[i], c_size, 100, adb_file);
        
-       printf("Body: %d ... %s \n",i,BodyListName_[i]);fflush(NULL);
-     
+       fread(&(BodyGroupID_[i]), i_size, 1, adb_file);
+
     } 
+    
+    NumberOfSurfaces_ = NumberOfWings_ + NumberOfBodies_;
     
     // Read in Cart3d ID flags, names...
 
     fread(&NumberOfCart3dSurfaces_, i_size, 1, adb_file);
-    
+ 
     Cart3dListName_ = new char*[NumberOfCart3dSurfaces_ + 1];
     
     for ( i = 1 ; i <= NumberOfCart3dSurfaces_ ; i++ ) { 
@@ -551,10 +589,14 @@ void GL_VIEWER::LoadMeshData(void)
        Cart3dListName_[i] = new char[200];
 
        fread(Cart3dListName_[i], c_size, 100, adb_file);
-       
-       printf("Cart3d: %d ... %s \n",i,Cart3dListName_[i]);fflush(NULL);
-     
+
     }     
+    
+    // End of the header information... now geometry
+
+    // Store the current location in the file
+
+    fgetpos(adb_file, &StartOfWallTemperatureData);
 
     // Load in the geometry and surface information
 
@@ -565,6 +607,7 @@ void GL_VIEWER::LoadMeshData(void)
        BIO.fread(&(TriList[i].node1),        i_size, 1, adb_file);
        BIO.fread(&(TriList[i].node2),        i_size, 1, adb_file);
        BIO.fread(&(TriList[i].node3),        i_size, 1, adb_file);
+      
        BIO.fread(&(TriList[i].surface_type), i_size, 1, adb_file);
        BIO.fread(&(TriList[i].surface_id),   i_size, 1, adb_file);
        BIO.fread(&(TriList[i].area),         f_size, 1, adb_file);
@@ -586,9 +629,7 @@ void GL_VIEWER::LoadMeshData(void)
     // Read in any propulsion data
     
     BIO.fread(&(NumberOfPropulsionElements), i_size, 1, adb_file); 
-    
-    printf("NumberOfPropulsionElements: %d \n",NumberOfPropulsionElements);fflush(NULL);
-    
+ 
     PropulsionElement = new PROPULSION_ELEMENT[NumberOfPropulsionElements + 1];
     
     for ( i = 1 ; i <= NumberOfPropulsionElements ; i++ ) {
@@ -602,9 +643,7 @@ void GL_VIEWER::LoadMeshData(void)
     // Read in any coarse mesh edge data
     
     BIO.fread(&(NumberOfMeshLevels), i_size, 1, adb_file); 
-    
-    printf("NumberOfMeshLevels: %d \n",NumberOfMeshLevels);fflush(NULL);
-    
+ 
     CoarseNodeList = new NODE*[NumberOfMeshLevels + 1];
     CoarseEdgeList = new EDGE*[NumberOfMeshLevels + 1];
     
@@ -615,10 +654,7 @@ void GL_VIEWER::LoadMeshData(void)
      
        BIO.fread(&(NumberOfCourseNodesForLevel[Level]), i_size, 1, adb_file);    
        BIO.fread(&(NumberOfCourseEdgesForLevel[Level]), i_size, 1, adb_file);          
-     
-       printf("Number of course nodes for level: %d is: %d \n",Level,NumberOfCourseNodesForLevel[Level]);fflush(NULL);
-       printf("Number of course edges for level: %d is: %d \n",Level,NumberOfCourseEdgesForLevel[Level]);fflush(NULL);
-  
+
        CoarseNodeList[Level] = new NODE[NumberOfCourseNodesForLevel[Level] + 1];
        CoarseEdgeList[Level] = new EDGE[NumberOfCourseEdgesForLevel[Level] + 1];
 
@@ -693,9 +729,7 @@ void GL_VIEWER::LoadMeshData(void)
     // Read in any control surfaces
     
     BIO.fread(&(NumberOfControlSurfaces), i_size, 1, adb_file);       
-    
-    printf("NumberOfControlSurfaces: %d \n",NumberOfControlSurfaces);
-    
+
     ControlSurface = new CONTROL_SURFACE[NumberOfControlSurfaces + 1];
     
     for ( i = 1 ; i <= NumberOfControlSurfaces ; i++ ) {
@@ -705,9 +739,7 @@ void GL_VIEWER::LoadMeshData(void)
        ControlSurface[i].NumberOfNodes = NumberOfControlSurfaceNodes;
        
        ControlSurface[i].NodeList = new float*[NumberOfControlSurfaceNodes + 1];
-       
-       printf("NumberOfControlSurfaceNodes: %d \n",NumberOfControlSurfaceNodes);
-       
+
        for ( j = 1 ; j <= NumberOfControlSurfaceNodes ; j++ ) {
           
           ControlSurface[i].NodeList[j] = new float[3];
@@ -772,11 +804,9 @@ void GL_VIEWER::LoadMeshData(void)
 
        }       
        
-    }          
+    } 
     
-    // Store the current location in the file
-
-    fgetpos(adb_file, &StartOfWallTemperatureData);
+    // End of the geometry section         
 
     // Close the adb file
 
@@ -829,6 +859,7 @@ void GL_VIEWER::UpdateMeshData(FILE *adb_file)
        BIO.fread(&(TriList[i].node1),        i_size, 1, adb_file);
        BIO.fread(&(TriList[i].node2),        i_size, 1, adb_file);
        BIO.fread(&(TriList[i].node3),        i_size, 1, adb_file);
+       
        BIO.fread(&(TriList[i].surface_type), i_size, 1, adb_file);
        BIO.fread(&(TriList[i].surface_id),   i_size, 1, adb_file);
        BIO.fread(&(TriList[i].area),         f_size, 1, adb_file);
@@ -1058,7 +1089,9 @@ void GL_VIEWER::LoadSolutionCaseList(void)
     }
     
     rewind(adb_file);
-    
+
+    printf("There are %d ADB cases \n",NumberOfADBCases_);
+        
     ADBCaseList_ = new SOLUTION_CASE[NumberOfADBCases_ + 1];
 
     for ( i = 1 ; i <= NumberOfADBCases_ ; i++ ) {
@@ -1069,7 +1102,7 @@ void GL_VIEWER::LoadSolutionCaseList(void)
        &(ADBCaseList_[i].Beta));
         
        fgets(ADBCaseList_[i].CommentLine,200,adb_file);
-        
+
     }
 
     fclose(adb_file); 
@@ -1138,9 +1171,9 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
 
     char file_name_w_ext[2000], DumChar[100], GridName[100];
     int i, j, k, m, p, Level;
-    int i_size, f_size, c_size;
+    int i_size, f_size, c_size, d_size;
     int DumInt, nod1, nod2, nod3, CFDCaseFlag, Edge;
-    float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Fx, Fy, Fz, Cf;
+    float FreeStreamPressure, DynamicPressure, Xc, Yc, Zc, Cf;
     float BoundaryLayerThicknessCode, LaminarDelta, TurbulentDelta, DumFloat;
     FILE *adb_file, *madb_file;
     BINARYIO BIO;
@@ -1150,6 +1183,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
 
     i_size = sizeof(int);
     f_size = sizeof(float);
+    d_size = sizeof(double);
     c_size = sizeof(char);
 
     // Check on endian issues
@@ -1187,11 +1221,11 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
     fsetpos(adb_file, &StartOfWallTemperatureData);
 
     for ( p = 1 ; p <= Case ; p++ ) {  
-       
-       // Reload in the mesh data if this is an unstready path case
 
-       if ( TimeAnalysisType_ == PATH_ANALYSIS ) UpdateMeshData(adb_file);
-   
+       // Reload in the mesh data if this is an unsteady path case
+
+       if ( p == 1 || TimeAccurate_ ) UpdateMeshData(adb_file);
+
        // Read in the EdgeMach, Q, and Alpha lists
    
        for ( k = 1 ; k <= NumberOfMachs  ; k++ ) BIO.fread(&MachList[k],    f_size, 1, adb_file);
@@ -1202,7 +1236,38 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
    
        BIO.fread(&(CpMinSoln), f_size, 1, adb_file); // Min Cp from solver
        BIO.fread(&(CpMaxSoln), f_size, 1, adb_file); // Max Cp from solver
+
+       // Solution on computational mesh
+       
+       for ( m = 1 ; m <= NumberOfVortexLoops ; m++ ) {
+ 
+          BIO.fread(&(GammaN[m]),       d_size, 1, adb_file); // Gamma
+          BIO.fread(&(dCp_Unsteady[m]), d_size, 1, adb_file); // Unsteady dCP
+
+       }
+
+       // Vortex edge forces on computational mesh
+       
+       for ( m = 1 ; m <= NumberOfSurfaceVortexEdges ; m++ ) {
+ 
+          BIO.fread(&(Fx[m]), d_size, 1, adb_file); 
+          BIO.fread(&(Fy[m]), d_size, 1, adb_file); 
+          BIO.fread(&(Fz[m]), d_size, 1, adb_file);
+
+       }
+      
+       // Solution on computational mesh
+      
+       for ( m = 1 ; m <= NumberOfVortexLoops ; m++ ) {
    
+          BIO.fread(&(U[m]), d_size, 1, adb_file); // U
+          BIO.fread(&(V[m]), d_size, 1, adb_file); // V
+          BIO.fread(&(W[m]), d_size, 1, adb_file); // W
+
+       }
+       
+       // Solution on input mesh
+                
        for ( m = 1 ; m <= NumberOfTris ; m++ ) {
    
           BIO.fread(&(Cp[m]),         f_size, 1, adb_file); // Total Cp
@@ -1225,9 +1290,12 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
              
           }
           
-             if ( XWake_ != NULL ) delete XWake_;
-             if ( YWake_ != NULL ) delete YWake_;
-             if ( ZWake_ != NULL ) delete ZWake_;
+          if ( XWake_ != NULL ) delete XWake_;
+          if ( YWake_ != NULL ) delete YWake_;
+          if ( ZWake_ != NULL ) delete ZWake_;
+          if ( SWake_ != NULL ) delete SWake_;
+          
+          if ( WingWake_ != NULL ) delete [] WingWake_;
 
        }
        
@@ -1235,14 +1303,27 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
        
        BIO.fread(&(NumberOfTrailingVortexEdges_), i_size, 1, adb_file); // Number of trailing wake vortices
   
+       // printf("NumberOfTrailingVortexEdges_: %d \n",NumberOfTrailingVortexEdges_);
+       
        XWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
        YWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
-       ZWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
+       ZWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];   
+           
+       SWake_ = new float[NumberOfTrailingVortexEdges_ + 1];     
+       
+       WingWake_ = new int[NumberOfTrailingVortexEdges_ + 1];
+       
+       MaxWings_ = 0;
        
        for ( i = 1 ; i <= NumberOfTrailingVortexEdges_ ; i++ ) {
-        
-          BIO.fread(&(NumberOfSubVortexNodes_), i_size, 1, adb_file); // Number of sub vortices
+          
+          BIO.fread(&(WingWake_[i]), i_size, 1, adb_file); // Wing ID
+          BIO.fread(&(SWake_[i]), f_size, 1, adb_file); // Span location of this trailing vortex
+    
+          MaxWings_ = MAX(MaxWings_, WingWake_[i]);
    
+          BIO.fread(&(NumberOfSubVortexNodes_), i_size, 1, adb_file); // Number of sub vortices
+
           XWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
           YWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
           ZWake_[i] = new float[NumberOfSubVortexNodes_ + 1];
@@ -1287,7 +1368,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
 
 /*##############################################################################
 #                                                                              #
-#                               GL_VIEWER LoadCaseFile                         #
+#                   GL_VIEWER RotateControlSurfaceNode                         #
 #                                                                              #
 ##############################################################################*/
 
@@ -1381,6 +1462,93 @@ void GL_VIEWER::LoadCaseFile(char *FileName)
     
     fclose(case_file);
         
+}
+
+/*##############################################################################
+#                                                                              #
+#                          GL_VIEWER LoadBeam3DFEMData                         #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::LoadBeam3DFEMData(void)
+{
+ 
+    int i;
+    char FEM_File_Name[2000];
+    FILE *File;
+    
+    printf("NumberOfSurfaces_: %d \n",NumberOfSurfaces_);
+    
+    FemData_ = new FEM_NODE[NumberOfSurfaces_ + 1];
+    
+    for ( i = 1 ; i <= NumberOfSurfaces_ ; i++ ) {
+
+       sprintf(FEM_File_Name,"%s.Surface.%d.dfm",file_name,i);
+    
+       // If a deformation solution exists... load it in
+       
+       if ( (File = fopen(FEM_File_Name,"r")) != NULL ) {
+        
+          fclose(File);
+          
+          printf("Reading in a FEM deformation file for surface: %d \n",i);
+          
+          LoadFEMDeformationData(i,FEM_File_Name);
+
+       }             
+
+    }    
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                      GL_VIEWER LoadFEMDeformationData                        #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::LoadFEMDeformationData(int i, char *FileName)
+{
+ 
+    int j, NumberOfFEMNodes;
+    FILE *FEMFile;
+    
+    // Open the FEM deformation file
+
+    printf("Reading in dfm file: %s \n",FileName);
+    
+    if ( (FEMFile = fopen(FileName, "r")) == NULL ) {
+
+       printf("Could not open the FEM deformation file for input! \n");
+
+       exit(1);
+
+    }
+
+    fscanf(FEMFile,"%d",&NumberOfFEMNodes);
+
+    FemData(i).SizeList(NumberOfFEMNodes);
+
+    printf("NumberOfFEMNodes: %d \n",NumberOfFEMNodes);
+
+    for ( j = 1 ; j <= FemData(i).NumberOfFEMNodes() ; j++ ) { 
+    
+       fscanf(FEMFile,"%lf %lf %lf %lf %lf %lf %lf %lf %lf \n",
+             &(FemData(i).x(j)),
+             &(FemData(i).y(j)),   
+             &(FemData(i).z(j)),        
+             &(FemData(i).delta_xv(j)),
+             &(FemData(i).delta_yv(j)),
+             &(FemData(i).delta_zv(j)), 
+             &(FemData(i).delta_phix(j)), 
+             &(FemData(i).delta_phiy(j)), 
+             &(FemData(i).delta_phiz(j)));
+
+
+    }
+
+    fclose(FEMFile);
+
 }
 
 /*##############################################################################
@@ -1904,6 +2072,8 @@ FindSolutionMinMax(CpSteady,     CpSteadyMinActual,   CpSteadyMaxActual,   CpSte
 FindSolutionMinMax(CpUnsteady, CpUnsteadyMinActual, CpUnsteadyMaxActual, CpUnsteadyMin, CpUnsteadyMax);
 FindSolutionMinMax(Gamma,           GammaMinActual,      GammaMaxActual,      GammaMin,      GammaMax);
 
+if ( ModelType == PANEL_MODEL ) CpMax = CpMaxSoln;
+
 /*
     int i, j, m, Hits;
     float Big = 1.e9, Avg, StdDev;
@@ -2006,7 +2176,7 @@ void GL_VIEWER::FindSolutionMinMax(float *Function, float &FMinActual, float &Fm
     else {
 
        FMin = MAX(Avg - 2. * StdDev, FMinActual);
-       FMax = CpMaxSoln;
+       FMax = MIN(Avg + 2. * StdDev, FmaxActual);
        
     }
 
@@ -2296,7 +2466,7 @@ void GL_VIEWER::ZeroAllViews(void)
     DrawCGLabelIsOn                   = 0;
     
     DrawWakesIsOn                     = 0;
-   
+       
 }
 
 /*##############################################################################
@@ -2768,6 +2938,8 @@ void GL_VIEWER::Draw(void)
           if ( DrawAxesIsOn               ) DrawAxes();
 
           if ( DrawControlSurfacesIsOn    ) DrawControlSurfaces();
+          
+          if ( DrawBEAM3DFEMIsOn          ) DrawBEAM3DFEM();
           
 
           
@@ -3454,19 +3626,21 @@ void GL_VIEWER::DrawCoarseMeshNodesForLevel(int Level)
 void GL_VIEWER::DrawWakes(void)
 {
 
-    int i, j, node1, node2, node3, NumberNodes;
-    float vec[3], rgb[3];
+    int i, j, node1, node2, node3, NumberNodes, SurfID;
+    float vec[3], rgb[4], Alpha;
 
     // Draw triangles as wire frames
 
     rgb[0] = 0.;
     rgb[1] = 0.;
     rgb[2] = 0.;
+    rgb[3] = 0.25;
 
     glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
-    glColor3fv(rgb);
+    glColor4fv(rgb);
     glLineWidth(1.);
     glDisable(GL_LIGHTING);
+    glPointSize(2.);
 
     // Draw the surface triangles
 
@@ -3476,47 +3650,157 @@ void GL_VIEWER::DrawWakes(void)
 
     NumberNodes = NumberOfSubVortexNodes_ - 1;
     
-    if ( TimeAnalysisType_ == PATH_ANALYSIS ) NumberNodes = NumberOfSubVortexNodes_;
+    if ( TimeAccurate_ ) NumberNodes = NumberOfSubVortexNodes_;
     
-    if ( DrawWakesToInfinityIsOn && TimeAnalysisType_ != PATH_ANALYSIS ) NumberNodes = NumberOfSubVortexNodes_;
-    
+    if ( DrawWakesToInfinityIsOn ) NumberNodes = NumberOfSubVortexNodes_;
+
     if ( 1 ) {
              
        for ( i = 1 ; i <= NumberOfTrailingVortexEdges_; i++ ) {
-              
-          glBegin(GL_LINE_STRIP);
-              
-             for ( j = 1 ; j <= NumberNodes; j++ ) {
-
-                vec[0] = XWake_[i][j];
-                vec[1] = YWake_[i][j];
-                vec[2] = ZWake_[i][j];
-                   
-                glVertex3fv(vec);
+ 
+          SurfID = WingWake_[i];
    
+          if ( !DrawOnlySelectedIsOn || DrawOnlySelectedIsOn + PanelComGeomTagsBrowser->selected(ComGeom2PanelTag[SurfID]) == 2 ) {
+    
+             if ( DrawWakeLinesIsOn ) {
+                    
+                glBegin(GL_LINE_STRIP);
+                    
+                   for ( j = 1 ; j <= NumberNodes; j++ ) {
+                      
+                      Alpha = 1.;
+                      
+                      Alpha = (float) j / (float) (NumberOfSubVortexNodes_-1);
+                      
+                      Alpha = 1. - pow(Alpha,0.5);
+                      
+                      Alpha = MAX(Alpha,0.1);
+                      
+                      rgb[0] = 0.;
+                      rgb[1] = 0.;
+                      rgb[2] = 0.;
+                      rgb[3] = Alpha;
+                          
+                      glColor4fv(rgb);
+                          
+                      if ( DrawWakesColored_ == 1 ) SetTagSurfaceColor(WingWake_[i], MaxWings_, Alpha);
+                      
+                      if ( DrawWakesColored_ == 2 ) { percent_to_rgb(SWake_[i],rgb,0); glColor4fv(rgb); };
+      
+                      vec[0] = XWake_[i][j];
+                      vec[1] = YWake_[i][j];
+                      vec[2] = ZWake_[i][j];
+                         
+                      glVertex3fv(vec);
+         
+                   }
+                   
+                glEnd();
+                
              }
              
-          glEnd();
-          
-          if ( DrawReflectedGeometryIsOn ) {
-   
-             glBegin(GL_LINE_STRIP);
-              
-                for ( j = 1 ; j <= NumberNodes; j++ ) {
-
-                   vec[0] = XWake_[i][j];
-                   vec[1] = YWake_[i][j];
-                   vec[2] = ZWake_[i][j];
+             if ( DrawWakePointsIsOn ) {
                 
-                   vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+                rgb[0] = 0.;
+                rgb[1] = 0.;
+                rgb[2] = 0.;
+                rgb[3] = 0.5;
+            
+                glColor4fv(rgb);
+                glPointSize(2.);
+                    
+                glBegin(GL_POINTS);
+      
+                   for ( j = 1 ; j <= NumberNodes; j++ ) {
+      
+                      vec[0] = XWake_[i][j];
+                      vec[1] = YWake_[i][j];
+                      vec[2] = ZWake_[i][j];
+                         
+                      glVertex3fv(vec);
+         
+                   }
+                   
+                   glVertex3fv(vec);                
                 
-                   glVertex3fv(vec);
-   
+                glEnd();
+                
+             }
+                    
+             if ( DrawReflectedGeometryIsOn ) {
+      
+                if ( DrawWakeLinesIsOn ) { 
+                   
+                   glBegin(GL_LINE_STRIP);
+                    
+                   for ( j = 1 ; j <= NumberNodes; j++ ) {
+                         
+                         Alpha = 1.;
+                         
+                         Alpha = (float) j / (float) (NumberOfSubVortexNodes_-1);
+                         
+                         Alpha = 1. - pow(Alpha,0.5);
+                         
+                         Alpha = MAX(Alpha,0.1);
+                         
+                         rgb[0] = 0.;
+                         rgb[1] = 0.;
+                         rgb[2] = 0.;
+                         rgb[3] = Alpha;
+                             
+                         glColor4fv(rgb);
+                             
+                         if ( DrawWakesColored_ == 1 ) SetTagSurfaceColor(WingWake_[i], MaxWings_, Alpha);
+                         
+                         if ( DrawWakesColored_ == 2 ) { percent_to_rgb(SWake_[i],rgb,0); glColor4fv(rgb); };
+            
+                         vec[0] = XWake_[i][j];
+                         vec[1] = YWake_[i][j];
+                         vec[2] = ZWake_[i][j];
+                      
+                         vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+                      
+                         glVertex3fv(vec);
+         
+                      }
+                   
+                   glEnd();
+                   
                 }
-             
-             glEnd();
-   
-           }             
+                
+                if ( DrawWakePointsIsOn ) {
+                   
+                   rgb[0] = 0.;
+                   rgb[1] = 0.;
+                   rgb[2] = 0.;
+                   rgb[3] = 0.5;
+                
+                   glColor4fv(rgb);
+                   glPointSize(2.);
+                                   
+                   glBegin(GL_POINTS);
+         
+                      for ( j = 1 ; j <= NumberNodes; j++ ) {
+         
+                         vec[0] = XWake_[i][j];
+                         vec[1] = YWake_[i][j];
+                         vec[2] = ZWake_[i][j];
+                         
+                         vec[1] = -(vec[1] + GeometryYShift) - GeometryYShift;
+                            
+                         glVertex3fv(vec);
+            
+                      }
+                      
+                      glVertex3fv(vec);                
+                   
+                   glEnd();
+                   
+                }                
+      
+             } 
+              
+          }  
               
        }
 
@@ -3569,6 +3853,76 @@ void GL_VIEWER::DrawControlSurfaces(void)
           }       
 
        glEnd();
+          
+    }
+
+    glDisable(GL_POLYGON_OFFSET_LINE);
+
+    glPolygonOffset(1.,1.);
+    glEnable(GL_LIGHTING);
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                           GL_VIEWER DrawBEAM3DFEM                            #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::DrawBEAM3DFEM(void)
+{
+
+    int i, j, k, node1, node2, node3, SurfaceID, SurfID;
+    float vec[3], rgb[3];
+
+    // Draw triangles as wire frames
+
+    rgb[0] = 1.;
+    rgb[1] = 0.;
+    rgb[2] = 0.;
+
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    glColor3fv(rgb);
+    glLineWidth(3.);
+    glDisable(GL_LIGHTING);
+
+    // Draw the surface triangles
+
+    glEnable(GL_POLYGON_OFFSET_LINE);
+
+    glPolygonOffset(0.,-10.);
+
+    for ( i = 1 ; i <= NumberOfSurfaces_; i++ ) {
+
+       if ( FemData(i).NumberOfFEMNodes() > 0 ) {
+          
+          glBegin(GL_LINE_STRIP);
+          
+             for ( j = 1 ; j <= FemData(i).NumberOfFEMNodes() ; j++ ) {
+                
+                if ( DrawBEAM3DFEMIsOn == 1 ) {
+                   
+                   vec[0] = FemData(i).x(j) - GeometryXShift;
+                   vec[1] = FemData(i).y(j) - GeometryYShift;
+                   vec[2] = FemData(i).z(j) - GeometryZShift;
+                   
+                }
+                
+                else {
+
+                   vec[0] = FemData(i).x(j) + FemData(i).delta_xv(j) - GeometryXShift;
+                   vec[1] = FemData(i).y(j) + FemData(i).delta_yv(j) - GeometryYShift;
+                   vec[2] = FemData(i).z(j) + FemData(i).delta_zv(j) - GeometryZShift;
+                   
+                }
+
+                glVertex3fv(vec);
+      
+             }       
+   
+          glEnd();
+          
+       }
           
     }
 
@@ -3700,7 +4054,7 @@ void GL_VIEWER::PanelComGeomTagsBrowser_Update(void)
     
     for ( i = 1 ; i <= NumberOfWings_ ; i++ ) {
 
-       sprintf(Line,"Wing: (%d): %-100s \n", i,WingListName_[i]);
+       sprintf(Line,"(%d) Wing: (%d): %-100s  (%d) \n", WingGroupID_[i],i,WingListName_[i]);
 
        PanelComGeomTagsBrowser->add(Line);
        
@@ -3710,14 +4064,24 @@ void GL_VIEWER::PanelComGeomTagsBrowser_Update(void)
     
     for ( i = 1 ; i <= NumberOfBodies_ ; i++ ) {
 
-       sprintf(Line,"Body: (%d): %-100s \n", i,BodyListName_[i]);
+       sprintf(Line,"(%d) Body: (%d): %-100s \n", BodyGroupID_[i], i,BodyListName_[i]);
 
        PanelComGeomTagsBrowser->add(Line);
        
        ComGeom2PanelTag[++NumItems] = NumberOfWings_ + i;
 
     }    
-    
+
+    for ( i = 1 ; i <= NumberOfCart3dSurfaces_ ; i++ ) {
+
+       sprintf(Line,"(%d): %-100s \n",i, Cart3dListName_[i]);
+
+       PanelComGeomTagsBrowser->add(Line);
+       
+       ComGeom2PanelTag[++NumItems] = NumberOfBodies_ + NumberOfWings_ + i;
+
+    } 
+
     printf("NumItems: %d \n",NumItems);fflush(NULL);
 
     // Add and select a blank line at the end of the list
@@ -5545,16 +5909,81 @@ void GL_VIEWER::SetTagSurfaceColor(int SurfaceID, int MaxVals)
      rgb[2] /= (1. + Scale);
 
   }
-
+  
+  rgb[0] *= 1.5;
+  rgb[1] *= 1.5;
+  rgb[2] *= 1.5;
+  
   glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
   glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
   glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
 
-  rgb[0] *= 2.25;
-  rgb[1] *= 2.25;
-  rgb[2] *= 2.25;
-
   glColor3fv(rgb); // For those things that are not doing lighting...
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                          GL_VIEWER SetTagSurfaceColor                        #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::SetTagSurfaceColor(int SurfaceID, int MaxVals, double Alpha)
+{
+
+  int rdd[] = {155,   0,   0, 175, 155,   0, 155,   2, 100, 198, 175, 106, 113, 142,  30,   0, 175, 124, 113, 142, 175,  56, 105,  0, 105, 63,  0, 175};
+  int grn[] = {  0, 155,   0, 105, 155, 155,   0,  25, 149, 113,  92,  90, 175, 142, 144, 175, 149, 175, 113,  56, 130, 142,  50, 72, 139, 36, 36, 175};
+  int blu[] = {  0,   0, 155, 105,   0, 155, 155, 112, 175, 113, 175,   5, 113,  56, 175, 127,  12,   0, 175, 172,  71, 142, 175,  0,  34,  0, 63,   0};
+
+  int index;
+  int NumberOfColors = 28;
+  float rgb[4], Scale;
+
+  // Adjust SurfaceID to fit into 15 set colors, we simply rotate back
+  // through the color list if there is more than 15 control surfaces...
+
+  if ( SurfaceID <= 0 ) {
+
+     printf("Incorrect SurfaceID... ID is <= 0! \n");fflush(NULL);
+     exit(1);
+
+  }
+
+  index = SurfaceID - 1;
+
+  if ( SurfaceID > NumberOfColors ) {
+
+     index = SurfaceID
+           - (SurfaceID/NumberOfColors)*NumberOfColors;
+
+  }
+
+  // Set the color
+
+  rgb[0] = rdd[index]/255.;
+  rgb[1] = grn[index]/255.;
+  rgb[2] = blu[index]/255.;
+  rgb[3] = Alpha;
+
+  if ( SurfaceID > NumberOfColors ) {
+
+     Scale = 3.*(SurfaceID)/((float)NumberOfColors)/MaxVals;
+
+     rgb[0] /= (1. + Scale);
+     rgb[1] /= (1. + Scale);
+     rgb[2] /= (1. + Scale);
+
+  }
+  
+  rgb[0] *= 1.5;
+  rgb[1] *= 1.5;
+  rgb[2] *= 1.5;
+  
+  glMaterialfv(GL_FRONT_AND_BACK,GL_AMBIENT,rgb);
+  glMaterialfv(GL_FRONT_AND_BACK,GL_DIFFUSE,rgb);
+  glMaterialfv(GL_FRONT_AND_BACK,GL_SHININESS,rgb);
+
+  glColor4fv(rgb); // For those things that are not doing lighting...
 
 }
 

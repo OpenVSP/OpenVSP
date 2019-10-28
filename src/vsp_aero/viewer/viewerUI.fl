@@ -7,8 +7,8 @@ class viewerUI {open
   Function {viewerUI()} {open
   } {
     Fl_Window mainWindow {
-      label {VSPAERO Viewer 4.4.0} open selected
-      private xywh {634 369 1160 710} type Double labelsize 12 align 0 resizable visible
+      label {VSPAERO Viewer 6.0.0} open selected
+      private xywh {637 313 1160 710} type Double labelsize 12 align 0 resizable visible
     } {
       Fl_Group {} {open
         xywh {0 2 1162 710} box FLAT_BOX labeltype ENGRAVED_LABEL
@@ -385,9 +385,46 @@ glviewer->redraw();}
           xywh {70 70 100 20} type Toggle divider
           code0 {\#include "ContourLevel.h"}
         }
+        MenuItem DrawWakeLines {
+          label {Draw Wakes As Lines}
+          callback {glviewer->DrawWakeLinesWasPicked();
+glviewer->redraw();}
+          xywh {90 90 100 20} type Toggle value 1 divider
+          code0 {\#include "ContourLevel.h"}
+        }
+        MenuItem DrawWakeNodes {
+          label {Draw Wakes As Points}
+          callback {glviewer->DrawWakePointsWasPicked();
+glviewer->redraw();}
+          xywh {90 90 100 20} type Toggle divider
+          code0 {\#include "ContourLevel.h"}
+        }
+        Submenu {} {
+          label {Draw Beam3D Model} open
+          xywh {20 20 70 21} divider
+        } {
+          MenuItem Beam3D_Off {
+            label Off
+            callback {glviewer->DrawBEAM3DFEMOff();
+glviewer->redraw();}
+            xywh {20 20 36 21} type Radio value 1
+          }
+          MenuItem Beam3D_On {
+            label On
+            callback {glviewer->DrawBEAM3DFEMOn();
+glviewer->redraw();}
+            xywh {30 30 36 21} type Radio
+          }
+          MenuItem Beam3D_On_Deflected {
+            label {On & Deflected}
+            callback {glviewer->DrawBEAM3DFEMDeformed();
+glviewer->redraw();}
+            xywh {30 30 36 21} type Radio
+          }
+        }
         Submenu {} {
           label {Draw Axis Planes} open
-          xywh {0 0 70 21}
+          xywh {0 0 70 21} divider
         } {
           MenuItem DrawXPlane {
             label {Draw X-Plane}
@@ -406,6 +443,32 @@ glviewer->redraw();}
             callback {glviewer->DrawZPlaneWasPicked();
 glviewer->redraw();}
             xywh {20 20 36 21} type Radio
+          }
+        }
+        Submenu {} {
+          label {Draw Colored Wakes} open
+          xywh {0 0 70 20}
+        } {
+          MenuItem DrawColoredWakesOff {
+            label Off
+            callback {glviewer->DrawWakesColored() = 0;
+glviewer->redraw();}
+            xywh {95 95 100 20} type Radio value 1
+            code0 {\#include "ContourLevel.h"}
+          }
+          MenuItem DrawColoredWakesByWingID {
+            label {Colored by Wing ID}
+            callback {glviewer->DrawWakesColored() = 1;
+glviewer->redraw();}
+            xywh {85 85 100 20} type Radio
+            code0 {\#include "ContourLevel.h"}
+          }
+          MenuItem DrawColoredWakesBySpan {
+            label {Colored by Span Location}
+            callback {glviewer->DrawWakesColored() = 2;;
+glviewer->redraw();}
+            xywh {95 95 100 20} type Radio
+            code0 {\#include "ContourLevel.h"}
           }
         }
       }

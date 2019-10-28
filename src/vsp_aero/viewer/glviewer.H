@@ -27,18 +27,6 @@
 #include <FL/Fl_Button.H>
 #include <FL/forms.H>
 
-#ifdef OSX
-
-//#include <OpenGL/glu.h>
-//#include <GLUT/glut.h>
-
-#else
-
-//#include <GL/glu.h>
-//#include <GL/glut.h>
-
-#endif
-
 #include "trackball.H"
 #include "utils.H"
 #include "glf.H"
@@ -51,6 +39,7 @@
 #include "PropElement.H"
 #include "ControlSurface.H"
 #include "VSP_DegenGeom.H"
+#include "FEM_Node.H"
 
 //  Define marked tri types
 
@@ -172,7 +161,7 @@ private:
     
     // Unsteady Analysis Type
     
-    int TimeAnalysisType_;
+    int TimeAccurate_;
     
     // Cpmin, and Cpmax
     
@@ -229,6 +218,7 @@ private:
     float Zcg;
     float ScaleFactor;
     
+    int NumberOfSurfaces_;
     int NumberOfWings_;
     int NumberOfBodies_;
     int NumberOfCart3dSurfaces_;
@@ -237,6 +227,9 @@ private:
     char **WingListName_;
     char **Cart3dListName_;
 
+    int *WingGroupID_;
+    int *BodyGroupID_;
+    
     int NumberOfMachs;
     int NumberOfBetas;
     int NumberOfAlphas;
@@ -258,6 +251,8 @@ private:
     float *AlphaList;
 
     float *Cp, *CpSteady, *CpUnsteady, *Gamma;
+    double *GammaN, *dCp_Unsteady, *Fx, *Fy, *Fz;
+    double *U, *V, *W;
     
     float *TempTriangleArray;
     float *TempNodalArray;
@@ -271,9 +266,13 @@ private:
     
     int NumberOfTrailingVortexEdges_;
     int NumberOfSubVortexNodes_;
+    int DrawWakesColored_;
+    int *WingWake_;
+    int MaxWings_;
     float **XWake_;
     float **YWake_;
     float **ZWake_;
+    float *SWake_;
     
     // Propulsion element data
     
@@ -289,6 +288,15 @@ private:
     
     void RotateControlSurfaceNode( float xyz[3], int ConSurf );
 
+    // BEAM3D data
+    
+    void LoadBeam3DFEMData(void);
+    void LoadFEMDeformationData(int i, char *FileName);
+    void DrawBEAM3DFEM(void);
+
+    FEM_NODE *FemData_;
+    FEM_NODE &FemData(int i) { return FemData_[i]; };
+    
     // Adjust center of geometry for better rotations
 
     float GeometryXShift;
@@ -327,9 +335,11 @@ private:
 
     // Data for tris and nodes
 
+    int NumberOfVortexLoops;
     int NumberOfTris;
     int NumberOfNodes;
     int NumberOfEdges;
+    int NumberOfSurfaceVortexEdges;
 
     TRI *TriList;
     NODE *NodeList;
@@ -388,6 +398,10 @@ private:
     
     int DrawWakesIsOn;
     
+    int DrawWakeLinesIsOn;
+    
+    int DrawWakePointsIsOn;
+
     int DrawPropulsionElementsIsOn;    
         
     int DrawWakesToInfinityIsOn;
@@ -402,6 +416,8 @@ private:
     
     int DrawZPlaneIsOn;
     
+    int DrawBEAM3DFEMIsOn;
+
     // Panel Group
 
     int DrawSurfaceRegionsIsOn;
@@ -421,6 +437,7 @@ private:
     void percent_to_rgb(float per, float col[3], int colmap);
     void SetSurfaceRegionColor(int SurfaceRegionID);
     void SetTagSurfaceColor(int SurfaceID, int MaxVals);
+    void SetTagSurfaceColor(int SurfaceID, int MaxVals, double Alpha);
     void SetControlSurfaceColor(int ControlSurfaceID);
     void SetMaterialTypeColor(int MaterialID);
 
@@ -621,8 +638,11 @@ public:
     void DrawAxesWasPicked(void)                    { ToggleFlag(DrawAxesIsOn,                                  "DrawAxesIs");     };
 
     void DrawWakesWasPicked(void)                   { ToggleFlag(DrawWakesIsOn,                                 "DrawWakesIs");     };
+    void DrawWakeLinesWasPicked(void)               { ToggleFlag(DrawWakeLinesIsOn,                             "DrawWakeLinesIs");     };
+    void DrawWakePointsWasPicked(void)              { ToggleFlag(DrawWakePointsIsOn,                            "DrawWakePointsIs");     };
+
     void DrawRotorsWasPicked(void)                  { ToggleFlag(DrawPropulsionElementsIsOn,                    "DrawPropulsionElementsIs");     };
-    
+        
     void DrawControlSurfacesWasPicked(void)          { ToggleFlag(DrawControlSurfacesIsOn,                       "DrawControlSurfacesIsOn");     };
     
     void DrawControlSurfacesDeflectedWasPicked(void) { ToggleFlag(DrawControlSurfacesDeflectedIsOn,              "DrawControlSurfacesDeflectedIsOn");     };
@@ -650,6 +670,10 @@ public:
     void DrawGammaWasPicked(void)                    { if ( DrawGammaIsOn      == 0 ) { DrawShadedIsOn = 0; DrawCpIsOn = 0; DrawCpSteadyIsOn = 0; DrawCpUnsteadyIsOn = 0; DrawGammaIsOn = 1; }; };
 
     void DrawCoarseMeshWasPicked(void)               { ToggleFlag(DrawCoarseMeshesIsOn,                          "DrawCoarseMeshesIs"); };
+    
+    void DrawBEAM3DFEMOff(void)      { DrawBEAM3DFEMIsOn = 0; };
+    void DrawBEAM3DFEMOn(void)       { DrawBEAM3DFEMIsOn = 1; };
+    void DrawBEAM3DFEMDeformed(void) { DrawBEAM3DFEMIsOn = 2; };
 
     void SwapSurfaceNormals(void);
     
@@ -713,7 +737,7 @@ public:
     void DrawComGeomTagsShadedWasPicked(int val) { DrawComGeomTagsShadedIsOn = val; };
     void DrawComGeomTagsBordersWasPicked(int val) { DrawComGeomTagsBordersIsOn = val; };
 
-   // Pointer to vui
+    // Pointer to vui
 
     void PassTheVui(viewerUI *VUI) { vui = VUI; };
 
@@ -743,6 +767,10 @@ public:
     // Make a movie
     
     void MakeMovie(void);
+    
+    // Draw wakes colored
+    
+    int &DrawWakesColored(void) { return DrawWakesColored_; };
 
 };
 

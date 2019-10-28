@@ -115,6 +115,39 @@ size_t BINARYIO::fread(float *Word, int WordSize, int NumWords , FILE *File)
 
 /*##############################################################################
 #                                                                              #
+#                              BINARYIO fread (double)                         #
+#                                                                              #
+##############################################################################*/
+
+size_t BINARYIO::fread(double *Word, int WordSize, int NumWords , FILE *File)
+{
+
+    int i;
+    size_t Code;
+
+    // Read the int from the file
+
+    Code = ::fread(Word, WordSize, NumWords, File);
+
+    // If requested, swap bytes
+
+    if ( SwapOnRead_ ) {
+
+	   for ( i = 0 ; i < NumWords ; i++ ) {
+
+	      SwapDouble(*(Word+i));
+
+	   }
+
+    }
+
+    return Code;
+
+}
+
+
+/*##############################################################################
+#                                                                              #
 #                              BINARYIO fread (char)                           #
 #                                                                              #
 ##############################################################################*/
@@ -287,6 +320,19 @@ void BINARYIO::SwapFloat(float &Word)
 {
 
     SwapBytes((char*)(&Word),sizeof(float));
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                             BINARYIO SwapDouble                              #
+#                                                                              #
+##############################################################################*/
+
+void BINARYIO::SwapDouble(double &Word)
+{
+
+    SwapBytes((char*)(&Word),sizeof(double));
 
 }
 
