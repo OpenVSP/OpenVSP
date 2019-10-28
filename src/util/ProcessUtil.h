@@ -44,7 +44,7 @@ public:
     static string PrettyCmd( const string &path, const string &cmd, const vector<string> &opts ); //returns a command string that could be used on the command line
 
 #ifdef WIN32
-    string QuoteString( const string &str );
+    static string QuoteString( const string &str );
     void StartThread( LPTHREAD_START_ROUTINE threadfun, LPVOID data );
 
     HANDLE m_StdoutPipe[2];
