@@ -45,6 +45,10 @@ VSP_LOOP::VSP_LOOP(void)
     
     Area_ = 0.;
     
+    Length_ = 0.;
+    
+    RefLength_ = 0.;
+    
     Gamma_ = 0.;
     
     dCp_ = 0.;
@@ -53,17 +57,27 @@ VSP_LOOP::VSP_LOOP(void)
     
     NormalForce_ = 0.;
     
+    KTFact_ = 1.;
+    
     SurfaceType_ = 0;
     
     DegenBodyID_ = 0;
     
     DegenWingID_ = 0;    
-    
-    CompressibilityFactor_ = 0.;
-    
+
     SurfaceID_ = 0;
     
     ComponentID_ = 0;
+    
+    LocalFreeStreamVelocity_[0] = 0.;
+    LocalFreeStreamVelocity_[1] = 0.;
+    LocalFreeStreamVelocity_[2] = 0.;
+    LocalFreeStreamVelocity_[3] = 0.;
+    LocalFreeStreamVelocity_[4] = 0.;
+    
+    DownWash_Velocity_[0] = 0.;
+    DownWash_Velocity_[1] = 0.;
+    DownWash_Velocity_[2] = 0.;
 
 }
 
@@ -137,6 +151,7 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
 
     Area_                   = VSPTri.Area_;
     Length_                 = VSPTri.Length_;
+    RefLength_              = VSPTri.RefLength_;
     CentroidOffSet_         = VSPTri.CentroidOffSet_;
    
     Normal_[0]              = VSPTri.Normal_[0];
@@ -168,6 +183,8 @@ VSP_LOOP& VSP_LOOP::operator=(const VSP_LOOP &VSPTri)
     Force_[2]               = VSPTri.Force_[2];
     
     NormalForce_            = VSPTri.NormalForce_;
+    
+    KTFact_                 = VSPTri.KTFact_;
     
     SurfaceType_            = VSPTri.SurfaceType_;
     DegenBodyID_            = VSPTri.DegenBodyID_;
@@ -341,7 +358,7 @@ void VSP_LOOP::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QU
     Normal_[0] = Vec(0);
     Normal_[1] = Vec(1);
     Normal_[2] = Vec(2);
-        
+ 
     // Update flat plate normal
     
     Vec(0) = FlatPlateNormal_[0];

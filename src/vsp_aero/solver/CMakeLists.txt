@@ -54,11 +54,15 @@ endif()
 if(BUILD_VSPAERO)
 
   ADD_EXECUTABLE(vspaero
+  binaryio.C
+  ComponentGroup.C
   ControlSurface.C
   ControlSurfaceGroup.C
   FEM_Node.C
   Gradient.C
+  InteractionLoop.C
   RotorDisk.C
+  SpanLoadData.C
   VSP_Agglom.C
   VSP_Edge.C
   VSP_Geom.C
@@ -68,20 +72,33 @@ if(BUILD_VSPAERO)
   VSP_Solver.C
   VSP_Surface.C
   Vortex.C
+  VortexSheetInteractionLoop.C
+  VortexSheetInteractionStreamLine.C
+  VortexSheetVortex_To_VortexInteractionSet.C
+  Vortex_Bound.C
   Vortex_Sheet.C
   Vortex_Trail.C
   matrix.C
   MatPrecon.C
+  MergeSort.C
   quat.C
+  Search.C
+  SearchLeaf.C
   time.C
   utils.C
   vspaero.C
+  WOPWOP.C
+  binaryio.H
   CharSizes.H
+  ComponentGroup.H
   ControlSurface.H
   ControlSurfaceGroup.H
   FEM_Node.H
   Gradient.H
+  Interaction.H
+  InteractionLoop.H
   RotorDisk.H
+  SpanLoadData.H
   VSPAERO_OMP.H
   VSP_Agglom.H
   VSP_Edge.H
@@ -92,13 +109,21 @@ if(BUILD_VSPAERO)
   VSP_Solver.H
   VSP_Surface.H
   Vortex.H
+  VortexSheetInteractionLoop.H
+  VortexSheetInteractionStreamLine.H
+  VortexSheetVortex_To_VortexInteractionSet.H
+  Vortex_Bound.H
   Vortex_Sheet.H
   Vortex_Trail.H
   matrix.H
   MatPrecon.H
+  MergeSort.H
   quat.H
+  Search.H
+  SearchLeaf.H
   time.H
   utils.H
+  WOPWOP.H
   )
 
   TARGET_LINK_LIBRARIES(vspaero

@@ -38,7 +38,7 @@ void VSP_SURFACE::init(void)
     
     ControlSurface_ = new CONTROL_SURFACE[MaxNumberOfControlSurfaces_ + 1];
     
-    //Initialize stuff
+    // Initialize stuff
 
     NumberOfSurfacePatches_ = 0;
 
@@ -59,6 +59,9 @@ void VSP_SURFACE::init(void)
     GroundEffectsHeightAboveGround_ = 0.;
     
     ComponentID_ = 0;
+    
+    Case_ = 0;
+        
 }
 
 /*##############################################################################
@@ -115,12 +118,18 @@ void VSP_SURFACE::SizeGeometryLists(int NumI, int NumJ)
     NumGeomI_ = NumI;
     NumGeomJ_ = NumJ;
     
-    x_ = new double[NumGeomI_*NumGeomJ_ + 1];
-    y_ = new double[NumGeomI_*NumGeomJ_ + 1];
-    z_ = new double[NumGeomI_*NumGeomJ_ + 1];    
+    x_  = new double[NumGeomI_*NumGeomJ_ + 1];
+    y_  = new double[NumGeomI_*NumGeomJ_ + 1];
+    z_  = new double[NumGeomI_*NumGeomJ_ + 1];    
     
-    u_ = new double[NumGeomI_*NumGeomJ_ + 1];
-    v_ = new double[NumGeomI_*NumGeomJ_ + 1];    
+    Nx_ = new double[NumGeomI_*NumGeomJ_ + 1];
+    Ny_ = new double[NumGeomI_*NumGeomJ_ + 1];
+    Nz_ = new double[NumGeomI_*NumGeomJ_ + 1];    
+        
+    u_  = new double[NumGeomI_*NumGeomJ_ + 1];
+    v_  = new double[NumGeomI_*NumGeomJ_ + 1];    
+    
+    Area_ = new double[NumGeomI_*NumGeomJ_ + 1];    
     
 }
 
@@ -192,7 +201,7 @@ void VSP_SURFACE::SizeFlatPlateLists(int NumI, int NumJ)
 void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File)
 {
  
-    int i, n, NumNodes, NumTris, Node1, Node2, Node3, SurfaceID;
+    int i, n, NumNodes, NumTris, Node1, Node2, Node3, SurfaceID, Done;
     int *SurfaceList, Found;
     double x, y, z;
 
@@ -230,24 +239,12 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File)
     
     Grid().SurfaceType() = CART3D_SURFACE;
     
-    // Kutta nodes... Trailing edge runs in the I direction...
+    // Kutta nodes... 
 
-    if ( 0 ) {
-       
-       IsLiftingSurface_ = 1;
-
-       Grid().SizeKuttaNodeList(NumPlateI_);    
-       
-    }
+    IsLiftingSurface_ = 0;
     
-    else {
-       
-       IsLiftingSurface_ = 0;
+    Grid().SizeKuttaNodeList(0);    
 
-       Grid().SizeKuttaNodeList(0);    
-       
-    }       
-    
     // Read in xyz data
     
     for ( n = 1 ; n <= NumNodes ; n++ ) {
@@ -325,7 +322,7 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File)
     for ( n = 1 ; n <= NumTris ; n++ ) {
        
        SurfaceID = Grid().TriList(n).SurfaceID();
-       
+     
        i = 1;
        
        Found = 0;
@@ -347,12 +344,56 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File)
        }
        
     }
+    
+    printf("Found %d CART3D Surfaces \n",NumberOfSurfacePatches_);
+    
+    // Renumber the surfaces
+    
+    for ( n = 1 ; n <= NumTris ; n++ ) {
+    
+       Done = 0;
+       
+       i = 1;
+       
+       while ( !Done && i <= NumberOfSurfacePatches_) {
+          
+          if ( Grid().TriList(n).SurfaceID() == SurfaceList[i] ) {
+             
+             Done = 1;
+             
+             Grid().TriList(n).SurfaceID() = i;
+             
+             Grid().TriList(n).Cart3dID() = i;
+             
+             Grid().TriList(n).ComponentID() = i;
 
+          }
+          
+          i++;
+          
+       }
+       
+       if ( !Done ) {
+          
+          printf("Error in determing number of surfaces in CART3D file! \n");
+          fflush(NULL);
+          exit(1);
+          
+       }
+       
+    }
+ 
     delete [] SurfaceList;
     
-    // Calculate tri normals and build edge data structure
+    // Do an RCM sort of the tris
+ 
+    //DoRCMSort();
+    
+    // re-Calculate tri normals
 
     Grid().CalculateTriNormalsAndCentroids();
+
+    // Build edge data structures
    
     Grid().CreateTriEdges();
     
@@ -366,6 +407,308 @@ void VSP_SURFACE::ReadCart3DDataFromFile(char *Name, FILE *CART3D_File)
 
 /*##############################################################################
 #                                                                              #
+#                            VSP_SURFACE DoRCMSort                             #
+#                                                                              #
+##############################################################################*/
+
+void VSP_SURFACE::DoRCMSort(void)
+{
+
+    int i, j, k, l, Tri, Node, iMin, NumberOfTris, NumberOfNodes, Done;
+    int *TriPermArray, *NodePermArray, *NextTri, *TriOnFront, NumberOfTrisOnFront;
+    double XMin, Xc;
+    VSP_LOOP *TempTriList;
+    VSP_NODE *TempNodeList;
+    
+    // Create a node to tri list
+   
+    NumberOfTrisForNode_ = new int[Grid().NumberOfNodes() + 1];
+    
+    zero_int_array(NumberOfTrisForNode_, Grid().NumberOfNodes());
+    
+    for ( i = 1 ; i <= Grid().NumberOfTris() ; i++ ) {
+       
+       for ( j = 1 ; j <= Grid().LoopList(i).NumberOfNodes() ; j++ ) {
+          
+          Node = Grid().LoopList(i).Node(j);
+          
+          NumberOfTrisForNode_[Node]++;
+          
+       }
+       
+    }
+   
+    NodeToTriList_ = new int*[Grid().NumberOfNodes() + 1];
+    
+    for ( i = 1 ; i <= Grid().NumberOfNodes() ; i++ ) {
+       
+       NodeToTriList_[i] = new int[NumberOfTrisForNode_[i] + 1];
+       
+    }
+
+    zero_int_array(NumberOfTrisForNode_, Grid().NumberOfNodes());
+    
+    for ( i = 1 ; i <= Grid().NumberOfTris() ; i++ ) {
+       
+       for ( j = 1 ; j <= Grid().LoopList(i).NumberOfNodes() ; j++ ) {
+          
+          Node = Grid().LoopList(i).Node(j);
+          
+          NumberOfTrisForNode_[Node]++;
+          
+          NodeToTriList_[Node][NumberOfTrisForNode_[Node]] = i;
+          
+       }
+       
+    }    
+    
+    // Do a CM sort
+    
+    TriPermArray = new int[Grid().NumberOfTris() + 1];
+    
+    TriOnFront = new int[Grid().NumberOfTris() + 1];
+    
+    NextTri = new int[Grid().NumberOfTris() + 1];
+    
+    zero_int_array(TriPermArray, Grid().NumberOfTris());
+    
+    zero_int_array(TriOnFront, Grid().NumberOfTris());
+    
+    zero_int_array(NextTri, Grid().NumberOfTris());
+    
+    NodePermArray = new int[Grid().NumberOfNodes() + 1];
+    
+    zero_int_array(NodePermArray, Grid().NumberOfNodes());
+    
+    // Find left most tri in x
+    
+    XMin = 1.e9;
+    
+    for ( i = 1 ; i <= Grid().NumberOfTris() ; i++ ) {
+       
+       Xc = ( Grid().NodeList(Grid().TriList(i).Node1()).x() +
+              Grid().NodeList(Grid().TriList(i).Node2()).x() +
+              Grid().NodeList(Grid().TriList(i).Node3()).x() )/3.;
+       
+       if ( Xc <= XMin ) {
+          
+          XMin = Xc;
+          
+          iMin = i;
+          
+       }
+       
+    }
+
+    i = iMin = Grid().TriList(iMin).Node1();
+
+    NextTri[1] = NodeToTriList_[i][1];
+ 
+    TriOnFront[NextTri[1]] = 1;
+    
+    NumberOfTrisOnFront = 1;
+    
+    for ( j = 2 ; j <= NumberOfTrisForNode_[i] ; j++ ) {
+       
+       Tri = NodeToTriList_[i][j];
+       
+       if ( Grid().TriList(Tri).SurfaceID() == Grid().TriList(NextTri[1]).SurfaceID() ) {
+    
+          NextTri[++NumberOfTrisOnFront] = Tri;
+
+          TriOnFront[Tri] = 1;
+          
+       }
+       
+    }
+
+    printf("Starting RCM sort \n");fflush(NULL);
+
+    NumberOfTris = NumberOfNodes = 0;
+    
+    Done = 0;
+    
+    i = 1;
+
+    while ( !Done ) {
+       
+       if ( i <= NumberOfTrisOnFront ) {
+          
+          j = NextTri[i];
+
+          // Next tri in perm list
+          
+          TriPermArray[++NumberOfTris] = j;
+          
+          // Add any new tris bounding this tri to the list to check
+          
+          for ( k = 1 ; k <= 3 ; k++ ) {
+             
+             Node = Grid().LoopList(j).Node(k);
+
+             if ( NodePermArray[Node] == 0 ) NodePermArray[Node] = ++NumberOfNodes;
+             
+              for ( l = 1 ; l <= NumberOfTrisForNode_[Node] ; l++ ) {
+                
+                Tri = NodeToTriList_[Node][l];
+                
+                if ( TriOnFront[Tri] == 0 && Grid().TriList(Tri).SurfaceID() == Grid().TriList(j).SurfaceID() ) { 
+                 
+                   TriOnFront[Tri] = 1;
+                   
+                   NextTri[++NumberOfTrisOnFront] = Tri;                   
+                   
+                }
+                
+             }
+             
+          }
+          
+          i++;
+          
+       }
+       
+       else {
+
+          XMin = 1.e9;
+          
+          iMin = 0;
+          
+          for ( k = 1 ; k <= Grid().NumberOfTris() ; k++ ) {
+             
+             if ( TriOnFront[k] == 0 ) {
+                
+                Xc = ( Grid().NodeList(Grid().TriList(k).Node1()).x() +
+                       Grid().NodeList(Grid().TriList(k).Node2()).x() +
+                       Grid().NodeList(Grid().TriList(k).Node3()).x() )/3.;
+                 
+                if ( Xc <= XMin ) {
+                   
+                   XMin = Xc;
+                   
+                   iMin = k;
+                   
+                }    
+                
+             }
+             
+          }      
+          
+          if ( iMin > 0 ) {
+      
+             NextTri[++NumberOfTrisOnFront] = iMin;   
+             
+             TriOnFront[iMin] = 1;
+             
+          }
+          
+          else {
+             
+             printf("wtf! \n");
+             fflush(NULL);
+             exit(1);
+             
+          }
+          
+       }
+       
+       if ( NumberOfTris == Grid().NumberOfTris() ) Done = 1;
+    
+    }
+    printf("Sorted %d nodes out of %d \n",NumberOfNodes,Grid().NumberOfNodes());
+    printf("Sorted %d tris out of %d \n",NumberOfTris,Grid().NumberOfTris());
+
+    // Re-order the tris
+    
+    TempTriList = new VSP_LOOP[Grid().NumberOfTris() + 1];
+    
+    for ( i = 1 ; i <= Grid().NumberOfTris() ; i++ ) {
+       
+       TempTriList[i].SizeNodeList(3);
+       
+    }
+
+    for ( i = 1 ; i <= Grid().NumberOfTris() ; i++ ) {
+       
+       j = TriPermArray[i];
+
+       TempTriList[i].Node1() = NodePermArray[Grid().TriList(j).Node1()];
+       TempTriList[i].Node2() = NodePermArray[Grid().TriList(j).Node2()];
+       TempTriList[i].Node3() = NodePermArray[Grid().TriList(j).Node3()];
+ 
+       TempTriList[i].SurfaceID()   = Grid().TriList(j).SurfaceID();        
+       TempTriList[i].SurfaceType() = Grid().TriList(j).SurfaceType();       
+       TempTriList[i].Cart3dID()    = Grid().TriList(j).Cart3dID();
+       TempTriList[i].SpanStation() = Grid().TriList(j).SpanStation();
+       TempTriList[i].ComponentID() = Grid().TriList(j).ComponentID();
+
+    }   
+
+    for ( i = 1 ; i <= Grid().NumberOfTris() ; i++ ) {
+
+       Grid().TriList(i).Node1() = TempTriList[i].Node1();
+       Grid().TriList(i).Node2() = TempTriList[i].Node2();
+       Grid().TriList(i).Node3() = TempTriList[i].Node3();
+
+       Grid().TriList(i).SurfaceID()   = TempTriList[i].SurfaceID(); 
+       Grid().TriList(i).SurfaceType() = TempTriList[i].SurfaceType();       
+       Grid().TriList(i).Cart3dID()    = TempTriList[i].Cart3dID();       
+       Grid().TriList(i).SpanStation() = TempTriList[i].SpanStation();
+       Grid().TriList(i).ComponentID() = TempTriList[i].ComponentID();
+  
+    }  
+       
+    // Re-order the nodes
+   
+    TempNodeList = new VSP_NODE[Grid().NumberOfNodes() + 1];
+    
+    for ( i = 1 ; i <= Grid().NumberOfNodes() ; i++ ) {
+
+       j = NodePermArray[i];
+      
+       TempNodeList[j].x() = Grid().NodeList(i).x();
+       TempNodeList[j].y() = Grid().NodeList(i).y();
+       TempNodeList[j].z() = Grid().NodeList(i).z();
+    
+       TempNodeList[j].IsTrailingEdgeNode()   = Grid().NodeList(i).IsTrailingEdgeNode();
+       TempNodeList[j].IsLeadingEdgeNode()    = Grid().NodeList(i).IsLeadingEdgeNode();
+       TempNodeList[j].IsBoundaryEdgeNode()   = Grid().NodeList(i).IsBoundaryEdgeNode();
+       TempNodeList[j].IsBoundaryCornerNode() = Grid().NodeList(i).IsBoundaryCornerNode();
+         
+    }     
+
+    for ( i = 1 ; i <= Grid().NumberOfNodes() ; i++ ) {
+
+       Grid().NodeList(i).x() = TempNodeList[i].x();
+       Grid().NodeList(i).y() = TempNodeList[i].y();
+       Grid().NodeList(i).z() = TempNodeList[i].z();
+    
+       Grid().NodeList(i).IsTrailingEdgeNode()   = TempNodeList[i].IsTrailingEdgeNode();
+       Grid().NodeList(i).IsLeadingEdgeNode()    = TempNodeList[i].IsLeadingEdgeNode();
+       Grid().NodeList(i).IsBoundaryEdgeNode()   = TempNodeList[i].IsBoundaryEdgeNode();
+       Grid().NodeList(i).IsBoundaryCornerNode() = TempNodeList[i].IsBoundaryCornerNode();
+         
+    }     
+      
+    for ( i = 1 ; i <= Grid().NumberOfNodes() ; i++ ) {
+       
+       delete [] NodeToTriList_[i];
+       
+    }
+                       
+    delete [] NodeToTriList_;
+    delete [] NumberOfTrisForNode_;
+    
+    delete [] TriOnFront;
+    delete [] NextTri;
+    
+    delete [] TempTriList;
+    delete [] TempNodeList;
+
+}
+
+/*##############################################################################
+#                                                                              #
 #                          VSP_SURFACE FindSharpEdges                          #
 #                                                                              #
 ##############################################################################*/
@@ -374,7 +717,7 @@ void VSP_SURFACE::FindSharpEdges(void)
 {
 
     int i, j, k, p, Loop1, Loop2, Node, Node1, Node2, Node3, Done;
-    int NumberOfKuttaEdges, NumberOfKuttaNodes;
+    int NumberOfKuttaEdges, NumberOfKuttaNodes, Hits, Tri;
     int Edge, Edge1, Edge2, Next, VortexSheet, SheetIsPeriodic;
     int *KuttaEdgeList, *IncidentKuttaEdges, *IsKuttaEdge, *PermArray, *NodeUsed;
     double vec1[3], vec2[3], vec3[3], Xvec[3], dot, angle, mag1, mag2;
@@ -455,7 +798,7 @@ void VSP_SURFACE::FindSharpEdges(void)
        
        dot = ABS(vector_dot(Xvec, vec1));
 
-       if ( dot <= 0.90 ) {
+       if ( dot <= 0.9 ) {
 
           Loop1 = Grid().EdgeList(i).Loop1();
           Loop2 = Grid().EdgeList(i).Loop2();
@@ -479,7 +822,7 @@ void VSP_SURFACE::FindSharpEdges(void)
    
           // If angle greater than 90 degrees, mark nodes as sharp
    
-          if ( angle > 90. ) {
+          if ( angle > 65. ) {
    
             Node1 = Grid().EdgeList(i).Node1();
             Node2 = Grid().EdgeList(i).Node2();         
@@ -505,11 +848,9 @@ void VSP_SURFACE::FindSharpEdges(void)
                vec3[1] /= dot;
                vec3[2] /= dot;
       
-               angle = (180./3.141592)*acos(MAX(MIN(vec3[0],1.),-1.));
-      
                // Check if the normal points aft
       
-               if ( angle < 90. ) {
+               if ( vec3[0] > 0. ) { 
                   
                   IncidentKuttaEdges[Node1]++;
                   
@@ -664,18 +1005,18 @@ void VSP_SURFACE::FindSharpEdges(void)
        
        k--;
        
-       if ( Done ) printf("Found a wing tip node... \n");fflush(NULL);
+       if ( Done ) printf("Found a starting wake sheet node... \n");fflush(NULL);
        
        // If we did not find a wing tip node... then this wake is either closed like a nacelle,
        // or it could be something like a pylon with no tips... so now we have to figure that out
        
        // Find any ones >= 3 
        
-       // Find an kutta edge that only has one node marked as a kutta node
+       // Find a kutta edge that only has one node marked as a kutta node
        
        if ( !Done ) {
           
-          printf("Did not find a wing tip node... \n");fflush(NULL);
+          printf("Did not find a singly marked wake sheet node... \n");fflush(NULL);
           
           i = 1;
           
@@ -784,9 +1125,13 @@ void VSP_SURFACE::FindSharpEdges(void)
              
              Grid().KuttaNode(p) = Node;
              
+             Grid().KuttaNodeSoverB(p) = 0.;
+
              Grid().WingSurfaceForKuttaNode(p) = VortexSheet;
            
              Grid().WingSurfaceForKuttaNodeIsPeriodic(p) = SheetIsPeriodic;
+             
+             Grid().ComponentIDForKuttaNode(p) = Grid().NodeList(Node).ComponentID();
             
              Grid().WakeTrailingEdgeX(p) = Grid().NodeList(Node).x();
              Grid().WakeTrailingEdgeY(p) = Grid().NodeList(Node).y();
@@ -831,7 +1176,7 @@ void VSP_SURFACE::FindSharpEdges(void)
 
     }    
     
-    // Finally, mark edges that are on an open boundary. I am
+    // Mark edges that are on an open boundary. I am
     // assuming these are on a symmetry plane
     
     for ( i = 1 ; i <= Grid().NumberOfEdges() ; i++ ) {
@@ -840,13 +1185,117 @@ void VSP_SURFACE::FindSharpEdges(void)
        Loop2 = Grid().EdgeList(i).Loop2();
 
        if ( Loop1 == Loop2) {
-          
+
           Grid().EdgeList(i).IsBoundaryEdge() = 1; // djk 2
  
        }
 
     }   
+    
+    // Search for wing tip kutta nodes
+    
+    for ( i = 1 ; i <= NumberOfKuttaEdges ; i++ ) {
+       
+       Node1 = Grid().EdgeList(KuttaEdgeList[i]).Node1();
+       Node2 = Grid().EdgeList(KuttaEdgeList[i]).Node2();
+    
+       Node = 0;
+       
+       if ( IncidentKuttaEdges[Node1] == 1 ) Node = Node1;
+       if ( IncidentKuttaEdges[Node2] == 1 ) Node = Node2;
+      
+       if ( Node > 0 && SurfaceAtNodeIsConvex(Node) ) {
+
+         vec1[0] = Grid().NodeList(Node2).x() - Grid().NodeList(Node1).x();
+         vec1[1] = Grid().NodeList(Node2).y() - Grid().NodeList(Node1).y();
+         vec1[2] = Grid().NodeList(Node2).z() - Grid().NodeList(Node1).z();
+         
+         mag1 = sqrt(vector_dot(vec1,vec1));
+         
+         vec1[0] /= mag1;
+         vec1[1] /= mag1;
+         vec1[2] /= mag1;
+ 
+         // Calculate angle between all neighbor tris and trailing edge vector
+         
+         j = 1;
+         
+         Hits = 0;
+         
+         Done = 0;
+         
+         while ( j <= NumberOfTrisForNode_[Node] && !Done ) {
+            
+            Tri = NodeToTriList_[Node][j];
+            
+            k = 1;
+ 
+            while ( k <= Grid().LoopList(Tri).NumberOfEdges() && !Done ) {
+               
+               if ( Grid().EdgeList(Grid().LoopList(Tri).Edge(k)).Loop1() == Grid().EdgeList(Grid().LoopList(Tri).Edge(k)).Loop2() ) {
+                  
+                  //printf("Kutta node is on symmetry plane! \n"); fflush(NULL);
+                  
+                  Done = 1;
+               
+               }
+               
+               k++;
+               
+            }     
+            
+            if ( !Done ) {
+               
+               // Angle current loop normal and edge vector
+                                 
+               mag1 = vector_dot(Grid().LoopList(Tri).Normal(), vec1);
+               
+               mag1 = MAX(-1.,MIN(1.,mag1));
+               
+               angle = acos(mag1);
+               
+               if ( angle <= 45.*TORAD || angle >= 135.*TORAD ) {
+      
+                  Hits++;
+                  
+               }
+               
+            }
+            
+            j++;
+            
+         }
+         
+         if ( Hits > 0 ) {
+            
+            if ( Grid().NodeList(Node).IsTrailingEdgeNode() ) {
+            
+               Grid().NodeList(Node).IsTrailingEdgeNode() = -1;
+               
+            }
+            
+         }
+
+       }
+       
+    }
+
+    for ( i = 1 ; i <= NumberOfKuttaNodes ; i++ ) {
+             
+       Node = Grid().KuttaNode(i);
         
+       if ( Grid().NodeList(Node).IsTrailingEdgeNode() == -1 ) {
+        
+          printf("Adding Node %d at: %f %f %f to wing tip list \n",Node,Grid().NodeList(Node).x(),Grid().NodeList(Node).y(),Grid().NodeList(Node).z());
+            
+          Grid().NodeList(Node).IsTrailingEdgeNode() = 1;
+          
+          Grid().KuttaNodeIsOnWingTip(i) = 1;
+          
+       }
+    
+    }   
+           
     delete [] KuttaNodeList;
     delete [] KuttaEdgeList;
     
@@ -1007,17 +1456,23 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
 {
  
     int i, j, NumI, NumJ, Wing, Done, SubSurfIsTyped, HingeNode[2], DumInt;
-    int NumberOfControlSurfaceNodes, FoundHingeLineData;
+    int NumberOfControlSurfaceNodes;
+    int i1, i2, i3, i4, j1, j2, j3, j4, FlipNormals;    
     double DumFloat, Vec[3], VecQC_1[3], VecQC_2[3], Mag, HingeVec[3];
-    double x1, y1, z1, x2, y2, z2, ArcLength, Chord, up, wp, xyz[3];
+    double x1, y1, z1, x2, y2, z2, ArcLength[2], Chord, up, wp, xyz[3];
     double u1, u2, w1, w2, ulist[4], wlist[4];
-
+    double Vec1[3], Vec2[3], Vec3[3], Vec4[3], normal[3], Temp[5], CellArea;
+    
     char DumChar[4000], Stuff[4000], LastSubSurf[4000], Comma[4000], *Next;
     
     // Save the component name
     
     sprintf(ComponentName_,"%s",Name);
     
+    // Zero case
+    
+    Case_ = 0;
+        
     // Set surface type
     
     SurfaceType_ = DEGEN_WING_SURFACE;
@@ -1043,6 +1498,8 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
        }
        
     }
+    
+    fgets(DumChar,1000,VSP_Degen_File);
  
     if ( Verbose_ ) printf("NumI, NumJ: %d %d \n",NumI,NumJ);
 
@@ -1055,7 +1512,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
        for ( j = 1 ; j <= NumJ ; j++ ) {
         
           fgets(DumChar,1000,VSP_Degen_File);  
-          
+
           sscanf(DumChar,"%lf, %lf, %lf, %lf, %lf, %s",
                  &x(i,j),
                  &y(i,j),
@@ -1063,14 +1520,14 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                  &u(i,j),
                  &v(i,j),
                  Stuff);
+            
+           if ( Verbose_ ) printf("xyz: %lf %lf %lf %lf %lf \n",
+                                  x(i,j),
+                                  y(i,j),
+                                  z(i,j),
+                                  u(i,j),
+                                  v(i,j));
 
-          if ( Verbose_ ) printf("xyz: %lf %lf %lf %lf %lf \n",
-                                 x(i,j),
-                                 y(i,j),
-                                 z(i,j),
-                                 u(i,j),
-                                 v(i,j));
-          
        }
        
     }
@@ -1167,6 +1624,185 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
        
     }    
     
+    // Calculate wire frame geometry surface normal
+    
+    double Volume = 0.;
+    double TotalArea = 0.;
+    double Zavg;
+ 
+    // Normal vector based on first flat plate normal definition, used to
+    // test for surface orientation
+    
+    i = j = 1;
+    
+    normal[0] = ( Nx_Camber(i,j) + Nx_Camber(i+1,j) + Nx_Camber(i+1,j+1) ) / 3.;
+    normal[1] = ( Ny_Camber(i,j) + Ny_Camber(i+1,j) + Ny_Camber(i+1,j+1) ) / 3.;
+    normal[2] = ( Nz_Camber(i,j) + Nz_Camber(i+1,j) + Nz_Camber(i+1,j+1) ) / 3.;
+    
+    for ( i = 1 ; i <= NumGeomI_ ; i++ ) {
+     
+       for ( j = 1 ; j <= NumGeomJ_ ; j++ ) {
+          
+          Nx(i,j) = 0.;
+          Ny(i,j) = 0.;
+          Nz(i,j) = 0.;
+          
+          Area(i,j) = 0.;
+                   
+       }
+       
+    }
+               
+    FlipNormals = 0;
+           
+    for ( i = 1 ; i < NumGeomI_ ; i++ ) {
+     
+       for ( j = 1 ; j < NumGeomJ_ ; j++ ) {
+          
+          i1 = i;         j1 = j;
+          i2 = i    ;     j2 = j + 1;
+          i3 = i + 1;     j3 = j + 1;
+          i4 = i + 1;     j4 = j;
+                    
+          // Tri 1
+          
+          Vec1[0] = x(i2,j2) - x(i1,j1);
+          Vec1[1] = y(i2,j2) - y(i1,j1);
+          Vec1[2] = z(i2,j2) - z(i1,j1);
+
+          Vec2[0] = x(i3,j3) - x(i1,j1);
+          Vec2[1] = y(i3,j3) - y(i1,j1);
+          Vec2[2] = z(i3,j3) - z(i1,j1);
+                              
+          vector_cross(Vec1,Vec2,Vec3);
+          
+          CellArea = 0.5*sqrt(vector_dot(Vec3,Vec3));
+          
+          // Tri 2
+
+          Vec1[0] = x(i3,j3) - x(i1,j1);
+          Vec1[1] = y(i3,j3) - y(i1,j1);
+          Vec1[2] = z(i3,j3) - z(i1,j1);
+
+          Vec2[0] = x(i4,j4) - x(i1,j1);
+          Vec2[1] = y(i4,j4) - y(i1,j1);
+          Vec2[2] = z(i4,j4) - z(i1,j1);
+                              
+          vector_cross(Vec1,Vec2,Vec4);
+          
+          CellArea += 0.5*sqrt(vector_dot(Vec4,Vec4));
+
+          // Final weighted normal
+          
+          Vec3[0] += Vec4[0];
+          Vec3[1] += Vec4[1];
+          Vec3[2] += Vec4[2];
+          
+          // Distribute normal
+
+          Nx(i1,j1) += Vec3[0];
+          Ny(i1,j1) += Vec3[1];
+          Nz(i1,j1) += Vec3[2];
+                 
+          Nx(i2,j2) += Vec3[0];
+          Ny(i2,j2) += Vec3[1];
+          Nz(i2,j2) += Vec3[2];
+                 
+          Nx(i3,j3) += Vec3[0];
+          Ny(i3,j3) += Vec3[1];
+          Nz(i3,j3) += Vec3[2];
+                 
+          Nx(i4,j4) += Vec3[0];
+          Ny(i4,j4) += Vec3[1];
+          Nz(i4,j4) += Vec3[2];       
+          
+          // Distribute Area
+
+          Area(i1,j1) += 0.25 * CellArea;
+                  
+          Area(i2,j2) += 0.25 * CellArea;
+                 
+          Area(i3,j3) += 0.25 * CellArea;
+                 
+          Area(i4,j4) += 0.25 * CellArea;
+
+          Zavg = 0.25*( z(i1,j1) + z(i2,j2) + z(i3,j3) + z(i4,j4) );
+
+          Volume += Nz(i,j) * Zavg * CellArea;
+          
+          TotalArea += CellArea;
+          
+          if ( i == 1 && j == 1 ) {
+             
+             Mag = vector_dot(normal, Vec3);
+             
+             if ( Mag < 0. ) FlipNormals = 1;
+
+          }
+          
+          if ( Verbose_ ) printf("Zavg: %f .... Normal: %f %f %f .... CamberNormal: %f %f %f \n",
+          Zavg,
+          Vec3[0],Vec3[1],Vec3[2],
+          normal[0],normal[1],normal[2]);
+          
+       }
+    
+    }    
+
+    for ( i = 1 ; i <= NumGeomI_ ; i++ ) {
+     
+       for ( j = 1 ; j <= NumGeomJ_ ; j++ ) {
+          
+          Mag = sqrt( Nx(i,j)*Nx(i,j) + Ny(i,j)*Ny(i,j) + Nz(i,j)*Nz(i,j) );
+          
+          Nx(i,j) /= Mag;
+          Ny(i,j) /= Mag;
+          Nz(i,j) /= Mag;
+   
+       }
+       
+    }
+    
+    if ( Verbose_ ) printf("FlipNormals: %d \n",FlipNormals);
+    if ( Verbose_ ) printf("Wing Area   is: %f \n",TotalArea);
+    if ( Verbose_ ) printf("Wing Volume is: %f \n",Volume);
+
+    // Flip surface orientation if needed
+
+    if ( FlipNormals ) {
+       
+       for ( i = 1 ; i <= NumGeomI_ ; i++ ) {
+        
+          for ( j = 1 ; j <= NumGeomJ_ ; j++ ) {
+
+             Temp[0] = x(NumGeomI_-i+1,j);
+             Temp[1] = y(NumGeomI_-i+1,j);
+             Temp[2] = z(NumGeomI_-i+1,j);
+             Temp[3] = u(NumGeomI_-i+1,j);
+             Temp[4] = v(NumGeomI_-i+1,j);
+             
+             x(NumGeomI_-i+1,j) = x(i,j);
+             y(NumGeomI_-i+1,j) = y(i,j);
+             z(NumGeomI_-i+1,j) = z(i,j);
+             u(NumGeomI_-i+1,j) = u(i,j);
+             v(NumGeomI_-i+1,j) = v(i,j);
+             
+             x(i,j) = Temp[0];
+             y(i,j) = Temp[1];
+             z(i,j) = Temp[2];
+             u(i,j) = Temp[3];
+             v(i,j) = Temp[4];
+                          
+             Nx(i,j) *= -1.;
+             Ny(i,j) *= -1.;
+             Nz(i,j) *= -1.;
+             
+          }
+          
+       }
+       
+    }    
+
     // Adjust geometry for ground effects analysis
     
     if ( DoGroundEffectsAnalysis_ ) RotateGeometry_About_Y_Axis();
@@ -1665,7 +2301,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
           
           else {
              
-             printf("DumChar: %s \n",DumChar);fflush(NULL);exit(1);
+             printf("Error in VSP_Surface! Unknown control surface type: DumChar: %s \n",DumChar);fflush(NULL);exit(1);
              
           }
  
@@ -1689,7 +2325,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
     
     AverageChord_ = 0.;
     
-    s_[1] = ArcLength = 0.;
+    s_[0] = ArcLength[0] = ArcLength[1] = 0.;
  
     for ( i = 1 ; i < NumPlateI_ ; i++ ) {
      
@@ -1720,7 +2356,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
        xTE_[i] = x1;
        yTE_[i] = y1;
        zTE_[i] = z1;
-       
+
        // Calculate arclength along the quarter chord
        
        Vec[0] = xTE_[i] - xLE_[i];
@@ -1736,21 +2372,29 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
        VecQC_2[2] = zLE_[i] + 0.25*LocalChord_[i]*Vec[2];
        
        if ( i == 1 ) {
+
+          VecQC_1[0] = x_plate(i,j) + 0.25*(x_plate(i,NumPlateJ_) - x_plate(i,j));     
+          VecQC_1[1] = y_plate(i,j) + 0.25*(y_plate(i,NumPlateJ_) - y_plate(i,j));        
+          VecQC_1[2] = z_plate(i,j) + 0.25*(z_plate(i,NumPlateJ_) - z_plate(i,j));        
           
-          ArcLength = 0.;
+          ArcLength[1] = 0.5*sqrt( pow(VecQC_2[0] - VecQC_1[0],2.)
+                                 + pow(VecQC_2[1] - VecQC_1[1],2.)
+                                 + pow(VecQC_2[2] - VecQC_1[2],2.) );        
           
        }
        
        else {
 
-          ArcLength += sqrt( pow(VecQC_2[0] - VecQC_1[0],2.)
-                           + pow(VecQC_2[1] - VecQC_1[1],2.)
-                           + pow(VecQC_2[2] - VecQC_1[2],2.) );
-                           
+          ArcLength[0] = ArcLength[1];
+
+          ArcLength[1] = 0.5*sqrt( pow(VecQC_2[0] - VecQC_1[0],2.)
+                                 + pow(VecQC_2[1] - VecQC_1[1],2.)
+                                 + pow(VecQC_2[2] - VecQC_1[2],2.) );
+                                  
        }
                         
-       s_[i] = ArcLength;
-                               
+       s_[i] = s_[i-1] + ArcLength[0] + ArcLength[1];
+              
        VecQC_1[0] = VecQC_2[0];
        VecQC_1[1] = VecQC_2[1];
        VecQC_1[2] = VecQC_2[2];
@@ -1759,8 +2403,8 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
     
     for ( i = 1 ; i < NumPlateI_ ; i++ ) {
        
-       s_[i] /= s_[NumPlateI_-1];
-       
+       s_[i] /= ( s_[NumPlateI_-1] + ArcLength[1] );
+                      
     }
     
     AverageChord_ /= (NumPlateI_-1);
@@ -1803,13 +2447,13 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
 
     // Keep track of the tip LE, TE, and Quarter chord
 
-    i = NumPlateI_ ; j = 1;
+    i = NumPlateI_ - 1 ; j = 1;
 
     x1 = x_plate(i,j);
     y1 = y_plate(i,j);
     z1 = z_plate(i,j);
 
-    i = NumPlateI_; j = NumPlateJ_;
+    i = NumPlateI_ - 1 ; j = NumPlateJ_;
     
     x2 = x_plate(i,j);
     y2 = y_plate(i,j);
@@ -1824,7 +2468,7 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
     Vec[0] /= LocalChord_[i];
     Vec[1] /= LocalChord_[i];
     Vec[2] /= LocalChord_[i];
-    
+
     Tip_LE_[0] = x2;
     Tip_LE_[1] = y2;
     Tip_LE_[2] = z2;
@@ -1944,13 +2588,19 @@ void VSP_SURFACE::ReadBodyDataFromFile(char *Name, int Case, FILE *VSP_Degen_Fil
 {
  
     int i, j, k, NumI, NumJ, Done, jStart, jEnd;
+    int i1, i2, i3, i4, j1, j2, j3, j4;        
     double DumFloat, Vec[3], VecQC_1[3], VecQC_2[3];
     double x1, y1, z1, x2, y2, z2, ArcLength;
     char DumChar[2000], Stuff[2000];
-
+    double Vec1[3], Vec2[3], Vec3[3], Vec4[3], Mag, CellArea;
+    
     // Save the component name
 
     sprintf(ComponentName_,"%s",Name);
+    
+    // Save case
+    
+    Case_ = Case;
     
     // Set surface type
     
@@ -1978,6 +2628,8 @@ void VSP_SURFACE::ReadBodyDataFromFile(char *Name, int Case, FILE *VSP_Degen_Fil
        
     }    
 
+    fgets(DumChar,1000,VSP_Degen_File);
+    
     if ( Verbose_ ) printf("NumI, NumJ: %d %d \n",NumI,NumJ);
 
     SizeGeometryLists(NumI,NumJ);
@@ -2007,6 +2659,128 @@ void VSP_SURFACE::ReadBodyDataFromFile(char *Name, int Case, FILE *VSP_Degen_Fil
        
     }
 
+    // Calculate surface normal
+    
+    for ( i = 1 ; i <= NumGeomI_ ; i++ ) {
+     
+       for ( j = 1 ; j <= NumGeomJ_ ; j++ ) {
+          
+          Nx(i,j) = 0.;
+          Ny(i,j) = 0.;
+          Nz(i,j) = 0.;
+          
+          Area(i,j) = 0.;
+                   
+       }
+       
+    }
+        
+    double Volume = 0.;
+    double TotalArea = 0.;
+    double Zavg;
+    
+    for ( i = 1 ; i < NumGeomI_ ; i++ ) {
+     
+       for ( j = 1 ; j < NumGeomJ_ ; j++ ) {
+          
+          i4 = i;         j4 = j;
+          i3 = i    ;     j3 = j + 1;
+          i2 = i + 1;     j2 = j + 1;
+          i1 = i + 1;     j1 = j;
+                              
+          // Tri 1
+          
+          Vec1[0] = x(i2,j2) - x(i1,j1);
+          Vec1[1] = y(i2,j2) - y(i1,j1);
+          Vec1[2] = z(i2,j2) - z(i1,j1);
+
+          Vec2[0] = x(i3,j3) - x(i1,j1);
+          Vec2[1] = y(i3,j3) - y(i1,j1);
+          Vec2[2] = z(i3,j3) - z(i1,j1);
+                              
+          vector_cross(Vec1,Vec2,Vec3);
+          
+          CellArea = 0.5*sqrt(vector_dot(Vec3,Vec3));
+          
+          // Tri 2
+
+          Vec1[0] = x(i3,j3) - x(i1,j1);
+          Vec1[1] = y(i3,j3) - y(i1,j1);
+          Vec1[2] = z(i3,j3) - z(i1,j1);
+
+          Vec2[0] = x(i4,j4) - x(i1,j1);
+          Vec2[1] = y(i4,j4) - y(i1,j1);
+          Vec2[2] = z(i4,j4) - z(i1,j1);
+                              
+          vector_cross(Vec1,Vec2,Vec4);
+          
+          CellArea += 0.5*sqrt(vector_dot(Vec4,Vec4));
+
+          // Final weighted normal
+          
+          Vec3[0] += Vec4[0];
+          Vec3[1] += Vec4[1];
+          Vec3[2] += Vec4[2];
+          
+          // Distribute normal
+
+          Nx(i1,j1) += Vec3[0];
+          Ny(i1,j1) += Vec3[1];
+          Nz(i1,j1) += Vec3[2];
+                 
+          Nx(i2,j2) += Vec3[0];
+          Ny(i2,j2) += Vec3[1];
+          Nz(i2,j2) += Vec3[2];
+                 
+          Nx(i3,j3) += Vec3[0];
+          Ny(i3,j3) += Vec3[1];
+          Nz(i3,j3) += Vec3[2];
+                 
+          Nx(i4,j4) += Vec3[0];
+          Ny(i4,j4) += Vec3[1];
+          Nz(i4,j4) += Vec3[2];       
+          
+          // Distribute Area
+
+          Area(i1,j1) += 0.25 * CellArea;
+                  
+          Area(i2,j2) += 0.25 * CellArea;
+                 
+          Area(i3,j3) += 0.25 * CellArea;
+                 
+          Area(i4,j4) += 0.25 * CellArea;
+
+          Zavg = 0.25*( z(i1,j1) + z(i2,j2) + z(i3,j3) + z(i4,j4) );
+
+          Volume += Nz(i,j) * Zavg * CellArea;
+          
+          TotalArea += CellArea;
+
+          if ( Verbose_ ) printf("Zavg: %f .... Normal: %f %f %f \n",
+          Zavg,
+          Vec3[0],Vec3[1],Vec3[2]);
+          
+       }
+    
+    }       
+    
+    for ( i = 1 ; i <= NumGeomI_ ; i++ ) {
+     
+       for ( j = 1 ; j <= NumGeomJ_ ; j++ ) {
+          
+          Mag = sqrt( Nx(i,j)*Nx(i,j) + Ny(i,j)*Ny(i,j) + Nz(i,j)*Nz(i,j) );
+          
+          Nx(i,j) /= Mag;
+          Ny(i,j) /= Mag;
+          Nz(i,j) /= Mag;
+   
+       }
+       
+    }
+        
+    if ( Verbose_ ) printf("Body Area   is: %f \n",TotalArea);
+    if ( Verbose_ ) printf("Body Volume is: %f \n",Volume);
+    
     // Skip over data until we find the plate data
     
     Done = 0;
@@ -2179,7 +2953,7 @@ void VSP_SURFACE::ReadBodyDataFromFile(char *Name, int Case, FILE *VSP_Degen_Fil
 
     AverageChord_ = 0.;
     
-    s_[1] = ArcLength = 0.;
+    s_[0] = ArcLength = 0.;
  
     for ( i = 1 ; i < NumPlateI_ ; i++ ) {
      
@@ -2350,7 +3124,7 @@ void VSP_SURFACE::CheckForDegenerateXSections(void)
         
           if ( Verbose_ ) printf("X sections %d and %d are the same... located at x: %lf \n",i,i+1,x_plate(i,1));
           
-          if ( Verbose_ ) printf("x_plate(i,1): %f ... x_plate(i+1,1): %f %f \n",x_plate(i,1), x_plate(i+1,1));
+          if ( Verbose_ ) printf("x_plate(i,1): %f ... x_plate(i+1,1): %f \n",x_plate(i,1), x_plate(i+1,1));
           
           BadXSection[i] = 1;
           
@@ -2760,13 +3534,11 @@ void VSP_SURFACE::CreateMesh(int SurfaceID)
           
        }
        
-       else if ( SurfaceType_ == CART3D_SURFACE ) {
+       else {
         
-          Grid().TriList(j).SurfaceType() = CART3D_SURFACE;
-          Grid().TriList(j).ComponentID() = ComponentID();
-          Grid().TriList(j).DegenBodyID() = 0;
-          Grid().TriList(j).DegenWingID() = 0;  
-          Grid().TriList(j).Cart3dID()    = SurfaceID;
+          printf("Error... trying to mesh an unknown surface type! \n");
+          fflush(NULL);
+          exit(1);
           
        }       
 
@@ -2804,10 +3576,9 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
 {
  
     int i, j, n, nk, NumNodes, NumTris, node1, node2, node3, node4, Flipped;
-    int Tri, SpanStation;
     double vec1[3], vec2[3], vec3[3], normal[3], mag, zCamber;
     double x1, y1, z1, x2, y2, z2, Vec[3], VecQC_1[3], VecQC_2[3];
-    double Chord, ArcLength;
+    double Chord, ArcLength[2];
         
     // Estimate the maximum number of grid levels
     
@@ -2877,13 +3648,13 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
              nk++;
              
              Grid().KuttaNode(nk) = n;
-             
+
              Grid().WakeTrailingEdgeX(nk) = x_plate(i,j);
              Grid().WakeTrailingEdgeY(nk) = y_plate(i,j);
              Grid().WakeTrailingEdgeZ(nk) = z_plate(i,j);
                                 
           }
-          
+
           if ( j == 1 && IsLiftingSurface_ ) Grid().NodeList(n).IsBoundaryEdgeNode() = 1;
           
           if ( j == NumPlateJ_ ) Grid().NodeList(n).IsLeadingEdgeNode() = 1;
@@ -3094,7 +3865,7 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
              if ( Verbose_ ) printf("Case 2---> \n");
              if ( Verbose_ ) printf("vec3: %f %f %f \n",vec3[0],vec3[1],vec3[2]);
              if ( Verbose_ ) printf("Normal: %f %f %f \n",normal[0],normal[1],normal[2]);
-             
+  
              Flipped = 1;
              
           }
@@ -3111,7 +3882,7 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
     // Calculate leading and trailing edges... these could be deformed if an
     // FEM analysis was performed
     
-    s_[1] = ArcLength = 0.;
+    s_[0] = ArcLength[0] = ArcLength[1] = 0.;
  
     for ( i = 1 ; i < NumPlateI_ ; i++ ) {
      
@@ -3154,34 +3925,50 @@ void VSP_SURFACE::CreateWingTriMesh(int SurfaceID)
        VecQC_2[0] = xLE_[i] + 0.25*Chord*Vec[0];
        VecQC_2[1] = yLE_[i] + 0.25*Chord*Vec[1];
        VecQC_2[2] = zLE_[i] + 0.25*Chord*Vec[2];
-       
+
        if ( i == 1 ) {
+
+          VecQC_1[0] = x_plate(i,j) + 0.25*(x_plate(i,NumPlateJ_) - x_plate(i,j));     
+          VecQC_1[1] = y_plate(i,j) + 0.25*(y_plate(i,NumPlateJ_) - y_plate(i,j));        
+          VecQC_1[2] = z_plate(i,j) + 0.25*(z_plate(i,NumPlateJ_) - z_plate(i,j));        
           
-          ArcLength = 0.;
+          ArcLength[1] = 0.5*sqrt( pow(VecQC_2[0] - VecQC_1[0],2.)
+                                 + pow(VecQC_2[1] - VecQC_1[1],2.)
+                                 + pow(VecQC_2[2] - VecQC_1[2],2.) );        
           
        }
        
        else {
 
-          ArcLength += sqrt( pow(VecQC_2[0] - VecQC_1[0],2.)
-                           + pow(VecQC_2[1] - VecQC_1[1],2.)
-                           + pow(VecQC_2[2] - VecQC_1[2],2.) );
-                           
+          ArcLength[0] = ArcLength[1];
+
+          ArcLength[1] = 0.5*sqrt( pow(VecQC_2[0] - VecQC_1[0],2.)
+                                 + pow(VecQC_2[1] - VecQC_1[1],2.)
+                                 + pow(VecQC_2[2] - VecQC_1[2],2.) );
+                                  
        }
                         
-       s_Def_[i] = ArcLength;
-                               
+       s_Def_[i] = s_Def_[i-1] + ArcLength[0] + ArcLength[1];
+              
        VecQC_1[0] = VecQC_2[0];
        VecQC_1[1] = VecQC_2[1];
        VecQC_1[2] = VecQC_2[2];
    
+    }   
+
+    for ( i = 1 ; i < NumPlateI_ ; i++ ) {
+
+       s_Def_[i] /= ( s_Def_[NumPlateI_-1] + ArcLength[1] );
+       
+       if ( IsLiftingSurface_ ) {
+ 
+          Grid().KuttaNodeSoverB(i) = s_Def_[i];
+
+       }
+       
     }
     
-    for ( i = 1 ; i < NumPlateI_ ; i++ ) {
-       
-       s_Def_[i] /= s_Def_[NumPlateI_-1];
-       
-    }
+    if ( IsLiftingSurface_  ) Grid().KuttaNodeSoverB(NumPlateI_) = 1.;
 
     // Calculate tri normals and build edge data structure
 
@@ -4038,6 +4825,10 @@ void VSP_SURFACE::FEMDeformGeometry(void)
 
     for ( i = 1 ; i <= NumPlateI_ ; i++ ) {
      
+//xr = x_plate(i,NumPlateJ_); 
+//yr = y_plate(i,NumPlateJ_); 
+//zr = z_plate(i,NumPlateJ_); 
+
        for ( j = 1 ; j <= NumPlateJ_ ; j++ ) {
 
           xw = x_plate(i,j);
@@ -4051,6 +4842,8 @@ void VSP_SURFACE::FEMDeformGeometry(void)
           yr = yw;
 
           zr = FemData().z(yw);
+          
+          // Get deformation data
 
           delta_xv = FemData().delta_xv(yw);
           delta_yv = FemData().delta_yv(yw);
@@ -4059,7 +4852,7 @@ void VSP_SURFACE::FEMDeformGeometry(void)
           delta_phix = FemData().delta_phix(yw);
           delta_phiy = FemData().delta_phiy(yw);
           delta_phiz = FemData().delta_phiz(yw);
-         
+        
           // 1st transformation for phiy
           
           xw1 = xr + (xw-xr)*cos(delta_phiy) + (zw-zr)*sin(delta_phiy);
@@ -4083,7 +4876,7 @@ void VSP_SURFACE::FEMDeformGeometry(void)
           xwp = xw3 + delta_xv;
           ywp = yw3 + delta_yv;
           zwp = zw3 + delta_zv;
-          
+
           // Update the flat plate model
       
           x_plate(i,j) = xwp;
@@ -4295,7 +5088,95 @@ void VSP_SURFACE::Interpolate_XYZ_From_UV(double u, double v, double *xyz)
 
 }
 
+/*##############################################################################
+#                                                                              #
+#                      VSP_SURFACE UpdateGeometryLocation                      #
+#                                                                              #
+##############################################################################*/
 
+void VSP_SURFACE::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+{
+ 
+    int i, j;
+    QUAT Vec;
+    
+    // Update xyz data
+
+    for ( i = 1 ; i <= NumGeomI_ ; i++ ) {
+     
+       for ( j = 1 ; j <= NumGeomJ_ ; j++ ) {
+   
+          // Update xyz location
+          
+          Vec(0) = x(i,j) - OVec[0];
+          Vec(1) = y(i,j) - OVec[1];
+          Vec(2) = z(i,j) - OVec[2];
+      
+          Vec = Quat * Vec * InvQuat;
+      
+          x(i,j) = Vec(0) + OVec[0] + TVec[0];
+          y(i,j) = Vec(1) + OVec[1] + TVec[1];
+          z(i,j) = Vec(2) + OVec[2] + TVec[2];    
+
+          // Update normal
+
+          Vec(0) = Nx(i,j);
+          Vec(1) = Ny(i,j);
+          Vec(2) = Nz(i,j);
+      
+          Vec = Quat * Vec * InvQuat;
+          
+          Nx(i,j) = Vec(0);
+          Ny(i,j) = Vec(1);
+          Nz(i,j) = Vec(2);         
+ 
+       }        
+       
+    }  
+    
+    // Update LE and TE data
+    
+    for ( i = 1 ; i < NumPlateI_ ; i++ ) {
+       
+       // LE
+       
+       Vec(0) = xLE_[i] - OVec[0];
+       Vec(1) = yLE_[i] - OVec[1];
+       Vec(2) = zLE_[i] - OVec[2];       
+       
+       Vec = Quat * Vec * InvQuat;
+       
+       xLE_[i] = Vec(0) + OVec[0] + TVec[0];
+       yLE_[i] = Vec(1) + OVec[1] + TVec[1];
+       zLE_[i] = Vec(2) + OVec[2] + TVec[2];             
+
+       // TE
+       
+       Vec(0) = xTE_[i] - OVec[0];
+       Vec(1) = yTE_[i] - OVec[1];
+       Vec(2) = zTE_[i] - OVec[2];       
+       
+       Vec = Quat * Vec * InvQuat;
+       
+       xTE_[i] = Vec(0) + OVec[0] + TVec[0];
+       yTE_[i] = Vec(1) + OVec[1] + TVec[1];
+       zTE_[i] = Vec(2) + OVec[2] + TVec[2];      
+       
+       // Update flat plate normals
+ 
+       Vec(0) = Nx_FlatPlateNormal_[i];
+       Vec(1) = Ny_FlatPlateNormal_[i];
+       Vec(2) = Nz_FlatPlateNormal_[i];
+
+       Vec = Quat * Vec * InvQuat;
+       
+       Nx_FlatPlateNormal_[i] = Vec(0);
+       Ny_FlatPlateNormal_[i] = Vec(1);
+       Nz_FlatPlateNormal_[i] = Vec(2); 
+       
+    }
+
+}
 
 
 

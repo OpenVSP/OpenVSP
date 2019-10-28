@@ -15,6 +15,7 @@
 #include "utils.H"
 #include "time.H"
 #include "VSP_Edge.H"
+#include "Search.H"
 
 #define IMPLICIT_WAKE_GAMMAS 1
 #define EXPLICIT_WAKE_GAMMAS 2
@@ -25,7 +26,8 @@
 #define P_ANALYSIS       3
 #define Q_ANALYSIS       4
 #define R_ANALYSIS       5
-#define PATH_ANALYSIS    6
+
+class SEARCH;
 
 // Definition of the VORTEX_TRAIL class
 
@@ -43,14 +45,16 @@ private:
     
     int Node_;
     
+    int ComponentID_;
+
     // Wake points list
     
     double Length_;
     
     double FarDist_;
     
-    double *S_;
-    
+    double *S_[2];
+  
     int NumberOfNodes_;
     
     VSP_NODE TE_Node_;
@@ -63,25 +67,23 @@ private:
     
     int *NumberOfSubVortices_;
     
+    int TotalNumberOfSubVortices_;
+    
     VSP_EDGE **VortexEdgeList_;
 
     VSP_EDGE *VortexEdgeList(int Level) { return VortexEdgeList_[Level]; };
-  
-    double **VortexEdgeVelocity_;
+
+    double ***VortexEdgeVelocity_;
     
     double FreeStreamVelocity_[3];
     
     double LocalVelocityAtTrailingEdge_[3];
 
-    // Turn off KT correction
+    // Far away ratio
     
-    static int NoKarmanTsienCorrection_;
+    static double FarAway_;
     
-    // Mach number
-    
-    static double Mach_;
-    
-    // Cut off distance
+    // Distance between trailing wakes at trailing edge
     
     double Sigma_;
     
@@ -96,22 +98,37 @@ private:
     // Trailing edge vector
     
     double TEVec_[3];
+
+    // Location along span 
     
+    double SoverB_;
+
     // Circulation strength
     
     int Evaluate_;
     int TimeAccurate_;
-    int NumberofExactShiftPoints_;
     int ConvectType_;
     int TimeAnalysisType_;
+    int CurrentTimeStep_;
     
     double TimeStep_;
     double Vinf_;
-    double MaxConvectedDistance_;
     double *Gamma_;
     double *GammaNew_;
     double *GammaSave_;
+
+    double *WakeAge_;
+        
+    double *a_;
+    double *b_;
+    double *c_;
+    double *d_;
+    double *r_;
     
+    double *dx_;
+    double *dy_;
+    double *dz_;
+
     // Blade analysis parameters
     
     int RotorAnalysis_;    
@@ -120,6 +137,7 @@ private:
     // Smooth out the trailing wake shape
     
     void Smooth(void);
+    void SmoothWake(void);
     void SmoothVelocity(double *Velocity);
     void LimitVelocity(double q[3]);
     
@@ -135,6 +153,17 @@ private:
     
     void InducedVelocity_(double xyz_p[3], double q[3]);
     
+    // Search data structure
+    
+    int Searched_;
+    
+    double Distance_;
+    
+    SEARCH *Search_;
+    
+    void CreateSearchTree_(void);
+    
+    
 public:
 
     // Constructor, Destructor, Copy
@@ -146,6 +175,7 @@ public:
     // Copy function
 
     VORTEX_TRAIL& operator=(const VORTEX_TRAIL &Trailing_Vortex);
+    VORTEX_TRAIL& operator+=(const VORTEX_TRAIL &Trailing_Vortex);
     
     // Time accurate flag
     
@@ -156,6 +186,7 @@ public:
 
     int &Wing(void) { return Wing_; };
     int &Node(void) { return Node_; };
+    int &ComponentID(void) { return ComponentID_; };
  
     void Setup(int NumSubVortices, double FarDist, VSP_NODE &Node1, VSP_NODE &Node2);
                                
@@ -164,20 +195,24 @@ public:
     void InducedVelocity(double xyz_p[3], double q[3], double CorSize);
 
     void CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, double xyz_p[3], double q[3]);
- 
-    // Access to Mach number
-    
-    double &Mach(void) { return Mach_; };
-    
-    // Cut off distance
+
+    // Distance/2 between wakes at trailing edge
     
     double &Sigma(void) { return Sigma_; };
+
+    // Core size at trailing edge
     
+    double &CoreSize(void) { return CoreSize_; };
+        
     // Trailing edge vector
     
     double &TEVec(int i) { return TEVec_[i]; };
     double *TEVec(void) { return TEVec_; };
-
+    
+    // Trailing edge location along span
+    
+    double &SoverB(void) { return SoverB_; };
+    
     // Evaluation flag... for agglomeration multipole routine
     
     int &Evaluate(void) { return Evaluate_; };
@@ -202,6 +237,10 @@ public:
     
     // Number of sub vortices
 
+    int NumberOfLevels(void) { return NumberOfLevels_; };
+    
+    int TotalNumberOfSubVortices(void) { return TotalNumberOfSubVortices_; };
+
     int NumberOfSubVortices(int i) { return NumberOfSubVortices_[i]; };
     
     int NumberOfSubVortices(void) { return NumberOfSubVortices_[1]; };
@@ -210,31 +249,39 @@ public:
     
     VSP_EDGE &VortexEdge(int i) { return VortexEdgeList_[1][i]; };
     
+    VSP_EDGE &VortexEdge(int Level, int i) { return VortexEdgeList_[Level][i]; };
+    
     // Centroid of each sub vortex
     
     double *xyz_c(int i) { return VortexEdgeList_[1][i].xyz_c(); };
     
     // Wake points list
     
-    double S(int i) { return S_[i]; };
+    double S(int i) { return S_[0][i]; };
+
+    double GammaScale(int i);
     
     // Velocity for each sub vortex
     
-    double &U(int i) { return VortexEdgeVelocity_[i][0]; };
-    double &V(int i) { return VortexEdgeVelocity_[i][1]; };
-    double &W(int i) { return VortexEdgeVelocity_[i][2]; };
+    double &U(int i) { return VortexEdgeVelocity_[1][i][0]; };
+    double &V(int i) { return VortexEdgeVelocity_[1][i][1]; };
+    double &W(int i) { return VortexEdgeVelocity_[1][i][2]; };
+
+    double &U(int Level, int i) { return VortexEdgeVelocity_[Level][i][0]; };
+    double &V(int Level, int i) { return VortexEdgeVelocity_[Level][i][1]; };
+    double &W(int Level, int i) { return VortexEdgeVelocity_[Level][i][2]; };
     
-    double &Utmp(int i) { return VortexEdgeVelocity_[i][3]; };
-    double &Vtmp(int i) { return VortexEdgeVelocity_[i][4]; };
-    double &Wtmp(int i) { return VortexEdgeVelocity_[i][5]; };
-        
     // Free stream velocity
     
     double &FreeStreamVelocity(int i) { return FreeStreamVelocity_[i];};
     
     double &LocalVelocityAtTrailingEdge(int i) { return LocalVelocityAtTrailingEdge_[i]; };
     
-    double *VortexEdgeVelocity(int i) { return VortexEdgeVelocity_[i]; };
+    double *VortexEdgeVelocity(int i) { return VortexEdgeVelocity_[1][i]; };
+    
+    void ZeroEdgeVelocities(void);
+    
+    void ProlongateEdgeVelocities(void);
     
     // Update the wake location
     
@@ -245,11 +292,7 @@ public:
     // Ground effects analysis flag
     
     int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
-    
-    // KT analysis flag
-    
-    int &NoKarmanTsienCorrection(void) { return NoKarmanTsienCorrection_; };
-    
+
     // Bladed analysis flags
     
     int &RotorAnalysis(void) { return RotorAnalysis_; }; 
@@ -260,15 +303,26 @@ public:
     double &TimeStep(void) { return TimeStep_; };
     
     double &Vinf(void) { return Vinf_; };
-
-    double &MaxConvectedDistance(void) { return MaxConvectedDistance_; };
+ 
+    int &CurrentTimeStep(void) { return CurrentTimeStep_; };
+    
+    void CreateSearchTree(void) { CreateSearchTree_(); };
 
     void SaveVortexState(void);
 
     void WriteToFile(FILE *adb_file);
+    void SkipReadInFile(FILE *adb_file);
     
     void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
 
+    int &Searched(void) { return Searched_; };
+    
+    double &Distance(void) { return Distance_; };
+
+    SEARCH &Search(void) { return *Search_; };
+    
+    double &FarAwayRatio(void) { return FarAway_; };
+            
 };
 
 #endif

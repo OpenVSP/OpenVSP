@@ -60,9 +60,9 @@ public:
     
     int &LoopList(int i) { return LoopList_[i]; };
  
-    double dv_dx(void) { return Gradient_[0]; };
-    double dv_dy(void) { return Gradient_[1]; };
-    double dv_dz(void) { return Gradient_[2]; };
+    double &dv_dx(void) { return Gradient_[0]; };
+    double &dv_dy(void) { return Gradient_[1]; };
+    double &dv_dz(void) { return Gradient_[2]; };
     
     double *Vector(void) { return Gradient_; };
 

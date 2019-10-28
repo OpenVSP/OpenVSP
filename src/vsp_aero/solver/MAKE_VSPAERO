@@ -13,7 +13,8 @@ C_SRCS	=	matrix.C	        \
                 quat.C			     \
                 Vortex.C	    	   \
                 Vortex_Trail.C		\
-		          Vortex_Sheet.C		\
+                Vortex_Bound.C		\
+                Vortex_Sheet.C		\
                 VSP_Geom.C		\
                 VSP_Edge.C		      \
                 VSP_Grid.C	    	   \
@@ -21,14 +22,23 @@ C_SRCS	=	matrix.C	        \
                 VSP_Loop.C          \
                 VSP_Solver.C		   \
                 VSP_Surface.C		   \
-		          RotorDisk.C		    \
+                RotorDisk.C		    \
                 VSP_Agglom.C		   \
-		          time.C 			\
+                time.C 			\
                 FEM_Node.C    \
                 ControlSurface.C    \
                 ControlSurfaceGroup.C    \
-		MatPrecon.C			\
-		Gradient.C			\
+                MatPrecon.C			\
+                Gradient.C			\
+                InteractionLoop.C   \
+                VortexSheetInteractionLoop.C   \
+                VortexSheetVortex_To_VortexInteractionSet.C \
+                MergeSort.C			\
+                SpanLoadData.C       	\
+                ComponentGroup.C		\
+                SearchLeaf.C			\
+                Search.C			\
+                WOPWOP.C			\
                 vspaero.C
           
         

@@ -40,6 +40,8 @@ void VSP_GEOM::init(void)
     VehicleRotationAngleVector_[1] = 0.;    
     VehicleRotationAngleVector_[2] = 0.;    
     
+    DoBladeElementAnalysis_ = 0;
+
 }
 
 /*##############################################################################
@@ -219,7 +221,6 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
     
     NumberOfDegenWings_     = 0;
     NumberOfDegenBodies_    = 0;
-    NumberOfCart3dSurfaces_ = 1;
     NumberOfSurfaces_       = 1;
     
     VSP_Surface_ = new VSP_SURFACE[NumberOfSurfaces_ + 1];
@@ -240,13 +241,15 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 
     }
         
-    // Read in the wing data
+    // Read in the cart3d geometry
 
     sprintf(Name,"CART3D");
 
     VSP_Surface(1).ReadCart3DDataFromFile(Name,Cart3D_File);
     
-    NumberOfSurfacePatches_ = VSP_Surface(1).NumberOfSurfacePatches();
+    NumberOfCart3dSurfaces_ = NumberOfSurfacePatches_ = VSP_Surface(1).NumberOfSurfacePatches();
+    
+    NumberOfComponents_ = NumberOfCart3dSurfaces_;
 
     fclose(Cart3D_File);
     
@@ -349,12 +352,12 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
 {
 
-    int i, Wing, Done, NumberOfBodySets, BodySet, Surface,SurfNDx, GeomIDFlags;
+    int i, Wing, Done, NumberOfBodySets, BodySet, Surface, GeomIDFlags;
     int TotalNumberOfWings, TotalNumberOfBodies;
-    int *ReadInThisWing, *ReadInThisBody, ComponentID;
+    int *ReadInThisWing, *ReadInThisBody, ComponentID, SurfFlag ;
     double Diam, x, y, z, nx, ny, nz, Epsilon, MinVal, MaxVal;
     char VSP_File_Name[2000], DumChar[2000], Type[2000], Name[2000];
-    char GeomID[2000], LastGeomID[2000];
+    char GeomID[2000], LastGeomID[2000], SurfNdx[2000], LastSurfNdx[2000];
     char Comma[2000], *Next;
     VSP_SURFACE SurfaceParser;
     BBOX ComponentBBox;
@@ -389,7 +392,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     fgets(DumChar,1000,VSP_Degen_File);
     fgets(DumChar,1000,VSP_Degen_File); sscanf(DumChar,"%d\n",&NumberOfComponents_);
     
-    printf("NumberOfComponents: %d \n",NumberOfComponents_);
+    printf("Number Of Surfaces: %d \n",NumberOfComponents_);
     
     // Now scan the file and determine how many wings in total
     
@@ -401,7 +404,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
      
        if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;   
        
-       if ( strstr(DumChar,"GEOMID") != NULL ) GeomIDFlags = 1;
+       if ( strstr(DumChar,"GeomID") != NULL ) GeomIDFlags = 1;
        
        if ( strncmp(DumChar,"LIFTING_SURFACE",15) == 0 ) TotalNumberOfWings++;
        
@@ -580,9 +583,9 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     
     rewind(VSP_Degen_File);    
 
-    // Now scan the file and determine how many actuator disks
+    // Now scan the file and determine how many actuator disks / blade element models
     
-    NumberOfRotors_ = 0;
+    NumberOfRotors_ = NumberOfBladeElementSurfaces_ = 0;
     
     Done = 0;
     
@@ -590,10 +593,16 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
      
        if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;   
        
-       if ( strncmp(DumChar,"DISK",4) == 0 ) NumberOfRotors_++;
+       if ( strncmp(DumChar,"DISK",4) == 0 ) {
+          
+          NumberOfRotors_++;
+       
+       }
        
     }        
        
+    if ( DoBladeElementAnalysis_ ) NumberOfBladeElementSurfaces_ = NumberOfRotors_;
+
     if ( NumberOfRotors_ > 0 ) {
        
        rewind(VSP_Degen_File);  
@@ -721,11 +730,14 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           Next = strtok(DumChar,Comma); Next[strcspn(Next, "\n")] = 0;  sprintf(Type,"%s",Next);            
           Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(Name,"%s",Next);       
           
+          SurfFlag = 0;
+                       
           if ( GeomIDFlags ) {
-             
-             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;      
+        
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(DumChar,"%s",Next);    
              Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next);
-             
+
+             if ( strncmp(DumChar,"1",1) == 0 ) SurfFlag = 1;
           }
           
           else {
@@ -735,7 +747,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           }
 
           if ( Verbose_ ) printf("Working on reading wing: %d --> %s with component ID: %s \n",Wing,Name,GeomID);
-  
+
           VSP_Surface(Surface).ReadWingDataFromFile(Name,VSP_Degen_File);
           
           if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
@@ -751,7 +763,9 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     // Read in the body data
 
     sprintf(LastGeomID," ");
-
+    
+    sprintf(LastSurfNdx," ");
+    
     for ( BodySet = 1 ; BodySet <= NumberOfBodySets ; BodySet++ ) {
         
        // Load in the horizontal slices ... read in full geometry
@@ -785,7 +799,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           if ( GeomIDFlags ) {
                  
-             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;      
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(SurfNdx,"%s",Next);
              Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next);
              
           }
@@ -800,9 +814,13 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
                  
           VSP_Surface(Surface).ReadBodyDataFromFile(Name,2,VSP_Degen_File);
           
-          if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
+          if ( Verbose_ ) printf("LastGeomID, GeomID: %s %s .... LastSurfNdx,SurfNdx: %s %s \n",LastGeomID, GeomID,LastSurfNdx,SurfNdx);
+          
+          if ( strcmp(LastGeomID,GeomID) != 0 || ( strcmp(LastGeomID,GeomID) == 0 && strcmp(LastSurfNdx,SurfNdx) != 0 ) ) ComponentID++;
           
           sprintf(LastGeomID,"%s",GeomID);
+          
+          sprintf(LastSurfNdx,"%s",SurfNdx);
           
           VSP_Surface(Surface).ComponentID() = ComponentID;
 
@@ -912,7 +930,8 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
           sprintf(LastGeomID,"%s",GeomID);
           
-          VSP_Surface(Surface).ComponentID() = ComponentID;          
+          VSP_Surface(Surface).ComponentID() = ComponentID;         
+           
        } 
        
        // Load in the vertical slices
@@ -971,13 +990,14 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
           
     }
     
+    NumberOfComponents_ = ComponentID;
+    
     fclose(VSP_Degen_File);
     
     delete [] ReadInThisBody;
     delete [] ReadInThisWing;
     
     printf("Done loading in geometry! \n");fflush(NULL);
-
 
 }
 
@@ -1082,9 +1102,13 @@ void VSP_GEOM::MeshGeom(void)
           if ( VSP_Surface(Surface).SurfaceType() != CART3D_SURFACE ) {
           
              Grid().KuttaNode(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().KuttaNode(i) + NodeOffSet;
+
+             Grid().KuttaNodeSoverB(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().KuttaNodeSoverB(i);
              
              Grid().WingSurfaceForKuttaNode(NumberOfKuttaNodes) = Surface;
              
+             Grid().ComponentIDForKuttaNode(NumberOfKuttaNodes) = VSP_Surface(Surface).ComponentID();
+            
              Grid().WingSurfaceForKuttaNodeIsPeriodic(NumberOfKuttaNodes) = 0;
    
              Grid().WakeTrailingEdgeX(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WakeTrailingEdgeX(i);
@@ -1097,14 +1121,20 @@ void VSP_GEOM::MeshGeom(void)
              
              Grid().KuttaNode(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().KuttaNode(i) + NodeOffSet;
              
+             Grid().KuttaNodeSoverB(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().KuttaNodeSoverB(i);
+             
              Grid().WingSurfaceForKuttaNode(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WingSurfaceForKuttaNode(i);
              
              Grid().WingSurfaceForKuttaNodeIsPeriodic(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WingSurfaceForKuttaNodeIsPeriodic(i);
-   
+             
+             Grid().ComponentIDForKuttaNode(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().ComponentIDForKuttaNode(i);
+             
+             Grid().KuttaNodeIsOnWingTip(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().KuttaNodeIsOnWingTip(i);
+
              Grid().WakeTrailingEdgeX(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WakeTrailingEdgeX(i);
              Grid().WakeTrailingEdgeY(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WakeTrailingEdgeY(i);
              Grid().WakeTrailingEdgeZ(NumberOfKuttaNodes) = VSP_Surface(Surface).Grid().WakeTrailingEdgeZ(i);
-             
+            
           }             
           
        }
@@ -1194,9 +1224,10 @@ void VSP_GEOM::MeshGeom(void)
 
        Grid_[i] = Agglomerate.Agglomerate(*(Grid_[i-1]));
        
-       if (     Grid_[i]->NumberOfLoops() > 0 &&
-                Grid_[i]->NumberOfEdges() > 0 &&
-             2.*Grid_[i]->NumberOfLoops() <= Grid_[i-1]->NumberOfLoops() ) {
+       if ( i <= 2 ||      
+            (    Grid_[i]->NumberOfLoops() >   0 &&
+                 Grid_[i]->NumberOfEdges() >   0 &&
+              2.*Grid_[i]->NumberOfLoops() <= Grid_[i-1]->NumberOfLoops() ) ) {
           
           Grid_[i]->CalculateUpwindEdges();   
        
@@ -1218,7 +1249,7 @@ void VSP_GEOM::MeshGeom(void)
 
     }
 
-    NumberOfGridLevels_ = i-1;
+    NumberOfGridLevels_ = i - 1;
 
     printf("NumberOfGridLevels_: %d \n",NumberOfGridLevels_);    
     printf("NumberOfSurfacePatches_: %d \n",NumberOfSurfacePatches_);

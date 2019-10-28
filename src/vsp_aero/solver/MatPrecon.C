@@ -95,8 +95,6 @@ MATPRECON &MATPRECON::operator=(const MATPRECON &MatPrecon)
 void MATPRECON::Size(int NumberOfVortexLoops)
 {
 
-    int i;
-
     NumberOfVortexLoops_ = NumberOfVortexLoops;
     
     A_ = new MATRIX;

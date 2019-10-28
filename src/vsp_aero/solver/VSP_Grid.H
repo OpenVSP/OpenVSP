@@ -44,6 +44,8 @@ private:
 
     int SurfaceType_;
     
+    int ComponentID_;
+
     double MinLoopArea_;
         
     // Wake data
@@ -53,10 +55,14 @@ private:
     int *KuttaNode_;
     int *WingSurfaceForKuttaNode_;
     int *WingSurfaceForKuttaNodeIsPeriodic_;
+    int *ComponentIDForKuttaNode_;
+    int *KuttaNodeIsOnWingTip_;
         
     double *WakeTrailingEdgeX_;
     double *WakeTrailingEdgeY_;
     double *WakeTrailingEdgeZ_;    
+    
+    double *KuttaNodeSoverB_;
 
 public:
 
@@ -146,15 +152,23 @@ public:
     int NumberOfKuttaNodes(void) { return NumberOfKuttaNodes_; };
     int &KuttaNode(int i) { return KuttaNode_[i]; };
     int &WingSurfaceForKuttaNode(int i) { return WingSurfaceForKuttaNode_[i]; };
+    int &ComponentIDForKuttaNode(int i) { return ComponentIDForKuttaNode_[i]; };
     int &WingSurfaceForKuttaNodeIsPeriodic(int i) { return WingSurfaceForKuttaNodeIsPeriodic_[i]; };
+    int &KuttaNodeIsOnWingTip(int i) { return KuttaNodeIsOnWingTip_[i]; };
     
     double &WakeTrailingEdgeX(int i) { return WakeTrailingEdgeX_[i]; };
     double &WakeTrailingEdgeY(int i) { return WakeTrailingEdgeY_[i]; };
     double &WakeTrailingEdgeZ(int i) { return WakeTrailingEdgeZ_[i]; };
     
+    double &KuttaNodeSoverB(int i) { return KuttaNodeSoverB_[i]; };
+    
     // Surface type
     
     int &SurfaceType(void) { return SurfaceType_; };
+    
+    // Component ID
+    
+    int &ComponentID(void) { return ComponentID_; };
    
     // Create edge data
     
@@ -177,7 +191,7 @@ public:
     
     // Geometry update
     
-    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
 
 };
 

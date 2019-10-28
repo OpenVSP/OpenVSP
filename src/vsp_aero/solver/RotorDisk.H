@@ -1,4 +1,5 @@
 //
+//
 // This file is released under the terms of the NASA Open Source Agreement (NOSA)
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
@@ -41,7 +42,7 @@ private:
     
     double VinfMag_;
 
-    double Rotor_JRatio(void) { return VinfMag_ / ( 2. * ABS(RotorRPM_) * RotorRadius_ /60. ); };
+    double Rotor_JRatio(void) { return ABS(VinfMag_) / ( 2. * ABS(RotorRPM_) * RotorRadius_ /60. ); };
 
     double RotorArea(void) { return PI*RotorRadius_*RotorRadius_; };
     
@@ -111,6 +112,7 @@ public:
     
     void Write_Binary_STP_Data(FILE *InputFile); 
     void Read_Binary_STP_Data(FILE *InputFile);    
+    void Skip_Read_Binary_STP_Data(FILE *InputFile);
     
     // Geometry update
     

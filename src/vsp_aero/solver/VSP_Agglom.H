@@ -12,6 +12,7 @@
 #include <string.h>
 #include <math.h>
 #include "utils.H"
+#include "time.H"
 #include "VSP_Node.H"
 #include "VSP_Loop.H"
 #include "VSP_Grid.H"
@@ -113,6 +114,8 @@ private:
     void CleanUpHighAspectRatioTris_(void);
 
     void CleanUpSmallAreaLoops_(void);
+    
+    void CheckForDegenerateNodes_(void);
 
     void FindNeighborLoopOnLocalEdge_(VSP_GRID &ThisGrid, int Tri, int LocalEdge, 
                                       int &NeighborTri, int &Node1, int &Node2);

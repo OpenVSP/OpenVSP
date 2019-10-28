@@ -50,6 +50,14 @@ void VSP_GRID::init(void)
     
     WingSurfaceForKuttaNodeIsPeriodic_ = NULL;   
     
+    ComponentIDForKuttaNode_ = NULL;
+    
+    KuttaNodeIsOnWingTip_ = NULL;
+    
+    SurfaceType_ = 0;
+    
+    ComponentID_ = 0;
+    
     Verbose_ = 0;
 
 }
@@ -141,13 +149,21 @@ void VSP_GRID::SizeKuttaNodeList(int NumberOfKuttaNodes)
     
     WingSurfaceForKuttaNodeIsPeriodic_ = new int[NumberOfKuttaNodes_ + 1];
     
+    ComponentIDForKuttaNode_ = new int[NumberOfKuttaNodes_ + 1];
+    
+    KuttaNodeIsOnWingTip_ = new int[NumberOfKuttaNodes_ + 1];
+    
     zero_int_array(KuttaNode_ ,NumberOfKuttaNodes_);
     zero_int_array(WingSurfaceForKuttaNode_ ,NumberOfKuttaNodes_);
     zero_int_array(WingSurfaceForKuttaNodeIsPeriodic_ ,NumberOfKuttaNodes_);
+    zero_int_array(ComponentIDForKuttaNode_ ,NumberOfKuttaNodes_);
+    zero_int_array(KuttaNodeIsOnWingTip_ ,NumberOfKuttaNodes_);
     
     WakeTrailingEdgeX_ = new double[NumberOfKuttaNodes_ + 1];
     WakeTrailingEdgeY_ = new double[NumberOfKuttaNodes_ + 1];
     WakeTrailingEdgeZ_ = new double[NumberOfKuttaNodes_ + 1];       
+    
+    KuttaNodeSoverB_ = new double[NumberOfKuttaNodes_ + 1];       
 
 }
 
@@ -266,9 +282,9 @@ void VSP_GRID::CreateTriEdges(void)
 {
 
     int i, j, k, nod1, nod2, noda, nodb, start_edge, Node1, Node2, Edge;
-    int level, edge_to_node[4][3], nod_list[4], Tri1, Tri2;
+    int level, edge_to_node[4][3], nod_list[4], Tri1, Tri2, Node;
     int max_edge, new_edge, *jump_pnt;
-    double x1, y1, z1, x2, y2, z2;
+    double x1, y1, z1, x2, y2, z2, Normal[3], Dot;
     EDGE_ENTRY *list, *tlist;
 
     if ( Verbose_ ) printf("Finding tri edges... \n");
@@ -633,6 +649,8 @@ void VSP_GRID::CreateTriEdges(void)
        EdgeList(Edge).DegenBody() = LoopList(j).DegenBodyID();
        
        EdgeList(Edge).Cart3DSurface() = LoopList(j).Cart3dID();
+       
+       EdgeList(Edge).ComponentID() = LoopList(j).ComponentID();
 
        // Edge 2
        
@@ -643,6 +661,8 @@ void VSP_GRID::CreateTriEdges(void)
        EdgeList(Edge).DegenBody() = LoopList(j).DegenBodyID();
        
        EdgeList(Edge).Cart3DSurface() = LoopList(j).Cart3dID();
+
+       EdgeList(Edge).ComponentID() = LoopList(j).ComponentID();
        
        // Edge 3
        
@@ -654,8 +674,35 @@ void VSP_GRID::CreateTriEdges(void)
        
        EdgeList(Edge).Cart3DSurface() = LoopList(j).Cart3dID();
        
+       EdgeList(Edge).ComponentID() = LoopList(j).ComponentID();
+       
     }
-           
+     
+    
+    // Mark nodes to the surface they belong to
+
+    for ( j = 1 ; j <= NumberOfTris() ; j++ ) {
+
+       // Node 1
+       
+       Node = LoopList(j).Node1();
+
+       NodeList(Node).ComponentID() = LoopList(j).ComponentID();
+
+       // Node 2
+       
+       Node = LoopList(j).Node2();
+
+       NodeList(Node).ComponentID() = LoopList(j).ComponentID();
+       
+       // Node 3
+       
+       Node = LoopList(j).Node3();
+
+       NodeList(Node).ComponentID() = LoopList(j).ComponentID();
+       
+    }
+               
     for ( j = 1 ; j <= NumberOfEdges() ; j++ ) {
      
        // Leading, trailing, and general edge list information
@@ -686,20 +733,37 @@ void VSP_GRID::CreateTriEdges(void)
        }
 
     }
-    
-    
-    // Mark edges on boarders of diffrent surface IDs
+        
+    // Mark edges on boarders of diffrent surface IDs, and calculate normal
     
     for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
        
        Tri1 = EdgeList(i).Tri1();
        Tri2 = EdgeList(i).Tri2();
        
+       // Mark boundary edges
+       
        if ( LoopList(Tri1).SurfaceID() != LoopList(Tri2).SurfaceID() ) {
           
           if ( EdgeList(i).IsTrailingEdge() == 0 ) EdgeList(i).IsBoundaryEdge() = 1;
              
        }
+       
+       // Calculate average normal
+       
+       Normal[0] = LoopList(Tri1).Area() * LoopList(Tri1).Nx() + LoopList(Tri2).Area() * LoopList(Tri2).Nx();
+       Normal[1] = LoopList(Tri1).Area() * LoopList(Tri1).Ny() + LoopList(Tri2).Area() * LoopList(Tri2).Ny();
+       Normal[2] = LoopList(Tri1).Area() * LoopList(Tri1).Nz() + LoopList(Tri2).Area() * LoopList(Tri2).Nz();
+       
+       Dot = sqrt(vector_dot(Normal,Normal));
+       
+       Normal[0] /= Dot;
+       Normal[1] /= Dot;
+       Normal[2] /= Dot;
+       
+       EdgeList(i).Normal()[0] = Normal[0];
+       EdgeList(i).Normal()[1] = Normal[1];
+       EdgeList(i).Normal()[2] = Normal[2];
        
     }    
     
@@ -853,34 +917,28 @@ void VSP_GRID::CalculateUpwindEdges(void)
   
        LoopList(k).Length() = sqrt(LoopList(k).Area());
        
-       // Calculate cell aspect ratio
+       // Calculate smallest edge length for cell
 
        DsMin = 1.e9;
-       DsMax = -DsMin;
+       DsMax = -DsMin;       
+
+       for ( j = 1 ; j <= LoopList(k).NumberOfEdges() ; j++ ) {
        
-       for ( j = 1 ; j <= LoopList(k).NumberOfNodes() ; j++ ) {
-       
-          Node1 = LoopList(k).Node(j);
-          
-          Vec[0] = NodeList(Node1).x() - LoopList(k).Xc();
-          Vec[1] = NodeList(Node1).y() - LoopList(k).Yc();
-          Vec[2] = NodeList(Node1).z() - LoopList(k).Zc();
-    
-          Ds = sqrt(vector_dot(Vec,Vec));
-          
+          Edge = LoopList(k).Node(j);
+
+          Ds = EdgeList(Edge).Length();
+
           DsMin = MIN(Ds,DsMin);
           DsMax = MAX(Ds,DsMax);
+          
+       }  
+       
+       LoopList(k).RefLength() = DsMin;
 
-       }   
-       
-    //   printf("AR: %f \n",DsMax/DsMin);
-       
-       
-   //    LoopList(k).Length() *= MAX(DsMax/DsMin,1.);
-       
-    //   LoopList(k).Length() *= 2.;
-       
+
     } 
+    
+    
 
 }
 
@@ -1141,39 +1199,38 @@ void VSP_GRID::WriteMesh(char *FileName)
 #                                                                              #
 ##############################################################################*/
 
-void VSP_GRID::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat)
+void VSP_GRID::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup)
 {
  
     int i;
     QUAT Vec;
     
     // Update nodal data
-    
+
     for ( i = 1 ; i <= NumberOfNodes_ ; i++ ) {
-       
-       NodeList(i).UpdateGeometryLocation(TVec, OVec, Quat, InvQuat);
-    
+
+       if ( ComponentInThisGroup[NodeList(i).ComponentID()] ) NodeList(i).UpdateGeometryLocation(TVec, OVec, Quat, InvQuat);
+
     }
-    
+
     // Update edge data
         
     for ( i = 1 ; i <= NumberOfEdges() ; i++ ) {
 
-       EdgeList(i).UpdateGeometryLocation(TVec, OVec, Quat, InvQuat);
+       if ( ComponentInThisGroup[EdgeList(i).ComponentID()] ) EdgeList(i).UpdateGeometryLocation(TVec, OVec, Quat, InvQuat);
        
     }
             
     // Update loop data
     
     for ( i = 1 ; i <= NumberOfLoops_ ; i++ ) {
-     
-       LoopList(i).UpdateGeometryLocation(TVec, OVec, Quat, InvQuat);
+  
+       if ( ComponentInThisGroup[LoopList(i).ComponentID()] ) LoopList(i).UpdateGeometryLocation(TVec, OVec, Quat, InvQuat);
 
     }
     
     // Update wake trailing edge locations
 
-    
     for ( i = 1 ; i <= NumberOfKuttaNodes_ ; i++ ) {
     
        Vec(0) = WakeTrailingEdgeX_[i] - OVec[0];

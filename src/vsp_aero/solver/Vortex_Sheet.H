@@ -14,7 +14,29 @@
 #include <assert.h>
 #include "utils.H"
 #include "Vortex_Trail.H"
+#include "Vortex_Bound.H"
+#include "Interaction.H"
 #include "time.H"
+
+class COMMON_VORTEX_SHEET {
+
+private: 
+
+    int Sheet_i_;
+    int Sheet_j_;
+    
+    int TEVortex_i_;
+    int TEVortex_j_;
+
+public: 
+
+    int &Sheet_i(void) { return Sheet_i_; };
+    int &Sheet_j(void) { return Sheet_j_; };
+
+    int &TEVortex_i(void) { return TEVortex_i_; };
+    int &TEVortex_j(void) { return TEVortex_j_; };
+ 
+};
 
 // Definition of the VORTEX_SHEET class
 
@@ -28,9 +50,13 @@ private:
     
     // Initial trailing vortex list
     
+    int WingSurface_;
+    
     int IsPeriodic_;
     
     int Level_;
+    
+    int SheetID_;
     
     int NumberOfLevels_;
     
@@ -45,23 +71,35 @@ private:
     int TimeAnalysisType_;
     
     int DoGroundEffectsAnalysis_;
-    
-    int NoKarmanTsienCorrection_;
+
+    int CurrentTimeStep_;
     
     double Vinf_;
     
     double FreeStreamVelocity_[3];
     
     double TimeStep_;
-    
-    double MaxConvectedDistance_;
 
     double **TrailingGamma_;
     
     double **StartingGamma_;
+        
+    double *VortexTrailingGamma1_;
+    
+    double *VortexTrailingGamma2_;
+    
+    double ***TrailingGammaListForLevel_;
 
-    VORTEX_TRAIL *TrailingVortexList_;
+    double &StartingGamma(int i) { return StartingGamma_[0][i]; };
 
+    double CoreSize_;
+    
+    double Distance_;
+    
+    static double FarAway_;
+
+    VORTEX_TRAIL **TrailingVortexList_;
+    
     // Agglomerated trailing vortex list
     
     int NumberOfAgglomeratedTrailingVortices_;
@@ -73,17 +111,15 @@ private:
     // Trailing vortex lists for each sub level
     
     int *NumberOfTrailingVorticesForLevel_;
-    
-    int **TrailingVortexEvaluatedAtLevel_;
-    
-    double **TrailingVortexGammaForLevel_;
-    
+
     VORTEX_TRAIL ***TrailingVortexListForLevel_;
     
     // Trailing vortex sheet list for each sub level
     
     int *NumberOfVortexSheetsForLevel_;
     
+    int TotalNumberOfVortexSheets_;
+
     VORTEX_SHEET **VortexSheetListForLevel_;
     
     // Left and right trailing vortex
@@ -99,8 +135,10 @@ private:
     VORTEX_SHEET *Child2_;
     
     // Startup vortices for this vortex sheet    
-        
-    VSP_EDGE *StartingVortexList_;
+            
+    VORTEX_BOUND BoundVortex_;
+    
+    VORTEX_BOUND &BoundVortex(void) { return BoundVortex_; };
 
     // Set up the vortex sheets
 
@@ -111,18 +149,31 @@ private:
     // Velocity calculations
     
     double Span_;
-    double MidSpan_[3];
     
     void CreateTrailingVortexInteractionList(VORTEX_SHEET &VortexSheet, double xyz_p[3]);
-    
-    void InjectCirculation(void);
+
+    void CreateVortexSheetInteractionList(VORTEX_SHEET &VortexSheet, double xyz_p[3]);
 
     void StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, double xyz_p[3], double dq[3]);
+    
+    void StartingVorticesInducedVelocity(VORTEX_SHEET &VortexSheet, double xyz_p[3], double dq[3], double CoreSize);
     
     void UpdateGeometryLocation(void);
 
     int Evaluate_;
+
+    // TE Bounding Box
     
+    BBOX TEBox_;
+    
+    // Common trailing edge node list
+    
+    int NumberOfCommonTE_;
+    
+    int *NumberOfCommonNodesForTE_;
+       
+    COMMON_VORTEX_SHEET *CommonTEList_;   
+     
 public:
 
     // Constructor, Destructor, Copy
@@ -134,10 +185,15 @@ public:
     // Copy function
 
     VORTEX_SHEET& operator=(const VORTEX_SHEET &Vortex_Sheet);
+    VORTEX_SHEET& operator+=(const VORTEX_SHEET &VortexSheet);
     
     // Set up the vortex sheet
 
     void SetupVortexSheets(void);
+    
+    // Wing Surface ID
+    
+    int &WingSurface(void) { return WingSurface_; };
         
     // Trailing vortices
     
@@ -149,7 +205,9 @@ public:
     
     int NumberOfTrailingVortices(void) { return NumberOfTrailingVortices_; };
     
-    VORTEX_TRAIL& TrailingVortexEdge(int i) { return TrailingVortexList_[i]; };
+    int TotalNumberOfVortexSheets(void) { return TotalNumberOfVortexSheets_; };
+    
+    VORTEX_TRAIL& TrailingVortexEdge(int i) { return *(TrailingVortexList_[i]); };
 
     // Left and right trailing vortices
     
@@ -157,6 +215,13 @@ public:
 
     VORTEX_TRAIL& VortexTrail1(void) { return *VortexTrail1_; };
     VORTEX_TRAIL& VortexTrail2(void) { return *VortexTrail2_; };    
+    
+    // Set left and right vortex strengths for injection
+    
+    void SetVortexGammas(double *Gamma1, double *Gamma2) { VortexTrailingGamma1_ = Gamma1 ; VortexTrailingGamma2_ = Gamma2; };
+
+    double &TrailingGamma1(int i) { return VortexTrailingGamma1_[i]; };
+    double &TrailingGamma2(int i) { return VortexTrailingGamma2_[i]; };
 
     // Vortex sheet children
     
@@ -167,11 +232,7 @@ public:
     
     VORTEX_SHEET &Child1(void) { return *Child1_; };
     VORTEX_SHEET &Child2(void) { return *Child2_; };
-    
-    // Starting vortex list
-    
-    VSP_EDGE &StartingVortexList(int i) { return StartingVortexList_[i]; };
-    
+
     // Level for this vortex sheet
     
     int &Level(void) { return Level_; };
@@ -180,20 +241,32 @@ public:
     
     int &Evaluate(void) { return Evaluate_; };    
     
+    // Sheed ID
+    
+    int &SheetID(void) { return SheetID_; };
+    
+    // Distance to evaluation point
+    
+    double &Distance(void) { return Distance_; };
+    
+    // Span
+    
+    double Span(void) { return Span_; };
+    
     // Time accurate data
     
     int &TimeAccurate(void) { return TimeAccurate_; };
     
     int &TimeAnalysisType(void ) { return TimeAnalysisType_; };
 
+    int &CurrentTimeStep(void) { return CurrentTimeStep_; };
+    
     double &Vinf(void) { return Vinf_; };
     
     double &FreeStreamVelocity(int i) { return FreeStreamVelocity_[i]; };
     
     double &TimeStep(void) { return TimeStep_; };
-    
-    double &MaxConvectedDistance(void) { return MaxConvectedDistance_; };
-    
+
     // Induced velocity from this vortex sheet
     
     void Setup(void);
@@ -201,27 +274,59 @@ public:
     int &IsPeriodic(void) { return IsPeriodic_; };
 
     int FarAway(double xyz_p[3]);
+    
+    double Distance(double xyz_p[3]);
         
     void SaveVortexState(void);
     
     void UpdateVortexStrengths(int UpdateType);
+    
+    void UpdateConvectedDistance(void);
+    
+    VORTEX_SHEET_ENTRY *CreateInteractionSheetList(double xyz_p[3], int &NumberOfEvaluatedSheets);
     
     void InducedVelocity(double xyz_p[3], double q[3]);
     
     void InducedVelocity(double xyz_p[3], double q[3], double xyz_te[3]);
     
     void InducedKuttaVelocity(double xyz_p[3], double q[3]);    
-    
+
+    void InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, double xyz_p[3], double q[3]);
+
+    void InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, double xyz_p[3], double xyz_te[3], double q[3]);
+ 
+    void InducedKuttaVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *SheetList, double xyz_p[3], double q[3]);
+   
     double StartingGamma(int i, int j) { return StartingGamma_[i][j]; };
-    
-    int &NoKarmanTsienCorrection(void) { return NoKarmanTsienCorrection_; };
-    
+ 
     int &DoGroundEffectsAnalysis(void) { return DoGroundEffectsAnalysis_; };
     
     double UpdateWakeLocation(void);
     
-    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat, int *ComponentInThisGroup);
 
+    void ZeroEdgeVelocities(void);
+
+    void ProlongateEdgeVelocities(void);
+    
+    double CoreSize(void) { return CoreSize_; };
+    
+    double &FarAwayRatio(void) { return FarAway_; };
+
+    // Wake Bounding Box
+    
+    BBOX &TEBox(void) { return TEBox_; };    
+
+    // Common trailing edge node list
+    
+    void SizeCommonTEList(int NumberOfCommonTE);
+
+    int NumberOfCommonTE(void) { return NumberOfCommonTE_; };
+    
+    int &NumberOfCommonNodesForTE(int i) { return NumberOfCommonNodesForTE_[i]; };
+       
+    COMMON_VORTEX_SHEET &CommonTEList(int i) { return CommonTEList_[i]; };      
+    
 };
 
 #endif

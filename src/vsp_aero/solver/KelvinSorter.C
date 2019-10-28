@@ -85,7 +85,7 @@
                   
                    else if ( LoopInKelvinConstraintGroup_[Loop1] != -KelvinGroup ){
                      
-                      printf("WTF... how did we jump to another Kelvin Group... \n"); fflush(NULL);
+                      printf("wtf... how did we jump to another Kelvin Group... \n"); fflush(NULL);
                       exit(1);
                       
                    }
@@ -100,7 +100,7 @@
                   
                    else if ( LoopInKelvinConstraintGroup_[Loop1] != -KelvinGroup ){
                      
-                      printf("WTF... how did we jump to another Kelvin Group... \n"); fflush(NULL);
+                      printf("wtf... how did we jump to another Kelvin Group... \n"); fflush(NULL);
                       exit(1);
                      
                    }    
@@ -355,7 +355,7 @@ printf("j: %d  out of: %d \n",j,VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes());f
                         
                         else if ( LoopInKelvinConstraintGroup_[Loop1] != -KelvinGroup ){
                            
-                           printf("WTF... how did we jump to another Kelvin Group... \n"); fflush(NULL);
+                           printf("wtf... how did we jump to another Kelvin Group... \n"); fflush(NULL);
                            exit(1);
                            
                         }
@@ -370,7 +370,7 @@ printf("j: %d  out of: %d \n",j,VSPGeom().Grid(MGLevel_).NumberOfKuttaNodes());f
                         
                         else if ( LoopInKelvinConstraintGroup_[Loop1] != -KelvinGroup ){
                            
-                           printf("WTF... how did we jump to another Kelvin Group... \n"); fflush(NULL);
+                           printf("wtf... how did we jump to another Kelvin Group... \n"); fflush(NULL);
                            exit(1);
                            
                         }    

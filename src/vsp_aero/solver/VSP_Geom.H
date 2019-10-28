@@ -62,6 +62,11 @@ private:
     
     int NumberOfCart3dSurfaces_;
     
+    // Blade Element data
+    
+    int DoBladeElementAnalysis_;
+    int NumberOfBladeElementSurfaces_;
+    
     // Rotor Disk Data
     
     int NumberOfRotors_;
@@ -134,6 +139,10 @@ public:
  
     void LoadFEMDeformationData(char *FileName);
     void FEMDeformGeometry(void);    
+    
+    // Force blade element analysis of rotors
+    
+    int &DoBladeElementAnalysis(void) { return DoBladeElementAnalysis_; };
 
     // Meshing
     
@@ -148,6 +157,8 @@ public:
     int NumberOfDegenBodies(void) { return NumberOfDegenBodies_; };
 
     int NumberOfCart3dSurfaces(void) { return NumberOfCart3dSurfaces_; };
+    
+    int NumberOfBladeElementSurfaces(void) { return NumberOfBladeElementSurfaces_; };
  
     int NumberOfSurfaces(void) { return NumberOfSurfaces_; };
     

@@ -47,6 +47,8 @@ private:
     
     double Length_;
     
+    double RefLength_;
+    
     double CentroidOffSet_;
 
     // Triangle Normal
@@ -75,10 +77,10 @@ private:
     double dCp_;
     double dCp_Unsteady_;
     double Velocity_[3];
-    double CompressibilityFactor_;
-        
+    double DownWash_Velocity_[3];    
     double Force_[3];
     double NormalForce_;
+    double KTFact_;
     
     int SurfaceType_;
     int DegenBodyID_;
@@ -101,6 +103,10 @@ private:
     BBOX BoundBox_;
     
     int LoopUsed_;
+    
+    // Local free stream velocity
+    
+    double LocalFreeStreamVelocity_[5];
 
 public:
 
@@ -161,6 +167,8 @@ public:
     
     double &Length(void) { return Length_; };
     
+    double &RefLength(void) { return RefLength_; };
+    
     double &CentroidOffSet(void) { return CentroidOffSet_; };
 
     double &Nx(void) { return Normal_[0]; };
@@ -190,10 +198,15 @@ public:
     
     double *Velocity(void) { return Velocity_; };
     
+    double &DownWash_U(void) { return DownWash_Velocity_[0]; };
+    double &DownWash_V(void) { return DownWash_Velocity_[1]; };
+    double &DownWash_W(void) { return DownWash_Velocity_[2]; };
+    
+    double *DownWash_Velocity(void) { return DownWash_Velocity_; };
+
     double &Gamma(void) { return Gamma_; };
     double &dCp(void) { return dCp_; };
     double &dCp_Unsteady(void) { return dCp_Unsteady_; };
-    double &CompressibilityFactor(void) { return CompressibilityFactor_; };
   
     double &Fx(void) { return Force_[0]; };
     double &Fy(void) { return Force_[1]; };
@@ -201,6 +214,8 @@ public:
     double *Force(void) { return Force_; };
     
     double &NormalForce(void) { return NormalForce_; };
+    
+    double &KTFact(void) { return KTFact_; };
     
     int &SurfaceType(void) { return SurfaceType_; };
     int &DegenBodyID(void) { return DegenBodyID_; };
@@ -226,6 +241,11 @@ public:
     
     int &LoopUsed(void) { return LoopUsed_; };
    
+    // Local free stream velocity
+    
+    double &LocalFreeStreamVelocity(int i) { return LocalFreeStreamVelocity_[i]; };
+    double *LocalFreeStreamVelocity(void) { return LocalFreeStreamVelocity_; };
+       
     void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };

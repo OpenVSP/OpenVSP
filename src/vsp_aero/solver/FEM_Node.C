@@ -260,11 +260,11 @@ double FEM_NODE::InterpolateFunction_(double *x, double *f, double s)
    
    if ( s <= x[1] ) return f[1];
    
-  // if ( s >= x[NumberOfFEMNodes_] ) return f[NumberOfFEMNodes_];
+   if ( s >= x[NumberOfFEMNodes_] ) return f[NumberOfFEMNodes_];
 
    // S above upper bound
   
-   if ( s >= x[NumberOfFEMNodes_] ) {
+   if ( 0&&s >= x[NumberOfFEMNodes_] ) {
    
       i = NumberOfFEMNodes_ - 1;
       

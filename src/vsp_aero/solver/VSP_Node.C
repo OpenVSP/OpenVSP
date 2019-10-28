@@ -57,6 +57,8 @@ VSP_NODE& VSP_NODE::operator=(const VSP_NODE &VSPNode)
     
     CoarseGridNode_       = VSPNode.CoarseGridNode_;
     FineGridNode_         = VSPNode.FineGridNode_;  
+    
+    ComponentID_          = VSPNode.ComponentID_;
 
     return *this;
 
@@ -85,7 +87,7 @@ void VSP_NODE::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QU
 {
 
     QUAT Vec;
-    
+ 
     // Update location
     
     Vec(0) = x_ - OVec[0];

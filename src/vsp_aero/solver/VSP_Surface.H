@@ -71,6 +71,8 @@ private:
     
     int ComponentID_;
     
+    int Case_;
+    
     // Degenerate mesh flags
     
     int NoseIsClosed_;
@@ -86,6 +88,16 @@ private:
     double *x_;
     double *y_;
     double *z_;
+    
+    // Normals, for wire frame geometry
+    
+    double *Nx_;
+    double *Ny_;
+    double *Nz_;
+    
+    // Area
+    
+    double *Area_;
     
     // UV coordinates
     
@@ -137,7 +149,7 @@ private:
     void SizeGeometryLists(int NumI, int NumJ);
     void SizeFlatPlateLists(int NumI, int NumJ);
         
-    // Access to xyz
+    // Access to wire frame surface data - xyz, u, v, etc...
     
     double &x(int i) { return x_[i]; };
     double &y(int i) { return y_[i]; };
@@ -148,9 +160,15 @@ private:
     double &x(int i, int j) { return x_[(i-1)*NumGeomJ_ + j]; };
     double &y(int i, int j) { return y_[(i-1)*NumGeomJ_ + j]; };
     double &z(int i, int j) { return z_[(i-1)*NumGeomJ_ + j]; };
-    
+
+    double &Nx(int i, int j) { return Nx_[(i-1)*NumGeomJ_ + j]; };
+    double &Ny(int i, int j) { return Ny_[(i-1)*NumGeomJ_ + j]; };
+    double &Nz(int i, int j) { return Nz_[(i-1)*NumGeomJ_ + j]; };
+        
     double &u(int i, int j) { return u_[(i-1)*NumGeomJ_ + j]; };
     double &v(int i, int j) { return v_[(i-1)*NumGeomJ_ + j]; };
+    
+    double &Area(int i, int j) { return Area_[(i-1)*NumGeomJ_ + j]; };
     
     // Access to flat plate representation
 
@@ -223,7 +241,7 @@ private:
     double Tip_LE_[3];
     double Tip_TE_[3];
     double Tip_QC_[3];    
-    
+
     // Average chord
     
     double AverageChord_;
@@ -271,6 +289,10 @@ private:
     
     void CreateUpwindEdgeData(int SurfaceID);
     
+    // Do RCM Sort
+    
+    void DoRCMSort(void);
+    
     // Find sharp trailing edges
     
     void FindSharpEdges(void);
@@ -311,6 +333,30 @@ public:
 
     VSP_SURFACE& operator=(const VSP_SURFACE &VSP_Surface);
     
+    // Access to wire frame surface data - xyz, u, v, etc...
+    
+    int Surface_NumI(void) { return NumGeomI_; };
+    int Surface_NumJ(void) { return NumGeomJ_; };
+        
+    double Surface_x(int i) { return x_[i]; };
+    double Surface_y(int i) { return y_[i]; };
+    double Surface_z(int i) { return z_[i]; };
+    double Surface_u(int i) { return u_[i]; };
+    double Surface_v(int i) { return v_[i]; };
+
+    double Surface_x(int i, int j) { return x_[(i-1)*NumGeomJ_ + j]; };
+    double Surface_y(int i, int j) { return y_[(i-1)*NumGeomJ_ + j]; };
+    double Surface_z(int i, int j) { return z_[(i-1)*NumGeomJ_ + j]; };
+
+    double Surface_Nx(int i, int j) { return Nx_[(i-1)*NumGeomJ_ + j]; };
+    double Surface_Ny(int i, int j) { return Ny_[(i-1)*NumGeomJ_ + j]; };
+    double Surface_Nz(int i, int j) { return Nz_[(i-1)*NumGeomJ_ + j]; };
+        
+    double Surface_u(int i, int j) { return u_[(i-1)*NumGeomJ_ + j]; };
+    double Surface_v(int i, int j) { return v_[(i-1)*NumGeomJ_ + j]; };
+    
+    double Surface_Area(int i, int j) { return Area_[(i-1)*NumGeomJ_ + j]; };
+    
     // Access to the number of nodes in each direction
     
     int NumberOfSpanStations(void) { return NumPlateI_ - 1; };
@@ -335,6 +381,12 @@ public:
     double yTE_Def(int i) { return yTE_Def_[i]; };
     double zTE_Def(int i) { return zTE_Def_[i]; };    
     
+    // Flat plate normal
+    
+    double NxQC(int i) { return Nx_FlatPlateNormal_[i]; };
+    double NyQC(int i) { return Ny_FlatPlateNormal_[i]; };
+    double NzQC(int i) { return Nz_FlatPlateNormal_[i]; };
+ 
     // Arc length along wing, from root to top
     
     double s(int i) { return s_[i]; };
@@ -407,6 +459,10 @@ public:
     
     int &ComponentID(void) { return ComponentID_; };
     
+    // Case number... DegenGeoms are split 4 ways, keep track of which one we are
+    
+    int &Case(void) { return Case_; };
+    
     // Number of surface patches
     
     int NumberOfSurfacePatches(void) { return NumberOfSurfacePatches_; };
@@ -428,6 +484,9 @@ public:
     
     CONTROL_SURFACE &ControlSurface(int i) { return ControlSurface_[i]; };
     
+    // Update geometry location
+    
+    void UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QUAT &InvQuat);
 
 };
 

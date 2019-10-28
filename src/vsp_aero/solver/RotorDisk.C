@@ -199,22 +199,41 @@ void ROTOR_DISK::VelocityPotential(double xyz[3], double q[5])
 
 /*##############################################################################
 #                                                                              #
-#                              ROTOR_DISK VelX                                 #
+#                              ROTOR_DISK Velocity                             #
 #                                                                              #
 ##############################################################################*/
 
 void ROTOR_DISK::Velocity(double xyz[3], double q[5])
 {
 
-    double Term1, Term2, Vh, alpha, z, r, sinf, f, vec[3], rvec[3], tvec[3], mag;
+    double z, r, zp;
+    double Term1, Term2, Vh, alpha, sinf, f, vec[3], rvec[3], tvec[3], mag;
     double Velocity_X, Velocity_R, Velocity_T, Omega, VxR0, Delta_Cp, Fact;
     double eta_mom, eta_prop, CT_h, CP_h, Sigma_Cd, Sigma_Cl, Vo, TotalVinfMag;
+    double RotorWakeNormal[3];
     
     // Local free stream velocity normal to rotor
             
     VinfMag_ = vector_dot(Vinf_,RotorNormal_);
     
     TotalVinfMag = sqrt(vector_dot(Vinf_,Vinf_));
+    
+    // Rotor down wash
+    
+    Vh = -0.5*VinfMag_ + sqrt( pow(0.5*VinfMag_,2.) + RotorThrust()/(2.*Density_*RotorArea()) );
+    
+    // Calculate approximate direction of rotor down wash 
+    // ... just a vector sum of the rotor wash + Vinf
+    
+    RotorWakeNormal[0] = Vh * RotorNormal_[0] + Vinf_[0];
+    RotorWakeNormal[1] = Vh * RotorNormal_[1] + Vinf_[1];
+    RotorWakeNormal[2] = Vh * RotorNormal_[2] + Vinf_[2];
+    
+    mag = sqrt(vector_dot(RotorWakeNormal,RotorWakeNormal));
+    
+    RotorWakeNormal[0] /= mag;
+    RotorWakeNormal[1] /= mag;
+    RotorWakeNormal[2] /= mag;
 
     // Local coordinate system wrt rotor
 
@@ -225,21 +244,31 @@ void ROTOR_DISK::Velocity(double xyz[3], double q[5])
     // Axial distance
     
     z = vector_dot(vec,RotorNormal_);
+    
+    zp = vector_dot(vec,RotorWakeNormal);
 
-    // Radial distance
+    // Radial distance, based on sheared rotor wake
+
+    rvec[0] = vec[0] - z*RotorWakeNormal[0]; 
+    rvec[1] = vec[1] - z*RotorWakeNormal[1]; 
+    rvec[2] = vec[2] - z*RotorWakeNormal[2]; 
+    
+    r = sqrt(vector_dot(rvec,rvec));
+
+    r = MAX(r,1.e-9);
+     
+    // Radial direction
 
     rvec[0] = vec[0] - z*RotorNormal_[0]; 
     rvec[1] = vec[1] - z*RotorNormal_[1]; 
     rvec[2] = vec[2] - z*RotorNormal_[2]; 
     
-    r = sqrt(vector_dot(rvec,rvec));
+    mag = sqrt(vector_dot(rvec,rvec));
     
-    rvec[0] /= r;
-    rvec[1] /= r;
-    rvec[2] /= r;
-    
-    r = MAX(r,1.e-9);
-    
+    rvec[0] /= mag;
+    rvec[1] /= mag;
+    rvec[2] /= mag;
+
     // Angular velocity direction
     
     vector_cross(RotorNormal_, rvec, tvec);
@@ -369,7 +398,7 @@ void ROTOR_DISK::Velocity(double xyz[3], double q[5])
     eta_prop = Rotor_JRatio() * Rotor_CT_ / Rotor_CP_;
     
     Delta_Cp *= eta_prop / eta_mom;
-  
+
     // Convert to xyz coordinates
     
 //    Velocity_X *= Omega * r / ( pow(Omega*r,2.) + pow(VinfMag_+Vh,2.) );
@@ -382,7 +411,6 @@ void ROTOR_DISK::Velocity(double xyz[3], double q[5])
     q[1] = Velocity_X*RotorNormal_[1] + Velocity_R * rvec[1] + Velocity_T * tvec[1];
     q[2] = Velocity_X*RotorNormal_[2] + Velocity_R * rvec[2] + Velocity_T * tvec[2];    
     q[3] = Delta_Cp;
-
     q[4] = 0.;
     if ( z >= 0. && r <= RotorRadius_ ) q[4] = Vh;
 
@@ -803,6 +831,47 @@ void ROTOR_DISK::Read_Binary_STP_Data(FILE *InputFile)
     fread(&(Rotor_CT_), d_size, 1, InputFile); 
     
     fread(&(Rotor_CP_), d_size, 1, InputFile); 
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                    ROTOR_DISK Skip_Read_Binary_STP_Data                      #
+#                                                                              #
+##############################################################################*/
+
+void ROTOR_DISK::Skip_Read_Binary_STP_Data(FILE *InputFile)
+{
+ 
+    int i_size, c_size, d_size;
+    
+    double DumDouble;
+
+    // Sizeof int and float
+
+    i_size = sizeof(int);
+    c_size = sizeof(char);
+    d_size = sizeof(double);
+    
+    // Write out STP file data
+
+    fread(&DumDouble, d_size, 1, InputFile); 
+    fread(&DumDouble, d_size, 1, InputFile); 
+    fread(&DumDouble, d_size, 1, InputFile); 
+    
+    fread(&DumDouble, d_size, 1, InputFile); 
+    fread(&DumDouble, d_size, 1, InputFile); 
+    fread(&DumDouble, d_size, 1, InputFile); 
+    
+    fread(&DumDouble, d_size, 1, InputFile); 
+
+    fread(&DumDouble, d_size, 1, InputFile); 
+     
+    fread(&DumDouble, d_size, 1, InputFile); 
+      
+    fread(&DumDouble, d_size, 1, InputFile); 
+    
+    fread(&DumDouble, d_size, 1, InputFile); 
 
 }
 

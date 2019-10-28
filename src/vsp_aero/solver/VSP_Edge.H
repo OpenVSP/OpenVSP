@@ -62,22 +62,32 @@ private:
     int IsLeadingEdge_;
     int IsBoundaryEdge_;
     
-    int CourseGridEdge_;
+    int CoarseGridEdge_;
     int FineGridEdge_;
+    int Level_;
     
     VSP_EDGE *Child1_;
     VSP_EDGE *Child2_;
     
+    double ReferenceLength_;
+    
     int EdgeWasUsedForLoop_;
+    
+    int WakeNode_;
     
     double Sigma_;
     double S_;
+    double T_;
     double Length_;
     double Forces_[3];
     double Trefftz_Forces_[3];
-    double Normal_Trefftz_Forces_[3];
     double Unsteady_Forces_[3];
-    
+    double InducedForces_[3];
+    double MinCoreWidth_;
+    double CoreWidth_;
+    double FreeStreamDirection_[3];
+    double FreeStreamMagnitude_;
+     
     // Vortex solution data
     
     int Verbose_;
@@ -88,6 +98,7 @@ private:
     int DegenBody_;
     int Cart3DSurface_;
     int Node_;
+    int ComponentID_;
 
     // Edge nodes - true geometry (camber line, or actual)
     
@@ -108,6 +119,13 @@ private:
     // Edge direction vector
     
     double Vec_[3];
+    double u_;
+    double v_;
+    double w_;
+    
+    // Edge Normal
+    
+    double Normal_[3];
     
     // Distance tolerances for velocity evaluations
    
@@ -119,9 +137,17 @@ private:
 
     double LocalSpacing_;
     
-    // Mach number
+    // Mach number and Beta
     
     static double Mach_;
+    
+    static double Kappa_;
+
+    double Beta2_;
+
+    // KT value
+    
+    double KTFact_;
 
     // Flag dermining which loops are down wind of this vortex edge
     
@@ -145,9 +171,11 @@ private:
 
     // Induced velocities
     
+    void OldBoundVortex(double xyz_p[3], double q[3]);
     void NewBoundVortex(double xyz_p[3], double q[3]);
     double Fint(double &a, double &b, double &c, double &d, double &s);
     double Gint(double &a, double &b, double &c, double &d, double &s);
+    
     void FindLineConicIntersection(double &Xp, double &Yp, double &Zp,
                                    double &X1, double &Y1, double &Z1,
                                    double &Xd, double &Yd, double &Zd,
@@ -198,8 +226,11 @@ public:
 
     // Edge Sigma, S, and length
     
+    int &WakeNode(void) { return WakeNode_; };
+    
     double &Sigma(void) { return Sigma_; };
     double &S(void) { return S_; };
+    double &T(void) { return T_; };    
     double &Length(void) { return Length_; };
     
     int &EdgeType(void) { return EdgeType_; };
@@ -207,15 +238,19 @@ public:
     int &IsLeadingEdge(void) { return IsLeadingEdge_; };
     int &IsBoundaryEdge(void) { return IsBoundaryEdge_; };
     
-    int &CourseGridEdge(void) { return CourseGridEdge_; };
+    int &CoarseGridEdge(void) { return CoarseGridEdge_; };
     int &FineGridEdge(void) { return FineGridEdge_; };
+    int &Level(void) { return Level_; };
     int &EdgeWasUsedForLoop(void) { return EdgeWasUsedForLoop_; };
 
     void SetupChildren(VSP_EDGE &Child1, VSP_EDGE &Child2) { Child1_ = &Child1 ; Child2_ = &Child2; };
 
     int ThereAreChildren(void) { if ( Child1_ != NULL ) { return 1; } else { return 0; }; };
+    
     VSP_EDGE &Child1(void) { return *Child1_; };
     VSP_EDGE &Child2(void) { return *Child2_; };
+    
+    double &ReferenceLength(void) { return ReferenceLength_; };
 
     // Accesss to Vortex edge data
 
@@ -223,6 +258,7 @@ public:
     int &DegenBody(void) { return DegenBody_; };
     int &Cart3DSurface(void) { return Cart3DSurface_; };
     int &Node(void) { return Node_; };
+    int &ComponentID(void) { return ComponentID_; };
     
     // Solver routines
 
@@ -232,17 +268,25 @@ public:
 
     void InducedVelocity(double xyz_p[3], double q[3]);
     
+    void InducedVelocity(double xyz_p[3], double q[3], double CoreWidth);
+    
     void CalculateForces(VSP_LOOP &VortexLoop);
+
+    void CalculateInducedForces(VSP_LOOP &VortexLoop);
    
     void CalculateTrefftzForces(double FreeStream[3]);
-    
-    void CalculateNormalTrefftzForces(double FreeStream[3]);
-    
+
     double GeneralizedPrincipalPartOfDownWash(void);
+    
+    double &MinCoreWidth(void) { return MinCoreWidth_; };
     
     // Access to Mach number
     
-    double &Mach(void) { return Mach_; };
+    void SetMach(double Mach);
+
+    double Mach(void) { return Mach_; };
+
+    double &KTFact(void) { return KTFact_; };
 
     // Down wind vortex loops
     
@@ -265,15 +309,15 @@ public:
     double &Fx(void) { return Forces_[0]; };
     double &Fy(void) { return Forces_[1]; };
     double &Fz(void) { return Forces_[2]; };
- 
+    
+    double &Induced_Fx(void) { return InducedForces_[0]; };
+    double &Induced_Fy(void) { return InducedForces_[1]; };
+    double &Induced_Fz(void) { return InducedForces_[2]; };
+
     double &Trefftz_Fx(void) { return Trefftz_Forces_[0]; };
     double &Trefftz_Fy(void) { return Trefftz_Forces_[1]; };
     double &Trefftz_Fz(void) { return Trefftz_Forces_[2]; };
-
-    double &Normal_Trefftz_Fx(void) { return Normal_Trefftz_Forces_[0]; };
-    double &Normal_Trefftz_Fy(void) { return Normal_Trefftz_Forces_[1]; };
-    double &Normal_Trefftz_Fz(void) { return Normal_Trefftz_Forces_[2]; };
-        
+ 
     double &Unsteady_Fx(void) { return Unsteady_Forces_[0]; };
     double &Unsteady_Fy(void) { return Unsteady_Forces_[1]; };
     double &Unsteady_Fz(void) { return Unsteady_Forces_[2]; };    
@@ -305,6 +349,10 @@ public:
     // Vortex unit vector
     
     double *Vec(void) { return Vec_; };    
+    
+    // Normal
+    
+    double *Normal(void) { return Normal_; };
     
     // Airfoil data
     

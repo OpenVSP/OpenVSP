@@ -26,6 +26,8 @@ private:
     int IsLeadingEdgeNode_;
     int IsBoundaryEdgeNode_;
     int IsBoundaryCornerNode_;
+    
+    int ComponentID_;
 
     double x_;
     double y_;
@@ -58,6 +60,8 @@ public:
     int &IsLeadingEdgeNode(void) { return IsLeadingEdgeNode_; };
     int &IsBoundaryEdgeNode(void) { return IsBoundaryEdgeNode_; };
     int &IsBoundaryCornerNode(void) { return IsBoundaryCornerNode_; };
+    
+    int &ComponentID(void) { return ComponentID_; };
     
     double &dGamma(void) { return dGamma_; };
     
