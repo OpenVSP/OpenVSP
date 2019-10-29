@@ -1220,56 +1220,123 @@ protected:
 
 };
 
-class PCurveEditor : public GuiDevice
+// Base class for curve editing canvas
+class CurveEditor : public GuiDevice
 {
 public:
 
-    PCurveEditor();
+    CurveEditor();
 
-    virtual void Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll *ptscroll, Fl_Button *spbutton, Fl_Button *convbutton, Fl_Light_Button *deletebutton, Fl_Light_Button *splitpickutton, GroupLayout *scLayout );
+    // Initialize the member GUI devices and set their callbacks
+    virtual void Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button* spbutton, Fl_Button* convbutton, Fl_Button* delbutton, Fl_Light_Button* delpickbutton, Fl_Light_Button* splitpickbutton, GroupLayout* ptlayout );
 
+    // Used to set delete active or split active flags 
     virtual void DeviceCB( Fl_Widget* w );
 
-    virtual void Update( PCurve *curve );
-    virtual void Update( PCurve *curve, PCurve *curveb, string labelb );
-
+    // Check if two locations are within an input radius 'r'. Used to identify
+    // if the selected pixel on the canvas is close enough to a control point
     virtual bool hittest( int mx, int my, double datax, double datay, int r );
 
-    virtual int ihit( int mx, int my, int r );
+    // Add the curve points to the canvas and connect them. CEDIT intermediate points are
+    // drawn green. The currently seleted point is highlighted red. 
+    virtual void PlotData( vector< double > x_data, vector < double > y_data, int curve_type );
 
+    // Identify the min and max limits for the canvas and update accordingly
+    virtual void UpdateAxisLimits( vector< double > x_data, vector < double > y_data, bool mag_round = true );
+
+    // Clear and reinitialize the parm sliders. Add G1 continuity check boxes for CEDIT. 
+    // This function must be called in the size of the curve parameter vectors chenges
+    // and when a type conversion is performed
+    virtual void RedrawXYSliders( int num_pts, int curve_type );
+
+    // GUI devices for the curve editor
     SliderAdjRangeInput m_SplitPtSlider;
     Fl_Button* m_SplitButton;
-
-    Fl_Light_Button* m_DeleteButton;
+    Fl_Button* m_DelButton;
+    Fl_Light_Button* m_DelPickButton;
     Fl_Light_Button* m_SplitPickButton;
-
+    IndexSelector m_PntSelector;
     Choice m_ConvertChoice;
     Fl_Button* m_ConvertButton;
     StringOutput m_CurveType;
 
 protected:
 
-    virtual void SetValAndLimits( Parm* parm_ptr )      {}
+    virtual void SetValAndLimits( Parm* parm_ptr ) {}
 
-    int m_LastHit;
+    // Restricts the index selecttor from cycling through intermediate control 
+    // points. If an intermediate control point is selected, the delete button
+    // is deactivated
+    virtual void UpdateIndexSelector( int curve_type );
+
+    int m_LastHit; // Index of the previously selected point
+
+    Vsp_Canvas* m_canvas;
+    Fl_Scroll* m_PtScroll;
+    GroupLayout* m_PtLayout;
+
+    // Vector of sliders to match the curve parameter vectors
+    vector < vector < SliderAdjRangeInput > > m_SliderVecVec;
+    vector < CheckButton > m_EnforceG1Vec;
+
+    bool m_FreezeAxis; // Restrict the canvas from resizing when performing a click and drag operation
+
+    // Flags to delete or split after the curve is clicked on
+    bool m_DeleteActive;
+    bool m_SplitActive;
+
+    // Keeps track of previous curve type. If changed, redraw sliders
+    int m_PrevCurveType;
+
+    // Variables to help with CEDIT point selection restrictions
+    int m_PrevIndex; // Maintains the previously selected point index
+    bool m_CallbackFlag; // Flag that indicates if a Callback was issued prior to Update
+    bool m_UpdateIndexSelector; // Flag used to indiate if the index selector should be updated
+};
+
+// Curve editing GUI class for PCurve
+class PCurveEditor : public CurveEditor
+{
+public:
+
+    PCurveEditor();
+
+    virtual void DeviceCB( Fl_Widget* w );
+
+    virtual void Update( PCurve *curve );
+    virtual void Update( PCurve *curve, PCurve *curveb, string labelb );
+
+    // Search for a point index within radius 'r' to the input pixel location
+    virtual int ihit( int mx, int my, int r );
+
+
+protected:
 
     PCurve *m_Curve;
     PCurve *m_CurveB;
     string m_LabelB;
 
-    Vsp_Canvas* m_canvas;
+    virtual void Update();
 
-    Fl_Scroll* m_PtScroll;
+};
 
-    GroupLayout* m_PtLayout;
+// Curve editing GUI class for EditCurveXSec
+class XSecCurveEditor : public CurveEditor
+{
+public:
 
-    vector < SliderAdjRangeInput > m_XPtSliderVec;
-    vector < SliderAdjRangeInput > m_YPtSliderVec;
+    XSecCurveEditor();
 
-    bool m_FreezeAxis;
+    virtual void DeviceCB( Fl_Widget* w );
 
-    bool m_DeleteActive;
-    bool m_SplitActive;
+    virtual void Update( EditCurveXSec *curve );
+
+    // Search for a point index within radius 'r' to the input pixel location
+    virtual int ihit( int mx, int my, int r );
+
+protected:
+
+    EditCurveXSec* m_XSec;
 
     virtual void Update();
 
