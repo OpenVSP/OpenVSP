@@ -739,38 +739,76 @@ void CreateVSPAEROControlSurfaceGroup()
     VSPAEROMgr.AddControlSurfaceGroup();
 }
 
-void AddAllVSPAEROControlSurfaces()
+void AddAllToVSPAEROControlSurfaceGroup()
 {
-    VSPAEROMgr.Update;
+    VSPAEROMgr.Update();
     VSPAEROMgr.AddAllToCSGroup();
 }
 
-void RemoveAllVSPAEROControlSurfaces()
+void RemoveAllFromVSPAEROControlSurfaceGroup()
 {
-    VSPAEROMgr.Update;
+    VSPAEROMgr.Update();
     VSPAEROMgr.RemoveAllFromCSGroup();
 }
 
 void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex)
 {
+    if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetVSPAEROControlGroupName::CSGroupIndex out of range" );
+        return;
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
+
     VSPAEROMgr.Update();
-    VSPAEROMgr.m_CurrentCSGroupIndex = CSGroupIndex
+
     VSPAEROMgr.SetCurrentCSGroupName(name);
 }
 
 void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex)
 {
-    VSPAEROMgr.Update;
+    if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddSelectedToCSGroup::CSGroupIndex out of range" );
+        return;
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
+
+    if ( selected.size() == 0 || selected.size() > VSPAEROMgr.GetAvailableCSVec().size() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AddSelectedToCSGroup::selected out of range" );
+        return;
+    }
+
     VSPAEROMgr.m_SelectedUngroupedCS = selected;
-    VSPAEROMgr.m_CurrentCSGroupIndex = CSGroupIndex;
+
+    VSPAEROMgr.Update();
+
     VSPAEROMgr.AddSelectedToCSGroup();
 }
 
 void RemoveSelectedFromCSGroup(vector <int> selected, int CSGroupIndex)
 {
-    VSPAEROMgr.Update;
+    if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "RemoveSelectedFromCSGroup::CSGroupIndex out of range" );
+        return;
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
+
+    if ( selected.size() == 0 || selected.size() > VSPAEROMgr.GetActiveCSVec().size() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "RemoveSelectedFromCSGroup::selected out of range" );
+        return;
+    }
+
     VSPAEROMgr.m_SelectedGroupedCS = selected;
-    VSPAEROMgr.m_CurrentCSGroupIndex = CSGroupIndex;
+
+    VSPAEROMgr.Update();
+
     VSPAEROMgr.RemoveSelectedFromCSGroup();
 }
 

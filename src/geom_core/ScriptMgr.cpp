@@ -2271,12 +2271,16 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction("void CreateVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::CreateVSPAEROControlSurfaceGroup), asCALL_CDECL);
     assert(r >= 0);
-    r = se->RegisterGlobalFunction("void AddAllVSPAEROControlSurfaces()", asFUNCTION(vsp::AddAllVSPAEROControlSurfaces), asCALL_CDECL);
+    r = se->RegisterGlobalFunction("void AddAllToVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::AddAllToVSPAEROControlSurfaceGroup ), asCALL_CDECL);
     assert(r >= 0);
-    r = se->RegisterGlobalFunction("void RemoveAllVSPAEROControlSurfaces()", asFUNCTION(vsp::RemoveAllVSPAEROControlSurfaces), asCALL_CDECL);
+    r = se->RegisterGlobalFunction("void RemoveAllFromVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::RemoveAllFromVSPAEROControlSurfaceGroup ), asCALL_CDECL);
     assert(r >= 0);
-    r = se->RegisterGlobalFunction("void SetVSPAEROControlGroupName( const string & name )", asFUNCTION(vsp::SetVSPAEROControlGroupName), asCALL_CDECL);
+    r = se->RegisterGlobalFunction("void SetVSPAEROControlGroupName( const string & in name, int CSGroupIndex )", asFUNCTION(vsp::SetVSPAEROControlGroupName), asCALL_CDECL);
     assert(r >= 0);
+    r = se->RegisterGlobalFunction( "void AddSelectedToCSGroup( array<int>@ selected, int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, AddSelectedToCSGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "void RemoveSelectedFromCSGroup( array<int>@ selected, int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, RemoveSelectedFromCSGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void CutXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CutXSec ), asCALL_CDECL );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void CopyXSec( const string & in geom_id, int index )", asFUNCTION( vsp::CopyXSec ), asCALL_CDECL );
@@ -2929,6 +2933,32 @@ CScriptArray* ScriptMgrSingleton::GetSubSurfParmIDs( const string & sub_id )
 {
     m_ProxyStringArray = vsp::GetSubSurfParmIDs( sub_id );
     return GetProxyStringArray();
+}
+
+void ScriptMgrSingleton::AddSelectedToCSGroup( CScriptArray* selected, int CSGroupIndex )
+{
+    vector < int > int_vec;
+
+    int_vec.resize( selected->GetSize() );
+    for ( int i = 0; i < (int)selected->GetSize(); i++ )
+    {
+        int_vec[i] = *(int*)( selected->At( i ) );
+    }
+
+    vsp::AddSelectedToCSGroup( int_vec, CSGroupIndex );
+}
+
+void ScriptMgrSingleton::RemoveSelectedFromCSGroup( CScriptArray* selected, int CSGroupIndex )
+{
+    vector < int > int_vec;
+
+    int_vec.resize( selected->GetSize() );
+    for ( int i = 0; i < (int)selected->GetSize(); i++ )
+    {
+        int_vec[i] = *(int*)( selected->At( i ) );
+    }
+
+    vsp::RemoveSelectedFromCSGroup( int_vec, CSGroupIndex );
 }
 
 CScriptArray* ScriptMgrSingleton::GetXSecParmIDs( const string & xsec_id )
