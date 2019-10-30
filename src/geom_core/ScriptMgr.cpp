@@ -2269,11 +2269,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert(r >= 0);
     r = se->RegisterGlobalFunction( "int GetNumControlSurfaceGroups()", asFUNCTION( vsp::GetNumControlSurfaceGroups ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction("void CreateVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::CreateVSPAEROControlSurfaceGroup), asCALL_CDECL);
+    r = se->RegisterGlobalFunction("int CreateVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::CreateVSPAEROControlSurfaceGroup), asCALL_CDECL);
     assert(r >= 0);
-    r = se->RegisterGlobalFunction("void AddAllToVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::AddAllToVSPAEROControlSurfaceGroup ), asCALL_CDECL);
+    r = se->RegisterGlobalFunction("void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex )", asFUNCTION(vsp::AddAllToVSPAEROControlSurfaceGroup ), asCALL_CDECL);
     assert(r >= 0);
-    r = se->RegisterGlobalFunction("void RemoveAllFromVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::RemoveAllFromVSPAEROControlSurfaceGroup ), asCALL_CDECL);
+    r = se->RegisterGlobalFunction("void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex )", asFUNCTION(vsp::RemoveAllFromVSPAEROControlSurfaceGroup ), asCALL_CDECL);
     assert(r >= 0);
     r = se->RegisterGlobalFunction( "array<string>@ GetActiveCSNameVec( int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, GetActiveCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );

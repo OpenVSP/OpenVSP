@@ -349,9 +349,9 @@ extern int PCurveSplit( const std::string & geom_id, const int & pcurveid, const
 
 //======================== VSPAERO Functions ======================//
 extern void AutoGroupVSPAEROControlSurfaces();
-extern void CreateVSPAEROControlSurfaceGroup();
-extern void AddAllToVSPAEROControlSurfaceGroup();
-extern void RemoveAllFromVSPAEROControlSurfaceGroup();
+extern int CreateVSPAEROControlSurfaceGroup();
+extern void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex );
+extern void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex );
 extern std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex );
 extern std::vector < std::string > GetCompleteCSNameVec();
 extern std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex );

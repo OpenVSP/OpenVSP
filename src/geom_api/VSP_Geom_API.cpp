@@ -733,21 +733,40 @@ void AutoGroupVSPAEROControlSurfaces()
     VSPAEROMgr.InitControlSurfaceGroups();
 }
 
-void CreateVSPAEROControlSurfaceGroup()
+int CreateVSPAEROControlSurfaceGroup()
 {
     VSPAEROMgr.Update();
     VSPAEROMgr.AddControlSurfaceGroup();
+    return VSPAEROMgr.GetCurrentCSGroupIndex();
 }
 
-void AddAllToVSPAEROControlSurfaceGroup()
+void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex )
 {
+    if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetVSPAEROControlGroupName::CSGroupIndex out of range" );
+        return;
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
+
     VSPAEROMgr.Update();
+
     VSPAEROMgr.AddAllToCSGroup();
 }
 
-void RemoveAllFromVSPAEROControlSurfaceGroup()
+void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex )
 {
+    if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetVSPAEROControlGroupName::CSGroupIndex out of range" );
+        return;
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
+
     VSPAEROMgr.Update();
+
     VSPAEROMgr.RemoveAllFromCSGroup();
 }
 
