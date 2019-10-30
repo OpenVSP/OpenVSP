@@ -2118,14 +2118,19 @@ void VSPAEROPlotScreen::RedrawCpSlicePlot()
             m_CpSlicePlotCanvas->current_x()->copy_label( "Position [multiple]" );
         }
 
+        string y_label = "CP";
+
         if ( VSPAEROMgr.GetCpSliceAnalysisType() == vsp::VORTEX_LATTICE )
         {
-            m_CpSlicePlotCanvas->current_y()->copy_label( "dCP" );
+            y_label = "d" + y_label;
         }
-        else if ( VSPAEROMgr.GetCpSliceAnalysisType() == vsp::PANEL )
+
+        if ( VSPAEROMgr.m_CpSliceYAxisFlipFlag() )
         {
-            m_CpSlicePlotCanvas->current_y()->copy_label( "CP" );
+            y_label = "-" + y_label;
         }
+
+        m_CpSlicePlotCanvas->current_y()->copy_label( y_label.c_str() );
     }
 }
 
