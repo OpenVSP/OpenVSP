@@ -142,6 +142,9 @@ private:
     CScriptArray* GetAllSubSurfIDs();
     CScriptArray* GetSubSurf( const string & geom_id, const string & name );
     CScriptArray* GetSubSurfParmIDs( const string & sub_id );
+    CScriptArray* GetActiveCSNameVec( int CSGroupIndex );
+    CScriptArray* GetCompleteCSNameVec();
+    CScriptArray* GetAvailableCSNameVec( int CSGroupIndex );
     void AddSelectedToCSGroup( CScriptArray* selected, int CSGroupIndex );
     void RemoveSelectedFromCSGroup( CScriptArray* selected, int CSGroupIndex );
     CScriptArray* GetXSecParmIDs( const string & xsec_id );

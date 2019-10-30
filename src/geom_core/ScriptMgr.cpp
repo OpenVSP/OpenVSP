@@ -2275,8 +2275,16 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert(r >= 0);
     r = se->RegisterGlobalFunction("void RemoveAllFromVSPAEROControlSurfaceGroup()", asFUNCTION(vsp::RemoveAllFromVSPAEROControlSurfaceGroup ), asCALL_CDECL);
     assert(r >= 0);
+    r = se->RegisterGlobalFunction( "array<string>@ GetActiveCSNameVec( int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, GetActiveCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@ GetCompleteCSNameVec( )", asMETHOD( ScriptMgrSingleton, GetCompleteCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
+    r = se->RegisterGlobalFunction( "array<string>@ GetAvailableCSNameVec( int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, GetAvailableCSNameVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction("void SetVSPAEROControlGroupName( const string & in name, int CSGroupIndex )", asFUNCTION(vsp::SetVSPAEROControlGroupName), asCALL_CDECL);
     assert(r >= 0);
+    r = se->RegisterGlobalFunction( "string GetVSPAEROControlGroupName( int CSGroupIndex )", asFUNCTION( vsp::GetVSPAEROControlGroupName ), asCALL_CDECL );
+    assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void AddSelectedToCSGroup( array<int>@ selected, int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, AddSelectedToCSGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void RemoveSelectedFromCSGroup( array<int>@ selected, int CSGroupIndex )", asMETHOD( ScriptMgrSingleton, RemoveSelectedFromCSGroup ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
@@ -2932,6 +2940,24 @@ CScriptArray* ScriptMgrSingleton::GetSubSurf( const string & geom_id, const stri
 CScriptArray* ScriptMgrSingleton::GetSubSurfParmIDs( const string & sub_id )
 {
     m_ProxyStringArray = vsp::GetSubSurfParmIDs( sub_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetActiveCSNameVec( int CSGroupIndex )
+{
+    m_ProxyStringArray = vsp::GetActiveCSNameVec( CSGroupIndex );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetCompleteCSNameVec( )
+{
+    m_ProxyStringArray = vsp::GetCompleteCSNameVec( );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetAvailableCSNameVec( int CSGroupIndex )
+{
+    m_ProxyStringArray = vsp::GetAvailableCSNameVec( CSGroupIndex );
     return GetProxyStringArray();
 }
 

@@ -751,6 +751,67 @@ void RemoveAllFromVSPAEROControlSurfaceGroup()
     VSPAEROMgr.RemoveAllFromCSGroup();
 }
 
+std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex )
+{
+    if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetVSPAEROControlGroupName::CSGroupIndex out of range" );
+        return {};
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
+
+    VSPAEROMgr.Update();
+
+    vector < VspAeroControlSurf > active_cs_vec = VSPAEROMgr.GetActiveCSVec();
+    vector < string > return_vec( active_cs_vec.size() );
+
+    for ( size_t i = 0; i < return_vec.size(); i++ )
+    {
+        return_vec[i] = active_cs_vec[i].fullName;
+    }
+
+    return return_vec;
+}
+
+std::vector < std::string > GetCompleteCSNameVec( )
+{
+    VSPAEROMgr.Update();
+
+    vector < VspAeroControlSurf > complete_cs_vec = VSPAEROMgr.GetCompleteCSVec();
+    vector < string > return_vec( complete_cs_vec.size() );
+
+    for ( size_t i = 0; i < return_vec.size(); i++ )
+    {
+        return_vec[i] = complete_cs_vec[i].fullName;
+    }
+
+    return return_vec;
+}
+
+std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex )
+{
+    if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetVSPAEROControlGroupName::CSGroupIndex out of range" );
+        return {};
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
+
+    VSPAEROMgr.Update();
+
+    vector < VspAeroControlSurf > avail_cs_vec = VSPAEROMgr.GetAvailableCSVec();
+    vector < string > return_vec( avail_cs_vec.size() );
+
+    for ( size_t i = 0; i < return_vec.size(); i++ )
+    {
+        return_vec[i] = avail_cs_vec[i].fullName;
+    }
+
+    return return_vec;
+}
+
 void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex)
 {
     if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
@@ -764,6 +825,21 @@ void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex)
     VSPAEROMgr.Update();
 
     VSPAEROMgr.SetCurrentCSGroupName(name);
+}
+
+string GetVSPAEROControlGroupName( int CSGroupIndex )
+{
+    if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetVSPAEROControlGroupName::CSGroupIndex out of range" );
+        return string();
+    }
+
+    VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
+
+    VSPAEROMgr.Update();
+
+    return VSPAEROMgr.GetCurrentCSGGroupName();
 }
 
 void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex)
