@@ -1137,43 +1137,6 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
     fprintf( case_file, "Karman-Tsien Correction = %s \n", ktcorrect.c_str() );
 
-    // Unsteady Setup
-    if ( m_StabilityCalcFlag() )
-    {
-        string AnalysisType = "";
-        if ( m_StabilityType() != vsp::STABILITY_DEFAULT )
-        {
-            switch ( m_StabilityType() )
-            {
-            case vsp::STABILITY_P_ANALYSIS:
-                AnalysisType = "P_ANALYSIS";
-                break;
-
-            case vsp::STABILITY_Q_ANALYSIS:
-                AnalysisType = "Q_ANALYSIS";
-                break;
-
-            case vsp::STABILITY_R_ANALYSIS:
-                AnalysisType = "R_ANALYSIS";
-                break;
-
-            // === To Be Implemented ===
-            //case vsp::STABILITY_HEAVE:
-            //    AnalysisType = "HEAVE";
-            //    break;
-
-            //case vsp::STABILITY_IMPULSE:
-            //    AnalysisType = "IMPULSE";
-            //    break;
-
-            default:
-                AnalysisType = "";
-            }
-            fprintf( case_file, "UnsteadyAnalysisType = %s \n", AnalysisType.c_str() );
-
-        }
-    }
-
     //Finish up by closing the file and making sure that it appears in the file system
     fclose( case_file );
 
@@ -1387,7 +1350,39 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     // Set stability run arguments
                     if ( stabilityFlag )
                     {
-                        args.push_back( "-stab" );
+                        switch ( stabilityType )
+                        {
+                            case vsp::STABILITY_DEFAULT:
+                                args.push_back( "-stab" );
+                                break;
+
+                            case vsp::STABILITY_P_ANALYSIS:
+                                args.push_back( "-pstab" );
+                                break;
+
+                            case vsp::STABILITY_Q_ANALYSIS:
+                                args.push_back( "-qstab" );
+                                break;
+
+                            case vsp::STABILITY_R_ANALYSIS:
+                                args.push_back( "-rstab" );
+                                break;
+
+                            // === To Be Implemented ===
+                            //case vsp::STABILITY_HEAVE:
+                            //    AnalysisType = "HEAVE";
+                            //    break;
+
+                            //case vsp::STABILITY_IMPULSE:
+                            //    AnalysisType = "IMPULSE";
+                            //    break;
+                            
+                            //case vsp::STABILITY_UNSTEADY:
+                            //    args.push_back( "-unsteady" );
+                            //    break;
+                        }
+                    }
+
                     }
                     // Force averaging startign at wake iteration N
                     if( wakeAvgStartIter >= 1 )
@@ -1593,7 +1588,38 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         // Set stability run arguments
         if ( stabilityFlag )
         {
-            args.push_back( "-stab" );
+            switch ( stabilityType )
+            {
+                case vsp::STABILITY_DEFAULT:
+                    args.push_back( "-stab" );
+                    break;
+
+                case vsp::STABILITY_P_ANALYSIS:
+                    args.push_back( "-pstab" );
+                    break;
+
+                case vsp::STABILITY_Q_ANALYSIS:
+                    args.push_back( "-qstab" );
+                    break;
+
+                case vsp::STABILITY_R_ANALYSIS:
+                    args.push_back( "-rstab" );
+                    break;
+
+                // === To Be Implemented ===
+                //case vsp::STABILITY_HEAVE:
+                //    AnalysisType = "HEAVE";
+                //    break;
+
+                //case vsp::STABILITY_IMPULSE:
+                //    AnalysisType = "IMPULSE";
+                //    break;
+
+                //case vsp::STABILITY_UNSTEADY:
+                //    args.push_back( "-unsteady" );
+                //    break;
+            }
+        }
         }
 
         // Force averaging startign at wake iteration N

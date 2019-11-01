@@ -583,8 +583,9 @@ enum VSPAERO_STABILITY_TYPE { STABILITY_DEFAULT = 0,
                               STABILITY_P_ANALYSIS,
                               STABILITY_Q_ANALYSIS,
                               STABILITY_R_ANALYSIS,
+                              STABILITY_UNSTEADY, // TODO: Implement with later VSPAERO version
                               STABILITY_HEAVE, // TODO: Implement with later VSPAERO version
-                              STABILITY_IMPULSE, // TODO: Implement with later VSPAERO version
+                              STABILITY_IMPULSE // TODO: Implement with later VSPAERO version
                             };
 
 enum VSP_SURF_CFD_TYPE { CFD_NORMAL,
