@@ -1238,6 +1238,9 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "FromSteadyState",    VSPAEROMgr.m_FromSteadyState.Get()    ) );
         m_Inputs.Add( NameValData( "GroundEffectToggle", VSPAEROMgr.m_GroundEffectToggle.Get() ) );
         m_Inputs.Add( NameValData( "GroundEffect",       VSPAEROMgr.m_GroundEffect.Get()       ) );
+        m_Inputs.Add( NameValData( "Vinf",               VSPAEROMgr.m_Vinf.Get()               ) );
+        m_Inputs.Add( NameValData( "Rho",                VSPAEROMgr.m_Rho.Get()                ) );
+        m_Inputs.Add( NameValData( "ReCref",             VSPAEROMgr.m_ReCref.Get()             ) );
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
@@ -1426,6 +1429,9 @@ string VSPAEROSinglePointAnalysis::Execute()
         bool fromSteadyStateOrig     = VSPAEROMgr.m_FromSteadyState.Get();
         bool groundEffectToggleOrig  = VSPAEROMgr.m_GroundEffectToggle.Get();
         double groundEffectOrig      = VSPAEROMgr.m_GroundEffect.Get();
+        double vingOrig              = VSPAEROMgr.m_Vinf.Get();
+        double rhoOrig               = VSPAEROMgr.m_Rho.Get();
+        double reCrefOrig            = VSPAEROMgr.m_ReCref.Get();
 
         nvd = m_Inputs.FindPtr( "NCPU", 0 );
         if ( nvd )
@@ -1502,6 +1508,21 @@ string VSPAEROSinglePointAnalysis::Execute()
         {
             VSPAEROMgr.m_GroundEffect.Set( nvd->GetDouble( 0 ) );
         }
+        nvd = m_Inputs.FindPtr( "Vinf", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_Vinf.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Rho", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_Rho.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ReCref", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ReCref.Set( nvd->GetDouble( 0 ) );
+        }
 
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
@@ -1550,6 +1571,9 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_FromSteadyState.Set( fromSteadyStateOrig );
         VSPAEROMgr.m_GroundEffectToggle.Set( groundEffectToggleOrig );
         VSPAEROMgr.m_GroundEffect.Set( groundEffectOrig );
+        VSPAEROMgr.m_Vinf.Set( vingOrig );
+        VSPAEROMgr.m_Rho.Set( rhoOrig );
+        VSPAEROMgr.m_ReCref.Set( reCrefOrig );
     }
 
     return resId;
@@ -1581,6 +1605,9 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "FromSteadyState",    VSPAEROMgr.m_FromSteadyState.Get()    ) );
         m_Inputs.Add( NameValData( "GroundEffectToggle", VSPAEROMgr.m_GroundEffectToggle.Get() ) );
         m_Inputs.Add( NameValData( "GroundEffect",       VSPAEROMgr.m_GroundEffect.Get()       ) );
+        m_Inputs.Add( NameValData( "Vinf",               VSPAEROMgr.m_Vinf.Get()               ) );
+        m_Inputs.Add( NameValData( "Rho",                VSPAEROMgr.m_Rho.Get()                ) );
+        m_Inputs.Add( NameValData( "ReCref",             VSPAEROMgr.m_ReCref.Get()             ) );
 
         //Reference area, lengths
         m_Inputs.Add( NameValData( "RefFlag",           VSPAEROMgr.m_RefFlag.Get()           ) );
@@ -1805,6 +1832,9 @@ string VSPAEROSweepAnalysis::Execute()
         bool fromSteadyStateOrig     = VSPAEROMgr.m_FromSteadyState.Get();
         bool groundEffectToggleOrig  = VSPAEROMgr.m_GroundEffectToggle.Get();
         double groundEffectOrig      = VSPAEROMgr.m_GroundEffect.Get();
+        double vingOrig              = VSPAEROMgr.m_Vinf.Get();
+        double rhoOrig               = VSPAEROMgr.m_Rho.Get();
+        double reCrefOrig            = VSPAEROMgr.m_ReCref.Get();
 
         nvd = m_Inputs.FindPtr( "NCPU", 0 );
         if ( nvd )
@@ -1882,6 +1912,21 @@ string VSPAEROSweepAnalysis::Execute()
         {
             VSPAEROMgr.m_GroundEffect.Set( nvd->GetDouble( 0 ) );
         }
+        nvd = m_Inputs.FindPtr( "Vinf", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_Vinf.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Rho", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_Rho.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ReCref", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ReCref.Set( nvd->GetDouble( 0 ) );
+        }
 
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
@@ -1933,6 +1978,9 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_FromSteadyState.Set( fromSteadyStateOrig );
         VSPAEROMgr.m_GroundEffectToggle.Set( groundEffectToggleOrig );
         VSPAEROMgr.m_GroundEffect.Set( groundEffectOrig );
+        VSPAEROMgr.m_Vinf.Set( vingOrig );
+        VSPAEROMgr.m_Rho.Set( rhoOrig );
+        VSPAEROMgr.m_ReCref.Set( reCrefOrig );
     }
 
     return resId;
