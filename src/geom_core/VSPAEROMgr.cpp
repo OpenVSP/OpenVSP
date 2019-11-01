@@ -105,6 +105,9 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_WakeAvgStartIter.SetDescript( "Iteration at which to START averaging the wake. Default=0 --> No wake averaging" );
     m_WakeSkipUntilIter.Init( "WakeSkipUntilIter", groupname, this, 0, 0, 255 );
     m_WakeSkipUntilIter.SetDescript( "Iteration at which to START calculating the wake. Default=0 --> Wake calculated on each iteration" );
+    m_NumWakeNodes.SetPowShift( 2, 0 ); // Must come before Init
+    m_NumWakeNodes.Init( "RootWakeNodes", groupname, this, 64, 0, 10e12 );
+    m_NumWakeNodes.SetDescript( "Number of Wake Nodes (f(n^2)" );
 
     m_BatchModeFlag.Init( "BatchModeFlag", groupname, this, true, false, true );
     m_BatchModeFlag.SetDescript( "Flag to calculate in batch mode" );
@@ -175,10 +178,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_ReCref.SetDescript( "Reynolds Number along Reference Chord" );
     m_Precondition.Init( "Precondition", groupname, this, vsp::PRECON_MATRIX, vsp::PRECON_MATRIX, vsp::PRECON_SSOR );
     m_Precondition.SetDescript( "Preconditioner Choice" );
-    m_VortexLift.Init( "VortexLift", groupname, this, true, false, true );
-    m_VortexLift.SetDescript( "Activate Vortex Lift" );
-    m_LeadingEdgeSuction.Init( "LeadingEdgeSuction", groupname, this, false, false, true );
-    m_LeadingEdgeSuction.SetDescript( "Activate Leading Edge Suction" );
     m_KTCorrection.Init( "KTCorrection", groupname, this, true, false, true );
     m_KTCorrection.SetDescript( "Activate 2nd Order Karman-Tsien Mach Number Correction" );
     m_Symmetry.Init( "Symmetry", groupname, this, false, false, true );
@@ -196,6 +195,11 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_FarDistToggle.Init( "FarDistToggle", groupname, this, false, false, true );
     m_CpSliceFlag.Init( "CpSliceFlag", groupname, this, true, false, true );
     m_CpSliceFlag.SetDescript( "Flag to Calculate Cp Slices for Each Run Case" );
+    m_FromSteadyState.Init( "FromSteadyState", groupname, this, false, false, true );
+    m_FromSteadyState.SetDescript( "Flag to Indicate Steady State" );
+    m_GroundEffect.Init( "GroundEffect", groupname, this, -1, -1, 1e6 );
+    m_GroundEffect.SetDescript( "Ground Effect Distance" );
+    m_GroundEffectToggle.Init( "GroundEffectToggle", groupname, this, false, false, true );
 
     // Unsteady
     m_StabilityCalcFlag.Init( "StabilityCalcFlag", groupname, this, false, false, true );
@@ -267,8 +271,6 @@ void VSPAEROMgrSingleton::Renew()
 
     m_BatchModeFlag.Set( true );
     m_Precondition.Set( vsp::PRECON_MATRIX );
-    m_VortexLift.Set( true );
-    m_LeadingEdgeSuction.Set( false );
     m_KTCorrection.Set( true );
     m_Symmetry.Set( false );
     m_StabilityCalcFlag.Set( false );
@@ -283,6 +285,9 @@ void VSPAEROMgrSingleton::Renew()
     m_ClMaxToggle.Set( false );
     m_MaxTurnToggle.Set( false );
     m_FarDistToggle.Set( false );
+    m_GroundEffectToggle.Set( false );
+    m_FromSteadyState.Set( false );
+    m_NumWakeNodes.Set( 0 );
 }
 
 xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
@@ -455,6 +460,18 @@ void VSPAEROMgrSingleton::UpdateSetupParmLimits()
         m_FarDist.SetLowerLimit( -1.0 );
         m_FarDist.Set( -1.0 );
         m_FarDist.Deactivate();
+    }
+
+    if ( m_GroundEffectToggle() )
+    {
+        m_GroundEffect.SetLowerLimit( 0.0 );
+        m_GroundEffect.Activate();
+    }
+    else
+    {
+        m_GroundEffect.SetLowerLimit( -1.0 );
+        m_GroundEffect.Set( -1.0 );
+        m_GroundEffect.Deactivate();
     }
 }
 
@@ -1031,7 +1048,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     fprintf( case_file, "MaxTurningAngle = %lf \n", m_MaxTurnAngle() );
     fprintf( case_file, "Symmetry = %s \n", sym.c_str() );
     fprintf( case_file, "FarDist = %lf \n", m_FarDist() );
-    fprintf( case_file, "NumWakeNodes = %d \n", -1 );       //TODO add to VSPAEROMgr as parm
+    fprintf( case_file, "NumWakeNodes = %d \n", m_NumWakeNodes() );
     fprintf( case_file, "WakeIters = %d \n", m_WakeNumIter.Get() );
 
     // RotorDisks
@@ -1100,30 +1117,6 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         precon = "SSOR";
     }
     fprintf( case_file, "Preconditioner = %s \n", precon.c_str() );
-
-    // Vortex Lift
-    string vorlift;
-    if ( m_VortexLift() )
-    {
-        vorlift = "Y";
-    }
-    else
-    {
-        vorlift = "N";
-    }
-    fprintf( case_file, "Vortex Lift = %s \n", vorlift.c_str() );
-
-    // Leading Edge Suction
-    string lesuction;
-    if ( m_LeadingEdgeSuction() )
-    {
-        lesuction = "Y";
-    }
-    else
-    {
-        lesuction = "N";
-    }
-    fprintf( case_file, "LE Suction = %s \n", lesuction.c_str());
 
     // 2nd Order Karman-Tsien Mach Number Correction
     string ktcorrect;
@@ -1383,7 +1376,11 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                         }
                     }
 
+                    if ( m_FromSteadyState() )
+                    {
+                        args.push_back( "-fromsteadystate" );
                     }
+
                     // Force averaging startign at wake iteration N
                     if( wakeAvgStartIter >= 1 )
                     {
@@ -1395,6 +1392,12 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                         // No wake for first N iterations
                         args.push_back( "-nowake" );
                         args.push_back( StringUtil::int_to_string( wakeSkipUntilIter, "%d" ) );
+                    }
+
+                    if ( m_GroundEffectToggle() )
+                    {
+                        args.push_back( "-groundheight" );
+                        args.push_back( StringUtil::double_to_string( m_GroundEffect(), "%f" ) );
                     }
 
                     if( m_Write2DFEMFlag() )
@@ -1409,16 +1412,6 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     else if ( m_Precondition() == vsp::PRECON_SSOR )
                     {
                         args.push_back( "-ssor" );
-                    }
-
-                    if ( !m_VortexLift() )
-                    {
-                        args.push_back( "-novortex" );
-                    }
-
-                    if ( m_LeadingEdgeSuction() )
-                    {
-                        args.push_back( "-lesuction" );
                     }
 
                     if ( !m_KTCorrection() )
@@ -1620,6 +1613,10 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
                 //    break;
             }
         }
+
+        if ( m_FromSteadyState() )
+        {
+            args.push_back( "-fromsteadystate" );
         }
 
         // Force averaging startign at wake iteration N
@@ -1635,6 +1632,12 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             args.push_back( StringUtil::int_to_string( wakeSkipUntilIter, "%d" ) );
         }
 
+        if ( m_GroundEffectToggle() )
+        {
+            args.push_back( "-groundheight" );
+            args.push_back( StringUtil::double_to_string( m_GroundEffect(), "%f" ) );
+        }
+
         if( m_Write2DFEMFlag() )
         {
             args.push_back( "-write2dfem" );
@@ -1647,16 +1650,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         else if ( m_Precondition() == vsp::PRECON_SSOR )
         {
             args.push_back( "-ssor" );
-        }
-
-        if ( !m_VortexLift() )
-        {
-            args.push_back( "-novortex" );
-        }
-
-        if ( m_LeadingEdgeSuction() )
-        {
-            args.push_back( "-lesuction" );
         }
 
         if ( !m_KTCorrection() )

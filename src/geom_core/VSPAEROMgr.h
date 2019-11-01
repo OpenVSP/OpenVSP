@@ -294,14 +294,14 @@ public:
     IntParm m_WakeNumIter;
     IntParm m_WakeAvgStartIter;
     IntParm m_WakeSkipUntilIter;
+    PowIntParm m_NumWakeNodes;
 
     // Other Setup Parameters
     Parm m_Vinf;
     Parm m_Rho;
     Parm m_ReCref;
     IntParm m_Precondition;
-    BoolParm m_VortexLift;
-    BoolParm m_LeadingEdgeSuction;
+    BoolParm m_FromSteadyState;
     BoolParm m_KTCorrection;
     BoolParm m_Symmetry;
     BoolParm m_Write2DFEMFlag;
@@ -311,6 +311,8 @@ public:
     Parm m_MaxTurnAngle;
     BoolParm m_FarDistToggle;
     Parm m_FarDist;
+    BoolParm m_GroundEffectToggle;
+    Parm m_GroundEffect;
 
     // Unsteady
     BoolParm m_StabilityCalcFlag;
