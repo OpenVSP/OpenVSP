@@ -244,7 +244,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Advanced Case Setup Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_AdvancedCaseSetupLayout,
         m_AdvancedLeftLayout.GetW(),
-        11 * m_AdvancedLeftLayout.GetStdHeight() );
+        8 * m_AdvancedLeftLayout.GetStdHeight() );
     m_AdvancedLeftLayout.AddY( m_AdvancedCaseSetupLayout.GetH() );
 
     m_AdvancedCaseSetupLayout.AddDividerBox( "Advanced Case Setup" );
@@ -282,34 +282,45 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_AdvancedCaseSetupLayout.SetInputWidth( 50 );
 
     m_AdvancedCaseSetupLayout.AddSlider( m_NCPUSlider, "Num CPU", 10.0, "%3.0f" );
+
+    m_AdvancedCaseSetupLayout.SetFitWidthFlag( false );
+    m_AdvancedCaseSetupLayout.SetSameLineFlag( true );
+
+    m_AdvancedCaseSetupLayout.SetButtonWidth( m_AdvancedCaseSetupLayout.GetW() / 2 );
+
     m_AdvancedCaseSetupLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
+    m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
+
+    m_AdvancedCaseSetupLayout.SetFitWidthFlag( true );
+    m_AdvancedCaseSetupLayout.SetSameLineFlag( false );
+
+    m_AdvancedCaseSetupLayout.SetButtonWidth( 80 );
 
     m_PreconditionChoice.AddItem( "Matrix" );
     m_PreconditionChoice.AddItem( "Jacobi" );
     m_PreconditionChoice.AddItem( "SSOR" );
     m_AdvancedCaseSetupLayout.AddChoice( m_PreconditionChoice, "Preconditioner");
 
-    m_AdvancedCaseSetupLayout.AddButton( m_VortexLiftToggle, "Vortex Lift" );
-    m_AdvancedCaseSetupLayout.AddButton( m_LeadingEdgeSuctionToggle, "Leading Edge Suction" );
     m_AdvancedCaseSetupLayout.AddButton( m_KTCorrectionToggle, "2nd Order Karman-Tsien Mach Correction" );
-    m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
     m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
+    m_AdvancedCaseSetupLayout.AddButton( m_FromSteadyStateToggle, "From Steady State" );
 
     // Wake Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_WakeLayout,
         m_AdvancedLeftLayout.GetW(),
-        4 * m_AdvancedLeftLayout.GetStdHeight() );
+        5 * m_AdvancedLeftLayout.GetStdHeight() );
     m_AdvancedLeftLayout.AddY( m_WakeLayout.GetH() );
 
     m_WakeLayout.AddDividerBox( "Wake" );
     m_WakeLayout.AddSlider( m_WakeNumIterSlider, "Num It.", 10, "%3.0f" );
     m_WakeLayout.AddSlider( m_WakeAvgStartIterSlider, "Avg Start It.", 11, "%3.0f" );
     m_WakeLayout.AddSlider( m_WakeSkipUntilIterSlider, "Skip Until It.", 11, "%3.0f" );
+    m_WakeLayout.AddSlider( m_NumWakeNodeSlider, "Wake Nodes", 128, "%3.0f" );
 
     // Other Setup Parms Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_OtherParmsLayout,
         m_AdvancedLeftLayout.GetW(),
-        8 * m_AdvancedLeftLayout.GetStdHeight() );
+        9 * m_AdvancedLeftLayout.GetStdHeight() );
     m_AdvancedLeftLayout.AddY( m_OtherParmsLayout.GetH() );
 
     int togglewidth = 15;
@@ -334,6 +345,11 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_OtherParmsLayout.AddButton( m_FarDistToggle, "" );
     m_OtherParmsLayout.SetButtonWidth( labelwidth );
     m_OtherParmsLayout.AddSlider( m_FarDistSlider, "Far Field Dist", 1e3, "%7.2f" );
+    m_OtherParmsLayout.ForceNewLine();
+    m_OtherParmsLayout.SetButtonWidth( togglewidth );
+    m_OtherParmsLayout.AddButton( m_GroundEffectToggle, "" );
+    m_OtherParmsLayout.SetButtonWidth( labelwidth );
+    m_OtherParmsLayout.AddSlider( m_GroundEffectSlider, "Ground Effect Dist", 1e3, "%7.2f" );
     m_OtherParmsLayout.ForceNewLine();
     m_OtherParmsLayout.AddYGap();
 
@@ -1165,8 +1181,6 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_NCPUSlider.Update(VSPAEROMgr.m_NCPU.GetID());
     m_BatchCalculationToggle.Update(VSPAEROMgr.m_BatchModeFlag.GetID());
     m_PreconditionChoice.Update(VSPAEROMgr.m_Precondition.GetID());
-    m_VortexLiftToggle.Update(VSPAEROMgr.m_VortexLift.GetID());
-    m_LeadingEdgeSuctionToggle.Update(VSPAEROMgr.m_LeadingEdgeSuction.GetID());
     m_KTCorrectionToggle.Update( VSPAEROMgr.m_KTCorrection.GetID() );
     m_SymmetryToggle.Update( VSPAEROMgr.m_Symmetry.GetID() );
     m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
@@ -1175,6 +1189,7 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_WakeNumIterSlider.Update(VSPAEROMgr.m_WakeNumIter.GetID());
     m_WakeAvgStartIterSlider.Update(VSPAEROMgr.m_WakeAvgStartIter.GetID());
     m_WakeSkipUntilIterSlider.Update(VSPAEROMgr.m_WakeSkipUntilIter.GetID());
+    m_NumWakeNodeSlider.Update( VSPAEROMgr.m_NumWakeNodes.GetID() );
 
     // Other Set Up Parms
     m_ClmaxToggle.Update( VSPAEROMgr.m_ClMaxToggle.GetID() );
@@ -1183,6 +1198,8 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_MaxTurningSlider.Update( VSPAEROMgr.m_MaxTurnAngle.GetID() );
     m_FarDistToggle.Update( VSPAEROMgr.m_FarDistToggle.GetID() );
     m_FarDistSlider.Update( VSPAEROMgr.m_FarDist.GetID() );
+    m_GroundEffectToggle.Update( VSPAEROMgr.m_GroundEffectToggle.GetID() );
+    m_GroundEffectSlider.Update( VSPAEROMgr.m_GroundEffect.GetID() );
 
     // Stability
     if (VSPAEROMgr.m_Symmetry())

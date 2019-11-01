@@ -180,22 +180,24 @@ protected:
     ToggleButton m_SymmetryToggle;
     ToggleButton m_Write2DFEMToggle;
     Choice m_PreconditionChoice;
-    ToggleButton m_VortexLiftToggle;
-    ToggleButton m_LeadingEdgeSuctionToggle;
     ToggleButton m_KTCorrectionToggle;
+    ToggleButton m_FromSteadyStateToggle;
 
     // Wake calculation options
     SliderAdjRangeInput m_WakeNumIterSlider;
     SliderAdjRangeInput m_WakeAvgStartIterSlider;
     SliderAdjRangeInput m_WakeSkipUntilIterSlider;
+    SliderAdjRangeInput m_NumWakeNodeSlider;
 
     // Other Setup Parms Setup
     ToggleButton m_ClmaxToggle;
     ToggleButton m_MaxTurningToggle;
     ToggleButton m_FarDistToggle;
+    ToggleButton m_GroundEffectToggle;
     SliderAdjRangeInput m_ClmaxSlider;
     SliderAdjRangeInput m_MaxTurningSlider;
     SliderAdjRangeInput m_FarDistSlider;
+    SliderAdjRangeInput m_GroundEffectSlider;
 
     // Unsteady Setup
     ToggleButton m_StabilityCalcToggle;
