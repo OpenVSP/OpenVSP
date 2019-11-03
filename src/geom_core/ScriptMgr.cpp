@@ -4517,7 +4517,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the 2D coordinates an input number of points along a Von Kármán-Trefftz airfoil of specified shape
+    Get the 2D coordinates an input number of points along a Von Kï¿½rmï¿½n-Trefftz airfoil of specified shape
     \param [in] npts Number of points along the airfoil to return
     \param [in] alpha Airfoil angle of attack (Radians)
     \param [in] epsilon Airfoil thickness
@@ -4530,7 +4530,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the pressure coefficient (Cp) along a Von Kármán-Trefftz airfoil of specified shape at specified points along the airfoil
+    Get the pressure coefficient (Cp) along a Von Kï¿½rmï¿½n-Trefftz airfoil of specified shape at specified points along the airfoil
     \sa GetVKTAirfoilPnts
     \param [in] alpha Airfoil angle of attack (Radians)
     \param [in] epsilon Airfoil thickness
@@ -4951,9 +4951,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterGlobalFunction( "void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_deg )", asFUNCTION( vsp::RotateSet ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void TranslateSet( int set_index, vec3d translation_vec )", asFUNCTION( vsp::TranslateSet ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void TranslateSet( int set_index, const vec3d & in translation_vec )", asFUNCTION( vsp::TranslateSet ), asCALL_CDECL );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void TransformSet( int set_index, vec3d translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag )", asFUNCTION( vsp::TransformSet ), asCALL_CDECL );
+    r = se->RegisterGlobalFunction( "void TransformSet( int set_index, const vec3d & in translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag )", asFUNCTION( vsp::TransformSet ), asCALL_CDECL );
     assert( r >= 0 );
 
     //==== Parm Functions ====//

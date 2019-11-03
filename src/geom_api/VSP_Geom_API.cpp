@@ -4575,7 +4575,7 @@ void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_
     group_trans->ReInitialize();
 }
 
-void TranslateSet( int set_index, vec3d translation_vec )
+void TranslateSet( int set_index, const vec3d &translation_vec )
 {
     Vehicle* veh = GetVehicle();
     GroupTransformations* group_trans = veh->GetGroupTransformationsPtr();
@@ -4600,7 +4600,7 @@ void TranslateSet( int set_index, vec3d translation_vec )
     group_trans->ReInitialize();
 }
 
-void TransformSet( int set_index, vec3d translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag )
+void TransformSet( int set_index, const vec3d &translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag )
 {
     Vehicle* veh = GetVehicle();
     GroupTransformations* group_trans = veh->GetGroupTransformationsPtr();
