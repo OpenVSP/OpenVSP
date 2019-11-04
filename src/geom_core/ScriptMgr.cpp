@@ -1231,17 +1231,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "GENDER", "FEMALE", FEMALE, "/*!< Female Human component */" );
     assert( r >= 0 );
 
-//    comment_str = R"(
-///*!
-//    EditCurveEXec initialization types
-//*/)";
-    r = se->RegisterEnum( "INIT_EDIT_XSEC_TYPE" );
+    doc_struct.comment = "/*! Initial shape enums for XS_EDIT_CURVE type XSecs. */";
+
+    r = se->RegisterEnum( "INIT_EDIT_XSEC_TYPE", doc_struct );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_CIRCLE", EDIT_XSEC_CIRCLE );
+    r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_CIRCLE", EDIT_XSEC_CIRCLE, "/*!< Circle initialized as cubic Bezier type */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_ELLIPSE", EDIT_XSEC_ELLIPSE );
+    r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_ELLIPSE", EDIT_XSEC_ELLIPSE, "/*!< Ellipse initialized as PCHIP type */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_RECTANGLE", EDIT_XSEC_RECTANGLE );
+    r = se->RegisterEnumValue( "INIT_EDIT_XSEC_TYPE", "EDIT_XSEC_RECTANGLE", EDIT_XSEC_RECTANGLE, "/*!< Rectangle initialized as linear type */" );
     assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum for OpenVSP import types. */";
@@ -1601,11 +1599,13 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "SYM_FLAG", "SYM_NUM_TYPES", SYM_NUM_TYPES, "/*!< Number of symmetry types */" );
     assert( r >= 0 );
 
-    r = se->RegisterEnum( "SYM_XSEC_TYPE" );
+    doc_struct.comment = "/*! Symmetry enum for XS_EDIT_CURVE type XSecs. */";
+
+    r = se->RegisterEnum( "SYM_XSEC_TYPE", doc_struct );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "SYM_XSEC_TYPE", "SYM_NONE", SYM_NONE );
+    r = se->RegisterEnumValue( "SYM_XSEC_TYPE", "SYM_NONE", SYM_NONE, "/*!< No symmetry */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "SYM_XSEC_TYPE", "SYM_RL", SYM_RL );
+    r = se->RegisterEnumValue( "SYM_XSEC_TYPE", "SYM_RL", SYM_RL, "/*!< Right-left symmetry */" );
 
     doc_struct.comment = "/*! Enum that describes units for temperature. */";
 
@@ -4740,95 +4740,103 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     //==== Edit Curve XSec Functions ====//
-//    comment_str = R"(
-///*!
-//    Initialize the EditCurveXSec to the current value of m_ShapeType (i.e. EDIT_XSEC_ELLIPSE)
-//    \sa INIT_EDIT_XSEC_TYPE
-//    \param xsec_id XSec ID
-//*/)";
-    r = se->RegisterGlobalFunction( "void EditXSecInitShape( const string& in xsec_id )", asFUNCTION( vsp::EditXSecInitShape ), asCALL_CDECL );
+    group = "EditCurveXSec";
+    doc_struct.group = group.c_str();
+
+    group_description = R"(
+    \brief Functions for modifying XSecs of type XS_EDIT_CURVE are defined here. \n\n
+    \ref index "Click here to return to the main page" )";
+    se->AddGroup( group.c_str(), "Edit Curve XSec Functions", group_description.c_str() );
+
+    doc_struct.comment = R"(
+/*!
+    Initialize the EditCurveXSec to the current value of m_ShapeType (i.e. EDIT_XSEC_ELLIPSE)
+    \sa INIT_EDIT_XSEC_TYPE
+    \param [in] xsec_id XSec ID
+*/)";
+    r = se->RegisterGlobalFunction( "void EditXSecInitShape( const string& in xsec_id )", asFUNCTION( vsp::EditXSecInitShape ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
-//    comment_str = R"(
-///*!
-//    Convert the EditCurveXSec curve type to the specified new type. Note, EditCurveXSec uses the same enumerations for PCurve to identify curve type.
-//    \sa PCURV_TYPE
-//    \param newtype New curve type enum (i.e. CEDIT)
-//    \param xsec_id XSec ID
-//*/)";
-    r = se->RegisterGlobalFunction( "void EditXSecConvertTo( const string& in xsec_id, const int& in newtype )", asFUNCTION( vsp::EditXSecConvertTo ), asCALL_CDECL );
+    doc_struct.comment = R"(
+/*!
+    Convert the EditCurveXSec curve type to the specified new type. Note, EditCurveXSec uses the same enumerations for PCurve to identify curve type.
+    \sa PCURV_TYPE
+    \param [in] xsec_id XSec ID
+    \param [in] newtype New curve type enum (i.e. CEDIT)
+*/)";
+    r = se->RegisterGlobalFunction( "void EditXSecConvertTo( const string& in xsec_id, const int& in newtype )", asFUNCTION( vsp::EditXSecConvertTo ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
-//    comment_str = R"(
-///*!
-//    Get the U parameter vector for an EditCurveXSec. The vector will be in increasing order with a range of 0 - 1. 
-//    \param xsec_id XSec ID
-//    \return Array of U parameter values
-//*/)";
-    r = se->RegisterGlobalFunction( "array<double>@ GetEditXSecUVec( const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetEditXSecUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    doc_struct.comment = R"(
+/*!
+    Get the U parameter vector for an EditCurveXSec. The vector will be in increasing order with a range of 0 - 1. 
+    \param [in] xsec_id XSec ID
+    \return Array of U parameter values
+*/)";
+    r = se->RegisterGlobalFunction( "array<double>@ GetEditXSecUVec( const string& in xsec_id )", asMETHOD( ScriptMgrSingleton, GetEditXSecUVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
-//    comment_str = R"(
-///*!
-//    Get the control point vector for an EditCurveXSec. Note, the returned array of vec3d values will be represented in 2D with Z set to 0.
-//    \param xsec_id XSec ID
-//    \param non_dimensional True to get the points non-dimensionalized, False to get them scaled by m_Width and m_Height
-//    \return Array of control points
-//*/)";
-    r = se->RegisterGlobalFunction( "array<vec3d>@ GetEditXSecCtrlVec( const string& in xsec_id, const bool non_dimensional = true )", asMETHOD( ScriptMgrSingleton, GetEditXSecCtrlVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    doc_struct.comment = R"(
+/*!
+    Get the control point vector for an EditCurveXSec. Note, the returned array of vec3d values will be represented in 2D with Z set to 0.
+    \param [in] xsec_id XSec ID
+    \param [in] non_dimensional True to get the points non-dimensionalized, False to get them scaled by m_Width and m_Height
+    \return Array of control points
+*/)";
+    r = se->RegisterGlobalFunction( "array<vec3d>@ GetEditXSecCtrlVec( const string& in xsec_id, const bool non_dimensional = true )", asMETHOD( ScriptMgrSingleton, GetEditXSecCtrlVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
-//    comment_str = R"(
-///*!
-//    Set the U parameter vector and the control point vector for an EditCurveXSec. The arrays must be of equal length, with the values for U defined in 
-//    increasing order and range 0 - 1. The XSec is nondimentionalized and 2D, so the input control points wil be scaled by m_Width and m_Height and the 
-//    Z values will be ignred. 
-//    \param xsec_id XSec ID
-//    \param u_vec Array of U parameter values
-//    \param control_pts Array of control points
-//*/)";
-    r = se->RegisterGlobalFunction( "void SetEditXSecPnts( const string& in xsec_id, array<double>@ u_vec, array<vec3d>@ control_pts )", asMETHOD( ScriptMgrSingleton, SetEditXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr );
+    doc_struct.comment = R"(
+/*!
+    Set the U parameter vector and the control point vector for an EditCurveXSec. The arrays must be of equal length, with the values for U defined in 
+    increasing order and range 0 - 1. The XSec is nondimentionalized and 2D, so the input control points wil be scaled by m_Width and m_Height and the 
+    Z values will be ignred. 
+    \param [in] xsec_id XSec ID
+    \param [in] u_vec Array of U parameter values
+    \param [in] control_pts Array of control points
+*/)";
+    r = se->RegisterGlobalFunction( "void SetEditXSecPnts( const string& in xsec_id, array<double>@ u_vec, array<vec3d>@ control_pts )", asMETHOD( ScriptMgrSingleton, SetEditXSecPnts ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
-//    comment_str = R"(
-///*!
-//    Delete an EditCurveXSec control point. Note, cubic Bezier intermediate control points (those not on the curve) cannot be deleted.
-//    The previous and next Bezier control point will be deleted along with the point on the curve. Regardless of curve type, the first
-//    and last points may not be deleted. 
-//    \param xsec_id XSec ID
-//    \param indx Control point index
-//*/)";
-    r = se->RegisterGlobalFunction( "void EditXSecDelPnt( const string& in xsec_id, const int& in indx )", asFUNCTION( vsp::EditXSecDelPnt ), asCALL_CDECL );
+    doc_struct.comment = R"(
+/*!
+    Delete an EditCurveXSec control point. Note, cubic Bezier intermediate control points (those not on the curve) cannot be deleted.
+    The previous and next Bezier control point will be deleted along with the point on the curve. Regardless of curve type, the first
+    and last points may not be deleted. 
+    \param [in] xsec_id XSec ID
+    \param [in] indx Control point index
+*/)";
+    r = se->RegisterGlobalFunction( "void EditXSecDelPnt( const string& in xsec_id, const int& in indx )", asFUNCTION( vsp::EditXSecDelPnt ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
-//    comment_str = R"(
-///*!
-//    Split the EditCurveXSec at the specified U value
-//    \param xsec_id XSec ID
-//    \param u U value to split the curve at (0 - 1)
-//    \return Index of the point added from the split
-//*/)";
-    r = se->RegisterGlobalFunction( "int EditXSecSplit01( const string& in xsec_id, const double& in u )", asFUNCTION( vsp::EditXSecSplit01 ), asCALL_CDECL );
+    doc_struct.comment = R"(
+/*!
+    Split the EditCurveXSec at the specified U value
+    \param [in] xsec_id XSec ID
+    \param [in] u U value to split the curve at (0 - 1)
+    \return Index of the point added from the split
+*/)";
+    r = se->RegisterGlobalFunction( "int EditXSecSplit01( const string& in xsec_id, const double& in u )", asFUNCTION( vsp::EditXSecSplit01 ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
-//    comment_str = R"(
-///*!
-//    Move an EditCurveXSec control point. The XSec points are nondimensionalized by m_Width and m_Height and 
-//    defined in 2D, so the Z value of the new coordinate point will be ignored.
-//    \param xsec_id XSec ID
-//    \param xndx Control point index
-//    \param new_pnt Coordinate of the new point
-//*/)";
-    r = se->RegisterGlobalFunction( "void MoveEditXSecPnt( const string& in xsec_id, const int& in indx, const vec3d& in new_pnt )", asFUNCTION( vsp::MoveEditXSecPnt ), asCALL_CDECL );
+    doc_struct.comment = R"(
+/*!
+    Move an EditCurveXSec control point. The XSec points are nondimensionalized by m_Width and m_Height and 
+    defined in 2D, so the Z value of the new coordinate point will be ignored.
+    \param [in] xsec_id XSec ID
+    \param [in] indx Control point index
+    \param [in] new_pnt Coordinate of the new point
+*/)";
+    r = se->RegisterGlobalFunction( "void MoveEditXSecPnt( const string& in xsec_id, const int& in indx, const vec3d& in new_pnt )", asFUNCTION( vsp::MoveEditXSecPnt ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
-//    comment_str = R"(
-///*!
-//    Convert any XSec type into an EditCurveXSec. This function will work for BOR Geoms, in which case the input XSec index is ignored.
-//    \param geom_id Geom ID
-//    \param indx XSec index
-//*/)";
-    r = se->RegisterGlobalFunction( "void ConvertXSecToEdit( const string& in geom_id, const int& in indx = 0 )", asFUNCTION( vsp::ConvertXSecToEdit ), asCALL_CDECL );
+    doc_struct.comment = R"(
+/*!
+    Convert any XSec type into an EditCurveXSec. This function will work for BOR Geoms, in which case the input XSec index is ignored.
+    \param [in] geom_id Geom ID
+    \param [in] indx XSec index
+*/)";
+    r = se->RegisterGlobalFunction( "void ConvertXSecToEdit( const string& in geom_id, const int& in indx = 0 )", asFUNCTION( vsp::ConvertXSecToEdit ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     //==== Specialized Geom Functions ====//
@@ -4947,13 +4955,56 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     //=== Group Modifications ===//
-    r = se->RegisterGlobalFunction( "void ScaleSet( int set_index, double scale )", asFUNCTION( vsp::ScaleSet ), asCALL_CDECL );
+    group = "GroupMod";
+    doc_struct.group = group.c_str();
+
+    group_description = R"(
+    \brief The functions in this group allow for sets to be scaled, rotated, and translated. \n\n
+    \ref index "Click here to return to the main page" )";
+    se->AddGroup( group.c_str(), "Group Modification Functions", group_description.c_str() );
+
+    doc_struct.comment = R"(
+/*!
+    Apply a scale factor to a set
+    \param [in] set_index Set index
+    \param [in] scale Scale factor
+*/)";
+    r = se->RegisterGlobalFunction( "void ScaleSet( int set_index, double scale )", asFUNCTION( vsp::ScaleSet ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_deg )", asFUNCTION( vsp::RotateSet ), asCALL_CDECL );
+
+    doc_struct.comment = R"(
+/*!
+    Rotate a set about the global X, Y, and Z axes
+    \param [in] set_index Set index
+    \param [in] x_rot_deg Rotation about the X axis (degrees)
+    \param [in] y_rot_deg Rotation about the Y axis (degrees)
+    \param [in] z_rot_deg Rotation about the Z axis (degrees)
+*/)";
+    r = se->RegisterGlobalFunction( "void RotateSet( int set_index, double x_rot_deg, double y_rot_deg, double z_rot_deg )", asFUNCTION( vsp::RotateSet ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void TranslateSet( int set_index, const vec3d & in translation_vec )", asFUNCTION( vsp::TranslateSet ), asCALL_CDECL );
+
+    doc_struct.comment = R"(
+/*!
+    Translate a set along a given vector
+    \param [in] set_index Set index
+    \param [in] translation_vec Translation vector
+*/)";
+    r = se->RegisterGlobalFunction( "void TranslateSet( int set_index, const vec3d & in translation_vec )", asFUNCTION( vsp::TranslateSet ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
-    r = se->RegisterGlobalFunction( "void TransformSet( int set_index, const vec3d & in translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag )", asFUNCTION( vsp::TransformSet ), asCALL_CDECL );
+
+    doc_struct.comment = R"(
+/*!
+    Apply translation, rotation, and scale transformations to a set
+    \sa TranslateSet, RotateSet, ScaleSet
+    \param [in] set_index Set index
+    \param [in] translation_vec Translation vector
+    \param [in] x_rot_deg Rotation about the X axis (degrees)
+    \param [in] y_rot_deg Rotation about the Y axis (degrees)
+    \param [in] z_rot_deg Rotation about the Z axis (degrees)
+    \param [in] scale Scale factor
+    \param [in] scale_translations_flag Flag to apply the scale factor to translations
+*/)";
+    r = se->RegisterGlobalFunction( "void TransformSet( int set_index, const vec3d & in translation_vec, double x_rot_deg, double y_rot_deg, double z_rot_deg, double scale, bool scale_translations_flag )", asFUNCTION( vsp::TransformSet ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     //==== Parm Functions ====//
