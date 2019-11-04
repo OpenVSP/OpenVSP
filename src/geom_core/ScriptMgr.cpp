@@ -509,7 +509,7 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_MANUAL_P_R", ATMOS_TYPE_MANUAL_P_R, "/*!< Manual: pressure and density control */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_mANUAL_P_T", ATMOS_TYPE_MANUAL_P_T, "/*!< Manual: pressure and temperature control */" );
+    r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_MANUAL_P_T", ATMOS_TYPE_MANUAL_P_T, "/*!< Manual: pressure and temperature control */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "ATMOS_TYPE", "ATMOS_TYPE_MANUAL_R_T", ATMOS_TYPE_MANUAL_R_T, "/*!< Manual: density and temperature control */" );
     assert( r >= 0 );
