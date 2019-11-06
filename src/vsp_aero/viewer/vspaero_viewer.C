@@ -56,8 +56,7 @@ int main(int argc, char **argv) {
 	   }
 
 	   else {
-
-         printf("VSPVIEWER v1.0.0 --- 5/2015 \n");
+         printf( "VSPVIEWER v.6.0.0 --- %s \n", __DATE__ );
          printf("Please direct questions to David Kinney, David.J.Kinney@nasa.gov \n");
 	      printf("Unrecognized option! \n");
 	      printf("Usage: \n");
@@ -71,7 +70,7 @@ int main(int argc, char **argv) {
 
     if ( argc <= 1 ) {
 
-       printf("VSPVIEWER v1.0.0 --- 5/2015 \n");
+       printf( "VSPVIEWER v.6.0.0 --- %s \n", __DATE__ );
        printf("Please direct questions to David Kinney, David.J.Kinney@nasa.gov \n");
        printf("Unrecognized option! \n");
        printf("Usage: \n");

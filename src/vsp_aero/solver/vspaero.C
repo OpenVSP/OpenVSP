@@ -345,7 +345,7 @@ int main(int argc, char **argv)
 
 void PrintUsageHelp()
 {
-       printf("VSPAERO v.4.4.1  --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
+       printf("VSPAERO v.6.0.0 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
        printf("\n\n\n\n");
 
        printf("Usage: vspaero [options] <FileName>\n");
