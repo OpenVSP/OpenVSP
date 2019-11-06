@@ -420,22 +420,22 @@ void XSecCurve::CloseTE( bool wingtype )
 
     double tle = 2.0;
 
-    if ( wingtype && m_TECloseType() != CLOSE_NONE )
+    threed_point_type plow = crv.f( tmin );
+    threed_point_type pup = crv.f( tmax );
+    threed_point_type ple = crv.f( tle );
+
+    piecewise_curve_type c_up, c_low;
+    crv.split( c_low, c_up, tle );
+
+    double dx = plow[0] - ple[0];
+    double dy = pup[1] - plow[1] - thick;
+
+    if ( wingtype && m_TECloseType() != CLOSE_NONE && abs( dx ) > FLT_EPSILON )
     {
-        threed_point_type plow = crv.f( tmin );
-        threed_point_type pup = crv.f( tmax );
-        threed_point_type ple = crv.f( tle );
-
-        piecewise_curve_type c_up, c_low;
-        crv.split( c_low, c_up, tle );
-
-
         if ( m_TECloseType() == CLOSE_SKEWLOW ||
              m_TECloseType() == CLOSE_SKEWUP  ||
              m_TECloseType() == CLOSE_SKEWBOTH )
         {
-            double dx = plow[0] - ple[0];
-            double dy = pup[1] - plow[1] - thick;
 
             piecewise_curve_type::rotation_matrix_type mat;
             mat.setIdentity();
@@ -592,7 +592,7 @@ void XSecCurve::CloseTE( bool wingtype )
         d = d * div;
     }
 
-    if ( m_TECloseType() != CLOSE_NONE )
+    if ( m_TECloseType() != CLOSE_NONE && abs( dx ) > FLT_EPSILON )
     {
 
         if ( m_TECloseAbsRel() == ABS )
@@ -652,16 +652,16 @@ void XSecCurve::CloseLE( bool wingtype )
     piecewise_curve_type c_up, c_low;
     crv.split( c_low, c_up, tle );
 
-    if ( m_LECloseType() != CLOSE_NONE )
+    threed_point_type plow = crv.f( tmin );
+    threed_point_type pup = crv.f( tmax );
+    threed_point_type pte = ( plow + pup ) * 0.5;
+    threed_point_type ple = crv.f( tle );
+
+    double dx = pte[0] - ple[0];
+    double dy = thick;
+
+    if ( m_LECloseType() != CLOSE_NONE && abs( dx ) > FLT_EPSILON )
     {
-        threed_point_type plow = crv.f( tmin );
-        threed_point_type pup = crv.f( tmax );
-        threed_point_type pte = ( plow + pup ) * 0.5;
-        threed_point_type ple = crv.f( tle );
-
-        double dx = pte[0] - ple[0];
-        double dy = thick;
-
         piecewise_curve_type::rotation_matrix_type mat;
         mat.setIdentity();
 
@@ -745,7 +745,7 @@ void XSecCurve::CloseLE( bool wingtype )
         d = d * div;
     }
 
-    if ( m_LECloseType() != CLOSE_NONE )
+    if ( m_LECloseType() != CLOSE_NONE && abs( dx ) > FLT_EPSILON )
     {
 
         if ( m_LECloseAbsRel() == ABS )
