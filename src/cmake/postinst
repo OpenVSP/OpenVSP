@@ -8,7 +8,7 @@ ln -nsf /opt/OpenVSP/vspslicer /usr/local/bin/vspslicer;
 ln -nsf /opt/OpenVSP/vspviewer /usr/local/bin/vspviewer;
 echo "Setting up desktop entry ...";
 ln -nsf /opt/OpenVSP/vspIcon.png /usr/share/pixmaps/vspIcon.png
-cat >> /usr/share/applications/vsp.desktop <<EOL
+cat >| /usr/share/applications/vsp.desktop <<EOL
 [Desktop Entry]
 Type=Application
 Version=1.0
