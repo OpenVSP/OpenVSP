@@ -1162,10 +1162,10 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
         typestr = "BODY";
     }
 
-    fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, MainSurfNdx, SymCopyNdx, GeomID, FlipNormal," );
+    fprintf( file_id, "\n# DegenGeom Type, Name, SurfNdx, GeomID, MainSurfNdx, SymCopyNdx, FlipNormal," );
     fprintf( file_id, "t00,t01,t02,t03,t10,t11,t12,t13,t20,t21,t22,t23,t30,t31,t32,t33" );
-    fprintf( file_id, "\n%s,%s,%d,%d,%d,%s,%d,", typestr.c_str(), name.c_str(), getSurfNum(), getMainSurfInd(),
-             getSymCopyInd(), this->parentGeom->GetID().c_str(), getFlipNormal() );
+    fprintf( file_id, "\n%s,%s,%d,%s,%d,%d,%d,", typestr.c_str(), name.c_str(), getSurfNum(),
+            this->parentGeom->GetID().c_str(), getMainSurfInd(), getSymCopyInd(), getFlipNormal() );
 
     for( int j = 0; j < 16; j ++ )
     {
