@@ -2743,7 +2743,7 @@ void VSP_SOLVER::Solve(int Case)
     
     // Recalculate interaction lists if Mach crossed over Mach = 1
     
-    if ( LastMach_ < 0. || Mach_ >= 1. && LastMach_ <  1. || Mach_ <  1. && LastMach_ >= 1 ) {
+    if ( LastMach_ < 0. || ( Mach_ >= 1. && LastMach_ <  1. ) || ( Mach_ <  1. && LastMach_ >= 1 ) ) {
        
        printf("Updating interaction lists due to subsonic / supersonic Mach change \n");
        
