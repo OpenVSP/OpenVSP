@@ -53,6 +53,8 @@ endif()
 
 if(BUILD_VSPAERO)
 
+  ADD_DEFINITIONS( -DMYTIME )
+
   ADD_EXECUTABLE(vspaero
   binaryio.C
   ComponentGroup.C
