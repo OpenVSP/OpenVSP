@@ -2064,15 +2064,15 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                    
                    // Save control surface name
                    
-                   sprintf(ControlSurface_[NumberOfControlSurfaces_].ShortName(),"%s\0",Next); // Short name
-                   sprintf(ControlSurface_[NumberOfControlSurfaces_].Name(),"%s\0",Next);      // Name and FullName assumed the same unless we find subsurface information below... 
+                   sprintf(ControlSurface_[NumberOfControlSurfaces_].ShortName(),"%s",Next); // Short name
+                   sprintf(ControlSurface_[NumberOfControlSurfaces_].Name(),"%s",Next);      // Name and FullName assumed the same unless we find subsurface information below...
                    
                    // Save the control surface type name, type, and full name if they exist
                    
                    if ( SubSurfIsTyped ) {
                       
                       Next = strtok(NULL,Comma);
-                      sprintf(ControlSurface_[NumberOfControlSurfaces_].TypeName(),"%s\0",Next); 
+                      sprintf(ControlSurface_[NumberOfControlSurfaces_].TypeName(),"%s",Next);
                    
                       Next = strtok(NULL,Comma);
                       sscanf(Next,"%d",&ControlSurface_[NumberOfControlSurfaces_].Type());
