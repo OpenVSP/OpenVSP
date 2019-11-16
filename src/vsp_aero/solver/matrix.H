@@ -103,7 +103,7 @@ public:
 
     MATRIX gauss_solve(MATRIX &vec, int max_iters, float toler);
 
-    void print(char *name);
+    void print(const char *name);
     void print(void);
 
 };

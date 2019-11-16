@@ -1469,7 +1469,7 @@ void MATRIX::diagonal(double val)
 #                                                                              #
 ##############################################################################*/
 
-void MATRIX::print(char *name)
+void MATRIX::print(const char *name)
 {
 
     int i, j;
