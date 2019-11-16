@@ -4066,7 +4066,7 @@ void GL_VIEWER::PanelComGeomTagsBrowser_Update(void)
     
     for ( i = 1 ; i <= NumberOfWings_ ; i++ ) {
 
-       sprintf(Line,"(%d) Wing: (%d): %-100s  (%d) \n", WingGroupID_[i],i,WingListName_[i]);
+       sprintf(Line,"(%d) Wing: (%d): %-100s \n", WingGroupID_[i],i,WingListName_[i]);
 
        PanelComGeomTagsBrowser->add(Line);
        
