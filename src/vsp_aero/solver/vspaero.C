@@ -351,34 +351,43 @@ void PrintUsageHelp()
        printf("Usage: vspaero [options] <FileName>\n");
        printf("\n\n");
        printf("Options: \n");
-       printf(" -omp <N>           Use 'N' processes.\n");
-       printf(" -stab              Calculate stability derivatives.\n");
+       printf(" -omp <N>           Use N processes.\n");
        printf(" -fs <M> END <A> END <B> END     Set/Override freestream Mach, Alpha, and Beta. note: M, A, and B are space delimited lists.\n");
-       printf(" -save              Save restart file.\n");
-       printf(" -restart           Restart analysis.\n");
-       printf(" -geom              Process and write geometry without solving.\n");
-       printf(" -nowake <N>        No wake for first N iterations.\n");
-       printf(" -fem               Load in FEM deformation file.\n");
-       printf(" -write2dfem        Write out 2D FEM load file.\n");
-       printf(" -groundheight <H>  Do ground effects analysis with cg set to <H> height above the ground. \n");
-       printf(" -novortex          Turn off VLM vortex lift model. \n");
-       printf(" -lesuction         Turn on VLM leading edge suction model. \n");
-       printf(" -rotor <RPM>       Do a rotor analysis, with specified rotor RPM. \n");
-       printf(" -dokt              Turn on the 2nd order Karman-Tsien Mach number correction. \n");       
-       printf(" -jacobi            Use Jacobi matrix preconditioner for GMRES solve. \n");
-       printf(" -ssor              Use SSOR matrix preconditioner for GMRES solve. \n");
        printf(" -setup             Write template *.vspaero file, can specify parameters below:\n");
        printf("     -sref  <S>        Reference area S.\n");
        printf("     -bref  <b>        Reference span b.\n");
        printf("     -cref  <c>        Reference chord c.\n");
        printf("     -cg  <X Y Z>      Moment reference point.\n");
-       printf("     -mach <M> END     Freestream Mach number. M is a space delimited list of mach values.\n");
-       printf("     -aoa  <A> END     Angle of attack. A is a space delimited list of aoa values.\n");
-       printf("     -beta <B> END     Sideslip angle. B is a space delimited list of beta values.\n");
+       printf("     -mach <M> END     Freestream Mach number.  M is a space delimited list of mach values.\n");
+       printf("     -aoa  <A> END     Angle of attack.  A is a space delimited list of aoa values.\n");
+       printf("     -beta <B> END     Sideslip angle.  B is a space delimited list of beta values.\n");
        printf("     -wakeiters <N>    Number of wake iterations to calculate.\n");
        printf("     -symx             Symetry flag - vehicle is symetric at x=0.\n");
        printf("     -symy             Symetry flag - vehicle is symetric at y=0 (this is the most common).\n");
        printf("     -symz             Symetry flag - vehicle is symetric at z=0.\n");
+       printf(" -save              Save restart file.\n");
+       printf(" -restart           Restart analysis.\n");
+       printf(" -geom              Process and write geometry without solving.\n");
+       printf(" -dokt              Turn on the 2nd order Karman-Tsien Mach number correction. \n");
+       printf(" -groundheight <H>  Do ground effects analysis with cg set to <H> height above the ground. \n");
+       printf(" -fem               Load in FEM deformation file.\n");
+       printf(" -write2dfem        Write out 2D FEM load file.\n");
+       printf(" -stab              Calculate stability derivatives.\n");
+       printf(" -pstab             Calculate unsteady rolling stability derivatives.\n");
+       printf(" -qstab             Calculate unsteady pitching stability derivatives.\n");
+       printf(" -rstab             Calculate unsteady yawing stability derivatives.\n");
+       printf(" -nowake <N>        No wake for first N iterations.\n");
+       printf(" -rotor <RPM>       Do a rotating frame rotor analysis, with specified rotor RPM.\n");
+       printf(" -hoverramp <V1>    Decay freestream velocity from V1 to Vinf.\n");
+       printf(" -unsteady          Do unsteady analysis.\n");
+       printf(" -fromsteadystate   Start unsteady analysis from steady solution.\n");
+       printf(" -noise             Do calculations for and write PSU-WOPWOP file.\n");
+       printf("     -steady           Do steady state noise calcs.\n");
+       printf("     -english          Assume geometry and VSPAERO inputs in english (ft lbf slug s) units, will convert to SI (m N kg s) for PSU-WOPWOP.\n");
+       printf("     -flyby            Set up fly by noise analysis for PSU-WOPWOP.\n");
+       printf("     -footprint        Set up footprint noise analysis for PSU-WOPWOP.\n");
+       printf(" -jacobi            Use Jacobi matrix preconditioner for GMRES solve (not recommended).\n");
+       printf(" -ssor              Use SSOR matrix preconditioner for GMRES solve (not recommended).\n");
        printf("\n");
        printf("EXAMPLES:\n");
        printf("Example: Creating a setup file for testModel with mach and alpha sweep matrix\n");
@@ -788,12 +797,6 @@ void CreateInputFile(char *argv[], int argc, int &i)
     while ( i <= argc - 2 ) {
     
        if ( strcmp(argv[i],"-sref") == 0 ) {
-          
-          Sref_ = atof(argv[++i]);
-          
-       }
-       
-       else if ( strcmp(argv[i],"-sref") == 0 ) {
           
           Sref_ = atof(argv[++i]);
           
