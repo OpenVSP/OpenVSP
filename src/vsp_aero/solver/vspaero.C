@@ -18,6 +18,10 @@
 #include "VSP_Solver.H"
 #include "ControlSurfaceGroup.H"
 
+#define VER_MAJOR 6
+#define VER_MINOR 0
+#define VER_PATCH 1
+
 // Some globals...
 
 char *FileName;
@@ -203,7 +207,7 @@ int main(int argc, char **argv)
 
     // Output a header
 
-    printf("VSPAERO v.6.0.0 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
+    printf("VSPAERO v.%d.%d.%d --- Compiled on: %s at %s PST \n", VER_MAJOR, VER_MINOR, VER_PATCH, __DATE__, __TIME__);
     printf("\n\n\n\n");
     
 #ifdef VSPAERO_OPENMP
@@ -345,7 +349,7 @@ int main(int argc, char **argv)
 
 void PrintUsageHelp()
 {
-       printf("VSPAERO v.6.0.0 --- Compiled on: %s at %s PST \n",__DATE__, __TIME__);
+       printf("VSPAERO v.%d.%d.%d --- Compiled on: %s at %s PST \n", VER_MAJOR, VER_MINOR, VER_PATCH, __DATE__, __TIME__);
        printf("\n\n\n\n");
 
        printf("Usage: vspaero [options] <FileName>\n");

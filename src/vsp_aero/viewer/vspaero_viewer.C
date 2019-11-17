@@ -14,6 +14,10 @@ int TimeStamp = 0;
 char TimeLabel[1000];
 float BoxSize;
 
+#define VER_MAJOR 6
+#define VER_MINOR 0
+#define VER_PATCH 1
+
 /*##############################################################################
 #                                                                              #
 #                                 viewer main                                  #
@@ -56,7 +60,7 @@ int main(int argc, char **argv) {
 	   }
 
 	   else {
-         printf( "VSPVIEWER v.6.0.0 --- %s \n", __DATE__ );
+         printf( "VSPVIEWER v.%d.%d.%d --- %s \n", VER_MAJOR, VER_MINOR, VER_PATCH, __DATE__ );
          printf("Please direct questions to David Kinney, David.J.Kinney@nasa.gov \n");
 	      printf("Unrecognized option! \n");
 	      printf("Usage: \n");
@@ -70,7 +74,7 @@ int main(int argc, char **argv) {
 
     if ( argc <= 1 ) {
 
-       printf( "VSPVIEWER v.6.0.0 --- %s \n", __DATE__ );
+       printf( "VSPVIEWER v.%d.%d.%d --- %s \n", VER_MAJOR, VER_MINOR, VER_PATCH, __DATE__ );
        printf("Please direct questions to David Kinney, David.J.Kinney@nasa.gov \n");
        printf("Unrecognized option! \n");
        printf("Usage: \n");
