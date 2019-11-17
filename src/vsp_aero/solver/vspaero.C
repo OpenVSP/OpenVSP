@@ -786,7 +786,7 @@ void CreateInputFile(char *argv[], int argc, int &i)
 
     if ( (case_file = fopen(file_name_w_ext,"w")) == NULL ) {
 
-       printf("Could not open the file: %s for input! \n",file_name_w_ext);
+       printf("Could not open the file: %s for writing! \n",file_name_w_ext);
 
        exit(1);
 
