@@ -1,0 +1,33 @@
+Sref = 117.0175
+Cref =   3.4316
+Bref =  35.6199
+X_cg =   24.414
+Y_cg =   0.0
+Z_cg =   11.067
+Mach =   0.1
+AoA =   -15.
+Beta =  0.
+Vinf = 101.
+Rho =   0.002377
+ReCref = 5000000.
+ClMax = -1.
+MaxTurningAngle = -1. 
+Symmetry = N
+FarDist = -1.
+NumWakeNodes = 128
+WakeIters = 0
+NumberOfRotors = 0 
+NumberOfControlGroups = 0 
+TimeStep =           0.001616046
+NumberOfTimeSteps =  150
+
+
+
+
+TimeStep =           0.00080823
+NumberOfTimeSteps =  50
+ 
+
+
+
+

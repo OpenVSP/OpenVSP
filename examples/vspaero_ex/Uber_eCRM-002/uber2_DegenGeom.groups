@@ -1,0 +1,185 @@
+9
+#
+GroupName = RightFrontOutBoardLiftRotor
+NumberOfComponents = 2
+5
+6
+GeometryIsFixed = 0
+GeometryIsDynamic = 0
+GeometryIsARotor = 1
+RotorDiameter = 9.566
+OVec = 18.639 17.256 12.245
+RVec =  0. -0.034899497 0.990268069
+Velocity = 0. 0. 0.
+Omega = -84.
+Mass = 0. 
+Ixx = 0.
+Iyy = 0.
+Izz = 0.
+Ixy = 0.
+Ixz = 0.
+Iyz = 0.
+#
+GroupName = RightFrontInnerLiftRotor
+NumberOfComponents = 2
+2
+3
+GeometryIsFixed = 0
+GeometryIsDynamic = 0
+GeometryIsARotor = 1
+RotorDiameter = 9.566
+OVec = 20.426 8.297 11.361
+RVec =  0. -0.034899497 0.990268069
+Velocity = 0. 0. 0.
+Omega = -84.
+Mass = 0. 
+Ixx = 0.
+Iyy = 0.
+Izz = 0.
+Ixy = 0.
+Ixz = 0.
+Iyz = 0.
+#
+GroupName = LeftFrontOutBoardLiftRotor
+NumberOfComponents = 2
+10
+11
+GeometryIsFixed = 0
+GeometryIsDynamic = 0
+GeometryIsARotor = 1
+RotorDiameter = 9.566
+OVec = 18.639 -17.256 12.245
+RVec =  0. 0.034899497 0.990268069
+Velocity = 0. 0. 0.
+Omega = 84.
+Mass = 0. 
+Ixx = 0.
+Iyy = 0.
+Izz = 0.
+Ixy = 0.
+Ixz = 0.
+Iyz = 0.
+#
+GroupName = LeftFrontInnerLiftRotor
+NumberOfComponents = 2
+7
+8
+GeometryIsFixed = 0
+GeometryIsDynamic = 0
+GeometryIsARotor = 1
+RotorDiameter = 9.566
+OVec = 20.426 -8.297 11.361
+RVec =  0. 0.034899497 0.990268069
+Velocity = 0. 0. 0.
+Omega = 84.
+Mass = 0. 
+Ixx = 0.
+Iyy = 0.
+Izz = 0.
+Ixy = 0.
+Ixz = 0.
+Iyz = 0.
+#
+GroupName = FrontTailBoomRotor
+NumberOfComponents = 2
+14
+15
+GeometryIsFixed = 0
+GeometryIsDynamic = 0
+GeometryIsARotor = 1
+RotorDiameter = 7.44
+OVec = 30.250 0.000 10.333
+RVec =  0. 0.0 1.0
+Velocity = 0. 0. 0.
+Omega = 84.
+Mass = 0. 
+Ixx = 0.
+Iyy = 0.
+Izz = 0.
+Ixy = 0.
+Ixz = 0.
+Iyz = 0.
+#
+GroupName = RearTailBoomRotor
+NumberOfComponents = 2
+16
+17
+GeometryIsFixed = 0
+GeometryIsDynamic = 0
+GeometryIsARotor = 1
+RotorDiameter = 7.44
+OVec = 39.562 0.000 10.333
+RVec =  0. 0. 1.0
+Velocity = 0. 0. 0.
+Omega = -84.
+Mass = 0. 
+Ixx = 0.
+Iyy = 0.
+Izz = 0.
+Ixy = 0.
+Ixz = 0.
+Iyz = 0.
+#
+GroupName = RightCruiseRotor
+NumberOfComponents = 1
+4
+GeometryIsFixed = 0
+GeometryIsDynamic = 0
+GeometryIsARotor = 1
+RotorDiameter = 5.544
+OVec = 10.166 17.448 10.881
+RVec = -1. 0. 0.
+Velocity = 0. 0. 0.
+Omega = 162.
+Mass = 0. 
+Ixx = 0.
+Iyy = 0.
+Izz = 0.
+Ixy = 0.
+Ixz = 0.
+Iyz = 0.
+#
+GroupName = LeftCruiseRotor
+NumberOfComponents = 1
+9
+GeometryIsFixed = 0
+GeometryIsDynamic = 0
+GeometryIsARotor = 1
+RotorDiameter = 5.544
+OVec = 10.166 -17.448 10.881
+RVec = -1. 0. 0.
+Velocity = 0. 0. 0.
+Omega = -162.
+Mass = 0. 
+Ixx = 0.
+Iyy = 0.
+Izz = 0.
+Ixy = 0.
+Ixz = 0.
+Iyz = 0.
+#
+GroupName = Plane
+NumberOfComponents = 8
+1
+12
+13
+18
+19
+20
+21
+22
+GeometryIsFixed = 1
+GeometryIsDynamic = 0
+GeometryIsARotor = 0
+RotorDiameter = 0.
+OVec = 1. 0. 0.
+RVec = 1. 0. 0.
+Velocity = 0. 0. 0.
+Omega = 0.
+Mass = 0. 
+Ixx = 0.
+Iyy = 0.
+Izz = 0.
+Ixy = 0.
+Ixz = 0.
+Iyz = 0.
