@@ -362,31 +362,11 @@ namespace asDocgen
         std::ofstream mainpage_md;
         mainpage_md.open( "APIReadme.md", ios_base::out );
 
-        // TODO: Improve Readme
-        // The documentation has been generated from running **Doxygen** on a header 
-        // file output from running OpenVSP through the command line with the **-doc** input argument.
-        //## Documentation Navigation
-        //All OpenVSP API classes, enumerations, and functions are defined in** [openvsp_as.h]( openvsp__as_8h.html )**, 
-        //so this is the best place to start.All API members are indexed for documentation, so can also be found through 
-        //the** [File Members]( globals.html )** drop - down or through the search bar.
-
-    //### Developers
-    //Below is a list of source files related to the OpenVSP API for developers to improve:
-    //    -src\geom_api\APIReadme.me
-    //        - Markup file for the API documentation introduction
-    //    - src\geom_api\APIDoxyfile
-    //        - Doxyfile used by Doxygen to generate the API documentation
-    //    - src\geom_api\VSP_Geom_API.cppand src\geom_api\VSP_Geom_API.h
-    //        - C++and Python API class, enumeration, and function definitions
-    //    - src\geom_core\ScriptMgr.cppand src\geom_core\ScriptMgr.h
-    //        - Exposes API to Angelscript
-    //        - Includes API documentation comments that are written out to openvsp_as.h when the OpenVSP is run with the "-doc" input argument
-
         std::string readme_str = R"(
 
     # Documentation for the OpenVSP API
 
-This is the documentation for the classes, enumerations, and functions available in through the OpenVSP API. 
+This is the documentation for the classes, enumerations, and functions available in the OpenVSP API. 
 
 The API functions are organized into the following groups:
 
@@ -555,7 +535,6 @@ feature request, or bug report for the OpenVSP developers.
     \copyright NASA Open Source Agreement (NOSA) version 1.3 as detailed in the LICENSE file which accompanies this software
 */ )";
 
-    // TODO Update details and date
     // Note: other special comment codes include \version, \pre, \bug, \warning
 
         outfile << comment_str << "\n\n";
@@ -610,13 +589,6 @@ feature request, or bug report for the OpenVSP developers.
                 outfile << "#endif /* DOXYGEN_SHOULD_SKIP_THIS */\n";
             }
 
-            /*
-             outfile << "  // Behaviours\n";
-             for (unsigned int k = 0; k < objects[i].behaviours.size(); ++k)
-             {
-             outfile << "  " << objects[i].behaviours[k] << ";\n";
-             }
-             */
             outfile << "};\n";
 
             if ( objects[i].nspace != string( "" ) )
