@@ -3852,6 +3852,24 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "int GetNumMainSurfs( const string & in geom_id )", asFUNCTION( vsp::GetNumMainSurfs ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
+    doc_struct.comment = R"(
+/*!
+    Get the parent Geom ID for the input child Geom. "NONE" is returned if the Geom has no parent. 
+    \param [in] geom_id Geom ID
+    \return Parent Geom ID
+*/)";
+    r = se->RegisterGlobalFunction( "string GetGeomParent( const string & in geom_id )", asFUNCTION( vsp::GetGeomParent ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the IDs for each child of the input parent Geom.
+    \param [in] geom_id Geom ID
+    \return Array of child Geom IDs
+*/)";
+    r = se->RegisterGlobalFunction( "array<string>@ GetGeomChildren( const string & in geom_id )", asFUNCTION( vsp::GetGeomChildren ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
     //==== SubSurface Functions ====//
     group = "SubSurface";
     doc_struct.group = group.c_str();

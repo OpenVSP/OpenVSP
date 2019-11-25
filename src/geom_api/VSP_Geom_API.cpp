@@ -1772,6 +1772,34 @@ string GetParm( const string & geom_id, const string & name, const string & grou
     return parm_id;
 }
 
+// Get the parent of a Geom
+string GetGeomParent( const string& geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomParent::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    return geom_ptr->GetParentID();
+}
+
+// Get all children of a Geom
+vector< string > GetGeomChildren( const string& geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomChildren::Can't Find Geom " + geom_id );
+        return vector < string > {};
+    }
+
+    return geom_ptr->GetChildIDVec();
+}
+
 /// Get the number of xsec surfs used in the construction of this geom
 int GetNumXSecSurfs( const string & geom_id )
 {
