@@ -75,8 +75,6 @@ public:
     virtual void ForceChordVal( double val, bool root_chord_flag );
     virtual void ForceSpanRcTc( double span, double rc, double tc );
     virtual void ForceAspectTaperArea( double aspect, double taper, double area );
-    virtual double GetProjectedSpan()                                { return m_ProjectedSpan; }
-    virtual void SetProjectedSpan( double v )                        { m_ProjectedSpan = v; }
     virtual double GetTanSweepAt( double sweep, double loc  );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
@@ -117,6 +115,7 @@ public:
 
     Parm m_Dihedral;
 
+    Parm m_ProjectedSpan;
 
     double m_XDelta;
     double m_YDelta;
@@ -132,8 +131,6 @@ public:
 
 
 protected:
-
-    double m_ProjectedSpan;
 
     enum { V2_AR_TR_A = 0,
            V2_AR_TR_S = 1,

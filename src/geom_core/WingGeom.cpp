@@ -611,7 +611,8 @@ WingSect::WingSect( XSecCurve *xsc ) : BlendWingSect( xsc)
 {
     m_Type = vsp::XSEC_WING;
 
-    m_ProjectedSpan = 0.0;
+    m_ProjectedSpan.Init( "Aspect", m_GroupName, this, 0.0,0.0, 1.0e12 );
+    m_ProjectedSpan.SetDescript( "Projected Span of Wing Section" );
 
     m_XDelta  = m_YDelta  = m_ZDelta  = 0;
     m_XRotate = m_YRotate = m_ZRotate = 0;
@@ -1751,7 +1752,7 @@ void WingGeom::UpdateSurf()
             else
                 total_twist = ws->m_Twist();
 
-            ws->SetProjectedSpan( ty );
+            ws->m_ProjectedSpan.Set( ty );
 
             //==== Find Width Parm ====//
             XSecCurve* xsc = ws->GetXSecCurve();
