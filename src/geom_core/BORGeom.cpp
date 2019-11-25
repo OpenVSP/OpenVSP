@@ -344,8 +344,13 @@ EditCurveXSec* BORGeom::ConvertToEdit()
 {
     EditCurveXSec* xscrv_ptr = XSecCurve::ConvertToEdit( m_XSCurve );
 
-    delete m_XSCurve;
-    m_XSCurve = xscrv_ptr;
+    if ( xscrv_ptr && xscrv_ptr != m_XSCurve )
+    {
+        delete m_XSCurve;
+
+        m_XSCurve = xscrv_ptr;
+        m_XSCurve->SetParentContainer( m_ID );
+    }
 
     return xscrv_ptr;
 }

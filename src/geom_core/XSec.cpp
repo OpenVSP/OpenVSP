@@ -510,7 +510,10 @@ EditCurveXSec* XSec::ConvertToEdit()
 {
     EditCurveXSec* xscrv_ptr = XSecCurve::ConvertToEdit( m_XSCurve );
 
-    SetXSecCurve( xscrv_ptr );
+    if ( xscrv_ptr && xscrv_ptr != m_XSCurve )
+    {
+        SetXSecCurve( xscrv_ptr );
+    }
 
     return xscrv_ptr;
 }
