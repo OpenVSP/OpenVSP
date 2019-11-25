@@ -1697,7 +1697,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ConvertCEDITButton )
     {
-        XSec* xs = wing_ptr->GetXSec( wing_ptr->GetActiveXSecIndex() );
+        XSec* xs = wing_ptr->GetXSec( wing_ptr->GetActiveAirfoilIndex() );
 
         if ( xs )
         {
