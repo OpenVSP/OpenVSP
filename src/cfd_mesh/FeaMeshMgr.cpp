@@ -267,7 +267,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Load Surfaces\n" );
     LoadSurfaces();
 
-    if ( m_SurfVec.size() <= 0 )
+    if ( m_SurfVec.size() == 0 )
     {
         addOutputText( "No Surfaces.  Done.\n" );
         m_FeaMeshInProgress = false;

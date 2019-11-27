@@ -1863,7 +1863,7 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
     //  not start and/or end at each XSec. Sectional U tessellation is not considered for PropGeoms. 
 
     Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( !veh || !meta_fid || m_MainSurfVec.size() <= 0 )
+    if ( !veh || !meta_fid || m_MainSurfVec.size() == 0 )
     {
         return;
     }

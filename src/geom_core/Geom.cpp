@@ -3618,7 +3618,7 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
 {
     // This function writes out the Bezier control points for all untwisted unit length airfoils.
     Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( !veh || !meta_fid || m_MainSurfVec.size() <= 0 )
+    if ( !veh || !meta_fid || m_MainSurfVec.size() == 0 )
     {
         return;
     }
@@ -4366,7 +4366,7 @@ SubSurface* Geom::AddSubSurf( int type, int surfindex )
 {
     SubSurface* ssurf = NULL;
 
-    if ( m_MainSurfVec.size() <= 0 )
+    if ( m_MainSurfVec.size() == 0 )
     {
         return ssurf;
     }
@@ -4469,7 +4469,7 @@ FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
 {
     FeaStructure* feastruct = NULL;
 
-    if ( m_MainSurfVec.size() <= 0 || surf_index > m_MainSurfVec.size() || surf_index < 0 )
+    if ( m_MainSurfVec.size() == 0 || surf_index > m_MainSurfVec.size() || surf_index < 0 )
     {
         return feastruct;
     }

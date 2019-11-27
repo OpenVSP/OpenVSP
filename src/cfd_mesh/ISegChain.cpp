@@ -787,7 +787,7 @@ void ISegChain::AddChain( ISegChain* B )
 
 void ISegChain::BuildBoxes()
 {
-    if ( m_ISegDeque.size() <= 0 )
+    if ( m_ISegDeque.size() == 0 )
     {
         return;
     }
