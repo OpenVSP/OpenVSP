@@ -134,7 +134,7 @@ public:
     void ShowSet( int index );
     vector< string > GetGeomSet( int index );
 
-    void HideAllExcept( string id );
+    void HideAllExcept( const string& id );
     void HideAll();
 
     //==== Geom Type Data =====//
@@ -146,7 +146,7 @@ public:
     int GetNumGeomTypes()                                    { return ( int )m_GeomTypeVec.size(); }
     int GetNumFixedGeomTypes();
     GeomType GetGeomType( int index );
-    void SetGeomType( int index, GeomType & type );
+    void SetGeomType( int index, const GeomType & type );
 
     BndBox GetBndBox()                                        { return m_BBox; }
     void UpdateBBox();

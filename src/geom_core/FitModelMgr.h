@@ -249,7 +249,7 @@ public:
         return m_GUIShown;
     }
 
-    void SetSaveFitFileName( string fileName )
+    void SetSaveFitFileName( const string& fileName )
     {
         m_SaveFitFileName = fileName;
     }
@@ -258,7 +258,7 @@ public:
         return m_SaveFitFileName;
     }
 
-    void SetLoadFitFileName( string fileName )
+    void SetLoadFitFileName( const string& fileName )
     {
         m_LoadFitFileName = fileName;
     }

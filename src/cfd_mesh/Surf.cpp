@@ -360,7 +360,7 @@ void Surf::LimitTargetMap()
     }
 }
 
-void Surf::LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap )
+void Surf::LimitTargetMap( const MSCloud &es_cloud, MSTree &es_tree, double minmap )
 {
     double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
 
@@ -1317,7 +1317,7 @@ bool Surf::BorderMatch( Surf* otherSurf )
 void Surf::Subtag( bool tag_subs )
 {
     vector< SimpTri >& tri_vec = m_Mesh.GetSimpTriVec();
-    vector< vec2d >& pnts = m_Mesh.GetSimpUWPntVec();
+    const vector< vec2d >& pnts = m_Mesh.GetSimpUWPntVec();
     vector< SubSurface* > s_surfs;
 
     if ( tag_subs ) s_surfs = SubSurfaceMgr.GetSubSurfs( m_GeomID, m_MainSurfID );

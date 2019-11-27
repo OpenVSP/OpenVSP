@@ -3960,7 +3960,7 @@ void CfdMeshMgrSingleton::SetSimpSubSurfTags( int tag_offset )
 void CfdMeshMgrSingleton::Subtag( Surf* surf )
 {
     vector< SimpTri >& tri_vec = surf->GetMesh()->GetSimpTriVec();
-    vector< vec2d >& pnts = surf->GetMesh()->GetSimpUWPntVec();
+    const vector< vec2d >& pnts = surf->GetMesh()->GetSimpUWPntVec();
     vector< SimpleSubSurface > simp_s_surfs = GetSimpSubSurfs( surf->GetGeomID(), surf->GetMainSurfID() , surf->GetCompID() );
 
     for ( int t = 0; t < (int)tri_vec.size(); t++ )

@@ -228,7 +228,7 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
 }
 
 //==== Name Compare ====//
-bool ParmNameCompare( const string a, const string b )
+bool ParmNameCompare( const string& a, const string& b )
 {
     Parm* pA = ParmMgr.FindParm( a );
     Parm* pB = ParmMgr.FindParm( b );

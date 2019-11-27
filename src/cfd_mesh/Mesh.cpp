@@ -1017,7 +1017,7 @@ bool Mesh::ValidCollapse( Edge* edge )
     return true;
 }
 
-bool Mesh::ValidNodeMove( Node* nptr, vec3d & move_to, Tri* ignoreTri )
+bool Mesh::ValidNodeMove( Node* nptr, const vec3d & move_to, Tri* ignoreTri )
 {
     int i;
     bool valid_flag = true;

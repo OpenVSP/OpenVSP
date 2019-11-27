@@ -80,7 +80,7 @@ private:
 class SubSurface : public ParmContainer
 {
 public:
-    SubSurface( string compID, int type );
+    SubSurface( const string& compID, int type );
     virtual ~SubSurface();
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual int GetType()
@@ -189,7 +189,7 @@ class SSLine : public SubSurface
     // but with more user friendly parameters
 public:
 
-    SSLine( string compID, int type = vsp::SS_LINE );
+    SSLine( const string& compID, int type = vsp::SS_LINE );
     virtual ~SSLine();
 
     IntParm m_ConstType; // Either constant u or constant w line
@@ -208,7 +208,7 @@ protected:
 class SSRectangle : public SubSurface
 {
 public:
-    SSRectangle( string compID, int type = vsp::SS_RECTANGLE );
+    SSRectangle( const string& compID, int type = vsp::SS_RECTANGLE );
     virtual ~SSRectangle();
 
     Parm m_CenterU; // U location of square center
@@ -223,7 +223,7 @@ public:
 class SSEllipse : public SubSurface
 {
 public:
-    SSEllipse( string compID, int type = vsp::SS_ELLIPSE );
+    SSEllipse( const string& compID, int type = vsp::SS_ELLIPSE );
     virtual ~SSEllipse();
 
     Parm m_CenterU; // U location of ellipse center
@@ -240,7 +240,7 @@ public:
 class SSControlSurf : public SubSurface
 {
 public:
-    SSControlSurf(string compID, int type = vsp::SS_CONTROL );
+    SSControlSurf( const string& compID, int type = vsp::SS_CONTROL );
     virtual ~SSControlSurf();
     virtual void Update();
     virtual void UpdateDrawObjs();
@@ -292,7 +292,7 @@ class SSLineArray : public SubSurface
     // Array of Const U or Const W Lines used to define beam elements for FeaMesh
     public:
 
-    SSLineArray( string compID, int type = vsp::SS_LINE_ARRAY );
+    SSLineArray( const string& compID, int type = vsp::SS_LINE_ARRAY );
     virtual ~SSLineArray();
 
     enum

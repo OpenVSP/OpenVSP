@@ -24,7 +24,7 @@
 //================== FeaStructure ==================//
 //////////////////////////////////////////////////////
 
-FeaStructure::FeaStructure( string geomID, int surf_index )
+FeaStructure::FeaStructure( const string& geomID, int surf_index )
 {
     m_ParentGeomID = geomID;
     m_MainSurfIndx = surf_index;
@@ -850,7 +850,7 @@ bool FeaStructure::PtsOnAnyPlanarPart( const vector < vec3d > &pnts )
 //==================== FeaPart =====================//
 //////////////////////////////////////////////////////
 
-FeaPart::FeaPart( string geomID, int type )
+FeaPart::FeaPart( const string& geomID, int type )
 {
     m_FeaPartType = type;
     m_ParentGeomID = geomID;
@@ -1219,7 +1219,7 @@ bool FeaPart::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
 //==================== FeaSlice ====================//
 //////////////////////////////////////////////////////
 
-FeaSlice::FeaSlice( string geomID, int type ) : FeaPart( geomID, type )
+FeaSlice::FeaSlice( const string& geomID, int type ) : FeaPart( geomID, type )
 {
     m_OrientationPlane.Init( "OrientationPlane", "FeaSlice", this, vsp::YZ_BODY, vsp::XY_BODY, vsp::SPINE_NORMAL );
     m_OrientationPlane.SetDescript( "Plane the FeaSlice Part will be Parallel to (Body or Absolute Reference Frame)" );
@@ -1843,7 +1843,7 @@ void FeaSlice::UpdateDrawObjs( int id, bool highlight )
 //===================== FeaSpar ====================//
 //////////////////////////////////////////////////////
 
-FeaSpar::FeaSpar( string geomID, int type ) : FeaSlice( geomID, type )
+FeaSpar::FeaSpar( const string& geomID, int type ) : FeaSlice( geomID, type )
 {
     m_Theta.Init( "Theta", "FeaSpar", this, 0.0, -90.0, 90.0 );
     m_Theta.SetDescript( "Rotation of Spar About Axis Normal to Wing Chord Line " );
@@ -2286,7 +2286,7 @@ void FeaSpar::UpdateDrawObjs( int id, bool highlight )
 //===================== FeaRib =====================//
 //////////////////////////////////////////////////////
 
-FeaRib::FeaRib( string geomID, int type ) : FeaSlice( geomID, type )
+FeaRib::FeaRib( const string& geomID, int type ) : FeaSlice( geomID, type )
 {
     m_Theta.Init( "Theta", "FeaRib", this, 0.0, -90.0, 90.0 );
     m_Theta.SetDescript( "Rotation of FeaRib About Axis Normal to Wing Chord Line" );
@@ -2934,7 +2934,7 @@ void FeaRib::UpdateDrawObjs( int id, bool highlight )
 //================= FeaFixPoint ==================//
 ////////////////////////////////////////////////////
 
-FeaFixPoint::FeaFixPoint( string compID, string partID, int type ) : FeaPart( compID, type )
+FeaFixPoint::FeaFixPoint( const string& compID, const string& partID, int type ) : FeaPart( compID, type )
 {
     m_ParentFeaPartID = partID;
 
@@ -3263,7 +3263,7 @@ bool FeaFixPoint::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
 //=================== FeaSkin ====================//
 ////////////////////////////////////////////////////
 
-FeaSkin::FeaSkin( string geomID, int type ) : FeaPart( geomID, type )
+FeaSkin::FeaSkin( const string& geomID, int type ) : FeaPart( geomID, type )
 {
     m_IncludedElements.Set( vsp::FEA_SHELL );
     m_DrawFeaPartFlag.Set( false );
@@ -3312,7 +3312,7 @@ bool FeaSkin::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
 //================= FeaDome ==================//
 ////////////////////////////////////////////////////
 
-FeaDome::FeaDome( string geomID, int type ) : FeaPart( geomID, type )
+FeaDome::FeaDome( const string& geomID, int type ) : FeaPart( geomID, type )
 {
     m_Aradius.Init( "A_Radius", "FeaDome", this, 1.0, 0.0, 1.0e12 );
     m_Aradius.SetDescript( "A (x) Radius of Dome" );
@@ -3583,7 +3583,7 @@ bool FeaDome::PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind )
 //================= FeaRibArray ==================//
 ////////////////////////////////////////////////////
 
-FeaRibArray::FeaRibArray( string geomID, int type ) : FeaPart( geomID, type )
+FeaRibArray::FeaRibArray( const string& geomID, int type ) : FeaPart( geomID, type )
 {
     m_RibAbsSpacing.Init( "RibAbsSpacing", "FeaRibArray", this, 0.1, 1e-6, 1e12 );
     m_RibAbsSpacing.SetDescript( "Absolute Spacing Between Ribs in Array" );
@@ -3947,7 +3947,7 @@ void FeaRibArray::UpdateDrawObjs( int id, bool highlight )
 //================= FeaSliceArray ==================//
 ////////////////////////////////////////////////////
 
-FeaSliceArray::FeaSliceArray( string geomID, int type ) : FeaPart( geomID, type )
+FeaSliceArray::FeaSliceArray( const string& geomID, int type ) : FeaPart( geomID, type )
 {
     m_SliceAbsSpacing.Init( "SliceAbsSpacing", "FeaSliceArray", this, 0.2, 1e-6, 1e12 );
     m_SliceAbsSpacing.SetDescript( "Absolute Spacing Between Slices in Array" );

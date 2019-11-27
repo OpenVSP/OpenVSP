@@ -39,7 +39,7 @@ public:
         fixed = m_DeleteMeFlag = false;
         id = 0;
     }
-    Node( vec3d& p, vec2d& uw_in )
+    Node( const vec3d& p, const vec2d& uw_in )
     {
         pnt = p;
         uw = uw_in;

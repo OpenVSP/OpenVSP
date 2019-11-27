@@ -98,7 +98,7 @@ public:
     void  RemoveNode( Node* nptr );
     Node* FindNode( const vec3d& p );
 
-    static bool ValidNodeMove( Node* nptr, vec3d & move_to, Tri* ignoreTri = NULL );
+    static bool ValidNodeMove( Node* nptr, const vec3d & move_to, Tri* ignoreTri = NULL );
 
     Edge* AddEdge( Node* n0, Node* n1 );
     void  RemoveEdge( Edge* eptr );

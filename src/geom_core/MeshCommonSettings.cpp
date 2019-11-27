@@ -150,7 +150,7 @@ void IntersectSettings::ResetExportFileNames()
     }
 }
 
-void IntersectSettings::ResetExportFileNames( string basename )
+void IntersectSettings::ResetExportFileNames( const string& basename )
 {
     int pos;
     const char *suffix[] = {".srf", ".curv", ".p3d" };
@@ -364,7 +364,7 @@ void CfdMeshSettings::ResetExportFileNames()
     }
 }
 
-void CfdMeshSettings::ResetExportFileNames( string basename )
+void CfdMeshSettings::ResetExportFileNames( const string& basename )
 {
     int pos;
     const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf", ".tkey", ".facet", ".curv", ".p3d" };
@@ -525,7 +525,7 @@ void StructSettings::ResetExportFileNames()
     }
 }
 
-void StructSettings::ResetExportFileNames( string basename )
+void StructSettings::ResetExportFileNames( const string& basename )
 {
     int pos;
     const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_NASTRAN.nkey", "_calculix.dat", ".stl", ".msh", ".srf", ".curv", ".p3d" };

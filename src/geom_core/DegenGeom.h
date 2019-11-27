@@ -171,7 +171,7 @@ public:
         return degenSticks;
     }
 
-    void setDegenPoint( DegenPoint degenPoint )
+    void setDegenPoint( const DegenPoint & degenPoint )
     {
         this->degenPoint = degenPoint;
     }
@@ -198,7 +198,7 @@ public:
         num_pnts = npts;
     }
 
-    void setName( string namein )
+    void setName( const string & namein )
     {
         name = namein;
     }
@@ -265,7 +265,7 @@ public:
     {
         return transmat;
     }
-    void setTransMat( vector < double > M )
+    void setTransMat( const vector < double > & M )
     {
         transmat = M;
     }

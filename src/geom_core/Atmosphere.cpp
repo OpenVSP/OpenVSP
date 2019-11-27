@@ -86,7 +86,7 @@ void Atmosphere::USStandardAtmosphere1976( double alt, double delta_temp, int al
     m_Density = rho; // Converted to Desired
 }
 
-void Atmosphere::CalcIsothermalLayerUS1976( double & temp, double & pres, double alt, double previous_alt_step,
+void Atmosphere::CalcIsothermalLayerUS1976( const double & temp, double & pres, double alt, double previous_alt_step,
         double G0, double M0, double R0 )
 {
     pres = pres * exp( ( ( -G0 * M0 * ( alt - previous_alt_step ) ) / 1000 ) / ( R0 * temp ) );
@@ -224,7 +224,7 @@ double Atmosphere::DynamicViscosityCalc( double T, int tempunit, int altunit )
     //}
 }
 
-void Atmosphere::SetManualQualities( double & vinf, double & temp, double & pres, double & rho,
+void Atmosphere::SetManualQualities( const double & vinf, double & temp, double & pres, double & rho,
                                      double & dynavisc, double gamma, double alt, int altunit, 
                                      int vinfunit, int tempunit, int pressunit, int flowstream )
 {

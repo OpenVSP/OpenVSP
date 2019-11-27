@@ -68,7 +68,7 @@ public:
     void ApplyESSurface( double u, double t );
     void Tesselate();
 
-    void BuildBezierCurve( vector< vec3d > & pnts_to_interpolate, double tanStr );
+    void BuildBezierCurve( const vector< vec3d > & pnts_to_interpolate, double tanStr );
 
     void InterpolateLinear(vector<vec3d> &pnts_to_interpolate);
 
@@ -80,7 +80,7 @@ public:
     {
         return m_UTess;
     }
-    void Tesselate( vector< double > & u_tess );
+    void Tesselate( const vector< double > & u_tess );
 
     vector< vec3d > GetUWTessPnts()
     {

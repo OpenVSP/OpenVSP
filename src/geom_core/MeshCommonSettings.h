@@ -110,7 +110,7 @@ public:
     string GetExportFileName( int type );
     void SetExportFileName( const string &fn, int type );
     void ResetExportFileNames();
-    void ResetExportFileNames( string basename );
+    void ResetExportFileNames( const string& basename );
 
     BoolParm* GetExportFileFlag( int type );
     void SetAllFileExportFlags( bool flag );
@@ -148,7 +148,7 @@ public:
     {
         return m_FarGeomID;
     }
-    virtual void SetFarGeomID( string gid )
+    virtual void SetFarGeomID( const string& gid )
     {
         m_FarGeomID = gid;
     }
@@ -180,7 +180,7 @@ public:
     string GetExportFileName( int type );
     void SetExportFileName( const string &fn, int type );
     void ResetExportFileNames();
-    void ResetExportFileNames( string basename );
+    void ResetExportFileNames( const string& basename );
     vector < string > GetExportFileNames();
 
     BoolParm* GetExportFileFlag( int type );
@@ -242,7 +242,7 @@ public:
     string GetExportFileName( int type );
     void SetExportFileName( const string &fn, int type );
     void ResetExportFileNames();
-    void ResetExportFileNames( string basename );
+    void ResetExportFileNames( const string& basename );
 
     BoolParm* GetExportFileFlag( int type );
     void SetAllFileExportFlags( bool flag );

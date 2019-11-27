@@ -188,7 +188,7 @@ int AnalysisMgrSingleton::GetAnalysisInputType( const string & analysis, const s
     return inpt_ptr->GetType();
 }
 
-void AnalysisMgrSingleton::PrintAnalysisInputs( const string &fname, const string analysis_name )
+void AnalysisMgrSingleton::PrintAnalysisInputs( const string &fname, const string& analysis_name )
 {
     FILE *fp;
     fp = fopen( fname.c_str(), "w" );
@@ -199,12 +199,12 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( const string &fname, const strin
     }
 }
 
-void AnalysisMgrSingleton::PrintAnalysisInputs( const string analysis_name )
+void AnalysisMgrSingleton::PrintAnalysisInputs( const string& analysis_name )
 {
     PrintAnalysisInputs( stdout, analysis_name );
 }
 
-void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const string analysis_name )
+void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const string& analysis_name )
 {
     fprintf( outputStream, "\t\t%-20s%s\t%s\t%s\n", "[input_name] ", "[type]", "[#]", "[current values-->]" );
 

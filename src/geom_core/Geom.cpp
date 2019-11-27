@@ -28,7 +28,7 @@ GeomType::GeomType()
 }
 
 //==== Constructor ====//
-GeomType::GeomType( int id, string name, bool fixed_flag, string module_name, string display_name )
+GeomType::GeomType( int id, const string& name, bool fixed_flag, const string& module_name, const string& display_name )
 {
     m_Type = id;
     m_Name = name;

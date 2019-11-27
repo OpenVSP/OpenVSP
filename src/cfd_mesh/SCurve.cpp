@@ -25,7 +25,7 @@ SCurve::~SCurve()
 {
 }
 
-void SCurve::BuildBezierCurve( vector< vec3d > & pnts_to_interpolate, double tanStr )
+void SCurve::BuildBezierCurve( const vector< vec3d > & pnts_to_interpolate, double tanStr )
 {
     m_UWCrv.BuildCurve( pnts_to_interpolate, tanStr );
 }
@@ -658,7 +658,7 @@ void SCurve::Tesselate()
     UWTess();
 }
 
-void SCurve::Tesselate( vector< double > & u_tess )
+void SCurve::Tesselate( const vector< double > & u_tess )
 {
 
     m_UTess = u_tess;

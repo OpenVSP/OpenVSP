@@ -20,9 +20,9 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     void SetMaterialToDefault( );
-    void SetMaterial( std::string name );
+    void SetMaterial( const std::string& name );
     void SetMaterial( Material * material );
-    void SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin );
+    void SetMaterial( const std::string& name, double ambi[], double diff[], double spec[], double emis[], double shin );
 
     void SetAmbient( vec3d color );
     void SetDiffuse( vec3d color );
@@ -68,7 +68,7 @@ public:
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
 
-    bool FindMaterial( std::string name, Material& mat_out);
+    bool FindMaterial( const std::string& name, Material& mat_out);
     bool FindMaterial( int index, Material& mat_out );
 
     void AddMaterial( const Material &mat );

@@ -100,7 +100,7 @@ public:
     Surf* m_SurfA;
     Surf* m_SurfB;
 
-    void Copy( ISeg & s );
+    void Copy( const ISeg & s );
     void FlipDir();
     double MinDist( ISeg* seg );
     double MinDist( IPnt* ip  );

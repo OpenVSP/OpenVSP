@@ -216,7 +216,7 @@ ISeg::ISeg( Surf* sA, Surf* sB, IPnt* ip0, IPnt* ip1 )
     ip1->AddSegRef( this );
 }
 
-void ISeg::Copy( ISeg & s )
+void ISeg::Copy( const ISeg & s )
 {
     m_SurfA   = s.m_SurfA;
     m_SurfB   = s.m_SurfB;

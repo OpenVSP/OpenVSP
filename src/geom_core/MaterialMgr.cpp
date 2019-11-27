@@ -88,7 +88,7 @@ void Material::SetMaterialToDefault( )
     m_UserMaterial = false;
 }
 
-void Material::SetMaterial( std::string name )
+void Material::SetMaterial( const std::string& name )
 {
     MaterialMgr.FindMaterial( name, *this );
 }
@@ -111,7 +111,7 @@ void Material::SetMaterial( Material * material )
     m_Shininess = material->m_Shininess;
 }
 
-void Material::SetMaterial( std::string name, double ambi[], double diff[], double spec[], double emis[], double shin )
+void Material::SetMaterial( const std::string& name, double ambi[], double diff[], double spec[], double emis[], double shin )
 {
     for ( int j = 0; j < 4; j++ )
         m_Ambi[j] = ambi[j];
@@ -574,7 +574,7 @@ void MaterialMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
     }
 }
 
-bool MaterialMgrSingleton::FindMaterial( std::string name, Material& mat_out )
+bool MaterialMgrSingleton::FindMaterial( const std::string& name, Material& mat_out )
 {
     for( int i = 0; i < (int)m_Materials.size(); i++ )
     {

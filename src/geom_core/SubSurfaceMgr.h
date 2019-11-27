@@ -38,10 +38,10 @@ public:
         return m_CurrSurfInd;
     }
 
-    std::vector< SubSurface* > GetSubSurfs( std::string comp_id, int surfnum );
-    std::vector< SubSurface* > GetSubSurfs( std::string comp_id );
+    std::vector< SubSurface* > GetSubSurfs( const string& comp_id, int surfnum );
+    std::vector< SubSurface* > GetSubSurfs( const string& comp_id );
     static std::vector< SubSurface* > GetSubSurfs();
-    static SubSurface* GetSubSurf( std::string subsurf_id );
+    static SubSurface* GetSubSurf( const string& subsurf_id );
 
     void SetCurrSubSurfInd( int index );
 
@@ -49,7 +49,7 @@ public:
 
     void PrepareToSplit();
 
-    void ReSuffixGroupNames( std::string comp_id );
+    void ReSuffixGroupNames( const string& comp_id );
 
     static SubSurfaceMgrSingleton& GetInstance()
     {

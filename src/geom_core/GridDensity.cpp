@@ -139,7 +139,7 @@ LineSource::LineSource()
     m_Name = "Line_Name";
 }
 
-void LineSource::SetNamedVal( string name, double val )
+void LineSource::SetNamedVal( const string& name, double val )
 {
     if ( name == "U1" )
     {
@@ -226,7 +226,7 @@ BoxSource::BoxSource()
     m_WLoc2.SetDescript( "Source W2 location" );
 }
 
-void BoxSource::SetNamedVal( string name, double val )
+void BoxSource::SetNamedVal( const string& name, double val )
 {
     if ( name == "U1" )
     {
@@ -278,7 +278,7 @@ ConstLineSource::ConstLineSource()
 
 }
 
-void ConstLineSource::SetNamedVal( string name, double val )
+void ConstLineSource::SetNamedVal( const string& name, double val )
 {
     if ( name == "UVal" )
     {

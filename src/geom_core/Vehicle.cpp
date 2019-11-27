@@ -1307,7 +1307,7 @@ vector< string > Vehicle::GetGeomSet( int index )
     return geom_id_vec;
 }
 
-void Vehicle::HideAllExcept( string id )
+void Vehicle::HideAllExcept( const string& id )
 {
     vector< string > geom_id_vec;
 
@@ -1370,7 +1370,7 @@ GeomType Vehicle::GetGeomType( int index )
 }
 
 //==== Set Geom Type ====//
-void Vehicle::SetGeomType( int index, GeomType & type )
+void Vehicle::SetGeomType( int index, const GeomType & type )
 {
     if ( index >= 0 && index < (int)m_GeomTypeVec.size() )
     {

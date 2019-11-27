@@ -156,7 +156,7 @@ TMesh* TEdge::GetParTMesh()
 //=======================================================================//
 //=======================================================================//
 //=======================================================================//
-TetraMassProp::TetraMassProp( string id, double denIn, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 )
+TetraMassProp::TetraMassProp( const string& id, double denIn, const vec3d& p0, const vec3d& p1, const vec3d& p2, const vec3d& p3 )
 {
     m_CompId = id;
     m_Density = denIn;
@@ -197,7 +197,7 @@ TetraMassProp::TetraMassProp( string id, double denIn, vec3d& p0, vec3d& p1, vec
 }
 
 
-void TetraMassProp::SetPointMass( double massIn, vec3d& pos )
+void TetraMassProp::SetPointMass( double massIn, const vec3d& pos )
 {
     m_CompId = "NONE";
     m_Density = 0.0;
@@ -225,7 +225,7 @@ void TetraMassProp::SetPointMass( double massIn, vec3d& pos )
 //=======================================================================//
 //=======================================================================//
 //=======================================================================//
-TriShellMassProp::TriShellMassProp( string id, double mass_area_in, vec3d& p0, vec3d& p1, vec3d& p2 )
+TriShellMassProp::TriShellMassProp( const string& id, double mass_area_in, const vec3d& p0, const vec3d& p1, const vec3d& p2 )
 {
     m_CompId = id;
 
@@ -270,7 +270,7 @@ TriShellMassProp::TriShellMassProp( string id, double mass_area_in, vec3d& p0, v
 //================================================ DegenGeom ================================================//
 //===========================================================================================================//
 
-DegenGeomTetraMassProp::DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 )
+DegenGeomTetraMassProp::DegenGeomTetraMassProp( const string& id, const vec3d& p0, const vec3d& p1, const vec3d& p2, const vec3d& p3 )
 {
     m_CompId = id;
 
@@ -309,7 +309,7 @@ DegenGeomTetraMassProp::DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1,
 }
 
 
-DegenGeomTriShellMassProp::DegenGeomTriShellMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2 )
+DegenGeomTriShellMassProp::DegenGeomTriShellMassProp( const string& id, const vec3d& p0, const vec3d& p1, const vec3d& p2 )
 {
     m_CompId = id;
 
