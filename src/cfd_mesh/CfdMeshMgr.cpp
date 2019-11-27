@@ -974,10 +974,10 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
     list< MapSource* > splitSources;
 
     list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         vector< ISegSplit* >::iterator s;
-        for ( s = ( *c )->m_SplitVec.begin(); s != ( *c )->m_SplitVec.end(); s++ )
+        for ( s = ( *c )->m_SplitVec.begin(); s != ( *c )->m_SplitVec.end(); ++s )
         {
             Surf* srf = ( *s )->m_Surf;
             vec2d uw = ( *s )->m_UW;
@@ -999,7 +999,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
 
     for ( i = 0; i < nedgeprop; i ++ )
     {
-        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
         {
             ( *c )->CalcDensity( GetGridDensityPtr(), splitSources );
             ( *c )->SpreadDensity();
@@ -1038,7 +1038,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
             m_SurfVec[i]->LimitTargetMap( ms_cloud, ms_tree, minmap );
         }
 
-        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
         {
             ( *c )->CalcDensity( GetGridDensityPtr(), splitSources );
         }
@@ -1046,7 +1046,7 @@ void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
 
     // Clean up split sources.
     list< MapSource* >::iterator ss;
-    for ( ss = splitSources.begin(); ss != splitSources.end(); ss++ )
+    for ( ss = splitSources.begin(); ss != splitSources.end(); ++ss )
     {
         delete ( *ss );
     }
@@ -1994,7 +1994,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     //==== Find Border Edges ====//
     int num_border_edges = 0;
     map<int, vector<Edge*> >::const_iterator iter;
-    for ( iter = edgeMap.begin() ; iter != edgeMap.end() ; iter++ )
+    for ( iter = edgeMap.begin() ; iter != edgeMap.end() ; ++iter )
     {
         for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
         {
@@ -2010,7 +2010,7 @@ string CfdMeshMgrSingleton::CheckWaterTight()
     }
 
     //==== Clean Up ====//
-    for ( iter = edgeMap.begin() ; iter != edgeMap.end() ; iter++ )
+    for ( iter = edgeMap.begin() ; iter != edgeMap.end() ; ++iter )
     {
         for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
         {
@@ -2110,7 +2110,7 @@ int CfdMeshMgrSingleton::BuildIndMap( vector< vec3d* > & allPntVec, map< int, ve
         pntShift[i] = -999;
     }
 
-    for ( iter = indMap.begin() ; iter != indMap.end() ; iter++ )
+    for ( iter = indMap.begin() ; iter != indMap.end() ; ++iter )
     {
         for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
         {
@@ -2433,7 +2433,7 @@ void CfdMeshMgrSingleton::TessellateChains()
 {
     //==== Tessellate Chains ====//
     list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if( ( *c )->GetWakeAttachChain() == NULL ) // Non wake-attach chains.
         {
@@ -2443,7 +2443,7 @@ void CfdMeshMgrSingleton::TessellateChains()
         }
     }
 
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if( ( *c )->GetWakeAttachChain() != NULL ) // Only wake-attach chains.
         {
@@ -2490,7 +2490,7 @@ void CfdMeshMgrSingleton::SetWakeAttachChain( ISegChain* c )
     list< ISegChain* >::iterator d;
     Surf* sca = c->m_SurfA;
 
-    for ( d = m_ISegChainList.begin() ; d != m_ISegChainList.end(); d++ )
+    for ( d = m_ISegChainList.begin() ; d != m_ISegChainList.end(); ++d )
     {
         Surf* sda = ( *d )->m_SurfA;
 
@@ -2508,7 +2508,7 @@ void CfdMeshMgrSingleton::MatchWakes()
 {
     //==== Match Wakes ====//
     list< ISegChain* >::iterator c, d;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         Surf* sca = ( *c )->m_SurfA;
         Surf* scb = ( *c )->m_SurfB;
@@ -2538,7 +2538,7 @@ void CfdMeshMgrSingleton::AddWakeCoPlanarSurfaceChains()
     //==== Find All Border Chains ===//
     list< ISegChain* >::iterator c;
     vector< ISegChain* > borderVec;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if ( ( *c )->m_BorderFlag )
         {
@@ -2550,7 +2550,7 @@ void CfdMeshMgrSingleton::AddWakeCoPlanarSurfaceChains()
     //==== Find Wake Surfaces ====//
     map< Surf*, vector< Surf* > >::iterator iter;
 
-    for ( iter = m_PossCoPlanarSurfMap.begin() ; iter != m_PossCoPlanarSurfMap.end() ; iter++ )
+    for ( iter = m_PossCoPlanarSurfMap.begin() ; iter != m_PossCoPlanarSurfMap.end() ; ++iter )
     {
         if ( iter->first->GetWakeFlag() )
         {
@@ -2602,7 +2602,7 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
     //==== Load Chain End Points into Groups - Border Points First ====//
     list< ISegChain* >::iterator c;
     list < IPntGroup* > iPntGroupList;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if ( ( *c )->m_BorderFlag )
         {
@@ -2616,7 +2616,7 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
         }
     }
     //==== Add Rest of Chain Points ====//
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if ( !( *c )->m_BorderFlag )
         {
@@ -2638,7 +2638,7 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
     //==== Merge Ipnts In Groups ====//
     list< IPntGroup* >::iterator g;
     vector< IPnt* > merged_ipnts;
-    for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); g++ )
+    for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); ++g )
     {
         IPnt* mip = new IPnt();
         m_DelIPntVec.push_back( mip );
@@ -2651,11 +2651,11 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
     }
 
     //==== Replace IPnts in Chains ====//
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         IPnt* ip = ( *c )->m_TessVec.front();
         int cnt = 0;
-        for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); g++ )
+        for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); ++g )
         {
             for ( int j = 0 ; j < ( int )( *g )->m_IPntVec.size() ; j++ )
             {
@@ -2669,7 +2669,7 @@ void CfdMeshMgrSingleton::MergeBorderEndPoints()
         }
         cnt = 0;
         ip = ( *c )->m_TessVec.back();
-        for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); g++ )
+        for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); ++g )
         {
             for ( int j = 0 ; j < ( int )( *g )->m_IPntVec.size() ; j++ )
             {
@@ -2698,10 +2698,10 @@ void CfdMeshMgrSingleton::MergeIPntGroups( list< IPntGroup* > & iPntGroupList, d
 
         //==== Find Closest Two Groups ====//
         list< IPntGroup* >::iterator g;
-        for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); g++ )
+        for ( g = iPntGroupList.begin() ; g != iPntGroupList.end(); ++g )
         {
             list< IPntGroup* >::iterator h;
-            for ( h = iPntGroupList.begin() ; h != iPntGroupList.end(); h++ )
+            for ( h = iPntGroupList.begin() ; h != iPntGroupList.end(); ++h )
             {
                 if ( ( *g ) != ( *h ) )
                 {
@@ -2736,7 +2736,7 @@ void CfdMeshMgrSingleton::BuildMesh()
     {
         vector< ISegChain* > surf_chains;
         list< ISegChain* >::iterator c;
-        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
         {
             if ( ( ( *c )->m_SurfA == m_SurfVec[s] || ( *c )->m_SurfB == m_SurfVec[s] ) )
             {
@@ -2963,7 +2963,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
     for ( s = 0 ; s < ( int )m_SurfVec.size() ; ++s )
     {
         list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
-        for ( t = triList.begin() ; t != triList.end(); t++ )
+        for ( t = triList.begin() ; t != triList.end(); ++t )
         {
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
@@ -3011,7 +3011,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
             if ( ! m_SurfVec[s]->GetSymPlaneFlag() )
             {
                 list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
-                for ( t = triList.begin() ; t != triList.end(); t++ )
+                for ( t = triList.begin() ; t != triList.end(); ++t )
                 {
                     vec3d cp = ( *t )->ComputeCenterPnt( m_SurfVec[s] );
                     if ( cp[1] < -1.0e-10 )
@@ -3026,7 +3026,7 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
                 if ( m_SurfVec[s]->GetSymPlaneFlag() )
                 {
                     list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
-                    for ( t = triList.begin() ; t != triList.end(); t++ )
+                    for ( t = triList.begin() ; t != triList.end(); ++t )
                     {
                         ( *t )->deleteFlag = true;
                     }
@@ -3052,7 +3052,7 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
         if ( m_SurfVec[s]->GetWakeFlag() == wakeOnly )
         {
             list <Tri*> triList = m_SurfVec[s]->GetMesh()->GetTriList();
-            for ( t = triList.begin() ; t != triList.end(); t++ )
+            for ( t = triList.begin() ; t != triList.end(); ++t )
             {
                 if ( ( *t )->e0->OtherTri( ( *t ) ) == NULL )
                 {
@@ -3087,7 +3087,7 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
         }
 
     BndBox box;
-    for ( e = edgeList.begin() ; e != edgeList.end() ; e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
     {
         box.Update( ( *e )->n0->pnt );
         box.Update( ( *e )->n1->pnt );
@@ -3101,7 +3101,7 @@ void CfdMeshMgrSingleton::ConnectBorderEdges( bool wakeOnly )
     double dy = 2 * slop + ( box.GetMax( 1 ) - box.GetMin( 1 ) ) / ( double )( num_grid );
     double dz = 2 * slop + ( box.GetMax( 2 ) - box.GetMin( 2 ) ) / ( double )( num_grid );
 
-    for ( e = edgeList.begin() ; e != edgeList.end() ; e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
     {
         double mx = min( ( *e )->n0->pnt[0], ( *e )->n1->pnt[0] );
         double my = min( ( *e )->n0->pnt[1], ( *e )->n1->pnt[1] );
@@ -3143,9 +3143,9 @@ void CfdMeshMgrSingleton::MatchBorderEdges( list< Edge* > edgeList )
         double close_dist = 1.0e12;
         Edge* close_e = NULL;
         Edge* close_f = NULL;
-        for ( e = edgeList.begin() ; e != edgeList.end() ; e++ )
+        for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
         {
-            for ( f = edgeList.begin() ; f != edgeList.end() ; f++ )
+            for ( f = edgeList.begin() ; f != edgeList.end() ; ++f )
             {
                 if ( ( *e ) != ( *f ) )
                 {
@@ -3217,13 +3217,13 @@ void CfdMeshMgrSingleton::MatchBorderEdges( list< Edge* > edgeList )
 #ifdef DEBUG_CFD_MESH
     if ( edgeList.size() != 0 )
     {
-        for ( e = edgeList.begin() ; e != edgeList.end() ; e++ )
+        for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
         {
             ( *e )->debugFlag = true;
         }
 
         fprintf( m_DebugFile, "CfdMeshMgr::MatchBorderEdges Missing Edges %d\n", edgeList.size() );
-        for ( e = edgeList.begin() ; e != edgeList.end() ; e++ )
+        for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
         {
             fprintf( m_DebugFile, "      Missing Edge : %f %f %f   %f %f %f\n",
                      ( *e )->n0->pnt.x(), ( *e )->n0->pnt.y(), ( *e )->n0->pnt.z(),
@@ -3282,7 +3282,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     const double nctodeg = 360.0/(ncgrp*ncstep);
 
     char str[256];
-    for ( mit = tagMap.begin(); mit != tagMap.end() ; mit++ )
+    for ( mit = tagMap.begin(); mit != tagMap.end() ; ++mit )
     {
         m_TagDO[cnt] = DrawObj();
         tag_dobj_map[ mit->second ] = &m_TagDO[cnt];
@@ -3384,7 +3384,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     vector< vec3d > badEdgeData;
 
     vector< Edge* >::iterator e;
-    for ( e = m_BadEdges.begin() ; e != m_BadEdges.end(); e++ )
+    for ( e = m_BadEdges.begin() ; e != m_BadEdges.end(); ++e )
     {
         badEdgeData.push_back( ( *e )->n0->pnt );
         badEdgeData.push_back( ( *e )->n1->pnt );
@@ -3403,7 +3403,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 
     vector< vec3d > badTriData;
     vector< Tri* >::iterator t;
-    for ( t = m_BadTris.begin() ; t != m_BadTris.end(); t++ )
+    for ( t = m_BadTris.begin() ; t != m_BadTris.end(); ++t )
     {
         badTriData.push_back( ( *t )->n0->pnt );
         badTriData.push_back( ( *t )->n1->pnt );

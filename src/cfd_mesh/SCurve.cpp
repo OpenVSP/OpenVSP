@@ -279,7 +279,7 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
     int indx[2] = { 0, num_segs - 1 };
 
     list< MapSource* >::iterator ss;
-    for ( ss = splitSources.begin(); ss != splitSources.end(); ss++ )
+    for ( ss = splitSources.begin(); ss != splitSources.end(); ++ss )
     {
         vec3d pt = ( *ss )->m_pt;
         double str = ( *ss )->m_str;

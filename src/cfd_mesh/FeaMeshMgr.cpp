@@ -630,14 +630,14 @@ void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
     list< ISegChain* >::iterator c2;
     int c1_index = -1;
 
-    for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); c1++ )
+    for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); ++c1 )
     {
         c1_index++;
         int c2_index = -1;
 
         if ( !( *c1 )->m_BorderFlag && ( *c1 )->m_SSIntersectIndex >= 0 )
         {
-            for ( c2 = m_ISegChainList.begin(); c2 != m_ISegChainList.end(); c2++ )
+            for ( c2 = m_ISegChainList.begin(); c2 != m_ISegChainList.end(); ++c2 )
             {
                 c2_index++;
 
@@ -690,7 +690,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     // Build FeaBeam Intersections
     list< ISegChain* >::iterator c;
 
-    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
         if ( !( *c )->m_BorderFlag ) // Only include intersection curves
         {
@@ -1159,7 +1159,7 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
             {
                 bool split = false;
                 list< ISegChain* >::iterator c;
-                for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+                for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
                 {
                     if ( ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndMap[n][j][1]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndMap[n][j][0]] ) ||
                         ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndMap[n][j][0]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndMap[n][j][1]] ) )
@@ -1252,7 +1252,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
         {
             bool split = false;
             list< ISegChain* >::iterator c;
-            for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+            for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
             {
                 Puw* p0 = NULL;
                 Puw* p1 = NULL;
@@ -1446,7 +1446,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
     vector < vec2d > all_split_uw_vec;
     list< ISegChain* >::iterator c;
 
-    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
         for ( size_t i = 0; i < ( *c )->m_SplitVec.size(); i++ )
         {
@@ -1455,7 +1455,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
         }
     }
 
-    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
         if ( ( *c )->m_BorderFlag && ( *c )->m_SurfA->GetCompID() == ( *c )->m_SurfB->GetCompID() && ( *c )->m_SSIntersectIndex < 0 )
         {
@@ -1898,7 +1898,7 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                             if ( dist_squared( part_pnt0, skin_pnt0 ) <= FLT_EPSILON && dist_squared( part_pnt1, skin_pnt1 ) <= FLT_EPSILON )
                             {
                                 list< ISegChain* >::iterator c1, c2;
-                                for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); c1++ )
+                                for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); ++c1 )
                                 {
                                     if ( ( *c1 )->m_SurfA == ( *c1 )->m_SurfB ) // Indicates SubSurface ISegChain
                                     {
@@ -1915,7 +1915,7 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                                                 remove_chain_list.push_back( *c1 );
 
                                                 // Split FeaPart ISegChain at SubSurface edge points
-                                                for ( c2 = m_ISegChainList.begin(); c2 != m_ISegChainList.end(); c2++ )
+                                                for ( c2 = m_ISegChainList.begin(); c2 != m_ISegChainList.end(); ++c2 )
                                                 {
                                                     if ( ( *c1 ) != ( *c2 ) && ( ( ( *c2 )->m_SurfA == surfA && ( *c2 )->m_SurfB == surfB ) || ( ( *c2 )->m_SurfB == surfA && ( *c2 )->m_SurfA == surfB ) ) )
                                                     {
@@ -2002,7 +2002,7 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
     list < ISegChain* > old_chain_list = m_ISegChainList;
     m_ISegChainList.clear();
 
-    for ( c = old_chain_list.begin(); c != old_chain_list.end(); c++ )
+    for ( c = old_chain_list.begin(); c != old_chain_list.end(); ++c )
     {
         if ( std::find( remove_chain_list.begin(), remove_chain_list.end(), ( *c ) ) == remove_chain_list.end() )
         {

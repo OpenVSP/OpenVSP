@@ -1220,7 +1220,7 @@ void MeshGeom::UpdateDrawObj()
             map< std::vector<int>, int >::const_iterator mit;
             map< std::vector<int>, int > tagMap = SubSurfaceMgr.GetSingleTagMap();
             int cnt = 0;
-            for ( mit = tagMap.begin(); mit != tagMap.end() ; mit++ )
+            for ( mit = tagMap.begin(); mit != tagMap.end() ; ++mit )
             {
                 tag_dobj_map[ mit->second ] = &m_WireShadeDrawObj_vec[cnt];
                 cnt++;
@@ -1551,7 +1551,7 @@ void MeshGeom::ApplyScale()
         }
     }
     map<TNode*, int >::const_iterator iter;
-    for ( iter = nodeMap.begin() ; iter != nodeMap.end() ; iter++ )
+    for ( iter = nodeMap.begin() ; iter != nodeMap.end() ; ++iter )
     {
         TNode* n = iter->first;
         n->m_Pnt = n->m_Pnt * ( m_Scale() / m_LastScale() );
@@ -1585,7 +1585,7 @@ void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat )
 
     // Apply Transformation to Nodes
     map<TNode*, int >::const_iterator iter;
-    for ( iter = nodeMap.begin() ; iter != nodeMap.end() ; iter++ )
+    for ( iter = nodeMap.begin() ; iter != nodeMap.end() ; ++iter )
     {
         TNode* n = iter->first;
         n->m_Pnt = TransMat.xform( n->m_Pnt );

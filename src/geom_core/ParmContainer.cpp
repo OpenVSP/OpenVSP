@@ -159,7 +159,7 @@ xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
     ParmMgr.IncNumParmChanges();
 
     map< string, vector< string > >::iterator groupIter;
-    for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; groupIter++ )
+    for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; ++groupIter )
     {
         string name = groupIter->first;
         gnode = xmlNewChild( parmcontain_node, NULL, BAD_CAST name.c_str(), NULL );
@@ -167,7 +167,7 @@ xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
         if ( gnode )
         {
             vector< string >::iterator parmIter;
-            for ( parmIter = groupIter->second.begin(); parmIter != groupIter->second.end(); parmIter++ )
+            for ( parmIter = groupIter->second.begin(); parmIter != groupIter->second.end(); ++parmIter )
             {
                 Parm* p = ParmMgr.FindParm( ( *parmIter ) );
                 if ( p )
@@ -204,7 +204,7 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
     ParmMgr.IncNumParmChanges();
 
     map< string, vector< string > >::iterator groupIter;
-    for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; groupIter++ )
+    for ( groupIter = m_GroupParmMap.begin() ; groupIter != m_GroupParmMap.end() ; ++groupIter )
     {
         string name = groupIter->first;
         gnode = XmlUtil::GetNode( child_node, name.c_str(), 0 );
@@ -212,7 +212,7 @@ xmlNodePtr ParmContainer::DecodeXml( xmlNodePtr & node )
         if ( gnode )
         {
             vector< string >::iterator parmIter;
-            for ( parmIter = groupIter->second.begin(); parmIter != groupIter->second.end(); parmIter++ )
+            for ( parmIter = groupIter->second.begin(); parmIter != groupIter->second.end(); ++parmIter )
             {
                 Parm* p = ParmMgr.FindParm( ( *parmIter ) );
                 if ( p )
@@ -268,7 +268,7 @@ void ParmContainer::LoadGroupParmVec( vector< string > & parm_vec, bool displayn
     }
 
     map< string, vector< string > >::iterator iter;
-    for ( iter = m_GroupParmMap.begin() ; iter != m_GroupParmMap.end() ; iter++ )
+    for ( iter = m_GroupParmMap.begin() ; iter != m_GroupParmMap.end() ; ++iter )
     {
         m_GroupNames.push_back( iter->first );
         sort( iter->second.begin(), iter->second.end(), ParmNameCompare );
@@ -385,7 +385,7 @@ string ParmContainer::FindParm( const string& parm_name  )
 void ParmContainer::GetGroupNames( vector< string > & group_names )
 {
     map< string, vector< string > >::iterator iter;
-    for ( iter = m_GroupParmMap.begin() ; iter != m_GroupParmMap.end() ; iter++ )
+    for ( iter = m_GroupParmMap.begin() ; iter != m_GroupParmMap.end() ; ++iter )
     {
         string name = iter->first;
         group_names.push_back( name );
@@ -405,7 +405,7 @@ int ParmContainer::GetGroupNames( string parm_id, vector< string > & group_names
     }
 
     map< string, vector< string > >::iterator iter;
-    for ( iter = m_GroupParmMap.begin() ; iter != m_GroupParmMap.end() ; iter++ )
+    for ( iter = m_GroupParmMap.begin() ; iter != m_GroupParmMap.end() ; ++iter )
     {
         string name = iter->first;
         if ( name == group_name )

@@ -3049,7 +3049,7 @@ void TMesh::BuildEdgeMaps()
     // Loop through triangles sharing nodes to find alias edges
     map< TNode*, list<TNode*> >::iterator mit; // map iterator
 
-    for ( mit = m_NAMap.begin(); mit != m_NAMap.end() ; mit++ ) // Loop over all master nodes
+    for ( mit = m_NAMap.begin(); mit != m_NAMap.end() ; ++mit ) // Loop over all master nodes
     {
         TNode* n = mit->first;
         for ( int t = 0 ; t < ( int )n->m_TriVec.size() ; t++ ) // Loop over triangles sharing the master node
@@ -3213,12 +3213,12 @@ void TMesh::DeleteDupNodes()
 
     //==== Nuke Redundant Nodes And Update NVec ====//
     m_NVec.clear();
-    for ( mit = m_NAMap.begin() ; mit != m_NAMap.end() ; mit++ )
+    for ( mit = m_NAMap.begin() ; mit != m_NAMap.end() ; ++mit )
     {
         TNode* nk = mit->first;
         list< TNode* >& dnodes =  mit->second;
 
-        for ( lit = ++dnodes.begin() ; lit != dnodes.end() ; lit++ ) // Start at second element since first is the master node itself
+        for ( lit = ++dnodes.begin() ; lit != dnodes.end() ; ++lit ) // Start at second element since first is the master node itself
         {
             delete *lit;
         }
@@ -3773,7 +3773,7 @@ void TMesh::SplitAliasEdges( TTri* orig_tri, TEdge* isect_edge )
                         // Get vector of tris
                         vector<TTri *> a_tris;
                         vector<TEdge *>::iterator vit; //vector iterator
-                        for (vit = a_edges.begin(); vit != a_edges.end(); vit++)
+                        for (vit = a_edges.begin(); vit != a_edges.end(); ++vit)
                         {
                             TEdge *e = *vit;
                             a_tris.push_back(e->GetParTri());

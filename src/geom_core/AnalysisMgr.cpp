@@ -45,7 +45,7 @@ void AnalysisMgrSingleton::Wype()
 {
     map < string, Analysis* >::const_iterator it;
 
-    for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); it++ )
+    for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); ++it )
     {
         delete it->second;
     }
@@ -70,7 +70,7 @@ vector < string > AnalysisMgrSingleton::ListAnalysis() const
 
     map < string, Analysis* >::const_iterator it;
 
-    for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); it++ )
+    for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); ++it )
     {
         ret.push_back( it->first );
     }

@@ -117,7 +117,7 @@ void MessageMgr::UnRegister( MessageBase* msg_base )
                 int erase_index = erase_index_vec[e];
                 ( iter->second ).erase( ( iter->second ).begin() + erase_index );
             }
-            iter++;
+            ++iter;
         }
     }
 

@@ -50,7 +50,7 @@ Mesh::~Mesh()
 void Mesh::Clear()
 {
     list< Tri* >::iterator t;
-    for ( t = triList.begin() ; t != triList.end(); t++ )
+    for ( t = triList.begin() ; t != triList.end(); ++t )
     {
         delete ( *t );
     }
@@ -58,7 +58,7 @@ void Mesh::Clear()
     triList.clear();
 
     list< Edge* >::iterator e;
-    for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
         delete ( *e );
     }
@@ -66,7 +66,7 @@ void Mesh::Clear()
     edgeList.clear();
 
     list< Node* >::iterator n;
-    for ( n = nodeList.begin() ; n != nodeList.end(); n++ )
+    for ( n = nodeList.begin() ; n != nodeList.end(); ++n )
     {
         delete ( *n );
     }
@@ -89,9 +89,9 @@ void Mesh::LimitTargetEdgeLength( Node* n )
 
     e = el.begin();
     double limitlen = ( *e )->target_len * m_GridDensity->m_GrowRatio;
-    e++;
+    ++e;
 
-    for ( ; e != el.end(); e++ )
+    for ( ; e != el.end(); ++e )
     {
         if( ( *e )->target_len > limitlen )
         {
@@ -107,7 +107,7 @@ void Mesh::LimitTargetEdgeLength( Edge* e, Node* notn )
 
     Node *n = e->OtherNode( notn );
 
-    for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+    for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ++ne )
     {
         double limitlen = growratio * ( *ne )->target_len;
         if( e->target_len > limitlen )
@@ -124,7 +124,7 @@ void Mesh::LimitTargetEdgeLength( Edge* e )
     double growratio = m_GridDensity->m_GrowRatio;
 
     n = e->n0;
-    for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+    for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ++ne )
     {
         double limitlen = growratio * ( *ne )->target_len;
         if( e->target_len > limitlen )
@@ -134,7 +134,7 @@ void Mesh::LimitTargetEdgeLength( Edge* e )
     }
 
     n = e->n1;
-    for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+    for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ++ne )
     {
         double limitlen = growratio * ( *ne )->target_len;
         if( e->target_len > limitlen )
@@ -154,12 +154,12 @@ void Mesh::LimitTargetEdgeLength()
 
     edgeList.sort( ShortEdgeTargetLengthCompare );
 
-    for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
         limitlen = growratio * ( *e )->target_len;
 
         n = ( *e )->n0;
-        for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+        for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ++ne )
         {
             if ( !( *ne )->border )
             {
@@ -171,7 +171,7 @@ void Mesh::LimitTargetEdgeLength()
         }
 
         n = ( *e )->n1;
-        for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ne++ )
+        for ( ne = n->edgeVec.begin() ; ne != n->edgeVec.end(); ++ne )
         {
             if ( !( *ne )->border )
             {
@@ -192,7 +192,7 @@ void Mesh::Remesh()
 
     //==== Find Target Edge Lengths ====//
     list< Edge* >::iterator e;
-    for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
         ( *e )->ComputeLength();
         ComputeTargetEdgeLength( *e );
@@ -212,7 +212,7 @@ void Mesh::Remesh()
         }
     }
 
-    for ( e = edgeList.begin() ; e != edgeList.end() ; e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
     {
         if ( !( *e )->border )
         {
@@ -234,7 +234,7 @@ void Mesh::LoadSimpTris()
     simpUWPntVec.resize( triList.size() * 3 );
 
     int cnt = 0;
-    for ( t = triList.begin() ; t != triList.end(); t++ )
+    for ( t = triList.begin() ; t != triList.end(); ++t )
     {
         simpTriVec[cnt].ind0 = cnt * 3;
         simpTriVec[cnt].ind1 = cnt * 3 + 1;
@@ -351,7 +351,7 @@ int Mesh::Split( int num_iter )
         //===== Split ====//
         vector < pair < Edge*, double > > longEdges;
         longEdges.reserve( edgeList.size() );
-        for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+        for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
         {
             if ( !( *e )->border )
             {
@@ -399,7 +399,7 @@ int Mesh::Collapse( int num_iter )
         //==== Collapse =====//
         vector < pair < Edge*, double > > shortEdges;
         shortEdges.reserve( edgeList.size() );
-        for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+        for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
         {
             if ( ValidCollapse( *e ) )
             {
@@ -449,7 +449,7 @@ int Mesh::RemoveRevTris()
     vector < Edge* > remEdges;
 
     list< Tri* >::iterator t;
-    for ( t = triList.begin() ; t != triList.end(); t++ )
+    for ( t = triList.begin() ; t != triList.end(); ++t )
     {
         vec3d ntri = (*t)->Normal();
         vec2d avg_uw = ( (*t)->n0->uw + (*t)->n1->uw + (*t)->n2->uw ) * ( 1.0 / 3.0 );
@@ -492,7 +492,7 @@ int Mesh::RemoveRevTris()
 void Mesh::ColorTris()
 {
     list< Tri* >::iterator t;
-    for ( t = triList.begin() ; t != triList.end(); t++ )
+    for ( t = triList.begin() ; t != triList.end(); ++t )
     {
         double q = ( *t )->ComputeQual();
 
@@ -534,7 +534,7 @@ void Mesh::RemoveNode( Node* nptr )
 Node* Mesh::FindNode( const vec3d& p )
 {
     list< Node* >::iterator n;
-    for ( n = nodeList.begin() ; n != nodeList.end(); n++ )
+    for ( n = nodeList.begin() ; n != nodeList.end(); ++n )
     {
         if ( !( *n )->m_DeleteMeFlag && dist_squared( ( *n )->pnt, p ) < 1.0e-7 )
         {
@@ -573,7 +573,7 @@ void Mesh::RemoveEdge( Edge* eptr )
 Edge* Mesh::FindEdge( Node* n0, Node* n1 )
 {
     list< Edge* >::iterator e;
-    for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
         if ( !( *e )->m_DeleteMeFlag )
         {
@@ -632,13 +632,13 @@ void Mesh::DumpGarbage()
 void Mesh::SetNodeFlags()
 {
     list< Node* >::iterator n;
-    for ( n = nodeList.begin() ; n != nodeList.end(); n++ )
+    for ( n = nodeList.begin() ; n != nodeList.end(); ++n )
     {
         ( *n )->fixed = false;
     }
 
     list< Edge* >::iterator e;
-    for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
         if ( ( *e )->border || ( *e )->ridge )
         {
@@ -1065,7 +1065,7 @@ void Mesh::CollapseHighlightEdge()
     Edge* hedge = NULL;
     int cnt = 0;
     list< Edge* >::iterator e;
-    for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
         if ( cnt == m_HighlightEdgeIndex )
         {
@@ -1269,7 +1269,7 @@ void Mesh::LaplacianSmooth( int num_iter )
     for ( int i = 0 ; i < num_iter ; i++ )
     {
         list< Node* >::iterator n;
-        for ( n = nodeList.begin() ; n != nodeList.end(); n++ )
+        for ( n = nodeList.begin() ; n != nodeList.end(); ++n )
         {
             if ( !( *n )->m_DeleteMeFlag && !( *n )->fixed )
             {
@@ -1291,7 +1291,7 @@ void Mesh::OptSmooth( int num_iter )
     for ( int i = 0 ; i < num_iter ; i++ )
     {
         list< Node* >::iterator n;
-        for ( n = nodeList.begin() ; n != nodeList.end(); n++ )
+        for ( n = nodeList.begin() ; n != nodeList.end(); ++n )
         {
             if ( !( *n )->m_DeleteMeFlag && !( *n )->fixed )
             {
@@ -1310,7 +1310,7 @@ bool Mesh::SetFixPoint( const vec3d &fix_pnt, vec2d fix_uw )
     m_NumFixPointIter++;
 
     list< Node* >::iterator n;
-    for ( n = nodeList.begin(); n != nodeList.end(); n++ )
+    for ( n = nodeList.begin(); n != nodeList.end(); ++n )
     {
         if ( !( *n )->fixed )
         {
@@ -1353,7 +1353,7 @@ bool Mesh::SetFixPoint( const vec3d &fix_pnt, vec2d fix_uw )
     //===== Split if no nodes found ====//
     vector < Edge* > split_edge_vec;
     split_edge_vec.reserve( edgeList.size() );
-    for ( e = edgeList.begin(); e != edgeList.end(); e++ )
+    for ( e = edgeList.begin(); e != edgeList.end(); ++e )
     {
         if ( !( *e )->border )
         {
@@ -1383,14 +1383,14 @@ void Mesh::AdjustEdgeLengths()
     //==== Find Avg Edge Length ====//
     double avg_length = 0.0;
     list< Edge* >::iterator e;
-    for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
         avg_length += dist( ( *e )->n0->pnt, ( *e )->n1->pnt );
     }
 
     avg_length /= ( double )edgeList.size();
 
-    for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
         if ( !( *e )->n0->fixed && !( *e )->n1->fixed )
         {
@@ -1434,7 +1434,7 @@ void Mesh::ComputeTargetEdgeLength( Edge* edge )
 void Mesh::CheckValidAllEdges()
 {
     list< Edge* >::iterator e;
-    for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
         if ( !( *e )->m_DeleteMeFlag )
         {
@@ -1832,7 +1832,7 @@ void Mesh::InitMesh( vector< vec2d > & uw_points, vector< MeshSeg > & segs_index
 
     //==== Fix The Exterior Edges ====//
     list< Edge* >::iterator e;
-    for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
         if ( ( *e )->t0 == NULL || ( *e )->t1 == NULL )
         {
@@ -1901,7 +1901,7 @@ void Mesh::RemoveInteriorTrisEdgesNodes()
     set < Node* > remNodes;
 
     list< Tri* >::iterator t;
-    for ( t = triList.begin() ; t != triList.end(); t++ )
+    for ( t = triList.begin() ; t != triList.end(); ++t )
     {
         //==== Check Surrounding Tris =====//
         if ( ( *t )->deleteFlag )
@@ -1940,14 +1940,14 @@ void Mesh::RemoveInteriorTrisEdgesNodes()
 
     //==== Remove References to Deleted Tris =====//
     set< Tri* >::iterator st;
-    for ( st = remTris.begin() ; st != remTris.end(); st++ )
+    for ( st = remTris.begin() ; st != remTris.end(); ++st )
     {
         ( *st )->e0->ReplaceTri( ( *st ), NULL );
         ( *st )->e1->ReplaceTri( ( *st ), NULL );
         ( *st )->e2->ReplaceTri( ( *st ), NULL );
     }
     set< Edge* >::iterator se;
-    for ( se = remEdges.begin() ; se != remEdges.end(); se++ )
+    for ( se = remEdges.begin() ; se != remEdges.end(); ++se )
     {
         ( *se )->n0->RemoveConnectEdge( ( *se ) );
         ( *se )->n1->RemoveConnectEdge( ( *se ) );
@@ -1955,15 +1955,15 @@ void Mesh::RemoveInteriorTrisEdgesNodes()
 
     //==== Remove Node Edges and Tris =====//
     set< Node* >::iterator sn;
-    for ( sn = remNodes.begin() ; sn != remNodes.end(); sn++ )
+    for ( sn = remNodes.begin() ; sn != remNodes.end(); ++sn )
     {
         RemoveNode( ( *sn ) );
     }
-    for ( se = remEdges.begin() ; se != remEdges.end(); se++ )
+    for ( se = remEdges.begin() ; se != remEdges.end(); ++se )
     {
         RemoveEdge( ( *se ) );
     }
-    for ( st = remTris.begin() ; st != remTris.end(); st++ )
+    for ( st = remTris.begin() ; st != remTris.end(); ++st )
     {
         RemoveTri( ( *st ) );
     }
@@ -2100,7 +2100,7 @@ void Mesh::ReadSTL( const char* file_name )
 
     //==== Fix The Exterior Edges ====//
     list< Edge* >::iterator e;
-    for ( e = edgeList.begin() ; e != edgeList.end(); e++ )
+    for ( e = edgeList.begin() ; e != edgeList.end(); ++e )
     {
         if ( ( *e )->t0 == NULL || ( *e )->t1 == NULL )
         {

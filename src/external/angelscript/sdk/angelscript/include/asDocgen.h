@@ -394,7 +394,7 @@ The API functions are organized into the following groups:
 
         std::map<std::string, std::string>::iterator git;
 
-        for ( git = groupTitles.begin(); git != groupTitles.end(); git++ )
+        for ( git = groupTitles.begin(); git != groupTitles.end(); ++git )
         {
             readme_str += "- [";
             readme_str += git->second;
@@ -505,7 +505,7 @@ feature request, or bug report for the OpenVSP developers.
         {
             comment_str = "/*!";
 
-            for ( git = groupTitles.begin(); git != groupTitles.end(); git++ )
+            for ( git = groupTitles.begin(); git != groupTitles.end(); ++git )
             {
                 comment_str += R"(
     \defgroup )";
@@ -534,7 +534,7 @@ feature request, or bug report for the OpenVSP developers.
     be documented here. 
     Global functions are orgainized into the following groups:\n\n )";
 
-        for ( git = groupTitles.begin(); git != groupTitles.end(); git++ )
+        for ( git = groupTitles.begin(); git != groupTitles.end(); ++git )
         {
             comment_str += R"(
     \ref )";

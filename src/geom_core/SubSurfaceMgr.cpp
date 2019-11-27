@@ -235,7 +235,7 @@ bool vector_sort( const vector<int>& a, const vector<int>& b )
 void SubSurfaceMgrSingleton::BuildSingleTagMap()
 {
     m_TagKeys.clear();
-    for ( set< vector<int> >::iterator s_iter = m_TagCombos.begin() ; s_iter != m_TagCombos.end() ; s_iter++ )
+    for ( set< vector<int> >::iterator s_iter = m_TagCombos.begin() ; s_iter != m_TagCombos.end() ; ++s_iter )
     {
         m_TagKeys.push_back( *s_iter );
     }

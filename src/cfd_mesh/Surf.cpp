@@ -710,7 +710,7 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
 
     vec3d dir = p1 - p0;
 
-    for ( t = triList.begin() ; t != triList.end(); t++ )
+    for ( t = triList.begin() ; t != triList.end(); ++t )
     {
         int iFlag = intersect_triangle( p0.v, dir.v,
                                         ( *t )->n0->pnt.v, ( *t )->n1->pnt.v, ( *t )->n2->pnt.v, &tparm, &uparm, &vparm );
@@ -899,7 +899,7 @@ void Surf::InitMesh( vector< ISegChain* > chains )
     vector < vec2d > uwPntVec;
 
     set< IPnt* >::iterator ip;
-    for ( ip = ipntSet.begin() ; ip != ipntSet.end() ; ip++ )
+    for ( ip = ipntSet.begin() ; ip != ipntSet.end() ; ++ip )
     {
         vec2d uw = ( *ip )->GetPuw( this )->m_UW;
 

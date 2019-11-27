@@ -574,7 +574,7 @@ void ISegChain::FlipDir()
     m_ISegDeque = flipped;
 
     deque< ISeg* >::iterator s;
-    for ( s = m_ISegDeque.begin() ; s != m_ISegDeque.end(); s++ )
+    for ( s = m_ISegDeque.begin() ; s != m_ISegDeque.end(); ++s )
     {
         ( *s )->FlipDir();
     }
@@ -754,28 +754,28 @@ void ISegChain::AddChain( ISegChain* B )
 
     if ( dBackBack < dBackFront && dBackBack < dFrontBack && dBackBack < dFrontFront )
     {
-        for ( r = B->m_ISegDeque.rbegin() ; r != B->m_ISegDeque.rend() ; r++ )
+        for ( r = B->m_ISegDeque.rbegin() ; r != B->m_ISegDeque.rend() ; ++r )
         {
             AddSeg( ( *r ) );
         }
     }
     else if ( dBackFront < dFrontBack && dBackFront < dFrontFront )
     {
-        for ( s = B->m_ISegDeque.begin() ; s != B->m_ISegDeque.end() ; s++ )
+        for ( s = B->m_ISegDeque.begin() ; s != B->m_ISegDeque.end() ; ++s )
         {
             AddSeg( ( *s ) );
         }
     }
     else if ( dFrontBack < dFrontFront )
     {
-        for ( r = B->m_ISegDeque.rbegin() ; r != B->m_ISegDeque.rend() ; r++ )
+        for ( r = B->m_ISegDeque.rbegin() ; r != B->m_ISegDeque.rend() ; ++r )
         {
             AddSeg( ( *r ) );
         }
     }
     else
     {
-        for ( s = B->m_ISegDeque.begin() ; s != B->m_ISegDeque.end() ; s++ )
+        for ( s = B->m_ISegDeque.begin() ; s != B->m_ISegDeque.end() ; ++s )
         {
             AddSeg( ( *s ) );
         }
