@@ -134,8 +134,8 @@ public:
 
     vector < bool > m_ExportFileFlags;
     int m_NumEvenlySpacedPart;
-    double m_DrawNodesFlag;
-    double m_DrawElementOrientVecFlag;
+    bool m_DrawNodesFlag;
+    bool m_DrawElementOrientVecFlag;
 
 protected:
 
