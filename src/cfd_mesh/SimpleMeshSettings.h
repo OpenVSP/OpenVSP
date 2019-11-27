@@ -29,7 +29,6 @@ public:
     bool m_SymSplittingOnFlag;
 
     bool m_DrawMeshFlag;
-    bool m_DrawBadFlag;
     bool m_ColorTagsFlag;
 
     bool m_DrawBorderFlag;
@@ -112,6 +111,7 @@ public:
     bool m_DrawFarPreFlag;
     bool m_DrawSymmFlag;
     bool m_DrawWakeFlag;
+    bool m_DrawBadFlag;
 
     vector < bool > m_ExportFileFlags;
 

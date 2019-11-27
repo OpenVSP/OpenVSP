@@ -76,7 +76,6 @@ class MeshCommonSettings : public ParmContainer
     BoolParm m_SymSplittingOnFlag;
 
     BoolParm m_DrawMeshFlag;
-    BoolParm m_DrawBadFlag;
     BoolParm m_ColorTagsFlag;
 
     BoolParm m_DrawBorderFlag;

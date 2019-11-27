@@ -55,7 +55,6 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
     m_SymSplittingOnFlag = settings->m_SymSplittingOnFlag.Get();
 
     m_DrawMeshFlag = settings->m_DrawMeshFlag.Get();
-    m_DrawBadFlag = settings->m_DrawBadFlag.Get();
     m_ColorTagsFlag = settings->m_ColorTagsFlag.Get();
 
     m_DrawBorderFlag = settings->m_DrawBorderFlag.Get();
@@ -193,6 +192,7 @@ void SimpleCfdMeshSettings::CopyFrom( CfdMeshSettings* settings )
     m_DrawFarPreFlag = settings->m_DrawFarPreFlag.Get();
     m_DrawSymmFlag = settings->m_DrawSymmFlag.Get();
     m_DrawWakeFlag = settings->m_DrawWakeFlag.Get();
+    m_DrawBadFlag = settings->m_DrawBadFlag.Get();
 
     m_SelectedSetIndex = settings->m_SelectedSetIndex.Get();
 
