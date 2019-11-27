@@ -318,6 +318,7 @@ public:
     vec3d m_CG;
     int m_NumMassSlices;
     double m_TotalMass;
+    bool m_DrawCGFlag;
 
     Parm m_BbXLen;
     Parm m_BbYLen;

@@ -30,12 +30,15 @@ public:
         ( ( MassPropScreen* )data )->CallBack( w );
     }
     void CallBack( Fl_Widget *w );
-
+    virtual void CloseCallBack( Fl_Widget* w );
+    void LoadDrawObjs( vector< DrawObj* >& draw_obj_vec );
 
 protected:
 
     MassPropUI* m_MassPropUI;
     int m_SelectedSetIndex;
+
+    DrawObj m_CGDrawObj;
 
 };
 

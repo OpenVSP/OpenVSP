@@ -24,6 +24,7 @@
 #include "ManageLightingScreen.h"
 #include "ManageGeomScreen.h"
 #include "ManageCORScreen.h"
+#include "MassPropScreen.h"
 #include "FitModelScreen.h"
 #include "GraphicSingletons.h"
 #include "Selectable.h"
@@ -272,6 +273,14 @@ void VspGlWindow::update()
         if ( fitModelScreen )
         {
             fitModelScreen->LoadDrawObjs( drawObjs );
+        }
+
+        // Load Render Objects from fitModelScreen.
+        MassPropScreen* massPropScreen = dynamic_cast<MassPropScreen*>
+            ( m_ScreenMgr->GetScreen( ScreenMgr::VSP_MASS_PROP_SCREEN ) );
+        if ( massPropScreen )
+        {
+            massPropScreen->LoadDrawObjs( drawObjs );
         }
 
         // Load Render Objects from CfdMeshScreen.
