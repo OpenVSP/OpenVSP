@@ -625,7 +625,7 @@ void XSecCurve::CloseLE( bool wingtype )
 
     piecewise_curve_type crv = m_Curve.GetCurve();
 
-    double tmin, tmax, tmid;
+    double tmin, tmax;
     tmin = crv.get_parameter_min();
     tmax = crv.get_parameter_max();
 

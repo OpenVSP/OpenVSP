@@ -603,7 +603,6 @@ int LinkMgrSingleton::GetCurrGroupNameVec( const string& parm_id, vector< string
         return index;
     }
 
-    string group_name;
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( p )
     {
@@ -628,7 +627,6 @@ int LinkMgrSingleton::GetCurrParmIDVec( const string& parm_id, vector< string > 
         return index;
     }
 
-    string group_name;
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( p )
     {

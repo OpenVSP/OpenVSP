@@ -141,9 +141,6 @@ void Node::LaplacianSmooth( Surf* surfPtr )
 
     vec2d close_uw = surfPtr->ClosestUW( movePnt, moveUW.x(),  moveUW.y() );
 
-    vec2d old_uw = uw;
-    vec3d old_pnt = pnt;
-
     uw = uw + ( close_uw - uw ) * 0.1;
     pnt = surfPtr->CompPnt( uw.x(), uw.y() );
 

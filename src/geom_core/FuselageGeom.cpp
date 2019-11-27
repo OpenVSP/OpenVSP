@@ -529,7 +529,6 @@ void FuselageGeom::ReadV2File( xmlNodePtr &root )
 
 void FuselageGeom::ReadV2FileFuse2( xmlNodePtr &root )
 {
-    int i;
     xmlNodePtr node;
 
     m_XSecSurf.DeleteAllXSecs();

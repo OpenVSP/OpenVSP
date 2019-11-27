@@ -797,7 +797,6 @@ void ConformalGeom::TrimV( VspSurf & surf )
     }
 
     piecewise_surface_type* bez_surface = surf.GetBezierSurface();
-    piecewise_surface_type::error_code err;
     piecewise_surface_type s1, s2, s3, s4, s5, s6, temp_surf;
     piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
 

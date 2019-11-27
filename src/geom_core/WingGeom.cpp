@@ -2713,7 +2713,6 @@ void WingGeom::OffsetXSecs( double off )
     span_rc_tc.push_back( vsp::ROOTC_WSECT_DRIVER );
     span_rc_tc.push_back( vsp::TIPC_WSECT_DRIVER );
 
-    vector< double > ref_chord_vec;
     for ( int i = 0 ; i < (int)ws_vec.size() ; i++ )
     {
         WingSect* ws = ws_vec[i];

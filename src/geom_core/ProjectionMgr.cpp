@@ -794,10 +794,8 @@ void ProjectionMgrSingleton::Union( ClipperLib::Paths & pths, ClipperLib::Paths 
     ClipperLib::Clipper clpr;
     clpr.AddPaths( pths, ClipperLib::ptSubject, true );
 
-    int err_cnt = 0;
     if ( !clpr.Execute( ClipperLib::ctUnion, sol, ClipperLib::pftPositive, ClipperLib::pftPositive ) )
     {
-        err_cnt++;
         printf( "Clipper error\n" );
     }
 
@@ -857,10 +855,8 @@ void ProjectionMgrSingleton::Intersect( ClipperLib::Paths & pthA, ClipperLib::Pa
     clpr.AddPaths( pthA, ClipperLib::ptSubject, true );
     clpr.AddPaths( pthB, ClipperLib::ptClip, true );
 
-    int err_cnt = 0;
     if ( !clpr.Execute( ClipperLib::ctIntersection, sol, ClipperLib::pftPositive, ClipperLib::pftPositive ) )
     {
-        err_cnt++;
         printf( "Clipper error\n" );
     }
 
