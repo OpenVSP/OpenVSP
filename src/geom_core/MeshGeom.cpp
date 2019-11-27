@@ -174,6 +174,7 @@ int MeshGeom::ReadXSec( const char* file_name )
     fscanf( fp, "%s INPUT FILE\n\n", str );
     if ( strcmp( "HERMITE", str ) != 0 )
     {
+        fclose( fp );
         return 0;
     }
     //==== Read in number of components ====//
@@ -182,6 +183,7 @@ int MeshGeom::ReadXSec( const char* file_name )
 
     if ( num_comps <= 0 )
     {
+        fclose( fp );
         return 0;
     }
 

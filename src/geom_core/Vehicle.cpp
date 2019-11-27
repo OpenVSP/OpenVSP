@@ -3118,6 +3118,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 
         if ( geom_vec.size() == 0 )
         {
+            fclose( dxf_file );
             return;
         }
 
@@ -4349,6 +4350,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
         id = AddGeom( type );
         if ( !id.compare( "NONE" ) )
         {
+            fclose( fp );
             return id;
         }
 

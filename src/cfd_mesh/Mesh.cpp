@@ -2096,7 +2096,10 @@ void Mesh::ReadSTL( const char* file_name )
             }
         }
     }
-    fclose( file_id );
+    if ( file_id )
+    {
+        fclose( file_id );
+    }
 
     //==== Fix The Exterior Edges ====//
     list< Edge* >::iterator e;
