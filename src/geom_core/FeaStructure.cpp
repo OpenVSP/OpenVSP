@@ -2509,7 +2509,7 @@ double FeaRib::GetRibPerU( )
 
             double u_step = 1 / U_max;
 
-            if ( curr_sec_ind >= 0 && curr_sec_ind < wing_sec_span_vec.size() )
+            if ( curr_sec_ind > 0 && curr_sec_ind < wing_sec_span_vec.size() )
             {
                 m_PerU = m_U_sec_min / U_max + ( curr_sec_ind - 1 ) * u_step + ( ( m_AbsCenterLocation() - wing_sec_span_vec[curr_sec_ind - 1] ) / section_span ) * u_step;
             }
