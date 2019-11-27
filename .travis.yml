@@ -36,6 +36,7 @@ script:
      cd build;
      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" -DVSP_INSTALL_API_TEST=true ../SuperProject;
      make -j2;
+     export DEPLOY_FILE="$TRAVIS_BUILD_DIR/build/OpenVSP-prefix/src/OpenVSP-build/OpenVSP-*-MacOS.zip";
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
      cd $TRAVIS_BUILD_DIR/buildlibs;
@@ -46,4 +47,16 @@ script:
      make -j2 package;
      DEBFILE=$TRAVIS_BUILD_DIR/build/OpenVSP-*-Linux.deb;
      ls $DEBFILE && (echo "DEB CREATION SUCCESSFUL" && exit 0) || (echo "DEB CREATION FAILED" && exit 1);
+     export DEPLOY_FILE="$TRAVIS_BUILD_DIR/build/OpenVSP-*-Linux.deb";
     fi
+deploy:
+  provider: releases
+  api_key:
+    secure: FpccXk53/3xQYnb9kkTZTIRCV2rI/w+B+KRgohU/UdDouY3Ed0yZnlLYTALkWaWk7TkgoX9aXAGMaJ2aLA9tdPturm/cvWUszDmjcflX+hxiM2VgRwyhi+gUbdWljTYaK59xuV2e8hiprLR14C1bTUPoVl4CvIvJLyDe21uWyNs=
+  draft: true
+  file_glob: true
+  name: "TestRelease $TRAVIS_TAG"
+  file: $DEPLOY_FILE
+  skip_cleanup: true
+  on:
+    all_branches: true

@@ -1,7 +1,5 @@
 version: av.{build}
 
-branches:
-
 image: Visual Studio 2015
 
 configuration: Release
