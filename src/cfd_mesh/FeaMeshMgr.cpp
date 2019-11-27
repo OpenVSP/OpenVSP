@@ -1336,7 +1336,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                     p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
                                 }
 
-                                IPnt* split_pnt = new IPnt( p0, p1 );
+                                split_pnt = new IPnt( p0, p1 );
 
                                 if ( p0 )
                                 {
@@ -1391,7 +1391,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                 p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
                             }
 
-                            IPnt* split_pnt = new IPnt( p0, p1 );
+                            split_pnt = new IPnt( p0, p1 );
 
                             if ( p0 )
                             {
@@ -1844,9 +1844,9 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
 
                     vector < vector< SSLineSeg > >& segsvec = ss_vec[ss].GetSplitSegs();
 
-                    for ( int i = 0; i < segsvec.size(); i++ )
+                    for ( int k = 0; k < segsvec.size(); k++ )
                     {
-                        vector< SSLineSeg >& segs = segsvec[i];
+                        vector< SSLineSeg >& segs = segsvec[k];
                         bool is_poly = ss_vec[ss].GetPolyFlag();
 
                         // Build Intersection Chains
@@ -2185,6 +2185,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         int set_cnt = 1;
         int max_grid_id = 0;
         vector < int > grid_id_vec;
+        string name;
 
         // FeaPart Nodes
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
@@ -2226,7 +2227,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
 
             // Write FEA part node set
-            string name = m_FeaPartNameVec[i] + "_Gridpoints";
+            name = m_FeaPartNameVec[i] + "_Gridpoints";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
         }
 
@@ -2252,7 +2253,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
 
             // Write subsurface node set
-            string name = m_SimpleSubSurfaceVec[i].GetName() + "_Gridpoints";
+            name = m_SimpleSubSurfaceVec[i].GetName() + "_Gridpoints";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
         }
 
@@ -2276,7 +2277,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         }
 
         // Write intersection node set
-        string name = "Intersection_Gridpoints";
+        name = "Intersection_Gridpoints";
         WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
 
         //==== Remaining Nodes ====//
@@ -2292,7 +2293,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
 
             // Write remaining node set
-            string name = "Remaining_Gridpoints";
+            name = "Remaining_Gridpoints";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
         }
 
@@ -2363,7 +2364,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 }
 
                 // Write mass element set
-                string name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[i][0]] + "_MassElements";
+                name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[i][0]] + "_MassElements";
                 WriteNASTRANSet( fp, nkey_fp, set_cnt, mass_elem_id_vec, name );
             }
         }
@@ -2400,7 +2401,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
 
             // Write shell element set
-            string name = m_SimpleSubSurfaceVec[i].GetName() + "_ShellElements";
+            name = m_SimpleSubSurfaceVec[i].GetName() + "_ShellElements";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name );
 
             // Write beam element set

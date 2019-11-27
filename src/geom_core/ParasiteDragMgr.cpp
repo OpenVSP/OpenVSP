@@ -587,7 +587,6 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
 
                         lastID = m_geo_geomID[i];
 
-                        Geom* geom = VehicleMgr.GetVehicle()->FindGeom(m_geo_geomID[i]);
                         if (geom)
                         {
                             if (geom->GetType().m_Type != PROP_GEOM_TYPE)
@@ -608,7 +607,8 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
                     else
                     {
                         --i;
-                        iSurf += geom->GetNumSymmCopies();
+                        
+                        if ( geom ) iSurf += geom->GetNumSymmCopies();
                         
                     }
                 }

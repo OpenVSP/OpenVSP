@@ -347,10 +347,10 @@ namespace asDocgen
 
             enums[enumdef] = std::vector<std::pair<std::string, int>>();
 
-            for ( unsigned int i = 0; i < count; ++i )
+            for ( unsigned int j = 0; j < count; ++j )
             {
                 int value = 0;
-                string enumname = e->GetEnumValueByIndex( i, &value );
+                string enumname = e->GetEnumValueByIndex( j, &value );
 
                 enums[enumdef].push_back( make_pair( enumname, value ) );
             }

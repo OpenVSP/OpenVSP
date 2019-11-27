@@ -952,7 +952,7 @@ void PropGeom::UpdateSurf()
         //==== Update XSec Prop Positioner for highlight curves ====//
         for ( int i = 0 ; i < nxsec ; i++ )
         {
-            PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( i );
+            xs = ( PropXSec* ) m_XSecSurf.FindXSec( i );
 
             if ( xs )
             {

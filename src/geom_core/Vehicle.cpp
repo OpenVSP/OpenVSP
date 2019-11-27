@@ -4357,7 +4357,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
 
         for ( int c = 0 ; c < num_comps ; c++ )
         {
-            GeomType type = GeomType( WIRE_FRAME_GEOM_TYPE, "WIREFRAME", true );
+            type = GeomType( WIRE_FRAME_GEOM_TYPE, "WIREFRAME", true );
             string cid = AddGeom( type );
             if ( !cid.compare( "NONE" ) )
             {
