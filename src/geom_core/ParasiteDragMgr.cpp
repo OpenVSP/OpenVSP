@@ -825,7 +825,7 @@ double ParasiteDragMgrSingleton::CalcPartialTurbulence( double perclam, double r
         // Prevent dividing by 0 in some equations
         double LamPerc = ( perclam / 100 );
         double CffullTurb = CalcTurbCf( re, lref, m_TurbCfEqnType(), roughness, m_SpecificHeatRatio(), tawtwrat, tetwrat );
-        double CffullLam = CalcLamCf( re, m_LamCfEqnType.Get() );
+        double CffullLam = CalcLamCf( re, m_LamCfEqnType.Get() ); // WARNING: Not used
 
         double LamPercRefLen = LamPerc * lref;
 

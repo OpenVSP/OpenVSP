@@ -3908,7 +3908,7 @@ void Geom::SetupPMARCFile( int &ipatch, vector < int > &idpat )
 
 void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat)
 {
-    bool pmtippatch = false;
+    bool pmtippatch = false; // WARNING: Always false
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {

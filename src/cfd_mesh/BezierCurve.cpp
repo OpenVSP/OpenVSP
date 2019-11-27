@@ -58,7 +58,7 @@ vec3d Bezier_curve::CompPnt01( double u ) const
 
 void Bezier_curve::BuildCurve( const vector< vec3d > & pVec, double tanStr )
 {
-    int closeFlag = 0;
+    int closeFlag = 0; // TODO: Support closeFlag = 1?
     if ( pVec.size() < 2 )
     {
         return;

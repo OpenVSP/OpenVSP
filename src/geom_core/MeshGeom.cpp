@@ -2178,7 +2178,7 @@ void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
 void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
                           bool autoBounds, double start, double end )
 {
-    int tesselate = 0;
+    int tesselate = 0; // WARNING: Always false
     int i, j, s;
 
     //==== Transform mesh geoms to align with cutting plane normal vector ====//
