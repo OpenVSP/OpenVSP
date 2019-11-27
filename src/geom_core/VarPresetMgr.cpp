@@ -210,6 +210,8 @@ VarPresetMgrSingleton::VarPresetMgrSingleton()
 
 void VarPresetMgrSingleton::Init()
 {
+    m_CurrVarIndex = -1;
+    m_PrevDeleteFlag = false;
     m_WorkingParmID = "";
     m_CurGroupIndex = -1;
     m_CurSettingIndex = -1;

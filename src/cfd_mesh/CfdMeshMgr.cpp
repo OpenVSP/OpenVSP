@@ -21,6 +21,7 @@ Wake::Wake( WakeMgr* mgr )
 {
     m_WakeMgrPtr = mgr;
     assert( m_WakeMgrPtr );
+    m_CompID = 0;
 }
 
 Wake::~Wake()
@@ -122,6 +123,7 @@ WakeMgr::WakeMgr()
 {
     m_EndX = 1.0;
     m_Angle = 0.0;
+    m_StartStretchX = 0.0;
 }
 
 WakeMgr::~WakeMgr()

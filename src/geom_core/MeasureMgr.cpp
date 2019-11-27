@@ -3,6 +3,8 @@
 
 MeasureMgrSingleton::MeasureMgrSingleton()
 {
+    m_CurrRulerIndex = 0;
+    m_CurrProbeIndex = 0;
     Init();
 }
 

@@ -4732,6 +4732,7 @@ GeomXSec::GeomXSec( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Name = m_Name;
 
     m_MinActiveXSec = 0;
+    m_ActiveXSec = 0;
 }
 //==== Destructor ====//
 GeomXSec::~GeomXSec()

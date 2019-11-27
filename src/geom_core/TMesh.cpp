@@ -363,12 +363,18 @@ DegenGeomTriShellMassProp::DegenGeomTriShellMassProp( const string& id, const ve
 //===============================================//
 TMesh::TMesh()
 {
+    m_MaterialID = 0;
+    m_MassPrior = 0;
+    m_Density = 0;
+    m_ShellMassArea = 0;
+    m_ShellFlag = false;
     m_DeleteMeFlag = false;
     m_TheoArea = m_WetArea = 0.0;
     m_TheoVol    = m_WetVol = 0.0;
     m_HalfBoxFlag = false;
     m_SurfNum = 0;
     m_AreaCenter = vec3d(0,0,0);
+    m_GuessVol = 0;
 }
 
 TMesh::~TMesh()

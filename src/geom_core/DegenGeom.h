@@ -142,6 +142,9 @@ public:
         num_xsecs = 0;
         parentGeom = NULL;
         surfNum = -1;
+        flip_normal = false;
+        main_surf_ind = 0;
+        sym_copy_ind = 0;
     };
     virtual ~DegenGeom() {};
 

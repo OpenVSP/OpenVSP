@@ -50,6 +50,9 @@ void MessageCallback( const asSMessageInfo *msg, void *param )
 //==== Constructor ====//
 ScriptMgrSingleton::ScriptMgrSingleton()
 {
+    m_SaveInt = 0;
+    m_ScriptEngine = NULL;
+    m_ScriptMessages = "";
 
 }
 

@@ -13,12 +13,14 @@ SCurve::SCurve()
 {
     m_Surf = NULL;
     m_ICurve = NULL;
+    num_segs = 0;
 }
 
 SCurve::SCurve( Surf* s )
 {
     m_Surf = s;
     m_ICurve = NULL;
+    num_segs = 0;
 }
 
 SCurve::~SCurve()

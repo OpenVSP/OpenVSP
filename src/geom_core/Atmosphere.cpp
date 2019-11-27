@@ -4,6 +4,21 @@
 
 Atmosphere::Atmosphere()
 {
+    m_P0 = 0;
+    m_RHO0 = 0;
+    m_Hinf = 0;
+    m_DeltaT = 0;
+    m_Vinf = 0;
+    m_Temp = 0;
+    m_Pres = 0;
+    m_DynamicVisc = 0;
+    m_Density = 0;
+    m_SoundSpeed = 0;
+    m_KTAS = 0;
+    m_KEAS = 0;
+    m_Mach = 0;
+    m_DensityRatio = 0;
+    m_PressureRatio = 0;
     m_T0 = 288.15; // K
     m_Rspecific = 287.058; // m2/s2/k
     m_A0 = 661.48; // knots

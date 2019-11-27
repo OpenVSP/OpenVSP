@@ -785,7 +785,11 @@ protected:
 class StringInput : public GuiDevice
 {
 public:
-    StringInput()                               {}
+    StringInput()
+    {
+        m_String = "";
+        m_Input = NULL;
+    }
     virtual void DeviceCB( Fl_Widget* w );
 
     virtual void Init( VspScreen* screen, Fl_Input* input );
@@ -811,7 +815,11 @@ protected:
 class StringOutput : public GuiDevice
 {
 public:
-    StringOutput()                                      {}
+    StringOutput()
+    {
+        m_String = "";
+        m_Output = NULL;
+    }
     virtual void DeviceCB( Fl_Widget* w )               {}
 
     virtual void Init( VspScreen* screen, Fl_Output* output );

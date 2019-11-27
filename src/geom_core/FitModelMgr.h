@@ -36,6 +36,11 @@ class TargetPt
 public:
     TargetPt()
     {
+        m_UType = 0;
+        m_WType = 0;
+        m_UClosed = false;
+        m_WClosed = false;
+        m_MatchGeom = "";
     }
 
     virtual ~TargetPt()

@@ -27,6 +27,7 @@
 VspAeroControlSurf::VspAeroControlSurf()
 {
     isGrouped = false;
+    iReflect = false;
 }
 
 //==== Constructor ====//
