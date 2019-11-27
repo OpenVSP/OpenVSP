@@ -448,7 +448,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
 
     addOutputText( "Check Water Tight\n" );
     string resultTxt = CheckWaterTight();
-    addOutputText( resultTxt.c_str() );
+    addOutputText( resultTxt );
 
 //  addOutputText( "Mesh Complete\n");
 

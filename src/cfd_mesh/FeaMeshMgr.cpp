@@ -525,7 +525,7 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
                             string output = "WARNING: Coplanar Surfaces Merged: " + fea_part_vec[all_feaprt_ind_vec[i]]->GetName() +
                                 ", " + fea_part_vec[all_feaprt_ind_vec[j]]->GetName() + "\n";
 
-                            addOutputText( output.c_str() );
+                            addOutputText( output );
                         }
                     }
                 }
@@ -1910,7 +1910,7 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                                             {
                                                 string part = m_FeaPartNameVec[surfA->GetFeaPartIndex()];
                                                 string message = "Merged Intersection Curve: " + part + " and " + ss_vec[ss].GetName() + "\n";
-                                                addOutputText( message.c_str() );
+                                                addOutputText( message );
 
                                                 remove_chain_list.push_back( *c1 );
 
