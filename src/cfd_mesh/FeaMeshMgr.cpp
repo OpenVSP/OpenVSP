@@ -993,8 +993,8 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
     {
         fprintf( fp, "...FEA Mesh...\n" );
         fprintf( fp, "Mass_Unit: %s\n", m_MassUnit.c_str() );
-        fprintf( fp, "Num_Tris: %d\n", m_NumTris );
-        fprintf( fp, "Num_Beams: %d\n", m_NumBeams );
+        fprintf( fp, "Num_Tris: %u\n", m_NumTris );
+        fprintf( fp, "Num_Beams: %u\n", m_NumBeams );
         fprintf( fp, "\n" );
 
         if ( m_NumFeaParts > 0 )
@@ -2176,8 +2176,8 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
         // Comments can be at top of NASTRAN file before case control section
         fprintf( fp, "$NASTRAN Data File Generated from %s\n", VSPVERSION4 );
-        fprintf( fp, "$Num_Tris: %d\n", m_NumTris );
-        fprintf( fp, "$Num_Beams %d\n", m_NumBeams );
+        fprintf( fp, "$Num_Tris: %u\n", m_NumTris );
+        fprintf( fp, "$Num_Beams %u\n", m_NumBeams );
 
         // Write bulk data to temp file
         fprintf( temp, "\nBEGIN BULK\n" );
@@ -2469,8 +2469,8 @@ void FeaMeshMgrSingleton::WriteCalculix()
     if ( fp )
     {
         fprintf( fp, "**Calculix Data File Generated from %s\n", VSPVERSION4 );
-        fprintf( fp, "**Num_Tris: %d\n", m_NumTris );
-        fprintf( fp, "**Num_Beams %d\n\n", m_NumBeams );
+        fprintf( fp, "**Num_Tris: %u\n", m_NumTris );
+        fprintf( fp, "**Num_Beams %u\n\n", m_NumBeams );
 
         int elem_id = 0;
         char str[256];
@@ -2758,7 +2758,7 @@ void FeaMeshMgrSingleton::WriteGmsh()
 
         //==== Group and Name FeaParts ====//
         fprintf( fp, "$PhysicalNames\n" );
-        fprintf( fp, "%d\n", m_NumFeaParts - m_NumFeaFixPoints );
+        fprintf( fp, "%u\n", m_NumFeaParts - m_NumFeaFixPoints );
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
@@ -2770,7 +2770,7 @@ void FeaMeshMgrSingleton::WriteGmsh()
 
         //==== Write Nodes ====//
         fprintf( fp, "$Nodes\n" );
-        fprintf( fp, "%d\n", node_count );
+        fprintf( fp, "%u\n", node_count );
 
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
@@ -3316,9 +3316,9 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
 
-            sprintf( str, "%s_SSTri_Norm_%d", GetID().c_str(), i );
+            sprintf( str, "%s_SSTri_Norm_%u", GetID().c_str(), i );
             m_SSTriOrientationDO[i].m_GeomID = string( str );
-            sprintf( str, "%s_SSCap_Norm_%d", GetID().c_str(), i );
+            sprintf( str, "%s_SSCap_Norm_%u", GetID().c_str(), i );
             m_SSCapNormDO[i].m_GeomID = string( str );
 
             m_SSTriOrientationDO[i].m_Type = DrawObj::VSP_LINES;

@@ -219,7 +219,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
         // print out type and number of data entries
         int current_input_type = GetAnalysisInputType( analysis_name, input_names[i_input_name] );
         unsigned int current_input_num_data = ( unsigned int ) GetNumInputData( analysis_name, input_names[i_input_name] );
-        fprintf( outputStream, "\t\t%-20s%d\t\t%d", input_names[i_input_name].c_str(), current_input_type, current_input_num_data );
+        fprintf( outputStream, "\t\t%-20s%u\t\t%d", input_names[i_input_name].c_str(), current_input_type, current_input_num_data );
 
         // print out the current value (this needs to handle different types and vector lengths
         fprintf( outputStream, "\t" );

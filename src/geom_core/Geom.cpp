@@ -3501,7 +3501,7 @@ void Geom::WriteBezierAirfoil( const string & file_name, double foilsurf_u_locat
     // Get the Bezier segments
     vector < BezierSegment > seg_vec = foil_curve.GetBezierSegments();
 
-    fprintf( file_id, "Num Bezier Seg, %d\n", seg_vec.size() );
+    fprintf( file_id, "Num Bezier Seg, %zu\n", seg_vec.size() );
 
     fprintf( file_id, "# Order, t_0, t_end, Ctrl Pnt X1, Ctrl Pnt Y1, Ctrl Pnt X2, Ctrl Pnt Y2, ...\n" );
 

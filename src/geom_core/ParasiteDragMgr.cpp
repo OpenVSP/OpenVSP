@@ -2192,7 +2192,7 @@ void ParasiteDragMgrSingleton::AddExcrescence()
 
     if ( m_ExcresName.empty() )
     {
-        sprintf( str, "EXCRES_%lu", m_ExcresRowVec.size() );
+        sprintf( str, "EXCRES_%zu", m_ExcresRowVec.size() );
         tempStruct.Label = string( str );
     }
     else
@@ -3317,7 +3317,7 @@ xmlNodePtr ParasiteDragMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     for ( size_t i = 0; i < m_ExcresRowVec.size(); ++i )
     {
-        sprintf( str, "Excres_%u", i );
+        sprintf( str, "Excres_%zu", i );
         xmlNodePtr excresqualnode = xmlNewChild( ExcresDragnode, NULL, BAD_CAST str, NULL );
 
         XmlUtil::AddStringNode( excresqualnode, "Label", m_ExcresRowVec[i].Label );

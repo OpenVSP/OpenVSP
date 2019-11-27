@@ -1874,7 +1874,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
                 tri_offset.push_back( tag_count );
             }
 
-            fprintf( fp, "%ld \n", tri_offset.size() ); // # of "Small" parts
+            fprintf( fp, "%zu \n", tri_offset.size() ); // # of "Small" parts
 
             int facet_count = 0; // counter for number of tris/facets
 
@@ -1900,7 +1900,7 @@ void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
                         facet_count++;
 
                         // 3 nodes of facet, material ID, component ID, running facet #:
-                        fprintf( fp, "%d %d %d %d %d %d\n", allTriVec[j].ind0, allTriVec[j].ind1, allTriVec[j].ind2, materialID, i + 1, facet_count );
+                        fprintf( fp, "%d %d %d %d %u %d\n", allTriVec[j].ind0, allTriVec[j].ind1, allTriVec[j].ind2, materialID, i + 1, facet_count );
                     }
                 }
             }
@@ -3224,7 +3224,7 @@ void CfdMeshMgrSingleton::MatchBorderEdges( list< Edge* > edgeList )
             ( *e )->debugFlag = true;
         }
 
-        fprintf( m_DebugFile, "CfdMeshMgr::MatchBorderEdges Missing Edges %d\n", edgeList.size() );
+        fprintf( m_DebugFile, "CfdMeshMgr::MatchBorderEdges Missing Edges %zu\n", edgeList.size() );
         for ( e = edgeList.begin() ; e != edgeList.end() ; ++e )
         {
             fprintf( m_DebugFile, "      Missing Edge : %f %f %f   %f %f %f\n",

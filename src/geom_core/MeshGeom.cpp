@@ -197,8 +197,8 @@ int MeshGeom::ReadXSec( const char* file_name )
         fgets( name_str, 256, fp );
         fscanf( fp, " GROUP NUMBER = %d\n", &group_num );
         fscanf( fp, " TYPE = %d\n", &type );
-        fscanf( fp, " CROSS SECTIONS = %d\n", &( num_cross ) );
-        fscanf( fp, " PTS/CROSS SECTION = %d\n", &( num_pnts ) );
+        fscanf( fp, " CROSS SECTIONS = %u\n", &( num_cross ) );
+        fscanf( fp, " PTS/CROSS SECTION = %u\n", &( num_pnts ) );
 
         //===== Size Cross Vec ====//
         crossVec.resize( num_cross );
@@ -577,8 +577,8 @@ int MeshGeom::ReadTriFile( const char * file_name )
     int n0, n1, n2;
     unsigned int num_tris, num_nodes;
 
-    fscanf( file_id, "%d", &num_nodes );
-    fscanf( file_id, "%d", &num_tris  );
+    fscanf( file_id, "%u", &num_nodes );
+    fscanf( file_id, "%u", &num_tris  );
 
     vec3d p;
     vector< vec3d > pVec;
@@ -975,7 +975,7 @@ void MeshGeom::WriteFacetTriParts( FILE* fp, int &offset, int &tri_count, int &p
                 tri_count++; // counter for number of tris/facets
 
                 // 3 nodes of facet, material ID, component ID, running facet #:
-                fprintf( fp, "%d %d %d %d %d %d\n", ttri->m_N0->m_ID + 1 + offset, ttri->m_N1->m_ID + 1 + offset, ttri->m_N2->m_ID + 1 + offset, materialID, i + 1 + part_count, tri_count );
+                fprintf( fp, "%d %d %d %d %u %d\n", ttri->m_N0->m_ID + 1 + offset, ttri->m_N1->m_ID + 1 + offset, ttri->m_N2->m_ID + 1 + offset, materialID, i + 1 + part_count, tri_count );
             }
         }
     }

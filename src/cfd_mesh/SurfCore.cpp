@@ -648,9 +648,9 @@ void SurfCore::WriteSurf( FILE* fp ) const
         ioffset += udeg;
     }
 
-    fprintf( fp, "%d        // Num Pnts U \n",    numU );
-    fprintf( fp, "%d        // Num Pnts W \n",    numW );
-    fprintf( fp, "%d        // Total Pnts (0,0),(0,1),(0,2)..(0,numW-1),(1,0)..(1,numW-1)..(numU-1,0)..(numU-1,numW-1)\n",    numU * numW );
+    fprintf( fp, "%u        // Num Pnts U \n",    numU );
+    fprintf( fp, "%u        // Num Pnts W \n",    numW );
+    fprintf( fp, "%u        // Total Pnts (0,0),(0,1),(0,2)..(0,numW-1),(1,0)..(1,numW-1)..(numU-1,0)..(numU-1,numW-1)\n",    numU * numW );
 
     for ( int i = 0 ; i < numU ; i++ )
     {
