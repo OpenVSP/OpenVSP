@@ -32,13 +32,13 @@ public:
     void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
-        ( ( AdvLinkScreen* )data )->CallBack( w );
+        ( static_cast <AdvLinkScreen*> ( data ) )->CallBack( w );
     }
 
     void TextCallBack( int pos, int nInserted, int nDeleted, int nRestyled, const char* deletedText );
     static void staticTextCB( int pos, int nInserted, int nDeleted, int nRestyled, const char* deletedText, void* data )
     {
-        ( ( AdvLinkScreen* )data )->TextCallBack( pos, nInserted, nDeleted, nRestyled, deletedText );
+        ( static_cast <AdvLinkScreen*> ( data ) )->TextCallBack( pos, nInserted, nDeleted, nRestyled, deletedText );
     }
 
 

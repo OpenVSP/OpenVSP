@@ -37,7 +37,7 @@ public:
     void CallBack( Fl_Widget *w );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
-        ( ( PickSetScreen* )data )->CallBack( w );
+        ( static_cast <PickSetScreen*> ( data )->CallBack( w ) );
     }
 
 protected:

@@ -34,7 +34,7 @@ public:
 
     static void staticShowScreenCB( Fl_Widget *w, void* data )
     {
-        ( ( ScreenMenuItem* )data )->ShowScreenCallBack( data );
+        ( static_cast <ScreenMenuItem*> ( data ) )->ShowScreenCallBack( data );
     }
 
 protected:
@@ -54,7 +54,7 @@ public:
     void ActionCallBack( void* data );
     static void staticActionCB( Fl_Widget *w, void* data )
     {
-        ( ( ActionMenuItem* )data )->ActionCallBack( data );
+        ( static_cast <ActionMenuItem*> ( data ) )->ActionCallBack( data );
     }
 
 protected:
@@ -71,7 +71,7 @@ public:
 
     static void staticActionCB( Fl_Widget *w, void* data )
     {
-        ( ( VSPCheckMenuItem* )data )->ActionCallBack( data );
+        ( static_cast <VSPCheckMenuItem*> ( data ) )->ActionCallBack( data );
     }
 
     void Update( bool val );
