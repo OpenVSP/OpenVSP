@@ -2387,8 +2387,14 @@ EditCurveXSec::EditCurveXSec() : XSecCurve()
     m_AbsoluteFlag.Init( "AbsoluteFlag", m_GroupName, this, false, false, true );
     m_AbsoluteFlag.SetDescript( "Flag indicating if control points are non-dimensional or absolute" );
 
+    m_PreserveARFlag.Init( "PreserveARFlag", m_GroupName, this, false, false, true );
+    m_PreserveARFlag.SetDescript( "Flag to preserve width to height aspect ratio" );
+
     m_SelectPntID = 0;
     m_EnforceG1Next = true;
+
+    m_aspectRatioW = 1.0;
+    m_aspectRatioH = 1.0;
 }
 
 void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
@@ -2402,6 +2408,12 @@ void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
             EnforceG1( (int)i );
             break;
         }
+    }
+
+    if ( parm_ptr == dynamic_cast<Parm*> ( &m_PreserveARFlag ) )
+    {
+        m_aspectRatioW = GetWidth() / GetHeight();
+        m_aspectRatioH = GetHeight() / GetWidth();
     }
 
     if ( m_CurveType() == vsp::CEDIT )
@@ -2458,6 +2470,12 @@ void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
 
     if ( type == Parm::SET )
     {
+        if ( parm_ptr == &m_Height && m_PreserveARFlag() )
+        {
+            // Enforce AR preservation if height is set from API
+            m_Width.Set( m_Height() * m_aspectRatioW );
+        }
+
         m_LateUpdateFlag = true;
 
         //==== Notify Parent Container (XSecSurf) ====//
@@ -2702,6 +2720,11 @@ void EditCurveXSec::Update()
     if ( m_UParmVec.empty() )
     {
         InitShape(); // Must always have a valid curve
+    }
+
+    if ( m_PreserveARFlag() )
+    {
+        m_Height.Set( m_Width() * m_aspectRatioH );
     }
     
     ClearPtOrder();

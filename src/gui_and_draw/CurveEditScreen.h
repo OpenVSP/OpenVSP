@@ -40,6 +40,7 @@ private:
     SliderAdjRangeInput m_WidthSlider;
     SliderAdjRangeInput m_HeightSlider;
 
+    ToggleButton m_PreserveARToggle;
     ToggleButton m_AbsDimToggle;
 
     SliderAdjRangeInput m_SelectedUSlider;

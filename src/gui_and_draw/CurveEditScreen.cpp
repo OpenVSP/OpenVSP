@@ -36,9 +36,10 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 500, 760,
     m_ShapeChoice.AddItem( "Rectangle" );
     m_GenLayout.AddChoice( m_ShapeChoice, "Shape" );
 
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() );
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
 
     m_GenLayout.AddButton( m_InitShapeButton, "Init" );
+    m_GenLayout.AddButton( m_ClosedCurveToggle, "Closed Curve" );
 
     m_GenLayout.ForceNewLine();
 
@@ -49,7 +50,7 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 500, 760,
 
     m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
 
-    m_GenLayout.AddButton( m_ClosedCurveToggle, "Closed Curve" );
+    m_GenLayout.AddButton( m_PreserveARToggle, "Preserve AR" );
     m_GenLayout.AddButton( m_AbsDimToggle, "View Abs" ); // Absolute dimensions flag
 
     m_GenLayout.ForceNewLine();
@@ -187,6 +188,16 @@ bool CurveEditScreen::Update()
     m_HeightSlider.Update( edit_curve_xs->m_Height.GetID() );
 
     m_AbsDimToggle.Update( edit_curve_xs->m_AbsoluteFlag.GetID() );
+    m_PreserveARToggle.Update( edit_curve_xs->m_PreserveARFlag.GetID() );
+
+    if ( edit_curve_xs->m_PreserveARFlag() )
+    {
+        m_HeightSlider.Deactivate();
+    }
+    else
+    {
+        m_HeightSlider.Activate();
+    }
 
     m_CurveEditor.Update( edit_curve_xs );
 
