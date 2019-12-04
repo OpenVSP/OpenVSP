@@ -9,6 +9,8 @@
 // Note: For consistency when adding Doxygen comments, follow the Qt style
 // identified here: http://www.doxygen.nl/manual/docblocks.html#specialblock
 //
+// FIXME: asDocInfo group can't contain any underscores!
+//
 //////////////////////////////////////////////////////////////////////
 
 #include "ScriptMgr.h"
@@ -3052,7 +3054,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
 
     //==== File I/O Functions ====//
-    group = "File_IO";
+    group = "FileIO";
     doc_struct.group = group.c_str();
 
     group_description = R"(
@@ -4861,7 +4863,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     //==== Specialized Geom Functions ====//
-    group = "Specialized_Geom";
+    group = "SpecializedGeom";
     doc_struct.group = group.c_str();
 
     group_description = R"(
@@ -5269,7 +5271,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     assert( r >= 0 );
 
     //=== Parm Container Functions ===//
-    group = "Parm_Container";
+    group = "ParmContainer";
     doc_struct.group = group.c_str();
 
     group_description = R"(

@@ -383,6 +383,8 @@ The API functions are organized into the following groups:
             // Identify group HTML name
             readme_str += "(group__";
 
+            // FIXME: asDocInfo group can't contain any underscores!
+
             for ( size_t i = 0; i < git->first.size(); i++ )
             {
                 if ( isupper( git->first[i] ) )
