@@ -1247,7 +1247,7 @@ public:
 
     // Add the curve points to the canvas and connect them. CEDIT intermediate points are
     // drawn green. The currently seleted point is highlighted red. 
-    virtual void PlotData( vector< double > x_data, vector < double > y_data, int curve_type );
+    virtual void PlotData( vector< double > x_data, vector < double > y_data, int curve_type, Fl_Color color = FL_YELLOW );
 
     // Identify the min and max limits for the canvas and update accordingly
     virtual void UpdateAxisLimits( vector< double > x_data, vector < double > y_data, bool mag_round = true );
