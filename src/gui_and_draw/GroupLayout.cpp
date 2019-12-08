@@ -223,8 +223,7 @@ void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
     AddX( m_RangeButtonWidth );
 
     //==== Input ====//
-    Fl_Float_Input* input = new Fl_Float_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
-    input->type( 1 );
+    Fl_Input* input = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
     input->box( FL_THIN_DOWN_BOX );
     input->textsize( 12 );
     input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -278,16 +277,14 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
     AddX( m_RangeButtonWidth );
 
     //==== Input ====//
-    Fl_Float_Input* input1 = new Fl_Float_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
-    input1->type( 1 );
+    Fl_Input* input1 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
     input1->box( FL_THIN_DOWN_BOX );
     input1->textsize( 12 );
     input1->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE);
     m_Group->add( input1 );
     AddX( m_InputWidth );
 
-    Fl_Float_Input* input2 = new Fl_Float_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
-    input2->type( 1 );
+    Fl_Input* input2 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
     input2->box( FL_THIN_DOWN_BOX );
     input2->textsize( 12 );
     input2->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE);
@@ -341,16 +338,14 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
     AddX( m_RangeButtonWidth );
 
     //==== Input ====//
-    Fl_Float_Input* input1 = new Fl_Float_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
-    input1->type( 1 );
+    Fl_Input* input1 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
     input1->box( FL_THIN_DOWN_BOX );
     input1->textsize( 12 );
     input1->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
     m_Group->add( input1 );
     AddX( m_InputWidth );
 
-    Fl_Float_Input* input2 = new Fl_Float_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
-    input2->type( 1 );
+    Fl_Input* input2 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
     input2->box( FL_THIN_DOWN_BOX );
     input2->textsize( 12 );
     input2->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -390,8 +385,7 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
     AddX( sw );
 
     //==== Input ====//
-    Fl_Float_Input* input = new Fl_Float_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
-    input->type( 1 );
+    Fl_Input* input = new Fl_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
     input->box( FL_THIN_DOWN_BOX );
     input->textsize( 12 );
     input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -1318,8 +1312,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     AddX( m_RangeButtonWidth );
 
     //==== Left Input ====//
-    Fl_Float_Input* inputL = new Fl_Float_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
-    inputL->type( 1 );
+    Fl_Input* inputL = new Fl_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
     inputL->box( FL_THIN_DOWN_BOX );
     inputL->textsize( 12 );
     inputL->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -1368,8 +1361,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
     AddX( m_RangeButtonWidth );
 
     //==== Right Input ====//
-    Fl_Float_Input* inputR = new Fl_Float_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
-    inputR->type( 1 );
+    Fl_Input* inputR = new Fl_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
     inputR->box( FL_THIN_DOWN_BOX );
     inputR->textsize( 12 );
     inputR->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
