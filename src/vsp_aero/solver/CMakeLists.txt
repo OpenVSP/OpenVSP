@@ -53,7 +53,10 @@ endif()
 
 if(BUILD_VSPAERO)
 
-  ADD_DEFINITIONS( -DMYTIME )
+  IF(WIN32)
+  ELSE()
+    ADD_DEFINITIONS( -DMYTIME )
+  ENDIF()
 
   ADD_EXECUTABLE(vspaero
   binaryio.C
