@@ -75,8 +75,3 @@ VspSurf.h
 WriteMatlab.h
 XferSurf.h
 )
-
-ADD_DEPENDENCIES( util
-STEPCODE
-
-)
