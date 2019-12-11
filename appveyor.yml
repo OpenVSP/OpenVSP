@@ -45,7 +45,7 @@ build_script:
     -DCMAKE_BUILD_TYPE=%configurtion% ^
     C:/projects/openvsp/Libraries
 
-    msbuild /p:Configuration=%configuration% VSP_LIBRARIES.sln
+    msbuild /m:2 /verbosity:quiet /p:Configuration=%configuration% VSP_LIBRARIES.sln
 
     cd C:/projects/openvsp/build/vsp
 
@@ -57,7 +57,7 @@ build_script:
     -DCMAKE_INSTALL_PREFIX=C:/projects/openvsp/install ^
     C:/projects/openvsp/src
 
-    msbuild /p:Configuration=%configuration% INSTALL.vcxproj
+    msbuild /m:2 /verbosity:quiet /p:Configuration=%configuration% INSTALL.vcxproj
 
     cd C:/projects/openvsp
 

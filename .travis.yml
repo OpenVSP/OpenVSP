@@ -35,15 +35,15 @@ script:
   - if [[ "$TRAVIS_OS_NAME" == "osx" ]]; then
      cd build;
      cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" -DVSP_INSTALL_API_TEST=true ../SuperProject;
-     make;
+     make -j2;
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
      cd $TRAVIS_BUILD_DIR/buildlibs;
      cmake -DCMAKE_BUILD_TYPE=Release -DVSP_USE_SYSTEM_LIBXML2=true -DVSP_USE_SYSTEM_FLTK=true -DVSP_USE_SYSTEM_GLM=true -DVSP_USE_SYSTEM_GLEW=true -DVSP_USE_SYSTEM_CMINPACK=true -DVSP_USE_SYSTEM_CPPTEST=false ../Libraries;
-     make;
+     make -j2;
      cd $TRAVIS_BUILD_DIR/build;
      cmake -DCMAKE_BUILD_TYPE=Release -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$TRAVIS_BUILD_DIR/buildlibs ../src;
-     make package;
+     make -j2 package;
      DEBFILE=$TRAVIS_BUILD_DIR/build/OpenVSP-*-Linux.deb;
      ls $DEBFILE && (echo "DEB CREATION SUCCESSFUL" && exit 0) || (echo "DEB CREATION FAILED" && exit 1);
     fi
