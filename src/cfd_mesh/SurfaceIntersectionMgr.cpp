@@ -139,7 +139,7 @@ void SurfaceIntersectionSingleton::CleanUp()
 
     //==== Delete Seg Chains ====//
     list< ISegChain* >::iterator cl;
-    for ( cl = m_ISegChainList.begin() ; cl != m_ISegChainList.end(); cl++ )
+    for ( cl = m_ISegChainList.begin() ; cl != m_ISegChainList.end(); ++cl )
     {
         delete ( *cl );
     }
@@ -455,7 +455,7 @@ void SurfaceIntersectionSingleton::BuildGrid()
     fprintf( m_DebugFile, "CfdMeshMgr::BuildGrid \n" );
     fprintf( m_DebugFile, "  Num unmatched SCurves = %d \n", num_unmatched );
 
-    for ( int i = 0 ; i < ( int )m_ICurveVec.size() ; i++ )
+    for ( i = 0 ; i < ( int )m_ICurveVec.size() ; i++ )
     {
         m_ICurveVec[i]->DebugEdgeMatching( m_DebugFile );
     }
@@ -504,7 +504,7 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
 
         map< int, vector< int > > :: iterator iter;
 
-        for ( iter = compMap.begin() ; iter != compMap.end() ; iter++ )
+        for ( iter = compMap.begin() ; iter != compMap.end() ; ++iter )
         {
             int compId = iter->first;
             vector< int > idVec = iter->second;
@@ -538,7 +538,7 @@ void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
         vector< ISegChain* > border_curves;
         vector< ISegChain* > intersect_curves;
         list< ISegChain* >::iterator c;
-        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
         {
             if ( ( *c )->m_BorderFlag )
             {
@@ -687,7 +687,7 @@ void SurfaceIntersectionSingleton::WriteGridToolCurvFile( const string &filename
         }
 
         int indx = 0;
-        for ( int indx = 0; indx < ncurve; indx++ )
+        for ( indx = 0; indx < ncurve; indx++ )
         {
             // Assume A and B curves are coincident -- just print A curve.
             vector<vec3d> ptvec;
@@ -701,7 +701,7 @@ void SurfaceIntersectionSingleton::WriteGridToolCurvFile( const string &filename
                 ptvec = m_BinAdaptCurveAVec[ indx ];
             }
 
-            fprintf( fp, "%d\n", ptvec.size() );
+            fprintf( fp, "%zu\n", ptvec.size() );
 
             for ( int i = 0; i < ptvec.size(); i++ )
             {
@@ -773,7 +773,7 @@ void SurfaceIntersectionSingleton::WritePlot3DFile( const string &filename, bool
 void SurfaceIntersectionSingleton::BuildCurves()
 {
     list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         ( *c )->BuildCurves();
     }
@@ -960,7 +960,6 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     double dA1 = dist( ip1, puwA0->m_Surf->CompPnt( puwA1->m_UW.x(), puwA1->m_UW.y() ) );
     double dB1 = dist( ip1, puwB0->m_Surf->CompPnt( puwB1->m_UW.x(), puwB1->m_UW.y() ) );
 
-    double tol = 1.0e-8;
     double total_d = dA0 + dB0 + dA1 + dB1;
 
     if ( total_d > max_dist )
@@ -1014,10 +1013,9 @@ void SurfaceIntersectionSingleton::BuildChains()
 {
     //==== Load Adjoining Bins =====//
     map< long, IPntBin >::const_iterator iter;
-    for ( iter = m_BinMap.begin() ; iter != m_BinMap.end() ; iter++ )
+    for ( iter = m_BinMap.begin() ; iter != m_BinMap.end() ; ++iter )
     {
         int id = ( *iter ).second.m_ID;
-        map< int, IPntBin >::const_iterator adj;
         for ( int i = -3 ; i < 4 ; i++ )        // Check All Nearby Bins
         {
             if ( i != 0 &&  m_BinMap.find( id + i ) != m_BinMap.end()  )
@@ -1028,7 +1026,7 @@ void SurfaceIntersectionSingleton::BuildChains()
     }
 
     //==== Create Chains ====//
-    for ( iter = m_BinMap.begin() ; iter != m_BinMap.end() ; iter++ )
+    for ( iter = m_BinMap.begin() ; iter != m_BinMap.end() ; ++iter )
     {
         int id = ( *iter ).second.m_ID;
         for ( int i = 0 ; i < ( int )m_BinMap[id].m_IPnts.size() ; i++ )
@@ -1060,7 +1058,7 @@ void SurfaceIntersectionSingleton::BuildChains()
 
     int num_bins = 0;
     int total_num_segs = 0;
-    for ( iter = m_BinMap.begin() ; iter != m_BinMap.end() ; iter++ )
+    for ( iter = m_BinMap.begin() ; iter != m_BinMap.end() ; ++iter )
     {
         num_bins++;
         int id = ( *iter ).second.m_ID;
@@ -1073,7 +1071,7 @@ void SurfaceIntersectionSingleton::BuildChains()
     fprintf( m_DebugFile, "   Num Bins = %d \n", num_bins );
     fprintf( m_DebugFile, "   Avg Num Segs per Bin = %f\n", avg_num_segs );
 
-    fprintf( m_DebugFile, "   Num Chains %d \n", m_ISegChainList.size() );
+    fprintf( m_DebugFile, "   Num Chains %zu \n", m_ISegChainList.size() );
 #endif
 
 }
@@ -1140,7 +1138,7 @@ void SurfaceIntersectionSingleton::WriteChains()
         sprintf( str, "Intersection_UW%d.dat", i );
         fp = fopen( str, "w" );
         int c_ind = 0;
-        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+        for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
         {
             if ( ( *c )->m_SurfA == m_SurfVec[i] || ( *c )->m_SurfB == m_SurfVec[i] )
             {
@@ -1313,10 +1311,10 @@ void SurfaceIntersectionSingleton::LoadBorderCurves()
 
 #ifdef DEBUG_CFD_MESH
     fprintf( m_DebugFile, "CfdMeshMgr::LoadBorderCurves \n" );
-    fprintf( m_DebugFile, "   Total Num Chains = %d \n", m_ISegChainList.size() );
+    fprintf( m_DebugFile, "   Total Num Chains = %zu \n", m_ISegChainList.size() );
 
     list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         fprintf( m_DebugFile, "   Chain Num Segs = %d Border %d \n",
                  ( *c )->m_ISegDeque.size(), ( int )( ( *c )->m_BorderFlag ) );
@@ -1494,7 +1492,7 @@ void SurfaceIntersectionSingleton::SplitBorderCurves()
 {
     vector< IPnt* > splitPnts;
     list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if  ( !( *c )->m_BorderFlag ) // Non Border Chains
         {
@@ -1503,7 +1501,7 @@ void SurfaceIntersectionSingleton::SplitBorderCurves()
         }
     }
 
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if ( ( *c )->m_BorderFlag )
         {
@@ -1525,7 +1523,7 @@ void SurfaceIntersectionSingleton::SplitBorderCurves()
 
     //==== Load Only Border Chains ====//
     vector< ISegChain* > chains;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if ( ( *c )->m_BorderFlag )
         {
@@ -1551,7 +1549,7 @@ void SurfaceIntersectionSingleton::SplitBorderCurves()
 
     //==== Load Only Border Chains ====//
     chains.clear();
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if ( ( *c )->m_BorderFlag )
         {
@@ -1581,7 +1579,7 @@ void SurfaceIntersectionSingleton::SplitBorderCurves()
 
 #ifdef DEBUG_CFD_MESH
     m_DebugDraw = true;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         vector< vec3d > crv;
         for ( int i = 0 ; i < ( int )( *c )->m_ISegDeque.size() ; i++ )
@@ -1591,7 +1589,7 @@ void SurfaceIntersectionSingleton::SplitBorderCurves()
 
             if ( i == ( int )( *c )->m_ISegDeque.size() - 1 )
             {
-                IPnt* ip = ( *c )->m_ISegDeque[i]->m_IPnt[1];
+                ip = ( *c )->m_ISegDeque[i]->m_IPnt[1];
                 crv.push_back( ip->m_Pnt );
             }
         }
@@ -1611,7 +1609,7 @@ void SurfaceIntersectionSingleton::IntersectSplitChains()
     //==== Intersect Intersection Curves (Not Border Curves) ====//
     list< ISegChain* >::iterator c;
     vector< ISegChain* > chains;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if ( !( *c )->m_BorderFlag )
         {
@@ -1673,7 +1671,7 @@ void SurfaceIntersectionSingleton::MergeInteriorChainIPnts()
 {
     //==== Merge Interior IPnts in Chains ====//
     list< ISegChain* >::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         ( *c )->MergeInteriorIPnts();
     }
@@ -1706,7 +1704,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
 
             int cnt = 0;
             list< ISegChain* >::iterator c;
-            for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+            for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
             {
                 if ( m_SurfVec[i] == ( *c )->m_SurfA || m_SurfVec[i] == ( *c )->m_SurfB )
                 {
@@ -1825,7 +1823,7 @@ void SurfaceIntersectionSingleton::DebugWriteChains( const char* name, bool tess
 
             int cnt = 0;
             list< ISegChain* >::iterator c;
-            for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+            for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
             {
                 if ( m_SurfVec[i] == ( *c )->m_SurfA || m_SurfVec[i] == ( *c )->m_SurfB )
                 {
@@ -1984,7 +1982,7 @@ void SurfaceIntersectionSingleton::BinaryAdaptIntCurves()
     m_BorderCurveFlagVec.clear();
 
     list<ISegChain *>::iterator c;
-    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
         m_BorderCurveFlagVec.push_back( (*c)->m_BorderFlag );
 
@@ -2176,7 +2174,7 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
     }
 
     list<ISegChain *>::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         if ( !(*c)->m_BorderFlag )
         {

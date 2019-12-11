@@ -99,7 +99,10 @@ class ConformalSpine
 {
 public:
 
-    ConformalSpine()                    {};
+    ConformalSpine()
+    {
+        m_MaxDist = 0;
+    }
     virtual ~ConformalSpine()            {};
 
     void Build( VspSurf & surf );

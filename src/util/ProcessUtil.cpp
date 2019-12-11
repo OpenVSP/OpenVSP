@@ -35,6 +35,9 @@ void SleepForMilliseconds( unsigned int sleep_time)
 ProcessUtil::ProcessUtil()
 {
 #ifdef WIN32
+    m_ThreadID = 0;
+    m_Handle = NULL;
+
     ZeroMemory( &si, sizeof(si) );
     si.cb = sizeof(si);
     ZeroMemory( &pi, sizeof(pi) );

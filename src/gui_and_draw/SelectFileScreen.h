@@ -40,7 +40,7 @@ public:
 
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
-        ( ( SelectFileScreen* )data )->screenCB( w );
+        ( static_cast <SelectFileScreen*> ( data ) )->screenCB( w );
     }
 
 

@@ -151,7 +151,7 @@ void PtCloudGeom::Scale()
 
 void PtCloudGeom::UpdateBBox()
 {
-    int i, j;
+    int i;
     m_BBox.Reset();
     Matrix4d transMat = GetTotalTransMat();
 

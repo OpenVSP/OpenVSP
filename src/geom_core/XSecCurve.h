@@ -503,6 +503,7 @@ public:
     IntParm m_ConvType;
     Parm m_SplitU;
     BoolParm m_AbsoluteFlag;
+    BoolParm m_PreserveARFlag;
 
     vector < Parm* > m_UParmVec; // vector of U (0-1) values for each control point (in reallity 0-4 for XSec curves; T)
     vector < Parm* > m_XParmVec; // vector of control point x coordinates
@@ -533,6 +534,10 @@ protected:
     int m_SelectPntID; // Index of the currently selected control point
 
     bool m_EnforceG1Next; // Flag to indicate if G1 should be enforced with the next or previous point
+
+    // Aspect ratio of m_Width to m_Height or vise versa
+    double m_aspectRatioW;
+    double m_aspectRatioH;
 
 };
 

@@ -38,7 +38,7 @@ public:
         m_Index = -1;
         m_FixedPointFlag = false;
     };
-    FeaNode( vec3d & p )
+    FeaNode( const vec3d & p )
     {
         m_Pnt = p;
         m_Index = -1;

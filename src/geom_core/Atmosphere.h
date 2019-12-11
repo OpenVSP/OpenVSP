@@ -15,7 +15,7 @@ public:
     // US Standard Atmosphere 1976 Methods
     void USStandardAtmosphere1976( double alt, double delta_temp, int altunit,
                                    int tempunit, int presunit, double gamma = 1.4 );
-    static void CalcIsothermalLayerUS1976( double & temp, double & pres, double alt, double previous_alt_step,
+    static void CalcIsothermalLayerUS1976( const double & temp, double & pres, double alt, double previous_alt_step,
                                     double G0, double M0, double R0 );
     static void CalcGradientLayerUS1976( double & temp, double & pres, double alt, double previous_alt_step,
                                   double temp_grad, double G0, double M0, double R0 );
@@ -31,7 +31,7 @@ public:
     // CIRA
     // NRL MSISE00
 
-    void SetManualQualities( double & vinf, double & temp, double & pres, double & rho,
+    void SetManualQualities( const double & vinf, double & temp, double & pres, double & rho,
                              double & dynavisc, double gamma, double alt,  int altunit, 
                              int vinfunit, int tempunit, int pressunit, int flowstream );
     void SetMach( double mach ) { m_Mach = mach; }

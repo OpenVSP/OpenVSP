@@ -45,7 +45,7 @@ void AnalysisMgrSingleton::Wype()
 {
     map < string, Analysis* >::const_iterator it;
 
-    for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); it++ )
+    for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); ++it )
     {
         delete it->second;
     }
@@ -70,7 +70,7 @@ vector < string > AnalysisMgrSingleton::ListAnalysis() const
 
     map < string, Analysis* >::const_iterator it;
 
-    for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); it++ )
+    for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); ++it )
     {
         ret.push_back( it->first );
     }
@@ -188,7 +188,7 @@ int AnalysisMgrSingleton::GetAnalysisInputType( const string & analysis, const s
     return inpt_ptr->GetType();
 }
 
-void AnalysisMgrSingleton::PrintAnalysisInputs( const string &fname, const string analysis_name )
+void AnalysisMgrSingleton::PrintAnalysisInputs( const string &fname, const string& analysis_name )
 {
     FILE *fp;
     fp = fopen( fname.c_str(), "w" );
@@ -199,12 +199,12 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( const string &fname, const strin
     }
 }
 
-void AnalysisMgrSingleton::PrintAnalysisInputs( const string analysis_name )
+void AnalysisMgrSingleton::PrintAnalysisInputs( const string& analysis_name )
 {
     PrintAnalysisInputs( stdout, analysis_name );
 }
 
-void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const string analysis_name )
+void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const string& analysis_name )
 {
     fprintf( outputStream, "\t\t%-20s%s\t%s\t%s\n", "[input_name] ", "[type]", "[#]", "[current values-->]" );
 
@@ -219,7 +219,7 @@ void AnalysisMgrSingleton::PrintAnalysisInputs( FILE * outputStream, const strin
         // print out type and number of data entries
         int current_input_type = GetAnalysisInputType( analysis_name, input_names[i_input_name] );
         unsigned int current_input_num_data = ( unsigned int ) GetNumInputData( analysis_name, input_names[i_input_name] );
-        fprintf( outputStream, "\t\t%-20s%d\t\t%d", input_names[i_input_name].c_str(), current_input_type, current_input_num_data );
+        fprintf( outputStream, "\t\t%-20s%u\t\t%d", input_names[i_input_name].c_str(), current_input_type, current_input_num_data );
 
         // print out the current value (this needs to handle different types and vector lengths
         fprintf( outputStream, "\t" );

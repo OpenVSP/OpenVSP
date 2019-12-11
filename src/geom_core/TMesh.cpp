@@ -156,7 +156,7 @@ TMesh* TEdge::GetParTMesh()
 //=======================================================================//
 //=======================================================================//
 //=======================================================================//
-TetraMassProp::TetraMassProp( string id, double denIn, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 )
+TetraMassProp::TetraMassProp( const string& id, double denIn, const vec3d& p0, const vec3d& p1, const vec3d& p2, const vec3d& p3 )
 {
     m_CompId = id;
     m_Density = denIn;
@@ -197,7 +197,7 @@ TetraMassProp::TetraMassProp( string id, double denIn, vec3d& p0, vec3d& p1, vec
 }
 
 
-void TetraMassProp::SetPointMass( double massIn, vec3d& pos )
+void TetraMassProp::SetPointMass( double massIn, const vec3d& pos )
 {
     m_CompId = "NONE";
     m_Density = 0.0;
@@ -225,7 +225,7 @@ void TetraMassProp::SetPointMass( double massIn, vec3d& pos )
 //=======================================================================//
 //=======================================================================//
 //=======================================================================//
-TriShellMassProp::TriShellMassProp( string id, double mass_area_in, vec3d& p0, vec3d& p1, vec3d& p2 )
+TriShellMassProp::TriShellMassProp( const string& id, double mass_area_in, const vec3d& p0, const vec3d& p1, const vec3d& p2 )
 {
     m_CompId = id;
 
@@ -270,7 +270,7 @@ TriShellMassProp::TriShellMassProp( string id, double mass_area_in, vec3d& p0, v
 //================================================ DegenGeom ================================================//
 //===========================================================================================================//
 
-DegenGeomTetraMassProp::DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 )
+DegenGeomTetraMassProp::DegenGeomTetraMassProp( const string& id, const vec3d& p0, const vec3d& p1, const vec3d& p2, const vec3d& p3 )
 {
     m_CompId = id;
 
@@ -309,7 +309,7 @@ DegenGeomTetraMassProp::DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1,
 }
 
 
-DegenGeomTriShellMassProp::DegenGeomTriShellMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2 )
+DegenGeomTriShellMassProp::DegenGeomTriShellMassProp( const string& id, const vec3d& p0, const vec3d& p1, const vec3d& p2 )
 {
     m_CompId = id;
 
@@ -363,12 +363,18 @@ DegenGeomTriShellMassProp::DegenGeomTriShellMassProp( string id, vec3d& p0, vec3
 //===============================================//
 TMesh::TMesh()
 {
+    m_MaterialID = 0;
+    m_MassPrior = 0;
+    m_Density = 0;
+    m_ShellMassArea = 0;
+    m_ShellFlag = false;
     m_DeleteMeFlag = false;
     m_TheoArea = m_WetArea = 0.0;
     m_TheoVol    = m_WetVol = 0.0;
     m_HalfBoxFlag = false;
     m_SurfNum = 0;
     m_AreaCenter = vec3d(0,0,0);
+    m_GuessVol = 0;
 }
 
 TMesh::~TMesh()
@@ -3049,7 +3055,7 @@ void TMesh::BuildEdgeMaps()
     // Loop through triangles sharing nodes to find alias edges
     map< TNode*, list<TNode*> >::iterator mit; // map iterator
 
-    for ( mit = m_NAMap.begin(); mit != m_NAMap.end() ; mit++ ) // Loop over all master nodes
+    for ( mit = m_NAMap.begin(); mit != m_NAMap.end() ; ++mit ) // Loop over all master nodes
     {
         TNode* n = mit->first;
         for ( int t = 0 ; t < ( int )n->m_TriVec.size() ; t++ ) // Loop over triangles sharing the master node
@@ -3213,12 +3219,12 @@ void TMesh::DeleteDupNodes()
 
     //==== Nuke Redundant Nodes And Update NVec ====//
     m_NVec.clear();
-    for ( mit = m_NAMap.begin() ; mit != m_NAMap.end() ; mit++ )
+    for ( mit = m_NAMap.begin() ; mit != m_NAMap.end() ; ++mit )
     {
         TNode* nk = mit->first;
         list< TNode* >& dnodes =  mit->second;
 
-        for ( lit = ++dnodes.begin() ; lit != dnodes.end() ; lit++ ) // Start at second element since first is the master node itself
+        for ( lit = ++dnodes.begin() ; lit != dnodes.end() ; ++lit ) // Start at second element since first is the master node itself
         {
             delete *lit;
         }
@@ -3773,7 +3779,7 @@ void TMesh::SplitAliasEdges( TTri* orig_tri, TEdge* isect_edge )
                         // Get vector of tris
                         vector<TTri *> a_tris;
                         vector<TEdge *>::iterator vit; //vector iterator
-                        for (vit = a_edges.begin(); vit != a_edges.end(); vit++)
+                        for (vit = a_edges.begin(); vit != a_edges.end(); ++vit)
                         {
                             TEdge *e = *vit;
                             a_tris.push_back(e->GetParTri());

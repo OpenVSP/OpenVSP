@@ -283,7 +283,6 @@ void Parm::DecodeXml( xmlNodePtr & node, bool detailed )
     xmlNodePtr n;
 
     double val = m_Val;
-    string id = m_ID;
 
     if ( detailed )
     {

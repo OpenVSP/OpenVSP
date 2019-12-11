@@ -33,6 +33,7 @@ DesignVarMgrSingleton::DesignVarMgrSingleton()
 
 void DesignVarMgrSingleton::Init()
 {
+    m_CurrVarIndex = 0;
     m_WorkingParmID = "";
     m_WorkingXDDMType = vsp::XDDM_VAR;
 }

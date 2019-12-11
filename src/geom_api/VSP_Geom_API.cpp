@@ -1772,6 +1772,34 @@ string GetParm( const string & geom_id, const string & name, const string & grou
     return parm_id;
 }
 
+// Get the parent of a Geom
+string GetGeomParent( const string& geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomParent::Can't Find Geom " + geom_id );
+        return string();
+    }
+
+    return geom_ptr->GetParentID();
+}
+
+// Get all children of a Geom
+vector< string > GetGeomChildren( const string& geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomChildren::Can't Find Geom " + geom_id );
+        return vector < string > {};
+    }
+
+    return geom_ptr->GetChildIDVec();
+}
+
 /// Get the number of xsec surfs used in the construction of this geom
 int GetNumXSecSurfs( const string & geom_id )
 {
@@ -2617,14 +2645,13 @@ void SetDriverGroup( const string & geom_id, int section_index, int driver_0, in
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Can't Find Geom " + geom_id  );
         return;
     }
-
-    WingGeom* wg = dynamic_cast< WingGeom* >(geom_ptr);
-    if ( !wg )
+    else if ( geom_ptr->GetType().m_Type != MS_WING_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Geom Type " + geom_id  );
         return;
     }
 
+    WingGeom* wg = dynamic_cast<WingGeom*>( geom_ptr );
     WingSect* ws = wg->GetWingSect( section_index );
     if ( !ws )
     {
@@ -3170,14 +3197,13 @@ void ChangeBORXSecShape( const string & geom_id, int type )
         ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeBORXSecShape::Can't Find Geom " + geom_id  );
         return;
     }
-
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
-    if ( !bor_ptr )
+    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "ChangeBORXSecShape::Geom " + geom_id + " is not a body of revolution" );
         return;
     }
 
+    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
     bor_ptr->SetXSecCurveType( type );
     ErrorMgr.NoError();
 }
@@ -3192,13 +3218,13 @@ int GetBORXSecShape( const string & geom_id )
         ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORXSecShape::Can't Find Geom " + geom_id  );
         return XS_UNDEFINED;
     }
-
-    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
-    if ( !bor_ptr )
+    else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_TYPE, "GetBORXSecShape::Geom " + geom_id + " is not a body of revolution" );
         return XS_UNDEFINED;
     }
+
+    BORGeom* bor_ptr = dynamic_cast< BORGeom* > ( geom_ptr );
 
     ErrorMgr.NoError();
     return bor_ptr->GetXSecCurveType();
@@ -5300,14 +5326,13 @@ void SetPCurve( const string & geom_id, const int & pcurveid, const vector < dou
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetPCurve::Can't Find Geom " + geom_id );
         return;
     }
-
-    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    if ( !prop_ptr )
+    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetPCurve::Geom doesn't support PCurves " + geom_id );
         return;
     }
 
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
     PCurve *pc = NULL;
 
     if ( prop_ptr )
@@ -5335,14 +5360,13 @@ void PCurveConvertTo( const string & geom_id, const int & pcurveid, const int & 
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveConvertTo::Can't Find Geom " + geom_id );
         return;
     }
-
-    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    if ( !prop_ptr )
+    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveConvertTo::Geom doesn't support PCurves " + geom_id );
         return;
     }
 
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
     PCurve *pc = NULL;
 
     if ( prop_ptr )
@@ -5370,14 +5394,13 @@ int PCurveGetType( const std::string & geom_id, const int & pcurveid )
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetType::Can't Find Geom " + geom_id );
         return -1;
     }
-
-    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    if ( !prop_ptr )
+    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetType::Geom doesn't support PCurves " + geom_id );
         return -1;
     }
 
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
     PCurve *pc = NULL;
 
     if ( prop_ptr )
@@ -5407,14 +5430,13 @@ vector < double > PCurveGetTVec( const string & geom_id, const int & pcurveid )
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetTVec::Can't Find Geom " + geom_id );
         return retvec;
     }
-
-    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    if ( !prop_ptr )
+    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetTVec::Geom doesn't support PCurves " + geom_id );
         return retvec;
     }
 
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
     PCurve *pc = NULL;
 
     if ( prop_ptr )
@@ -5446,14 +5468,13 @@ vector < double > PCurveGetValVec( const string & geom_id, const int & pcurveid 
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetValVec::Can't Find Geom " + geom_id );
         return retvec;
     }
-
-    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    if ( !prop_ptr )
+    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveGetValVec::Geom doesn't support PCurves " + geom_id );
         return retvec;
     }
 
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
     PCurve *pc = NULL;
 
     if ( prop_ptr )
@@ -5483,14 +5504,13 @@ void PCurveDeletePt( const string & geom_id, const int & pcurveid, const int & i
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveDeletePt::Can't Find Geom " + geom_id );
         return;
     }
-
-    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    if ( !prop_ptr )
+    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveDeletePt::Geom doesn't support PCurves " + geom_id );
         return;
     }
 
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
     PCurve *pc = NULL;
 
     if ( prop_ptr )
@@ -5518,14 +5538,13 @@ int PCurveSplit( const string & geom_id, const int & pcurveid, const double & ts
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveSplit::Can't Find Geom " + geom_id );
         return -1;
     }
-
-    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
-    if ( !prop_ptr )
+    else if ( geom_ptr->GetType().m_Type != PROP_GEOM_TYPE )
     {
         ErrorMgr.AddError( VSP_INVALID_PTR, "PCurveSplit::Geom doesn't support PCurves " + geom_id );
         return -1;
     }
 
+    PropGeom* prop_ptr = dynamic_cast < PropGeom* > (geom_ptr );
     PCurve *pc = NULL;
 
     if ( prop_ptr )

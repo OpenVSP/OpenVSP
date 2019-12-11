@@ -18,7 +18,31 @@
 
 SimpleMeshCommonSettings::SimpleMeshCommonSettings()
 {
+    m_SymSplittingOnFlag = false;
 
+    m_DrawMeshFlag = false;
+    m_ColorTagsFlag = false;
+
+    m_DrawBorderFlag = false;
+    m_DrawIsectFlag = false;
+    m_DrawRawFlag = false;
+    m_DrawBinAdaptFlag = false;
+    m_DrawCurveFlag = false;
+    m_DrawPntsFlag = false;
+
+    m_RelCurveTol = 1e-6;
+    m_ExportRawFlag = false;
+    m_ExportRelCurveTol = 1e-6;
+
+    m_IntersectSubSurfs = true;
+
+    m_FarMeshFlag = false;
+    m_FarCompFlag = false;
+    m_HalfMeshFlag = false;
+
+    m_SelectedSetIndex = 0;
+
+    m_XYZIntCurveFlag = false;
 }
 
 SimpleMeshCommonSettings::~SimpleMeshCommonSettings()
@@ -31,7 +55,6 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
     m_SymSplittingOnFlag = settings->m_SymSplittingOnFlag.Get();
 
     m_DrawMeshFlag = settings->m_DrawMeshFlag.Get();
-    m_DrawBadFlag = settings->m_DrawBadFlag.Get();
     m_ColorTagsFlag = settings->m_ColorTagsFlag.Get();
 
     m_DrawBorderFlag = settings->m_DrawBorderFlag.Get();
@@ -109,7 +132,32 @@ bool SimpleIntersectSettings::GetExportFileFlag( int type )
 
 SimpleCfdMeshSettings::SimpleCfdMeshSettings()
 {
+    m_FarManLocFlag = false;
+    m_FarAbsSizeFlag = false;
 
+    m_FarGeomID = "";
+
+    m_FarXScale = 1;
+    m_FarYScale = 1;
+    m_FarZScale = 1;
+
+    m_FarLength = 1;
+    m_FarWidth = 1;
+    m_FarHeight = 1;
+
+    m_FarXLocation = 0;
+    m_FarYLocation = 0;
+    m_FarZLocation = 0;
+
+    m_WakeScale = 1;
+    m_WakeAngle = 0;
+
+    m_DrawSourceFlag = false;
+    m_DrawFarFlag = false;
+    m_DrawFarPreFlag = false;
+    m_DrawSymmFlag = false;
+    m_DrawWakeFlag = false;
+    m_DrawBadFlag = false;
 }
 
 SimpleCfdMeshSettings::~SimpleCfdMeshSettings()
@@ -144,6 +192,7 @@ void SimpleCfdMeshSettings::CopyFrom( CfdMeshSettings* settings )
     m_DrawFarPreFlag = settings->m_DrawFarPreFlag.Get();
     m_DrawSymmFlag = settings->m_DrawSymmFlag.Get();
     m_DrawWakeFlag = settings->m_DrawWakeFlag.Get();
+    m_DrawBadFlag = settings->m_DrawBadFlag.Get();
 
     m_SelectedSetIndex = settings->m_SelectedSetIndex.Get();
 
@@ -185,7 +234,10 @@ bool SimpleCfdMeshSettings::GetExportFileFlag( int type )
 
 SimpleFeaMeshSettings::SimpleFeaMeshSettings()
 {
-
+    m_NumEvenlySpacedPart = 0;
+    m_DrawNodesFlag = false;
+    m_DrawElementOrientVecFlag = false;
+    m_XYZIntCurveFlag = false;
 }
 
 SimpleFeaMeshSettings::~SimpleFeaMeshSettings()
@@ -237,7 +289,15 @@ bool SimpleFeaMeshSettings::GetExportFileFlag( int type )
 
 SimpleGridDensity::SimpleGridDensity()
 {
-
+    m_RigorLimit = false;
+    m_BaseLen = 1;
+    m_FarMaxLen = 1;
+    m_MinLen = 0;
+    m_NCircSeg = 1;
+    m_FarNCircSeg = 1;
+    m_MaxGap = 1;
+    m_FarMaxGap = 1;
+    m_GrowRatio = 1;
 }
 
 SimpleGridDensity::~SimpleGridDensity()

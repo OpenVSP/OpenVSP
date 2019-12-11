@@ -16,7 +16,7 @@
 
 #include "eli/geom/intersect/specified_distance_curve.hpp"
 
-SubSurface::SubSurface( string compID, int type )
+SubSurface::SubSurface( const string& compID, int type )
 {
     m_Type = type;
     m_CompID = compID;
@@ -656,7 +656,7 @@ void SSLineSeg::AddToTMesh( TMesh* tmesh )
 //=================== SSLine =====================//
 //////////////////////////////////////////////////////
 
-SSLine::SSLine( string comp_id, int type ) : SubSurface( comp_id, type )
+SSLine::SSLine( const string& comp_id, int type ) : SubSurface( comp_id, type )
 {
     m_ConstType.Init( "Const_Line_Type", "SubSurface", this, vsp::CONST_U, 0, 1 );
     m_ConstVal.Init( "Const_Line_Value", "SubSurface", this, 0.5, 0, 1 );
@@ -732,7 +732,7 @@ bool SSLine::Subtag( const vec3d & center )
 //////////////////////////////////////////////////////
 
 //===== Constructor =====//
-SSRectangle::SSRectangle( string comp_id, int type ) : SubSurface( comp_id, type )
+SSRectangle::SSRectangle( const string& comp_id, int type ) : SubSurface( comp_id, type )
 {
     m_CenterU.Init( "Center_U", "SS_Rectangle", this, 0.5, 0, 1 );
     m_CenterU.SetDescript( "Defines the U location of the rectangle center" );
@@ -810,7 +810,7 @@ void SSRectangle::Update()
 //////////////////////////////////////////////////////
 
 //====== Constructor =====//
-SSEllipse::SSEllipse( string comp_id, int type ) : SubSurface( comp_id, type )
+SSEllipse::SSEllipse( const string& comp_id, int type ) : SubSurface( comp_id, type )
 {
     m_CenterU.Init( "Center_U", "SS_Ellipse", this, 0.5, 0, 1 );
     m_CenterU.SetDescript( "Defines the U location of the ellipse center" );
@@ -886,7 +886,7 @@ void SSEllipse::Update()
 //=================== SSControlSurface =====================//
 //////////////////////////////////////////////////////
 
-SSControlSurf::SSControlSurf( string compID, int type ) : SubSurface( compID, type )
+SSControlSurf::SSControlSurf( const string& compID, int type ) : SubSurface( compID, type )
 {
     m_Tess.Init( "Tess_Num", "SS_Control", this, 15, 1, 1000 );
     m_Tess.SetDescript( " Number of points to discretize edges" );
@@ -2043,7 +2043,7 @@ void SSControlSurf::PrepareSplitVec()
 //================== SSLineArray ===================//
 //////////////////////////////////////////////////////
 
-SSLineArray::SSLineArray( string comp_id, int type ) : SubSurface( comp_id, type )
+SSLineArray::SSLineArray( const string& comp_id, int type ) : SubSurface( comp_id, type )
 {
     m_ConstType.Init( "ConstLineType", "SS_LineArray", this, CONST_U, CONST_U, CONST_W );
     m_ConstType.SetDescript( "Either Constant U or Constant W SSLines" );

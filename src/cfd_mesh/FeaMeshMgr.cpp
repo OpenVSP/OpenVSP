@@ -267,7 +267,7 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     addOutputText( "Load Surfaces\n" );
     LoadSurfaces();
 
-    if ( m_SurfVec.size() <= 0 )
+    if ( m_SurfVec.size() == 0 )
     {
         addOutputText( "No Surfaces.  Done.\n" );
         m_FeaMeshInProgress = false;
@@ -525,7 +525,7 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
                             string output = "WARNING: Coplanar Surfaces Merged: " + fea_part_vec[all_feaprt_ind_vec[i]]->GetName() +
                                 ", " + fea_part_vec[all_feaprt_ind_vec[j]]->GetName() + "\n";
 
-                            addOutputText( output.c_str() );
+                            addOutputText( output );
                         }
                     }
                 }
@@ -630,14 +630,14 @@ void FeaMeshMgrSingleton::CheckDuplicateSSIntersects()
     list< ISegChain* >::iterator c2;
     int c1_index = -1;
 
-    for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); c1++ )
+    for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); ++c1 )
     {
         c1_index++;
         int c2_index = -1;
 
         if ( !( *c1 )->m_BorderFlag && ( *c1 )->m_SSIntersectIndex >= 0 )
         {
-            for ( c2 = m_ISegChainList.begin(); c2 != m_ISegChainList.end(); c2++ )
+            for ( c2 = m_ISegChainList.begin(); c2 != m_ISegChainList.end(); ++c2 )
             {
                 c2_index++;
 
@@ -690,7 +690,7 @@ void FeaMeshMgrSingleton::BuildFeaMesh()
     // Build FeaBeam Intersections
     list< ISegChain* >::iterator c;
 
-    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
         if ( !( *c )->m_BorderFlag ) // Only include intersection curves
         {
@@ -993,8 +993,8 @@ void FeaMeshMgrSingleton::ComputeWriteMass()
     {
         fprintf( fp, "...FEA Mesh...\n" );
         fprintf( fp, "Mass_Unit: %s\n", m_MassUnit.c_str() );
-        fprintf( fp, "Num_Tris: %d\n", m_NumTris );
-        fprintf( fp, "Num_Beams: %d\n", m_NumBeams );
+        fprintf( fp, "Num_Tris: %u\n", m_NumTris );
+        fprintf( fp, "Num_Beams: %u\n", m_NumBeams );
         fprintf( fp, "\n" );
 
         if ( m_NumFeaParts > 0 )
@@ -1159,7 +1159,7 @@ void FeaMeshMgrSingleton::SetFixPointBorderNodes()
             {
                 bool split = false;
                 list< ISegChain* >::iterator c;
-                for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+                for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
                 {
                     if ( ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndMap[n][j][1]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndMap[n][j][0]] ) ||
                         ( ( *c )->m_SurfA == m_SurfVec[m_FixPntSurfIndMap[n][j][0]] && ( *c )->m_SurfB == m_SurfVec[m_FixPntSurfIndMap[n][j][1]] ) )
@@ -1252,7 +1252,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
         {
             bool split = false;
             list< ISegChain* >::iterator c;
-            for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+            for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
             {
                 Puw* p0 = NULL;
                 Puw* p1 = NULL;
@@ -1336,7 +1336,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                     p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
                                 }
 
-                                IPnt* split_pnt = new IPnt( p0, p1 );
+                                split_pnt = new IPnt( p0, p1 );
 
                                 if ( p0 )
                                 {
@@ -1391,7 +1391,7 @@ void FeaMeshMgrSingleton::CheckFixPointIntersects()
                                 p1 = new Puw( ( *c )->m_SurfB, closest_uwB );
                             }
 
-                            IPnt* split_pnt = new IPnt( p0, p1 );
+                            split_pnt = new IPnt( p0, p1 );
 
                             if ( p0 )
                             {
@@ -1446,7 +1446,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
     vector < vec2d > all_split_uw_vec;
     list< ISegChain* >::iterator c;
 
-    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
         for ( size_t i = 0; i < ( *c )->m_SplitVec.size(); i++ )
         {
@@ -1455,7 +1455,7 @@ void FeaMeshMgrSingleton::CheckSubSurfBorderIntersect()
         }
     }
 
-    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); c++ )
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
         if ( ( *c )->m_BorderFlag && ( *c )->m_SurfA->GetCompID() == ( *c )->m_SurfB->GetCompID() && ( *c )->m_SSIntersectIndex < 0 )
         {
@@ -1844,9 +1844,9 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
 
                     vector < vector< SSLineSeg > >& segsvec = ss_vec[ss].GetSplitSegs();
 
-                    for ( int i = 0; i < segsvec.size(); i++ )
+                    for ( int k = 0; k < segsvec.size(); k++ )
                     {
-                        vector< SSLineSeg >& segs = segsvec[i];
+                        vector< SSLineSeg >& segs = segsvec[k];
                         bool is_poly = ss_vec[ss].GetPolyFlag();
 
                         // Build Intersection Chains
@@ -1898,7 +1898,7 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                             if ( dist_squared( part_pnt0, skin_pnt0 ) <= FLT_EPSILON && dist_squared( part_pnt1, skin_pnt1 ) <= FLT_EPSILON )
                             {
                                 list< ISegChain* >::iterator c1, c2;
-                                for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); c1++ )
+                                for ( c1 = m_ISegChainList.begin(); c1 != m_ISegChainList.end(); ++c1 )
                                 {
                                     if ( ( *c1 )->m_SurfA == ( *c1 )->m_SurfB ) // Indicates SubSurface ISegChain
                                     {
@@ -1910,12 +1910,12 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
                                             {
                                                 string part = m_FeaPartNameVec[surfA->GetFeaPartIndex()];
                                                 string message = "Merged Intersection Curve: " + part + " and " + ss_vec[ss].GetName() + "\n";
-                                                addOutputText( message.c_str() );
+                                                addOutputText( message );
 
                                                 remove_chain_list.push_back( *c1 );
 
                                                 // Split FeaPart ISegChain at SubSurface edge points
-                                                for ( c2 = m_ISegChainList.begin(); c2 != m_ISegChainList.end(); c2++ )
+                                                for ( c2 = m_ISegChainList.begin(); c2 != m_ISegChainList.end(); ++c2 )
                                                 {
                                                     if ( ( *c1 ) != ( *c2 ) && ( ( ( *c2 )->m_SurfA == surfA && ( *c2 )->m_SurfB == surfB ) || ( ( *c2 )->m_SurfB == surfA && ( *c2 )->m_SurfA == surfB ) ) )
                                                     {
@@ -2002,7 +2002,7 @@ void FeaMeshMgrSingleton::MergeFeaPartSSEdgeOverlap()
     list < ISegChain* > old_chain_list = m_ISegChainList;
     m_ISegChainList.clear();
 
-    for ( c = old_chain_list.begin(); c != old_chain_list.end(); c++ )
+    for ( c = old_chain_list.begin(); c != old_chain_list.end(); ++c )
     {
         if ( std::find( remove_chain_list.begin(), remove_chain_list.end(), ( *c ) ) == remove_chain_list.end() )
         {
@@ -2176,8 +2176,8 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
 
         // Comments can be at top of NASTRAN file before case control section
         fprintf( fp, "$NASTRAN Data File Generated from %s\n", VSPVERSION4 );
-        fprintf( fp, "$Num_Tris: %d\n", m_NumTris );
-        fprintf( fp, "$Num_Beams %d\n", m_NumBeams );
+        fprintf( fp, "$Num_Tris: %u\n", m_NumTris );
+        fprintf( fp, "$Num_Beams %u\n", m_NumBeams );
 
         // Write bulk data to temp file
         fprintf( temp, "\nBEGIN BULK\n" );
@@ -2185,6 +2185,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         int set_cnt = 1;
         int max_grid_id = 0;
         vector < int > grid_id_vec;
+        string name;
 
         // FeaPart Nodes
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
@@ -2226,7 +2227,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
 
             // Write FEA part node set
-            string name = m_FeaPartNameVec[i] + "_Gridpoints";
+            name = m_FeaPartNameVec[i] + "_Gridpoints";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
         }
 
@@ -2252,7 +2253,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
 
             // Write subsurface node set
-            string name = m_SimpleSubSurfaceVec[i].GetName() + "_Gridpoints";
+            name = m_SimpleSubSurfaceVec[i].GetName() + "_Gridpoints";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
         }
 
@@ -2276,7 +2277,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
         }
 
         // Write intersection node set
-        string name = "Intersection_Gridpoints";
+        name = "Intersection_Gridpoints";
         WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
 
         //==== Remaining Nodes ====//
@@ -2292,7 +2293,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
 
             // Write remaining node set
-            string name = "Remaining_Gridpoints";
+            name = "Remaining_Gridpoints";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, grid_id_vec, name );
         }
 
@@ -2363,7 +2364,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 }
 
                 // Write mass element set
-                string name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[i][0]] + "_MassElements";
+                name = m_FeaPartNameVec[m_FixPntFeaPartIndexMap[i][0]] + "_MassElements";
                 WriteNASTRANSet( fp, nkey_fp, set_cnt, mass_elem_id_vec, name );
             }
         }
@@ -2400,7 +2401,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
             }
 
             // Write shell element set
-            string name = m_SimpleSubSurfaceVec[i].GetName() + "_ShellElements";
+            name = m_SimpleSubSurfaceVec[i].GetName() + "_ShellElements";
             WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name );
 
             // Write beam element set
@@ -2469,8 +2470,8 @@ void FeaMeshMgrSingleton::WriteCalculix()
     if ( fp )
     {
         fprintf( fp, "**Calculix Data File Generated from %s\n", VSPVERSION4 );
-        fprintf( fp, "**Num_Tris: %d\n", m_NumTris );
-        fprintf( fp, "**Num_Beams %d\n\n", m_NumBeams );
+        fprintf( fp, "**Num_Tris: %u\n", m_NumTris );
+        fprintf( fp, "**Num_Beams %u\n\n", m_NumBeams );
 
         int elem_id = 0;
         char str[256];
@@ -2758,7 +2759,7 @@ void FeaMeshMgrSingleton::WriteGmsh()
 
         //==== Group and Name FeaParts ====//
         fprintf( fp, "$PhysicalNames\n" );
-        fprintf( fp, "%d\n", m_NumFeaParts - m_NumFeaFixPoints );
+        fprintf( fp, "%u\n", m_NumFeaParts - m_NumFeaFixPoints );
         for ( unsigned int i = 0; i < m_NumFeaParts; i++ )
         {
             if ( m_FeaPartTypeVec[i] != vsp::FEA_FIX_POINT )
@@ -2770,7 +2771,7 @@ void FeaMeshMgrSingleton::WriteGmsh()
 
         //==== Write Nodes ====//
         fprintf( fp, "$Nodes\n" );
-        fprintf( fp, "%d\n", node_count );
+        fprintf( fp, "%u\n", node_count );
 
         for ( unsigned int j = 0; j < (int)m_FeaNodeVec.size(); j++ )
         {
@@ -3316,9 +3317,9 @@ void FeaMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
                 }
             }
 
-            sprintf( str, "%s_SSTri_Norm_%d", GetID().c_str(), i );
+            sprintf( str, "%s_SSTri_Norm_%u", GetID().c_str(), i );
             m_SSTriOrientationDO[i].m_GeomID = string( str );
-            sprintf( str, "%s_SSCap_Norm_%d", GetID().c_str(), i );
+            sprintf( str, "%s_SSCap_Norm_%u", GetID().c_str(), i );
             m_SSCapNormDO[i].m_GeomID = string( str );
 
             m_SSTriOrientationDO[i].m_Type = DrawObj::VSP_LINES;
@@ -3402,7 +3403,6 @@ void FeaMeshMgrSingleton::UpdateDisplaySettings()
     if ( GetStructSettingsPtr() && StructureMgr.GetFeaStruct( m_FeaMeshStructIndex ) )
     {
         GetStructSettingsPtr()->m_DrawMeshFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawMeshFlag.Get();
-        GetStructSettingsPtr()->m_DrawBadFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawBadFlag.Get();
         GetStructSettingsPtr()->m_ColorTagsFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_ColorTagsFlag.Get();
 
         GetStructSettingsPtr()->m_DrawNodesFlag = StructureMgr.GetFeaStruct( m_FeaMeshStructIndex )->GetStructSettingsPtr()->m_DrawNodesFlag.Get();

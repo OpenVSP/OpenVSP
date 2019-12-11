@@ -3356,7 +3356,7 @@ void CurveEditor::DeviceCB( Fl_Widget* w )
     m_Screen->GuiDeviceCallBack( this );
 }
 
-void CurveEditor::PlotData( vector< double > x_data, vector < double > y_data, int curve_type )
+void CurveEditor::PlotData( vector< double > x_data, vector < double > y_data, int curve_type, Fl_Color highlight_color )
 {
     assert( x_data.size() == y_data.size() );
 
@@ -3427,7 +3427,7 @@ void CurveEditor::PlotData( vector< double > x_data, vector < double > y_data, i
     int selected_id = m_PntSelector.GetIndex();
     if ( selected_id >= 0 && selected_id < ndata )
     {
-        AddPoint( x_data[selected_id], y_data[selected_id], FL_YELLOW, 4, CA_SQUARE );
+        AddPoint( x_data[selected_id], y_data[selected_id], highlight_color, 4, CA_SQUARE );
     }
 }
 
@@ -4076,7 +4076,21 @@ void XSecCurveEditor::Update()
             ydata[i] = control_pts[i].y();
         }
 
-        PlotData( xdata, ydata, m_XSec->m_CurveType() );
+        Fl_Color color = FL_YELLOW;
+
+        if ( m_XSec->m_SymType.Get() == vsp::SYM_RL )
+        {
+            int selected_id = m_PntSelector.GetIndex();
+            vector < double > u_vec = m_XSec->GetUVec();
+
+            if ( selected_id >= 0 && selected_id < u_vec.size() &&
+                 u_vec[selected_id] > 0.25 && u_vec[selected_id] < 0.75 )
+            {
+                color = FL_LIGHT1;
+            }
+        }
+
+        PlotData( xdata, ydata, m_XSec->m_CurveType(), color );
 
         if ( !m_FreezeAxis )
         {

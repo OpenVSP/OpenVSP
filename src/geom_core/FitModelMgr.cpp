@@ -321,6 +321,9 @@ FitModelMgrSingleton::FitModelMgrSingleton()
 void FitModelMgrSingleton::Init()
 {
     m_WorkingParmID = "";
+    m_CurrVarIndex = int();
+    m_CurrTargetPtIndex = int();
+    m_NumOptVars = int();
 }
 
 void FitModelMgrSingleton::Wype()

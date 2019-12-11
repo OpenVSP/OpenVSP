@@ -34,6 +34,7 @@ Surf::Surf()
     m_BaseTag = 1;
     m_MainSurfID = 0;
     m_FeaPartIndex = -1;
+    m_ScaleUFlag = false;
 }
 
 Surf::~Surf()
@@ -360,7 +361,7 @@ void Surf::LimitTargetMap()
     }
 }
 
-void Surf::LimitTargetMap( MSCloud &es_cloud, MSTree &es_tree, double minmap )
+void Surf::LimitTargetMap( const MSCloud &es_cloud, MSTree &es_tree, double minmap )
 {
     double grm1 = m_GridDensityPtr->m_GrowRatio - 1.0;
 
@@ -710,7 +711,7 @@ void Surf::IntersectLineSegMesh( vec3d & p0, vec3d & p1, vector< double > & t_va
 
     vec3d dir = p1 - p0;
 
-    for ( t = triList.begin() ; t != triList.end(); t++ )
+    for ( t = triList.begin() ; t != triList.end(); ++t )
     {
         int iFlag = intersect_triangle( p0.v, dir.v,
                                         ( *t )->n0->pnt.v, ( *t )->n1->pnt.v, ( *t )->n2->pnt.v, &tparm, &uparm, &vparm );
@@ -899,7 +900,7 @@ void Surf::InitMesh( vector< ISegChain* > chains )
     vector < vec2d > uwPntVec;
 
     set< IPnt* >::iterator ip;
-    for ( ip = ipntSet.begin() ; ip != ipntSet.end() ; ip++ )
+    for ( ip = ipntSet.begin() ; ip != ipntSet.end() ; ++ip )
     {
         vec2d uw = ( *ip )->GetPuw( this )->m_UW;
 
@@ -1317,7 +1318,7 @@ bool Surf::BorderMatch( Surf* otherSurf )
 void Surf::Subtag( bool tag_subs )
 {
     vector< SimpTri >& tri_vec = m_Mesh.GetSimpTriVec();
-    vector< vec2d >& pnts = m_Mesh.GetSimpUWPntVec();
+    const vector< vec2d >& pnts = m_Mesh.GetSimpUWPntVec();
     vector< SubSurface* > s_surfs;
 
     if ( tag_subs ) s_surfs = SubSurfaceMgr.GetSubSurfs( m_GeomID, m_MainSurfID );

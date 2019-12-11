@@ -13,19 +13,21 @@ SCurve::SCurve()
 {
     m_Surf = NULL;
     m_ICurve = NULL;
+    num_segs = 0;
 }
 
 SCurve::SCurve( Surf* s )
 {
     m_Surf = s;
     m_ICurve = NULL;
+    num_segs = 0;
 }
 
 SCurve::~SCurve()
 {
 }
 
-void SCurve::BuildBezierCurve( vector< vec3d > & pnts_to_interpolate, double tanStr )
+void SCurve::BuildBezierCurve( const vector< vec3d > & pnts_to_interpolate, double tanStr )
 {
     m_UWCrv.BuildCurve( pnts_to_interpolate, tanStr );
 }
@@ -279,7 +281,7 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
     int indx[2] = { 0, num_segs - 1 };
 
     list< MapSource* >::iterator ss;
-    for ( ss = splitSources.begin(); ss != splitSources.end(); ss++ )
+    for ( ss = splitSources.begin(); ss != splitSources.end(); ++ss )
     {
         vec3d pt = ( *ss )->m_pt;
         double str = ( *ss )->m_str;
@@ -658,7 +660,7 @@ void SCurve::Tesselate()
     UWTess();
 }
 
-void SCurve::Tesselate( vector< double > & u_tess )
+void SCurve::Tesselate( const vector< double > & u_tess )
 {
 
     m_UTess = u_tess;

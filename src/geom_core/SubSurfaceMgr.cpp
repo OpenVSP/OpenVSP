@@ -44,7 +44,7 @@ void SubSurfaceMgrSingleton::SetCurrSubSurfInd( int index )
 }
 
 //==== Get copy of sub surfaces from geom by id and surf number ====//
-vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( string comp_id, int surfnum )
+vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( const string& comp_id, int surfnum )
 {
     vector< SubSurface* > ret_vec;
 
@@ -82,7 +82,7 @@ vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( string comp_id, int su
 }
 
 //==== Get copy of sub surfaces from geom by id ====//
-vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( string comp_id )
+vector< SubSurface*> SubSurfaceMgrSingleton::GetSubSurfs( const string& comp_id )
 {
     vector< SubSurface* > ret_vec;
 
@@ -119,7 +119,7 @@ vector< SubSurface* > SubSurfaceMgrSingleton::GetSubSurfs()
 }
 
 //==== Get subsurface pointer from subsurface id ====//
-SubSurface* SubSurfaceMgrSingleton::GetSubSurf( string subsurf_id )
+SubSurface* SubSurfaceMgrSingleton::GetSubSurf( const string& subsurf_id )
 {
     SubSurface* ret_ptr = NULL;
     Vehicle* veh = VehicleMgr.GetVehicle();
@@ -154,7 +154,7 @@ void SubSurfaceMgrSingleton::PrepareToSplit()
     }
 }
 
-void SubSurfaceMgrSingleton::ReSuffixGroupNames( string comp_id )
+void SubSurfaceMgrSingleton::ReSuffixGroupNames( const string& comp_id )
 {
     vector< SubSurface* > ss_vec = GetSubSurfs( comp_id );
 
@@ -235,7 +235,7 @@ bool vector_sort( const vector<int>& a, const vector<int>& b )
 void SubSurfaceMgrSingleton::BuildSingleTagMap()
 {
     m_TagKeys.clear();
-    for ( set< vector<int> >::iterator s_iter = m_TagCombos.begin() ; s_iter != m_TagCombos.end() ; s_iter++ )
+    for ( set< vector<int> >::iterator s_iter = m_TagCombos.begin() ; s_iter != m_TagCombos.end() ; ++s_iter )
     {
         m_TagKeys.push_back( *s_iter );
     }

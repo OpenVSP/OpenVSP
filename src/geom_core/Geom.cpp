@@ -28,7 +28,7 @@ GeomType::GeomType()
 }
 
 //==== Constructor ====//
-GeomType::GeomType( int id, string name, bool fixed_flag, string module_name, string display_name )
+GeomType::GeomType( int id, const string& name, bool fixed_flag, const string& module_name, const string& display_name )
 {
     m_Type = id;
     m_Name = name;
@@ -3501,7 +3501,7 @@ void Geom::WriteBezierAirfoil( const string & file_name, double foilsurf_u_locat
     // Get the Bezier segments
     vector < BezierSegment > seg_vec = foil_curve.GetBezierSegments();
 
-    fprintf( file_id, "Num Bezier Seg, %d\n", seg_vec.size() );
+    fprintf( file_id, "Num Bezier Seg, %zu\n", seg_vec.size() );
 
     fprintf( file_id, "# Order, t_0, t_end, Ctrl Pnt X1, Ctrl Pnt Y1, Ctrl Pnt X2, Ctrl Pnt Y2, ...\n" );
 
@@ -3618,7 +3618,7 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
 {
     // This function writes out the Bezier control points for all untwisted unit length airfoils.
     Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( !veh || !meta_fid || m_MainSurfVec.size() <= 0 )
+    if ( !veh || !meta_fid || m_MainSurfVec.size() == 0 )
     {
         return;
     }
@@ -3908,7 +3908,7 @@ void Geom::SetupPMARCFile( int &ipatch, vector < int > &idpat )
 
 void Geom::WritePMARCGeomFile(FILE *fp, int &ipatch, vector<int> &idpat)
 {
-    bool pmtippatch = false;
+    bool pmtippatch = false; // WARNING: Always false
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
@@ -4366,7 +4366,7 @@ SubSurface* Geom::AddSubSurf( int type, int surfindex )
 {
     SubSurface* ssurf = NULL;
 
-    if ( m_MainSurfVec.size() <= 0 )
+    if ( m_MainSurfVec.size() == 0 )
     {
         return ssurf;
     }
@@ -4469,7 +4469,7 @@ FeaStructure* Geom::AddFeaStruct( bool initskin, int surf_index )
 {
     FeaStructure* feastruct = NULL;
 
-    if ( m_MainSurfVec.size() <= 0 || surf_index > m_MainSurfVec.size() || surf_index < 0 )
+    if ( m_MainSurfVec.size() == 0 || surf_index > m_MainSurfVec.size() || surf_index < 0 )
     {
         return feastruct;
     }
@@ -4732,6 +4732,7 @@ GeomXSec::GeomXSec( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Name = m_Name;
 
     m_MinActiveXSec = 0;
+    m_ActiveXSec = 0;
 }
 //==== Destructor ====//
 GeomXSec::~GeomXSec()

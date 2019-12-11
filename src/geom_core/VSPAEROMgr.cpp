@@ -27,6 +27,7 @@
 VspAeroControlSurf::VspAeroControlSurf()
 {
     isGrouped = false;
+    iReflect = false;
 }
 
 //==== Constructor ====//
@@ -588,7 +589,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                                         break;
                                     }
                                 }
-                                sprintf(str, "%s_%u", geom->GetName().c_str(), iSubsurf);
+                                sprintf(str, "%s_%zu", geom->GetName().c_str(), iSubsurf);
                                 temp.back()->SetName(str);
                             }
                         }
@@ -601,7 +602,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                             temp.push_back(rotor);
                             temp.back()->m_ParentGeomId = currgeomvec[i];
                             temp.back()->m_ParentGeomSurfNdx = iSubsurf;
-                            sprintf(str, "%s_%u", geom->GetName().c_str(), iSubsurf);
+                            sprintf(str, "%s_%zu", geom->GetName().c_str(), iSubsurf);
                             temp.back()->SetName(str);
                         }
 
@@ -721,7 +722,7 @@ void VSPAEROMgrSingleton::UpdateCompleteControlSurfVec()
                                 VspAeroControlSurf newSurf;
                                 newSurf.SSID = ssurf->GetID();
                                 char str[256];
-                                sprintf( str, "%s_Surf%u_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
+                                sprintf( str, "%s_Surf%zu_%s", g->GetName().c_str(), iReflect, ssurf->GetName().c_str() );
                                 newSurf.fullName = string( str );
                                 newSurf.parentGeomId = ssurf->GetParentContainer();
                                 newSurf.iReflect = iReflect;
@@ -1060,7 +1061,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
             numUsedRotors++;
         }
     }
-    fprintf( case_file, "NumberOfRotors = %d \n", numUsedRotors );           //TODO add to VSPAEROMgr as parm
+    fprintf( case_file, "NumberOfRotors = %u \n", numUsedRotors );           //TODO add to VSPAEROMgr as parm
     int iPropElement = 0;
     for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
     {
@@ -1088,11 +1089,11 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     {
         // control surfaces are currently not supported for panel method
         numUsedCSGs = 0;
-        fprintf( case_file, "NumberOfControlGroups = %d \n", numUsedCSGs );
+        fprintf( case_file, "NumberOfControlGroups = %u \n", numUsedCSGs );
     }
     else
     {
-        fprintf( case_file, "NumberOfControlGroups = %d \n", numUsedCSGs );
+        fprintf( case_file, "NumberOfControlGroups = %u \n", numUsedCSGs );
         for ( size_t iCSG = 0; iCSG < m_ControlSurfaceGroupVec.size(); iCSG++ )
         {
             if ( m_ControlSurfaceGroupVec[iCSG]->m_IsUsed() && m_ControlSurfaceGroupVec[iCSG]->m_ControlSurfVec.size() > 0 )
@@ -2298,7 +2299,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
                                 }
                                 if ( m_Verbose )
                                 {
-                                    printf( "\ti_field = %d --> i_field_offset = %d\n", i_field, i_field - i_field_offset );
+                                    printf( "\ti_field = %u --> i_field_offset = %u\n", i_field, i_field - i_field_offset );
                                 }
                                 if ( ( i_field - i_field_offset ) < m_ControlSurfaceGroupVec.size() )
                                 {
@@ -2311,7 +2312,7 @@ void VSPAEROMgrSingleton::ReadStabFile( string filename, vector <string> &res_id
                                 else
                                 {
                                     printf( "\tERROR (i_field - i_field_offset) > m_ControlSurfaceGroupVec.size()\n" );
-                                    printf( "\t      (  %d    -    %d         ) >            %lu             \n", i_field, i_field_offset, m_ControlSurfaceGroupVec.size() );
+                                    printf( "\t      (  %u    -    %d         ) >            %zu             \n", i_field, i_field_offset, m_ControlSurfaceGroupVec.size() );
                                 }
 
                             }
@@ -3644,7 +3645,7 @@ void ControlSurfaceGroup::AddSubSurface( VspAeroControlSurf control_surf )
         //  parm name: control_surf->fullName (example: MainWing_Surf1_Aileron)
         //  group: "ControlSurfaceGroup"
         //  initial value: control_surf->deflection_gain
-        sprintf( str, "Surf_%s_%i_Gain", control_surf.SSID.c_str(), control_surf.iReflect );
+        sprintf( str, "Surf_%s_%u_Gain", control_surf.SSID.c_str(), control_surf.iReflect );
         p->Init( str, m_GroupName, this, 1.0, -1.0e6, 1.0e6 );
         p->SetDescript( "Deflection gain for the individual sub surface to be used for control mixing and allocation within the control surface group" );
         m_DeflectionGainVec.push_back( p );

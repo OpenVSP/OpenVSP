@@ -113,7 +113,7 @@ public:
     virtual void AdjustRad( double val );
     virtual void AdjustLen( double val );
 
-    void SetNamedVal( string name, double val );
+    void SetNamedVal( const string& name, double val );
 
     virtual void ReadV2File( xmlNodePtr &root );
 
@@ -134,7 +134,7 @@ public:
     BoxSource();
     virtual ~BoxSource()        {};
 
-    void SetNamedVal( string name, double val );
+    void SetNamedVal( const string& name, double val );
 
     virtual void ReadV2File( xmlNodePtr &root );
 
@@ -152,7 +152,7 @@ public:
     ConstLineSource();
     virtual ~ConstLineSource()       {}
 
-    void SetNamedVal( string name, double val );
+    void SetNamedVal( const string& name, double val );
 
     virtual void ReadV2File( xmlNodePtr &root )  {};
 

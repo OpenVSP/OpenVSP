@@ -587,7 +587,6 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
 
                         lastID = m_geo_geomID[i];
 
-                        Geom* geom = VehicleMgr.GetVehicle()->FindGeom(m_geo_geomID[i]);
                         if (geom)
                         {
                             if (geom->GetType().m_Type != PROP_GEOM_TYPE)
@@ -608,7 +607,8 @@ void ParasiteDragMgrSingleton::Calculate_Lref()
                     else
                     {
                         --i;
-                        iSurf += geom->GetNumSymmCopies();
+                        
+                        if ( geom ) iSurf += geom->GetNumSymmCopies();
                         
                     }
                 }
@@ -825,7 +825,7 @@ double ParasiteDragMgrSingleton::CalcPartialTurbulence( double perclam, double r
         // Prevent dividing by 0 in some equations
         double LamPerc = ( perclam / 100 );
         double CffullTurb = CalcTurbCf( re, lref, m_TurbCfEqnType(), roughness, m_SpecificHeatRatio(), tawtwrat, tetwrat );
-        double CffullLam = CalcLamCf( re, m_LamCfEqnType.Get() );
+        double CffullLam = CalcLamCf( re, m_LamCfEqnType.Get() ); // WARNING: Not used
 
         double LamPercRefLen = LamPerc * lref;
 
@@ -2192,7 +2192,7 @@ void ParasiteDragMgrSingleton::AddExcrescence()
 
     if ( m_ExcresName.empty() )
     {
-        sprintf( str, "EXCRES_%lu", m_ExcresRowVec.size() );
+        sprintf( str, "EXCRES_%zu", m_ExcresRowVec.size() );
         tempStruct.Label = string( str );
     }
     else
@@ -3317,7 +3317,7 @@ xmlNodePtr ParasiteDragMgrSingleton::EncodeXml( xmlNodePtr & node )
 
     for ( size_t i = 0; i < m_ExcresRowVec.size(); ++i )
     {
-        sprintf( str, "Excres_%u", i );
+        sprintf( str, "Excres_%zu", i );
         xmlNodePtr excresqualnode = xmlNewChild( ExcresDragnode, NULL, BAD_CAST str, NULL );
 
         XmlUtil::AddStringNode( excresqualnode, "Label", m_ExcresRowVec[i].Label );

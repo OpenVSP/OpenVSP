@@ -124,7 +124,6 @@ void WriteSVGScaleBar( xmlNodePtr root, const int &View, const BndBox &svgbox, c
 
     AddDefaultScalBarProps( rect_node2, convert_scale );
 
-    double x_quarter = convert_scale / 4.0;
     double x_mid = convert_scale / 2.0;
 
     double width_tot = double( convert_scale );

@@ -785,7 +785,11 @@ protected:
 class StringInput : public GuiDevice
 {
 public:
-    StringInput()                               {}
+    StringInput()
+    {
+        m_String = "";
+        m_Input = NULL;
+    }
     virtual void DeviceCB( Fl_Widget* w );
 
     virtual void Init( VspScreen* screen, Fl_Input* input );
@@ -811,7 +815,11 @@ protected:
 class StringOutput : public GuiDevice
 {
 public:
-    StringOutput()                                      {}
+    StringOutput()
+    {
+        m_String = "";
+        m_Output = NULL;
+    }
     virtual void DeviceCB( Fl_Widget* w )               {}
 
     virtual void Init( VspScreen* screen, Fl_Output* output );
@@ -1239,7 +1247,7 @@ public:
 
     // Add the curve points to the canvas and connect them. CEDIT intermediate points are
     // drawn green. The currently seleted point is highlighted red. 
-    virtual void PlotData( vector< double > x_data, vector < double > y_data, int curve_type );
+    virtual void PlotData( vector< double > x_data, vector < double > y_data, int curve_type, Fl_Color color = FL_YELLOW );
 
     // Identify the min and max limits for the canvas and update accordingly
     virtual void UpdateAxisLimits( vector< double > x_data, vector < double > y_data, bool mag_round = true );

@@ -104,7 +104,7 @@ string ParmMgrSingleton::FindParmID( const string & name, const string & group, 
 {
     unordered_map< string, Parm* >::iterator iter;
 
-    for ( iter = m_ParmMap.begin() ; iter != m_ParmMap.end() ; iter++ )
+    for ( iter = m_ParmMap.begin() ; iter != m_ParmMap.end() ; ++iter )
     {
         Parm* parm_ptr = iter->second;
         if ( parm_ptr )

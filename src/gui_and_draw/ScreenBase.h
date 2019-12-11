@@ -353,7 +353,7 @@ public:
     virtual void GuiDeviceCallBack( GuiDevice* device );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
-        ( ( SkinScreen* )data )->CallBack( w );
+        ( ( static_cast <SkinScreen*>( data ) )->CallBack( w ) );
     }
 
 protected:
@@ -402,7 +402,7 @@ public:
     virtual void GuiDeviceCallBack( GuiDevice* device );
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
-        ( ( BlendScreen* )data )->CallBack( w );
+        ( static_cast <BlendScreen*> ( data ) )->CallBack( w );
     }
 
 protected:

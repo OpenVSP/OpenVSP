@@ -1307,7 +1307,7 @@ vector< string > Vehicle::GetGeomSet( int index )
     return geom_id_vec;
 }
 
-void Vehicle::HideAllExcept( string id )
+void Vehicle::HideAllExcept( const string& id )
 {
     vector< string > geom_id_vec;
 
@@ -1370,7 +1370,7 @@ GeomType Vehicle::GetGeomType( int index )
 }
 
 //==== Set Geom Type ====//
-void Vehicle::SetGeomType( int index, GeomType & type )
+void Vehicle::SetGeomType( int index, const GeomType & type )
 {
     if ( index >= 0 && index < (int)m_GeomTypeVec.size() )
     {
@@ -3118,6 +3118,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 
         if ( geom_vec.size() == 0 )
         {
+            fclose( dxf_file );
             return;
         }
 
@@ -4349,6 +4350,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
         id = AddGeom( type );
         if ( !id.compare( "NONE" ) )
         {
+            fclose( fp );
             return id;
         }
 
@@ -4357,7 +4359,7 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
 
         for ( int c = 0 ; c < num_comps ; c++ )
         {
-            GeomType type = GeomType( WIRE_FRAME_GEOM_TYPE, "WIREFRAME", true );
+            type = GeomType( WIRE_FRAME_GEOM_TYPE, "WIREFRAME", true );
             string cid = AddGeom( type );
             if ( !cid.compare( "NONE" ) )
             {

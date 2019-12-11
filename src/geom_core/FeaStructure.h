@@ -32,7 +32,7 @@ class FeaStructure : public ParmContainer
 {
 public:
 
-    FeaStructure( string GeomID, int surf_index );
+    FeaStructure( const string& GeomID, int surf_index );
     virtual ~FeaStructure();
 
     virtual void Update();
@@ -158,7 +158,7 @@ class FeaPart : public ParmContainer
 {
 public:
 
-    FeaPart( string geomID, int type );
+    FeaPart( const string& geomID, int type );
     virtual ~FeaPart();
 
     virtual void Update();
@@ -235,7 +235,7 @@ class FeaSlice : public FeaPart
 {
 public:
 
-    FeaSlice( string geomID, int type = vsp::FEA_SLICE );
+    FeaSlice( const string& geomID, int type = vsp::FEA_SLICE );
     virtual ~FeaSlice()    {};
 
     virtual void Update();
@@ -272,7 +272,7 @@ class FeaSpar : public FeaSlice
 {
 public:
 
-    FeaSpar( string geomID, int type = vsp::FEA_SPAR );
+    FeaSpar( const string& geomID, int type = vsp::FEA_SPAR );
     virtual ~FeaSpar()    {};
 
     virtual void Update();
@@ -297,7 +297,7 @@ class FeaRib : public FeaSlice
 {
 public:
 
-    FeaRib( string geomID, int type = vsp::FEA_RIB );
+    FeaRib( const string& geomID, int type = vsp::FEA_RIB );
     virtual ~FeaRib()    {};
 
     virtual void Update();
@@ -313,7 +313,7 @@ public:
 
     virtual void UpdateDrawObjs( int id, bool highlight );
 
-    void SetPerpendicularEdgeID( string ID )
+    void SetPerpendicularEdgeID( const string & ID )
     {
         m_PerpendicularEdgeID = ID;
     }
@@ -341,7 +341,7 @@ class FeaFixPoint : public FeaPart
 {
 public:
 
-    FeaFixPoint( string geomID, string partID, int type = vsp::FEA_FIX_POINT );
+    FeaFixPoint( const string& geomID, const string& partID, int type = vsp::FEA_FIX_POINT );
     virtual ~FeaFixPoint()    {};
 
     virtual void Update();
@@ -376,7 +376,7 @@ class FeaSkin : public FeaPart
 {
 public:
 
-    FeaSkin( string geomID, int type = vsp::FEA_SKIN );
+    FeaSkin( const string& geomID, int type = vsp::FEA_SKIN );
     virtual ~FeaSkin()    {};
 
     virtual void Update();
@@ -398,7 +398,7 @@ class FeaDome : public FeaPart
 {
 public:
 
-    FeaDome( string geomID, int type = vsp::FEA_DOME );
+    FeaDome( const string& geomID, int type = vsp::FEA_DOME );
     virtual ~FeaDome()    {};
 
     virtual void Update();
@@ -431,7 +431,7 @@ class FeaRibArray : public FeaPart
 {
 public:
 
-    FeaRibArray( string geomID, int type = vsp::FEA_RIB_ARRAY );
+    FeaRibArray( const string& geomID, int type = vsp::FEA_RIB_ARRAY );
     virtual ~FeaRibArray();
 
     virtual void Update();
@@ -452,7 +452,7 @@ public:
         return m_NumRibs;
     }
 
-    void SetPerpendicularEdgeID( string ID )
+    void SetPerpendicularEdgeID( const string & ID )
     {
         m_PerpendicularEdgeID = ID;
     }
@@ -485,7 +485,7 @@ class FeaSliceArray : public FeaPart
 {
 public:
 
-    FeaSliceArray( string geomID, int type = vsp::FEA_SLICE_ARRAY );
+    FeaSliceArray( const string& geomID, int type = vsp::FEA_SLICE_ARRAY );
     virtual ~FeaSliceArray()    {};
 
     virtual void Update();

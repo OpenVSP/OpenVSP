@@ -487,7 +487,6 @@ void APITestSuiteParasiteDrag::TestS3VikingModel()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    double test_tol = 0.0001;
     string wing = vsp::AddGeom( "WING", "" );               // Add Wing
     vsp::SetGeomName( wing, "Wing" );
     string fuse = vsp::AddGeom( "FUSELAGE", "" );           // Add Fuselage

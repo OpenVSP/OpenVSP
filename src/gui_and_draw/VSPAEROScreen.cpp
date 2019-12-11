@@ -290,7 +290,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedCaseSetupLayout.AddButton( m_BatchCalculationToggle, "Batch Calculation" );
     m_AdvancedCaseSetupLayout.AddButton( m_SymmetryToggle, "X-Z Symmetry" );
-
+ 
+    m_AdvancedCaseSetupLayout.ForceNewLine();
     m_AdvancedCaseSetupLayout.SetFitWidthFlag( true );
     m_AdvancedCaseSetupLayout.SetSameLineFlag( false );
 
@@ -302,6 +303,12 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_AdvancedCaseSetupLayout.AddChoice( m_PreconditionChoice, "Preconditioner");
 
     m_AdvancedCaseSetupLayout.AddButton( m_KTCorrectionToggle, "2nd Order Karman-Tsien Mach Correction" );
+
+    m_AdvancedCaseSetupLayout.SetFitWidthFlag( false );
+    m_AdvancedCaseSetupLayout.SetSameLineFlag( true );
+
+    m_AdvancedCaseSetupLayout.SetButtonWidth( m_AdvancedCaseSetupLayout.GetW() / 2 );
+
     m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
     m_AdvancedCaseSetupLayout.AddButton( m_FromSteadyStateToggle, "From Steady State" );
 

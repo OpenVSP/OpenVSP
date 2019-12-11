@@ -97,11 +97,13 @@ void IPntBin::AddCompareIPnts( IPnt* ip, vector< IPnt* > & compareIPntVec )
 IPnt::IPnt()
 {
     m_UsedFlag = false;
+    m_Index = 0;
 }
 
 IPnt::IPnt( Puw* p0, Puw* p1 )
 {
     m_UsedFlag = false;
+    m_Index = 0;
     m_Puws.push_back( p0 );
     m_Puws.push_back( p1 );
 }
@@ -216,7 +218,7 @@ ISeg::ISeg( Surf* sA, Surf* sB, IPnt* ip0, IPnt* ip1 )
     ip1->AddSegRef( this );
 }
 
-void ISeg::Copy( ISeg & s )
+void ISeg::Copy( const ISeg & s )
 {
     m_SurfA   = s.m_SurfA;
     m_SurfB   = s.m_SurfB;
@@ -574,7 +576,7 @@ void ISegChain::FlipDir()
     m_ISegDeque = flipped;
 
     deque< ISeg* >::iterator s;
-    for ( s = m_ISegDeque.begin() ; s != m_ISegDeque.end(); s++ )
+    for ( s = m_ISegDeque.begin() ; s != m_ISegDeque.end(); ++s )
     {
         ( *s )->FlipDir();
     }
@@ -754,28 +756,28 @@ void ISegChain::AddChain( ISegChain* B )
 
     if ( dBackBack < dBackFront && dBackBack < dFrontBack && dBackBack < dFrontFront )
     {
-        for ( r = B->m_ISegDeque.rbegin() ; r != B->m_ISegDeque.rend() ; r++ )
+        for ( r = B->m_ISegDeque.rbegin() ; r != B->m_ISegDeque.rend() ; ++r )
         {
             AddSeg( ( *r ) );
         }
     }
     else if ( dBackFront < dFrontBack && dBackFront < dFrontFront )
     {
-        for ( s = B->m_ISegDeque.begin() ; s != B->m_ISegDeque.end() ; s++ )
+        for ( s = B->m_ISegDeque.begin() ; s != B->m_ISegDeque.end() ; ++s )
         {
             AddSeg( ( *s ) );
         }
     }
     else if ( dFrontBack < dFrontFront )
     {
-        for ( r = B->m_ISegDeque.rbegin() ; r != B->m_ISegDeque.rend() ; r++ )
+        for ( r = B->m_ISegDeque.rbegin() ; r != B->m_ISegDeque.rend() ; ++r )
         {
             AddSeg( ( *r ) );
         }
     }
     else
     {
-        for ( s = B->m_ISegDeque.begin() ; s != B->m_ISegDeque.end() ; s++ )
+        for ( s = B->m_ISegDeque.begin() ; s != B->m_ISegDeque.end() ; ++s )
         {
             AddSeg( ( *s ) );
         }
@@ -785,7 +787,7 @@ void ISegChain::AddChain( ISegChain* B )
 
 void ISegChain::BuildBoxes()
 {
-    if ( m_ISegDeque.size() <= 0 )
+    if ( m_ISegDeque.size() == 0 )
     {
         return;
     }

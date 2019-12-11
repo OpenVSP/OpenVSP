@@ -952,7 +952,7 @@ void PropGeom::UpdateSurf()
         //==== Update XSec Prop Positioner for highlight curves ====//
         for ( int i = 0 ; i < nxsec ; i++ )
         {
-            PropXSec* xs = ( PropXSec* ) m_XSecSurf.FindXSec( i );
+            xs = ( PropXSec* ) m_XSecSurf.FindXSec( i );
 
             if ( xs )
             {
@@ -1738,8 +1738,8 @@ int PropGeom::ReadBEM( const string &file_name )
         char buf[255];
         fgets( buf, 255, fid );  // Advance past "...BEM Propeller..."
 
-        fscanf( fid, "Num_Sections: %d\n", &num_sect );
-        fscanf( fid, "Num_Blade: %d\n", &num_blade );
+        fscanf( fid, "Num_Sections: %u\n", &num_sect );
+        fscanf( fid, "Num_Blade: %u\n", &num_blade );
         fscanf( fid, "Diameter: %lf\n", &diam );
         fscanf( fid, "Beta 3/4 (deg): %lf\n", &beta34 );
         fscanf( fid, "Feather (deg): %lf\n", &feather );
@@ -1770,8 +1770,8 @@ int PropGeom::ReadBEM( const string &file_name )
 
     if ( true )
     {
-        printf( "Num_Sections: %d\n", num_sect );
-        printf( "Num_Blade: %d\n", num_blade );
+        printf( "Num_Sections: %u\n", num_sect );
+        printf( "Num_Blade: %u\n", num_blade );
         printf( "Diameter: %.8f\n", diam );
         printf( "Beta 3/4 (deg): %.8f\n", beta34 );
         printf( "Feather (deg): %.8f\n", feather );
@@ -1863,7 +1863,7 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
     //  not start and/or end at each XSec. Sectional U tessellation is not considered for PropGeoms. 
 
     Vehicle* veh = VehicleMgr.GetVehicle();
-    if ( !veh || !meta_fid || m_MainSurfVec.size() <= 0 )
+    if ( !veh || !meta_fid || m_MainSurfVec.size() == 0 )
     {
         return;
     }

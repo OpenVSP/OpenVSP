@@ -13735,8 +13735,8 @@ VORTEX_SHEET_LOOP_INTERACTION_ENTRY* VSP_SOLVER::CreateVortexTrailInteractionLis
 
                 // Distance to the source vortex sheet
                 
-                Distance = MIN(CommonSheetList[1].Sheet[CommonSheetList[1].NextSheet  ].Distance,
-                               CommonSheetList[2].Sheet[CommonSheetList[1].NextSheet  ].Distance);
+                 Distance = MIN( CommonSheetList[1].Sheet[CommonSheetList[1].NextSheet].Distance,
+                                 CommonSheetList[2].Sheet[CommonSheetList[2].NextSheet - 1].Distance );
 
                 // FarAway x approximate distance between fine grid trailing vortex edge centroids
                 

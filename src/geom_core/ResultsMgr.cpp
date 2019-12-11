@@ -194,7 +194,7 @@ vector< string > NameValCollection::GetAllDataNames()
     vector< string > name_vec;
     map< string, vector< NameValData > >::iterator iter;
 
-    for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; iter++ )
+    for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
     {
         name_vec.push_back( iter->first );
     }
@@ -277,7 +277,7 @@ void Results::WriteCSVFile( FILE* fid )
         fprintf( fid, "Results_Time,%d,%d,%d\n", m_Hour, m_Min, m_Sec );
 
         map< string, vector< NameValData > >::iterator iter;
-        for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; iter++ )
+        for ( iter = m_DataMap.begin() ; iter != m_DataMap.end() ; ++iter )
         {
             for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
             {
@@ -327,7 +327,7 @@ void Results::WriteCSVFile( FILE* fid )
         }
 
         // Loop again to recursively call WriteCSV() if this result contains a "ResultsVec" wrapper result
-        for ( iter = m_DataMap.begin(); iter != m_DataMap.end(); iter++ )
+        for ( iter = m_DataMap.begin(); iter != m_DataMap.end(); ++iter )
         {
             for ( int i = 0; i < (int)iter->second.size(); i++ )
             {
@@ -847,7 +847,7 @@ void ResultsMgrSingleton::DeleteAllResults()
 {
     //==== Delete All Created Results =====//
     map< string, Results* >::iterator iter;
-    for ( iter = m_ResultsMap.begin() ; iter != m_ResultsMap.end() ; iter++ )
+    for ( iter = m_ResultsMap.begin() ; iter != m_ResultsMap.end() ; ++iter )
     {
         delete iter->second;
     }
@@ -862,7 +862,7 @@ void ResultsMgrSingleton:: DeleteResult( const string & id )
     map< string, vector< string > >::iterator iter;
 
     //==== Find Name To Match ID And Remove====//
-    for ( iter = m_NameIDMap.begin() ; iter != m_NameIDMap.end() ; iter++ )
+    for ( iter = m_NameIDMap.begin() ; iter != m_NameIDMap.end() ; ++iter )
     {
         bool found = false;
         for ( int i = 0 ; i < ( int )iter->second.size() ; i++ )
@@ -1022,7 +1022,7 @@ vector< string > ResultsMgrSingleton::GetAllResultsNames()
 {
     vector< string > name_vec;
     map< string, vector< string > >::iterator iter;
-    for ( iter = m_NameIDMap.begin() ; iter != m_NameIDMap.end() ; iter++ )
+    for ( iter = m_NameIDMap.begin() ; iter != m_NameIDMap.end() ; ++iter )
     {
         name_vec.push_back( iter->first );
     }

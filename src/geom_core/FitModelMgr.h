@@ -36,6 +36,11 @@ class TargetPt
 public:
     TargetPt()
     {
+        m_UType = 0;
+        m_WType = 0;
+        m_UClosed = false;
+        m_WClosed = false;
+        m_MatchGeom = "";
     }
 
     virtual ~TargetPt()
@@ -249,7 +254,7 @@ public:
         return m_GUIShown;
     }
 
-    void SetSaveFitFileName( string fileName )
+    void SetSaveFitFileName( const string& fileName )
     {
         m_SaveFitFileName = fileName;
     }
@@ -258,7 +263,7 @@ public:
         return m_SaveFitFileName;
     }
 
-    void SetLoadFitFileName( string fileName )
+    void SetLoadFitFileName( const string& fileName )
     {
         m_LoadFitFileName = fileName;
     }

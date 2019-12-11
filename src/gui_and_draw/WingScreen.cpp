@@ -141,7 +141,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
 
     m_SectionLayout.SetButtonWidth( 4*m_SectionLayout.GetRemainX()/5 );
 
-    m_SectionLayout.AddOutput( m_SectProjSpanOutput, "Projected Span" );
+    m_SectionLayout.AddOutput( m_SectProjSpanOutput, "Projected Span", "%6.4f" );
 
     m_SectionLayout.AddYGap();
     m_SectionLayout.SetButtonWidth( 74 );
@@ -1019,8 +1019,7 @@ bool WingScreen::Update()
 
         m_RotateFoilMatchDihedral.Update( wing_ptr->m_RotateAirfoilMatchDiedralFlag.GetID() );
 
-        sprintf( str, " %6.4f", wing_sect->GetProjectedSpan() );
-        m_SectProjSpanOutput.Update(  str );
+        m_SectProjSpanOutput.Update( wing_sect->m_ProjectedSpan.GetID() );
 
     }
 
@@ -1698,7 +1697,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ConvertCEDITButton )
     {
-        XSec* xs = wing_ptr->GetXSec( wing_ptr->GetActiveXSecIndex() );
+        XSec* xs = wing_ptr->GetXSec( wing_ptr->GetActiveAirfoilIndex() );
 
         if ( xs )
         {

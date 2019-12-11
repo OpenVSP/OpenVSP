@@ -47,7 +47,7 @@ class TMesh;
 class TetraMassProp
 {
 public:
-    TetraMassProp( string id, double den, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 );
+    TetraMassProp( const string& id, double den, const vec3d& p0, const vec3d& p1, const vec3d& p2, const vec3d& p3 );
     TetraMassProp()         {
         m_Density = 0;
         m_Vol = 0;
@@ -63,7 +63,7 @@ public:
     }
     ~TetraMassProp()        {}
 
-    void SetPointMass( double massIn, vec3d& posIn );           // For Point Mass
+    void SetPointMass( double massIn, const vec3d& posIn );           // For Point Mass
 
     vec3d m_v0;
     vec3d m_v1;
@@ -92,7 +92,7 @@ public:
 class TriShellMassProp
 {
 public:
-    TriShellMassProp( string id, double mass_area_in, vec3d& p0, vec3d& p1, vec3d& p2 );
+    TriShellMassProp( const string& id, double mass_area_in, const vec3d& p0, const vec3d& p1, const vec3d& p2 );
     ~TriShellMassProp()     {}
 
     vec3d m_v0;
@@ -123,7 +123,7 @@ public:
 class DegenGeomTetraMassProp
 {
 public:
-    DegenGeomTetraMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2, vec3d& p3 );
+    DegenGeomTetraMassProp( const string& id, const vec3d& p0, const vec3d& p1, const vec3d& p2, const vec3d& p3 );
     DegenGeomTetraMassProp()        {
         m_Vol = 0;
 
@@ -160,7 +160,7 @@ public:
 class DegenGeomTriShellMassProp
 {
 public:
-    DegenGeomTriShellMassProp( string id, vec3d& p0, vec3d& p1, vec3d& p2 );
+    DegenGeomTriShellMassProp( const string& id, const vec3d& p0, const vec3d& p1, const vec3d& p2 );
     ~DegenGeomTriShellMassProp()        {}
 
     vec3d m_v0;

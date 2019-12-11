@@ -4,6 +4,21 @@
 
 Atmosphere::Atmosphere()
 {
+    m_P0 = 0;
+    m_RHO0 = 0;
+    m_Hinf = 0;
+    m_DeltaT = 0;
+    m_Vinf = 0;
+    m_Temp = 0;
+    m_Pres = 0;
+    m_DynamicVisc = 0;
+    m_Density = 0;
+    m_SoundSpeed = 0;
+    m_KTAS = 0;
+    m_KEAS = 0;
+    m_Mach = 0;
+    m_DensityRatio = 0;
+    m_PressureRatio = 0;
     m_T0 = 288.15; // K
     m_Rspecific = 287.058; // m2/s2/k
     m_A0 = 661.48; // knots
@@ -86,7 +101,7 @@ void Atmosphere::USStandardAtmosphere1976( double alt, double delta_temp, int al
     m_Density = rho; // Converted to Desired
 }
 
-void Atmosphere::CalcIsothermalLayerUS1976( double & temp, double & pres, double alt, double previous_alt_step,
+void Atmosphere::CalcIsothermalLayerUS1976( const double & temp, double & pres, double alt, double previous_alt_step,
         double G0, double M0, double R0 )
 {
     pres = pres * exp( ( ( -G0 * M0 * ( alt - previous_alt_step ) ) / 1000 ) / ( R0 * temp ) );
@@ -224,7 +239,7 @@ double Atmosphere::DynamicViscosityCalc( double T, int tempunit, int altunit )
     //}
 }
 
-void Atmosphere::SetManualQualities( double & vinf, double & temp, double & pres, double & rho,
+void Atmosphere::SetManualQualities( const double & vinf, double & temp, double & pres, double & rho,
                                      double & dynavisc, double gamma, double alt, int altunit, 
                                      int vinfunit, int tempunit, int pressunit, int flowstream )
 {

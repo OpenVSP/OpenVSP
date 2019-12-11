@@ -189,7 +189,7 @@ void APITestSuite::CheckAnalysisMgr()
     printf( "APITestSuite::CheckAnalysisMgr()\n" );
     unsigned int n_analysis = ( unsigned int )vsp::GetNumAnalysis();
     std::vector < std::string > analysis_names = vsp::ListAnalysis();
-    printf( "    Analyses found: %d\n", n_analysis );
+    printf( "    Analyses found: %u\n", n_analysis );
     printf( "\t[analysis_name]\n" );
     printf( "\t\t%-20s%s\t%s\n", "[input_name]", "[type]", "[#]" );
     for ( unsigned int i_analysis = 0; i_analysis < n_analysis; i_analysis++ )

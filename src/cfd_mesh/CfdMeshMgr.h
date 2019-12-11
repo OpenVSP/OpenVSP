@@ -286,15 +286,6 @@ public:
 
     virtual bool SetDeleteTriFlag( int aType, bool symPlane, vector < bool > aInB );
 
-#ifdef DEBUG_CFD_MESH
-    FILE* m_DebugFile;
-    Stringc m_DebugDir;
-
-    bool m_DebugDraw;
-    vector< vector< vec3d > > m_DebugCurves;
-    vector< vec3d > m_DebugColors;
-#endif
-
     virtual SimpleCfdMeshSettings* GetCfdSettingsPtr()
     {
         return &m_CfdSettings;
@@ -324,8 +315,6 @@ protected:
     WakeMgr m_WakeMgr;
 
     BndBox m_Domain;
-
-    vector< vector< vec3d > > debugRayIsect;
 
     vector<Edge*> m_BadEdges;
     vector<Tri*> m_BadTris;

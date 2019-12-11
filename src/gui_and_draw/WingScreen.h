@@ -87,7 +87,7 @@ protected:
 
     TriggerButton m_TestDriverGroupButton;
 
-    StringOutput m_SectProjSpanOutput;
+    Output m_SectProjSpanOutput;
 
     SliderAdjRangeInput m_SweepSlider;
     SliderAdjRangeInput m_SweepLocSlider;

@@ -7,6 +7,7 @@
 #include "MassPropScreen.h"
 #include "ScreenMgr.h"
 #include "StlHelper.h"
+#include "ParmMgr.h"
 
 MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : VspScreen( mgr )
 {
@@ -16,9 +17,19 @@ MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : VspScreen( mgr )
     ui->numSlicesInput->callback( staticScreenCB, this );
     ui->fileExportButton->callback( staticScreenCB, this );
     ui->setChoice->callback( staticScreenCB, this );
+    ui->drawCgButton->callback( staticScreenCB, this );
     ui->numSlicesSlider->range( 10, 200 );
     m_FLTK_Window = ui->UIWindow;
     m_SelectedSetIndex = 0;
+
+    m_CGDrawObj.m_PointSize = 10;
+    m_CGDrawObj.m_Type = DrawObj::VSP_POINTS;
+    m_CGDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_CGDrawObj.m_TextColor = vec3d( 0, 0, 0 );
+    m_CGDrawObj.m_TextSize = 0;
+    m_CGDrawObj.m_GeomID = ParmMgr.GenerateID( 4 ) + "_CG";
+
+    m_FLTK_Window->callback( staticCloseCB, this );
 
 }
 
@@ -37,6 +48,20 @@ bool MassPropScreen::Update()
     m_MassPropUI->numSlicesSlider->value( vehiclePtr->m_NumMassSlices );
     sprintf( str, " %d", vehiclePtr->m_NumMassSlices );
     m_MassPropUI->numSlicesInput->value( str );
+
+    vehiclePtr->m_DrawCGFlag = m_MassPropUI->drawCgButton->value();
+
+    m_CGDrawObj.m_PntVec.clear();
+
+    if ( vehiclePtr->m_DrawCGFlag )
+    {
+        m_CGDrawObj.m_Visible = true;
+        m_CGDrawObj.m_PntVec.push_back( vehiclePtr->m_CG );
+    }
+    else
+    {
+        m_CGDrawObj.m_Visible = false;
+    }
 
     sprintf( str, format, vehiclePtr->m_TotalMass );
     m_MassPropUI->totalMassOutput->value( str );
@@ -72,14 +97,14 @@ bool MassPropScreen::Update()
 
 void MassPropScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
-
 }
 
 void MassPropScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void MassPropScreen::LoadSetChoice()
@@ -124,4 +149,17 @@ void MassPropScreen::CallBack( Fl_Widget* w )
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void MassPropScreen::CloseCallBack( Fl_Widget* w )
+{
+    Hide();
+}
+
+void MassPropScreen::LoadDrawObjs( vector< DrawObj* >& draw_obj_vec )
+{
+    if ( IsShown() )
+    {
+        draw_obj_vec.push_back( &m_CGDrawObj );
+    }
 }
