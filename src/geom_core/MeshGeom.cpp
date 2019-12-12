@@ -1872,6 +1872,7 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
     vector < double > tagTheoAreaVec;
     vector < double > tagWetAreaVec;
     vector < string > tagNameVec;
+    vector < string > tagIDVec;
 
     if ( intSubsFlag )
     {
@@ -1881,6 +1882,7 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
         tagTheoAreaVec.resize( ntags, 0.0 );
         tagWetAreaVec.resize( ntags, 0.0 );
         tagNameVec.resize( ntags );
+        tagIDVec.resize( ntags );
 
         for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
@@ -1898,6 +1900,7 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
         for ( j = 0; j < ntags; j++ )
         {
             tagNameVec[j] = SubSurfaceMgr.GetTagNames( j );
+            tagIDVec[j] = SubSurfaceMgr.GetTagIDs( j );
         }
     }
 
@@ -1947,6 +1950,7 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
 
     res->Add( NameValData( "Num_Tags", ntags ) );
     res->Add( NameValData( "Tag_Name", tagNameVec ) );
+    res->Add( NameValData( "Tag_ID", tagIDVec ) );
     res->Add( NameValData( "Tag_Theo_Area", tagTheoAreaVec ) );
     res->Add( NameValData( "Tag_Wet_Area", tagWetAreaVec ) );
 
@@ -4195,14 +4199,27 @@ vector< string > MeshGeom::GetTMeshNames()
     return names;
 }
 
+vector< string > MeshGeom::GetTMeshIDs()
+{
+    vector< string > ids;
+    for ( int i = 0; i < (int)m_TMeshVec.size(); i++ )
+    {
+        ids.push_back( m_TMeshVec[i]->m_PtrID + "_Surf" + to_string( (long long)m_TMeshVec[i]->m_SurfNum ) );
+    }
+
+    return ids;
+}
+
 //==== Subtag All Trianlges ====//
 void MeshGeom::SubTagTris( bool tag_subs )
 {
     // Clear out the current Subtag Maps
     SubSurfaceMgr.ClearTagMaps();
     SubSurfaceMgr.m_CompNames = GetTMeshNames();
+    SubSurfaceMgr.m_CompIDs = GetTMeshIDs();
     SubSurfaceMgr.SetSubSurfTags( GetNumIndexedParts() );
     SubSurfaceMgr.BuildCompNameMap();
+    SubSurfaceMgr.BuildCompIDMap();
 
     for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {

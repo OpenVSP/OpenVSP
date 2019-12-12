@@ -183,6 +183,7 @@ public:
     virtual void TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat );
 
     virtual vector< string > GetTMeshNames();
+    virtual vector< string > GetTMeshIDs();
 
     virtual void SubTagTris( bool tag_subs );
 

@@ -178,6 +178,7 @@ void SubSurfaceMgrSingleton::ClearTagMaps()
 
     m_TagCombos.clear();
     m_TagNames.clear();
+    m_TagIDs.clear();
     m_SingleTagMap.clear();
     m_CompNames.clear();
 
@@ -199,6 +200,7 @@ void SubSurfaceMgrSingleton::SetSubSurfTags( int tag_offset )
         sub_surfs[i]->m_Tag = tag_offset + i + 1;
         // map tag number to surface name
         m_TagNames[sub_surfs[i]->m_Tag] = sub_surfs[i]->GetName();
+        m_TagIDs[sub_surfs[i]->m_Tag] = sub_surfs[i]->GetID();
     }
 }
 
@@ -211,6 +213,14 @@ void SubSurfaceMgrSingleton::BuildCompNameMap()
 
     // Keys 1 - m_CompNames.size() should be empty since SetSubSurfTags
     // should have been called with the appropriate offset
+}
+
+void SubSurfaceMgrSingleton::BuildCompIDMap()
+{
+    for ( int i = 0; i < (int)m_CompIDs.size(); i++ )
+    {
+        m_TagIDs[i + 1] = m_CompIDs[i];
+    }
 }
 
 //==== Custom Sorting Fuction ====//
@@ -369,6 +379,53 @@ string SubSurfaceMgrSingleton::GetTagNames( int indx )
     if ( indx < m_TagKeys.size() && indx >= 0 )
     {
         return GetTagNames( m_TagKeys[indx] );
+    }
+    return string( "Error_Tag" );
+}
+
+string SubSurfaceMgrSingleton::GetTagIDs( const vector<int>& tags )
+{
+    string comp_list;
+    map< int, string >::iterator si;
+
+    int tag = GetTag( tags );
+
+    if ( tag == -1 )
+    {
+        comp_list = "Error_Tag";
+        return comp_list;
+    }
+    else
+    {
+        for ( int i = 0; i < (int)tags.size(); i++ )
+        {
+            si = m_TagIDs.find( tags[i] );
+
+            if ( si == m_TagIDs.end() )
+            {
+                comp_list += ",Error_SubSurf";
+            }
+            else if ( si != m_TagIDs.end() )
+            {
+                comp_list += "," + si->second;
+            }
+
+            // Remove leading comma on first loop
+            if ( i == 0 )
+            {
+                comp_list.erase( comp_list.begin(), comp_list.begin() + 1 );
+            }
+        }
+    }
+
+    return comp_list;
+}
+
+string SubSurfaceMgrSingleton::GetTagIDs( int indx )
+{
+    if ( indx < m_TagKeys.size() && indx >= 0 )
+    {
+        return GetTagIDs( m_TagKeys[indx] );
     }
     return string( "Error_Tag" );
 }

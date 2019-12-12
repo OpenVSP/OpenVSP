@@ -60,6 +60,7 @@ public:
     // Manage tag maps
     void ClearTagMaps();
     void BuildCompNameMap();
+    void BuildCompIDMap();
     void BuildSingleTagMap();
     int GetTag( const std::vector<int> & tags );
     std::vector< int > GetAllTags();
@@ -82,9 +83,14 @@ public:
     std::string GetTagNames( const std::vector<int> & tags );
     std::string GetTagNames( int indx );
 
+    std::string GetTagIDs( const std::vector<int>& tags );
+    std::string GetTagIDs( int indx );
+
     std::set< std::vector<int> > m_TagCombos;
     std::map< int, std::string > m_TagNames;
+    std::map< int, std::string > m_TagIDs;
     std::vector< std::string > m_CompNames;
+    std::vector< std::string > m_CompIDs;
 
 protected:
     int m_CurrSurfInd;
