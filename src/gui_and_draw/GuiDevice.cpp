@@ -15,6 +15,12 @@
 #include "StlHelper.h"
 #include "Util.h"
 
+// Xlib.h does a horrible '#define Status int' which causes problems for exprparse.
+// This should clean it up locally.
+#if defined (Status)
+#undef Status
+#endif
+
 using std::max;
 using std::min;
 
