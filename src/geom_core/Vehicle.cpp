@@ -2799,6 +2799,13 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool label
 
 void Vehicle::WriteStructureSTEPFile( const string & file_name )
 {
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_STEPStructureExportIndex() );
+    if ( !fea_struct )
+    {
+        printf( "ERROR WriteStructureSTEPFile: No FEA Structure Found\n" );
+        return;
+    }
+
     int len = UNIT_FOOT;
     switch ( m_StructUnit() )
     {
@@ -2828,7 +2835,6 @@ void Vehicle::WriteStructureSTEPFile( const string & file_name )
     vector < double > usplit;
     vector < double > wsplit;
 
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( m_STEPStructureExportIndex() );
     fea_struct->Update();
 
     vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
@@ -2972,6 +2978,13 @@ void Vehicle::WriteStructureIGESFile( const string & file_name, int feaMeshStruc
                              bool splitSurfs, bool toCubic, double toCubicTol, bool labelID,
                              bool labelName, bool labelSurfNo, bool labelSplitNo, int delimType )
 {
+    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( feaMeshStructIndex );
+    if ( !fea_struct )
+    {
+        printf( "ERROR WriteStructureIGESFile: No FEA Structure Found\n" );
+        return;
+    }
+
     string delim = StringUtil::get_delim( delimType );
 
     DLL_IGES model;
@@ -3007,7 +3020,6 @@ void Vehicle::WriteStructureIGESFile( const string & file_name, int feaMeshStruc
     vector < double > usplit;
     vector < double > wsplit;
 
-    FeaStructure* fea_struct = StructureMgr.GetFeaStruct( feaMeshStructIndex );
     fea_struct->Update();
 
     vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
