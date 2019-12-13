@@ -82,7 +82,7 @@ void NameValData::Init( const string & name, int type, int index )
 
 int NameValData::GetInt( int i ) const
 {
-    if ( i < ( int )m_IntData.size() )
+    if ( i >= 0 && i < ( int )m_IntData.size() )
     {
         return m_IntData[i];
     }
@@ -90,7 +90,7 @@ int NameValData::GetInt( int i ) const
 }
 double NameValData::GetDouble( int i ) const
 {
-    if ( i < ( int )m_DoubleData.size() )
+    if ( i >= 0 && i < ( int )m_DoubleData.size() )
     {
         return m_DoubleData[i];
     }
@@ -98,9 +98,9 @@ double NameValData::GetDouble( int i ) const
 }
 double NameValData::GetDouble( int row, int col ) const
 {
-    if ( row < ( int )m_DoubleMatData.size() )
+    if ( row >= 0 && row < ( int )m_DoubleMatData.size() )
     {
-        if ( col < ( int )m_DoubleMatData[row].size() )
+        if ( col >= 0 && col < ( int )m_DoubleMatData[row].size() )
         {
             return m_DoubleMatData[row][col];
         }
@@ -109,7 +109,7 @@ double NameValData::GetDouble( int row, int col ) const
 }
 string NameValData::GetString( int i ) const
 {
-    if ( i < ( int )m_StringData.size() )
+    if ( i >= 0 && i < ( int )m_StringData.size() )
     {
         return m_StringData[i];
     }
@@ -118,7 +118,7 @@ string NameValData::GetString( int i ) const
 
 vec3d NameValData::GetVec3d( int i ) const
 {
-    if ( i < ( int )m_Vec3dData.size() )
+    if ( i >= 0 && i < ( int )m_Vec3dData.size() )
     {
         return m_Vec3dData[i];
     }
