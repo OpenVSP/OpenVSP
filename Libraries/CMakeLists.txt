@@ -34,6 +34,10 @@ IF( NOT VSP_USE_SYSTEM_LIBIGES )
     INCLUDE( External_libIGES )
 ENDIF()
 
+IF( NOT VSP_USE_SYSTEM_STEPCODE )
+    INCLUDE( External_STEPCode )
+ENDIF()
+
 IF( NOT VSP_NO_GRAPHICS )
 	IF( NOT VSP_USE_SYSTEM_FLTK )
 		INCLUDE( External_FLTK )
@@ -51,8 +55,6 @@ IF( NOT VSP_NO_GRAPHICS )
 		INCLUDE( External_exprparse )
 	ENDIF()
 ENDIF()
-
-INCLUDE( External_STEPCode )
 
 # Set targeted variables in file to be read by VSP's CMake
 configure_file(

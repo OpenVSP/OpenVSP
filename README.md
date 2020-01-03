@@ -217,6 +217,9 @@
       - `C_OMP_COMPILER`
       - `CXX_OMP_COMPILER`
 
+   - `VSP_INSTALL_API_TEST` -- Set to include the `apitest` executable
+     in the installation package.
+
 ##### OpenVSP project variables:
 
    - `VSP_LIBRARY_PATH` -- Set this variable to point at the
@@ -240,6 +243,8 @@
       - `CODEELI_INSTALL_DIR`
       - `CMINPACK_INSTALL_DIR`
       - `LIBIGES_INSTALL_DIR`
+      - `STEPCODE_INSTALL_DIR`
+      - `EXPRPARSE_INSTALL_DIR`
 
 ##### Libraries & SuperProject project variables:
 
@@ -256,3 +261,5 @@
       - `VSP_USE_SYSTEM_GLEW`
       - `VSP_USE_SYSTEM_CMINPACK`
       - `VSP_USE_SYSTEM_LIBIGES`
+      - `VSP_USE_SYSTEM_STEPCODE`
+      - `VSP_USE_SYSTEM_EXPRPARSE`
