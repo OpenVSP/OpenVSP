@@ -82,9 +82,6 @@
    This header-only library is required by Code-Eli.  Eigen3 is likely
    to be available as a standard package on Linux.
 
-   - [AngelScript](http://www.angelcode.com/angelscript) - Embedded scripting
-   language for C++.  Used for user-defined components.
-
    - [CppTest](http://cpptest.sourceforge.net) - C++ Unit testing framework.
 
    - [Libxml2](http://www.xmlsoft.org) - XML parser and toolkit.  Libxml2 most
@@ -100,11 +97,6 @@
    be installed from source on Windows and Mac OS X according to the
    FLTK instructions.  GRAPHICS_ONLY
 
-   - [libjpeg](http://www.ijg.org) - JPEG compression library.  We typically
-   piggy-back on the libjpeg accompanying FLTK.  If you prefer to use
-   your own, it is typically pre-installed on Linux.  You will need
-   to build it yourself for MacOS or Windows.  GRAPHICS_ONLY
-
    - [GLM](http://glm.g-truc.net) - OpenGL math library.  GRAPHICS_ONLY
 
    - [GLEW](http://glew.sourceforge.net) - OpenGL Extension Wrangler Library.  This
@@ -114,12 +106,18 @@
    IGES files.  This is a very new library and is not likely to be packaged on
    any system.
 
-##### Bundled with OpenVSP.
-
    - [STEPcode](http://stepcode.org) - Library for working with STEP standard
    files.  Based on an old library developed by NIST.  This is a
    relatively new library, in constant development.  Not likely
    to be packaged on any system.
+
+   - [exprparse](http://github.com/amgary/exprparse) - A simple c++ library to
+    compute values from simple math expressions stored as strings.
+
+##### Bundled with OpenVSP.
+
+   - [AngelScript](http://www.angelcode.com/angelscript) - Embedded scripting
+   language for C++.  Used for user-defined components.
 
    - [nanoflann](http://code.google.com/p/nanoflann) - Fast nearest neighbors
    library.
@@ -132,7 +130,7 @@
    2D Delaunay triangulator.  This routine has been included in
    this distribution.
    
-   - triInt by Tomas Möller [jgt.akpeters.com/papers/Moller97](http://web.archive.org/web/*/http://jgt.akpeters.com/papers/Moller97) - Fast triangle-triangle intersection test.
+   - [triInt by Tomas Möller (was: jgt.akpeters.com/papers/Moller97)](http://web.archive.org/web/*/http://jgt.akpeters.com/papers/Moller97) - Fast triangle-triangle intersection test.
    This code comes from two sources previously available online.
    When JGT was taken over by Taylor and Francis, the source
    accompanying the articles became unavailable.  The routines are
@@ -147,9 +145,24 @@
       - Tomas Möller, "A Fast Triangle-Triangle Intersection Test", Journal
       of Graphics Tools, Vol. 2, Iss. 2, 1997.
   
-   - glFont2 by Brad Fish [students.cs.byu.edu/~bfish/glfont2.php] (http://web.archive.org/web/*/https://students.cs.byu.edu/~bfish/glfont2.php) - 
+   - [glFont2 by Brad Fish (was: students.cs.byu.edu/~bfish/glfont2.php)](http://web.archive.org/web/*/https://students.cs.byu.edu/~bfish/glfont2.php) - 
    2D OpenGL font tool.  glFont2 has been included in this source
    distribution.  GRAPHICS_ONLY
+
+   - [cartesian](https://sourceforge.net/p/rfltk/code/HEAD/tree/cartesian/) -
+   Simple 2D plotting library for FLTK.  GRAPHICS_ONLY
+
+   - [clipper](http://www.angusj.com/delphi/clipper.php) - An open source
+   freeware library for clipping and offsetting lines and polygons.
+
+   - [Pinocchio](https://github.com/elrond79/Pinocchio) - The pinocchio
+   auto-rigging / weighting tool.
+
+   - [stb](https://github.com/nothings/stb) - Single-file libraries for
+   C/C++ for reading and writing image files.  GRAPHICS_ONLY
+
+   - wavedragEL -  Standalone version of the Eminton-Lord procedure for
+   obtaining the zero-lift wavedrag D/Q written by Sriram Rallabhandi
 
 ### BUILD INSTRUCTIONS
 
