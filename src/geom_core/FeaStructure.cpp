@@ -1422,10 +1422,10 @@ VspSurf FeaSlice::ComputeSliceSurf()
         del_z = m_SectBBox.GetMax( 2 ) - m_SectBBox.GetMin( 2 );
 
         // Identify expansion 
-        double expan = m_SectBBox.GetLargestDist() * 1e-5;
-        if ( expan < 1e-5 )
+        double expan = m_SectBBox.GetLargestDist() * FEA_PART_EXPANSION_FACTOR;
+        if ( expan < FEA_PART_EXPANSION_FACTOR )
         {
-            expan = 1e-5;
+            expan = FEA_PART_EXPANSION_FACTOR;
         }
 
         if ( m_OrientationPlane() == vsp::SPINE_NORMAL )
@@ -2014,10 +2014,10 @@ void FeaSpar::ComputePlanarSurf()
         wing_z_axis.normalize();
 
         // Identify expansion 
-        double expan = wing_bbox.GetLargestDist() * 1e-4;
-        if ( expan < 1e-5 )
+        double expan = wing_bbox.GetLargestDist() * FEA_PART_EXPANSION_FACTOR;
+        if ( expan < FEA_PART_EXPANSION_FACTOR )
         {
-            expan = 1e-5;
+            expan = FEA_PART_EXPANSION_FACTOR;
         }
 
         double height = 0.5 * wing_bbox.GetSmallestDist() + expan; // Height of spar, slightly oversized
@@ -2734,10 +2734,10 @@ VspSurf FeaRib::ComputeRibSurf()
         else
         {
             // Identify expansion 
-            double expan = wing_bbox.GetLargestDist() * 1e-4;
-            if ( expan < 1e-5 )
+            double expan = wing_bbox.GetLargestDist() * FEA_PART_EXPANSION_FACTOR;
+            if ( expan < FEA_PART_EXPANSION_FACTOR )
             {
-                expan = 1e-5;
+                expan = FEA_PART_EXPANSION_FACTOR;
             }
 
             double length_rib_0 = ( dist( trail_edge, lead_edge ) / 2 ); // Rib half length before rotations

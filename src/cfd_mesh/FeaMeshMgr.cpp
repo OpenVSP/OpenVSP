@@ -437,7 +437,14 @@ void FeaMeshMgrSingleton::MergeCoplanarParts()
                     all_surf_vec[i].GetBoundingBox( bboxA );
                     all_surf_vec[j].GetBoundingBox( bboxB );
 
-                    if ( ( dist_pnt_2_plane( pntA, all_norm_vec[i], pntB ) <= FLT_EPSILON ) && Compare( bboxA, bboxB ) )
+                    // Reverse FEA part expansion
+                    BndBox temp_bboxA = bboxA;
+                    BndBox temp_bboxB = bboxB;
+                    
+                    temp_bboxA.Expand( -FEA_PART_EXPANSION_FACTOR );
+                    temp_bboxB.Expand( -FEA_PART_EXPANSION_FACTOR );
+
+                    if ( ( dist_pnt_2_plane( pntA, all_norm_vec[i], pntB ) <= FLT_EPSILON ) && Compare( temp_bboxA, temp_bboxB ) )
                     {
                         VspSurf new_surf = all_surf_vec[i];
 

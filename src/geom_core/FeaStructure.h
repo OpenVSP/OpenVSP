@@ -25,6 +25,8 @@
 #include "MeshCommonSettings.h"
 #include "GridDensity.h"
 
+#define FEA_PART_EXPANSION_FACTOR 1e-4
+
 // Forward declaration
 class FeaPart;
 
