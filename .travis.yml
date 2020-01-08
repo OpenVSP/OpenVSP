@@ -66,7 +66,7 @@ deploy:
     secure: FpccXk53/3xQYnb9kkTZTIRCV2rI/w+B+KRgohU/UdDouY3Ed0yZnlLYTALkWaWk7TkgoX9aXAGMaJ2aLA9tdPturm/cvWUszDmjcflX+hxiM2VgRwyhi+gUbdWljTYaK59xuV2e8hiprLR14C1bTUPoVl4CvIvJLyDe21uWyNs=
   draft: true
   file_glob: true
-  name: "TestRelease $TRAVIS_TAG"
+  name: "$TRAVIS_COMMIT Draft Deployment"
   file: $DEPLOY_FILE
   skip_cleanup: true
   on:
