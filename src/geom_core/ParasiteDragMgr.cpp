@@ -112,6 +112,9 @@ ParasiteDragMgrSingleton::ParasiteDragMgrSingleton() : ParmContainer()
     m_ExcresType.Init( "ExcresType", groupname, this, vsp::EXCRESCENCE_COUNT, vsp::EXCRESCENCE_COUNT, vsp::EXCRESCENCE_DRAGAREA );
     m_ExcresType.SetDescript( "Excrescence Type" );
 
+    m_SetChoice.Init( "Set", groupname, this, 0, 0, NUM_SETS + 2 );
+    m_SetChoice.SetDescript( "Selected set for operation" );
+
     // Recompute flag, if true degen/compgeom will be run even if an existing degen geom and comp geom exist from
     // a previous calculation
     m_RecomputeGeom = true;

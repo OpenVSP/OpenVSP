@@ -221,7 +221,7 @@ void Vehicle::Init()
     m_SetNameVec.push_back( "All" );        // SET_ALL
     m_SetNameVec.push_back( "Shown" );      // SET_SHOWN
     m_SetNameVec.push_back( "Not_Shown" );  // SET_NOT_SHOWN
-    for ( int i = 0 ; i < 20 ; i++ )
+    for ( int i = 0 ; i < NUM_SETS; i++ )
     {
         char str[256];
         sprintf( str, "Set_%d", i );

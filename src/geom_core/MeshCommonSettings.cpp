@@ -69,7 +69,7 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     m_ExportRawFlag.Init( "ExportRawFlag", "ExportIntersect", this, false, 0, 1 );
 
-    m_SelectedSetIndex.Init( "Set", "Global", this, 0, 0, 12 );
+    m_SelectedSetIndex.Init( "Set", "Global", this, 0, 0, NUM_SETS + 2 );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportIntersect", this, false, 0, 1 );

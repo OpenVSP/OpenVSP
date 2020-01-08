@@ -49,6 +49,8 @@
 // 5 -- 3.17.1   Add support for scaling thickness of file-type airfoils.
 //
 
+#define NUM_SETS 20 // Number of sets
+
 /*!
 * Centralized place to access all GUI related Parm objects.
 */
