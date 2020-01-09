@@ -6183,14 +6183,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     doc_struct.group = group.c_str();
 
     group_description = R"(
-    \brief The following group of functions are specific to VSPAERO. However, their relavence has been 
+    \brief The following group of functions are specific to VSPAERO. However, their relevence has been 
     mostly replaced by Analysis Manager capabilities. \n\n
     \ref index "Click here to return to the main page" )";
     se->AddGroup( group.c_str(), "VSPAERO Functions", group_description.c_str() );
 
     doc_struct.comment = R"(
 /*!
-    Get ID of the current VSPAERO refernce Geom
+    Get ID of the current VSPAERO reference Geom
     \return Reference Geom ID
 */)";
     r = se->RegisterGlobalFunction( "string GetVSPAERORefWingID()", asFUNCTION( vsp::GetVSPAERORefWingID ), asCALL_CDECL, doc_struct );
@@ -6198,7 +6198,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Set the current VSPAERO refernce Geom ID
+    Set the current VSPAERO reference Geom ID
     \code{.cpp}
     //==== Add Wing Geom and set some parameters =====//
     string wing_id = AddGeom( "WING" );
