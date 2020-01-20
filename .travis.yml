@@ -8,9 +8,6 @@ env:
 matrix:
   include:
     - os: linux
-      dist: xenial
-      compiler: gcc
-    - os: linux
       dist: bionic
       compiler: gcc
     - os: osx
