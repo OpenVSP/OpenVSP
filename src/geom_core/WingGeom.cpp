@@ -611,7 +611,7 @@ WingSect::WingSect( XSecCurve *xsc ) : BlendWingSect( xsc)
 {
     m_Type = vsp::XSEC_WING;
 
-    m_ProjectedSpan.Init( "Aspect", m_GroupName, this, 0.0,0.0, 1.0e12 );
+    m_ProjectedSpan.Init( "ProjectedSpan", m_GroupName, this, 0.0,0.0, 1.0e12 );
     m_ProjectedSpan.SetDescript( "Projected Span of Wing Section" );
 
     m_XDelta  = m_YDelta  = m_ZDelta  = 0;
