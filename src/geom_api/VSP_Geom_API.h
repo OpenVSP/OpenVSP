@@ -153,6 +153,8 @@ extern std::string GetGeomParent( const string& geom_id );
 extern std::vector< std::string > GetGeomChildren( const string& geom_id );
 extern int GetNumXSecSurfs( const std::string & geom_id );
 extern int GetNumMainSurfs( const std::string & geom_id );
+extern int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind = 0 );
+extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind = 0 );
 
 //======================== SubSurface Functions ================================//
 extern std::string AddSubSurf( const std::string & geom_id, int type, int surfindex = 0 );

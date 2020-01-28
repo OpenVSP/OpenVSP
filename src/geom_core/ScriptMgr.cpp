@@ -5327,6 +5327,46 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Get the VSP surface CFD type of the specified Geom
+    \code{.cpp}
+    //==== Add Wing Geometry ====//
+    string wing_id = AddGeom( "WING" );
+
+    if ( GetGeomVSPSurfCfdType( wing_id ) != CFD_NORMAL )
+    {
+        Print( "---> Error: API GetGeomVSPSurfCfdType " );
+    }
+    \endcode
+    \sa VSP_SURF_CFD_TYPE
+    \param [in] geom_id Geom ID
+    \param [in] main_surf_ind Main surface index
+    \return VSP surface CFD type enum (i.e. CFD_TRANSPARENT)
+*/)";
+    r = se->RegisterGlobalFunction( "int GetGeomVSPSurfCfdType( const string & in geom_id, int main_surf_ind = 0 )", asFUNCTION( vsp::GetGeomVSPSurfCfdType ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the VSP surface type of the specified Geom
+    \code{.cpp}
+    //==== Add Wing Geometry ====//
+    string wing_id = AddGeom( "WING" );
+
+    if ( GetGeomVSPSurfType( wing_id ) != WING_SURF )
+    {
+        Print( "---> Error: API GetGeomVSPSurfType " );
+    }
+    \endcode
+    \sa VSP_SURF_TYPE
+    \param [in] geom_id Geom ID
+    \param [in] main_surf_ind Main surface index
+    \return VSP surface type enum (i.e. DISK_SURF)
+*/)";
+    r = se->RegisterGlobalFunction( "int GetGeomVSPSurfType( const string & in geom_id, int main_surf_ind = 0 )", asFUNCTION( vsp::GetGeomVSPSurfType ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Get the type name of specified Geom (i.e. FUSELAGE)
     \code{.cpp}
     //==== Add Wing Geometry ====//

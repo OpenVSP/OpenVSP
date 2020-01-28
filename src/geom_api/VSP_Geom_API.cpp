@@ -1711,6 +1711,50 @@ string GetGeomName( const string & geom_id )
     return ret_name;
 }
 
+// Get the VSP Surface type for the specified Geom (i.e DISK_SURF)
+int GetGeomVSPSurfType( const string& geom_id, int main_surf_ind )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomVSPSurfType::Can't Find Geom" );
+        return -1;
+    }
+
+    vector < VspSurf > surf_vec;
+    geom_ptr->GetMainSurfVec( surf_vec );
+
+    if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomVSPSurfType::Main Surf Index Out of Range" );
+    }
+
+    return surf_vec[main_surf_ind].GetSurfType();
+}
+
+// Get the VSP Surface CFD type for the specified Geom (i.e TRANSPARENT_SURF)
+int GetGeomVSPSurfCfdType( const string& geom_id, int main_surf_ind )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomVSPSurfCfdType::Can't Find Geom" );
+        return -1;
+    }
+
+    vector < VspSurf > surf_vec;
+    geom_ptr->GetMainSurfVec( surf_vec );
+
+    if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomVSPSurfCfdType::Main Surf Index Out of Range" );
+    }
+
+    return surf_vec[main_surf_ind].GetSurfCfdType();
+}
+
 /// Get of the linkable parms ids for this geometry
 vector< string > GetGeomParmIDs( const string & geom_id  )
 {
