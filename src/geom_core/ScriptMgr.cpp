@@ -5384,7 +5384,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the number of main surfaces for the specified Geom. Multiple main surfaces may exist for CustoGeoms, when symmetry is actve, etc. 
+    Get the number of main surfaces for the specified Geom. Multiple main surfaces may exist for CustoGeoms, propellors, etc., but 
+    does not include surfaces created due to symmetry.
     \code{.cpp}
     //==== Add Prop Geometry ====//
     string prop_id = AddGeom( "PROP" );
@@ -5399,6 +5400,26 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \return Number of main surfaces
 */)";
     r = se->RegisterGlobalFunction( "int GetNumMainSurfs( const string & in geom_id )", asFUNCTION( vsp::GetNumMainSurfs ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the total number of surfaces for the specified Geom. This is equivalent to the number of main surface multiplied 
+    by the number of symmetric copies. 
+    \code{.cpp}
+    //==== Add Wing Geometry ====//
+    string wing_id = AddGeom( "WING" );
+
+    int num_surf = GetNumMaGetTotalNumSurfsinSurfs( wing_id ); // Wings default with XZ symmetry on -> 2 surfaces
+
+    Print( "Total Number of Wing Surfaces: ", false );
+
+    Print( num_surf );
+    \endcode
+    \param [in] geom_id Geom ID
+    \return Number of main surfaces
+*/)";
+    r = se->RegisterGlobalFunction( "int GetTotalNumSurfs( const string & in geom_id )", asFUNCTION( vsp::GetTotalNumSurfs ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(

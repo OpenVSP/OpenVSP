@@ -1874,6 +1874,21 @@ int GetNumMainSurfs( const string & geom_id )
     return geom_ptr->GetNumMainSurfs();
 }
 
+/// Get the total number of surfs for this geom
+int GetTotalNumSurfs( const string& geom_id )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetTotalNumSurfs::Can't Find Geom " + geom_id );
+        return 0;
+    }
+
+    ErrorMgr.NoError();
+    return geom_ptr->GetNumTotalSurfs();
+}
+
 /// Add a sub surface, return subsurface id
 string AddSubSurf( const string & geom_id, int type, int surfindex )
 {
