@@ -156,6 +156,8 @@ extern int GetNumMainSurfs( const std::string & geom_id );
 extern int GetTotalNumSurfs( const std::string& geom_id );
 extern int GetGeomVSPSurfType( const std::string& geom_id, int main_surf_ind = 0 );
 extern int GetGeomVSPSurfCfdType( const std::string& geom_id, int main_surf_ind = 0 );
+extern vec3d GetGeomBBoxMax( const std::string& geom_id, int main_surf_ind = 0, bool ref_frame_is_absolute = true );
+extern vec3d GetGeomBBoxMin( const std::string& geom_id, int main_surf_ind = 0, bool ref_frame_is_absolute = true );
 
 //======================== SubSurface Functions ================================//
 extern std::string AddSubSurf( const std::string & geom_id, int type, int surfindex = 0 );

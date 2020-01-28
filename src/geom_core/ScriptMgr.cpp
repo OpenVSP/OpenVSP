@@ -5424,6 +5424,54 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Get the the maximum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
+    box may be specified in absolute or body reference frame. 
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pid = AddGeom( "Pod" );
+
+    SetParmVal( FindParm( pid, "Y_Rotation", "XForm" ), 45 );
+    SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 );
+
+    Update();
+    
+    vec3d max_pnt = GetGeomBBoxMax( pid, 0, false );
+    \endcode
+    \sa GetGeomBBoxMin
+    \param [in] geom_id Geom ID
+    \param [in] main_surf_ind Main surface index
+    \param [in] ref_frame_is_absolute Flag to specify absolute or body reference frame
+    \return Maximum coordinate of the bounding box
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d GetGeomBBoxMax( const string & in geom_id, int main_surf_ind = 0, bool ref_frame_is_absolute = true )", asFUNCTION( vsp::GetGeomBBoxMax ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the the minimum coordinate of the bounding box of a Geom with given main surface index. The Geom bounding
+    box may be specified in absolute or body reference frame. 
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pid = AddGeom( "Pod" );
+
+    SetParmVal( FindParm( pid, "Y_Rotation", "XForm" ), 45 );
+    SetParmVal( FindParm( pid, "Z_Rotation", "XForm" ), 25 );
+
+    Update();
+    
+    vec3d min_pnt = GetGeomBBoxMin( pid, 0, false );
+    \endcode
+    \sa GetGeomBBoxMax
+    \param [in] geom_id Geom ID
+    \param [in] main_surf_ind Main surface index
+    \param [in] ref_frame_is_absolute Flag to specify absolute or body reference frame
+    \return Minimum coordinate of the bounding box
+*/)";
+    r = se->RegisterGlobalFunction( "vec3d GetGeomBBoxMin( const string & in geom_id, int main_surf_ind = 0, bool ref_frame_is_absolute = true )", asFUNCTION( vsp::GetGeomBBoxMin ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Get the parent Geom ID for the input child Geom. "NONE" is returned if the Geom has no parent.
     \code{.cpp}
     //==== Add Parent and Child Geometry ====//

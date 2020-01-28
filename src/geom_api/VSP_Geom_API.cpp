@@ -1889,6 +1889,90 @@ int GetTotalNumSurfs( const string& geom_id )
     return geom_ptr->GetNumTotalSurfs();
 }
 
+// Get the maximum bounding box point for the Geom in absolute or body axes
+vec3d GetGeomBBoxMax( const string& geom_id, int main_surf_ind, bool ref_frame_is_absolute )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomBBoxMax::Can't Find Geom " + geom_id );
+        return vec3d();
+    }
+
+    vector< VspSurf > surf_vec;
+    geom_ptr->GetSurfVec( surf_vec );
+
+    if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMax::Main Surf Index Out of Range" );
+    }
+
+    VspSurf current_surf = surf_vec[main_surf_ind];
+
+    // Determine BndBox dimensions prior to rotating and translating
+    Matrix4d model_matrix = geom_ptr->getModelMatrix();
+    model_matrix.affineInverse();
+
+    VspSurf orig_surf = current_surf;
+    orig_surf.Transform( model_matrix );
+
+    BndBox bbox;
+
+    if ( !ref_frame_is_absolute )
+    {
+        orig_surf.GetBoundingBox( bbox );
+    }
+    else
+    {
+        current_surf.GetBoundingBox( bbox );
+    }
+
+    return bbox.GetMax();
+}
+
+// Get the minimum bounding box point for the Geom in absolute or body axes
+vec3d GetGeomBBoxMin( const string& geom_id, int main_surf_ind, bool ref_frame_is_absolute )
+{
+    Vehicle* veh = GetVehicle();
+    Geom* geom_ptr = veh->FindGeom( geom_id );
+    if ( !geom_ptr )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomBBoxMin::Can't Find Geom " + geom_id );
+        return vec3d();
+    }
+
+    vector< VspSurf > surf_vec;
+    geom_ptr->GetSurfVec( surf_vec );
+
+    if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMin::Main Surf Index Out of Range" );
+    }
+
+    VspSurf current_surf = surf_vec[main_surf_ind];
+
+    // Determine BndBox dimensions prior to rotating and translating
+    Matrix4d model_matrix = geom_ptr->getModelMatrix();
+    model_matrix.affineInverse();
+
+    VspSurf orig_surf = current_surf;
+    orig_surf.Transform( model_matrix );
+
+    BndBox bbox;
+
+    if ( !ref_frame_is_absolute )
+    {
+        orig_surf.GetBoundingBox( bbox );
+    }
+    else
+    {
+        current_surf.GetBoundingBox( bbox );
+    }
+
+    return bbox.GetMin();
+}
+
 /// Add a sub surface, return subsurface id
 string AddSubSurf( const string & geom_id, int type, int surfindex )
 {
