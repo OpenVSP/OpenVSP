@@ -185,6 +185,79 @@ void WireGeom::UpdateSurf()
         m_XFormPts = tmppts;
     }
 
+    // Handle skipping.
+    if ( m_ISkipStart() != 0 || m_ISkipEnd() != 0 || m_JSkipStart() != 0 || m_JSkipEnd() != 0 )
+    {
+        num_i = num_i - m_ISkipStart() - m_ISkipEnd();
+        num_j = num_j - m_JSkipStart() - m_JSkipEnd();
+
+        if ( num_i <= 0 || num_j <= 0 ) // No surface left
+        {
+            m_XFormPts.resize(0);
+            m_XFormNorm.resize(0);
+            return;
+        }
+
+        vector < vector < vec3d > > tmppts;
+        tmppts.resize( num_i );
+        for ( unsigned int i = 0 ; i < num_i ; i++ )
+        {
+            tmppts[i].resize( num_j );
+            for ( unsigned int j = 0 ; j < num_j ; j++ )
+            {
+                tmppts[i][j] =  m_XFormPts[i + m_ISkipStart()][j + m_JSkipStart()];
+            }
+        }
+        m_XFormPts = tmppts;
+    }
+
+    // Handle I Stride
+    if ( m_IStride() != 1 )
+    {
+        vector < vector < vec3d > > tmppts;
+
+        unsigned int ilast = 0;
+        for ( unsigned int i = 0 ; i < num_i ; i = i + m_IStride() )
+        {
+            tmppts.push_back( m_XFormPts[i] );
+            ilast = i;
+        }
+        if ( ilast != num_i - 1 )
+        {
+            tmppts.push_back( m_XFormPts[num_i - 1] );
+        }
+
+        m_XFormPts = tmppts;
+        num_i = m_XFormPts.size();
+    }
+
+    // Handle J Stride
+    if ( m_JStride() != 1 )
+    {
+        vector < vector < vec3d > > tmppts;
+        tmppts.resize( num_i );
+
+        unsigned int jlast = 0;
+        for ( unsigned int j = 0 ; j < num_j ; j = j + m_JStride() )
+        {
+            for ( unsigned int i = 0 ; i < num_i ; i++ )
+            {
+                tmppts[i].push_back( m_XFormPts[i][j] );
+            }
+            jlast = j;
+        }
+        if ( jlast != num_j - 1 )
+        {
+            for ( unsigned int i = 0 ; i < num_i ; i++ )
+            {
+                tmppts[i].push_back( m_XFormPts[i][num_j - 1] );
+            }
+        }
+
+        m_XFormPts = tmppts;
+        num_j = m_XFormPts[0].size();
+    }
+
     if ( m_IStartPatchType() != vsp::PATCH_NONE )
     {
         vector < vec3d > oldrow;
@@ -302,79 +375,6 @@ void WireGeom::UpdateSurf()
 
         m_XFormPts = tmppts;
         num_j++;
-    }
-
-    // Handle skipping.
-    if ( m_ISkipStart() != 0 || m_ISkipEnd() != 0 || m_JSkipStart() != 0 || m_JSkipEnd() != 0 )
-    {
-        num_i = num_i - m_ISkipStart() - m_ISkipEnd();
-        num_j = num_j - m_JSkipStart() - m_JSkipEnd();
-
-        if ( num_i <= 0 || num_j <= 0 ) // No surface left
-        {
-            m_XFormPts.resize(0);
-            m_XFormNorm.resize(0);
-            return;
-        }
-
-        vector < vector < vec3d > > tmppts;
-        tmppts.resize( num_i );
-        for ( unsigned int i = 0 ; i < num_i ; i++ )
-        {
-            tmppts[i].resize( num_j );
-            for ( unsigned int j = 0 ; j < num_j ; j++ )
-            {
-                tmppts[i][j] =  m_XFormPts[i + m_ISkipStart()][j + m_JSkipStart()];
-            }
-        }
-        m_XFormPts = tmppts;
-    }
-
-    // Handle I Stride
-    if ( m_IStride() != 1 )
-    {
-        vector < vector < vec3d > > tmppts;
-
-        unsigned int ilast = 0;
-        for ( unsigned int i = 0 ; i < num_i ; i = i + m_IStride() )
-        {
-            tmppts.push_back( m_XFormPts[i] );
-            ilast = i;
-        }
-        if ( ilast != num_i - 1 )
-        {
-            tmppts.push_back( m_XFormPts[num_i - 1] );
-        }
-
-        m_XFormPts = tmppts;
-        num_i = m_XFormPts.size();
-    }
-
-    // Handle J Stride
-    if ( m_JStride() != 1 )
-    {
-        vector < vector < vec3d > > tmppts;
-        tmppts.resize( num_i );
-
-        unsigned int jlast = 0;
-        for ( unsigned int j = 0 ; j < num_j ; j = j + m_JStride() )
-        {
-            for ( unsigned int i = 0 ; i < num_i ; i++ )
-            {
-                tmppts[i].push_back( m_XFormPts[i][j] );
-            }
-            jlast = j;
-        }
-        if ( jlast != num_j - 1 )
-        {
-            for ( unsigned int i = 0 ; i < num_i ; i++ )
-            {
-                tmppts[i].push_back( m_XFormPts[i][num_j - 1] );
-            }
-        }
-
-        m_XFormPts = tmppts;
-        num_j = m_XFormPts[0].size();
     }
 
     // Calculate normal vectors.
