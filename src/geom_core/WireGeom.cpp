@@ -53,6 +53,11 @@ WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
 
     m_OtherInvertFlag = false;
 
+    m_SurfIndxVec.resize( 1);
+    m_SurfIndxVec[0] = 0;
+    m_SurfCopyIndx.resize( 1 );
+    m_SurfCopyIndx[0] = 0;
+
     Update();
 }
 
@@ -96,6 +101,9 @@ void WireGeom::UpdateSurf()
             m_XFormPts[i][j] = transMat.xform( m_WirePts[i][j] );
         }
     }
+
+    m_TransMatVec.resize( 1 );
+    m_TransMatVec[0] = transMat;
 
     // Handle swapping I/J.
     if ( m_SwapIJFlag() )
