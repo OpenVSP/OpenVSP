@@ -561,6 +561,38 @@ void WireGeom::UpdateBBox()
     }
 }
 
+void WireGeom::ReadP3D( FILE* fp, int ni, int nj, int nk )
+{
+    m_WirePts.resize( ni );
+    for ( int i = 0 ; i < ni ; i++ )
+    {
+        m_WirePts[i].resize(nj);
+    }
+
+    for ( int ix = 0; ix < 3; ix++ )
+    {
+        for ( int k = 0; k < nk; k++ )
+        {
+            for ( int j = 0 ; j < nj ; j++ )
+            {
+                for ( int i = 0 ; i < ni ; i++ )
+                {
+                    double xi;
+                    fscanf( fp, "%lf ", &xi );
+                    if ( k == 0 )  // Only store k=0 surface
+                    {
+                        m_WirePts[i][j].v[ix] = xi;
+                    }
+                }
+            }
+        }
+    }
+
+    m_InvertFlag = CheckInverted();
+
+    Update();
+}
+
 void WireGeom::ReadXSec( FILE* fp )
 {
     char name_str[256];

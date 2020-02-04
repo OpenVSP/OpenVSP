@@ -357,7 +357,8 @@ enum IMPORT_TYPE {  IMPORT_STL,
                     IMPORT_PTS,
                     IMPORT_V2,
                     IMPORT_BEM,
-                    IMPORT_XSEC_WIRE
+                    IMPORT_XSEC_WIRE,
+                    IMPORT_P3D_WIRE
                  };
 
 enum INTERSECT_EXPORT_TYPE { INTERSECT_SRF_FILE_NAME,

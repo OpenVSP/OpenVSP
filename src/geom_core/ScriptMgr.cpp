@@ -1267,6 +1267,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_XSEC_WIRE", IMPORT_XSEC_WIRE, "/*!< XSec as Wireframe (*.hrm) import */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "IMPORT_TYPE", "IMPORT_P3D_WIRE", IMPORT_P3D_WIRE, "/*!< Plot3D as Wireframe (*.p3d) import */" );
+    assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum for Surface Intersection export file types. */";
 

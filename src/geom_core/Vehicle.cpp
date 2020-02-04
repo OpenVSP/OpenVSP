@@ -4381,6 +4381,70 @@ string Vehicle::ImportFile( const string & file_name, int file_type )
 
         return id;
     }
+    else if ( file_type == IMPORT_P3D_WIRE )
+    {
+        FILE *fp;
+        char str[256];
+
+        //==== Make Sure File Exists ====//
+        if ( ( fp = fopen( file_name.c_str(), "r" ) ) == ( FILE * )NULL )
+        {
+            return id;
+        }
+
+        //==== Read in number of blockks ====//
+        int num_comps;
+        fscanf( fp, "%d\n", &num_comps );
+
+        if ( num_comps <= 0 )
+        {
+            fclose ( fp );
+            return id;
+        }
+
+        vector <int> ni( num_comps, 0 );
+        vector <int> nj( num_comps, 0 );
+        vector <int> nk( num_comps, 0 );
+
+        for ( int c = 0 ; c < num_comps ; c++ )
+        {
+            fscanf( fp, "%d %d %d\n", &ni[c], &nj[c], &nk[c] );
+        }
+
+        // Make sure blank gets added to top level.
+        // Consider removing this to make blank added as child of active.
+        ClearActiveGeom();
+
+        GeomType type = GeomType( BLANK_GEOM_TYPE, "BLANK", true );
+        id = AddGeom( type );
+        if ( !id.compare( "NONE" ) )
+        {
+            fclose( fp );
+            return id;
+        }
+
+        // Make blank active so components will be children of it.
+        SetActiveGeom( id );
+
+        for ( int c = 0 ; c < num_comps ; c++ )
+        {
+            type = GeomType( WIRE_FRAME_GEOM_TYPE, "WIREFRAME", true );
+            string cid = AddGeom( type );
+            if ( !cid.compare( "NONE" ) )
+            {
+                return id;
+            }
+
+            WireGeom* new_geom = ( WireGeom* )FindGeom( cid );
+            if ( new_geom )
+            {
+                new_geom->ReadP3D( fp, ni[c], nj[c], nk[c] );
+            }
+        }
+        fclose( fp );
+
+        return id;
+    }
     else
     {
         GeomType type = GeomType( MESH_GEOM_TYPE, "MESH", true );

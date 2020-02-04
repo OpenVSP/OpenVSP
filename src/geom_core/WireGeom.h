@@ -30,6 +30,7 @@ public:
     virtual void UpdateBBox();
     virtual Matrix4d GetTotalTransMat();
 
+    virtual void ReadP3D( FILE* fp, int ni, int nj, int nk );
     virtual void ReadXSec( FILE* fp );
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );

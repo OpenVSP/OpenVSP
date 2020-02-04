@@ -45,7 +45,7 @@ protected:
     TriggerButton m_PTSButton;
     TriggerButton m_V2Button;
     TriggerButton m_BEMButton;
-
+    TriggerButton m_P3DWireButton;
 };
 
 
