@@ -504,6 +504,10 @@ void VspCurve::InterpolateCSpline( vector< vec3d > & input_pnt_vec, const vec3d 
     }
 }
 
+// ttol -- tolerance on gap between curve midpoints
+// atol -- angle tolerance used to detect corners before adaptation.  Smooth if:  abs(1-cos(theta)) <= atol
+// dmin -- minimum number of divisions of curve
+// dmax -- maximum number of divisions of curve
 void VspCurve::ToBinaryCubic( bool wingtype, double ttol, double atol, int dmin, int dmax )
 {
     piecewise_binary_cubic_creator pbcc;
