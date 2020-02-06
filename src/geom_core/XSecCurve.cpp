@@ -329,7 +329,12 @@ void XSecCurve::Update()
 
     if ( m_Type != XS_POINT )
     {
-        m_Curve.ToBinaryCubic( wingtype );
+        double w = GetWidth();
+        double h = GetHeight();
+        if ( w == 0 ) w = 1;
+        if ( h == 0 ) h = 1;
+        double lref = sqrt( w * w + h * h );
+        m_Curve.ToBinaryCubic( wingtype, 1e-6 * lref );
     }
 
     RotTransScale();
