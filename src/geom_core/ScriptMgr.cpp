@@ -6078,7 +6078,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     array<string> @cs_name_vec = GetAvailableCSNameVec( group_index );
 
-    AddSelectedToCSGroup( cs_name_vec[0], group_index ); // Add the first available control surface to the group
+    array < int > cs_ind_vec(1);
+    cs_ind_vec[0] = 1;
+
+    AddSelectedToCSGroup( cs_ind_vec, group_index ); // Add the first available control surface to the group
     \endcode
     \param [in] CSGroupIndex Index of the control surface group
     \return Array of active control surface names
@@ -6143,7 +6146,14 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     array<string> @cs_name_vec = GetAvailableCSNameVec( group_index );
 
-    AddSelectedToCSGroup( cs_name_vec[0], group_index ); // Add the first available control surface to the group
+    array < int > cs_ind_vec;
+
+    for ( int i = 0; i < cs_name_vec.size(); i++ )
+    {
+        cs_ind_vec[i] = i + 1;
+    }
+
+    AddSelectedToCSGroup( cs_ind_vec, group_index ); // Add all available control surfaces to the group
     \endcode
     \sa GetAvailableCSNameVec
     \param [in] selected Array of control surface indexes to add to the group. Note, the integer values are one based.
