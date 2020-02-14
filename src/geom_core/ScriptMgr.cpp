@@ -5259,10 +5259,37 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
         Print( "---> Error: API FindGeomsWithName " );
     }
     \endcode
+    \sa FindGeom
     \param [in] name Geom name
     \return Array of Geom IDs
 */)";
     r = se->RegisterGlobalFunction( "array<string>@ FindGeomsWithName(const string & in name)", asMETHOD( ScriptMgrSingleton, FindGeomsWithName ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Find and return the Geom ID with the specified name at given index. Equivalent to FindGeomsWithName( name )[index].
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pid = AddGeom( "POD", "" );
+
+    SetGeomName( pid, "ExamplePodName" );
+
+    geom_id = FindGeom( "ExamplePodName", 0 );
+
+    geom_ids = FindGeomsWithName( "ExamplePodName" );
+
+    if ( geom_ids[0] != geom_id )
+    {
+        Print( "---> Error: API FindGeom & FindGeomsWithName" );
+    }
+    \endcode
+    \sa FindGeomsWithName
+    \param [in] name Geom name
+    \param [in] index 
+    \return Geom ID with name at specified index
+*/)";
+    r = se->RegisterGlobalFunction( "string FindGeom(const string & in name, int index)", asFUNCTION( vsp::FindGeom ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(
