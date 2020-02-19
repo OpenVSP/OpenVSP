@@ -612,7 +612,7 @@ void Results::WriteParasiteDragFile( const string & file_name )
             double Q = Find("Comp_Q").GetDouble(i);
             double f = Find("Comp_f").GetDouble(i);
             double CD = Find("Comp_CD").GetDouble(i);
-            double PercTotalCD = Find("Comp_PercTotalCD").GetDouble(i);
+            double PercTotalCD = 100 * Find("Comp_PercTotalCD").GetDouble(i);
 
             fprintf(file_id, "%s,", label.c_str());
             fprintf(file_id, "%f, %f, %f,", swet, lref, fineRat);
@@ -634,7 +634,7 @@ void Results::WriteParasiteDragFile( const string & file_name )
             double input = Find("Excres_Input").GetDouble(i);
             double f = Find( "Excres_f" ).GetDouble( i );
             double amount = Find("Excres_Amount").GetDouble(i);
-            double perctotalcd = Find("Excres_PercTotalCD").GetDouble(i);
+            double perctotalcd = 100 * Find("Excres_PercTotalCD").GetDouble(i);
 
             fprintf(file_id, " %s, %s, %f, , , , , , , ,%f, %f, %f \n",
                 label.c_str(), type.c_str(), input, f, amount, perctotalcd);
@@ -642,13 +642,13 @@ void Results::WriteParasiteDragFile( const string & file_name )
 
         double geomftotal = Find("Geom_f_Total").GetDouble(0);
         double geomcdtotal = Find("Geom_CD_Total").GetDouble(0);
-        double geomperctotal = Find("Geom_Perc_Total").GetDouble(0);
+        double geomperctotal = 100 * Find("Geom_Perc_Total").GetDouble(0);
         double excresftotal = Find("Excres_f_Total").GetDouble(0);
         double excrescdtotal = Find("Excres_CD_Total").GetDouble(0);
-        double excresperctotal = Find("Excres_Perc_Total").GetDouble(0);
+        double excresperctotal = 100 * Find("Excres_Perc_Total").GetDouble(0);
         double totalftotal = Find("Total_f_Total").GetDouble(0);
         double totalcdtotal = Find("Total_CD_Total").GetDouble(0);
-        double totalperctotal = Find("Total_Perc_Total").GetDouble(0);
+        double totalperctotal = 100 * Find("Total_Perc_Total").GetDouble(0);
 
         fprintf(file_id, "\n");
         fprintf(file_id, " , , , , , , , , , %s, %f, %f, %f \n", "Geometry Sub-Total:", geomftotal, geomcdtotal, geomperctotal);
