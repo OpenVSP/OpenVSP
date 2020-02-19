@@ -2011,6 +2011,8 @@ void ParasiteDragFullAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "LengthUnit",        ParasiteDragMgr.m_LengthUnit.Get() ) );
         m_Inputs.Add( NameValData( "VelocityUnit",      ParasiteDragMgr.m_VinfUnitType.Get() ) );
         m_Inputs.Add( NameValData( "TempUnit",          ParasiteDragMgr.m_TempUnit.Get() ) );
+        m_Inputs.Add( NameValData( "AltLengthUnit",     ParasiteDragMgr.m_AltLengthUnit.Get() ) );
+        m_Inputs.Add( NameValData( "PresUnit",          ParasiteDragMgr.m_PresUnit.Get() ) );
 
         // Sub-Components
         m_Inputs.Add( NameValData( "ExportSubCompFlag",    ParasiteDragMgr.m_ExportSubCompFlag.Get() ) );
@@ -2083,6 +2085,8 @@ string ParasiteDragFullAnalysis::Execute()
         int lengthUnitChoiceOrig = ParasiteDragMgr.m_LengthUnit.Get();
         int velocityUnitChoiceOrig = ParasiteDragMgr.m_VinfUnitType.Get();
         int tempUnitChoiceOrig = ParasiteDragMgr.m_TempUnit.Get();
+        int altLengthUnitOrig = ParasiteDragMgr.m_AltLengthUnit.Get();
+        int presUnitOrig = ParasiteDragMgr.m_PresUnit.Get();
         nvd = m_Inputs.FindPtr( "LengthUnit", 0 );
         if ( nvd )
         {
@@ -2097,6 +2101,16 @@ string ParasiteDragFullAnalysis::Execute()
         if ( nvd )
         {
             ParasiteDragMgr.m_TempUnit.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "AltLengthUnit", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_AltLengthUnit.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "PresUnit", 0 );
+        if ( nvd )
+        {
+            ParasiteDragMgr.m_PresUnit.Set( nvd->GetInt( 0 ) );
         }
 
         // Sub-Components
@@ -2212,6 +2226,8 @@ string ParasiteDragFullAnalysis::Execute()
         ParasiteDragMgr.m_LengthUnit.Set( lengthUnitChoiceOrig );
         ParasiteDragMgr.m_VinfUnitType.Set( velocityUnitChoiceOrig );
         ParasiteDragMgr.m_TempUnit.Set( tempUnitChoiceOrig );
+        ParasiteDragMgr.m_AltLengthUnit.Set( altLengthUnitOrig );
+        ParasiteDragMgr.m_PresUnit.Set( presUnitOrig );
 
         // Sub-Components
         ParasiteDragMgr.m_ExportSubCompFlag.Set( exportSubCompFlagOrig );
