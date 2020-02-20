@@ -2847,10 +2847,6 @@ void ParasiteDragMgrSingleton::UpdateParmActivity()
 
 void ParasiteDragMgrSingleton::UpdateExportLabels()
 {
-    string deg( 1, 176 );
-    string squared( 1, 178 );
-    string cubed( 1, 179 );
-
     // Flow Qualities
     switch ( m_AltLengthUnit.Get() )
     {
@@ -2953,11 +2949,11 @@ void ParasiteDragMgrSingleton::UpdateExportLabels()
     switch ( m_TempUnit.Get() )
     {
     case vsp::TEMP_UNIT_C:
-        m_TempLabel = "Temp (" + deg + "C)";
+        m_TempLabel = "Temp (C)";
         break;
 
     case vsp::TEMP_UNIT_F:
-        m_TempLabel = "Temp (" + deg + "F)";
+        m_TempLabel = "Temp (F)";
         break;
 
     case vsp::TEMP_UNIT_K:
@@ -2965,7 +2961,7 @@ void ParasiteDragMgrSingleton::UpdateExportLabels()
         break;
 
     case vsp::TEMP_UNIT_R:
-        m_TempLabel = "Temp (" + deg + "R)";
+        m_TempLabel = "Temp (R)";
         break;
     }
 
