@@ -141,7 +141,7 @@ void APITestSuiteMassProp::TestSolidCylinder()
     double rho = 5;
     TEST_ASSERT_DELTA( vsp::SetParmVal( fus_id, "Density", "Mass_Props", rho ), rho, TEST_TOL );
 
-    //  Increase W Tesselation:
+    //  Increase W Tessellation:
     TEST_ASSERT_DELTA( vsp::SetParmVal( fus_id, "Tess_W", "Shape", 97 ), 97, TEST_TOL );
 
     //==== Analytical Mass Properties ====//
@@ -334,7 +334,7 @@ void APITestSuiteMassProp::TestThickWallCylinder()
     double rho = 5;
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Density", "Mass_Props", rho ), rho, TEST_TOL );
 
-    //  Increase W Tesselation:
+    //  Increase W Tessellation:
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Tess_W", "Shape", 73 ), 73, TEST_TOL );
 
     //==== Analytical Mass Properties ====//
@@ -521,7 +521,7 @@ void APITestSuiteMassProp::TestCylindricalShell()
     double rho = 0;
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Density", "Mass_Props", rho ), rho, TEST_TOL );
 
-    //  Increase W Tesselation:
+    //  Increase W Tessellation:
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Tess_W", "Shape", 73 ), 73, TEST_TOL );
 
     //==== Analytical Mass Properties ====//
@@ -666,7 +666,7 @@ void APITestSuiteMassProp::TestSphere()
     string xloc_id2 = vsp::GetXSecParm( xsec_id2, "XDelta" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xloc_id2, radius ), radius, TEST_TOL );
 
-    //  Increase U Tesselation
+    //  Increase U Tessellation
     string xutess_id0 = vsp::GetXSecParm( xsec_id0, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id0, 20 ), 20, TEST_TOL );
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
@@ -707,7 +707,7 @@ void APITestSuiteMassProp::TestSphere()
     int rho = 5;
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Density", "Mass_Props", rho ), rho, TEST_TOL );
 
-    //  Increase W Tesselation:
+    //  Increase W Tessellation:
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Tess_W", "Shape", 113 ), 113, TEST_TOL );
 
     //==== Analytical Mass Properties ====//
@@ -868,10 +868,10 @@ void APITestSuiteMassProp::TestSolidCone()
     double rho = 5;
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Density", "Mass_Props", rho ), rho, TEST_TOL )
 
-    //  Increase W Tesselation:
+    //  Increase W Tessellation:
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Tess_W", "Shape", 73 ), 73, TEST_TOL )
 
-    //  Increase U Tesselation
+    //  Increase U Tessellation
     string xutess_id0 = vsp::GetXSecParm( xsec_id0, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id0, 20 ), 20, TEST_TOL );
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
@@ -1049,10 +1049,10 @@ void APITestSuiteMassProp::TestShellCone()
     double rho = 0;
     vsp::SetParmVal( stack_id, "Density", "Mass_Props", rho );
 
-    //  Increase W Tesselation:
+    //  Increase W Tessellation:
     vsp::SetParmVal( stack_id, "Tess_W", "Shape", 73 );
 
-    //  Increase U Tesselation
+    //  Increase U Tessellation
     string xutess_id0 = vsp::GetXSecParm( xsec_id0, "SectTess_U" );
     vsp::SetParmVal( xutess_id0, 20 );
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
@@ -1249,10 +1249,10 @@ void APITestSuiteMassProp::TestRectangularPrism()
     double rho = 5;
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Density", "Mass_Props", rho ), rho, TEST_TOL );
 
-    //  Increase W Tesselation:
+    //  Increase W Tessellation:
     TEST_ASSERT_DELTA( vsp::SetParmVal( stack_id, "Tess_W", "Shape", 81 ), 81, TEST_TOL );
 
-    //  Increase U Tesselation
+    //  Increase U Tessellation
     string xutess_id0 = vsp::GetXSecParm( xsec_id0, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id0, 20 ), 20, TEST_TOL );
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );

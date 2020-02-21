@@ -197,7 +197,7 @@ public:
     TriggerButton m_CustomMaterialButton;
     Choice m_ExportNameChoice;
 
-    //==== Tesselation ====//
+    //==== Tessellation ====//
     SliderInput m_NumUSlider;
     SliderInput m_NumWSlider;
 

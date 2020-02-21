@@ -88,7 +88,7 @@ DXFOptionsScreen::DXFOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 42
     m_2DViewType.AddItem( "Four" );
     m_GenLayout.AddChoice( m_2DViewType, "2D View Type" );
 
-    // To Do: Add Tesselation Tool Tip?
+    // To Do: Add Tessellation Tool Tip?
 
     m_GenLayout.AddYGap();
     m_GenLayout.AddX( 20 );

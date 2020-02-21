@@ -1911,7 +1911,7 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
         return;
     }
 
-    // Adjust tesselation
+    // Adjust Tessellation
     if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT && abs( veh->m_AFWTessFactor() - 1.0 ) >= FLT_EPSILON )
     {
         m_TessW.Set( m_TessW() * veh->m_AFWTessFactor() );
@@ -2111,7 +2111,7 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
         }
     }
 
-    // Restore tesselation
+    // Restore Tessellation
     if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT && abs( veh->m_AFWTessFactor() - 1.0 ) >= FLT_EPSILON )
     {
         m_TessW.Set( m_TessW.GetLastVal() );

@@ -7441,7 +7441,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Write out the untwisted unit-length 2D coordinate points for the specified airfoil in Selig format. Coordinate points follow the on-screen wire frame W tesselation. 
+    Write out the untwisted unit-length 2D coordinate points for the specified airfoil in Selig format. Coordinate points follow the on-screen wire frame W tessellation. 
     \code{.cpp}
     //==== Add Wing Geometry and Set Parms ====//
     string wing_id = AddGeom( "WING", "" );

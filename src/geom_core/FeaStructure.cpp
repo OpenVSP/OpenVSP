@@ -3507,7 +3507,7 @@ void FeaDome::UpdateDrawObjs( int id, bool highlight )
             m_FeaPartDO[j + 1].m_LineWidth = 1.0;
         }
 
-        // Tesselate the surface (can adjust num_u and num_v tesselation for smoothness) 
+        // Tesselate the surface (can adjust num_u and num_v Tessellation for smoothness) 
         vector < vector < vec3d > > pnts, norms, uw;
         m_FeaPartSurfVec[j / 2].Tesselate( 10, 18, pnts, norms, uw, 3, false );
 

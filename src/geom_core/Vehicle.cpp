@@ -102,7 +102,7 @@ Vehicle::Vehicle()
     m_DXFProjectionFlag.Init( "DXFProjectionFlag", "DXFSettings", this , false, 0, 1 );
     m_DXFProjectionFlag.SetDescript( "Flag To Export Geom and Vehicle Projection Lines" );
     m_DXFTessFactor.Init( "DXFTessFactor", "DXFSettings", this, 2, 0, 100 );
-    m_DXFTessFactor.SetDescript( "DXF Tesselation Multiplier. Caution: May Slow Export" );
+    m_DXFTessFactor.SetDescript( "DXF Tessellation Multiplier. Caution: May Slow Export" );
     m_DXFAllXSecFlag.Init( "DXFAllXSecFlag", "DXFSettings", this, false, 0, 1 );
     m_DXFAllXSecFlag.SetDescript( "Flag To Export XSec Feature Lines" );
     m_DXFColorFlag.Init( "DXFColorFlag", "DXFSettings", this, false, 0, 1 );
@@ -127,7 +127,7 @@ Vehicle::Vehicle()
     m_SVGProjectionFlag.Init( "SVGProjectionFlag", "SVGSettings", this , false, 0, 1 );
     m_SVGProjectionFlag.SetDescript( "Flag To Export Geom and Vehicle Projection Lines" );
     m_SVGTessFactor.Init( "SVGTessFactor", "SVGSettings", this, 2, 0, 100 );
-    m_SVGTessFactor.SetDescript( "SVG Tesselation Multiplier. Caution: May Slow Export" );
+    m_SVGTessFactor.SetDescript( "SVG Tessellation Multiplier. Caution: May Slow Export" );
     m_SVGAllXSecFlag.Init( "SVGAllXSecFlag", "SVGSettings", this, false, 0, 1 );
     m_SVGAllXSecFlag.SetDescript( "Flag To Export XSec Feature Lines" );
     m_SVGView.Init( "ViewType", "SVGSettings", this, vsp::VIEW_1, vsp::VIEW_1, vsp::VIEW_4 );
@@ -144,9 +144,9 @@ Vehicle::Vehicle()
     m_AFExportType.Init( "AFExportType", "AirfoilExport", this, vsp::BEZIER_AF_EXPORT, vsp::SELIG_AF_EXPORT, vsp::BEZIER_AF_EXPORT );
     m_AFExportType.SetDescript( "Airfoil Representation Written to File" );
     m_AFWTessFactor.Init( "AFWTessFactor", "AirfoilExport", this, 1.0, 0.01, 100 );
-    m_AFWTessFactor.SetDescript( "Airfoil W Tesselation Factor" );
+    m_AFWTessFactor.SetDescript( "Airfoil W Tessellation Factor" );
     m_AFAppendGeomIDFlag.Init( "AFAppendGeomIDFlag", "AirfoilExport", this, true, false, true );
-    m_AFAppendGeomIDFlag.SetDescript( "Airfoil W Tesselation Factor" );
+    m_AFAppendGeomIDFlag.SetDescript( "Airfoil W Tessellation Factor" );
 
     m_STLMultiSolid.Init( "MultiSolid", "STLSettings", this, false, 0, 1 );
     m_STLExportPropMainSurf.Init( "ExportPropMainSurf", "STLSettings", this, false, 0, 1 );
@@ -3143,8 +3143,8 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
         m_VehProjectVec3d.clear();
         m_VehProjectVec3d.resize( 3 );
 
-        // Tesselation adjustment
-        // Tesselation must be an integer -- something rational should be done with either
+        // Tessellation adjustment
+        // Tessellation must be an integer -- something rational should be done with either
         // tessfactor or the places where it is used.
         double tessfactor = m_DXFTessFactor.Get();
 
@@ -3165,7 +3165,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 
                     int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
 
-                    if ( num_xsec_surf > 0 ) // Increase U tesselation by section for segmented geoms
+                    if ( num_xsec_surf > 0 ) // Increase U Tessellation by section for segmented geoms
                     {
                         for ( unsigned int j = 0; j < num_xsec_surf; j++ )
                         {
@@ -3272,7 +3272,7 @@ void Vehicle::WriteDXFFile( const string & file_name, int write_set )
 
                     int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
 
-                    if ( num_xsec_surf > 0 ) // Restore U tesselation by section for segmented geoms
+                    if ( num_xsec_surf > 0 ) // Restore U Tessellation by section for segmented geoms
                     {
                         for ( unsigned int j = 0; j < num_xsec_surf; j++ )
                         {
@@ -3346,7 +3346,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
     
     xmlDocSetRootElement( doc, root );
 
-    // Tesselation adjustment
+    // Tessellation adjustment
     double tessfactor = m_SVGTessFactor.Get();
 
     BndBox svgbox;
@@ -3372,7 +3372,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
 
                 int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
 
-                if ( num_xsec_surf > 0 ) // Increase U tesselation by section for segmented geoms
+                if ( num_xsec_surf > 0 ) // Increase U Tessellation by section for segmented geoms
                 {
                     for ( unsigned int j = 0; j < num_xsec_surf; j++ )
                     {
@@ -3480,7 +3480,7 @@ void Vehicle::WriteSVGFile( const string & file_name, int write_set )
 
                 int num_xsec_surf = geom_vec[i]->GetNumXSecSurfs();
 
-                if ( num_xsec_surf > 0 ) // Restore U tesselation by section for segmented geoms
+                if ( num_xsec_surf > 0 ) // Restore U Tessellation by section for segmented geoms
                 {
                     for ( unsigned int j = 0; j < num_xsec_surf; j++ )
                     {

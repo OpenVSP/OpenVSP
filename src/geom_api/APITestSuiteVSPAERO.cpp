@@ -37,11 +37,11 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     TEST_ASSERT( wing_id.c_str() != NULL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "TotalSpan", "WingGeom", 17.0 ), 17.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "Z_Rel_Location", "XForm", 0.5 ), 0.5, TEST_TOL );
-    // Adjust chordwise tesselation
+    // Adjust chordwise Tessellation
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "Tess_W", "Shape", 20 ), calcTessWCheckVal( 20 ), TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL );
-    // Adjust spanwise tesselation
+    // Adjust spanwise Tessellation
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "SectTess_U", "XSec_1", 15 ), 15, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "InCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "OutCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL );
@@ -91,11 +91,11 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "Z_Rel_Location", "XForm", 0.2 ), 0.2, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "X_Rel_Rotation", "XForm", 90 ), 90, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "Sym_Planar_Flag", "Sym", 0 ), 0, TEST_TOL );
-    // Adjust chordwise tesselation
+    // Adjust chordwise Tessellation
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "Tess_W", "Shape", 20 ), calcTessWCheckVal( 20 ), TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL );
-    // Adjust spanwise tesselation
+    // Adjust spanwise Tessellation
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "SectTess_U", "XSec_1", 8 ), 8, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "InCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( vert_id, "OutCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL );
@@ -114,11 +114,11 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "TotalArea", "WingGeom", 10.0 ), 10.0, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "X_Rel_Location", "XForm", 8.5 ), 8.5, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "Z_Rel_Location", "XForm", 0.2 ), 0.2, TEST_TOL );
-    // Adjust chordwise tesselation
+    // Adjust chordwise Tessellation
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "Tess_W", "Shape", 20 ), calcTessWCheckVal( 20 ), TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "TECluster", "WingGeom", 2.0 ), 2.0, TEST_TOL );
-    // Adjust spanwise tesselation
+    // Adjust spanwise Tessellation
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "SectTess_U", "XSec_1", 8 ), 8, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "InCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( horiz_id, "OutCluster", "XSec_1", 0.1 ), 0.1, TEST_TOL );
@@ -135,8 +135,8 @@ void APITestSuiteVSPAERO::TestVSPAeroCreateModel()
     TEST_ASSERT( pod_id.c_str() != NULL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "Length", "Design", 14.5 ), 14.5, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", -3.0 ), -3.0, TEST_TOL );
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "Tess_U", "Shape", 15 ), 15, TEST_TOL ); //lengthwise tesselation
-    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "Tess_W", "Shape", 15 ), calcTessWCheckVal( 15 ), TEST_TOL ); //radial tesselation
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "Tess_U", "Shape", 15 ), 15, TEST_TOL ); //lengthwise Tessellation
+    TEST_ASSERT_DELTA( vsp::SetParmValUpdate( wing_id, "Tess_W", "Shape", 15 ), calcTessWCheckVal( 15 ), TEST_TOL ); //radial Tessellation
     printf( "COMPLETE\n" );
 
     //==== Set VSPAERO Reference lengths & areas ====//
@@ -928,10 +928,10 @@ void APITestSuiteVSPAERO::TestVSPAeroSharpTrailingEdge()
     string xsweep_id1 = vsp::GetXSecParm( xsec_id1, "Sweep" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xsweep_id1, 0.0 ), 0.0, TEST_TOL );
 
-    //  Increase W Tesselation:
+    //  Increase W Tessellation:
     TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Tess_W", "Shape", 69 ), calcTessWCheckVal( 69 ), TEST_TOL );
 
-    //  Increase U Tesselation
+    //  Increase U Tessellation
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id1, 16 ), 16, TEST_TOL );
     string xrtcluster_id1 = vsp::GetXSecParm( xsec_id1, "InCluster" );
@@ -1091,10 +1091,10 @@ void APITestSuiteVSPAERO::TestVSPAeroBluntTrailingEdge()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    //  Increase W Tesselation:
+    //  Increase W Tessellation:
     TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Tess_W", "Shape", 69 ), calcTessWCheckVal( 69 ), TEST_TOL );
 
-    //  Increase U Tesselation
+    //  Increase U Tessellation
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id1, 16 ), 16, TEST_TOL );
     string xrtcluster_id1 = vsp::GetXSecParm( xsec_id1, "InCluster" );
@@ -1244,12 +1244,12 @@ void APITestSuiteVSPAERO::TestVSPAeroSupersonicDeltaWing()
     vsp::Update();
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
-    //  Increase W Tesselation:
+    //  Increase W Tessellation:
     TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "Tess_W", "Shape", 69 ), calcTessWCheckVal( 69 ), TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "LECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
     TEST_ASSERT_DELTA( vsp::SetParmVal( wing_id, "TECluster", "WingGeom", 0.1 ), 0.1, TEST_TOL );
 
-    //  Increase U Tesselation
+    //  Increase U Tessellation
     string xutess_id1 = vsp::GetXSecParm( xsec_id1, "SectTess_U" );
     TEST_ASSERT_DELTA( vsp::SetParmVal( xutess_id1, 16 ), 16, TEST_TOL );
     string xrtcluster_id1 = vsp::GetXSecParm( xsec_id1, "InCluster" );

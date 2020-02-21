@@ -1468,7 +1468,7 @@ void Geom::UpdateFlags( )
 
 void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
 {
-    double tol = 10e-2; // Feature line tesselation tolerance
+    double tol = 10e-2; // Feature line Tessellation tolerance
 
     bool color = m_Vehicle->m_DXFColorFlag.Get();
 
@@ -1789,7 +1789,7 @@ vector< vector < vec3d > > Geom::GetGeomProjectionLines( int view, vec3d offset 
 
 void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
 {
-    double tol = 10e-2; // Feature line tesselation tolerance
+    double tol = 10e-2; // Feature line Tessellation tolerance
     
     // Bounding box diagonal, used to separate multi-view drawings
     vec3d shiftvec = svgbox.GetMax() - svgbox.GetMin();
@@ -3561,11 +3561,11 @@ vector < vec3d > Geom::GetAirfoilCoordinates( double foilsurf_u_location )
     VspCurve foil_curve;
     foil_surf->GetU01ConstCurve( foil_curve, foilsurf_u_location );
 
-    // Get V tesselation values
+    // Get V Tessellation values
     vector < double > Vtess, Vup, Vlow;
     foil_surf->MakeVTess( m_TessW(), Vtess, m_CapUMinTess(), false );
 
-    // Identify upper and lower tesselation values
+    // Identify upper and lower Tessellation values
     vector < vec3d > lower_pnts, upper_pnts;
 
     for ( size_t i = 1; i < Vtess.size() - 1; i++ ) // Note: LE and TE not included
@@ -3623,13 +3623,13 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
         return;
     }
 
-    // Adjust tesselation
+    // Adjust Tessellation
     if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT && abs( veh->m_AFWTessFactor() - 1.0 ) >= FLT_EPSILON )
     {
         m_TessW.Set( m_TessW() * veh->m_AFWTessFactor() );
     }
 
-    // Get sectional U tesselation for interpolated airfoils. Ignore end caps
+    // Get sectional U Tessellation for interpolated airfoils. Ignore end caps
     vector < int > utess_vec;
     int num_foil = 0;
 
@@ -3776,7 +3776,7 @@ void Geom::WriteAirfoilFiles( FILE* meta_fid )
         }
     }
 
-    // Restore tesselation
+    // Restore Tessellation
     if ( veh->m_AFExportType() == vsp::SELIG_AF_EXPORT && abs( veh->m_AFWTessFactor() - 1.0 ) >= FLT_EPSILON )
     {
         m_TessW.Set( m_TessW.GetLastVal() );
