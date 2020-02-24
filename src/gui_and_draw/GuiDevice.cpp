@@ -3514,6 +3514,7 @@ void CurveEditor::RedrawXYSliders( int num_pts, int curve_type )
     int input_w = 50;
     int range_button_w = 10;
     int button_w = 45;
+    int scroll_w = 15;
 
     m_PtLayout->SetButtonWidth( button_w );
     m_PtLayout->SetInputWidth( input_w );
@@ -3524,7 +3525,7 @@ void CurveEditor::RedrawXYSliders( int num_pts, int curve_type )
     if ( curve_type == vsp::CEDIT )
     {
         int check_button_w = 45;
-        int slider_w = ( m_PtLayout->GetW() - ( check_button_w + num_sliders * button_w + 2* num_sliders * range_button_w + num_sliders * gap_w + num_sliders * input_w ) ) / num_sliders;
+        int slider_w = ( m_PtLayout->GetW() - ( scroll_w + check_button_w + num_sliders * button_w + 2* num_sliders * range_button_w + num_sliders * gap_w + num_sliders * input_w ) ) / num_sliders;
         m_PtLayout->SetSliderWidth( slider_w );
 
         for ( int n = 0; n < num_pts; n++ )
@@ -3548,7 +3549,7 @@ void CurveEditor::RedrawXYSliders( int num_pts, int curve_type )
     }
     else
     {
-        int slider_w = ( m_PtLayout->GetW() - ( num_sliders * button_w + 2 * num_sliders * range_button_w + num_sliders * gap_w + num_sliders * input_w ) ) / num_sliders;
+        int slider_w = ( m_PtLayout->GetW() - ( scroll_w + num_sliders * button_w + 2 * num_sliders * range_button_w + num_sliders * gap_w + num_sliders * input_w ) ) / num_sliders;
         m_PtLayout->SetSliderWidth( slider_w );
 
         for ( int n = 0; n < num_pts; n++ )
