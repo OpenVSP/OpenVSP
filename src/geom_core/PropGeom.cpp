@@ -107,6 +107,8 @@ void PropPositioner::Update()
     double x = -m_RootChord * ( 0.5 - m_Construct );
     mat.translatef( x * sin( m_RootTwist * PI / 180.0), 0, m_Reverse * x * cos( m_RootTwist * PI / 180.0) );
 
+    mat.translatef( m_Axial, 0, m_Reverse * m_Tangential );
+
     mat.rotateY( m_Reverse * m_Twist );
 
     mat.translatef( m_Rake, 0, m_Reverse * m_Skew );
@@ -457,6 +459,22 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     vector < double > vv5( v5, v5 + sizeof( v5 ) / sizeof( v5[0] ) );
     m_CLICurve.InitCurve( tv5, vv5 );
 
+    m_AxialCurve.SetParentContainer( GetID() );
+    m_AxialCurve.SetDispNames( "r/R", "Axial/R" );
+    m_AxialCurve.SetParmNames( "r", "ax" );
+    m_AxialCurve.SetCurveName( "Axial" );
+    m_AxialCurve.InitParms();
+    m_AxialCurve.m_CurveType = vsp::LINEAR;
+    m_AxialCurve.InitCurve( tv3, vv3 );
+
+    m_TangentialCurve.SetParentContainer(GetID() );
+    m_TangentialCurve.SetDispNames("r/R", "Tan/R" );
+    m_TangentialCurve.SetParmNames("r", "tan" );
+    m_TangentialCurve.SetCurveName("Tangential" );
+    m_TangentialCurve.InitParms();
+    m_TangentialCurve.m_CurveType = vsp::LINEAR;
+    m_TangentialCurve.InitCurve(tv3, vv3 );
+
     // Set up vector to allow treatment as a group.
     m_pcurve_vec.resize( NUM_PROP_PCURVE );
     m_pcurve_vec[ PROP_CHORD ] = &m_ChordCurve;
@@ -466,6 +484,8 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_pcurve_vec[ PROP_SWEEP ] = &m_SweepCurve;
     m_pcurve_vec[ PROP_THICK ] = &m_ThickCurve;
     m_pcurve_vec[ PROP_CLI ] = &m_CLICurve;
+    m_pcurve_vec[ PROP_AXIAL ] = &m_AxialCurve;
+    m_pcurve_vec[ PROP_TANGENTIAL ] = &m_TangentialCurve;
 
 }
 
@@ -976,6 +996,8 @@ void PropGeom::UpdateSurf()
                 xs->m_PropPos.m_Rake = m_RakeCurve.Comp( r ) * radius;
                 xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
                 xs->m_PropPos.m_Sweep = m_SweepCurve.Comp( r );
+                xs->m_PropPos.m_Axial = m_AxialCurve.Comp( r ) * radius;
+                xs->m_PropPos.m_Tangential = m_TangentialCurve.Comp( r ) * radius;
                 xs->m_PropPos.m_PropRot = m_Rotate();
                 xs->m_PropPos.m_Feather = m_Feather();
 
@@ -1054,6 +1076,9 @@ void PropGeom::UpdateSurf()
             pp.m_Skew = m_SkewCurve.Comp( r ) * radius;
 
             pp.m_Sweep = m_SweepCurve.Comp( r );
+
+            pp.m_Axial = m_AxialCurve.Comp( r ) * radius;
+            pp.m_Tangential = m_TangentialCurve.Comp( r ) * radius;
 
             pp.m_PropRot = m_Rotate();
             pp.m_Feather = m_Feather();
@@ -1262,6 +1287,8 @@ xmlNodePtr PropGeom::EncodeXml( xmlNodePtr & node )
         m_SweepCurve.EncodeXml( propeller_node );
         m_ThickCurve.EncodeXml( propeller_node );
         m_CLICurve.EncodeXml( propeller_node );
+        m_AxialCurve.DecodeXml( propeller_node );
+        m_TangentialCurve.DecodeXml(propeller_node );
     }
     return propeller_node;
 }
@@ -1353,6 +1380,9 @@ xmlNodePtr PropGeom::DecodeXml( xmlNodePtr & node )
             m_CLICurve.m_CurveType = vsp::LINEAR;
             m_CLICurve.InitCurve( rvec, clivec );
         }
+
+        m_AxialCurve.DecodeXml( propeller_node );
+        m_TangentialCurve.DecodeXml(propeller_node );
     }
 
     return propeller_node;
@@ -1477,6 +1507,8 @@ void PropGeom::AddLinkableParms( vector< string > & linkable_parm_vec, const str
     m_SweepCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
     m_ThickCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
     m_CLICurve.AddLinkableParms( linkable_parm_vec, m_ID  );
+    m_AxialCurve.AddLinkableParms( linkable_parm_vec, m_ID  );
+    m_TangentialCurve.AddLinkableParms(linkable_parm_vec, m_ID  );
 }
 
 //==== Scale ====//
@@ -1656,6 +1688,8 @@ string PropGeom::BuildBEMResults()
     vector < double > sweep_vec(n);
     vector < double > thick_vec(n);
     vector < double > cli_vec(n);
+    vector < double > axial_vec(n);
+    vector < double > tangential_vec(n);
 
     double rspan = rlast - rfirst;
     for ( int i = 0; i < n; i++ )
@@ -1694,6 +1728,8 @@ string PropGeom::BuildBEMResults()
         sweep_vec[i] = m_SweepCurve.Comp( r );
         thick_vec[i] = m_ThickCurve.Comp( r );
         cli_vec[i] = m_CLICurve.Comp( r );
+        axial_vec[i] = m_AxialCurve.Comp( r );
+        tangential_vec[i] = m_TangentialCurve.Comp( r );
     }
 
     res->Add( NameValData( "Radius", r_vec ) );
@@ -1704,6 +1740,8 @@ string PropGeom::BuildBEMResults()
     res->Add( NameValData( "Sweep", sweep_vec ) );
     res->Add( NameValData( "Thick", thick_vec ) );
     res->Add( NameValData( "CLi", cli_vec ) );
+    res->Add( NameValData( "Axial", axial_vec ) );
+    res->Add( NameValData( "Tangential", tangential_vec ) );
 
     return res->GetID();
 }
@@ -1726,6 +1764,8 @@ int PropGeom::ReadBEM( const string &file_name )
     vector < double > sweep_vec;
     vector < double > thick_vec;
     vector < double > cli_vec;
+    vector < double > axial_vec;
+    vector < double > tangential_vec;
 
     FILE* fid = fopen( file_name.c_str(), "r" );
 
@@ -1757,12 +1797,14 @@ int PropGeom::ReadBEM( const string &file_name )
         sweep_vec.resize( num_sect );
         thick_vec.resize( num_sect );
         cli_vec.resize( num_sect );
+        axial_vec.resize( num_sect );
+        tangential_vec.resize( num_sect );
 
         fgets( buf, 255, fid );  // Advance past "Radius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi"
 
         for ( int i = 0; i < num_sect; i++ )
         {
-            fscanf( fid, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", &r_vec[i], &chord_vec[i], &twist_vec[i], &rake_vec[i], &skew_vec[i], &sweep_vec[i], &thick_vec[i], &cli_vec[i] );
+            fscanf( fid, "%lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf, %lf\n", &r_vec[i], &chord_vec[i], &twist_vec[i], &rake_vec[i], &skew_vec[i], &sweep_vec[i], &thick_vec[i], &cli_vec[i], &axial_vec[i], &tangential_vec[i] );
         }
 
         fclose( fid );
@@ -1781,7 +1823,7 @@ int PropGeom::ReadBEM( const string &file_name )
         printf( "\nRadius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi\n" );
         for ( int i = 0; i < num_sect; i++ )
         {
-            printf( "%.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f\n", r_vec[i], chord_vec[i], twist_vec[i], rake_vec[i], skew_vec[i], sweep_vec[i], thick_vec[i], cli_vec[i] );
+            printf( "%.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f\n", r_vec[i], chord_vec[i], twist_vec[i], rake_vec[i], skew_vec[i], sweep_vec[i], thick_vec[i], cli_vec[i], axial_vec[i], tangential_vec[i] );
         }
     }
 
@@ -1843,6 +1885,8 @@ int PropGeom::ReadBEM( const string &file_name )
     m_SweepCurve.SetCurve( r_vec, sweep_vec, vsp::PCHIP );
     m_ThickCurve.SetCurve( r_vec, thick_vec, vsp::PCHIP );
     m_CLICurve.SetCurve( r_vec, cli_vec, vsp::PCHIP );
+    m_AxialCurve.SetCurve( r_vec, axial_vec, vsp::PCHIP );
+    m_TangentialCurve.SetCurve( r_vec, tangential_vec, vsp::PCHIP );
 
     return 1;
 }

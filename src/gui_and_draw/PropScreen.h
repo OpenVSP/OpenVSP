@@ -33,7 +33,7 @@ public:
 
 protected:
 
-    enum { CHORD, TWIST, RAKE, SKEW, SWEEP, THICK, CLI };
+    enum { CHORD, TWIST, RAKE, SKEW, SWEEP, AXIAL, TANGENTIAL, THICK, CLI };
 
     GroupLayout m_DesignLayout;
 

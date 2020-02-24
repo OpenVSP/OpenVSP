@@ -49,6 +49,8 @@ public:
     double m_Rake;
     double m_Skew;
     double m_Sweep;
+    double m_Axial;
+    double m_Tangential;
 
     vec3d m_FoldOrigin;
     vec3d m_FoldDirection;
@@ -185,6 +187,8 @@ public:
     PCurve m_RakeCurve;
     PCurve m_SkewCurve;
     PCurve m_SweepCurve;
+    PCurve m_AxialCurve;
+    PCurve m_TangentialCurve;
     PCurve m_ThickCurve;
     PCurve m_CLICurve;
 

@@ -450,6 +450,8 @@ enum PROP_PCURVE { PROP_CHORD,
                    PROP_SWEEP,
                    PROP_THICK,
                    PROP_CLI,
+                   PROP_AXIAL,
+                   PROP_TANGENTIAL,
                    NUM_PROP_PCURVE
                  };
 

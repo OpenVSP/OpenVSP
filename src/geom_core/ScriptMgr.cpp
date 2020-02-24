@@ -1461,6 +1461,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PROP_PCURVE", "PROP_CLI", PROP_CLI, "/*!< Induced lift coefficient parameterization */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_PCURVE", "PROP_AXIAL", PROP_AXIAL, "/*!< Axial parameterization */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "PROP_PCURVE", "PROP_TANGENTIAL", PROP_TANGENTIAL, "/*!< Tangential parameterization */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "PROP_PCURVE", "NUM_PROP_PCURVE", NUM_PROP_PCURVE, "/*!< Number of propeller blade curve parameterization options */" );
     assert( r >= 0 );
 
