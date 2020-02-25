@@ -1287,8 +1287,8 @@ xmlNodePtr PropGeom::EncodeXml( xmlNodePtr & node )
         m_SweepCurve.EncodeXml( propeller_node );
         m_ThickCurve.EncodeXml( propeller_node );
         m_CLICurve.EncodeXml( propeller_node );
-        m_AxialCurve.DecodeXml( propeller_node );
-        m_TangentialCurve.DecodeXml(propeller_node );
+        m_AxialCurve.EncodeXml( propeller_node );
+        m_TangentialCurve.EncodeXml(propeller_node );
     }
     return propeller_node;
 }
