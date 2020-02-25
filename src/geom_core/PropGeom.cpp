@@ -991,7 +991,7 @@ void PropGeom::UpdateSurf()
                 xs->m_PropPos.m_RootTwist = twroot;
 
                 xs->m_PropPos.m_Twist = m_TwistCurve.Comp( r );
-                xs->m_PropPos.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
+                xs->m_PropPos.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) - m_AxialCurve.Compdt( r ) ) * 180.0 / PI;
 
                 xs->m_PropPos.m_Rake = m_RakeCurve.Comp( r ) * radius;
                 xs->m_PropPos.m_Skew = m_SkewCurve.Comp( r ) * radius;
@@ -1070,7 +1070,7 @@ void PropGeom::UpdateSurf()
             pp.m_RootChord = croot;
             pp.m_RootTwist = twroot;
 
-            pp.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) ) * 180.0 / PI;
+            pp.m_ZRotate = atan( -m_RakeCurve.Compdt( r ) - m_AxialCurve.Compdt( r ) ) * 180.0 / PI;
 
             pp.m_Rake = m_RakeCurve.Comp( r ) * radius;
             pp.m_Skew = m_SkewCurve.Comp( r ) * radius;
