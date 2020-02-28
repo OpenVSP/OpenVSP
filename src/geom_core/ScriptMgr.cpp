@@ -6226,6 +6226,44 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "string SetVSPAERORefWingID( const string & in geom_id )", asFUNCTION( vsp::SetVSPAERORefWingID ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
+    //==== VSPAERO Disk and Prop Functions ====//
+    group = "VSPAERODiskAndProp";
+    doc_struct.group = group.c_str();
+
+    group_description = R"(
+    \brief The following group of functions provide API capability for setting up actuator disks (Disk tab
+    of VSPAERO GUI) and propellers (Propeller tab of VSPAERO GUI) for VSPAERO analysis. If a propeller 
+    geometry is used to model the actuator disk, the "PropMode" must be set to PROP_DISK or PROP_BOTH. 
+    Alternatively, the "PropMode" but be set to PROP_BLADE or PROP_BOTH for unsteady analysis.
+    must be set to PROP_DISK or PROP_BOTH.\n\n
+    \ref index "Click here to return to the main page" )";
+    se->AddGroup( group.c_str(), "VSPAERO Actuator Disk and Propeller Functions", group_description.c_str() );
+
+    doc_struct.comment = R"(
+/*!
+    Get the ID of the VSPAERO actuator disk at the specified index. An empty string is returned if
+    the index is out of range. 
+    \code{.cpp}
+    // Create an actuator disk
+    string prop_id = AddGeom( "PROP", pod_id );
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK );
+    SetParmVal( prop_id, "Diameter", "Design", 6.0 );
+
+    Update();
+
+    // Setup the actuator disk VSPAERO parms
+    string disk_id = FindActuatorDisk( 0 );
+    SetParmVal( FindParm( disk_id, "RotorRPM", "Rotor" ), 1234.0 );
+    SetParmVal( FindParm( disk_id, "RotorCT", "Rotor" ), 0.35 );
+    SetParmVal( FindParm( disk_id, "RotorCP", "Rotor" ), 0.55 );
+    SetParmVal( FindParm( disk_id, "RotorHubDiameter", "Rotor" ), 1.0 );
+    \endcode
+    \sa PROP_MODE
+    \param [in] disk_index Actuator disk index for the current VSPAERO set
+    \return Actuator disk ID
+*/)";
+    r = se->RegisterGlobalFunction( "string FindActuatorDisk( int disk_index )", asFUNCTION( vsp::FindActuatorDisk ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
     //==== Wing Sect Functions ====//
     group = "WingSect";
     doc_struct.group = group.c_str();

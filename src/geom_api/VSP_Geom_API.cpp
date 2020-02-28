@@ -933,6 +933,22 @@ int GetNumControlSurfaceGroups()
 }
 
 //===================================================================//
+//=========       VSPAERO Actuator Disk Functions        ============//
+//===================================================================//
+string FindActuatorDisk( int disk_index )
+{
+    VSPAEROMgr.UpdateRotorDisks();
+
+    if ( !VSPAEROMgr.ValidRotorDiskIndex( disk_index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindActuatorDisk::disk_index out of range" );
+        return string();
+    }
+
+    RotorDisk* disk = VSPAEROMgr.GetRotorDisk( disk_index );
+    return disk->GetID();
+}
+
 //===============       Analysis Functions        ===================//
 //===================================================================//
 

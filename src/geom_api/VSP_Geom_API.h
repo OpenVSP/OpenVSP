@@ -368,6 +368,8 @@ extern void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex);
 extern void RemoveSelectedFromCSGroup(vector <int> selected, int CSGroupIndex);
 extern int GetNumControlSurfaceGroups();
 
+//================ VSPAERO Actuator Disk and Unsteady Functions ==============//
+extern std::string FindActuatorDisk( int disk_index );
 //======================== Parasite Drag Tool Functions ======================//
 extern void AddExcrescence(const std::string & excresName, const int & excresType, const double & excresVal);
 extern void DeleteExcrescence(const int & index);
