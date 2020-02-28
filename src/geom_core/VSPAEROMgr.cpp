@@ -2544,6 +2544,15 @@ void VSPAEROMgrSingleton::UpdateRotorDiskSuffix()
     }
 }
 
+RotorDisk* VSPAEROMgrSingleton::GetRotorDisk( int index )
+{
+    if ( ValidRotorDiskIndex( index ) )
+    {
+        return m_RotorDiskVec[index];
+    }
+    return NULL; // error
+}
+
 void VSPAEROMgrSingleton::UpdateControlSurfaceGroupSuffix()
 {
     for (int i = 0 ; i < (int) m_ControlSurfaceGroupVec.size(); ++i)

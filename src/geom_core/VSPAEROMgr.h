@@ -234,6 +234,7 @@ public:
     void AddRotorDisk();
     bool ValidRotorDiskIndex( int index );
     void UpdateRotorDiskSuffix();
+    RotorDisk* GetRotorDisk( int index );
 
     // Control Surface Group Functionality
     void InitControlSurfaceGroups();        // default initial grouping of control surfaces for VSPAERO
