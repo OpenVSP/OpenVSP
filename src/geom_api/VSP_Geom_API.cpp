@@ -870,11 +870,21 @@ void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex)
     }
 
     VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
+    int max_cs_index = VSPAEROMgr.GetAvailableCSVec().size();
 
-    if ( selected.size() == 0 || selected.size() > VSPAEROMgr.GetAvailableCSVec().size() )
+    if ( selected.size() == 0 || selected.size() > max_cs_index )
     {
         ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AddSelectedToCSGroup::selected out of range" );
         return;
+    }
+
+    for ( size_t i = 0; i < selected.size(); i++ )
+    {
+        if ( selected[i] <= 0 || selected[i] > max_cs_index )
+        {
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "AddSelectedToCSGroup::component of selected out of range (indexing must be one based)" );
+            return;
+        }
     }
 
     VSPAEROMgr.m_SelectedUngroupedCS = selected;
@@ -893,11 +903,21 @@ void RemoveSelectedFromCSGroup(vector <int> selected, int CSGroupIndex)
     }
 
     VSPAEROMgr.SetCurrentCSGroupIndex( CSGroupIndex );
+    int max_cs_index = VSPAEROMgr.GetAvailableCSVec().size();
 
-    if ( selected.size() == 0 || selected.size() > VSPAEROMgr.GetActiveCSVec().size() )
+    if ( selected.size() == 0 || selected.size() > max_cs_index )
     {
         ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "RemoveSelectedFromCSGroup::selected out of range" );
         return;
+    }
+
+    for ( size_t i = 0; i < selected.size(); i++ )
+    {
+        if ( selected[i] <= 0 || selected[i] > max_cs_index )
+        {
+            ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "RemoveSelectedFromCSGroup::component of selected out of range (indexing must be one based)" );
+            return;
+        }
     }
 
     VSPAEROMgr.m_SelectedGroupedCS = selected;
