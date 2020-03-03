@@ -133,6 +133,8 @@ protected:
     ToggleRadioGroup m_FourCamberGroup;
     SliderAdjRangeInput m_FourCamberLocSlider;
     CheckButton m_FourSharpTEButton;
+    TriggerButton m_FourFitCSTButton;
+    Counter m_FourDegreeCounter;
 
     GroupLayout m_SixSeriesGroup;
     StringOutput m_SixNameOutput;
@@ -142,6 +144,8 @@ protected:
     SliderAdjRangeInput m_SixThickChordSlider;
     SliderAdjRangeInput m_SixIdealClSlider;
     SliderAdjRangeInput m_SixASlider;
+    TriggerButton m_SixFitCSTButton;
+    Counter m_SixDegreeCounter;
 
     GroupLayout m_BiconvexGroup;
     SliderAdjRangeInput m_BiconvexChordSlider;
@@ -164,6 +168,8 @@ protected:
     SliderAdjRangeInput m_AfFileChordSlider;
     SliderAdjRangeInput m_AfFileThickChordSlider;
     Output m_AfFileBaseThickChordOutput;
+    TriggerButton m_AfFileFitCSTButton;
+    Counter m_AfFileDegreeCounter;
 
     GroupLayout m_CSTAirfoilGroup;
 
@@ -196,6 +202,8 @@ protected:
     SliderAdjRangeInput m_VKTKappaSlider;
     SliderAdjRangeInput m_VKTTauSlider;
     CheckButton m_VKTInvertButton;
+    TriggerButton m_VKTFitCSTButton;
+    Counter m_VKTDegreeCounter;
 
     GroupLayout m_FourDigitModGroup;
     StringOutput m_FourModNameOutput;
@@ -211,6 +219,8 @@ protected:
     SliderAdjRangeInput m_FourModThicknessLocSlider;
     SliderAdjRangeInput m_FourModLERadIndexSlider;
     CheckButton m_FourModSharpTEButton;
+    TriggerButton m_FourModFitCSTButton;
+    Counter m_FourModDegreeCounter;
 
     GroupLayout m_FiveDigitGroup;
     StringOutput m_FiveNameOutput;
@@ -220,6 +230,8 @@ protected:
     SliderAdjRangeInput m_FiveCLiSlider;
     SliderAdjRangeInput m_FiveCamberLocSlider;
     CheckButton m_FiveSharpTEButton;
+    TriggerButton m_FiveFitCSTButton;
+    Counter m_FiveDegreeCounter;
 
     GroupLayout m_FiveDigitModGroup;
     StringOutput m_FiveModNameOutput;
@@ -231,6 +243,8 @@ protected:
     SliderAdjRangeInput m_FiveModThicknessLocSlider;
     SliderAdjRangeInput m_FiveModLERadIndexSlider;
     CheckButton m_FiveModSharpTEButton;
+    TriggerButton m_FiveModFitCSTButton;
+    Counter m_FiveModDegreeCounter;
 
     GroupLayout m_OneSixSeriesGroup;
     StringOutput m_OneSixSeriesNameOutput;
@@ -242,6 +256,8 @@ protected:
     SliderAdjRangeInput m_OneSixSeriesThicknessLocSlider;
     SliderAdjRangeInput m_OneSixSeriesLERadIndexSlider;
     CheckButton m_OneSixSeriesSharpTEButton;
+    TriggerButton m_OneSixSeriesFitCSTButton;
+    Counter m_OneSixSeriesDegreeCounter;
 
     GroupLayout* m_CurrDisplayGroup;
     void DisplayGroup( GroupLayout* group );

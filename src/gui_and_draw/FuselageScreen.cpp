@@ -275,6 +275,14 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_FourSeriesGroup.AddButton( m_FourInvertButton, "Invert Airfoil" );
     m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.AddButton( m_FourSharpTEButton, "Sharpen TE" );
+    m_FourSeriesGroup.AddYGap();
+    m_FourSeriesGroup.SetSameLineFlag( true );
+    m_FourSeriesGroup.SetFitWidthFlag( false );
+    m_FourSeriesGroup.SetButtonWidth( 125 );
+    m_FourSeriesGroup.AddButton( m_FourFitCSTButton, "Fit CST" );
+    m_FourSeriesGroup.InitWidthHeightVals();
+    m_FourSeriesGroup.SetFitWidthFlag( true );
+    m_FourSeriesGroup.AddCounter( m_FourDegreeCounter, "Degree", 125 );
 
     //==== Six Series AF ====//
     m_SixSeriesGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -302,6 +310,14 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_SixSeriesGroup.AddSlider( m_SixASlider, "A", 1, "%7.5f" );
     m_SixSeriesGroup.AddYGap();
     m_SixSeriesGroup.AddButton( m_SixInvertButton, "Invert Airfoil" );
+    m_SixSeriesGroup.AddYGap();
+    m_SixSeriesGroup.SetSameLineFlag( true );
+    m_SixSeriesGroup.SetFitWidthFlag( false );
+    m_SixSeriesGroup.SetButtonWidth( 125 );
+    m_SixSeriesGroup.AddButton( m_SixFitCSTButton, "Fit CST" );
+    m_SixSeriesGroup.InitWidthHeightVals();
+    m_SixSeriesGroup.SetFitWidthFlag( true );
+    m_SixSeriesGroup.AddCounter( m_SixDegreeCounter, "Degree", 125 );
 
     //==== Biconvex AF ====//
     m_BiconvexGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -341,6 +357,14 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_AfFileGroup.AddOutput( m_AfFileBaseThickChordOutput, "Base T/C", "%7.5f" );
     m_AfFileGroup.AddYGap();
     m_AfFileGroup.AddButton( m_AfFileInvertButton, "Invert Airfoil" );
+    m_AfFileGroup.AddYGap();
+    m_AfFileGroup.SetSameLineFlag( true );
+    m_AfFileGroup.SetFitWidthFlag( false );
+    m_AfFileGroup.SetButtonWidth( 125 );
+    m_AfFileGroup.AddButton( m_AfFileFitCSTButton, "Fit CST" );
+    m_AfFileGroup.InitWidthHeightVals();
+    m_AfFileGroup.SetFitWidthFlag( true );
+    m_AfFileGroup.AddCounter( m_AfFileDegreeCounter, "Degree", 125 );
     
     //==== CST Airfoil ====//
     m_CSTAirfoilGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -407,6 +431,14 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_VKTGroup.AddSlider( m_VKTTauSlider, "Tau", 10, "%7.5f" );
     m_VKTGroup.AddYGap();
     m_VKTGroup.AddButton( m_VKTInvertButton, "Invert Airfoil" );
+    m_VKTGroup.AddYGap();
+    m_VKTGroup.SetSameLineFlag( true );
+    m_VKTGroup.SetFitWidthFlag( false );
+    m_VKTGroup.SetButtonWidth( 125 );
+    m_VKTGroup.AddButton( m_VKTFitCSTButton, "Fit CST" );
+    m_VKTGroup.InitWidthHeightVals();
+    m_VKTGroup.SetFitWidthFlag( true );
+    m_VKTGroup.AddCounter( m_VKTDegreeCounter, "Degree", 125 );
 
     //==== Four Series AF ====//
     m_FourDigitModGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -455,6 +487,14 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_FourDigitModGroup.AddButton( m_FourModInvertButton, "Invert Airfoil" );
     m_FourDigitModGroup.AddYGap();
     m_FourDigitModGroup.AddButton( m_FourModSharpTEButton, "Sharpen TE" );
+    m_FourDigitModGroup.AddYGap();
+    m_FourDigitModGroup.SetSameLineFlag( true );
+    m_FourDigitModGroup.SetFitWidthFlag( false );
+    m_FourDigitModGroup.SetButtonWidth( 125 );
+    m_FourDigitModGroup.AddButton( m_FourModFitCSTButton, "Fit CST" );
+    m_FourDigitModGroup.InitWidthHeightVals();
+    m_FourDigitModGroup.SetFitWidthFlag( true );
+    m_FourDigitModGroup.AddCounter( m_FourModDegreeCounter, "Degree", 125 );
 
     //==== Five Digit AF ====//
     m_FiveDigitGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -471,6 +511,14 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_FiveDigitGroup.AddButton( m_FiveInvertButton, "Invert Airfoil" );
     m_FiveDigitGroup.AddYGap();
     m_FiveDigitGroup.AddButton( m_FiveSharpTEButton, "Sharpen TE" );
+    m_FiveDigitGroup.AddYGap();
+    m_FiveDigitGroup.SetSameLineFlag( true );
+    m_FiveDigitGroup.SetFitWidthFlag( false );
+    m_FiveDigitGroup.SetButtonWidth( 125 );
+    m_FiveDigitGroup.AddButton( m_FiveFitCSTButton, "Fit CST" );
+    m_FiveDigitGroup.InitWidthHeightVals();
+    m_FiveDigitGroup.SetFitWidthFlag( true );
+    m_FiveDigitGroup.AddCounter( m_FiveDegreeCounter, "Degree", 125 );
 
     //==== Five Digit Mod AF ====//
     m_FiveDigitModGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -490,6 +538,14 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_FiveDigitModGroup.AddButton( m_FiveModInvertButton, "Invert Airfoil" );
     m_FiveDigitModGroup.AddYGap();
     m_FiveDigitModGroup.AddButton( m_FiveModSharpTEButton, "Sharpen TE" );
+    m_FiveDigitModGroup.AddYGap();
+    m_FiveDigitModGroup.SetSameLineFlag( true );
+    m_FiveDigitModGroup.SetFitWidthFlag( false );
+    m_FiveDigitModGroup.SetButtonWidth( 125 );
+    m_FiveDigitModGroup.AddButton( m_FiveModFitCSTButton, "Fit CST" );
+    m_FiveDigitModGroup.InitWidthHeightVals();
+    m_FiveDigitModGroup.SetFitWidthFlag( true );
+    m_FiveDigitModGroup.AddCounter( m_FiveModDegreeCounter, "Degree", 125 );
 
     //==== 16 Series AF ====//
     m_OneSixSeriesGroup.SetGroupAndScreen( AddSubGroup( xsec_tab, 5 ), this );
@@ -505,6 +561,14 @@ FuselageScreen::FuselageScreen( ScreenMgr* mgr ) : SkinScreen( mgr, 400, 630, "F
     m_OneSixSeriesGroup.AddButton( m_OneSixSeriesInvertButton, "Invert Airfoil" );
     m_OneSixSeriesGroup.AddYGap();
     m_OneSixSeriesGroup.AddButton( m_OneSixSeriesSharpTEButton, "Sharpen TE" );
+    m_OneSixSeriesGroup.AddYGap();
+    m_OneSixSeriesGroup.SetSameLineFlag( true );
+    m_OneSixSeriesGroup.SetFitWidthFlag( false );
+    m_OneSixSeriesGroup.SetButtonWidth( 125 );
+    m_OneSixSeriesGroup.AddButton( m_OneSixSeriesFitCSTButton, "Fit CST" );
+    m_OneSixSeriesGroup.InitWidthHeightVals();
+    m_OneSixSeriesGroup.SetFitWidthFlag( true );
+    m_OneSixSeriesGroup.AddCounter( m_OneSixSeriesDegreeCounter, "Degree", 125 );
 
     DisplayGroup( &m_PointGroup );
 
@@ -786,6 +850,7 @@ bool FuselageScreen::Update()
                 m_FourInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FourNameOutput.Update( fs_xs->GetAirfoilName() );
                 m_FourSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+                m_FourDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
             }
             else if ( xsc->GetType() == XS_SIX_SERIES )
             {
@@ -801,6 +866,7 @@ bool FuselageScreen::Update()
                 m_SixInvertButton.Update( ss_xs->m_Invert.GetID() );
                 m_SixNameOutput.Update( ss_xs->GetAirfoilName() );
                 m_SixSeriesChoice.Update( ss_xs->m_Series.GetID() );
+                m_SixDegreeCounter.Update( ss_xs->m_FitDegree.GetID() );
             }
             else if ( xsc->GetType() == XS_BICONVEX )
             {
@@ -840,6 +906,7 @@ bool FuselageScreen::Update()
                 m_AfFileBaseThickChordOutput.Update( affile_xs->m_BaseThickness.GetID() );
                 m_AfFileInvertButton.Update( affile_xs->m_Invert.GetID() );
                 m_AfFileNameOutput.Update( affile_xs->GetAirfoilName() );
+                m_AfFileDegreeCounter.Update( affile_xs->m_FitDegree.GetID() );
             }
             else if ( xsc->GetType() == XS_CST_AIRFOIL )
             {
@@ -899,6 +966,7 @@ bool FuselageScreen::Update()
                 m_VKTKappaSlider.Update( vkt_xs->m_Kappa.GetID() );
                 m_VKTTauSlider.Update( vkt_xs->m_Tau.GetID() );
                 m_VKTInvertButton.Update( vkt_xs->m_Invert.GetID() );
+                m_VKTDegreeCounter.Update( vkt_xs->m_FitDegree.GetID() );
             }
             else if ( xsc->GetType() == XS_FOUR_DIGIT_MOD )
             {
@@ -927,6 +995,7 @@ bool FuselageScreen::Update()
                 m_FourModThicknessLocSlider.Update( fs_xs->m_ThickLoc.GetID() );
                 m_FourModLERadIndexSlider.Update( fs_xs->m_LERadIndx.GetID() );
                 m_FourModSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+                m_FourModDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
             }
             else if ( xsc->GetType() == XS_FIVE_DIGIT )
             {
@@ -941,6 +1010,7 @@ bool FuselageScreen::Update()
                 m_FiveInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_FiveNameOutput.Update( fs_xs->GetAirfoilName() );
                 m_FiveSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+                m_FiveDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
             }
             else if ( xsc->GetType() == XS_FIVE_DIGIT_MOD )
             {
@@ -957,6 +1027,7 @@ bool FuselageScreen::Update()
                 m_FiveModThicknessLocSlider.Update( fs_xs->m_ThickLoc.GetID() );
                 m_FiveModLERadIndexSlider.Update( fs_xs->m_LERadIndx.GetID() );
                 m_FiveModSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+                m_FiveModDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
             }
             else if ( xsc->GetType() == XS_ONE_SIX_SERIES )
             {
@@ -970,6 +1041,7 @@ bool FuselageScreen::Update()
                 m_OneSixSeriesInvertButton.Update( fs_xs->m_Invert.GetID() );
                 m_OneSixSeriesNameOutput.Update( fs_xs->GetAirfoilName() );
                 m_OneSixSeriesSharpTEButton.Update( fs_xs->m_SharpTE.GetID() );
+                m_OneSixSeriesDegreeCounter.Update( fs_xs->m_FitDegree.GetID() );
             }
             else if ( xsc->GetType() == XS_EDIT_CURVE )
             {
@@ -1234,7 +1306,54 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
                 }
             }
         }
+    }
+    else if ( ( gui_device == &m_FourFitCSTButton ) ||
+            ( gui_device == &m_SixFitCSTButton ) ||
+            ( gui_device == &m_AfFileFitCSTButton ) ||
+            ( gui_device == &m_VKTFitCSTButton ) ||
+            ( gui_device == &m_FourModFitCSTButton ) ||
+            ( gui_device == &m_FiveFitCSTButton ) ||
+            ( gui_device == &m_FiveModFitCSTButton ) ||
+            ( gui_device == &m_OneSixSeriesFitCSTButton ) )
+    {
+        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        XSec* xs = fuselage_ptr->GetXSec( xsid );
+        if ( xs )
+        {
+            XSecCurve* xsc = xs->GetXSecCurve();
+            if ( xsc )
+            {
+                Airfoil* af_xs = dynamic_cast<Airfoil*>( xsc );
 
+                if ( af_xs )
+                {
+                    VspCurve c = af_xs->GetOrigCurve();
+                    int deg = af_xs->m_FitDegree();
+
+                    fuselage_ptr->SetActiveXSecType( XS_CST_AIRFOIL );
+
+                    XSec* newxs = fuselage_ptr->GetXSec( xsid );
+                    if ( newxs )
+                    {
+                        XSecCurve* newxsc = newxs->GetXSecCurve();
+                        if ( newxsc )
+                        {
+                            if ( newxsc->GetType() == XS_CST_AIRFOIL )
+                            {
+                                CSTAirfoil* cst_xs = dynamic_cast<CSTAirfoil*>( newxsc );
+                                assert( cst_xs );
+
+                                cst_xs->FitCurve( c, deg );
+
+                                cst_xs->Update();
+                                newxs->Update();
+                                fuselage_ptr->Update();
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     SkinScreen::GuiDeviceCallBack( gui_device );
