@@ -14,6 +14,11 @@
 
 GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w,h,l)
 {
+#ifdef __APPLE__
+#if FL_API_VERSION >= 10304
+    Fl::use_high_res_GL( true );
+#endif
+#endif
 
     int i;
     char tempname[80];
@@ -2850,7 +2855,7 @@ void GL_VIEWER::Draw(void)
     glEnable(GL_DEPTH_TEST);
 
     glLoadIdentity();
-    glViewport(0,0,w(),h());
+    glViewport(0, 0, pixel_w(), pixel_h());
     glOrtho(-1.5*ViewSize,1.5*ViewSize,
             -1.5*AR*ViewSize,1.5*AR*ViewSize,
             -15.*ViewSize*NewScale,15.*ViewSize*NewScale);
@@ -2979,7 +2984,7 @@ void GL_VIEWER::Draw(void)
     glEnable(GL_LIGHTING);
 
     glLoadIdentity();
-    glViewport(0,0,w(),h());
+    glViewport(0, 0, pixel_w(), pixel_h());
     glOrtho(-1.5*ViewSize,1.5*ViewSize,
             -1.5*AR*ViewSize,1.5*AR*ViewSize,
             -15.*ViewSize*NewScale,15.*ViewSize*NewScale);
