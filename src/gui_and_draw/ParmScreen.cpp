@@ -105,18 +105,44 @@ bool ParmScreen::Update()
 
     //==== Display Link Parms ====//
     m_LinkToBrowser->clear();
+    m_LinkFromBrowser->clear();
+
+    int width = ( m_LinkLayout.GetRemainX() - 10 ) / 3;
+    static int widths[] = { width, width, width, 0 }; // widths for each column
+    m_LinkToBrowser->column_widths( widths );   // assign array to widget
+    m_LinkToBrowser->column_char( ':' );        // use : as the column character
+    m_LinkFromBrowser->column_widths( widths );   // assign array to widget
+    m_LinkFromBrowser->column_char( ':' );        // use : as the column character
+
+    char str[256];
+    sprintf( str, "@b@.COMP:@b@.GROUP:@b@.PARM:" );
+    m_LinkToBrowser->add( str );
+    m_LinkFromBrowser->add( str );
+
     for ( int i = 0 ; i < (int)b_link_vec.size() ; i++ )
     {
         Parm* p = ParmMgr.FindParm( b_link_vec[i] );
         if ( p )
-            m_LinkToBrowser->add( p->GetName().c_str() );
+        {
+            sprintf( str, "%s:%s:%s:",
+                     p->GetLinkContainer()->GetName().c_str(), 
+                     p->GetGroupName().c_str(), p->GetName().c_str() );
+
+            m_LinkToBrowser->add( str );
+        }
     }
-    m_LinkFromBrowser->clear();
+
     for ( int i = 0 ; i < (int)a_link_vec.size() ; i++ )
     {
         Parm* p = ParmMgr.FindParm( a_link_vec[i] );
         if ( p )
-            m_LinkFromBrowser->add( p->GetName().c_str() );
+        {
+            sprintf( str, "%s:%s:%s:",
+                     p->GetLinkContainer()->GetName().c_str(), 
+                     p->GetGroupName().c_str(), p->GetName().c_str() );
+
+            m_LinkFromBrowser->add( str );
+        }
     }
 
     //==== Show Names of Adv Links ====//
