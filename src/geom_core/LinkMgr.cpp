@@ -169,7 +169,18 @@ bool LinkMgrSingleton::AddCurrLink()
         return false;
     }
 
-    AddLink( m_WorkingLink->GetParmA(), m_WorkingLink->GetParmB() );
+    if ( AddLink( m_WorkingLink->GetParmA(), m_WorkingLink->GetParmB(), false ) )
+    {
+        // Initialize the link settings from the current working link
+        m_LinkVec.back()->SetOffsetFlag( m_WorkingLink->GetOffsetFlag() );
+        m_LinkVec.back()->m_Offset.Set( m_WorkingLink->m_Offset() );
+        m_LinkVec.back()->SetScaleFlag( m_WorkingLink->GetScaleFlag() );
+        m_LinkVec.back()->m_Scale.Set( m_WorkingLink->m_Scale() );
+        m_LinkVec.back()->SetLowerLimitFlag( m_WorkingLink->GetLowerLimitFlag() );
+        m_LinkVec.back()->m_LowerLimit.Set( m_WorkingLink->m_LowerLimit() );
+        m_LinkVec.back()->SetUpperLimitFlag( m_WorkingLink->GetUpperLimitFlag() );
+        m_LinkVec.back()->m_UpperLimit.Set( m_WorkingLink->m_UpperLimit() );
+    }
 
     return true;
 }
@@ -203,7 +214,7 @@ bool LinkMgrSingleton::UsedInLink( const string & pid )
 
 
 //==== Add New Link ====//
-bool LinkMgrSingleton::AddLink( const string& pidA, const string& pidB )
+bool LinkMgrSingleton::AddLink( const string& pidA, const string& pidB, bool init_link_parms )
 {
     //==== Make Sure Parm Are Not Already Linked ====//
     for ( int i = 0 ; i < ( int )m_LinkVec.size() ; i++ )
@@ -227,10 +238,14 @@ bool LinkMgrSingleton::AddLink( const string& pidA, const string& pidB )
 
     pl->SetParmA( pidA );
     pl->SetParmB( pidB );
-    pl->SetOffsetFlag( true );
-    pl->m_Offset.Set( pB->Get() - pA->Get() );
-    pl->SetScaleFlag( false );
-    pl->m_Scale.Set( 1.0 );
+
+    if ( init_link_parms )
+    {
+        pl->SetOffsetFlag( true );
+        pl->m_Offset.Set( pB->Get() - pA->Get() );
+        pl->SetScaleFlag( false );
+        pl->m_Scale.Set( 1.0 );
+    }
 
     m_LinkVec.push_back( pl );
     m_CurrLinkIndex = ( int )m_LinkVec.size() - 1;

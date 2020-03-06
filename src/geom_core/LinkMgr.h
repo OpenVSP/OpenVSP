@@ -43,7 +43,7 @@ public:
     virtual bool CheckForDuplicateLink( const string & pA, const string &  pB );
     virtual bool UsedInLink( const string & pid );
 
-    virtual bool AddLink( const string& pA, const string& pB );         // Link Two Parms
+    virtual bool AddLink( const string& pA, const string& pB, bool init_link_parms = true );         // Link Two Parms
     virtual void AddLink( Link* link )                      {  m_LinkVec.push_back( link ); }
     virtual void ParmChanged( const string& pid, bool start_flag );     // A Parm Has Changed Check Links
 
