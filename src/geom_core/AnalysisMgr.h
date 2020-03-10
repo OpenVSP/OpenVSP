@@ -60,6 +60,7 @@ public:
     void Init();
     void Wype();
     void Renew();
+    void ResetDefaults();
 
     int GetNumAnalysis() const;
     vector < string > ListAnalysis() const;

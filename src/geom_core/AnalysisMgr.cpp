@@ -59,6 +59,16 @@ void AnalysisMgrSingleton::Renew()
     Init();
 }
 
+void AnalysisMgrSingleton::ResetDefaults()
+{
+    map < string, Analysis* >::const_iterator it;
+
+    for ( it = m_AnalysisMap.begin(); it != m_AnalysisMap.end(); ++it )
+    {
+        it->second->SetDefaults();
+    }
+}
+
 int AnalysisMgrSingleton::GetNumAnalysis() const
 {
     return m_AnalysisMap.size();
