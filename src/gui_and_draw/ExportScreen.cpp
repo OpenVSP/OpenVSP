@@ -20,7 +20,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+20)*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 180, 25 + (1+20)*20 + 2*15 + 4*6, "Export" )
 {
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_MainLayout.AddX( 5 );
@@ -46,10 +46,10 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 25 + (1+20
     m_GenLayout.AddButton( m_GMSHButton, "Gmsh (.msh)" );
     m_GenLayout.AddButton( m_POVButton, "POVRAY (.pov)" );
     m_GenLayout.AddButton( m_X3DButton, "X3D (.x3d)" );
-    m_GenLayout.AddButton( m_STEPButton, "STEP (.stp)" );
-    m_GenLayout.AddButton( m_STEPStructureButton, "STEP Structure (.stp)" );
-    m_GenLayout.AddButton( m_IGESButton, "IGES (.igs)" );
-    m_GenLayout.AddButton( m_IGESStructureButton, "IGES Structure (.igs)" );
+    m_GenLayout.AddButton( m_STEPButton, "Untrimmed STEP (.stp)" );
+    m_GenLayout.AddButton( m_STEPStructureButton, "Untrimmed STEP Struct (.stp)" );
+    m_GenLayout.AddButton( m_IGESButton, "Untrimmed IGES (.igs)" );
+    m_GenLayout.AddButton( m_IGESStructureButton, "Untrimmed IGES Struct (.igs)" );
     m_GenLayout.AddButton( m_BEMButton, "Blade Element (.bem)" );
     m_GenLayout.AddButton( m_DXFButton, "AutoCAD (.dxf)" );
     m_GenLayout.AddButton( m_SVGButton, "SVG (.svg)" );

@@ -14,7 +14,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-IGESStructureOptionsScreen::IGESStructureOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 290, "IGES Structure Options" )
+IGESStructureOptionsScreen::IGESStructureOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 290, "Untrimmed IGES Struct Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
