@@ -135,6 +135,8 @@ public:
 
     friend void intersect_quads( const SurfPatch&  bp1, const SurfPatch& bp2, SurfaceIntersectionSingleton *MeshMgr );
 
+    vector < vec3d > GetPatchDrawLines() const;
+
 protected:
 
     Surf* m_SurfPtr;

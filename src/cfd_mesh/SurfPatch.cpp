@@ -280,4 +280,17 @@ void SurfPatch::Draw()
 }
 */
 
+//===== Get the Patch Edge Lines for 3D Drawing =====//
+vector < vec3d > SurfPatch::GetPatchDrawLines() const
+{
+    long an( degree_u() ), am( degree_v() );
+    long bn( degree_u() ), bm( degree_v() );
+
+    vec3d a0 = m_Patch.get_control_point( 0, 0 ); // origin
+    vec3d a1 = m_Patch.get_control_point( an, 0 );  // u direction
+    vec3d a2 = m_Patch.get_control_point( an, am ); // unused
+    vec3d a3 = m_Patch.get_control_point( 0, am ); // v direction
+
+    return vector < vec3d > {a0, a3, a3, a2, a2, a1, a1, a0};
+}
 
