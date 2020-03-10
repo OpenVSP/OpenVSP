@@ -941,12 +941,55 @@ void ParmButton::Update( const string& parm_id )
 {
     GuiDevice::Update( parm_id );
 
+    // Identify if parm is an input and/or output in an advanced link
+    bool adv_out = AdvLinkMgr.IsOutputParm( parm_id );
+    bool adv_in = AdvLinkMgr.IsInputParm( parm_id );
+
     if ( LinkMgr.UsedInLink( parm_id ) )
+    {
+        bool a_parm = false;
+        bool b_parm = false;
+        int num_links = LinkMgr.GetNumLinks();
+
+        // Check if the parm is an input and/or output in a link
+        for ( int i = 0; i < num_links; i++ )
+        {
+            Link* lptr = LinkMgr.GetLink( i );
+
+            if ( !a_parm && lptr->GetParmA() == parm_id )
+            {
+                a_parm = true;
+            }
+            if ( !b_parm && lptr->GetParmB() == parm_id )
+            {
+                b_parm = true;
+            }
+
+            if ( a_parm && b_parm )
+            {
+                break;
+            }
+        }
+
+        if ( ( a_parm && b_parm ) || ( adv_in && b_parm ) || ( adv_out && a_parm ) )
+        {
+            m_Button->color( fl_rgb_color( 180, 160, 140 ) );
+        }
+        else if ( a_parm )
+        {
+            m_Button->color( fl_rgb_color( 140, 180, 140 ) );
+        }
+        else if ( b_parm )
+        {
+            m_Button->color( fl_rgb_color( 180, 140, 140 ) );
+        }
+    }
+    else if ( adv_in && adv_out )
+        m_Button->color( fl_rgb_color( 180, 160, 140 ) );
+    else if ( adv_in )
+        m_Button->color( fl_rgb_color( 140, 180, 140 ) );
+    else if ( adv_out )
         m_Button->color( fl_rgb_color( 180, 140, 140 ) );
-    else if ( AdvLinkMgr.IsInputParm( parm_id ) )
-        m_Button->color( fl_rgb_color( 180, 140, 140 ));
-    else if ( AdvLinkMgr.IsOutputParm( parm_id ) )
-        m_Button->color( fl_rgb_color( 180, 140, 140 ));
     else
         m_Button->color( FL_BACKGROUND_COLOR );
 
