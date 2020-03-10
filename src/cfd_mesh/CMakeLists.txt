@@ -27,6 +27,7 @@ ICurve.cpp
 IntersectPatch.cpp
 ISegChain.cpp
 Mesh.cpp
+NURBS.cpp
 SCurve.cpp
 SimpleMeshSettings.cpp
 SimpleSubSurface.cpp
@@ -44,6 +45,7 @@ IntersectPatch.h
 ISegChain.h
 MapSource.h
 Mesh.h
+NURBS.h
 SCurve.h
 SimpleMeshSettings.h
 SimpleSubSurface.h
