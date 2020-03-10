@@ -26,6 +26,10 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_PrevCubic = false;
     m_PrevToCubicTol = 1e-6;
     m_PrevPropExportOrigin = false;
+    m_PrevLabelID = true;
+    m_PrevLabelName = true;
+    m_PrevLabelSurfNo = true;
+    m_PrevLabelDelim = vsp::DELIM_COMMA;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_GenLayout.AddY( 25 );
