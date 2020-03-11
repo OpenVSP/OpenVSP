@@ -82,4 +82,54 @@ protected:
 
 };
 
+// A completely closed NURBS curve. Can be composed of border and/or intersection curves. 
+class NURBS_Loop
+{
+public:
+
+    NURBS_Loop();
+    virtual ~NURBS_Loop() {};
+
+    // Create a NURBS loop from an input point vector.
+    void SetPntVec( const vector < vec3d >& pnt_vec );
+
+    // Get the Type 126 NURBS curve pointer for each ordered curve in the loop.
+    // If the Type 126 entitiy is not yet defined, WriteIGESEdge is called.
+    vector < DLL_IGES_ENTITY_126* > GetIGESEdges( IGESutil* iges );
+
+    // Write the NURBS loop to IGES and trim the parent 128 type entity to form a
+    // type 144 entity. 
+    DLL_IGES_ENTITY_144 WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf );
+
+    // Add a cutout or hole to a boundedor trimmed surface
+    void WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf );
+
+    // Write the NURBS loop to STEP
+    SdaiEdge_loop* WriteSTEPLoop( STEPutil* step );
+
+    // Based on all control points for theloop, get the bounding box
+    BndBox GetBndBox();
+
+    // Flag is true if the loop is composed of intersection curves only
+    bool m_IntersectLoopFlag;
+
+    // Flag is true if the loop is composed of border curves only
+    bool m_BorderLoopFlag;
+
+    // Flag is true if the loop bounds an internal surface
+    bool m_InternalLoopFlag;
+
+    // Flag is true if the loop is closed
+    bool m_ClosedFlag;
+
+    // vector of ordered NURBS_Curves that make up a loop. The orientation of the curve is saved
+    vector < pair < NURBS_Curve, bool > > m_OrderedCurves;
+
+protected:
+
+    // Chain of points that defines the loop
+    vector < vec3d > m_PntVec;
+
+};
+
 #endif

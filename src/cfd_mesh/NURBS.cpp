@@ -83,3 +83,147 @@ void NURBS_Curve::WriteSTEPEdge( STEPutil* step, bool mergepnts )
 
     m_STEP_Edge = edge_crv;
 }
+
+//////////////////////////////////////////////////////
+//================= NURBS_Loop ====================//
+//////////////////////////////////////////////////////
+
+NURBS_Loop::NURBS_Loop()
+{
+    m_IntersectLoopFlag = false;
+    m_BorderLoopFlag = false;
+    m_InternalLoopFlag = false;
+    m_ClosedFlag = false;
+}
+
+void NURBS_Loop::SetPntVec( const vector < vec3d >& pnt_vec )
+{
+    m_PntVec = pnt_vec;
+
+    // Check for closure
+    if ( dist( m_PntVec.back(), m_PntVec.front() ) < FLT_EPSILON )
+    {
+        m_ClosedFlag = true;
+    }
+    else
+    {
+        m_ClosedFlag = false;
+    }
+};
+
+vector < DLL_IGES_ENTITY_126* > NURBS_Loop::GetIGESEdges( IGESutil* iges )
+{
+    vector < DLL_IGES_ENTITY_126* > nurbs_vec( m_OrderedCurves.size() );
+
+    for ( size_t i = 0; i < m_OrderedCurves.size(); i++ )
+    {
+        if ( !m_OrderedCurves[i].first.m_IGES_Edge )
+        {
+             // Create the curve if it is undefined
+            m_OrderedCurves[i].first.WriteIGESEdge( iges );
+        }
+
+        // Note: No need to reverse vectors -> already done when building loops and IGES import
+        // should automatically identify proper orientation for the type 102 composite entity
+        nurbs_vec[i] = m_OrderedCurves[i].first.m_IGES_Edge;
+    }
+
+    return nurbs_vec;
+}
+
+DLL_IGES_ENTITY_144 NURBS_Loop::WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf )
+{
+    if ( !m_ClosedFlag )
+    {
+        printf( "ERROR: Incomplete IGES Loop \n" );
+    }
+
+    vector < DLL_IGES_ENTITY_126* > nurbs_vec = GetIGESEdges( iges );
+
+    return iges->MakeLoop( parent_surf, nurbs_vec );
+}
+
+void NURBS_Loop::WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf )
+{
+    if ( !m_ClosedFlag )
+    {
+        printf( "ERROR: Incomplete IGES Loop \n" );
+        return;
+    }
+
+    vector < DLL_IGES_ENTITY_126* > nurbs_vec = GetIGESEdges( iges );
+
+    iges->MakeCutout( parent_surf, trimmed_surf, nurbs_vec );
+}
+
+SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step )
+{
+    if ( !m_ClosedFlag )
+    {
+        printf( "ERROR: Incomplete STEP Loop \n" );
+        return NULL;
+    }
+
+    vector < SdaiOriented_edge* > or_edge_vec;
+
+    for ( size_t i = 0; i < m_OrderedCurves.size(); i++ )
+    {
+        // Created oriented edge from NURBS_Curve edge
+        SdaiOriented_edge* or_edge = (SdaiOriented_edge*)step->registry->ObjCreate( "ORIENTED_EDGE" );
+        step->instance_list->Append( (SDAI_Application_instance*)or_edge, completeSE );
+        or_edge->edge_element_( m_OrderedCurves[i].first.m_STEP_Edge );
+        //TODO: Add edge start and end?
+
+        Boolean orient = BTrue;
+        if ( !m_OrderedCurves[i].second )
+        {
+            orient = BFalse;
+        }
+
+        or_edge->orientation_( orient );
+        or_edge->name_( "''" );
+
+        or_edge_vec.push_back( or_edge );
+    }
+
+    SdaiEdge_loop* loop = (SdaiEdge_loop*)step->registry->ObjCreate( "EDGE_LOOP" );
+    step->instance_list->Append( (SDAI_Application_instance*)loop, completeSE );
+    loop->name_( "''" );
+
+    // Workaround for SdaiEdge_loop edge_list_ not being written out to file. 
+    // https://github.com/stepcode/stepcode/issues/251
+    //
+    // Why doesn't SdaiEdge_loop's edge_list_() function give use
+    // the edge_list from the SdaiPath??  Initialized to NULL and
+    // crashes - what good is it?  Have to get at the internal
+    // SdaiPath directly to build something that STEPwrite will output.
+    SdaiPath* e_loop_path = (SdaiPath*)loop->GetNextMiEntity();
+
+    std::ostringstream loop_ss;
+
+    for ( size_t i = 0; i < or_edge_vec.size(); i++ )
+    {
+        loop_ss << "#" << or_edge_vec[i]->GetFileId();
+
+        if ( i < or_edge_vec.size() - 1 )
+        {
+            loop_ss << ", ";
+        }
+    }
+
+    e_loop_path->edge_list_()->AddNode( new GenericAggrNode( loop_ss.str().c_str() ) );
+
+    return loop;
+}
+
+BndBox NURBS_Loop::GetBndBox()
+{
+    BndBox bbox;
+
+    for ( size_t i = 0; i < m_control_pnts_xyz.size(); i++ )
+    {
+        bbox.Update( m_control_pnts_xyz[i] );
+    }
+
+    return bbox;
+}
