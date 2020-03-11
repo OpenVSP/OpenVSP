@@ -109,6 +109,7 @@ private:
     StringOutput m_CurrStructOutput;
     TriggerButton m_ResetDisplayButton;
     TriggerButton m_FeaMeshExportButton;
+    TriggerButton m_CADExportButton;
 
     //===== Structure Tab Items =====//
     TriggerButton m_WikiLinkButton;
@@ -289,14 +290,33 @@ private:
 
     ToggleButton m_CurvFile;
     ToggleButton m_Plot3DFile;
+    ToggleButton m_IGESFile;
+    ToggleButton m_STEPFile;
 
     TriggerButton m_SelectCurvFile;
     TriggerButton m_SelectPlot3DFile;
+    TriggerButton m_SelectIGESFile;
+    TriggerButton m_SelectSTEPFile;
 
     StringOutput m_CurvOutput;
     StringOutput m_Plot3DOutput;
+    StringOutput m_IGESOutput;
+    StringOutput m_STEPOutput;
 
     ToggleButton m_ExportRaw;
+
+    SliderAdjRangeInput m_STEPTolSlider;
+    ToggleButton m_STEPMergePointsToggle;
+    ToggleRadioGroup m_STEPRepGroup;
+    ToggleButton m_STEPShell;
+    ToggleButton m_STEPBREP;
+
+    Choice m_LenUnitChoice;
+    ToggleButton m_LabelIDToggle;
+    ToggleButton m_LabelNameToggle;
+    ToggleButton m_LabelSurfNoToggle;
+    ToggleButton m_LabelSplitNoToggle;
+    Choice m_LabelDelimChoice;
 
     //===== Draw Tab Items =====//
     ToggleButton m_DrawMeshButton;

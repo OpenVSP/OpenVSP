@@ -28,7 +28,7 @@ using namespace vsp;
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Mesh", 150 )
+StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Mesh", 155 )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -57,7 +57,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_ConsoleLayout.AddY( m_ConsoleLayout.GetRemainY()
                         - 7 * m_ConsoleLayout.GetStdHeight()
-                        - 2 * m_ConsoleLayout.GetGapHeight() );
+                        - 2 * m_ConsoleLayout.GetGapHeight()
+                        - 5 );
 
     m_ConsoleLayout.AddYGap();
     m_ConsoleLayout.AddX( border );
@@ -65,7 +66,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_ConsoleLayout.AddSubGroupLayout( m_BorderConsoleLayout, m_ConsoleLayout.GetRemainX() - border,
                                        m_ConsoleLayout.GetRemainY() - border );
 
-    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTextDisplay( 115 );
+    m_ConsoleDisplay = m_BorderConsoleLayout.AddFlTextDisplay( 100 );
     m_ConsoleBuffer = new Fl_Text_Buffer;
     m_ConsoleDisplay->buffer( m_ConsoleBuffer );
 
@@ -74,12 +75,18 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_BorderConsoleLayout.SetSameLineFlag( true );
     m_BorderConsoleLayout.SetFitWidthFlag( false );
 
-    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 4 );
-    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 4 );
+    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 3 );
+    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 3 );
 
     m_BorderConsoleLayout.AddOutput( m_CurrStructOutput, "Current Structure" );
-    m_BorderConsoleLayout.AddButton( m_FeaMeshExportButton, "Mesh and Export" );
     m_BorderConsoleLayout.AddButton( m_ResetDisplayButton, "Reset Display" );
+
+    m_BorderConsoleLayout.ForceNewLine();
+    m_BorderConsoleLayout.SetButtonWidth( m_BorderConsoleLayout.GetW() / 2 );
+    m_BorderConsoleLayout.SetInputWidth( m_BorderConsoleLayout.GetW() / 2 );
+
+    m_BorderConsoleLayout.AddButton( m_CADExportButton, "Export CAD" );
+    m_BorderConsoleLayout.AddButton( m_FeaMeshExportButton, "Mesh and Export" );
 
     //=== Structures Tab ===//
     structTab->show();
@@ -722,7 +729,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     // TODO: Add more CFD Mesh Export file options?
 
     m_OutputTabLayout.AddDividerBox( "File Export" );
-    m_OutputTabLayout.AddYGap();
 
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.SetSameLineFlag( true );
@@ -785,8 +791,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
 
     m_OutputTabLayout.AddDividerBox("Surfaces and Intersection Curves");
 
-    m_OutputTabLayout.AddYGap();
-
     m_OutputTabLayout.AddButton( m_ExportRaw, "Export Raw Points" );
 
     m_OutputTabLayout.InitWidthHeightVals();
@@ -799,16 +803,17 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_OutputTabLayout.AddOutput(m_CurvOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectCurvFile, "...");
-
     m_OutputTabLayout.ForceNewLine();
+
     m_OutputTabLayout.SetButtonWidth( 75 );
     m_OutputTabLayout.AddButton(m_Plot3DFile, ".p3d");
     m_OutputTabLayout.AddOutput(m_Plot3DOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectPlot3DFile, "...");
+    m_OutputTabLayout.ForceNewLine();
 
     m_OutputTabLayout.AddYGap();
-    m_OutputTabLayout.ForceNewLine();
+
     m_OutputTabLayout.SetButtonWidth( 75 );
     m_OutputTabLayout.AddButton( m_SrfFile, ".srf" );
     m_OutputTabLayout.AddOutput( m_SrfOutput );
@@ -821,6 +826,76 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 625, "FEA Me
     m_OutputTabLayout.AddButton( m_XYZIntCurves, "Include X,Y,Z Intersection Curves" );
 
     m_OutputTabLayout.AddYGap();
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.SetSameLineFlag( false );
+
+    m_OutputTabLayout.AddDividerBox( "Trimmed CAD Options" );
+
+    m_OutputTabLayout.InitWidthHeightVals();
+    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.SetSameLineFlag( true );
+
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 4 );
+
+    m_OutputTabLayout.AddButton( m_LabelIDToggle, "Geom ID" );
+    m_OutputTabLayout.AddButton( m_LabelNameToggle, "Geom Name" );
+    m_OutputTabLayout.AddButton( m_LabelSurfNoToggle, "Surf Number" );
+    m_OutputTabLayout.AddButton( m_LabelSplitNoToggle, "Split Number" );
+
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetSliderWidth( m_OutputTabLayout.GetRemainX() / 4 );
+    m_OutputTabLayout.SetChoiceButtonWidth( m_OutputTabLayout.GetRemainX() / 4 );
+
+    m_LabelDelimChoice.AddItem( "Comma" );
+    m_LabelDelimChoice.AddItem( "Underscore" );
+    m_LabelDelimChoice.AddItem( "Space" );
+    m_LabelDelimChoice.AddItem( "None" );
+    m_OutputTabLayout.AddChoice( m_LabelDelimChoice, "Delimeter" );
+
+    m_LenUnitChoice.AddItem( "MM" );
+    m_LenUnitChoice.AddItem( "CM" );
+    m_LenUnitChoice.AddItem( "M" );
+    m_LenUnitChoice.AddItem( "IN" );
+    m_LenUnitChoice.AddItem( "FT" );
+    m_LenUnitChoice.AddItem( "YD" );
+    m_OutputTabLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.AddYGap();
+
+    m_OutputTabLayout.SetInputWidth( m_OutputTabLayout.GetW() - 75 - 55 );
+
+    m_OutputTabLayout.SetButtonWidth( 75 );
+    m_OutputTabLayout.AddButton( m_IGESFile, ".igs" );
+    m_OutputTabLayout.AddOutput( m_IGESOutput );
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
+    m_OutputTabLayout.AddButton( m_SelectIGESFile, "..." );
+
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.AddYGap();
+
+    m_OutputTabLayout.SetButtonWidth( 75 );
+    m_OutputTabLayout.AddButton( m_STEPFile, ".stp" );
+    m_OutputTabLayout.AddOutput( m_STEPOutput );
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
+    m_OutputTabLayout.AddButton( m_SelectSTEPFile, "..." );
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.InitWidthHeightVals();
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 3 );
+    m_OutputTabLayout.AddButton( m_STEPMergePointsToggle, "Merge Points" );
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.AddSlider( m_STEPTolSlider, "STEP Tolerance", 10, "%5.4g", 0, true );
+    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 2 );
+    m_OutputTabLayout.AddButton( m_STEPShell, "Shell Representation" );
+    m_OutputTabLayout.AddButton( m_STEPBREP, "BREP Solid Representation" );
+    m_OutputTabLayout.ForceNewLine();
+
+    m_STEPRepGroup.Init( this );
+    m_STEPRepGroup.AddButton( m_STEPShell.GetFlButton() );
+    m_STEPRepGroup.AddButton( m_STEPBREP.GetFlButton() );
 
     //=== Display Tab ===//
     m_DisplayTabLayout.SetGroupAndScreen( displayTabGroup, this );
@@ -2035,6 +2110,61 @@ bool StructScreen::Update()
 
             m_ExportRaw.Update( curr_struct->GetStructSettingsPtr()->m_ExportRawFlag.GetID() );
 
+            string igsname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_IGES_FILE_NAME );
+            m_IGESOutput.Update( truncateFileName( igsname, 40 ).c_str() );
+            m_IGESFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->GetID() );
+
+            string stpname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STEP_FILE_NAME );
+            m_STEPOutput.Update( truncateFileName( stpname, 40 ).c_str() );
+            m_STEPFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->GetID() );
+
+            m_STEPMergePointsToggle.Update( curr_struct->GetStructSettingsPtr()->m_STEPMergePoints.GetID() );
+            m_STEPTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_STEPTol.GetID() );
+            m_STEPRepGroup.Update( curr_struct->GetStructSettingsPtr()->m_STEPRepresentation.GetID() );
+            m_LenUnitChoice.Update( curr_struct->GetStructSettingsPtr()->m_CADLenUnit.GetID() );
+            m_LabelIDToggle.Update( curr_struct->GetStructSettingsPtr()->m_CADLabelID.GetID() );
+            m_LabelNameToggle.Update( curr_struct->GetStructSettingsPtr()->m_CADLabelName.GetID() );
+            m_LabelSurfNoToggle.Update( curr_struct->GetStructSettingsPtr()->m_CADLabelSurfNo.GetID() );
+            m_LabelSplitNoToggle.Update( curr_struct->GetStructSettingsPtr()->m_CADLabelSplitNo.GetID() );
+            m_LabelDelimChoice.Update( curr_struct->GetStructSettingsPtr()->m_CADLabelDelim.GetID() );
+
+            string test1 = to_string( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->Get() );
+            string test2 = to_string( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->Get() );
+
+
+            if ( !curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->Get() )
+            {
+                m_STEPMergePointsToggle.Deactivate();
+                m_STEPTolSlider.Deactivate();
+                m_STEPRepGroup.Deactivate();
+            }
+            else
+            {
+                m_STEPMergePointsToggle.Activate();
+                m_STEPTolSlider.Activate();
+                m_STEPRepGroup.Activate();
+            }
+
+            if ( !curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->Get() &&
+                 !curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->Get() )
+            {
+                m_LabelIDToggle.Deactivate();
+                m_LabelNameToggle.Deactivate();
+                m_LabelSurfNoToggle.Deactivate();
+                m_LenUnitChoice.Deactivate();
+                m_LabelSplitNoToggle.Deactivate();
+                m_LabelDelimChoice.Deactivate();
+            }
+            else
+            {
+                m_LabelIDToggle.Activate();
+                m_LabelNameToggle.Activate();
+                m_LabelSurfNoToggle.Activate();
+                m_LenUnitChoice.Activate();
+                m_LabelSplitNoToggle.Activate();
+                m_LabelDelimChoice.Activate();
+            }
+            
             // Update Structure Name
             m_FeaStructNameInput.Update( curr_struct->GetName() );
 
@@ -3089,6 +3219,43 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
                 structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_PLOT3D_FILE_NAME );
             }
         }
+    }
+    else if ( device == &m_SelectIGESFile )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select IGES .igs file.", "*.igs" );
+            if ( newfile.compare( "" ) != 0 )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_IGES_FILE_NAME );
+            }
+        }
+    }
+    else if ( device == &m_SelectSTEPFile )
+    {
+        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        {
+            vector < FeaStructure* > structvec = StructureMgr.GetAllFeaStructs();
+
+            string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select STEP .stp file.", "*.igsstp" );
+            if ( newfile.compare( "" ) != 0 )
+            {
+                structvec[StructureMgr.GetCurrStructIndex()]->GetStructSettingsPtr()->SetExportFileName( newfile, vsp::FEA_STEP_FILE_NAME );
+            }
+        }
+    }
+    else if ( device == &m_CADExportButton )
+    {
+        // Set m_FeaMeshInProgress to ensure m_MonitorProcess does not terminate prematurely
+        FeaMeshMgr.SetFeaMeshInProgress( true );
+        FeaMeshMgr.SetCADOnlyFlag( true );
+
+        // Identify which structure to mesh
+        FeaMeshMgr.SetFeaMeshStructIndex( StructureMgr.GetCurrStructIndex() );
+
+        m_FeaMeshProcess.StartThread( feamesh_thread_fun, (void*)this );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
