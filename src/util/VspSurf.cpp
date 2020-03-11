@@ -2006,35 +2006,21 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
 
 void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit )
 {
-    // Make copy for local changes.
-    piecewise_surface_type s( m_Surface );
+    vector < piecewise_surface_type > surfvec = PrepCADSurfs( splitsurf, tocubic, tol, trimte, USplit, WSplit );
 
-    if ( trimte && m_MagicVParm )
+    //==== Compute Tol ====//
+    BndBox bbox;
+    GetBoundingBox( bbox );
+    double merge_tol = bbox.DiagDist() * 1.0e-10;
+
+    if ( merge_tol < 1.0e-10 )
     {
-        piecewise_surface_type s1, s2;
-        s.split_v( s1, s2, s.get_v0() + TMAGIC );
-        s2.split_v( s, s1, s.get_vmax() - TMAGIC );
+        merge_tol = 1.0e-10;
     }
-
-    if ( tocubic )
-    {
-        s.to_cubic_u( tol );
-        s.to_cubic_v( tol );
-    }
-
-    vector < piecewise_surface_type > surfvec;
-    surfvec.push_back( s );
-    if ( splitsurf )
-    {
-        SplitSurfs( surfvec );
-    }
-
-    SplitSurfsU( surfvec, USplit );
-    SplitSurfsW( surfvec, WSplit );
 
     for ( int isurf = 0; isurf < surfvec.size(); isurf++ )
     {
-        s = surfvec[isurf];
+        piecewise_surface_type s = surfvec[isurf];
 
         if( !m_FlipNormal )
         {
@@ -2047,181 +2033,44 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
             continue;
         }
 
-        piecewise_surface_type::index_type ip, jp;
-        piecewise_surface_type::index_type nupatch, nvpatch;
-        piecewise_surface_type::index_type maxu, maxv;
-        piecewise_surface_type::index_type nupts, nvpts;
+        SdaiSurface* surf = step->MakeSurf( s, mergepts, merge_tol );
+        SdaiB_spline_surface_with_knots* nurbs = dynamic_cast<SdaiB_spline_surface_with_knots*>( surf );
 
-        vector< vector< int > > ptindxs;
-        vector< vec3d > allPntVec;
-
-        ExtractCPts( s, ptindxs, allPntVec, maxu, maxv, nupatch, nvpatch, nupts, nvpts );
-
-        SdaiB_spline_surface_with_knots *surf = ( SdaiB_spline_surface_with_knots* ) step->registry->ObjCreate( "B_SPLINE_SURFACE_WITH_KNOTS" );
-        step->instance_list->Append( ( SDAI_Application_instance * ) surf, completeSE );
-        surf->u_degree_( maxu );
-        surf->v_degree_( maxv );
-        surf->name_( "''" );
-
-        if( s.closed_u() )
-        {
-            surf->u_closed_( SDAI_LOGICAL( LTrue ) );
-        }
-        else
-        {
-            surf->u_closed_( SDAI_LOGICAL( LFalse ) );
-        }
-
-        if( s.closed_v() )
-        {
-            surf->v_closed_( SDAI_LOGICAL( LTrue ) );
-        }
-        else
-        {
-            surf->v_closed_( SDAI_LOGICAL( LFalse ) );
-        }
-
-        surf->self_intersect_( SDAI_LOGICAL( LFalse ) );
-        surf->surface_form_( B_spline_surface_form__unspecified );
-
-        PntNodeCloud pnCloud;
-        vector < SdaiCartesian_point* > usedPts;
-
-        if ( mergepts )
-        {
-            //==== Build Map ====//
-            pnCloud.AddPntNodes( allPntVec );
-
-            //==== Use NanoFlann to Find Close Points and Group ====//
-            IndexPntNodes( pnCloud, 1e-6 );
-
-            //==== Load Used Points ====//
-            for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
-            {
-                if ( pnCloud.UsedNode( i ) )
-                {
-                    vec3d p = allPntVec[i];
-                    SdaiCartesian_point *pt = step->MakePoint( p.x(), p.y(), p.z() );
-                    usedPts.push_back( pt );
-                }
-            }
-        }
-        else
-        {
-            for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
-            {
-                vec3d p = allPntVec[i];
-                SdaiCartesian_point *pt = step->MakePoint( p.x(), p.y(), p.z() );
-                usedPts.push_back( pt );
-            }
-        }
-
-        for( int i = 0; i < nupts; ++i )
-        {
-            std::ostringstream ss;
-            ss << "(";
-            for( int j = 0; j < nvpts; j++ )
-            {
-                int pindx = ptindxs[i][j];
-
-                SdaiCartesian_point *pt;
-
-                if ( mergepts )
-                {
-                    pt = usedPts[ pnCloud.GetNodeUsedIndex( pindx ) ];
-                }
-                else
-                {
-                    pt = usedPts[ pindx ];
-                }
-                ss << "#" << pt->GetFileId();
-
-                if( j < nvpts - 1 )
-                {
-                    ss << ", ";
-                }
-            }
-            ss << ")";
-            surf->control_points_list_()->AddNode( new GenericAggrNode( ss.str().c_str() ) );
-        }
-
-        surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
-        surf->u_knots_()->AddNode( new RealNode( 0.0 ) );
-        for( ip = 1; ip < nupatch; ++ip )
-        {
-            surf->u_multiplicities_()->AddNode( new IntNode( maxu ) );
-            surf->u_knots_()->AddNode( new RealNode( ip ) );
-        }
-        surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
-        surf->u_knots_()->AddNode( new RealNode( nupatch ) );
-
-
-        surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
-        surf->v_knots_()->AddNode( new RealNode( 0.0 ) );
-        for( jp = 1; jp < nvpatch; ++jp )
-        {
-            surf->v_multiplicities_()->AddNode( new IntNode( maxv ) );
-            surf->v_knots_()->AddNode( new RealNode( jp ) );
-        }
-        surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
-        surf->v_knots_()->AddNode( new RealNode( nvpatch ) );
-
-        surf->knot_spec_( Knot_type__piecewise_bezier_knots );
-
-        surfs.push_back( surf );
+        surfs.push_back( nurbs );
     }
 }
 
-void VspSurf::ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs )
+void VspSurf::ToIGES( IGESutil* iges, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string &labelprefix, bool labelSplitNo, const string &delim )
 {
-    piecewise_surface_type::index_type ip, jp, nupatch, nvpatch;
+    vector < piecewise_surface_type > surfvec = PrepCADSurfs( splitsurf, tocubic, tol, trimTE, USplit, WSplit );
 
-    nupatch = m_Surface.number_u_patches();
-    nvpatch = m_Surface.number_v_patches();
-
-    for( ip = 0; ip < nupatch; ++ip )
+    for ( int is = 0; is < surfvec.size(); is++ )
     {
-        for( jp = 0; jp < nvpatch; ++jp )
+        piecewise_surface_type s = surfvec[is];
+
+        if( !m_FlipNormal )
         {
-            surface_patch_type::index_type icp, jcp, nu, nv;
-
-            surface_patch_type *patch = m_Surface.get_patch_unordered( ip, jp );
-
-            nu = patch->degree_u();
-            nv = patch->degree_v();
-
-            SdaiBezier_surface *surf = ( SdaiBezier_surface* ) step->registry->ObjCreate( "BEZIER_SURFACE" );
-            step->instance_list->Append( ( SDAI_Application_instance * ) surf, completeSE );
-            surf->u_degree_( nu );
-            surf->v_degree_( nv );
-            surf->name_( "''" );
-            surf->u_closed_( SDAI_LOGICAL( LFalse ) ); // patch->closed_u();
-            surf->v_closed_( SDAI_LOGICAL( LFalse ) ); // patch->closed_v();
-            surf->self_intersect_( SDAI_LOGICAL( LFalse ) );
-            surf->surface_form_( B_spline_surface_form__unspecified );
-
-            for( jcp = 0; jcp <= nv; ++jcp )
-            {
-                std::ostringstream ss;
-                ss << "(";
-                for( icp = 0; icp <= nu; ++icp )
-                {
-
-                    surface_patch_type::point_type p = patch->get_control_point( icp, jcp );
-
-                    SdaiCartesian_point *pt = step->MakePoint( p.x(), p.y(), p.z() );
-                    ss << "#" << pt->GetFileId();
-
-                    if( icp < nu )
-                    {
-                        ss << ", ";
-                    }
-                }
-                ss << ")";
-                surf->control_points_list_()->AddNode( new GenericAggrNode( ss.str().c_str() ) );
-            }
-            surfs.push_back( surf );
+            s.reverse_v();
         }
+
+        // Don't export degenerate split patches
+        if ( splitsurf && !CheckValidPatch( s ) )
+        {
+            continue;
+        }
+
+        string label = labelprefix;
+
+        if ( labelSplitNo )
+        {
+            if ( label.size() > 0 )
+            {
+                label.append( delim );
+            }
+            label.append( to_string( is ) );
+        }
+
+        iges->MakeSurf( s, label );
     }
 }
 
