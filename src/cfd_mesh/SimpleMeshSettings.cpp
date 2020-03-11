@@ -43,6 +43,17 @@ SimpleMeshCommonSettings::SimpleMeshCommonSettings()
     m_SelectedSetIndex = 0;
 
     m_XYZIntCurveFlag = false;
+
+    m_STEPTol = 1e-6;
+    m_STEPMergePoints = false;
+    m_STEPRepresentation = 0;
+
+    m_CADLenUnit = 0;
+    m_CADLabelID = false;
+    m_CADLabelName = false;
+    m_CADLabelSurfNo = false;
+    m_CADLabelDelim = 0;
+    m_CADLabelSplitNo = false;
 }
 
 SimpleMeshCommonSettings::~SimpleMeshCommonSettings()
@@ -104,7 +115,16 @@ void SimpleIntersectSettings::CopyFrom( IntersectSettings* settings )
 
     m_SelectedSetIndex = settings->m_SelectedSetIndex.Get();
 
-    m_XYZIntCurveFlag = settings->m_XYZIntCurveFlag.Get();
+    m_STEPTol = settings->m_STEPTol.Get();
+    m_STEPMergePoints = settings->m_STEPMergePoints.Get();
+    m_STEPRepresentation = settings->m_STEPRepresentation.Get();
+
+    m_CADLenUnit = settings->m_CADLenUnit.Get();
+    m_CADLabelID = settings->m_CADLabelID.Get();
+    m_CADLabelName = settings->m_CADLabelName.Get();
+    m_CADLabelSurfNo = settings->m_CADLabelSurfNo.Get();
+    m_CADLabelDelim = settings->m_CADLabelDelim.Get();
+    m_CADLabelSplitNo = settings->m_CADLabelSplitNo.Get();
 
     SimpleMeshCommonSettings::CopyFrom( settings );
 }
@@ -262,6 +282,17 @@ void SimpleFeaMeshSettings::CopyFrom( StructSettings* settings )
     m_XYZIntCurveFlag = settings->m_XYZIntCurveFlag.Get();
 
     m_ExportFileNames = settings->GetExportFileNames();
+
+    m_STEPTol = settings->m_STEPTol.Get();
+    m_STEPMergePoints = settings->m_STEPMergePoints.Get();
+    m_STEPRepresentation = settings->m_STEPRepresentation.Get();
+
+    m_CADLenUnit = settings->m_CADLenUnit.Get();
+    m_CADLabelID = settings->m_CADLabelID.Get();
+    m_CADLabelName = settings->m_CADLabelName.Get();
+    m_CADLabelSurfNo = settings->m_CADLabelSurfNo.Get();
+    m_CADLabelDelim = settings->m_CADLabelDelim.Get();
+    m_CADLabelSplitNo = settings->m_CADLabelSplitNo.Get();
 
     SimpleMeshCommonSettings::CopyFrom( settings );
 }

@@ -52,6 +52,17 @@ public:
 
     bool m_XYZIntCurveFlag;
 
+    double m_STEPTol;
+    bool m_STEPMergePoints;
+    int m_STEPRepresentation;
+
+    int m_CADLenUnit;
+    bool m_CADLabelID;
+    bool m_CADLabelName;
+    bool m_CADLabelSurfNo;
+    bool m_CADLabelSplitNo;
+    int m_CADLabelDelim;
+
 protected:
 
 };
