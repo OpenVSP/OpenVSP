@@ -60,6 +60,17 @@ protected:
 
 };
 
+class IGESutil
+{
+
+public:
+    IGESutil( const int& len );
+    virtual ~IGESutil();
+
+protected:
+
+
+};
 
 
 

@@ -2,6 +2,10 @@
 #include "STEPutil.h"
 #include "VspSurf.h"
 
+//===================================================================//
+//=================        STEP Functions         ===================//
+//===================================================================//
+
 STEPutil::STEPutil( const int & len, const double & tol )
 {
     context = NULL;
@@ -776,4 +780,17 @@ void STEPutil::AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic,
 
 }
 
+
+
+//===================================================================//
+//=================        IGES Functions         ===================//
+//===================================================================//
+
+IGESutil::IGESutil( const int& len_unit )
+{
+}
+
+IGESutil::~IGESutil()
+{
+}
 
