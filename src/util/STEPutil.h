@@ -19,6 +19,10 @@
 #include <string>
 
 #include "APIDefines.h"
+#include "eli/geom/surface/bezier.hpp"
+#include "eli/geom/surface/piecewise.hpp"
+
+typedef eli::geom::surface::piecewise<eli::geom::surface::bezier, double, 3> piecewise_surface_type;
 
 class VspSurf;
 
@@ -72,6 +76,12 @@ protected:
 
 };
 
+// Extract the control points and patch data from a surface so that an equivalent NURBS
+// surface can be defined.
+void ExtractCPts( piecewise_surface_type& s, vector< vector< int > >& ptindxs, vector< vec3d >& allPntVec, 
+                  piecewise_surface_type::index_type& maxu, piecewise_surface_type::index_type& maxv,
+                  piecewise_surface_type::index_type& nupatch, piecewise_surface_type::index_type& nvpatch,
+                  piecewise_surface_type::index_type& nupts, piecewise_surface_type::index_type& nvpts );
 
 
 #endif // !defined(STEPUTIL__INCLUDED_)

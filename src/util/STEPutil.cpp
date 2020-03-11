@@ -794,3 +794,69 @@ IGESutil::~IGESutil()
 {
 }
 
+
+//===================================================================//
+//==============       General CAD Functions         ================//
+//===================================================================//
+
+void ExtractCPts( piecewise_surface_type& s, vector< vector< int > >& ptindxs, vector< vec3d >& allPntVec,
+                  piecewise_surface_type::index_type& maxu, piecewise_surface_type::index_type& maxv,
+                  piecewise_surface_type::index_type& nupatch, piecewise_surface_type::index_type& nvpatch,
+                  piecewise_surface_type::index_type& nupts, piecewise_surface_type::index_type& nvpts )
+{
+    piecewise_surface_type::index_type minu, minv;
+    piecewise_surface_type::index_type ip, jp;
+
+    nupatch = s.number_u_patches();
+    nvpatch = s.number_v_patches();
+
+    s.degree_u( minu, maxu );
+    s.degree_v( minv, maxv );
+
+    nupts = nupatch * maxu + 1;
+    nvpts = nvpatch * maxv + 1;
+
+    ptindxs.resize( nupts );
+    for ( int i = 0; i < nupts; ++i )
+    {
+        ptindxs[i].resize( nvpts );
+    }
+
+    allPntVec.clear();
+    allPntVec.reserve( nupts * nvpts );
+
+    for ( ip = 0; ip < nupatch; ++ip )
+    {
+        for ( jp = 0; jp < nvpatch; ++jp )
+        {
+            surface_patch_type::index_type icp, jcp;
+            surface_patch_type::index_type ilim = maxu;
+            surface_patch_type::index_type jlim = maxv;
+
+            surface_patch_type* patch = s.get_patch( ip, jp );
+
+            patch->promote_u_to( maxu );
+            patch->promote_v_to( maxv );
+
+            if ( ip == nupatch - 1 ) // Last u patch
+            {
+                ilim = maxu + 1;
+            }
+
+            if ( jp == nvpatch - 1 ) // Last u patch
+            {
+                jlim = maxv + 1;
+            }
+
+            for ( icp = 0; icp < ilim; ++icp )
+            {
+                for ( jcp = 0; jcp < jlim; ++jcp )
+                {
+                    surface_patch_type::point_type p = patch->get_control_point( icp, jcp );
+                    ptindxs[ip * maxu + icp][jp * maxv + jcp] = allPntVec.size();
+                    allPntVec.emplace_back( vec3d( p[0], p[1], p[2] ) );
+                }
+            }
+        }
+    }
+}

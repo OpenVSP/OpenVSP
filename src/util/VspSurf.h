@@ -194,11 +194,6 @@ public:
     void SplitSurfs( vector< piecewise_surface_type > &surfvec, const vector < double > &usuppress, const vector < double > &wsuppress );
     void SplitSurfs( vector< piecewise_surface_type > &surfvec );
 
-    static void ExtractCPts( piecewise_surface_type &s, vector< vector< int > > &ptindxs, vector< vec3d > &allPntVec,
-                      piecewise_surface_type::index_type &maxu, piecewise_surface_type::index_type &maxv,
-                      piecewise_surface_type::index_type &nupatch, piecewise_surface_type::index_type &nvpatch,
-                      piecewise_surface_type::index_type &nupts, piecewise_surface_type::index_type &nvpts );
-
     void ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> &surfs );
     void ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit );
 
