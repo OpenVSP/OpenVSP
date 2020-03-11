@@ -74,6 +74,17 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportIntersect", this, false, 0, 1 );
 
+    m_CADLenUnit.Init( "CADLenUnit", "ExportIntersect", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_YD );
+    m_STEPTol.Init( "STEPTol", "ExportIntersect", this, 1e-6, 1e-12, 1e12 );
+    m_STEPMergePoints.Init( "STEPMergePoints", "ExportIntersect", this, false, 0, 1 );
+    m_STEPRepresentation.Init( "STEPRepresentation", "ExportIntersect", this, vsp::STEP_BREP, vsp::STEP_SHELL, vsp::STEP_BREP );
+
+    m_CADLabelID.Init( "CADLabelID", "ExportIntersect", this, true, 0, 1 );
+    m_CADLabelName.Init( "CADLabelName", "ExportIntersect", this, true, 0, 1 );
+    m_CADLabelSurfNo.Init( "CADLabelSurfNo", "ExportIntersect", this, true, 0, 1 );
+    m_CADLabelDelim.Init( "CADLabelDelim", "ExportIntersect", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
+    m_CADLabelSplitNo.Init( "CADLabelSplitNo", "ExportIntersect", this, true, 0, 1 );
+
     m_ExportFileFlags.resize( vsp::INTERSECT_NUM_FILE_NAMES );
     m_ExportFileFlags[ vsp::INTERSECT_SRF_FILE_NAME ].Init( "SRF_Export", "ExportIntersect", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::INTERSECT_CURV_FILE_NAME ].Init( "CURV_Export", "ExportIntersect", this, true, 0, 1 );
@@ -439,6 +450,17 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportFEA", this, false, 0, 1 );
 
     m_ExportRawFlag.Init( "ExportRawFlag", "ExportFEA", this, false, 0, 1 );
+
+    m_CADLenUnit.Init( "CADLenUnit", "ExportFEA", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_YD );
+    m_STEPTol.Init( "STEPTol", "ExportFEA", this, 1e-6, 1e-12, 1e12 );
+    m_STEPMergePoints.Init( "STEP", "ExportFEA", this, false, 0, 1 );
+    m_STEPRepresentation.Init( "STEPRepresentation", "ExportFEA", this, vsp::STEP_BREP, vsp::STEP_SHELL, vsp::STEP_BREP );
+
+    m_CADLabelID.Init( "CADLabelID", "ExportFEA", this, true, 0, 1 );
+    m_CADLabelName.Init( "CADLabelName", "ExportFEA", this, true, 0, 1 );
+    m_CADLabelSurfNo.Init( "CADLabelSurfNo", "ExportFEA", this, true, 0, 1 );
+    m_CADLabelSplitNo.Init( "CADLabelSplitNo", "ExportFEA", this, true, 0, 1 );
+    m_CADLabelDelim.Init( "CADLabelDelim", "ExportFEA", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
 
     m_DrawBorderFlag = false;
     m_DrawIsectFlag = false;

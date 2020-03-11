@@ -94,6 +94,17 @@ class MeshCommonSettings : public ParmContainer
     BoolParm m_FarCompFlag;
     BoolParm m_HalfMeshFlag;
 
+    Parm m_STEPTol;
+    BoolParm m_STEPMergePoints;
+    IntParm m_STEPRepresentation;
+
+    IntParm m_CADLenUnit;
+    BoolParm m_CADLabelID;
+    BoolParm m_CADLabelName;
+    BoolParm m_CADLabelSurfNo;
+    BoolParm m_CADLabelSplitNo;
+    IntParm m_CADLabelDelim;
+
 };
 
 //////////////////////////////////////////////////////////////////////
