@@ -219,6 +219,10 @@ public:
 
 protected:
 
+    // Function to get all groups of component IDs. Components that are joined by intersection
+    // curves make up a group. 
+    vector < vector < int > > GetCompIDGroupVec();
+
     Vehicle* m_Vehicle;
 
     bool m_MeshInProgress;

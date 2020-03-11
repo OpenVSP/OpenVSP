@@ -785,6 +785,71 @@ void SurfaceIntersectionSingleton::WritePlot3DFile( const string &filename, bool
     }
 }
 
+vector < vector < int > > SurfaceIntersectionSingleton::GetCompIDGroupVec()
+{
+    // Identify the unique sets of intersected components
+    map < int, vector < int > > intersection_comp_id_map;
+    list< ISegChain* >::iterator i_seg;
+
+    for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
+    {
+        int comp_A_id = ( *i_seg )->m_SurfA->GetCompID();
+        int comp_B_id = ( *i_seg )->m_SurfB->GetCompID();
+
+        if ( !std::count( intersection_comp_id_map[comp_A_id].begin(), intersection_comp_id_map[comp_A_id].end(), comp_B_id ) )
+        {
+            intersection_comp_id_map[comp_A_id].push_back( comp_B_id );
+        }
+
+        if ( !std::count( intersection_comp_id_map[comp_B_id].begin(), intersection_comp_id_map[comp_B_id].end(), comp_A_id ) )
+        {
+            intersection_comp_id_map[comp_B_id].push_back( comp_A_id );
+        }
+    }
+
+    map< int, vector < int > >::iterator i_map;
+    vector < vector < int > > comp_id_group_vec;
+
+    for ( i_map = intersection_comp_id_map.begin(); i_map != intersection_comp_id_map.end(); ++i_map )
+    {
+        if ( comp_id_group_vec.size() == 0 )
+        {
+            comp_id_group_vec.push_back( i_map->second );
+            continue;
+        }
+
+        bool matched = false;
+        int group_index = -1;
+
+        for ( size_t i = 0; i < i_map->second.size(); ++i )
+        {
+            if ( !matched )
+            {
+                for ( size_t j = 0; j < comp_id_group_vec.size(); ++j )
+                {
+                    if ( std::count( comp_id_group_vec[j].begin(), comp_id_group_vec[j].end(), i_map->second[i] ) )
+                    {
+                        matched = true;
+                        group_index = j;
+                        break;
+                    }
+                }
+            }
+            else if ( !std::count( comp_id_group_vec[group_index].begin(), comp_id_group_vec[group_index].end(), i_map->second[i] ) )
+            {
+                comp_id_group_vec[group_index].push_back( i_map->second[i] );
+            }
+        }
+
+        if ( !matched )
+        {
+            comp_id_group_vec.push_back( i_map->second );
+        }
+    }
+
+    return comp_id_group_vec;
+}
+
 void SurfaceIntersectionSingleton::BuildCurves()
 {
     list< ISegChain* >::iterator c;
