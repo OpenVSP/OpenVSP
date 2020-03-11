@@ -220,6 +220,9 @@ public:
 
 protected:
 
+    // Iterate over m_SurfVec and initialize a NURBS surface for each.
+    void BuildNURBSSurfMap();
+
     // Convert each ISegChain into a NURBS curve. The curves are labeled as border 
     // curves or intersection curves. For border curves, a test is performed to 
     // detemine if they are outside or inside another surface.
@@ -266,6 +269,9 @@ protected:
     map< Surf*, vector< Surf* > > m_PossCoPlanarSurfMap;
 
     string m_MessageName; // Either "SurfIntersectMessage", "CFDMessage", or "FEAMessage"
+
+    // m_SurfVec translated to a vector of NURBS surfaces
+    vector < NURBS_Surface > m_NURBSSurfVec;
 
     // m_ISegChainList translated to a vector of NURBS curves
     vector < NURBS_Curve > m_NURBSCurveVec;

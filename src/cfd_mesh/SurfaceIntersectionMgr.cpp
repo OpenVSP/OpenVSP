@@ -850,6 +850,27 @@ vector < vector < int > > SurfaceIntersectionSingleton::GetCompIDGroupVec()
     return comp_id_group_vec;
 }
 
+void SurfaceIntersectionSingleton::BuildNURBSSurfMap()
+{
+    m_NURBSSurfVec.clear();
+    m_NURBSSurfVec.resize( m_SurfVec.size() );
+
+    for ( size_t si = 0; si < m_SurfVec.size(); si++ )
+    {
+        // Create NURBS Surface
+        m_NURBSSurfVec[si].InitNURBSSurf( m_SurfVec[si] );
+
+        m_NURBSSurfVec[si].m_SurfType = m_SurfVec[si]->GetSurfaceCfdType();
+
+        // Identify all border and intersection NURBS curves on the surface
+        vector < NURBS_Curve > nurbs_curve_vec = m_NURBSSurfVec[si].MatchNURBSCurves( m_NURBSCurveVec );
+        m_NURBSSurfVec[si].SetNURBSCurveVec( nurbs_curve_vec );
+
+        // Build NURBS loops
+        m_NURBSSurfVec[si].BuildNURBSLoopMap();
+    }
+}
+
 void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
 {
     // Only define the NURBS curves once to help avoid tolerance errors
