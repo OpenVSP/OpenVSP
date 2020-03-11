@@ -67,6 +67,7 @@
 #include "SimpleMeshSettings.h"
 #include "NURBS.h"
 #include "STEPutil.h"
+#include "AnalysisMgr.h"
 
 #include "Vec2d.h"
 #include "Vec3d.h"
@@ -298,6 +299,15 @@ private:
     DrawObj m_RawBorderPtsDO;
 
     DrawObj m_ApproxPlanesDO;
+};
+
+class SurfaceIntersectionAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
 };
 
 #define SurfaceIntersectionMgr SurfaceIntersectionSingleton::getInstance()

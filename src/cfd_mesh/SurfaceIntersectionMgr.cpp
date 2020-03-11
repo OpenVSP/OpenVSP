@@ -2646,3 +2646,189 @@ void SurfaceIntersectionSingleton::UpdateDisplaySettings()
         GetIntersectSettingsPtr()->m_XYZIntCurveFlag = m_Vehicle->GetISectSettingsPtr()->m_XYZIntCurveFlag.Get();
     }
 }
+
+//======================================================================================//
+//========================== Surface Intersection Analysis =============================//
+//======================================================================================//
+
+void SurfaceIntersectionAnalysis::SetDefaults()
+{
+    m_Inputs.Clear();
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        m_Inputs.Add( NameValData( "ExportRawFlag", veh->GetISectSettingsPtr()->m_ExportRawFlag() ) );
+        m_Inputs.Add( NameValData( "IntersectSubSurfs", veh->GetISectSettingsPtr()->m_IntersectSubSurfs() ) );
+        m_Inputs.Add( NameValData( "RelCurveTol", veh->GetISectSettingsPtr()->m_RelCurveTol() ) );
+        m_Inputs.Add( NameValData( "SelectedSetIndex", veh->GetISectSettingsPtr()->m_SelectedSetIndex() ) );
+
+        // CAD Export
+        m_Inputs.Add( NameValData( "CADLabelDelim", veh->GetISectSettingsPtr()->m_CADLabelDelim() ) );
+        m_Inputs.Add( NameValData( "CADLabelID", veh->GetISectSettingsPtr()->m_CADLabelID() ) );
+        m_Inputs.Add( NameValData( "CADLabelName", veh->GetISectSettingsPtr()->m_CADLabelName() ) );
+        m_Inputs.Add( NameValData( "CADLabelSplitNo", veh->GetISectSettingsPtr()->m_CADLabelSplitNo() ) );
+        m_Inputs.Add( NameValData( "CADLabelSurfNo", veh->GetISectSettingsPtr()->m_CADLabelSurfNo() ) );
+        m_Inputs.Add( NameValData( "CADLenUnit", veh->GetISectSettingsPtr()->m_CADLenUnit() ) );
+        m_Inputs.Add( NameValData( "STEPMergePoints", veh->GetISectSettingsPtr()->m_STEPMergePoints() ) );
+        m_Inputs.Add( NameValData( "STEPRepresentation", veh->GetISectSettingsPtr()->m_STEPRepresentation() ) );
+        m_Inputs.Add( NameValData( "STEPTol", veh->GetISectSettingsPtr()->m_STEPTol() ) );
+
+        // File Outputs
+        m_Inputs.Add( NameValData( "CURVFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME )->Get() ) );
+        m_Inputs.Add( NameValData( "CURVFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "SRFFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME )->Get() ) );
+        m_Inputs.Add( NameValData( "SRFFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "P3DFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME )->Get() ) );
+        m_Inputs.Add( NameValData( "P3DFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "IGESFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME )->Get() ) );
+        m_Inputs.Add( NameValData( "IGESFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME ) ) );
+        m_Inputs.Add( NameValData( "STEPFileFlag", veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME )->Get() ) );
+        m_Inputs.Add( NameValData( "STEPFileName", veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME ) ) );
+    }
+    else
+    {
+        // TODO Throw an error here
+        printf( "ERROR - trying to set defaults without a vehicle: void SurfaceIntersectionAnalysis::SetDefaults()\n" );
+    }
+}
+
+string SurfaceIntersectionAnalysis::Execute()
+{
+    string res_id;
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        NameValData* nvd = NULL;
+
+        bool exportRawFlagOrig = veh->GetISectSettingsPtr()->m_ExportRawFlag();
+        nvd = m_Inputs.FindPtr( "ExportRawFlag", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_ExportRawFlag.Set( nvd->GetInt( 0 ) );
+
+        bool intersectSubSurfsOrig = veh->GetISectSettingsPtr()->m_IntersectSubSurfs();
+        nvd = m_Inputs.FindPtr( "IntersectSubSurfs", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_IntersectSubSurfs.Set( nvd->GetInt( 0 ) );
+
+        double relCurveTolOrig = veh->GetISectSettingsPtr()->m_RelCurveTol();
+        nvd = m_Inputs.FindPtr( "RelCurveTol", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_RelCurveTol.Set( nvd->GetDouble( 0 ) );
+
+        int selectedSetIndexOrig = veh->GetISectSettingsPtr()->m_SelectedSetIndex();
+        nvd = m_Inputs.FindPtr( "SelectedSetIndex", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_SelectedSetIndex.Set( nvd->GetInt( 0 ) );
+
+        // CAD Export
+        int cadLabelDelimOrig = veh->GetISectSettingsPtr()->m_CADLabelDelim();
+        nvd = m_Inputs.FindPtr( "CADLabelDelim", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_CADLabelDelim.Set( nvd->GetInt( 0 ) );
+
+        bool cadLabelIDOrig = veh->GetISectSettingsPtr()->m_CADLabelID();
+        nvd = m_Inputs.FindPtr( "CADLabelID", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_CADLabelID.Set( nvd->GetInt( 0 ) );
+
+        bool cadLabelNameOrig = veh->GetISectSettingsPtr()->m_CADLabelName();
+        nvd = m_Inputs.FindPtr( "CADLabelName", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_CADLabelName.Set( nvd->GetInt( 0 ) );
+
+        bool cadLabelSplitNoOrig = veh->GetISectSettingsPtr()->m_CADLabelSplitNo();
+        nvd = m_Inputs.FindPtr( "CADLabelSplitNo", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_CADLabelSplitNo.Set( nvd->GetInt( 0 ) );
+
+        bool cadLabelSurfNoOrig = veh->GetISectSettingsPtr()->m_CADLabelSurfNo();
+        nvd = m_Inputs.FindPtr( "CADLabelSurfNo", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_CADLabelSurfNo.Set( nvd->GetInt( 0 ) );
+
+        int cadLenUnitOrig = veh->GetISectSettingsPtr()->m_CADLenUnit();
+        nvd = m_Inputs.FindPtr( "CADLenUnit", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_CADLenUnit.Set( nvd->GetInt( 0 ) );
+
+        bool stepMergePointsOrig = veh->GetISectSettingsPtr()->m_STEPMergePoints();
+        nvd = m_Inputs.FindPtr( "STEPMergePoints", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_STEPMergePoints.Set( nvd->GetInt( 0 ) );
+
+        int stepRepresentationOrig = veh->GetISectSettingsPtr()->m_STEPRepresentation();
+        nvd = m_Inputs.FindPtr( "STEPRepresentation", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_STEPRepresentation.Set( nvd->GetInt( 0 ) );
+
+        double stepTolOrig = veh->GetISectSettingsPtr()->m_STEPTol();
+        nvd = m_Inputs.FindPtr( "STEPTol", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->m_STEPTol.Set( nvd->GetDouble( 0 ) );
+
+        // File Outputs
+        bool curvFileFlagOrig = veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME )->Get();
+        nvd = m_Inputs.FindPtr( "CURVFileFlag", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_CURV_FILE_NAME, nvd->GetInt( 0 ) );
+
+        string curvFileNameOrig = veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME );
+        nvd = m_Inputs.FindPtr( "CURVFileName", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::INTERSECT_CURV_FILE_NAME );
+
+        bool srfFileFlagOrig = veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME )->Get();
+        nvd = m_Inputs.FindPtr( "SRFFileFlag", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_SRF_FILE_NAME, nvd->GetInt( 0 ) );
+
+        string srfFileNameOrig = veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME );
+        nvd = m_Inputs.FindPtr( "SRFFileName", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::INTERSECT_SRF_FILE_NAME );
+
+        bool p3dFileFlagOrig = veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME )->Get();
+        nvd = m_Inputs.FindPtr( "P3DFileFlag", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_PLOT3D_FILE_NAME, nvd->GetInt( 0 ) );
+
+        string p3dFileNameOrig = veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME );
+        nvd = m_Inputs.FindPtr( "P3DFileName", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::INTERSECT_PLOT3D_FILE_NAME );
+
+        bool igesFileFlagOrig = veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME )->Get();
+        nvd = m_Inputs.FindPtr( "IGESFileFlag", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_IGES_FILE_NAME, nvd->GetInt( 0 ) );
+
+        string igesFileNameOrig = veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME );
+        nvd = m_Inputs.FindPtr( "IGESFileName", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::INTERSECT_IGES_FILE_NAME );
+
+        bool stepFileFlagOrig = veh->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME )->Get();
+        nvd = m_Inputs.FindPtr( "STEPFileFlag", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_STEP_FILE_NAME, nvd->GetInt( 0 ) );
+
+        string stepFileNameOrig = veh->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME );
+        nvd = m_Inputs.FindPtr( "STEPFileName", 0 );
+        if ( nvd ) veh->GetISectSettingsPtr()->SetExportFileName( nvd->GetString( 0 ), vsp::INTERSECT_STEP_FILE_NAME );
+
+        // Execute analysis
+        SurfaceIntersectionMgr.IntersectSurfaces(); // TODO: Add results
+
+        // ==== Restore original values that were overwritten by analysis inputs ==== //
+        veh->GetISectSettingsPtr()->m_ExportRawFlag.Set( exportRawFlagOrig );
+        veh->GetISectSettingsPtr()->m_IntersectSubSurfs.Set( intersectSubSurfsOrig );
+        veh->GetISectSettingsPtr()->m_RelCurveTol.Set( relCurveTolOrig );
+        veh->GetISectSettingsPtr()->m_SelectedSetIndex.Set( selectedSetIndexOrig );
+
+        // CAD Export
+        veh->GetISectSettingsPtr()->m_CADLabelDelim.Set( cadLabelDelimOrig );
+        veh->GetISectSettingsPtr()->m_CADLabelID.Set( cadLabelIDOrig );
+        veh->GetISectSettingsPtr()->m_CADLabelName.Set( cadLabelNameOrig );
+        veh->GetISectSettingsPtr()->m_CADLabelSplitNo.Set( cadLabelSplitNoOrig );
+        veh->GetISectSettingsPtr()->m_CADLabelSurfNo.Set( cadLabelSurfNoOrig );
+        veh->GetISectSettingsPtr()->m_CADLenUnit.Set( cadLenUnitOrig );
+        veh->GetISectSettingsPtr()->m_STEPMergePoints.Set( stepMergePointsOrig );
+        veh->GetISectSettingsPtr()->m_STEPRepresentation.Set( stepRepresentationOrig );
+        veh->GetISectSettingsPtr()->m_STEPTol.Set( stepTolOrig );
+
+        // File Outputs
+        veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_CURV_FILE_NAME, curvFileFlagOrig );
+        veh->GetISectSettingsPtr()->SetExportFileName( curvFileNameOrig, vsp::INTERSECT_CURV_FILE_NAME );
+        veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_CURV_FILE_NAME, curvFileFlagOrig );
+        veh->GetISectSettingsPtr()->SetExportFileName( srfFileNameOrig, vsp::INTERSECT_SRF_FILE_NAME );
+        veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_PLOT3D_FILE_NAME, p3dFileFlagOrig );
+        veh->GetISectSettingsPtr()->SetExportFileName( p3dFileNameOrig, vsp::INTERSECT_PLOT3D_FILE_NAME );
+        veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_IGES_FILE_NAME, igesFileFlagOrig );
+        veh->GetISectSettingsPtr()->SetExportFileName( igesFileNameOrig, vsp::INTERSECT_IGES_FILE_NAME );
+        veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_STEP_FILE_NAME, stepFileFlagOrig );
+        veh->GetISectSettingsPtr()->SetExportFileName( stepFileNameOrig, vsp::INTERSECT_STEP_FILE_NAME );
+
+    }
+
+    return res_id;
+}
