@@ -2791,7 +2791,10 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool label
                     prefix.append( to_string( j ) );
                 }
 
-                step.AddSurf( &surf_vec[j], m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit, prefix );
+                vector < SdaiB_spline_surface_with_knots* > surfs;
+                surf_vec[j].ToSTEP_BSpline_Quilt( &step, surfs, m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit );
+
+                step.RepresentUntrimmedSurfs( surfs, prefix );
             }
         }
     }
@@ -2848,7 +2851,10 @@ void Vehicle::WriteStructureSTEPFile( const string & file_name )
 
         for ( int j = 0; j < surf_vec.size(); j++ )
         {
-            step.AddSurf( &surf_vec[j], m_STEPStructureSplitSurfs(), m_STEPStructureMergePoints(), m_STEPStructureToCubic(), m_STEPStructureToCubicTol(), false, usplit, wsplit );
+            vector < SdaiB_spline_surface_with_knots* > surfs;
+            surf_vec[j].ToSTEP_BSpline_Quilt( &step, surfs, m_STEPStructureSplitSurfs(), m_STEPStructureMergePoints(), m_STEPStructureToCubic(), m_STEPStructureToCubicTol(), false, usplit, wsplit );
+
+            step.RepresentUntrimmedSurfs( surfs );
         }
     }
 
@@ -2868,29 +2874,7 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
 {
     string delim = StringUtil::get_delim( delimType );
 
-    DLL_IGES model;
-
-    // Note, YD not handled by libIGES.
-    switch( lenUnit )
-    {
-    case vsp::LEN_CM:
-        model.SetUnitsFlag( UNIT_CENTIMETER );
-        break;
-    case vsp::LEN_M:
-        model.SetUnitsFlag( UNIT_METER );
-        break;
-    case vsp::LEN_MM:
-        model.SetUnitsFlag( UNIT_MM );
-        break;
-    case vsp::LEN_IN:
-        model.SetUnitsFlag( UNIT_IN );
-        break;
-    case vsp::LEN_FT:
-        model.SetUnitsFlag( UNIT_FOOT );
-        break;
-    }
-
-    model.SetNativeSystemID( VSPVERSION4 );
+    IGESutil iges( lenUnit );
 
     vector< Geom* > geom_vec = FindGeomVec( GetGeomVec() );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
@@ -2961,12 +2945,12 @@ void Vehicle::WriteIGESFile( const string & file_name, int write_set, int lenUni
                     prefix.append( to_string( j ) );
                 }
 
-                surf_vec[j].ToIGES( model, splitSurfs, toCubic, toCubicTol, trimTE, usplit, wsplit, prefix, labelSplitNo, delim );
+                surf_vec[j].ToIGES( &iges, splitSurfs, toCubic, toCubicTol, trimTE, usplit, wsplit, prefix, labelSplitNo, delim );
             }
         }
     }
 
-    model.Write( file_name.c_str(), true );
+    iges.WriteFile( file_name.c_str(), true );
 }
 
 void Vehicle::WriteStructureIGESFile( const string & file_name )
@@ -2989,35 +2973,7 @@ void Vehicle::WriteStructureIGESFile( const string & file_name, int feaMeshStruc
 
     string delim = StringUtil::get_delim( delimType );
 
-    DLL_IGES model;
-
-    // Note, YD not handled by libIGES.
-    switch ( m_StructUnit() )
-    {
-        case vsp::SI_UNIT:
-            model.SetUnitsFlag( UNIT_METER );
-            break;
-
-        case vsp::CGS_UNIT:
-            model.SetUnitsFlag( UNIT_CENTIMETER );
-            break;
-
-        case vsp::MPA_UNIT:
-            model.SetUnitsFlag( UNIT_MM );
-            break;
-
-        case vsp::BFT_UNIT:
-            model.SetUnitsFlag( UNIT_FOOT );
-            break;
-
-        case vsp::BIN_UNIT:
-            model.SetUnitsFlag( UNIT_IN );
-
-            break;
-    }
-
-
-    model.SetNativeSystemID( VSPVERSION4 );
+    IGESutil iges( m_StructUnit() );
 
     vector < double > usplit;
     vector < double > wsplit;
@@ -3058,11 +3014,11 @@ void Vehicle::WriteStructureIGESFile( const string & file_name, int feaMeshStruc
                 prefix.append( to_string( j ) );
             }
 
-            surf_vec[j].ToIGES( model, splitSurfs, toCubic, toCubicTol, false, usplit, wsplit, prefix, labelSplitNo, delim );
+            surf_vec[j].ToIGES( &iges, splitSurfs, toCubic, toCubicTol, false, usplit, wsplit, prefix, labelSplitNo, delim );
         }
     }
 
-    model.Write( file_name.c_str(), true );
+    iges.WriteFile( file_name.c_str(), true );
 }
 
 void Vehicle::WriteBEMFile( const string &file_name, int write_set )
