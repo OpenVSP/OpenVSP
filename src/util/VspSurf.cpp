@@ -2225,7 +2225,7 @@ void VspSurf::ToSTEP_Bez_Patches( STEPutil * step, vector<SdaiBezier_surface *> 
     }
 }
 
-void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double > &USplit, const vector < double > &WSplit, const string &labelprefix, bool labelSplitNo, const string &delim )
+vector < piecewise_surface_type > VspSurf::PrepCADSurfs( bool splitsurf, bool tocubic, double tol, bool trimTE, const vector < double >& USplit, const vector < double >& WSplit )
 {
     // Make copy for local changes.
     piecewise_surface_type s( m_Surface );
@@ -2253,83 +2253,7 @@ void VspSurf::ToIGES( DLL_IGES &model, bool splitsurf, bool tocubic, double tol,
     SplitSurfsU( surfvec, USplit );
     SplitSurfsW( surfvec, WSplit );
 
-    for ( int is = 0; is < surfvec.size(); is++ )
-    {
-        s = surfvec[is];
-
-        if( !m_FlipNormal )
-        {
-            s.reverse_v();
-        }
-
-        // Don't export degenerate split patches
-        if ( splitsurf && !CheckValidPatch( s ) )
-        {
-            continue;
-        }
-
-        piecewise_surface_type::index_type nupatch, nvpatch;
-        piecewise_surface_type::index_type maxu, maxv;
-        piecewise_surface_type::index_type nupts, nvpts;
-
-        vector< vector< int > > ptindxs;
-        vector< vec3d > allPntVec;
-
-        ExtractCPts( s, ptindxs, allPntVec, maxu, maxv, nupatch, nvpatch, nupts, nvpts );
-
-        vector < double > coeff( nupts * nvpts * 3 );
-
-        int icoeff = 0;
-        for( int j = 0; j < nvpts; j++ )
-        {
-            for( int i = 0; i < nupts; ++i )
-            {
-                int pindx = ptindxs[i][j];
-                vec3d pt = allPntVec[ pindx ];
-
-                for( int k = 0; k < 3; k++ )
-                {
-                    coeff[icoeff] = pt.v[k];
-                    icoeff++;
-                }
-            }
-        }
-
-        vector < double > knotu;
-        IGESKnots( maxu, nupatch, knotu );
-
-        vector < double > knotv;
-        IGESKnots( maxv, nvpatch, knotv );
-
-        DLL_IGES_ENTITY_128 isurf( model, true );
-
-        string label = labelprefix;
-
-        if ( labelSplitNo )
-        {
-            if ( label.size() > 0 )
-            {
-                label.append( delim );
-            }
-            label.append( to_string( is ) );
-        }
-
-        if ( label.size() > 0 )
-        {
-            DLL_IGES_ENTITY_406 e406( model, true );
-            e406.SetProperty_Name( label.c_str()) ;
-            isurf.AddOptionalEntity( e406.GetRawPtr() );
-            e406.Detach();
-        }
-
-        if( !isurf.SetNURBSData( nupts, nvpts, maxu + 1, maxv + 1,
-             knotu.data(), knotv.data(), coeff.data(),
-             false, false, false,
-             0.0, 1.0*nupatch, 0.0, 1.0*nvpatch ) )
-        {
-            model.DelEntity( &isurf );
-        }
-    }
+    return surfvec;
 }
 
 void VspSurf::Offset( const vec3d &offvec )
