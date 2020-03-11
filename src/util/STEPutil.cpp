@@ -783,6 +783,28 @@ void STEPutil::AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic,
 
 }
 
+SdaiSurface* STEPutil::MakePlane( const vec3d center, const vec3d norm, const vec3d tangent )
+{
+    SdaiPlane* plane = (SdaiPlane*)registry->ObjCreate( "PLANE" );
+    instance_list->Append( (SDAI_Application_instance*)plane, completeSE );
+    plane->name_( "''" );
+
+    SdaiCartesian_point* origin2 = MakePoint( center.x(), center.y(), center.z() );
+    SdaiDirection* axis2 = MakeDirection( norm.x(), norm.y(), norm.z() );
+    SdaiDirection* refd2 = MakeDirection( tangent.x(), tangent.y(), tangent.z() );
+
+    SdaiAxis2_placement_3d* placement2 = (SdaiAxis2_placement_3d*)registry->ObjCreate( "AXIS2_PLACEMENT_3D" );
+    placement2->name_( "''" );
+    placement2->location_( origin2 );
+    placement2->axis_( axis2 );
+    placement2->ref_direction_( refd2 );
+    instance_list->Append( (SDAI_Application_instance*)placement2, completeSE );
+
+    plane->position_( placement2 );
+
+    return (SdaiSurface*)plane;
+}
+
 SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, bool mergepts, double merge_tol )
 {
     // Surface control points and 2D indexes
@@ -894,7 +916,7 @@ SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, bool mergepts, doubl
         surf->u_knots_()->AddNode( new RealNode( ip ) );
     }
     surf->u_multiplicities_()->AddNode( new IntNode( maxu + 1 ) );
-    surf->u_knots_()->AddNode( new RealNode( nupatch ) );
+    surf->u_knots_()->AddNode( new RealNode( nupatch + 1 ) );
 
     surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
     surf->v_knots_()->AddNode( new RealNode( 0.0 ) );
@@ -904,15 +926,320 @@ SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, bool mergepts, doubl
         surf->v_knots_()->AddNode( new RealNode( jp ) );
     }
     surf->v_multiplicities_()->AddNode( new IntNode( maxv + 1 ) );
-    surf->v_knots_()->AddNode( new RealNode( nvpatch ) );
+    surf->v_knots_()->AddNode( new RealNode( nvpatch + 1 ) );
 
     surf->knot_spec_( Knot_type__piecewise_bezier_knots );
 
     return (SdaiSurface*)surf;
 }
 
+SdaiVertex_point* STEPutil::MakeVertex( vec3d vertex )
+{
+    SdaiCartesian_point* cart_pnt = MakePoint( vertex.x(), vertex.y(), vertex.z() );
+    SdaiVertex_point* vert_pnt = (SdaiVertex_point*)registry->ObjCreate( "VERTEX_POINT" );
+    instance_list->Append( (SDAI_Application_instance*)vert_pnt, completeSE );
+    vert_pnt->name_( "''" );
+    vert_pnt->vertex_geometry_( cart_pnt );
+    return vert_pnt;
+}
 
-void STEPutil::MakeUntrimmedSurfs( vector < SdaiB_spline_surface_with_knots* > surf_vec, const string& label )
+SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( vector < vec3d > cp_vec, const int& deg, bool closed_curve, bool mergepnts, double merge_tol )
+{
+    // Identify the edge
+    int npts = (int)cp_vec.size();
+
+    SdaiB_spline_curve_with_knots* curve = (SdaiB_spline_curve_with_knots*)registry->ObjCreate( "B_SPLINE_CURVE_WITH_KNOTS" );
+    instance_list->Append( (SDAI_Application_instance*)curve, completeSE );
+    curve->degree_( deg );
+    curve->name_( "''" );
+    curve->closed_curve_( SDAI_LOGICAL( closed_curve ) );
+
+    piecewise_surface_type::index_type ip;
+
+    curve->self_intersect_( SDAI_LOGICAL( LFalse ) );
+    curve->curve_form_( B_spline_curve_form__polyline_form );
+
+    PntNodeCloud pnCloud;
+    vector < SdaiCartesian_point* > usedPts;
+
+    if ( mergepnts )
+    {
+        //==== Build Map ====//
+        pnCloud.AddPntNodes( cp_vec );
+
+        //==== Use NanoFlann to Find Close Points and Group ====//
+        IndexPntNodes( pnCloud, merge_tol );
+
+        //==== Load Used Points ====//
+        for ( size_t j = 0; j < cp_vec.size(); j++ )
+        {
+            if ( pnCloud.UsedNode( j ) || j == cp_vec.size() - 1 )
+            {
+                vec3d p = cp_vec[j];
+                SdaiCartesian_point* pt = MakePoint( p.x(), p.y(), p.z() );
+                usedPts.push_back( pt );
+            }
+        }
+    }
+    else
+    {
+        for ( int j = 0; j < (int)cp_vec.size(); j++ )
+        {
+            vec3d p = cp_vec[j];
+            SdaiCartesian_point* pt = MakePoint( p.x(), p.y(), p.z() );
+            usedPts.push_back( pt );
+        }
+    }
+
+    npts = (int)usedPts.size();
+
+    std::ostringstream point_ss;
+
+    for ( int j = 0; j < npts; ++j )
+    {
+        int pindx = j;
+
+        SdaiCartesian_point* pt;
+
+        if ( mergepnts )
+        {
+            pt = usedPts[pnCloud.GetNodeUsedIndex( pindx )];
+        }
+        else
+        {
+            pt = usedPts[pindx];
+        }
+        point_ss << "#" << pt->GetFileId();
+
+        if ( j < npts - 1 )
+        {
+            point_ss << ", ";
+        }
+    }
+
+    curve->control_points_list_()->AddNode( new GenericAggrNode( point_ss.str().c_str() ) );
+
+    int num_intermediate_knot = npts - ( deg + 1 );
+
+    curve->knot_multiplicities_()->AddNode( new IntNode( deg + 1 ) );
+    curve->knots_()->AddNode( new RealNode( 0.0 ) );
+    for ( ip = 1; ip <= num_intermediate_knot; ++ip )
+    {
+        curve->knot_multiplicities_()->AddNode( new IntNode( 1 ) );
+        curve->knots_()->AddNode( new RealNode( ip ) );
+    }
+    curve->knot_multiplicities_()->AddNode( new IntNode( deg + 1 ) );
+    curve->knots_()->AddNode( new RealNode( num_intermediate_knot + 1 ) );
+
+    curve->knot_spec_( Knot_type__uniform_knots );
+
+    return curve;
+}
+
+void STEPutil::MakeSurfaceCurve( vector < vec3d > cp_vec, const int& deg, bool mergepnts, double merge_tol )
+{
+    // Check for closure (i.e. ellipse sub-surface)
+    bool closed_curve;
+    if ( dist( cp_vec.front(), cp_vec.back() ) < FLT_EPSILON )
+    {
+        closed_curve = true;
+    }
+
+    SdaiB_spline_curve_with_knots* curve = MakeCurve( cp_vec, deg, closed_curve, mergepnts, merge_tol );
+
+    // Identify the start and end control point node numbers
+    string cp_vec_str;
+    curve->control_points_list_()->asStr( cp_vec_str );
+    cp_vec_str = cp_vec_str.substr( 1, cp_vec_str.size() - 2 ); // Remove parentheses
+    std::stringstream cp_vec_ss( cp_vec_str );
+    std::istream_iterator<std::string> begin( cp_vec_ss );
+    std::istream_iterator<std::string> end;
+    std::vector<std::string> cp_vec_str_vec( begin, end ); // Vector of strings for each control point node number (i.e "#1234,")
+
+    // TODO: Identify the parent surface of the surface curve? -> bounded surface curve?
+
+    // Create trimmed curve
+    SdaiTrimmed_curve* trimmed_curve = (SdaiTrimmed_curve*)registry->ObjCreate( "TRIMMED_CURVE" );
+    instance_list->Append( (SDAI_Application_instance*)trimmed_curve, completeSE );
+    trimmed_curve->name_( "''" );
+    trimmed_curve->basis_curve_( curve );
+    trimmed_curve->sense_agreement_( Boolean( true ) ); // TODO: Check this
+
+    // Identify the start and end control points along with the parameterization (complete knot vector)
+    std::ostringstream trim_1;
+    trim_1 << cp_vec_str_vec.front() << "PARAMETER_VALUE(0.E+000)"; // Note, comma included in all elements of cp_vec_str_vec except the last
+    trimmed_curve->trim_1_()->AddNode( new GenericAggrNode( trim_1.str().c_str() ) );
+    std::ostringstream trim_2;
+
+    int num_knot = cp_vec.size() - ( deg + 1 );
+
+    trim_2 << cp_vec_str_vec.back() << ",PARAMETER_VALUE(" << to_string( num_knot + 1 ) << ".)";
+    trimmed_curve->trim_2_()->AddNode( new GenericAggrNode( trim_2.str().c_str() ) );
+    trimmed_curve->master_representation_( Trimming_preference::Trimming_preference__parameter );
+
+    // Create geometric curve set
+    SdaiGeometric_curve_set* curve_set = (SdaiGeometric_curve_set*)registry->ObjCreate( "GEOMETRIC_CURVE_SET" );
+    instance_list->Append( (SDAI_Application_instance*)curve_set, completeSE );
+    curve_set->name_( "''" );
+    std::ostringstream node_str_start;
+    node_str_start << "#" << trimmed_curve->GetFileId();
+    curve_set->elements_()->AddNode( new GenericAggrNode( node_str_start.str().c_str() ) );
+
+    // Geometrically bounded wireframe shape representation
+    SdaiGeometrically_bounded_wireframe_shape_representation* shape_rep = (SdaiGeometrically_bounded_wireframe_shape_representation*)registry->ObjCreate( "GEOMETRICALLY_BOUNDED_WIREFRAME_SHAPE_REPRESENTATION" );
+    instance_list->Append( (SDAI_Application_instance*)shape_rep, completeSE );
+    shape_rep->name_( "''" );
+    std::ostringstream node_str_end;
+    SdaiAxis2_placement_3d* axis = DefaultAxis();
+    node_str_end << "#" << axis->GetFileId();
+    node_str_end << ",#" << curve_set->GetFileId();
+    shape_rep->context_of_items_( (SdaiRepresentation_context*)context );
+    shape_rep->items_()->AddNode( new GenericAggrNode( node_str_end.str().c_str() ) );
+
+    // Shape definition representation
+    SdaiShape_definition_representation* sdr = (SdaiShape_definition_representation*)registry->ObjCreate( "SHAPE_DEFINITION_REPRESENTATION" );
+    instance_list->Append( (SDAI_Application_instance*)sdr, completeSE );
+    sdr->definition_( pshape );
+    sdr->used_representation_( shape_rep );
+}
+
+void STEPutil::RepresentBREPSolid( vector < vector < SdaiAdvanced_face* > > adv_vec )
+{
+    vector < SdaiManifold_solid_brep* > brep_vec;
+
+    for ( size_t j = 0; j < adv_vec.size(); j++ )
+    {
+        std::ostringstream adv_ss;
+
+        for ( size_t i = 0; i < adv_vec[j].size(); i++ )
+        {
+            adv_ss << "#" << adv_vec[j][i]->GetFileId();
+
+            if ( i < adv_vec[j].size() - 1 )
+            {
+                adv_ss << ", ";
+            }
+        }
+
+        SdaiClosed_shell* shell = (SdaiClosed_shell*)registry->ObjCreate( "CLOSED_SHELL" );
+        instance_list->Append( (SDAI_Application_instance*)shell, completeSE );
+        shell->name_( "''" );
+        shell->cfs_faces_()->AddNode( new GenericAggrNode( adv_ss.str().c_str() ) );
+
+        SdaiCartesian_point* origin2 = MakePoint( 0.0, 0.0, 0.0 );
+        SdaiDirection* axis2 = MakeDirection( 0.0, 0.0, 1.0 );
+        SdaiDirection* refd2 = MakeDirection( 1.0, 0.0, 0.0 );
+
+        SdaiAxis2_placement_3d* placement2 = (SdaiAxis2_placement_3d*)registry->ObjCreate( "AXIS2_PLACEMENT_3D" );
+        placement2->name_( "''" );
+        placement2->location_( origin2 );
+        placement2->axis_( axis2 );
+        placement2->ref_direction_( refd2 );
+        instance_list->Append( (SDAI_Application_instance*)placement2, completeSE );
+
+        SdaiManifold_solid_brep* brep = (SdaiManifold_solid_brep*)registry->ObjCreate( "MANIFOLD_SOLID_BREP" );
+        instance_list->Append( (SDAI_Application_instance*)brep, completeSE );
+        brep->name_( "''" );
+        brep->outer_( shell );
+        brep_vec.push_back( brep );
+    }
+
+    std::ostringstream brep_ss;
+    for ( size_t i = 0; i < brep_vec.size(); i++ )
+    {
+        brep_ss << "#" << brep_vec[i]->GetFileId();
+
+        if ( i < brep_vec.size() - 1 )
+        {
+            brep_ss << ", ";
+        }
+    }
+
+    SdaiAdvanced_brep_shape_representation* adv_brep = (SdaiAdvanced_brep_shape_representation*)registry->ObjCreate( "ADVANCED_BREP_SHAPE_REPRESENTATION" );
+    instance_list->Append( (SDAI_Application_instance*)adv_brep, completeSE );
+    adv_brep->name_( "''" );
+    adv_brep->context_of_items_( (SdaiRepresentation_context*)context );
+    adv_brep->items_()->AddNode( new GenericAggrNode( brep_ss.str().c_str() ) );
+
+    SdaiShape_definition_representation* shape_def_rep = (SdaiShape_definition_representation*)registry->ObjCreate( "SHAPE_DEFINITION_REPRESENTATION" );
+    instance_list->Append( (SDAI_Application_instance*)shape_def_rep, completeSE );
+    shape_def_rep->definition_( pshape );
+    shape_def_rep->used_representation_( adv_brep );
+}
+
+void STEPutil::RepresentManifoldShell( vector < vector < SdaiAdvanced_face* > > adv_vec )
+{
+    vector < SdaiOpen_shell* > shell_vec;
+
+    for ( size_t j = 0; j < adv_vec.size(); j++ )
+    {
+        std::ostringstream adv_ss;
+
+        for ( size_t i = 0; i < adv_vec[j].size(); i++ )
+        {
+            adv_ss << "#" << adv_vec[j][i]->GetFileId();
+
+            if ( i < adv_vec[j].size() - 1 )
+            {
+                adv_ss << ", ";
+            }
+        }
+
+        SdaiOpen_shell* shell = (SdaiOpen_shell*)registry->ObjCreate( "OPEN_SHELL" );
+        instance_list->Append( (SDAI_Application_instance*)shell, completeSE );
+        shell->name_( "''" );
+        shell->cfs_faces_()->AddNode( new GenericAggrNode( adv_ss.str().c_str() ) );
+
+        shell_vec.push_back( shell );
+    }
+
+    SdaiShell_based_surface_model* shell_surf = (SdaiShell_based_surface_model*)registry->ObjCreate( "SHELL_BASED_SURFACE_MODEL" );
+    instance_list->Append( (SDAI_Application_instance*)shell_surf, completeSE );
+    shell_surf->name_( "''" );
+
+    std::ostringstream shell_ss;
+
+    for ( size_t i = 0; i < shell_vec.size(); i++ )
+    {
+        shell_ss << "#" << shell_vec[i]->GetFileId();
+
+        if ( i < shell_vec.size() - 1 )
+        {
+            shell_ss << ", ";
+        }
+    }
+    shell_surf->sbsm_boundary_()->AddNode( new GenericAggrNode( shell_ss.str().c_str() ) );
+
+    SdaiManifold_surface_shape_representation* man_surf = (SdaiManifold_surface_shape_representation*)registry->ObjCreate( "MANIFOLD_SURFACE_SHAPE_REPRESENTATION" );
+    instance_list->Append( (SDAI_Application_instance*)man_surf, completeSE );
+    man_surf->name_( "''" );
+    man_surf->context_of_items_( (SdaiRepresentation_context*)context );
+
+    std::ostringstream man_ss;
+    man_ss << "#" << shell_surf->GetFileId() << ",";
+
+    SdaiCartesian_point* origin2 = MakePoint( 0.0, 0.0, 0.0 );
+    SdaiDirection* axis2 = MakeDirection( 0.0, 0.0, 1.0 );
+    SdaiDirection* refd2 = MakeDirection( 1.0, 0.0, 0.0 );
+
+    SdaiAxis2_placement_3d* placement2 = (SdaiAxis2_placement_3d*)registry->ObjCreate( "AXIS2_PLACEMENT_3D" );
+    placement2->name_( "''" );
+    placement2->location_( origin2 );
+    placement2->axis_( axis2 );
+    placement2->ref_direction_( refd2 );
+    instance_list->Append( (SDAI_Application_instance*)placement2, completeSE );
+
+    man_ss << "#" << placement2->GetFileId();
+
+    man_surf->items_()->AddNode( new GenericAggrNode( man_ss.str().c_str() ) );
+
+    SdaiShape_definition_representation* shape_def_rep = (SdaiShape_definition_representation*)registry->ObjCreate( "SHAPE_DEFINITION_REPRESENTATION" );
+    instance_list->Append( (SDAI_Application_instance*)shape_def_rep, completeSE );
+    shape_def_rep->definition_( pshape );
+    shape_def_rep->used_representation_( man_surf );
+}
+
+void STEPutil::RepresentUntrimmedSurfs( vector < SdaiB_spline_surface_with_knots* > surf_vec, const string& label )
 {
     SdaiGeometric_set* gset = (SdaiGeometric_set*)registry->ObjCreate( "GEOMETRIC_SET" );
     instance_list->Append( (SDAI_Application_instance*)gset, completeSE );

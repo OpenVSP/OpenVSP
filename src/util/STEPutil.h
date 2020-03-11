@@ -52,9 +52,30 @@ public:
     Registry * registry;
     InstMgr * instance_list;
 
-    void MakeUntrimmedSurfs( vector < SdaiB_spline_surface_with_knots* > surf_vec, const string& label = "" );
+    // Functions for STEP file representation
+    void RepresentBREPSolid( vector < vector < SdaiAdvanced_face* > > adv_vec );
+    void RepresentManifoldShell( vector < vector < SdaiAdvanced_face* > > adv_vec );
+    void RepresentUntrimmedSurfs( vector < SdaiB_spline_surface_with_knots* > surf_vec, const string& label = "" );
 
+    // Create a STEP planar surface. The surface will extend infinitely if it is not bounded
+    SdaiSurface* MakePlane( const vec3d center, const vec3d norm, const vec3d tangent );
+
+    // Convert a piecewise Bezier surface to a NURBS surface and add it to the STEP file. Additional options
+    // are included to use Nanoflann to merge points that are close together
     SdaiSurface* MakeSurf( piecewise_surface_type& s, bool mergepts = false, double merge_tol = 1e-8 );
+
+    // Create a STEP vertex and add it to the STEP file. This function is used to define the endpoints 
+    // of STEP edge curves.
+    SdaiVertex_point* MakeVertex( vec3d vertex );
+
+    // Convert a set of input control points to a NURBS curve and write to the STEP file. Additional options
+    // are included to use Nanoflann to merge points that are close together
+    SdaiB_spline_curve_with_knots* MakeCurve( vector < vec3d > cp_vec, const int& deg, bool closed_curve = false, bool mergepnts = false, double merge_tol = 1e-8 );
+
+    // Write a curve defined from the given control points to the STEP file. This function is mainly
+    // available for sub-surface lines and the intersection of FEA Parts with each other.
+    void MakeSurfaceCurve( vector < vec3d > cp_vec, const int& deg, bool mergepnts = false, double merge_tol = 1e-8 );
+
 protected:
 
     STEPfile * sfile;
