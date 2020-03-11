@@ -23,6 +23,7 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
 {
     m_TotalMass = 0.0;
     m_FeaMeshInProgress = false;
+    m_CADOnlyFlag = false;
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
     m_FeaMeshStructIndex = -1;
@@ -265,6 +266,13 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     TransferMeshSettings();
 
+    if ( ( !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) && !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) &&
+           !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) && !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) &&
+           !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) ) )
+    {
+        m_CADOnlyFlag = true;
+    }
+
     addOutputText( "Load Surfaces\n" );
     LoadSurfaces();
 
@@ -275,8 +283,11 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
         return;
     }
 
-    // Hide all geoms after loading surfaces and settings
-    m_Vehicle->HideAll();
+    if ( !m_CADOnlyFlag )
+    {
+        // Hide all geoms after loading surfaces and settings
+        m_Vehicle->HideAll();
+    }
 
     GetMassUnit();
     TransferFeaData();
@@ -301,6 +312,19 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     addOutputText( "Binary Adaptation Curve Approximation\n" );
     BinaryAdaptIntCurves();
+
+    if ( m_CADOnlyFlag )
+    {
+        // No need to generate mesh
+        addOutputText( "Exporting Files\n" );
+        ExportFeaMesh();
+
+        addOutputText( "Finished\n" );
+
+        m_FeaMeshInProgress = false;
+        m_CADOnlyFlag = false;
+        return;
+    }
 
     addOutputText( "Build Target Map\n" );
     BuildTargetMap( CfdMeshMgrSingleton::VOCAL_OUTPUT );
@@ -342,54 +366,57 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
 void FeaMeshMgrSingleton::ExportFeaMesh()
 {
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) )
+    if ( !m_CADOnlyFlag )
     {
-        WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ) );
-    }
+        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) )
+        {
+            WriteNASTRAN( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME ) );
+        }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) )
-    {
-        WriteCalculix();
-    }
+        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) )
+        {
+            WriteCalculix();
+        }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) )
-    {
-        WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME ) );
-    }
+        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) )
+        {
+            WriteSTL( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME ) );
+        }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
-    {
-        WriteGmsh();
-    }
+        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
+        {
+            WriteGmsh();
+        }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
-    {
-        WriteGmsh();
-    }
+        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) )
+        {
+            WriteGmsh();
+        }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )
-    {
-        ComputeWriteMass();
-        string mass_output = "Total Mass = " + std::to_string( m_TotalMass ) + "\n";
-        addOutputText( mass_output );
-    }
+        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) )
+        {
+            ComputeWriteMass();
+            string mass_output = "Total Mass = " + std::to_string( m_TotalMass ) + "\n";
+            addOutputText( mass_output );
+        }
 
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME ) )
-    {
-        WriteSurfsIntCurves( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME ) );
-    }
+        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME ) )
+        {
+            WriteSurfsIntCurves( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME ) );
+        }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME ) )
-    {
-        WriteGridToolCurvFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME ),
-                               GetStructSettingsPtr()->m_ExportRawFlag );
-    }
+        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME ) )
+        {
+            WriteGridToolCurvFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME ),
+                                   GetStructSettingsPtr()->m_ExportRawFlag );
+        }
 
-    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME ) )
-    {
-        WritePlot3DFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ),
-                         GetStructSettingsPtr()->m_ExportRawFlag );
+        if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_PLOT3D_FILE_NAME ) )
+        {
+            WritePlot3DFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME ),
+                             GetStructSettingsPtr()->m_ExportRawFlag );
+        }
     }
 
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ) )

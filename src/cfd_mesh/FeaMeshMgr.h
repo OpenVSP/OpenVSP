@@ -106,6 +106,11 @@ public:
         m_FeaMeshInProgress = progress_flag;
     }
 
+    virtual void SetCADOnlyFlag( bool cad_only_flag )
+    {
+        m_CADOnlyFlag = cad_only_flag;
+    }
+
     virtual void TransferDrawObjData();
     virtual bool FeaDataAvailable();
     virtual void SetAllDisplayFlags( bool flag );
@@ -154,6 +159,7 @@ protected:
     virtual void WriteNASTRANSet( FILE* Nastran_fid, FILE* NKey_fid, int & set_num, vector < int > set_ids, const string &set_name );
 
     bool m_FeaMeshInProgress;
+    bool m_CADOnlyFlag; // Indicates that ne meshing should be performed, but the surfaces are still exported
 
     double m_TotalMass;
     string m_MassUnit;
