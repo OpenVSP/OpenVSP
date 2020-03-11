@@ -251,8 +251,6 @@ protected:
     void Tesselate( const vector<double> &utess, const vector<double> &vtess, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const;
     void SplitTesselate( const vector<double> &usplit, const vector<double> &vsplit, const vector<double> &u, const vector<double> &v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms ) const;
 
-    static void IGESKnots( int deg, int npatch, vector< double > &knot );
-
     static bool CheckValidPatch( const piecewise_surface_type &surf );
 
     bool m_FlipNormal;

@@ -795,6 +795,29 @@ IGESutil::~IGESutil()
 }
 
 
+void IGESutil::IGESKnots( int deg, int npatch, vector< double >& knot )
+{
+    int i, j;
+
+    knot.clear();
+
+    for ( i = 0; i <= deg; i++ )
+    {
+        knot.push_back( 0.0 );
+    }
+    for ( i = 1; i <= npatch; ++i )
+    {
+        for ( j = 0; j < deg; j++ )
+        {
+            knot.push_back( 1.0 * i );
+        }
+    }
+    for ( i = 0; i <= deg; i++ )
+    {
+        knot.push_back( 1.0 * npatch );
+    }
+}
+
 //===================================================================//
 //==============       General CAD Functions         ================//
 //===================================================================//

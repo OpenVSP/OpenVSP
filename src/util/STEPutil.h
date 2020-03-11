@@ -71,6 +71,8 @@ public:
     IGESutil( const int& len );
     virtual ~IGESutil();
 
+    void IGESKnots( int deg, int npatch, vector< double >& knot );
+
 protected:
 
 
