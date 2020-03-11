@@ -185,6 +185,16 @@ void SurfaceIntersectionSingleton::TransferMeshSettings()
 {
     m_IntersectSettings = SimpleIntersectSettings();
     m_IntersectSettings.CopyFrom( m_Vehicle->GetISectSettingsPtr() );
+
+    m_GeomNameMap.clear();
+
+    // Copy over Geom IDs and names
+    vector< Geom* > geom_vec = m_Vehicle->FindGeomVec( m_Vehicle->GetGeomVec() );
+
+    for ( size_t i = 0; i < geom_vec.size(); i++ )
+    {
+        m_GeomNameMap[geom_vec[i]->GetID()] = geom_vec[i]->GetName();
+    }
 }
 
 void SurfaceIntersectionSingleton::TransferSubSurfData()

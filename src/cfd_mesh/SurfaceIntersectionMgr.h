@@ -257,6 +257,9 @@ protected:
 
     string m_MessageName; // Either "SurfIntersectMessage", "CFDMessage", or "FEAMessage"
 
+
+    map < string, string > m_GeomNameMap;
+
 private:
 
     DrawObj m_IsectCurveDO;
