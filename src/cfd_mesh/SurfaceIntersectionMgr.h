@@ -265,6 +265,9 @@ protected:
     vector< IPntGroup* > m_DelIPntGroupVec;
     vector< ISegChain* > m_DelISegChainVec;
 
+    vector < vector < vec3d > > m_IPatchADrawLines;
+    vector < vector < vec3d > > m_IPatchBDrawLines;
+
     vector< vector< vec3d > > debugRayIsect;
 
     vector < vector < vec3d > > m_BinAdaptCurveAVec;
@@ -301,6 +304,11 @@ private:
     DrawObj m_RawBorderPtsDO;
 
     DrawObj m_ApproxPlanesDO;
+
+    DrawObj m_DelPtsDO;
+
+    vector < DrawObj > m_IPatchADO;
+    vector < DrawObj > m_IPatchBDO;
 };
 
 class SurfaceIntersectionAnalysis : public Analysis

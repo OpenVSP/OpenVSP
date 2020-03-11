@@ -181,6 +181,9 @@ void SurfaceIntersectionSingleton::CleanUp()
     debugPnts.clear();
 
     m_SimpleSubSurfaceVec.clear();
+
+    m_IPatchADrawLines.clear();
+    m_IPatchBDrawLines.clear();
 }
 
 void SurfaceIntersectionSingleton::RegisterAnalysis()
@@ -1325,6 +1328,10 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     IPnt* ipnt1 = new IPnt( puwA1, puwB1 );
     ipnt1->m_Pnt = ip1;
     m_DelIPntVec.push_back( ipnt1 );
+
+    // Identify rectangles to represent final patches
+    m_IPatchADrawLines.push_back( pA.GetPatchDrawLines() );
+    m_IPatchBDrawLines.push_back( pB.GetPatchDrawLines() );
 
     long id0 = IPntBin::ComputeID( ipnt0->m_Pnt );
     long id1 = IPntBin::ComputeID( ipnt1->m_Pnt );
@@ -2516,12 +2523,6 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
     m_RawBorderPtsDO.m_PointColor = vec3d(0.5, 0.5, 0.5);
     m_RawBorderPtsDO.m_PointSize = 10.0;
 
-    m_ApproxPlanesDO.m_GeomID = GetID() + "APPROXPLANES";
-    m_ApproxPlanesDO.m_Type = DrawObj::VSP_LINES;
-    m_ApproxPlanesDO.m_Visible = false;
-    m_ApproxPlanesDO.m_LineColor = vec3d( .2, .2, .2 );
-    m_ApproxPlanesDO.m_LineWidth = 1.0;
-
     m_IsectCurveDO.m_PntVec.clear();
     m_IsectPtsDO.m_PntVec.clear();
     m_BorderCurveDO.m_PntVec.clear();
@@ -2530,7 +2531,6 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
     m_RawIsectPtsDO.m_PntVec.clear();
     m_RawBorderCurveDO.m_PntVec.clear();
     m_RawBorderPtsDO.m_PntVec.clear();
-    m_ApproxPlanesDO.m_PntVec.clear();
 
     for ( int indx = 0; indx < m_RawCurveAVec.size(); indx++ )
     {
@@ -2602,16 +2602,6 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
         }
     }
 
-    list<ISegChain *>::iterator c;
-    for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
-    {
-        if ( !(*c)->m_BorderFlag )
-        {
-            (*c)->m_ISegBoxA.AppendLineSegs( m_ApproxPlanesDO.m_PntVec );
-            (*c)->m_ISegBoxB.AppendLineSegs( m_ApproxPlanesDO.m_PntVec );
-        }
-    }
-
     // Normal Vec is not required, load placeholder.
     m_IsectCurveDO.m_NormVec = m_IsectCurveDO.m_PntVec;
     m_IsectPtsDO.m_NormVec = m_IsectPtsDO.m_PntVec;
@@ -2623,8 +2613,6 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
     m_RawBorderCurveDO.m_NormVec = m_RawBorderCurveDO.m_PntVec;
     m_RawBorderPtsDO.m_NormVec = m_RawBorderPtsDO.m_PntVec;
 
-    m_ApproxPlanesDO.m_NormVec = m_ApproxPlanesDO.m_PntVec;
-
     draw_obj_vec.push_back( &m_IsectCurveDO );
     draw_obj_vec.push_back( &m_IsectPtsDO );
     draw_obj_vec.push_back( &m_BorderCurveDO );
@@ -2635,7 +2623,90 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
     draw_obj_vec.push_back( &m_RawBorderCurveDO );
     draw_obj_vec.push_back( &m_RawBorderPtsDO );
 
-    draw_obj_vec.push_back( &m_ApproxPlanesDO );
+    //=====  Visualizatino tools for SurfaceINtersectionMgr debugging =====//
+    if ( false ) // Set to true to turn visualization tools ON
+    {
+        // Set each DrawObj "m_Visible" to true to turn ON
+        m_ApproxPlanesDO.m_PntVec.clear();
+
+        list<ISegChain *>::iterator c;
+        for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
+        {
+            if ( !( *c )->m_BorderFlag )
+            {
+                ( *c )->m_ISegBoxA.AppendLineSegs( m_ApproxPlanesDO.m_PntVec );
+                ( *c )->m_ISegBoxB.AppendLineSegs( m_ApproxPlanesDO.m_PntVec );
+            }
+        }
+
+        m_ApproxPlanesDO.m_GeomID = GetID() + "APPROXPLANES";
+        m_ApproxPlanesDO.m_Type = DrawObj::VSP_LINES;
+        m_ApproxPlanesDO.m_Visible = false;
+        m_ApproxPlanesDO.m_LineColor = vec3d( .2, .2, .2 );
+        m_ApproxPlanesDO.m_LineWidth = 1.0;
+        m_ApproxPlanesDO.m_NormVec = m_ApproxPlanesDO.m_PntVec;
+
+        draw_obj_vec.push_back( &m_ApproxPlanesDO );
+
+        m_DelPtsDO.m_GeomID = GetID() + "m_DelPtsDO";
+        m_DelPtsDO.m_Type = DrawObj::VSP_POINTS;
+        m_DelPtsDO.m_Visible = false;
+        m_DelPtsDO.m_PointColor = vec3d( .2, .4, .6 );
+        m_DelPtsDO.m_PointSize = 10.0;
+        m_DelPtsDO.m_PntVec.clear();
+
+        for ( int indx = 0; indx < m_DelIPntVec.size(); indx++ )
+        {
+            m_DelPtsDO.m_PntVec.push_back( m_DelIPntVec[indx]->m_Pnt );
+        }
+
+        draw_obj_vec.push_back( &m_DelPtsDO );
+
+        if ( m_IPatchADrawLines.size() > 0 && m_IPatchBDrawLines.size() > 0 )
+        {
+            m_IPatchADO.clear();
+            m_IPatchADO.resize( m_IPatchADrawLines.size() );
+
+            for ( size_t i = 0; i < m_IPatchADrawLines.size(); i++ )
+            {
+                m_IPatchADO[i].m_GeomID = GetID() + "IPatchA_" + to_string( i );
+                m_IPatchADO[i].m_LineColor = vec3d( .4, .5, .6 );
+                m_IPatchADO[i].m_LineWidth = 1.5;
+                m_IPatchADO[i].m_Visible = false;
+                m_IPatchADO[i].m_PntVec.clear();
+
+                m_IPatchADO[i].m_Type = m_IPatchBDO[i].VSP_LINES;
+
+                for ( int indx = 0; indx < m_IPatchADrawLines[i].size(); indx++ )
+                {
+                    m_IPatchADO[i].m_PntVec.push_back( m_IPatchADrawLines[i][indx] );
+                }
+
+                draw_obj_vec.push_back( &m_IPatchADO[i] );
+            }
+
+            m_IPatchBDO.clear();
+            m_IPatchBDO.resize( m_IPatchBDrawLines.size() );
+
+            for ( size_t i = 0; i < m_IPatchBDrawLines.size(); i++ )
+            {
+                m_IPatchBDO[i].m_GeomID = GetID() + "IPatchB_" + to_string( i );
+                m_IPatchBDO[i].m_LineColor = vec3d( .7, .8, .9 );
+                m_IPatchBDO[i].m_LineWidth = 1.5;
+                m_IPatchBDO[i].m_Visible = false;
+                m_IPatchBDO[i].m_PntVec.clear();
+
+                m_IPatchBDO[i].m_Type = m_IPatchBDO[i].VSP_LINES;
+
+                for ( int indx = 0; indx < m_IPatchBDrawLines[i].size(); indx++ )
+                {
+                    m_IPatchBDO[i].m_PntVec.push_back( m_IPatchBDrawLines[i][indx] );
+                }
+
+                draw_obj_vec.push_back( &m_IPatchBDO[i] );
+            }
+        }
+    }
 
 }
 
