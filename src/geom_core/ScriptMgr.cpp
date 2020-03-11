@@ -1026,6 +1026,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_EXPORT_TYPE", "FEA_PLOT3D_FILE_NAME", FEA_PLOT3D_FILE_NAME, "/*!< FEA Mesh PLOT3D export type */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_EXPORT_TYPE", "FEA_IGES_FILE_NAME", FEA_IGES_FILE_NAME, "/*!< FEA Mesh trimmed IGES export type */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_EXPORT_TYPE", "FEA_STEP_FILE_NAME", FEA_STEP_FILE_NAME, "/*!< FEA Mesh trimmed STEP export type */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "FEA_EXPORT_TYPE", "FEA_NUM_FILE_NAMES", FEA_NUM_FILE_NAMES, "/*!< Number of FEA Mesh export type. */" );
     assert( r >= 0 );
 
@@ -1279,6 +1283,10 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "INTERSECT_EXPORT_TYPE", "INTERSECT_CURV_FILE_NAME", INTERSECT_CURV_FILE_NAME, "/*!< CURV intersection file type */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "INTERSECT_EXPORT_TYPE", "INTERSECT_PLOT3D_FILE_NAME", INTERSECT_PLOT3D_FILE_NAME, "/*!< PLOT3D intersection file type */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INTERSECT_EXPORT_TYPE", "INTERSECT_IGES_FILE_NAME", INTERSECT_IGES_FILE_NAME, "/*!< IGES intersection file type */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "INTERSECT_EXPORT_TYPE", "INTERSECT_STEP_FILE_NAME", INTERSECT_STEP_FILE_NAME, "/*!< STEP intersection file type */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "INTERSECT_EXPORT_TYPE", "INTERSECT_NUM_FILE_NAMES", INTERSECT_NUM_FILE_NAMES, "/*!< Number of surface intersection file types */" );
     assert( r >= 0 );

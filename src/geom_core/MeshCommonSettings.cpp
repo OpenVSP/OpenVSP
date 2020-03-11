@@ -78,6 +78,8 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
     m_ExportFileFlags[ vsp::INTERSECT_SRF_FILE_NAME ].Init( "SRF_Export", "ExportIntersect", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::INTERSECT_CURV_FILE_NAME ].Init( "CURV_Export", "ExportIntersect", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::INTERSECT_PLOT3D_FILE_NAME ].Init( "PLOT3D_Export", "ExportIntersect", this, true, 0, 1 );
+    m_ExportFileFlags[vsp::INTERSECT_IGES_FILE_NAME].Init( "IGES_Export", "ExportIntersect", this, true, 0, 1 );
+    m_ExportFileFlags[vsp::INTERSECT_STEP_FILE_NAME].Init( "STEP_Export", "ExportIntersect", this, true, 0, 1 );
 
     InitCommonParms();
 
@@ -153,7 +155,7 @@ void IntersectSettings::ResetExportFileNames()
 void IntersectSettings::ResetExportFileNames( const string& basename )
 {
     int pos;
-    const char *suffix[] = {".srf", ".curv", ".p3d" };
+    const char *suffix[] = {".srf", ".curv", ".p3d", ".igs", ".stp" };
 
     for ( int i = 0 ; i < vsp::INTERSECT_NUM_FILE_NAMES; i++ )
     {
@@ -431,6 +433,8 @@ StructSettings::StructSettings() : MeshCommonSettings()
     m_ExportFileFlags[ vsp::FEA_SRF_FILE_NAME ].Init( "SRF_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_CURV_FILE_NAME ].Init( "CURV_Export", "ExportFEA", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::FEA_PLOT3D_FILE_NAME ].Init( "PLOT3D_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[vsp::FEA_IGES_FILE_NAME].Init( "IGES_Export", "ExportFEA", this, true, 0, 1 );
+    m_ExportFileFlags[vsp::FEA_STEP_FILE_NAME].Init( "STEP_Export", "ExportFEA", this, true, 0, 1 );
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportFEA", this, false, 0, 1 );
 
@@ -528,7 +532,7 @@ void StructSettings::ResetExportFileNames()
 void StructSettings::ResetExportFileNames( const string& basename )
 {
     int pos;
-    const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_NASTRAN.nkey", "_calculix.dat", ".stl", ".msh", ".srf", ".curv", ".p3d" };
+    const char *suffix[] = {"_mass.txt", "_NASTRAN.dat", "_NASTRAN.nkey", "_calculix.dat", ".stl", ".msh", ".srf", ".curv", ".p3d", ".igs", ".stp" };
 
     for ( int i = 0 ; i < vsp::FEA_NUM_FILE_NAMES; i++ )
     {

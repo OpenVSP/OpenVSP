@@ -274,6 +274,8 @@ enum FEA_EXPORT_TYPE { FEA_MASS_FILE_NAME,
                        FEA_SRF_FILE_NAME,
                        FEA_CURV_FILE_NAME,
                        FEA_PLOT3D_FILE_NAME,
+                       FEA_IGES_FILE_NAME,
+                       FEA_STEP_FILE_NAME,
                        FEA_NUM_FILE_NAMES
                      };
 
@@ -364,6 +366,8 @@ enum IMPORT_TYPE {  IMPORT_STL,
 enum INTERSECT_EXPORT_TYPE { INTERSECT_SRF_FILE_NAME,
                              INTERSECT_CURV_FILE_NAME,
                              INTERSECT_PLOT3D_FILE_NAME,
+                             INTERSECT_IGES_FILE_NAME,
+                             INTERSECT_STEP_FILE_NAME,
                              INTERSECT_NUM_FILE_NAMES
                            };
 
