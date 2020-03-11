@@ -132,4 +132,85 @@ protected:
 
 };
 
+// Defines a NURBS surface, created from a piecewise Bezier surface. Every NURBS surface 
+// contains NURBS curves that define intersections and/or borders. Each surface will 
+// at least one NURBS loop associated with it to describe the outer surface boundary. 
+// NURBS loops define how a NURBS surface will be trimmed. 
+class NURBS_Surface
+{
+public:
+
+    NURBS_Surface();
+    virtual ~NURBS_Surface() {};
+
+    // Create a NURBS surface from a piecewise Bezier surface. The knot vectors,
+    // number of points and number of patches in the U and V directions are 
+    // saved as member variable.
+    void InitNURBSSurf( Surf* surface );
+
+    // Write the NURBS surface to IGES
+    DLL_IGES_ENTITY_128 WriteIGESSurf( IGESutil* iges, const string& label = "" );
+
+    // Write the NURBS loops for this NURBS surface to IGES, trimming the parent surface
+    // in the process. 
+    void WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf );
+
+    // Write the NURBS surface to STEP and optionally merge points that are close together
+    SdaiSurface* WriteSTEPSurf( STEPutil* step, bool mergepts );
+
+    // Write the NURBS loops for this NURBS surface to STEP, trimming the parent surface
+    // in the process. 
+    vector < SdaiAdvanced_face* > WriteSTEPLoops( STEPutil* step, SdaiSurface* surf, bool mergepts );
+
+    // Identifies the internal and external NURBS curves on the surface, organizes
+    // them into connected chains, and forms loops.  
+    void BuildNURBSLoopMap();
+
+    // Find all NURBS surves associated with this NURBS surface
+    vector < NURBS_Curve > MatchNURBSCurves( vector < NURBS_Curve > all_curve_vec );
+
+    void SetNURBSCurveVec( const vector < NURBS_Curve >& curve_vec )
+    {
+        m_NURBSCurveVec = curve_vec;
+    }
+    vector < NURBS_Curve > GetNURBSCurveVec()
+    {
+        return m_NURBSCurveVec;
+    }
+
+    // Parent surface index
+    int m_SurfID;
+
+    // Surface type to identify how to perform trimming (i.e. disk or structure surface)
+    int m_SurfType;
+
+    // All NURBS curves associated with the surface
+    vector < NURBS_Curve > m_NURBSCurveVec;
+
+    // Nurbs loops for the surface. Will always contain at least one for the surface border
+    vector < NURBS_Loop > m_NURBSLoopVec;
+
+protected:
+
+    // Organize a vector of NURBS curves into a map of ordered chains, where all NURBS curves 
+    // for a map index are connected.
+    map< int, vector < pair < NURBS_Curve, bool > > > BuildOrderedChains( vector < NURBS_Curve > chain_vec );
+
+    // Transform vectors of connected NURBS curves into individual NURBS loops.  
+    vector < NURBS_Loop > MergeOrderedChains( map< int, vector < pair < NURBS_Curve, bool > > > ordered_chain_map );
+
+    // NURBS Surface definition
+    piecewise_surface_type* m_Surf;
+
+    // Variables for representing the NURBS surface as a simplified planar surface if possible 
+    bool m_IsPlanar;
+    vec3d m_Tangent;
+    vec3d m_Norm;
+    vec3d m_Center;
+
+    // Bounding box of the surface, used to scale tolerances appropriately
+    BndBox m_BBox;
+
+};
+
 #endif
