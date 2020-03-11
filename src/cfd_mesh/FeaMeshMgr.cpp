@@ -14,6 +14,7 @@
 #include "StructureMgr.h"
 #include "PntNodeMerge.h"
 #include "main.h"
+#include "StringUtil.h"
 
 //=============================================================//
 //=============================================================//
@@ -391,6 +392,24 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
                          GetStructSettingsPtr()->m_ExportRawFlag );
     }
 
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ) )
+    {
+        string delim = StringUtil::get_delim( GetStructSettingsPtr()->m_CADLabelDelim );
+
+        WriteIGESFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_IGES_FILE_NAME ), GetStructSettingsPtr()->m_CADLenUnit,
+                       GetStructSettingsPtr()->m_CADLabelID, GetStructSettingsPtr()->m_CADLabelSurfNo, GetStructSettingsPtr()->m_CADLabelSplitNo,
+                       GetStructSettingsPtr()->m_CADLabelName, delim );
+    }
+
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME ) )
+    {
+        string delim = StringUtil::get_delim( GetStructSettingsPtr()->m_CADLabelDelim );
+
+        WriteSTEPFile( GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STEP_FILE_NAME ), GetStructSettingsPtr()->m_CADLenUnit,
+                       GetStructSettingsPtr()->m_STEPTol, GetStructSettingsPtr()->m_STEPMergePoints,
+                       GetStructSettingsPtr()->m_CADLabelID, GetStructSettingsPtr()->m_CADLabelSurfNo, GetStructSettingsPtr()->m_CADLabelSplitNo,
+                       GetStructSettingsPtr()->m_CADLabelName, delim, GetStructSettingsPtr()->m_STEPRepresentation );
+    }
 
 }
 

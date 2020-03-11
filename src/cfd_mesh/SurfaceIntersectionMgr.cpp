@@ -11,6 +11,8 @@
 #include "Util.h"
 #include "SubSurfaceMgr.h"
 #include "main.h"
+#include "StringUtil.h"
+
 
 #include <chrono>
 
@@ -497,6 +499,24 @@ void SurfaceIntersectionSingleton::ExportFiles()
                          GetIntersectSettingsPtr()->m_ExportRawFlag );
     }
 
+    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) )
+    {
+        string delim = StringUtil::get_delim( GetIntersectSettingsPtr()->m_CADLabelDelim );
+
+        WriteIGESFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME ), GetIntersectSettingsPtr()->m_CADLenUnit,
+                       GetIntersectSettingsPtr()->m_CADLabelID, GetIntersectSettingsPtr()->m_CADLabelSurfNo, GetIntersectSettingsPtr()->m_CADLabelSplitNo,
+                       GetIntersectSettingsPtr()->m_CADLabelName, delim );
+    }
+
+    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME ) )
+    {
+        string delim = StringUtil::get_delim( GetIntersectSettingsPtr()->m_CADLabelDelim );
+
+        WriteSTEPFile( GetIntersectSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME ), GetIntersectSettingsPtr()->m_CADLenUnit,
+                       GetIntersectSettingsPtr()->m_STEPTol, GetIntersectSettingsPtr()->m_STEPMergePoints,
+                       GetIntersectSettingsPtr()->m_CADLabelID, GetIntersectSettingsPtr()->m_CADLabelSurfNo, GetIntersectSettingsPtr()->m_CADLabelSplitNo,
+                       GetIntersectSettingsPtr()->m_CADLabelName, delim, GetIntersectSettingsPtr()->m_STEPRepresentation );
+    }
 }
 
 void SurfaceIntersectionSingleton::WriteSurfsIntCurves( const string &filename )
