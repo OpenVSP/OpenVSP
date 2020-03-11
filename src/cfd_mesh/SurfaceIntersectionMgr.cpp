@@ -850,6 +850,116 @@ vector < vector < int > > SurfaceIntersectionSingleton::GetCompIDGroupVec()
     return comp_id_group_vec;
 }
 
+void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
+{
+    // Only define the NURBS curves once to help avoid tolerance errors
+    m_NURBSCurveVec.clear();
+
+    //==== Find Max Bound Box of All Components ====//
+    BndBox big_box;
+    for ( size_t s = 0; s < m_SurfVec.size(); ++s )
+    {
+        big_box.Update( m_SurfVec[s]->GetBBox() );
+    }
+    double x_dist = 1.0 + big_box.GetMax( 0 ) - big_box.GetMin( 0 );
+    double y_dist = 1.0 + big_box.GetMax( 1 ) - big_box.GetMin( 1 );
+    double z_dist = 1.0 + big_box.GetMax( 2 ) - big_box.GetMin( 2 );
+
+    list< ISegChain* >::iterator i_seg;
+
+    for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
+    {
+        bool internal_flag = false, ss_flag = false, struct_intersect_flag = false;
+
+        // Check if the curve is interenal or external
+        // Identify test point
+        vec3d cp;
+        if ( ( *i_seg )->m_ISegDeque.size() <= 2 )
+        {
+            // Take midpoint of first segment
+            cp = ( ( *i_seg )->m_ISegDeque[0]->m_IPnt[0]->m_Pnt + ( *i_seg )->m_ISegDeque[0]->m_IPnt[1]->m_Pnt ) / 2.0;
+        }
+        else
+        {
+            // Identify point approximately halfway on border curve
+            cp = ( *i_seg )->m_ISegDeque[( *i_seg )->m_ISegDeque.size() / 2]->m_IPnt[0]->m_Pnt;
+        }
+
+        // Check 3 directions and take majority result
+        vec3d xep = cp + vec3d( x_dist, 1.0e-4, 1.0e-4 );
+        vec3d yep = cp + vec3d( 1.0e-4, y_dist, 1.0e-4 );
+        vec3d zep = cp + vec3d( 1.0e-4, 1.0e-4, z_dist );
+
+        vector< double > x_vec, y_vec, z_vec;
+
+        // Check if the curve is inside any component by checking the number of intersections from 3 vectors
+        // beginning at the midpoint of the curve. Checking 3 vectors prevents a false positive or negative
+        // from a vector that exactly aligns with another curve
+        for ( size_t j = 0; j < m_NumComps; j++ )
+        {
+            if ( j == ( *i_seg )->m_SurfA->GetCompID() || j == ( *i_seg )->m_SurfB->GetCompID() )
+            {
+                continue;
+            }
+
+            for ( size_t i = 0; i < m_SurfVec.size(); i++ )
+            {
+                if ( ( m_SurfVec[i]->GetCompID() == j ) &&
+                     ( m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NORMAL ) )
+                {
+                    m_SurfVec[i]->IntersectLineSeg( cp, xep, x_vec );
+                    m_SurfVec[i]->IntersectLineSeg( cp, yep, y_vec );
+                    m_SurfVec[i]->IntersectLineSeg( cp, zep, z_vec );
+                }
+            }
+
+            bool x_in = x_vec.size() % 2 == 1;
+            bool y_in = y_vec.size() % 2 == 1;
+            bool z_in = z_vec.size() % 2 == 1;
+
+            if ( ( x_in && y_in ) || ( x_in && z_in ) || ( y_in && z_in ) )
+            {
+                // Odd -> curve is inside
+                internal_flag = true;
+                break;
+            }
+        }
+
+        if ( !( *i_seg )->m_BorderFlag && ( ( *i_seg )->m_SurfA->GetCompID() == ( *i_seg )->m_SurfB->GetCompID() ) )
+        {
+            // Indicates a Sub-Surface
+            ss_flag = true;
+        }
+
+        if ( !( *i_seg )->m_BorderFlag && ( *i_seg )->m_SurfA->GetSurfaceCfdType() == vsp::CFD_STRUCTURE && ( *i_seg )->m_SurfB->GetSurfaceCfdType() == vsp::CFD_STRUCTURE )
+        {
+            // Intersected structures
+            struct_intersect_flag = true;
+        }
+
+        NURBS_Curve nurbs_curve;
+
+        nurbs_curve.m_BorderFlag = ( *i_seg )->m_BorderFlag;
+        nurbs_curve.m_InternalFlag = internal_flag;
+        nurbs_curve.m_SubSurfFlag = ss_flag;
+        nurbs_curve.m_StructIntersectFlag = struct_intersect_flag;
+        nurbs_curve.m_SurfA_ID = ( *i_seg )->m_SurfA->GetSurfID();
+        nurbs_curve.m_SurfB_ID = ( *i_seg )->m_SurfB->GetSurfID();
+        nurbs_curve.InitNURBSCurve( ( *i_seg )->m_ACurve );
+
+        if ( ( *i_seg )->m_SurfA->GetSurfaceCfdType() == vsp::CFD_TRANSPARENT || ( *i_seg )->m_SurfB->GetSurfaceCfdType() == vsp::CFD_TRANSPARENT )
+        {
+            nurbs_curve.m_SurfIntersectType = vsp::CFD_TRANSPARENT;
+        }
+        else if ( ( *i_seg )->m_SurfA->GetSurfaceCfdType() == vsp::CFD_STRUCTURE || ( *i_seg )->m_SurfB->GetSurfaceCfdType() == vsp::CFD_STRUCTURE )
+        {
+            nurbs_curve.m_SurfIntersectType = vsp::CFD_STRUCTURE;
+        }
+
+        m_NURBSCurveVec.push_back( nurbs_curve );
+    }
+}
+
 void SurfaceIntersectionSingleton::BuildCurves()
 {
     list< ISegChain* >::iterator c;

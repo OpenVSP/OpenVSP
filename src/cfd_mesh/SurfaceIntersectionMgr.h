@@ -65,6 +65,7 @@
 #include "MeshCommonSettings.h"
 #include "SimpleSubSurface.h"
 #include "SimpleMeshSettings.h"
+#include "NURBS.h"
 
 #include "Vec2d.h"
 #include "Vec3d.h"
@@ -219,6 +220,11 @@ public:
 
 protected:
 
+    // Convert each ISegChain into a NURBS curve. The curves are labeled as border 
+    // curves or intersection curves. For border curves, a test is performed to 
+    // detemine if they are outside or inside another surface.
+    void BuildNURBSCurvesVec();
+
     // Function to get all groups of component IDs. Components that are joined by intersection
     // curves make up a group. 
     vector < vector < int > > GetCompIDGroupVec();
@@ -261,6 +267,8 @@ protected:
 
     string m_MessageName; // Either "SurfIntersectMessage", "CFDMessage", or "FEAMessage"
 
+    // m_ISegChainList translated to a vector of NURBS curves
+    vector < NURBS_Curve > m_NURBSCurveVec;
 
     map < string, string > m_GeomNameMap;
 
