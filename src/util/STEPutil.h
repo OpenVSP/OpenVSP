@@ -59,6 +59,7 @@ protected:
 
     STEPcomplex * context;
     SdaiShape_representation * shape_rep;
+    SdaiProduct_definition_shape* pshape;
 
     STEPcomplex * Geometric_Context( const vsp::LEN_UNITS & len, const vsp::ANG_UNITS & angle, const char * tolstr );
 

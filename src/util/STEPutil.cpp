@@ -11,6 +11,7 @@ STEPutil::STEPutil( const int & len, const double & tol )
 {
     context = NULL;
     shape_rep = NULL;
+    pshape = NULL;
 
     // The registry contains information about types present in the current schema; SchemaInit is a function in the schema-specific SDAI library
     registry = new Registry( SchemaInit );
@@ -621,7 +622,7 @@ void  STEPutil::STEPBoilerplate( const vsp::LEN_UNITS & len, const char * tolstr
     prod_def->frame_of_reference_( design_context );
     prod_def->formation_( prod_def_form );
 
-    SdaiProduct_definition_shape * pshape = ( SdaiProduct_definition_shape * ) registry->ObjCreate( "PRODUCT_DEFINITION_SHAPE" );
+    pshape = ( SdaiProduct_definition_shape * ) registry->ObjCreate( "PRODUCT_DEFINITION_SHAPE" );
     instance_list->Append( ( SDAI_Application_instance * ) pshape, completeSE );
     pshape->name_( "''" );
     pshape->description_( "'ProductShapeDescription'" );
