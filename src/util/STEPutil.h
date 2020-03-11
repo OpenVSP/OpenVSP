@@ -52,6 +52,9 @@ public:
     Registry * registry;
     InstMgr * instance_list;
 
+    void MakeUntrimmedSurfs( vector < SdaiB_spline_surface_with_knots* > surf_vec, const string& label = "" );
+
+    SdaiSurface* MakeSurf( piecewise_surface_type& s, bool mergepts = false, double merge_tol = 1e-8 );
 protected:
 
     STEPfile * sfile;
