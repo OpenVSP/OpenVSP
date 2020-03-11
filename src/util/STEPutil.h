@@ -18,7 +18,19 @@
 #include "SdaiCONFIG_CONTROL_DESIGN.h"
 #include <string>
 
+#include <api/dll_iges.h>
+#include <api/dll_entity110.h>
+#include <api/dll_entity128.h>
+#include <api/dll_entity144.h>
+#include <api/dll_entity126.h>
+#include <api/dll_entity406.h>
+#include <api/dll_entity142.h>
+#include <api/dll_entity102.h>
+#include <api/dll_entity314.h>
+
 #include "APIDefines.h"
+#include "vec3d.h"
+
 #include "eli/geom/surface/bezier.hpp"
 #include "eli/geom/surface/piecewise.hpp"
 
@@ -71,10 +83,16 @@ public:
     IGESutil( const int& len );
     virtual ~IGESutil();
 
+    void  WriteFile( string fname, bool overwrite = true );
+
     void IGESKnots( int deg, int npatch, vector< double >& knot );
+
+    DLL_IGES_ENTITY_128 MakeSurf( piecewise_surface_type& s, const string& label );
 
 protected:
 
+
+    DLL_IGES model;
 
 };
 

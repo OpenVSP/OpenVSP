@@ -1,6 +1,7 @@
 
 #include "STEPutil.h"
 #include "VspSurf.h"
+#include "main.h"
 
 //===================================================================//
 //=================        STEP Functions         ===================//
@@ -788,10 +789,91 @@ void STEPutil::AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic,
 
 IGESutil::IGESutil( const int& len_unit )
 {
+    switch ( len_unit )
+    {
+        case vsp::LEN_CM:
+            model.SetUnitsFlag( UNIT_CENTIMETER );
+            break;
+        case vsp::LEN_M:
+            model.SetUnitsFlag( UNIT_METER );
+            break;
+        case vsp::LEN_MM:
+            model.SetUnitsFlag( UNIT_MM );
+            break;
+        case vsp::LEN_IN:
+            model.SetUnitsFlag( UNIT_IN );
+            break;
+        case vsp::LEN_FT:
+            model.SetUnitsFlag( UNIT_FOOT );
+            break;
+    }
+
+    model.SetNativeSystemID( VSPVERSION4 );
 }
 
 IGESutil::~IGESutil()
 {
+}
+
+void IGESutil::WriteFile( string fname, bool overwrite )
+{
+    model.Write( fname.c_str(), overwrite );
+}
+
+DLL_IGES_ENTITY_128 IGESutil::MakeSurf( piecewise_surface_type& s, const string& label )
+{
+    vector< vector< int > > ptindxs;
+    vector< vec3d > allPntVec;
+
+    piecewise_surface_type::index_type nupatch, nvpatch;
+    piecewise_surface_type::index_type maxu, maxv;
+    piecewise_surface_type::index_type nupts, nvpts;
+
+    ExtractCPts( s, ptindxs, allPntVec, maxu, maxv, nupatch, nvpatch, nupts, nvpts );
+
+    DLL_IGES_ENTITY_128 isurf( model, true );
+
+    if ( label.size() > 0 )
+    {
+        DLL_IGES_ENTITY_406 e406( model, true );
+        e406.SetProperty_Name( label.c_str() );
+        isurf.AddOptionalEntity( e406.GetRawPtr() );
+        e406.Detach();
+    }
+
+    // Identify coefficient and knot vectors
+    vector < double > coeff( nupts * nvpts * 3 );
+
+    int icoeff = 0;
+    for ( int v = 0; v < nvpts; v++ )
+    {
+        for ( int n = 0; n < nupts; ++n )
+        {
+            int pindx = ptindxs[n][v];
+            vec3d pt = allPntVec[pindx];
+
+            for ( int k = 0; k < 3; k++ )
+            {
+                coeff[icoeff] = pt.v[k];
+                icoeff++;
+            }
+        }
+    }
+
+    vector< double > knotu, knotv;
+
+    IGESKnots( maxu, nupatch, knotu );
+    IGESKnots( maxv, nvpatch, knotv );
+
+    if ( !isurf.SetNURBSData( nupts, nvpts, maxu + 1, maxv + 1,
+                              knotu.data(), knotv.data(), coeff.data(),
+                              false, false, false,
+                              knotu[0], knotu.back(), knotv[0], knotv.back() ) )
+    {
+        model.DelEntity( &isurf );
+    }
+
+    return isurf;
 }
 
 
