@@ -495,6 +495,10 @@ enum SET_TYPE { SET_ALL = 0,
                 SET_FIRST_USER = 3
               };
 
+enum STEP_REPRESENTATION { STEP_SHELL,
+                           STEP_BREP
+                         };
+
 enum SUBSURF_INCLUDE { SS_INC_TREAT_AS_PARENT,
                        SS_INC_SEPARATE_TREATMENT,
                        SS_INC_ZERO_DRAG,

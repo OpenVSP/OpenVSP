@@ -1551,6 +1551,15 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "SET_TYPE", "SET_FIRST_USER", SET_FIRST_USER, "/*!< 1st user named set */" );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum that identifies the trimmed STEP export representation type. */";
+
+    r = se->RegisterEnum( "STEP_REPRESENTATION", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STEP_REPRESENTATION", "STEP_SHELL", STEP_SHELL, "/*!< Manifold shell surface STEP file representation */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "STEP_REPRESENTATION", "STEP_BREP", STEP_BREP, "/*!< Manifold solid BREP STEP file representation */" );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum used to identify Parasite Drag Tool sub-surface treatment. */";
 
     r = se->RegisterEnum( "SUBSURF_INCLUDE", doc_struct );
