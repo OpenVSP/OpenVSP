@@ -751,38 +751,6 @@ void STEPutil::WriteFile( string fname )
     }
 }
 
-void STEPutil::AddSurf( VspSurf *s, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit, string name )
-{
-//  vector<SdaiBezier_surface *> surfs;
-//  s->ToSTEP_Bez_Patches( this, surfs );
-
-    vector<SdaiB_spline_surface_with_knots *> surfs;
-    s->ToSTEP_BSpline_Quilt( this, surfs, splitsurf, mergepts, tocubic, tol, trimte, USplit, WSplit );
-
-    SdaiGeometric_set *gset = ( SdaiGeometric_set* ) registry->ObjCreate( "GEOMETRIC_SET" );
-    instance_list->Append( ( SDAI_Application_instance * ) gset, completeSE );
-    gset->name_( "'" + name + "'" );
-
-    for( int i = 0; i < surfs.size(); ++i )
-    {
-        gset->elements_()->AddNode( new EntityNode( ( SDAI_Application_instance* ) surfs[i] ) );
-    }
-
-    SdaiGeometrically_bounded_surface_shape_representation * gbshape = ( SdaiGeometrically_bounded_surface_shape_representation* ) registry->ObjCreate( "GEOMETRICALLY_BOUNDED_SURFACE_SHAPE_REPRESENTATION" );
-    instance_list->Append( ( SDAI_Application_instance * ) gbshape, completeSE );
-    gbshape->name_( "''" );
-    gbshape->context_of_items_( ( SdaiRepresentation_context* ) context );
-    gbshape->items_()->AddNode( new EntityNode( ( SDAI_Application_instance* ) gset ) );
-
-    SdaiShape_representation_relationship *shapereprelay = ( SdaiShape_representation_relationship* ) registry->ObjCreate( "SHAPE_REPRESENTATION_RELATIONSHIP" );
-    instance_list->Append( ( SDAI_Application_instance * ) shapereprelay, completeSE );
-    shapereprelay->name_( "''" );
-    shapereprelay->description_( "''" );
-    shapereprelay->rep_1_( shape_rep );
-    shapereprelay->rep_2_( gbshape );
-
-}
-
 SdaiSurface* STEPutil::MakePlane( const vec3d center, const vec3d norm, const vec3d tangent )
 {
     SdaiPlane* plane = (SdaiPlane*)registry->ObjCreate( "PLANE" );
