@@ -159,6 +159,76 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.ForceNewLine();
 
+    m_OutputTabLayout.AddYGap();
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.AddDividerBox( "Trimmed CAD Options" );
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.InitWidthHeightVals();
+
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 4 );
+
+    m_OutputTabLayout.AddButton( m_LabelIDToggle, "Geom ID" );
+    m_OutputTabLayout.AddButton( m_LabelNameToggle, "Geom Name" );
+    m_OutputTabLayout.AddButton( m_LabelSurfNoToggle, "Surf Number" );
+    m_OutputTabLayout.AddButton( m_LabelSplitNoToggle, "Split Number" );
+
+    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetSliderWidth( m_OutputTabLayout.GetRemainX() / 4 );
+    m_OutputTabLayout.SetChoiceButtonWidth( m_OutputTabLayout.GetRemainX() / 4 );
+
+    m_LabelDelimChoice.AddItem( "Comma" );
+    m_LabelDelimChoice.AddItem( "Underscore" );
+    m_LabelDelimChoice.AddItem( "Space" );
+    m_LabelDelimChoice.AddItem( "None" );
+    m_OutputTabLayout.AddChoice( m_LabelDelimChoice, "Delimeter" );
+
+    m_LenUnitChoice.AddItem( "MM" );
+    m_LenUnitChoice.AddItem( "CM" );
+    m_LenUnitChoice.AddItem( "M" );
+    m_LenUnitChoice.AddItem( "IN" );
+    m_LenUnitChoice.AddItem( "FT" );
+    //m_LenUnitChoice.AddItem( "YD" ); // FIXME: YD is not supported by both STEP and IGES
+    m_OutputTabLayout.AddChoice( m_LenUnitChoice, "Length Unit" );
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.AddYGap();
+    m_OutputTabLayout.SetInputWidth( 300 );
+
+    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.AddButton( m_IGESFile, ".igs" );
+    m_OutputTabLayout.AddOutput( m_IGESOutput );
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
+    m_OutputTabLayout.AddButton( m_SelectIGESFile, "..." );
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.AddYGap();
+
+    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.AddButton( m_STEPFile, ".stp" );
+    m_OutputTabLayout.AddOutput( m_STEPOutput );
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
+    m_OutputTabLayout.AddButton( m_SelectSTEPFile, "..." );
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.InitWidthHeightVals();
+
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 3 );
+    m_OutputTabLayout.AddButton( m_STEPMergePointsToggle, "Merge Points" );
+    m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.AddSlider( m_STEPTolSlider, "STEP Tolerance", 10, "%5.4g", 0, true );
+    m_OutputTabLayout.SetFitWidthFlag( false );
+    m_OutputTabLayout.ForceNewLine();
+
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 2 );
+    m_OutputTabLayout.AddButton( m_STEPShell, "Shell Representation" );
+    m_OutputTabLayout.AddButton( m_STEPBREP, "BREP Solid Representation" );
+    m_OutputTabLayout.ForceNewLine();
+
+    m_STEPRepGroup.Init( this );
+    m_STEPRepGroup.AddButton( m_STEPShell.GetFlButton() );
+    m_STEPRepGroup.AddButton( m_STEPBREP.GetFlButton() );
+
     outputTab->show();
 }
 
@@ -229,15 +299,63 @@ void SurfaceIntersectionScreen::UpdateOutputTab()
     m_Plot3DOutput.Update( truncateFileName( plot3dname, 40 ).c_str() );
     string srfname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME );
     m_SrfOutput.Update( truncateFileName( srfname, 40 ).c_str() );
+    string igsname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME );
+    m_IGESOutput.Update( truncateFileName( igsname, 40 ).c_str() );
+    string stpname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME );
+    m_STEPOutput.Update( truncateFileName( stpname, 40 ).c_str() );
 
     //==== Update File Output Flags ====//
     m_CurvFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME )->GetID() );
     m_Plot3DFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_PLOT3D_FILE_NAME )->GetID() );
     m_SrfFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_SRF_FILE_NAME )->GetID() );
-    m_XYZIntCurves.Update( m_Vehicle->GetISectSettingsPtr()->m_XYZIntCurveFlag.GetID() );
+    m_IGESFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME )->GetID() );
+    m_STEPFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME )->GetID() );
 
     m_ExportRaw.Update( m_Vehicle->GetISectSettingsPtr()->m_ExportRawFlag.GetID() );
+    m_XYZIntCurves.Update( m_Vehicle->GetISectSettingsPtr()->m_XYZIntCurveFlag.GetID() );
 
+    m_STEPMergePointsToggle.Update( m_Vehicle->GetISectSettingsPtr()->m_STEPMergePoints.GetID() );
+    m_STEPTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_STEPTol.GetID() );
+    m_STEPRepGroup.Update( m_Vehicle->GetISectSettingsPtr()->m_STEPRepresentation.GetID() );
+    m_LenUnitChoice.Update( m_Vehicle->GetISectSettingsPtr()->m_CADLenUnit.GetID() );
+    m_LabelIDToggle.Update( m_Vehicle->GetISectSettingsPtr()->m_CADLabelID.GetID() );
+    m_LabelNameToggle.Update( m_Vehicle->GetISectSettingsPtr()->m_CADLabelName.GetID() );
+    m_LabelSurfNoToggle.Update( m_Vehicle->GetISectSettingsPtr()->m_CADLabelSurfNo.GetID() );
+    m_LabelSplitNoToggle.Update( m_Vehicle->GetISectSettingsPtr()->m_CADLabelSplitNo.GetID() );
+    m_LabelDelimChoice.Update( m_Vehicle->GetISectSettingsPtr()->m_CADLabelDelim.GetID() );
+
+    if ( !m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME )->Get() )
+    {
+        m_STEPMergePointsToggle.Deactivate();
+        m_STEPTolSlider.Deactivate();
+        m_STEPRepGroup.Deactivate();
+    }
+    else
+    {
+        m_STEPMergePointsToggle.Activate();
+        m_STEPTolSlider.Activate();
+        m_STEPRepGroup.Activate();
+    }
+
+    if ( !m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME )->Get() &&
+         !m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME )->Get() )
+    {
+        m_LabelIDToggle.Deactivate();
+        m_LabelNameToggle.Deactivate();
+        m_LabelSurfNoToggle.Deactivate();
+        m_LenUnitChoice.Deactivate();
+        m_LabelSplitNoToggle.Deactivate();
+        m_LabelDelimChoice.Deactivate();
+    }
+    else
+    {
+        m_LabelIDToggle.Activate();
+        m_LabelNameToggle.Activate();
+        m_LabelSurfNoToggle.Activate();
+        m_LenUnitChoice.Activate();
+        m_LabelSplitNoToggle.Activate();
+        m_LabelDelimChoice.Activate();
+    }
 }
 
 void SurfaceIntersectionScreen::LoadSetChoice()
@@ -371,6 +489,22 @@ void SurfaceIntersectionScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
         if ( newfile.compare( "" ) != 0 )
         {
             m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_PLOT3D_FILE_NAME );
+        }
+    }
+    else if ( device == &m_SelectIGESFile )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select IGES .igs file.", "*.igs" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_IGES_FILE_NAME );
+        }
+    }
+    else if ( device == &m_SelectSTEPFile )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select STEP .stp file.", "*.stp" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_STEP_FILE_NAME );
         }
     }
 }
