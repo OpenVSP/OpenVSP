@@ -66,6 +66,7 @@
 #include "SimpleSubSurface.h"
 #include "SimpleMeshSettings.h"
 #include "NURBS.h"
+#include "STEPutil.h"
 
 #include "Vec2d.h"
 #include "Vec3d.h"
@@ -126,6 +127,12 @@ public:
     virtual void WriteSurfsIntCurves( const string &filename  );
     virtual void WriteGridToolCurvFile( const string &filename, bool rawflag );
     virtual void WritePlot3DFile( const string &filename, bool rawflag );
+    virtual void WriteIGESFile( const string &filename, int len_unit,
+                                bool label_id = false, bool label_surf_num = false, bool label_split_num = false,
+                                bool label_name = false, string label_delim = "" );
+    virtual void WriteSTEPFile( const string& filename, int len_unit, double tol, bool merge_pnts,
+                                bool label_id = false, bool label_surf_num = false, bool label_split_num = false,
+                                bool label_name = false, string label_delim = "", int representation = 0 );
 
     virtual void ExportFiles();
     //virtual void CheckDupOrAdd( Node* node, vector< Node* > & nodeVec );

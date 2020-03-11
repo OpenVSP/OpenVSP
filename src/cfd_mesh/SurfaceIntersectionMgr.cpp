@@ -785,6 +785,186 @@ void SurfaceIntersectionSingleton::WritePlot3DFile( const string &filename, bool
     }
 }
 
+void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int len_unit,
+                                                  bool label_id, bool label_surf_num, bool label_split_num,
+                                                  bool label_name, string label_delim )
+{
+    IGESutil iges( len_unit );
+
+    BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
+
+    BuildNURBSSurfMap();
+
+    for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
+    {
+        if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
+                  m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_BorderLoopFlag &&
+                  m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag )
+        {
+            continue; // Indicates that the surface is completely enclosed
+        }
+
+        string label;
+
+        if ( label_id )
+        {
+            label = m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetGeomID();
+        }
+
+        if ( label_name )
+        {
+            if ( label.size() > 0 )
+            {
+                label.append( label_delim );
+            }
+            label.append( m_GeomNameMap[m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetGeomID()] );
+        }
+
+        if ( label_surf_num )
+        {
+            if ( label.size() > 0 )
+            {
+                label.append( label_delim );
+            }
+            label.append( to_string( m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetMainSurfID() ) );
+        }
+
+        if ( label_split_num )
+        {
+            if ( label.size() > 0 )
+            {
+                label.append( label_delim );
+            }
+            label.append( to_string( m_NURBSSurfVec[si].m_SurfID ) );
+        }
+
+        DLL_IGES_ENTITY_128 isurf = m_NURBSSurfVec[si].WriteIGESSurf( &iges, label.c_str() );
+        
+        m_NURBSSurfVec[si].WriteIGESLoops( &iges, isurf );
+    }
+
+    iges.WriteFile( filename, true );
+}
+
+void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int len_unit, double tol,
+                                                  bool merge_pnts, bool label_id, bool label_surf_num, bool label_split_num,
+                                                  bool label_name, string label_delim, int representation  )
+{
+    STEPutil step( len_unit, tol );
+
+    // Identify the unique sets of intersected components
+    vector < vector < int > > comp_id_group_vec = GetCompIDGroupVec();
+
+    BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
+
+    // Identify the SdaiB_spline_curve_with_knots
+    for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
+    {
+        if ( !m_NURBSCurveVec[i].m_SubSurfFlag && !m_NURBSCurveVec[i].m_StructIntersectFlag )
+        {
+            m_NURBSCurveVec[i].WriteSTEPEdge( &step, merge_pnts );
+        }
+    }
+
+    BuildNURBSSurfMap();
+
+    vector < vector < SdaiAdvanced_face* > > adv_vec( comp_id_group_vec.size() );
+    map < string, vector < SdaiSurface* > > geom_surf_label_map;
+
+    for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
+    {
+        if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
+                  m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_BorderLoopFlag &&
+                  m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag )
+        {
+            continue; // Indicates that the surface is completely enclosed
+        }
+
+        string label;
+
+        if ( label_id )
+        {
+            label = m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetGeomID();
+        }
+
+        if ( label_name )
+        {
+            if ( label.size() > 0 )
+            {
+                label.append( label_delim );
+            }
+            label.append( m_GeomNameMap[m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetGeomID()] );
+        }
+
+        if ( label_surf_num )
+        {
+            if ( label.size() > 0 )
+            {
+                label.append( label_delim );
+            }
+            label.append( to_string( m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetMainSurfID() ) );
+        }
+
+        if ( label_split_num )
+        {
+            if ( label.size() > 0 )
+            {
+                label.append( label_delim );
+            }
+            label.append( to_string( m_NURBSSurfVec[si].m_SurfID ) );
+        }
+
+        SdaiSurface* surf = m_NURBSSurfVec[si].WriteSTEPSurf( &step, merge_pnts );
+        geom_surf_label_map[label].push_back( surf );
+
+        int comp_id = -1;
+        for ( size_t j = 0; j < m_SurfVec.size(); j++ )
+        {
+            if ( m_SurfVec[j]->GetSurfID() == m_NURBSSurfVec[si].m_SurfID )
+            {
+                comp_id = m_SurfVec[j]->GetCompID();
+                break;
+            }
+        }
+
+        for ( size_t j = 0; j < comp_id_group_vec.size(); j++ )
+        {
+            if ( std::count( comp_id_group_vec[j].begin(), comp_id_group_vec[j].end(), comp_id ) )
+            {
+                vector < SdaiAdvanced_face* > adv = m_NURBSSurfVec[si].WriteSTEPLoops( &step, surf, merge_pnts );
+                adv_vec[j].insert( adv_vec[j].end(), adv.begin(), adv.end() );
+            }
+        }
+    }
+
+    map < string, vector < SdaiSurface* > >::iterator it;
+
+    for ( it = geom_surf_label_map.begin(); it != geom_surf_label_map.end(); ++it )
+    {
+        SdaiGeometric_set* gset = (SdaiGeometric_set*)step.registry->ObjCreate( "GEOMETRIC_SET" );
+        step.instance_list->Append( (SDAI_Application_instance*)gset, completeSE );
+        gset->name_( "'" + ( *it ).first + "'" );
+
+        for ( size_t i = 0; i < ( *it ).second.size(); i++ )
+        {
+            gset->elements_()->AddNode( new EntityNode( (SDAI_Application_instance*)( *it ).second[i] ) );
+        }
+    }
+
+    // TODO: Don't include transparent and structure surfaces in BREP?
+
+    if ( representation == vsp::STEP_SHELL )
+    {
+        step.RepresentManifoldShell( adv_vec );
+    }
+    else
+    {
+        step.RepresentBREPSolid( adv_vec );
+    }
+
+    step.WriteFile( filename );
+}
+
 vector < vector < int > > SurfaceIntersectionSingleton::GetCompIDGroupVec()
 {
     // Identify the unique sets of intersected components
