@@ -103,6 +103,8 @@ public:
     ~SurfaceIntersectionSingleton() override;
     virtual void CleanUp();
 
+    void RegisterAnalysis();
+
     void ParmChanged( Parm* parm_ptr, int type ) override;
 
     virtual void IntersectSurfaces();

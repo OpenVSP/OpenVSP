@@ -183,6 +183,18 @@ void SurfaceIntersectionSingleton::CleanUp()
     m_SimpleSubSurfaceVec.clear();
 }
 
+void SurfaceIntersectionSingleton::RegisterAnalysis()
+{
+    string analysis_name = "SurfaceIntersection";
+
+    if ( !AnalysisMgr.FindAnalysis( analysis_name ) )
+    {
+        SurfaceIntersectionAnalysis* sia = new SurfaceIntersectionAnalysis();
+
+        AnalysisMgr.RegisterAnalysis( analysis_name, sia );
+    }
+}
+
 void SurfaceIntersectionSingleton::TransferMeshSettings()
 {
     m_IntersectSettings = SimpleIntersectSettings();
