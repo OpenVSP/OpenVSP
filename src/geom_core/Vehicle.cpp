@@ -54,7 +54,7 @@ Vehicle::Vehicle()
     m_STEPTol.Init( "Tolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPSplitSurfs.Init( "SplitSurfs", "STEPSettings", this, true, 0, 1 );
     m_STEPSplitSubSurfs.Init( "SplitSubSurfs", "STEPSettings", this, false, 0, 1 );
-    m_STEPMergePoints.Init( "MergePoints", "STEPSettings", this, true, 0, 1 );
+    m_STEPMergePoints.Init( "MergePoints", "STEPSettings", this, false, 0, 1 );
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPToCubicTol.Init( "ToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPTrimTE.Init( "TrimTE", "STEPSettings", this, false, 0, 1 );
@@ -68,7 +68,7 @@ Vehicle::Vehicle()
     m_STEPStructureExportIndex.Init( "StructureExportIndex", "STEPSettings", this, 0, 0, 1000 );
     m_STEPStructureTol.Init( "StructureTolerance", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPStructureSplitSurfs.Init( "StructureSplitSurfs", "STEPSettings", this, true, 0, 1 );
-    m_STEPStructureMergePoints.Init( "StructureMergePoints", "STEPSettings", this, true, 0, 1 );
+    m_STEPStructureMergePoints.Init( "StructureMergePoints", "STEPSettings", this, false, 0, 1 );
     m_STEPStructureToCubic.Init( "StructureToCubic", "STEPSettings", this, false, 0, 1 );
     m_STEPStructureToCubicTol.Init( "StructureToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
 
@@ -267,7 +267,7 @@ void Vehicle::Init()
     m_STEPTol.Set( 1e-6 );
     m_STEPSplitSurfs.Set( true );
     m_STEPSplitSubSurfs.Set( false );
-    m_STEPMergePoints.Set( true );
+    m_STEPMergePoints.Set( false );
     m_STEPToCubic.Set( false );
     m_STEPToCubicTol.Set( 1e-6 );
     m_STEPTrimTE.Set( false );
