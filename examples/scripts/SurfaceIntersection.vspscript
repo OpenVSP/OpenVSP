@@ -1,0 +1,71 @@
+
+void main()
+{
+    Print( string( "Begin Surface Intersection Example Script\n" ) );
+
+    Print( string( "--> Adding Geometries\n" ) );
+
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add Wing Geometry ====//
+    string wing_id = AddGeom( "WING" );
+
+    SetParmValUpdate( wing_id, "X_Rel_Location", "XForm", 3.0 );
+    
+    AnalysisExample();
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+    
+    Print( string( "COMPLETE\n" ) );
+}
+
+void AnalysisExample()
+{
+    // This funtion demonstrates how to use the Surface Intersection Tool through the Analysis Manager
+
+    string analysis_name = "SurfaceIntersection";
+    Print( analysis_name );
+
+    // Set defaults
+    SetAnalysisInputDefaults( analysis_name );
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs( analysis_name );
+
+    // Set some analysis inputs
+    array < int > no_flag;
+    no_flag.push_back( 0 );
+    SetIntAnalysisInput( analysis_name, "CURVFileFlag", no_flag, 0 );
+    SetIntAnalysisInput( analysis_name, "SRFFileFlag", no_flag, 0 );
+    SetIntAnalysisInput( analysis_name, "P3DFileFlag", no_flag, 0 );
+
+    array < string > iges_name;
+    iges_name.push_back( "Example_Trimmed_IGES.igs" );
+    SetStringAnalysisInput( analysis_name, "IGESFileName", iges_name );
+
+    array < string > step_name;
+    step_name.push_back( "Example_Trimmed_STEP.stp" );
+    SetStringAnalysisInput( analysis_name, "STEPFileName", step_name );
+
+    SetIntAnalysisInput( analysis_name, "CADLabelSplitNo", no_flag, 0 );
+
+    array < int > representation;
+    representation.push_back( STEP_SHELL );
+    SetIntAnalysisInput( analysis_name, "STEPRepresentation", representation, 0 );
+	
+	// Alternatively:     	string surf_id = FindContainer( "SurfaceIntersectSettings", 0 );
+    //						SetParmVal( FindParm( surf_id, "STEPRepresentation", "ExportIntersect" ), STEP_SHELL );
+
+    // Execute
+    Print( "\tExecuting..." );
+    string resid = ExecAnalysis( analysis_name );
+
+    // No results generated. See output files
+
+}
