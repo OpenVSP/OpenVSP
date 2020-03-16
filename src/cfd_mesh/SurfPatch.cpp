@@ -146,6 +146,51 @@ void SurfPatch::find_closest_uw( const vec3d& pnt_in, double uw[2] ) const
     uw[1] = w_min + w * ( w_max - w_min );
 }
 
+//===== Find Closest UW on Patch to Given Point for Approximately Planar Patch =====//
+void SurfPatch::find_closest_uw_planar_approx( const vec3d& pnt_in, double uw[2] ) const
+{
+    // Note, this function assumes that the patch is approximately planar (see test_planar_rel)
+    long an( degree_u() ), am( degree_v() );
+
+    vec3d a0 = m_Patch.get_control_point( 0, 0 ); // origin
+    vec3d a1 = m_Patch.get_control_point( an, 0 );  // u direction
+    vec3d a2 = m_Patch.get_control_point( 0, am ); // v direction
+
+    vec3d u_vec = a1 - a0;
+    vec3d w_vec = a2 - a0;
+
+    // Calculate normalized surface coordinates of the intersection point
+    vec2d close_uw_01 = MapToPlane( pnt_in, a0, u_vec, w_vec );
+
+    // Scale the normalized local surface cordinates [0, 1] by the patch U and W range
+    double u_range = u_max - u_min;
+    double w_range = w_max - w_min;
+
+    vec2d close_uw = vec2d( ( u_min + close_uw_01.x() * u_range ), ( w_min + close_uw_01.y() * w_range ) );
+
+    double slop = 1e-3; // TODO: Make this a relative tolerance
+    if ( close_uw.x() < ( u_min - slop ) || close_uw.y() < ( w_min - slop ) || close_uw.x() >( u_max + slop ) || close_uw.y() >( w_max + slop ) )
+    {
+        printf( "BAD parameter in SurfPatch::find_closest_uw_planar_approx! %f %f\n", close_uw.x(), close_uw.y() );
+        assert( false );
+    }
+
+    if ( close_uw.x() < u_min )
+        close_uw.set_x( u_min );
+
+    if ( close_uw.y() < w_min )
+        close_uw.set_y( w_min );
+
+    if ( close_uw.x() > u_max )
+        close_uw.set_x( u_max );
+
+    if ( close_uw.y() > w_max )
+        close_uw.set_y( w_max );
+
+    uw[0] = close_uw.x();
+    uw[1] = close_uw.y();
+}
+
 //===== Compute Point On Patch  =====//
 vec3d SurfPatch::comp_pnt_01( double u, double w ) const
 {
