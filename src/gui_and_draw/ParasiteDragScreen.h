@@ -81,7 +81,7 @@ protected:
     void SetupRowLabel( int subsurfFlag, const string &lastID, int index );
     void SetupSwet( int index, double swet );
     void SetupLref( int index, double lref );
-    void SetupFineRat( int index, double finerat );
+    void SetupFineRatorToC( int index, double finerat );
     void SetupFFType( int index, int shapetype, int eqnchoice );
     void SetupFFValue( int index, double formfactor, int eqnchoice );
     void SetupReyNum( int index, double reynum );
@@ -198,7 +198,7 @@ protected:
     ToggleButton m_SwetUnitLabel;
     TriggerButton m_GroupedGeomLabel;
     TriggerButton m_LrefUnitLabel;
-    TriggerButton m_FineRatLabel;
+    TriggerButton m_FineRatorToCLabel;
     TriggerButton m_FFEqnChoiceLabel;
     TriggerButton m_FFLabel;
     TriggerButton m_ReLabel;
@@ -224,7 +224,7 @@ protected:
     vector <StringInput> m_TawTwRatio;
     vector <StringInput> m_percLam;
     vector <StringOutput> m_Cf;
-    vector <StringOutput> m_fineRat;
+    vector <StringOutput> m_fineRatorToC;
     vector <Choice> m_ffType;
     vector <StringOutput> m_ffOut;
     vector <StringInput> m_ffIn;

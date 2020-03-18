@@ -34,7 +34,7 @@ struct ParasiteDragTableRow
     double TawTwRatio;
     double PercLam;
     double Cf;
-    double fineRat;
+    double fineRatorToC;
     int GeomShapeType;
     int FFEqnChoice;
     double FF;
@@ -98,8 +98,8 @@ public:
     void Calculate_Cf();
     double CalcPartialTurbulence( double perclam, double re, double lref, double reqL,
         double roughness, double tawtwrat, double tetwrat );
-    void Calculate_fineRat();
-    double CalculateFinessRatio( int isurf, int irow );
+    void Calculate_fineRat_and_toc();
+    double CalculateFinessRatioAndTOC( int isurf, int irow );
     void Calculate_FF();
     double CalculateFormFactor( int isurf, int irow );
     void Calculate_AvgSweep( vector <DegenStick> degenSticks );
@@ -353,7 +353,7 @@ private:
     vector <double> m_geo_TawTwRatio;
     vector <double> m_geo_percLam;
     vector <double> m_geo_cf;
-    vector <double> m_geo_fineRat;
+    vector <double> m_geo_fineRat_or_toc;
     vector <int> m_geo_ffType;
     vector <string> m_geo_ffName;
     vector <int> m_geo_shapeType;

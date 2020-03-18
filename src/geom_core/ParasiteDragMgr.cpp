@@ -176,7 +176,7 @@ void ParasiteDragMgrSingleton::SetDefaultStruct()
     m_DefaultStruct.TawTwRatio = 1;
     m_DefaultStruct.PercLam = 0.0;
     m_DefaultStruct.Cf = -1;
-    m_DefaultStruct.fineRat = -1;
+    m_DefaultStruct.fineRatorToC = -1;
     m_DefaultStruct.GeomShapeType = 0;
     m_DefaultStruct.FFEqnChoice = 0;
     m_DefaultStruct.FF = -1;
@@ -845,7 +845,7 @@ double ParasiteDragMgrSingleton::CalcPartialTurbulence( double perclam, double r
     return cf;
 }
 
-void ParasiteDragMgrSingleton::Calculate_fineRat()
+void ParasiteDragMgrSingleton::Calculate_fineRat_and_toc()
 {
     int iSurf = 0;
 
@@ -860,7 +860,7 @@ void ParasiteDragMgrSingleton::Calculate_fineRat()
                 {
                     if ( m_DegenGeomVec[iSurf].getType() != DegenGeom::DISK_TYPE )
                     {
-                        m_geo_fineRat.push_back( CalculateFinessRatio( iSurf, i ) );
+                        m_geo_fineRat_or_toc.push_back( CalculateFinessRatioAndTOC( iSurf, i) );
                     }
                     else
                     {
@@ -870,23 +870,23 @@ void ParasiteDragMgrSingleton::Calculate_fineRat()
                 }
                 else
                 {
-                    m_geo_fineRat.push_back( CalculateFinessRatio( iSurf - 1, i ) );
+                    m_geo_fineRat_or_toc.push_back( CalculateFinessRatioAndTOC( iSurf - 1, i) );
                 }
             }
             else
             {
-                m_geo_fineRat.push_back( m_geo_fineRat[m_geo_fineRat.size() - 1] );
+                m_geo_fineRat_or_toc.push_back( m_geo_fineRat_or_toc[m_geo_fineRat_or_toc.size() - 1] );
             }
         }
         else
         {
             // Else Push Back Default Val
-            m_geo_fineRat.push_back( -1 );
+            m_geo_fineRat_or_toc.push_back( -1 );
         }
     }
 }
 
-double ParasiteDragMgrSingleton::CalculateFinessRatio( int isurf, int irow )
+double ParasiteDragMgrSingleton::CalculateFinessRatioAndTOC( int isurf, int irow )
 {
     // Initialize Variables
     vector<double>::const_iterator it;
@@ -996,7 +996,7 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
     {
         // Wing Type
 
-        toc = m_geo_fineRat[irow];
+        toc = m_geo_fineRat_or_toc[irow];
 
         Calculate_AvgSweep( degenSticks );
 
@@ -1008,7 +1008,7 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
     }
     else if ( m_DegenGeomVec[isurf].getType() == DegenGeom::BODY_TYPE )
     {
-        formfactor = CalcFFBody( m_geo_fineRat[irow], m_geo_ffType[irow] );
+        formfactor = CalcFFBody( m_geo_fineRat_or_toc[irow], m_geo_ffType[irow] );
     }
 
     return formfactor;
@@ -1152,7 +1152,7 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
     Calculate_Lref();
     Calculate_Re();
     Calculate_Cf();
-    Calculate_fineRat();
+    Calculate_fineRat_and_toc();
     Calculate_FF();
     OverwritePropertiesFromAncestorGeom();
     Calculate_f();
@@ -1176,7 +1176,7 @@ void ParasiteDragMgrSingleton::Calculate_ALL()
         tempStruct.Re = m_geo_Re[i];
         tempStruct.PercLam = m_geo_percLam[i];
         tempStruct.Cf = m_geo_cf[i];
-        tempStruct.fineRat = m_geo_fineRat[i];
+        tempStruct.fineRatorToC = m_geo_fineRat_or_toc[i];
         tempStruct.FFEqnChoice = m_geo_ffType[i];
         tempStruct.Roughness = m_geo_Roughness[i];
         tempStruct.TeTwRatio = m_geo_TeTwRatio[i];
@@ -1266,7 +1266,7 @@ void ParasiteDragMgrSingleton::OverwritePropertiesFromAncestorGeom()
                         {
                             m_geo_lref[i] = m_geo_lref[j];
                             m_geo_Re[i] = m_geo_Re[j];
-                            m_geo_fineRat[i] = m_geo_fineRat[j];
+                            m_geo_fineRat_or_toc[i] = m_geo_fineRat_or_toc[j];
                             m_geo_ffOut[i] = m_geo_ffOut[j];
                             m_geo_ffType[i] = m_geo_ffType[j];
                             m_geo_percLam[i] = m_geo_percLam[j];
@@ -3144,7 +3144,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
         // Only create results for the primary components
 
         vector < string > new_ID_vec, new_geo_label, new_geo_ffName;
-        vector < double > new_geo_swet, new_geo_lref, new_geo_Re, new_geo_percLam, new_geo_cf, new_geo_fineRat, 
+        vector < double > new_geo_swet, new_geo_lref, new_geo_Re, new_geo_percLam, new_geo_cf, new_geo_fineRatorToC,
             new_geo_ffIn, new_geo_ffOut, new_geo_Roughness, new_geo_TeTwRatio, new_geo_TawTwRatio, new_geo_Q,
             new_geo_f, new_geo_CD, new_geo_percTotalCD;
         vector <int> new_geo_ffType, new_geo_surfNum;
@@ -3160,7 +3160,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
                 new_geo_Re.push_back( m_geo_Re[i] );
                 new_geo_percLam.push_back( m_geo_percLam[i] );
                 new_geo_cf.push_back( m_geo_cf[i] );
-                new_geo_fineRat.push_back( m_geo_fineRat[i] );
+                new_geo_fineRatorToC.push_back( m_geo_fineRat_or_toc[i] );
                 new_geo_ffType.push_back( m_geo_ffType[i] );
                 new_geo_ffName.push_back( m_geo_ffName[i] );
                 new_geo_ffIn.push_back( m_geo_ffIn[i] );
@@ -3186,7 +3186,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
         res->Add( NameValData( "Comp_Re", new_geo_Re ) );
         res->Add( NameValData( "Comp_PercLam", new_geo_percLam ) );
         res->Add( NameValData( "Comp_Cf", new_geo_cf ) );
-        res->Add( NameValData( "Comp_FineRat", new_geo_fineRat ) );
+        res->Add( NameValData( "Comp_FineRat", new_geo_fineRatorToC ) );
         res->Add( NameValData( "Comp_FFEqn", new_geo_ffType ) );
         res->Add( NameValData( "Comp_FFEqnName", new_geo_ffName ) );
         res->Add( NameValData( "Comp_FFIn", new_geo_ffIn ) );
@@ -3210,7 +3210,7 @@ string ParasiteDragMgrSingleton::ExportToCSV()
         res->Add( NameValData( "Comp_Re", m_geo_Re ) );
         res->Add( NameValData( "Comp_PercLam", m_geo_percLam ) );
         res->Add( NameValData( "Comp_Cf", m_geo_cf ) );
-        res->Add( NameValData( "Comp_FineRat", m_geo_fineRat ) );
+        res->Add( NameValData( "Comp_FineRat", m_geo_fineRat_or_toc ) );
         res->Add( NameValData( "Comp_FFEqn", m_geo_ffType ) );
         res->Add( NameValData( "Comp_FFEqnName", m_geo_ffName ) );
         res->Add( NameValData( "Comp_FFIn", m_geo_ffIn ) );
@@ -3286,7 +3286,7 @@ void ParasiteDragMgrSingleton::ClearOutputVectors()
     m_geo_lref.clear();
     m_geo_Re.clear();
     m_geo_cf.clear();
-    m_geo_fineRat.clear();
+    m_geo_fineRat_or_toc.clear();
     m_geo_ffType.clear();
     m_geo_ffName.clear();
     m_geo_ffOut.clear();

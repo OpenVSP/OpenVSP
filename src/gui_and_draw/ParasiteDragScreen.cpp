@@ -1531,10 +1531,10 @@ void ParasiteDragScreen::RebuildBuildUpTableLabels()
     m_LrefUnitLabel.GetFlButton()->copy_tooltip( "Reference Length of Geometry" );
 
     m_MainTableLabelsLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH - 10 );
-    m_MainTableLabelsLayout.AddButton( m_FineRatLabel, "t/c or l/d" );
-    m_FineRatLabel.GetFlButton()->box( FL_THIN_UP_BOX );
-    m_FineRatLabel.GetFlButton()->labelcolor( FL_BLACK );
-    m_FineRatLabel.GetFlButton()->copy_tooltip( "Thickness over Chord \n \t or \n Fineness Ratio" );
+    m_MainTableLabelsLayout.AddButton( m_FineRatorToCLabel, "t/c or l/d" );
+    m_FineRatorToCLabel.GetFlButton()->box( FL_THIN_UP_BOX );
+    m_FineRatorToCLabel.GetFlButton()->labelcolor( FL_BLACK );
+    m_FineRatorToCLabel.GetFlButton()->copy_tooltip( "Thickness over Chord \n \t or \n Fineness Ratio" );
 
     m_MainTableLabelsLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH );
     m_MainTableLabelsLayout.AddButton( m_ReLabel, "Re (1e6)" );
@@ -1755,7 +1755,7 @@ void ParasiteDragScreen::ClearGUIElements()
     m_TawTwRatio.clear();
     m_percLam.clear();
     m_Cf.clear();
-    m_fineRat.clear();
+    m_fineRatorToC.clear();
     m_ffType.clear();
     m_ffIn.clear();
     m_ffOut.clear();
@@ -1792,7 +1792,7 @@ void ParasiteDragScreen::DeactivateRow( int index, int grayFlag )
         m_TawTwRatio[index].Deactivate();
         m_percLam[index].Deactivate();
         m_Cf[index].Deactivate();
-        m_fineRat[index].Deactivate();
+        m_fineRatorToC[index].Deactivate();
         m_ffType[index].Deactivate();
         m_ffOut[index].Deactivate();
         m_ffIn[index].Deactivate();
@@ -1816,7 +1816,7 @@ void ParasiteDragScreen::ResizeDeviceVectors( int geomSize, int excresSize )
     m_TawTwRatio.resize( geomSize );
     m_percLam.resize( geomSize );
     m_Cf.resize( geomSize );
-    m_fineRat.resize( geomSize );
+    m_fineRatorToC.resize( geomSize );
     m_ffType.resize( geomSize );
     m_ffIn.resize( geomSize );
     m_ffOut.resize( geomSize );
@@ -1868,7 +1868,7 @@ void ParasiteDragScreen::AddGeomsToTable()
                 SetupFFType( i, rowVec[i].GeomShapeType, rowVec[i].FFEqnChoice );
                 SetupFFValue( i, rowVec[i].FF, rowVec[i].FFEqnChoice );
                 SetupLref( i, rowVec[i].Lref );
-                SetupFineRat( i, rowVec[i].fineRat );
+                SetupFineRatorToC( i, rowVec[i].fineRatorToC );
                 SetupReyNum( i, rowVec[i].Re );
                 SetupRoughness( i, rowVec[i].Roughness );
                 SetupHeatTransfer( i, rowVec[i].TeTwRatio, rowVec[i].TawTwRatio );
@@ -1915,7 +1915,7 @@ void ParasiteDragScreen::AddGeomsToTable()
                         SetupFFType( i, rowVec[i].GeomShapeType, rowVec[i].FFEqnChoice );
                         SetupFFValue( i, rowVec[i].FF, rowVec[i].FFEqnChoice );
                         SetupLref( i, rowVec[i].Lref );
-                        SetupFineRat( i, rowVec[i].fineRat );
+                        SetupFineRatorToC( i, rowVec[i].fineRatorToC );
                         SetupReyNum( i, rowVec[i].Re );
                         SetupRoughness( i, rowVec[i].Roughness );
                         SetupHeatTransfer( i, rowVec[i].TeTwRatio, rowVec[i].TawTwRatio );
@@ -2089,16 +2089,16 @@ void ParasiteDragScreen::SetupLref( int index, double lref )
     }
 }
 
-void ParasiteDragScreen::SetupFineRat( int index, double finerat )
+void ParasiteDragScreen::SetupFineRatorToC( int index, double finerat )
 {
     ostringstream strs;
     int precision = 3;
     m_TableLayout.SetInputWidth( TYPICAL_INPUT_WIDTH - 10 );
-    m_TableLayout.AddOutput( m_fineRat[index], "" );
+    m_TableLayout.AddOutput( m_fineRatorToC[index], "" );
     if ( finerat != -1 )
     {
         strs << setprecision( precision ) << fixed << finerat;
-        m_fineRat[index].Update( strs.str() );
+        m_fineRatorToC[index].Update( strs.str() );
     }
 }
 
