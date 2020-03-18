@@ -1009,18 +1009,9 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
     else if ( m_DegenGeomVec[isurf].getType() == DegenGeom::BODY_TYPE )
     {
         // Invert Fineness Ratio
-        longF = 1.0 / m_geo_fineRat[irow];  //   1 / (D / L)
+        FR = 1.0 / m_geo_fineRat[irow];  //   1 / (D / L)
 
-        double maxprod = 0.0;
-        for ( int i = 0; i < degenSticks[0].chord.size(); i++ )
-        {
-            double prod = degenSticks[0].chord[i] * degenSticks[0].chord[i] * degenSticks[0].toc[i];
-            maxprod = max( maxprod, prod );
-        }
-        // FR used by Schemensky
-        FR = m_geo_lref[irow] / maxprod;
-
-        formfactor = CalcFFBody( longF, FR, m_geo_ffType[irow] );
+        formfactor = CalcFFBody( FR, m_geo_ffType[irow] );
     }
 
     return formfactor;
@@ -1866,11 +1857,8 @@ double ParasiteDragMgrSingleton::CalcFFWing( double toc, int ff_case,
     return ff;
 }
 
-double ParasiteDragMgrSingleton::CalcFFBody( double longF, double FR, int ff_case)
+double ParasiteDragMgrSingleton::CalcFFBody(double FR, int ff_case)
 {
-    // longF input
-    // dia = 2 * sqrt( ( max_xsecarea / ( PI ) ) );
-    // longF = m_geo_lref[irow] / dia;
 
     double ff;
     double mach = m_Atmos.GetMach();
@@ -1881,37 +1869,35 @@ double ParasiteDragMgrSingleton::CalcFFBody( double longF, double FR, int ff_cas
         break;
 
     case vsp::FF_B_SCHEMENSKY_FUSE:
-        // Schemensky defines FR == len / sqrt( w * h )
         ff = 1.0 + ( 60.0 / pow( FR, 3.0 ) ) + ( 0.0025 * FR );
         break;
 
     case vsp::FF_B_SCHEMENSKY_NACELLE:
-        // Schemensky defines FR == len / sqrt( w * h )
         ff = 1.0 + 0.35 / FR;
         break;
 
     case vsp::FF_B_HOERNER_STREAMBODY:
-        ff = 1.0 + ( 1.5 / pow( longF, 1.5 ) ) +
-             ( 7.0 / pow( longF, 3.0 ) );
+        ff = 1.0 + ( 1.5 / pow(FR, 1.5 ) ) +
+             ( 7.0 / pow(FR, 3.0 ) );
         break;
 
     case vsp::FF_B_TORENBEEK:
-        ff = 1.0 + ( 2.2 / pow( longF, 1.5 ) ) +
-             ( 3.8 / pow( longF, 3.0 ) );
+        ff = 1.0 + ( 2.2 / pow(FR, 1.5 ) ) +
+             ( 3.8 / pow(FR, 3.0 ) );
         break;
 
     case vsp::FF_B_SHEVELL:
-        ff = 1.0 + ( 2.8 / pow( longF, 1.5 ) ) +
-             ( 3.8 / pow( longF, 3.0 ) );
+        ff = 1.0 + ( 2.8 / pow(FR, 1.5 ) ) +
+             ( 3.8 / pow(FR, 3.0 ) );
         break;
 
     case vsp::FF_B_COVERT:
-        ff = 1.02 * ( 1.0 + ( 1.5 / ( pow( longF, 1.5 ) ) ) + ( 7.0 / ( pow( longF, 3.0 ) * pow( ( 1.0 - pow( mach, 3 ) ), 0.6 ) ) ) );
+        ff = 1.02 * (1.0 + ( 1.5 / ( pow(FR, 1.5 ) ) ) + (7.0 / (pow(FR, 3.0 ) * pow((1.0 - pow(mach, 3 ) ), 0.6 ) ) ) );
         break;
 
     case vsp::FF_B_JENKINSON_FUSE:
-        ff = 1.0 + ( 2.2 / pow( longF, 1.5 ) ) -
-             ( 0.9 / pow( longF, 3.0 ) );
+        ff = 1.0 + ( 2.2 / pow(FR, 1.5 ) ) -
+             ( 0.9 / pow(FR, 3.0 ) );
         break;
 
     case vsp::FF_B_JENKINSON_WING_NACELLE:

@@ -125,7 +125,7 @@ public:
     // Switch Case Methods for Form Factor Selections
     double CalcFFWing( double toc, int ff_case, double perc_lam,
                        double sweep25, double sweep50 );
-    double CalcFFBody( double longF, double FR, int ff_case );
+    double CalcFFBody(double FR, int ff_case );
     static string AssignFFWingEqnName( int ff_case );
     static string AssignFFBodyEqnName( int ff_case );
 

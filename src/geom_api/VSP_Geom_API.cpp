@@ -5657,7 +5657,7 @@ void WriteBodyFFCSVFile(const std::string & file_name)
     {
         for (size_t j = 0; j < dol_array.size(); ++j )
         {
-            body_ff_vec.push_back( ParasiteDragMgr.CalcFFBody( 1.0/dol_array[j], 1.0/dol_array[j], body_ff_case ) );
+            body_ff_vec.push_back( ParasiteDragMgr.CalcFFBody( 1.0/dol_array[j], body_ff_case ) );
         }
         sprintf( str, "%s", ParasiteDragMgr.AssignFFBodyEqnName( body_ff_case ).c_str());
         res->Add(NameValData(str, body_ff_vec));
