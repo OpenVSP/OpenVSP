@@ -910,7 +910,7 @@ double ParasiteDragMgrSingleton::CalculateFinessRatio( int isurf, int irow )
         // Use Max X-Sectional Area to find "Nominal" Diameter
         dia = 2 * sqrt( ( max_xsecarea / ( PI ) ) );
 
-        finerat = dia / m_geo_lref[irow];
+        finerat = m_geo_lref[irow] / dia;
     }
 
     return finerat;
@@ -1008,10 +1008,7 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
     }
     else if ( m_DegenGeomVec[isurf].getType() == DegenGeom::BODY_TYPE )
     {
-        // Invert Fineness Ratio
-        FR = 1.0 / m_geo_fineRat[irow];  //   1 / (D / L)
-
-        formfactor = CalcFFBody( FR, m_geo_ffType[irow] );
+        formfactor = CalcFFBody( m_geo_fineRat[irow], m_geo_ffType[irow] );
     }
 
     return formfactor;
