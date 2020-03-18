@@ -2110,8 +2110,8 @@ void ParasiteDragScreen::SetupFFType( int index, int shapetype, int eqnchoice )
     if ( shapetype == vsp::NORMAL_SURF )
     {
         m_ffType[index].AddItem( "Manual" );
-        m_ffType[index].AddItem( "Schemensky Fuselage" );
-        m_ffType[index].AddItem( "Schemensky Nacelle" );
+        m_ffType[index].AddItem( "Schemensky/DATCOM/RAND Fuselage" );
+        m_ffType[index].AddItem( "Schemensky/DATCOM/RAND Nacelle" );
         m_ffType[index].AddItem( "Hoerner Streamlined Body" );
         m_ffType[index].AddItem( "Torenbeek" );
         m_ffType[index].AddItem( "Shevell" );

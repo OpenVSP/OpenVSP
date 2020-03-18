@@ -1992,11 +1992,11 @@ string ParasiteDragMgrSingleton::AssignFFBodyEqnName( int ff_case )
         break;
 
     case vsp::FF_B_SCHEMENSKY_FUSE:
-        ff_name = "Schemensky Fuselage";
+        ff_name = "Schemensky/DATCOM/RAND Fuselage";
         break;
 
     case vsp::FF_B_SCHEMENSKY_NACELLE:
-        ff_name = "Schemensky Nacelle";
+        ff_name = "Schemensky/DATCOM/RAND Nacelle";
         break;
 
     case vsp::FF_B_HOERNER_STREAMBODY:
