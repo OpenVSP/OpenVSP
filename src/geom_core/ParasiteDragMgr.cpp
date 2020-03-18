@@ -1009,13 +1009,16 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
     else if ( m_DegenGeomVec[isurf].getType() == DegenGeom::BODY_TYPE )
     {
         // Invert Fineness Ratio
-        longF = pow( m_geo_fineRat[irow], -1 );
+        longF = 1.0 / m_geo_fineRat[irow];  //   1 / (D / L)
 
-        // Max Cross Sectional Area
-        Area = *max_element( degenSticks[0].areaTop.begin(), degenSticks[0].areaTop.end() );
-
+        double maxprod = 0.0;
+        for ( int i = 0; i < degenSticks[0].chord.size(); i++ )
+        {
+            double prod = degenSticks[0].chord[i] * degenSticks[0].chord[i] * degenSticks[0].toc[i];
+            maxprod = max( maxprod, prod );
+        }
         // FR used by Schemensky
-        FR = m_geo_lref[irow] / sqrt( Area );
+        FR = m_geo_lref[irow] / maxprod;
 
         formfactor = CalcFFBody( longF, FR, m_geo_ffType[irow] );
     }
@@ -1878,10 +1881,12 @@ double ParasiteDragMgrSingleton::CalcFFBody( double longF, double FR, int ff_cas
         break;
 
     case vsp::FF_B_SCHEMENSKY_FUSE:
+        // Schemensky defines FR == len / sqrt( w * h )
         ff = 1.0 + ( 60.0 / pow( FR, 3.0 ) ) + ( 0.0025 * FR );
         break;
 
     case vsp::FF_B_SCHEMENSKY_NACELLE:
+        // Schemensky defines FR == len / sqrt( w * h )
         ff = 1.0 + 0.35 / FR;
         break;
 
