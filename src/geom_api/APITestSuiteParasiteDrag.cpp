@@ -624,38 +624,38 @@ void APITestSuiteParasiteDrag::TestS3VikingModel()
 void APITestSuiteParasiteDrag::TestUSStandardAtmosphere1976()
 {
     printf( "Starting US Standard Atmosphere 1976 Table Creation. \n" );
-    vsp::WriteAtmosphereCSVFile( "matlab\\USStandardAtmosphere1976Data.csv", vsp::ATMOS_TYPE_US_STANDARD_1976 );
+    vsp::WriteAtmosphereCSVFile( "USStandardAtmosphere1976Data.csv", vsp::ATMOS_TYPE_US_STANDARD_1976 );
     printf( "COMPLETE. \n" );
 }
 
 void APITestSuiteParasiteDrag::TestUSAF1966()
 {
     printf( "Starting USAF Atmosphere 1966 Table Creation. \n" );
-    vsp::WriteAtmosphereCSVFile( "matlab\\USAFAtmosphere1966Data.csv", vsp::ATMOS_TYPE_HERRINGTON_1966 );
+    vsp::WriteAtmosphereCSVFile( "USAFAtmosphere1966Data.csv", vsp::ATMOS_TYPE_HERRINGTON_1966 );
     printf( "COMPLETE. \n" );
 }
 
 void APITestSuiteParasiteDrag::TestFormFactorEquations()
 {
     printf( "Starting Body Form Factor Data Creation. \n" );
-    vsp::WriteBodyFFCSVFile( "matlab\\BodyFormFactorData.csv" );
+    vsp::WriteBodyFFCSVFile( "BodyFormFactorData.csv" );
     printf( "COMPLETE. \n" );
 
     printf( "Starting Wing Form Factor Data Creation. \n" );
-    vsp::WriteWingFFCSVFile( "matlab\\WingFormFactorData.csv" );
+    vsp::WriteWingFFCSVFile( "WingFormFactorData.csv" );
     printf( "COMPLETE. \n" );
 }
 
 void APITestSuiteParasiteDrag::TestFrictionCoefficientEquations()
 {
     printf( "Starting Turbulent Friciton Coefficient Data Creation. \n" );
-    vsp::WriteCfEqnCSVFile( "matlab\\FrictionCoefficientData.csv" );
+    vsp::WriteCfEqnCSVFile( "FrictionCoefficientData.csv" );
     printf( "COMPLETE. \n" );
 }
 
 void APITestSuiteParasiteDrag::TestPartialFrictionMethod()
 {
     printf( "Starting Partial Friction Method Data Creation. \n" );
-    vsp::WritePartialCfMethodCSVFile( "matlab\\PartialFrictionMethodData.csv" );
+    vsp::WritePartialCfMethodCSVFile( "PartialFrictionMethodData.csv" );
     printf( "COMPLETE. \n" );
 }

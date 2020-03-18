@@ -185,7 +185,7 @@ legend( legenddata2, 'Location', 'Best','FontSize', legendfontsize );
 hold off
 
 grid on
-xlabel( 'Fineness D/L','FontSize', labelfontsize );
+xlabel( 'Inverse Fineness (D/L)','FontSize', labelfontsize );
 ylabel( 'Form Factor','FontSize', labelfontsize );
 
 box on;
