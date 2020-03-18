@@ -908,7 +908,7 @@ double ParasiteDragMgrSingleton::CalculateFinessRatio( int isurf, int irow )
         max_xsecarea = *it;
 
         // Use Max X-Sectional Area to find "Nominal" Diameter
-        dia = 2 * sqrt( ( max_xsecarea / ( PI ) ) );
+        dia = 2.0 * sqrt( max_xsecarea / PI );
 
         finerat = m_geo_lref[irow] / dia;
     }
