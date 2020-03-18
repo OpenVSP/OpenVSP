@@ -5649,24 +5649,20 @@ void WriteBodyFFCSVFile(const std::string & file_name)
 {
     Results* res = ResultsMgr.CreateResults("Body_Form_Factor");
     char str[256];
-    vector < double > body_ff_vec, FR, ref_leng, max_x_area;
+    vector < double > body_ff_vec;
     vector < double > dol_array = linspace( 0.0, 0.3, 200 );
     res->Add(NameValData("D_L", dol_array));
-    ref_leng.push_back(10.0);
-    max_x_area.push_back( PI * 1.0 * 1.0 );
-    FR.push_back(ref_leng.back() / sqrt(max_x_area.back()) );
+
     for (size_t body_ff_case = 0; body_ff_case <= vsp::FF_B_JENKINSON_AFT_FUSE_NACELLE; ++body_ff_case )
     {
         for (size_t j = 0; j < dol_array.size(); ++j )
         {
-            body_ff_vec.push_back( ParasiteDragMgr.CalcFFBody( 1.0/dol_array[j], FR[0], body_ff_case, ref_leng[0], max_x_area[0] ) );
+            body_ff_vec.push_back( ParasiteDragMgr.CalcFFBody( 1.0/dol_array[j], 1.0/dol_array[j], body_ff_case ) );
         }
         sprintf( str, "%s", ParasiteDragMgr.AssignFFBodyEqnName( body_ff_case ).c_str());
         res->Add(NameValData(str, body_ff_vec));
         body_ff_vec.clear();
     }
-    res->Add(NameValData("Ref_Leng", ref_leng));
-    res->Add(NameValData("Max_X_Area", max_x_area));
     res->WriteCSVFile( file_name );
 }
 

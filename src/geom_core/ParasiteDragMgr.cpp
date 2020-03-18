@@ -1017,7 +1017,7 @@ double ParasiteDragMgrSingleton::CalculateFormFactor( int isurf, int irow )
         // FR used by Schemensky
         FR = m_geo_lref[irow] / sqrt( Area );
 
-        formfactor = CalcFFBody( longF, FR, m_geo_ffType[irow], m_geo_lref[irow], Area );
+        formfactor = CalcFFBody( longF, FR, m_geo_ffType[irow] );
     }
 
     return formfactor;
@@ -1863,8 +1863,12 @@ double ParasiteDragMgrSingleton::CalcFFWing( double toc, int ff_case,
     return ff;
 }
 
-double ParasiteDragMgrSingleton::CalcFFBody( double longF, double FR, int ff_case, double ref_leng, double max_x_area )
+double ParasiteDragMgrSingleton::CalcFFBody( double longF, double FR, int ff_case)
 {
+    // longF input
+    // dia = 2 * sqrt( ( max_xsecarea / ( PI ) ) );
+    // longF = m_geo_lref[irow] / dia;
+
     double ff;
     double mach = m_Atmos.GetMach();
     switch ( ff_case )
@@ -1901,11 +1905,8 @@ double ParasiteDragMgrSingleton::CalcFFBody( double longF, double FR, int ff_cas
         break;
 
     case vsp::FF_B_JENKINSON_FUSE:
-        double Lambda;
-        Lambda = ref_leng / ( pow( ( 4.0 / PI ) * max_x_area, 0.5 ) );
-
-        ff = 1.0 + ( 2.2 / pow( Lambda, 1.5 ) ) -
-             ( 0.9 / pow( Lambda, 3.0 ) );
+        ff = 1.0 + ( 2.2 / pow( longF, 1.5 ) ) -
+             ( 0.9 / pow( longF, 3.0 ) );
         break;
 
     case vsp::FF_B_JENKINSON_WING_NACELLE:
