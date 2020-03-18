@@ -509,7 +509,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_TextBuffer->append( "-- Component Table Quantities -- \n" );
     m_TextBuffer->append( "S_wet \t\t : \t Wetted Area of Geometry, Calculated through DegenGeom \n" );
     m_TextBuffer->append( "L_ref \t\t : \t Reference Length of Geometry, Calculated through Length of Bounding Box in X direction or Chord on a Wing\n" );
-    m_TextBuffer->append( "t/c or d/l \t : \t Thickness to Chord Ratio or Fineness Ratio, respectively \n" );
+    m_TextBuffer->append( "t/c or l/d \t : \t Thickness to Chord Ratio or Fineness Ratio, respectively \n" );
     m_TextBuffer->append( "FF Equation \t : \t Choosen Form Factor Equation for Internal Calculations \n" );
     m_TextBuffer->append( "FF \t\t : \t Form Factor of Specific Geometry \n" );
     m_TextBuffer->append( "Re \t\t : \t Reynolds Number for the component \n" );
@@ -1531,7 +1531,7 @@ void ParasiteDragScreen::RebuildBuildUpTableLabels()
     m_LrefUnitLabel.GetFlButton()->copy_tooltip( "Reference Length of Geometry" );
 
     m_MainTableLabelsLayout.SetButtonWidth( TYPICAL_INPUT_WIDTH - 10 );
-    m_MainTableLabelsLayout.AddButton( m_FineRatLabel, "t/c or d/l" );
+    m_MainTableLabelsLayout.AddButton( m_FineRatLabel, "t/c or l/d" );
     m_FineRatLabel.GetFlButton()->box( FL_THIN_UP_BOX );
     m_FineRatLabel.GetFlButton()->labelcolor( FL_BLACK );
     m_FineRatLabel.GetFlButton()->copy_tooltip( "Thickness over Chord \n \t or \n Fineness Ratio" );
