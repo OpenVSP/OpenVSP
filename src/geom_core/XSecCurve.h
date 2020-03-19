@@ -535,9 +535,8 @@ protected:
 
     bool m_EnforceG1Next; // Flag to indicate if G1 should be enforced with the next or previous point
 
-    // Aspect ratio of m_Width to m_Height or vise versa
-    double m_aspectRatioW;
-    double m_aspectRatioH;
+    // Aspect ratio of m_Width to m_Height
+    double m_AspectRatio;
 
 };
 

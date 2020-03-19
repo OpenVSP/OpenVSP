@@ -2398,8 +2398,7 @@ EditCurveXSec::EditCurveXSec() : XSecCurve()
     m_SelectPntID = 0;
     m_EnforceG1Next = true;
 
-    m_aspectRatioW = 1.0;
-    m_aspectRatioH = 1.0;
+    m_AspectRatio = 1.0;
 }
 
 void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
@@ -2417,8 +2416,7 @@ void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
 
     if ( parm_ptr == dynamic_cast<Parm*> ( &m_PreserveARFlag ) )
     {
-        m_aspectRatioW = GetWidth() / GetHeight();
-        m_aspectRatioH = GetHeight() / GetWidth();
+        m_AspectRatio = GetWidth() / GetHeight();
     }
 
     if ( m_CurveType() == vsp::CEDIT )
@@ -2473,14 +2471,16 @@ void EditCurveXSec::ParmChanged( Parm* parm_ptr, int type )
         }
     }
 
-    if ( type == Parm::SET )
+    if ( type != Parm::SET )
     {
         if ( parm_ptr == &m_Height && m_PreserveARFlag() )
         {
             // Enforce AR preservation if height is set from API
-            m_Width.Set( m_Height() * m_aspectRatioW );
+            m_Width.Set( m_Height() * m_AspectRatio );
         }
-
+    }
+    else
+    {
         m_LateUpdateFlag = true;
 
         //==== Notify Parent Container (XSecSurf) ====//
@@ -2530,6 +2530,10 @@ xmlNodePtr EditCurveXSec::DecodeXml( xmlNodePtr & node )
     }
 
     XSecCurve::DecodeXml( node );
+
+    // Must be done after the parms are decoded. Otherwise they are calculated when the 
+    // m_PreserveARFlag is decoded, but width has not been (alphabetical decode order)
+    m_AspectRatio = GetWidth() / GetHeight();
 
     return node;
 }
@@ -2729,7 +2733,7 @@ void EditCurveXSec::Update()
 
     if ( m_PreserveARFlag() )
     {
-        m_Height.Set( m_Width() * m_aspectRatioH );
+        m_Height.Set( m_Width() / m_AspectRatio );
     }
     
     ClearPtOrder();
