@@ -3519,8 +3519,8 @@ vector < bool > EditCurveXSec::GetG1Vec()
 
 void EditCurveXSec::SetWidthHeight( double w, double h )
 {
-    m_Width.Set( w );
-    m_Height.Set( h );
+    m_Width = w;
+    m_Height = h;
 }
 
 void EditCurveXSec::SetSelectPntID( int id )

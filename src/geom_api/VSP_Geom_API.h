@@ -217,6 +217,8 @@ extern int GetXSecShape( const std::string& xsec_id );
 extern double GetXSecWidth( const std::string& xsec_id );
 extern double GetXSecHeight( const std::string& xsec_id );
 extern void SetXSecWidthHeight( const std::string& xsec_id, double w, double h );
+extern void SetXSecWidth( const std::string& xsec_id, double w );
+extern void SetXSecHeight( const std::string& xsec_id, double h );
 extern std::vector<std::string> GetXSecParmIDs( const std::string& xsec_id );
 extern std::string GetXSecParm( const std::string& xsec_id, const std::string& name );
 extern std::vector<vec3d> ReadFileXSec( const std::string& xsec_id, const std::string& file_name );

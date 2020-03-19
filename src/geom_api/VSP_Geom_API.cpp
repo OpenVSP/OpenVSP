@@ -3106,6 +3106,42 @@ void SetXSecWidthHeight( const string& xsec_id, double w, double h )
     ErrorMgr.NoError();
 }
 
+void SetXSecWidth( const string& xsec_id, double w )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecWidth::Can't Find XSec " + xsec_id );
+        return;
+    }
+    Parm* width_parm = ParmMgr.FindParm( xs->GetXSecCurve()->GetWidthParmID() );
+    if ( !width_parm )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecWidth::Can't Find Width Parm " + xs->GetXSecCurve()->GetWidthParmID() );
+        return;
+    }
+    width_parm->SetFromDevice( w );
+    ErrorMgr.NoError();
+}
+
+void SetXSecHeight( const string& xsec_id, double h )
+{
+    XSec* xs = FindXSec( xsec_id );
+    if ( !xs )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecHeight::Can't Find XSec " + xsec_id );
+        return;
+    }
+    Parm* height_parm = ParmMgr.FindParm( xs->GetXSecCurve()->GetHeightParmID() );
+    if ( !height_parm )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecHeight::Can't Find Width Parm " + xs->GetXSecCurve()->GetHeightParmID() );
+        return;
+    }
+    height_parm->SetFromDevice( h );
+    ErrorMgr.NoError();
+}
+
 /// Get of the linkable parms ids for this geometry
 vector< string > GetXSecParmIDs( const string & xsec_id  )
 {

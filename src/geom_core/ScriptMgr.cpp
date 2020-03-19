@@ -6597,6 +6597,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     if ( abs( GetXSecWidth( xsec ) - 3.0 ) > 1e-6 )        { Print( "---> Error: API Get/Set Width " ); }
     \endcode
+    \sa SetXSecWidth
     \param [in] xsec_id XSec ID
     \return Xsec width
 */)";
@@ -6618,6 +6619,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     if ( abs( GetXSecHeight( xsec ) - 6.0 ) > 1e-6 )        { Print( "---> Error: API Get/Set Width " ); }
     \endcode
+    \sa SetXSecHeight
     \param [in] xsec_id XSec ID
     \return Xsec height
 */)";
@@ -6626,7 +6628,52 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Set the width and height of an XSec
+    Set the width of an XSec
+    \code{.cpp}
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    // Identify XSec 2
+    string xsec_2 = GetXSec( xsec_surf, 2 );
+
+    SetXSecWidth( xsec_2, 1.5 );
+    \endcode
+    \sa GetXSecWidth
+    \param [in] xsec_id XSec ID
+    \param [in] w Xsec width
+*/)";
+    r = se->RegisterGlobalFunction( "void SetXSecWidth( const string& in xsec_id, double w )", asFUNCTION( vsp::SetXSecWidth ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Set the height of an XSec
+    \code{.cpp}
+    // Add Stack
+    string sid = AddGeom( "STACK", "" );
+
+    // Get First (and Only) XSec Surf
+    string xsec_surf = GetXSecSurf( sid, 0 );
+
+    // Identify XSec 2
+    string xsec_2 = GetXSec( xsec_surf, 2 );
+
+    SetXSecHeight( xsec_2, 1.5 );
+    \endcode
+    \sa GetXSecWidth
+    \param [in] xsec_id XSec ID
+    \param [in] h Xsec height
+*/)";
+    r = se->RegisterGlobalFunction( "void SetXSecHeight( const string& in xsec_id, double h )", asFUNCTION( vsp::SetXSecHeight ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Set the width and height of an XSec. Note, if the XSec is an EDIT_CURVE type and PreserveARFlag is true, the input width value will be 
+    ignored and instead set from on the input height and aspect ratio. Use SetXSecWidth and SetXSecHeight directly to avoid this. 
     \code{.cpp}
     // Add Stack
     string sid = AddGeom( "STACK", "" );
@@ -6639,6 +6686,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     SetXSecWidthHeight( xsec_2, 1.5, 1.5 );
     \endcode
+    \sa SetXSecWidth, SetXSecHeight
     \param [in] xsec_id XSec ID
     \param [in] w Xsec width
     \param [in] h Xsec height
