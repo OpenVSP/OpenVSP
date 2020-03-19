@@ -74,7 +74,27 @@ void main()
 
     SetEditXSecPnts( xsec_2, u_vec, xsec2_pts ); // Note: points are unscaled by the width and height parms
 
-    SetXSecWidthHeight( xsec_2, 1.5, 1.5 );
+	// Demonstrate aspect ratio preservation
+    SetXSecWidthHeight( xsec_2, 1, 2 );
+	SetParmVal( GetXSecParm( xsec_2, "PreserveARFlag"), 1 ); // Sets 1:2 AR
+	
+	// When aspect ratio is preserved, the width input in SetXSecWidthHeight will be ignored. 
+	// Height will set the width based on the assigned aspect ratio. This issue is avoided by 
+	// using SetXSecWidth and SetXSecHeight instead
+	SetXSecHeight( xsec_2, 1 );
+	Update();
+	
+	if ( abs( GetXSecWidth( xsec_2 ) - 0.5 ) > 1e-8 )
+	{
+		Print( "Error SetXSecHeight" );
+	}
+	
+	SetXSecWidth( xsec_2, 0.75 );
+	
+	if ( abs( GetXSecHeight( xsec_2 ) - 1.5 ) > 1e-8 )
+	{
+		Print( "Error SetXSecWidth" );
+	}
 
     // Split the square halfway along one edge
     int new_pnt_ind = EditXSecSplit01( xsec_2, 0.375 );
