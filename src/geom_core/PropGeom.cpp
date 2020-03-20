@@ -1696,10 +1696,9 @@ string PropGeom::BuildBEMResults()
     {
         double t = static_cast < double > ( i ) / ( n - 1 );
         double r = rfirst + rspan * Cluster( t, m_RootCluster(), m_TipCluster() );
-        double u = m_rtou.CompPnt( r );
 
         VspCurve c;
-        m_FoilSurf.GetUConstCurve( c, u );
+        m_FoilSurf.GetUConstCurve( c, t );
         vec3d v = c.CompPnt( 0 );
         c.OffsetZ( -v.z() );
 
