@@ -81,6 +81,7 @@ public:
     virtual void AddGroup( const string &groupText );
     virtual void AddSetting( const string &settingText );
     virtual bool SavePreset();
+    virtual void ApplySetting();
     virtual void SettingChange( int set_index );
     virtual void SettingChange( const string &set_name );
     virtual void GroupChange( int group_index );

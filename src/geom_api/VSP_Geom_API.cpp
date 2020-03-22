@@ -5221,6 +5221,7 @@ void SwitchVarPreset( const string &group_name, const string &setting_name )
     {
         ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "SwitchSaveParmGroup::Can't Find Setting " + setting_name  );
     }
+    VarPresetMgr.ApplySetting();
 }
 
 bool DeleteVarPresetSet( const string &group_name, const string &setting_name )

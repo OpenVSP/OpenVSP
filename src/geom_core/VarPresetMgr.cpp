@@ -543,6 +543,33 @@ bool VarPresetMgrSingleton::SavePreset()
     return true;
 }
 
+void VarPresetMgrSingleton::ApplySetting()
+{
+    //cout << "Setting Change Has Occured -----------------------------------------" << endl;
+    int group_index = GetActiveGroupIndex();
+
+    // Group Contains at least 1 Setting
+    if (m_CurSettingIndex == -1)
+    {
+        return;
+    }
+
+    // Change Parm Values accordingly
+    // If group has any parms to change
+    if ( m_PresetVec[group_index].GetParmIDs().size() > 0 )
+    {
+        vector <string> p_IDs = m_PresetVec[ group_index ].GetParmIDs();
+        vector <double> p_val = m_PresetVec[ group_index ].GetParmVals( m_CurSettingIndex );
+        for ( int j = 0; j < p_IDs.size(); j++ )
+        {
+            // Change Values in ParmScreen
+            ParmMgr.FindParm( p_IDs[ j ] )->Set( p_val[ j ] );
+        }
+
+        VehicleMgr.GetVehicle()->Update();
+    }
+}
+
 //==== Setting Change ====//
 void VarPresetMgrSingleton::SettingChange( int set_index )
 {
@@ -559,25 +586,10 @@ void VarPresetMgrSingleton::SettingChange( int set_index )
     m_CurSettingIndex = set_index;
     m_CurSettingText = m_PresetVec[ group_index ].GetSettingName( set_index );
 
-    // Change Parm Values accordingly
-    // If group has any parms to change
-    if ( m_PresetVec[group_index].GetParmIDs().size() > 0 )
-    {
-        vector <string> p_IDs = m_PresetVec[ group_index ].GetParmIDs();
-        vector <double> p_val = m_PresetVec[ group_index ].GetParmVals( set_index );
-        for ( int j = 0; j < p_IDs.size(); j++ )
-        {
-            // Change Values in ParmScreen
-            ParmMgr.FindParm( p_IDs[ j ] )->Set( p_val[ j ] );
-        }
+    // Change Current Set Name in Preset
+    m_PresetVec[ group_index ].SetCurSetName( m_CurSettingText );
 
-        // Change Current Set Name in Preset
-        m_PresetVec[ group_index ].SetCurSetName( m_CurSettingText );
-
-        VehicleMgr.GetVehicle()->Update();
-
-        m_PrevDeleteFlag = false;
-    }
+    m_PrevDeleteFlag = false;
 }
 
 void VarPresetMgrSingleton::SettingChange( const string & set_name )

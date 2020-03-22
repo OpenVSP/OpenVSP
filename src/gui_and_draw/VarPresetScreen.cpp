@@ -492,6 +492,7 @@ void VarPresetScreen::GuiDeviceCallBack( GuiDevice* device )
             {
                 VarPresetMgr.GroupChange( m_GroupChoice.GetVal() );
                 VarPresetMgr.SettingChange( m_SettingChoice.GetVal() );
+                VarPresetMgr.ApplySetting();
             }
         }
     }
