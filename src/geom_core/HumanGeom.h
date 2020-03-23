@@ -117,6 +117,9 @@ public:
     {
         return 0;
     }
+
+    virtual void CreateDegenGeom( vector<DegenGeom> &dgs, bool preview = false );
+
     virtual vector< TMesh* > CreateTMeshVec();
 
     virtual void SetupMesh( Pinocchio::Mesh &m );

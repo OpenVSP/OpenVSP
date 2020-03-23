@@ -1139,6 +1139,37 @@ void HumanGeom::ApplyScale()
 {
 }
 
+void HumanGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
+{
+    unsigned int num_meshes = GetNumTotalMeshs();
+
+    for ( int i = 0; i < num_meshes; i++ )
+    {
+        DegenGeom degenGeom;
+
+        degenGeom.setType( DegenGeom::MESH_TYPE );
+
+        degenGeom.setParentGeom( this );
+        degenGeom.setSurfNum( i );
+        degenGeom.setFlipNormal( m_FlipNormal[i] );
+        degenGeom.setMainSurfInd( m_SurfIndxVec[i] );
+        degenGeom.setSymCopyInd( m_SurfCopyIndx[i] );
+
+        vector < double > tmatvec;
+        for ( int j = 0; j < 16; j++ )
+        {
+            tmatvec.push_back( m_TransMatVec[i].data()[ j ] );
+        }
+        degenGeom.setTransMat( tmatvec );
+
+        degenGeom.setNumXSecs( 0 );
+        degenGeom.setNumPnts( 0 );
+        degenGeom.setName( GetName() );
+
+        dgs.push_back(degenGeom);
+    }
+}
+
 vector<TMesh*> HumanGeom::CreateTMeshVec()
 {
     vector<TMesh*> retTMeshVec;
