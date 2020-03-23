@@ -1150,6 +1150,10 @@ vector<TMesh*> HumanGeom::CreateTMeshVec()
 
         TMesh*  tMesh = new TMesh();
 
+        tMesh->LoadGeomAttributes( this );
+
+        tMesh->m_SurfNum = j;
+
         for ( int i = 0 ; i < num_tris ; i++ )
         {
             int i2 = 1;
