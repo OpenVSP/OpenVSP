@@ -133,7 +133,7 @@ class DegenGeom
 public:
     enum GEOM_PLANE { XY_PLANE, XZ_PLANE, YZ_PLANE };
 
-    enum DEGEN_GEOM_TYPE { SURFACE_TYPE, BODY_TYPE, DISK_TYPE };
+    enum DEGEN_GEOM_TYPE { SURFACE_TYPE, BODY_TYPE, DISK_TYPE, MESH_TYPE };
 
     DegenGeom()
     {

@@ -1181,6 +1181,10 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
     {
         typestr = "DISK";
     }
+    else if( type == MESH_TYPE )
+    {
+        typestr = "MESH";
+    }
     else
     {
         typestr = "BODY";
@@ -1210,7 +1214,10 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
         write_degenGeomDiskCsv_file( file_id );
     }
 
-    write_degenGeomSurfCsv_file( file_id, nxsecs );
+    if( type != MESH_TYPE )
+    {
+        write_degenGeomSurfCsv_file( file_id, nxsecs );
+    }
 
     if( type == DISK_TYPE )
     {
@@ -1421,6 +1428,10 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'DISK';" );
     }
+    else if( type == MESH_TYPE )
+    {
+        fprintf( file_id, "\ndegenGeom(end+1).type = 'MESH';" );
+    }
     else
     {
         fprintf( file_id, "\ndegenGeom(end+1).type = 'BODY';" );
@@ -1440,7 +1451,10 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
         write_degenGeomDiskM_file(file_id);
     }
 
-    write_degenGeomSurfM_file( file_id, nxsecs );
+    if ( type != MESH_TYPE )
+    {
+        write_degenGeomSurfM_file( file_id, nxsecs );
+    }
 
     if( type == DISK_TYPE )
     {
@@ -1488,6 +1502,10 @@ void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_id
     {
         res->Add( NameValData( "type", "DISK" ) );
     }
+    else if( type == MESH_TYPE )
+    {
+        res->Add( NameValData( "type", "MESH" ) );
+    }
     else
     {
         res->Add( NameValData( "type", "BODY" ) );
@@ -1507,7 +1525,10 @@ void DegenGeom::write_degenGeomResultsManager( vector< string> &degen_results_id
         write_degenGeomDiskResultsManger( res );
     }
 
-    write_degenGeomSurfResultsManager( res );
+    if( type != MESH_TYPE )
+    {
+        write_degenGeomSurfResultsManager( res );
+    }
 
     if ( type == DISK_TYPE )
     {
