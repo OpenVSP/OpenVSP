@@ -1063,7 +1063,7 @@ void DegenGeom::write_degenGeomStickCsv_file( FILE* file_id, int nxsecs, DegenSt
     }
 }
 
-void DegenGeom::write_degenGeomPointCsv_file( FILE* file_id, int nxsecs )
+void DegenGeom::write_degenGeomPointCsv_file( FILE* file_id )
 {
     fprintf( file_id, "# DegenGeom Type\n" );
     fprintf( file_id, "POINT\n" );
@@ -1231,7 +1231,7 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
         write_degenGeomStickCsv_file( file_id, nxsecs, degenSticks[1] );
     }
 
-    write_degenGeomPointCsv_file( file_id, nxsecs );
+    write_degenGeomPointCsv_file( file_id );
 
     for ( int i = 0; i < degenSubSurfs.size(); i++ )
     {
@@ -1328,7 +1328,7 @@ void DegenGeom::write_degenGeomStickM_file( FILE* file_id, int nxsecs, DegenStic
 
 }
 
-void DegenGeom::write_degenGeomPointM_file( FILE* file_id, int nxsecs )
+void DegenGeom::write_degenGeomPointM_file( FILE* file_id )
 {
     string basename = string( "degenGeom(end).point." );
 
@@ -1455,7 +1455,7 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
         write_degenGeomStickM_file( file_id, nxsecs, degenSticks[1], 2 );
     }
 
-    write_degenGeomPointM_file( file_id, nxsecs );
+    write_degenGeomPointM_file( file_id );
 
     for ( int i = 0; i < degenSubSurfs.size(); i++ )
     {
