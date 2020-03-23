@@ -1217,16 +1217,22 @@ void DegenGeom::write_degenGeomCsv_file( FILE* file_id )
         return;
     }
 
-    write_degenGeomPlateCsv_file( file_id, nxsecs, degenPlates[0] );
+    if( degenPlates.size() > 0 )
+    {
+        write_degenGeomPlateCsv_file( file_id, nxsecs, degenPlates[0] );
+    }
 
-    if ( type == DegenGeom::BODY_TYPE )
+    if ( type == DegenGeom::BODY_TYPE && degenPlates.size() > 1 )
     {
         write_degenGeomPlateCsv_file( file_id, nxsecs, degenPlates[1] );
     }
 
-    write_degenGeomStickCsv_file( file_id, nxsecs, degenSticks[0] );
+    if ( degenSticks.size() > 0 )
+    {
+        write_degenGeomStickCsv_file( file_id, nxsecs, degenSticks[0] );
+    }
 
-    if ( type == DegenGeom::BODY_TYPE )
+    if ( type == DegenGeom::BODY_TYPE && degenSticks.size() > 1 )
     {
         write_degenGeomStickCsv_file( file_id, nxsecs, degenSticks[1] );
     }
@@ -1441,16 +1447,18 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
         return;
     }
 
-    write_degenGeomPlateM_file( file_id, nxsecs, degenPlates[0], 1 );
+    if ( degenPlates.size() > 0 )
+        write_degenGeomPlateM_file( file_id, nxsecs, degenPlates[0], 1 );
 
-    if ( type == DegenGeom::BODY_TYPE )
+    if ( type == DegenGeom::BODY_TYPE && degenPlates.size() > 1 )
     {
         write_degenGeomPlateM_file( file_id, nxsecs, degenPlates[1], 2 );
     }
 
-    write_degenGeomStickM_file( file_id, nxsecs, degenSticks[0], 1 );
+    if ( degenSticks.size() > 9 )
+        write_degenGeomStickM_file( file_id, nxsecs, degenSticks[0], 1 );
 
-    if ( type == DegenGeom::BODY_TYPE )
+    if ( type == DegenGeom::BODY_TYPE && degenSticks.size() > 1 )
     {
         write_degenGeomStickM_file( file_id, nxsecs, degenSticks[1], 2 );
     }
