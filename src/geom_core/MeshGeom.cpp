@@ -4131,6 +4131,39 @@ void MeshGeom::AddHalfBox()
 
 }
 
+void MeshGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
+{
+    unsigned int num_meshes = m_TMeshVec.size();
+
+    for ( int i = 0; i < num_meshes; i++ )
+    {
+        DegenGeom degenGeom;
+
+        degenGeom.setType( DegenGeom::MESH_TYPE );
+
+        degenGeom.setParentGeom( this );
+        degenGeom.setSurfNum( i );
+        degenGeom.setFlipNormal( false );
+        degenGeom.setMainSurfInd( 0 );
+        degenGeom.setSymCopyInd( 0 );
+
+        Matrix4d trans = GetTotalTransMat();
+
+        vector < double > tmatvec;
+        for ( int j = 0; j < 16; j++ )
+        {
+            tmatvec.push_back( trans.data()[ j ] );
+        }
+        degenGeom.setTransMat( tmatvec );
+
+        degenGeom.setNumXSecs( 0 );
+        degenGeom.setNumPnts( 0 );
+        degenGeom.setName( GetName() );
+
+        dgs.push_back(degenGeom);
+    }
+}
+
 vector<TMesh*> MeshGeom::CreateTMeshVec()
 {
     vector<TMesh*> retTMeshVec;
