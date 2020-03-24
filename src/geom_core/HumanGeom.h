@@ -91,6 +91,8 @@ public:
 
     virtual void SetPreset();
 
+    virtual double CalculateVolume();
+
     virtual void UpdateBBox();
     virtual void UpdateDrawObj();
 

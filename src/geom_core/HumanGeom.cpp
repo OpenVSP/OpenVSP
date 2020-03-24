@@ -671,6 +671,33 @@ void HumanGeom::UpdateSurf()
 */
 }
 
+double HumanGeom::CalculateVolume()
+{
+    int num_tris = NUM_MESH_TRI;
+
+    double vol = 0;
+
+    for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+    {
+        vec3d p0 = m_MainVerts[m_half_tris[t][0]];
+        vec3d p1 = m_MainVerts[m_half_tris[t][1]];
+        vec3d p2 = m_MainVerts[m_half_tris[t][2]];
+
+        vol += tetra_volume( p0, p1, p2 );
+    }
+
+    for ( int t = 0 ; t < ( int ) num_tris ; t++ )
+    {
+        vec3d p0 = m_MainVerts[m_half_tris[t][0] + NUM_MESH_VERT];
+        vec3d p1 = m_MainVerts[m_half_tris[t][2] + NUM_MESH_VERT];
+        vec3d p2 = m_MainVerts[m_half_tris[t][1] + NUM_MESH_VERT];
+
+        vol += tetra_volume( p0, p1, p2 );
+    }
+
+    return vol;
+}
+
 void HumanGeom::UpdateBBox()
 {
     m_BBox.Reset();
