@@ -52,6 +52,17 @@ HumanGeomScreen::HumanGeomScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 350, 615, 
     m_AnthropoLayout.AddSlider( m_BMISlider, "BMI", 10, "%7.3f" );
     m_AnthropoLayout.AddSlider( m_BMIPctSlider, "% BMI", 1, "%7.3f" );
     m_AnthropoLayout.AddSlider( m_MassSlider, "Mass", 100, "%7.3f" );
+
+    m_AnthropoLayout.SetSameLineFlag( true );
+    m_AnthropoLayout.AddOutput( m_VolumeOutput, "Volume", "%6.2f", 100 );
+    m_AnthropoLayout.SetFitWidthFlag( false );
+    m_AnthropoLayout.SetButtonWidth( 100 );
+    m_AnthropoLayout.AddButton( m_AutoDensityToggle, "Auto Density" );
+    m_AnthropoLayout.InitWidthHeightVals();
+    m_AnthropoLayout.ForceNewLine();
+    m_AnthropoLayout.SetSameLineFlag( false );
+    m_AnthropoLayout.SetFitWidthFlag( true );
+
     m_AnthropoLayout.AddYGap();
 
     m_AnthropoLayout.AddSlider( m_AgeSlider, "Age", 10, "%7.3f" );
@@ -198,6 +209,9 @@ bool HumanGeomScreen::Update()
     m_BMISlider.Update( human_ptr->m_BMI.GetID() );
     m_BMIPctSlider.Update( human_ptr->m_BMI_pct.GetID() );
     m_MassSlider.Update( human_ptr->m_Mass.GetID() );
+
+    m_AutoDensityToggle.Update( human_ptr->m_AutoDensity.GetID() );
+    m_VolumeOutput.Update( human_ptr->m_Volume.GetID() );
 
     m_AgeSlider.Update( human_ptr->m_Age.GetID() );
     m_SitFracSlider.Update( human_ptr->m_SitFrac.GetID() );

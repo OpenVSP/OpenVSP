@@ -45,6 +45,8 @@ protected:
     SliderAdjRangeInput m_BMISlider;
     SliderAdjRangeInput m_BMIPctSlider;
     SliderAdjRangeInput m_MassSlider;
+    Output m_VolumeOutput;
+    ToggleButton m_AutoDensityToggle;
 
     SliderAdjRangeInput m_AgeSlider;
     SliderAdjRangeInput m_SitFracSlider;
