@@ -146,6 +146,8 @@ public:
     Parm m_BMI;
     Parm m_BMI_pct;
     Parm m_Mass;
+    Parm m_Volume;
+    BoolParm m_AutoDensity;
 
     Parm m_Age;
     Parm m_SitFrac;

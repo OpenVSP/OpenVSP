@@ -74,6 +74,12 @@ HumanGeom::HumanGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Mass.Init("Mass", "Anthropometric", this, 1, 0, 1e6 );
     m_Mass.SetDescript( "Mass of person" );
 
+    m_Volume.Init( "Volume", "Anthropometric", this, 0, 0, 1e12 );
+    m_Volume.SetDescript( "Volume of person" );
+
+    m_AutoDensity.Init( "AutoDensity", "Anthropometric", this, true, false, true );
+    m_AutoDensity.SetDescript( "Flag to calculate density based on mass and volume" );
+
     m_Age.Init( "Age", "Anthropometric", this, 30.0, 18, 80 );
     m_Age.SetDescript( "Age of person" );
 
@@ -627,14 +633,23 @@ void HumanGeom::UpdateSurf()
 
     CopyMeshToVerts( newmesh, m_MainVerts );
 
+    // Get scale for units.
+    double sf = Get_mm2UX();
 
+    // Calculate volume of posed figure
+    m_Volume = CalculateVolume() * sf * sf * sf;
+
+    if ( m_AutoDensity() )
+    {
+        m_Density = m_Mass() / m_Volume();
+    }
 
     // Final positioning & scale -- hold waist fixed & origin
     Matrix4d tcenter;
     tcenter.translatev( -m_PoseSkelVerts[WAIST] );
 
     Matrix4d sc;
-    sc.scale( Get_mm2UX() );
+    sc.scale( sf );
     tcenter.postMult( sc );
 
     tcenter.xformvec( m_SkelVerts );
