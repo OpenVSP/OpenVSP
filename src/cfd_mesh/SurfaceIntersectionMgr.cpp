@@ -13,6 +13,7 @@
 #include "main.h"
 #include "StringUtil.h"
 
+#include "eli/geom/intersect/intersect_surface.hpp"
 
 #include <chrono>
 
@@ -1438,6 +1439,49 @@ void SurfaceIntersectionSingleton::BuildChains()
                 delete chain;
                 chain = NULL;
             }
+        }
+    }
+
+
+    // After the intersection chains are formed, refine them so that the value returned by CompPnt
+    // will be the same with respect to each parent surface of the intersection point. Note, this 
+    // must be done before the border curves are spit at each intersection chain end point.
+    list< ISegChain* >::iterator c;
+    for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
+    {
+        Puw* auw = ( *c )->m_ISegDeque.front()->m_IPnt[0]->GetPuw( ( *c )->m_SurfA );
+        Puw* buw = ( *c )->m_ISegDeque.front()->m_IPnt[0]->GetPuw( ( *c )->m_SurfB );
+
+        surface_point_type first_point;
+        first_point << ( *c )->m_ISegDeque.front()->m_IPnt[0]->m_Pnt.x(), ( *c )->m_ISegDeque.front()->m_IPnt[0]->m_Pnt.y(), ( *c )->m_ISegDeque.front()->m_IPnt[0]->m_Pnt.z();
+
+        double uA, wA, uB, wB;
+
+        eli::geom::intersect::intersect( uA, wA, uB, wB, *( ( *c )->m_SurfA->GetSurfCore()->GetSurf() ),
+                                         *( ( *c )->m_SurfB->GetSurfCore()->GetSurf() ), first_point,
+                                         auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
+
+        auw->m_UW[0] = uA;
+        auw->m_UW[1] = wA;
+        buw->m_UW[0] = uB;
+        buw->m_UW[1] = wB;
+
+        for ( int i = 0; i < (int)( *c )->m_ISegDeque.size(); i++ )
+        {
+            auw = ( *c )->m_ISegDeque[i]->m_IPnt[1]->GetPuw( ( *c )->m_SurfA );
+            buw = ( *c )->m_ISegDeque[i]->m_IPnt[1]->GetPuw( ( *c )->m_SurfB );
+
+            surface_point_type ip;
+            ip << ( *c )->m_ISegDeque[i]->m_IPnt[1]->m_Pnt.x(), ( *c )->m_ISegDeque[i]->m_IPnt[1]->m_Pnt.y(), ( *c )->m_ISegDeque[i]->m_IPnt[1]->m_Pnt.z();
+
+            eli::geom::intersect::intersect( uA, wA, uB, wB, *( ( *c )->m_SurfA->GetSurfCore()->GetSurf() ),
+                                             *( ( *c )->m_SurfB->GetSurfCore()->GetSurf() ), ip,
+                                             auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
+
+            auw->m_UW[0] = uA;
+            auw->m_UW[1] = wA;
+            buw->m_UW[0] = uB;
+            buw->m_UW[1] = wB;
         }
     }
 }
