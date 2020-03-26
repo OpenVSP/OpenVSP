@@ -561,7 +561,7 @@ void FeaMeshMgrSingleton::AddStructureParts()
                 fea_part_vec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ) );
 
                 // Load FeaPart XFerSurf to m_SurfVec
-                LoadSurfs( partxfersurfs );
+                LoadSurfs( partxfersurfs, m_SurfVec.size() );
 
                 // Identify the FeaPart index and add to m_FeaPartSurfVec
                 int begin = m_SurfVec.size() - partxfersurfs.size();

@@ -118,7 +118,7 @@ public:
     virtual void UpdateDisplaySettings();
 
     virtual void FetchSurfs( vector< XferSurf > &xfersurfs );
-    virtual void LoadSurfs( vector< XferSurf > &xfersurfs );
+    virtual void LoadSurfs( vector< XferSurf > &xfersurfs, int start_surf_id = 0 );
 
     virtual void CleanMergeSurfs();
 

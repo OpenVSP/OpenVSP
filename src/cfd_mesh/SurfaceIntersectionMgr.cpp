@@ -257,7 +257,7 @@ void SurfaceIntersectionSingleton::FetchSurfs( vector< XferSurf > &xfersurfs )
     m_Vehicle->FetchXFerSurfs( GetSettingsPtr()->m_SelectedSetIndex, xfersurfs );
 }
 
-void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs )
+void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, int start_surf_id )
 {
     int maxcompid = -1;
     for ( int i = 0; i < xfersurfs.size(); i++ )
@@ -287,11 +287,16 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs )
 
         surfPtr->SetCompID( cid );
         surfPtr->SetUnmergedCompID( cid );
-        surfPtr->SetSurfID( i );
+        surfPtr->SetSurfID( start_surf_id + i );
         surfPtr->GetSurfCore()->BuildPatches( surfPtr );
         m_SurfVec.push_back( surfPtr );
     }
-    m_NumComps = maxcompid + 1;
+
+    // Don't include FEA parts (with negative Comp index)
+    if ( maxcompid >= 0 )
+    {
+        m_NumComps = maxcompid + 1;
+    }
 }
 
 void SurfaceIntersectionSingleton::CleanMergeSurfs()
