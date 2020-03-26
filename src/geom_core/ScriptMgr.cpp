@@ -155,7 +155,10 @@ void ScriptMgrSingleton::Init( )
     RegisterAPI( m_ScriptEngine );
     RegisterUtility(  m_ScriptEngine );
 
-
+    // Analyses are registered here since the geom_core and vsp projects can't call
+    // cfd_mesh directly. Calling the API function here allows support for cfd_mesh
+    // analysis from the GUI, script, and python interfaces. 
+    vsp::RegisterCFDMeshAnalyses();
 }
 
 void ScriptMgrSingleton::RunTestScripts()

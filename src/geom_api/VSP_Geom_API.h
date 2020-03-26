@@ -39,6 +39,8 @@ extern void VSPExit( int error_code );
 
 extern std::string GetVSPExePath();
 
+extern void RegisterCFDMeshAnalyses();
+
 //======================== File I/O ================================//
 extern void ReadVSPFile( const std::string & file_name );
 extern void WriteVSPFile( const std::string & file_name, int set = SET_ALL );

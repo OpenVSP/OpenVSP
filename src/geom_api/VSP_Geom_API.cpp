@@ -30,6 +30,7 @@
 #include "FeaStructure.h"
 #include "StructureMgr.h"
 #include "FeaMeshMgr.h"
+#include "SurfaceIntersectionMgr.h"
 
 #include "eli/mutil/quad/simpson.hpp"
 #include "Eigen/src/Core/Matrix.h"
@@ -150,6 +151,10 @@ void VSPExit( int error_code )
     exit( error_code );
 }
 
+void RegisterCFDMeshAnalyses()
+{
+    SurfaceIntersectionMgr.RegisterAnalysis();
+}
 
 
 //===================================================================//
