@@ -175,7 +175,8 @@ void SurfaceIntersectionSingleton::CleanUp()
     }
     m_DelISegChainVec.clear();
 
-    m_BinMap.clear();
+    m_AllIPnts.clear(); // Pointers should already be deallocated 
+
     m_PossCoPlanarSurfMap.clear();
 
     debugPnts.clear();
@@ -1333,51 +1334,10 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     m_IPatchADrawLines.push_back( pA.GetPatchDrawLines() );
     m_IPatchBDrawLines.push_back( pB.GetPatchDrawLines() );
 
-    long id0 = IPntBin::ComputeID( ipnt0->m_Pnt );
-    long id1 = IPntBin::ComputeID( ipnt1->m_Pnt );
+    new ISeg( pA.get_surf_ptr(), pB.get_surf_ptr(), ipnt0, ipnt1 );
 
-    //==== Determine if Segment has a Duplicate ====//
-    bool match = false;
-
-    vector< IPnt* > compareIPntVec0;
-    m_BinMap[id0].AddCompareIPnts( ipnt0, compareIPntVec0 ); // Get all segments with matching end point
-
-    for ( int i = 0; i < (int)compareIPntVec0.size(); i++ )
-    {
-        if ( compareIPntVec0[i]->m_Puws[0]->m_Surf == ipnt0->m_Puws[0]->m_Surf &&
-             compareIPntVec0[i]->m_Puws[1]->m_Surf == ipnt0->m_Puws[1]->m_Surf )
-        {
-            if ( compareIPntVec0[i]->m_Segs.size() > 0 ) // Should always be true
-            {
-                double d0 = dist_squared( compareIPntVec0[i]->m_Segs[0]->m_IPnt[0]->m_Pnt, ip0 );
-                double d1 = dist_squared( compareIPntVec0[i]->m_Segs[0]->m_IPnt[1]->m_Pnt, ip1 );
-
-                double d2 = dist_squared( compareIPntVec0[i]->m_Segs[0]->m_IPnt[1]->m_Pnt, ip0 );
-                double d3 = dist_squared( compareIPntVec0[i]->m_Segs[0]->m_IPnt[0]->m_Pnt, ip1 );
-
-                if ( ( d0 <= DBL_EPSILON && d1 <= DBL_EPSILON ) || ( d2 <= DBL_EPSILON && d3 <= DBL_EPSILON ) )
-                {
-                    match = true;
-                    break;
-                }
-            }
-        }
-    }
-
-    if ( !match )
-    {
-        new ISeg( pA.get_surf_ptr(), pB.get_surf_ptr(), ipnt0, ipnt1 );
-
-        m_BinMap[id0].m_ID = id0;
-        m_BinMap[id0].m_IPnts.push_back( ipnt0 );
-
-        m_BinMap[id1].m_ID = id1;
-        m_BinMap[id1].m_IPnts.push_back( ipnt1 );
-    }
-    else
-    {
-        printf( "Duplicate Segment Skipped\n" );
-    }
+    m_AllIPnts.push_back( ipnt0 );
+    m_AllIPnts.push_back( ipnt1 );
 
 #ifdef DEBUG_CFD_MESH
 
@@ -1447,75 +1407,50 @@ ISeg* SurfaceIntersectionSingleton::CreateSurfaceSeg(  Surf* surfA, vec2d & uwA0
 
 void SurfaceIntersectionSingleton::BuildChains()
 {
-    //==== Load Adjoining Bins =====//
-    map< long, IPntBin >::const_iterator iter;
-    for ( iter = m_BinMap.begin() ; iter != m_BinMap.end() ; ++iter )
+    PntNodeCloud i_pnt_cloud;
+
+    for ( size_t i = 0; i < m_AllIPnts.size(); i++ )
     {
-        int id = ( *iter ).second.m_ID;
-        for ( int i = -3 ; i < 4 ; i++ )        // Check All Nearby Bins
+        i_pnt_cloud.AddPntNode( m_AllIPnts[i]->m_Pnt );
+    }
+
+    PNTree index( 3, i_pnt_cloud, KDTreeSingleIndexAdaptorParams() );
+    index.buildIndex();
+
+    for ( int i = 0; i < (int)m_AllIPnts.size(); i++ )
+    {
+        if ( !m_AllIPnts[i]->m_UsedFlag && m_AllIPnts[i]->m_Segs.size() > 0 )
         {
-            if ( i != 0 &&  m_BinMap.find( id + i ) != m_BinMap.end()  )
+            ISeg* seg = m_AllIPnts[i]->m_Segs[0];
+            seg->m_IPnt[0]->m_UsedFlag = true;
+            seg->m_IPnt[1]->m_UsedFlag = true;
+            ISegChain* chain = new ISegChain;           // Create New Chain
+            chain->m_SurfA = seg->m_SurfA;
+            chain->m_SurfB = seg->m_SurfB;
+            chain->m_ISegDeque.push_back( seg );
+            ExpandChain( chain, &index );
+            if ( chain->Valid() )
             {
-                m_BinMap[id].m_AdjBins.push_back( id + i );
+                m_ISegChainList.push_back( chain );
+            }
+            else
+            {
+                delete chain;
+                chain = NULL;
             }
         }
     }
-
-    //==== Create Chains ====//
-    for ( iter = m_BinMap.begin() ; iter != m_BinMap.end() ; ++iter )
-    {
-        int id = ( *iter ).second.m_ID;
-        for ( int i = 0 ; i < ( int )m_BinMap[id].m_IPnts.size() ; i++ )
-        {
-            if ( !m_BinMap[id].m_IPnts[i]->m_UsedFlag && m_BinMap[id].m_IPnts[i]->m_Segs.size() > 0 )
-            {
-                ISeg* seg = m_BinMap[id].m_IPnts[i]->m_Segs[0];
-                seg->m_IPnt[0]->m_UsedFlag = true;
-                seg->m_IPnt[1]->m_UsedFlag = true;
-                ISegChain* chain = new ISegChain;           // Create New Chain
-                chain->m_SurfA = seg->m_SurfA;
-                chain->m_SurfB = seg->m_SurfB;
-                chain->m_ISegDeque.push_back( seg );
-                ExpandChain( chain );
-                if ( chain->Valid() )
-                {
-                    m_ISegChainList.push_back( chain );
-                }
-                else
-                {
-                    delete chain;
-                    chain = NULL;
-                }
-            }
-        }
-    }
-
-#ifdef DEBUG_CFD_MESH
-
-    int num_bins = 0;
-    int total_num_segs = 0;
-    for ( iter = m_BinMap.begin() ; iter != m_BinMap.end() ; ++iter )
-    {
-        num_bins++;
-        int id = ( *iter ).second.m_ID;
-        total_num_segs += m_BinMap[id].m_IPnts.size();
-    }
-
-    double avg_num_segs = ( double )total_num_segs / ( double )num_bins;
-
-    fprintf( m_DebugFile, "CfdMeshMgr::BuildChains \n" );
-    fprintf( m_DebugFile, "   Num Bins = %d \n", num_bins );
-    fprintf( m_DebugFile, "   Avg Num Segs per Bin = %f\n", avg_num_segs );
-
-    fprintf( m_DebugFile, "   Num Chains %zu \n", m_ISegChainList.size() );
-#endif
-
 }
 
-void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain )
+void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain, PNTree* PN_tree )
 {
     bool stillExpanding = true;
     bool expandFront = true;
+    // A minumum of 2 results is needed, since the the first result will be a point at the 
+    // query location but already used by the adjacent segment. Additional results might not
+    // be needed but are added just to be safe. The effect on speed should be negligible. 
+    const size_t num_results = 4;
+
     while ( stillExpanding )
     {
         IPnt* testIPnt;
@@ -1528,9 +1463,31 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain )
             testIPnt = chain->m_ISegDeque.back()->m_IPnt[1];
         }
 
-        long binID = IPntBin::ComputeID( testIPnt->m_Pnt );
+        IPnt* matchIPnt = NULL;
+        int match_index = -1;
 
-        IPnt* matchIPnt = m_BinMap[binID].Match( testIPnt, m_BinMap );
+        const double query_pt[3] = { testIPnt->m_Pnt.x(), testIPnt->m_Pnt.y(), testIPnt->m_Pnt.z() };
+        size_t ret_index[num_results];
+        double out_dist_sqr[num_results];
+        nanoflann::KNNResultSet < double > resultSet( num_results );
+        resultSet.init( ret_index, out_dist_sqr );
+        PN_tree->findNeighbors( resultSet, query_pt, nanoflann::SearchParams() );
+
+        for ( size_t i = 0; i < resultSet.size(); ++i )
+        {
+            if ( m_AllIPnts[ret_index[i]]->m_Puws.size() != 2 || m_AllIPnts[ret_index[i]]->m_UsedFlag )
+            {
+                continue;
+            }
+
+            if ( m_AllIPnts[ret_index[i]]->m_Puws[0]->m_Surf == testIPnt->m_Puws[0]->m_Surf &&
+                 m_AllIPnts[ret_index[i]]->m_Puws[1]->m_Surf == testIPnt->m_Puws[1]->m_Surf )
+            {
+                matchIPnt = m_AllIPnts[ret_index[i]];
+                match_index = ret_index[i];
+                break;
+            }
+        }
 
         if ( !matchIPnt && !expandFront )   // No more matches in back of chain
         {

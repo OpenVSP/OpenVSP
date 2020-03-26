@@ -28,68 +28,6 @@ Puw::~Puw()
 {
 }
 
-//////////////////////////////////////////////////////////////////////
-//==== IPnt Bin ====//
-//////////////////////////////////////////////////////////////////////
-long IPntBin::ComputeID( vec3d & pos )
-{
-    long id =   ( long )( pos.x() * 100000.0 ) +
-                ( long )( pos.y() * 100000.0 ) +
-                ( long )( pos.z() * 100000.0 );
-
-    return id;
-}
-
-IPnt* IPntBin::Match( IPnt* ip, map< long, IPntBin > & binMap )
-{
-    IPnt* close_ipnt = NULL;
-
-    if ( ip->m_Puws.size() != 2 )
-    {
-        return close_ipnt;
-    }
-
-    vector< IPnt* > compareIPntVec;
-    AddCompareIPnts( ip, compareIPntVec );                  // Load IPnts From This Bin
-
-    for ( int b = 0 ; b < ( int )m_AdjBins.size() ; b++ )   // Load From Adjancent Bins
-    {
-        int id = m_AdjBins[b];
-        binMap[id].AddCompareIPnts( ip, compareIPntVec );
-    }
-
-    //==== Find Closest IPnt ====//
-    double tol = 1.0e-6 * 1.0e-6;
-    double close_d = 1.0e12;
-
-    for ( int i = 0 ; i < ( int )compareIPntVec.size() ; i++ )
-    {
-        if (  compareIPntVec[i]->m_Puws[0]->m_Surf == ip->m_Puws[0]->m_Surf &&
-                compareIPntVec[i]->m_Puws[1]->m_Surf == ip->m_Puws[1]->m_Surf )
-        {
-            double d = dist_squared( ip->m_Pnt, compareIPntVec[i]->m_Pnt );
-            if ( d < close_d && d < tol )
-            {
-                close_d = d;
-                close_ipnt = compareIPntVec[i];
-            }
-        }
-    }
-    return close_ipnt;
-}
-
-void IPntBin::AddCompareIPnts( IPnt* ip, vector< IPnt* > & compareIPntVec )
-{
-    for ( int i = 0 ; i < ( int )m_IPnts.size() ; i++ )
-    {
-        if ( !m_IPnts[i]->m_UsedFlag && m_IPnts[i] != ip &&  m_IPnts[i]->m_Puws.size() == 2 )
-        {
-            compareIPntVec.push_back( m_IPnts[i] );
-        }
-    }
-}
-
-
 
 //////////////////////////////////////////////////////////////////////
 //==== Shared Intersection Point ====//

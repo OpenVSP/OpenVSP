@@ -71,22 +71,6 @@ public:
     deque< ISeg* > m_Segs;
 };
 
-class IPntBin
-{
-public:
-    long m_ID;                           // x*1000 + y*1000 + z*1000
-
-    deque< IPnt* > m_IPnts;
-    vector< long > m_AdjBins;            // Adjancent Bins
-
-    IPnt* Match( IPnt* ip, map< long, IPntBin > & binMap );
-    void AddCompareIPnts( IPnt* ip, vector< IPnt* > & compareIPntVec );
-
-    static long ComputeID( vec3d & pos );
-
-
-};
-
 //==== Intersection Segment ====//
 class ISeg
 {

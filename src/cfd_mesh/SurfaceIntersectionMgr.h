@@ -67,6 +67,7 @@
 #include "SimpleMeshSettings.h"
 #include "NURBS.h"
 #include "STEPutil.h"
+#include "PntNodeMerge.h"
 #include "AnalysisMgr.h"
 
 #include "Vec2d.h"
@@ -153,7 +154,7 @@ public:
     virtual ISeg* CreateSurfaceSeg( Surf* surfA, vec2d & uwA0, vec2d & uwA1, Surf* surfB, vec2d & uwB0, vec2d & uwB1  );
 
     virtual void BuildChains();
-    virtual void ExpandChain( ISegChain* chain );
+    virtual void ExpandChain( ISegChain* chain, PNTree* PN_tree );
 
     virtual void BuildCurves();
     virtual void IntersectSplitChains();
@@ -253,9 +254,7 @@ protected:
 
     list< ISegChain* > m_ISegChainList;
 
-    map< long, IPntBin > m_BinMap;
-
-    //vector< ISegSplit* > m_ISegSplitVec;
+    vector < IPnt* > m_AllIPnts;
 
     unsigned int m_NumComps;
     int m_HighlightChainIndex;
