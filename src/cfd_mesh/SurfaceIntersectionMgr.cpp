@@ -1201,6 +1201,7 @@ void SurfaceIntersectionSingleton::BuildCurves()
         ( *c )->BuildCurves();
     }
 }
+
 void SurfaceIntersectionSingleton::Intersect()
 {
 
@@ -1215,10 +1216,12 @@ void SurfaceIntersectionSingleton::Intersect()
         }
     }
 
+    addOutputText( "BuildChains\n" );
     BuildChains();
 
     MergeFeaPartSSEdgeOverlap(); // Only applicable to FEA Mesh
 
+    addOutputText( "LoadBorderCurves\n" );
     LoadBorderCurves();
 
     MergeInteriorChainIPnts();
@@ -1226,10 +1229,13 @@ void SurfaceIntersectionSingleton::Intersect()
     SetFixPointBorderNodes(); // Only applicable to FEA Mesh
     CheckFixPointIntersects(); // Only applicable to FEA Mesh
 
+    addOutputText( "SplitBorderCurves\n" );
     SplitBorderCurves();
 
+    addOutputText( "IntersectSplitChains\n" );
     IntersectSplitChains();
 
+    addOutputText( "BuildCurves\n" );
     BuildCurves();
 }
 
