@@ -29,6 +29,11 @@ ProjectionMgrSingleton::ProjectionMgrSingleton()
     m_YComp.Init( "YComp", "Projection", VehicleMgr.GetVehicle(), 0.0, -1.0, 1.0 );
     m_ZComp.Init( "ZComp", "Projection", VehicleMgr.GetVehicle(), 0.0, -1.0, 1.0 );
 
+
+    m_TargetGeomID = string();
+    m_BoundaryGeomID = string();
+    m_DirectionGeomID = string();
+
     Init();
 }
 
