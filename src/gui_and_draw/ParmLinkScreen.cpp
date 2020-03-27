@@ -123,10 +123,17 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "
     m_GenLayout.AddDividerBox( "Parm Link List" );
     m_LinkBrowser = m_GenLayout.AddFlBrowser( 310 );
     m_LinkBrowser->callback( staticScreenCB, this );
+
+    // Initialize the column width pointer (7 columns + one empty as recommened in FLTK docs)
+    m_ColWidths = new int( 8 );
+
+    // Update m_ColWidths values but keep the memory address 
+    m_LinkBrowser->column_widths( m_ColWidths ); // assign array to widget
 }
 
 ParmLinkScreen::~ParmLinkScreen()
 {
+    // Note: deallocating m_ColWidths will cause an exception to be raised
 }
 
 void ParmLinkScreen::Show()
@@ -209,8 +216,26 @@ bool ParmLinkScreen::Update()
     //==== Update Link Browser ====//
     m_LinkBrowser->clear();
 
-    static int widths[] = { 75, 75, 90, 20, 75, 75, 80, 0 }; // widths for each column
-    m_LinkBrowser->column_widths( widths );   // assign array to widget
+    // Update the column widths from the current window size
+    int border_w = 5;
+    double curr_w = (double)m_FLTK_Window->w() - border_w;
+    int orig_w = 600 - border_w;
+
+    if ( curr_w < orig_w )
+    {
+        // don't resize the columns if smaller than original width, allow the slider to be used instead
+        curr_w = orig_w;
+    }
+
+    m_ColWidths[0] = (int)( 0.15 * curr_w );
+    m_ColWidths[1] = (int)( 0.15 * curr_w );
+    m_ColWidths[2] = (int)( 0.2 * curr_w );
+    m_ColWidths[3] = (int)( 0.025 * curr_w );
+    m_ColWidths[4] = (int)( 0.15 * curr_w );
+    m_ColWidths[5] = (int)( 0.15 * curr_w );
+    m_ColWidths[6] = (int)( 0.175 * curr_w );
+    m_ColWidths[7] = 0; // Set last width to 0 according to FLTK documentation
+
     m_LinkBrowser->column_char( ':' );        // use : as the column character
 
     sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM:->:@b@.COMP_B:@b@.GROUP:@b@.PARM" );

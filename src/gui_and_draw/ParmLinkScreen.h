@@ -62,6 +62,9 @@ protected:
     SliderAdjRangeInput m_LowerLimitSlider;
     SliderAdjRangeInput m_UpperLimitSlider;
 
+    // Pointer for the widths of each column in the browser to support resizing
+    int* m_ColWidths;
+
     Fl_Browser* m_LinkBrowser;
 };
 #endif
