@@ -69,7 +69,7 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 
     m_ExportRawFlag.Init( "ExportRawFlag", "ExportIntersect", this, false, 0, 1 );
 
-    m_SelectedSetIndex.Init( "Set", "Global", this, 0, 0, NUM_SETS + 2 );
+    m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, 0, NUM_SETS + 2 );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportIntersect", this, false, 0, 1 );
@@ -249,7 +249,7 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
     m_WakeAngle.Init( "WakeAngle", "Wake", this, 0.0, -90.0, 90.0 );
     m_WakeAngle.SetDescript( "Wake angle" );
 
-    m_SelectedSetIndex.Init( "Set", "Global", this, 0, 0, 12 );
+    m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, 0, NUM_SETS + 2 );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
 
     m_ExportFileFlags[ vsp::CFD_DAT_FILE_NAME ].Init( "DAT_Export", "ExportCFD", this, true, 0, 1 );

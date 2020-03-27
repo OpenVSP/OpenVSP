@@ -50,6 +50,7 @@
 //
 
 #define NUM_SETS 20 // Number of sets
+#define DEFAULT_SET vsp::SET_TYPE::SET_SHOWN // Default set index
 
 /*!
 * Centralized place to access all GUI related Parm objects.

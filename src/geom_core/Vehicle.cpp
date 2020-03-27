@@ -187,7 +187,7 @@ Vehicle::Vehicle()
     SetupPaths();
     m_VehProjectVec3d.resize( 3 );
     m_ColorCount = 0;
-    m_ExportSetIndex = 0;
+    m_ExportSetIndex = DEFAULT_SET;
 
     // Protect required enum value.
     assert( CUSTOM_GEOM_TYPE == 9 );

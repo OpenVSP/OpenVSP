@@ -86,7 +86,7 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 430, "
 
     m_BorderLayout.AddButton(m_Execute, "Execute");
 
-    m_SelectedSetIndex = 0;
+    m_SelectedSetIndex = DEFAULT_SET;
     m_Subsurfs.GetFlButton()->value( 1 );
 }
 

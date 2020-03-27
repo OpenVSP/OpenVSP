@@ -20,7 +20,7 @@ MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : VspScreen( mgr )
     ui->drawCgButton->callback( staticScreenCB, this );
     ui->numSlicesSlider->range( 10, 200 );
     m_FLTK_Window = ui->UIWindow;
-    m_SelectedSetIndex = 0;
+    m_SelectedSetIndex = DEFAULT_SET;
 
     m_CGDrawObj.m_PointSize = 10;
     m_CGDrawObj.m_Type = DrawObj::VSP_POINTS;

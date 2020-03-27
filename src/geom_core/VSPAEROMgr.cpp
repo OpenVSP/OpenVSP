@@ -36,7 +36,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Name = "VSPAEROSettings";
     string groupname = "VSPAERO";
 
-    m_GeomSet.Init( "GeomSet", groupname, this, 0, 0, NUM_SETS + 2 );
+    m_GeomSet.Init( "GeomSet", groupname, this, DEFAULT_SET, 0, NUM_SETS + 2 );
     m_GeomSet.SetDescript( "Geometry set" );
 
     m_AnalysisMethod.Init( "AnalysisMethod", groupname, this, vsp::VORTEX_LATTICE, vsp::VORTEX_LATTICE, vsp::PANEL );
@@ -56,7 +56,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_RefFlag.Init( "RefFlag", groupname, this, vsp::MANUAL_REF, 0, vsp::NUM_REF_TYPES - 1 );
     m_RefFlag.SetDescript( "Reference quantity flag" );
 
-    m_CGGeomSet.Init( "MassSet", groupname, this, 0, 0, NUM_SETS + 2 );
+    m_CGGeomSet.Init( "MassSet", groupname, this, DEFAULT_SET, 0, NUM_SETS + 2 );
     m_CGGeomSet.SetDescript( "Mass property set" );
 
     m_NumMassSlice.Init( "NumMassSlice", groupname, this, 10, 10, 200 );

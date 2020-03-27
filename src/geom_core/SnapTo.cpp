@@ -13,7 +13,7 @@ SnapTo::SnapTo() : ParmContainer()
 {
     m_Name = "SnapTo";
 
-    m_CollisionSet = vsp::SET_SHOWN;
+    m_CollisionSet = DEFAULT_SET;
     m_CollisionDetection.Init( "ActiveCollision", "Collision", this, false, 0, 1 );
     m_CollisionTargetDist.Init( "CollisionTargetDist", "Collision", this, 0, 1.0e-06, 1e6 );
     m_CollisionErrorFlag = vsp::COLLISION_OK;

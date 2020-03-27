@@ -63,7 +63,7 @@ DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 365,
     m_BorderLayout.SetFitWidthFlag( false );
     m_BorderLayout.AddButton(m_Execute, "Execute");
 
-    m_SelectedSetIndex = 0;
+    m_SelectedSetIndex = DEFAULT_SET;
 }
 
 DegenGeomScreen::~DegenGeomScreen()

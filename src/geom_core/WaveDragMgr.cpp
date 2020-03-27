@@ -27,7 +27,7 @@ WaveDragSingleton::WaveDragSingleton() : ParmContainer()
     m_MachNumber.Init( "MachNumber", "WaveDrag", this, 1.5, 1, 5 );
     m_MachNumber.SetDescript( "Mach Number" );
 
-    m_SelectedSetIndex.Init( "SelSetIndex", "WaveDrag", this, 0, 0, 1.0e12 );
+    m_SelectedSetIndex.Init( "SelSetIndex", "WaveDrag", this, DEFAULT_SET, 0, NUM_SETS + 2 );
     m_SelectedSetIndex.SetDescript( "Selected Set Index" );
 
     m_RefFlag.Init( "RefFlag", "WaveDrag", this, vsp::MANUAL_REF, vsp::MANUAL_REF, vsp::COMPONENT_REF );

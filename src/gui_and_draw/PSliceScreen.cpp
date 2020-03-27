@@ -41,7 +41,7 @@ PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : VspScreen( mgr )
     ui->startButton->callback( staticScreenCB, this );
 
     m_FLTK_Window = ui->UIWindow;
-    m_SelectedSetIndex = 0;
+    m_SelectedSetIndex = DEFAULT_SET;
     m_lastAxis = 0;
     m_BoundsRange[0] = 0;
     m_BoundsRange[1] = 10;
