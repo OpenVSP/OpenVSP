@@ -132,9 +132,6 @@ bool ManageBackgroundScreen::Update()
         m_ImageLayout.GetGroup()->activate();
     }
 
-    colorChooser->rgb( viewport->getBackground()->getRed(), viewport->getBackground()->getGreen(),
-                       viewport->getBackground()->getBlue() );
-
     if ( m_PreserveAspect.GetFlButton()->value() )
     {
         m_PreserveAspectLayout.GetGroup()->deactivate();
@@ -189,9 +186,7 @@ void ManageBackgroundScreen::CallBack( Fl_Widget* w )
 
     if ( w == colorChooser )
     {
-        viewport->getBackground()->setRed( ( float )( colorChooser->r() ) );
-        viewport->getBackground()->setGreen( ( float )( colorChooser->g() ) );
-        viewport->getBackground()->setBlue( ( float )( colorChooser->b() ) );
+        viewport->getBackground()->setMeshColor( (float)( colorChooser->r() ), (float)( colorChooser->g() ), (float)( colorChooser->b() ) );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
