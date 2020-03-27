@@ -281,6 +281,9 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     Fl_Group* xform_group = AddSubGroup( xform_tab, 5 );
     Fl_Group* subsurf_group = AddSubGroup( subsurf_tab, 5 );
 
+    // Identify the Geom type name:
+    m_GeomTypeName = title;
+
     //==== Gen Group Layout ====//
     m_GenLayout.SetGroupAndScreen( gen_group, this );
     m_GenLayout.AddDividerBox( "Name & Color" );
@@ -734,6 +737,7 @@ bool GeomScreen::Update()
 
     //==== Name ===//
     m_NameInput.Update(  geom_ptr->GetName() );
+    SetTitle( m_GeomTypeName + ": " + geom_ptr->GetName() );
 
     //==== Color ====//
     m_ColorPicker.Update( geom_ptr->GetColor() );

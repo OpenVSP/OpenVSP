@@ -339,6 +339,7 @@ public:
 
 protected:
     bool m_RotActive;
+    string m_GeomTypeName;
 };
 
 //==== Skin Screen ====//
