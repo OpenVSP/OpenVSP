@@ -352,12 +352,13 @@ void VSP_GEOM::Read_CART3D_File(char *FileName)
 void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
 {
 
-    int i, Wing, Done, NumberOfBodySets, BodySet, Surface, GeomIDFlags;
+    int i, Wing, Done, NumberOfBodySets, BodySet, Surface, GeomIDFlags, SymCopyNdxFlags;
     int TotalNumberOfWings, TotalNumberOfBodies;
     int *ReadInThisWing, *ReadInThisBody, ComponentID, SurfFlag ;
     double Diam, x, y, z, nx, ny, nz, Epsilon, MinVal, MaxVal;
     char VSP_File_Name[2000], DumChar[2000], Type[2000], Name[2000];
     char GeomID[2000], LastGeomID[2000], SurfNdx[2000], LastSurfNdx[2000];
+    char MainSurfNdx[2000], SymCopyNdx[2000], LastSymCopyNdx[2000];
     char Comma[2000], *Next;
     VSP_SURFACE SurfaceParser;
     BBOX ComponentBBox;
@@ -368,6 +369,8 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     ComponentID = 0;
     
     GeomIDFlags = 0;
+    
+    SymCopyNdxFlags = 0;
     
     sprintf(Comma,",");
     
@@ -405,6 +408,8 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
        if ( fgets(DumChar,1000,VSP_Degen_File) == NULL ) Done = 1;   
        
        if ( strstr(DumChar,"GeomID") != NULL ) GeomIDFlags = 1;
+       
+       if ( strstr(DumChar,"SymCopyNdx") != NULL ) SymCopyNdxFlags = 1;
        
        if ( strncmp(DumChar,"LIFTING_SURFACE",15) == 0 ) TotalNumberOfWings++;
        
@@ -709,6 +714,8 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     
     sprintf(LastGeomID," ");
     
+    sprintf(LastSymCopyNdx," ");
+    
     Surface = 0;
 
     for ( Wing = 1 ; Wing <= TotalNumberOfWings ; Wing++ ) {
@@ -734,10 +741,18 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
                        
           if ( GeomIDFlags ) {
         
-             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(DumChar,"%s",Next);    
-             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,"%s",Next);
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(DumChar,    "%s",Next);    
+             Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(GeomID,     "%s",Next);
+
+             if ( SymCopyNdxFlags ) {
+                
+                Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(MainSurfNdx,"%s",Next);
+                Next = strtok(NULL,Comma);    Next[strcspn(Next, "\n")] = 0;  sprintf(SymCopyNdx, "%s",Next);
+                
+             }
 
              if ( strncmp(DumChar,"1",1) == 0 ) SurfFlag = 1;
+             
           }
           
           else {
@@ -746,13 +761,15 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
               
           }
 
-          if ( Verbose_ ) printf("Working on reading wing: %d --> %s with component ID: %s \n",Wing,Name,GeomID);
+          if ( Verbose_ ) printf("Working on reading wing: %d --> Name: %s with GeomID: %s ... MainSurfNdx: %s ... SymCopyNdx: %s \n",Wing,Name,GeomID,MainSurfNdx,SymCopyNdx);
 
           VSP_Surface(Surface).ReadWingDataFromFile(Name,VSP_Degen_File);
           
-          if ( strcmp(LastGeomID,GeomID) != 0 ) ComponentID++;
+          if ( strcmp(LastGeomID,GeomID) != 0 || ( strcmp(LastGeomID,GeomID) == 0 && strcmp(LastSymCopyNdx,SymCopyNdx) != 0 ) ) ComponentID++;
           
           sprintf(LastGeomID,"%s",GeomID);
+          
+          sprintf(LastSymCopyNdx,"%s",SymCopyNdx);
           
           VSP_Surface(Surface).ComponentID() = ComponentID;
           
@@ -765,7 +782,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     sprintf(LastGeomID," ");
     
     sprintf(LastSurfNdx," ");
-    
+        
     for ( BodySet = 1 ; BodySet <= NumberOfBodySets ; BodySet++ ) {
         
        // Load in the horizontal slices ... read in full geometry
@@ -814,7 +831,7 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
                  
           VSP_Surface(Surface).ReadBodyDataFromFile(Name,2,VSP_Degen_File);
           
-          if ( Verbose_ ) printf("LastGeomID, GeomID: %s %s .... LastSurfNdx,SurfNdx: %s %s \n",LastGeomID, GeomID,LastSurfNdx,SurfNdx);
+          if ( Verbose_ ) printf("LastGeomID, GeomID: %s %s .... LastSurfNdx,SurfNdx: %s %s \n",LastGeomID, GeomID, LastSurfNdx,SurfNdx);
           
           if ( strcmp(LastGeomID,GeomID) != 0 || ( strcmp(LastGeomID,GeomID) == 0 && strcmp(LastSurfNdx,SurfNdx) != 0 ) ) ComponentID++;
           

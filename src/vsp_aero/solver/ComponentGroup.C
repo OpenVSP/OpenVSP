@@ -31,6 +31,8 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     
     ComponentList_ = NULL;
     
+    SpanLoadData_ = NULL;
+    
     OVec_[0] = OVec_[1] = OVec_[2] = 0.;
     RVec_[0] = RVec_[1] = RVec_[2] = 0.;
     TVec_[0] = TVec_[1] = TVec_[2] = 0.;
@@ -73,7 +75,7 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     
     NumberOfTimeSamples_ = 0;
     
-    StartAverageTime_ = 0.;
+    StartAveragingTime_ = 0.;
     
     Cx_[0]   = Cx_[1]   = 0.;
     Cy_[0]   = Cy_[1]   = 0.;
@@ -104,6 +106,10 @@ COMPONENT_GROUP::COMPONENT_GROUP(void)
     Cref_ = 0.;
     Bref_ = 0.;
 
+    NumberOfSurfaces_ = 0;
+    
+    SpanLoadData_ = NULL;
+    
 }
 
 /*##############################################################################
@@ -117,7 +123,11 @@ COMPONENT_GROUP::~COMPONENT_GROUP(void)
 
     if ( ComponentList_ != NULL ) delete [] ComponentList_;
     
+    if ( SpanLoadData_ != NULL ) delete [] SpanLoadData_;
+    
     NumberOfComponents_ = 0;
+    
+    NumberOfSurfaces_ = 0;    
     
     GeometryIsFixed_ = 0;
     
@@ -169,7 +179,7 @@ COMPONENT_GROUP::~COMPONENT_GROUP(void)
     
     NumberOfTimeSamples_ = 0;
     
-    StartAverageTime_ = 0.;
+    StartAveragingTime_ = 0.;
     
     Cx_[0]   = Cx_[1]   = 0.;
     Cy_[0]   = Cy_[1]   = 0.;
@@ -233,6 +243,16 @@ COMPONENT_GROUP &COMPONENT_GROUP::operator=(const COMPONENT_GROUP &ComponentGrou
        
     }
     
+    NumberOfSurfaces_ = ComponentGroup.NumberOfSurfaces_;
+    
+    SizeSpanLoadingList(NumberOfSurfaces_);
+    
+    for ( i = 1 ; i <= NumberOfSurfaces_ ; i++ ) {
+       
+       SpanLoadData_[i] = ComponentGroup.SpanLoadData_[i];
+       
+    }
+        
     GeometryIsFixed_ = ComponentGroup.GeometryIsFixed_;
     
     GeometryIsARotor_ = ComponentGroup.GeometryIsARotor_;
@@ -297,7 +317,7 @@ COMPONENT_GROUP &COMPONENT_GROUP::operator=(const COMPONENT_GROUP &ComponentGrou
     
     NumberOfTimeSamples_ = ComponentGroup.NumberOfTimeSamples_;
     
-    StartAverageTime_ = ComponentGroup.StartAverageTime_;
+    StartAveragingTime_ = ComponentGroup.StartAveragingTime_;
 
     Cx_[0]   = ComponentGroup.Cx_[0];
     Cy_[0]   = ComponentGroup.Cy_[0];
@@ -860,6 +880,8 @@ void COMPONENT_GROUP::LoadData(FILE *File)
 void COMPONENT_GROUP::ZeroAverageForcesAndMoments(void)
 {
 
+    int i;
+    
     NumberOfTimeSamples_ = 0;
     
     Cx_[0]   = Cx_[1]   = 0.;
@@ -886,6 +908,12 @@ void COMPONENT_GROUP::ZeroAverageForcesAndMoments(void)
     CDo_[0]  = CDo_[1]  = 0.;
     CSo_[0]  = CSo_[1]  = 0.; 
 
+    for ( i = 1 ; i <= NumberOfSurfaces_ ; i++ ) {
+       
+       SpanLoadData_[i].ZeroForcesAndMoments();
+       
+    }
+    
 }
 
 /*##############################################################################
@@ -959,8 +987,6 @@ void COMPONENT_GROUP::CalculateAverageForcesAndMoments(void)
     CSo_[1]  /= NumberOfTimeSamples_; 
     
 }
-
-
 
 
 

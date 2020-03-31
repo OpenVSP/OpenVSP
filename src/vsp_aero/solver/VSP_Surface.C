@@ -2064,15 +2064,15 @@ void VSP_SURFACE::ReadWingDataFromFile(char *Name, FILE *VSP_Degen_File)
                    
                    // Save control surface name
                    
-                   sprintf(ControlSurface_[NumberOfControlSurfaces_].ShortName(),"%s",Next); // Short name
-                   sprintf(ControlSurface_[NumberOfControlSurfaces_].Name(),"%s",Next);      // Name and FullName assumed the same unless we find subsurface information below...
+                   sprintf(ControlSurface_[NumberOfControlSurfaces_].ShortName(),"%s\0",Next); // Short name
+                   sprintf(ControlSurface_[NumberOfControlSurfaces_].Name(),"%s\0",Next);      // Name and FullName assumed the same unless we find subsurface information below... 
                    
                    // Save the control surface type name, type, and full name if they exist
                    
                    if ( SubSurfIsTyped ) {
                       
                       Next = strtok(NULL,Comma);
-                      sprintf(ControlSurface_[NumberOfControlSurfaces_].TypeName(),"%s",Next);
+                      sprintf(ControlSurface_[NumberOfControlSurfaces_].TypeName(),"%s\0",Next); 
                    
                       Next = strtok(NULL,Comma);
                       sscanf(Next,"%d",&ControlSurface_[NumberOfControlSurfaces_].Type());
@@ -5098,6 +5098,7 @@ void VSP_SURFACE::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat,
 {
  
     int i, j;
+    double x1, y1, z1, x2, y2, z2, Chord, sVec[3];
     QUAT Vec;
     
     // Update xyz data
@@ -5176,6 +5177,42 @@ void VSP_SURFACE::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat,
        
     }
 
+    // Keep track of the tip LE, TE, and Quarter chord
+
+    i = NumPlateI_ - 1 ; j = 1;
+
+    x1 = x_plate(i,j);
+    y1 = y_plate(i,j);
+    z1 = z_plate(i,j);
+
+    i = NumPlateI_ - 1 ; j = NumPlateJ_;
+    
+    x2 = x_plate(i,j);
+    y2 = y_plate(i,j);
+    z2 = z_plate(i,j);
+
+    sVec[0] = xTE_[i] - xLE_[i];
+    sVec[1] = yTE_[i] - yLE_[i];
+    sVec[2] = zTE_[i] - zLE_[i];
+    
+    Chord = sqrt(vector_dot(sVec,sVec));
+
+    sVec[0] /= LocalChord_[i];
+    sVec[1] /= LocalChord_[i];
+    sVec[2] /= LocalChord_[i];
+
+    Tip_LE_[0] = x2;
+    Tip_LE_[1] = y2;
+    Tip_LE_[2] = z2;
+    
+    Tip_TE_[0] = x1;
+    Tip_TE_[1] = y1;
+    Tip_TE_[2] = z1;
+        
+    Tip_QC_[0] = Tip_LE_[0] + 0.25*Chord*sVec[0];
+    Tip_QC_[1] = Tip_LE_[1] + 0.25*Chord*sVec[1];
+    Tip_QC_[2] = Tip_LE_[2] + 0.25*Chord*sVec[2];   
+    
 }
 
 

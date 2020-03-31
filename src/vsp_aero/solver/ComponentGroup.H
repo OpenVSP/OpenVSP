@@ -64,7 +64,8 @@ private:
     
     int NumberOfTimeSamples_;
     
-    double StartAverageTime_;
+    int StartAveragingTimeStep_;
+    double StartAveragingTime_;
 
     double Cxo_[2];
     double Cyo_[2];
@@ -200,7 +201,7 @@ public:
     double &CDAvg(void) { return CD_[1]; };
     double &CSAvg(void) { return CS_[1]; };
         
-    double &StartAverageTime(void) { return StartAverageTime_; };
+    double &StartAveragingTime(void) { return StartAveragingTime_; };
     
     void ZeroAverageForcesAndMoments(void);
     void UpdateAverageForcesAndMoments(void);

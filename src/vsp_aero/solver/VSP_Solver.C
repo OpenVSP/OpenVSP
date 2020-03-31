@@ -175,6 +175,8 @@ void VSP_SOLVER::init(void)
     LastMach_ = -1.;
     
     KelvinLambda_ = 1.;
+    
+    GMRESTightConvergence_ = 0;
 
 }
 
@@ -233,7 +235,7 @@ void VSP_SOLVER::Setup(void)
 {
  
     int c, i, j, k, cpu, NumberOfStations, MaxEdges, Level, Hits, CompSurfs;
-    int NumSteps_1, NumSteps_2;
+    int NumSteps_1, NumSteps_2, NumberOfTimeSamples;
     double Area, Scale_X, Scale_Y, Scale_Z, FarDist, Period;
     char GroupFileName[2000], DumChar[2000];
     FILE *GroupFile;
@@ -564,49 +566,53 @@ void VSP_SOLVER::Setup(void)
     // Determine the number of lifting surfaces per component
     
     for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
-          
-       CompSurfs = 0;
-
-       for ( j = 1 ; j <= ComponentGroupList_[c].NumberOfComponents() ; j++ ) {
-
-          for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) {
- 
-             if ( ComponentGroupList_[c].ComponentList(j) == VSPGeom().VSP_Surface(i).ComponentID() ) {
-             
-                if ( VSPGeom().VSP_Surface(i).SurfaceType() == DEGEN_WING_SURFACE ) CompSurfs++;
-             
-             }
-             
-          }
-
-       }
        
-       printf("Found %d surfaces for component group: %d \n",CompSurfs, c);
-       
-       ComponentGroupList_[c].SizeSpanLoadingList(CompSurfs);
-
-       CompSurfs = 0;
-
-       for ( j = 1 ; j <= ComponentGroupList_[c].NumberOfComponents() ; j++ ) {
+       if ( ComponentGroupList_[c].GeometryIsARotor() ) {
           
-          for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) {
-             
-             if ( ComponentGroupList_[c].ComponentList(j) == VSPGeom().VSP_Surface(i).ComponentID() ) {
+          CompSurfs = 0;
+   
+          for ( j = 1 ; j <= ComponentGroupList_[c].NumberOfComponents() ; j++ ) {
+   
+             for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) {
+    
+                if ( ComponentGroupList_[c].ComponentList(j) == VSPGeom().VSP_Surface(i).ComponentID() ) {
                 
-                if ( VSPGeom().VSP_Surface(i).SurfaceType() == DEGEN_WING_SURFACE ) {
+                   if ( VSPGeom().VSP_Surface(i).SurfaceType() == DEGEN_WING_SURFACE ) CompSurfs++;
                 
-                   CompSurfs++;
-                
-                   ComponentGroupList_[c].SpanLoadData(CompSurfs).SurfaceID() = i;
-                
-                   ComponentGroupList_[c].SpanLoadData(CompSurfs).SizeList(VSPGeom().VSP_Surface(i).NumberOfSpanStations());
-                   
                 }
-                                                
+                
              }
-             
+   
           }
-
+          
+          printf("Found %d surfaces for component group: %d \n",CompSurfs, c);
+          
+          ComponentGroupList_[c].SizeSpanLoadingList(CompSurfs);
+   
+          CompSurfs = 0;
+   
+          for ( j = 1 ; j <= ComponentGroupList_[c].NumberOfComponents() ; j++ ) {
+             
+             for ( i = 1 ; i <= VSPGeom().NumberOfSurfaces() ; i++ ) {
+                
+                if ( ComponentGroupList_[c].ComponentList(j) == VSPGeom().VSP_Surface(i).ComponentID() ) {
+                   
+                   if ( VSPGeom().VSP_Surface(i).SurfaceType() == DEGEN_WING_SURFACE ) {
+                   
+                      CompSurfs++;
+                   
+                      ComponentGroupList_[c].SpanLoadData(CompSurfs).SurfaceID() = i;
+                   
+                      ComponentGroupList_[c].SpanLoadData(CompSurfs).SetNumberOfSpanStations(VSPGeom().VSP_Surface(i).NumberOfSpanStations());   
+       
+                   }
+                                                   
+                }
+                
+             }
+   
+          }
+          
        }
               
     }
@@ -724,7 +730,7 @@ void VSP_SOLVER::Setup(void)
        
        if ( NumberOfTimeSteps_ < 0 ) {
           
-          // Slowest rotor, at least 1 rotation
+          // Slowest rotor, at least 2 rotations
           
           Period = 2.*PI / WopWopOmegaMin_;
           
@@ -744,10 +750,10 @@ void VSP_SOLVER::Setup(void)
           
           else {
              
+             printf("Setting number of time steps to %d based on fastest rotor making %d rotations. \n",NumSteps_2,ABS(NumberOfTimeSteps_));
+             
              NumberOfTimeSteps_ = NumSteps_2;
           
-             printf("Setting number of time steps to %d based on fastest rotor making %d rotations. \n",NumberOfTimeSteps_,ABS(NumberOfTimeSteps_));
-             
           }
           
        }
@@ -760,7 +766,17 @@ void VSP_SOLVER::Setup(void)
              
              Period = 2.*PI / ABS(ComponentGroupList_[c].Omega());
              
-             ComponentGroupList_[c].StartAverageTime() = NumberOfTimeSteps_ * TimeStep_ - Period - TimeStep_;
+             ComponentGroupList_[c].StartAveragingTime() = NumberOfTimeSteps_ * TimeStep_ - Period - TimeStep_;
+             
+             NumberOfTimeSamples = ( NumberOfTimeSteps_ * TimeStep_ - ComponentGroupList_[c].StartAveragingTime() ) / TimeStep_;
+             
+             if ( NoiseAnalysis_ ) NumberOfTimeSamples = 181;
+             
+             for ( i = 1 ; i <= ComponentGroupList_[c].NumberOfSurfaces() ; i++ ) {
+
+                ComponentGroupList_[c].SpanLoadData(i).SetNumberOfNumberOfTimeSamples(NumberOfTimeSamples);   
+                
+             }
        
           }
           
@@ -778,6 +794,22 @@ void VSP_SOLVER::Setup(void)
 
     }
 
+    // Size span load arrays ... their size is a function of the number of span stations, and rotation period for unsteady flows
+    
+    for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
+    
+       if ( ComponentGroupList_[c].GeometryIsARotor() ) {
+
+          for ( i = 1 ; i <= ComponentGroupList_[c].NumberOfSurfaces() ; i++ ) {
+
+             ComponentGroupList_[c].SpanLoadData(i).SizeSpanLoadingList();
+             
+          }
+    
+       }
+       
+    }   
+           
     // VLM model
     
     if ( ModelType_ == VLM_MODEL ) {
@@ -2176,7 +2208,7 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
        NumberOfSheets = MAX(NumberOfSheets, VSPGeom().Grid(MGLevel_).WingSurfaceForKuttaNode(j));
        
     }    
-    
+   
     NumberOfVortexSheets_ = 0;
     
     for ( k = 1 ; k <= NumberOfSheets ; k++ ) {
@@ -2743,7 +2775,7 @@ void VSP_SOLVER::Solve(int Case)
     
     // Recalculate interaction lists if Mach crossed over Mach = 1
     
-    if ( LastMach_ < 0. || ( Mach_ >= 1. && LastMach_ <  1. ) || ( Mach_ <  1. && LastMach_ >= 1 ) ) {
+    if ( LastMach_ < 0. || Mach_ >= 1. && LastMach_ <  1. || Mach_ <  1. && LastMach_ >= 1 ) {
        
        printf("Updating interaction lists due to subsonic / supersonic Mach change \n");
        
@@ -3170,7 +3202,6 @@ void VSP_SOLVER::WriteOutNoiseFiles(int Case)
        
        WriteOutTimeAccurateNoiseFiles(Case);
        
-       
     }
 
 }
@@ -3465,11 +3496,7 @@ void VSP_SOLVER::WriteOutSteadyStateNoiseFiles(int Case)
     fclose(InputADBFile_);
     fclose(ADBFile_);
     fclose(ADBCaseListFile_);
-    
-    // Close PSU WopWop Files
 
-    fclose(PSUWopWopNameListFile_);
-    
     for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
 
        if ( ComponentGroupList_[c].GeometryIsARotor() ) {
@@ -3708,7 +3735,13 @@ void VSP_SOLVER::WriteOutTimeAccurateNoiseFiles(int Case)
     // Loop over all the component groups and write out the PSU-WopWop data files
 
     for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
-
+       
+       for ( i = 1 ; i <= NumberOfComponentGroups_ ; i++ ) {
+          
+          ComponentGroupList_[i].ZeroAverageForcesAndMoments();
+          
+       }
+              
        printf("\nWorking on group: %d \n",c);fflush(NULL);
 
        if ( ComponentGroupList_[c].GeometryIsARotor() ) {
@@ -3802,7 +3835,7 @@ void VSP_SOLVER::WriteOutTimeAccurateNoiseFiles(int Case)
           exit(1);
           
        }
-   
+                 
        for ( NoiseTime_ = 1 ; NoiseTime_ <= NumberOfNoiseTimeSteps_ ; NoiseTime_++ ) {
           
           CurrentNoiseTime_ = (NoiseTime_-1)*NoiseTimeStep_;
@@ -3965,11 +3998,7 @@ void VSP_SOLVER::WriteOutTimeAccurateNoiseFiles(int Case)
     fclose(ADBCaseListFile_);
     
     if ( WopWopWriteOutADBFile_ ) fclose(ADBFile_);
-    
-    // Close PSU WopWop Files
 
-    fclose(PSUWopWopNameListFile_);
-    
     for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
 
        if ( ComponentGroupList_[c].GeometryIsARotor() ) {
@@ -7210,6 +7239,13 @@ void VSP_SOLVER::Do_GMRES_Solve(void)
 
     ResMax = 0.1*Vref_;
     ResRed = 0.1;
+    
+    if ( GMRESTightConvergence_ ) {
+       
+       ResMax = 0.1*Vref_;
+       ResRed = 0.001;       
+       
+    }
  
     // Use preconditioned GMRES to solve the linear system
      
@@ -9314,7 +9350,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
 void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
 {
 
-    int i, j, k, c, Loop, Loop1, Loop2, LoadCase, *ComponentInThisGroup;
+    int i, j, k, c, t, Loop, Loop1, Loop2, LoadCase, *ComponentInThisGroup;
     int NumberOfStations, SpanStation, SurfaceID; 
     double Fx, Fy, Fz, Fxi, Fyi, Fzi, Wgt;
     double Length, Re, Cf, Cdi, Cn, Cx, Cy, Cz;
@@ -10004,111 +10040,127 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
           ComponentGroupList_[c].CSo() = ( ComponentGroupList_[c].Cxo() * CA + ComponentGroupList_[c].Czo() * SA ) * SB + ComponentGroupList_[c].Cyo() * CB;
     
           // Store time history of span loading for averaging later
-          
-          if ( (  TimeAccurate_ && CurrentTime_ >= ComponentGroupList_[c].StartAverageTime() ) || ( !TimeAccurate_ && CurrentWakeIteration_ >= WakeIterations_ ) ) {
-          
-             for ( j = 1 ; j <= ComponentGroupList_[c].NumberOfSurfaces() ; j++ ) {
-       
-                i = ComponentGroupList_[c].SpanLoadData(j).SurfaceID();
+
+          if ( ComponentGroupList_[c].GeometryIsARotor() ) {
+    
+             if ( (  TimeAccurate_ && CurrentTime_ >= ComponentGroupList_[c].StartAveragingTime() ) || ( !TimeAccurate_ && CurrentWakeIteration_ >= WakeIterations_ ) ) {
+   
+                for ( j = 1 ; j <= ComponentGroupList_[c].NumberOfSurfaces() ; j++ ) {
+   
+                   i = ComponentGroupList_[c].SpanLoadData(j).SurfaceID();
+   
+                   t = ++(ComponentGroupList_[c].SpanLoadData(j).ActualTimeSamples());
+   
+                   for ( k = 1 ; k <= ComponentGroupList_[c].SpanLoadData(j).NumberOfSpanStations() ; k++ ) {
+   
+                      // Time and angular location
+                 
+                      ComponentGroupList_[c].SpanLoadData(j).Time(t,k) = CurrentTime_;
+   
+                      ComponentGroupList_[c].SpanLoadData(j).RotationAngle(t,k) = ComponentGroupList_[c].TotalRotationAngle();
+     
+                      // Flat plate normal
+                      
+                      nvec[0] = VSPGeom().VSP_Surface(i).NxQC(k);
+                      nvec[1] = VSPGeom().VSP_Surface(i).NyQC(k);
+                      nvec[2] = VSPGeom().VSP_Surface(i).NzQC(k);
+                      
+                      // Vector from leading to trailing edge
+                      
+                      svec[0] = VSPGeom().VSP_Surface(i).xTE(k) - VSPGeom().VSP_Surface(i).xLE(k);
+                      svec[1] = VSPGeom().VSP_Surface(i).yTE(k) - VSPGeom().VSP_Surface(i).yLE(k);
+                      svec[2] = VSPGeom().VSP_Surface(i).zTE(k) - VSPGeom().VSP_Surface(i).zLE(k);
+                      
+                      Mag = sqrt(vector_dot(svec,svec));
+                      
+                      svec[0] /= Mag;
+                      svec[1] /= Mag;
+                      svec[2] /= Mag;
+            
+                      Diameter = ComponentGroupList_[c].RotorDiameter();
+                      
+                      RPM = ComponentGroupList_[c].Omega() * 60 / ( 2.*PI );
+                                       
+                      // Quarter chord location
+                      
+                      ComponentGroupList_[c].SpanLoadData(j).X_QC(t,k) = VSPGeom().VSP_Surface(i).xLE(k) + 0.25*Mag*svec[0];
+                      ComponentGroupList_[c].SpanLoadData(j).Y_QC(t,k) = VSPGeom().VSP_Surface(i).yLE(k) + 0.25*Mag*svec[2];
+                      ComponentGroupList_[c].SpanLoadData(j).Z_QC(t,k) = VSPGeom().VSP_Surface(i).zLE(k) + 0.25*Mag*svec[2];
               
-                for ( k = 1 ; k <= ComponentGroupList_[c].SpanLoadData(j).NumberOfSpanStations() ; k++ ) {
-    
-                   // Flat plate normal
-                   
-                   nvec[0] = VSPGeom().VSP_Surface(i).NxQC(k);
-                   nvec[1] = VSPGeom().VSP_Surface(i).NyQC(k);
-                   nvec[2] = VSPGeom().VSP_Surface(i).NzQC(k);
-                   
-                   // Vector from leading to trailing edge
-                   
-                   svec[0] = VSPGeom().VSP_Surface(i).xTE(k) - VSPGeom().VSP_Surface(i).xLE(k);
-                   svec[1] = VSPGeom().VSP_Surface(i).yTE(k) - VSPGeom().VSP_Surface(i).yLE(k);
-                   svec[2] = VSPGeom().VSP_Surface(i).zTE(k) - VSPGeom().VSP_Surface(i).zLE(k);
-                   
-                   Mag = sqrt(vector_dot(svec,svec));
-                   
-                   svec[0] /= Mag;
-                   svec[1] /= Mag;
-                   svec[2] /= Mag;
-         
-                   Diameter = ComponentGroupList_[c].RotorDiameter();
-                   
-                   RPM = ComponentGroupList_[c].Omega() * 60 / ( 2.*PI );
-           
-                   // Forces
-                   
-                   dF[0] = Span_Cxo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
-                   dF[1] = Span_Cyo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
-                   dF[2] = Span_Czo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
-                   
-                   Thrust = vector_dot(dF, ComponentGroupList_[c].RVec());
-                   
-                   // Viscous Moments
-   
-                   ComponentCg[0] = ComponentGroupList_[c].OVec(0);
-                   ComponentCg[1] = ComponentGroupList_[c].OVec(1);
-                   ComponentCg[2] = ComponentGroupList_[c].OVec(2);
-                   
-                   dM[0] = Span_Cmxo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
-                   dM[1] = Span_Cmyo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
-                   dM[2] = Span_Cmzo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);   
-    
-                   dM[0] -= dF[2] * ( ComponentCg[1] - XYZcg_[1] ) - dF[1] * ( ComponentCg[2] - XYZcg_[2] );
-                   dM[1] -= dF[0] * ( ComponentCg[2] - XYZcg_[2] ) - dF[2] * ( ComponentCg[0] - XYZcg_[0] );
-                   dM[2] -= dF[1] * ( ComponentCg[0] - XYZcg_[0] ) - dF[0] * ( ComponentCg[1] - XYZcg_[1] );
-     
-                   Moment = -vector_dot(dM, ComponentGroupList_[c].RVec());     
-                   
-                   CalculateRotorCoefficientsFromForces(Thrust, Moment, Diameter, RPM, J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM);    
-                 
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Cno(k) += vector_dot(nvec, dF) * CT_h / Thrust;
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Cso(k) += vector_dot(svec, dF) * CT_h / Thrust;
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Cto(k) += CT_h;
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Cqo(k) += CQ_h;
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Cpo(k) += CP_h;
-   
-                   // Inviscid forces
-               
-                   dF[0] = Span_Cx_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
-                   dF[1] = Span_Cy_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
-                   dF[2] = Span_Cz_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
-                   
-                   Thrust = vector_dot(dF, ComponentGroupList_[c].RVec());
-           
-                   // Inviscid Moments
-   
-                   ComponentCg[0] = ComponentGroupList_[c].OVec(0);
-                   ComponentCg[1] = ComponentGroupList_[c].OVec(1);
-                   ComponentCg[2] = ComponentGroupList_[c].OVec(2);
-                   
-                   dM[0] = Span_Cmx_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
-                   dM[1] = Span_Cmy_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
-                   dM[2] = Span_Cmz_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);   
-    
-                   dM[0] -= dF[2] * ( ComponentCg[1] - XYZcg_[1] ) - dF[1] * ( ComponentCg[2] - XYZcg_[2] );
-                   dM[1] -= dF[0] * ( ComponentCg[2] - XYZcg_[2] ) - dF[2] * ( ComponentCg[0] - XYZcg_[0] );
-                   dM[2] -= dF[1] * ( ComponentCg[0] - XYZcg_[0] ) - dF[0] * ( ComponentCg[1] - XYZcg_[1] );
-     
-                   Moment = -vector_dot(dM, ComponentGroupList_[c].RVec());     
-                   
-                   CalculateRotorCoefficientsFromForces(Thrust, Moment, Diameter, RPM, J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM);    
-                 
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Cn(k) += vector_dot(nvec, dF) * CT_h / Thrust;
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Cs(k) += vector_dot(svec, dF) * CT_h / Thrust;
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Ct(k) += CT_h;
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Cq(k) += CQ_h;
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Cp(k) += CP_h;
-   
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Area(k)  += Span_Area_[i][k];
-                   ComponentGroupList_[c].SpanLoadData(j).Span_Chord(k) += VSPGeom().VSP_Surface(i).LocalChord(k);
-                   ComponentGroupList_[c].SpanLoadData(j).Span_S(k)     += VSPGeom().VSP_Surface(i).s(k);
-                   
-                   ComponentGroupList_[c].SpanLoadData(j).Local_Velocity(k) += Local_Vel_[3][i][k];
-                                     
-                }
-   
-                ComponentGroupList_[c].SpanLoadData(j).NumberOfTimeSamples()++;
+                      // Forces
+                      
+                      dF[0] = Span_Cxo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
+                      dF[1] = Span_Cyo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
+                      dF[2] = Span_Czo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
+                      
+                      Thrust = vector_dot(dF, ComponentGroupList_[c].RVec());
+                      
+                      // Viscous Moments
+      
+                      ComponentCg[0] = ComponentGroupList_[c].OVec(0);
+                      ComponentCg[1] = ComponentGroupList_[c].OVec(1);
+                      ComponentCg[2] = ComponentGroupList_[c].OVec(2);
+                      
+                      dM[0] = Span_Cmxo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
+                      dM[1] = Span_Cmyo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
+                      dM[2] = Span_Cmzo_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);   
        
+                      dM[0] -= dF[2] * ( ComponentCg[1] - XYZcg_[1] ) - dF[1] * ( ComponentCg[2] - XYZcg_[2] );
+                      dM[1] -= dF[0] * ( ComponentCg[2] - XYZcg_[2] ) - dF[2] * ( ComponentCg[0] - XYZcg_[0] );
+                      dM[2] -= dF[1] * ( ComponentCg[0] - XYZcg_[0] ) - dF[0] * ( ComponentCg[1] - XYZcg_[1] );
+        
+                      Moment = -vector_dot(dM, ComponentGroupList_[c].RVec());     
+                      
+                      CalculateRotorCoefficientsFromForces(Thrust, Moment, Diameter, RPM, J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM);    
+               
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Cno(t,k) = vector_dot(nvec, dF) * CT_h / Thrust;
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Cso(t,k) = vector_dot(svec, dF) * CT_h / Thrust;
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Cto(t,k) = CT_h;
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Cqo(t,k) = CQ_h;
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Cpo(t,k) = CP_h;
+   
+                      // Inviscid forces
+                  
+                      dF[0] = Span_Cx_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
+                      dF[1] = Span_Cy_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
+                      dF[2] = Span_Cz_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k];
+                      
+                      Thrust = vector_dot(dF, ComponentGroupList_[c].RVec());
+              
+                      // Inviscid Moments
+      
+                      ComponentCg[0] = ComponentGroupList_[c].OVec(0);
+                      ComponentCg[1] = ComponentGroupList_[c].OVec(1);
+                      ComponentCg[2] = ComponentGroupList_[c].OVec(2);
+                      
+                      dM[0] = Span_Cmx_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
+                      dM[1] = Span_Cmy_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);
+                      dM[2] = Span_Cmz_[i][k] * 0.5 * Density_ * Vref_ * Vref_ * Span_Area_[i][k] * VSPGeom().VSP_Surface(i).LocalChord(k);   
+       
+                      dM[0] -= dF[2] * ( ComponentCg[1] - XYZcg_[1] ) - dF[1] * ( ComponentCg[2] - XYZcg_[2] );
+                      dM[1] -= dF[0] * ( ComponentCg[2] - XYZcg_[2] ) - dF[2] * ( ComponentCg[0] - XYZcg_[0] );
+                      dM[2] -= dF[1] * ( ComponentCg[0] - XYZcg_[0] ) - dF[0] * ( ComponentCg[1] - XYZcg_[1] );
+        
+                      Moment = -vector_dot(dM, ComponentGroupList_[c].RVec());     
+                      
+                      CalculateRotorCoefficientsFromForces(Thrust, Moment, Diameter, RPM, J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM);    
+      
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Cn(t,k) = vector_dot(nvec, dF) * CT_h / Thrust;
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Cs(t,k) = vector_dot(svec, dF) * CT_h / Thrust;
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Ct(t,k) = CT_h;
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Cq(t,k) = CQ_h;
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Cp(t,k) = CP_h;
+                                       
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Area(t,k)  = Span_Area_[i][k];
+                      ComponentGroupList_[c].SpanLoadData(j).Span_Chord(t,k) = VSPGeom().VSP_Surface(i).LocalChord(k);
+                      ComponentGroupList_[c].SpanLoadData(j).Span_S(t,k)     = VSPGeom().VSP_Surface(i).s(k);
+                                                         
+                      ComponentGroupList_[c].SpanLoadData(j).Local_Velocity(t,k) = Local_Vel_[3][i][k];            
+                                       
+                   }
+   
+                }
+                
              }
              
           }
@@ -10116,7 +10168,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
        }
        
     }
-     
+   
     // Adjust for symmetry
     
     if ( DoSymmetryPlaneSolve_  ) {
@@ -11759,7 +11811,7 @@ void VSP_SOLVER::ReadInAerothermalDatabaseGeometry(void)
 void VSP_SOLVER::WriteOutAerothermalDatabaseSolution(void)
 {
 
-    int i, j, k;
+    int i, j, k, NumTrailVortices;
     int i_size, c_size, f_size, d_size;
 
     float DumFloat;
@@ -11809,7 +11861,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseSolution(void)
        fwrite(&(VortexLoop(i).dCp_Unsteady()), d_size, 1, ADBFile_);
            
     }   
-        
+      
     for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
        
        fwrite(&(SurfaceVortexEdge(j).Fx()), d_size, 1, ADBFile_);
@@ -11827,7 +11879,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseSolution(void)
        fwrite(&(VortexLoop(i).W()), d_size, 1, ADBFile_);
 
     }    
-            
+           
     // Write out solution on the input tri mesh
 
     for ( j = 1 ; j <= VSPGeom().Grid().NumberOfLoops() ; j++ ) {
@@ -11843,11 +11895,19 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseSolution(void)
     }
 
     // Write out wake shape
-   
-    fwrite(&NumberOfTrailingVortexEdges_, i_size, 1, ADBFile_);
+
+    NumTrailVortices = 0;
     
     for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
       
+       NumTrailVortices += VortexSheet(k).NumberOfTrailingVortices();
+
+    }    
+       
+    fwrite(&NumTrailVortices, i_size, 1, ADBFile_);
+
+    for ( k = 1 ; k <= NumberOfVortexSheets_ ; k++ ) {
+           
        for ( i = 1 ; i <= VortexSheet(k).NumberOfTrailingVortices() ; i++ ) {
 
           VortexSheet(k).TrailingVortexEdge(i).WriteToFile(ADBFile_);
@@ -11855,7 +11915,7 @@ void VSP_SOLVER::WriteOutAerothermalDatabaseSolution(void)
        }
        
     }     
-    
+
     // Write out control surface deflection angles
 
     for ( j = 1 ; j <= VSPGeom().NumberOfSurfaces() ; j++ ) {
@@ -13735,14 +13795,14 @@ VORTEX_SHEET_LOOP_INTERACTION_ENTRY* VSP_SOLVER::CreateVortexTrailInteractionLis
 
                 // Distance to the source vortex sheet
                 
-                 Distance = MIN( CommonSheetList[1].Sheet[CommonSheetList[1].NextSheet].Distance,
-                                 CommonSheetList[2].Sheet[CommonSheetList[2].NextSheet - 1].Distance );
+                Distance = MIN(CommonSheetList[1].Sheet[CommonSheetList[1].NextSheet  ].Distance,
+                               CommonSheetList[2].Sheet[CommonSheetList[2].NextSheet-1].Distance);
 
                 // FarAway x approximate distance between fine grid trailing vortex edge centroids
                 
                 Test = 0.5 * FarAway_ * VortexSheet(w).TrailingVortexEdge(t).VortexEdge(Level,Loop).Length();
 
-                 if ( Test <= Distance ) {
+                if ( Test <= Distance ) {
 
                    CommonSheets++;
 
@@ -15400,7 +15460,7 @@ double VSP_SOLVER::CalculateLeadingEdgeSuctionFraction(double Mach, double ToC, 
 void VSP_SOLVER::CalculateRotorCoefficientsForGroup(int Group)
 {
    
-    int c, k, i, j;
+    int c, k, i, j, t;
     double Thrust, Thrusto, Thrusti, Moment, Momento, Momenti;
     double CT, CQ, CP, J, EtaP, CT_h, CQ_h, CP_h, FOM, Diameter, RPM, Vec[3], Time;
     double Omega, Radius, TipVelocity, Area;
@@ -15631,11 +15691,11 @@ else if ( 1 ) {
              
              // Average forces and moment data
              
-             if ( Group == 0 ) {
+             if ( Group == 0 || c == Group ) {
                 
                 // Store time history of last rotation
                 
-                if ( ( TimeAccurate_ && CurrentTime_ >= ComponentGroupList_[c].StartAverageTime() ) || ( !TimeAccurate_ && CurrentWakeIteration_ >= WakeIterations_ ) ) ComponentGroupList_[c].UpdateAverageForcesAndMoments();
+                if ( ( TimeAccurate_ && CurrentTime_ >= ComponentGroupList_[c].StartAveragingTime() ) || ( !TimeAccurate_ && CurrentWakeIteration_ >= WakeIterations_ ) ) ComponentGroupList_[c].UpdateAverageForcesAndMoments();
      
                 // If this is the last time step, write out final averaged forces
                 
@@ -15759,6 +15819,70 @@ else if ( 1 ) {
                       
                    }
 
+                   // Write out spanwise blade loading data, as a function of time, over about 1 period of rotation 
+                   
+                   for ( i = 1 ; i <= ComponentGroupList_[c].NumberOfSurfaces() ; i++ ) {
+ 
+                      fprintf(RotorFile_[k],"\n\n\n");
+                      fprintf(RotorFile_[k],"Time history of loading for rotor blade: %d --> VSP Surface: %d ... NOTE: values are per station, not per area! \n",i,ComponentGroupList_[c].SpanLoadData(i).SurfaceID());
+                      fprintf(RotorFile_[k],"\n");
+                                            
+                      ComponentGroupList_[c].SpanLoadData(i).CalculateAverageForcesAndMoments();
+                      
+                      // Write out averaged span loading data
+
+                      Omega = 2. * PI * RPM / 60.;
+                      
+                      Radius = 0.5 * Diameter;
+                      
+                      Area = PI * Radius * Radius;
+                      
+                      TipVelocity = Omega * Radius;
+                      
+                      for ( t = 1 ; t <= ComponentGroupList_[c].SpanLoadData(i).ActualTimeSamples() ; t++ ) {
+
+                                          //    123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 123456789 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123 1234567890123                         
+                         fprintf(RotorFile_[k],"  Station    Time       Angle     Xqc       Yqc       Zqc       S       Chord     Area      V/Vref   Diameter    RPM      TipVel       CNo_H         CSo_H         CTo_H         CQo_H         CPo_H         CN_H          CS_H          CT_H          CQ_H          CP_H \n");
+                                              
+                         for ( j = 1 ; j <= ComponentGroupList_[c].SpanLoadData(i).NumberOfSpanStations() ; j++ ) {
+   
+                           fprintf(RotorFile_[k],"%9d %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %9.5lf %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le %13.6le \n",
+                                   j,
+                                   ComponentGroupList_[c].SpanLoadData(i).Time(t,j),
+                                   ComponentGroupList_[c].SpanLoadData(i).RotationAngle(t,j),  
+                                   ComponentGroupList_[c].SpanLoadData(i).X_QC(t,j),  
+                                   ComponentGroupList_[c].SpanLoadData(i).Y_QC(t,j),  
+                                   ComponentGroupList_[c].SpanLoadData(i).Z_QC(t,j),  
+                                   
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_S(t,j),                    
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Chord(t,j),
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Area(t,j),
+                                   
+                                   ComponentGroupList_[c].SpanLoadData(i).Local_Velocity(j),
+                                   
+                                   Diameter,
+                                   RPM,
+                                   TipVelocity,
+                                   
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Cno(t,j),
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Cso(t,j),
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Cto(t,j),
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Cqo(t,j),
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Cpo(t,j),
+   
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Cn(t,j),
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Cs(t,j),
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Ct(t,j),
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Cq(t,j),
+                                   ComponentGroupList_[c].SpanLoadData(i).Span_Cp(t,j));
+   
+      
+                         }
+                      
+                      }
+                      
+                   }
+                   
                 }
                 
              }
@@ -16480,9 +16604,16 @@ void VSP_SOLVER::WriteOutPSUWopWopCaseAndNameListFilesForFlyByOld(void)
 void VSP_SOLVER::WriteOutPSUWopWopCaseAndNameListFilesForFlyBy(void)
 {
    
-    int c, i, j;
+    int c, i, j, Case;
     char NameListFile[2000];
     char PatchThicknessGeometryName[2000], PatchLoadingGeometryName[2000], WopWopFileName[2000];
+    char pressureFileName[2000];
+    char SPLFileName[2000];
+    char OASPLFileName[2000];
+    char phaseFileName[2000];
+    char complexPressureFileName[2000];
+    char audioFileName[2000];
+    
     FILE *WopWopCaseFile;      
 
     // Cases namelist file
@@ -16495,6 +16626,12 @@ void VSP_SOLVER::WriteOutPSUWopWopCaseAndNameListFilesForFlyBy(void)
 
     }    
     
+    // Baseline case, with all rotors
+
+    fprintf(WopWopCaseFile,"! \n");
+    fprintf(WopWopCaseFile,"!Remove the comment delimiter from those cases below you wish to run, beyond the default all up case \n");
+    fprintf(WopWopCaseFile,"! \n");
+    
     sprintf(NameListFile,"%s.nam",FileName_);
     
     fprintf(WopWopCaseFile,"&caseName\n");
@@ -16502,342 +16639,454 @@ void VSP_SOLVER::WriteOutPSUWopWopCaseAndNameListFilesForFlyBy(void)
     fprintf(WopWopCaseFile,"   caseNameFile = \'%s\' \n",NameListFile);
     fprintf(WopWopCaseFile,"/ \n");        
     
-    fclose(WopWopCaseFile);
-    
-    // Actual namelist file
-    
-    if ( (PSUWopWopNameListFile_ = fopen(NameListFile, "w")) == NULL ) {
+    // Case with no rotors
 
-       printf("Could not open the PSUWopWop Namelist File output! \n");
-
-       exit(1);
-
-    } 
+    sprintf(NameListFile,"%s.NoRotors.nam",FileName_);
     
-    // EnvironmentIn namelist
+    fprintf(WopWopCaseFile,"!&caseName\n");
+    fprintf(WopWopCaseFile,"!   globalFolderName = \'./\' \n");
+    fprintf(WopWopCaseFile,"!   caseNameFile = \'%s\' \n",NameListFile);
+    fprintf(WopWopCaseFile,"!/ \n");       
+    
+    // Cases with a single rotor included 
         
-    fprintf(PSUWopWopNameListFile_,"!\n");    
-    fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-    fprintf(PSUWopWopNameListFile_,"!\n");
-    
-    fprintf(PSUWopWopNameListFile_,"&EnvironmentIn\n");
-    fprintf(PSUWopWopNameListFile_,"   nbSourceContainers     = 1       \n");    
-    fprintf(PSUWopWopNameListFile_,"   nbObserverContainers   = 1       \n");    
-    fprintf(PSUWopWopNameListFile_,"   ASCIIOutputFlag        = .true.  \n");
-    fprintf(PSUWopWopNameListFile_,"   spectrumFlag           = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   SPLdBFlag              = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   SPLdBAFlag             = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   OASPLdBFlag            = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   OASPLdBAFlag           = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   acousticPressureFlag   = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   pressureGradient1AFlag = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   thicknessNoiseFlag     = .true.  \n");    
-    fprintf(PSUWopWopNameListFile_,"   loadingNoiseFlag       = .true.  \n");    
-    fprintf(PSUWopWopNameListFile_,"   totalNoiseFlag         = .true.  \n");    
-    fprintf(PSUWopWopNameListFile_,"   sigmaFlag              = .false. \n");    
-    fprintf(PSUWopWopNameListFile_,"   loadingSigmaFlag       = .false. \n");    
-    fprintf(PSUWopWopNameListFile_,"   machSigmaFlag          = .false. \n");    
-    fprintf(PSUWopWopNameListFile_,"   totalNoiseSigmaFlag    = .false. \n");     
-    fprintf(PSUWopWopNameListFile_,"   audioFlag              = .true.  \n");
-    fprintf(PSUWopWopNameListFile_,"   debugLevel = 5                   \n");    
- 
-    fprintf(PSUWopWopNameListFile_,"/ \n");  
-       
-    // EnvironmentConstants namelist
-
-    fprintf(PSUWopWopNameListFile_,"!\n");      
-    fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-    fprintf(PSUWopWopNameListFile_,"!\n");
-        
-    fprintf(PSUWopWopNameListFile_,"&EnvironmentConstants \n");
-    
-    // Note these are english unit versions of psu-WopWop's default values
-    
-    fprintf(PSUWopWopNameListFile_,"   rho         = %e \n",Density_*WopWopDensityConversion_);  // Density, kg/m^3
-
-    fprintf(WopWopCaseFile,"/ \n");    
-           
-    // ObserverIn namelist
-       
-    fprintf(PSUWopWopNameListFile_,"!\n");      
-    fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-    fprintf(PSUWopWopNameListFile_,"!\n");
-           
-    fprintf(PSUWopWopNameListFile_,"&ObserverIn  \n");
-    fprintf(PSUWopWopNameListFile_,"  Title             = \'Observer_1\' \n");
-    fprintf(PSUWopWopNameListFile_,"  tMin              =  0.0 \n");
-    fprintf(PSUWopWopNameListFile_,"  tMax              = 30.0 \n");
-    fprintf(PSUWopWopNameListFile_,"  highPassFrequency = %f \n",10.);
-    fprintf(PSUWopWopNameListFile_,"  nt                = 32768 \n");
-
-    // Fixed fly by location
-
-    fprintf(PSUWopWopNameListFile_,"  xLoc              = %f \n",0.);
-    fprintf(PSUWopWopNameListFile_,"  yLoc              = %f \n",0.);
-    fprintf(PSUWopWopNameListFile_,"  zLoc              = %f \n",0.);
-
-    // OASPLdB inputs
-    
-    fprintf(PSUWopWopNameListFile_,"  segmentSize       =  1.0  \n");
-    fprintf(PSUWopWopNameListFile_,"  segmentStepSize   =  0.1  \n");
-
-    fprintf(PSUWopWopNameListFile_,"/ \n");        
-
-    // ContainerIn namelist - Aircraft
-
-    fprintf(PSUWopWopNameListFile_,"!\n");      
-    fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-    fprintf(PSUWopWopNameListFile_,"!\n");
-        
-    fprintf(PSUWopWopNameListFile_,"&ContainerIn  \n");
-    fprintf(PSUWopWopNameListFile_,"   Title        = \'Aircraft\' \n");
-    fprintf(PSUWopWopNameListFile_,"   nbContainer  = %d \n",WopWopNumberOfRotors_ + WopWopNumberOfWings_ + WopWopNumberOfBodies_);
-    fprintf(PSUWopWopNameListFile_,"   nbBase = 2 \n");
-    fprintf(PSUWopWopNameListFile_,"   dtau = %e \n",WopWopdTau_);
-    
-    fprintf(PSUWopWopNameListFile_,"/ \n");   
-        
-
-    // Change of Base namelist for attitude of aircraft
-
-    fprintf(PSUWopWopNameListFile_,"&CB \n");
-    fprintf(PSUWopWopNameListFile_,"   Title           = \'Euler Angle Rotation\' \n");
-    fprintf(PSUWopWopNameListFile_,"   translationType = \'TimeIndependent\' \n");
-    fprintf(PSUWopWopNameListFile_,"   angleValue      = %f \n",AngleOfAttack_);
-    fprintf(PSUWopWopNameListFile_,"   axisValue       = %f, %f, %f \n",0.,1.,0.);
-    fprintf(PSUWopWopNameListFile_,"/ \n");   
-            
-    // Change of Base namelist for forward motion of aircraft
-
-    fprintf(PSUWopWopNameListFile_,"&CB \n");
-    fprintf(PSUWopWopNameListFile_,"   Title           = \'Velocity\' \n");
-    fprintf(PSUWopWopNameListFile_,"   translationType = \'KnownFunction\' \n");
-    fprintf(PSUWopWopNameListFile_,"   AH = 0.0, 0.0, 0.0 \n");
-    fprintf(PSUWopWopNameListFile_,"   VH = %f,  0.0, 0.0 \n",-Vinf_*WopWopLengthConversion_);
-    fprintf(PSUWopWopNameListFile_,"   Y0 = %f, %f, %f    \n",Vinf_*WopWopLengthConversion_*15., 0.0, 50.0);
-    fprintf(PSUWopWopNameListFile_,"/ \n");        
-
-    // Loop over each rotor
-    
     for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
 
        if ( ComponentGroupList_[c].GeometryIsARotor() ) {
           
           i = ComponentGroupList_[c].WopWop().RotorID();
-
-          // ContainerIn for current rotor
-      
-          fprintf(PSUWopWopNameListFile_,"!\n");      
-          fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-          fprintf(PSUWopWopNameListFile_,"!\n");
-       
-          fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
-          fprintf(PSUWopWopNameListFile_,"         Title        = \'Rotor_%d\' \n",i);
-          fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",2*ComponentGroupList_[c].WopWop().NumberOfBlades());
-          fprintf(PSUWopWopNameListFile_,"         BPMNoiseFlag           = .false. \n");
-          fprintf(PSUWopWopNameListFile_,"         PeggNoiseFlag          = .false. \n");
-   
-          // Possible change of base for steady state case where PSUWOPWOP takes care of the blade rotation
           
-          if ( SteadyStateNoise_ ) {
-             
-             fprintf(PSUWopWopNameListFile_,"         nbBase = 1 \n");
-      
-          }
+          sprintf(NameListFile,"%s.Rotor.%d.nam",FileName_,i);
           
-          fprintf(PSUWopWopNameListFile_,"      / \n");     
-   
-          // Change of Base namelist if we are not time accurate, and let WopWop do the unsteady stuff
-        
-          if ( SteadyStateNoise_ ) {
-
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
-            
-             fprintf(PSUWopWopNameListFile_,"      &CB \n");
-             fprintf(PSUWopWopNameListFile_,"         Title     = \'Rotation\' \n");
-             fprintf(PSUWopWopNameListFile_,"         rotation  = .true. \n");
-             fprintf(PSUWopWopNameListFile_,"         AngleType = \'KnownFunction\' \n");
-             fprintf(PSUWopWopNameListFile_,"         Omega     =  %f \n",-BladeRPM_*2.*PI/60.);
-             fprintf(PSUWopWopNameListFile_,"         AxisValue = 1.0,0.0,0.0 \n");
-             fprintf(PSUWopWopNameListFile_,"      / \n");        
-             
-          }
-   
-          if ( SteadyStateNoise_ ) {
-             
-             // Broad band noise: BPM namelist
-      
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
-             
-             fprintf(PSUWopWopNameListFile_,"      &BPMIn \n");
-             fprintf(PSUWopWopNameListFile_,"         BPMNoiseFile = %s.PSUWopWop.BPM.Rotor.%d.dat \n",FileName_,i);
-             fprintf(PSUWopWopNameListFile_,"         nSect           = %d \n",ComponentGroupList_[c].WopWop().NumberOfBladesSections());
-             fprintf(PSUWopWopNameListFile_,"         uniformBlade    = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"         BLtrip          = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"         sectChordFlag   = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         sectLengthFlag  = 'COMPUTE'   \n");
-             fprintf(PSUWopWopNameListFile_,"         TEThicknessFlag = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         TEflowAngleFlag = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         TipLCSFlag      = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         SectAOAFlag     = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         SectAOAFlag     = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         LBLVSnoise      = .true.  \n");
-             fprintf(PSUWopWopNameListFile_,"         TBLTEnoise      = .true.  \n");
-             fprintf(PSUWopWopNameListFile_,"         bluntNoise      = .true.  \n");
-             fprintf(PSUWopWopNameListFile_,"         bladeTipNoise   = .true.  \n");
-             fprintf(PSUWopWopNameListFile_,"      / \n");
+          fprintf(WopWopCaseFile,"!&caseName\n");
+          fprintf(WopWopCaseFile,"!   globalFolderName = \'./\' \n");
+          fprintf(WopWopCaseFile,"!   caseNameFile = \'%s\' \n",NameListFile);
+          fprintf(WopWopCaseFile,"!/ \n");      
+          
+       }
        
-             // Broad band noise: PeggIn namelist
-             
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
+    }        
                     
-             WriteOutPSUWopWopPeggNamelist();
-             
-          }
-          
-          // Write out containers for each of the blades... one for loading, one for thickness
-          
-          for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfBlades() ; j++ ) {
-          
-             sprintf(PatchLoadingGeometryName  ,"%s.PSUWopWop.Loading.Geometry.Rotor.%d.Blade.%d.dat",  FileName_,i,j);
-             sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Rotor.%d.Blade.%d.dat",FileName_,i,j);
-             sprintf(WopWopFileName,            "%s.PSUWopWop.Loading.Rotor.%d.Blade.%d.dat",           FileName_,i,j);
-               
-             // ContainerIn for Aero loading geometry and load file
-      
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
-         
-             fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
-             fprintf(PSUWopWopNameListFile_,"               Title        = \'Blade_%d_For_Rotor_%d_Loading\' \n",j,i);
-             fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchLoadingGeometryName);
-             fprintf(PSUWopWopNameListFile_,"               patchLoadingFile   = %s \n",WopWopFileName);
-             fprintf(PSUWopWopNameListFile_,"            / \n");     
-          
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
+    fclose(WopWopCaseFile);
     
-             // ContainerIn for Aero thickness model
-             
-             fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
-             fprintf(PSUWopWopNameListFile_,"               Title        = \'Blade_%d_For_Rotor_%d_Thickness\' \n",j,i);
-             fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
-             fprintf(PSUWopWopNameListFile_,"            / \n");               
-                
-          }
-             
-       }
-       
-    }
-
-    // Loop over each wing
+    // Create multiple psuwopwop cases, body/wings alone, bodies/wings + single rotors, and full up case
     
-    for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
+    for ( Case = -1 ; Case <= WopWopNumberOfRotors_ ; Case++ ) {
 
-       if ( ComponentGroupList_[c].GeometryHasWings() ) {
-          
-          i = ComponentGroupList_[c].WopWop().WingID();
-
-          // ContainerIn for current wing
-      
-          fprintf(PSUWopWopNameListFile_,"!\n");      
-          fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-          fprintf(PSUWopWopNameListFile_,"!\n");
+       if ( Case == -1 ) sprintf(NameListFile,"%s.NoRotors.nam",FileName_);
+       if ( Case ==  0 ) sprintf(NameListFile,"%s.nam",FileName_);
+       if ( Case >   0 ) sprintf(NameListFile,"%s.Rotor.%d.nam",FileName_,Case);
        
-          fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
-          fprintf(PSUWopWopNameListFile_,"         Title        = \'Wing_%d\' \n",i);
-          fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",2*ComponentGroupList_[c].WopWop().NumberOfWingSurfaces());
-          fprintf(PSUWopWopNameListFile_,"      / \n");     
+       // Actual namelist file
+       
+       if ( (PSUWopWopNameListFile_ = fopen(NameListFile, "w")) == NULL ) {
    
-          // Write out containers for each of the wing surfaces... one for loading, one for thickness
-          
-          for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfWingSurfaces() ; j++ ) {
-          
-             sprintf(PatchLoadingGeometryName  ,"%s.PSUWopWop.Loading.Geometry.Wing.%d.Surface.%d.dat",  FileName_,i,j);
-             sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Wing.%d.Surface.%d.dat",FileName_,i,j);
-             sprintf(WopWopFileName,            "%s.PSUWopWop.Loading.Wing.%d.Surface.%d.dat",           FileName_,i,j);
-               
-             // ContainerIn for Aero loading geometry and load file
-      
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
-         
-             fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
-             fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Wing_%d_Loading\' \n",j,i);
-             fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchLoadingGeometryName);
-             fprintf(PSUWopWopNameListFile_,"               patchLoadingFile   = %s \n",WopWopFileName);
-             fprintf(PSUWopWopNameListFile_,"            / \n");     
-          
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
-    
-             // ContainerIn for Aero thickness model
-             
-             fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
-             fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Wing_%d_Thickness\' \n",j,i);
-             fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
-             fprintf(PSUWopWopNameListFile_,"            / \n");               
-                
-          }
-             
-       }
-       
-    }
-
-    // Loop over each body
-    
-    for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
-
-       if ( ComponentGroupList_[c].GeometryHasBodies() ) {
-          
-          i = ComponentGroupList_[c].WopWop().BodyID();
-
-          // ContainerIn for current body
-      
-          fprintf(PSUWopWopNameListFile_,"!\n");      
-          fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-          fprintf(PSUWopWopNameListFile_,"!\n");
-       
-          fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
-          fprintf(PSUWopWopNameListFile_,"         Title        = \'Body_%d\' \n",i);
-          fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",ComponentGroupList_[c].WopWop().NumberOfBodySurfaces());
-          fprintf(PSUWopWopNameListFile_,"      / \n");     
+          printf("Could not open the PSUWopWop Namelist File output! \n");
    
-          // Write out containers for each of the bodies... just the thickness
+          exit(1);
+   
+       } 
+       
+       // EnvironmentIn namelist
+           
+       fprintf(PSUWopWopNameListFile_,"!\n");    
+       fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+       fprintf(PSUWopWopNameListFile_,"!\n");
+       
+       fprintf(PSUWopWopNameListFile_,"&EnvironmentIn\n");
+       fprintf(PSUWopWopNameListFile_,"   nbSourceContainers     = 1       \n");    
+       fprintf(PSUWopWopNameListFile_,"   nbObserverContainers   = 1       \n");    
+       fprintf(PSUWopWopNameListFile_,"   ASCIIOutputFlag        = .true.  \n");
+       fprintf(PSUWopWopNameListFile_,"   spectrumFlag           = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   SPLdBFlag              = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   SPLdBAFlag             = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   OASPLdBFlag            = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   OASPLdBAFlag           = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   acousticPressureFlag   = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   pressureGradient1AFlag = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   thicknessNoiseFlag     = .true.  \n");    
+       fprintf(PSUWopWopNameListFile_,"   loadingNoiseFlag       = .true.  \n");    
+       fprintf(PSUWopWopNameListFile_,"   totalNoiseFlag         = .true.  \n");    
+       fprintf(PSUWopWopNameListFile_,"   sigmaFlag              = .false. \n");    
+       fprintf(PSUWopWopNameListFile_,"   loadingSigmaFlag       = .false. \n");    
+       fprintf(PSUWopWopNameListFile_,"   machSigmaFlag          = .false. \n");    
+       fprintf(PSUWopWopNameListFile_,"   totalNoiseSigmaFlag    = .false. \n");     
+       fprintf(PSUWopWopNameListFile_,"   audioFlag              = .true.  \n");
+       fprintf(PSUWopWopNameListFile_,"   debugLevel = 5                   \n");    
+       
+       if ( Case == -1 ) {
           
-          for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfBodySurfaces() ; j++ ) {
+          sprintf(pressureFileName,       "pressure.NoRotors");
+          sprintf(SPLFileName,            "spl.NoRotors");
+          sprintf(OASPLFileName,          "OASPL.NoRotors.");
+          sprintf(phaseFileName,          "phase.NoRotors.");
+          sprintf(complexPressureFileName,"complexPressure.NoRotors");
+          sprintf(audioFileName,          "sigma.NoRotors");
           
-             sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Body.%d.Surface.%d.dat",FileName_,i,j);
+       }
+     
+       if ( Case == 0 ) {
+          
+          sprintf(pressureFileName,       "pressure.AllRotors");
+          sprintf(SPLFileName,            "spl.AllRotors");
+          sprintf(OASPLFileName,          "OASPL.AllRotors.");
+          sprintf(phaseFileName,          "phase.AllRotors.");
+          sprintf(complexPressureFileName,"complexPressure.AllRotors");
+          sprintf(audioFileName,          "sigma.AllRotors");
+          
+       }
+    
+       if ( Case > 0 ) {
+          
+          sprintf(pressureFileName,       "pressure.Rotor.%d",Case);
+          sprintf(SPLFileName,            "spl.Rotor.%d",Case);
+          sprintf(OASPLFileName,          "OASPL.Rotor.%d.",Case);
+          sprintf(phaseFileName,          "phase.Rotor.%d.",Case);
+          sprintf(complexPressureFileName,"complexPressure.Rotor.%d",Case);
+          sprintf(audioFileName,          "sigma.Rotor.%d",Case);
+          
+       }
 
+       fprintf(PSUWopWopNameListFile_,"   pressureFileName        = %s \n",pressureFileName);
+       fprintf(PSUWopWopNameListFile_,"   SPLFileName             = %s \n",SPLFileName);           
+       fprintf(PSUWopWopNameListFile_,"   OASPLFileName           = %s \n",OASPLFileName);         
+       fprintf(PSUWopWopNameListFile_,"   phaseFileName           = %s \n",phaseFileName);         
+       fprintf(PSUWopWopNameListFile_,"   complexPressureFileName = %s \n",complexPressureFileName);
+       fprintf(PSUWopWopNameListFile_,"   audioFileName           = %s \n",audioFileName);         
+          
+       fprintf(PSUWopWopNameListFile_,"/ \n");  
+          
+       // EnvironmentConstants namelist
+   
+       fprintf(PSUWopWopNameListFile_,"!\n");      
+       fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+       fprintf(PSUWopWopNameListFile_,"!\n");
+           
+       fprintf(PSUWopWopNameListFile_,"&EnvironmentConstants \n");
+       
+       // Note these are english unit versions of psu-WopWop's default values
+       
+       fprintf(PSUWopWopNameListFile_,"   rho         = %e \n",Density_*WopWopDensityConversion_);  // Density, kg/m^3
+   
+       fprintf(WopWopCaseFile,"/ \n");    
+              
+       // ObserverIn namelist
+          
+       fprintf(PSUWopWopNameListFile_,"!\n");      
+       fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+       fprintf(PSUWopWopNameListFile_,"!\n");
+              
+       fprintf(PSUWopWopNameListFile_,"&ObserverIn  \n");
+       fprintf(PSUWopWopNameListFile_,"  Title             = \'Observer_1\' \n");
+       fprintf(PSUWopWopNameListFile_,"  tMin              =  0.0 \n");
+       fprintf(PSUWopWopNameListFile_,"  tMax              = 30.0 \n");
+       fprintf(PSUWopWopNameListFile_,"  highPassFrequency = %f \n",10.);
+       fprintf(PSUWopWopNameListFile_,"  nt                = 32768 \n");
+   
+       // Fixed fly by location
+   
+       fprintf(PSUWopWopNameListFile_,"  xLoc              = %f \n",0.);
+       fprintf(PSUWopWopNameListFile_,"  yLoc              = %f \n",0.);
+       fprintf(PSUWopWopNameListFile_,"  zLoc              = %f \n",0.);
+   
+       // OASPLdB inputs
+       
+       fprintf(PSUWopWopNameListFile_,"  segmentSize       =  1.0  \n");
+       fprintf(PSUWopWopNameListFile_,"  segmentStepSize   =  0.1  \n");
+   
+       fprintf(PSUWopWopNameListFile_,"/ \n");        
+   
+       // ContainerIn namelist - Aircraft
+   
+       fprintf(PSUWopWopNameListFile_,"!\n");      
+       fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+       fprintf(PSUWopWopNameListFile_,"!\n");
+           
+       fprintf(PSUWopWopNameListFile_,"&ContainerIn  \n");
+       fprintf(PSUWopWopNameListFile_,"   Title        = \'Aircraft\' \n");
+       
+       // Just wings/bodies
+       
+       if ( Case == -1 ) {
+          
+          fprintf(PSUWopWopNameListFile_,"   nbContainer  = %d \n",                    0 + WopWopNumberOfWings_ + WopWopNumberOfBodies_);
+       
+       }
+       
+       // All rotors + wings/bodies
+       
+       else if ( Case == 0 ) {
+          
+          fprintf(PSUWopWopNameListFile_,"   nbContainer  = %d \n",WopWopNumberOfRotors_ + WopWopNumberOfWings_ + WopWopNumberOfBodies_);
+          
+       }
+       
+       // Wings/bodies + 1 of the rotors
+       
+       else {
+          
+          fprintf(PSUWopWopNameListFile_,"   nbContainer  = %d \n",                    1 + WopWopNumberOfWings_ + WopWopNumberOfBodies_);
+          
+       }
+       
+       fprintf(PSUWopWopNameListFile_,"   nbBase = 2 \n");
+       fprintf(PSUWopWopNameListFile_,"   dtau = %e \n",WopWopdTau_);
+       
+       fprintf(PSUWopWopNameListFile_,"/ \n");   
+           
+   
+       // Change of Base namelist for attitude of aircraft
+   
+       fprintf(PSUWopWopNameListFile_,"&CB \n");
+       fprintf(PSUWopWopNameListFile_,"   Title           = \'Euler Angle Rotation\' \n");
+       fprintf(PSUWopWopNameListFile_,"   translationType = \'TimeIndependent\' \n");
+       fprintf(PSUWopWopNameListFile_,"   angleValue      = %f \n",AngleOfAttack_);
+       fprintf(PSUWopWopNameListFile_,"   axisValue       = %f, %f, %f \n",0.,1.,0.);
+       fprintf(PSUWopWopNameListFile_,"/ \n");   
+               
+       // Change of Base namelist for forward motion of aircraft
+   
+       fprintf(PSUWopWopNameListFile_,"&CB \n");
+       fprintf(PSUWopWopNameListFile_,"   Title           = \'Velocity\' \n");
+       fprintf(PSUWopWopNameListFile_,"   translationType = \'KnownFunction\' \n");
+       fprintf(PSUWopWopNameListFile_,"   AH = 0.0, 0.0, 0.0 \n");
+       fprintf(PSUWopWopNameListFile_,"   VH = %f,  0.0, 0.0 \n",-Vinf_*WopWopLengthConversion_);
+       fprintf(PSUWopWopNameListFile_,"   Y0 = %f, %f, %f    \n",Vinf_*WopWopLengthConversion_*15., 0.0, 50.0);
+       fprintf(PSUWopWopNameListFile_,"/ \n");        
+   
+       // Loop over each rotor
+       
+       if ( Case >= 0 ) {
+          
+          for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
+      
+             if ( ComponentGroupList_[c].GeometryIsARotor() ) {
+                
+                i = ComponentGroupList_[c].WopWop().RotorID();
+                
+                if ( Case == 0 || Case == i ) {
+      
+                   // ContainerIn for current rotor
+               
+                   fprintf(PSUWopWopNameListFile_,"!\n");      
+                   fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                   fprintf(PSUWopWopNameListFile_,"!\n");
+                
+                   fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
+                   fprintf(PSUWopWopNameListFile_,"         Title        = \'Rotor_%d\' \n",i);
+                   fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",2*ComponentGroupList_[c].WopWop().NumberOfBlades());
+                   fprintf(PSUWopWopNameListFile_,"         BPMNoiseFlag           = .false. \n");
+                   fprintf(PSUWopWopNameListFile_,"         PeggNoiseFlag          = .false. \n");
+            
+                   // Possible change of base for steady state case where PSUWOPWOP takes care of the blade rotation
+                   
+                   if ( SteadyStateNoise_ ) {
+                      
+                      fprintf(PSUWopWopNameListFile_,"         nbBase = 1 \n");
+               
+                   }
+                   
+                   fprintf(PSUWopWopNameListFile_,"      / \n");     
+            
+                   // Change of Base namelist if we are not time accurate, and let WopWop do the unsteady stuff
+                 
+                   if ( SteadyStateNoise_ ) {
+         
+                      fprintf(PSUWopWopNameListFile_,"!\n");      
+                      fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                      fprintf(PSUWopWopNameListFile_,"!\n");
+                     
+                      fprintf(PSUWopWopNameListFile_,"      &CB \n");
+                      fprintf(PSUWopWopNameListFile_,"         Title     = \'Rotation\' \n");
+                      fprintf(PSUWopWopNameListFile_,"         rotation  = .true. \n");
+                      fprintf(PSUWopWopNameListFile_,"         AngleType = \'KnownFunction\' \n");
+                      fprintf(PSUWopWopNameListFile_,"         Omega     =  %f \n",-BladeRPM_*2.*PI/60.);
+                      fprintf(PSUWopWopNameListFile_,"         AxisValue = 1.0,0.0,0.0 \n");
+                      fprintf(PSUWopWopNameListFile_,"      / \n");        
+                      
+                   }
+            
+                   if ( SteadyStateNoise_ ) {
+                      
+                      // Broad band noise: BPM namelist
+               
+                      fprintf(PSUWopWopNameListFile_,"!\n");      
+                      fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                      fprintf(PSUWopWopNameListFile_,"!\n");
+                      
+                      fprintf(PSUWopWopNameListFile_,"      &BPMIn \n");
+                      fprintf(PSUWopWopNameListFile_,"         BPMNoiseFile = %s.PSUWopWop.BPM.Rotor.%d.dat \n",FileName_,i);
+                      fprintf(PSUWopWopNameListFile_,"         nSect           = %d \n",ComponentGroupList_[c].WopWop().NumberOfBladesSections());
+                      fprintf(PSUWopWopNameListFile_,"         uniformBlade    = 0 \n");
+                      fprintf(PSUWopWopNameListFile_,"         BLtrip          = 0 \n");
+                      fprintf(PSUWopWopNameListFile_,"         sectChordFlag   = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         sectLengthFlag  = 'COMPUTE'   \n");
+                      fprintf(PSUWopWopNameListFile_,"         TEThicknessFlag = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         TEflowAngleFlag = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         TipLCSFlag      = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         SectAOAFlag     = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         SectAOAFlag     = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         LBLVSnoise      = .true.  \n");
+                      fprintf(PSUWopWopNameListFile_,"         TBLTEnoise      = .true.  \n");
+                      fprintf(PSUWopWopNameListFile_,"         bluntNoise      = .true.  \n");
+                      fprintf(PSUWopWopNameListFile_,"         bladeTipNoise   = .true.  \n");
+                      fprintf(PSUWopWopNameListFile_,"      / \n");
+                
+                      // Broad band noise: PeggIn namelist
+                      
+                      fprintf(PSUWopWopNameListFile_,"!\n");      
+                      fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                      fprintf(PSUWopWopNameListFile_,"!\n");
+                             
+                      WriteOutPSUWopWopPeggNamelist();
+                      
+                   }
+                   
+                   // Write out containers for each of the blades... one for loading, one for thickness
+                   
+                   for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfBlades() ; j++ ) {
+                   
+                      sprintf(PatchLoadingGeometryName  ,"%s.PSUWopWop.Loading.Geometry.Rotor.%d.Blade.%d.dat",  FileName_,i,j);
+                      sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Rotor.%d.Blade.%d.dat",FileName_,i,j);
+                      sprintf(WopWopFileName,            "%s.PSUWopWop.Loading.Rotor.%d.Blade.%d.dat",           FileName_,i,j);
+                        
+                      // ContainerIn for Aero loading geometry and load file
+               
+                      fprintf(PSUWopWopNameListFile_,"!\n");      
+                      fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                      fprintf(PSUWopWopNameListFile_,"!\n");
+                  
+                      fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
+                      fprintf(PSUWopWopNameListFile_,"               Title        = \'Blade_%d_For_Rotor_%d_Loading\' \n",j,i);
+                      fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
+                      fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchLoadingGeometryName);
+                      fprintf(PSUWopWopNameListFile_,"               patchLoadingFile   = %s \n",WopWopFileName);
+                      fprintf(PSUWopWopNameListFile_,"            / \n");     
+                   
+                      fprintf(PSUWopWopNameListFile_,"!\n");      
+                      fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                      fprintf(PSUWopWopNameListFile_,"!\n");
+             
+                      // ContainerIn for Aero thickness model
+                      
+                      fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
+                      fprintf(PSUWopWopNameListFile_,"               Title        = \'Blade_%d_For_Rotor_%d_Thickness\' \n",j,i);
+                      fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
+                      fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
+                      fprintf(PSUWopWopNameListFile_,"            / \n");               
+                         
+                   }
+                   
+                }
+                   
+             }
+             
+          }
+          
+       }
+   
+       // Loop over each wing
+       
+       for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
+   
+          if ( ComponentGroupList_[c].GeometryHasWings() ) {
+             
+             i = ComponentGroupList_[c].WopWop().WingID();
+   
+             // ContainerIn for current wing
+         
              fprintf(PSUWopWopNameListFile_,"!\n");      
              fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
              fprintf(PSUWopWopNameListFile_,"!\n");
-    
-             // ContainerIn for Aero thickness model
+          
+             fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
+             fprintf(PSUWopWopNameListFile_,"         Title        = \'Wing_%d\' \n",i);
+             fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",2*ComponentGroupList_[c].WopWop().NumberOfWingSurfaces());
+             fprintf(PSUWopWopNameListFile_,"      / \n");     
+      
+             // Write out containers for each of the wing surfaces... one for loading, one for thickness
              
-             fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
-             fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Body_%d_Thickness\' \n",j,i);
-             fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
-             fprintf(PSUWopWopNameListFile_,"            / \n");               
+             for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfWingSurfaces() ; j++ ) {
+             
+                sprintf(PatchLoadingGeometryName  ,"%s.PSUWopWop.Loading.Geometry.Wing.%d.Surface.%d.dat",  FileName_,i,j);
+                sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Wing.%d.Surface.%d.dat",FileName_,i,j);
+                sprintf(WopWopFileName,            "%s.PSUWopWop.Loading.Wing.%d.Surface.%d.dat",           FileName_,i,j);
+                  
+                // ContainerIn for Aero loading geometry and load file
+         
+                fprintf(PSUWopWopNameListFile_,"!\n");      
+                fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                fprintf(PSUWopWopNameListFile_,"!\n");
+            
+                fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
+                fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Wing_%d_Loading\' \n",j,i);
+                fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
+                fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchLoadingGeometryName);
+                fprintf(PSUWopWopNameListFile_,"               patchLoadingFile   = %s \n",WopWopFileName);
+                fprintf(PSUWopWopNameListFile_,"            / \n");     
+             
+                fprintf(PSUWopWopNameListFile_,"!\n");      
+                fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                fprintf(PSUWopWopNameListFile_,"!\n");
+       
+                // ContainerIn for Aero thickness model
+                
+                fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
+                fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Wing_%d_Thickness\' \n",j,i);
+                fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
+                fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
+                fprintf(PSUWopWopNameListFile_,"            / \n");               
+                   
+             }
                 
           }
-             
+          
        }
+   
+       // Loop over each body
+       
+       for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
+   
+          if ( ComponentGroupList_[c].GeometryHasBodies() ) {
+             
+             i = ComponentGroupList_[c].WopWop().BodyID();
+   
+             // ContainerIn for current body
+         
+             fprintf(PSUWopWopNameListFile_,"!\n");      
+             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+             fprintf(PSUWopWopNameListFile_,"!\n");
+          
+             fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
+             fprintf(PSUWopWopNameListFile_,"         Title        = \'Body_%d\' \n",i);
+             fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",ComponentGroupList_[c].WopWop().NumberOfBodySurfaces());
+             fprintf(PSUWopWopNameListFile_,"      / \n");     
+      
+             // Write out containers for each of the bodies... just the thickness
+             
+             for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfBodySurfaces() ; j++ ) {
+             
+                sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Body.%d.Surface.%d.dat",FileName_,i,j);
+   
+                fprintf(PSUWopWopNameListFile_,"!\n");      
+                fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                fprintf(PSUWopWopNameListFile_,"!\n");
+       
+                // ContainerIn for Aero thickness model
+                
+                fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
+                fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Body_%d_Thickness\' \n",j,i);
+                fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
+                fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
+                fprintf(PSUWopWopNameListFile_,"            / \n");               
+                   
+             }
+                
+          }
+          
+       }
+       
+       fclose(PSUWopWopNameListFile_);
        
     }
                 
@@ -16852,9 +17101,15 @@ void VSP_SOLVER::WriteOutPSUWopWopCaseAndNameListFilesForFlyBy(void)
 void VSP_SOLVER::WriteOutPSUWopWopCaseAndNameListFilesForFootPrint(void)
 {
    
-    int c, i, j;
+    int c, i, j, Case;
     char NameListFile[2000];
     char PatchThicknessGeometryName[2000], PatchLoadingGeometryName[2000], WopWopFileName[2000];
+    char pressureFileName[2000];
+    char SPLFileName[2000];
+    char OASPLFileName[2000];
+    char phaseFileName[2000];
+    char complexPressureFileName[2000];
+    char audioFileName[2000];
     FILE *WopWopCaseFile;      
 
     // Cases namelist file
@@ -16867,6 +17122,12 @@ void VSP_SOLVER::WriteOutPSUWopWopCaseAndNameListFilesForFootPrint(void)
 
     }    
     
+    // Baseline case, with all rotors
+
+    fprintf(WopWopCaseFile,"! \n");
+    fprintf(WopWopCaseFile,"!Remove the comment delimiter from those cases below you wish to run, beyond the default all up case \n");
+    fprintf(WopWopCaseFile,"! \n");
+   
     sprintf(NameListFile,"%s.nam",FileName_);
     
     fprintf(WopWopCaseFile,"&caseName\n");
@@ -16874,339 +17135,427 @@ void VSP_SOLVER::WriteOutPSUWopWopCaseAndNameListFilesForFootPrint(void)
     fprintf(WopWopCaseFile,"   caseNameFile = \'%s\' \n",NameListFile);
     fprintf(WopWopCaseFile,"/ \n");        
     
-    fclose(WopWopCaseFile);
-    
-    // Actual namelist file
-    
-    if ( (PSUWopWopNameListFile_ = fopen(NameListFile, "w")) == NULL ) {
+    // Case with no rotors
 
-       printf("Could not open the PSUWopWop Namelist File output! \n");
-
-       exit(1);
-
-    } 
+    sprintf(NameListFile,"%s.NoRotors.nam",FileName_);
     
-    // EnvironmentIn namelist
+    fprintf(WopWopCaseFile,"!&caseName\n");
+    fprintf(WopWopCaseFile,"!   globalFolderName = \'./\' \n");
+    fprintf(WopWopCaseFile,"!   caseNameFile = \'%s\' \n",NameListFile);
+    fprintf(WopWopCaseFile,"!/ \n");       
+    
+    // Cases with a single rotor included 
         
-    fprintf(PSUWopWopNameListFile_,"!\n");    
-    fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-    fprintf(PSUWopWopNameListFile_,"!\n");
-    
-    fprintf(PSUWopWopNameListFile_,"&EnvironmentIn\n");
-    fprintf(PSUWopWopNameListFile_,"   nbSourceContainers     = 1       \n");    
-    fprintf(PSUWopWopNameListFile_,"   nbObserverContainers   = 1       \n");    
-    fprintf(PSUWopWopNameListFile_,"   ASCIIOutputFlag        = .true.  \n");
-    fprintf(PSUWopWopNameListFile_,"   spectrumFlag           = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   SPLdBFlag              = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   SPLdBAFlag             = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   OASPLdBFlag            = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   OASPLdBAFlag           = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   acousticPressureFlag   = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   pressureGradient1AFlag = .true.  \n");     
-    fprintf(PSUWopWopNameListFile_,"   thicknessNoiseFlag     = .true.  \n");    
-    fprintf(PSUWopWopNameListFile_,"   loadingNoiseFlag       = .true.  \n");    
-    fprintf(PSUWopWopNameListFile_,"   totalNoiseFlag         = .true.  \n");    
-    fprintf(PSUWopWopNameListFile_,"   sigmaFlag              = .false. \n");    
-    fprintf(PSUWopWopNameListFile_,"   loadingSigmaFlag       = .false. \n");    
-    fprintf(PSUWopWopNameListFile_,"   machSigmaFlag          = .false. \n");    
-    fprintf(PSUWopWopNameListFile_,"   totalNoiseSigmaFlag    = .false. \n");     
-    fprintf(PSUWopWopNameListFile_,"   audioFlag              = .true.  \n");
-    fprintf(PSUWopWopNameListFile_,"   debugLevel = 5                   \n");    
- 
-    fprintf(PSUWopWopNameListFile_,"/ \n");  
-       
-    // EnvironmentConstants namelist
-
-    fprintf(PSUWopWopNameListFile_,"!\n");      
-    fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-    fprintf(PSUWopWopNameListFile_,"!\n");
-        
-    fprintf(PSUWopWopNameListFile_,"&EnvironmentConstants \n");
-    
-    // Note these are english unit versions of psu-WopWop's default values
-    
-    fprintf(PSUWopWopNameListFile_,"   rho         = %e \n",Density_*WopWopDensityConversion_);  // Density, kg/m^3
-
-    fprintf(WopWopCaseFile,"/ \n");    
-           
-    // ObserverIn namelist
-       
-    fprintf(PSUWopWopNameListFile_,"!\n");      
-    fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-    fprintf(PSUWopWopNameListFile_,"!\n");
-           
-    fprintf(PSUWopWopNameListFile_,"&ObserverIn  \n");
-    fprintf(PSUWopWopNameListFile_,"  Title  = \'Observer_1\' \n");
-    fprintf(PSUWopWopNameListFile_,"  tMin = 0.0 \n");
-    fprintf(PSUWopWopNameListFile_,"  tMax = %f  \n",WopWopObserverTime_);
-
-    // Fixed to aircraft
-       
-    fprintf(PSUWopWopNameListFile_,"  nt                = %d \n",WopWopNumberOfTimeSteps_);
-    fprintf(PSUWopWopNameListFile_,"  highPassFrequency = %f \n",10.);
-    fprintf(PSUWopWopNameListFile_,"  attachedTo        = \'Aircraft\' \n");
-    fprintf(PSUWopWopNameListFile_,"  nbBaseObsContFrame = 1  \n");
-    
-    fprintf(PSUWopWopNameListFile_,"/ \n");        
-                 
-    // Observer CB
-
-    fprintf(PSUWopWopNameListFile_,"!\n");      
-    fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-    fprintf(PSUWopWopNameListFile_,"!\n");
-    
-    fprintf(PSUWopWopNameListFile_,"&CB  \n");
-    fprintf(PSUWopWopNameListFile_,"  Title  = \'Observer\' \n");
-    fprintf(PSUWopWopNameListFile_,"  translationType=\'TimeIndependent\' \n"); 
-    fprintf(PSUWopWopNameListFile_,"  TranslationValue = 0.0, -500., 0. \n");                
-
-    fprintf(PSUWopWopNameListFile_,"/ \n");        
-       
-    // ContainerIn namelist - Aircraft
-
-    fprintf(PSUWopWopNameListFile_,"!\n");      
-    fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-    fprintf(PSUWopWopNameListFile_,"!\n");
-        
-    fprintf(PSUWopWopNameListFile_,"&ContainerIn  \n");
-    fprintf(PSUWopWopNameListFile_,"   Title        = \'Aircraft\' \n");
-    fprintf(PSUWopWopNameListFile_,"   nbContainer  = %d \n",WopWopNumberOfRotors_ + WopWopNumberOfWings_ + WopWopNumberOfBodies_);
-    fprintf(PSUWopWopNameListFile_,"   nbBase = 1 \n");
-    fprintf(PSUWopWopNameListFile_,"   dtau = %e \n",WopWopdTau_);
-    
-    fprintf(PSUWopWopNameListFile_,"/ \n");   
-    
-    // Change of Base namelist for forward motion of aircraft
-
-    fprintf(PSUWopWopNameListFile_,"&CB \n");
-    fprintf(PSUWopWopNameListFile_,"   Title           = \'Velocity\' \n");
-    fprintf(PSUWopWopNameListFile_,"   translationType = \'KnownFunction\' \n");
-    fprintf(PSUWopWopNameListFile_,"   AH = 0.0, 0.0, 0.0 \n");
-    fprintf(PSUWopWopNameListFile_,"   VH = %f,  0.0, 0.0 \n",-Vinf_*WopWopLengthConversion_);
-    fprintf(PSUWopWopNameListFile_,"   Y0 = %f, %f, %f    \n",0.0, 0.0, 0.0);
-    fprintf(PSUWopWopNameListFile_,"/ \n");        
-
-    // Loop over each rotor
-    
     for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
 
        if ( ComponentGroupList_[c].GeometryIsARotor() ) {
           
           i = ComponentGroupList_[c].WopWop().RotorID();
-
-          // ContainerIn for current rotor
-      
-          fprintf(PSUWopWopNameListFile_,"!\n");      
-          fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-          fprintf(PSUWopWopNameListFile_,"!\n");
-       
-          fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
-          fprintf(PSUWopWopNameListFile_,"         Title        = \'Rotor_%d\' \n",i);
-          fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",2*ComponentGroupList_[c].WopWop().NumberOfBlades());
-          fprintf(PSUWopWopNameListFile_,"         BPMNoiseFlag           = .false. \n");
-          fprintf(PSUWopWopNameListFile_,"         PeggNoiseFlag          = .false. \n");
-   
-          // Possible change of base for steady state case where PSUWOPWOP takes care of the blade rotation
           
-          if ( SteadyStateNoise_ ) {
-             
-             fprintf(PSUWopWopNameListFile_,"         nbBase = 1 \n");
-      
-          }
+          sprintf(NameListFile,"%s.Rotor.%d.nam",FileName_,i);
           
-          fprintf(PSUWopWopNameListFile_,"      / \n");     
-   
-          // Change of Base namelist if we are not time accurate, and let WopWop do the unsteady stuff
-        
-          if ( SteadyStateNoise_ ) {
-
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
-            
-             fprintf(PSUWopWopNameListFile_,"      &CB \n");
-             fprintf(PSUWopWopNameListFile_,"         Title     = \'Rotation\' \n");
-             fprintf(PSUWopWopNameListFile_,"         rotation  = .true. \n");
-             fprintf(PSUWopWopNameListFile_,"         AngleType = \'KnownFunction\' \n");
-             fprintf(PSUWopWopNameListFile_,"         Omega     =  %f \n",-BladeRPM_*2.*PI/60.);
-             fprintf(PSUWopWopNameListFile_,"         AxisValue = 1.0,0.0,0.0 \n");
-             fprintf(PSUWopWopNameListFile_,"      / \n");        
-             
-          }
-   
-          if ( SteadyStateNoise_ ) {
-             
-             // Broad band noise: BPM namelist
-      
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
-             
-             fprintf(PSUWopWopNameListFile_,"      &BPMIn \n");
-             fprintf(PSUWopWopNameListFile_,"         BPMNoiseFile = %s.PSUWopWop.BPM.Rotor.%d.dat \n",FileName_,i);
-             fprintf(PSUWopWopNameListFile_,"         nSect           = %d \n",ComponentGroupList_[c].WopWop().NumberOfBladesSections());
-             fprintf(PSUWopWopNameListFile_,"         uniformBlade    = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"         BLtrip          = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"         sectChordFlag   = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         sectLengthFlag  = 'COMPUTE'   \n");
-             fprintf(PSUWopWopNameListFile_,"         TEThicknessFlag = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         TEflowAngleFlag = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         TipLCSFlag      = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         SectAOAFlag     = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         SectAOAFlag     = 'FILEVALUE' \n");
-             fprintf(PSUWopWopNameListFile_,"         LBLVSnoise      = .true.  \n");
-             fprintf(PSUWopWopNameListFile_,"         TBLTEnoise      = .true.  \n");
-             fprintf(PSUWopWopNameListFile_,"         bluntNoise      = .true.  \n");
-             fprintf(PSUWopWopNameListFile_,"         bladeTipNoise   = .true.  \n");
-             fprintf(PSUWopWopNameListFile_,"      / \n");
+          fprintf(WopWopCaseFile,"!&caseName\n");
+          fprintf(WopWopCaseFile,"!   globalFolderName = \'./\' \n");
+          fprintf(WopWopCaseFile,"!   caseNameFile = \'%s\' \n",NameListFile);
+          fprintf(WopWopCaseFile,"!/ \n");      
+          
+       }
        
-             // Broad band noise: PeggIn namelist
-             
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
+    }          
                     
-             WriteOutPSUWopWopPeggNamelist();
-             
-          }
-          
-          // Write out containers for each of the blades... one for loading, one for thickness
-          
-          for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfBlades() ; j++ ) {
-          
-             sprintf(PatchLoadingGeometryName  ,"%s.PSUWopWop.Loading.Geometry.Rotor.%d.Blade.%d.dat",  FileName_,i,j);
-             sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Rotor.%d.Blade.%d.dat",FileName_,i,j);
-             sprintf(WopWopFileName,            "%s.PSUWopWop.Loading.Rotor.%d.Blade.%d.dat",           FileName_,i,j);
-               
-             // ContainerIn for Aero loading geometry and load file
-      
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
-         
-             fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
-             fprintf(PSUWopWopNameListFile_,"               Title        = \'Blade_%d_For_Rotor_%d_Loading\' \n",j,i);
-             fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchLoadingGeometryName);
-             fprintf(PSUWopWopNameListFile_,"               patchLoadingFile   = %s \n",WopWopFileName);
-             fprintf(PSUWopWopNameListFile_,"            / \n");     
-          
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
+    fclose(WopWopCaseFile);
+
+    // Create multiple psuwopwop cases, body/wings alone, bodies/wings + single rotors, and full up case
     
-             // ContainerIn for Aero thickness model
-             
-             fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
-             fprintf(PSUWopWopNameListFile_,"               Title        = \'Blade_%d_For_Rotor_%d_Thickness\' \n",j,i);
-             fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
-             fprintf(PSUWopWopNameListFile_,"            / \n");               
-                
-          }
-             
-       }
+    for ( Case = -1 ; Case <= WopWopNumberOfRotors_ ; Case++ ) {
+
+       if ( Case == -1 ) sprintf(NameListFile,"%s.NoRotors.nam",FileName_);
+       if ( Case ==  0 ) sprintf(NameListFile,"%s.nam",FileName_);
+       if ( Case >   0 ) sprintf(NameListFile,"%s.Rotor.%d.nam",FileName_,Case);
+
+       // Actual namelist file
        
-    }
-
-    // Loop over each wing
-    
-    for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
-
-       if ( ComponentGroupList_[c].GeometryHasWings() ) {
-          
-          i = ComponentGroupList_[c].WopWop().WingID();
-
-          // ContainerIn for current wing
-      
-          fprintf(PSUWopWopNameListFile_,"!\n");      
-          fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-          fprintf(PSUWopWopNameListFile_,"!\n");
-       
-          fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
-          fprintf(PSUWopWopNameListFile_,"         Title        = \'Wing_%d\' \n",i);
-          fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",2*ComponentGroupList_[c].WopWop().NumberOfWingSurfaces());
-          fprintf(PSUWopWopNameListFile_,"      / \n");     
+       if ( (PSUWopWopNameListFile_ = fopen(NameListFile, "w")) == NULL ) {
    
-          // Write out containers for each of the wing surfaces... one for loading, one for thickness
-          
-          for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfWingSurfaces() ; j++ ) {
-          
-             sprintf(PatchLoadingGeometryName  ,"%s.PSUWopWop.Loading.Geometry.Wing.%d.Surface.%d.dat",  FileName_,i,j);
-             sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Wing.%d.Surface.%d.dat",FileName_,i,j);
-             sprintf(WopWopFileName,            "%s.PSUWopWop.Loading.Wing.%d.Surface.%d.dat",           FileName_,i,j);
-               
-             // ContainerIn for Aero loading geometry and load file
-      
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
-         
-             fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
-             fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Wing_%d_Loading\' \n",j,i);
-             fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchLoadingGeometryName);
-             fprintf(PSUWopWopNameListFile_,"               patchLoadingFile   = %s \n",WopWopFileName);
-             fprintf(PSUWopWopNameListFile_,"            / \n");     
-          
-             fprintf(PSUWopWopNameListFile_,"!\n");      
-             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-             fprintf(PSUWopWopNameListFile_,"!\n");
-    
-             // ContainerIn for Aero thickness model
-             
-             fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
-             fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Wing_%d_Thickness\' \n",j,i);
-             fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
-             fprintf(PSUWopWopNameListFile_,"            / \n");               
-                
-          }
-             
-       }
-       
-    }
-
-    // Loop over each body
-    
-    for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
-
-       if ( ComponentGroupList_[c].GeometryHasBodies() ) {
-          
-          i = ComponentGroupList_[c].WopWop().BodyID();
-
-          // ContainerIn for current body
-      
-          fprintf(PSUWopWopNameListFile_,"!\n");      
-          fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
-          fprintf(PSUWopWopNameListFile_,"!\n");
-       
-          fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
-          fprintf(PSUWopWopNameListFile_,"         Title        = \'Body_%d\' \n",i);
-          fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",ComponentGroupList_[c].WopWop().NumberOfBodySurfaces());
-          fprintf(PSUWopWopNameListFile_,"      / \n");     
+          printf("Could not open the PSUWopWop Namelist File output! \n");
    
-          // Write out containers for each of the bodies... just the thickness
-          
-          for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfBodySurfaces() ; j++ ) {
-          
-             sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Body.%d.Surface.%d.dat",FileName_,i,j);
+          exit(1);
+   
+       } 
+                  
+       // EnvironmentIn namelist
+           
+       fprintf(PSUWopWopNameListFile_,"!\n");    
+       fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+       fprintf(PSUWopWopNameListFile_,"!\n");
+       
+       fprintf(PSUWopWopNameListFile_,"&EnvironmentIn\n");
+       fprintf(PSUWopWopNameListFile_,"   nbSourceContainers     = 1       \n");    
+       fprintf(PSUWopWopNameListFile_,"   nbObserverContainers   = 1       \n");    
+       fprintf(PSUWopWopNameListFile_,"   ASCIIOutputFlag        = .true.  \n");
+       fprintf(PSUWopWopNameListFile_,"   spectrumFlag           = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   SPLdBFlag              = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   SPLdBAFlag             = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   OASPLdBFlag            = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   OASPLdBAFlag           = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   acousticPressureFlag   = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   pressureGradient1AFlag = .true.  \n");     
+       fprintf(PSUWopWopNameListFile_,"   thicknessNoiseFlag     = .true.  \n");    
+       fprintf(PSUWopWopNameListFile_,"   loadingNoiseFlag       = .true.  \n");    
+       fprintf(PSUWopWopNameListFile_,"   totalNoiseFlag         = .true.  \n");    
+       fprintf(PSUWopWopNameListFile_,"   sigmaFlag              = .false. \n");    
+       fprintf(PSUWopWopNameListFile_,"   loadingSigmaFlag       = .false. \n");    
+       fprintf(PSUWopWopNameListFile_,"   machSigmaFlag          = .false. \n");    
+       fprintf(PSUWopWopNameListFile_,"   totalNoiseSigmaFlag    = .false. \n");     
+       fprintf(PSUWopWopNameListFile_,"   audioFlag              = .true.  \n");
+       fprintf(PSUWopWopNameListFile_,"   debugLevel = 5                   \n");    
 
+       if ( Case == -1 ) {
+          
+          sprintf(pressureFileName,       "pressure.NoRotors");
+          sprintf(SPLFileName,            "spl.NoRotors");
+          sprintf(OASPLFileName,          "OASPL.NoRotors.");
+          sprintf(phaseFileName,          "phase.NoRotors.");
+          sprintf(complexPressureFileName,"complexPressure.NoRotors");
+          sprintf(audioFileName,          "sigma.NoRotors");
+          
+       }
+     
+       if ( Case == 0 ) {
+          
+          sprintf(pressureFileName,       "pressure.AllRotors");
+          sprintf(SPLFileName,            "spl.AllRotors");
+          sprintf(OASPLFileName,          "OASPL.AllRotors.");
+          sprintf(phaseFileName,          "phase.AllRotors.");
+          sprintf(complexPressureFileName,"complexPressure.AllRotors");
+          sprintf(audioFileName,          "sigma.AllRotors");
+          
+       }
+    
+       if ( Case > 0 ) {
+          
+          sprintf(pressureFileName,       "pressure.Rotor.%d",Case);
+          sprintf(SPLFileName,            "spl.Rotor.%d",Case);
+          sprintf(OASPLFileName,          "OASPL.Rotor.%d.",Case);
+          sprintf(phaseFileName,          "phase.Rotor.%d.",Case);
+          sprintf(complexPressureFileName,"complexPressure.Rotor.%d",Case);
+          sprintf(audioFileName,          "sigma.Rotor.%d",Case);
+          
+       }
+
+       fprintf(PSUWopWopNameListFile_,"   pressureFileName        = %s \n",pressureFileName);
+       fprintf(PSUWopWopNameListFile_,"   SPLFileName             = %s \n",SPLFileName);           
+       fprintf(PSUWopWopNameListFile_,"   OASPLFileName           = %s \n",OASPLFileName);         
+       fprintf(PSUWopWopNameListFile_,"   phaseFileName           = %s \n",phaseFileName);         
+       fprintf(PSUWopWopNameListFile_,"   complexPressureFileName = %s \n",complexPressureFileName);
+       fprintf(PSUWopWopNameListFile_,"   audioFileName           = %s \n",audioFileName);         
+           
+       fprintf(PSUWopWopNameListFile_,"/ \n");  
+          
+       // EnvironmentConstants namelist
+   
+       fprintf(PSUWopWopNameListFile_,"!\n");      
+       fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+       fprintf(PSUWopWopNameListFile_,"!\n");
+           
+       fprintf(PSUWopWopNameListFile_,"&EnvironmentConstants \n");
+       
+       // Note these are english unit versions of psu-WopWop's default values
+       
+       fprintf(PSUWopWopNameListFile_,"   rho         = %e \n",Density_*WopWopDensityConversion_);  // Density, kg/m^3
+   
+       fprintf(WopWopCaseFile,"/ \n");    
+              
+       // ObserverIn namelist
+          
+       fprintf(PSUWopWopNameListFile_,"!\n");      
+       fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+       fprintf(PSUWopWopNameListFile_,"!\n");
+              
+       fprintf(PSUWopWopNameListFile_,"&ObserverIn  \n");
+       fprintf(PSUWopWopNameListFile_,"  Title  = \'Observer_1\' \n");
+       fprintf(PSUWopWopNameListFile_,"  tMin = 0.0 \n");
+       fprintf(PSUWopWopNameListFile_,"  tMax = %f  \n",WopWopObserverTime_);
+   
+       // Fixed to aircraft
+          
+       fprintf(PSUWopWopNameListFile_,"  nt                = %d \n",WopWopNumberOfTimeSteps_);
+       fprintf(PSUWopWopNameListFile_,"  highPassFrequency = %f \n",10.);
+       fprintf(PSUWopWopNameListFile_,"  attachedTo        = \'Aircraft\' \n");
+       fprintf(PSUWopWopNameListFile_,"  nbBaseObsContFrame = 1  \n");
+       
+       fprintf(PSUWopWopNameListFile_,"/ \n");        
+                    
+       // Observer CB
+   
+       fprintf(PSUWopWopNameListFile_,"!\n");      
+       fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+       fprintf(PSUWopWopNameListFile_,"!\n");
+       
+       fprintf(PSUWopWopNameListFile_,"&CB  \n");
+       fprintf(PSUWopWopNameListFile_,"  Title  = \'Observer\' \n");
+       fprintf(PSUWopWopNameListFile_,"  translationType=\'TimeIndependent\' \n"); 
+       fprintf(PSUWopWopNameListFile_,"  TranslationValue = 0.0, -500., 0. \n");                
+   
+       fprintf(PSUWopWopNameListFile_,"/ \n");        
+          
+       // ContainerIn namelist - Aircraft
+   
+       fprintf(PSUWopWopNameListFile_,"!\n");      
+       fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+       fprintf(PSUWopWopNameListFile_,"!\n");
+           
+       fprintf(PSUWopWopNameListFile_,"&ContainerIn  \n");
+       fprintf(PSUWopWopNameListFile_,"   Title        = \'Aircraft\' \n");
+       fprintf(PSUWopWopNameListFile_,"   nbContainer  = %d \n",WopWopNumberOfRotors_ + WopWopNumberOfWings_ + WopWopNumberOfBodies_);
+       fprintf(PSUWopWopNameListFile_,"   nbBase = 1 \n");
+       fprintf(PSUWopWopNameListFile_,"   dtau = %e \n",WopWopdTau_);
+       
+       fprintf(PSUWopWopNameListFile_,"/ \n");   
+       
+       // Change of Base namelist for forward motion of aircraft
+   
+       fprintf(PSUWopWopNameListFile_,"&CB \n");
+       fprintf(PSUWopWopNameListFile_,"   Title           = \'Velocity\' \n");
+       fprintf(PSUWopWopNameListFile_,"   translationType = \'KnownFunction\' \n");
+       fprintf(PSUWopWopNameListFile_,"   AH = 0.0, 0.0, 0.0 \n");
+       fprintf(PSUWopWopNameListFile_,"   VH = %f,  0.0, 0.0 \n",-Vinf_*WopWopLengthConversion_);
+       fprintf(PSUWopWopNameListFile_,"   Y0 = %f, %f, %f    \n",0.0, 0.0, 0.0);
+       fprintf(PSUWopWopNameListFile_,"/ \n");        
+
+       // Loop over each rotor
+       
+       if ( Case >= 0 ) {
+          
+          for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
+      
+             if ( ComponentGroupList_[c].GeometryIsARotor() ) {
+                
+                i = ComponentGroupList_[c].WopWop().RotorID();
+                
+                if ( Case == 0 || Case == i ) {
+
+                   // ContainerIn for current rotor
+               
+                   fprintf(PSUWopWopNameListFile_,"!\n");      
+                   fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                   fprintf(PSUWopWopNameListFile_,"!\n");
+                
+                   fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
+                   fprintf(PSUWopWopNameListFile_,"         Title        = \'Rotor_%d\' \n",i);
+                   fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",2*ComponentGroupList_[c].WopWop().NumberOfBlades());
+                   fprintf(PSUWopWopNameListFile_,"         BPMNoiseFlag           = .false. \n");
+                   fprintf(PSUWopWopNameListFile_,"         PeggNoiseFlag          = .false. \n");
+            
+                   // Possible change of base for steady state case where PSUWOPWOP takes care of the blade rotation
+                   
+                   if ( SteadyStateNoise_ ) {
+                      
+                      fprintf(PSUWopWopNameListFile_,"         nbBase = 1 \n");
+               
+                   }
+                   
+                   fprintf(PSUWopWopNameListFile_,"      / \n");     
+            
+                   // Change of Base namelist if we are not time accurate, and let WopWop do the unsteady stuff
+                 
+                   if ( SteadyStateNoise_ ) {
+         
+                      fprintf(PSUWopWopNameListFile_,"!\n");      
+                      fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                      fprintf(PSUWopWopNameListFile_,"!\n");
+                     
+                      fprintf(PSUWopWopNameListFile_,"      &CB \n");
+                      fprintf(PSUWopWopNameListFile_,"         Title     = \'Rotation\' \n");
+                      fprintf(PSUWopWopNameListFile_,"         rotation  = .true. \n");
+                      fprintf(PSUWopWopNameListFile_,"         AngleType = \'KnownFunction\' \n");
+                      fprintf(PSUWopWopNameListFile_,"         Omega     =  %f \n",-BladeRPM_*2.*PI/60.);
+                      fprintf(PSUWopWopNameListFile_,"         AxisValue = 1.0,0.0,0.0 \n");
+                      fprintf(PSUWopWopNameListFile_,"      / \n");        
+                      
+                   }
+            
+                   if ( SteadyStateNoise_ ) {
+                      
+                      // Broad band noise: BPM namelist
+               
+                      fprintf(PSUWopWopNameListFile_,"!\n");      
+                      fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                      fprintf(PSUWopWopNameListFile_,"!\n");
+                      
+                      fprintf(PSUWopWopNameListFile_,"      &BPMIn \n");
+                      fprintf(PSUWopWopNameListFile_,"         BPMNoiseFile = %s.PSUWopWop.BPM.Rotor.%d.dat \n",FileName_,i);
+                      fprintf(PSUWopWopNameListFile_,"         nSect           = %d \n",ComponentGroupList_[c].WopWop().NumberOfBladesSections());
+                      fprintf(PSUWopWopNameListFile_,"         uniformBlade    = 0 \n");
+                      fprintf(PSUWopWopNameListFile_,"         BLtrip          = 0 \n");
+                      fprintf(PSUWopWopNameListFile_,"         sectChordFlag   = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         sectLengthFlag  = 'COMPUTE'   \n");
+                      fprintf(PSUWopWopNameListFile_,"         TEThicknessFlag = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         TEflowAngleFlag = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         TipLCSFlag      = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         SectAOAFlag     = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         SectAOAFlag     = 'FILEVALUE' \n");
+                      fprintf(PSUWopWopNameListFile_,"         LBLVSnoise      = .true.  \n");
+                      fprintf(PSUWopWopNameListFile_,"         TBLTEnoise      = .true.  \n");
+                      fprintf(PSUWopWopNameListFile_,"         bluntNoise      = .true.  \n");
+                      fprintf(PSUWopWopNameListFile_,"         bladeTipNoise   = .true.  \n");
+                      fprintf(PSUWopWopNameListFile_,"      / \n");
+                
+                      // Broad band noise: PeggIn namelist
+                      
+                      fprintf(PSUWopWopNameListFile_,"!\n");      
+                      fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                      fprintf(PSUWopWopNameListFile_,"!\n");
+                             
+                      WriteOutPSUWopWopPeggNamelist();
+                      
+                   }
+                   
+                   // Write out containers for each of the blades... one for loading, one for thickness
+                   
+                   for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfBlades() ; j++ ) {
+                   
+                      sprintf(PatchLoadingGeometryName  ,"%s.PSUWopWop.Loading.Geometry.Rotor.%d.Blade.%d.dat",  FileName_,i,j);
+                      sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Rotor.%d.Blade.%d.dat",FileName_,i,j);
+                      sprintf(WopWopFileName,            "%s.PSUWopWop.Loading.Rotor.%d.Blade.%d.dat",           FileName_,i,j);
+                        
+                      // ContainerIn for Aero loading geometry and load file
+               
+                      fprintf(PSUWopWopNameListFile_,"!\n");      
+                      fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                      fprintf(PSUWopWopNameListFile_,"!\n");
+                  
+                      fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
+                      fprintf(PSUWopWopNameListFile_,"               Title        = \'Blade_%d_For_Rotor_%d_Loading\' \n",j,i);
+                      fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
+                      fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchLoadingGeometryName);
+                      fprintf(PSUWopWopNameListFile_,"               patchLoadingFile   = %s \n",WopWopFileName);
+                      fprintf(PSUWopWopNameListFile_,"            / \n");     
+                   
+                      fprintf(PSUWopWopNameListFile_,"!\n");      
+                      fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                      fprintf(PSUWopWopNameListFile_,"!\n");
+             
+                      // ContainerIn for Aero thickness model
+                      
+                      fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
+                      fprintf(PSUWopWopNameListFile_,"               Title        = \'Blade_%d_For_Rotor_%d_Thickness\' \n",j,i);
+                      fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
+                      fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
+                      fprintf(PSUWopWopNameListFile_,"            / \n");               
+                         
+                   }
+                      
+                }
+                
+             }
+             
+          }
+          
+       }
+   
+       // Loop over each wing
+       
+       for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
+   
+          if ( ComponentGroupList_[c].GeometryHasWings() ) {
+             
+             i = ComponentGroupList_[c].WopWop().WingID();
+   
+             // ContainerIn for current wing
+         
              fprintf(PSUWopWopNameListFile_,"!\n");      
              fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
              fprintf(PSUWopWopNameListFile_,"!\n");
-    
-             // ContainerIn for Aero thickness model
+          
+             fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
+             fprintf(PSUWopWopNameListFile_,"         Title        = \'Wing_%d\' \n",i);
+             fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",2*ComponentGroupList_[c].WopWop().NumberOfWingSurfaces());
+             fprintf(PSUWopWopNameListFile_,"      / \n");     
+      
+             // Write out containers for each of the wing surfaces... one for loading, one for thickness
              
-             fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
-             fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Body_%d_Thickness\' \n",j,i);
-             fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
-             fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
-             fprintf(PSUWopWopNameListFile_,"            / \n");               
+             for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfWingSurfaces() ; j++ ) {
+             
+                sprintf(PatchLoadingGeometryName  ,"%s.PSUWopWop.Loading.Geometry.Wing.%d.Surface.%d.dat",  FileName_,i,j);
+                sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Wing.%d.Surface.%d.dat",FileName_,i,j);
+                sprintf(WopWopFileName,            "%s.PSUWopWop.Loading.Wing.%d.Surface.%d.dat",           FileName_,i,j);
+                  
+                // ContainerIn for Aero loading geometry and load file
+         
+                fprintf(PSUWopWopNameListFile_,"!\n");      
+                fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                fprintf(PSUWopWopNameListFile_,"!\n");
+            
+                fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
+                fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Wing_%d_Loading\' \n",j,i);
+                fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
+                fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchLoadingGeometryName);
+                fprintf(PSUWopWopNameListFile_,"               patchLoadingFile   = %s \n",WopWopFileName);
+                fprintf(PSUWopWopNameListFile_,"            / \n");     
+             
+                fprintf(PSUWopWopNameListFile_,"!\n");      
+                fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                fprintf(PSUWopWopNameListFile_,"!\n");
+       
+                // ContainerIn for Aero thickness model
+                
+                fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
+                fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Wing_%d_Thickness\' \n",j,i);
+                fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
+                fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
+                fprintf(PSUWopWopNameListFile_,"            / \n");               
+                   
+             }
                 
           }
-             
+          
        }
+   
+       // Loop over each body
+       
+       for ( c = 1 ; c <= NumberOfComponentGroups_ ; c++ ) {
+   
+          if ( ComponentGroupList_[c].GeometryHasBodies() ) {
+             
+             i = ComponentGroupList_[c].WopWop().BodyID();
+   
+             // ContainerIn for current body
+         
+             fprintf(PSUWopWopNameListFile_,"!\n");      
+             fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+             fprintf(PSUWopWopNameListFile_,"!\n");
+          
+             fprintf(PSUWopWopNameListFile_,"      &ContainerIn  \n");
+             fprintf(PSUWopWopNameListFile_,"         Title        = \'Body_%d\' \n",i);
+             fprintf(PSUWopWopNameListFile_,"         nbContainer  = %d \n",ComponentGroupList_[c].WopWop().NumberOfBodySurfaces());
+             fprintf(PSUWopWopNameListFile_,"      / \n");     
+      
+             // Write out containers for each of the bodies... just the thickness
+             
+             for ( j = 1 ; j <= ComponentGroupList_[c].WopWop().NumberOfBodySurfaces() ; j++ ) {
+             
+                sprintf(PatchThicknessGeometryName,"%s.PSUWopWop.Thickness.Geometry.Body.%d.Surface.%d.dat",FileName_,i,j);
+   
+                fprintf(PSUWopWopNameListFile_,"!\n");      
+                fprintf(PSUWopWopNameListFile_,"!************************************************************************************************************************ \n");
+                fprintf(PSUWopWopNameListFile_,"!\n");
+       
+                // ContainerIn for Aero thickness model
+                
+                fprintf(PSUWopWopNameListFile_,"            &ContainerIn  \n");
+                fprintf(PSUWopWopNameListFile_,"               Title        = \'Surface_%d_For_Body_%d_Thickness\' \n",j,i);
+                fprintf(PSUWopWopNameListFile_,"               nbContainer  = 0 \n");
+                fprintf(PSUWopWopNameListFile_,"               patchGeometryFile  = %s \n",PatchThicknessGeometryName);
+                fprintf(PSUWopWopNameListFile_,"            / \n");               
+                   
+             }
+                
+          }
+          
+       }
+       
+       fclose(PSUWopWopNameListFile_);
        
     }
                 

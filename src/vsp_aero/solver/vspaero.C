@@ -20,7 +20,7 @@
 
 #define VER_MAJOR 6
 #define VER_MINOR 0
-#define VER_PATCH 1
+#define VER_PATCH 2
 
 // Some globals...
 
@@ -1506,7 +1506,15 @@ void LoadCaseFile(void)
     
     if ( FarDist_ > 0. ) SetFarDist_ = 1;
     
-    if ( WakeIterations_ <= 3 ) WakeIterations_ = 3;
+    if ( WakeIterations_ != 0 && WakeIterations_ <= 3 ) WakeIterations_ = 3;
+    
+    if ( WakeIterations_ == 0 ) {
+       
+       WakeIterations_ = 1;
+       
+       VSP_VLM().GMRESTightConvergence() = 1;
+       
+    }
     
     if ( ClMax_ <= 0. ) ClMax_ = -1.;
     
@@ -2821,10 +2829,12 @@ void UnsteadyStabilityAndControlSolve(void)
     double CMy_damp, CMy_avg;
     double CMz_damp, CMz_avg;     
     double Fact, T, Theta;  
-      
-    // Open the stability and control output file
-    
-    sprintf(StabFileName,"%s.stab",FileName);
+
+    if ( StabControlRun_ == 2 ) sprintf(StabFileName,"%s.pstab",FileName); // Roll analysis
+                                
+    if ( StabControlRun_ == 3 ) sprintf(StabFileName,"%s.qstab",FileName); // Pitch analysis
+                                
+    if ( StabControlRun_ == 4 ) sprintf(StabFileName,"%s.rstab",FileName); // Yaw analysis
 
     if ( (StabFile = fopen(StabFileName,"w")) == NULL ) {
 

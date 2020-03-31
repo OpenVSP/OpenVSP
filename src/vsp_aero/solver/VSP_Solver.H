@@ -200,6 +200,7 @@ private:
     int NoWakeIteration_;
     int WakeIterations_;
     int CurrentWakeIteration_;
+    int GMRESTightConvergence_;
     
     int DoSymmetryPlaneSolve_;
 
@@ -692,6 +693,7 @@ public:
     
     int &NoWakeIteration(void) { return NoWakeIteration_; };
     int &WakeIterations(void) { return WakeIterations_; };
+    int &GMRESTightConvergence(void) { return GMRESTightConvergence_; };
     
     double &AngleOfAttack(void) { return AngleOfAttack_; };
     double &AngleOfBeta(void) { return AngleOfBeta_; };
