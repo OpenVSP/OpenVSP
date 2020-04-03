@@ -576,6 +576,15 @@ enum VSPAERO_ANALYSIS_METHOD { VORTEX_LATTICE,
                                PANEL
                              };
 
+enum VSPAERO_NOISE_TYPE { NOISE_FLYBY,
+                          NOISE_FOOTPRINT,
+                          NOISE_STEADY,
+                        };
+
+enum VSPAERO_NOISE_UNIT { NOISE_SI,
+                          NOISE_ENGLISH
+                        };
+
 enum VSPAERO_PRECONDITION { PRECON_MATRIX = 0,
                             PRECON_JACOBI,
                             PRECON_SSOR,
