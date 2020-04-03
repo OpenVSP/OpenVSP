@@ -20,14 +20,3 @@ NumberOfRotors = 0
 NumberOfControlGroups = 0 
 TimeStep =           0.001616046
 NumberOfTimeSteps =  150
-
-
-
-
-TimeStep =           0.00080823
-NumberOfTimeSteps =  50
- 
-
-
-
-
