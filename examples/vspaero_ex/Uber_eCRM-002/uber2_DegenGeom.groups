@@ -2,8 +2,8 @@
 #
 GroupName = RightFrontOutBoardLiftRotor
 NumberOfComponents = 2
-5
 6
+7
 GeometryIsFixed = 0
 GeometryIsDynamic = 0
 GeometryIsARotor = 1
@@ -22,8 +22,8 @@ Iyz = 0.
 #
 GroupName = RightFrontInnerLiftRotor
 NumberOfComponents = 2
-2
 3
+4
 GeometryIsFixed = 0
 GeometryIsDynamic = 0
 GeometryIsARotor = 1
@@ -42,8 +42,8 @@ Iyz = 0.
 #
 GroupName = LeftFrontOutBoardLiftRotor
 NumberOfComponents = 2
-10
 11
+12
 GeometryIsFixed = 0
 GeometryIsDynamic = 0
 GeometryIsARotor = 1
@@ -62,8 +62,8 @@ Iyz = 0.
 #
 GroupName = LeftFrontInnerLiftRotor
 NumberOfComponents = 2
-7
 8
+9
 GeometryIsFixed = 0
 GeometryIsDynamic = 0
 GeometryIsARotor = 1
@@ -82,8 +82,8 @@ Iyz = 0.
 #
 GroupName = FrontTailBoomRotor
 NumberOfComponents = 2
-14
-15
+16
+17
 GeometryIsFixed = 0
 GeometryIsDynamic = 0
 GeometryIsARotor = 1
@@ -102,8 +102,8 @@ Iyz = 0.
 #
 GroupName = RearTailBoomRotor
 NumberOfComponents = 2
-16
-17
+18
+19
 GeometryIsFixed = 0
 GeometryIsDynamic = 0
 GeometryIsARotor = 1
@@ -122,7 +122,7 @@ Iyz = 0.
 #
 GroupName = RightCruiseRotor
 NumberOfComponents = 1
-4
+5
 GeometryIsFixed = 0
 GeometryIsDynamic = 0
 GeometryIsARotor = 1
@@ -141,7 +141,7 @@ Iyz = 0.
 #
 GroupName = LeftCruiseRotor
 NumberOfComponents = 1
-9
+10
 GeometryIsFixed = 0
 GeometryIsDynamic = 0
 GeometryIsARotor = 1
@@ -159,15 +159,17 @@ Ixz = 0.
 Iyz = 0.
 #
 GroupName = Plane
-NumberOfComponents = 8
-1
-12
-13
-18
-19
+NumberOfComponents = 10
 20
+1
+2
 21
 22
+23
+24
+13
+14
+15
 GeometryIsFixed = 1
 GeometryIsDynamic = 0
 GeometryIsARotor = 0
