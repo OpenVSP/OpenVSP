@@ -793,6 +793,38 @@ vector< string > Vehicle::GetGeomVec( bool check_display_flag )
     return geom_vec;
 }
 
+vector < int > Vehicle::GetDegenGeomTypeVec( int set_index )
+{
+    vector < string > all_geom_vec = GetGeomSet( set_index );
+
+    vector < int > degen_type_vec( all_geom_vec.size() );
+
+    for ( size_t i = 0; i < all_geom_vec.size(); i++ )
+    {
+        Geom* geom = FindGeom( all_geom_vec[i] );
+        if ( geom )
+        {
+            // Identify the DegenGeom type
+            vector < VspSurf > main_surf_vec;
+            geom->GetMainSurfVec( main_surf_vec );
+
+            int surftype = DegenGeom::BODY_TYPE;
+            if ( main_surf_vec[0].GetSurfType() == vsp::WING_SURF || main_surf_vec[0].GetSurfType() == vsp::PROP_SURF )
+            {
+                surftype = DegenGeom::SURFACE_TYPE;
+            }
+            else if ( main_surf_vec[0].GetSurfType() == vsp::DISK_SURF )
+            {
+                surftype = DegenGeom::DISK_TYPE;
+            }
+
+            degen_type_vec[i] = surftype;
+        }
+    }
+
+    return degen_type_vec;
+}
+
 //==== Add ID to Active Geom Vec ====//
 void Vehicle::AddActiveGeom( const string & id )
 {

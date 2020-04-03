@@ -103,6 +103,7 @@ public:
     //==== Get All Geoms (Does NOT Return Collapsed Geoms if check_display_flag == true) ====//
     vector< string > GetGeomVec( bool check_display_flag = false );
     vector< Geom* > GetGeomStoreVec()                                { return m_GeomStoreVec; }
+    vector < int > GetDegenGeomTypeVec( int set_index );
     void AddActiveGeom( const string & id );
     void SetActiveGeom( const string & id );
     void SetActiveGeomVec( vector< string > const & geom_id_vec )    { m_ActiveGeom = geom_id_vec; }
