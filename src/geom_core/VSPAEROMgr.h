@@ -216,6 +216,7 @@ public:
     {
         ROTORDISK = 0,      // user has selected a rotor disk
         CONTROL_SURFACE,    // user has selected a control surface
+        UNSTEADY_GROUP      // user has selected an unsteady group
     };
 
     static VSPAEROMgrSingleton& getInstance()
@@ -329,6 +330,7 @@ public:
     void ClearUnsteadyGroupVec();
     int NumUnsteadyGroups()                                  { return m_UnsteadyGroupVec.size(); }
     int NumUnsteadyRotorGroups();
+    void HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_vec );
     map < pair < string, int >, vector < int > > GetVSPAEROGeomIndexMap( int set_index );
     virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id );
 

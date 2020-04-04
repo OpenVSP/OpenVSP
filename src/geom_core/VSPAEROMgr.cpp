@@ -2970,6 +2970,10 @@ void VSPAEROMgrSingleton::HighlightSelected( int type )
     {
         VSPAEROMgr.SetCurrentType( CONTROL_SURFACE );
     }
+    else if ( type == UNSTEADY_GROUP )
+    {
+        VSPAEROMgr.SetCurrentType( UNSTEADY_GROUP );
+    }
     else
     {
         return;
@@ -2991,6 +2995,10 @@ void VSPAEROMgrSingleton::LoadDrawObjs( vector < DrawObj* > & draw_obj_vec )
     else if ( m_LastSelectedType == CONTROL_SURFACE )
     {
         UpdateHighlighted( draw_obj_vec );
+    }
+    else if ( m_LastSelectedType == UNSTEADY_GROUP )
+    {
+        HighlightUnsteadyGroup( draw_obj_vec );
     }
 
     for ( size_t i = 0; i < m_CpSliceVec.size(); i++ )
@@ -3924,6 +3932,70 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
             }
         }
     }
+}
+
+void VSPAEROMgrSingleton::HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_vec )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    //==== Load Bounding Box ====//
+    m_BBox.Reset();
+    BndBox bb;
+
+    // If there is no selected rotor size is zero ( like blank geom )
+    // set bbox to zero size
+    if ( m_CurrentUnsteadyGroupIndex < 0 || m_CurrentUnsteadyGroupIndex > m_UnsteadyGroupVec.size() - 1 )
+    {
+        m_BBox.Update( vec3d( 0, 0, 0 ) );
+    }
+    else
+    {
+        vector < VspSurf > surf_vec;
+        UnsteadyGroup* select_group = m_UnsteadyGroupVec[m_CurrentUnsteadyGroupIndex];
+
+        if ( select_group )
+        {
+            vector < pair < string, int > > comp_vec = select_group->GetCompSurfPairVec();
+
+            for ( size_t i = 0; i < comp_vec.size(); i++ )
+            {
+                Geom* geom = veh->FindGeom( comp_vec[i].first );
+
+                if ( !geom )
+                {
+                    continue;
+                }
+
+                geom->GetSurfVec( surf_vec );
+                int num_main_surf = geom->GetNumMainSurfs();
+
+                for ( size_t j = 0; j < num_main_surf; j++ )
+                {
+                    surf_vec[j + num_main_surf * ( comp_vec[i].second - 1 )].GetBoundingBox( bb );
+                    m_BBox.Update( bb );
+                }
+            }
+        }
+        else
+        {
+            m_CurrentRotorDiskIndex = -1;
+        }
+    }
+
+    //==== Bounding Box ====//
+    m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
+    m_HighlightDrawObj.m_GeomID = BBOXHEADER + m_ID;
+    m_HighlightDrawObj.m_LineWidth = 2.0;
+    m_HighlightDrawObj.m_LineColor = vec3d( 1.0, 0., 0.0 );
+    m_HighlightDrawObj.m_Type = DrawObj::VSP_LINES;
+
+    m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
+
+    draw_obj_vec.push_back( &m_HighlightDrawObj );
 }
 
 /*##############################################################################
