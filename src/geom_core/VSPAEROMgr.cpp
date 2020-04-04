@@ -1347,6 +1347,14 @@ void VSPAEROMgrSingleton::ClearAllPreviousResults()
     {
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Stab",  0 ) );
     }
+    while ( ResultsMgr.GetNumResults( "VSPAERO_Group" ) > 0 )
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Group", 0 ) );
+    }
+    while ( ResultsMgr.GetNumResults( "VSPAERO_Rotor" ) > 0 )
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Rotor", 0 ) );
+    }
     while ( ResultsMgr.GetNumResults( "VSPAERO_Wrapper" ) > 0 )
     {
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Wrapper",  0 ) );
@@ -1442,6 +1450,8 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
         string loadFileName = m_LoadFile;
         string stabFileName = m_StabFile;
         string modelNameBase = m_ModelNameBase;
+        vector < string > group_res_vec = m_GroupResFiles;
+        vector < string > rotor_res_vec = m_RotorResFiles;
 
         bool unsteady_flag = m_RotateBladesFlag.Get();
         vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
@@ -1505,6 +1515,22 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     if ( FileExist( stabFileName ) )
                     {
                         remove( stabFileName.c_str() );
+                    }
+
+                    for ( size_t j = 0; j < group_res_vec.size(); j++ )
+                    {
+                        if ( FileExist( group_res_vec[j] ) )
+                        {
+                            remove( group_res_vec[j].c_str() );
+                        }
+                    }
+
+                    for ( size_t j = 0; j < rotor_res_vec.size(); j++ )
+                    {
+                        if ( FileExist( rotor_res_vec[j] ) )
+                        {
+                            remove( rotor_res_vec[j].c_str() );
+                        }
                     }
 
                     //====== Send command to be executed by the system at the command prompt ======//
@@ -1662,6 +1688,15 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 
                     if ( unsteady_flag )
                     {
+                        for ( size_t j = 0; j < group_res_vec.size(); j++ )
+                        {
+                            ReadGroupResFile( group_res_vec[j], res_id_vector, analysisMethod );
+                        }
+
+                        for ( size_t j = 0; j < rotor_res_vec.size(); j++ )
+                        {
+                            ReadGroupResFile( rotor_res_vec[j], res_id_vector, analysisMethod );
+                        }
 
                         if ( noise_flag )
                         {
@@ -1712,6 +1747,8 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         string stabFileName = m_StabFile;
         string modelNameBase = m_ModelNameBase;
 
+        vector < string > group_res_vec = m_GroupResFiles;
+        vector < string > rotor_res_vec = m_RotorResFiles;
 
         bool unsteady_flag = m_RotateBladesFlag.Get();
         vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
@@ -1763,6 +1800,22 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         if ( FileExist( stabFileName ) )
         {
             remove( stabFileName.c_str() );
+        }
+
+        for ( size_t j = 0; j < group_res_vec.size(); j++ )
+        {
+            if ( FileExist( group_res_vec[j] ) )
+            {
+                remove( group_res_vec[j].c_str() );
+            }
+        }
+
+        for ( size_t j = 0; j < rotor_res_vec.size(); j++ )
+        {
+            if ( FileExist( rotor_res_vec[j] ) )
+            {
+                remove( rotor_res_vec[j].c_str() );
+            }
         }
 
         //====== generate batch mode command to be executed by the system at the command prompt ======//
@@ -1935,6 +1988,15 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
         if ( unsteady_flag )
         {
+            for ( size_t j = 0; j < group_res_vec.size(); j++ )
+            {
+                ReadGroupResFile( group_res_vec[j], res_id_vector, analysisMethod );
+            }
+
+            for ( size_t j = 0; j < rotor_res_vec.size(); j++ )
+            {
+                ReadRotorResFile( rotor_res_vec[j], res_id_vector, analysisMethod );
+            }
 
             if ( noise_flag )
             {
@@ -4171,6 +4233,409 @@ string VSPAEROMgrSingleton::ExecuteNoiseAnalysis( FILE* logFile, int noise_type,
 
     return string(); // TODO: Read noise results
 }
+
+/*******************************************************
+Read *.group.* file output from VSPAERO
+See: VSP_Solver.C in vspaero project
+*******************************************************/
+void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+{
+    FILE *fp = NULL;
+    bool read_success = false;
+    WaitForFile( filename );
+    fp = fopen( filename.c_str(), "r" );
+    if ( fp == NULL )
+    {
+        fprintf( stderr, "ERROR %d: Could not open Group file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, filename.c_str(), __FILE__, __LINE__ );
+        return;
+    }
+
+    Results* res = NULL;
+
+    // Get group index
+    size_t last_index = filename.find_last_not_of( "0123456789" );
+    int group_num = stoi( filename.substr( last_index + 1 ) );
+
+    //"   Time        Cx         Cy         Cz        Cxo        Cyo        Czo        Cxi        Cyi        Czi        Cmx        Cmy        Cmz        Cmxo       Cmyo       Cmzo       Cmxi       Cmyi       Cmzi        CL         CD        CLo        CDo        CLi        CDi"
+    std::vector<string> data_string_array;
+    int num_data_col = 25;
+
+    // Read in all of the data into the results manager
+    char seps[] = " :,\t\n";
+    while ( !feof( fp ) )
+    {
+        data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
+        if ( data_string_array.size() == 0 )
+        {
+            continue;
+        }
+
+        if ( strcmp( data_string_array[0].c_str(), "Time" ) == 0 )
+        {
+            res = ResultsMgr.CreateResults( "VSPAERO_Group" );
+
+            res->Add( NameValData( "Group_Num", group_num ) );
+
+            res_id_vector.push_back( res->GetID() );
+        }
+
+        // discard the header row and read the next line assuming that it is numeric
+        data_string_array = ReadDelimLine( fp, seps );
+
+        if ( res && data_string_array.size() == num_data_col )
+        {
+            // Raw data vectors
+            std::vector < double > Time, Cx, Cy, Cz, Cxo, Cyo, Czo, Cxi, Cyi, Czi;
+            std::vector < double > Cmx, Cmy, Cmz, Cmxo, Cmyo, Cmzo, Cmxi, Cmyi, Cmzi;
+            std::vector < double > CL, CD, CLo, CDo, CLi, CDi;
+
+            // read the data rows
+            while ( data_string_array.size() == num_data_col ) //&& data_string_array[0].find( "Comp" ) == std::string::npos
+            {
+                // Store the raw data
+                Time.push_back( std::stod( data_string_array[0] ) );
+                Cx.push_back( std::stod( data_string_array[1] ) );
+                Cy.push_back( std::stod( data_string_array[2] ) );
+                Cz.push_back( std::stod( data_string_array[3] ) );
+                Cxo.push_back( std::stod( data_string_array[4] ) );
+                Cyo.push_back( std::stod( data_string_array[5] ) );
+                Czo.push_back( std::stod( data_string_array[6] ) );
+                Cxi.push_back( std::stod( data_string_array[7] ) );
+                Cyi.push_back( std::stod( data_string_array[8] ) );
+                Czi.push_back( std::stod( data_string_array[9] ) );
+                Cmx.push_back( std::stod( data_string_array[10] ) );
+                Cmy.push_back( std::stod( data_string_array[11] ) );
+                Cmz.push_back( std::stod( data_string_array[12] ) );
+                Cmxo.push_back( std::stod( data_string_array[13] ) );
+                Cmyo.push_back( std::stod( data_string_array[14] ) );
+                Cmzo.push_back( std::stod( data_string_array[15] ) );
+                Cmxi.push_back( std::stod( data_string_array[16] ) );
+                Cmyi.push_back( std::stod( data_string_array[17] ) );
+                Cmzi.push_back( std::stod( data_string_array[18] ) );
+                CL.push_back( std::stod( data_string_array[19] ) );
+                CD.push_back( std::stod( data_string_array[20] ) );
+                CLo.push_back( std::stod( data_string_array[21] ) );
+                CDo.push_back( std::stod( data_string_array[22] ) );
+                CLi.push_back( std::stod( data_string_array[23] ) );
+                CDi.push_back( std::stod( data_string_array[24] ) );
+
+                // Read the next line and loop
+                data_string_array = ReadDelimLine( fp, seps );
+            }
+
+            // Finish up by adding the data to the result res
+            res->Add( NameValData( "Time", Time ) );
+            res->Add( NameValData( "Cx", Cx ) );
+            res->Add( NameValData( "Cy", Cy ) );
+            res->Add( NameValData( "Cz", Cz ) );
+            res->Add( NameValData( "Cxo", Cxo ) );
+            res->Add( NameValData( "Cyo", Cyo ) );
+            res->Add( NameValData( "Czo", Czo ) );
+            res->Add( NameValData( "Cxi", Cxi ) );
+            res->Add( NameValData( "Cyi", Cyi ) );
+            res->Add( NameValData( "Czi", Czi ) );
+            res->Add( NameValData( "Cmx", Cmx ) );
+            res->Add( NameValData( "Cmy", Cmy ) );
+            res->Add( NameValData( "Cmz", Cmz ) );
+            res->Add( NameValData( "Cmxo", Cmxo ) );
+            res->Add( NameValData( "Cmyo", Cmyo ) );
+            res->Add( NameValData( "Cmzo", Cmzo ) );
+            res->Add( NameValData( "Cmxi", Cmxi ) );
+            res->Add( NameValData( "Cmyi", Cmyi ) );
+            res->Add( NameValData( "Cmzi", Cmzi ) );
+            res->Add( NameValData( "CL", CL ) );
+            res->Add( NameValData( "CD", CD ) );
+            res->Add( NameValData( "CLo", CLo ) );
+            res->Add( NameValData( "CDo", CDo ) );
+            res->Add( NameValData( "CLi", CLi ) );
+            res->Add( NameValData( "CDi", CDi ) );
+
+        } //end for while !feof(fp)
+    }
+
+    std::fclose( fp );
+
+    return;
+}
+
+/*******************************************************
+Read *.rotor.* file output from VSPAERO
+See: VSP_Solver.C in vspaero project
+*******************************************************/
+void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+{
+    FILE *fp = NULL;
+    bool read_success = false;
+    WaitForFile( filename );
+    fp = fopen( filename.c_str(), "r" );
+    if ( fp == NULL )
+    {
+        fprintf( stderr, "ERROR %d: Could not open Rotor file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, filename.c_str(), __FILE__, __LINE__ );
+        return;
+    }
+
+    Results* res = NULL;
+
+    // Get group index
+    size_t last_index = filename.find_last_not_of( "0123456789" );
+    int rotor_num = stoi( filename.substr( last_index + 1 ) );
+
+    // Time       Diameter     RPM       Thrust    Thrusto    Thrusti     Moment     Momento    Momenti      J          CT         CQ         CP        EtaP       CT_H       CQ_H       CP_H       FOM        Angle
+    int num_tot_history_data_col = 19;
+
+    // Station     S       Chord     Area      V/Vref   Diameter    RPM      TipVel       CNo_H         CSo_H         CTo_H         CQo_H         CPo_H         CN_H          CS_H          CT_H          CQ_H          CP_H
+    int num_load_avg_data_col = 18;
+
+    // Station    Time       Angle     Xqc       Yqc       Zqc       S       Chord     Area      V/Vref   Diameter    RPM      TipVel       CNo_H         CSo_H         CTo_H         CQo_H         CPo_H         CN_H          CS_H          CT_H          CQ_H          CP_H 
+    int num_load_last_rev_data_col = 23;
+
+    std::vector<string> data_string_array;
+    string prev_start_str;
+    int blade_load_avg_ind = 1; // Current rotor blade index for the average load data
+    int blade_load_last_rev_ind = 1; // Current rotor blade index for the last revolution load data
+
+    // TODO: Read Average over last full revolution
+
+    // Read in all of the data into the results manager
+    char seps[] = " :,\t\n";
+    while ( !feof( fp ) )
+    {
+        data_string_array = ReadDelimLine( fp, seps ); //this is also done in some of the embedded loops below
+        if ( data_string_array.size() == 0 )
+        {
+            continue;
+        }
+
+        if ( strcmp( data_string_array[0].c_str(), "Time" ) == 0 && strcmp( data_string_array[1].c_str(), "Diameter" ) == 0 )
+        {
+            res = ResultsMgr.CreateResults( "VSPAERO_Rotor" );
+
+            res->Add( NameValData( "Rotor_Num", rotor_num ) );
+
+            res_id_vector.push_back( res->GetID() );
+        }
+        else if ( strcmp( data_string_array[0].c_str(), "Station" ) == 0 && strcmp( prev_start_str.c_str(), "Average" ) == 0 )
+        {
+            res = ResultsMgr.CreateResults( "VSPAERO_Blade_Avg" );
+
+            res->Add( NameValData( "Rotor_Num", rotor_num ) );
+            res->Add( NameValData( "Blade_Num", blade_load_avg_ind ) );
+
+            res_id_vector.push_back( res->GetID() );
+            blade_load_avg_ind++;
+        }
+        else if ( strcmp( data_string_array[0].c_str(), "Station" ) == 0 && strcmp( prev_start_str.c_str(), "Time" ) == 0 )
+        {
+            res = ResultsMgr.CreateResults( "VSPAERO_Blade_Last_Rev" );
+
+            res->Add( NameValData( "Rotor_Num", rotor_num ) );
+            res->Add( NameValData( "Blade_Num", blade_load_last_rev_ind ) );
+
+            res_id_vector.push_back( res->GetID() );
+            blade_load_last_rev_ind++;
+        }
+
+        prev_start_str = data_string_array[0];
+
+        // discard the header row and read the next line assuming that it is numeric
+        data_string_array = ReadDelimLine( fp, seps );
+
+        if ( res && ( data_string_array.size() == num_tot_history_data_col ||
+                      data_string_array.size() == num_load_avg_data_col ||
+                      data_string_array.size() == num_load_last_rev_data_col ) )
+        {
+            if ( data_string_array.size() == num_tot_history_data_col )
+            {
+                // Raw data vectors
+                std::vector < double > Time, Diameter, RPM, Thrust, Thrusto, Thrusti, Moment, Momento, Momenti;
+                std::vector < double > J, CT, CQ, CP, EtaP; // Prop coefficients
+                std::vector < double > CT_H, CQ_H, CP_H, FOM, Angle; // Rotor coefficients
+
+                // read the data rows
+                while ( data_string_array.size() == num_tot_history_data_col )
+                {
+                    // Store the raw data
+                    Time.push_back( std::stod( data_string_array[0] ) );
+                    Diameter.push_back( std::stod( data_string_array[1] ) );
+                    RPM.push_back( std::stod( data_string_array[2] ) );
+                    Thrust.push_back( std::stod( data_string_array[3] ) );
+                    Thrusto.push_back( std::stod( data_string_array[4] ) );
+                    Thrusti.push_back( std::stod( data_string_array[5] ) );
+                    Moment.push_back( std::stod( data_string_array[6] ) );
+                    Momento.push_back( std::stod( data_string_array[7] ) );
+                    Momenti.push_back( std::stod( data_string_array[8] ) );
+                    J.push_back( std::stod( data_string_array[9] ) );
+                    CT.push_back( std::stod( data_string_array[10] ) );
+                    CQ.push_back( std::stod( data_string_array[11] ) );
+                    CP.push_back( std::stod( data_string_array[12] ) );
+                    EtaP.push_back( std::stod( data_string_array[13] ) );
+                    CT_H.push_back( std::stod( data_string_array[14] ) );
+                    CQ_H.push_back( std::stod( data_string_array[15] ) );
+                    CP_H.push_back( std::stod( data_string_array[16] ) );
+                    FOM.push_back( std::stod( data_string_array[17] ) );
+                    Angle.push_back( std::stod( data_string_array[18] ) );
+
+                    // Read the next line and loop
+                    data_string_array = ReadDelimLine( fp, seps );
+                }
+
+                // Finish up by adding the data to the result res
+                res->Add( NameValData( "Time", Time ) );
+                res->Add( NameValData( "Diameter", Diameter ) );
+                res->Add( NameValData( "RPM", RPM ) );
+                res->Add( NameValData( "Thrust", Thrusto ) );
+                res->Add( NameValData( "Thrusti", Thrusti ) );
+                res->Add( NameValData( "Moment", Moment ) );
+                res->Add( NameValData( "Momento", Momento ) );
+                res->Add( NameValData( "Momenti", Momenti ) );
+                res->Add( NameValData( "J", J ) );
+                res->Add( NameValData( "CT", CT ) );
+                res->Add( NameValData( "CQ", CQ ) );
+                res->Add( NameValData( "CP", CP ) );
+                res->Add( NameValData( "EtaP", EtaP ) );
+                res->Add( NameValData( "CT_H", CT_H ) );
+                res->Add( NameValData( "CQ_H", CQ_H ) );
+                res->Add( NameValData( "CP_H", CP_H ) );
+                res->Add( NameValData( "FOM", FOM ) );
+                res->Add( NameValData( "Angle", Angle ) );
+            }
+            else if ( data_string_array.size() == num_load_avg_data_col )
+            {
+                // Raw data vectors
+                std::vector < int > Station;
+                std::vector < double > S, Chord, Area, V_Vref, Diameter, RPM, TipVel;
+                std::vector < double > CNo_H, CSo_H, CTo_H, CQo_H, CPo_H, CN_H, CS_H, CT_H, CQ_H, CP_H;
+
+                // read the data rows
+                while ( data_string_array.size() == num_load_avg_data_col )
+                {
+                    // Store the raw data
+                    Station.push_back( std::stoi( data_string_array[0] ) );
+                    S.push_back( std::stod( data_string_array[1] ) );
+                    Chord.push_back( std::stod( data_string_array[2] ) );
+                    Area.push_back( std::stod( data_string_array[3] ) );
+                    V_Vref.push_back( std::stod( data_string_array[4] ) );
+                    Diameter.push_back( std::stod( data_string_array[5] ) );
+                    RPM.push_back( std::stod( data_string_array[6] ) );
+                    TipVel.push_back( std::stod( data_string_array[7] ) );
+                    CNo_H.push_back( std::stod( data_string_array[8] ) );
+                    CSo_H.push_back( std::stod( data_string_array[9] ) );
+                    CTo_H.push_back( std::stod( data_string_array[10] ) );
+                    CQo_H.push_back( std::stod( data_string_array[11] ) );
+                    CPo_H.push_back( std::stod( data_string_array[12] ) );
+                    CN_H.push_back( std::stod( data_string_array[13] ) );
+                    CS_H.push_back( std::stod( data_string_array[14] ) );
+                    CT_H.push_back( std::stod( data_string_array[15] ) );
+                    CQ_H.push_back( std::stod( data_string_array[16] ) );
+                    CP_H.push_back( std::stod( data_string_array[17] ) );
+
+                    // Read the next line and loop
+                    data_string_array = ReadDelimLine( fp, seps );
+                }
+
+                // Finish up by adding the data to the result res
+                res->Add( NameValData( "Station", Station ) );
+                res->Add( NameValData( "S", S ) );
+                res->Add( NameValData( "Chord", Chord ) );
+                res->Add( NameValData( "Area", Area ) );
+                res->Add( NameValData( "V_Vref", V_Vref ) );
+                res->Add( NameValData( "Diameter", Diameter ) );
+                res->Add( NameValData( "RPM", RPM ) );
+                res->Add( NameValData( "TipVel", TipVel ) );
+                res->Add( NameValData( "CNo_H", CNo_H ) );
+                res->Add( NameValData( "CSo_H", CSo_H ) );
+                res->Add( NameValData( "CTo_H", CTo_H ) );
+                res->Add( NameValData( "CQo_H", CQo_H ) );
+                res->Add( NameValData( "CPo_H", CPo_H ) );
+                res->Add( NameValData( "CN_H", CN_H ) );
+                res->Add( NameValData( "CS_H", CS_H ) );
+                res->Add( NameValData( "CT_H", CT_H ) );
+                res->Add( NameValData( "CQ_H", CQ_H ) );
+                res->Add( NameValData( "CP_H", CP_H ) );
+            }
+            else if ( data_string_array.size() == num_load_last_rev_data_col )
+            {
+                // Raw data vectors
+                std::vector < int > Station;
+                std::vector < double > Time, Angle, Xqc, Yqc, Zqc, S, Chord, Area, V_Vref, Diameter, RPM, TipVel;
+                std::vector < double > CNo_H, CSo_H, CTo_H, CQo_H, CPo_H, CN_H, CS_H, CT_H, CQ_H, CP_H;
+
+                // read the data rows
+                while ( data_string_array.size() == num_load_last_rev_data_col )
+                {
+                    if ( strcmp( data_string_array[0].c_str(), "Station" ) == 0 && strcmp( prev_start_str.c_str(), "Time" ) != 0 )
+                    {
+                        // Skip this line
+                        data_string_array = ReadDelimLine( fp, seps );
+
+                        if ( data_string_array.size() != num_load_last_rev_data_col )
+                        {
+                            break;
+                        }
+                    }
+
+                    // Store the raw data
+                    Station.push_back( std::stoi( data_string_array[0] ) );
+                    Time.push_back( std::stod( data_string_array[1] ) );
+                    Angle.push_back( std::stod( data_string_array[2] ) );
+                    Xqc.push_back( std::stod( data_string_array[3] ) );
+                    Yqc.push_back( std::stod( data_string_array[4] ) );
+                    Zqc.push_back( std::stod( data_string_array[5] ) );
+                    S.push_back( std::stod( data_string_array[6] ) );
+                    Chord.push_back( std::stod( data_string_array[7] ) );
+                    Area.push_back( std::stod( data_string_array[8] ) );
+                    V_Vref.push_back( std::stod( data_string_array[9] ) );
+                    Diameter.push_back( std::stod( data_string_array[10] ) );
+                    RPM.push_back( std::stod( data_string_array[11] ) );
+                    TipVel.push_back( std::stod( data_string_array[12] ) );
+                    CNo_H.push_back( std::stod( data_string_array[13] ) );
+                    CSo_H.push_back( std::stod( data_string_array[14] ) );
+                    CTo_H.push_back( std::stod( data_string_array[15] ) );
+                    CQo_H.push_back( std::stod( data_string_array[16] ) );
+                    CPo_H.push_back( std::stod( data_string_array[17] ) );
+                    CN_H.push_back( std::stod( data_string_array[18] ) );
+                    CS_H.push_back( std::stod( data_string_array[19] ) );
+                    CT_H.push_back( std::stod( data_string_array[20] ) );
+                    CQ_H.push_back( std::stod( data_string_array[21] ) );
+                    CP_H.push_back( std::stod( data_string_array[22] ) );
+
+                    // Read the next line and loop
+                    data_string_array = ReadDelimLine( fp, seps );
+                }
+
+                // Finish up by adding the data to the result res
+                res->Add( NameValData( "Station", Station ) );
+                res->Add( NameValData( "Time", Time ) );
+                res->Add( NameValData( "Angle", Angle ) );
+                res->Add( NameValData( "Xqc", Xqc ) );
+                res->Add( NameValData( "Yqc", Yqc ) );
+                res->Add( NameValData( "Zqc", Zqc ) );
+                res->Add( NameValData( "S", S ) );
+                res->Add( NameValData( "Chord", Chord ) );
+                res->Add( NameValData( "Area", Area ) );
+                res->Add( NameValData( "V_Vref", V_Vref ) );
+                res->Add( NameValData( "Diameter", Diameter ) );
+                res->Add( NameValData( "RPM", RPM ) );
+                res->Add( NameValData( "TipVel", TipVel ) );
+                res->Add( NameValData( "CNo_H", CNo_H ) );
+                res->Add( NameValData( "CSo_H", CSo_H ) );
+                res->Add( NameValData( "CTo_H", CTo_H ) );
+                res->Add( NameValData( "CQo_H", CQo_H ) );
+                res->Add( NameValData( "CPo_H", CPo_H ) );
+                res->Add( NameValData( "CN_H", CN_H ) );
+                res->Add( NameValData( "CS_H", CS_H ) );
+                res->Add( NameValData( "CT_H", CT_H ) );
+                res->Add( NameValData( "CQ_H", CQ_H ) );
+                res->Add( NameValData( "CP_H", CP_H ) );
+            }
+        }
+    } //end for while !feof(fp)
+
+    std::fclose( fp );
+
+    return;
+}
+
 /*##############################################################################
 #                                                                              #
 #                               CpSlice                                        #
