@@ -1158,7 +1158,15 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     { sym = "Y"; }
     else
     { sym = "NO"; }
+
     fprintf( case_file, "Vinf = %lf \n", m_Vinf() );
+
+    if ( m_ManualVrefFlag() )
+    {
+        fprintf( case_file, "Vref = %lf \n", m_Vref() );
+        fprintf( case_file, "Machref = %lf \n", m_Machref() );
+    }
+
     fprintf( case_file, "Rho = %lf \n", m_Rho() );
     fprintf( case_file, "ReCref = %lf \n", m_ReCref() );
     fprintf( case_file, "ClMax = %lf \n", m_ClMax() );
@@ -1219,6 +1227,20 @@ string VSPAEROMgrSingleton::CreateSetupFile()
             {
                 m_ControlSurfaceGroupVec[iCSG]->Write_STP_Data( case_file );
             }
+        }
+    }
+
+    if ( m_RotateBladesFlag() )
+    {
+        if ( m_AutoTimeStepFlag() )
+        {
+            fprintf( case_file, "TimeStep = -1 \n" );
+            fprintf( case_file, "NumberOfTimeSteps = %d \n", ( -1 * m_AutoTimeNumRevs.Get() ) );
+        }
+        else
+        {
+            fprintf( case_file, "TimeStep = %lf \n", m_TimeStepSize() );
+            fprintf( case_file, "NumberOfTimeSteps = %d \n", m_NumTimeSteps.Get() );
         }
     }
 
@@ -1541,6 +1563,17 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                         args.push_back( "-dokt" );
                     }
 
+                    if ( m_RotateBladesFlag() )
+                    {
+                        args.push_back( "-unsteady" );
+
+                        if ( m_HoverRampFlag() )
+                        {
+                            args.push_back( "-hoverramp" );
+                            args.push_back( StringUtil::double_to_string( m_HoverRamp(), "%f" ) );
+                        }
+                    }
+
                     // Add model file name
                     args.push_back( modelNameBase );
 
@@ -1780,6 +1813,17 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         if ( m_KTCorrection() )
         {
             args.push_back( "-dokt" );
+        }
+
+        if ( m_RotateBladesFlag() )
+        {
+            args.push_back( "-unsteady" );
+
+            if ( m_HoverRampFlag() )
+            {
+                args.push_back( "-hoverramp" );
+                args.push_back( StringUtil::double_to_string( m_HoverRamp(), "%f" ) );
+            }
         }
 
         // Add model file name
