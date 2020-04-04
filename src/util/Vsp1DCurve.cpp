@@ -21,6 +21,7 @@
 typedef oned_piecewise_curve_type::index_type oned_curve_index_type;
 typedef oned_piecewise_curve_type::point_type oned_curve_point_type;
 typedef oned_piecewise_curve_type::tolerance_type oned_curve_tolerance_type;
+typedef oned_piecewise_curve_type::bounding_box_type oned_curve_bounding_box_type;
 
 
 typedef eli::geom::curve::piecewise_cubic_spline_creator<double, 1, oned_curve_tolerance_type> oned_piecewise_cubic_spline_creator_type;
@@ -703,6 +704,15 @@ bool Vsp1DCurve::IsEqual( const Vsp1DCurve & crv )
 
     return true;
 
+}
+
+void Vsp1DCurve::GetBoundingBox( double &ymin, double &ymax ) const
+{
+    oned_curve_bounding_box_type bbx;
+
+    m_Curve.get_bounding_box( bbx );
+    ymin = bbx.get_min().x();
+    ymax = bbx.get_max().x();
 }
 
 struct crv_functor

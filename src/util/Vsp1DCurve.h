@@ -92,6 +92,8 @@ public:
 
     bool IsEqual( const Vsp1DCurve & crv );
 
+    void GetBoundingBox( double &ymin, double &ymax ) const;
+
     double IntegrateCrv( );
     double IntegrateCrv( double r0 );
     double IntegrateCrv_r( );
