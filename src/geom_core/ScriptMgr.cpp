@@ -6322,12 +6322,12 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the ID of the VSPAERO actuator disk at the specified index. An empty string is returned if
-    the index is out of range. 
+    Get the ID of a VSPAERO unsteady group at the specified index. An empty string is returned if
+    the index is out of range.
     \code{.cpp}
-    // Create an actuator disk
+    // Add a propeller
     string prop_id = AddGeom( "PROP", pod_id );
-    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK );
+    SetParmVal( prop_id, "PropMode", "Design", PROP_BLADES );
     SetParmVal( prop_id, "Diameter", "Design", 6.0 );
 
     Update();
@@ -6345,6 +6345,104 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 */)";
     r = se->RegisterGlobalFunction( "string FindActuatorDisk( int disk_index )", asFUNCTION( vsp::FindActuatorDisk ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the ID of the VSPAERO actuator disk at the specified index. An empty string is returned if
+    the index is out of range.
+    \code{.cpp}
+    // Create an actuator disk
+    string prop_id = AddGeom( "PROP", pod_id );
+    SetParmVal( prop_id, "PropMode", "Design", PROP_DISK );
+
+    Update();
+
+    // Setup the unsteady group VSPAERO parms
+    string disk_id = FindUnsteadyGroup( 1 ); // fixed components are in group 0 (wing & pod)
+    SetParmVal( FindParm( disk_id, "RPM", "UnsteadyGroup" ), 1234.0 );
+    \endcode
+    \sa PROP_MODE
+    \param [in] group_index Unsteady group index for the current VSPAERO set
+    \return Unsteady group ID
+*/)";
+    r = se->RegisterGlobalFunction( "string FindUnsteadyGroup( int group_index )", asFUNCTION( vsp::FindUnsteadyGroup ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the name of the unsteady group at the specified index.
+    \code{.cpp}
+    // Add a pod and wing
+    string pod_id = AddGeom( "POD", "" );
+    string wing_id = AddGeom( "WING", pod_id );
+
+    SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 );
+    Update();
+
+     SetUnsteadyGroupName( 0, "PodAndWingGroup" );
+
+    if ( GetUnsteadyGroupName( 0 ) != "PodAndWingGroup" )
+    {
+        Print( "ERROR: Unsteady Group Name Functions" );
+    }
+    \endcode
+    \sa SetUnsteadyGroupName
+    \param [in] group_index Unsteady group index for the current VSPAERO set
+    \param [in] name Name to set the for the unsteady group
+*/)";
+    r = se->RegisterGlobalFunction( "string GetUnsteadyGroupName( int group_index )", asFUNCTION( vsp::GetUnsteadyGroupName ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get an array of IDs for all components in the unsteady group at the specified index.
+    \code{.cpp}
+    // Add a pod and wing
+    string pod_id = AddGeom( "POD", "" );
+    string wing_id = AddGeom( "WING", pod_id ); // Default with symmetry on -> 2 surfaces
+
+    SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 );
+    Update();
+
+    array < string > comp_ids = GetUnsteadyGroupCompIDs( 0 );
+
+    if ( comp_ids.size() != 3 )
+    {
+        Print( "ERROR: GetUnsteadyGroupCompIDs" );
+    }
+    \endcode
+    \sa GetUnsteadyGroupSurfIndexes
+    \param [in] group_index Unsteady group index for the current VSPAERO set
+    \return Array of component IDs
+*/)";
+    r = se->RegisterGlobalFunction( "array<string>@ GetUnsteadyGroupCompIDs( int group_index )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupCompIDs ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get an array of surface indexes for all components in the unsteady group at the specified index.
+    \code{.cpp}
+    // Add a pod and wing
+    string pod_id = AddGeom( "POD", "" );
+    string wing_id = AddGeom( "WING", pod_id ); // Default with symmetry on -> 2 surfaces
+
+    SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 );
+    Update();
+
+    array < int > surf_indexes = GetUnsteadyGroupSurfIndexes( 0 );
+
+    if ( comp_ids.size() != 3 )
+    {
+        Print( "ERROR: GetUnsteadyGroupSurfIndexes" );
+    }
+    \endcode
+    \sa GetUnsteadyGroupCompIDs
+    \param [in] group_index Unsteady group index for the current VSPAERO set
+    \return Array of surface indexes
+*/)";
+    r = se->RegisterGlobalFunction( "array<int>@ GetUnsteadyGroupSurfIndexes( int group_index )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupSurfIndexes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
     //==== Wing Sect Functions ====//
     group = "WingSect";
     doc_struct.group = group.c_str();
@@ -10861,6 +10959,18 @@ void ScriptMgrSingleton::RemoveSelectedFromCSGroup( CScriptArray* selected, int 
     }
 
     vsp::RemoveSelectedFromCSGroup( int_vec, CSGroupIndex );
+}
+
+CScriptArray* ScriptMgrSingleton::GetUnsteadyGroupCompIDs( int group_index )
+{
+    m_ProxyStringArray = vsp::GetUnsteadyGroupCompIDs( group_index );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetUnsteadyGroupSurfIndexes( int group_index )
+{
+    m_ProxyIntArray = vsp::GetUnsteadyGroupSurfIndexes( group_index );
+    return GetProxyIntArray();
 }
 
 CScriptArray* ScriptMgrSingleton::GetXSecParmIDs( const string & xsec_id )

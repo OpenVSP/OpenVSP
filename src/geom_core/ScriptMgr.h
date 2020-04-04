@@ -152,6 +152,8 @@ private:
     CScriptArray* GetAvailableCSNameVec( int CSGroupIndex );
     void AddSelectedToCSGroup( CScriptArray* selected, int CSGroupIndex );
     void RemoveSelectedFromCSGroup( CScriptArray* selected, int CSGroupIndex );
+    CScriptArray* GetUnsteadyGroupCompIDs( int group_index );
+    CScriptArray* GetUnsteadyGroupSurfIndexes( int group_index );
     CScriptArray* GetXSecParmIDs( const string & xsec_id );
     CScriptArray* ReadFileXSec( const string& xsec_id, const string& file_name );
     CScriptArray* GetAirfoilUpperPnts( const string& xsec_id );

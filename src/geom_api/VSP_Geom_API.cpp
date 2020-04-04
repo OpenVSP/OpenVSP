@@ -937,6 +937,90 @@ int GetNumControlSurfaceGroups()
     return VSPAEROMgr.GetControlSurfaceGroupVec().size();
 }
 
+
+//===================================================================//
+//=========       VSPAERO Unsteady Group Functions        ===========//
+//===================================================================//
+string FindUnsteadyGroup( int group_index )
+{
+    VSPAEROMgr.UpdateUnsteadyGroups();
+
+    if ( !VSPAEROMgr.ValidUnsteadyGroupInd( group_index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindUnsteadyGroup::group_index out of range" );
+        return string();
+    }
+
+    UnsteadyGroup* group = VSPAEROMgr.GetUnsteadyGroup( group_index );
+    VSPAEROMgr.SetCurrentUnsteadyGroupIndex( group_index ); // Need if RPM is uniform
+    return group->GetID();
+}
+
+string GetUnsteadyGroupName( int group_index )
+{
+    VSPAEROMgr.UpdateUnsteadyGroups();
+
+    if ( !VSPAEROMgr.ValidUnsteadyGroupInd( group_index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupName::group_index out of range" );
+        return string();
+    }
+
+    UnsteadyGroup* group = VSPAEROMgr.GetUnsteadyGroup( group_index );
+    VSPAEROMgr.SetCurrentUnsteadyGroupIndex( group_index ); // Need if RPM is uniform
+    return group->GetName();
+}
+
+vector < string > GetUnsteadyGroupCompIDs( int group_index )
+{
+    vector < string > ret_vec;
+    VSPAEROMgr.UpdateUnsteadyGroups();
+
+    if ( !VSPAEROMgr.ValidUnsteadyGroupInd( group_index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupCompIDs::group_index out of range" );
+        return ret_vec;
+    }
+
+    UnsteadyGroup* group = VSPAEROMgr.GetUnsteadyGroup( group_index );
+
+    vector < pair < string, int > > comp_vec = group->GetCompSurfPairVec();
+    ret_vec.resize( comp_vec.size() );
+
+    for ( size_t i = 0; i < comp_vec.size(); i++ )
+    {
+        ret_vec[i] = comp_vec[i].first;
+    }
+
+    VSPAEROMgr.SetCurrentUnsteadyGroupIndex( group_index ); // Need if RPM is uniform
+    return ret_vec;
+}
+
+vector < int > GetUnsteadyGroupSurfIndexes( int group_index )
+{
+    vector < int > ret_vec;
+    VSPAEROMgr.UpdateUnsteadyGroups();
+
+    if ( !VSPAEROMgr.ValidUnsteadyGroupInd( group_index ) )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupSurfIndexes::group_index out of range" );
+        return ret_vec;
+    }
+
+    UnsteadyGroup* group = VSPAEROMgr.GetUnsteadyGroup( group_index );
+
+    vector < pair < string, int > > comp_vec = group->GetCompSurfPairVec();
+    ret_vec.resize( comp_vec.size() );
+
+    for ( size_t i = 0; i < comp_vec.size(); i++ )
+    {
+        ret_vec[i] = comp_vec[i].second;
+    }
+
+    VSPAEROMgr.SetCurrentUnsteadyGroupIndex( group_index ); // Need if RPM is uniform
+    return ret_vec;
+}
+
 //===================================================================//
 //=========       VSPAERO Actuator Disk Functions        ============//
 //===================================================================//
