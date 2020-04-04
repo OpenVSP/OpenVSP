@@ -297,6 +297,7 @@ void VSPAEROMgrSingleton::Renew()
     m_RotorDiskVec.clear();
 
     ClearCpSliceVec();
+    ClearUnsteadyGroupVec();
 
     m_DegenGeomVec.clear();
 
@@ -3406,6 +3407,102 @@ void VSPAEROMgrSingleton::ReadSliceFile( string filename, vector <string> &res_i
     std::fclose( fp );
 
     return;
+}
+
+bool VSPAEROMgrSingleton::ValidUnsteadyGroupInd( int index )
+{
+    if ( (int)m_UnsteadyGroupVec.size() > 0 && index >= 0 && index < (int)m_UnsteadyGroupVec.size() )
+    {
+        return true;
+    }
+    else
+    {
+        return false;
+    }
+}
+
+void VSPAEROMgrSingleton::DeleteUnsteadyGroup( int index )
+{
+    if ( ValidUnsteadyGroupInd( index ) )
+    {
+        delete m_UnsteadyGroupVec[index];
+        m_UnsteadyGroupVec.erase( m_UnsteadyGroupVec.begin() + index );
+
+        if ( ValidUnsteadyGroupInd( index - 1 ) )
+        {
+            m_CurrentUnsteadyGroupIndex -= 1;
+        }
+    }
+}
+
+UnsteadyGroup* VSPAEROMgrSingleton::AddUnsteadyGroup()
+{
+    UnsteadyGroup* group = new UnsteadyGroup();
+
+    if ( group )
+    {
+        group->SetName( string( "UnsteadyGroup_" + to_string( (long long)m_UnsteadyGroupVec.size() ) ) );
+        group->SetParentContainer( GetID() );
+        AddUnsteadyGroup( group );
+        m_CurrentUnsteadyGroupIndex = m_UnsteadyGroupVec.size() - 1;
+    }
+
+    return group;
+}
+
+UnsteadyGroup* VSPAEROMgrSingleton::GetUnsteadyGroup( int index )
+{
+    if ( ValidUnsteadyGroupInd( index ) )
+    {
+        return m_UnsteadyGroupVec[index];
+    }
+    return NULL;
+}
+
+int VSPAEROMgrSingleton::GetUnsteadyGroupIndex( const string& id )
+{
+    for ( int i = 0; i < (int)m_UnsteadyGroupVec.size(); i++ )
+    {
+        if ( m_UnsteadyGroupVec[i]->GetID() == id && ValidUnsteadyGroupInd( i ) )
+        {
+            return i;
+        }
+    }
+    return -1;
+}
+
+string VSPAEROMgrSingleton::GetUnsteadyGroupID( int index )
+{
+    if ( ValidUnsteadyGroupInd( index ) )
+    {
+        return m_UnsteadyGroupVec[index]->GetID();
+    }
+    return string();
+}
+
+void VSPAEROMgrSingleton::ClearUnsteadyGroupVec()
+{
+    for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
+    {
+        delete m_UnsteadyGroupVec[i];
+        m_UnsteadyGroupVec.erase( m_UnsteadyGroupVec.begin() + i );
+    }
+    m_UnsteadyGroupVec.clear();
+}
+
+int VSPAEROMgrSingleton::NumUnsteadyRotorGroups()
+{
+    int num_rot = 0;
+
+    for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); i++ )
+    {
+        if ( m_UnsteadyGroupVec[i]->m_GeomPropertyType.Get() == UnsteadyGroup::GEOM_ROTOR )
+        {
+            num_rot++;
+        }
+    }
+
+    return num_rot;
 }
 
 /*##############################################################################

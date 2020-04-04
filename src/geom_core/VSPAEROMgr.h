@@ -313,6 +313,17 @@ public:
     void RemoveAllFromCSGroup();
     void UpdateControlSurfaceGroupSuffix();
 
+    // Unsteady Group Functions
+    UnsteadyGroup* AddUnsteadyGroup();
+    void DeleteUnsteadyGroup( int index );
+    bool ValidUnsteadyGroupInd( int index );
+    void AddUnsteadyGroup( UnsteadyGroup* group )               { m_UnsteadyGroupVec.push_back( group ); }
+    UnsteadyGroup* GetUnsteadyGroup( int index );
+    int GetUnsteadyGroupIndex( const string& id );
+    string GetUnsteadyGroupID( int index );
+    void ClearUnsteadyGroupVec();
+    int NumUnsteadyGroups()                                  { return m_UnsteadyGroupVec.size(); }
+    int NumUnsteadyRotorGroups();
     virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id );
 
     // Highlighter Methods and Variables
@@ -494,6 +505,7 @@ private:
     vector < VspAeroControlSurf > m_ActiveControlSurfaceVec;
     vector< ControlSurfaceGroup* > m_ControlSurfaceGroupVec;
     vector < CpSlice* > m_CpSliceVec;
+    vector < UnsteadyGroup* > m_UnsteadyGroupVec;
 
     vector < DegenGeom > m_DegenGeomVec;
 
