@@ -1458,6 +1458,12 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
         //====== Modify/Update the setup file ======//
         CreateSetupFile();
 
+        //====== Modify/Update the groups file for unsteady analysis ======//
+        if ( m_RotateBladesFlag() )
+        {
+            CreateGroupsFile();
+        }
+
         //====== Loop over flight conditions and solve ======//
         vector<double> alphaVec;
         vector<double> betaVec;
@@ -1709,6 +1715,13 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         // if the setup file doesn't exist, create one with the current settings
         // TODO output a warning to the user that we are creating a default file
         CreateSetupFile();
+
+        //====== Modify/Update the groups file for unsteady analysis ======//
+        if ( m_RotateBladesFlag() )
+        {
+            if ( m_Verbose ) { printf( "Writing vspaero groups file: %s\n", m_GroupsFile.c_str() ); }
+            CreateGroupsFile();
+        }
 
         vector<double> alphaVec;
         vector<double> betaVec;
@@ -3996,6 +4009,46 @@ void VSPAEROMgrSingleton::HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_
     m_HighlightDrawObj.m_PntVec = m_BBox.GetBBoxDrawLines();
 
     draw_obj_vec.push_back( &m_HighlightDrawObj );
+}
+
+int VSPAEROMgrSingleton::CreateGroupsFile()
+{
+    UpdateUnsteadyGroups(); // Ensure correct unsteady groups when this function is called through the API
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        fprintf( stderr, "ERROR %d: Unable to get vehicle \n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, __FILE__, __LINE__ );
+        return vsp::VSP_INVALID_PTR;
+    }
+
+    // Clear existing group file
+    if ( FileExist( m_GroupsFile ) )
+    {
+        remove( m_GroupsFile.c_str() );
+    }
+
+    FILE* group_file = fopen( m_GroupsFile.c_str(), "w" );
+    if ( !group_file )
+    {
+        fprintf( stderr, "ERROR %d: Unable to create groups file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_INVALID_PTR, m_GroupsFile.c_str(), __FILE__, __LINE__ );
+        return vsp::VSP_FILE_WRITE_FAILURE;
+    }
+
+    int numgroups = m_UnsteadyGroupVec.size();
+
+    fprintf( group_file, "%d\n", numgroups );
+
+    for ( size_t i = 0; i < numgroups; i++ )
+    {
+        m_UnsteadyGroupVec[i]->WriteGroup( group_file );
+    }
+
+    //Finish up by closing the file and making sure that it appears in the file system
+    fclose( group_file );
+
+    // Wait until the setup file shows up on the file system
+    return WaitForFile( m_GroupsFile );
 }
 
 /*##############################################################################
