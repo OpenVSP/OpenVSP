@@ -84,6 +84,8 @@ public:
     void TessAdapt( double umin, double umax, std::vector< double > & pnts, vector< double > & uout, double tol, int Nlimit );
     void TessAdapt( double umin, double umax, const double & pmin, const double & pmax, std::vector< double > & pnts, vector< double > & uout, double tol, int Nlimit, int Nadapt = 0 );
 
+    void Scale( double s );
+
     void Reverse();
 
     void product( Vsp1DCurve c1, Vsp1DCurve c2 );

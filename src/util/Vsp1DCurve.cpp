@@ -635,6 +635,11 @@ void Vsp1DCurve::TessAdapt( double umin, double umax, const double & pmin, const
     }
 }
 
+void Vsp1DCurve::Scale( double s )
+{
+    m_Curve.scale( s );
+}
+
 void Vsp1DCurve::Reverse()
 {
     m_Curve.reverse();
