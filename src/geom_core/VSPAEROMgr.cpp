@@ -1532,7 +1532,8 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 
                     //====== Read in all of the results ======//
                     // read the files if there is new data that has not successfully been read in yet
-                    ReadHistoryFile( historyFileName, res_id_vector, analysisMethod );
+                    ReadHistoryFile( historyFileName, res_id_vector, analysisMethod, unsteady_flag );
+
                     ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
 
                     if ( stabilityType != vsp::STABILITY_OFF )
@@ -1771,7 +1772,8 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         }
 
         //====== Read in all of the results ======//
-        ReadHistoryFile( historyFileName, res_id_vector, analysisMethod );
+        ReadHistoryFile( historyFileName, res_id_vector, analysisMethod, unsteady_flag );
+
         ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
 
         if ( stabilityType != vsp::STABILITY_OFF )
@@ -1911,7 +1913,7 @@ line 4407 - void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
 TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 *******************************************************/
-void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, bool unsteady_analysis_flag )
 {
     //TODO return success or failure
     FILE *fp = NULL;
@@ -1959,7 +1961,17 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
         int wake_iter_table_columns = 18;
 
         bool unsteady = false;
-        int unsteady_table_columns = 28;
+        int unsteady_table_columns;
+
+        if ( unsteady_analysis_flag ) // TODO: Why is unsteady angle not included in unsteady analysis???
+        {
+            unsteady_table_columns = 27;
+        }
+        else
+        {
+            unsteady_table_columns = 28;
+        }
+
         if ( data_string_array.size() == unsteady_table_columns )
         {
             unsteady = true;
@@ -2037,16 +2049,27 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
                 if ( unsteady ) // Additional columns for unsteady analysis
                 {
-                    UnstdAng.push_back( std::stod( data_string_array[18] ) );
-                    CL_Un.push_back( std::stod( data_string_array[19] ) );
-                    CDi_Un.push_back( std::stod( data_string_array[20] ) );
-                    CS_Un.push_back( std::stod( data_string_array[21] ) );
-                    CFx_Un.push_back( std::stod( data_string_array[22] ) );
-                    CFy_Un.push_back( std::stod( data_string_array[23] ) );
-                    CFz_Un.push_back( std::stod( data_string_array[24] ) );
-                    CMx_Un.push_back( std::stod( data_string_array[25] ) );
-                    CMy_Un.push_back( std::stod( data_string_array[26] ) );
-                    CMz_Un.push_back( std::stod( data_string_array[27] ) );
+                    int data_index;
+
+                    if ( unsteady_analysis_flag )
+                    {
+                        data_index = 18;
+                    }
+                    else
+                    {
+                        UnstdAng.push_back( std::stod( data_string_array[18] ) );
+                        data_index = 19;
+                    }
+
+                    CL_Un.push_back( std::stod( data_string_array[data_index] ) );
+                    CDi_Un.push_back( std::stod( data_string_array[data_index + 1] ) );
+                    CS_Un.push_back( std::stod( data_string_array[data_index + 2] ) );
+                    CFx_Un.push_back( std::stod( data_string_array[data_index + 3] ) );
+                    CFy_Un.push_back( std::stod( data_string_array[data_index + 4] ) );
+                    CFz_Un.push_back( std::stod( data_string_array[data_index + 5] ) );
+                    CMx_Un.push_back( std::stod( data_string_array[data_index + 6] ) );
+                    CMy_Un.push_back( std::stod( data_string_array[data_index + 7] ) );
+                    CMz_Un.push_back( std::stod( data_string_array[data_index + 8] ) );
                 }
 
                 data_string_array = ReadDelimLine( fp, seps );
@@ -2083,7 +2106,10 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
                 if ( unsteady )
                 {
-                    res->Add( NameValData( "UnstdyAng", UnstdAng ) );
+                    if ( !unsteady_analysis_flag )
+                    {
+                        res->Add( NameValData( "UnstdyAng", UnstdAng ) );
+                    }
                     res->Add( NameValData( "CL_Un", CL_Un ) );
                     res->Add( NameValData( "CDi_Un", CDi_Un ) );
                     res->Add( NameValData( "CS_Un", CS_Un ) );
