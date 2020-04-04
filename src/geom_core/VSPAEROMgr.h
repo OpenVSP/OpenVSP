@@ -475,7 +475,16 @@ public:
     Parm m_UnsteadyYMin;
     Parm m_UnsteadyYMax;
 
-    ProcessUtil m_SolverProcess;
+    IntParm m_UnsteadyGroupSelectType;
+
+    enum UNSTEADY_GROUP_SELECT
+    {
+        HISTORY,
+        GROUP,
+        ROTOR
+    };
+
+    ProcessUtil m_SolverProcess; 
     ProcessUtil m_SlicerThread;
 
 protected:

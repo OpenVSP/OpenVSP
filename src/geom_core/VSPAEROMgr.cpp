@@ -170,6 +170,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_UnsteadyYMin.Init( "m_UnsteadyYMin", groupname, this, -1, -1e12, 1e12 );
     m_UnsteadyYMax.Init( "m_UnsteadyYMax", groupname, this, 1, -1e12, 1e12 );
 
+    m_UnsteadyGroupSelectType.Init( "UnsteadyGroupSelectType", groupname, this, HISTORY, HISTORY, ROTOR );
+
     // Other Setup Parameters
     m_Vinf.Init( "Vinf", groupname, this, 100, 0, 1e6 );
     m_Vinf.SetDescript( "Freestream Velocity Through Disk Component" );
