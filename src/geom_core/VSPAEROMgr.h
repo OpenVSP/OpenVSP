@@ -238,6 +238,7 @@ public:
     void UpdateFilenames();
     void UpdateRotorDisks();
     void UpdateControlSurfaceGroups();
+    void UpdateParmRestrictions();
     void UpdateAutoTimeStep();
     void CleanCompleteControlSurfVec();
     void UpdateCompleteControlSurfVec();         // initializes one group per surface

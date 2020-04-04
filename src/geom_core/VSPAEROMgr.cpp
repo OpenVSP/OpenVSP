@@ -465,6 +465,8 @@ void VSPAEROMgrSingleton::Update()
     UpdateActiveControlSurfVec();
 
     UpdateSetupParmLimits();
+
+    UpdateParmRestrictions();
 }
 
 void VSPAEROMgrSingleton::UpdateSref()
@@ -3681,6 +3683,32 @@ void VSPAEROMgrSingleton::UpdateAutoTimeStep()
     else
     {
         m_AutoTimeNumRevs.Set( int( ( m_NumTimeSteps() / 24 ) * m_TimeStepSize() / dt ) );
+    }
+}
+
+void VSPAEROMgrSingleton::UpdateParmRestrictions()
+{
+    if ( !m_ManualVrefFlag() )
+    {
+        m_Vref.Set( m_Vinf() );
+    }
+
+    if ( m_RotorDiskVec.size() == 0 )
+    {
+        m_ActuatorDiskFlag.Set( false );
+    }
+
+    if ( NumUnsteadyRotorGroups() == 0 )
+    {
+        m_RotateBladesFlag.Set( false );
+    }
+
+    if ( m_RotateBladesFlag() )
+    {
+        // Only allow 1 FC to avoid viewer crash
+        m_AlphaNpts.Set( 1 );
+        m_BetaNpts.Set( 1 );
+        m_MachNpts.Set( 1 );
     }
 }
 
