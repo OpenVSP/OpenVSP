@@ -206,6 +206,7 @@ protected:
     int m_UnsteadyiPlot;
 
     Fl_Browser * m_UnsteadyYDataBrowser;
+    Fl_Browser * m_UnsteadySelectBrowser;
     Fl_Browser * m_UnsteadyFlowConditionBrowser;
     vector< string > m_UnsteadyFlowConditionSelectedResultIDs;
 
@@ -220,9 +221,17 @@ protected:
 
     void UpdateUnsteadyFlowConditionBrowser();
     void UpdateUnsteadyYDataBrowser();
+    void UpdateUnsteadySelectionBrowser();
 
     void RedrawUnsteadyPlot();
     void PlotUnsteady( string resultID, vector <string> yDataSetNames, bool expand_only, int icase );
+
+    ToggleRadioGroup m_UnsteadyDataTypeRadio;
+    ToggleButton m_UnsteadyHistoryToggle;
+    ToggleButton m_UnsteadyGroupToggle;
+    ToggleButton m_UnsteadyRotorToggle;
+
+    vector < int > m_UnsteadySelectedTypeVec; // vector of selected unsteady groups or rotors
 
 };
 

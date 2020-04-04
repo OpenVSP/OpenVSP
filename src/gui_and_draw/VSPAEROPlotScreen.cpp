@@ -457,12 +457,12 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_UnsteadyLayout.AddY( groupBorderWidth );
 
     // Control layout
-    m_UnsteadyLayout.AddSubGroupLayout( m_UnsteadyControlLayout, controlWidth, m_UnsteadyLayout.GetH() - 2 * groupBorderWidth );
+    m_UnsteadyLayout.AddSubGroupLayout( m_UnsteadyControlLayout, controlWidth, m_UnsteadyLayout.GetH() - windowBorderWidth );
 
     // layout the heights of the control layout
-    yDataSelectHeight = 11 * rowHeight;
+    yDataSelectHeight = 8 * rowHeight;
 
-    flowConditionSelectHeight = m_UnsteadyLayout.GetH() - 2 * groupBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - groupBorderWidth;
+    flowConditionSelectHeight = m_UnsteadyLayout.GetH() - 2 * windowBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - 6 * m_UnsteadyLayout.GetStdHeight();
 
     GroupLayout unsteadyYDataSelectLayout;
     m_UnsteadyControlLayout.AddSubGroupLayout( unsteadyYDataSelectLayout, m_UnsteadyControlLayout.GetW(), yDataSelectHeight );
@@ -471,6 +471,34 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_UnsteadyYDataBrowser->callback( staticScreenCB, this );
     m_UnsteadyYDataBrowser->type( FL_MULTI_BROWSER );
     m_UnsteadyControlLayout.AddY( unsteadyYDataSelectLayout.GetH() + 2 * groupBorderWidth );
+
+    GroupLayout unsteadyGroupChoiceLayout;
+    m_UnsteadyControlLayout.AddSubGroupLayout( unsteadyGroupChoiceLayout, m_UnsteadyControlLayout.GetW(), 2 * m_UnsteadyControlLayout.GetStdHeight() - 2 * groupBorderWidth );
+    unsteadyGroupChoiceLayout.AddDividerBox( "Data Type Selection" );
+
+    unsteadyGroupChoiceLayout.SetSameLineFlag( true );
+    unsteadyGroupChoiceLayout.SetFitWidthFlag( false );
+    unsteadyGroupChoiceLayout.SetButtonWidth( unsteadyGroupChoiceLayout.GetRemainX() / 3 );
+    unsteadyGroupChoiceLayout.AddButton( m_UnsteadyHistoryToggle, "History" );
+    unsteadyGroupChoiceLayout.AddButton( m_UnsteadyGroupToggle, "Group" );
+    unsteadyGroupChoiceLayout.AddButton( m_UnsteadyRotorToggle, "Rotor" );
+    m_UnsteadyDataTypeRadio.AddButton( m_UnsteadyHistoryToggle.GetFlButton() );
+    m_UnsteadyDataTypeRadio.AddButton( m_UnsteadyGroupToggle.GetFlButton() );
+    m_UnsteadyDataTypeRadio.AddButton( m_UnsteadyRotorToggle.GetFlButton() );
+    m_UnsteadyDataTypeRadio.Init( this );
+    unsteadyGroupChoiceLayout.ForceNewLine();
+    unsteadyGroupChoiceLayout.SetSameLineFlag( false );
+    unsteadyGroupChoiceLayout.SetFitWidthFlag( true );
+
+    m_UnsteadyControlLayout.AddY( unsteadyGroupChoiceLayout.GetH() + 2 * groupBorderWidth );
+
+    GroupLayout unsteadySelectLayout;
+    m_UnsteadyControlLayout.AddSubGroupLayout( unsteadySelectLayout, m_UnsteadyControlLayout.GetW(), flowConditionSelectHeight - m_UnsteadyLayout.GetStdHeight() + 2 * windowBorderWidth );
+    unsteadySelectLayout.AddDividerBox( "Group/Rotor Selection" );
+    m_UnsteadySelectBrowser = unsteadySelectLayout.AddFlBrowser( unsteadySelectLayout.GetRemainY() );
+    m_UnsteadySelectBrowser->callback( staticScreenCB, this );
+    m_UnsteadySelectBrowser->type( FL_MULTI_BROWSER );
+    m_UnsteadyControlLayout.AddY( unsteadySelectLayout.GetH() + 2 * groupBorderWidth );
 
     GroupLayout unsteadyFlowConditionLayout;
     m_UnsteadyControlLayout.AddSubGroupLayout( unsteadyFlowConditionLayout, m_UnsteadyControlLayout.GetW(), flowConditionSelectHeight );
@@ -550,17 +578,34 @@ VSPAEROPlotScreen::~VSPAEROPlotScreen()
 void VSPAEROPlotScreen::SetDefaultView()
 {
 
-    switch ( VSPAEROMgr.m_AnalysisMethod.Get() )
+    if ( VSPAEROMgr.m_RotateBladesFlag() || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_P_ANALYSIS ||
+         VSPAEROMgr.m_StabilityType() == vsp::STABILITY_Q_ANALYSIS || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
     {
-    case vsp::VORTEX_LATTICE:
-        m_LoadDistTab->show();
-        break;
-    case vsp::PANEL:
-        m_ConvergenceTab->show();
-        //m_LoadDistTab->hide();
-        break;
-    default:
-        break;
+        m_UnsteadyTab->show();
+
+        if ( VSPAEROMgr.m_RotateBladesFlag() )
+        {
+            VSPAEROMgr.m_UnsteadyGroupSelectType.Set( VSPAEROMgr.ROTOR );
+        }
+        else
+        {
+            VSPAEROMgr.m_UnsteadyGroupSelectType.Set( VSPAEROMgr.HISTORY );
+        }
+    }
+    else
+    {
+        switch ( VSPAEROMgr.m_AnalysisMethod.Get() )
+        {
+            case vsp::VORTEX_LATTICE:
+                m_LoadDistTab->show();
+                break;
+            case vsp::PANEL:
+                m_ConvergenceTab->show();
+                //m_LoadDistTab->hide();
+                break;
+            default:
+                break;
+        }
     }
 
     m_SelectDefaultData = true;
@@ -568,16 +613,25 @@ void VSPAEROPlotScreen::SetDefaultView()
 
 bool VSPAEROPlotScreen::Update()
 {
-    //TODO Update only the tab that is visible
-
     string resultName = "VSPAERO_Stab";
     Results* res = ResultsMgr.FindResults( resultName, 0 );
     bool stabFlag = false;
-    int stabType;
+    int stabType = -1;
     if ( res )
     {
         stabFlag = true;
         stabType = res->FindPtr( "StabilityType" )->GetInt( 0 );
+    }
+
+    resultName = "VSPAERO_Group";
+    int num_group = ResultsMgr.GetNumResults( resultName );
+
+    resultName = "VSPAERO_Rotor";
+    int num_rotor = ResultsMgr.GetNumResults( resultName );
+
+    if ( num_group > 0 || num_rotor > 0 )
+    {
+        stabFlag = true;
     }
 
     if ( !stabFlag || ( stabFlag && stabType == vsp::STABILITY_DEFAULT ) )
@@ -590,15 +644,39 @@ bool VSPAEROPlotScreen::Update()
         UpdateConvergenceYDataBrowser();
         RedrawConvergencePlot();
         UpdateConvergenceAutoManualAxisLimits();
+
+        m_UnsteadyFlowConditionBrowser->clear();
+        m_UnsteadySelectBrowser->clear();
+        m_UnsteadyYDataBrowser->clear();
+        m_UnsteadyPlotCanvas->clear();
+        m_UnsteadyLegendGroup->clear();
     }
     else // P, Q, or R unsteady analysis
     {
         m_ConvergenceTab->deactivate();
+        m_ConvergenceFlowConditionBrowser->clear();
+        m_ConvergenceYDataBrowser->clear();
+        m_ConvergencePlotCanvas->clear();
+        m_ConvergenceLegendGroup->clear();
+
         m_UnsteadyTab->activate();
+
+        if ( num_group == 0 )
+        {
+            VSPAEROMgr.m_UnsteadyGroupSelectType.Set( VSPAEROMgr.HISTORY );
+            m_UnsteadyGroupToggle.Deactivate();
+            m_UnsteadyGroupToggle.Deactivate();
+        }
+        else
+        {
+            m_UnsteadyGroupToggle.Activate();
+            m_UnsteadyGroupToggle.Activate();
+        }
 
         // Update unsteady plot canvas
         UpdateUnsteadyFlowConditionBrowser();
         UpdateUnsteadyYDataBrowser();
+        UpdateUnsteadySelectionBrowser();
         RedrawUnsteadyPlot();
         UpdateUnsteadyAutoManualAxisLimits();
     }
@@ -608,22 +686,23 @@ bool VSPAEROPlotScreen::Update()
     // note that only VSPAEROMgr clear alls VSPAERO_* results from the results manager each time it's run all analyses in the results 'should' have the same analysis method
     resultName = "VSPAERO_Load";
     res = ResultsMgr.FindResults( resultName, 0 );
-    if ( res )
+    // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
+    if ( res && res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VORTEX_LATTICE )
     {
-        // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
-        if ( res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VORTEX_LATTICE )
-        {
-            m_LoadDistTab->activate();
-        }
-        else
-        {
-            m_LoadDistTab->deactivate();
-        }
+        m_LoadDistTab->activate();
+        UpdateLoadDistFlowConditionBrowser();
+        UpdateLoadDistYDataBrowser();
+        RedrawLoadDistPlot();
+        UpdateLoadDistAutoManualAxisLimits();
     }
-    UpdateLoadDistFlowConditionBrowser();
-    UpdateLoadDistYDataBrowser();
-    RedrawLoadDistPlot();
-    UpdateLoadDistAutoManualAxisLimits();
+    else
+    {
+        m_LoadDistTab->deactivate();
+        m_LoadDistFlowConditionBrowser->clear();
+        m_LoadDistYDataBrowser->clear();
+        m_LoadDistPlotCanvas->clear();
+        m_LoadDistLegendGroup->clear();
+    }
 
     // Update sweep condition plot canvas
     UpdateSweepFlowConditionBrowser();
@@ -631,10 +710,24 @@ bool VSPAEROPlotScreen::Update()
     RedrawSweepPlot();
     UpdateSweepAutoManualAxisLimits();
 
-    UpdateCpSliceCutBrowser();
-    UpdateCpSliceCaseBrowser();
-    RedrawCpSlicePlot();
-    UpdateCpSliceAutoManualAxisLimits();
+    resultName = "CpSlice_Wrapper";
+    res = ResultsMgr.FindResults( resultName, 0 );
+    if ( res )
+    {
+        m_CpSliceTab->activate();
+        UpdateCpSliceCutBrowser();
+        UpdateCpSliceCaseBrowser();
+        RedrawCpSlicePlot();
+        UpdateCpSliceAutoManualAxisLimits();
+    }
+    else
+    {
+        m_CpSliceTab->deactivate();
+        m_CpSliceCutBrowser->clear();
+        m_CpSliceCaseBrowser->clear();
+        m_CpSlicePlotCanvas->clear();
+        m_CpSliceLegendGroup->clear();
+    }
 
     m_FLTK_Window->redraw();
 
@@ -947,6 +1040,8 @@ void VSPAEROPlotScreen::UpdateCpSliceAutoManualAxisLimits()
 
 void VSPAEROPlotScreen::UpdateUnsteadyAutoManualAxisLimits()
 {
+    m_UnsteadyDataTypeRadio.Update( VSPAEROMgr.m_UnsteadyGroupSelectType.GetID() );
+
     Ca_Axis_ *  t_Axis;
 
     m_UnsteadyManualXMinToggle.Update( VSPAEROMgr.m_UnsteadyXMinIsManual.GetID() );
@@ -1334,24 +1429,98 @@ void VSPAEROPlotScreen::UpdateUnsteadyFlowConditionBrowser()
             char strbuf[1024];
             ConstructFlowConditionString( strbuf, res, false );
             m_UnsteadyFlowConditionBrowser->add( strbuf );
-            if ( m_SelectDefaultData )   //select ALL flow conditions
+            if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgr.HISTORY )
             {
-                m_UnsteadyFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                m_UnsteadyFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-            }
-            else if ( iCase < wasSelected.size() ) // restore original row selections
-            {
-                if ( wasSelected[iCase] )
+                if ( m_SelectDefaultData )   //select ALL flow conditions
                 {
                     m_UnsteadyFlowConditionSelectedResultIDs.push_back( res->GetID() );
                     m_UnsteadyFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
                 }
+                else if ( iCase < wasSelected.size() ) // restore original row selections
+                {
+                    if ( wasSelected[iCase] )
+                    {
+                        m_UnsteadyFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                        m_UnsteadyFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                    }
+                }
+            }
+            else
+            {
+                m_UnsteadyFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                m_UnsteadyFlowConditionBrowser->select( iCase + 1 );
+                break; // Only list the first flow condition, since the others are ignored in teh group and rotor output files
             }
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
 
     m_UnsteadyFlowConditionBrowser->position( scrollPos );
 
+}
+
+void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
+{
+    // keeps track of the previously selected rows (browser uses 1-based indexing)
+    vector<bool> wasSelected;
+    for ( unsigned int iCase = 1; iCase <= m_UnsteadySelectBrowser->size(); iCase++ )
+    {
+        wasSelected.push_back( m_UnsteadySelectBrowser->selected( iCase ) );
+    }
+
+    int scrollPos = m_UnsteadySelectBrowser->position();
+    m_UnsteadySelectBrowser->clear();
+    m_UnsteadySelectedTypeVec.clear();
+    int num_case = 0;
+    string prefix;
+    string res_name;
+
+    if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP )
+    {
+        res_name = "VSPAERO_Group";
+        num_case = ResultsMgr.GetNumResults( "VSPAERO_Group" );
+        prefix = "Group_";
+        m_UnsteadySelectBrowser->activate();
+        m_UnsteadyFlowConditionBrowser->deactivate();
+    }
+    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR )
+    {
+        res_name = "VSPAERO_Rotor";
+        num_case = ResultsMgr.GetNumResults( res_name );
+        prefix = "Rotor_";
+        m_UnsteadySelectBrowser->activate();
+        m_UnsteadyFlowConditionBrowser->deactivate();
+    }
+    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY )
+    {
+        m_UnsteadySelectBrowser->deactivate();
+        m_UnsteadyFlowConditionBrowser->activate();
+    }
+
+    for ( unsigned int iCase = 0; iCase < num_case; iCase++ )
+    {
+        Results* res = ResultsMgr.FindResults( res_name, iCase );
+        if ( res )
+        {
+            string name = prefix + to_string( iCase );
+            m_UnsteadySelectBrowser->add( name.c_str() );
+
+            if ( m_SelectDefaultData )   //select ALL flow conditions
+            {
+                m_UnsteadySelectBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                m_UnsteadySelectedTypeVec.push_back( iCase );
+            }
+            else if ( iCase < wasSelected.size() ) // restore original row selections
+            {
+                if ( wasSelected[iCase] )
+                {
+                    m_UnsteadySelectBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                    m_UnsteadySelectedTypeVec.push_back( iCase );
+                }
+            }
+        }   //if( res )
+    }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
+
+    m_UnsteadySelectBrowser->position( scrollPos );
 }
 
 void VSPAEROPlotScreen::ConstructFlowConditionString( char * strbuf, Results * res, bool includeResultId )
@@ -1752,7 +1921,55 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
     int scrollPos = m_UnsteadyYDataBrowser->position();
     m_UnsteadyYDataBrowser->clear();
 
-    string resultName = "VSPAERO_History";
+    string default_res;
+    string resultName;
+    int res_ind = 0;
+
+    if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP )
+    {
+        resultName = "VSPAERO_Group";
+        // TODO: Get feedback of best default. Options: Cx, Cy, Cz, Cxo, Cyo,
+        //  Czo, Cxi, Cyi, Czi, Cmx, Cmy , Cmz, EtaP, Cmxo, Cmxo, CP_H, Cmzo, 
+        //  Cmxi, Cmyi, Cmzi, CL, CD, CLo, CDo, CLi, CDi 
+        default_res = "CL";
+    }
+    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR )
+    {
+        resultName = "VSPAERO_Rotor";
+        // TODO: Get feedback of best default. Options: Diameter, RPM, Thrust, Thrusto, Thrusti,
+        //  Moment, Momento, Momenti, J, CT, CQ , CP, EtaP, CT_H, CQ_H, CP_H, FOM, Angle 
+        default_res = "Thrust";
+    }
+    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY )
+    {
+        resultName = "VSPAERO_History";
+        res_ind = 0;
+
+        Results* res = ResultsMgr.FindResults( "VSPAERO_Stab", 0 );
+        int stabType = 0;
+        if ( res )
+        {
+            stabType = res->FindPtr( "StabilityType" )->GetInt( 0 );
+        }
+
+        if ( stabType == vsp::STABILITY_P_ANALYSIS )
+        {
+            default_res = "CMx";
+        }
+        else if ( stabType == vsp::STABILITY_Q_ANALYSIS )
+        {
+            default_res = "CMy";
+        }
+        else if ( stabType == vsp::STABILITY_R_ANALYSIS )
+        {
+            default_res = "CMz";
+        }
+        else
+        {
+            default_res = "CL"; // TODO: Get feedback of best default
+        }
+    }
+
     string resultID = ResultsMgr.FindLatestResultsID( resultName );
     vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
     for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
@@ -1762,31 +1979,14 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
              ( strcmp( dataNames[iDataName].c_str(), "Mach" ) != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "Alpha" ) != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "Beta" ) != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) )
+             ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) &&
+             ( strcmp( dataNames[iDataName].c_str(), "Time" ) != 0 ) &
+             ( strcmp( dataNames[iDataName].c_str(), "Group_Num" ) != 0 ) &
+             ( strcmp( dataNames[iDataName].c_str(), "Rotor_Num" ) != 0 ) &
+             ( strcmp( dataNames[iDataName].c_str(), "RPM" ) != 0 ) ) // FIXME: Figure out why selecting rotor RPM causes the GUI to freeze
         {
             m_UnsteadyYDataBrowser->add( dataNames[iDataName].c_str() );
         }
-    }
-
-    string default_res;
-    Results* res = ResultsMgr.FindResults( "VSPAERO_Stab", 0 );
-    int stabType = 0;
-    if ( res )
-    {
-        stabType = res->FindPtr( "StabilityType" )->GetInt( 0 );
-    }
-
-    if ( stabType == vsp::STABILITY_P_ANALYSIS )
-    {
-        default_res = "CMx";
-    }
-    else if ( stabType == vsp::STABILITY_Q_ANALYSIS )
-    {
-        default_res = "CMy";
-    }
-    else if ( stabType == vsp::STABILITY_R_ANALYSIS )
-    {
-        default_res = "CMz";
     }
 
     // restore original row selections
@@ -2154,17 +2354,52 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
         }
     }
 
+    // Get selected rotor/groups
+    vector <string> selectSetNames;
+    for ( int i = 1; i <= m_UnsteadySelectBrowser->size(); i++ )
+    {
+        if ( m_UnsteadySelectBrowser->selected( i ) )
+        {
+            selectSetNames.push_back( m_UnsteadySelectBrowser->text( i ) );
+        }
+    }
+
     m_UnsteadyNLines = m_UnsteadyFlowConditionSelectedResultIDs.size() * yDataSetNames.size();
+    if ( m_UnsteadySelectedTypeVec.size() > 0 ) // Since "History" is not included in the vector
+    {
+        m_UnsteadyNLines *= m_UnsteadySelectedTypeVec.size();
+    }
+
     m_UnsteadyiPlot = 0;
 
     // Plot only if y data has been selected
     if ( m_UnsteadyNLines > 0 )
     {
         bool expandOnly = false;
-        for ( unsigned int iCase = 0; iCase < m_UnsteadyFlowConditionSelectedResultIDs.size(); iCase++ )
+
+        if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP )
         {
-            PlotUnsteady( m_UnsteadyFlowConditionSelectedResultIDs[iCase], yDataSetNames, expandOnly, iCase );
-            expandOnly = true;
+            for ( unsigned int iCase = 0; iCase < m_UnsteadySelectedTypeVec.size(); iCase++ )
+            {
+                PlotUnsteady( ResultsMgr.FindResultsID( "VSPAERO_Group", m_UnsteadySelectedTypeVec[iCase] ), yDataSetNames, expandOnly, iCase );
+                expandOnly = true;
+            }
+        }
+        else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR )
+        {
+            for ( unsigned int iCase = 0; iCase < m_UnsteadySelectedTypeVec.size(); iCase++ )
+            {
+                PlotUnsteady( ResultsMgr.FindResultsID( "VSPAERO_Rotor", m_UnsteadySelectedTypeVec[iCase] ), yDataSetNames, expandOnly, iCase );
+                expandOnly = true;
+            }
+        }
+        else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY )
+        {
+            for ( unsigned int iCase = 0; iCase < m_UnsteadyFlowConditionSelectedResultIDs.size(); iCase++ )
+            {
+                PlotUnsteady( m_UnsteadyFlowConditionSelectedResultIDs[iCase], yDataSetNames, expandOnly, iCase );
+                expandOnly = true;
+            }
         }
     }
 }
@@ -2251,6 +2486,13 @@ void VSPAEROPlotScreen::PlotConvergence( string resultID, vector <string> yDataS
                                 tempY.erase( tempY.begin() + j );
                                 jMax--;
                             }
+                        }
+
+                        // No residual for 1st data point, so remove it
+                        if ( xDoubleData.size() > 0 )
+                        {
+                            xDoubleData.erase( xDoubleData.begin() );
+                            yDoubleData.erase( yDoubleData.begin() );
                         }
                     }
 
@@ -2433,7 +2675,7 @@ void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetN
         m_UnsteadyPlotCanvas->current_y()->label( "[Y]" );
         m_UnsteadyPlotCanvas->current_x()->label( "[X]" );
     }
-    else if ( strcmp( res->GetName().c_str(), "VSPAERO_History" ) == 0 )
+    else if ( strcmp( res->GetName().c_str(), "VSPAERO_History" ) == 0 || strcmp( res->GetName().c_str(), "VSPAERO_Rotor" ) == 0 || strcmp( res->GetName().c_str(), "VSPAERO_Group" ) == 0 )
     {
         //  Get the X Data
         vector <double> xDoubleData_orig;
@@ -2470,14 +2712,31 @@ void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetN
                     // check again if there are still points to plot
                     if ( xDoubleData.size()>0 )
                     {
-                        Fl_Color c = ColorWheel( m_UnsteadyiPlot, m_ConvergenceNLines );
+                        Fl_Color c = ColorWheel( m_UnsteadyiPlot, m_UnsteadyNLines );
 
                         //add the normalized data to the plot
                         AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_UnsteadyiPlot ) );
 
                         char strbuf[100];
                         ConstructFlowConditionString( strbuf, res, false );
-                        string legendstr = strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
+                        string legendstr;
+
+                        if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP )
+                        {
+                            legendstr = "Group_" + to_string( icase );
+                        }
+                        else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR )
+                        {
+                            legendstr = "Rotor_" + to_string( icase );
+                        }
+                        else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY )
+                        {
+                            ConstructFlowConditionString( strbuf, res, false );
+                            legendstr = strbuf;
+                        }
+
+                        legendstr += ( string( "; Y: " ) + yDataSetNames[iDataSet] );
+
                         m_UnsteadyLegendLayout.AddLegendEntry( legendstr, c );
                         m_UnsteadyiPlot++;
 
