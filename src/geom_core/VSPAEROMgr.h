@@ -326,6 +326,7 @@ public:
     void ClearUnsteadyGroupVec();
     int NumUnsteadyGroups()                                  { return m_UnsteadyGroupVec.size(); }
     int NumUnsteadyRotorGroups();
+    map < pair < string, int >, vector < int > > GetVSPAEROGeomIndexMap( int set_index );
     virtual void AddLinkableParms( vector < string > & linkable_parm_vec, const string & link_container_id );
 
     // Highlighter Methods and Variables

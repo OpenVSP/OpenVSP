@@ -3535,6 +3535,94 @@ void VSPAEROMgrSingleton::SetCurrentUnsteadyGroupIndex( int index )
     }
 }
 
+map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeomIndexMap( int set_index )
+{
+    map < pair < string, int >, vector < int > > geom_index_map;
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return geom_index_map;
+    }
+
+    vector < pair < string, int > > surface_geoms, body_geoms;
+    int surf_cnt = 1;
+
+    vector < string > all_geom_vec = veh->GetGeomSet( set_index );
+    vector < int > degen_type_vec = veh->GetDegenGeomTypeVec( set_index );
+
+    for ( size_t i = 0; i < all_geom_vec.size(); i++ )
+    {
+        Geom* geom = veh->FindGeom( all_geom_vec[i] );
+        if ( !geom )
+        {
+            continue;
+        }
+
+        if ( geom->GetType().m_Type == BLANK_GEOM_TYPE || geom->GetType().m_Type == HINGE_GEOM_TYPE ||
+             geom->GetType().m_Type == PT_CLOUD_GEOM_TYPE || geom->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            continue;
+        }
+
+        int num_sym = geom->GetNumSymmCopies();
+
+        for ( size_t s = 1; s <= num_sym; s++ )
+        {
+            // Human types will run in VSPAERO panel method... support accordingly
+            if ( m_AnalysisMethod() == vsp::PANEL )
+            {
+                size_t num_surf = 0;
+                if ( geom->GetType().m_Type == HUMAN_GEOM_TYPE )
+                {
+                    num_surf = 1;
+                }
+                else
+                {
+                    num_surf = geom->GetNumMainSurfs();
+                }
+
+                for ( size_t j = 0; j < num_surf; j++ )
+                {
+                    geom_index_map[std::make_pair( all_geom_vec[i], s )].push_back( surf_cnt );
+                    surf_cnt++;
+                }
+            }
+            else if ( geom->GetType().m_Type == HUMAN_GEOM_TYPE )
+            {
+                continue;
+            }
+
+            if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE )
+            {
+                if ( degen_type_vec[i] == DegenGeom::SURFACE_TYPE )
+                {
+                    surface_geoms.push_back( std::make_pair( all_geom_vec[i], s ) );
+                }
+                else if ( degen_type_vec[i] == DegenGeom::BODY_TYPE )
+                {
+                    body_geoms.push_back( std::make_pair( all_geom_vec[i], s ) );
+                }
+            }
+        }
+    }
+
+    // Note: DISK_TYPE is ignored since it is not supported as an unsteady component
+
+    for ( size_t i = 0; i < surface_geoms.size(); i++ )
+    {
+        geom_index_map[surface_geoms[i]].push_back( i + 1 );
+    }
+
+    for ( size_t i = 0; i < body_geoms.size(); i++ )
+    {
+        geom_index_map[body_geoms[i]].push_back( i + surface_geoms.size() + 1 );
+    }
+
+    return geom_index_map;
+}
+
+
 /*##############################################################################
 #                                                                              #
 #                               CpSlice                                        #
