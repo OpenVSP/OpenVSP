@@ -3622,6 +3622,68 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
     return geom_index_map;
 }
 
+void VSPAEROMgrSingleton::UpdateAutoTimeStep()
+{
+    if ( NumUnsteadyGroups() == 0 )
+    {
+        return;
+    }
+
+    double max_rpm = -1.e9;
+    double min_rpm = 1.e9;
+    int num_dt = m_AutoTimeNumRevs();
+    double dt = 0;
+
+    for ( size_t c = 0; c < NumUnsteadyGroups(); c++ )
+    {
+        if ( m_UnsteadyGroupVec[c]->m_GeomPropertyType() == UnsteadyGroup::GEOM_ROTOR )
+        {
+            if ( abs( m_UnsteadyGroupVec[c]->m_RPM() ) < min_rpm )
+            {
+                min_rpm = abs( m_UnsteadyGroupVec[c]->m_RPM() );
+            }
+
+            if ( abs( m_UnsteadyGroupVec[c]->m_RPM() ) > max_rpm )
+            {
+                max_rpm = abs( m_UnsteadyGroupVec[c]->m_RPM() );
+            }
+        }
+    }
+
+    if ( max_rpm > 0. )
+    {
+        dt = 2.5 / max_rpm;
+    }
+
+   // Calculate the number of time steps if user did not set it
+    // Slowest rotor, at least 1 rotation
+    double Period = 60 / max_rpm;
+
+    double NumSteps_1 = 2. * Period / dt + 1;
+
+    // Fastest rotor does ABS(NumberOfTimeSteps_) revolutions
+    double NumSteps_2 = abs( num_dt ) * 24;
+
+    if ( NumSteps_1 > NumSteps_2 )
+    {
+        num_dt = NumSteps_1;
+    }
+    else
+    {
+        num_dt = NumSteps_2;
+    }
+
+    if ( m_AutoTimeStepFlag.Get() )
+    {
+        m_TimeStepSize.Set( dt );
+        m_NumTimeSteps.Set( num_dt );
+    }
+    else
+    {
+        m_AutoTimeNumRevs.Set( int( ( m_NumTimeSteps() / 24 ) * m_TimeStepSize() / dt ) );
+    }
+}
+
 
 /*##############################################################################
 #                                                                              #
