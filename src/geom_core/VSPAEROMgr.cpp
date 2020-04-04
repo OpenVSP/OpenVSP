@@ -254,6 +254,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CurrentRotorDiskIndex = -1;
     m_LastSelectedType = -1;
     m_CurrentCpSliceIndex = -1;
+    m_CurrentUnsteadyGroupIndex = 0;
 
     m_Verbose = false;
 }
@@ -3523,6 +3524,15 @@ int VSPAEROMgrSingleton::NumUnsteadyRotorGroups()
     }
 
     return num_rot;
+}
+
+//==== Set Index For Active Unsteady Group ====//
+void VSPAEROMgrSingleton::SetCurrentUnsteadyGroupIndex( int index )
+{
+    if ( ValidUnsteadyGroupInd( index ) )
+    {
+        m_CurrentUnsteadyGroupIndex = index;
+    }
 }
 
 /*##############################################################################

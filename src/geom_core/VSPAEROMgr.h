@@ -314,6 +314,8 @@ public:
     void UpdateControlSurfaceGroupSuffix();
 
     // Unsteady Group Functions
+    void SetCurrentUnsteadyGroupIndex( int index );
+    int GetCurrentUnsteadyGroupIndex()                          { return m_CurrentUnsteadyGroupIndex; }
     UnsteadyGroup* AddUnsteadyGroup();
     void DeleteUnsteadyGroup( int index );
     bool ValidUnsteadyGroupInd( int index );
@@ -512,6 +514,7 @@ private:
     int m_CurrentRotorDiskIndex;
     int m_CurrentCSGroupIndex;
     int m_CurrentCpSliceIndex;
+    int m_CurrentUnsteadyGroupIndex;
 
     int m_CpSliceAnalysisType;
 
