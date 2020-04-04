@@ -375,6 +375,14 @@ xmlNodePtr VSPAEROMgrSingleton::EncodeXml( xmlNodePtr & node )
         m_CpSliceVec[i]->EncodeXml( cpslicenode );
     }
 
+    // Encode Unsteady Groups using Internal Encode Method
+    XmlUtil::AddIntNode( VSPAEROsetnode, "UnsteadyGroupCount", m_UnsteadyGroupVec.size() );
+    for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
+    {
+        xmlNodePtr unsteady_node = xmlNewChild( VSPAEROsetnode, NULL, BAD_CAST "Unsteady_Group", NULL );
+        m_UnsteadyGroupVec[i]->EncodeXml( unsteady_node );
+    }
+
     return VSPAEROsetnode;
 }
 
@@ -418,6 +426,18 @@ xmlNodePtr VSPAEROMgrSingleton::DecodeXml( xmlNodePtr & node )
             {
                 AddCpSlice();
                 m_CpSliceVec.back()->DecodeXml( cpslicenode );
+            }
+        }
+
+        // Decode Unsteady Groups using Internal Decode Method
+        int num__unsteady_groups = XmlUtil::FindInt( VSPAEROsetnode, "UnsteadyGroupCount", 0 );
+        for ( size_t i = 0; i < num__unsteady_groups; ++i )
+        {
+            xmlNodePtr unsteady_node = XmlUtil::GetNode( VSPAEROsetnode, "Unsteady_Group", i );
+            if ( unsteady_node )
+            {
+                AddUnsteadyGroup();
+                m_UnsteadyGroupVec.back()->DecodeXml( unsteady_node );
             }
         }
     }
