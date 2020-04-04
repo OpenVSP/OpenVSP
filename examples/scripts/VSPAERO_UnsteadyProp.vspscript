@@ -1,0 +1,160 @@
+// Created by Justin Gravett, ESAero, 2/28/20
+
+void main()
+{
+    Print( string( "Begin VSPAERO Unsteady Prop Analysis" ) );
+    Print( string( "" ) );
+
+    VSPAeroUnsteadyAnalysis();
+
+    //==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+
+    Print( string( "End VSPAERO Unsteady Prop Analysis" ) );
+}
+
+void VSPAeroUnsteadyAnalysis()
+{
+    //==== Create an example model ====//
+    Print( string( "--> Generating Geometries" ) );
+    Print( string( "" ) );
+
+    string pod_id = AddGeom( "POD", "" );
+    string wing_id = AddGeom( "WING", pod_id );
+
+    SetParmVal( wing_id, "X_Rel_Location", "XForm", 2.5 );
+    SetParmVal( wing_id, "TotalArea", "WingGeom", 25 );
+    SetParmVal( wing_id, "SectTess_U", "XSec_1", 12 );
+
+    // Add a propeller with XZ symmetry
+    string prop_id = AddGeom( "PROP", pod_id );
+    SetParmVal( prop_id, "PropMode", "Design", PROP_BLADES );
+    SetParmVal( prop_id, "Diameter", "Design", 6.0 );
+    SetParmVal( prop_id, "X_Rel_Location", "XForm", 2 );
+	SetParmVal( prop_id, "Y_Rel_Location", "XForm", 4 );
+	SetParmVal( prop_id, "Sym_Planar_Flag", "Sym", SYM_XZ );
+
+    Update();
+
+     // fixed components are in group 0 (wing & pod)
+     array < string > comp_id_vec = GetUnsteadyGroupCompIDs( 1 ); // Same as GetUnsteadyGroupCompIDs( 2 ) (symmetric copy)
+     if ( comp_id_vec[0] != prop_id )
+     {
+         Print( "ERROR: Propeller is not in the unsteady group" );
+     }
+
+    // Setup the unsteady group VSPAERO parms
+	SetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "UniformPropRPMFlag", "VSPAERO" ), 0 );
+	
+	// An unsteady group is created for each symmetric copy
+    string parent_group_id = FindUnsteadyGroup( 1 );
+    SetParmVal( FindParm( parent_group_id, "RPM", "UnsteadyGroup" ), 1000.0 );
+	
+	string copy_group_id = FindUnsteadyGroup( 2 );
+    SetParmVal( FindParm( copy_group_id, "RPM", "UnsteadyGroup" ), 1200.0 );
+
+	// RPM is not symmetric, should see yaw moment
+
+    Update();
+
+    //==== Setup export filenames ====//
+    string fname_vspaerotests = "VSPAero_Unsteady.vsp3";
+
+    //==== Save Vehicle to File ====//
+    Print( "-->Saving vehicle file to: ", false );
+    Print( fname_vspaerotests, true );
+    Print( "" );
+    WriteVSPFile( fname_vspaerotests, SET_ALL );
+    Print( "COMPLETE\n" );
+    Update();
+
+    //==== Analysis: VSPAero Compute Geometry to Create Vortex Lattice DegenGeom File ====//
+    string compgeom_name = "VSPAEROComputeGeometry";
+    Print( compgeom_name );
+
+    // Set defaults
+    SetAnalysisInputDefaults( compgeom_name );
+    
+    // Analysis method
+    array< int > analysis_method = GetIntAnalysisInput( compgeom_name, "AnalysisMethod" );
+    analysis_method[0] = ( VSPAERO_ANALYSIS_METHOD::VORTEX_LATTICE );
+    SetIntAnalysisInput( compgeom_name, "AnalysisMethod", analysis_method );
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs( compgeom_name );
+
+    // Execute
+    Print( "\tExecuting..." );
+    string compgeom_resid = ExecAnalysis( compgeom_name );
+    Print( "COMPLETE" );
+
+    // Get & Display Results
+    PrintResults( compgeom_resid );
+
+    //==== Analysis: VSPAero Single Point ====//
+    string analysis_name = "VSPAEROSinglePoint";
+
+    SetAnalysisInputDefaults( analysis_name );
+
+    // Reference geometry set
+    array< int > geom_set;
+    geom_set.push_back( 0 );
+    SetIntAnalysisInput( analysis_name, "GeomSet", geom_set, 0 );
+    array< int > ref_flag;
+    ref_flag.push_back( 1 );
+    SetIntAnalysisInput( analysis_name, "RefFlag", ref_flag, 0 );
+    array< string > wid = FindGeomsWithName( "WingGeom" );
+    SetStringAnalysisInput( analysis_name, "WingID", wid, 0 );
+
+    // Freestream parameters
+    array< double > alpha;
+    alpha.push_back( 0.0 );
+    SetDoubleAnalysisInput( analysis_name, "Alpha", alpha, 0 );
+    array< double > mach;
+    mach.push_back( 0.1 );
+    SetDoubleAnalysisInput( analysis_name, "Mach", mach, 0 );
+
+    // Unsteady analysis inputs
+    array< int > blades_flag;
+    blades_flag.push_back( 1 ); // True
+    SetIntAnalysisInput( analysis_name, "RotateBladesFlag", blades_flag, 0 );
+    array< int > disks_flag;
+    disks_flag.push_back( 0 ); // False
+    SetIntAnalysisInput( analysis_name, "ActuatorDiskFlag", disks_flag, 0 );
+    array< int > auto_time_flag;
+    auto_time_flag.push_back( 1 ); // True - VSPAERO calculates time step size and quantity automatically
+    SetIntAnalysisInput( analysis_name, "AutoTimeStepFlag", auto_time_flag, 0 );
+    array< int > num_rev_flag;
+    auto_time_flag.push_back( 2 ); // 2 revolutions of the slowest rotor
+    SetIntAnalysisInput( analysis_name, "AutoTimeNumRevs", auto_time_flag, 0 );
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs( analysis_name );
+    Print( "" );
+
+    // Execute
+    Print( "\tExecuting..." );
+    string rid = ExecAnalysis( analysis_name );
+    Print( "COMPLETE" );
+
+    // Get & Display Results
+    PrintResults( rid );
+
+    // Example of getting specific results
+    string group_res = FindResultsID( "VSPAERO_Group", 0 ); // One group result per input group file
+    string rotor_res = FindResultsID( "VSPAERO_Rotor", 0 ); // One rotor result per rotor group
+    string history_res = FindResultsID( "VSPAERO_History", 0 ); // One per flow condition case
+
+    array<double> CD = GetDoubleResults( group_res, "CD", 0 );
+    array<double> Cx = GetDoubleResults( group_res, "Cx", 0 );
+
+    array<double> Time = GetDoubleResults( rotor_res, "Time", 0 );
+    array<double> FOM = GetDoubleResults( rotor_res, "FOM", 0 );
+    array<double> Thrust = GetDoubleResults( rotor_res, "Thrust", 0 );
+
+    array<double> CMx = GetDoubleResults( history_res, "CMx", 0 );
+}
