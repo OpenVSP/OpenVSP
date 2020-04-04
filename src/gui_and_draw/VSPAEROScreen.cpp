@@ -360,16 +360,32 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_OtherParmsLayout.ForceNewLine();
     m_OtherParmsLayout.AddYGap();
 
-    // Unsteady Setup
+    // Propeller and Stability Setup
     int button_width = 130;
-    m_AdvancedRightLayout.AddSubGroupLayout( m_UnsteadyLayout,
+    m_AdvancedRightLayout.AddSubGroupLayout( m_PropAndStabLayout,
         m_AdvancedRightLayout.GetW(),
-        3 * m_AdvancedRightLayout.GetStdHeight() );
-    m_AdvancedRightLayout.AddY( m_UnsteadyLayout.GetH() );
-    m_UnsteadyLayout.SetButtonWidth( button_width );
-    m_UnsteadyLayout.AddDividerBox( "Unsteady" );
-    m_UnsteadyLayout.AddChoice( m_StabilityTypeChoice, "Type" );
-    m_StabilityTypeChoice.AddItem( "Stability" );
+        4 * m_AdvancedRightLayout.GetStdHeight() );
+    m_AdvancedRightLayout.AddY( m_PropAndStabLayout.GetH() );
+    m_PropAndStabLayout.SetButtonWidth( m_PropAndStabLayout.GetRemainX() / 2 );
+    m_PropAndStabLayout.AddDividerBox( "Propeller Representation" );
+
+    m_PropAndStabLayout.SetSameLineFlag( true );
+    m_PropAndStabLayout.SetFitWidthFlag( false );
+    m_PropAndStabLayout.AddButton( m_ActuatorDiskToggle, "Actuator Disk" );
+    m_PropAndStabLayout.AddButton( m_RotateBladesToggle, "Rotating Blades" );
+    m_PropAndStabLayout.ForceNewLine();
+
+    m_PropAndStabLayout.AddYGap();
+    m_PropAndStabLayout.SetSameLineFlag( false );
+    m_PropAndStabLayout.SetFitWidthFlag( true );
+    m_PropAndStabLayout.AddDividerBox( "Run Mode" );
+    m_PropAndStabLayout.SetSameLineFlag( true );
+    m_PropAndStabLayout.SetFitWidthFlag( false );
+
+    m_PropAndStabLayout.SetChoiceButtonWidth( m_PropAndStabLayout.GetRemainX() / 2 );
+    m_PropAndStabLayout.SetSliderWidth( m_PropAndStabLayout.GetRemainX() / 2 );
+
+    m_PropAndStabLayout.AddChoice( m_StabilityTypeChoice, "Stability Type" );
     m_StabilityTypeChoice.AddItem( "Off" );
     m_StabilityTypeChoice.AddItem( "Steady" );
     m_StabilityTypeChoice.AddItem( "P Analysis" );
@@ -450,54 +466,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CpSliceTypeChoice.UpdateItems();
 
     m_CpSlicerSubLayout.AddSlider( m_CpSliceLocation, "Position", 100, "%7.3f" );
-
-    //==== Rotor Disk Tab ==== //
-    Fl_Group* rotor_tab = AddTab( "Rotor" );
-    Fl_Group* rotor_group = AddSubGroup( rotor_tab, window_border_width );
-    m_PropGeneralLayout.SetGroupAndScreen( rotor_group, this );
-
-    // Prop General Layout
-    m_PropGeneralLayout.AddDividerBox( "Rotor Disk General Settings" );
-    m_PropGeneralLayout.AddSlider( m_VinfSlider, "Vinf", 100, "%7.2f" );
-    m_PropGeneralLayout.AddSlider( m_RhoSlider, "Rho", 1, "%2.5g" );
-
-    m_PropGeneralLayout.AddYGap();
-
-    // Prop Element Layout
-    int prop_elem_browser_h = 200;
-    m_PropGeneralLayout.AddSubGroupLayout( m_PropElemLayout,
-        m_PropGeneralLayout.GetW(),
-        6 * m_PropGeneralLayout.GetStdHeight() + prop_elem_browser_h );
-    m_PropGeneralLayout.AddY( m_PropElemLayout.GetH() );
-
-    m_PropElemLayout.SetSameLineFlag( false );
-    m_PropElemLayout.SetFitWidthFlag( true );
-
-    m_PropElemLayout.AddDividerBox( "Rotor Disk Element Settings" );
-
-    m_PropElemBrowser = m_PropElemLayout.AddFlBrowser( 0 );
-    m_PropElemBrowser->resize( m_PropElemLayout.GetX(), m_PropElemLayout.GetY(), m_PropElemLayout.GetW(), prop_elem_browser_h );
-    m_PropElemBrowser->type( FL_SELECT_BROWSER );
-    m_PropElemBrowser->labelfont( 13 );
-    m_PropElemBrowser->textsize( 12 );
-    m_PropElemBrowser->callback( staticScreenCB, this );
-
-    m_PropElemLayout.AddY( prop_elem_browser_h );
-
-    input_width = 60;
-    int XYZ_button_width = 20;
-    int else_button_width = 60;
-    int browser_augment = 40;
-
-    m_PropElemLayout.SetButtonWidth( else_button_width );
-    m_PropElemLayout.SetInputWidth( input_width );
-    m_PropElemLayout.AddOutput( m_PropElemDia, "Dia." );
-    m_PropElemLayout.AddSlider( m_PropElemHubDia, "Hub Dia.", 100, "%3.3f" );
-    m_PropElemLayout.AddSlider( m_PropElemRPM, "RPM", 10000, "%7.2f" );
-    m_PropElemLayout.AddSlider( m_PropElemCT, "CT", 1, "%2.3f" );
-    m_PropElemLayout.AddSlider( m_PropElemCP, "CP", 1, "%2.3f" );
-
-    m_PropGeneralLayout.AddYGap();
 
     //==== Control Grouping Tab ====//
     int main_browser_w = 180;
@@ -608,6 +576,47 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_DeflectionGainScroll->type( Fl_Scroll::VERTICAL_ALWAYS );
     m_DeflectionGainScroll->resize( m_ControlSurfaceLayout.GetX(), m_ControlSurfaceLayout.GetY(),
         m_CSGroupGainScrollLayout.GetW(), m_CSGroupGainScrollLayout.GetH() );
+
+    //==== Rotor Disk Tab ==== //
+    m_RotorDiskTab = AddTab( "Disk" );
+    Fl_Group* rotor_group = AddSubGroup( m_RotorDiskTab, window_border_width );
+    m_PropGeneralLayout.SetGroupAndScreen( rotor_group, this );
+
+    // Prop Element Layout
+    int prop_elem_browser_h = 200;
+    m_PropGeneralLayout.AddSubGroupLayout( m_PropElemLayout,
+        m_PropGeneralLayout.GetW(),
+        6 * m_PropGeneralLayout.GetStdHeight() + prop_elem_browser_h );
+    m_PropGeneralLayout.AddY( m_PropElemLayout.GetH() );
+
+    m_PropElemLayout.SetSameLineFlag( false );
+    m_PropElemLayout.SetFitWidthFlag( true );
+
+    m_PropElemLayout.AddDividerBox( "Rotor Disk Element Settings" );
+
+    m_PropElemBrowser = m_PropElemLayout.AddFlBrowser( 0 );
+    m_PropElemBrowser->resize( m_PropElemLayout.GetX(), m_PropElemLayout.GetY(), m_PropElemLayout.GetW(), prop_elem_browser_h );
+    m_PropElemBrowser->type( FL_SELECT_BROWSER );
+    m_PropElemBrowser->labelfont( 13 );
+    m_PropElemBrowser->textsize( 12 );
+    m_PropElemBrowser->callback( staticScreenCB, this );
+
+    m_PropElemLayout.AddY( prop_elem_browser_h );
+
+    input_width = 60;
+    int XYZ_button_width = 20;
+    int else_button_width = 60;
+    int browser_augment = 40;
+
+    m_PropElemLayout.SetButtonWidth( else_button_width );
+    m_PropElemLayout.SetInputWidth( input_width );
+    m_PropElemLayout.AddOutput( m_PropElemDia, "Dia." );
+    m_PropElemLayout.AddSlider( m_PropElemHubDia, "Hub Dia.", 100, "%3.3f" );
+    m_PropElemLayout.AddSlider( m_PropElemRPM, "RPM", 10000, "%7.2f" );
+    m_PropElemLayout.AddSlider( m_PropElemCT, "CT", 1, "%2.3f" );
+    m_PropElemLayout.AddSlider( m_PropElemCP, "CP", 1, "%2.3f" );
+
+    m_PropGeneralLayout.AddYGap();
 
     //==== Viewer Tab ====//
     Fl_Group* viewer_tab = AddTab( "Viewer Console" );
@@ -1217,16 +1226,41 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
 
     m_StabilityTypeChoice.Update( VSPAEROMgr.m_StabilityType.GetID() );
 
+    m_ActuatorDiskToggle.Update( VSPAEROMgr.m_ActuatorDiskFlag.GetID() );
+    m_RotateBladesToggle.Update( VSPAEROMgr.m_RotateBladesFlag.GetID() );
+
+    if ( VSPAEROMgr.GetRotorDiskVec().size() == 0 )
+    {
+        m_ActuatorDiskToggle.Deactivate();
     }
     else
     {
+        m_ActuatorDiskToggle.Activate();
     }
 
-
+    if ( VSPAEROMgr.NumUnsteadyRotorGroups() == 0 )
     {
+        m_RotateBladesToggle.Deactivate();
     }
     else
     {
+        m_RotateBladesToggle.Activate();
+    }
+
+    if ( VSPAEROMgr.m_RotateBladesFlag.Get() )
+    {
+        m_PropellerTab->activate();
+        m_RotorDiskTab->deactivate();
+    }
+    else if ( VSPAEROMgr.m_ActuatorDiskFlag.Get() )
+    {
+        m_PropellerTab->deactivate();
+        m_RotorDiskTab->activate();
+    }
+    else
+    {
+        m_PropellerTab->deactivate();
+        m_RotorDiskTab->deactivate();
     }
 
     VSPAEROMgr.UpdateSetupParmLimits();

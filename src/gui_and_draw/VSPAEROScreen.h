@@ -199,6 +199,8 @@ protected:
     SliderAdjRangeInput m_FarDistSlider;
     SliderAdjRangeInput m_GroundEffectSlider;
 
+    ToggleButton m_ActuatorDiskToggle;
+    ToggleButton m_RotateBladesToggle;
 
     // Stability Setup
     Choice m_StabilityTypeChoice;
@@ -216,6 +218,7 @@ protected:
     ToggleButton m_CpSliceShowToggle;
 
     //==== Rotor Disk Tab ====//
+    Fl_Group* m_RotorDiskTab;
     GroupLayout m_PropGeneralLayout;
     GroupLayout m_PropElemLayout;
     GroupLayout m_DeflectionAngleLayout;

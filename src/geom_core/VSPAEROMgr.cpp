@@ -266,6 +266,16 @@ void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
     {
         veh->ParmChanged( parm_ptr, type );
     }
+
+    // Only allow rotor blades or actuator disk representation, but not both
+    if ( &m_RotateBladesFlag == parm_ptr && m_ActuatorDiskFlag() == true && parm_ptr->Get() == true )
+    {
+        m_ActuatorDiskFlag.Set( false );
+    }
+    else if ( &m_ActuatorDiskFlag == parm_ptr && m_RotateBladesFlag() == true && parm_ptr->Get() == true )
+    {
+        m_RotateBladesFlag.Set( false );
+    }
 }
 
 void VSPAEROMgrSingleton::Renew()
@@ -317,6 +327,8 @@ void VSPAEROMgrSingleton::Renew()
     m_Symmetry.Set( false );
     m_StabilityType.Set( vsp::STABILITY_OFF );
 
+    m_ActuatorDiskFlag.Set( false );
+    m_RotateBladesFlag.Set( false );
 
     m_NCPU.Set( 4 );
 
@@ -1128,24 +1140,27 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     fprintf( case_file, "WakeIters = %d \n", m_WakeNumIter.Get() );
 
     // RotorDisks
-    unsigned int numUsedRotors = 0;
-    for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
+    if ( m_ActuatorDiskFlag() )
     {
-        if ( m_RotorDiskVec[iRotor]->m_IsUsed )
+        unsigned int numUsedRotors = 0;
+        for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
         {
-            numUsedRotors++;
+            if ( m_RotorDiskVec[iRotor]->m_IsUsed )
+            {
+                numUsedRotors++;
+            }
         }
-    }
-    fprintf( case_file, "NumberOfRotors = %u \n", numUsedRotors );           //TODO add to VSPAEROMgr as parm
-    int iPropElement = 0;
-    for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
-    {
-        if ( m_RotorDiskVec[iRotor]->m_IsUsed )
+        fprintf( case_file, "NumberOfRotors = %u \n", numUsedRotors );           //TODO add to VSPAEROMgr as parm
+        int iPropElement = 0;
+        for ( unsigned int iRotor = 0; iRotor < m_RotorDiskVec.size(); iRotor++ )
         {
-            iPropElement++;
-            fprintf( case_file, "PropElement_%d\n", iPropElement );     //read in by, but not used, in vspaero and begins at 1
-            fprintf( case_file, "%d\n", iPropElement );                 //read in by, but not used, in vspaero
-            m_RotorDiskVec[iRotor]->Write_STP_Data( case_file );
+            if ( m_RotorDiskVec[iRotor]->m_IsUsed )
+            {
+                iPropElement++;
+                fprintf( case_file, "PropElement_%d\n", iPropElement );     //read in by, but not used, in vspaero and begins at 1
+                fprintf( case_file, "%d\n", iPropElement );                 //read in by, but not used, in vspaero
+                m_RotorDiskVec[iRotor]->Write_STP_Data( case_file );
+            }
         }
     }
 
