@@ -1363,6 +1363,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "PCURV_TYPE", "CEDIT", CEDIT, "/*!< Cubic Bezier curve type */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "PCURV_TYPE", "APPROX_CEDIT", APPROX_CEDIT, "/*!< Approximate curve as Cubic Bezier */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "PCURV_TYPE", "NUM_PCURV_TYPE", NUM_PCURV_TYPE, "/*!< Number of curve types */" );
     assert( r >= 0 );
 

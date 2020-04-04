@@ -404,6 +404,7 @@ enum PATCH_TYPE { PATCH_NONE,
 enum PCURV_TYPE { LINEAR,
                   PCHIP,
                   CEDIT,
+                  APPROX_CEDIT,
                   NUM_PCURV_TYPE
                 };
 

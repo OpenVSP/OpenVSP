@@ -2383,7 +2383,7 @@ EditCurveXSec::EditCurveXSec() : XSecCurve()
     m_CurveType.Init( "CurveType", m_GroupName, this, vsp::CEDIT, vsp::LINEAR, vsp::CEDIT );
     m_CurveType.SetDescript( "Curve Type" );
 
-    m_ConvType.Init( "ConvType", m_GroupName, this, vsp::CEDIT, vsp::LINEAR, vsp::CEDIT );
+    m_ConvType.Init( "ConvType", m_GroupName, this, vsp::CEDIT, vsp::LINEAR, vsp::APPROX_CEDIT );
     m_ConvType.SetDescript( "Curve Conversion Type" );
 
     m_SplitU.Init( "SplitU", m_GroupName, this, 0.5, 0.0, 1.0 );

@@ -22,7 +22,7 @@ void PCurve::InitParms()
     m_CurveType.Init( "CrvType", m_GroupName, this, vsp::PCHIP, vsp::LINEAR, vsp::CEDIT );
     m_CurveType.SetDescript( "Curve type" );
 
-    m_ConvType.Init( "ConvType", m_GroupName, this, vsp::CEDIT, vsp::LINEAR, vsp::CEDIT );
+    m_ConvType.Init( "ConvType", m_GroupName, this, vsp::CEDIT, vsp::LINEAR, vsp::APPROX_CEDIT );
     m_ConvType.SetDescript( "Curve conversion type" );
 
     m_SplitPt.Init( "SplitPt", m_GroupName, this, 0.5, -1.0e12, 1.0e12 );
@@ -842,6 +842,11 @@ void PCurve::Approximate()
 
 void PCurve::ConvertTo( int newtype )
 {
+    if (newtype == vsp::APPROX_CEDIT)
+    {
+        Approximate();
+    }
+    else
     {
         switch( m_CurveType() )
         {
