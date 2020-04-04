@@ -331,8 +331,11 @@ void Vsp1DCurve::ToBinaryCubic( )
     oned_piecewise_binary_cubic_creator pbcc;
 
     // Setup copies base curve into creator.
-    // tolerance, min adapt levels, max adapt levels
-    pbcc.setup( m_Curve, 1e-2, 0.01, 0, 4 );
+    // ttol -- tolerance on gap between curve midpoints
+    // atol -- angle tolerance used to detect corners before adaptation.  Smooth if:  abs(1-cos(theta)) <= atol
+    // dmin -- minimum number of divisions of curve
+    // dmax -- maximum number of divisions of curve
+    pbcc.setup( m_Curve, 5e-2, 0.01, 0, 4 );
     // Create makes new curve
     pbcc.corner_create( m_Curve );
 }
