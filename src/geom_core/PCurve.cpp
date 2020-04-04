@@ -815,124 +815,126 @@ int PCurve::Split( const double & tsplit )
 
 void PCurve::ConvertTo( int newtype )
 {
-    switch( m_CurveType() )
     {
-    case vsp::LINEAR:
+        switch( m_CurveType() )
         {
-            switch( newtype )
+        case vsp::LINEAR:
             {
-            case vsp::LINEAR:
-                return;
-                break;
-            case vsp::PCHIP:
-                m_CurveType = vsp::PCHIP;
-                break;
-            case vsp::CEDIT:
-                vector < bool > prev_g1_vec = GetG1Vec();
-
-                m_Curve.ToCubic();
-
-                vector < double > tvec;
-                vector < double > valvec;
-
-                m_Curve.GetCubicControlPoints( valvec, tvec );
-
-                vector < bool > new_g1_vec( valvec.size() );
-
-                for ( size_t i = 0; i < valvec.size(); i++ )
+                switch( newtype )
                 {
-                    if ( i % 3 == 0 )
+                case vsp::LINEAR:
+                    return;
+                    break;
+                case vsp::PCHIP:
+                    m_CurveType = vsp::PCHIP;
+                    break;
+                case vsp::CEDIT:
+                    vector < bool > prev_g1_vec = GetG1Vec();
+
+                    m_Curve.ToCubic();
+
+                    vector < double > tvec;
+                    vector < double > valvec;
+
+                    m_Curve.GetCubicControlPoints( valvec, tvec );
+
+                    vector < bool > new_g1_vec( valvec.size() );
+
+                    for ( size_t i = 0; i < valvec.size(); i++ )
                     {
-                        new_g1_vec[i] = prev_g1_vec[i / 3];
+                        if ( i % 3 == 0 )
+                        {
+                            new_g1_vec[i] = prev_g1_vec[i / 3];
+                        }
+                        else
+                        {
+                            new_g1_vec[i] = false;
+                        }
                     }
-                    else
-                    {
-                        new_g1_vec[i] = false;
-                    }
+
+                    m_CurveType = vsp::CEDIT;
+
+                    InitCurve( tvec, valvec, new_g1_vec );
+
+                    break;
                 }
-
-                m_CurveType = vsp::CEDIT;
-
-                InitCurve( tvec, valvec, new_g1_vec );
-
-                break;
             }
-        }
-        break;
-    case vsp::PCHIP:
-        {
-            switch( newtype )
+            break;
+        case vsp::PCHIP:
             {
-            case vsp::LINEAR:
-                m_CurveType = vsp::LINEAR;
-                break;
-            case vsp::PCHIP:
-                return;
-                break;
-            case vsp::CEDIT:
-
-                vector < bool > prev_g1_vec = GetG1Vec();
-                vector < double > tvec;
-                vector < double > valvec;
-
-                m_Curve.GetCubicControlPoints( valvec, tvec );
-
-                vector < bool > new_g1_vec( valvec.size() );
-
-                for ( size_t i = 0; i < valvec.size(); i++ )
+                switch( newtype )
                 {
-                    if ( i % 3 == 0 )
+                case vsp::LINEAR:
+                    m_CurveType = vsp::LINEAR;
+                    break;
+                case vsp::PCHIP:
+                    return;
+                    break;
+                case vsp::CEDIT:
+
+                    vector < bool > prev_g1_vec = GetG1Vec();
+                    vector < double > tvec;
+                    vector < double > valvec;
+
+                    m_Curve.GetCubicControlPoints( valvec, tvec );
+
+                    vector < bool > new_g1_vec( valvec.size() );
+
+                    for ( size_t i = 0; i < valvec.size(); i++ )
                     {
-                        new_g1_vec[i] = prev_g1_vec[i / 3];
+                        if ( i % 3 == 0 )
+                        {
+                            new_g1_vec[i] = prev_g1_vec[i / 3];
+                        }
+                        else
+                        {
+                            new_g1_vec[i] = false;
+                        }
                     }
-                    else
-                    {
-                        new_g1_vec[i] = false;
-                    }
+
+                    m_CurveType = vsp::CEDIT;
+                    InitCurve( tvec, valvec, new_g1_vec );
+
+                    break;
                 }
-
-                m_CurveType = vsp::CEDIT;
-                InitCurve( tvec, valvec, new_g1_vec );
-
-                break;
             }
-        }
-        break;
-    case vsp::CEDIT:
-        {
-            switch( newtype )
+            break;
+        case vsp::CEDIT:
             {
-            case vsp::LINEAR:
-            case vsp::PCHIP:
+                switch( newtype )
                 {
-                    vector < double > tvec = GetTVec();
-                    vector < double > valvec = GetValVec();
-                    vector < bool > g1_vec = GetG1Vec();
-
-                    vector < double > newtvec, newvalvec;
-                    vector < bool > new_g1_vec;
-
-                    int npt = tvec.size();
-                    int nseg = ( npt - 1 ) / 3;
-                    for ( int i = 0; i < nseg + 1; i++ )
+                case vsp::LINEAR:
+                case vsp::PCHIP:
                     {
-                        int ipt = 3 * i;
-                        newtvec.push_back( tvec[ipt] );
-                        newvalvec.push_back( valvec[ipt] );
-                        new_g1_vec.push_back( g1_vec[ipt] );
+                        vector < double > tvec = GetTVec();
+                        vector < double > valvec = GetValVec();
+                        vector < bool > g1_vec = GetG1Vec();
+
+                        vector < double > newtvec, newvalvec;
+                        vector < bool > new_g1_vec;
+
+                        int npt = tvec.size();
+                        int nseg = ( npt - 1 ) / 3;
+                        for ( int i = 0; i < nseg + 1; i++ )
+                        {
+                            int ipt = 3 * i;
+                            newtvec.push_back( tvec[ipt] );
+                            newvalvec.push_back( valvec[ipt] );
+                            new_g1_vec.push_back( g1_vec[ipt] );
+                        }
+
+                        m_CurveType = newtype;
+
+                        InitCurve( newtvec, newvalvec, new_g1_vec );
                     }
-
-                    m_CurveType = newtype;
-
-                    InitCurve( newtvec, newvalvec, new_g1_vec );
+                    break;
+                case vsp::CEDIT:
+                    return;
+                    break;
                 }
-                break;
-            case vsp::CEDIT:
-                return;
-                break;
             }
+            break;
         }
-        break;
     }
 
     RenameParms();
