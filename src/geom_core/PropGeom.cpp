@@ -89,9 +89,12 @@ void PropPositioner::Update()
     // Propeller rotation first because order is reversed.
     mat.rotateX( -m_Reverse * m_PropRot );
 
+    mat.rotateZ( m_Precone );
+
     mat.translatef( m_FoldOrigin.x(), m_FoldOrigin.y(), m_FoldOrigin.z() );
     mat.rotate( m_FoldAngle * PI / 180.0, m_FoldDirection );
     mat.translatef( -m_FoldOrigin.x(), -m_FoldOrigin.y(), -m_FoldOrigin.z() );
+
 
     mat.translatef( 0, 0, m_RootChord * m_FeatherOffset );
 
@@ -282,6 +285,9 @@ PropGeom::PropGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
 
     m_UseBeta34Flag.Init( "UseBeta34Flag", "Design", this, 1, 0, 1 );
     m_UseBeta34Flag.SetDescript( "Flag to use Beta34 or Beta0 as driver" );
+
+    m_Precone.Init( "Precone", "Design", this, 0.0, -90.0, 90.0 );
+    m_Precone.SetDescript( "Blade pre cone angle" );
 
     m_ReverseFlag.Init( "ReverseFlag", "Design", this, false, 0, 1 );
     m_ReverseFlag.SetDescript( "Flag to reverse propeller rotation direction" );
@@ -533,6 +539,7 @@ void PropGeom::UpdateDrawObj()
         Matrix4d mat;
         mat.loadIdentity();
         mat.rotateX( -rev * m_Rotate() );
+        mat.rotateZ( m_Precone() );
         mat.postMult( data );
 
         vec3d pmid = mat.xform( m_FoldAxOrigin );
@@ -1001,6 +1008,8 @@ void PropGeom::UpdateSurf()
                 xs->m_PropPos.m_PropRot = m_Rotate();
                 xs->m_PropPos.m_Feather = m_Feather();
 
+                xs->m_PropPos.m_Precone = m_Precone();
+
                 xs->m_PropPos.m_FoldOrigin = m_FoldAxOrigin;
                 xs->m_PropPos.m_FoldDirection = m_FoldAxDirection;
                 xs->m_PropPos.m_FoldAngle = m_FoldAngle();
@@ -1082,6 +1091,8 @@ void PropGeom::UpdateSurf()
 
             pp.m_PropRot = m_Rotate();
             pp.m_Feather = m_Feather();
+
+            pp.m_Precone = m_Precone();
 
             pp.m_FoldOrigin = m_FoldAxOrigin;
             pp.m_FoldDirection = m_FoldAxDirection;
@@ -1670,6 +1681,7 @@ string PropGeom::BuildBEMResults()
     res->Add( NameValData( "Diameter", m_Diameter() ) );
     res->Add( NameValData( "Beta34", m_Beta34() ) );
     res->Add( NameValData( "Feather", m_Feather() ) );
+    res->Add( NameValData( "Pre_Cone", m_Precone() ) );
     res->Add( NameValData( "Center", cen ) );
     res->Add( NameValData( "Normal", norm ) );
 
@@ -1752,6 +1764,7 @@ int PropGeom::ReadBEM( const string &file_name )
     double diam;
     double beta34;
     double feather;
+    double precone;
     vec3d cen;
     vec3d norm;
 
@@ -1782,6 +1795,7 @@ int PropGeom::ReadBEM( const string &file_name )
         fscanf( fid, "Diameter: %lf\n", &diam );
         fscanf( fid, "Beta 3/4 (deg): %lf\n", &beta34 );
         fscanf( fid, "Feather (deg): %lf\n", &feather );
+        fscanf( fid, "Pre_Cone (deg): %lf\n", &precone );
         double x, y, z;
         fscanf( fid, "Center: %lf, %lf, %lf\n", &x, &y, &z );
         cen.set_xyz( x, y, z );
@@ -1816,6 +1830,7 @@ int PropGeom::ReadBEM( const string &file_name )
         printf( "Diameter: %.8f\n", diam );
         printf( "Beta 3/4 (deg): %.8f\n", beta34 );
         printf( "Feather (deg): %.8f\n", feather );
+        printf( "Pre_Cone (deg): *.8f\n", precone );
         printf( "Center: %.8f, %.8f, %.8f\n", cen.x(), cen.y(), cen.z() );
         printf( "Normal: %.8f, %.8f, %.8f\n", norm.x(), norm.y(), norm.z() );
 
@@ -1855,6 +1870,7 @@ int PropGeom::ReadBEM( const string &file_name )
     m_Nblade = num_blade;
     m_Beta34 = beta34;
     m_Feather = feather;
+    m_Precone = precone;
 
     m_XRelLoc = cen.x();
     m_YRelLoc = cen.y();

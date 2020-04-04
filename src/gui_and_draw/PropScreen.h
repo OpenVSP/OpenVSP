@@ -44,6 +44,7 @@ protected:
     SliderAdjRangeInput m_PropRotateSlider;
     SliderAdjRangeInput m_Beta34Slider;
     SliderAdjRangeInput m_FeatherSlider;
+    SliderAdjRangeInput m_PreconeSlider;
 
     ToggleButton m_Beta34Toggle;
     ToggleButton m_FeatherToggle;

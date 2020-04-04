@@ -40,6 +40,8 @@ public:
     double m_RootChord;
     double m_RootTwist;
 
+    double m_Precone;
+
     double m_Twist;
     double m_PropRot;
     double m_Feather;
@@ -159,6 +161,8 @@ public:
     Parm m_Beta34;
     Parm m_Feather;
     IntParm m_UseBeta34Flag;
+
+    Parm m_Precone;
 
     Parm m_Construct;
 

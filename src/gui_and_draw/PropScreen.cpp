@@ -71,6 +71,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 760, "Propeller
     m_DesignLayout.SetSameLineFlag( false );
     m_DesignLayout.SetButtonWidth( 100 );
 
+    m_DesignLayout.AddSlider( m_PreconeSlider, "Pre-cone", 10, "%5.3f" );
     m_DesignLayout.AddSlider( m_ConstructSlider, "Construct X/C", 1, "%5.3f" );
     m_DesignLayout.AddSlider( m_FeatherAxisSlider, "Feather Axis", 1, "%5.3f" );
     m_DesignLayout.AddSlider( m_FeatherOffsetSlider, "Feather Offset", 1, "%5.3f" );
@@ -931,6 +932,7 @@ bool PropScreen::Update()
 
     m_Beta34Slider.Update( propeller_ptr->m_Beta34.GetID() );
     m_FeatherSlider.Update( propeller_ptr->m_Feather.GetID() );
+    m_PreconeSlider.Update( propeller_ptr->m_Precone.GetID() );
 
     m_BetaToggle.Update( propeller_ptr->m_UseBeta34Flag.GetID() );
 

@@ -745,6 +745,7 @@ void Results::WriteBEMFile( const string & file_name )
         double diam = Find( "Diameter" ).GetDouble( 0 );
         double beta34 = Find( "Beta34" ).GetDouble( 0 );
         double feather = Find( "Feather" ).GetDouble( 0 );
+        double precone = Find( "Pre_Cone" ).GetDouble( 0 );
         vec3d cen = Find( "Center" ).GetVec3d( 0 );
         vec3d norm = Find( "Normal" ).GetVec3d( 0 );
 
@@ -753,6 +754,7 @@ void Results::WriteBEMFile( const string & file_name )
         fprintf( fid, "Diameter: %.8f\n", diam );
         fprintf( fid, "Beta 3/4 (deg): %.8f\n", beta34 );
         fprintf( fid, "Feather (deg): %.8f\n", feather );
+        fprintf( fid, "Pre_Cone (deg): *.8f\n", precone );
         fprintf( fid, "Center: %.8f, %.8f, %.8f\n", cen.x(), cen.y(), cen.z() );
         fprintf( fid, "Normal: %.8f, %.8f, %.8f\n", norm.x(), norm.y(), norm.z() );
 
