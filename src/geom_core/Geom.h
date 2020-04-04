@@ -409,6 +409,11 @@ public:
         return m_FeaTransMatVec;
     }
 
+    vector < Matrix4d > GetTransMatVec()
+    {
+        return m_TransMatVec;
+    }
+
     //==== XSec Surfs ====//
     virtual int GetNumXSecSurfs()
     {
