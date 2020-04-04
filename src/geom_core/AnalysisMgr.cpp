@@ -1271,6 +1271,22 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "Beta",              VSPAEROMgr.m_BetaStart.Get()         ) );
         m_Inputs.Add( NameValData( "Mach",              VSPAEROMgr.m_MachStart.Get()         ) );
 
+        m_Inputs.Add( NameValData( "RotateBladesFlag",  VSPAEROMgr.m_RotateBladesFlag.Get() ) );
+        m_Inputs.Add( NameValData( "ActuatorDiskFlag",  VSPAEROMgr.m_ActuatorDiskFlag.Get() ) );
+
+        // Unsteady Parms
+        m_Inputs.Add( NameValData( "HoverRampFlag",     VSPAEROMgr.m_HoverRampFlag.Get() ) );
+        m_Inputs.Add( NameValData( "HoverRamp",         VSPAEROMgr.m_HoverRamp.Get() ) );
+        m_Inputs.Add( NameValData( "NumTimeSteps",      VSPAEROMgr.m_NumTimeSteps.Get() ) );
+        m_Inputs.Add( NameValData( "TimeStepSize",      VSPAEROMgr.m_TimeStepSize.Get() ) );
+        m_Inputs.Add( NameValData( "AutoTimeStepFlag",  VSPAEROMgr.m_AutoTimeStepFlag.Get() ) );
+        m_Inputs.Add( NameValData( "AutoTimeNumRevs",   VSPAEROMgr.m_AutoTimeNumRevs.Get() ) );
+        m_Inputs.Add( NameValData( "Machref",           VSPAEROMgr.m_Machref.Get() ) );
+        m_Inputs.Add( NameValData( "Vref",              VSPAEROMgr.m_Vref.Get() ) );
+        m_Inputs.Add( NameValData( "ManualVrefFlag",    VSPAEROMgr.m_ManualVrefFlag.Get() ) );
+        m_Inputs.Add( NameValData( "NoiseCalcFlag",     VSPAEROMgr.m_NoiseCalcFlag.Get() ) );
+        m_Inputs.Add( NameValData( "NoiseCalcType",     VSPAEROMgr.m_NoiseCalcType.Get() ) );
+        m_Inputs.Add( NameValData( "NoiseUnits",        VSPAEROMgr.m_NoiseUnits.Get() ) );
     }
     else
     {
@@ -1527,6 +1543,93 @@ string VSPAEROSinglePointAnalysis::Execute()
             VSPAEROMgr.m_ReCref.Set( nvd->GetDouble( 0 ) );
         }
 
+        // Unsteady Parms
+        bool rotateBladesFlagOrig = VSPAEROMgr.m_RotateBladesFlag.Get();
+        bool actuatorDiskFlagOrig = VSPAEROMgr.m_ActuatorDiskFlag.Get();
+        bool hoverRampFlagOrig = VSPAEROMgr.m_HoverRampFlag.Get();
+        double hoverRamp = VSPAEROMgr.m_HoverRamp.Get();
+        int numTimeStepOrig = VSPAEROMgr.m_NumTimeSteps.Get();
+        double timeStepSizeOrig = VSPAEROMgr.m_TimeStepSize.Get();
+        double autoTimeStepFlagOrig = VSPAEROMgr.m_AutoTimeStepFlag.Get();
+        int autoTimeNumRevsOrig = VSPAEROMgr.m_AutoTimeNumRevs.Get();
+        double machrefOrig = VSPAEROMgr.m_Machref.Get();
+        double vrefOrig = VSPAEROMgr.m_Vref.Get();
+        bool manualVrefOrig = VSPAEROMgr.m_ManualVrefFlag.Get();
+        bool noiseCalcFlagOrig = VSPAEROMgr.m_NoiseCalcFlag.Get();
+        int noiseCalcTypeOrig = VSPAEROMgr.m_NoiseCalcType.Get();
+        int noiseUnitsOrig = VSPAEROMgr.m_NoiseUnits.Get();
+
+        nvd = m_Inputs.FindPtr( "RotateBladesFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_RotateBladesFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ActuatorDiskFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ActuatorDiskFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "HoverRampFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_HoverRampFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "HoverRamp", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_HoverRamp.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "NumTimeSteps", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_NumTimeSteps.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "TimeStepSize", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_TimeStepSize.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "AutoTimeStepFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_AutoTimeStepFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "AutoTimeNumRevs", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_AutoTimeNumRevs.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Machref", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_Machref.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Vref", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_Vref.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ManualVrefFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ManualVrefFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "NoiseCalcFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_NoiseCalcFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "NoiseCalcType", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_NoiseCalcType.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "NoiseUnits", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_NoiseUnits.Set( nvd->GetInt( 0 ) );
+        }
+
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
 
@@ -1576,6 +1679,22 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_Vinf.Set( vingOrig );
         VSPAEROMgr.m_Rho.Set( rhoOrig );
         VSPAEROMgr.m_ReCref.Set( reCrefOrig );
+
+        // Unsteady Parms
+        VSPAEROMgr.m_RotateBladesFlag.Set( rotateBladesFlagOrig );
+        VSPAEROMgr.m_ActuatorDiskFlag.Set( actuatorDiskFlagOrig );
+        VSPAEROMgr.m_HoverRampFlag.Set( hoverRampFlagOrig );
+        VSPAEROMgr.m_HoverRamp.Set( hoverRamp );
+        VSPAEROMgr.m_NumTimeSteps.Set( numTimeStepOrig );
+        VSPAEROMgr.m_TimeStepSize.Set( timeStepSizeOrig );
+        VSPAEROMgr.m_AutoTimeStepFlag.Set( autoTimeStepFlagOrig );
+        VSPAEROMgr.m_AutoTimeNumRevs.Set( autoTimeNumRevsOrig );
+        VSPAEROMgr.m_Machref.Set( machrefOrig );
+        VSPAEROMgr.m_Vref.Set( vrefOrig );
+        VSPAEROMgr.m_ManualVrefFlag.Set( manualVrefOrig );
+        VSPAEROMgr.m_NoiseCalcFlag.Set( noiseCalcFlagOrig );
+        VSPAEROMgr.m_NoiseCalcType.Set( noiseCalcTypeOrig );
+        VSPAEROMgr.m_NoiseUnits.Set( noiseUnitsOrig );
     }
 
     return resId;
@@ -1636,6 +1755,22 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "MachEnd",           VSPAEROMgr.m_MachEnd.Get()           ) );
         m_Inputs.Add( NameValData( "MachNpts",          VSPAEROMgr.m_MachNpts.Get()          ) );
 
+        m_Inputs.Add( NameValData( "RotateBladesFlag",  VSPAEROMgr.m_RotateBladesFlag.Get() ) );
+        m_Inputs.Add( NameValData( "ActuatorDiskFlag",  VSPAEROMgr.m_ActuatorDiskFlag.Get() ) );
+
+        // Unsteady Parms
+        m_Inputs.Add( NameValData( "HoverRampFlag",     VSPAEROMgr.m_HoverRampFlag.Get() ) );
+        m_Inputs.Add( NameValData( "HoverRamp",         VSPAEROMgr.m_HoverRamp.Get() ) );
+        m_Inputs.Add( NameValData( "NumTimeSteps",      VSPAEROMgr.m_NumTimeSteps.Get() ) );
+        m_Inputs.Add( NameValData( "TimeStepSize",      VSPAEROMgr.m_TimeStepSize.Get() ) );
+        m_Inputs.Add( NameValData( "AutoTimeStepFlag",  VSPAEROMgr.m_AutoTimeStepFlag.Get() ) );
+        m_Inputs.Add( NameValData( "AutoTimeNumRevs",   VSPAEROMgr.m_AutoTimeNumRevs.Get() ) );
+        m_Inputs.Add( NameValData( "Machref",           VSPAEROMgr.m_Machref.Get() ) );
+        m_Inputs.Add( NameValData( "Vref",              VSPAEROMgr.m_Vref.Get() ) );
+        m_Inputs.Add( NameValData( "ManualVrefFlag",    VSPAEROMgr.m_ManualVrefFlag.Get() ) );
+        m_Inputs.Add( NameValData( "NoiseCalcFlag",     VSPAEROMgr.m_NoiseCalcFlag.Get() ) );
+        m_Inputs.Add( NameValData( "NoiseCalcType",     VSPAEROMgr.m_NoiseCalcType.Get() ) );
+        m_Inputs.Add( NameValData( "NoiseUnits",        VSPAEROMgr.m_NoiseUnits.Get() ) );
     }
     else
     {
@@ -1923,6 +2058,93 @@ string VSPAEROSweepAnalysis::Execute()
             VSPAEROMgr.m_ReCref.Set( nvd->GetDouble( 0 ) );
         }
 
+        // Unsteady Parms
+        bool rotateBladesFlagOrig = VSPAEROMgr.m_RotateBladesFlag.Get();
+        bool actuatorDiskFlagOrig = VSPAEROMgr.m_ActuatorDiskFlag.Get();
+        bool hoverRampFlagOrig = VSPAEROMgr.m_HoverRampFlag.Get();
+        double hoverRamp = VSPAEROMgr.m_HoverRamp.Get();
+        int numTimeStepOrig = VSPAEROMgr.m_NumTimeSteps.Get();
+        double timeStepSizeOrig =VSPAEROMgr.m_TimeStepSize.Get();
+        double autoTimeStepFlagOrig = VSPAEROMgr.m_AutoTimeStepFlag.Get();
+        int autoTimeNumRevsOrig = VSPAEROMgr.m_AutoTimeNumRevs.Get();
+        double machrefOrig = VSPAEROMgr.m_Machref.Get();
+        double vrefOrig = VSPAEROMgr.m_Vref.Get();
+        bool manualVrefOrig = VSPAEROMgr.m_ManualVrefFlag.Get();
+        bool noiseCalcFlagOrig = VSPAEROMgr.m_NoiseCalcFlag.Get();
+        int noiseCalcTypeOrig = VSPAEROMgr.m_NoiseCalcType.Get();
+        int noiseUnitsOrig = VSPAEROMgr.m_NoiseUnits.Get();
+
+        nvd = m_Inputs.FindPtr( "RotateBladesFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_RotateBladesFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ActuatorDiskFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ActuatorDiskFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "HoverRampFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_HoverRampFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "HoverRamp", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_HoverRamp.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "NumTimeSteps", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_NumTimeSteps.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "TimeStepSize", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_TimeStepSize.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "AutoTimeStepFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_AutoTimeStepFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "AutoTimeNumRevs", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_AutoTimeNumRevs.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Machref", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_Machref.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "Vref", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_Vref.Set( nvd->GetDouble( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "ManualVrefFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_ManualVrefFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "NoiseCalcFlag", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_NoiseCalcFlag.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "NoiseCalcType", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_NoiseCalcType.Set( nvd->GetInt( 0 ) );
+        }
+        nvd = m_Inputs.FindPtr( "NoiseUnits", 0 );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_NoiseUnits.Set( nvd->GetInt( 0 ) );
+        }
+
         //==== Execute Analysis ====//
         resId = VSPAEROMgr.ComputeSolver(stdout);
 
@@ -1975,6 +2197,20 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_Vinf.Set( vingOrig );
         VSPAEROMgr.m_Rho.Set( rhoOrig );
         VSPAEROMgr.m_ReCref.Set( reCrefOrig );
+
+        // Unsteady Parms
+        VSPAEROMgr.m_RotateBladesFlag.Set( rotateBladesFlagOrig );
+        VSPAEROMgr.m_ActuatorDiskFlag.Set( actuatorDiskFlagOrig );
+        VSPAEROMgr.m_HoverRampFlag.Set( hoverRampFlagOrig );
+        VSPAEROMgr.m_HoverRamp.Set( hoverRamp );
+        VSPAEROMgr.m_NumTimeSteps.Set( numTimeStepOrig );
+        VSPAEROMgr.m_TimeStepSize.Set( timeStepSizeOrig );
+        VSPAEROMgr.m_Machref.Set( machrefOrig );
+        VSPAEROMgr.m_Vref.Set( vrefOrig );
+        VSPAEROMgr.m_ManualVrefFlag.Set( manualVrefOrig );
+        VSPAEROMgr.m_NoiseCalcFlag.Set( noiseCalcFlagOrig );
+        VSPAEROMgr.m_NoiseCalcType.Set( noiseCalcTypeOrig );
+        VSPAEROMgr.m_NoiseUnits.Set( noiseUnitsOrig );
     }
 
     return resId;
