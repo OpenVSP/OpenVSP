@@ -72,6 +72,7 @@ public:
     virtual double GetRFirst();
     virtual double GetRLast();
 
+    virtual void Approximate();
     virtual void ConvertTo( int newtype );
 
     virtual void InitCurve( const vector < double >& tvec, const vector < double >& valvec, vector < bool > c1vec = {} );

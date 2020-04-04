@@ -813,6 +813,33 @@ int PCurve::Split( const double & tsplit )
     return m_SelectPntID;
 }
 
+void PCurve::Approximate()
+{
+    double vmin, vmax;
+    m_Curve.GetBoundingBox( vmin, vmax );
+
+    double sf = vmax - vmin;
+    if ( sf < 1e-6 )
+    {
+        sf = 1.0;
+    }
+
+    m_Curve.Scale( 1.0/sf );
+    m_Curve.ToBinaryCubic( );
+    m_Curve.Scale( sf );
+
+    vector < double > tvec;
+    vector < double > valvec;
+
+    m_Curve.GetCubicControlPoints( valvec, tvec );
+
+    vector < bool > new_g1_vec( valvec.size(), false );
+
+    m_CurveType = vsp::CEDIT;
+
+    InitCurve( tvec, valvec, new_g1_vec );
+}
+
 void PCurve::ConvertTo( int newtype )
 {
     {
