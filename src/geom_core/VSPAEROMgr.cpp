@@ -17,7 +17,7 @@
 #include "VehicleMgr.h"
 #include "VSPAEROMgr.h"
 #include "WingGeom.h"
-
+#include "PropGeom.h"
 #include "StringUtil.h"
 #include "FileUtil.h"
 
@@ -3765,5 +3765,294 @@ void ControlSurfaceGroup::SetGroupDisplaySuffix( int num )
         {
             p->SetGroupDisplaySuffix( num );
         }
+    }
+}
+
+/*##############################################################################
+#                                                                              #
+#                           UnsteadyGroup                                      #
+#                                                                              #
+##############################################################################*/
+
+UnsteadyGroup::UnsteadyGroup( void ) : ParmContainer()
+{
+    m_Name = "Unnamed Unsteady Group";
+
+    m_GroupName = "UnsteadyGroup";
+
+    m_GeomPropertyType.Init( "GeomPropertyType", m_GroupName, this, GEOM_DYNAMIC, GEOM_FIXED, GEOM_ROTOR );
+    m_GeomPropertyType.SetDescript( "Flag indicating if the geometry is fixed" );
+
+    m_RotorDia.Init( "RotorDia", m_GroupName, this, 0, 0, 1e12 );
+    m_RotorDia.SetDescript( "Rotor diameter if geometry is a rotor" );
+
+    m_Ox.Init( "Ox", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Ox.SetDescript( "X component of unsteady group origin of rotation" );
+
+    m_Oy.Init( "Oy", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Oy.SetDescript( "Y component of unsteady group origin of rotation" );
+
+    m_Oz.Init( "Oz", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Oz.SetDescript( "Y component of unsteady group origin of rotation" );
+
+    m_Rx.Init( "Rx", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Rx.SetDescript( "X component of unsteady group direction of rotation axis" );
+
+    m_Ry.Init( "Ry", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Ry.SetDescript( "Y component of unsteady group direction of rotation axis" );
+
+    m_Rz.Init( "Rz", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Rz.SetDescript( "Z component of unsteady group direction of rotation axis" );
+
+    m_Vx.Init( "Vx", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Vx.SetDescript( "X component of unsteady group velocity vector" );
+
+    m_Vy.Init( "Vy", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Vy.SetDescript( "Y component of unsteady group velocity vector" );
+
+    m_Vz.Init( "Vz", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Vz.SetDescript( "Z component of unsteady group velocity vector" );
+
+    m_Ax.Init( "Ax", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Ax.SetDescript( "X component of unsteady group acceleration vector" );
+
+    m_Ay.Init( "Ay", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Ay.SetDescript( "Y component of unsteady group acceleration vector" );
+
+    m_Az.Init( "Az", m_GroupName, this, 0, -1e12, 1e12 );
+    m_Az.SetDescript( "Z component of unsteady group acceleration vector" );
+
+    m_RPM.Init( "RPM", m_GroupName, this, 2000, -1e12, 1e12 );
+    m_RPM.SetDescript( "RPM of unsteady group" );
+
+    m_Mass.Init( "Mass", m_GroupName, this, 0, 0, 1e12 );
+    m_Mass.SetDescript( "Mass of unsteady group" );
+
+    m_Ixx.Init( "Ixx", m_GroupName, this, 0, 0, 1e12 );
+    m_Ixx.SetDescript( "Ixx of unsteady group" );
+
+    m_Iyy.Init( "Iyy", m_GroupName, this, 0, 0, 1e12 );
+    m_Iyy.SetDescript( "Iyy of unsteady group" );
+
+    m_Izz.Init( "Izz", m_GroupName, this, 0, 0, 1e12 );
+    m_Izz.SetDescript( "Izz of unsteady group" );
+
+    m_Ixy.Init( "Ixy", m_GroupName, this, 0, 0, 1e12 );
+    m_Ixy.SetDescript( "Ixy of unsteady group" );
+
+    m_Ixz.Init( "Ixz", m_GroupName, this, 0, 0, 1e12 );
+    m_Ixz.SetDescript( "Ixz of unsteady group" );
+
+    m_Iyz.Init( "Iyz", m_GroupName, this, 0, 0, 1e12 );
+    m_Iyz.SetDescript( "Iyz of unsteady group" );
+
+    m_SelectedCompIndex = -1;
+}
+
+UnsteadyGroup::~UnsteadyGroup( void )
+{
+}
+
+xmlNodePtr UnsteadyGroup::EncodeXml( xmlNodePtr& node )
+{
+    if ( node )
+    {
+        XmlUtil::AddIntNode( node, "NumberOfComponents", m_ComponentSurfPairVec.size() );
+
+        for ( size_t i = 0; i < m_ComponentSurfPairVec.size(); ++i )
+        {
+            xmlNodePtr csnode = xmlNewChild( node, NULL, BAD_CAST "Component", NULL );
+            XmlUtil::AddStringNode( csnode, "CompID", m_ComponentSurfPairVec[i].first.c_str() );
+            XmlUtil::AddIntNode( csnode, "SurfIndex", m_ComponentSurfPairVec[i].second );
+        }
+
+        ParmContainer::EncodeXml( node );
+    }
+
+    return node;
+}
+
+xmlNodePtr UnsteadyGroup::DecodeXml( xmlNodePtr& node )
+{
+    if ( node )
+    {
+        unsigned int nComponents = XmlUtil::FindInt( node, "NumberOfComponents", 0 );
+
+        for ( size_t i = 0; i < nComponents; ++i )
+        {
+            xmlNodePtr csnode = XmlUtil::GetNode( node, "Component", i );
+
+            string compID = XmlUtil::FindString( csnode, "CompID", "" );
+            int surf_index = XmlUtil::FindInt( csnode, "SurfIndex", 1 );
+            AddComp( compID, surf_index );
+        }
+
+        ParmContainer::DecodeXml( node );
+    }
+
+    return node;
+}
+
+void UnsteadyGroup::ParmChanged( Parm* parm_ptr, int type )
+{
+    if ( type == Parm::SET )
+    {
+        m_LateUpdateFlag = true;
+        return;
+    }
+
+    Update();
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
+}
+
+void UnsteadyGroup::Update()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    bool is_rotor = false;
+    double rotor_dia = 0;
+    vec3d o_vec = vec3d( 0, 0, 0 );
+    vec3d r_vec = vec3d( 0, 0, 0 );
+
+    if ( m_ComponentSurfPairVec.size() == 1 )
+    {
+        Geom* geom = veh->FindGeom( m_ComponentSurfPairVec[0].first );
+
+        if ( geom )
+        {
+            if ( geom->GetType().m_Type == PROP_GEOM_TYPE )
+            {
+                PropGeom* prop = dynamic_cast<PropGeom*>( geom );
+                assert( prop );
+
+                is_rotor = true;
+
+                int surf_index = m_ComponentSurfPairVec[0].second;
+                int num_main_surf = geom->GetNumMainSurfs();
+                vector < Matrix4d > trans_mat_vec = geom->GetTransMatVec();
+                Matrix4d trans_mat = trans_mat_vec[( surf_index - 1 ) * num_main_surf]; // Translations for the specific symmetric copy
+
+                vec3d cen( 0, 0, 0 );
+                vec3d rotdir( 1, 0, 0 );
+
+                // Identify if the normal vector is flipped (due to symmetry or reversing the prop)
+                vector < VspSurf > surf_vec;
+                geom->GetSurfVec( surf_vec );
+
+                if ( surf_vec[( surf_index - 1 ) * num_main_surf].GetFlipNormal() )
+                {
+                    rotdir.set_x( -1 );
+                }
+
+                o_vec = trans_mat.xform( cen );
+                r_vec = trans_mat.xform( rotdir ) - o_vec;
+
+                rotor_dia = prop->m_Diameter.Get();
+
+                // Set group name
+                m_Name = prop->GetName();
+            }
+        }
+    }
+
+    if ( is_rotor )
+    {
+        m_GeomPropertyType.Set( GEOM_ROTOR );
+    }
+    else
+    {
+        m_Name = "Fixed_Component_Group";
+        m_RPM.Set( 0 );
+    }
+
+    m_RotorDia.Set( rotor_dia );
+
+    m_Ox.Set( o_vec.x() );
+    m_Oy.Set( o_vec.y() );
+    m_Oz.Set( o_vec.z() );
+
+    r_vec.normalize();
+
+    m_Rx.Set( r_vec.x() );
+    m_Ry.Set( r_vec.y() );
+    m_Rz.Set( r_vec.z() );
+}
+
+int UnsteadyGroup::WriteGroup( FILE* group_file )
+{
+    if ( !group_file )
+    {
+        fprintf( stderr, "ERROR: Failed to open *.group file \n\tFile: %s \tLine:%d\n", __FILE__, __LINE__ );
+        return vsp::VSP_FILE_WRITE_FAILURE;
+    }
+
+    fprintf( group_file, "#\n" );
+    fprintf( group_file, "GroupName = %s\n", m_Name.c_str() );
+    fprintf( group_file, "NumberOfComponents = %d\n", m_ComponentVSPAEROIndexVec.size() );
+
+    for ( size_t i = 0; i < m_ComponentVSPAEROIndexVec.size(); i++ )
+    {
+        fprintf( group_file, "%d\n", m_ComponentVSPAEROIndexVec[i] );
+    }
+
+    bool geom_fixed = false;
+    bool geom_dynamic = false;
+    bool geom_rotor = false;
+
+    if ( m_GeomPropertyType() == GEOM_FIXED )
+    {
+        geom_fixed = true;
+    }
+    else if ( m_GeomPropertyType() == GEOM_DYNAMIC )
+    {
+        geom_dynamic = true;
+    }
+    else if ( m_GeomPropertyType() == GEOM_ROTOR )
+    {
+        geom_rotor = true;
+    }
+
+    double omega = m_RPM() * PI / 30;
+
+    fprintf( group_file, "GeometryIsFixed = %d\n", geom_fixed );
+    fprintf( group_file, "GeometryIsDynamic = %d\n", geom_dynamic );
+    fprintf( group_file, "GeometryIsARotor = %d\n", geom_rotor );
+    fprintf( group_file, "RotorDiameter = %lf\n", m_RotorDia() );
+    fprintf( group_file, "OVec = %lf %lf %lf\n", m_Ox(), m_Oy(), m_Oz() );
+    fprintf( group_file, "RVec = %lf %lf %lf\n", m_Rx(), m_Ry(), m_Rz() );
+    fprintf( group_file, "Velocity = %lf %lf %lf\n", m_Vx(), m_Vy(), m_Vz() );
+    fprintf( group_file, "Acceleration = %lf %lf %lf\n", m_Ax(), m_Ay(), m_Az() );
+    fprintf( group_file, "Omega = %lf\n", omega );
+    fprintf( group_file, "Mass = %lf\n", m_Mass() );
+    fprintf( group_file, "Ixx = %lf\n", m_Ixx() );
+    fprintf( group_file, "Iyy = %lf\n", m_Iyy() );
+    fprintf( group_file, "Izz = %lf\n", m_Izz() );
+    fprintf( group_file, "Ixy = %lf\n", m_Ixy() );
+    fprintf( group_file, "Ixz = %lf\n", m_Ixz() );
+    fprintf( group_file, "Iyz = %lf\n", m_Iyz() );
+
+    return vsp::VSP_OK;
+}
+
+void UnsteadyGroup::SetSelectedCompIndex( int index )
+{
+    index = Clamp<int>( index, 0, m_ComponentSurfPairVec.size() - 1 );
+    m_SelectedCompIndex = index;
+}
+
+void UnsteadyGroup::RemoveComp( int index )
+{
+    if ( index >= 0 && index < m_ComponentSurfPairVec.size() )
+    {
+        m_ComponentSurfPairVec.erase( m_ComponentSurfPairVec.begin() + index );
     }
 }

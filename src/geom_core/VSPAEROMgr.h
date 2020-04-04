@@ -140,6 +140,73 @@ public:
 
 };
 
+class UnsteadyGroup : public ParmContainer
+{
+public:
+    UnsteadyGroup( void );
+    ~UnsteadyGroup( void );
+
+    virtual xmlNodePtr EncodeXml( xmlNodePtr& node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr& node );
+
+    void ParmChanged( Parm* parm_ptr, int type );
+
+    void Update();
+
+    int WriteGroup( FILE* logFile );
+
+    int GetSelectedCompIndex()                                                              { return m_SelectedCompIndex; }
+    void SetSelectedCompIndex( int index );
+
+    vector < pair < string, int > > GetCompSurfPairVec()                                    { return m_ComponentSurfPairVec; }
+    void SetCompSurfPairVec( const vector < pair < string, int > > comp_surf_pair_vec )     { m_ComponentSurfPairVec = comp_surf_pair_vec; }
+
+    vector < int > GetVSPAEROIndexVec()                                                     { return m_ComponentVSPAEROIndexVec; }
+    void SetVSPAEROIndexVec( vector < int > vepaero_index_vec )                             { m_ComponentVSPAEROIndexVec = vepaero_index_vec; }
+
+    void AddComp( string comp_id, int surf_ind )                                            { m_ComponentSurfPairVec.push_back( std::make_pair( comp_id, surf_ind ) ); }
+    void ClearCompIDVec()                                                                   { m_ComponentSurfPairVec.clear(); }
+    void RemoveComp( int index );
+
+    enum GEOM_PROPERTY_TYPE
+    {
+        GEOM_FIXED,
+        GEOM_DYNAMIC,
+        GEOM_ROTOR
+    };
+
+    string m_GroupName;
+
+    IntParm m_GeomPropertyType;
+    Parm m_RotorDia;
+    Parm m_Ox;
+    Parm m_Oy;
+    Parm m_Oz;
+    Parm m_Rx;
+    Parm m_Ry;
+    Parm m_Rz;
+    Parm m_Vx;
+    Parm m_Vy;
+    Parm m_Vz;
+    Parm m_Ax;
+    Parm m_Ay;
+    Parm m_Az;
+    Parm m_RPM;
+    Parm m_Mass;
+    Parm m_Ixx;
+    Parm m_Iyy;
+    Parm m_Izz;
+    Parm m_Ixy;
+    Parm m_Ixz;
+    Parm m_Iyz;
+
+private:
+
+    vector < pair < string, int > > m_ComponentSurfPairVec; // Pairs of component IDs and symmetric surface index for the unsteady group
+    vector < int > m_ComponentVSPAEROIndexVec;
+    int m_SelectedCompIndex;
+};
+
 //==== VSPAERO Manager ====//
 class VSPAEROMgrSingleton : public ParmContainer
 {
