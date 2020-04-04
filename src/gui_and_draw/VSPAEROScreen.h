@@ -56,12 +56,14 @@ public:
     void UngroupedCSBrowserCallback();
     void GroupedCSBrowserCallback();
     void CpSliceBrowserCallback();
+    void UnsteadyGroupBrowserCallback();
 
     void SelectPropBrowser( int cur_index );
     void SelectControlSurfaceBrowser( int cur_index );
     void SelectUngroupedListBrowser( int cur_index );
     void SelectGroupedListBrowser( int cur_index );
     void SelectCpSliceBrowser( int cur_index );
+    void SelectUnsteadyGroupBrowser( int cur_index );
 
     static void AddOutputText( Fl_Text_Display *display, const string &text );
 
@@ -88,6 +90,8 @@ public:
     void UpdateDeflectionGainScrollGroup();
     void UpdateCpSlices();
     void UpdateCpSliceBrowser();
+    void UpdateUnsteadyGroups();
+    void UpdateUnsteadyGroupBrowser();
 
     void DisplayDegenVLMPreview();
 
@@ -164,7 +168,7 @@ protected:
     GroupLayout m_AdvancedCaseSetupLayout;
     GroupLayout m_WakeLayout;
     GroupLayout m_OtherParmsLayout;
-    GroupLayout m_UnsteadyLayout;
+    GroupLayout m_PropAndStabLayout;
     GroupLayout m_AdvancedFlowLayout;
     GroupLayout m_CpSlicerLayout;
     GroupLayout m_CpSlicerSubLayout;
@@ -273,12 +277,36 @@ protected:
 
     SliderAdjRangeInput m_DeflectionGainSlider;
 
+    ToggleButton m_HoverRampToggle;
+    SliderAdjRangeInput m_HoverRampSlider;
+
+    ToggleButton m_NoiseCalcToggle;
+    TriggerButton m_NoiseCalcTrigger;
+    Choice m_NoiseCalcChoice;
+    Choice m_NoiseUnitChoice;
+
     //==== Solver Tab ====//
     GroupLayout m_SolverLayout;
 
     Fl_Text_Display *m_SolverDisplay;
     Fl_Text_Buffer *m_SolverBuffer;
 
+    //====  Propeller Tab ====//
+    Fl_Group* m_PropellerTab;
+
+    // Unsteady Setup
+    ToggleButton m_AutoTimeStepToggle;
+    SliderAdjRangeInput m_AutoTimeNumRevSlider;
+    SliderAdjRangeInput m_TimeStepSizeSlider;
+    SliderAdjRangeInput m_NumTimeStepSlider;
+
+    GroupLayout m_UnsteadyGroupLayout;
+    GroupLayout m_UnsteadyGroupLeftLayout;
+    GroupLayout m_UnsteadyGroupRightLayout;
+
+    Fl_Browser* m_UnsteadyGroupBrowser;
+    SliderAdjRangeInput m_RPMSlider;
+    ToggleButton m_UniformRPMToggle;
 
     //==== Viewer Tab ====//
     GroupLayout m_ViewerLayout;

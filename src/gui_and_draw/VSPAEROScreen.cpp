@@ -304,13 +304,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_AdvancedCaseSetupLayout.AddButton( m_KTCorrectionToggle, "2nd Order Karman-Tsien Mach Correction" );
 
-    m_AdvancedCaseSetupLayout.SetFitWidthFlag( false );
-    m_AdvancedCaseSetupLayout.SetSameLineFlag( true );
-
-    m_AdvancedCaseSetupLayout.SetButtonWidth( m_AdvancedCaseSetupLayout.GetW() / 2 );
-
     m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
-    m_AdvancedCaseSetupLayout.AddButton( m_FromSteadyStateToggle, "From Steady State" );
 
     // Wake Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_WakeLayout,
@@ -647,6 +641,99 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_PropGeneralLayout.AddYGap();
 
+    //==== Unsteady Group Tab ====//
+    m_PropellerTab = AddTab( "Propeller" );
+    Fl_Group* unsteady_group = AddSubGroup( m_PropellerTab, window_border_width );
+
+    m_UnsteadyGroupLayout.SetGroupAndScreen( unsteady_group, this );
+
+    m_UnsteadyGroupLayout.AddSubGroupLayout( m_UnsteadyGroupLeftLayout, ( unsteady_group->w() - window_border_width ) / 2,
+                                             12 * m_UnsteadyGroupLeftLayout.GetStdHeight() );
+
+    m_UnsteadyGroupLayout.AddX( m_UnsteadyGroupLeftLayout.GetW() + window_border_width );
+    m_UnsteadyGroupLayout.AddSubGroupLayout( m_UnsteadyGroupRightLayout,
+        ( unsteady_group->w() - window_border_width ) / 2, 
+                                             12 * m_UnsteadyGroupLeftLayout.GetStdHeight() );
+
+    m_UnsteadyGroupLeftLayout.AddDividerBox( "Time" );
+
+    m_UnsteadyGroupLeftLayout.SetButtonWidth( m_UnsteadyGroupLeftLayout.GetRemainX() / 3 );
+
+    m_UnsteadyGroupLeftLayout.AddButton( m_AutoTimeStepToggle, "Auto Time Step" );
+    m_UnsteadyGroupLeftLayout.AddSlider( m_AutoTimeNumRevSlider, "Num Revs", 10, "%4.0f" );
+
+    m_UnsteadyGroupLeftLayout.AddYGap();
+
+    m_UnsteadyGroupLeftLayout.AddSlider( m_TimeStepSizeSlider, "Time Step", 2.0, "%7.5f" );
+    m_UnsteadyGroupLeftLayout.AddSlider( m_NumTimeStepSlider, "Num Time Step", 100, "%4.0f" );
+
+    m_UnsteadyGroupLeftLayout.AddYGap();
+
+    m_UnsteadyGroupLeftLayout.AddDividerBox( "Advanced" );
+
+    m_UnsteadyGroupLeftLayout.SetSameLineFlag( true );
+    m_UnsteadyGroupLeftLayout.SetFitWidthFlag( false );
+    m_UnsteadyGroupLeftLayout.SetSliderWidth( m_UnsteadyGroupLeftLayout.GetRemainX() - 
+                                              m_UnsteadyGroupLeftLayout.GetButtonWidth() -
+                                              2 * m_UnsteadyGroupLeftLayout.GetRangeButtonWidth() - 
+                                              m_UnsteadyGroupLeftLayout.GetInputWidth() );
+    m_UnsteadyGroupLeftLayout.AddButton( m_HoverRampToggle, "Hover Ramp" );
+    m_UnsteadyGroupLeftLayout.SetButtonWidth( 0 );
+    m_UnsteadyGroupLeftLayout.AddSlider( m_HoverRampSlider, "/", 1e3, "%7.3f" ); // Placeholder label, since otherwise the parm name is automatically used
+
+    m_UnsteadyGroupLeftLayout.ForceNewLine();
+    m_UnsteadyGroupLeftLayout.SetSameLineFlag( false );
+    m_UnsteadyGroupLeftLayout.SetFitWidthFlag( true );
+
+    m_UnsteadyGroupLeftLayout.AddButton( m_FromSteadyStateToggle, "From Steady State" );
+    m_UnsteadyGroupLeftLayout.AddYGap();
+
+    m_UnsteadyGroupLeftLayout.AddDividerBox( "Noise Analysis" );
+
+    m_UnsteadyGroupLeftLayout.SetSameLineFlag( true );
+    m_UnsteadyGroupLeftLayout.SetFitWidthFlag( false );
+
+    m_UnsteadyGroupLeftLayout.SetButtonWidth( m_UnsteadyGroupLeftLayout.GetRemainX() / 2 );
+    m_UnsteadyGroupLeftLayout.AddButton( m_NoiseCalcToggle, "Enable Noise Calc" );
+    m_UnsteadyGroupLeftLayout.AddButton( m_NoiseCalcTrigger, "Analyze Latest *.adb" );
+    m_UnsteadyGroupLeftLayout.ForceNewLine();
+
+    m_UnsteadyGroupLeftLayout.SetSameLineFlag( false );
+    m_UnsteadyGroupLeftLayout.SetFitWidthFlag( true );
+
+    m_UnsteadyGroupLeftLayout.SetChoiceButtonWidth( m_UnsteadyGroupLeftLayout.GetRemainX() / 2 );
+    m_UnsteadyGroupLeftLayout.AddChoice( m_NoiseCalcChoice, "Noise Type" );
+    m_NoiseCalcChoice.AddItem( "Flyby" );
+    m_NoiseCalcChoice.AddItem( "Footprint" );
+    m_NoiseCalcChoice.AddItem( "Steady" );
+    m_NoiseCalcChoice.UpdateItems();
+
+    m_UnsteadyGroupLeftLayout.AddChoice( m_NoiseUnitChoice, "Model Length Unit" );
+    m_NoiseUnitChoice.AddItem( "SI" );
+    m_NoiseUnitChoice.AddItem( "Engligh" );
+    m_NoiseUnitChoice.UpdateItems();
+
+    m_UnsteadyGroupLeftLayout.ForceNewLine();
+    m_UnsteadyGroupLeftLayout.AddYGap();
+
+    m_UnsteadyGroupRightLayout.AddDividerBox( "Propellers" );
+    int UnsteadyBrowserHeight = 125;
+
+    m_UnsteadyGroupBrowser = m_UnsteadyGroupRightLayout.AddFlBrowser( 0 );
+    m_UnsteadyGroupBrowser->resize( m_UnsteadyGroupRightLayout.GetX(), m_UnsteadyGroupRightLayout.GetY(), m_UnsteadyGroupRightLayout.GetW(), UnsteadyBrowserHeight );
+    m_UnsteadyGroupBrowser->type( FL_MULTI_BROWSER );
+    m_UnsteadyGroupBrowser->labelfont( 13 );
+    m_UnsteadyGroupBrowser->textsize( 12 );
+    m_UnsteadyGroupBrowser->callback( staticScreenCB, this );
+    m_UnsteadyGroupRightLayout.AddY( UnsteadyBrowserHeight );
+
+    m_UnsteadyGroupRightLayout.SetButtonWidth( m_UnsteadyGroupRightLayout.GetRemainX() / 3 );
+    m_UnsteadyGroupRightLayout.AddSlider( m_RPMSlider, "RPM", 100, "%7.3f" );
+    
+    m_UnsteadyGroupRightLayout.AddButton( m_UniformRPMToggle, "Uniform RPM" );
+
+    m_UnsteadyGroupLayout.AddY( m_UnsteadyGroupLeftLayout.GetH() + window_border_width );
+
     //==== Viewer Tab ====//
     Fl_Group* viewer_tab = AddTab( "Viewer Console" );
     Fl_Group* viewer_group = AddSubGroup( viewer_tab, window_border_width );
@@ -704,6 +791,9 @@ bool VSPAEROScreen::Update()
 
         UpdatePropElemBrowser();
         UpdateControlSurfaceBrowsers();
+
+        UpdateUnsteadyGroups();
+        UpdateUnsteadyGroupBrowser();
     }
 
     m_FLTK_Window->redraw();
@@ -746,6 +836,10 @@ void VSPAEROScreen::CallBack( Fl_Widget* w )
     else if ( w == m_CpSliceBrowser )
     {
         CpSliceBrowserCallback();
+    }
+    else if ( w == m_UnsteadyGroupBrowser )
+    {
+        UnsteadyGroupBrowserCallback();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
@@ -1038,6 +1132,11 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             VSPAEROMgr.InitControlSurfaceGroups();
         }
+        else if ( device == &m_NoiseCalcTrigger )
+        {
+            VSPAEROMgr.ExecuteNoiseAnalysis( NULL, VSPAEROMgr.m_NoiseCalcType(), VSPAEROMgr.m_NoiseUnits() );
+        }
+
     }
     m_ScreenMgr->SetUpdateFlag( true );
 }
@@ -1234,6 +1333,17 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_WakeAvgStartIterSlider.Update(VSPAEROMgr.m_WakeAvgStartIter.GetID());
     m_WakeSkipUntilIterSlider.Update(VSPAEROMgr.m_WakeSkipUntilIter.GetID());
     m_NumWakeNodeSlider.Update( VSPAEROMgr.m_NumWakeNodes.GetID() );
+
+    if ( VSPAEROMgr.m_RotateBladesFlag() || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_P_ANALYSIS || 
+         VSPAEROMgr.m_StabilityType() == vsp::STABILITY_Q_ANALYSIS || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
+    {
+        // TODO: Deactivate start/end wake iteration sliders??
+        m_WakeNumIterSlider.Deactivate();
+    }
+    else
+    {
+        m_WakeNumIterSlider.Activate();
+    }
 
     // Other Set Up Parms
     m_ClmaxToggle.Update( VSPAEROMgr.m_ClMaxToggle.GetID() );
@@ -1510,6 +1620,19 @@ void VSPAEROScreen::UpdateOtherSetupParms()
     {
         m_VRefSlider.Activate();
         m_MachRefSlider.Activate();
+    }
+
+    if ( VSPAEROMgr.m_RotateBladesFlag() )
+    {
+        m_AlphaNptsInput.Deactivate();
+        m_BetaNptsInput.Deactivate();
+        m_MachNptsInput.Deactivate();
+    }
+    else
+    {
+        m_AlphaNptsInput.Activate();
+        m_BetaNptsInput.Activate();
+        m_MachNptsInput.Activate();
     }
 }
 
@@ -1884,3 +2007,140 @@ void VSPAEROScreen::CpSliceBrowserCallback()
         VSPAEROMgr.SetCurrentCpSliceIndex( last - 2 );
     }
 }
+
+void VSPAEROScreen::UpdateUnsteadyGroups()
+{
+    m_AutoTimeStepToggle.Update( VSPAEROMgr.m_AutoTimeStepFlag.GetID() );
+    m_AutoTimeNumRevSlider.Update( VSPAEROMgr.m_AutoTimeNumRevs.GetID() );
+    m_TimeStepSizeSlider.Update( VSPAEROMgr.m_TimeStepSize.GetID() );
+    m_NumTimeStepSlider.Update( VSPAEROMgr.m_NumTimeSteps.GetID() );
+    m_HoverRampToggle.Update( VSPAEROMgr.m_HoverRampFlag.GetID() );
+    m_HoverRampSlider.Update( VSPAEROMgr.m_HoverRamp.GetID() );
+    m_NoiseCalcToggle.Update( VSPAEROMgr.m_NoiseCalcFlag.GetID() );
+    m_NoiseCalcChoice.Update( VSPAEROMgr.m_NoiseCalcType.GetID() );
+    m_UniformRPMToggle.Update( VSPAEROMgr.m_UniformPropRPMFlag.GetID() );
+
+    if ( VSPAEROMgr.m_RotateBladesFlag() )
+    {
+
+        if ( !VSPAEROMgr.m_HoverRampFlag.Get() )
+        {
+            m_HoverRampSlider.Deactivate();
+        }
+        else
+        {
+            m_HoverRampSlider.Activate();
+        }
+
+        if ( VSPAEROMgr.m_AutoTimeStepFlag.Get() )
+        {
+            m_AutoTimeNumRevSlider.Activate();
+            m_TimeStepSizeSlider.Deactivate();
+            m_NumTimeStepSlider.Deactivate();
+        }
+        else
+        {
+            m_AutoTimeNumRevSlider.Deactivate();
+            m_TimeStepSizeSlider.Activate();
+            m_NumTimeStepSlider.Activate();
+        }
+    }
+
+    int group_index = VSPAEROMgr.GetCurrentUnsteadyGroupIndex();
+
+    UnsteadyGroup* group = VSPAEROMgr.GetUnsteadyGroup( group_index );
+    if ( group )
+    {
+        m_RPMSlider.Update( group->m_RPM.GetID() );
+
+        if ( group->m_GeomPropertyType() == group->GEOM_ROTOR )
+        {
+            m_RPMSlider.Activate();
+        }
+        else
+        {
+            m_RPMSlider.Deactivate();
+        }
+    }
+}
+
+void VSPAEROScreen::UpdateUnsteadyGroupBrowser()
+{
+    m_UnsteadyGroupBrowser->clear();
+
+    static int widths[] = { ( m_UnsteadyGroupRightLayout.GetRemainX() ) / 2,
+        ( m_UnsteadyGroupRightLayout.GetRemainX() ) / 4,
+        ( ( m_UnsteadyGroupRightLayout.GetRemainX() ) / 4 ) }; // widths for each column
+
+    m_UnsteadyGroupBrowser->column_widths( widths );    // assign array to widget
+    m_UnsteadyGroupBrowser->column_char( ':' );         // use : as the column character
+    m_UnsteadyGroupBrowser->add( "@b@.Name:@b@.Surf:@b@.RPM" );
+
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    for ( size_t i = 0; i < VSPAEROMgr.NumUnsteadyGroups(); i++ )
+    {
+        UnsteadyGroup* group = VSPAEROMgr.GetUnsteadyGroup( i );
+        if ( group && group->m_GeomPropertyType() == group->GEOM_ROTOR )
+        {
+            char str[256];
+
+            int surf_index = group->GetCompSurfPairVec()[0].second; // Only 1 component in rotor groups
+            sprintf( str, "%s:%d:%4.3f", group->GetName().c_str(), surf_index, group->m_RPM.Get() );
+            m_UnsteadyGroupBrowser->add( str );
+
+            int jump = 0;
+            if ( VSPAEROMgr.NumUnsteadyGroups() == VSPAEROMgr.NumUnsteadyRotorGroups() )
+            {
+                jump  = 2;
+            }
+            else
+            {
+                jump  = 1;
+            }
+
+            SelectUnsteadyGroupBrowser( VSPAEROMgr.GetCurrentUnsteadyGroupIndex() + jump );
+        }
+    }
+}
+void VSPAEROScreen::SelectUnsteadyGroupBrowser( int cur_index )
+{
+    if ( cur_index > 0 )
+    {
+        //==== Select If Match ====//
+        m_UnsteadyGroupBrowser->select( cur_index );
+
+        //==== Position Browser ====//
+        m_UnsteadyGroupBrowser->topline( cur_index );
+    }
+}
+
+void VSPAEROScreen::UnsteadyGroupBrowserCallback()
+{
+    //==== Find Last Selected Group ====//
+    int last = m_UnsteadyGroupBrowser->value();
+
+    // Account for the fixed component group being in the vector but not the browser
+    if ( VSPAEROMgr.NumUnsteadyGroups() == VSPAEROMgr.NumUnsteadyRotorGroups() )
+    {
+        last -= 2;
+    }
+    else
+    {
+        last -= 1;
+    }
+
+    UnsteadyGroup* group = VSPAEROMgr.GetUnsteadyGroup( last );
+
+    if ( last >= 0 && group )
+    {
+        VSPAEROMgr.SetCurrentUnsteadyGroupIndex( last );
+    }
+
+    VSPAEROMgr.HighlightSelected( VSPAEROMgr.ROTOR );
+}
+
