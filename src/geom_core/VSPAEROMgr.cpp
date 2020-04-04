@@ -514,7 +514,24 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             m_AdbFile           = m_ModelNameBase + string( ".adb" );
             m_HistoryFile       = m_ModelNameBase + string( ".history" );
             m_LoadFile          = m_ModelNameBase + string( ".lod" );
-            m_StabFile          = m_ModelNameBase + string( ".stab" );
+
+            if ( m_StabilityType() == vsp::STABILITY_P_ANALYSIS )
+            {
+                m_StabFile = m_ModelNameBase + string( ".pstab" );
+            }
+            else if ( m_StabilityType() == vsp::STABILITY_Q_ANALYSIS )
+            {
+                m_StabFile = m_ModelNameBase + string( ".qstab" );
+            }
+            else if ( m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
+            {
+                m_StabFile = m_ModelNameBase + string( ".rstab" );
+            }
+            else
+            {
+                m_StabFile = m_ModelNameBase + string( ".stab" );
+            }
+
             m_CutsFile          = m_ModelNameBase + string( ".cuts" );
             m_SliceFile         = m_ModelNameBase + string( ".slc" );
 
@@ -535,7 +552,24 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
             m_AdbFile           = m_ModelNameBase + string( ".adb" );
             m_HistoryFile       = m_ModelNameBase + string( ".history" );
             m_LoadFile          = m_ModelNameBase + string( ".lod" );
-            m_StabFile          = m_ModelNameBase + string( ".stab" );
+
+            if ( m_StabilityType() == vsp::STABILITY_P_ANALYSIS )
+            {
+                m_StabFile = m_ModelNameBase + string( ".pstab" );
+            }
+            else if ( m_StabilityType() == vsp::STABILITY_Q_ANALYSIS )
+            {
+                m_StabFile = m_ModelNameBase + string( ".qstab" );
+            }
+            else if ( m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
+            {
+                m_StabFile = m_ModelNameBase + string( ".rstab" );
+            }
+            else
+            {
+                m_StabFile = m_ModelNameBase + string( ".stab" );
+            }
+
             m_CutsFile          = m_ModelNameBase + string( ".cuts" );
             m_SliceFile         = m_ModelNameBase + string( ".slc" );
 
