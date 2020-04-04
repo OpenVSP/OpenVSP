@@ -764,11 +764,13 @@ void Results::WriteBEMFile( const string & file_name )
         vector < double > sweep_vec = Find( "Sweep" ).GetDoubleData();
         vector < double > thick_vec = Find( "Thick" ).GetDoubleData();
         vector < double > cli_vec = Find( "CLi" ).GetDoubleData();
+        vector < double > axial_vec = Find( "Axial" ).GetDoubleData();
+        vector < double > tangential_vec = Find( "Tangential" ).GetDoubleData();
 
-        fprintf( fid, "\nRadius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi\n" );
+        fprintf( fid, "\nRadius/R, Chord/R, Twist (deg), Rake/R, Skew/R, Sweep, t/c, CLi, Axial, Tangential\n" );
         for ( int i = 0; i < num_sect; i++ )
         {
-            fprintf( fid, "%.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f\n", r_vec[i], chord_vec[i], twist_vec[i], rake_vec[i], skew_vec[i], sweep_vec[i], thick_vec[i], cli_vec[i] );
+            fprintf( fid, "%.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f, %.8f\n", r_vec[i], chord_vec[i], twist_vec[i], rake_vec[i], skew_vec[i], sweep_vec[i], thick_vec[i], cli_vec[i], axial_vec[i], tangential_vec[i] );
         }
 
         for ( int i = 0; i < num_sect; i++ )
