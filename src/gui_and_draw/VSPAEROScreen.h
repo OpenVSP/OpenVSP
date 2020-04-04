@@ -165,6 +165,7 @@ protected:
     GroupLayout m_WakeLayout;
     GroupLayout m_OtherParmsLayout;
     GroupLayout m_UnsteadyLayout;
+    GroupLayout m_AdvancedFlowLayout;
     GroupLayout m_CpSlicerLayout;
     GroupLayout m_CpSlicerSubLayout;
 
@@ -226,6 +227,10 @@ protected:
     // Prop General Layout
     SliderAdjRangeInput m_VinfSlider;
     SliderAdjRangeInput m_RhoSlider;
+    SliderAdjRangeInput m_ReCrefSlider;
+    SliderAdjRangeInput m_MachRefSlider;
+    SliderAdjRangeInput m_VRefSlider;
+    ToggleButton m_ActivateVRefToggle;
 
     // Prop Elem Layout
     Fl_Browser* m_PropElemBrowser;

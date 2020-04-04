@@ -394,6 +394,36 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     //m_StabilityTypeChoice.AddItem( "Heave" ); // To Be Implemented
     //m_StabilityTypeChoice.AddItem( "Impulse" ); // To Be Implemented
     m_StabilityTypeChoice.UpdateItems();
+    m_PropAndStabLayout.ForceNewLine();
+
+    // Advanced Flow
+    m_AdvancedRightLayout.AddSubGroupLayout( m_FlowCondLayout,
+                                             m_AdvancedRightLayout.GetW(),
+                                             6 * m_AdvancedRightLayout.GetStdHeight() + 5 );
+    m_AdvancedRightLayout.AddY( m_FlowCondLayout.GetH() );
+
+    m_FlowCondLayout.AddDividerBox( "Advanced Flow Conditions" );
+    m_FlowCondLayout.AddSlider( m_VinfSlider, "Vinf", 100, "%7.2f" );
+
+    m_FlowCondLayout.SetSameLineFlag( true );
+    m_FlowCondLayout.SetFitWidthFlag( false );
+
+    button_width = m_FlowCondLayout.GetButtonWidth();
+    m_FlowCondLayout.SetButtonWidth( togglewidth );
+    m_FlowCondLayout.AddButton( m_ActivateVRefToggle, "" );
+    m_FlowCondLayout.SetButtonWidth( button_width - togglewidth );
+    m_FlowCondLayout.SetFitWidthFlag( true );
+    m_FlowCondLayout.AddSlider( m_VRefSlider, "VRef", 100, "%7.2f" );
+    m_FlowCondLayout.ForceNewLine();
+    m_FlowCondLayout.SetButtonWidth( button_width );
+
+    m_FlowCondLayout.SetSameLineFlag( false );
+    m_FlowCondLayout.AddSlider( m_MachRefSlider, "MachRef", 1000, "%7.3g" );
+
+    m_FlowCondLayout.AddYGap();
+
+    m_FlowCondLayout.AddSlider( m_RhoSlider, "Rho", 1, "%2.5g" );
+    m_FlowCondLayout.AddSlider( m_ReCrefSlider, "ReCref", 1000, "%7.3g" );
 
     m_AdvancedRightLayout.AddSubGroupLayout( m_CpSlicerLayout,
                                              m_AdvancedRightLayout.GetW(),
@@ -410,12 +440,11 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CpSlicerLayout.AddButton( m_CpSlicerActivateToggle, "Activate Cp Slicer" );
     m_CpSlicerLayout.AddButton( m_CpSliceLastADBButton, "Slice Latest *.adb File" );
 
-    m_CpSlicerLayout.AddYGap();
     m_CpSlicerLayout.ForceNewLine();
     m_CpSlicerLayout.SetSameLineFlag( false );
     m_CpSlicerLayout.SetFitWidthFlag( true );
 
-    int CpBrowserHeight = 75;
+    int CpBrowserHeight = 55;
 
     m_CpSliceBrowser = m_CpSlicerLayout.AddFlBrowser( 0 );
     m_CpSliceBrowser->resize( m_CpSlicerLayout.GetX(), m_CpSlicerLayout.GetY(), m_CpSlicerLayout.GetW(), CpBrowserHeight );
@@ -1469,6 +1498,21 @@ void VSPAEROScreen::UpdateOtherSetupParms()
 {
     m_VinfSlider.Update( VSPAEROMgr.m_Vinf.GetID() );
     m_RhoSlider.Update( VSPAEROMgr.m_Rho.GetID() );
+    m_ReCrefSlider.Update( VSPAEROMgr.m_ReCref.GetID() );
+    m_ActivateVRefToggle.Update( VSPAEROMgr.m_ManualVrefFlag.GetID() );
+    m_VRefSlider.Update( VSPAEROMgr.m_Vref.GetID() );
+    m_MachRefSlider.Update( VSPAEROMgr.m_Machref.GetID() );
+
+    if ( !VSPAEROMgr.m_ManualVrefFlag() )
+    {
+        m_VRefSlider.Deactivate();
+        m_MachRefSlider.Deactivate();
+    }
+    else
+    {
+        m_VRefSlider.Activate();
+        m_MachRefSlider.Activate();
+    }
 }
 
 void VSPAEROScreen::UpdateDeflectionAngleScrollGroup()
