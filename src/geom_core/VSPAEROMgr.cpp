@@ -466,6 +466,8 @@ void VSPAEROMgrSingleton::Update()
 
     UpdateSetupParmLimits();
 
+    UpdateUnsteadyGroups();
+
     UpdateParmRestrictions();
 }
 
@@ -3712,6 +3714,217 @@ void VSPAEROMgrSingleton::UpdateParmRestrictions()
     }
 }
 
+void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
+    vector < int > del_vec;
+
+    map < pair < string, int >, vector < int > > vspaero_geom_index_map = GetVSPAEROGeomIndexMap( m_GeomSet() );
+
+    // For the current VSPAERO set, identify if there are any props or fixed components 
+    // that are not placed in an unsteady group
+
+    // Note, this function will delete unsteady groups if the prop is no longer in the set or
+    // changed to disk mode, causing the parms to be lost. This can be improved, but is the
+    // same behavior for rotor disks. 
+    vector < string > geom_set_vec = veh->GetGeomSet( m_GeomSet() );
+    vector < pair < string, int > > ungrouped_props, ungrouped_comps; // ungrouped Geom ID and symmetric surf index
+
+    for ( size_t i = 0; i < geom_set_vec.size(); ++i )
+    {
+        Geom* geom = veh->FindGeom( geom_set_vec[i] );
+        if ( !geom )
+        {
+            continue;
+        }
+
+        int num_sym = geom->GetNumSymmCopies();
+
+        for ( size_t s = 1; s <= num_sym; s++ )
+        {
+            bool grouped = false;
+
+            // Check if this geom and symmetric copy is in an unsteady group
+            for ( size_t j = 0; j < m_UnsteadyGroupVec.size(); j++ )
+            {
+                vector < pair < string, int > > comp_id_surf_ind_vec = m_UnsteadyGroupVec[j]->GetCompSurfPairVec();
+
+                for ( size_t k = 0; k < comp_id_surf_ind_vec.size(); k++ )
+                {
+                    if ( ( strcmp( geom_set_vec[i].c_str(), comp_id_surf_ind_vec[k].first.c_str() ) == 0 ) && ( comp_id_surf_ind_vec[k].second == s ) )
+                    {
+                        grouped = true;
+                        break;
+                    }
+                }
+            }
+
+            if ( !grouped )
+            {
+                if ( geom->GetType().m_Type == PROP_GEOM_TYPE )
+                {
+                    PropGeom* prop = dynamic_cast<PropGeom*>( geom );
+                    assert( prop );
+                    if ( prop->m_PropMode() != vsp::PROP_DISK )
+                    {
+                        ungrouped_props.push_back( std::make_pair( geom_set_vec[i], s ) );
+                    }
+                }
+                else if ( vspaero_geom_index_map[std::make_pair( geom_set_vec[i], s )].size() > 0 && geom->GetType().m_Type != BLANK_GEOM_TYPE &&
+                          geom->GetType().m_Type != PT_CLOUD_GEOM_TYPE && geom->GetType().m_Type != HINGE_GEOM_TYPE &&
+                          geom->GetType().m_Type != MESH_GEOM_TYPE )
+                {
+                    // Allow mesh and human types for panel method
+                    if ( m_AnalysisMethod() == vsp::PANEL || ( m_AnalysisMethod() == vsp::VORTEX_LATTICE && geom->GetType().m_Type != HUMAN_GEOM_TYPE ) )
+                    {
+                        ungrouped_comps.push_back( std::make_pair( geom_set_vec[i], s ) );
+                    }
+                }
+            }
+        }
+    }
+
+    for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
+    {
+        vector < pair < string, int > > new_comp_pair_vec;
+        vector < pair < string, int > > comp_id_surf_ind_vec = m_UnsteadyGroupVec[i]->GetCompSurfPairVec();
+        vector < int > vspaero_index_vec;
+
+        for ( size_t j = 0; j < comp_id_surf_ind_vec.size(); j++ )
+        {
+            // Check if Geom still exists and is in the current set
+            Geom* parent = veh->FindGeom( comp_id_surf_ind_vec[j].first );
+            if ( parent && parent->GetSetFlag( m_GeomSet() ) )
+            {
+                if ( parent->GetType().m_Type == PROP_GEOM_TYPE )
+                {
+                    PropGeom* prop = dynamic_cast<PropGeom*>( parent );
+                    assert( prop );
+                    if ( prop->m_PropMode() == vsp::PROP_DISK )
+                    {
+                        break;
+                    }
+                }
+                else if ( parent->GetType().m_Type == BLANK_GEOM_TYPE || parent->GetType().m_Type == HINGE_GEOM_TYPE ||
+                          parent->GetType().m_Type == PT_CLOUD_GEOM_TYPE || parent->GetType().m_Type == MESH_GEOM_TYPE )
+                {
+                    continue;
+                }
+                else if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE && parent->GetType().m_Type == HUMAN_GEOM_TYPE )
+                {
+                    continue; // Allow human types for panel method
+                }
+
+                if ( vspaero_geom_index_map[comp_id_surf_ind_vec[j]].size() > 0 )
+                {
+                    new_comp_pair_vec.push_back( std::make_pair( comp_id_surf_ind_vec[j].first, comp_id_surf_ind_vec[j].second ) );
+                    vspaero_index_vec.insert( vspaero_index_vec.end(), vspaero_geom_index_map[comp_id_surf_ind_vec[j]].begin(), vspaero_geom_index_map[comp_id_surf_ind_vec[j]].end() );
+                }
+            }
+        }
+
+        if ( m_UnsteadyGroupVec[i]->m_GeomPropertyType() != m_UnsteadyGroupVec[i]->GEOM_ROTOR )
+        {
+            for ( size_t j = 0; j < ungrouped_comps.size(); j++ )
+            {
+                new_comp_pair_vec.push_back( std::make_pair( ungrouped_comps[j].first, ungrouped_comps[j].second ) );
+                vspaero_index_vec.insert( vspaero_index_vec.end(), vspaero_geom_index_map[ungrouped_comps[j]].begin(), vspaero_geom_index_map[ungrouped_comps[j]].end() );
+            }
+            ungrouped_comps.clear();
+        }
+
+        if ( new_comp_pair_vec.size() == 0 )
+        {
+            del_vec.push_back( i );
+        }
+
+        m_UnsteadyGroupVec[i]->SetCompSurfPairVec( new_comp_pair_vec );
+        m_UnsteadyGroupVec[i]->SetVSPAEROIndexVec( vspaero_index_vec );
+        m_UnsteadyGroupVec[i]->Update();
+    }
+
+    // Delete empty groups
+    while ( del_vec.size() > 0 )
+    {
+        int del_ind = del_vec.back();
+        DeleteUnsteadyGroup( del_ind );
+
+        for ( size_t i = 1; i < del_vec.size(); i++ )
+        {
+            if ( del_ind < del_vec[i] )
+            {
+                del_vec[i] -= 1;
+            }
+        }
+
+        del_vec.pop_back();
+    }
+
+    // Create a fixed component group with all ungrouped components
+    if ( ungrouped_comps.size() > 0 )
+    {
+        UnsteadyGroup* group = AddUnsteadyGroup();
+
+        group->SetCompSurfPairVec( ungrouped_comps );
+
+        vector < int > vspaero_index_vec;
+        for ( size_t j = 0; j < ungrouped_comps.size(); j++ )
+        {
+            vspaero_index_vec.insert( vspaero_index_vec.end(), vspaero_geom_index_map[ungrouped_comps[j]].begin(), vspaero_geom_index_map[ungrouped_comps[j]].end() );
+        }
+
+        group->SetVSPAEROIndexVec( vspaero_index_vec );
+        group->m_GeomPropertyType.Set( group->GEOM_FIXED );
+        group->SetName( "FixedGroup" );
+        group->Update();
+    }
+
+    // Create a prop component group for each ungrouped prop
+    for ( size_t i = 0; i < ungrouped_props.size(); i++ )
+    {
+        UnsteadyGroup* group = AddUnsteadyGroup();
+
+        group->SetVSPAEROIndexVec( vspaero_geom_index_map[ungrouped_props[i]] );
+        group->m_GeomPropertyType.Set( group->GEOM_ROTOR );
+        group->AddComp( ungrouped_props[i].first, ungrouped_props[i].second );
+        group->Update();
+    }
+
+    // Make sure the fixed compomnet group is always first
+    if ( m_UnsteadyGroupVec.size() > NumUnsteadyRotorGroups() && m_UnsteadyGroupVec[0]->m_GeomPropertyType() != UnsteadyGroup::GEOM_FIXED )
+    {
+        vector < UnsteadyGroup* >::const_iterator iter;
+        for ( iter = m_UnsteadyGroupVec.begin(); iter != m_UnsteadyGroupVec.end(); ++iter )
+        {
+            if ( ( *iter )->m_GeomPropertyType() != UnsteadyGroup::GEOM_FIXED )
+            {
+                UnsteadyGroup* group = ( *iter );
+                m_UnsteadyGroupVec.erase( iter );
+                m_UnsteadyGroupVec.insert( m_UnsteadyGroupVec.begin(), group );
+                break;
+            }
+        }
+    }
+
+    UpdateAutoTimeStep();
+
+    if ( m_UniformPropRPMFlag() )
+    {
+        UnsteadyGroup* current_group = GetUnsteadyGroup( m_CurrentUnsteadyGroupIndex );
+        if ( current_group )
+        {
+            for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
+            {
+                m_UnsteadyGroupVec[i]->m_RPM.Set( current_group->m_RPM.Get() );
+            }
+        }
+    }
+}
 
 /*##############################################################################
 #                                                                              #

@@ -238,6 +238,7 @@ public:
     void UpdateFilenames();
     void UpdateRotorDisks();
     void UpdateControlSurfaceGroups();
+    void UpdateUnsteadyGroups();
     void UpdateParmRestrictions();
     void UpdateAutoTimeStep();
     void CleanCompleteControlSurfVec();
