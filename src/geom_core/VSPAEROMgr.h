@@ -301,8 +301,10 @@ public:
     Parm m_Vinf;
     Parm m_Rho;
     Parm m_ReCref;
+    Parm m_Machref;
+    Parm m_Vref;
+    BoolParm m_ManualVrefFlag;
     IntParm m_Precondition;
-    BoolParm m_FromSteadyState;
     BoolParm m_KTCorrection;
     BoolParm m_Symmetry;
     BoolParm m_Write2DFEMFlag;
@@ -317,7 +319,22 @@ public:
 
     // Unsteady
     BoolParm m_StabilityCalcFlag;
+    BoolParm m_RotateBladesFlag;
+    BoolParm m_ActuatorDiskFlag;
     IntParm m_StabilityType;
+
+    // Unsteady
+    Parm m_TimeStepSize;
+    IntParm m_NumTimeSteps;
+    BoolParm m_AutoTimeStepFlag;
+    IntParm m_AutoTimeNumRevs;
+    BoolParm m_HoverRampFlag;
+    Parm m_HoverRamp;
+    BoolParm m_FromSteadyState;
+    BoolParm m_NoiseCalcFlag;
+    IntParm m_NoiseCalcType;
+    IntParm m_NoiseUnits;
+    BoolParm m_UniformPropRPMFlag;
 
     // Plotwindow settings
     BoolParm m_ConvergenceXMinIsManual;

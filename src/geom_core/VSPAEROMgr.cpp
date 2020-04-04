@@ -177,6 +177,13 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_Rho.SetDescript( "Freestream Density" );
     m_ReCref.Init( "ReCref", groupname, this, 10000000., 0, 1e12 );
     m_ReCref.SetDescript( "Reynolds Number along Reference Chord" );
+    m_Vref.Init( "Vref", groupname, this, 100, 0, 1e12 );
+    m_Vref.SetDescript( "Reference Velocity" );
+    m_ManualVrefFlag.Init( "ManualVrefFlag", groupname, this, false, false, true );
+    m_ManualVrefFlag.SetDescript( "Flag to set Vref manually or automatiacally equal to Vinf" );
+
+    m_Machref.Init( "Machref", groupname, this, 0.3, 0, 1e12 );
+    m_Machref.SetDescript( "Reference Mach Number" );
     m_Precondition.Init( "Precondition", groupname, this, vsp::PRECON_MATRIX, vsp::PRECON_MATRIX, vsp::PRECON_SSOR );
     m_Precondition.SetDescript( "Preconditioner Choice" );
     m_KTCorrection.Init( "KTCorrection", groupname, this, false, false, true );
@@ -196,8 +203,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_FarDistToggle.Init( "FarDistToggle", groupname, this, false, false, true );
     m_CpSliceFlag.Init( "CpSliceFlag", groupname, this, true, false, true );
     m_CpSliceFlag.SetDescript( "Flag to Calculate Cp Slices for Each Run Case" );
-    m_FromSteadyState.Init( "FromSteadyState", groupname, this, false, false, true );
-    m_FromSteadyState.SetDescript( "Flag to Indicate Steady State" );
     m_GroundEffect.Init( "GroundEffect", groupname, this, -1, -1, 1e6 );
     m_GroundEffect.SetDescript( "Ground Effect Distance" );
     m_GroundEffectToggle.Init( "GroundEffectToggle", groupname, this, false, false, true );
@@ -205,9 +210,48 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     // Unsteady
     m_StabilityCalcFlag.Init( "StabilityCalcFlag", groupname, this, false, false, true );
     m_StabilityCalcFlag.SetDescript( "Flag to calculate stability derivatives" );
+    m_ActuatorDiskFlag.Init( "ActuatorDiskFlag", groupname, this, false, false, true );
+    m_ActuatorDiskFlag.SetDescript( "Flag for VSPAERO to analyze actuator disks (Disk tab)" );
+
+    m_RotateBladesFlag.Init( "RotateBladesFlag", groupname, this, false, false, true );
+    m_RotateBladesFlag.SetDescript( "Flag for VSPAERO to analyze unsteady rotating propellers (Propeller tab)" );
 
     m_StabilityType.Init( "UnsteadyType", groupname, this, vsp::STABILITY_DEFAULT, vsp::STABILITY_DEFAULT, vsp::STABILITY_IMPULSE );
     m_StabilityType.SetDescript( "Unsteady Calculation Type" );
+
+    // Unsteady
+    m_TimeStepSize.Init( "TimeStepSize", groupname, this, 1e-3, 0, 1e9 );
+    m_TimeStepSize.SetDescript( "Size of time step for unsteady analysis." );
+
+    m_NumTimeSteps.Init( "NumTimeSteps", groupname, this, 25, 0, 1e9 );
+    m_NumTimeSteps.SetDescript( "Number of time steps for unsteady analysis" );
+
+    m_AutoTimeStepFlag.Init( "AutoTimeStepFlag", groupname, this, true, false, true );
+    m_AutoTimeStepFlag.SetDescript( "Flag for VSPAERO to automatically calculate the time step for the slowest rotor to complete a set number of revolutions" );
+
+    m_AutoTimeNumRevs.Init( "AutoTimeNumRevs", groupname, this, 5, 0, 1e9 );
+    m_AutoTimeNumRevs.SetDescript( "Number of revolutions for the solwest rotor to complete in auto time step mode" );
+
+    m_HoverRampFlag.Init( "HoverRampFlag", groupname, this, false, false, true );
+    m_HoverRampFlag.SetDescript( "Flag to add hoverramp" );
+
+    m_HoverRamp.Init( "HoverRamp", groupname, this, 0, -1e12, 1e12 );
+    m_HoverRamp.SetDescript( "Decay freestream velocity from V1 to Vinf" );
+
+    m_FromSteadyState.Init( "FromSteadyState", groupname, this, false, false, true );
+    m_FromSteadyState.SetDescript( "Flag to Indicate Steady State" );
+
+    m_NoiseCalcFlag.Init( "NoiseCalcFlag", groupname, this, false, false, true );
+    m_NoiseCalcFlag.SetDescript( "Do calculations for noise and write PSU-WOPWOP file" );
+
+    m_NoiseCalcType.Init( "NoiseCalcType", groupname, this, vsp::NOISE_FLYBY, vsp::NOISE_FLYBY, vsp::NOISE_STEADY );
+    m_NoiseCalcType.SetDescript( "Type of noise calculation" );
+
+    m_NoiseUnits.Init( "NoiseUnits", groupname, this, vsp::NOISE_SI, vsp::NOISE_SI, vsp::NOISE_ENGLISH );
+    m_NoiseUnits.SetDescript( "Model units for noise calculation" );
+
+    m_UniformPropRPMFlag.Init( "UniformPropRPMFlag", groupname, this, true, false, true );
+    m_UniformPropRPMFlag.SetDescript( "Flag to set RPM to the same value for all unsteady propellers" );
 
     m_CurrentCSGroupIndex = -1;
     m_CurrentRotorDiskIndex = -1;
