@@ -73,7 +73,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
 
 
     // Flow Condition
-    m_AlphaStart.Init( "AlphaStart", groupname, this, 1.0, -180, 180 );
+    m_AlphaStart.Init( "AlphaStart", groupname, this, 0.0, -180, 180 );
     m_AlphaStart.SetDescript( "Angle of attack (Start)" );
     m_AlphaEnd.Init( "AlphaEnd", groupname, this, 10.0, -180, 180 );
     m_AlphaEnd.SetDescript( "Angle of attack (End)" );
