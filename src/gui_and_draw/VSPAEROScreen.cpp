@@ -368,9 +368,10 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_AdvancedRightLayout.AddY( m_UnsteadyLayout.GetH() );
     m_UnsteadyLayout.SetButtonWidth( button_width );
     m_UnsteadyLayout.AddDividerBox( "Unsteady" );
-    m_UnsteadyLayout.AddButton( m_StabilityCalcToggle, "Stability Calculation" );
     m_UnsteadyLayout.AddChoice( m_StabilityTypeChoice, "Type" );
     m_StabilityTypeChoice.AddItem( "Stability" );
+    m_StabilityTypeChoice.AddItem( "Off" );
+    m_StabilityTypeChoice.AddItem( "Steady" );
     m_StabilityTypeChoice.AddItem( "P Analysis" );
     m_StabilityTypeChoice.AddItem( "Q Analysis" );
     m_StabilityTypeChoice.AddItem( "R Analysis" );
@@ -1211,23 +1212,21 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     // Stability
     if (VSPAEROMgr.m_Symmetry())
     {
-        m_StabilityCalcToggle.Deactivate();
-        VSPAEROMgr.m_StabilityCalcFlag.Set(false);
-    }
-    else
-    {
-        m_StabilityCalcToggle.Update(VSPAEROMgr.m_StabilityCalcFlag.GetID());
+        VSPAEROMgr.m_StabilityType.Set( vsp::STABILITY_OFF );
     }
 
     m_StabilityTypeChoice.Update( VSPAEROMgr.m_StabilityType.GetID() );
 
-    if (!VSPAEROMgr.m_StabilityCalcFlag())
-    {
-        m_StabilityTypeChoice.Deactivate();
     }
     else
     {
-        m_StabilityTypeChoice.Activate();
+    }
+
+
+    {
+    }
+    else
+    {
     }
 
     VSPAEROMgr.UpdateSetupParmLimits();

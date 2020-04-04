@@ -317,8 +317,6 @@ public:
     BoolParm m_GroundEffectToggle;
     Parm m_GroundEffect;
 
-    // Unsteady
-    BoolParm m_StabilityCalcFlag;
     BoolParm m_RotateBladesFlag;
     BoolParm m_ActuatorDiskFlag;
     IntParm m_StabilityType;

@@ -207,16 +207,13 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_GroundEffect.SetDescript( "Ground Effect Distance" );
     m_GroundEffectToggle.Init( "GroundEffectToggle", groupname, this, false, false, true );
 
-    // Unsteady
-    m_StabilityCalcFlag.Init( "StabilityCalcFlag", groupname, this, false, false, true );
-    m_StabilityCalcFlag.SetDescript( "Flag to calculate stability derivatives" );
     m_ActuatorDiskFlag.Init( "ActuatorDiskFlag", groupname, this, false, false, true );
     m_ActuatorDiskFlag.SetDescript( "Flag for VSPAERO to analyze actuator disks (Disk tab)" );
 
     m_RotateBladesFlag.Init( "RotateBladesFlag", groupname, this, false, false, true );
     m_RotateBladesFlag.SetDescript( "Flag for VSPAERO to analyze unsteady rotating propellers (Propeller tab)" );
 
-    m_StabilityType.Init( "UnsteadyType", groupname, this, vsp::STABILITY_DEFAULT, vsp::STABILITY_DEFAULT, vsp::STABILITY_IMPULSE );
+    m_StabilityType.Init( "UnsteadyType", groupname, this, vsp::STABILITY_OFF, vsp::STABILITY_OFF, vsp::STABILITY_IMPULSE );
     m_StabilityType.SetDescript( "Unsteady Calculation Type" );
 
     // Unsteady
@@ -318,8 +315,8 @@ void VSPAEROMgrSingleton::Renew()
     m_Precondition.Set( vsp::PRECON_MATRIX );
     m_KTCorrection.Set( false );
     m_Symmetry.Set( false );
-    m_StabilityCalcFlag.Set( false );
-    m_StabilityType.Set( vsp::STABILITY_DEFAULT );
+    m_StabilityType.Set( vsp::STABILITY_OFF );
+
 
     m_NCPU.Set( 4 );
 
@@ -1354,7 +1351,6 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
         string stabFileName = m_StabFile;
         string modelNameBase = m_ModelNameBase;
 
-        bool stabilityFlag = m_StabilityCalcFlag.Get();
         vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
         vsp::VSPAERO_STABILITY_TYPE stabilityType = ( vsp::VSPAERO_STABILITY_TYPE )m_StabilityType.Get();
 
@@ -1423,7 +1419,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     args.push_back( "-omp" );
                     args.push_back( StringUtil::int_to_string( m_NCPU.Get(), "%d" ) );
                     // Set stability run arguments
-                    if ( stabilityFlag )
+                    if ( stabilityType != vsp::STABILITY_OFF )
                     {
                         switch ( stabilityType )
                         {
@@ -1538,7 +1534,8 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     // read the files if there is new data that has not successfully been read in yet
                     ReadHistoryFile( historyFileName, res_id_vector, analysisMethod );
                     ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
-                    if ( stabilityFlag )
+
+                    if ( stabilityType != vsp::STABILITY_OFF )
                     {
                         ReadStabFile( stabFileName, res_id_vector, analysisMethod, stabilityType );      //*.STAB stability coeff file
                     }
@@ -1592,7 +1589,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         string stabFileName = m_StabFile;
         string modelNameBase = m_ModelNameBase;
 
-        bool stabilityFlag = m_StabilityCalcFlag.Get();
         vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
         vsp::VSPAERO_STABILITY_TYPE stabilityType = ( vsp::VSPAERO_STABILITY_TYPE )m_StabilityType.Get();
         // Save analysis type for Cp Slicer
@@ -1663,7 +1659,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         args.push_back( StringUtil::int_to_string( m_NCPU.Get(), "%d" ) );
 
         // Set stability run arguments
-        if ( stabilityFlag )
+        if ( stabilityType != vsp::STABILITY_OFF )
         {
             switch ( stabilityType )
             {
@@ -1777,7 +1773,8 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         //====== Read in all of the results ======//
         ReadHistoryFile( historyFileName, res_id_vector, analysisMethod );
         ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
-        if ( stabilityFlag )
+
+        if ( stabilityType != vsp::STABILITY_OFF )
         {
             ReadStabFile( stabFileName, res_id_vector, analysisMethod, stabilityType );      //*.STAB stability coeff file
         }

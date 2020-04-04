@@ -590,7 +590,8 @@ enum VSPAERO_PRECONDITION { PRECON_MATRIX = 0,
                             PRECON_SSOR,
                           };
 
-enum VSPAERO_STABILITY_TYPE { STABILITY_DEFAULT = 0,
+enum VSPAERO_STABILITY_TYPE { STABILITY_OFF,
+                              STABILITY_DEFAULT,
                               STABILITY_P_ANALYSIS,
                               STABILITY_Q_ANALYSIS,
                               STABILITY_R_ANALYSIS,

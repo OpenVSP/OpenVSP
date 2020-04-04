@@ -199,8 +199,8 @@ protected:
     SliderAdjRangeInput m_FarDistSlider;
     SliderAdjRangeInput m_GroundEffectSlider;
 
-    // Unsteady Setup
-    ToggleButton m_StabilityCalcToggle;
+
+    // Stability Setup
     Choice m_StabilityTypeChoice;
 
     // Cp Slice Setup

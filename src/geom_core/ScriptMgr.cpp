@@ -1761,7 +1761,9 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
 
     r = se->RegisterEnum( "VSPAERO_STABILITY_TYPE", doc_struct );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_DEFAULT", STABILITY_DEFAULT, "/*!< Default stability analysis */" );
+    r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_OFF", STABILITY_OFF, "/*!< No stability analysis (off) */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_DEFAULT", STABILITY_DEFAULT, "/*!< Normal steady stability analysis */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "VSPAERO_STABILITY_TYPE", "STABILITY_P_ANALYSIS", STABILITY_P_ANALYSIS, "/*!< P stability analysis */" );
     assert( r >= 0 );
