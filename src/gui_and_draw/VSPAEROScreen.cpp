@@ -866,8 +866,6 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 VSPAEROMgr.ComputeGeometry();
 
-                VSPAEROMgr.CreateSetupFile();
-
                 // Clear the solver console
                 m_SolverBuffer->text( "" );
 
