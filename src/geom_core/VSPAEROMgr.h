@@ -333,6 +333,9 @@ public:
     string m_StabFile;
     string m_CutsFile;
     string m_SliceFile;
+    string m_GroupsFile;
+    vector < string > m_GroupResFiles;
+    vector < string > m_RotorResFiles;
 
     IntParm m_GeomSet;
 

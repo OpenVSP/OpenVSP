@@ -542,6 +542,13 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     m_StabFile          = string();
     m_CutsFile          = string();
     m_SliceFile         = string();
+    m_GroupsFile        = string();
+    
+    m_GroupResFiles.clear();
+    m_GroupResFiles.resize( m_UnsteadyGroupVec.size() );
+
+    m_RotorResFiles.clear();
+    m_RotorResFiles.resize( NumUnsteadyRotorGroups() );
 
     Vehicle *veh = VehicleMgr.GetVehicle();
     if( veh )
@@ -587,6 +594,17 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 
             m_CutsFile          = m_ModelNameBase + string( ".cuts" );
             m_SliceFile         = m_ModelNameBase + string( ".slc" );
+            m_GroupsFile        = m_ModelNameBase + string( ".groups" );
+
+            for ( size_t i = 0; i < m_GroupResFiles.size(); i++ )
+            {
+                m_GroupResFiles[i] = m_ModelNameBase + string( ".group." ) + to_string( i + 1 );
+            }
+
+            for ( size_t i = 0; i < m_RotorResFiles.size(); i++ )
+            {
+                m_RotorResFiles[i] = m_ModelNameBase + string( ".rotor." ) + to_string( i + 1 );
+            }
 
             break;
 
@@ -625,6 +643,17 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
 
             m_CutsFile          = m_ModelNameBase + string( ".cuts" );
             m_SliceFile         = m_ModelNameBase + string( ".slc" );
+            m_GroupsFile        = m_ModelNameBase + string( ".groups" );
+
+            for ( size_t i = 0; i < m_GroupResFiles.size(); i++ )
+            {
+                m_GroupResFiles[i] = m_ModelNameBase + string( ".group." ) + to_string( i + 1 );
+            }
+
+            for ( size_t i = 0; i < m_RotorResFiles.size(); i++ )
+            {
+                m_RotorResFiles[i] = m_ModelNameBase + string( ".rotor." ) + to_string( i + 1 );
+            }
 
             break;
 
