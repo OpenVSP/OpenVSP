@@ -224,6 +224,9 @@ void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
 
     //==== Input ====//
     Fl_Input* input = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    input->type( FL_FLOAT_INPUT );
+#endif
     input->box( FL_THIN_DOWN_BOX );
     input->textsize( 12 );
     input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -278,6 +281,9 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
 
     //==== Input ====//
     Fl_Input* input1 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    input1->type( FL_FLOAT_INPUT );
+#endif
     input1->box( FL_THIN_DOWN_BOX );
     input1->textsize( 12 );
     input1->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE);
@@ -285,6 +291,9 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
     AddX( m_InputWidth );
 
     Fl_Input* input2 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    input2->type( FL_FLOAT_INPUT );
+#endif
     input2->box( FL_THIN_DOWN_BOX );
     input2->textsize( 12 );
     input2->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE);
@@ -339,6 +348,9 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
 
     //==== Input ====//
     Fl_Input* input1 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    input1->type( FL_FLOAT_INPUT );
+#endif
     input1->box( FL_THIN_DOWN_BOX );
     input1->textsize( 12 );
     input1->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -346,6 +358,9 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
     AddX( m_InputWidth );
 
     Fl_Input* input2 = new Fl_Input( m_X, m_Y, m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    input2->type( FL_FLOAT_INPUT );
+#endif
     input2->box( FL_THIN_DOWN_BOX );
     input2->textsize( 12 );
     input2->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -386,6 +401,9 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
 
     //==== Input ====//
     Fl_Input* input = new Fl_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    input->type( FL_FLOAT_INPUT );
+#endif
     input->box( FL_THIN_DOWN_BOX );
     input->textsize( 12 );
     input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -735,6 +753,9 @@ void GroupLayout::AddInput( StringInput& text_input, const char* label, int used
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
     Fl_Input* input = new Fl_Input( m_X, m_Y, iw, m_StdHeight );
+#ifdef NOREGEXP
+    input->type( FL_FLOAT_INPUT );
+#endif
     input->box( FL_THIN_DOWN_BOX );
     input->textsize( 12 );
     input->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -830,7 +851,9 @@ void GroupLayout::AddInput( Input& input, const char* label, const char* format 
     //==== Add Text Input ====//
     int iw = FitWidth( m_ButtonWidth, m_InputWidth );
     Fl_Input* flinput = new Fl_Input( m_X, m_Y, iw, m_StdHeight );
-    flinput->type( 1 );
+#ifdef NOREGEXP
+    flinput->type( FL_FLOAT_INPUT );
+#endif
     flinput->box( FL_THIN_DOWN_BOX );
     flinput->textsize( 12 );
     flinput->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -1313,6 +1336,9 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
 
     //==== Left Input ====//
     Fl_Input* inputL = new Fl_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    inputL->type( FL_FLOAT_INPUT );
+#endif
     inputL->box( FL_THIN_DOWN_BOX );
     inputL->textsize( 12 );
     inputL->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -1362,6 +1388,9 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
 
     //==== Right Input ====//
     Fl_Input* inputR = new Fl_Input( m_X, m_Y,  m_InputWidth, m_StdHeight );
+#ifdef NOREGEXP
+    inputR->type( FL_FLOAT_INPUT );
+#endif
     inputR->box( FL_THIN_DOWN_BOX );
     inputR->textsize( 12 );
     inputR->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );

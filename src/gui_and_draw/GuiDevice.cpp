@@ -5,7 +5,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
+#ifndef NOREGEXP
 #include "exprparse/exprparse.h"
+#endif
+
 #include "GuiDevice.h"
 #include "ParmMgr.h"
 #include "ScreenBase.h"
@@ -383,6 +386,11 @@ void Input::DeviceCB( Fl_Widget* w )
 
     if ( w == m_Input )
     {
+#ifdef NOREGEXP
+        double new_val = atof( m_Input->value() );
+        parm_ptr->SetFromDevice( new_val );
+        m_LastVal = new_val;
+#else
         double new_val;
         exprparse::Status stat = exprparse::parse_expression(m_Input->value(), &new_val);
         // Don't update the parm value if status is not successful
@@ -391,6 +399,7 @@ void Input::DeviceCB( Fl_Widget* w )
             parm_ptr->SetFromDevice(new_val);
             m_LastVal = new_val;
         }
+#endif
     }
 
     m_Screen->GuiDeviceCallBack( this );

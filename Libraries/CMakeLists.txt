@@ -51,8 +51,10 @@ IF( NOT VSP_NO_GRAPHICS )
 		INCLUDE( External_GLEW )
 	ENDIF()
 
-	IF ( NOT VSP_USE_SYSTEM_EXPRPARSE )
-		INCLUDE( External_exprparse )
+	IF( NOT NOREGEXP )
+		IF ( NOT VSP_USE_SYSTEM_EXPRPARSE )
+			INCLUDE( External_exprparse )
+		ENDIF()
 	ENDIF()
 ENDIF()
 
