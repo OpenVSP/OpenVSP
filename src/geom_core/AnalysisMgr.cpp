@@ -1234,6 +1234,7 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "GeomSet",            VSPAEROMgr.m_GeomSet.Get()            ) );
         m_Inputs.Add( NameValData( "AnalysisMethod",     VSPAEROMgr.m_AnalysisMethod.Get()     ) );
         m_Inputs.Add( NameValData( "NCPU",               VSPAEROMgr.m_NCPU.Get()               ) );
+        m_Inputs.Add( NameValData( "FixedWakeFlag",      VSPAEROMgr.m_FixedWakeFlag.Get()      ) );
         m_Inputs.Add( NameValData( "WakeNumIter",        VSPAEROMgr.m_WakeNumIter.Get()        ) );
         m_Inputs.Add( NameValData( "WakeAvgStartIter",   VSPAEROMgr.m_WakeAvgStartIter.Get()   ) );
         m_Inputs.Add( NameValData( "WakeSkipUntilIter",  VSPAEROMgr.m_WakeSkipUntilIter.Get()  ) );
@@ -1440,6 +1441,7 @@ string VSPAEROSinglePointAnalysis::Execute()
 
         //Case Setup
         int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
+        bool fixedWakeFlagOrig       = VSPAEROMgr.m_FixedWakeFlag.Get();
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
         int wakeAvgStartIterOrig     = VSPAEROMgr.m_WakeAvgStartIter.Get();
         int wakeSkipUntilIterOrig    = VSPAEROMgr.m_WakeSkipUntilIter.Get();
@@ -1461,6 +1463,11 @@ string VSPAEROSinglePointAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_NCPU.Set( nvd->GetInt(0) );
+        }
+        nvd = m_Inputs.FindPtr( "FixedWakeFlag" );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_FixedWakeFlag.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "WakeNumIter" );
         if ( nvd )
@@ -1663,6 +1670,7 @@ string VSPAEROSinglePointAnalysis::Execute()
 
         //    Case Setup
         VSPAEROMgr.m_NCPU.Set( ncpuOrig );
+        VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
         VSPAEROMgr.m_WakeAvgStartIter.Set( wakeAvgStartIterOrig );
         VSPAEROMgr.m_WakeSkipUntilIter.Set( wakeSkipUntilIterOrig );
@@ -1712,6 +1720,7 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "GeomSet",            VSPAEROMgr.m_GeomSet.Get()            ) );
         m_Inputs.Add( NameValData( "AnalysisMethod",     VSPAEROMgr.m_AnalysisMethod.Get()     ) );
         m_Inputs.Add( NameValData( "NCPU",               VSPAEROMgr.m_NCPU.Get()               ) );
+        m_Inputs.Add( NameValData( "FixedWakeFlag",      VSPAEROMgr.m_FixedWakeFlag.Get()      ) );
         m_Inputs.Add( NameValData( "WakeNumIter",        VSPAEROMgr.m_WakeNumIter.Get()        ) );
         m_Inputs.Add( NameValData( "WakeAvgStartIter",   VSPAEROMgr.m_WakeAvgStartIter.Get()   ) );
         m_Inputs.Add( NameValData( "WakeSkipUntilIter",  VSPAEROMgr.m_WakeSkipUntilIter.Get()  ) );
@@ -1954,6 +1963,7 @@ string VSPAEROSweepAnalysis::Execute()
 
         //Case Setup
         int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
+        bool fixedWakeFlagOrig       = VSPAEROMgr.m_FixedWakeFlag.Get();
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
         int wakeAvgStartIterOrig     = VSPAEROMgr.m_WakeAvgStartIter.Get();
         int wakeSkipUntilIterOrig    = VSPAEROMgr.m_WakeSkipUntilIter.Get();
@@ -1975,6 +1985,11 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_NCPU.Set( nvd->GetInt(0) );
+        }
+        nvd = m_Inputs.FindPtr( "FixedWakeFlag" );
+        if ( nvd )
+        {
+            VSPAEROMgr.m_FixedWakeFlag.Set( nvd->GetInt( 0 ) );
         }
         nvd = m_Inputs.FindPtr( "WakeNumIter" );
         if ( nvd )
@@ -2181,6 +2196,7 @@ string VSPAEROSweepAnalysis::Execute()
 
         //    Case Setup
         VSPAEROMgr.m_NCPU.Set( ncpuOrig );
+        VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
         VSPAEROMgr.m_WakeAvgStartIter.Set( wakeAvgStartIterOrig );
         VSPAEROMgr.m_WakeSkipUntilIter.Set( wakeSkipUntilIterOrig );

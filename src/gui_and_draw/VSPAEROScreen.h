@@ -189,6 +189,7 @@ protected:
     ToggleButton m_FromSteadyStateToggle;
 
     // Wake calculation options
+    ToggleButton m_FixedWakeToggle;
     SliderAdjRangeInput m_WakeNumIterSlider;
     SliderAdjRangeInput m_WakeAvgStartIterSlider;
     SliderAdjRangeInput m_WakeSkipUntilIterSlider;

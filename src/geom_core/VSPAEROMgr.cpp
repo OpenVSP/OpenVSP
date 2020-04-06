@@ -100,6 +100,8 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_NCPU.SetDescript( "Number of processors to use" );
 
     //    wake parameters
+    m_FixedWakeFlag.Init( "FixedWakeFlag", groupname, this, false, false, true );
+    m_FixedWakeFlag.SetDescript( "Flag to enable a fixed wake." );
     m_WakeNumIter.Init( "WakeNumIter", groupname, this, 5, 3, 255 );
     m_WakeNumIter.SetDescript( "Number of wake iterations to execute, Default = 5" );
     m_WakeAvgStartIter.Init( "WakeAvgStartIter", groupname, this, 0, 0, 255 );
@@ -1202,7 +1204,15 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     fprintf( case_file, "Symmetry = %s \n", sym.c_str() );
     fprintf( case_file, "FarDist = %lf \n", m_FarDist() );
     fprintf( case_file, "NumWakeNodes = %d \n", m_NumWakeNodes() );
-    fprintf( case_file, "WakeIters = %d \n", m_WakeNumIter.Get() );
+
+    if ( m_FixedWakeFlag() )
+    {
+        fprintf( case_file, "WakeIters = 0 \n" );
+    }
+    else
+    {
+        fprintf( case_file, "WakeIters = %d \n", m_WakeNumIter.Get() );
+    }
 
     // RotorDisks
     if ( m_ActuatorDiskFlag() )

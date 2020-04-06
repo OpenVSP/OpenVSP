@@ -309,10 +309,15 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Wake Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_WakeLayout,
         m_AdvancedLeftLayout.GetW(),
-        5 * m_AdvancedLeftLayout.GetStdHeight() );
+        6 * m_AdvancedLeftLayout.GetStdHeight() );
     m_AdvancedLeftLayout.AddY( m_WakeLayout.GetH() );
 
     m_WakeLayout.AddDividerBox( "Wake" );
+    m_WakeLayout.AddButton( m_FixedWakeToggle, "Fixed Wake" );
+
+    m_WakeLayout.SetButtonWidth( 80 ); // Match with m_NCPUSlider
+    m_WakeLayout.SetInputWidth( 50 );
+
     m_WakeLayout.AddSlider( m_WakeNumIterSlider, "Num It.", 10, "%3.0f" );
     m_WakeLayout.AddSlider( m_WakeAvgStartIterSlider, "Avg Start It.", 11, "%3.0f" );
     m_WakeLayout.AddSlider( m_WakeSkipUntilIterSlider, "Skip Until It.", 11, "%3.0f" );
@@ -1329,20 +1334,39 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     m_Write2DFEMToggle.Update( VSPAEROMgr.m_Write2DFEMFlag.GetID() );
 
     // Wake Options
+    m_FixedWakeToggle.Update( VSPAEROMgr.m_FixedWakeFlag.GetID() );
     m_WakeNumIterSlider.Update(VSPAEROMgr.m_WakeNumIter.GetID());
     m_WakeAvgStartIterSlider.Update(VSPAEROMgr.m_WakeAvgStartIter.GetID());
     m_WakeSkipUntilIterSlider.Update(VSPAEROMgr.m_WakeSkipUntilIter.GetID());
     m_NumWakeNodeSlider.Update( VSPAEROMgr.m_NumWakeNodes.GetID() );
 
-    if ( VSPAEROMgr.m_RotateBladesFlag() || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_P_ANALYSIS || 
+    bool time_dependent = false;
+    if ( VSPAEROMgr.m_RotateBladesFlag() || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_P_ANALYSIS ||
          VSPAEROMgr.m_StabilityType() == vsp::STABILITY_Q_ANALYSIS || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
     {
-        // TODO: Deactivate start/end wake iteration sliders??
+        time_dependent = true;
+    }
+
+    if ( time_dependent )
+    {
+        m_FixedWakeToggle.Deactivate();
+    }
+    else
+    {
+        m_FixedWakeToggle.Activate();
+    }
+
+    if ( time_dependent || VSPAEROMgr.m_FixedWakeFlag() )
+    {
         m_WakeNumIterSlider.Deactivate();
+        m_WakeAvgStartIterSlider.Deactivate();
+        m_WakeSkipUntilIterSlider.Deactivate();
     }
     else
     {
         m_WakeNumIterSlider.Activate();
+        m_WakeAvgStartIterSlider.Activate();
+        m_WakeSkipUntilIterSlider.Activate();
     }
 
     // Other Set Up Parms

@@ -384,6 +384,7 @@ public:
 
     // Solver settings
     IntParm m_NCPU;
+    BoolParm m_FixedWakeFlag;
     IntParm m_WakeNumIter;
     IntParm m_WakeAvgStartIter;
     IntParm m_WakeSkipUntilIter;
