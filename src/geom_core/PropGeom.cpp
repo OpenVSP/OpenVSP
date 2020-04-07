@@ -662,7 +662,8 @@ void InterpXSecCurve( VspCurve & cout, XSecCurve *c1, XSecCurve *c2, const doubl
     {
         if ( c1->GetType() != XS_FILE_AIRFOIL &&
              c1->GetType() != XS_CST_AIRFOIL &&
-             c1->GetType() != XS_FILE_FUSE )
+             c1->GetType() != XS_FILE_FUSE &&
+             c1->GetType() != XS_EDIT_CURVE )
         {
             XSecCurve *c3 = XSecSurf::CreateXSecCurve( c1->GetType() );
 
