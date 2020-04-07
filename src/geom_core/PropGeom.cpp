@@ -690,11 +690,24 @@ void InterpXSecCurve( VspCurve & cout, XSecCurve *c1, XSecCurve *c2, const doubl
         }
     }
 
-    // If all else fails, linear interpolation between curves.
-    XSecCurve::InterpCurve( cout, c1, c2, frac );
+    // Code path for mismatched XSecs and XSecs that don't interpolate well.
+    InterpXSec c3;
 
-    // Force thickness to match target.
-    cout.MatchThick( t );
+    c3.CopyVals( c1 );
+
+    c3.Interp( c1, c2, frac );
+
+    c3.SetWidthHeight( w, t * w );
+    c3.SetForceWingType( true );
+
+    c3.SetLateUpdateFlag( true );
+
+    cout = c3.GetCurve();
+
+    if ( w != 0 )
+    {
+        cout.Scale( 1.0 / w );
+    }
 
     return;
 }
