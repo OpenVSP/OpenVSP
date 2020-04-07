@@ -3687,22 +3687,43 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
         }
 
         if ( geom->GetType().m_Type == BLANK_GEOM_TYPE || geom->GetType().m_Type == HINGE_GEOM_TYPE ||
-             geom->GetType().m_Type == PT_CLOUD_GEOM_TYPE || geom->GetType().m_Type == MESH_GEOM_TYPE )
+             geom->GetType().m_Type == PT_CLOUD_GEOM_TYPE ) // TODO: Check if point cloud works in panel method?
         {
             continue;
+        }
+
+        if ( m_AnalysisMethod() == vsp::PANEL && geom->GetType().m_Type == MESH_GEOM_TYPE && ( i == all_geom_vec.size() - 1 ) )
+        {
+            // Do not include the panel method mesh of the entire VSPAERO set 
+            // This is done to prevent the the computed geometry form being included
+            // as VSPAERO components
+            MeshGeom* mesh = dynamic_cast<MeshGeom*>( geom );
+            assert( mesh );
+
+            if ( mesh->GetTMeshPtrIDs().size() == ( all_geom_vec.size() - 1 ) )
+            {
+                continue;
+            }
         }
 
         int num_sym = geom->GetNumSymmCopies();
 
         for ( size_t s = 1; s <= num_sym; s++ )
         {
-            // Human types will run in VSPAERO panel method... support accordingly
+            // Human and Mesh types will run in VSPAERO panel method... support accordingly
             if ( m_AnalysisMethod() == vsp::PANEL )
             {
                 size_t num_surf = 0;
                 if ( geom->GetType().m_Type == HUMAN_GEOM_TYPE )
                 {
                     num_surf = 1;
+                }
+                else if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
+                {
+                    MeshGeom* mesh = dynamic_cast<MeshGeom*>( geom );
+                    assert( mesh );
+
+                    num_surf = mesh->GetNumIndexedParts();
                 }
                 else
                 {
@@ -3715,9 +3736,9 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
                     surf_cnt++;
                 }
             }
-            else if ( geom->GetType().m_Type == HUMAN_GEOM_TYPE )
+            else if ( geom->GetType().m_Type == HUMAN_GEOM_TYPE || geom->GetType().m_Type == MESH_GEOM_TYPE )
             {
-                continue;
+                continue; // No humans or meshes in VLM
             }
 
             if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE )
@@ -3734,7 +3755,7 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
         }
     }
 
-    // Note: DISK_TYPE is ignored since it is not supported as an unsteady component
+    // Note: DISK_TYPE and MESH_TYPE are ignored since they are not supported as unsteady components
 
     for ( size_t i = 0; i < surface_geoms.size(); i++ )
     {
@@ -3899,11 +3920,10 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
                     }
                 }
                 else if ( vspaero_geom_index_map[std::make_pair( geom_set_vec[i], s )].size() > 0 && geom->GetType().m_Type != BLANK_GEOM_TYPE &&
-                          geom->GetType().m_Type != PT_CLOUD_GEOM_TYPE && geom->GetType().m_Type != HINGE_GEOM_TYPE &&
-                          geom->GetType().m_Type != MESH_GEOM_TYPE )
+                          geom->GetType().m_Type != PT_CLOUD_GEOM_TYPE && geom->GetType().m_Type != HINGE_GEOM_TYPE ) // TODO: Check if point cloud works in panel method?
                 {
                     // Allow mesh and human types for panel method
-                    if ( m_AnalysisMethod() == vsp::PANEL || ( m_AnalysisMethod() == vsp::VORTEX_LATTICE && geom->GetType().m_Type != HUMAN_GEOM_TYPE ) )
+                    if ( m_AnalysisMethod() == vsp::PANEL || ( m_AnalysisMethod() == vsp::VORTEX_LATTICE && geom->GetType().m_Type != HUMAN_GEOM_TYPE && geom->GetType().m_Type != MESH_GEOM_TYPE ) )
                     {
                         ungrouped_comps.push_back( std::make_pair( geom_set_vec[i], s ) );
                     }
@@ -3933,14 +3953,13 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
                         break;
                     }
                 }
-                else if ( parent->GetType().m_Type == BLANK_GEOM_TYPE || parent->GetType().m_Type == HINGE_GEOM_TYPE ||
-                          parent->GetType().m_Type == PT_CLOUD_GEOM_TYPE || parent->GetType().m_Type == MESH_GEOM_TYPE )
+                else if ( parent->GetType().m_Type == BLANK_GEOM_TYPE || parent->GetType().m_Type == HINGE_GEOM_TYPE || parent->GetType().m_Type == PT_CLOUD_GEOM_TYPE )
                 {
-                    continue;
+                    continue; // TODO: Check if point cloud works in panel method?
                 }
-                else if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE && parent->GetType().m_Type == HUMAN_GEOM_TYPE )
+                else if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE && ( parent->GetType().m_Type == HUMAN_GEOM_TYPE || parent->GetType().m_Type == MESH_GEOM_TYPE ) )
                 {
-                    continue; // Allow human types for panel method
+                    continue; // Allow human and mesh types for panel method
                 }
 
                 if ( vspaero_geom_index_map[comp_id_surf_ind_vec[j]].size() > 0 )
