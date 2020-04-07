@@ -93,7 +93,6 @@ public:
     virtual void ReadV2FileFuse2( xmlNodePtr &root );
 
     virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
-    static void InterpCurve( VspCurve & cout, XSecCurve *start, XSecCurve *end, double frac );
 
     // Convert any XSec into an editable type. This function will default the XSec to 
     // cubic Bezier with symmetry off.
@@ -537,6 +536,38 @@ protected:
 
     // Aspect ratio of m_Width to m_Height
     double m_AspectRatio;
+
+};
+
+//==========================================================================//
+//==========================================================================//
+//==========================================================================//
+
+class InterpXSec : public XSecCurve
+{
+public:
+
+    InterpXSec( );
+
+    virtual void Update();
+
+    //==== Values to Set/Get When Changing Types ====//
+    virtual double GetWidth()
+    {
+        return m_Width();
+    }
+    virtual double GetHeight()
+    {
+        return m_Height();
+    }
+    virtual void SetWidthHeight( double w, double h );
+    virtual string GetWidthParmID()                                    { return m_Width.GetID(); }
+    virtual string GetHeightParmID()                                    { return m_Height.GetID(); }
+
+    virtual void Interp( XSecCurve *start, XSecCurve *end, double frac );
+
+    Parm m_Width;
+    Parm m_Height;
 
 };
 
