@@ -1844,7 +1844,7 @@ int PropGeom::ReadBEM( const string &file_name )
         printf( "Diameter: %.8f\n", diam );
         printf( "Beta 3/4 (deg): %.8f\n", beta34 );
         printf( "Feather (deg): %.8f\n", feather );
-        printf( "Pre_Cone (deg): *.8f\n", precone );
+        printf( "Pre_Cone (deg): %.8f\n", precone );
         printf( "Center: %.8f, %.8f, %.8f\n", cen.x(), cen.y(), cen.z() );
         printf( "Normal: %.8f, %.8f, %.8f\n", norm.x(), norm.y(), norm.z() );
 
