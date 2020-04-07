@@ -4243,6 +4243,17 @@ vector< string > MeshGeom::GetTMeshIDs()
     return ids;
 }
 
+set < string > MeshGeom::GetTMeshPtrIDs()
+{
+    set < string > ids;
+    for ( size_t i = 0; i < m_TMeshVec.size(); i++ )
+    {
+        ids.insert( m_TMeshVec[i]->m_PtrID );
+    }
+
+    return ids;
+}
+
 //==== Subtag All Trianlges ====//
 void MeshGeom::SubTagTris( bool tag_subs )
 {
