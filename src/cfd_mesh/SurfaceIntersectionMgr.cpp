@@ -1490,6 +1490,7 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain, PNTree* PN_tre
 {
     bool stillExpanding = true;
     bool expandFront = true;
+    bool firstIter = true;
     // A minumum of 2 results is needed, since the the first result will be a point at the 
     // query location but already used by the adjacent segment. Additional results might not
     // be needed but are added just to be safe. The effect on speed should be negligible. 
@@ -1543,6 +1544,17 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain, PNTree* PN_tre
         }
         else
         {
+            if ( firstIter && expandFront && ( dist( chain->m_ISegDeque.front()->m_IPnt[0]->m_Pnt, matchIPnt->m_Pnt ) > dist( chain->m_ISegDeque.back()->m_IPnt[1]->m_Pnt, matchIPnt->m_Pnt ) ) )
+            {
+                // This segment's orientation needs to be reversed because expandFront was set true on the first iteration,
+                // but the back point is closer. 
+                IPnt* temp_pnt = chain->m_ISegDeque.front()->m_IPnt[0];
+                chain->m_ISegDeque.front()->m_IPnt[0] = chain->m_ISegDeque.front()->m_IPnt[1];
+                chain->m_ISegDeque.front()->m_IPnt[1] = temp_pnt;
+            }
+
+            firstIter = false;
+
             ISeg* seg = matchIPnt->m_Segs[0];
             chain->AddSeg( seg, expandFront );
             seg->m_IPnt[0]->m_UsedFlag = true;
