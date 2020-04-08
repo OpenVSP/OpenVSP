@@ -156,7 +156,7 @@ void NURBS_Loop::WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_su
     iges->MakeCutout( parent_surf, trimmed_surf, nurbs_vec );
 }
 
-SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step )
+SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, bool mergepts )
 {
     if ( !m_ClosedFlag )
     {
@@ -168,6 +168,12 @@ SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step )
 
     for ( size_t i = 0; i < m_OrderedCurves.size(); i++ )
     {
+        if ( !m_OrderedCurves[i].first.m_STEP_Edge )
+        {
+            // Create the edge if it has not yet been defined
+            m_OrderedCurves[i].first.WriteSTEPEdge( step, mergepts );
+        }
+
         // Created oriented edge from NURBS_Curve edge
         SdaiOriented_edge* or_edge = (SdaiOriented_edge*)step->registry->ObjCreate( "ORIENTED_EDGE" );
         step->instance_list->Append( (SDAI_Application_instance*)or_edge, completeSE );
@@ -651,7 +657,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
             }
             else
             {
-                SdaiEdge_loop* loop = m_NURBSLoopVec[i].WriteSTEPLoop( step );
+                SdaiEdge_loop* loop = m_NURBSLoopVec[i].WriteSTEPLoop( step, mergepts );
 
                 if ( loop ) // TODO: Identify if the interior loop is on a surface that will be split
                 {
@@ -677,7 +683,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
 
     if ( ext_loop_vec.size() == 1 )
     {
-        SdaiEdge_loop* loop = ext_loop_vec[0].WriteSTEPLoop( step );
+        SdaiEdge_loop* loop = ext_loop_vec[0].WriteSTEPLoop( step, mergepts );
 
         if ( loop )
         {
@@ -699,7 +705,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
         {
             if ( i == 0 )
             {
-                SdaiEdge_loop* loop = ext_loop_vec[i].WriteSTEPLoop( step );
+                SdaiEdge_loop* loop = ext_loop_vec[i].WriteSTEPLoop( step, mergepts );
 
                 if ( loop )
                 {
@@ -716,7 +722,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
             {
                 SdaiSurface* new_surf = WriteSTEPSurf( step, mergepts );
 
-                SdaiEdge_loop* loop = ext_loop_vec[i].WriteSTEPLoop( step );
+                SdaiEdge_loop* loop = ext_loop_vec[i].WriteSTEPLoop( step, mergepts );
 
                 if ( loop && new_surf )
                 {

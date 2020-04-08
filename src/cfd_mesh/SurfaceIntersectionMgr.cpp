@@ -894,15 +894,6 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
 
     BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
 
-    // Identify the SdaiB_spline_curve_with_knots
-    for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
-    {
-        if ( !m_NURBSCurveVec[i].m_SubSurfFlag && !m_NURBSCurveVec[i].m_StructIntersectFlag )
-        {
-            m_NURBSCurveVec[i].WriteSTEPEdge( &step, merge_pnts );
-        }
-    }
-
     BuildNURBSSurfMap();
 
     vector < vector < SdaiAdvanced_face* > > adv_vec( comp_id_group_vec.size() );

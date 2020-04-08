@@ -105,7 +105,7 @@ public:
     void WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf );
 
     // Write the NURBS loop to STEP
-    SdaiEdge_loop* WriteSTEPLoop( STEPutil* step );
+    SdaiEdge_loop* WriteSTEPLoop( STEPutil* step, bool mergepts );
 
     // Based on all control points for theloop, get the bounding box
     BndBox GetBndBox();
