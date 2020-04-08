@@ -7508,7 +7508,8 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Convert the EditCurveXSec curve type to the specified new type. Note, EditCurveXSec uses the same enumerations for PCurve to identify curve type.
+    Convert the EditCurveXSec curve type to the specified new type. Note, EditCurveXSec uses the same enumerations for PCurve to identify curve type, 
+    but APPROX_CEDIT is not supported at this time. 
     \code{.cpp}
     // Add Stack
     string sid = AddGeom( "STACK", "" );

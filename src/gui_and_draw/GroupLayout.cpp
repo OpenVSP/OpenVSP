@@ -1548,7 +1548,12 @@ void GroupLayout::AddCurveEditor( CurveEditor& curve_editor, const string split_
     curve_editor.m_ConvertChoice.AddItem( "Linear" );
     curve_editor.m_ConvertChoice.AddItem( "Spline (PCHIP)" );
     curve_editor.m_ConvertChoice.AddItem( "Cubic Bezier" );
-    curve_editor.m_ConvertChoice.AddItem( "Approximate Cubic Bezier" );
+    if ( !one_to_one_AR )
+    {
+        // this flag also indicates the curve editor if for generic XSecs, 
+        // which do not support Approximate Cubic Bezier conversion at this time
+        curve_editor.m_ConvertChoice.AddItem( "Approximate Cubic Bezier" );
+    }
 
     m_ChoiceButtonWidth = 0;
     AddChoice( curve_editor.m_ConvertChoice, "Convert to:", GetW() / 2 + m_ButtonWidth );

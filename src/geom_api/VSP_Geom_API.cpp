@@ -4445,6 +4445,12 @@ void EditXSecConvertTo( const std::string & xsec_id, const int & newtype )
         return;
     }
 
+    if ( newtype < 0 || newtype > vsp::CEDIT )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "EditXSecConvertTo::Invalid PCURV_TYPE" );
+        return;
+    }
+
     EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
     assert( edit_xs );
 
