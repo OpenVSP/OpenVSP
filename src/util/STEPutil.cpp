@@ -876,6 +876,102 @@ DLL_IGES_ENTITY_128 IGESutil::MakeSurf( piecewise_surface_type& s, const string&
     return isurf;
 }
 
+DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec )
+{
+    // Create the Trimmed Parametric Surface (TPS)
+    DLL_IGES_ENTITY_144 trim_surf( model, true );
+
+    // Define the 1st surface boundary in model space
+    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec );
+
+    if ( !trim_surf.SetBoundCurve( bound ) )
+    {
+        model.DelEntity( &trim_surf );
+    }
+
+    trim_surf.SetSurface( parent_surf );
+
+    return trim_surf;
+}
+
+void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec )
+{
+    // Define the 1st surface boundary in model space
+    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec );
+
+    if ( !trimmed_surf.AddCutout( bound ) )
+    {
+        model.DelEntity( &trimmed_surf );
+        return;
+    }
+}
+
+DLL_IGES_ENTITY_126 IGESutil::MakeCurve( vector < vec3d > cp_vec, int deg )
+{
+    int npts = (int)cp_vec.size();
+
+    vector< double > coeff( npts * 3 );
+
+    int icoeff = 0;
+    for ( int n = 0; n < npts; ++n )
+    {
+        vec3d pt = cp_vec[n];
+
+        for ( int k = 0; k < 3; k++ )
+        {
+            coeff[icoeff] = pt.v[k];
+            icoeff++;
+        }
+    }
+
+    // Get knot vector
+    vector< double > knot;
+    int order = deg + 1;
+    int nseg = npts - 2;
+
+    IGESKnots( deg, nseg, knot );
+
+    // Create a NURBS curve to add to the
+    DLL_IGES_ENTITY_126 nc( model, true );
+    if ( !nc.SetNURBSData( npts, order, knot.data(),
+                           coeff.data(), false, knot[0], knot.back() ) )
+    {
+        model.DelEntity( &nc );
+    }
+
+    // Create a custom color (magenta)
+    // TODO: Cycle through various colors
+    DLL_IGES_ENTITY_314 color( model, true );
+    color.SetColor( 100.0, 0.0, 100.0 );
+    // Attach the color to the NURBS curve
+    nc.SetColor( color );
+
+    return nc;
+}
+
+DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec )
+{
+    // Create a compound curve
+    DLL_IGES_ENTITY_102 compound( model, true );
+
+    for ( size_t i = 0; i < nurbs_vec.size(); i++ )
+    {
+        if ( !compound.AddSegment( *nurbs_vec[i] ) )
+        {
+            model.DelEntity( nurbs_vec[i] );
+        }
+    }
+
+    // Define the 1st surface boundary in model space
+    DLL_IGES_ENTITY_142 bound( model, true );
+    bound.SetModelSpaceBound( compound );
+    // Note, the curve creation and preference flag do not seem to have an effect on the import
+    bound.SetCurveCreationFlag( CURVE_CREATE_PROJECTION );
+    bound.SetCurvePreference( BOUND_PREF_MODELSPACE );
+    bound.SetSurface( parent_surf );
+
+    return bound;
+}
 
 void IGESutil::IGESKnots( int deg, int npatch, vector< double >& knot )
 {

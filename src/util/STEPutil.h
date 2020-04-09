@@ -85,12 +85,27 @@ public:
 
     void  WriteFile( string fname, bool overwrite = true );
 
+    // Identify the NURBS knot vector for a curve or direction of a surface given its degree and number of patches
     void IGESKnots( int deg, int npatch, vector< double >& knot );
 
+    // Write a Bezier surface to the IGES model by extracting the Bezier parameters and converting to a NURBS surface
     DLL_IGES_ENTITY_128 MakeSurf( piecewise_surface_type& s, const string& label );
+
+    // Bound a parent NURBS surface (entity 128) with an input control point vector
+    //DLL_IGES_ENTITY_144 MakeLoop( DLL_IGES_ENTITY_128& parent_surf, vector < vector < vec3d > > cp_vec_vec );
+    DLL_IGES_ENTITY_144 MakeLoop( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec );
+
+    DLL_IGES_ENTITY_126 MakeCurve( vector < vec3d > cp_vec, int deg );
+
+    // Create a hole in a trimmed IGES surface (entity 144) at the given control point vector
+    //void MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, vector < vector < vec3d > > cp_vec_vec );
+    void MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec );
 
 protected:
 
+    // Add an IGES bounding curve (entity 142) to a parent NURBS surface at the given control point vector
+    //DLL_IGES_ENTITY_142 MakeBound( DLL_IGES_ENTITY_128& parent_surf, vector < vector < vec3d > > cp_vec_vec );
+    DLL_IGES_ENTITY_142 MakeBound( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec );
 
     DLL_IGES model;
 
