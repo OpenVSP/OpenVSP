@@ -63,9 +63,9 @@ class RunManager:
                 os.chdir(folder)
 
             def cleanup(self):
+                self.cd(self.__old_wd)
                 if self.cleanup_flag and (self.cwd is not self.__old_wd):
                     shutil.rmtree(self.cwd)
-                self.cd(self.__old_wd)
 
         # instantiate the subclass, return that so we work with it instead of the handler class
         # "self" in the function arguments refers to the RunManager class
