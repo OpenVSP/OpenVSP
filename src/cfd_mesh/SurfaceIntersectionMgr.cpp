@@ -91,6 +91,8 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
 
     TransferSubSurfData();
 
+    IdentifyCompIDNames();
+
     CleanMergeSurfs();
 
     if ( m_SurfVec.size() == 0 )
@@ -204,15 +206,19 @@ void SurfaceIntersectionSingleton::TransferMeshSettings()
 {
     m_IntersectSettings = SimpleIntersectSettings();
     m_IntersectSettings.CopyFrom( m_Vehicle->GetISectSettingsPtr() );
+}
 
-    m_GeomNameMap.clear();
+void SurfaceIntersectionSingleton::IdentifyCompIDNames()
+{
+    m_CompIDNameMap.clear();
 
-    // Copy over Geom IDs and names
-    vector< Geom* > geom_vec = m_Vehicle->FindGeomVec( m_Vehicle->GetGeomVec() );
-
-    for ( size_t i = 0; i < geom_vec.size(); i++ )
+    for ( size_t i = 0; i < m_SurfVec.size(); i++ )
     {
-        m_GeomNameMap[geom_vec[i]->GetID()] = geom_vec[i]->GetName();
+        if ( m_CompIDNameMap.count( m_SurfVec[i]->GetCompID() ) == 0 )
+        {
+            Geom* geom = m_Vehicle->FindGeom( m_SurfVec[i]->GetGeomID() );
+            m_CompIDNameMap[m_SurfVec[i]->GetCompID()] = geom->GetName();
+        }
     }
 }
 
@@ -854,7 +860,16 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
             {
                 label.append( label_delim );
             }
-            label.append( m_GeomNameMap[m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetGeomID()] );
+
+            if ( m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetFeaPartIndex() >= 0 )
+            {
+                // FEA Part
+                label.append( m_CompIDNameMap[m_NURBSSurfVec[si].m_SurfID] );
+            }
+            else
+            {
+                label.append( m_CompIDNameMap[m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetCompID()] );
+            }
         }
 
         if ( label_surf_num )
@@ -921,7 +936,16 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
             {
                 label.append( label_delim );
             }
-            label.append( m_GeomNameMap[m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetGeomID()] );
+
+            if ( m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetFeaPartIndex() >= 0 )
+            {
+                // FEA Part
+                label.append( m_CompIDNameMap[m_NURBSSurfVec[si].m_SurfID] );
+            }
+            else
+            {
+                label.append( m_CompIDNameMap[m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetCompID()] );
+            }
         }
 
         if ( label_surf_num )

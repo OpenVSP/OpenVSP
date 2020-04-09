@@ -169,6 +169,19 @@ void FeaMeshMgrSingleton::TransferMeshSettings()
     }
 }
 
+void FeaMeshMgrSingleton::IdentifyCompIDNames()
+{
+    m_CompIDNameMap.clear();
+
+    for ( size_t i = 0; i < m_SurfVec.size(); i++ )
+    {
+        if ( m_CompIDNameMap.count( m_SurfVec[i]->GetFeaPartIndex() ) == 0 )
+        {
+            m_CompIDNameMap[m_SurfVec[i]->GetFeaPartIndex()] = m_StructName + "_" + m_FeaPartNameVec[m_SurfVec[i]->GetFeaPartIndex()];
+        }
+    }
+}
+
 void FeaMeshMgrSingleton::GetMassUnit()
 {
     switch ( m_Vehicle->m_StructUnit() )
@@ -298,6 +311,8 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     addOutputText( "Add Structure Parts\n" );
     AddStructureParts();
+
+    IdentifyCompIDNames();
 
     CleanMergeSurfs();
 

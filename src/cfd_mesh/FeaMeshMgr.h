@@ -61,6 +61,7 @@ public:
     virtual void GenerateFeaMesh();
     virtual void ExportFeaMesh();
     virtual void TransferMeshSettings();
+    virtual void IdentifyCompIDNames();
     virtual void TransferFeaData();
     virtual void TransferSubSurfData();
     virtual void MergeCoplanarParts();

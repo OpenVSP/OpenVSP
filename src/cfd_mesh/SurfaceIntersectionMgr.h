@@ -112,6 +112,8 @@ public:
 
     virtual void TransferMeshSettings();
 
+    virtual void IdentifyCompIDNames();
+
     virtual void TransferSubSurfData();
     virtual vector < SimpleSubSurface > GetSimpSubSurfs( string geom_id, int surfnum, int comp_id );
 
@@ -288,7 +290,7 @@ protected:
     // m_ISegChainList translated to a vector of NURBS curves
     vector < NURBS_Curve > m_NURBSCurveVec;
 
-    map < string, string > m_GeomNameMap;
+    map < int, string > m_CompIDNameMap;
 
 private:
 
