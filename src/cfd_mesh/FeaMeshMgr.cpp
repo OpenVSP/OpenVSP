@@ -434,6 +434,13 @@ void FeaMeshMgrSingleton::ExportFeaMesh()
         }
     }
 
+    if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ) || GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME ) )
+    {
+        BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
+
+        BuildNURBSSurfMap();
+    }
+
     if ( GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME ) )
     {
         string delim = StringUtil::get_delim( GetStructSettingsPtr()->m_CADLabelDelim );

@@ -522,6 +522,13 @@ void SurfaceIntersectionSingleton::ExportFiles()
                          GetIntersectSettingsPtr()->m_ExportRawFlag );
     }
 
+    if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) || GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME ) )
+    {
+        BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
+
+        BuildNURBSSurfMap();
+    }
+
     if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) )
     {
         string delim = StringUtil::get_delim( GetIntersectSettingsPtr()->m_CADLabelDelim );
@@ -834,10 +841,6 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
 {
     IGESutil iges( len_unit );
 
-    BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
-
-    BuildNURBSSurfMap();
-
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
         if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
@@ -906,10 +909,6 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
 
     // Identify the unique sets of intersected components
     vector < vector < int > > comp_id_group_vec = GetCompIDGroupVec();
-
-    BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
-
-    BuildNURBSSurfMap();
 
     vector < vector < SdaiAdvanced_face* > > adv_vec( comp_id_group_vec.size() );
     map < string, vector < SdaiSurface* > > geom_surf_label_map;
