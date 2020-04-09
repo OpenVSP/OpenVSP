@@ -33,6 +33,11 @@ the OpenVSP distribution built for your operating system and python environment 
     gfortran -o bg2charm_thick ../src/bg2charm_thick.f
     ```
 
+    * On Windows with MinGW, you likely want to force the use of static libraries to prevent problems finding them later.
+        ```
+        gfortran -static -o bg2charm_thick.exe ../src/bg2charm_thick.f
+        ```
+
 3. Install the python packages (you should start in the directory this README file)
     ```bash
     pip install -r requirements.txt # If you are not going to modify the packages
