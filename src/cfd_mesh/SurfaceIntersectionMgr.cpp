@@ -2786,7 +2786,7 @@ void SurfaceIntersectionAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "CADLabelSplitNo", veh->GetISectSettingsPtr()->m_CADLabelSplitNo() ) );
         m_Inputs.Add( NameValData( "CADLabelSurfNo", veh->GetISectSettingsPtr()->m_CADLabelSurfNo() ) );
         m_Inputs.Add( NameValData( "CADLenUnit", veh->GetISectSettingsPtr()->m_CADLenUnit() ) );
-        m_Inputs.Add( NameValData( "STEPMergePoints", veh->GetISectSettingsPtr()->m_STEPMergePoints() ) );
+        //m_Inputs.Add( NameValData( "STEPMergePoints", veh->GetISectSettingsPtr()->m_STEPMergePoints() ) );
         m_Inputs.Add( NameValData( "STEPRepresentation", veh->GetISectSettingsPtr()->m_STEPRepresentation() ) );
         m_Inputs.Add( NameValData( "STEPTol", veh->GetISectSettingsPtr()->m_STEPTol() ) );
 
@@ -2859,9 +2859,9 @@ string SurfaceIntersectionAnalysis::Execute()
         nvd = m_Inputs.FindPtr( "CADLenUnit", 0 );
         if ( nvd ) veh->GetISectSettingsPtr()->m_CADLenUnit.Set( nvd->GetInt( 0 ) );
 
-        bool stepMergePointsOrig = veh->GetISectSettingsPtr()->m_STEPMergePoints();
-        nvd = m_Inputs.FindPtr( "STEPMergePoints", 0 );
-        if ( nvd ) veh->GetISectSettingsPtr()->m_STEPMergePoints.Set( nvd->GetInt( 0 ) );
+        //bool stepMergePointsOrig = veh->GetISectSettingsPtr()->m_STEPMergePoints();
+        //nvd = m_Inputs.FindPtr( "STEPMergePoints", 0 );
+        //if ( nvd ) veh->GetISectSettingsPtr()->m_STEPMergePoints.Set( nvd->GetInt( 0 ) );
 
         int stepRepresentationOrig = veh->GetISectSettingsPtr()->m_STEPRepresentation();
         nvd = m_Inputs.FindPtr( "STEPRepresentation", 0 );
@@ -2928,7 +2928,7 @@ string SurfaceIntersectionAnalysis::Execute()
         veh->GetISectSettingsPtr()->m_CADLabelSplitNo.Set( cadLabelSplitNoOrig );
         veh->GetISectSettingsPtr()->m_CADLabelSurfNo.Set( cadLabelSurfNoOrig );
         veh->GetISectSettingsPtr()->m_CADLenUnit.Set( cadLenUnitOrig );
-        veh->GetISectSettingsPtr()->m_STEPMergePoints.Set( stepMergePointsOrig );
+        //veh->GetISectSettingsPtr()->m_STEPMergePoints.Set( stepMergePointsOrig );
         veh->GetISectSettingsPtr()->m_STEPRepresentation.Set( stepRepresentationOrig );
         veh->GetISectSettingsPtr()->m_STEPTol.Set( stepTolOrig );
 

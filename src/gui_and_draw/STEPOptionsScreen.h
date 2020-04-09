@@ -42,7 +42,7 @@ protected:
     SliderAdjRangeInput m_TolSlider;
     ToggleButton m_SplitSurfsToggle;
     ToggleButton m_SplitSubSurfsToggle;
-    ToggleButton m_MergePointsToggle;
+    //ToggleButton m_MergePointsToggle;
     ToggleButton m_ToCubicToggle;
     SliderAdjRangeInput m_ToCubicTolSlider;
     ToggleButton m_TrimTEToggle;
@@ -57,7 +57,7 @@ protected:
     double m_PrevTol;
     bool m_PrevSplit;
     bool m_PrevSplitSub;
-    bool m_PrevMerge;
+    //bool m_PrevMerge;
     bool m_PrevCubic;
     double m_PrevToCubicTol;
     bool m_PrevTrimTE;

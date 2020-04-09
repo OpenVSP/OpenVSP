@@ -211,14 +211,21 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     m_OutputTabLayout.AddButton( m_SelectSTEPFile, "..." );
     m_OutputTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.InitWidthHeightVals();
-
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 3 );
-    m_OutputTabLayout.AddButton( m_STEPMergePointsToggle, "Merge Points" );
     m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.SetSameLineFlag( false );
+
+    m_OutputTabLayout.InitWidthHeightVals();
+    m_OutputTabLayout.SetButtonWidth( 175 );
+
+    //m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 3 );
+    //m_OutputTabLayout.AddButton( m_STEPMergePointsToggle, "Merge Points" );
+    //m_OutputTabLayout.SetFitWidthFlag( true );
     m_OutputTabLayout.AddSlider( m_STEPTolSlider, "STEP Tolerance", 10, "%5.4g", 0, true );
+    //m_OutputTabLayout.SetFitWidthFlag( false );
+    //m_OutputTabLayout.ForceNewLine();
+
     m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetSameLineFlag( true );
 
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 2 );
     m_OutputTabLayout.AddButton( m_STEPShell, "Shell Representation" );
@@ -314,7 +321,7 @@ void SurfaceIntersectionScreen::UpdateOutputTab()
     m_ExportRaw.Update( m_Vehicle->GetISectSettingsPtr()->m_ExportRawFlag.GetID() );
     m_XYZIntCurves.Update( m_Vehicle->GetISectSettingsPtr()->m_XYZIntCurveFlag.GetID() );
 
-    m_STEPMergePointsToggle.Update( m_Vehicle->GetISectSettingsPtr()->m_STEPMergePoints.GetID() );
+    //m_STEPMergePointsToggle.Update( m_Vehicle->GetISectSettingsPtr()->m_STEPMergePoints.GetID() );
     m_STEPTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_STEPTol.GetID() );
     m_STEPRepGroup.Update( m_Vehicle->GetISectSettingsPtr()->m_STEPRepresentation.GetID() );
     m_LenUnitChoice.Update( m_Vehicle->GetISectSettingsPtr()->m_CADLenUnit.GetID() );
@@ -326,13 +333,13 @@ void SurfaceIntersectionScreen::UpdateOutputTab()
 
     if ( !m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME )->Get() )
     {
-        m_STEPMergePointsToggle.Deactivate();
+        //m_STEPMergePointsToggle.Deactivate();
         m_STEPTolSlider.Deactivate();
         m_STEPRepGroup.Deactivate();
     }
     else
     {
-        m_STEPMergePointsToggle.Activate();
+        //m_STEPMergePointsToggle.Activate();
         m_STEPTolSlider.Activate();
         m_STEPRepGroup.Activate();
     }

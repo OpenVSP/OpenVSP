@@ -306,7 +306,7 @@ private:
     ToggleButton m_ExportRaw;
 
     SliderAdjRangeInput m_STEPTolSlider;
-    ToggleButton m_STEPMergePointsToggle;
+    //ToggleButton m_STEPMergePointsToggle;
     ToggleRadioGroup m_STEPRepGroup;
     ToggleButton m_STEPShell;
     ToggleButton m_STEPBREP;

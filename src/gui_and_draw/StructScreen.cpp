@@ -880,13 +880,21 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_OutputTabLayout.AddButton( m_SelectSTEPFile, "..." );
     m_OutputTabLayout.ForceNewLine();
 
-    m_OutputTabLayout.InitWidthHeightVals();
-    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 3 );
-    m_OutputTabLayout.AddButton( m_STEPMergePointsToggle, "Merge Points" );
     m_OutputTabLayout.SetFitWidthFlag( true );
+    m_OutputTabLayout.SetSameLineFlag( false );
+
+    m_OutputTabLayout.InitWidthHeightVals();
+    m_OutputTabLayout.SetButtonWidth( 175 );
+
+    //m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 3 );
+    //m_OutputTabLayout.AddButton( m_STEPMergePointsToggle, "Merge Points" );
+    //m_OutputTabLayout.SetFitWidthFlag( true );
     m_OutputTabLayout.AddSlider( m_STEPTolSlider, "STEP Tolerance", 10, "%5.4g", 0, true );
+    //m_OutputTabLayout.SetFitWidthFlag( false );
+    //m_OutputTabLayout.ForceNewLine();
+
     m_OutputTabLayout.SetFitWidthFlag( false );
-    m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetSameLineFlag( true );
 
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() / 2 );
     m_OutputTabLayout.AddButton( m_STEPShell, "Shell Representation" );
@@ -2118,7 +2126,7 @@ bool StructScreen::Update()
             m_STEPOutput.Update( truncateFileName( stpname, 40 ).c_str() );
             m_STEPFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->GetID() );
 
-            m_STEPMergePointsToggle.Update( curr_struct->GetStructSettingsPtr()->m_STEPMergePoints.GetID() );
+            //m_STEPMergePointsToggle.Update( curr_struct->GetStructSettingsPtr()->m_STEPMergePoints.GetID() );
             m_STEPTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_STEPTol.GetID() );
             m_STEPRepGroup.Update( curr_struct->GetStructSettingsPtr()->m_STEPRepresentation.GetID() );
             m_LenUnitChoice.Update( curr_struct->GetStructSettingsPtr()->m_CADLenUnit.GetID() );
@@ -2134,13 +2142,13 @@ bool StructScreen::Update()
 
             if ( !curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->Get() )
             {
-                m_STEPMergePointsToggle.Deactivate();
+                //m_STEPMergePointsToggle.Deactivate();
                 m_STEPTolSlider.Deactivate();
                 m_STEPRepGroup.Deactivate();
             }
             else
             {
-                m_STEPMergePointsToggle.Activate();
+                //m_STEPMergePointsToggle.Activate();
                 m_STEPTolSlider.Activate();
                 m_STEPRepGroup.Activate();
             }

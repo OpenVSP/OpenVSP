@@ -100,7 +100,7 @@ protected:
 
     SliderAdjRangeInput m_STEPTolSlider;
     //ToggleButton m_SplitSubSurfsToggle;
-    ToggleButton m_STEPMergePointsToggle;
+    //ToggleButton m_STEPMergePointsToggle;
     ToggleRadioGroup m_STEPRepGroup;
     ToggleButton m_STEPShell;
     ToggleButton m_STEPBREP;
