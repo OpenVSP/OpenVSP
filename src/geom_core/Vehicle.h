@@ -23,7 +23,7 @@
 #include "MeshCommonSettings.h"
 #include "ClippingMgr.h"
 #include "SnapTo.h"
-#include "STEPutil.h"
+#include "CADutil.h"
 #include "XferSurf.h"
 #include "MaterialMgr.h"
 #include "WaveDragMgr.h"

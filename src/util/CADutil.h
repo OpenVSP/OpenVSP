@@ -1,7 +1,18 @@
+//
+// This file is released under the terms of the NASA Open Source Agreement (NOSA)
+// version 1.3 as detailed in the LICENSE file which accompanies this software.
+//
 
+//////////////////////////////////////////////////////////////////////
+// CADUtil.h
+//
+// Helper functions to export OpenVSP geometry to CAD (STEP or IGES). The 
+// export may be watertight trimmed surfaces or individual unintersected surfaces.
+//
+//////////////////////////////////////////////////////////////////////
 
-#if !defined(STEPUTIL__INCLUDED_)
-#define STEPUTIL__INCLUDED_
+#if !defined(CADUTIL__INCLUDED_)
+#define CADUTIL__INCLUDED_
 
 #pragma warning( disable : 4018 )
 #pragma warning( disable : 4800 )
@@ -29,7 +40,7 @@
 #include <api/dll_entity314.h>
 
 #include "APIDefines.h"
-#include "vec3d.h"
+#include "Vec3d.h"
 
 #include "eli/geom/surface/bezier.hpp"
 #include "eli/geom/surface/piecewise.hpp"
@@ -143,4 +154,4 @@ void ExtractCPts( piecewise_surface_type& s, vector< vector< int > >& ptindxs, v
                   piecewise_surface_type::index_type& nupts, piecewise_surface_type::index_type& nvpts );
 
 
-#endif // !defined(STEPUTIL__INCLUDED_)
+#endif // !defined(CADUTIL__INCLUDED_)

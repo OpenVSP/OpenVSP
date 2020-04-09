@@ -17,7 +17,7 @@
 #define NURBS_NURBS__INCLUDED_
 
 #include "SCurve.h"
-#include "STEPutil.h"
+#include "CADutil.h"
 
 
 // Describes a NURBS curve, formed from a Bezier surface curve (SCurve). Can be of border 

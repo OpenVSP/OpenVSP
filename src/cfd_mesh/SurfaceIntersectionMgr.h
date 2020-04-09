@@ -66,7 +66,7 @@
 #include "SimpleSubSurface.h"
 #include "SimpleMeshSettings.h"
 #include "NURBS.h"
-#include "STEPutil.h"
+#include "CADutil.h"
 #include "PntNodeMerge.h"
 #include "AnalysisMgr.h"
 

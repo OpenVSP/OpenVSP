@@ -17,7 +17,7 @@
 #include "BndBox.h"
 #include "XferSurf.h"
 
-#include "STEPutil.h"
+#include "CADutil.h"
 
 #include <api/dll_iges.h>
 #include <api/dll_entity128.h>

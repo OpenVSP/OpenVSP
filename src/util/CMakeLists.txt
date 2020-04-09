@@ -22,6 +22,7 @@ INCLUDE_DIRECTORIES(
 
 ADD_LIBRARY(util
 BndBox.cpp
+CADutil.cpp
 Cluster.cpp
 DrawObj.cpp
 DXFUtil.cpp
@@ -31,7 +32,6 @@ MessageMgr.cpp
 PntNodeMerge.cpp
 ProcessUtil.cpp
 Quat.cpp
-STEPutil.cpp
 StlHelper.cpp
 StringUtil.cpp
 SuperEllipse.cpp
@@ -45,6 +45,7 @@ Vsp1DCurve.cpp
 VspCurve.cpp
 VspSurf.cpp
 BndBox.h
+CADutil.h
 Cluster.h
 Combination.h
 Defines.h
@@ -58,7 +59,6 @@ PntNodeMerge.h
 ProcessUtil.h
 Quat.h
 StlHelper.h
-STEPutil.h
 StreamUtil.h
 StringUtil.h
 SuperEllipse.h
