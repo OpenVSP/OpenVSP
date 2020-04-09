@@ -992,7 +992,7 @@ void IGESutil::IGESKnots( int deg, int npatch, vector< double >& knot )
     }
     for ( i = 0; i <= deg; i++ )
     {
-        knot.push_back( 1.0 * npatch );
+        knot.push_back( npatch + 1 );
     }
 }
 
