@@ -576,49 +576,18 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
     }
     else if ( ext_loop_vec.size() > 1 )
     {
-        // If more than 1 external loop, create a 128 parent NURBS surface for each
-        // and trim with separate bounds. This is necessary because an IGES 128 entity
-        // can only have a single outer bound. 
+        // If more than 1 external loop, create a new trimmed surface for each
+        // with separate loop bounds.
         for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
         {
-            if ( i == 0 )
+            DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[i].WriteIGESLoop( iges, parent_surf );
+
+            // Check if for any cutouts on the trimmed surface
+            for ( size_t i = 0; i < cutout_vec.size(); i++ )
             {
-                DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[i].WriteIGESLoop( iges, parent_surf );
-
-                // Check if for any cutouts on the trimmed surface
-                for ( size_t i = 0; i < cutout_vec.size(); i++ )
+                if ( Compare( ext_loop_vec[i].GetBndBox(), cutout_vec[i].GetBndBox() ) ) // TODO: Improve this comparison
                 {
-                    if ( Compare( ext_loop_vec[i].GetBndBox(), cutout_vec[i].GetBndBox() ) ) // TODO: Improve this comparison
-                    {
-                        cutout_vec[i].WriteIGESCutout( iges, parent_surf, trimmed_surf );
-                    }
-                }
-            }
-            else
-            {
-                // Create new NURBS surface to trim
-                string label = "";
-
-                if ( m_SurfID > 0 ) // TODO: Get parent surf label
-                {
-                    label = "Surf_";
-
-                    label.append( to_string( m_SurfID ) );
-                    label.append( "_" );
-                    label.append( to_string( i ) ); // add loop index
-                }
-
-                DLL_IGES_ENTITY_128 isurf = WriteIGESSurf( iges, label );
-
-                DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[i].WriteIGESLoop( iges, isurf );
-
-                // Check if for any cutouts on the trimmed surface
-                for ( size_t i = 0; i < cutout_vec.size(); i++ )
-                {
-                    if ( Compare( ext_loop_vec[i].GetBndBox(), cutout_vec[i].GetBndBox() ) ) // TODO: Improve this comparison
-                    {
-                        cutout_vec[i].WriteIGESCutout( iges, parent_surf, trimmed_surf );
-                    }
+                    cutout_vec[i].WriteIGESCutout( iges, parent_surf, trimmed_surf );
                 }
             }
         }
@@ -698,53 +667,42 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
     }
     else if ( ext_loop_vec.size() > 1 )
     {
-        // If more than 1 external loop, create a parent NURBS surface for each
-        // and trim with separate bounds. This is necessary because an NURBS surface
-        // can only have a single outer bound. 
+        // If more than 1 external loop, reference the same parent surface,
+        // but define new loops.
         for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
         {
+            SdaiEdge_loop* loop = ext_loop_vec[i].WriteSTEPLoop( step, mergepts );
+
+            if ( !loop )
+            {
+                continue;
+            }
+
+            SdaiFace_outer_bound* face = (SdaiFace_outer_bound*)step->registry->ObjCreate( "FACE_OUTER_BOUND" );
+            step->instance_list->Append( (SDAI_Application_instance*)face, completeSE );
+            face->bound_( loop );
+            face->name_( "''" );
+            face->orientation_( BTrue );
+
             if ( i == 0 )
             {
-                SdaiEdge_loop* loop = ext_loop_vec[i].WriteSTEPLoop( step, mergepts );
-
-                if ( loop )
-                {
-                    SdaiFace_outer_bound* face = (SdaiFace_outer_bound*)step->registry->ObjCreate( "FACE_OUTER_BOUND" );
-                    step->instance_list->Append( (SDAI_Application_instance*)face, completeSE );
-                    face->bound_( loop );
-                    face->name_( "''" );
-                    face->orientation_( BTrue );
-
-                    outer_face_vec.push_back( face );
-                }
+                outer_face_vec.push_back( face );
             }
             else
             {
-                SdaiSurface* new_surf = WriteSTEPSurf( step, mergepts );
+                // Create new advanced face
+                SdaiAdvanced_face* adv_face = (SdaiAdvanced_face*)step->registry->ObjCreate( "ADVANCED_FACE" );
+                step->instance_list->Append( (SDAI_Application_instance*)adv_face, completeSE );
+                adv_face->face_geometry_( surf );
+                adv_face->name_( "''" );
+                adv_face->same_sense_( BTrue );
 
-                SdaiEdge_loop* loop = ext_loop_vec[i].WriteSTEPLoop( step, mergepts );
+                std::ostringstream face_ss;
+                face_ss << '#' << face->GetFileId();
 
-                if ( loop && new_surf )
-                {
-                    SdaiFace_outer_bound* face = (SdaiFace_outer_bound*)step->registry->ObjCreate( "FACE_OUTER_BOUND" );
-                    step->instance_list->Append( (SDAI_Application_instance*)face, completeSE );
-                    face->bound_( loop );
-                    face->name_( "''" );
-                    face->orientation_( BTrue );
+                adv_face->bounds_()->AddNode( new GenericAggrNode( face_ss.str().c_str() ) );
 
-                    SdaiAdvanced_face* adv_face = (SdaiAdvanced_face*)step->registry->ObjCreate( "ADVANCED_FACE" );
-                    step->instance_list->Append( (SDAI_Application_instance*)adv_face, completeSE );
-                    adv_face->face_geometry_( new_surf );
-                    adv_face->name_( "''" );
-                    adv_face->same_sense_( BTrue );
-
-                    std::ostringstream face_ss;
-                    face_ss << '#' << face->GetFileId();
-
-                    adv_face->bounds_()->AddNode( new GenericAggrNode( face_ss.str().c_str() ) );
-
-                    adv_vec.push_back( adv_face );
-                }
+                adv_vec.push_back( adv_face );
             }
         }
     }
