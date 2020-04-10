@@ -187,7 +187,6 @@ Vehicle::Vehicle()
     SetupPaths();
     m_VehProjectVec3d.resize( 3 );
     m_ColorCount = 0;
-    m_ExportSetIndex = DEFAULT_SET;
 
     // Protect required enum value.
     assert( CUSTOM_GEOM_TYPE == 9 );
@@ -1538,8 +1537,6 @@ xmlNodePtr Vehicle::EncodeXml( xmlNodePtr & node, int set )
         }
     }
 
-    XmlUtil::AddIntNode( vehicle_node, "ExportSetIndex", m_ExportSetIndex );
-
     return vehicle_node;
 }
 
@@ -1556,12 +1553,6 @@ xmlNodePtr Vehicle::DecodeXml( xmlNodePtr & node )
         // Decode label information.
         MeasureMgr.DecodeXml( vehicle_node );
 
-
-        xmlNodePtr exsetnode = XmlUtil::GetNode( vehicle_node, "ExportSetIndex", 0 );
-        if ( exsetnode )
-        {
-            m_ExportSetIndex = XmlUtil::ExtractInt( exsetnode );
-        }
     }
 
     // 'GeomsOnly' is a euphamism for those entities we want to read when 'inserting' a file.

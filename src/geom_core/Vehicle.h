@@ -242,10 +242,6 @@ public:
     }
 
     void FetchXFerSurfs( int write_set, vector< XferSurf > &xfersurfs );
-
-    void SetExportSetIndex( int index )                 { m_ExportSetIndex = index; }
-    int GetExportSetIndex()                             { return m_ExportSetIndex; }
-
     //==== Computation File Names ====//
     string getExportFileName( int type );
     void setExportFileName( int type, string f_name );
@@ -468,7 +464,6 @@ protected:
 
     //==== Export Files ====//
     map< int, string > m_ExportFileNames;
-    int m_ExportSetIndex;
 
     // File Version Number
     int m_FileOpenVersion;
