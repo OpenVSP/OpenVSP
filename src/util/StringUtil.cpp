@@ -179,3 +179,14 @@ string StringUtil::get_delim( int delim_type )
             return string( "" );
     }
 }
+
+string StringUtil::truncateFileName( const string &fn, int len )
+{
+    string trunc( fn );
+    if ( (int)trunc.length() > len )
+    {
+        trunc.erase( 0, trunc.length() - len );
+        trunc.replace( 0, 3, "..." );
+    }
+    return trunc;
+}

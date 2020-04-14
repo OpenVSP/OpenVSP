@@ -40,7 +40,6 @@ public:
     virtual void GuiDeviceCallBack( GuiDevice* device );
 
     void AddOutputText( const string &text );
-    static string truncateFileName( const string &fn, int len );
     void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );
 
     ProcessUtil* getIntersectProcess()

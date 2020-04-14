@@ -9,6 +9,7 @@
 
 #include "CfdMeshScreen.h"
 #include "CfdMeshMgr.h"
+#include "StringUtil.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -710,25 +711,25 @@ void CfdMeshScreen::UpdateOutputTab()
 {
     //===== Update File Output Strings =====//
     string stlname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_STL_FILE_NAME );
-    m_StlOutput.Update( truncateFileName( stlname, 40 ).c_str() );
+    m_StlOutput.Update( StringUtil::truncateFileName( stlname, 40 ).c_str() );
     string polyname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_POLY_FILE_NAME );
-    m_PolyOutput.Update( truncateFileName( polyname, 40 ).c_str() );
+    m_PolyOutput.Update( StringUtil::truncateFileName( polyname, 40 ).c_str() );
     string triname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TRI_FILE_NAME );
-    m_TriOutput.Update( truncateFileName( triname, 40 ).c_str() );
+    m_TriOutput.Update( StringUtil::truncateFileName( triname, 40 ).c_str() );
     string facname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_FACET_FILE_NAME );
-    m_FacOutput.Update( truncateFileName( facname, 40 ).c_str() );
+    m_FacOutput.Update( StringUtil::truncateFileName( facname, 40 ).c_str() );
     string objname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_OBJ_FILE_NAME );
-    m_ObjOutput.Update( truncateFileName( objname, 40 ).c_str() );
+    m_ObjOutput.Update( StringUtil::truncateFileName( objname, 40 ).c_str() );
     string gmshname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_GMSH_FILE_NAME );
-    m_MshOutput.Update( truncateFileName( gmshname, 40 ).c_str() );
+    m_MshOutput.Update( StringUtil::truncateFileName( gmshname, 40 ).c_str() );
     string datname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_DAT_FILE_NAME );
-    m_DatOutput.Update( truncateFileName( datname, 40 ).c_str() );
+    m_DatOutput.Update( StringUtil::truncateFileName( datname, 40 ).c_str() );
     string keyname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_KEY_FILE_NAME );
-    m_KeyOutput.Update( truncateFileName( keyname, 40 ).c_str() );
+    m_KeyOutput.Update( StringUtil::truncateFileName( keyname, 40 ).c_str() );
     string srfname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_SRF_FILE_NAME );
-    m_SrfOutput.Update( truncateFileName( srfname, 40 ).c_str() );
+    m_SrfOutput.Update( StringUtil::truncateFileName( srfname, 40 ).c_str() );
     string tkeyname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TKEY_FILE_NAME );
-    m_TkeyOutput.Update( truncateFileName( tkeyname, 40).c_str() );
+    m_TkeyOutput.Update( StringUtil::truncateFileName( tkeyname, 40).c_str() );
 
     //==== Update File Output Flags ====//
     m_StlFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->GetID() );
@@ -746,9 +747,9 @@ void CfdMeshScreen::UpdateOutputTab()
 
 
     string curvname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_CURV_FILE_NAME );
-    m_CurvOutput.Update( truncateFileName( curvname, 40 ).c_str() );
+    m_CurvOutput.Update( StringUtil::truncateFileName( curvname, 40 ).c_str() );
     string plot3dname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_PLOT3D_FILE_NAME );
-    m_Plot3DOutput.Update( truncateFileName( plot3dname, 40 ).c_str() );
+    m_Plot3DOutput.Update( StringUtil::truncateFileName( plot3dname, 40 ).c_str() );
 
     //==== Update File Output Flags ====//
     m_CurvFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_CURV_FILE_NAME )->GetID() );
@@ -957,17 +958,6 @@ void CfdMeshScreen::AddOutputText( const string &text )
     m_ConsoleBuffer->append( text.c_str() );
     m_ConsoleDisplay->insert_position( m_ConsoleDisplay->buffer()->length() );
     m_ConsoleDisplay->show_insert_position();
-}
-
-string CfdMeshScreen::truncateFileName( const string &fn, int len )
-{
-    string trunc( fn );
-    if ( (int)trunc.length() > len )
-    {
-        trunc.erase( 0, trunc.length() - len );
-        trunc.replace( 0, 3, "..." );
-    }
-    return trunc;
 }
 
 void CfdMeshScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )

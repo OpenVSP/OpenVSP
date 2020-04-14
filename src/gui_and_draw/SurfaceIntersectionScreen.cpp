@@ -9,6 +9,7 @@
 
 #include "SurfaceIntersectionScreen.h"
 #include "SurfaceIntersectionMgr.h"
+#include "StringUtil.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -301,15 +302,15 @@ void SurfaceIntersectionScreen::UpdateDisplayTab()
 void SurfaceIntersectionScreen::UpdateOutputTab()
 {
     string curvname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_CURV_FILE_NAME );
-    m_CurvOutput.Update( truncateFileName( curvname, 40 ).c_str() );
+    m_CurvOutput.Update( StringUtil::truncateFileName( curvname, 40 ).c_str() );
     string plot3dname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_PLOT3D_FILE_NAME );
-    m_Plot3DOutput.Update( truncateFileName( plot3dname, 40 ).c_str() );
+    m_Plot3DOutput.Update( StringUtil::truncateFileName( plot3dname, 40 ).c_str() );
     string srfname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_SRF_FILE_NAME );
-    m_SrfOutput.Update( truncateFileName( srfname, 40 ).c_str() );
+    m_SrfOutput.Update( StringUtil::truncateFileName( srfname, 40 ).c_str() );
     string igsname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_IGES_FILE_NAME );
-    m_IGESOutput.Update( truncateFileName( igsname, 40 ).c_str() );
+    m_IGESOutput.Update( StringUtil::truncateFileName( igsname, 40 ).c_str() );
     string stpname = m_Vehicle->GetISectSettingsPtr()->GetExportFileName( vsp::INTERSECT_STEP_FILE_NAME );
-    m_STEPOutput.Update( truncateFileName( stpname, 40 ).c_str() );
+    m_STEPOutput.Update( StringUtil::truncateFileName( stpname, 40 ).c_str() );
 
     //==== Update File Output Flags ====//
     m_CurvFile.Update( m_Vehicle->GetISectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_CURV_FILE_NAME )->GetID() );
@@ -385,17 +386,6 @@ void SurfaceIntersectionScreen::AddOutputText( const string &text )
     m_ConsoleBuffer->append( text.c_str() );
     m_ConsoleDisplay->insert_position( m_ConsoleDisplay->buffer()->length() );
     m_ConsoleDisplay->show_insert_position();
-}
-
-string SurfaceIntersectionScreen::truncateFileName( const string &fn, int len )
-{
-    string trunc( fn );
-    if ( (int)trunc.length() > len )
-    {
-        trunc.erase( 0, trunc.length() - len );
-        trunc.replace( 0, 3, "..." );
-    }
-    return trunc;
 }
 
 void SurfaceIntersectionScreen::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )

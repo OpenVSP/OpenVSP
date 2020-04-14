@@ -35,6 +35,8 @@ int compute_hash( const string & str );
 
 string get_delim( int delim_type );
 
+string truncateFileName( const string &fn, int len );
+
 }
 
 

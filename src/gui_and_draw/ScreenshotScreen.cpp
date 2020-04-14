@@ -269,14 +269,3 @@ void ScreenshotScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     m_ScreenMgr->SetUpdateFlag( true );
 }
-
-string ScreenshotScreen::truncateFileName( const string &fn, int len )
-{
-    string trunc( fn );
-    if ( (int)trunc.length() > len )
-    {
-        trunc.erase( 0, trunc.length() - len );
-        trunc.replace( 0, 3, "..." );
-    }
-    return trunc;
-}

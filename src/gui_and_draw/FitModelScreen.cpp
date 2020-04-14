@@ -9,6 +9,7 @@
 
 #include "FitModelScreen.h"
 #include "ParmMgr.h"
+#include "StringUtil.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -439,8 +440,8 @@ bool FitModelScreen::Update()
     m_DistOutput.Update( std::to_string( static_cast<long double> (FitModelMgr.m_DistMetric) ) );
 
     //===== Save/Load =====//
-    m_SaveOutput.Update( truncateFileName( FitModelMgr.GetSaveFitFileName(), 40 ) );
-    m_LoadOutput.Update( truncateFileName( FitModelMgr.GetLoadFitFileName(), 40 ) );
+    m_SaveOutput.Update( StringUtil::truncateFileName( FitModelMgr.GetSaveFitFileName(), 40 ) );
+    m_LoadOutput.Update( StringUtil::truncateFileName( FitModelMgr.GetLoadFitFileName(), 40 ) );
 
     if ( m_SaveOutput.GetString() == "" )
     {
@@ -714,17 +715,6 @@ void FitModelScreen::GuiDeviceCallBack( GuiDevice* device )
 bool FitModelScreen::IsVisible()
 {
     return m_FLTK_Window->visible();
-}
-
-string FitModelScreen::truncateFileName( const string &fn, int len )
-{
-    string trunc( fn );
-    if ( (int)trunc.length() > len )
-    {
-        trunc.erase( 0, trunc.length() - len );
-        trunc.replace( 0, 3, "..." );
-    }
-    return trunc;
 }
 
 void FitModelScreen::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )

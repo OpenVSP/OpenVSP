@@ -16,6 +16,7 @@
 #include "Background.h"
 #include "TextureRepo.h"
 #include "GraphicSingletons.h"
+#include "StringUtil.h"
 
 ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 210, 347, "Background" )
 {
@@ -244,7 +245,7 @@ void ManageBackgroundScreen::GuiDeviceCallBack( GuiDevice* device )
             viewport->getBackground()->removeImage();
             viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( fileName.c_str() ) );
             m_ImageFile = fileName;
-            m_FileOutput.Update( truncateFileName( fileName, 40 ).c_str() );
+            m_FileOutput.Update( StringUtil::truncateFileName( fileName, 40 ).c_str() );
         }
     }
     else if ( device == &m_PreserveAspect )
@@ -275,15 +276,4 @@ void ManageBackgroundScreen::GuiDeviceCallBack( GuiDevice* device )
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
-}
-
-string ManageBackgroundScreen::truncateFileName( const string &fn, int len )
-{
-    string trunc( fn );
-    if ( (int)trunc.length() > len )
-    {
-        trunc.erase( 0, trunc.length() - len );
-        trunc.replace( 0, 3, "..." );
-    }
-    return trunc;
 }
