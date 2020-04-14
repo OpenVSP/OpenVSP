@@ -104,8 +104,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_FixedWakeFlag.SetDescript( "Flag to enable a fixed wake." );
     m_WakeNumIter.Init( "WakeNumIter", groupname, this, 5, 3, 255 );
     m_WakeNumIter.SetDescript( "Number of wake iterations to execute, Default = 5" );
-    m_WakeAvgStartIter.Init( "WakeAvgStartIter", groupname, this, 0, 0, 255 );
-    m_WakeAvgStartIter.SetDescript( "Iteration at which to START averaging the wake. Default=0 --> No wake averaging" );
     m_WakeSkipUntilIter.Init( "WakeSkipUntilIter", groupname, this, 0, 0, 255 );
     m_WakeSkipUntilIter.SetDescript( "Iteration at which to START calculating the wake. Default=0 --> Wake calculated on each iteration" );
     m_NumWakeNodes.SetPowShift( 2, 0 ); // Must come before Init
@@ -339,7 +337,6 @@ void VSPAEROMgrSingleton::Renew()
     m_NCPU.Set( 4 );
 
     m_WakeNumIter.Set( 5 );
-    m_WakeAvgStartIter.Set( 0 );
     m_WakeSkipUntilIter.Set( 0 );
 
     m_ClMaxToggle.Set( false );
@@ -1477,7 +1474,6 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 
         int ncpu = m_NCPU.Get();
 
-        int wakeAvgStartIter = m_WakeAvgStartIter.Get();
         int wakeSkipUntilIter = m_WakeSkipUntilIter.Get();
 
 
@@ -1599,12 +1595,6 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                         args.push_back( "-fromsteadystate" );
                     }
 
-                    // Force averaging startign at wake iteration N
-                    if( wakeAvgStartIter >= 1 )
-                    {
-                        args.push_back( "-avg" );
-                        args.push_back( StringUtil::int_to_string( wakeAvgStartIter, "%d" ) );
-                    }
                     if( wakeSkipUntilIter >= 1 )
                     {
                         // No wake for first N iterations
@@ -1774,7 +1764,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
         int ncpu = m_NCPU.Get();
 
-        int wakeAvgStartIter = m_WakeAvgStartIter.Get();
         int wakeSkipUntilIter = m_WakeSkipUntilIter.Get();
 
 
@@ -1900,12 +1889,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             args.push_back( "-fromsteadystate" );
         }
 
-        // Force averaging startign at wake iteration N
-        if( wakeAvgStartIter >= 1 )
-        {
-            args.push_back( "-avg" );
-            args.push_back( StringUtil::int_to_string( wakeAvgStartIter, "%d" ) );
-        }
         if( wakeSkipUntilIter >= 1 )
         {
             // No wake for first N iterations
