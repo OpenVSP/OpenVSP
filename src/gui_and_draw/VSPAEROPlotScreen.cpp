@@ -1501,7 +1501,17 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
         Results* res = ResultsMgr.FindResults( res_name, iCase );
         if ( res )
         {
-            string name = prefix + to_string( iCase );
+            string name;
+            NameValData* nvd = res->FindPtr( "Group_Name" );
+            if ( nvd )
+            {
+                name = nvd->GetString( 0 );
+            }
+            else
+            {
+                name = prefix + to_string( iCase );
+            }
+
             m_UnsteadySelectBrowser->add( name.c_str() );
 
             if ( m_SelectDefaultData )   //select ALL flow conditions

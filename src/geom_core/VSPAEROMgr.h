@@ -358,6 +358,7 @@ public:
     string m_GroupsFile;
     vector < string > m_GroupResFiles;
     vector < string > m_RotorResFiles;
+    vector < string > m_UnsteadyGroupResNames;
 
     IntParm m_GeomSet;
 
@@ -511,8 +512,8 @@ protected:
     static bool CheckForResultHeader( std::vector < string > headerstr );
     static int ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
     void ReadSliceFile( string filename, vector <string> &res_id_vector );
-    void ReadGroupResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
-    void ReadRotorResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    void ReadGroupResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, string group_name = "" );
+    void ReadRotorResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, string group_name = "" );
 
     static void AddResultHeader( string res_id, double mach, double alpha, double beta, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
 

@@ -577,6 +577,9 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
     m_RotorResFiles.clear();
     m_RotorResFiles.resize( NumUnsteadyRotorGroups() );
 
+    m_UnsteadyGroupResNames.clear();
+    m_UnsteadyGroupResNames.resize( m_UnsteadyGroupVec.size() );
+
     Vehicle *veh = VehicleMgr.GetVehicle();
     if( veh )
     {
@@ -687,6 +690,18 @@ void VSPAEROMgrSingleton::UpdateFilenames()    //A.K.A. SetupDegenFile()
         default:
             // TODO print out an error here
             break;
+        }
+
+        for ( size_t i = 0; i < m_UnsteadyGroupResNames.size(); i++ )
+        {
+            if ( i == 0 && m_UnsteadyGroupVec[i]->m_GeomPropertyType() == m_UnsteadyGroupVec[i]->GEOM_FIXED )
+            {
+                m_UnsteadyGroupResNames[i] = m_UnsteadyGroupVec[i]->GetName();
+            }
+            else
+            {
+                m_UnsteadyGroupResNames[i] = m_UnsteadyGroupVec[i]->GetName() + "_Surf_" + to_string( m_UnsteadyGroupVec[i]->GetCompSurfPairVec()[0].second );
+            }
         }
     }
 }
@@ -1461,6 +1476,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
         string modelNameBase = m_ModelNameBase;
         vector < string > group_res_vec = m_GroupResFiles;
         vector < string > rotor_res_vec = m_RotorResFiles;
+        vector < string > unsteady_group_name_vec = m_UnsteadyGroupResNames;
 
         bool unsteady_flag = m_RotateBladesFlag.Get();
         vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
@@ -1692,12 +1708,14 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     {
                         for ( size_t j = 0; j < group_res_vec.size(); j++ )
                         {
-                            ReadGroupResFile( group_res_vec[j], res_id_vector, analysisMethod );
+                            ReadGroupResFile( group_res_vec[j], res_id_vector, analysisMethod, unsteady_group_name_vec[j] );
                         }
+
+                        int offset = group_res_vec.size() - rotor_res_vec.size();
 
                         for ( size_t j = 0; j < rotor_res_vec.size(); j++ )
                         {
-                            ReadGroupResFile( rotor_res_vec[j], res_id_vector, analysisMethod );
+                            ReadGroupResFile( rotor_res_vec[j], res_id_vector, analysisMethod, unsteady_group_name_vec[j + offset] );
                         }
 
                         if ( noise_flag )
@@ -1751,6 +1769,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
         vector < string > group_res_vec = m_GroupResFiles;
         vector < string > rotor_res_vec = m_RotorResFiles;
+        vector < string > unsteady_group_name_vec = m_UnsteadyGroupResNames;
 
         bool unsteady_flag = m_RotateBladesFlag.Get();
         vsp::VSPAERO_ANALYSIS_METHOD analysisMethod = ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod.Get();
@@ -1985,12 +2004,14 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         {
             for ( size_t j = 0; j < group_res_vec.size(); j++ )
             {
-                ReadGroupResFile( group_res_vec[j], res_id_vector, analysisMethod );
+                ReadGroupResFile( group_res_vec[j], res_id_vector, analysisMethod, unsteady_group_name_vec[j] );
             }
+
+            int offset = group_res_vec.size() - rotor_res_vec.size();
 
             for ( size_t j = 0; j < rotor_res_vec.size(); j++ )
             {
-                ReadRotorResFile( rotor_res_vec[j], res_id_vector, analysisMethod );
+                ReadRotorResFile( rotor_res_vec[j], res_id_vector, analysisMethod, unsteady_group_name_vec[j + offset] );
             }
 
             if ( noise_flag )
@@ -4252,7 +4273,7 @@ string VSPAEROMgrSingleton::ExecuteNoiseAnalysis( FILE* logFile, int noise_type,
 Read *.group.* file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, string group_name )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -4289,6 +4310,7 @@ void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &re
             res = ResultsMgr.CreateResults( "VSPAERO_Group" );
 
             res->Add( NameValData( "Group_Num", group_num ) );
+            res->Add( NameValData( "Group_Name", group_name ) );
 
             res_id_vector.push_back( res->GetID() );
         }
@@ -4376,7 +4398,7 @@ void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &re
 Read *.rotor.* file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
+void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, string group_name )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -4425,6 +4447,7 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
             res = ResultsMgr.CreateResults( "VSPAERO_Rotor" );
 
             res->Add( NameValData( "Rotor_Num", rotor_num ) );
+            res->Add( NameValData( "Group_Name", group_name ) );
 
             res_id_vector.push_back( res->GetID() );
         }
@@ -4434,6 +4457,7 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
 
             res->Add( NameValData( "Rotor_Num", rotor_num ) );
             res->Add( NameValData( "Blade_Num", blade_load_avg_ind ) );
+            res->Add( NameValData( "Group_Name", group_name ) );
 
             res_id_vector.push_back( res->GetID() );
             blade_load_avg_ind++;
@@ -4444,6 +4468,7 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
 
             res->Add( NameValData( "Rotor_Num", rotor_num ) );
             res->Add( NameValData( "Blade_Num", blade_load_last_rev_ind ) );
+            res->Add( NameValData( "Group_Name", group_name ) );
 
             res_id_vector.push_back( res->GetID() );
             blade_load_last_rev_ind++;
@@ -5326,7 +5351,7 @@ void UnsteadyGroup::Update()
     }
     else
     {
-        m_Name = "Fixed_Component_Group";
+        m_Name = "Fixed_Components";
         m_RPM.Set( 0 );
     }
 
