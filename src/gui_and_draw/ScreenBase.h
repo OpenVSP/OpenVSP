@@ -445,10 +445,38 @@ public:
     virtual ~XSecViewScreen() {}
     virtual bool Update();
     virtual void Show();
+    virtual void GuiDeviceCallBack( GuiDevice* device );
 
 protected:
 
     VSPGUI::VspSubGlWindow * m_GlWin;
+
+    GroupLayout m_MainLayout;
+    GroupLayout m_BorderLayout;
+    GroupLayout m_ColorLayout;
+    GroupLayout m_ImageLayout;
+
+    ColorPicker m_ColorPicker;
+
+    ToggleButton m_Image;
+
+    StringOutput m_FileOutput;
+    TriggerButton m_FileSelect;
+
+    SliderAdjRangeInput m_WScale;
+    SliderAdjRangeInput m_HScale;
+    ToggleButton m_PreserveAspect;
+
+    SliderAdjRangeInput m_XOffset;
+    SliderAdjRangeInput m_YOffset;
+
+    TriggerButton m_ResetDefaults;
+
+    string m_ImageFile;
+    FractionParm m_WidthScaleValue;
+    FractionParm m_HeightScaleValue;
+    FractionParm m_XOffsetValue;
+    FractionParm m_YOffsetValue;
 };
 
 class FeaXSecScreen : public BasicScreen

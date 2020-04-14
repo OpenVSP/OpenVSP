@@ -19,7 +19,7 @@
 #include "Background.h"
 #include "GraphicSingletons.h"
 #include "StructureMgr.h"
-
+#include "StringUtil.h"
 #include "VSPWindow.h"
 #include "WingGeom.h"
 
@@ -1993,25 +1993,133 @@ void BlendScreen::CallBack( Fl_Widget *w )
 
 
 
-XSecViewScreen::XSecViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 300, 300, "XSec View" )
+XSecViewScreen::XSecViewScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 310, 600, "XSec View" )
 {
-    int x = m_FLTK_Window->x();
-    int y = m_FLTK_Window->y();
-    int w = m_FLTK_Window->w();
-    int h = m_FLTK_Window->h();
-
+    int title_h = 20;
+    int border = 5;
+    int window_x = m_FLTK_Window->x() + border;
+    int window_y = m_FLTK_Window->y() + border + title_h;
+    int window_w_h = 300;
 
     m_FLTK_Window->begin();
-    m_GlWin = new VSPGUI::VspSubGlWindow( x, y, w, h, DrawObj::VSP_XSEC_SCREEN);
+    m_GlWin = new VSPGUI::VspSubGlWindow( window_x, window_y, window_w_h, window_w_h, DrawObj::VSP_XSEC_SCREEN);
     m_FLTK_Window->end();
 
     m_GlWin->getGraphicEngine()->getDisplay()->changeView( VSPGraphic::Common::VSP_CAM_TOP );
     m_GlWin->getGraphicEngine()->getDisplay()->getViewport()->showGridOverlay( false );
+
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+
+    m_MainLayout.ForceNewLine();
+    m_MainLayout.AddY( window_y + window_w_h - title_h );
+    m_MainLayout.AddX( border );
+
+    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - border,
+                                    m_MainLayout.GetRemainY() - border );
+
+    m_BorderLayout.AddSubGroupLayout( m_ColorLayout, m_BorderLayout.GetRemainX(), 3 * m_BorderLayout.GetStdHeight() + border );
+
+    m_ColorLayout.AddY( border );
+    m_ColorLayout.AddDividerBox( "Line Color" );
+
+    m_ColorLayout.AddColorPicker( m_ColorPicker );
+
+    m_BorderLayout.AddY( m_ColorLayout.GetH() );
+
+    m_BorderLayout.AddDividerBox( "Background Image" );
+    m_BorderLayout.AddButton( m_Image, "Image" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddSubGroupLayout( m_ImageLayout, m_BorderLayout.GetRemainX(), m_BorderLayout.GetRemainY() - 20 );
+
+    m_ImageLayout.SetFitWidthFlag( false );
+    m_ImageLayout.SetSameLineFlag( true );
+
+    m_ImageLayout.SetInputWidth( m_ImageLayout.GetRemainX() - 70 );
+    m_ImageLayout.SetButtonWidth( 40 );
+    m_ImageLayout.AddOutput( m_FileOutput, "File:" );
+    m_ImageLayout.SetButtonWidth( 30 );
+    m_ImageLayout.AddButton( m_FileSelect, "..." );
+    m_ImageLayout.ForceNewLine();
+    m_ImageLayout.AddYGap();
+
+    m_ImageLayout.SetFitWidthFlag( true );
+    m_ImageLayout.SetSameLineFlag( false );
+
+    m_ImageLayout.AddButton( m_PreserveAspect, "Preserve Aspect" );
+    m_ImageLayout.AddYGap();
+    m_ImageLayout.SetButtonWidth( 60 );
+    m_ImageLayout.SetInputWidth( 50 );
+    m_ImageLayout.AddSlider( m_WScale, "W Scale", 1.0, "%7.3f" );
+    m_ImageLayout.AddSlider( m_HScale, "H Scale", 1.0, "%7.3f" );
+    m_ImageLayout.AddYGap();
+    m_ImageLayout.AddSlider( m_XOffset, "X Offset", 0.500, "%7.3f" );
+    m_ImageLayout.AddSlider( m_YOffset, "Y Offset", 0.500, "%7.3f" );
+
+    m_BorderLayout.AddY( m_ImageLayout.GetH() );
+    m_BorderLayout.AddButton( m_ResetDefaults, "Reset Defaults" );
+
+    m_Image.GetFlButton()->value( 0 );
+    m_PreserveAspect.GetFlButton()->value( 1 );
+
+    m_WidthScaleValue.Init( "WidthScale", "XSecBackground", NULL, 1.0, -1.0e12, 1.0e12 );
+    m_HeightScaleValue.Init( "HeightScale", "XSecBackground", NULL, 1.0, -1.0e12, 1.0e12 );
+
+    m_XOffsetValue.Init( "XOffset", "XSecBackground", NULL, 0.0, -1.0e12, 1.0e12 );
+    m_YOffsetValue.Init( "YOffset", "XSecBackground", NULL, 0.0, -1.0e12, 1.0e12 );
 }
 
 bool XSecViewScreen::Update()
 {
     assert( m_ScreenMgr );
+
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    vector < Geom* > geom_vec = veh->GetActiveGeomPtrVec();
+    if ( geom_vec.size() != 1 )
+    {
+        Hide();
+        return false;
+    }
+
+    Geom* geom = geom_vec[0];
+    GeomXSec* geom_xsec = dynamic_cast<GeomXSec*>( geom );
+    assert( geom_xsec );
+
+    VSPGraphic::Viewport * viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
+
+    m_ColorPicker.Update( veh->GetXSecLineColor() );
+
+    // Update Scale and Offset in Background
+    m_WScale.Update( m_WidthScaleValue.GetID() );
+    m_HScale.Update( m_HeightScaleValue.GetID() );
+
+    if ( m_Image.GetFlButton()->value() )
+    {
+        m_ImageLayout.GetGroup()->activate();
+    }
+    else
+    {
+        m_ImageLayout.GetGroup()->deactivate();
+    }
+
+    viewport->getBackground()->scaleW( (float)m_WidthScaleValue.Get() );
+    if ( m_PreserveAspect.GetFlButton()->value() )
+    {
+        m_HeightScaleValue.Set( viewport->getBackground()->getScaleH() );
+        m_HScale.Deactivate();
+    }
+    else
+    {
+        viewport->getBackground()->scaleH( (float)m_HeightScaleValue.Get() );
+        m_HScale.Activate();
+    }
+
+    m_XOffset.Update( m_XOffsetValue.GetID() );
+    m_YOffset.Update( m_YOffsetValue.GetID() );
+
+    viewport->getBackground()->offsetX( (float)m_XOffsetValue.Get() );
+    viewport->getBackground()->offsetY( (float)m_YOffsetValue.Get() );
 
     m_GlWin->update();
     m_GlWin->redraw();
@@ -2031,7 +2139,84 @@ void XSecViewScreen::Show()
     m_GlWin->getGraphicEngine()->getDisplay()->getCamera()->relativeZoom( oz );
 }
 
+void XSecViewScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    assert( m_ScreenMgr );
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
+    vector < Geom* > geom_vec = veh->GetActiveGeomPtrVec();
+    if ( geom_vec.size() != 1 )
+    {
+        Hide();
+        return;
+    }
+
+    Geom* geom = geom_vec[0];
+    GeomXSec* geom_xsec = dynamic_cast<GeomXSec*>( geom );
+    assert( geom_xsec );
+
+    VSPGraphic::Viewport * viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
+
+    if ( device == &m_ColorPicker )
+    {
+        veh->SetXSecLineColor( m_ColorPicker.GetColor() );
+    }
+    else if ( device == &m_Image && m_Image.GetFlButton()->value() )
+    {
+        viewport->getBackground()->setBackgroundMode( VSPGraphic::Common::VSP_BACKGROUND_IMAGE );
+
+        if ( m_ImageFile.compare( "" ) != 0 )
+        {
+            viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( m_ImageFile.c_str() ) );
+        }
+    }
+    else if ( device == &m_FileSelect )
+    {
+        std::string fileName = m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+            "Select Image File", "*.{jpg,png,tga,bmp,gif}", false );
+
+        if ( !fileName.empty() )
+        {
+            if ( m_Image.GetFlButton()->value() )
+            {
+                viewport->getBackground()->removeImage();
+                viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( fileName.c_str() ) );
+            }
+
+            m_ImageFile = fileName;
+            m_FileOutput.Update( StringUtil::truncateFileName( fileName, 40 ).c_str() );
+        }
+    }
+    else if ( device == &m_PreserveAspect )
+    {
+        if ( m_PreserveAspect.GetFlButton()->value() == 1 )
+        {
+            viewport->getBackground()->preserveAR( true );
+        }
+        else
+        {
+            viewport->getBackground()->preserveAR( false );
+        }
+    }
+    else if ( device == &m_ResetDefaults )
+    {
+        viewport->getBackground()->reset();
+        m_Image.GetFlButton()->value( 0 );
+        m_FileOutput.Update( "" );
+        m_ImageFile = "";
+
+        veh->SetXSecLineColor( vec3d( 0, 0, 0 ) );
+
+        // Reset Scale & Offset
+        m_WidthScaleValue.Set( viewport->getBackground()->getScaleW() );
+        m_HeightScaleValue.Set( viewport->getBackground()->getScaleH() );
+
+        m_XOffsetValue.Set( viewport->getBackground()->getOffsetX() );
+        m_YOffsetValue.Set( viewport->getBackground()->getOffsetY() );
+    }
+
+    m_ScreenMgr->SetUpdateFlag( true );
+}
 
 //=====================================================================//
 //=====================================================================//
