@@ -5127,3 +5127,15 @@ void Vehicle::SetExportPropMainSurf( bool b )
         }
     }
 }
+
+void Vehicle::SetXSecLineColor( vec3d color )
+{
+    m_XSecLineColor = color;
+
+    vector < Geom* > geom_vec = GetActiveGeomPtrVec();
+
+    if ( geom_vec.size() == 1 && geom_vec[0] )
+    {
+        geom_vec[0]->Update();
+    }
+}

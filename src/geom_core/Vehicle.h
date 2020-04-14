@@ -316,6 +316,9 @@ public:
         return &m_GroupTransformations;
     }
 
+    virtual vec3d GetXSecLineColor()                    { return m_XSecLineColor; }
+    virtual void SetXSecLineColor( vec3d color );
+
     //==== Mass Properties ====//
     vec3d m_IxxIyyIzz;
     vec3d m_IxyIxzIyz;
@@ -487,6 +490,8 @@ protected:
 
     // Class to handle group transformations
     GroupTransformations m_GroupTransformations;
+
+    vec3d m_XSecLineColor; // Color of lines in XSecViewScreen
 
 private:
 
