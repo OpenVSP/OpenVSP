@@ -33,8 +33,6 @@ public:
         ( ( ManageBackgroundScreen* )data )->CallBack( w );
     }
 
-    static string truncateFileName( const string &fn, int len );
-
 protected:
 
     GroupLayout m_MainLayout;

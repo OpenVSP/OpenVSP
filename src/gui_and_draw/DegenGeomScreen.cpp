@@ -7,6 +7,7 @@
 
 #include "DegenGeomScreen.h"
 #include "CfdMeshMgr.h"
+#include "StringUtil.h"
 
 DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 365, "Degen Geom - Compute Models, File IO" )
 {
@@ -86,17 +87,6 @@ void DegenGeomScreen::LoadSetChoice()
     m_UseSet.SetVal( m_SelectedSetIndex );
 }
 
-string DegenGeomScreen::truncateFileName( const string &fn, int len )
-{
-    string trunc( fn );
-    if ( (int)trunc.length() > len )
-    {
-        trunc.erase( 0, trunc.length() - len );
-        trunc.replace( 0, 3, "..." );
-    }
-    return trunc;
-}
-
 void DegenGeomScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
@@ -122,8 +112,8 @@ bool DegenGeomScreen::Update()
     //===== Update File Output Text =====//
     string csvName = vehiclePtr->getExportFileName( vsp::DEGEN_GEOM_CSV_TYPE );
     string mName = vehiclePtr->getExportFileName( vsp::DEGEN_GEOM_M_TYPE );
-    m_CsvOutput.Update( truncateFileName( csvName, 40 ).c_str() );
-    m_MOutput.Update( truncateFileName( mName, 40 ).c_str() );
+    m_CsvOutput.Update( StringUtil::truncateFileName( csvName, 40 ).c_str() );
+    m_MOutput.Update( StringUtil::truncateFileName( mName, 40 ).c_str() );
 
     m_FLTK_Window->redraw();
     return false;

@@ -64,8 +64,6 @@ public:
 
     virtual void AddOutputText( const string &text );
 
-    static string truncateFileName( const string &fn, int len );
-
     virtual bool Update();
 
     virtual void LoadDrawObjs( vector< DrawObj* > &draw_obj_vec );

@@ -17,6 +17,7 @@
 #include "Camera.h"
 #include "FeaPartEditScreen.h"
 #include "ParmMgr.h"
+#include "StringUtil.h"
 
 using namespace vsp;
 
@@ -2068,17 +2069,17 @@ bool StructScreen::Update()
             }
 
             string massname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_MASS_FILE_NAME );
-            m_MassOutput.Update( truncateFileName( massname, 40 ).c_str() );
+            m_MassOutput.Update( StringUtil::truncateFileName( massname, 40 ).c_str() );
             string nastranname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NASTRAN_FILE_NAME );
-            m_NastOutput.Update( truncateFileName( nastranname, 40 ).c_str() );
+            m_NastOutput.Update( StringUtil::truncateFileName( nastranname, 40 ).c_str() );
             string nkeyname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_NKEY_FILE_NAME );
-            m_NkeyOutput.Update( truncateFileName( nkeyname, 40 ).c_str() );
+            m_NkeyOutput.Update( StringUtil::truncateFileName( nkeyname, 40 ).c_str() );
             string calculixname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CALCULIX_FILE_NAME );
-            m_CalcOutput.Update( truncateFileName( calculixname, 40 ).c_str() );
+            m_CalcOutput.Update( StringUtil::truncateFileName( calculixname, 40 ).c_str() );
             string stlname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STL_FILE_NAME );
-            m_StlOutput.Update( truncateFileName( stlname, 40 ).c_str() );
+            m_StlOutput.Update( StringUtil::truncateFileName( stlname, 40 ).c_str() );
             string gmshname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_GMSH_FILE_NAME );
-            m_GmshOutput.Update( truncateFileName( gmshname, 40 ).c_str() );
+            m_GmshOutput.Update( StringUtil::truncateFileName( gmshname, 40 ).c_str() );
 
             //==== Update File Output Flags ====//
             m_MassFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME )->GetID() );
@@ -2102,15 +2103,15 @@ bool StructScreen::Update()
             }
 
             string srfname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_SRF_FILE_NAME );
-            m_SrfOutput.Update( truncateFileName( srfname, 40 ).c_str() );
+            m_SrfOutput.Update( StringUtil::truncateFileName( srfname, 40 ).c_str() );
 
             m_SrfFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_SRF_FILE_NAME )->GetID() );
             m_XYZIntCurves.Update( curr_struct->GetStructSettingsPtr()->m_XYZIntCurveFlag.GetID() );
 
             string curvname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_CURV_FILE_NAME );
-            m_CurvOutput.Update( truncateFileName( curvname, 40 ).c_str() );
+            m_CurvOutput.Update( StringUtil::truncateFileName( curvname, 40 ).c_str() );
             string plot3dname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_PLOT3D_FILE_NAME );
-            m_Plot3DOutput.Update( truncateFileName( plot3dname, 40 ).c_str() );
+            m_Plot3DOutput.Update( StringUtil::truncateFileName( plot3dname, 40 ).c_str() );
 
             //==== Update File Output Flags ====//
             m_CurvFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CURV_FILE_NAME )->GetID() );
@@ -2119,11 +2120,11 @@ bool StructScreen::Update()
             m_ExportRaw.Update( curr_struct->GetStructSettingsPtr()->m_ExportRawFlag.GetID() );
 
             string igsname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_IGES_FILE_NAME );
-            m_IGESOutput.Update( truncateFileName( igsname, 40 ).c_str() );
+            m_IGESOutput.Update( StringUtil::truncateFileName( igsname, 40 ).c_str() );
             m_IGESFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_IGES_FILE_NAME )->GetID() );
 
             string stpname = curr_struct->GetStructSettingsPtr()->GetExportFileName( vsp::FEA_STEP_FILE_NAME );
-            m_STEPOutput.Update( truncateFileName( stpname, 40 ).c_str() );
+            m_STEPOutput.Update( StringUtil::truncateFileName( stpname, 40 ).c_str() );
             m_STEPFile.Update( curr_struct->GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STEP_FILE_NAME )->GetID() );
 
             //m_STEPMergePointsToggle.Update( curr_struct->GetStructSettingsPtr()->m_STEPMergePoints.GetID() );
@@ -2331,17 +2332,6 @@ bool StructScreen::Update()
     }
 
     return true;
-}
-
-string StructScreen::truncateFileName( const string &fn, int len )
-{
-    string trunc( fn );
-    if ( (int)trunc.length() > len )
-    {
-        trunc.erase( 0, trunc.length() - len );
-        trunc.replace( 0, 3, "..." );
-    }
-    return trunc;
 }
 
 void StructScreen::AddOutputText( const string &text )
