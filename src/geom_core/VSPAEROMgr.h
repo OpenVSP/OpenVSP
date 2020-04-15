@@ -482,7 +482,8 @@ public:
     {
         HISTORY,
         GROUP,
-        ROTOR
+        ROTOR,
+        BLADE
     };
 
     ProcessUtil m_SolverProcess; 

@@ -230,6 +230,7 @@ protected:
     ToggleButton m_UnsteadyHistoryToggle;
     ToggleButton m_UnsteadyGroupToggle;
     ToggleButton m_UnsteadyRotorToggle;
+    ToggleButton m_UnsteadyBladeToggle;
 
     vector < int > m_UnsteadySelectedTypeVec; // vector of selected unsteady groups or rotors
 
