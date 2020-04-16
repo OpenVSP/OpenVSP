@@ -397,7 +397,6 @@ void Input::DeviceCB( Fl_Widget* w )
         if (stat == exprparse::Status::SUCCESS)
         {
             parm_ptr->SetFromDevice(new_val);
-            m_LastVal = new_val;
         }
 #endif
     }
