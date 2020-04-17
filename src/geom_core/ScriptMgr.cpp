@@ -6322,7 +6322,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the ID of a VSPAERO unsteady group at the specified index. An empty string is returned if
+    Get the ID of a VSPAERO actuator disk at the specified index. An empty string is returned if
     the index is out of range.
     \code{.cpp}
     // Add a propeller
@@ -6348,7 +6348,30 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the ID of the VSPAERO actuator disk at the specified index. An empty string is returned if
+    Get the number of actuator disks in the current VSPAERO set. This is equivalent to the number of disk surfaces in the VSPAERO set.
+    \code{.cpp}
+    // Set VSPAERO set index to SET_ALL
+    SetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "GeomSet", "VSPAERO" ), SET_ALL );
+
+    // Add a propeller
+    string prop_id = AddGeom( "PROP", pod_id );
+    SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES );
+
+    int num_disk = GetNumActuatorDisks(); // Should be 0
+
+    SetParmValUpdate( prop_id, "PropMode", "Design", PROP_DISK );
+
+    num_disk = GetNumActuatorDisks(); // Should be 1
+    \endcode
+    \sa PROP_MODE
+    \return Number of actuator disks in the current VSPAERO set
+*/)";
+    r = se->RegisterGlobalFunction( "int GetNumActuatorDisks()", asFUNCTION( vsp::GetNumActuatorDisks ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the ID of the VSPAERO unsteady group at the specified index. An empty string is returned if
     the index is out of range.
     \code{.cpp}
     // Create an actuator disk
@@ -6441,6 +6464,30 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \return Array of surface indexes
 */)";
     r = se->RegisterGlobalFunction( "array<int>@ GetUnsteadyGroupSurfIndexes( int group_index )", asMETHOD( ScriptMgrSingleton, GetUnsteadyGroupSurfIndexes ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the number of unsteady groups in the current VSPAERO set. Each propeller is placed in its own unsteady group. All symmetric copies
+    of propellers are also placed in an unsteady group. All other component types are placed in a single fixed component unsteady group.
+    \code{.cpp}
+    // Set VSPAERO set index to SET_ALL
+    SetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "GeomSet", "VSPAERO" ), SET_ALL );
+
+    // Add a propeller
+    string prop_id = AddGeom( "PROP", pod_id );
+    SetParmValUpdate( prop_id, "PropMode", "Design", PROP_DISK );
+
+    int num_disk = GetNumUnsteadyGroups(); // Should be 0
+
+    SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES );
+
+    num_disk = GetNumUnsteadyGroups(); // Should be 1
+    \endcode
+    \sa PROP_MODE
+    \return Number of actuator disks in the current VSPAERO set
+*/)";
+    r = se->RegisterGlobalFunction( "int GetNumUnsteadyGroups()", asFUNCTION( vsp::GetNumUnsteadyGroups ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     //==== Wing Sect Functions ====//

@@ -374,10 +374,12 @@ extern int GetNumControlSurfaceGroups();
 
 //================ VSPAERO Actuator Disk and Unsteady Functions ==============//
 extern std::string FindActuatorDisk( int disk_index );
+extern int GetNumActuatorDisks();
 extern std::string FindUnsteadyGroup( int group_index );
 extern std::string GetUnsteadyGroupName( int group_index );
 extern std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index );
 extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
+extern int GetNumUnsteadyGroups();
 
 //======================== Parasite Drag Tool Functions ======================//
 extern void AddExcrescence(const std::string & excresName, const int & excresType, const double & excresVal);
