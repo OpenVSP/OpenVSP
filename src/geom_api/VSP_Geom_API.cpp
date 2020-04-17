@@ -1021,6 +1021,11 @@ vector < int > GetUnsteadyGroupSurfIndexes( int group_index )
     return ret_vec;
 }
 
+int GetNumUnsteadyGroups()
+{
+    return VSPAEROMgr.NumUnsteadyGroups();
+}
+
 //===================================================================//
 //=========       VSPAERO Actuator Disk Functions        ============//
 //===================================================================//
@@ -1038,6 +1043,12 @@ string FindActuatorDisk( int disk_index )
     return disk->GetID();
 }
 
+int GetNumActuatorDisks()
+{
+    return VSPAEROMgr.GetRotorDiskVec().size();
+}
+
+//===================================================================//
 //===============       Analysis Functions        ===================//
 //===================================================================//
 
