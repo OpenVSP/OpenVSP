@@ -129,8 +129,8 @@ void VSPAeroUnsteadyAnalysis()
     auto_time_flag.push_back( 1 ); // True - VSPAERO calculates time step size and quantity automatically
     SetIntAnalysisInput( analysis_name, "AutoTimeStepFlag", auto_time_flag, 0 );
     array< int > num_rev_flag;
-    auto_time_flag.push_back( 2 ); // 2 revolutions of the slowest rotor
-    SetIntAnalysisInput( analysis_name, "AutoTimeNumRevs", auto_time_flag, 0 );
+    num_rev_flag.push_back( 2 ); // 2 revolutions of the slowest rotor
+    SetIntAnalysisInput( analysis_name, "AutoTimeNumRevs", num_rev_flag, 0 );
 
     // list inputs, type, and current values
     PrintAnalysisInputs( analysis_name );
@@ -142,7 +142,7 @@ void VSPAeroUnsteadyAnalysis()
     Print( "COMPLETE" );
 
     // Get & Display Results
-    PrintResults( rid );
+    //PrintResults( rid );
 
     // Example of getting specific results
     string group_res = FindResultsID( "VSPAERO_Group", 0 ); // One group result per input group file
@@ -157,4 +157,11 @@ void VSPAeroUnsteadyAnalysis()
     array<double> Thrust = GetDoubleResults( rotor_res, "Thrust", 0 );
 
     array<double> CMx = GetDoubleResults( history_res, "CMx", 0 );
+	
+	//==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
 }
