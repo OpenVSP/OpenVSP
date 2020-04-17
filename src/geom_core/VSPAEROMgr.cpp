@@ -5339,7 +5339,12 @@ int UnsteadyGroup::WriteGroup( FILE* group_file )
     }
 
     fprintf( group_file, "#\n" );
-    fprintf( group_file, "GroupName = %s\n", m_Name.c_str() );
+
+    // Remove spaces from name
+    string name = m_Name;
+    name.erase( remove_if( name.begin(), name.end(), ::isspace ), name.end() );
+
+    fprintf( group_file, "GroupName = %s\n", name.c_str() );
     fprintf( group_file, "NumberOfComponents = %d\n", m_ComponentVSPAEROIndexVec.size() );
 
     for ( size_t i = 0; i < m_ComponentVSPAEROIndexVec.size(); i++ )
