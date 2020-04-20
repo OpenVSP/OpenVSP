@@ -4047,7 +4047,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         vector < UnsteadyGroup* >::const_iterator iter;
         for ( iter = m_UnsteadyGroupVec.begin(); iter != m_UnsteadyGroupVec.end(); ++iter )
         {
-            if ( ( *iter )->m_GeomPropertyType() != UnsteadyGroup::GEOM_FIXED )
+            if ( ( *iter )->m_GeomPropertyType() == UnsteadyGroup::GEOM_FIXED )
             {
                 UnsteadyGroup* group = ( *iter );
                 m_UnsteadyGroupVec.erase( iter );
