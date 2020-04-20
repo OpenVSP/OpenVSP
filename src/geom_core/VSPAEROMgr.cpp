@@ -4032,7 +4032,10 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
         {
             for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
             {
-                m_UnsteadyGroupVec[i]->m_RPM.Set( current_group->m_RPM.Get() );
+                if ( m_UnsteadyGroupVec[i]->m_GeomPropertyType() == UnsteadyGroup::GEOM_ROTOR )
+                {
+                    m_UnsteadyGroupVec[i]->m_RPM.Set( current_group->m_RPM.Get() );
+                }
             }
         }
     }
