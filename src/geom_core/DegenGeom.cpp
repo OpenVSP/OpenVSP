@@ -1469,7 +1469,7 @@ void DegenGeom::write_degenGeomM_file( FILE* file_id )
         write_degenGeomPlateM_file( file_id, nxsecs, degenPlates[1], 2 );
     }
 
-    if ( degenSticks.size() > 9 )
+    if ( degenSticks.size() > 0 )
         write_degenGeomStickM_file( file_id, nxsecs, degenSticks[0], 1 );
 
     if ( type == DegenGeom::BODY_TYPE && degenSticks.size() > 1 )
