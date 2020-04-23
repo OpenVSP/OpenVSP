@@ -155,7 +155,7 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 700, "Propeller
     m_BladeLayout.SetChoiceButtonWidth( m_BladeLayout.GetButtonWidth() );
     m_BladeLayout.AddChoice( m_CurveChoice, "Curve" );
 
-    m_BladeLayout.AddPCurveEditor( m_CurveEditor );
+    m_BladeLayout.AddCurveEditor( m_CurveEditor );
 
     //==== XSec Tab ====//
     Fl_Group* xsec_tab = AddTab( "XSec" );

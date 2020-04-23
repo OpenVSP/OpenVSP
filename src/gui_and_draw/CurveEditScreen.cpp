@@ -83,7 +83,7 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 500, 760,
 
     m_GenLayout.SetCanvasHeight( 300 );
 
-    m_GenLayout.AddXSecCurveEditor( m_CurveEditor );
+    m_GenLayout.AddCurveEditor( m_CurveEditor );
 }
 
 //==== Deconstructor ====//
