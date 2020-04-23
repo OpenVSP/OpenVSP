@@ -191,7 +191,6 @@ protected:
     // Wake calculation options
     ToggleButton m_FixedWakeToggle;
     SliderAdjRangeInput m_WakeNumIterSlider;
-    SliderAdjRangeInput m_WakeSkipUntilIterSlider;
     SliderAdjRangeInput m_NumWakeNodeSlider;
 
     // Other Setup Parms Setup

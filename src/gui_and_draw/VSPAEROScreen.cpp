@@ -309,7 +309,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     // Wake Layout
     m_AdvancedLeftLayout.AddSubGroupLayout( m_WakeLayout,
         m_AdvancedLeftLayout.GetW(),
-        5 * m_AdvancedLeftLayout.GetStdHeight() );
+        4 * m_AdvancedLeftLayout.GetStdHeight() );
     m_AdvancedLeftLayout.AddY( m_WakeLayout.GetH() );
 
     m_WakeLayout.AddDividerBox( "Wake" );
@@ -319,7 +319,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_WakeLayout.SetInputWidth( 50 );
 
     m_WakeLayout.AddSlider( m_WakeNumIterSlider, "Num It.", 10, "%3.0f" );
-    m_WakeLayout.AddSlider( m_WakeSkipUntilIterSlider, "Skip Until It.", 11, "%3.0f" );
     m_WakeLayout.AddSlider( m_NumWakeNodeSlider, "Wake Nodes", 128, "%3.0f" );
 
     // Other Setup Parms Layout
@@ -1335,7 +1334,6 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     // Wake Options
     m_FixedWakeToggle.Update( VSPAEROMgr.m_FixedWakeFlag.GetID() );
     m_WakeNumIterSlider.Update(VSPAEROMgr.m_WakeNumIter.GetID());
-    m_WakeSkipUntilIterSlider.Update(VSPAEROMgr.m_WakeSkipUntilIter.GetID());
     m_NumWakeNodeSlider.Update( VSPAEROMgr.m_NumWakeNodes.GetID() );
 
     bool time_dependent = false;
@@ -1357,12 +1355,10 @@ void VSPAEROScreen::UpdateAdvancedTabDevices()
     if ( time_dependent || VSPAEROMgr.m_FixedWakeFlag() )
     {
         m_WakeNumIterSlider.Deactivate();
-        m_WakeSkipUntilIterSlider.Deactivate();
     }
     else
     {
         m_WakeNumIterSlider.Activate();
-        m_WakeSkipUntilIterSlider.Activate();
     }
 
     // Other Set Up Parms

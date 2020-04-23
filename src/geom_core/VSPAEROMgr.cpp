@@ -104,8 +104,6 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_FixedWakeFlag.SetDescript( "Flag to enable a fixed wake." );
     m_WakeNumIter.Init( "WakeNumIter", groupname, this, 5, 3, 255 );
     m_WakeNumIter.SetDescript( "Number of wake iterations to execute, Default = 5" );
-    m_WakeSkipUntilIter.Init( "WakeSkipUntilIter", groupname, this, 0, 0, 255 );
-    m_WakeSkipUntilIter.SetDescript( "Iteration at which to START calculating the wake. Default=0 --> Wake calculated on each iteration" );
     m_NumWakeNodes.SetPowShift( 2, 0 ); // Must come before Init
     m_NumWakeNodes.Init( "RootWakeNodes", groupname, this, 64, 0, 10e12 );
     m_NumWakeNodes.SetDescript( "Number of Wake Nodes (f(n^2)" );
@@ -337,7 +335,6 @@ void VSPAEROMgrSingleton::Renew()
     m_NCPU.Set( 4 );
 
     m_WakeNumIter.Set( 5 );
-    m_WakeSkipUntilIter.Set( 0 );
 
     m_ClMaxToggle.Set( false );
     m_MaxTurnToggle.Set( false );
@@ -1474,8 +1471,6 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 
         int ncpu = m_NCPU.Get();
 
-        int wakeSkipUntilIter = m_WakeSkipUntilIter.Get();
-
 
         //====== Modify/Update the setup file ======//
         CreateSetupFile();
@@ -1593,13 +1588,6 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     if ( m_FromSteadyState() )
                     {
                         args.push_back( "-fromsteadystate" );
-                    }
-
-                    if( wakeSkipUntilIter >= 1 )
-                    {
-                        // No wake for first N iterations
-                        args.push_back( "-nowake" );
-                        args.push_back( StringUtil::int_to_string( wakeSkipUntilIter, "%d" ) );
                     }
 
                     if ( m_GroundEffectToggle() )
@@ -1764,8 +1752,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
         int ncpu = m_NCPU.Get();
 
-        int wakeSkipUntilIter = m_WakeSkipUntilIter.Get();
-
 
         //====== Modify/Update the setup file ======//
         if ( m_Verbose ) { printf( "Writing vspaero setup file: %s\n", m_SetupFile.c_str() ); }
@@ -1887,13 +1873,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         if ( m_FromSteadyState() )
         {
             args.push_back( "-fromsteadystate" );
-        }
-
-        if( wakeSkipUntilIter >= 1 )
-        {
-            // No wake for first N iterations
-            args.push_back( "-nowake" );
-            args.push_back( StringUtil::int_to_string( wakeSkipUntilIter, "%d" ) );
         }
 
         if ( m_GroundEffectToggle() )
