@@ -68,27 +68,6 @@ protected:
 
     Choice m_PropModeChoice;
 
-    Choice m_RootCapTypeChoice;
-    SliderAdjRangeInput m_RootCapLenSlider;
-    SliderAdjRangeInput m_RootCapOffsetSlider;
-    SliderAdjRangeInput m_RootCapStrengthSlider;
-    ToggleButton m_RootCapSweepFlagButton;
-
-    Choice m_TipCapTypeChoice;
-    SliderAdjRangeInput m_TipCapLenSlider;
-    SliderAdjRangeInput m_TipCapOffsetSlider;
-    SliderAdjRangeInput m_TipCapStrengthSlider;
-    ToggleButton m_TipCapSweepFlagButton;
-
-    SliderAdjRangeInput m_CapTessSlider;
-
-    SliderAdjRangeInput m_LEClusterSlider;
-    SliderAdjRangeInput m_TEClusterSlider;
-    SliderAdjRangeInput m_RootClusterSlider;
-    SliderAdjRangeInput m_TipClusterSlider;
-    Output m_SmallPanelWOutput;
-    Output m_MaxGrowthOutput;
-
     GroupLayout m_XSecLayout;
 
     IndexSelector m_XSecIndexSelector;
@@ -355,7 +334,7 @@ protected:
 
     PCurveEditor m_CurveEditor;
 
-    GroupLayout m_FoldLayout;
+    GroupLayout m_MoreLayout;
 
     SliderAdjRangeInput m_RFoldSlider;
     SliderAdjRangeInput m_AxFoldSlider;
@@ -363,6 +342,27 @@ protected:
     SliderAdjRangeInput m_AzFoldSlider;
     SliderAdjRangeInput m_ElFoldSlider;
     SliderAdjRangeInput m_FoldAngleSlider;
+
+    Choice m_RootCapTypeChoice;
+    SliderAdjRangeInput m_RootCapLenSlider;
+    SliderAdjRangeInput m_RootCapOffsetSlider;
+    SliderAdjRangeInput m_RootCapStrengthSlider;
+    ToggleButton m_RootCapSweepFlagButton;
+
+    Choice m_TipCapTypeChoice;
+    SliderAdjRangeInput m_TipCapLenSlider;
+    SliderAdjRangeInput m_TipCapOffsetSlider;
+    SliderAdjRangeInput m_TipCapStrengthSlider;
+    ToggleButton m_TipCapSweepFlagButton;
+
+    SliderAdjRangeInput m_CapTessSlider;
+
+    SliderAdjRangeInput m_LEClusterSlider;
+    SliderAdjRangeInput m_TEClusterSlider;
+    SliderAdjRangeInput m_RootClusterSlider;
+    SliderAdjRangeInput m_TipClusterSlider;
+    Output m_SmallPanelWOutput;
+    Output m_MaxGrowthOutput;
 
 };
 

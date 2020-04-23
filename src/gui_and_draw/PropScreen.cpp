@@ -828,70 +828,70 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 760, "Propeller
     m_ModifyLayout.AddSlider( m_TrimTEXSlider, "X", 10.0, "%6.5f" );
     m_ModifyLayout.AddSlider( m_TrimTEThickSlider, "T", 10.0, "%6.5f" );
 
-    Fl_Group* fold_tab = AddTab( "More" );
-    Fl_Group* fold_group = AddSubGroup( fold_tab, 5 );
+    Fl_Group* more_tab = AddTab("More" );
+    Fl_Group* more_group = AddSubGroup(more_tab, 5 );
 
-    m_FoldLayout.SetGroupAndScreen( fold_group, this );
+    m_MoreLayout.SetGroupAndScreen(more_group, this );
 
-    m_FoldLayout.SetButtonWidth( 100 );
-    m_FoldLayout.SetChoiceButtonWidth( 100 );
+    m_MoreLayout.SetButtonWidth(100 );
+    m_MoreLayout.SetChoiceButtonWidth(100 );
 
-    m_FoldLayout.AddDividerBox( "Folding" );
+    m_MoreLayout.AddDividerBox("Folding" );
 
-    m_FoldLayout.AddSlider( m_FoldAngleSlider, "Angle", 100, "%5.3f" );
-    m_FoldLayout.AddSlider( m_RFoldSlider, "Radial/R", 1, "%5.3f" );
-    m_FoldLayout.AddSlider( m_AxFoldSlider, "Axial/R", 1, "%5.3f" );
-    m_FoldLayout.AddSlider( m_OffFoldSlider, "Offset/R", 1, "%5.3f" );
-    m_FoldLayout.AddSlider( m_AzFoldSlider, "Azimuth", 100, "%5.3f" );
-    m_FoldLayout.AddSlider( m_ElFoldSlider, "Elevation", 100, "%5.3f" );
+    m_MoreLayout.AddSlider(m_FoldAngleSlider, "Angle", 100, "%5.3f" );
+    m_MoreLayout.AddSlider(m_RFoldSlider, "Radial/R", 1, "%5.3f" );
+    m_MoreLayout.AddSlider(m_AxFoldSlider, "Axial/R", 1, "%5.3f" );
+    m_MoreLayout.AddSlider(m_OffFoldSlider, "Offset/R", 1, "%5.3f" );
+    m_MoreLayout.AddSlider(m_AzFoldSlider, "Azimuth", 100, "%5.3f" );
+    m_MoreLayout.AddSlider(m_ElFoldSlider, "Elevation", 100, "%5.3f" );
 
-    m_FoldLayout.SetButtonWidth( 100 );
+    m_MoreLayout.SetButtonWidth(100 );
 
-    m_FoldLayout.AddYGap();
+    m_MoreLayout.AddYGap();
 
-    m_FoldLayout.AddDividerBox( "Tip Treatment" );
-    m_FoldLayout.AddSlider( m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
+    m_MoreLayout.AddDividerBox("Tip Treatment" );
+    m_MoreLayout.AddSlider(m_CapTessSlider, "Cap Tess", 10, "%3.0f" );
 
-    m_FoldLayout.AddYGap();
+    m_MoreLayout.AddYGap();
 
     m_RootCapTypeChoice.AddItem("None");
     m_RootCapTypeChoice.AddItem("Flat");
     m_RootCapTypeChoice.AddItem("Round");
     m_RootCapTypeChoice.AddItem("Edge");
     m_RootCapTypeChoice.AddItem("Sharp");
-    m_FoldLayout.AddChoice(m_RootCapTypeChoice, "Root Cap Type");
+    m_MoreLayout.AddChoice(m_RootCapTypeChoice, "Root Cap Type");
 
-    m_FoldLayout.AddSlider( m_RootCapLenSlider, "Length", 1, "%6.5f" );
-    m_FoldLayout.AddSlider( m_RootCapOffsetSlider, "Offset", 1, "%6.5f" );
-    m_FoldLayout.AddSlider( m_RootCapStrengthSlider, "Strength", 1, "%6.5f" );
-    m_FoldLayout.AddButton( m_RootCapSweepFlagButton, "Sweep Stretch" );
+    m_MoreLayout.AddSlider(m_RootCapLenSlider, "Length", 1, "%6.5f" );
+    m_MoreLayout.AddSlider(m_RootCapOffsetSlider, "Offset", 1, "%6.5f" );
+    m_MoreLayout.AddSlider(m_RootCapStrengthSlider, "Strength", 1, "%6.5f" );
+    m_MoreLayout.AddButton(m_RootCapSweepFlagButton, "Sweep Stretch" );
 
-    m_FoldLayout.AddYGap();
+    m_MoreLayout.AddYGap();
 
     m_TipCapTypeChoice.AddItem("None");
     m_TipCapTypeChoice.AddItem("Flat");
     m_TipCapTypeChoice.AddItem("Round");
     m_TipCapTypeChoice.AddItem("Edge");
     m_TipCapTypeChoice.AddItem("Sharp");
-    m_FoldLayout.AddChoice(m_TipCapTypeChoice, "Tip Cap Type");
+    m_MoreLayout.AddChoice(m_TipCapTypeChoice, "Tip Cap Type");
 
-    m_FoldLayout.AddSlider( m_TipCapLenSlider, "Length", 1, "%6.5f" );
-    m_FoldLayout.AddSlider( m_TipCapOffsetSlider, "Offset", 1, "%6.5f" );
-    m_FoldLayout.AddSlider( m_TipCapStrengthSlider, "Strength", 1, "%6.5f" );
-    m_FoldLayout.AddButton( m_TipCapSweepFlagButton, "Sweep Stretch" );
+    m_MoreLayout.AddSlider(m_TipCapLenSlider, "Length", 1, "%6.5f" );
+    m_MoreLayout.AddSlider(m_TipCapOffsetSlider, "Offset", 1, "%6.5f" );
+    m_MoreLayout.AddSlider(m_TipCapStrengthSlider, "Strength", 1, "%6.5f" );
+    m_MoreLayout.AddButton(m_TipCapSweepFlagButton, "Sweep Stretch" );
 
-    m_FoldLayout.AddYGap();
+    m_MoreLayout.AddYGap();
 
-    m_FoldLayout.AddDividerBox( "Tessellation Control" );
-    m_FoldLayout.AddSlider( m_LEClusterSlider, "LE Clustering", 1, "%6.5f" );
-    m_FoldLayout.AddSlider( m_TEClusterSlider, "TE Clustering", 1, "%6.5f" );
-    m_FoldLayout.AddSlider( m_RootClusterSlider, "Root Clustering", 1, "%6.5f" );
-    m_FoldLayout.AddSlider( m_TipClusterSlider, "Tip Clustering", 1, "%6.5f" );
+    m_MoreLayout.AddDividerBox("Tessellation Control" );
+    m_MoreLayout.AddSlider(m_LEClusterSlider, "LE Clustering", 1, "%6.5f" );
+    m_MoreLayout.AddSlider(m_TEClusterSlider, "TE Clustering", 1, "%6.5f" );
+    m_MoreLayout.AddSlider(m_RootClusterSlider, "Root Clustering", 1, "%6.5f" );
+    m_MoreLayout.AddSlider(m_TipClusterSlider, "Tip Clustering", 1, "%6.5f" );
 
-    m_FoldLayout.AddYGap();
-    m_FoldLayout.SetButtonWidth( 200 );
-    m_FoldLayout.AddOutput( m_SmallPanelWOutput, "Minimum LE/TE Panel Width", "%6.4g" );
-    m_FoldLayout.AddOutput( m_MaxGrowthOutput, "Maximum Growth Ratio", "%6.3f" );
+    m_MoreLayout.AddYGap();
+    m_MoreLayout.SetButtonWidth(200 );
+    m_MoreLayout.AddOutput(m_SmallPanelWOutput, "Minimum LE/TE Panel Width", "%6.4g" );
+    m_MoreLayout.AddOutput(m_MaxGrowthOutput, "Maximum Growth Ratio", "%6.3f" );
 }
 
 //==== Show Pod Screen ====//
