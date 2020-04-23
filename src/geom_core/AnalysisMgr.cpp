@@ -1236,7 +1236,6 @@ void VSPAEROSinglePointAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "NCPU",               VSPAEROMgr.m_NCPU.Get()               ) );
         m_Inputs.Add( NameValData( "FixedWakeFlag",      VSPAEROMgr.m_FixedWakeFlag.Get()      ) );
         m_Inputs.Add( NameValData( "WakeNumIter",        VSPAEROMgr.m_WakeNumIter.Get()        ) );
-        m_Inputs.Add( NameValData( "WakeSkipUntilIter",  VSPAEROMgr.m_WakeSkipUntilIter.Get()  ) );
         m_Inputs.Add( NameValData( "NumWakeNodes",       VSPAEROMgr.m_NumWakeNodes.Get()       ) );
         m_Inputs.Add( NameValData( "UnsteadyType",       VSPAEROMgr.m_StabilityType.Get()      ) );
         m_Inputs.Add( NameValData( "Precondition",       VSPAEROMgr.m_Precondition.Get()       ) );
@@ -1442,7 +1441,6 @@ string VSPAEROSinglePointAnalysis::Execute()
         int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
         bool fixedWakeFlagOrig       = VSPAEROMgr.m_FixedWakeFlag.Get();
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
-        int wakeSkipUntilIterOrig    = VSPAEROMgr.m_WakeSkipUntilIter.Get();
         int numWakeNodesOrig         = VSPAEROMgr.m_NumWakeNodes.Get();
         int stabilityTypeOrig        = VSPAEROMgr.m_StabilityType.Get();
         int preconditionOrig         = VSPAEROMgr.m_Precondition.Get();
@@ -1471,11 +1469,6 @@ string VSPAEROSinglePointAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_WakeNumIter.Set( nvd->GetInt(0) );
-        }
-        nvd = m_Inputs.FindPtr( "WakeSkipUntilIter" );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_WakeSkipUntilIter.Set( nvd->GetInt(0) );
         }
         nvd = m_Inputs.FindPtr( "NumWakeNodes" );
         if ( nvd )
@@ -1665,7 +1658,6 @@ string VSPAEROSinglePointAnalysis::Execute()
         VSPAEROMgr.m_NCPU.Set( ncpuOrig );
         VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
-        VSPAEROMgr.m_WakeSkipUntilIter.Set( wakeSkipUntilIterOrig );
         VSPAEROMgr.m_NumWakeNodes.Set( numWakeNodesOrig );
         VSPAEROMgr.m_StabilityType.Set( stabilityTypeOrig );
         VSPAEROMgr.m_Precondition.Set( preconditionOrig );
@@ -1714,7 +1706,6 @@ void VSPAEROSweepAnalysis::SetDefaults()
         m_Inputs.Add( NameValData( "NCPU",               VSPAEROMgr.m_NCPU.Get()               ) );
         m_Inputs.Add( NameValData( "FixedWakeFlag",      VSPAEROMgr.m_FixedWakeFlag.Get()      ) );
         m_Inputs.Add( NameValData( "WakeNumIter",        VSPAEROMgr.m_WakeNumIter.Get()        ) );
-        m_Inputs.Add( NameValData( "WakeSkipUntilIter",  VSPAEROMgr.m_WakeSkipUntilIter.Get()  ) );
         m_Inputs.Add( NameValData( "NumWakeNodes",       VSPAEROMgr.m_NumWakeNodes.Get()       ) );
         m_Inputs.Add( NameValData( "UnsteadyType",       VSPAEROMgr.m_StabilityType.Get()      ) );
         m_Inputs.Add( NameValData( "Precondition",       VSPAEROMgr.m_Precondition.Get()       ) );
@@ -1956,7 +1947,6 @@ string VSPAEROSweepAnalysis::Execute()
         int ncpuOrig                 = VSPAEROMgr.m_NCPU.Get();
         bool fixedWakeFlagOrig       = VSPAEROMgr.m_FixedWakeFlag.Get();
         int wakeNumIterOrig          = VSPAEROMgr.m_WakeNumIter.Get();
-        int wakeSkipUntilIterOrig    = VSPAEROMgr.m_WakeSkipUntilIter.Get();
         int numWakeNodesOrig         = VSPAEROMgr.m_NumWakeNodes.Get();
         int stabilityTypeOrig        = VSPAEROMgr.m_StabilityType.Get();
         int preconditionOrig         = VSPAEROMgr.m_Precondition.Get();
@@ -1985,11 +1975,6 @@ string VSPAEROSweepAnalysis::Execute()
         if ( nvd )
         {
             VSPAEROMgr.m_WakeNumIter.Set( nvd->GetInt(0) );
-        }
-        nvd = m_Inputs.FindPtr( "WakeSkipUntilIter" );
-        if ( nvd )
-        {
-            VSPAEROMgr.m_WakeSkipUntilIter.Set( nvd->GetInt(0) );
         }
         nvd = m_Inputs.FindPtr( "NumWakeNodes" );
         if ( nvd )
@@ -2182,8 +2167,6 @@ string VSPAEROSweepAnalysis::Execute()
         VSPAEROMgr.m_NCPU.Set( ncpuOrig );
         VSPAEROMgr.m_FixedWakeFlag.Set( fixedWakeFlagOrig );
         VSPAEROMgr.m_WakeNumIter.Set( wakeNumIterOrig );
-        VSPAEROMgr.m_WakeSkipUntilIter.Set( wakeSkipUntilIterOrig );
-        VSPAEROMgr.m_NumWakeNodes.Set( numWakeNodesOrig );
         VSPAEROMgr.m_StabilityType.Set( stabilityTypeOrig );
         VSPAEROMgr.m_Precondition.Set( preconditionOrig );
         VSPAEROMgr.m_BatchModeFlag.Set( BatchModeFlagOrig );
