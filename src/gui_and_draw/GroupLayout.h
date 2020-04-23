@@ -165,9 +165,7 @@ public:
     void AddSkinHeader( SkinHeader & skin_header, bool addcontchoice = true );
     void AddGeomPicker( GeomPicker & geom_picker, int used_w = 0, string text = string() );
     
-    void AddCurveEditor( CurveEditor& curve_editor, string split_label, bool one_to_one_AR = false );
-    void AddPCurveEditor( PCurveEditor& curve_editor )          { AddCurveEditor( curve_editor, "r/R Split", false ); }
-    void AddXSecCurveEditor( XSecCurveEditor& curve_editor )    { AddCurveEditor( curve_editor, "U Split", true ); }
+    void AddCurveEditor( CurveEditor& curve_editor );
 
     Fl_Browser* AddFlBrowser( int height );
     Fl_Text_Editor* AddFlTextEditor( int height );
