@@ -1523,7 +1523,6 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain, PNTree* PN_tre
         }
 
         IPnt* matchIPnt = NULL;
-        int match_index = -1;
 
         const double query_pt[3] = { testIPnt->m_Pnt.x(), testIPnt->m_Pnt.y(), testIPnt->m_Pnt.z() };
         size_t ret_index[num_results];
@@ -1543,7 +1542,6 @@ void SurfaceIntersectionSingleton::ExpandChain( ISegChain* chain, PNTree* PN_tre
                  m_AllIPnts[ret_index[i]]->m_Puws[1]->m_Surf == testIPnt->m_Puws[1]->m_Surf )
             {
                 matchIPnt = m_AllIPnts[ret_index[i]];
-                match_index = ret_index[i];
                 break;
             }
         }
