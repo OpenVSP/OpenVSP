@@ -3367,6 +3367,7 @@ CurveEditor::CurveEditor()
 
     m_PrevIndex = 0;
     m_PrevCurveType = 0;
+    m_CurveEditType = GENERAL_EDIT;
 }
 
 void CurveEditor::Init( VspScreen* screen, Vsp_Canvas* canvas, Fl_Scroll* ptscroll, Fl_Button* spbutton, Fl_Button* convbutton, Fl_Button* delbutton, Fl_Light_Button* delpickbutton, Fl_Light_Button* splitpickbutton, GroupLayout* ptlayout )
@@ -3689,7 +3690,7 @@ PCurveEditor::PCurveEditor() : CurveEditor()
 {
     m_Curve = NULL;
     m_CurveB = NULL;
-
+    m_CurveEditType = PCURVE_EDIT;
     m_SliderVecVec.resize( 2 );
 }
 
@@ -3962,7 +3963,7 @@ int PCurveEditor::ihit( int mx, int my, int r )
 XSecCurveEditor::XSecCurveEditor() : CurveEditor()
 {
     m_XSec = NULL;
-
+    m_CurveEditType = XSEC_EDIT;
     m_SliderVecVec.resize( 3 ); // X, Y, and U
 }
 
