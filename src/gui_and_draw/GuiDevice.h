@@ -1257,6 +1257,8 @@ public:
     // and when a type conversion is performed
     virtual void RedrawXYSliders( int num_pts, int curve_type );
 
+    virtual int GetCurveEditorType() { return m_CurveEditType; }
+
     // GUI devices for the curve editor
     SliderAdjRangeInput m_SplitPtSlider;
     Fl_Button* m_SplitButton;
@@ -1267,6 +1269,13 @@ public:
     Choice m_ConvertChoice;
     Fl_Button* m_ConvertButton;
     StringOutput m_CurveType;
+
+    enum CURVE_EDITOR_TYPE
+    {
+        GENERAL_EDIT,
+        PCURVE_EDIT,
+        XSEC_EDIT
+    };
 
 protected:
 
@@ -1300,6 +1309,8 @@ protected:
     int m_PrevIndex; // Maintains the previously selected point index
     bool m_CallbackFlag; // Flag that indicates if a Callback was issued prior to Update
     bool m_UpdateIndexSelector; // Flag used to indiate if the index selector should be updated
+
+    int m_CurveEditType; // Enum that represents the curve editor type 
 };
 
 // Curve editing GUI class for PCurve
