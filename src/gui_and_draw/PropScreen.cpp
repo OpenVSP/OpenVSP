@@ -14,7 +14,7 @@ using namespace vsp;
 
 
 //==== Constructor ====//
-PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 760, "Propeller" )
+PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 700, "Propeller" )
 {
     m_CurrDisplayGroup = NULL;
 
@@ -79,6 +79,10 @@ PropScreen::PropScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 400, 760, "Propeller
     m_BetaToggle.Init( this );
     m_BetaToggle.AddButton( m_FeatherToggle.GetFlButton() );
     m_BetaToggle.AddButton( m_Beta34Toggle.GetFlButton() );
+
+    m_DesignLayout.AddYGap();
+
+    m_DesignLayout.AddDividerBox( "Prop / Rotor Metrics" );
 
     m_DesignLayout.SetSameLineFlag( true );
     m_DesignLayout.AddOutput( m_AFOutput, "Activity Factor", "%6.2f", m_DesignLayout.GetW() / 2 );
