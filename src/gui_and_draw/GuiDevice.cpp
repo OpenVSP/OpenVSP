@@ -3567,6 +3567,10 @@ void CurveEditor::RedrawXYSliders( int num_pts, int curve_type )
     int input_w = 50;
     int range_button_w = 10;
     int button_w = 45;
+    if ( m_CurveEditType == XSEC_EDIT ) // XSecCurveEditor
+    {
+        button_w -= 10;
+    }
     int scroll_w = 15;
 
     m_PtLayout->SetButtonWidth( button_w );
