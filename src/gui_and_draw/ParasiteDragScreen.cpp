@@ -389,8 +389,10 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_PresUnitChoice.AddItem( temp );
     temp = "lbf\\/in" + squared;
     m_PresUnitChoice.AddItem( temp );
+    m_PresUnitChoice.AddItem( "Ba" );
     m_PresUnitChoice.AddItem( "Pa" );
     m_PresUnitChoice.AddItem( "kPa" );
+    m_PresUnitChoice.AddItem( "MPa" );
     m_PresUnitChoice.AddItem( "inchHg" );
     m_PresUnitChoice.AddItem( "mmHg" );
     m_PresUnitChoice.AddItem( "mmH20" );
