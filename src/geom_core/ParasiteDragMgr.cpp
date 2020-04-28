@@ -2976,12 +2976,20 @@ void ParasiteDragMgrSingleton::UpdateExportLabels()
         m_PresLabel = "Pressure (lbf/in^2)";
         break;
 
+    case vsp::PRES_UNIT_BA:
+        m_PresLabel = "Pressure (Ba)";
+        break;
+
     case vsp::PRES_UNIT_PA:
         m_PresLabel = "Pressure (Pa)";
         break;
 
     case vsp::PRES_UNIT_KPA:
         m_PresLabel = "Pressure (kPa)";
+        break;
+
+    case vsp::PRES_UNIT_MPA:
+        m_PresLabel = "Pressure (MPa)";
         break;
 
     case vsp::PRES_UNIT_INCHHG:
