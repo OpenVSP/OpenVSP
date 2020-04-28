@@ -420,7 +420,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_FlowCondLayout.AddYGap();
 
     m_FlowCondLayout.AddSlider( m_RhoSlider, "Rho", 1, "%2.5g" );
-    m_FlowCondLayout.AddSlider( m_ReCrefSlider, "ReCref", 1000, "%7.3g" );
+    m_FlowCondLayout.AddSlider( m_ReCrefSlider, "ReCref", 1e6, "%7.3g" );
 
     m_AdvancedRightLayout.AddSubGroupLayout( m_CpSlicerLayout,
                                              m_AdvancedRightLayout.GetW(),
@@ -1649,6 +1649,19 @@ void VSPAEROScreen::UpdateOtherSetupParms()
         m_AlphaNptsInput.Activate();
         m_BetaNptsInput.Activate();
         m_MachNptsInput.Activate();
+    }
+
+    if ( VSPAEROMgr.m_RotateBladesFlag.Get() || VSPAEROMgr.m_ActuatorDiskFlag.Get() || VSPAEROMgr.m_StabilityType.Get() > vsp::STABILITY_OFF )
+    {
+        m_VinfSlider.Activate();
+        m_ActivateVRefToggle.Activate();
+        m_RhoSlider.Activate();
+    }
+    else
+    {
+        m_VinfSlider.Deactivate();
+        m_ActivateVRefToggle.Deactivate();
+        m_RhoSlider.Deactivate();
     }
 }
 
