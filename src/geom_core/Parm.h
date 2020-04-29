@@ -192,6 +192,7 @@ public:
     FractionParm();
 
     virtual void SetRefVal( double val );
+    virtual double GetRefVal()                      { return m_RefVal; }
 
     double operator= ( double val )
     {
