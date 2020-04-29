@@ -207,6 +207,9 @@ public:
     virtual double SetResultFromLink( double val );
     virtual double SetResultFromDevice( double val );
 
+    virtual void SetDisplayResultFlag( bool flag )  { m_DisplayResultFlag = flag; }
+    virtual bool GetDisplayResultsFlag()            { return m_DisplayResultFlag; }
+
     virtual double GetResult();
 
 protected:
@@ -214,6 +217,10 @@ protected:
     double m_RefVal;
     double m_ResultVal;
     virtual void UpdateResultVal();
+
+    // Flag indicating if m_Val or m_ResultVal should be displayed in the GUI. Note, the GUI
+    // Device associated with the FractionParm must support this feature
+    bool m_DisplayResultFlag;
 
 };
 
