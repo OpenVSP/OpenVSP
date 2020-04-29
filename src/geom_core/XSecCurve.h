@@ -505,8 +505,8 @@ public:
     BoolParm m_PreserveARFlag;
 
     vector < Parm* > m_UParmVec; // vector of U (0-1) values for each control point (in reallity 0-4 for XSec curves; T)
-    vector < Parm* > m_XParmVec; // vector of control point x coordinates
-    vector < Parm* > m_YParmVec; // vector of control point y coordinates
+    vector < FractionParm* > m_XParmVec; // vector of control point x coordinates
+    vector < FractionParm* > m_YParmVec; // vector of control point y coordinates
     vector < BoolParm* > m_EnforceG1Vec; // indicates whether or not to enforce G1 continuity for each CEDIT point on the curve,
 
 protected:

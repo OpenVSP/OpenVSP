@@ -2660,26 +2660,26 @@ void EditCurveXSec::AddPt( double default_u, double default_x, double default_y,
         m_UParmVec.push_back( p );
     }
 
-    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
-    if ( p )
+    FractionParm* fp = (FractionParm* )ParmMgr.CreateParm( vsp::PARM_FRACTION_TYPE );
+    if ( fp )
     {
         int i = (int)m_XParmVec.size();
         char str[15];
         sprintf( str, "X_%d", i );
-        p->Init( string( str ), m_GroupName, this, default_x, -1.0e12, 1.0e12 );
-        p->SetDescript( "Control Point 2D X Location" );
-        m_XParmVec.push_back( p );
+        fp->Init( string( str ), m_GroupName, this, default_x, -1.0e12, 1.0e12 );
+        fp->SetDescript( "Control Point 2D X Location" );
+        m_XParmVec.push_back( fp );
     }
 
-    p = ParmMgr.CreateParm( vsp::PARM_DOUBLE_TYPE );
-    if ( p )
+    fp = (FractionParm*)ParmMgr.CreateParm( vsp::PARM_FRACTION_TYPE );
+    if ( fp )
     {
         int i = (int)m_YParmVec.size();
         char str[15];
         sprintf( str, "Y_%d", i );
-        p->Init( string( str ), m_GroupName, this, default_y, -1.0e12, 1.0e12 );
-        p->SetDescript( "Control Point 2D Y Location" );
-        m_YParmVec.push_back( p );
+        fp->Init( string( str ), m_GroupName, this, default_y, -1.0e12, 1.0e12 );
+        fp->SetDescript( "Control Point 2D Y Location" );
+        m_YParmVec.push_back( fp );
     }
 
     BoolParm* bp = dynamic_cast< BoolParm* >( ParmMgr.CreateParm( vsp::PARM_BOOL_TYPE ) );
