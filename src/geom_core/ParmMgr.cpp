@@ -330,5 +330,9 @@ Parm* ParmMgrSingleton::CreateParm( int type )
     {
         p = new NotEqParm();
     }
+    else if ( type == vsp::PARM_POWER_INT_TYPE )
+    {
+        p = new PowIntParm();
+    }
     return p;
 }
