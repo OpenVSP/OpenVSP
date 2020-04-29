@@ -562,7 +562,7 @@ FractionParm::FractionParm() : Parm()
     m_Type = vsp::PARM_FRACTION_TYPE;
     m_RefVal = 0.0;
     m_ResultVal = 0.0;
-
+    m_DisplayResultFlag = false;
 }
 
 //==== Set Reference Val ====//
