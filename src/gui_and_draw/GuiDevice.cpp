@@ -4280,19 +4280,41 @@ void XSecCurveEditor::Update()
 
         for ( int i = 0; i < n; i++ )
         {
-            Parm *p = m_XSec->m_XParmVec[i];
-            if ( p )
+            FractionParm* fp = m_XSec->m_XParmVec[i];
+            if ( fp )
             {
-                m_SliderVecVec[0][i].Update( p->GetID() );
+                fp->SetRefVal( m_XSec->GetWidth() );
+
+                if ( m_XSec->m_AbsoluteFlag.Get() )
+                {
+                    fp->SetDisplayResultFlag( true );
+                }
+                else
+                {
+                    fp->SetDisplayResultFlag( false );
+                }
+
+                m_SliderVecVec[0][i].Update( fp->GetID() );
             }
 
-            p = m_XSec->m_YParmVec[i];
-            if ( p )
+            fp = m_XSec->m_YParmVec[i];
+            if ( fp )
             {
-                m_SliderVecVec[1][i].Update( p->GetID() );
+                fp->SetRefVal( m_XSec->GetHeight() );
+
+                if ( m_XSec->m_AbsoluteFlag.Get() )
+                {
+                    fp->SetDisplayResultFlag( true );
+                }
+                else
+                {
+                    fp->SetDisplayResultFlag( false );
+                }
+
+                m_SliderVecVec[1][i].Update( fp->GetID() );
             }
 
-            p = m_XSec->m_UParmVec[i];
+            Parm* p = m_XSec->m_UParmVec[i];
             if ( p )
             {
                 m_SliderVecVec[2][i].Update( p->GetID() );
