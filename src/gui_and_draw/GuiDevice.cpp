@@ -361,6 +361,16 @@ void Input::SetValAndLimits( Parm* parm_ptr )
     assert( m_Input );
     double new_val = parm_ptr->Get();
 
+    if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
+    {
+        FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
+
+        if ( fp->GetDisplayResultsFlag() )
+        {
+            new_val = fp->GetResult();
+        }
+    }
+
     if ( CheckValUpdate( new_val ) )
     {
         sprintf( m_Str, m_Format.c_str(), new_val );
@@ -388,6 +398,14 @@ void Input::DeviceCB( Fl_Widget* w )
     {
 #ifdef NOREGEXP
         double new_val = atof( m_Input->value() );
+        if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
+        {
+            FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
+            if ( fp->GetDisplayResultsFlag() )
+            {
+                new_val /= fp->GetRefVal(); // Unscale result to set m_Val
+            }
+        }
         parm_ptr->SetFromDevice( new_val );
         m_LastVal = new_val;
 #else
@@ -396,6 +414,14 @@ void Input::DeviceCB( Fl_Widget* w )
         // Don't update the parm value if status is not successful
         if (stat == exprparse::Status::SUCCESS)
         {
+            if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
+            {
+                FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
+                if ( fp->GetDisplayResultsFlag() )
+                {
+                    new_val /= fp->GetRefVal(); // Unscale result to set m_Val
+                }
+            }
             parm_ptr->SetFromDevice(new_val);
         }
 #endif
@@ -644,10 +670,32 @@ void SliderAdjRange::SetValAndLimits( Parm* parm_ptr )
 
         m_MinBound = max( new_val - m_Range, parm_ptr->GetLowerLimit() );
         m_MaxBound = min( new_val + m_Range, parm_ptr->GetUpperLimit() );
-        m_Slider->bounds( m_MinBound, m_MaxBound );
+
+        double scale = 1;
+        if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
+        {
+            FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
+
+            if ( fp->GetDisplayResultsFlag() )
+            {
+                scale = fp->GetRefVal();
+            }
+        }
+
+        m_Slider->bounds( ( m_MinBound * scale ), ( m_MaxBound * scale ) );
     }
 
     FindStopState( parm_ptr );
+
+    if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
+    {
+        FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
+
+        if ( fp->GetDisplayResultsFlag() )
+        {
+            new_val = fp->GetResult();
+        }
+    }
 
     if ( CheckValUpdate( new_val ) )
     {
@@ -679,6 +727,14 @@ void SliderAdjRange::DeviceCB( Fl_Widget* w )
             drag_flag = true;
         }
         double new_val = m_Slider->value();
+        if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
+        {
+            FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
+            if ( fp->GetDisplayResultsFlag() )
+            {
+                new_val /= fp->GetRefVal();  // Unscale result to set m_Val
+            }
+        }
         parm_ptr->SetFromDevice( new_val, drag_flag );
         FindStopState( parm_ptr );
     }
