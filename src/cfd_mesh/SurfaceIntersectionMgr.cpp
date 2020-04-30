@@ -525,8 +525,6 @@ void SurfaceIntersectionSingleton::ExportFiles()
     if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) || GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_STEP_FILE_NAME ) )
     {
         BuildNURBSCurvesVec(); // Note: Must be called before BuildNURBSSurfMap
-
-        BuildNURBSSurfMap();
     }
 
     if ( GetIntersectSettingsPtr()->GetExportFileFlag( vsp::INTERSECT_IGES_FILE_NAME ) )
@@ -841,6 +839,8 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
 {
     IGESutil iges( len_unit );
 
+    BuildNURBSSurfMap();
+
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
         if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
@@ -906,6 +906,18 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
                                                   bool label_name, string label_delim, int representation  )
 {
     STEPutil step( len_unit, tol );
+
+    // Identify the SdaiB_spline_curve_with_knots. This must come before BuildNURBSSurfMap for STEP files, or the 
+    // edge pointer will not be transfered between surfaces
+    for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
+    {
+        if ( !m_NURBSCurveVec[i].m_SubSurfFlag && !m_NURBSCurveVec[i].m_StructIntersectFlag )
+        {
+            m_NURBSCurveVec[i].WriteSTEPEdge( &step, merge_pnts );
+        }
+    }
+
+    BuildNURBSSurfMap();
 
     // Identify the unique sets of intersected components
     vector < vector < int > > comp_id_group_vec = GetCompIDGroupVec();
