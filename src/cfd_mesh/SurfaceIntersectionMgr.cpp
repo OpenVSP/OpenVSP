@@ -1278,30 +1278,30 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
         return;
     }
 
-    vec2d proj_uwA0;
-    pA.find_closest_uw( ip0, proj_uwA0.v );
+    vec2d plane_uwA0;
+    pA.find_closest_uw_planar_approx( ip0, plane_uwA0.v );
 
-    vec2d proj_uwB0;
-    pB.find_closest_uw( ip0, proj_uwB0.v );
+    vec2d plane_uwB0;
+    pB.find_closest_uw_planar_approx( ip0, plane_uwB0.v );
 
-    vec2d proj_uwA1;
-    pA.find_closest_uw( ip1, proj_uwA1.v );
+    vec2d plane_uwA1;
+    pA.find_closest_uw_planar_approx( ip1, plane_uwA1.v );
 
-    vec2d proj_uwB1;
-    pB.find_closest_uw( ip1, proj_uwB1.v );
+    vec2d plane_uwB1;
+    pB.find_closest_uw_planar_approx( ip1, plane_uwB1.v );
 
     // Intersections that lie exactly on a patch boundary will actually intersect both patches
     // that share that boundary.  So, detect intersections that lie on the patch minimum edge
     // and don't carry those forward.  Don't do this if the minimum parameter is zero.  I.e.
     // there is no prior patch.
 
-    double tol = 1e-8; // Tolerance buildup due to SurfPatch::find_closest_uw and other inaccuracies
+    double tol = 1e-10; // Tolerance buildup due to SurfPatch::find_closest_uw_planar_approx and other inaccuracies
 
     if ( pA.get_u_min() > 0.0 ) // if Patch A is not the very beginning of u
     {
         double lim = pA.get_u_min() + tol;
         // if both points projected to A are on the starting edge of u
-        if ( proj_uwA0.v[0] <= lim && proj_uwA1.v[0] <= lim )
+        if ( plane_uwA0.v[0] <= lim && plane_uwA1.v[0] <= lim )
         {
             return;
         }
@@ -1311,7 +1311,7 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     {
         double lim = pB.get_u_min() + tol;
         // if both points projected to B are on the starting edge of u
-        if ( proj_uwB0.v[0] <= lim && proj_uwB1.v[0] <= lim )
+        if ( plane_uwB0.v[0] <= lim && plane_uwB1.v[0] <= lim )
         {
             return;
         }
@@ -1321,7 +1321,7 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     {
         double lim = pA.get_w_min() + tol;
         // if both points projected to A are on the starting edge of w
-        if ( proj_uwA0.v[1] <= lim && proj_uwA1.v[1] <= lim )
+        if ( plane_uwA0.v[1] <= lim && plane_uwA1.v[1] <= lim )
         {
             return;
         }
@@ -1331,11 +1331,23 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     {
         double lim = pB.get_w_min() + tol;
         // if both points projected to B are on the starting edge of w
-        if ( proj_uwB0.v[1] <= lim && proj_uwB1.v[1] <= lim )
+        if ( plane_uwB0.v[1] <= lim && plane_uwB1.v[1] <= lim )
         {
             return;
         }
     }
+
+    vec2d proj_uwA0;
+    pA.find_closest_uw( ip0, plane_uwA0.v, proj_uwA0.v );
+
+    vec2d proj_uwB0;
+    pB.find_closest_uw( ip0, plane_uwB0.v, proj_uwB0.v );
+
+    vec2d proj_uwA1;
+    pA.find_closest_uw( ip1, plane_uwA1.v, proj_uwA1.v );
+
+    vec2d proj_uwB1;
+    pB.find_closest_uw( ip1, plane_uwB1.v, proj_uwB1.v );
 
     Puw* puwA0 = new Puw( pA.get_surf_ptr(), proj_uwA0 );
     m_DelPuwVec.push_back( puwA0 );
