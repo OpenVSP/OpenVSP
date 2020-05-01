@@ -329,6 +329,7 @@ public:
     IntParm m_StartWingSection;
     IntParm m_EndWingSection;
     BoolParm m_BndBoxTrimFlag;
+    IntParm m_PerpendicularEdgeType;
 
 protected:
 
@@ -475,6 +476,7 @@ public:
     IntParm m_StartWingSection;
     IntParm m_EndWingSection;
     BoolParm m_BndBoxTrimFlag;
+    IntParm m_PerpendicularEdgeType;
 
 protected:
 

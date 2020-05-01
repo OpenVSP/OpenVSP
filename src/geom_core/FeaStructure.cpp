@@ -2302,6 +2302,9 @@ FeaRib::FeaRib( const string& geomID, int type ) : FeaSlice( geomID, type )
 
     m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaRib", this, true, false, true );
     m_BndBoxTrimFlag.SetDescript( "Flag to Trim Rib to Bounding Box Instead of Wing Surface" );
+
+    m_PerpendicularEdgeType.Init( "PerpendicularEdgeType", "FeaRib", this, vsp::NO_NORMAL, vsp::NO_NORMAL, vsp::SPAR_NORMAL );
+    m_PerpendicularEdgeType.SetDescript( "Identifies the Perpendicular Edge Type for the Rib" );
 }
 
 void FeaRib::Update()
@@ -2557,7 +2560,7 @@ double FeaRib::GetRibTotalRotation( )
             vec3d chord_dir_vec = trail_edge - lead_edge;
             chord_dir_vec.normalize();
 
-            if ( strcmp( m_PerpendicularEdgeID.c_str(), "Trailing Edge" ) == 0 )
+            if ( m_PerpendicularEdgeType() == vsp::TE_NORMAL )
             {
                 vec3d trail_edge_out, trail_edge_in;
                 trail_edge_out = orig_surf.CompPnt01( u_edge_out, 0.0 );
@@ -2568,7 +2571,7 @@ double FeaRib::GetRibTotalRotation( )
 
                 alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, trail_edge_dir_vec, m_WingNorm );
             }
-            else if ( strcmp( m_PerpendicularEdgeID.c_str(), "Leading Edge" ) == 0 )
+            else if ( m_PerpendicularEdgeType() == vsp::LE_NORMAL )
             {
                 vec3d lead_edge_out, lead_edge_in;
                 lead_edge_out = orig_surf.CompPnt01( u_edge_out, V_leading_edge / V_max );
@@ -2579,15 +2582,11 @@ double FeaRib::GetRibTotalRotation( )
 
                 alpha = ( PI / 2 ) - signed_angle( chord_dir_vec, lead_edge_dir_vec, m_WingNorm );
             }
-            else if ( strcmp( m_PerpendicularEdgeID.c_str(), "None" ) == 0 )
-            {
-                alpha = 0;
-            }
-            else
+            else if ( m_PerpendicularEdgeType() == vsp::SPAR_NORMAL )
             {
                 FeaPart* part = StructureMgr.GetFeaPart( m_PerpendicularEdgeID );
 
-                if ( part )
+                if ( part && part->GetFeaPartSurfVec().size() > 0 )
                 {
                     VspSurf surf = part->GetFeaPartSurfVec()[0];
 
@@ -3621,6 +3620,9 @@ FeaRibArray::FeaRibArray( const string& geomID, int type ) : FeaPart( geomID, ty
     m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaRibArray", this, true, false, true );
     m_BndBoxTrimFlag.SetDescript( "Flag to Trim Rib Array to Bounding Box Instead of Wing Surface" );
 
+    m_PerpendicularEdgeType.Init( "PerpendicularEdgeType", "FeaRibArray", this, vsp::NO_NORMAL, vsp::NO_NORMAL, vsp::SPAR_NORMAL );
+    m_PerpendicularEdgeType.SetDescript( "Identifies the Perpendicular Edge Type for the Rib Array" );
+
     m_NumRibs = 0;
 }
 
@@ -3817,6 +3819,7 @@ void FeaRibArray::CreateFeaRibArray()
             }
 
             rib->m_Theta.Set( m_Theta() );
+            rib->m_PerpendicularEdgeType.Set( m_PerpendicularEdgeType() );
             rib->SetPerpendicularEdgeID( m_PerpendicularEdgeID );
             rib->m_LimitRibToSectionFlag.Set( m_LimitArrayToSectionFlag() );
             rib->m_StartWingSection.Set( m_StartWingSection() );
@@ -3886,6 +3889,7 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
         fearib->m_FeaPropertyIndex.Set( m_FeaPropertyIndex() );
         fearib->m_CapFeaPropertyIndex.Set( m_CapFeaPropertyIndex() );
         fearib->m_Theta.Set( m_Theta() );
+        fearib->m_PerpendicularEdgeType.Set( m_PerpendicularEdgeType() );
         fearib->SetPerpendicularEdgeID( m_PerpendicularEdgeID );
         fearib->m_BndBoxTrimFlag.Set( m_BndBoxTrimFlag() );
         fearib->m_LimitRibToSectionFlag.Set( m_LimitArrayToSectionFlag() );
