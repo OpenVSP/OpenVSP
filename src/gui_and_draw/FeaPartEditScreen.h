@@ -81,7 +81,12 @@ private:
 
     //===== Rib =====//
     Choice m_RibPropertyChoice;
-    Choice m_RibPerpendicularEdgeChoice;
+    ToggleButton m_RibNoNormalToggle;
+    ToggleButton m_RibLENormalToggle;
+    ToggleButton m_RibTENormalToggle;
+    ToggleButton m_RibSparNormalToggle;
+    ToggleRadioGroup m_RibNormalTypeGroup;
+    Choice m_RibPerpendicularSparChoice;
     ToggleButton m_RibSectionLimitToggle;
     IndexSelector m_RibStartSectIndexSelector;
     IndexSelector m_RibEndSectIndexSelector;
@@ -156,7 +161,12 @@ private:
 
     //===== RibArray =====//
     Choice m_RibArrayPropertyChoice;
-    Choice m_RibArrayPerpEdgeChoice;
+    ToggleButton m_RibArrayNoNormalToggle;
+    ToggleButton m_RibArrayLENormalToggle;
+    ToggleButton m_RibArrayTENormalToggle;
+    ToggleButton m_RibArraySparNormalToggle;
+    ToggleRadioGroup m_RibArrayNormalTypeGroup;
+    Choice m_RibArrayPerpendicularSparChoice;
     ToggleButton m_RibArraySectionLimitToggle;
     IndexSelector m_RibArrayStartSectIndexSelector;
     IndexSelector m_RibArrayEndSectIndexSelector;

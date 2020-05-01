@@ -147,10 +147,30 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_RibEditLayout.AddDividerBox( "Rib" );
 
-    m_RibEditLayout.SetButtonWidth( m_RibEditLayout.GetRemainX() / 3 );
-    m_RibEditLayout.SetChoiceButtonWidth( m_RibEditLayout.GetRemainX() / 3 );
+    m_RibEditLayout.SetSameLineFlag( true );
+    m_RibEditLayout.SetFitWidthFlag( false );
+    int label_width = 115;
+    m_RibEditLayout.SetButtonWidth( ( m_RibEditLayout.GetRemainX() - label_width ) / 4 );
 
-    m_RibEditLayout.AddChoice( m_RibPerpendicularEdgeChoice, "Edge Normal" );
+    m_RibEditLayout.AddLabel( "Normal Type:", label_width );
+    m_RibEditLayout.AddButton( m_RibNoNormalToggle, "None" );
+    m_RibEditLayout.AddButton( m_RibLENormalToggle, "LE" );
+    m_RibEditLayout.AddButton( m_RibTENormalToggle, "TE" );
+    m_RibEditLayout.AddButton( m_RibSparNormalToggle, "Spar" );
+
+    m_RibNormalTypeGroup.Init( this );
+    m_RibNormalTypeGroup.AddButton( m_RibNoNormalToggle.GetFlButton() );
+    m_RibNormalTypeGroup.AddButton( m_RibLENormalToggle.GetFlButton() );
+    m_RibNormalTypeGroup.AddButton( m_RibTENormalToggle.GetFlButton() );
+    m_RibNormalTypeGroup.AddButton( m_RibSparNormalToggle.GetFlButton() );
+
+    m_RibEditLayout.ForceNewLine();
+    m_RibEditLayout.SetSameLineFlag( false );
+    m_RibEditLayout.SetFitWidthFlag( true );
+    m_RibEditLayout.SetButtonWidth( m_RibEditLayout.GetRemainX() / 2 );
+    m_RibEditLayout.SetChoiceButtonWidth( m_RibEditLayout.GetRemainX() / 2 );
+
+    m_RibEditLayout.AddChoice( m_RibPerpendicularSparChoice, "Perpendicular Spar" );
 
     m_RibEditLayout.AddYGap();
 
@@ -485,7 +505,29 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_RibArrayEditLayout.AddDividerBox( "RibArray" );
 
-    m_RibArrayEditLayout.AddChoice( m_RibArrayPerpEdgeChoice, "Edge Normal" );
+    m_RibArrayEditLayout.SetSameLineFlag( true );
+    m_RibArrayEditLayout.SetFitWidthFlag( false );
+    m_RibArrayEditLayout.SetButtonWidth( ( m_RibArrayEditLayout.GetRemainX() - label_width ) / 4 );
+
+    m_RibArrayEditLayout.AddLabel( "Normal Type:", label_width );
+    m_RibArrayEditLayout.AddButton( m_RibArrayNoNormalToggle, "None" );
+    m_RibArrayEditLayout.AddButton( m_RibArrayLENormalToggle, "LE" );
+    m_RibArrayEditLayout.AddButton( m_RibArrayTENormalToggle, "TE" );
+    m_RibArrayEditLayout.AddButton( m_RibArraySparNormalToggle, "Spar" );
+
+    m_RibArrayNormalTypeGroup.Init( this );
+    m_RibArrayNormalTypeGroup.AddButton( m_RibArrayNoNormalToggle.GetFlButton() );
+    m_RibArrayNormalTypeGroup.AddButton( m_RibArrayLENormalToggle.GetFlButton() );
+    m_RibArrayNormalTypeGroup.AddButton( m_RibArrayTENormalToggle.GetFlButton() );
+    m_RibArrayNormalTypeGroup.AddButton( m_RibArraySparNormalToggle.GetFlButton() );
+
+    m_RibArrayEditLayout.ForceNewLine();
+    m_RibArrayEditLayout.SetSameLineFlag( false );
+    m_RibArrayEditLayout.SetFitWidthFlag( true );
+    m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() / 2 );
+    m_RibArrayEditLayout.SetChoiceButtonWidth( m_RibArrayEditLayout.GetRemainX() / 2 );
+
+    m_RibArrayEditLayout.AddChoice( m_RibArrayPerpendicularSparChoice, "Perpendicular Spar" );
 
     m_RibArrayEditLayout.AddYGap();
 
@@ -1243,6 +1285,26 @@ bool FeaPartEditScreen::Update()
                         FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
                         assert( rib );
 
+                        m_RibNormalTypeGroup.Update( rib->m_PerpendicularEdgeType.GetID() );
+
+                        if ( m_PerpendicularEdgeVec.size() == 0 )
+                        {
+                            m_RibSparNormalToggle.Deactivate();
+                        }
+                        else
+                        {
+                            m_RibSparNormalToggle.Activate();
+                        }
+
+                        if ( rib->m_PerpendicularEdgeType.Get() != vsp::SPAR_NORMAL || m_PerpendicularEdgeVec.size() == 0 )
+                        {
+                            m_RibPerpendicularSparChoice.Deactivate();
+                        }
+                        else
+                        {
+                            m_RibPerpendicularSparChoice.Activate();
+                        }
+
                         m_RibSectionLimitToggle.Update( rib->m_LimitRibToSectionFlag.GetID() );
                         m_RibStartSectIndexSelector.Update( rib->m_StartWingSection.GetID() );
                         m_RibEndSectIndexSelector.Update( rib->m_EndWingSection.GetID() );
@@ -1426,6 +1488,26 @@ bool FeaPartEditScreen::Update()
                     {
                         FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( feaprt );
                         assert( rib_array );
+
+                        m_RibArrayNormalTypeGroup.Update( rib_array->m_PerpendicularEdgeType.GetID() );
+
+                        if ( m_PerpendicularEdgeVec.size() == 0 )
+                        {
+                            m_RibArraySparNormalToggle.Deactivate();
+                        }
+                        else
+                        {
+                            m_RibArraySparNormalToggle.Activate();
+                        }
+
+                        if ( rib_array->m_PerpendicularEdgeType.Get() != vsp::SPAR_NORMAL || m_PerpendicularEdgeVec.size() == 0 )
+                        {
+                            m_RibArrayPerpendicularSparChoice.Deactivate();
+                        }
+                        else
+                        {
+                            m_RibArrayPerpendicularSparChoice.Activate();
+                        }
 
                         m_RibArraySectionLimitToggle.Update( rib_array->m_LimitArrayToSectionFlag.GetID() );
                         m_RibArrayStartSectIndexSelector.Update( rib_array->m_StartWingSection.GetID() );
@@ -1908,25 +1990,39 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
 
         SetCapPropertyIndex( selected_choice );
     }
-    else if ( device == &m_RibPerpendicularEdgeChoice )
+    else if ( device == &m_RibPerpendicularSparChoice && StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+        if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
         {
-            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+            FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
-            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            if ( feaprt && feaprt->GetType() == vsp::FEA_RIB )
             {
-                FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+                FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
+                assert( rib );
 
-                if ( feaprt )
+                rib->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibPerpendicularSparChoice.GetVal()] );
+            }
+        }
+    }
+    else if ( device == &m_RibNormalTypeGroup && StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+    {
+        vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+        if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+        {
+            FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+
+            if ( feaprt && feaprt->GetType() == vsp::FEA_RIB )
+            {
+                FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
+                assert( rib );
+
+                if ( rib->m_PerpendicularEdgeType.Get() == vsp::SPAR_NORMAL )
                 {
-                    if ( feaprt->GetType() == vsp::FEA_RIB )
-                    {
-                        FeaRib* rib = dynamic_cast<FeaRib*>( feaprt );
-                        assert( rib );
-
-                        rib->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibPerpendicularEdgeChoice.GetVal()] );
-                    }
+                    rib->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibPerpendicularSparChoice.GetVal()] );
                 }
             }
         }
@@ -1956,25 +2052,39 @@ void FeaPartEditScreen::GuiDeviceCallBack( GuiDevice* device )
             }
         }
     }
-    else if ( device == &m_RibArrayPerpEdgeChoice )
+    else if ( device == &m_RibArrayPerpendicularSparChoice && StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
     {
-        if ( StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+        vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+        if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
         {
-            vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+            FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
 
-            if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+            if ( feaprt && feaprt->GetType() == vsp::FEA_RIB_ARRAY )
             {
-                FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+                FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( feaprt );
+                assert( rib_array );
 
-                if ( feaprt )
+                rib_array->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibArrayPerpendicularSparChoice.GetVal()] );
+            }
+        }
+    }
+    else if ( device == &m_RibArrayNormalTypeGroup && StructureMgr.ValidTotalFeaStructInd( StructureMgr.GetCurrStructIndex() ) )
+    {
+        vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+        if ( StructureMgr.GetCurrPartIndex() < structVec[StructureMgr.GetCurrStructIndex()]->NumFeaParts() )
+        {
+            FeaPart* feaprt = structVec[StructureMgr.GetCurrStructIndex()]->GetFeaPart( StructureMgr.GetCurrPartIndex() );
+
+            if ( feaprt && feaprt->GetType() == vsp::FEA_RIB_ARRAY )
+            {
+                FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( feaprt );
+                assert( rib_array );
+
+                if ( rib_array->m_PerpendicularEdgeType.Get() == vsp::SPAR_NORMAL )
                 {
-                    if ( feaprt->GetType() == vsp::FEA_RIB_ARRAY )
-                    {
-                        FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( feaprt );
-                        assert( rib_array );
-
-                        rib_array->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibArrayPerpEdgeChoice.GetVal()] );
-                    }
+                    rib_array->SetPerpendicularEdgeID( m_PerpendicularEdgeVec[m_RibArrayPerpendicularSparChoice.GetVal()] );
                 }
             }
         }
@@ -2312,19 +2422,9 @@ void FeaPartEditScreen::UpdateFixPointParentChoice()
 void FeaPartEditScreen::UpdatePerpendicularRibChoice()
 {
     //==== Perpendicular Rib Choice ====//
-    m_RibPerpendicularEdgeChoice.ClearItems();
-    m_RibArrayPerpEdgeChoice.ClearItems();
+    m_RibPerpendicularSparChoice.ClearItems();
+    m_RibArrayPerpendicularSparChoice.ClearItems();
     m_PerpendicularEdgeVec.clear();
-
-    m_RibPerpendicularEdgeChoice.AddItem( "None" );
-    m_RibArrayPerpEdgeChoice.AddItem( "None" );
-    m_PerpendicularEdgeVec.push_back( "None" );
-    m_RibPerpendicularEdgeChoice.AddItem( "Leading Edge" );
-    m_RibArrayPerpEdgeChoice.AddItem( "Leading Edge" );
-    m_PerpendicularEdgeVec.push_back( "Leading Edge" );
-    m_RibPerpendicularEdgeChoice.AddItem( "Trailing Edge" );
-    m_RibArrayPerpEdgeChoice.AddItem( "Trailing Edge" );
-    m_PerpendicularEdgeVec.push_back( "Trailing Edge" );
 
     Vehicle*  veh = m_ScreenMgr->GetVehiclePtr();
 
@@ -2342,14 +2442,14 @@ void FeaPartEditScreen::UpdatePerpendicularRibChoice()
                 {
                     if ( part_vec[i]->GetType() == vsp::FEA_SPAR )
                     {
-                        m_RibPerpendicularEdgeChoice.AddItem( part_vec[i]->GetName() );
-                        m_RibArrayPerpEdgeChoice.AddItem( part_vec[i]->GetName() );
+                        m_RibPerpendicularSparChoice.AddItem( part_vec[i]->GetName() );
+                        m_RibArrayPerpendicularSparChoice.AddItem( part_vec[i]->GetName() );
                         m_PerpendicularEdgeVec.push_back( part_vec[i]->GetID() );
                     }
                 }
 
-                m_RibPerpendicularEdgeChoice.UpdateItems();
-                m_RibArrayPerpEdgeChoice.UpdateItems();
+                m_RibPerpendicularSparChoice.UpdateItems();
+                m_RibArrayPerpendicularSparChoice.UpdateItems();
 
                 if ( StructureMgr.GetCurrPartIndex() < curr_struct->NumFeaParts() )
                 {
@@ -2366,7 +2466,7 @@ void FeaPartEditScreen::UpdatePerpendicularRibChoice()
                             {
                                 if ( rib->GetPerpendicularEdgeID() == m_PerpendicularEdgeVec[k] )
                                 {
-                                    m_RibPerpendicularEdgeChoice.SetVal( k );
+                                    m_RibPerpendicularSparChoice.SetVal( k );
                                     break;
                                 }
                             }
@@ -2380,7 +2480,7 @@ void FeaPartEditScreen::UpdatePerpendicularRibChoice()
                             {
                                 if ( rib_array->GetPerpendicularEdgeID() == m_PerpendicularEdgeVec[k] )
                                 {
-                                    m_RibArrayPerpEdgeChoice.SetVal( k );
+                                    m_RibArrayPerpendicularSparChoice.SetVal( k );
                                     break;
                                 }
                             }
