@@ -2403,6 +2403,10 @@ std::vector<std::string> GetSubSurfParmIDs( const string & sub_id )
     return parm_vec;
 }
 
+//**********************************************************************//
+//*****************     FEA Mesh API Functions     *********************//
+//**********************************************************************//
+
 /// Add an FeaStructure, return FeaStructure index
 int AddFeaStruct( const string & geom_id, bool init_skin, int surfindex )
 {
@@ -2624,6 +2628,82 @@ void DeleteFeaPart( const string & geom_id, int fea_struct_ind, const string & p
     feastruct->DelFeaPart( index );
     ErrorMgr.NoError();
     return;
+}
+
+void SetFeaPartPerpendicularSparID( const string& part_id, const string& perpendicular_spar_id )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( part_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPartPerpendicularSparID::Can't Find FEA Part " + part_id );
+        return;
+    }
+
+    bool rib_type = part->GetType() == FEA_RIB;
+    bool rib_array_type = part->GetType() == FEA_RIB_ARRAY;
+
+    if ( !( rib_type || rib_array_type ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetFeaPartPerpendicularSparID::FEA Part is not Rib or Rib Array Type" );
+        return;
+    }
+
+    // Check if Spar exists (not really necessary, but should be helpful)
+    FeaPart* spar = StructureMgr.GetFeaPart( perpendicular_spar_id );
+    if ( !spar || spar->GetType() != FEA_SPAR )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaPartPerpendicularSparID::Can't Find FEA Spar " + perpendicular_spar_id + ". ID will still be set." );
+    }
+
+    if ( rib_type )
+    {
+        FeaRib* rib = dynamic_cast<FeaRib*>( part );
+        assert( rib );
+
+        rib->SetPerpendicularEdgeID( perpendicular_spar_id );
+    }
+    else if ( rib_array_type )
+    {
+        FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( part );
+        assert( rib_array );
+
+        rib_array->SetPerpendicularEdgeID( perpendicular_spar_id );
+    }
+}
+
+string GetFeaPartPerpendicularSparID( const string& part_id )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( part_id );
+    string ret_str = string();
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPartPerpendicularSparID::Can't Find FEA Part " + part_id );
+        return ret_str;
+    }
+
+    bool rib_type = part->GetType() == FEA_RIB;
+    bool rib_array_type = part->GetType() == FEA_RIB_ARRAY;
+
+    if ( !( rib_type || rib_array_type ) )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "GetFeaPartPerpendicularSparID::FEA Part is not Rib or Rib Array Type" );
+        return ret_str;
+    }
+
+    if ( rib_type )
+    {
+        FeaRib* rib = dynamic_cast<FeaRib*>( part );
+        assert( rib );
+        ret_str = rib->GetPerpendicularEdgeID();
+    }
+    else if ( rib_array_type )
+    {
+        FeaRibArray* rib_array = dynamic_cast<FeaRibArray*>( part );
+        assert( rib_array );
+        ret_str = rib_array->GetPerpendicularEdgeID();
+    }
+
+    return ret_str;
 }
 
 /// Add a FeaSubSurface, return FeaSubSurface ID

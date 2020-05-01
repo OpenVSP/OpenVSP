@@ -10566,6 +10566,83 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Set the ID of the perpendicular spar for an FEA Rib or Rib Array. Note, the FEA Rib or Rib Array should have "SPAR_NORMAL"
+    set for the "PerpendicularEdgeType" Parm. If it is not, the ID will still be set, but the orientation of the Rib or Rib
+    Array will not change.
+    \code{.cpp}
+    //==== Add Wing Geometry ====//
+    string wing_id = AddGeom( "WING" );
+
+    //==== Add FeaStructure to Wing ====//
+    int struct_ind = AddFeaStruct( wing_id );
+
+    //==== Add Rib ====//
+    string rib_id = AddFeaPart( wing_id, struct_ind, FEA_RIB );
+
+    //==== Add Spars ====//
+    string spar_id_1 = AddFeaPart( wing_id, struct_ind, FEA_SPAR );
+    string spar_id_2 = AddFeaPart( wing_id, struct_ind, FEA_SPAR );
+
+    SetParmVal( FindParm( spar_id_1, "RelCenterLocation", "FeaPart" ), 0.25 );
+    SetParmVal( FindParm( spar_id_2, "RelCenterLocation", "FeaPart" ), 0.75 );
+
+    //==== Set Perpendicular Edge type to SPAR ====//
+    SetParmVal( FindParm( rib_id, "PerpendicularEdgeType", "FeaRib" ), SPAR_NORMAL );
+
+    SetFeaPartPerpendicularSparID( rib_id, spar_id_2 );
+
+    if ( spar_id_2 != GetFeaPartPerpendicularSparID( rib_id ) )
+    {
+        Print( "Error: SetFeaPartPerpendicularSparID" );
+    }
+    \endcode
+    \sa FEA_RIB_NORMAL, GetFeaPartPerpendicularSparID
+    \param [in] part_id FEA Part ID (Rib or Rib Array Type)
+    \param [in] perpendicular_spar_id FEA Spar ID
+*/)";
+    r = se->RegisterGlobalFunction( "void SetFeaPartPerpendicularSparID( const string & in part_id, const string & in perpendicular_spar_id )", asFUNCTION( vsp::SetFeaPartPerpendicularSparID ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the ID of the perpendicular spar for an FEA Rib or Rib Array. Note, the FEA Rib or Rib Array doesn't have to have "SPAR_NORMAL"
+    set for the "PerpendicularEdgeType" Parm for this function to still return a value. 
+    \code{.cpp}
+    //==== Add Wing Geometry ====//
+    string wing_id = AddGeom( "WING" );
+
+    //==== Add FeaStructure to Wing ====//
+    int struct_ind = AddFeaStruct( wing_id );
+
+    //==== Add Rib ====//
+    string rib_id = AddFeaPart( wing_id, struct_ind, FEA_RIB );
+
+    //==== Add Spars ====//
+    string spar_id_1 = AddFeaPart( wing_id, struct_ind, FEA_SPAR );
+    string spar_id_2 = AddFeaPart( wing_id, struct_ind, FEA_SPAR );
+
+    SetParmVal( FindParm( spar_id_1, "RelCenterLocation", "FeaPart" ), 0.25 );
+    SetParmVal( FindParm( spar_id_2, "RelCenterLocation", "FeaPart" ), 0.75 );
+
+    //==== Set Perpendicular Edge type to SPAR ====//
+    SetParmVal( FindParm( rib_id, "PerpendicularEdgeType", "FeaRib" ), SPAR_NORMAL );
+
+    SetFeaPartPerpendicularSparID( rib_id, spar_id_2 );
+
+    if ( spar_id_2 != GetFeaPartPerpendicularSparID( rib_id ) )
+    {
+        Print( "Error: GetFeaPartPerpendicularSparID" );
+    }
+    \endcode
+    \sa FEA_RIB_NORMAL, SetFeaPartPerpendicularSparID
+    \param [in] part_id FEA Part ID (Rib or Rib Array Type)
+    \return Perpendicular FEA Spar ID
+*/)";
+    r = se->RegisterGlobalFunction( "string GetFeaPartPerpendicularSparID( const string & in part_id )", asFUNCTION( vsp::GetFeaPartPerpendicularSparID ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Add an FEA SubSurface to a Structure
     \code{.cpp}
     //==== Add Pod Geometry ====//
