@@ -1104,6 +1104,19 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "FEA_UNIT_TYPE", "BIN_UNIT", BIN_UNIT, "/*!< BIN unit system */" );
     assert( r >= 0 );
 
+    doc_struct.comment = "/*! Enum that defines the type of edge to set the initial position of FEA Ribs and FEA Rib Arrays to. */";
+
+    r = se->RegisterEnum( "FEA_RIB_NORMAL", doc_struct );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "NO_NORMAL", NO_NORMAL, "/*!< FEA Rib or Rib Array has no set perpendicular edge */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "LE_NORMAL", LE_NORMAL, "/*!< FEA Rib or Rib Array is set perpendicular to the leading edge */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "TE_NORMAL", TE_NORMAL, "/*!< FEA Rib or Rib Array is set perpendicular to the trailing edge */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "FEA_RIB_NORMAL", "SPAR_NORMAL", SPAR_NORMAL, "/*!< FEA Rib or Rib Array is set perpendicular to an FEA Spar */" );
+    assert( r >= 0 );
+
     doc_struct.comment = "/*! Enum for Parasite Drag Tool form factor equations for body-type components. */";
 
     r = se->RegisterEnum( "FF_B_EQN", doc_struct );

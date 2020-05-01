@@ -311,6 +311,12 @@ enum FEA_UNIT_TYPE { SI_UNIT = 0, // m, kg
                      BIN_UNIT // in, lbf*sec^2/in
                    };
 
+enum FEA_RIB_NORMAL { NO_NORMAL,
+                      LE_NORMAL,
+                      TE_NORMAL,
+                      SPAR_NORMAL
+                    };
+
 enum FF_B_EQN { FF_B_MANUAL = 0,
                 FF_B_SCHEMENSKY_FUSE,
                 FF_B_SCHEMENSKY_NACELLE,
