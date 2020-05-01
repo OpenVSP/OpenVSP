@@ -2409,6 +2409,28 @@ xmlNodePtr FeaRib::DecodeXml( xmlNodePtr & node )
     if ( fea_prt_node )
     {
         m_PerpendicularEdgeID = XmlUtil::FindString( fea_prt_node, "PerpendicularEdgeID", m_PerpendicularEdgeID );
+
+        // Check for previous implementation of perpendicular edge for ribs to enable compatibility in new VSP versions
+        xmlNodePtr child_node = XmlUtil::GetNode( fea_prt_node, "FeaRib", 0 );
+        if ( XmlUtil::FindInt( child_node, "PerpendicularEdgeType", -1 ) == -1 )
+        {
+            if ( strcmp( m_PerpendicularEdgeID.c_str(), "Trailing Edge" ) == 0 )
+            {
+                m_PerpendicularEdgeType.Set( vsp::TE_NORMAL );
+            }
+            else if ( strcmp( m_PerpendicularEdgeID.c_str(), "Leading Edge" ) == 0 )
+            {
+                m_PerpendicularEdgeType.Set( vsp::LE_NORMAL );
+            }
+            else if ( strcmp( m_PerpendicularEdgeID.c_str(), "None" ) == 0 )
+            {
+                m_PerpendicularEdgeType.Set( vsp::NO_NORMAL );
+            }
+            else
+            {
+                m_PerpendicularEdgeType.Set( vsp::SPAR_NORMAL );
+            }
+        }
     }
 
     return fea_prt_node;
@@ -3937,6 +3959,28 @@ xmlNodePtr FeaRibArray::DecodeXml( xmlNodePtr & node )
     if ( fea_prt_node )
     {
         m_PerpendicularEdgeID = XmlUtil::FindString( fea_prt_node, "PerpendicularEdgeID", m_PerpendicularEdgeID );
+
+        // Check for previous implementation of perpendicular edge for ribs to enable compatibility in new VSP versions
+        xmlNodePtr child_node = XmlUtil::GetNode( fea_prt_node, "FeaRib", 0 );
+        if ( XmlUtil::FindInt( child_node, "PerpendicularEdgeType", -1 ) == -1 )
+        {
+            if ( strcmp( m_PerpendicularEdgeID.c_str(), "Trailing Edge" ) == 0 )
+            {
+                m_PerpendicularEdgeType.Set( vsp::TE_NORMAL );
+            }
+            else if ( strcmp( m_PerpendicularEdgeID.c_str(), "Leading Edge" ) == 0 )
+            {
+                m_PerpendicularEdgeType.Set( vsp::LE_NORMAL );
+            }
+            else if ( strcmp( m_PerpendicularEdgeID.c_str(), "None" ) == 0 )
+            {
+                m_PerpendicularEdgeType.Set( vsp::NO_NORMAL );
+            }
+            else
+            {
+                m_PerpendicularEdgeType.Set( vsp::SPAR_NORMAL );
+            }
+        }
     }
 
     return fea_prt_node;
