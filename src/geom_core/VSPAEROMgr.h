@@ -69,6 +69,8 @@ public:
     Parm m_CT;          // Rotor_CT_
     Parm m_CP;          // Rotor_CP_
 
+    bool m_FlipNormalFlag;
+
     //identifing information for vsp model
     string m_ParentGeomId;
     unsigned int m_ParentGeomSurfNdx;

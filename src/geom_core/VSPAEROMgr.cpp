@@ -726,6 +726,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                                         int indxToSearch = k + temp.back()->m_ParentGeomSurfNdx;
                                         temp.back()->m_XYZ = m_DegenGeomVec[indxToSearch].getDegenDisk().x;
                                         temp.back()->m_Normal = m_DegenGeomVec[indxToSearch].getDegenDisk().nvec * -1.0;
+                                        if ( surfvec[iSubsurf].GetFlipNormal() ) temp.back()->m_FlipNormalFlag = true;
                                         break;
                                     }
                                 }
@@ -4835,6 +4836,7 @@ RotorDisk::RotorDisk( void ) : ParmContainer()
 
     m_ParentGeomId = "";
     m_ParentGeomSurfNdx = -1;
+    m_FlipNormalFlag = false;
 }
 
 
@@ -4887,7 +4889,14 @@ void RotorDisk::Write_STP_Data( FILE *InputFile )
 
     fprintf( InputFile, "%lf \n", m_HubDiameter() / 2.0 );
 
-    fprintf( InputFile, "%lf \n", m_RPM() );
+    if ( m_FlipNormalFlag )
+    {
+        fprintf( InputFile, "%lf \n", m_RPM() );
+    }
+    else
+    {
+        fprintf( InputFile, "%lf \n", -m_RPM() );
+    }
 
     fprintf( InputFile, "%lf \n", m_CT() );
 
