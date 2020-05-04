@@ -1730,7 +1730,19 @@ void SurfaceIntersectionSingleton::LoadBorderCurves()
         if ( m_ICurveVec[i]->m_PlaneBorderIntersectFlag )
         {
             Surf* SurfA = m_ICurveVec[i]->m_SCurve_A->GetSurf();
-            if ( !SurfA->GetSymPlaneFlag() )
+            Surf* SurfB = m_ICurveVec[i]->m_SCurve_B->GetSurf();
+
+            if ( GetSettingsPtr()->m_HalfMeshFlag && SurfB->GetSurfCore()->LessThanY( 1e-6 ) )
+            {
+                m_ICurveVec[i]->m_SCurve_A->BorderTesselate();
+                m_ICurveVec[i]->m_SCurve_B->ProjectTessToSurf( m_ICurveVec[i]->m_SCurve_A );
+            }
+            else if ( GetSettingsPtr()->m_HalfMeshFlag && SurfA->GetSurfCore()->LessThanY( 1e-6 ) )
+            {
+                m_ICurveVec[i]->m_SCurve_B->BorderTesselate();
+                m_ICurveVec[i]->m_SCurve_A->ProjectTessToSurf( m_ICurveVec[i]->m_SCurve_B );
+            }
+            else if ( !SurfA->GetSymPlaneFlag() )
             {
                 m_ICurveVec[i]->PlaneBorderTesselate( m_ICurveVec[i]->m_SCurve_A, m_ICurveVec[i]->m_SCurve_B );
             }
