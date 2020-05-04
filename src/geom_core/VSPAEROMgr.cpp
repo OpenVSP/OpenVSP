@@ -3742,7 +3742,7 @@ map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeom
 
 void VSPAEROMgrSingleton::UpdateAutoTimeStep()
 {
-    if ( NumUnsteadyGroups() == 0 )
+    if ( NumUnsteadyRotorGroups() == 0 )
     {
         return;
     }
