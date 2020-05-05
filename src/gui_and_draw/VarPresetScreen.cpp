@@ -322,10 +322,8 @@ void VarPresetScreen::RebuildMenus( int g_index )
         for ( int i = 0; i < m_PresetVec.size(); i++ )
         {
             m_GroupChoice.AddItem( m_PresetVec[i].GetGroupName() );
-            m_GroupChoice.UpdateItems();
             if ( i ==  g_index )
             {
-                m_GroupChoice.SetVal( i );
                 m_SettingChoice.ClearItems();
                 for ( int j = 0; j < m_PresetVec[i].GetNumSet(); j++ )
                 {
@@ -335,6 +333,8 @@ void VarPresetScreen::RebuildMenus( int g_index )
                 m_SettingChoice.SetVal( s_index ) ;
             }
         }
+        m_GroupChoice.UpdateItems();
+        m_GroupChoice.SetVal( g_index );
     }
     else
     {
