@@ -9,7 +9,7 @@ class ContourLevelUserInterface {open
     Fl_Window MainWindow {
       code0 {\#include "ContourLevel.h"}
       label {Set Contour Levels} open selected
-      xywh {712 186 305 140} type Double align 129
+      xywh {886 257 305 210} type Double align 129
       code1 {\#include "glviewer.H"} visible
     } {
       Fl_Button Reset {
@@ -34,6 +34,12 @@ glviewer_->redraw();}
 glviewer_->redraw();}
         xywh {197 60 100 35}
       }
+      Fl_Value_Input SetNumberLineContours {
+        label {Number Of Line Contours:}
+        callback {glviewer_->SetNumberOfLineContourLevels( ((Fl_Value_Input *)o)->value() );
+glviewer_->redraw();}
+        xywh {197 158 100 35}
+      }
     }
   }
   decl {GL_VIEWER *glviewer_;} {private local
@@ -43,6 +49,8 @@ glviewer_->redraw();}
     code {glviewer_ = glviewer;
 SetMinimumSetting->value(glviewer_->GetSolutionMin());
 SetMaximumSetting->value(glviewer_->GetSolutionMax());
+SetNumberLineContours->value(glviewer_->GetNumberOfLineContourLevels());
+
 MainWindow->show();} {}
   }
 } 

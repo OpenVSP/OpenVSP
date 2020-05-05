@@ -92,7 +92,6 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
     // What to draw
 
     DrawSmoothShadeIsOn                  = 0;
-    DrawSmoothFunctionsIsOn              = 0;
     DrawLegendIsOn                       = 0;
     DrawLabelIsOn                        = 0;
     DrawWithWhiteBackgroundIsOn          = 1;
@@ -215,6 +214,14 @@ GL_VIEWER::GL_VIEWER(int x,int y,int w,int h,const char *l) : Fl_Gl_Window(x,y,w
     DrawWakePointsIsOn = 0;    
     
     DrawWakesColored_ = 0;
+    
+    NumberOfLineContourLevels = 20;
+
+    DrawPerTriFunctionIsOn = 1;
+
+    DrawSmoothFunctionsIsOn = 0;
+        
+    DrawLineContoursIsOn = 0;
     
 }
 
@@ -1319,9 +1326,7 @@ void GL_VIEWER::LoadExistingSolutionData(int Case)
        // Read in the wake location data
        
        BIO.fread(&(NumberOfTrailingVortexEdges_), i_size, 1, adb_file); // Number of trailing wake vortices
-  
-       // printf("NumberOfTrailingVortexEdges_: %d \n",NumberOfTrailingVortexEdges_);
-       
+
        XWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
        YWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];
        ZWake_ = new float*[NumberOfTrailingVortexEdges_ + 1];   
@@ -4355,14 +4360,25 @@ void GL_VIEWER::DrawShadedSolution(float *Function, float FMin, float FMax)
     int i, node1, node2, node3;
     float Area, NewMin, NewMax;
 
-
-    if ( !DrawSmoothFunctionsIsOn ) {
+    // Per tri contour shading
+    
+    if ( DrawPerTriFunctionIsOn ) {
 
        DrawShadedSolutionPerTri(Function, FMin, FMax);
 
     }
 
-    else {
+    // Line contours
+    
+    else if ( DrawLineContoursIsOn ) {
+       
+       DrawShadedLineContours(Function, FMin, FMax);
+       
+    }
+
+    // Smooth shading of contours, node averaging
+    
+    else if ( DrawSmoothFunctionsIsOn ) {
 
        if ( LastFunction != Function ) {
 
@@ -4422,6 +4438,257 @@ void GL_VIEWER::DrawShadedSolution(float *Function, float FMin, float FMax)
 
 	}
 
+}
+
+/*##############################################################################
+#                                                                              #
+#                          DrawShadedLineContours                              #
+#                             GL_VIEWER                                        #
+#                                                                              #
+##############################################################################*/
+
+void GL_VIEWER::DrawShadedLineContours(float *Function, float FMin, float FMax)
+{
+
+    int c, i, j, node1, node2, node3, NumContourLevels;
+    float Area, NewMin, NewMax, Vec[3], Value, Per2RGB, Per[3], v1, v2;
+    float xyz1[3], xyz2[3];
+    float rgb[3];
+    
+    DrawShadedSurface();
+    
+    rgb[0] = 0.;
+    rgb[1] = 0.;
+    rgb[2] = 0.;
+
+    glPolygonMode(GL_FRONT_AND_BACK,GL_LINE);
+    glColor3fv(rgb);
+    glLineWidth(1.);
+    glDisable(GL_LIGHTING);
+
+    // Draw the surface triangles
+
+    glEnable(GL_POLYGON_OFFSET_LINE);
+
+    glPolygonOffset(0.,-10.);
+
+    // Create nodal values
+    
+    if ( LastFunction != Function ) {
+
+       for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
+
+         TempNodalArray[i] = 0.;
+
+         TempTotalArea[i] = 0.;
+
+      }
+
+       for ( i = 1 ; i <= NumberOfTris ; i++ ) {
+
+          node1 = TriList[i].node1;
+          node2 = TriList[i].node2;
+          node3 = TriList[i].node3;
+
+          Area = TriList[i].area;
+
+          TempNodalArray[node1] += Function[i] * Area;
+          TempNodalArray[node2] += Function[i] * Area;
+          TempNodalArray[node3] += Function[i] * Area;
+
+          TempTotalArea[node1] += Area;
+          TempTotalArea[node2] += Area;
+          TempTotalArea[node3] += Area;
+
+       }
+
+       NodalMin = 1.e9;
+       NodalMax = -NodalMin;
+
+       for ( i = 1 ; i <= NumberOfNodes ; i++ ) {
+
+         if ( TempTotalArea[i] > 0. ) {
+           
+             TempNodalArray[i] /= TempTotalArea[i];
+             
+          }
+          
+          else {
+           
+             TempTotalArea[i] = 0.;
+          
+          }
+
+         NodalMin = MIN(NodalMin,TempNodalArray[i]);
+         NodalMax = MAX(NodalMax,TempNodalArray[i]);
+
+      }
+
+      LastFunction = Function;
+
+   }
+
+   // Loop over contour values and draw some lines
+   
+   for ( c = 1 ; c <= NumberOfLineContourLevels ; c++ ) {
+      
+       Value = FMin + (c-1)*( FMax - FMin )/(NumberOfLineContourLevels-1);
+
+       if ( FMax != FMin ) {
+   
+          Per2RGB = (Value - FMin)/(FMax - FMin);
+   
+       }
+   
+       else {
+   
+          Per2RGB = 1.;
+   
+       }
+   
+       percent_to_rgb(Per2RGB, rgb, 0);
+ 
+       for ( i = 1 ; i <= NumberOfTris ; i++ ) {
+      
+          node1 = TriList[i].node1;
+          node2 = TriList[i].node2;
+          node3 = TriList[i].node3;
+      
+          Vec[0] = TempNodalArray[node1];
+          Vec[1] = TempNodalArray[node2];
+          Vec[2] = TempNodalArray[node3];
+          
+          if ( Value >= MIN3(Vec[0],Vec[1],Vec[2]) && Value <= MAX3(Vec[0],Vec[1],Vec[2]) ) {
+     
+             for ( j = 0 ; j <= 2 ; j++ ) {
+                
+                if ( j == 0 ) { v1 = Vec[0]; v2 = Vec[1]; };
+                if ( j == 1 ) { v1 = Vec[1]; v2 = Vec[2]; };
+                if ( j == 2 ) { v1 = Vec[2]; v2 = Vec[0]; };
+                
+                Per[j] = -1.;
+                
+                if ( v1 - v2 != 0. ) {
+                   
+                   Per[j] = (Value - v1)/(v2 - v1);
+                
+                }
+                
+             }
+             
+             glColor3fv(rgb);
+
+             if ( ( Per[0] >= 0. && Per[0] <= 1. ) && ( Per[1] >= 0. && Per[1] <= 1. ) ) {
+                
+                xyz1[0] = NodeList[node1].x + Per[0]*(NodeList[node2].x - NodeList[node1].x);
+                xyz1[1] = NodeList[node1].y + Per[0]*(NodeList[node2].y - NodeList[node1].y);
+                xyz1[2] = NodeList[node1].z + Per[0]*(NodeList[node2].z - NodeList[node1].z);
+                                                             
+                xyz2[0] = NodeList[node2].x + Per[1]*(NodeList[node3].x - NodeList[node2].x);
+                xyz2[1] = NodeList[node2].y + Per[1]*(NodeList[node3].y - NodeList[node2].y);
+                xyz2[2] = NodeList[node2].z + Per[1]*(NodeList[node3].z - NodeList[node2].z);
+           
+                glBegin(GL_LINES);
+               
+                   glVertex3fv(xyz1);
+               
+                   glVertex3fv(xyz2);
+        
+                glEnd();
+ 
+                if ( DrawReflectedGeometryIsOn ) {
+        
+                   glBegin(GL_LINES);
+                   
+                      xyz1[1] = -(xyz1[1] + GeometryYShift) - GeometryYShift;
+                      xyz2[1] = -(xyz2[1] + GeometryYShift) - GeometryYShift;
+                  
+                      glVertex3fv(xyz1);
+                  
+                      glVertex3fv(xyz2);
+           
+                   glEnd();
+
+                }
+                            
+             }
+             
+             else if ( ( Per[0] >= 0. && Per[0] <= 1. ) && ( Per[2] >= 0. && Per[2] <= 1. ) ) {
+   
+                xyz1[0] = NodeList[node1].x + Per[0]*(NodeList[node2].x - NodeList[node1].x);
+                xyz1[1] = NodeList[node1].y + Per[0]*(NodeList[node2].y - NodeList[node1].y);
+                xyz1[2] = NodeList[node1].z + Per[0]*(NodeList[node2].z - NodeList[node1].z);
+                                                              
+                xyz2[0] = NodeList[node3].x + Per[2]*(NodeList[node1].x - NodeList[node3].x);
+                xyz2[1] = NodeList[node3].y + Per[2]*(NodeList[node1].y - NodeList[node3].y);
+                xyz2[2] = NodeList[node3].z + Per[2]*(NodeList[node1].z - NodeList[node3].z);
+   
+                glBegin(GL_LINES);
+               
+                   glVertex3fv(xyz1);
+               
+                   glVertex3fv(xyz2);
+        
+                glEnd();
+
+                if ( DrawReflectedGeometryIsOn ) {
+        
+                   glBegin(GL_LINES);
+                   
+                      xyz1[1] = -(xyz1[1] + GeometryYShift) - GeometryYShift;
+                      xyz2[1] = -(xyz2[1] + GeometryYShift) - GeometryYShift;
+                  
+                      glVertex3fv(xyz1);
+                  
+                      glVertex3fv(xyz2);
+           
+                   glEnd();
+
+                }
+                                             
+             }
+             
+             else if ( ( Per[1] >= 0. && Per[1] <= 1. ) && ( Per[2] >= 0. && Per[2] <= 1. ) ) {
+                
+                xyz1[0] = NodeList[node2].x + Per[1]*(NodeList[node3].x - NodeList[node2].x);
+                xyz1[1] = NodeList[node2].y + Per[1]*(NodeList[node3].y - NodeList[node2].y);
+                xyz1[2] = NodeList[node2].z + Per[1]*(NodeList[node3].z - NodeList[node2].z);
+                                                              
+                xyz2[0] = NodeList[node3].x + Per[2]*(NodeList[node1].x - NodeList[node3].x);
+                xyz2[1] = NodeList[node3].y + Per[2]*(NodeList[node1].y - NodeList[node3].y);
+                xyz2[2] = NodeList[node3].z + Per[2]*(NodeList[node1].z - NodeList[node3].z);
+   
+                glBegin(GL_LINES);
+               
+                   glVertex3fv(xyz1);
+               
+                   glVertex3fv(xyz2);
+        
+                glEnd();
+
+                if ( DrawReflectedGeometryIsOn ) {
+        
+                   glBegin(GL_LINES);
+                   
+                      xyz1[1] = -(xyz1[1] + GeometryYShift) - GeometryYShift;
+                      xyz2[1] = -(xyz2[1] + GeometryYShift) - GeometryYShift;
+                  
+                      glVertex3fv(xyz1);
+                  
+                      glVertex3fv(xyz2);
+           
+                   glEnd();
+
+                }
+                                             
+             }
+          
+          }          
+          
+       }
+       
+   }
+   
 }
 
 /*##############################################################################

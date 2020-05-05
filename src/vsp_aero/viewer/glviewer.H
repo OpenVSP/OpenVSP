@@ -254,6 +254,8 @@ private:
     double *GammaN, *dCp_Unsteady, *Fx, *Fy, *Fz;
     double *U, *V, *W;
     
+    int NumberOfLineContourLevels;
+    
     float *TempTriangleArray;
     float *TempNodalArray;
     float *TempTotalArea;
@@ -373,7 +375,9 @@ private:
     // What to draw
 
     int DrawSmoothShadeIsOn;
+    int DrawPerTriFunctionIsOn;
     int DrawSmoothFunctionsIsOn;
+    int DrawLineContoursIsOn;
 
     int DrawReflectedGeometryIsOn;
 
@@ -476,6 +480,7 @@ private:
     void DrawShadedSurface(void);
     void DrawCoarseMeshNodesForLevel(int Level);
     void DrawCoarseMeshEdgesForLevel(int Level);
+    void DrawShadedLineContours(float *Function, float FMin, float FMax);
     
     void DrawWakes(void);
     
@@ -631,7 +636,11 @@ public:
     // What to draw
 
     void DrawSmoothShadeWasPicked(void)             { ToggleFlag(DrawSmoothShadeIsOn,                           "DrawSmoothShadeIs"); };
-    void DrawSmoothFunctionsWasPicked(void)         { ToggleFlag(DrawSmoothFunctionsIsOn,                       "DrawSmoothFunctionsIs"); };
+
+    void DrawPerTriFunctionsWasPicked(void)         { ToggleFlag(DrawPerTriFunctionIsOn,                        "DrawPerTriFunctionIs");  if ( DrawPerTriFunctionIsOn  ) {DrawSmoothFunctionsIsOn =   DrawLineContoursIsOn = 0; } };
+    void DrawSmoothFunctionsWasPicked(void)         { ToggleFlag(DrawSmoothFunctionsIsOn,                       "DrawSmoothFunctionsIs"); if ( DrawSmoothFunctionsIsOn ) { DrawPerTriFunctionIsOn =   DrawLineContoursIsOn = 0; } };
+    void DrawLineContoursWasPicked(void)            { ToggleFlag(DrawLineContoursIsOn,                          "DrawLineContoursIs");    if ( DrawLineContoursIsOn    ) {DrawSmoothFunctionsIsOn = DrawPerTriFunctionIsOn = 0; } };
+    
     void DrawReflectedGeometryWasPicked(void)       { ToggleFlag(DrawReflectedGeometryIsOn,                     "DrawReflectedGeometryIs"); };
 
     void DrawLegendWasPicked(void)                  { ToggleFlag(DrawLegendIsOn,                                "DrawLegendIs"); };
@@ -728,6 +737,9 @@ public:
     void GetCurrentAlphaText(char *c) { sprintf(c,"%3.3f", CurrentAlpha) ; };
 
     // Set min and maximum Contour levels
+    
+    void SetNumberOfLineContourLevels(int NumLevels) { NumberOfLineContourLevels = NumLevels; };
+    int GetNumberOfLineContourLevels(void) { return NumberOfLineContourLevels; };
 
     void SetSolutionMin(float MinVal);
     void SetSolutionMax(float MaxVal);

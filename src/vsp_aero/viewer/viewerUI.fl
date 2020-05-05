@@ -7,8 +7,8 @@ class viewerUI {open
   Function {viewerUI()} {open
   } {
     Fl_Window mainWindow {
-      label {VSPAERO Viewer 6.0.1} open selected
-      private xywh {637 313 1160 710} type Double labelsize 12 align 0 resizable visible
+      label {VSPAERO Viewer 6.0.3} open selected
+      private xywh {735 302 1160 710} type Double labelsize 12 align 0 resizable visible
     } {
       Fl_Group {} {open
         xywh {0 2 1162 710} box FLAT_BOX labeltype ENGRAVED_LABEL
@@ -347,15 +347,34 @@ glviewer->redraw();}
           callback {ContourLevelUserInterface *CL;
 CL = new ContourLevelUserInterface;
 CL->show(glviewer);}
-          xywh {10 10 100 20} divider
+          xywh {20 20 100 20} divider
           code0 {\#include "ContourLevel.h"}
         }
-        MenuItem OptionsMenuUseSmoothFunctionShading {
-          label {Use Smooth Function Shading}
-          callback {glviewer->DrawSmoothFunctionsWasPicked();
+        Submenu ChooseContourType {
+          label {Function Contour Type} open
+          xywh {0 0 70 20} divider
+        } {
+          MenuItem OptionsMenuUsePerTriFunctionShading {
+            label {Use Per Tri Function Shading}
+            callback {glviewer->DrawPerTriFunctionsWasPicked();
 glviewer->redraw();}
-          xywh {40 40 100 20} type Toggle divider
-          code0 {\#include "ContourLevel.h"}
+            xywh {55 55 100 20} type Radio value 1
+            code0 {\#include "ContourLevel.h"}
+          }
+          MenuItem OptionsMenuUseSmoothFunctionShading {
+            label {Use Smooth Function Shading}
+            callback {glviewer->DrawSmoothFunctionsWasPicked();
+glviewer->redraw();}
+            xywh {65 65 100 20} type Radio
+            code0 {\#include "ContourLevel.h"}
+          }
+          MenuItem OptionsMenuUseLineContours {
+            label {Use Line Contours}
+            callback {glviewer->DrawLineContoursWasPicked();
+glviewer->redraw();}
+            xywh {65 65 100 20} type Radio divider
+            code0 {\#include "ContourLevel.h"}
+          }
         }
         MenuItem OptionsMenuUseFlatShading {
           label {Use Flat Shading}
