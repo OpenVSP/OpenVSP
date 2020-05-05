@@ -1009,6 +1009,8 @@ void VSP_GEOM::Read_VSP_Degen_File(char *FileName)
     
     NumberOfComponents_ = ComponentID;
     
+    printf("NumberOfComponents_: %d \n", NumberOfComponents_);
+    
     fclose(VSP_Degen_File);
     
     delete [] ReadInThisBody;
@@ -1030,7 +1032,7 @@ void VSP_GEOM::MeshGeom(void)
     int i, Surface, NumberOfNodes, NumberOfLoops, NumberOfEdges, NumberOfKuttaNodes;
     int MaxNumberOfGridLevels, NodeOffSet, Done;
     double AreaTotal;
-    
+  
     // Loop over the surface and create a mesh for each
 
     for ( Surface = 1 ; Surface <= NumberOfSurfaces_ ; Surface++ ) {
@@ -1204,6 +1206,10 @@ void VSP_GEOM::MeshGeom(void)
        
     }
     
+    // Calculate bounding boxes for all components in the grid
+    
+    CreateComponentBBoxData();
+    
     //Grid().MinLoopArea() = AreaTotal/50.;
     Grid().MinLoopArea() = AreaTotal;
    
@@ -1279,6 +1285,58 @@ void VSP_GEOM::MeshGeom(void)
     
     FindControlSurfaceVortexLoops();
     
+}
+
+/*##############################################################################
+#                                                                              #
+#                         VSP_GEOM CreateComponentBBoxData                     #
+#                                                                              #
+##############################################################################*/
+
+void VSP_GEOM::CreateComponentBBoxData(void)
+{
+   
+    int i, c, j, Node;
+    
+    printf("NumberOfComponents_: %d\n",NumberOfComponents_);
+
+    fflush(NULL);
+    
+    BBoxForComponent_ = new BBOX[NumberOfComponents_ + 1];
+   
+    for ( c = 1 ; c <= NumberOfComponents_ ; c++ ) {
+       
+       BBoxForComponent(c).x_min =  1.e9;
+       BBoxForComponent(c).x_max = -1.e9;
+       BBoxForComponent(c).y_min =  1.e9;
+       BBoxForComponent(c).y_max = -1.e9;
+       BBoxForComponent(c).z_min =  1.e9;
+       BBoxForComponent(c).z_max = -1.e9;
+       
+    }
+       
+    for ( i = 1 ; i <= Grid().NumberOfLoops() ; i++ ) {
+       
+       c = Grid().LoopList(i).ComponentID();
+
+       
+       for ( j = 1 ; j <= Grid().LoopList(i).NumberOfNodes() ; j++ ) {
+          
+          Node = Grid().LoopList(i).Node(j);
+         
+          BBoxForComponent(c).x_min = MIN(BBoxForComponent(c).x_min, Grid().NodeList(Node).x());
+          BBoxForComponent(c).x_max = MAX(BBoxForComponent(c).x_max, Grid().NodeList(Node).x());
+          
+          BBoxForComponent(c).y_min = MIN(BBoxForComponent(c).y_min, Grid().NodeList(Node).y()); 
+          BBoxForComponent(c).y_max = MAX(BBoxForComponent(c).y_max, Grid().NodeList(Node).y()); 
+          
+          BBoxForComponent(c).z_min = MIN(BBoxForComponent(c).z_min, Grid().NodeList(Node).z()); 
+          BBoxForComponent(c).z_max = MAX(BBoxForComponent(c).z_max, Grid().NodeList(Node).z()); 
+          
+       }
+       
+    }
+
 }
 
 /*##############################################################################

@@ -499,6 +499,8 @@ private:
     
     VSP_EDGE **CreateInteractionList(int ComponentID, int pLoop, int InteractionType, double xyz[3], int &NumberOfInteractionEdges);
 
+    int NodeIsInsideLoop(VSP_LOOP &Loop, double xyz[3]);
+
     int FirstTimeSetup_;
     int MaxStackSize_;
     int ***EdgeIsUsed_;    

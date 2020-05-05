@@ -714,7 +714,7 @@ double VSP_EDGE::Fint(double &a, double &b, double &c, double &d, double &s)
     Denom = d * sqrt(R);
 
     F = 2.*(2.*c*s + b)*Denom/(Denom*Denom + CoreWidth_*CoreWidth_ + MinCoreWidth_*MinCoreWidth_);
-    
+
     return F;
  
 }
@@ -976,14 +976,26 @@ void VSP_EDGE::CalculateInducedForces(VSP_LOOP &VortexLoop)
     
     FreeStreamMagnitude_ = sqrt(vector_dot(FreeStreamDirection_,FreeStreamDirection_));
     
-    FreeStreamDirection_[0] /= FreeStreamMagnitude_;
-    FreeStreamDirection_[1] /= FreeStreamMagnitude_;
-    FreeStreamDirection_[2] /= FreeStreamMagnitude_;    
-        
+    if ( FreeStreamMagnitude_ > 0. ) {
+    
+       FreeStreamDirection_[0] /= FreeStreamMagnitude_;
+       FreeStreamDirection_[1] /= FreeStreamMagnitude_;
+       FreeStreamDirection_[2] /= FreeStreamMagnitude_;
+       
+    }
+    
+    else {
+       
+       FreeStreamDirection_[0] = 0.;
+       FreeStreamDirection_[1] = 0.;    
+       FreeStreamDirection_[2] = 0.; 
+       
+    }
+
     // Component of forces in local free stream direction
     
     Dot = vector_dot(InducedForces_, FreeStreamDirection_);
-    
+
     InducedForces_[0] = Dot * FreeStreamDirection_[0];
     InducedForces_[1] = Dot * FreeStreamDirection_[1];
     InducedForces_[2] = Dot * FreeStreamDirection_[2];

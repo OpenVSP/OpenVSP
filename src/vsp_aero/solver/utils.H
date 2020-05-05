@@ -77,6 +77,8 @@ int compare_boxes(BBOX &box1, BBOX &box2);
 
 int inside_box(BBOX &box, double xyz[3]);
 
+double calculate_box_overlap(BBOX &box1, BBOX &box2);
+
 double box_distance_ratio(BBOX &box, double xyz[3]);
 
 void box_calculate_size(BBOX &box);

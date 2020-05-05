@@ -8060,7 +8060,7 @@ void VSP_SOLVER::CalculateDeltaCPs(void)
        Fz = SurfaceVortexEdge(j).Fz() + SurfaceVortexEdge(j).Unsteady_Fz();
           
        // Loop level forces
-       
+     
        if ( ( Loop1 != 0 && Loop2 != 0 ) || SurfaceVortexEdge(j).IsLeadingEdge() ) {
 
           Wgt1 = VortexLoop(Loop1).Area()/(VortexLoop(Loop1).Area() + VortexLoop(Loop2).Area());    
@@ -8150,7 +8150,7 @@ void VSP_SOLVER::CalculateSurfacePressures(void)
        if ( Mach_ > 0. && Vinf_ > 0. ) {
           
           LocalMach = Mach_*VortexLoop(i).LocalFreeStreamVelocity(4)/Vinf_;
-          
+        
        }
        
        LocalMach = MIN(LocalMach, 0.80);
@@ -9174,7 +9174,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
 
        }
 
-       if ( !SurfaceVortexEdge(j).IsTrailingEdge() ) {
+       if ( !SurfaceVortexEdge(j).IsTrailingEdge() && ( SurfaceVortexEdge(j).VortexLoop1() != 0 && SurfaceVortexEdge(j).VortexLoop2() != 0 ) ) {
 
           // Sum up forces and moments from each edge
 
@@ -9352,14 +9352,14 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
 
     int i, j, k, c, t, Loop, Loop1, Loop2, LoadCase, *ComponentInThisGroup;
     int NumberOfStations, SpanStation, SurfaceID; 
-    double Fx, Fy, Fz, Fxi, Fyi, Fzi, Wgt;
+    double Fx, Fy, Fz, Fxi, Fyi, Fzi, Wgt, Wgti;
     double Length, Re, Cf, Cdi, Cn, Cx, Cy, Cz;
     double Swet, StallFact;
     double CA, SA, CB, SB, Cmx, Cmy, Cmz, Cl_2d, dCD, CLv;
     double Mag, SteadyComponent, xyzLE[3], xyzTE[3], S[3];
     double ViscousForce, dF[3], dM[3], Dot, xyz_mid[3], ComponentCg[3];
     double Cl, Cd, Cs, Ct;
-    double nvec[3], svec[3], Wgt1, Wgt2, LPGFact, LocalVel, LocalMach;
+    double nvec[3], svec[3], Wgt1, Wgt2, LPGFact, LocalVel, LocalMach, Fact;
     double Thrust, Moment, Diameter, RPM, J, CT, CQ, CP, EtaP, CT_h, CQ_h, CP_h, FOM;
 
     CA = cos(AngleOfAttack_);
@@ -9460,13 +9460,10 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
     // Loop over vortex edges and calculate forces via K-J theorem, using only wake induced velocities applied at TE
 
     for ( j = 1 ; j <= NumberOfSurfaceVortexEdges_ ; j++ ) {
-       
-       Loop1 = SurfaceVortexEdge(j).LoopL();
-       Loop2 = SurfaceVortexEdge(j).LoopR();
-                 
-       if ( Loop1 == 0 ) Loop1 = Loop2;
-       if ( Loop2 == 0 ) Loop2 = Loop1;
-                 
+
+       Loop1 = SurfaceVortexEdge(j).Loop1();
+       Loop2 = SurfaceVortexEdge(j).Loop2();
+            
        // Extract out forces
 
        Fx = Fy = Fz = Fxi = Fyi = Fzi = 0.;
@@ -9492,7 +9489,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
        Wgt1 = VortexLoop(Loop1).Area()/( VortexLoop(Loop1).Area() + VortexLoop(Loop2).Area() );
        
        Wgt2 = 1. - Wgt1;
-
+  
        LocalVel = Wgt1*VortexLoop(Loop1).LocalFreeStreamVelocity(4) + Wgt2*VortexLoop(Loop2).LocalFreeStreamVelocity(4);
 
        LPGFact = 1.;
@@ -9532,8 +9529,12 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
           if ( k == 1 ) Loop = SurfaceVortexEdge(j).Loop1();
           
           if ( k == 2 ) Loop = SurfaceVortexEdge(j).Loop2();
-         
-          Wgt = VortexLoop(Loop).Area() / ( VortexLoop(SurfaceVortexEdge(j).Loop1()).Area() + VortexLoop(SurfaceVortexEdge(j).Loop2()).Area() );
+
+          Wgt = 0.;
+          
+          Wgti = VortexLoop(Loop).Area() / ( VortexLoop(SurfaceVortexEdge(j).Loop1()).Area() + VortexLoop(SurfaceVortexEdge(j).Loop2()).Area() );
+ 
+          if ( ( SurfaceVortexEdge(j).VortexLoop1() != 0 && SurfaceVortexEdge(j).VortexLoop2() != 0 ) || SurfaceVortexEdge(j).IsLeadingEdge() ) Wgt = Wgti;
 
           // Wing Surface
           
@@ -9557,11 +9558,11 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
                                                                
              // Chordwise integrated induced forces
              
-             Span_Cxi_[SurfaceID][SpanStation] += Wgt*Fxi;
+             Span_Cxi_[SurfaceID][SpanStation] += Wgti*Fxi;
 
-             Span_Cyi_[SurfaceID][SpanStation] += Wgt*Fyi;
+             Span_Cyi_[SurfaceID][SpanStation] += Wgti*Fyi;
 
-             Span_Czi_[SurfaceID][SpanStation] += Wgt*Fzi;                
+             Span_Czi_[SurfaceID][SpanStation] += Wgti*Fzi;                
 
              // Chordwise integrated moments
 
@@ -9699,11 +9700,10 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
        for ( k = 1 ; k <= NumberOfStations ; k++ ) {
 
           Span_Cx_[i][k] /= (0.5*Span_Area_[i][k]*Vref_*Vref_);
-          
+
           Span_Cy_[i][k] /= (0.5*Span_Area_[i][k]*Vref_*Vref_);
           
           Span_Cz_[i][k] /= (0.5*Span_Area_[i][k]*Vref_*Vref_);
-
           
           Span_Cmx_[i][k] /= (0.5*Span_Area_[i][k]*Vref_*Vref_*VSPGeom().VSP_Surface(i).LocalChord(k));  // Roll
                                            
@@ -9919,9 +9919,38 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
 
              // Calculate 2D drag due to lift, simple fit to NACA 0012 data
              
-             CLv = Span_Cn_[i][k] / pow(LocalVel, 2.);
+             CLv = 0.;
+             
+             if ( LocalVel > 0. ) CLv = Span_Cn_[i][k] / pow(LocalVel, 2.);
+             
 
-             ViscousForce += 0.5*0.00625*pow(CLv, 2.) * pow(LocalVel * Vref_, 2.) * Span_Area_[i][k];
+
+             if ( Mach_ < 1. ) {
+                
+                if ( Machref_ > 0. ) {
+                   
+                   LocalMach = Machref_*ABS(LocalVel);
+                    
+                }
+                
+                else {
+                   
+                   LocalMach = Mach_*ABS(LocalVel);
+                   
+                
+                }
+                
+                LocalMach = MIN(LocalMach,0.999);
+                
+             }
+
+             Fact = 1.;
+
+             if ( LocalMach >= 0.6) Fact = 1. + pow(MIN(LocalMach,1.) - 0.6,2.)/2.;             
+
+             ViscousForce += 0.5*Fact*0.00625*pow(CLv, 2.) * pow(LocalVel * Vref_, 2.) * Span_Area_[i][k];
+             
+             // Vector components
 
              dF[0] = ViscousForce * S[0] * Dot;
              dF[1] = ViscousForce * S[1] * Dot;
@@ -14255,7 +14284,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
     int i, j, cpu, CoarseGridEdge, FineGridEdge, Level, Loop, LoopComponentID;
     int DoAllLoops, NoRelativeMotion, RelativeMotion;
     int StackSize, MoveDownLevel, Next, AddEdges, NumberOfUsedEdges;
-    double Distance, Test, NormalDistance, Vec[3], Tolerance, Ratio;
+    double Distance, Test, NormalDistance, Vec[3], Tolerance, Ratio, OverLap;
 
     // Grab the current cpu thread id
 
@@ -14344,7 +14373,7 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
              Ratio = Distance / ( VSPGeom().Grid(Level).LoopList(Loop).Length() + VSPGeom().Grid(Level).LoopList(Loop).CentroidOffSet() );
            
              if ( ComponentID > 0 && ComponentID != VSPGeom().Grid(Level).LoopList(Loop).ComponentID() && Ratio <= 2. ) {
-             
+            
                 // Calculate normal distance
    
                 NormalDistance = ABS(vector_dot(Vec,VSPGeom().Grid(Level).LoopList(Loop).Normal()));
@@ -14352,8 +14381,14 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
                 // Tolerance
                 
                 Tolerance = sqrt(VSPGeom().Grid(Level).LoopList(Loop).Area());
-         
-                if ( ABS(NormalDistance) <= Tolerance ) AddEdges = 0;
+ 
+                OverLap = calculate_box_overlap(VSPGeom().BBoxForComponent(ComponentID), VSPGeom().BBoxForComponent(VSPGeom().Grid(Level).LoopList(Loop).ComponentID()));
+
+                if ( OverLap > Tolerance ) {
+
+                   if ( ABS(NormalDistance) <= Tolerance ) AddEdges = 0;
+                   
+                }
 
              }
              
@@ -14569,6 +14604,29 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
     
     return TempInteractionList_[cpu];
     
+}
+
+/*##############################################################################
+#                                                                              #
+#                        VSP_SOLVER NodeIsInsideLoop                           #
+#                                                                              #
+##############################################################################*/
+
+int VSP_SOLVER::NodeIsInsideLoop(VSP_LOOP &Loop, double xyz[3])
+{
+   
+   int i, Edge;
+   
+   for ( i = 1 ; i <= Loop.NumberOfEdges() ; i++ ) {
+  
+      Edge = Loop.Edge(i);
+      
+      
+      
+   }   
+   
+   return 1;
+   
 }
 
 /*##############################################################################

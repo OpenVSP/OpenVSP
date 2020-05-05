@@ -80,6 +80,10 @@ private:
    
     VSP_SURFACE *VSP_Surface_;
     
+    // Bounding Box data for each component
+    
+    BBOX *BBoxForComponent_;
+        
     // Merged global mesh
     
     int NumberOfGridLevels_;
@@ -164,6 +168,12 @@ public:
     
     VSP_SURFACE &VSP_Surface(int i) { return VSP_Surface_[i]; };
     
+    // Bounding Box data
+    
+    void CreateComponentBBoxData(void);
+    
+    BBOX &BBoxForComponent(int i) { return BBoxForComponent_[i]; };
+       
     int NumberOfGridLevels(void) { return NumberOfGridLevels_; };
     VSP_GRID &Grid(void) { return *(Grid_[0]); };
     VSP_GRID &Grid(int i) { return *(Grid_[i]); };

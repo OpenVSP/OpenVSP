@@ -698,7 +698,7 @@ void determinant(float mat[4][4], float *det_matrix)
 #                                 tri_seg_int                                  #
 #                                                                              #
 # Find the intersection of a triangle and a line segment                       #
-#                                                                              #                                                                              #
+#                                                                              #
 ##############################################################################*/
 
 int tri_seg_int(float *p1, float *p2, float *p3, float *p4, float *p5, float *tt,
@@ -839,7 +839,7 @@ int tri_seg_int(float *p1, float *p2, float *p3, float *p4, float *p5, float *tt
 #                                 tri_seg_int                                  #
 #                                                                              #
 # Find the intersection of a triangle and a line segment                       #
-#                                                                              #                                                                              #
+#                                                                              # 
 ##############################################################################*/
 
 int tri_seg_int(double *p1, double *p2, double *p3, double *p4, double *p5,
@@ -980,7 +980,7 @@ int tri_seg_int(double *p1, double *p2, double *p3, double *p4, double *p5,
 #                                 prl_seg_int                                  #
 #                                                                              #
 # Find the intersection of a parrallelogram and a line segment                 #
-#                                                                              #                                                                              #
+#                                                                              #
 ##############################################################################*/
 
 int prl_seg_int(float *p1, float *p2, float *p3, float *p4, float *p5, float *tt,
@@ -1169,6 +1169,103 @@ int inside_box(BBOX &box, double xyz[3])
     }
     
     return 0;
+
+}
+
+/*##############################################################################
+#                                                                              #
+#                          calculate_box_overlap                               #
+#                                                                              #
+# Compares the bounding boxes of two objects for overlap                       #
+#                                                                              # 
+##############################################################################*/
+
+double calculate_box_overlap(BBOX &box1, BBOX &box2)
+{
+
+    double tol_x, tol_y, tol_z, ds;
+
+    if ( compare_boxes(box1, box2) == 0 ) return 0.;
+    
+    tol_x = 0.01*MAX3( ABS(box1.x_max-box1.x_min), ABS(box2.x_max-box2.x_min), 1. );
+    tol_y = 0.01*MAX3( ABS(box1.y_max-box1.y_min), ABS(box2.y_max-box2.y_min), 1. );
+    tol_z = 0.01*MAX3( ABS(box1.z_max-box1.z_min), ABS(box2.z_max-box2.z_min), 1. );
+
+    ds = 1.e9;
+
+    if ( (box1.x_min - box2.x_max) > tol_x ) {
+       
+       return(0.);
+       
+    }
+    
+    else {
+       
+       ds = MIN(ds, ABS(box1.x_min - box2.x_max));
+       
+    }
+    
+    if ( (box2.x_min - box1.x_max) > tol_x ) {
+       
+       return(0.);
+       
+    }
+    
+    else {
+       
+       ds = MIN(ds, ABS(box2.x_min - box1.x_max));
+       
+    }
+        
+    if ( (box1.y_min - box2.y_max) > tol_y ) {
+       
+       return(0.);
+       
+    }
+    
+    else {
+       
+       ds = MIN(ds, ABS(box1.y_min - box2.y_max));
+       
+    }
+
+    if ( (box2.y_min - box1.y_max) > tol_y ) {
+       
+       return(0.);
+       
+    }
+    
+    else {
+       
+       ds = MIN(ds, ABS(box2.y_min - box1.y_max));
+       
+    }
+
+    if ( (box1.z_min - box2.z_max) > tol_z ) {
+       
+       return(0.);
+       
+    }
+    
+    else {
+       
+       ds = MIN(ds, ABS(box1.z_min - box2.z_max));
+       
+    }
+
+    if ( (box2.z_min - box1.z_max) > tol_z ) {
+       
+       return(0.);
+       
+    }
+    
+    else {
+       
+       ds = MIN(ds, ABS(box2.z_min - box1.z_max));
+       
+    }
+
+    return(ds); // Boxes overlap
 
 }
 
