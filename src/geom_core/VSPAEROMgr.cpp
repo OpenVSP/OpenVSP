@@ -1449,6 +1449,19 @@ Optional input of logFile allows outputting to a log file or the console
 string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 {
     UpdateFilenames();
+
+    if ( m_DegenGeomVec.size() == 0 )
+    {
+        // Note: Using errMsgData.m_String = "Error" will fail when this function 
+        // is not called from the main VSP thread
+        MessageData errMsgData;
+        errMsgData.m_String = "VSPAEROSolverMessage";
+        errMsgData.m_StringVec.emplace_back( string( "Error: No Geometry in VSPAERO Set\n" ) );
+        MessageMgr::getInstance().SendAll( errMsgData );
+
+        return string();
+    }
+
     if ( m_CpSliceFlag() )
     {
         ClearCpSliceResults();
