@@ -1501,7 +1501,17 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
         Results* res = ResultsMgr.FindResults( res_name, iCase );
         if ( res )
         {
-            string name = prefix + to_string( iCase );
+            string name;
+            NameValData* nvd = res->FindPtr( "Group_Name" );
+            if ( nvd )
+            {
+                name = nvd->GetString( 0 );
+            }
+            else
+            {
+                name = prefix + to_string( iCase );
+            }
+
             m_UnsteadySelectBrowser->add( name.c_str() );
 
             if ( m_SelectDefaultData )   //select ALL flow conditions
@@ -1979,10 +1989,11 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
              ( strcmp( dataNames[iDataName].c_str(), "Mach" ) != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "Alpha" ) != 0 )  &
              ( strcmp( dataNames[iDataName].c_str(), "Beta" ) != 0 )  &
-             ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) &&
+             ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) &
              ( strcmp( dataNames[iDataName].c_str(), "Time" ) != 0 ) &
              ( strcmp( dataNames[iDataName].c_str(), "Group_Num" ) != 0 ) &
              ( strcmp( dataNames[iDataName].c_str(), "Rotor_Num" ) != 0 ) &
+             ( strcmp( dataNames[iDataName].c_str(), "Group_Name" ) != 0 ) &
              ( strcmp( dataNames[iDataName].c_str(), "RPM" ) != 0 ) ) // FIXME: Figure out why selecting rotor RPM causes the GUI to freeze
         {
             m_UnsteadyYDataBrowser->add( dataNames[iDataName].c_str() );
@@ -2688,6 +2699,25 @@ void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetN
             copy( tDoubledata.begin(), tDoubledata.end(), back_inserter( xDoubleData_orig ) );
         }
 
+        string group_name;
+
+        if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP_SELECT_TYPE ||
+             VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR_SELECT_TYPE )
+        {
+            NameValData* name_nvd = res->FindPtr( "Group_Name" );
+
+            if ( name_nvd )
+            {
+                group_name = name_nvd->GetString( 0 );
+
+                // Replace "Surf" with "S" to shorten name
+                string search = "Surf_";
+                string replace = "S";
+
+                StringUtil::replace_all( group_name, search, replace );
+            }
+        }
+
         // Get the Y-Data
         NameValData* yResultDataPtr;
         for ( int iDataSet = 0; iDataSet < (int)yDataSetNames.size(); iDataSet++ )
@@ -2718,16 +2748,12 @@ void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetN
                         AddPointLine( xDoubleData, yDoubleData, 2, c, 4, StyleWheel( m_UnsteadyiPlot ) );
 
                         char strbuf[100];
-                        ConstructFlowConditionString( strbuf, res, false );
                         string legendstr;
 
-                        {
-                            legendstr = "Group_" + to_string( icase );
-                        }
                         if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP_SELECT_TYPE ||
                              VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR_SELECT_TYPE )
                         {
-                            legendstr = "Rotor_" + to_string( icase );
+                            legendstr = group_name;
                         }
                         else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY_SELECT_TYPE )
                         {
