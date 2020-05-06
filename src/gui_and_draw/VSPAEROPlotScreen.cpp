@@ -585,11 +585,11 @@ void VSPAEROPlotScreen::SetDefaultView()
 
         if ( VSPAEROMgr.m_RotateBladesFlag() )
         {
-            VSPAEROMgr.m_UnsteadyGroupSelectType.Set( VSPAEROMgr.ROTOR );
+            VSPAEROMgr.m_UnsteadyGroupSelectType.Set( VSPAEROMgr.ROTOR_SELECT_TYPE );
         }
         else
         {
-            VSPAEROMgr.m_UnsteadyGroupSelectType.Set( VSPAEROMgr.HISTORY );
+            VSPAEROMgr.m_UnsteadyGroupSelectType.Set( VSPAEROMgr.HISTORY_SELECT_TYPE );
         }
     }
     else
@@ -663,9 +663,9 @@ bool VSPAEROPlotScreen::Update()
 
         if ( num_group == 0 )
         {
-            VSPAEROMgr.m_UnsteadyGroupSelectType.Set( VSPAEROMgr.HISTORY );
             m_UnsteadyGroupToggle.Deactivate();
             m_UnsteadyGroupToggle.Deactivate();
+            VSPAEROMgr.m_UnsteadyGroupSelectType.Set( VSPAEROMgr.HISTORY_SELECT_TYPE );
         }
         else
         {
@@ -1429,7 +1429,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyFlowConditionBrowser()
             char strbuf[1024];
             ConstructFlowConditionString( strbuf, res, false );
             m_UnsteadyFlowConditionBrowser->add( strbuf );
-            if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgr.HISTORY )
+            if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgr.HISTORY_SELECT_TYPE )
             {
                 if ( m_SelectDefaultData )   //select ALL flow conditions
                 {
@@ -1474,7 +1474,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
     string prefix;
     string res_name;
 
-    if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP )
+    if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP_SELECT_TYPE )
     {
         res_name = "VSPAERO_Group";
         num_case = ResultsMgr.GetNumResults( "VSPAERO_Group" );
@@ -1482,7 +1482,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
         m_UnsteadySelectBrowser->activate();
         m_UnsteadyFlowConditionBrowser->deactivate();
     }
-    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR )
+    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR_SELECT_TYPE )
     {
         res_name = "VSPAERO_Rotor";
         num_case = ResultsMgr.GetNumResults( res_name );
@@ -1490,7 +1490,7 @@ void VSPAEROPlotScreen::UpdateUnsteadySelectionBrowser()
         m_UnsteadySelectBrowser->activate();
         m_UnsteadyFlowConditionBrowser->deactivate();
     }
-    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY )
+    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY_SELECT_TYPE )
     {
         m_UnsteadySelectBrowser->deactivate();
         m_UnsteadyFlowConditionBrowser->activate();
@@ -1925,7 +1925,7 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
     string resultName;
     int res_ind = 0;
 
-    if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP )
+    if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP_SELECT_TYPE )
     {
         resultName = "VSPAERO_Group";
         // TODO: Get feedback of best default. Options: Cx, Cy, Cz, Cxo, Cyo,
@@ -1933,14 +1933,14 @@ void VSPAEROPlotScreen::UpdateUnsteadyYDataBrowser()
         //  Cmxi, Cmyi, Cmzi, CL, CD, CLo, CDo, CLi, CDi 
         default_res = "CL";
     }
-    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR )
+    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR_SELECT_TYPE )
     {
         resultName = "VSPAERO_Rotor";
         // TODO: Get feedback of best default. Options: Diameter, RPM, Thrust, Thrusto, Thrusti,
         //  Moment, Momento, Momenti, J, CT, CQ , CP, EtaP, CT_H, CQ_H, CP_H, FOM, Angle 
         default_res = "Thrust";
     }
-    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY )
+    else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY_SELECT_TYPE )
     {
         resultName = "VSPAERO_History";
         res_ind = 0;
@@ -2377,7 +2377,7 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
     {
         bool expandOnly = false;
 
-        if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP )
+        if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP_SELECT_TYPE )
         {
             for ( unsigned int iCase = 0; iCase < m_UnsteadySelectedTypeVec.size(); iCase++ )
             {
@@ -2385,7 +2385,7 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
                 expandOnly = true;
             }
         }
-        else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR )
+        else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR_SELECT_TYPE )
         {
             for ( unsigned int iCase = 0; iCase < m_UnsteadySelectedTypeVec.size(); iCase++ )
             {
@@ -2393,7 +2393,7 @@ void VSPAEROPlotScreen::RedrawUnsteadyPlot()
                 expandOnly = true;
             }
         }
-        else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY )
+        else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY_SELECT_TYPE )
         {
             for ( unsigned int iCase = 0; iCase < m_UnsteadyFlowConditionSelectedResultIDs.size(); iCase++ )
             {
@@ -2721,15 +2721,15 @@ void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetN
                         ConstructFlowConditionString( strbuf, res, false );
                         string legendstr;
 
-                        if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP )
                         {
                             legendstr = "Group_" + to_string( icase );
                         }
-                        else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR )
+                        if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::GROUP_SELECT_TYPE ||
+                             VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::ROTOR_SELECT_TYPE )
                         {
                             legendstr = "Rotor_" + to_string( icase );
                         }
-                        else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY )
+                        else if ( VSPAEROMgr.m_UnsteadyGroupSelectType.Get() == VSPAEROMgrSingleton::HISTORY_SELECT_TYPE )
                         {
                             ConstructFlowConditionString( strbuf, res, false );
                             legendstr = strbuf;

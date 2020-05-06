@@ -2170,6 +2170,6 @@ void VSPAEROScreen::UnsteadyGroupBrowserCallback()
         VSPAEROMgr.SetCurrentUnsteadyGroupIndex( last );
     }
 
-    VSPAEROMgr.HighlightSelected( VSPAEROMgr.ROTOR );
+    VSPAEROMgr.HighlightSelected( VSPAEROMgr.UNSTEADY_GROUP );
 }
 

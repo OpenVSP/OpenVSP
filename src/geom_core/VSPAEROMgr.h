@@ -478,11 +478,11 @@ public:
 
     IntParm m_UnsteadyGroupSelectType;
 
-    enum UNSTEADY_GROUP_SELECT
+    enum UNSTEADY_TYPE_SELECT
     {
-        HISTORY,
-        GROUP,
-        ROTOR
+        HISTORY_SELECT_TYPE,
+        GROUP_SELECT_TYPE,
+        ROTOR_SELECT_TYPE
     };
 
     ProcessUtil m_SolverProcess; 
