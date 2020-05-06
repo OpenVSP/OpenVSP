@@ -148,6 +148,11 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     // Control layout
     m_LoadDistLayout.AddSubGroupLayout( m_LoadDistControlLayout, controlWidth, m_LoadDistLayout.GetH() - 2 * groupBorderWidth );
 
+    // layout the heights of the control layout
+    yDataSelectHeight = 8 * rowHeight;
+
+    flowConditionSelectHeight = m_LoadDistLayout.GetH() - 2 * windowBorderWidth - yDataSelectHeight - legendHeight - actionButtonHeight - 6 * m_LoadDistLayout.GetStdHeight();
+
     GroupLayout yDataSelectLayout;
     m_LoadDistControlLayout.AddSubGroupLayout( yDataSelectLayout, m_LoadDistControlLayout.GetW(), yDataSelectHeight );
     yDataSelectLayout.AddDividerBox( "Y-Data" );
@@ -155,6 +160,32 @@ VSPAEROPlotScreen::VSPAEROPlotScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO
     m_LoadDistYDataBrowser->callback( staticScreenCB, this );
     m_LoadDistYDataBrowser->type( FL_MULTI_BROWSER );
     m_LoadDistControlLayout.AddY( yDataSelectLayout.GetH() + 2 * groupBorderWidth );
+
+    GroupLayout loadChoiceLayout;
+    m_LoadDistControlLayout.AddSubGroupLayout( loadChoiceLayout, m_LoadDistControlLayout.GetW(), 2 * m_LoadDistLayout.GetStdHeight() - 2 * groupBorderWidth );
+    loadChoiceLayout.AddDividerBox( "Data Type Selection" );
+
+    loadChoiceLayout.SetSameLineFlag( true );
+    loadChoiceLayout.SetFitWidthFlag( false );
+    loadChoiceLayout.SetButtonWidth( loadChoiceLayout.GetRemainX() / 2 );
+    loadChoiceLayout.AddButton( m_LoadTypeToggle, "Load" );
+    loadChoiceLayout.AddButton( m_BladeTypeToggle, "Blade" );
+    m_LoadDataTypeRadio.AddButton( m_LoadTypeToggle.GetFlButton() );
+    m_LoadDataTypeRadio.AddButton( m_BladeTypeToggle.GetFlButton() );
+    m_LoadDataTypeRadio.Init( this );
+    loadChoiceLayout.ForceNewLine();
+    loadChoiceLayout.SetSameLineFlag( false );
+    loadChoiceLayout.SetFitWidthFlag( true );
+
+    m_LoadDistControlLayout.AddY( loadChoiceLayout.GetH() + 2 * groupBorderWidth );
+
+    GroupLayout loadDistSelectLayout;
+    m_LoadDistControlLayout.AddSubGroupLayout( loadDistSelectLayout, m_LoadDistControlLayout.GetW(), flowConditionSelectHeight - m_LoadDistLayout.GetStdHeight() + 2 * windowBorderWidth );
+    loadDistSelectLayout.AddDividerBox( "Group/Rotor Selection" );
+    m_LoadDistSelectBrowser = loadDistSelectLayout.AddFlBrowser( loadDistSelectLayout.GetRemainY() );
+    m_LoadDistSelectBrowser->callback( staticScreenCB, this );
+    m_LoadDistSelectBrowser->type( FL_MULTI_BROWSER );
+    m_LoadDistControlLayout.AddY( loadDistSelectLayout.GetH() + 2 * groupBorderWidth );
 
     GroupLayout flowConditionLayout;
     m_LoadDistControlLayout.AddSubGroupLayout( flowConditionLayout, m_LoadDistControlLayout.GetW(), flowConditionSelectHeight );
@@ -690,8 +721,22 @@ bool VSPAEROPlotScreen::Update()
     if ( res && res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VORTEX_LATTICE )
     {
         m_LoadDistTab->activate();
+
+        m_LoadDataTypeRadio.Update( VSPAEROMgr.m_LoadDistSelectType.GetID() );
+
+        if ( num_rotor == 0 )
+        {
+            VSPAEROMgr.m_LoadDistSelectType.Set( VSPAEROMgr.LOAD_SELECT_TYPE );
+            m_LoadDataTypeRadio.Deactivate();
+        }
+        else
+        {
+            m_LoadDataTypeRadio.Activate();
+        }
+
         UpdateLoadDistFlowConditionBrowser();
         UpdateLoadDistYDataBrowser();
+        UpdateLoadDistSelectionBrowser();
         RedrawLoadDistPlot();
         UpdateLoadDistAutoManualAxisLimits();
     }
@@ -1279,24 +1324,102 @@ void VSPAEROPlotScreen::UpdateLoadDistFlowConditionBrowser()
                 char strbuf[1024];
                 ConstructFlowConditionString( strbuf, res, false );
                 m_LoadDistFlowConditionBrowser->add( strbuf );
-                if( m_SelectDefaultData )   //select ALL flow conditions
+                if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.LOAD_SELECT_TYPE )
                 {
-                    m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
-                    m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
-                }
-                else if ( iCase < wasSelected.size() ) // restore original row selections
-                {
-                    if ( wasSelected[iCase] )
+                    if ( m_SelectDefaultData )   //select ALL flow conditions
                     {
                         m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
                         m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
                     }
+                    else if ( iCase < wasSelected.size() && wasSelected[iCase] ) // restore original row selections
+                    {
+                        m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                        m_LoadDistFlowConditionBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                    }
+                }
+                else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgr.BLADE_SELECT_TYPE )
+                {
+                    m_LoadDistFlowConditionSelectedResultIDs.push_back( res->GetID() );
+                    m_LoadDistFlowConditionBrowser->select( iCase + 1 );
+                    break; // Only list the first flow condition, since the others are ignored in teh group and rotor output files
                 }
             }
         }   //if( res )
     }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
 
     m_LoadDistFlowConditionBrowser->position( scrollPos );
+}
+
+void VSPAEROPlotScreen::UpdateLoadDistSelectionBrowser()
+{
+    // keeps track of the previously selected rows (browser uses 1-based indexing)
+    vector<bool> wasSelected;
+    for ( unsigned int iCase = 1; iCase <= m_LoadDistSelectBrowser->size(); iCase++ )
+    {
+        wasSelected.push_back( m_LoadDistSelectBrowser->selected( iCase ) );
+    }
+
+    int scrollPos = m_LoadDistSelectBrowser->position();
+    m_LoadDistSelectBrowser->clear();
+    m_LoadSelectedBladeVec.clear();
+    int num_case = 0;
+    string prefix;
+    string res_name;
+
+    if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE )
+    {
+        m_LoadDistSelectBrowser->deactivate();
+        m_LoadDistFlowConditionBrowser->activate();
+    }
+    else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
+    {
+        res_name = "VSPAERO_Blade_Avg";
+        num_case = ResultsMgr.GetNumResults( res_name );
+        prefix = "Blade_";
+        m_LoadDistSelectBrowser->activate();
+        m_LoadDistFlowConditionBrowser->deactivate();
+    }
+
+    for ( unsigned int iCase = 0; iCase < num_case; iCase++ )
+    {
+        Results* res = ResultsMgr.FindResults( res_name, iCase );
+        if ( res )
+        {
+            string name;
+            NameValData* nvd = res->FindPtr( "Group_Name" );
+            if ( nvd )
+            {
+                name = nvd->GetString( 0 );
+
+                if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE && res->FindPtr( "Blade_Num" ) )
+                {
+                    name += ( "_Blade_" + to_string( res->FindPtr( "Blade_Num" )->GetInt( 0 ) ) );
+                }
+            }
+            else
+            {
+                name = prefix + to_string( iCase );
+            }
+
+            m_LoadDistSelectBrowser->add( name.c_str() );
+
+            if ( m_SelectDefaultData )   //select ALL flow conditions
+            {
+                m_LoadDistSelectBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                m_LoadSelectedBladeVec.push_back( iCase );
+            }
+            else if ( iCase < wasSelected.size() ) // restore original row selections
+            {
+                if ( wasSelected[iCase] )
+                {
+                    m_LoadDistSelectBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
+                    m_LoadSelectedBladeVec.push_back( iCase );
+                }
+            }
+        }   //if( res )
+    }   //for (unsigned int iCase=0; iCase<numCases; iCase++)
+
+    m_LoadDistSelectBrowser->position( scrollPos );
 }
 
 void VSPAEROPlotScreen::UpdateSweepFlowConditionBrowser()
@@ -1672,13 +1795,28 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
     int scrollPos = m_LoadDistYDataBrowser->position();
     m_LoadDistYDataBrowser->clear();
 
-    string resultName = "VSPAERO_Load";
-    string resultID = ResultsMgr.FindLatestResultsID( resultName );
-    Results* res = ResultsMgr.FindResultsPtr( resultID );
-    if( res )
+    Results* load_res = ResultsMgr.FindResultsPtr( ResultsMgr.FindLatestResultsID( "VSPAERO_Load" ) );
+    Results* res;
+
+    string resultID, default_res;
+
+    if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE )
+    {
+        resultID = ResultsMgr.FindLatestResultsID( "VSPAERO_Load" );
+        res = load_res;
+        default_res = "cl*c/cref";
+    }
+    else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
+    {
+        resultID = ResultsMgr.FindLatestResultsID( "VSPAERO_Blade_Avg" );
+        res = ResultsMgr.FindResultsPtr( resultID );
+        default_res = "CT_H";
+    }
+
+    if( res && load_res )
     {
         // Load distribution plots are supported only in certain modes (Panel method is not currently supported)
-        if ( res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VORTEX_LATTICE )
+        if ( load_res->FindPtr( "AnalysisMethod" )->GetInt( 0 ) == vsp::VORTEX_LATTICE )
         {
             vector < string > dataNames = ResultsMgr.GetAllDataNames( resultID );
             for ( unsigned int iDataName = 0; iDataName < dataNames.size(); iDataName++ )
@@ -1687,7 +1825,11 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
                         ( strcmp( dataNames[iDataName].c_str(), "FC_Alpha" ) != 0 )  &
                         ( strcmp( dataNames[iDataName].c_str(), "FC_Beta" )  != 0 )  &
                         ( strcmp( dataNames[iDataName].c_str(), "WingId" )   != 0 )  &
-                        ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) )
+                        ( strcmp( dataNames[iDataName].c_str(), "AnalysisMethod" ) != 0 ) &
+                        ( strcmp( dataNames[iDataName].c_str(), "Station" ) != 0 ) &
+                        ( strcmp( dataNames[iDataName].c_str(), "Group_Name" ) != 0 ) &
+                        ( strcmp( dataNames[iDataName].c_str(), "Rotor_Num" ) != 0 ) &
+                        ( strcmp( dataNames[iDataName].c_str(), "Blade_Num" ) != 0 ) )
                 {
                     m_LoadDistYDataBrowser->add( dataNames[iDataName].c_str() );
                 }
@@ -1698,7 +1840,7 @@ void VSPAEROPlotScreen::UpdateLoadDistYDataBrowser()
     // restore original row selections
     for ( unsigned int iCase = 0; iCase < m_LoadDistYDataBrowser->size(); iCase++ )
     {
-        if( ( m_SelectDefaultData && strcmp( m_LoadDistYDataBrowser->text( iCase + 1 ), "cl*c/cref" ) == 0 ) )
+        if( ( m_SelectDefaultData && strcmp( m_LoadDistYDataBrowser->text( iCase + 1 ), default_res.c_str() ) == 0 ) )
         {
             m_LoadDistYDataBrowser->select( iCase + 1 ); //account for browser using 1-based indexing
         }
@@ -2078,20 +2220,35 @@ void VSPAEROPlotScreen::RedrawLoadDistPlot()
     }
 
     m_LoadDistNLines = yDataSetNames.size() * m_LoadDistFlowConditionSelectedResultIDs.size();
+    if ( m_LoadSelectedBladeVec.size() > 0 ) // Since "Load" is not included in the vector
+    {
+        m_LoadDistNLines *= m_LoadSelectedBladeVec.size();
+    }
+
     m_LoadDistiPlot = 0;
 
     // Plot only if y data has been selected
     if ( m_LoadDistNLines > 0 )
     {
         bool expandOnly = false;
-        for ( unsigned int iCase = 0; iCase < m_LoadDistFlowConditionSelectedResultIDs.size(); iCase++ )
+
+        if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE )
         {
-            PlotLoadDistribution( m_LoadDistFlowConditionSelectedResultIDs[iCase], yDataSetNames, expandOnly, iCase );
-            expandOnly = true;
+            for ( unsigned int iCase = 0; iCase < m_LoadDistFlowConditionSelectedResultIDs.size(); iCase++ )
+            {
+                PlotLoadDistribution( m_LoadDistFlowConditionSelectedResultIDs[iCase], yDataSetNames, expandOnly, iCase );
+                expandOnly = true;
+            }
+        }
+        else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
+        {
+            for ( unsigned int iCase = 0; iCase < m_LoadSelectedBladeVec.size(); iCase++ )
+            {
+                PlotLoadDistribution( ResultsMgr.FindResultsID( "VSPAERO_Blade_Avg", m_LoadSelectedBladeVec[iCase] ), yDataSetNames, expandOnly, iCase );
+                expandOnly = true;
+            }
         }
     }
-
-    //m_LoadDistPlotCanvas->redraw();
 }
 
 void VSPAEROPlotScreen::RedrawSweepPlot()
@@ -2587,27 +2744,59 @@ void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> y
         m_LoadDistPlotCanvas->current_y()->label( "[Y]" );
         m_LoadDistPlotCanvas->current_x()->label( "[X]" );
     }
-    else if ( strcmp( res->GetName().c_str(), "VSPAERO_Load" ) == 0 )
+    else if ( strcmp( res->GetName().c_str(), "VSPAERO_Load" ) == 0 || strcmp( res->GetName().c_str(), "VSPAERO_Blade_Avg" ) == 0 )
     {
         NameValData* wingIdResultDataPtr;
-        wingIdResultDataPtr = res->FindPtr( "WingId" );
-
         NameValData* xResultDataPtr;
-        xResultDataPtr = res->FindPtr( "Yavg" );
-
         NameValData* yResultDataPtr;
-        string labelStr;
-        for ( int iDataSet = 0; iDataSet < ( int )yDataSetNames.size(); iDataSet++ )
+        vector <double> xDoubleData_orig;
+        string group_name, y_label;
+
+        if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE )
+        {
+            wingIdResultDataPtr = res->FindPtr( "WingId" );
+            xResultDataPtr = res->FindPtr( "Yavg" );
+            y_label = "Span Location: Y";
+        }
+        else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
+        {
+            xResultDataPtr = res->FindPtr( "Station" );
+            y_label = "Station";
+
+            if ( ( xResultDataPtr != NULL ) )
+            {
+                vector <int> tIntData = xResultDataPtr->GetIntData();
+                copy( tIntData.begin(), tIntData.end(), back_inserter( xDoubleData_orig ) );
+            }
+
+            NameValData* name_nvd = res->FindPtr( "Group_Name" );
+
+            if ( name_nvd )
+            {
+                group_name = name_nvd->GetString( 0 );
+
+                // Replace "Surf" with "S" to shorten name
+                string search = "Surf_";
+                string replace = "S";
+
+                StringUtil::replace_all( group_name, search, replace );
+            }
+        }
+
+        for ( int iDataSet = 0; iDataSet < (int)yDataSetNames.size(); iDataSet++ )
         {
             yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
-            if( wingIdResultDataPtr && xResultDataPtr && yResultDataPtr )
+            if ( xResultDataPtr && yResultDataPtr )
             {
+                Fl_Color c = ColorWheel( m_LoadDistiPlot, m_LoadDistNLines );
+                string legendstr;
+
+                if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::LOAD_SELECT_TYPE && wingIdResultDataPtr )
+                {
                     // get unique indicies and generate loop over unique wings
                     vector <int> wingIdIntDataRaw = wingIdResultDataPtr->GetIntData();
                     vector <int> wingIdIntDataUnique;
                     std::unique_copy( wingIdIntDataRaw.begin(), wingIdIntDataRaw.end(), std::back_inserter( wingIdIntDataUnique ) );
-
-                    Fl_Color c = ColorWheel( m_LoadDistiPlot, m_LoadDistNLines );
 
                     // Collect data for each wing and plot individual line for each wing (assumes unsorted list)
                     for ( int iWing = 0; iWing < wingIdIntDataUnique.size(); iWing++ )
@@ -2649,32 +2838,68 @@ void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> y
                         expandOnly = true;
                     }
 
-                char strbuf[100];
-                ConstructFlowConditionString( strbuf, res, false );
-                string legendstr = strbuf + string( "; Y: " ) + yDataSetNames[iDataSet];
+                    char strbuf[100];
+                    ConstructFlowConditionString( strbuf, res, false );
+                    legendstr = strbuf;
+                }
+                else if ( VSPAEROMgr.m_LoadDistSelectType.Get() == VSPAEROMgrSingleton::BLADE_SELECT_TYPE )
+                {
+                    vector <double> yDoubleData;
+                    if ( yResultDataPtr->GetType() == vsp::INT_DATA )
+                    {
+                        vector <int> tIntData = yResultDataPtr->GetIntData();
+                        copy( tIntData.begin(), tIntData.end(), back_inserter( yDoubleData ) );
+                    }
+                    else
+                    {
+                        yDoubleData = yResultDataPtr->GetDoubleData();
+                    }
+
+                    // check again if there are still points to plot
+                    if ( ( xDoubleData_orig.size() == yDoubleData.size() ) && ( xDoubleData_orig.size() > 0 ) )
+                    {
+                        //add the normalized data to the plot
+                        AddPointLine( xDoubleData_orig, yDoubleData, 2, c, 4, StyleWheel( m_LoadDistiPlot ) );
+
+                        legendstr = group_name;
+
+                        if ( res->FindPtr( "Blade_Num" ) )
+                        {
+                            legendstr += ( "_B" + to_string( res->FindPtr( "Blade_Num" )->GetInt( 0 ) ) );
+                        }
+
+                        //Handle Axis limits
+                        //  Auto adjust and expand limits for Y-Axis
+                        //UpdateSingleAxisLimits( m_LoadDistPlotCanvas->current_y(), yDoubleData, expandOnly, false );
+
+                        UpdateAxisLimits( m_LoadDistPlotCanvas, xDoubleData_orig, yDoubleData, expandOnly );
+                        expandOnly = true;
+                    }
+                }
+
+                legendstr += ( string( "; Y: " ) + yDataSetNames[iDataSet] );
                 m_LoadDistLegendLayout.AddLegendEntry( legendstr, c );
                 m_LoadDistiPlot++;
             }
         }
 
         // Annotate axes
-        labelStr.clear();
-        if( yDataSetNames.size() == 1 )
+        string x_label;
+        if ( yDataSetNames.size() == 1 )
         {
-            labelStr = yDataSetNames[0];
+            x_label = yDataSetNames[0];
         }
         else
         {
-            labelStr = "[multiple]";
+            x_label = "[multiple]";
         }
-        m_LoadDistPlotCanvas->current_y()->copy_label( labelStr.c_str() );
-        m_LoadDistPlotCanvas->current_x()->label( "Span Location: Y" );
+        m_LoadDistPlotCanvas->current_y()->copy_label( x_label.c_str() );
+        m_LoadDistPlotCanvas->current_x()->copy_label( y_label.c_str() );
     }
     else
     {
         m_LoadDistPlotCanvas->label( "PLOT ERROR - INVALID RESULT TYPE" );
     }
-
 }
 
 void VSPAEROPlotScreen::PlotUnsteady( string resultID, vector <string> yDataSetNames, bool expandOnly, int icase )

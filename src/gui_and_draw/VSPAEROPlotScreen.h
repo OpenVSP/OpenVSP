@@ -104,6 +104,10 @@ protected:
     int m_LoadDistNLines;
     int m_LoadDistiPlot;
 
+    ToggleRadioGroup m_LoadDataTypeRadio;
+    ToggleButton m_LoadTypeToggle;
+    ToggleButton m_BladeTypeToggle;
+
     ToggleButton m_LoadDistManualXMinToggle;
     ToggleButton m_LoadDistManualXMaxToggle;
     ToggleButton m_LoadDistManualYMinToggle;
@@ -114,14 +118,17 @@ protected:
     SliderAdjRangeInput  m_LoadDistYMaxSlider;
 
     Fl_Browser * m_LoadDistYDataBrowser;
+    Fl_Browser* m_LoadDistSelectBrowser;
     Fl_Browser * m_LoadDistFlowConditionBrowser;
     vector< string > m_LoadDistFlowConditionSelectedResultIDs;
 
     void UpdateLoadDistFlowConditionBrowser();
     void UpdateLoadDistYDataBrowser();
-
+    void UpdateLoadDistSelectionBrowser();
     void RedrawLoadDistPlot();
     void PlotLoadDistribution( string resultID, vector <string> yDataSetNames, bool expand_only, int icase );
+
+    vector < int > m_LoadSelectedBladeVec; // vector of selected rotor blades
 
     //==== Sweep Tab ====//
     Fl_Group* m_SweepTab;

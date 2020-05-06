@@ -486,6 +486,14 @@ public:
         ROTOR_SELECT_TYPE
     };
 
+    IntParm m_LoadDistSelectType;
+
+    enum LOAD_TYPE_SELECT
+    {
+        LOAD_SELECT_TYPE,
+        BLADE_SELECT_TYPE
+    };
+
     ProcessUtil m_SolverProcess; 
     ProcessUtil m_SlicerThread;
 

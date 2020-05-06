@@ -169,6 +169,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_UnsteadyYMax.Init( "m_UnsteadyYMax", groupname, this, 1, -1e12, 1e12 );
 
     m_UnsteadyGroupSelectType.Init( "UnsteadyGroupSelectType", groupname, this, UNSTEADY_TYPE_SELECT::HISTORY_SELECT_TYPE, UNSTEADY_TYPE_SELECT::HISTORY_SELECT_TYPE, UNSTEADY_TYPE_SELECT::ROTOR_SELECT_TYPE );
+    m_LoadDistSelectType.Init( "LoadDistSelectType", groupname, this, LOAD_TYPE_SELECT::LOAD_SELECT_TYPE, LOAD_TYPE_SELECT::LOAD_SELECT_TYPE, LOAD_TYPE_SELECT::BLADE_SELECT_TYPE );
 
     // Other Setup Parameters
     m_Vinf.Init( "Vinf", groupname, this, 100, 0, 1e6 );
