@@ -46,6 +46,7 @@ public:
 protected:
 
     bool m_SelectDefaultData;
+    double m_PercentLegendColor;
 
     //==== Utility functions ====//
     //  plotting helpers
