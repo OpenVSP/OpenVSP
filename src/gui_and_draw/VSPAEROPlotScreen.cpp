@@ -694,16 +694,16 @@ bool VSPAEROPlotScreen::Update()
 
         m_UnsteadyTab->activate();
 
+        m_UnsteadyDataTypeRadio.Update( VSPAEROMgr.m_UnsteadyGroupSelectType.GetID() );
+
         if ( num_group == 0 )
         {
-            m_UnsteadyGroupToggle.Deactivate();
-            m_UnsteadyGroupToggle.Deactivate();
             VSPAEROMgr.m_UnsteadyGroupSelectType.Set( VSPAEROMgr.HISTORY_SELECT_TYPE );
+            m_UnsteadyDataTypeRadio.Deactivate();
         }
         else
         {
-            m_UnsteadyGroupToggle.Activate();
-            m_UnsteadyGroupToggle.Activate();
+            m_UnsteadyDataTypeRadio.Activate();
         }
 
         // Update unsteady plot canvas
@@ -1087,8 +1087,6 @@ void VSPAEROPlotScreen::UpdateCpSliceAutoManualAxisLimits()
 
 void VSPAEROPlotScreen::UpdateUnsteadyAutoManualAxisLimits()
 {
-    m_UnsteadyDataTypeRadio.Update( VSPAEROMgr.m_UnsteadyGroupSelectType.GetID() );
-
     Ca_Axis_ *  t_Axis;
 
     m_UnsteadyManualXMinToggle.Update( VSPAEROMgr.m_UnsteadyXMinIsManual.GetID() );
