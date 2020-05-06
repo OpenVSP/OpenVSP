@@ -1361,6 +1361,14 @@ void VSPAEROMgrSingleton::ClearAllPreviousResults()
     {
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Rotor", 0 ) );
     }
+    while ( ResultsMgr.GetNumResults( "VSPAERO_Blade_Avg" ) > 0 )
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Blade_Avg", 0 ) );
+    }
+    while ( ResultsMgr.GetNumResults( "VSPAERO_Blade_Last_Rev" ) > 0 )
+    {
+        ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Blade_Last_Rev", 0 ) );
+    }
     while ( ResultsMgr.GetNumResults( "VSPAERO_Wrapper" ) > 0 )
     {
         ResultsMgr.DeleteResult( ResultsMgr.FindResultsID( "VSPAERO_Wrapper",  0 ) );
