@@ -2602,52 +2602,52 @@ void VSPAEROPlotScreen::PlotLoadDistribution( string resultID, vector <string> y
             yResultDataPtr = res->FindPtr( yDataSetNames[iDataSet] );
             if( wingIdResultDataPtr && xResultDataPtr && yResultDataPtr )
             {
-                // get unique indicies and generate loop over unique wings
-                vector <int> wingIdIntDataRaw = wingIdResultDataPtr->GetIntData();
-                vector <int> wingIdIntDataUnique;
-                std::unique_copy( wingIdIntDataRaw.begin(), wingIdIntDataRaw.end(), std::back_inserter( wingIdIntDataUnique ) );
+                    // get unique indicies and generate loop over unique wings
+                    vector <int> wingIdIntDataRaw = wingIdResultDataPtr->GetIntData();
+                    vector <int> wingIdIntDataUnique;
+                    std::unique_copy( wingIdIntDataRaw.begin(), wingIdIntDataRaw.end(), std::back_inserter( wingIdIntDataUnique ) );
 
-                Fl_Color c = ColorWheel( m_LoadDistiPlot, m_LoadDistNLines );
+                    Fl_Color c = ColorWheel( m_LoadDistiPlot, m_LoadDistNLines );
 
-                // Collect data for each wing and plot individual line for each wing (assumes unsorted list)
-                for ( int iWing = 0; iWing < wingIdIntDataUnique.size(); iWing++ )
-                {
-                    //collect the data for each wing checking each point
-                    vector <double> xDoubleData;
-                    vector <double> yDoubleData;
-                    for ( unsigned int iPt = 0; iPt < wingIdIntDataRaw.size(); iPt++ )
+                    // Collect data for each wing and plot individual line for each wing (assumes unsorted list)
+                    for ( int iWing = 0; iWing < wingIdIntDataUnique.size(); iWing++ )
                     {
-                        if ( wingIdIntDataRaw[iPt] == wingIdIntDataUnique[iWing] )
+                        //collect the data for each wing checking each point
+                        vector <double> xDoubleData;
+                        vector <double> yDoubleData;
+                        for ( unsigned int iPt = 0; iPt < wingIdIntDataRaw.size(); iPt++ )
                         {
-                            xDoubleData.push_back( xResultDataPtr->GetDouble( iPt ) );
-                            yDoubleData.push_back( yResultDataPtr->GetDouble( iPt ) );
+                            if ( wingIdIntDataRaw[iPt] == wingIdIntDataUnique[iWing] )
+                            {
+                                xDoubleData.push_back( xResultDataPtr->GetDouble( iPt ) );
+                                yDoubleData.push_back( yResultDataPtr->GetDouble( iPt ) );
+                            }
                         }
-                    }
 
-                    //Sort data for this wing along Yavg dimension
-                    // generate sorted indicies array
-                    vector < int > Indx;                    Indx.assign( yDoubleData.size(), 0 );
-                    for ( unsigned int iPt = 0; iPt < xDoubleData.size(); iPt++ )
-                    {
-                        Indx[iPt] = iPt;
-                    }
-                    std::sort( Indx.begin(), Indx.end(), [&xDoubleData]( int i, int j ) {return xDoubleData[i] < xDoubleData[j];} );
-                    // copy data to sorted arrays
-                    vector <double> xDoubleData_sorted;     xDoubleData_sorted.assign( xDoubleData.size(), 0 );
-                    vector <double> yDoubleData_sorted;     yDoubleData_sorted.assign( yDoubleData.size(), 0 );
-                    for ( unsigned int iPt = 0; iPt < xDoubleData.size(); iPt++ )
-                    {
-                        xDoubleData_sorted[iPt] = xDoubleData[Indx[iPt]];
-                        yDoubleData_sorted[iPt] = yDoubleData[Indx[iPt]];
-                    }
+                        //Sort data for this wing along Yavg dimension
+                        // generate sorted indicies array
+                        vector < int > Indx;                    Indx.assign( yDoubleData.size(), 0 );
+                        for ( unsigned int iPt = 0; iPt < xDoubleData.size(); iPt++ )
+                        {
+                            Indx[iPt] = iPt;
+                        }
+                        std::sort( Indx.begin(), Indx.end(), [&xDoubleData]( int i, int j ) {return xDoubleData[i] < xDoubleData[j];} );
+                        // copy data to sorted arrays
+                        vector <double> xDoubleData_sorted;     xDoubleData_sorted.assign( xDoubleData.size(), 0 );
+                        vector <double> yDoubleData_sorted;     yDoubleData_sorted.assign( yDoubleData.size(), 0 );
+                        for ( unsigned int iPt = 0; iPt < xDoubleData.size(); iPt++ )
+                        {
+                            xDoubleData_sorted[iPt] = xDoubleData[Indx[iPt]];
+                            yDoubleData_sorted[iPt] = yDoubleData[Indx[iPt]];
+                        }
 
-                    //add the data to the plot
-                    AddPointLine( xDoubleData_sorted, yDoubleData_sorted, 2, c, 4, StyleWheel( m_LoadDistiPlot ) );
+                        //add the data to the plot
+                        AddPointLine( xDoubleData_sorted, yDoubleData_sorted, 2, c, 4, StyleWheel( m_LoadDistiPlot ) );
 
-                    //Handle axis limits
-                    UpdateAxisLimits( m_LoadDistPlotCanvas, xDoubleData_sorted, yDoubleData_sorted, expandOnly );
-                    expandOnly = true;
-                }
+                        //Handle axis limits
+                        UpdateAxisLimits( m_LoadDistPlotCanvas, xDoubleData_sorted, yDoubleData_sorted, expandOnly );
+                        expandOnly = true;
+                    }
 
                 char strbuf[100];
                 ConstructFlowConditionString( strbuf, res, false );
