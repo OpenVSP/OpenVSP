@@ -143,6 +143,14 @@ int ParmContainer::GetLatestChangeCnt()
     return cnt;
 }
 
+void ParmContainer::SetName( const string& name )
+{
+    string temp_name = name;
+    // Remove forward slashes, which FLTK interprets as new choice dropdowns
+    StringUtil::remove_all( temp_name, '/' );
+    m_Name = temp_name;
+}
+
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr ParmContainer::EncodeXml( xmlNodePtr & node )
 {

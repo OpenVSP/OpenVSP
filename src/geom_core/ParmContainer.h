@@ -49,7 +49,7 @@ public:
 
     virtual string GetID()                          { return m_ID; }
 
-    virtual void SetName( const string& name )      { m_Name = name; }
+    virtual void SetName( const string& name );
     virtual string GetName()                        { return m_Name; }
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
