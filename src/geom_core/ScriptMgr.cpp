@@ -1752,11 +1752,11 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
 
     doc_struct.comment = "/*! Enums for VSPAERO unsteady noise units. */";
 
-    r = se->RegisterEnum( "VSPAERO_NOISE_TYPE", doc_struct );
+    r = se->RegisterEnum( "VSPAERO_NOISE_UNIT", doc_struct );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_NOISE_TYPE", "NOISE_SI", NOISE_SI, "/*!< Assume geometry and VSPAERO inputs in SI (m N kg s) for PSU-WOPWOP  */" );
+    r = se->RegisterEnumValue( "VSPAERO_NOISE_UNIT", "NOISE_SI", NOISE_SI, "/*!< Assume geometry and VSPAERO inputs in SI (m N kg s) for PSU-WOPWOP  */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "VSPAERO_NOISE_TYPE", "NOISE_ENGLISH", NOISE_ENGLISH, "/*!< Assume geometry and VSPAERO inputs in english (ft lbf slug s) units, will convert to SI (m N kg s) for PSU-WOPWOP */" );
+    r = se->RegisterEnumValue( "VSPAERO_NOISE_UNIT", "NOISE_ENGLISH", NOISE_ENGLISH, "/*!< Assume geometry and VSPAERO inputs in english (ft lbf slug s) units, will convert to SI (m N kg s) for PSU-WOPWOP */" );
     assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum for the types of preconditioner used in VSPAERO. */";
