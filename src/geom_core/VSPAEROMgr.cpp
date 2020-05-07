@@ -1027,12 +1027,21 @@ string VSPAEROMgrSingleton::ComputeGeometry()
     }
 
     // Cleanup previously created meshGeom IDs created from VSPAEROMgr
-    if ( veh->FindGeom( m_LastPanelMeshGeomId ) )
+    Geom* last_mesh = veh->FindGeom( m_LastPanelMeshGeomId );
+    vector < string > geom_vec = veh->GetGeomSet( m_GeomSet() );
+    if ( last_mesh && m_AnalysisMethod() == vsp::VORTEX_LATTICE )
     {
-        veh->DeleteGeom( m_LastPanelMeshGeomId );
-        if ( m_AnalysisMethod() == vsp::VORTEX_LATTICE )
+        veh->ShowOnlySet( m_GeomSet() );
+    }
+
+    if ( !last_mesh && geom_vec.size() == 1 )
+    {
+        // Support mesh generated outside of VSPAERO if it is the only Geom in the set
+        Geom* geom = veh->FindGeom( geom_vec[0] );
+        if ( geom->GetType().m_Type == MESH_GEOM_TYPE )
         {
-            veh->ShowOnlySet( m_GeomSet() );
+            last_mesh = geom;
+            m_LastPanelMeshGeomId = geom_vec[0];
         }
     }
 
@@ -1082,7 +1091,17 @@ string VSPAEROMgrSingleton::ComputeGeometry()
             halfFlag = 1;
         }
 
-        m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag );
+        if ( !last_mesh || !( geom_vec.size() == 1 && last_mesh->GetID() == geom_vec[0] ) )
+        {
+            if ( last_mesh )
+            {
+                // Remove the previous mesh, which has been updated
+                veh->DeleteGeomVec( vector< string >{ m_LastPanelMeshGeomId } );
+            }
+
+            // No previous mesh available, or new mesh is required
+            m_LastPanelMeshGeomId = veh->CompGeomAndFlatten( m_GeomSet(), halfFlag );
+        }
 
         // After CompGeomAndFlatten() is run all the geometry is hidden and the intersected & trimmed mesh is the only one shown
         veh->WriteTRIFile( m_CompGeomFileFull , vsp::SET_SHOWN );
