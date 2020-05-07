@@ -56,6 +56,15 @@ void StringUtil::replace_all( string & str, const string & from, const string & 
     }
 }
 
+//==== Remove All Instances of c in str ====//
+void StringUtil::remove_all( string& str, const char& c )
+{
+    size_t found = str.find( c );
+    if ( found != std::string::npos )
+    {
+        str.erase( std::remove( str.begin(), str.end(), c ), str.end() );
+    }
+}
 
 //==== Change All "_" Characters -> " " Characters ====//
 void StringUtil::chance_underscore_to_space( string & str )
