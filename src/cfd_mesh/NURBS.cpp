@@ -583,11 +583,11 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
             DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[i].WriteIGESLoop( iges, parent_surf );
 
             // Check if for any cutouts on the trimmed surface
-            for ( size_t i = 0; i < cutout_vec.size(); i++ )
+            for ( size_t j = 0; j < cutout_vec.size(); j++ )
             {
-                if ( Compare( ext_loop_vec[i].GetBndBox(), cutout_vec[i].GetBndBox() ) ) // TODO: Improve this comparison
+                if ( Compare( ext_loop_vec[i].GetBndBox(), cutout_vec[j].GetBndBox() ) ) // TODO: Improve this comparison
                 {
-                    cutout_vec[i].WriteIGESCutout( iges, parent_surf, trimmed_surf );
+                    cutout_vec[j].WriteIGESCutout( iges, parent_surf, trimmed_surf );
                 }
             }
         }
