@@ -308,15 +308,6 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_GenLayout.AddYGap();
 
-    m_ExportNameChoice.AddItem( "NONE" );
-    m_ExportNameChoice.AddItem( "WING" );
-    m_ExportNameChoice.AddItem( "FUSELAGE" );
-    m_ExportNameChoice.AddItem( "TAIL" );
-    m_ExportNameChoice.AddItem( "CANOPY" );
-    m_ExportNameChoice.AddItem( "POD" );
-    m_GenLayout.AddChoice( m_ExportNameChoice, "Export Name:" );
-    m_GenLayout.AddYGap();
-
     m_GenLayout.AddDividerBox( "Tessellation" );
     m_GenLayout.AddSlider( m_NumUSlider, "Num_U", 100, " %5.0f" );
     m_GenLayout.AddSlider( m_NumWSlider, "Num_W", 100, " %5.0f" );
