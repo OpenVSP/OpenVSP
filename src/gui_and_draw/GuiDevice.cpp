@@ -670,32 +670,23 @@ void SliderAdjRange::SetValAndLimits( Parm* parm_ptr )
 
         m_MinBound = max( new_val - m_Range, parm_ptr->GetLowerLimit() );
         m_MaxBound = min( new_val + m_Range, parm_ptr->GetUpperLimit() );
-
-        double scale = 1;
-        if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
-        {
-            FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
-
-            if ( fp->GetDisplayResultsFlag() )
-            {
-                scale = fp->GetRefVal();
-            }
-        }
-
-        m_Slider->bounds( ( m_MinBound * scale ), ( m_MaxBound * scale ) );
     }
 
-    FindStopState( parm_ptr );
-
+    double scale = 1;
     if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
     {
         FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
 
         if ( fp->GetDisplayResultsFlag() )
         {
+            scale = fp->GetRefVal();
             new_val = fp->GetResult();
         }
     }
+
+    m_Slider->bounds( ( m_MinBound * scale ), ( m_MaxBound * scale ) );
+
+    FindStopState( parm_ptr );
 
     if ( CheckValUpdate( new_val ) )
     {
