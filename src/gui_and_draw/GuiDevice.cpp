@@ -4147,7 +4147,11 @@ void XSecCurveEditor::Update()
 
         vector < vec3d > curve_pnts;
 
-        m_XSec->GetBaseEditCurve().TessAdapt( curve_pnts, 1e-3, 10 );
+        // The base curve is shifted by 1/2 width before XSecCurve::Update(), which shifts the final curve
+        // back by 1/2 width.  Since we are using the base curve, we must shift it back.
+        VspCurve base_curve = m_XSec->GetBaseEditCurve();
+        base_curve.OffsetX( -0.5 * m_XSec->GetWidth() );
+        base_curve.TessAdapt( curve_pnts, 1e-3, 10 );
 
         int n_pts =(int)curve_pnts.size();
 

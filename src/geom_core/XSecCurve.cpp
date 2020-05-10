@@ -2742,9 +2742,9 @@ void EditCurveXSec::Update()
             break;
     }
 
-    XSecCurve::Update(); // Note, this will add TE and LE Bezier Segments if Wing or BOR type
-
     m_Curve.OffsetX( 0.5 * m_Width() ); // Shift by 1/2 width (all XSec types are centered at (m_Width/2, 0, 0))
+
+    XSecCurve::Update(); // Note, this will add TE and LE Bezier Segments if Wing or BOR type
 
     UpdateG1Parms();
 
