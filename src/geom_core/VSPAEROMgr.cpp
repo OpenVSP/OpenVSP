@@ -1719,7 +1719,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 
                     //====== Read in all of the results ======//
                     // read the files if there is new data that has not successfully been read in yet
-                    ReadHistoryFile( historyFileName, res_id_vector, analysisMethod, unsteady_flag );
+                    ReadHistoryFile( historyFileName, res_id_vector, analysisMethod );
 
                     ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
 
@@ -2006,7 +2006,7 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         }
 
         //====== Read in all of the results ======//
-        ReadHistoryFile( historyFileName, res_id_vector, analysisMethod, unsteady_flag );
+        ReadHistoryFile( historyFileName, res_id_vector, analysisMethod );
 
         ReadLoadFile( loadFileName, res_id_vector, analysisMethod );
 
@@ -2167,7 +2167,7 @@ line 4407 - void VSP_SOLVER::OutputZeroLiftDragToStatusFile(void)
 TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
 *******************************************************/
-void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, bool unsteady_analysis_flag )
+void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
 {
     //TODO return success or failure
     FILE *fp = NULL;
@@ -2214,21 +2214,18 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
         */
         int wake_iter_table_columns = 18;
 
-        bool unsteady = false;
-        int unsteady_table_columns;
+        bool unsteady_prop = false;
+        bool unsteady_pqr = false;
+        int num_unsteady_prop_col = 27; // TODO: Why is unsteady angle not included in unsteady analysis???
+        int num_unsteady_pqr_col = 28;
 
-        if ( unsteady_analysis_flag ) // TODO: Why is unsteady angle not included in unsteady analysis???
+        if ( data_string_array.size() == num_unsteady_prop_col )
         {
-            unsteady_table_columns = 27;
+            unsteady_prop = true;
         }
-        else
+        else if ( data_string_array.size() == num_unsteady_pqr_col )
         {
-            unsteady_table_columns = 28;
-        }
-
-        if ( data_string_array.size() == unsteady_table_columns )
-        {
-            unsteady = true;
+            unsteady_pqr = true;
         }
 
         if( data_string_array.size() >= wake_iter_table_columns )
@@ -2269,7 +2266,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
             while ( data_string_array.size() >= wake_iter_table_columns )
             {
-                if ( unsteady )
+                if ( unsteady_prop || unsteady_pqr )
                 {
                     time.push_back( std::stod( data_string_array[0] ) );
                 }
@@ -2301,18 +2298,14 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
 
                 ToQS.push_back(     std::stod( data_string_array[17] ) );
 
-                if ( unsteady ) // Additional columns for unsteady analysis
+                if ( unsteady_prop || unsteady_pqr ) // Additional columns for unsteady analysis
                 {
-                    int data_index;
+                    int data_index = 18;
 
-                    if ( unsteady_analysis_flag )
+                    if ( unsteady_pqr )
                     {
-                        data_index = 18;
-                    }
-                    else
-                    {
-                        UnstdAng.push_back( std::stod( data_string_array[18] ) );
-                        data_index = 19;
+                        UnstdAng.push_back( std::stod( data_string_array[data_index] ) );
+                        data_index += 1;
                     }
 
                     CL_Un.push_back( std::stod( data_string_array[data_index] ) );
@@ -2332,7 +2325,7 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
             //add to the results manager
             if ( res )
             {
-                if ( unsteady )
+                if ( unsteady_prop || unsteady_pqr )
                 {
                     res->Add( NameValData( "Time", time ) );
                 }
@@ -2358,9 +2351,9 @@ void VSPAEROMgrSingleton::ReadHistoryFile( string filename, vector <string> &res
                 res->Add( NameValData( "CMz", CMz ) );
                 res->Add( NameValData( "T/QS", ToQS ) );
 
-                if ( unsteady )
+                if ( unsteady_prop || unsteady_pqr )
                 {
-                    if ( !unsteady_analysis_flag )
+                    if ( unsteady_pqr )
                     {
                         res->Add( NameValData( "UnstdyAng", UnstdAng ) );
                     }
