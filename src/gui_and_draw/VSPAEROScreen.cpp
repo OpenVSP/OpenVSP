@@ -65,9 +65,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_ConsoleLayout.ForceNewLine();
 
-    m_ConsoleLayout.SetFitWidthFlag( true );
-    m_ConsoleLayout.SetSameLineFlag( false );
-    //m_ExecuteLayout.AddButton( m_ExportResultsToMatlabButton, "Export to *.m" );
+    m_ConsoleLayout.AddButton( m_LoadExistingResultsButton, "Load Previous Results" );
     m_ConsoleLayout.AddButton( m_ExportResultsToCsvButton, "Export to *.csv" );
     m_ExportResultsToCsvButton.Deactivate();
 
@@ -303,7 +301,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_AdvancedCaseSetupLayout.AddChoice( m_PreconditionChoice, "Preconditioner");
 
     m_AdvancedCaseSetupLayout.AddButton( m_KTCorrectionToggle, "2nd Order Karman-Tsien Mach Correction" );
-
     m_AdvancedCaseSetupLayout.AddButton(m_Write2DFEMToggle, "Write 2D FEM");
 
     // Wake Layout
@@ -1022,6 +1019,20 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
         else if( device == &m_CompGeomFileButton )
         {
             veh->setExportFileName( vsp::VSPAERO_PANEL_TRI_TYPE, m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select comp geom TRI output file.", "*.tri" ) );
+        }
+        else if ( device == &m_LoadExistingResultsButton )
+        {
+            if ( VSPAEROMgr.LoadExistingVSPAEROResults() != string() )
+            {
+                m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
+
+                // Display default view settings
+                VSPAEROPlotScreen* vspapscreen = (VSPAEROPlotScreen*)m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_PLOT_SCREEN );
+                if ( vspapscreen )
+                {
+                    vspapscreen->SetDefaultView();
+                }
+            }
         }
         else if( device == &m_CGSetChoice )
         {
