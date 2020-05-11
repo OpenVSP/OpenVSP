@@ -1738,14 +1738,14 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     {
                         for ( size_t j = 0; j < group_res_vec.size(); j++ )
                         {
-                            ReadGroupResFile( group_res_vec[j], res_id_vector, analysisMethod, unsteady_group_name_vec[j] );
+                            ReadGroupResFile( group_res_vec[j], res_id_vector, unsteady_group_name_vec[j] );
                         }
 
                         int offset = group_res_vec.size() - rotor_res_vec.size();
 
                         for ( size_t j = 0; j < rotor_res_vec.size(); j++ )
                         {
-                            ReadGroupResFile( rotor_res_vec[j], res_id_vector, analysisMethod, unsteady_group_name_vec[j + offset] );
+                            ReadGroupResFile( rotor_res_vec[j], res_id_vector, unsteady_group_name_vec[j + offset] );
                         }
 
                         if ( noise_flag )
@@ -2025,14 +2025,14 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         {
             for ( size_t j = 0; j < group_res_vec.size(); j++ )
             {
-                ReadGroupResFile( group_res_vec[j], res_id_vector, analysisMethod, unsteady_group_name_vec[j] );
+                ReadGroupResFile( group_res_vec[j], res_id_vector, unsteady_group_name_vec[j] );
             }
 
             int offset = group_res_vec.size() - rotor_res_vec.size();
 
             for ( size_t j = 0; j < rotor_res_vec.size(); j++ )
             {
-                ReadRotorResFile( rotor_res_vec[j], res_id_vector, analysisMethod, unsteady_group_name_vec[j + offset] );
+                ReadRotorResFile( rotor_res_vec[j], res_id_vector, unsteady_group_name_vec[j + offset] );
             }
 
             if ( noise_flag )
@@ -4297,7 +4297,7 @@ string VSPAEROMgrSingleton::ExecuteNoiseAnalysis( FILE* logFile, int noise_type,
 Read *.group.* file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, string group_name )
+void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &res_id_vector, string group_name )
 {
     FILE *fp = NULL;
     bool read_success = false;
@@ -4422,7 +4422,7 @@ void VSPAEROMgrSingleton::ReadGroupResFile( string filename, vector <string> &re
 Read *.rotor.* file output from VSPAERO
 See: VSP_Solver.C in vspaero project
 *******************************************************/
-void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod, string group_name )
+void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &res_id_vector, string group_name )
 {
     FILE *fp = NULL;
     bool read_success = false;
