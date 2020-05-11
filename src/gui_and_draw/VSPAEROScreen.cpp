@@ -935,6 +935,15 @@ void * solver_thread_fun( void *data )
 
         vsscreen->m_SolverThreadIsRunning = false;
 
+        vsscreen->GetScreenMgr()->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
+
+        // Display default view settings
+        VSPAEROPlotScreen* vspapscreen = (VSPAEROPlotScreen*)vsscreen->GetScreenMgr()->GetScreen( ScreenMgr::VSP_VSPAERO_PLOT_SCREEN );
+        if ( vspapscreen )
+        {
+            vspapscreen->SetDefaultView();
+        }
+
         vsscreen->GetScreenMgr()->SetUpdateFlag( true );
     }
 
@@ -966,25 +975,7 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                 // Clear the solver console
                 m_SolverBuffer->text( "" );
 
-                //Show the plot screen (if not unsteady analysis)
-                if (VSPAEROMgr.m_StabilityType() != 1 && VSPAEROMgr.m_AnalysisMethod() == vsp::PANEL)
-                {
-                    m_ScreenMgr->m_ShowPlotScreenOnce = false;
-                }
-                else
-                {
-                    m_ScreenMgr->m_ShowPlotScreenOnce = true;   //deferred show of plot screen
-
-                    VSPAEROPlotScreen * vspapscreen = ( VSPAEROPlotScreen * )m_ScreenMgr->GetScreen( ScreenMgr::VSP_VSPAERO_PLOT_SCREEN );
-                    if( vspapscreen )
-                    {
-                        vspapscreen->SetDefaultView();
-                        vspapscreen->Update();
-                    }
-                }
-
                 m_SolverProcess.StartThread( solver_thread_fun, ( void* ) &m_SolverPair );
-
             }
         }
         else if ( device == &m_ViewerButton )
