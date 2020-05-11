@@ -280,6 +280,8 @@ public:
 
     int ExportResultsToCSV( string fileName );
 
+    string LoadExistingVSPAEROResults();
+
     IntParm m_AnalysisMethod;
 
     // CpSlicer Functionality and Variables

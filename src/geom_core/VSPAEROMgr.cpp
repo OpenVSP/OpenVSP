@@ -1423,6 +1423,128 @@ void VSPAEROMgrSingleton::ReadSetupFile()
     fclose( case_file );
 }
 
+string VSPAEROMgrSingleton::LoadExistingVSPAEROResults()
+{
+    // The current base VSPAERO file name and analysis method is used as the basis
+    // to identify previous VSPAERO results from.
+    ClearAllPreviousResults();
+
+    UpdateFilenames();
+
+    ReadSetupFile();
+
+    vector < string > res_id_vec;
+
+    MessageData data;
+    data.m_String = "VSPAEROSolverMessage";
+    bool no_errors = true;
+
+    if ( FileExist( m_HistoryFile ) )
+    {
+        ReadHistoryFile( m_HistoryFile, res_id_vec, ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod() );
+    }
+    else
+    {
+        data.m_StringVec = vector < string >{ "Error: VSPAERO History file " + m_HistoryFile + " not found \n" };
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        no_errors = false;
+    }
+
+    if ( FileExist( m_LoadFile ) )
+    {
+        ReadLoadFile( m_LoadFile, res_id_vec, ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod() );
+    }
+    else
+    {
+        data.m_StringVec = vector < string >{ "Error: VSPAERO Load file " + m_LoadFile + " not found \n" };
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+        no_errors = false;
+    }
+
+    if ( m_PreviousStabilityType > vsp::VSPAERO_STABILITY_TYPE::STABILITY_OFF )
+    {
+        string stab_file;
+
+        if ( m_PreviousStabilityType == vsp::STABILITY_P_ANALYSIS )
+        {
+            stab_file = m_ModelNameBase + string( ".pstab" );
+        }
+        else if ( m_PreviousStabilityType == vsp::STABILITY_Q_ANALYSIS )
+        {
+            stab_file = m_ModelNameBase + string( ".qstab" );
+        }
+        else if ( m_PreviousStabilityType == vsp::STABILITY_R_ANALYSIS )
+        {
+            stab_file = m_ModelNameBase + string( ".rstab" );
+        }
+        else
+        {
+            stab_file = m_ModelNameBase + string( ".stab" );
+        }
+
+        if ( FileExist( stab_file ) )
+        {
+            ReadStabFile( stab_file, res_id_vec, ( vsp::VSPAERO_ANALYSIS_METHOD )m_AnalysisMethod(), ( vsp::VSPAERO_STABILITY_TYPE )m_PreviousStabilityType );
+        }
+        else
+        {
+            data.m_StringVec = vector < string >{ "Error: VSPAERO Stab file " + stab_file + " not found \n" };
+            MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+            no_errors = false;
+        }
+    }
+
+    if ( m_PreviousNumUnsteadyGroups > 0 && m_PreviousNumUnsteadyGroups == m_GroupResFiles.size() )
+    {
+        for ( size_t i = 0; i < m_PreviousNumUnsteadyGroups; i++ )
+        {
+            if ( FileExist( m_GroupResFiles[i] ) )
+            {
+                ReadGroupResFile( m_GroupResFiles[i], res_id_vec, ( "Group_" + to_string(i) ) );
+            }
+            else
+            {
+                data.m_StringVec = vector < string >{ "Error: VSPAERO Group file " + m_GroupResFiles[i] + " not found \n" };
+                MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+                no_errors = false;
+            }
+        }
+    }
+
+    if ( m_PreviousNumUnsteadyProps > 0 && m_PreviousNumUnsteadyProps == m_RotorResFiles.size() )
+    {
+        for ( size_t i = 0; i < m_PreviousNumUnsteadyProps; i++ )
+        {
+            if ( FileExist( m_RotorResFiles[i] ) )
+            {
+                ReadRotorResFile( m_RotorResFiles[i], res_id_vec, ( "Rotor_" + to_string( i ) ) );
+            }
+            else
+            {
+                data.m_StringVec = vector < string >{ "Error: VSPAERO Rotor file " + m_RotorResFiles[i] + " not found \n" };
+                MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+                no_errors = false;
+            }
+        }
+    }
+
+    if ( no_errors )
+    {
+        data.m_StringVec = vector < string >{ "All previous VSPAERO results successfully read \n" };
+        MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
+    }
+
+    // Create "wrapper" result to contain a vector of result IDs (this maintains compatibility to return a single result after computation)
+    Results *res = ResultsMgr.CreateResults( "VSPAERO_Wrapper" );
+    if ( !res )
+    {
+        return string();
+    }
+
+    res->Add( NameValData( "ResultsVec", res_id_vec ) );
+    return res->GetID();
+}
+
 void VSPAEROMgrSingleton::ClearAllPreviousResults()
 {
     while ( ResultsMgr.GetNumResults( "VSPAERO_History" ) > 0 )
