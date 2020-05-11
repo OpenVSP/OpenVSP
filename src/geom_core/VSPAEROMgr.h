@@ -520,6 +520,7 @@ protected:
     static bool CheckForCaseHeader( std::vector<string> headerStr );
     static bool CheckForResultHeader( std::vector < string > headerstr );
     static int ReadVSPAEROCaseHeader( Results * res, FILE * fp, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod );
+    void ReadSetupFile(); // Read the VSPAERO setup file to identify VSPAERO inputs needed to generate existing VSPAERO results
     void ReadSliceFile( string filename, vector <string> &res_id_vector );
     void ReadGroupResFile( string filename, vector <string> &res_id_vector, string group_name = "" );
     void ReadRotorResFile( string filename, vector <string> &res_id_vector, string group_name = "" );
@@ -548,6 +549,11 @@ private:
     int m_CpSliceAnalysisType;
 
     bool m_Verbose;
+
+    // VSPAERO Inputs from Existing Results
+    int m_PreviousStabilityType;
+    int m_PreviousNumUnsteadyGroups;
+    int m_PreviousNumUnsteadyProps;
 };
 
 #define VSPAEROMgr VSPAEROMgrSingleton::getInstance()

@@ -1386,6 +1386,43 @@ string VSPAEROMgrSingleton::CreateSetupFile()
 
 }
 
+void VSPAEROMgrSingleton::ReadSetupFile()
+{
+    // Initialize member variables to identify Parms values from previous results
+    // Note, this function will only be able to find some information necessary to load
+    // previoous results if the VSPAERO setup file was created after the additional 
+    // information was added.
+    m_PreviousStabilityType = -1;
+    m_PreviousNumUnsteadyGroups = -1;
+    m_PreviousNumUnsteadyProps = -1;
+
+    FILE* case_file = fopen( m_SetupFile.c_str(), "r" );
+    if ( case_file == NULL )
+    {
+        fprintf( stderr, "ERROR %d: Unable to find existing VSPAERO setup file: %s\n\tFile: %s \tLine:%d\n", vsp::VSP_FILE_DOES_NOT_EXIST, m_SetupFile.c_str(), __FILE__, __LINE__ );
+        return;
+    }
+
+    char strbuff[1024]; // buffer for entire line in file
+    while ( fgets( strbuff, 1024, case_file ) != NULL )
+    {
+        if ( string( strbuff ).find( "Stability Type" ) != string::npos )
+        {
+            sscanf( strbuff, "Stability Type = %d \n", &m_PreviousStabilityType );
+        }
+        else if ( string( strbuff ).find( "Num Unsteady Groups" ) != string::npos )
+        {
+            sscanf( strbuff, "Num Unsteady Groups = %d \n", &m_PreviousNumUnsteadyGroups );
+        }
+        else if ( string( strbuff ).find( "Num Unsteady Props" ) != string::npos )
+        {
+            sscanf( strbuff, "Num Unsteady Props = %d \n", &m_PreviousNumUnsteadyProps );
+        }
+    }
+
+    fclose( case_file );
+}
+
 void VSPAEROMgrSingleton::ClearAllPreviousResults()
 {
     while ( ResultsMgr.GetNumResults( "VSPAERO_History" ) > 0 )
