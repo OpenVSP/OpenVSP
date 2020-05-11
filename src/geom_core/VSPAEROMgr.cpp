@@ -1312,7 +1312,10 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         }
     }
 
-    // Preconditioner (not read from setup file)
+    // The following additions to the setup file are not read by VSPAERO, and therefore must 
+    // be placed at the end of the file.
+
+    // Preconditioner
     string precon;
     if ( m_Precondition() == vsp::PRECON_MATRIX )
     {
@@ -1328,7 +1331,7 @@ string VSPAEROMgrSingleton::CreateSetupFile()
     }
     fprintf( case_file, "Preconditioner = %s \n", precon.c_str() );
 
-    // 2nd Order Karman-Tsien Mach Number Correction (not read from setup file)
+    // 2nd Order Karman-Tsien Mach Number Correction
     string ktcorrect;
     if ( m_KTCorrection() )
     {
@@ -1339,6 +1342,14 @@ string VSPAEROMgrSingleton::CreateSetupFile()
         ktcorrect = "N";
     }
     fprintf( case_file, "Karman-Tsien Correction = %s \n", ktcorrect.c_str() );
+
+    fprintf( case_file, "Stability Type = %d \n", m_StabilityType() ); // Stability Type
+
+    if ( m_RotateBladesFlag() )
+    {
+        fprintf( case_file, "Num Unsteady Groups = %d \n", NumUnsteadyGroups() ); // Number of unsteady groups
+        fprintf( case_file, "Num Unsteady Props = %d \n", NumUnsteadyRotorGroups() ); // number of unsteady propellers
+    }
 
     //Finish up by closing the file and making sure that it appears in the file system
     fclose( case_file );
