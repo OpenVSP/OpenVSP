@@ -610,13 +610,31 @@ VSPAEROPlotScreen::~VSPAEROPlotScreen()
 
 void VSPAEROPlotScreen::SetDefaultView()
 {
+    string resultName = "VSPAERO_History";
+    Results* res = ResultsMgr.FindResults( resultName, 0 );
+    int analysis_type = -1;
+    if ( res )
+    {
+        analysis_type = res->FindPtr( "AnalysisMethod" )->GetInt( 0 );
+    }
 
-    if ( VSPAEROMgr.m_RotateBladesFlag() || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_P_ANALYSIS ||
-         VSPAEROMgr.m_StabilityType() == vsp::STABILITY_Q_ANALYSIS || VSPAEROMgr.m_StabilityType() == vsp::STABILITY_R_ANALYSIS )
+    resultName = "VSPAERO_Stab";
+    res = ResultsMgr.FindResults( resultName, 0 );
+    int stab_type = -1;
+    if ( res )
+    {
+        stab_type = res->FindPtr( "StabilityType" )->GetInt( 0 );
+    }
+
+    resultName = "VSPAERO_Group";
+    int num_group = ResultsMgr.GetNumResults( resultName );
+
+    // TODO: Identify default view from results, not parms
+    if ( num_group > 0 || stab_type >= vsp::STABILITY_P_ANALYSIS )
     {
         m_UnsteadyTab->show();
 
-        if ( VSPAEROMgr.m_RotateBladesFlag() )
+        if ( num_group > 0 )
         {
             VSPAEROMgr.m_UnsteadyGroupSelectType.Set( VSPAEROMgr.ROTOR_SELECT_TYPE );
         }
@@ -627,14 +645,13 @@ void VSPAEROPlotScreen::SetDefaultView()
     }
     else
     {
-        switch ( VSPAEROMgr.m_AnalysisMethod.Get() )
+        switch ( analysis_type )
         {
             case vsp::VORTEX_LATTICE:
                 m_LoadDistTab->show();
                 break;
             case vsp::PANEL:
                 m_ConvergenceTab->show();
-                //m_LoadDistTab->hide();
                 break;
             default:
                 break;
