@@ -198,8 +198,8 @@ VSP_GRID* VSP_AGGLOM::Agglomerate_(VSP_GRID &Grid)
 void VSP_AGGLOM::InitializeFront_(void)
 {
 
-    int i;
-    
+    int i, NumberOfSurfaces, Loop1, Loop2, j, Done, *SurfaceExists;
+
     // Allocate space for the front list. This will contain the currently unused
     // edges on the agglomeration front.
  
@@ -339,6 +339,77 @@ void VSP_AGGLOM::InitializeFront_(void)
        
     }
     
+    // Check that all surfaces have at least one edge in the queue
+    
+    NumberOfSurfaces = 0;
+    
+    for ( i = 1 ; i <= FineGrid().NumberOfLoops() ; i++ ) {
+   
+       NumberOfSurfaces = MAX(NumberOfSurfaces, FineGrid().LoopList(i).SurfaceID());
+       
+    }
+        
+    SurfaceExists = new int[NumberOfSurfaces + 1];
+    
+    zero_int_array(SurfaceExists, NumberOfSurfaces);
+    
+    for ( i = 1 ; i <= FineGrid().NumberOfLoops() ; i++ ) {
+   
+       SurfaceExists[FineGrid().LoopList(i).SurfaceID()] = 1;
+       
+    }
+    
+    for ( i = 1 ; i <= FineGrid().NumberOfEdges() ; i++ ) {
+       
+       if ( EdgeIsOnFront_[i] ) {
+          
+          Loop1 = FineGrid().EdgeList(i).Loop1();
+          Loop2 = FineGrid().EdgeList(i).Loop2();
+          
+          if ( Loop1 > 0 ) SurfaceExists[FineGrid().LoopList(Loop1).SurfaceID()] = 999;
+          if ( Loop2 > 0 ) SurfaceExists[FineGrid().LoopList(Loop1).SurfaceID()] = 999;
+                              
+       }
+       
+    }    
+        
+    for ( i = 1 ; i <= NumberOfSurfaces ; i++ ) {
+       
+       if ( SurfaceExists[i] == 1 ) {
+          
+          // Add the first edge on this surface we find
+          
+          j = 1;
+          
+          Done = 0;
+          
+          while ( j <= FineGrid().NumberOfEdges() && !Done ) {
+
+             Loop1 = FineGrid().EdgeList(j).Loop1();
+             Loop2 = FineGrid().EdgeList(j).Loop2();
+          
+             if ( Loop1 > 0 && FineGrid().LoopList(Loop1).SurfaceID() == i || Loop2 >0 && FineGrid().LoopList(Loop2).SurfaceID() == i ) {
+                
+                EdgeIsOnFront_[j] = BOUNDARY_EDGE_BC;
+                
+                FrontEdgeQueue_[++NextEdgeInQueue_] = j;
+                
+                NumberOfEdgesOnBoundary_++;     
+                
+                Done = 1;           
+                
+             }
+             
+             j++;
+             
+          }
+                                        
+       }
+       
+    }    
+    
+    delete [] SurfaceExists;
+
     // If there are no edges in the queue... just start with edge 1
     
     if ( NextEdgeInQueue_ == 0 ) {
@@ -363,7 +434,7 @@ void VSP_AGGLOM::InitializeFront_(void)
        }
        
     }
-          
+              
     NumberOfEdgesInQueue_ = NextEdgeInQueue_;
     
     NextEdgeInQueue_ = 0;
@@ -378,11 +449,11 @@ void VSP_AGGLOM::InitializeFront_(void)
 
 int VSP_AGGLOM::NextAgglomerationEdge_(void)
 {
- 
+
     // Return next edge in the queue
     
     if ( NextEdgeInQueue_ < NumberOfEdgesInQueue_ ) return FrontEdgeQueue_[++NextEdgeInQueue_];
-       
+ 
     // If we got here then we are done agglomerating
     
     return 0;
