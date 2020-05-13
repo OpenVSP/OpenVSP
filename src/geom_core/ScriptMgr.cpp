@@ -6242,9 +6242,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Add each control surfaces in the array of control surface indexes to the control surface group at the specified index. \warning The indexes in 
-    input "selected" must be matched with available control surfaces identified by GetAvailableCSNameVec. The "selected" input uses one-
-    based indexing to associate available control surfaces. 
+    Add each control surfaces in the array of control surface indexes to the control surface group at the specified index. 
+
+    \warning The indexes in input "selected" must be matched with available control surfaces identified by GetAvailableCSNameVec. 
+    The "selected" input uses one- based indexing to associate available control surfaces.
+
     \code{.cpp}
     string wid = AddGeom( "WING", "" ); // Add Wing
 
@@ -6272,9 +6274,11 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Remove each control surfaces in the array of control surface indexes from the control surface group at the specified index. \warning The indexes in 
-    input "selected" must be matched with active control surfaces identified by GetActiveCSNameVec. The "selected" input uses one-
-    based indexing to associate available control surfaces. 
+    Remove each control surfaces in the array of control surface indexes from the control surface group at the specified index. 
+
+    \warning The indexes in input "selected" must be matched with active control surfaces identified by GetActiveCSNameVec. The 
+    "selected" input uses one-based indexing to associate available control surfaces. 
+
     \code{.cpp}
     string wid = AddGeom( "WING", "" ); // Add Wing
 
