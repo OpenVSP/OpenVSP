@@ -12,15 +12,11 @@
 #define VSPSETEDITORSCREEN__INCLUDED_
 
 #include "ScreenBase.h"
-#include "GuiDevice.h"
+#include "ScreenMgr.h"
 
-#include <FL/Fl.H>
-#include "setEditorFlScreen.h"
+using namespace std;
 
-using std::string;
-using std::vector;
-
-class SetEditorScreen : public VspScreen
+class SetEditorScreen : public BasicScreen
 {
 public:
     SetEditorScreen( ScreenMgr* mgr );
@@ -29,18 +25,38 @@ public:
     void Hide();
     bool Update();
 
-    void CallBack( Fl_Widget *w );
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( SetEditorScreen* )data )->CallBack( w );
-    }
+    //This callback responds to events from windows, groups, and widgets 
+    void CallBack( Fl_Widget* w );
+    //This callback responds to close widget events
+    virtual void CloseCallBack( Fl_Widget* w );
+    //This callback responds to events from GUI Devices buttons and input fields
+    void GuiDeviceCallBack( GuiDevice* device );
 
 protected:
 
+    //This is used get user select and compare to exsisting sets. 
+    //Index gets changed via callbacks and then utilized in updates 
     int m_SelectedSetIndex;
-    SetEditorUI* m_SetEditorUI;
+  
+    //Browser widget that displays a selectable list of items 
+    Fl_Browser* m_SetBrowser;
+    //Check browser widget that displays a checkable list of items
+    Fl_Check_Browser* m_SetSelectBrowser;
 
+    //Main layout that holds all other GroupLayouts
+    GroupLayout m_MainLayout;
+    //m_BorderLayout helps center and align other GroupLayout within m_MainLayout
+    GroupLayout m_BorderLayout;
+    //m_LeftLayout is to be used to hold m_setBrowser
+    GroupLayout m_LeftLayout;
+    //m_RightLayout is to be used to hold m_SetSelectBrowser
+    GroupLayout m_RightLayout;
+
+    //This gives user an input field to name a set
+    StringInput m_SetNameInput;
+
+
+    //This button is for user to execute the highlight function
+    TriggerButton m_HighlightSet;
 };
-
-
-#endif
+#endif //VSPSETEDITORSCREEN__INCLUDED_

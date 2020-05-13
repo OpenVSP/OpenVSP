@@ -6,60 +6,133 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "SetEditorScreen.h"
-#include "ScreenMgr.h"
-#include "StlHelper.h"
 
 using namespace vsp;
 
-//==== Constructor ====//
-SetEditorScreen::SetEditorScreen( ScreenMgr* mgr ) : VspScreen( mgr )
+SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 330, "Set Editor" )
 {
-    SetEditorUI* ui = m_SetEditorUI = new SetEditorUI();
-    VspScreen::SetFlWindow( ui->UIWindow );
+    //Variables to help get locations of widgets to look nice and clean
+    int browserHeight = 200;
+    int borderPaddingWidth = 5;
+    int yPadding = 7;
+    
+    //Fl_Window/Fl_Group objects inherited from the Fl_Widget class
+    //M-FLTK_Window is a member of the VSPScreen Class, inherited from BasicScreen class, included with ScreenBase.h
+    //StaticCloseCB is a callback function ptr, defined in Fl_Widget.h, it sets up the windows close callback funtcions
+    m_FLTK_Window->callback( staticCloseCB, this );
 
-    m_SelectedSetIndex = SET_ALL;
+    //This helps init m_MainLayouts group and screen functionality
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    
+    m_SelectedSetIndex = DEFAULT_SET;
 
-    ui->geomInSetBrowser->callback( staticScreenCB, this );
-    ui->setBrowser->callback( staticScreenCB, this );
-    ui->setNameInput->callback( staticScreenCB, this );
-    ui->highlightSetButton->callback( staticScreenCB, this );
+    //This sets position below heading with position at far left 
+    m_MainLayout.ForceNewLine();
+    //Adds padding on left and top of position
+    m_MainLayout.AddY( yPadding );
+    m_MainLayout.AddX( borderPaddingWidth );
+
+    //Inserting the m_BorderLayout into m_MainLayout, using remains to get correct allignment
+    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - borderPaddingWidth, m_MainLayout.GetRemainY() - borderPaddingWidth);
+    //Length of button is half the width of the border layout
+    m_BorderLayout.SetButtonWidth(( m_BorderLayout.GetW() / 2)- borderPaddingWidth );
+    //Adding a input functinality needs a string object type, and a label name to set it
+    m_BorderLayout.AddInput( m_SetNameInput, "Set Name:" );
+
+    //Uses a pre-set value to increase y padding on m_BorderLayout
+    m_BorderLayout.AddYGap();
+
+    //Adding 2 subgroups: m_LeftLayout, m_RightLayout, to attach our browsers objects
+    //Pass in the new subgroup and its width and height
+    m_BorderLayout.AddSubGroupLayout( m_LeftLayout, ( m_BorderLayout.GetW() / 2)- borderPaddingWidth, m_BorderLayout.GetRemainY() );
+    //Adds the divider box/label
+    m_LeftLayout.AddDividerBox( "Sets" );
+    //Adds padding to get correct allignment
+    m_BorderLayout.AddX(( m_BorderLayout.GetW() / 2 ) + borderPaddingWidth );
+    //Adding the right side subgroup using width and height
+    m_BorderLayout.AddSubGroupLayout( m_RightLayout, ( m_BorderLayout.GetW() / 2 ) - borderPaddingWidth, m_BorderLayout.GetRemainY() );
+    //Adds the divider box/label
+    m_RightLayout.AddDividerBox( "Geom In Set" );
+
+    //==== Adding Browsers to the Layouts ====//
+    //To get into position, move y down below dividers
+    m_BorderLayout.AddY( 15 );
+
+    //We add the m_setBrowser to the m_LeftLayout
+    m_SetBrowser = m_LeftLayout.AddFlBrowser( browserHeight );
+    //Need to give it a type
+    m_SetBrowser->type( FL_SELECT_BROWSER );
+
+    //We add the m_SetSelectBrowser to the m_RightLayout
+    m_SetSelectBrowser = m_RightLayout.AddCheckBrowser( browserHeight );
+    //This sets the m_BorderLayout y position to line up with bottom of m_SetSelectBrowser
+    m_BorderLayout.AddY( browserHeight );
+    //Adds small gap at bottom of the browser areas
+    m_BorderLayout.AddYGap();
+    //Sets x back to the left side with offset
+    m_BorderLayout.SetX( borderPaddingWidth );
+    //add button on the bottom of screen
+    m_BorderLayout.AddButton( m_HighliteSet, "Highlite Selected Set" );
+
+    //Browser objects need to have there static callbacks set in SetEditorScreen's constructor
+    m_SetBrowser->callback( staticCB, this );
+    m_SetSelectBrowser->callback( staticCB, this );
 }
 
 //==== Update Screen ====//
+
+//If we have events from callbacks this is were we update logic based on any changes
 bool SetEditorScreen::Update()
 {
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+    assert(m_ScreenMgr);
 
-    vector< string > set_name_vec = veh->GetSetNameVec();
+    Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
+
+    //In case browsers has leftover items, clear them out
+    m_SetBrowser->clear();
+    m_SetSelectBrowser->clear();
+
 
     //==== Load Set Names and Values ====//
-    m_SetEditorUI->setBrowser->clear();
+
+    //This is a vector that has all the names of the sets
+    vector< string > set_name_vec = vehiclePtr->GetSetNameVec();
+    //We iterate thru sets to be checked using ENUM
     for ( int i = SET_SHOWN ; i < ( int )set_name_vec.size() ; i++ )
     {
-        m_SetEditorUI->setBrowser->add( set_name_vec[i].c_str() );
+        //Adds the name to browser list after casting string to char* 
+        m_SetBrowser->add( set_name_vec[i].c_str() );
     }
-    m_SetEditorUI->setBrowser->select( m_SelectedSetIndex );
-    m_SetEditorUI->setNameInput->value( set_name_vec[m_SelectedSetIndex].c_str() );
 
+    //Updates what should be selected by utilizing m_SelectedSetIndex
+    m_SetBrowser->select( m_SelectedSetIndex );
+    //Updating the text in the input field by utilizing m_SelectedSetIndex
+    m_SetNameInput.Update( set_name_vec[m_SelectedSetIndex] );
+
+    //Some sets are not available to user, ENUM helps determin which ones
     if ( m_SelectedSetIndex <= SET_NOT_SHOWN )
     {
-        m_SetEditorUI->setNameInput->deactivate();
+        m_SetSelectBrowser->deactivate();
     }
     else
     {
-        m_SetEditorUI->setNameInput->activate();
+        m_SetSelectBrowser->activate();
     }
 
-    //==== Load Geometry ====//
-    m_SetEditorUI->geomInSetBrowser->clear();
-    vector< string > geom_id_vec = veh->GetGeomVec();
-    vector< Geom* > geom_vec = veh->FindGeomVec( geom_id_vec );
+    ////==== Load Geometry ====//
+
+    //geom_id_vec is filled with all possible geom's children an ID's
+    vector< string > geom_id_vec = vehiclePtr->GetGeomVec();
+    //geom_vec is filled with geom ptrs using ID's from geom_id_vec
+    vector< Geom* > geom_vec = vehiclePtr->FindGeomVec( geom_id_vec );
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
-        string gname = geom_vec[i]->GetName();
+        //We need to extract name of geom to display
+        string g_name = geom_vec[i]->GetName();
+        //We need the flag so we can display geom's "state" in browser
         bool flag = geom_vec[i]->GetSetFlag( m_SelectedSetIndex );
-        m_SetEditorUI->geomInSetBrowser->add( gname.c_str(), !!flag );
-
+        //Adding the geom after Char * cast with flag
+        m_SetSelectBrowser->add( g_name.c_str(), flag );
     }
 
     return true;
@@ -72,48 +145,83 @@ void SetEditorScreen::Show()
     m_FLTK_Window->show();
 }
 
-
 //==== Hide Screen ====//
 void SetEditorScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void SetEditorScreen::CloseCallBack( Fl_Widget *w )
+{
+    Hide();
 }
 
 //==== Callbacks ====//
+
+//This Main Callback is responding to events for windows, groups, and widgets attached to this object.
+//m_ScreenMgr is another BasicScreen member inherated from VspScreen (included from "ScreenBase.h")
 void SetEditorScreen::CallBack( Fl_Widget *w )
 {
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    if ( w == m_SetEditorUI->geomInSetBrowser )
+    //We get a vehiclePtr to help work with events
+    assert( m_ScreenMgr ); 
+    Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
+
+    if ( w == m_SetSelectBrowser )
     {
-        int geom_index = m_SetEditorUI->geomInSetBrowser->value() - 1;
-        vector< string > geom_id_vec = veh->GetGeomVec();
+        //We get the index of the item user clicked
+        int geom_index = m_SetSelectBrowser->value() - 1;
+        //geom_id_vec is filled with all possible geom's children an ID's 
+        vector< string > geom_id_vec = vehiclePtr->GetGeomVec();
         if ( geom_index >= 0 && geom_index < ( int )geom_id_vec.size() )
         {
-            int flag = m_SetEditorUI->geomInSetBrowser->checked( geom_index + 1 );
-            Geom* gptr = veh->FindGeom( geom_id_vec[ geom_index ] );
+            int flag = m_SetSelectBrowser->checked( geom_index + 1 );
+            //We use geom_index to go thru possible geoms and get selected geom's ptr
+            Geom* gptr = vehiclePtr->FindGeom( geom_id_vec[geom_index] );
             if ( gptr )
             {
-                gptr->SetSetFlag( m_SelectedSetIndex, !!flag );
+                //If index points to geoms that can be selected (based on enums), we then set the flag passed in
+                gptr->SetSetFlag( m_SelectedSetIndex, flag );
             }
         }
     }
-    else if ( w == m_SetEditorUI->setBrowser )
+    else if ( w == m_SetBrowser)
     {
-        m_SelectedSetIndex = m_SetEditorUI->setBrowser->value();
-    }
-    else if ( w == m_SetEditorUI->setNameInput )
-    {
-        string name = string( m_SetEditorUI->setNameInput->value() );
-        veh->SetSetName( m_SelectedSetIndex, name );
-    }
-    else if ( w == m_SetEditorUI->highlightSetButton )
-    {
-        vector < string > activate_geom_vec = veh->GetGeomSet( m_SelectedSetIndex );
-        veh->SetActiveGeomVec( activate_geom_vec );
+        //We update m_SelectedSetIndex with selected value
+        m_SelectedSetIndex = m_SetBrowser->value();
     }
 
+    //To update values, we can utilize Update Function by setting flag to true
     m_ScreenMgr->SetUpdateFlag( true );
-//  m_ScreenMgr->UpdateAllScreens();
 }
 
+//Callback for GUI Devices related events like buttons or input fields
+void SetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    //We get a vehiclePtr to help work with events
+    assert( m_ScreenMgr );
+    Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
+    vector< string > geom_id_vec = vehiclePtr->GetGeomVec();
+
+    //This checks if user entered input in the SetNameInput field
+    //It uses m_SelectedSetIndex to select and name correct set
+    if ( device == &m_SetNameInput )
+    {
+        if ( m_SelectedSetIndex > SET_NOT_SHOWN )
+        {
+            string name = m_SetNameInput.GetString();
+            vehiclePtr->SetSetName( m_SelectedSetIndex, name );
+        }
+    }
+    }
+    //This is for Highliting Geoms selected in a set
+    else if ( device == &m_HighlightSet )
+    {
+        vector < string > activate_geom_vec = vehiclePtr->GetGeomSet( m_SelectedSetIndex );
+        vehiclePtr->SetActiveGeomVec( activate_geom_vec );
+    }
+
+    //Tells m_ScreenMgr to exacute Update() function
+    m_ScreenMgr->SetUpdateFlag( true );
+}
 
