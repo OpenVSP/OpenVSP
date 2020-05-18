@@ -12,7 +12,6 @@ parmFlScreen.fl
 pickSetFlScreen.fl
 pSliceFlScreen.fl
 selectFileFlScreen.fl
-setEditorFlScreen.fl
 sliceScreen.fl
 textureMgrFlScreen.fl
 typeEditorFlScreen.fl
