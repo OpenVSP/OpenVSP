@@ -16,5 +16,5 @@ symmetrical about (and aligned with) the X-axis.
 Both examples start from identical OpenVSP `*.vsp3` models and identical `*_DegenGeom.csv`
 files, located in this directory.
 
-* [Steady Rotating Frame](./Steady_Rotating_Frame/README.md)
-* [Unsteady Rotating Blades](./Unsteady_Rotating_Blades/README.md)
+* [Steady Rotating Frame](./Steady_Rotating_Frame/)
+* [Unsteady Rotating Blades](./Unsteady_Rotating_Blades/)
