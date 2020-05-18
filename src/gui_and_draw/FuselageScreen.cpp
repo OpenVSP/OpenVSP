@@ -739,10 +739,14 @@ bool FuselageScreen::Update()
             if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )
             {
                 m_XSecTypeChoice.Deactivate();
+                m_ShowXSecButton.Deactivate();
+                m_ConvertCEDITButton.Deactivate();
             }
             else
             {
                 m_XSecTypeChoice.Activate();
+                m_ShowXSecButton.Activate();
+                m_ConvertCEDITButton.Activate();
             }
 
             if ( lastxs && fuselage_ptr->m_OrderPolicy() == FuselageGeom::FUSE_LOOP )

@@ -733,7 +733,24 @@ bool StackScreen::Update()
         {
             m_XSecTypeChoice.SetVal( xsc->GetType() );
 
-            if ( xsc->GetType() == XS_POINT )
+            if ( lastxs && stackgeom_ptr->m_OrderPolicy() == StackGeom::STACK_LOOP )
+            {
+                m_XSecTypeChoice.Deactivate();
+                m_ShowXSecButton.Deactivate();
+                m_ConvertCEDITButton.Deactivate();
+            }
+            else
+            {
+                m_XSecTypeChoice.Activate();
+                m_ShowXSecButton.Activate();
+                m_ConvertCEDITButton.Activate();
+            }
+
+            if ( lastxs && stackgeom_ptr->m_OrderPolicy() == StackGeom::STACK_LOOP )
+            {
+                DisplayGroup ( NULL);
+            }
+            else if ( xsc->GetType() == XS_POINT )
             {
                 DisplayGroup( NULL );
             }
