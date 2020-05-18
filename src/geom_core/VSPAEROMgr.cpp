@@ -4709,7 +4709,8 @@ void VSPAEROMgrSingleton::ReadRotorResFile( string filename, vector <string> &re
                 res->Add( NameValData( "Time", Time ) );
                 res->Add( NameValData( "Diameter", Diameter ) );
                 res->Add( NameValData( "RPM", RPM ) );
-                res->Add( NameValData( "Thrust", Thrusto ) );
+                res->Add( NameValData( "Thrust", Thrust ) );
+                res->Add( NameValData( "Thrusto", Thrusto ) );
                 res->Add( NameValData( "Thrusti", Thrusti ) );
                 res->Add( NameValData( "Moment", Moment ) );
                 res->Add( NameValData( "Momento", Momento ) );
