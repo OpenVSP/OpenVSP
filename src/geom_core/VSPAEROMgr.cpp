@@ -3034,6 +3034,18 @@ int VSPAEROMgrSingleton::ExportResultsToCSV( string fileName )
         fprintf( stderr, "WARNING %d: ""VSPAERO_Wrapper"" result contains no child results \n\tFile: %s \tLine:%d\n", retVal, __FILE__, __LINE__ );
     }
 
+    // Get CP Slice results if available
+    string CPresId = ResultsMgr.FindLatestResultsID( "CpSlice_Wrapper" );
+    if ( CPresId != string() )
+    {
+        vector < string > caseIdVector = ResultsMgr.GetStringResults( CPresId, "CpSlice_Case_ID_Vec" );
+
+        for ( size_t i = 0; i < caseIdVector.size(); i++ )
+        {
+            resIdVector.push_back( caseIdVector[i] );
+        }
+    }
+
     // Export to CSV file
     retVal = ResultsMgr.WriteCSVFile( fileName, resIdVector );
 
