@@ -23,7 +23,7 @@ SurfPatch::SurfPatch()
     sub_depth = 0;
 
     m_wasplanar = false;
-    m_lastreltol = 12345.678;
+    m_checkedplanar = false;
 }
 
 SurfPatch::SurfPatch( int n, int m, int d ) : m_Patch( n, m )
@@ -34,7 +34,7 @@ SurfPatch::SurfPatch( int n, int m, int d ) : m_Patch( n, m )
     sub_depth = d;
 
     m_wasplanar = false;
-    m_lastreltol = 12345.678;
+    m_checkedplanar = false;
 }
 
 SurfPatch::~SurfPatch()
@@ -112,7 +112,7 @@ bool SurfPatch::test_planar( double tol ) const
 //===== Test If Patch Is Planar (within relative tol)  =====//
 bool SurfPatch::test_planar_rel( double reltol ) const
 {
-    if ( reltol == m_lastreltol )
+    if ( m_checkedplanar )
     {
         return m_wasplanar;
     }
@@ -126,7 +126,7 @@ bool SurfPatch::test_planar_rel( double reltol ) const
     // Set m_lastreltol after setting m_wasplanar as a defense against any future race
     // condition.
     m_wasplanar = dst < ( reltol * bnd_box.DiagDist() );
-    m_lastreltol = reltol;
+    m_checkedplanar = true;
 
     return m_wasplanar;
 }

@@ -153,7 +153,7 @@ protected:
     int sub_depth;
 
     mutable bool m_wasplanar;
-    mutable double m_lastreltol;
+    mutable bool m_checkedplanar; // Flag to indicate if test_planar or test_planar_rel has been called for the patch
 
 };
 
