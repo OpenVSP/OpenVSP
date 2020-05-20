@@ -10,7 +10,7 @@
 #include "IntersectPatch.h"
 #include "Surf.h"
 #include "CfdMeshMgr.h"
-#include "Tritri.h"
+#include "tri_tri_intersect.h"
 
 #include "eli/geom/intersect/intersect_surface.hpp"
 
@@ -100,7 +100,7 @@ void intersect( const SurfPatch& bp1, const SurfPatch& bp2, SurfaceIntersectionS
 void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersectionSingleton *MeshMgr )
 {
     int iflag;
-    int coplanar;
+    int coplanar = 0; // Must be initialized to 0 before use in tri_tri_intersection_test_3d
     vec3d ip0, ip1;
 
     long an( pa.degree_u() ), am( pa.degree_v() );
@@ -117,28 +117,31 @@ void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersect
     vec3d b3 = pb.m_Patch.get_control_point( 0, bm );
 
     //==== Tri A1 and B1 ====//
-    iflag = tri_tri_intersect_with_isectline( a0.v, a2.v, a3.v, b0.v, b2.v, b3.v, &coplanar, ip0.v, ip1.v );
+    iflag = tri_tri_intersection_test_3d( a0.v, a2.v, a3.v, b0.v, b2.v, b3.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
         MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1 );
     }
 
     //==== Tri A1 and B2 ====//
-    iflag = tri_tri_intersect_with_isectline( a0.v, a2.v, a3.v, b0.v, b1.v, b2.v, &coplanar, ip0.v, ip1.v );
+    coplanar = 0;
+    iflag = tri_tri_intersection_test_3d( a0.v, a2.v, a3.v, b0.v, b1.v, b2.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
         MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1 );
     }
 
     //==== Tri A2 and B1 ====//
-    iflag = tri_tri_intersect_with_isectline( a0.v, a1.v, a2.v, b0.v, b2.v, b3.v, &coplanar, ip0.v, ip1.v );
+    coplanar = 0;
+    iflag = tri_tri_intersection_test_3d( a0.v, a1.v, a2.v, b0.v, b2.v, b3.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
         MeshMgr->AddIntersectionSeg( pa, pb,  ip0, ip1 );
     }
 
     //==== Tri A2 and B2 ====//
-    iflag = tri_tri_intersect_with_isectline( a0.v, a1.v, a2.v, b0.v, b1.v, b2.v, &coplanar, ip0.v, ip1.v );
+    coplanar = 0;
+    iflag = tri_tri_intersection_test_3d( a0.v, a1.v, a2.v, b0.v, b1.v, b2.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
     {
         MeshMgr->AddIntersectionSeg( pa, pb, ip0, ip1 );
