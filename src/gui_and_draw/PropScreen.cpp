@@ -1738,6 +1738,7 @@ void PropScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             if ( edit_xsec )
             {
                 m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+                propeller_ptr->Update( false ); // Needed to deactivate width & height parms
             }
         }
     }

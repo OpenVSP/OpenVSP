@@ -1706,6 +1706,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             if ( edit_xsec )
             {
                 m_ScreenMgr->ShowScreen( ScreenMgr::VSP_CURVE_EDIT_SCREEN );
+                wing_ptr->Update( false ); // Needed to deactivate width parm
             }
         }
     }
