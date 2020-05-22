@@ -190,15 +190,6 @@ bool CurveEditScreen::Update()
     m_AbsDimToggle.Update( edit_curve_xs->m_AbsoluteFlag.GetID() );
     m_PreserveARToggle.Update( edit_curve_xs->m_PreserveARFlag.GetID() );
 
-    if ( edit_curve_xs->m_PreserveARFlag() )
-    {
-        m_HeightSlider.Deactivate();
-    }
-    else
-    {
-        m_HeightSlider.Activate();
-    }
-
     m_CurveEditor.Update( edit_curve_xs );
 
     return true;
