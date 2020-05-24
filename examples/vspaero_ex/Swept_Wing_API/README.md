@@ -55,7 +55,7 @@ Here are the steps to construct the wing in the OpenVSP GUI:
 
         - Set **Sweep** to **45**, **Sweep Loc** to **0.25** and **Sec SW Loc** to **0**.
 
-    6. In *Airfoil*, we shall utilize an AF File to input the airfoil geometry. The AF file used here is provided in this directory.
+    6. In *Airfoil*, we shall utilize an AF File to input the airfoil geometry. The AF file used here is provided in this directory. This specific airfoil may also be generated using OpenVSP, however for the purpose of this tutorial, we shall stick to the AF file method of input.
         Set **Choose type** to **AF File** and **Read File** for both *Airfoil Section* 0 and 1. 
 
     <p align="center">
