@@ -1,0 +1,98 @@
+// TR1208.vspscript 
+void main()
+{
+  // Add Geometry
+  string myWing = AddGeom("WING");
+  SetGeomName(myWing, "TR1208");
+
+  // Set parameters for geometry
+  SetParmVal(myWing, "Sym_Planar_Flag", "Sym", SYM_XZ);
+
+  // Set parameters wing section
+  SetDriverGroup(myWing, 1, SPAN_WSECT_DRIVER, TAPER_WSECT_DRIVER, ROOTC_WSECT_DRIVER);
+  SetParmVal(myWing, "SectTess_U", "XSec_1", 20);
+  SetParmVal(myWing, "Span", "XSec_1", 63.63);
+  SetParmVal(myWing, "Taper", "XSec_1", 0.45);
+  SetParmVal(myWing, "Root_Chord", "XSec_1", 16.672);
+  SetParmVal(myWing, "Sweep", "XSec_1", 45.0);
+  SetParmVal(myWing, "Sweep_Location", "XSec_1", 0.25);
+  Update();
+
+  // Set airfoil section using AF file 
+  string xsec_surf = GetXSecSurf(myWing, 0);
+  ChangeXSecShape(xsec_surf, 0, XS_FILE_AIRFOIL);
+  string xsec0 = GetXSec(xsec_surf, 0);
+  ReadFileAirfoil(xsec0, "NACA63A012.af");
+
+  ChangeXSecShape(xsec_surf, 1, XS_FILE_AIRFOIL);
+  string xsec1 = GetXSec(xsec_surf, 1);
+  ReadFileAirfoil(xsec1, "NACA63A012.af");
+
+  Update();
+
+  // Save as vsp3 and DegenGeom format
+  WriteVSPFile("TR1208-API.vsp3", SET_ALL);
+  SetComputationFileName(DEGEN_GEOM_CSV_TYPE, "TR1208-API_DegenGeom.csv");
+  ComputeDegenGeom(SET_ALL, DEGEN_GEOM_CSV_TYPE);
+
+  // Alpha Sweep analysis using VSPAero
+  ReadVSPFile("TR1208-API.vsp3");
+  string myAnalysis = "VSPAEROSweep";
+  SetAnalysisInputDefaults(myAnalysis);
+
+  // List inputs, type, and current values
+  // PrintAnalysisInputs(myAnalysis);
+
+  // Set inputs for VSPAero
+  array<int> analysis_method(1, VORTEX_LATTICE);
+  SetIntAnalysisInput(myAnalysis, "AnalysisMethod", analysis_method);
+  
+  array<double> Sref(1, 2121.68);
+  SetDoubleAnalysisInput(myAnalysis, "Sref", Sref);
+
+  array<double> bref(1, 127.26);
+  SetDoubleAnalysisInput(myAnalysis, "bref", bref);
+
+  array<double> cref(1, 16.672);
+  SetDoubleAnalysisInput(myAnalysis, "cref", cref);
+
+  array<double> AlphaStart(1, 0.0);
+  SetDoubleAnalysisInput(myAnalysis, "AlphaStart", AlphaStart);
+
+  array<double> AlphaEnd(1, 9.0);
+  SetDoubleAnalysisInput(myAnalysis, "AlphaEnd", AlphaEnd);
+
+  int nAlpha = 10;
+  array<int> AlphaNpts(1, nAlpha);
+  SetIntAnalysisInput(myAnalysis, "AlphaNpts", AlphaNpts);
+
+  // Run analysis and write results to CSV file
+  string allResults = ExecAnalysis(myAnalysis);
+  WriteResultsCSVFile(allResults, "Results.csv");
+
+  // Print alpha and CL values
+  array<string> sweepResults = GetStringResults(allResults, "ResultsVec");
+  array<double> Alpha_res(nAlpha);
+  array<double> CL_res(nAlpha);
+
+  Print("");
+  Print("ALPHA  |  CL");
+  Print("------ | ------");
+  for (uint8 i = 0; i < uint8(nAlpha); i++)
+  {
+    array<double> alpha_vec = GetDoubleResults(sweepResults[i], "Alpha");
+    Alpha_res[i] = alpha_vec[int(alpha_vec.length()) - 1];
+
+    array<double> cl_vec = GetDoubleResults(sweepResults[i], "CL");
+    CL_res[i] = cl_vec[int(cl_vec.length()) - 1];
+
+    Print(Alpha_res[i] + "      |   " + CL_res[i]);
+  }
+
+  // Check For API Errors
+  while (GetNumTotalErrors() > 0)
+  {
+    ErrorObj err = PopLastError();
+    Print(err.GetErrorString());
+  }
+}

@@ -10,3 +10,4 @@ examples can grow to become comprehensive.
   * [Steady Rotating Frame](./Isolated_Rotor/Steady_Rotating_Frame/README.md)
   * [Unsteady Rotating Blades](./Isolated_Rotor/Unsteady_Rotating_Blades/README.md)
 * [Multi-Rotor Vehicle](./Uber_eCRM-002/README.md)
+* [Swept wing using API](./Swept_Wing_API/README.md)
