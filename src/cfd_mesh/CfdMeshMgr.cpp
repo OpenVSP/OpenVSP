@@ -2789,7 +2789,7 @@ void CfdMeshMgrSingleton::MatchBorderEdges( list< Edge* > edgeList )
     list< Edge* >::iterator f;
 
     //==== Match Edges ====//
-    double dist_tol = 0.01 * 0.01;
+    double dist_tol = 1e-5;
     bool stopFlag = false;
     if ( edgeList.size() <= 1  )
     {
