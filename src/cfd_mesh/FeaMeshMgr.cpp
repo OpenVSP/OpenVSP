@@ -279,13 +279,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     TransferMeshSettings();
 
-    if ( ( !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) && !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) &&
-           !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) && !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) &&
-           !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) ) )
-    {
-        m_CADOnlyFlag = true;
-    }
-
     addOutputText( "Load Surfaces\n" );
     LoadSurfaces();
 
@@ -294,6 +287,13 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
         addOutputText( "No Surfaces.  Done.\n" );
         m_FeaMeshInProgress = false;
         return;
+    }
+
+    if ( ( !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_CALCULIX_FILE_NAME ) && !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_GMSH_FILE_NAME ) &&
+           !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_NASTRAN_FILE_NAME ) && !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_MASS_FILE_NAME ) &&
+           !GetStructSettingsPtr()->GetExportFileFlag( vsp::FEA_STL_FILE_NAME ) ) )
+    {
+        m_CADOnlyFlag = true;
     }
 
     if ( !m_CADOnlyFlag )
