@@ -1189,7 +1189,8 @@ void ParasiteDragScreen::GuiDeviceCallBack( GuiDevice* device )
 #elif   LINUX
         system( "xdg-open http://www.openvsp.org/wiki/doku.php?id=parasitedrag" );
 #else
-        system( "start /max /wait http://www.openvsp.org/wiki/doku.php?id=parasitedrag" );
+        ShellExecute( NULL, "open", "http://www.openvsp.org/wiki/doku.php?id=parasitedrag",
+                      NULL, NULL, SW_SHOWNORMAL );
 #endif
     }
     else if ( device == &m_FreestreamTypeChoice )
