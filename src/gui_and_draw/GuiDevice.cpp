@@ -3944,7 +3944,6 @@ void PCurveEditor::Update()
 
         if ( n != m_SliderVecVec[0].size() || m_PrevCurveType != m_Curve->m_CurveType() )
         {
-
             RedrawXYSliders( n, m_Curve->m_CurveType() );
         }
 
@@ -3976,12 +3975,11 @@ void PCurveEditor::Update()
             {
                 m_SliderVecVec[0][i].SetLabelColor( FL_YELLOW );
                 m_SliderVecVec[1][i].SetLabelColor( FL_YELLOW );
-
-                if ( m_PrevIndex >= 0 && m_PrevIndex != i )
-                {
-                    m_SliderVecVec[0][m_PrevIndex].ResetLabelColor();
-                    m_SliderVecVec[1][m_PrevIndex].ResetLabelColor();
-                }
+            }
+            else
+            {
+                m_SliderVecVec[0][i].ResetLabelColor();
+                m_SliderVecVec[1][i].ResetLabelColor();
             }
         }
 
@@ -4270,7 +4268,7 @@ void XSecCurveEditor::Update()
                 break;
         }
 
-        if ( n != m_SliderVecVec[0].size() || m_PrevCurveType != m_XSec->m_CurveType() ) // Note: won't redraw when window is resized
+        if ( n != m_SliderVecVec[0].size() || m_PrevCurveType != m_XSec->m_CurveType() )
         {
             RedrawXYSliders( n, m_XSec->m_CurveType() );
         }
@@ -4331,13 +4329,12 @@ void XSecCurveEditor::Update()
                 m_SliderVecVec[0][i].SetLabelColor( FL_YELLOW );
                 m_SliderVecVec[1][i].SetLabelColor( FL_YELLOW );
                 m_SliderVecVec[2][i].SetLabelColor( FL_YELLOW );
-
-                if ( m_PrevIndex >= 0 && m_PrevIndex != i )
-                {
-                    m_SliderVecVec[0][m_PrevIndex].ResetLabelColor();
-                    m_SliderVecVec[1][m_PrevIndex].ResetLabelColor();
-                    m_SliderVecVec[2][m_PrevIndex].ResetLabelColor();
-                }
+            }
+            else
+            {
+                m_SliderVecVec[0][i].ResetLabelColor();
+                m_SliderVecVec[1][i].ResetLabelColor();
+                m_SliderVecVec[2][i].ResetLabelColor();
             }
         }
 
