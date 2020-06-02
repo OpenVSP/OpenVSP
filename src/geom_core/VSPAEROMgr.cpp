@@ -2554,7 +2554,6 @@ See: VSP_Solver.C in vspaero project
 line 2851 - void VSP_SOLVER::CalculateSpanWiseLoading(void)
 TODO:
 - Update this function to use the generic table read as used in: string VSPAEROMgrSingleton::ReadStabFile()
-- Read in Component table information, this is the 2nd table at the bottom of the .lod file
 *******************************************************/
 void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id_vector, vsp::VSPAERO_ANALYSIS_METHOD analysisMethod )
 {
@@ -2573,6 +2572,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
     Results* res = NULL;
     std::vector< std::string > data_string_array;
     std::vector< std::vector< double > > data_array;
+    bool sectional_data_complete = false; // flag indicating if the sectional data section of the Lod file has been read
 
     double cref = 1.0;
 
@@ -2599,7 +2599,7 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
 
         // Sectional distribution table
         int nSectionalDataTableCols = 14;
-        if ( data_string_array.size() == nSectionalDataTableCols && data_string_array[0].find( "Comp" ) == std::string::npos && !isdigit( data_string_array[0][0] ) ) // TODO: Test more thoroughly
+        if ( data_string_array.size() == nSectionalDataTableCols && !sectional_data_complete && !isdigit( data_string_array[0][0] ) )
         {
             //discard the header row and read the next line assuming that it is numeric
             data_string_array = ReadDelimLine( fp, seps );
@@ -2695,7 +2695,74 @@ void VSPAEROMgrSingleton::ReadLoadFile( string filename, vector <string> &res_id
             res->Add( NameValData( "cmy*c/cref", Cmyc_cref ) );
             res->Add( NameValData( "cmz*c/cref", Cmzc_cref ) );
 
+            sectional_data_complete = true;
+
         } // end sectional table read
+        else if ( data_string_array.size() == nSectionalDataTableCols && sectional_data_complete && !isdigit( data_string_array[0][0] ) )
+        {
+            res = ResultsMgr.CreateResults( "VSPAERO_Comp_Load" );
+            res_id_vector.push_back( res->GetID() );
+
+            //discard the header row and read the next line assuming that it is numeric
+            data_string_array = ReadDelimLine( fp, seps );
+
+            // Raw data vectors
+            std::vector<int> Comp;
+            std::vector<string> Comp_Name;
+            std::vector<double> Mach;
+            std::vector<double> AoA;
+            std::vector<double> Beta;
+            std::vector<double> CL;
+            std::vector<double> CDi;
+            std::vector<double> Cs;
+            std::vector<double> CFx;
+            std::vector<double> CFy;
+            std::vector<double> CFz;
+            std::vector<double> Cmx;
+            std::vector<double> Cmy;
+            std::vector<double> Cmz;
+
+            // read the data rows
+            while ( data_string_array.size() == nSectionalDataTableCols )
+            {
+                // Store the raw data
+                Comp.push_back( std::stoi( data_string_array[0] ) );
+                Comp_Name.push_back( data_string_array[1] );
+                Mach.push_back( std::stod( data_string_array[2] ) );
+                AoA.push_back( std::stod( data_string_array[3] ) );
+                Beta.push_back( std::stod( data_string_array[4] ) );
+                CL.push_back( std::stod( data_string_array[5] ) );
+                CDi.push_back( std::stod( data_string_array[6] ) );
+                Cs.push_back( std::stod( data_string_array[7] ) );
+                CFx.push_back( std::stod( data_string_array[8] ) );
+                CFy.push_back( std::stod( data_string_array[9] ) );
+                CFz.push_back( std::stod( data_string_array[10] ) );
+                Cmx.push_back( std::stod( data_string_array[11] ) );
+                Cmy.push_back( std::stod( data_string_array[12] ) );
+                Cmz.push_back( std::stod( data_string_array[13] ) );
+
+                // Read the next line and loop
+                data_string_array = ReadDelimLine( fp, seps );
+            }
+
+            // Finish up by adding the data to the result res
+            res->Add( NameValData( "Comp_ID", Comp ) );
+            res->Add( NameValData( "Comp_Name", Comp_Name ) );
+            res->Add( NameValData( "Mach", Mach ) );
+            res->Add( NameValData( "AoA", AoA ) );
+            res->Add( NameValData( "Beta", Beta ) );
+            res->Add( NameValData( "CL", CL ) );
+            res->Add( NameValData( "CDi", CDi ) );
+            res->Add( NameValData( "Cs", Cs ) );
+            res->Add( NameValData( "CFx", CFx ) );
+            res->Add( NameValData( "CFy", CFy ) );
+            res->Add( NameValData( "CFz", CFz ) );
+            res->Add( NameValData( "Cmx", Cmx ) );
+            res->Add( NameValData( "Cmy", Cmy ) );
+            res->Add( NameValData( "Cmz", Cmz ) );
+
+            sectional_data_complete = false;
+        } // end total component table read
 
     } // end file loop
 
