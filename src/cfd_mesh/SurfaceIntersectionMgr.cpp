@@ -91,9 +91,9 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
 
     TransferSubSurfData();
 
-    IdentifyCompIDNames();
-
     CleanMergeSurfs();
+
+    IdentifyCompIDNames();
 
     if ( m_SurfVec.size() == 0 )
     {
@@ -854,7 +854,7 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
 
         if ( label_id )
         {
-            label = m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetGeomID();
+            label = m_SurfVec[si]->GetGeomID();
         }
 
         if ( label_name )
@@ -864,14 +864,14 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
                 label.append( label_delim );
             }
 
-            if ( m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetFeaPartIndex() >= 0 )
+            if ( m_SurfVec[si]->GetFeaPartIndex() >= 0 )
             {
                 // FEA Part
-                label.append( m_CompIDNameMap[m_NURBSSurfVec[si].m_SurfID] );
+                label.append( m_CompIDNameMap[m_SurfVec[si]->GetFeaPartIndex()] );
             }
             else
             {
-                label.append( m_CompIDNameMap[m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetCompID()] );
+                label.append( m_CompIDNameMap[m_SurfVec[si]->GetCompID()] );
             }
         }
 
@@ -881,7 +881,7 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
             {
                 label.append( label_delim );
             }
-            label.append( to_string( m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetMainSurfID() ) );
+            label.append( to_string( m_SurfVec[si]->GetMainSurfID() ) );
         }
 
         if ( label_split_num )
@@ -938,7 +938,7 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
 
         if ( label_id )
         {
-            label = m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetGeomID();
+            label = m_SurfVec[si]->GetGeomID();
         }
 
         if ( label_name )
@@ -948,14 +948,14 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
                 label.append( label_delim );
             }
 
-            if ( m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetFeaPartIndex() >= 0 )
+            if ( m_SurfVec[si]->GetFeaPartIndex() >= 0 )
             {
                 // FEA Part
-                label.append( m_CompIDNameMap[m_NURBSSurfVec[si].m_SurfID] );
+                label.append( m_CompIDNameMap[m_SurfVec[si]->GetFeaPartIndex()] );
             }
             else
             {
-                label.append( m_CompIDNameMap[m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetCompID()] );
+                label.append( m_CompIDNameMap[m_SurfVec[si]->GetCompID()] );
             }
         }
 
@@ -965,7 +965,7 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
             {
                 label.append( label_delim );
             }
-            label.append( to_string( m_SurfVec[m_NURBSSurfVec[si].m_SurfID]->GetMainSurfID() ) );
+            label.append( to_string( m_SurfVec[si]->GetMainSurfID() ) );
         }
 
         if ( label_split_num )
