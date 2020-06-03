@@ -309,12 +309,12 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
 
     MergeCoplanarParts();
 
+    CleanMergeSurfs(); // Must be called before AddStructureParts to prevent FEA Fix Point surface misidentification
+
     addOutputText( "Add Structure Parts\n" );
     AddStructureParts();
 
     IdentifyCompIDNames();
-
-    CleanMergeSurfs();
 
     // TODO: Update and Build Domain for Half Mesh?
 
@@ -615,6 +615,13 @@ void FeaMeshMgrSingleton::AddStructureParts()
 
     if ( fea_struct )
     {
+        // Identify the max Surf ID of structure's parent surfaces (not necessarily equal to m_SurfVec.size() due to CleanMergedSurfs)
+        int start_surf_id = 0;
+        for ( size_t i = 0; i < m_SurfVec.size(); i++ )
+        {
+            start_surf_id = max( start_surf_id, m_SurfVec[i]->GetSurfID() );
+        }
+
         int fix_pnt_cnt = 0;
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
 
@@ -629,7 +636,8 @@ void FeaMeshMgrSingleton::AddStructureParts()
                 fea_part_vec[i]->FetchFeaXFerSurf( partxfersurfs, -9999 + ( i - 1 ) );
 
                 // Load FeaPart XFerSurf to m_SurfVec
-                LoadSurfs( partxfersurfs, m_SurfVec.size() );
+                LoadSurfs( partxfersurfs, start_surf_id );
+                start_surf_id += partxfersurfs.size();
 
                 // Identify the FeaPart index and add to m_FeaPartSurfVec
                 int begin = m_SurfVec.size() - partxfersurfs.size();
