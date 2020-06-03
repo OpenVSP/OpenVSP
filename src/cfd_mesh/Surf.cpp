@@ -11,7 +11,7 @@
 #include "SCurve.h"
 #include "ICurve.h"
 #include "ISegChain.h"
-#include "Tritri.h"
+#include "tri_tri_intersect.h"
 #include "CfdMeshMgr.h"
 #include "StlHelper.h"
 #include "SubSurfaceMgr.h"

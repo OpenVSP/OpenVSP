@@ -26,6 +26,9 @@
 #ifndef TRI_TRI_INTERSECT
 #define TRI_TRI_INTERSECT
 
+//////////////////////////////////////////////////////
+//============ tri_tri_intersect.cpp ===============//
+//////////////////////////////////////////////////////
 
 // Three-dimensional Triangle-Triangle Overlap Test
 int tri_tri_overlap_test_3d(double p1[3], double q1[3], double r1[3], 
@@ -53,5 +56,21 @@ int tri_tri_overlap_test_2d(double p1[2], double q1[2], double r1[2],
 
 int ccw_tri_tri_intersection_2d( double p1[2], double q1[2], double r1[2],
                                  double p2[2], double q2[2], double r2[2] );
+
+//////////////////////////////////////////////////////
+//============ intersect_triangle.cpp ==============//
+//////////////////////////////////////////////////////
+
+int intersect_triangle( double orig[3], double dir[3],
+                        double vert0[3], double vert1[3], double vert2[3],
+                        double* t, double* u, double* v );
+
+//////////////////////////////////////////////////////
+//============== intersect_AABB.cpp ================//
+//////////////////////////////////////////////////////
+
+bool intersectRayAABB( const double MinB[3], const double MaxB[3],
+                       const double origin[3], const double dir[3],
+                       double coord[3] );
 
 #endif # TRI_TRI_INTERSECT

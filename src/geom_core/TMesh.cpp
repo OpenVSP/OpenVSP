@@ -20,12 +20,14 @@
 #include "TMesh.h"
 
 #include "Tritri.h"
+#include "tri_tri_intersect.h"
 
 #include "triangle.h"
 #include "Geom.h"
 #include "SubSurfaceMgr.h"
 #include "PntNodeMerge.h"
 
+#include <math.h>
 
 //===============================================//
 //                  TNode
