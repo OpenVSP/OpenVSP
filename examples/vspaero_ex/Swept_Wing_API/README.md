@@ -214,7 +214,7 @@ At any point, the `Print()` function may be used to print messages or variables 
    SetIntAnalysisInput(myAnalysis, "AlphaNpts", AlphaNpts);
    ```
 
-   Note that the inputs to the these functions require to be arrays and hence arrays of length 1 are used. The Vortex Lattice Method was selected using one of the enumerators initialized into an array.
+   Note that the inputs to the these functions require to be arrays and hence arrays of length 1 are used. For more details on the AngelScript syntax for declaring and initialising arrays, check the [documentation](https://www.angelcode.com/angelscript/sdk/docs/manual/doc_datatypes_arrays.html). The Vortex Lattice Method was selected using one of the enumerators initialized into an array.
 
 7. Finally, we run the VSP solver using `ExecAnalysis()` which returns a string id that references the results generated. All operations on results are handled by the Results Manager Functions. Refer the API documentation for the complete list of available functions. We first save all generated results to csv format using `WriteResultsCSVFile()`.
    ```C
