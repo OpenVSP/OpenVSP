@@ -1886,16 +1886,28 @@ void SurfaceIntersectionSingleton::BuildChains()
         surface_point_type first_point;
         first_point << ( *c )->m_ISegDeque.front()->m_IPnt[0]->m_Pnt.x(), ( *c )->m_ISegDeque.front()->m_IPnt[0]->m_Pnt.y(), ( *c )->m_ISegDeque.front()->m_IPnt[0]->m_Pnt.z();
 
-        double uA, wA, uB, wB;
+        double uA;
+        double wA;
+        double uB;
+        double wB;
 
-        eli::geom::intersect::intersect( uA, wA, uB, wB, *( ( *c )->m_SurfA->GetSurfCore()->GetSurf() ),
-                                         *( ( *c )->m_SurfB->GetSurfCore()->GetSurf() ), first_point,
-                                         auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
+        if ( auw && buw )
+        {
+            // Initialize variables
+            uA = auw->m_UW[0];
+            wA = auw->m_UW[1];
+            uB = buw->m_UW[0];
+            wB = buw->m_UW[1];
 
-        auw->m_UW[0] = uA;
-        auw->m_UW[1] = wA;
-        buw->m_UW[0] = uB;
-        buw->m_UW[1] = wB;
+            eli::geom::intersect::intersect( uA, wA, uB, wB, *( ( *c )->m_SurfA->GetSurfCore()->GetSurf() ),
+                                             *( ( *c )->m_SurfB->GetSurfCore()->GetSurf() ), first_point,
+                                             auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
+
+            auw->m_UW[0] = uA;
+            auw->m_UW[1] = wA;
+            buw->m_UW[0] = uB;
+            buw->m_UW[1] = wB;
+        }
 
         for ( int i = 0; i < (int)( *c )->m_ISegDeque.size(); i++ )
         {
@@ -1905,14 +1917,23 @@ void SurfaceIntersectionSingleton::BuildChains()
             surface_point_type ip;
             ip << ( *c )->m_ISegDeque[i]->m_IPnt[1]->m_Pnt.x(), ( *c )->m_ISegDeque[i]->m_IPnt[1]->m_Pnt.y(), ( *c )->m_ISegDeque[i]->m_IPnt[1]->m_Pnt.z();
 
-            eli::geom::intersect::intersect( uA, wA, uB, wB, *( ( *c )->m_SurfA->GetSurfCore()->GetSurf() ),
-                                             *( ( *c )->m_SurfB->GetSurfCore()->GetSurf() ), ip,
-                                             auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
+            if ( auw && buw )
+            {
+                // Initialize variables
+                uA = auw->m_UW[0];
+                wA = auw->m_UW[1];
+                uB = buw->m_UW[0];
+                wB = buw->m_UW[1];
 
-            auw->m_UW[0] = uA;
-            auw->m_UW[1] = wA;
-            buw->m_UW[0] = uB;
-            buw->m_UW[1] = wB;
+                eli::geom::intersect::intersect( uA, wA, uB, wB, *( ( *c )->m_SurfA->GetSurfCore()->GetSurf() ),
+                                                 *( ( *c )->m_SurfB->GetSurfCore()->GetSurf() ), ip,
+                                                 auw->m_UW[0], auw->m_UW[1], buw->m_UW[0], buw->m_UW[1] );
+
+                auw->m_UW[0] = uA;
+                auw->m_UW[1] = wA;
+                buw->m_UW[0] = uB;
+                buw->m_UW[1] = wB;
+            }
         }
     }
 }
