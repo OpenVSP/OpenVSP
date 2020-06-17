@@ -2154,13 +2154,13 @@ string VSPAEROSweepAnalysis::Execute()
 
         //    Freestream parameters (Alpha, Beta, Mach)
         VSPAEROMgr.m_AlphaStart.Set(alphaStartOrig);
-        VSPAEROMgr.m_AlphaStart.Set(alphaEndOrig);
+        VSPAEROMgr.m_AlphaEnd.Set(alphaEndOrig);
         VSPAEROMgr.m_AlphaNpts.Set(alphaNptsOrig);
         VSPAEROMgr.m_BetaStart.Set(betaStartOrig);
-        VSPAEROMgr.m_BetaStart.Set(betaEndOrig);
+        VSPAEROMgr.m_BetaEnd.Set(betaEndOrig);
         VSPAEROMgr.m_BetaNpts.Set(betaNptsOrig);
         VSPAEROMgr.m_MachStart.Set(machStartOrig);
-        VSPAEROMgr.m_MachStart.Set(machEndOrig);
+        VSPAEROMgr.m_MachEnd.Set(machEndOrig);
         VSPAEROMgr.m_MachNpts.Set(machNptsOrig);
 
         //    Case Setup
