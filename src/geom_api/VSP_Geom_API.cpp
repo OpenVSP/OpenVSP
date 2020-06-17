@@ -2556,6 +2556,27 @@ void SetFeaPartName( const string & part_id, const string & name )
     return;
 }
 
+vector< string > GetFeaStructIDVec()
+{
+    vector < string > ret_vec;
+    Vehicle* veh = GetVehicle();
+    if ( !veh )
+    {
+        return ret_vec;
+    }
+
+    vector < FeaStructure* > struct_vec = StructureMgr.GetAllFeaStructs();
+    ret_vec.resize( struct_vec.size() );
+
+    for ( size_t i = 0; i < struct_vec.size(); i++ )
+    {
+        ret_vec[i] = struct_vec[i]->GetID();
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
 /// Add a FeaPart, return FeaPart ID
 string AddFeaPart( const string & geom_id, int fea_struct_ind, int type )
 {
@@ -2624,6 +2645,54 @@ void DeleteFeaPart( const string & geom_id, int fea_struct_ind, const string & p
     feastruct->DelFeaPart( index );
     ErrorMgr.NoError();
     return;
+}
+
+string GetFeaPartID( const string & fea_struct_id, int fea_part_index )
+{
+    FeaStructure* feastruct = NULL;
+    feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaPartID::Invalid FeaStructure ID" );
+        return string();
+    }
+
+    FeaPart* part = feastruct->GetFeaPart( fea_part_index );
+
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetFeaPartID::Invalid FeaPart Index" );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return part->GetID();
+}
+
+string GetFeaPartName( const string & part_id )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( part_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPartName::Can't Find FEA Part " + part_id );
+        return string();
+    }
+
+    ErrorMgr.NoError();
+    return part->GetName();
+}
+
+int GetFeaPartType( const string & part_id )
+{
+    FeaPart* part = StructureMgr.GetFeaPart( part_id );
+    if ( !part )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaPartType::Can't Find FEA Part " + part_id );
+        return - 1;
+    }
+
+    ErrorMgr.NoError();
+    return part->GetType();
 }
 
 void SetFeaPartPerpendicularSparID( const string& part_id, const string& perpendicular_spar_id )
@@ -2770,6 +2839,93 @@ void DeleteFeaSubSurf( const string & geom_id, int fea_struct_ind, const string 
     feastruct->DelFeaSubSurf( index );
     ErrorMgr.NoError();
     return;
+}
+
+int GetFeaSubSurfIndex( const string & ss_id )
+{
+    int index = StructureMgr.GetFeaSubSurfIndex( ss_id );
+    if ( !index )
+    {
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetFeaSubSurfIndex::Can't Find FeaSubSurf " + ss_id );
+        return index;
+    }
+    ErrorMgr.NoError();
+    return index;
+}
+
+int NumFeaStructures()
+{
+    return StructureMgr.NumFeaStructures();
+}
+
+int NumFeaParts( const string & fea_struct_id )
+{
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "NumFeaParts::Invalid FeaStructure ID " + fea_struct_id );
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return feastruct->NumFeaParts();
+}
+
+int NumFeaSubSurfs( const string & fea_struct_id )
+{
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "NumFeaParts::Invalid FeaStructure ID " + fea_struct_id );
+        return -1;
+    }
+
+    ErrorMgr.NoError();
+    return feastruct->NumFeaSubSurfs();
+}
+
+vector< string > GetFeaPartIDVec( const string & fea_struct_id )
+{
+    vector < string > ret_vec;
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaPartIDVec::Invalid FeaStructure ID" );
+        return ret_vec;
+    }
+
+    vector < FeaPart* > fea_part_vec = feastruct->GetFeaPartVec();
+    ret_vec.resize( fea_part_vec.size() );
+
+    for ( size_t i = 0; i < fea_part_vec.size(); i++ )
+    {
+        ret_vec[i] = fea_part_vec[i]->GetID();
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
+}
+
+vector< string > GetFeaSubSurfIDVec( const string & fea_struct_id )
+{
+    vector < string > ret_vec;
+    FeaStructure* feastruct = StructureMgr.GetFeaStruct( fea_struct_id );
+    if ( !feastruct )
+    {
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetFeaSubSurfIDVec::Invalid FeaStructure ID " + fea_struct_id );
+        return ret_vec;
+    }
+
+    vector < SubSurface* > fea_ss_vec = feastruct->GetFeaSubSurfVec();
+    ret_vec.resize( fea_ss_vec.size() );
+
+    for ( size_t i = 0; i < fea_ss_vec.size(); i++ )
+    {
+        ret_vec[i] = fea_ss_vec[i]->GetID();
+    }
+
+    ErrorMgr.NoError();
+    return ret_vec;
 }
 
 /// Add an FeaMaterial, return FeaMaterial ID

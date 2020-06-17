@@ -237,6 +237,10 @@ private:
     // ==== Parasite Drag Tool Functions ====//
     static void AddExcrescence(const std::string & excresName, int excresType, double excresVal);
     static void DeleteExcrescence(int index);
+    
+    CScriptArray* GetFeaStructIDVec();
+    CScriptArray* GetFeaPartIDVec( const std::string & fea_struct_id );
+    CScriptArray* GetFeaSubSurfIDVec( const std::string & fea_struct_id );
 
     //=== Register Measure Functions ===//
     CScriptArray* GetAllRulers();

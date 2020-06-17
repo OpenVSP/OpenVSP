@@ -10267,7 +10267,10 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Add an FEA Structure to a specified Geom. Note, init_skin should ALWAYS be true.
+    Add an FEA Structure to a specified Geom
+
+    \warning init_skin should ALWAYS be set to true. 
+
     \code{.cpp}
     //==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" );
@@ -10285,7 +10288,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Delete an FEA Structure and all FEA Parts associated with it
+    Delete an FEA Structure and all FEA Parts and FEA SubSurfaces associated with it
     \code{.cpp}
     //==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" );
@@ -10324,7 +10327,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Get the index of an FEA Structure in its Parent Geom's Structure vector
+    Get the index of an FEA Structure in its Parent Geom's vector of Structures
     \code{.cpp}
     //==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" );
@@ -10411,11 +10414,32 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     Print( display_id );
     \endcode
+    \sa GetFeaStructName
     \param [in] geom_id Parent Geom ID
     \param [in] fea_struct_ind FEA Structure index
-    \param [in] name new name for the FEA Structure
+    \param [in] name New name for the FEA Structure
 */)";
     r = se->RegisterGlobalFunction( "void SetFeaStructName( const string & in geom_id, int fea_struct_ind, const string & in name )", asFUNCTION( vsp::SetFeaStructName ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the IDs of all FEA Structures in the vehicle
+    \code{.cpp}
+    //==== Add Geometries ====//
+    string pod_id = AddGeom( "POD" );
+    string wing_id = AddGeom( "WING" );
+    
+    //==== Add FeaStructures ====//
+    int pod_struct_ind = AddFeaStruct( pod_id );
+    int wing_struct_ind = AddFeaStruct( wing_id );
+
+    array < string > struct_id_vec = GetFeaStructIDVec()
+    \endcode
+    \sa NumFeaStructures
+    \return Array of FEA Structure IDs
+*/)";
+    r = se->RegisterGlobalFunction( "array<string>@ GetFeaStructIDVec()", asMETHOD( ScriptMgrSingleton, GetFeaStructIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(
@@ -10433,6 +10457,7 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     SetFeaPartName( bulkhead_id, "Bulkhead" );
     \endcode
+    \sa GetFeaPartName
     \param [in] part_id FEA Part ID
     \param [in] name New name for the FEA Part
 */)";
@@ -10590,6 +10615,234 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     \param [in] part_id FEA Part ID
 */)";
     r = se->RegisterGlobalFunction( "void DeleteFeaPart( const string & in geom_id, int fea_struct_ind, const string & in part_id )", asFUNCTION( vsp::DeleteFeaPart ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the Parm ID of an FEA Part, identified from a FEA Structure Parm ID and FEA Part index.
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    string struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    //==== Add Bulkead ====//
+    string bulkhead_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+    Update();
+
+    if ( bulkhead_id != GetFeaPartID( struct_id, 0 ) ) // These should be equivalent
+    {
+        Print( "Error: GetFeaPartID" );
+    }
+    \endcode
+    \param [in] fea_struct_id FEA Structure ID
+    \param [in] fea_part_index FEA Part index
+    \return FEA Part ID
+*/)";
+    r = se->RegisterGlobalFunction( "string GetFeaPartID( const string & in fea_struct_id, int fea_part_index )", asFUNCTION( vsp::GetFeaPartID ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the name of an FEA Part
+    \code{.cpp}
+    //==== Add Fuselage Geometry ====//
+    string fuse_id = AddGeom( "FUSELAGE" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( fuse_id );
+
+    //==== Add Bulkead ====//
+    string bulkhead_id = AddFeaPart( fuse_id, struct_ind, FEA_SLICE );
+
+    string name = "example_name";
+    SetFeaPartName( bulkhead_id, name ;
+
+    if ( name != GetFeaPartName( bulkhead_id ) ) // These should be equivalent
+    {
+        Print( "Error: GetFeaPartName" );
+    }
+    \endcode
+    \sa SetFeaPartName
+    \param [in] part_id FEA Part ID
+    \return FEA Part name
+*/)";
+    r = se->RegisterGlobalFunction( "string GetFeaPartName( const string & in part_id )", asFUNCTION( vsp::GetFeaPartName ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the type of an FEA Part
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    //==== Add Slice ====//
+    string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+
+    if ( FEA_SLICE != GetFeaPartType( slice_id ) ) // These should be equivalent
+    {
+        Print( "Error: GetFeaPartType" );
+    }
+    \endcode
+    \sa FEA_PART_TYPE
+    \param [in] part_id FEA Part ID
+    \return FEA Part type enum
+*/)";
+    r = se->RegisterGlobalFunction( "int GetFeaPartType( const string & in part_id )", asFUNCTION( vsp::GetFeaPartType ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the index of an FEA SubSurface give the SubSurface ID
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    //==== Add LineArray ====//
+    string line_array_id = AddFeaSubSurf( pod_id, struct_ind, SS_LINE_ARRAY );
+
+    if ( SS_LINE_ARRAY != GetFeaSubSurfIndex( line_array_id ) ) // These should be equivalent
+    {
+        Print( "Error: GetFeaSubSurfIndex" );
+    }
+    \endcode
+    \param [in] ss_id FEA SubSurface ID
+    \return FEA SubSurface Index
+*/)";
+    r = se->RegisterGlobalFunction( "int GetFeaSubSurfIndex( const string & in ss_id )", asFUNCTION( vsp::GetFeaSubSurfIndex ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the total number of FEA Subsurfaces in the vehicle
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string wing_id = AddGeom( "WING" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_1 = AddFeaStruct( wing_id );
+    int struct_2 = AddFeaStruct( wing_id );
+
+    if ( NumFeaStructures() != 2 )
+    {
+        Print( "Error: NumFeaStructures" );
+    }
+    \endcode
+    \sa GetFeaStructIDVec
+    \return Total Number of FEA Structures
+*/)";
+    r = se->RegisterGlobalFunction( "int NumFeaStructures()", asFUNCTION( vsp::NumFeaStructures ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the number of FEA Parts for a particular FEA Structure
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string pod_id = AddGeom( "POD" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    string struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    //==== Add FEA Parts ====//
+    string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+    string dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME );
+
+    if ( NumFeaParts( struct_id ) != 2 )
+    {
+        Print( "Error: NumFeaSubSurfs" );
+    }
+    \endcode
+    \sa GetFeaPartIDVec
+    \param [in] fea_struct_id FEA Structure ID
+    \return Number of FEA Parts
+*/)";
+    r = se->RegisterGlobalFunction( "int NumFeaParts( const string & in fea_struct_id )", asFUNCTION( vsp::NumFeaParts ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the number of FEA Subsurfaces for a particular FEA Structure
+    \code{.cpp}
+    //==== Add Pod Geometry ====//
+    string wing_id = AddGeom( "WING" );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( wing_id );
+
+    string struct_id = GetFeaStructID( wing_id, struct_ind )
+
+    //==== Add SubSurfaces ====//
+    string line_array_id = AddFeaSubSurf( wing_id, struct_ind, SS_LINE_ARRAY );
+    string rectangle_id = AddFeaSubSurf( wing_id, struct_ind, SS_RECTANGLE );
+
+    if ( NumFeaSubSurfs( struct_id ) != 2 )
+    {
+        Print( "Error: NumFeaSubSurfs" );
+    }
+    \endcode
+    \sa GetFeaSubSurfIDVec
+    \param [in] fea_struct_id FEA Structure ID
+    \return Number of FEA SubSurfaces
+*/)";
+    r = se->RegisterGlobalFunction( "int NumFeaSubSurfs( const string & in fea_struct_id )", asFUNCTION( vsp::NumFeaSubSurfs ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the IDs of all FEA Parts in the given FEA Structure
+    \code{.cpp}
+    //==== Add Geometries ====//
+    string pod_id = AddGeom( "POD" );
+    
+    string struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    //==== Add FEA Parts ====//
+    string slice_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
+    string dome_id = AddFeaPart( pod_id, struct_ind, FEA_DOME );
+
+    array < string > part_id_vec = GetFeaPartIDVec( struct_id ); // Should include slice_id & dome_id
+    \endcode
+    \sa NumFeaParts
+    \param [in] fea_struct_id FEA Structure ID
+    \return Array of FEA Part IDs
+*/)";
+    r = se->RegisterGlobalFunction( "array<string>@ GetFeaPartIDVec(const string & in fea_struct_id)", asMETHOD( ScriptMgrSingleton, GetFeaPartIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the IDs of all FEA SubSurfaces in the given FEA Structure
+    \code{.cpp}
+    //==== Add Geometries ====//
+    string pod_id = AddGeom( "POD" );
+
+    string struct_id = GetFeaStructID( pod_id, struct_ind )
+
+    //==== Add SubSurfaces ====//
+    string line_array_id = AddFeaSubSurf( wing_id, struct_ind, SS_LINE_ARRAY );
+    string rectangle_id = AddFeaSubSurf( wing_id, struct_ind, SS_RECTANGLE );
+
+    array < string > part_id_vec = GetFeaSubSurfIDVec( struct_id ); // Should include line_array_id & rectangle_id
+    \endcode
+    \sa NumFeaSubSurfs
+    \param [in] fea_struct_id FEA Structure ID
+    \return Array of FEA Part IDs
+*/)";
+    r = se->RegisterGlobalFunction( "array<string>@ GetFeaSubSurfIDVec(const string & in fea_struct_id)", asMETHOD( ScriptMgrSingleton, GetFeaSubSurfIDVec ), asCALL_THISCALL_ASGLOBAL, &ScriptMgr, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(
@@ -11598,6 +11851,25 @@ void ScriptMgrSingleton::DeleteExcrescence(int index)
 {
     vsp::DeleteExcrescence(index);
 }
+
+CScriptArray* ScriptMgrSingleton::GetFeaStructIDVec()
+{
+    m_ProxyStringArray = vsp::GetFeaStructIDVec( );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetFeaSubSurfIDVec( const string & fea_struct_id )
+{
+    m_ProxyStringArray = vsp::GetFeaSubSurfIDVec( fea_struct_id );
+    return GetProxyStringArray();
+}
+
+CScriptArray* ScriptMgrSingleton::GetFeaPartIDVec( const string & fea_struct_id )
+{
+    m_ProxyStringArray = vsp::GetFeaPartIDVec( fea_struct_id );
+    return GetProxyStringArray();
+}
+
 
 void ScriptMgrSingleton::SetIntAnalysisInput( const string& analysis, const string & name, CScriptArray* indata, int index )
 {
