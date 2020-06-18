@@ -1880,6 +1880,12 @@ void SurfaceIntersectionSingleton::BuildChains()
     list< ISegChain* >::iterator c;
     for ( c = m_ISegChainList.begin(); c != m_ISegChainList.end(); ++c )
     {
+        if ( ( *c )->m_SurfA == ( *c )->m_SurfB )
+        {
+            // Do not refine SubSurface curves
+            continue;
+        }
+
         Puw* auw = ( *c )->m_ISegDeque.front()->m_IPnt[0]->GetPuw( ( *c )->m_SurfA );
         Puw* buw = ( *c )->m_ISegDeque.front()->m_IPnt[0]->GetPuw( ( *c )->m_SurfB );
 
