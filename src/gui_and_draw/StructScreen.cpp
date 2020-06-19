@@ -964,6 +964,19 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_FeaCurrMainSurfIndx = 0;
     m_SelectedFeaPartChoice = 0;
     m_CurrDispGroup = NULL;
+
+    // Initialize the column width pointer (3 columns + one empty as recommened in FLTK docs)
+    m_StructColWidths = new int( 4 );
+    m_StructureSelectBrowser->column_widths( m_StructColWidths ); // assign array to widget
+
+    // Initialize the column width pointer (6 columns + one empty as recommened in FLTK docs)
+    m_PartColWidths = new int( 7 );
+    m_FeaPartSelectBrowser->column_widths( m_PartColWidths ); // assign array to widget
+
+    // Initialize the column width pointer (4 columns + one empty as recommened in FLTK docs)
+    m_PropColWidths = new int( 5 );
+    m_FeaPropertySelectBrowser->column_widths( m_PropColWidths ); // assign array to widget
+    
 }
 
 StructScreen::~StructScreen()
@@ -1031,8 +1044,24 @@ void StructScreen::UpdateStructBrowser()
         return;
     }
 
-    static int widths[] = { 170, 140, 130 }; // TODO: Set spacing as function of browser width
-    m_StructureSelectBrowser->column_widths( widths );
+    int border_w = 5;
+    int browser_default_width = 430;
+    double curr_w = ( double )m_FLTK_Window->w();
+    int orig_w = browser_default_width - border_w;
+
+    if ( curr_w < orig_w )
+    {
+        // don't resize the columns if smaller than original width, allow the slider to be used instead
+        curr_w = orig_w;
+    }
+
+    vector < double > expand_values = { 0.4, 0.35, 0.2, 0 };
+
+    for ( int i = 0; i < ( int )expand_values.size(); i++ )
+    {
+        m_StructColWidths[i] = ( int )( expand_values[i] * curr_w );
+    }
+
     m_StructureSelectBrowser->column_char( ':' );
 
     char str[256];
@@ -1075,8 +1104,25 @@ void StructScreen::UpdateFeaPartBrowser()
     //==== FeaPart Browser ====//
     int scroll_pos = m_FeaPartSelectBrowser->position();
     m_FeaPartSelectBrowser->clear();
-    static int widths[] = { 85, 65, 45, 85, 35, 85 }; // TODO: Set spacing as function of browser width
-    m_FeaPartSelectBrowser->column_widths( widths );
+
+    int border_w = 5;
+    int browser_default_width = 430;
+    double curr_w = ( double )m_FLTK_Window->w ();
+    int orig_w = browser_default_width - border_w;
+
+    if ( curr_w < orig_w )
+    {
+        // don't resize the columns if smaller than original width, allow the slider to be used instead
+        curr_w = orig_w;
+    }
+
+    vector < double > pick_expand_values = { 0.2, 0.15, 0.1, 0.2, 0.1, 0.1, 0 };
+
+    for ( int i = 0; i < ( int )pick_expand_values.size(); i++ )
+    {
+        m_PartColWidths[i] = ( int )( pick_expand_values[i] * curr_w );
+    }
+
     m_FeaPartSelectBrowser->column_char( ':' );
 
     char str[256];
@@ -1335,8 +1381,26 @@ void StructScreen::UpdateFeaPropertyBrowser()
     int scroll_pos = m_FeaPropertySelectBrowser->position();
     m_FeaPropertySelectBrowser->clear();
 
-    static int widths[] = { 130, 70, 80, 130 }; // TODO: Set spacing as function of browser width
-    m_FeaPropertySelectBrowser->column_widths( widths );
+    int border_w = 5;
+    int browser_default_width = 430;
+    double curr_w = ( double )m_FLTK_Window->w();
+    int orig_w = browser_default_width - border_w;
+
+    if ( curr_w < orig_w )
+    {
+        // don't resize the columns if smaller than original width, allow the slider to be used instead
+        curr_w = orig_w;
+    }
+
+    vector < double > expand_values = { 0.3, 0.2, 0.15, 0.15, 2 };
+
+    for ( int i = 0; i < ( int )expand_values.size(); i++ )
+    {
+        m_PropColWidths[i] = ( int )( expand_values[i] * curr_w );
+    }
+
+    //static int widths[] = { 130, 70, 80, 130 }; // TODO: Set spacing as function of browser width
+   // m_FeaPropertySelectBrowser->column_widths( widths );
     m_FeaPropertySelectBrowser->column_char( ':' );
 
     char str[256];

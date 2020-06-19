@@ -710,6 +710,10 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConGroup.AddSlider( m_SSConTessSlider, "Num Points", 100, "%5.0f" );
 
     m_RotActive = true;
+
+    // Initialize the column width pointer (3 columns + one empty as recommened in FLTK docs)
+    m_SubColWidths = new int( 4 );
+    m_SubSurfBrowser->column_widths( m_SubColWidths ); // assign array to widget
 }
 
 bool GeomScreen::Update()
@@ -1015,8 +1019,25 @@ bool GeomScreen::Update()
 
     //==== SubSurfBrowser ====//
     m_SubSurfBrowser->clear();
-    static int widths[] = { 150, 80, 60 };
-    m_SubSurfBrowser->column_widths( widths );
+
+    int border_w = 5;
+    int browser_default_width = 400;
+    double curr_w = ( double )m_FLTK_Window->w();
+    int orig_w = browser_default_width - border_w;
+
+    if ( curr_w < orig_w )
+    {
+        // don't resize the columns if smaller than original width, allow the slider to be used instead
+        curr_w = orig_w;
+    }
+
+    vector < double > expand_values = { 0.3, 0.2, 0.1, 0 };
+
+    for ( int i = 0; i < ( int )expand_values.size(); i++ )
+    {
+        m_SubColWidths[i] = ( int )( expand_values[i] * curr_w );
+    }
+
     m_SubSurfBrowser->column_char( ':' );
 
     sprintf( str, "@b@.NAME:@b@.TYPE:@b@.SURF" );

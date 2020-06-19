@@ -89,7 +89,8 @@ protected:
     int m_InputBrowserSelect;
     int m_OutputBrowserSelect;
 
-
+    // Pointers for the widths of each column in the browser to support resizing
+    int* m_ColWidths;
 };
 
 

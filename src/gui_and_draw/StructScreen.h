@@ -348,6 +348,11 @@ private:
     vector < int > m_SelectedPartIndexVec;
     int m_SelectedFeaPartChoice;
     int m_NumFeaPartChoices;
+
+    // Pointers for the widths of each column in the browser to support resizing
+    int* m_StructColWidths;
+    int* m_PartColWidths;
+    int* m_PropColWidths;
 };
 
 #endif

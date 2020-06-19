@@ -273,6 +273,8 @@ public:
     GroupLayout m_SSCommonGroup;
     StringInput m_SubNameInput;
 
+    int* m_SubColWidths;
+
     // SS_Line
     GroupLayout m_SSLineGroup;
     SliderAdjRangeInput m_SSLineConstSlider; // Either Constant U or W

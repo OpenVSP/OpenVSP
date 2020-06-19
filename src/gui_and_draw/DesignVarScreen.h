@@ -56,7 +56,7 @@ protected:
     TriggerButton m_AddVarButton;
     TriggerButton m_DelVarButton;
 
-    Fl_Browser* varBrowser;
+    Fl_Browser* m_VarBrowser;
 
     Choice m_FileTypeChoice;
 
@@ -65,6 +65,7 @@ protected:
 
     vector < SliderAdjRangeInput > m_ParmSliderVec;
 
+    int* m_ColWidths;
 };
 
 #endif

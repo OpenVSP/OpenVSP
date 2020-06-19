@@ -176,14 +176,14 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
     m_PickVarLayout.AddDividerBox( "Variable List" );
 
     browser_h = 265;
-    varBrowser = new Fl_Browser( m_PickVarLayout.GetX(), m_PickVarLayout.GetY(), m_PickVarLayout.GetW(), browser_h );
-    varBrowser->type( 1 );
-    varBrowser->labelfont( 13 );
-    varBrowser->labelsize( 12 );
-    varBrowser->textsize( 12 );
-    varBrowser->callback( staticScreenCB, this );
+    m_VarBrowser = new Fl_Browser( m_PickVarLayout.GetX(), m_PickVarLayout.GetY(), m_PickVarLayout.GetW(), browser_h );
+    m_VarBrowser->type( 1 );
+    m_VarBrowser->labelfont( 13 );
+    m_VarBrowser->labelsize( 12 );
+    m_VarBrowser->textsize( 12 );
+    m_VarBrowser->callback( staticScreenCB, this );
 
-    var_group->add( varBrowser );
+    var_group->add( m_VarBrowser );
 
     m_PickVarLayout.AddY( browser_h );
 
@@ -292,6 +292,14 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
     m_FitModelLayout.SetSameLineFlag( false );
 
     m_FitModelLayout.AddButton(m_Load, "Import");
+
+    // Initialize the column width pointer (3 columns + one empty as recommened in FLTK docs)
+    m_PickColWidths = new int ( 4 );
+    m_VarBrowser->column_widths( m_PickColWidths ); // assign array to widget
+
+    // Initialize the column width pointer (8 columns + one empty as recommened in FLTK docs)
+    m_PointsColWidths = new int ( 9 );
+    m_TargetPtBrowser->column_widths ( m_PointsColWidths ); // assign array to widget
 }
 
 FitModelScreen::~FitModelScreen()
@@ -303,6 +311,10 @@ bool FitModelScreen::Update()
     int i;
     int index;
     char str[256];
+    int border_w = 5;
+    int browser_default_width = 400;
+    double curr_w = ( double )m_FLTK_Window->w ();
+    int orig_w = browser_default_width - border_w;
 
     // Update the number of selected points.
     sprintf( str, "%d", FitModelMgr.GetNumSelected() );
@@ -322,8 +334,19 @@ bool FitModelScreen::Update()
     // Update Fixed target point browser
     m_TargetPtBrowser->clear();
 
-    static int ptwidths[] = { 75, 35, 35, 35, 35, 37, 35, 38 }; // widths for each column
-    m_TargetPtBrowser->column_widths( ptwidths );    // assign array to widget
+    if ( curr_w < orig_w )
+    {
+        // don't resize the columns if smaller than original width, allow the slider to be used instead
+        curr_w = orig_w;
+    }
+
+    vector < double > expand_values = { 0.15, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0 };
+
+    for ( int i = 0; i < ( int )expand_values.size (); i++ )
+    {
+        m_PointsColWidths[i] = ( int )( expand_values[i] * curr_w );
+    }
+
     m_TargetPtBrowser->column_char( ':' );         // use : as the column character
 
     sprintf( str, "@b@.GEOM:@b@c@.X:@b@c@.Y:@b@c@.Z:@b@c@.U:@b@c@.Type:@b@c@.W:@b@c@.Type" );
@@ -391,14 +414,25 @@ bool FitModelScreen::Update()
     m_ParmTreePicker.Update( FitModelMgr.GetVarVec() );
 
     //==== Update Parm Browser ====//
-    varBrowser->clear();
+    m_VarBrowser->clear();
 
-    static int widths[] = { 75, 75, 90 }; // widths for each column
-    varBrowser->column_widths( widths );    // assign array to widget
-    varBrowser->column_char( ':' );         // use : as the column character
+    if ( curr_w < orig_w )
+    {
+        // don't resize the columns if smaller than original width, allow the slider to be used instead
+        curr_w = orig_w;
+    }
+
+    vector < double > pick_expand_values = { 0.3, 0.4, 0.2, 0 };
+
+    for ( int i = 0; i < ( int )pick_expand_values.size(); i++ )
+    {
+        m_PickColWidths[i] = ( int )( pick_expand_values[i] * curr_w );
+    }
+    
+    m_VarBrowser->column_char( ':' );         // use : as the column character
 
     sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM" );
-    varBrowser->add( str );
+    m_VarBrowser->add( str );
 
     int num_vars = FitModelMgr.GetNumVars();
     for ( i = 0 ; i < num_vars ; i++ )
@@ -407,13 +441,13 @@ bool FitModelScreen::Update()
         ParmMgr.GetNames( FitModelMgr.GetVar( i ), c_name, g_name, p_name );
 
         sprintf( str, "%s:%s:%s", c_name.c_str(), g_name.c_str(), p_name.c_str() );
-        varBrowser->add( str );
+        m_VarBrowser->add( str );
     }
 
     index = FitModelMgr.GetCurrVarIndex();
     if ( index >= 0 && index < num_vars )
     {
-        varBrowser->select( index + 2 );
+        m_VarBrowser->select( index + 2 );
     }
 
     sprintf( str, "%d", num_vars );
@@ -544,9 +578,9 @@ void FitModelScreen::CallBack( Fl_Widget* w )
             m_TargetGeomPicker.SetGeomChoice( string() );
         }
     }
-    else if (  w == varBrowser )
+    else if (  w == m_VarBrowser )
     {
-        int sel = varBrowser->value();
+        int sel = m_VarBrowser->value();
         FitModelMgr.SetCurrVarIndex( sel - 2 );
 
         m_ParmPicker.SetParmChoice( FitModelMgr.GetCurrVar() );

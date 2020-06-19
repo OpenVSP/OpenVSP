@@ -751,6 +751,13 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     // Flags to control Kill thread functionality
     m_SolverThreadIsRunning = false;
+
+    // Initialize the column width pointer (8 columns + one empty as recommened in FLTK docs)
+    m_PropColWidths = new int( 9 );
+    m_PropElemBrowser->column_widths( m_PropColWidths ); // assign array to widget
+
+    m_UnsteadyColWidths = new int( 4 );
+    m_UnsteadyGroupBrowser->column_widths( m_UnsteadyColWidths ); // assign array to widget
 }
 
 VSPAEROScreen::~VSPAEROScreen()
@@ -1548,8 +1555,25 @@ void VSPAEROScreen::UpdatePropElemBrowser()
 {
     char str[256];
     m_PropElemBrowser->clear();
-    static int widths[] = { 35, 150, 40, 65, 65, 40, 40 }; // widths for each column
-    m_PropElemBrowser->column_widths(widths);    // assign array to widget
+
+    int border_w = 5;
+    int browser_default_width = VSPAERO_SCREEN_WIDTH;
+    double curr_w = ( double )m_FLTK_Window->w();
+    int orig_w = browser_default_width - border_w;
+
+    if ( curr_w < orig_w )
+    {
+        // don't resize the columns if smaller than original width, allow the slider to be used instead
+        curr_w = orig_w;
+    }
+
+    vector < double > expand_values = { 0.1, 0.18, 0.1, 0.1, 0.1, 0.1, 0.1, 0 };
+
+    for ( int i = 0; i < ( int )expand_values.size(); i++ )
+    {
+        m_PropColWidths[i] = ( int )( expand_values[i] * curr_w );
+    }
+
     m_PropElemBrowser->column_char(':');         // use : as the column character
 
     sprintf(str, "@b@.INDX:@b@.NAME:@b@.DIA:@b@.HUB DIA:@b@.RPM:@b@.CP:@b@.CT");
@@ -2104,11 +2128,24 @@ void VSPAEROScreen::UpdateUnsteadyGroupBrowser()
 {
     m_UnsteadyGroupBrowser->clear();
 
-    static int widths[] = { ( m_UnsteadyGroupRightLayout.GetRemainX() ) / 2,
-        ( m_UnsteadyGroupRightLayout.GetRemainX() ) / 4,
-        ( ( m_UnsteadyGroupRightLayout.GetRemainX() ) / 4 ) }; // widths for each column
+    int border_w = 5;
+    int browser_default_width = VSPAERO_SCREEN_WIDTH;
+    double curr_w = ( double )m_FLTK_Window->w();
+    int orig_w = browser_default_width - border_w;
 
-    m_UnsteadyGroupBrowser->column_widths( widths );    // assign array to widget
+    if ( curr_w < orig_w )
+    {
+        // don't resize the columns if smaller than original width, allow the slider to be used instead
+        curr_w = orig_w;
+    }
+
+    vector < double > expand_values = { 0.21, 0.17, 0.12, 0 };
+
+    for ( int i = 0; i < ( int )expand_values.size (); i++ )
+    {
+        m_UnsteadyColWidths[i] = ( int )(expand_values[i] * curr_w );
+    }
+
     m_UnsteadyGroupBrowser->column_char( ':' );         // use : as the column character
     m_UnsteadyGroupBrowser->add( "@b@.Name:@b@.Surf:@b@.RPM" );
 

@@ -69,14 +69,14 @@ DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 463, "
     m_PickLayout.AddDividerBox( "Variable List" );
 
     int browser_h = 200;
-    varBrowser = new Fl_Browser( m_PickLayout.GetX(), m_PickLayout.GetY(), m_PickLayout.GetW(), browser_h );
-    varBrowser->type( 1 );
-    varBrowser->labelfont( 13 );
-    varBrowser->labelsize( 12 );
-    varBrowser->textsize( 12 );
-    varBrowser->callback( staticScreenCB, this );
+    m_VarBrowser = new Fl_Browser( m_PickLayout.GetX(), m_PickLayout.GetY(), m_PickLayout.GetW(), browser_h );
+    m_VarBrowser->type( 1 );
+    m_VarBrowser->labelfont( 13 );
+    m_VarBrowser->labelsize( 12 );
+    m_VarBrowser->textsize( 12 );
+    m_VarBrowser->callback( staticScreenCB, this );
 
-    pick_group->add( varBrowser );
+    pick_group->add( m_VarBrowser );
     m_PickLayout.AddY( browser_h );
 
     m_PickLayout.AddYGap();
@@ -97,6 +97,12 @@ DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 463, "
     pick_tab->show();
 
     m_AdjustLayout.SetGroupAndScreen( m_AdjustGroup, this );
+
+    // Initialize the column width pointer (7 columns + one empty as recommened in FLTK docs)
+    m_ColWidths = new int ( 5 );
+
+    // Update m_ColWidths values but keep the memory address 
+    m_VarBrowser->column_widths ( m_ColWidths ); // assign array to widget
 }
 
 DesignVarScreen::~DesignVarScreen()
@@ -124,14 +130,31 @@ bool DesignVarScreen::Update()
     m_XDDMGroup.Update( DesignVarMgr.m_WorkingXDDMType.GetID() );
 
     //==== Update Parm Browser ====//
-    varBrowser->clear();
+    m_VarBrowser->clear();
 
-    static int widths[] = { 75, 75, 90, 20 }; // widths for each column
-    varBrowser->column_widths( widths );    // assign array to widget
-    varBrowser->column_char( ':' );         // use : as the column character
+    // Update the column widths from the current window size
+    int browser_default_width = 300;
+    int border_w = 5;
+    double curr_w = ( double )m_FLTK_Window->w ();
+    int orig_w = browser_default_width - border_w;
+
+    if ( curr_w < orig_w )
+    {
+        // don't resize the columns if smaller than original width, allow the slider to be used instead
+        curr_w = orig_w;
+    }
+
+    vector < double > expand_values = { 0.25, 0.25, 0.25, 0.1, 0 };
+
+    for (int i = 0; i < ( int )expand_values.size (); i++)
+    {
+        m_ColWidths[i] = ( int )( expand_values[i] * curr_w );
+    }
+
+    m_VarBrowser->column_char( ':' );         // use : as the column character
 
     sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM:@b@.V/C" );
-    varBrowser->add( str );
+    m_VarBrowser->add( str );
 
     int num_vars = DesignVarMgr.GetNumVars();
     for ( i = 0 ; i < num_vars ; i++ )
@@ -151,13 +174,13 @@ bool DesignVarScreen::Update()
         ParmMgr.GetNames( dv->m_ParmID, c_name, g_name, p_name );
 
         sprintf( str, "%s:%s:%s:%c", c_name.c_str(), g_name.c_str(), p_name.c_str(), vtype );
-        varBrowser->add( str );
+        m_VarBrowser->add( str );
     }
 
     int index = DesignVarMgr.GetCurrVarIndex();
     if ( index >= 0 && index < num_vars )
     {
-        varBrowser->select( index + 2 );
+        m_VarBrowser->select( index + 2 );
     }
 
     // Parameter GUI got out of sync.  Probably from File->New or similar.
@@ -233,9 +256,9 @@ void DesignVarScreen::CallBack( Fl_Widget* w )
         DesignVarMgr.AddVar( ParmID, DesignVarMgr.m_WorkingXDDMType.Get() );
         RebuildAdjustTab();
     }
-    else if (  w == varBrowser )
+    else if (  w == m_VarBrowser )
     {
-        int sel = varBrowser->value();
+        int sel = m_VarBrowser->value();
         DesignVarMgr.SetCurrVarIndex( sel - 2 );
 
         DesignVar *dv = DesignVarMgr.GetCurrVar();

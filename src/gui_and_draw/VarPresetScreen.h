@@ -63,7 +63,7 @@ protected:
     TriggerButton m_AddVarButton;
     TriggerButton m_DelVarButton;
 
-    Fl_Browser* varBrowser;
+    Fl_Browser* m_VarBrowser;
 
     TriggerButton m_AddGroupButton;
     TriggerButton m_AddSettingButton;
@@ -72,6 +72,9 @@ protected:
     TriggerButton m_SaveButton;
 
     vector < SliderAdjRangeInput > m_ParmSliderVec;
+
+    // Pointer for the widths of each column in the browser to support resizing
+    int* m_ColWidths;
 };
 
 #endif

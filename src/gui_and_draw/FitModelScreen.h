@@ -95,7 +95,7 @@ protected:
 
     StringOutput m_NVarOutput;
 
-    Fl_Browser* varBrowser;
+    Fl_Browser* m_VarBrowser;
 
     // Var tree tab variables
     GroupLayout m_PickTreeLayout;
@@ -132,6 +132,9 @@ protected:
     TriggerButton m_Save;
     TriggerButton m_Load;
 
+    // Pointers for the widths of each column in the browser to support resizing
+    int* m_PickColWidths;
+    int* m_PointsColWidths;
 };
 
 #endif

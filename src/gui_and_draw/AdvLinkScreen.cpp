@@ -127,6 +127,11 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_CodeBuffer->call_modify_callbacks();
 
     m_CodeBuffer->text( "" );
+
+    // Initialize the column width pointer (4 columns + one empty as recommened in FLTK docs)
+    m_ColWidths = new int( 5 );
+    m_InputBrowser->column_widths( m_ColWidths ); // assign array to widget
+    m_OutputBrowser->column_widths( m_ColWidths ); // assign array to widget
 }
 
 //==== Update Screen ====//
@@ -201,8 +206,24 @@ bool AdvLinkScreen::Update()
     m_OutputBrowser->clear();
     if ( edit_link )
     {
-        static int widths[] = { 175, 175, 75, 75, 0 };
-        m_InputBrowser->column_widths( widths );
+        int border_w = 5;
+        int browser_default_width = 400;
+        double curr_w = ( double )m_FLTK_Window->w ();
+        int orig_w = browser_default_width - border_w;
+
+        if ( curr_w < orig_w )
+        {
+            // don't resize the columns if smaller than original width, allow the slider to be used instead
+            curr_w = orig_w;
+        }
+
+        vector < double > expand_values = { 0.2, 0.1, 0.1, 0.1, 0 };
+
+        for ( int i = 0; i < ( int )expand_values.size (); i++ )
+        {
+            m_ColWidths[i] = ( int )( expand_values[i] * curr_w );
+        }
+
         m_InputBrowser->column_char( ':' );
 
         sprintf( str, "@b@.VAR_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
@@ -221,7 +242,17 @@ bool AdvLinkScreen::Update()
             m_InputBrowser->select( m_InputBrowserSelect + 2 );
         }
 
-        m_OutputBrowser->column_widths( widths );
+        if ( curr_w < orig_w )
+        {
+            // don't resize the columns if smaller than original width, allow the slider to be used instead
+            curr_w = orig_w;
+        }
+
+        for ( int i = 0; i < ( int )expand_values.size (); i++ )
+        {
+            m_ColWidths[i] = ( int )( expand_values[i] * curr_w );
+        }
+
         m_OutputBrowser->column_char( ':' );
 
         sprintf( str, "@b@.VAR_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );

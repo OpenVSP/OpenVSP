@@ -101,20 +101,25 @@ VarPresetScreen::VarPresetScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 600, "
     m_PickLayout.AddDividerBox( "Variable List" );
 
     int browser_h = 210;
-    varBrowser = new Fl_Browser( m_PickLayout.GetX(), m_PickLayout.GetY(), m_PickLayout.GetW(), browser_h );
-    varBrowser->type( 1 );
-    varBrowser->labelfont( 13 );
-    varBrowser->labelsize( 12 );
-    varBrowser->textsize( 12 );
-    varBrowser->callback( staticScreenCB, this );
+    m_VarBrowser = new Fl_Browser( m_PickLayout.GetX(), m_PickLayout.GetY(), m_PickLayout.GetW(), browser_h );
+    m_VarBrowser->type( 1 );
+    m_VarBrowser->labelfont( 13 );
+    m_VarBrowser->labelsize( 12 );
+    m_VarBrowser->textsize( 12 );
+    m_VarBrowser->callback( staticScreenCB, this );
 
-    pick_group->add( varBrowser );
+    pick_group->add( m_VarBrowser );
     m_PickLayout.AddY( browser_h );
 
     pick_tab->show();
 
     // Everything Relevant to "Adjust" Tab
     m_AdjustLayout.SetGroupAndScreen( m_AdjustGroup, this );
+
+    // Initialize the column width pointer (7 columns + one empty as recommened in FLTK docs)
+    m_ColWidths = new int ( 4 );
+
+    m_VarBrowser->column_widths ( m_ColWidths ); // assign array to widget
 
 }
 
@@ -138,7 +143,7 @@ bool VarPresetScreen::Update()
         m_ParmPicker.Deactivate();
         m_AddVarButton.Deactivate();
         m_DelVarButton.Deactivate();
-        varBrowser->deactivate();
+        m_VarBrowser->deactivate();
     }
     else if ( VarPresetMgr.GetDeleteFlag() == 1 )
     {
@@ -151,7 +156,7 @@ bool VarPresetScreen::Update()
         m_ParmPicker.Deactivate();
         m_AddVarButton.Deactivate();
         m_DelVarButton.Deactivate();
-        varBrowser->deactivate();
+        m_VarBrowser->deactivate();
     }
     else
     {
@@ -166,7 +171,7 @@ bool VarPresetScreen::Update()
             m_ParmPicker.Deactivate();
             m_AddVarButton.Deactivate();
             m_DelVarButton.Deactivate();
-            varBrowser->deactivate();
+            m_VarBrowser->deactivate();
         }
         else
         {
@@ -179,7 +184,7 @@ bool VarPresetScreen::Update()
             m_ParmPicker.Activate();
             m_AddVarButton.Activate();
             m_DelVarButton.Activate();
-            varBrowser->activate();
+            m_VarBrowser->activate();
         }
     }
 
@@ -216,14 +221,31 @@ bool VarPresetScreen::Update()
     m_ParmPicker.Update();
 
     //==== Update Parm Browser ====//
-    varBrowser->clear();
+    m_VarBrowser->clear();
 
-    static int widths[] = { 100, 95, 95 }; // widths for each column
-    varBrowser->column_widths( widths );    // assign array to widget
-    varBrowser->column_char( ':' );         // use : as the column character
+    // Update the column widths from the current window size
+    int browser_default_width = 300;
+    int border_w = 5;
+    double curr_w = ( double )m_FLTK_Window->w();
+    int orig_w = browser_default_width - border_w;
+
+    if ( curr_w < orig_w )
+    {
+        // don't resize the columns if smaller than original width, allow the slider to be used instead
+        curr_w = orig_w;
+    }
+
+    vector < double > expand_values = { 0.3, 0.35, 0.2, 0 };
+
+    for ( int i = 0; i < ( int )expand_values.size (); i++ )
+    {
+        m_ColWidths[i] = ( int )( expand_values[i] * curr_w );
+    }
+
+    m_VarBrowser->column_char( ':' );         // use : as the column character
 
     sprintf( str, "@b@.COMP:@b@.GROUP:@b@.PARM" );
-    varBrowser->add( str );
+    m_VarBrowser->add( str );
 
     int num_vars = VarPresetMgr.GetNumVars();
     for ( i = 0 ; i < num_vars ; i++ )
@@ -234,13 +256,13 @@ bool VarPresetScreen::Update()
         ParmMgr.GetNames( parmid, c_name, g_name, p_name );
 
         sprintf( str, "%s:%s:%s", c_name.c_str(), g_name.c_str(), p_name.c_str() );
-        varBrowser->add( str );
+        m_VarBrowser->add( str );
     }
 
     int index = VarPresetMgr.GetCurrVarIndex();
     if ( index >= 0 && index < num_vars )
     {
-        varBrowser->select( index + 2 );
+        m_VarBrowser->select( index + 2 );
     }
 
     // Parameter GUI got out of sync.  Probably from File->New or similar.
@@ -419,9 +441,9 @@ void VarPresetScreen::CallBack( Fl_Widget* w )
             }
         }
     }
-    else if (  w == varBrowser )
+    else if (  w == m_VarBrowser )
     {
-        int sel = varBrowser->value();
+        int sel = m_VarBrowser->value();
         VarPresetMgr.SetCurrVarIndex( sel - 2 );
 
         string parmid = VarPresetMgr.GetCurrVar();
