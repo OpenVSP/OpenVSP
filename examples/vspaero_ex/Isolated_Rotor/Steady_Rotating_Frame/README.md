@@ -6,9 +6,11 @@ model and flow to be symmetrical about (and aligned with) the X-axis.  The resul
 flow is steady in the frame of the blades.  In this case, wake relaxation is used in the
 solution process.  However, the wake relaxation does not represent a time-accurate phenemona. 
 
-To run this case, place the `prop_DegenGeom.csv` file from the parent directory in the
-same place as the `prop_DegenGeom.vspaero` file from this directory.  Then run the following
-command from the command line in that directory.
+The `prop_DegenGeom.csv` file in this directory can be re-created by running the DegenGeom
+analysis in OpenVSP.
+
+Run the following command from the command line in the directory with the `prop_DegenGeom.csv`
+and `prop_DegenGeom.vspaero` files.
 
 ```
 vspaero -omp 4 -rotor 859.22 prop_DegenGeom
