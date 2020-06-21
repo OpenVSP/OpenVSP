@@ -69,7 +69,11 @@ int cppexecv( const string &cmd, vector< string > options )
     }
     argv[narg + 1] = NULL;
 
-    return execv( cmd.c_str(), (char **)argv );
+    int retval = execv( cmd.c_str(), (char **)argv );
+
+    delete[] argv;
+
+    return retval;
 }
 #endif
 
