@@ -17,7 +17,7 @@ Better routines may be written to do this.
 
 void matinv(double ***a, int prts,double *rhs,double **soln) {
     double swap,amax,tmax,**iwk,pivot,sum,t;
-    int *ipivot,j,k,l,i,jrow,jcolum,icolum,irow;
+    int *ipivot,j,k,l,i,jrow,jcolum,icolum = 0,irow = 0;
 
     ipivot = (int *) calloc(prts,sizeof(int));
     iwk = (double **) calloc(prts+1,sizeof(double *));

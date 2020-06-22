@@ -2154,7 +2154,7 @@ void FeaMeshMgrSingleton::TagFeaNodes()
     //==== Build Node Map ====//
     m_IndMap.clear();
     m_PntShift.clear();
-    int numPnts = BuildIndMap( m_AllPntVec, m_IndMap, m_PntShift );
+    BuildIndMap( m_AllPntVec, m_IndMap, m_PntShift );
 
     //==== Assign Index Numbers to Nodes ====//
     for ( int i = 0; i < (int)m_FeaNodeVec.size(); i++ )

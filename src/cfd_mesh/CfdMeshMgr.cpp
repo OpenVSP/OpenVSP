@@ -1221,10 +1221,9 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     //==== Build Wake Map If Available ====//
     map< int, vector< int > > wakeIndMap;
     vector< int > wakePntShift;
-    int wakeNumPnts = 0;
     if ( wakeAllPntVec.size() )
     {
-        wakeNumPnts = BuildIndMap( wakeAllPntVec, wakeIndMap, wakePntShift );
+        BuildIndMap( wakeAllPntVec, wakeIndMap, wakePntShift );
     }
 
     //==== Assemble Normal Tris ====//
@@ -2166,7 +2165,7 @@ void CfdMeshMgrSingleton::SetWakeAttachChain( ISegChain* c )
 void CfdMeshMgrSingleton::MatchWakes()
 {
     //==== Match Wakes ====//
-    list< ISegChain* >::iterator c, d;
+    list< ISegChain* >::iterator c;
     for ( c = m_ISegChainList.begin() ; c != m_ISegChainList.end(); ++c )
     {
         Surf* sca = ( *c )->m_SurfA;
@@ -2626,8 +2625,6 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         {
             for ( int i = 0 ; i < ( int )m_SurfVec.size() ; ++i )
             {
-                int aType = m_SurfVec[s]->GetSurfaceCfdType();
-                int bType = m_SurfVec[i]->GetSurfaceCfdType();
                 int c = m_SurfVec[i]->GetCompID();
 
                 if ( c >= 0 && c < ( *t )->insideSurf.size() )
@@ -2653,7 +2650,6 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
 
     for ( int a = 0 ; a < ( int )m_SurfVec.size() ; a++ )
     {
-        int tri_comp_id = m_SurfVec[a]->GetCompID();
         list< Tri * > triList = m_SurfVec[a]->GetMesh()->GetTriList();
         for ( t = triList.begin(); t != triList.end(); ++t )
         {

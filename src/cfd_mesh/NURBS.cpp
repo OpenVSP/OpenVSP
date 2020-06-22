@@ -353,8 +353,8 @@ map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::BuildOrderedCha
             vec3d curr_front_pnt = return_curve_map[map_ind].front().first.m_PntVec.front();
 
             double closest_dist = 1e9;
-            bool orientation; // Identifies the orientation of the curve for this particular loop
-            int chain_ind;
+            bool orientation = false; // Identifies the orientation of the curve for this particular loop
+            int chain_ind = 0;
 
             for ( size_t j = 0; j < chain_vec.size(); j++ )
             {

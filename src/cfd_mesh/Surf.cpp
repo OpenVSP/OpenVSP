@@ -433,8 +433,8 @@ void Surf::UWtoTargetMapij( double u, double w, int &i, int &j, double &fraci, d
     int npatchu = m_SurfCore.GetNumUPatches();
     int npatchw = m_SurfCore.GetNumWPatches();
 
-    int nmapu = npatchu * ( m_NumMap - 1 ) + 1;
-    int nmapw = npatchw * ( m_NumMap - 1 ) + 1;
+    // int nmapu = npatchu * ( m_NumMap - 1 ) + 1;
+    // int nmapw = npatchw * ( m_NumMap - 1 ) + 1;
 
     double umin = m_SurfCore.GetMinU();
     double du = m_SurfCore.GetMaxU() - umin;

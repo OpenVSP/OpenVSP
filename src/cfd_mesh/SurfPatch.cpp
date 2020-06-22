@@ -345,7 +345,6 @@ void SurfPatch::Draw()
 vector < vec3d > SurfPatch::GetPatchDrawLines() const
 {
     long an( degree_u() ), am( degree_v() );
-    long bn( degree_u() ), bm( degree_v() );
 
     vec3d a0 = m_Patch.get_control_point( 0, 0 ); // origin
     vec3d a1 = m_Patch.get_control_point( an, 0 );  // u direction
