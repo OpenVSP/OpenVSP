@@ -704,13 +704,8 @@ bool Tri::Contains( Node* a, Node* b )
 
 bool Tri::Contains( Edge* e )
 {
-    if ( e == e0 || e == e1 || e == e2 )
-    {
-        return true;
-    }
-    return false;
+    return ( e == e0 || e == e1 || e == e2 );
 }
-
 
 bool Tri::CorrectOrder( Node* en0, Node* en1 )
 {

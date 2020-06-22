@@ -497,8 +497,7 @@ bool PointInPolygon( const vec2d & R, const std::vector< vec2d > & pnts )
         modify_w = false;
     }
 
-    return !!(abs( w % 2 ));
-
+    return abs(w % 2) != 0;
 }
 
 double det( const vec2d & p0, const vec2d & p1, const vec2d & offset )

@@ -928,12 +928,8 @@ bool Mesh::ThreeEdgesThreeTris( Edge* edge )
 
     vector< Tri* > tvec1;
     n1->GetConnectTris( tvec1 );
-    if ( tvec1.size() == 3 && n1->edgeVec.size() == 3 )
-    {
-        return true;
-    }
 
-    return false;
+    return tvec1.size() == 3 && n1->edgeVec.size() == 3;
 }
 
 

@@ -64,12 +64,7 @@ bool ExtractVersionNumber( string & str, int* major, int* minor, int* change )
     *minor  = atoi( verstr.substr( period1 + 1, period2 - ( period1 + 1 ) ).c_str() );
     *change = atoi( verstr.substr( period2 + 1, verstr.size() ).c_str() );
 
-    if ( *major >= 0 && *minor >= 0 && *change >= 0 )
-    {
-        return true;
-    }
-
-    return false;
+    return *major >= 0 && *minor >= 0 && *change >= 0;
 }
 
 // Simple version message function to be executed by main thread

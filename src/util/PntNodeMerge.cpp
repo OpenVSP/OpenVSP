@@ -37,12 +37,7 @@ bool PntNodeCloud::UsedNode( int i )
 {
     assert ( i >= 0 && i < ( int )m_PntNodes.size() );
 
-    if ( i == m_PntNodes[i].m_Index )
-    {
-        return true;
-    }
-
-    return false;
+    return i == m_PntNodes[i].m_Index;
 }
 
 int PntNodeCloud::GetNodeUsedIndex( int i )

@@ -669,13 +669,8 @@ bool ISegChain::Valid()
     }
 
     double tol = 1.0e-4;
-    if ( len < tol )
-    {
-        return false;
-    }
 
-    return true;
-
+    return len >= tol;
 }
 
 void ISegChain::AddChain( ISegChain* B )

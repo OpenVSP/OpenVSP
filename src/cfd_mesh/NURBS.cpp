@@ -113,14 +113,7 @@ void NURBS_Loop::SetPntVec( const vector < vec3d >& pnt_vec )
     m_PntVec = pnt_vec;
 
     // Check for closure
-    if ( dist( m_PntVec.back(), m_PntVec.front() ) < FLT_EPSILON )
-    {
-        m_ClosedFlag = true;
-    }
-    else
-    {
-        m_ClosedFlag = false;
-    }
+    m_ClosedFlag = dist( m_PntVec.back(), m_PntVec.front() ) < FLT_EPSILON;
 }
 
 vector < DLL_IGES_ENTITY_126* > NURBS_Loop::GetIGESEdges( IGESutil* iges )

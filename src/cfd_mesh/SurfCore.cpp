@@ -497,12 +497,8 @@ bool SurfCore::SurfMatch( SurfCore* otherSurf ) const
     osurf = swaposurf;
     osurf.reverse_u();
     osurf.reverse_v();
-    if( MatchThisOrientation( osurf ) )
-    {
-        return true;
-    }
 
-    return false;
+    return MatchThisOrientation( osurf );
 }
 
 bool SurfCore::MatchThisOrientation( const piecewise_surface_type &osurf ) const

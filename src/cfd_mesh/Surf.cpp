@@ -1152,15 +1152,7 @@ void Surf::BuildDistMap()
     }
     double w_ratio = max_w_scale / min_w_scale;
 
-    if ( u_ratio > w_ratio )
-    {
-        m_ScaleUFlag = true;
-    }
-    else
-    {
-        m_ScaleUFlag = false;
-    }
-
+    m_ScaleUFlag = u_ratio > w_ratio;
 
 
 //char str[256];
