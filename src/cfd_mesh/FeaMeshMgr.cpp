@@ -2417,7 +2417,7 @@ void FeaMeshMgrSingleton::WriteNASTRAN( const string &filename )
                 }
 
                 // Write shell element set
-                string name = m_FeaPartNameVec[i] + "_ShellElements";
+                name = m_FeaPartNameVec[i] + "_ShellElements";
                 WriteNASTRANSet( fp, nkey_fp, set_cnt, shell_elem_id_vec, name );
 
                 // Write beam element set
