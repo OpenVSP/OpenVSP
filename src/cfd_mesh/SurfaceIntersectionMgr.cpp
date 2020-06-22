@@ -3422,7 +3422,7 @@ string SurfaceIntersectionAnalysis::Execute()
         // File Outputs
         veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_CURV_FILE_NAME, curvFileFlagOrig );
         veh->GetISectSettingsPtr()->SetExportFileName( curvFileNameOrig, vsp::INTERSECT_CURV_FILE_NAME );
-        veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_CURV_FILE_NAME, curvFileFlagOrig );
+        veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_SRF_FILE_NAME, srfFileFlagOrig );
         veh->GetISectSettingsPtr()->SetExportFileName( srfFileNameOrig, vsp::INTERSECT_SRF_FILE_NAME );
         veh->GetISectSettingsPtr()->SetFileExportFlag( vsp::INTERSECT_PLOT3D_FILE_NAME, p3dFileFlagOrig );
         veh->GetISectSettingsPtr()->SetExportFileName( p3dFileNameOrig, vsp::INTERSECT_PLOT3D_FILE_NAME );
