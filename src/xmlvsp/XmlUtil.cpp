@@ -689,7 +689,7 @@ xmlNodePtr XmlUtil::DecodeFileContents( xmlNodePtr root, const char* file_name )
 
     if ( str.size() )
     {
-        FILE* fp = fopen( "TestDecode.txt", "w" );
+        FILE* fp = fopen( file_name, "w" );
         if ( fp )
         {
             fprintf( fp, "%s", str.c_str() );

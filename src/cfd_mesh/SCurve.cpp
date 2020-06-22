@@ -439,7 +439,7 @@ bool SCurve::BisectFind( double starget, double &s, double &ireal, double &t, do
 // dsdi     i/o     ds/di at current point.  Passed in/out as optimization.
 // u        o       Final u out.
 
-bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u, int direction )
+bool SCurve::NewtonFind( double starget, double &s, double &ireal, double &t, double &dsdi, double &u )
 {
     double sold = s;
     double irorig = ireal;
@@ -542,7 +542,7 @@ void SCurve::TessIntegrate( int direction, vector< double > &utess )
         }
         else
         {
-            if( !NewtonFind( starget, s, ireal, t, dsdi, u, direction ) )
+            if( !NewtonFind( starget, s, ireal, t, dsdi, u ) )
             {
                 BisectFind( starget, s, ireal, t, dsdi, u, direction );
             }
