@@ -121,7 +121,7 @@ void NURBS_Loop::SetPntVec( const vector < vec3d >& pnt_vec )
     {
         m_ClosedFlag = false;
     }
-};
+}
 
 vector < DLL_IGES_ENTITY_126* > NURBS_Loop::GetIGESEdges( IGESutil* iges )
 {
