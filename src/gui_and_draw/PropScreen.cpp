@@ -1410,249 +1410,249 @@ bool PropScreen::Update()
             }
 
 
-        m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
-        m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
+            m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
+            m_TECloseGroup.Update( xsc->m_TECloseAbsRel.GetID() );
 
-        if ( xsc->m_TECloseType() != CLOSE_NONE )
-        {
-            m_TECloseABSButton.Activate();
-            m_TECloseRELButton.Activate();
-            m_CloseTEThickSlider.Activate();
+            if ( xsc->m_TECloseType() != CLOSE_NONE )
+            {
+                m_TECloseABSButton.Activate();
+                m_TECloseRELButton.Activate();
+                m_CloseTEThickSlider.Activate();
+
+                if ( xsc->m_TECloseAbsRel() == ABS )
+                {
+                    xsc->m_TECloseThick.Activate();
+                    xsc->m_TECloseThickChord.Deactivate();
+                }
+                else
+                {
+                    xsc->m_TECloseThick.Deactivate();
+                    xsc->m_TECloseThickChord.Activate();
+                }
+            }
+            else
+            {
+                m_TECloseABSButton.Deactivate();
+                m_TECloseRELButton.Deactivate();
+                m_CloseTEThickSlider.Deactivate();
+                xsc->m_TECloseThick.Deactivate();
+                xsc->m_TECloseThickChord.Deactivate();
+            }
 
             if ( xsc->m_TECloseAbsRel() == ABS )
             {
-                xsc->m_TECloseThick.Activate();
-                xsc->m_TECloseThickChord.Deactivate();
+                m_CloseTEThickSlider.Update( 1, xsc->m_TECloseThick.GetID(), xsc->m_TECloseThickChord.GetID() );
             }
             else
             {
-                xsc->m_TECloseThick.Deactivate();
-                xsc->m_TECloseThickChord.Activate();
+                m_CloseTEThickSlider.Update( 2, xsc->m_TECloseThick.GetID(), xsc->m_TECloseThickChord.GetID() );
             }
-        }
-        else
-        {
-            m_TECloseABSButton.Deactivate();
-            m_TECloseRELButton.Deactivate();
-            m_CloseTEThickSlider.Deactivate();
-            xsc->m_TECloseThick.Deactivate();
-            xsc->m_TECloseThickChord.Deactivate();
-        }
 
-        if ( xsc->m_TECloseAbsRel() == ABS )
-        {
-            m_CloseTEThickSlider.Update( 1, xsc->m_TECloseThick.GetID(), xsc->m_TECloseThickChord.GetID() );
-        }
-        else
-        {
-            m_CloseTEThickSlider.Update( 2, xsc->m_TECloseThick.GetID(), xsc->m_TECloseThickChord.GetID() );
-        }
+            m_LECloseChoice.Update( xsc->m_LECloseType.GetID() );
+            m_LECloseGroup.Update( xsc->m_LECloseAbsRel.GetID() );
 
-        m_LECloseChoice.Update( xsc->m_LECloseType.GetID() );
-        m_LECloseGroup.Update( xsc->m_LECloseAbsRel.GetID() );
+            if ( xsc->m_LECloseType() != CLOSE_NONE )
+            {
+                m_LECloseABSButton.Activate();
+                m_LECloseRELButton.Activate();
+                m_CloseLEThickSlider.Activate();
 
-        if ( xsc->m_LECloseType() != CLOSE_NONE )
-        {
-            m_LECloseABSButton.Activate();
-            m_LECloseRELButton.Activate();
-            m_CloseLEThickSlider.Activate();
+                if ( xsc->m_LECloseAbsRel() == ABS )
+                {
+                    xsc->m_LECloseThick.Activate();
+                    xsc->m_LECloseThickChord.Deactivate();
+                }
+                else
+                {
+                    xsc->m_LECloseThick.Deactivate();
+                    xsc->m_LECloseThickChord.Activate();
+                }
+            }
+            else
+            {
+                m_LECloseABSButton.Deactivate();
+                m_LECloseRELButton.Deactivate();
+                m_CloseLEThickSlider.Deactivate();
+                xsc->m_LECloseThick.Deactivate();
+                xsc->m_LECloseThickChord.Deactivate();
+            }
 
             if ( xsc->m_LECloseAbsRel() == ABS )
             {
-                xsc->m_LECloseThick.Activate();
-                xsc->m_LECloseThickChord.Deactivate();
+                m_CloseLEThickSlider.Update( 1, xsc->m_LECloseThick.GetID(), xsc->m_LECloseThickChord.GetID() );
             }
             else
             {
-                xsc->m_LECloseThick.Deactivate();
-                xsc->m_LECloseThickChord.Activate();
+                m_CloseLEThickSlider.Update( 2, xsc->m_LECloseThick.GetID(), xsc->m_LECloseThickChord.GetID() );
             }
-        }
-        else
-        {
-            m_LECloseABSButton.Deactivate();
-            m_LECloseRELButton.Deactivate();
-            m_CloseLEThickSlider.Deactivate();
-            xsc->m_LECloseThick.Deactivate();
-            xsc->m_LECloseThickChord.Deactivate();
-        }
 
-        if ( xsc->m_LECloseAbsRel() == ABS )
-        {
-            m_CloseLEThickSlider.Update( 1, xsc->m_LECloseThick.GetID(), xsc->m_LECloseThickChord.GetID() );
-        }
-        else
-        {
-            m_CloseLEThickSlider.Update( 2, xsc->m_LECloseThick.GetID(), xsc->m_LECloseThickChord.GetID() );
-        }
+            m_TETrimChoice.Update( xsc->m_TETrimType.GetID() );
+            m_TETrimGroup.Update( xsc->m_TETrimAbsRel.GetID() );
 
-        m_TETrimChoice.Update( xsc->m_TETrimType.GetID() );
-        m_TETrimGroup.Update( xsc->m_TETrimAbsRel.GetID() );
+            m_TrimTEXSlider.Deactivate();
+            m_TrimTEThickSlider.Deactivate();
+            m_TETrimABSButton.Deactivate();
+            m_TETrimRELButton.Deactivate();
 
-        m_TrimTEXSlider.Deactivate();
-        m_TrimTEThickSlider.Deactivate();
-        m_TETrimABSButton.Deactivate();
-        m_TETrimRELButton.Deactivate();
+            xsc->m_TETrimX.Deactivate();
+            xsc->m_TETrimXChord.Deactivate();
+            xsc->m_TETrimThickChord.Deactivate();
+            xsc->m_TETrimThick.Deactivate();
 
-        xsc->m_TETrimX.Deactivate();
-        xsc->m_TETrimXChord.Deactivate();
-        xsc->m_TETrimThickChord.Deactivate();
-        xsc->m_TETrimThick.Deactivate();
+            if ( xsc->m_TETrimType() != TRIM_NONE )
+            {
+                m_TETrimABSButton.Activate();
+                m_TETrimRELButton.Activate();
+            }
 
-        if ( xsc->m_TETrimType() != TRIM_NONE )
-        {
-            m_TETrimABSButton.Activate();
-            m_TETrimRELButton.Activate();
-        }
+            if ( xsc->m_TETrimType() == TRIM_X )
+            {
+                if ( xsc->m_TETrimAbsRel() == ABS )
+                {
+                    xsc->m_TETrimX.Activate();
+                }
+                else
+                {
+                    xsc->m_TETrimXChord.Activate();
+                }
+            }
+            else if ( xsc->m_TETrimType() == TRIM_THICK )
+            {
+                if ( xsc->m_TETrimAbsRel() == ABS )
+                {
+                    xsc->m_TETrimThick.Activate();
+                }
+                else
+                {
+                    xsc->m_TETrimThickChord.Activate();
+                }
+            }
 
-        if ( xsc->m_TETrimType() == TRIM_X )
-        {
             if ( xsc->m_TETrimAbsRel() == ABS )
             {
-                xsc->m_TETrimX.Activate();
+                m_TrimTEXSlider.Update( 1, xsc->m_TETrimX.GetID(), xsc->m_TETrimXChord.GetID() );
+                m_TrimTEThickSlider.Update( 1, xsc->m_TETrimThick.GetID(), xsc->m_TETrimThickChord.GetID() );
             }
             else
             {
-                xsc->m_TETrimXChord.Activate();
+                m_TrimTEXSlider.Update( 2, xsc->m_TETrimX.GetID(), xsc->m_TETrimXChord.GetID() );
+                m_TrimTEThickSlider.Update( 2, xsc->m_TETrimThick.GetID(), xsc->m_TETrimThickChord.GetID() );
             }
-        }
-        else if ( xsc->m_TETrimType() == TRIM_THICK )
-        {
-            if ( xsc->m_TETrimAbsRel() == ABS )
+
+            m_LETrimChoice.Update( xsc->m_LETrimType.GetID() );
+            m_LETrimGroup.Update( xsc->m_LETrimAbsRel.GetID() );
+
+            m_TrimLEXSlider.Deactivate();
+            m_TrimLEThickSlider.Deactivate();
+            m_LETrimABSButton.Deactivate();
+            m_LETrimRELButton.Deactivate();
+
+            xsc->m_LETrimX.Deactivate();
+            xsc->m_LETrimXChord.Deactivate();
+            xsc->m_LETrimThickChord.Deactivate();
+            xsc->m_LETrimThick.Deactivate();
+
+            if ( xsc->m_LETrimType() != TRIM_NONE )
             {
-                xsc->m_TETrimThick.Activate();
+                m_LETrimABSButton.Activate();
+                m_LETrimRELButton.Activate();
             }
-            else
+
+            if ( xsc->m_LETrimType() == TRIM_X )
             {
-                xsc->m_TETrimThickChord.Activate();
+                if ( xsc->m_LETrimAbsRel() == ABS )
+                {
+                    xsc->m_LETrimX.Activate();
+                }
+                else
+                {
+                    xsc->m_LETrimXChord.Activate();
+                }
             }
-        }
+            else if ( xsc->m_LETrimType() == TRIM_THICK )
+            {
+                if ( xsc->m_LETrimAbsRel() == ABS )
+                {
+                    xsc->m_LETrimThick.Activate();
+                }
+                else
+                {
+                    xsc->m_LETrimThickChord.Activate();
+                }
+            }
 
-        if ( xsc->m_TETrimAbsRel() == ABS )
-        {
-            m_TrimTEXSlider.Update( 1, xsc->m_TETrimX.GetID(), xsc->m_TETrimXChord.GetID() );
-            m_TrimTEThickSlider.Update( 1, xsc->m_TETrimThick.GetID(), xsc->m_TETrimThickChord.GetID() );
-        }
-        else
-        {
-            m_TrimTEXSlider.Update( 2, xsc->m_TETrimX.GetID(), xsc->m_TETrimXChord.GetID() );
-            m_TrimTEThickSlider.Update( 2, xsc->m_TETrimThick.GetID(), xsc->m_TETrimThickChord.GetID() );
-        }
-
-        m_LETrimChoice.Update( xsc->m_LETrimType.GetID() );
-        m_LETrimGroup.Update( xsc->m_LETrimAbsRel.GetID() );
-
-        m_TrimLEXSlider.Deactivate();
-        m_TrimLEThickSlider.Deactivate();
-        m_LETrimABSButton.Deactivate();
-        m_LETrimRELButton.Deactivate();
-
-        xsc->m_LETrimX.Deactivate();
-        xsc->m_LETrimXChord.Deactivate();
-        xsc->m_LETrimThickChord.Deactivate();
-        xsc->m_LETrimThick.Deactivate();
-
-        if ( xsc->m_LETrimType() != TRIM_NONE )
-        {
-            m_LETrimABSButton.Activate();
-            m_LETrimRELButton.Activate();
-        }
-
-        if ( xsc->m_LETrimType() == TRIM_X )
-        {
             if ( xsc->m_LETrimAbsRel() == ABS )
             {
-                xsc->m_LETrimX.Activate();
+                m_TrimLEXSlider.Update( 1, xsc->m_LETrimX.GetID(), xsc->m_LETrimXChord.GetID() );
+                m_TrimLEThickSlider.Update( 1, xsc->m_LETrimThick.GetID(), xsc->m_LETrimThickChord.GetID() );
             }
             else
             {
-                xsc->m_LETrimXChord.Activate();
+                m_TrimLEXSlider.Update( 2, xsc->m_LETrimX.GetID(), xsc->m_LETrimXChord.GetID() );
+                m_TrimLEThickSlider.Update( 2, xsc->m_LETrimThick.GetID(), xsc->m_LETrimThickChord.GetID() );
             }
-        }
-        else if ( xsc->m_LETrimType() == TRIM_THICK )
-        {
-            if ( xsc->m_LETrimAbsRel() == ABS )
-            {
-                xsc->m_LETrimThick.Activate();
+
+            m_TECapChoice.Update( xsc->m_TECapType.GetID() );
+
+            m_TECapLengthSlider.Update( xsc->m_TECapLength.GetID() );
+            m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
+            m_TECapStrengthSlider.Update( xsc->m_TECapStrength.GetID() );
+
+            m_TECapLengthSlider.Deactivate();
+            m_TECapOffsetSlider.Deactivate();
+            m_TECapStrengthSlider.Deactivate();
+
+            switch( xsc->m_TECapType() ){
+                case FLAT_END_CAP:
+                    break;
+                case ROUND_END_CAP:
+                    m_TECapLengthSlider.Activate();
+                    m_TECapOffsetSlider.Activate();
+                    break;
+                case EDGE_END_CAP:
+                    m_TECapLengthSlider.Activate();
+                    m_TECapOffsetSlider.Activate();
+                    break;
+                case SHARP_END_CAP:
+                    m_TECapLengthSlider.Activate();
+                    m_TECapOffsetSlider.Activate();
+                    m_TECapStrengthSlider.Activate();
+                    break;
             }
-            else
-            {
-                xsc->m_LETrimThickChord.Activate();
+
+            m_LECapChoice.Update( xsc->m_LECapType.GetID() );
+
+            m_LECapLengthSlider.Update( xsc->m_LECapLength.GetID() );
+            m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
+            m_LECapStrengthSlider.Update( xsc->m_LECapStrength.GetID() );
+
+            m_LECapLengthSlider.Deactivate();
+            m_LECapOffsetSlider.Deactivate();
+            m_LECapStrengthSlider.Deactivate();
+
+            switch( xsc->m_LECapType() ){
+                case FLAT_END_CAP:
+                    break;
+                case ROUND_END_CAP:
+                    m_LECapLengthSlider.Activate();
+                    m_LECapOffsetSlider.Activate();
+                    break;
+                case EDGE_END_CAP:
+                    m_LECapLengthSlider.Activate();
+                    m_LECapOffsetSlider.Activate();
+                    break;
+                case SHARP_END_CAP:
+                    m_LECapLengthSlider.Activate();
+                    m_LECapOffsetSlider.Activate();
+                    m_LECapStrengthSlider.Activate();
+                    break;
             }
-        }
 
-        if ( xsc->m_LETrimAbsRel() == ABS )
-        {
-            m_TrimLEXSlider.Update( 1, xsc->m_LETrimX.GetID(), xsc->m_LETrimXChord.GetID() );
-            m_TrimLEThickSlider.Update( 1, xsc->m_LETrimThick.GetID(), xsc->m_LETrimThickChord.GetID() );
-        }
-        else
-        {
-            m_TrimLEXSlider.Update( 2, xsc->m_LETrimX.GetID(), xsc->m_LETrimXChord.GetID() );
-            m_TrimLEThickSlider.Update( 2, xsc->m_LETrimThick.GetID(), xsc->m_LETrimThickChord.GetID() );
-        }
-
-        m_TECapChoice.Update( xsc->m_TECapType.GetID() );
-
-        m_TECapLengthSlider.Update( xsc->m_TECapLength.GetID() );
-        m_TECapOffsetSlider.Update( xsc->m_TECapOffset.GetID() );
-        m_TECapStrengthSlider.Update( xsc->m_TECapStrength.GetID() );
-
-        m_TECapLengthSlider.Deactivate();
-        m_TECapOffsetSlider.Deactivate();
-        m_TECapStrengthSlider.Deactivate();
-
-        switch( xsc->m_TECapType() ){
-            case FLAT_END_CAP:
-                break;
-            case ROUND_END_CAP:
-                m_TECapLengthSlider.Activate();
-                m_TECapOffsetSlider.Activate();
-                break;
-            case EDGE_END_CAP:
-                m_TECapLengthSlider.Activate();
-                m_TECapOffsetSlider.Activate();
-                break;
-            case SHARP_END_CAP:
-                m_TECapLengthSlider.Activate();
-                m_TECapOffsetSlider.Activate();
-                m_TECapStrengthSlider.Activate();
-                break;
-        }
-
-        m_LECapChoice.Update( xsc->m_LECapType.GetID() );
-
-        m_LECapLengthSlider.Update( xsc->m_LECapLength.GetID() );
-        m_LECapOffsetSlider.Update( xsc->m_LECapOffset.GetID() );
-        m_LECapStrengthSlider.Update( xsc->m_LECapStrength.GetID() );
-
-        m_LECapLengthSlider.Deactivate();
-        m_LECapOffsetSlider.Deactivate();
-        m_LECapStrengthSlider.Deactivate();
-
-        switch( xsc->m_LECapType() ){
-            case FLAT_END_CAP:
-                break;
-            case ROUND_END_CAP:
-                m_LECapLengthSlider.Activate();
-                m_LECapOffsetSlider.Activate();
-                break;
-            case EDGE_END_CAP:
-                m_LECapLengthSlider.Activate();
-                m_LECapOffsetSlider.Activate();
-                break;
-            case SHARP_END_CAP:
-                m_LECapLengthSlider.Activate();
-                m_LECapOffsetSlider.Activate();
-                m_LECapStrengthSlider.Activate();
-                break;
-        }
-
-        m_AFThetaSlider.Update( xsc->m_Theta.GetID() );
-        m_AFScaleSlider.Update( xsc->m_Scale.GetID() );
-        m_AFDeltaXSlider.Update( xsc->m_DeltaX.GetID() );
-        m_AFDeltaYSlider.Update( xsc->m_DeltaY.GetID() );
-        m_AFShiftLESlider.Update( xsc->m_ShiftLE.GetID() );
+            m_AFThetaSlider.Update( xsc->m_Theta.GetID() );
+            m_AFScaleSlider.Update( xsc->m_Scale.GetID() );
+            m_AFDeltaXSlider.Update( xsc->m_DeltaX.GetID() );
+            m_AFDeltaYSlider.Update( xsc->m_DeltaY.GetID() );
+            m_AFShiftLESlider.Update( xsc->m_ShiftLE.GetID() );
         }
     }
 
