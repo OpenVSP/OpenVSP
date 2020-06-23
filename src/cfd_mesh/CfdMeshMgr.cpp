@@ -2238,9 +2238,7 @@ void CfdMeshMgrSingleton::AddWakeCoPlanarSurfaceChains()
 void CfdMeshMgrSingleton::AddSurfaceChain( Surf* sPtr, ISegChain* chainIn )
 {
     //==== Check if Border Chains Lie On Another Surfaces ====//
-    Surf* surfA = chainIn->m_SurfA;
-
-    vector< ISegChain* > new_chains = chainIn->FindCoPlanarChains( sPtr, surfA, this );
+    vector< ISegChain* > new_chains = chainIn->FindCoPlanarChains( sPtr, this );
 
     for ( int i = 0 ; i < ( int )new_chains.size() ; i++ )
     {

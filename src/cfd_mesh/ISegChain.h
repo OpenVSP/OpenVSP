@@ -172,7 +172,7 @@ public:
     void MergeSplits();
     void RemoveChainEndSplits();
     vector< ISegChain* > SortAndSplit( SurfaceIntersectionSingleton *MeshMgr );
-    vector< ISegChain* > FindCoPlanarChains( Surf* surfPtr, Surf* adjSurf, SurfaceIntersectionSingleton *MeshMgr );
+    vector< ISegChain* > FindCoPlanarChains( Surf* surfPtr, SurfaceIntersectionSingleton *MeshMgr );
     void MergeInteriorIPnts();
 
     void BuildCurves();

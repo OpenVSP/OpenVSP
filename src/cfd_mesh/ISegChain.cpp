@@ -1077,7 +1077,7 @@ vector< ISegChain* > ISegChain::SortAndSplit( SurfaceIntersectionSingleton *Mesh
     return new_chains;
 }
 
-vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, Surf* adjSurf, SurfaceIntersectionSingleton *MeshMgr )
+vector< ISegChain* > ISegChain::FindCoPlanarChains( Surf* sPtr, SurfaceIntersectionSingleton *MeshMgr )
 {
     vector< ISegChain* > new_chains;
 
