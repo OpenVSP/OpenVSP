@@ -324,7 +324,10 @@ xmlNodePtr BORGeom::DecodeXml(  xmlNodePtr & node  )
             }
         }
 
-        m_XSCurve->DecodeXml( xscrv_node );
+        if ( m_XSCurve )
+        {
+            m_XSCurve->DecodeXml( xscrv_node );
+        }
     }
     return xscrv_node;
 }
