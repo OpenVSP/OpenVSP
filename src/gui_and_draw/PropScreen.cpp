@@ -1408,7 +1408,6 @@ bool PropScreen::Update()
                 m_EditCEDITGroup.Hide();
                 m_ConvertCEDITGroup.Show();
             }
-        }
 
 
         m_TECloseChoice.Update( xsc->m_TECloseType.GetID() );
@@ -1654,6 +1653,7 @@ bool PropScreen::Update()
         m_AFDeltaXSlider.Update( xsc->m_DeltaX.GetID() );
         m_AFDeltaYSlider.Update( xsc->m_DeltaY.GetID() );
         m_AFShiftLESlider.Update( xsc->m_ShiftLE.GetID() );
+        }
     }
 
     return true;
