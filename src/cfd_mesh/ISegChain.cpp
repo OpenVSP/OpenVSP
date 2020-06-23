@@ -801,7 +801,7 @@ void ISegChain::AddSplit( Surf* surfPtr, int index, vec2d int_pnt )
     m_SplitVec.push_back( split );
 
 }
-bool ISegChain::AddBorderSplit( IPnt* ip, Puw* uw )
+bool ISegChain::AddBorderSplit( Puw* uw )
 {
 
 //  double tol = 0.000001;
@@ -811,7 +811,6 @@ bool ISegChain::AddBorderSplit( IPnt* ip, Puw* uw )
     int closest_index = -1;
     double closest_fract = 0.0;
     double closest_dist = 1.0e12;
-    vec2d closest_proj;
 
     for ( int i = 0 ; i < ( int )m_ISegDeque.size() ; i++ )
     {

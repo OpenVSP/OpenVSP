@@ -2428,11 +2428,11 @@ void SurfaceIntersectionSingleton::SplitBorderCurves()
                 Puw* uwB = splitPnts[i]->GetPuw( ( *c )->m_SurfB );
                 if ( uwA )
                 {
-                    ( *c )->AddBorderSplit( splitPnts[i], uwA );
+                    ( *c )->AddBorderSplit( uwA );
                 }
                 else if ( uwB )
                 {
-                    ( *c )->AddBorderSplit( splitPnts[i], uwB );
+                    ( *c )->AddBorderSplit( uwB );
                 }
             }
         }
