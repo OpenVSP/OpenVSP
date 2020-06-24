@@ -18,6 +18,7 @@
 #include "APITestSuiteMassProp.h"
 #include "APITestSuiteVSPAERO.h"
 #include "APITestSuiteParasiteDrag.h"
+#include "APITestSuiteCFDMesh.h"
 
 
 void vsp_exit()
@@ -34,6 +35,7 @@ bool run_tests()
     ts.add(std::unique_ptr<Test::Suite>(new APITestSuiteMassProp));
     ts.add(std::unique_ptr<Test::Suite>(new APITestSuiteParasiteDrag));
     ts.add(std::unique_ptr<Test::Suite>(new APITestSuiteVSPAERO));
+    ts.add(std::unique_ptr<Test::Suite>(new APITestSuiteCFDMesh));
     
     // Test Suite run parameters
     Test::TextOutput output(Test::TextOutput::Verbose);
