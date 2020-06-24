@@ -160,6 +160,7 @@ void VSPExit( int error_code )
 void RegisterCFDMeshAnalyses()
 {
     SurfaceIntersectionMgr.RegisterAnalysis();
+    CfdMeshMgr.RegisterAnalysis();
 }
 
 
