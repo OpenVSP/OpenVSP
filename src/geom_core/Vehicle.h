@@ -141,6 +141,8 @@ public:
     void HideAllExcept( const string& id );
     void HideAll();
 
+    void CopyPasteSet(int copyIndex, int pasteIndex);
+
     //==== Geom Type Data =====//
     vector< string > GetValidTypeGeoms();
     vector< GeomType > GetEditableGeomTypes();

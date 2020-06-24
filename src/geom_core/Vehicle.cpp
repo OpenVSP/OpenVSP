@@ -1382,6 +1382,24 @@ void Vehicle::HideAll()
     }
 }
 
+void Vehicle::CopyPasteSet(int copyIndex, int pasteIndex)
+{
+    vector< string > geom_id_vec = this->GetGeomVec();
+    for (int i = 0; i < (int)geom_id_vec.size(); i++)
+    {
+        Geom* gptr = this->FindGeom(geom_id_vec[i]);
+
+        if (gptr->GetSetFlag(copyIndex))
+        {
+            gptr->SetSetFlag(pasteIndex, true);
+        }
+        else
+        {
+            gptr->SetSetFlag(pasteIndex, false);
+        }
+    }
+}
+
 //==== Get Number of Fixed Geometry Types ====//
 int Vehicle::GetNumFixedGeomTypes()
 {
