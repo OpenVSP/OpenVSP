@@ -170,6 +170,9 @@ Vehicle::Vehicle()
     m_exportDegenGeomCsvFile.Init( "DegenGeom_CSV_Export", "ExportFlag", this, true, 0, 1 );
     m_exportDegenGeomMFile.Init( "DegenGeom_M_Export", "ExportFlag", this, true, 0, 1 );
 
+    m_CopySetsWithGeomsFlag.Init("CopySetsWithGeomsFlag", "SetEditor", this, true, false, true);
+    m_CopySetsWithGeomsFlag.SetDescript("Flag if Geoms sets get copied with Geoms");
+
     m_AxisLength.Init( "AxisLength", "Axis", this, 1.0, 1e-12, 1e12 );
     m_AxisLength.SetDescript( "Length of axis icon displayed on screen" );
 
@@ -1203,6 +1206,17 @@ vector< string > Vehicle::CopyGeomVec( const vector< string > & geom_vec )
             if ( toPtr )
             {
                 toPtr->CopyFrom( fromPtr );
+                if (m_CopySetsWithGeomsFlag.Get() == false)
+                {
+                    // New geom is only in SET_SHOWN
+                    for ( int i = SET_FIRST_USER; i < NUM_SETS + 2; i++ )
+                    {
+                        toPtr->SetSetFlag( i, false );
+                    }
+
+                    toPtr->SetSetFlag( SET_SHOWN, true );
+                }
+
                 id = toPtr->GetID();
                 created_id_vec.push_back( id );
             }

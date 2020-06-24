@@ -440,6 +440,8 @@ public:
 
     IntParm m_StructUnit;
 
+    BoolParm m_CopySetsWithGeomsFlag;
+
 protected:
 
     virtual void SetExportPropMainSurf( bool b );
