@@ -55,8 +55,23 @@ protected:
     //This gives user an input field to name a set
     StringInput m_SetNameInput;
 
+    //These buttons are for copying checked sets and pasting them to another set
+    TriggerButton m_CopySet;
+    TriggerButton m_PasteSet;
+
+    //These buttons are for selecting all or none of the checkboxs in m_SetSelectBrowser
+    TriggerButton m_SelectAll;
+    TriggerButton m_UnselectAll;
 
     //This button is for user to execute the highlight function
     TriggerButton m_HighlightSet;
+
+    //We use these indexs for CopySet and PasteSet Functions
+    int m_CopyIndex;
+    int m_PasteIndex;
+
+    //toggle for when copying geoms if we copy sets as well
+    ToggleButton m_CopySetToggle;
+
 };
 #endif //VSPSETEDITORSCREEN__INCLUDED_

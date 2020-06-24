@@ -9,7 +9,7 @@
 
 using namespace vsp;
 
-SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 330, "Set Editor" )
+SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 360, "Set Editor" )
 {
     //Variables to help get locations of widgets to look nice and clean
     int browserHeight = 200;
@@ -24,6 +24,9 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 330, 
     //This helps init m_MainLayouts group and screen functionality
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
     
+    //Initialize variables
+    m_CopyIndex = -1;
+    m_PasteIndex = -1;
     m_SelectedSetIndex = DEFAULT_SET;
 
     //This sets position below heading with position at far left 
@@ -71,8 +74,28 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 330, 
     m_BorderLayout.AddYGap();
     //Sets x back to the left side with offset
     m_BorderLayout.SetX( borderPaddingWidth );
-    //add button on the bottom of screen
-    m_BorderLayout.AddButton( m_HighliteSet, "Highlite Selected Set" );
+
+    //Use this so we can have 2 buttons on same line
+    m_BorderLayout.SetSameLineFlag( true );
+
+    //Add in the buttons for selecting all or none
+    m_BorderLayout.AddButton(m_SelectAll, "Select All", m_BorderLayout.GetW() / 2);
+    m_BorderLayout.AddButton(m_UnselectAll, "Unselect All", m_BorderLayout.GetW() / 2);
+
+    //starts a new line under copy & paste buttons
+    m_BorderLayout.ForceNewLine();
+
+    //Add in our copy paste buttons
+    m_BorderLayout.AddButton(m_CopySet, "Copy Set", m_BorderLayout.GetW() / 2);
+    m_BorderLayout.AddButton(m_PasteSet, "Paste Set", m_BorderLayout.GetW() / 2);
+    
+    //add our toggle for copying geoms with their sets
+    m_BorderLayout.ForceNewLine();
+    m_BorderLayout.AddButton(m_CopySetToggle, "Copy Sets with Geoms");
+
+    //add highlight button on the bottom of screen
+    m_BorderLayout.ForceNewLine();
+    m_BorderLayout.AddButton(m_HighlightSet, "Highlight Selected Set" );
 
     //Browser objects need to have there static callbacks set in SetEditorScreen's constructor
     m_SetBrowser->callback( staticCB, this );
@@ -88,10 +111,35 @@ bool SetEditorScreen::Update()
 
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
+    int setBrowserScrollPosition = m_SetBrowser->position();
+    int setSelectBrowserScrollPosition = m_SetSelectBrowser->position();
+
     //In case browsers has leftover items, clear them out
     m_SetBrowser->clear();
     m_SetSelectBrowser->clear();
 
+    //When index is pointing to geom sets that are not editable, we deactivate the buttons and input
+    if ( m_SelectedSetIndex <= SET_NOT_SHOWN )
+    {
+        m_SetNameInput.Deactivate();
+    }
+    else
+    {
+        m_SetNameInput.Activate();
+    }
+    
+    //===== Update Copy Set Toggle =====//
+    m_CopySetToggle.Update(vehiclePtr->m_CopySetsWithGeomsFlag.GetID());
+
+    //This helps keep the PasteSet button deactivated when user should not be able to paste sets
+    if ( m_CopyIndex > SET_ALL && m_SelectedSetIndex > SET_ALL )
+    {
+        m_PasteSet.Activate();
+    }
+    else
+    {
+        m_PasteSet.Deactivate();
+    }
 
     //==== Load Set Names and Values ====//
 
@@ -109,16 +157,6 @@ bool SetEditorScreen::Update()
     //Updating the text in the input field by utilizing m_SelectedSetIndex
     m_SetNameInput.Update( set_name_vec[m_SelectedSetIndex] );
 
-    //Some sets are not available to user, ENUM helps determin which ones
-    if ( m_SelectedSetIndex <= SET_NOT_SHOWN )
-    {
-        m_SetSelectBrowser->deactivate();
-    }
-    else
-    {
-        m_SetSelectBrowser->activate();
-    }
-
     ////==== Load Geometry ====//
 
     //geom_id_vec is filled with all possible geom's children an ID's
@@ -134,6 +172,9 @@ bool SetEditorScreen::Update()
         //Adding the geom after Char * cast with flag
         m_SetSelectBrowser->add( g_name.c_str(), flag );
     }
+    //This helps scroll position to stay in place after user clicks on items
+    m_SetBrowser->position(setBrowserScrollPosition);
+    m_SetSelectBrowser->position(setSelectBrowserScrollPosition);
 
     return true;
 }
@@ -213,6 +254,48 @@ void SetEditorScreen::GuiDeviceCallBack( GuiDevice* device )
             vehiclePtr->SetSetName( m_SelectedSetIndex, name );
         }
     }
+    //This is for setting m_CopyIndex with the index of the set we want to copy 
+    else if ( device == &m_CopySet )
+    {
+        m_CopyIndex = m_SelectedSetIndex;
+    }
+    //This is for setting m_PasteIndex with the index of the set we want to paste into 
+    else if ( device == &m_PasteSet )
+    {
+        m_PasteIndex = m_SelectedSetIndex;
+        vehiclePtr->CopyPasteSet(m_CopyIndex, m_PasteIndex);
+    }
+    //This is for selecting all Geoms in a certain set
+    else if ( device == &m_SelectAll )
+    {
+        if ( m_SelectedSetIndex > SET_ALL )
+        {
+            vector< string > geom_id_vec = vehiclePtr->GetGeomVec();
+            for (int i = 0; i < ( int )geom_id_vec.size(); i++ )
+            {
+                Geom* gptr = vehiclePtr->FindGeom( geom_id_vec[i] );
+                if ( gptr )
+                {
+                    gptr->SetSetFlag( m_SelectedSetIndex, true );
+                }
+            }
+        } 
+    }
+    //This is for unselecting all Geoms in a certain set
+    else if ( device == &m_UnselectAll )
+    {
+        if ( m_SelectedSetIndex > SET_ALL )
+        {
+            vector< string > geom_id_vec = vehiclePtr->GetGeomVec();
+            for (int i = 0; i < ( int )geom_id_vec.size(); i++)
+            {
+                Geom* gptr = vehiclePtr->FindGeom( geom_id_vec[i] );
+                if ( gptr )
+                {
+                    gptr->SetSetFlag( m_SelectedSetIndex, false );
+                }
+            }
+        }
     }
     //This is for Highliting Geoms selected in a set
     else if ( device == &m_HighlightSet )
