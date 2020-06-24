@@ -17,9 +17,14 @@ class APITestSuiteCFDMesh : public Test::Suite
 {
 public:
 
+    APITestSuiteCFDMesh()
+    {
+        TEST_ADD( APITestSuiteCFDMesh::TestCFDHalfMesh )
+    }
 
 private:
 
+    void TestCFDHalfMesh();
 };
 
 #endif // !defined(VSPAPITESTSUITECFDMESH__INCLUDED_)
