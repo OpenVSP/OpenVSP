@@ -23,6 +23,7 @@ public:
         TEST_ADD( APITestSuite::CheckSetup )
         // Geometry manipulation
         TEST_ADD( APITestSuite::CreateGeometry )
+        TEST_ADD( APITestSuite::CopyPasteSetTest )
         TEST_ADD( APITestSuite::ChangePodParams )
         TEST_ADD( APITestSuite::CopyPasteGeometry )
         // Analysis
@@ -46,6 +47,7 @@ private:
     void CheckSetup();
     // Geometry manipulation
     void CreateGeometry();
+    void CopyPasteSetTest();
     void ChangePodParams();
     void CopyPasteGeometry();
     // Analysis

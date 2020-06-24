@@ -64,6 +64,85 @@ void APITestSuite::CreateGeometry()
     TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 }
 
+void APITestSuite::CopyPasteSetTest()
+{
+    //Set up
+    printf("APITestSuite::CopyPasteSet()\n");
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+
+    //Create Geoms
+    string fname = "apitest_CreateGeometry.vsp3";
+    vsp::ReadVSPFile( fname );
+
+    //Make a string vector
+    vector < string > geom_ids = vsp::FindGeoms();
+
+    //Indexs for copy and paste
+    const int copy_set_index = 5;
+    const int paste_set_index = 6;
+
+    //Fill up geom copy index with 50% true 50% false
+    for ( int i = 0; i < ( int )geom_ids.size(); i++ )
+    {
+        if (i % 2 == 0)
+        {
+            vsp::SetSetFlag( geom_ids[i], copy_set_index, true );
+        }
+        else
+        {
+            vsp::SetSetFlag( geom_ids[i], copy_set_index, false );
+        }
+    }
+
+    //Execute the CopyPasteSet()
+    vsp::CopyPasteSet(copy_set_index, paste_set_index);
+
+    //Go thro the paste index and see if results match what copy index should have
+    for ( int i = 0; i < ( int )geom_ids.size(); i++ )
+    {
+        if ( i % 2 == 0 )
+        {
+            TEST_ASSERT( vsp::GetSetFlag( geom_ids[i], paste_set_index ) == true );
+        }
+        else
+        {
+            TEST_ASSERT( vsp::GetSetFlag( geom_ids[i], paste_set_index ) == false );
+        }
+    }
+
+    //Test values for other tests
+    const int test_set_index = 7;
+    const string set_test_name = "TEST SET";
+    const int num_of_sets_in_test_index = 6;
+    const bool test_bool_state = true;
+
+    //Test SetSetName / GetSetName
+    vsp::SetSetName( test_set_index, set_test_name);
+    printf("%s  \n", vsp::GetSetName(test_set_index));
+    TEST_ASSERT(vsp::GetSetName(test_set_index) == set_test_name);
+    TEST_ASSERT(!vsp::ErrorMgr.PopErrorAndPrint(stdout));    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //Test GetGeomSetAtIndex
+    vector <string> copy_test_sets = vsp::GetGeomSetAtIndex(copy_set_index);
+    vector <string> paste_test_sets = vsp::GetGeomSetAtIndex(paste_set_index);
+
+    TEST_ASSERT((int)copy_test_sets.size() == num_of_sets_in_test_index);
+    TEST_ASSERT((int)paste_test_sets.size() == num_of_sets_in_test_index);
+
+    //Test GetSetIndex
+    TEST_ASSERT(vsp::GetSetIndex(set_test_name) == test_set_index);
+    TEST_ASSERT(!vsp::ErrorMgr.PopErrorAndPrint(stdout));    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //Test SetSetFlag
+    vsp::SetSetFlag(geom_ids[0], paste_set_index, !test_bool_state);
+    TEST_ASSERT(!vsp::ErrorMgr.PopErrorAndPrint(stdout));    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+
+    //Test GetSetFlag
+    TEST_ASSERT(vsp::GetSetFlag(geom_ids[0], paste_set_index) == !test_bool_state);
+    TEST_ASSERT(!vsp::ErrorMgr.PopErrorAndPrint(stdout));    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+}
+
 void APITestSuite::ChangePodParams()
 {
     printf( "APITestSuite::ChangePodParams()\n" );
