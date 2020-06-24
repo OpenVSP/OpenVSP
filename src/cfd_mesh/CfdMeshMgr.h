@@ -68,6 +68,7 @@
 #include "MeshCommonSettings.h"
 #include "SimpleSubSurface.h"
 #include "SimpleMeshSettings.h"
+#include "AnalysisMgr.h"
 
 #include "Vec2d.h"
 #include "Vec3d.h"
@@ -102,6 +103,8 @@ public:
 
     ~CfdMeshMgrSingleton() override;
     void CleanUp() override;
+
+    void RegisterAnalysis();
 
     SimpleMeshCommonSettings* GetSettingsPtr() override
     {
@@ -239,6 +242,15 @@ private:
     DrawObj m_BBoxLineStripSymSplit;
     DrawObj m_BBoxLineSymSplit;
     vector< DrawObj > m_TagDO;
+
+};
+
+class CfdMeshAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
 
 };
 
