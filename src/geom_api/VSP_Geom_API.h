@@ -297,6 +297,7 @@ extern std::vector<std::string> GetGeomSet( const std::string & name );
 extern int GetSetIndex( const std::string & name );
 extern bool GetSetFlag( const std::string & geom_id, int set_index );
 extern void SetSetFlag( const std::string & geom_id, int set_index, bool flag );
+extern void CopyPasteSet( int copyIndex, int pasteIndex );
 
 //======================== Group Modifications ================================//
 extern void ScaleSet( int set_index, double scale );

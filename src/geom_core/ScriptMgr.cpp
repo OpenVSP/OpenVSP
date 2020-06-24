@@ -8148,6 +8148,30 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "void SetSetFlag( const string & in geom_id, int set_index, bool flag )", asFUNCTION( vsp::SetSetFlag ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
+    doc_struct.comment = R"(
+/*!
+    Copies all the states of a geom set and pastes them into a specific set based on passed in indexs 
+    \code{.cpp}
+    // Add Fuselage Geom
+    string fuseid = AddGeom( "FUSELAGE", "" );
+
+    //set fuseid's state for set 3 to true
+    SetSetFlag( fuseid, 3, true );
+
+    //Copy set 3 and Paste into set 4
+    CopyPasteSet( 3, 4 );
+
+    //get fuseid's state for set 4
+    int flag_value = GetSetFlag( fuseid, 4 );
+
+    if ( flag_value != true)                      { Print( "---> Error: API CopyPasteSet " ); }
+    \endcode
+    \param [in] copy_Index Copy Index
+    \param [in] paste_Index Paste Index
+*/)";
+    r = se->RegisterGlobalFunction( "void CopyPasteSet(  int copyIndex, int pasteIndex  )", asFUNCTION( vsp::CopyPasteSet ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
     //=== Group Modifications ===//
     group = "GroupMod";
     doc_struct.group = group.c_str();

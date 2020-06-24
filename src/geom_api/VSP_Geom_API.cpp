@@ -5010,6 +5010,31 @@ void SetSetFlag( const string & geom_id, int set_index, bool flag )
     geom_ptr->SetSetFlag( set_index, flag );
 }
 
+void CopyPasteSet( int copy_index, int paste_index )
+{
+
+    Vehicle* veh = GetVehicle();
+    if (copy_index < 0 || copy_index >=(int)veh->GetSetNameVec().size())
+    {
+        ErrorMgr.AddError(VSP_INDEX_OUT_RANGE, "CopyPasteSet::Invalid Copy Index " + to_string((long long)copy_index));
+        return;
+    }
+
+    if (paste_index < 0 || paste_index >=(int)veh->GetSetNameVec().size())
+    {
+        ErrorMgr.AddError(VSP_INDEX_OUT_RANGE, "CopyPasteSet::Invalid Paste Index " + to_string((long long)paste_index));
+        return;
+    }
+
+    if (copy_index > SET_NOT_SHOWN && paste_index > SET_NOT_SHOWN)
+    {
+        ErrorMgr.NoError();
+
+        veh->CopyPasteSet(copy_index, paste_index);
+    }
+   
+}
+
 //================================================================//
 //=============== Group Modifications for Sets ===================//
 //================================================================//
