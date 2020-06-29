@@ -15,6 +15,8 @@
 #include "VSPAEROMgr.h"
 #include "ParasiteDragMgr.h"
 
+#include "VSP_Geom_API.h"
+
 #include <ctime>
 
 void RWCollection::Clear()
@@ -39,6 +41,10 @@ AnalysisMgrSingleton::~AnalysisMgrSingleton()
 void AnalysisMgrSingleton::Init()
 {
     RegisterBuiltins();
+    // CFD Mesh analyses are registered here since the geom_core and vsp projects can't call
+    // cfd_mesh directly. Calling the API function here allows support for cfd_mesh
+    // analysis from the GUI, script, API test, and python interfaces. 
+    vsp::RegisterCFDMeshAnalyses();
 }
 
 void AnalysisMgrSingleton::Wype()
