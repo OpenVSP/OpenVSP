@@ -549,7 +549,10 @@ void SurfaceIntersectionSingleton::RegisterAnalysis()
     {
         SurfaceIntersectionAnalysis* sia = new SurfaceIntersectionAnalysis();
 
-        AnalysisMgr.RegisterAnalysis( analysis_name, sia );
+        if ( sia && !AnalysisMgr.RegisterAnalysis( analysis_name, sia ) )
+        {
+            delete sia;
+        }
     }
 }
 

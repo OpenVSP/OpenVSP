@@ -112,7 +112,7 @@ bool AnalysisMgrSingleton::RegisterAnalysis( const string & name, Analysis* asys
 {
     Analysis *b = FindAnalysis( name );
 
-    if ( !b )
+    if ( !b && asys )
     {
         asys->SetDefaults();
         m_AnalysisMap[name] = asys;
@@ -437,74 +437,109 @@ void AnalysisMgrSingleton::RegisterBuiltins()
 {
     BEMAnalysis *bem = new BEMAnalysis();
 
-    RegisterAnalysis( "BladeElement", bem );
+    if ( bem && !RegisterAnalysis( "BladeElement", bem ) )
+    {
+        delete bem;
+    }
 
     CompGeomAnalysis *cga = new CompGeomAnalysis();
 
-    RegisterAnalysis( "CompGeom", cga );
-
+    if ( cga && !RegisterAnalysis( "CompGeom", cga ) )
+    {
+        delete cga;
+    }
 
     DegenGeomAnalysis *dga = new DegenGeomAnalysis();
 
-    RegisterAnalysis( "DegenGeom", dga );
-
+    if ( dga && !RegisterAnalysis( "DegenGeom", dga ) )
+    {
+        delete dga;
+    }
 
     EmintonLordAnalysis *ema = new EmintonLordAnalysis();
 
-    RegisterAnalysis( "EmintonLord", ema );
 
+    if ( ema && !RegisterAnalysis( "EmintonLord", ema ) )
+    {
+        delete ema;
+    }
 
     MassPropAnalysis *mpa = new MassPropAnalysis();
 
-    RegisterAnalysis( "MassProp", mpa );
-
+    if ( mpa && !RegisterAnalysis( "MassProp", mpa ) )
+    {
+        delete mpa;
+    }
 
     PlanarSliceAnalysis *psa = new PlanarSliceAnalysis();
 
-    RegisterAnalysis( "PlanarSlice", psa );
-
+    if ( psa && !RegisterAnalysis( "PlanarSlice", psa ) )
+    {
+        delete psa;
+    }
 
     ProjectionAnalysis *proj = new ProjectionAnalysis();
 
-    RegisterAnalysis( "Projection", proj );
+    if ( proj && !RegisterAnalysis( "Projection", proj ) )
+    {
+        delete proj;
+    }
 
     SurfacePatchAnalysis *spa = new SurfacePatchAnalysis();
 
-    RegisterAnalysis( "SurfacePatches", spa );
-
+    if ( spa && !RegisterAnalysis( "SurfacePatches", spa ) )
+    {
+        delete spa;
+    }
 
     WaveDragAnalysis *wave = new WaveDragAnalysis();
 
-    RegisterAnalysis( "WaveDrag", wave );
-
+    if ( wave && !RegisterAnalysis( "WaveDrag", wave ) )
+    {
+        delete wave;
+    }
 
     VSPAERODegenGeomAnalysis *vsadga = new VSPAERODegenGeomAnalysis();
 
-    RegisterAnalysis( "VSPAERODegenGeom", vsadga );
-
+    if ( vsadga && !RegisterAnalysis( "VSPAERODegenGeom", vsadga ) )
+    {
+        delete vsadga;
+    }
 
     VSPAEROComputeGeometryAnalysis *vsaga = new VSPAEROComputeGeometryAnalysis();
 
-    RegisterAnalysis( "VSPAEROComputeGeometry", vsaga );
-
+    if ( vsaga && !RegisterAnalysis( "VSPAEROComputeGeometry", vsaga ) )
+    {
+        delete vsaga;
+    }
 
     VSPAEROSinglePointAnalysis *vsaspa = new VSPAEROSinglePointAnalysis();
 
-    RegisterAnalysis( "VSPAEROSinglePoint", vsaspa );
-
+    if ( vsaspa && !RegisterAnalysis( "VSPAEROSinglePoint", vsaspa ) )
+    {
+        delete vsaspa;
+    }
 
     VSPAEROSweepAnalysis *vsasa = new VSPAEROSweepAnalysis();
 
-    RegisterAnalysis( "VSPAEROSweep", vsasa );
-
+    if ( vsasa && !RegisterAnalysis( "VSPAEROSweep", vsasa ) )
+    {
+        delete vsasa;
+    }
 
     ParasiteDragFullAnalysis *vspdbu = new ParasiteDragFullAnalysis();
 
-    RegisterAnalysis( "ParasiteDrag", vspdbu );
+    if ( vspdbu && !RegisterAnalysis( "ParasiteDrag", vspdbu ) )
+    {
+        delete vspdbu;
+    }
 
     CpSlicerAnalysis *cpsa = new CpSlicerAnalysis();
 
-    RegisterAnalysis( "CpSlicer", cpsa );
+    if ( cpsa && !RegisterAnalysis( "CpSlicer", cpsa ) )
+    {
+        delete cpsa;
+    }
 }
 
 //======================================================================================//
