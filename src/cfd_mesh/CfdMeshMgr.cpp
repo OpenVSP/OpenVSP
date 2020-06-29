@@ -3842,9 +3842,12 @@ void CfdMeshMgrSingleton::RegisterAnalysis()
 
     if (!AnalysisMgr.FindAnalysis(analysis_name))
     {
-        CfdMeshAnalysis* sia = new CfdMeshAnalysis();
+        CfdMeshAnalysis* cfda = new CfdMeshAnalysis();
 
-        AnalysisMgr.RegisterAnalysis(analysis_name, sia);
+        if ( cfda && !AnalysisMgr.RegisterAnalysis( analysis_name, cfda ) )
+        {
+            delete cfda;
+        }
     }
 }
 
