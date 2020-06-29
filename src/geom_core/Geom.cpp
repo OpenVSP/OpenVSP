@@ -1459,9 +1459,13 @@ void Geom::UpdateFlags( )
 {
     for( int i = 0; i < (int)m_MainSurfVec.size(); i++ )
     {
-        if ( m_MainSurfVec[i].GetSurfCfdType() == vsp::CFD_NORMAL )  // Only update if currently normal.
+        if ( m_MainSurfVec[i].GetSurfCfdType() == vsp::CFD_NORMAL && m_NegativeVolumeFlag.Get() )
         {
-            m_MainSurfVec[i].SetSurfCfdType( m_NegativeVolumeFlag.Get() );
+            m_MainSurfVec[i].SetSurfCfdType( vsp::CFD_NEGATIVE );
+        }
+        else if ( m_MainSurfVec[i].GetSurfCfdType() == vsp::CFD_NEGATIVE && !m_NegativeVolumeFlag.Get() )
+        {
+            m_MainSurfVec[i].SetSurfCfdType( vsp::CFD_NORMAL );
         }
     }
 }
