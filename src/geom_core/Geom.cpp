@@ -1457,8 +1457,22 @@ void Geom::UpdateBBox()
 //Sets cfd surf types to negative if or normal depending on the state of the GUI negative button
 void Geom::UpdateFlags( )
 {
+    if ( GetType().m_Type == MESH_GEOM_TYPE || GetType().m_Type == BLANK_GEOM_TYPE ||
+         GetType().m_Type == PT_CLOUD_GEOM_TYPE || GetType().m_Type == HUMAN_GEOM_TYPE ||
+         GetType().m_Type == HINGE_GEOM_TYPE )
+    {
+        // m_MainSurfVec.size() == 0
+        return;
+    }
+
     for( int i = 0; i < (int)m_MainSurfVec.size(); i++ )
     {
+        if ( m_MainSurfVec[i].GetSurfCfdType() == vsp::CFD_TRANSPARENT )
+        {
+            // Transparent surfaces (actuator disks) can't be negative
+            continue;
+        }
+
         if ( m_MainSurfVec[i].GetSurfCfdType() == vsp::CFD_NORMAL && m_NegativeVolumeFlag.Get() )
         {
             m_MainSurfVec[i].SetSurfCfdType( vsp::CFD_NEGATIVE );
