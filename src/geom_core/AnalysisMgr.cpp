@@ -745,7 +745,7 @@ void MassPropAnalysis::SetDefaults()
     Vehicle *veh = VehicleMgr.GetVehicle();
     if ( veh )
     {
-        m_Inputs.Add( NameValData( "NumMassSlices", veh->m_NumMassSlices ) );
+        m_Inputs.Add( NameValData( "NumMassSlices", veh->m_NumMassSlices.Get() ) );
     }
     else
     {

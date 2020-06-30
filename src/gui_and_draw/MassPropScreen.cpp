@@ -9,88 +9,152 @@
 #include "StlHelper.h"
 #include "ParmMgr.h"
 
-MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : VspScreen( mgr )
+MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 410, "Mass Properties" )
 {
-    MassPropUI* ui = m_MassPropUI = new MassPropUI();
-    ui->computeButton->callback( staticScreenCB, this );
-    ui->numSlicesSlider->callback( staticScreenCB, this );
-    ui->numSlicesInput->callback( staticScreenCB, this );
-    ui->fileExportButton->callback( staticScreenCB, this );
-    ui->setChoice->callback( staticScreenCB, this );
-    ui->drawCgButton->callback( staticScreenCB, this );
-    ui->numSlicesSlider->range( 10, 200 );
-    m_FLTK_Window = ui->UIWindow;
-    m_SelectedSetIndex = DEFAULT_SET;
-
-    m_CGDrawObj.m_PointSize = 10;
-    m_CGDrawObj.m_Type = DrawObj::VSP_POINTS;
-    m_CGDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
-    m_CGDrawObj.m_TextColor = vec3d( 0, 0, 0 );
-    m_CGDrawObj.m_TextSize = 0;
-    m_CGDrawObj.m_GeomID = ParmMgr.GenerateID( 4 ) + "_CG";
+    int borderPaddingWidth = 5;
+    int yPadding = 7;
+    int smallButtonWidth = 100;
+    int largeButtonWidth = 200;
+    int smallGap = 25;
 
     m_FLTK_Window->callback( staticCloseCB, this );
 
-}
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-MassPropScreen::~MassPropScreen()
-{
-    delete m_MassPropUI;
+    m_SelectedSetIndex = DEFAULT_SET;
+
+    m_MainLayout.ForceNewLine();
+    m_MainLayout.AddY( yPadding );
+    m_MainLayout.AddX( borderPaddingWidth );
+
+    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - borderPaddingWidth,
+                                        m_MainLayout.GetRemainY() - borderPaddingWidth );
+
+    m_BorderLayout.SetButtonWidth( smallButtonWidth );
+    m_BorderLayout.AddSlider( m_NumSlicesInput, "Num Slice:", 200, "%6.0f" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddChoice( m_SetChoice, "Set" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddButton( m_ComputeButton, "Compute" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddButton( m_DrawCgButton, "Draw Cg" );
+
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddDividerBox( "Results" );
+
+    m_BorderLayout.SetButtonWidth( largeButtonWidth );
+    m_BorderLayout.AddOutput( m_TotalMassOutput, "Total Mass" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.SetButtonWidth( largeButtonWidth );
+    m_BorderLayout.AddOutput( m_XCgOutput, "X Cg" );
+
+    m_BorderLayout.SetButtonWidth( largeButtonWidth );
+    m_BorderLayout.AddOutput( m_YCgOutput, "Y Cg" );
+
+    m_BorderLayout.SetButtonWidth( largeButtonWidth );
+    m_BorderLayout.AddOutput( m_ZCgOutput, "Z Cg" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.SetButtonWidth( largeButtonWidth );
+    m_BorderLayout.AddOutput( m_IxxOutput, "I xx" );
+
+    m_BorderLayout.SetButtonWidth( largeButtonWidth );
+    m_BorderLayout.AddOutput( m_IyyOutput, "I yy" );
+
+    m_BorderLayout.SetButtonWidth( largeButtonWidth );
+    m_BorderLayout.AddOutput( m_IzzOutput, "I zz" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.SetButtonWidth( largeButtonWidth );
+    m_BorderLayout.AddOutput( m_IxyOutput, "I xy" );
+
+    m_BorderLayout.SetButtonWidth( largeButtonWidth );
+    m_BorderLayout.AddOutput( m_IxzOutput, "I xz" );
+
+    m_BorderLayout.SetButtonWidth( largeButtonWidth );
+    m_BorderLayout.AddOutput( m_IyzOutput, "I yz" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.SetSameLineFlag( false );
+
+    m_BorderLayout.AddDividerBox( "File Export" );
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetFitWidthFlag( true );
+
+    m_BorderLayout.SetButtonWidth( 0 );
+    m_BorderLayout.AddOutput( m_FileSelect, "", smallGap );
+
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetButtonWidth( smallGap );
+    m_BorderLayout.AddButton( m_FileTrigger, "..." );
 }
 
 bool MassPropScreen::Update()
 {
+    assert( m_ScreenMgr );
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
     LoadSetChoice();
-    Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
-    char str[255];
-    char format[10] = " %6.3f";
 
-    m_MassPropUI->numSlicesSlider->value( vehiclePtr->m_NumMassSlices );
-    sprintf( str, " %d", vehiclePtr->m_NumMassSlices );
-    m_MassPropUI->numSlicesInput->value( str );
+    m_NumSlicesInput.Update( veh->m_NumMassSlices.GetID() );
 
-    vehiclePtr->m_DrawCGFlag = m_MassPropUI->drawCgButton->value();
+    m_DrawCgButton.Update( veh->m_DrawCgFlag.GetID() );
 
     m_CGDrawObj.m_PntVec.clear();
-
-    if ( vehiclePtr->m_DrawCGFlag )
+    if ( veh->m_DrawCgFlag.Get() )
     {
         m_CGDrawObj.m_Visible = true;
-        m_CGDrawObj.m_PntVec.push_back( vehiclePtr->m_CG );
+        m_CGDrawObj.m_PntVec.push_back( veh->m_CG );
     }
     else
     {
         m_CGDrawObj.m_Visible = false;
     }
 
-    sprintf( str, format, vehiclePtr->m_TotalMass );
-    m_MassPropUI->totalMassOutput->value( str );
+    char str[255];
+    char format[10] = " %6.3f";
 
-    vec3d cg = vehiclePtr->m_CG;
+    //Total Mass
+    sprintf( str, format, veh->m_TotalMass );
+    m_TotalMassOutput.Update( str );
+    //X Cg
+    vec3d cg = veh->m_CG;
     sprintf( str, format, cg.x() );
-    m_MassPropUI->xCgOuput->value( str );
+    m_XCgOutput.Update( str );
+    //Y Cg
     sprintf( str, format, cg.y() );
-    m_MassPropUI->yCgOuput->value( str );
+    m_YCgOutput.Update( str );
+    //Z Cg
     sprintf( str, format, cg.z() );
-    m_MassPropUI->zCgOuput->value( str );
-
-    vec3d moi = vehiclePtr->m_IxxIyyIzz;
+    m_ZCgOutput.Update( str );
+    //I xx
+    vec3d moi = veh->m_IxxIyyIzz;
     sprintf( str, format, moi.x() );
-    m_MassPropUI->ixxOuput->value( str );
+    m_IxxOutput.Update( str );
+    //I yy
     sprintf( str, format, moi.y() );
-    m_MassPropUI->iyyOutput->value( str );
+    m_IyyOutput.Update( str );
+    //I zz
     sprintf( str, format, moi.z() );
-    m_MassPropUI->izzOutput->value( str );
-
-    vec3d pmoi = vehiclePtr->m_IxyIxzIyz;
+    m_IzzOutput.Update( str );
+    //I xy
+    vec3d pmoi = veh->m_IxyIxzIyz;
     sprintf( str, format, pmoi.x() );
-    m_MassPropUI->ixyOutput->value( str );
+    m_IxyOutput.Update( str );
+    //I xz
     sprintf( str, format, pmoi.y() );
-    m_MassPropUI->ixzOutput->value( str );
+    m_IxzOutput.Update( str );
+    //I yz
     sprintf( str, format, pmoi.z() );
-    m_MassPropUI->iyzOutput->value( str );
+    m_IyzOutput.Update( str );
 
-    m_MassPropUI->fileExportOutput->value( vehiclePtr->getExportFileName( vsp::MASS_PROP_TXT_TYPE ).c_str() );
+    m_FileSelect.Update( veh->getExportFileName( vsp::MASS_PROP_TXT_TYPE ).c_str() );
 
     return true;
 }
@@ -109,44 +173,49 @@ void MassPropScreen::Hide()
 
 void MassPropScreen::LoadSetChoice()
 {
-    m_MassPropUI->setChoice->clear();
+    m_SetChoice.ClearItems();
 
+    assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     vector< string > set_name_vec = veh->GetSetNameVec();
 
-    for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
+    for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
     {
-        m_MassPropUI->setChoice->add( set_name_vec[i].c_str() );
+        m_SetChoice.AddItem( set_name_vec[i].c_str() );
     }
 
-    m_MassPropUI->setChoice->value( m_SelectedSetIndex );
+    m_SetChoice.UpdateItems();
+    m_SetChoice.SetVal( m_SelectedSetIndex );
 }
+
+void MassPropScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    assert( m_ScreenMgr );
+
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    if ( device == &m_SetChoice )
+    {
+        m_SelectedSetIndex = m_SetChoice.GetVal();
+    }
+    else if ( device == &m_ComputeButton )
+    {
+        veh->MassPropsAndFlatten( m_SelectedSetIndex, veh->m_NumMassSlices.Get() );
+    }
+    else if ( device == &m_FileTrigger )
+    {
+        veh->setExportFileName( vsp::MASS_PROP_TXT_TYPE,
+                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+                                               "Select Mass Prop output file.", "*.txt" ) );
+    }
+
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
 
 void MassPropScreen::CallBack( Fl_Widget* w )
 {
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    if ( w == m_MassPropUI->computeButton )
-    {
-        veh->MassPropsAndFlatten( m_SelectedSetIndex, veh->m_NumMassSlices );
-    }
-    else if ( w == m_MassPropUI->numSlicesSlider )
-    {
-        veh->m_NumMassSlices = ( int )m_MassPropUI->numSlicesSlider->value();
-    }
-    else if ( w == m_MassPropUI->numSlicesInput )
-    {
-        veh->m_NumMassSlices = atoi( m_MassPropUI->numSlicesInput->value() );
-    }
-    else if ( w == m_MassPropUI->fileExportButton )
-    {
-        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Choose mass properties output file", "*.txt" );
-        veh->setExportFileName( vsp::MASS_PROP_TXT_TYPE, newfile );
-    }
-    else if ( w == m_MassPropUI->setChoice )
-    {
-        m_SelectedSetIndex = m_MassPropUI->setChoice->value();
-    }
+     assert( m_ScreenMgr );
 
     m_ScreenMgr->SetUpdateFlag( true );
 }

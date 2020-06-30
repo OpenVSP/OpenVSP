@@ -325,9 +325,10 @@ public:
     vec3d m_IxxIyyIzz;
     vec3d m_IxyIxzIyz;
     vec3d m_CG;
-    int m_NumMassSlices;
     double m_TotalMass;
-    bool m_DrawCGFlag;
+
+    IntParm m_NumMassSlices;
+    BoolParm m_DrawCgFlag;
 
     Parm m_BbXLen;
     Parm m_BbYLen;

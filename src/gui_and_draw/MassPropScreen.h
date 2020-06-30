@@ -8,37 +8,57 @@
 #define MASSPROPSCREEN_H_
 
 #include "ScreenBase.h"
-#include "GuiDevice.h"
-
-#include "massPropFlScreen.h"
+#include "ScreenMgr.h"
 
 using std::string;
 using std::vector;
 
-class MassPropScreen : public VspScreen
+class MassPropScreen : public BasicScreen
 {
 public:
 
     MassPropScreen( ScreenMgr* mgr );
-    virtual ~MassPropScreen();
+    virtual ~MassPropScreen()                          {}
+
     void Show();
     void Hide();
     bool Update();
-    void LoadSetChoice();
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( MassPropScreen* )data )->CallBack( w );
-    }
-    void CallBack( Fl_Widget *w );
+
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+    virtual void CallBack( Fl_Widget* w );
     virtual void CloseCallBack( Fl_Widget* w );
+    
     void LoadDrawObjs( vector< DrawObj* >& draw_obj_vec );
+    void LoadSetChoice();
 
 protected:
 
-    MassPropUI* m_MassPropUI;
-    int m_SelectedSetIndex;
+    GroupLayout m_MainLayout;
+    GroupLayout m_BorderLayout;
 
+    SliderAdjRangeInput m_NumSlicesInput;
+    Choice m_SetChoice;
     DrawObj m_CGDrawObj;
+    ToggleButton m_DrawCgButton;
+    
+    StringOutput m_TotalMassOutput;
+    StringOutput m_XCgOutput;
+    StringOutput m_YCgOutput;
+    StringOutput m_ZCgOutput;
+    StringOutput m_IxxOutput;
+    StringOutput m_IyyOutput;
+    StringOutput m_IzzOutput;
+    StringOutput m_IxyOutput;
+    StringOutput m_IxzOutput;
+    StringOutput m_IyzOutput;
+    StringOutput m_FileSelect;
+
+    TriggerButton m_FileExportButton;
+    TriggerButton m_ComputeButton;
+    TriggerButton m_FileTrigger;
+
+private :
+    int m_SelectedSetIndex;
 
 };
 

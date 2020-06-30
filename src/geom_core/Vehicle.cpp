@@ -184,6 +184,12 @@ Vehicle::Vehicle()
     m_StructUnit.Init( "StructUnit", "FeaStructure", this, vsp::BFT_UNIT, vsp::SI_UNIT, vsp::BIN_UNIT );
     m_StructUnit.SetDescript( "Unit System for FEA Structures" );
 
+    m_NumMassSlices.Init( "NumMassSlices", "MassProperties", this, 20, 10, 200 );
+    m_NumMassSlices.SetDescript( "Number of slices used to display mesh" );
+
+    m_DrawCgFlag.Init( "DrawCgFlag", "MassProperties", this, true, false, true );
+    m_DrawCgFlag.SetDescript( "Adds red center point to mesh" );
+
     // Initialize the group transformations object
     m_GroupTransformations.Init( this );
 
