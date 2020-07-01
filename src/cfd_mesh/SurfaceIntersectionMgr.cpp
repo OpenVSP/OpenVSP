@@ -837,25 +837,18 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
                                                   bool label_id, bool label_surf_num, bool label_split_num,
                                                   bool label_name, string label_delim )
 {
-    IGESutil iges( len_unit );
-
     BuildNURBSSurfMap();
+
+    if ( m_NURBSSurfVec.size() == 0 )
+    {
+        addOutputText( "Error: Can't Export IGES - No Valid Surfaces\n" );
+        return;
+    }
+
+    IGESutil iges( len_unit );
 
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
-        if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
-             m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_BorderLoopFlag &&
-             m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag )
-        {
-            continue; // Indicates that the surface is completely enclosed
-        }
-        else if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
-                  !m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag &&
-                  m_NURBSSurfVec[si].m_SurfType == vsp::CFD_NEGATIVE )
-        {
-            continue; // external negative surfaces are removed
-        }
-
         string label;
 
         if ( label_id )
@@ -926,6 +919,12 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
 
     BuildNURBSSurfMap();
 
+    if ( m_NURBSSurfVec.size() == 0 )
+    {
+        addOutputText( "Error: Can't Export STEP - No Valid Surfaces\n" );
+        return;
+    }
+
     // Identify the unique sets of intersected components
     vector < vector < int > > comp_id_group_vec = GetCompIDGroupVec();
 
@@ -934,19 +933,6 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
 
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
-        if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
-             m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_BorderLoopFlag &&
-             m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag )
-        {
-            continue; // Indicates that the surface is completely enclosed
-        }
-        else if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
-                  !m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag &&
-                  m_NURBSSurfVec[si].m_SurfType == vsp::CFD_NEGATIVE )
-        {
-            continue; // external negative surfaces are removed
-        }
-
         string label;
 
         if ( label_id )
@@ -1109,21 +1095,36 @@ vector < vector < int > > SurfaceIntersectionSingleton::GetCompIDGroupVec()
 void SurfaceIntersectionSingleton::BuildNURBSSurfMap()
 {
     m_NURBSSurfVec.clear();
-    m_NURBSSurfVec.resize( m_SurfVec.size() );
 
     for ( size_t si = 0; si < m_SurfVec.size(); si++ )
     {
+        NURBS_Surface nurbs_surf = NURBS_Surface();
         // Create NURBS Surface
-        m_NURBSSurfVec[si].InitNURBSSurf( m_SurfVec[si] );
+        nurbs_surf.InitNURBSSurf( m_SurfVec[si] );
 
-        m_NURBSSurfVec[si].m_SurfType = m_SurfVec[si]->GetSurfaceCfdType();
+        nurbs_surf.m_SurfType = m_SurfVec[si]->GetSurfaceCfdType();
 
         // Identify all border and intersection NURBS curves on the surface
-        vector < NURBS_Curve > nurbs_curve_vec = m_NURBSSurfVec[si].MatchNURBSCurves( m_NURBSCurveVec );
-        m_NURBSSurfVec[si].SetNURBSCurveVec( nurbs_curve_vec );
+        vector < NURBS_Curve > nurbs_curve_vec = nurbs_surf.MatchNURBSCurves( m_NURBSCurveVec );
+        nurbs_surf.SetNURBSCurveVec( nurbs_curve_vec );
 
         // Build NURBS loops
-        m_NURBSSurfVec[si].BuildNURBSLoopMap();
+        nurbs_surf.BuildNURBSLoopMap();
+
+        if ( nurbs_surf.m_NURBSLoopVec.size() == 1 &&
+             nurbs_surf.m_NURBSLoopVec[0].m_BorderLoopFlag &&
+             nurbs_surf.m_NURBSLoopVec[0].m_InternalLoopFlag )
+        {
+            continue; // Indicates that the surface is completely enclosed
+        }
+        else if ( nurbs_surf.m_NURBSLoopVec.size() == 1 &&
+                  !nurbs_surf.m_NURBSLoopVec[0].m_InternalLoopFlag &&
+                  nurbs_surf.m_SurfType == vsp::CFD_NEGATIVE )
+        {
+            continue; // external negative surfaces are removed
+        }
+
+        m_NURBSSurfVec.push_back( nurbs_surf );
     }
 }
 
