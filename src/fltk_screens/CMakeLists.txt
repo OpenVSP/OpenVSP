@@ -9,7 +9,6 @@ aboutScreen.fl
 curveEditFlScreen.fl
 parmFlScreen.fl
 pickSetFlScreen.fl
-pSliceFlScreen.fl
 selectFileFlScreen.fl
 sliceScreen.fl
 textureMgrFlScreen.fl
