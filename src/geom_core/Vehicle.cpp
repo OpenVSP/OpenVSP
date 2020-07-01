@@ -190,6 +190,23 @@ Vehicle::Vehicle()
     m_DrawCgFlag.Init( "DrawCgFlag", "MassProperties", this, true, false, true );
     m_DrawCgFlag.SetDescript( "Adds red center point to mesh" );
 
+    m_NumPlanerSlices.Init( "NumPlanerSlices", "PSlice", this, 10, 3, 100 );
+    m_NumPlanerSlices.SetDescript( "Number of planar slices used to display mesh" );
+
+    m_AutoBoundsFlag.Init( "AutoBoundsFlag", "PSlice", this, true, false, true );
+    m_AutoBoundsFlag.SetDescript( "Automaticly sets Planar Start and End locations" );
+
+    m_AxisType.Init( "AxisType", "PSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
+    m_AxisType.SetDescript( "Selects from X,Y,Z Axis" );
+    
+    m_PlanarStartLocation.Init( "PlanarStartLocation", "PSlice", this, 0, 1e-12, 1e12 );
+    m_PlanarStartLocation.SetDescript( "Planar Start Location" );
+
+    m_PlanarEndLocation.Init( "PlanarEndLocation", "PSlice", this, 10, 1e-12, 1e12 );
+    m_PlanarEndLocation.SetDescript( "Planar End Location" );
+
+    
+
     // Initialize the group transformations object
     m_GroupTransformations.Init( this );
 

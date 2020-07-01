@@ -10,42 +10,57 @@
 #include "ScreenBase.h"
 #include "GuiDevice.h"
 
-#include "pSliceFlScreen.h"
+#include "StlHelper.h"
 
 #include "Vec3d.h"
 
 using std::string;
 using std::vector;
 
-class PSliceScreen : public VspScreen
+class PSliceScreen : public BasicScreen
 {
 public:
 
     PSliceScreen( ScreenMgr* mgr );
-    virtual ~PSliceScreen();
+    virtual ~PSliceScreen()                          {}
+
     void Show();
     void Hide();
     bool Update();
-    void LoadSetChoice();
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( PSliceScreen* )data )->CallBack( w );
-    }
-    void CallBack( Fl_Widget *w );
 
+    virtual void GuiDeviceCallBack( GuiDevice* device );
+    void CallBack( Fl_Widget *w );
+    virtual void CloseCallBack( Fl_Widget* w );
+
+    void LoadSetChoice();
 
 protected:
 
-    PSliceUI* m_PSliceUI;
-    int m_SelectedSetIndex;
-    double m_StartVal;
-    double m_EndVal;
-    double m_BoundsRange[2];
-    int m_SliceRange[2];
-    int m_numSlices;
-    int m_lastAxis;
-    Fl_Text_Buffer* m_textBuffer;
+    GroupLayout m_MainLayout;
+    GroupLayout m_BorderLayout;
+
+    Choice m_AxisChoice;
+    Choice m_SetChoice;
+
+    SliderAdjRangeInput m_NumSlicesInput;
+    SliderAdjRangeInput m_StartLocSlider;
+    SliderAdjRangeInput m_EndLocSlider;
+
+    StringOutput m_FileSelect;
+
+    ToggleButton m_AutoButton;
+    TriggerButton m_FileTrigger;
+    TriggerButton m_StartSlicingTrigger;
+
+    Fl_Text_Display* m_TextDisplay;
+    Fl_Text_Buffer* m_TextBuffer;
+
     vec3d m_Norm;
+
+private :
+
+    int m_SelectedSetIndex;
+    int m_SelectedAxisIndex;
 
 };
 

@@ -330,6 +330,12 @@ public:
     IntParm m_NumMassSlices;
     BoolParm m_DrawCgFlag;
 
+    IntParm m_NumPlanerSlices;
+    BoolParm m_AutoBoundsFlag;
+    Parm m_PlanarStartLocation;
+    Parm m_PlanarEndLocation;
+    IntParm m_AxisType;
+
     Parm m_BbXLen;
     Parm m_BbYLen;
     Parm m_BbZLen;

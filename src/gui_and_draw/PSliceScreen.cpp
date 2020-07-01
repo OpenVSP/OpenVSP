@@ -6,237 +6,198 @@
 
 #include "PSliceScreen.h"
 #include "ScreenMgr.h"
-#include "StlHelper.h"
 
-PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : VspScreen( mgr )
+PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 450, "Planar Slicing" )
 {
-    PSliceUI* ui = m_PSliceUI = new PSliceUI();
-    m_textBuffer = new Fl_Text_Buffer();
-    ui->outputTextDisplay->buffer( m_textBuffer );
+    int borderPaddingWidth = 5;
+    int yPadding = 7;
+    int smallButtonWidth = 100;
+    int smallGap = 25;
 
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vec3d maxBBox = veh->GetBndBox().GetMax();
-    vec3d minBBox = veh->GetBndBox().GetMin();
+    m_AxisChoice.AddItem( "X-Axis" );
+    m_AxisChoice.AddItem( "Y-Axis" );
+    m_AxisChoice.AddItem( "Z-Axis" );
 
-    ui->numSlicesSlider->callback( staticScreenCB, this );
-
-    ui->numSlicesInput->callback( staticScreenCB, this );
-
-    ui->AxisChoice->callback( staticScreenCB, this );
-    ui->AxisChoice->value( 0 );
-
-    ui->AutoBoundsButton->callback( staticScreenCB, this );
-    ui->AutoBoundsButton->value( 1 );
-
-    ui->StartSlider->callback( staticScreenCB, this );
-
-    ui->StartInput->callback( staticScreenCB, this );
-
-    ui->EndSlider->callback( staticScreenCB, this );
-
-    ui->EndInput->callback( staticScreenCB, this );
-
-    ui->fileButton->callback( staticScreenCB, this );
-    ui->setChoice->callback( staticScreenCB, this );
-    ui->startButton->callback( staticScreenCB, this );
-
-    m_FLTK_Window = ui->UIWindow;
-    m_SelectedSetIndex = DEFAULT_SET;
-    m_lastAxis = 0;
-    m_BoundsRange[0] = 0;
-    m_BoundsRange[1] = 10;
-    m_StartVal = 0;
-    m_EndVal = 10;
     m_Norm = vec3d( 1, 0, 0 );
-    m_numSlices = 10;
-    m_SliceRange[0] = 3;
-    m_SliceRange[1] = 100;
 
-}
+    m_FLTK_Window->callback( staticCloseCB, this );
 
-PSliceScreen::~PSliceScreen()
-{
-    delete m_PSliceUI;
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+
+    m_SelectedSetIndex = DEFAULT_SET;
+
+    m_SelectedAxisIndex = vsp::X_DIR;
+
+    m_MainLayout.ForceNewLine();
+    m_MainLayout.AddY( yPadding );
+    m_MainLayout.AddX( borderPaddingWidth );
+
+    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - borderPaddingWidth,
+                                        m_MainLayout.GetRemainY() - borderPaddingWidth );
+
+    m_BorderLayout.SetButtonWidth( smallButtonWidth );
+    m_BorderLayout.AddSlider( m_NumSlicesInput, "Num Slice:", 100, "%6.0f" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddChoice( m_AxisChoice, "Normal Axis" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddDividerBox( "Slicing Bounds" );
+
+    m_BorderLayout.AddButton( m_AutoButton, "Auto" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddSlider( m_StartLocSlider, "Start Location", 10, "%6.3f" );
+
+    m_BorderLayout.AddSlider( m_EndLocSlider, "End Location", 10, "%6.3f" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddDividerBox( "Output File" );
+
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetFitWidthFlag( true );
+
+    m_BorderLayout.SetButtonWidth( 0 );
+    m_BorderLayout.AddOutput( m_FileSelect, "", smallGap );
+
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetButtonWidth( smallGap );
+    m_BorderLayout.AddButton( m_FileTrigger, "..." );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.ForceNewLine();
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.SetSameLineFlag( false );
+
+    m_TextDisplay = m_BorderLayout.AddFlTextDisplay( 180 );
+    m_TextDisplay->color( 23 );
+    m_TextDisplay->textcolor( 32 );
+    m_TextDisplay->textfont( 4 );
+    m_TextDisplay->textsize( 12 );
+    m_TextBuffer = new Fl_Text_Buffer;
+    m_TextDisplay->buffer( m_TextBuffer );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddChoice( m_SetChoice, "Set" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddButton( m_StartSlicingTrigger, "Start Slicing" );
+    m_BorderLayout.AddYGap();
 }
 
 bool PSliceScreen::Update()
 {
-    char str[255];
-    char format[10] = " %6.3f";
+    assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
     LoadSetChoice();
-
-    m_PSliceUI->txtFileOutput->value( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
+    //m_SetChoice.SetVal( m_SelectedSetIndex );
 
     vec3d maxBBox = veh->GetBndBox().GetMax();
     vec3d minBBox = veh->GetBndBox().GetMin();
     double max;
     double min;
-    int axisIndex = m_PSliceUI->AxisChoice->value();
 
-    min = minBBox[axisIndex];
-    max = maxBBox[axisIndex];
+    min = minBBox[m_SelectedAxisIndex];
+    max = maxBBox[m_SelectedAxisIndex];
     m_Norm.set_xyz( 0, 0, 0 );
-    m_Norm[axisIndex] = 1;
+    m_Norm[m_SelectedAxisIndex] = 1;
 
-    // Set Range again if axis has changed
-    if ( m_lastAxis != m_PSliceUI->AxisChoice->value() )
+    m_NumSlicesInput.Update( veh->m_NumPlanerSlices.GetID() );
+
+    m_AutoButton.Update( veh->m_AutoBoundsFlag.GetID() );
+
+    m_FileSelect.Update( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
+
+    m_AxisChoice.Update( veh->m_AxisType.GetID() );
+
+     m_StartLocSlider.Update( veh->m_PlanarStartLocation.GetID() );
+     m_EndLocSlider.Update( veh->m_PlanarEndLocation.GetID() );
+
+    if ( veh->m_AutoBoundsFlag.Get() == false )
     {
-        m_BoundsRange[0] = min;
-        m_BoundsRange[1] = max;
-        m_lastAxis = m_PSliceUI->AxisChoice->value();
-    }
-    if ( m_StartVal < m_BoundsRange[0] )
-    {
-        m_BoundsRange[0] = m_StartVal;
-    }
-    if ( m_EndVal > m_BoundsRange[1] )
-    {
-        m_BoundsRange[1] = m_EndVal;
-    }
-
-    m_PSliceUI->StartSlider->range( m_BoundsRange[0], m_BoundsRange[1] );
-    m_PSliceUI->StartSlider->value( m_StartVal );
-
-    sprintf( str, format, m_StartVal );
-    m_PSliceUI->StartInput->value( str );
-
-    m_PSliceUI->EndSlider->range( m_BoundsRange[0], m_BoundsRange[1] );
-    m_PSliceUI->EndSlider->value( m_EndVal );
-
-    sprintf( str, format, m_EndVal );
-    m_PSliceUI->EndInput->value( str );
-
-    // Num Slices
-    if ( m_numSlices < m_SliceRange[0] )
-    {
-        m_numSlices = m_SliceRange[0];
-    }
-    if ( m_numSlices > m_SliceRange[1] )
-    {
-        m_SliceRange[1] = m_numSlices;
-    }
-
-    m_PSliceUI->numSlicesSlider->range( m_SliceRange[0], m_SliceRange[1] );
-    m_PSliceUI->numSlicesSlider->value( m_numSlices );
-
-    sprintf( str, " %d", m_numSlices );
-    m_PSliceUI->numSlicesInput->value( str );
-
-    // Deactivate Bound Control if AutoBounds is on
-    if ( m_PSliceUI->AutoBoundsButton->value() )
-    {
-        m_PSliceUI->StartSlider->deactivate();
-        m_PSliceUI->StartInput->deactivate();
-        m_PSliceUI->EndSlider->deactivate();
-        m_PSliceUI->EndInput->deactivate();
+        m_StartLocSlider.Activate();
+        m_EndLocSlider.Activate();   
     }
     else
     {
-        m_PSliceUI->StartSlider->activate();
-        m_PSliceUI->StartInput->activate();
-        m_PSliceUI->EndSlider->activate();
-        m_PSliceUI->EndInput->activate();
+        m_StartLocSlider.Deactivate();
+        m_EndLocSlider.Deactivate();
     }
-
+    
     return true;
 }
 
 void PSliceScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
-
 }
 
 void PSliceScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void PSliceScreen::LoadSetChoice()
 {
-    m_PSliceUI->setChoice->clear();
+    m_SetChoice.ClearItems();
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     vector< string > set_name_vec = veh->GetSetNameVec();
 
     for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
     {
-        m_PSliceUI->setChoice->add( set_name_vec[i].c_str() );
+        m_SetChoice.AddItem( set_name_vec[i].c_str() );
     }
 
-    m_PSliceUI->setChoice->value( m_SelectedSetIndex );
+    m_SetChoice.UpdateItems();
+    m_SetChoice.SetVal( m_SelectedSetIndex );
+}
+
+void PSliceScreen::GuiDeviceCallBack( GuiDevice* device )
+{
+    assert( m_ScreenMgr );
+    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    if ( device == &m_FileTrigger )
+    {
+         veh->setExportFileName( vsp::SLICE_TXT_TYPE,
+                                       m_ScreenMgr->GetSelectFileScreen()->FileChooser(
+                                               "Select Mass Prop output file.", "*.txt" ) );
+    }
+    else if ( device == &m_StartSlicingTrigger )
+    {
+        string id = veh->PSliceAndFlatten( m_SelectedSetIndex, veh->m_NumPlanerSlices.Get(), m_Norm,
+                                           !!veh->m_AutoBoundsFlag.Get(), veh->m_PlanarStartLocation.Get(), veh->m_PlanarEndLocation.Get() );
+        if ( id.compare( "NONE" ) != 0 )
+        {
+            m_TextBuffer->loadfile( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
+        }
+    }
+    else if ( device == &m_AxisChoice )
+    {
+        m_SelectedAxisIndex = m_AxisChoice.GetVal();
+    }
+
+    else if ( device == &m_SetChoice )
+    {
+        m_SelectedSetIndex = m_SetChoice.GetVal();
+    }
+
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void PSliceScreen::CallBack( Fl_Widget* w )
 {
-    Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-
-    bool startChanged = false;
-    bool endChanged = false;
-
-    if ( w == m_PSliceUI->numSlicesSlider )
-    {
-        m_numSlices = ( int )m_PSliceUI->numSlicesSlider->value();
-    }
-    else if ( w == m_PSliceUI->numSlicesInput )
-    {
-        m_numSlices = atoi( m_PSliceUI->numSlicesInput->value() );
-    }
-    else if ( w == m_PSliceUI->StartSlider )
-    {
-        m_StartVal = m_PSliceUI->StartSlider->value();
-        startChanged = true;
-    }
-    else if ( w == m_PSliceUI->StartInput )
-    {
-        m_StartVal = atof( m_PSliceUI->StartInput->value() );
-        startChanged = true;
-    }
-    else if ( w == m_PSliceUI->EndSlider )
-    {
-        m_EndVal = m_PSliceUI->EndSlider->value();
-        endChanged = true;
-    }
-    else if ( w == m_PSliceUI->EndInput )
-    {
-        m_EndVal = atof( m_PSliceUI->EndInput->value() );
-        endChanged = true;
-    }
-    else if ( w == m_PSliceUI->fileButton )
-    {
-        string newfile;
-        newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Choose slice areas output file", "*.txt" );
-        veh->setExportFileName( vsp::SLICE_TXT_TYPE, newfile );
-    }
-    else if ( w == m_PSliceUI->setChoice )
-    {
-        m_SelectedSetIndex = m_PSliceUI->setChoice->value();
-    }
-    else if ( w == m_PSliceUI->startButton )
-    {
-        string id = veh->PSliceAndFlatten( m_SelectedSetIndex, m_numSlices, m_Norm,
-                                           !!m_PSliceUI->AutoBoundsButton->value(), m_StartVal, m_EndVal );
-        if ( id.compare( "NONE" ) != 0 )
-        {
-            m_PSliceUI->outputTextDisplay->buffer()->loadfile( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
-        }
-    }
-
-    // Check to make sure start is less than end
-    if ( m_StartVal > m_EndVal )
-    {
-        if ( startChanged )
-        {
-            m_EndVal = m_StartVal;
-        }
-        else if ( endChanged )
-        {
-            m_StartVal = m_EndVal;
-        }
-    }
-
+    assert( m_ScreenMgr );
     m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void PSliceScreen::CloseCallBack( Fl_Widget* w )
+{
+    Hide();
 }
