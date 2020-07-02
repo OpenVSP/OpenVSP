@@ -21,6 +21,7 @@ NURBS_Curve::NURBS_Curve()
     m_SubSurfFlag = false;
     m_SurfA_Type = vsp::CFD_NORMAL;
     m_SurfB_Type = vsp::CFD_NORMAL;
+    m_InsideNegativeFlag = false;
     m_SurfA_ID = -1;
     m_SurfB_ID = -1;
     m_MergeTol = 0;
@@ -465,7 +466,7 @@ void NURBS_Surface::BuildNURBSLoopMap()
 
     for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
     {
-        if ( m_NURBSCurveVec[i].m_SubSurfFlag || m_NURBSCurveVec[i].m_StructIntersectFlag )
+        if ( ( m_NURBSCurveVec[i].m_BorderFlag && m_NURBSCurveVec[i].m_InsideNegativeFlag ) || m_NURBSCurveVec[i].m_SubSurfFlag || ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE ) )
         {
             continue;
         }
@@ -483,9 +484,26 @@ void NURBS_Surface::BuildNURBSLoopMap()
                 // surface will not be broken into two surfaces at the intersection curve. 
                 continue;
             }
+            else if ( m_NURBSCurveVec[i].m_InternalFlag && ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_NEGATIVE || m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_NEGATIVE ) && m_SurfType != vsp::CFD_NEGATIVE )
+            {
+                // Ignore internal negative surface intersecitons when trimming non-negative surfaces
+                continue;
+            }
             else if ( m_SurfType == vsp::CFD_STRUCTURE )
             {
                 internal_curve_vec.push_back( m_NURBSCurveVec[i] );
+            }
+            else if ( ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_NEGATIVE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_NEGATIVE ) && m_NURBSCurveVec[i].m_InternalFlag )
+            {
+                internal_curve_vec.push_back( m_NURBSCurveVec[i] );
+            }
+            else if ( !m_NURBSCurveVec[i].m_InternalFlag && m_SurfType == vsp::CFD_NEGATIVE && ( m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_NEGATIVE ) )
+            {
+                internal_curve_vec.push_back( m_NURBSCurveVec[i] );
+            }
+            else if ( ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_NEGATIVE || m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_NEGATIVE ) && m_SurfType != vsp::CFD_NEGATIVE )
+            {
+                external_curve_vec.push_back( m_NURBSCurveVec[i] );
             }
             else if ( !m_NURBSCurveVec[i].m_InternalFlag )
             {
@@ -542,24 +560,24 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
     {
         if ( m_NURBSLoopVec[i].m_IntersectLoopFlag )
         {
-            if ( m_SurfType == vsp::CFD_STRUCTURE )
+            if ( m_SurfType == vsp::CFD_STRUCTURE || ( m_SurfType == vsp::CFD_NEGATIVE && m_NURBSLoopVec[i].m_InternalLoopFlag ) )
             {
-                // Opposite trimming behavior for structures
+                // Opposite trimming behavior for structures and negative surfaces when the loop is inside another surface
                 // This case applies to FEA slices, which are a single surface. Domes
                 // are more than 1 surface, so the bounding loop is not a single intersection
                 // chain, but a combination of intersections and border curves
                 ext_loop_vec.push_back( m_NURBSLoopVec[i] );
             }
-            else
+            else if ( m_SurfType != vsp::CFD_NEGATIVE )
             {
                 cutout_vec.push_back( m_NURBSLoopVec[i] );
             }
         }
-        else if ( !m_NURBSLoopVec[i].m_InternalLoopFlag && m_SurfType != vsp::CFD_STRUCTURE )
+        else if ( !m_NURBSLoopVec[i].m_InternalLoopFlag && m_SurfType != vsp::CFD_STRUCTURE && m_SurfType != vsp::CFD_NEGATIVE )
         {
             ext_loop_vec.push_back( m_NURBSLoopVec[i] );
         }
-        else if ( m_NURBSLoopVec[i].m_InternalLoopFlag && m_SurfType == vsp::CFD_STRUCTURE )
+        else if ( m_NURBSLoopVec[i].m_InternalLoopFlag && ( m_SurfType == vsp::CFD_STRUCTURE || m_SurfType == vsp::CFD_NEGATIVE ) )
         {
             ext_loop_vec.push_back( m_NURBSLoopVec[i] );
         }
@@ -616,15 +634,15 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
     {
         if ( m_NURBSLoopVec[i].m_IntersectLoopFlag )
         {
-            if ( m_SurfType == vsp::CFD_STRUCTURE )
+            if ( m_SurfType == vsp::CFD_STRUCTURE || ( m_SurfType == vsp::CFD_NEGATIVE && m_NURBSLoopVec[i].m_InternalLoopFlag ) )
             {
-                // Opposite trimming behavior for structures
+                // Opposite trimming behavior for structures and negative surfaces when the loop is inside another surface
                 // This case applies to FEA slices, which are a single surface. Domes
                 // are more than 1 surface, so the bounding loop is not a single intersection
                 // chain, but a combination of intersections and border curves
                 ext_loop_vec.push_back( m_NURBSLoopVec[i] );
             }
-            else
+            else if ( m_SurfType != vsp::CFD_NEGATIVE )
             {
                 SdaiEdge_loop* loop = m_NURBSLoopVec[i].WriteSTEPLoop( step, mergepts );
 
@@ -640,11 +658,11 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
                 }
             }
         }
-        else if ( !m_NURBSLoopVec[i].m_InternalLoopFlag && m_SurfType != vsp::CFD_STRUCTURE )
+        else if ( !m_NURBSLoopVec[i].m_InternalLoopFlag && m_SurfType != vsp::CFD_STRUCTURE && m_SurfType != vsp::CFD_NEGATIVE )
         {
             ext_loop_vec.push_back( m_NURBSLoopVec[i] );
         }
-        else if ( m_NURBSLoopVec[i].m_InternalLoopFlag && m_SurfType == vsp::CFD_STRUCTURE )
+        else if ( m_NURBSLoopVec[i].m_InternalLoopFlag && ( m_SurfType == vsp::CFD_STRUCTURE || m_SurfType == vsp::CFD_NEGATIVE ) )
         {
             ext_loop_vec.push_back( m_NURBSLoopVec[i] );
         }

@@ -844,10 +844,16 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
         if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
-                  m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_BorderLoopFlag &&
-                  m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag )
+             m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_BorderLoopFlag &&
+             m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag )
         {
             continue; // Indicates that the surface is completely enclosed
+        }
+        else if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
+                  !m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag &&
+                  m_NURBSSurfVec[si].m_SurfType == vsp::CFD_NEGATIVE )
+        {
+            continue; // external negative surfaces are removed
         }
 
         string label;
@@ -929,10 +935,16 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
     for ( size_t si = 0; si < m_NURBSSurfVec.size(); si++ )
     {
         if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
-                  m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_BorderLoopFlag &&
-                  m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag )
+             m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_BorderLoopFlag &&
+             m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag )
         {
             continue; // Indicates that the surface is completely enclosed
+        }
+        else if ( m_NURBSSurfVec[si].m_NURBSLoopVec.size() == 1 &&
+                  !m_NURBSSurfVec[si].m_NURBSLoopVec[0].m_InternalLoopFlag &&
+                  m_NURBSSurfVec[si].m_SurfType == vsp::CFD_NEGATIVE )
+        {
+            continue; // external negative surfaces are removed
         }
 
         string label;
@@ -1169,8 +1181,8 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
 
             for ( size_t i = 0; i < m_SurfVec.size(); i++ )
             {
-                if ( ( m_SurfVec[i]->GetCompID() == j ) &&
-                     ( m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NORMAL ) )
+                if ( ( m_SurfVec[i]->GetCompID() == j ) && ( m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NORMAL || 
+                                                             m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE ) )
                 {
                     m_SurfVec[i]->IntersectLineSeg( cp, xep, x_vec );
                     m_SurfVec[i]->IntersectLineSeg( cp, yep, y_vec );
@@ -1190,7 +1202,43 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
             }
         }
 
+        bool in_negative = false;
+
+        if ( internal_flag )
         {
+            x_vec.clear();
+            y_vec.clear();
+            z_vec.clear();
+
+            // Check if inside a negative component
+            for ( size_t j = 0; j < m_NumComps; j++ )
+            {
+                if ( j == ( *i_seg )->m_SurfA->GetCompID() || j == ( *i_seg )->m_SurfB->GetCompID() )
+                {
+                    continue;
+                }
+
+                for ( size_t i = 0; i < m_SurfVec.size(); i++ )
+                {
+                    if ( ( m_SurfVec[i]->GetCompID() == j ) && m_SurfVec[i]->GetSurfaceCfdType() == vsp::CFD_NEGATIVE )
+                    {
+                        m_SurfVec[i]->IntersectLineSeg( cp, xep, x_vec );
+                        m_SurfVec[i]->IntersectLineSeg( cp, yep, y_vec );
+                        m_SurfVec[i]->IntersectLineSeg( cp, zep, z_vec );
+                    }
+                }
+
+                bool x_in = x_vec.size() % 2 == 1;
+                bool y_in = y_vec.size() % 2 == 1;
+                bool z_in = z_vec.size() % 2 == 1;
+
+                if ( ( x_in && y_in ) || ( x_in && z_in ) || ( y_in && z_in ) )
+                {
+                    // Odd -> curve is inside
+                    in_negative = true;
+                    break;
+                }
+            }
         }
 
         if ( !( *i_seg )->m_BorderFlag && ( ( *i_seg )->m_SurfA->GetCompID() == ( *i_seg )->m_SurfB->GetCompID() ) )
@@ -1203,6 +1251,7 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
 
         nurbs_curve.m_BorderFlag = ( *i_seg )->m_BorderFlag;
         nurbs_curve.m_InternalFlag = internal_flag;
+        nurbs_curve.m_InsideNegativeFlag = in_negative;
         nurbs_curve.m_SubSurfFlag = ss_flag;
         nurbs_curve.m_SurfA_Type = ( *i_seg )->m_SurfA->GetSurfaceCfdType();
         nurbs_curve.m_SurfB_Type = ( *i_seg )->m_SurfB->GetSurfaceCfdType();

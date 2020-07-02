@@ -59,6 +59,9 @@ public:
     int m_SurfA_Type;
     int m_SurfB_Type;
 
+    // Flag that indicates if a curve is inside a negative surface
+    bool m_InsideNegativeFlag;
+
     // Pointers for the STEP representation of the NURBS curve
     SdaiVertex_point* m_STEP_Start_Vert;
     SdaiVertex_point* m_STEP_End_Vert;
