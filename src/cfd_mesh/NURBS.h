@@ -48,15 +48,16 @@ public:
     // Flag indicating the curve is a sub-surface curve
     bool m_SubSurfFlag;
 
-    // Flag that identifies if the intersection curve is between two FEA Parts
-    bool m_StructIntersectFlag;
-
     // Vector of points decribing the curve
     vector < vec3d > m_PntVec;
 
     // Parent surface indexes
     int m_SurfA_ID;
     int m_SurfB_ID;
+
+    // Parent surface CFD types
+    int m_SurfA_Type;
+    int m_SurfB_Type;
 
     // Pointers for the STEP representation of the NURBS curve
     SdaiVertex_point* m_STEP_Start_Vert;
@@ -65,9 +66,6 @@ public:
 
     // Pointer for the IGES representation of the NURBS curve
     DLL_IGES_ENTITY_126* m_IGES_Edge;
-
-    // Type of intersection curve, such as transparent or structure
-    int m_SurfIntersectType;
 
     // Relative tolerance for merging points through nanoflann based on parent surface bounding box
     double m_MergeTol;

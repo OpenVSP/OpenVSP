@@ -911,7 +911,8 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
     // edge pointer will not be transfered between surfaces
     for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
     {
-        if ( !m_NURBSCurveVec[i].m_SubSurfFlag && !m_NURBSCurveVec[i].m_StructIntersectFlag )
+        // Don't write subsurface or structrual entity intersections as STEP edges (surface splitting along these curve types not supported)
+        if ( !m_NURBSCurveVec[i].m_SubSurfFlag && m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_STRUCTURE )
         {
             m_NURBSCurveVec[i].WriteSTEPEdge( &step, merge_pnts );
         }
@@ -1133,7 +1134,7 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
 
     for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
     {
-        bool internal_flag = false, ss_flag = false, struct_intersect_flag = false;
+        bool internal_flag = false, ss_flag = false;
 
         // Check if the curve is interenal or external
         // Identify test point
@@ -1189,16 +1190,13 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
             }
         }
 
+        {
+        }
+
         if ( !( *i_seg )->m_BorderFlag && ( ( *i_seg )->m_SurfA->GetCompID() == ( *i_seg )->m_SurfB->GetCompID() ) )
         {
             // Indicates a Sub-Surface
             ss_flag = true;
-        }
-
-        if ( !( *i_seg )->m_BorderFlag && ( *i_seg )->m_SurfA->GetSurfaceCfdType() == vsp::CFD_STRUCTURE && ( *i_seg )->m_SurfB->GetSurfaceCfdType() == vsp::CFD_STRUCTURE )
-        {
-            // Intersected structures
-            struct_intersect_flag = true;
         }
 
         NURBS_Curve nurbs_curve;
@@ -1206,19 +1204,11 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
         nurbs_curve.m_BorderFlag = ( *i_seg )->m_BorderFlag;
         nurbs_curve.m_InternalFlag = internal_flag;
         nurbs_curve.m_SubSurfFlag = ss_flag;
-        nurbs_curve.m_StructIntersectFlag = struct_intersect_flag;
+        nurbs_curve.m_SurfA_Type = ( *i_seg )->m_SurfA->GetSurfaceCfdType();
+        nurbs_curve.m_SurfB_Type = ( *i_seg )->m_SurfB->GetSurfaceCfdType();
         nurbs_curve.m_SurfA_ID = ( *i_seg )->m_SurfA->GetSurfID();
         nurbs_curve.m_SurfB_ID = ( *i_seg )->m_SurfB->GetSurfID();
         nurbs_curve.InitNURBSCurve( ( *i_seg )->m_ACurve );
-
-        if ( ( *i_seg )->m_SurfA->GetSurfaceCfdType() == vsp::CFD_TRANSPARENT || ( *i_seg )->m_SurfB->GetSurfaceCfdType() == vsp::CFD_TRANSPARENT )
-        {
-            nurbs_curve.m_SurfIntersectType = vsp::CFD_TRANSPARENT;
-        }
-        else if ( ( *i_seg )->m_SurfA->GetSurfaceCfdType() == vsp::CFD_STRUCTURE || ( *i_seg )->m_SurfB->GetSurfaceCfdType() == vsp::CFD_STRUCTURE )
-        {
-            nurbs_curve.m_SurfIntersectType = vsp::CFD_STRUCTURE;
-        }
 
         m_NURBSCurveVec.push_back( nurbs_curve );
     }

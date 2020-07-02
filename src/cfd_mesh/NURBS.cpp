@@ -19,7 +19,8 @@ NURBS_Curve::NURBS_Curve()
     m_BorderFlag = false;
     m_InternalFlag = false;
     m_SubSurfFlag = false;
-    m_StructIntersectFlag = false;
+    m_SurfA_Type = vsp::CFD_NORMAL;
+    m_SurfB_Type = vsp::CFD_NORMAL;
     m_SurfA_ID = -1;
     m_SurfB_ID = -1;
     m_MergeTol = 0;
@@ -28,7 +29,6 @@ NURBS_Curve::NURBS_Curve()
     m_STEP_End_Vert = NULL;
     m_STEP_Edge = NULL;
     m_IGES_Edge = NULL;
-    m_SurfIntersectType = vsp::CFD_NORMAL;
     m_BBox = BndBox();
 }
 
@@ -321,7 +321,7 @@ map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::BuildOrderedCha
         // Identify any component and transparent surface (disk) intersection segments
         for ( size_t i = 0; i < chain_vec.size(); i++ )
         {
-            if ( chain_vec[i].m_SurfIntersectType == vsp::CFD_TRANSPARENT && !chain_vec[i].m_BorderFlag && !chain_vec[i].m_InternalFlag )
+            if ( ( chain_vec[i].m_SurfA_Type == vsp::CFD_TRANSPARENT || chain_vec[i].m_SurfB_Type == vsp::CFD_TRANSPARENT ) && !chain_vec[i].m_BorderFlag && !chain_vec[i].m_InternalFlag )
             {
                 return_curve_map[map_ind].push_back( make_pair( chain_vec[i], true ) );
                 chain_vec.erase( chain_vec.begin() + i );
@@ -471,19 +471,19 @@ void NURBS_Surface::BuildNURBSLoopMap()
         }
         else if ( !m_NURBSCurveVec[i].m_BorderFlag )
         {
-            if ( m_NURBSCurveVec[i].m_SurfIntersectType == vsp::CFD_TRANSPARENT && m_SurfType != vsp::CFD_TRANSPARENT )
+            if ( ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_TRANSPARENT || m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_TRANSPARENT ) && m_SurfType != vsp::CFD_TRANSPARENT )
             {
                 // Don't trim non-transparent surfaces with intersection curves made with a transparent surface. The non-transparent
                 // surface will not be broken into two surfaces at the intersection curve. 
                 continue;
             }
-            else if ( m_NURBSCurveVec[i].m_SurfIntersectType == vsp::CFD_STRUCTURE && m_SurfType != vsp::CFD_STRUCTURE )
+            else if ( ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE || m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE ) && m_SurfType != vsp::CFD_STRUCTURE )
             {
                 // Don't trim non-structure surfaces with intersection curves made with a structure surface. The non-structure
                 // surface will not be broken into two surfaces at the intersection curve. 
                 continue;
             }
-            else if ( m_NURBSCurveVec[i].m_SurfIntersectType == vsp::CFD_STRUCTURE && m_SurfType == vsp::CFD_STRUCTURE )
+            else if ( m_SurfType == vsp::CFD_STRUCTURE )
             {
                 internal_curve_vec.push_back( m_NURBSCurveVec[i] );
             }
@@ -529,7 +529,7 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
     // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)
     for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
     {
-        if ( m_NURBSCurveVec[i].m_SubSurfFlag || ( m_NURBSCurveVec[i].m_StructIntersectFlag && m_NURBSCurveVec[i].m_InternalFlag ) )
+        if ( m_NURBSCurveVec[i].m_SubSurfFlag || ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) )
         {
             iges->MakeCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg );
         }
@@ -599,7 +599,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
     // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)
     for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
     {
-        if ( m_NURBSCurveVec[i].m_SubSurfFlag || ( m_NURBSCurveVec[i].m_StructIntersectFlag && m_NURBSCurveVec[i].m_InternalFlag ) )
+        if ( m_NURBSCurveVec[i].m_SubSurfFlag || ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) )
         {
             step->MakeSurfaceCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg, mergepts, m_NURBSCurveVec[i].m_MergeTol );
         }
