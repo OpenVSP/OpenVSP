@@ -2819,7 +2819,7 @@ void Vehicle::WriteSTEPFile( const string & file_name, int write_set, bool label
                 }
 
                 vector < SdaiB_spline_surface_with_knots* > surfs;
-                surf_vec[j].ToSTEP_BSpline_Quilt( &step, surfs, m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit );
+                surf_vec[j].ToSTEP_BSpline_Quilt( &step, surfs, prefix, m_STEPSplitSurfs(), m_STEPMergePoints(), m_STEPToCubic(), m_STEPToCubicTol(), m_STEPTrimTE(), usplit, wsplit );
 
                 step.RepresentUntrimmedSurfs( surfs, prefix );
             }
@@ -2879,7 +2879,7 @@ void Vehicle::WriteStructureSTEPFile( const string & file_name )
         for ( int j = 0; j < surf_vec.size(); j++ )
         {
             vector < SdaiB_spline_surface_with_knots* > surfs;
-            surf_vec[j].ToSTEP_BSpline_Quilt( &step, surfs, m_STEPStructureSplitSurfs(), m_STEPStructureMergePoints(), m_STEPStructureToCubic(), m_STEPStructureToCubicTol(), false, usplit, wsplit );
+            surf_vec[j].ToSTEP_BSpline_Quilt( &step, surfs, string(), m_STEPStructureSplitSurfs(), m_STEPStructureMergePoints(), m_STEPStructureToCubic(), m_STEPStructureToCubicTol(), false, usplit, wsplit );
 
             step.RepresentUntrimmedSurfs( surfs );
         }

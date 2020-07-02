@@ -31,6 +31,7 @@ NURBS_Curve::NURBS_Curve()
     m_STEP_Edge = NULL;
     m_IGES_Edge = NULL;
     m_BBox = BndBox();
+    m_Label = string();
 }
 
 void NURBS_Curve::InitNURBSCurve( SCurve curve )
@@ -48,12 +49,12 @@ void NURBS_Curve::InitNURBSCurve( SCurve curve )
     }
 }
 
-void NURBS_Curve::WriteIGESEdge( IGESutil* iges )
+void NURBS_Curve::WriteIGESEdge( IGESutil* iges, const string& label )
 {
-    m_IGES_Edge = new DLL_IGES_ENTITY_126( iges->MakeCurve( m_PntVec, m_Deg ) );
+    m_IGES_Edge = new DLL_IGES_ENTITY_126( iges->MakeCurve( m_PntVec, m_Deg, label ) );
 }
 
-void NURBS_Curve::WriteSTEPEdge( STEPutil* step, bool mergepnts )
+void NURBS_Curve::WriteSTEPEdge( STEPutil* step, const string& label, bool mergepnts )
 {
     // Identify the start and end vertex points
     m_STEP_Start_Vert = step->MakeVertex( m_PntVec[0] );
@@ -72,7 +73,7 @@ void NURBS_Curve::WriteSTEPEdge( STEPutil* step, bool mergepnts )
     }
 
     // Identify the edge
-    SdaiB_spline_curve_with_knots* curve = step->MakeCurve( m_PntVec, m_Deg, closed_curve, mergepnts, m_MergeTol );
+    SdaiB_spline_curve_with_knots* curve = step->MakeCurve( m_PntVec, m_Deg, label, closed_curve, mergepnts, m_MergeTol );
 
     SdaiEdge_curve* edge_crv = (SdaiEdge_curve*)step->registry->ObjCreate( "EDGE_CURVE" );
     step->instance_list->Append( (SDAI_Application_instance*)edge_crv, completeSE );
@@ -80,7 +81,15 @@ void NURBS_Curve::WriteSTEPEdge( STEPutil* step, bool mergepnts )
     edge_crv->edge_start_( m_STEP_Start_Vert );
     edge_crv->edge_end_( m_STEP_End_Vert );
     edge_crv->same_sense_( BTrue ); // direction set by oriented edge
-    edge_crv->name_( "''" );
+
+    if ( label.size() > 0 )
+    {
+        edge_crv->name_( "'" + ( "Edge_" + label ) + "'" );
+    }
+    else
+    {
+        edge_crv->name_( "''" );
+    }
 
     m_STEP_Edge = edge_crv;
 }
@@ -95,6 +104,7 @@ NURBS_Loop::NURBS_Loop()
     m_BorderLoopFlag = false;
     m_InternalLoopFlag = false;
     m_ClosedFlag = false;
+    m_Label = string();
 }
 
 void NURBS_Loop::SetPntVec( const vector < vec3d >& pnt_vec )
@@ -132,7 +142,7 @@ vector < DLL_IGES_ENTITY_126* > NURBS_Loop::GetIGESEdges( IGESutil* iges )
     return nurbs_vec;
 }
 
-DLL_IGES_ENTITY_144 NURBS_Loop::WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf )
+DLL_IGES_ENTITY_144 NURBS_Loop::WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label )
 {
     if ( !m_ClosedFlag )
     {
@@ -141,10 +151,10 @@ DLL_IGES_ENTITY_144 NURBS_Loop::WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_1
 
     vector < DLL_IGES_ENTITY_126* > nurbs_vec = GetIGESEdges( iges );
 
-    return iges->MakeLoop( parent_surf, nurbs_vec );
+    return iges->MakeLoop( parent_surf, nurbs_vec, label );
 }
 
-void NURBS_Loop::WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf )
+void NURBS_Loop::WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const string& label )
 {
     if ( !m_ClosedFlag )
     {
@@ -154,10 +164,10 @@ void NURBS_Loop::WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_su
 
     vector < DLL_IGES_ENTITY_126* > nurbs_vec = GetIGESEdges( iges );
 
-    iges->MakeCutout( parent_surf, trimmed_surf, nurbs_vec );
+    iges->MakeCutout( parent_surf, trimmed_surf, nurbs_vec, label );
 }
 
-SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, bool mergepts )
+SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, const string& label, bool mergepts )
 {
     if ( !m_ClosedFlag )
     {
@@ -172,7 +182,7 @@ SdaiEdge_loop* NURBS_Loop::WriteSTEPLoop( STEPutil* step, bool mergepts )
         if ( !m_OrderedCurves[i].first.m_STEP_Edge )
         {
             // Create the edge if it has not yet been defined
-            m_OrderedCurves[i].first.WriteSTEPEdge( step, mergepts );
+            m_OrderedCurves[i].first.WriteSTEPEdge( step, label, mergepts );
         }
 
         // Created oriented edge from NURBS_Curve edge
@@ -245,6 +255,7 @@ NURBS_Surface::NURBS_Surface()
     m_Surf = NULL;
     m_IsPlanar = false;
     m_SurfType = vsp::CFD_NORMAL;
+    m_Label = string();
 }
 
 void NURBS_Surface::InitNURBSSurf( Surf* surface )
@@ -282,13 +293,13 @@ DLL_IGES_ENTITY_128 NURBS_Surface::WriteIGESSurf( IGESutil* iges, const string& 
     return iges->MakeSurf( *m_Surf, label.c_str() );
 }
 
-SdaiSurface* NURBS_Surface::WriteSTEPSurf( STEPutil* step, bool mergepts )
+SdaiSurface* NURBS_Surface::WriteSTEPSurf( STEPutil* step, const string& label, bool mergepts )
 {
     SdaiSurface* ret_surf = NULL;
 
     if ( m_IsPlanar )
     {
-        ret_surf = step->MakePlane( m_Center, m_Norm, m_Tangent );
+        ret_surf = step->MakePlane( m_Center, m_Norm, m_Tangent, label );
     }
     else
     {
@@ -300,7 +311,7 @@ SdaiSurface* NURBS_Surface::WriteSTEPSurf( STEPutil* step, bool mergepts )
             merge_tol = 1.0e-10;
         }
 
-        ret_surf = step->MakeSurf( *m_Surf, mergepts, merge_tol );
+        ret_surf = step->MakeSurf( *m_Surf, label, mergepts, merge_tol );
     }
 
     return ret_surf;
@@ -516,14 +527,14 @@ void NURBS_Surface::BuildNURBSLoopMap()
     m_NURBSLoopVec.insert( m_NURBSLoopVec.end(), external_loop_vec.begin(), external_loop_vec.end() );
 }
 
-void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf )
+void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label )
 {
     // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)
     for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
     {
         if ( m_NURBSCurveVec[i].m_SubSurfFlag || ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) )
         {
-            iges->MakeCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg );
+            iges->MakeCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg, label );
         }
     }
 
@@ -559,11 +570,11 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
 
     if ( ext_loop_vec.size() == 1 )
     {
-        DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[0].WriteIGESLoop( iges, parent_surf );
+        DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[0].WriteIGESLoop( iges, parent_surf, label );
 
         for ( size_t i = 0; i < cutout_vec.size(); i++ )
         {
-            cutout_vec[i].WriteIGESCutout( iges, parent_surf, trimmed_surf );
+            cutout_vec[i].WriteIGESCutout( iges, parent_surf, trimmed_surf, label );
         }
     }
     else if ( ext_loop_vec.size() > 1 )
@@ -572,28 +583,28 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
         // with separate loop bounds.
         for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
         {
-            DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[i].WriteIGESLoop( iges, parent_surf );
+            DLL_IGES_ENTITY_144 trimmed_surf = ext_loop_vec[i].WriteIGESLoop( iges, parent_surf, label );
 
             // Check if for any cutouts on the trimmed surface
             for ( size_t j = 0; j < cutout_vec.size(); j++ )
             {
                 if ( Compare( ext_loop_vec[i].GetBndBox(), cutout_vec[j].GetBndBox() ) ) // TODO: Improve this comparison
                 {
-                    cutout_vec[j].WriteIGESCutout( iges, parent_surf, trimmed_surf );
+                    cutout_vec[j].WriteIGESCutout( iges, parent_surf, trimmed_surf, label );
                 }
             }
         }
     }
 }
 
-vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, SdaiSurface* surf, bool mergepts )
+vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, SdaiSurface* surf, const string& label, bool mergepts )
 {
     // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)
     for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
     {
         if ( m_NURBSCurveVec[i].m_SubSurfFlag || ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) )
         {
-            step->MakeSurfaceCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg, mergepts, m_NURBSCurveVec[i].m_MergeTol );
+            step->MakeSurfaceCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg, label, mergepts, m_NURBSCurveVec[i].m_MergeTol );
         }
     }
 
@@ -618,7 +629,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
             }
             else if ( m_SurfType != vsp::CFD_NEGATIVE )
             {
-                SdaiEdge_loop* loop = m_NURBSLoopVec[i].WriteSTEPLoop( step, mergepts );
+                SdaiEdge_loop* loop = m_NURBSLoopVec[i].WriteSTEPLoop( step, label, mergepts );
 
                 if ( loop ) // TODO: Identify if the interior loop is on a surface that will be split
                 {
@@ -644,7 +655,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
 
     if ( ext_loop_vec.size() == 1 )
     {
-        SdaiEdge_loop* loop = ext_loop_vec[0].WriteSTEPLoop( step, mergepts );
+        SdaiEdge_loop* loop = ext_loop_vec[0].WriteSTEPLoop( step, label, mergepts );
 
         if ( loop )
         {
@@ -663,7 +674,7 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
         // but define new loops.
         for ( size_t i = 0; i < ext_loop_vec.size(); i++ )
         {
-            SdaiEdge_loop* loop = ext_loop_vec[i].WriteSTEPLoop( step, mergepts );
+            SdaiEdge_loop* loop = ext_loop_vec[i].WriteSTEPLoop( step, label, mergepts );
 
             if ( !loop )
             {

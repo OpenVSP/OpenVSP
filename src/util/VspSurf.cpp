@@ -2004,7 +2004,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
     }
 }
 
-void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit )
+void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface_with_knots *> &surfs, const string& label, bool splitsurf, bool mergepts, bool tocubic, double tol, bool trimte, const vector < double > &USplit, const vector < double > &WSplit )
 {
     vector < piecewise_surface_type > surfvec = PrepCADSurfs( splitsurf, tocubic, tol, trimte, USplit, WSplit );
 
@@ -2033,7 +2033,7 @@ void VspSurf::ToSTEP_BSpline_Quilt( STEPutil * step, vector<SdaiB_spline_surface
             continue;
         }
 
-        SdaiSurface* surf = step->MakeSurf( s, mergepts, merge_tol );
+        SdaiSurface* surf = step->MakeSurf( s, label, mergepts, merge_tol );
         SdaiB_spline_surface_with_knots* nurbs = dynamic_cast<SdaiB_spline_surface_with_knots*>( surf );
 
         surfs.push_back( nurbs );

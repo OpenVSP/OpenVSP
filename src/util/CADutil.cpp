@@ -760,11 +760,10 @@ void STEPutil::WriteFile( string fname )
     }
 }
 
-SdaiSurface* STEPutil::MakePlane( const vec3d center, const vec3d norm, const vec3d tangent )
+SdaiSurface* STEPutil::MakePlane( const vec3d center, const vec3d norm, const vec3d tangent, const string& label )
 {
     SdaiPlane* plane = (SdaiPlane*)registry->ObjCreate( "PLANE" );
     instance_list->Append( (SDAI_Application_instance*)plane, completeSE );
-    plane->name_( "''" );
 
     SdaiCartesian_point* origin2 = MakePoint( center.x(), center.y(), center.z() );
     SdaiDirection* axis2 = MakeDirection( norm.x(), norm.y(), norm.z() );
@@ -779,10 +778,19 @@ SdaiSurface* STEPutil::MakePlane( const vec3d center, const vec3d norm, const ve
 
     plane->position_( placement2 );
 
+    if ( label.size() > 0 )
+    {
+        plane->name_( "'" + ( "Plane_" + label ) + "'" );
+    }
+    else
+    {
+        plane->name_( "''" );
+    }
+
     return (SdaiSurface*)plane;
 }
 
-SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, bool mergepts, double merge_tol )
+SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, const string& label, bool mergepts, double merge_tol )
 {
     // Surface control points and 2D indexes
     vector< vector< int > > ptindxs;
@@ -798,7 +806,15 @@ SdaiSurface* STEPutil::MakeSurf( piecewise_surface_type& s, bool mergepts, doubl
     instance_list->Append( (SDAI_Application_instance*)surf, completeSE );
     surf->u_degree_( maxu );
     surf->v_degree_( maxv );
-    surf->name_( "''" );
+
+    if ( label.size() > 0 )
+    {
+        surf->name_( "'" + ( "Surf_" + label ) + "'" );
+    }
+    else
+    {
+        surf->name_( "''" );
+    }
 
     // Indicate if the surface is closed in the U or V directions
     if ( s.closed_u() )
@@ -920,7 +936,7 @@ SdaiVertex_point* STEPutil::MakeVertex( vec3d vertex )
     return vert_pnt;
 }
 
-SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( vector < vec3d > cp_vec, const int& deg, bool closed_curve, bool mergepnts, double merge_tol )
+SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( vector < vec3d > cp_vec, const int& deg, const string& label, bool closed_curve, bool mergepnts, double merge_tol )
 {
     // Identify the edge
     int npts = (int)cp_vec.size();
@@ -928,8 +944,16 @@ SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( vector < vec3d > cp_vec, con
     SdaiB_spline_curve_with_knots* curve = (SdaiB_spline_curve_with_knots*)registry->ObjCreate( "B_SPLINE_CURVE_WITH_KNOTS" );
     instance_list->Append( (SDAI_Application_instance*)curve, completeSE );
     curve->degree_( deg );
-    curve->name_( "''" );
     curve->closed_curve_( SDAI_LOGICAL( closed_curve ) );
+
+    if ( label.size() > 0 )
+    {
+        curve->name_( "'" + ( "Curve_" + label ) + "'" );
+    }
+    else
+    {
+        curve->name_( "''" );
+    }
 
     piecewise_surface_type::index_type ip;
 
@@ -1013,16 +1037,16 @@ SdaiB_spline_curve_with_knots* STEPutil::MakeCurve( vector < vec3d > cp_vec, con
     return curve;
 }
 
-void STEPutil::MakeSurfaceCurve( vector < vec3d > cp_vec, const int& deg, bool mergepnts, double merge_tol )
+void STEPutil::MakeSurfaceCurve( vector < vec3d > cp_vec, const int& deg, const string& label, bool mergepnts, double merge_tol )
 {
     // Check for closure (i.e. ellipse sub-surface)
-    bool closed_curve;
+    bool closed_curve = false;
     if ( dist( cp_vec.front(), cp_vec.back() ) < FLT_EPSILON )
     {
         closed_curve = true;
     }
 
-    SdaiB_spline_curve_with_knots* curve = MakeCurve( cp_vec, deg, closed_curve, mergepnts, merge_tol );
+    SdaiB_spline_curve_with_knots* curve = MakeCurve( cp_vec, deg, label, closed_curve, mergepnts, merge_tol );
 
     // Identify the start and end control point node numbers
     string cp_vec_str;
@@ -1038,9 +1062,17 @@ void STEPutil::MakeSurfaceCurve( vector < vec3d > cp_vec, const int& deg, bool m
     // Create trimmed curve
     SdaiTrimmed_curve* trimmed_curve = (SdaiTrimmed_curve*)registry->ObjCreate( "TRIMMED_CURVE" );
     instance_list->Append( (SDAI_Application_instance*)trimmed_curve, completeSE );
-    trimmed_curve->name_( "''" );
     trimmed_curve->basis_curve_( curve );
     trimmed_curve->sense_agreement_( Boolean( true ) ); // TODO: Check this
+
+    if ( label.size() > 0 )
+    {
+        trimmed_curve->name_( "'" + ( "TrimSurf_" + label ) + "'" );
+    }
+    else
+    {
+        trimmed_curve->name_( "''" );
+    }
 
     // Identify the start and end control points along with the parameterization (complete knot vector)
     std::ostringstream trim_1;
@@ -1080,7 +1112,7 @@ void STEPutil::MakeSurfaceCurve( vector < vec3d > cp_vec, const int& deg, bool m
     sdr->used_representation_( shape_rep );
 }
 
-void STEPutil::RepresentBREPSolid( vector < vector < SdaiAdvanced_face* > > adv_vec )
+void STEPutil::RepresentBREPSolid( vector < vector < SdaiAdvanced_face* > > adv_vec, const string& label )
 {
     vector < SdaiManifold_solid_brep* > brep_vec;
 
@@ -1134,9 +1166,17 @@ void STEPutil::RepresentBREPSolid( vector < vector < SdaiAdvanced_face* > > adv_
 
     SdaiAdvanced_brep_shape_representation* adv_brep = (SdaiAdvanced_brep_shape_representation*)registry->ObjCreate( "ADVANCED_BREP_SHAPE_REPRESENTATION" );
     instance_list->Append( (SDAI_Application_instance*)adv_brep, completeSE );
-    adv_brep->name_( "''" );
     adv_brep->context_of_items_( (SdaiRepresentation_context*)context );
     adv_brep->items_()->AddNode( new GenericAggrNode( brep_ss.str().c_str() ) );
+
+    if ( label.size() > 0 )
+    {
+        adv_brep->name_( "'" + ( "BREP_" + label ) + "'" );
+    }
+    else
+    {
+        adv_brep->name_( "''" );
+    }
 
     SdaiShape_definition_representation* shape_def_rep = (SdaiShape_definition_representation*)registry->ObjCreate( "SHAPE_DEFINITION_REPRESENTATION" );
     instance_list->Append( (SDAI_Application_instance*)shape_def_rep, completeSE );
@@ -1144,7 +1184,7 @@ void STEPutil::RepresentBREPSolid( vector < vector < SdaiAdvanced_face* > > adv_
     shape_def_rep->used_representation_( adv_brep );
 }
 
-void STEPutil::RepresentManifoldShell( vector < vector < SdaiAdvanced_face* > > adv_vec )
+void STEPutil::RepresentManifoldShell( vector < vector < SdaiAdvanced_face* > > adv_vec, const string& label )
 {
     vector < SdaiOpen_shell* > shell_vec;
 
@@ -1189,11 +1229,19 @@ void STEPutil::RepresentManifoldShell( vector < vector < SdaiAdvanced_face* > > 
 
     SdaiManifold_surface_shape_representation* man_surf = (SdaiManifold_surface_shape_representation*)registry->ObjCreate( "MANIFOLD_SURFACE_SHAPE_REPRESENTATION" );
     instance_list->Append( (SDAI_Application_instance*)man_surf, completeSE );
-    man_surf->name_( "''" );
     man_surf->context_of_items_( (SdaiRepresentation_context*)context );
 
     std::ostringstream man_ss;
     man_ss << "#" << shell_surf->GetFileId() << ",";
+
+    if ( label.size() > 0 )
+    {
+        man_surf->name_( "'" + ( "ManShell_" + label ) + "'" );
+    }
+    else
+    {
+        man_surf->name_( "''" );
+    }
 
     SdaiCartesian_point* origin2 = MakePoint( 0.0, 0.0, 0.0 );
     SdaiDirection* axis2 = MakeDirection( 0.0, 0.0, 1.0 );
@@ -1293,10 +1341,7 @@ DLL_IGES_ENTITY_128 IGESutil::MakeSurf( piecewise_surface_type& s, const string&
 
     if ( label.size() > 0 )
     {
-        DLL_IGES_ENTITY_406 e406( model, true );
-        e406.SetProperty_Name( label.c_str() );
-        isurf.AddOptionalEntity( e406.GetRawPtr() );
-        e406.Detach();
+        AddLabel( isurf, ( "Surf_" + label ) );
     }
 
     // Identify coefficient and knot vectors
@@ -1334,13 +1379,13 @@ DLL_IGES_ENTITY_128 IGESutil::MakeSurf( piecewise_surface_type& s, const string&
     return isurf;
 }
 
-DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec )
+DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec, const string& label )
 {
     // Create the Trimmed Parametric Surface (TPS)
     DLL_IGES_ENTITY_144 trim_surf( model, true );
 
     // Define the 1st surface boundary in model space
-    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec );
+    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, label );
 
     if ( !trim_surf.SetBoundCurve( bound ) )
     {
@@ -1349,13 +1394,15 @@ DLL_IGES_ENTITY_144 IGESutil::MakeLoop( DLL_IGES_ENTITY_128& parent_surf, vector
 
     trim_surf.SetSurface( parent_surf );
 
+    AddLabel( trim_surf, ( "TrimSurf_" + label ).c_str() );
+
     return trim_surf;
 }
 
-void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec )
+void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec, const string& label )
 {
     // Define the 1st surface boundary in model space
-    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec );
+    DLL_IGES_ENTITY_142 bound = MakeBound( parent_surf, nurbs_vec, label );
 
     if ( !trimmed_surf.AddCutout( bound ) )
     {
@@ -1364,7 +1411,7 @@ void IGESutil::MakeCutout( DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144
     }
 }
 
-DLL_IGES_ENTITY_126 IGESutil::MakeCurve( vector < vec3d > cp_vec, int deg )
+DLL_IGES_ENTITY_126 IGESutil::MakeCurve( vector < vec3d > cp_vec, int deg, const string& label )
 {
     int npts = (int)cp_vec.size();
 
@@ -1404,10 +1451,15 @@ DLL_IGES_ENTITY_126 IGESutil::MakeCurve( vector < vec3d > cp_vec, int deg )
     // Attach the color to the NURBS curve
     nc.SetColor( color );
 
+    if ( label.size() > 0 )
+    {
+        AddLabel( nc, ( "Curve_" + label ).c_str() );
+    }
+
     return nc;
 }
 
-DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec )
+DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, vector < DLL_IGES_ENTITY_126* > nurbs_vec, const string& label )
 {
     // Create a compound curve
     DLL_IGES_ENTITY_102 compound( model, true );
@@ -1428,7 +1480,24 @@ DLL_IGES_ENTITY_142 IGESutil::MakeBound( DLL_IGES_ENTITY_128& parent_surf, vecto
     bound.SetCurvePreference( BOUND_PREF_MODELSPACE );
     bound.SetSurface( parent_surf );
 
+    if ( label.size() > 0 )
+    {
+        AddLabel( compound, ( "Compound_" + label ).c_str() );
+        AddLabel( bound, ( "Bound_" + label ).c_str() );
+    }
+
     return bound;
+}
+
+void IGESutil::AddLabel( DLL_IGES_ENTITY& entity, const string& label )
+{
+    DLL_IGES_ENTITY_406 e406( model, true );
+    if ( !e406.SetProperty_Name( label.c_str() ) )
+    {
+        printf( "Warning: Failed to Set IGES Property Name\n" );
+    }
+    entity.AddOptionalEntity( e406.GetRawPtr() );
+    e406.Detach();
 }
 
 void IGESutil::IGESKnots( int deg, int npatch, vector< double >& knot )

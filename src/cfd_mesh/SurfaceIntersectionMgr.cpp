@@ -894,7 +894,7 @@ void SurfaceIntersectionSingleton::WriteIGESFile( const string& filename, int le
 
         DLL_IGES_ENTITY_128 isurf = m_NURBSSurfVec[si].WriteIGESSurf( &iges, label.c_str() );
         
-        m_NURBSSurfVec[si].WriteIGESLoops( &iges, isurf );
+        m_NURBSSurfVec[si].WriteIGESLoops( &iges, isurf, label.c_str() );
     }
 
     iges.WriteFile( filename, true );
@@ -913,7 +913,7 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
         // Don't write subsurface or structrual entity intersections as STEP edges (surface splitting along these curve types not supported)
         if ( !m_NURBSCurveVec[i].m_SubSurfFlag && m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_STRUCTURE )
         {
-            m_NURBSCurveVec[i].WriteSTEPEdge( &step, merge_pnts );
+            m_NURBSCurveVec[i].WriteSTEPEdge( &step, to_string(i), merge_pnts ); // TODO: Improve STEP Edge Naming
         }
     }
 
@@ -976,7 +976,7 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
             label.append( to_string( m_NURBSSurfVec[si].m_SurfID ) );
         }
 
-        SdaiSurface* surf = m_NURBSSurfVec[si].WriteSTEPSurf( &step, merge_pnts );
+        SdaiSurface* surf = m_NURBSSurfVec[si].WriteSTEPSurf( &step, label, merge_pnts );
         geom_surf_label_map[label].push_back( surf );
 
         int comp_id = -1;
@@ -993,7 +993,7 @@ void SurfaceIntersectionSingleton::WriteSTEPFile( const string& filename, int le
         {
             if ( std::count( comp_id_group_vec[j].begin(), comp_id_group_vec[j].end(), comp_id ) )
             {
-                vector < SdaiAdvanced_face* > adv = m_NURBSSurfVec[si].WriteSTEPLoops( &step, surf, merge_pnts );
+                vector < SdaiAdvanced_face* > adv = m_NURBSSurfVec[si].WriteSTEPLoops( &step, surf, label, merge_pnts );
                 adv_vec[j].insert( adv_vec[j].end(), adv.begin(), adv.end() );
             }
         }

@@ -34,10 +34,10 @@ public:
     void InitNURBSCurve( SCurve curve );
 
     // Define the NURBS curve as a SdaiEdge_curve
-    void WriteSTEPEdge( STEPutil* step, bool mergepnts );
+    void WriteSTEPEdge( STEPutil* step, const string& label = "", bool mergepnts = false );
 
     // Defines m_IGES_Edge by as an IGES type 126 entity
-    void WriteIGESEdge( IGESutil* iges );
+    void WriteIGESEdge( IGESutil* iges, const string& label = "" );
 
     // Flag is true if the curve is a border curve
     bool m_BorderFlag;
@@ -76,6 +76,9 @@ public:
     // Degree of the curve to define the NURBS curve
     int m_Deg;
 
+    // Label for the NURBS curve
+    string m_Label;
+
 protected:
 
     // Bounding box of curve. Used to identify relative tolerances
@@ -100,13 +103,13 @@ public:
 
     // Write the NURBS loop to IGES and trim the parent 128 type entity to form a
     // type 144 entity. 
-    DLL_IGES_ENTITY_144 WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf );
+    DLL_IGES_ENTITY_144 WriteIGESLoop( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label = "" );
 
     // Add a cutout or hole to a boundedor trimmed surface
-    void WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf );
+    void WriteIGESCutout( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, DLL_IGES_ENTITY_144& trimmed_surf, const string& label = "" );
 
     // Write the NURBS loop to STEP
-    SdaiEdge_loop* WriteSTEPLoop( STEPutil* step, bool mergepts );
+    SdaiEdge_loop* WriteSTEPLoop( STEPutil* step, const string& label = "", bool mergepts = false );
 
     // Based on all control points for theloop, get the bounding box
     BndBox GetBndBox();
@@ -125,6 +128,9 @@ public:
 
     // vector of ordered NURBS_Curves that make up a loop. The orientation of the curve is saved
     vector < pair < NURBS_Curve, bool > > m_OrderedCurves;
+
+    // Label for the NURBS loop
+    string m_Label;
 
 protected:
 
@@ -154,14 +160,14 @@ public:
 
     // Write the NURBS loops for this NURBS surface to IGES, trimming the parent surface
     // in the process. 
-    void WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf );
+    void WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_surf, const string& label = "" );
 
     // Write the NURBS surface to STEP and optionally merge points that are close together
-    SdaiSurface* WriteSTEPSurf( STEPutil* step, bool mergepts );
+    SdaiSurface* WriteSTEPSurf( STEPutil* step, const string& label = "", bool mergepts = false );
 
     // Write the NURBS loops for this NURBS surface to STEP, trimming the parent surface
     // in the process. 
-    vector < SdaiAdvanced_face* > WriteSTEPLoops( STEPutil* step, SdaiSurface* surf, bool mergepts );
+    vector < SdaiAdvanced_face* > WriteSTEPLoops( STEPutil* step, SdaiSurface* surf, const string& label = "", bool mergepts = false );
 
     // Identifies the internal and external NURBS curves on the surface, organizes
     // them into connected chains, and forms loops.  
@@ -190,6 +196,9 @@ public:
 
     // Nurbs loops for the surface. Will always contain at least one for the surface border
     vector < NURBS_Loop > m_NURBSLoopVec;
+
+    // Label for the NURBS surface
+    string m_Label;
 
 protected:
 
