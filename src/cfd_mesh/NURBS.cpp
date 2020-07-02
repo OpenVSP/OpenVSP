@@ -317,25 +317,8 @@ map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::BuildOrderedCha
 
     while ( chain_vec.size() > 0 )
     {
-        bool transparent_chain = false;
-
-        // Identify any component and transparent surface (disk) intersection segments
-        for ( size_t i = 0; i < chain_vec.size(); i++ )
-        {
-            if ( ( chain_vec[i].m_SurfA_Type == vsp::CFD_TRANSPARENT || chain_vec[i].m_SurfB_Type == vsp::CFD_TRANSPARENT ) && !chain_vec[i].m_BorderFlag && !chain_vec[i].m_InternalFlag )
-            {
-                return_curve_map[map_ind].push_back( make_pair( chain_vec[i], true ) );
-                chain_vec.erase( chain_vec.begin() + i );
-                transparent_chain = true;
-                break;
-            }
-        }
-
-        if ( !transparent_chain )
-        {
-            return_curve_map[map_ind].push_back( make_pair( chain_vec[0], true ) );
-            chain_vec.erase( chain_vec.begin() );
-        }
+        return_curve_map[map_ind].push_back( make_pair( chain_vec[0], true ) );
+        chain_vec.erase( chain_vec.begin() );
 
         size_t num_int_curve = chain_vec.size();
 
@@ -386,15 +369,6 @@ map< int, vector < pair < NURBS_Curve, bool > > > NURBS_Surface::BuildOrderedCha
             }
             else
             {
-                break;
-            }
-
-            if ( transparent_chain && ( dist( curr_back_pnt, chain_cp_vec.front() ) < tol || dist( curr_back_pnt, chain_cp_vec.back() ) < tol ) )
-            {
-                if ( chain_vec.size() > 0 )
-                {
-                    chain_vec.push_back( return_curve_map[map_ind].back().first );
-                }
                 break;
             }
         }
