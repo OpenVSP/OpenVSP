@@ -11,38 +11,49 @@
 #if !defined(VSPTYPEEDITORSCREEN__INCLUDED_)
 #define VSPTYPEEDITORSCREEN__INCLUDED_
 
+#include "ScreenMgr.h"
+#include "CustomGeom.h"
 #include "ScreenBase.h"
 #include "GuiDevice.h"
-
-#include <FL/Fl.H>
-#include "typeEditorFlScreen.h"
 
 using std::string;
 using std::vector;
 
-class TypeEditorScreen : public VspScreen
+class TypeEditorScreen : public BasicScreen
 {
 public:
     TypeEditorScreen( ScreenMgr* mgr );
     virtual ~TypeEditorScreen()                         {}
+
     void Show();
     void Hide();
     bool Update();
 
+    virtual void GuiDeviceCallBack( GuiDevice* device );
     void CallBack( Fl_Widget *w );
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( ( TypeEditorScreen* )data )->CallBack( w );
-    }
+    virtual void CloseCallBack( Fl_Widget* w );
+
 
 protected:
 
-    int m_SelectedIndex;
+    GroupLayout m_MainLayout;
+    GroupLayout m_BorderLayout;
+
+    Choice m_GeomChoice;
+
+    Fl_Browser* m_TypeBrowser;
+    Fl_Browser* m_CustomScriptsBrowser;
+
+    TriggerButton m_AddToggle;
+    TriggerButton m_DeleteToggle;
+    TriggerButton m_CustomScriptToggle;
+
+    StringInput m_TypeNameInput;
+
+private:
+    int m_TypeBrowserIndex;
     int m_GeomIndex;
     int m_ScriptIndex;
-    TypeEditorUI* m_TypeEditorUI;
 
 };
-
-
 #endif
