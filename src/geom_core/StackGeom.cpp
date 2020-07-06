@@ -333,7 +333,13 @@ void StackGeom::PasteActiveXSec()
 //==== Insert XSec ====//
 void StackGeom::InsertXSec( )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
+    int xsec_lim = NumXSec() - 1; // STACK_LOOP
+    if ( m_OrderPolicy() == STACK_FREE )
+    {
+        xsec_lim = NumXSec();
+    }
+
+    if ( m_ActiveXSec >= xsec_lim || m_ActiveXSec < 0 )
     {
         return;
     }
@@ -348,7 +354,13 @@ void StackGeom::InsertXSec( )
 //==== Insert XSec ====//
 void StackGeom::InsertXSec( int type )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
+    int xsec_lim = NumXSec() - 1; // STACK_LOOP
+    if ( m_OrderPolicy() == STACK_FREE )
+    {
+        xsec_lim = NumXSec();
+    }
+
+    if ( m_ActiveXSec >= xsec_lim || m_ActiveXSec < 0 )
     {
         return;
     }
