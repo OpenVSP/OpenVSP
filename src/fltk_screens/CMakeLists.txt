@@ -5,12 +5,8 @@ INCLUDE_DIRECTORIES( ${FLTK_INCLUDE_DIR} ${GUI_AND_DRAW_INCLUDE_DIR} )
 SET(SCREENS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Path to FLTK generated *.h files")
 
 FLTK_WRAP_UI( screens
-aboutScreen.fl
-curveEditFlScreen.fl
-parmFlScreen.fl
 pickSetFlScreen.fl
 selectFileFlScreen.fl
-sliceScreen.fl
 textureMgrFlScreen.fl
 )
 
