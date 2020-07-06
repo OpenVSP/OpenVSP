@@ -14,7 +14,6 @@
 #include "ScreenMgr.h"
 #include "CustomGeom.h"
 #include "ScreenBase.h"
-#include "GuiDevice.h"
 
 using std::string;
 using std::vector;
@@ -39,20 +38,12 @@ protected:
     GroupLayout m_MainLayout;
     GroupLayout m_BorderLayout;
 
-    Choice m_GeomChoice;
-
-    Fl_Browser* m_TypeBrowser;
     Fl_Browser* m_CustomScriptsBrowser;
 
-    TriggerButton m_AddToggle;
-    TriggerButton m_DeleteToggle;
     TriggerButton m_CustomScriptToggle;
 
-    StringInput m_TypeNameInput;
-
 private:
-    int m_TypeBrowserIndex;
-    int m_GeomIndex;
+
     int m_ScriptIndex;
 
 };
