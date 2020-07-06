@@ -12,7 +12,6 @@ pickSetFlScreen.fl
 selectFileFlScreen.fl
 sliceScreen.fl
 textureMgrFlScreen.fl
-typeEditorFlScreen.fl
 )
 
 ADD_LIBRARY(screens ${screens_FLTK_UI_SRCS} )
