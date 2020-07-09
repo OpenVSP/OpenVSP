@@ -54,7 +54,7 @@ Vehicle* GetVehicle()
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetVehicle::Invalid Vehicle Ptr"  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetVehicle::Invalid Vehicle Ptr" );
         return veh;
     }
     return veh;
@@ -118,7 +118,7 @@ void VSPCheckSetup()
     //==== Check For Valid Vehicle Ptr ====//
     if ( !VehicleMgr.GetVehicle() )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "VSPCheckSetup::Invalid Vehicle Ptr"  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "VSPCheckSetup::Invalid Vehicle Ptr" );
         exit( 0 );
     }
 
@@ -167,7 +167,7 @@ void ReadVSPFile( const string & file_name )
     int err = veh->ReadXMLFile( file_name );
     if( err != 0 )
     {
-        ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "ReadVSPFile::Error"  );
+        ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "ReadVSPFile::Error" );
         return;
     }
     veh->SetVSP3FileName( file_name );
@@ -190,7 +190,7 @@ void SetVSP3FileName( const string & file_name )
     Vehicle* veh = GetVehicle();
     if ( !veh )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetVSP3FileName::Failure Getting Vehicle Ptr"  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetVSP3FileName::Failure Getting Vehicle Ptr" );
         return;
     }
     veh->SetVSP3FileName( file_name );
@@ -212,7 +212,7 @@ void ClearVSPModel()
     ErrorMgr.NoError();
 }
 
-void InsertVSPFile( const string & file_name, const string & parent  )
+void InsertVSPFile( const string & file_name, const string & parent )
 {
     Vehicle* veh = GetVehicle();
 
@@ -222,7 +222,7 @@ void InsertVSPFile( const string & file_name, const string & parent  )
         parent_geom = veh->FindGeom( parent );
         if ( !parent_geom )
         {
-            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "InsertVSPFile::Can't Find Parent " + parent  );
+            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "InsertVSPFile::Can't Find Parent " + parent );
         }
     }
 
@@ -253,7 +253,7 @@ string ImportFile( const string & file_name, int file_type, const string & paren
         parent_geom = veh->FindGeom( parent );
         if ( !parent_geom )
         {
-            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ImportFile::Can't Find Parent " + parent  );
+            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "ImportFile::Can't Find Parent " + parent );
         }
     }
 
@@ -553,7 +553,7 @@ void SetCFDMeshVal( int type, double val )
 
     ErrorMgr.NoError();
 }
-/// Turn On/Off Wakg For Component
+/// Turn On/Off Wake For Component
 void SetCFDWakeFlag( const string & geom_id, bool flag )
 {
     Vehicle* veh = GetVehicle();
@@ -587,7 +587,7 @@ void AddCFDSource( int type, const string & geom_id, int surf_index,
 
     if ( !source )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddCFDSource::Can't Find Type"  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddCFDSource::Can't Find Type" );
         return;
     }
 
@@ -1294,7 +1294,7 @@ vector< string > GetAllDataNames( const string & results_id )
 {
     if ( !ResultsMgr.ValidResultsID( results_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetAllDataNames::Invalid ID " + results_id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetAllDataNames::Invalid ID " + results_id );
         vector<string> ret_vec;
         return ret_vec;
     }
@@ -1339,7 +1339,7 @@ string FindLatestResultsID( const string & name )
     string id = ResultsMgr.FindLatestResultsID( name );
     if ( id.size() == 0 )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "FindLatestResultsID::Can't Find Name " + name  );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "FindLatestResultsID::Can't Find Name " + name );
         return id;
     }
     ErrorMgr.NoError();
@@ -1351,7 +1351,7 @@ extern int GetNumData( const string & results_id, const string & data_name )
 {
     if ( !ResultsMgr.ValidResultsID( results_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetNumData::Invalid ID " + results_id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetNumData::Invalid ID " + results_id );
         return 0;
     }
     ErrorMgr.NoError();
@@ -1362,7 +1362,7 @@ extern int GetResultsType( const string & results_id, const string & data_name )
 {
     if ( !ResultsMgr.ValidResultsID( results_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultsType::Invalid ID " + results_id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetResultsType::Invalid ID " + results_id );
         return vsp::INVALID_TYPE;
     }
     ErrorMgr.NoError();
@@ -1374,7 +1374,7 @@ const vector<int> & GetIntResults( const string & id, const string & name, int i
 {
     if ( !ResultsMgr.ValidResultsID( id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetIntResults::Invalid ID " + id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetIntResults::Invalid ID " + id );
     }
     else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
     {
@@ -1393,7 +1393,7 @@ const vector<double> & GetDoubleResults( const string & id, const string & name,
 {
     if ( !ResultsMgr.ValidResultsID( id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetDoubleResults::Invalid ID " + id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetDoubleResults::Invalid ID " + id );
     }
     else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
     {
@@ -1412,7 +1412,7 @@ const vector< vector<double> > & GetDoubleMatResults( const string & id, const s
 {
     if ( !ResultsMgr.ValidResultsID( id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetDoubleMatResults::Invalid ID " + id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetDoubleMatResults::Invalid ID " + id );
     }
     else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
     {
@@ -1431,7 +1431,7 @@ const vector<string> & GetStringResults( const string & id, const string & name,
 {
     if ( !ResultsMgr.ValidResultsID( id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetStringResults::Invalid ID " + id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetStringResults::Invalid ID " + id );
     }
     else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
     {
@@ -1450,7 +1450,7 @@ const vector<vec3d> & GetVec3dResults( const string & id, const string & name, i
 {
     if ( !ResultsMgr.ValidResultsID( id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetVec3dResults::Invalid ID " + id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetVec3dResults::Invalid ID " + id );
     }
     else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
     {
@@ -1473,7 +1473,7 @@ extern string CreateGeomResults( const string & geom_id, const string & name )
 
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CreateGeomResults::Can't Find GeomID " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "CreateGeomResults::Can't Find GeomID " + geom_id );
         return string();
     }
 
@@ -1481,7 +1481,7 @@ extern string CreateGeomResults( const string & geom_id, const string & name )
 
     if ( !ResultsMgr.ValidResultsID( res_id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "CreateGeomResults::Invalid Results " + res_id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "CreateGeomResults::Invalid Results " + res_id );
     }
     else
     {
@@ -1504,7 +1504,7 @@ void DeleteResult( const string & id )
 {
     if ( !ResultsMgr.ValidResultsID( id ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteResult::Invalid ID " + id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "DeleteResult::Invalid ID " + id );
     }
     else
     {
@@ -1521,7 +1521,7 @@ void WriteResultsCSVFile( const string & id, const string & file_name )
 
     if ( !resptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "WriteResultsCSVFile::Invalid ID " + id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "WriteResultsCSVFile::Invalid ID " + id );
         return;
     }
     resptr->WriteCSVFile( file_name );
@@ -1571,7 +1571,7 @@ void SetGeomDrawType(const string &geom_id, int type)
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomDrawType::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomDrawType::Can't Find Geom " + geom_id );
         return;
     }
     geom_ptr->m_GuiDraw.SetDrawType( type );
@@ -1585,7 +1585,7 @@ void SetGeomDisplayType(const string &geom_id, int type)
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomDisplayType::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomDisplayType::Can't Find Geom " + geom_id );
         return;
     }
     geom_ptr->m_GuiDraw.SetDisplayType( type );
@@ -1641,7 +1641,7 @@ string AddGeom( const string & type, const string & parent  )
 
     if ( type_index == -1 )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "AddGeom::Can't Find Type Name " + type  );
+        ErrorMgr.AddError( VSP_CANT_FIND_TYPE, "AddGeom::Can't Find Type Name " + type );
         return ret_id;
     }
 
@@ -1651,7 +1651,7 @@ string AddGeom( const string & type, const string & parent  )
         parent_geom = veh->FindGeom( parent );
         if ( !parent_geom )
         {
-            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AddGeom::Can't Find Parent " + parent  );
+            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AddGeom::Can't Find Parent " + parent );
             return ret_id;
         }
     }
@@ -1671,7 +1671,7 @@ string AddGeom( const string & type, const string & parent  )
 
     if ( !added_geom )
     {
-        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AddGeom::Failed To Add Geom"  );
+        ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "AddGeom::Failed To Add Geom" );
         return ret_id;
     }
 
@@ -1743,7 +1743,7 @@ vector< string > PasteGeomClipboard( const string & parent )
         parent_geom = veh->FindGeom( parent );
         if ( !parent_geom )
         {
-            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "PasteGeomClipboard::Can't Find Parent " + parent  );
+            ErrorMgr.AddError( VSP_INVALID_GEOM_ID, "PasteGeomClipboard::Can't Find Parent " + parent );
         }
     }
 
@@ -1824,7 +1824,7 @@ void SetGeomName( const string & geom_id, const string & name )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomName::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetGeomName::Can't Find Geom " + geom_id );
         return;
     }
     geom_ptr->SetName( name );
@@ -1892,7 +1892,7 @@ int GetGeomVSPSurfCfdType( const string& geom_id, int main_surf_ind )
 }
 
 /// Get of the linkable parms ids for this geometry
-vector< string > GetGeomParmIDs( const string & geom_id  )
+vector< string > GetGeomParmIDs( const string & geom_id )
 {
     vector< string > parm_vec;
 
@@ -1900,7 +1900,7 @@ vector< string > GetGeomParmIDs( const string & geom_id  )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomParmIDs::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomParmIDs::Can't Find Geom " + geom_id );
         return parm_vec;
     }
 
@@ -1945,7 +1945,7 @@ string GetParm( const string & geom_id, const string & name, const string & grou
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParm::Can't Find Parm " + geom_id + ":" + group + ":" + name  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParm::Can't Find Parm " + geom_id + ":" + group + ":" + name );
         return parm_id;
     }
     ErrorMgr.NoError();
@@ -1987,7 +1987,7 @@ int GetNumXSecSurfs( const string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumXSecSurfs::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumXSecSurfs::Can't Find Geom " + geom_id );
         return 0;
     }
 
@@ -2002,7 +2002,7 @@ int GetNumMainSurfs( const string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumMainSurfs::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumMainSurfs::Can't Find Geom " + geom_id );
         return 0;
     }
 
@@ -2116,7 +2116,7 @@ string AddSubSurf( const string & geom_id, int type, int surfindex )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurf::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurf::Can't Find Geom " + geom_id );
         return string();
     }
 
@@ -2124,7 +2124,7 @@ string AddSubSurf( const string & geom_id, int type, int surfindex )
     ssurf = geom_ptr->AddSubSurf( type, surfindex );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurf::Invalid Sub Surface Ptr "  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddSubSurf::Invalid Sub Surface Ptr " );
         return string();
     }
     ssurf->Update();
@@ -2146,7 +2146,7 @@ string GetSubSurf( const string & geom_id, int index )
     ssurf = geom_ptr->GetSubSurf( index );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Invalid Sub Surface Ptr "  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurf::Invalid Sub Surface Ptr " );
         return string();
     }
     ErrorMgr.NoError();
@@ -2969,7 +2969,7 @@ void PasteXSec( const string & geom_id, int index )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PasteXSec::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PasteXSec::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -2983,7 +2983,7 @@ void InsertXSec( const string & geom_id, int index, int type )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertXSec::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertXSec::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -3001,12 +3001,12 @@ void SetDriverGroup( const string & geom_id, int section_index, int driver_0, in
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Can't Find Geom " + geom_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != MS_WING_GEOM_TYPE )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Geom Type " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetDriverGroup::Invalid Geom Type " + geom_id );
         return;
     }
 
@@ -3034,14 +3034,14 @@ string GetXSecSurf( const string & geom_id, int index )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecSurf::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecSurf::Can't Find Geom " + geom_id );
         return string();
     }
     XSecSurf* xsec_surf = geom_ptr->GetXSecSurf( index );
 
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecSurf::Can't Find XSecSurf " + geom_id + ":" + to_string( ( long long )index )  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecSurf::Can't Find XSecSurf " + geom_id + ":" + to_string( ( long long )index ) );
         return string();
     }
 
@@ -3055,7 +3055,7 @@ int GetNumXSec( const string & xsec_surf_id )
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumXSec::Can't Find XSecSurf " + xsec_surf_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetNumXSec::Can't Find XSecSurf " + xsec_surf_id );
         return 0;
     }
 
@@ -3069,13 +3069,13 @@ string GetXSec( const string & xsec_surf_id, int xsec_index )
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSec::Can't Find XSecSurf " + xsec_surf_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSec::Can't Find XSecSurf " + xsec_surf_id );
         return string();
     }
     XSec* xsec = xsec_surf->FindXSec( xsec_index );
     if ( !xsec )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSec::Can't Find XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSec::Can't Find XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
         return string();
     }
 
@@ -3083,122 +3083,18 @@ string GetXSec( const string & xsec_surf_id, int xsec_index )
     return xsec->GetID();
 }
 
-///// Cut xsec from xsec_surf.  The xsec is stored in a clipboard and can be pasted.
-//void CutXSec( const string & xsec_surf_id, int xsec_index )
-//{
-//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-//    if ( !xsec_surf )
-//    {
-//        ErrorMgr.AddError( VSP_INVALID_PTR, "CutXSec::Can't Find XSecSurf " + xsec_surf_id  );
-//        return;
-//    }
-//    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
-//    {
-//        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CutXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
-//        return;
-//    }
-//
-//    ErrorMgr.NoError();
-//    xsec_surf->CutXSec( xsec_index );
-//}
-
-///// Copy xsec from xsec_surf.  The xsec is stored in a clipboard and can be pasted.
-//void CopyXSec( const string & xsec_surf_id, int xsec_index )
-//{
-//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-//    if ( !xsec_surf )
-//    {
-//        ErrorMgr.AddError( VSP_INVALID_PTR, "CopyXSec::Can't Find XSecSurf " + xsec_surf_id  );
-//        return;
-//    }
-//    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
-//    {
-//        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CopyXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
-//        return;
-//    }
-//
-//    ErrorMgr.NoError();
-//    xsec_surf->CopyXSec( xsec_index );
-//}
-
-///// Paste xsec from clipboard to xsec_surf.  The pasted xsec replaces the xsec at xsec index.
-//void PasteXSec( const string & xsec_surf_id, int xsec_index )
-//{
-//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-//    if ( !xsec_surf )
-//    {
-//        ErrorMgr.AddError( VSP_INVALID_PTR, "PasteXSec::Can't Find XSecSurf " + xsec_surf_id );
-//        return;
-//    }
-//    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
-//    {
-//        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "PasteXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
-//        return;
-//    }
-//
-//    ErrorMgr.NoError();
-//    xsec_surf->PasteXSec( xsec_index );
-//}
-
-///// Create an xsec of type type and add it to the end of xsecsurf
-//string AppendXSec( const string & xsec_surf_id, int type  )
-//{
-//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-//    if ( !xsec_surf )
-//    {
-//        ErrorMgr.AddError( VSP_INVALID_PTR, "AddXSec::Can't Find XSecSurf " + xsec_surf_id  );
-//        return string();
-//    }
-//
-//    string id  = xsec_surf->AddXSec( type );
-//    if ( id.size() == 0 )
-//    {
-//        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "AddXSec::Invalid XSec Type " + to_string( ( long long ) type ) );
-//        return id;
-//    }
-//
-//    ErrorMgr.NoError();
-//    return id;
-//}
-
-///// Create an xsec of type type and insert it after xsec_index
-//string InsertXSec( const string & xsec_surf_id, int type, int xsec_index  )
-//{
-//    XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
-//    if ( !xsec_surf )
-//    {
-//        ErrorMgr.AddError( VSP_INVALID_PTR, "InsertXSec::Can't Find XSecSurf " + xsec_surf_id  );
-//        return string();
-//    }
-//    if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
-//    {
-//        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "InsertXSec::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
-//        return string();
-//    }
-//
-//    string id  = xsec_surf->InsertXSec( type, xsec_index );
-//    if ( id.size() == 0 )
-//    {
-//        ErrorMgr.AddError( VSP_INVALID_XSEC_ID, "InsertXSec::Invalid XSec Type " + to_string( ( long long ) type ) );
-//        return id;
-//    }
-//
-//    ErrorMgr.NoError();
-//    return id;
-//}
-
 /// Change the shape of a particular XSec
 void ChangeXSecShape( const string & xsec_surf_id, int xsec_index, int type )
 {
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeXSecShape::Can't Find XSecSurf " + xsec_surf_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeXSecShape::Can't Find XSecSurf " + xsec_surf_id );
         return;
     }
     if ( xsec_index < 0 || xsec_index >= xsec_surf->NumXSec() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ChangeXSecShape::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ChangeXSecShape::XSec Index Out of Range " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
         return;
     }
 
@@ -3212,7 +3108,7 @@ void SetXSecSurfGlobalXForm( const string & xsec_surf_id, const Matrix4d & mat )
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecSurfGlobalXForm::Can't Find XSecSurf " + xsec_surf_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecSurfGlobalXForm::Can't Find XSecSurf " + xsec_surf_id );
         return;
     }
     xsec_surf->SetGlobalXForm( mat );
@@ -3224,13 +3120,14 @@ Matrix4d GetXSecSurfGlobalXForm( const string & xsec_surf_id )
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecSurfGlobalXForm::Can't Find XSecSurf " + xsec_surf_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecSurfGlobalXForm::Can't Find XSecSurf " + xsec_surf_id );
         return Matrix4d();
     }
     return xsec_surf->GetGlobalXForm();
 }
+
 //===================================================================//
-//===============       XSec Functions         ==================//
+//=================       XSec Functions         ====================//
 //===================================================================//
 /// Get XSec shape given xsec id
 int GetXSecShape( const string& xsec_id )
@@ -3238,7 +3135,7 @@ int GetXSecShape( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecShape::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecShape::Can't Find XSec " + xsec_id );
         return XS_UNDEFINED;
     }
 
@@ -3252,7 +3149,7 @@ double GetXSecWidth( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecWidth::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecWidth::Can't Find XSec " + xsec_id );
         return 0;
     }
     ErrorMgr.NoError();
@@ -3265,7 +3162,7 @@ double GetXSecHeight( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecHeight::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecHeight::Can't Find XSec " + xsec_id );
         return 0;
     }
     ErrorMgr.NoError();
@@ -3278,7 +3175,7 @@ void SetXSecWidthHeight( const string& xsec_id, double w, double h )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecWidthHeight::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecWidthHeight::Can't Find XSec " + xsec_id );
         return;
     }
     xs->GetXSecCurve()->SetWidthHeight( w, h );
@@ -3323,14 +3220,14 @@ void SetXSecHeight( const string& xsec_id, double h )
 }
 
 /// Get of the linkable parms ids for this geometry
-vector< string > GetXSecParmIDs( const string & xsec_id  )
+vector< string > GetXSecParmIDs( const string & xsec_id )
 {
     vector< string > parm_vec;
 
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecParmIDs::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecParmIDs::Can't Find XSec " + xsec_id );
         return parm_vec;
     }
 
@@ -3347,7 +3244,7 @@ string GetXSecParm( const string& xsec_id, const string& name )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecParm::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecParm::Can't Find XSec " + xsec_id );
         return string();
     }
 
@@ -3363,7 +3260,7 @@ string GetXSecParm( const string& xsec_id, const string& name )
     XSecCurve* xsc = xs->GetXSecCurve();
     if ( !xsc )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecParm::Can't Find XSecCurve " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetXSecParm::Can't Find XSecCurve " + xsec_id );
         return string();
     }
 
@@ -3374,7 +3271,7 @@ string GetXSecParm( const string& xsec_id, const string& name )
         return xscparm;
     }
 
-    ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetXSecParm::Can't Find Parm " + name  );
+    ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetXSecParm::Can't Find Parm " + name );
     return string();
 }
 
@@ -3385,7 +3282,7 @@ vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ReadFileXSec::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ReadFileXSec::Can't Find XSec " + xsec_id );
         return pnt_vec;
     }
 
@@ -3415,12 +3312,12 @@ void SetXSecPnts( const string& xsec_id, vector< vec3d > & pnt_vec )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecPnts::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecPnts::Can't Find XSec " + xsec_id );
         return;
     }
     if ( xs->GetXSecCurve()->GetType() != XS_FILE_FUSE )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetXSecPnts::Wrong XSec Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetXSecPnts::Wrong XSec Type" );
         return;
     }
 
@@ -3436,7 +3333,7 @@ vec3d ComputeXSecPnt( const string& xsec_id, double fract )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputePnt::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputePnt::Can't Find XSec " + xsec_id );
         return vec3d();
     }
 
@@ -3452,7 +3349,7 @@ vec3d ComputeXSecTan( const string& xsec_id, double fract )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeTan::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeTan::Can't Find XSec " + xsec_id );
         return vec3d();
     }
 
@@ -3468,13 +3365,13 @@ void ResetXSecSkinParms( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetXSecSkinParms::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetXSecSkinParms::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetXSecSkinParms::Can't Convert To Skin XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ResetXSecSkinParms::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -3488,13 +3385,13 @@ void SetXSecContinuity( const string& xsec_id, int cx )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecContinuity::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecContinuity::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecContinuity::Can't Convert To Skin XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecContinuity::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -3508,13 +3405,13 @@ void SetXSecTanAngles( const string& xsec_id, int side, double top, double right
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanAngles::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanAngles::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanAngles::Can't Convert To Skin XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanAngles::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -3528,13 +3425,13 @@ void SetXSecTanSlews( const string& xsec_id, int side, double top, double right,
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanSlews::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanSlews::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanSlews::Can't Convert To Skin XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanSlews::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -3548,13 +3445,13 @@ void SetXSecTanStrengths( const string& xsec_id, int side, double top, double ri
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanStrengths::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanStrengths::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanStrengths::Can't Convert To Skin XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecTanStrengths::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -3568,13 +3465,13 @@ void SetXSecCurvatures( const string& xsec_id, int side, double top, double righ
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecCurvatures::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecCurvatures::Can't Find XSec " + xsec_id );
         return;
     }
     SkinXSec* skinxs = dynamic_cast<SkinXSec*>(xs);
     if ( !skinxs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecCurvatures::Can't Convert To Skin XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetXSecCurvatures::Can't Convert To Skin XSec " + xsec_id );
         return;
     }
 
@@ -3589,7 +3486,7 @@ void ChangeBORXSecShape( const string & geom_id, int type )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeBORXSecShape::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ChangeBORXSecShape::Can't Find Geom " + geom_id );
         return;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
@@ -3610,7 +3507,7 @@ int GetBORXSecShape( const string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORXSecShape::Can't Find Geom " + geom_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetBORXSecShape::Can't Find Geom " + geom_id );
         return XS_UNDEFINED;
     }
     else if ( geom_ptr->GetType().m_Type != BOR_GEOM_TYPE )
@@ -3631,7 +3528,7 @@ void ReadFileAirfoil( const string& xsec_id, const string& file_name )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ReadFileAirfoil::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ReadFileAirfoil::Can't Find XSec " + xsec_id );
         return;
     }
 
@@ -3651,7 +3548,7 @@ void ReadFileAirfoil( const string& xsec_id, const string& file_name )
         }
     }
 
-    ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReadFileAirfoil::XSec Not XS_FILE_AIRFOIL Type " + xsec_id  );
+    ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "ReadFileAirfoil::XSec Not XS_FILE_AIRFOIL Type " + xsec_id );
     return;
 }
 
@@ -3660,13 +3557,13 @@ void SetAirfoilPnts( const string& xsec_id, std::vector< vec3d > & up_pnt_vec, s
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetAirfoilPnts::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetAirfoilPnts::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetAirfoilPnts::XSec Not XS_FILE_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetAirfoilPnts::XSec Not XS_FILE_AIRFOIL Type" );
         return;
     }
 
@@ -4175,13 +4072,13 @@ std::vector<vec3d> GetAirfoilUpperPnts( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilUpperPnts::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilUpperPnts::Can't Find XSec " + xsec_id );
         return pnt_vec;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetAirfoilUpperPnts::XSec Not XS_FILE_AIRFOIL Type" );
         return pnt_vec;
     }
 
@@ -4199,13 +4096,13 @@ std::vector<vec3d> GetAirfoilLowerPnts( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilLowerPnts::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetAirfoilLowerPnts::Can't Find XSec " + xsec_id );
         return pnt_vec;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetAirfoilLowerPnts::XSec Not XS_FILE_AIRFOIL Type" );
         return pnt_vec;
     }
 
@@ -4223,13 +4120,13 @@ std::vector<double> GetUpperCSTCoefs( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetUpperCSTCoefs::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetUpperCSTCoefs::Can't Find XSec " + xsec_id );
         return ret_vec;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetUpperCSTCoefs::XSec Not XS_CST_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetUpperCSTCoefs::XSec Not XS_CST_AIRFOIL Type" );
         return ret_vec;
     }
 
@@ -4248,13 +4145,13 @@ std::vector<double> GetLowerCSTCoefs( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetLowerCSTCoefs::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetLowerCSTCoefs::Can't Find XSec " + xsec_id );
         return ret_vec;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetLowerCSTCoefs::XSec Not XS_CST_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetLowerCSTCoefs::XSec Not XS_CST_AIRFOIL Type" );
         return ret_vec;
     }
 
@@ -4273,13 +4170,13 @@ int GetUpperCSTDegree( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetUpperCSTDegree::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetUpperCSTDegree::Can't Find XSec " + xsec_id );
         return deg;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetUpperCSTDegree::XSec Not XS_CST_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetUpperCSTDegree::XSec Not XS_CST_AIRFOIL Type" );
         return deg;
     }
 
@@ -4298,13 +4195,13 @@ int GetLowerCSTDegree( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetLowerCSTDegree::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetLowerCSTDegree::Can't Find XSec " + xsec_id );
         return deg;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetLowerCSTDegree::XSec Not XS_CST_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "GetLowerCSTDegree::XSec Not XS_CST_AIRFOIL Type" );
         return deg;
     }
 
@@ -4321,13 +4218,13 @@ void SetUpperCST( const string& xsec_id, int deg, const std::vector<double> &coe
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetUpperCST::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetUpperCST::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetUpperCST::XSec Not XS_CST_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetUpperCST::XSec Not XS_CST_AIRFOIL Type" );
         return;
     }
 
@@ -4343,13 +4240,13 @@ void SetLowerCST( const string& xsec_id, int deg, const std::vector<double> &coe
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetLowerCST::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetLowerCST::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetLowerCST::XSec Not XS_CST_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "SetLowerCST::XSec Not XS_CST_AIRFOIL Type" );
         return;
     }
 
@@ -4365,13 +4262,13 @@ void PromoteCSTUpper( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PromoteCSTUpper::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PromoteCSTUpper::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteCSTUpper::XSec Not XS_CST_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteCSTUpper::XSec Not XS_CST_AIRFOIL Type" );
         return;
     }
 
@@ -4387,13 +4284,13 @@ void PromoteCSTLower( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "PromoteCSTLower::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "PromoteCSTLower::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteCSTLower::XSec Not XS_CST_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "PromoteCSTLower::XSec Not XS_CST_AIRFOIL Type" );
         return;
     }
 
@@ -4409,7 +4306,7 @@ void DemoteCSTUpper( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DemoteCSTUpper::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DemoteCSTUpper::Can't Find XSec " + xsec_id );
         return;
     }
 
@@ -4431,13 +4328,13 @@ void DemoteCSTLower( const string& xsec_id )
     XSec* xs = FindXSec( xsec_id );
     if ( !xs )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DemoteCSTLower::Can't Find XSec " + xsec_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DemoteCSTLower::Can't Find XSec " + xsec_id );
         return;
     }
 
     if ( xs->GetXSecCurve()->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteCSTLower::XSec Not XS_CST_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "DemoteCSTLower::XSec Not XS_CST_AIRFOIL Type" );
         return;
     }
 
@@ -4453,13 +4350,13 @@ void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
     XSecSurf* xsec_surf = FindXSecSurf( xsec_surf_id );
     if ( !xsec_surf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find XSecSurf " + xsec_surf_id  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find XSecSurf " + xsec_surf_id );
         return;
     }
     XSec* xsec = xsec_surf->FindXSec( xsec_index );
     if ( !xsec )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
         return;
     }
 
@@ -4471,7 +4368,7 @@ void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
          ( xsec->GetXSecCurve()->GetType() != XS_ONE_SIX_SERIES ) ||
          ( xsec->GetXSecCurve()->GetType() != XS_FILE_AIRFOIL ) )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitAfCST::XSec Not Fittable Airfoil Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitAfCST::XSec Not Fittable Airfoil Type" );
         return;
     }
 
@@ -4496,7 +4393,7 @@ void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
     XSec* newxsec = xsec_surf->FindXSec( xsec_index );
     if ( !newxsec )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find New XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index )  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "FitAfCST::Can't Find New XSec " + xsec_surf_id + ":" + to_string( ( long long )xsec_index ) );
         return;
     }
 
@@ -4509,7 +4406,7 @@ void FitAfCST( const string & xsec_surf_id, int xsec_index, int deg )
 
     if ( newxsc->GetType() != XS_CST_AIRFOIL )
     {
-        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitAfCST::XSec Not XS_CST_AIRFOIL Type"  );
+        ErrorMgr.AddError( VSP_WRONG_XSEC_TYPE, "FitAfCST::XSec Not XS_CST_AIRFOIL Type" );
         return;
     }
 
@@ -4884,7 +4781,7 @@ vector< string > GetGeomSet( const string & name )
     if ( index == -1 )
     {
         vector< string > ret_vec;
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetGeomSet::Can't Find Name " + name  );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetGeomSet::Can't Find Name " + name );
         return ret_vec;
     }
     ErrorMgr.NoError();
@@ -4906,7 +4803,7 @@ int GetSetIndex( const string & name )
     }
     if ( index == -1 )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetSetIndex::Can't Find Name " + name  );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetSetIndex::Can't Find Name " + name );
         return index;
     }
 
@@ -5080,7 +4977,7 @@ double SetParmVal( const string & parm_id, double val )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id );
         return val;
     }
     ErrorMgr.NoError();
@@ -5095,7 +4992,7 @@ double SetParmVal( const string & geom_id, const string & name, const string & g
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id );
         return val;
     }
     ErrorMgr.NoError();
@@ -5107,7 +5004,7 @@ double SetParmValLimits( const string & parm_id, double val, double lower_limit,
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmValLimits::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmValLimits::Can't Find Parm " + parm_id );
         return val;
     }
     ErrorMgr.NoError();
@@ -5124,7 +5021,7 @@ double SetParmValUpdate( const string & parm_id, double val )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id );
         return val;
     }
     ErrorMgr.NoError();
@@ -5140,7 +5037,7 @@ double SetParmValUpdate( const string & geom_id, const string & parm_name, const
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmVal::Can't Find Parm " + parm_id );
         return val;
     }
     ErrorMgr.NoError();
@@ -5153,7 +5050,7 @@ double GetParmVal( const string & parm_id )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + parm_id );
         return 0.0;
     }
     ErrorMgr.NoError();
@@ -5167,7 +5064,7 @@ double GetParmVal( const string & geom_id, const string & name, const string & g
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + name  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + name );
         return 0.0;
     }
     ErrorMgr.NoError();
@@ -5180,7 +5077,7 @@ int GetIntParmVal( const string & parm_id )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + parm_id );
         return 0;
     }
     ErrorMgr.NoError();
@@ -5193,7 +5090,7 @@ bool GetBoolParmVal( const string & parm_id )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmVal::Can't Find Parm " + parm_id );
         return false;
     }
     if ( p->GetType() != PARM_BOOL_TYPE )
@@ -5212,7 +5109,7 @@ void SetParmUpperLimit( const string & parm_id, double val )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmUpperLimit::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmUpperLimit::Can't Find Parm " + parm_id );
         return;
     }
     ErrorMgr.NoError();
@@ -5225,7 +5122,7 @@ double GetParmUpperLimit( const string & parm_id )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmUpperLimit::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmUpperLimit::Can't Find Parm " + parm_id );
         return 0.0;
     }
     ErrorMgr.NoError();
@@ -5238,7 +5135,7 @@ void SetParmLowerLimit( const string & parm_id, double val )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmLowerLimit::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmLowerLimit::Can't Find Parm " + parm_id );
         return;
     }
     ErrorMgr.NoError();
@@ -5251,7 +5148,7 @@ double GetParmLowerLimit( const string & parm_id )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmLowerLimit::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmLowerLimit::Can't Find Parm " + parm_id );
         return 0.0;
     }
     ErrorMgr.NoError();
@@ -5268,7 +5165,7 @@ int GetParmType( const string & parm_id )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmType::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmType::Can't Find Parm " + parm_id );
         return PARM_DOUBLE_TYPE;
     }
     ErrorMgr.NoError();
@@ -5281,7 +5178,7 @@ string GetParmName( const string & parm_id )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmName::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmName::Can't Find Parm " + parm_id );
         return string();
     }
     ErrorMgr.NoError();
@@ -5294,7 +5191,7 @@ string GetParmGroupName( const string & parm_id )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmGroup::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmGroup::Can't Find Parm " + parm_id );
         return string();
     }
     ErrorMgr.NoError();
@@ -5307,7 +5204,7 @@ string GetParmDisplayGroupName( const string & parm_id )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmDisplayGroup::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmDisplayGroup::Can't Find Parm " + parm_id );
         return string();
     }
     ErrorMgr.NoError();
@@ -5320,7 +5217,7 @@ string GetParmContainer( const string & parm_id )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmContainer::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "GetParmContainer::Can't Find Parm " + parm_id );
         return string();
     }
     ErrorMgr.NoError();
@@ -5333,7 +5230,7 @@ void SetParmDescript( const string & parm_id, const string & desc )
     Parm* p = ParmMgr.FindParm( parm_id );
     if ( !p )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmDescript::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "SetParmDescript::Can't Find Parm " + parm_id );
         return;
     }
     ErrorMgr.NoError();
@@ -5347,7 +5244,7 @@ string FindParm( const string & parm_container_id, const string& parm_name, cons
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "FindParm::Can't Find Parm Container " + parm_container_id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "FindParm::Can't Find Parm Container " + parm_container_id );
         return string();
     }
 
@@ -5355,7 +5252,7 @@ string FindParm( const string & parm_container_id, const string& parm_name, cons
    Parm* p = ParmMgr.FindParm( parm_id );
    if ( !p )
    {
-        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "FindParm::Can't Find Parm " + parm_id  );
+        ErrorMgr.AddError( VSP_CANT_FIND_PARM, "FindParm::Can't Find Parm " + parm_id );
         return string();
    }
    ErrorMgr.NoError();
@@ -5387,7 +5284,7 @@ vector< std::string > FindContainersWithName( const string & name )
 
     for ( int i = 0 ; i < ( int )containerVec.size() ; i++ )
     {
-        ParmContainer* pc = ParmMgr.FindParmContainer( containerVec[i]  );
+        ParmContainer* pc = ParmMgr.FindParmContainer( containerVec[i] );
 
         if ( pc && pc->GetName() == name )
         {
@@ -5407,7 +5304,7 @@ string FindContainer( const string & name, int index )
 
     for ( int i = 0 ; i < ( int )containerVec.size() ; i++ )
     {
-        ParmContainer* pc = ParmMgr.FindParmContainer( containerVec[i]  );
+        ParmContainer* pc = ParmMgr.FindParmContainer( containerVec[i] );
 
         if ( pc && pc->GetName() == name )
         {
@@ -5432,7 +5329,7 @@ string GetContainerName( const string & parm_container_id )
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "GetContainerName::Can't Find Parm Container " + parm_container_id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "GetContainerName::Can't Find Parm Container " + parm_container_id );
         return string();
     }
 
@@ -5449,7 +5346,7 @@ vector< string > FindContainerGroupNames( const string & parm_container_id )
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "FindContainerGroupNames::Can't Find Parm Container " + parm_container_id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "FindContainerGroupNames::Can't Find Parm Container " + parm_container_id );
         return ret_names;
     }
 
@@ -5467,7 +5364,7 @@ vector< string > FindContainerParmIDs( const string & parm_container_id )
 
     if ( !pc )
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "FindContainerParmIDs::Can't Find Parm Container " + parm_container_id  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "FindContainerParmIDs::Can't Find Parm Container " + parm_container_id );
         return parm_vec;
     }
 
@@ -5501,7 +5398,7 @@ double ComputeMinClearanceDistance( const string & geom_id, int set )
     return min_clearance_dist;
 }
 
-double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, int set  )
+double SnapParm( const string & parm_id, double target_min_dist, bool inc_flag, int set )
 {
     Vehicle* veh = GetVehicle();
 
@@ -5567,7 +5464,7 @@ void EditVarPresetParm( const string &parm_ID, double parm_val )
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_ID, "EditVarPresetParm::Can't Find Parm " + parm_ID  );
+        ErrorMgr.AddError( VSP_INVALID_ID, "EditVarPresetParm::Can't Find Parm " + parm_ID );
     }
     VarPresetMgr.SavePreset();
 }
@@ -5620,7 +5517,7 @@ void SwitchVarPreset( const string &group_name, const string &setting_name )
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "SwitchSaveParmGroup::Can't Find Setting " + setting_name  );
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "SwitchSaveParmGroup::Can't Find Setting " + setting_name );
     }
     VarPresetMgr.ApplySetting();
 }
@@ -5634,8 +5531,8 @@ bool DeleteVarPresetSet( const string &group_name, const string &setting_name )
     }
     else
     {
-        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchSaveParmGroup::Can't Find Group " + group_name  );
-        ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "SwitchSaveParmGroup::Can't Find Setting " + setting_name  );
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchSaveParmGroup::Can't Find Group " + group_name );
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_SETNAME, "SwitchSaveParmGroup::Can't Find Setting " + setting_name );
         return false;
     }
 }
@@ -5663,7 +5560,7 @@ vector <string> GetVarPresetSettingNamesWName( const string &group_name )
 
     if ( vec.empty() )
     {
-        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchSaveParmGroup::Can't Find Group " + group_name  );
+        ErrorMgr.AddError( VSP_INVALID_VARPRESET_GROUPNAME, "SwitchSaveParmGroup::Can't Find Group " + group_name );
         return vec;
     }
     else

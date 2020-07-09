@@ -14,12 +14,10 @@
 #include "Parm.h"
 #include "APIDefines.h"
 
-using namespace std;
-
 //////////////////////////////////////////////////////////////////////
 class MeshCommonSettings : public ParmContainer
 {
-    public:
+public:
     MeshCommonSettings();
     virtual ~MeshCommonSettings();
 

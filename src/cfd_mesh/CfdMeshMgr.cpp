@@ -4004,9 +4004,5 @@ void CfdMeshMgrSingleton::UpdateDisplaySettings()
         GetCfdSettingsPtr()->m_DrawPntsFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawPntsFlag.Get();
 
         GetCfdSettingsPtr()->m_RelCurveTol = m_Vehicle->GetCfdSettingsPtr()->m_RelCurveTol.Get();
-
-//        GetCfdSettingsPtr()->m_IntersectSubSurfs = m_Vehicle->GetCfdSettingsPtr()->m_IntersectSubSurfs.Get();
-//        GetCfdSettingsPtr()->m_SelectedSetIndex = m_Vehicle->GetCfdSettingsPtr()->m_SelectedSetIndex.Get();
-//        GetCfdSettingsPtr()->m_XYZIntCurveFlag = m_Vehicle->GetCfdSettingsPtr()->m_XYZIntCurveFlag.Get();
     }
 }

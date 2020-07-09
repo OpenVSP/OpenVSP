@@ -1445,15 +1445,6 @@ void SurfaceIntersectionSingleton::AddIntersectionSeg( const SurfPatch& pA, cons
     ipntcnt++;
 
 #endif
-
-
-//if ( pA.get_surf_ptr() == m_SurfVec[0]  )
-//{
-//  debugUWs.push_back( proj_uwA0 );
-//  debugUWs.push_back( proj_uwA1 );
-//}
-
-
 }
 
 
