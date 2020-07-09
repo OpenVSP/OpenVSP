@@ -2861,7 +2861,7 @@ int VORTEX_SHEET::FarAway(double xyz[3])
     
     Distance_ = Distance(xyz);
 
-    if ( Distance_ >= FarAway_*Span_ ) return 1;
+    if ( Distance_ >= 5.*FarAway_*Span_ ) return 1;
    
     return 0;
 

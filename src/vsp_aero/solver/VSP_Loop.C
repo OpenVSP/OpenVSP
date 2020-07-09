@@ -323,7 +323,6 @@ void VSP_LOOP::SizeFineGridLoopList(int NumberOfLoops)
 
 }
 
-
 /*##############################################################################
 #                                                                              #
 #                      VSP_LOOP UpdateGeometryLocation                         #
@@ -396,5 +395,4 @@ void VSP_LOOP::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat, QU
     BoundBox_.z_max = Vec(2) + OVec[2] + TVec[2];            
 
 }
-
 

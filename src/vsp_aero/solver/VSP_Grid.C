@@ -826,7 +826,7 @@ void VSP_GRID::CalculateUpwindEdges(void)
        LoopNormal[0] = LoopList(k).Nx();
        LoopNormal[1] = LoopList(k).Ny();
        LoopNormal[2] = LoopList(k).Nz();
-      
+            
        Flux = new double[LoopList(k).NumberOfEdges() + 1];
 
        TotalFlux = 0.;
@@ -907,14 +907,14 @@ void VSP_GRID::CalculateUpwindEdges(void)
           
           printf("LoopList(k).NumberOfEdges(): %d \n",LoopList(k).NumberOfEdges());
             
-        //  exit(1);
+          exit(1);
         
        }
 
        delete [] Flux;
 
        // Calculate reference length for this loop
-  
+    
        LoopList(k).Length() = sqrt(LoopList(k).Area());
        
        // Calculate smallest edge length for cell
@@ -924,7 +924,7 @@ void VSP_GRID::CalculateUpwindEdges(void)
 
        for ( j = 1 ; j <= LoopList(k).NumberOfEdges() ; j++ ) {
        
-          Edge = LoopList(k).Node(j);
+          Edge = LoopList(k).Edge(j);
 
           Ds = EdgeList(Edge).Length();
 
@@ -935,11 +935,8 @@ void VSP_GRID::CalculateUpwindEdges(void)
        
        LoopList(k).RefLength() = DsMin;
 
-
     } 
-    
-    
-
+        
 }
 
 /*##############################################################################

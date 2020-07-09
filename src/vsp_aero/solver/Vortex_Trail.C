@@ -1038,7 +1038,7 @@ void VORTEX_TRAIL::CalculateVelocityForSubVortex(VSP_EDGE &VortexEdge, double xy
    Ratio = Dist / VortexEdge.ReferenceLength();
 
    if ( !VortexEdge.ThereAreChildren() || Ratio >= FarAway_ ) {
-   
+
       CoreWidth = sqrt(CoreSize_*CoreSize_ + 5.*0.001*ABS(VortexEdge.Gamma())*VortexEdge.T());
 
       VortexEdge.InducedVelocity(xyz_p, dq, CoreWidth);
@@ -1766,7 +1766,7 @@ void VORTEX_TRAIL::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat
     NodeList_[1].z() = TE_Node_.z();    
         
     if ( DoGroundEffectsAnalysis_ ) NodeList_[1].z() = MAX(NodeList_[1].z(), 0.);  
-    
+
     // Update wake to infinity
         
     i = NumberOfSubVortices() + 2;
@@ -1983,7 +1983,7 @@ void VORTEX_TRAIL::WriteToFile(FILE *adb_file)
     s = SoverB_;
     
     fwrite(&(s), f_size, 1, adb_file);
-     
+    
     fwrite(&(n), i_size, 1, adb_file);
     
     x = NodeList_[1].x();

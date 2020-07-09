@@ -20,7 +20,7 @@
 
 #define VER_MAJOR 6
 #define VER_MINOR 0
-#define VER_PATCH 3
+#define VER_PATCH 4
 
 // Some globals...
 
@@ -2860,9 +2860,9 @@ void UnsteadyStabilityAndControlSolve(void)
              
              // Set free stream conditions
              
-             VSP_VLM().AngleOfBetaZero()   = BetaList_[i] * TORAD;
-             VSP_VLM().Mach()              = MachList_[j];  
-             VSP_VLM().AngleOfAttackZero() =  AoAList_[k] * TORAD;
+             VSP_VLM().AngleOfBeta()   = BetaList_[i] * TORAD;
+             VSP_VLM().Mach()          = MachList_[j];  
+             VSP_VLM().AngleOfAttack() =  AoAList_[k] * TORAD;
       
              VSP_VLM().RotationalRate_p() = 0.;
              VSP_VLM().RotationalRate_q() = 0.;

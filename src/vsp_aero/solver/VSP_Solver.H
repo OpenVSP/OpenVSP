@@ -292,7 +292,7 @@ private:
     double CMxo_;
     double CMyo_;
     double CMzo_;
-    
+
     // Viscous forces
       
     double **Span_Cxo_;

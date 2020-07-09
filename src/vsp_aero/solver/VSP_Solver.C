@@ -1662,7 +1662,7 @@ void VSP_SOLVER::InitializeFreeStream(void)
     
     // Set multi-pole far away ratio
     
-    FarAway_ = 5.;
+    FarAway_ = 10.;
     
     if ( Mach_ >= 1. ) FarAway_ = 9999999.;
 
@@ -2291,12 +2291,14 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
           VortexSheet(c,k).TimeAccurate() = TimeAccurate_;
           
           VortexSheet(c,k).TimeAnalysisType() = TimeAnalysisType_;
-//djk          
+     
           VortexSheet(c,k).Vinf() = SGN(Vinf_)*MAX(0.000001,ABS(Vinf_));
        
           VortexSheet(c,k).TimeStep() = TimeStep_;       
           
           VortexSheet(c,k).FarAwayRatio() = FarAway_;
+          
+          VortexSheet(c,k).DoGroundEffectsAnalysis() = DoGroundEffectsAnalysis();
           
           if ( Vinf_ > 0. ) {
 
@@ -2327,6 +2329,8 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
                 VortexSheet(c,k).TrailingVortexEdge(NumEdges).RotorAnalysis() = 0;
                                 
                 VortexSheet(c,k).TrailingVortexEdge(NumEdges).FarAwayRatio() = FarAway_;
+                
+                VortexSheet(c,k).TrailingVortexEdge(NumEdges).DoGroundEffectsAnalysis() = DoGroundEffectsAnalysis();
   
                 if ( RotorAnalysis_ ) VortexSheet(c,k).TrailingVortexEdge(NumEdges).RotorAnalysis() = 1;
                    
@@ -6214,9 +6218,9 @@ void VSP_SOLVER::CalculateUnsteadyWakeVelocities(void)
         
           if ( DoGroundEffectsAnalysis() ) {
            
-             xyz[0] = VortexLoop(i).xyz_c()[0];
-             xyz[1] = VortexLoop(i).xyz_c()[1];
-             xyz[2] = VortexLoop(i).xyz_c()[2];
+             xyz[0] = VortexLoop(Loop).xyz_c()[0];
+             xyz[1] = VortexLoop(Loop).xyz_c()[1];
+             xyz[2] = VortexLoop(Loop).xyz_c()[2];
              
              xyz[2] *= -1.;
         
@@ -6234,9 +6238,9 @@ void VSP_SOLVER::CalculateUnsteadyWakeVelocities(void)
         
           if ( DoSymmetryPlaneSolve_ ) {
            
-             xyz[0] = VortexLoop(i).xyz_c()[0];
-             xyz[1] = VortexLoop(i).xyz_c()[1];
-             xyz[2] = VortexLoop(i).xyz_c()[2];
+             xyz[0] = VortexLoop(Loop).xyz_c()[0];
+             xyz[1] = VortexLoop(Loop).xyz_c()[1];
+             xyz[2] = VortexLoop(Loop).xyz_c()[2];
              
              if ( DoSymmetryPlaneSolve_ == SYM_X ) xyz[0] *= -1.;
              if ( DoSymmetryPlaneSolve_ == SYM_Y ) xyz[1] *= -1.;
@@ -9911,7 +9915,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
              
              Re = MAX(Re,1.e6);
              
-             Cf = 0.61 / pow(log10(Re),2.58);
+             Cf = 1.037 / pow(log10(Re),2.58);
 
              // Calculate flat plate viscous force... note density is booked kept as '1'
             
@@ -9923,8 +9927,6 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
              
              if ( LocalVel > 0. ) CLv = Span_Cn_[i][k] / pow(LocalVel, 2.);
              
-
-
              if ( Mach_ < 1. ) {
                 
                 if ( Machref_ > 0. ) {
@@ -9948,7 +9950,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
 
              if ( LocalMach >= 0.6) Fact = 1. + pow(MIN(LocalMach,1.) - 0.6,2.)/2.;             
 
-             ViscousForce += 0.5*Fact*0.00625*pow(CLv, 2.) * pow(LocalVel * Vref_, 2.) * Span_Area_[i][k];
+             ViscousForce += 0.5*Fact*0.0070*pow(CLv, 2.) * pow(LocalVel * Vref_, 2.) * Span_Area_[i][k];
              
              // Vector components
 
@@ -12806,7 +12808,7 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(int LoopType)
     // Forward sweep
     
     if ( LoopType == FIXED_LOOPS ) printf("Forward sweep... \n");
-        
+               
     NumberOfInteractionLoops_[LoopType] = NumberOfVortexLoops_;
 
 #pragma omp parallel for reduction(+:TotalHits,SpeedRatio) private(xyz,TempInteractionList,NumberOfEdges,i) schedule(dynamic)
@@ -12871,6 +12873,8 @@ void VSP_SOLVER::CreateSurfaceVorticesInteractionList(int LoopType)
     LoopOffSet = 0;
     
     for ( Level = 2 ; Level <= MaxLevels ; Level++ ) {
+
+       if ( LoopType == FIXED_LOOPS ) printf("Working on level %d of %d \r",Level,MaxLevels);fflush(NULL);
 
 #pragma omp parallel for reduction(+:NewHits) private(cpu,CurrentLoop,i,j,CommonEdges,TestEdge,TotalFound,Found,Done,xyz,Vec,Test,Distance,k,p,NumberOfEdges,TempInteractionList) schedule(dynamic)
        for ( Loop = 1 ; Loop <= VSPGeom().Grid(Level).NumberOfLoops() ; Loop++ ) {
@@ -14473,59 +14477,49 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
        Next++;
        
     }
-/*
- * Old way
- * 
-    // Zero out fine grid edges that might be marked as well
-  
+ 
     NumberOfInteractionEdges = 0;
 
-    for ( Level = VSPGeom().NumberOfGridLevels() ; Level >= 1 ; Level-- ) {
+    // Add in all the coarsest edges
+
+    Level = VSPGeom().NumberOfGridLevels();
+
+    for ( i = VSPGeom().Grid(Level).NumberOfEdges() ; i >= 1 ; i-- ) {
        
-       for ( i = VSPGeom().Grid(Level).NumberOfEdges() ; i >= 1 ; i-- ) {
-          
-          if ( EdgeIsUsed_[cpu][Level][i] == SearchID_[cpu] ) {
-
-             // Add in the edge if it's not represented on a coarser grid already
-             // And zero out finer grid contribution
-             
-             if ( Level > 1 ) {
-                
-                FineGridEdge = VSPGeom().Grid(Level).EdgeList(i).FineGridEdge();
-             
-                EdgeIsUsed_[cpu][Level-1][FineGridEdge] = 0;
-                
-                if ( EdgeIsUsed_[cpu][Level][i] == SearchID_[cpu] ) {
-                   
-                   TempInteractionList_[cpu][++NumberOfInteractionEdges] = &(VSPGeom().Grid(Level).EdgeList(i));
-
-                   EdgeIsUsed_[cpu][Level][i] = 0;
-                   
-                }
-               
-             }
-             
-             // On the finest grid, so just add in the edge
-             
-             else {
-                   
-                if ( EdgeIsUsed_[cpu][Level][i] == SearchID_[cpu] ) {
-         
-                   EdgeIsUsed_[cpu][Level][i] = 0;
-                   
-                   TempInteractionList_[cpu][++NumberOfInteractionEdges] = &(VSPGeom().Grid(Level).EdgeList(i));    
-                  
-                }
-                
-             }
-             
-          }
-          
-       }
+       if ( EdgeIsUsed_[cpu][Level][i] == SearchID_[cpu] ) TempInteractionList_[cpu][++NumberOfInteractionEdges] = &(VSPGeom().Grid(Level).EdgeList(i)); 
        
     }
-*/
 
+    // Add in the finer grid edges
+    
+    for ( Level = VSPGeom().NumberOfGridLevels() - 1 ; Level >= 1 ; Level-- ) {
+    
+       for ( i = VSPGeom().Grid(Level).NumberOfEdges() ; i >= 1 ; i-- ) {
+
+         // Add those edges that are used at this level
+         
+         if ( EdgeIsUsed_[cpu][Level][i] == SearchID_[cpu] ) {
+
+             CoarseGridEdge = VSPGeom().Grid(Level).EdgeList(i).CoarseGridEdge();
+             
+             // Coarse edge was not added, so add this one in
+                
+             if ( EdgeIsUsed_[cpu][Level+1][CoarseGridEdge] != SearchID_[cpu] ) {
+             
+                TempInteractionList_[cpu][++NumberOfInteractionEdges] = &(VSPGeom().Grid(Level).EdgeList(i));    
+               
+             }
+
+          }    
+          
+       }   
+       
+    }
+
+//printf("NumberOfInteractionEdges: %d \n",NumberOfInteractionEdges);fflush(NULL);exit(1);
+
+/* old way... slower, but a bit more strict
+ * 
     // Zero out fine grid edges that might be marked as well
     
     NumberOfInteractionEdges = 0;
@@ -14542,6 +14536,8 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
          
                 TempInteractionList_[cpu][++NumberOfInteractionEdges] = &(VSPGeom().Grid(Level).EdgeList(i));    
           
+          printf("NumberOfInteractionEdges: %d \n",NumberOfInteractionEdges);
+          
              }  
              
              // Not on the coarsest mesh, must check if any coarser mesh edges already added in...
@@ -14550,10 +14546,10 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
                 
                 CoarseGridEdge = VSPGeom().Grid(Level).EdgeList(i).CoarseGridEdge();
                 
-                // Coarse edge was not added, so this one in
+                // Coarse edge was not added, so add this one in
                    
                 if ( EdgeIsUsed_[cpu][Level+1][CoarseGridEdge] != SearchID_[cpu] ) {
-    
+
                    TempInteractionList_[cpu][++NumberOfInteractionEdges] = &(VSPGeom().Grid(Level).EdgeList(i));    
                   
                 }
@@ -14572,12 +14568,12 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
          
                 CoarseGridEdge = VSPGeom().Grid(Level).EdgeList(i).CoarseGridEdge();
                 
-                // Coarse edge was not added, so this one in
+                // Coarse edge was added so buffer it up a level
                    
                 if ( EdgeIsUsed_[cpu][Level+1][CoarseGridEdge] == SearchID_[cpu] ) {
                    
-                   EdgeIsUsed_[cpu][Level][i] = SearchID_[cpu];
-   
+               //    EdgeIsUsed_[cpu][Level][i] = SearchID_[cpu];
+                      
                 }
                 
              }
@@ -14587,7 +14583,11 @@ VSP_EDGE **VSP_SOLVER::CreateInteractionList(int ComponentID, int pLoop, int Int
        }
        
     }              
-        
+
+printf("NumberOfInteractionEdges: %d \n",NumberOfInteractionEdges);fflush(NULL);exit(1);
+*/
+
+     
     // Reverse order of the list
     
     VSP_EDGE *TempEdge;

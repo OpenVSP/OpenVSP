@@ -169,7 +169,7 @@ private:
     double &v(int i, int j) { return v_[(i-1)*NumGeomJ_ + j]; };
     
     double &Area(int i, int j) { return Area_[(i-1)*NumGeomJ_ + j]; };
-    
+
     // Access to flat plate representation
 
     double &x_plate(int i) { return x_plate_[i]; };
@@ -380,7 +380,7 @@ public:
     double xTE_Def(int i) { return xTE_Def_[i]; };
     double yTE_Def(int i) { return yTE_Def_[i]; };
     double zTE_Def(int i) { return zTE_Def_[i]; };    
-    
+ 
     // Flat plate normal
     
     double NxQC(int i) { return Nx_FlatPlateNormal_[i]; };

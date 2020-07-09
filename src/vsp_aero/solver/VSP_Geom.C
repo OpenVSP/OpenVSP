@@ -1231,12 +1231,12 @@ void VSP_GEOM::MeshGeom(void)
 
     Grid_[1] = Agglomerate.SimplifyMesh(*(Grid_[0]));
 
-    Grid_[1]->CalculateUpwindEdges();
- 
+    Grid_[1]->CalculateUpwindEdges();   
+    
     Grid_[1]->CreateUpwindEdgeData();
-
+              
     printf("Grid:%d --> # loops: %10d ...# Edges: %10d \n",1,Grid_[1]->NumberOfLoops(),Grid_[1]->NumberOfEdges());
-        
+   
     i = 2;
     
     Done = 0;
@@ -1246,10 +1246,10 @@ void VSP_GEOM::MeshGeom(void)
             Grid_[i-1]->NumberOfLoops() > NumberOfSurfacePatches_ ) {
 
        Grid_[i] = Agglomerate.Agglomerate(*(Grid_[i-1]));
-       
+              
        if ( i <= 2 ||      
-            (    Grid_[i]->NumberOfLoops() >   0 &&
-                 Grid_[i]->NumberOfEdges() >   0 &&
+            (    Grid_[i]->NumberOfLoops() >   50 &&
+                 Grid_[i]->NumberOfEdges() >   50 &&
               2.*Grid_[i]->NumberOfLoops() <= Grid_[i-1]->NumberOfLoops() ) ) {
           
           Grid_[i]->CalculateUpwindEdges();   
@@ -1263,8 +1263,6 @@ void VSP_GEOM::MeshGeom(void)
        }
        
        else {
-
-          i--;
           
           Done = 1;
           

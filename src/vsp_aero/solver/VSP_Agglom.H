@@ -59,6 +59,9 @@ private:
     int *CoarseNodeList_;
     int *EdgeDegree_;
     int *FrontEdgeQueue_;
+    
+    int *NumberOfLoopsForNode_;
+    int **LoopListForNode_;
 
     int NextEdgeInQueue_;
     int NumberOfEdgesInQueue_;
@@ -87,6 +90,8 @@ private:
     void UpdateFront_(void);
     
     void MergeVortexLoops_(void);
+    void MergeSmallLoops_(void);
+    
     void MergeVortexLoopsOld_(void);
 
     void CheckLoopQuality_(void);
@@ -100,6 +105,8 @@ private:
     // Simplify and clean up mesh routines
  
     VSP_GRID* SimplifyMesh_(VSP_GRID &Grid);
+
+    VSP_GRID* MergeHighAspectRatioQuads_(VSP_GRID &Grid);
     
     void CheckMesh_(VSP_GRID &ThisGrid);
     
@@ -112,6 +119,8 @@ private:
     void CleanUpFans_(void);
     
     void CleanUpHighAspectRatioTris_(void);
+
+    void CleanUpHighAspectRatioQuads_(void);
 
     void CleanUpSmallAreaLoops_(void);
     
@@ -127,6 +136,8 @@ private:
                                  int Node2, int Node3, int Node4);    
                                  
     int BadTriangle_(VSP_GRID &ThisGrid, int Loop, int &MinEdge);
+    
+    int BadQuad_(VSP_GRID &ThisGrid, int Loop, int LoopList[2]);
     
     double CalculateAspectRatioOld_(VSP_GRID &ThisGrid, int Loop);
     
@@ -162,6 +173,11 @@ public:
     // Simplify mesh
     
     VSP_GRID* SimplifyMesh(VSP_GRID &Grid) { return SimplifyMesh_(Grid); };
+    
+    // Merge high aspect ratio quads
+
+    VSP_GRID* MergeHighAspectRatioQuads(VSP_GRID &Grid) { return MergeHighAspectRatioQuads_(Grid); };
+
 
 };
 
