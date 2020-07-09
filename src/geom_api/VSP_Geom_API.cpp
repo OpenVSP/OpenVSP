@@ -179,7 +179,7 @@ void WriteVSPFile( const string & file_name, int set )
     Vehicle* veh = GetVehicle();
     if( !veh->WriteXMLFile( file_name, set ) )
     {
-        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteVSPFile::Failure Writing File"  );
+        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteVSPFile::Failure Writing File " + file_name );
         return;
     }
     ErrorMgr.NoError();
@@ -238,7 +238,7 @@ void InsertVSPFile( const string & file_name, const string & parent )
     int err = veh->ReadXMLFileGeomsOnly( file_name );
     if( err != 0 )
     {
-        ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "InsertVSPFile::Error"  );
+        ErrorMgr.AddError( VSP_WRONG_FILE_TYPE, "InsertVSPFile::Error" + file_name );
         return;
     }
     ErrorMgr.NoError();
@@ -332,7 +332,7 @@ string GetDesignVar( int index )
 
     if ( !dv )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetDesignVar::Design variable out of range." );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetDesignVar::Design variable " + to_string( index ) + " out of range." );
         return parm_id;
     }
 
@@ -350,7 +350,7 @@ int GetDesignVarType( int index )
 
     if ( !dv )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetDesignVarType::Design variable out of range." );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetDesignVarType::Design variable index " + to_string( index ) + " out of range." );
         return dvtype;
     }
 
@@ -556,12 +556,20 @@ void SetCFDWakeFlag( const string & geom_id, bool flag )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetCFDWakeFlag::Can't Find Geom"  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetCFDWakeFlag::Can't Find Geom " + geom_id );
         return;
     }
 
     geom_ptr->SetWakeActiveFlag( flag );
-    ErrorMgr.NoError();
+
+    if ( !geom_ptr->HasWingTypeSurfs() )
+    {
+        ErrorMgr.AddError( VSP_INVALID_TYPE, "SetCFDWakeFlag::Geom is not a wing-type surface" );
+    }
+    else
+    {
+        ErrorMgr.NoError();
+    }
 }
 
 /// Add A CFD Source
@@ -573,7 +581,7 @@ void AddCFDSource( int type, const string & geom_id, int surf_index,
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddCFDSource::Can't Find Geom"  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddCFDSource::Can't Find Geom " + geom_id );
         return;
     }
 
@@ -745,7 +753,7 @@ void AddAllToVSPAEROControlSurfaceGroup( int CSGroupIndex )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddAllToVSPAEROControlSurfaceGroup::CSGroupIndex out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddAllToVSPAEROControlSurfaceGroup::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return;
     }
 
@@ -760,7 +768,7 @@ void RemoveAllFromVSPAEROControlSurfaceGroup( int CSGroupIndex )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "RemoveAllFromVSPAEROControlSurfaceGroup::CSGroupIndex out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "RemoveAllFromVSPAEROControlSurfaceGroup::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return;
     }
 
@@ -775,7 +783,7 @@ std::vector < std::string > GetActiveCSNameVec( int CSGroupIndex )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetActiveCSNameVec::CSGroupIndex out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetActiveCSNameVec::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return {};
     }
 
@@ -813,7 +821,7 @@ std::vector < std::string > GetAvailableCSNameVec( int CSGroupIndex )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAvailableCSNameVec::CSGroupIndex out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetAvailableCSNameVec::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return {};
     }
 
@@ -836,7 +844,7 @@ void SetVSPAEROControlGroupName(const string & name, int CSGroupIndex)
 {
     if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetVSPAEROControlGroupName::CSGroupIndex out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetVSPAEROControlGroupName::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return;
     }
 
@@ -851,7 +859,7 @@ string GetVSPAEROControlGroupName( int CSGroupIndex )
 {
     if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetVSPAEROControlGroupName::CSGroupIndex out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetVSPAEROControlGroupName::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return string();
     }
 
@@ -866,7 +874,7 @@ void AddSelectedToCSGroup(vector <int> selected, int CSGroupIndex)
 {
     if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddSelectedToCSGroup::CSGroupIndex out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddSelectedToCSGroup::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return;
     }
 
@@ -899,7 +907,7 @@ void RemoveSelectedFromCSGroup(vector <int> selected, int CSGroupIndex)
 {
     if ( CSGroupIndex < 0 || CSGroupIndex > GetNumControlSurfaceGroups() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "RemoveSelectedFromCSGroup::CSGroupIndex out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "RemoveSelectedFromCSGroup::CSGroupIndex " + to_string( CSGroupIndex ) + " out of range" );
         return;
     }
 
@@ -943,7 +951,7 @@ string FindUnsteadyGroup( int group_index )
 
     if ( !VSPAEROMgr.ValidUnsteadyGroupInd( group_index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindUnsteadyGroup::group_index out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindUnsteadyGroup::group_index " + to_string( group_index ) + " out of range" );
         return string();
     }
 
@@ -958,7 +966,7 @@ string GetUnsteadyGroupName( int group_index )
 
     if ( !VSPAEROMgr.ValidUnsteadyGroupInd( group_index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupName::group_index out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupName::group_index " + to_string( group_index ) + " out of range" );
         return string();
     }
 
@@ -974,7 +982,7 @@ vector < string > GetUnsteadyGroupCompIDs( int group_index )
 
     if ( !VSPAEROMgr.ValidUnsteadyGroupInd( group_index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupCompIDs::group_index out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupCompIDs::group_index " + to_string( group_index ) + " out of range" );
         return ret_vec;
     }
 
@@ -999,7 +1007,7 @@ vector < int > GetUnsteadyGroupSurfIndexes( int group_index )
 
     if ( !VSPAEROMgr.ValidUnsteadyGroupInd( group_index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupSurfIndexes::group_index out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetUnsteadyGroupSurfIndexes::group_index " + to_string( group_index ) + " out of range" );
         return ret_vec;
     }
 
@@ -1031,7 +1039,7 @@ string FindActuatorDisk( int disk_index )
 
     if ( !VSPAEROMgr.ValidRotorDiskIndex( disk_index ) )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindActuatorDisk::disk_index out of range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "FindActuatorDisk::disk_index " + to_string( disk_index ) + " out of range" );
         return string();
     }
 
@@ -1322,7 +1330,7 @@ string FindResultsID( const string & name, int index )
     string id = ResultsMgr.FindResultsID( name, index );
     if ( id.size() == 0 )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "FindResultsID::Can't Find Name " + name  );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "FindResultsID::Can't Find Name " + name + " at index " + to_string( index ) );
         return id;
     }
     ErrorMgr.NoError();
@@ -1374,7 +1382,7 @@ const vector<int> & GetIntResults( const string & id, const string & name, int i
     }
     else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetIntResults::Can't Find Name " + name  );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetIntResults::Can't Find Name " + name + " at index " + to_string( index ) );
     }
     else
     {
@@ -1393,7 +1401,7 @@ const vector<double> & GetDoubleResults( const string & id, const string & name,
     }
     else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleResults::Can't Find Name " + name  );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleResults::Can't Find Name " + name + " at index " + to_string( index ) );
     }
     else
     {
@@ -1412,7 +1420,7 @@ const vector< vector<double> > & GetDoubleMatResults( const string & id, const s
     }
     else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleMatResults::Can't Find Name " + name  );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetDoubleMatResults::Can't Find Name " + name + " at index " + to_string( index ) );
     }
     else
     {
@@ -1431,7 +1439,7 @@ const vector<string> & GetStringResults( const string & id, const string & name,
     }
     else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetStringResults::Can't Find Name " + name  );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetStringResults::Can't Find Name " + name + " at index " + to_string( index ) );
     }
     else
     {
@@ -1450,7 +1458,7 @@ const vector<vec3d> & GetVec3dResults( const string & id, const string & name, i
     }
     else if ( !ResultsMgr.ValidDataNameIndex( id, name, index ) )
     {
-        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetVec3dResults::Can't Find Name " + name  );
+        ErrorMgr.AddError( VSP_CANT_FIND_NAME, "GetVec3dResults::Can't Find Name " + name + " at index " + to_string( index ) );
     }
     else
     {
@@ -1835,7 +1843,7 @@ string GetGeomName( const string & geom_id )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomName::Can't Find Geom"  );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomName::Can't Find Geom " + geom_id );
         return string();
     }
     ret_name = geom_ptr->GetName();
@@ -1850,7 +1858,7 @@ int GetGeomVSPSurfType( const string& geom_id, int main_surf_ind )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomVSPSurfType::Can't Find Geom" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomVSPSurfType::Can't Find Geom " + geom_id );
         return -1;
     }
 
@@ -1859,7 +1867,7 @@ int GetGeomVSPSurfType( const string& geom_id, int main_surf_ind )
 
     if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomVSPSurfType::Main Surf Index Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomVSPSurfType::Main Surf Index " + to_string( main_surf_ind ) + " Out of Range" );
     }
 
     return surf_vec[main_surf_ind].GetSurfType();
@@ -1872,7 +1880,7 @@ int GetGeomVSPSurfCfdType( const string& geom_id, int main_surf_ind )
     Geom* geom_ptr = veh->FindGeom( geom_id );
     if ( !geom_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomVSPSurfCfdType::Can't Find Geom" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetGeomVSPSurfCfdType::Can't Find Geom " + geom_id );
         return -1;
     }
 
@@ -1881,7 +1889,7 @@ int GetGeomVSPSurfCfdType( const string& geom_id, int main_surf_ind )
 
     if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomVSPSurfCfdType::Main Surf Index Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomVSPSurfCfdType::Main Surf Index " + to_string( main_surf_ind ) + " Out of Range" );
     }
 
     return surf_vec[main_surf_ind].GetSurfCfdType();
@@ -2037,7 +2045,7 @@ vec3d GetGeomBBoxMax( const string& geom_id, int main_surf_ind, bool ref_frame_i
 
     if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMax::Main Surf Index Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMax::Main Surf Index " + to_string( main_surf_ind) + " Out of Range" );
     }
 
     VspSurf current_surf = surf_vec[main_surf_ind];
@@ -2079,7 +2087,7 @@ vec3d GetGeomBBoxMin( const string& geom_id, int main_surf_ind, bool ref_frame_i
 
     if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
     {
-        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMin::Main Surf Index Out of Range" );
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomBBoxMin::Main Surf Index " + to_string( main_surf_ind ) + " Out of Range" );
     }
 
     VspSurf current_surf = surf_vec[main_surf_ind];
@@ -2190,7 +2198,7 @@ void DeleteSubSurf( const string & geom_id, const string & sub_id )
     int index = geom_ptr->GetSubSurfIndex( sub_id );
     if ( index == -1 )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteSubSurf::Can't Find SubSurf " + sub_id );
         return;
     }
     geom_ptr->DelSubSurf( index );
@@ -2237,7 +2245,7 @@ void SetSubSurfName( const std::string & geom_id, const std::string & sub_id, co
     ssurf = geom_ptr->GetSubSurf( sub_id );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Invalid Sub Surface Ptr " );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Invalid Sub Surface Ptr " + sub_id );
         return;
     }
     ssurf->SetName( name );
@@ -2250,7 +2258,7 @@ void SetSubSurfName( const std::string & sub_id, const std::string & name )
     SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ss_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Invalid Sub Surface Ptr " );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetSubSurfName::Invalid Sub Surface Ptr " + sub_id );
         return;
     }
     ss_ptr->SetName( name );
@@ -2271,7 +2279,7 @@ std::string GetSubSurfName( const std::string & geom_id, const std::string & sub
     ssurf = geom_ptr->GetSubSurf( sub_id );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Invalid Sub Surface Ptr " );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Invalid Sub Surface Ptr " + sub_id );
         return string();
     }
     ErrorMgr.NoError();
@@ -2283,7 +2291,7 @@ std::string GetSubSurfName( const std::string & sub_id )
     SubSurface* ssurf = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Invalid Sub Surface Ptr " );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfName::Invalid Sub Surface Ptr " + sub_id );
         return string();
     }
     ErrorMgr.NoError();
@@ -2296,7 +2304,7 @@ int GetSubSurfIndex( const std::string & sub_id )
     SubSurface* ss_ptr = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ss_ptr )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfIndex::Invalid Sub Surface Ptr " );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfIndex::Invalid Sub Surface Ptr " + sub_id );
         return -1;
     }
     Vehicle* veh = GetVehicle();
@@ -2373,7 +2381,7 @@ int GetSubSurfType( const string & sub_id )
     SubSurface* ssurf = SubSurfaceMgr.GetSubSurf( sub_id );
     if ( !ssurf )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfType::Invalid Sub Surface Ptr " );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "GetSubSurfType::Invalid Sub Surface Ptr " + sub_id );
         return -1;
     }
     ErrorMgr.NoError();
@@ -2448,7 +2456,7 @@ void DeleteFeaStruct( const string & geom_id, int fea_struct_ind )
     }
     if ( !geom_ptr->ValidGeomFeaStructInd( fea_struct_ind ) )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaStruct::Can't Find FeaStructure " + geom_id );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaStruct::Can't Find FeaStructure at index " + to_string( fea_struct_ind ) );
         return;
     }
     geom_ptr->DeleteFeaStruct( fea_struct_ind );
@@ -2597,7 +2605,7 @@ string AddFeaPart( const string & geom_id, int fea_struct_ind, int type )
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaPart::Invalid FeaStructure Ptr" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaPart::Invalid FeaStructure Ptr at Index " + to_string( (long long)fea_struct_ind ) );
         return string();
     }
 
@@ -2632,7 +2640,7 @@ void DeleteFeaPart( const string & geom_id, int fea_struct_ind, const string & p
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaPart::Invalid FeaStructure Ptr" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaPart::Invalid FeaStructure Ptr at index " + to_string( ( long long ) fea_struct_ind ) );
         return;
     }
 
@@ -2791,7 +2799,7 @@ string AddFeaSubSurf( const string & geom_id, int fea_struct_ind, int type )
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaSubSurf::Invalid FeaStructure Ptr" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "AddFeaSubSurf::Invalid FeaStructure Ptr at index " + to_string( (long long)fea_struct_ind ) );
         return string();
     }
 
@@ -2826,7 +2834,7 @@ void DeleteFeaSubSurf( const string & geom_id, int fea_struct_ind, const string 
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaSubSurf::Invalid FeaStructure Ptr" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "DeleteFeaSubSurf::Invalid FeaStructure Ptr at index " + to_string( (long long)fea_struct_ind ) );
         return;
     }
 
@@ -2976,7 +2984,7 @@ void SetFeaMeshVal( const string & geom_id, int fea_struct_ind, int type, double
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFEAMeshVal::Invalid FeaStructure Ptr" );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFEAMeshVal::Invalid FeaStructure Ptr at index " + to_string( (long long)fea_struct_ind ) );
         return;
     }
 
@@ -3023,7 +3031,7 @@ void SetFeaMeshFileName( const string & geom_id, int fea_struct_ind, int file_ty
     feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaMeshFileNames::Invalid FeaStructure Ptr " );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "SetFeaMeshFileNames::Invalid FeaStructure Ptr at index " + to_string( (long long)fea_struct_ind ) );
         return;
     }
 
@@ -3052,7 +3060,7 @@ void ComputeFeaMesh( const string & geom_id, int fea_struct_ind, int file_type )
     FeaStructure* feastruct = geom_ptr->GetFeaStruct( fea_struct_ind );
     if ( !feastruct )
     {
-        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeFEAMesh::Invalid FeaStructure Ptr " );
+        ErrorMgr.AddError( VSP_INVALID_PTR, "ComputeFEAMesh::Invalid FeaStructure Ptr at index " + to_string( (long long)fea_struct_ind ) );
         return;
     }
 
@@ -3449,7 +3457,7 @@ vector<vec3d> ReadFileXSec( const string& xsec_id, const string& file_name )
         }
         else
         {
-            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadFileXSec::Error reading fuselage file" );
+            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadFileXSec::Error reading fuselage file " + file_name );
             return pnt_vec;
         }
     }
@@ -3695,7 +3703,7 @@ void ReadFileAirfoil( const string& xsec_id, const string& file_name )
         }
         else
         {
-            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadFileAirfoil::Error reading airfoil file" );
+            ErrorMgr.AddError( VSP_FILE_DOES_NOT_EXIST, "ReadFileAirfoil::Error reading airfoil file " + file_name );
             return;
         }
     }
@@ -3735,6 +3743,7 @@ void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d>
     FILE* af = fopen( file_name.c_str(), "w" );
     if ( !af )
     {
+        ErrorMgr.AddError( VSP_FILE_WRITE_FAILURE, "WriteSeligAirfoilFile::Error writting airfoil file " + airfoil_name );
         return;
     }
 
@@ -3750,6 +3759,7 @@ void WriteSeligAirfoilFile( const std::string & airfoil_name, std::vector<vec3d>
     }
 
     fclose( af );
+    ErrorMgr.NoError();
 }
 
 struct LLT_Data // Struct containing Lifting Line Theory data
@@ -4138,6 +4148,7 @@ std::vector<vec3d> GetFeatureLinePnts( const string& geom_id )
         }
     }
 
+    ErrorMgr.NoError();
     return pnt_vec;
 }
 
@@ -4582,7 +4593,7 @@ void WriteBezierAirfoil( const std::string & file_name, const std::string & geom
 
     if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
     {
-        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "WriteBezierAirfoil::Invalid u Location" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "WriteBezierAirfoil::Invalid u Location " + to_string( foilsurf_u ) + " - Must be range [0,1]." );
         return;
     }
 
@@ -4602,7 +4613,7 @@ void WriteSeligAirfoil( const std::string & file_name, const std::string & geom_
 
     if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
     {
-        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "WriteSeligAirfoil::Invalid u Location" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "WriteSeligAirfoil::Invalid u Location " + to_string( foilsurf_u ) + " - Must be range [0,1]." );
         return;
     }
 
@@ -4623,7 +4634,7 @@ vector < vec3d > GetAirfoilCoordinates( const std::string & geom_id, const doubl
 
     if ( foilsurf_u < 0.0 || foilsurf_u > 1.0 )
     {
-        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetAirfoilCoordinates::Invalid u Location" );
+        ErrorMgr.AddError( VSP_INVALID_INPUT_VAL, "GetAirfoilCoordinates::Invalid u Location " + to_string( foilsurf_u ) + " - Must be range [0,1]." );
         return ordered_vec;
     }
 
@@ -4867,7 +4878,7 @@ void ConvertXSecToEdit( const std::string & geom_id, const int & indx )
 
         if ( !xs )
         {
-            ErrorMgr.AddError( VSP_INVALID_PTR, "ConvertXSecToEdit::Can't Find XSec " + to_string( indx ) );
+            ErrorMgr.AddError( VSP_INVALID_PTR, "ConvertXSecToEdit::Can't Find XSec " + to_string( ( long long )indx ) );
             return;
         }
 
@@ -6439,7 +6450,7 @@ vector < vec3d > CompVecPnt01( const std::string &geom_id, const int &surf_indx,
             }
             else
             {
-                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompPnt01::Invalid surf index." );
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompPnt01::Invalid surf index " + to_string( surf_indx ) );
                 return pts;
             }
         }
@@ -6484,7 +6495,7 @@ vector < vec3d > CompVecNorm01( const std::string &geom_id, const int &surf_indx
             }
             else
             {
-                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompNorm01::Invalid surf index." );
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompNorm01::Invalid surf index " + to_string( surf_indx ) );
                 return norms;
             }
         }
@@ -6534,7 +6545,7 @@ void CompVecCurvature01( const std::string &geom_id, const int &surf_indx, const
             }
             else
             {
-                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompCurvature01::Invalid surf index." );
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "CompCurvature01::Invalid surf index " + to_string( surf_indx ) );
                 return;
             }
         }
@@ -6579,7 +6590,7 @@ void ProjVecPnt01(const std::string &geom_id, const int &surf_indx, const vector
         }
         else
         {
-            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01::Invalid surf index." );
+            ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01::Invalid surf index " + to_string( surf_indx ) );
             return;
         }
     }
@@ -6620,7 +6631,7 @@ void ProjVecPnt01Guess( const std::string &geom_id, const int &surf_indx, const 
             }
             else
             {
-                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01Guess::Invalid surf index." );
+                ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "ProjPnt01Guess::Invalid surf index " + to_string( surf_indx ) );
                 return;
             }
         }
