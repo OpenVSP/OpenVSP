@@ -758,7 +758,7 @@ string SixSeries::GetAirfoilName()
     float fa = int( m_A() * 10.0 + 0.5f ) / 10.0;
 
     int sixser = 63;
-    if ( m_Series() < SERIES_67 )
+    if ( m_Series() <= SERIES_67 )
     {
         sixser = m_Series() + 63;
     }
