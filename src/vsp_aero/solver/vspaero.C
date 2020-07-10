@@ -1508,7 +1508,7 @@ void LoadCaseFile(void)
     
     if ( WakeIterations_ != 0 && WakeIterations_ <= 3 ) WakeIterations_ = 3;
     
-    if ( WakeIterations_ == 0 ) {
+    if ( WakeIterations_ == 0 && DoUnsteadyAnalysis_ == 0) {
        
        WakeIterations_ = 1;
        
