@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020 Uber Technologies, Inc.
+# Copyright (c) 2020 Uber Technologies, Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,14 +18,28 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from setuptools import setup
 
-setup(
-    name='degen_geom',
-    version='0.0.1',
-    packages=['degen_geom'],
-    license='MIT',
-    author='Uber Technologies, Inc.',
-    install_requires=['utilities', 'numpy'],
-    description='Defines common data structures for degenerate geometry types'
-)
+import logging
+
+
+class StyleAdapter(logging.LoggerAdapter):
+    """
+    Logging a adapter that supports using new format syntax for messages
+    """
+    def __init__(self, logger, default_style="%", extra=None):
+        super(StyleAdapter, self).__init__(logger, extra)
+        self.default_style = default_style
+
+    def process(self, msg, kwargs):
+        style = kwargs.pop('style', self.default_style)
+        if style == "{":  # optional
+            msg = _FormatString(msg)
+        return msg, kwargs
+
+
+class _FormatString(str):
+    def __mod__(self, other):
+        return self.format(*other)
+
+    def __str__(self):
+        return self

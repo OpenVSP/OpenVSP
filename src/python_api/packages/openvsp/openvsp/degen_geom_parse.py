@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Uber Technologies, Inc.
+# Copyright (c) 2018-2020 Uber Technologies, Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -54,6 +54,11 @@ def parse_degen_geom(degen_geom_res_id):
         for disk_id in disk_ids:
             res = vsp.parse_results_object(disk_id)
             degen_obj.disk = dg.DegenDisk(res)
+
+        plate_ids = vsp.GetStringResults(degen_id, "plates")
+        for plate_id in plate_ids:
+            res = vsp.parse_results_object(plate_id)
+            degen_obj.plates.append(dg.DegenPlate(res))
 
         degen_objects.append(degen_obj)
 

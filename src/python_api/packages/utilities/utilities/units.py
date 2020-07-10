@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Uber Technologies, Inc.
+# Copyright (c) 2018-2020 Uber Technologies, Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -29,6 +29,14 @@ in2ft = 1/ft2in
 in2cm = 2.54
 
 cm2in = 1/in2cm
+
+cm2mm = 10.
+
+mm2cm = 1/cm2mm
+
+mm2in = mm2cm * cm2in
+
+in2mm = 1/mm2in
 
 m2cm = 100.0
 
@@ -68,6 +76,12 @@ nmi2mi = 1.0 / mi2nmi
 
 ft2nmi = ft2mi * mi2nmi
 
+ft2cm = ft2in * in2cm
+
+mm2m = 1.0 / 1000.0
+
+m2mm = 1000.0
+
 # area
 
 ft22in2 = ft2in * ft2in
@@ -104,6 +118,10 @@ slug2lb = slug2kg * kg2lb
 
 lb2slug = 1/slug2lb
 
+oz2lb = 1./16
+
+lb2oz = 1/oz2lb
+
 # forces
 lb2n = 4.4482216152605
 
@@ -113,6 +131,14 @@ n2lb = 1/lb2n
 rpm2rad_s = (1.0/m2s)*(2.0*math.pi)
 
 rad_s2rpm = 1/rpm2rad_s
+
+n2rad_s = 2.0*math.pi
+
+rad_s2n = 1.0/n2rad_s
+
+n2rpm = 60.0
+
+rpm2n = 1/n2rpm
 
 mph2fts = mi2ft/(hr2m*m2s)
 
@@ -132,6 +158,11 @@ ftm2fts = 1.0 / fts2ftm
 
 mph2kts = mph2fts * fts2kt
 
+kts2mph = 1.0 / mph2kts
+
+kt2ms = kt2fts * fts2ms
+
+
 def tas2eas(tas, atmosphere, z_m):
     import numpy as np
     _, _, s = atmosphere.getRatios(z_m)
@@ -145,13 +176,18 @@ def eas2tas(eas, atmosphere, z_m):
 
 
 # accels
-g2fps2 = 32.174
+g2mps2 = 9.80665
+
+mps22g = 1 / g2mps2
+
+mps22fps2 = m2ft
+
+fps22mps2 = ft2m
+
+g2fps2 = g2mps2 * mps22fps2
 
 fps22g = 1/g2fps2
 
-g2mps2 = 9.80665
-
-mps22g = 1/g2mps2
 
 
 # power
@@ -183,6 +219,14 @@ hp2w = 1/w2hp
 nm2ftlb = n2lb*m2ft
 
 ftlb2nm = 1/nm2ftlb
+
+nm2inlb = nm2ftlb * ft2in
+
+inlb2nm = 1/nm2inlb
+
+nm2inoz = nm2inlb * lb2oz
+
+inoz2nm = 1/nm2inoz
 
 # energy
 
@@ -254,3 +298,33 @@ pa2atm = 1/atm2pa
 # densities
 kgcm2slugcf = kg2slug / (m2ft ** 3.0)
 slugcf2kgcm = 1/kgcm2slugcf
+
+# volume
+l2in3 = 61.0237
+
+in32l = 1/l2in3
+
+# wire conversions
+def gauge2diam(gauge):
+    '''
+
+    :param gauge: AWG (for aught, they should be negative)
+    :return: diam (in)
+    '''
+    return (5*92**((36-gauge)/39))/1000.
+
+def gauge2cmil(gauge):
+    '''
+
+    :param gauge: AWG (for aught, they should be negative)
+    :return: circular mils
+    '''
+    return (1000*gauge2diam(gauge))**2
+
+def gauge2sqin(gauge):
+    '''
+
+    :param gauge: AWG (for aught, they should be negative)
+    :return: square inches
+    '''
+    return math.pi * (gauge2diam(gauge)/2)**2

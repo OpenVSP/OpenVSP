@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Uber Technologies, Inc.
+# Copyright (c) 2018-2020 Uber Technologies, Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -82,7 +82,7 @@ class ParasiteDragResults:
         self.Vinf_Label = [r.Vinf_Label[0] for r in results]
         self.f_Label = [r.f_Label[0] for r in results]
 
-    def plot(self):
+    def plot(self, ax=None):
         """
         Creates plot of CD0 vs speed and altitude
         """
@@ -94,22 +94,22 @@ class ParasiteDragResults:
         speeds = np.unique(data[:, 0])
         alts = np.unique(data[:, 1])
 
-        plt.figure()
-        leg_str = []
+        if ax is None:
+            plt.figure()
+            ax = plt.gca()
+
         for alt in alts:
             d_filtered = data[data[:, 1] == alt, :]
             cd = d_filtered[:, 2]
             rho = d_filtered[:, 3]
             # d = [cd[i]*(speeds[i]*1.46667)**2*self.Sref[0]*0.5*rho[i] for i in range(len(cd))]
-            plt.plot(speeds, cd)
-            leg_str.append("Alt = %d" % alt)
+            ax.plot(speeds, cd, label=f"Alt = {alt:.0f}")
 
-        plt.xlabel(self.Vinf_Label[0])
-        plt.ylabel('CD_0')
-        plt.xlim(left=0.0)
-        plt.ylim(bottom=0.0)
-        plt.legend(leg_str)
-        plt.show()
+        ax.set_xlabel(self.Vinf_Label[0])
+        ax.set_ylabel('CD_0')
+        ax.set_xlim(xmin=0.0)
+        ax.set_ylim(ymin=0.0)
+        return ax
 
     def build_interpolator(self):
         """ Returns interpolator to interpolate results as a function of speed and altitude """

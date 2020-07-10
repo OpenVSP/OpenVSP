@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Uber Technologies, Inc.
+# Copyright (c) 2018-2020 Uber Technologies, Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -141,6 +141,5 @@ def plot_surface_components(components: List[SurfaceComponent], plot_normals=Tru
                     ax.quiver(patch.x, patch.y, patch.z, patch.nx, patch.ny, patch.nz, length=quiver_len)
 
     vsp.set_3d_axis_equal(ax)
-    plt.show()
 
-    return fig
+    return ax

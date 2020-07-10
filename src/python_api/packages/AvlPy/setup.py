@@ -1,4 +1,4 @@
-# Copyright (c) 2018-2020 Uber Technologies, Inc.
+# Copyright (c) 2020 Uber Technologies, Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -18,14 +18,23 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
-from setuptools import setup
+from setuptools import setup, Extension
+from setuptools.command.build_ext import build_ext
+import os
+import shutil
+import subprocess
+import glob
+
+extension_name = "avlpy.bin.avl"
 
 setup(
-    name='degen_geom',
-    version='0.0.1',
-    packages=['degen_geom'],
+    name='avlpy',
+    version='0.1',
+    packages=['avlpy'],
+    url='',
     license='MIT',
-    author='Uber Technologies, Inc.',
-    install_requires=['utilities', 'numpy'],
-    description='Defines common data structures for degenerate geometry types'
+    author='',
+    author_email='',
+    description='AVL with python wrapper',
+    install_requires=['airfoils', 'numpy', 'scipy', 'utilities'],
 )

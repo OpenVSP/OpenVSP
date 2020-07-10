@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Uber Technologies, Inc.
+# Copyright (c) 2018-2020 Uber Technologies, Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@ import utilities.units as u
 from utilities.files import RunManager
 from utilities.transformations import TransMatrix
 import logging
+import utilities.logging as ul
 import openvsp as vsp
 import degen_geom as dg
 import numpy as np
@@ -32,6 +33,16 @@ from enum import Enum
 import collections
 import re
 import math
+import sys
+import glob
+from typing import Union
+
+# Find default fortran executables
+DEFAULT_BG2CHARM = os.path.join(os.path.dirname(__file__), "charm_fortran_utilities", "bin")
+for g in glob.glob(os.path.join(DEFAULT_BG2CHARM, "bg2charm*")):
+    if sys.platform in g:
+        DEFAULT_BG2CHARM = g
+        break
 
 
 class AirfoilDataLocation(Enum):
@@ -116,7 +127,8 @@ class CharmAirfoilSection:
 class CharmRotorSettings:
     def __init__(self, rpm=0.0, rotor_wake_template=None, initial_collective=None, ct=None,
                  default_airfoil_opts=None, merge_wings=True, nspan_override=None,
-                 airfoil_opts=None, iaero=1, irvflo=0, icoll=None, airfoil_r_o_Rs=None):
+                 airfoil_opts=None, iaero=1, irvflo=0, icoll=None, airfoil_r_o_Rs=None, nchord=1,
+                 icnvct=None, flap_type=None, flap_length=None, flap_defl=None):
         """
 
         :param rpm: revolutions per minute of the rotor
@@ -136,6 +148,11 @@ class CharmRotorSettings:
         :param icoll: set ICOLL variable in CHARM rotor wake file. Controls how collective is adjusted
         :param airfoil_r_o_Rs: optional array of local radius/blade radius locations of airfoil sections
             specified in `airfoil_opts`. If not specified, an attempt to use VSP will be made to locate the airfoils
+        :param nchord: number of chordwise elements in vortex latice method
+        :param icnvct: controls downstream wake convection; =0 is a free wake, =1 is free up fixed down, =2 is fixed
+        :param flap_type: flap type input for segment ISEG; =0 no flap, =1 plain flap (nicolai), =-1 plain flap
+        :param flap_defl: flap deflection of segment ISEG in degrees (0 - 40)
+        :param flap_length: flap length for segment ISEG, percent chord, (0.0 - 0.5)
         """
         self.__rpm = rpm
         self.__rotor_wake_template = rotor_wake_template
@@ -148,7 +165,12 @@ class CharmRotorSettings:
         self.__airfoil_r_o_Rs = [] if airfoil_r_o_Rs is None else airfoil_r_o_Rs
         self.__iaero = iaero
         self.__irvflo = irvflo
-        self.__icoll = None
+        self.__icoll = icoll
+        self.__nchord = nchord
+        self.__icnvct = icnvct
+        self.__flap_type = flap_type
+        self.__flap_length = flap_length
+        self.__flap_defl = flap_defl
 
     @property
     def rpm(self):
@@ -232,6 +254,42 @@ class CharmRotorSettings:
 
     @property
     def icoll(self):
+        """
+        Corresponds to the ICOLL variable in CHARM rotor wake file. Controls how collective is trimmed
+
+        From the CHARM Manual::
+
+            ICOLL=0: The collective is fixed at COLLD degrees and the
+                input CT value is simply an estimate used to initialize the wake
+                induced velocity if IFREE=0.
+            ICOLL=1: Collective adjusts until the thrust coefficient is
+                equal to the input value of CT = T/R2(R)2 and COLLD is
+                just an initial estimate.
+            ICOLL=2: Collective adjusts until the torque coefficient is
+                equal to the input value of CCTRIM = CQ = Q/R3(R)2.
+            ICOLL=3: Shaft angle (s) adjusts until X-force/Lift is equal
+                to the input value of CCTRIM = X-force/Lift (wind axes).
+                Important note: For ICOLL=3, the code also adjusts collective
+                to keep CTcos(s) constant as it adjusts s. This is only an
+                option when SFRAME=0 (shaft frame solution).
+            ICOLL=4: RPM adjusts until the thrust is equal to the input
+                value of CCTRIM = thrust (lbf or Newtons). Important note:
+                For large changes in RPM, repeat the calculation beginning
+                with the new RPM value until the power converges.
+            ICOLL=5: Shaft angle (s) adjusts until -X-force = parasite
+                drag force = ½U2A where CCTRIM = A (ft or m2).
+                Important note: For ICOLL=5, the code also adjusts collective
+                to keep CTcos(s) constant as it adjusts s. This is only an
+                option when SFRAME=0 (shaft frame solution).
+            ICOLL=6: Same as ICOLL=5 only shaft angle is fixed and
+                cyclic pitch is used to trim to –X-force.
+            ICOLL=7: Same as ICOLL=5 only shaft angle is fixed and
+                thrust is used to trim to –X-force.
+            ICOLL = 21: Collective adjusts until the torque is equal to the
+                CCTRIM value (ft-lbs or n-m).
+            ICOLL = 22: Collective adjusts until the power is equal to the
+                CCTRIM value (HP or watts).
+        """
         return self.__icoll
 
     @icoll.setter
@@ -246,6 +304,67 @@ class CharmRotorSettings:
     def airfoil_r_o_Rs(self, airfoil_r_o_Rs):
         self.__airfoil_r_o_Rs = [] if airfoil_r_o_Rs is None else airfoil_r_o_Rs
 
+    @property
+    def nchord(self):
+        return self.__nchord
+
+    @nchord.setter
+    def nchord(self, nchord):
+        self.__nchord = int(nchord)
+
+    @property
+    def icnvct(self):
+        """
+        Corresponds to the ICOLL variable in CHARM rotor wake file. Controls how collective is trimmed
+
+        From the CHARM Manual::
+
+            ICNVCT=0: Include all induced velocites in the calculation of wake geometry.
+            ICNVCT=1: ICNVCT=0 upstream of x=-RADIUS(1), ICNVCT=2 downstream.
+            ICNVCT=2: Wake elements convect at free stream plus uniform inflow.
+            ICNVCT=3: Wake elements convect at free stream.
+        """
+        return self.__icnvct
+
+    @icnvct.setter
+    def icnvct(self, icnvct):
+        self.__icnvct = icnvct
+
+    @property
+    def flap_type(self):
+        """
+        Flap type for segment ISEG
+
+        From the CHARM Manual::
+
+        KFLAP(ISEG)=0: Segment ISEG has no flaps
+        KFLAP(ISEG)=1: Plain flaps (Nicolai model)
+        KFLAP(ISEG)=-1: Plain flaps (Torenbeek model)
+        KFLAP(ISEG)=2: Split flaps (Nicolai model)
+        :return:
+        """
+        return self.__flap_type
+
+    @flap_type.setter
+    def flap_type(self, flap_type):
+        self.__flap_type = flap_type
+
+    @property
+    def flap_length(self):
+        return self.__flap_length
+
+    @flap_length.setter
+    def flap_length(self, flap_length):
+        self.__flap_length = flap_length
+
+    @property
+    def flap_defl(self):
+        return self.__flap_defl
+
+    @flap_defl.setter
+    def flap_defl(self, flap_defl):
+        self.__flap_defl = flap_defl
+
 
 class CharmRotorSettingsCollection(collections.MutableMapping, CharmRotorSettings):
     """
@@ -258,10 +377,10 @@ class CharmRotorSettingsCollection(collections.MutableMapping, CharmRotorSetting
         self.update(dict(*args, **kwargs))
         super().__init__(**kwargs)
 
-    def __getitem__(self, key):
+    def __getitem__(self, key) -> Union[CharmRotorSettings, 'CharmRotorSettingsCollection']:
         return self.store[key]
 
-    def __setitem__(self, key, value):
+    def __setitem__(self, key, value: Union[CharmRotorSettings, 'CharmRotorSettingsCollection']):
         self.store[key] = value
 
     def __delitem__(self, key):
@@ -421,6 +540,100 @@ class CharmRotorSettingsCollection(collections.MutableMapping, CharmRotorSetting
         for key, rotor_setting in self.store.items():
             rotor_setting.airfoil_r_o_Rs = airfoil_r_o_Rs
 
+    @property
+    def nchord(self):
+        nchord = 0
+        for key, rotor_setting in self.store.items():
+            nchord += rotor_setting.nchord
+        if len(self.store) > 0:
+            nchord /= len(self.store)
+        return int(nchord)
+
+    @nchord.setter
+    def nchord(self, nchord):
+        for key, rotor_setting in self.store.items():
+            rotor_setting.nchord = nchord
+
+    @property
+    def icnvct(self):
+        icnvct = 0
+        for key, rotor_settings in self.store.items():
+            icnvct += rotor_settings.icnvct
+        if len(self.store) > 0:
+            icnvct /= len(self.store)
+        return int(icnvct)
+
+    @icnvct.setter
+    def icnvct(self, icnvct):
+        for key, rotor_setting in self.store.items():
+            rotor_setting.icnvct = icnvct
+
+    @property
+    def flap_type(self):
+        flap_type = []
+        for key, rotor_settings in self.store.items():
+            flap_type.append(rotor_settings.flap_type)
+        return flap_type
+
+    @flap_type.setter
+    def flap_type(self, flap_type):
+        for key, rotor_setting in self.store.items():
+            rotor_setting.flap_type = flap_type
+
+    @property
+    def flap_length(self):
+        flap_length = []
+        for key, rotor_settings in self.store.items():
+            flap_length.append(rotor_settings.flap_length)
+        return flap_length
+
+    @flap_length.setter
+    def flap_length(self, flap_length):
+        for key, rotor_settings in self.store.items():
+            rotor_settings.flap_length = flap_length
+
+    @property
+    def flap_defl(self):
+        flap_delf = []
+        for key, rotor_settings in self.store.items():
+            flap_delf.append(rotor_settings.flap_defl)
+        return flap_delf
+
+    @flap_defl.setter
+    def flap_defl(self, flap_defl):
+        for key, rotor_settings in self.store.items():
+            rotor_settings.flap_defl = flap_defl
+
+
+class CharmTrimSettings:
+    def __init__(self, forces_moments=None, targets=None, tol=None, pilot_cntrls=None, attitude_cntrls=None,
+                 num_aero_comps=None, aero_comp_cntrls=None, cntrl_gains=None, init_cntrls=None, template=None):
+        """
+        Initializes a CHARM trim information object.  All params default to None so default template file can be used
+        without modification.
+
+        :param forces_moments: integer list [Fx, Fy, Fz, Mx, My, Mz], select forces and moments to trim
+        :param targets: float list [Fx, Fy, Fz, Mx, My, Mz], target values to trim to
+        :param tol: float list [Fx, Fy, Fz, Mx, My, Mz], trim tolerance (fraction of weight)
+        :param pilot_cntrls: integer list (see CHARM Manual)
+        :param attitude_cntrls: integer list [Roll, Pitch, Sideslip]
+        :param num_aero_comps: integer, number of aerodynamic components (rotors and wings) used to trim
+        :param aero_comp_cntrls: integer matrix, component control capabilities, rows must equal num_aero_comps
+        :param cntrl_gains: float matrix, control gains connecting pilot controls to componenet controls
+        :param template: string, template file name
+        :param init_cntrls: float list, initial pilot control inputs
+        """
+        self.forces_moments = forces_moments
+        self.targets = targets
+        self.tol = tol
+        self.pilot_cntrls = pilot_cntrls
+        self.attitude_cntrls = attitude_cntrls
+        self.num_aero_comps = num_aero_comps
+        self.aero_comp_cntrls = aero_comp_cntrls
+        self.cntrl_gains = cntrl_gains
+        self.init_cntrls = init_cntrls
+        self.template = template
+
 
 class CharmWingInfo:
     def __init__(self, charm_le, charm_te, toc, vsp_wing_origin, vsp_origin_2_wing_origin: TransMatrix,
@@ -453,16 +666,27 @@ class CharmWingInfo:
         self.flip_rotation_direction = flip_rotation_direction
 
 
+class CharmAtmosphereData:
+    def __init__(self, speed_of_sound: float, density: float):
+        """
+        Class to hold charm atmosphere data
+        :param speed_of_sound: speed of sound in charm unit system (either m/s or ft/s)
+        :param density: density of air in charm unit system (either slugs/ft^3 or kg/m^3)
+        """
+        self.speed_of_sound = speed_of_sound
+        self.density = density
+
+
 def create_charm_blade_geom_file_from_propeller(prop_dg: dg.DegenComponent, unit_factor=u.in2ft,
-                                                bg2charm_path=os.path.join(os.path.dirname(__file__),
-                                                            "charm_fortran_utilities/build/bg2charm_thick"),
-                                                nspan_override=None, **kwargs):
+                                                bg2charm_path=DEFAULT_BG2CHARM,
+                                                nspan_override=None, nchord=1, **kwargs):
     """
     Create charm blade geometry file (*bg file)
     :param prop_dg: degen object of propeller to create bg file from
     :param unit_factor: unit conversion factor to go from units in vsp to feet
     :param bg2charm_path: path to bg2charm executable
     :param nspan_override: number of spanwise segments for the vortext lattice override
+    :param nchord: number of chordwise segments for the vortex lattice panels
     :return: string of bg file contents
     """
 
@@ -490,12 +714,11 @@ def create_charm_blade_geom_file_from_propeller(prop_dg: dg.DegenComponent, unit
 
     # Run the utility in a temporary directory
     return create_charm_blade_geom_file(data[:, 0:3].T, data[:, 3:6].T, thickness, unit_factor=unit_factor,
-                                        bg2charm_path=bg2charm_path, nspan_override=nspan_override)
+                                        bg2charm_path=bg2charm_path, nspan_override=nspan_override, nchord=nchord)
 
 
 def create_charm_blade_geom_file_from_wing(wing_info: CharmWingInfo, unit_factor=u.in2ft,
-                                           bg2charm_path=os.path.join(os.path.dirname(__file__),
-                                                                      "charm_fortran_utilities/build/bg2charm_thick"),
+                                           bg2charm_path=DEFAULT_BG2CHARM,
                                            nspan_override=None, **kwargs):
     """
 
@@ -506,13 +729,13 @@ def create_charm_blade_geom_file_from_wing(wing_info: CharmWingInfo, unit_factor
     :return: string of bg file contents
     """
     return create_charm_blade_geom_file(wing_info.charm_le, wing_info.charm_te, wing_info.toc, unit_factor=unit_factor,
-                                        bg2charm_path=bg2charm_path, nspan_override=nspan_override)
+                                        bg2charm_path=bg2charm_path, nspan_override=nspan_override, **kwargs)
 
 
 def create_charm_blade_geom_file(leading_edge, trailing_edge, thickness, unit_factor=u.in2ft,
-                                 bg2charm_path=os.path.join(os.path.dirname(__file__),
-                                                            "charm_fortran_utilities/build/bg2charm_thick"),
-                                 nspan_override=None):
+                                 bg2charm_path=DEFAULT_BG2CHARM,
+                                 nspan_override=None, nchord=1, flap_type=None, flap_length=None, flap_defl=None,
+                                 **kwargs):
     """
     Creates a CHARM blade geometry input file
 
@@ -522,10 +745,15 @@ def create_charm_blade_geom_file(leading_edge, trailing_edge, thickness, unit_fa
     :param unit_factor: unit conversion factor to go from units in vsp to feet
     :param bg2charm_path: path to bg2charm executable
     :param nspan_override: number of spanwise segments for the vortext lattice override
+    :param nchord: number of chordwise segments for the vortex lattice panels
+    :param flap_type: flap type input for segment ISEG; =0 no flap, =1 plain flap (nicolai), =-1 plain flap
+    (Torenbeek), =2 split flap (Nicolai)
+    :param flap_length: flap length for segment ISEG, percent chord, (0.0 - 0.5)
+    :param flap_defl: flap deflection of segment ISEG in degrees (0 - 40)
     :return: string of blade geometry file
     """
 
-    logger = logging.getLogger(__name__)
+    logger = ul.StyleAdapter(logging.getLogger(__name__), default_style='{')
 
     data = np.concatenate((leading_edge.T, trailing_edge.T, thickness.reshape(len(thickness), 1)), 1)
 
@@ -555,11 +783,37 @@ def create_charm_blade_geom_file(leading_edge, trailing_edge, thickness, unit_fa
         if nspan_override is not None:
             # Warn if override is not a valid value
             if abs(nspan_override) < 2 or abs(nspan_override) > 100 or abs(nspan_override) < nseg:
-                logger.warn("nspan override is invalid. using nspan=50")
+                logger.warning("nspan override is invalid. using nspan=50")
                 nspan_override = 50
 
             re_expr = re.compile(r"(^NCHORD\s+NSPAN\s+ICOS\s?\n\s+[0-9]+\s+)([0-9]+)\s", re.MULTILINE)
             bg_file_contents = re.sub(re_expr, r"\g<1>{}".format(nspan_override), bg_file_contents)
+
+        # Modify nchord
+        re_expr = re.compile(r"(^NCHORD\s+NSPAN\s+ICOS\s?\n\s+)([0-9])", re.MULTILINE)
+        bg_file_contents = re.sub(re_expr, r"\g<1>{}".format(nchord), bg_file_contents)
+
+        if flap_type is not None:
+            if len(flap_type) != nseg:
+                raise ValueError(f"The flap_type list length must equal number of wing segments.  "
+                                 f"len(flap_type)={len(flap_type)}, nseg={nseg}.")
+            re_expr_type = re.compile(r"((^|\s)KFLAP\(ISEG\)\n\s*)([0-9]+\*0)")
+            kflapstr = "  ".join(map(str, flap_type))
+            bg_file_contents = re.sub(re_expr_type, r"\g<1>{}".format(kflapstr), bg_file_contents)
+
+            if len(flap_length) != nseg:
+                raise ValueError(f"The flap_length list length must equal number of wing segments.  len("
+                                 f"flap_length)={len(flap_length)}, nseg={nseg}.")
+            re_expr_length = re.compile(r"((^|\s)FLAPND\(ISEG\)\n\s*)([0-9]+\*0.0)")
+            flapndstr = "  ".join(map(lambda x: f"{x:0.4f}", flap_length))
+            bg_file_contents = re.sub(re_expr_length, r"\g<1>{}".format(flapndstr), bg_file_contents)
+
+            if len(flap_defl) != nseg:
+                raise ValueError(f"The flap_defl list length must equal number of wing segments.  len("
+                                 f"flap_defl)={len(flap_defl)}, nseg={nseg}.")
+            re_expr_defl = re.compile(r"((^|\s)FLDEFL\(ISEG\)\n\s*)([0-9]+\*0.0)")
+            fldeflstr = "  ".join(map(lambda x: f"{x:0.4f}", flap_defl))
+            bg_file_contents = re.sub(re_expr_defl, r"\g<1>{}".format(fldeflstr), bg_file_contents)
 
     return bg_file_contents
 
@@ -728,13 +982,16 @@ def remove_le_te_transformations(degen_blade: dg.DegenGeom):
     return leading_edge_charm, trailing_edge_charm
 
 
-def create_rigid_blade_dynamics_file(radius, unit_factor=u.in2ft, iaero=1, irvflo=0):
+def create_rigid_blade_dynamics_file(radius, unit_factor=u.in2ft, iaero=1, irvflo=0, isv66=False, isrotor=True,
+                                     **kwargs):
     """
     Creates a rigid blade geometry file for degenerate propeller component
     :param radius: radius of propeller (span of wing)
     :param unit_factor: conversion factor to convert to feet
     :param iaero: value of IAERO variable in blade dyanmics file. Controls used for computing lift on rotor.
     :param irvflo: value of IRVFLO variable in blade dyanmics file. Controls used for computing reverse flow lift on rotor.
+    :param isv66: boolean, set to True if running CHARM v6.6
+    :param isrotor: boolean, True if rotor, False if wing, used to determine ISTFLO input value
     :return:
     """
 
@@ -759,19 +1016,27 @@ def create_rigid_blade_dynamics_file(radius, unit_factor=u.in2ft, iaero=1, irvfl
         bd_file.write("ISTRIP   IFPC  IAERO\n")
         bd_file.write("  -1      0      {:d}\n".format(iaero))
         bd_file.write("ICOMP   IRVFLO  ISTFLO\n")
-        bd_file.write("  1       {:d}       1\n".format(irvflo))
+        if isrotor:
+            istflo_val = "2"
+        else:
+            istflo_val = "3"
+        bd_file.write("  1       {:d}       ".format(irvflo) + istflo_val + "\n")
         bd_file.write(" IART   HINGE  PRECONE\n")
         bd_file.write("  0    0.000   0.000\n")
         bd_file.write(" NMODE\n")
         bd_file.write("   1\n")
         bd_file.write(" NMDFLP   NMDTOR  NMDLAG  NMDELG\n")
         bd_file.write("   1        0       0       0\n")
-        bd_file.write(" IFXMDE\n")
-        bd_file.write("   1\n")
-        bd_file.write("IMDFIX  NPSIFX\n")
-        bd_file.write("  1      20\n")
-        bd_file.write("AMP\n")
-        bd_file.write(" 20*0.0\n")
+        if not isv66:
+            bd_file.write(" IFXMDE\n")
+            bd_file.write("   1\n")
+            bd_file.write("IMDFIX  NPSIFX\n")
+            bd_file.write("  1      20\n")
+            bd_file.write("AMP\n")
+            bd_file.write(" 20*0.0\n")
+        else:
+            bd_file.write(" IFXMDE IRIGID\n")
+            bd_file.write("   0      1\n")
 
         bd_file.write(" FREQMD   GMASS     for Mode 1\n")
         bd_file.write("  1.000   1000.0\n")
@@ -1037,7 +1302,7 @@ def create_wing_rotor_wake_file_from_template(wing_info: CharmWingInfo, wing_set
     # Create positioning string
     pos_string = "{:2d} {:8.3f} {:8.3f} {:8.3f} {xrot:8.3f} {yrot:8.3f} {zrot:8.3f} {itilt:3d}\n".format(irotat,
                                     *charm_trans.apply_transformation(wing_info.vsp_wing_origin*unit_factor).reshape(3),
-                                                                                       xrot=xrot, yrot=-yrot,
+                                                                                       xrot=xrot, yrot=yrot,
                                                                                        zrot=zrot,
                                                                                        itilt=itilt)
 
@@ -1052,7 +1317,8 @@ def create_wing_rotor_wake_file_from_template(wing_info: CharmWingInfo, wing_set
         return f.getvalue()
 
 
-def build_default_rotor_settings(degen_mgr: dg.DegenGeomMgr, default_rpm=0.0, default_template=None):
+def build_default_rotor_settings(degen_mgr: dg.DegenGeomMgr, default_rpm=0.0, default_template=None)\
+        -> CharmRotorSettingsCollection:
     """
     Builds up a default collection of rotor settings
 
@@ -1065,6 +1331,11 @@ def build_default_rotor_settings(degen_mgr: dg.DegenGeomMgr, default_rpm=0.0, de
     # provided default template current template is empty
     if default_template is None:
         with open(os.path.join(os.path.dirname(__file__), "test", "prop_rw.inp")) as f:
+            default_template = f.readlines()
+
+    # if the default template is a string, assume it is a filename that should be read in
+    if isinstance(default_template, str):
+        with open(default_template, "r") as f:
             default_template = f.readlines()
 
     # Loop over each geom id
@@ -1102,6 +1373,11 @@ def build_default_wing_settings(degen_mgr: dg.DegenGeomMgr, default_template=Non
         with open(os.path.join(os.path.dirname(__file__), "test", "prop_rw.inp")) as f:
             default_template = f.readlines()
 
+    # if the default template is a string, assume it is a filename that should be read in
+    if isinstance(default_template, str):
+        with open(default_template, "r") as f:
+            default_template = f.readlines()
+
     # Loop over each geom id
     default_settings = CharmRotorSettingsCollection()
     for geom_id, dg_component in degen_mgr.degen_objs.items():
@@ -1124,6 +1400,78 @@ def build_default_wing_settings(degen_mgr: dg.DegenGeomMgr, default_template=Non
     return default_settings
 
 
+def build_default_trim_settings(trim_template=None) -> CharmTrimSettings:
+
+    trim_template_name = None  # Initialize
+    # provided default template current template is empty
+    if trim_template is None:
+        trim_template_name = "trim.inp"  # tracking template filname
+        with open(os.path.join(os.path.dirname(__file__), "test", trim_template_name)) as f:
+            trim_template = f.readlines()
+
+    # if the default template is a string, assume it is a filename that should be read in
+    if isinstance(trim_template, str):
+        trim_template_name = trim_template
+        with open(trim_template, "r") as f:
+            trim_template = f.readlines()
+
+    # These line numbers will not change
+    line_forces_moments = 2
+    line_trim_targets = 4
+    line_trim_tolerance = 6
+    line_pilot_controls = 8
+    line_attitude_controls = 10
+    line_num_aero_comps = 12
+    line_comp_cntrls_start = 14  # This is the start of the component controls section
+    line_init_controls = -1  # The last line of file will always be this
+
+    # ToDo: would be nice to define a function to make this not so repetitive, would need to loop over the object
+    #  variable assignments, which I don't know how to do
+    default_settings = CharmTrimSettings()
+    data = trim_template[line_forces_moments].split()
+    default_settings.forces_moments = list(map(int, data))
+    data = trim_template[line_trim_targets].split()
+    default_settings.targets = list(map(float, data))
+    data = trim_template[line_trim_tolerance].split()
+    default_settings.tol = list(map(float, data))
+    data = trim_template[line_pilot_controls].split()
+    default_settings.pilot_cntrls = list(map(int, data))
+    data = trim_template[line_attitude_controls].split()
+    default_settings.attitude_cntrls = list(map(int, data))
+    default_settings.num_aero_comps = int(trim_template[line_num_aero_comps])
+    data = trim_template[line_init_controls].split()
+    default_settings.init_cntrls = list(map(float, data))
+    default_settings.template = trim_template_name
+
+    ctrl_expr = re.compile(r"(^|\s)Ctrl\s")
+    init_expr = re.compile(r"(^|\s)Initial\s")
+    line_cntrl_gains = 0  # Initialize variable
+    line_init_labels = 0  # Initiailize variable
+    for linenum in range(len(trim_template)):
+        line = trim_template[linenum]
+        if re.search(ctrl_expr, line):
+            line_cntrl_gains = linenum + 1
+        if re.search(init_expr, line):
+            line_init_labels = linenum
+    shape_comp_cntrls = (line_cntrl_gains - 1 - line_comp_cntrls_start, 10)
+    shape_cntrl_gains = (line_init_labels - line_cntrl_gains, 13)
+
+    default_settings.aero_comp_cntrls = np.zeros(shape_comp_cntrls, dtype=int)
+    default_settings.cntrl_gains = np.zeros(shape_cntrl_gains, dtype=float)
+    for i in range(line_comp_cntrls_start, line_cntrl_gains-1):
+        if line_cntrl_gains == 0:
+            raise ValueError("RegEx for 'Ctrl' not found in trim input file.")
+        data = trim_template[i].split()
+        default_settings.aero_comp_cntrls[i-line_comp_cntrls_start, :] = np.array(data[0:10])
+    for i in range(line_cntrl_gains, line_init_labels):
+        if line_init_labels == 0:
+            raise ValueError("RegEx for 'Initial' not found in trim input file.")
+        data = trim_template[i].split()
+        default_settings.cntrl_gains[i-line_cntrl_gains, :] = np.array(data)
+
+    return default_settings
+
+
 def create_rotor_file_list(degen_mgr: dg.DegenGeomMgr, settings: CharmRotorSettingsCollection, num_psi,
                            unit_factor=u.in2ft, **kwargs):
     """
@@ -1141,12 +1489,14 @@ def create_rotor_file_list(degen_mgr: dg.DegenGeomMgr, settings: CharmRotorSetti
     for geom_count, (rotor_id, rotor_settings) in enumerate(settings.items()):
         # Create BG File
         bg_file = create_charm_blade_geom_file_from_propeller(degen_mgr.degen_objs[rotor_id], unit_factor=unit_factor,
-                                                              nspan_override=rotor_settings.nspan_override, **kwargs)
+                                                              nspan_override=rotor_settings.nspan_override,
+                                                              nchord=rotor_settings.nchord, **kwargs)
 
         # Create BD File
         prop_info = vsp.get_single_propeller_info(degen_mgr.degen_objs[rotor_id].copies[0][0])
         bd_file = create_rigid_blade_dynamics_file(prop_info.diameter/2.0, unit_factor=unit_factor,
-                                                   iaero=rotor_settings.iaero, irvflo=rotor_settings.irvflo)
+                                                   iaero=rotor_settings.iaero, irvflo=rotor_settings.irvflo,
+                                                   isrotor=True, **kwargs)
 
         # Create Airfoil Files
         airfoils = create_airfoil_sections(rotor_id, rotor_settings)
@@ -1206,12 +1556,17 @@ def create_wing_file_list(wing_infos, settings: CharmRotorSettings, num_psi, uni
             # Create BG File
             bg_file = create_charm_blade_geom_file_from_wing(wing_info, unit_factor=unit_factor,
                                                              nspan_override=settings[wing_id][wing_count].nspan_override,
+                                                             nchord=settings[wing_id][wing_count].nchord,
+                                                             flap_type=settings[wing_id][wing_count].flap_type,
+                                                             flap_length=settings[wing_id][wing_count].flap_length,
+                                                             flap_defl=settings[wing_id][wing_count].flap_defl,
                                                              **kwargs)
 
             # Create BD File
             bd_file = create_rigid_blade_dynamics_file(wing_info.span, unit_factor=unit_factor,
                                                        iaero=settings[wing_id][wing_count].iaero,
-                                                       irvflo=settings[wing_id][wing_count].irvflo)
+                                                       irvflo=settings[wing_id][wing_count].irvflo,
+                                                       isrotor=False, **kwargs)
 
             # Create Airfoil Files
             af_file = create_airfoil_file(wing_info.airfoils)
@@ -1238,8 +1593,87 @@ def create_wing_file_list(wing_infos, settings: CharmRotorSettings, num_psi, uni
     return files_to_write, rotor_files
 
 
+def create_trim_file_from_template(trim_template, trim_settings: CharmTrimSettings) -> dict:
+    """
+    Creates CHARM trim input file
+    :param trim_template:
+    :param trim_settings:
+    :return:
+    """
+
+    if trim_template is None:
+        with open(os.path.join(os.path.dirname(__file__), "test", "trim.inp")) as f:
+            trim_file = f.readlines()
+
+    # if the default template is a string, assume it is a filename that should be read in
+    if isinstance(trim_template, str):
+        with open(trim_template, "r") as f:
+            trim_file = f.readlines()
+
+    # These line numbers will not change
+    line_forces_moments = 2
+    line_trim_targets = 4
+    line_trim_tolerance = 6
+    line_pilot_controls = 8
+    line_attitude_controls = 10
+    line_num_aero_comps = 12
+    line_comp_cntrls_start = 14  # This is the start of the component controls section
+    line_init_controls = -1  # The last line of file will always be this
+    init_line_string = trim_file[-2]
+
+    # Find the line string for the control gains matrix
+    expr = re.compile(r"(^|\s)Ctrl\s")
+    cntrl_gain_string = None
+    for linenum, line in enumerate(trim_file):
+        if re.search(expr, line):
+            cntrl_gain_string = line
+    if cntrl_gain_string is None:
+        raise ValueError("'Cntl' string was not found in trim input file")
+
+    # ToDo: create a loop that uses trim_settings.__dict__.items() and iterate to reduce repeated code
+    trim_file[line_forces_moments] = "  ".join(map(str, trim_settings.forces_moments)) + "\n"
+    trim_file[line_trim_targets] = "  ".join(map(str, trim_settings.targets)) + "\n"
+    trim_file[line_trim_tolerance] = "  ".join(map(str, trim_settings.tol)) + "\n"
+    trim_file[line_pilot_controls] = "  ".join(map(str, trim_settings.pilot_cntrls)) + "\n"
+    trim_file[line_attitude_controls] = "  ".join(map(str, trim_settings.attitude_cntrls)) + "\n"
+    trim_file[line_num_aero_comps] = str(trim_settings.num_aero_comps) + "\n"
+    # I need to create a loop here
+    nrows_comp = trim_settings.aero_comp_cntrls.shape[0]
+    for i in range(nrows_comp):
+        trim_file[line_comp_cntrls_start+i] = "  ".join(map(str, trim_settings.aero_comp_cntrls[i, :])) + "\n"
+    trim_file[line_comp_cntrls_start+nrows_comp] = cntrl_gain_string
+    nrows_gain = trim_settings.cntrl_gains.shape[0]
+    for i in range(nrows_gain):
+        # ToDo: create a second, string creation loop
+        trim_file.insert(line_comp_cntrls_start+nrows_comp+1+i, f"{int(trim_settings.cntrl_gains[i, 0]):d}  "
+                                                                f"{trim_settings.cntrl_gains[i, 1]:.2f}  "
+                                                                f"{trim_settings.cntrl_gains[i, 2]:.2f}  "
+                                                                f"{trim_settings.cntrl_gains[i, 3]:.2f}  "
+                                                                f"{trim_settings.cntrl_gains[i, 4]:.2f}  "
+                                                                f"{trim_settings.cntrl_gains[i, 5]:.2f}  "
+                                                                f"{trim_settings.cntrl_gains[i, 6]:.2f}  "
+                                                                f"{trim_settings.cntrl_gains[i, 7]:.2f}  "
+                                                                f"{trim_settings.cntrl_gains[i, 8]:.2f}  "
+                                                                f"{trim_settings.cntrl_gains[i, 9]:.2f}  "
+                                                                f"{trim_settings.cntrl_gains[i, 10]:.2f}  "
+                                                                f"{trim_settings.cntrl_gains[i, 11]:.2f}  "
+                                                                f"{trim_settings.cntrl_gains[i, 12]:.2f}\n"
+                         )
+    trim_file = trim_file[:line_comp_cntrls_start+nrows_comp+nrows_gain+1]
+    trim_file.append(init_line_string)
+    trim_file.append("  ".join(map(str, trim_settings.init_cntrls)) + "\n")
+    files_to_write = {}
+
+    with io.StringIO() as f:
+        f.writelines(trim_file)
+        files_to_write['trim.inp'] = f.getvalue()
+    return files_to_write
+
+
 def build_run_characteristics_file_from_template(rotor_files, template_filename=None, template_file=None, num_psi=None,
-                                                 velocity=None, rotation_rates=None, pitch=None):
+                                                 velocity=None, rotation_rates=None, pitch=None, weight=None, cg=None,
+                                                 fuselage_data=None, atmos_data: CharmAtmosphereData=None, nrev=None,
+                                                 convgVec=None, sframe=None, smode=None, az_sym=None, **kwargs):
     """
     Uses a template run characteristics file to create a run characteristic file that is updated with
     all of the rotor filenames that are input
@@ -1251,6 +1685,17 @@ def build_run_characteristics_file_from_template(rotor_files, template_filename=
     :param velocity: velocity vector (ft/s)
     :param rotation_rates: rotational rates (P, Q, R)
     :param pitch: pitch in degrees, vector length matching the number of aircraft
+    :param weight: aircraft weight in lb, vector length matching the number of aircraft
+    :param cg: vector [x, y, z] for cg, number of vectors matching the number of aircraft
+    :param fuselage_data: vector of fuselage reference areas/length for fuselage drag [FUSPLAN, FUSSIDEA, FUSREFL]
+    :param atmos_data: atmosphere data (speed of sound and density) to use for this charm case
+    :param nrev: maximum number of blade revolutions, use -NREV to output after each iteration
+    :param convgVec: vector [CONVG1, CONVG2, CONVG3], converence criteria for the charm rotor solution
+    :param sframe: solution frame; 0=shaft rotor frame with ADVs and ALPHAS; 1=body frame with U,V,W,P,Q,R;
+    2=inertial frame
+    :param smode: solution mode; 0=normal operations (wind tunnel); 1=full aircraft trim (sframe=2)
+    :param az_sym: if True azimuthal symmetry will be applied (NROTORs will be negative), if False then NROTORS
+    will be positive. If None, sign in template file is used
     :return: CHARM run characteristics file updated with the input list of rotor files
     """
 
@@ -1289,7 +1734,11 @@ def build_run_characteristics_file_from_template(rotor_files, template_filename=
             nrotor_line_num = line_num + 1
             data = run_char_file[nrotor_line_num].split()
             template_num_rotors = int(data[0])
-            new_data_line = "   {:3}   ".format(num_rotors)
+            rotor_sign = np.sign(template_num_rotors)
+            if az_sym is not None:
+                rotor_sign = -1 if az_sym else 1
+            template_num_rotors = abs(template_num_rotors)
+            new_data_line = "   {:3}   ".format(rotor_sign*num_rotors)
             if len(data) > 1:
                 new_data_line += data[1]
             new_data_line += "\n"
@@ -1304,16 +1753,40 @@ def build_run_characteristics_file_from_template(rotor_files, template_filename=
 
     # Set NPSI, velocity, and rotation rates, aircraft pitch
     expr = re.compile(r"(^|\s)NPSI\s+")
+    sframe_expr = re.compile(r"(^|\s)SFRAME\s+")
     vel_expr = re.compile(r"(^|\s)U\s+V\s+W\s")
     pitch_expr = re.compile(r"(^|\s)YAW\s*\(\s*IAC\s*\)\s*,\s*PITCH\s*\(\s*IAC\s*\)\s*,\s*ROLL\s*\(\s*IAC\s*\)")
+    weight_expr = re.compile(r"(^|\s)WEIGHT")
+    cg_expr = re.compile(r"(^|\s)\(CGAC")
+    atmo_expr = re.compile(r"(^\s*)SSPD\s+RHO")
     num_pitches_found = 0
     for line_num in range(len(run_char_file)):
         line = run_char_file[line_num]
         if re.search(expr, line):
             npsi_line_num = line_num + 1
-            npsi_rep_expr = r"^(\s*)-?([0-9]+)"
-            run_char_file[npsi_line_num] = re.sub(npsi_rep_expr, r"\g<1>{}".format(num_psi),
-                                                  run_char_file[npsi_line_num])
+            current_values = [float(d) for d in run_char_file[npsi_line_num].split()]
+            if num_psi is not None:
+                current_values[0] = num_psi
+            if nrev is not None:
+                current_values[1] = nrev
+            if convgVec is not None:
+                current_values[2:-1] = convgVec[:]
+            run_char_file[npsi_line_num] = ("{:1.0f}      "*2 + "{:.6f}   "*3 + "{:1.0f}" + "\n").format(
+                *current_values)
+        if re.search(sframe_expr, line):
+            sframe_line_num = line_num + 1
+            current_values = np.array([int(d) for d in run_char_file[sframe_line_num].split()])
+            if sframe is not None:
+                current_values[0] = sframe
+            if smode is not None:
+                if len(current_values) > 1:
+                    current_values[1] = smode
+                else:
+                    current_values = np.append(current_values[0], smode)
+            if len(current_values) > 1:
+                run_char_file[sframe_line_num] = ("{}" + " "*10 + "{}" + "\n").format(*current_values)
+            else:
+                run_char_file[sframe_line_num] = ("{}" + "\n").format(*current_values)
         if re.search(vel_expr, line):
             vel_line_num = line_num + 1
             current_values = np.array([float(d) for d in run_char_file[vel_line_num].split()])
@@ -1330,6 +1803,23 @@ def build_run_characteristics_file_from_template(rotor_files, template_filename=
                 ypr[1] = pitch[num_pitches_found]
                 num_pitches_found += 1
                 run_char_file[pitch_line_num] = ("{:8.4f} "*3 + "\n").format(*ypr)
+        if re.search(weight_expr, line):
+            weight_line_num = line_num + 1
+            current_values = np.array([float(d) for d in run_char_file[weight_line_num].split()])
+            if weight is not None:
+                current_values[0] = weight
+            if len(current_values) > 1:
+                current_values[1:] = fuselage_data[:]
+            run_char_file[weight_line_num] = ("{:8.4f} "*len(current_values) + "\n").format(*current_values)
+        if re.search(cg_expr, line):
+            cg_line_num = line_num + 1
+            current_values = np.array([float(d) for d in run_char_file[cg_line_num].split()])
+            if cg is not None:
+                current_values[:] = cg[:]
+            run_char_file[cg_line_num] = ("{:8.4f} "*len(current_values) + "\n").format(*current_values)
+        if atmos_data is not None and re.search(atmo_expr, line):
+            atmo_line_num = line_num + 1
+            run_char_file[atmo_line_num] = f"{atmos_data.speed_of_sound:.1f}     {atmos_data.density:.6f}\n"
 
     with io.StringIO() as string_io:
         string_io.writelines(run_char_file)
@@ -1367,7 +1857,10 @@ def read_run_characteristics_template(template_filename=None, template_file=None
     npsi_expr = re.compile(r"(^|\s)NPSI\s+")
     nrotor_expr = re.compile(r"(^|\s)NROTOR\s+")
     file_names_expr = re.compile(r"(^|\s)INPUT FILENAMES\s+")
+    sframe_expr = re.compile(r"(^|\s)SFRAME\s+")
     vel_expr = re.compile(r"(^|\s)U\s+V\s+W\s")
+    weight_expr = re.compile(r"(^|\s)WEIGHT")
+    cg_expr = re.compile(r"(^|\s)\(CGAC")
     file_list = []
     for line_num in range(len(run_char_file)):
         line = run_char_file[line_num]
@@ -1375,7 +1868,15 @@ def read_run_characteristics_template(template_filename=None, template_file=None
             npsi_line_num = line_num + 1
             data = run_char_file[npsi_line_num].split()
             npsi = int(data[0])
+            nrev = int(data[1])
+            convg1 = float(data[2])
+            convg2 = float(data[3])
+            convg3 = float(data[4])
             run_char_dict['NPSI'] = npsi
+            run_char_dict['NREV'] = nrev
+            run_char_dict['CONVG1'] = convg1
+            run_char_dict['CONVG2'] = convg2
+            run_char_dict['CONVG3'] = convg3
         if re.search(nrotor_expr, line):
             nrotor_line_num = line_num + 1
             data = run_char_file[nrotor_line_num].split()
@@ -1388,6 +1889,14 @@ def read_run_characteristics_template(template_filename=None, template_file=None
                 filename = run_char_file[file_line_num].split()[0]
                 filenames.append(filename)
             file_list.append(filenames)
+        if re.search(sframe_expr, line):
+            sframe_line_num = line_num + 1
+            data = run_char_file[sframe_line_num].split()
+            sframe = int(data[0])
+            run_char_dict['SFRAME'] = sframe
+            if len(data) > 1 and data[1] is not None:
+                smode = int(data[1])
+                run_char_dict['SMODE'] = smode
         if re.search(vel_expr, line):
             vel_line_num = line_num + 1
             data = run_char_file[vel_line_num].split()
@@ -1397,6 +1906,22 @@ def read_run_characteristics_template(template_filename=None, template_file=None
             run_char_dict['P'] = float(data[3])
             run_char_dict['Q'] = float(data[4])
             run_char_dict['R'] = float(data[5])
+        if re.search(weight_expr, line):
+            weight_line_num = line_num + 1
+            data = run_char_file[weight_line_num].split()
+            weight = float(data[0])
+            run_char_dict['WEIGHT'] = weight
+            if len(data) > 1:
+                fusplan = float(data[1])
+                fussidea = float(data[2])
+                fusrefl = float(data[3])
+                run_char_dict.update({"FUSPLAN": fusplan, "FUSSIDEA": fussidea, "FUSREFL": fusrefl})
+        if re.search(cg_expr, line):
+            cg_line_num = line_num + 1
+            data = run_char_file[cg_line_num].split()
+            run_char_dict['XCG'] = float(data[0])
+            run_char_dict['YCG'] = float(data[1])
+            run_char_dict['ZCG'] = float(data[2])
 
     if len(file_list) > 0:
         run_char_dict['FILES'] = file_list
@@ -1408,7 +1933,7 @@ def build_charm_input_files(degen_mgr: dg.DegenGeomMgr, case_name,
                             rotor_settings: CharmRotorSettingsCollection=None,
                             wing_settings=None,
                             unit_factor=u.in2ft, run_char_template=None, run_char_filename=None,
-                            velocity=None, **kwargs):
+                            velocity=None, trim_settings=None, **kwargs):
     """
     Creates input files for charm case
 
@@ -1420,6 +1945,7 @@ def build_charm_input_files(degen_mgr: dg.DegenGeomMgr, case_name,
     :param run_char_template: template run characteristic file object (io.IOBase like object)
     :param run_char_filename: name of run characteristic input file template if run_char_template is None
     :param velocity: vehicle velocity vector [u, v, w] in ft/s
+    :param trim_settings: trim settings object for running CHARM in trim mode (SFRAME=2, SMODE=1)
     :return: dictionary of name, file contents pairs
     """
 
@@ -1446,6 +1972,11 @@ def build_charm_input_files(degen_mgr: dg.DegenGeomMgr, case_name,
                                                                 num_psi=num_psi, unit_factor=unit_factor, **kwargs)
         files_to_write = dict(files_to_write, **wing_files_to_write)
         rotor_files = dict(rotor_files, **wing_files)
+
+    if trim_settings is not None:
+        trim_files_to_write = create_trim_file_from_template(trim_template=trim_settings.template,
+                                                             trim_settings=trim_settings)
+        files_to_write = dict(files_to_write, **trim_files_to_write)
 
     run_char_file = build_run_characteristics_file_from_template(rotor_files=rotor_files,
                                                                  template_filename=run_char_filename,
@@ -1672,6 +2203,20 @@ def __modify_rotor_wake_template(rw_template, rotor_setting: CharmRotorSettings)
             icoax = int(data[3])
             print_str += " {:4d}".format(icoax)
         print_str += "\n"
+        rw_template[line_num] = print_str
+
+    if rotor_setting.icnvct is not None:
+        # Wake settings line is index 10
+        line_num = 10
+        line = rw_template[line_num]
+        data = line.split()
+        nowake = int(data[0])
+        icnvct = int(data[1]) if rotor_setting.icnvct is None else rotor_setting.icnvct
+        nwakes = int(data[2])
+        npwake = int(data[3])
+        ifar = int(data[4])
+        mbcve = int(data[5])
+        print_str = f"{nowake:2d} {icnvct:8d} {nwakes:8d} {npwake:8d} {ifar:8d} {mbcve:8d}\n"
         rw_template[line_num] = print_str
 
     return rw_template

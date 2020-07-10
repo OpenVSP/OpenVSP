@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Uber Technologies, Inc.
+# Copyright (c) 2018-2020 Uber Technologies, Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -22,6 +22,7 @@
 import numpy as np
 import math
 import utilities.units as u
+import functools
 
 class TransMatrix:
     """
@@ -223,3 +224,92 @@ def _convert_to_column_vector(vector):
         num_rows = column_vector.shape[0]
         column_vector = np.reshape(vector, (num_rows, 1))
     return column_vector
+
+
+def dcm_body2wind(alpha, beta):
+    dcm = np.array(((np.cos(alpha) * np.cos(beta), np.sin(beta), np.sin(alpha) * np.cos(beta)),
+                    (-np.cos(alpha) * np.sin(beta), np.cos(beta), -np.sin(alpha) * np.sin(beta)),
+                    (-np.sin(alpha), 0., np.cos(alpha),)))
+    return dcm
+
+
+def dcm_wind2body(alpha, beta):
+    dcm = np.linalg.inv(dcm_body2wind(alpha, beta))
+
+    return dcm
+
+
+def dcm_body2stability(alpha):
+    beta = 0
+    dcm = dcm_body2wind(alpha, beta)
+
+    return dcm
+
+
+def dcm_stability2body(alpha):
+    dcm = np.linalg.inv(dcm_body2stability(alpha))
+
+    return dcm
+
+
+def dcm_stability2wind(beta):
+    alpha = 0
+    dcm = dcm_body2wind(alpha, beta)
+
+    return dcm
+
+
+def dcm_wind2stability(beta):
+    dcm = np.linalg.inv(dcm_stability2wind(beta))
+
+    return dcm
+
+
+def wind2stability(vector, beta):
+    dcm = dcm_wind2stability(beta)
+
+    return np.matmul(dcm, _convert_to_column_vector(vector))
+
+
+def stability2wind(vector, beta):
+    dcm = dcm_stability2wind(beta)
+
+    return np.matmul(dcm, _convert_to_column_vector(vector))
+
+
+def body2stability(vector, alpha):
+    dcm = dcm_body2stability(alpha)
+
+    return np.matmul(dcm, _convert_to_column_vector(vector))
+
+
+def stability2body(vector, alpha):
+    dcm = dcm_stability2body(alpha)
+
+    return np.matmul(dcm, _convert_to_column_vector(vector))
+
+
+def wind2body(vector, alpha, beta):
+    dcm = dcm_wind2body(alpha, beta)
+
+    return np.matmul(dcm, _convert_to_column_vector(vector))
+
+
+def body2wind(vector, alpha, beta):
+    dcm = dcm_body2wind(alpha, beta)
+
+    return np.matmul(dcm, _convert_to_column_vector(vector))
+
+def coord_transform(vector,from_axes, to_axes, alpha=0,beta=0):
+    func_mapping = {('wind','body'):(dcm_wind2body,(alpha,beta)),
+                    ('wind','stability'):(dcm_wind2stability,(beta,)),
+                    ('stability','wind'):(dcm_stability2wind,(beta,)),
+                    ('stability','body'):(dcm_stability2body,(alpha,)),
+                    ('body','stability'):(body2stability,(alpha,)),
+                    ('body','wind'):(body2wind,(alpha,beta))}
+
+    f, args = func_mapping[(from_axes,to_axes)]
+
+    dcm = f(*args)
+
+    return np.matmul(dcm, _convert_to_column_vector(vector))

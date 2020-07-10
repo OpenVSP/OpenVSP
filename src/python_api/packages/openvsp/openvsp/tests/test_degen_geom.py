@@ -18,13 +18,24 @@
 # OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 # THE SOFTWARE.
 
+import matplotlib
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 import openvsp as vsp
 from unittest import TestCase
 import numpy.testing as npt
 import numpy as np
-from utilities import RunManager
+import os
+
 
 class TestOpenVSP(TestCase):
+    OUTPUT_FOLDER = os.path.join(os.path.dirname(__file__), "test_outputs")
+    INPUT_FOLDER = os.path.dirname(__file__)
+
+    @classmethod
+    def setUpClass(cls):
+        os.makedirs(cls.OUTPUT_FOLDER, exist_ok=True)
+
     def test_degen_geom(self):
         # Test analysis manager
         vsp.VSPRenew()
@@ -153,6 +164,8 @@ class TestOpenVSP(TestCase):
         for degen_obj in vsp.parse_degen_geom(degen_results_id):
             print(degen_obj)
 
+        self.assertTrue(True)
+
     def test_parasite_drag(self):
         import numpy as np
         vsp.VSPRenew()
@@ -163,8 +176,10 @@ class TestOpenVSP(TestCase):
 
         res = vsp.parasitedrag_sweep(speeds=np.linspace(10, 250, 10), alts_ft=[0, 10000, 20000, 50000], sref=sref,
                                      length_unit=vsp.LEN_FT, speed_unit=vsp.V_UNIT_MPH)
-
-        res.plot()
+        ax = res.plot()
+        plt.legend()
+        plt.savefig(os.path.join(self.OUTPUT_FOLDER, "parasite.png"), dpi=300)
+        self.assertTrue(True)
 
     def test_surface_patches(self):
         vsp.VSPRenew()
@@ -175,6 +190,35 @@ class TestOpenVSP(TestCase):
 
         components = vsp.export_surface_patches(vsp.SET_ALL, remove_degenerate=True)
         vsp.plot_surface_components(components)
+        plt.savefig(os.path.join(self.OUTPUT_FOLDER, "surface_patches.png"), dpi=300)
+        self.assertTrue(True)
+
+    def test_plate_degen_geom(self):
+        vsp.VSPRenew()
+        vsp.ClearVSPModel()
+        prop_id = vsp.AddGeom("PROP")
+
+        vsp.Update()
+        dg_mgr = vsp.run_degen_geom(set_index=vsp.SET_ALL)
+        dg_mgr.degen_objs[prop_id].plot_copies_plates()
+        plt.savefig(os.path.join(self.OUTPUT_FOLDER, "plates.png"), dpi=300)
+
+    def test_plate_degen_geom_area(self):
+        vsp.VSPRenew()
+        vsp.ClearVSPModel()
+        prop_id = vsp.AddGeom("PROP")
+
+        vsp.Update()
+        dg_mgr = vsp.run_degen_geom(set_index=vsp.SET_ALL)
+        prop_dg = dg_mgr.degen_objs[prop_id]
+
+        for comp in prop_dg.copies.values():
+            for surf in comp:
+                for plate in surf.plates:
+                    area_brute_force = plate._compute_areas_brute_force().sum()
+                    area_vectorized = plate.compute_areas().sum()
+                    self.assertAlmostEqual(area_brute_force, area_vectorized, delta=1.0e-1)
+
 
     def test_control_surface_degen_geom(self):
         vsp.VSPRenew()
@@ -255,7 +299,7 @@ class TestOpenVSP(TestCase):
         # Plot prop objects
         vsp.plot_propeller_info(prop_info, vector_scale=30.0, markersize=5)
         plt.draw()
-        plt.show()
+        plt.savefig(os.path.join(self.OUTPUT_FOLDER, "prop_plots.png"), dpi=300)
 
         valid_thrust_dir = np.array([-1.0, 0.0, 0.0]).reshape((3, 1))
         valid_thrust_dir_aft_props = np.array([1.0, 0.0, 0.0]).reshape((3, 1))
@@ -287,4 +331,5 @@ if __name__ == "__main__":
     t.test_simple_prop_degen()
     t.test_surface_patches()
     t.test_degen_transform_mat()
+    t.test_plate_degen_geom_area()
 

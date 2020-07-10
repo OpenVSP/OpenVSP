@@ -1,4 +1,4 @@
-# Copyright (c) 2018 Uber Technologies, Inc.
+# Copyright (c) 2018-2020 Uber Technologies, Inc.
 
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -321,7 +321,6 @@ def set_3d_axis_equal(ax):
     ax.set_ylim(ylims[0], ylims[1])
     ax.set_zlim(zlims[0], zlims[1])
 
-    ax.set_aspect('equal', 'box')
 
 def export_airfoils(set=vsp.SET_ALL, **kwargs):
     import airfoils
