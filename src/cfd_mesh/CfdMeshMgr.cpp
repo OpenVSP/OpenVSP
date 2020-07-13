@@ -761,9 +761,6 @@ void CfdMeshMgrSingleton::DeleteAllSources()
 void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
 {
     GetGridDensityPtr()->ClearSources();
-    vector< vector< vec3d > > wake_leading_edges;
-    vector < double > wake_scale_vec;
-    vector < double > wake_angle_vec;
 
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
@@ -780,19 +777,11 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
                 {
                     GetGridDensityPtr()->AddSource( sVec[s] );
                 }
-                geom->AppendWakeEdges( wake_leading_edges, wake_scale_vec, wake_angle_vec );
             }
         }
     }
 
-    WakeMgr.SetLeadingEdges( wake_leading_edges );
-    m_Vehicle->UpdateBBox();
-    BndBox box = m_Vehicle->GetBndBox();
-    WakeMgr.SetStartStretchX( box.GetMax( 0 ) + 0.01 * box.GetLargestDist() );
-    WakeMgr.SetEndX( box.GetMax( 0 ) + 0.5 * box.GetLargestDist() );
-    WakeMgr.SetWakeScaleVec( wake_scale_vec );
-    WakeMgr.SetWakeAngleVec( wake_angle_vec );
-
+    UpdateWakes();
 }
 
 void CfdMeshMgrSingleton::UpdateDomain()

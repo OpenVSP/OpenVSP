@@ -198,6 +198,8 @@ public:
     vector< vec2d > debugUWs;
     vector< SurfPatch* > debugPatches;
 
+    virtual void UpdateWakes();
+
     vector< ICurve* > GetICurveVec()
     {
         return m_ICurveVec;
