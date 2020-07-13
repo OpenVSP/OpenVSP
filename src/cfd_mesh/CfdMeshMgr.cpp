@@ -394,6 +394,10 @@ void CfdMeshMgrSingleton::GenerateMesh()
     vector< XferSurf > xfersurfs;
     FetchSurfs( xfersurfs );
 
+    // UpdateSourcesAndWakes must be before m_Vehicle->HideAll() to prevent components 
+    // being being added to or removed from the CFD Mesh set
+    UpdateSourcesAndWakes();
+
     // Hide all geoms after fetching their surfaces
     m_Vehicle->HideAll();
 
@@ -412,7 +416,6 @@ void CfdMeshMgrSingleton::GenerateMesh()
         return;
     }
 
-    UpdateSourcesAndWakes();
     UpdateDomain();
     BuildDomain();
 

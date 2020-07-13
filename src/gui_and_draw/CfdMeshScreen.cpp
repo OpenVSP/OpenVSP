@@ -532,7 +532,11 @@ bool CfdMeshScreen::Update()
         m_MeshAndExport.Activate();
     }
 
-    CfdMeshMgr.UpdateSourcesAndWakes();
+    if ( !CfdMeshMgr.GetMeshInProgress() )
+    {
+        CfdMeshMgr.UpdateSourcesAndWakes();
+    }
+
     CfdMeshMgr.UpdateDomain();
 
     //==== Load Geom Choice ====//
