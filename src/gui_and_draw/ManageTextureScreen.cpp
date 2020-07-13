@@ -1,224 +1,286 @@
-#include <assert.h>
-
-#include "ScreenMgr.h"
 
 #include "ManageTextureScreen.h"
-#include "textureMgrFlScreen.h"
 
-#include "GraphicEngine.h"
-#include "Display.h"
-#include "Viewport.h"
-#include "Background.h"
-#include "GraphicSingletons.h"
-
-ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : VspScreen( mgr )
+ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 355, 525, "Texture Mgr")
 {
-    m_TextureMgrUI = new TextureMgrUI();
-    m_FLTK_Window = m_TextureMgrUI->UIWindow;
+    int yGap = 12;
+    int yPadding = 7;
+    int miscWidth = 125;
+    int windowWidth = 355;
+    int regButtonWidth = 185;
+    int sliderInputWidth = 75;
+    int smallButtonWidth = 60;
+    int borderPaddingWidth = 5;
 
-    m_TextureMgrUI->UIWindow->position( 775, 50 );
+    m_GeomIndex = 0;
+    m_EditIndex = 0;
+    m_SurfaceIndex = 0;
+    m_LastActiveGeomIndex = 0;
 
-    m_UPosSlider.Init( this, m_TextureMgrUI->uPosSlider, m_TextureMgrUI->uPosInput, 1, "%6.5f", (VspButton*) m_TextureMgrUI->uPosButton );
-    m_WPosSlider.Init( this, m_TextureMgrUI->wPosSlider, m_TextureMgrUI->wPosInput, 1, "%6.5f", (VspButton*) m_TextureMgrUI->wPosButton );
+    m_ActiveGeomChanged = false;
+    m_ThisGuiDeviceWasCalledBack = false;
+   
+    m_FLTK_Window->callback( staticCloseCB, this );
 
-    m_UScaleSlider.Init( this, m_TextureMgrUI->uScaleSlider, m_TextureMgrUI->uScaleInput, 1, "%6.5f", (VspButton*) m_TextureMgrUI->uScaleButton );
-    m_WScaleSlider.Init( this, m_TextureMgrUI->wScaleSlider, m_TextureMgrUI->wScaleInput, 1, "%6.5f", (VspButton*) m_TextureMgrUI->wScaleButton );
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-    m_TransparencySlider.Init( this, m_TextureMgrUI->alphaSlider, m_TextureMgrUI->alphaInput, 1, "%6.5f", (VspButton*) m_TextureMgrUI->alphaButton );
+    m_MainLayout.ForceNewLine();
+    m_MainLayout.AddY( yPadding );
+    m_MainLayout.AddX( borderPaddingWidth );
 
-    m_FlipUButton.Init( this, m_TextureMgrUI->flipUButton );
-    m_FlipWButton.Init( this, m_TextureMgrUI->flipWButton );
+    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - borderPaddingWidth,
+        m_MainLayout.GetRemainY() - borderPaddingWidth );
 
-    m_TextureMgrUI->compChoice->callback( staticCB, this );
-    m_TextureMgrUI->textureChoice->callback( staticCB, this );
+    m_BorderLayout.SetChoiceButtonWidth( smallButtonWidth );
+    m_BorderLayout.AddChoice( m_GeomChoice, "Comp:" );
+    m_BorderLayout.AddYGap();
 
-    m_TextureMgrUI->textureNameInput->callback( staticCB, this );
+    m_BorderLayout.AddDividerBox( "Texture" );
+    m_BorderLayout.AddY( yGap );
 
-    m_TextureMgrUI->addTextureButton->callback( staticCB, this );
-    m_TextureMgrUI->delTextureButton->callback( staticCB, this );
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetButtonWidth( regButtonWidth );
+    m_BorderLayout.AddButton( m_AddButton , "Add...");
+    m_BorderLayout.AddY( yGap );
 
-    // Add GL 2D Window.
-    Fl_Widget * w = m_TextureMgrUI->texGLGroup;
-    m_TextureMgrUI->texGLGroup->begin();
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetSliderWidth( miscWidth );
+    m_BorderLayout.SetChoiceButtonWidth( smallButtonWidth );
+    m_BorderLayout.AddChoice( m_EditChoice, "Edit:" );
+    m_BorderLayout.AddY( yGap );
+
+    m_BorderLayout.SetButtonWidth( regButtonWidth );
+    m_BorderLayout.AddButton( m_DeleteButton , "Delete");
+    m_BorderLayout.AddY( yGap );
+
+    m_BorderLayout.SetButtonWidth( smallButtonWidth );
+    m_BorderLayout.SetInputWidth( miscWidth );
+    m_BorderLayout.AddInput( m_NameInput, "Name:" );
+    m_BorderLayout.AddY( yGap );
+     
+    m_BorderLayout.SetChoiceButtonWidth( smallButtonWidth );
+    m_BorderLayout.AddChoice( m_SurfaceChoice, "Surface:" );
+    m_BorderLayout.AddY( yGap );
+
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.SetButtonWidth( miscWidth );
+    m_BorderLayout.SetInputWidth( sliderInputWidth );
+
+    m_BorderLayout.AddSlider( m_UPosSlider, "U Position", 1, "%6.5f" );
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddSlider( m_WPosSlider, "W Position", 1, "%6.5f" );
+    m_BorderLayout.AddY( yGap );
+
+    m_BorderLayout.AddSlider( m_UScaleSlider, "U Scale", 1, "%6.5f" );
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddSlider( m_WScaleSlider, "W Scale", 1, "%6.5f" );
+    m_BorderLayout.AddY( yGap );
+
+    m_BorderLayout.AddSlider( m_BrightnessSlider, "Brightness", 1, "%6.5f" );
+    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddSlider( m_TransparencySlider, "Transparency", 1, "%6.5f" );
+    m_BorderLayout.AddY( yGap );
+
+    m_BorderLayout.AddButton( m_RepeatTextureToggle, "Repeat Texture" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddDividerBox( "Texture Coords" );
+
+    m_BorderLayout.SetButtonWidth( windowWidth/2 -yPadding);
+
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetSameLineFlag( true );
+
+    m_BorderLayout.AddButton( m_FlipUToggle, "Flip U" );
+    m_BorderLayout.AddX( borderPaddingWidth );
+    m_BorderLayout.AddButton( m_FlipWToggle, "Flip W" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.SetFitWidthFlag( true );
+    m_BorderLayout.SetSameLineFlag( false );
+
+    m_BorderLayout.ForceNewLine();
+    m_BorderLayout.AddDividerBox( "Reflected Comp Texture Coords" );
+     
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetSameLineFlag( true );
+
+    m_BorderLayout.AddButton( m_FlipUReflectedToggle, "Flip U" );
+    m_BorderLayout.AddX( borderPaddingWidth );
+    m_BorderLayout.AddButton( m_FlipWReflectedToggle, "Flip W" );
+
+     //// Add GL 2D Window.
+    texGLGroup = new Fl_Group(200, 80, 150, 150, "GL_WIN");
+    texGLGroup->box(FL_BORDER_BOX);
+    texGLGroup->color((Fl_Color)29);
+    texGLGroup->align(Fl_Align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE));
+    Fl_Widget * w = texGLGroup;
+    texGLGroup->begin();
     m_GlWin = new VSPGUI::VspSubGlWindow( w->x(), w->y(), w->w(), w->h(), DrawObj::VSP_TEX_PREVIEW );
-    m_TextureMgrUI->texGLGroup->end();
+    texGLGroup->end();
 
-    ResetCurrentSelected();
 }
 
 ManageTextureScreen::~ManageTextureScreen()
 {
     delete m_GlWin;
-    delete m_TextureMgrUI;
 }
 
 void ManageTextureScreen::Show()
 {
-    if( Update() )
-    {
-        m_FLTK_Window->show();
-    }
+    m_ScreenMgr->SetUpdateFlag( true );
+    m_FLTK_Window->show();
 }
 
 void ManageTextureScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 bool ManageTextureScreen::Update()
 {
+    char str[256];
+
     assert( m_ScreenMgr );
-
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
+
+    //ManageTextureScreen should only be seen if only 1 Geom is slected in Geom Browser. If not, hide it
     vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
-
-    if ( select_vec.size() != 1 )
+    if ( (int) select_vec.size()!= 1 )
     {
-        Hide();
-        return false;
+         Hide();
+         return false;
     }
 
-    // Redo list on each update.
-    m_TextureMgrUI->compChoice->clear();
-    m_CompDropDownList.clear();
-
-    std::vector<Geom *> geomVec = veh->FindGeomVec( veh->GetGeomVec() );
-    for( int i = 0; i < ( int )geomVec.size(); i++ )
+    //This Updates GeomChoice list based on number of existing geoms
+    //It also checks if the Active Geom has changed since last update and updates an index and a bool
+    m_GeomChoice.ClearItems();
+    vector < Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
+    for ( int i = 0; i < ( int )geom_vec.size(); i++ )
     {
-        CompDropDownItem item;
-        item.GeomName = geomVec[i]->GetName();
-        item.GeomID = geomVec[i]->GetID();
-
-        // Hack to add duplicate names
-        char str[256];
-        sprintf( str, "%d", i );
-        item.GUIIndex = m_TextureMgrUI->compChoice->add( str );
-
-        m_CompDropDownList.push_back( item );
-    }
-    // Fill Hacked char array with correct names.
-    for( int i = 0; i < ( int )m_CompDropDownList.size(); i++ )
-    {
-        m_TextureMgrUI->compChoice->replace( m_CompDropDownList[i].GUIIndex, m_CompDropDownList[i].GeomName.c_str() );
-    }
-
-    // Set compChoice to current selected and update texture dropdown list.
-    for( int i = 0; i < ( int )m_CompDropDownList.size(); i++ )
-    {
-        if( m_CompDropDownList[i].GeomID == select_vec[0]->GetID() )
+        sprintf( str, "%d.  %s", i + 1, geom_vec[i]->GetName().c_str() );
+        m_GeomChoice.AddItem( str );
+        if ( veh->IsGeomActive( geom_vec[i]->GetID() ) )
         {
-            m_TextureMgrUI->compChoice->value( m_CompDropDownList[i].GUIIndex );
-
-            // Update Texture Dropdown List. //
-
-            // Redo texture list on each update.
-            m_TextureMgrUI->textureChoice->clear();
-            m_TexDropDownList.clear();
-
-            // Clear preview window.
-            VSPGraphic::Viewport * viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
-            assert( viewport );
-            viewport->getBackground()->removeImage();
-
-            // Load Textures...
-            TextureMgr * texMgr = select_vec[0]->m_GuiDraw.getTextureMgr();
-            std::vector<Texture*> texInfos = texMgr->FindTextureVec( texMgr->GetTextureVec() );
-            for( int j = 0; j < ( int )texInfos.size(); j++ )
+            if ( i != m_LastActiveGeomIndex )
             {
-                TexDropDownItem item;
-                item.TexInfo = texInfos[j];
-
-                // Hack to add duplicate names
-                char str[256];
-                sprintf( str, "%d", j );
-                item.GUIIndex = m_TextureMgrUI->textureChoice->add( str );
-
-                m_TexDropDownList.push_back( item );
+                m_ActiveGeomChanged = true;
+                m_LastActiveGeomIndex = i;
             }
-            // Fill Hacked char array with correct names.
-            for( int j = 0; j < ( int )m_TexDropDownList.size(); j++ )
-            {
-                m_TextureMgrUI->textureChoice->replace( m_TexDropDownList[j].GUIIndex, m_TexDropDownList[j].TexInfo->GetName().c_str() );
-            }
-            if( !m_TexDropDownList.empty() )
-            {
-                if( m_SelectedTexItem )
-                {
-                    m_TextureMgrUI->textureChoice->value( m_SelectedTexItem->GUIIndex );
-                }
-                else
-                {
-                    // On refresh list, if nothing is selected, pick last item on list.
-                    m_TextureMgrUI->textureChoice->value( m_TexDropDownList[m_TexDropDownList.size() - 1].GUIIndex );
-                }
-                UpdateCurrentSelected();
-
-                assert( m_SelectedTexItem );
-
-                viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->
-                    get2DTexture( m_SelectedTexItem->TexInfo->m_FileName.c_str() ) );
-            }
-            else
-            {
-                ResetCurrentSelected();
-
-                // Force redraw empty list.
-                m_TextureMgrUI->textureChoice->redraw();
-            }
-
-            // Update Sliders and Buttons.
-            if( m_SelectedTexItem )
-            {
-                Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( m_SelectedTexItem->TexInfo->GetID() );
-
-                m_TextureMgrUI->textureNameInput->value( info->GetName().c_str() );
-
-                m_UScaleSlider.Update( info->m_UScale.GetID() );
-                m_WScaleSlider.Update( info->m_WScale.GetID() );
-
-                m_UPosSlider.Update( info->m_U.GetID() );
-                m_WPosSlider.Update( info->m_W.GetID() );
-
-                m_TransparencySlider.Update( info->m_Transparency.GetID() );
-
-                m_FlipUButton.Update( info->m_FlipU.GetID() );
-                m_FlipWButton.Update( info->m_FlipW.GetID() );
-            }
-            break;
         }
     }
-    m_GlWin->redraw();
+    m_GeomChoice.UpdateItems();
+
+    //We set the m_GeomChoice index based on what changed since last Update
+    if ( m_ThisGuiDeviceWasCalledBack )
+    {
+        m_GeomChoice.SetVal( m_GeomIndex );
+        m_ThisGuiDeviceWasCalledBack = false;
+    }
+    else if ( m_ActiveGeomChanged )
+    {
+        m_GeomChoice.SetVal( m_LastActiveGeomIndex );
+        m_ActiveGeomChanged = false;
+    }
+    else //Geom was added via Geom Browser
+    {
+        m_GeomChoice.SetVal( ( int )geom_vec.size()-1 );
+    }
+
+    //This section updates the textures list in m_EditChoice
+    select_vec = veh->GetActiveGeomPtrVec();
+    if ( ( int )select_vec.size() > 0)
+    {
+        vector <string> textures = select_vec[0]->m_GuiDraw.getTextureMgr()->GetTextureVec();
+
+        m_EditChoice.ClearItems();
+
+        if ( ( int )textures.size() > 0)
+        {
+            for ( int i = 0; i < ( int )textures.size(); i++ )
+            {
+                string texture_file_name = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( textures[i] )->GetName();
+                sprintf( str, "%d.  %s", i + 1, texture_file_name.c_str() );
+                m_EditChoice.AddItem( str );
+            }
+        }
+        else
+        {
+            m_EditChoice.AddItem( "" );
+        }
+        m_EditChoice.UpdateItems();
+        m_EditChoice.SetVal( m_EditIndex );
+    }
+    
+    //This section updates m_NameInput with name given to texture
+    select_vec = veh->GetActiveGeomPtrVec();
+    if ( ( int )select_vec.size() > 0 )
+    {
+        vector <string> textures = select_vec[0]->m_GuiDraw.getTextureMgr()->GetTextureVec();
+        if ( ( int )textures.size() > 0 && m_EditIndex <= ( int )textures.size())
+        {
+            Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( textures[m_EditIndex] );
+            m_NameInput.Update( info->GetName().c_str() );
+        }
+    }
+
+    //Update Preview Window.
+    VSPGraphic::Viewport * viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
+    assert( viewport );
+    viewport->getBackground()->removeImage();
+    
+    // Load Textures
+    select_vec = veh->GetActiveGeomPtrVec();
+    if ( ( int )select_vec.size() > 0 )
+    {
+        vector <string> textures = select_vec[0]->m_GuiDraw.getTextureMgr()->GetTextureVec();
+        if ( ( int )textures.size() > 0 )
+        {
+            string texture_file_name = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( textures[m_EditIndex] )->m_FileName;
+            viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( texture_file_name.c_str() ) );
+        }
+
+        m_GlWin->redraw();
+    }
+
+    //Update Sliders and Toggles
+    select_vec = veh->GetActiveGeomPtrVec();
+    if ( ( int )select_vec.size() > 0 )
+    {
+        vector <string> textures = select_vec[0]->m_GuiDraw.getTextureMgr()->GetTextureVec();
+        if ( ( int )textures.size() > 0 && m_EditIndex <= ( int )textures.size() )
+        {
+            Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( textures[m_EditIndex] );
+
+            m_UPosSlider.Update( info->m_U.GetID() );
+            m_WPosSlider.Update( info->m_W.GetID() );
+
+            m_UScaleSlider.Update( info->m_UScale.GetID() );
+            m_WScaleSlider.Update( info->m_WScale.GetID() );
+
+            m_TransparencySlider.Update( info->m_Transparency.GetID() );
+
+            m_FlipUToggle.Update( info->m_FlipU.GetID() );
+            m_FlipWToggle.Update( info->m_FlipW.GetID() );
+            
+        }
+        
+    }
+
     return true;
 }
 
-void ManageTextureScreen::CallBack( Fl_Widget * w )
+void ManageTextureScreen::GuiDeviceCallBack( GuiDevice* device )
 {
+    assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    if( w == m_TextureMgrUI->compChoice )
-    {
-        int selectedIndex = m_TextureMgrUI->compChoice->value();
-        for( int i = 0; i < ( int )m_CompDropDownList.size(); i++ )
-        {
-            if( m_CompDropDownList[i].GUIIndex == selectedIndex )
-            {
-                veh->SetActiveGeom( m_CompDropDownList[i].GeomID );
-                ResetCurrentSelected();
-                break;
-            }
-        }
-    }
-    else if( w == m_TextureMgrUI->textureChoice )
-    {
-        UpdateCurrentSelected();
-    }
-    else if( w == m_TextureMgrUI->textureNameInput )
-    {
-        vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
-        Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( m_SelectedTexItem->TexInfo->GetID() );
-        info->SetName( m_TextureMgrUI->textureNameInput->value() );
-    }
-    else if( w == m_TextureMgrUI->addTextureButton )
+    VSPGraphic::Viewport * viewport = m_GlWin->getGraphicEngine()->getDisplay()->getViewport();
+    assert( viewport );
+    viewport->getBackground()->removeImage();
+
+    if ( device == &m_AddButton )
     {
         vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
 
@@ -227,39 +289,73 @@ void ManageTextureScreen::CallBack( Fl_Widget * w )
 
         if( !fileName.empty() )
         {
-            select_vec[0]->m_GuiDraw.getTextureMgr()->AttachTexture( fileName.c_str() );
+            if ( ( int )select_vec.size() > 0 )
+            {
+                select_vec[0]->m_GuiDraw.getTextureMgr()->AttachTexture( fileName.c_str() );
+            }
         }
 
-        ResetCurrentSelected();
-    }
-    else if( w == m_TextureMgrUI->delTextureButton )
-    {
-        if( m_SelectedTexItem )
+        vector <string> textures = select_vec[0]->m_GuiDraw.getTextureMgr()->GetTextureVec();
+        if ( ( int )textures.size() > 0 )
         {
-            vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
-            select_vec[0]->m_GuiDraw.getTextureMgr()->RemoveTexture( m_SelectedTexItem->TexInfo->GetID() );
-
-            ResetCurrentSelected();
+            m_EditIndex = ( int )textures.size()-1;
         }
+
+        m_GeomIndex = m_GeomChoice.GetVal();
     }
+    else if ( device == &m_DeleteButton )
+    {
+        vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
+        vector <string> textures = select_vec[0]->m_GuiDraw.getTextureMgr()->GetTextureVec();
+
+        if ( ( int )textures.size() > 0 )
+        {
+            string texture_file_id = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( textures[m_EditIndex] )->GetID();
+            select_vec[0]->m_GuiDraw.getTextureMgr()->RemoveTexture( texture_file_id );
+            if ( ( int )textures.size() > 0 && m_EditIndex > 0)
+            {
+                m_EditIndex--;
+            }  
+        }
+
+        m_GeomIndex = m_GeomChoice.GetVal();
+    }
+    else if ( device == &m_NameInput )
+    {
+        vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
+        vector <string> textures = select_vec[0]->m_GuiDraw.getTextureMgr()->GetTextureVec();
+        Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( textures[m_EditIndex] );
+        info->SetName( m_NameInput.GetString() );
+    }
+    else if ( device == &m_GeomChoice )
+    {
+        m_GeomIndex = m_GeomChoice.GetVal();
+
+        vector< string > geom_id_vec = veh->GetGeomVec();
+        string geom_id = geom_id_vec[m_GeomIndex];
+        veh->ClearActiveGeom();
+        veh->SetActiveGeom( geom_id );
+    }
+    else if ( device == &m_EditChoice )
+    {
+        m_EditIndex = m_EditChoice.GetVal();
+    }
+    else if ( device == &m_SurfaceChoice )
+    {
+        m_SurfaceIndex = m_SurfaceChoice.GetVal();
+    }
+
+    m_ThisGuiDeviceWasCalledBack = true;
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void ManageTextureScreen::UpdateCurrentSelected()
+void ManageTextureScreen::CallBack( Fl_Widget * w )
 {
-    m_SelectedTexItem = NULL;
-
-    for( int i = 0; i < ( int )m_TexDropDownList.size(); i++ )
-    {
-        if( m_TexDropDownList[i].GUIIndex == m_TextureMgrUI->textureChoice->value() )
-        {
-            m_SelectedTexItem = &m_TexDropDownList[i];
-            break;
-        }
-    }
+    assert( m_ScreenMgr );
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void ManageTextureScreen::ResetCurrentSelected()
+void ManageTextureScreen::CloseCallBack( Fl_Widget* w )
 {
-    m_SelectedTexItem = NULL;
+    Hide();
 }
