@@ -635,10 +635,6 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_FAR_LOC_Z", CFD_FAR_LOC_Z, "/*!< Far field Z location */" );
     assert( r >= 0 );
-    r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_WAKE_SCALE", CFD_WAKE_SCALE, "/*!< Wake length scale */" );
-    assert( r >= 0 );
-    r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_WAKE_ANGLE", CFD_WAKE_ANGLE, "/*!< Wake angle */" );
-    assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_CONTROL_TYPE", "CFD_SRF_XYZ_FLAG", CFD_SRF_XYZ_FLAG, "/*!< Flag to include X,Y,Z intersection curves in export files */" );
     assert( r >= 0 );
 
@@ -4351,14 +4347,18 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Activate or deactivate the CFD Mesh wake for a particular Geom
+    Activate or deactivate the CFD Mesh wake for a particular Geom. Note, the wake flag is only applicable for wing-type surfaces. 
+    Also, this function is simply an alternative to setting the value of the Parm with the available Parm setting API functions.
     \code{.cpp}
-    //==== Add Pod Geom ====//
-    pid = AddGeom( "POD", "" );
+    //==== Add Wing Geom ====//
+    wid = AddGeom( "WING", "" );
 
-    SetCFDWakeFlag( pid, true );
+    SetCFDWakeFlag( wid, true );
+    // This is equivalent to SetParmValUpdate( wid, "Wake", "Shape", 1.0 );
+    // To change the scale: SetParmValUpdate( wid, "WakeScale", "WakeSettings", 10.0 );
+    // To change the angle: SetParmValUpdate( wid, "WakeAngle", "WakeSettings", -5.0 );
     \endcode
-    \sa CFD_CONTROL_TYPE
+    \sa SetParmVal, SetParmValUpdate
     \param [in] geom_id Geom ID
     \param [in] flag True to activate, false to deactivate
 */)";

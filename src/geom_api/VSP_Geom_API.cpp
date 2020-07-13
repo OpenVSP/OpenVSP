@@ -539,10 +539,6 @@ void SetCFDMeshVal( int type, double val )
         GetVehicle()->GetCfdSettingsPtr()->m_FarYLocation = val;
     else if ( type == CFD_FAR_LOC_Z )
         GetVehicle()->GetCfdSettingsPtr()->m_FarZLocation = val;
-    else if ( type == CFD_WAKE_SCALE )
-        GetVehicle()->GetCfdSettingsPtr()->m_WakeScale = val;
-    else if ( type == CFD_WAKE_ANGLE )
-        GetVehicle()->GetCfdSettingsPtr()->m_WakeAngle = val;
     else if ( type == CFD_SRF_XYZ_FLAG )
         GetVehicle()->GetCfdSettingsPtr()->m_XYZIntCurveFlag = ToBool(val);
     else

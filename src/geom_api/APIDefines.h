@@ -84,8 +84,6 @@ enum CFD_CONTROL_TYPE {     CFD_MIN_EDGE_LEN,
                             CFD_FAR_LOC_X,
                             CFD_FAR_LOC_Y,
                             CFD_FAR_LOC_Z,
-                            CFD_WAKE_SCALE,
-                            CFD_WAKE_ANGLE,
                             CFD_SRF_XYZ_FLAG,
                       };
 
