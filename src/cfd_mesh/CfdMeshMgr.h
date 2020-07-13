@@ -83,13 +83,13 @@
 #include <string>
 using namespace std;
 
-class WakeMgr;
+class WakeMgrSingleton;
 
 class Wake
 {
 public:
 
-    Wake( WakeMgr* mgr );
+    Wake();
     virtual ~Wake();
 
     // void Draw();
@@ -97,7 +97,6 @@ public:
     void BuildSurfs();
     double DistToClosestLeadingEdgePnt( vec3d & p );
 
-    WakeMgr* m_WakeMgrPtr;
     vector< vec3d > m_LeadingEdge;
     vector< ICurve* > m_LeadingCurves;
     vector< Surf* > m_SurfVec;
@@ -106,12 +105,18 @@ public:
 
 };
 
-class WakeMgr
+class WakeMgrSingleton
 {
 public:
 
-    WakeMgr();
-    virtual ~WakeMgr();
+    WakeMgrSingleton();
+    virtual ~WakeMgrSingleton();
+
+    static WakeMgrSingleton& getInstance()
+    {
+        static WakeMgrSingleton instance;
+        return instance;
+    }
 
     void ClearWakes();
 
@@ -160,6 +165,8 @@ protected:
     vector< vector< vec3d > > m_LeadingEdgeVec;
 
 };
+
+#define WakeMgr WakeMgrSingleton::getInstance()
 
 //////////////////////////////////////////////////////////////////////
 class CfdMeshMgrSingleton : public SurfaceIntersectionSingleton
@@ -310,9 +317,6 @@ protected:
 
     SimpleCfdMeshSettings m_CfdSettings;
     SimpleCfdGridDensity m_CfdGridDensity;
-
-    //==== Wakes ====//
-    WakeMgr m_WakeMgr;
 
     BndBox m_Domain;
 

@@ -17,10 +17,8 @@
 #endif
 
 //=============================================================//
-Wake::Wake( WakeMgr* mgr )
+Wake::Wake()
 {
-    m_WakeMgrPtr = mgr;
-    assert( m_WakeMgrPtr );
     m_CompID = 0;
 }
 
@@ -109,7 +107,7 @@ void Wake::BuildSurfs(  )
             s->SetRefGeomID( geom_id );
             s->SetSurfID( m_SurfVec.size() );
             s->SetWakeParentSurfID( wakeParentSurfID );
-            s->GetSurfCore()->MakeWakeSurf( le_crv, m_WakeMgrPtr->GetEndX(), m_WakeMgrPtr->GetAngle() );
+            s->GetSurfCore()->MakeWakeSurf( le_crv, WakeMgr.GetEndX(), m_WakeMgrPtr->GetAngle() );
             s->GetSurfCore()->BuildPatches( s );
 
             m_SurfVec.push_back( s );
@@ -119,19 +117,19 @@ void Wake::BuildSurfs(  )
 
 //=============================================================//
 //=============================================================//
-WakeMgr::WakeMgr()
+WakeMgrSingleton::WakeMgrSingleton()
 {
     m_EndX = 1.0;
     m_Angle = 0.0;
     m_StartStretchX = 0.0;
 }
 
-WakeMgr::~WakeMgr()
+WakeMgrSingleton::~WakeMgrSingleton()
 {
     ClearWakes();
 }
 
-vec3d WakeMgr::ComputeTrailEdgePnt( vec3d p )
+vec3d WakeMgrSingleton::ComputeTrailEdgePnt( vec3d p )
 {
 
     double z = p.z() + ( m_EndX - p.x() ) * tan( DEG2RAD( m_Angle ) );
@@ -139,13 +137,13 @@ vec3d WakeMgr::ComputeTrailEdgePnt( vec3d p )
     return vec3d( m_EndX, p[1], z );
 }
 
-void WakeMgr::SetLeadingEdges( vector < vector < vec3d > > & wake_leading_edges )
+void WakeMgrSingleton::SetLeadingEdges( vector < vector < vec3d > >& wake_leading_edges )
 {
     m_LeadingEdgeVec = wake_leading_edges;
 }
 
 
-void WakeMgr::ClearWakes()
+void WakeMgrSingleton::ClearWakes()
 {
     for ( int i = 0 ; i < ( int )m_WakeVec.size() ; i++ )
     {
@@ -155,7 +153,7 @@ void WakeMgr::ClearWakes()
 
 }
 
-void WakeMgr::CreateWakesAppendBorderCurves( vector< ICurve* > & border_curves )
+void WakeMgrSingleton::CreateWakesAppendBorderCurves( vector< ICurve* >& border_curves )
 {
     int i, j;
     ClearWakes();
@@ -246,7 +244,7 @@ void WakeMgr::CreateWakesAppendBorderCurves( vector< ICurve* > & border_curves )
     }
 }
 
-vector< Surf* > WakeMgr::GetWakeSurfs()
+vector< Surf* > WakeMgrSingleton::GetWakeSurfs()
 {
     vector< Surf* > svec;
     for ( int i = 0 ; i < ( int )m_WakeVec.size() ; i++ )
@@ -259,7 +257,7 @@ vector< Surf* > WakeMgr::GetWakeSurfs()
     return svec;
 }
 
-void WakeMgr::AppendWakeSurfs( vector< Surf* > & surf_vec )
+void WakeMgrSingleton::AppendWakeSurfs( vector< Surf* >& surf_vec )
 {
     int last_id = surf_vec.back()->GetSurfID();
     vector< Surf* > wake_surf_vec = GetWakeSurfs();
@@ -272,7 +270,7 @@ void WakeMgr::AppendWakeSurfs( vector< Surf* > & surf_vec )
 
 }
 
-void WakeMgr::StretchWakes()
+void WakeMgrSingleton::StretchWakes()
 {
     double scale = CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale;
     for ( int i = 0 ; i < ( int )m_WakeVec.size() ; i++ )
@@ -312,7 +310,7 @@ void WakeMgr::Draw()
 }
 */
 
-void WakeMgr::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
+void WakeMgrSingleton::LoadDrawObjs( vector< DrawObj* >& draw_obj_vec )
 {
     double scale = CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale;
     double factor = scale - 1.0;
@@ -342,7 +340,7 @@ void WakeMgr::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     draw_obj_vec.push_back( &m_WakeDO );
 }
 
-void WakeMgr::Show( bool flag )
+void WakeMgrSingleton::Show( bool flag )
 {
     m_WakeDO.m_Visible = flag;
 }
@@ -784,12 +782,12 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
         }
     }
 
-    m_WakeMgr.SetLeadingEdges( wake_leading_edges );
+    WakeMgr.SetLeadingEdges( wake_leading_edges );
     m_Vehicle->UpdateBBox();
     BndBox box = m_Vehicle->GetBndBox();
-    m_WakeMgr.SetStartStretchX( box.GetMax( 0 ) + 0.01 * box.GetLargestDist() );
-    m_WakeMgr.SetEndX( box.GetMax( 0 ) + 0.5 * box.GetLargestDist() );
-    m_WakeMgr.SetAngle( GetCfdSettingsPtr()->m_WakeAngle );
+    WakeMgr.SetStartStretchX( box.GetMax( 0 ) + 0.01 * box.GetLargestDist() );
+    WakeMgr.SetEndX( box.GetMax( 0 ) + 0.5 * box.GetLargestDist() );
+    WakeMgr.SetAngle( GetCfdSettingsPtr()->m_WakeAngle );
 
 }
 
@@ -957,8 +955,8 @@ void CfdMeshMgrSingleton::BuildGrid()
     }
 
     //==== Build Wake Surfaces (If Defined) ====//
-    m_WakeMgr.CreateWakesAppendBorderCurves( m_ICurveVec );
-    m_WakeMgr.AppendWakeSurfs( m_SurfVec );
+    WakeMgr.CreateWakesAppendBorderCurves( m_ICurveVec );
+    WakeMgr.AppendWakeSurfs( m_SurfVec );
 
 }
 
@@ -1106,7 +1104,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 
-    m_WakeMgr.StretchWakes();
+    WakeMgr.StretchWakes();
 
     sprintf( str, "Total Num Tris = %d\n", total_num_tris );
     addOutputText( str, output_type );
@@ -3251,8 +3249,8 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     GetGridDensityPtr()->Show( GetCfdSettingsPtr()->m_DrawSourceWakeFlag );
     GetGridDensityPtr()->LoadDrawObjs( draw_obj_vec );
 
-    m_WakeMgr.Show( GetCfdSettingsPtr()->m_DrawSourceFlag );
-    m_WakeMgr.LoadDrawObjs( draw_obj_vec );
+    WakeMgr.Show( GetCfdSettingsPtr()->m_DrawSourceFlag );
+    WakeMgr.LoadDrawObjs( draw_obj_vec );
 
     if( GetCfdSettingsPtr()->m_DrawFarPreFlag && GetCfdSettingsPtr()->m_FarMeshFlag )
     {
