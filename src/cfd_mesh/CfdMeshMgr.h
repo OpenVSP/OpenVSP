@@ -123,7 +123,7 @@ public:
     void ClearWakes();
 
     void SetLeadingEdges( vector < vector < vec3d > > & wake_leading_edges );
-    void CreateWakesAppendBorderCurves( vector< ICurve* > & border_curves );
+    void CreateWakesAppendBorderCurves( vector< ICurve* >& border_curves, SimpleGridDensity* grid_density_ptr );
     vector< Surf* > GetWakeSurfs();
     void AppendWakeSurfs( vector< Surf* > & surf_vec );
     void StretchWakes();

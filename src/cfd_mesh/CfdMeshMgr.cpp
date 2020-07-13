@@ -154,7 +154,7 @@ void WakeMgrSingleton::ClearWakes()
 
 }
 
-void WakeMgrSingleton::CreateWakesAppendBorderCurves( vector< ICurve* >& border_curves )
+void WakeMgrSingleton::CreateWakesAppendBorderCurves( vector< ICurve* >& border_curves, SimpleGridDensity* grid_density_ptr )
 {
     int i, j;
     ClearWakes();
@@ -186,7 +186,7 @@ void WakeMgrSingleton::CreateWakesAppendBorderCurves( vector< ICurve* >& border_
     for ( i = 0 ; i < ( int )wake_surfs.size() ; i++ )
     {
         wake_surfs[i]->BuildDistMap();
-        wake_surfs[i]->SetGridDensityPtr( CfdMeshMgr.GetGridDensityPtr() );
+        wake_surfs[i]->SetGridDensityPtr( grid_density_ptr );
         wake_surfs[i]->FindBorderCurves();
         wake_surfs[i]->LoadSCurves( scurve_vec );
     }
