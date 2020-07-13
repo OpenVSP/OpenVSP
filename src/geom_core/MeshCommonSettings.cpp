@@ -244,12 +244,6 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
     m_FarZLocation.Init( "FarZLocation", "FarField", this, 0.0, -1.0e12, 1.0e12 );
     m_FarZLocation.SetDescript( "Far field Z location" );
 
-    m_WakeScale.Init( "WakeScale", "Wake", this, 2.0, 1.0, 1.0e12 );
-    m_WakeScale.SetDescript( "Wake length scale" );
-
-    m_WakeAngle.Init( "WakeAngle", "Wake", this, 0.0, -90.0, 90.0 );
-    m_WakeAngle.SetDescript( "Wake angle" );
-
     m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, 0, NUM_SETS + 2 );
     m_SelectedSetIndex.SetDescript( "Selected set for operation" );
 
@@ -323,9 +317,6 @@ void CfdMeshSettings::ReadV2File( xmlNodePtr &root )
     {
         m_FarGeomID = ParmMgr.ForceRemapID( fargeom , 10 );
     }
-
-    m_WakeAngle = XmlUtil::FindDouble( root, "CFD_Wake_Angle", m_WakeAngle() );
-    m_WakeScale = XmlUtil::FindDouble( root, "CFD_Wake_Scale", m_WakeScale() );
 
     SetFileExportFlag( vsp::CFD_STL_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Stl_File_Flag", GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->Get() ) );
     SetFileExportFlag( vsp::CFD_POLY_FILE_NAME, !!XmlUtil::FindInt( root, "CFD_Poly_File_Flag", GetExportFileFlag( vsp::CFD_POLY_FILE_NAME )->Get() ) );

@@ -929,16 +929,14 @@ void CfdMeshScreen::UpdateDomainTab()
 
 void CfdMeshScreen::UpdateWakesTab()
 {
-    //===== Update Wake Sliders =====//
-    m_ScaleWake.Update( m_Vehicle->GetCfdSettingsPtr()->m_WakeScale.GetID() );
-    m_WakeAngle.Update( m_Vehicle->GetCfdSettingsPtr()->m_WakeAngle.GetID() );
-
-    //===== Update Add Wake =====//
+    //===== Update Wake Parms =====//
     string wakeGeomID = CfdMeshMgr.GetWakeGeomID();
     Geom* g = m_Vehicle->FindGeom( wakeGeomID );
     if ( g )
     {
         m_AddWake.Update( g->m_WakeActiveFlag.GetID() );
+        m_ScaleWake.Update( g->m_WakeScale.GetID() );
+        m_WakeAngle.Update( g->m_WakeAngle.GetID() );
     }
 }
 

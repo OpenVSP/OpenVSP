@@ -759,7 +759,15 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_TessW.SetDescript( "Number of tessellated curves in the W direction" );
     m_TessW.SetMultShift( 4, 1 );
 
+    //==== Wake Parms ====//
     m_WakeActiveFlag.Init( "Wake", "Shape", this, false, 0, 1 );
+    m_WakeActiveFlag.SetDescript( "Flag that indicates if this WingGeom has wakes attached" );
+
+    m_WakeScale.Init( "WakeScale", "WakeSettings", this, 2.0, 1.0, 1.0e12 ); // decrease min???
+    m_WakeScale.SetDescript( "Wake length scale" );
+
+    m_WakeAngle.Init( "WakeAngle", "WakeSettings", this, 0.0, -89.9, 89.9 );
+    m_WakeAngle.SetDescript( "Wake angle in degrees" );
 
     m_BbXLen.Init( "X_Len", "BBox", this, 0, 0, 1e12 );
     m_BbXLen.SetDescript( "X length of geom bounding box" );

@@ -628,6 +628,8 @@ public:
 
     //==== Wake for CFD Mesh ====//
     BoolParm m_WakeActiveFlag;
+    Parm m_WakeScale;
+    Parm m_WakeAngle;
 
     //==== Parasite Drag Parms ====//
     IntParm m_FFBodyEqnType;

@@ -169,9 +169,6 @@ SimpleCfdMeshSettings::SimpleCfdMeshSettings()
     m_FarYLocation = 0;
     m_FarZLocation = 0;
 
-    m_WakeScale = 1;
-    m_WakeAngle = 0;
-
     m_DrawSourceFlag = false;
     m_DrawFarFlag = false;
     m_DrawFarPreFlag = false;
@@ -203,9 +200,6 @@ void SimpleCfdMeshSettings::CopyFrom( CfdMeshSettings* settings )
     m_FarXLocation = settings->m_FarXLocation.Get();
     m_FarYLocation = settings->m_FarYLocation.Get();
     m_FarZLocation = settings->m_FarZLocation.Get();
-
-    m_WakeScale = settings->m_WakeScale.Get();
-    m_WakeAngle = settings->m_WakeAngle.Get();
 
     m_DrawSourceFlag = settings->m_DrawSourceFlag.Get();
     m_DrawFarFlag = settings->m_DrawFarFlag.Get();

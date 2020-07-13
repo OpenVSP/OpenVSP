@@ -176,14 +176,6 @@ public:
     {
         m_FarAbsSizeFlag = f;
     }
-    virtual double GetWakeScale()
-    {
-        return m_WakeScale();
-    }
-    virtual double GetWakeAngle()
-    {
-        return m_WakeAngle();
-    }
 
     string GetExportFileName( int type );
     void SetExportFileName( const string &fn, int type );
@@ -211,9 +203,6 @@ public:
     Parm m_FarXLocation;
     Parm m_FarYLocation;
     Parm m_FarZLocation;
-
-    Parm m_WakeScale;
-    Parm m_WakeAngle;
 
     BoolParm m_DrawSourceFlag;
     BoolParm m_DrawFarFlag;

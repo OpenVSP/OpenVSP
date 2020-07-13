@@ -114,9 +114,6 @@ public:
     double m_FarYLocation;
     double m_FarZLocation;
 
-    double m_WakeScale;
-    double m_WakeAngle;
-
     bool m_DrawSourceFlag;
     bool m_DrawFarFlag;
     bool m_DrawFarPreFlag;
