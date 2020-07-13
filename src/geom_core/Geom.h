@@ -605,7 +605,7 @@ public:
     {
         m_WakeActiveFlag.Set( flag );
     }
-    virtual void AppendWakeEdges( vector< vector< vec3d > > & edges );
+    virtual void AppendWakeEdges( vector< vector< vec3d > > & edges, vector < double >& wake_scale_vec, vector < double >& wake_angle_vec );
     virtual bool HasWingTypeSurfs();
 
     //=== End Cap Parms ===//

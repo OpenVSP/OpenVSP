@@ -102,6 +102,8 @@ public:
     vector< Surf* > m_SurfVec;
 
     int m_CompID;
+    double m_Angle;
+    double m_Scale;
 
 };
 
@@ -134,28 +136,29 @@ public:
     {
         m_EndX = x;
     }
-    void SetAngle( double a )
-    {
-        m_Angle = a;
-    }
     double GetEndX()
     {
         return m_EndX;
-    }
-    double GetAngle()
-    {
-        return m_Angle;
     }
     void SetStartStretchX( double x )
     {
         m_StartStretchX = x;
     }
-    vec3d ComputeTrailEdgePnt( vec3d le_pnt );
+    vec3d ComputeTrailEdgePnt( vec3d le_pnt, double angle_deg );
+
+    void SetWakeScaleVec( vector < double > wake_scale_vec )
+    {
+        m_WakeScaleVec = wake_scale_vec;
+    }
+
+    void SetWakeAngleVec( vector < double > wake_angle_vec )
+    {
+        m_WakeAngleVec = wake_angle_vec;
+    }
 
 protected:
 
     double m_EndX;
-    double m_Angle;
     double m_StartStretchX;
 
     DrawObj m_WakeDO;
@@ -163,6 +166,8 @@ protected:
     vector< Wake* > m_WakeVec;
 
     vector< vector< vec3d > > m_LeadingEdgeVec;
+    vector < double > m_WakeScaleVec;
+    vector < double > m_WakeAngleVec;
 
 };
 

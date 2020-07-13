@@ -4690,7 +4690,7 @@ bool Geom::HasWingTypeSurfs()
     return false;
 }
 
-void Geom::AppendWakeEdges( vector< vector< vec3d > > & edges )
+void Geom::AppendWakeEdges( vector< vector< vec3d > > & edges, vector < double > & wake_scale_vec, vector < double > & wake_angle_vec )
 {
     if( m_WakeActiveFlag() )
     {
@@ -4711,6 +4711,8 @@ void Geom::AppendWakeEdges( vector< vector< vec3d > > & edges )
                 }
 
                 edges.push_back( edge );
+                wake_scale_vec.push_back( m_WakeScale() );
+                wake_angle_vec.push_back( m_WakeAngle() );
             }
         }
     }

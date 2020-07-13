@@ -20,6 +20,8 @@
 Wake::Wake()
 {
     m_CompID = 0;
+    m_Angle = 0;
+    m_Scale = 1;
 }
 
 Wake::~Wake()
@@ -107,7 +109,7 @@ void Wake::BuildSurfs(  )
             s->SetRefGeomID( geom_id );
             s->SetSurfID( m_SurfVec.size() );
             s->SetWakeParentSurfID( wakeParentSurfID );
-            s->GetSurfCore()->MakeWakeSurf( le_crv, WakeMgr.GetEndX(), m_WakeMgrPtr->GetAngle() );
+            s->GetSurfCore()->MakeWakeSurf( le_crv, WakeMgr.GetEndX(), m_Angle );
             s->GetSurfCore()->BuildPatches( s );
 
             m_SurfVec.push_back( s );
@@ -120,7 +122,6 @@ void Wake::BuildSurfs(  )
 WakeMgrSingleton::WakeMgrSingleton()
 {
     m_EndX = 1.0;
-    m_Angle = 0.0;
     m_StartStretchX = 0.0;
 }
 
@@ -129,10 +130,10 @@ WakeMgrSingleton::~WakeMgrSingleton()
     ClearWakes();
 }
 
-vec3d WakeMgrSingleton::ComputeTrailEdgePnt( vec3d p )
+vec3d WakeMgrSingleton::ComputeTrailEdgePnt( vec3d p, double angle_deg )
 {
 
-    double z = p.z() + ( m_EndX - p.x() ) * tan( DEG2RAD( m_Angle ) );
+    double z = p.z() + ( m_EndX - p.x() ) * tan( DEG2RAD( angle_deg ) );
 
     return vec3d( m_EndX, p[1], z );
 }
@@ -164,6 +165,8 @@ void WakeMgrSingleton::CreateWakesAppendBorderCurves( vector< ICurve* >& border_
         Wake* w = new Wake( this );
         m_WakeVec.push_back( w );
         w->m_LeadingEdge = m_LeadingEdgeVec[i];
+        w->m_Angle = m_WakeAngleVec[i];
+        w->m_Scale = m_WakeScaleVec[i];
     }
 
     //==== Match Wake To Border Curves From Model ====//
@@ -272,13 +275,12 @@ void WakeMgrSingleton::AppendWakeSurfs( vector< Surf* >& surf_vec )
 
 void WakeMgrSingleton::StretchWakes()
 {
-    double scale = CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale;
     for ( int i = 0 ; i < ( int )m_WakeVec.size() ; i++ )
     {
         for ( int j = 0 ; j < ( int )m_WakeVec[i]->m_SurfVec.size() ; j++ )
         {
             Mesh* msh = m_WakeVec[i]->m_SurfVec[j]->GetMesh();
-            msh->StretchSimpPnts( m_StartStretchX, m_EndX, scale, m_Angle );
+            msh->StretchSimpPnts( m_StartStretchX, m_EndX, m_WakeVec[i]->m_Scale, m_WakeVec[i]->m_Angle );
         }
     }
 }
@@ -312,22 +314,21 @@ void WakeMgr::Draw()
 
 void WakeMgrSingleton::LoadDrawObjs( vector< DrawObj* >& draw_obj_vec )
 {
-    double scale = CfdMeshMgr.GetCfdSettingsPtr()->m_WakeScale;
-    double factor = scale - 1.0;
-
     vector< vec3d > wakeData;
     for ( int e = 0; e < ( int )m_LeadingEdgeVec.size(); e++ )
     {
         for ( int i = 0; i < ( int )m_LeadingEdgeVec[e].size(); i++ )
+        double factor = m_WakeScaleVec[e] - 1.0;
+
         {
             vec3d le = m_LeadingEdgeVec[e][i];
             wakeData.push_back( le );
 
-            vec3d te = ComputeTrailEdgePnt( le );
+            vec3d te = ComputeTrailEdgePnt( le, m_WakeAngleVec[e] );
             double numer = te.x() - m_StartStretchX;
             double fract = numer / ( m_EndX - m_StartStretchX );
             double xx = m_StartStretchX + numer * ( 1.0 + factor * fract * fract );
-            double zz = te.z() + ( xx - te.x() ) * tan( DEG2RAD( m_Angle ) );
+            double zz = te.z() + ( xx - te.x() ) * tan( DEG2RAD( m_WakeAngleVec[e] ) );
             wakeData.push_back( vec3d( xx, te.y(), zz ) );
         }
     }
@@ -761,6 +762,8 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
 {
     GetGridDensityPtr()->ClearSources();
     vector< vector< vec3d > > wake_leading_edges;
+    vector < double > wake_scale_vec;
+    vector < double > wake_angle_vec;
 
     vector<string> geomVec = m_Vehicle->GetGeomVec();
     for ( int g = 0 ; g < ( int )geomVec.size() ; g++ )
@@ -777,7 +780,7 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
                 {
                     GetGridDensityPtr()->AddSource( sVec[s] );
                 }
-                geom->AppendWakeEdges( wake_leading_edges );
+                geom->AppendWakeEdges( wake_leading_edges, wake_scale_vec, wake_angle_vec );
             }
         }
     }
@@ -787,7 +790,8 @@ void CfdMeshMgrSingleton::UpdateSourcesAndWakes()
     BndBox box = m_Vehicle->GetBndBox();
     WakeMgr.SetStartStretchX( box.GetMax( 0 ) + 0.01 * box.GetLargestDist() );
     WakeMgr.SetEndX( box.GetMax( 0 ) + 0.5 * box.GetLargestDist() );
-    WakeMgr.SetAngle( GetCfdSettingsPtr()->m_WakeAngle );
+    WakeMgr.SetWakeScaleVec( wake_scale_vec );
+    WakeMgr.SetWakeAngleVec( wake_angle_vec );
 
 }
 
