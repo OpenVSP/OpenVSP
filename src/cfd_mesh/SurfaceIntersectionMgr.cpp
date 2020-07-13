@@ -819,6 +819,10 @@ void SurfaceIntersectionSingleton::BuildGrid()
         }
     }
 
+    //==== Build Wake Surfaces (If Defined) ====//
+    WakeMgr.CreateWakesAppendBorderCurves( m_ICurveVec, GetGridDensityPtr() );
+    WakeMgr.AppendWakeSurfs( m_SurfVec );
+
 #ifdef DEBUG_CFD_MESH
     fprintf( m_DebugFile, "CfdMeshMgr::BuildGrid \n" );
     fprintf( m_DebugFile, "  Num unmatched SCurves = %d \n", num_unmatched );
@@ -3128,6 +3132,9 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
         }
     }
 
+    WakeMgr.Show( GetSettingsPtr()->m_DrawSourceWakeFlag );
+    WakeMgr.LoadDrawObjs( draw_obj_vec);
+}
 
 void SurfaceIntersectionSingleton::UpdateWakes()
 {

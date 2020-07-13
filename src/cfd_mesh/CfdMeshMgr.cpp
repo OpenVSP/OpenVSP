@@ -613,11 +613,6 @@ void CfdMeshMgrSingleton::BuildGrid()
         m_SurfVec[i]->BuildDistMap();
         m_SurfVec[i]->SetGridDensityPtr( GetGridDensityPtr() );
     }
-
-    //==== Build Wake Surfaces (If Defined) ====//
-    WakeMgr.CreateWakesAppendBorderCurves( m_ICurveVec );
-    WakeMgr.AppendWakeSurfs( m_SurfVec );
-
 }
 
 void CfdMeshMgrSingleton::BuildTargetMap( int output_type )
@@ -2908,9 +2903,6 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     GetGridDensityPtr()->Highlight( GetCurrSource() );
     GetGridDensityPtr()->Show( GetCfdSettingsPtr()->m_DrawSourceWakeFlag );
     GetGridDensityPtr()->LoadDrawObjs( draw_obj_vec );
-
-    WakeMgr.Show( GetCfdSettingsPtr()->m_DrawSourceFlag );
-    WakeMgr.LoadDrawObjs( draw_obj_vec );
 
     if( GetCfdSettingsPtr()->m_DrawFarPreFlag && GetCfdSettingsPtr()->m_FarMeshFlag )
     {
