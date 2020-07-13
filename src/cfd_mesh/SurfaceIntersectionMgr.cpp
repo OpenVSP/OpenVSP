@@ -410,6 +410,10 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     vector< XferSurf > xfersurfs;
     FetchSurfs( xfersurfs );
 
+    // UpdateWakes must be before m_Vehicle->HideAll() to prevent components 
+    // being being added to or removed from the Surface Intersection set
+    UpdateWakes();
+
     // Hide all geoms after fetching their surfaces
     m_Vehicle->HideAll();
 
@@ -1435,6 +1439,7 @@ void SurfaceIntersectionSingleton::BuildNURBSSurfMap()
         nurbs_surf.InitNURBSSurf( m_SurfVec[si] );
 
         nurbs_surf.m_SurfType = m_SurfVec[si]->GetSurfaceCfdType();
+        nurbs_surf.m_WakeFlag = m_SurfVec[si]->GetWakeFlag();
 
         // Identify all border and intersection NURBS curves on the surface
         vector < NURBS_Curve > nurbs_curve_vec = nurbs_surf.MatchNURBSCurves( m_NURBSCurveVec );
@@ -1479,7 +1484,7 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
 
     for ( i_seg = m_ISegChainList.begin(); i_seg != m_ISegChainList.end(); ++i_seg )
     {
-        bool internal_flag = false, ss_flag = false;
+        bool internal_flag = false, ss_flag = false, wake_flag = false;
 
         // Check if the curve is interenal or external
         // Identify test point
@@ -1580,12 +1585,18 @@ void SurfaceIntersectionSingleton::BuildNURBSCurvesVec()
             ss_flag = true;
         }
 
+        if ( ( ( *i_seg )->m_SurfA->GetWakeFlag() || ( *i_seg )->m_SurfB->GetWakeFlag() ) )
+        {
+            wake_flag = true;
+        }
+
         NURBS_Curve nurbs_curve;
 
         nurbs_curve.m_BorderFlag = ( *i_seg )->m_BorderFlag;
         nurbs_curve.m_InternalFlag = internal_flag;
         nurbs_curve.m_InsideNegativeFlag = in_negative;
         nurbs_curve.m_SubSurfFlag = ss_flag;
+        nurbs_curve.m_WakeFlag = wake_flag;
         nurbs_curve.m_SurfA_Type = ( *i_seg )->m_SurfA->GetSurfaceCfdType();
         nurbs_curve.m_SurfB_Type = ( *i_seg )->m_SurfB->GetSurfaceCfdType();
         nurbs_curve.m_SurfA_ID = ( *i_seg )->m_SurfA->GetSurfID();

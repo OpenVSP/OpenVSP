@@ -32,6 +32,7 @@ NURBS_Curve::NURBS_Curve()
     m_IGES_Edge = NULL;
     m_BBox = BndBox();
     m_Label = string();
+    m_WakeFlag = false;
 }
 
 void NURBS_Curve::InitNURBSCurve( SCurve curve )
@@ -256,6 +257,7 @@ NURBS_Surface::NURBS_Surface()
     m_IsPlanar = false;
     m_SurfType = vsp::CFD_NORMAL;
     m_Label = string();
+    m_WakeFlag = false;
 }
 
 void NURBS_Surface::InitNURBSSurf( Surf* surface )
@@ -290,16 +292,28 @@ void NURBS_Surface::InitNURBSSurf( Surf* surface )
 
 DLL_IGES_ENTITY_128 NURBS_Surface::WriteIGESSurf( IGESutil* iges, const string& label )
 {
-    return iges->MakeSurf( *m_Surf, label.c_str() );
+    string new_label = label;
+    if ( m_WakeFlag && label.size() > 0 )
+    {
+        new_label = "Wake_" + label;
+    }
+
+    return iges->MakeSurf( *m_Surf, new_label.c_str() );
 }
 
 SdaiSurface* NURBS_Surface::WriteSTEPSurf( STEPutil* step, const string& label, bool mergepts )
 {
     SdaiSurface* ret_surf = NULL;
 
+    string new_label = label;
+    if ( m_WakeFlag && label.size() > 0 )
+    {
+        new_label = "Wake_" + label;
+    }
+
     if ( m_IsPlanar )
     {
-        ret_surf = step->MakePlane( m_Center, m_Norm, m_Tangent, label );
+        ret_surf = step->MakePlane( m_Center, m_Norm, m_Tangent, new_label );
     }
     else
     {
@@ -311,7 +325,7 @@ SdaiSurface* NURBS_Surface::WriteSTEPSurf( STEPutil* step, const string& label, 
             merge_tol = 1.0e-10;
         }
 
-        ret_surf = step->MakeSurf( *m_Surf, label, mergepts, merge_tol );
+        ret_surf = step->MakeSurf( *m_Surf, new_label, mergepts, merge_tol );
     }
 
     return ret_surf;
@@ -451,7 +465,20 @@ void NURBS_Surface::BuildNURBSLoopMap()
 
     for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
     {
-        if ( ( m_NURBSCurveVec[i].m_BorderFlag && m_NURBSCurveVec[i].m_InsideNegativeFlag ) || m_NURBSCurveVec[i].m_SubSurfFlag || ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE ) )
+        if ( ( m_NURBSCurveVec[i].m_BorderFlag && m_NURBSCurveVec[i].m_InsideNegativeFlag && m_SurfType != vsp::CFD_TRANSPARENT ) || m_NURBSCurveVec[i].m_SubSurfFlag || ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE ) )
+        {
+            continue;
+        }
+        else if ( m_SurfType == vsp::CFD_TRANSPARENT && m_NURBSCurveVec[i].m_InsideNegativeFlag )
+        {
+            // Don't trim transparent surfaces with negative components
+            external_curve_vec.push_back( m_NURBSCurveVec[i] );
+        }
+        else if ( m_SurfType == vsp::CFD_NORMAL && m_NURBSCurveVec[i].m_WakeFlag )
+        {
+            continue;
+        }
+        else if ( m_WakeFlag && m_NURBSCurveVec[i].m_InternalFlag )
         {
             continue;
         }
@@ -461,18 +488,23 @@ void NURBS_Surface::BuildNURBSLoopMap()
             {
                 // Don't trim non-transparent surfaces with intersection curves made with a transparent surface. The non-transparent
                 // surface will not be broken into two surfaces at the intersection curve. 
-                continue;
+                continue; // TODO: Break the surface at the intersection
             }
             else if ( ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE || m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE ) && m_SurfType != vsp::CFD_STRUCTURE )
             {
                 // Don't trim non-structure surfaces with intersection curves made with a structure surface. The non-structure
                 // surface will not be broken into two surfaces at the intersection curve. 
-                continue;
+                continue; // TODO: Break the surface at the intersection
             }
             else if ( m_NURBSCurveVec[i].m_InternalFlag && ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_NEGATIVE || m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_NEGATIVE ) && m_SurfType != vsp::CFD_NEGATIVE )
             {
                 // Ignore internal negative surface intersecitons when trimming non-negative surfaces
                 continue;
+            }
+            else if ( m_SurfType == vsp::CFD_TRANSPARENT && m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_NORMAL && m_NURBSCurveVec[i].m_SurfB_Type != vsp::CFD_NORMAL )
+            {
+                // Ignore transparent-transparent (i.e. disks intersecting or wakes intersecting) and transparent-negative intersections (i.e. no holes in wakes or disks)
+                continue; 
             }
             else if ( m_SurfType == vsp::CFD_STRUCTURE )
             {
@@ -482,7 +514,7 @@ void NURBS_Surface::BuildNURBSLoopMap()
             {
                 internal_curve_vec.push_back( m_NURBSCurveVec[i] );
             }
-            else if ( !m_NURBSCurveVec[i].m_InternalFlag && m_SurfType == vsp::CFD_NEGATIVE && ( m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_NEGATIVE ) )
+            else if ( !m_NURBSCurveVec[i].m_InternalFlag && m_SurfType == vsp::CFD_NEGATIVE && ( m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_NEGATIVE || m_NURBSCurveVec[i].m_SurfB_Type != vsp::CFD_NEGATIVE ) )
             {
                 internal_curve_vec.push_back( m_NURBSCurveVec[i] );
             }
@@ -532,7 +564,9 @@ void NURBS_Surface::WriteIGESLoops( IGESutil* iges, DLL_IGES_ENTITY_128& parent_
     // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)
     for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
     {
-        if ( m_NURBSCurveVec[i].m_SubSurfFlag || ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) )
+        if ( m_NURBSCurveVec[i].m_SubSurfFlag || 
+             ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) ||
+             ( m_SurfType == vsp::CFD_TRANSPARENT && m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_NORMAL && m_NURBSCurveVec[i].m_SurfB_Type != vsp::CFD_NORMAL && !m_NURBSCurveVec[i].m_BorderFlag && !m_NURBSCurveVec[i].m_InternalFlag ) )
         {
             iges->MakeCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg, label );
         }
@@ -602,7 +636,9 @@ vector < SdaiAdvanced_face* > NURBS_Surface::WriteSTEPLoops( STEPutil* step, Sda
     // Create surface curves for sub-surfaces and FEA Part intersections (if they are inside the parent Geom)
     for ( size_t i = 0; i < m_NURBSCurveVec.size(); i++ )
     {
-        if ( m_NURBSCurveVec[i].m_SubSurfFlag || ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) )
+        if ( m_NURBSCurveVec[i].m_SubSurfFlag || 
+             ( m_NURBSCurveVec[i].m_SurfA_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_SurfB_Type == vsp::CFD_STRUCTURE && m_NURBSCurveVec[i].m_InternalFlag ) ||
+             ( m_SurfType == vsp::CFD_TRANSPARENT && m_NURBSCurveVec[i].m_SurfA_Type != vsp::CFD_NORMAL && m_NURBSCurveVec[i].m_SurfB_Type != vsp::CFD_NORMAL && !m_NURBSCurveVec[i].m_BorderFlag && !m_NURBSCurveVec[i].m_InternalFlag ) )
         {
             step->MakeSurfaceCurve( m_NURBSCurveVec[i].m_PntVec, m_NURBSCurveVec[i].m_Deg, label, mergepts, m_NURBSCurveVec[i].m_MergeTol );
         }

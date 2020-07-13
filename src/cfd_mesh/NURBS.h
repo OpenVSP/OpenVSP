@@ -62,6 +62,9 @@ public:
     // Flag that indicates if a curve is inside a negative surface
     bool m_InsideNegativeFlag;
 
+    // Flag that indicates one of the parent surfaces of the curve is a wake
+    bool m_WakeFlag;
+
     // Pointers for the STEP representation of the NURBS curve
     SdaiVertex_point* m_STEP_Start_Vert;
     SdaiVertex_point* m_STEP_End_Vert;
@@ -190,6 +193,9 @@ public:
 
     // Surface type to identify how to perform trimming (i.e. disk or structure surface)
     int m_SurfType;
+
+    // Identifies if the surface is a wake or not
+    bool m_WakeFlag;
 
     // All NURBS curves associated with the surface
     vector < NURBS_Curve > m_NURBSCurveVec;
