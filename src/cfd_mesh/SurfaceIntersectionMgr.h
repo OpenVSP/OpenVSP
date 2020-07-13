@@ -323,6 +323,11 @@ public:
         return (SimpleMeshCommonSettings* )&m_IntersectSettings;
     }
 
+    virtual SimpleGridDensity* GetGridDensityPtr()
+    {
+        return NULL;
+    }
+
     bool GetMeshInProgress()
     {
         return m_MeshInProgress;
