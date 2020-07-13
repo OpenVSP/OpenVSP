@@ -3248,7 +3248,7 @@ void CfdMeshMgrSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
     SurfaceIntersectionSingleton::LoadDrawObjs( draw_obj_vec );
 
     GetGridDensityPtr()->Highlight( GetCurrSource() );
-    GetGridDensityPtr()->Show( GetCfdSettingsPtr()->m_DrawSourceFlag );
+    GetGridDensityPtr()->Show( GetCfdSettingsPtr()->m_DrawSourceWakeFlag );
     GetGridDensityPtr()->LoadDrawObjs( draw_obj_vec );
 
     m_WakeMgr.Show( GetCfdSettingsPtr()->m_DrawSourceFlag );
@@ -3990,7 +3990,7 @@ void CfdMeshMgrSingleton::UpdateDisplaySettings()
 {
     if ( GetCfdSettingsPtr() )
     {
-        GetCfdSettingsPtr()->m_DrawSourceFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawSourceFlag.Get();
+        GetCfdSettingsPtr()->m_DrawSourceWakeFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawSourceWakeFlag.Get();
         GetCfdSettingsPtr()->m_DrawFarPreFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawFarPreFlag.Get();
         GetCfdSettingsPtr()->m_DrawMeshFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawMeshFlag.Get();
         GetCfdSettingsPtr()->m_DrawWakeFlag = m_Vehicle->GetCfdSettingsPtr()->m_DrawWakeFlag.Get();

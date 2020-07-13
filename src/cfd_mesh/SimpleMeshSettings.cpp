@@ -23,6 +23,8 @@ SimpleMeshCommonSettings::SimpleMeshCommonSettings()
     m_DrawMeshFlag = false;
     m_ColorTagsFlag = false;
 
+    m_DrawSourceWakeFlag = false;
+
     m_DrawBorderFlag = false;
     m_DrawIsectFlag = false;
     m_DrawRawFlag = false;
@@ -67,6 +69,8 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
 
     m_DrawMeshFlag = settings->m_DrawMeshFlag.Get();
     m_ColorTagsFlag = settings->m_ColorTagsFlag.Get();
+
+    m_DrawSourceWakeFlag = settings->m_DrawSourceWakeFlag.Get();
 
     m_DrawBorderFlag = settings->m_DrawBorderFlag.Get();
     m_DrawIsectFlag = settings->m_DrawIsectFlag.Get();
@@ -169,7 +173,6 @@ SimpleCfdMeshSettings::SimpleCfdMeshSettings()
     m_FarYLocation = 0;
     m_FarZLocation = 0;
 
-    m_DrawSourceFlag = false;
     m_DrawFarFlag = false;
     m_DrawFarPreFlag = false;
     m_DrawSymmFlag = false;
@@ -201,7 +204,6 @@ void SimpleCfdMeshSettings::CopyFrom( CfdMeshSettings* settings )
     m_FarYLocation = settings->m_FarYLocation.Get();
     m_FarZLocation = settings->m_FarZLocation.Get();
 
-    m_DrawSourceFlag = settings->m_DrawSourceFlag.Get();
     m_DrawFarFlag = settings->m_DrawFarFlag.Get();
     m_DrawFarPreFlag = settings->m_DrawFarPreFlag.Get();
     m_DrawSymmFlag = settings->m_DrawSymmFlag.Get();

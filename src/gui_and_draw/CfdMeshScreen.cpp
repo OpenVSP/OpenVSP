@@ -687,7 +687,7 @@ void CfdMeshScreen::UpdateGlobalTab()
 void CfdMeshScreen::UpdateDisplayTab()
 {
     //===== Display Tab Toggle Update =====//
-    m_ShowSourcesAndWakePreview.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawSourceFlag.GetID() );
+    m_ShowSourcesAndWakePreview.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawSourceWakeFlag.GetID() );
     m_ShowFarFieldPreview.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawFarPreFlag.GetID() );
     m_ShowMesh.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawMeshFlag.GetID() );
     m_ShowWake.Update( m_Vehicle->GetCfdSettingsPtr()->m_DrawWakeFlag.GetID() );

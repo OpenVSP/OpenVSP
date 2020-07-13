@@ -209,7 +209,7 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
 {
     m_Name = "CFDMeshSettings";
 
-    m_DrawSourceFlag.Init( "DrawSourceWake", "DrawMesh", this, true, 0, 1 );
+    m_DrawSourceWakeFlag.Init( "DrawSourceWake", "DrawMesh", this, true, 0, 1 );
     m_DrawFarFlag.Init( "DrawFarField", "DrawMesh", this, true, 0, 1 );
     m_DrawFarPreFlag.Init( "DrawFarFieldPreview", "DrawMesh", this, true, 0, 1 );
     m_DrawSymmFlag.Init( "DrawSymmetryPlane", "DrawMesh", this, true, 0, 1 );

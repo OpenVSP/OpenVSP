@@ -31,6 +31,8 @@ public:
     bool m_DrawMeshFlag;
     bool m_ColorTagsFlag;
 
+    bool m_DrawSourceWakeFlag;
+
     bool m_DrawBorderFlag;
     bool m_DrawIsectFlag;
     bool m_DrawRawFlag;
@@ -114,7 +116,6 @@ public:
     double m_FarYLocation;
     double m_FarZLocation;
 
-    bool m_DrawSourceFlag;
     bool m_DrawFarFlag;
     bool m_DrawFarPreFlag;
     bool m_DrawSymmFlag;

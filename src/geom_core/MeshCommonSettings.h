@@ -76,6 +76,8 @@ public:
     BoolParm m_DrawMeshFlag;
     BoolParm m_ColorTagsFlag;
 
+    BoolParm m_DrawSourceWakeFlag;
+
     BoolParm m_DrawBorderFlag;
     BoolParm m_DrawIsectFlag;
     BoolParm m_DrawRawFlag;
@@ -204,7 +206,6 @@ public:
     Parm m_FarYLocation;
     Parm m_FarZLocation;
 
-    BoolParm m_DrawSourceFlag;
     BoolParm m_DrawFarFlag;
     BoolParm m_DrawFarPreFlag;
     BoolParm m_DrawSymmFlag;
