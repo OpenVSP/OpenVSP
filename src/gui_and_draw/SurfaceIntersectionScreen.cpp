@@ -25,6 +25,7 @@ SurfaceIntersectionScreen::SurfaceIntersectionScreen( ScreenMgr* mgr ) : TabScre
     CreateGlobalTab();
     CreateDisplayTab();
     CreateOutputTab();
+    CreateWakesTab();
 
     //=== Create Console Area ===//
     m_ConsoleLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -242,6 +243,35 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     outputTab->show();
 }
 
+void SurfaceIntersectionScreen::CreateWakesTab()
+{
+    Fl_Group* wakesTab = AddTab( "Wakes" );
+    Fl_Group* wakesTabGroup = AddSubGroup( wakesTab, 5 );
+
+    m_WakesTabLayout.SetGroupAndScreen( wakesTabGroup, this );
+
+    m_WakesTabLayout.AddYGap();
+
+    m_WakesTabLayout.SetButtonWidth( 175.0 );
+    m_WakesTabLayout.AddSlider( m_ScaleWake, "Scale Wake", 10.0, "%7.5f" );
+    m_WakesTabLayout.AddYGap();
+    m_WakesTabLayout.AddSlider( m_WakeAngle, "Wake Angle", 10.0, "%7.5f" );
+
+    m_WakesTabLayout.ForceNewLine();
+
+    m_WakesTabLayout.SetFitWidthFlag( true );
+    m_WakesTabLayout.SetSameLineFlag( true );
+
+    m_WakesTabLayout.SetChoiceButtonWidth( 100 );
+    m_WakesTabLayout.AddChoice( m_Comp, "Comp", 100 );
+
+    m_WakesTabLayout.SetFitWidthFlag( false );
+    m_WakesTabLayout.SetButtonWidth( 100 );
+    m_WakesTabLayout.AddButton( m_AddWake, "Add Wake" );
+
+    wakesTab->show();
+}
+
 bool SurfaceIntersectionScreen::Update()
 {
     LoadSetChoice();
@@ -258,6 +288,12 @@ bool SurfaceIntersectionScreen::Update()
     UpdateGlobalTab();
     UpdateDisplayTab();
     UpdateOutputTab();
+    UpdateWakesTab();
+
+    if ( !SurfaceIntersectionMgr.GetMeshInProgress() )
+    {
+        SurfaceIntersectionMgr.UpdateWakes();
+    }
 
     m_FLTK_Window->redraw();
 
@@ -370,6 +406,56 @@ void SurfaceIntersectionScreen::UpdateOutputTab()
     }
 }
 
+void SurfaceIntersectionScreen::UpdateWakesTab()
+{
+    m_Comp.ClearItems();
+
+    map< string, int > compIDMap;
+    map< string, int > wingCompIDMap;
+    m_WingGeomVec.clear();
+
+    vector < string > m_GeomVec = m_Vehicle->GetGeomVec();
+
+    int iwing = 0;
+    for ( int i = 0; i < (int)m_GeomVec.size(); ++i )
+    {
+        char str[256];
+        Geom* g = m_Vehicle->FindGeom( m_GeomVec[i] );
+        if ( g )
+        {
+            sprintf( str, "%d_%s", i, g->GetName().c_str() );
+            if ( g->HasWingTypeSurfs() )
+            {
+                m_Comp.AddItem( str );
+                wingCompIDMap[m_GeomVec[i]] = iwing++;
+                m_WingGeomVec.push_back( m_GeomVec[i] );
+            }
+            compIDMap[m_GeomVec[i]] = i;
+        }
+    }
+
+    m_Comp.UpdateItems();
+
+    //===== Set WakeGeomID and wake component selection for wake tab =====//
+    string wakeGeomID = SurfaceIntersectionMgr.GetWakeGeomID();
+    if ( wakeGeomID.length() == 0 && m_WingGeomVec.size() > 0 )
+    {
+        // Handle case default case.
+        wakeGeomID = m_WingGeomVec[0];
+        SurfaceIntersectionMgr.SetWakeGeomID( wakeGeomID );
+    }
+    Geom* wakeGeom = m_Vehicle->FindGeom( wakeGeomID );
+    m_Comp.SetVal( wingCompIDMap[wakeGeomID] );
+
+    //===== Update Wake Parms =====//
+    if ( wakeGeom )
+    {
+        m_AddWake.Update( wakeGeom->m_WakeActiveFlag.GetID() );
+        m_ScaleWake.Update( wakeGeom->m_WakeScale.GetID() );
+        m_WakeAngle.Update( wakeGeom->m_WakeAngle.GetID() );
+    }
+}
+
 void SurfaceIntersectionScreen::LoadSetChoice()
 {
     m_UseSet.ClearItems();
@@ -447,6 +533,7 @@ void SurfaceIntersectionScreen::GuiDeviceCallBack( GuiDevice* device )
 
     GuiDeviceGlobalTabCallback( device );
     GuiDeviceOutputTabCallback( device );
+    GuiDeviceWakesTabCallback( device );
 
     if ( device == &m_IntersectAndExport )
     {
@@ -507,5 +594,13 @@ void SurfaceIntersectionScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
         {
             m_Vehicle->GetISectSettingsPtr()->SetExportFileName( newfile, vsp::INTERSECT_STEP_FILE_NAME );
         }
+    }
+}
+
+void SurfaceIntersectionScreen::GuiDeviceWakesTabCallback( GuiDevice* device )
+{
+    if ( device == &m_Comp )
+    {
+        SurfaceIntersectionMgr.SetWakeGeomID( m_WingGeomVec[m_Comp.GetVal()] );
     }
 }

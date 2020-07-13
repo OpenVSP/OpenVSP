@@ -54,6 +54,7 @@ protected:
     GroupLayout m_OutputTabLayout;
     GroupLayout m_ConsoleLayout;
     GroupLayout m_BorderConsoleLayout;
+    GroupLayout m_WakesTabLayout;
 
     //===== Global Tab Items =====//
 
@@ -62,6 +63,8 @@ protected:
     Choice m_UseSet;
 
     //===== Display Tab Items =====//
+
+    ToggleButton m_ShowWakePreview;
 
     ToggleButton m_DrawIsect;
     ToggleButton m_DrawBorder;
@@ -113,6 +116,15 @@ protected:
     ToggleButton m_LabelSplitNoToggle;
     Choice m_LabelDelimChoice;
 
+    //===== Wake Tab Items =====//
+
+    SliderAdjRangeInput m_ScaleWake;
+    SliderAdjRangeInput m_WakeAngle;
+
+    Choice m_Comp;
+
+    ToggleButton m_AddWake;
+
     //===== Console Items =====//
 
     Fl_Text_Display *m_ConsoleDisplay;
@@ -128,15 +140,20 @@ private:
     void CreateGlobalTab();
     void CreateDisplayTab();
     void CreateOutputTab();
+    void CreateWakesTab();
 
     void UpdateGlobalTab();
     void UpdateDisplayTab();
     void UpdateOutputTab();
+    void UpdateWakesTab();
 
     void GuiDeviceGlobalTabCallback( GuiDevice* device );
     void GuiDeviceOutputTabCallback( GuiDevice* device );
+    void GuiDeviceWakesTabCallback( GuiDevice* device );
 
     Vehicle* m_Vehicle;
+
+    vector< string > m_WingGeomVec;
 };
 
 #endif //SURFINTERSECTSCREEN_H
