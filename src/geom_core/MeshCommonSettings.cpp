@@ -67,6 +67,8 @@ IntersectSettings::IntersectSettings() : MeshCommonSettings()
 {
     m_Name = "SurfaceIntersectSettings";
 
+    m_DrawSourceWakeFlag.Init( "DrawSourceWake", "DrawMesh", this, true, 0, 1 );
+
     m_ExportRawFlag.Init( "ExportRawFlag", "ExportIntersect", this, false, 0, 1 );
 
     m_SelectedSetIndex.Init( "Set", "Global", this, DEFAULT_SET, 0, NUM_SETS + 2 );

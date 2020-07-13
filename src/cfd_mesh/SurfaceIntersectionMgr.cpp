@@ -3168,6 +3168,8 @@ void SurfaceIntersectionSingleton::UpdateDisplaySettings()
 {
     if ( GetIntersectSettingsPtr() )
     {
+        GetIntersectSettingsPtr()->m_DrawSourceWakeFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawSourceWakeFlag.Get();
+
         GetIntersectSettingsPtr()->m_DrawBorderFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawBorderFlag.Get();
         GetIntersectSettingsPtr()->m_DrawIsectFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawIsectFlag.Get();
         GetIntersectSettingsPtr()->m_DrawRawFlag = m_Vehicle->GetISectSettingsPtr()->m_DrawRawFlag.Get();

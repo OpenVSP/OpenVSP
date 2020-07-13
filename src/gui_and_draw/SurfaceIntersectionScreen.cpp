@@ -91,6 +91,8 @@ void SurfaceIntersectionScreen::CreateDisplayTab()
     m_DisplayTabLayout.SetButtonWidth( 175 );
 
     m_DisplayTabLayout.AddYGap();
+    m_DisplayTabLayout.AddButton( m_ShowWakePreview, "Show Wake Preview" );
+    m_DisplayTabLayout.AddYGap();
     m_DisplayTabLayout.AddButton( m_DrawIsect, "Show Intersection Curves");
     m_DisplayTabLayout.AddButton( m_DrawBorder, "Show Border Curves");
     m_DisplayTabLayout.AddYGap();
@@ -283,6 +285,8 @@ void SurfaceIntersectionScreen::UpdateGlobalTab()
 void SurfaceIntersectionScreen::UpdateDisplayTab()
 {
     //===== Display Tab Toggle Update =====//
+
+    m_ShowWakePreview.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawSourceWakeFlag.GetID() );
 
     m_DrawIsect.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawIsectFlag.GetID() );
     m_DrawBorder.Update( m_Vehicle->GetISectSettingsPtr()->m_DrawBorderFlag.GetID() );
