@@ -67,7 +67,7 @@ public:
     void InterpolateLinear( vector< vec3d > & input_pnt_vec );
 
     void FlipCurve();
-    void BuildWakeTECurve( const Bezier_curve &lecrv, double endx, double angle );
+    void BuildWakeTECurve( const Bezier_curve &lecrv, double endx, double angle, double start_stretch_x, double scale );
     static curve_point_type ComputeWakeTrailEdgePnt( const curve_point_type &pnt, double endx, double angle );
 
     void UWCurveToXYZCurve( const Surf *srf );

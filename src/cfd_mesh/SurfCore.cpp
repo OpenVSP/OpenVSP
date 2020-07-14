@@ -662,10 +662,10 @@ void SurfCore::WriteSurf( FILE* fp ) const
     }
 }
 
-void SurfCore::MakeWakeSurf( const Bezier_curve &lecrv, double endx, double angle )
+void SurfCore::MakeWakeSurf( const Bezier_curve &lecrv, double endx, double angle, double start_stretch_x, double scale )
 {
     Bezier_curve tecrv;
-    tecrv.BuildWakeTECurve( lecrv, endx, angle );
+    tecrv.BuildWakeTECurve( lecrv, endx, angle, start_stretch_x, scale );
 
     piecewise_curve_type le = lecrv.GetCurve();
     piecewise_curve_type te = tecrv.GetCurve();
