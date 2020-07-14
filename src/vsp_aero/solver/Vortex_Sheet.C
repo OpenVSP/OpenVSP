@@ -898,7 +898,7 @@ void VORTEX_SHEET::SetupPlanarVortexSheets(void)
     CoreSize_ /= NumberOfTrailingVortices_;
     
     CoreSize_ = sqrt(CoreSize_);
-     
+ 
 }
 
 /*##############################################################################
@@ -1709,7 +1709,8 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
 
        TrailingVortex = AgglomeratedTrailingVortexList_[i];
 
-       TrailingVortex->InducedVelocity(xyz_p,dq,CoreSize_);
+ //      TrailingVortex->InducedVelocity(xyz_p,dq,CoreSize_); // This was wrong, it should not be using the core model here!
+       TrailingVortex->InducedVelocity(xyz_p,dq);
               
        U += dq[0];
        V += dq[1];
@@ -1736,7 +1737,8 @@ void VORTEX_SHEET::InducedVelocity(int NumberOfSheets, VORTEX_SHEET_ENTRY *Sheet
           
           dq[0] = dq[1] = dq[2] = 0.;
     
-          StartingVorticesInducedVelocity(*VortexSheet, xyz_p, dq, CoreSize_);
+     //     StartingVorticesInducedVelocity(*VortexSheet, xyz_p, dq, CoreSize_); // This was wrong, it should not be using the core model here!
+          StartingVorticesInducedVelocity(*VortexSheet, xyz_p, dq);
           
           U += dq[0];
           V += dq[1];

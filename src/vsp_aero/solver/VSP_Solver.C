@@ -2371,7 +2371,7 @@ void VSP_SOLVER::InitializeTrailingVortices(void)
                 VSP_Node2.z() = VSPGeom().Grid(MGLevel_).WakeTrailingEdgeZ(j) + WakeAngle_[2] * 1.e6;
           
                 // Set sigma
-   
+ 
                 VortexSheet(c,k).TrailingVortexEdge(NumEdges).Sigma() = 0.5*Sigma[VSPGeom().Grid(MGLevel_).KuttaNode(j)];
 
                 // Set trailing edge direction 
@@ -7245,7 +7245,7 @@ void VSP_SOLVER::Do_GMRES_Solve(void)
     ResRed = 0.1;
     
     if ( GMRESTightConvergence_ ) {
-       
+
        ResMax = 0.1*Vref_;
        ResRed = 0.001;       
        
@@ -9178,7 +9178,7 @@ void VSP_SOLVER::IntegrateForcesAndMoments(int UnsteadyEvaluation)
 
        }
 
-       if ( !SurfaceVortexEdge(j).IsTrailingEdge() && ( SurfaceVortexEdge(j).VortexLoop1() != 0 && SurfaceVortexEdge(j).VortexLoop2() != 0 ) ) {
+       if ( !SurfaceVortexEdge(j).IsTrailingEdge()  ) {
 
           // Sum up forces and moments from each edge
 
@@ -9467,7 +9467,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
 
        Loop1 = SurfaceVortexEdge(j).Loop1();
        Loop2 = SurfaceVortexEdge(j).Loop2();
-            
+ 
        // Extract out forces
 
        Fx = Fy = Fz = Fxi = Fyi = Fzi = 0.;
@@ -9535,9 +9535,9 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
           if ( k == 2 ) Loop = SurfaceVortexEdge(j).Loop2();
 
           Wgt = 0.;
-          
+        
           Wgti = VortexLoop(Loop).Area() / ( VortexLoop(SurfaceVortexEdge(j).Loop1()).Area() + VortexLoop(SurfaceVortexEdge(j).Loop2()).Area() );
- 
+
           if ( ( SurfaceVortexEdge(j).VortexLoop1() != 0 && SurfaceVortexEdge(j).VortexLoop2() != 0 ) || SurfaceVortexEdge(j).IsLeadingEdge() ) Wgt = Wgti;
 
           // Wing Surface
@@ -9913,7 +9913,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
              
              Re = ReCref_ * LocalVel * Vref_ * Length / Cref_;
              
-             Re = MAX(Re,1.e6);
+             Re = MAX(Re,6.e6);
              
              Cf = 1.037 / pow(log10(Re),2.58);
 
@@ -10037,7 +10037,7 @@ void VSP_SOLVER::CalculateCLmaxLimitedForces(int UnsteadyEvaluation)
     CL_[LoadCase] /= 0.5*Sref_;
     CD_[LoadCase] /= 0.5*Sref_;
     CS_[LoadCase] /= 0.5*Sref_;
-    
+
     CFx_[LoadCase] /= 0.5*Sref_;
     CFy_[LoadCase] /= 0.5*Sref_;
     CFz_[LoadCase] /= 0.5*Sref_;

@@ -955,7 +955,7 @@ void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3])
 
 void VORTEX_TRAIL::InducedVelocity(double xyz_p[3], double q[3], double CoreSize)
 {
-   
+
    CoreSize_ = MAX(CoreSize, 2.*Sigma_);
 
    InducedVelocity_(xyz_p, q);
@@ -1774,7 +1774,7 @@ void VORTEX_TRAIL::UpdateGeometryLocation(double *TVec, double *OVec, QUAT &Quat
     NodeList_[i].x() = NodeList_[i-1].x() + dx_[i];
     NodeList_[i].y() = NodeList_[i-1].y() + dy_[i];
     NodeList_[i].z() = NodeList_[i-1].z() + dz_[i];
- 
+    
     if ( DoGroundEffectsAnalysis_ ) NodeList_[i].z() = MAX(NodeList_[i].z(), 0.);  
 
     for ( i = 0 ; i <= NumMaxSubVortices + 2 ; i++ ) {
