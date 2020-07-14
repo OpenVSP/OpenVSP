@@ -58,6 +58,8 @@ protected:
     GroupLayout m_ConsoleLayout;
     GroupLayout m_BorderConsoleLayout;
 
+    Fl_Group* m_WakesTab;
+
     //===== Global Tab Items =====//
 
     SliderAdjRangeInput m_MaxEdgeLen;

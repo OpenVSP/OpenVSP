@@ -492,8 +492,8 @@ void CfdMeshScreen::CreateDomainTab()
 
 void CfdMeshScreen::CreateWakesTab()
 {
-    Fl_Group* wakesTab = AddTab( "Wakes" );
-    Fl_Group* wakesTabGroup = AddSubGroup( wakesTab, 5 );
+    m_WakesTab = AddTab( "Wakes" );
+    Fl_Group* wakesTabGroup = AddSubGroup( m_WakesTab, 5 );
 
     m_WakesTabLayout.SetGroupAndScreen( wakesTabGroup, this );
 
@@ -516,7 +516,7 @@ void CfdMeshScreen::CreateWakesTab()
     m_WakesTabLayout.SetButtonWidth(100);
     m_WakesTabLayout.AddButton(m_AddWake, "Add Wake");
 
-    wakesTab->show();
+    m_WakesTab->show();
 }
 
 bool CfdMeshScreen::Update()
@@ -597,13 +597,16 @@ bool CfdMeshScreen::Update()
 
     //===== Set WakeGeomID and wake component selection for wake tab =====//
     string wakeGeomID = CfdMeshMgr.GetWakeGeomID();
-    if( wakeGeomID.length() == 0 && m_WingGeomVec.size() > 0 )
+    Geom* wakeGeom = m_Vehicle->FindGeom( wakeGeomID );
+
+    if( ( !wakeGeom || wakeGeomID.length() == 0 ) && m_WingGeomVec.size() > 0 )
     {
         // Handle case default case.
         wakeGeomID = m_WingGeomVec[0];
         CfdMeshMgr.SetWakeGeomID( wakeGeomID );
+        wakeGeom = m_Vehicle->FindGeom( wakeGeomID );
     }
-    Geom* wakeGeom = m_Vehicle->FindGeom( wakeGeomID );
+
     m_Comp.SetVal( wingCompIDMap[ wakeGeomID ] );
 
     //===== Update Sources =====//
@@ -652,7 +655,16 @@ bool CfdMeshScreen::Update()
     UpdateOutputTab();
     UpdateSourcesTab(source);
     UpdateDomainTab();
-    UpdateWakesTab();
+
+    if ( m_WingGeomVec.size() == 0 )
+    {
+        m_WakesTab->deactivate();
+    }
+    else
+    {
+        m_WakesTab->activate();
+        UpdateWakesTab();
+    }
 
     m_FLTK_Window->redraw();
 
@@ -937,6 +949,17 @@ void CfdMeshScreen::UpdateWakesTab()
         m_AddWake.Update( g->m_WakeActiveFlag.GetID() );
         m_ScaleWake.Update( g->m_WakeScale.GetID() );
         m_WakeAngle.Update( g->m_WakeAngle.GetID() );
+
+        if ( g->m_WakeActiveFlag() )
+        {
+            m_ScaleWake.Activate();
+            m_WakeAngle.Activate();
+        }
+        else
+        {
+            m_ScaleWake.Deactivate();
+            m_WakeAngle.Deactivate();
+        }
     }
 }
 

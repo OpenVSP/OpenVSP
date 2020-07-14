@@ -56,6 +56,8 @@ protected:
     GroupLayout m_BorderConsoleLayout;
     GroupLayout m_WakesTabLayout;
 
+    Fl_Group* m_WakesTab;
+
     //===== Global Tab Items =====//
 
     ToggleButton m_IntersectSubsurfaces;
