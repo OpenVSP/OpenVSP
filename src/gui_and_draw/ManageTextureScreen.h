@@ -2,12 +2,6 @@
 #define _VSP_GUI_TEXTURE_MANAGER_SCREEN_H
 
 #include "ScreenMgr.h"
-#include "ScreenBase.h"
-#include "GuiDevice.h"
-
-#include "ManageTextureScreen.h"
-#include "textureMgrFlScreen.h"
-
 #include "GraphicEngine.h"
 #include "Display.h"
 #include "Viewport.h"
@@ -19,7 +13,6 @@ namespace VSPGUI
 class VspSubGlWindow;
 }
 
-//class TextureMgrUI;
 class Texture;
 
 class ManageTextureScreen : public BasicScreen
@@ -44,7 +37,6 @@ protected:
 
     Choice m_GeomChoice;
     Choice m_EditChoice;
-    Choice m_SurfaceChoice;
 
     TriggerButton m_AddButton;
     TriggerButton m_DeleteButton;
@@ -59,24 +51,15 @@ protected:
     SliderAdjRangeInput m_UScaleSlider;
     SliderAdjRangeInput m_WScaleSlider;
 
-    SliderAdjRangeInput m_BrightnessSlider;
     SliderAdjRangeInput m_TransparencySlider;
-
-    ToggleButton m_RepeatTextureToggle;
 
     ToggleButton m_FlipUToggle;
     ToggleButton m_FlipWToggle;
-
-    ToggleButton m_FlipUReflectedToggle;
-    ToggleButton m_FlipWReflectedToggle;
-
-private:
 
 private:
 
     int m_GeomIndex;
     int m_EditIndex;
-    int m_SurfaceIndex;
     int m_LastActiveGeomIndex;
 
     bool m_ActiveGeomChanged;

@@ -1,20 +1,18 @@
 
 #include "ManageTextureScreen.h"
 
-ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 355, 525, "Texture Mgr")
+ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 290, 660, "Texture Mgr")
 {
-    int yGap = 12;
+    int yGap = 24;
     int yPadding = 7;
-    int miscWidth = 125;
-    int windowWidth = 355;
-    int regButtonWidth = 185;
-    int sliderInputWidth = 75;
+    int sliderButtonWidth = 90;
+    int sliderInputWidth = 55;
     int smallButtonWidth = 60;
     int borderPaddingWidth = 5;
+    int yGapForDisplay = 294;
 
     m_GeomIndex = 0;
     m_EditIndex = 0;
-    m_SurfaceIndex = 0;
     m_LastActiveGeomIndex = 0;
 
     m_ActiveGeomChanged = false;
@@ -36,81 +34,53 @@ ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 
     m_BorderLayout.AddYGap();
 
     m_BorderLayout.AddDividerBox( "Texture" );
-    m_BorderLayout.AddY( yGap );
+    m_BorderLayout.AddY( yGapForDisplay );
 
-    m_BorderLayout.SetFitWidthFlag( false );
-    m_BorderLayout.SetButtonWidth( regButtonWidth );
     m_BorderLayout.AddButton( m_AddButton , "Add...");
-    m_BorderLayout.AddY( yGap );
+    m_BorderLayout.AddYGap();
 
-    m_BorderLayout.SetFitWidthFlag( false );
-    m_BorderLayout.SetSliderWidth( miscWidth );
     m_BorderLayout.SetChoiceButtonWidth( smallButtonWidth );
     m_BorderLayout.AddChoice( m_EditChoice, "Edit:" );
-    m_BorderLayout.AddY( yGap );
+    m_BorderLayout.AddYGap();
 
-    m_BorderLayout.SetButtonWidth( regButtonWidth );
     m_BorderLayout.AddButton( m_DeleteButton , "Delete");
-    m_BorderLayout.AddY( yGap );
+    m_BorderLayout.AddYGap();
 
     m_BorderLayout.SetButtonWidth( smallButtonWidth );
-    m_BorderLayout.SetInputWidth( miscWidth );
     m_BorderLayout.AddInput( m_NameInput, "Name:" );
-    m_BorderLayout.AddY( yGap );
+    m_BorderLayout.AddYGap();
      
-    m_BorderLayout.SetChoiceButtonWidth( smallButtonWidth );
-    m_BorderLayout.AddChoice( m_SurfaceChoice, "Surface:" );
-    m_BorderLayout.AddY( yGap );
-
     m_BorderLayout.SetFitWidthFlag( true );
-    m_BorderLayout.SetButtonWidth( miscWidth );
+    m_BorderLayout.SetButtonWidth( sliderButtonWidth );
     m_BorderLayout.SetInputWidth( sliderInputWidth );
 
     m_BorderLayout.AddSlider( m_UPosSlider, "U Position", 1, "%6.5f" );
     m_BorderLayout.AddYGap();
     m_BorderLayout.AddSlider( m_WPosSlider, "W Position", 1, "%6.5f" );
-    m_BorderLayout.AddY( yGap );
+    m_BorderLayout.AddY( yGap/2 );
 
     m_BorderLayout.AddSlider( m_UScaleSlider, "U Scale", 1, "%6.5f" );
     m_BorderLayout.AddYGap();
     m_BorderLayout.AddSlider( m_WScaleSlider, "W Scale", 1, "%6.5f" );
-    m_BorderLayout.AddY( yGap );
+    m_BorderLayout.AddY( yGap/2 );
 
-    m_BorderLayout.AddSlider( m_BrightnessSlider, "Brightness", 1, "%6.5f" );
-    m_BorderLayout.AddYGap();
     m_BorderLayout.AddSlider( m_TransparencySlider, "Transparency", 1, "%6.5f" );
-    m_BorderLayout.AddY( yGap );
-
-    m_BorderLayout.AddButton( m_RepeatTextureToggle, "Repeat Texture" );
-    m_BorderLayout.AddYGap();
+    m_BorderLayout.AddY( yGap/2 );
 
     m_BorderLayout.AddDividerBox( "Texture Coords" );
+    m_BorderLayout.AddYGap();
 
-    m_BorderLayout.SetButtonWidth( windowWidth/2 -yPadding);
+    m_BorderLayout.SetButtonWidth( m_BorderLayout.GetCanvasWidth()/2 +(borderPaddingWidth*2));
 
     m_BorderLayout.SetFitWidthFlag( false );
     m_BorderLayout.SetSameLineFlag( true );
 
     m_BorderLayout.AddButton( m_FlipUToggle, "Flip U" );
-    m_BorderLayout.AddX( borderPaddingWidth );
+    m_BorderLayout.AddX( borderPaddingWidth*2 );
     m_BorderLayout.AddButton( m_FlipWToggle, "Flip W" );
-    m_BorderLayout.AddYGap();
-
-    m_BorderLayout.SetFitWidthFlag( true );
-    m_BorderLayout.SetSameLineFlag( false );
-
-    m_BorderLayout.ForceNewLine();
-    m_BorderLayout.AddDividerBox( "Reflected Comp Texture Coords" );
-     
-    m_BorderLayout.SetFitWidthFlag( false );
-    m_BorderLayout.SetSameLineFlag( true );
-
-    m_BorderLayout.AddButton( m_FlipUReflectedToggle, "Flip U" );
-    m_BorderLayout.AddX( borderPaddingWidth );
-    m_BorderLayout.AddButton( m_FlipWReflectedToggle, "Flip W" );
 
      //// Add GL 2D Window.
-    texGLGroup = new Fl_Group(200, 80, 150, 150, "GL_WIN");
+    texGLGroup = new Fl_Group(5, 75, 280, 280, "GL_WIN");
     texGLGroup->box(FL_BORDER_BOX);
     texGLGroup->color((Fl_Color)29);
     texGLGroup->align(Fl_Align(FL_ALIGN_CENTER|FL_ALIGN_INSIDE));
@@ -145,32 +115,26 @@ bool ManageTextureScreen::Update()
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
-    //ManageTextureScreen should only be seen if only 1 Geom is slected in Geom Browser. If not, hide it
-    vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
-    if ( (int) select_vec.size()!= 1 )
-    {
-         Hide();
-         return false;
-    }
-
     //This Updates GeomChoice list based on number of existing geoms
     //It also checks if the Active Geom has changed since last update and updates an index and a bool
-    m_GeomChoice.ClearItems();
     vector < Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
-    for ( int i = 0; i < ( int )geom_vec.size(); i++ )
+    if ( geom_vec.size() > 0 )
     {
-        sprintf( str, "%d.  %s", i + 1, geom_vec[i]->GetName().c_str() );
-        m_GeomChoice.AddItem( str );
-        if ( veh->IsGeomActive( geom_vec[i]->GetID() ) )
+        for ( int i = 0; i < ( int )geom_vec.size(); i++ )
         {
-            if ( i != m_LastActiveGeomIndex )
+            sprintf( str, "%d.  %s", i + 1, geom_vec[i]->GetName().c_str() );
+            m_GeomChoice.AddItem( str );
+            if ( veh->IsGeomActive( geom_vec[i]->GetID() ) )
             {
-                m_ActiveGeomChanged = true;
-                m_LastActiveGeomIndex = i;
+                if ( i != m_LastActiveGeomIndex )
+                {
+                    m_ActiveGeomChanged = true;
+                    m_LastActiveGeomIndex = i;
+                }
             }
         }
+        m_GeomChoice.UpdateItems();
     }
-    m_GeomChoice.UpdateItems();
 
     //We set the m_GeomChoice index based on what changed since last Update
     if ( m_ThisGuiDeviceWasCalledBack )
@@ -189,7 +153,7 @@ bool ManageTextureScreen::Update()
     }
 
     //This section updates the textures list in m_EditChoice
-    select_vec = veh->GetActiveGeomPtrVec();
+    vector< Geom* > select_vec = veh->GetActiveGeomPtrVec();
     if ( ( int )select_vec.size() > 0)
     {
         vector <string> textures = select_vec[0]->m_GuiDraw.getTextureMgr()->GetTextureVec();
@@ -223,6 +187,10 @@ bool ManageTextureScreen::Update()
             Texture * info = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( textures[m_EditIndex] );
             m_NameInput.Update( info->GetName().c_str() );
         }
+        else
+        {
+            m_NameInput.Update( "" );
+        }
     }
 
     //Update Preview Window.
@@ -240,14 +208,15 @@ bool ManageTextureScreen::Update()
             string texture_file_name = select_vec[0]->m_GuiDraw.getTextureMgr()->FindTexture( textures[m_EditIndex] )->m_FileName;
             viewport->getBackground()->attachImage( VSPGraphic::GlobalTextureRepo()->get2DTexture( texture_file_name.c_str() ) );
         }
-
-        m_GlWin->redraw();
     }
+    m_GlWin->redraw();
 
     //Update Sliders and Toggles
     select_vec = veh->GetActiveGeomPtrVec();
     if ( ( int )select_vec.size() > 0 )
     {
+        m_BorderLayout.GetGroup()->activate();
+        
         vector <string> textures = select_vec[0]->m_GuiDraw.getTextureMgr()->GetTextureVec();
         if ( ( int )textures.size() > 0 && m_EditIndex <= ( int )textures.size() )
         {
@@ -262,10 +231,25 @@ bool ManageTextureScreen::Update()
             m_TransparencySlider.Update( info->m_Transparency.GetID() );
 
             m_FlipUToggle.Update( info->m_FlipU.GetID() );
-            m_FlipWToggle.Update( info->m_FlipW.GetID() );
-            
+            m_FlipWToggle.Update( info->m_FlipW.GetID() ); 
         }
-        
+        else
+        {
+            m_UPosSlider.Deactivate();
+            m_WPosSlider.Deactivate();
+
+            m_UScaleSlider.Deactivate();
+            m_WScaleSlider.Deactivate();
+
+            m_TransparencySlider.Deactivate();
+
+            m_FlipUToggle.Deactivate();
+            m_FlipWToggle.Deactivate();
+        }
+    }
+    else
+    {
+        m_BorderLayout.GetGroup()->deactivate();
     }
 
     return true;
@@ -339,10 +323,6 @@ void ManageTextureScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_EditChoice )
     {
         m_EditIndex = m_EditChoice.GetVal();
-    }
-    else if ( device == &m_SurfaceChoice )
-    {
-        m_SurfaceIndex = m_SurfaceChoice.GetVal();
     }
 
     m_ThisGuiDeviceWasCalledBack = true;
