@@ -63,6 +63,7 @@ void CfdMeshMgrSingleton::GenerateMesh()
     // UpdateSourcesAndWakes must be before m_Vehicle->HideAll() to prevent components 
     // being being added to or removed from the CFD Mesh set
     UpdateSourcesAndWakes();
+    WakeMgr.SetStretchMeshFlag( true );
 
     // Hide all geoms after fetching their surfaces
     m_Vehicle->HideAll();

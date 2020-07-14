@@ -113,7 +113,14 @@ void Wake::BuildSurfs()
             s->SetRefGeomID( geom_id );
             s->SetSurfID( m_SurfVec.size() );
             s->SetWakeParentSurfID( wakeParentSurfID );
-            s->GetSurfCore()->MakeWakeSurf( le_crv, WakeMgr.GetEndX(), m_Angle );
+            if ( WakeMgr.GetStretchMeshFlag() )
+            {
+                s->GetSurfCore()->MakeWakeSurf( le_crv, WakeMgr.GetEndX(), m_Angle );
+            }
+            else
+            {
+                s->GetSurfCore()->MakeWakeSurf( le_crv, WakeMgr.GetEndX(), m_Angle, WakeMgr.GetStartStretchX(), m_Scale );
+            }
             s->GetSurfCore()->BuildPatches( s );
 
             m_SurfVec.push_back( s );
@@ -127,6 +134,7 @@ WakeMgrSingleton::WakeMgrSingleton()
 {
     m_EndX = 1.0;
     m_StartStretchX = 0.0;
+    m_StretchMeshFlag = false;
 }
 
 WakeMgrSingleton::~WakeMgrSingleton()
@@ -413,6 +421,7 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     // UpdateWakes must be before m_Vehicle->HideAll() to prevent components 
     // being being added to or removed from the Surface Intersection set
     UpdateWakes();
+    WakeMgr.SetStretchMeshFlag( false );
 
     // Hide all geoms after fetching their surfaces
     m_Vehicle->HideAll();

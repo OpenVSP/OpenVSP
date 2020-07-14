@@ -145,6 +145,18 @@ public:
     {
         m_StartStretchX = x;
     }
+    double GetStartStretchX()
+    {
+        return m_StartStretchX;
+    }
+    void SetStretchMeshFlag( bool flag )
+    {
+        m_StretchMeshFlag = flag;
+    }
+    bool GetStretchMeshFlag()
+    {
+        return m_StretchMeshFlag;
+    }
 
     vec3d ComputeTrailEdgePnt( vec3d le_pnt, double angle_deg );
 
@@ -170,6 +182,8 @@ protected:
     vector< vector< vec3d > > m_LeadingEdgeVec;
     vector < double > m_WakeScaleVec;
     vector < double > m_WakeAngleVec;
+
+    bool m_StretchMeshFlag; // Flag that stretches wake tris if true or stretches the wake surface if false
 
 };
 
