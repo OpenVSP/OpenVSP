@@ -1370,6 +1370,10 @@ void VspSurf::TesselateTEforWake( vector< vector< vec3d > > & pnts ) const
 
     Tesselate( u, v, pnts, norms, uw_pnts );
 }
+void VspSurf::GetWakeTECurve( piecewise_curve_type & curve ) const
+{
+    m_Surface.get_vconst_curve( curve, 0 );
+}
 
 void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms, vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const
 {
