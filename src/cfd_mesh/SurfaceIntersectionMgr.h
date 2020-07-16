@@ -98,7 +98,7 @@ public:
     void BuildSurfs();
     double DistToClosestLeadingEdgePnt( vec3d& p );
 
-    vector< vec3d > m_LeadingEdge;
+    piecewise_curve_type m_LeadingEdge;
     vector< ICurve* > m_LeadingCurves;
     vector< Surf* > m_SurfVec;
 
@@ -123,7 +123,7 @@ public:
 
     void ClearWakes();
 
-    void SetLeadingEdges( vector < vector < vec3d > >& wake_leading_edges );
+    void SetLeadingEdges( vector < piecewise_curve_type >& wake_leading_edges );
     void CreateWakesAppendBorderCurves( vector< ICurve* >& border_curves, SimpleGridDensity* grid_density_ptr );
     vector< Surf* > GetWakeSurfs();
     void StretchWakes();
@@ -179,7 +179,7 @@ protected:
 
     vector< Wake* > m_WakeVec;
 
-    vector< vector< vec3d > > m_LeadingEdgeVec;
+    vector < piecewise_curve_type > m_LeadingEdgeVec;
     vector < double > m_WakeScaleVec;
     vector < double > m_WakeAngleVec;
 

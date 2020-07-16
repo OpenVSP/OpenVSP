@@ -4690,7 +4690,7 @@ bool Geom::HasWingTypeSurfs()
     return false;
 }
 
-void Geom::AppendWakeEdges( vector< vector< vec3d > > & edges, vector < double > & wake_scale_vec, vector < double > & wake_angle_vec )
+void Geom::AppendWakeData( vector < piecewise_curve_type >& curve_vec, vector < double > & wake_scale_vec, vector < double > & wake_angle_vec )
 {
     if( m_WakeActiveFlag() )
     {
@@ -4698,19 +4698,10 @@ void Geom::AppendWakeEdges( vector< vector< vec3d > > & edges, vector < double >
         {
             if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF )
             {
-                vector< vector< vec3d > > pnts;
-                vector< vector< vec3d > > norms;
+                piecewise_curve_type curve;
+                m_SurfVec[i].GetWakeTECurve( curve );
 
-                m_SurfVec[i].TesselateTEforWake( pnts );
-
-                vector< vec3d > edge( pnts.size() );
-
-                for( int j = 0; j < pnts.size(); j++ )
-                {
-                    edge[j] = pnts[j][0];
-                }
-
-                edges.push_back( edge );
+                curve_vec.push_back( curve );
                 wake_scale_vec.push_back( m_WakeScale() );
                 wake_angle_vec.push_back( m_WakeAngle() );
             }

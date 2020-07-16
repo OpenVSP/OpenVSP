@@ -132,17 +132,17 @@ void Bezier_curve::FlipCurve()
     m_Curve.reverse();
 }
 
-void Bezier_curve::BuildWakeTECurve( const Bezier_curve &lecrv, double endx, double angle, double start_stretch_x, double scale )
+void Bezier_curve::BuildWakeTECurve( const piecewise_curve_type& lecrv, double endx, double angle, double start_stretch_x, double scale )
 {
-    m_Curve = lecrv.m_Curve;
+    m_Curve.clear();
 
     double factor = scale - 1.0;
-    int nsect = m_Curve.number_segments();
+    int nsect = lecrv.number_segments();
 
     for ( int i = 0; i < nsect; i++ )
     {
         curve_segment_type c;
-        m_Curve.get( c, i );
+        lecrv.get( c, i );
 
         for ( int j = 0; j <= c.degree(); j++ )
         {
@@ -154,7 +154,8 @@ void Bezier_curve::BuildWakeTECurve( const Bezier_curve &lecrv, double endx, dou
             curve_point_type newpt = ComputeWakeTrailEdgePnt( te, xx, angle );
             c.set_control_point( newpt, j );
         }
-        m_Curve.replace( c, i );
+
+        m_Curve.push_back( c );
     }
 }
 

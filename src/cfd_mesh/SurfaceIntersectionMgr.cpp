@@ -58,9 +58,15 @@ double Wake::DistToClosestLeadingEdgePnt( vec3d& pnt )
 {
     double close_dist = 1.0e12;
 
-    for ( int i = 0; i < (int)m_LeadingEdge.size(); i++ )
+    vector < double > pmap;
+    m_LeadingEdge.get_pmap( pmap );
+
+    for ( int i = 0; i < (int)pmap.size(); i++ )
     {
-        double d = dist( m_LeadingEdge[i], pnt );
+        curve_point_type v( m_LeadingEdge.f( pmap[i] ) );
+        vec3d le( v.x(), v.y(), v.z() );
+
+        double d = dist( le, pnt );
         if ( d < close_dist )
         {
             close_dist = d;
@@ -113,14 +119,16 @@ void Wake::BuildSurfs()
             s->SetRefGeomID( geom_id );
             s->SetSurfID( m_SurfVec.size() );
             s->SetWakeParentSurfID( wakeParentSurfID );
+
             if ( WakeMgr.GetStretchMeshFlag() )
             {
-                s->GetSurfCore()->MakeWakeSurf( le_crv, WakeMgr.GetEndX(), m_Angle );
+                s->GetSurfCore()->MakeWakeSurf( le_crv.GetCurve(), WakeMgr.GetEndX(), m_Angle );
             }
             else
             {
-                s->GetSurfCore()->MakeWakeSurf( le_crv, WakeMgr.GetEndX(), m_Angle, WakeMgr.GetStartStretchX(), m_Scale );
+                s->GetSurfCore()->MakeWakeSurf( le_crv.GetCurve(), WakeMgr.GetEndX(), m_Angle, WakeMgr.GetStartStretchX(), m_Scale );
             }
+
             s->GetSurfCore()->BuildPatches( s );
 
             m_SurfVec.push_back( s );
@@ -150,7 +158,7 @@ vec3d WakeMgrSingleton::ComputeTrailEdgePnt( vec3d p, double angle_deg )
     return vec3d( m_EndX, p[1], z );
 }
 
-void WakeMgrSingleton::SetLeadingEdges( vector < vector < vec3d > >& wake_leading_edges )
+void WakeMgrSingleton::SetLeadingEdges( vector < piecewise_curve_type >& wake_leading_edges )
 {
     m_LeadingEdgeVec = wake_leading_edges;
 }
@@ -331,9 +339,11 @@ void WakeMgrSingleton::LoadDrawObjs( vector< DrawObj* >& draw_obj_vec )
     {
         double factor = m_WakeScaleVec[e] - 1.0;
 
-        for ( int i = 0; i < (int)m_LeadingEdgeVec[e].size(); i++ )
+        for ( int i = m_LeadingEdgeVec[e].get_t0(); i < (int)m_LeadingEdgeVec[e].get_tmax(); i++ )
         {
-            vec3d le = m_LeadingEdgeVec[e][i];
+            curve_point_type v( m_LeadingEdgeVec[e].f( i ) );
+            vec3d le( v.x(), v.y(), v.z() );
+
             wakeData.push_back( le );
 
             vec3d te = ComputeTrailEdgePnt( le, m_WakeAngleVec[e] );
@@ -3158,7 +3168,7 @@ void SurfaceIntersectionSingleton::LoadDrawObjs( vector< DrawObj* > &draw_obj_ve
 
 void SurfaceIntersectionSingleton::UpdateWakes()
 {
-    vector< vector< vec3d > > wake_leading_edges;
+    vector< piecewise_curve_type > wake_leading_edges;
     vector < double > wake_scale_vec;
     vector < double > wake_angle_vec;
 
@@ -3170,7 +3180,7 @@ void SurfaceIntersectionSingleton::UpdateWakes()
         {
             if ( geom->GetSetFlag( GetSettingsPtr()->m_SelectedSetIndex ) )
             {
-                geom->AppendWakeEdges( wake_leading_edges, wake_scale_vec, wake_angle_vec );
+                geom->AppendWakeData( wake_leading_edges, wake_scale_vec, wake_angle_vec );
             }
         }
     }
