@@ -6,7 +6,6 @@ SET(SCREENS_INCLUDE_DIR ${CMAKE_CURRENT_BINARY_DIR} CACHE PATH "Path to FLTK gen
 
 FLTK_WRAP_UI( screens
 pickSetFlScreen.fl
-selectFileFlScreen.fl
 )
 
 ADD_LIBRARY(screens ${screens_FLTK_UI_SRCS} )
