@@ -40,6 +40,7 @@
 #include "ProjectionScreen.h"
 #include "PSliceScreen.h"
 #include "ScreenshotScreen.h"
+#include "SelectFileScreen.h"
 #include "SetEditorScreen.h"
 #include "STEPOptionsScreen.h"
 #include "STEPStructureOptionsScreen.h"
@@ -230,6 +231,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_PROJECTION_SCREEN] = new ProjectionScreen( this );
     m_ScreenVec[VSP_PSLICE_SCREEN] = new PSliceScreen( this );
     m_ScreenVec[VSP_SCREENSHOT_SCREEN] = new ScreenshotScreen( this );
+    m_ScreenVec[VSP_SELECT_FILE_SCREEN] = new SelectFileScreen( this );
     m_ScreenVec[VSP_SET_EDITOR_SCREEN] = new SetEditorScreen( this );
     m_ScreenVec[VSP_STEP_OPTIONS_SCREEN] = new STEPOptionsScreen( this );
     m_ScreenVec[VSP_STEP_STRUCTURE_OPTIONS_SCREEN] = new STEPStructureOptionsScreen( this );

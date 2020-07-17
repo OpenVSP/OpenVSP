@@ -13,54 +13,76 @@
 #ifndef SELECTFILESCREEN_H
 #define SELECTFILESCREEN_H
 
+#include <FL/Fl_Preferences.H>
+#include "ScreenMgr.h"
+#include "StringUtil.h"
 #include "selectFileFlScreen.h"
+#include "ScreenBase.h"
 
 #include <vector>
 #include <string>
+
 using std::string;
 using std::vector;
 
-class SelectFileScreen
+enum FavsMode { ADD_FAV = 0, DELETE_FAV = 1, HOME = 2, VSP = 3, FAV = 4 };
+
+class SelectFileScreen : public BasicScreen
 {
 public:
 
-    SelectFileScreen();
+    SelectFileScreen( ScreenMgr* mgr );
     virtual ~SelectFileScreen() {}
 
     void LoadFavsMenu();
 
-    virtual void show();
+    virtual void Show();
+    virtual void Hide();
+    virtual bool Update();
 
-    void screenCB( Fl_Widget* w );
-
-    SelectFileUI* selectFileUI;
+    void CallBack( Fl_Widget* w );
+    virtual void CloseCallBack( Fl_Widget* w );
+    virtual void GuiDeviceCallBack( GuiDevice* device );
 
     string FileChooser( const char* title, const char* filter, bool forceext = true );
     string FileChooser( const char* title, const char* filter, const char* dir, bool forceext = true );
-
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( static_cast <SelectFileScreen*> ( data ) )->screenCB( w );
-    }
-
-
-protected:
 
     void MassageDirString( string &in ) const;
 
     void EnforceFilter( string &in ) const;
 
+protected:
+
+    GroupLayout m_MainLayout;
+    GroupLayout m_BorderLayout;
+
+    TriggerButton m_AcceptButton;
+    TriggerButton m_CancelButton;
+
+    Fl_File_Input * m_DirInput;
+    Fl_File_Browser* m_FileBrowser;
+
+    Fl_Menu_Button *m_FavsMenuButton;
+
+    Fl_Box * m_TitleBox;
+
+    StringInput m_FileSelectInput;
+
+private:
+
+    bool m_SelectFileScreenIsOpen;
     bool m_AcceptFlag;
+
+    int m_FileBrowserIndex;
+
     string m_FilterString;
     string m_DirString;
     string m_FileName;
     string m_FullPathName;
-    string m_Title;
-
-    vector< string > m_FavDirVec;
-
     string m_HomePath;
     string m_ExePath;
+
+    vector< string > m_FavDirVec;
 
 };
 

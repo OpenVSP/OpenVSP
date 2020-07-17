@@ -7,10 +7,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include <FL/Fl_Preferences.H>
 #include "SelectFileScreen.h"
-#include "ScreenMgr.h"
-#include "StringUtil.h"
 
 #ifdef WIN32
 #include <direct.h>
@@ -20,12 +17,14 @@
 #define GetCurrentDir getcwd
 #endif
 
+
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-SelectFileScreen::SelectFileScreen()
+SelectFileScreen::SelectFileScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 440, 345, "Open VSP File (*.vsp3)")
 {
+
     char cCurrentPath[FILENAME_MAX];
     GetCurrentDir( cCurrentPath, sizeof( cCurrentPath ) );
 
@@ -40,20 +39,237 @@ SelectFileScreen::SelectFileScreen()
 
     m_FilterString = string( "*.*" );
 
-    selectFileUI = new SelectFileUI();
-    selectFileUI->UIWindow->position( 30, 30 );
-    selectFileUI->fileBrowser->type( FL_SELECT_BROWSER );
-    selectFileUI->fileBrowser->callback( staticScreenCB, this );
-    selectFileUI->dirInput->callback( staticScreenCB, this );
-    selectFileUI->dirInput->when( FL_WHEN_CHANGED );
+    int yPadding = 7;
+    int regButtonWidth = 185;
+    int borderPaddingWidth = 5;
 
-    selectFileUI->fileInput->callback( staticScreenCB, this );
-    selectFileUI->acceptButton->callback( staticScreenCB, this );
-    selectFileUI->cancelButton->callback( staticScreenCB, this );
+    m_FileBrowserIndex = 0;
+    m_SelectFileScreenIsOpen = false;
+    
+    //Create GUI
+    m_FL_TitleBox->resize( 2, 2, 355 , 20 );
 
-    selectFileUI->favsMenuButton->callback( staticScreenCB, this );
+    m_FavsMenuButton = new Fl_Menu_Button(370, 2, 65, 20, "Favs");
+    m_FavsMenuButton->labelfont(1);
 
+    m_DirInput = new Fl_File_Input(5, 30, 430, 30);
+
+    m_FileBrowser = new Fl_File_Browser(5, 60, 430, 225);
+    m_FileBrowser->labelsize(12);
+
+    m_FLTK_Window->callback( staticCloseCB, this );
+
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+    m_MainLayout.ForceNewLine();
+    m_MainLayout.AddY( yPadding );
+    m_MainLayout.AddX( borderPaddingWidth );
+
+    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - borderPaddingWidth,
+        m_MainLayout.GetRemainY() - borderPaddingWidth );
+
+    m_BorderLayout.AddY( 260 );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddInput( m_FileSelectInput, "File:" );
+    m_BorderLayout.AddYGap();
+    m_FileSelectInput.SetTextFont( FL_HELVETICA_BOLD );
+
+    m_BorderLayout.SetFitWidthFlag( false );
+    m_BorderLayout.SetSameLineFlag( true );
+
+    m_BorderLayout.SetButtonWidth(( m_BorderLayout.GetW() / 3) );
+    m_BorderLayout.AddButton( m_AcceptButton , "Accept");
+
+    m_BorderLayout.AddX( m_BorderLayout.GetW() / 3);
+    m_BorderLayout.AddButton( m_CancelButton , "Cancel");
+
+    //Need to give it a type or browser does not work as intended
+    m_FileBrowser->type( FL_SELECT_BROWSER );
+
+    //Need the callbacks for these objects
+    m_FileBrowser->callback( staticCB, this );
+    m_DirInput->callback( staticCB, this );
+    m_FavsMenuButton->callback( staticCB, this );
+}
+
+bool  SelectFileScreen::Update()
+{
     LoadFavsMenu();
+    m_FileBrowserIndex = 0;
+    return true;
+}
+
+void SelectFileScreen::Show()
+{
+    m_ScreenMgr->SetUpdateFlag( true );
+    m_FLTK_Window->show();
+}
+
+void SelectFileScreen::Hide()
+{
+    //This helps FileChooser() know screen was closed
+    m_SelectFileScreenIsOpen = false;
+    m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void SelectFileScreen::CloseCallBack( Fl_Widget *w )
+{
+    Hide();
+}
+
+void SelectFileScreen::CallBack( Fl_Widget* w )
+{
+    if ( w == m_FileBrowser )
+    {
+        m_FileBrowserIndex = m_FileBrowser->value();
+        
+        // Check for NULL Char pointer
+        const char * text = m_FileBrowser->text( m_FileBrowserIndex );
+        if ( text == NULL )
+        {
+            return;
+        }
+
+        string selText = string( text );
+
+        if ( selText == "../" )
+        {
+            if ( StringUtil::count_char_matches( m_DirString, '/' ) > 1 )
+            {
+                unsigned int dirLen = m_DirString.size();
+                m_DirString.erase( dirLen - 1, 1 );
+
+                unsigned int slashLoc = m_DirString.find_last_of( '/' );
+
+                if ( slashLoc + 1 <= ( dirLen - 1 ) )
+                {
+                    m_DirString.erase( slashLoc + 1, dirLen - slashLoc );
+                }
+
+                m_FileBrowser->load( m_DirString.c_str() );
+                m_DirInput->value( m_DirString.c_str() );
+
+            }
+        }
+        else if ( StringUtil::count_char_matches( selText, '/' ) >= 1 )
+        {
+            m_DirString.append( selText );
+            m_FileBrowser->load( m_DirString.c_str() );
+            m_DirInput->value( m_DirString.c_str() );
+        }
+        else
+        {
+            m_FileName = selText;
+            m_FileSelectInput.Update( m_FileName.c_str() );
+        }
+        
+    }
+    else if ( w == m_DirInput )
+    {
+        m_DirString = string( m_DirInput->value() );
+        char forwardSlash = '\\';
+        StringUtil::change_from_to( m_DirString, forwardSlash, '/' );
+        int dirSize = m_DirString.size();
+        if ( m_DirString[dirSize - 1] != '/' )
+        {
+            m_DirString.append( "/" );
+        }
+        m_FileBrowser->load( m_DirString.c_str() );
+
+        //Clears file name when directory is changed
+        m_FileSelectInput.Update( "" );  
+    }
+    else if ( w == m_FavsMenuButton )
+    {
+        int val = m_FavsMenuButton->value();
+
+        if ( val == ADD_FAV )
+        {
+            Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
+            char favstr[256];
+            sprintf( favstr, "fav%d", static_cast<int>( m_FavDirVec.size() ) );
+
+            //If m_FavDirVec has m_DirString already, we don't need to set pref again
+            if ( !std::count( m_FavDirVec.begin(), m_FavDirVec.end(), m_DirString.c_str() ) )
+            {
+                prefs.set( favstr, m_DirString.c_str() );
+                prefs.flush();
+            }        
+        }
+        else if ( val == DELETE_FAV )
+        {
+            m_FavDirVec.clear();
+            Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
+
+            //This helps handle getting rid of all prefs entries
+            while ( ( int )prefs.entries() > 0 )
+            {
+                for ( int i = 0 ; i < ( int )prefs.entries() ; i++ )
+                {
+                    prefs.deleteEntry( prefs.entry( i ) );
+                    m_FavsMenuButton->clear();
+                }
+            }
+            prefs.flush();
+        }
+        else if ( val == HOME )
+        {
+            m_DirString = m_HomePath;
+            m_FileBrowser->load( m_DirString.c_str() );
+            m_DirInput->value( m_DirString.c_str() );
+
+            //Clears file name when directory is changed
+            m_FileSelectInput.Update( "" ); 
+        }
+        else if ( val == VSP )
+        {
+            m_DirString = m_ExePath;
+            m_FileBrowser->load( m_DirString.c_str() );
+            m_DirInput->value( m_DirString.c_str() );
+
+            //Clears file name when directory is changed
+            m_FileSelectInput.Update( "" ); 
+        }
+        else
+        {
+            //==== Select Favorite Dir ====//
+            int ind = val - FAV;
+            if ( ind >= 0 && ind < ( int )m_FavDirVec.size() )
+            {
+                m_DirString = m_FavDirVec[ind];
+                m_FileBrowser->load( m_DirString.c_str() );
+                m_DirInput->value( m_DirString.c_str() );
+            }
+
+            //Clears file name when directory is changed
+            m_FileSelectInput.Update( "" ); 
+        }
+    }
+
+    //To update values, we can utilize Update Function by setting flag to true
+    m_ScreenMgr->SetUpdateFlag( true );
+}
+
+void  SelectFileScreen::GuiDeviceCallBack(GuiDevice* device)
+{
+    if ( device == &m_AcceptButton )
+    {
+        m_AcceptFlag = true;
+        Hide();
+    }
+    else if ( device == &m_CancelButton )
+    {
+        m_AcceptFlag = false;
+        Hide();
+    }
+    else if ( device == &m_FileSelectInput )
+    {
+        m_FileName = m_FileSelectInput.GetString();
+    }
+
+    //Tells m_ScreenMgr to exacute Update() function
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void SelectFileScreen::MassageDirString( string &in ) const
@@ -94,11 +310,10 @@ void SelectFileScreen::EnforceFilter( string &in ) const
 void SelectFileScreen::LoadFavsMenu()
 {
     m_FavDirVec.clear();
-    selectFileUI->favsMenuButton->clear();
-    selectFileUI->favsMenuButton->add( "Add to Favorites" );
-    selectFileUI->favsMenuButton->add( "Delete All Favorites", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
-    selectFileUI->favsMenuButton->add( "Home" );
-    selectFileUI->favsMenuButton->add( "VSP Path", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
+    m_FavsMenuButton->add( "Add to Favorites" );
+    m_FavsMenuButton->add( "Delete All Favorites", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
+    m_FavsMenuButton->add( "Home" );
+    m_FavsMenuButton->add( "VSP Path", 0, NULL, ( void* )0, FL_MENU_DIVIDER );
 
     //==== Preferences ====//
     Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
@@ -115,18 +330,11 @@ void SelectFileScreen::LoadFavsMenu()
             keep_looking = true;
 
             m_FavDirVec.push_back( string( str ) );
+            
             string menu_label( str );
             menu_label.insert( 0, "/" );
-            selectFileUI->favsMenuButton->add( menu_label.c_str() );
+            m_FavsMenuButton->add( menu_label.c_str() );
         }
-    }
-}
-
-void SelectFileScreen::show()
-{
-    if ( selectFileUI )
-    {
-        selectFileUI->UIWindow->show();
     }
 }
 
@@ -134,25 +342,22 @@ string SelectFileScreen::FileChooser( const char* title, const char* filter, boo
 {
     string file_name;
     m_AcceptFlag = false;
+    m_SelectFileScreenIsOpen = true;
 
     m_FileName = string();
 
     char filter_str[256];
     sprintf( filter_str, "   (%s)", filter );
 
-    m_Title = string( title );
-    m_Title.append( filter_str );
-    selectFileUI->titleBox->label( m_Title.c_str() );
-
     m_FilterString = filter;
 
-    selectFileUI->fileInput->value( m_FileName.c_str() );
-    selectFileUI->fileBrowser->filter( m_FilterString.c_str() );
-    selectFileUI->fileBrowser->load( m_DirString.c_str() );
-    selectFileUI->dirInput->value( m_DirString.c_str() );
-    show();
+    m_FileSelectInput.Update( m_FileName.c_str() );
+    m_FileBrowser->filter( m_FilterString.c_str() );
+    m_FileBrowser->load( m_DirString.c_str() );
+    m_DirInput->value( m_DirString.c_str() );
+    Show();
 
-    while( selectFileUI->UIWindow->shown() )
+    while ( m_SelectFileScreenIsOpen )
     {
         Fl::wait();
     }
@@ -178,132 +383,4 @@ string SelectFileScreen::FileChooser( const char* title, const char* filter, con
     m_DirString = dir;
     return FileChooser( title, filter, forceext );
 }
-
-void SelectFileScreen::screenCB( Fl_Widget* w )
-{
-    if ( w == selectFileUI->fileBrowser )
-    {
-        int sid = selectFileUI->fileBrowser->value();
-        selectFileUI->fileBrowser->select( sid );
-
-        // Check for NULL Char pointer
-        const char * text = selectFileUI->fileBrowser->text( sid );
-        if ( text == NULL )
-        {
-            return;
-        }
-
-        string selText = string( text );
-
-        if ( selText == "../" )
-        {
-            if ( StringUtil::count_char_matches( m_DirString, '/' ) > 1 )
-            {
-                unsigned int dirLen = m_DirString.size();
-                m_DirString.erase( dirLen - 1, 1 );
-
-                unsigned int slashLoc = m_DirString.find_last_of( '/' );
-
-                if ( slashLoc + 1 <= ( dirLen - 1 ) )
-                {
-                    m_DirString.erase( slashLoc + 1, dirLen - slashLoc );
-                }
-
-                selectFileUI->fileBrowser->load( m_DirString.c_str() );
-                selectFileUI->dirInput->value( m_DirString.c_str() );
-
-            }
-        }
-        else if ( StringUtil::count_char_matches( selText, '/' ) >= 1 )
-        {
-            m_DirString.append( selText );
-            selectFileUI->fileBrowser->load( m_DirString.c_str() );
-            selectFileUI->dirInput->value( m_DirString.c_str() );
-        }
-        else
-        {
-            m_FileName = selText;
-            selectFileUI->fileInput->value( m_FileName.c_str() );
-        }
-    }
-    else if ( w == selectFileUI->dirInput )
-    {
-        m_DirString = string( selectFileUI->dirInput->value() );
-        char forwardSlash = '\\';
-        StringUtil::change_from_to( m_DirString, forwardSlash, '/' );
-        int dirSize = m_DirString.size();
-        if ( m_DirString[dirSize - 1] != '/' )
-        {
-            m_DirString.append( "/" );
-        }
-        selectFileUI->fileBrowser->load( m_DirString.c_str() );
-
-    }
-    else if ( w == selectFileUI->fileInput )
-    {
-        m_FileName = selectFileUI->fileInput->value();
-    }
-    else if ( w == selectFileUI->acceptButton )
-    {
-        m_AcceptFlag = true;
-        selectFileUI->UIWindow->hide();
-    }
-    else if ( w == selectFileUI->cancelButton )
-    {
-        m_AcceptFlag = false;
-        selectFileUI->UIWindow->hide();
-    }
-    else if ( w == selectFileUI->favsMenuButton )
-    {
-        int val = selectFileUI->favsMenuButton->value();
-
-        if ( val == 0 )             // Add To Favorites
-        {
-            Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
-            char favstr[256];
-            sprintf( favstr, "fav%d", static_cast<int>( m_FavDirVec.size() ) );
-            prefs.set( favstr, m_DirString.c_str() );
-            prefs.flush();
-            LoadFavsMenu();
-        }
-        else if ( val == 1 )
-        {
-            m_FavDirVec.clear();
-            Fl_Preferences prefs( Fl_Preferences::USER, "openvsp.org", "VSP" );
-            for ( int i = 0 ; i < ( int )prefs.entries() ; i++ )
-            {
-                prefs.deleteEntry( prefs.entry( i ) );
-            }
-            prefs.flush();
-            LoadFavsMenu();
-        }
-        else if ( val == 2 )
-        {
-            m_DirString = m_HomePath;
-            selectFileUI->fileBrowser->load( m_DirString.c_str() );
-            selectFileUI->dirInput->value( m_DirString.c_str() );
-        }
-        else if ( val == 3 )
-        {
-            m_DirString = m_ExePath;
-            selectFileUI->fileBrowser->load( m_DirString.c_str() );
-            selectFileUI->dirInput->value( m_DirString.c_str() );
-        }
-        else
-        {
-            //==== Select Favorite Dir ====//
-            int ind = val - 4;
-            if ( ind >= 0 && ind < ( int )m_FavDirVec.size() )
-            {
-                m_DirString = m_FavDirVec[ind];
-//              m_DirString.delete_range( 0, 0 );
-//              m_DirString.remove_leading('/');
-                selectFileUI->fileBrowser->load( m_DirString.c_str() );
-                selectFileUI->dirInput->value( m_DirString.c_str() );
-            }
-        }
-    }
-}
-
-
 

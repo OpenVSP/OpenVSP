@@ -60,6 +60,7 @@ public:
            VSP_PROJECTION_SCREEN,
            VSP_PSLICE_SCREEN,
            VSP_SCREENSHOT_SCREEN,
+           VSP_SELECT_FILE_SCREEN,
            VSP_SET_EDITOR_SCREEN,
            VSP_STEP_OPTIONS_SCREEN,
            VSP_STEP_STRUCTURE_OPTIONS_SCREEN,
@@ -93,9 +94,9 @@ public:
     virtual void ForceUpdate();
     virtual void Alert( const char * message );
 
-    SelectFileScreen* GetSelectFileScreen()
+    SelectFileScreen * GetSelectFileScreen()
     {
-        return &m_SelectFileScreen;
+        return ( SelectFileScreen * )m_ScreenVec[VSP_SELECT_FILE_SCREEN];
     }
     PickSetScreen* GetPickSetScreen()
     {
@@ -141,7 +142,6 @@ protected:
     Vehicle* m_VehiclePtr;
     vector< VspScreen* > m_ScreenVec;
 
-    SelectFileScreen m_SelectFileScreen;
     PickSetScreen m_PickSetScreen;
 
     virtual void TimerCB();
