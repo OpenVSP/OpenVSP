@@ -776,8 +776,8 @@ class HTML
                 data_mat[0][2] = string("1.0");
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0.0");
-                data_mat[0][5] = string("12");
-                data_mat[0][6] = string("17");
+                data_mat[0][5] = string("41");
+                data_mat[0][6] = string("51");
                 data_mat[0][7] = string("0.2");
                 data_mat[0][8] = string("1.0");
                 data_mat[0][9] = string("1.0");
@@ -1582,8 +1582,8 @@ class HTML
                 data_mat[0][3] = string("1.0");
                 data_mat[0][4] = string("0 to 40");
                 data_mat[0][5] = string("0.5");
-                data_mat[0][6] = string("12");
-                data_mat[0][7] = string("17");
+                data_mat[0][6] = string("41");
+                data_mat[0][7] = string("51");
                 data_mat[0][8] = string("0.2");
                 data_mat[0][9] = string("1.0");
                 data_mat[0][10] = string("1.0");
@@ -2590,8 +2590,8 @@ class HersheyVV : VV_Base
         SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
         SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
-        const uint8 u = 1; // UTess
-        const uint8 w = 1; // WTess
+        const uint8 u = 3; // UTess
+        const uint8 w = 3; // WTess
         const uint8 t = 2; // Tip Clustering
         
         SetParmVal( wing_id, "SectTess_U", "XSec_1", m_Tess_U[u] ); // Constant U Tess
@@ -4585,8 +4585,8 @@ class SweepVV : VV_Base
         SetParmVal( wing_id, "TECluster", "WingGeom", 1.0 );
         SetParmVal( wing_id, "LECluster", "WingGeom", 0.2 );
         
-        const uint8 u = 1; // UTess
-        const uint8 w = 1; // WTess
+        const uint8 u = 3; // UTess
+        const uint8 w = 3; // WTess
         
         SetParmVal( wing_id, "SectTess_U", "XSec_1", m_Tess_U[u] ); // Constant U Tess
         SetParmVal( wing_id, "Tess_W", "Shape", m_Tess_W[w] ); // Constant W Tess
