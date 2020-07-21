@@ -189,6 +189,7 @@ void TestProxy()
 
 int TestErrorHandling()
 {
+    SilenceErrors(); // Prevent known errors from printing during test.
     //==== Bogus Call To Create API Error ====//
     Print( string( "---> Test Error Handling" ) );
     SetParmVal( "BogusParmID", 23.0 );
@@ -200,6 +201,7 @@ int TestErrorHandling()
     ErrorObj err = PopLastError();
     if ( err.GetErrorCode() != VSP_CANT_FIND_PARM )            { Print( "---> Error: API PopLast" ); }
 
+    PrintOnErrors(); // Restore printing of future unknown errors.
     return errcount;
 }
 

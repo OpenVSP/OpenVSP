@@ -68,6 +68,9 @@ public:
     ErrorObj GetLastError();                    // Get last error but leave on stack
     bool PopErrorAndPrint( FILE* stream );      // Check for error, pop and print to stream
 
+    void SilenceErrors()    { m_PrintErrors = false; };
+    void PrintOnErrors()    { m_PrintErrors = true; };
+
     void AddError( ERROR_CODE code, const string & desc );
     void NoError();
 
@@ -81,6 +84,7 @@ public:
 
 private:
 
+    bool m_PrintErrors;
     bool m_ErrorLastCallFlag;
     stack< ErrorObj > m_ErrorStack;
 

@@ -40,6 +40,7 @@ ErrorObj::ErrorObj( const ErrorObj& from )
 ErrorMgrSingleton::ErrorMgrSingleton()
 {
     m_ErrorLastCallFlag = false;
+    m_PrintErrors = true;
     MessageBase::Register( string( "ErrorMgr" ) );
 }
 
@@ -109,6 +110,11 @@ void ErrorMgrSingleton::AddError( ERROR_CODE code, const string & desc )
     {
         m_ErrorLastCallFlag = false;
         return;
+    }
+
+    if ( m_PrintErrors )
+    {
+        printf( "Error Code: %d, Desc: %s\n", ( ERROR_CODE ) code, desc.c_str() );
     }
 
     m_ErrorLastCallFlag = true;

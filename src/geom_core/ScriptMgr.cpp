@@ -3794,6 +3794,30 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     r = se->RegisterGlobalFunction( "ErrorObj GetLastError()", asMETHOD( vsp::ErrorMgrSingleton, GetLastError ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr, doc_struct );
     assert( r );
 
+    doc_struct.comment = R"(
+/*!
+    Prevent errors from printing to stdout as they occur.
+    \code{.cpp}
+    //==== Force API to silence error messages ====//
+    SilenceErrors();
+
+    \endcode
+*/)";
+    r = se->RegisterGlobalFunction( "void SilenceErrors()", asMETHOD( vsp::ErrorMgrSingleton, SilenceErrors ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr, doc_struct );
+    assert( r );
+
+    doc_struct.comment = R"(
+/*!
+    Cuase errors to be printed to stdout as they occur.
+    \code{.cpp}
+    //==== Tell API to print error messages ====//
+    PrintOnErrors();
+
+    \endcode
+*/)";
+    r = se->RegisterGlobalFunction( "void PrintOnErrors()", asMETHOD( vsp::ErrorMgrSingleton, PrintOnErrors ), asCALL_THISCALL_ASGLOBAL, &vsp::ErrorMgr, doc_struct );
+    assert( r );
+
     //==== Visualization Functions ====//
     group = "Visualization";
     doc_struct.group = group.c_str();
