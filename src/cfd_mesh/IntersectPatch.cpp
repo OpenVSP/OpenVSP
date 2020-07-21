@@ -116,6 +116,24 @@ void intersect_quads( const SurfPatch& pa, const SurfPatch& pb, SurfaceIntersect
     vec3d b2 = pb.m_Patch.get_control_point( bn, bm );
     vec3d b3 = pb.m_Patch.get_control_point( 0, bm );
 
+    // Set very small values to 0. This is done to avoid + or - assignment to very small
+    // numbers that have experienced floating point precision losses. While small, the sign
+    // of these numbers can cause them to not be considered in the intersection algorithm. 
+    // This issue mainly appears when the intersection point is on a patch edge and has an
+    // X, Y, or Z coordinate of 0.
+    double zero_tol = 1e-15;
+    for ( size_t i = 0; i < 3; i++ )
+    {
+        if ( abs( a0[i] ) < zero_tol ) a0[i] = 0;
+        if ( abs( a1[i] ) < zero_tol ) a1[i] = 0;
+        if ( abs( a2[i] ) < zero_tol ) a2[i] = 0;
+        if ( abs( a3[i] ) < zero_tol ) a3[i] = 0;
+        if ( abs( b0[i] ) < zero_tol ) b0[i] = 0;
+        if ( abs( b1[i] ) < zero_tol ) b1[i] = 0;
+        if ( abs( b2[i] ) < zero_tol ) b2[i] = 0;
+        if ( abs( b3[i] ) < zero_tol ) b3[i] = 0;
+    }
+
     //==== Tri A1 and B1 ====//
     iflag = tri_tri_intersection_test_3d( a0.v, a2.v, a3.v, b0.v, b2.v, b3.v, &coplanar, ip0.v, ip1.v );
     if ( iflag && !coplanar )
