@@ -4998,7 +4998,7 @@ void SetSetFlag( const string & geom_id, int set_index, bool flag )
         ErrorMgr.AddError( VSP_INVALID_PTR, "SetSetFlag::Can't Find Geom " + geom_id );
         return;
     }
-    if ( set_index < 0 || set_index > ( int )veh->GetSetNameVec().size() )
+    if ( set_index < 0 || set_index >= ( int )veh->GetSetNameVec().size() )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "SetSetFlag::Invalid Set Index " + to_string( ( long long ) set_index ) );
         return;
