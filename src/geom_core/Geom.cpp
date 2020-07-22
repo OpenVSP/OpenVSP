@@ -903,23 +903,46 @@ Geom::~Geom()
 //==== Set Set Flag ====//
 void Geom::SetSetFlag( int index, bool f )
 {
-    if ( index == SET_ALL )
+    if ( index <= SET_ALL || index >= (int)m_SetFlags.size() )
     {
         return;
+    }
+    else if ( m_SetFlags[index] == f )
+    {
+        return; // flag is already set
     }
     else if ( index == SET_SHOWN )
     {
         m_GuiDraw.SetNoShowFlag( !f );
+
+        // If added to SET_SHOWN, remove from SET_NOT_SHOWN. If removed
+        // from SET_SHOWN, add to SET_NOT_SHOWN
+        if ( m_SetFlags[SET_NOT_SHOWN] && f )
+        {
+            m_SetFlags[SET_NOT_SHOWN] = false;
+        }
+        else if ( !m_SetFlags[SET_NOT_SHOWN] && !f )
+        {
+            m_SetFlags[SET_NOT_SHOWN] = true;
+        }
     }
     else if ( index == SET_NOT_SHOWN )
     {
         m_GuiDraw.SetNoShowFlag( f );
+
+        // If added to SET_NOT_SHOWN, remove from SET_SHOWN. If removed
+        // from SET_NOT_SHOWN, add to SET_SHOWN
+        if ( m_SetFlags[SET_SHOWN] && f )
+        {
+            m_SetFlags[SET_SHOWN] = false;
+        }
+        else if ( !m_SetFlags[SET_SHOWN] && !f )
+        {
+            m_SetFlags[SET_SHOWN] = true;
+        }
     }
 
-    if ( index > SET_ALL && index < ( int )m_SetFlags.size() )
-    {
-        m_SetFlags[index] = f;
-    }
+    m_SetFlags[index] = f;
 }
 
 //==== Get Set Flag ====//
