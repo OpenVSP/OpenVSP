@@ -3923,7 +3923,7 @@ bool Vehicle::GetVisibleBndBox( BndBox &b )
 
     for ( int i = 0 ; i < ngeom ; i++ )
     {
-        if ( !geom_vec[i]->m_GuiDraw.GetNoShowFlag() )
+        if ( geom_vec[i]->GetSetFlag( vsp::SET_SHOWN ) )
         {
             b.Update( geom_vec[i]->GetBndBox() );
             anyvisible = true;

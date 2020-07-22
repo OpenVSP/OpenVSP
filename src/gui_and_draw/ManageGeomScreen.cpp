@@ -233,7 +233,7 @@ void ManageGeomScreen::LoadBrowser()
 
             str.append( gPtr->GetName() );
 
-            if ( gPtr->m_GuiDraw.GetNoShowFlag() )
+            if ( gPtr->GetSetFlag( vsp::SET_NOT_SHOWN ) )
             {
                 str.append( "(no show)" );
             }

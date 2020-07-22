@@ -1071,7 +1071,7 @@ void HumanGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         // at the end of m_ID.
         sprintf( str, "_%d", i );
         m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
-        m_WireShadeDrawObj_vec[i].m_Visible = !m_GuiDraw.GetNoShowFlag();
+        m_WireShadeDrawObj_vec[i].m_Visible = m_SetFlags[vsp::SET_SHOWN];
 
         // Set Render Destination to Main VSP Window.
         m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -1130,7 +1130,7 @@ void HumanGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 
     // Load Feature Lines
-    if ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() && m_ShowSkelFlag() )
+    if ( m_GuiDraw.GetDispFeatureFlag() && m_SetFlags[vsp::SET_SHOWN] && m_ShowSkelFlag() )
     {
         for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
         {

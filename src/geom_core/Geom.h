@@ -101,15 +101,6 @@ public:
         return m_DrawType;
     }
 
-    void SetNoShowFlag( bool f )
-    {
-        m_NoShowFlag = f;
-    }
-    bool GetNoShowFlag()
-    {
-        return m_NoShowFlag;
-    }
-
     void SetWireColor( double r, double g, double b )
     {
         m_ColorMgr.SetWireColor( r, g, b, 255 );
@@ -170,7 +161,6 @@ protected:
     int m_DisplayType; // Either Bezier Surface, Degen Surface, Degen Plate, or Degen Cambered Plate
     int  m_DrawType;
 
-    bool m_NoShowFlag;
     bool m_DisplayChildrenFlag;
     bool m_DispSubSurfFlag;
     bool m_DispFeatureFlag;

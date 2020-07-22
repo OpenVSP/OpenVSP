@@ -68,7 +68,7 @@ void PtCloudGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
     m_PtsDrawObj.m_Type = DrawObj::VSP_POINTS;
     m_PtsDrawObj.m_PointColor = ptColor;
     m_PtsDrawObj.m_PointSize = 4.0;
-    m_PtsDrawObj.m_Visible = !m_GuiDraw.GetNoShowFlag();
+    m_PtsDrawObj.m_Visible = m_SetFlags[vsp::SET_SHOWN];
     m_PtsDrawObj.m_GeomID = m_ID;
 
     m_SelDrawObj.m_Type = DrawObj::VSP_POINTS;
@@ -95,8 +95,8 @@ void PtCloudGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
                 m_SelDrawObj.m_PntVec.push_back( m_XformPts[j] );
             }
         }
-        m_SelDrawObj.m_Visible = !m_GuiDraw.GetNoShowFlag();
-        m_PickDrawObj.m_Visible = !m_GuiDraw.GetNoShowFlag();
+        m_SelDrawObj.m_Visible = m_SetFlags[vsp::SET_SHOWN];
+        m_PickDrawObj.m_Visible = m_SetFlags[vsp::SET_SHOWN];
     }
     else
     {

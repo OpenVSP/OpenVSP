@@ -577,7 +577,7 @@ void PropGeom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     }
 
     if ( m_PropMode() <= PROP_MODE::PROP_BOTH  &&
-         ( ( m_GuiDraw.GetDispFeatureFlag() && !m_GuiDraw.GetNoShowFlag() ) || m_Vehicle->IsGeomActive( m_ID ) ) )
+         ( ( m_GuiDraw.GetDispFeatureFlag() && m_SetFlags[vsp::SET_SHOWN] ) || m_Vehicle->IsGeomActive( m_ID ) ) )
     {
         m_ArrowHeadDO.m_GeomID = m_ID + "Arrows";
         m_ArrowHeadDO.m_LineWidth = 1.0;
