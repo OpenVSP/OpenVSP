@@ -407,7 +407,6 @@ void Input::DeviceCB( Fl_Widget* w )
             }
         }
         parm_ptr->SetFromDevice( new_val );
-        m_LastVal = new_val;
 #else
         double new_val;
         exprparse::Status stat = exprparse::parse_expression(m_Input->value(), &new_val);
@@ -1845,6 +1844,7 @@ void FractParmSlider::SetValAndLimits( Parm* parm_ptr )
         sprintf( m_Str, m_Format.c_str(), new_val );
         m_ResultFlInput->value( m_Str );
     }
+    m_LastVal = new_val;
 }
 
 //==== CallBack ====//
@@ -1867,7 +1867,6 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
         assert( fract_parm_ptr );
 
         fract_parm_ptr->SetResultFromDevice( new_val );
-        m_LastVal = new_val;
     }
 
     m_Screen->GuiDeviceCallBack( this );
