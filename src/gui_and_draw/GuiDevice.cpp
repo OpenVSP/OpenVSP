@@ -396,23 +396,15 @@ void Input::DeviceCB( Fl_Widget* w )
 
     if ( w == m_Input )
     {
-#ifdef NOREGEXP
-        double new_val = atof( m_Input->value() );
-        if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
-        {
-            FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
-            if ( fp->GetDisplayResultsFlag() )
-            {
-                new_val /= fp->GetRefVal(); // Unscale result to set m_Val
-            }
-        }
-        parm_ptr->SetFromDevice( new_val );
-#else
         double new_val;
+#ifdef NOREGEXP
+        new_val = atof( m_Input->value() );
+#else
         exprparse::Status stat = exprparse::parse_expression(m_Input->value(), &new_val);
         // Don't update the parm value if status is not successful
         if (stat == exprparse::Status::SUCCESS)
         {
+#endif
             if ( parm_ptr->GetType() == vsp::PARM_FRACTION_TYPE )
             {
                 FractionParm* fp = dynamic_cast<FractionParm*>( parm_ptr );
@@ -422,6 +414,7 @@ void Input::DeviceCB( Fl_Widget* w )
                 }
             }
             parm_ptr->SetFromDevice(new_val);
+#ifndef NOREGEXP
         }
 #endif
     }
