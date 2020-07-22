@@ -1854,12 +1854,22 @@ void FractParmSlider::DeviceCB( Fl_Widget* w )
 
     if ( w == m_ResultFlInput )
     {
-        double new_val = atof( m_ResultFlInput->value() );
+        double new_val;
+#ifdef NOREGEXP
+        new_val = atof( m_ResultFlInput->value() );
+#else
+        exprparse::Status stat = exprparse::parse_expression(m_ResultFlInput->value(), &new_val);
+        // Don't update the parm value if status is not successful
+        if (stat == exprparse::Status::SUCCESS)
+        {
+#endif
+            FractionParm* fract_parm_ptr = dynamic_cast< FractionParm* > ( parm_ptr );
+            assert( fract_parm_ptr );
 
-        FractionParm* fract_parm_ptr = dynamic_cast< FractionParm* > ( parm_ptr );
-        assert( fract_parm_ptr );
-
-        fract_parm_ptr->SetResultFromDevice( new_val );
+            fract_parm_ptr->SetResultFromDevice( new_val );
+#ifndef NOREGEXP
+        }
+#endif
     }
 
     m_Screen->GuiDeviceCallBack( this );
