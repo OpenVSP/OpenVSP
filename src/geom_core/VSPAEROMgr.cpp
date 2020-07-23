@@ -4118,10 +4118,12 @@ void VSPAEROMgrSingleton::UpdateParmRestrictions()
 
     if ( m_RotateBladesFlag() )
     {
-        // Only allow 1 FC to avoid viewer crash
+        // Only allow 1 FC to avoid viewer crash. Stability calcs are not 
+        // supported with unsteady analysis at this time
         m_AlphaNpts.Set( 1 );
         m_BetaNpts.Set( 1 );
         m_MachNpts.Set( 1 );
+        m_StabilityType.Set( vsp::STABILITY_OFF );
     }
 }
 

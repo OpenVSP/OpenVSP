@@ -1645,12 +1645,14 @@ void VSPAEROScreen::UpdateOtherSetupParms()
         m_AlphaNptsInput.Deactivate();
         m_BetaNptsInput.Deactivate();
         m_MachNptsInput.Deactivate();
+        m_StabilityTypeChoice.Deactivate();
     }
     else
     {
         m_AlphaNptsInput.Activate();
         m_BetaNptsInput.Activate();
         m_MachNptsInput.Activate();
+        m_StabilityTypeChoice.Activate();
     }
 
     if ( VSPAEROMgr.m_RotateBladesFlag.Get() || VSPAEROMgr.m_ActuatorDiskFlag.Get() || VSPAEROMgr.m_StabilityType.Get() > vsp::STABILITY_OFF )
