@@ -800,6 +800,7 @@ public:
         return m_String;
     }
 
+    void SetTextFont( Fl_Font font );
 
 protected:
 

@@ -1964,6 +1964,10 @@ void StringInput::DeviceCB( Fl_Widget* w )
     }
 }
 
+void StringInput::SetTextFont( Fl_Font font )
+{
+    m_Input->textfont( font );
+}
 
 //=====================================================================//
 //===========      String Output                            ===========//
