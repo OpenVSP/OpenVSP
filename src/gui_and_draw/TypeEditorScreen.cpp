@@ -8,7 +8,7 @@
 #include "TypeEditorScreen.h"
 
 //==== Constructor ====//
-TypeEditorScreen::TypeEditorScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 210, 245, "Geom Type Editor" )
+TypeEditorScreen::TypeEditorScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 210, 245, "Import Custom Script" )
 {
     int borderPaddingWidth = 5;
     int yPadding = 7;

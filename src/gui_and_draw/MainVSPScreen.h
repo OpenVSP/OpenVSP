@@ -105,7 +105,6 @@ protected:
     // ActionMenuItem m_AntialiasMenuItem;
 
     ScreenMenuItem m_GeomMenuItem;
-    ScreenMenuItem m_TypeEditMenuItem;
     ScreenMenuItem m_SetEditMenuItem;
     ScreenMenuItem m_LinkMenuItem;
     ScreenMenuItem m_DesVarMenuItem;
