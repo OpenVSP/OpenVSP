@@ -2584,7 +2584,7 @@ void FeaPartEditScreen::UpdateUnitLabels()
     if ( veh )
     {
         string mass_unit, dist_unit;
-        string squared( 1, 178 );
+        string squared( 1, (char) 178 );
 
         switch ( veh->m_StructUnit() )
         {

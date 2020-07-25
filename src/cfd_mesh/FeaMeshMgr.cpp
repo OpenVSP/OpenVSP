@@ -203,7 +203,7 @@ void FeaMeshMgrSingleton::GetMassUnit()
             break;
 
         case vsp::BIN_UNIT:
-            m_MassUnit = "lbf*sec" + string( 1, 178 ) + "/in";
+            m_MassUnit = "lbf*sec" + string( 1, (char) 178 ) + "/in";
             break;
     }
 }

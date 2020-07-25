@@ -39,9 +39,9 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
             "Parasite Drag", EXECUTE_LAYOUT_HEIGHT + 5, DRAG_TABLE_WIDTH + DRAG_TABLE_PERSISTENT_WIDTH + 10 )
 {
     // Used for Unit Labels
-    string deg( 1, 176 );
-    string squared( 1, 178 );
-    string cubed( 1, 179 );
+    string deg( 1, (char) 176 );
+    string squared( 1, (char) 178 );
+    string cubed( 1, (char) 179 );
     string temp;
 
     // Other Size Variables
@@ -680,7 +680,7 @@ bool ParasiteDragScreen::Update()
 
 void ParasiteDragScreen::UpdateTableLabels()
 {
-    string squared( 1, 178 );
+    string squared( 1, (char) 178 );
     string temp;
 
     // Length
@@ -994,9 +994,9 @@ void ParasiteDragScreen::UpdateExcresTab()
 
 void ParasiteDragScreen::UpdateDependentUnitLabels()
 {
-    string deg( 1, 176 );
-    string squared( 1, 178 );
-    string cubed( 1, 179 );
+    string deg( 1, (char) 176 );
+    string squared( 1, (char) 178 );
+    string cubed( 1, (char) 179 );
     string temp;
 
     switch ( ParasiteDragMgr.m_LengthUnit() )

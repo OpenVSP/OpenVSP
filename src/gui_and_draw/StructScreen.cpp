@@ -109,7 +109,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_StructUnitChoice.AddItem( "CGS (g, cm)" );
     m_StructUnitChoice.AddItem( "MPA (tonne, mm)" );
     m_StructUnitChoice.AddItem( "BFT (slug, ft)" );
-    string squared( 1, 178 );
+    string squared( 1, (char) 178 );
     string bin_name = "BIN (lbf*sec" + squared + "\\/in, in)";
     m_StructUnitChoice.AddItem( bin_name );
     m_StructureTabLayout.AddChoice( m_StructUnitChoice, "Unit System (Mass, Length)" );
@@ -1778,9 +1778,9 @@ void StructScreen::UpdateUnitLabels()
 
     if ( veh )
     {
-        string squared( 1, 178 );
-        string cubed( 1, 179 );
-        string deg( 1, 176 );
+        string squared( 1, (char) 178 );
+        string cubed( 1, (char) 179 );
+        string deg( 1, (char) 176 );
         string thick_unit, area_unit, area_moment_inertia_unit, young_mod_unit, density_unit, temp_unit;
 
         switch ( veh->m_StructUnit() )
