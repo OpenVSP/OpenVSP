@@ -2,35 +2,58 @@
 // This file is released under the terms of the NASA Open Source Agreement (NOSA)
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
+// PickSetScreen.cpp
 //
 //////////////////////////////////////////////////////////////////////
 
 #include "PickSetScreen.h"
 #include "ScreenMgr.h"
-#include "StlHelper.h"
 
 //==== Constructor ====//
-PickSetScreen::PickSetScreen()
+PickSetScreen::PickSetScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 150, 120, "Pick Set" )
 {
-    PickSetUI* ui = m_PickSetUI = new PickSetUI();
-    m_SelectedSetIndex = 0;
+    // Init member variables
+    m_SelectedSetIndex = DEFAULT_SET;
+    m_AcceptFlag = false;
 
-    ui->setChoice->callback( staticScreenCB, this );
+    // Identify variables for spacing group layouts
+    const int borderPaddingWidth = 5;
+    int yPadding = 7;
 
-    ui->okButton->callback( staticScreenCB, this );
-    ui->cancelButton->callback( staticScreenCB, this );
+    m_FLTK_Window->callback( staticCloseCB, this );
+
+    //This helps init m_MainLayouts group and screen functionality
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+
+    //Adds padding on left and top of position
+    m_MainLayout.ForceNewLine();
+    m_MainLayout.AddY( yPadding );
+    m_MainLayout.AddX( borderPaddingWidth );
+
+    m_MainLayout.AddSubGroupLayout( m_BorderLayout, m_MainLayout.GetRemainX() - borderPaddingWidth, m_MainLayout.GetRemainY() - borderPaddingWidth );
+
+    m_BorderLayout.AddDividerBox( "Sets" );
+    m_BorderLayout.SetChoiceButtonWidth( 0 );
+
+    m_BorderLayout.AddChoice( m_PickSetChoice, "" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddButton( m_AcceptButton, "OK" );
+    m_BorderLayout.AddYGap();
+
+    m_BorderLayout.AddButton( m_CancelButton, "Cancel" );
 
 }
 
-int PickSetScreen::PickSet( string title )
+int PickSetScreen::PickSet( const string & title )
 {
     m_AcceptFlag = false;
 
-    m_PickSetUI->pickTitleBox->copy_label( title.c_str() );
+    SetTitle( title.c_str() );
 
     Show();
 
-    while( m_PickSetUI->UIWindow->shown() )
+    while( IsShown() )
     {
         Fl::wait();
     }
@@ -55,51 +78,53 @@ bool PickSetScreen::Update()
 void PickSetScreen::Show()
 {
     Update();
-    m_PickSetUI->UIWindow->show();
+    m_FLTK_Window->show();
 }
 
 //==== Hide Screen ====//
 void PickSetScreen::Hide()
 {
-    m_PickSetUI->UIWindow->hide();
+    m_FLTK_Window->hide();
 }
 
 //==== Load Type Choice ====//
 void PickSetScreen::LoadSetChoice()
 {
-    m_PickSetUI->setChoice->clear();
+    m_PickSetChoice.ClearItems();
 
     Vehicle* veh = VehicleMgr.GetVehicle();
     vector< string > set_name_vec = veh->GetSetNameVec();
 
     for ( int i = 0 ; i < ( int )set_name_vec.size() ; i++ )
     {
-        m_PickSetUI->setChoice->add( set_name_vec[i].c_str() );
+        m_PickSetChoice.AddItem( set_name_vec[i].c_str() );
     }
 
-    m_PickSetUI->setChoice->value( m_SelectedSetIndex );
+    m_PickSetChoice.UpdateItems();
+    m_PickSetChoice.SetVal( m_SelectedSetIndex );
 
 }
 
 //==== Callbacks ====//
-void PickSetScreen::CallBack( Fl_Widget *w )
+void PickSetScreen::GuiDeviceCallBack( GuiDevice* device )
 {
-    string newfile;
+    assert( m_ScreenMgr );
 
-    if ( w ==   m_PickSetUI->okButton )
+    if ( device == &m_AcceptButton )
     {
         m_AcceptFlag = true;
         Hide();
     }
-    else if ( w == m_PickSetUI->cancelButton )
+    else if ( device == &m_AcceptButton )
     {
         m_AcceptFlag = false;
         Hide();
     }
-    else if ( w == m_PickSetUI->setChoice )
+    else if ( device == &m_PickSetChoice )
     {
-        m_SelectedSetIndex = m_PickSetUI->setChoice->value();
+        m_SelectedSetIndex = m_PickSetChoice.GetVal();
     }
+
+    // Tell m_ScreenMgr to update all screens
+    m_ScreenMgr->SetUpdateFlag( true );
 }
-
-

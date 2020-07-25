@@ -3,8 +3,8 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-// SetEditorScreen: Export Files from VSP
-// J.R Gloudemans
+// PickSetScreen: Export/save a particular set to a *.vsp3 file
+// Initially created by J.R Gloudemans. Updated in v3 by Justin Gravett, ESAero
 //
 //////////////////////////////////////////////////////////////////////
 
@@ -12,19 +12,12 @@
 #define VSPPICKSETSCREEN__INCLUDED_
 
 #include "ScreenBase.h"
-#include "GuiDevice.h"
 
-#include <FL/Fl.H>
-#include "pickSetFlScreen.h"
-
-using std::string;
-using std::vector;
-
-class PickSetScreen
+class PickSetScreen : public BasicScreen
 {
 public:
 
-    PickSetScreen( );
+    PickSetScreen( ScreenMgr* mgr );
     virtual ~PickSetScreen()                            {}
     void Show();
     void Hide();
@@ -32,22 +25,22 @@ public:
 
     void LoadSetChoice();
 
-    int PickSet( string title );
+    int PickSet( const string & title );
 
-    void CallBack( Fl_Widget *w );
-    static void staticScreenCB( Fl_Widget *w, void* data )
-    {
-        ( static_cast <PickSetScreen*> ( data )->CallBack( w ) );
-    }
+    void GuiDeviceCallBack( GuiDevice* device );
 
 protected:
 
-    int m_SelectedSetIndex;
-    PickSetUI* m_PickSetUI;
+    GroupLayout m_MainLayout;
+    GroupLayout m_BorderLayout;
 
+    Choice m_PickSetChoice;
+    TriggerButton m_AcceptButton;
+    TriggerButton m_CancelButton;
+
+    int m_SelectedSetIndex;
     bool m_AcceptFlag;
 
 };
 
-
-#endif
+#endif //VSPPICKSETSCREEN__INCLUDED_

@@ -58,6 +58,7 @@ public:
            VSP_PARM_DEBUG_SCREEN,
            VSP_PARM_LINK_SCREEN,
            VSP_PARM_SCREEN,
+           VSP_PICK_SET_SCREEN,
            VSP_PROJECTION_SCREEN,
            VSP_PSLICE_SCREEN,
            VSP_SCREENSHOT_SCREEN,
@@ -100,7 +101,7 @@ public:
     }
     PickSetScreen* GetPickSetScreen()
     {
-        return &m_PickSetScreen;
+        return (PickSetScreen *)m_ScreenVec[VSP_PICK_SET_SCREEN];
     }
 
     /*!
@@ -141,8 +142,6 @@ protected:
 
     Vehicle* m_VehiclePtr;
     vector< VspScreen* > m_ScreenVec;
-
-    PickSetScreen m_PickSetScreen;
 
     virtual void TimerCB();
     static void StaticTimerCB( void* data )
