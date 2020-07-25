@@ -14,9 +14,11 @@
 #define SELECTFILESCREEN_H
 
 #include <FL/Fl_Preferences.H>
+#include <FL/Fl_File_Browser.H>
+#include <FL/Fl_File_Input.H>
+#include <FL/Fl_Menu_Button.H>
 #include "ScreenMgr.h"
 #include "StringUtil.h"
-#include "selectFileFlScreen.h"
 #include "ScreenBase.h"
 
 #include <vector>
@@ -63,8 +65,6 @@ protected:
     Fl_File_Browser* m_FileBrowser;
 
     Fl_Menu_Button *m_FavsMenuButton;
-
-    Fl_Box * m_TitleBox;
 
     StringInput m_FileSelectInput;
 

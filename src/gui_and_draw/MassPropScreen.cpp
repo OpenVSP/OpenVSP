@@ -5,9 +5,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "MassPropScreen.h"
-#include "ScreenMgr.h"
-#include "StlHelper.h"
-#include "ParmMgr.h"
 
 MassPropScreen::MassPropScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 410, "Mass Properties" )
 {

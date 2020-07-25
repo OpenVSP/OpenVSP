@@ -10,9 +10,6 @@
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
 
-using std::string;
-using std::vector;
-
 class MassPropScreen : public BasicScreen
 {
 public:

@@ -40,7 +40,6 @@
 #include "ProjectionScreen.h"
 #include "PSliceScreen.h"
 #include "ScreenshotScreen.h"
-#include "SelectFileScreen.h"
 #include "SetEditorScreen.h"
 #include "STEPOptionsScreen.h"
 #include "STEPStructureOptionsScreen.h"
