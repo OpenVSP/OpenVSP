@@ -349,6 +349,8 @@ string SelectFileScreen::FileChooser( const char* title, const char* filter, boo
     char filter_str[256];
     sprintf( filter_str, "   (%s)", filter );
 
+    SetTitle( string( title ).append( filter_str ) );
+
     m_FilterString = filter;
 
     m_FileSelectInput.Update( m_FileName.c_str() );
