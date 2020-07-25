@@ -124,14 +124,6 @@ public:
     {
         m_CurrSourceGeomID = gid;
     }
-    virtual string GetWakeGeomID()
-    {
-        return m_WakeGeomID;
-    }
-    virtual void SetWakeGeomID( const string &gid )
-    {
-        m_WakeGeomID = gid;
-    }
     virtual int GetCurrMainSurfIndx()
     {
         return m_CurrMainSurfIndx;
