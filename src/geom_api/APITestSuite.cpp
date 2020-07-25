@@ -119,7 +119,7 @@ void APITestSuite::CopyPasteSetTest()
 
     //Test SetSetName / GetSetName
     vsp::SetSetName( test_set_index, set_test_name);
-    printf("%s  \n", vsp::GetSetName(test_set_index));
+    printf("%s  \n", vsp::GetSetName(test_set_index).c_str());
     TEST_ASSERT(vsp::GetSetName(test_set_index) == set_test_name);
     TEST_ASSERT(!vsp::ErrorMgr.PopErrorAndPrint(stdout));    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
 
