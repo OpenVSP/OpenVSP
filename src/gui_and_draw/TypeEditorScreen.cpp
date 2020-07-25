@@ -50,7 +50,7 @@ bool TypeEditorScreen::Update()
         m_CustomScriptsBrowser->add( mod_name_vec[i].c_str() );
     }
 
-    m_CustomScriptsBrowser->select( m_ScriptIndex );
+    m_CustomScriptsBrowser->select( m_ScriptIndex + 1 );
 
     return true;
 }
