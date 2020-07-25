@@ -205,7 +205,7 @@ public:
         return &m_CfdSettings;
     }
 
-    virtual SimpleGridDensity* GetGridDensityPtr()
+    virtual SimpleGridDensity* GetGridDensityPtr() override
     {
         return &m_CfdGridDensity;
     }
