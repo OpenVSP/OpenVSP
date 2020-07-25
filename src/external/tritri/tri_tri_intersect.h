@@ -73,4 +73,4 @@ bool intersectRayAABB( const double MinB[3], const double MaxB[3],
                        const double origin[3], const double dir[3],
                        double coord[3] );
 
-#endif # TRI_TRI_INTERSECT
+#endif // TRI_TRI_INTERSECT
