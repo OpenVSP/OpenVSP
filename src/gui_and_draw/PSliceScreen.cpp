@@ -105,6 +105,12 @@ bool PSliceScreen::Update()
     m_Norm.set_xyz( 0, 0, 0 );
     m_Norm[m_SelectedAxisIndex] = 1;
 
+    if( veh->m_AutoBoundsFlag() )
+    {
+        veh->m_PlanarStartLocation.Set( min );
+        veh->m_PlanarEndLocation.Set( max );
+    }
+
     m_NumSlicesInput.Update( veh->m_NumPlanerSlices.GetID() );
 
     m_AutoButton.Update( veh->m_AutoBoundsFlag.GetID() );
@@ -113,8 +119,8 @@ bool PSliceScreen::Update()
 
     m_AxisChoice.Update( veh->m_AxisType.GetID() );
 
-     m_StartLocSlider.Update( veh->m_PlanarStartLocation.GetID() );
-     m_EndLocSlider.Update( veh->m_PlanarEndLocation.GetID() );
+    m_StartLocSlider.Update( veh->m_PlanarStartLocation.GetID() );
+    m_EndLocSlider.Update( veh->m_PlanarEndLocation.GetID() );
 
     if ( veh->m_AutoBoundsFlag.Get() == false )
     {
