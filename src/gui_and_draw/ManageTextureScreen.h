@@ -2,18 +2,6 @@
 #define _VSP_GUI_TEXTURE_MANAGER_SCREEN_H
 
 #include "ScreenMgr.h"
-#include "GraphicEngine.h"
-#include "Display.h"
-#include "Viewport.h"
-#include "Background.h"
-#include "GraphicSingletons.h"
-
-namespace VSPGUI
-{
-class VspSubGlWindow;
-}
-
-class Texture;
 
 class ManageTextureScreen : public BasicScreen
 {
@@ -34,6 +22,7 @@ protected:
 
     GroupLayout m_MainLayout;
     GroupLayout m_BorderLayout;
+    GroupLayout m_ActiveTextureLayout;
 
     Choice m_GeomChoice;
     Choice m_EditChoice;
@@ -58,12 +47,9 @@ protected:
 
 private:
 
-    int m_GeomIndex;
-    int m_EditIndex;
-    int m_LastActiveGeomIndex;
-
-    bool m_ActiveGeomChanged;
-    bool m_ThisGuiDeviceWasCalledBack;
+    string m_SelectedGeomID;
+    vector < string > m_GeomIDVec; // Does not include Geoms that don't support textures
+    int m_SelectedTextureIndex;
 
     VSPGUI::VspSubGlWindow * m_GlWin;
 
