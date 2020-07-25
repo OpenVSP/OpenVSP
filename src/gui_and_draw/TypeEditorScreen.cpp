@@ -97,7 +97,7 @@ void TypeEditorScreen::CallBack( Fl_Widget *w )
 {
     if ( w == m_CustomScriptsBrowser )
     {
-        m_ScriptIndex = m_CustomScriptsBrowser->value() ;
+        m_ScriptIndex = m_CustomScriptsBrowser->value() - 1;
     }
 
     assert( m_ScreenMgr );
