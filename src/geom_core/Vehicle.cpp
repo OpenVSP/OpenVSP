@@ -196,8 +196,8 @@ Vehicle::Vehicle()
     m_AutoBoundsFlag.Init( "AutoBoundsFlag", "PSlice", this, true, false, true );
     m_AutoBoundsFlag.SetDescript( "Automaticly sets Planar Start and End locations" );
 
-    m_AxisType.Init( "AxisType", "PSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
-    m_AxisType.SetDescript( "Selects from X,Y,Z Axis" );
+    m_PlanarAxisType.Init( "PlanarAxisType", "PSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
+    m_PlanarAxisType.SetDescript( "Selects from X,Y,Z Axis for Planar Slice" );
     
     m_PlanarStartLocation.Init( "PlanarStartLocation", "PSlice", this, 0, 1e-12, 1e12 );
     m_PlanarStartLocation.SetDescript( "Planar Start Location" );

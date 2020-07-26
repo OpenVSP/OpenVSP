@@ -6,6 +6,7 @@
 
 #include "PSliceScreen.h"
 #include "ScreenMgr.h"
+#include <float.h>
 
 PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 450, "Planar Slicing" )
 {
@@ -25,8 +26,6 @@ PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 450, "Plan
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
     m_SelectedSetIndex = DEFAULT_SET;
-
-    m_SelectedAxisIndex = vsp::X_DIR;
 
     m_MainLayout.ForceNewLine();
     m_MainLayout.AddY( yPadding );
@@ -93,22 +92,27 @@ bool PSliceScreen::Update()
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
 
     LoadSetChoice();
-    //m_SetChoice.SetVal( m_SelectedSetIndex );
 
-    vec3d maxBBox = veh->GetBndBox().GetMax();
-    vec3d minBBox = veh->GetBndBox().GetMin();
-    double max;
-    double min;
-
-    min = minBBox[m_SelectedAxisIndex];
-    max = maxBBox[m_SelectedAxisIndex];
     m_Norm.set_xyz( 0, 0, 0 );
-    m_Norm[m_SelectedAxisIndex] = 1;
+    m_Norm[veh->m_PlanarAxisType.Get()] = 1;
 
-    if( veh->m_AutoBoundsFlag() )
+    if ( veh->m_AutoBoundsFlag() )
     {
-        veh->m_PlanarStartLocation.Set( min );
-        veh->m_PlanarEndLocation.Set( max );
+        // Set Start and End Locations
+        vec3d maxBBox = veh->GetBndBox().GetMax();
+        vec3d minBBox = veh->GetBndBox().GetMin();
+        double min = minBBox[veh->m_PlanarAxisType.Get()];
+        double max = maxBBox[veh->m_PlanarAxisType.Get()];
+
+        if ( abs( veh->m_PlanarStartLocation.Get() - min ) > DBL_EPSILON )
+        {
+            veh->m_PlanarStartLocation.Set( min );
+        }
+
+        if ( abs( veh->m_PlanarEndLocation.Get() - max ) > DBL_EPSILON )
+        {
+            veh->m_PlanarEndLocation.Set( max );
+        }
     }
 
     m_NumSlicesInput.Update( veh->m_NumPlanerSlices.GetID() );
@@ -117,7 +121,7 @@ bool PSliceScreen::Update()
 
     m_FileSelect.Update( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
 
-    m_AxisChoice.Update( veh->m_AxisType.GetID() );
+    m_AxisChoice.Update( veh->m_PlanarAxisType.GetID() );
 
     m_StartLocSlider.Update( veh->m_PlanarStartLocation.GetID() );
     m_EndLocSlider.Update( veh->m_PlanarEndLocation.GetID() );
@@ -183,10 +187,6 @@ void PSliceScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             m_TextBuffer->loadfile( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
         }
-    }
-    else if ( device == &m_AxisChoice )
-    {
-        m_SelectedAxisIndex = m_AxisChoice.GetVal();
     }
 
     else if ( device == &m_SetChoice )

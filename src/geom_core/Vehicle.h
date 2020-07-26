@@ -334,7 +334,7 @@ public:
     BoolParm m_AutoBoundsFlag;
     Parm m_PlanarStartLocation;
     Parm m_PlanarEndLocation;
-    IntParm m_AxisType;
+    IntParm m_PlanarAxisType;
 
     Parm m_BbXLen;
     Parm m_BbYLen;

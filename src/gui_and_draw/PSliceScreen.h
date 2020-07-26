@@ -60,7 +60,6 @@ protected:
 private :
 
     int m_SelectedSetIndex;
-    int m_SelectedAxisIndex;
 
 };
 
