@@ -20,7 +20,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 180, 25 + (1+20)*20 + 2*15 + 4*6, "Export" )
+ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 180, 25 + 22*20 + 2*15 + 4*6, "Export" )
 {
     m_SelectedSetIndex = DEFAULT_SET;
 
@@ -60,6 +60,7 @@ ExportScreen::ExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 180, 25 + (1+20
     m_GenLayout.AddButton( m_OBJButton, "OBJ (.obj)" );
     m_GenLayout.AddButton( m_SeligAirfoilButton, "Airfoil Points (.dat)" );
     m_GenLayout.AddButton( m_BezierAirfoilButton, "Airfoil Curves (.bz)" );
+    m_GenLayout.AddButton( m_CustomScriptButton, "Custom Script (.vsppart)" );
 }
 
 //==== Update Screen ====//
@@ -334,6 +335,10 @@ void ExportScreen::GuiDeviceCallBack( GuiDevice* device )
         {
             veh->m_SVGSet.Set( m_SelectedSetIndex );
         }
+    }
+    else if ( device == &m_CustomScriptButton )
+    {
+        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_EXPORT_CUSTOM_SCRIPT );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

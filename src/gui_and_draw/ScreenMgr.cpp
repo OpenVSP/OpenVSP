@@ -214,7 +214,7 @@ void ScreenMgr::Init()
     m_ScreenVec[VSP_FIT_MODEL_SCREEN] = new FitModelScreen( this );
     m_ScreenVec[VSP_IGES_OPTIONS_SCREEN] = new IGESOptionsScreen( this );
     m_ScreenVec[VSP_IGES_STRUCTURE_OPTIONS_SCREEN] = new IGESStructureOptionsScreen( this );
-    m_ScreenVec[VSP_IMPORT_CUSTOM_SCRIPT] = new TypeEditorScreen( this );
+    m_ScreenVec[VSP_EXPORT_CUSTOM_SCRIPT] = new TypeEditorScreen( this );
     m_ScreenVec[VSP_IMPORT_SCREEN] = new ImportScreen( this );
     m_ScreenVec[VSP_MEASURE_SCREEN] = new ManageMeasureScreen( this );
     m_ScreenVec[VSP_LIGHTING_SCREEN] = new ManageLightingScreen( this );

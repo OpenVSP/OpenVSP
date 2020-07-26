@@ -10,7 +10,7 @@
 using namespace vsp;
 
 //==== Constructor ====//
-ImportScreen::ImportScreen( ScreenMgr* mgr ) : BasicScreen( mgr , 200, 25 + 10*20 + 1*15 + 2*6, "Import" )
+ImportScreen::ImportScreen( ScreenMgr* mgr ) : BasicScreen( mgr , 200, 25 + 9*20 + 1*15 + 2*6, "Import" )
 {
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_MainLayout.AddX( 5 );
@@ -31,7 +31,7 @@ ImportScreen::ImportScreen( ScreenMgr* mgr ) : BasicScreen( mgr , 200, 25 + 10*2
     m_GenLayout.AddButton( m_V2Button, "OpenVSP v2 (.vsp)" );
     m_GenLayout.AddButton( m_BEMButton, "Blade Element (.bem)" );
     m_GenLayout.AddButton( m_P3DWireButton, "Plot3D as Wireframe (.p3d)" );
-    m_GenLayout.AddButton( m_ImportCustomScript, "Import Custom Script (.vsp3)" );
+
 }
 
 //==== Destructor ====//
@@ -134,10 +134,6 @@ void ImportScreen::GuiDeviceCallBack( GuiDevice* device )
     else if ( device == &m_P3DWireButton )
     {
         ImportFile( in_file, IMPORT_P3D_WIRE );
-    }
-    else if ( device == &m_ImportCustomScript )
-    {
-        m_ScreenMgr->ShowScreen( ScreenMgr::VSP_IMPORT_CUSTOM_SCRIPT );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

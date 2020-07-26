@@ -68,6 +68,7 @@ protected:
     TriggerButton m_PMARCButton;
     TriggerButton m_SeligAirfoilButton;
     TriggerButton m_BezierAirfoilButton;
+    TriggerButton m_CustomScriptButton;
 
     int m_SelectedSetIndex;
 };

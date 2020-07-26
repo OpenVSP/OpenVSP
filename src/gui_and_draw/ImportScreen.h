@@ -46,7 +46,6 @@ protected:
     TriggerButton m_V2Button;
     TriggerButton m_BEMButton;
     TriggerButton m_P3DWireButton;
-    TriggerButton m_ImportCustomScript;
 };
 
 
