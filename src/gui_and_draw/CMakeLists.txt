@@ -93,7 +93,7 @@ STLOptionsScreen.cpp
 SubGLWindow.cpp
 SurfaceIntersectionScreen.cpp
 SVGOptionsScreen.cpp
-TypeEditorScreen.cpp
+CustomGeomExportScreen.cpp
 UserParmScreen.cpp
 VarPresetScreen.cpp
 VSPAEROPlotScreen.cpp
@@ -167,7 +167,7 @@ STLOptionsScreen.h
 SubGLWindow.h
 SurfaceIntersectionScreen.h
 SVGOptionsScreen.h
-TypeEditorScreen.h
+CustomGeomExportScreen.h
 UserParmScreen.h
 VarPresetScreen.h
 VSPAEROPlotScreen.h

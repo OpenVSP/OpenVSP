@@ -5,10 +5,10 @@
 //
 //////////////////////////////////////////////////////////////////////
 
-#include "TypeEditorScreen.h"
+#include "CustomGeomExportScreen.h"
 
 //==== Constructor ====//
-TypeEditorScreen::TypeEditorScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 210, 245, "Export Custom Script" )
+CustomGeomExportScreen::CustomGeomExportScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 210, 245, "Export Custom Script" )
 {
     int borderPaddingWidth = 5;
     int yPadding = 7;
@@ -38,7 +38,7 @@ TypeEditorScreen::TypeEditorScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 210, 24
 }
 
 //==== Update Screen ====//
-bool TypeEditorScreen::Update()
+bool CustomGeomExportScreen::Update()
 {
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
@@ -56,20 +56,20 @@ bool TypeEditorScreen::Update()
 }
 
 //==== Show Screen ====//
-void TypeEditorScreen::Show()
+void CustomGeomExportScreen::Show()
 {
     m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
 //==== Hide Screen ====//
-void TypeEditorScreen::Hide()
+void CustomGeomExportScreen::Hide()
 {
     m_FLTK_Window->hide();
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void TypeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
+void CustomGeomExportScreen::GuiDeviceCallBack( GuiDevice* device )
 {
     assert( m_ScreenMgr );
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
@@ -93,7 +93,7 @@ void TypeEditorScreen::GuiDeviceCallBack( GuiDevice* device )
 }
 
 //==== Callbacks ====//
-void TypeEditorScreen::CallBack( Fl_Widget *w )
+void CustomGeomExportScreen::CallBack( Fl_Widget *w )
 {
     if ( w == m_CustomScriptsBrowser )
     {
@@ -104,7 +104,7 @@ void TypeEditorScreen::CallBack( Fl_Widget *w )
     m_ScreenMgr->SetUpdateFlag( true );
 }
 
-void TypeEditorScreen::CloseCallBack( Fl_Widget* w )
+void CustomGeomExportScreen::CloseCallBack( Fl_Widget* w )
 {
     Hide();
 }

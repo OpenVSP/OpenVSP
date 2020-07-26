@@ -3,7 +3,7 @@
 // version 1.3 as detailed in the LICENSE file which accompanies this software.
 //
 
-//TypeEditorScreen: View and Edit Types Of Geom
+// CustomGeomExportScreen: Export a *.vsppart file from the current model
 // J.R Gloudemans
 //
 //////////////////////////////////////////////////////////////////////
@@ -18,11 +18,11 @@
 using std::string;
 using std::vector;
 
-class TypeEditorScreen : public BasicScreen
+class CustomGeomExportScreen : public BasicScreen
 {
 public:
-    TypeEditorScreen( ScreenMgr* mgr );
-    virtual ~TypeEditorScreen()                         {}
+    CustomGeomExportScreen( ScreenMgr* mgr );
+    virtual ~CustomGeomExportScreen()                         {}
 
     void Show();
     void Hide();
