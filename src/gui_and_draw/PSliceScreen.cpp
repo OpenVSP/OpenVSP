@@ -6,7 +6,6 @@
 
 #include "PSliceScreen.h"
 #include "ScreenMgr.h"
-#include <float.h>
 
 PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 450, "Planar Slicing" )
 {
@@ -97,21 +96,28 @@ bool PSliceScreen::Update()
 
     if ( veh->m_AutoBoundsFlag() )
     {
+        vector< Geom* > geom_vec = veh->FindGeomVec( veh->GetGeomVec() );
+        BndBox bbox;
+
+        for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+        {
+            if ( geom_vec[i] )
+            {
+                if ( geom_vec[i]->GetSetFlag( m_SelectedSetIndex ) )
+                {
+                    bbox.Update( geom_vec[i]->GetBndBox() );
+                }
+            }
+        }
+
         // Set Start and End Locations
-        vec3d maxBBox = veh->GetBndBox().GetMax();
-        vec3d minBBox = veh->GetBndBox().GetMin();
+        vec3d minBBox = bbox.GetMin();
+        vec3d maxBBox = bbox.GetMax();
         double min = minBBox[veh->m_PlanarAxisType.Get()];
         double max = maxBBox[veh->m_PlanarAxisType.Get()];
 
-        if ( abs( veh->m_PlanarStartLocation.Get() - min ) > DBL_EPSILON )
-        {
-            veh->m_PlanarStartLocation.Set( min );
-        }
-
-        if ( abs( veh->m_PlanarEndLocation.Get() - max ) > DBL_EPSILON )
-        {
-            veh->m_PlanarEndLocation.Set( max );
-        }
+        veh->m_PlanarStartLocation = min ;
+        veh->m_PlanarEndLocation = max;
     }
 
     m_NumSlicesInput.Update( veh->m_NumPlanerSlices.GetID() );
