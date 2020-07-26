@@ -41,7 +41,7 @@ CustomGeomExportScreen::CustomGeomExportScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_BorderLayout.AddX( gap_w );
     m_BorderLayout.AddButton( m_CancelToggle, "Cancel" );
 
-    m_CustomScriptsBrowser->callback( staticCB, this ); 
+    m_CustomScriptsBrowser->callback( staticScreenCB, this );
 }
 
 //==== Update Screen ====//

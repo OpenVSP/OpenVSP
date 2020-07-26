@@ -27,6 +27,10 @@ public:
 
     //This callback responds to events from windows, groups, and widgets 
     void CallBack( Fl_Widget* w );
+    static void staticScreenCB( Fl_Widget *w, void* data )
+    {
+        ( ( SetEditorScreen* )data )->CallBack( w );
+    }
     //This callback responds to close widget events
     virtual void CloseCallBack( Fl_Widget* w );
     //This callback responds to events from GUI Devices buttons and input fields

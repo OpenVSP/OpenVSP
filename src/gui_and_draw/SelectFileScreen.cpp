@@ -87,9 +87,9 @@ SelectFileScreen::SelectFileScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 440, 34
     m_FileBrowser->type( FL_SELECT_BROWSER );
 
     //Need the callbacks for these objects
-    m_FileBrowser->callback( staticCB, this );
-    m_DirInput->callback( staticCB, this );
-    m_FavsMenuButton->callback( staticCB, this );
+    m_FileBrowser->callback( staticScreenCB, this );
+    m_DirInput->callback( staticScreenCB, this );
+    m_FavsMenuButton->callback( staticScreenCB, this );
 }
 
 bool  SelectFileScreen::Update()

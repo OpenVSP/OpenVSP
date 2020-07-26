@@ -22,7 +22,10 @@ public:
     virtual bool Update();
 
     void CallBack(Fl_Widget * w);
-    static void staticCB(Fl_Widget * w, void * data) { static_cast< ManageCORScreen* >(data)->CallBack(w); }
+    static void staticScreenCB(Fl_Widget * w, void * data)
+    {
+        static_cast< ManageCORScreen* >(data)->CallBack(w);
+    }
 
 public:
     void LoadDrawObjs(vector< DrawObj* > & draw_obj_vec);

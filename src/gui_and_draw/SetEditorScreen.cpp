@@ -101,8 +101,8 @@ SetEditorScreen::SetEditorScreen(ScreenMgr* mgr ) : BasicScreen( mgr, 300, 370, 
     m_BorderLayout.AddButton(m_CopySetToggle, "Copy Set Membership When Copying Geoms");
 
     //Browser objects need to have there static callbacks set in SetEditorScreen's constructor
-    m_SetBrowser->callback( staticCB, this );
-    m_SetSelectBrowser->callback( staticCB, this );
+    m_SetBrowser->callback( staticScreenCB, this );
+    m_SetSelectBrowser->callback( staticScreenCB, this );
 }
 
 //==== Update Screen ====//

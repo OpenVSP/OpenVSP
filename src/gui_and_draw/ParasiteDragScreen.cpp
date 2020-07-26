@@ -468,7 +468,7 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_ExcresBrowser->labelfont( 13 );
     m_ExcresBrowser->labelsize( 12 );
     m_ExcresBrowser->textsize( 12 );
-    m_ExcresBrowser->callback( staticCB, this );
+    m_ExcresBrowser->callback( staticScreenCB, this );
     excrescence_group->add( m_ExcresBrowser );
     m_ExcrescenceListLayout.AddY( excrescence_browser_height );
     m_ExcrescenceListLayout.AddYGap();
