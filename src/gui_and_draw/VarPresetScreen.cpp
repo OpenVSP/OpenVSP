@@ -23,11 +23,11 @@ VarPresetScreen::VarPresetScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 600, "
     // Hidden Var Tree Tab until complete
     //Fl_Group* tree_tab = AddTab( "Var Tree" );
     //( (Vsp_Group*) tree_tab )->SetAllowDrop( true );
-    //tree_tab->callback( staticCB, this );
+    //tree_tab->callback( staticScreenCB, this );
 
     Fl_Group* pick_tab = AddTab( "Create" );
     ( (Vsp_Group*) pick_tab )->SetAllowDrop( true );
-    pick_tab->callback( staticCB, this );
+    pick_tab->callback( staticScreenCB, this );
 
     Fl_Group* adj_tab = AddTab( "Adjust" );
     Fl_Group* pick_group = AddSubGroup( pick_tab, 5 );

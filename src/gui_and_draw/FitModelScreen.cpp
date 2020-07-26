@@ -24,11 +24,11 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
     Fl_Group* pts_tab = AddTab( "Pick Points" );
     Fl_Group* var_tab = AddTab( "Pick Vars" );
     ( (Vsp_Group*) var_tab )->SetAllowDrop( true );
-    var_tab->callback( staticCB, this );
+    var_tab->callback( staticScreenCB, this );
 
     Fl_Group* tree_tab = AddTab( "Var Tree" );
     ( (Vsp_Group*) tree_tab )->SetAllowDrop( true );
-    tree_tab->callback( staticCB, this );
+    tree_tab->callback( staticScreenCB, this );
 
     Fl_Group* fit_tab = AddTab( "Fit Model" );
 

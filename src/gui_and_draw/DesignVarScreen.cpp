@@ -21,7 +21,7 @@ DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 463, "
 
     Fl_Group* pick_tab = AddTab( "Pick" );
     ( (Vsp_Group*) pick_tab )->SetAllowDrop( true );
-    pick_tab->callback( staticCB, this );
+    pick_tab->callback( staticScreenCB, this );
 
     Fl_Group* adj_tab = AddTab( "Adjust" );
     Fl_Group* pick_group = AddSubGroup( pick_tab, 5 );
