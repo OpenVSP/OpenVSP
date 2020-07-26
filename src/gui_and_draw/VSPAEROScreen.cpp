@@ -871,7 +871,7 @@ void * monitorfun( void *data )
             char *buf;
             buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
 
-            unsigned long nread = 1;
+            BUF_READ_TYPE nread = 1;
 
             bool runflag = pu->IsRunning();
             while( runflag || nread > 0 )

@@ -375,7 +375,7 @@ void ProcessUtil::StartThread( void *(*threadfun)( void *data ), void *data )
 }
 #endif
 
-void ProcessUtil::ReadStdoutPipe(char * bufptr, int bufsize, unsigned long * nreadptr )
+void ProcessUtil::ReadStdoutPipe(char * bufptr, int bufsize, BUF_READ_TYPE * nreadptr )
 {
     bufptr[0] = 0;
 #ifdef WIN32

@@ -22,6 +22,12 @@ using std::vector;
 #define PIPE_READ 0
 #define PIPE_WRITE 1
 
+#ifdef WIN32
+#define BUF_READ_TYPE DWORD
+#else
+#define BUF_READ_TYPE int
+#endif
+
 void SleepForMilliseconds( unsigned int sleep_time);
 
 class ProcessUtil
@@ -39,7 +45,7 @@ public:
 
     bool IsRunning();
 
-    void ReadStdoutPipe(char * buf, int bufsize, unsigned long * nread );
+    void ReadStdoutPipe(char * buf, int bufsize, BUF_READ_TYPE * nread );
 
     static string PrettyCmd( const string &path, const string &cmd, const vector<string> &opts ); //returns a command string that could be used on the command line
 

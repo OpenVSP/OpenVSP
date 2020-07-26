@@ -2237,12 +2237,12 @@ void VSPAEROMgrSingleton::MonitorSolver( FILE * logFile )
     int bufsize = 1000;
     char *buf;
     buf = ( char* ) malloc( sizeof( char ) * ( bufsize + 1 ) );
-    unsigned long nread = 1;
+    BUF_READ_TYPE nread = 1;
     bool runflag = m_SolverProcess.IsRunning();
-    while ( runflag || ( nread > 0 && nread != ( unsigned long ) - 1 ) )
+    while ( runflag || nread > 0 )
     {
         m_SolverProcess.ReadStdoutPipe( buf, bufsize, &nread );
-        if( nread > 0 && nread != ( unsigned long ) - 1 )
+        if( nread > 0 )
         {
             if ( buf )
             {
