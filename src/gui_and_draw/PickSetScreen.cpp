@@ -115,7 +115,7 @@ void PickSetScreen::GuiDeviceCallBack( GuiDevice* device )
         m_AcceptFlag = true;
         Hide();
     }
-    else if ( device == &m_AcceptButton )
+    else if ( device == &m_CancelButton )
     {
         m_AcceptFlag = false;
         Hide();
