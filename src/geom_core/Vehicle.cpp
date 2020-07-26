@@ -199,10 +199,10 @@ Vehicle::Vehicle()
     m_PlanarAxisType.Init( "PlanarAxisType", "PSlice", this, vsp::X_DIR, vsp::X_DIR, vsp::Z_DIR );
     m_PlanarAxisType.SetDescript( "Selects from X,Y,Z Axis for Planar Slice" );
     
-    m_PlanarStartLocation.Init( "PlanarStartLocation", "PSlice", this, 0, 1e-12, 1e12 );
+    m_PlanarStartLocation.Init( "PlanarStartLocation", "PSlice", this, 0, -1e12, 1e12 );
     m_PlanarStartLocation.SetDescript( "Planar Start Location" );
 
-    m_PlanarEndLocation.Init( "PlanarEndLocation", "PSlice", this, 10, 1e-12, 1e12 );
+    m_PlanarEndLocation.Init( "PlanarEndLocation", "PSlice", this, 10, -1e12, 1e12 );
     m_PlanarEndLocation.SetDescript( "Planar End Location" );
 
     
