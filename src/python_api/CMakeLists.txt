@@ -29,7 +29,6 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 		${NANOFLANN_INCLUDE_DIR}
 		${CLIPPER_INCLUDE_DIR}
 		${CPPTEST_INCLUDE_DIR}
-		${SCREENS_INCLUDE_DIR}
 		${XMLVSP_INCLUDE_DIR}
 		${CPPTEST_INCLUDE_DIR}
 		${FLTK_INCLUDE_DIR}
@@ -141,7 +140,6 @@ IF(SWIG_FOUND AND PYTHONLIBS_FOUND)
 			tritri
 			clipper
 			Angelscript
-			screens
 			xmlvsp
 			sixseries
 			cartesian

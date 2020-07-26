@@ -28,7 +28,6 @@ INCLUDE_DIRECTORIES( ${VSP_SOURCE_DIR}
 	${CLIPPER_INCLUDE_DIR}
 	${CPPTEST_INCLUDE_DIRS}
 	${LOAD_JPG_INCLUDE_DIR}
-	${SCREENS_INCLUDE_DIR}
 	${XMLVSP_INCLUDE_DIR}
 	${CPPTEST_INCLUDE_DIR}
 	${FLTK_INCLUDE_DIR}
@@ -57,7 +56,6 @@ IF( NOT VSP_NO_GRAPHICS )
 		geom_api_g
 		cfd_mesh
 		triangle
-		screens
 		xmlvsp
 		sixseries
 		util
@@ -102,7 +100,6 @@ IF( NOT VSP_NO_GRAPHICS )
 		tritri
 		clipper
         Angelscript
-		screens
 		xmlvsp
 		sixseries
 		cartesian

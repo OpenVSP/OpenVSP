@@ -11,7 +11,6 @@ INCLUDE_DIRECTORIES(
     ${GEOM_CORE_INCLUDE_DIR}
     ${CFD_MESH_INCLUDE_DIR}
     ${FLTK_INCLUDE_DIR}
-    ${SCREENS_INCLUDE_DIR}
     ${VSP_GRAPHIC_INCLUDE_DIR}
     ${GLEW_INCLUDE_PATH}
     ${GLM_INCLUDE_DIR}
@@ -182,7 +181,6 @@ WireScreen.h
 ADD_DEPENDENCIES(gui_and_draw
 geom_core
 vsp_graphic
-screens
 util
 )
 

@@ -46,7 +46,6 @@ IF( NOT VSP_NO_GRAPHICS )
     )
 
     ADD_DEPENDENCIES( geom_api_g
-    screens
     util
     )
 
@@ -58,7 +57,6 @@ IF( NOT VSP_NO_GRAPHICS )
     )
 
     ADD_DEPENDENCIES( gui_interface_g
-    screens
     util
     )
 
