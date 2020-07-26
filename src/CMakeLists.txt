@@ -66,7 +66,6 @@ ADD_SUBDIRECTORY( external/angelscript/sdk )
 IF( NOT VSP_NO_GRAPHICS )
 	SET ( GUI_AND_DRAW_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/gui_and_draw )
 	ADD_SUBDIRECTORY( vsp_graphic )
-	ADD_SUBDIRECTORY( fltk_screens )
 ENDIF()
 
 SET(GEOM_API_INCLUDE_DIR ${PROJECT_SOURCE_DIR}/geom_api)
