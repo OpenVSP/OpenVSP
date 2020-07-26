@@ -158,9 +158,8 @@ void CompGeomScreen::CloseCallBack( Fl_Widget *w )
 // Callback for all other GUI Devices
 void CompGeomScreen::GuiDeviceCallBack( GuiDevice* device )
 {
-    Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
-
     assert( m_ScreenMgr );
+    Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
     if ( device == &m_TxtSelect )
     {
