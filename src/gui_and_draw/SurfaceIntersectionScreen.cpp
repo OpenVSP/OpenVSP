@@ -15,7 +15,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-SurfaceIntersectionScreen::SurfaceIntersectionScreen( ScreenMgr* mgr ) : TabScreen( mgr, 415, 622, "Surface Intersection", 150 )
+SurfaceIntersectionScreen::SurfaceIntersectionScreen( ScreenMgr* mgr ) : TabScreen( mgr, 375, 545, "Trimmed Surfaces", 150 )
 {
     m_Vehicle = m_ScreenMgr->GetVehiclePtr();
 
@@ -128,8 +128,10 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     m_OutputTabLayout.SetFitWidthFlag( false );
     m_OutputTabLayout.SetSameLineFlag( true );
 
-    m_OutputTabLayout.SetButtonWidth(55);
-    m_OutputTabLayout.SetInputWidth(300);
+    int button_width = 55;
+    m_OutputTabLayout.SetButtonWidth( button_width );
+    int input_width = 280;
+    m_OutputTabLayout.SetInputWidth( input_width );
 
     m_OutputTabLayout.AddButton(m_CurvFile, ".curv");
     m_OutputTabLayout.AddOutput(m_CurvOutput);
@@ -137,7 +139,7 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     m_OutputTabLayout.AddButton(m_SelectCurvFile, "...");
 
     m_OutputTabLayout.ForceNewLine();
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( button_width );
     m_OutputTabLayout.AddButton(m_Plot3DFile, ".p3d");
     m_OutputTabLayout.AddOutput(m_Plot3DOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
@@ -151,7 +153,7 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.SetFitWidthFlag( false );
 
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( button_width );
     m_OutputTabLayout.AddButton(m_SrfFile, ".srf");
     m_OutputTabLayout.AddOutput(m_SrfOutput);
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
@@ -197,9 +199,9 @@ void SurfaceIntersectionScreen::CreateOutputTab()
     m_OutputTabLayout.ForceNewLine();
 
     m_OutputTabLayout.AddYGap();
-    m_OutputTabLayout.SetInputWidth( 300 );
+    m_OutputTabLayout.SetInputWidth( input_width );
 
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( button_width );
     m_OutputTabLayout.AddButton( m_IGESFile, ".igs" );
     m_OutputTabLayout.AddOutput( m_IGESOutput );
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
@@ -208,7 +210,7 @@ void SurfaceIntersectionScreen::CreateOutputTab()
 
     m_OutputTabLayout.AddYGap();
 
-    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.SetButtonWidth( button_width );
     m_OutputTabLayout.AddButton( m_STEPFile, ".stp" );
     m_OutputTabLayout.AddOutput( m_STEPOutput );
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
