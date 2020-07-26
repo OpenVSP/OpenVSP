@@ -112,7 +112,7 @@ public:
     virtual string GetActiveGroupText()                 { return m_CurGroupText; }
     virtual int GetActiveSettingIndex()                 { return m_CurSettingIndex; }
     virtual string GetActiveSettingText()               { return m_CurSettingText; }
-    virtual int GetNumSet()                             { return m_PresetVec[ m_CurGroupIndex ].GetNumSet(); }
+    virtual int GetNumSet();
     virtual int GetActiveSettingIndexFromGroup( int g_index )   { return m_PresetVec[ g_index ].GetSettingIndex(); }
     virtual vector < Preset > GetPresetVec()            { return m_PresetVec; }
     virtual bool GetDeleteFlag()                        { return m_PrevDeleteFlag; }

@@ -429,6 +429,16 @@ bool VarPresetMgrSingleton::CheckForEmpty( int curGroupIndex, int curSettingInde
     }
 }
 
+int VarPresetMgrSingleton::GetNumSet()
+{
+    if ( m_CurGroupIndex < 0 || m_CurGroupIndex >= m_PresetVec.size() )
+    {
+        return 0;
+    }
+
+    return m_PresetVec[ m_CurGroupIndex ].GetNumSet();
+}
+
 //====  Add Group ====//
 void VarPresetMgrSingleton::AddGroup( const string &groupText )
 {
