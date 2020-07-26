@@ -32,7 +32,14 @@ CustomGeomExportScreen::CustomGeomExportScreen( ScreenMgr* mgr ) : BasicScreen( 
     m_CustomScriptsBrowser = m_BorderLayout.AddFlBrowser( browserHeight );
     m_BorderLayout.AddYGap();
 
-    m_BorderLayout.AddButton( m_CustomScriptToggle, "Save To File" );
+    int gap_w = 5;
+    m_BorderLayout.SetButtonWidth( ( m_BorderLayout.GetW() / 2 ) - gap_w );
+    m_BorderLayout.SetSameLineFlag( true );
+    m_BorderLayout.SetFitWidthFlag( false );
+
+    m_BorderLayout.AddButton( m_SaveScriptToggle, "Save To File" );
+    m_BorderLayout.AddX( gap_w );
+    m_BorderLayout.AddButton( m_CancelToggle, "Cancel" );
 
     m_CustomScriptsBrowser->callback( staticCB, this ); 
 }
@@ -75,7 +82,7 @@ void CustomGeomExportScreen::GuiDeviceCallBack( GuiDevice* device )
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     vector < string > geom_id_vec = veh->GetValidTypeGeoms();
 
-    if (device == &m_CustomScriptToggle )
+    if ( device == &m_SaveScriptToggle )
     {
         vector< string > mod_name_vec = CustomGeomMgr.GetCustomScriptModuleNames();
         if ( m_ScriptIndex >= 0 && m_ScriptIndex < (int)mod_name_vec.size() )
@@ -85,8 +92,17 @@ void CustomGeomExportScreen::GuiDeviceCallBack( GuiDevice* device )
             string dir = veh->GetWriteScriptDir();
             string savefile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Save Custom Geom Script", "*.vsppart",  dir.c_str() );
 
-            CustomGeomMgr.SaveScriptContentToFile( module_name, savefile );
+            if ( savefile.size() != 0 && savefile[savefile.size() - 1] != '/' )
+            {
+                CustomGeomMgr.SaveScriptContentToFile( module_name, savefile );
+
+                Hide();
+            }
         }
+    }
+    else if ( device == &m_CancelToggle )
+    {
+        Hide();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

@@ -40,7 +40,8 @@ protected:
 
     Fl_Browser* m_CustomScriptsBrowser;
 
-    TriggerButton m_CustomScriptToggle;
+    TriggerButton m_SaveScriptToggle;
+    TriggerButton m_CancelToggle;
 
 private:
 
