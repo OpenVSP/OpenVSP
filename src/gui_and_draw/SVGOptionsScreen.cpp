@@ -281,7 +281,7 @@ bool SVGOptionsScreen::Update()
 
 void SVGOptionsScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 

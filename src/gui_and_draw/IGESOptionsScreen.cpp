@@ -118,7 +118,7 @@ bool IGESOptionsScreen::Update()
 
 void IGESOptionsScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 

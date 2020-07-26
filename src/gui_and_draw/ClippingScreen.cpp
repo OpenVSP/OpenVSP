@@ -100,14 +100,14 @@ bool ClippingScreen::Update()
 
 void ClippingScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
-
 }
 
 void ClippingScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void ClippingScreen::CallBack( Fl_Widget* w )

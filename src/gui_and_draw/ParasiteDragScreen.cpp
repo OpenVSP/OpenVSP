@@ -1083,13 +1083,14 @@ void ParasiteDragScreen::UpdateDependentUnitLabels()
 
 void ParasiteDragScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
 void ParasiteDragScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void ParasiteDragScreen::CallBack( Fl_Widget* w )

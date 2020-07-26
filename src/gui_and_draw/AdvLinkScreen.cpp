@@ -260,13 +260,14 @@ bool AdvLinkScreen::Update()
     }
 
 
+    m_FLTK_Window->redraw();
     return true;
 }
 
 //==== Show Screen ====//
 void AdvLinkScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
@@ -275,6 +276,7 @@ void AdvLinkScreen::Show()
 void AdvLinkScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 //==== Callbacks ====//
@@ -442,8 +444,8 @@ void AdvLinkScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     {
         return;
     }
-    m_ScreenMgr->SetUpdateFlag( true );
 
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 

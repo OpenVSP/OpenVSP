@@ -124,7 +124,7 @@ bool SnapToScreen::Update()
 
 void SnapToScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 

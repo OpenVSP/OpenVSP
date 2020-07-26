@@ -225,13 +225,14 @@ ManageMeasureScreen::~ManageMeasureScreen()
 
 void ManageMeasureScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
 void ManageMeasureScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 bool ManageMeasureScreen::Update()
@@ -494,6 +495,7 @@ bool ManageMeasureScreen::Update()
 
     m_ProbeGeom.Update();
 
+    m_FLTK_Window->redraw();
     return true;
 }
 

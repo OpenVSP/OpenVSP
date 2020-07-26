@@ -121,7 +121,7 @@ bool STEPOptionsScreen::Update()
 
 void STEPOptionsScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 

@@ -186,7 +186,7 @@ bool SetEditorScreen::Update()
 //==== Show Screen ====//
 void SetEditorScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 

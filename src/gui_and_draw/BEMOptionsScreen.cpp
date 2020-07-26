@@ -55,7 +55,7 @@ bool BEMOptionsScreen::Update()
 
 void BEMOptionsScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 

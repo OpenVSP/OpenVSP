@@ -326,7 +326,7 @@ bool DXFOptionsScreen::Update()
 
 void DXFOptionsScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
@@ -368,7 +368,5 @@ bool DXFOptionsScreen::ShowDXFOptionsScreen()
 
 void DXFOptionsScreen::CloseCallBack( Fl_Widget *w )
 {
-    assert( m_ScreenMgr );
-
     Hide();
 }

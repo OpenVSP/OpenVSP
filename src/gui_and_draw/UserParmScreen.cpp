@@ -181,8 +181,9 @@ bool UserParmScreen::Update()
     {
         if ( i < (int)m_UserParmBrowserVec.size() )
             m_ParmSliderVec[i].Update( m_UserParmBrowserVec[i] );
-    } 
+    }
 
+    m_FLTK_Window->redraw();
     return true;
 }
 
@@ -226,7 +227,7 @@ void UserParmScreen::RebuildAdjustGroup()
 //==== Show Screen ====//
 void UserParmScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
@@ -235,6 +236,7 @@ void UserParmScreen::Show()
 void UserParmScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 //==== Callbacks ====//

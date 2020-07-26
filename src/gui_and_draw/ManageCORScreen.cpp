@@ -12,7 +12,8 @@ ManageCORScreen::~ManageCORScreen()
 
 void ManageCORScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
+    m_FLTK_Window->show();
 }
 
 bool ManageCORScreen::IsShown()
@@ -22,6 +23,8 @@ bool ManageCORScreen::IsShown()
 
 void ManageCORScreen::Hide()
 {
+    m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 bool ManageCORScreen::Update()
@@ -81,16 +84,12 @@ void ManageCORScreen::EnableSelection()
 {
     m_SelectionFlag = true;
 
-    Update();
-
     m_ScreenMgr->SetUpdateFlag(true);
 }
 
 void ManageCORScreen::Set()
 {
     m_SelectionFlag = false;
-
-    Update();
 
     m_ScreenMgr->SetUpdateFlag(true);
 }

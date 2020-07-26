@@ -88,7 +88,7 @@ void SeligAirfoilExportScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void SeligAirfoilExportScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
@@ -175,7 +175,7 @@ void BezierAirfoilExportScreen::GuiDeviceCallBack( GuiDevice* device )
 
 void BezierAirfoilExportScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 

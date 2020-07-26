@@ -71,13 +71,14 @@ bool PickSetScreen::Update()
 {
     LoadSetChoice();
 
+    m_FLTK_Window->redraw();
     return true;
 }
 
 //==== Show Screen ====//
 void PickSetScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
@@ -85,6 +86,7 @@ void PickSetScreen::Show()
 void PickSetScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 //==== Load Type Choice ====//

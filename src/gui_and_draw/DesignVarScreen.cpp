@@ -213,13 +213,14 @@ void DesignVarScreen::RebuildAdjustTab()
 
 void DesignVarScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
 void DesignVarScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void DesignVarScreen::CallBack( Fl_Widget* w )

@@ -74,7 +74,7 @@ bool ExportScreen::Update()
 //==== Show Screen ====//
 void ExportScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
 }
 
@@ -82,6 +82,7 @@ void ExportScreen::Show()
 void ExportScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 //==== Load Type Choice ====//

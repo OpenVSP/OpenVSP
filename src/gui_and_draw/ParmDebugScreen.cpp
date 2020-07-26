@@ -75,14 +75,14 @@ bool ParmDebugScreen::Update()
 
 void ParmDebugScreen::Show()
 {
-    Update();
+    m_ScreenMgr->SetUpdateFlag( true );
     m_FLTK_Window->show();
-
 }
 
 void ParmDebugScreen::Hide()
 {
     m_FLTK_Window->hide();
+    m_ScreenMgr->SetUpdateFlag( true );
 }
 
 void ParmDebugScreen::CallBack( Fl_Widget* w )
