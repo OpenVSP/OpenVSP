@@ -31,6 +31,10 @@ public:
     virtual void GuiDeviceCallBack( GuiDevice* device );
     void CallBack( Fl_Widget *w );
     virtual void CloseCallBack( Fl_Widget* w );
+    static void staticScreenCB( Fl_Widget *w, void* data )
+    {
+        ( ( PSliceScreen* )data )->CallBack( w );
+    }
 
     void LoadSetChoice();
 
