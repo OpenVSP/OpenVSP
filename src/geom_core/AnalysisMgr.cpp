@@ -792,13 +792,24 @@ string MassPropAnalysis::Execute()
 
 void PlanarSliceAnalysis::SetDefaults()
 {
+    Vehicle *veh = VehicleMgr.GetVehicle();
+    if ( !veh )
+    {
+        return;
+    }
+
     m_Inputs.Clear();
+
     m_Inputs.Add( NameValData( "Set", 0 ) );
-    m_Inputs.Add( NameValData( "NumSlices", 10 ) );
-    m_Inputs.Add( NameValData( "Norm", vec3d( 1.0, 0.0, 0.0 ) ) );
-    m_Inputs.Add( NameValData( "AutoBoundFlag", 1 ) );
-    m_Inputs.Add( NameValData( "StartVal", 0.0 ) );
-    m_Inputs.Add( NameValData( "EndVal", 10.0 ) );
+    m_Inputs.Add( NameValData( "NumSlices", veh->m_NumPlanerSlices.Get() ) );
+
+    vec3d norm;
+    norm[veh->m_PlanarAxisType.Get()] = 1;
+
+    m_Inputs.Add( NameValData( "Norm", norm ) );
+    m_Inputs.Add( NameValData( "AutoBoundFlag", veh->m_AutoBoundsFlag.Get() ) );
+    m_Inputs.Add( NameValData( "StartVal", veh->m_PlanarStartLocation.Get() ) );
+    m_Inputs.Add( NameValData( "EndVal", veh->m_PlanarEndLocation.Get() ) );
 }
 
 string PlanarSliceAnalysis::Execute()
