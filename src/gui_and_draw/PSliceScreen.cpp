@@ -10,20 +10,15 @@
 
 PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 450, "Planar Slicing" )
 {
+    m_FLTK_Window->callback( staticCloseCB, this );
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+
     int borderPaddingWidth = 5;
     int yPadding = 7;
     int smallButtonWidth = 100;
     int smallGap = 25;
 
-    m_AxisChoice.AddItem( "X-Axis" );
-    m_AxisChoice.AddItem( "Y-Axis" );
-    m_AxisChoice.AddItem( "Z-Axis" );
-
     m_Norm = vec3d( 1, 0, 0 );
-
-    m_FLTK_Window->callback( staticCloseCB, this );
-
-    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
     m_SelectedSetIndex = DEFAULT_SET;
 
@@ -37,6 +32,10 @@ PSliceScreen::PSliceScreen( ScreenMgr *mgr ) : BasicScreen( mgr, 300, 450, "Plan
     m_BorderLayout.SetButtonWidth( smallButtonWidth );
     m_BorderLayout.AddSlider( m_NumSlicesInput, "Num Slice:", 100, "%6.0f" );
     m_BorderLayout.AddYGap();
+
+    m_AxisChoice.AddItem( "X-Axis" );
+    m_AxisChoice.AddItem( "Y-Axis" );
+    m_AxisChoice.AddItem( "Z-Axis" );
 
     m_BorderLayout.AddChoice( m_AxisChoice, "Normal Axis" );
     m_BorderLayout.AddYGap();
@@ -136,8 +135,9 @@ bool PSliceScreen::Update()
         m_StartLocSlider.Deactivate();
         m_EndLocSlider.Deactivate();
     }
-    
-    return true;
+
+    m_FLTK_Window->redraw();
+    return false;
 }
 
 void PSliceScreen::Show()
@@ -188,7 +188,6 @@ void PSliceScreen::GuiDeviceCallBack( GuiDevice* device )
             m_TextBuffer->loadfile( veh->getExportFileName( vsp::SLICE_TXT_TYPE ).c_str() );
         }
     }
-
     else if ( device == &m_SetChoice )
     {
         m_SelectedSetIndex = m_SetChoice.GetVal();
