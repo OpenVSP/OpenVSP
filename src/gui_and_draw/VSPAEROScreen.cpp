@@ -986,7 +986,10 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
 
                 m_ViewerProcess.ForkCmd( veh->GetExePath(), veh->GetVIEWERCmd(), args );
 
-                m_ViewerBuffer->text( "" );
+                string command = veh->GetExePath() + string("/") + veh->GetVIEWERCmd() + string(" ")
+                        + VSPAEROMgr.m_ModelNameBase + string("\n");
+                m_ViewerBuffer->text( command.c_str() );
+
                 m_ViewerMonitor.StartThread( monitorfun, ( void* ) &m_ViewerPair );
 
             }
