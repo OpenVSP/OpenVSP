@@ -8,17 +8,15 @@
 
 ManageTextureScreen::ManageTextureScreen( ScreenMgr * mgr ) : BasicScreen( mgr, 290, 630, "Texture Mgr")
 {
-    int yGap = 24;
+    m_FLTK_Window->callback( staticCloseCB, this );
+    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
+
     int yPadding = 7;
     int sliderButtonWidth = 90;
     int sliderInputWidth = 55;
     int smallButtonWidth = 60;
     int borderPaddingWidth = 5;
     int yGapForDisplay = 294;
-
-    m_FLTK_Window->callback( staticCloseCB, this );
-
-    m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
     m_MainLayout.ForceNewLine();
     m_MainLayout.AddY( yPadding );
@@ -232,8 +230,8 @@ bool ManageTextureScreen::Update()
     }
 
     m_GlWin->redraw();
-
-    return true;
+    m_FLTK_Window->redraw();
+    return false;
 }
 
 void ManageTextureScreen::GuiDeviceCallBack( GuiDevice* device )

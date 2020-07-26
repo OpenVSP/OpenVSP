@@ -40,7 +40,6 @@ SelectFileScreen::SelectFileScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 440, 34
     m_FilterString = string( "*.*" );
 
     int yPadding = 7;
-    int regButtonWidth = 185;
     int borderPaddingWidth = 5;
 
     m_FileBrowserIndex = 0;
@@ -96,7 +95,8 @@ bool  SelectFileScreen::Update()
 {
     LoadFavsMenu();
     m_FileBrowserIndex = 0;
-    return true;
+    m_FLTK_Window->redraw();
+    return false;
 }
 
 void SelectFileScreen::Show()

@@ -179,7 +179,8 @@ bool SetEditorScreen::Update()
     m_SetBrowser->position(setBrowserScrollPosition);
     m_SetSelectBrowser->position(setSelectBrowserScrollPosition);
 
-    return true;
+    m_FLTK_Window->redraw();
+    return false;
 }
 
 //==== Show Screen ====//
