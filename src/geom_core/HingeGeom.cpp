@@ -79,6 +79,26 @@ HingeGeom::~HingeGeom()
 {
 }
 
+//==== Scale ====//
+void HingeGeom::Scale()
+{
+    double currentScale = m_Scale() / m_LastScale();
+
+    m_JointTranslate *= currentScale;
+    m_JointTransMin *= currentScale;
+    m_JointTransMax *= currentScale;
+
+    // Scale both sets of XOff, one or the other will override on next UpdateSurf()
+    m_PrimXOff *= currentScale;
+    m_PrimYOff *= currentScale;
+    m_PrimZOff *= currentScale;
+    m_PrimXOffRel *= currentScale;
+    m_PrimYOffRel *= currentScale;
+    m_PrimZOffRel *= currentScale;
+
+    m_LastScale = m_Scale();
+}
+
 void HingeGeom::UpdateSurf()
 {
     // Update m_ModelMatrix translations -- ignore rotations for now.

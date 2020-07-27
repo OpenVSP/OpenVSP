@@ -23,6 +23,8 @@ public:
         return 0;
     };
 
+    virtual void Scale();
+
     virtual void UpdateSurf();
 
     virtual void UpdateMotionFlagsLimits();
