@@ -190,6 +190,18 @@ bool CurveEditScreen::Update()
     m_AbsDimToggle.Update( edit_curve_xs->m_AbsoluteFlag.GetID() );
     m_PreserveARToggle.Update( edit_curve_xs->m_PreserveARFlag.GetID() );
 
+    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
+
+    if ( geom_ptr && ( geom_ptr->GetType().m_Type == MS_WING_GEOM_TYPE || geom_ptr->GetType().m_Type == PROP_GEOM_TYPE ) )
+    {
+        m_PreserveARToggle.Deactivate();
+        edit_curve_xs->m_PreserveARFlag.Set( false );
+    }
+    else
+    {
+        m_PreserveARToggle.Activate();
+    }
+
     m_CurveEditor.Update( edit_curve_xs );
 
     return true;
