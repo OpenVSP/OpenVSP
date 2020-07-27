@@ -29,7 +29,7 @@ ConformalGeom::ConformalGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Name = "Conformal";
     m_Type.m_Type = CONFORMAL_GEOM_TYPE;
 
-    m_Offset.Init( "Offset", "Design", this, 0.1, 1.0e-8, 1.0e12 );
+    m_Offset.Init( "Offset", "Design", this, 0.1, -1e12, 1.0e12 );
     m_Offset.SetDescript( "Internal Offset Distance to Conformal Surface" );
 
     m_UTrimFlag.Init( "UTrimFlag", "Design", this, false, 0, 1 );
