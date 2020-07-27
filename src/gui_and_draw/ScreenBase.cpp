@@ -1031,6 +1031,36 @@ bool GeomScreen::Update()
 
         ss_name = subsurf_vec[i]->GetName();
         ss_type = SubSurface::GetTypeName( subsurf_vec[i]->GetType() );
+
+        if ( subsurf_vec[i]->GetType() == vsp::SS_LINE )
+        {
+            SSLine* ssline = dynamic_cast< SSLine* >( subsurf_vec[i] );
+            assert( ssline );
+
+            if ( ssline->m_ConstType() == vsp::CONST_U )
+            {
+                ss_type.append( " U" );
+            }
+            else
+            {
+                ss_type.append( " W" );
+            }
+
+            if ( ssline->m_TestType() == SSLineSeg::GT )
+            {
+                ss_type.append( ">" );
+            }
+            else
+            {
+                ss_type.append( "<" );
+            }
+
+            char buf[15];
+            sprintf( buf, "%0.2f", ssline->m_ConstVal() );
+
+            ss_type.append( buf );
+        }
+
         ss_surf_ind = subsurf_vec[i]->m_MainSurfIndx.Get();
         sprintf( str, "%s:%s:Surf_%d", ss_name.c_str(), ss_type.c_str(), ss_surf_ind );
         m_SubSurfBrowser->add( str );
