@@ -1790,12 +1790,12 @@ GeneralFuseXSec::GeneralFuseXSec( ) : XSecCurve( )
     m_Width.Init( "Width",             m_GroupName, this, 1.0, 0.0, 1.0e12 );
     m_MaxWidthLoc.Init( "MaxWidthLoc", m_GroupName, this, 0.0, -1.0e12, 1.0e12 );
     m_CornerRad.Init( "CornerRad",     m_GroupName, this, 0.0, 0.0, 1.0e12 );
-    m_TopTanAngle.Init( "TopTanAngle", m_GroupName, this, 90.0, 0.0, 90.0 );
-    m_BotTanAngle.Init( "BotTanAngle", m_GroupName, this, 90.0, 0.0, 90.0 );
-    m_TopStr.Init( "TopStr",           m_GroupName, this, 0.83, 0.0, 2.0 );
-    m_BotStr.Init( "BotStr",           m_GroupName, this, 0.83, 0.0, 2.0 );
-    m_UpStr.Init( "UpStr",             m_GroupName, this, 0.83, 0.0, 2.0 );
-    m_LowStr.Init( "LowStr",           m_GroupName, this, 0.83, 0.0, 2.0 );
+    m_TopTanAngle.Init( "TopTanAngle", m_GroupName, this, 90.0, -180.0, 180.0 );
+    m_BotTanAngle.Init( "BotTanAngle", m_GroupName, this, 90.0, -180.0, 180.0 );
+    m_TopStr.Init( "TopStr",           m_GroupName, this, 0.83, 0.0, 5.0 );
+    m_BotStr.Init( "BotStr",           m_GroupName, this, 0.83, 0.0, 5.0 );
+    m_UpStr.Init( "UpStr",             m_GroupName, this, 0.83, 0.0, 5.0 );
+    m_LowStr.Init( "LowStr",           m_GroupName, this, 0.83, 0.0, 5.0 );
 }
 
 //==== Set Width and Height ====//
