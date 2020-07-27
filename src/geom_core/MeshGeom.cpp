@@ -1975,6 +1975,8 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
     res->Add( NameValData( "Num_Degen_Tris_Removed", info.m_NumDegenerateTriDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
+    res->Add( NameValData( "Meshes_Removed_Names", info.m_DeletedMeshes ) );
+    res->Add( NameValData( "Meshes_Merged_Names", info.m_MergedMeshes ) );
 
     string txtfn = m_Vehicle->getExportFileName( vsp::COMP_GEOM_TXT_TYPE );
     res->WriteCompGeomTxtFile( txtfn );
@@ -2255,6 +2257,8 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
     res->Add( NameValData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
+    res->Add( NameValData( "Meshes_Removed_Names", info.m_DeletedMeshes ) );
+    res->Add( NameValData( "Meshes_Merged_Names", info.m_MergedMeshes ) );
     res->Add( NameValData( "Mesh_GeomID", this->GetID() ) );
 
 
@@ -3057,6 +3061,8 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
     res->Add( NameValData( "Num_Degen_Triangles_Removed", info.m_NumDegenerateTriDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
     res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
+    res->Add( NameValData( "Meshes_Removed_Names", info.m_DeletedMeshes ) );
+    res->Add( NameValData( "Meshes_Merged_Names", info.m_MergedMeshes ) );
     res->Add( NameValData( "Mesh_GeomID", this->GetID() ) );
 
     //==== Count Tris ====//
@@ -3988,6 +3994,7 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info )
         if ( m_TMeshVec[i]->m_DeleteMeFlag )
         {
             info->m_NumOpenMeshesMerged++;
+            info->m_MergedMeshes.push_back( m_TMeshVec[i]->m_NameStr );
         }
     }
 
@@ -3998,6 +4005,7 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info )
             if ( !m_TMeshVec[i]->m_DeleteMeFlag )
             {
                 info->m_NumOpenMeshedDeleted++;
+                info->m_DeletedMeshes.push_back( m_TMeshVec[i]->m_NameStr );
             }
 
             m_TMeshVec[i]->m_DeleteMeFlag = true;

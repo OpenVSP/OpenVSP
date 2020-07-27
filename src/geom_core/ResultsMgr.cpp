@@ -364,12 +364,24 @@ void Results::WriteMassProp( const string & file_name )
         if ( num_open_remove != 0 )
         {
             fprintf( fid, "WARNING: %d open meshes remove\n", num_open_remove );
+
+            vector < string > remnames = Find( "Meshes_Removed_Names" ).GetStringData();
+            for ( int i = 0; i < remnames.size(); i++ )
+            {
+                fprintf( fid, "     Removed: %s\n", remnames[i].c_str() );
+            }
         }
 
         int num_open_merge = Find( "Num_Open_Meshes_Merged" ).GetInt( 0 );
         if ( num_open_merge != 0 )
         {
-            fprintf( fid, "WARNING: %d open meshes remove\n", num_open_merge );
+            fprintf( fid, "WARNING: %d open meshes merged\n", num_open_merge );
+
+            vector < string > mernames = Find( "Meshes_Merged_Names" ).GetStringData();
+            for ( int i = 0; i < mernames.size(); i++ )
+            {
+                fprintf( fid, "     Merged: %s\n", mernames[i].c_str() );
+            }
         }
 
         fprintf( fid, "...Mass Properties...\n" );
@@ -471,10 +483,22 @@ void Results::WriteCompGeomTxtFile( const string & file_name )
         if ( Find( "Num_Open_Meshes_Removed" ).GetInt( 0 ) )
         {
             fprintf( fid, "WARNING: %d open meshes removed\n", Find( "Num_Open_Meshes_Removed" ).GetInt( 0 ) );
+
+            vector < string > remnames = Find( "Meshes_Removed_Names" ).GetStringData();
+            for ( int i = 0; i < remnames.size(); i++ )
+            {
+                fprintf( fid, "     Removed: %s\n", remnames[i].c_str() );
+            }
         }
         if ( Find( "Num_Open_Meshes_Merged" ).GetInt( 0 ) )
         {
             fprintf( fid, "WARNING: %d open meshes merged\n", Find( "Num_Open_Meshes_Merged" ).GetInt( 0 ) );
+
+            vector < string > mernames = Find( "Meshes_Merged_Names" ).GetStringData();
+            for ( int i = 0; i < mernames.size(); i++ )
+            {
+                fprintf( fid, "     Merged: %s\n", mernames[i].c_str() );
+            }
         }
 
         fclose( fid );      // Close File
@@ -671,10 +695,22 @@ void Results::WriteSliceFile( const string & file_name )
         if ( Find( "Num_Open_Meshes_Removed" ).GetInt( 0 ) )
         {
             fprintf( fid, "WARNING: %d open meshes removed\n", Find( "Num_Open_Meshes_Removed" ).GetInt( 0 ) );
+
+            vector < string > remnames = Find( "Meshes_Removed_Names" ).GetStringData();
+            for ( int i = 0; i < remnames.size(); i++ )
+            {
+                fprintf( fid, "     Removed: %s\n", remnames[i].c_str() );
+            }
         }
         if ( Find( "Num_Open_Meshes_Merged" ).GetInt( 0 ) )
         {
             fprintf( fid, "WARNING: %d open meshes merged\n", Find( "Num_Open_Meshes_Merged" ).GetInt( 0 ) );
+
+            vector < string > mernames = Find( "Meshes_Merged_Names" ).GetStringData();
+            for ( int i = 0; i < mernames.size(); i++ )
+            {
+                fprintf( fid, "     Merged: %s\n", mernames[i].c_str() );
+            }
         }
 
         fprintf( fid, "...Slice...\n" );

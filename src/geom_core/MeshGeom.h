@@ -37,6 +37,8 @@ public:
     int m_NumOpenMeshesMerged;
     int m_NumOpenMeshedDeleted;
     int m_NumDegenerateTriDeleted;
+    vector < string > m_MergedMeshes;
+    vector < string > m_DeletedMeshes;
 };
 
 
