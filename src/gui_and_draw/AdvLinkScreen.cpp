@@ -79,6 +79,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_InputGroup.AddDividerBox("Input Parms");
     m_InputBrowser = m_InputGroup.AddFlBrowser( 100 );
     m_InputBrowser->callback( staticScreenCB, this );
+    m_InputBrowser->column_widths( m_ColWidths ); // assign array to widget
 
     m_InputGroup.SetFitWidthFlag( false );
     m_InputGroup.SetSameLineFlag( true );
@@ -90,6 +91,7 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_OutputGroup.AddDividerBox("Output Parms");
     m_OutputBrowser = m_OutputGroup.AddFlBrowser( 100 );
     m_OutputBrowser->callback( staticScreenCB, this );
+    m_OutputBrowser->column_widths( m_ColWidths ); // assign array to widget
 
     m_OutputGroup.SetFitWidthFlag( false );
     m_OutputGroup.SetSameLineFlag( true );
@@ -127,11 +129,6 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_CodeBuffer->call_modify_callbacks();
 
     m_CodeBuffer->text( "" );
-
-    // Initialize the column width pointer (4 columns + one empty as recommened in FLTK docs)
-    m_ColWidths = new int( 5 );
-    m_InputBrowser->column_widths( m_ColWidths ); // assign array to widget
-    m_OutputBrowser->column_widths( m_ColWidths ); // assign array to widget
 }
 
 //==== Update Screen ====//

@@ -89,6 +89,7 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
     m_TargetPtBrowser->labelsize( 12 );
     m_TargetPtBrowser->textsize( 12 );
     m_TargetPtBrowser->callback( staticScreenCB, this );
+    m_TargetPtBrowser->column_widths( m_PointsColWidths ); // assign array to widget
 
     pts_group->add( m_TargetPtBrowser );
 
@@ -182,6 +183,7 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
     m_VarBrowser->labelsize( 12 );
     m_VarBrowser->textsize( 12 );
     m_VarBrowser->callback( staticScreenCB, this );
+    m_VarBrowser->column_widths( m_PickColWidths ); // assign array to widget
 
     var_group->add( m_VarBrowser );
 
@@ -292,14 +294,6 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
     m_FitModelLayout.SetSameLineFlag( false );
 
     m_FitModelLayout.AddButton(m_Load, "Import");
-
-    // Initialize the column width pointer (3 columns + one empty as recommened in FLTK docs)
-    m_PickColWidths = new int ( 4 );
-    m_VarBrowser->column_widths( m_PickColWidths ); // assign array to widget
-
-    // Initialize the column width pointer (8 columns + one empty as recommened in FLTK docs)
-    m_PointsColWidths = new int ( 9 );
-    m_TargetPtBrowser->column_widths ( m_PointsColWidths ); // assign array to widget
 }
 
 FitModelScreen::~FitModelScreen()

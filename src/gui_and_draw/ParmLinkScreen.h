@@ -63,7 +63,7 @@ protected:
     SliderAdjRangeInput m_UpperLimitSlider;
 
     // Pointer for the widths of each column in the browser to support resizing
-    int* m_ColWidths;
+    int m_ColWidths[8]; // 7 columns + one empty as recommened in FLTK docs
 
     Fl_Browser* m_LinkBrowser;
 };

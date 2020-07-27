@@ -75,6 +75,7 @@ DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 463, "
     m_VarBrowser->labelsize( 12 );
     m_VarBrowser->textsize( 12 );
     m_VarBrowser->callback( staticScreenCB, this );
+    m_VarBrowser->column_widths( m_ColWidths ); // assign array to widget
 
     pick_group->add( m_VarBrowser );
     m_PickLayout.AddY( browser_h );
@@ -97,12 +98,6 @@ DesignVarScreen::DesignVarScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 463, "
     pick_tab->show();
 
     m_AdjustLayout.SetGroupAndScreen( m_AdjustGroup, this );
-
-    // Initialize the column width pointer (7 columns + one empty as recommened in FLTK docs)
-    m_ColWidths = new int ( 5 );
-
-    // Update m_ColWidths values but keep the memory address 
-    m_VarBrowser->column_widths ( m_ColWidths ); // assign array to widget
 }
 
 DesignVarScreen::~DesignVarScreen()

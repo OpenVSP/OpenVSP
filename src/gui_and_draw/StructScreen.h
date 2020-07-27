@@ -350,9 +350,10 @@ private:
     int m_NumFeaPartChoices;
 
     // Pointers for the widths of each column in the browser to support resizing
-    int* m_StructColWidths;
-    int* m_PartColWidths;
-    int* m_PropColWidths;
+    // Each sized to number of columns + 1 empty (as recemmended in FLTK docs)
+    int m_StructColWidths[4];
+    int m_PartColWidths[7];
+    int m_PropColWidths[5];
 };
 
 #endif

@@ -133,8 +133,9 @@ protected:
     TriggerButton m_Load;
 
     // Pointers for the widths of each column in the browser to support resizing
-    int* m_PickColWidths;
-    int* m_PointsColWidths;
+    // Each sized to number of columns + 1 empty (as recemmended in FLTK docs)
+    int m_PickColWidths[4];
+    int m_PointsColWidths[9];
 };
 
 #endif

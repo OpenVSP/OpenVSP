@@ -273,7 +273,8 @@ public:
     GroupLayout m_SSCommonGroup;
     StringInput m_SubNameInput;
 
-    int* m_SubColWidths;
+    // Pointer for the widths of each column in the browser to support resizing
+    int m_SubColWidths[4]; // 3 columns + one empty as recommened in FLTK docs
 
     // SS_Line
     GroupLayout m_SSLineGroup;

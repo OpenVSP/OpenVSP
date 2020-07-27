@@ -130,6 +130,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_StructureSelectBrowser->labelsize( labelsize );
     m_StructureSelectBrowser->textsize( textsize );
     m_StructureSelectBrowser->callback( staticScreenCB, this );
+    m_StructureSelectBrowser->column_widths( m_StructColWidths ); // assign array to widget
 
     int buttonwidth = m_StructureTabLayout.GetButtonWidth();
 
@@ -226,6 +227,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_FeaPartSelectBrowser->labelsize( labelsize );
     m_FeaPartSelectBrowser->textsize( textsize );
     m_FeaPartSelectBrowser->callback( staticScreenCB, this );
+    m_FeaPartSelectBrowser->column_widths( m_PartColWidths ); // assign array to widget)
 
     m_PartTabLayout.SetX( start_x );
 
@@ -390,6 +392,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_FeaPropertySelectBrowser->labelsize( labelsize );
     m_FeaPropertySelectBrowser->textsize( textsize );
     m_FeaPropertySelectBrowser->callback( staticScreenCB, this );
+    m_FeaPropertySelectBrowser->column_widths( m_PropColWidths ); // assign array to widget
 
     m_PropertyEditGroup.SetChoiceButtonWidth( buttonwidth );
 
@@ -965,18 +968,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_SelectedFeaPartChoice = 0;
     m_CurrDispGroup = NULL;
 
-    // Initialize the column width pointer (3 columns + one empty as recommened in FLTK docs)
-    m_StructColWidths = new int( 4 );
-    m_StructureSelectBrowser->column_widths( m_StructColWidths ); // assign array to widget
-
-    // Initialize the column width pointer (6 columns + one empty as recommened in FLTK docs)
-    m_PartColWidths = new int( 7 );
-    m_FeaPartSelectBrowser->column_widths( m_PartColWidths ); // assign array to widget
-
-    // Initialize the column width pointer (4 columns + one empty as recommened in FLTK docs)
-    m_PropColWidths = new int( 5 );
-    m_FeaPropertySelectBrowser->column_widths( m_PropColWidths ); // assign array to widget
-    
 }
 
 StructScreen::~StructScreen()

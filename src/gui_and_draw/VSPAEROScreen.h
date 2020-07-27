@@ -325,8 +325,8 @@ protected:
     ProcessUtil m_SolverMonitor;
     ProcessUtil m_ViewerMonitor;
 
-    int* m_PropColWidths;
-    int* m_UnsteadyColWidths;
+    int m_PropColWidths[9];
+    int m_UnsteadyColWidths[4];
 };
 
 #endif  // VSPAEROSCREEN_H

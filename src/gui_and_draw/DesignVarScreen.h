@@ -65,7 +65,8 @@ protected:
 
     vector < SliderAdjRangeInput > m_ParmSliderVec;
 
-    int* m_ColWidths;
+    // Pointer for the widths of each column in the browser to support resizing
+    int m_ColWidths[5]; // 4 columns + one empty as recommened in FLTK docs
 };
 
 #endif

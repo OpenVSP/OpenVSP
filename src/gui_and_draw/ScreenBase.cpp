@@ -509,6 +509,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SubSurfBrowser->labelsize( 12 );
     m_SubSurfBrowser->textsize( 12 );
     m_SubSurfBrowser->callback( staticCB, this );
+    m_SubSurfBrowser->column_widths( m_SubColWidths ); // assign array to widget
     subsurf_group->add( m_SubSurfBrowser );
     m_SubSurfLayout.AddY( browser_h );
     m_SubSurfLayout.AddYGap();
@@ -710,10 +711,6 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSConGroup.AddSlider( m_SSConTessSlider, "Num Points", 100, "%5.0f" );
 
     m_RotActive = true;
-
-    // Initialize the column width pointer (3 columns + one empty as recommened in FLTK docs)
-    m_SubColWidths = new int( 4 );
-    m_SubSurfBrowser->column_widths( m_SubColWidths ); // assign array to widget
 }
 
 bool GeomScreen::Update()

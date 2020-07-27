@@ -623,6 +623,7 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_PropElemBrowser->labelfont( 13 );
     m_PropElemBrowser->textsize( 12 );
     m_PropElemBrowser->callback( staticScreenCB, this );
+    m_PropElemBrowser->column_widths( m_PropColWidths ); // assign array to widget
 
     m_PropElemLayout.AddY( prop_elem_browser_h );
 
@@ -725,6 +726,8 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_UnsteadyGroupBrowser->labelfont( 13 );
     m_UnsteadyGroupBrowser->textsize( 12 );
     m_UnsteadyGroupBrowser->callback( staticScreenCB, this );
+    m_UnsteadyGroupBrowser->column_widths( m_UnsteadyColWidths ); // assign array to widget
+
     m_UnsteadyGroupRightLayout.AddY( UnsteadyBrowserHeight );
 
     m_UnsteadyGroupRightLayout.SetButtonWidth( m_UnsteadyGroupRightLayout.GetRemainX() / 3 );
@@ -751,13 +754,6 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     // Flags to control Kill thread functionality
     m_SolverThreadIsRunning = false;
-
-    // Initialize the column width pointer (8 columns + one empty as recommened in FLTK docs)
-    m_PropColWidths = new int( 9 );
-    m_PropElemBrowser->column_widths( m_PropColWidths ); // assign array to widget
-
-    m_UnsteadyColWidths = new int( 4 );
-    m_UnsteadyGroupBrowser->column_widths( m_UnsteadyColWidths ); // assign array to widget
 }
 
 VSPAEROScreen::~VSPAEROScreen()

@@ -124,9 +124,6 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "
     m_LinkBrowser = m_GenLayout.AddFlBrowser( 310 );
     m_LinkBrowser->callback( staticScreenCB, this );
 
-    // Initialize the column width pointer (7 columns + one empty as recommened in FLTK docs)
-    m_ColWidths = new int( 8 );
-
     // Update m_ColWidths values but keep the memory address 
     m_LinkBrowser->column_widths( m_ColWidths ); // assign array to widget
 }
@@ -227,14 +224,12 @@ bool ParmLinkScreen::Update()
         curr_w = orig_w;
     }
 
-    m_ColWidths[0] = (int)( 0.15 * curr_w );
-    m_ColWidths[1] = (int)( 0.15 * curr_w );
-    m_ColWidths[2] = (int)( 0.2 * curr_w );
-    m_ColWidths[3] = (int)( 0.025 * curr_w );
-    m_ColWidths[4] = (int)( 0.15 * curr_w );
-    m_ColWidths[5] = (int)( 0.15 * curr_w );
-    m_ColWidths[6] = (int)( 0.175 * curr_w );
-    m_ColWidths[7] = 0; // Set last width to 0 according to FLTK documentation
+    // Column width fractios. Set last width to 0 according to FLTK documentation
+    vector < double > col_width_fractions = { 0.15, 0.15, 0.2, 0.025, 0.15, 0.15, 0.175, 0 };
+    for ( size_t i = 0; i < col_width_fractions.size(); i++ )
+    {
+        m_ColWidths[i] = (int)( col_width_fractions[i] * curr_w );
+    }
 
     m_LinkBrowser->column_char( ':' );        // use : as the column character
 
