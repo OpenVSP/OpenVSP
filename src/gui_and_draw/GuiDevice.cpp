@@ -4079,7 +4079,9 @@ void XSecCurveEditor::DeviceCB( Fl_Widget* w )
                 }
 
                 double u_curve;
-                m_XSec->GetBaseEditCurve().FindNearest01( u_curve, split_pnt );
+                VspCurve base_curve = m_XSec->GetBaseEditCurve();
+                base_curve.OffsetX( -0.5 * m_XSec->GetWidth() );
+                base_curve.FindNearest01( u_curve, split_pnt );
 
                 m_XSec->m_SplitU = u_curve;
                 int new_pnt = m_XSec->Split01();

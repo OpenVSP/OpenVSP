@@ -3288,11 +3288,12 @@ void EditCurveXSec::ConvertTo( int newtype )
                     vector < bool > new_g1_vec( ctrl_pts.size() );
                     vector < double > u_vec( t_vec.size() );
 
-                    double offset = -m_Width() / 2.0;
-
                     for ( size_t i = 0; i < ctrl_pts.size(); i++ )
                     {
                         u_vec[i] = t_vec[i] / 4.0; // Store point parameter (0-1) internally
+
+                        // Shift back to be centered at origin
+                        ctrl_pts[i].offset_x( -0.5 * m_Width() );
 
                         // Nondimensionalize by width and height
                         ctrl_pts[i].scale_x( 1.0 / m_Width() );
@@ -3339,11 +3340,12 @@ void EditCurveXSec::ConvertTo( int newtype )
                     vector < double > u_vec( t_vec.size() );
                     vector < bool > new_g1_vec( ctrl_pts.size() );
 
-                    double offset = -m_Width() / 2.0;
-
                     for ( size_t i = 0; i < ctrl_pts.size(); i++ )
                     {
                         u_vec[i] = t_vec[i] / 4.0; // Store point parameter (0-1) internally
+
+                        // Shift back to be centered at origin
+                        ctrl_pts[i].offset_x( -0.5 * m_Width() );
 
                         // Nondimensionalize by width and height
                         ctrl_pts[i].scale_x( 1.0 / m_Width() );
@@ -3855,6 +3857,9 @@ int EditCurveXSec::Split01( double u_split )
         {
             vec3d split_pnt = m_BaseEditCurve.CompPnt( 4.0 * u_split );
 
+            // Shift back to be centered at origin
+            split_pnt.offset_x( -0.5 * m_Width() );
+
             // Nondimensionalize by width and height
             split_pnt.scale_x( 1.0 / m_Width() );
             split_pnt.scale_y( 1.0 / m_Height() );
@@ -3927,6 +3932,9 @@ int EditCurveXSec::Split01( double u_split )
             for ( size_t i = 0; i < ctrl_pnts.size(); i++ )
             {
                 u_vec[i] = t_vec[i] / 4.0;
+
+                // Shift back to be centered at origin
+                ctrl_pnts[i].offset_x( -0.5 * m_Width() );
 
                 // Nondimensionalize by width and height
                 ctrl_pnts[i].scale_x( 1.0 / m_Width() );
