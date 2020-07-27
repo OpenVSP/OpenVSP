@@ -2590,7 +2590,7 @@ void EditCurveXSec::InitShape()
         origin << 0, 0, 0; // Will be shifted by 1/2 width during update
 
         // set hyperellipse params, make sure that entire curve goes from 0 to 4
-        psc.set_axis( 0.5, 1.0 );
+        psc.set_axis( 0.5, 0.5 );
         psc.set_max_degree( 3 );
         psc.set_exponents( 2.0, 2.0 );
         psc.set_exponents_bot( 2.0, 2.0 );
