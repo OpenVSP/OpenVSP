@@ -60,7 +60,7 @@ script:
 deploy:
   provider: releases
   api_key:
-    secure: FpccXk53/3xQYnb9kkTZTIRCV2rI/w+B+KRgohU/UdDouY3Ed0yZnlLYTALkWaWk7TkgoX9aXAGMaJ2aLA9tdPturm/cvWUszDmjcflX+hxiM2VgRwyhi+gUbdWljTYaK59xuV2e8hiprLR14C1bTUPoVl4CvIvJLyDe21uWyNs=
+    secure: YiWgUbqJ5w/wEq7hkUsbHnGMGZBAGVEZAGAMY97Hegn+lVY1MfgKRNMx79a2evW3aoRqFor/CQwbuA1+IrjnKt4XIwKHbIQysFTfQducRmIpbpRYz3yBA8jDFr/j9PmbZ1UD5rkKSYGbuBb0cYRLkEE+YJdUUBzgziH9g9kH7DwzVWCpHbm1NZKV9jQVRkSxrVj2jQupM1c1mcaeIvfUADLpUPW9fOBQTcS+4LNLuyVf+KlaoKUSCVi50g/9I1grfkWAilgvdPgOWE2vABnDcEgH82Vx2qRcoLMLWhCjH/6YbyzoqvpMNXflkXCpD///c/v575RIHEcjURJyWhzIayw+mawxwoaXrSMVrJgPtyRAtEMuACye/QjUbwS9qDPXAXYMy/kdggOAL4YVDwaD+Cmu9+5shwEBFEUyXOoYubMLkeKQjeUDhgG6l06kLMf6QyYSPv3w2LZxzdZs1wS3e2A5L7JYOzLUo+NbGzzkItby+yJrAXAbd7ECtACu+DqVrJKPS0dFXkBpXn7rHG0p2FXPEcNBv7YwquKnUnIcy42n+5qTu7LR4tS5kQ/LuoeuN4YIZ6YZVUbQQEwtEDpRW/IVBQ9f76U5C+xjFYOUL/3nrQV7onjUlhNwDzQUxSRGE3dhzmia3deYN51YLfrWiudo7X7bB3Ik/m5q+22Ylys=
   draft: true
   file_glob: true
   name: "$TRAVIS_COMMIT Draft Deployment"
