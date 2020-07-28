@@ -2578,11 +2578,11 @@ void StructScreen::GuiDeviceCallBack( GuiDevice* device )
     {
 #ifdef  __APPLE__
         system( "open http://www.openvsp.org/wiki/doku.php?id=feamesh" );
-#elif   LINUX
-        system( "xdg-open http://www.openvsp.org/wiki/doku.php?id=feamesh" );
-#else
+#elif   WIN32
         ShellExecute( NULL, "open", "http://www.openvsp.org/wiki/doku.php?id=feamesh",
                       NULL, NULL, SW_SHOWNORMAL );
+#else
+        system( "xdg-open http://www.openvsp.org/wiki/doku.php?id=feamesh" );
 #endif
     }
     else if ( device == &m_StructUnitChoice )
