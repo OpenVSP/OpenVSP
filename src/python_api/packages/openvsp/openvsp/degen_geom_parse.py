@@ -31,9 +31,10 @@ def parse_degen_geom(degen_geom_res_id):
         res = vsp.parse_results_object(degen_id)
         degen_obj = dg.DegenGeom(res)
 
-        surf_id = res.surf[0]
-        res = vsp.parse_results_object(surf_id)
-        degen_obj.surf = dg.DegenSurf(res)
+        surf_ids = vsp.GetStringResults(degen_id, 'surf')
+        for surf_id in surf_ids:
+            res = vsp.parse_results_object(surf_id)
+            degen_obj.surf = dg.DegenSurf(res)
 
         stick_ids = vsp.GetStringResults(degen_id, 'sticks')
         for stick_id in stick_ids:

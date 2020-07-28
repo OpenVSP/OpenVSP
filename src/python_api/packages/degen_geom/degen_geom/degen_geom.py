@@ -30,6 +30,7 @@ class DegenTypeEnum(Enum):
     LIFTING = 1
     BODY = 2
     DISK = 3
+    MESH = 4
 
 
 class DegenGeom:
@@ -46,6 +47,8 @@ class DegenGeom:
             self.type = DegenTypeEnum.BODY
         elif res.type[0] == 'DISK':
             self.type = DegenTypeEnum.DISK
+        elif res.type[0] == 'MESH':
+            self.type = DegenTypeEnum.MESH
         self.flip_normal = res.flip_normal[0]
         self.transmat = TransMatrix(mat=np.reshape(res.transmat, (4, 4), order='F'))
         self.surf = None
