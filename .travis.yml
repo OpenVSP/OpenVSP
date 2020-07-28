@@ -40,7 +40,7 @@ script:
      cmake -DCMAKE_C_COMPILER=/usr/local/opt/llvm@7/bin/clang -DCMAKE_CXX_COMPILER=/usr/local/opt/llvm@7/bin/clang++ -DCMAKE_BUILD_TYPE=Release ../Libraries;
      make -j2;
      cd $TRAVIS_BUILD_DIR/build;
-     cmake -DVSP_LIBRARY_PATH=$TRAVIS_BUILD_DIR/buildlibs -DCXX_OMP_COMPILER=/usr/local/opt/gcc/bin/g++-9 -DC_OMP_COMPILER=/usr/local/opt/gcc/bin/gcc-9 -DCMAKE_C_COMPILER=/usr/local/opt/llvm@7/bin/clang -DCMAKE_CXX_COMPILER=/usr/local/opt/llvm@7/bin/clang++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
+     cmake -DVSP_LIBRARY_PATH=$TRAVIS_BUILD_DIR/buildlibs -DCXX_OMP_COMPILER=/usr/local/bin/g++-9 -DC_OMP_COMPILER=/usr/gcc/bin/gcc-9 -DCMAKE_C_COMPILER=/usr/local/opt/llvm@7/bin/clang -DCMAKE_CXX_COMPILER=/usr/local/opt/llvm@7/bin/clang++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
      make -j2 package;
      ZIPFILE=$TRAVIS_BUILD_DIR/build/OpenVSP-*-MacOS.zip;
      ls $ZIPFILE && (echo "ZIP CREATION SUCCESSFUL" && exit 0) || (echo "ZIP CREATION FAILED" && exit 1);
