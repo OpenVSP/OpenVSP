@@ -760,6 +760,27 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
 
                         string dia_id = geom->FindParm("Diameter", "Design");
                         temp.back()->m_Diameter.Set(ParmMgr.FindParm(dia_id)->Get());
+                        
+                        // Set hub diameter from geometry
+                        bool hub_set = false;
+                        XSecSurf* xsecsurf = geom->GetXSecSurf( 0 );
+                        if ( xsecsurf )
+                        {
+                            XSec* xsec = xsecsurf->FindXSec( 0 );
+                            if ( xsec && xsec->GetType() == vsp::XSEC_PROP )
+                            {
+                                PropXSec* prop_xsec = dynamic_cast <PropXSec*> ( xsec );
+                                temp.back()->m_HubDiameter.Set( 2 * prop_xsec->m_RadiusFrac.GetResult() ); // radius to diameter
+                                temp.back()->m_HubDiameter.Deactivate();
+                                hub_set = true;
+                            }
+                        }
+
+                        if ( !hub_set )
+                        {
+                            temp.back()->m_HubDiameter.Activate();
+                        }
+
                         if (temp.back()->m_HubDiameter() > temp.back()->m_Diameter())
                         {
                             temp.back()->m_HubDiameter.Set(temp.back()->m_Diameter());

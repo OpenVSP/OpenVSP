@@ -1526,7 +1526,7 @@ void VSPAEROScreen::UpdatePropElemDevices()
     if (index >= 0 && index < rotordiskvec.size())
     {
         rotordiskvec[ index ]->m_Diameter.Activate();
-        rotordiskvec[ index ]->m_HubDiameter.Activate();
+        // m_HubDiameter parm activated/deactivated automatically in VSPAEROMgr.UpdateRotorDisks()
         rotordiskvec[ index ]->m_RPM.Activate();
         rotordiskvec[ index ]->m_CP.Activate();
         rotordiskvec[ index ]->m_CT.Activate();
