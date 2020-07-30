@@ -548,6 +548,8 @@ private:
 
     bool m_Verbose;
 
+    int m_iCase; // Index corresponding to the current VSPAERO solution case in non-batch mode runs (see ComputeSolverSingle)
+
     // VSPAERO Inputs from Existing Results
     int m_PreviousStabilityType;
     int m_PreviousNumUnsteadyGroups;

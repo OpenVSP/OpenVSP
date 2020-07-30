@@ -254,6 +254,7 @@ VSPAEROMgrSingleton::VSPAEROMgrSingleton() : ParmContainer()
     m_CurrentUnsteadyGroupIndex = 0;
 
     m_Verbose = false;
+    m_iCase = 0;
 }
 
 void VSPAEROMgrSingleton::ParmChanged( Parm* parm_ptr, int type )
@@ -1177,11 +1178,16 @@ string VSPAEROMgrSingleton::CreateSetupFile()
 
     if ( !m_BatchModeFlag.Get() )
     {
-        //truncate the vectors to just the first element
-        machVec.resize( 1 );
-        alphaVec.resize( 1 );
-        betaVec.resize( 1 );
+        // Identify the current VSPAERO flow condition case
+        double mach = machVec[(int)( ( m_iCase ) % m_MachNpts.Get() )];
+        double beta = betaVec[(int)( ( (int)floor( ( m_iCase ) / m_MachNpts.Get() ) ) % m_BetaNpts.Get() )];
+        double alpha = alphaVec[(int)floor( ( m_iCase ) / ( m_MachNpts.Get() * m_BetaNpts.Get() ) )];
+
+        machVec = { mach };
+        alphaVec = { alpha };
+        betaVec = { beta };
     }
+
     unsigned int i;
     // Mach vector
     fprintf( case_file, "Mach = " );
@@ -1692,10 +1698,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
         m_CpSliceAnalysisType = analysisMethod;
 
         int ncpu = m_NCPU.Get();
-
-
-        //====== Modify/Update the setup file ======//
-        CreateSetupFile();
+        m_iCase = 0;
 
         //====== Modify/Update the groups file for unsteady analysis ======//
         if ( m_RotateBladesFlag() )
@@ -1704,25 +1707,18 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
         }
 
         //====== Loop over flight conditions and solve ======//
-        vector<double> alphaVec;
-        vector<double> betaVec;
-        vector<double> machVec;
-        GetSweepVectors( alphaVec, betaVec, machVec );
+        int alphaNpts = m_AlphaNpts.Get();
+        int betaNpts = m_BetaNpts.Get();
+        int machNpts = m_MachNpts.Get();
 
-        for ( int iAlpha = 0; iAlpha < alphaVec.size(); iAlpha++ )
+        for ( int iAlpha = 0; iAlpha < alphaNpts; iAlpha++ )
         {
-            //Set current alpha value
-            double current_alpha = alphaVec[iAlpha];
-
-            for ( int iBeta = 0; iBeta < betaVec.size(); iBeta++ )
+            for ( int iBeta = 0; iBeta < betaNpts; iBeta++ )
             {
-                //Set current beta value
-                double current_beta = betaVec[iBeta];
-
-                for ( int iMach = 0; iMach < machVec.size(); iMach++ )
+                for ( int iMach = 0; iMach < machNpts; iMach++ )
                 {
-                    //Set current mach value
-                    double current_mach = machVec[iMach];
+                    //====== Modify/Update the setup file ======//
+                    CreateSetupFile();
 
                     //====== Clear VSPAERO output files ======//
                     if ( FileExist( adbFileName ) )
@@ -1760,14 +1756,7 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
 
                     //====== Send command to be executed by the system at the command prompt ======//
                     vector<string> args;
-                    // Set mach, alpha, beta (save to local "current*" variables to use as header information in the results manager)
-                    args.push_back( "-fs" );       // "freestream" override flag
-                    args.push_back( StringUtil::double_to_string( current_mach, "%.2f" ) );
-                    args.push_back( "END" );
-                    args.push_back( StringUtil::double_to_string( current_alpha, "%.3f" ) );
-                    args.push_back( "END" );
-                    args.push_back( StringUtil::double_to_string( current_beta, "%.3f" ) );
-                    args.push_back( "END" );
+
                     // Set number of openmp threads
                     args.push_back( "-omp" );
                     args.push_back( StringUtil::int_to_string( m_NCPU.Get(), "%d" ) );
@@ -1923,6 +1912,8 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     data.m_String = "UpdateAllScreens";
                     MessageMgr::getInstance().Send( "ScreenMgr", NULL, data );
 
+                    m_iCase++; // Increment VSPAERO case index
+
                 }    //Mach sweep loop
 
             }    //beta sweep loop
@@ -1991,11 +1982,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
             CreateGroupsFile();
         }
 
-        vector<double> alphaVec;
-        vector<double> betaVec;
-        vector<double> machVec;
-        GetSweepVectors( alphaVec, betaVec, machVec );
-
         //====== Clear VSPAERO output files ======//
         if ( FileExist( adbFileName ) )
         {
@@ -2032,28 +2018,6 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
 
         //====== generate batch mode command to be executed by the system at the command prompt ======//
         vector<string> args;
-        // Set mach, alpha, beta (save to local "current*" variables to use as header information in the results manager)
-        args.push_back( "-fs" );       // "freestream" override flag
-
-        //====== Loop over flight conditions and solve ======//
-        // Mach
-        for ( int iMach = 0; iMach < machVec.size(); iMach++ )
-        {
-            args.push_back( StringUtil::double_to_string( machVec[iMach], "%.2f" ) );
-        }
-        args.push_back( "END" );
-        // Alpha
-        for ( int iAlpha = 0; iAlpha < alphaVec.size(); iAlpha++ )
-        {
-            args.push_back( StringUtil::double_to_string( alphaVec[iAlpha], "%.3f" ) );
-        }
-        args.push_back( "END" );
-        // Beta
-        for ( int iBeta = 0; iBeta < betaVec.size(); iBeta++ )
-        {
-            args.push_back( StringUtil::double_to_string( betaVec[iBeta], "%.3f" ) );
-        }
-        args.push_back( "END" );
 
         // Set number of openmp threads
         args.push_back( "-omp" );
