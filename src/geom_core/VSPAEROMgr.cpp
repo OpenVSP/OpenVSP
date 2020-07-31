@@ -4104,10 +4104,9 @@ void VSPAEROMgrSingleton::UpdateParmRestrictions()
         m_RotateBladesFlag.Set( false );
     }
 
-    if ( m_RotateBladesFlag() )
+    if ( m_RotateBladesFlag() || m_GroundEffectToggle() )
     {
-        // Only allow 1 FC to avoid viewer crash. Stability calcs are not 
-        // supported with unsteady analysis at this time
+        // Only 1 flow condition supported for unsteady analysis and ground effect calculations
         m_AlphaNpts.Set( 1 );
         m_BetaNpts.Set( 1 );
         m_MachNpts.Set( 1 );
