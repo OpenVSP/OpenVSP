@@ -618,6 +618,7 @@ void FeaMeshMgrSingleton::AddStructureParts()
         {
             start_surf_id = max( start_surf_id, m_SurfVec[i]->GetSurfID() );
         }
+        start_surf_id += 1;
 
         int fix_pnt_cnt = 0;
         vector < FeaPart* > fea_part_vec = fea_struct->GetFeaPartVec();
