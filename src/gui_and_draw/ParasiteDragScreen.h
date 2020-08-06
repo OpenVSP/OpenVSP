@@ -237,7 +237,7 @@ protected:
     //==== Excrescence Tab ====//
     GroupLayout m_ExcrescenceListLayout;
     GroupLayout m_ExcrescenceItemLayout;
-    Fl_Browser* m_ExcresBrowser;
+    ColResizeBrowser* m_ExcresBrowser;
 
     // Excrescence Inputs
     StringInput m_excresNameInput;

@@ -45,10 +45,30 @@ ParmScreen::ParmScreen( ScreenMgr* mgr )  : TabScreen( mgr, 380, 250, "Parm" )
     //===== Link ====//
     m_LinkLayout.SetGroupAndScreen( link_group, this );
     m_LinkLayout.AddDividerBox( "Link To" );
-    m_LinkToBrowser = m_LinkLayout.AddFlBrowser( 75 );
+
+    int width = ( m_LinkLayout.GetRemainX() - 10 ) / 3;
+    static int widths[] = { width, width, width, 0 }; // widths for each column
+
+    // Pointer for the widths of each column in the browser to support resizing
+    int *to_col_widths = new int[3]; // 3 columns
+    int *from_col_widths = new int[3]; // 3 columns
+
+    // Initial column widths & keep the memory address
+    to_col_widths[0] = width;
+    to_col_widths[1] = width;
+    to_col_widths[2] = width;
+    from_col_widths[0] = width;
+    from_col_widths[1] = width;
+    from_col_widths[2] = width;
+
+    m_LinkToBrowser = m_LinkLayout.AddColResizeBrowser( to_col_widths, 3, 75 );
+    m_LinkToBrowser->callback( staticScreenCB, this );
+
     m_LinkLayout.AddYGap();
     m_LinkLayout.AddDividerBox( "Link From" );
-    m_LinkFromBrowser = m_LinkLayout.AddFlBrowser( 75 );
+
+    m_LinkFromBrowser = m_LinkLayout.AddColResizeBrowser( from_col_widths, 3, 75 );
+    m_LinkFromBrowser->callback( staticScreenCB, this );
 
     //===== Adv Link ====//
     m_AdvLinkLayout.SetGroupAndScreen( adv_link_group, this );
@@ -106,11 +126,7 @@ bool ParmScreen::Update()
     m_LinkToBrowser->clear();
     m_LinkFromBrowser->clear();
 
-    int width = ( m_LinkLayout.GetRemainX() - 10 ) / 3;
-    static int widths[] = { width, width, width, 0 }; // widths for each column
-    m_LinkToBrowser->column_widths( widths );   // assign array to widget
     m_LinkToBrowser->column_char( ':' );        // use : as the column character
-    m_LinkFromBrowser->column_widths( widths );   // assign array to widget
     m_LinkFromBrowser->column_char( ':' );        // use : as the column character
 
     char str[256];

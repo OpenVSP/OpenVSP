@@ -117,7 +117,7 @@ private:
     TriggerButton m_AddFeaStructButton;
     TriggerButton m_DelFeaStructButton;
 
-    Fl_Browser* m_StructureSelectBrowser;
+    ColResizeBrowser* m_StructureSelectBrowser;
 
     StringInput m_FeaStructNameInput;
 
@@ -129,7 +129,7 @@ private:
     TriggerButton m_OrientTopButton;
 
     //===== FeaPart Tab Items =====//
-    Fl_Browser* m_FeaPartSelectBrowser;
+    ColResizeBrowser* m_FeaPartSelectBrowser;
 
     TriggerButton m_MovePrtUpButton;
     TriggerButton m_MovePrtDownButton;
@@ -175,7 +175,7 @@ private:
     TriggerButton m_AddFeaPropertyButton;
     TriggerButton m_DelFeaPropertyButton;
 
-    Fl_Browser* m_FeaPropertySelectBrowser;
+    ColResizeBrowser* m_FeaPropertySelectBrowser;
 
     Choice m_FeaPropertyType;
 
@@ -348,12 +348,6 @@ private:
     vector < int > m_SelectedPartIndexVec;
     int m_SelectedFeaPartChoice;
     int m_NumFeaPartChoices;
-
-    // Pointers for the widths of each column in the browser to support resizing
-    // Each sized to number of columns + 1 empty (as recemmended in FLTK docs)
-    int m_StructColWidths[4];
-    int m_PartColWidths[7];
-    int m_PropColWidths[5];
 };
 
 #endif

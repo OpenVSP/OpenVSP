@@ -66,7 +66,7 @@ protected:
     TriggerButton m_HideNoneButton;
     TriggerButton m_HideInvButton;
 
-    Fl_Browser* m_TargetPtBrowser;
+    ColResizeBrowser* m_TargetPtBrowser;
     GeomPicker m_TargetGeomPicker;
 
     ToggleButton m_UFixButton;
@@ -95,7 +95,7 @@ protected:
 
     StringOutput m_NVarOutput;
 
-    Fl_Browser* m_VarBrowser;
+    ColResizeBrowser* m_VarBrowser;
 
     // Var tree tab variables
     GroupLayout m_PickTreeLayout;
@@ -131,11 +131,6 @@ protected:
 
     TriggerButton m_Save;
     TriggerButton m_Load;
-
-    // Pointers for the widths of each column in the browser to support resizing
-    // Each sized to number of columns + 1 empty (as recemmended in FLTK docs)
-    int m_PickColWidths[4];
-    int m_PointsColWidths[9];
 };
 
 #endif

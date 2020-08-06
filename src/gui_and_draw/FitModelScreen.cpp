@@ -81,18 +81,22 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
 
     m_PickPtsLayout.AddDividerBox( "Target Points" );
 
+    // Pointer for the widths of each column in the browser to support resizing
+    int *target_col_widths = new int[8]; // 8 columns
+
+    // Initial column widths & keep the memory address
+    target_col_widths[0] = 90;
+    target_col_widths[1] = 42;
+    target_col_widths[2] = 42;
+    target_col_widths[3] = 42;
+    target_col_widths[4] = 42;
+    target_col_widths[5] = 42;
+    target_col_widths[6] = 42;
+    target_col_widths[7] = 50;
+
     int browser_h = 150;
-    m_TargetPtBrowser = new Fl_Browser( m_PickPtsLayout.GetX(), m_PickPtsLayout.GetY(), m_PickPtsLayout.GetW(), browser_h );
-    m_TargetPtBrowser->type( 1 );
-    m_TargetPtBrowser->labelfont( 13 );
-    m_TargetPtBrowser->labelsize( 12 );
-    m_TargetPtBrowser->textsize( 12 );
+    m_TargetPtBrowser = m_PickPtsLayout.AddColResizeBrowser( target_col_widths, 8, browser_h );
     m_TargetPtBrowser->callback( staticScreenCB, this );
-    m_TargetPtBrowser->column_widths( m_PointsColWidths ); // assign array to widget
-
-    pts_group->add( m_TargetPtBrowser );
-
-    m_PickPtsLayout.AddY( browser_h );
 
     m_TargetGeomPicker.AddExcludeType( MESH_GEOM_TYPE );
     m_TargetGeomPicker.AddExcludeType( HUMAN_GEOM_TYPE );
@@ -175,18 +179,17 @@ FitModelScreen::FitModelScreen( ScreenMgr* mgr ) : TabScreen( mgr, 400, 469 + 10
 
     m_PickVarLayout.AddDividerBox( "Variable List" );
 
+    // Pointer for the widths of each column in the browser to support resizing
+    int *var_col_widths = new int[3]; // 3 columns
+
+    // Initial column widths & keep the memory address
+    var_col_widths[0] = 120;
+    var_col_widths[1] = 160;
+    var_col_widths[2] = 120;
+
     browser_h = 265;
-    m_VarBrowser = new Fl_Browser( m_PickVarLayout.GetX(), m_PickVarLayout.GetY(), m_PickVarLayout.GetW(), browser_h );
-    m_VarBrowser->type( 1 );
-    m_VarBrowser->labelfont( 13 );
-    m_VarBrowser->labelsize( 12 );
-    m_VarBrowser->textsize( 12 );
+    m_VarBrowser = m_PickVarLayout.AddColResizeBrowser( var_col_widths, 3, browser_h );
     m_VarBrowser->callback( staticScreenCB, this );
-    m_VarBrowser->column_widths( m_PickColWidths ); // assign array to widget
-
-    var_group->add( m_VarBrowser );
-
-    m_PickVarLayout.AddY( browser_h );
 
     // Set up tree tab
 
@@ -304,10 +307,6 @@ bool FitModelScreen::Update()
     int i;
     int index;
     char str[256];
-    int border_w = 5;
-    int browser_default_width = 400;
-    double curr_w = ( double )m_FLTK_Window->w ();
-    int orig_w = browser_default_width - border_w;
 
     // Update the number of selected points.
     sprintf( str, "%d", FitModelMgr.GetNumSelected() );
@@ -327,22 +326,9 @@ bool FitModelScreen::Update()
     // Update Fixed target point browser
     m_TargetPtBrowser->clear();
 
-    if ( curr_w < orig_w )
-    {
-        // don't resize the columns if smaller than original width, allow the slider to be used instead
-        curr_w = orig_w;
-    }
-
-    vector < double > expand_values = { 0.15, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0.1, 0 };
-
-    for ( int i = 0; i < ( int )expand_values.size (); i++ )
-    {
-        m_PointsColWidths[i] = ( int )( expand_values[i] * curr_w );
-    }
-
     m_TargetPtBrowser->column_char( ':' );         // use : as the column character
 
-    sprintf( str, "@b@.GEOM:@b@c@.X:@b@c@.Y:@b@c@.Z:@b@c@.U:@b@c@.Type:@b@c@.W:@b@c@.Type" );
+    sprintf( str, "@b@.GEOM:@b@c@.X:@b@c@.Y:@b@c@.Z:@b@c@.U:@b@c@.Type:@b@c@.W:@b@.Type" );
     m_TargetPtBrowser->add( str );
 
     int num_fix = FitModelMgr.GetNumTargetPt();
@@ -409,19 +395,6 @@ bool FitModelScreen::Update()
     //==== Update Parm Browser ====//
     m_VarBrowser->clear();
 
-    if ( curr_w < orig_w )
-    {
-        // don't resize the columns if smaller than original width, allow the slider to be used instead
-        curr_w = orig_w;
-    }
-
-    vector < double > pick_expand_values = { 0.3, 0.4, 0.2, 0 };
-
-    for ( int i = 0; i < ( int )pick_expand_values.size(); i++ )
-    {
-        m_PickColWidths[i] = ( int )( pick_expand_values[i] * curr_w );
-    }
-    
     m_VarBrowser->column_char( ':' );         // use : as the column character
 
     sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM" );

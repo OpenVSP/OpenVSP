@@ -174,6 +174,10 @@ public:
 
     virtual bool Update( );
     virtual void CallBack( Fl_Widget *w );
+    static void staticScreenCB( Fl_Widget* w, void* data )
+    {
+        ( (GeomScreen*)data )->CallBack( w );
+    }
     virtual void GuiDeviceCallBack( GuiDevice* device );
     virtual void SubSurfDispGroup( GroupLayout * group );
 
@@ -263,7 +267,7 @@ public:
     //====== SubSurface Tab =====//
     int m_SubSurfTab_ind;
     GroupLayout* m_CurSubDispGroup;
-    Fl_Browser* m_SubSurfBrowser;
+    ColResizeBrowser* m_SubSurfBrowser;
     TriggerButton m_DelSubSurfButton;
     TriggerButton m_AddSubSurfButton;
     Choice m_SubSurfChoice;
@@ -272,9 +276,6 @@ public:
 
     GroupLayout m_SSCommonGroup;
     StringInput m_SubNameInput;
-
-    // Pointer for the widths of each column in the browser to support resizing
-    int m_SubColWidths[4]; // 3 columns + one empty as recommened in FLTK docs
 
     // SS_Line
     GroupLayout m_SSLineGroup;

@@ -121,16 +121,25 @@ ParmLinkScreen::ParmLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 600, 615, "
 
     // Add Link Browser
     m_GenLayout.AddDividerBox( "Parm Link List" );
-    m_LinkBrowser = m_GenLayout.AddFlBrowser( 310 );
-    m_LinkBrowser->callback( staticScreenCB, this );
 
-    // Update m_ColWidths values but keep the memory address 
-    m_LinkBrowser->column_widths( m_ColWidths ); // assign array to widget
+    // Pointer for the widths of each column in the browser to support resizing
+    int *col_widths = new int[7]; // 7 columns
+
+    // Initial column widths & keep the memory address
+    col_widths[0] = 90;
+    col_widths[1] = 90;
+    col_widths[2] = 105;
+    col_widths[3] = 20;
+    col_widths[4] = 90;
+    col_widths[5] = 90;
+    col_widths[6] = 105;
+
+    m_LinkBrowser = m_GenLayout.AddColResizeBrowser( col_widths, 7, 310 );
+    m_LinkBrowser->callback( staticScreenCB, this );
 }
 
 ParmLinkScreen::~ParmLinkScreen()
 {
-    // Note: deallocating m_ColWidths will cause an exception to be raised
 }
 
 void ParmLinkScreen::Show()
@@ -212,25 +221,6 @@ bool ParmLinkScreen::Update()
 
     //==== Update Link Browser ====//
     m_LinkBrowser->clear();
-
-    // Update the column widths from the current window size
-    int border_w = 5;
-    double curr_w = (double)m_FLTK_Window->w() - border_w;
-    int orig_w = 600 - border_w;
-
-    if ( curr_w < orig_w )
-    {
-        // don't resize the columns if smaller than original width, allow the slider to be used instead
-        curr_w = orig_w;
-    }
-
-    // Column width fractios. Set last width to 0 according to FLTK documentation
-    vector < double > col_width_fractions = { 0.15, 0.15, 0.2, 0.025, 0.15, 0.15, 0.175, 0 };
-    for ( size_t i = 0; i < col_width_fractions.size(); i++ )
-    {
-        m_ColWidths[i] = (int)( col_width_fractions[i] * curr_w );
-    }
-
     m_LinkBrowser->column_char( ':' );        // use : as the column character
 
     sprintf( str, "@b@.COMP_A:@b@.GROUP:@b@.PARM:->:@b@.COMP_B:@b@.GROUP:@b@.PARM" );

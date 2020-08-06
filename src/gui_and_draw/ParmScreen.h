@@ -48,8 +48,8 @@ protected:
     StringOutput m_MaxValString;
 
     GroupLayout m_LinkLayout;
-    Fl_Browser* m_LinkToBrowser;
-    Fl_Browser* m_LinkFromBrowser;
+    ColResizeBrowser* m_LinkToBrowser;
+    ColResizeBrowser* m_LinkFromBrowser;
 
     GroupLayout m_AdvLinkLayout;
     Fl_Browser* m_AdvLinkInputBrowser;

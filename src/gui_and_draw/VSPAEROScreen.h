@@ -213,7 +213,7 @@ protected:
     // Cp Slice Setup
     ToggleButton m_CpSlicerActivateToggle;
     TriggerButton m_CpSliceLastADBButton;
-    Fl_Browser* m_CpSliceBrowser;
+    ColResizeBrowser* m_CpSliceBrowser;
     TriggerButton m_AddCpSliceButton;
     TriggerButton m_DeleteCpSliceButton;
     TriggerButton m_DeleteAllCpSliceButton;
@@ -237,7 +237,7 @@ protected:
     ToggleButton m_ActivateVRefToggle;
 
     // Prop Elem Layout
-    Fl_Browser* m_PropElemBrowser;
+    ColResizeBrowser* m_PropElemBrowser;
     StringOutput m_PropElemDia;
     ToggleButton m_PropAutoHubDia;
     SliderAdjRangeInput m_PropElemHubDia;
@@ -305,7 +305,7 @@ protected:
     GroupLayout m_UnsteadyGroupLeftLayout;
     GroupLayout m_UnsteadyGroupRightLayout;
 
-    Fl_Browser* m_UnsteadyGroupBrowser;
+    ColResizeBrowser* m_UnsteadyGroupBrowser;
     SliderAdjRangeInput m_RPMSlider;
     ToggleButton m_UniformRPMToggle;
 
@@ -325,9 +325,6 @@ protected:
 
     ProcessUtil m_SolverMonitor;
     ProcessUtil m_ViewerMonitor;
-
-    int m_PropColWidths[9];
-    int m_UnsteadyColWidths[4];
 };
 
 #endif  // VSPAEROSCREEN_H

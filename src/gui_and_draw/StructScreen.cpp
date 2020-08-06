@@ -31,9 +31,6 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_FLTK_Window->callback( staticCloseCB, this );
 
     int border = 5;
-    int labelfont = 13;
-    int textsize = 12;
-    int labelsize = 12;
 
     Fl_Group* structTab = AddTab( "Structure" );
     Fl_Group* structTabGroup = AddSubGroup( structTab, border );
@@ -119,15 +116,17 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
 
     m_StructureTabLayout.AddDividerBox( "Structure Selection" );
 
-    int browser_h = 150;
+    // Pointer for the widths of each column in the browser to support resizing
+    int *struct_col_widths = new int[3]; // 3 columns
 
-    m_StructureSelectBrowser = m_StructureTabLayout.AddFlBrowser( browser_h );
-    m_StructureSelectBrowser->type( FL_HOLD_BROWSER );
-    m_StructureSelectBrowser->labelfont( labelfont );
-    m_StructureSelectBrowser->labelsize( labelsize );
-    m_StructureSelectBrowser->textsize( textsize );
+    // Initial column widths & keep the memory address
+    struct_col_widths[0] = 172;
+    struct_col_widths[1] = 151;
+    struct_col_widths[2] = 86;
+
+    int browser_h = 150;
+    m_StructureSelectBrowser = m_StructureTabLayout.AddColResizeBrowser( struct_col_widths, 3, browser_h );
     m_StructureSelectBrowser->callback( staticScreenCB, this );
-    m_StructureSelectBrowser->column_widths( m_StructColWidths ); // assign array to widget
 
     int buttonwidth = m_StructureTabLayout.GetButtonWidth();
 
@@ -218,13 +217,19 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_PartTabLayout.AddSubGroupLayout( m_FeaPartBrowserLayout, m_PartTabLayout.GetRemainX(), browser_h );
     m_PartTabLayout.AddY( browser_h );
 
-    m_FeaPartSelectBrowser = m_FeaPartBrowserLayout.AddFlBrowser( browser_h );
-    m_FeaPartSelectBrowser->type( FL_MULTI_BROWSER );
-    m_FeaPartSelectBrowser->labelfont( labelfont );
-    m_FeaPartSelectBrowser->labelsize( labelsize );
-    m_FeaPartSelectBrowser->textsize( textsize );
+    // Pointer for the widths of each column in the browser to support resizing
+    int *part_col_widths = new int[6]; // 6 columns
+
+    // Initial column widths & keep the memory address
+    part_col_widths[0] = 86;
+    part_col_widths[1] = 65;
+    part_col_widths[2] = 43;
+    part_col_widths[3] = 86;
+    part_col_widths[4] = 43;
+    part_col_widths[5] = 86;
+
+    m_FeaPartSelectBrowser = m_FeaPartBrowserLayout.AddColResizeBrowser( part_col_widths, 6, browser_h );
     m_FeaPartSelectBrowser->callback( staticScreenCB, this );
-    m_FeaPartSelectBrowser->column_widths( m_PartColWidths ); // assign array to widget)
 
     m_PartTabLayout.SetX( start_x );
 
@@ -311,10 +316,8 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_MaterialEditGroup.SetY( m_MaterialTabLayout.GetY() );
 
     m_FeaMaterialSelectBrowser = m_MaterialEditGroup.AddFlBrowser( browser_h );
-    m_FeaMaterialSelectBrowser->type( FL_HOLD_BROWSER );
-    m_FeaMaterialSelectBrowser->labelfont( labelfont );
-    m_FeaMaterialSelectBrowser->labelsize( labelsize );
-    m_FeaMaterialSelectBrowser->textsize( textsize );
+    m_FeaMaterialSelectBrowser->labelfont( 13 );
+    m_FeaMaterialSelectBrowser->labelsize( 12 );
     m_FeaMaterialSelectBrowser->callback( staticScreenCB, this );
 
     m_MaterialEditGroup.SetSameLineFlag( true );
@@ -383,13 +386,17 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_PropertyEditGroup.SetGroupAndScreen( AddSubGroup( propTabGroup, 5 ), this );
     m_PropertyEditGroup.SetY( m_PropertyTabLayout.GetY() );
 
-    m_FeaPropertySelectBrowser = m_PropertyEditGroup.AddFlBrowser( browser_h - 20 );
-    m_FeaPropertySelectBrowser->type( FL_HOLD_BROWSER );
-    m_FeaPropertySelectBrowser->labelfont( labelfont );
-    m_FeaPropertySelectBrowser->labelsize( labelsize );
-    m_FeaPropertySelectBrowser->textsize( textsize );
+    // Pointer for the widths of each column in the browser to support resizing
+    int *prop_col_widths = new int[4]; // 4 columns
+
+    // Initial column widths & keep the memory address
+    prop_col_widths[0] = 130;
+    prop_col_widths[1] = 70;
+    prop_col_widths[2] = 80;
+    prop_col_widths[3] = 130;
+
+    m_FeaPropertySelectBrowser = m_PropertyEditGroup.AddColResizeBrowser( prop_col_widths, 4, browser_h - 20 );
     m_FeaPropertySelectBrowser->callback( staticScreenCB, this );
-    m_FeaPropertySelectBrowser->column_widths( m_PropColWidths ); // assign array to widget
 
     m_PropertyEditGroup.SetChoiceButtonWidth( buttonwidth );
 
@@ -1032,24 +1039,6 @@ void StructScreen::UpdateStructBrowser()
         return;
     }
 
-    int border_w = 5;
-    int browser_default_width = 430;
-    double curr_w = ( double )m_FLTK_Window->w();
-    int orig_w = browser_default_width - border_w;
-
-    if ( curr_w < orig_w )
-    {
-        // don't resize the columns if smaller than original width, allow the slider to be used instead
-        curr_w = orig_w;
-    }
-
-    vector < double > expand_values = { 0.4, 0.35, 0.2, 0 };
-
-    for ( int i = 0; i < ( int )expand_values.size(); i++ )
-    {
-        m_StructColWidths[i] = ( int )( expand_values[i] * curr_w );
-    }
-
     m_StructureSelectBrowser->column_char( ':' );
 
     char str[256];
@@ -1092,24 +1081,6 @@ void StructScreen::UpdateFeaPartBrowser()
     //==== FeaPart Browser ====//
     int scroll_pos = m_FeaPartSelectBrowser->position();
     m_FeaPartSelectBrowser->clear();
-
-    int border_w = 5;
-    int browser_default_width = 430;
-    double curr_w = ( double )m_FLTK_Window->w ();
-    int orig_w = browser_default_width - border_w;
-
-    if ( curr_w < orig_w )
-    {
-        // don't resize the columns if smaller than original width, allow the slider to be used instead
-        curr_w = orig_w;
-    }
-
-    vector < double > pick_expand_values = { 0.2, 0.15, 0.1, 0.2, 0.1, 0.1, 0 };
-
-    for ( int i = 0; i < ( int )pick_expand_values.size(); i++ )
-    {
-        m_PartColWidths[i] = ( int )( pick_expand_values[i] * curr_w );
-    }
 
     m_FeaPartSelectBrowser->column_char( ':' );
 
@@ -1369,26 +1340,6 @@ void StructScreen::UpdateFeaPropertyBrowser()
     int scroll_pos = m_FeaPropertySelectBrowser->position();
     m_FeaPropertySelectBrowser->clear();
 
-    int border_w = 5;
-    int browser_default_width = 430;
-    double curr_w = ( double )m_FLTK_Window->w();
-    int orig_w = browser_default_width - border_w;
-
-    if ( curr_w < orig_w )
-    {
-        // don't resize the columns if smaller than original width, allow the slider to be used instead
-        curr_w = orig_w;
-    }
-
-    vector < double > expand_values = { 0.3, 0.2, 0.15, 0.15, 2 };
-
-    for ( int i = 0; i < ( int )expand_values.size(); i++ )
-    {
-        m_PropColWidths[i] = ( int )( expand_values[i] * curr_w );
-    }
-
-    //static int widths[] = { 130, 70, 80, 130 }; // TODO: Set spacing as function of browser width
-   // m_FeaPropertySelectBrowser->column_widths( widths );
     m_FeaPropertySelectBrowser->column_char( ':' );
 
     char str[256];

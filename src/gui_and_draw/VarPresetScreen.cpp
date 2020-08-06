@@ -100,17 +100,17 @@ VarPresetScreen::VarPresetScreen( ScreenMgr* mgr ) : TabScreen( mgr, 300, 600, "
 
     m_PickLayout.AddDividerBox( "Variable List" );
 
-    int browser_h = 210;
-    m_VarBrowser = new Fl_Browser( m_PickLayout.GetX(), m_PickLayout.GetY(), m_PickLayout.GetW(), browser_h );
-    m_VarBrowser->type( 1 );
-    m_VarBrowser->labelfont( 13 );
-    m_VarBrowser->labelsize( 12 );
-    m_VarBrowser->textsize( 12 );
-    m_VarBrowser->callback( staticScreenCB, this );
-    m_VarBrowser->column_widths( m_ColWidths ); // assign array to widget
+    // Pointer for the widths of each column in the browser to support resizing
+    int *col_widths = new int[3]; // 73 columns
 
-    pick_group->add( m_VarBrowser );
-    m_PickLayout.AddY( browser_h );
+    // Initial column widths & keep the memory address
+    col_widths[0] = 100;
+    col_widths[1] = 100;
+    col_widths[2] = 90;
+
+    int browser_h = 210;
+    m_VarBrowser = m_PickLayout.AddColResizeBrowser( col_widths, 3, browser_h );
+    m_VarBrowser->callback( staticScreenCB, this );
 
     pick_tab->show();
 
@@ -217,25 +217,6 @@ bool VarPresetScreen::Update()
 
     //==== Update Parm Browser ====//
     m_VarBrowser->clear();
-
-    // Update the column widths from the current window size
-    int browser_default_width = 300;
-    int border_w = 5;
-    double curr_w = ( double )m_FLTK_Window->w();
-    int orig_w = browser_default_width - border_w;
-
-    if ( curr_w < orig_w )
-    {
-        // don't resize the columns if smaller than original width, allow the slider to be used instead
-        curr_w = orig_w;
-    }
-
-    vector < double > expand_values = { 0.3, 0.35, 0.2, 0 };
-
-    for ( int i = 0; i < ( int )expand_values.size (); i++ )
-    {
-        m_ColWidths[i] = ( int )( expand_values[i] * curr_w );
-    }
 
     m_VarBrowser->column_char( ':' );         // use : as the column character
 

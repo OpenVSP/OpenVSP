@@ -76,9 +76,18 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_OutputGroup.GetGroup()->callback( staticScreenCB, this );
 
     m_InputGroup.AddDividerBox("Input Parms");
-    m_InputBrowser = m_InputGroup.AddFlBrowser( 100 );
+
+    // Pointer for the widths of each column in the browser to support resizing
+    int *in_col_widths = new int[4]; // 4 columns
+
+    // Initial column widths & keep the memory address
+    in_col_widths[0] = 160;
+    in_col_widths[1] = 85;
+    in_col_widths[2] = 80;
+    in_col_widths[3] = 85;
+
+    m_InputBrowser = m_InputGroup.AddColResizeBrowser( in_col_widths, 4, 100 );
     m_InputBrowser->callback( staticScreenCB, this );
-    m_InputBrowser->column_widths( m_ColWidths ); // assign array to widget
 
     m_InputGroup.SetFitWidthFlag( false );
     m_InputGroup.SetSameLineFlag( true );
@@ -88,9 +97,18 @@ AdvLinkScreen::AdvLinkScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 829, 645, "Ad
     m_InputGroup.AddButton( m_DelAllInput, "Del All" );
 
     m_OutputGroup.AddDividerBox("Output Parms");
-    m_OutputBrowser = m_OutputGroup.AddFlBrowser( 100 );
+
+    // Pointer for the widths of each column in the browser to support resizing
+    int *out_col_widths = new int[4]; // 4 columns
+
+    // Initial column widths & keep the memory address
+    out_col_widths[0] = 160;
+    out_col_widths[1] = 85;
+    out_col_widths[2] = 80;
+    out_col_widths[3] = 85;
+
+    m_OutputBrowser = m_OutputGroup.AddColResizeBrowser( out_col_widths, 4, 100 );
     m_OutputBrowser->callback( staticScreenCB, this );
-    m_OutputBrowser->column_widths( m_ColWidths ); // assign array to widget
 
     m_OutputGroup.SetFitWidthFlag( false );
     m_OutputGroup.SetSameLineFlag( true );
@@ -202,24 +220,6 @@ bool AdvLinkScreen::Update()
     m_OutputBrowser->clear();
     if ( edit_link )
     {
-        int border_w = 5;
-        int browser_default_width = 400;
-        double curr_w = ( double )m_FLTK_Window->w ();
-        int orig_w = browser_default_width - border_w;
-
-        if ( curr_w < orig_w )
-        {
-            // don't resize the columns if smaller than original width, allow the slider to be used instead
-            curr_w = orig_w;
-        }
-
-        vector < double > expand_values = { 0.2, 0.1, 0.1, 0.1, 0 };
-
-        for ( int i = 0; i < ( int )expand_values.size (); i++ )
-        {
-            m_ColWidths[i] = ( int )( expand_values[i] * curr_w );
-        }
-
         m_InputBrowser->column_char( ':' );
 
         sprintf( str, "@b@.VAR_NAME:@b@.PARM:@b@.GROUP:@b@.CONTAINER" );
@@ -236,17 +236,6 @@ bool AdvLinkScreen::Update()
         if ( m_InputBrowserSelect >= 0 && m_InputBrowserSelect < (int)input_vars.size() )
         {
             m_InputBrowser->select( m_InputBrowserSelect + 2 );
-        }
-
-        if ( curr_w < orig_w )
-        {
-            // don't resize the columns if smaller than original width, allow the slider to be used instead
-            curr_w = orig_w;
-        }
-
-        for ( int i = 0; i < ( int )expand_values.size (); i++ )
-        {
-            m_ColWidths[i] = ( int )( expand_values[i] * curr_w );
         }
 
         m_OutputBrowser->column_char( ':' );

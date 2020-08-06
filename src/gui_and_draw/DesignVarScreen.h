@@ -56,7 +56,7 @@ protected:
     TriggerButton m_AddVarButton;
     TriggerButton m_DelVarButton;
 
-    Fl_Browser* m_VarBrowser;
+    ColResizeBrowser* m_VarBrowser;
 
     Choice m_FileTypeChoice;
 
@@ -64,9 +64,6 @@ protected:
     TriggerButton m_LoadButton;
 
     vector < SliderAdjRangeInput > m_ParmSliderVec;
-
-    // Pointer for the widths of each column in the browser to support resizing
-    int m_ColWidths[5]; // 4 columns + one empty as recommened in FLTK docs
 };
 
 #endif

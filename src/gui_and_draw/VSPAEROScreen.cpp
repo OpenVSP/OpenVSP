@@ -437,16 +437,17 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_CpSlicerLayout.SetSameLineFlag( false );
     m_CpSlicerLayout.SetFitWidthFlag( true );
 
+    // Pointer for the widths of each column in the browser to support resizing
+    int *cp_col_widths = new int[3]; // 3 columns
+
+    // Initial column widths & keep the memory address
+    cp_col_widths[0] = ( m_CpSlicerLayout.GetW() / 3 ) + 10;
+    cp_col_widths[1] = m_CpSlicerLayout.GetW() / 3;
+    cp_col_widths[2] = ( m_CpSlicerLayout.GetW() / 3 ) + 10;
+
     int CpBrowserHeight = 55;
-
-    m_CpSliceBrowser = m_CpSlicerLayout.AddFlBrowser( 0 );
-    m_CpSliceBrowser->resize( m_CpSlicerLayout.GetX(), m_CpSlicerLayout.GetY(), m_CpSlicerLayout.GetW(), CpBrowserHeight );
-    m_CpSliceBrowser->type( FL_MULTI_BROWSER );
-    m_CpSliceBrowser->labelfont( 13 );
-    m_CpSliceBrowser->textsize( 12 );
+    m_CpSliceBrowser = m_CpSlicerLayout.AddColResizeBrowser( cp_col_widths, 3, CpBrowserHeight );
     m_CpSliceBrowser->callback( staticScreenCB, this );
-
-    m_CpSlicerLayout.AddY( CpBrowserHeight );
 
     m_CpSlicerLayout.SetSameLineFlag( true );
     m_CpSlicerLayout.SetFitWidthFlag( false );
@@ -616,15 +617,20 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     m_PropElemLayout.AddDividerBox( "Rotor Disk Element Settings" );
 
-    m_PropElemBrowser = m_PropElemLayout.AddFlBrowser( 0 );
-    m_PropElemBrowser->resize( m_PropElemLayout.GetX(), m_PropElemLayout.GetY(), m_PropElemLayout.GetW(), prop_elem_browser_h );
-    m_PropElemBrowser->type( FL_SELECT_BROWSER );
-    m_PropElemBrowser->labelfont( 13 );
-    m_PropElemBrowser->textsize( 12 );
-    m_PropElemBrowser->callback( staticScreenCB, this );
-    m_PropElemBrowser->column_widths( m_PropColWidths ); // assign array to widget
+    // Pointer for the widths of each column in the browser to support resizing
+    int *prop_col_widths = new int[7]; // 7 columns
 
-    m_PropElemLayout.AddY( prop_elem_browser_h );
+    // Initial column widths & keep the memory address
+    prop_col_widths[0] = 0.12 * VSPAERO_SCREEN_WIDTH;
+    prop_col_widths[1] = 0.2 * VSPAERO_SCREEN_WIDTH;
+    prop_col_widths[2] = 0.12 * VSPAERO_SCREEN_WIDTH;
+    prop_col_widths[3] = 0.12 * VSPAERO_SCREEN_WIDTH;
+    prop_col_widths[4] = 0.12 * VSPAERO_SCREEN_WIDTH;
+    prop_col_widths[5] = 0.12 * VSPAERO_SCREEN_WIDTH;
+    prop_col_widths[6] = 0.12 * VSPAERO_SCREEN_WIDTH;
+
+    m_PropElemBrowser = m_PropElemLayout.AddColResizeBrowser( prop_col_widths, 7, prop_elem_browser_h );
+    m_PropElemBrowser->callback( staticScreenCB, this );
 
     input_width = 60;
     int XYZ_button_width = 20;
@@ -731,17 +737,18 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
     m_UnsteadyGroupLeftLayout.AddYGap();
 
     m_UnsteadyGroupRightLayout.AddDividerBox( "Propellers" );
+
+    // Pointer for the widths of each column in the browser to support resizing
+    int *unsteady_col_widths = new int[3]; // 3 columns
+
+    // Initial column widths & keep the memory address
+    unsteady_col_widths[0] = 0.21 * VSPAERO_SCREEN_WIDTH;
+    unsteady_col_widths[1] = 0.17 * VSPAERO_SCREEN_WIDTH;
+    unsteady_col_widths[2] = 0.12 * VSPAERO_SCREEN_WIDTH;
+
     int UnsteadyBrowserHeight = 125;
-
-    m_UnsteadyGroupBrowser = m_UnsteadyGroupRightLayout.AddFlBrowser( 0 );
-    m_UnsteadyGroupBrowser->resize( m_UnsteadyGroupRightLayout.GetX(), m_UnsteadyGroupRightLayout.GetY(), m_UnsteadyGroupRightLayout.GetW(), UnsteadyBrowserHeight );
-    m_UnsteadyGroupBrowser->type( FL_MULTI_BROWSER );
-    m_UnsteadyGroupBrowser->labelfont( 13 );
-    m_UnsteadyGroupBrowser->textsize( 12 );
+    m_UnsteadyGroupBrowser = m_UnsteadyGroupRightLayout.AddColResizeBrowser( unsteady_col_widths, 3, UnsteadyBrowserHeight );
     m_UnsteadyGroupBrowser->callback( staticScreenCB, this );
-    m_UnsteadyGroupBrowser->column_widths( m_UnsteadyColWidths ); // assign array to widget
-
-    m_UnsteadyGroupRightLayout.AddY( UnsteadyBrowserHeight );
 
     m_UnsteadyGroupRightLayout.SetButtonWidth( m_UnsteadyGroupRightLayout.GetRemainX() / 3 );
     m_UnsteadyGroupRightLayout.AddSlider( m_RPMSlider, "RPM", 100, "%7.3f" );
@@ -1566,24 +1573,6 @@ void VSPAEROScreen::UpdatePropElemBrowser()
     char str[256];
     m_PropElemBrowser->clear();
 
-    int border_w = 5;
-    int browser_default_width = VSPAERO_SCREEN_WIDTH;
-    double curr_w = ( double )m_FLTK_Window->w();
-    int orig_w = browser_default_width - border_w;
-
-    if ( curr_w < orig_w )
-    {
-        // don't resize the columns if smaller than original width, allow the slider to be used instead
-        curr_w = orig_w;
-    }
-
-    vector < double > expand_values = { 0.1, 0.18, 0.1, 0.1, 0.1, 0.1, 0.1, 0 };
-
-    for ( int i = 0; i < ( int )expand_values.size(); i++ )
-    {
-        m_PropColWidths[i] = ( int )( expand_values[i] * curr_w );
-    }
-
     m_PropElemBrowser->column_char(':');         // use : as the column character
 
     sprintf(str, "@b@.INDX:@b@.NAME:@b@.DIA:@b@.HUB DIA:@b@.RPM:@b@.CP:@b@.CT");
@@ -2028,8 +2017,7 @@ void VSPAEROScreen::UpdateCpSliceBrowser()
 {
     char str[256];
     m_CpSliceBrowser->clear();
-    static int widths[] = { m_CpSlicerLayout.GetW() / 3, m_CpSlicerLayout.GetW() / 3, m_CpSlicerLayout.GetW() / 3 }; // widths for each column
-    m_CpSliceBrowser->column_widths( widths );    // assign array to widget
+
     m_CpSliceBrowser->column_char( ':' );         // use : as the column character
 
     m_CpSliceBrowser->add( "@b@.Name:@b@.Type:@b@.Position" );
@@ -2130,24 +2118,6 @@ void VSPAEROScreen::UpdateUnsteadyGroups()
 void VSPAEROScreen::UpdateUnsteadyGroupBrowser()
 {
     m_UnsteadyGroupBrowser->clear();
-
-    int border_w = 5;
-    int browser_default_width = VSPAERO_SCREEN_WIDTH;
-    double curr_w = ( double )m_FLTK_Window->w();
-    int orig_w = browser_default_width - border_w;
-
-    if ( curr_w < orig_w )
-    {
-        // don't resize the columns if smaller than original width, allow the slider to be used instead
-        curr_w = orig_w;
-    }
-
-    vector < double > expand_values = { 0.21, 0.17, 0.12, 0 };
-
-    for ( int i = 0; i < ( int )expand_values.size (); i++ )
-    {
-        m_UnsteadyColWidths[i] = ( int )(expand_values[i] * curr_w );
-    }
 
     m_UnsteadyGroupBrowser->column_char( ':' );         // use : as the column character
     m_UnsteadyGroupBrowser->add( "@b@.Name:@b@.Surf:@b@.RPM" );

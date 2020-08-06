@@ -455,14 +455,17 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_ExcrescenceListLayout.SetChoiceButtonWidth( TYPICAL_INPUT_WIDTH );
     m_ExcrescenceListLayout.AddDividerBox( "Excrescence List" );
 
-    m_ExcresBrowser = new Fl_Browser( m_ExcrescenceListLayout.GetX(), m_ExcrescenceListLayout.GetY(), m_ExcrescenceListLayout.GetW(), excrescence_browser_height );
-    m_ExcresBrowser->type( 1 );
-    m_ExcresBrowser->labelfont( 13 );
-    m_ExcresBrowser->labelsize( 12 );
-    m_ExcresBrowser->textsize( 12 );
+    // Pointer for the widths of each column in the browser to support resizing
+    int* col_widths = new int[3]; // 3 columns
+
+    // Initial column widths & keep the memory address
+    col_widths[0] = 115;
+    col_widths[1] = 111;
+    col_widths[2] = 60;
+
+    m_ExcresBrowser = m_ExcrescenceListLayout.AddColResizeBrowser( col_widths, 3, excrescence_browser_height );
     m_ExcresBrowser->callback( staticScreenCB, this );
-    excrescence_group->add( m_ExcresBrowser );
-    m_ExcrescenceListLayout.AddY( excrescence_browser_height );
+
     m_ExcrescenceListLayout.AddYGap();
 
     m_ExcrescenceListLayout.AddButton( m_excresDelete, "Delete Excrescence" );
@@ -912,8 +915,6 @@ void ParasiteDragScreen::UpdateExcresTab()
     // Update Excres Browser
     char str[256];
     m_ExcresBrowser->clear();
-    static int widths[] = { 115, 111, 60 };
-    m_ExcresBrowser->column_widths( widths );
     m_ExcresBrowser->column_char( ':' );
 
     sprintf( str, "@b@.NAME:@b@.TYPE:@b@.VALUE" );

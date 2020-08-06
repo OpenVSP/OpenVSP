@@ -47,8 +47,8 @@ public:
 protected:
 
     Fl_Browser* m_LinkBrowser;
-    Fl_Browser* m_InputBrowser;
-    Fl_Browser* m_OutputBrowser;
+    ColResizeBrowser* m_InputBrowser;
+    ColResizeBrowser* m_OutputBrowser;
     Fl_Text_Editor* m_CodeEditor;
     Fl_Text_Buffer* m_CodeBuffer;
 
@@ -89,8 +89,6 @@ protected:
     int m_InputBrowserSelect;
     int m_OutputBrowserSelect;
 
-    // Pointer for the widths of each column in the browser to support resizing
-    int m_ColWidths[5]; // 4 columns + one empty as recommened in FLTK docs
 };
 
 

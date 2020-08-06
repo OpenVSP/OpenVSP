@@ -499,16 +499,18 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SubSurfLayout.SetGroupAndScreen( subsurf_group, this );
     m_SubSurfLayout.AddDividerBox( "Sub-Surface List" );
 
+    // Pointer for the widths of each column in the browser to support resizing
+    int *col_widths = new int[3]; // 3 columns
+
+    // Initial column widths & keep the memory address
+    col_widths[0] = m_SubSurfLayout.GetW() / 2;
+    col_widths[1] = m_SubSurfLayout.GetW() / 3;
+    col_widths[2] = m_SubSurfLayout.GetW() / 6;
+
     int browser_h = 100;
-    m_SubSurfBrowser = new Fl_Browser( m_SubSurfLayout.GetX(), m_SubSurfLayout.GetY(), m_SubSurfLayout.GetW(), browser_h );
-    m_SubSurfBrowser->type( 1 );
-    m_SubSurfBrowser->labelfont( 13 );
-    m_SubSurfBrowser->labelsize( 12 );
-    m_SubSurfBrowser->textsize( 12 );
-    m_SubSurfBrowser->callback( staticCB, this );
-    m_SubSurfBrowser->column_widths( m_SubColWidths ); // assign array to widget
-    subsurf_group->add( m_SubSurfBrowser );
-    m_SubSurfLayout.AddY( browser_h );
+    m_SubSurfBrowser = m_SubSurfLayout.AddColResizeBrowser( col_widths, 3, browser_h );
+    m_SubSurfBrowser->callback( staticScreenCB, this );
+
     m_SubSurfLayout.AddYGap();
 
     m_SubSurfLayout.AddButton( m_DelSubSurfButton, "Delete" );
@@ -1013,24 +1015,6 @@ bool GeomScreen::Update()
 
     //==== SubSurfBrowser ====//
     m_SubSurfBrowser->clear();
-
-    int border_w = 5;
-    int browser_default_width = 400;
-    double curr_w = ( double )m_FLTK_Window->w();
-    int orig_w = browser_default_width - border_w;
-
-    if ( curr_w < orig_w )
-    {
-        // don't resize the columns if smaller than original width, allow the slider to be used instead
-        curr_w = orig_w;
-    }
-
-    vector < double > expand_values = { 0.3, 0.2, 0.1, 0 };
-
-    for ( int i = 0; i < ( int )expand_values.size(); i++ )
-    {
-        m_SubColWidths[i] = ( int )( expand_values[i] * curr_w );
-    }
 
     m_SubSurfBrowser->column_char( ':' );
 
