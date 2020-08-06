@@ -110,6 +110,7 @@ protected:
     //==== Outputs FLTK ====//
     // Outputs Layout
     GroupLayout m_OptionsLayout;
+    GroupLayout m_PersistenceLayout;
 
     //---- Geometry ----//
     Choice m_SetChoice;

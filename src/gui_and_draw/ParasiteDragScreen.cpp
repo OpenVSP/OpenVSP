@@ -59,57 +59,39 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     // Set up Options Layout on Left Side of GUI
     m_OutputsLayout.AddSubGroupLayout( m_OptionsLayout, DRAG_TAB_WIDTH - 10, layoutHeight - EXECUTE_LAYOUT_HEIGHT );
 
-    m_OutputsLayout.AddSubGroupLayout( m_ExecuteLayout, DRAG_TABLE_WIDTH, EXECUTE_LAYOUT_HEIGHT );
-    Fl_Group* execute_group = new Fl_Group( m_OutputsLayout.GetX(), m_FLTK_Window->h() - EXECUTE_LAYOUT_HEIGHT,
-                                            DRAG_TAB_WIDTH, EXECUTE_LAYOUT_HEIGHT );
-    m_FLTK_Window->add( execute_group );
-    m_ExecuteLayout.SetGroupAndScreen( execute_group, this );
+    // Setup persistent (always shown) sub-groups
+    m_PersistenceLayout.SetGroupAndScreen( m_FLTK_Window, this );
 
-    m_OutputsLayout.AddX( m_OptionsLayout.GetW() + 10 );
+    m_PersistenceLayout.AddX( m_OptionsLayout.GetW() + 15 );
+    m_PersistenceLayout.AddY( m_OptionsLayout.GetY() );
 
     // Set up Slot for Component Label Layout in top left corner of Persistent Space to the Right
-    m_OutputsLayout.AddSubGroupLayout( m_ComponentLabelLayout, TYPICAL_INPUT_WIDTH * 2 + 20, m_OutputsLayout.GetStdHeight() );
-    Fl_Group* componentlabel_group = new Fl_Group( m_OutputsLayout.GetX(), m_OutputsLayout.GetY(),
-            TYPICAL_INPUT_WIDTH * 2 + 20, m_OutputsLayout.GetStdHeight() );
-    m_FLTK_Window->add( componentlabel_group );
-    m_ComponentLabelLayout.SetGroupAndScreen( componentlabel_group, this );
+    m_PersistenceLayout.AddSubGroupLayout( m_ComponentLabelLayout, TYPICAL_INPUT_WIDTH * 2 + 20, m_PersistenceLayout.GetStdHeight() );
 
     // Create Scroll Group for Component Label
-    m_ComponentLabelScrollGroup = m_ComponentLabelLayout.AddFlScroll( m_OutputsLayout.GetStdHeight() * 2 );
+    m_ComponentLabelScrollGroup = m_ComponentLabelLayout.AddFlScroll( m_PersistenceLayout.GetStdHeight() * 2 );
 
-    m_OutputsLayout.AddX( m_ComponentLabelLayout.GetW() );
+    m_PersistenceLayout.AddX( m_ComponentLabelLayout.GetW() );
 
     // Set up Table Labels Layout in Persistent Space to the Right
-    m_OutputsLayout.AddSubGroupLayout( m_MainTableLabelsLayout, DRAG_TABLE_WIDTH - m_ComponentLabelLayout.GetW(), m_OutputsLayout.GetStdHeight() );
-    Fl_Group* dragmaintablelabels_group = new Fl_Group( m_OutputsLayout.GetX(), m_OutputsLayout.GetY(),
-            DRAG_TABLE_WIDTH - m_ComponentLabelLayout.GetW(), m_OutputsLayout.GetStdHeight() );
-    m_FLTK_Window->add( dragmaintablelabels_group );
-    m_MainTableLabelsLayout.SetGroupAndScreen( dragmaintablelabels_group, this );
+    m_PersistenceLayout.AddSubGroupLayout( m_MainTableLabelsLayout, DRAG_TABLE_WIDTH - m_ComponentLabelLayout.GetW(), m_PersistenceLayout.GetStdHeight() );
 
     // Create Scroll Group for Table Labels
-    m_MainTableLabelsScrollGroup = m_MainTableLabelsLayout.AddFlScroll( m_OutputsLayout.GetStdHeight() * 2 );
+    m_MainTableLabelsScrollGroup = m_MainTableLabelsLayout.AddFlScroll( m_PersistenceLayout.GetStdHeight() * 2 );
 
-    m_OutputsLayout.AddX( m_MainTableLabelsLayout.GetW() );
+    m_PersistenceLayout.AddX( m_MainTableLabelsLayout.GetW() );
 
     // Set up Const Table Labels Layout in Persistnet Space to the Right
-    m_OutputsLayout.AddSubGroupLayout( m_ConstantTableLabelsLayout, DRAG_TABLE_PERSISTENT_WIDTH, m_OutputsLayout.GetStdHeight() * 2 );
-    Fl_Group* dragconsttablelabels_group = new Fl_Group( m_OutputsLayout.GetX(), m_OutputsLayout.GetY(),
-            DRAG_TABLE_PERSISTENT_WIDTH, m_OutputsLayout.GetStdHeight() );
-    m_FLTK_Window->add( dragconsttablelabels_group );
-    m_ConstantTableLabelsLayout.SetGroupAndScreen( dragconsttablelabels_group, this );
+    m_PersistenceLayout.AddSubGroupLayout( m_ConstantTableLabelsLayout, DRAG_TABLE_PERSISTENT_WIDTH, m_PersistenceLayout.GetStdHeight() * 2 );
 
     // Create Scroll Group for Const Labels
-    m_ConstTableLabelsScrollGroup = m_ConstantTableLabelsLayout.AddFlScroll( m_OutputsLayout.GetStdHeight() * 2 );
+    m_ConstTableLabelsScrollGroup = m_ConstantTableLabelsLayout.AddFlScroll( m_PersistenceLayout.GetStdHeight() * 2 );
 
-    m_OutputsLayout.AddY( m_OutputsLayout.GetStdHeight() + 2 );
-    m_OutputsLayout.AddX( -( m_MainTableLabelsLayout.GetW() + m_ComponentLabelLayout.GetW() ) );
+    m_PersistenceLayout.AddY( m_PersistenceLayout.GetStdHeight() + 2 );
+    m_PersistenceLayout.AddX( -( m_MainTableLabelsLayout.GetW() + m_ComponentLabelLayout.GetW() ) );
 
     // Set up Table Labels Layout in Persistent Space to the Right
-    m_OutputsLayout.AddSubGroupLayout( m_TableCompNamesLayout, TYPICAL_INPUT_WIDTH * 2 + 20, m_OutputsLayout.GetStdHeight() );
-    Fl_Group* comptablelabels_group = new Fl_Group( m_OutputsLayout.GetX(), m_OutputsLayout.GetY(),
-            TYPICAL_INPUT_WIDTH * 2 + 20, m_OutputsLayout.GetH() );
-    m_FLTK_Window->add( comptablelabels_group );
-    m_TableCompNamesLayout.SetGroupAndScreen( comptablelabels_group, this );
+    m_PersistenceLayout.AddSubGroupLayout( m_TableCompNamesLayout, TYPICAL_INPUT_WIDTH * 2 + 20, m_PersistenceLayout.GetStdHeight() );
 
     // Create Scroll Group for Table Labels
     m_MainTableCompNamesScrollGroup = m_TableCompNamesLayout.AddFlScroll( drag_table_height - 15 );
@@ -118,17 +100,13 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_LabelScrollbarCB = m_MainTableCompNamesScrollGroup->scrollbar.callback();
     m_MainTableCompNamesScrollGroup->scrollbar.callback( staticScreenCB, this );
 
-    m_OutputsLayout.AddX( m_TableCompNamesLayout.GetW() );
+    m_PersistenceLayout.AddX( m_TableCompNamesLayout.GetW() );
 
     // Set up Table Layout in Persistent Space to the Right
-    m_OutputsLayout.AddSubGroupLayout( m_TableLayout, DRAG_TABLE_WIDTH - m_TableCompNamesLayout.GetW(), layoutHeight );
-    Fl_Group* dragtable_group = new Fl_Group( m_OutputsLayout.GetX(), m_OutputsLayout.GetY(),
-            DRAG_TABLE_WIDTH - m_TableCompNamesLayout.GetW(), m_OutputsLayout.GetH() );
-    m_FLTK_Window->add( dragtable_group );
-    m_TableLayout.SetGroupAndScreen( dragtable_group, this );
+    m_PersistenceLayout.AddSubGroupLayout( m_TableLayout, DRAG_TABLE_WIDTH - m_TableCompNamesLayout.GetW(), layoutHeight );
 
     // Set the Main Table as the Resizable Portion
-    m_FLTK_Window->resizable( dragtable_group );
+    m_FLTK_Window->resizable( m_TableLayout.GetGroup() );
     m_FLTK_Window->size_range( m_FLTK_Window->w(), m_FLTK_Window->h() );
     m_TableLayout.SetSameLineFlag( false );
 
@@ -144,14 +122,10 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_MainTableScrollGroup->hscrollbar.callback( staticScreenCB, this );
     m_MainTableScrollGroup->hscrollbar.when( FL_WHEN_CHANGED );
 
-    m_OutputsLayout.AddX( m_TableLayout.GetW() );
+    m_PersistenceLayout.AddX( m_TableLayout.GetW() );
 
     // Set up Constant View Layout
-    m_OutputsLayout.AddSubGroupLayout( m_ConstantViewLayout, DRAG_TABLE_PERSISTENT_WIDTH, layoutHeight );
-    Fl_Group* persistent_group = new Fl_Group( m_OutputsLayout.GetX(), m_OutputsLayout.GetY(),
-            DRAG_TABLE_PERSISTENT_WIDTH, m_OutputsLayout.GetH() );
-    m_FLTK_Window->add( persistent_group );
-    m_ConstantViewLayout.SetGroupAndScreen( persistent_group, this );
+    m_PersistenceLayout.AddSubGroupLayout( m_ConstantViewLayout, DRAG_TABLE_PERSISTENT_WIDTH, layoutHeight );
 
     // Create Scroll Group for Constant Table Rows
     m_ConstantTableScrollGroup = m_ConstantViewLayout.AddFlScroll( drag_table_height - 15 );
@@ -163,6 +137,11 @@ ParasiteDragScreen::ParasiteDragScreen( ScreenMgr* mgr ) : TabScreen( mgr,
     m_ConstantTableScrollGroup->scrollbar.when( FL_WHEN_CHANGED );
 
     m_ConstantViewLayout.AddYGap();
+
+    // Lower left execute and export area
+    m_PersistenceLayout.SetY( TOTAL_WINDOW_HEIGHT - EXECUTE_LAYOUT_HEIGHT );
+    m_PersistenceLayout.SetX( 5 );
+    m_PersistenceLayout.AddSubGroupLayout( m_ExecuteLayout, DRAG_TAB_WIDTH, EXECUTE_LAYOUT_HEIGHT );
 
     //---- Execute ----//
     m_ExecuteLayout.SetSameLineFlag( false );
