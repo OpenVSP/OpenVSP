@@ -149,8 +149,11 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_StructureTabLayout.ForceNewLine();
     m_StructureTabLayout.AddYGap();
 
-    m_StructGroup.SetGroupAndScreen( AddSubGroup( structTab, 5 ), this );
-    m_StructGroup.SetY( m_StructureTabLayout.GetY() );
+    m_StructureTabLayout.SetSameLineFlag( false );
+    m_StructureTabLayout.SetFitWidthFlag( true );
+
+    m_StructureTabLayout.AddSubGroupLayout( m_StructGroup, m_StructureTabLayout.GetW(), m_StructureTabLayout.GetStdHeight() + m_StructureTabLayout.GetGapHeight() );
+    m_StructureTabLayout.AddY( m_StructGroup.GetH() );
 
     buttonwidth *= 2;
 
@@ -161,8 +164,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
 
     m_StructGroup.AddYGap();
 
-    m_StructGeneralGroup.SetGroupAndScreen( AddSubGroup( structTab, 5 ), this );
-    m_StructGeneralGroup.SetY( m_StructGroup.GetY() );
+    m_StructureTabLayout.AddSubGroupLayout( m_StructGeneralGroup, m_StructureTabLayout.GetW(), m_StructureTabLayout.GetRemainY() );
 
     m_StructGeneralGroup.AddDividerBox( "Orientation" );
 
@@ -177,8 +179,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
 
     m_StructGeneralGroup.ForceNewLine();
 
-    m_StructWingGroup.SetGroupAndScreen( AddSubGroup( structTab, 5 ), this );
-    m_StructWingGroup.SetY( m_StructGroup.GetY() );
+    m_StructureTabLayout.AddSubGroupLayout( m_StructWingGroup, m_StructureTabLayout.GetW(), m_StructureTabLayout.GetRemainY() );
 
     m_StructWingGroup.AddDividerBox( "Orientation" );
 
@@ -311,9 +312,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
 
     m_MaterialTabLayout.AddDividerBox( "Material Selection" );
 
-    m_MaterialEditGroup.SetGroupAndScreen( AddSubGroup( matTabGroup, 5 ), this );
-
-    m_MaterialEditGroup.SetY( m_MaterialTabLayout.GetY() );
+    m_MaterialTabLayout.AddSubGroupLayout( m_MaterialEditGroup, m_MaterialTabLayout.GetW(), m_MaterialTabLayout.GetRemainY() );
 
     m_FeaMaterialSelectBrowser = m_MaterialEditGroup.AddFlBrowser( browser_h );
     m_FeaMaterialSelectBrowser->labelfont( 13 );
@@ -383,8 +382,7 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
 
     m_PropertyTabLayout.AddDividerBox( "Property Selection" );
 
-    m_PropertyEditGroup.SetGroupAndScreen( AddSubGroup( propTabGroup, 5 ), this );
-    m_PropertyEditGroup.SetY( m_PropertyTabLayout.GetY() );
+    m_PropertyTabLayout.AddSubGroupLayout( m_PropertyEditGroup, m_PropertyTabLayout.GetW(), m_PropertyTabLayout.GetRemainY() );
 
     // Pointer for the widths of each column in the browser to support resizing
     int *prop_col_widths = new int[4]; // 4 columns

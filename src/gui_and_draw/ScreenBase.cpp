@@ -532,17 +532,15 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
 
     m_SubSurfLayout.AddYGap();
 
-    m_SSCommonGroup.SetGroupAndScreen( AddSubGroup( subsurf_tab, 5 ), this );
-    m_SSCommonGroup.SetY( m_SubSurfLayout.GetY() );
+    m_SubSurfLayout.AddSubGroupLayout( m_SSCommonGroup, m_SubSurfLayout.GetW(), m_SubSurfLayout.GetRemainY() );
+
     m_SSCommonGroup.AddDividerBox( "Sub-Surface Parameters" );
     m_SSCommonGroup.AddInput( m_SubNameInput, "Name" );
 
     // Indivdual SubSurface Parameters
-    int start_y = m_SSCommonGroup.GetY();
 
     //==== SSLine ====//
-    m_SSLineGroup.SetGroupAndScreen( AddSubGroup( subsurf_tab, 5 ), this );
-    m_SSLineGroup.SetY( start_y );
+    m_SSCommonGroup.AddSubGroupLayout( m_SSLineGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
 
     int remain_x = m_SubSurfLayout.GetRemainX();
 
@@ -572,8 +570,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSLineGroup.AddSlider( m_SSLineConstSlider, "Value", 1, "%5.4f" );
 
     //==== SSRectangle ====//
-    m_SSRecGroup.SetGroupAndScreen( AddSubGroup( subsurf_tab, 5 ), this );
-    m_SSRecGroup.SetY( start_y );
+    m_SSCommonGroup.AddSubGroupLayout( m_SSRecGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
     remain_x = m_SSRecGroup.GetRemainX();
 
     m_SSRecGroup.SetFitWidthFlag( false );
@@ -598,8 +595,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSRecGroup.AddSlider( m_SSRecThetaSlider, "Theta", 25, "%5.4f" );
 
     //==== SS_Ellipse ====//
-    m_SSEllGroup.SetGroupAndScreen( AddSubGroup( subsurf_tab, 5 ), this );
-    m_SSEllGroup.SetY( start_y );
+    m_SSCommonGroup.AddSubGroupLayout( m_SSEllGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
     remain_x = m_SSEllGroup.GetRemainX();
 
     m_SSEllGroup.SetFitWidthFlag( false );
@@ -625,8 +621,7 @@ GeomScreen::GeomScreen( ScreenMgr* mgr, int w, int h, const string & title ) :
     m_SSEllGroup.AddSlider( m_SSEllThetaSlider, "Theta", 25, "%5.4f" );
 
     //===== SSControl ====//
-    m_SSConGroup.SetGroupAndScreen(AddSubGroup(subsurf_tab, 5), this);
-    m_SSConGroup.SetY(start_y);
+    m_SSCommonGroup.AddSubGroupLayout( m_SSConGroup, m_SSCommonGroup.GetW(), m_SSCommonGroup.GetRemainY() );
     remain_x = m_SSConGroup.GetRemainX();
 
     m_SSConGroup.SetFitWidthFlag(false);
