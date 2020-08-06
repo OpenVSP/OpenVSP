@@ -176,7 +176,7 @@ VspButton* GroupLayout::AddParmButton( const char* label )
     VspButton* button = new VspButton( m_X, m_Y, m_ButtonWidth, m_StdHeight );
     button->copy_label( label );
     button->box( FL_THIN_UP_BOX );
-    button->labelfont( 1 );
+    button->labelfont( FL_HELVETICA_BOLD );
     button->labelsize( 12 );
     button->labelcolor( FL_BLACK );
     m_Group->add( button );
@@ -208,7 +208,7 @@ void GroupLayout::AddSlider( SliderAdjRangeInput& slid_adj_input,
     //==== Slider ====//
     int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + m_InputWidth + init_used_w, m_SliderWidth );
     Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
-    slider->type( 5 );
+    slider->type( FL_HOR_NICE_SLIDER );
     slider->box( FL_THIN_DOWN_BOX );
     slider->color( FL_BACKGROUND2_COLOR );
     slider->selection_color( FL_SELECTION_COLOR );
@@ -265,7 +265,7 @@ void GroupLayout::AddSlider( SliderAdjRange2Input& slid_adj_input,
     //==== Slider ====//
     int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 2 * m_InputWidth + init_used_w, m_SliderWidth );
     Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
-    slider->type( 5 );
+    slider->type( FL_HOR_NICE_SLIDER );
     slider->box( FL_THIN_DOWN_BOX );
     slider->color( FL_BACKGROUND2_COLOR );
     slider->selection_color( FL_SELECTION_COLOR );
@@ -332,7 +332,7 @@ void GroupLayout::AddSlider( FractParmSlider& slid_adj_input,
     //==== Slider ====//
     int sw = FitWidth( m_ButtonWidth + 2 * m_RangeButtonWidth + 2 * m_InputWidth + init_used_w, m_SliderWidth );
     Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
-    slider->type( 5 );
+    slider->type( FL_HOR_NICE_SLIDER );
     slider->box( FL_THIN_DOWN_BOX );
     slider->color( FL_BACKGROUND2_COLOR );
     slider->selection_color( FL_SELECTION_COLOR );
@@ -392,7 +392,7 @@ void GroupLayout::AddSlider( SliderInput& slider_input, const char* label, doubl
     //==== Slider ====//
     int sw = FitWidth( m_ButtonWidth + m_InputWidth + init_used_w + used_w, m_SliderWidth );
     Fl_Slider* slider = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
-    slider->type( 5 );
+    slider->type( FL_HOR_NICE_SLIDER );
     slider->box( FL_THIN_DOWN_BOX );
     slider->color( FL_BACKGROUND2_COLOR );
     slider->selection_color( FL_SELECTION_COLOR );
@@ -431,7 +431,7 @@ void GroupLayout::AddButton( CheckButton& cbutton, const char* label )
     Fl_Check_Button* flbutton = new Fl_Check_Button( m_X, m_Y, bw, m_StdHeight, label );
     flbutton->box( FL_DOWN_BOX );
     flbutton->down_box( FL_DOWN_BOX );
-    flbutton->labelfont( 1 );
+    flbutton->labelfont( FL_HELVETICA_BOLD );
     flbutton->labelsize( 12 );
     flbutton->labelcolor( FL_DARK_BLUE );
     flbutton->copy_label( label );
@@ -452,7 +452,7 @@ void GroupLayout::AddButton( ToggleButton& tbutton, const char* label )
     //==== Add Check Button ====//
     int bw = FitWidth( 0, m_ButtonWidth );
     Fl_Light_Button* flbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight );
-    flbutton->labelfont( 1 );
+    flbutton->labelfont( FL_HELVETICA_BOLD );
     flbutton->labelsize( 12 );
     flbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
     flbutton->copy_label( label );
@@ -475,7 +475,7 @@ void GroupLayout::AddButton( CheckButtonBit& cbutton, const char* label, int val
     //==== Add Check Button ====//
     int bw = FitWidth( 0, m_ButtonWidth );
     Fl_Light_Button* flbutton = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, label );
-    flbutton->labelfont( 1 );
+    flbutton->labelfont( FL_HELVETICA_BOLD );
     flbutton->labelsize( 12 );
     flbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
     flbutton->labelcolor( FL_DARK_BLUE );
@@ -498,7 +498,7 @@ void GroupLayout::AddButton( TriggerButton& tbutton, const char* label, int used
     //==== Add Check Button ====//
     int bw = FitWidth( used_w, m_ButtonWidth );
     Fl_Button* flbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, label );
-    flbutton->labelfont( 1 );
+    flbutton->labelfont( FL_HELVETICA_BOLD );
     flbutton->labelsize( 12 );
     flbutton->labelcolor( FL_DARK_BLUE );
     flbutton->copy_label( label );
@@ -520,7 +520,7 @@ void GroupLayout::AddButton( ParmButton& pbutton, const char* label )
     int bw = FitWidth( 0, m_ButtonWidth );
     VspButton* flbutton = new VspButton( m_X, m_Y, bw, m_StdHeight, label );
     flbutton->copy_label( label );
-    flbutton->labelfont( 1 );
+    flbutton->labelfont( FL_HELVETICA_BOLD );
     flbutton->labelsize( 12 );
     flbutton->labelcolor( FL_DARK_BLUE );
     m_Group->add( flbutton );
@@ -540,7 +540,7 @@ void GroupLayout::AddButton( RadioButton& rbutton, const char* label, int val )
     //==== Add Radio Button ====//
     int bw = FitWidth( 0, m_ButtonWidth );
     Fl_Round_Button* flbutton = new Fl_Round_Button( m_X, m_Y, bw, m_StdHeight, label );
-    flbutton->labelfont( 1 );
+    flbutton->labelfont( FL_HELVETICA_BOLD );
     flbutton->labelsize( 12 );
     flbutton->labelcolor( FL_DARK_BLUE );
     flbutton->copy_label( label );
@@ -565,7 +565,7 @@ Fl_Box* GroupLayout::AddDividerBox( const string& text, int used_w )
     Fl_Box* flbox = new Fl_Box( m_X, m_Y, dw, m_DividerHeight );
     flbox->box( FL_BORDER_BOX );
     flbox->color( ( Fl_Color )12 );
-    flbox->labelfont( 1 );
+    flbox->labelfont( FL_HELVETICA_BOLD );
     flbox->labelcolor( FL_BACKGROUND2_COLOR );
     flbox->copy_label( text.c_str() );
     m_Group->add( flbox );
@@ -603,7 +603,7 @@ void GroupLayout::AddLegendEntry( const string& text, Fl_Color c )
     Fl_Button* button = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight );
     button->copy_label( text.c_str() );
     button->box( FL_THIN_UP_BOX );
-    button->labelfont( 1 );
+    button->labelfont( FL_HELVETICA_BOLD );
     button->labelsize( 12 );
     button->labelcolor( FL_BLACK );
     m_Group->add( button );
@@ -635,7 +635,7 @@ Vsp_Canvas* GroupLayout::AddCanvas( int w, int h, double xmin, double xmax, doub
     Vsp_Canvas* canvas = new Vsp_Canvas( m_X + wyaxis, m_Y, w - wyaxis, h - hxaxis, label );
     Vsp_Canvas::current(canvas);
     canvas->box( FL_DOWN_BOX );
-    canvas->color( 7 );
+    canvas->color( FL_BACKGROUND2_COLOR );
     canvas->border( 0 );
     m_Group->add( canvas );
 
@@ -777,9 +777,9 @@ void GroupLayout::AddOutput( StringOutput& string_output)
     int iw = FitWidth( m_ButtonWidth, m_InputWidth );
     Fl_Output* output = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
     output->color( ( Fl_Color )23 );
-    output->labelfont( 1 );
+    output->labelfont( FL_HELVETICA_BOLD );
     output->labelsize( 12 );
-    output->textfont( 1 );
+    output->textfont( FL_HELVETICA_BOLD );
     output->textsize( 12 );
     m_Group->add( output );
     AddX( iw );
@@ -802,9 +802,9 @@ void GroupLayout::AddOutput( StringOutput& string_output, const char* label, int
     int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
     Fl_Output* output = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
     output->color( ( Fl_Color )23 );
-    output->labelfont( 1 );
+    output->labelfont( FL_HELVETICA_BOLD );
     output->labelsize( 12 );
-    output->textfont( 1 );
+    output->textfont( FL_HELVETICA_BOLD );
     output->textsize( 12 );
     m_Group->add( output );
     AddX( iw );
@@ -826,9 +826,9 @@ void GroupLayout::AddOutput( Output& output, const char* label, const char* form
     int iw = FitWidth( m_ButtonWidth + used_w, m_InputWidth );
     Fl_Output* floutput = new Fl_Output( m_X, m_Y, iw, m_StdHeight );
     floutput->color( ( Fl_Color )23 );
-    floutput->labelfont( 1 );
+    floutput->labelfont( FL_HELVETICA_BOLD );
     floutput->labelsize( 12 );
-    floutput->textfont( 1 );
+    floutput->textfont( FL_HELVETICA_BOLD );
     floutput->textsize( 12 );
 
     m_Group->add( floutput );
@@ -923,7 +923,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, 
 
     Fl_Button* but_ll = new Fl_Button( m_X, m_Y, butw, m_StdHeight, "<<" );
     but_ll->box( FL_THIN_UP_BOX );
-    but_ll->labelfont( 1 );
+    but_ll->labelfont( FL_HELVETICA_BOLD );
     but_ll->labelsize( 20 );
     but_ll->labelcolor( ( Fl_Color )4 );
     but_ll->align( Fl_Align( FL_ALIGN_CLIP ) );
@@ -932,7 +932,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, 
 
     Fl_Button* but_l = new Fl_Button( m_X, m_Y, butw, m_StdHeight, "<" );
     but_l->box( FL_THIN_UP_BOX );
-    but_l->labelfont( 1 );
+    but_l->labelfont( FL_HELVETICA_BOLD );
     but_l->labelsize( 20 );
     but_l->labelcolor( ( Fl_Color )4 );
     but_l->align( Fl_Align( FL_ALIGN_CLIP ) );
@@ -942,9 +942,9 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, 
     int iw = FitWidth( 4 * butw + used_w, m_InputWidth );
 
     Fl_Int_Input* int_inp = new Fl_Int_Input( m_X + 4, m_Y, iw - 8, m_StdHeight );
-    int_inp->type( 2 );
+    int_inp->type( FL_INT_INPUT );
     int_inp->box( FL_THIN_DOWN_BOX );
-    int_inp->labelfont( 1 );
+    int_inp->labelfont( FL_HELVETICA_BOLD );
     int_inp->textsize( 14 );
     int_inp->align( Fl_Align( FL_ALIGN_CENTER ) );
     int_inp->when( FL_WHEN_ENTER_KEY | FL_WHEN_RELEASE );
@@ -953,7 +953,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, 
 
     Fl_Button* but_r = new Fl_Button( m_X, m_Y, butw, m_StdHeight, ">" );
     but_r->box( FL_THIN_UP_BOX );
-    but_r->labelfont( 1 );
+    but_r->labelfont( FL_HELVETICA_BOLD );
     but_r->labelsize( 20 );
     but_r->labelcolor( ( Fl_Color )4 );
     but_r->align( Fl_Align( FL_ALIGN_CLIP ) );
@@ -962,7 +962,7 @@ void GroupLayout::AddIndexSelector( IndexSelector& selector, const char* label, 
 
     Fl_Button* but_rr = new Fl_Button( m_X, m_Y, butw, m_StdHeight, ">>" );
     but_rr->box( FL_THIN_UP_BOX );
-    but_rr->labelfont( 1 );
+    but_rr->labelfont( FL_HELVETICA_BOLD );
     but_rr->labelsize( 20 );
     but_rr->labelcolor( ( Fl_Color )4 );
     but_rr->align( Fl_Align( FL_ALIGN_CLIP ) );
@@ -983,7 +983,7 @@ void GroupLayout::AddColorPicker( ColorPicker& picker )
     //==== Button ====//
     Fl_Button* colorButton = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight * 2, "Color:" );
     colorButton->box( FL_THIN_UP_BOX );
-    colorButton->labelfont( 1 );
+    colorButton->labelfont( FL_HELVETICA_BOLD );
     colorButton->labelsize( 12 );
     colorButton->labelcolor( FL_BLACK );
     m_Group->add( colorButton );
@@ -1005,7 +1005,7 @@ void GroupLayout::AddColorPicker( ColorPicker& picker )
     for ( int i = 0 ; i < 3 ; i++ )
     {
         sliders[i] = new Fl_Value_Slider( m_X, m_Y + i * ch, sw, ch );
-        sliders[i]->type( 5 );
+        sliders[i]->type( FL_HOR_NICE_SLIDER );
         sliders[i]->color( FL_BACKGROUND2_COLOR );
         sliders[i]->selection_color( ( Fl_Color )1 );
         sliders[i]->maximum( 255 );
@@ -1053,7 +1053,7 @@ void GroupLayout::AddChoice( Choice & choice, const char* label, int used_w )
     //==== Choice Button ====//
         button = new VspButton( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, label );
         button->box( FL_THIN_UP_BOX );
-        button->labelfont( 1 );
+        button->labelfont( FL_HELVETICA_BOLD );
         button->labelsize( 12 );
         button->labelcolor( FL_BLACK );
         button->copy_label( label );
@@ -1065,7 +1065,7 @@ void GroupLayout::AddChoice( Choice & choice, const char* label, int used_w )
     int choice_w = FitWidth( m_ChoiceButtonWidth + used_w, m_SliderWidth );
     Fl_Choice* fl_choice = new Fl_Choice( m_X, m_Y, choice_w, m_StdHeight );
     fl_choice->down_box( FL_BORDER_BOX );
-    fl_choice->textfont( 1 );
+    fl_choice->textfont( FL_HELVETICA_BOLD );
     fl_choice->textsize( 12 );
     fl_choice->textcolor( FL_DARK_BLUE );
     m_Group->add( fl_choice );
@@ -1131,7 +1131,7 @@ Fl_Check_Browser* GroupLayout::AddCheckBrowser( int h )
     int w = FitWidth( 0, m_DividerHeight );
 
     Fl_Check_Browser* check_browser = new Fl_Check_Browser( m_X, m_Y, w, h );
-    check_browser->labelfont( 1 );
+    check_browser->labelfont( FL_HELVETICA_BOLD );
     check_browser->textsize( 12 );
     check_browser->when( FL_WHEN_RELEASE_ALWAYS );
     m_Group->add( check_browser );
@@ -1151,7 +1151,7 @@ void GroupLayout::AddLabel( const char* label, int width )
     Fl_Button* button = new Fl_Button( m_X, m_Y, width, m_StdHeight );
     button->copy_label( label );
     button->box( FL_THIN_UP_BOX );
-    button->labelfont( 1 );
+    button->labelfont( FL_HELVETICA_BOLD );
     button->labelsize( 12 );
     button->labelcolor( FL_BLACK );
     m_Group->add( button );
@@ -1167,7 +1167,7 @@ void GroupLayout::AddParmPicker( ParmPicker & parm_picker )
     //==== Container Button ====//
     Fl_Button* button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, "Container" );
     button->box( FL_THIN_UP_BOX );
-    button->labelfont( 1 );
+    button->labelfont( FL_HELVETICA_BOLD );
     button->labelsize( 12 );
     button->labelcolor( FL_BLACK );
     m_Group->add( button );
@@ -1177,7 +1177,7 @@ void GroupLayout::AddParmPicker( ParmPicker & parm_picker )
     int choice_w = FitWidth( m_ChoiceButtonWidth, m_SliderWidth );
     Fl_Choice* container_choice = new Fl_Choice( m_X, m_Y, choice_w, m_StdHeight );
     container_choice->down_box( FL_BORDER_BOX );
-    container_choice->textfont( 1 );
+    container_choice->textfont( FL_HELVETICA_BOLD );
     container_choice->textsize( 12 );
     container_choice->textcolor( FL_DARK_BLUE );
     m_Group->add( container_choice );
@@ -1189,7 +1189,7 @@ void GroupLayout::AddParmPicker( ParmPicker & parm_picker )
     //==== Group Button ====//
     button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, "Group" );
     button->box( FL_THIN_UP_BOX );
-    button->labelfont( 1 );
+    button->labelfont( FL_HELVETICA_BOLD );
     button->labelsize( 12 );
     button->labelcolor( FL_BLACK );
     m_Group->add( button );
@@ -1199,7 +1199,7 @@ void GroupLayout::AddParmPicker( ParmPicker & parm_picker )
     choice_w = FitWidth( m_ChoiceButtonWidth, m_SliderWidth );
     Fl_Choice* group_choice = new Fl_Choice( m_X, m_Y, choice_w, m_StdHeight );
     group_choice->down_box( FL_BORDER_BOX );
-    group_choice->textfont( 1 );
+    group_choice->textfont( FL_HELVETICA_BOLD );
     group_choice->textsize( 12 );
     group_choice->textcolor( FL_DARK_BLUE );
     m_Group->add( group_choice );
@@ -1211,7 +1211,7 @@ void GroupLayout::AddParmPicker( ParmPicker & parm_picker )
     //==== Parm Button ====//
     button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight, "Parm" );
     button->box( FL_THIN_UP_BOX );
-    button->labelfont( 1 );
+    button->labelfont( FL_HELVETICA_BOLD );
     button->labelsize( 12 );
     button->labelcolor( FL_BLACK );
     m_Group->add( button );
@@ -1221,7 +1221,7 @@ void GroupLayout::AddParmPicker( ParmPicker & parm_picker )
     choice_w = FitWidth( m_ChoiceButtonWidth, m_SliderWidth );
     Fl_Choice* parm_choice = new Fl_Choice( m_X, m_Y, choice_w, m_StdHeight );
     parm_choice->down_box( FL_BORDER_BOX );
-    parm_choice->textfont( 1 );
+    parm_choice->textfont( FL_HELVETICA_BOLD );
     parm_choice->textsize( 12 );
     parm_choice->textcolor( FL_DARK_BLUE );
     m_Group->add( parm_choice );
@@ -1320,7 +1320,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
 
     //==== Left Slider ====//
     Fl_Slider* sliderL = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
-    sliderL->type( 5 );
+    sliderL->type( FL_HOR_NICE_SLIDER );
     sliderL->box( FL_THIN_DOWN_BOX );
     sliderL->color( FL_BACKGROUND2_COLOR );
     sliderL->selection_color( FL_SELECTION_COLOR );
@@ -1372,7 +1372,7 @@ void GroupLayout::AddSkinControl( SkinControl & skin_control, const char* label,
 
     //==== Right Slider ====//
     Fl_Slider* sliderR = new Fl_Slider( m_X, m_Y, sw, m_StdHeight );
-    sliderR->type( 5 );
+    sliderR->type( FL_HOR_NICE_SLIDER );
     sliderR->box( FL_THIN_DOWN_BOX );
     sliderR->color( FL_BACKGROUND2_COLOR );
     sliderR->selection_color( FL_SELECTION_COLOR );
@@ -1503,7 +1503,7 @@ void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w, string te
         Fl_Button* button = new Fl_Button( m_X, m_Y, m_ChoiceButtonWidth, m_StdHeight );
         button->copy_label( text.c_str() );
         button->box( FL_THIN_UP_BOX );
-        button->labelfont( 1 );
+        button->labelfont( FL_HELVETICA_BOLD );
         button->labelsize( 12 );
         button->labelcolor( FL_BLACK );
         m_Group->add( button );
@@ -1515,7 +1515,7 @@ void GroupLayout::AddGeomPicker( GeomPicker & geom_picker, int used_w, string te
     int choice_w = FitWidth( used_w, m_SliderWidth );
     Fl_Choice* geom_choice = new Fl_Choice( m_X, m_Y, choice_w, m_StdHeight );
     geom_choice->down_box( FL_BORDER_BOX );
-    geom_choice->textfont( 1 );
+    geom_choice->textfont( FL_HELVETICA_BOLD );
     geom_choice->textsize( 12 );
     geom_choice->textcolor( FL_DARK_BLUE );
     m_Group->add( geom_choice );
@@ -1537,7 +1537,7 @@ void GroupLayout::AddCurveEditor( CurveEditor& curve_editor )
     AddOutput( curve_editor.m_CurveType, "Type", GetW() / 2 );
 
     Fl_Button* convbutton = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Convert" );
-    convbutton->labelfont( 1 );
+    convbutton->labelfont( FL_HELVETICA_BOLD );
     convbutton->labelsize( 12 );
     convbutton->labelcolor( FL_DARK_BLUE );
     convbutton->copy_label( "Convert to:" );
@@ -1596,7 +1596,7 @@ void GroupLayout::AddCurveEditor( CurveEditor& curve_editor )
     //==== Add Split Button ====//
     int bw = FitWidth( 0, m_ButtonWidth );
     Fl_Button* spbutton = new Fl_Button( m_X, m_Y, bw, m_StdHeight, "Split" );
-    spbutton->labelfont( 1 );
+    spbutton->labelfont( FL_HELVETICA_BOLD );
     spbutton->labelsize( 12 );
     spbutton->labelcolor( FL_DARK_BLUE );
     spbutton->copy_label( "Split" );
@@ -1607,7 +1607,7 @@ void GroupLayout::AddCurveEditor( CurveEditor& curve_editor )
     AddSlider( curve_editor.m_SplitPtSlider, split_label.c_str(), 1, "%3.2f", m_ButtonWidth );
 
     Fl_Light_Button* splitpickbutton = new Fl_Light_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Split Pick" );
-    splitpickbutton->labelfont( 1 );
+    splitpickbutton->labelfont( FL_HELVETICA_BOLD );
     splitpickbutton->labelsize( 12 );
     splitpickbutton->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
     splitpickbutton->copy_label( "Split Pick" );
@@ -1622,7 +1622,7 @@ void GroupLayout::AddCurveEditor( CurveEditor& curve_editor )
     //==== Add Delete Button and Toggle ====//
     bw = FitWidth( 0, m_ButtonWidth );
     Fl_Button* deletebutton = new Fl_Button( m_X, m_Y, m_ButtonWidth, m_StdHeight, "Del" );
-    deletebutton->labelfont( 1 );
+    deletebutton->labelfont( FL_HELVETICA_BOLD );
     deletebutton->labelsize( 12 );
     deletebutton->labelcolor( FL_DARK_BLUE );
     deletebutton->copy_label( "Del" );
@@ -1638,7 +1638,7 @@ void GroupLayout::AddCurveEditor( CurveEditor& curve_editor )
     m_ButtonWidth += 15;
 
     Fl_Light_Button* deletetoggle = new Fl_Light_Button( m_X, m_Y, bw, m_StdHeight, "Del Pick" );
-    deletetoggle->labelfont( 1 );
+    deletetoggle->labelfont( FL_HELVETICA_BOLD );
     deletetoggle->labelsize( 12 );
     deletetoggle->align( Fl_Align( 132 | FL_ALIGN_INSIDE ) );
     deletetoggle->copy_label( "Del Pick" );
@@ -1668,7 +1668,7 @@ Fl_Browser* GroupLayout::AddFlBrowser( int height )
     assert( m_Group && m_Screen );
 
     Fl_Browser* browser = new Fl_Browser( m_X, m_Y, m_W, height);
-    browser->type(2);
+    browser->type( FL_HOLD_BROWSER );
     browser->textsize(12);
     m_Group->add( browser );
 
