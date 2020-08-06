@@ -4397,3 +4397,147 @@ int XSecCurveEditor::ihit( int mx, int my, int r )
 
     return -1;
 }
+
+//=====================================================================//
+//===================         ColResizeBrowser      ===================//
+//=====================================================================//
+
+ColResizeBrowser::ColResizeBrowser( int X, int Y, int W, int H, const char* L ) : Fl_Browser( X, Y, W, H, L )
+{
+    m_ColSepColor = Fl_Color( FL_GRAY );
+    m_LastCursor = FL_CURSOR_DEFAULT;
+    m_ShowColSepFlag = true; // Show columns by default
+    m_DragCol = -1;
+    m_Widths = NULL;
+    m_NumCol = 0;
+}
+
+int ColResizeBrowser::handle( int e )
+{
+    if ( !m_ShowColSepFlag )
+    {
+        // Not showing column separators? Use default Fl_Browser::handle() logic
+        return( Fl_Browser::handle( e ) );
+    }
+
+    // Handle column resizing
+    int ret = 0;
+    switch ( e )
+    {
+        case FL_ENTER:
+        case FL_MOVE: {
+            change_cursor( ( which_col_near_mouse() >= 0 ) ? FL_CURSOR_WE
+                           : FL_CURSOR_DEFAULT );
+            ret = 1;
+            break;
+        }
+        case FL_PUSH: {
+            int whichcol = which_col_near_mouse();
+            if ( whichcol >= 0 )
+            {
+                // CLICKED ON RESIZER? START DRAGGING
+                m_DragCol = whichcol;
+                change_cursor( FL_CURSOR_DEFAULT );
+                return 1;   // eclipse event from Fl_Browser's handle()
+            }               // (prevents FL_PUSH from selecting item)
+            break;
+        }
+        case FL_DRAG: {
+            if ( m_DragCol != -1 )
+            {
+                // Sum up column widths to determine position
+                int mousex = Fl::event_x() + hposition();
+                int newwidth = mousex - x();
+                for ( int t = 0; m_Widths[t] && t < m_DragCol; t++ )
+                {
+                    newwidth -= m_Widths[t];
+                }
+                if ( newwidth > 0 )
+                {
+                    // Apply new width, redraw interface
+                    m_Widths[m_DragCol] = newwidth;
+                    if ( m_Widths[m_DragCol] < 2 )
+                    {
+                        m_Widths[m_DragCol] = 2;
+                    }
+                    recalc_hscroll();
+                    redraw();
+                }
+                return 1;   // eclipse event from Fl_Browser's handle()
+            }
+            break;
+        }
+        case FL_LEAVE:
+        case FL_RELEASE: {
+            if ( m_DragCol >= 0 )
+            {
+                m_DragCol = -1;                         // disable drag mode
+                change_cursor( FL_CURSOR_DEFAULT );     // ensure normal cursor
+                return 1;        // eclipse event
+            }
+            ret = 1;
+            break;
+        }
+    }
+
+    return( Fl_Browser::handle( e ) ? 1 : ret );
+}
+
+void ColResizeBrowser::draw()
+{
+    // DRAW BROWSER
+    Fl_Browser::draw();
+
+    if ( m_ShowColSepFlag && m_Widths )
+    {
+        // DRAW COLUMN SEPARATORS
+        int colx = this->x() - hposition();
+        int X, Y, W, H;
+        Fl_Browser::bbox( X, Y, W, H );
+        fl_color( m_ColSepColor );
+        for ( int t = 0; t < m_NumCol - 1; t++ ) // Don't draw a line at the end
+        {
+            colx += m_Widths[t];
+            if ( colx > X && colx < ( X + W ) )
+            {
+                fl_line( colx, Y, colx, Y + H - 1 );
+            }
+        }
+    }
+}
+
+int ColResizeBrowser::which_col_near_mouse() 
+{
+    int X, Y, W, H;
+    Fl_Browser::bbox( X, Y, W, H );            // area inside browser's box()
+
+    // EVENT NOT INSIDE BROWSER AREA? (eg. on a scrollbar) or NULL width pointer
+    if ( !Fl::event_inside( X, Y, W, H ) || !m_Widths )
+    {
+        return( -1 );
+    }
+
+    int mousex = Fl::event_x() + hposition();
+    int colx = this->x();
+    for ( int t = 0; m_Widths[t]; t++ )
+    {
+        colx += m_Widths[t];
+        int diff = mousex - colx;
+        // MOUSE 'NEAR' A COLUMN?
+        //     Return column #
+        if ( diff >= -4 && diff <= 4 )
+        {
+            return( t );
+        }
+    }
+
+    return( -1 );
+}
+
+void ColResizeBrowser::recalc_hscroll() 
+{
+    int size = textsize();
+    textsize( size + 1 );   // XXX: changing textsize() briefly triggers
+    textsize( size );       // XXX: recalc Fl_Browser's scrollbars
+    redraw();
+}

@@ -82,6 +82,8 @@ class GroupLayout;
 //  DriverGroupBank (None)          Bank of SliderInputs with radio button controls to implement driver group
 //  SkinControl     (2 Parms)       Compound control for fuselage skinning
 //  SkinOutput      (None)          Fuselage skinning compound output
+//  ColResizeBrowser (None)         Fl_Browser with resizeable columns. Based on the code provided at Erco's 
+//                                      FLTK Cheat Page: http://seriss.com/people/erco/fltk/#Fl_Resize_Browser
 
 class VspSlider : public Fl_Slider
 {
@@ -1363,6 +1365,81 @@ protected:
     EditCurveXSec* m_XSec;
 
     virtual void Update();
+
+};
+
+class ColResizeBrowser : public Fl_Browser
+{
+public:
+
+    ColResizeBrowser( int X, int Y, int W, int H, const char* L = 0 );
+
+    ~ColResizeBrowser()         { if ( m_Widths ) delete m_Widths; }
+
+    // GET/SET COLUMN SEPARATOR LINE COLOR
+    Fl_Color GetColSepColor() const {
+        return( m_ColSepColor );
+    }
+    void SetColSepColor( Fl_Color val ) {
+        m_ColSepColor = val;
+    }
+
+    // GET/SET DISPLAY OF COLUMN SEPARATOR LINES
+    //     1: show lines, 0: don't show lines
+    //
+    bool GetShowColSepFlag() const {
+        return( m_ShowColSepFlag );
+    }
+    void SetShowColSepFlag( bool val ) {
+        m_ShowColSepFlag = val;
+    }
+
+    // GET/SET COLUMN WIDTHS ARRAY
+    //    Just like fltk method, but array is non-const.
+    //
+    int* column_widths() const {
+        return( m_Widths );
+    }
+    void column_widths( int* width_ptr ) {
+        m_Widths = width_ptr;
+        Fl_Browser::column_widths( width_ptr );
+    }
+
+    void num_col( size_t num )
+    {
+        m_NumCol = num;
+    }
+
+protected:
+
+    int handle( int e ); // MANAGE EVENTS TO HANDLE COLUMN RESIZING
+
+    void draw();
+
+private:
+
+    // CHANGE CURSOR
+    //     Does nothing if cursor already set to value specified.
+    void change_cursor( Fl_Cursor newcursor ) {
+        if ( newcursor == m_LastCursor ) return;
+        window()->cursor( newcursor );
+        m_LastCursor = newcursor;
+    }
+
+    // RETURN THE COLUMN MOUSE IS 'NEAR'
+    //     Returns -1 if none.
+    int which_col_near_mouse();
+
+    // FORCE SCROLLBAR RECALC
+    //    Prevents scrollbar from getting out of sync during column drags
+    void recalc_hscroll();
+
+    Fl_Color  m_ColSepColor;     // color of column separator lines 
+    bool      m_ShowColSepFlag;  // flag to enable drawing column separators
+    Fl_Cursor m_LastCursor;      // saved cursor state info
+    int       m_DragCol;         // col# user is dragging (-1 = not dragging)
+    int*      m_Widths;          // pointer to user's width[] array
+    size_t    m_NumCol;          // number of columns
 
 };
 
