@@ -1678,6 +1678,26 @@ Fl_Browser* GroupLayout::AddFlBrowser( int height )
     return browser;
 }
 
+//==== Add Column Resize Browser ====//
+ColResizeBrowser* GroupLayout::AddColResizeBrowser( int* width_array_ptr, size_t num_col, int height )
+{
+    assert( m_Group && m_Screen && width_array_ptr );
+
+    ColResizeBrowser* browser = new ColResizeBrowser( m_X, m_Y, m_W, height );
+    browser->type( FL_MULTI_BROWSER );
+    browser->textsize( 12 );
+    browser->labelfont( 13 );
+    browser->labelsize( 12 );
+    browser->column_widths( width_array_ptr );
+    browser->num_col( num_col );
+    m_Group->add( browser );
+
+    AddY( height );
+    NewLineX();
+
+    return browser;
+}
+
 //==== Add Fl Text Editor ====//
 Fl_Text_Editor* GroupLayout::AddFlTextEditor( int height )
 {

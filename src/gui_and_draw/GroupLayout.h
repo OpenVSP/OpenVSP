@@ -168,6 +168,7 @@ public:
     void AddCurveEditor( CurveEditor& curve_editor );
 
     Fl_Browser* AddFlBrowser( int height );
+    ColResizeBrowser* AddColResizeBrowser( int* width_array_ptr, size_t num_col, int height );
     Fl_Text_Editor* AddFlTextEditor( int height );
     Fl_Text_Display* AddFlTextDisplay( int height );
     Fl_Scroll* AddFlScroll( int height );
