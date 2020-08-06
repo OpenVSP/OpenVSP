@@ -245,17 +245,13 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_AfLayout.SetButtonWidth( show_w );
     m_AfLayout.AddButton( m_ShowXSecButton, "Show" );
 
-    m_ConvertCEDITGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_ConvertCEDITGroup.SetY( m_AfLayout.GetY() );
-    m_ConvertCEDITGroup.SetX( m_AfLayout.GetX() );
+    m_AfLayout.AddSubGroupLayout( m_ConvertCEDITGroup, m_AfLayout.GetW(), m_AfLayout.GetStdHeight() );
     m_ConvertCEDITGroup.SetButtonWidth( convert_w );
     m_ConvertCEDITGroup.SetFitWidthFlag( false );
     m_ConvertCEDITGroup.AddButton( m_ConvertCEDITButton, "Convert CEDIT" );
 
-    m_EditCEDITGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
+    m_AfLayout.AddSubGroupLayout( m_EditCEDITGroup, m_AfLayout.GetW(), m_AfLayout.GetStdHeight() );
     m_EditCEDITGroup.SetFitWidthFlag( false );
-    m_EditCEDITGroup.SetY( m_AfLayout.GetY() );
-    m_EditCEDITGroup.SetX( m_AfLayout.GetX() );
     m_EditCEDITGroup.SetButtonWidth( convert_w );
     m_EditCEDITGroup.AddButton( m_EditCEDITButton, "Edit Curve" );
 
@@ -264,13 +260,10 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_AfLayout.SetFitWidthFlag( true );
     m_AfLayout.SetSameLineFlag( false );
 
-    //==== Location To Start XSec Layouts ====//
-    int start_y = m_AfLayout.GetY();
+    m_AfLayout.AddYGap();
 
     //==== Super XSec ====//
-    m_SuperGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_SuperGroup.SetY( start_y );
-    m_SuperGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_SuperGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_SuperGroup.AddSlider( m_SuperHeightSlider, "Height", 10, "%6.5f" );
     m_SuperGroup.AddSlider( m_SuperWidthSlider,  "Width", 10, "%6.5f" );
     m_SuperGroup.AddYGap();
@@ -284,22 +277,16 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_SuperGroup.AddSlider( m_SuperN_botSlider, "N Bottom", 10, "%6.5f" );
 
     //==== Circle XSec ====//
-    m_CircleGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_CircleGroup.SetY( start_y );
-    m_CircleGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_CircleGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_CircleGroup.AddSlider(  m_DiameterSlider, "Diameter", 10, "%6.5f" );
 
     //==== Ellipse XSec ====//
-    m_EllipseGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_EllipseGroup.SetY( start_y );
-    m_EllipseGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_EllipseGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_EllipseGroup.AddSlider(  m_EllipseHeightSlider, "Height", 10, "%6.5f" );
     m_EllipseGroup.AddSlider(  m_EllipseWidthSlider, "Width", 10, "%6.5f" );
 
     //==== Rounded Rect ====//
-    m_RoundedRectGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_RoundedRectGroup.SetY( start_y );
-    m_RoundedRectGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_RoundedRectGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_RoundedRectGroup.AddSlider( m_RRHeightSlider, "Height", 10, "%6.5f" );
     m_RoundedRectGroup.AddSlider( m_RRWidthSlider,  "Width", 10, "%6.5f" );
     m_RoundedRectGroup.AddYGap();
@@ -311,8 +298,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_RoundedRectGroup.AddButton( m_RRKeyCornerButton, "Key Corner" );
 
     //==== General Fuse XSec ====//
-    m_GenGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_GenGroup.SetY( start_y );
+    m_AfLayout.AddSubGroupLayout( m_GenGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_GenGroup.AddSlider( m_GenHeightSlider, "Height", 10, "%6.5f" );
     m_GenGroup.AddSlider( m_GenWidthSlider, "Width", 10, "%6.5f" );
     m_GenGroup.AddYGap();
@@ -328,9 +314,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_GenGroup.AddSlider( m_GenLowStrSlider, "LowStr", 1, "%7.5f" );
 
     //==== Four Series AF ====//
-    m_FourSeriesGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_FourSeriesGroup.SetY( start_y );
-    m_FourSeriesGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_FourSeriesGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_FourSeriesGroup.AddOutput( m_FourNameOutput, "Name" );
     m_FourSeriesGroup.AddYGap();
     m_FourSeriesGroup.AddSlider( m_FourChordSlider, "Chord", 10, "%7.3f" );
@@ -387,9 +371,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_FourSeriesGroup.AddCounter( m_FourDegreeCounter, "Degree", 125 );
 
     //==== Six Series AF ====//
-    m_SixSeriesGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_SixSeriesGroup.SetY( start_y );
-    m_SixSeriesGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_SixSeriesGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_SixSeriesGroup.AddOutput( m_SixNameOutput, "Name" );
     m_SixSeriesGroup.AddYGap();
 
@@ -422,34 +404,26 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_SixSeriesGroup.AddCounter( m_SixDegreeCounter, "Degree", 125 );
 
     //==== Biconvex AF ====//
-    m_BiconvexGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_BiconvexGroup.SetY( start_y );
-    m_BiconvexGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_BiconvexGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_BiconvexGroup.AddSlider( m_BiconvexChordSlider, "Chord", 10, "%7.3f" );
     m_BiconvexGroup.AddSlider( m_BiconvexThickChordSlider, "T/C", 1, "%7.5f" );
 
     //==== Wedge AF ====//
-    m_WedgeGroup.SetGroupAndScreen(  AddSubGroup( af_tab, 5 ), this );
-    m_WedgeGroup.SetY( start_y );
-    m_WedgeGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_WedgeGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_WedgeGroup.AddSlider( m_WedgeChordSlider, "Chord", 10, "%7.3f" );
     m_WedgeGroup.AddSlider( m_WedgeThickChordSlider, "T/C", 1, "%7.5f" );
     m_WedgeGroup.AddYGap();
     m_WedgeGroup.AddSlider( m_WedgeThickLocSlider, "Thick_Loc", 1, "%7.5f" );
 
     //==== Fuse File ====//
-    m_FuseFileGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_FuseFileGroup.SetY( start_y );
-    m_FuseFileGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_FuseFileGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_FuseFileGroup.AddButton( m_ReadFuseFileButton, "Read File" );
     m_FuseFileGroup.AddYGap();
     m_FuseFileGroup.AddSlider( m_FileHeightSlider, "Height", 10, "%7.3f" );
     m_FuseFileGroup.AddSlider( m_FileWidthSlider, "Width", 10, "%7.3f" );
 
     //==== Airfoil File ====//
-    m_AfFileGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_AfFileGroup.SetY( start_y );
-    m_AfFileGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_AfFileGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_AfFileGroup.AddButton( m_AfReadFileButton, "Read File" );
     m_AfFileGroup.AddYGap();
     m_AfFileGroup.AddOutput( m_AfFileNameOutput, "Name" );
@@ -469,9 +443,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_AfFileGroup.AddCounter( m_AfFileDegreeCounter, "Degree", 125 );
 
     //==== CST Airfoil ====//
-    m_CSTAirfoilGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_CSTAirfoilGroup.SetY( start_y );
-    m_CSTAirfoilGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_CSTAirfoilGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_CSTAirfoilGroup.AddButton( m_CSTContLERadButton, "Enforce Continuous LE Radius" );
 
     m_CSTAirfoilGroup.AddYGap();
@@ -524,9 +496,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
 
 
     //==== VKT AF ====//
-    m_VKTGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_VKTGroup.SetY( start_y );
-    m_VKTGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_VKTGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_VKTGroup.AddSlider( m_VKTChordSlider, "Chord", 10, "%7.3f" );
     m_VKTGroup.AddYGap();
     m_VKTGroup.AddSlider( m_VKTEpsilonSlider, "Epsilon", 1, "%7.5f" );
@@ -544,9 +514,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_VKTGroup.AddCounter( m_VKTDegreeCounter, "Degree", 125 );
 
     //==== Four Series AF ====//
-    m_FourDigitModGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_FourDigitModGroup.SetY( start_y );
-    m_FourDigitModGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_FourDigitModGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_FourDigitModGroup.AddOutput( m_FourModNameOutput, "Name" );
     m_FourDigitModGroup.AddYGap();
     m_FourDigitModGroup.AddSlider( m_FourModChordSlider, "Chord", 10, "%7.3f" );
@@ -600,9 +568,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_FourDigitModGroup.AddCounter( m_FourModDegreeCounter, "Degree", 125 );
 
     //==== Five Digit AF ====//
-    m_FiveDigitGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_FiveDigitGroup.SetY( start_y );
-    m_FiveDigitGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_FiveDigitGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_FiveDigitGroup.AddOutput( m_FiveNameOutput, "Name" );
     m_FiveDigitGroup.AddYGap();
     m_FiveDigitGroup.AddSlider( m_FiveChordSlider, "Chord", 10, "%7.3f" );
@@ -624,9 +590,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_FiveDigitGroup.AddCounter( m_FiveDegreeCounter, "Degree", 125 );
 
     //==== Five Digit Mod AF ====//
-    m_FiveDigitModGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_FiveDigitModGroup.SetY( start_y );
-    m_FiveDigitModGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_FiveDigitModGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_FiveDigitModGroup.AddOutput( m_FiveModNameOutput, "Name" );
     m_FiveDigitModGroup.AddYGap();
     m_FiveDigitModGroup.AddSlider( m_FiveModChordSlider, "Chord", 10, "%7.3f" );
@@ -651,9 +615,7 @@ WingScreen::WingScreen( ScreenMgr* mgr ) : BlendScreen( mgr, 400, 680, "Wing" )
     m_FiveDigitModGroup.AddCounter( m_FiveModDegreeCounter, "Degree", 125 );
 
     //==== 16 Series AF ====//
-    m_OneSixSeriesGroup.SetGroupAndScreen( AddSubGroup( af_tab, 5 ), this );
-    m_OneSixSeriesGroup.SetY( start_y );
-    m_OneSixSeriesGroup.AddYGap();
+    m_AfLayout.AddSubGroupLayout( m_OneSixSeriesGroup, m_AfLayout.GetW(), m_AfLayout.GetRemainY() );
     m_OneSixSeriesGroup.AddOutput( m_OneSixSeriesNameOutput, "Name" );
     m_OneSixSeriesGroup.AddYGap();
     m_OneSixSeriesGroup.AddSlider( m_OneSixSeriesChordSlider, "Chord", 10, "%7.3f" );
