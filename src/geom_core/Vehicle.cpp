@@ -446,15 +446,15 @@ void Vehicle::SetupPaths()
 
     if( !CheckForFile( m_ExePath, m_VSPAEROCmd ) )
     {
-        printf("VSPAERO solver not found.\n");
+		printf("VSPAERO solver not found in %s.\n", m_ExePath.c_str());
     }
     if( !CheckForFile( m_ExePath, m_VIEWERCmd ) )
     {
-        printf("VSPAERO viewer not found.\n");
+        printf("VSPAERO viewer not found in %s.\n", m_ExePath.c_str());
     }
     if ( !CheckForFile( m_ExePath, m_SLICERCmd ) )
     {
-        printf( "VSPAERO slicer not found.\n" );
+        printf( "VSPAERO slicer not found in %s.\n", m_ExePath.c_str());
     }
 
     m_CustomScriptDirs.push_back( string( "./CustomScripts/" ) );
