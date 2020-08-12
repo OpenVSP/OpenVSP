@@ -277,3 +277,77 @@
       - `VSP_USE_SYSTEM_STEPCODE`
       - `VSP_USE_SYSTEM_EXPRPARSE`
       - `VSP_USE_SYSTEM_TRIANGLE`
+
+
+### Build Instructions for Windows 10 and Visual Studio Express 2017
+
+
+   These instructions are for building the Libraries and OpenVSP
+   separately.  It is assumed the user has successfully installed
+   CMake, Python, SWIG, and Doxygen and those utilities can be called
+   from the command line.
+   
+#### Building Libraries
+
+   1. Create a new directory called build located outside the locally
+   cloned OpenVSP repo
+   
+   2. In the new build directory, create new directories "Libraries"
+   and "vsp"
+   
+   3. Using the CMake gui (cmake-gui.exe), click "Browse Source" and
+   browse to .../OpenVSP/Libraries where OpenVSP is the top level of the
+   cloned repo for the source code.
+
+   4. Click "Browse Build" and browse to the newly created "Libraries"
+   directory (.../build/Libraries) for the build location of the new
+   binaries.
+
+   5. Click "Configure" and select "Visual Studio 2017" for the project
+   generator and "x64" for the Optional Platform Generator.  Click
+   "Finish".
+
+   6. Click the "Add Entry" button.  For Name, enter "CMAKE_BUILD_TYPE".
+   For Type, select STRING, and Value type "Release".  Click OK.
+
+   7. Click "Generate".
+
+   8. Open Visual Studio Express 2017 and select File > Open Project
+   and browse to .../build/Libraries/VSP_LIBARIES.sln.
+
+   9. In the Solutions Configurations pulldown, change from "Debug" to
+   "Release".
+
+   10. Right-click on "ALL_BUILD" in the Solution Explorer and select
+   "Build". When complete, repeat this step to verify no errors.
+
+#### Building OpenVSP
+
+   1. Open the CMake Gui (cmake-gui.exe) and browse to .../OpenVSP for
+   the source code and .../build/vsp for the build location for the
+   binaries.
+
+   2. Click "Add Entry" and type "CMAKE_BUILD_TYPE" for Name, select
+   "String" for Type and enter "Release" for Value.
+
+   3. Click "Add Entry" again and input "VSP_LIBRARY_PATH" for Name,
+   select PATH for Type and browse to .../build/Libraries
+
+   4. Click "Configure" and select "Visual Studio 2017" for the project
+   generator and "x64" for the Optional Platform for Generator.  Click
+   "Finish". 
+
+   5. Click "Generate".
+
+   6. Open Visual Studio Express 2017 and select File > Open Project
+   and browse to .../build/vsp/VSP_TOP.sln.
+
+   7. In the Solutions Configurations pulldown, change from "Debug" to
+   "Release".
+
+   8. Right-click on ALL_BUILD in the Solution Explorer and select
+   Build. When complete, repeat this step to verify no errors.
+
+   9. Right-click on PACKAGE in the Solution Explorer and select
+   Build.  This packages all the directories and executables in a zip
+   file.  This zip file will be placed in .../build/vsp/.
