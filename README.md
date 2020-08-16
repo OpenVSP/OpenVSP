@@ -130,20 +130,18 @@
    2D Delaunay triangulator.  This routine has been included in
    this distribution.
    
-   - [triInt by Tomas Möller (was: jgt.akpeters.com/papers/Moller97)](http://web.archive.org/web/*/http://jgt.akpeters.com/papers/Moller97) - Fast triangle-triangle intersection test.
-   This code comes from two sources previously available online.
-   When JGT was taken over by Taylor and Francis, the source
-   accompanying the articles became unavailable.  The routines are
-   included in this distribution.
-     - Old URL:
-        -[jgt.akpeters.com/papers/Moller97/tritri.html](http://web.archive.org/web/*/http://jgt.akpeters.com/papers/Moller97/tritri.html)
-        -[jgt.akpeters.com/papers/MollerTrumbore97/code.html](http://web.archive.org/web/*/http://jgt.akpeters.com/papers/MollerTrumbore97/code.html)
-    
-      - Tomas Möller, Ben Trumbore, "Fast, Minimum Storage Ray-Triangle
-      Intersection", Journal of Graphics Tools, Vol. 2, Iss. 1, 1997.
-
-      - Tomas Möller, "A Fast Triangle-Triangle Intersection Test", Journal
-      of Graphics Tools, Vol. 2, Iss. 2, 1997.
+   - [tri_tri_intersect by Philippe Guigue and Olivier Devillers] (https://github.com/erich666/jgt-code/tree/master/Volume_08/Number_1/Guigue2003) - Fast and Robust Triangle-Triangle Overlap Test using Orientation Predicates.
+	This code is an upgrade of the fast triangle-triangle 
+	intersection routines routines developed by Tomas Möller
+	and included with earlier versions of OpenVSP. While largely
+	based on Möller's algorithms, this code is more numerically
+	robust and efficient.
+      
+	  - Old URL: (https://web.archive.org/web/20120118225810/http://jgt.akpeters.com/papers/GuigueDevillers03/)
+		
+      - Philippe Guigue, Olivier Devillers, "Fast and Robust Triangle-Triangle 
+	  Overlap Test using Orientation Predicates", Journal of Graphics Tools, 
+	  Vol. 8, Iss. 1, 2003.
   
    - [glFont2 by Brad Fish (was: students.cs.byu.edu/~bfish/glfont2.php)](http://web.archive.org/web/*/https://students.cs.byu.edu/~bfish/glfont2.php) - 
    2D OpenGL font tool.  glFont2 has been included in this source
