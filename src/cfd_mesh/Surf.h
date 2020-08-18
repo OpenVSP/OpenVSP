@@ -259,6 +259,15 @@ public:
         return m_BaseTag;
     }
 
+    void SetIgnoreSurfFlag( bool flag )
+    {
+        m_IgnoreSurfFlag = flag;
+    }
+    bool GetIgnoreSurfFlag()
+    {
+        return m_IgnoreSurfFlag;
+    }
+
     void Subtag( bool tag_subs );
 
     friend double refine_intersect_pt( const vec3d& pt, Surf *sA, vec2d &uwA, Surf *sB, vec2d &uwB );
@@ -281,6 +290,8 @@ protected:
 
     bool m_SymPlaneFlag;
     bool m_FarFlag;
+
+    bool m_IgnoreSurfFlag; // Flag to ignore the surface after intersected
 
     int m_SurfCfdType;
     int m_SurfVspType;

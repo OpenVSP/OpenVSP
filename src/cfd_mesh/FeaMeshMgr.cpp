@@ -24,7 +24,6 @@ FeaMeshMgrSingleton::FeaMeshMgrSingleton() : CfdMeshMgrSingleton()
     m_NumFeaParts = 0;
     m_NumFeaSubSurfs = 0;
     m_FeaMeshStructIndex = -1;
-    m_RemoveSkinTris = false;
     m_NumFeaFixPoints = 0;
     m_NumTris = 0;
     m_NumBeams = 0;
@@ -137,8 +136,6 @@ void FeaMeshMgrSingleton::LoadSkins()
 
             int skin_index = fea_struct->GetFeaPartIndex( prt );
 
-            m_RemoveSkinTris = skin->m_RemoveSkinTrisFlag();
-
             skin->FetchFeaXFerSurf( skinxfersurfs, 0, fea_struct->GetUSuppress(), fea_struct->GetWSuppress() );
 
             // Load Skin XFerSurf to m_SurfVec
@@ -147,6 +144,11 @@ void FeaMeshMgrSingleton::LoadSkins()
             for ( int j = 0; j < m_SurfVec.size(); j++ )
             {
                 m_SurfVec[j]->SetFeaPartIndex( skin_index );
+
+                if ( skin->m_RemoveSkinTrisFlag() )
+                {
+                    m_SurfVec[j]->SetIgnoreSurfFlag( true );
+                }
             }
         }
     }
@@ -365,8 +367,6 @@ void FeaMeshMgrSingleton::GenerateFeaMesh()
     TagFeaNodes();
 
     RemoveSubSurfFeaTris();
-
-    RemoveSkinTris();
 
     addOutputText( "Exporting Files\n" );
     ExportFeaMesh();
@@ -2078,28 +2078,6 @@ void FeaMeshMgrSingleton::RemoveSubSurfFeaTris()
                     delete m_FeaElementVec[j];
                     m_FeaElementVec.erase( m_FeaElementVec.begin() + j );
                     j--;
-                }
-            }
-        }
-    }
-}
-
-void FeaMeshMgrSingleton::RemoveSkinTris()
-{
-    if ( m_RemoveSkinTris )
-    {
-        for ( size_t i = 0; i < m_NumFeaParts; i++ )
-        {
-            if ( m_FeaPartTypeVec[i] == vsp::FEA_SKIN )
-            {
-                for ( int j = 0; j < m_FeaElementVec.size(); j++ )
-                {
-                    if ( m_FeaElementVec[j]->GetFeaPartIndex() == i && m_FeaElementVec[j]->GetElementType() == FeaElement::FEA_TRI_6 && m_FeaElementVec[j]->GetFeaSSIndex() < 0 )
-                    {
-                        delete m_FeaElementVec[j];
-                        m_FeaElementVec.erase( m_FeaElementVec.begin() + j );
-                        j--;
-                    }
                 }
             }
         }

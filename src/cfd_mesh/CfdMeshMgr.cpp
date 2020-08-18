@@ -2829,7 +2829,14 @@ void CfdMeshMgrSingleton::RemoveInteriorTris()
         for ( t = triList.begin(); t != triList.end(); ++t )
         {
             // Determine if the triangle should be deleted
-            ( *t )->deleteFlag = SetDeleteTriFlag( m_SurfVec[a]->GetSurfaceCfdType(), m_SurfVec[a]->GetSymPlaneFlag(), ( *t )->insideSurf );
+            if ( m_SurfVec[a]->GetIgnoreSurfFlag() )
+            {
+                ( *t )->deleteFlag = true;
+            }
+            else
+            {
+                ( *t )->deleteFlag = SetDeleteTriFlag( m_SurfVec[a]->GetSurfaceCfdType(), m_SurfVec[a]->GetSymPlaneFlag(), ( *t )->insideSurf );
+            }
         }
     }
 

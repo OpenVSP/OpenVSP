@@ -34,6 +34,7 @@ Surf::Surf()
     m_MainSurfID = 0;
     m_FeaPartIndex = -1;
     m_ScaleUFlag = false;
+    m_IgnoreSurfFlag = false;
 }
 
 Surf::~Surf()
