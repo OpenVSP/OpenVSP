@@ -145,7 +145,7 @@ void FeaMeshMgrSingleton::LoadSkins()
             {
                 m_SurfVec[j]->SetFeaPartIndex( skin_index );
 
-                if ( skin->m_RemoveSkinTrisFlag() )
+                if ( skin->m_RemoveSkinFlag() )
                 {
                     m_SurfVec[j]->SetIgnoreSurfFlag( true );
                 }

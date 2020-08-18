@@ -390,7 +390,7 @@ public:
 
     virtual bool PtsOnPlanarPart( const vector < vec3d > & pnts, int surf_ind = 0 );
 
-    BoolParm m_RemoveSkinTrisFlag;
+    BoolParm m_RemoveSkinFlag;
 
 protected:
 

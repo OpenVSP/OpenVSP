@@ -55,7 +55,7 @@ private:
     StringInput m_FeaPartNameInput;
 
     //===== Skin =====//
-    ToggleButton m_RemoveSkinTrisToggle;
+    ToggleButton m_RemoveSkinToggle;
     Choice m_SkinPropertyChoice;
 
     //===== Slice =====//

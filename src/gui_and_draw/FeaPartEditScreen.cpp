@@ -36,7 +36,7 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
 
     m_SkinEditLayout.AddDividerBox( "Skin" );
 
-    m_SkinEditLayout.AddButton( m_RemoveSkinTrisToggle, "Remove Skin Tris" );
+    m_SkinEditLayout.AddButton( m_RemoveSkinToggle, "Remove Skin" );
 
     m_SkinEditLayout.AddYGap();
 
@@ -1201,9 +1201,9 @@ bool FeaPartEditScreen::Update()
                         FeaSkin* skin = dynamic_cast<FeaSkin*>( feaprt );
                         assert( skin );
 
-                        m_RemoveSkinTrisToggle.Update( skin->m_RemoveSkinTrisFlag.GetID() );
+                        m_RemoveSkinToggle.Update( skin->m_RemoveSkinFlag.GetID() );
 
-                        if ( skin->m_RemoveSkinTrisFlag() )
+                        if ( skin->m_RemoveSkinFlag() )
                         {
                             m_SkinPropertyChoice.Deactivate();
                         }

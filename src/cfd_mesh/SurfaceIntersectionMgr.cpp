@@ -1447,6 +1447,11 @@ void SurfaceIntersectionSingleton::BuildNURBSSurfMap()
 
     for ( size_t si = 0; si < m_SurfVec.size(); si++ )
     {
+        if ( m_SurfVec[si]->GetIgnoreSurfFlag() )
+        {
+            continue;
+        }
+
         NURBS_Surface nurbs_surf = NURBS_Surface();
         // Create NURBS Surface
         nurbs_surf.InitNURBSSurf( m_SurfVec[si] );

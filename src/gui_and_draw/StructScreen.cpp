@@ -1142,7 +1142,7 @@ void StructScreen::UpdateFeaPartBrowser()
                 FeaSkin* skin = dynamic_cast<FeaSkin*>( feaprt_vec[i] );
                 assert( skin );
 
-                if ( skin->m_RemoveSkinTrisFlag() )
+                if ( skin->m_RemoveSkinFlag() )
                 {
                     shell = "";
                     shell_prop = "N/A";
@@ -2235,7 +2235,7 @@ bool StructScreen::Update()
                             FeaSkin* skin = dynamic_cast<FeaSkin*>( prt );
                             assert( skin );
 
-                            if ( skin->m_RemoveSkinTrisFlag() )
+                            if ( skin->m_RemoveSkinFlag() )
                             {
                                 m_GenPropertyChoice.Deactivate();
                             }

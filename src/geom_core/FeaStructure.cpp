@@ -3288,8 +3288,8 @@ FeaSkin::FeaSkin( const string& geomID, int type ) : FeaPart( geomID, type )
     m_IncludedElements.Set( vsp::FEA_SHELL );
     m_DrawFeaPartFlag.Set( false );
 
-    m_RemoveSkinTrisFlag.Init( "RemoveSkinTrisFlag", "FeaSkin", this, false, false, true );
-    m_RemoveSkinTrisFlag.SetDescript( "Flag to Remove Skin Triangles" );
+    m_RemoveSkinFlag.Init( "RemoveSkinTrisFlag", "FeaSkin", this, false, false, true );
+    m_RemoveSkinFlag.SetDescript( "Flag to Remove Skin Surface and Triangles after Intersections" );
 }
 
 void FeaSkin::Update()
