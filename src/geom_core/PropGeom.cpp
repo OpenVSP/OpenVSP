@@ -1162,8 +1162,6 @@ void PropGeom::UpdateSurf()
         // Duplicate capping variables
         m_CapUMinSuccess.resize( m_Nblade(), m_CapUMinSuccess[0] );
         m_CapUMaxSuccess.resize( m_Nblade(), m_CapUMaxSuccess[0] );
-        m_CapWMinSuccess.resize( m_Nblade(), m_CapWMinSuccess[0] );
-        m_CapWMaxSuccess.resize( m_Nblade(), m_CapWMaxSuccess[0] );
 
         Matrix4d rot;
         for ( int i = 1; i < m_Nblade(); i++ )
@@ -1187,8 +1185,6 @@ void PropGeom::UpdateSurf()
         m_MainSurfVec.resize( nsurf );
         m_CapUMinSuccess.resize( nsurf );
         m_CapUMaxSuccess.resize( nsurf );
-        m_CapWMinSuccess.resize( nsurf );
-        m_CapWMaxSuccess.resize( nsurf );
 
         m_MainSurfVec[ idisk ].CreateDisk( m_Diameter(), Y_DIR, Z_DIR );
         m_MainSurfVec[ idisk ].SetSurfType( vsp::DISK_SURF );
@@ -1197,8 +1193,6 @@ void PropGeom::UpdateSurf()
 
         m_CapUMinSuccess[ idisk ] = false;
         m_CapUMaxSuccess[ idisk ] = false;
-        m_CapWMinSuccess[ idisk ] = false;
-        m_CapWMaxSuccess[ idisk ] = false;
 
         if ( m_PropMode() == PROP_MODE::PROP_DISK )
         {

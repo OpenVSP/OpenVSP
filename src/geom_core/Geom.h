@@ -602,8 +602,6 @@ public:
     IntParm m_CapUMinOption;
     LimIntParm m_CapUMinTess;
     IntParm m_CapUMaxOption;
-    IntParm m_CapWMinOption;
-    IntParm m_CapWMaxOption;
 
     Parm m_CapUMinLength;
     Parm m_CapUMinOffset;
@@ -708,8 +706,6 @@ protected:
 
     vector< bool > m_CapUMinSuccess;
     vector< bool > m_CapUMaxSuccess;
-    vector< bool > m_CapWMinSuccess;
-    vector< bool > m_CapWMaxSuccess;
 
     enum { V2_NO_SYM = 0,
            V2_XY_SYM = 1,

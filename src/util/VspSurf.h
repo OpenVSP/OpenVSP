@@ -204,8 +204,6 @@ public:
 
     void SetUSkipFirst( bool f );
     void SetUSkipLast( bool f );
-    void SetWSkipFirst( bool f );
-    void SetWSkipLast( bool f );
 
     piecewise_surface_type* GetBezierSurface()           { return &m_Surface; }
 

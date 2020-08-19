@@ -196,8 +196,6 @@ void ConformalGeom::CopyDataFrom( Geom* geom_ptr )
     m_CapUMinOption = geom_ptr->m_CapUMinOption();
     m_CapUMinTess   = geom_ptr->m_CapUMinTess();
     m_CapUMaxOption = geom_ptr->m_CapUMaxOption();
-    m_CapWMinOption = geom_ptr->m_CapWMinOption();
-    m_CapWMaxOption = geom_ptr->m_CapWMaxOption();
 
     //=== Let User Change Tess
     //m_TessU = geom_ptr->m_TessU();

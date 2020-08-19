@@ -834,12 +834,6 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMaxSweepFlag.Init( "CapUMaxSweepFlag", "EndCap", this, 0, 0, 1 );
     m_CapUMaxSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
 
-    m_CapWMinOption.Init("CapWMinOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
-    m_CapWMinOption.SetDescript("Type of End Cap on WMin end");
-
-    m_CapWMaxOption.Init("CapWMaxOption", "EndCap", this, NO_END_CAP, NO_END_CAP, NUM_END_CAP_OPTIONS-1);
-    m_CapWMaxOption.SetDescript("Type of End Cap on WMax end");
-
     // Geom needs at least one surf
     m_MainSurfVec.push_back( VspSurf() );
 
@@ -1203,22 +1197,16 @@ void Geom::UpdateEndCaps()
     unsigned int nmain = m_MainSurfVec.size();
     m_CapUMinSuccess.resize( nmain );
     m_CapUMaxSuccess.resize( nmain );
-    m_CapWMinSuccess.resize( nmain );
-    m_CapWMaxSuccess.resize( nmain );
 
     // cycle through all vspsurfs, check if wing type then cap using new Code-Eli cap surface creator
     for ( int i = 0; i < nmain; i++ )
     {
         m_CapUMinSuccess[i] = false;
         m_CapUMaxSuccess[i] = false;
-        m_CapWMinSuccess[i] = false;
-        m_CapWMaxSuccess[i] = false;
 
         // NOTE: These return a bool that is true if it modified the surface to create a cap
         m_CapUMinSuccess[i] = m_MainSurfVec[i].CapUMin(m_CapUMinOption(), m_CapUMinLength(), m_CapUMinStrength(), m_CapUMinOffset(), m_CapUMinSweepFlag());
         m_CapUMaxSuccess[i] = m_MainSurfVec[i].CapUMax(m_CapUMaxOption(), m_CapUMaxLength(), m_CapUMaxStrength(), m_CapUMaxOffset(), m_CapUMaxSweepFlag());
-        m_CapWMinSuccess[i] = m_MainSurfVec[i].CapWMin(m_CapWMinOption());
-        m_CapWMaxSuccess[i] = m_MainSurfVec[i].CapWMax(m_CapWMaxOption());
     }
 
     switch( m_CapUMinOption() ){
@@ -3306,14 +3294,6 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
         if ( m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetUSkipLast( true );
-        }
-        if ( m_CapWMinSuccess[ m_SurfIndxVec[i] ] )
-        {
-            m_SurfVec[i].SetWSkipFirst( true );
-        }
-        if ( m_CapWMaxSuccess[ m_SurfIndxVec[i] ] )
-        {
-            m_SurfVec[i].SetWSkipLast( true );
         }
 
         //==== Tesselate Surface ====//
