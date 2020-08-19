@@ -781,15 +781,6 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_BbZMin.Init( "Z_Min", "BBox", this, 0, -1e12, 1e12 );
     m_BbZMin.SetDescript( "Minimum Z coordinate of geom bounding box" );
 
-    vector< string > set_name_vec = m_Vehicle->GetSetNameVec();
-    m_SetFlags.resize( set_name_vec.size() );
-    for ( int i = vsp::SET_NOT_SHOWN ; i < ( int )m_SetFlags.size() ; i++ )
-    {
-        m_SetFlags[i] = false;
-    }
-    m_SetFlags[vsp::SET_SHOWN] = true; // default to shown
-    UpdateSets();
-
     m_SymAncestor.Init( "Sym_Ancestor", "Sym", this, 1, 0, 1e6 );
     m_SymAncestOriginFlag.Init( "Sym_Ancestor_Origin_Flag", "Sym", this, true, 0, 1 );
     m_SymPlanFlag.Init( "Sym_Planar_Flag", "Sym", this, 0, 0, SYM_XY | SYM_XZ | SYM_YZ );
@@ -834,14 +825,6 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
     m_CapUMaxSweepFlag.Init( "CapUMaxSweepFlag", "EndCap", this, 0, 0, 1 );
     m_CapUMaxSweepFlag.SetDescript( "Flag to stretch end cap length for sweep" );
 
-    // Geom needs at least one surf
-    m_MainSurfVec.push_back( VspSurf() );
-
-    currSourceID = 0;
-
-    m_GeomProjectVec3d.resize( 3 );
-    m_ForceXSecFlag = false;
-
     // Parasite Drag Parms
     m_PercLam.Init("PercLam", "ParasiteDragProps", this, 0, 0, 100 );
     m_PercLam.SetDescript("Percentage Laminar" );
@@ -872,6 +855,23 @@ Geom::Geom( Vehicle* vehicle_ptr ) : GeomXForm( vehicle_ptr )
 
     m_ExpandedListFlag.Init("ExpandedList", "ParasiteDragProps", this, false, false, true);
     m_ExpandedListFlag.SetDescript("Flag to determine whether or not this geom has a collapsed list in parasite drag");
+
+    vector< string > set_name_vec = m_Vehicle->GetSetNameVec();
+    m_SetFlags.resize( set_name_vec.size() );
+    for ( int i = vsp::SET_NOT_SHOWN ; i < ( int )m_SetFlags.size() ; i++ )
+    {
+        m_SetFlags[i] = false;
+    }
+    m_SetFlags[vsp::SET_SHOWN] = true; // default to shown
+    UpdateSets();
+
+    // Geom needs at least one surf
+    m_MainSurfVec.push_back( VspSurf() );
+
+    currSourceID = 0;
+
+    m_GeomProjectVec3d.resize( 3 );
+    m_ForceXSecFlag = false;
 
     m_FeaStructCount = 0;
 }
