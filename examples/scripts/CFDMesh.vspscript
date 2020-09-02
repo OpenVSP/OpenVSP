@@ -1,17 +1,128 @@
 
 void main()
 {
-    string pid = AddGeom( "POD", "" );              // Add Pod
-    SetParmVal( pid, "FineRatio", "Design", 5 );    // Change Shape
+	Print( string( "Begin CFD Mesh Script\n" ) );
+    Print( string( "" ) );
+
+	Print( string( "--> Adding Geometry For Analysis\n" ) );
+	
+	//==== Add Pod Geometry for New Analysis Example====//
+    string pod_id_new = AddGeom( "POD" );
+    SetParmVal( pod_id_new, "FineRatio", "Design", 5 );    // Change Shape
 
     Update();
 
-    SetCFDMeshVal( CFD_MIN_EDGE_LEN, 1.0 );         // Set Meshing Values
+	NewCFDMeshAnalysisExample( pod_id_new );
+	
+	OldCFDMeshAnalysisExample( pod_id_new );
+}
+
+void NewCFDMeshAnalysisExample(string pod_id)
+{
+	Print( string( "This demonstrates how to use the CFD Mesh Analysis\n" ) );
+
+	//Get analysis type
+    string analysis_name = "CfdMeshAnalysis";
+	Print( analysis_name );
+
+    // Set Defaults
+    SetAnalysisInputDefaults( analysis_name );
+
+    //Set Inputs
+    array < double > baseNums;
+	baseNums.push_back( 0.5 );
+    SetDoubleAnalysisInput( analysis_name, "BaseLen", baseNums, 0 );
+	
+    array < double > minNums;
+	minNums.push_back( 0.1 );
+    SetDoubleAnalysisInput( analysis_name, "MinLen", minNums, 0 );
+	
+    array < double > maxGapNums;
+	maxGapNums.push_back( 0.005 );
+    SetDoubleAnalysisInput( analysis_name, "MaxGap", maxGapNums, 0 );
+	
+    array < double > nCircSegNums;
+	nCircSegNums.push_back( 16.0 );
+    SetDoubleAnalysisInput( analysis_name, "NCircSeg", nCircSegNums, 0 );
+	
+    array < double > growthRatioNums;
+	growthRatioNums.push_back( 1.3 );
+    SetDoubleAnalysisInput( analysis_name, "GrowthRatio", growthRatioNums, 0 );
+	
+    array < double > relCurveTolNums;
+	relCurveTolNums.push_back( 0.01 );
+    SetDoubleAnalysisInput( analysis_name, "RelCurveTol", relCurveTolNums, 0 );
+
+    //Set Files to be Generated
+    array < string > stl_file_name;
+	stl_file_name.push_back( "Example_Test_STL.stl" );
+    SetStringAnalysisInput( analysis_name, "STLFileName", stl_file_name );
+	
+    array < string > poly_file_name;
+	poly_file_name.push_back( "Example_Test_POLY.poly" );
+    SetStringAnalysisInput( analysis_name, "POLYFileName", poly_file_name );
+	
+    array < string > tri_file_name;
+	tri_file_name.push_back( "Example_Test_TRI.tri" );
+    SetStringAnalysisInput( analysis_name, "TRIFileName", tri_file_name );
+	
+    array < string > facet_file_name;
+	facet_file_name.push_back( "Example_Test_FACET.facet" );
+    SetStringAnalysisInput( analysis_name, "FACETFileName", facet_file_name );
+	
+    array < string > obj_file_name;
+	obj_file_name.push_back( "Example_Test_OBJ.obj" );
+    SetStringAnalysisInput( analysis_name, "OBJFileName", obj_file_name );
+	
+    array < string > gmsh_file_name;
+	gmsh_file_name.push_back( "Example_Test_GMSH.gmsh" );
+    SetStringAnalysisInput( analysis_name, "GMSHFileName", gmsh_file_name );
+
+    // list inputs, type, and current values
+    PrintAnalysisInputs( analysis_name );
+
+    Print( "--> Executing Analysis\n" );
+    string resid = ExecAnalysis( analysis_name );
+
+    // No results generated. See output files
+	
+	//==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+    }
+    
+    Print( string( "COMPLETE\n" ) );
+}
+
+void OldCFDMeshAnalysisExample(string pod_id)
+{
+	Print( string( "This demonstrates how to use the CFD Mesh API functions\n" ) );
+
+	SetCFDMeshVal( CFD_MIN_EDGE_LEN, 1.0 );         // Set Meshing Values
     SetCFDMeshVal( CFD_MAX_EDGE_LEN, 2.0 );
 
-    AddCFDSource( POINT_SOURCE, pid, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
+    AddCFDSource( POINT_SOURCE, pod_id, 0, 0.25, 2.0, 0.5, 0.5 );      // Add A Point Source
 
-    ComputeCFDMesh( SET_ALL, CFD_STL_TYPE );        // Mesh
+	Print( string( "--> CFD Mesh Export File Name Set to CFDMeshTest_STL.stl" ) );
+	SetComputationFileName( CFD_STL_TYPE, "CFDMeshTest_STL.stl" );
+	ComputeCFDMesh( SET_ALL, CFD_STL_TYPE ); 
+	
+	Print( string( "--> CFD Mesh Export File Name Set to CFDMeshTest_TRI.tri" ) );
+	SetComputationFileName( CFD_TRI_TYPE, "CFDMeshTest_TRI.tri" );
+	
+	//==== Generate CFD Mesh and Export ====//
+    Print( string( "--> Generating CFDMesh " ) );
+	
+	ComputeCFDMesh( SET_ALL, CFD_TRI_TYPE ); 
+	
+	//==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
+    {
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
+	}
 
-
+	Print( string( "COMPLETE\n" ) );	
 }

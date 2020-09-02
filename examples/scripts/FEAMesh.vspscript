@@ -1,10 +1,21 @@
 
 void main()
 {
-    Print( string( "Begin FEA Mesh Script" ) );
+    Print( string( "Begin FEA Mesh Script\n" ) );
     Print( string( "" ) );
+	
+	string struct_id = GenerateStructure();
+	
+	NewFEAMeshAnalysisExample( struct_id );
 
-    Print( string( "--> Adding Geometry and Creating Structure" ) );
+	OldFEAMeshAnalysisExample( struct_id );	
+}
+
+string GenerateStructure()
+{
+    Print( string( "--> Adding Geometry and Creating Structure For Analysis\n" ) );
+	
+	ClearVSPModel();
 
     //==== Add Pod Geometry ====//
     string pod_id = AddGeom( "POD" );
@@ -14,7 +25,7 @@ void main()
     SetParmValUpdate( pod_id, "X_Rel_Rotation", "XForm", 90 );
     SetParmValUpdate( pod_id, "Length", "Design", length );
 
-    Update();
+	Update();
 
     //==== Set Structure Units ====//
     string veh_id = FindContainer( "Vehicle", 0 );
@@ -35,12 +46,10 @@ void main()
 
     SetParmVal( FindParm( prop_id, "FeaMaterialIndex", "FeaProperty" ), 4 );
     SetParmVal( FindParm( prop_id, "Thickness", "FeaProperty" ), 0.01 );
-
-    //==== Adjust FeaMeshSettings ====//
-    SetFeaMeshVal( pod_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 );
-    SetFeaMeshVal( pod_id, struct_ind, CFD_MIN_EDGE_LEN, 0.2 );
-
-    //==== Add Floor ====//
+    
+    Update();
+	
+	//==== Add Floor ====//
     string floor_id = AddFeaPart( pod_id, struct_ind, FEA_SLICE );
 
     SetParmVal( FindParm( floor_id, "IncludedElements", "FeaPart" ), FEA_SHELL_AND_BEAM );
@@ -90,41 +99,140 @@ void main()
     Update();
     
     string struct_id = GetFeaStructID( pod_id, struct_ind );
-    
-    //==== Save Vehicle to File ====//
+	
+	//==== Save Vehicle to File ====//
     Print( string( "--> Saving Vehicle to FEAMeshTest.vsp3" ) );
     string fname = "FEAMeshTest.vsp3";
     WriteVSPFile( fname, 0 ); // SET_ALL
+	
+	return struct_id;
+}
 
-    //==== Clear and Reload the Model ====//
-    ClearVSPModel();
-    
-    ReadVSPFile( fname );
-    
-    //==== Get Parent Geom ID and Index ====//
-    string parent_id = GetFeaStructParentGeomID( struct_id );
-    if ( parent_id != pod_id )
+void NewFEAMeshAnalysisExample( string struct_id )
+{
+	Print( string( "This demonstrates how to use the FEA Mesh Analysis\n" ) );
+	
+	int struct_ind = GetFeaStructIndex( struct_id );
+	SetFeaMeshStructIndex( struct_ind );
+	
+	//Get analysis type
+    string analysis_name = "FeaMeshAnalysis";
+    Print( analysis_name );
+
+    // Set defaults
+    SetAnalysisInputDefaults( analysis_name );
+	
+	//Set Inputs
+	array < double > baseNums;
+	baseNums.push_back( 0.5 ); 
+    SetDoubleAnalysisInput( analysis_name, "BaseLen", baseNums, 0 );
+	
+	array < double > minNums;
+	minNums.push_back( 0.1 );
+    SetDoubleAnalysisInput( analysis_name, "MinLen", minNums, 0 );
+	
+    array < double > maxGapNums;
+	maxGapNums.push_back( 0.005 );
+    SetDoubleAnalysisInput( analysis_name, "MaxGap", maxGapNums, 0 );
+	
+    array < double > nCircSegNums;
+	nCircSegNums.push_back( 16.0 );
+    SetDoubleAnalysisInput( analysis_name, "NCircSeg", nCircSegNums, 0 );
+	
+    array < double > growthRatioNums;
+	growthRatioNums.push_back( 1.3 );
+    SetDoubleAnalysisInput( analysis_name, "GrowthRatio", growthRatioNums, 0 );
+	
+    array < double > relCurveTolNums;
+	relCurveTolNums.push_back( 0.01 );
+    SetDoubleAnalysisInput( analysis_name, "RelCurveTol", relCurveTolNums, 0 );
+	
+    array < double > sTEPTolNums;
+	sTEPTolNums.push_back( 1e-06 );
+    SetDoubleAnalysisInput( analysis_name, "STEPTol", sTEPTolNums, 0 );
+	
+	//Set Files to be Generated
+	array < string > stl_file_name;
+	stl_file_name.push_back( "Example_Test_STL.stl" );
+    SetStringAnalysisInput( analysis_name, "STLFileName", stl_file_name );
+
+    array < string > gmsh_file_name;
+	gmsh_file_name.push_back( "Example_Test_GMSH.gmsh" );
+    SetStringAnalysisInput( analysis_name, "GMSHFileName", gmsh_file_name );
+
+    array < string > mass_file_name;
+	mass_file_name.push_back( "Example_Test_MASS.txt" );
+    SetStringAnalysisInput( analysis_name, "MASSFileName", mass_file_name );
+
+    array < string > nastranf_file_name;
+	nastranf_file_name.push_back( "Example_Test_NASTRANF.dat" );
+    SetStringAnalysisInput( analysis_name, "NASTRANFileName", nastranf_file_name );
+
+    array < string > nkey_file_name;
+	nkey_file_name.push_back( "Example_Test_NKEY.nkey" );
+    SetStringAnalysisInput( analysis_name, "NKEYFileName", nkey_file_name );
+
+    array < string > calculix_file_name;
+	calculix_file_name.push_back( "Example_Test_CALCULIX.dat" );
+    SetStringAnalysisInput( analysis_name, "CALCULIXFileName", calculix_file_name );
+
+    array < string > curve_file_name;
+	curve_file_name.push_back( "Example_Test_CURVE.curv" );
+    SetStringAnalysisInput( analysis_name, "CURVFileName", curve_file_name );
+
+    array < string > p3d_file_name;
+	p3d_file_name.push_back( "Example_Test_P3D.p3d" );
+    SetStringAnalysisInput( analysis_name, "P3DFileName", p3d_file_name );
+
+    array < string > srf_file_name;
+	srf_file_name.push_back( "Example_Test_SRF.srf" );
+    SetStringAnalysisInput( analysis_name, "SRFFileName", srf_file_name );
+
+    array < int > iges_file_flag;
+	iges_file_flag.push_back( 0 );
+    SetIntAnalysisInput( analysis_name, "IGESFileFlag", iges_file_flag );
+
+    array < int > step_file_flag;
+	step_file_flag.push_back( 0 );
+    SetIntAnalysisInput( analysis_name, "STEPFileFlag", step_file_flag );
+
+	// list inputs, type, and current values
+    PrintAnalysisInputs( analysis_name );
+	
+	Print( "--> Executing Analysis\n" );
+    string resid = ExecAnalysis( analysis_name );
+	
+	// No results generated. See output files
+	
+	//==== Check For API Errors ====//
+    while ( GetNumTotalErrors() > 0 )
     {
-        Print( "Error: FEA Structure Parent Geom ID Does Not Match\n");
+        ErrorObj err = PopLastError();
+        Print( err.GetErrorString() );
     }
     
-    struct_ind = GetFeaStructIndex( struct_id );
-    
-    //==== Add Fixed Point ====//
-    string fix_pnt_id = AddFeaPart( parent_id, struct_ind, FEA_FIX_POINT );
-    
-    SetParmVal( FindParm( fix_pnt_id, "PosU", "FeaFixPoint" ), 0.2 );
-    SetParmVal( FindParm( fix_pnt_id, "PosW", "FeaFixPoint" ), 0.7 );
-    
-    Update();
-    
-    //=== Set Export File Name ===//
+    Print( string( "COMPLETE\n" ) );
+}
+
+void OldFEAMeshAnalysisExample( string struct_id )
+{
+	Print( string( "This demonstrates how to use the FEA Mesh API functions\n" ) );
+	
+	string parent_id = GetFeaStructParentGeomID( struct_id );
+	int struct_ind = GetFeaStructIndex( struct_id );
+	
+	//==== Adjust FeaMeshSettings ====//
+    SetFeaMeshVal( parent_id, struct_ind, CFD_MAX_EDGE_LEN, 0.75 );
+    SetFeaMeshVal( parent_id, struct_ind, CFD_MIN_EDGE_LEN, 0.2 );
+
+	//=== Set Export File Name ===//
     string export_name = "FEAMeshTest_calculix.dat";
     SetFeaMeshFileName( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME, export_name );
     Print( string( "--> FEA Mesh Export File Name Set to FEAMeshTest_calculix.dat" ) );
 
     //==== Generate FEA Mesh and Export ====//
     Print( string( "--> Generating FeaMesh " ) );
+	
     ComputeFeaMesh( parent_id, struct_ind, FEA_CALCULIX_FILE_NAME );
     // Could also call ComputeFeaMesh ( struct_id, FEA_CALCULIX_FILE_NAME );
     
