@@ -14,6 +14,7 @@
 #include "CfdMeshMgr.h"
 #include "FeaStructure.h"
 #include "FeaElement.h"
+#include "AnalysisMgr.h"
 
 using namespace std;
 
@@ -97,6 +98,11 @@ public:
         m_FeaMeshStructIndex = index;
     }
 
+    virtual int GetFeaMeshStructIndex()
+    {
+        return m_FeaMeshStructIndex;
+    }
+
     virtual bool GetFeaMeshInProgress()
     {
         return m_FeaMeshInProgress;
@@ -151,6 +157,8 @@ public:
     {
         return m_SimpleMaterialVec;
     }
+
+    void RegisterAnalysis();
 
 protected:
 
@@ -218,6 +226,15 @@ private:
     vector< DrawObj > m_SSFeaNodeDO;
     vector< DrawObj > m_SSTriOrientationDO;
     vector< DrawObj > m_SSCapNormDO;
+};
+
+class FeaMeshAnalysis : public Analysis
+{
+public:
+
+    virtual void SetDefaults();
+    virtual string Execute();
+
 };
 
 #define FeaMeshMgr FeaMeshMgrSingleton::getInstance()
