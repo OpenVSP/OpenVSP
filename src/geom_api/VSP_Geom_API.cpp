@@ -161,6 +161,7 @@ void RegisterCFDMeshAnalyses()
 {
     SurfaceIntersectionMgr.RegisterAnalysis();
     CfdMeshMgr.RegisterAnalysis();
+    FeaMeshMgr.RegisterAnalysis();
 }
 
 
@@ -2459,6 +2460,21 @@ int AddFeaStruct( const string & geom_id, bool init_skin, int surfindex )
     }
     ErrorMgr.NoError();
     return ( geom_ptr->NumGeomFeaStructs() - 1 );
+}
+
+void SetFeaMeshStructIndex( int struct_index )
+{ 
+    vector < FeaStructure* > structVec = StructureMgr.GetAllFeaStructs();
+
+    if ( struct_index <= ( int )structVec.size() && struct_index >= 0 )
+    {
+        FeaMeshMgr.SetFeaMeshStructIndex( struct_index );
+        ErrorMgr.NoError();
+    }
+    else
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "AddFeaStruct::Index Out of Range" );
+    }
 }
 
 void DeleteFeaStruct( const string & geom_id, int fea_struct_ind )

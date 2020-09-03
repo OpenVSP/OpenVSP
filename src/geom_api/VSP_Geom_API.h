@@ -183,6 +183,7 @@ extern int GetSubSurfType( const std::string & sub_id );
 extern std::vector<std::string> GetSubSurfParmIDs( const std::string & sub_id );
 
 extern int AddFeaStruct( const std::string & geom_id, bool init_skin = true, int surfindex = 0 );
+extern void SetFeaMeshStructIndex( int struct_index );
 extern void DeleteFeaStruct( const std::string & geom_id, int fea_struct_ind );
 extern std::string GetFeaStructID( const std::string & geom_id, int fea_struct_ind );
 extern int GetFeaStructIndex( const std::string & struct_id );

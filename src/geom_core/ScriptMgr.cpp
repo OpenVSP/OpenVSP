@@ -10370,6 +10370,21 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
+    Sets FeaMeshMgr m_FeaMeshStructIndex member using passed in index of a FeaStructure
+    \code{.cpp}
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = AddFeaStruct( pod_id );
+
+    SetFeaMeshStructIndex( struct_ind );
+
+    if ( FindGeoms().size() != 0 ) { Print( "ERROR: VSPRenew" ); }
+    \endcode
+*/)";
+    r = se->RegisterGlobalFunction( "void SetFeaMeshStructIndex( int struct_index )", asFUNCTION( vsp::SetFeaMeshStructIndex ), asCALL_CDECL, doc_struct);
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
     Get the ID of an FEA Structure
     \code{.cpp}
     //==== Add Pod Geometry ====//
