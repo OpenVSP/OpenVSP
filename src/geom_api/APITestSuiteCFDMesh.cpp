@@ -313,3 +313,132 @@ void APITestSuiteCFDMesh::CFDMeshAnalysisTest()
     printf( "COMPLETE\n" );
     
 }
+
+void APITestSuiteCFDMesh::FEAMeshAnalysisTest()
+{
+    //Set up for test
+    printf("APITestSuiteCFDMesh::FEAMeshAnalysisTest() \n");
+    vsp::VSPCheckSetup();
+    vsp::VSPRenew();
+
+    //Add and edit Geometry
+    printf( "\tGenerating geometry\n" );
+    string pod_id = vsp::AddGeom( "POD" );
+
+    double length = 15.0;
+
+    vsp::SetParmValUpdate( pod_id, "X_Rel_Location", "XForm", 5.0 );
+    vsp::SetParmValUpdate( pod_id, "X_Rel_Rotation", "XForm", 90 );
+    vsp::SetParmValUpdate( pod_id, "Length", "Design", length );
+
+    vsp::Update();
+
+   //==== Set Structure Units ====//
+    string veh_id = vsp::FindContainer( "Vehicle", 0 );
+    vsp::SetParmVal( vsp::FindParm( veh_id, "StructUnit", "FeaStructure" ), vsp::BFT_UNIT );
+
+    //==== Add FeaStructure to Pod ====//
+    int struct_ind = vsp::AddFeaStruct( pod_id );
+    TEST_ASSERT( struct_ind != -1 );
+
+    vsp::SetFeaMeshStructIndex( struct_ind ); // Necessary for Analysis to identify current structure
+
+    //==== Add Some Structural Entities ====//
+    string floor_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_SLICE );
+    TEST_ASSERT( floor_id.c_str() != NULL );
+
+    vsp::SetParmVal( vsp::FindParm( floor_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL );
+    vsp::SetParmVal( vsp::FindParm( floor_id, "RelCenterLocation", "FeaPart" ), 0.65 );
+    vsp::SetParmVal( vsp::FindParm( floor_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::YZ_BODY );
+
+    //==== Add Dome ====//
+    string dome_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_DOME );
+    TEST_ASSERT( dome_id.c_str() != NULL );
+
+    vsp::SetParmVal( vsp::FindParm( dome_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL );
+    vsp::SetParmVal( vsp::FindParm( dome_id, "X_Location", "FeaDome" ), 0.2 * length );
+    vsp::SetParmVal( vsp::FindParm( dome_id, "A_Radius", "FeaDome" ), 1.6 );
+
+    //==== Add Stiffener ====//
+    string stiffener_id = vsp::AddFeaPart( pod_id, struct_ind, vsp::FEA_SLICE );
+    TEST_ASSERT( stiffener_id.c_str() != NULL );
+
+    vsp::SetParmVal( vsp::FindParm( stiffener_id, "IncludedElements", "FeaPart" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_BEAM );
+    vsp::SetParmVal( vsp::FindParm( stiffener_id, "RelCenterLocation", "FeaPart" ), 0.25 );
+    vsp::SetParmVal( vsp::FindParm( stiffener_id, "OrientationPlane", "FeaSlice" ), vsp::FEA_SLICE_TYPE::SPINE_NORMAL );
+
+    //==== Add Sub-Surfacae ====//
+    string ss_id = vsp::AddFeaSubSurf( pod_id, struct_ind, vsp::SS_ELLIPSE );
+    TEST_ASSERT( ss_id.c_str() != NULL );
+
+    vsp::SetParmVal( vsp::FindParm( ss_id, "IncludedElements", "SubSurface" ), vsp::FEA_PART_ELEMENT_TYPE::FEA_SHELL_AND_BEAM );
+    vsp::SetParmVal( vsp::FindParm( ss_id, "Center_U", "SS_Ellipse" ), 0.35 );
+    vsp::SetParmVal( vsp::FindParm( ss_id, "Center_W", "SS_Ellipse" ), 0.4 );
+
+    //Get analysis type
+    string analysis_name = "FeaMeshAnalysis";
+
+    // Set Defaults
+    vsp::SetAnalysisInputDefaults( analysis_name );
+
+    //Set Inputs
+    vector < double > baseNums{ 0.5 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "BaseLen", baseNums, 0 );
+    vector < double > minNums{ 0.1 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "MinLen", minNums, 0 );
+    vector < double > maxGapNums{ 0.005 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "MaxGap", maxGapNums, 0 );
+    vector < double > nCircSegNums{ 16.0 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "NCircSeg", nCircSegNums, 0 );
+    vector < double > growthRationNums{ 1.3 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "GrowthRatio", growthRationNums, 0 );
+    vector < double > relCurveTolNums{ 0.01 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "RelCurveTol", relCurveTolNums, 0 );
+    vector < double > sTEPTolNums{ 1e-06 };
+    vsp::SetDoubleAnalysisInput( analysis_name, "STEPTol", sTEPTolNums, 0 );
+
+     //Set Files to be Generated
+    vector < string > stl_file_name { "Example_Test_STL.stl" };
+    vsp::SetStringAnalysisInput( analysis_name, "STLFileName", stl_file_name );
+
+    vector < string > gmsh_file_name{ "Example_Test_GMSH.gmsh" };
+    vsp::SetStringAnalysisInput( analysis_name, "GMSHFileName", gmsh_file_name );
+
+    vector < string > mass_file_name{ "Example_Test_MASS.txt" };
+    vsp::SetStringAnalysisInput( analysis_name, "MASSFileName", mass_file_name );
+
+    vector < string > nastranf_file_name{ "Example_Test_NASTRANF.dat" };
+    vsp::SetStringAnalysisInput( analysis_name, "NASTRANFileName", nastranf_file_name );
+
+    vector < string > nkey_file_name{ "Example_Test_NKEY.nkey" };
+    vsp::SetStringAnalysisInput( analysis_name, "NKEYFileName", nkey_file_name );
+
+    vector < string > calculix_file_name{ "Example_Test_CALCULIX.dat" };
+    vsp::SetStringAnalysisInput( analysis_name, "CALCULIXFileName", calculix_file_name );
+
+    vector < string > curve_file_name{ "Example_Test_CURVE.curv" };
+    vsp::SetStringAnalysisInput( analysis_name, "CURVFileName", curve_file_name );
+
+    vector < string > p3d_file_name{ "Example_Test_P3D.p3d" };
+    vsp::SetStringAnalysisInput( analysis_name, "P3DFileName", p3d_file_name );
+
+    vector < string > srf_file_name{ "Example_Test_SRF.srf" };
+    vsp::SetStringAnalysisInput( analysis_name, "SRFFileName", srf_file_name );
+
+    vector < int > iges_file_flag{ 0 };
+    vsp::SetIntAnalysisInput( analysis_name, "IGESFileFlag", iges_file_flag );
+
+    vector < int > step_file_flag{ 0 };
+    vsp::SetIntAnalysisInput( analysis_name, "STEPFileFlag", step_file_flag );
+
+    // list inputs, type, and current values
+    vsp::PrintAnalysisInputs( analysis_name );
+
+    printf( "\tExecuting Analysis\n" );
+    string resid = vsp::ExecAnalysis( analysis_name );
+
+    // Final check for errors
+    TEST_ASSERT( !vsp::ErrorMgr.PopErrorAndPrint( stdout ) );    //PopErrorAndPrint returns TRUE if there is an error we want ASSERT to check that this is FALSE
+    printf( "COMPLETE\n" );
+
+}
