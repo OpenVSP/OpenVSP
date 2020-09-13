@@ -1657,7 +1657,7 @@ void VSPAEROMgrSingleton::GetSweepVectors( vector<double> &alphaVec, vector<doub
     }
     for ( int iBeta = 0; iBeta < betaNpts; iBeta++ )
     {
-        //Set current alpha value
+        //Set current beta value
         betaVec.push_back( betaStart + double( iBeta ) * betaDelta );
     }
 
@@ -1668,7 +1668,7 @@ void VSPAEROMgrSingleton::GetSweepVectors( vector<double> &alphaVec, vector<doub
     }
     for ( int iMach = 0; iMach < machNpts; iMach++ )
     {
-        //Set current alpha value
+        //Set current Mach value
         machVec.push_back( machStart + double( iMach ) * machDelta );
     }
 }
