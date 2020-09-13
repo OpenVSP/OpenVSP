@@ -995,6 +995,28 @@ void VSPAEROScreen::GuiDeviceCallBack( GuiDevice* device )
                 // Clear the solver console
                 m_SolverBuffer->text( "" );
 
+                // Check for transonic Mach numbers and warn the user if found
+                double transonic_mach_min = 0.8;
+                double transonic_mach_max = 1.2;
+                double mach_delta = 0.0;
+                vector < double > mach_vec( VSPAEROMgr.m_MachNpts.Get() );
+
+                // Identify Mach flow condition vector
+                if( VSPAEROMgr.m_MachNpts.Get() > 1 )
+                {
+                    mach_delta = ( VSPAEROMgr.m_MachEnd.Get() - VSPAEROMgr.m_MachStart.Get() ) / ( VSPAEROMgr.m_MachNpts.Get() - 1.0 );
+                }
+                for( size_t iMach = 0; iMach < VSPAEROMgr.m_MachNpts.Get(); iMach++ )
+                {
+                    mach_vec[iMach] = VSPAEROMgr.m_MachStart.Get() + double( iMach ) * mach_delta;
+
+                    if( mach_vec[iMach] > transonic_mach_min && mach_vec[iMach] < transonic_mach_max )
+                    {
+                        AddOutputText( m_SolverDisplay, "WARNING: Possible transonic Mach number detected - transonic flow is not supported.\n\n" );
+                        break;
+                    }
+                }
+
                 m_SolverProcess.StartThread( solver_thread_fun, ( void* ) &m_SolverPair );
             }
         }
