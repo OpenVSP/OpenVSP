@@ -2090,7 +2090,7 @@ void TTri::TriangulateSplit( int flattenAxis )
                 double del = std::abs( in.pointlist[i * 2] - in.pointlist[j * 2] ) +
                              std::abs( in.pointlist[i * 2 + 1] - in.pointlist[j * 2 + 1] );
 
-                if ( del < 1e-8 )
+                if ( del < 1e-10 )
                 {
                     dupFlag = 1;
                 }
