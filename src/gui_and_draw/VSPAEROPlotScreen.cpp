@@ -793,6 +793,17 @@ bool VSPAEROPlotScreen::Update()
 
     m_FLTK_Window->redraw();
 
+    //Check to see if SelectCpSliceBrowser in VSPAERO screen is occupied with slices
+    //if not, we deactivate the CP Slice tab in the VSPAERO results Manager
+     if ( VSPAEROMgr.GetCpSliceVec().size() < 1 )
+     {
+         m_CpSliceTab->deactivate();
+     }
+     else
+     {
+         m_CpSliceTab->activate();
+     }
+
     return false;
 
 }
