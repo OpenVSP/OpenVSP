@@ -2340,6 +2340,18 @@ bool StructScreen::Update()
         }
     }
 
+    //If size is > 1 then a Structure has been added to Browser, and we activate export buttons
+    if ( ( int )( m_FeaPartSelectBrowser->size() > 1 ) )
+    {
+        m_CADExportButton.Activate();
+        m_FeaMeshExportButton.Activate();
+    }
+    else
+    {
+        m_CADExportButton.Deactivate();
+        m_FeaMeshExportButton.Deactivate();
+    }
+
     return true;
 }
 
