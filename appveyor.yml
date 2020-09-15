@@ -18,7 +18,7 @@ environment:
     ARCH: win64
 
 install:
-- cmd: choco install -y swig
+- cmd: choco install -y swig --version 4.0.1
 
 build_script:
 - cmd: >-
