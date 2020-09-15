@@ -168,7 +168,7 @@ void UpdateSurf()
 
     for ( int row = 0 ; row < num_row ; row++ )
     {
-        double x = row*seat_pitch;
+        double z = row*seat_pitch;
         for ( int col = 0 ; col < total_col ; col++ )
         {
             //==== Dont Clone Inital Seat ====//
@@ -182,7 +182,7 @@ void UpdateSurf()
                     y += aisle_width;
 
   	            Matrix4d mat;
-                mat.translatef( 0, y, x );
+                mat.translatef( z, y, 0 );
 
                 CloneSurf( 0, mat );
                 CloneSurf( 1, mat );
@@ -217,6 +217,21 @@ void BuildSeatBottom( string surf_id, double width, double length, double height
 
 	SetCustomXSecLoc( xsec2, vec3d( height, 0, 0 ) );
 	SetCustomXSecLoc( xsec3, vec3d( height, 0, 0 ) );
+	
+	
+	Matrix4d bottom_mat;
+	vec3d bottom_pos( height, 0, width );
+	vec3d bottom_rot( 0, 0, 0 );
+	vec3d bottom_rot_cent( 0, 0, 0);
+	
+	bottom_mat.loadIdentity();
+	bottom_mat.rotateY( -90.0 );
+	
+	bottom_mat.translatef( -.75, 0.0, 0.0 );
+	
+	bottom_mat.buildXForm( bottom_pos, bottom_rot, bottom_rot_cent );
+
+    SetXSecSurfGlobalXForm( surf_id, bottom_mat );
 }
 
 //==== Create The Seat Back ====//
@@ -245,7 +260,12 @@ void BuildSeatBack( string surf_id, double width, double length, double height,
 	vec3d back_pos( height, 0, back_height/2 - length/2 );
 	vec3d back_rot( 0, back_angle, 0 );
 	vec3d back_rot_cent( back_thick/2, 0, -back_height/2);
-
+	
+	mat.loadIdentity();
+	
+	mat.translatef( -0.88, 0.0, -0.42 );
+	mat.rotateY( 90.0 );
+	
 	mat.buildXForm( back_pos, back_rot, back_rot_cent );
 
     SetXSecSurfGlobalXForm( surf_id, mat );
