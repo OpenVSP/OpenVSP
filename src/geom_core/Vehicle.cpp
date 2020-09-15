@@ -4498,11 +4498,6 @@ string Vehicle::MassProps( int set, int numSlices, bool hidegeom, bool writefile
         return id;
     }
 
-    if( hidegeom )
-    {
-        HideAllExcept( id );
-    }
-
     MeshGeom* mesh_ptr = ( MeshGeom* )FindGeom( id );
     if ( mesh_ptr == NULL )
     {
@@ -4511,10 +4506,12 @@ string Vehicle::MassProps( int set, int numSlices, bool hidegeom, bool writefile
 
     //==== Load Point Mass Properties From Blank Geom ====//
     vector<string> geom_vec = GetGeomVec();
+ 
     for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
     {
         if ( geom_vec[i].compare( id ) != 0 )
         {
+  
             Geom* geom_ptr = FindGeom( geom_vec[i] );
             if ( geom_ptr )
             {
@@ -4528,10 +4525,16 @@ string Vehicle::MassProps( int set, int numSlices, bool hidegeom, bool writefile
                         pm->SetPointMass( BGeom->m_PointMass(), BGeom->getModelMatrix().getTranslation() );
                         pm->m_CompId = BGeom->GetID();
                         mesh_ptr->AddPointMass( pm );
+                        
                     }
                 }
             }
         }
+    }
+
+    if( hidegeom )
+    {
+        HideAllExcept( id );
     }
 
     if ( mesh_ptr->m_TMeshVec.size() || mesh_ptr->m_PointMassVec.size() )

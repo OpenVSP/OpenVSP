@@ -3440,8 +3440,22 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
         iyz_vec.push_back( compIyz );
         vol_vec.push_back( compVol );
     }
+    
+    for ( int i = 0; i < m_PointMassVec.size(); i++ )
+    {
+        mass_vec.push_back( m_PointMassVec[i]->m_Mass );
+        cg_vec.push_back( m_PointMassVec[i]->m_CG );
+        ixx_vec.push_back( m_PointMassVec[i]->m_Ixx );
+        iyy_vec.push_back( m_PointMassVec[i]->m_Iyy );
+        izz_vec.push_back( m_PointMassVec[i]->m_Izz );
+        ixy_vec.push_back( m_PointMassVec[i]->m_Ixy );
+        ixz_vec.push_back( m_PointMassVec[i]->m_Ixz );
+        iyz_vec.push_back( m_PointMassVec[i]->m_Iyz );
+        vol_vec.push_back( m_PointMassVec[i]->m_Vol );
+    }
 
     res->Add( NameValData( "Num_Comps", ( int )name_vec.size() ) );
+    res->Add( NameValData( "Total_Items", ( int )m_PointMassVec.size() + ( int )name_vec.size() ) );
     res->Add( NameValData( "Comp_Name", name_vec ) );
     res->Add( NameValData( "Comp_ID", id_vec ) );
     res->Add( NameValData( "Comp_Mass", mass_vec ) );
