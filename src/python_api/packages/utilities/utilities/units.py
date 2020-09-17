@@ -199,7 +199,7 @@ ftlb_s2kw = lb2n * ft2m * w2kw
 
 kw2ftlb_s = 1/ftlb_s2kw
 
-w2ftlb_s = kw2ftlb_s * kw2w
+w2ftlb_s = kw2ftlb_s * w2kw
 
 ftlb_s2w = 1/w2ftlb_s
 
