@@ -63,7 +63,7 @@ public:
     Parm m_Diameter;       // RotorDiameter_
     Parm m_HubDiameter;    // RotorHubDiameter_
     Parm m_RPM;          // RotorRPM_
-
+    BoolParm m_AutoHubDiaFlag; // Flag to pull hub diameter automatically from Prop Geom
     Parm m_CT;          // Rotor_CT_
     Parm m_CP;          // Rotor_CP_
 

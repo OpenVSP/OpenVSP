@@ -769,11 +769,20 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                             XSec* xsec = xsecsurf->FindXSec( 0 );
                             if ( xsec && xsec->GetType() == vsp::XSEC_PROP )
                             {
-                                PropXSec* prop_xsec = dynamic_cast <PropXSec*> ( xsec );
-                                temp.back()->m_HubDiameter.Set( 2 * prop_xsec->m_RadiusFrac.GetResult() ); // radius to diameter
-                                temp.back()->m_HubDiameter.Deactivate();
-                                hub_set = true;
+                                if ( temp.back()->m_AutoHubDiaFlag() )
+                                {
+                                    PropXSec* prop_xsec = dynamic_cast <PropXSec*> ( xsec );
+                                    temp.back()->m_HubDiameter.Set( 2 * prop_xsec->m_RadiusFrac.GetResult() ); // radius to diameter
+                                    temp.back()->m_HubDiameter.Deactivate();
+                                    hub_set = true;
+                                }
                             }
+                            else
+                            {
+                                temp.back()->m_AutoHubDiaFlag.Set( false );
+                                temp.back()->m_AutoHubDiaFlag.Deactivate();
+                            }
+
                         }
 
                         if ( !hub_set )
@@ -5110,6 +5119,9 @@ RotorDisk::RotorDisk( void ) : ParmContainer()
     m_RPM.Init( "RotorRPM", m_GroupName, this, 2000.0, -1e12, 1e12 );       // RotorRPM_
     m_RPM.SetDescript( "Rotor RPM" );
 
+    m_AutoHubDiaFlag.Init( "AutoHubDiaFlag", m_GroupName, this, true, false, true );
+    m_AutoHubDiaFlag.SetDescript( "Flag to Automatically Set Hub Diameter from Prop Geom" );
+
     m_CT.Init( "RotorCT", m_GroupName, this, 0.4, -1e3, 1e3 );       // Rotor_CT_
     m_CT.SetDescript( "Rotor Coefficient of Thrust" );
 
@@ -5137,7 +5149,7 @@ RotorDisk& RotorDisk::operator=( const RotorDisk &RotorDisk )
     m_Diameter = RotorDisk.m_Diameter;       // RotorRadius_
     m_HubDiameter = RotorDisk.m_HubDiameter;    // RotorHubRadius_
     m_RPM = RotorDisk.m_RPM;       // RotorRPM_
-
+    m_AutoHubDiaFlag = RotorDisk.m_AutoHubDiaFlag;
     m_CT = RotorDisk.m_CT;        // Rotor_CT_
     m_CP = RotorDisk.m_CP;        // Rotor_CP_
 

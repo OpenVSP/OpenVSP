@@ -239,6 +239,7 @@ protected:
     // Prop Elem Layout
     Fl_Browser* m_PropElemBrowser;
     StringOutput m_PropElemDia;
+    ToggleButton m_PropAutoHubDia;
     SliderAdjRangeInput m_PropElemHubDia;
     SliderAdjRangeInput m_PropElemRPM;
     SliderAdjRangeInput m_PropElemCT;

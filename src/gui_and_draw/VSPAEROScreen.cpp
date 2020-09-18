@@ -628,13 +628,27 @@ VSPAEROScreen::VSPAEROScreen( ScreenMgr* mgr ) : TabScreen( mgr, VSPAERO_SCREEN_
 
     input_width = 60;
     int XYZ_button_width = 20;
-    int else_button_width = 60;
+    int else_button_width = 120;
     int browser_augment = 40;
 
     m_PropElemLayout.SetButtonWidth( else_button_width );
     m_PropElemLayout.SetInputWidth( input_width );
     m_PropElemLayout.AddOutput( m_PropElemDia, "Dia." );
+
+    m_PropElemLayout.SetFitWidthFlag( false );
+    m_PropElemLayout.SetSameLineFlag( true );
+    m_PropElemLayout.SetButtonWidth( else_button_width / 2 );
+
+    m_PropElemLayout.AddButton( m_PropAutoHubDia, "Auto" );
+
+    m_PropElemLayout.SetFitWidthFlag( true );
+
     m_PropElemLayout.AddSlider( m_PropElemHubDia, "Hub Dia.", 100, "%3.3f" );
+
+    m_PropElemLayout.SetButtonWidth( else_button_width );
+    m_PropElemLayout.ForceNewLine();
+    m_PropElemLayout.SetSameLineFlag( false );
+
     m_PropElemLayout.AddSlider( m_PropElemRPM, "RPM", 10000, "%7.2f" );
     m_PropElemLayout.AddSlider( m_PropElemCT, "CT", 1, "%2.3f" );
     m_PropElemLayout.AddSlider( m_PropElemCP, "CP", 1, "%2.3f" );
@@ -1535,6 +1549,7 @@ void VSPAEROScreen::UpdatePropElemDevices()
         rotordiskvec[ index ]->m_HubDiameter.SetUpperLimit( rotordiskvec[ index ]->m_Diameter() );
         m_PropElemHubDia.SetMaxBound( rotordiskvec[ index ]->m_Diameter() );
         m_PropElemHubDia.Update( rotordiskvec[ index ]->m_HubDiameter.GetID() );
+        m_PropAutoHubDia.Update( rotordiskvec[index]->m_AutoHubDiaFlag.GetID() );
         m_PropElemRPM.Update( rotordiskvec[ index ]->m_RPM.GetID());
         m_PropElemCP.Update( rotordiskvec[ index ]->m_CP.GetID());
         m_PropElemCT.Update( rotordiskvec[ index ]->m_CT.GetID());
