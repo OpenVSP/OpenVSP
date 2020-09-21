@@ -31,7 +31,7 @@ public:
 
     // Initialize the NURBS curve from an SCurve. Control points are extracted and 
     // saved to m_control_pnts_xyz.
-    void InitNURBSCurve( SCurve curve );
+    void InitNURBSCurve( SCurve curve, double curve_tol );
 
     // Define the NURBS curve as a SdaiEdge_curve
     void WriteSTEPEdge( STEPutil* step, const string& label = "", bool mergepnts = false );

@@ -35,10 +35,10 @@ NURBS_Curve::NURBS_Curve()
     m_WakeFlag = false;
 }
 
-void NURBS_Curve::InitNURBSCurve( SCurve curve )
+void NURBS_Curve::InitNURBSCurve( SCurve curve, double curve_tol )
 {
     Bezier_curve xyzcrvA = curve.GetUWCrv();
-    xyzcrvA.TessAdaptXYZ( *curve.GetSurf(), m_PntVec, 5e-3, 16 );
+    xyzcrvA.TessAdaptXYZ( *curve.GetSurf(), m_PntVec, curve_tol, 16 );
 
     m_BBox = curve.GetSurf()->GetBBox();
 
