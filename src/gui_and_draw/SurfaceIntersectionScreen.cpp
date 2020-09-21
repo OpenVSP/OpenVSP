@@ -69,7 +69,7 @@ void SurfaceIntersectionScreen::CreateGlobalTab()
     m_GlobalTabLayout.AddDividerBox( "Geometry Control" );
     m_GlobalTabLayout.AddYGap();
 
-    m_GlobalTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 1.0, "%7.5f" );
+    m_GlobalTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 0.01, "%7.5f" );
     m_GlobalTabLayout.AddYGap();
 
     m_GlobalTabLayout.AddButton( m_IntersectSubsurfaces, "Intersect Subsurfaces" );
@@ -304,15 +304,6 @@ bool SurfaceIntersectionScreen::Update()
 void SurfaceIntersectionScreen::UpdateGlobalTab()
 {
     m_RelCurveTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_RelCurveTol.GetID() );
-
-    if ( m_Vehicle->GetISectSettingsPtr()->m_DrawBinAdaptFlag() )
-    {
-        m_RelCurveTolSlider.Activate();
-    }
-    else
-    {
-        m_RelCurveTolSlider.Deactivate();
-    }
 
     //===== Geometry Control =====//
     m_IntersectSubsurfaces.Update( m_Vehicle->GetISectSettingsPtr()->m_IntersectSubSurfs.GetID() );
