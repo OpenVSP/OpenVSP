@@ -10,6 +10,7 @@
 #include "Vehicle.h"
 #include <float.h>
 #include "Cluster.h"
+#include "SubSurfaceMgr.h"
 
 using namespace vsp;
 
@@ -1198,6 +1199,20 @@ void PropGeom::UpdateSurf()
             m_MaxGrowth = 1.0;
 
             m_CappingDone = true;
+        }
+    }
+    
+    //When props blades are removed we need to remove its sub-surface from list of sub-surfaces
+    //If sub-surface index is greater then amount of GetNumMainSurfs(), we remove sub-surface 
+    int count = 0;
+    vector<SubSurface*> subsurf_vec_temp = GetSubSurfVec();
+    for ( int i = 0; i < subsurf_vec_temp.size(); i++ )
+    {
+        if ( subsurf_vec_temp[i]->m_MainSurfIndx.Get() >= GetNumMainSurfs() )
+        {
+            DelSubSurf( i - count );
+            count++; // Keep track of deleted sub-surface index offset
+            SubSurfaceMgr.SetCurrSubSurfInd( -1 ); // unselect current sub-surface
         }
     }
 }
