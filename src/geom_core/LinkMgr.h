@@ -12,6 +12,7 @@
 #define LINKMGR__INCLUDED_
 
 #include "Link.h"
+#include "UserParmContainer.h"
 #include <deque>
 using std::string;
 using std::vector;
