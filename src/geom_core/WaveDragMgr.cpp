@@ -110,17 +110,6 @@ xmlNodePtr WaveDragSingleton::DecodeXml( xmlNodePtr & node )
     return WaveDragnode;
 }
 
-//==== Parm Changed ====//
-void WaveDragSingleton::ParmChanged( Parm* parm_ptr, int type )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        veh->ParmChanged( parm_ptr, type );
-    }
-}
-
 void WaveDragSingleton::Update()
 {
     if( m_RefFlag() == vsp::MANUAL_REF )

@@ -12,6 +12,7 @@
 #include "LinkMgr.h"
 #include "StringUtil.h"
 #include "StlHelper.h"
+#include "Vehicle.h"
 
 using std::string;
 
@@ -74,6 +75,16 @@ ParmContainer::ParmContainer()
 ParmContainer::~ParmContainer()
 {
     ParmMgr.RemoveParmContainer( this );
+}
+
+void ParmContainer::ParmChanged( Parm* parm_ptr, int type )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+
+    if ( veh )
+    {
+        veh->ParmChanged( parm_ptr, type );
+    }
 }
 
 //==== Add Parm To Storage Vector ====//

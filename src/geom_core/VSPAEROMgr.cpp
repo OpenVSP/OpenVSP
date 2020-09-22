@@ -5143,16 +5143,6 @@ RotorDisk::~RotorDisk( void )
 {
 }
 
-void RotorDisk::ParmChanged( Parm* parm_ptr, int type )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        veh->ParmChanged( parm_ptr, type );
-    }
-}
-
 RotorDisk& RotorDisk::operator=( const RotorDisk &RotorDisk )
 {
 
@@ -5265,16 +5255,6 @@ ControlSurfaceGroup::ControlSurfaceGroup( void ) : ParmContainer()
 
 ControlSurfaceGroup::~ControlSurfaceGroup( void )
 {
-}
-
-void ControlSurfaceGroup::ParmChanged( Parm* parm_ptr, int type )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        veh->ParmChanged( parm_ptr, type );
-    }
 }
 
 void ControlSurfaceGroup::Write_STP_Data( FILE *InputFile )

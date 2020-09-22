@@ -70,17 +70,6 @@ xmlNodePtr ClippingMgr::DecodeXml( xmlNodePtr & node )
     return cfdsetnode;
 }
 
-//==== Parm Changed ====//
-void ClippingMgr::ParmChanged( Parm* parm_ptr, int type )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        veh->ParmChanged( parm_ptr, type );
-    }
-}
-
 void ClippingMgr::LoadDrawObjs( vector< DrawObj* > &draw_obj_vec )
 {
     m_ClipDO.m_Type = DrawObj::VSP_CLIP;

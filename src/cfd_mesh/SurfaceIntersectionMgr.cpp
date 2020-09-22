@@ -405,15 +405,6 @@ SurfaceIntersectionSingleton::~SurfaceIntersectionSingleton()
 
 }
 
-//==== Parm Changed ====//
-void SurfaceIntersectionSingleton::ParmChanged( Parm* parm_ptr, int type )
-{
-    if ( m_Vehicle )
-    {
-        m_Vehicle->ParmChanged( parm_ptr, Parm::SET );
-    }
-}
-
 void SurfaceIntersectionSingleton::IntersectSurfaces()
 {
     m_MeshInProgress = true;

@@ -23,8 +23,6 @@ public:
 
     virtual void InitCommonParms();
 
-    virtual void ParmChanged( Parm* parm_ptr, int type );
-
     virtual void SetIntersectSubSurfs( bool f )
     {
         m_IntersectSubSurfs = f;

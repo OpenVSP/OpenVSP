@@ -21,8 +21,6 @@ public:
     Probe();
     virtual ~Probe();
 
-    virtual void ParmChanged( Parm* parm_ptr, int type );
-
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
@@ -73,8 +71,6 @@ class Ruler : public ParmContainer
 public:
     Ruler();
     virtual ~Ruler();
-
-    virtual void ParmChanged( Parm* parm_ptr, int type );
 
     void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 

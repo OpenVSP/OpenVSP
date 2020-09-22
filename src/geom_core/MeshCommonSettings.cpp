@@ -49,17 +49,6 @@ void MeshCommonSettings::InitCommonParms()
     m_SymSplittingOnFlag.Init( "SymmetrySplitting", "FarField", this, false, 0, 1 );
 }
 
-//==== Parm Changed ====//
-void MeshCommonSettings::ParmChanged( Parm* parm_ptr, int type )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        veh->ParmChanged( parm_ptr, type );
-    }
-}
-
 /////////////////////////////////////////////////////////////////////////////////
 /////////////////////////////////////////////////////////////////////////////////
 

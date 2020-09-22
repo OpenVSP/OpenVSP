@@ -21,11 +21,6 @@ public:
 
 public:
     /*!
-    * On texture change, inform geometry to update.
-    */
-    virtual void ParmChanged( Parm* parm_ptr, int type );
-
-    /*!
     * Override ParmContainer.
     */
     xmlNodePtr EncodeXml( xmlNodePtr &node );

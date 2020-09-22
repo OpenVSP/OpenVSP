@@ -49,11 +49,6 @@ Probe::~Probe()
     LinkMgr.UnRegisterContainer( GetID() );
 }
 
-void Probe::ParmChanged( Parm* parm_ptr, int type )
-{
-    VehicleMgr.GetVehicle()->ParmChanged( parm_ptr, type );
-}
-
 xmlNodePtr Probe::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr parmcontain_node = ParmContainer::EncodeXml( node );
@@ -210,11 +205,6 @@ Ruler::Ruler() : ParmContainer()
 Ruler::~Ruler()
 {
     LinkMgr.UnRegisterContainer( GetID() );
-}
-
-void Ruler::ParmChanged( Parm* parm_ptr, int type )
-{
-    VehicleMgr.GetVehicle()->ParmChanged( parm_ptr, type );
 }
 
 void Ruler::Reset()

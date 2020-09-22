@@ -36,7 +36,7 @@ public:
     ParmContainer();
     virtual ~ParmContainer();
 
-    virtual void ParmChanged( Parm* parm_ptr, int type ) = 0;
+    virtual void ParmChanged( Parm* parm_ptr, int type );
 
     virtual void AddParm( const string & id );
     virtual void RemoveParm( const string & id );

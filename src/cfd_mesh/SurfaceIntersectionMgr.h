@@ -210,8 +210,6 @@ public:
 
     void RegisterAnalysis();
 
-    void ParmChanged( Parm* parm_ptr, int type ) override;
-
     virtual void IntersectSurfaces();
 
     virtual void TransferMeshSettings();

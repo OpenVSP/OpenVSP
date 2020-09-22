@@ -47,11 +47,6 @@ Texture::~Texture()
 {
 }
 
-void Texture::ParmChanged( Parm* parm_ptr, int type )
-{
-    VehicleMgr.GetVehicle()->ParmChanged( parm_ptr, type );
-}
-
 xmlNodePtr Texture::EncodeXml( xmlNodePtr &node )
 {
     xmlNodePtr container_node = ParmContainer::EncodeXml( node );

@@ -42,8 +42,6 @@ public:
     ~RotorDisk( void );
     RotorDisk& operator=( const RotorDisk &RotorDisk );
 
-    void ParmChanged( Parm* parm_ptr, int type );
-
     // Setup File I/O
     void Write_STP_Data( FILE * InputFile );
 
@@ -109,8 +107,6 @@ public:
 
     ControlSurfaceGroup( void );
     ~ControlSurfaceGroup( void );
-
-    void ParmChanged( Parm* parm_ptr, int type );
 
     // Member variables
 

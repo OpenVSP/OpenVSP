@@ -4390,16 +4390,6 @@ FeaProperty::~FeaProperty()
 
 }
 
-void FeaProperty::ParmChanged( Parm* parm_ptr, int type )
-{
-    Vehicle* veh = VehicleMgr.GetVehicle();
-
-    if ( veh )
-    {
-        veh->ParmChanged( parm_ptr, type );
-    }
-}
-
 xmlNodePtr FeaProperty::EncodeXml( xmlNodePtr & node )
 {
     xmlNodePtr prop_info = xmlNewChild( node, NULL, BAD_CAST "FeaPropertyInfo", NULL );
