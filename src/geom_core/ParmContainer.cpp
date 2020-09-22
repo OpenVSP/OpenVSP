@@ -10,8 +10,6 @@
 #include "Parm.h"
 #include "ParmMgr.h"
 #include "LinkMgr.h"
-#include "Vehicle.h"
-
 #include "StringUtil.h"
 #include "StlHelper.h"
 
