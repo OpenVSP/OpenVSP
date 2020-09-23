@@ -119,6 +119,8 @@ void GeomBase::ParmChanged( Parm* parm_ptr, int type )
         m_UpdatedParmVec.push_back( parm_ptr->GetID() );
     }
 
+    SetDirtyFlags( parm_ptr );
+
     if ( type == Parm::SET )
     {
         m_LateUpdateFlag = true;
@@ -381,6 +383,8 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
 
     m_ignoreAbsFlag = false;
     m_applyIgnoreAbsFlag = true;
+    m_XFormDirty = true;
+    m_SurfDirty = true;
 
     m_ModelMatrix.loadIdentity();
 }
@@ -389,6 +393,28 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
 GeomXForm::~GeomXForm()
 {
 }
+
+void GeomXForm::SetDirtyFlags( Parm* parm_ptr )
+{
+
+    string gname = parm_ptr->GetGroupName();
+    string pname = parm_ptr->GetName();
+
+    if ( gname == string("XForm") && pname != string("Scale") && pname != string("Last_Scale") )
+    {
+        m_XFormDirty = true;
+    }
+    else if ( gname == string( "Attach") )
+    {
+        m_XFormDirty = true;
+    }
+    else
+    {
+        m_SurfDirty = true;
+    }
+
+}
+
 
 //==== Update ====//
 void GeomXForm::Update( bool fullupdate )
@@ -988,54 +1014,74 @@ void Geom::Update( bool fullupdate )
     if ( m_UpdateBlock )
         return;
 
+    if ( !m_XFormDirty && !m_SurfDirty )
+    {
+        return;
+    }
+
+    if ( GetType().m_Type == HINGE_GEOM_TYPE )
+    {
+        if ( m_XFormDirty )
+        {
+            m_SurfDirty = true;
+        }
+    }
+
     m_UpdateBlock = true;
 
     m_LateUpdateFlag = false;
 
     m_CappingDone = false;
 
-    Scale();
+    if ( m_SurfDirty )
+        Scale();
 
     UpdateSets();
 
-    UpdateSurf();       // Must be implemented by subclass.
+    if ( m_SurfDirty )
+        UpdateSurf();       // Must be implemented by subclass.
 
-    GeomXForm::Update();
+    if ( m_XFormDirty )
+        GeomXForm::Update();
 
-    UpdateEndCaps();
+    if ( m_SurfDirty )
+        UpdateEndCaps();
 
-    if ( fullupdate )
+    if ( fullupdate && m_SurfDirty )
     {
         UpdateFeatureLines();
     }
 
-    UpdateFlags();
+    UpdateFlags();  // Needs to be after m_MainSurfVec is populated, but before m_SurfVec
 
-    UpdateSymmAttach();
+    UpdateSymmAttach();  // Needs to happen for both XForm and Surf updates.
 
-    if ( fullupdate )
+    if ( fullupdate ) // Option to make FitModel and similar things faster.
     {
         for ( int i = 0 ; i < ( int )m_SubSurfVec.size() ; i++ )
         {
-            m_SubSurfVec[i]->Update();
+            m_SubSurfVec[i]->Update();  // Can be protected by m_SurfDirty, except for call to UpdateDrawObj - perhaps should be split out.  Some may depend on m_SurfVec, but could be switched to m_MainSurfVec instead.
         }
 
         for ( int i = 0; i < (int)m_FeaStructVec.size(); i++ )
         {
-            m_FeaStructVec[i]->Update();
+            m_FeaStructVec[i]->Update();  // Possibly can be moved to update path only when FEA GUI is open?
         }
     }
 
     UpdateChildren( fullupdate );
-    UpdateBBox();
+    UpdateBBox();  // Needs to happen for both XForm and Surf updates.
 
     if ( fullupdate )
     {
-        UpdateDrawObj();
+        UpdateDrawObj();  // Needs to happen for both XForm and Surf updates.
     }
 
     m_UpdatedParmVec.clear();
     m_UpdateBlock = false;
+
+    m_XFormDirty = false;
+    m_SurfDirty = false;
 }
 
 void Geom::GetUWTess01( int indx, vector < double > &u, vector < double > &w )
@@ -1422,6 +1468,30 @@ void Geom::UpdateChildren( bool fullupdate )
         Geom* child = m_Vehicle->FindGeom( m_ChildIDVec[i] );
         if ( child )
         {
+            // Child is attached in some way.
+            if ( ( child->m_RotAttachFlag() != vsp::ATTACH_ROT_NONE ) ||
+                    ( child->m_TransAttachFlag() != vsp::ATTACH_TRANS_NONE ) )
+            {
+                // Parent was XFormed
+                if ( m_XFormDirty )
+                {
+                    child->m_XFormDirty = true;
+                }
+                // Parent surf changed and child is UV attached
+                else if ( m_SurfDirty &&
+                         ( ( child->m_RotAttachFlag() == vsp::ATTACH_ROT_UV ) ||
+                           ( child->m_TransAttachFlag() == vsp::ATTACH_TRANS_UV ) ) )
+                {
+                    child->m_XFormDirty = true;
+                }
+            }
+
+            // We are a hinge, children are force attached.
+            if ( GetType().m_Type == HINGE_GEOM_TYPE )
+            {
+                child->m_XFormDirty = true;
+            }
+
             // Ignore the abs location values and only use rel values for children so a child
             // with abs button selected stays attached to parent if the parent moves
             child->m_ignoreAbsFlag = true;

@@ -187,6 +187,7 @@ public:
     }
 
     virtual void Update( bool fullupdate = true )           {}
+    virtual void SetDirtyFlags( Parm* parm_ptr ) = 0;
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void ForceUpdate();
@@ -314,7 +315,12 @@ public:
     vec3d m_AttachOrigin;
     vector < vec3d > m_AttachAxis;
 
+    void SetDirtyFlags( Parm* parm_ptr );
+
 protected:
+
+    bool m_XFormDirty;
+    bool m_SurfDirty;
 
     bool m_ignoreAbsFlag;
     bool m_applyIgnoreAbsFlag;          // Controls whether the ignoreAbsFlag is obeyed
