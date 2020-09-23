@@ -1016,6 +1016,7 @@ void Geom::Update( bool fullupdate )
 
     if ( !m_XFormDirty && !m_SurfDirty )
     {
+        printf( "Fast exit from %s update.\n", m_Name.c_str() );
         return;
     }
 
@@ -1026,6 +1027,13 @@ void Geom::Update( bool fullupdate )
             m_SurfDirty = true;
         }
     }
+
+
+    if ( m_XFormDirty )
+        printf( "Updating %s position.\n", m_Name.c_str() );
+
+    if ( m_SurfDirty )
+        printf( "Updating %s surface.\n", m_Name.c_str() );
 
     m_UpdateBlock = true;
 

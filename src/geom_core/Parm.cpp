@@ -200,6 +200,8 @@ double Parm::SetFromDevice( double val, bool drag_flag )
 
     LinkMgr.ParmChanged( m_ID, true );
 
+    printf( "Done!\n\n" );
+
     return m_Val;
 }
 
