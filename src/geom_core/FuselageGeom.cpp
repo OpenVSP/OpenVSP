@@ -282,6 +282,11 @@ void FuselageGeom::SetActiveXSecType( int type )
 void FuselageGeom::CutXSec( int index )
 {
     m_XSecSurf.CutXSec( index );
+    // Set up flag so Update() knows to regenerate surface.
+    // Insert / split cases don't need this because Parms are added,
+    // which implicitly triggers this flag.
+    // However, cut deletes Parms - requiring an explicit flag.
+    m_SurfDirty = true;
     Update();
 }
 void FuselageGeom::CopyXSec( int index )

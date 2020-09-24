@@ -1588,6 +1588,11 @@ void WingGeom::CutWingSect( int index  )
     if ( index > 0 && index < m_XSecSurf.NumXSec() )
     {
         m_XSecSurf.CutXSec( index );
+        // Set up flag so Update() knows to regenerate surface.
+        // Insert / split cases don't need this because Parms are added,
+        // which implicitly triggers this flag.
+        // However, cut deletes Parms - requiring an explicit flag.
+        m_SurfDirty = true;
 
         //==== Reset Active Indeices ====//
         SetActiveAirfoilIndex( GetActiveAirfoilIndex() );

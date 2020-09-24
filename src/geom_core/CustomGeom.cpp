@@ -446,6 +446,11 @@ void CustomGeomMgrSingleton::CutCustomXSec( const string & xsec_surf_id, int ind
             if ( xs_surf && xs_surf->GetID() == xsec_surf_id )
             {
                 xs_surf->CutXSec( index );
+                // Set up flag so Update() knows to regenerate surface.
+                // Insert / split cases don't need this because Parms are added,
+                // which implicitly triggers this flag.
+                // However, cut deletes Parms - requiring an explicit flag.
+                gptr->m_SurfDirty = true;
             }
         }
     }
