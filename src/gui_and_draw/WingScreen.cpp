@@ -986,8 +986,8 @@ bool WingScreen::Update()
     m_NumSectOutput.Update(  str );
 
     ////==== Wing Section Index Display ====//
-    int ws_index = wing_ptr->GetActiveXSecIndex();
-    m_SectIndexSelector.SetIndex( ws_index );
+    int ws_index = wing_ptr->m_ActiveXSec();
+    m_SectIndexSelector.Update( wing_ptr->m_ActiveXSec.GetID() );
 
     WingSect* wing_sect = dynamic_cast<WingSect*>(wing_ptr->GetXSec( ws_index ));
 
@@ -1641,38 +1641,33 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         wing_ptr->SetActiveAirfoilIndex( m_AfModIndexSelector.GetIndex() );
         wing_ptr->Update();
     }
-    else if ( gui_device == &m_SectIndexSelector )
-    {
-        wing_ptr->SetActiveXSecIndex( m_SectIndexSelector.GetIndex() );
-        wing_ptr->Update();
-    }
     else if ( gui_device == &m_SplitSectButton )
     {
-        int wsid = wing_ptr->GetActiveXSecIndex();
+        int wsid = wing_ptr->m_ActiveXSec();
         wing_ptr->SplitWingSect( wsid );
         wing_ptr->Update();
     }
     else if ( gui_device == &m_CutSectButton )
     {
-        int wsid = wing_ptr->GetActiveXSecIndex();
+        int wsid = wing_ptr->m_ActiveXSec();
         wing_ptr->CutWingSect( wsid );
         wing_ptr->Update();
     }
     else if ( gui_device == &m_CopySectButton )
     {
-        int wsid = wing_ptr->GetActiveXSecIndex();
+        int wsid = wing_ptr->m_ActiveXSec();
         wing_ptr->CopyWingSect( wsid );
         wing_ptr->Update();
     }
     else if ( gui_device == &m_PasteSectButton )
     {
-        int wsid = wing_ptr->GetActiveXSecIndex();
+        int wsid = wing_ptr->m_ActiveXSec();
         wing_ptr->PasteWingSect( wsid );
         wing_ptr->Update();
     }
     else if ( gui_device == &m_InsertSectButton )
     {
-        int wsid = wing_ptr->GetActiveXSecIndex();
+        int wsid = wing_ptr->m_ActiveXSec();
         wing_ptr->InsertWingSect( wsid );
         wing_ptr->Update();
     }
@@ -1908,7 +1903,7 @@ void WingScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_TestDriverGroupButton )
     {
-        int wsid = wing_ptr->GetActiveXSecIndex();
+        int wsid = wing_ptr->m_ActiveXSec();
 
         WingSect* wing_sect = dynamic_cast<WingSect*>(wing_ptr->GetXSec( wsid ));
 

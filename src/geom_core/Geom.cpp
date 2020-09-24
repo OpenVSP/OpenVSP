@@ -4742,13 +4742,19 @@ GeomXSec::GeomXSec( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
     m_Type.m_Type = GEOM_GEOM_TYPE;
     m_Type.m_Name = m_Name;
 
-    m_MinActiveXSec = 0;
-    m_ActiveXSec = 0;
+    m_ActiveXSec.Init( "ActiveXSec", "Index", this, 0, 0, 1e6 );
 }
 //==== Destructor ====//
 GeomXSec::~GeomXSec()
 {
 
+}
+
+void GeomXSec::Update( bool fullupdate )
+{
+    m_ActiveXSec.SetUpperLimit( m_XSecSurf.NumXSec() - 1 );
+
+    Geom::Update( fullupdate );
 }
 
 void GeomXSec::UpdateDrawObj()
@@ -4780,7 +4786,7 @@ void GeomXSec::UpdateDrawObj()
         m_XSecDrawObj_vec[i].m_GeomChanged = true;
     }
 
-    XSec* axs = m_XSecSurf.FindXSec( m_ActiveXSec );
+    XSec* axs = m_XSecSurf.FindXSec( m_ActiveXSec() );
     if ( axs )
     {
         m_HighlightXSecDrawObj.m_PntVec = axs->GetDrawLines( relTrans );
@@ -4861,14 +4867,6 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_CurrentXSecDrawObj.m_GeomID = XSECHEADER + m_ID + "CURRENT";
         draw_obj_vec.push_back( &m_CurrentXSecDrawObj );
     }
-}
-
-//==== Set Index For Active XSec ====//
-void GeomXSec::SetActiveXSecIndex( int index )
-{
-    index = Clamp<int>( index, m_MinActiveXSec, m_XSecSurf.NumXSec() - 1 );
-
-    m_ActiveXSec = index;
 }
 
 //==== Get XSec ====//

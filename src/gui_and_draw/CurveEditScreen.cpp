@@ -150,7 +150,7 @@ XSecCurve* CurveEditScreen::GetXSecCurve()
             return NULL;
         }
 
-        int xsid = geom_xsec->GetActiveXSecIndex();
+        int xsid = geom_xsec->m_ActiveXSec();
         XSec* xs = geom_xsec->GetXSec( xsid );
 
         if ( !xs )

@@ -1227,7 +1227,7 @@ WingGeom::WingGeom( Vehicle* vehicle_ptr ) : GeomXSec( vehicle_ptr )
     m_Type.m_Name = "Wing";
     m_Type.m_Type = MS_WING_GEOM_TYPE;
 
-    m_MinActiveXSec = 1;
+    m_ActiveXSec.SetLowerLimit( 1 );
 
     m_Closed = false;
 
@@ -1526,7 +1526,7 @@ WingSect* WingGeom::GetWingSect( int index )
 //==== Override Geom Cut/Copy/Insert/Paste ====//
 void WingGeom::CutXSec( int index )
 {
-    SetActiveXSecIndex( index );
+    m_ActiveXSec = index;
     CutWingSect( index );
 }
 void WingGeom::CopyXSec( int index )
@@ -1542,8 +1542,8 @@ void WingGeom::InsertXSec( int index, int type )
     if ( index > 0 && index < m_XSecSurf.NumXSec() )
     {
         string ins_id = m_XSecSurf.InsertXSec(type, index);
-        SetActiveXSecIndex( index + 1 );
-        PasteWingSect( GetActiveXSecIndex() );
+        m_ActiveXSec = index + 1;
+        PasteWingSect( m_ActiveXSec() );
     }
 }
 
@@ -1590,7 +1590,6 @@ void WingGeom::CutWingSect( int index  )
         m_XSecSurf.CutXSec( index );
 
         //==== Reset Active Indeices ====//
-        SetActiveXSecIndex( GetActiveXSecIndex() );
         SetActiveAirfoilIndex( GetActiveAirfoilIndex() );
     }
 }
@@ -1649,8 +1648,8 @@ void WingGeom::InsertWingSect( int index  )
         int type = xs->GetXSecCurve()->GetType();
 
         string ins_id = m_XSecSurf.InsertXSec(type, index);
-        SetActiveXSecIndex( index + 1 );
-        PasteWingSect( GetActiveXSecIndex() );
+        m_ActiveXSec = index + 1;
+        PasteWingSect( m_ActiveXSec() );
     }
 }
 
@@ -1683,18 +1682,18 @@ void WingGeom::UpdateSurf()
         total_change_flag = true;
     }
 
-    int active_sect = GetActiveXSecIndex();     // Save Active Section
+    int active_sect = m_ActiveXSec();     // Save Active Section
 
     //==== Set Temp Active XSec Based On Updated Parms ====//
     if ( total_change_flag )
-        SetActiveXSecIndex(1);
+        m_ActiveXSec = 1;
     else
         SetTempActiveXSec();
 
     //==== Make Sure Chord Match For Adjacent Wing Sections ====//
     MatchWingSections();
 
-    SetActiveXSecIndex(active_sect);            // Restore Active Section
+    m_ActiveXSec = active_sect;            // Restore Active Section
 
 
     // clear the u tessellation vector
@@ -2294,10 +2293,10 @@ void WingGeom::UpdateDrawObj()
     m_CurrentXSecDrawObj.m_GeomChanged = true;
 
 
-    VspCurve inbd = m_XSecSurf.FindXSec( m_ActiveXSec - 1 )->GetCurve();
+    VspCurve inbd = m_XSecSurf.FindXSec( m_ActiveXSec() - 1 )->GetCurve();
     inbd.Transform( relTrans );
 
-    VspCurve outbd = m_XSecSurf.FindXSec( m_ActiveXSec )->GetCurve();
+    VspCurve outbd = m_XSecSurf.FindXSec( m_ActiveXSec() )->GetCurve();
     outbd.Transform( relTrans );
 
     BndBox iBBox, oBBox;
@@ -2508,21 +2507,21 @@ void WingGeom::UpdateTotalArea()
 void WingGeom::MatchWingSections()
 {
     //==== Match Section Root/Tip ====//
-    WingSect* active_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveXSec );
+    WingSect* active_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveXSec() );
     if ( active_ws )
     {
         active_ws->m_DriverGroup.UpdateGroup( active_ws->GetDriverParms() );
         double active_rc = active_ws->m_RootChord();
         double active_tc = active_ws->m_TipChord();
 
-        if ( m_ActiveXSec > 0 )
+        if ( m_ActiveXSec() > 0 )
         {
-            WingSect* inboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveXSec-1 );
+            WingSect* inboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveXSec()-1 );
             inboard_ws->ForceChordVal( active_rc, false );
         }
-        if ( m_ActiveXSec < m_XSecSurf.NumXSec()-1 )
+        if ( m_ActiveXSec() < m_XSecSurf.NumXSec()-1 )
         {
-            WingSect* outboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveXSec+1 );
+            WingSect* outboard_ws = ( WingSect* ) m_XSecSurf.FindXSec( m_ActiveXSec()+1 );
             outboard_ws->ForceChordVal( active_tc, true );
         }
     }
@@ -2546,7 +2545,7 @@ void WingGeom::SetTempActiveXSec()
     }
 
     if ( active_sect_index >= 0 )
-        SetActiveXSecIndex( active_sect_index );
+        m_ActiveXSec = active_sect_index;
 }
 
 //==== Get Sum Dihedral ====//

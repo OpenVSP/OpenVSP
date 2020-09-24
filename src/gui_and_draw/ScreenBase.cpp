@@ -1368,8 +1368,8 @@ bool SkinScreen::Update()
 
 
     //==== Skin & XSec Index Display ===//
-    int xsid = geomxsec_ptr->GetActiveXSecIndex();
-    m_SkinIndexSelector.SetIndex( xsid );
+    int xsid = geomxsec_ptr->m_ActiveXSec();
+    m_SkinIndexSelector.Update( geomxsec_ptr->m_ActiveXSec.GetID() );
 
     SkinXSec* xs = ( SkinXSec* ) geomxsec_ptr->GetXSec( xsid );
     if ( xs )
@@ -1572,15 +1572,10 @@ void SkinScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     GeomXSec* geomxsec_ptr = dynamic_cast< GeomXSec* >( geom_ptr );
     assert( geomxsec_ptr );
 
-    if ( gui_device == &m_SkinIndexSelector )
-    {
-        geomxsec_ptr->SetActiveXSecIndex( m_SkinIndexSelector.GetIndex() );
-        geomxsec_ptr->Update();
-    }
-    else if ( gui_device == m_TopHeader.m_ContChoice )
+    if ( gui_device == m_TopHeader.m_ContChoice )
     {
         int t = m_TopHeader.m_ContChoice->GetVal();
-        int xsid = geomxsec_ptr->GetActiveXSecIndex();
+        int xsid = geomxsec_ptr->m_ActiveXSec();
         SkinXSec* xs = (SkinXSec*) geomxsec_ptr->GetXSec( xsid );
         if ( xs )
         {

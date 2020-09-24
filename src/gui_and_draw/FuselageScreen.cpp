@@ -685,8 +685,8 @@ bool FuselageScreen::Update()
 
 
     //==== Skin & XSec Index Display ===//
-    int xsid = fuselage_ptr->GetActiveXSecIndex();
-    m_XSecIndexSelector.SetIndex( xsid );
+    int xsid = fuselage_ptr->m_ActiveXSec();
+    m_XSecIndexSelector.Update( fuselage_ptr->m_ActiveXSec.GetID() );
 
     FuseXSec* xs = ( FuseXSec* ) fuselage_ptr->GetXSec( xsid );
     if ( xs )
@@ -1108,12 +1108,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     FuselageGeom* fuselage_ptr = dynamic_cast< FuselageGeom* >( geom_ptr );
     assert( fuselage_ptr );
 
-    if ( gui_device == &m_XSecIndexSelector )
-    {
-        fuselage_ptr->SetActiveXSecIndex( m_XSecIndexSelector.GetIndex() );
-        fuselage_ptr->Update();
-    }
-    else if ( gui_device == &m_XSecTypeChoice )
+    if ( gui_device == &m_XSecTypeChoice )
     {
         int t = m_XSecTypeChoice.GetVal();
         fuselage_ptr->SetActiveXSecType( t );
@@ -1130,7 +1125,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ConvertCEDITButton )
     {
-        XSec* xs = fuselage_ptr->GetXSec( fuselage_ptr->GetActiveXSecIndex() );
+        XSec* xs = fuselage_ptr->GetXSec( fuselage_ptr->m_ActiveXSec() );
 
         if ( xs )
         {
@@ -1164,7 +1159,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ReadFuseFileButton  )
     {
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        int xsid = fuselage_ptr->m_ActiveXSec();
         XSec* xs = fuselage_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1187,7 +1182,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_AfReadFileButton   )
     {
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        int xsid = fuselage_ptr->m_ActiveXSec();
         XSec* xs = fuselage_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1214,7 +1209,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
         // requires setting the ID to another valid FractionParm's ID.  In this
         // case, m_YLocPercent of the same XSec.  It will get set back to
         // m_XLocPercent in Update() before anyone notices the change.
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        int xsid = fuselage_ptr->m_ActiveXSec();
         FuseXSec* xs = (FuseXSec*) fuselage_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1223,7 +1218,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_UpPromoteButton )
     {
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        int xsid = fuselage_ptr->m_ActiveXSec();
         XSec* xs = fuselage_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1245,7 +1240,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_LowPromoteButton )
     {
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        int xsid = fuselage_ptr->m_ActiveXSec();
         XSec* xs = fuselage_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1268,7 +1263,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_UpDemoteButton )
     {
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        int xsid = fuselage_ptr->m_ActiveXSec();
         XSec* xs = fuselage_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1291,7 +1286,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_LowDemoteButton )
     {
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        int xsid = fuselage_ptr->m_ActiveXSec();
         XSec* xs = fuselage_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1320,7 +1315,7 @@ void FuselageScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             ( gui_device == &m_FiveModFitCSTButton ) ||
             ( gui_device == &m_OneSixSeriesFitCSTButton ) )
     {
-        int xsid = fuselage_ptr->GetActiveXSecIndex();
+        int xsid = fuselage_ptr->m_ActiveXSec();
         XSec* xs = fuselage_ptr->GetXSec( xsid );
         if ( xs )
         {

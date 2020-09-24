@@ -674,8 +674,8 @@ bool StackScreen::Update()
     }
 
     //==== XSec Index Display ===//
-    int xsid = stackgeom_ptr->GetActiveXSecIndex();
-    m_XSecIndexSelector.SetIndex( xsid );
+    int xsid = stackgeom_ptr->m_ActiveXSec();
+    m_XSecIndexSelector.Update( stackgeom_ptr->m_ActiveXSec.GetID() );
 
     StackXSec* xs = ( StackXSec* ) stackgeom_ptr->GetXSec( xsid );
     if ( xs )
@@ -1106,12 +1106,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     StackGeom* stackgeom_ptr = dynamic_cast< StackGeom* >( geom_ptr );
     assert( stackgeom_ptr );
 
-    if ( gui_device == &m_XSecIndexSelector )
-    {
-        stackgeom_ptr->SetActiveXSecIndex( m_XSecIndexSelector.GetIndex() );
-        stackgeom_ptr->Update();
-    }
-    else if ( gui_device == &m_XSecTypeChoice )
+    if ( gui_device == &m_XSecTypeChoice )
     {
         int t = m_XSecTypeChoice.GetVal();
         stackgeom_ptr->SetActiveXSecType( t );
@@ -1127,7 +1122,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ConvertCEDITButton )
     {
-        XSec* xs = stackgeom_ptr->GetXSec( stackgeom_ptr->GetActiveXSecIndex() );
+        XSec* xs = stackgeom_ptr->GetXSec( stackgeom_ptr->m_ActiveXSec() );
 
         if ( xs )
         {
@@ -1161,7 +1156,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_ReadFuseFileButton  )
     {
-        int xsid = stackgeom_ptr->GetActiveXSecIndex();
+        int xsid = stackgeom_ptr->m_ActiveXSec();
         XSec* xs = stackgeom_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1184,7 +1179,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_AfReadFileButton   )
     {
-        int xsid = stackgeom_ptr->GetActiveXSecIndex();
+        int xsid = stackgeom_ptr->m_ActiveXSec();
         XSec* xs = stackgeom_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1207,7 +1202,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_UpPromoteButton )
     {
-        int xsid = stackgeom_ptr->GetActiveXSecIndex();
+        int xsid = stackgeom_ptr->m_ActiveXSec();
         XSec* xs = stackgeom_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1229,7 +1224,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_LowPromoteButton )
     {
-        int xsid = stackgeom_ptr->GetActiveXSecIndex();
+        int xsid = stackgeom_ptr->m_ActiveXSec();
         XSec* xs = stackgeom_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1252,7 +1247,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_UpDemoteButton )
     {
-        int xsid = stackgeom_ptr->GetActiveXSecIndex();
+        int xsid = stackgeom_ptr->m_ActiveXSec();
         XSec* xs = stackgeom_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1275,7 +1270,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     }
     else if ( gui_device == &m_LowDemoteButton )
     {
-        int xsid = stackgeom_ptr->GetActiveXSecIndex();
+        int xsid = stackgeom_ptr->m_ActiveXSec();
         XSec* xs = stackgeom_ptr->GetXSec( xsid );
         if ( xs )
         {
@@ -1305,7 +1300,7 @@ void StackScreen::GuiDeviceCallBack( GuiDevice* gui_device )
             ( gui_device == &m_FiveModFitCSTButton ) ||
             ( gui_device == &m_OneSixSeriesFitCSTButton ) )
     {
-        int xsid = stackgeom_ptr->GetActiveXSecIndex();
+        int xsid = stackgeom_ptr->m_ActiveXSec();
         XSec* xs = stackgeom_ptr->GetXSec( xsid );
         if ( xs )
         {

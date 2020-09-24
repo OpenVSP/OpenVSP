@@ -261,7 +261,7 @@ xmlNodePtr FuselageGeom::DecodeXml( xmlNodePtr & node )
 //==== Set Active XSec Type ====//
 void FuselageGeom::SetActiveXSecType( int type )
 {
-    XSec* xs = GetXSec( m_ActiveXSec );
+    XSec* xs = GetXSec( m_ActiveXSec() );
 
     if ( !xs )
     {
@@ -273,7 +273,7 @@ void FuselageGeom::SetActiveXSecType( int type )
         return;
     }
 
-    m_XSecSurf.ChangeXSecShape( m_ActiveXSec, type );
+    m_XSecSurf.ChangeXSecShape( m_ActiveXSec(), type );
 
     Update();
 }
@@ -282,7 +282,6 @@ void FuselageGeom::SetActiveXSecType( int type )
 void FuselageGeom::CutXSec( int index )
 {
     m_XSecSurf.CutXSec( index );
-    SetActiveXSecIndex( GetActiveXSecIndex() );
     Update();
 }
 void FuselageGeom::CopyXSec( int index )
@@ -296,37 +295,37 @@ void FuselageGeom::PasteXSec( int index )
 }
 void FuselageGeom::InsertXSec( int index, int type )
 {
-    SetActiveXSecIndex( index );
+    m_ActiveXSec = index;
     InsertXSec( type );
 }
 
 //==== Cut Active XSec ====//
 void FuselageGeom::CutActiveXSec()
 {
-    CutXSec( m_ActiveXSec );
+    CutXSec( m_ActiveXSec() );
 }
 
 //==== Copy Active XSec ====//
 void FuselageGeom::CopyActiveXSec()
 {
-    CopyXSec( m_ActiveXSec );
+    CopyXSec( m_ActiveXSec() );
 }
 
 //==== Paste Cut/Copied XSec To Active XSec ====//
 void FuselageGeom::PasteActiveXSec()
 {
-    PasteXSec( m_ActiveXSec );
+    PasteXSec( m_ActiveXSec() );
 }
 
 //==== Insert XSec ====//
 void FuselageGeom::InsertXSec( )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
+    if ( m_ActiveXSec() >= NumXSec() - 1 || m_ActiveXSec() < 0 )
     {
         return;
     }
 
-    XSec* xs = GetXSec( m_ActiveXSec );
+    XSec* xs = GetXSec( m_ActiveXSec() );
     if ( xs )
     {
         InsertXSec( xs->GetXSecCurve()->GetType() );
@@ -336,21 +335,21 @@ void FuselageGeom::InsertXSec( )
 //==== Insert XSec ====//
 void FuselageGeom::InsertXSec( int type )
 {
-    if ( m_ActiveXSec >= NumXSec() - 1 || m_ActiveXSec < 0 )
+    if ( m_ActiveXSec() >= NumXSec() - 1 || m_ActiveXSec() < 0 )
     {
         return;
     }
 
-    FuseXSec* xs = ( FuseXSec* ) GetXSec( m_ActiveXSec );
-    FuseXSec* xs_1 = ( FuseXSec* ) GetXSec( m_ActiveXSec + 1 );
+    FuseXSec* xs = ( FuseXSec* ) GetXSec( m_ActiveXSec() );
+    FuseXSec* xs_1 = ( FuseXSec* ) GetXSec( m_ActiveXSec() + 1 );
 
     double x_loc_0 = xs->m_XLocPercent();
     double x_loc_1 = xs_1->m_XLocPercent();
 
-    m_XSecSurf.InsertXSec( type, m_ActiveXSec );
-    m_ActiveXSec++;
+    m_XSecSurf.InsertXSec( type, m_ActiveXSec() );
+    m_ActiveXSec = m_ActiveXSec() + 1;
 
-    FuseXSec* inserted_xs = ( FuseXSec* ) GetXSec( m_ActiveXSec );
+    FuseXSec* inserted_xs = ( FuseXSec* ) GetXSec( m_ActiveXSec() );
 
     if ( inserted_xs )
     {

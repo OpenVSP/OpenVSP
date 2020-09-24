@@ -735,6 +735,8 @@ public:
     GeomXSec( Vehicle* vehicle_ptr );
     virtual ~GeomXSec();
 
+    virtual void Update( bool fullupdate = true );
+
     virtual XSecSurf* GetXSecSurf( int index )
     {
         return &m_XSecSurf;
@@ -742,16 +744,12 @@ public:
 
     virtual void LoadDrawObjs( vector< DrawObj* > & draw_obj_vec );
 
-    virtual int GetActiveXSecIndex()
-    {
-        return m_ActiveXSec;
-    }
-    virtual void SetActiveXSecIndex( int index );
-
     virtual XSec* GetXSec( int index );
     virtual void AddDefaultSourcesXSec( double base_len, double len_ref, int ixsec );
 
     virtual void OffsetXSecs( double off );
+
+    IntParm m_ActiveXSec;
 
 protected:
     virtual void UpdateDrawObj();
@@ -761,9 +759,5 @@ protected:
     DrawObj m_HighlightXSecDrawObj;
 
     DrawObj m_CurrentXSecDrawObj;
-
-    int m_ActiveXSec;
-    int m_MinActiveXSec;
-
 };
 #endif // !defined(VSPGEOM__INCLUDED_)
