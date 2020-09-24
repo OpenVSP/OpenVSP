@@ -281,7 +281,6 @@ void StackGeom::SetActiveXSecType( int type )
 void StackGeom::CutXSec( int index )
 {
     m_XSecSurf.CutXSec( index );
-    m_XSecSurf.FindXSec( m_ActiveXSec() )->SetLateUpdateFlag( true );
     // Set up flag so Update() knows to regenerate surface.
     // Insert / split cases don't need this because Parms are added,
     // which implicitly triggers this flag.
@@ -296,7 +295,6 @@ void StackGeom::CopyXSec( int index )
 void StackGeom::PasteXSec( int index )
 {
     m_XSecSurf.PasteXSec( index );
-    m_XSecSurf.FindXSec( index )->SetLateUpdateFlag( true );
     Update();
 }
 void StackGeom::InsertXSec( int index, int type )
