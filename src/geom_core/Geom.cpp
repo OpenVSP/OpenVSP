@@ -1014,12 +1014,6 @@ void Geom::Update( bool fullupdate )
     if ( m_UpdateBlock )
         return;
 
-    if ( !m_XFormDirty && !m_SurfDirty )
-    {
-        printf( "Fast exit from %s update.\n", m_Name.c_str() );
-        return;
-    }
-
     if ( GetType().m_Type == HINGE_GEOM_TYPE )
     {
         if ( m_XFormDirty )
@@ -1062,7 +1056,10 @@ void Geom::Update( bool fullupdate )
 
     UpdateFlags();  // Needs to be after m_MainSurfVec is populated, but before m_SurfVec
 
-    UpdateSymmAttach();  // Needs to happen for both XForm and Surf updates.
+    if ( m_XFormDirty || m_SurfDirty )
+    {
+        UpdateSymmAttach();  // Needs to happen for both XForm and Surf updates.
+    }
 
     if ( fullupdate ) // Option to make FitModel and similar things faster.
     {
@@ -1078,11 +1075,18 @@ void Geom::Update( bool fullupdate )
     }
 
     UpdateChildren( fullupdate );
-    UpdateBBox();  // Needs to happen for both XForm and Surf updates.
+
+    if ( m_XFormDirty || m_SurfDirty )
+    {
+        UpdateBBox();  // Needs to happen for both XForm and Surf updates.
+    }
 
     if ( fullupdate )
     {
-        UpdateDrawObj();  // Needs to happen for both XForm and Surf updates.
+        if ( m_XFormDirty || m_SurfDirty )
+        {
+            UpdateDrawObj();  // Needs to happen for both XForm and Surf updates.
+        }
     }
 
     m_UpdatedParmVec.clear();
