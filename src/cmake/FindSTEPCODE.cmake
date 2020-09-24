@@ -2,6 +2,10 @@
 #
 #   TODO: Use find_path and find_library
 
+IF(NOT STEPCODE_INSTALL_DIR)
+    set( STEPCODE_INSTALL_DIR "/usr")
+ENDIF()
+
 IF(NOT WIN32)
     set( STEPCODE_LIBRARIES
     ${STEPCODE_INSTALL_DIR}/lib/libsdai_ap203.a
