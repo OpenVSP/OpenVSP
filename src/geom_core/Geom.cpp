@@ -1054,7 +1054,10 @@ void Geom::Update( bool fullupdate )
         UpdateFeatureLines();
     }
 
-    UpdateFlags();  // Needs to be after m_MainSurfVec is populated, but before m_SurfVec
+    if ( m_SurfDirty )
+    {
+        UpdateFlags();  // Needs to be after m_MainSurfVec is populated, but before m_SurfVec
+    }
 
     if ( m_XFormDirty || m_SurfDirty )
     {
@@ -1074,8 +1077,6 @@ void Geom::Update( bool fullupdate )
         }
     }
 
-    UpdateChildren( fullupdate );
-
     if ( m_XFormDirty || m_SurfDirty )
     {
         UpdateBBox();  // Needs to happen for both XForm and Surf updates.
@@ -1089,11 +1090,20 @@ void Geom::Update( bool fullupdate )
         }
     }
 
+    m_UpdateXForm = false;
+    if ( m_XFormDirty )
+        m_UpdateXForm = true;
+    m_XFormDirty = false;
+
+    m_UpdateSurf = false;
+    if ( m_SurfDirty )
+        m_UpdateSurf = true;
+    m_SurfDirty = false;
+
+    UpdateChildren( fullupdate );
+
     m_UpdatedParmVec.clear();
     m_UpdateBlock = false;
-
-    m_XFormDirty = false;
-    m_SurfDirty = false;
 }
 
 void Geom::GetUWTess01( int indx, vector < double > &u, vector < double > &w )
@@ -1482,17 +1492,17 @@ void Geom::UpdateChildren( bool fullupdate )
         {
             // Child is attached in some way.
             if ( ( child->m_RotAttachFlag() != vsp::ATTACH_ROT_NONE ) ||
-                    ( child->m_TransAttachFlag() != vsp::ATTACH_TRANS_NONE ) )
+                 ( child->m_TransAttachFlag() != vsp::ATTACH_TRANS_NONE ) )
             {
                 // Parent was XFormed
-                if ( m_XFormDirty )
+                if ( m_UpdateXForm )
                 {
                     child->m_XFormDirty = true;
                 }
                 // Parent surf changed and child is UV attached
-                else if ( m_SurfDirty &&
-                         ( ( child->m_RotAttachFlag() == vsp::ATTACH_ROT_UV ) ||
-                           ( child->m_TransAttachFlag() == vsp::ATTACH_TRANS_UV ) ) )
+                else if ( m_UpdateSurf &&
+                      ( ( child->m_RotAttachFlag() == vsp::ATTACH_ROT_UV ) ||
+                        ( child->m_TransAttachFlag() == vsp::ATTACH_TRANS_UV ) ) )
                 {
                     child->m_XFormDirty = true;
                 }

@@ -320,7 +320,9 @@ public:
 protected:
 
     bool m_XFormDirty;
+    bool m_UpdateXForm;
     bool m_SurfDirty;
+    bool m_UpdateSurf;
 
     bool m_ignoreAbsFlag;
     bool m_applyIgnoreAbsFlag;          // Controls whether the ignoreAbsFlag is obeyed
