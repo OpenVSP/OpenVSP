@@ -37,6 +37,8 @@ private:
     Choice m_SymChoice;
     ToggleButton m_ClosedCurveToggle;
 
+    TriggerButton m_ReparameterizeButton;
+
     SliderAdjRangeInput m_WidthSlider;
     SliderAdjRangeInput m_HeightSlider;
 

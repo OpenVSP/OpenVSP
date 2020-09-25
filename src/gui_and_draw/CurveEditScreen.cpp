@@ -36,10 +36,11 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 500, 760,
     m_ShapeChoice.AddItem( "Rectangle" );
     m_GenLayout.AddChoice( m_ShapeChoice, "Shape" );
 
-    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
+    m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 3 );
 
     m_GenLayout.AddButton( m_InitShapeButton, "Init" );
-    m_GenLayout.AddButton( m_ClosedCurveToggle, "Closed Curve" );
+    m_GenLayout.AddButton( m_ClosedCurveToggle, "Close Curve" );
+    m_GenLayout.AddButton( m_AbsDimToggle, "View Abs" ); // Absolute dimensions flag
 
     m_GenLayout.ForceNewLine();
 
@@ -50,8 +51,8 @@ CurveEditScreen::CurveEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 500, 760,
 
     m_GenLayout.SetButtonWidth( m_GenLayout.GetRemainX() / 2 );
 
+    m_GenLayout.AddButton( m_ReparameterizeButton, "Reparameterize" );
     m_GenLayout.AddButton( m_PreserveARToggle, "Preserve AR" );
-    m_GenLayout.AddButton( m_AbsDimToggle, "View Abs" ); // Absolute dimensions flag
 
     m_GenLayout.ForceNewLine();
 
@@ -223,6 +224,10 @@ void CurveEditScreen::GuiDeviceCallBack( GuiDevice* gui_device )
     if ( gui_device == &m_InitShapeButton )
     {
         edit_curve_xs->InitShape( );
+    }
+    else if ( gui_device == &m_ReparameterizeButton )
+    {
+        edit_curve_xs->ReparameterizeEqualArcLength();
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

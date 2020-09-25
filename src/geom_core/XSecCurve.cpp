@@ -3436,6 +3436,70 @@ void EditCurveXSec::ConvertTo( int newtype )
     ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update.
 }
 
+void EditCurveXSec::ReparameterizeEqualArcLength()
+{
+    // TODO: Add option to keep corners
+
+    vector < double > u_vec = GetUVec();
+    int npt = (int)u_vec.size();
+    int nseg;
+
+    if ( m_CurveType() == vsp::CEDIT )
+    {
+        nseg = ( npt - 1 ) / 3;
+    }
+    else
+    {
+        nseg = npt - 1;
+    }
+
+    // Calculate total arc length
+    double tol = 1e-6;
+    double tot_len = m_BaseEditCurve.CompLength( tol );
+
+    int istart, iend;
+
+    for ( size_t i = 0; i < nseg; i++ )
+    {
+        if ( m_CurveType() == vsp::CEDIT )
+        {
+            istart = i * 3;
+            iend = ( i + 1 ) * 3;
+        }
+        else
+        {
+            istart = i;
+            iend = i + 1;
+        }
+
+        // Get length of curve segment
+        curve_segment_type c;
+        double len = 0;
+        m_BaseEditCurve.GetCurve().get( c, i );
+        eli::geom::curve::length( len, c, tol );
+
+        if ( iend == npt )
+        {
+            u_vec[iend] = 1.0; // Avoid floating point precision errors from calculation
+        }
+        else
+        {
+            u_vec[iend] = u_vec[istart] + ( len / tot_len );
+        }
+
+        if ( m_CurveType() == vsp::CEDIT )
+        {
+            // Keep intermediate points valid.
+            double dt = u_vec[iend] - u_vec[istart];
+            u_vec[iend - 1] = u_vec[iend] - ( dt / 3.0 );
+            u_vec[istart + 1] = u_vec[istart] + ( dt / 3.0 );
+        }
+    }
+
+    // Set new U values, leave X, Y, and G1 unchanged
+    SetPntVecs( u_vec, GetXVec(), GetYVec(), GetG1Vec() );
+}
+
 vector < double > EditCurveXSec::GetTVec()
 {
     vector < double > retvec( m_UParmVec.size() );

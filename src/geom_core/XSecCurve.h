@@ -480,6 +480,10 @@ public:
     // Function to convert between CEDIT, LINEAR, and PCHIP
     virtual void ConvertTo( int newtype );
 
+    // Leave all coordinate points unchanged, but reparameterize the curve based on
+    // the arc length of each segment. 
+    virtual void ReparameterizeEqualArcLength();
+
     // Return the values from the parameter vectors
     virtual vector < double > GetUVec();
     virtual vector < double > GetTVec();
