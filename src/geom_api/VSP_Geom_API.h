@@ -34,7 +34,7 @@ namespace vsp
 extern void VSPCheckSetup();
 extern void VSPRenew();
 
-extern void Update();
+extern void Update( bool update_managers = true );
 extern void VSPExit( int error_code );
 
 extern std::string GetVSPExePath();

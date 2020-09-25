@@ -135,10 +135,19 @@ void VSPRenew()
     ErrorMgr.NoError();
 }
 
-void Update()
+void Update( bool update_managers )
 {
     Vehicle* veh = GetVehicle();
     veh->Update();
+
+    if ( update_managers )
+    {
+        // Update Managers that may respond to changes in geometry
+        // This is not needed in the GUI since the screens will update
+        // each manager
+        veh->UpdateManagers();
+    }
+
     ErrorMgr.NoError();
 }
 

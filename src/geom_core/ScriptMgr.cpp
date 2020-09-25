@@ -3924,7 +3924,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     doc_struct.comment = R"(
 /*!
-    Update the entire vehicle and all lower level children
+    Update the entire vehicle and all lower level children. An input, which is true by default, is available to specify
+    if managers should be updated as well. The managers are typically updated by their respective GUI, so must be 
+    updated through the API as well to avoid unexpected behavior. 
     \code{.cpp}
     string fid = AddGeom( "FUSELAGE", "" );             // Add Fuselage
 
@@ -3936,8 +3938,9 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
 
     Update();       // Force Surface Update
     \endcode
+    \param update_managers Flag to indicate if managers should be updated
 */)";
-    r = se->RegisterGlobalFunction( "void Update()", asFUNCTION( vsp::Update ), asCALL_CDECL, doc_struct );
+    r = se->RegisterGlobalFunction( "void Update( bool update_managers = true)", asFUNCTION( vsp::Update ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(

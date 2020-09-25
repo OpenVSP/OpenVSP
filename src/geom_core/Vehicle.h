@@ -85,6 +85,7 @@ public:
     static void UnDo();
 
     void Update( bool fullupdate = true );
+    void UpdateManagers();
     void UpdateGeom( const string &geom_id );
     void ForceUpdate();
     static void UpdateGui();

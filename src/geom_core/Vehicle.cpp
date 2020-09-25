@@ -532,6 +532,16 @@ void Vehicle::Update( bool fullupdate )
     MeasureMgr.Update();
 }
 
+// Update managers that are normally only updated by their 
+// associated GUI. This enables update from the API
+void Vehicle::UpdateManagers()
+{
+    VSPAEROMgr.Update();
+    WaveDragMgr.Update();
+    ParasiteDragMgr.Update();
+    // MeasureMgr already updated in Update()
+}
+
 void Vehicle::UpdateGeom( const string &geom_id )
 {
     Geom* g_ptr = FindGeom( geom_id );
