@@ -14,7 +14,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-IGESStructureOptionsScreen::IGESStructureOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 290, "Untrimmed IGES Struct Options" )
+IGESStructureOptionsScreen::IGESStructureOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 310, "Untrimmed IGES Struct Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -57,7 +57,7 @@ IGESStructureOptionsScreen::IGESStructureOptionsScreen( ScreenMgr* mgr ) : Basic
     m_LabelDelimChoice.AddItem( "None" );
     m_GenLayout.AddChoice( m_LabelDelimChoice, "Delimeter" );
 
-    m_GenLayout.AddYGap();
+    m_GenLayout.AddY( 25 );
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetButtonWidth( 100 );
@@ -98,7 +98,7 @@ bool IGESStructureOptionsScreen::Update()
         m_LabelSplitNoToggle.Update( veh->m_IGESStructureLabelSplitNo.GetID() );
         m_LabelDelimChoice.Update( veh->m_IGESStructureLabelDelim.GetID() );
 
-        if ( !veh->m_IGESToCubic() )
+        if ( !veh->m_IGESStructureToCubic() )
         {
             m_ToCubicTolSlider.Deactivate();
         }

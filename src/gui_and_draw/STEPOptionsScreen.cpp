@@ -13,7 +13,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 391, "Untrimmed STEP Options" )
+STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 370, "Untrimmed STEP Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -58,6 +58,8 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_PropExportOriginToggle, "Export Props At Origin" );
+
+    m_GenLayout.AddYGap();
 
     m_GenLayout.AddDividerBox( "Surface Name" );
     m_GenLayout.AddButton( m_LabelIDToggle, "Geom ID" );

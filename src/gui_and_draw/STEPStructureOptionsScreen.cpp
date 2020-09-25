@@ -14,7 +14,7 @@
 // Construction/Destruction
 //////////////////////////////////////////////////////////////////////
 
-STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 290, "Untrimmed STEP Struct Options" )
+STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 320, "Untrimmed STEP Struct Options" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
 
@@ -61,6 +61,8 @@ STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : Basic
     m_LabelDelimChoice.AddItem( "Space" );
     m_LabelDelimChoice.AddItem( "None" );
     m_GenLayout.AddChoice( m_LabelDelimChoice, "Delimeter" );
+
+    m_GenLayout.AddY( 25 );
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetButtonWidth( 100 );
@@ -97,7 +99,7 @@ bool STEPStructureOptionsScreen::Update()
         m_ToCubicToggle.Update( veh->m_STEPStructureToCubic.GetID() );
         m_ToCubicTolSlider.Update( veh->m_STEPStructureToCubicTol.GetID() );
 
-        if ( !veh->m_STEPToCubic() )
+        if ( !veh->m_STEPStructureToCubic() )
         {
             m_ToCubicTolSlider.Deactivate();
         }
