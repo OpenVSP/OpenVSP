@@ -2086,8 +2086,20 @@ vector < piecewise_surface_type > VspSurf::PrepCADSurfs( bool splitsurf, bool to
 
     if ( tocubic )
     {
-        s.to_cubic_u( tol );
-        s.to_cubic_v( tol );
+        // Only demote, do not promote
+        piecewise_surface_type::index_type minu, minv;
+        piecewise_surface_type::index_type maxu, maxv;
+        s.degree_u( minu, maxu );
+        s.degree_v( minv, maxv );
+
+        if ( maxv > 3 )
+        {
+            s.to_cubic_u( tol );
+        }
+        if ( maxv > 3 )
+        {
+            s.to_cubic_v( tol );
+        }
     }
 
     vector < piecewise_surface_type > surfvec;

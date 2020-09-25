@@ -41,7 +41,7 @@ STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : Basic
     m_GenLayout.AddYGap();
     //m_GenLayout.AddButton( m_MergePointsToggle, "Merge Points" );
     //m_GenLayout.AddYGap();
-    m_GenLayout.AddButton( m_ToCubicToggle, "Convert to Cubic" );
+    m_GenLayout.AddButton( m_ToCubicToggle, "Demote Surfs to Cubic" );
     m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
     m_GenLayout.AddYGap();
 

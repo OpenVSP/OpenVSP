@@ -54,7 +54,7 @@ STEPOptionsScreen::STEPOptionsScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 250, 
     ////m_GenLayout.AddYGap();
     //m_GenLayout.AddButton( m_MergePointsToggle, "Merge Points" );
     m_GenLayout.AddYGap();
-    m_GenLayout.AddButton( m_ToCubicToggle, "Convert to Cubic" );
+    m_GenLayout.AddButton( m_ToCubicToggle, "Demote Surfs to Cubic" );
     m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
     m_GenLayout.AddYGap();
     m_GenLayout.AddButton( m_PropExportOriginToggle, "Export Props At Origin" );

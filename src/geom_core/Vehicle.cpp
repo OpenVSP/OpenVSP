@@ -53,7 +53,9 @@ Vehicle::Vehicle()
     m_STEPSplitSubSurfs.Init( "SplitSubSurfs", "STEPSettings", this, false, 0, 1 );
     m_STEPMergePoints.Init( "MergePoints", "STEPSettings", this, false, 0, 1 );
     m_STEPToCubic.Init( "ToCubic", "STEPSettings", this, false, 0, 1 );
+    m_STEPToCubic.SetDescript( "Flag to Demote Higher Order Surfaces to Cubic in STEP Export" );
     m_STEPToCubicTol.Init( "ToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
+    m_STEPToCubicTol.SetDescript( "Tolerance Used When Demoting Higher Order Surfaces to Cubic" );
     m_STEPTrimTE.Init( "TrimTE", "STEPSettings", this, false, 0, 1 );
     m_STEPExportPropMainSurf.Init( "ExportPropMainSurf", "STEPSettings", this, false, 0, 1 );
 
@@ -67,13 +69,17 @@ Vehicle::Vehicle()
     m_STEPStructureSplitSurfs.Init( "StructureSplitSurfs", "STEPSettings", this, true, 0, 1 );
     m_STEPStructureMergePoints.Init( "StructureMergePoints", "STEPSettings", this, false, 0, 1 );
     m_STEPStructureToCubic.Init( "StructureToCubic", "STEPSettings", this, false, 0, 1 );
+    m_STEPStructureToCubic.SetDescript( "Flag to Demote Higher Order Surfaces to Cubic in STEP Export" );
     m_STEPStructureToCubicTol.Init( "StructureToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
+    m_STEPStructureToCubicTol.SetDescript( "Tolerance Used When Demoting Higher Order Surfaces to Cubic" );
 
     m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_FT );
     m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
     m_IGESSplitSubSurfs.Init( "SplitSubSurfs", "IGESSettings", this, false, 0, 1 );
     m_IGESToCubic.Init( "ToCubic", "IGESSettings", this, false, 0, 1 );
+    m_IGESToCubic.SetDescript( "Flag to Demote Higher Order Surfaces to Cubic in IGES Export" );
     m_IGESToCubicTol.Init( "ToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
+    m_IGESToCubicTol.SetDescript( "Tolerance Used When Demoting Higher Order Surfaces to Cubic" );
     m_IGESTrimTE.Init( "TrimTE", "IGESSettings", this, false, 0, 1 );
     m_IGESExportPropMainSurf.Init( "ExportPropMainSurf", "IGESSettings", this, false, 0, 1 );
 
@@ -86,7 +92,9 @@ Vehicle::Vehicle()
     m_IGESStructureExportIndex.Init( "StructureExportIndex", "IGESSettings", this, 0, 0, 1000 );
     m_IGESStructureSplitSurfs.Init( "StructureSplitSurfs", "IGESSettings", this, true, 0, 1 );
     m_IGESStructureToCubic.Init( "StructureToCubic", "IGESSettings", this, false, 0, 1 );
+    m_IGESStructureToCubic.SetDescript( "Flag to Demote Higher Order Surfaces to Cubic in IGES Export" );
     m_IGESStructureToCubicTol.Init( "StructureToCubicTol", "IGESSettings", this, 1e-6, 1e-12, 1e12 );
+    m_IGESStructureToCubicTol.SetDescript( "Tolerance Used When Demoting Higher Order Surfaces to Cubic" );
 
     m_IGESStructureLabelID.Init( "StructureLabelID", "IGESSettings", this, true, 0, 1 );
     m_IGESStructureLabelName.Init( "StructureLabelName", "IGESSettings", this, true, 0, 1 );
