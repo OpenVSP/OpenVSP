@@ -121,7 +121,7 @@ XSecCurve* CurveEditScreen::GetXSecCurve()
             return NULL;
         }
 
-        int aid = wing_ptr->GetActiveAirfoilIndex();
+        int aid = wing_ptr->m_ActiveAirfoil();
         XSec* xs = wing_ptr->GetXSec( aid );
 
         if ( !xs )

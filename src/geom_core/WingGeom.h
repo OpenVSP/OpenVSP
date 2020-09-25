@@ -151,15 +151,14 @@ public:
     WingGeom( Vehicle* vehicle_ptr );
     virtual ~WingGeom();
 
+    virtual void Update( bool fullupdate = true );
+
     virtual void ComputeCenter();
 
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual int NumXSec()                                { return m_XSecSurf.NumXSec(); }
-
-    virtual int GetActiveAirfoilIndex()                    { return m_ActiveAirfoil; }
-    virtual void SetActiveAirfoilIndex( int index );
 
     virtual void SetActiveAirfoilType( int type );
 
@@ -214,6 +213,7 @@ public:
     BoolParm m_RelativeTwistFlag;
     BoolParm m_RotateAirfoilMatchDiedralFlag;
 
+    IntParm m_ActiveAirfoil;
 
     enum { V2_NACA_4_SERIES = 1,
            V2_BICONVEX = 2,
@@ -249,7 +249,6 @@ protected:
 
     virtual double GetSumDihedral( int sect_id );
 
-    int m_ActiveAirfoil;
     DrawObj m_HighlightWingSecDrawObj;
 
     vector<int> m_TessUVec;

@@ -403,7 +403,7 @@ public:
 
     virtual bool Update( );
     virtual void CallBack( Fl_Widget *w );
-    virtual void GuiDeviceCallBack( GuiDevice* device );
+
     static void staticScreenCB( Fl_Widget *w, void* data )
     {
         ( static_cast <BlendScreen*> ( data ) )->CallBack( w );

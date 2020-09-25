@@ -1741,8 +1741,8 @@ bool BlendScreen::Update()
 
 
     //==== Skin & XSec Index Display ===//
-    int xsid = wing_ptr->GetActiveAirfoilIndex();
-    m_BlendIndexSelector.SetIndex( xsid );
+    int xsid = wing_ptr->m_ActiveAirfoil();
+    m_BlendIndexSelector.Update( wing_ptr->m_ActiveAirfoil.GetID() );
 
     BlendWingSect* xs = ( BlendWingSect* ) geomxsec_ptr->GetXSec( xsid );
     if ( xs )
@@ -1999,30 +1999,6 @@ bool BlendScreen::Update()
     }
     return true;
 }
-
-void BlendScreen::GuiDeviceCallBack( GuiDevice* gui_device )
-{
-    //==== Find Fuselage Ptr ====//
-    Geom* geom_ptr = m_ScreenMgr->GetCurrGeom();
-    if ( !geom_ptr )
-    {
-        return;
-    }
-    GeomXSec* geomxsec_ptr = dynamic_cast< GeomXSec* >( geom_ptr );
-    assert( geomxsec_ptr );
-
-    WingGeom* wing_ptr = dynamic_cast< WingGeom* >( geom_ptr );
-    assert( wing_ptr );
-
-    if ( gui_device == &m_BlendIndexSelector )
-    {
-        wing_ptr->SetActiveAirfoilIndex( m_BlendIndexSelector.GetIndex() );
-        wing_ptr->Update();
-    }
-
-    GeomScreen::GuiDeviceCallBack( gui_device );
-}
-
 
 //==== Fltk  Callbacks ====//
 void BlendScreen::CallBack( Fl_Widget *w )
