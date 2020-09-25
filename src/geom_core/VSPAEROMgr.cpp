@@ -1667,6 +1667,7 @@ Optional input of logFile allows outputting to a log file or the console
 */
 string VSPAEROMgrSingleton::ComputeSolver( FILE * logFile )
 {
+    Update(); // Force update to ensure correct number of unstead groups, actuator disks, etc when run though the API.
     UpdateFilenames();
 
     if ( m_DegenGeomVec.size() == 0 )
@@ -4393,8 +4394,6 @@ void VSPAEROMgrSingleton::HighlightUnsteadyGroup( vector < DrawObj* >& draw_obj_
 
 int VSPAEROMgrSingleton::CreateGroupsFile()
 {
-    UpdateUnsteadyGroups(); // Ensure correct unsteady groups when this function is called through the API
-
     Vehicle* veh = VehicleMgr.GetVehicle();
     if ( !veh )
     {
