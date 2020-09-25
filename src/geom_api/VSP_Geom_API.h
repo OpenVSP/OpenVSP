@@ -395,6 +395,7 @@ extern std::string GetUnsteadyGroupName( int group_index );
 extern std::vector < std::string > GetUnsteadyGroupCompIDs( int group_index );
 extern std::vector < int > GetUnsteadyGroupSurfIndexes( int group_index );
 extern int GetNumUnsteadyGroups();
+extern int GetNumUnsteadyRotorGroups();
 
 //======================== Parasite Drag Tool Functions ======================//
 extern void AddExcrescence(const std::string & excresName, const int & excresType, const double & excresVal);

@@ -6518,19 +6518,52 @@ void ScriptMgrSingleton::RegisterAPI( asIScriptEngine* se )
     SetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "GeomSet", "VSPAERO" ), SET_ALL );
 
     // Add a propeller
-    string prop_id = AddGeom( "PROP", pod_id );
+    string prop_id = AddGeom( "PROP" );
     SetParmValUpdate( prop_id, "PropMode", "Design", PROP_DISK );
 
-    int num_disk = GetNumUnsteadyGroups(); // Should be 0
+    int num_group = GetNumUnsteadyGroups(); // Should be 0
 
     SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES );
 
-    num_disk = GetNumUnsteadyGroups(); // Should be 1
+    num_group = GetNumUnsteadyGroups(); // Should be 1
+
+    string wing_id = AddGeom( "WING" );
+
+    num_group = GetNumUnsteadyGroups(); // Should be 2 (includes fixed component group)
     \endcode
-    \sa PROP_MODE
-    \return Number of actuator disks in the current VSPAERO set
+    \sa PROP_MODE, GetNumUnsteadyRotorGroups
+    \return Number of unsteady groups in the current VSPAERO set
 */)";
     r = se->RegisterGlobalFunction( "int GetNumUnsteadyGroups()", asFUNCTION( vsp::GetNumUnsteadyGroups ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the number of unsteady rotor groups in the current VSPAERO set. This is equivalent to the total number of propeller Geoms, 
+    including each symmetric copy, in the current VSPAERO set. While all fixed components (wings, fuseleage, etc.) are placed in 
+    their own unsteady group, this function does not consider them. 
+    \code{.cpp}
+    // Set VSPAERO set index to SET_ALL
+    SetParmVal( FindParm( FindContainer( "VSPAEROSettings", 0 ), "GeomSet", "VSPAERO" ), SET_ALL );
+
+    // Add a propeller
+    string prop_id = AddGeom( "PROP" );
+    SetParmValUpdate( prop_id, "PropMode", "Design", PROP_DISK );
+
+    int num_group = GetNumUnsteadyRotorGroups(); // Should be 0
+
+    SetParmValUpdate( prop_id, "PropMode", "Design", PROP_BLADES );
+
+    num_group = GetNumUnsteadyRotorGroups(); // Should be 1
+
+    string wing_id = AddGeom( "WING" );
+
+    num_group = GetNumUnsteadyRotorGroups(); // Should be 1 still (fixed group not included)
+    \endcode
+    \sa PROP_MODE, GetNumUnsteadyGroups
+    \return Number of unsteady rotor groups in the current VSPAERO set
+*/)";
+    r = se->RegisterGlobalFunction( "int GetNumUnsteadyRotorGroups()", asFUNCTION( vsp::GetNumUnsteadyRotorGroups ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     //==== Wing Sect Functions ====//

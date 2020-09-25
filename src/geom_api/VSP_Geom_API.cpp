@@ -1028,7 +1028,16 @@ vector < int > GetUnsteadyGroupSurfIndexes( int group_index )
 
 int GetNumUnsteadyGroups()
 {
+    VSPAEROMgr.UpdateUnsteadyGroups();
+
     return VSPAEROMgr.NumUnsteadyGroups();
+}
+
+int GetNumUnsteadyRotorGroups()
+{
+    VSPAEROMgr.UpdateUnsteadyGroups();
+
+    return VSPAEROMgr.NumUnsteadyRotorGroups();
 }
 
 //===================================================================//
@@ -1050,6 +1059,8 @@ string FindActuatorDisk( int disk_index )
 
 int GetNumActuatorDisks()
 {
+    VSPAEROMgr.UpdateRotorDisks();
+
     return VSPAEROMgr.GetRotorDiskVec().size();
 }
 
