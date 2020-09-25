@@ -82,6 +82,9 @@ protected:
 
     Choice m_UseSet;
 
+    ToggleButton m_ToCubicToggle;
+    SliderAdjRangeInput m_ToCubicTolSlider;
+
     //===== Display Tab Items =====//
 
     ToggleButton m_ShowSourcesAndWakePreview;

@@ -64,6 +64,9 @@ protected:
 
     Choice m_UseSet;
 
+    ToggleButton m_ToCubicToggle;
+    SliderAdjRangeInput m_ToCubicTolSlider;
+
     //===== Display Tab Items =====//
 
     ToggleButton m_ShowWakePreview;
@@ -110,8 +113,6 @@ protected:
     ToggleButton m_STEPBREP;
 
     Choice m_LenUnitChoice;
-    ToggleButton m_ToCubicToggle;
-    SliderAdjRangeInput m_ToCubicTolSlider;
     ToggleButton m_LabelIDToggle;
     ToggleButton m_LabelNameToggle;
     ToggleButton m_LabelSurfNoToggle;

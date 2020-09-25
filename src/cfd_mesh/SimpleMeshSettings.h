@@ -46,6 +46,9 @@ public:
 
     bool m_IntersectSubSurfs;
 
+    bool m_DemoteSurfsCubicFlag;
+    double m_CubicSurfTolerance;
+
     bool m_FarMeshFlag;
     bool m_FarCompFlag;
     bool m_HalfMeshFlag;

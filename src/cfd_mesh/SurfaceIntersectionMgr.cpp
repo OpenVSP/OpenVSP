@@ -665,6 +665,23 @@ void SurfaceIntersectionSingleton::LoadSurfs( vector< XferSurf > &xfersurfs, int
         if ( cid > maxcompid )
             maxcompid = cid;
 
+        if ( GetSettingsPtr()->m_DemoteSurfsCubicFlag )
+        {
+            // Demote higher order surfaces to cubic (do not promote lower order)
+            piecewise_surface_type::index_type minu, minw, maxu, maxw;
+            surfPtr->GetSurfCore()->GetSurf()->degree_u( minu, maxu );
+            surfPtr->GetSurfCore()->GetSurf()->degree_v( minw, maxw );
+
+            if ( maxu > 3 )
+            {
+                surfPtr->GetSurfCore()->GetSurf()->to_cubic_u( GetSettingsPtr()->m_CubicSurfTolerance );
+            }
+            if ( maxw > 3 )
+            {
+                surfPtr->GetSurfCore()->GetSurf()->to_cubic_v( GetSettingsPtr()->m_CubicSurfTolerance );
+            }
+        }
+
         surfPtr->SetCompID( cid );
         surfPtr->SetUnmergedCompID( cid );
         surfPtr->SetSurfID( start_surf_id + i );

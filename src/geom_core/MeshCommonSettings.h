@@ -92,6 +92,9 @@ public:
     BoolParm m_FarCompFlag;
     BoolParm m_HalfMeshFlag;
 
+    BoolParm m_DemoteSurfsCubicFlag;
+    Parm m_CubicSurfTolerance;
+
     Parm m_STEPTol;
     BoolParm m_STEPMergePoints;
     IntParm m_STEPRepresentation;

@@ -258,6 +258,8 @@ private:
 
     ToggleButton m_Rig3dGrowthLimit;
     ToggleButton m_HalfMeshButton;
+    ToggleButton m_ToCubicToggle;
+    SliderAdjRangeInput m_ToCubicTolSlider;
 
     //===== Output Items =====//
     ToggleButton m_StlFile;

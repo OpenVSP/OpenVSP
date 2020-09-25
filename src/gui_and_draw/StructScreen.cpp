@@ -724,12 +724,17 @@ StructScreen::StructScreen( ScreenMgr* mgr ) : TabScreen( mgr, 430, 650, "FEA Me
     m_MeshTabLayout.AddSlider( m_GrowthRatio, "Growth Ratio", 2.0, "%7.5f" );
 
     m_MeshTabLayout.AddYGap();
+    m_MeshTabLayout.AddDividerBox( "Geometry Control" );
+    m_MeshTabLayout.AddYGap();
+
     m_MeshTabLayout.AddButton( m_Rig3dGrowthLimit, "Rigorous 3D Growth Limiting" );
     m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddSlider( m_RelCurveTolSlider, "Curve Adaptation Tolerance", 0.01, "%7.5f" );
     m_MeshTabLayout.AddYGap();
     m_MeshTabLayout.AddButton( m_HalfMeshButton, "Generate Half Mesh" );
     m_MeshTabLayout.AddYGap();
+    m_MeshTabLayout.AddButton( m_ToCubicToggle, "Demote Surfs to Cubic" );
+    m_MeshTabLayout.AddSlider( m_ToCubicTolSlider, "Cubic Tolerance", 10, "%5.4g", 0, true );
 
     m_OutputTabLayout.SetGroupAndScreen( outputTabGroup, this );
     // TODO: Add more CFD Mesh Export file options?
@@ -2039,6 +2044,18 @@ bool StructScreen::Update()
 
             //===== Geometry Control =====//
             m_HalfMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_HalfMeshFlag.GetID() );
+
+            m_ToCubicToggle.Update( curr_struct->GetStructSettingsPtr()->m_DemoteSurfsCubicFlag.GetID() );
+            m_ToCubicTolSlider.Update( curr_struct->GetStructSettingsPtr()->m_CubicSurfTolerance.GetID() );
+
+            if ( curr_struct->GetStructSettingsPtr()->m_DemoteSurfsCubicFlag.Get() )
+            {
+                m_ToCubicTolSlider.Activate();
+            }
+            else
+            {
+                m_ToCubicTolSlider.Deactivate();
+            }
 
             //===== Display Tab Toggle Update =====//
             m_DrawMeshButton.Update( curr_struct->GetStructSettingsPtr()->m_DrawMeshFlag.GetID() );

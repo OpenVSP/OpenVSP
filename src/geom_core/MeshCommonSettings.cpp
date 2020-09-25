@@ -43,6 +43,12 @@ void MeshCommonSettings::InitCommonParms()
     m_IntersectSubSurfs.Init( "IntersectSubSurfs", "Global", this, true, 0, 1 );
     m_IntersectSubSurfs.SetDescript( "Flag to intersect subsurfaces" );
 
+    m_DemoteSurfsCubicFlag.Init( "DemoteSurfsCubicFlag", "Global", this, false, false, true );
+    m_DemoteSurfsCubicFlag.SetDescript( "Flag to Demote All Higher Order Surfaces to Cubic Before Intersecting" );
+
+    m_CubicSurfTolerance.Init( "CubicSurfTolerance", "Global", this, 1e-6, 1e-12, 1e12 );
+    m_CubicSurfTolerance.SetDescript( "Tolerance Used When Demoting Higher Order Surfaces to Cubic" );
+
     m_FarCompFlag.Init( "FarComp", "FarField", this, false, 0, 1 );
     m_FarMeshFlag.Init( "FarMesh", "FarField", this, false, 0, 1 );
     m_HalfMeshFlag.Init( "HalfMesh", "FarField", this, false, 0, 1 );

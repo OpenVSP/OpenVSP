@@ -78,6 +78,10 @@ void SurfaceIntersectionScreen::CreateGlobalTab()
     m_GlobalTabLayout.SetChoiceButtonWidth( m_GlobalTabLayout.GetRemainX() / 2 );
     m_GlobalTabLayout.AddChoice( m_UseSet, "Use Set" );
 
+    m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.AddButton( m_ToCubicToggle, "Demote Surfs to Cubic" );
+    m_GlobalTabLayout.AddSlider( m_ToCubicTolSlider, "Cubic Tolerance", 10, "%5.4g", 0, true );
+
     globalTab->show();
 }
 
@@ -308,6 +312,17 @@ void SurfaceIntersectionScreen::UpdateGlobalTab()
     //===== Geometry Control =====//
     m_IntersectSubsurfaces.Update( m_Vehicle->GetISectSettingsPtr()->m_IntersectSubSurfs.GetID() );
 
+    m_ToCubicToggle.Update( m_Vehicle->GetISectSettingsPtr()->m_DemoteSurfsCubicFlag.GetID() );
+    m_ToCubicTolSlider.Update( m_Vehicle->GetISectSettingsPtr()->m_CubicSurfTolerance.GetID() );
+
+    if ( m_Vehicle->GetISectSettingsPtr()->m_DemoteSurfsCubicFlag.Get() )
+    {
+        m_ToCubicTolSlider.Activate();
+    }
+    else
+    {
+        m_ToCubicTolSlider.Deactivate();
+    }
 }
 
 void SurfaceIntersectionScreen::UpdateDisplayTab()

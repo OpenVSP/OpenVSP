@@ -111,6 +111,12 @@ void CfdMeshScreen::CreateGlobalTab()
     m_GlobalTabLayout.SetChoiceButtonWidth(m_GlobalTabLayout.GetRemainX() / 2.0);
     m_GlobalTabLayout.AddChoice(m_UseSet, "Use Set");
 
+    m_GlobalTabLayout.AddYGap();
+    m_GlobalTabLayout.SetButtonWidth( 175.0 );
+
+    m_GlobalTabLayout.AddButton( m_ToCubicToggle, "Demote Surfs to Cubic" );
+    m_GlobalTabLayout.AddSlider( m_ToCubicTolSlider, "Cubic Tolerance", 10, "%5.4g", 0, true );
+
     globalTab->show();
 }
 
@@ -690,6 +696,18 @@ void CfdMeshScreen::UpdateGlobalTab()
 
     //===== Geometry Control =====//
     m_IntersectSubsurfaces.Update( m_Vehicle->GetCfdSettingsPtr()->m_IntersectSubSurfs.GetID() );
+
+    m_ToCubicToggle.Update( m_Vehicle->GetCfdSettingsPtr()->m_DemoteSurfsCubicFlag.GetID() );
+    m_ToCubicTolSlider.Update( m_Vehicle->GetCfdSettingsPtr()->m_CubicSurfTolerance.GetID() );
+
+    if ( m_Vehicle->GetCfdSettingsPtr()->m_DemoteSurfsCubicFlag.Get() )
+    {
+        m_ToCubicTolSlider.Activate();
+    }
+    else
+    {
+        m_ToCubicTolSlider.Deactivate();
+    }
 }
 
 void CfdMeshScreen::UpdateDisplayTab()

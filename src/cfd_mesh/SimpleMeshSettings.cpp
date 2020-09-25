@@ -38,6 +38,9 @@ SimpleMeshCommonSettings::SimpleMeshCommonSettings()
 
     m_IntersectSubSurfs = true;
 
+    m_DemoteSurfsCubicFlag = false;
+    m_CubicSurfTolerance = 1e-6;
+
     m_FarMeshFlag = false;
     m_FarCompFlag = false;
     m_HalfMeshFlag = false;
@@ -84,6 +87,9 @@ void SimpleMeshCommonSettings::CopyFrom( MeshCommonSettings* settings )
     m_ExportRawFlag = settings->m_ExportRawFlag.Get();
 
     m_IntersectSubSurfs = settings->m_IntersectSubSurfs.Get();
+
+    m_DemoteSurfsCubicFlag = settings->m_DemoteSurfsCubicFlag.Get();
+    m_CubicSurfTolerance = settings->m_CubicSurfTolerance.Get();
 
     m_FarMeshFlag = settings->m_FarMeshFlag.Get();
     m_FarCompFlag = settings->m_FarCompFlag.Get();
