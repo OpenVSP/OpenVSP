@@ -73,6 +73,11 @@ Vehicle::Vehicle()
     m_STEPStructureToCubicTol.Init( "StructureToCubicTol", "STEPSettings", this, 1e-6, 1e-12, 1e12 );
     m_STEPStructureToCubicTol.SetDescript( "Tolerance Used When Demoting Higher Order Surfaces to Cubic" );
 
+    m_STEPStructureLabelID.Init( "StructureLabelID", "STEPSettings", this, true, 0, 1 );
+    m_STEPStructureLabelName.Init( "StructureLabelName", "STEPSettings", this, true, 0, 1 );
+    m_STEPStructureLabelSurfNo.Init( "StructureLabelSurfNo", "STEPSettings", this, true, 0, 1 );
+    m_STEPStructureLabelDelim.Init( "StructureLabelDelim", "STEPSettings", this, vsp::DELIM_COMMA, vsp::DELIM_COMMA, vsp::DELIM_NUM_TYPES - 1 );
+
     m_IGESLenUnit.Init( "LenUnit", "IGESSettings", this, vsp::LEN_FT, vsp::LEN_MM, vsp::LEN_FT );
     m_IGESSplitSurfs.Init( "SplitSurfs", "IGESSettings", this, true, 0, 1 );
     m_IGESSplitSubSurfs.Init( "SplitSubSurfs", "IGESSettings", this, false, 0, 1 );
@@ -3101,6 +3106,8 @@ void Vehicle::WriteStructureSTEPFile( const string & file_name )
 
     STEPutil step( len, m_STEPStructureTol() );
 
+    string delim = StringUtil::get_delim( m_STEPStructureLabelDelim() );
+
     vector < double > usplit;
     vector < double > wsplit;
 
@@ -3115,8 +3122,33 @@ void Vehicle::WriteStructureSTEPFile( const string & file_name )
 
         for ( int j = 0; j < surf_vec.size(); j++ )
         {
+            string prefix;
+
+            if ( m_STEPStructureLabelID() )
+            {
+                prefix = fea_struct->GetParentGeomID();
+            }
+
+            if ( m_STEPStructureLabelName() )
+            {
+                if ( prefix.size() > 0 )
+                {
+                    prefix.append( delim );
+                }
+                prefix.append( part->GetName() );
+            }
+
+            if ( m_STEPStructureLabelSurfNo() )
+            {
+                if ( prefix.size() > 0 )
+                {
+                    prefix.append( delim );
+                }
+                prefix.append( to_string( j ) );
+            }
+
             vector < SdaiB_spline_surface_with_knots* > surfs;
-            surf_vec[j].ToSTEP_BSpline_Quilt( &step, surfs, string(), m_STEPStructureSplitSurfs(), m_STEPStructureMergePoints(), m_STEPStructureToCubic(), m_STEPStructureToCubicTol(), false, usplit, wsplit );
+            surf_vec[j].ToSTEP_BSpline_Quilt( &step, surfs, prefix, m_STEPStructureSplitSurfs(), m_STEPStructureMergePoints(), m_STEPStructureToCubic(), m_STEPStructureToCubicTol(), false, usplit, wsplit );
 
             step.RepresentUntrimmedSurfs( surfs );
         }

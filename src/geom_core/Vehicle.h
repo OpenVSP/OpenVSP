@@ -366,6 +366,11 @@ public:
     BoolParm m_STEPStructureToCubic;
     Parm m_STEPStructureToCubicTol;
 
+    BoolParm m_STEPStructureLabelID;
+    BoolParm m_STEPStructureLabelName;
+    BoolParm m_STEPStructureLabelSurfNo;
+    IntParm m_STEPStructureLabelDelim;
+
     IntParm m_IGESLenUnit;
     BoolParm m_IGESSplitSurfs;
     BoolParm m_IGESSplitSubSurfs;

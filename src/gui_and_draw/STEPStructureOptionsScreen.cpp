@@ -25,6 +25,10 @@ STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : Basic
     //m_PrevMerge = true;
     m_PrevCubic = false;
     m_PrevToCubicTol = 1e-6;
+    m_PrevLabelID = true;
+    m_PrevLabelName = true;
+    m_PrevLabelSurfNo = true;
+    m_PrevLabelDelim = vsp::DELIM_COMMA;
 
     m_GenLayout.SetGroupAndScreen( m_FLTK_Window, this );
     m_GenLayout.AddY( 25 );
@@ -45,6 +49,18 @@ STEPStructureOptionsScreen::STEPStructureOptionsScreen( ScreenMgr* mgr ) : Basic
     m_GenLayout.AddSlider( m_ToCubicTolSlider, "Tolerance", 10, "%5.4g", 0, true );
     m_GenLayout.AddYGap();
 
+    m_GenLayout.AddYGap();
+
+    m_GenLayout.AddDividerBox( "Surface Name" );
+    m_GenLayout.AddButton( m_LabelIDToggle, "Geom ID" );
+    m_GenLayout.AddButton( m_LabelNameToggle, "Geom Name" );
+    m_GenLayout.AddButton( m_LabelSurfNoToggle, "Surface Number" );
+
+    m_LabelDelimChoice.AddItem( "Comma" );
+    m_LabelDelimChoice.AddItem( "Underscore" );
+    m_LabelDelimChoice.AddItem( "Space" );
+    m_LabelDelimChoice.AddItem( "None" );
+    m_GenLayout.AddChoice( m_LabelDelimChoice, "Delimeter" );
     m_GenLayout.SetFitWidthFlag( false );
     m_GenLayout.SetSameLineFlag( true );
     m_GenLayout.SetButtonWidth( 100 );
@@ -85,6 +101,11 @@ bool STEPStructureOptionsScreen::Update()
         {
             m_ToCubicTolSlider.Deactivate();
         }
+
+        m_LabelIDToggle.Update( veh->m_STEPStructureLabelID.GetID() );
+        m_LabelNameToggle.Update( veh->m_STEPStructureLabelName.GetID() );
+        m_LabelSurfNoToggle.Update( veh->m_STEPStructureLabelSurfNo.GetID() );
+        m_LabelDelimChoice.Update( veh->m_STEPStructureLabelDelim.GetID() );
     }
 
     m_FLTK_Window->redraw();
@@ -125,6 +146,10 @@ void STEPStructureOptionsScreen::GuiDeviceCallBack( GuiDevice* device )
             veh->m_STEPStructureToCubic.Set( m_PrevCubic );
             veh->m_STEPStructureToCubicTol.Set( m_PrevToCubicTol );
 
+            veh->m_STEPStructureLabelID.Set( m_PrevLabelID );
+            veh->m_STEPStructureLabelName.Set( m_PrevLabelName );
+            veh->m_STEPStructureLabelSurfNo.Set( m_PrevLabelSurfNo );
+            veh->m_STEPStructureLabelDelim.Set( m_PrevLabelDelim );
         }
         Hide();
     }
@@ -157,6 +182,11 @@ bool STEPStructureOptionsScreen::ShowSTEPOptionsScreen()
         //m_PrevMerge = veh->m_STEPStructureMergePoints();
         m_PrevCubic = veh->m_STEPStructureToCubic();
         m_PrevToCubicTol = veh->m_STEPStructureToCubicTol();
+
+        m_PrevLabelID = veh->m_STEPStructureLabelID();
+        m_PrevLabelName = veh->m_STEPStructureLabelName();
+        m_PrevLabelSurfNo = veh->m_STEPStructureLabelSurfNo();
+        m_PrevLabelDelim = veh->m_STEPStructureLabelDelim();
     }
 
     while( m_FLTK_Window->shown() )
@@ -181,6 +211,11 @@ void STEPStructureOptionsScreen::CloseCallBack( Fl_Widget *w )
         //veh->m_STEPStructureMergePoints.Set( m_PrevMerge );
         veh->m_STEPStructureToCubic.Set( m_PrevCubic );
         veh->m_STEPStructureToCubicTol.Set( m_PrevToCubicTol );
+
+        veh->m_STEPStructureLabelID.Set( m_PrevLabelID );
+        veh->m_STEPStructureLabelName.Set( m_PrevLabelName );
+        veh->m_STEPStructureLabelSurfNo.Set( m_PrevLabelSurfNo );
+        veh->m_STEPStructureLabelDelim.Set( m_PrevLabelDelim );
     }
 
     Hide();
