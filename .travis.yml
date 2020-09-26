@@ -10,6 +10,11 @@ matrix:
     - os: linux
       dist: bionic
       compiler: gcc
+      env: UVER="18.04"
+    - os: linux
+      dist: focal
+      compiler: gcc
+      env: UVER="20.04"
     - os: osx
       compiler: clang
 addons:
@@ -42,9 +47,9 @@ script:
      cd $TRAVIS_BUILD_DIR/build;
      cmake -DVSP_LIBRARY_PATH=$TRAVIS_BUILD_DIR/buildlibs -DCXX_OMP_COMPILER=/usr/local/bin/g++-9 -DC_OMP_COMPILER=/usr/local/bin/gcc-9 -DCMAKE_C_COMPILER=/usr/local/opt/llvm@7/bin/clang -DCMAKE_CXX_COMPILER=/usr/local/opt/llvm@7/bin/clang++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
      make -j2 package;
-     ZIPFILE=$TRAVIS_BUILD_DIR/build/OpenVSP-*-MacOS.zip;
+     ZIPFILE=$TRAVIS_BUILD_DIR/build/OpenVSP-*-MacOS_$TRAVIS_COMMIT.zip;
      ls $ZIPFILE && (echo "ZIP CREATION SUCCESSFUL" && exit 0) || (echo "ZIP CREATION FAILED" && exit 1);
-     export DEPLOY_FILE="$TRAVIS_BUILD_DIR/build/OpenVSP-*-MacOS.zip";
+     export DEPLOY_FILE="$ZIPFILE";
     fi
   - if [[ "$TRAVIS_OS_NAME" == "linux" ]]; then
      cd $TRAVIS_BUILD_DIR/buildlibs;
@@ -53,9 +58,9 @@ script:
      cd $TRAVIS_BUILD_DIR/build;
      cmake -DCMAKE_BUILD_TYPE=Release -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$TRAVIS_BUILD_DIR/buildlibs ../src;
      make -j2 package;
-     DEBFILE=$TRAVIS_BUILD_DIR/build/OpenVSP-*-Linux.deb;
+     DEBFILE=$TRAVIS_BUILD_DIR/build/OpenVSP-*-Ubuntu-$UVER_amd64_$TRAVIS_COMMIT.deb;
      ls $DEBFILE && (echo "DEB CREATION SUCCESSFUL" && exit 0) || (echo "DEB CREATION FAILED" && exit 1);
-     export DEPLOY_FILE="$TRAVIS_BUILD_DIR/build/OpenVSP-*-Linux.deb";
+     export DEPLOY_FILE="$DEBFILE";
     fi
 deploy:
   provider: releases
