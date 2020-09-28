@@ -717,8 +717,6 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
             Geom* geom = veh->FindGeom(currgeomvec[i]);
             if (geom)
             {
-                vector < VspSurf > surfvec;
-                geom->GetSurfVec(surfvec);
                 for (size_t iSubsurf = 0; iSubsurf < geom->GetNumTotalSurfs(); ++iSubsurf)
                 {
                     contained = false;
@@ -738,7 +736,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                                         int indxToSearch = k + temp.back()->m_ParentGeomSurfNdx;
                                         temp.back()->m_XYZ = m_DegenGeomVec[indxToSearch].getDegenDisk().x;
                                         temp.back()->m_Normal = m_DegenGeomVec[indxToSearch].getDegenDisk().nvec * -1.0;
-                                        if ( surfvec[iSubsurf].GetFlipNormal() ) temp.back()->m_FlipNormalFlag = true;
+                                        if ( geom->GetFlipNormal( iSubsurf ) ) temp.back()->m_FlipNormalFlag = true;
                                         break;
                                     }
                                 }
@@ -5579,10 +5577,7 @@ void UnsteadyGroup::Update()
                 vec3d rotdir( 1, 0, 0 );
 
                 // Identify if the normal vector is flipped (due to symmetry or reversing the prop)
-                vector < VspSurf > surf_vec;
-                geom->GetSurfVec( surf_vec );
-
-                if ( surf_vec[( surf_index - 1 ) * num_main_surf].GetFlipNormal() )
+                if ( geom->GetFlipNormal( ( surf_index - 1 ) * num_main_surf ) )
                 {
                     rotdir.set_x( -1 );
                 }

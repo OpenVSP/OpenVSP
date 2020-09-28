@@ -376,6 +376,9 @@ public:
     virtual int GetSurfType( int indx );
     virtual int GetMainSurfType( int indx );
 
+    virtual bool GetFlipNormal( int indx );
+    virtual bool GetMainFlipNormal( int indx );
+
     virtual vector < int > & GetSymmIndexs( int imain )
     {
         return m_SurfSymmMap[ imain ];
