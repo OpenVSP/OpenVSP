@@ -3560,7 +3560,7 @@ int Geom::GetNumSymFlags()
 
 int Geom::GetSurfType( int indx )
 {
-    return m_SurfVec[indx].GetSurfType();
+    return GetMainSurfType( m_SurfIndxVec[indx] );
 }
 
 int Geom::GetMainSurfType( int indx )
