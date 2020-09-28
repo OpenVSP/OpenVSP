@@ -4386,6 +4386,132 @@ vector< TMesh* > Geom::CreateTMeshVec()
     return TMeshVec;
 }
 
+void Geom::CreateTMeshVec( vector < TMesh* > & TMeshVec,
+                           const vector< vector<vec3d> > & pnts,
+                           const vector< vector<vec3d> > & norms,
+                           const vector< vector<vec3d> > & uw_pnts,
+                           int indx, int surftype, bool flipnormal, double wmax )
+{
+    double tol=1.0e-12;
+
+    TMeshVec.push_back( new TMesh() );
+    int itmesh = TMeshVec.size() - 1;
+    TMeshVec[itmesh]->LoadGeomAttributes( this );
+    TMeshVec[itmesh]->m_SurfType = surftype;
+    TMeshVec[itmesh]->m_SurfNum = indx;
+    TMeshVec[itmesh]->m_UWPnts = uw_pnts;
+    TMeshVec[itmesh]->m_XYZPnts = pnts;
+
+    BuildTMeshTris(TMeshVec[itmesh], pnts, uw_pnts, flipnormal, GetWMax(itmesh));
+
+}
+
+void Geom::BuildTMeshTris(TMesh *tmesh, const vector< vector<vec3d> > &pnts,
+                          const vector< vector<vec3d> > &uw_pnts, bool flipnormal, double wmax )
+{
+    double tol=1.0e-12;
+
+    vec3d norm;
+    vec3d v0, v1, v2, v3;
+    vec3d uw0, uw1, uw2, uw3;
+    vec3d d21, d01, d03, d23, d20, d31;
+
+    for ( int j = 0 ; j < ( int )pnts.size() - 1 ; j++ )
+    {
+        for ( int k = 0 ; k < ( int )pnts[0].size() - 1 ; k++ )
+        {
+            v0 = pnts[j][k];
+            v1 = pnts[j + 1][k];
+            v2 = pnts[j + 1][k + 1];
+            v3 = pnts[j][k + 1];
+
+            uw0 = uw_pnts[j][k];
+            uw1 = uw_pnts[j + 1][k];
+            uw2 = uw_pnts[j + 1][k + 1];
+            uw3 = uw_pnts[j][k + 1];
+
+            double quadrant = ( uw0.y() + uw1.y() + uw2.y() + uw3.y() ) / wmax; // * 4 * 0.25 canceled.
+
+            d21 = v2 - v1;
+            d01 = v0 - v1;
+            d03 = v0 - v3;
+            d23 = v2 - v3;
+
+            if ( ( quadrant > 0 && quadrant < 1 ) || ( quadrant > 2 && quadrant < 3 ) )
+            {
+                d20 = v2 - v0;
+                if ( d21.mag() > tol && d01.mag() > tol && d20.mag() > tol )
+                {
+                    norm = cross( d21, d01 );
+                    norm.normalize();
+                    if ( flipnormal )
+                    {
+                        d20 = v2 - v0;
+                        if ( d21.mag() > tol && d01.mag() > tol && d20.mag() > tol )
+                        {
+                            norm = cross( d21, d01 );
+                            norm.normalize();
+                            if ( flipnormal )
+                            {
+                                tmesh->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
+                            }
+                            else
+                            {
+                                tmesh->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
+                            }
+                        }
+
+                        if ( d03.mag() > tol && d23.mag() > tol && d20.mag() > tol )
+                        {
+                            norm = cross( d03, d23 );
+                            norm.normalize();
+                            if ( flipnormal )
+                            {
+                                tmesh->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
+                            }
+                            else
+                            {
+                                tmesh->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
+                            }
+                        }
+                    }
+                    else
+                    {
+                        d31 = v3 - v1;
+                        if ( d01.mag() > tol && d31.mag() > tol && d03.mag() > tol )
+                        {
+                            norm = cross( d01, d03 );
+                            norm.normalize();
+                            if ( flipnormal )
+                            {
+                                tmesh->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
+                            }
+                            else
+                            {
+                                tmesh->AddTri( v0, v1, v3, norm, uw0, uw1, uw3 );
+                            }
+                        }
+
+                        if ( d21.mag() > tol && d23.mag() > tol && d31.mag() > tol )
+                        {
+                            norm = cross( d23, d21 );
+                            norm.normalize();
+                            if ( flipnormal )
+                            {
+                                tmesh->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
+                            }
+                            else
+                            {
+                                tmesh->AddTri( v1, v2, v3, norm, uw1, uw2, uw3 );
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
 void Geom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
 {
     ParmContainer::AddLinkableParms( linkable_parm_vec );
