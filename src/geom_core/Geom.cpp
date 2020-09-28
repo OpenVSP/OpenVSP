@@ -1542,7 +1542,7 @@ void Geom::UpdateBBox()
     // If the surface vec size is zero ( like blank geom )
     // set bbox to zero size
 
-    if ( !m_SurfVec.size() )
+    if ( !GetNumTotalSurfs() )
     {
         m_BBox.Update( vec3d(0,0,0) );
     }
@@ -1598,7 +1598,7 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
     // Shift the vehicle bounding box to align with the +x, +y, +z axes at the orgin
     vec3d to_orgin = GetVecToOrgin( dxfbox );
 
-    for ( int i = 0; i < m_SurfVec.size(); i++ )
+    for ( int i = 0; i < GetNumTotalSurfs(); i++ )
     {
         vector < vector < vec3d > > allflines, allflines1, allflines2, allflines3, allflines4;
 
@@ -3492,7 +3492,7 @@ int Geom::GetSymFlag()
 //==== Return Pointer to First Surface ====//
 VspSurf* Geom::GetSurfPtr()
 {
-    if ( m_SurfVec.size() )
+    if ( GetNumTotalSurfs() )
     {
         return &m_SurfVec[0];
     }
@@ -3502,7 +3502,7 @@ VspSurf* Geom::GetSurfPtr()
 //==== Return Pointer to Surface indx ====//
 VspSurf* Geom::GetSurfPtr( int indx )
 {
-    if ( indx >= 0 && indx < m_SurfVec.size() )
+    if ( indx >= 0 && indx < GetNumTotalSurfs() )
     {
         return &m_SurfVec[ indx ];
     }
@@ -4696,7 +4696,7 @@ void Geom::AppendWakeData( vector < piecewise_curve_type >& curve_vec, vector < 
 {
     if( m_WakeActiveFlag() )
     {
-        for( int i = 0; i < m_SurfVec.size(); i++ )
+        for( int i = 0; i < GetNumTotalSurfs(); i++ )
         {
             if( GetSurfType(i) == vsp::WING_SURF )
             {
