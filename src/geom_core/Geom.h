@@ -373,11 +373,12 @@ public:
     virtual int GetNumTotalHrmSurfs();
     virtual int GetNumSymmCopies();
 
-    virtual int GetSurfType( int indx );
-    virtual int GetMainSurfType( int indx );
+    virtual int GetSurfType( int indx ) const;
+    virtual int GetMainSurfType( int indx ) const;
 
-    virtual bool GetFlipNormal( int indx );
-    virtual bool GetMainFlipNormal( int indx );
+    virtual bool GetFlipNormal( int indx ) const;
+    virtual bool GetMainFlipNormal( int indx ) const;
+
 
     virtual vector < int > & GetSymmIndexs( int imain )
     {

@@ -3558,22 +3558,22 @@ int Geom::GetNumSymFlags()
     return numSymFlags;
 }
 
-int Geom::GetSurfType( int indx )
+int Geom::GetSurfType( int indx ) const
 {
     return GetMainSurfType( m_SurfIndxVec[indx] );
 }
 
-int Geom::GetMainSurfType( int indx )
+int Geom::GetMainSurfType( int indx ) const
 {
     return m_MainSurfVec[indx].GetSurfType();
 }
 
-bool Geom::GetFlipNormal( int indx )
+bool Geom::GetFlipNormal( int indx ) const
 {
     return GetMainFlipNormal( m_SurfIndxVec[indx] );
 }
 
-bool Geom::GetMainFlipNormal( int indx )
+bool Geom::GetMainFlipNormal( int indx ) const
 {
     return m_MainSurfVec[indx].GetFlipNormal();
 }

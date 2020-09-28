@@ -89,7 +89,7 @@ public:
     bool IsClosedU() const;
     bool IsClosedW() const;
 
-    bool GetFlipNormal() { return m_FlipNormal; }
+    bool GetFlipNormal() const { return m_FlipNormal; }
     void FlipNormal() { m_FlipNormal = !m_FlipNormal; }
     void ResetFlipNormal( ) { m_FlipNormal = false; }
 
@@ -99,7 +99,7 @@ public:
     bool IsHalfBOR() const { return m_HalfBOR; }
     void SetHalfBOR( bool t ) { m_HalfBOR = t; }
 
-    int GetSurfType() { return m_SurfType; }
+    int GetSurfType() const { return m_SurfType; }
     void SetSurfType( int type ) { m_SurfType = type; }
 
     int GetSurfCfdType() { return m_SurfCfdType; }
