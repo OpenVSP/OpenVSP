@@ -1633,7 +1633,7 @@ void ParasiteDragScreen::UpdateIncorporateDropDowns()
                         veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetType().m_Type != BLANK_GEOM_TYPE)
                     {
                         if ( rowVec[i].GeomShapeType !=
-                                veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetSurfPtr( 0 )->GetSurfType() )
+                                veh->FindGeom( veh->FindGeom( rowVec[i].GeomID )->GetAncestorID( j ) )->GetSurfType(0) )
                         {
                             m_grouped[i].SetFlag( j, FL_MENU_INACTIVE );
                         }

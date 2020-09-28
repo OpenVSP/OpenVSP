@@ -3393,11 +3393,11 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
         m_SurfVec[i].ResetUWSkip();
 
         int surftype = DegenGeom::BODY_TYPE;
-        if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF || m_SurfVec[i].GetSurfType() == vsp::PROP_SURF )
+        if( GetSurfType(i) == vsp::WING_SURF || GetSurfType(i) == vsp::PROP_SURF )
         {
             surftype = DegenGeom::SURFACE_TYPE;
         }
-        else if( m_SurfVec[i].GetSurfType() == vsp::DISK_SURF )
+        else if( GetSurfType(i) == vsp::DISK_SURF )
         {
             surftype = DegenGeom::DISK_TYPE;
         }
@@ -3556,6 +3556,16 @@ int Geom::GetNumSymFlags()
         }
     }
     return numSymFlags;
+}
+
+int Geom::GetSurfType( int indx )
+{
+    return m_SurfVec[indx].GetSurfType();
+}
+
+int Geom::GetMainSurfType( int indx )
+{
+    return m_MainSurfVec[indx].GetSurfType();
 }
 
 vec3d Geom::CompPnt01(const double &u, const double &w)
@@ -3911,7 +3921,7 @@ void Geom::WriteXSecFile( int geom_no, FILE* dump_file )
         fprintf( dump_file, "%s \n", ( char* ) m_Name.c_str() );
         fprintf( dump_file, " GROUP NUMBER      = %d \n", geom_no );
 
-        if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF )
+        if( GetSurfType(i) == vsp::WING_SURF )
         {
             fprintf( dump_file, " TYPE              = 0  \n" );         // 1 -- Non Lifting, 0 -- Lifting
         }
@@ -4005,8 +4015,8 @@ void Geom::SetupPMARCFile( int &ipatch, vector < int > &idpat )
 {
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
-        if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF ||
-            m_SurfVec[i].GetSurfType() == vsp::PROP_SURF )
+        if( GetSurfType(i) == vsp::WING_SURF ||
+            GetSurfType(i) == vsp::PROP_SURF )
         {
             idpat[ipatch] = 1;
         }
@@ -4674,7 +4684,7 @@ bool Geom::HasWingTypeSurfs()
 {
     for( int i = 0; i < m_MainSurfVec.size(); i++ )
     {
-        if( m_MainSurfVec[i].GetSurfType() == vsp::WING_SURF )
+        if( GetMainSurfType(i) == vsp::WING_SURF )
         {
             return true;
         }
@@ -4688,7 +4698,7 @@ void Geom::AppendWakeData( vector < piecewise_curve_type >& curve_vec, vector < 
     {
         for( int i = 0; i < m_SurfVec.size(); i++ )
         {
-            if( m_SurfVec[i].GetSurfType() == vsp::WING_SURF )
+            if( GetSurfType(i) == vsp::WING_SURF )
             {
                 piecewise_curve_type curve;
                 m_SurfVec[i].GetWakeTECurve( curve );

@@ -722,7 +722,7 @@ void VSPAEROMgrSingleton::UpdateRotorDisks()
                 for (size_t iSubsurf = 0; iSubsurf < geom->GetNumTotalSurfs(); ++iSubsurf)
                 {
                     contained = false;
-                    if (surfvec[iSubsurf].GetSurfType() == vsp::DISK_SURF)
+                    if (geom->GetSurfType( iSubsurf ) == vsp::DISK_SURF)
                     {
                         for (size_t j = 0; j < m_RotorDiskVec.size(); ++j)
                         {

@@ -857,11 +857,11 @@ vector < int > Vehicle::GetDegenGeomTypeVec( int set_index )
             geom->GetMainSurfVec( main_surf_vec );
 
             int surftype = DegenGeom::BODY_TYPE;
-            if ( main_surf_vec[0].GetSurfType() == vsp::WING_SURF || main_surf_vec[0].GetSurfType() == vsp::PROP_SURF )
+            if ( geom->GetMainSurfType(0) == vsp::WING_SURF || geom->GetMainSurfType(0) == vsp::PROP_SURF )
             {
                 surftype = DegenGeom::SURFACE_TYPE;
             }
-            else if ( main_surf_vec[0].GetSurfType() == vsp::DISK_SURF )
+            else if ( geom->GetMainSurfType(0) == vsp::DISK_SURF )
             {
                 surftype = DegenGeom::DISK_TYPE;
             }

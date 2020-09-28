@@ -1947,12 +1947,9 @@ void VSPAEROScreen::DisplayDegenVLMPreview()
     {
         if ( geom_vec[i]->GetSetFlag( VSPAEROMgr.m_GeomSet() ) )
         {
-            vector < VspSurf > surf_vec;
-            geom_vec[i]->GetMainSurfVec( surf_vec );
-
-            for ( size_t j = 0; j < surf_vec.size(); j++ )
+            for ( size_t j = 0; j < geom_vec[i]->GetNumMainSurfs(); j++ )
             {
-                int surf_type = surf_vec[j].GetSurfType();
+                int surf_type = geom_vec[i]->GetMainSurfType(j);
 
                 if ( surf_type == vsp::DISK_SURF )
                 {

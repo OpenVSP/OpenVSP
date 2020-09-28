@@ -373,6 +373,9 @@ public:
     virtual int GetNumTotalHrmSurfs();
     virtual int GetNumSymmCopies();
 
+    virtual int GetSurfType( int indx );
+    virtual int GetMainSurfType( int indx );
+
     virtual vector < int > & GetSymmIndexs( int imain )
     {
         return m_SurfSymmMap[ imain ];

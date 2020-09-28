@@ -1984,7 +1984,7 @@ void VspSurf::FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_
         xsurf.m_Surface = surfvec[isect];
         xsurf.m_GeomID = geom_id;
         xsurf.m_SurfIndx = surf_ind;
-        xsurf.m_SurfType = m_SurfType;
+        xsurf.m_SurfType = GetSurfType();
         xsurf.m_SurfCfdType = m_SurfCfdType;
         xsurf.m_CompIndx = comp_ind;
         xfersurfs.push_back( xsurf );

@@ -244,7 +244,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 
                 if ( geom->GetType().m_Type == CUSTOM_GEOM_TYPE )
                 {
-                    if ( geom->GetSurfPtr( 0 )->GetSurfType() == vsp::NORMAL_SURF )
+                    if ( geom->GetSurfType(0) == vsp::NORMAL_SURF )
                     {
                         sprintf( str, "[B] %s", geom->GetName().c_str() );
                     }
@@ -258,9 +258,9 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                     sprintf( str, "%s", geom->GetName().c_str() );
                 }
 
-                m_geo_shapeType.push_back( geom->GetSurfPtr( 0 )->GetSurfType() ); // Form Factor Shape Type
+                m_geo_shapeType.push_back( geom->GetSurfType(0) ); // Form Factor Shape Type
 
-                if ( geom->GetSurfPtr( 0 )->GetSurfType() == vsp::NORMAL_SURF )
+                if ( geom->GetSurfType(0) == vsp::NORMAL_SURF )
                 {
                     m_geo_ffType.push_back( geom->m_FFBodyEqnType() );
                 }
@@ -282,7 +282,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                 for ( int j = 0; j < geom->GetNumTotalSurfs(); j++ )
                 {
                     // Custom Geom Check: if surf type is the same, apply same qualities
-                    if ( j > 0 && geom->GetSurfPtr( j )->GetSurfType() == geom->GetSurfPtr( j - 1 )->GetSurfType() )
+                    if ( j > 0 && geom->GetSurfType(j) == geom->GetSurfType(j - 1) )
                     {
                         m_geo_masterRow.push_back( false );
                         m_geo_name.push_back( geom->GetName() );
@@ -301,7 +301,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                     {
                         if ( geom->GetType().m_Type == CUSTOM_GEOM_TYPE )
                         {
-                            if ( geom->GetSurfPtr( j )->GetSurfType() == vsp::NORMAL_SURF )
+                            if ( geom->GetSurfType(j) == vsp::NORMAL_SURF )
                             {
                                 sprintf( str, "[B] %s", geom->GetName().c_str() );
                             }
@@ -328,9 +328,9 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                         m_geo_expandedList.push_back( false );
                     }
 
-                    m_geo_shapeType.push_back( geom->GetSurfPtr( j )->GetSurfType() ); // Form Factor Shape Type
+                    m_geo_shapeType.push_back( geom->GetSurfType(j) ); // Form Factor Shape Type
 
-                    if ( geom->GetSurfPtr( j )->GetSurfType() == vsp::NORMAL_SURF )
+                    if ( geom->GetSurfType(j) == vsp::NORMAL_SURF )
                     {
                         m_geo_ffType.push_back( geom->m_FFBodyEqnType() );
                     }
@@ -361,7 +361,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                             m_geo_Roughness.push_back( surf->m_Roughness() );
                             m_geo_TeTwRatio.push_back( surf->m_TeTwRatio() );
                             m_geo_TawTwRatio.push_back( surf->m_TawTwRatio() );
-                            if ( geom->GetSurfPtr( k )->GetSurfType() == vsp::NORMAL_SURF )
+                            if ( geom->GetSurfType(k) == vsp::NORMAL_SURF )
                             {
                                 m_geo_ffType.push_back( surf->m_FFBodyEqnType() );
                             }
@@ -381,7 +381,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
                             m_geo_TeTwRatio.push_back( m_geo_TeTwRatio[m_geo_TeTwRatio.size() - 1] );
                             m_geo_TawTwRatio.push_back( m_geo_TawTwRatio[m_geo_TawTwRatio.size() - 1] );
 
-                            if ( geom->GetSurfPtr( k )->GetSurfType() == vsp::NORMAL_SURF )
+                            if ( geom->GetSurfType(k) == vsp::NORMAL_SURF )
                             {
                                 m_geo_ffType.push_back( surf->m_FFBodyEqnType() );
                             }
@@ -393,7 +393,7 @@ void ParasiteDragMgrSingleton::LoadMainTableUserInputs()
 
                         m_geo_groupedAncestorGen.push_back( -1 );
                         m_geo_surfNum.push_back( k );
-                        m_geo_shapeType.push_back( geom->GetSurfPtr( k )->GetSurfType() ); // Form Factor Shape Type
+                        m_geo_shapeType.push_back( geom->GetSurfType(k) ); // Form Factor Shape Type
                         m_geo_expandedList.push_back( false );
                         m_geo_geomID.push_back( geom->GetID() );
                         m_geo_subsurfID.push_back( surf->GetID() );
@@ -2046,7 +2046,7 @@ void ParasiteDragMgrSingleton::SetActiveGeomVec()
                      geom->GetType().m_Type != MESH_GEOM_TYPE &&
                      geom->GetType().m_Type != HUMAN_GEOM_TYPE )          // NOT SURE
                 {
-                    if ( geom->GetSurfPtr( 0 )->GetSurfType() != vsp::DISK_SURF )
+                    if ( geom->GetSurfType(0) != vsp::DISK_SURF )
                     {
                         m_PDGeomIDVec.push_back(geomVec[i]);
                         geom_skipped = false;
@@ -3662,7 +3662,7 @@ bool ParasiteDragMgrSingleton::IsSameGeomSet()
                     geom->GetType().m_Type != BLANK_GEOM_TYPE &&
                     geom->GetType().m_Type != HINGE_GEOM_TYPE )
             {
-                if ( geom->GetSurfPtr( 0 )->GetSurfType() != vsp::DISK_SURF )
+                if ( geom->GetSurfType(0) != vsp::DISK_SURF )
                 {
                     newVecToCompare.push_back( newIDVec[i] );
                 }

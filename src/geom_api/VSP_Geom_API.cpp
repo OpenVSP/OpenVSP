@@ -1863,15 +1863,14 @@ int GetGeomVSPSurfType( const string& geom_id, int main_surf_ind )
         return -1;
     }
 
-    vector < VspSurf > surf_vec;
-    geom_ptr->GetMainSurfVec( surf_vec );
+    int nms = geom_ptr->GetNumMainSurfs();
 
-    if ( main_surf_ind < 0 || main_surf_ind >= surf_vec.size() )
+    if ( main_surf_ind < 0 || main_surf_ind >= nms )
     {
         ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "GetGeomVSPSurfType::Main Surf Index " + to_string( main_surf_ind ) + " Out of Range" );
     }
 
-    return surf_vec[main_surf_ind].GetSurfType();
+    return geom_ptr->GetMainSurfType(main_surf_ind);
 }
 
 // Get the VSP Surface CFD type for the specified Geom (i.e TRANSPARENT_SURF)
