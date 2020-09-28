@@ -3510,6 +3510,17 @@ VspSurf* Geom::GetSurfPtr( int indx )
     return NULL;
 }
 
+//==== Return Pointer to Surface indx ====//
+VspSurf* Geom::GetMainSurfPtr( int indx )
+{
+    if ( indx >= 0 && indx < GetNumMainSurfs() )
+    {
+        return &m_MainSurfVec[ indx ];
+    }
+    assert( true );
+    return NULL;
+}
+
 //==== Count Number of Sym Surfaces ====//
 int Geom::GetNumTotalSurfs()
 {

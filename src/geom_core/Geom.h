@@ -359,6 +359,9 @@ public:
 
     virtual VspSurf* GetSurfPtr();
     virtual VspSurf* GetSurfPtr( int indx );
+
+    virtual VspSurf* GetMainSurfPtr( int indx );
+
     virtual void GetSurfVec( vector<VspSurf> &surf_vec )
     {
         surf_vec = m_SurfVec;

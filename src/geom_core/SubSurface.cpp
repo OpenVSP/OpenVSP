@@ -958,7 +958,7 @@ void SSControlSurf::Update()
     Geom* geom = VehicleMgr.GetVehicle()->FindGeom( m_CompID );
     if ( !geom ) { return; }
 
-    VspSurf* surf = geom->GetSurfPtr();
+    VspSurf* surf = geom->GetMainSurfPtr(0);
     if ( !surf ) { return; }
 
     m_UWStart01.clear();
