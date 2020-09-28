@@ -2109,11 +2109,11 @@ void WingGeom::CalculateMeshMetrics()
     double umin, umax;
 
     vmin = 0.0;
-    vmax = m_MainSurfVec[0].GetWMax();
+    vmax = GetMainWMax(0);
     vtruemax = vmax;
 
     umin = 0.0;
-    umax = m_MainSurfVec[0].GetUMax();
+    umax = GetMainUMax(0);
 
     vle = ( vmin + vmax ) * 0.5;
 

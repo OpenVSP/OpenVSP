@@ -816,9 +816,9 @@ void DegenGeom::addDegenSubSurf( SubSurface *ssurf, int surfIndx )
 
                 for ( int j = 0; j < ppvec[i].size(); j++ )
                 {
-                    if ( ppvec[i][j].x() > surf->GetUMax() )
+                    if ( ppvec[i][j].x() > ssurfParentGeom->GetUMax( surfIndx ) )
                     {
-                        dgss.u[j] = surf->GetUMax();
+                        dgss.u[j] = ssurfParentGeom->GetUMax( surfIndx );
                     }
                     else if ( ppvec[i][j].x() < 0 )
                     {
@@ -829,9 +829,9 @@ void DegenGeom::addDegenSubSurf( SubSurface *ssurf, int surfIndx )
                         dgss.u[j] = ppvec[i][j].x();
                     }
 
-                    if ( ppvec[i][j].y() > surf->GetWMax() )
+                    if ( ppvec[i][j].y() > ssurfParentGeom->GetWMax( surfIndx ) )
                     {
-                        dgss.w[j] = surf->GetWMax();
+                        dgss.w[j] = ssurfParentGeom->GetWMax( surfIndx );
                     }
                     else if ( ppvec[i][j].y() < 0 )
                     {

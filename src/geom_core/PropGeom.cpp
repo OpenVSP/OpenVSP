@@ -1212,7 +1212,7 @@ void PropGeom::CalculateMeshMetrics( const vector < double > &u_pseudo  )
     double vmin, vmax, vle, vlelow, vleup, vtruemax;
 
     vmin = 0.0;
-    vmax = m_MainSurfVec[0].GetWMax();
+    vmax = GetMainWMax(0);
     vtruemax = vmax;
 
     vle = ( vmin + vmax ) * 0.5;
@@ -1978,7 +1978,7 @@ void PropGeom::WriteAirfoilFiles( FILE* meta_fid )
     double umax = Umax / m_MainSurfVec[0].GetUMax();
 
     double Vmin = 0.0;
-    double Vmax = m_MainSurfVec[0].GetWMax();
+    double Vmax = GetMainWMax(0);
     double Vle = ( Vmin + Vmax ) * 0.5;
 
     // First and last XSec accounted for by tessellated airfoils. Get additional XSec u locations 

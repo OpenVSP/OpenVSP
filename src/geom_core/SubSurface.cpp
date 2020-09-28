@@ -496,14 +496,8 @@ bool SSLineSeg::Subtag( TTri* tri ) const
 
 void SSLineSeg::Update( Geom* geom )
 {
-    VspSurf* surf = geom->GetSurfPtr();
-    if ( !surf )
-    {
-        return;
-    }
-
-    double umax = surf->GetUMax();
-    double wmax = surf->GetWMax();
+    double umax = geom->GetUMax(0);
+    double wmax = geom->GetWMax(0);
     // Update none scaled points
     m_P0.set_xyz( m_SP0[0]*umax, m_SP0[1]*wmax, 0 );
     m_P1.set_xyz( m_SP1[0]*umax, m_SP1[1]*wmax, 0 );
@@ -699,19 +693,13 @@ void SSLine::Update()
 
 int SSLine::CompNumDrawPnts( Geom* geom )
 {
-    VspSurf* surf = geom->GetSurfPtr( m_MainSurfIndx() );
-    if ( !surf )
-    {
-        return 0;
-    }
-
     if ( m_ConstType() == vsp::CONST_W )
     {
-        return ( int )( surf->GetUMax() * ( geom->m_TessU() - 2 ) );
+        return ( int )( geom->GetMainUMax(m_MainSurfIndx()) * ( geom->m_TessU() - 2 ) );
     }
     else if ( m_ConstType() == vsp::CONST_U )
     {
-        return ( int )( surf->GetWMax() * ( geom->m_TessW() - 4 ) );
+        return ( int )( geom->GetMainWMax(m_MainSurfIndx()) * ( geom->m_TessW() - 4 ) );
     }
 
     return -1;
@@ -984,7 +972,7 @@ void SSControlSurf::Update()
     double vmin = c.get_parameter_min(); // Really must be 0.0
     double vmax = c.get_parameter_max(); // Really should be 4.0
 
-    double umax = surf->GetUMax();
+    double umax = geom->GetUMax(0);
     double umin = 0.0;
     double ucs = m_UStart() * umax;
 
@@ -2191,19 +2179,13 @@ SSLine* SSLineArray::AddSSLine( double location, int ind )
 
 int SSLineArray::CompNumDrawPnts( Geom* geom )
 {
-    VspSurf* surf = geom->GetSurfPtr();
-    if ( !surf )
-    {
-        return 0;
-    }
-
     if ( m_ConstType() == CONST_W )
     {
-        return (int)( surf->GetUMax() * ( geom->m_TessU() - 2 ) );
+        return (int)( geom->GetUMax(0) * ( geom->m_TessU() - 2 ) );
     }
     else if ( m_ConstType() == CONST_U )
     {
-        return (int)( surf->GetWMax() * ( geom->m_TessW() - 4 ) );
+        return (int)( geom->GetWMax(0) * ( geom->m_TessW() - 4 ) );
     }
 
     return -1;

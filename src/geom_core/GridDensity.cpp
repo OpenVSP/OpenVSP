@@ -907,8 +907,8 @@ double ConstLineSimpleSource::GetTargetLen( double base_len, vec3d & pos, const 
             {
                 double t;
 
-                double umax = m_GeomPtr->GetSurfPtr( m_SurfIndx )->GetUMax();
-                double wmax = m_GeomPtr->GetSurfPtr( m_SurfIndx )->GetWMax();
+                double umax = m_GeomPtr->GetUMax( m_SurfIndx );
+                double wmax = m_GeomPtr->GetWMax( m_SurfIndx );
 
                 vec3d uw( u / umax, w / wmax, 0.0 );
 

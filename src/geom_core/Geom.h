@@ -379,6 +379,11 @@ public:
     virtual bool GetFlipNormal( int indx ) const;
     virtual bool GetMainFlipNormal( int indx ) const;
 
+    virtual double GetUMax( int indx ) const;
+    virtual double GetMainUMax( int indx ) const;
+
+    virtual double GetWMax( int indx ) const;
+    virtual double GetMainWMax( int indx ) const;
 
     virtual vector < int > & GetSymmIndexs( int imain )
     {
