@@ -1959,10 +1959,6 @@ void VSPAEROScreen::DisplayDegenVLMPreview()
                 {
                     geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_CAMBER );
                 }
-                else if ( surf_type == vsp::WING_SURF )
-                {
-                    geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_PLATE );
-                }
                 else
                 {
                     geom_vec[i]->m_GuiDraw.SetDisplayType( vsp::DISPLAY_TYPE::DISPLAY_DEGEN_PLATE );
