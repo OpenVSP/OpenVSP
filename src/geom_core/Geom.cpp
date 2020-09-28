@@ -4446,65 +4446,56 @@ void Geom::BuildTMeshTris(TMesh *tmesh, const vector< vector<vec3d> > &pnts,
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        d20 = v2 - v0;
-                        if ( d21.mag() > tol && d01.mag() > tol && d20.mag() > tol )
-                        {
-                            norm = cross( d21, d01 );
-                            norm.normalize();
-                            if ( flipnormal )
-                            {
-                                tmesh->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
-                            }
-                            else
-                            {
-                                tmesh->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
-                            }
-                        }
-
-                        if ( d03.mag() > tol && d23.mag() > tol && d20.mag() > tol )
-                        {
-                            norm = cross( d03, d23 );
-                            norm.normalize();
-                            if ( flipnormal )
-                            {
-                                tmesh->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
-                            }
-                            else
-                            {
-                                tmesh->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
-                            }
-                        }
+                        tmesh->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
                     }
                     else
                     {
-                        d31 = v3 - v1;
-                        if ( d01.mag() > tol && d31.mag() > tol && d03.mag() > tol )
-                        {
-                            norm = cross( d01, d03 );
-                            norm.normalize();
-                            if ( flipnormal )
-                            {
-                                tmesh->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
-                            }
-                            else
-                            {
-                                tmesh->AddTri( v0, v1, v3, norm, uw0, uw1, uw3 );
-                            }
-                        }
+                        tmesh->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
+                    }
+                }
 
-                        if ( d21.mag() > tol && d23.mag() > tol && d31.mag() > tol )
-                        {
-                            norm = cross( d23, d21 );
-                            norm.normalize();
-                            if ( flipnormal )
-                            {
-                                tmesh->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
-                            }
-                            else
-                            {
-                                tmesh->AddTri( v1, v2, v3, norm, uw1, uw2, uw3 );
-                            }
-                        }
+                if ( d03.mag() > tol && d23.mag() > tol && d20.mag() > tol )
+                {
+                    norm = cross( d03, d23 );
+                    norm.normalize();
+                    if ( flipnormal )
+                    {
+                        tmesh->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
+                    }
+                    else
+                    {
+                        tmesh->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
+                    }
+                }
+            }
+            else
+            {
+                d31 = v3 - v1;
+                if ( d01.mag() > tol && d31.mag() > tol && d03.mag() > tol )
+                {
+                    norm = cross( d01, d03 );
+                    norm.normalize();
+                    if ( flipnormal )
+                    {
+                        tmesh->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
+                    }
+                    else
+                    {
+                        tmesh->AddTri( v0, v1, v3, norm, uw0, uw1, uw3 );
+                    }
+                }
+
+                if ( d21.mag() > tol && d23.mag() > tol && d31.mag() > tol )
+                {
+                    norm = cross( d23, d21 );
+                    norm.normalize();
+                    if ( flipnormal )
+                    {
+                        tmesh->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
+                    }
+                    else
+                    {
+                        tmesh->AddTri( v1, v2, v3, norm, uw1, uw2, uw3 );
                     }
                 }
             }
