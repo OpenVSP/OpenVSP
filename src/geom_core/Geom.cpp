@@ -1147,10 +1147,10 @@ void Geom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &
     m_SurfVec[indx].SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess() );
 }
 
-void Geom::CalcTexCoords( int indx, vector< vector< vector< double > > > &utex, vector< vector< vector< double > > > &vtex, const vector< vector< vector< vec3d > > > & pnts )
+void Geom::CalcTexCoords( int indx, vector< vector< vector< double > > > &utex, vector< vector< vector< double > > > &vtex, const vector< vector< vector< vec3d > > > & pnts, int nufeat, int nvfeat )
 {
-    int nu = m_SurfVec[indx].GetNumUFeature() - 1;
-    int nv = m_SurfVec[indx].GetNumWFeature() - 1;
+    int nu = nufeat - 1;
+    int nv = nvfeat - 1;
 
     unsigned int n = nu * nv;
 
@@ -2126,7 +2126,10 @@ void Geom::UpdateDrawObj()
         vector< vector < vector < double > > > utex;
         vector< vector < vector < double > > > vtex;
 
-        CalcTexCoords( i, utex, vtex, pnts );
+        int nufeat = m_SurfVec[i].GetNumUFeature();
+        int nvfeat = m_SurfVec[i].GetNumWFeature();
+
+        CalcTexCoords( i, utex, vtex, pnts, nufeat, nvfeat );
 
         int iflip = 0;
         if ( GetFlipNormal(i) )
