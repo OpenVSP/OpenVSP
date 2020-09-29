@@ -4352,7 +4352,11 @@ vector< TMesh* > Geom::CreateTMeshVec()
 {
     vector<VspSurf> surf_vec;
     GetSurfVec( surf_vec );
+    return CreateTMeshVec( surf_vec );
+}
 
+vector< TMesh* > Geom::CreateTMeshVec( vector<VspSurf> &surf_vec )
+{
     vector< TMesh* > TMeshVec;
     vector< vector<vec3d> > pnts;
     vector< vector<vec3d> > norms;

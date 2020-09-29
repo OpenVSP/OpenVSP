@@ -2150,14 +2150,14 @@ vector< TMesh* > PropGeom::CreateTMeshVec()
 
     if ( m_ExportMainSurf )
     {
-        m_MainSurfVec.swap( m_SurfVec );
+        vector<VspSurf> surf_vec;
+        GetMainSurfVec( surf_vec );
+
+        TMeshVec = Geom::CreateTMeshVec( surf_vec );
     }
-
-    TMeshVec = Geom::CreateTMeshVec();
-
-    if ( m_ExportMainSurf )
+    else
     {
-        m_MainSurfVec.swap( m_SurfVec );
+        TMeshVec = Geom::CreateTMeshVec();
     }
 
     return TMeshVec;
