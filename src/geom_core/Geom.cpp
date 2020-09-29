@@ -3377,7 +3377,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
     {
         bool urootcap = false;
 
-        m_SurfVec[i].ResetUWSkip();
+        m_SurfVec[i].ResetUSkip();
         if ( m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
         {
             m_SurfVec[i].SetUSkipFirst( true );
@@ -3390,7 +3390,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
 
         //==== Tesselate Surface ====//
         UpdateTesselate( i, pnts, nrms, uwpnts, true );
-        m_SurfVec[i].ResetUWSkip();
+        m_SurfVec[i].ResetUSkip();
 
         int surftype = DegenGeom::BODY_TYPE;
         if( GetSurfType(i) == vsp::WING_SURF || GetSurfType(i) == vsp::PROP_SURF )
@@ -4356,7 +4356,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
 
     for ( int i = 0 ; i < GetNumTotalSurfs(); i++ )
     {
-        m_SurfVec[i].ResetUWSkip();
+        m_SurfVec[i].ResetUSkip();
     }
 
     for ( int i = 0 ; i < GetNumTotalSurfs() - 1 ; i++ )
@@ -4375,7 +4375,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
         if ( m_SurfVec[i].GetNumSectU() != 0 && m_SurfVec[i].GetNumSectW() != 0 )
         {
             UpdateTesselate( i, pnts, norms, uw_pnts, false );
-            m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
+            m_SurfVec[i].ResetUSkip(); // Done with skip flags.
 
             bool thicksurf = true;
             CreateTMeshVecFromPts( this, TMeshVec, pnts, norms, uw_pnts,

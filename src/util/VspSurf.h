@@ -167,7 +167,7 @@ public:
     static bool CapWMax(int capType);
     void FetchXFerSurf( const std::string &geom_id, int surf_ind, int comp_ind, vector< XferSurf > &xfersurfs, const vector < double > &usuppress = std::vector< double >(), const vector < double > &wsuppress = std::vector< double >() );
 
-    void ResetUWSkip();
+    void ResetUSkip();
     void FlagDuplicate( VspSurf *othersurf );
 
     void SetClustering( const double &le, const double &te );
@@ -265,7 +265,6 @@ protected:
     vector < double > m_WFeature;
 
     vector < bool > m_USkip;
-    vector < bool > m_WSkip;
 
     double m_LECluster;
     double m_TECluster;
