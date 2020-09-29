@@ -1494,14 +1494,21 @@ void Geom::UpdateSymmAttach()
 
 void Geom::UpdateSurfVec()
 {
+    ApplySymm( m_MainSurfVec, m_SurfVec );
+}
+
+// T must have methods .FlipNormal() and .Transform( Matrix4d )
+template <typename T>
+void Geom::ApplySymm( vector<T> const &source, vector<T> &dest )
+{
     unsigned int num_surf = GetNumTotalSurfs();
-    m_SurfVec.clear();
-    m_SurfVec.resize( num_surf, VspSurf() );
+    dest.clear();
+    dest.resize( num_surf);
 
     int num_main = GetNumMainSurfs();
     for ( int i = 0 ; i < ( int )num_main ; i++ )
     {
-        m_SurfVec[i] = m_MainSurfVec[i];
+        dest[i] = source[i];
     }
 
     // Copy main surfs
@@ -1540,14 +1547,14 @@ void Geom::UpdateSurfVec()
                 {
                     for ( int k = 0 ; k < m_SymRotN() - 1 ; k++ )
                     {
-                        m_SurfVec[j + k * numAddSurfs] = m_SurfVec[j - currentIndex];
+                        dest[j + k * numAddSurfs] = dest[j - currentIndex];
                         addIndex++;
                     }
                 }
                 else
                 {
-                    m_SurfVec[j] = m_SurfVec[j - currentIndex];
-                    m_SurfVec[j].FlipNormal();
+                    dest[j] = dest[j - currentIndex];
+                    dest[j].FlipNormal();
                     addIndex++;
                 }
             }
@@ -1559,7 +1566,7 @@ void Geom::UpdateSurfVec()
     //==== Save Transformation Matrix and Apply Transformations ====//
     for ( int i = 0 ; i < num_surf ; i++ )
     {
-        m_SurfVec[i].Transform( m_TransMatVec[i] ); // Apply total transformation to main surfaces
+        dest[i].Transform( m_TransMatVec[i] ); // Apply total transformation to main surfaces
     }
 }
 

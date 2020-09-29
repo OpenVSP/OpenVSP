@@ -682,6 +682,10 @@ protected:
     virtual void UpdateFlags();
     virtual void UpdateSymmAttach();
     virtual void UpdateSurfVec();
+
+    template <typename T>
+    void ApplySymm( vector<T> const &source, vector<T> &dest );
+
     virtual void UpdateChildren( bool fullupdate );
     virtual void UpdateBBox();
     virtual void UpdateDrawObj();
