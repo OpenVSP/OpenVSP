@@ -3517,16 +3517,6 @@ int Geom::GetSymFlag()
     return m_SymPlanFlag() | m_SymAxFlag();
 }
 
-//==== Return Pointer to First Surface ====//
-VspSurf* Geom::GetSurfPtr()
-{
-    if ( GetNumTotalSurfs() )
-    {
-        return &m_SurfVec[0];
-    }
-    return NULL;
-}
-
 //==== Return Pointer to Surface indx ====//
 VspSurf* Geom::GetSurfPtr( int indx )
 {
@@ -3639,7 +3629,7 @@ double Geom::GetMainWMax( int indx ) const
 
 vec3d Geom::CompPnt01(const double &u, const double &w)
 {
-    return GetSurfPtr()->CompPnt01( u, w );
+    return GetSurfPtr(0)->CompPnt01( u, w );
 }
 
 vec3d Geom::CompPnt01(const int &indx, const double &u, const double &w)
@@ -3649,7 +3639,7 @@ vec3d Geom::CompPnt01(const int &indx, const double &u, const double &w)
 
 bool Geom::CompRotCoordSys( const double &u, const double &w, Matrix4d &rotMat )
 {
-    VspSurf* surf_ptr = GetSurfPtr();
+    VspSurf* surf_ptr = GetSurfPtr(0);
     if ( surf_ptr )
     {
         rotMat = surf_ptr->CompRotCoordSys( u, w );
@@ -3660,7 +3650,7 @@ bool Geom::CompRotCoordSys( const double &u, const double &w, Matrix4d &rotMat )
 
 bool Geom::CompTransCoordSys( const double &u, const double &w, Matrix4d &transMat )
 {
-    VspSurf* surf_ptr = GetSurfPtr();
+    VspSurf* surf_ptr = GetSurfPtr(0);
     if ( surf_ptr )
     {
         transMat = surf_ptr->CompTransCoordSys( u, w );

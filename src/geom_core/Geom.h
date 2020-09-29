@@ -357,7 +357,6 @@ public:
     virtual void SetSetFlag( int index, bool f );
     virtual void UpdateSets();
 
-    virtual VspSurf* GetSurfPtr();
     virtual VspSurf* GetSurfPtr( int indx );
 
     virtual VspSurf* GetMainSurfPtr( int indx );
