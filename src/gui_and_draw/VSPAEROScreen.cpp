@@ -2067,6 +2067,7 @@ void VSPAEROScreen::UpdateUnsteadyGroups()
     m_NumTimeStepSlider.Update( VSPAEROMgr.m_NumTimeSteps.GetID() );
     m_HoverRampToggle.Update( VSPAEROMgr.m_HoverRampFlag.GetID() );
     m_HoverRampSlider.Update( VSPAEROMgr.m_HoverRamp.GetID() );
+    m_FromSteadyStateToggle.Update( VSPAEROMgr.m_FromSteadyState.GetID() );
     m_NoiseCalcToggle.Update( VSPAEROMgr.m_NoiseCalcFlag.GetID() );
     m_NoiseCalcChoice.Update( VSPAEROMgr.m_NoiseCalcType.GetID() );
     m_UniformRPMToggle.Update( VSPAEROMgr.m_UniformPropRPMFlag.GetID() );
