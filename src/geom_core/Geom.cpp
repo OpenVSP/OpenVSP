@@ -4346,9 +4346,13 @@ void Geom::WritePovRayTri( FILE* fid, const vec3d& v, const vec3d& n, bool comma
         fprintf( fid, "< %12.8f,  %12.8f,  %12.8f >  }\n", n.x(), n.z(), n.y() );
     }
 }
+
 //==== Create TMesh Vector ====//
 vector< TMesh* > Geom::CreateTMeshVec()
 {
+    vector<VspSurf> surf_vec;
+    GetSurfVec( surf_vec );
+
     vector< TMesh* > TMeshVec;
     vector< vector<vec3d> > pnts;
     vector< vector<vec3d> > norms;
@@ -4356,7 +4360,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
 
     for ( int i = 0 ; i < GetNumTotalSurfs(); i++ )
     {
-        m_SurfVec[i].ResetUSkip();
+        surf_vec[i].ResetUSkip();
     }
 
     for ( int i = 0 ; i < GetNumTotalSurfs() - 1 ; i++ )
@@ -4365,17 +4369,17 @@ vector< TMesh* > Geom::CreateTMeshVec()
         {
             if ( m_SurfIndxVec[i] == m_SurfIndxVec[j] )
             {
-                m_SurfVec[i].FlagDuplicate( &m_SurfVec[j] );
+                surf_vec[i].FlagDuplicate( &surf_vec[j] );
             }
         }
     }
 
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
-        if ( m_SurfVec[i].GetNumSectU() != 0 && m_SurfVec[i].GetNumSectW() != 0 )
+        if ( surf_vec[i].GetNumSectU() != 0 && surf_vec[i].GetNumSectW() != 0 )
         {
             UpdateTesselate( i, pnts, norms, uw_pnts, false );
-            m_SurfVec[i].ResetUSkip(); // Done with skip flags.
+            surf_vec[i].ResetUSkip(); // Done with skip flags.
 
             bool thicksurf = true;
             CreateTMeshVecFromPts( this, TMeshVec, pnts, norms, uw_pnts,
