@@ -3920,24 +3920,35 @@ void CreateTMeshVecFromPts( Geom * geom,
         flipnormal = !flipnormal;
     }
 
+    BuildTMeshTris( TMeshVec[itmesh], flipnormal, GetWMax(itmesh) );
+
+}
+
+void BuildTMeshTris( TMesh *tmesh, bool flipnormal, double wmax )
+{
+    double tol=1.0e-12;
+
+    vector< vector<vec3d> > *pnts = &(tmesh->m_XYZPnts);
+    vector< vector<vec3d> > *uw_pnts = &(tmesh->m_UWPnts);
+
     vec3d norm;
     vec3d v0, v1, v2, v3;
     vec3d uw0, uw1, uw2, uw3;
     vec3d d21, d01, d03, d23, d20, d31;
 
-    for ( int j = 0 ; j < ( int )pnts.size() - 1 ; j++ )
+    for ( int j = 0 ; j < ( int )(*pnts).size() - 1 ; j++ )
     {
-        for ( int k = 0 ; k < ( int )pnts[0].size() - 1 ; k++ )
+        for ( int k = 0 ; k < ( int )(*pnts)[0].size() - 1 ; k++ )
         {
-            v0 = pnts[j][k];
-            v1 = pnts[j + 1][k];
-            v2 = pnts[j + 1][k + 1];
-            v3 = pnts[j][k + 1];
+            v0 = (*pnts)[j][k];
+            v1 = (*pnts)[j + 1][k];
+            v2 = (*pnts)[j + 1][k + 1];
+            v3 = (*pnts)[j][k + 1];
 
-            uw0 = uw_pnts[j][k];
-            uw1 = uw_pnts[j + 1][k];
-            uw2 = uw_pnts[j + 1][k + 1];
-            uw3 = uw_pnts[j][k + 1];
+            uw0 = (*uw_pnts)[j][k];
+            uw1 = (*uw_pnts)[j + 1][k];
+            uw2 = (*uw_pnts)[j + 1][k + 1];
+            uw3 = (*uw_pnts)[j][k + 1];
 
             double quadrant = ( uw0.y() + uw1.y() + uw2.y() + uw3.y() ) / wmax; // * 4 * 0.25 canceled.
 
@@ -3955,11 +3966,11 @@ void CreateTMeshVecFromPts( Geom * geom,
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        TMeshVec[itmesh]->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
+                        tmesh->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
                     }
                     else
                     {
-                        TMeshVec[itmesh]->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
+                        tmesh->AddTri( v0, v1, v2, norm, uw0, uw1, uw2 );
                     }
                 }
 
@@ -3969,11 +3980,11 @@ void CreateTMeshVecFromPts( Geom * geom,
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        TMeshVec[itmesh]->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
+                        tmesh->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
                     }
                     else
                     {
-                        TMeshVec[itmesh]->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
+                        tmesh->AddTri( v0, v2, v3, norm, uw0, uw2, uw3 );
                     }
                 }
             }
@@ -3986,11 +3997,11 @@ void CreateTMeshVecFromPts( Geom * geom,
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        TMeshVec[itmesh]->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
+                        tmesh->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
                     }
                     else
                     {
-                        TMeshVec[itmesh]->AddTri( v0, v1, v3, norm, uw0, uw1, uw3 );
+                        tmesh->AddTri( v0, v1, v3, norm, uw0, uw1, uw3 );
                     }
                 }
 
@@ -4000,11 +4011,11 @@ void CreateTMeshVecFromPts( Geom * geom,
                     norm.normalize();
                     if ( flipnormal )
                     {
-                        TMeshVec[itmesh]->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
+                        tmesh->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
                     }
                     else
                     {
-                        TMeshVec[itmesh]->AddTri( v1, v2, v3, norm, uw1, uw2, uw3 );
+                        tmesh->AddTri( v1, v2, v3, norm, uw1, uw2, uw3 );
                     }
                 }
             }

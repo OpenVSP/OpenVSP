@@ -451,8 +451,6 @@ public:
 
     virtual vector< TMesh* > CreateTMeshVec();
 
-    virtual void BuildTMeshTris(TMesh *tmesh, const vector< vector<vec3d> > &pnts,
-                                const vector< vector<vec3d> > &uw_pnts, bool f_norm, double wmax );
     virtual BndBox GetBndBox()
     {
         return m_BBox;
