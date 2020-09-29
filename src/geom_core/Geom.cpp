@@ -1592,6 +1592,9 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
 
     bool color = m_Vehicle->m_DXFColorFlag.Get();
 
+    vector<VspSurf> surf_vec;
+    GetSurfVec( surf_vec );
+
     // Bounding box diagonal, used to separate multi-view drawings
     vec3d shiftvec = dxfbox.GetMax() - dxfbox.GetMin();
 
@@ -1604,12 +1607,12 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
 
         if ( m_GuiDraw.GetDispFeatureFlag() )
         {
-            unsigned int nu = m_SurfVec[i].GetNumUFeature();
-            unsigned int nw = m_SurfVec[i].GetNumWFeature();
+            unsigned int nu = surf_vec[i].GetNumUFeature();
+            unsigned int nw = surf_vec[i].GetNumWFeature();
             allflines.resize( nu + nw );
             for ( int j = 0; j < nu; j++ )
             {
-                m_SurfVec[i].TessUFeatureLine( j, allflines[j], tol );
+                surf_vec[i].TessUFeatureLine( j, allflines[j], tol );
 
                 // Shift Feature Lines back near the orgin for multi-view case:
                 if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
@@ -1625,7 +1628,7 @@ void Geom::WriteFeatureLinesDXF( FILE * file_name, const BndBox &dxfbox )
 
             for ( int j = 0; j < nw; j++ )
             {
-                m_SurfVec[i].TessWFeatureLine( j, allflines[j + nu], tol );
+                surf_vec[i].TessWFeatureLine( j, allflines[j + nu], tol );
 
                 // Shift Feature Lines back near the orgin for multi-view case:
                 if ( m_Vehicle->m_DXF2D3DFlag() != vsp::DIMENSION_SET::SET_3D )
@@ -1910,7 +1913,10 @@ vector< vector < vec3d > > Geom::GetGeomProjectionLines( int view, vec3d offset 
 void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
 {
     double tol = 10e-2; // Feature line Tessellation tolerance
-    
+
+    vector<VspSurf> surf_vec;
+    GetSurfVec( surf_vec );
+
     // Bounding box diagonal, used to separate multi-view drawings
     vec3d shiftvec = svgbox.GetMax() - svgbox.GetMin();
 
@@ -1923,12 +1929,12 @@ void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
 
         if( m_GuiDraw.GetDispFeatureFlag() )
         {
-            unsigned int nu = m_SurfVec[i].GetNumUFeature();
-            unsigned int nw = m_SurfVec[i].GetNumWFeature();
+            unsigned int nu = surf_vec[i].GetNumUFeature();
+            unsigned int nw = surf_vec[i].GetNumWFeature();
             allflines.resize( nw + nu );
             for( int j = 0; j < nw; j++ )
             {
-                m_SurfVec[i].TessWFeatureLine( j, allflines[ j ], tol );
+                surf_vec[i].TessWFeatureLine( j, allflines[ j ], tol );
 
                 // To Do: multiple view ports instead of shifting feature lines in a single view port
 
@@ -1942,7 +1948,7 @@ void Geom::WriteFeatureLinesSVG( xmlNodePtr root, const BndBox &svgbox )
             }
             for( int j = 0; j < nu; j++ )
             {
-                m_SurfVec[i].TessUFeatureLine( j, allflines[ j + nw ], tol );
+                surf_vec[i].TessUFeatureLine( j, allflines[ j + nw ], tol );
 
                 // Shift Feature Lines back near the orgin :
                 for ( unsigned int k = 0; k < allflines[j + nw].size(); k++ )
@@ -3376,24 +3382,27 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
     vector< vector< vec3d > > nrms;
     vector< vector< vec3d > > uwpnts;
 
+    vector<VspSurf> surf_vec;
+    GetSurfVec( surf_vec );
+
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
         bool urootcap = false;
 
-        m_SurfVec[i].ResetUSkip();
+        surf_vec[i].ResetUSkip();
         if ( m_CapUMinSuccess[ m_SurfIndxVec[i] ] )
         {
-            m_SurfVec[i].SetUSkipFirst( true );
+            surf_vec[i].SetUSkipFirst( true );
             urootcap = true;
         }
         if ( m_CapUMaxSuccess[ m_SurfIndxVec[i] ] )
         {
-            m_SurfVec[i].SetUSkipLast( true );
+            surf_vec[i].SetUSkipLast( true );
         }
 
         //==== Tesselate Surface ====//
         UpdateTesselate( i, pnts, nrms, uwpnts, true );
-        m_SurfVec[i].ResetUSkip();
+        surf_vec[i].ResetUSkip();
 
         int surftype = DegenGeom::BODY_TYPE;
         if( GetSurfType(i) == vsp::WING_SURF || GetSurfType(i) == vsp::PROP_SURF )
@@ -3405,7 +3414,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
             surftype = DegenGeom::DISK_TYPE;
         }
 
-        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview, GetFlipNormal(i), surftype, m_SurfVec[i].GetSurfCfdType(), m_SurfVec[i].GetFoilSurf() );
+        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview, GetFlipNormal(i), surftype, surf_vec[i].GetSurfCfdType(), surf_vec[i].GetFoilSurf() );
     }
 }
 
@@ -4748,12 +4757,15 @@ void Geom::AppendWakeData( vector < piecewise_curve_type >& curve_vec, vector < 
 {
     if( m_WakeActiveFlag() )
     {
+        vector<VspSurf> surf_vec;
+        GetSurfVec( surf_vec );
+
         for( int i = 0; i < GetNumTotalSurfs(); i++ )
         {
             if( GetSurfType(i) == vsp::WING_SURF )
             {
                 piecewise_curve_type curve;
-                m_SurfVec[i].GetWakeTECurve( curve );
+                surf_vec[i].GetWakeTECurve( curve );
 
                 curve_vec.push_back( curve );
                 wake_scale_vec.push_back( m_WakeScale() );
