@@ -691,6 +691,11 @@ protected:
 
     virtual void UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
 
+    virtual void UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen );
+    virtual void UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen );
+
+    virtual void UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms );
+
     virtual void CalcTexCoords( int indx, vector< vector< vector< double > > > &utex, vector< vector< vector< double > > > &vtex, const vector< vector< vector< vec3d > > > & pnts, int nufeat, int nvfeat );
 
     vector<VspSurf> m_MainSurfVec;

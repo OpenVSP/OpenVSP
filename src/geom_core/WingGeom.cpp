@@ -2182,7 +2182,7 @@ void WingGeom::CalculateMeshMetrics()
     m_MaxGrowth = maxrat;
 }
 
-void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen )
+void WingGeom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen )
 {
     vector < int > tessvec;
     vector < double > rootc;
@@ -2213,11 +2213,11 @@ void WingGeom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vecto
         umerge.push_back( 1 );
     }
 
-    m_SurfVec[indx].SetRootTipClustering( rootc, tipc );
-    m_SurfVec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen, umerge );
+    surf_vec[indx].SetRootTipClustering( rootc, tipc );
+    surf_vec[indx].Tesselate( tessvec, m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen, umerge );
 }
 
-void WingGeom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
+void WingGeom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
 {
     vector < int > tessvec;
     vector < double > rootc;
@@ -2248,8 +2248,8 @@ void WingGeom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > >
         umerge.push_back( 1 );
     }
 
-    m_SurfVec[indx].SetRootTipClustering( rootc, tipc );
-    m_SurfVec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), umerge );
+    surf_vec[indx].SetRootTipClustering( rootc, tipc );
+    surf_vec[indx].SplitTesselate( tessvec, m_TessW(), pnts, norms, m_CapUMinTess(), umerge );
 }
 
 void WingGeom::UpdateDrawObj()

@@ -1133,18 +1133,34 @@ void Geom::GetUWTess01( int indx, vector < double > &u, vector < double > &w )
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
                             vector< vector< vec3d > > &uw_pnts, bool degen )
 {
-    m_SurfVec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
+    UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, degen );
 }
 
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen )
 {
-    vector< vector< vec3d > > uw_pnts;
-    UpdateTesselate( indx, pnts, norms, uw_pnts, degen );
+    UpdateTesselate( m_SurfVec, indx, pnts, norms, degen );
 }
 
 void Geom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
 {
-    m_SurfVec[indx].SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess() );
+    UpdateSplitTesselate( m_SurfVec, indx, pnts, norms );
+}
+
+void Geom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
+                            vector< vector< vec3d > > &uw_pnts, bool degen )
+{
+    surf_vec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
+}
+
+void Geom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen )
+{
+    vector< vector< vec3d > > uw_pnts;
+    UpdateTesselate( surf_vec, indx, pnts, norms, uw_pnts, degen );
+}
+
+void Geom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
+{
+    surf_vec[indx].SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess() );
 }
 
 void Geom::CalcTexCoords( int indx, vector< vector< vector< double > > > &utex, vector< vector< vector< double > > > &vtex, const vector< vector< vector< vec3d > > > & pnts, int nufeat, int nvfeat )
