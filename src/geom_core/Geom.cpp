@@ -1062,6 +1062,7 @@ void Geom::Update( bool fullupdate )
     if ( m_XFormDirty || m_SurfDirty )
     {
         UpdateSymmAttach();  // Needs to happen for both XForm and Surf updates.
+        UpdateSurfVec();
     }
 
     if ( fullupdate ) // Option to make FitModel and similar things faster.
@@ -1343,7 +1344,6 @@ void Geom::UpdateSymmAttach()
     m_SurfIndxVec.clear();
     m_SurfSymmMap.clear();
     m_SurfCopyIndx.clear();
-    m_SurfVec.resize( num_surf, VspSurf() );
     m_SurfIndxVec.resize( num_surf, -1 );
     m_SurfSymmMap.resize( num_surf );
     m_SurfCopyIndx.resize( num_surf );
@@ -1351,7 +1351,6 @@ void Geom::UpdateSymmAttach()
     int num_main = GetNumMainSurfs();
     for ( int i = 0 ; i < ( int )num_main ; i++ )
     {
-        m_SurfVec[i] = m_MainSurfVec[i];
         m_SurfIndxVec[i] = i;
         m_SurfSymmMap[ m_SurfIndxVec[i] ].push_back( i );
         m_SurfCopyIndx[i] = 0;
@@ -1448,7 +1447,6 @@ void Geom::UpdateSymmAttach()
                 {
                     for ( int k = 0 ; k < m_SymRotN() - 1 ; k++ )
                     {
-                        m_SurfVec[j + k * numAddSurfs] = m_SurfVec[j - currentIndex];
                         m_SurfIndxVec[j + k * numAddSurfs] = m_SurfIndxVec[j - currentIndex];
                         m_SurfCopyIndx[j + k * numAddSurfs] = m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].size();
                         m_SurfSymmMap[ m_SurfIndxVec[j + k * numAddSurfs] ].push_back( j + k * numAddSurfs );
@@ -1464,8 +1462,6 @@ void Geom::UpdateSymmAttach()
                 }
                 else
                 {
-                    m_SurfVec[j] = m_SurfVec[j - currentIndex];
-                    m_SurfVec[j].FlipNormal();
                     m_SurfIndxVec[j] = m_SurfIndxVec[j - currentIndex];
                     m_SurfCopyIndx[j] = m_SurfSymmMap[ m_SurfIndxVec[j] ].size();
                     m_SurfSymmMap[ m_SurfIndxVec[ j ] ].push_back( j );
@@ -1490,10 +1486,80 @@ void Geom::UpdateSymmAttach()
     for ( int i = 0 ; i < num_surf ; i++ )
     {
         m_TransMatVec[i].postMult( symmOriginMat.data() );
-        m_SurfVec[i].Transform( m_TransMatVec[i] ); // Apply total transformation to main surfaces
 
         m_FeaTransMatVec[i] = m_TransMatVec[i];
         m_FeaTransMatVec[i].matMult( retrun_relTrans.data() ); // m_FeaTransMatVec does not inclde the relTrans matrix
+    }
+}
+
+void Geom::UpdateSurfVec()
+{
+    unsigned int num_surf = GetNumTotalSurfs();
+    m_SurfVec.clear();
+    m_SurfVec.resize( num_surf, VspSurf() );
+
+    int num_main = GetNumMainSurfs();
+    for ( int i = 0 ; i < ( int )num_main ; i++ )
+    {
+        m_SurfVec[i] = m_MainSurfVec[i];
+    }
+
+    // Copy main surfs
+    int symFlag = GetSymFlag();
+    if ( symFlag != 0 )
+    {
+        int numShifts = -1;
+
+        int currentIndex = GetNumMainSurfs();
+
+        for ( int i = 0 ; i < GetNumSymFlags() ; i ++ ) // Loop through each of the set sym flags
+        {
+            // Find next set sym flag
+            while ( true )
+            {
+                numShifts++;
+                if ( ( ( symFlag >> numShifts ) & ( 1 << 0 ) ) || numShifts > SYM_NUM_TYPES )
+                {
+                    break;
+                }
+            }
+
+            bool radial = false;
+            if ( ( 1 << numShifts ) >= SYM_ROT_X )
+            {
+                radial = true;
+            }
+
+            // number of additional surfaces for a single reflection ( for rotational reflections it is m_SymRotN-1 times this number
+            int numAddSurfs = currentIndex;
+            int addIndex = 0;
+
+            for ( int j = currentIndex ; j < currentIndex + numAddSurfs ; j++ )
+            {
+                if ( radial ) // rotational reflection
+                {
+                    for ( int k = 0 ; k < m_SymRotN() - 1 ; k++ )
+                    {
+                        m_SurfVec[j + k * numAddSurfs] = m_SurfVec[j - currentIndex];
+                        addIndex++;
+                    }
+                }
+                else
+                {
+                    m_SurfVec[j] = m_SurfVec[j - currentIndex];
+                    m_SurfVec[j].FlipNormal();
+                    addIndex++;
+                }
+            }
+
+            currentIndex += addIndex;
+        }
+    }
+
+    //==== Save Transformation Matrix and Apply Transformations ====//
+    for ( int i = 0 ; i < num_surf ; i++ )
+    {
+        m_SurfVec[i].Transform( m_TransMatVec[i] ); // Apply total transformation to main surfaces
     }
 }
 
