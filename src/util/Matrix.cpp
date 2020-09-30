@@ -270,6 +270,24 @@ void Matrix4d::xformvec( std::vector < vec3d > & in ) const
     }
 }
 
+// Transform for normal vectors -- rotations only, no translations
+vec3d Matrix4d::xformnorm( const vec3d & in ) const
+{
+    vec3d out;
+    out[0] = mat[0] * in[0] + mat[4] * in[1] + mat[8] * in[2];
+    out[1] = mat[1] * in[0] + mat[5] * in[1] + mat[9] * in[2];
+    out[2] = mat[2] * in[0] + mat[6] * in[1] + mat[10] * in[2];
+    return out;
+}
+
+void Matrix4d::xformnormvec( std::vector < vec3d > & in ) const
+{
+    for ( int i = 0; i < in.size(); i++ )
+    {
+        in[i] = xformnorm( in[i] );
+    }
+}
+
 vec3d Matrix4d::getAngles() const
 {
     vec3d angles;
