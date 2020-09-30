@@ -404,7 +404,7 @@ void GeomXForm::SetDirtyFlags( Parm* parm_ptr )
     {
         m_XFormDirty = true;
     }
-    else if ( gname == string( "Attach") )
+    else if ( gname == string( "Attach") || gname == string( "Sym") )
     {
         m_XFormDirty = true;
     }
