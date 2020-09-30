@@ -164,6 +164,17 @@ void SCurve::CheapTesselate( )
     UWTess();
 }
 
+void SCurve::TessAdapt( const Surf& srf, double tol, int Nlimit )
+{
+    m_UTess.clear();
+    vector < vec3d > pnt_vec;
+
+    // Binary Adaptive refinement - ignore 3D points
+    GetUWCrv().TessAdaptXYZ( srf, pnt_vec, tol, Nlimit, m_UTess );
+
+    UWTess();
+}
+
 void SCurve::ProjectTessToSurf( SCurve* othercurve )
 {
     vector< vec3d > UWTessB = othercurve->GetUWTessPnts();

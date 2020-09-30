@@ -112,6 +112,8 @@ public:
 
     vec3d CompPntUW( double u );
 
+    void TessAdapt( const Surf& srf, double tol, int Nlimit );
+
 protected:
 
     Surf* m_Surf;               // Surface

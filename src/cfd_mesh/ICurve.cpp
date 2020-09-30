@@ -65,7 +65,8 @@ void ICurve::BorderTesselate( )
 
 void ICurve::PlaneBorderTesselate( SCurve* crv_A, SCurve* crv_B )
 {
-    crv_A->CheapTesselate();
+    crv_A->TessAdapt( *crv_A->GetSurf(), 5e-4, 16 );
+
     crv_B->ProjectTessToSurf( crv_A );
 }
 

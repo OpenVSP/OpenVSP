@@ -2164,22 +2164,15 @@ void SurfaceIntersectionSingleton::LoadBorderCurves()
             m_ICurveVec[i]->m_SCurve_B = m_ICurveVec[i]->m_SCurve_A;
         }
 
+        //==== Create New Chain ====//
+        ISegChain* chain = new ISegChain;
+
+        Surf* surfA = m_ICurveVec[i]->m_SCurve_A->GetSurf();
+        Surf* surfB = m_ICurveVec[i]->m_SCurve_B->GetSurf();
+
         if ( m_ICurveVec[i]->m_PlaneBorderIntersectFlag )
         {
-            Surf* SurfA = m_ICurveVec[i]->m_SCurve_A->GetSurf();
-            Surf* SurfB = m_ICurveVec[i]->m_SCurve_B->GetSurf();
-
-            if ( GetSettingsPtr()->m_HalfMeshFlag && SurfB->GetSurfCore()->LessThanY( 1e-6 ) )
-            {
-                m_ICurveVec[i]->m_SCurve_A->BorderTesselate();
-                m_ICurveVec[i]->m_SCurve_B->ProjectTessToSurf( m_ICurveVec[i]->m_SCurve_A );
-            }
-            else if ( GetSettingsPtr()->m_HalfMeshFlag && SurfA->GetSurfCore()->LessThanY( 1e-6 ) )
-            {
-                m_ICurveVec[i]->m_SCurve_B->BorderTesselate();
-                m_ICurveVec[i]->m_SCurve_A->ProjectTessToSurf( m_ICurveVec[i]->m_SCurve_B );
-            }
-            else if ( !SurfA->GetSymPlaneFlag() )
+            if ( !surfA->GetSymPlaneFlag() )
             {
                 m_ICurveVec[i]->PlaneBorderTesselate( m_ICurveVec[i]->m_SCurve_A, m_ICurveVec[i]->m_SCurve_B );
             }
@@ -2193,12 +2186,7 @@ void SurfaceIntersectionSingleton::LoadBorderCurves()
             m_ICurveVec[i]->BorderTesselate( );
         }
 
-        //==== Create New Chain ====//
-        ISegChain* chain = new ISegChain;
         chain->m_BorderFlag = true;
-
-        Surf* surfA = m_ICurveVec[i]->m_SCurve_A->GetSurf();
-        Surf* surfB = m_ICurveVec[i]->m_SCurve_B->GetSurf();
 
         chain->m_SurfA = surfA;
         chain->m_SurfB = surfB;
