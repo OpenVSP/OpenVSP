@@ -60,9 +60,10 @@ public:
 
     void BuildCurve( const vector< vec3d > & pVec, double tanStr );
 
-    void TessAdaptXYZ( const Surf &srf, vector< vec3d > & output, double tol, int Nlimit );
-    void TessAdaptXYZ( const Surf &srf, double umin, double umax, std::vector< vec3d > & pnts, double tol, int Nlimit );
-    void TessAdaptXYZ( const Surf &srf, double umin, double umax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, double tol, int Nlimit, int Nadapt = 0 );
+    void TessAdaptXYZ( const Surf& srf, std::vector< vec3d >& output, double tol, int Nlimit );
+    void TessAdaptXYZ( const Surf& srf, std::vector< vec3d >& output, double tol, int Nlimit, std::vector< double >& uvec );
+    void TessAdaptXYZ( const Surf &srf, double umin, double umax, std::vector< vec3d > & pnts, double tol, int Nlimit, std::vector< double >& uvec );
+    void TessAdaptXYZ( const Surf &srf, double umin, double umax, const vec3d & pmin, const vec3d & pmax, std::vector< vec3d > & pnts, double tol, int Nlimit, std::vector< double >& uvec, int Nadapt = 0 );
 
     void InterpolateLinear( vector< vec3d > & input_pnt_vec );
 
