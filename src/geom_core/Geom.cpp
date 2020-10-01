@@ -1159,6 +1159,11 @@ void Geom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector<
     UpdateTesselate( surf_vec, indx, pnts, norms, uw_pnts, degen );
 }
 
+void Geom::UpdateSplitTesselate( int indx, SimpleTess & tess )
+{
+    UpdateSplitTesselate( m_SurfVec, indx, tess.m_pnts, tess.m_norms );
+}
+
 void Geom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
 {
     surf_vec[indx].SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess() );
@@ -2213,10 +2218,9 @@ void Geom::UpdateDrawObj()
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
-        vector< vector < vector < vec3d > > > pnts;
-        vector< vector < vector < vec3d > > > norms;
+        SimpleTess tess;
 
-        UpdateSplitTesselate( i, pnts, norms );
+        UpdateSplitTesselate( i, tess );
 
         vector< vector < vector < double > > > utex;
         vector< vector < vector < double > > > vtex;
@@ -2224,7 +2228,7 @@ void Geom::UpdateDrawObj()
         int nufeat = m_SurfVec[i].GetNumUFeature();
         int nvfeat = m_SurfVec[i].GetNumWFeature();
 
-        CalcTexCoords( i, utex, vtex, pnts, nufeat, nvfeat );
+        CalcTexCoords( i, utex, vtex, tess.m_pnts, nufeat, nvfeat );
 
         int iflip = 0;
         if ( GetFlipNormal(i) )
@@ -2238,9 +2242,9 @@ void Geom::UpdateDrawObj()
         }
 
         m_WireShadeDrawObj_vec[iflip].m_PntMesh.insert( m_WireShadeDrawObj_vec[iflip].m_PntMesh.end(),
-                pnts.begin(), pnts.end() );
+                tess.m_pnts.begin(), tess.m_pnts.end() );
         m_WireShadeDrawObj_vec[iflip].m_NormMesh.insert( m_WireShadeDrawObj_vec[iflip].m_NormMesh.end(),
-                norms.begin(), norms.end() );
+                tess.m_norms.begin(), tess.m_norms.end() );
 
         m_WireShadeDrawObj_vec[iflip].m_uTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_uTexMesh.end(),
                 utex.begin(), utex.end() );
