@@ -32,6 +32,7 @@ MessageMgr.cpp
 PntNodeMerge.cpp
 ProcessUtil.cpp
 Quat.cpp
+SimpleTess.cpp
 StlHelper.cpp
 StringUtil.cpp
 SuperEllipse.cpp
@@ -58,6 +59,7 @@ MessageMgr.h
 PntNodeMerge.h
 ProcessUtil.h
 Quat.h
+SimpleTess.h
 StlHelper.h
 StreamUtil.h
 StringUtil.h
