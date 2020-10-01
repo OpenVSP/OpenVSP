@@ -4315,7 +4315,7 @@ void VSPAEROMgrSingleton::UpdateUnsteadyGroups()
     if ( m_UniformPropRPMFlag() )
     {
         UnsteadyGroup* current_group = GetUnsteadyGroup( m_CurrentUnsteadyGroupIndex );
-        if ( current_group )
+        if ( current_group && current_group->m_GeomPropertyType() == UnsteadyGroup::GEOM_ROTOR )
         {
             for ( size_t i = 0; i < m_UnsteadyGroupVec.size(); ++i )
             {
