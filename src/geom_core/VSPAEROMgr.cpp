@@ -3918,6 +3918,15 @@ void VSPAEROMgrSingleton::SetCurrentUnsteadyGroupIndex( int index )
     }
 }
 
+void VSPAEROMgrSingleton::SetCurrentUnsteadyGroupIndex( const string& id )
+{
+    int index = GetUnsteadyGroupIndex( id );
+    if ( index >= 0 ) // Valid if not -1
+    {
+        m_CurrentUnsteadyGroupIndex = index;
+    }
+}
+
 map < pair < string, int >, vector < int > > VSPAEROMgrSingleton::GetVSPAEROGeomIndexMap( int set_index )
 {
     map < pair < string, int >, vector < int > > geom_index_map;
@@ -5522,6 +5531,14 @@ xmlNodePtr UnsteadyGroup::DecodeXml( xmlNodePtr& node )
 
 void UnsteadyGroup::ParmChanged( Parm* parm_ptr, int type )
 {
+    // Identify if unsteady prop RPM is changed. If so, update it to be the "master" that 
+    // all other unsteady prop RPM will be set to
+    if ( VSPAEROMgr.m_RotateBladesFlag() && VSPAEROMgr.m_UniformPropRPMFlag() &&
+         &m_RPM == parm_ptr && m_GeomPropertyType() == UnsteadyGroup::GEOM_ROTOR )
+    {
+        VSPAEROMgr.SetCurrentUnsteadyGroupIndex( m_ID );
+    }
+
     if ( type == Parm::SET )
     {
         m_LateUpdateFlag = true;

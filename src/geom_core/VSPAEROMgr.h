@@ -320,6 +320,7 @@ public:
     // Unsteady Group Functions
     int CreateGroupsFile();
     void SetCurrentUnsteadyGroupIndex( int index );
+    void SetCurrentUnsteadyGroupIndex( const string& id );
     int GetCurrentUnsteadyGroupIndex()                          { return m_CurrentUnsteadyGroupIndex; }
     UnsteadyGroup* AddUnsteadyGroup();
     void DeleteUnsteadyGroup( int index );
