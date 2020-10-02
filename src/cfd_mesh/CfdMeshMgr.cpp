@@ -71,7 +71,10 @@ void CfdMeshMgrSingleton::GenerateMesh()
     addOutputText( "Loading Bezier Surfaces\n" );
     LoadSurfs( xfersurfs );
 
-    TransferSubSurfData();
+    if ( GetSettingsPtr()->m_IntersectSubSurfs )
+    {
+        TransferSubSurfData();
+    }
 
     CleanMergeSurfs();
 
@@ -752,10 +755,7 @@ void CfdMeshMgrSingleton::Remesh( int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
-        if ( GetSettingsPtr()->m_IntersectSubSurfs )
-        {
-            Subtag( m_SurfVec[i] );
-        }
+        Subtag( m_SurfVec[i] );
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 
@@ -790,10 +790,7 @@ void CfdMeshMgrSingleton::RemeshSingleComp( int comp_id, int output_type )
 
         m_SurfVec[i]->GetMesh()->LoadSimpTris();
         m_SurfVec[i]->GetMesh()->Clear();
-        if ( GetSettingsPtr()->m_IntersectSubSurfs )
-        {
-            Subtag( m_SurfVec[i] );
-        }
+        Subtag( m_SurfVec[i] );
         m_SurfVec[i]->GetMesh()->CondenseSimpTris();
     }
 

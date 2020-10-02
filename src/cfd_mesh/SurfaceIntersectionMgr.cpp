@@ -428,7 +428,10 @@ void SurfaceIntersectionSingleton::IntersectSurfaces()
     addOutputText( "Loading Bezier Surfaces\n" );
     LoadSurfs( xfersurfs );
 
-    TransferSubSurfData();
+    if ( GetSettingsPtr()->m_IntersectSubSurfs )
+    {
+        TransferSubSurfData();
+    }
 
     CleanMergeSurfs();
 
