@@ -385,6 +385,7 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
     m_applyIgnoreAbsFlag = true;
     m_XFormDirty = true;
     m_SurfDirty = true;
+    m_TessDirty = true;
 
     m_ModelMatrix.loadIdentity();
 }
@@ -407,6 +408,25 @@ void GeomXForm::SetDirtyFlags( Parm* parm_ptr )
     else if ( gname == string( "Attach") || gname == string( "Sym") )
     {
         m_XFormDirty = true;
+    }
+    else if ( gname == string("Shape") && ( pname == string("Tess_U") || pname == string("Tess_W") ) )
+    {
+        m_TessDirty = true;
+    }
+    else if ( gname == string("XSec") && pname == string("SectTess_U") )
+    {
+        m_TessDirty = true;
+    }
+    else if ( gname == string("EndCap") && pname == string("CapUMinTess") )
+    {
+        // This captures all geoms
+        m_TessDirty = true;
+    }
+    else if ( pname == string("LECluster") || pname == string("TECluster") ||
+              pname == string("InCluster") || pname == string("OutCluster") )
+    {
+        // This captures wings, propellers, and bodies of revolution clustering
+        m_TessDirty = true;
     }
     else
     {
@@ -1029,6 +1049,9 @@ void Geom::Update( bool fullupdate )
     if ( m_SurfDirty )
         printf( "Updating %s surface.\n", m_Name.c_str() );
 
+    if ( m_TessDirty )
+        printf( "Updating %s tess.\n", m_Name.c_str() );
+
     m_UpdateBlock = true;
 
     m_LateUpdateFlag = false;
@@ -1078,6 +1101,18 @@ void Geom::Update( bool fullupdate )
         }
     }
 
+    // Tessellate MainSurfVec
+    if ( m_SurfDirty || m_TessDirty )
+    {
+        UpdateMainTessVec();
+    }
+
+    // Copy Tessellation for symmetry and XForm
+    if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
+    {
+        UpdateTessVec();
+    }
+
     if ( m_XFormDirty || m_SurfDirty )
     {
         UpdateBBox();  // Needs to happen for both XForm and Surf updates.
@@ -1085,7 +1120,7 @@ void Geom::Update( bool fullupdate )
 
     if ( fullupdate )
     {
-        if ( m_XFormDirty || m_SurfDirty )
+        if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
         {
             UpdateDrawObj();  // Needs to happen for both XForm and Surf updates.
         }
@@ -1100,6 +1135,8 @@ void Geom::Update( bool fullupdate )
     if ( m_SurfDirty )
         m_UpdateSurf = true;
     m_SurfDirty = false;
+
+    m_TessDirty = false;
 
     UpdateChildren( fullupdate );
 

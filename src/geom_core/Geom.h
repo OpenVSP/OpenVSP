@@ -323,6 +323,7 @@ public:
     bool m_UpdateXForm;
     bool m_SurfDirty;
     bool m_UpdateSurf;
+    bool m_TessDirty;
 
 protected:
 
