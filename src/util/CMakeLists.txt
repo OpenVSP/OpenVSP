@@ -32,6 +32,7 @@ MessageMgr.cpp
 PntNodeMerge.cpp
 ProcessUtil.cpp
 Quat.cpp
+SimpleFeatureTess.cpp
 SimpleTess.cpp
 StlHelper.cpp
 StringUtil.cpp
@@ -59,6 +60,7 @@ MessageMgr.h
 PntNodeMerge.h
 ProcessUtil.h
 Quat.h
+SimpleFeatureTess.h
 SimpleTess.h
 StlHelper.h
 StreamUtil.h
