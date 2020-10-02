@@ -2131,8 +2131,6 @@ void Geom::UpdateDrawObj()
     m_FeatureDrawObj_vec[0].m_LineWidth = 1.0;
     m_FeatureDrawObj_vec[0].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
 
-    double tol = 1e-2;
-
     m_WireShadeDrawObj_vec.clear();
     m_WireShadeDrawObj_vec.resize( 4 );
     m_WireShadeDrawObj_vec[0].m_FlipNormals = false;
@@ -2148,17 +2146,8 @@ void Geom::UpdateDrawObj()
     //==== Tesselate Surface ====//
     for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
     {
-        SimpleTess tess;
-
-        UpdateSplitTesselate( i, tess );
-
-        tess.m_nufeat = m_SurfVec[i].GetNumUFeature();
-        tess.m_nvfeat = m_SurfVec[i].GetNumWFeature();
-
-        tess.CalcTexCoords();
-
         int iflip = 0;
-        if ( GetFlipNormal(i) )
+        if ( m_TessVec[i].GetFlipNormal() )
         {
             iflip = 1;
         }
@@ -2169,50 +2158,32 @@ void Geom::UpdateDrawObj()
         }
 
         m_WireShadeDrawObj_vec[iflip].m_PntMesh.insert( m_WireShadeDrawObj_vec[iflip].m_PntMesh.end(),
-                tess.m_pnts.begin(), tess.m_pnts.end() );
+                m_TessVec[i].m_pnts.begin(), m_TessVec[i].m_pnts.end() );
         m_WireShadeDrawObj_vec[iflip].m_NormMesh.insert( m_WireShadeDrawObj_vec[iflip].m_NormMesh.end(),
-                tess.m_norms.begin(), tess.m_norms.end() );
+                m_TessVec[i].m_norms.begin(), m_TessVec[i].m_norms.end() );
 
         m_WireShadeDrawObj_vec[iflip].m_uTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_uTexMesh.end(),
-                tess.m_utex.begin(), tess.m_utex.end() );
+                m_TessVec[i].m_utex.begin(), m_TessVec[i].m_utex.end() );
         m_WireShadeDrawObj_vec[iflip].m_vTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_vTexMesh.end(),
-                tess.m_vtex.begin(), tess.m_vtex.end() );
+                m_TessVec[i].m_vtex.begin(), m_TessVec[i].m_vtex.end() );
 
         if( m_GuiDraw.GetDispFeatureFlag() )
         {
-            int nu = m_SurfVec[i].GetNumUFeature();
-            for( int j = 0; j < nu; j++ )
-            {
-                vector < vec3d > ptline;
-                m_SurfVec[i].TessUFeatureLine( j, ptline, tol );
+            int nfl = m_FeatureTessVec[i].m_ptline.size();
 
-                int n = ptline.size() - 1;
+            for( int j = 0; j < nfl; j++ )
+            {
+                int n = m_FeatureTessVec[i].m_ptline[j].size() - 1;
 
                 m_FeatureDrawObj_vec[0].m_PntVec.reserve( m_FeatureDrawObj_vec[0].m_PntVec.size() + 2 * n );
 
                 for ( int k = 0; k < n; k++ )
                 {
-                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( ptline[ k ] );
-                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( ptline[ k + 1 ] );
+                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( m_FeatureTessVec[i].m_ptline[j][ k ] );
+                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( m_FeatureTessVec[i].m_ptline[j][ k + 1 ] );
                 }
             }
 
-            int nw = m_SurfVec[i].GetNumWFeature();
-            for( int j = 0; j < nw; j++ )
-            {
-                vector < vec3d > ptline;
-                m_SurfVec[i].TessWFeatureLine( j, ptline, tol );
-
-                int n = ptline.size() - 1;
-
-                m_FeatureDrawObj_vec[0].m_PntVec.reserve( m_FeatureDrawObj_vec[0].m_PntVec.size() + 2 * n );
-
-                for ( int k = 0; k < n; k++ )
-                {
-                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( ptline[ k ] );
-                    m_FeatureDrawObj_vec[0].m_PntVec.push_back( ptline[ k + 1 ] );
-                }
-            }
         }
     }
 
