@@ -32,6 +32,7 @@
 #include "XSecSurf.h"
 #include "FeaStructure.h"
 #include "SimpleTess.h"
+#include "SimpleFeatureTess.h"
 
 #include <string>
 #include <vector>
@@ -691,6 +692,9 @@ protected:
     virtual void UpdateBBox();
     virtual void UpdateDrawObj();
 
+    virtual void UpdateMainTessVec();
+    virtual void UpdateTessVec();
+
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen );
     virtual void UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, vector< vector< vec3d > > &uw_pnts, bool degen );
 
@@ -718,6 +722,11 @@ protected:
     vector<DrawObj> m_DegenSurfDrawObj_vec;
     vector<DrawObj> m_DegenCamberPlateDrawObj_vec;
     vector<DrawObj> m_DegenSubSurfDrawObj_vec;
+
+    vector <SimpleTess> m_MainTessVec;
+    vector <SimpleTess> m_TessVec;
+    vector <SimpleFeatureTess> m_MainFeatureTessVec;
+    vector <SimpleFeatureTess> m_FeatureTessVec;
 
     BndBox m_BBox;
 

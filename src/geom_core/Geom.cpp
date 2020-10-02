@@ -2514,6 +2514,54 @@ void Geom::UpdateDegenDrawObj()
     }
 }
 
+// Compute all the main surface tessellations
+// Also compute the main surface feature line tessellations
+void Geom::UpdateMainTessVec()
+{
+    double tol = 1e-2;
+
+    int nmain = GetNumMainSurfs();
+
+    m_MainTessVec.resize( nmain );
+    m_MainFeatureTessVec.resize( nmain );
+
+    for ( int i = 0 ; i < nmain ; i++ )
+    {
+        UpdateSplitTesselate( i, m_MainTessVec[i] );
+
+        bool fn = m_MainSurfVec[i].GetFlipNormal();
+        m_MainTessVec[i].m_FlipNormal = fn;
+        m_MainFeatureTessVec[i].m_FlipNormal = fn;
+
+        int nu = m_MainSurfVec[i].GetNumUFeature();
+        int nw = m_MainSurfVec[i].GetNumWFeature();
+
+        m_MainTessVec[i].m_nufeat = nu;
+        m_MainTessVec[i].m_nvfeat = nw;
+
+        m_MainTessVec[i].CalcTexCoords();
+
+        m_MainFeatureTessVec[i].m_ptline.resize( nu + nw );
+
+        for( int j = 0; j < nu; j++ )
+        {
+            m_MainSurfVec[i].TessUFeatureLine( j, m_MainFeatureTessVec[i].m_ptline[j], tol );
+        }
+
+        for( int j = 0; j < nw; j++ )
+        {
+            m_MainSurfVec[i].TessWFeatureLine( j, m_MainFeatureTessVec[i].m_ptline[j+nu], tol );
+        }
+    }
+}
+
+// Propagate symmetry and position to tessellation and feature line tess.
+void Geom::UpdateTessVec()
+{
+    ApplySymm( m_MainTessVec, m_TessVec );
+    ApplySymm( m_MainFeatureTessVec, m_FeatureTessVec );
+}
+
 //==== Encode Data Into XML Data Struct ====//
 xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
 {
