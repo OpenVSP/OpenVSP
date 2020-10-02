@@ -330,6 +330,7 @@ public:
     IntParm m_EndWingSection;
     BoolParm m_BndBoxTrimFlag;
     IntParm m_PerpendicularEdgeType;
+    BoolParm m_MatchDihedralFlag;
 
 protected:
 
@@ -477,6 +478,7 @@ public:
     IntParm m_EndWingSection;
     BoolParm m_BndBoxTrimFlag;
     IntParm m_PerpendicularEdgeType;
+    BoolParm m_MatchDihedralFlag;
 
 protected:
 

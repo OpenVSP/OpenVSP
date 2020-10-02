@@ -2304,6 +2304,9 @@ FeaRib::FeaRib( const string& geomID, int type ) : FeaSlice( geomID, type )
 
     m_PerpendicularEdgeType.Init( "PerpendicularEdgeType", "FeaRib", this, vsp::NO_NORMAL, vsp::NO_NORMAL, vsp::SPAR_NORMAL );
     m_PerpendicularEdgeType.SetDescript( "Identifies the Perpendicular Edge Type for the Rib" );
+
+    m_MatchDihedralFlag.Init( "MatchDihedralFlag", "FeaRib", this, true, false, true );
+    m_MatchDihedralFlag.SetDescript( "Flag to Rotate the Rib with the Dihedral Angle of the Wing" );
 }
 
 void FeaRib::Update()
@@ -2700,6 +2703,32 @@ VspSurf FeaRib::ComputeRibSurf()
         inner_edge_vec.normalize();
         outer_edge_vec.normalize();
 
+        double x_rot = 0;
+
+        if ( m_MatchDihedralFlag() )
+        {
+            int min_sec, max_sec;
+
+            if ( m_LimitRibToSectionFlag() )
+            {
+                min_sec = m_StartWingSection();
+                max_sec = m_EndWingSection();
+            }
+            else
+            {
+                min_sec = 1;
+                max_sec = wing->NumXSec() - 1;
+            }
+
+            for ( size_t i_sec = min_sec; i_sec <= max_sec; i_sec++ )
+            {
+                WingSect* ws = (WingSect*)wing->GetXSecSurf( 0 )->FindXSec( i_sec );
+                x_rot += ws->m_Dihedral();
+            }
+
+            x_rot /= ( 1 + max_sec - min_sec );
+        }
+
         // Normal vector to wing chord line
         if ( inner_edge_vec.mag() >= FLT_EPSILON )
         {
@@ -2741,6 +2770,7 @@ VspSurf FeaRib::ComputeRibSurf()
                 temp_slice->SetSectionBBox( sect_bbox );
                 temp_slice->m_OrientationPlane.Set( vsp::XZ_BODY );
                 temp_slice->m_ZRot.Set( RAD_2_DEG * m_TotRot );
+                temp_slice->m_XRot.Set( -1 * x_rot );
 
                 // Update Slice Relative Center Location
                 double rel_center_location =( center.y() - sect_bbox.GetMin( 1 ) ) / ( sect_bbox.GetMax( 1 ) - sect_bbox.GetMin( 1 ) );
@@ -2920,6 +2950,21 @@ VspSurf FeaRib::ComputeRibSurf()
 
             // Make Planar Surface
             rib_surf.MakePlaneSurf( cornerA, cornerB, cornerC, cornerD );
+
+            // Translate to the origin, rotate, and translate back to center
+            Matrix4d trans_rot_mat;
+
+            trans_rot_mat.loadIdentity();
+            trans_rot_mat.translatef( center.x() * -1, center.y() * -1, center.z() * -1 );
+            rib_surf.Transform( trans_rot_mat );
+
+            trans_rot_mat.loadIdentity();
+            trans_rot_mat.rotateX( x_rot );
+            rib_surf.Transform( trans_rot_mat );
+
+            trans_rot_mat.loadIdentity();
+            trans_rot_mat.translatef( center.x(), center.y(), center.z() );
+            rib_surf.Transform( trans_rot_mat );
 
             // Transform to body coordinate frame
             model_matrix.affineInverse();
@@ -3644,6 +3689,9 @@ FeaRibArray::FeaRibArray( const string& geomID, int type ) : FeaPart( geomID, ty
     m_PerpendicularEdgeType.Init( "PerpendicularEdgeType", "FeaRibArray", this, vsp::NO_NORMAL, vsp::NO_NORMAL, vsp::SPAR_NORMAL );
     m_PerpendicularEdgeType.SetDescript( "Identifies the Perpendicular Edge Type for the Rib Array" );
 
+    m_MatchDihedralFlag.Init( "MatchDihedralFlag", "FeaRibArray", this, true, false, true );
+    m_MatchDihedralFlag.SetDescript( "Flag to Rotate the Rib Array with the Dihedral Angle of the Wing" );
+
     m_NumRibs = 0;
 }
 
@@ -3846,6 +3894,7 @@ void FeaRibArray::CreateFeaRibArray()
             rib->m_StartWingSection.Set( m_StartWingSection() );
             rib->m_EndWingSection.Set( m_EndWingSection() );
             rib->m_BndBoxTrimFlag.Set( m_BndBoxTrimFlag() );
+            rib->m_MatchDihedralFlag.Set( m_MatchDihedralFlag() );
 
             // Update Rib Relative Center Location
             double rel_center_location =  m_RelStartLocation() + dir * i * m_RibRelSpacing();
@@ -3916,6 +3965,7 @@ FeaRib* FeaRibArray::AddFeaRib( double center_location, int ind )
         fearib->m_LimitRibToSectionFlag.Set( m_LimitArrayToSectionFlag() );
         fearib->m_StartWingSection.Set( m_StartWingSection() );
         fearib->m_EndWingSection.Set( m_EndWingSection() );
+        fearib->m_MatchDihedralFlag.Set( m_MatchDihedralFlag() );
 
         fearib->SetName( string( m_Name + "_Rib" + std::to_string( ind ) ) );
 

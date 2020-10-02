@@ -97,6 +97,7 @@ private:
     TriggerButton m_RibPosUnit;
     SliderAdjRangeInput m_RibThetaSlider;
     ToggleButton m_RibTrimToBBoxToggle;
+    ToggleButton m_RibRotateDihedralToggle;
     Choice m_RibCapPropertyChoice;
     ToggleButton m_RibShellToggle;
     ToggleButton m_RibCapToggle;
@@ -184,6 +185,7 @@ private:
     TriggerButton m_RibArrayPosUnit;
     SliderAdjRangeInput m_RibArrayThetaSlider;
     ToggleButton m_RibArrayTrimToBBoxToggle;
+    ToggleButton m_RibArrayRotateDihedralToggle;
     Choice m_RibArrayCapPropertyChoice;
     TriggerButton m_IndividualizeRibArrayButton;
     ToggleButton m_RibArrayShellToggle;

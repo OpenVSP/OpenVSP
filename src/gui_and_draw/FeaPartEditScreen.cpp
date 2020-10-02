@@ -229,9 +229,16 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_RibEditLayout.AddSlider( m_RibThetaSlider, "Rotation", 25, "%5.3f" );
 
     m_RibEditLayout.AddYGap();
+    m_RibEditLayout.SetSameLineFlag( true );
+    m_RibEditLayout.SetFitWidthFlag( false );
+    m_RibEditLayout.SetButtonWidth( m_RibEditLayout.GetRemainX() / 2.0 );
 
     m_RibEditLayout.AddButton( m_RibTrimToBBoxToggle, "Trim to Bounding Box" );
+    m_RibEditLayout.AddButton( m_RibRotateDihedralToggle, "Rotate to Match Dihedral" );
 
+    m_RibEditLayout.ForceNewLine();
+    m_RibEditLayout.SetSameLineFlag( false );
+    m_RibEditLayout.SetFitWidthFlag( true );
     m_RibEditLayout.AddYGap();
 
     m_RibEditLayout.AddDividerBox( "Elements" );
@@ -623,9 +630,16 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_RibArrayEditLayout.AddSlider( m_RibArrayThetaSlider, "Rotation", 25, "%5.3f" );
 
     m_RibArrayEditLayout.AddYGap();
+    m_RibArrayEditLayout.SetSameLineFlag( true );
+    m_RibArrayEditLayout.SetFitWidthFlag( false );
+    m_RibArrayEditLayout.SetButtonWidth( m_RibArrayEditLayout.GetRemainX() / 2.0 );
 
     m_RibArrayEditLayout.AddButton( m_RibArrayTrimToBBoxToggle, "Trim to Bounding Box" );
+    m_RibArrayEditLayout.AddButton( m_RibArrayRotateDihedralToggle, "Rotate to Match Dihedral" );
 
+    m_RibArrayEditLayout.ForceNewLine();
+    m_RibArrayEditLayout.SetSameLineFlag( false );
+    m_RibArrayEditLayout.SetFitWidthFlag( true );
     m_RibArrayEditLayout.AddYGap();
 
     m_RibArrayEditLayout.AddButton( m_IndividualizeRibArrayButton, "Individualize Rib Array" );
@@ -1336,6 +1350,7 @@ bool FeaPartEditScreen::Update()
 
                         m_RibThetaSlider.Update( rib->m_Theta.GetID() );
                         m_RibTrimToBBoxToggle.Update( rib->m_BndBoxTrimFlag.GetID() );
+                        m_RibRotateDihedralToggle.Update( rib->m_MatchDihedralFlag.GetID() );
                         m_RibShellCapToggleGroup.Update( rib->m_IncludedElements.GetID() );
 
                         if ( rib->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
@@ -1554,6 +1569,7 @@ bool FeaPartEditScreen::Update()
                         m_RibArrayTrimToBBoxToggle.Update( rib_array->m_BndBoxTrimFlag.GetID() );
                         m_RibArrayShellCapToggleGroup.Update( rib_array->m_IncludedElements.GetID() );
                         m_RibArrayPosNegDirToggleGroup.Update( rib_array->m_PositiveDirectionFlag.GetID() );
+                        m_RibArrayRotateDihedralToggle.Update( rib_array->m_MatchDihedralFlag.GetID() );
 
                         if ( rib_array->m_IncludedElements() == vsp::FEA_SHELL_AND_BEAM )
                         {
