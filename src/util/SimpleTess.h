@@ -22,10 +22,18 @@ public:
 
     void GetBoundingBox( BndBox &bb ) const;
 
+    void CalcTexCoords();
+
     bool m_FlipNormal;
+
+    int m_nufeat;
+    int m_nvfeat;
 
     vector< vector< vector< vec3d > > > m_pnts;
     vector< vector< vector< vec3d > > > m_norms;
+
+    vector< vector< vector< double > > > m_utex;
+    vector< vector< vector< double > > > m_vtex;
 };
 
 #endif // SIMPLETESS_H
