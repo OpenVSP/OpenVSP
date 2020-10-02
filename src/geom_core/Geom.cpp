@@ -2222,13 +2222,10 @@ void Geom::UpdateDrawObj()
 
         UpdateSplitTesselate( i, tess );
 
-        vector< vector < vector < double > > > utex;
-        vector< vector < vector < double > > > vtex;
+        tess.m_nufeat = m_SurfVec[i].GetNumUFeature();
+        tess.m_nvfeat = m_SurfVec[i].GetNumWFeature();
 
-        int nufeat = m_SurfVec[i].GetNumUFeature();
-        int nvfeat = m_SurfVec[i].GetNumWFeature();
-
-        CalcTexCoords( i, utex, vtex, tess.m_pnts, nufeat, nvfeat );
+        tess.CalcTexCoords();
 
         int iflip = 0;
         if ( GetFlipNormal(i) )
@@ -2247,9 +2244,9 @@ void Geom::UpdateDrawObj()
                 tess.m_norms.begin(), tess.m_norms.end() );
 
         m_WireShadeDrawObj_vec[iflip].m_uTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_uTexMesh.end(),
-                utex.begin(), utex.end() );
+                tess.m_utex.begin(), tess.m_utex.end() );
         m_WireShadeDrawObj_vec[iflip].m_vTexMesh.insert( m_WireShadeDrawObj_vec[iflip].m_vTexMesh.end(),
-                vtex.begin(), vtex.end() );
+                tess.m_vtex.begin(), tess.m_vtex.end() );
 
         if( m_GuiDraw.GetDispFeatureFlag() )
         {
