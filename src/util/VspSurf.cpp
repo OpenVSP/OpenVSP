@@ -1346,18 +1346,26 @@ void VspSurf::GetWakeTECurve( piecewise_curve_type & curve ) const
     m_Surface.get_vconst_curve( curve, 0 );
 }
 
+// FeaDome::UpdateDrawObjs
+// Geom::UpdateTesselate
 void VspSurf::Tesselate( int num_u, int num_v, vector< vector< vec3d > > & pnts, vector< vector< vec3d > > & norms, vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen ) const
 {
     vector<int> num_u_vec( GetNumSectU(), num_u );
     Tesselate( num_u_vec, num_v, pnts, norms, uw_pnts, n_cap, degen );
 }
 
+// Geom::UpdateSplitTesselate
 void VspSurf::SplitTesselate( int num_u, int num_v, vector< vector< vector< vec3d > > > & pnts, vector< vector< vector< vec3d > > > & norms, const int &n_cap ) const
 {
     vector<int> num_u_vec( GetNumSectU(), num_u );
     SplitTesselate( num_u_vec, num_v, pnts, norms, n_cap );
 }
 
+// VspSurf::Tesselate
+// FuselageGeom::UpdateTesselate
+// PropGeom::UpdateTesselate
+// StackGeom::UpdateTesselate
+// WingGeom::UpdateTesselate
 void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts, const int &n_cap, bool degen, const std::vector<int> & umerge ) const
 {
     if( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0 )
@@ -1373,6 +1381,11 @@ void VspSurf::Tesselate( const vector<int> &num_u, int num_v, std::vector< vecto
     Tesselate( u, v, pnts, norms, uw_pnts );
 }
 
+// VspSurf::SplitTesselate
+// FuselageGeom::UpdateSplitTesselate
+// PropGeom::UpdateSplitTesselate
+// StackGeom::UpdateSplitTesselate
+// WingGeom::UpdateSplitTesselate
 void VspSurf::SplitTesselate( const vector<int> &num_u, int num_v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms, const int &n_cap, const std::vector<int> & umerge ) const
 {
     if( m_Surface.number_u_patches() == 0 || m_Surface.number_v_patches() == 0 )
@@ -1388,6 +1401,12 @@ void VspSurf::SplitTesselate( const vector<int> &num_u, int num_v, std::vector< 
     SplitTesselate( m_UFeature, m_WFeature, u, v, pnts, norms );
 }
 
+// VspSurf::SplitTesselate
+// VspSurf::Tesselate
+// VspSurf::TesselateTEforWake
+// Low level routine that actually calls Code-Eli to evaluate grid of points.
+// No smarts about what U/V tess to work on, just evaluates what it is told.
+// Also called by SplitTess below.
 void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::vector< vector< vec3d > > & pnts,  std::vector< vector< vec3d > > & norms,  std::vector< vector< vec3d > > & uw_pnts ) const
 {
     unsigned int nu = u.size();
@@ -1448,6 +1467,10 @@ void VspSurf::Tesselate( const vector<double> &u, const vector<double> &v, std::
     }
 }
 
+// VspSurf::SplitTesselate
+// Low level SplitTesselate
+// Does not figure out what U/V tess to work on, just does what it is told
+// Splits at split lines, returning 3D vectors of results for patches.
 void VspSurf::SplitTesselate( const vector<double> &usplit, const vector<double> &vsplit, const vector<double> &u, const vector<double> &v, std::vector< vector< vector< vec3d > > > & pnts,  std::vector< vector< vector< vec3d > > > & norms ) const
 {
     vector < int > iusplit;

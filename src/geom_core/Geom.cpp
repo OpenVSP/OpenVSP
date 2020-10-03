@@ -1168,39 +1168,55 @@ void Geom::GetUWTess01( int indx, vector < double > &u, vector < double > &w )
     }
 }
 
+// CreateDegenGeom
+// CreateTMeshVec
+// GetUWTess01 -- exposed to API
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
                             vector< vector< vec3d > > &uw_pnts, bool degen )
 {
     UpdateTesselate( m_SurfVec, indx, pnts, norms, uw_pnts, degen );
 }
 
+// CreateGeomResults
+// WritePLOT3DFileExtents
+// WritePLOT3DfileXYZ
+// WritePMARCGeomFile
+// WritePovRay
+// WriteX3D
+// WriteXSecFile
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen )
 {
     UpdateTesselate( m_SurfVec, indx, pnts, norms, degen );
 }
 
+// ExportSurfacePatches
 void Geom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
 {
     UpdateSplitTesselate( m_SurfVec, indx, pnts, norms );
 }
 
+// UpdateTesselate
 void Geom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
                             vector< vector< vec3d > > &uw_pnts, bool degen )
 {
     surf_vec[indx].Tesselate( m_TessU(), m_TessW(), pnts, norms, uw_pnts, m_CapUMinTess(), degen );
 }
 
+// UpdateTesselate
 void Geom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms, bool degen )
 {
     vector< vector< vec3d > > uw_pnts;
     UpdateTesselate( surf_vec, indx, pnts, norms, uw_pnts, degen );
 }
 
+// New UST that works on tess instead.
+// UpdateDrawObj
 void Geom::UpdateSplitTesselate( int indx, SimpleTess & tess )
 {
     UpdateSplitTesselate( m_MainSurfVec, indx, tess.m_pnts, tess.m_norms );
 }
 
+// UpdateSplitTessellate
 void Geom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
 {
     surf_vec[indx].SplitTesselate( m_TessU(), m_TessW(), pnts, norms, m_CapUMinTess() );
