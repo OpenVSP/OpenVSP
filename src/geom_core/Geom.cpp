@@ -1198,7 +1198,7 @@ void Geom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector<
 
 void Geom::UpdateSplitTesselate( int indx, SimpleTess & tess )
 {
-    UpdateSplitTesselate( m_SurfVec, indx, tess.m_pnts, tess.m_norms );
+    UpdateSplitTesselate( m_MainSurfVec, indx, tess.m_pnts, tess.m_norms );
 }
 
 void Geom::UpdateSplitTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vector< vec3d > > > &pnts, vector< vector< vector< vec3d > > > &norms )
