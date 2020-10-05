@@ -103,11 +103,55 @@ GeomBase::GeomBase( Vehicle* vehicle_ptr )
     m_Type.m_Type = BASE_GEOM_TYPE;
     m_Type.m_Name = m_Name;
     m_ParentID = string( "NONE" );
+
+    m_XFormDirty = true;
+    m_SurfDirty = true;
+    m_TessDirty = true;
 }
 
 //==== Destructor ====//
 GeomBase::~GeomBase()
 {
+
+}
+
+void GeomBase::SetDirtyFlags( Parm* parm_ptr )
+{
+
+    string gname = parm_ptr->GetGroupName();
+    string pname = parm_ptr->GetName();
+
+    if ( gname == string("XForm") && pname != string("Scale") && pname != string("Last_Scale") )
+    {
+        m_XFormDirty = true;
+    }
+    else if ( gname == string( "Attach") || gname == string( "Sym") )
+    {
+        m_XFormDirty = true;
+    }
+    else if ( gname == string("Shape") && ( pname == string("Tess_U") || pname == string("Tess_W") ) )
+    {
+        m_TessDirty = true;
+    }
+    else if ( gname == string("XSec") && pname == string("SectTess_U") )
+    {
+        m_TessDirty = true;
+    }
+    else if ( gname == string("EndCap") && pname == string("CapUMinTess") )
+    {
+        // This captures all geoms
+        m_TessDirty = true;
+    }
+    else if ( pname == string("LECluster") || pname == string("TECluster") ||
+              pname == string("InCluster") || pname == string("OutCluster") )
+    {
+        // This captures wings, propellers, and bodies of revolution clustering
+        m_TessDirty = true;
+    }
+    else
+    {
+        m_SurfDirty = true;
+    }
 
 }
 
@@ -383,9 +427,6 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
 
     m_ignoreAbsFlag = false;
     m_applyIgnoreAbsFlag = true;
-    m_XFormDirty = true;
-    m_SurfDirty = true;
-    m_TessDirty = true;
 
     m_ModelMatrix.loadIdentity();
 }
@@ -394,47 +435,6 @@ GeomXForm::GeomXForm( Vehicle* vehicle_ptr ) : GeomBase( vehicle_ptr )
 GeomXForm::~GeomXForm()
 {
 }
-
-void GeomXForm::SetDirtyFlags( Parm* parm_ptr )
-{
-
-    string gname = parm_ptr->GetGroupName();
-    string pname = parm_ptr->GetName();
-
-    if ( gname == string("XForm") && pname != string("Scale") && pname != string("Last_Scale") )
-    {
-        m_XFormDirty = true;
-    }
-    else if ( gname == string( "Attach") || gname == string( "Sym") )
-    {
-        m_XFormDirty = true;
-    }
-    else if ( gname == string("Shape") && ( pname == string("Tess_U") || pname == string("Tess_W") ) )
-    {
-        m_TessDirty = true;
-    }
-    else if ( gname == string("XSec") && pname == string("SectTess_U") )
-    {
-        m_TessDirty = true;
-    }
-    else if ( gname == string("EndCap") && pname == string("CapUMinTess") )
-    {
-        // This captures all geoms
-        m_TessDirty = true;
-    }
-    else if ( pname == string("LECluster") || pname == string("TECluster") ||
-              pname == string("InCluster") || pname == string("OutCluster") )
-    {
-        // This captures wings, propellers, and bodies of revolution clustering
-        m_TessDirty = true;
-    }
-    else
-    {
-        m_SurfDirty = true;
-    }
-
-}
-
 
 //==== Update ====//
 void GeomXForm::Update( bool fullupdate )

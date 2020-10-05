@@ -189,7 +189,7 @@ public:
     }
 
     virtual void Update( bool fullupdate = true )           {}
-    virtual void SetDirtyFlags( Parm* parm_ptr ) = 0;
+    void SetDirtyFlags( Parm* parm_ptr );
 
     virtual void ParmChanged( Parm* parm_ptr, int type );
     virtual void ForceUpdate();
@@ -231,6 +231,12 @@ public:
     virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     GeomGuiDraw m_GuiDraw;
+
+    bool m_XFormDirty;
+    bool m_UpdateXForm;
+    bool m_SurfDirty;
+    bool m_UpdateSurf;
+    bool m_TessDirty;
 
 protected:
 
@@ -316,14 +322,6 @@ public:
 
     vec3d m_AttachOrigin;
     vector < vec3d > m_AttachAxis;
-
-    void SetDirtyFlags( Parm* parm_ptr );
-
-    bool m_XFormDirty;
-    bool m_UpdateXForm;
-    bool m_SurfDirty;
-    bool m_UpdateSurf;
-    bool m_TessDirty;
 
 protected:
 
