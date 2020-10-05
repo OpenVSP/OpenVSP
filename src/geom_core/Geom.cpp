@@ -3433,10 +3433,12 @@ Material * Geom::GetMaterial()
 // required degen plate,surface, and subsurface for updating the preview DrawObj vectors
 void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
 {
-    vector<VspSurf> surf_vec;
-    GetSurfVec( surf_vec );
+    CreateDegenGeom( m_SurfVec, dgs, preview );
+}
 
-    CreateDegenGeom( surf_vec, dgs, preview );
+void Geom::CreateMainDegenGeom( vector<DegenGeom> &dgs, bool preview )
+{
+    CreateDegenGeom( m_MainSurfVec, dgs, preview );
 }
 
 void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, vector<DegenGeom> &dgs, bool preview )
