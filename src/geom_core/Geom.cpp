@@ -1085,6 +1085,11 @@ void Geom::Update( bool fullupdate )
     if ( m_XFormDirty || m_SurfDirty )
     {
         UpdateSymmAttach();  // Needs to happen for both XForm and Surf updates.
+
+        // More aggressive optimization could eliminate this call, but at the complexity
+        // of a lazy update any time m_SurfVec is accessed.  At this point, the speed
+        // does not appear to be worth the complexity.  Typical worst case for this call
+        // is 0.1 sec.  Typical cost is two orders smaller.
         UpdateSurfVec();
     }
 
