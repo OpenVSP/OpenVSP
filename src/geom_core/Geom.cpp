@@ -3442,21 +3442,21 @@ Material * Geom::GetMaterial()
 // required degen plate,surface, and subsurface for updating the preview DrawObj vectors
 void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
 {
-    CreateDegenGeom( m_SurfVec, dgs, preview );
+    CreateDegenGeom( m_SurfVec, GetNumTotalSurfs(), dgs, preview );
 }
 
 void Geom::CreateMainDegenGeom( vector<DegenGeom> &dgs, bool preview )
 {
-    CreateDegenGeom( m_MainSurfVec, dgs, preview );
+    CreateDegenGeom( m_MainSurfVec, GetNumMainSurfs(),dgs, preview );
 }
 
-void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, vector<DegenGeom> &dgs, bool preview )
+void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, const int &nsurf, vector<DegenGeom> &dgs, bool preview )
 {
     vector< vector< vec3d > > pnts;
     vector< vector< vec3d > > nrms;
     vector< vector< vec3d > > uwpnts;
 
-    for ( int i = 0 ; i < surf_vec.size() ; i++ )
+    for ( int i = 0 ; i < nsurf ; i++ )
     {
         bool urootcap = false;
 
