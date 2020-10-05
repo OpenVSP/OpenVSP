@@ -1168,7 +1168,6 @@ void Geom::GetUWTess01( int indx, vector < double > &u, vector < double > &w )
     }
 }
 
-// CreateDegenGeom
 // CreateTMeshVec
 // GetUWTess01 -- exposed to API
 void Geom::UpdateTesselate( int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
@@ -1196,6 +1195,7 @@ void Geom::UpdateSplitTesselate( int indx, vector< vector< vector< vec3d > > > &
 }
 
 // UpdateTesselate
+// CreateDegenGeom
 void Geom::UpdateTesselate( vector<VspSurf> &surf_vec, int indx, vector< vector< vec3d > > &pnts, vector< vector< vec3d > > &norms,
                             vector< vector< vec3d > > &uw_pnts, bool degen )
 {
@@ -3433,14 +3433,19 @@ Material * Geom::GetMaterial()
 // required degen plate,surface, and subsurface for updating the preview DrawObj vectors
 void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
 {
+    vector<VspSurf> surf_vec;
+    GetSurfVec( surf_vec );
+
+    CreateDegenGeom( surf_vec, dgs, preview );
+}
+
+void Geom::CreateDegenGeom( vector <VspSurf> &surf_vec, vector<DegenGeom> &dgs, bool preview )
+{
     vector< vector< vec3d > > pnts;
     vector< vector< vec3d > > nrms;
     vector< vector< vec3d > > uwpnts;
 
-    vector<VspSurf> surf_vec;
-    GetSurfVec( surf_vec );
-
-    for ( int i = 0 ; i < GetNumTotalSurfs() ; i++ )
+    for ( int i = 0 ; i < surf_vec.size() ; i++ )
     {
         bool urootcap = false;
 
@@ -3456,20 +3461,20 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
         }
 
         //==== Tesselate Surface ====//
-        UpdateTesselate( i, pnts, nrms, uwpnts, true );
+        UpdateTesselate( surf_vec, i, pnts, nrms, uwpnts, true );
         surf_vec[i].ResetUSkip();
 
         int surftype = DegenGeom::BODY_TYPE;
-        if( GetSurfType(i) == vsp::WING_SURF || GetSurfType(i) == vsp::PROP_SURF )
+        if( surf_vec[i].GetSurfType() == vsp::WING_SURF || surf_vec[i].GetSurfType() == vsp::PROP_SURF )
         {
             surftype = DegenGeom::SURFACE_TYPE;
         }
-        else if( GetSurfType(i) == vsp::DISK_SURF )
+        else if( surf_vec[i].GetSurfType() == vsp::DISK_SURF )
         {
             surftype = DegenGeom::DISK_TYPE;
         }
 
-        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview, GetFlipNormal(i), surftype, surf_vec[i].GetSurfCfdType(), surf_vec[i].GetFoilSurf() );
+        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview, surf_vec[i].GetFlipNormal(), surftype, surf_vec[i].GetSurfCfdType(), surf_vec[i].GetFoilSurf() );
     }
 }
 
