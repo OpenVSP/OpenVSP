@@ -1111,6 +1111,7 @@ void Geom::Update( bool fullupdate )
     if ( m_XFormDirty || m_SurfDirty || m_TessDirty )
     {
         UpdateTessVec();
+        UpdateDegenGeomPreview();
     }
 
     if ( m_XFormDirty || m_SurfDirty )
@@ -2221,19 +2222,15 @@ void Geom::UpdateDrawObj()
 
 void Geom::UpdateDegenDrawObj()
 {
-    //=== DegenGeom ===//
-    vector< DegenGeom > DegenGeomVec; // Vector of geom in degenerate representation
-    CreateDegenGeom( DegenGeomVec, true );
-
     m_DegenSurfDrawObj_vec.clear();
     m_DegenPlateDrawObj_vec.clear();
     m_DegenCamberPlateDrawObj_vec.clear();
     m_DegenSubSurfDrawObj_vec.clear();
 
-    for ( int i = 0; i < (int)DegenGeomVec.size(); i++ )
+    for ( int i = 0; i < (int)m_DegenGeomPreviewVec.size(); i++ )
     {
         //=== Degen Surface ===//
-        DegenSurface degen_surf = DegenGeomVec[i].getDegenSurf();
+        DegenSurface degen_surf = m_DegenGeomPreviewVec[i].getDegenSurf();
 
         DrawObj degen_surf_draw_obj;
         degen_surf_draw_obj.m_GeomChanged = true;
@@ -2268,7 +2265,7 @@ void Geom::UpdateDegenDrawObj()
         m_DegenSurfDrawObj_vec.push_back( degen_surf_draw_obj );
 
         //=== Degen Plate and Cambered Plate ===//
-        vector < DegenPlate > degen_plate_vec = DegenGeomVec[i].getDegenPlates();
+        vector < DegenPlate > degen_plate_vec = m_DegenGeomPreviewVec[i].getDegenPlates();
 
         for ( int j = 0; j < degen_plate_vec.size(); j++ )
         {
@@ -2373,7 +2370,7 @@ void Geom::UpdateDegenDrawObj()
         }
 
         //=== Degen SubSurface ===//
-        vector < DegenSubSurf > degen_subsurf_vec = DegenGeomVec[i].getDegenSubSurfs();
+        vector < DegenSubSurf > degen_subsurf_vec = m_DegenGeomPreviewVec[i].getDegenSubSurfs();
 
         for ( int j = 0; j < degen_subsurf_vec.size(); j++ )
         {
@@ -2584,6 +2581,12 @@ void Geom::UpdateTessVec()
 {
     ApplySymm( m_MainTessVec, m_TessVec );
     ApplySymm( m_MainFeatureTessVec, m_FeatureTessVec );
+}
+
+void Geom::UpdateDegenGeomPreview()
+{
+    m_DegenGeomPreviewVec.clear();
+    CreateDegenGeom( m_DegenGeomPreviewVec, true );
 }
 
 //==== Encode Data Into XML Data Struct ====//
