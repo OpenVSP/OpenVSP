@@ -331,6 +331,12 @@ public:
 
     void createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec );
 
+    bool GetFlipNormal() const { return flip_normal; }
+    void FlipNormal() { flip_normal = !flip_normal; }
+    void ResetFlipNormal( ) { flip_normal = false; }
+
+    void Transform( const Matrix4d & mat );
+
 protected:
 
     DegenSurface degenSurface;
