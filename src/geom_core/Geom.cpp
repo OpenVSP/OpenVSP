@@ -1105,6 +1105,7 @@ void Geom::Update( bool fullupdate )
     if ( m_SurfDirty || m_TessDirty )
     {
         UpdateMainTessVec();
+        UpdateMainDegenGeomPreview();
     }
 
     // Copy Tessellation for symmetry and XForm
@@ -2583,10 +2584,15 @@ void Geom::UpdateTessVec()
     ApplySymm( m_MainFeatureTessVec, m_FeatureTessVec );
 }
 
+void Geom::UpdateMainDegenGeomPreview()
+{
+    m_MainDegenGeomPreviewVec.clear();
+    CreateMainDegenGeom( m_MainDegenGeomPreviewVec, true );
+}
+
 void Geom::UpdateDegenGeomPreview()
 {
-    m_DegenGeomPreviewVec.clear();
-    CreateDegenGeom( m_DegenGeomPreviewVec, true );
+    ApplySymm( m_MainDegenGeomPreviewVec, m_DegenGeomPreviewVec );
 }
 
 //==== Encode Data Into XML Data Struct ====//
