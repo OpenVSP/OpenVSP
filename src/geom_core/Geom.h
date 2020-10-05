@@ -200,6 +200,7 @@ public:
     virtual void SetParentID( const string &id )
     {
         m_ParentID = id ;
+        m_XFormDirty = true;
     }
     virtual string GetParentID()
     {
