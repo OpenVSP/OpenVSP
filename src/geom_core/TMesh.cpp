@@ -2467,12 +2467,6 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
     }
     else
     {
-        int coplanarFlag = 0; // Must be initialized to 0 before use in tri_tri_intersection_test_3d
-        vec3d e0;
-        vec3d e1;
-
-        int iCnt = 0;
-
         for ( i = 0 ; i < ( int )m_TriVec.size() ; i++ )
         {
             TTri* t0 = m_TriVec[i];
@@ -2480,12 +2474,15 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
             {
                 TTri* t1 = iBox->m_TriVec[j];
 
+                int coplanarFlag = 0; // Must be initialized to 0 before use in tri_tri_intersection_test_3d
+                vec3d e0;
+                vec3d e1;
+
                 int iflag = tri_tri_intersection_test_3d(
                                 t0->m_N0->m_Pnt.v, t0->m_N1->m_Pnt.v, t0->m_N2->m_Pnt.v,
                                 t1->m_N0->m_Pnt.v, t1->m_N1->m_Pnt.v, t1->m_N2->m_Pnt.v,
                                 &coplanarFlag, e0.v, e1.v );
 
-                iCnt += iflag;
                 if ( iflag && !coplanarFlag )
                 {
                     if ( UWFlag )
@@ -2547,32 +2544,22 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                     }
                     else
                     {
-                        TEdge* ie0 = new TEdge();
-                        ie0->m_N0 = new TNode();
-                        ie0->m_N0->m_Pnt = e0;
-                        ie0->m_N1 = new TNode();
-                        ie0->m_N1->m_Pnt = e1;
-
-                        TEdge* ie1 = new TEdge();
-                        ie1->m_N0 = new TNode();
-                        ie1->m_N0->m_Pnt = e0;
-                        ie1->m_N1 = new TNode();
-                        ie1->m_N1->m_Pnt = e1;
-
-
                         if ( dist( e0, e1 ) > tol )
                         {
+                            TEdge* ie0 = new TEdge();
+                            ie0->m_N0 = new TNode();
+                            ie0->m_N0->m_Pnt = e0;
+                            ie0->m_N1 = new TNode();
+                            ie0->m_N1->m_Pnt = e1;
+
+                            TEdge* ie1 = new TEdge();
+                            ie1->m_N0 = new TNode();
+                            ie1->m_N0->m_Pnt = e0;
+                            ie1->m_N1 = new TNode();
+                            ie1->m_N1->m_Pnt = e1;
+
                             t0->m_ISectEdgeVec.push_back( ie0 );
                             t1->m_ISectEdgeVec.push_back( ie1 );
-                        }
-                        else
-                        {
-                            delete ie0->m_N0;
-                            delete ie0->m_N1;
-                            delete ie1->m_N0;
-                            delete ie1->m_N1;
-                            delete ie0;
-                            delete ie1;
                         }
                     }
                 }
