@@ -694,7 +694,7 @@ protected:
     virtual void UpdateBBox();
     virtual void UpdateDrawObj();
 
-    virtual void UpdateMainTessVec();
+    virtual void UpdateMainTessVec( bool firstonly = false );
     virtual void UpdateTessVec();
 
     virtual void UpdateMainDegenGeomPreview();

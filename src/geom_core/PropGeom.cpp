@@ -1205,6 +1205,27 @@ void PropGeom::UpdateSurf()
     }
 }
 
+void PropGeom::UpdateMainTessVec()
+{
+    Geom::UpdateMainTessVec( true );
+
+    int nmain = GetNumMainSurfs();
+
+    m_MainTessVec.resize( nmain, m_MainTessVec[0] );
+    m_MainFeatureTessVec.resize( nmain, m_MainFeatureTessVec[0] );
+
+    Matrix4d rot;
+    for ( int i = 1; i < m_Nblade(); i++ )
+    {
+        double theta = 360.0 * i / ( double )m_Nblade();
+        rot.loadIdentity();
+        rot.rotateX( theta );
+
+        m_MainTessVec[i].Transform( rot );
+        m_MainFeatureTessVec[i].Transform( rot );
+    }
+}
+
 void PropGeom::CalculateMeshMetrics( const vector < double > &u_pseudo  )
 {
     std::vector<double> vcheck( 8 );

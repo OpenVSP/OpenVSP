@@ -220,6 +220,7 @@ protected:
     virtual void ChangeID( string id );
 
     virtual void UpdateSurf();
+    virtual void UpdateMainTessVec();
 
     virtual void EnforceOrder( PropXSec* xs, int indx );
     virtual void EnforcePCurveOrder( double rfirst, double rlast );
