@@ -48,6 +48,7 @@ script:
      cmake -DVSP_LIBRARY_PATH=$TRAVIS_BUILD_DIR/buildlibs -DCXX_OMP_COMPILER=/usr/local/bin/g++-9 -DC_OMP_COMPILER=/usr/local/bin/gcc-9 -DCMAKE_C_COMPILER=/usr/local/opt/llvm@7/bin/clang -DCMAKE_CXX_COMPILER=/usr/local/opt/llvm@7/bin/clang++ -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX="~/OpenVSP_Install" ../src;
      make -j2 package;
      ZIPFILE=${TRAVIS_BUILD_DIR}/build/OpenVSP-*-MacOS.zip;
+     VSPVER=$(ls $ZIPFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
      DEPLOY_FILE=${TRAVIS_BUILD_DIR}/build/OpenVSP-${VSPVER}-MacOS_${TRAVIS_COMMIT}.zip;
      cp $ZIPFILE $DEPLOY_FILE;
      ls $DEPLOY_FILE && (echo "ZIP CREATION SUCCESSFUL" && exit 0) || (echo "ZIP CREATION FAILED" && exit 1);
@@ -61,6 +62,7 @@ script:
      cmake -DCMAKE_BUILD_TYPE=Release -DVSP_CPACK_GEN=DEB -DVSP_LIBRARY_PATH=$TRAVIS_BUILD_DIR/buildlibs ../src;
      make -j2 package;
      DEBFILE=${TRAVIS_BUILD_DIR}/build/OpenVSP-*-Linux.deb;
+     VSPVER=$(ls $DEBFILE | awk 'BEGIN { FS = "-" } ; { print $2 }')
      DEPLOY_FILE=${TRAVIS_BUILD_DIR}/build/OpenVSP-${VSPVER}-Ubuntu-${UVER}_amd64_${TRAVIS_COMMIT}.deb;
      cp $DEBFILE $DEPLOY_FILE;
      ls $DEPLOY_FILE && (echo "DEB CREATION SUCCESSFUL" && exit 0) || (echo "DEB CREATION FAILED" && exit 1);
