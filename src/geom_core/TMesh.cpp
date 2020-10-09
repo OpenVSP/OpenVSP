@@ -1567,20 +1567,17 @@ void TTri::SplitTri()
     //==== Load All Possible Nodes to Add ====//
     vector< vec3d > pVec;               // Pnts to be added
     vector< vec3d > uwVec;
+    pVec.resize( m_ISectEdgeVec.size() * 2 );
     uwVec.resize( m_ISectEdgeVec.size() * 2 );
-    vector< int > matchNodeIndex;       // Nodes Index Which Correspond to pVec
     for ( i = 0 ; i < ( int )m_ISectEdgeVec.size() ; i++ )
     {
-        pVec.push_back( m_ISectEdgeVec[i]->m_N0->GetXYZPnt() );
-        pVec.push_back( m_ISectEdgeVec[i]->m_N1->GetXYZPnt() );
+        pVec[i * 2] = m_ISectEdgeVec[i]->m_N0->GetXYZPnt();
+        pVec[i * 2 + 1] = m_ISectEdgeVec[i]->m_N1->GetXYZPnt();
         uwVec[i * 2] =  m_ISectEdgeVec[i]->m_N0->GetUWPnt();
         uwVec[i * 2 + 1] =  m_ISectEdgeVec[i]->m_N1->GetUWPnt();
     }
-    matchNodeIndex.resize( pVec.size() );
-    for ( i = 0 ; i < ( int )matchNodeIndex.size() ; i++ )
-    {
-        matchNodeIndex[i] = -1;
-    }
+    vector< int > matchNodeIndex;       // Nodes Index Which Correspond to pVec
+    matchNodeIndex.resize( pVec.size(), -1 );
 
     //==== Add Edge Nodes ====//
     for ( i = 0 ; i < ( int )pVec.size() ; i++ )
