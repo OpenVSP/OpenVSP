@@ -25,6 +25,7 @@
 #include "Geom.h"
 #include "SubSurfaceMgr.h"
 #include "PntNodeMerge.h"
+#include "VspCurve.h" // for #define TMAGIC
 
 #include <math.h>
 
@@ -38,6 +39,7 @@ TNode::TNode()
     m_IsectFlag = 0;
     m_XYZFlag = true; // true if xyz
     m_CoordInfo = HAS_UNKNOWN;
+    m_UWPnt = vec3d( -1, -1, 0 );
 }
 
 TNode::~TNode()
@@ -152,6 +154,16 @@ TMesh* TEdge::GetParTMesh()
         return NULL;
     }
     return GetParTri()->GetTMeshPtr();
+}
+
+void TEdge::SortNodesByU()
+{
+    if ( m_N1->m_UWPnt.x() < m_N0->m_UWPnt.x() )
+    {
+        TNode * ntmp = m_N1;
+        m_N1 = m_N0;
+        m_N0 = ntmp;
+    }
 }
 
 //=======================================================================//
@@ -416,6 +428,10 @@ void TMesh::copy( TMesh* m )
         tri->m_N1->m_Pnt = m->m_TVec[i]->m_N1->m_Pnt;
         tri->m_N2->m_Pnt = m->m_TVec[i]->m_N2->m_Pnt;
 
+        tri->m_N0->m_UWPnt = m->m_TVec[i]->m_N0->m_UWPnt;
+        tri->m_N1->m_UWPnt = m->m_TVec[i]->m_N1->m_UWPnt;
+        tri->m_N2->m_UWPnt = m->m_TVec[i]->m_N2->m_UWPnt;
+
         m_TVec.push_back( tri );
         m_NVec.push_back( tri->m_N0 );
         m_NVec.push_back( tri->m_N1 );
@@ -476,6 +492,8 @@ void TMesh::CopyAttributes( TMesh* m )
     m_ShellMassArea = m->m_ShellMassArea;
 
     m_DragFactors = m->m_DragFactors;
+
+    m_SurfType = m->m_SurfType;
 
     m_UWPnts = m->m_UWPnts;
     m_XYZPnts = m->m_XYZPnts;
@@ -1072,6 +1090,7 @@ double TMesh::ComputeTrimVol()
     return trimVol;
 }
 
+// Wrapper
 void TMesh::AddTri( const vec3d & p0, const vec3d & p1, const vec3d & p2 )
 {
     double dist_tol = 1.0e-12;
@@ -1091,6 +1110,7 @@ void TMesh::AddTri( const vec3d & p0, const vec3d & p1, const vec3d & p2 )
     AddTri( p0, p1, p2, norm );
 }
 
+// Base.  i.e. does m_TVec.push_back()
 void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm )
 {
     // Use For XYZ Tri
@@ -1116,6 +1136,7 @@ void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const 
     m_NVec.push_back( ttri->m_N2 );
 }
 
+// Base
 void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm )
 {
     TTri* ttri = new TTri();
@@ -1152,6 +1173,7 @@ void TMesh::AddTri( TNode* node0, TNode* node1, TNode* node2, const vec3d & norm
 
 }
 
+// Wrapper
 void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const vec3d & norm, const vec3d & uw0,
                     const vec3d & uw1, const vec3d & uw2 )
 {
@@ -1167,6 +1189,7 @@ void TMesh::AddTri( const vec3d & v0, const vec3d & v1, const vec3d & v2, const 
     tri->m_N2->SetCoordInfo( TNode::HAS_XYZ | TNode::HAS_UW );
 }
 
+// Base
 void TMesh::AddTri( const TTri* tri)
 {
     // Copys and existing triangle and pushes back into the existing
@@ -1426,6 +1449,24 @@ vec3d TTri::CompPnt( const vec3d & uw_pnt )
     }
 
     return vec3d();
+}
+
+vec3d TTri::CompUW( const vec3d & pnt )
+{
+    if ( m_TMesh )  // Do interpolation based on original regular grid
+    {
+        int start_u, start_v;
+        vec3d center = ComputeCenterUW();
+
+        m_TMesh->FindIJ( center, start_u, start_v );
+
+        return m_TMesh->CompUW( pnt, start_u, start_v );
+    }
+
+    vec3d w = BarycentricWeights( m_N0->m_Pnt, m_N1->m_Pnt, m_N2->m_Pnt, pnt );
+    vec3d uw = w.v[0] * m_N0->m_UWPnt + w.v[1] * m_N1->m_UWPnt + w.v[2] * m_N2->m_UWPnt;
+
+    return uw;
 }
 
 bool TTri::ShareEdge( TTri* t )
@@ -1793,8 +1834,7 @@ void TTri::SplitTri()
                             }
                             else
                             {
-                                vec3d weights = BarycentricWeights( m_N0->GetXYZPnt(), m_N1->GetXYZPnt(), m_N2->GetXYZPnt(), crossing_node );
-                                vec3d cn_uw = m_N0->GetUWPnt() * weights[0] + m_N1->GetUWPnt() * weights[1] + m_N2->GetUWPnt() * weights[2];
+                                vec3d cn_uw = CompUW( crossing_node );
                                 sn->SetUWPnt( cn_uw );
                                 sn->SetXYZPnt( crossing_node );
                             }
@@ -2212,8 +2252,30 @@ void TTri::SplitEdges( TNode* n01, TNode* n12, TNode* n20 )
 
 }
 
+int TTri::WakeEdge()
+{
+    int type = GetTMeshPtr()->m_SurfType;
+    if ( type == vsp::WING_SURF || type == vsp::PROP_SURF )
+    {
+        bool n0 = m_N0->m_UWPnt.y() == TMAGIC;
+        bool n1 = m_N1->m_UWPnt.y() == TMAGIC;
+        bool n2 = m_N2->m_UWPnt.y() == TMAGIC;
 
-
+        if ( n0 && n1 )
+        {
+            return 1;
+        }
+        else if ( n1 && n2 )
+        {
+            return 2;
+        }
+        else if ( n2 && n0 )
+        {
+            return 3;
+        }
+    }
+    return 0;
+}
 
 
 
@@ -2544,16 +2606,25 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
                         if ( dist( e0, e1 ) > tol )
                         {
                             TEdge* ie0 = new TEdge();
+                            int info = TNode::HAS_UW | TNode::HAS_XYZ;
                             ie0->m_N0 = new TNode();
                             ie0->m_N0->m_Pnt = e0;
+                            ie0->m_N0->m_UWPnt = t0->CompUW( e0 );
+                            ie0->m_N0->SetCoordInfo( info );
                             ie0->m_N1 = new TNode();
                             ie0->m_N1->m_Pnt = e1;
+                            ie0->m_N1->m_UWPnt = t0->CompUW( e1 );
+                            ie0->m_N1->SetCoordInfo( info );
 
                             TEdge* ie1 = new TEdge();
                             ie1->m_N0 = new TNode();
                             ie1->m_N0->m_Pnt = e0;
+                            ie1->m_N0->m_UWPnt = t1->CompUW( e0 );
+                            ie1->m_N0->SetCoordInfo( info );
                             ie1->m_N1 = new TNode();
                             ie1->m_N1->m_Pnt = e1;
+                            ie1->m_N1->m_UWPnt = t1->CompUW( e1 );
+                            ie1->m_N1->SetCoordInfo( info );
 
                             t0->m_ISectEdgeVec.push_back( ie0 );
                             t1->m_ISectEdgeVec.push_back( ie1 );
@@ -3911,4 +3982,32 @@ void TMesh::FindIJ( const vec3d & uw_pnt, int &start_u, int &start_v )
             break;
         }
     }
+}
+
+vec3d TMesh::CompUW( const vec3d & pnt, const int & start_u, const int & start_v )
+{
+    vec3d uw0;
+
+    uw0 = m_UWPnts[start_u][start_v];
+
+    double u0 = uw0.x();
+    double v0 = uw0.y();
+
+    double du = m_UWPnts[start_u + 1][start_v].x() - u0;
+    double dv = m_UWPnts[start_u][start_v + 1].y() - v0;
+
+    if ( du < .001 )
+        printf( "Small du! %g\n", du );
+
+    if ( dv < .001 )
+        printf( "Small dv! %g\n", dv );
+
+
+    vec2d uw_01 = MapToPlane( pnt, m_XYZPnts[start_u][start_v],
+       m_XYZPnts[start_u + 1][start_v] - m_XYZPnts[start_u][start_v],
+       m_XYZPnts[start_u][start_v + 1] - m_XYZPnts[start_u][start_v]);
+
+    vec3d uw = vec3d( u0 + uw_01.x() * du, v0 + uw_01.y() * dv, 0 );
+
+    return uw;
 }

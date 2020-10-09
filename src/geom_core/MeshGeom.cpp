@@ -813,6 +813,20 @@ void MeshGeom::WriteOBJPnts( FILE* fp )
     }
 }
 
+void MeshGeom::WriteVSPGeomPnts( FILE* file_id )
+{
+    //==== Write Out Nodes ====//
+    vec3d v;
+    Matrix4d XFormMat = GetTotalTransMat();
+    for ( int i = 0 ; i < ( int )m_IndexedNodeVec.size() ; i++ )
+    {
+        TNode* tnode = m_IndexedNodeVec[i];
+        // Apply Transformations
+        v = XFormMat.xform( tnode->m_Pnt );
+        fprintf( file_id, "%16.10g %16.10g %16.10g\n", v.x(), v.y(), v.z() ); // , tnode->m_UWPnt.x(), tnode->m_UWPnt.y() );
+    }
+}
+
 int MeshGeom::WriteGMshNodes( FILE* fp, int node_offset )
 {
     vec3d v;
@@ -889,6 +903,21 @@ int MeshGeom::WriteOBJTris( FILE* fp, int off )
     }
 
     return ( off + m_IndexedNodeVec.size() );
+}
+
+int MeshGeom::WriteVSPGeomTris( FILE* file_id, int offset )
+{
+    //==== Write Out Tris ====//
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+    {
+        TTri* ttri = m_IndexedTriVec[t];
+        fprintf(file_id, "3 %d %d %d %f %f %f %f %f %f\n", ttri->m_N0->m_ID + 1 + offset, ttri->m_N1->m_ID + 1 + offset, ttri->m_N2->m_ID + 1 + offset,
+                ttri->m_N0->m_UWPnt.x(), ttri->m_N0->m_UWPnt.y(),
+                ttri->m_N1->m_UWPnt.x(), ttri->m_N1->m_UWPnt.y(),
+                ttri->m_N2->m_UWPnt.x(), ttri->m_N2->m_UWPnt.y() );
+    }
+
+    return ( offset + m_IndexedNodeVec.size() );
 }
 
 int MeshGeom::WriteGMshTris( FILE* fp, int node_offset, int tri_offset )
@@ -1006,6 +1035,62 @@ int MeshGeom::WriteCart3DParts( FILE* fp  )
         fprintf( fp, "%d \n",  tag );
     }
     return 0;
+}
+
+int MeshGeom::WriteVSPGeomParts( FILE* file_id  )
+{
+    //==== Write Component IDs for each Tri =====//
+    int tag;
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+    {
+        tag = SubSurfaceMgr.GetTag( m_IndexedTriVec[t]->m_Tags );
+
+        fprintf( file_id, "%d \n", tag );
+    }
+    return 0;
+}
+
+int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
+{
+    vector < TEdge > wakeedges;
+
+    for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
+    {
+        TTri *ttri = m_IndexedTriVec[t];
+        int we = ttri->WakeEdge();
+
+        if ( we > 0 )
+        {
+            printf("\n\nWake Edge\n");
+            printf("N0: %s  uw %s\n", to_string( ttri->m_N0->m_Pnt ). c_str(),to_string( ttri->m_N0->m_UWPnt ).c_str() );
+            printf("N1: %s  uw %s\n", to_string( ttri->m_N1->m_Pnt ). c_str(),to_string( ttri->m_N1->m_UWPnt ).c_str() );
+            printf("N2: %s  uw %s\n", to_string( ttri->m_N2->m_Pnt ). c_str(),to_string( ttri->m_N2->m_UWPnt ).c_str() );
+            if ( we == 1 )
+            {
+                wakeedges.push_back( TEdge( ttri->m_N0, ttri->m_N1, ttri ) );
+                wakeedges.back().SortNodesByU();
+            }
+            else if ( we == 2 )
+            {
+                wakeedges.push_back( TEdge( ttri->m_N1, ttri->m_N2, ttri ) );
+                wakeedges.back().SortNodesByU();
+            }
+            else
+            {
+                wakeedges.push_back( TEdge( ttri->m_N2, ttri->m_N0, ttri ) );
+                wakeedges.back().SortNodesByU();
+            }
+        }
+    }
+
+    int nwe = wakeedges.size();
+    fprintf(file_id, "%d\n", nwe );
+    for ( int i = 0; i < nwe; i++ )
+    {
+        fprintf( file_id, "%d %d\n", wakeedges[i].m_N0->m_ID + 1 + offset, wakeedges[i].m_N1->m_ID + 1 + offset );
+    }
+
+    return ( offset + m_IndexedNodeVec.size() );
 }
 
 void MeshGeom::WritePovRay( FILE* fid, int comp_num )

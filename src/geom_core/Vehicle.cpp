@@ -2332,9 +2332,144 @@ void Vehicle::WriteOBJFile( const string & file_name, int write_set )
     fclose( file_id );
 }
 
+/*
+nnode                        // Number of nodes
+x1 y1 z1 nx1 ny1 nz1 u1 v1   // position, normal, parametric UV coordinate and any other node-centered data desired
+x2...
+...
+xnnode...                    // last node
+nface                        // Number of faces (mostly tris, but support polygons)
+n1 i11 i12 i13... i1n        // number of points, index 1, 2, ... n for each face, right hand rule ordering for normals facing out.
+n2...
+...
+nnface...                    // Last polygon face
+t1                           // Tag number for face 1.  Also any other face-centered data that we desire to add.
+t2                           // Likely to include UV of polygon center
+...
+tnface                       // last tag and face-centered data
+ncoincident                  // Number of coincident point sets (could simplify to pairs only, but that might get messy)
+n1 i11 i12 i13...i1n         // Number of coincident points in set, index list of coincident points.
+n2...
+...
+nncoincident...              // last coincident set
+nwake                        // Number of wake lines
+n1 i11 i12 i13 i14 i15...i1n // Number of points in wake line, points in chain-order
+n2...
+...
+nnwake...                    // Last wake line
+*/
+
 //==== Write VSPGeom File ====//
 void Vehicle::WriteVSPGeomFile( const string &file_name, int write_set )
 {
+    vector< Geom * > geom_vec = FindGeomVec( GetGeomVec( false ) );
+    if ( !geom_vec[0] )
+    {
+        return;
+    }
+
+    // Add a new mesh if one does not exist
+    if ( !ExistMesh( write_set ) )
+    {
+        string mesh_id = AddMeshGeom( write_set );
+        if ( mesh_id.compare( "NONE" ) != 0 )
+        {
+            Geom *geom_ptr = FindGeom( mesh_id );
+            if ( geom_ptr )
+            {
+                MeshGeom *mg = dynamic_cast<MeshGeom *>( geom_ptr );
+                mg->SubTagTris( true );
+                geom_vec.push_back( geom_ptr );
+                geom_ptr->Update();
+            }
+            HideAllExcept( mesh_id );
+        }
+    }
+
+    //==== Open file ====//
+    FILE *file_id = fopen( file_name.c_str(), "w" );
+
+    if ( !file_id )
+    {
+        return;
+    }
+
+    //==== Count Number of Points & Tris ====//
+    int num_pnts = 0;
+    int num_tris = 0;
+    int num_parts = 0;
+    int i;
+
+    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) && geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+            mg->BuildIndexedMesh( num_parts );
+            num_parts += mg->GetNumIndexedParts();
+            num_pnts += mg->GetNumIndexedPnts();
+            num_tris += mg->GetNumIndexedTris();
+        }
+    }
+
+    fprintf( file_id, "%d\n", num_pnts );
+
+    //==== Dump Points ====//
+    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) &&
+             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+            mg->WriteVSPGeomPnts( file_id );
+        }
+    }
+
+    fprintf( file_id, "%d\n", num_tris );
+
+    int offset = 0;
+    //==== Dump Tris ====//
+    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) &&
+             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+            offset = mg->WriteVSPGeomTris( file_id, offset );
+        }
+    }
+
+    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) &&
+             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+            mg->WriteVSPGeomParts( file_id );
+        }
+    }
+
+    // Coincident point data.
+    fprintf( file_id, "%d\n", 0 );
+
+    offset = 0;
+    // Wake line data.
+    for ( i = 0; i < ( int ) geom_vec.size(); i++ )
+    {
+        if ( geom_vec[i]->GetSetFlag( write_set ) &&
+             geom_vec[i]->GetType().m_Type == MESH_GEOM_TYPE )
+        {
+            MeshGeom *mg = ( MeshGeom * ) geom_vec[i];            // Cast
+            offset = mg->WriteVSPGeomWakes( file_id, offset );
+        }
+    }
+
+    fclose( file_id );
+
+    //==== Write Out tag key file ====//
+
+    SubSurfaceMgr.WriteKeyFile( file_name );
+
 }
 
 

@@ -265,6 +265,8 @@ public:
     }
     virtual TMesh* GetParTMesh();
 
+    virtual void SortNodesByU();
+
 protected:
     TTri* m_ParTri; // Tri that edge is apart of
 
@@ -346,6 +348,9 @@ public:
 
     virtual int OnEdge( const vec3d & p, TEdge* e, double onEdgeTol, double * t = NULL );
     virtual vec3d CompPnt( const vec3d & uw_pnt );
+    virtual vec3d CompUW( const vec3d & pnt );
+
+    virtual int WakeEdge();
 
     int m_InteriorFlag;
     string m_ID;
@@ -502,8 +507,10 @@ public:
     virtual void MakeNodePntXYZ();
 
     virtual void SplitAliasEdges( TTri* orig_tri, TEdge* isect_edge );
+
     virtual vec3d CompPnt( const vec3d & uw_pnt );
     virtual void FindIJ( const vec3d & uw_pnt, int &start_u, int &start_v );
+    virtual vec3d CompUW( const vec3d & pnt, const int & start_u, const int & start_v );
 
     static void StressTest();
     static double Rand01();
@@ -512,6 +519,11 @@ public:
 
     bool m_HalfBoxFlag;
 
+    // Surface type of parent surface.
+    int m_SurfType;
+
+    // UW and XYZ points used in TMesh::CompPnt only.  This is called in Intersect and SplitTri when in UV mode.  This
+    // happens while intersecting subsurface curves.
     vector< vector<vec3d> > m_UWPnts;
     vector< vector<vec3d> > m_XYZPnts;
 
