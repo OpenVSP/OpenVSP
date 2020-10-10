@@ -911,10 +911,7 @@ int MeshGeom::WriteVSPGeomTris( FILE* file_id, int offset )
     for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
         TTri* ttri = m_IndexedTriVec[t];
-        fprintf(file_id, "3 %d %d %d %f %f %f %f %f %f\n", ttri->m_N0->m_ID + 1 + offset, ttri->m_N1->m_ID + 1 + offset, ttri->m_N2->m_ID + 1 + offset,
-                ttri->m_N0->m_UWPnt.x(), ttri->m_N0->m_UWPnt.y(),
-                ttri->m_N1->m_UWPnt.x(), ttri->m_N1->m_UWPnt.y(),
-                ttri->m_N2->m_UWPnt.x(), ttri->m_N2->m_UWPnt.y() );
+        fprintf(file_id, "3 %d %d %d\n", ttri->m_N0->m_ID + 1 + offset, ttri->m_N1->m_ID + 1 + offset, ttri->m_N2->m_ID + 1 + offset );
     }
 
     return ( offset + m_IndexedNodeVec.size() );
@@ -1043,9 +1040,13 @@ int MeshGeom::WriteVSPGeomParts( FILE* file_id  )
     int tag;
     for ( int t = 0 ; t < ( int )m_IndexedTriVec.size() ; t++ )
     {
-        tag = SubSurfaceMgr.GetTag( m_IndexedTriVec[t]->m_Tags );
+        TTri* ttri = m_IndexedTriVec[t];
+        tag = SubSurfaceMgr.GetTag( ttri->m_Tags );
 
-        fprintf( file_id, "%d \n", tag );
+        fprintf( file_id, "%d %f %f %f %f %f %f\n", tag,
+                 ttri->m_N0->m_UWPnt.x(), ttri->m_N0->m_UWPnt.y(),
+                 ttri->m_N1->m_UWPnt.x(), ttri->m_N1->m_UWPnt.y(),
+                 ttri->m_N2->m_UWPnt.x(), ttri->m_N2->m_UWPnt.y() );
     }
     return 0;
 }
