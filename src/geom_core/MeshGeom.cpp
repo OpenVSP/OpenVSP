@@ -1140,11 +1140,72 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
         }
     }
 
-    int nwe = wakeedges.size();
-    fprintf(file_id, "%d\n", nwe );
-    for ( int i = 0; i < nwe; i++ )
+    sort( wakeedges.begin(), wakeedges.end(), OrderWakeEdges );
+
+    vector < TEdge >::iterator it;
+    it = unique( wakeedges.begin(), wakeedges.end(), EqualWakeEdges );
+    wakeedges.resize( distance( wakeedges.begin(), it ) );
+
+    list < TEdge > wlist( wakeedges.begin(), wakeedges.end() );
+
+    vector < deque < TEdge > > wakes;
+    int iwake = 0;
+
+    while ( !wlist.empty() )
     {
-        fprintf( file_id, "%d %d\n", wakeedges[i].m_N0->m_ID + 1 + offset, wakeedges[i].m_N1->m_ID + 1 + offset );
+        list < TEdge >::iterator wit = wlist.begin();
+
+        iwake = wakes.size();
+        wakes.resize( iwake + 1 );
+        wakes[iwake].push_back( *wit );
+        wit = wlist.erase( wit );
+
+        while ( wit != wlist.end() )
+        {
+            if ( EqualWakeNodes( wakes[iwake].back().m_N1, (*wit).m_N0 ) )
+            {
+                wakes[iwake].push_back( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            else if ( EqualWakeNodes( wakes[iwake].begin()->m_N0, (*wit).m_N1 ) )
+            {
+                wakes[iwake].push_front( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            wit++;
+        }
+    }
+
+
+    int nwake = wakes.size();
+    fprintf( file_id, "%d\n", nwake );
+
+    for ( iwake = 0; iwake < nwake; iwake++ )
+    {
+        int iprt = 0;
+        int iwe;
+        int nwe = wakes[iwake].size();
+        fprintf( file_id, "%d ", nwe + 1 );
+        for ( iwe = 0; iwe < nwe; iwe++ )
+        {
+            fprintf( file_id, "%d", wakes[iwake][iwe].m_N0->m_ID + 1 + offset );
+
+            if ( iprt < 9 )
+            {
+                fprintf( file_id, " " );
+                iprt++;
+            }
+            else
+            {
+                fprintf( file_id, "\n" );
+                iprt = 0;
+            }
+        }
+        fprintf( file_id, "%d\n", wakes[iwake][iwe-1].m_N1->m_ID + 1 + offset );
     }
 
     return ( offset + m_IndexedNodeVec.size() );
