@@ -1118,10 +1118,6 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
 
         if ( we > 0 )
         {
-            printf("\n\nWake Edge\n");
-            printf("N0: %s  uw %s\n", to_string( ttri->m_N0->m_Pnt ). c_str(),to_string( ttri->m_N0->m_UWPnt ).c_str() );
-            printf("N1: %s  uw %s\n", to_string( ttri->m_N1->m_Pnt ). c_str(),to_string( ttri->m_N1->m_UWPnt ).c_str() );
-            printf("N2: %s  uw %s\n", to_string( ttri->m_N2->m_Pnt ). c_str(),to_string( ttri->m_N2->m_UWPnt ).c_str() );
             if ( we == 1 )
             {
                 wakeedges.push_back( TEdge( ttri->m_N0, ttri->m_N1, ttri ) );
