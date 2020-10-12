@@ -1051,6 +1051,62 @@ int MeshGeom::WriteVSPGeomParts( FILE* file_id  )
     return 0;
 }
 
+// Wake edges are created such that N0.u < N1.u.
+// This comparitor sorts first by sgn(N0.y), abs(N0.y), then N0.u and N1.u.
+bool OrderWakeEdges ( TEdge &a, TEdge &b )
+{
+    if ( sgn( a.m_N0->m_Pnt.y() ) < sgn( b.m_N0->m_Pnt.y() ) ) return true;
+    if ( sgn( b.m_N0->m_Pnt.y() ) < sgn( a.m_N0->m_Pnt.y() ) ) return false;
+
+    if ( abs( a.m_N0->m_Pnt.y() ) < abs( b.m_N0->m_Pnt.y() ) ) return true;
+    if ( abs( b.m_N0->m_Pnt.y() ) < abs( a.m_N0->m_Pnt.y() ) ) return false;
+
+    if ( a.m_N0->m_UWPnt.x() < b.m_N0->m_UWPnt.x() ) return true;
+    if ( b.m_N0->m_UWPnt.x() < a.m_N0->m_UWPnt.x() ) return false;
+
+    if ( a.m_N1->m_UWPnt.x() < b.m_N1->m_UWPnt.x() ) return true;
+    if ( b.m_N1->m_UWPnt.x() < a.m_N1->m_UWPnt.x() ) return false;
+
+    if ( a.m_N0->m_Pnt.x() < b.m_N0->m_Pnt.x() ) return true;
+    if ( b.m_N0->m_Pnt.x() < a.m_N0->m_Pnt.x() ) return false;
+
+    if ( a.m_N0->m_Pnt.z() < b.m_N0->m_Pnt.z() ) return true;
+    if ( b.m_N0->m_Pnt.z() < a.m_N0->m_Pnt.z() ) return false;
+
+    if ( sgn( a.m_N1->m_Pnt.y() ) < sgn( b.m_N1->m_Pnt.y() ) ) return true;
+    if ( sgn( b.m_N1->m_Pnt.y() ) < sgn( a.m_N1->m_Pnt.y() ) ) return false;
+
+    if ( abs( a.m_N1->m_Pnt.y() ) < abs( b.m_N1->m_Pnt.y() ) ) return true;
+    if ( abs( b.m_N1->m_Pnt.y() ) < abs( a.m_N1->m_Pnt.y() ) ) return false;
+
+    if ( a.m_N1->m_Pnt.x() < b.m_N1->m_Pnt.x() ) return true;
+    if ( b.m_N1->m_Pnt.x() < a.m_N1->m_Pnt.x() ) return false;
+
+    if ( a.m_N1->m_Pnt.z() < b.m_N1->m_Pnt.z() ) return true;
+    if ( b.m_N1->m_Pnt.z() < a.m_N1->m_Pnt.z() ) return false;
+
+    return false;
+}
+
+bool EqualWakeNodes ( TNode *a, TNode *b )
+{
+    if ( ( a->m_Pnt.y() == b->m_Pnt.y() )
+         && ( a->m_Pnt.x() == b->m_Pnt.x() )
+         && ( a->m_Pnt.z() == b->m_Pnt.z() )
+         && ( a->m_UWPnt.x() == b->m_UWPnt.x() )
+         && ( a->m_UWPnt.y() == b->m_UWPnt.y() ) ) return true;
+
+    return false;
+}
+
+bool EqualWakeEdges ( TEdge &a, TEdge &b )
+{
+    if ( EqualWakeNodes( a.m_N0, b.m_N0 )
+      && EqualWakeNodes( a.m_N1, b.m_N1 ) ) return true;
+
+    return false;
+}
+
 int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
 {
     vector < TEdge > wakeedges;
