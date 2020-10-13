@@ -1858,6 +1858,15 @@ FeaSpar::FeaSpar( const string& geomID, int type ) : FeaSlice( geomID, type )
 
     m_BndBoxTrimFlag.Init( "BndBoxTrimFlag", "FeaSpar", this, true, false, true );
     m_BndBoxTrimFlag.SetDescript( "Flag to Trim Spar to Bounding Box Instead of Wing Surface" );
+
+    m_UsePercentChord.Init( "UsePercentChord", "FeaSpar", this, false, false, true );
+    m_UsePercentChord.SetDescript( "Flag to Set Spar Rotation by Percent Chord" );
+
+    m_PercentRootChord.Init( "PercentRootChord", "FeaSpar", this, 0.5, 0.0, 1.0 );
+    m_PercentRootChord.SetDescript( "Starting Location of the Spar as Percentage of Root Chord" );
+
+    m_PercentTipChord.Init( "PercentTipChord", "FeaSpar", this, 0.5, 0.0, 1.0 );
+    m_PercentTipChord.SetDescript( "Starting Location of the Spar as Percentage of Tip Chord" );
 }
 
 void FeaSpar::Update()
@@ -1992,12 +2001,23 @@ void FeaSpar::ComputePlanarSurf()
         vec3d inside_edge_vec = min_lead_edge - min_trail_edge;
         double inside_edge_length = inside_edge_vec.mag();
         inside_edge_vec.normalize();
-        vec3d inside_edge_pnt = min_lead_edge - ( m_RelCenterLocation() * inside_edge_length ) * inside_edge_vec;
+        vec3d inside_edge_pnt;
 
         vec3d outside_edge_vec = max_lead_edge - max_trail_edge;
         double outside_edge_length = outside_edge_vec.mag();
         outside_edge_vec.normalize();
-        vec3d outside_edge_pnt = max_lead_edge - ( m_RelCenterLocation() * outside_edge_length ) * outside_edge_vec;
+        vec3d outside_edge_pnt;
+
+        if( m_UsePercentChord() )
+        {
+            inside_edge_pnt = min_lead_edge - ( m_PercentRootChord() * inside_edge_length ) * inside_edge_vec;
+            outside_edge_pnt = max_lead_edge - ( m_PercentTipChord() * outside_edge_length ) * outside_edge_vec;
+        }
+        else
+        {
+            inside_edge_pnt = min_lead_edge - ( m_RelCenterLocation() * inside_edge_length ) * inside_edge_vec;
+            outside_edge_pnt = max_lead_edge - ( m_RelCenterLocation() * outside_edge_length ) * outside_edge_vec;
+        }
 
         double length_spar_0 = dist( inside_edge_pnt, outside_edge_pnt ) / 2; // Initial spar half length
 
@@ -2055,7 +2075,71 @@ void FeaSpar::ComputePlanarSurf()
         normal_vec.normalize();
 
         double alpha_0 = ( PI / 2 ) - signed_angle( inner_edge_vec, center_to_outer_edge, normal_vec ); // Initial rotation
-        double theta = DEG_2_RAD * m_Theta(); // User defined angle converted to Rad
+        double theta;
+
+        if( m_UsePercentChord() )
+        {
+            theta = 0;
+
+            // Set center location and rotation from root/tip chord parameters
+            vec3d mid_lead_edge = orig_surf.CompPnt01( u_mid, V_leading_edge / V_max );
+            vec3d mid_trail_edge = orig_surf.CompPnt01( u_mid, 0.0 );
+
+            double rel_center = dist( center, mid_lead_edge ) / dist( mid_trail_edge, mid_lead_edge );
+
+            vec3d outside_edge_pnt_0 = max_lead_edge - ( rel_center  * outside_edge_length ) * outside_edge_vec;
+
+            vec3d center_to_outer_pnt = outside_edge_pnt_0 - center;
+            center_to_outer_pnt.normalize();
+
+            double alpha_f = signed_angle( inner_edge_vec, center_to_outer_pnt, normal_vec );
+
+            m_Theta.Set( -1 * ( RAD_2_DEG * ( ( PI / 2 ) - alpha_f - alpha_0 ) ) );
+
+            if( m_AbsRelParmFlag() == vsp::REL )
+            {
+                m_RelCenterLocation.Set( rel_center );
+            }
+            else
+            {
+                m_AbsCenterLocation.Set( dist( center, mid_lead_edge ) );
+            }
+        }
+        else
+        {
+            theta = DEG_2_RAD * m_Theta(); // User defined angle converted to Rad
+
+            vec3d mid_lead_edge = orig_surf.CompPnt01( u_mid, V_leading_edge / V_max );
+            vec3d mid_trail_edge = orig_surf.CompPnt01( u_mid, 0.0 );
+            double rel_center = dist( center, mid_lead_edge ) / dist( mid_trail_edge, mid_lead_edge );
+
+            vec3d center_to_out_edge_vec = ( outside_edge_pnt - center );
+            center_to_out_edge_vec.normalize();
+
+            center_to_out_edge_vec = RotateArbAxis( center_to_out_edge_vec, -1 * theta, normal_vec );
+
+            // Perform line line intersection. The lines do not need to intersect but must be coplanar. 
+            // 0 <= t <= 1 means the spar intersects between the input edge endpoints
+            vec3d spar_end_max = center + center_to_out_edge_vec;
+            vec3d spar_end_min = center - center_to_out_edge_vec;
+
+            double t_tip, t_root, s; // ignore s (percent spar intersection point), only need percent edge intersection
+            bool tip_coplanar = line_line_intersect( center, spar_end_max, max_lead_edge, max_trail_edge, &s, &t_tip );
+            bool root_coplanar = line_line_intersect( center, spar_end_min, min_lead_edge, min_trail_edge, &s, &t_root );
+
+            if ( tip_coplanar && root_coplanar )
+            {
+                // No need to clamp between 0 and 1, when SetValCheckLimits is called
+                m_PercentTipChord.Set( t_tip );
+                m_PercentRootChord.Set( t_root );
+            }
+            else
+            {
+                printf( "ERROR: Non-coplanar FEA Spar Intersection \n" );
+                m_PercentTipChord.Set( 0 );
+                m_PercentRootChord.Set( 0 );
+            }
+        }
 
         if ( m_BndBoxTrimFlag() )
         {

@@ -288,6 +288,9 @@ public:
     IntParm m_StartWingSection;
     IntParm m_EndWingSection;
     BoolParm m_BndBoxTrimFlag;
+    BoolParm m_UsePercentChord;
+    Parm m_PercentRootChord;
+    Parm m_PercentTipChord;
 
 private:
 

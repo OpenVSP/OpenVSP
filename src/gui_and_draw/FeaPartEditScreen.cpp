@@ -304,6 +304,14 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SparPosTypeToggleGroup.AddButton( m_SparPosRelToggle.GetFlButton() );
 
     m_SparEditLayout.ForceNewLine();
+    m_SparEditLayout.SetSameLineFlag( false );
+    m_SparEditLayout.SetFitWidthFlag( true );
+
+    m_SparEditLayout.AddButton( m_SparSetPerChordToggle, "Parameterize by Chord" );
+
+    m_SparEditLayout.AddYGap();
+    m_SparEditLayout.SetSameLineFlag( true );
+    m_SparEditLayout.SetFitWidthFlag( false );
 
     m_SparEditLayout.SetSliderWidth( m_SparEditLayout.GetRemainX() / 5 );
     m_SparEditLayout.SetInputWidth( input_width );
@@ -316,15 +324,17 @@ FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 
     m_SparPosUnit.GetFlButton()->labelcolor( FL_BLACK );
 
     m_SparEditLayout.ForceNewLine();
-    m_SparEditLayout.AddYGap();
-
-    m_SparEditLayout.InitWidthHeightVals();
     m_SparEditLayout.SetSameLineFlag( false );
     m_SparEditLayout.SetFitWidthFlag( true );
 
     m_SparEditLayout.SetButtonWidth( m_SparEditLayout.GetRemainX() / 3 );
 
     m_SparEditLayout.AddSlider( m_SparThetaSlider, "Rotation", 25, "%5.3f" );
+
+    m_SparEditLayout.AddYGap();
+
+    m_SparEditLayout.AddSlider( m_SparRootChordSlider, "Root X/C", 0.5, "%5.3f" );
+    m_SparEditLayout.AddSlider( m_SparTipChordSlider, "Tip X/C", 0.5, "%5.3f" );
 
     m_SparEditLayout.AddYGap();
 
@@ -1378,19 +1388,6 @@ bool FeaPartEditScreen::Update()
 
                         m_SparPosTypeToggleGroup.Update( spar->m_AbsRelParmFlag.GetID() );
 
-                        if ( spar->m_AbsRelParmFlag() == vsp::REL )
-                        {
-                            spar->m_RelCenterLocation.Activate();
-                            spar->m_AbsCenterLocation.Deactivate();
-                            m_SparPosSlider.Update( 1, spar->m_RelCenterLocation.GetID(), spar->m_AbsCenterLocation.GetID() );
-                        }
-                        else
-                        {
-                            spar->m_RelCenterLocation.Deactivate();
-                            spar->m_AbsCenterLocation.Activate();
-                            m_SparPosSlider.Update( 2, spar->m_RelCenterLocation.GetID(), spar->m_AbsCenterLocation.GetID() );
-                        }
-
                         m_SparSectionLimitToggle.Update( spar->m_LimitSparToSectionFlag.GetID() );
                         m_SparStartSectIndexSelector.Update( spar->m_StartWingSection.GetID() );
                         m_SparEndSectIndexSelector.Update( spar->m_EndWingSection.GetID() );
@@ -1406,7 +1403,45 @@ bool FeaPartEditScreen::Update()
                             m_SparEndSectIndexSelector.Deactivate();
                         }
 
+                        m_SparSetPerChordToggle.Update( spar->m_UsePercentChord.GetID() );
+                        m_SparRootChordSlider.Update( spar->m_PercentRootChord.GetID() );
+                        m_SparTipChordSlider.Update( spar->m_PercentTipChord.GetID() );
                         m_SparThetaSlider.Update( spar->m_Theta.GetID() );
+
+                        if( spar->m_UsePercentChord() )
+                        {
+                            m_SparPosSlider.Deactivate();
+                            m_SparThetaSlider.Deactivate();
+                            m_SparRootChordSlider.Activate();
+                            m_SparTipChordSlider.Activate();
+                        }
+                        else
+                        {
+                            m_SparPosSlider.Activate();
+                            m_SparThetaSlider.Activate();
+                            m_SparRootChordSlider.Deactivate();
+                            m_SparTipChordSlider.Deactivate();
+                        }
+
+                        if ( spar->m_AbsRelParmFlag() == vsp::REL )
+                        {
+                            if ( !spar->m_UsePercentChord() )
+                            {
+                                spar->m_RelCenterLocation.Activate();
+                            }
+                            spar->m_AbsCenterLocation.Deactivate();
+                            m_SparPosSlider.Update( 1, spar->m_RelCenterLocation.GetID(), spar->m_AbsCenterLocation.GetID() );
+                        }
+                        else
+                        {
+                            spar->m_RelCenterLocation.Deactivate();
+                            if ( !spar->m_UsePercentChord() )
+                            {
+                                spar->m_AbsCenterLocation.Activate();
+                            }
+                            m_SparPosSlider.Update( 2, spar->m_RelCenterLocation.GetID(), spar->m_AbsCenterLocation.GetID() );
+                        }
+
                         m_SparTrimToBBoxToggle.Update( spar->m_BndBoxTrimFlag.GetID() );
                         m_SparShellCapToggleGroup.Update( spar->m_IncludedElements.GetID() );
 

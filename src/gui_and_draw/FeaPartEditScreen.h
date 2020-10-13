@@ -112,6 +112,9 @@ private:
     ToggleButton m_SparPosAbsToggle;
     ToggleRadioGroup m_SparPosTypeToggleGroup;
     SliderAdjRange2Input m_SparPosSlider;
+    ToggleButton m_SparSetPerChordToggle;
+    SliderAdjRangeInput m_SparRootChordSlider;
+    SliderAdjRangeInput m_SparTipChordSlider;
     TriggerButton m_SparPosUnit;
     ToggleButton m_SparSectionLimitToggle;
     IndexSelector m_SparStartSectIndexSelector;
