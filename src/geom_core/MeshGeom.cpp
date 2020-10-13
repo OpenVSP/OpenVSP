@@ -1819,24 +1819,31 @@ void MeshGeom::TransformMeshVec( vector<TMesh*> & meshVec, Matrix4d & TransMat )
     }
 }
 
-void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
+void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int halfFlag, int intSubsFlag )
 {
     int i, j;
-
-    //FILE* fid = fopen(txtfn.c_str(), "w");
 
     //==== Check For Open Meshes and Merge or Delete Them ====//
     MeshInfo info;
 
+    // This call is made later (after subsurface intersection) for the !degen case.
+    // Perhaps this can be moved down there to match.
+    if ( degen )
+    {
+        MergeRemoveOpenMeshes( &info );
+    }
 
-    //==== Count Tris ====//
     int numTris = 0;
+    if ( !degen )
+    {
+    //==== Count Tris ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         if ( !m_TMeshVec[i]->m_HalfBoxFlag )
         {
             numTris += m_TMeshVec[i]->m_TVec.size();
         }
+    }
     }
 
     //==== Count Components ====//
@@ -1857,18 +1864,21 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
         }
     }
 
+    Results* res = NULL;
+    if ( !degen )
+    {
     //fprintf( fid, "...Comp Geom...\n" );
     //fprintf( fid, "%d Num Comps\n", (int)compIdVec.size() );
     //fprintf( fid, "%d Total Num Meshes\n", (int)m_TMeshVec.size() );
     //fprintf( fid, "%d Total Num Tris\n", numTris );
 
     //==== Create Results ====//
-    Results* res = ResultsMgr.CreateResults( "Comp_Geom" );
+    res = ResultsMgr.CreateResults( "Comp_Geom" );
     res->Add( NameValData( "Num_Comps", ( int )compIdVec.size() ) );
     res->Add( NameValData( "Total_Num_Meshes", ( int )m_TMeshVec.size() ) );
     res->Add( NameValData( "Total_Num_Tris", numTris ) );
     res->Add( NameValData( "Mesh_GeomID", this->GetID() ) );
-
+    }
 
     //==== Scale To 10 Units ====//
     UpdateBBox();
@@ -1876,6 +1886,8 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
     m_Scale = 1000.0 / m_BBox.GetLargestDist();
     ApplyScale();
 
+    if ( !degen )
+    {
     //==== Intersect Subsurfaces to make clean lines ====//
     if ( intSubsFlag )
     {
@@ -1931,7 +1943,7 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
     SubTagTris( (bool)intSubsFlag );
 
     MergeRemoveOpenMeshes( &info );
-
+    }
 
     //==== Create Bnd Box for  Mesh Geoms ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
@@ -1946,7 +1958,7 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
         b.Update( m_TMeshVec[i]->m_TBox.m_Box );
     }
     m_BBox = b;
-    //update_xformed_bbox();            // Load Xform BBox
+    //update_xformed_bbox();          // Load Xform BBox
 
     //==== Intersect All Mesh Geoms ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
@@ -1969,6 +1981,12 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
         m_TMeshVec[i]->DeterIntExt( m_TMeshVec );
     }
 
+    // Only ever set to true for !degen case.
+    // The code is harmless for a !halfFlag case (optimization).
+    // So, both protections could be eliminated.
+    // This is the only appearance of halfFalg in this function, argument could be eliminated.
+    if ( !degen )
+    {
     if ( halfFlag )
     {
         //==== Remove Half Mesh Box ===//
@@ -1986,7 +2004,7 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
         }
         m_TMeshVec = tempVec;
     }
-
+    }
 
     //===== Reset Scale =====//
     m_Scale = 1;
@@ -2065,6 +2083,49 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
             leftOverCnt = 0;
         }
     }
+
+    if ( degen )
+    {
+    bool matchFlag;
+    vector< bool > matchVec( m_TMeshVec.size(), false );
+    // For each degenGeom
+    for ( i = 0; i < ( int )degenGeom.size(); i++ )
+    {
+        matchFlag = false;
+        DegenPoint degenPoint = degenGeom[i].getDegenPoint();
+
+        // Loop through tmesh vector
+        for ( j = 0; j < m_TMeshVec.size(); j++ )
+        {
+            if ( matchVec[j] == false )
+            {
+                // If its pointer id matches the current degenGeom
+                if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_PtrID &&
+                     degenGeom[i].getSurfNum() == m_TMeshVec[j]->m_SurfNum )
+                {
+                    degenPoint.area.push_back( m_TMeshVec[j]->m_TheoArea );
+                    degenPoint.areaWet.push_back( m_TMeshVec[j]->m_WetArea );
+                    degenPoint.vol.push_back( m_TMeshVec[j]->m_TheoVol );
+                    degenPoint.volWet.push_back( m_TMeshVec[j]->m_WetVol );
+                    matchVec[j] = true;
+                    matchFlag = true;
+                }
+            }
+        }
+        if ( !matchFlag )
+        {
+            degenPoint.area.push_back( 0.0 );
+            degenPoint.areaWet.push_back( 0.0 );
+            degenPoint.vol.push_back( 0.0 );
+            degenPoint.volWet.push_back( 0.0 );
+        }
+
+        degenGeom[i].setDegenPoint( degenPoint );
+    }
+    }
+
+    if ( !degen )
+    {
 
     int ntags = -1;
     vector < double > tagTheoAreaVec;
@@ -2192,189 +2253,7 @@ void MeshGeom::IntersectTrim( int halfFlag, int intSubsFlag )
         string tsvfn = m_Vehicle->getExportFileName( vsp::DRAG_BUILD_TSV_TYPE );
         res->WriteDragBuildFile( tsvfn );
     }
-}
 
-void MeshGeom::degenGeomIntersectTrim( vector< DegenGeom > &degenGeom )
-{
-    int i, j;
-
-    //==== Check For Open Meshes and Merge or Delete Them ====//
-    MeshInfo info;
-    MergeRemoveOpenMeshes( &info );
-
-    //==== Count Components ====//
-    vector< string > compIdVec;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        if ( !m_TMeshVec[i]->m_HalfBoxFlag )
-        {
-            string id = m_TMeshVec[i]->m_PtrID;
-            vector<string>::iterator iter;
-
-            iter = find( compIdVec.begin(), compIdVec.end(), id );
-
-            if ( iter == compIdVec.end() )
-            {
-                compIdVec.push_back( id );
-            }
-        }
-    }
-
-    //==== Scale To 10 Units ====//
-    UpdateBBox();
-    m_LastScale = 1.0;
-    m_Scale = 1000.0 / m_BBox.GetLargestDist();
-    ApplyScale();
-
-    //==== Create Bnd Box for  Mesh Geoms ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        m_TMeshVec[i]->LoadBndBox();
-    }
-
-    //==== Update Bnd Box for  Combined ====//
-    BndBox b;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        b.Update( m_TMeshVec[i]->m_TBox.m_Box );
-    }
-    m_BBox = b;
-    //update_xformed_bbox();          // Load Xform BBox
-
-    //==== Intersect All Mesh Geoms ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        for ( j = i + 1 ; j < ( int )m_TMeshVec.size() ; j++ )
-        {
-            m_TMeshVec[i]->Intersect( m_TMeshVec[j] );
-        }
-    }
-
-    //==== Split Intersected Tri in Mesh ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        m_TMeshVec[i]->Split();
-    }
-
-    //==== Determine Which Triangle Are Interior/Exterior ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        m_TMeshVec[i]->DeterIntExt( m_TMeshVec );
-    }
-
-    //===== Reset Scale =====//
-    m_Scale = 1;
-    ApplyScale();
-    UpdateBBox();
-
-    //==== Compute Areas ====//
-    m_TotalTheoArea = m_TotalWetArea = 0.0;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        if ( !m_TMeshVec[i]->m_HalfBoxFlag )
-        {
-            m_TotalTheoArea += m_TMeshVec[i]->ComputeTheoArea();
-            m_TotalWetArea  += m_TMeshVec[i]->ComputeWetArea();
-        }
-    }
-
-    //==== Compute Theo Vols ====//
-    m_TotalTheoVol = 0;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        if ( !m_TMeshVec[i]->m_HalfBoxFlag )
-        {
-            m_TotalTheoVol += m_TMeshVec[i]->ComputeTheoVol();
-        }
-    }
-
-    //==== Compute Total Volume ====//
-    m_TotalWetVol = 0.0;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        if ( !m_TMeshVec[i]->m_HalfBoxFlag )
-        {
-            m_TotalWetVol += m_TMeshVec[i]->ComputeTrimVol();
-        }
-    }
-
-    double guessTotalWetVol = 0;
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        m_TMeshVec[i]->m_GuessVol = m_TMeshVec[i]->m_TheoVol * m_TMeshVec[i]->m_WetArea / m_TMeshVec[i]->m_TheoArea;      // Guess
-        m_TMeshVec[i]->m_WetVol = 0.0;
-        guessTotalWetVol += m_TMeshVec[i]->m_GuessVol;
-    }
-
-    double leftOver = m_TotalWetVol;
-    int leftOverCnt = 20;
-    while ( leftOverCnt > 0 )
-    {
-        leftOverCnt--;
-
-        double sumWetVol = 0.0;
-        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-        {
-            double perWetVol = m_TMeshVec[i]->m_GuessVol / guessTotalWetVol;
-            m_TMeshVec[i]->m_WetVol += perWetVol * ( leftOver );
-
-            if ( m_TMeshVec[i]->m_WetVol > m_TMeshVec[i]->m_TheoVol )
-            {
-                m_TMeshVec[i]->m_WetVol = m_TMeshVec[i]->m_TheoVol;
-            }
-            sumWetVol += m_TMeshVec[i]->m_WetVol;
-        }
-
-        if ( sumWetVol < m_TotalWetVol )
-        {
-            leftOver = m_TotalWetVol - sumWetVol;
-        }
-        else
-        {
-            leftOver = 0.0;
-        }
-
-        if ( leftOver < 0.00001 )
-        {
-            leftOverCnt = 0;
-        }
-    }
-
-    bool matchFlag;
-    vector< bool > matchVec( m_TMeshVec.size(), false );
-    // For each degenGeom
-    for ( i = 0; i < ( int )degenGeom.size(); i++ )
-    {
-        matchFlag = false;
-        DegenPoint degenPoint = degenGeom[i].getDegenPoint();
-
-        // Loop through tmesh vector
-        for ( j = 0; j < m_TMeshVec.size(); j++ )
-        {
-            if ( matchVec[j] == false )
-            {
-                // If its pointer id matches the current degenGeom
-                if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_PtrID &&
-                     degenGeom[i].getSurfNum() == m_TMeshVec[j]->m_SurfNum )
-                {
-                    degenPoint.area.push_back( m_TMeshVec[j]->m_TheoArea );
-                    degenPoint.areaWet.push_back( m_TMeshVec[j]->m_WetArea );
-                    degenPoint.vol.push_back( m_TMeshVec[j]->m_TheoVol );
-                    degenPoint.volWet.push_back( m_TMeshVec[j]->m_WetVol );
-                    matchVec[j] = true;
-                    matchFlag = true;
-                }
-            }
-        }
-        if ( !matchFlag )
-        {
-            degenPoint.area.push_back( 0.0 );
-            degenPoint.areaWet.push_back( 0.0 );
-            degenPoint.vol.push_back( 0.0 );
-            degenPoint.volWet.push_back( 0.0 );
-        }
-
-        degenGeom[i].setDegenPoint( degenPoint );
     }
 }
 

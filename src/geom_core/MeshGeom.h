@@ -148,8 +148,8 @@ public:
     virtual void Scale();
 
     //==== Intersection, Splitting and Trimming ====//
-    virtual void IntersectTrim( int halfFlag = 0, int intSubsFlag = 1 );
-    virtual void degenGeomIntersectTrim( vector< DegenGeom > &degenGeom );
+    virtual void IntersectTrim( vector< DegenGeom > &degenGeom, bool degen = true, int halfFlag = 0, int intSubsFlag = 1 );
+
     virtual void MassSliceX( int numSlice, bool writefile = true );
     virtual void degenGeomMassSliceX( vector< DegenGeom > &degenGeom );
     virtual void AreaSlice( int numSlices, vec3d norm, bool autoBounds, double start = 0, double end = 0 );
