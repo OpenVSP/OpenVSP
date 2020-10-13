@@ -1836,14 +1836,14 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
     int numTris = 0;
     if ( !degen )
     {
-    //==== Count Tris ====//
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        if ( !m_TMeshVec[i]->m_HalfBoxFlag )
+        //==== Count Tris ====//
+        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
-            numTris += m_TMeshVec[i]->m_TVec.size();
+            if ( !m_TMeshVec[i]->m_HalfBoxFlag )
+            {
+                numTris += m_TMeshVec[i]->m_TVec.size();
+            }
         }
-    }
     }
 
     //==== Count Components ====//
@@ -1867,17 +1867,12 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
     Results* res = NULL;
     if ( !degen )
     {
-    //fprintf( fid, "...Comp Geom...\n" );
-    //fprintf( fid, "%d Num Comps\n", (int)compIdVec.size() );
-    //fprintf( fid, "%d Total Num Meshes\n", (int)m_TMeshVec.size() );
-    //fprintf( fid, "%d Total Num Tris\n", numTris );
-
-    //==== Create Results ====//
-    res = ResultsMgr.CreateResults( "Comp_Geom" );
-    res->Add( NameValData( "Num_Comps", ( int )compIdVec.size() ) );
-    res->Add( NameValData( "Total_Num_Meshes", ( int )m_TMeshVec.size() ) );
-    res->Add( NameValData( "Total_Num_Tris", numTris ) );
-    res->Add( NameValData( "Mesh_GeomID", this->GetID() ) );
+        //==== Create Results ====//
+        res = ResultsMgr.CreateResults( "Comp_Geom" );
+        res->Add( NameValData( "Num_Comps", ( int )compIdVec.size() ) );
+        res->Add( NameValData( "Total_Num_Meshes", ( int )m_TMeshVec.size() ) );
+        res->Add( NameValData( "Total_Num_Tris", numTris ) );
+        res->Add( NameValData( "Mesh_GeomID", this->GetID() ) );
     }
 
     //==== Scale To 10 Units ====//
@@ -1888,61 +1883,61 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
 
     if ( !degen )
     {
-    //==== Intersect Subsurfaces to make clean lines ====//
-    if ( intSubsFlag )
-    {
-        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+        //==== Intersect Subsurfaces to make clean lines ====//
+        if ( intSubsFlag )
         {
-            vector< TMesh* > sub_surf_meshes;
-            vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_PtrID, m_TMeshVec[i]->m_SurfNum );
-            int ss;
-            for ( ss = 0 ; ss < ( int )sub_surf_vec.size() ; ss++ )
+            for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
             {
-                vector< TMesh* > tmp_vec = sub_surf_vec[ss]->CreateTMeshVec();
-                sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );
+                vector< TMesh* > sub_surf_meshes;
+                vector< SubSurface* > sub_surf_vec = SubSurfaceMgr.GetSubSurfs( m_TMeshVec[i]->m_PtrID, m_TMeshVec[i]->m_SurfNum );
+                int ss;
+                for ( ss = 0 ; ss < ( int )sub_surf_vec.size() ; ss++ )
+                {
+                    vector< TMesh* > tmp_vec = sub_surf_vec[ss]->CreateTMeshVec();
+                    sub_surf_meshes.insert( sub_surf_meshes.end(), tmp_vec.begin(), tmp_vec.end() );
+                }
+                m_SubSurfVec.insert( m_SubSurfVec.end(), sub_surf_meshes.begin(), sub_surf_meshes.end() );
+
+                if ( !sub_surf_meshes.size() )
+                {
+                    continue;    // Skip if no sub surface meshes
+                }
+
+                // Load All surf_mesh_bboxes
+                for ( ss = 0 ; ss < ( int )sub_surf_meshes.size() ; ss++ )
+                {
+                    // Build merge maps
+                    m_TMeshVec[i]->BuildMergeMaps();
+
+                    sub_surf_meshes[ss]->LoadBndBox();
+                    // Swap the m_TMeshVec[i]'s nodes to be UW instead of xyz
+                    m_TMeshVec[i]->MakeNodePntUW();
+                    m_TMeshVec[i]->LoadBndBox();
+
+                    // Intersect TMesh with sub_surface_meshes
+                    m_TMeshVec[i]->Intersect( sub_surf_meshes[ss], true );
+
+                    // Split the triangles
+                    m_TMeshVec[i]->Split();
+
+                    // Make current TMesh XYZ again and reset its octtree
+                    m_TMeshVec[i]->MakeNodePntXYZ();
+                    m_TMeshVec[i]->m_TBox.Reset();
+
+                    // Flatten Mesh
+                    TMesh* f_tmesh = new TMesh();
+                    f_tmesh->CopyFlatten( m_TMeshVec[i] );
+                    delete m_TMeshVec[i];
+                    m_TMeshVec[i] = f_tmesh;
+                }
+
+                sub_surf_meshes.clear();
             }
-            m_SubSurfVec.insert( m_SubSurfVec.end(), sub_surf_meshes.begin(), sub_surf_meshes.end() );
-
-            if ( !sub_surf_meshes.size() )
-            {
-                continue;    // Skip if no sub surface meshes
-            }
-
-            // Load All surf_mesh_bboxes
-            for ( ss = 0 ; ss < ( int )sub_surf_meshes.size() ; ss++ )
-            {
-                // Build merge maps
-                m_TMeshVec[i]->BuildMergeMaps();
-
-                sub_surf_meshes[ss]->LoadBndBox();
-                // Swap the m_TMeshVec[i]'s nodes to be UW instead of xyz
-                m_TMeshVec[i]->MakeNodePntUW();
-                m_TMeshVec[i]->LoadBndBox();
-
-                // Intersect TMesh with sub_surface_meshes
-                m_TMeshVec[i]->Intersect( sub_surf_meshes[ss], true );
-
-                // Split the triangles
-                m_TMeshVec[i]->Split();
-
-                // Make current TMesh XYZ again and reset its octtree
-                m_TMeshVec[i]->MakeNodePntXYZ();
-                m_TMeshVec[i]->m_TBox.Reset();
-
-                // Flatten Mesh
-                TMesh* f_tmesh = new TMesh();
-                f_tmesh->CopyFlatten( m_TMeshVec[i] );
-                delete m_TMeshVec[i];
-                m_TMeshVec[i] = f_tmesh;
-            }
-
-            sub_surf_meshes.clear();
         }
-    }
-    // Tag meshes before regular intersection
-    SubTagTris( (bool)intSubsFlag );
+        // Tag meshes before regular intersection
+        SubTagTris( (bool)intSubsFlag );
 
-    MergeRemoveOpenMeshes( &info );
+        MergeRemoveOpenMeshes( &info );
     }
 
     //==== Create Bnd Box for  Mesh Geoms ====//
@@ -1987,23 +1982,23 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
     // This is the only appearance of halfFalg in this function, argument could be eliminated.
     if ( !degen )
     {
-    if ( halfFlag )
-    {
-        //==== Remove Half Mesh Box ===//
-        vector< TMesh* > tempVec;
-        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+        if ( halfFlag )
         {
-            if ( !m_TMeshVec[i]->m_HalfBoxFlag )
+            //==== Remove Half Mesh Box ===//
+            vector< TMesh* > tempVec;
+            for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
             {
-                tempVec.push_back( m_TMeshVec[i] );
+                if ( !m_TMeshVec[i]->m_HalfBoxFlag )
+                {
+                    tempVec.push_back( m_TMeshVec[i] );
+                }
+                else
+                {
+                    delete m_TMeshVec[i];
+                }
             }
-            else
-            {
-                delete m_TMeshVec[i];
-            }
+            m_TMeshVec = tempVec;
         }
-        m_TMeshVec = tempVec;
-    }
     }
 
     //===== Reset Scale =====//
@@ -2086,173 +2081,173 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
 
     if ( degen )
     {
-    bool matchFlag;
-    vector< bool > matchVec( m_TMeshVec.size(), false );
-    // For each degenGeom
-    for ( i = 0; i < ( int )degenGeom.size(); i++ )
-    {
-        matchFlag = false;
-        DegenPoint degenPoint = degenGeom[i].getDegenPoint();
-
-        // Loop through tmesh vector
-        for ( j = 0; j < m_TMeshVec.size(); j++ )
+        bool matchFlag;
+        vector< bool > matchVec( m_TMeshVec.size(), false );
+        // For each degenGeom
+        for ( i = 0; i < ( int )degenGeom.size(); i++ )
         {
-            if ( matchVec[j] == false )
+            matchFlag = false;
+            DegenPoint degenPoint = degenGeom[i].getDegenPoint();
+
+            // Loop through tmesh vector
+            for ( j = 0; j < m_TMeshVec.size(); j++ )
             {
-                // If its pointer id matches the current degenGeom
-                if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_PtrID &&
-                     degenGeom[i].getSurfNum() == m_TMeshVec[j]->m_SurfNum )
+                if ( matchVec[j] == false )
                 {
-                    degenPoint.area.push_back( m_TMeshVec[j]->m_TheoArea );
-                    degenPoint.areaWet.push_back( m_TMeshVec[j]->m_WetArea );
-                    degenPoint.vol.push_back( m_TMeshVec[j]->m_TheoVol );
-                    degenPoint.volWet.push_back( m_TMeshVec[j]->m_WetVol );
-                    matchVec[j] = true;
-                    matchFlag = true;
+                    // If its pointer id matches the current degenGeom
+                    if ( degenGeom[i].getParentGeom()->GetID() == m_TMeshVec[j]->m_PtrID &&
+                         degenGeom[i].getSurfNum() == m_TMeshVec[j]->m_SurfNum )
+                    {
+                        degenPoint.area.push_back( m_TMeshVec[j]->m_TheoArea );
+                        degenPoint.areaWet.push_back( m_TMeshVec[j]->m_WetArea );
+                        degenPoint.vol.push_back( m_TMeshVec[j]->m_TheoVol );
+                        degenPoint.volWet.push_back( m_TMeshVec[j]->m_WetVol );
+                        matchVec[j] = true;
+                        matchFlag = true;
+                    }
                 }
             }
-        }
-        if ( !matchFlag )
-        {
-            degenPoint.area.push_back( 0.0 );
-            degenPoint.areaWet.push_back( 0.0 );
-            degenPoint.vol.push_back( 0.0 );
-            degenPoint.volWet.push_back( 0.0 );
-        }
+            if ( !matchFlag )
+            {
+                degenPoint.area.push_back( 0.0 );
+                degenPoint.areaWet.push_back( 0.0 );
+                degenPoint.vol.push_back( 0.0 );
+                degenPoint.volWet.push_back( 0.0 );
+            }
 
-        degenGeom[i].setDegenPoint( degenPoint );
-    }
+            degenGeom[i].setDegenPoint( degenPoint );
+        }
     }
 
     if ( !degen )
     {
 
-    int ntags = -1;
-    vector < double > tagTheoAreaVec;
-    vector < double > tagWetAreaVec;
-    vector < string > tagNameVec;
-    vector < string > tagIDVec;
+        int ntags = -1;
+        vector < double > tagTheoAreaVec;
+        vector < double > tagWetAreaVec;
+        vector < string > tagNameVec;
+        vector < string > tagIDVec;
 
-    if ( intSubsFlag )
-    {
-        // Subtract off dummy tag.
-        ntags = SubSurfaceMgr.GetNumTags() - 1;
-
-        tagTheoAreaVec.resize( ntags, 0.0 );
-        tagWetAreaVec.resize( ntags, 0.0 );
-        tagNameVec.resize( ntags );
-        tagIDVec.resize( ntags );
-
-        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+        if ( intSubsFlag )
         {
+            // Subtract off dummy tag.
+            ntags = SubSurfaceMgr.GetNumTags() - 1;
+
+            tagTheoAreaVec.resize( ntags, 0.0 );
+            tagWetAreaVec.resize( ntags, 0.0 );
+            tagNameVec.resize( ntags );
+            tagIDVec.resize( ntags );
+
+            for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+            {
+                for ( j = 0; j < ntags; j++ )
+                {
+                    tagTheoAreaVec[j] += m_TMeshVec[i]->m_TagTheoAreaVec[j];
+                    tagWetAreaVec[j] += m_TMeshVec[i]->m_TagWetAreaVec[j];
+                }
+            }
+
+            vector < int > tags = SubSurfaceMgr.GetAllTags();
+
+            assert( tags.size() == ntags );
+
             for ( j = 0; j < ntags; j++ )
             {
-                tagTheoAreaVec[j] += m_TMeshVec[i]->m_TagTheoAreaVec[j];
-                tagWetAreaVec[j] += m_TMeshVec[i]->m_TagWetAreaVec[j];
+                tagNameVec[j] = SubSurfaceMgr.GetTagNames( j );
+                tagIDVec[j] = SubSurfaceMgr.GetTagIDs( j );
             }
         }
 
-        vector < int > tags = SubSurfaceMgr.GetAllTags();
+        //==== Add Results ====//
+        vector< string > name_vec;
+        vector< double > theo_area_vec;
+        vector< double > wet_area_vec;
+        vector< double > theo_vol_vec;
+        vector< double > wet_vol_vec;
+        vector< double > min_chord;
+        vector< double > avg_chord;
+        vector< double > max_chord;
+        vector< double > min_tc;
+        vector< double > avg_tc;
+        vector< double > max_tc;
+        vector< double > avg_sweep;
+        vector< double > length;
+        vector< double > max_area;
+        vector< double > length_dia;
 
-        assert( tags.size() == ntags );
-
-        for ( j = 0; j < ntags; j++ )
+        res->Add( NameValData( "Num_Meshes", ( int )m_TMeshVec.size() ) );
+        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
-            tagNameVec[j] = SubSurfaceMgr.GetTagNames( j );
-            tagIDVec[j] = SubSurfaceMgr.GetTagIDs( j );
+            TMesh* tmsh = m_TMeshVec[i];
+            name_vec.push_back( tmsh->m_NameStr );
+            theo_area_vec.push_back( tmsh->m_TheoArea );
+            wet_area_vec.push_back( tmsh->m_WetArea );
+            theo_vol_vec.push_back( tmsh->m_TheoVol );
+            wet_vol_vec.push_back( tmsh->m_WetVol );
+            min_chord.push_back( tmsh->m_DragFactors.m_MinChord );
+            avg_chord.push_back( tmsh->m_DragFactors.m_AvgChord );
+            max_chord.push_back( tmsh->m_DragFactors.m_MaxChord );
+            min_tc.push_back( tmsh->m_DragFactors.m_MinThickToChord );
+            avg_tc.push_back( tmsh->m_DragFactors.m_AvgThickToChord );
+            max_tc.push_back( tmsh->m_DragFactors.m_MaxThickToChord );
+            avg_sweep.push_back( tmsh->m_DragFactors.m_AvgSweep );
+            length.push_back( tmsh->m_DragFactors.m_Length );
+            max_area.push_back( tmsh->m_DragFactors.m_MaxXSecArea );
+            length_dia.push_back( tmsh->m_DragFactors.m_LengthToDia );
         }
-    }
 
-    //==== Add Results ====//
-    vector< string > name_vec;
-    vector< double > theo_area_vec;
-    vector< double > wet_area_vec;
-    vector< double > theo_vol_vec;
-    vector< double > wet_vol_vec;
-    vector< double > min_chord;
-    vector< double > avg_chord;
-    vector< double > max_chord;
-    vector< double > min_tc;
-    vector< double > avg_tc;
-    vector< double > max_tc;
-    vector< double > avg_sweep;
-    vector< double > length;
-    vector< double > max_area;
-    vector< double > length_dia;
+        res->Add( NameValData( "Comp_Name", name_vec ) );
+        res->Add( NameValData( "Theo_Area", theo_area_vec ) );
+        res->Add( NameValData( "Wet_Area", wet_area_vec ) );
+        res->Add( NameValData( "Theo_Vol", theo_vol_vec ) );
+        res->Add( NameValData( "Wet_Vol", wet_vol_vec ) );
 
-    res->Add( NameValData( "Num_Meshes", ( int )m_TMeshVec.size() ) );
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        TMesh* tmsh = m_TMeshVec[i];
-        name_vec.push_back( tmsh->m_NameStr );
-        theo_area_vec.push_back( tmsh->m_TheoArea );
-        wet_area_vec.push_back( tmsh->m_WetArea );
-        theo_vol_vec.push_back( tmsh->m_TheoVol );
-        wet_vol_vec.push_back( tmsh->m_WetVol );
-        min_chord.push_back( tmsh->m_DragFactors.m_MinChord );
-        avg_chord.push_back( tmsh->m_DragFactors.m_AvgChord );
-        max_chord.push_back( tmsh->m_DragFactors.m_MaxChord );
-        min_tc.push_back( tmsh->m_DragFactors.m_MinThickToChord );
-        avg_tc.push_back( tmsh->m_DragFactors.m_AvgThickToChord );
-        max_tc.push_back( tmsh->m_DragFactors.m_MaxThickToChord );
-        avg_sweep.push_back( tmsh->m_DragFactors.m_AvgSweep );
-        length.push_back( tmsh->m_DragFactors.m_Length );
-        max_area.push_back( tmsh->m_DragFactors.m_MaxXSecArea );
-        length_dia.push_back( tmsh->m_DragFactors.m_LengthToDia );
-    }
+        res->Add( NameValData( "Num_Tags", ntags ) );
+        res->Add( NameValData( "Tag_Name", tagNameVec ) );
+        res->Add( NameValData( "Tag_ID", tagIDVec ) );
+        res->Add( NameValData( "Tag_Theo_Area", tagTheoAreaVec ) );
+        res->Add( NameValData( "Tag_Wet_Area", tagWetAreaVec ) );
 
-    res->Add( NameValData( "Comp_Name", name_vec ) );
-    res->Add( NameValData( "Theo_Area", theo_area_vec ) );
-    res->Add( NameValData( "Wet_Area", wet_area_vec ) );
-    res->Add( NameValData( "Theo_Vol", theo_vol_vec ) );
-    res->Add( NameValData( "Wet_Vol", wet_vol_vec ) );
+        res->Add( NameValData( "Total_Theo_Area", m_TotalTheoArea ) );
+        res->Add( NameValData( "Total_Wet_Area", m_TotalWetArea ) );
+        res->Add( NameValData( "Total_Theo_Vol", m_TotalTheoVol ) );
+        res->Add( NameValData( "Total_Wet_Vol", m_TotalWetVol ) );
 
-    res->Add( NameValData( "Num_Tags", ntags ) );
-    res->Add( NameValData( "Tag_Name", tagNameVec ) );
-    res->Add( NameValData( "Tag_ID", tagIDVec ) );
-    res->Add( NameValData( "Tag_Theo_Area", tagTheoAreaVec ) );
-    res->Add( NameValData( "Tag_Wet_Area", tagWetAreaVec ) );
+        res->Add( NameValData( "Min_Chord", min_chord ) );
+        res->Add( NameValData( "Avg_Chord", avg_chord ) );
+        res->Add( NameValData( "Max_Chord", max_chord ) );
 
-    res->Add( NameValData( "Total_Theo_Area", m_TotalTheoArea ) );
-    res->Add( NameValData( "Total_Wet_Area", m_TotalWetArea ) );
-    res->Add( NameValData( "Total_Theo_Vol", m_TotalTheoVol ) );
-    res->Add( NameValData( "Total_Wet_Vol", m_TotalWetVol ) );
+        res->Add( NameValData( "Min_TC", min_tc ) );
+        res->Add( NameValData( "Avg_TC", avg_tc ) );
+        res->Add( NameValData( "Max_TC", max_tc ) );
 
-    res->Add( NameValData( "Min_Chord", min_chord ) );
-    res->Add( NameValData( "Avg_Chord", avg_chord ) );
-    res->Add( NameValData( "Max_Chord", max_chord ) );
+        res->Add( NameValData( "Avg_Sweep", avg_sweep ) );
+        res->Add( NameValData( "Length", length ) );
+        res->Add( NameValData( "Max_Area", max_area ) );
+        res->Add( NameValData( "Length_Dia", length_dia ) );
 
-    res->Add( NameValData( "Min_TC", min_tc ) );
-    res->Add( NameValData( "Avg_TC", avg_tc ) );
-    res->Add( NameValData( "Max_TC", max_tc ) );
+        res->Add( NameValData( "Num_Degen_Tris_Removed", info.m_NumDegenerateTriDeleted ) );
+        res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
+        res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
+        res->Add( NameValData( "Meshes_Removed_Names", info.m_DeletedMeshes ) );
+        res->Add( NameValData( "Meshes_Merged_Names", info.m_MergedMeshes ) );
 
-    res->Add( NameValData( "Avg_Sweep", avg_sweep ) );
-    res->Add( NameValData( "Length", length ) );
-    res->Add( NameValData( "Max_Area", max_area ) );
-    res->Add( NameValData( "Length_Dia", length_dia ) );
+        string txtfn = m_Vehicle->getExportFileName( vsp::COMP_GEOM_TXT_TYPE );
+        res->WriteCompGeomTxtFile( txtfn );
 
-    res->Add( NameValData( "Num_Degen_Tris_Removed", info.m_NumDegenerateTriDeleted ) );
-    res->Add( NameValData( "Num_Open_Meshes_Removed", info.m_NumOpenMeshedDeleted ) );
-    res->Add( NameValData( "Num_Open_Meshes_Merged", info.m_NumOpenMeshesMerged ) );
-    res->Add( NameValData( "Meshes_Removed_Names", info.m_DeletedMeshes ) );
-    res->Add( NameValData( "Meshes_Merged_Names", info.m_MergedMeshes ) );
+        //==== Write CSV File ====//
+        if ( m_Vehicle->getExportCompGeomCsvFile() )
+        {
+            string csvfn = m_Vehicle->getExportFileName( vsp::COMP_GEOM_CSV_TYPE );
+            res->WriteCompGeomCsvFile( csvfn );
+        }
 
-    string txtfn = m_Vehicle->getExportFileName( vsp::COMP_GEOM_TXT_TYPE );
-    res->WriteCompGeomTxtFile( txtfn );
-
-    //==== Write CSV File ====//
-    if ( m_Vehicle->getExportCompGeomCsvFile() )
-    {
-        string csvfn = m_Vehicle->getExportFileName( vsp::COMP_GEOM_CSV_TYPE );
-        res->WriteCompGeomCsvFile( csvfn );
-    }
-
-    //==== Write Drag BuildUp File ====//
-    if ( m_Vehicle->getExportDragBuildTsvFile() )
-    {
-        string tsvfn = m_Vehicle->getExportFileName( vsp::DRAG_BUILD_TSV_TYPE );
-        res->WriteDragBuildFile( tsvfn );
-    }
+        //==== Write Drag BuildUp File ====//
+        if ( m_Vehicle->getExportDragBuildTsvFile() )
+        {
+            string tsvfn = m_Vehicle->getExportFileName( vsp::DRAG_BUILD_TSV_TYPE );
+            res->WriteDragBuildFile( tsvfn );
+        }
 
     }
 }
