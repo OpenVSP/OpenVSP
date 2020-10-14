@@ -58,5 +58,6 @@ protected:
 
     TriggerButton m_Execute;
 
+    TriggerButton m_MakeDegenMeshGeom;
 };
 #endif //DEGENGEOMSCREEN_H

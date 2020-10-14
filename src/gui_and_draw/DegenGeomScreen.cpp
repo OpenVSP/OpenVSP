@@ -58,12 +58,13 @@ DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 365,
     m_BorderLayout.SetFitWidthFlag( true );
     m_BorderLayout.SetSameLineFlag( true );
 
-    m_BorderLayout.SetButtonWidth(m_BorderLayout.GetRemainX() / 2.0 - 5.0);
+    m_BorderLayout.SetButtonWidth(m_BorderLayout.GetRemainX() / 3.0 - 5.0);
     m_BorderLayout.SetChoiceButtonWidth(50);
-    m_BorderLayout.AddChoice(m_UseSet, "Set:", m_BorderLayout.GetRemainX() / 2.0);
+    m_BorderLayout.AddChoice(m_UseSet, "Set:", 2.0 * m_BorderLayout.GetRemainX() / 3.0);
     m_BorderLayout.AddX(5);
     m_BorderLayout.SetFitWidthFlag( false );
     m_BorderLayout.AddButton(m_Execute, "Execute");
+    m_BorderLayout.AddButton(m_MakeDegenMeshGeom, "Make MeshGeom");
 
     m_SelectedSetIndex = DEFAULT_SET;
 }
@@ -173,6 +174,10 @@ void DegenGeomScreen::GuiDeviceCallBack( GuiDevice* device )
 
             m_TextDisplay->buffer()->append( vehiclePtr->WriteDegenGeomFile().c_str() );
         }
+    }
+    else if ( device == & m_MakeDegenMeshGeom )
+    {
+        vehiclePtr->CreateDegenMeshGeom( m_SelectedSetIndex );
     }
 
     m_ScreenMgr->SetUpdateFlag( true );

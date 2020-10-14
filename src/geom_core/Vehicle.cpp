@@ -5190,6 +5190,10 @@ string Vehicle::WriteDegenGeomFile()
     return outStr;
 }
 
+void Vehicle::CreateDegenMeshGeom( int set )
+{
+}
+
 vec3d Vehicle::CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
 {
     Geom* geom_ptr = FindGeom( geom_id );
