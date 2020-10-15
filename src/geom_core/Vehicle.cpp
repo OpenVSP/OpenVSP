@@ -5192,6 +5192,70 @@ string Vehicle::WriteDegenGeomFile()
 
 string Vehicle::CreateDegenMeshGeom( int set )
 {
+    ClearActiveGeom();
+
+    vector<string> geom_vec = GetGeomVec(); // Get geom vec before mesh is added
+
+    GeomType type = GeomType( MESH_GEOM_TYPE, "MESH", true );
+    string id = AddGeom( type );
+    Geom* geom_ptr = FindGeom( id );
+    if ( !geom_ptr )
+    {
+        return string( "NONE" );
+    }
+
+    MeshGeom* mesh_geom = ( MeshGeom* )( geom_ptr );
+
+    if ( set > 2 )
+    {
+        mesh_geom->SetSetFlag( set, true );
+    }
+    else
+    {
+        mesh_geom->SetSetFlag( 1, true );    // Ensure Shown Flag is Set
+    }
+
+    // Create TMeshVec
+    for ( int i = 0 ; i < ( int )geom_vec.size() ; i++ )
+    {
+        Geom* g_ptr = FindGeom( geom_vec[i] );
+        if ( g_ptr )
+        {
+            if ( g_ptr->GetSetFlag( set ) )
+            {
+                if( g_ptr->GetType().m_Type != BLANK_GEOM_TYPE )
+                {
+                    vector< DegenGeom > DegenGeomVec; // Vector of geom in degenerate representation
+
+                    g_ptr->CreateDegenGeom( DegenGeomVec, true );
+
+                    vector< TMesh* > tMeshVec;
+                    for ( int j = 0; j < DegenGeomVec.size(); j++ )
+                    {
+                        // Flip normals because surfaces are based on 'bottom' surface and we'd prefer normals face up.
+                        DegenGeomVec[j].setFlipNormal( ! DegenGeomVec[j].getFlipNormal() );
+                        // Create MeshGeom from DegenGeom
+                        // Camber surfaces for wings & props, plates for bodies.
+                        DegenGeomVec[j].createTMeshVec( g_ptr, tMeshVec );
+                    }
+
+                    // Do not combine these loops.  tMeshVec.size() != DegenGeomVec.size()
+                    for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
+                    {
+                        mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
+                    }
+                }
+            }
+        }
+    }
+
+    mesh_geom->SubTagTris( true );
+
+    mesh_geom->Update();
+
+    HideAllExcept( id );
+
+    return id;
 }
 
 vec3d Vehicle::CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w)
