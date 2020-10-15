@@ -537,7 +537,10 @@ protected:
 
 };
 
-
-
+void CreateTMeshVec( vector < TMesh* > & TMeshVec,
+                     const vector< vector<vec3d> > & pnts,
+                     const vector< vector<vec3d> > & norms,
+                     const vector< vector<vec3d> > & uw_pnts,
+                     int indx, int surftype, bool flipnormal, double wmax );
 
 #endif
