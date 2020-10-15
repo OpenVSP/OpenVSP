@@ -4254,7 +4254,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
             m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
 
             CreateTMeshVec( TMeshVec, pnts, norms, uw_pnts,
-                               i, m_SurfVec[i].GetSurfType(), m_SurfVec[i].GetFlipNormal(), m_SurfVec[i].GetWMax() );
+                            i, m_SurfVec[i].GetSurfType(), m_SurfVec[i].GetFlipNormal(), m_SurfVec[i].GetWMax() );
 
         }
     }
