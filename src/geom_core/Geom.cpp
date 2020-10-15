@@ -4272,15 +4272,6 @@ vector< TMesh* > Geom::CreateTMeshVec()
             {
                 for ( int k = 0 ; k < ( int )pnts[0].size() - 1 ; k++ )
                 {
-                    bool wake01edge = false;
-                    if ( m_SurfVec[i].GetSurfType() == vsp::WING_SURF || m_SurfVec[i].GetSurfType() == vsp::PROP_SURF )
-                    {
-                        if ( k == 0 )
-                        {
-                            wake01edge = true;
-                        }
-                    }
-
                     v0 = pnts[j][k];
                     v1 = pnts[j + 1][k];
                     v2 = pnts[j + 1][k + 1];
