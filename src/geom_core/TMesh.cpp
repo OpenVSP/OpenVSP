@@ -4012,17 +4012,18 @@ vec3d TMesh::CompUW( const vec3d & pnt, const int & start_u, const int & start_v
     return uw;
 }
 
-void CreateTMeshVec( vector < TMesh* > & TMeshVec,
-                     const vector< vector<vec3d> > & pnts,
-                     const vector< vector<vec3d> > & norms,
-                     const vector< vector<vec3d> > & uw_pnts,
-                     int indx, int surftype, bool flipnormal, double wmax )
+void CreateTMeshVecFromPts( Geom * geom,
+                            vector < TMesh* > & TMeshVec,
+                            const vector< vector<vec3d> > & pnts,
+                            const vector< vector<vec3d> > & norms,
+                            const vector< vector<vec3d> > & uw_pnts,
+                            int indx, int surftype, bool flipnormal, double wmax )
 {
     double tol=1.0e-12;
 
     TMeshVec.push_back( new TMesh() );
     int itmesh = TMeshVec.size() - 1;
-    TMeshVec[itmesh]->LoadGeomAttributes( this );
+    TMeshVec[itmesh]->LoadGeomAttributes( geom );
     TMeshVec[itmesh]->m_SurfType = surftype;
     TMeshVec[itmesh]->m_SurfNum = indx;
     TMeshVec[itmesh]->m_UWPnts = uw_pnts;

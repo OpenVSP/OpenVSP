@@ -4253,8 +4253,8 @@ vector< TMesh* > Geom::CreateTMeshVec()
             UpdateTesselate( i, pnts, norms, uw_pnts, false );
             m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
 
-            CreateTMeshVec( TMeshVec, pnts, norms, uw_pnts,
-                            i, m_SurfVec[i].GetSurfType(), m_SurfVec[i].GetFlipNormal(), m_SurfVec[i].GetWMax() );
+            CreateTMeshVecFromPts( this, TMeshVec, pnts, norms, uw_pnts,
+                                   i, m_SurfVec[i].GetSurfType(), m_SurfVec[i].GetFlipNormal(), m_SurfVec[i].GetWMax() );
 
         }
     }
