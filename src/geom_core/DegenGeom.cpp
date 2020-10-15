@@ -1705,3 +1705,56 @@ void DegenGeom::write_degenHingeLineResultsManager( vector<string> &hinge_ids, c
     hinge_res->Add( NameValData( "xStart", degenHingeLine.xStart ) );
     hinge_res->Add( NameValData( "xEnd", degenHingeLine.xEnd ) );
 }
+
+void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec )
+{
+    int surftype = getType();
+
+    for (int i = 0; i < degenPlates.size(); i++ )
+    {
+        int nl = degenPlates[i].u.size();
+        int nm = degenPlates[i].u[0].size();
+        vector < vector < vec3d > > uw_pnts;
+        uw_pnts.resize( nl );
+        for (int j = 0; j < nl; j++ )
+        {
+            uw_pnts[j].resize(nm );
+            for (int k = 0; k < nm; k++ )
+            {
+                uw_pnts[j][k] = vec3d(degenPlates[i].u[j][k],
+                                      degenPlates[i].wBot[j][k],
+                                      0.0 );
+            }
+        }
+
+
+        if ( surftype == DegenGeom::SURFACE_TYPE )
+        {
+            CreateTMeshVecFromPts( geom,
+                                   tMeshVec,
+                                   degenPlates[i].xCamber,
+                                   degenPlates[i].nCamber,
+                                   uw_pnts,
+                                   getSurfNum(),
+                                   vsp::WING_SURF,
+                                   getFlipNormal(),
+                                   4.0 );
+        }
+        else if ( surftype == DegenGeom::DISK_TYPE)
+        {
+            int vspsurftype = vsp::DISK_SURF;
+        }
+        else
+        {
+            CreateTMeshVecFromPts( geom,
+                                   tMeshVec,
+                                   degenPlates[i].x,
+                                   degenPlates[i].nCamber,
+                                   uw_pnts,
+                                   getSurfNum(),
+                                   vsp::NORMAL_SURF,
+                                   getFlipNormal(),
+                                   4.0 );
+        }
+    }
+}
