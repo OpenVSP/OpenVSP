@@ -4229,7 +4229,6 @@ vector< TMesh* > Geom::CreateTMeshVec()
     vector< vector<vec3d> > pnts;
     vector< vector<vec3d> > norms;
     vector< vector<vec3d> > uw_pnts;
-    double tol=1.0e-12;
 
     for ( int i = 0 ; i < ( int )m_SurfVec.size(); i++ )
     {
@@ -4254,14 +4253,30 @@ vector< TMesh* > Geom::CreateTMeshVec()
             UpdateTesselate( i, pnts, norms, uw_pnts, false );
             m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
 
+            CreateTMeshVec( TMeshVec, pnts, norms, uw_pnts,
+                               i, m_SurfVec[i].GetSurfType(), m_SurfVec[i].GetFlipNormal(), m_SurfVec[i].GetWMax() );
+
+        }
+    }
+    return TMeshVec;
+}
+
+void Geom::CreateTMeshVec( vector < TMesh* > & TMeshVec,
+                           const vector< vector<vec3d> > & pnts,
+                           const vector< vector<vec3d> > & norms,
+                           const vector< vector<vec3d> > & uw_pnts,
+                           int indx, int surftype, bool flipnormal, double wmax )
+{
+    double tol=1.0e-12;
+
             TMeshVec.push_back( new TMesh() );
             int itmesh = TMeshVec.size() - 1;
             TMeshVec[itmesh]->LoadGeomAttributes( this );
-            TMeshVec[itmesh]->m_SurfType = m_SurfVec[i].GetSurfType();
-            TMeshVec[itmesh]->m_SurfNum = i;
+            TMeshVec[itmesh]->m_SurfType = surftype;
+            TMeshVec[itmesh]->m_SurfNum = indx;
             TMeshVec[itmesh]->m_UWPnts = uw_pnts;
             TMeshVec[itmesh]->m_XYZPnts = pnts;
-            bool f_norm = m_SurfVec[i].GetFlipNormal();
+            bool f_norm = flipnormal;
 
             vec3d norm;
             vec3d v0, v1, v2, v3;
@@ -4282,7 +4297,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
                     uw2 = uw_pnts[j + 1][k + 1];
                     uw3 = uw_pnts[j][k + 1];
 
-                    double quadrant = ( uw0.y() + uw1.y() + uw2.y() + uw3.y() ) / m_SurfVec[i].GetWMax(); // * 4 * 0.25 canceled.
+                    double quadrant = ( uw0.y() + uw1.y() + uw2.y() + uw3.y() ) / wmax; // * 4 * 0.25 canceled.
 
                     d21 = v2 - v1;
                     d01 = v0 - v1;
@@ -4353,9 +4368,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
                     }
                 }
             }
-        }
-    }
-    return TMeshVec;
+
 }
 
 void Geom::AddLinkableParms( vector< string > & linkable_parm_vec, const string & link_container_id )
