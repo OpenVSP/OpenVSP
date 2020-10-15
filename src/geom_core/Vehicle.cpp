@@ -5190,7 +5190,7 @@ string Vehicle::WriteDegenGeomFile()
     return outStr;
 }
 
-void Vehicle::CreateDegenMeshGeom( int set )
+string Vehicle::CreateDegenMeshGeom( int set )
 {
 }
 

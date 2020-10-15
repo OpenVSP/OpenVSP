@@ -279,7 +279,7 @@ public:
     string WriteDegenGeomFile();
     void ClearDegenGeom()   { m_DegenGeomVec.clear(); }
 
-    void CreateDegenMeshGeom( int set );
+    string CreateDegenMeshGeom( int set );
 
     //==== Surface Query ====//
     vec3d CompPnt01(const std::string &geom_id, const int &surf_indx, const double &u, const double &w);
