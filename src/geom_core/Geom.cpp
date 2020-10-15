@@ -4276,7 +4276,6 @@ void Geom::CreateTMeshVec( vector < TMesh* > & TMeshVec,
     TMeshVec[itmesh]->m_SurfNum = indx;
     TMeshVec[itmesh]->m_UWPnts = uw_pnts;
     TMeshVec[itmesh]->m_XYZPnts = pnts;
-    bool f_norm = flipnormal;
 
     vec3d norm;
     vec3d v0, v1, v2, v3;
@@ -4311,7 +4310,7 @@ void Geom::CreateTMeshVec( vector < TMesh* > & TMeshVec,
                 {
                     norm = cross( d21, d01 );
                     norm.normalize();
-                    if ( f_norm )
+                    if ( flipnormal )
                     {
                         TMeshVec[itmesh]->AddTri( v0, v2, v1, norm * -1, uw0, uw2, uw1 );
                     }
@@ -4325,7 +4324,7 @@ void Geom::CreateTMeshVec( vector < TMesh* > & TMeshVec,
                 {
                     norm = cross( d03, d23 );
                     norm.normalize();
-                    if ( f_norm )
+                    if ( flipnormal )
                     {
                         TMeshVec[itmesh]->AddTri( v0, v3, v2, norm * -1, uw0, uw3, uw2 );
                     }
@@ -4342,7 +4341,7 @@ void Geom::CreateTMeshVec( vector < TMesh* > & TMeshVec,
                 {
                     norm = cross( d01, d03 );
                     norm.normalize();
-                    if ( f_norm )
+                    if ( flipnormal )
                     {
                         TMeshVec[itmesh]->AddTri( v0, v3, v1, norm * -1, uw0, uw3, uw1 );
                     }
@@ -4356,7 +4355,7 @@ void Geom::CreateTMeshVec( vector < TMesh* > & TMeshVec,
                 {
                     norm = cross( d23, d21 );
                     norm.normalize();
-                    if ( f_norm )
+                    if ( flipnormal )
                     {
                         TMeshVec[itmesh]->AddTri( v1, v3, v2, norm * -1, uw1, uw3, uw2 );
                     }
