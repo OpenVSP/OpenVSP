@@ -320,11 +320,13 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
     unsigned int platePnts = ( num_pnts + 1 ) / 2;
 
     vector< vector <vec3d> > xMat;
+    vector< vector <vec3d> > xCMat;
     vector< vector <vec3d> > nCamberMat;
     vector< vector <double> > tMat;
     vector< vector <double> > zMat;
 
     vector<vec3d>   xVec(  platePnts );
+    vector<vec3d>   xCVec(  platePnts );
     vector<vec3d>   nCVec( platePnts );
     vector<vec3d>   nPVec( platePnts );
     vector<double>  tVec(  platePnts );
@@ -339,12 +341,14 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
 
         // Set first point (trailing edge)
         xVec[0]  = lePnt;
+        xCVec[0]  = lePnt;
         nCVec[0] = vec3d( 0, 0, 0 ); // on camber line
         tVec[0]  = 0;
         zVec[0]  = 0;
 
         // Set last point (leading edge)
         xVec[platePnts - 1]  = tePnt;
+        xCVec[platePnts - 1]  = tePnt;
         nCVec[platePnts - 1] = vec3d( 0, 0, 0 ); // on camber line
         tVec[platePnts - 1]  = 0;
         zVec[platePnts - 1]  = 0;
@@ -377,6 +381,7 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
             topPnt = pntsarr[ i ][ k % ( num_pnts - 1 ) ];
 
             camberPnt = ( topPnt + botPnt ) / 2;
+            xCVec[j] = camberPnt;
 
             nCVec[j] = topPnt - botPnt; // vector from bottom point to top point.
             nCVec[j].normalize();
@@ -411,6 +416,7 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
         }
 
         xMat.push_back( xVec );
+        xCMat.push_back( xCVec );
         nCamberMat.push_back( nCVec );
         tMat.push_back( tVec );
         zMat.push_back( zVec );
@@ -442,6 +448,7 @@ void DegenGeom::createDegenPlate( DegenPlate &degenPlate, const vector< vector< 
     }
 
     degenPlate.x        = xMat;
+    degenPlate.xCamber  = xCMat;
     degenPlate.nCamber  = nCamberMat;
     degenPlate.t        = tMat;
     degenPlate.zcamber  = zMat;
@@ -955,7 +962,7 @@ void DegenGeom::write_degenGeomPlateCsv_file( FILE* file_id, int nxsecs, DegenPl
                  degenPlate.nPlate[i].z()  );
     }
 
-    fprintf( file_id, "# x,y,z,zCamber,t,nCamberx,nCambery,nCamberz,u,wTop,wBot\n" );
+    fprintf( file_id, "# x,y,z,zCamber,t,nCamberx,nCambery,nCamberz,u,wTop,wBot,xxCamber,xyCamber,xzCamber\n" );
     for ( int i = 0; i < nxsecs; i++ )
     {
         for ( int j = 0; j < ( num_pnts + 1 ) / 2; j++ )
@@ -971,7 +978,10 @@ void DegenGeom::write_degenGeomPlateCsv_file( FILE* file_id, int nxsecs, DegenPl
                      degenPlate.nCamber[i][j].z(),       \
                      degenPlate.u[i][j],                 \
                      degenPlate.wTop[i][j],              \
-                     degenPlate.wBot[i][j]               );
+                     degenPlate.wBot[i][j],              \
+                     degenPlate.xCamber[i][j].x(),       \
+                     degenPlate.xCamber[i][j].y(),       \
+                     degenPlate.xCamber[i][j].z()        );
         }
     }
 }
@@ -1290,6 +1300,7 @@ void DegenGeom::write_degenGeomPlateM_file( FILE* file_id, int nxsecs, DegenPlat
 
     writeVecVec3d.write(  file_id, degenPlate.nPlate,  basename + "n",       nxsecs );
     writeMatVec3d.write(  file_id, degenPlate.x,       basename,             nxsecs,    ( num_pnts + 1 ) / 2 );
+    writeMatVec3d.write(  file_id, degenPlate.xCamber,       basename + "xCamber", nxsecs,    ( num_pnts + 1 ) / 2 );
     writeMatDouble.write( file_id, degenPlate.zcamber, basename + "zCamber", nxsecs,    ( num_pnts + 1 ) / 2 );
     writeMatDouble.write( file_id, degenPlate.t,       basename + "t",       nxsecs,    ( num_pnts + 1 ) / 2 );
     writeMatVec3d.write(  file_id, degenPlate.nCamber, basename + "nCamber", nxsecs,    ( num_pnts + 1 ) / 2 );
@@ -1604,6 +1615,7 @@ void DegenGeom::write_degenGeomPlateResultsManager( vector< string > &plate_ids,
 
     plate_res->Add( NameValData( "n", degenPlate.nPlate ) );
     plate_res->Add( degenPlate.x, "" );
+    plate_res->Add( degenPlate.xCamber, "xCamber" );
     plate_res->Add( NameValData( "zCamber", degenPlate.zcamber ) );
     plate_res->Add( NameValData( "t", degenPlate.t ) );
     plate_res->Add( degenPlate.nCamber, "nCamber_" );

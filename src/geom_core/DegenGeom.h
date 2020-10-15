@@ -46,6 +46,7 @@ typedef struct
     vector< vector< double > >  u;          //!
     vector< vector< double > >  wTop;       //!
     vector< vector< double > >  wBot;       //!
+    vector< vector< vec3d > >   xCamber;    //!
 } DegenPlate;
 
 typedef struct
