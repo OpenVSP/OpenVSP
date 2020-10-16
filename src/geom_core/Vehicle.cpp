@@ -443,6 +443,11 @@ void Vehicle::SetupPaths()
 {
     m_ExePath = PathToExe();
     m_HomePath = PathToHome();
+    
+    // Initialize VSPAERO directory as VSP executable directory. 
+    // This may be overwritten from the API, where the VSP executable
+    // path and VSPAERO executable path may differ
+    m_VSPAEROPath = m_ExePath;
 
 #ifdef WIN32
     m_VSPAEROCmd = string( "vspaero.exe" );
@@ -470,6 +475,88 @@ void Vehicle::SetupPaths()
     m_CustomScriptDirs.push_back( string( "./CustomScripts/" ) );
     m_CustomScriptDirs.push_back( m_HomePath + string( "/CustomScripts/" ) );
     m_CustomScriptDirs.push_back( m_ExePath + string( "/CustomScripts/" ) );
+}
+
+bool Vehicle::CheckForVSPAERO( const string & path )
+{
+    bool ret_val = true;
+    string path_file, vspaero_exe, viewer_exe, slicer_exe;
+
+#ifdef WIN32
+    vspaero_exe = string( "vspaero.exe" );
+    viewer_exe = string( "vspviewer.exe" );
+    slicer_exe = string( "vspslicer.exe" );
+#else
+    vspaero_exe = string( "vspaero" );
+    viewer_exe = string( "vspviewer" );
+    slicer_exe = string( "vspslicer" );
+#endif
+
+    path_file = path + string( "/" ) + vspaero_exe;
+
+    if( !FileExist( path_file ) )
+    {
+        fprintf( stderr, "ERROR %d: VSPAERO Solver Not Found. \n"
+            "\tExpected here: %s\n"
+            "\tFile: %s \tLine: %d\n",
+            vsp::VSP_FILE_DOES_NOT_EXIST,
+            path_file,
+            __FILE__, __LINE__ );
+        ret_val = false;
+    }
+    else
+    {
+        // Save VSPAERO executable
+        m_VSPAEROCmd = vspaero_exe;
+    }
+
+    path_file = path + string( "/" ) + viewer_exe;
+
+    if( !FileExist( path_file ) )
+    {
+        fprintf( stderr, "ERROR %d: VSPAERO Viewer Not Found. \n"
+            "\tExpected here: %s\n"
+            "\tFile: %s \tLine: %d\n",
+            vsp::VSP_FILE_DOES_NOT_EXIST,
+            path_file,
+            __FILE__, __LINE__ );
+        ret_val = false;
+    }
+    else
+    {
+        // Save Viewer executable
+        m_VIEWERCmd = viewer_exe;
+    }
+
+    path_file = path + string( "/" ) + slicer_exe;
+
+    if( !FileExist( path_file ) )
+    {
+        fprintf( stderr, "ERROR %d: VSPAERO Slicer Not Found. \n"
+            "\tExpected here: %s\n"
+            "\tFile: %s \tLine: %d\n",
+            vsp::VSP_FILE_DOES_NOT_EXIST,
+            path_file,
+            __FILE__, __LINE__ );
+        ret_val = false;
+    }
+    else
+    {
+        // Save Slicer executable
+        m_SLICERCmd = slicer_exe;
+    }
+
+    return ret_val;
+}
+
+bool Vehicle::SetVSPAEROPath( const string & path )
+{
+    if( CheckForVSPAERO( path ) )
+    {
+        m_VSPAEROPath = path;
+        return true;
+    }
+    return false;
 }
 
 //=== NewFile ===//
