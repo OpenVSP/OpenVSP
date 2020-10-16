@@ -39,6 +39,10 @@ extern void VSPExit( int error_code );
 
 extern std::string GetVSPExePath();
 
+extern bool SetVSPAEROPath( const std::string & path );
+extern std::string GetVSPAEROPath();
+extern bool CheckForVSPAERO( const std::string & path );
+
 extern void RegisterCFDMeshAnalyses();
 
 //======================== File I/O ================================//

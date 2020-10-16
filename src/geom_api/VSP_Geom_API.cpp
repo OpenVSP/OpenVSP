@@ -6769,4 +6769,34 @@ string GetVSPExePath()
     return string();
 }   
 
+bool SetVSPAEROPath( const std::string & path )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if( veh )
+    {
+        return veh->SetVSPAEROPath( path );
+    }
+    return false;
+}
+
+std::string GetVSPAEROPath()
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if( veh )
+    {
+        return veh->GetVSPAEROPath();
+    }
+    return string();
+}
+
+bool CheckForVSPAERO( const std::string & path )
+{
+    Vehicle* veh = VehicleMgr.GetVehicle();
+    if( veh )
+    {
+        return veh->CheckForVSPAERO( path );
+    }
+    return false;
+} 
+
 }// vsp namespace

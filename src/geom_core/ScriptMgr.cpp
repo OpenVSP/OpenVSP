@@ -11210,9 +11210,67 @@ void ScriptMgrSingleton::RegisterUtility( asIScriptEngine* se )
 
     Print( GetVSPExePath() );
     \endcode
+    \sa SetVSPAEROPath, CheckForVSPAERO, GetVSPAEROPath
     \return Path to the OpenVSP executable
 */)";
     r = se->RegisterGlobalFunction( "string GetVSPExePath()", asFUNCTION( vsp::GetVSPExePath ), asCALL_CDECL, doc_struct);
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Set the path to the VSPAERO executables (Solver, Viewer, and Slicer). By default, OpenVSP will assume that the VSPAERO executables are in the
+    same directory as the VSP executable. However, this may need to be changed when using certain API languages like MATLAB and Python. For example,
+    Python may treat the location of the Python executable as the VSP executable path, so either the VSPAERO executable needs to be moved to the same
+    directory or this function can be called to tell Python where to look for VSPAERO. 
+    \code{.cpp}
+    if ( !CheckForVSPAERO( GetVSPExePath() ) )
+    {
+        string vspaero_path = "C:\Users\example_user\Documents\OpenVSP_3.4.5"; // Note, may need to change to forward slashes
+        SetVSPAEROPath( vspaero_path );
+    }
+    \endcode
+    \sa GetVSPExePath, CheckForVSPAERO, GetVSPAEROPath
+    \param [in] path Absolute path to directory containing VSPAERO executable
+    \return Flag that indicates whether or not the path was set correctly
+*/)";
+    r = se->RegisterGlobalFunction( "bool SetVSPAEROPath( const string & in path )", asFUNCTION( vsp::SetVSPAEROPath ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Get the path that OpenVSP will use to look for all VSPAERO executables (Solver, Slicer, and Viewer) when attempting to execute
+    VSPAERO. If the VSPAERO executables are not in this location, they must either be copied there or the VSPAERO path must be set
+    using SetVSPAEROPath.
+    \code{.cpp}
+    if ( !CheckForVSPAERO( GetVSPAEROPath() ) )
+    {
+        Print( "VSPAERO is not where OpenVSP thinks it is. I should move the VSPAERO executable or call SetVSPAEROPath." );
+    }
+    \endcode
+    \sa GetVSPExePath, CheckForVSPAERO, SetVSPAEROPath
+    \return Path OpenVSP will look for VSPAERO
+*/)";
+    r = se->RegisterGlobalFunction( "string GetVSPAEROPath()", asFUNCTION( vsp::GetVSPAEROPath ), asCALL_CDECL, doc_struct );
+    assert( r >= 0 );
+
+    doc_struct.comment = R"(
+/*!
+    Check if all VSPAERO executables (Solver, Viewer, and Slicer) are in a given directory. Note that this function will return false 
+    if only one or two VSPAERO executables are found. An error message will indicate the executables that are missing. This may be 
+    acceptable, as only the Solver is needed in all cases. The Viewer and Slicer may not be needed. 
+    \code{.cpp}
+    string vspaero_path = "C:\Users\example_user\Documents\OpenVSP_3.4.5"; // Note, may need to change to forward slashes
+
+    if ( CheckForVSPAERO( vspaero_path ) )
+    {
+        SetVSPAEROPath( vspaero_path );
+    }
+    \endcode
+    \sa GetVSPExePath, GetVSPAEROPath, SetVSPAEROPath
+    \param [in] path Absolute path to check for VSPAERO executables
+    \return Flag that indicates if all VSPAERO executables are found or not
+*/)";
+    r = se->RegisterGlobalFunction( "bool CheckForVSPAERO( const string & in path )", asFUNCTION( vsp::CheckForVSPAERO ), asCALL_CDECL, doc_struct );
     assert( r >= 0 );
 
     doc_struct.comment = R"(
