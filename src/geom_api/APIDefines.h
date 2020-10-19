@@ -99,6 +99,7 @@ enum CFD_MESH_EXPORT_TYPE { CFD_STL_FILE_NAME,
                             CFD_FACET_FILE_NAME,
                             CFD_CURV_FILE_NAME,
                             CFD_PLOT3D_FILE_NAME,
+                            CFD_VSPGEOM_FILE_NAME,
                             CFD_NUM_FILE_NAMES,
                           };
 
@@ -166,6 +167,7 @@ enum COMPUTATION_FILE_TYPE  {   NO_FILE_TYPE        = 0,
                                 CFD_FACET_TYPE      = 1048576,
                                 CFD_CURV_TYPE       = 2097152,
                                 CFD_PLOT3D_TYPE     = 4194304,
+                                CFD_VSPGEOM_TYPE    = 8388608,
                             };
 
 enum DELIM_TYPE { DELIM_COMMA,

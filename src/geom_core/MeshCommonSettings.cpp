@@ -261,6 +261,7 @@ CfdMeshSettings::CfdMeshSettings() : MeshCommonSettings()
     m_ExportFileFlags[ vsp::CFD_FACET_FILE_NAME ].Init( "FACET_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::CFD_CURV_FILE_NAME ].Init( "CURV_Export", "ExportCFD", this, true, 0, 1 );
     m_ExportFileFlags[ vsp::CFD_PLOT3D_FILE_NAME ].Init( "PLOT3D_Export", "ExportCFD", this, true, 0, 1 );
+    m_ExportFileFlags[ vsp::CFD_VSPGEOM_FILE_NAME ].Init( "VSPGEOM_Export", "ExportCFD", this, true, 0, 1 );
 
     m_XYZIntCurveFlag.Init( "SRF_XYZIntCurve", "ExportCFD", this, false, 0, 1 );
 
@@ -361,7 +362,7 @@ void CfdMeshSettings::ResetExportFileNames()
 void CfdMeshSettings::ResetExportFileNames( const string& basename )
 {
     int pos;
-    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf", ".tkey", ".facet", ".curv", ".p3d" };
+    const char *suffix[] = {".stl", ".poly", ".tri", ".obj", "_NASCART.dat", "_NASCART.key", ".msh", ".srf", ".tkey", ".facet", ".curv", ".p3d", ".vspgeom" };
 
     for ( int i = 0 ; i < vsp::CFD_NUM_FILE_NAMES ; i++ )
     {

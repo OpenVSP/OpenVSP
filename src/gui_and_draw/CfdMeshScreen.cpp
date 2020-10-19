@@ -207,6 +207,12 @@ void CfdMeshScreen::CreateOutputTab()
     m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
     m_OutputTabLayout.AddButton(m_SelectMshFile, "...");
     m_OutputTabLayout.ForceNewLine();
+    m_OutputTabLayout.SetButtonWidth( 55 );
+    m_OutputTabLayout.AddButton(m_VspgeomFile, ".vspgeom");
+    m_OutputTabLayout.AddOutput(m_VspgeomOutput);
+    m_OutputTabLayout.SetButtonWidth( m_OutputTabLayout.GetRemainX() );
+    m_OutputTabLayout.AddButton(m_SelectVspgeomFile, "...");
+    m_OutputTabLayout.ForceNewLine();
     m_OutputTabLayout.AddYGap();
 
     m_OutputTabLayout.SetFitWidthFlag( true );
@@ -745,6 +751,8 @@ void CfdMeshScreen::UpdateOutputTab()
     m_SrfOutput.Update( StringUtil::truncateFileName( srfname, 40 ).c_str() );
     string tkeyname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_TKEY_FILE_NAME );
     m_TkeyOutput.Update( StringUtil::truncateFileName( tkeyname, 40).c_str() );
+    string vspgeomname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_VSPGEOM_FILE_NAME );
+    m_VspgeomOutput.Update( StringUtil::truncateFileName( vspgeomname, 40 ).c_str() );
 
     //==== Update File Output Flags ====//
     m_StlFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_STL_FILE_NAME )->GetID() );
@@ -759,6 +767,7 @@ void CfdMeshScreen::UpdateOutputTab()
     m_SrfFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_SRF_FILE_NAME )->GetID() );
     m_XYZIntCurves.Update( m_Vehicle->GetCfdSettingsPtr()->m_XYZIntCurveFlag.GetID() );
     m_TkeyFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_TKEY_FILE_NAME)->GetID() );
+    m_VspgeomFile.Update( m_Vehicle->GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_VSPGEOM_FILE_NAME )->GetID() );
 
 
     string curvname = m_Vehicle->GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_CURV_FILE_NAME );
@@ -1197,6 +1206,15 @@ void CfdMeshScreen::GuiDeviceOutputTabCallback( GuiDevice* device )
             m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_PLOT3D_FILE_NAME );
         }
     }
+    else if ( device == &m_SelectVspgeomFile )
+    {
+        string newfile = m_ScreenMgr->GetSelectFileScreen()->FileChooser( "Select .vspgeom file.", "*.vspgeom" );
+        if ( newfile.compare( "" ) != 0 )
+        {
+            m_Vehicle->GetCfdSettingsPtr()->SetExportFileName( newfile, vsp::CFD_VSPGEOM_FILE_NAME );
+        }
+    }
+
 }
 
 void CfdMeshScreen::GuiDeviceSourcesTabCallback( GuiDevice* device )

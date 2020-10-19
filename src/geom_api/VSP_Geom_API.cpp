@@ -389,6 +389,8 @@ void SetComputationFileName( int file_type, const string & file_name )
         GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_CURV_FILE_NAME );
     if ( file_type == CFD_PLOT3D_TYPE )
         GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_PLOT3D_FILE_NAME );
+    if ( file_type == CFD_VSPGEOM_TYPE )
+        GetVehicle()->GetCfdSettingsPtr()->SetExportFileName( file_name, CFD_VSPGEOM_FILE_NAME );
 
     ErrorMgr.NoError();
 }
@@ -678,6 +680,8 @@ void ComputeCFDMesh( int set, int file_export_types )
         veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_CURV_FILE_NAME, true );
     if ( file_export_types & CFD_PLOT3D_TYPE )
         veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_PLOT3D_FILE_NAME, true );
+    if ( file_export_types & CFD_VSPGEOM_TYPE )
+        veh->GetCfdSettingsPtr()->SetFileExportFlag( CFD_VSPGEOM_FILE_NAME, true );
 
     veh->GetCfdSettingsPtr()->m_SelectedSetIndex = set;
     CfdMeshMgr.GenerateMesh();

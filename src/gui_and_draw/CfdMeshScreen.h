@@ -117,6 +117,7 @@ protected:
     ToggleButton m_SrfFile;
     ToggleButton m_XYZIntCurves;
     ToggleButton m_TkeyFile;
+    ToggleButton m_VspgeomFile;
 
     TriggerButton m_SelectStlFile;
     TriggerButton m_SelectPolyFile;
@@ -128,6 +129,7 @@ protected:
     TriggerButton m_SelectKeyFile;
     TriggerButton m_SelectSrfFile;
     TriggerButton m_SelectTkeyFile;
+    TriggerButton m_SelectVspgeomFile;
 
     StringOutput m_StlOutput;
     StringOutput m_PolyOutput;
@@ -139,6 +141,7 @@ protected:
     StringOutput m_KeyOutput;
     StringOutput m_SrfOutput;
     StringOutput m_TkeyOutput;
+    StringOutput m_VspgeomOutput;
 
     ToggleButton m_CurvFile;
     ToggleButton m_Plot3DFile;

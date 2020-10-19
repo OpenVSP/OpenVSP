@@ -660,6 +660,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_PLOT3D_FILE_NAME", CFD_PLOT3D_FILE_NAME, "/*!< PLOT3D export type */" );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_VSPGEOM_FILE_NAME", CFD_VSPGEOM_FILE_NAME, "/*!< VSPGEOM export type */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "CFD_MESH_EXPORT_TYPE", "CFD_NUM_FILE_NAMES", CFD_NUM_FILE_NAMES, "/*!< Number of CFD Mesh export file types */" );
     assert( r >= 0 );
 
@@ -798,6 +800,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_CURV_TYPE", CFD_CURV_TYPE, "/*!< CFD Mesh CURV file type */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_PLOT3D_TYPE", CFD_PLOT3D_TYPE, "/*!< CFD Mesh PLOT3D file type */" );
+    assert( r >= 0 );
+    r = se->RegisterEnumValue( "COMPUTATION_FILE_TYPE", "CFD_VSPGEOM_TYPE", CFD_VSPGEOM_TYPE, "/*!< CFD Mesh VSPGEOM file type */" );
     assert( r >= 0 );
 
     doc_struct.comment = "/*! Enum used to identify delimiter type. */";

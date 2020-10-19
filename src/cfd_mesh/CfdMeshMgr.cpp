@@ -883,8 +883,13 @@ void CfdMeshMgrSingleton::ExportFiles()
     {
         gmsh_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_GMSH_FILE_NAME );
     }
+    string vspaero_fn;
+    if (  GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_VSPGEOM_FILE_NAME ) )
+    {
+        vspaero_fn = GetCfdSettingsPtr()->GetExportFileName( vsp::CFD_VSPGEOM_FILE_NAME );
+    }
 
-    WriteNASCART_Obj_Tri_Gmsh( dat_fn, key_fn, obj_fn, tri_fn, gmsh_fn );
+    WriteNASCART_Obj_Tri_Gmsh( dat_fn, key_fn, obj_fn, tri_fn, gmsh_fn, vspaero_fn );
 
     if ( GetCfdSettingsPtr()->GetExportFileFlag( vsp::CFD_FACET_FILE_NAME ) )
     {
@@ -1157,7 +1162,7 @@ void CfdMeshMgrSingleton::WriteTetGen( const string &filename )
     fclose( fp );
 }
 
-void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const string &key_fn, const string &obj_fn, const string &tri_fn, const string &gmsh_fn )
+void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const string &key_fn, const string &obj_fn, const string &tri_fn, const string &gmsh_fn, const string & vspgeom_fn )
 {
 #ifdef DEBUG_CFD_MESH
     //==== Find Smallest Edge ====//
