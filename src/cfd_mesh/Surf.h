@@ -213,6 +213,16 @@ public:
         return m_SurfCfdType;
     }
 
+    //Getter/Setter Surface VSP TYPE (NORMAL_SURF, WING_SURF, DISK_SURF, PROP_SURF)
+    void SetSurfaceVSPType( int surfVspType )
+    {
+        m_SurfVspType = surfVspType;
+    }
+    int GetSurfaceVSPType()
+    {
+        return m_SurfVspType;
+    }
+
     virtual void SetSymPlaneFlag( bool flag );
     bool GetSymPlaneFlag()
     {
@@ -273,6 +283,7 @@ protected:
     bool m_FarFlag;
 
     int m_SurfCfdType;
+    int m_SurfVspType;
 
     SurfCore m_SurfCore;
 
