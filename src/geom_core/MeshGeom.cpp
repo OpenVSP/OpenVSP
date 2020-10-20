@@ -1043,7 +1043,7 @@ int MeshGeom::WriteVSPGeomParts( FILE* file_id  )
         TTri* ttri = m_IndexedTriVec[t];
         tag = SubSurfaceMgr.GetTag( ttri->m_Tags );
 
-        fprintf( file_id, "%d %f %f %f %f %f %f\n", tag,
+        fprintf( file_id, "%d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", tag,
                  ttri->m_N0->m_UWPnt.x(), ttri->m_N0->m_UWPnt.y(),
                  ttri->m_N1->m_UWPnt.x(), ttri->m_N1->m_UWPnt.y(),
                  ttri->m_N2->m_UWPnt.x(), ttri->m_N2->m_UWPnt.y() );
