@@ -177,7 +177,18 @@ void DegenGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     }
     else if ( device == & m_MakeDegenMeshGeom )
     {
-        vehiclePtr->CreateDegenMeshGeom( m_SelectedSetIndex );
+        string id = vehiclePtr->AddMeshGeom( vsp::SET_NONE, m_SelectedSetIndex );
+        if ( id.compare( "NONE" ) != 0 )
+        {
+            Geom* geom_ptr = vehiclePtr->FindGeom( id );
+            if ( geom_ptr )
+            {
+                MeshGeom* mg = dynamic_cast<MeshGeom*>( geom_ptr );
+                mg->SubTagTris( true );
+                geom_ptr->Update();
+            }
+            vehiclePtr->HideAllExcept( id );
+        }
     }
 
     m_ScreenMgr->SetUpdateFlag( true );
