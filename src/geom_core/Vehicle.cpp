@@ -770,7 +770,7 @@ string Vehicle::AddMeshGeom( int set )
 
     MeshGeom* mesh_geom = ( MeshGeom* )( geom_ptr );
 
-    if ( set > 2 )
+    if ( set >= SET_FIRST_USER )
     {
         mesh_geom->SetSetFlag( set, true );
     }
@@ -5206,7 +5206,7 @@ string Vehicle::CreateDegenMeshGeom( int set )
 
     MeshGeom* mesh_geom = ( MeshGeom* )( geom_ptr );
 
-    if ( set > 2 )
+    if ( set >= SET_FIRST_USER )
     {
         mesh_geom->SetSetFlag( set, true );
     }
