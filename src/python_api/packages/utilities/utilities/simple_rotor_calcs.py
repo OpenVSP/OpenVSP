@@ -46,6 +46,29 @@ def ct(thrust_lb, dens_alt_ft, rpm, radius_ft, atm=None):
 
     return ct
 
+
+def prop_ct(thrust_lb, dens_alt_ft, rpm, radius_ft, atm=None):
+    """
+    Computes propeller thrust coefficient
+
+    :param thrust_lb: thrust [lb]
+    :param dens_alt_ft: density altitude [ft]
+    :param rpm: revolutions per minute of the rotor [rpm]
+    :param radius_ft: radius [ft]
+    :param atm: atmosphere object, if None the 1976 standard atmosphere will be used
+    :return: thrust coefficient
+    """
+
+    if atm is None:
+        atm = uat.stdatm1976(0.0)
+
+    n = rpm*uu.rpm2n
+    rho_slugcf = atm.rho(dens_alt_ft * uu.ft2m) * uu.kgcm2slugcf
+    diameter_ft = radius_ft*2.0
+    ct_prop = thrust_lb/(rho_slugcf*n**2.0*diameter_ft**4.0)
+    return ct_prop
+
+
 def cq(torque_ft_lb, dens_alt_ft, rpm, radius_ft, atm=None):
     """
     Computes torque coefficient
@@ -68,6 +91,30 @@ def cq(torque_ft_lb, dens_alt_ft, rpm, radius_ft, atm=None):
 
     return cq
 
+
+def prop_cq(torque_ft_lb, dens_alt_ft, rpm, radius_ft, atm=None):
+    """
+    Computes propeller torque coefficient
+
+    :param torque_ft_lb: torque [ft-lb]
+    :param dens_alt_ft: density altitude [ft]
+    :param rpm: revolutions per minute of the rotor [rpm]
+    :param radius_ft: radius [ft]
+    :param atm: atmosphere object, if None the 1976 standard atmosphere will be used
+    :return: torque coefficient
+    """
+
+    if atm is None:
+        atm = uat.stdatm1976(0.0)
+
+    n = rpm * uu.rpm2n
+    rho_slugcf = atm.rho(dens_alt_ft * uu.ft2m) * uu.kgcm2slugcf
+    diameter_ft = radius_ft*2.0
+    cq = torque_ft_lb/(rho_slugcf*n**2.0*diameter_ft**5.0)
+
+    return cq
+
+
 def cp(power_ftlb_s, dens_alt_ft, rpm, radius_ft, atm=None):
     """
     Computes power coefficient
@@ -89,6 +136,29 @@ def cp(power_ftlb_s, dens_alt_ft, rpm, radius_ft, atm=None):
     cp = power_ftlb_s/(rho_slugcf*area_ft2*(omega_rads*radius_ft)**3.0)
 
     return cp
+
+
+def prop_cp(power_ftlb_s, dens_alt_ft, rpm, radius_ft, atm=None):
+    """
+    Computes propeller power coefficient
+
+    :param power_ftlb_s: power [ft-lb/s]
+    :param dens_alt_ft: density altitude [ft]
+    :param rpm: revolutions per minute of the rotor [rpm]
+    :param radius_ft: radius [ft]
+    :param atm: atmosphere object, if None the 1976 standard atmosphere will be used
+    :return: power coefficient
+    """
+
+    if atm is None:
+        atm = uat.stdatm1976(0.0)
+
+    n = rpm * uu.rpm2n
+    rho_slugcf = atm.rho(dens_alt_ft * uu.ft2m) * uu.kgcm2slugcf
+    diameter_ft = radius_ft*2.0
+    cp_prop = power_ftlb_s/(rho_slugcf*n**3.0*diameter_ft**5.0)
+    return cp_prop
+
 
 def fom(thrust_lb, power_ftlb_s, dens_alt_ft, rpm, radius_ft, atm=None):
     """
@@ -151,6 +221,27 @@ def dimensionalize_cp(cp, rpm, radius_ft, dens_alt_ft, atm=None):
     area_ft2 = np.pi * radius_ft**2.0
     omega = rpm * uu.rpm2rad_s
     power_ftlbs = cp*rho_slugcf*area_ft2*(omega*radius_ft)**3.0
+    return power_ftlbs
+
+
+def dimensionalize_prop_cp(cp_prop, rpm, radius_ft, dens_alt_ft, atm=None):
+    """
+    Converts propeller cp into power ft-lb/s
+
+    :param prop_cp: power coefficient
+    :param rpm: revolutions per minute
+    :param radius_ft: radius [ft]
+    :param dens_alt_ft: density altitude [ft]
+    :param atm: atmosphere object (optional, 1976 used if None)
+    :return: power [ft-lb/s]
+    """
+    if atm is None:
+        atm = uat.stdatm1976(0.0)
+
+    n = rpm * uu.rpm2n
+    rho_slugcf = atm.rho(dens_alt_ft * uu.ft2m) * uu.kgcm2slugcf
+    diameter_ft = radius_ft*2.0
+    power_ftlbs = cp_prop*(rho_slugcf*n**3.0*diameter_ft**5.0)
     return power_ftlbs
 
 
@@ -308,6 +399,30 @@ def thrust(ct, dens_alt_ft, rpm, radius_ft, atm=None):
 
     return thrust_lb
 
+
+def prop_thrust(prop_ct, dens_alt_ft, rpm, radius_ft, atm=None):
+    """
+    Computes thrust from a thrust coefficient
+
+    :param prop_ct: propeller thrust coefficient
+    :param dens_alt_ft: density altitude [ft]
+    :param rpm: revolutions per minute of the rotor [rpm]
+    :param radius_ft: radius [ft]
+    :param atm: atmosphere object, if None the 1976 standard atmosphere will be used
+    :return: thrust [lb]
+    """
+
+    if atm is None:
+        atm = uat.stdatm1976(0.0)
+
+    n = rpm*uu.rpm2n
+    rho_slugcf = atm.rho(dens_alt_ft * uu.ft2m) * uu.kgcm2slugcf
+    diameter_ft = radius_ft*2.0
+    thrust_lb = prop_ct*(rho_slugcf*n**2.0*diameter_ft**4.0)
+
+    return thrust_lb
+
+
 def torque(cq, dens_alt_ft, rpm, radius_ft, atm=None):
     """
     Computes torque from a torque coefficient
@@ -330,6 +445,30 @@ def torque(cq, dens_alt_ft, rpm, radius_ft, atm=None):
     torque_ft_lb = cq * rho_slugcf * area_ft2 * radius_ft * (omega_rads * radius_ft)**2
 
     return torque_ft_lb
+
+
+def prop_torque(prop_cq, dens_alt_ft, rpm, radius_ft, atm=None):
+    """
+    Computes torque from a torque coefficient
+
+    :param prop_cq: propeller torque coefficient
+    :param dens_alt_ft: density altitude [ft]
+    :param rpm: revolutions per minute of the rotor [rpm]
+    :param radius_ft: radius [ft]
+    :param atm: atmosphere object, if None the 1976 standard atmosphere will be used
+    :return: torque [ft-lb]
+    """
+
+    if atm is None:
+        atm = uat.stdatm1976(0.0)
+
+    n = rpm * uu.rpm2n
+    rho_slugcf = atm.rho(dens_alt_ft * uu.ft2m) * uu.kgcm2slugcf
+    diameter_ft = radius_ft*2.0
+    torque_ft_lb = prop_cq*rho_slugcf*n**2.0*diameter_ft**5.0
+
+    return torque_ft_lb
+
 
 def induced_velocity(diskload_lb_ft2, dens_alt_ft, atm=None):
     """

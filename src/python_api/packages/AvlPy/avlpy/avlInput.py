@@ -28,6 +28,11 @@ from utilities import RunManager
 import glob
 import sys
 import numpy as np
+import pandas as pd
+import io
+import typing
+import fortranformat as ff
+import csv
 
 # Try and find AVL binary
 DEFAULT_AVL_BINARY = os.path.join(os.path.dirname(__file__), "bin")
@@ -495,6 +500,7 @@ class AvlOutput:
         self.plotFile = plotFile
         self.stripForces = None
         self.stabilityDerivs = None
+        self.surfaceForces: typing.List[SurfaceForcesOutput] = []
 
     def parseFile(self,file):
         """
@@ -631,7 +637,7 @@ class AvlOutput:
                         (np.array(self.Alpha)[beta_mask],
                          np.array(self.CDind)[beta_mask],
                          np.array(self.Cmtot)[beta_mask],
-                         np.array(self.e)[beta_mask]),
+                         np.array(self.e)[beta_mask]), kind="cubic",
                         fill_value="extrapolate")
 
     def get_results_df(self):
@@ -644,6 +650,16 @@ class AvlOutput:
         df['SM'] = self.SM
         return df
 
+    def get_surface_forces_df(self):
+        all_df = pd.DataFrame()
+        for i, a in enumerate(self.Alpha):
+            b = self.Beta[i]
+            single_df = self.surfaceForces[i].get_df()
+            single_df['Alpha'] = a
+            single_df['Beta'] = b
+            all_df = pd.concat((all_df, single_df), ignore_index=True)
+        return all_df
+
 
 class StripForcesOutput():
     def __init__(self, file):
@@ -655,6 +671,10 @@ class StripForcesOutput():
         with open(file,"r") as f:
             lines = f.readlines()
 
+        self.lines = lines
+
+    def parse_lines(self):
+        lines = self.lines
         # find index for all beginnings of surfaces
         indx = [i for i, l in enumerate(lines) if "Surface #" in l]
 
@@ -664,6 +684,10 @@ class StripForcesOutput():
             self.strips.append( StripForcesSurface(lines[indx[i]:indx[i+1]-1]))
 
         self.strips.append( StripForcesSurface(lines[indx[-1]: len(lines)-1]))
+
+    def dump_csvs(self, base_filename):
+        for strip in self.strips:
+            strip.dump_csv(base_filename + f"{strip.name}_{strip.surf_num}.csv", self.cref)
 
 
 class StripForcesSurface():
@@ -719,8 +743,17 @@ class StripForcesSurface():
         self.CDvsurf = float(strs[5])
 
         bio = BytesIO("".join(str_array[14:]).encode("utf8"))
-        data = np.genfromtxt(bio, )
+        # data = np.genfromtxt(bio, )
+        # Manually parse data since sometimes there are a different number of rows
+        data = []
+        for line in str_array[14:]:
+            line = line.replace("*", " ")
+            reader = ff.FortranRecordReader("(2X,I4,11(1X,F8.4),1X,F8.3)")
+            line_data = reader.read(line)
+            line_data = [np.nan if x is None else x for x in line_data]
+            data.append(line_data)
 
+        data = np.array(data)
         self.j = data[:,0]
         self.yle = data[:,1]
         self.chord = data[:,2]
@@ -738,6 +771,60 @@ class StripForcesSurface():
         except (IndexError):
             self.cp_xc = data[:, 11]
             self.cp_xc = np.nan
+        self.data = data
+
+    def dump_csv(self, filename, cref):
+        with open(filename, "w") as csvfile:
+            writer = csv.writer(csvfile)
+            writer.writerow(["Name", "Surf Num", "Surf Area", "Cref", "NChord", "Nspan", "MAC", "CLsurf", "cl_surf", "CY_surf", "cm_surf", "CD_surf", "cn_surf", "CDi_surf", "CDv_surf"])
+            writer.writerow([self.name, self.surf_num, self.surf_area, cref, self.nchord, self.nspan, self.mac, self.CLsurf, self.cl_surf, self.CY_surf, self.cm_surf, self.CD_surf, self.cn_surf, self.CDi_surf, self.CDvsurf])
+            writer.writerow(['j', 'yle', 'chord', 'area', 'c_cl', 'ai', 'cl_norm', 'cl', 'cd', 'cdv', 'cm_c4', 'cm_le', 'cp_xc'])
+            pd.DataFrame(self.data).to_csv(csvfile, header=None, index=None)
+
+class SurfaceForcesOutput:
+    """
+    Output wrapper for surface forces
+    """
+
+    def __init__(self, fn_file_name):
+        """
+
+        :param fn_file_name: file name for the surface forces output file to parse
+        """
+
+        with open(fn_file_name, "r") as f:
+            # Find start of main data
+            for line in f:
+                if "n      Area      CL      CD      Cm      CY      Cn      Cl     CDi     CDv" in line:
+                    break
+
+            data = []
+            names = []
+            for line in f:
+                if not line.strip():
+                    break
+                split_data = line.split()
+                line_data = split_data[:10]
+                line_data = [float(d) for d in line_data]
+                names.append(" ".join(split_data[10:]))
+                data.append(line_data)
+
+        mat = np.array(data)
+        self.n = mat[:, 0]
+        self.Area = mat[:, 1]
+        self.CL = mat[:, 2]
+        self.CD = mat[:, 3]
+        self.Cm = mat[:, 4]
+        self.CY = mat[:, 5]
+        self.Cn = mat[:, 6]
+        self.Cl = mat[:, 7]
+        self.CDi = mat[:, 8]
+        self.CDv = mat[:, 9]
+        self.name = names
+
+    def get_df(self):
+        return pd.DataFrame(self.__dict__)
+
 
 
 def create_input_from_degen_geom(degen_objects=None, degen_set=None, title="DegenAvl", mach=0.0, Sref=1.0, Bref=1.0,
@@ -822,18 +909,23 @@ def create_input_from_degen_geom(degen_objects=None, degen_set=None, title="Dege
                 chord = chord[sort_inds]
                 u = u[sort_inds]
 
+                span_axis = le[-1, :] - le[0, :]
+
                 nspan = 1
                 for i in range(len(le)):
                     nspan += 1
                     if abs(round(u[i]) - u[i]) > 1.0e-10:
                         continue
+
                     # Compute ainc
                     x_vec = np.array([1.0, 0.0, 0.0])
                     chord_vec = te[i, :] - le[i, :]
                     cos_theta = np.dot(chord_vec, x_vec) / np.linalg.norm(chord_vec)
                     rot_axis = np.cross(x_vec, chord_vec)
                     angle_sign = 1.0
-                    if rot_axis[np.argmax(np.abs(rot_axis))] < 0.0:
+
+                    cos_theta_span_axis = np.dot(span_axis, rot_axis) / (np.linalg.norm(span_axis)* np.linalg.norm(rot_axis))
+                    if np.abs(cos_theta_span_axis) < np.pi/2.0:
                         angle_sign = -1.0
 
                     ainc = np.rad2deg(np.arccos(np.clip(cos_theta, -1, 1)))*angle_sign
@@ -852,7 +944,7 @@ def create_input_from_degen_geom(degen_objects=None, degen_set=None, title="Dege
 
 
 def runAvl(avlInput, alpha=None, beta=None, savePlots=False,
-           binPath=DEFAULT_AVL_BINARY, constraints=None, **kwargs):
+           binPath=DEFAULT_AVL_BINARY, constraints=None, collect_surface_forces=False, **kwargs):
     """
 
     :param avlInput: AvlInput object to run or
@@ -860,6 +952,7 @@ def runAvl(avlInput, alpha=None, beta=None, savePlots=False,
     :param savePlots: boolean to save plots or not (default=False)
     :param binPath: path to binary file (optional)
     :param constraints: constraints structure to be used for trimming (default=None)
+    :param collect_surface_forces: True to have avl output surface forces
     :param kwargs: can pass cleanup_flag and change_dir to the RunManager class, if desired
     :return:
     """
@@ -870,53 +963,76 @@ def runAvl(avlInput, alpha=None, beta=None, savePlots=False,
         beta = [0]
 
     with RunManager(**kwargs) as r:
+        cmd = io.StringIO()
+
         # save avlInput to that directory
         inputFile = "avlinput.txt"
         avlInput.toFile( inputFile)
         plotFile = "plot.ps"
         outputFiles = []
         fsFiles = []
-        cmd = 'plop\nG\n\n' # turn off plotting
-        cmd = cmd + 'load {}\n'.format(inputFile)
-        cmd = cmd + 'oper\n'
-        cmd = cmd + "g\n"  # go to geometry menu
-        cmd = cmd + "h\n"  # print current geometry
-        cmd = cmd + "no\n"  # turn normals on
-        cmd = cmd + "h\n"  # print
-        cmd = cmd + "no\n\n"  # turn normal off
+        fnFiles = []
+        cmd.write('plop\nG\n\n') # turn off plotting
+        cmd.write('load {}\n'.format(inputFile))
+        cmd.write('oper\n')
+        cmd.write("g\n")  # go to geometry menu
+        cmd.write("h\n")  # print current geometry
+        cmd.write("no\n")  # turn normals on
+        cmd.write("h\n")  # print
+        cmd.write("no\n")  # turn normal off
+        # Get front view
+        cmd.write("v\n")
+        cmd.write("0 0\n")
+        cmd.write("h\n\n")
 
         if constraints is not None:
             for constraint in constraints:
-                cmd = cmd + "%s %s %f\n" % tuple(constraint)
+                cmd.write("%s %s %f\n" % tuple(constraint))
 
         for a in alpha:
             for b in beta:
-                cmd = cmd + "+\n"  # add new run case
-                cmd = cmd + "a a {}\n".format(a)  # add this alpha to the run case
-                cmd = cmd + "b b {}\n".format(b)  # add this beta to the run case
-                cmd = cmd + "x\n"  # execute run case
-                cmd = cmd + "st\n"
+                cmd.write("+\n")  # add new run case
+                cmd.write("a a {}\n".format(a))  # add this alpha to the run case
+                cmd.write("b b {}\n".format(b))  # add this beta to the run case
+                cmd.write("x\n")  # execute run case
+                cmd.write("st\n")
                 f = "results_alpha_{}_beta_{}.txt".format(a, b)
                 outputFiles.append( f )
-                cmd = cmd + f + "\n"
+                cmd.write(f + "\n")
 
-                cmd = cmd + "g\n" # go to geometry menu
-                cmd = cmd + "lo\n"  # turn loading on
-                cmd = cmd + "h\n"  # print
-                cmd = cmd + "lo\n" # turn loading off
-                cmd = cmd + "\n"  #go back to oper menu
+                cmd.write("g\n") # go to geometry menu
+                cmd.write("lo\n")  # turn loading on
+                cmd.write("v\n-45.0 20.0\n") # set viewpoint to iso
+                cmd.write("h\n")  # print
+                # Set viewpoint to front
+                cmd.write("v\n")
+                cmd.write("0 0\n")
+                cmd.write("h\n")
+                cmd.write("lo\n") # turn loading off
+                cmd.write("\n")  #go back to oper menu
 
                 # save out strip forces
-                cmd = cmd + "FS\n"
+                cmd.write("FS\n")
                 fsFiles.append("strip_forces_{}_{}.txt".format(a, b))
-                cmd = cmd + "{}\n".format(fsFiles[-1])
+                cmd.write("{}\n".format(fsFiles[-1]))
 
-                cmd = cmd + "T\n"  # go to trefftz plane menu
-                cmd = cmd + "h\n\n"  # print
+                cmd.write("T\n")  # go to trefftz plane menu
+                cmd.write("h\n\n")  # print
 
-        cmd = cmd + "\nquit\n"
+                # save out surface forces
+                if collect_surface_forces:
+                    fn_file = "surface_forces_{}_{}.txt".format(a, b)
+                    fnFiles.append(fn_file)
+                    cmd.write("FN\n")
+                    cmd.write(fn_file + "\n")
+
+
+        cmd.write("\nquit\n")
+
         p = Popen([binPath], stdout=PIPE, stdin=PIPE, stderr=STDOUT, universal_newlines=True, cwd=r.wd)
-        stdOut = p.communicate(input=cmd)[0]
+        stdOut = p.communicate(input=cmd.getvalue())[0]
+
+        cmd.close()
 
         results = AvlOutput()
         results.parseFiles(outputFiles)
@@ -932,6 +1048,16 @@ def runAvl(avlInput, alpha=None, beta=None, savePlots=False,
             
         except ValueError:
             warnings.warn("AVL strip force parsing failed.")
+
+
+        try:
+            surfaceForces = []
+            for f in fnFiles:
+                s = SurfaceForcesOutput(f)
+                surfaceForces.append(s)
+            results.surfaceForces = surfaceForces
+        except ValueError:
+            warnings.warn("AVL surface force parsing failed.")
 
 
         if savePlots:

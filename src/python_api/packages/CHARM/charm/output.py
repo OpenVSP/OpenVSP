@@ -641,14 +641,14 @@ class CharmRotorResults:
         """
         Total X-force in aircraft frame [lbs] parsed from the log file. Note the sign on this value is changed
         from the log file. Positive value aligned with positive x-body axis (forward) of aircraft
-
+        
         First and last value in the log file for this rotor.
         """
 
         self.fy_aircraft = np.array([result.aircraft_y_force for result in rotor_log_results])
         """
         Total Y-force in aircraft frame [lbs] parsed from the log file.
-
+        
         First and last value in the log file for this rotor.
         """
 
@@ -656,7 +656,7 @@ class CharmRotorResults:
         """
         Total Z-force in aircraft frame [lbs] parsed from the log file. Note the sign on this value is changed from log
         file. Positive value aligned with positive z-body axis (down) of the aircraft
-
+        
         First and last value in the log file for this rotor.
         """
 
@@ -1071,7 +1071,7 @@ def __parse_log_file(log_filename):
                 f.seek(current_position)
                 break
 
-        tip_speed_expr = re.compile(r"(^|\s)Tip speed \(OMEGAR\):\s+(.*)\sft/s")
+        tip_speed_expr = re.compile(r"(^|\s)Tip speed \(OMEGAR\):\s+(.*)\s")
 
         shaft_axes_expr = re.compile(r"(^|\s)SHAFT AXES:")
         shaft_thrust_expr = re.compile(r"(^|\s)Thrust \(\+up\)\s+(\S*)\s+(\S*)")
@@ -1118,7 +1118,7 @@ def __parse_log_file(log_filename):
                 # Parse individual quantities
 
                 line = __find_line(f, tip_speed_expr, integrated_perf_expr)
-                tip_speed = float(re.search(tip_speed_expr, line).groups()[1])
+                tip_speed = float(re.search(tip_speed_expr, line).groups()[1].split()[0])
 
                 # Shaft axes
                 line = __find_line(f, shaft_axes_expr, integrated_perf_expr)

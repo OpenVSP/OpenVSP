@@ -230,7 +230,7 @@ def create_df_from_charm_af(filename):
                     AF_META_COL_NAMES.stall_aoa: [], AF_META_COL_NAMES.neg_stall_aoa: []}
     for mach, df_mach in df_cl_cd.groupby(AF_COL_NAMES.mach):
         # Find index closest to alpha = 0
-        alpha0_i = df_mach[AF_COL_NAMES.aoa].abs().argmin()
+        alpha0_i = df_mach[AF_COL_NAMES.aoa].abs().idxmin()
         cl_diff = df_mach[AF_COL_NAMES.cl].diff()
 
         try:
@@ -251,7 +251,7 @@ def create_df_from_charm_af(filename):
 
         f_cl = interp1d(df_non_stall[AF_COL_NAMES.cl], df_non_stall[AF_COL_NAMES.aoa])
         alpha_0 = f_cl(0.0).item()
-        alpha0_i = (df_mach[AF_COL_NAMES.aoa] - alpha_0).abs().argmin()
+        alpha0_i = (df_mach[AF_COL_NAMES.aoa] - alpha_0).abs().idxmin()
 
         # fit line through five points around alpha0 to determine cl/alpha
         df_linear_lift = df_non_stall.loc[alpha0_i-2:alpha0_i+3]
@@ -266,7 +266,7 @@ def create_df_from_charm_af(filename):
         df_linear_lift = df_non_stall.loc[alpha0_i - 4:alpha0_i + 4]
         y = df_linear_lift[AF_COL_NAMES.cd] - cd_min
         x = (cl_cd_min - df_linear_lift[AF_COL_NAMES.cl])**2.0
-        cdcl21, _, _, _ = np.linalg.lstsq(x[:, np.newaxis], y)
+        cdcl21, _, _, _ = np.linalg.lstsq(x[:, np.newaxis], y, rcond=None)
 
         # get cl2cd
         cdcl2 = cdcl21[0]

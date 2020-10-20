@@ -122,6 +122,11 @@ oz2lb = 1./16
 
 lb2oz = 1/oz2lb
 
+# ineritas
+slugft22kgm2 = slug2kg*ft22m2
+
+kgm22slugft2 = kg2slug*m22ft2
+
 # forces
 lb2n = 4.4482216152605
 

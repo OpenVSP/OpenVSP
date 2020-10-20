@@ -406,9 +406,10 @@ class FigureSaver:
         :param name: name of png to save, this name will be prefixed with pdf page number
         :return:
         """
-        self.save_png(name, fig, close=False)
         if self.pdf_filename is not None:
             name = f"{self.page_count:03d}_{name}"
+        self.save_png(name, fig, close=False)
+        if self.pdf_filename is not None:
             self.save_to_pdf(fig)
 
     def save_to_pdf(self, fig=None, close=None):

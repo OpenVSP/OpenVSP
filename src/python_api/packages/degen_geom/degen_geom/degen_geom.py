@@ -339,6 +339,10 @@ class DegenGeomMgr():
                 for dg in copy:
                     yield dg
 
+    def get_degen_obj_by_name(self, name):
+        return [obj for obj in self.degen_objs.values() if obj.name == name]
+
+
     def FindGeomsWithName(self, name):
         geom_ids = []
         for geom_id, geom in self.degen_objs.items():
