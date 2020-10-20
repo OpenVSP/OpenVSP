@@ -1554,6 +1554,8 @@ void ScriptMgrSingleton::RegisterEnums( asIScriptEngine* se )
 
     r = se->RegisterEnum( "SET_TYPE", doc_struct );
     assert( r >= 0 );
+    r = se->RegisterEnumValue( "SET_TYPE", "SET_NONE", SET_NONE, "/*!< None set */" );
+    assert( r >= 0 );
     r = se->RegisterEnumValue( "SET_TYPE", "SET_ALL", SET_ALL, "/*!< All set */" );
     assert( r >= 0 );
     r = se->RegisterEnumValue( "SET_TYPE", "SET_SHOWN", SET_SHOWN, "/*!< Shown set */" );

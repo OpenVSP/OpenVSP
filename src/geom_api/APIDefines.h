@@ -496,7 +496,8 @@ enum RHO_UNITS { RHO_UNIT_SLUG_FT3 = 0,
                  RHO_UNIT_LBFSEC2_IN4
                }; // Rho Units ENUM
 
-enum SET_TYPE { SET_ALL = 0,
+enum SET_TYPE { SET_NONE = -1,
+                SET_ALL = 0,
                 SET_SHOWN = 1,
                 SET_NOT_SHOWN = 2,
                 SET_FIRST_USER = 3
