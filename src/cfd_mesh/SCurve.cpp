@@ -662,15 +662,8 @@ void SCurve::Tesselate()
 
 void SCurve::Tesselate( const vector< double > & u_tess )
 {
-
     m_UTess = u_tess;
-    m_UWTess.clear();
-    for ( int i = 0 ; i < ( int )m_UTess.size() ; i++ )
-    {
-        double u = m_UTess[i];
-        vec3d uw = m_UWCrv.CompPnt01( u );
-        m_UWTess.push_back( uw );
-    }
+    UWTess();
 }
 
 void SCurve::FlipDir()
