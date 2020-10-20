@@ -48,14 +48,14 @@ xmlNodePtr AddDoubleNode( xmlNodePtr root, const char * name, double val );
 xmlNodePtr AddStringNode( xmlNodePtr root, const char * name, const string & val );
 void SetIntProp( xmlNodePtr root, const char * name, int val );
 void SetDoubleProp( xmlNodePtr root, const char * name, double val );
-void SetStringProp( xmlNodePtr root, const char * name, string & val );
+void SetStringProp( xmlNodePtr root, const char * name, const string & val );
 
-xmlNodePtr AddVectorBoolNode( xmlNodePtr root, const char * name, vector< bool > & vec );
-xmlNodePtr AddVectorIntNode( xmlNodePtr root, const char * name, vector< int > & vec );
-xmlNodePtr AddVectorDoubleNode( xmlNodePtr root, const char * name, vector< double > & vec );
-xmlNodePtr AddVec2dNode( xmlNodePtr root, const char * name, vec2d vec );
-xmlNodePtr AddVec3dNode( xmlNodePtr root, const char * name, vec3d vec );
-xmlNodePtr AddVectorVec3dNode( xmlNodePtr root, const char * name, vector< vec3d > & vec );
+xmlNodePtr AddVectorBoolNode( xmlNodePtr root, const char * name, const vector< bool > & vec );
+xmlNodePtr AddVectorIntNode( xmlNodePtr root, const char * name, const vector< int > & vec );
+xmlNodePtr AddVectorDoubleNode( xmlNodePtr root, const char * name, const vector< double > & vec );
+xmlNodePtr AddVec2dNode( xmlNodePtr root, const char * name, const vec2d & vec );
+xmlNodePtr AddVec3dNode( xmlNodePtr root, const char * name, const vec3d & vec );
+xmlNodePtr AddVectorVec3dNode( xmlNodePtr root, const char * name, const vector< vec3d > & vec );
 
 vector< bool >   ExtractVectorBoolNode( xmlNodePtr root, const char * name );
 vector< int >    ExtractVectorIntNode( xmlNodePtr root, const char * name );

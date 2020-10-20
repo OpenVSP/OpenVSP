@@ -275,7 +275,7 @@ void XmlUtil::SetDoubleProp( xmlNodePtr root, const char * name, double val )
     xmlSetProp( root, ( const xmlChar * )name, ( const xmlChar * )str );
 }
 
-void XmlUtil::SetStringProp( xmlNodePtr root, const char * name, string & val )
+void XmlUtil::SetStringProp( xmlNodePtr root, const char * name, const string & val )
 {
     xmlSetProp( root, ( const xmlChar * )name, ( const xmlChar * )val.c_str() );
 }
@@ -411,7 +411,7 @@ int XmlUtil::ExtractIntArray( xmlNodePtr node, const char &sep, int * array, int
 }
 
 //==== Create Node and Add Vector Of Bools ====//
-xmlNodePtr XmlUtil::AddVectorBoolNode( xmlNodePtr root, const char * name, vector< bool > & vec )
+xmlNodePtr XmlUtil::AddVectorBoolNode( xmlNodePtr root, const char * name, const vector< bool > & vec )
 {
     string str;
     char buff[256];
@@ -426,7 +426,7 @@ xmlNodePtr XmlUtil::AddVectorBoolNode( xmlNodePtr root, const char * name, vecto
 }
 
 //==== Create Node and Add Vector Of Ints ====//
-xmlNodePtr XmlUtil::AddVectorIntNode( xmlNodePtr root, const char * name, vector< int > & vec )
+xmlNodePtr XmlUtil::AddVectorIntNode( xmlNodePtr root, const char * name, const vector< int > & vec )
 {
     string str;
     char buff[256];
@@ -441,7 +441,7 @@ xmlNodePtr XmlUtil::AddVectorIntNode( xmlNodePtr root, const char * name, vector
 }
 
 //==== Create Node and Add Vector Of Doubles ====//
-xmlNodePtr XmlUtil::AddVectorDoubleNode( xmlNodePtr root, const char * name, vector< double > & vec )
+xmlNodePtr XmlUtil::AddVectorDoubleNode( xmlNodePtr root, const char * name, const vector< double > & vec )
 {
     string str;
     char buff[256];
@@ -456,7 +456,7 @@ xmlNodePtr XmlUtil::AddVectorDoubleNode( xmlNodePtr root, const char * name, vec
 }
 
 //==== Create Node and Add Vec2d (Double Values) ====//
-xmlNodePtr XmlUtil::AddVec2dNode( xmlNodePtr root, const char * name, vec2d vec )
+xmlNodePtr XmlUtil::AddVec2dNode( xmlNodePtr root, const char * name, const vec2d & vec )
 {
     string str;
     char buff[256];
@@ -472,7 +472,7 @@ xmlNodePtr XmlUtil::AddVec2dNode( xmlNodePtr root, const char * name, vec2d vec 
 }
 
 //==== Create Node and Add Vec3d (Double Values) ====//
-xmlNodePtr XmlUtil::AddVec3dNode( xmlNodePtr root, const char * name, vec3d vec )
+xmlNodePtr XmlUtil::AddVec3dNode( xmlNodePtr root, const char * name, const vec3d & vec )
 {
     string str;
     char buff[256];
@@ -490,7 +490,7 @@ xmlNodePtr XmlUtil::AddVec3dNode( xmlNodePtr root, const char * name, vec3d vec 
 }
 
 //==== Create Node and Add Vector Of Vec3d ====//
-xmlNodePtr XmlUtil::AddVectorVec3dNode( xmlNodePtr root, const char * name, vector< vec3d > & vec )
+xmlNodePtr XmlUtil::AddVectorVec3dNode( xmlNodePtr root, const char * name, const vector< vec3d > & vec )
 {
     vector< double > xyz_vec;
     for ( int i = 0 ; i < ( int )vec.size() ; i++ )
