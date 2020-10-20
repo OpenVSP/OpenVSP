@@ -69,11 +69,6 @@ void ICurve::PlaneBorderTesselate( SCurve* crv_A, SCurve* crv_B )
     crv_B->ProjectTessToSurf( crv_A );
 }
 
-void ICurve::Draw()
-{
-
-}
-
 void ICurve::DebugEdgeMatching( FILE* fp )
 {
     if ( !m_SCurve_A || !m_SCurve_B )

@@ -48,8 +48,6 @@ public:
     }
 
 
-    static void Draw();
-
     void DebugEdgeMatching( FILE* fp );
 
 
