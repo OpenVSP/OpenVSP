@@ -793,6 +793,32 @@ string Vehicle::AddMeshGeom( int normal_set, int degen_set )
                     mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
                 }
             }
+
+            if ( g_ptr->GetSetFlag( degen_set ) )
+            {
+                if( g_ptr->GetType().m_Type != BLANK_GEOM_TYPE )
+                {
+                    vector< DegenGeom > DegenGeomVec; // Vector of geom in degenerate representation
+
+                    g_ptr->CreateDegenGeom( DegenGeomVec, true );
+
+                    vector< TMesh* > tMeshVec;
+                    for ( int j = 0; j < DegenGeomVec.size(); j++ )
+                    {
+                        // Flip normals because surfaces are based on 'bottom' surface and we'd prefer normals face up.
+                        DegenGeomVec[j].setFlipNormal( ! DegenGeomVec[j].getFlipNormal() );
+                        // Create MeshGeom from DegenGeom
+                        // Camber surfaces for wings & props, plates for bodies.
+                        DegenGeomVec[j].createTMeshVec( g_ptr, tMeshVec );
+                    }
+
+                    // Do not combine these loops.  tMeshVec.size() != DegenGeomVec.size()
+                    for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
+                    {
+                        mesh_geom->m_TMeshVec.push_back( tMeshVec[j] );
+                    }
+                }
+            }
         }
     }
 
