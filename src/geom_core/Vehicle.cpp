@@ -754,7 +754,7 @@ string Vehicle::AddGeom( Geom* add_geom )
     return add_id;
 }
 
-string Vehicle::AddMeshGeom( int set )
+string Vehicle::AddMeshGeom( int normal_set )
 {
     ClearActiveGeom();
 
@@ -770,9 +770,9 @@ string Vehicle::AddMeshGeom( int set )
 
     MeshGeom* mesh_geom = ( MeshGeom* )( geom_ptr );
 
-    if ( set >= SET_FIRST_USER )
+    if ( normal_set >= SET_FIRST_USER )
     {
-        mesh_geom->SetSetFlag( set, true );
+        mesh_geom->SetSetFlag( normal_set, true );
     }
     else
     {
@@ -785,7 +785,7 @@ string Vehicle::AddMeshGeom( int set )
         Geom* g_ptr = FindGeom( geom_vec[i] );
         if ( g_ptr )
         {
-            if ( g_ptr->GetSetFlag( set ) )
+            if ( g_ptr->GetSetFlag( normal_set ) )
             {
                 vector< TMesh* > tMeshVec = g_ptr->CreateTMeshVec();
                 for ( int j = 0 ; j < ( int )tMeshVec.size() ; j++ )
