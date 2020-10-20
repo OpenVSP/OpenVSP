@@ -1198,6 +1198,9 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
 //  if ( !dat_fn && !key_fn && !obj_fn && !tri_fn )
 //      return;
 
+    // Used when comparing W parameter to TMAGIC
+    double tol = 1e-12;
+
     //==== Find All Points and Tri Counts ====//
     vector< vec3d* > allPntVec;
     vector< vec3d* > wakeAllPntVec;
@@ -1233,12 +1236,15 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
     //==== Assemble Normal Tris ====//
     vector< SimpTri > allTriVec;
     vector< int > allSurfIDVec;
+    vector< vector< vec2d > > allUWVec;
+    vector < pair < int, int > > wedges;
     for ( int i = 0 ; i < ( int )m_SurfVec.size() ; i++ )
     {
         if ( !m_SurfVec[i]->GetWakeFlag() )
         {
             vector < SimpTri >& sTriVec = m_SurfVec[i]->GetMesh()->GetSimpTriVec();
             vector< vec3d >& sPntVec = m_SurfVec[i]->GetMesh()->GetSimpPntVec();
+            vector< vec2d >& sUWVec = m_SurfVec[i]->GetMesh()->GetSimpUWPntVec();
             for ( int t = 0 ; t <  ( int )sTriVec.size() ; t++ )
             {
                 int i0 = FindPntIndex( sPntVec[sTriVec[t].ind0], allPntVec, indMap );
@@ -1251,9 +1257,109 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
                 stri.m_Tags = sTriVec[t].m_Tags;
                 allTriVec.push_back( stri );
                 allSurfIDVec.push_back( m_SurfVec[i]->GetSurfID() );
+
+                vector< vec2d > uwTri(3);
+                uwTri[0] = sUWVec[ sTriVec[t].ind0 ];
+                uwTri[1] = sUWVec[ sTriVec[t].ind1 ];
+                uwTri[2] = sUWVec[ sTriVec[t].ind2 ];
+                allUWVec.push_back( uwTri );
+
+                if ( m_SurfVec[i]->GetSurfaceVSPType() == vsp::WING_SURF ||
+                     m_SurfVec[i]->GetSurfaceVSPType() == vsp::PROP_SURF )
+                {
+                    bool n0 = uwTri[0].y() <= ( TMAGIC + tol );
+                    bool n1 = uwTri[1].y() <= ( TMAGIC + tol );
+                    bool n2 = uwTri[2].y() <= ( TMAGIC + tol );
+
+                    if ( ( n0 + n1 + n2 ) == 2 ) // Two true, one false.
+                    {
+                        // Perform index lookup as above.
+                        int i0 = pntShift[ FindPntIndex( sPntVec[sTriVec[t].ind0], allPntVec, indMap ) ] + 1;
+                        int i1 = pntShift[ FindPntIndex( sPntVec[sTriVec[t].ind1], allPntVec, indMap ) ] + 1;
+                        int i2 = pntShift[ FindPntIndex( sPntVec[sTriVec[t].ind2], allPntVec, indMap ) ] + 1;
+
+                        // Add nodes to wake edges, lowest u first.
+                        if ( n0 && n1 )
+                        {
+                            if ( uwTri[0].x() < uwTri[1].x() )
+                            {
+                                wedges.push_back( pair< int, int>( i0, i1 ) );
+                            }
+                            else
+                            {
+                                wedges.push_back( pair< int, int>( i1, i0 ) );
+                            }
+                        }
+                        else if ( n1 && n2 )
+                        {
+                            if ( uwTri[1].x() < uwTri[2].x() )
+                            {
+                                wedges.push_back( pair< int, int>( i1, i2 ) );
+                            }
+                            else
+                            {
+                                wedges.push_back( pair< int, int>( i2, i1 ) );
+                            }
+                        }
+                        else if ( n2 && n0 )
+                        {
+                            if ( uwTri[2].x() < uwTri[0].x() )
+                            {
+                                wedges.push_back( pair< int, int>( i2, i0 ) );
+                            }
+                            else
+                            {
+                                wedges.push_back( pair< int, int>( i0, i2 ) );
+                            }
+                        }
+                    }
+                }
             }
+
         }
     }
+
+    sort( wedges.begin(), wedges.end() );
+
+    vector < pair < int, int > >::iterator it;
+    it = unique( wedges.begin(), wedges.end() );
+    wedges.resize( distance( wedges.begin(), it ) );
+
+    list < pair < int, int > > wlist( wedges.begin(), wedges.end() );
+
+    vector < deque < pair < int, int > > > wakes;
+    int iwake = 0;
+
+    while ( !wlist.empty() )
+    {
+        list < pair < int, int > >::iterator wit = wlist.begin();
+
+        iwake = wakes.size();
+        wakes.resize( iwake + 1 );
+        wakes[iwake].push_back( *wit );
+        wit = wlist.erase( wit );
+
+        while ( wit != wlist.end() )
+        {
+            if ( wakes[iwake].back().second == (*wit).first )
+            {
+                wakes[iwake].push_back( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            else if ( wakes[iwake].begin()->first == (*wit).second )
+            {
+                wakes[iwake].push_front( *wit );
+                wlist.erase( wit );
+                wit = wlist.begin();
+                continue;
+            }
+            wit++;
+        }
+    }
+
+
     //==== Assemble All Used Points ====//
     vector< vec3d* > allUsedPntVec;
     for ( int i = 0 ; i < ( int )allPntVec.size() ; i++ )
