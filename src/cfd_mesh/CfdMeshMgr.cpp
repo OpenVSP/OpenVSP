@@ -1534,6 +1534,80 @@ void CfdMeshMgrSingleton::WriteNASCART_Obj_Tri_Gmsh( const string &dat_fn, const
             fclose( fp );
         }
     }
+
+    //=====================================================================================//
+    //==== Write VSPGEOM File for VSPAERO =================================================//
+    //=====================================================================================//
+    if ( vspgeom_fn.length() != 0 )
+    {
+        FILE* fp = fopen( vspgeom_fn.c_str(), "w" );
+
+        if ( fp )
+        {
+            //==== Write Pnt Count ====//
+            fprintf( fp, "%d\n", ( int )allUsedPntVec.size() );
+
+            //==== Write Pnts ====//
+            for ( int i = 0 ; i < ( int )allUsedPntVec.size() ; i++ )
+            {
+                fprintf( fp, "%16.10g %16.10g %16.10g\n", allUsedPntVec[i]->x(), allUsedPntVec[i]->y(), allUsedPntVec[i]->z() );
+            }
+
+            //==== Write Tri Count ====//
+            fprintf( fp, "%d\n", ( int )allTriVec.size() );
+
+            //==== Write Tris ====//
+            for ( int i = 0 ; i < ( int )allTriVec.size() ; i++ )
+            {
+                fprintf( fp, "3 %d %d %d \n", allTriVec[i].ind0, allTriVec[i].ind1, allTriVec[i].ind2 );
+            }
+
+            //==== Write Component ID ====//
+            for ( int i = 0 ; i < ( int )allTriVec.size() ; i++ )
+            {
+                fprintf( fp, "%d %16.10g %16.10g %16.10g %16.10g %16.10g %16.10g\n", SubSurfaceMgr.GetTag( allTriVec[i].m_Tags ),
+                         allUWVec[i][0].x(), allUWVec[i][0].y(),
+                         allUWVec[i][1].x(), allUWVec[i][1].y(),
+                         allUWVec[i][2].x(), allUWVec[i][2].y() );
+
+            }
+
+            // Coincident point data.
+            fprintf( fp, "%d\n", 0 );
+
+            int nwake = wakes.size();
+            // Wake line data.
+            fprintf( fp, "%d\n", nwake );
+
+            for ( int iwake = 0; iwake < nwake; iwake++ )
+            {
+
+                int iprt = 0;
+                int iwe;
+                int nwe = wakes[iwake].size();
+                fprintf( fp, "%d ", nwe + 1 );
+                for ( iwe = 0; iwe < nwe; iwe++ )
+                {
+                    fprintf( fp, "%d", wakes[iwake][iwe].first );
+
+                    if ( iprt < 9 )
+                    {
+                        fprintf( fp, " " );
+                        iprt++;
+                    }
+                    else
+                    {
+                        fprintf( fp, "\n" );
+                        iprt = 0;
+                    }
+                }
+                fprintf( fp, "%d\n", wakes[iwake][iwe-1].second );
+
+            }
+
+            fclose( fp );
+        }
+    }
 }
 
 void CfdMeshMgrSingleton::WriteFacet( const string &facet_fn )
