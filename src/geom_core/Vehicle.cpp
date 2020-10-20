@@ -776,7 +776,7 @@ string Vehicle::AddMeshGeom( int set )
     }
     else
     {
-        mesh_geom->SetSetFlag( 1, true );    // Ensure Shown Flag is Set
+        mesh_geom->SetSetFlag( SET_SHOWN, true );    // Ensure Shown Flag is Set
     }
 
     // Create TMeshVec
@@ -1391,8 +1391,8 @@ void Vehicle::HideAllExcept( const string& id )
             if ( geom_ptr->GetID() != id )
             {
                 // No Show All Other Components
-                geom_ptr->SetSetFlag( 1, false ); //remove from shown
-                geom_ptr->SetSetFlag( 2, true ); //add to no show
+                geom_ptr->SetSetFlag( SET_SHOWN, false ); //remove from shown
+                geom_ptr->SetSetFlag( SET_NOT_SHOWN, true ); //add to no show
             }
         }
     }
@@ -1410,8 +1410,8 @@ void Vehicle::HideAll()
         if ( geom_ptr )
         {
             // No Show All Other Components
-            geom_ptr->SetSetFlag( 1, false ); //remove from shown
-            geom_ptr->SetSetFlag( 2, true ); //add to no show
+            geom_ptr->SetSetFlag( SET_SHOWN, false ); //remove from shown
+            geom_ptr->SetSetFlag( SET_NOT_SHOWN, true ); //add to no show
         }
     }
 }
@@ -5212,7 +5212,7 @@ string Vehicle::CreateDegenMeshGeom( int set )
     }
     else
     {
-        mesh_geom->SetSetFlag( 1, true );    // Ensure Shown Flag is Set
+        mesh_geom->SetSetFlag( SET_SHOWN, true );    // Ensure Shown Flag is Set
     }
 
     // Create TMeshVec

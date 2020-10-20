@@ -353,8 +353,8 @@ void StructureMgrSingleton::ShowAllParts()
         Geom* parent = veh->FindGeom( parent_id );
         if ( parent )
         {
-            parent->SetSetFlag( 1, true ); //add to shown
-            parent->SetSetFlag( 2, false ); //remove from show
+            parent->SetSetFlag( vsp::SET_SHOWN, true ); //add to shown
+            parent->SetSetFlag( vsp::SET_NOT_SHOWN, false ); //remove from show
         }
 
         vector < FeaPart* > part_vec = fea_struct->GetFeaPartVec();
