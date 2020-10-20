@@ -239,6 +239,7 @@ void SCurve::BuildDistTable( SimpleGridDensity* grid_den, SCurve* BCurve, list< 
     assert( m_Surf );
 
     CleanupDistTable();
+    vector< vec3d >  pnt_vec;
 
     //==== Build U to Dist Table ====//
     int nref = 10;
@@ -312,7 +313,6 @@ void SCurve::CleanupDistTable()
     u_vec.clear();
     dist_vec.clear();
     target_vec.clear();
-    pnt_vec.clear();
 }
 
 void SCurve::LimitTarget( SimpleGridDensity* grid_den )
