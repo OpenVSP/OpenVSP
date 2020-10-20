@@ -2459,7 +2459,7 @@ xmlNodePtr Geom::EncodeXml( xmlNodePtr & node )
     xmlNodePtr geom_node = xmlNewChild( node, NULL, BAD_CAST "Geom", NULL );
     if ( geom_node )
     {
-        XmlUtil::AddVectorBoolNode( geom_node, "Set_List", m_SetFlags );
+        XmlUtil::AddVectorBoolNode( geom_node, "Set_List", GetSetFlags() );
 
         for( int i = 0; i < ( int )m_MainSourceVec.size(); i++ )
         {
