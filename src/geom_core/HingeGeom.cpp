@@ -519,7 +519,7 @@ void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
     {
         sprintf(str,"%d",1);
         m_HighlightDrawObj.m_GeomID = m_ID+string(str);
-        m_HighlightDrawObj.m_Visible = m_SetFlags[vsp::SET_SHOWN];
+        m_HighlightDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
 
         // Set Render Destination to Main VSP Window.
         m_HighlightDrawObj.m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -537,7 +537,7 @@ void HingeGeom::LoadDrawObjs(vector< DrawObj* > & draw_obj_vec)
         }
     }
 
-    if ( ( m_GuiDraw.GetDispFeatureFlag() && m_SetFlags[vsp::SET_SHOWN] ) || m_Vehicle->IsGeomActive( m_ID ))
+    if ( ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) ) || m_Vehicle->IsGeomActive( m_ID ))
     {
         for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
         {

@@ -2901,7 +2901,7 @@ void Geom::LoadMainDrawObjs( vector< DrawObj* > & draw_obj_vec )
         // at the end of m_ID.
         sprintf( str, "_%d", i );
         m_WireShadeDrawObj_vec[i].m_GeomID = m_ID + str;
-        m_WireShadeDrawObj_vec[i].m_Visible = m_SetFlags[vsp::SET_SHOWN];
+        m_WireShadeDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
 
         // Set Render Destination to Main VSP Window.
         m_WireShadeDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -3026,7 +3026,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
     if ( m_GuiDraw.GetDisplayType() == DISPLAY_TYPE::DISPLAY_BEZIER )
     {
         // Load Feature Lines
-        if ( m_GuiDraw.GetDispFeatureFlag() && m_SetFlags[vsp::SET_SHOWN] )
+        if ( m_GuiDraw.GetDispFeatureFlag() && GetSetFlag( vsp::SET_SHOWN ) )
         {
             for ( int i = 0; i < m_FeatureDrawObj_vec.size(); i++ )
             {
@@ -3040,7 +3040,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
 
         // Load Subsurfaces
         RecolorSubSurfs( SubSurfaceMgr.GetCurrSurfInd() );
-        if ( m_GuiDraw.GetDispSubSurfFlag() && m_SetFlags[vsp::SET_SHOWN] )
+        if ( m_GuiDraw.GetDispSubSurfFlag() && GetSetFlag( vsp::SET_SHOWN ) )
         {
             for ( int i = 0; i < (int)m_SubSurfVec.size(); i++ )
             {
@@ -3054,7 +3054,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         for ( int i = 0; i < m_DegenSurfDrawObj_vec.size(); i++ )
         {
             m_DegenSurfDrawObj_vec[i].m_GeomID = m_ID + "Degen_Surf_" + std::to_string( i );
-            m_DegenSurfDrawObj_vec[i].m_Visible = m_SetFlags[vsp::SET_SHOWN];
+            m_DegenSurfDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
 
             // Set Render Destination to Main VSP Window.
             m_DegenSurfDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -3117,7 +3117,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         for ( int i = 0; i < m_DegenPlateDrawObj_vec.size(); i++ )
         {
             m_DegenPlateDrawObj_vec[i].m_GeomID = m_ID + "Degen_Plate_" + std::to_string( i );
-            m_DegenPlateDrawObj_vec[i].m_Visible = m_SetFlags[vsp::SET_SHOWN];
+            m_DegenPlateDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
 
             // Set Render Destination to Main VSP Window.
             m_DegenPlateDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -3180,7 +3180,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         for ( int i = 0; i < m_DegenCamberPlateDrawObj_vec.size(); i++ )
         {
             m_DegenCamberPlateDrawObj_vec[i].m_GeomID = m_ID + "Degen_Camber_Plate_" + std::to_string( i );
-            m_DegenCamberPlateDrawObj_vec[i].m_Visible = m_SetFlags[vsp::SET_SHOWN];
+            m_DegenCamberPlateDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
 
             // Set Render Destination to Main VSP Window.
             m_DegenCamberPlateDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -3244,7 +3244,7 @@ void Geom::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         for ( int i = 0; i < m_DegenSubSurfDrawObj_vec.size(); i++ )
         {
             m_DegenSubSurfDrawObj_vec[i].m_GeomID = m_ID + "Degen_SubSurf_" + std::to_string( i );
-            m_DegenSubSurfDrawObj_vec[i].m_Visible = m_SetFlags[vsp::SET_SHOWN];
+            m_DegenSubSurfDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
 
             // Set Render Destination to Main VSP Window.
             m_DegenSubSurfDrawObj_vec[i].m_Screen = DrawObj::VSP_MAIN_SCREEN;
@@ -4771,7 +4771,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
             m_XSecDrawObj_vec[i].m_LineWidth = 2.0;
             m_XSecDrawObj_vec[i].m_LineColor = vec3d( 0.0, 0.0, 0.0 );
             m_XSecDrawObj_vec[i].m_Type = DrawObj::VSP_LINE_STRIP;
-            m_XSecDrawObj_vec[i].m_Visible = m_SetFlags[vsp::SET_SHOWN];
+            m_XSecDrawObj_vec[i].m_Visible = GetSetFlag( vsp::SET_SHOWN );
             draw_obj_vec.push_back( &m_XSecDrawObj_vec[i] );
         }
 
@@ -4780,7 +4780,7 @@ void GeomXSec::LoadDrawObjs( vector< DrawObj* > & draw_obj_vec )
         m_HighlightXSecDrawObj.m_LineWidth = 4.0;
         m_HighlightXSecDrawObj.m_LineColor = vec3d( 0.0, 0.0, 1.0 );
         m_HighlightXSecDrawObj.m_Type = DrawObj::VSP_LINE_STRIP;
-        m_HighlightXSecDrawObj.m_Visible = m_SetFlags[vsp::SET_SHOWN];
+        m_HighlightXSecDrawObj.m_Visible = GetSetFlag( vsp::SET_SHOWN );
         draw_obj_vec.push_back( &m_HighlightXSecDrawObj );
 
         m_CurrentXSecDrawObj.m_Screen = DrawObj::VSP_XSEC_SCREEN;
