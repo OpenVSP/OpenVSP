@@ -96,7 +96,7 @@ public:
     string CreateGeom( const GeomType & type );
     string AddGeom( const GeomType & type );
     string AddGeom( Geom* add_geom );
-    string AddMeshGeom( int normal_set );
+    string AddMeshGeom( int normal_set, int degen_set = vsp::SET_NONE );
 
     virtual void AddLinkableContainers( vector< string > & linkable_container_vec );
 

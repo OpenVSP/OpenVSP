@@ -754,7 +754,7 @@ string Vehicle::AddGeom( Geom* add_geom )
     return add_id;
 }
 
-string Vehicle::AddMeshGeom( int normal_set )
+string Vehicle::AddMeshGeom( int normal_set, int degen_set )
 {
     ClearActiveGeom();
 
