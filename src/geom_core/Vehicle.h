@@ -266,8 +266,8 @@ public:
     string ImportV2File( const string & file_name );
 
     //Comp Geom
-    string CompGeom( int set, int halfFlag, int intSubsFlag = 1 );
-    string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1 );
+    string CompGeom( int set, int degenset, int halfFlag, int intSubsFlag = 1 );
+    string CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag = 1, int degenset = vsp::SET_NONE );
     string MassProps( int set, int numSlices, bool hidegeom = true, bool writefile = true );
     string MassPropsAndFlatten( int set, int numSlices, bool hidegeom = true, bool writefile = true );
     string PSlice( int set, int numSlices, vec3d norm, bool autoBoundsFlag, double start = 0, double end = 0 );

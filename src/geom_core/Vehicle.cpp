@@ -4303,10 +4303,10 @@ void Vehicle::resetExportFileNames()
     }
 }
 
-string Vehicle::CompGeom( int set, int halfFlag, int intSubsFlag)
+string Vehicle::CompGeom( int set, int degenset, int halfFlag, int intSubsFlag)
 {
 
-    string id = AddMeshGeom( set );
+    string id = AddMeshGeom( set, degenset );
     if ( id.compare( "NONE" ) == 0 )
     {
         return id;
@@ -4341,9 +4341,9 @@ string Vehicle::CompGeom( int set, int halfFlag, int intSubsFlag)
     return id;
 }
 
-string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag )
+string Vehicle::CompGeomAndFlatten( int set, int halfFlag, int intSubsFlag, int degenset )
 {
-    string id = CompGeom( set, halfFlag, intSubsFlag );
+    string id = CompGeom( set, degenset, halfFlag, intSubsFlag );
     Geom* geom = FindGeom( id );
     if ( !geom )
     {
