@@ -1344,6 +1344,19 @@ void Vehicle::SetSetName( int index, const string& name )
     m_SetNameVec[index] = name;
 }
 
+vector< string > Vehicle::GetSetNameVec( bool includeNone )
+{
+    if ( includeNone )
+    {
+        vector < string > ret;
+        ret.reserve( m_SetNameVec.size() + 1 );
+        ret.push_back( "None" );
+        ret.insert( ret.end(), m_SetNameVec.begin(), m_SetNameVec.end() );
+        return ret;
+    }
+    return m_SetNameVec;
+}
+
 //=== Set 'Show' set to specified index set ===//
 void Vehicle::ShowOnlySet( int index )
 {

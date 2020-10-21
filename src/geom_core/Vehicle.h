@@ -132,7 +132,7 @@ public:
 
     //==== Geom Sets ====//
     void SetSetName( int index, const string& name );
-    vector< string > GetSetNameVec()                        { return m_SetNameVec; }
+    vector< string > GetSetNameVec( bool includeNone = false );
     void ShowOnlySet( int index );
     void NoShowSet( int index );
     void ShowSet( int index );
