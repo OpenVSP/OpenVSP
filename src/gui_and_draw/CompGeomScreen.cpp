@@ -93,20 +93,20 @@ CompGeomScreen::~CompGeomScreen()
 {
 }
 
-void CompGeomScreen::LoadSetChoice()
+void CompGeomScreen::LoadSetChoice( Choice & choice, int selectedindex )
 {
-    m_UseSet.ClearItems();
+    choice.ClearItems();
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
     vector< string > set_name_vec = veh->GetSetNameVec();
 
     for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
     {
-        m_UseSet.AddItem( set_name_vec[i].c_str() );
+        choice.AddItem( set_name_vec[i].c_str() );
     }
 
-    m_UseSet.UpdateItems();
-    m_UseSet.SetVal( m_SelectedSetIndex );
+    choice.UpdateItems();
+    choice.SetVal( selectedindex );
 }
 
 void CompGeomScreen::Show()
@@ -125,7 +125,7 @@ bool CompGeomScreen::Update()
 {
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
-    LoadSetChoice();
+    LoadSetChoice( m_UseSet, m_SelectedSetIndex );
 
     //===== Update File Toggle Buttons =====//
     m_CsvToggle.Update( vehiclePtr->m_exportCompGeomCsvFile.GetID() );

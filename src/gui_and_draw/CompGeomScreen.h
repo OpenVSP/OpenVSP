@@ -33,7 +33,7 @@ public:
         ( ( CompGeomScreen* )data )->CallBack( w );
     }
 
-    void LoadSetChoice();
+    void LoadSetChoice( Choice & choice, int selectedindex );
 
 protected:
 
