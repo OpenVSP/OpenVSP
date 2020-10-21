@@ -1737,7 +1737,7 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec )
                                    uw_pnts,
                                    getSurfNum(),
                                    vsp::WING_SURF,
-                                   getCfdSurfType(),
+                                   vsp::CFD_TRANSPARENT, // getCfdSurfType(),
                                    getFlipNormal(),
                                    4.0 );
         }
@@ -1754,7 +1754,7 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec )
                                    uw_pnts,
                                    getSurfNum(),
                                    vsp::NORMAL_SURF,
-                                   getCfdSurfType(),
+                                   vsp::CFD_TRANSPARENT, // getCfdSurfType(),
                                    getFlipNormal(),
                                    4.0 );
         }
