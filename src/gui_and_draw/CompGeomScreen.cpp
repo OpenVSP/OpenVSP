@@ -7,7 +7,7 @@
 
 #include "CompGeomScreen.h"
 
-CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 430, "Comp Geom - Mesh, Intersect, Trim" )
+CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 470, "Comp Geom - Mesh, Intersect, Trim" )
 {
     m_FLTK_Window->callback( staticCloseCB, this );
     m_MainLayout.SetGroupAndScreen( m_FLTK_Window, this );
@@ -68,12 +68,15 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 430, "
     m_BorderLayout.SetFitWidthFlag( false );
     m_BorderLayout.SetSameLineFlag( true );
 
-    m_BorderLayout.SetChoiceButtonWidth(50);
-    m_BorderLayout.SetButtonWidth(95.0);
+    m_BorderLayout.SetChoiceButtonWidth(75);
+    m_BorderLayout.SetButtonWidth(( m_BorderLayout.GetRemainX() - 5 ) / 2.0 );
     m_BorderLayout.SetFitWidthFlag( true );
-    m_BorderLayout.AddChoice(m_UseSet, "Set:", 200);
+    m_BorderLayout.SetSameLineFlag( false );
+    m_BorderLayout.AddChoice(m_UseSet, "Normal Set:");
+    m_BorderLayout.AddChoice(m_DegenSet, "Degen Set:" );
+
     m_BorderLayout.SetFitWidthFlag( false );
-    m_BorderLayout.AddX(5);
+    m_BorderLayout.SetSameLineFlag( true );
     m_BorderLayout.AddButton(m_HalfMesh, "Half Mesh");
     m_BorderLayout.AddX(5);
     m_BorderLayout.AddButton(m_Subsurfs, "Subsurfs");
@@ -86,6 +89,7 @@ CompGeomScreen::CompGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 430, "
     m_BorderLayout.AddButton(m_Execute, "Execute");
 
     m_SelectedSetIndex = DEFAULT_SET;
+    m_DegenSelectedSetIndex = vsp::SET_NONE;
     m_Subsurfs.GetFlButton()->value( 1 );
 }
 
@@ -126,6 +130,7 @@ bool CompGeomScreen::Update()
     Vehicle* vehiclePtr = m_ScreenMgr->GetVehiclePtr();
 
     LoadSetChoice( m_UseSet, m_SelectedSetIndex );
+    LoadSetChoice( m_DegenSet, m_DegenSelectedSetIndex );
 
     //===== Update File Toggle Buttons =====//
     m_CsvToggle.Update( vehiclePtr->m_exportCompGeomCsvFile.GetID() );
@@ -182,10 +187,14 @@ void CompGeomScreen::GuiDeviceCallBack( GuiDevice* device )
     {
         m_SelectedSetIndex = m_UseSet.GetVal();
     }
+    else if ( device == &m_DegenSet )
+    {
+        m_DegenSelectedSetIndex = m_DegenSet.GetVal();
+    }
     else if ( device == &m_Execute )
     {
         string geom = vehiclePtr->CompGeomAndFlatten( m_SelectedSetIndex, m_HalfMesh.GetFlButton()->value(),
-                      m_Subsurfs.GetFlButton()->value() );
+                      m_Subsurfs.GetFlButton()->value(), m_DegenSelectedSetIndex );
         if ( geom.compare( "NONE" ) != 0 )
         {
             m_TextDisplay->buffer()->loadfile( vehiclePtr->getExportFileName( vsp::COMP_GEOM_TXT_TYPE ).c_str() );

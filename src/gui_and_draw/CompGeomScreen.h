@@ -38,6 +38,7 @@ public:
 protected:
 
     int m_SelectedSetIndex;
+    int m_DegenSelectedSetIndex;
 
     GroupLayout m_MainLayout;
     GroupLayout m_BorderLayout;
@@ -54,6 +55,7 @@ protected:
     TriggerButton m_TsvSelect;
 
     Choice m_UseSet;
+    Choice m_DegenSet;
 
     ToggleButton m_HalfMesh;
     ToggleButton m_Subsurfs;
