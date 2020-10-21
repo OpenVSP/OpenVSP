@@ -377,6 +377,7 @@ DegenGeomTriShellMassProp::DegenGeomTriShellMassProp( const string& id, const ve
 TMesh::TMesh()
 {
     m_MaterialID = 0;
+    m_SurfCfdType = vsp::CFD_NORMAL;
     m_MassPrior = 0;
     m_Density = 0;
     m_ShellMassArea = 0;
@@ -479,6 +480,7 @@ void TMesh::CopyAttributes( TMesh* m )
     m_NameStr   = m->m_NameStr;
     m_MaterialID = m->m_MaterialID;
     m_Color      = m->m_Color;
+    m_SurfCfdType = m->m_SurfCfdType;
 
     m_TheoArea   = m->m_TheoArea;
     m_WetArea    = m->m_WetArea;
@@ -595,6 +597,11 @@ void TMesh::LoadGeomAttributes( Geom* geomPtr )
     m_Density       = geomPtr->m_Density();
     m_ShellMassArea = geomPtr->m_MassArea();
     m_ShellFlag     = geomPtr->m_ShellFlag();
+
+    if ( geomPtr->m_NegativeVolumeFlag() )
+    {
+        m_SurfCfdType = vsp::CFD_NEGATIVE;
+    }
 
     //==== Check for Alternate Output Name ====//
     m_NameStr   = geomPtr->GetName();
@@ -4017,13 +4024,14 @@ void CreateTMeshVecFromPts( Geom * geom,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & norms,
                             const vector< vector<vec3d> > & uw_pnts,
-                            int indx, int surftype, bool flipnormal, double wmax )
+                            int indx, int surftype, int cfdsurftype, bool flipnormal, double wmax )
 {
     double tol=1.0e-12;
 
     TMeshVec.push_back( new TMesh() );
     int itmesh = TMeshVec.size() - 1;
     TMeshVec[itmesh]->LoadGeomAttributes( geom );
+    TMeshVec[itmesh]->m_SurfCfdType = cfdsurftype;
     TMeshVec[itmesh]->m_SurfType = surftype;
     TMeshVec[itmesh]->m_SurfNum = indx;
     TMeshVec[itmesh]->m_UWPnts = uw_pnts;

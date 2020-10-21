@@ -229,6 +229,15 @@ public:
         type = geomType;
     }
 
+    int getCfdSurfType()
+    {
+        return cfdsurftype;
+    }
+    void setCfdSurfType( int t )
+    {
+        cfdsurftype = t;
+    }
+
     int getSurfNum()
     {
         return surfNum;
@@ -339,6 +348,7 @@ protected:
 
     Geom* parentGeom;
     int   type;
+    int   cfdsurftype;
     int   surfNum;
     bool flip_normal;
     int main_surf_ind;

@@ -353,6 +353,7 @@ public:
     virtual int WakeEdge();
 
     int m_InteriorFlag;
+    vector< bool > m_insideSurf;
     string m_ID;
     vector<int> m_Tags;
     double m_Density;
@@ -425,6 +426,7 @@ public:
     int m_SurfNum; // To keep track of geoms with multiple surfaces
     int m_MaterialID;
     vec3d m_Color;
+    int m_SurfCfdType;
     int m_MassPrior;
     double m_Density;
     double m_ShellMassArea;
@@ -542,6 +544,6 @@ void CreateTMeshVecFromPts( Geom * geom,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & norms,
                             const vector< vector<vec3d> > & uw_pnts,
-                            int indx, int surftype, bool flipnormal, double wmax );
+                            int indx, int surftype, int cfdsurftype, bool flipnormal, double wmax );
 
 #endif

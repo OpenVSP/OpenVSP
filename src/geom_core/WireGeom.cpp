@@ -861,7 +861,13 @@ void WireGeom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
         surftype = DegenGeom::BODY_TYPE;
     }
 
-    Geom::CreateDegenGeom( dgs, m_XFormPts, m_XFormNorm, uwpnts, false, 0, preview, m_InvertFlag(), surftype, NULL );
+    int cfdsurftype = vsp::CFD_NORMAL;
+    if ( m_NegativeVolumeFlag() )
+    {
+        cfdsurftype = vsp::CFD_NEGATIVE;
+    }
+
+    Geom::CreateDegenGeom( dgs, m_XFormPts, m_XFormNorm, uwpnts, false, 0, preview, m_InvertFlag(), surftype, cfdsurftype, NULL );
 
 }
 

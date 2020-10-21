@@ -3330,13 +3330,13 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, bool preview )
             surftype = DegenGeom::DISK_TYPE;
         }
 
-        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview, m_SurfVec[i].GetFlipNormal(), surftype, m_SurfVec[i].GetFoilSurf() );
+        CreateDegenGeom( dgs, pnts, nrms, uwpnts, urootcap, i, preview, m_SurfVec[i].GetFlipNormal(), surftype, m_SurfVec[i].GetSurfCfdType(), m_SurfVec[i].GetFoilSurf() );
     }
 }
 
 
 void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d > > &pnts, const vector< vector< vec3d > > &nrms, const vector< vector< vec3d > > &uwpnts,
-                            bool urootcap, int isurf, bool preview, bool flipnormal, int surftype, VspSurf *fs )
+                            bool urootcap, int isurf, bool preview, bool flipnormal, int surftype, int cfdsurftype, VspSurf *fs )
 {
     DegenGeom degenGeom;
     degenGeom.setParentGeom( this );
@@ -3344,6 +3344,7 @@ void Geom::CreateDegenGeom( vector<DegenGeom> &dgs, const vector< vector< vec3d 
     degenGeom.setFlipNormal( flipnormal );
     degenGeom.setMainSurfInd( m_SurfIndxVec[isurf] );
     degenGeom.setSymCopyInd( m_SurfCopyIndx[isurf] );
+    degenGeom.setCfdSurfType( cfdsurftype );
 
     vector < double > tmatvec;
     for ( int j = 0; j < 16; j++ )
@@ -4254,7 +4255,7 @@ vector< TMesh* > Geom::CreateTMeshVec()
             m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
 
             CreateTMeshVecFromPts( this, TMeshVec, pnts, norms, uw_pnts,
-                                   i, m_SurfVec[i].GetSurfType(), m_SurfVec[i].GetFlipNormal(), m_SurfVec[i].GetWMax() );
+                                   i, m_SurfVec[i].GetSurfType(), m_SurfVec[i].GetSurfCfdType(), m_SurfVec[i].GetFlipNormal(), m_SurfVec[i].GetWMax() );
 
         }
     }
