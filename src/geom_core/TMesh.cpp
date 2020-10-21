@@ -794,7 +794,6 @@ void TMesh::DeterIntExt( vector< TMesh* >& meshVec )
         //==== Do Interior Tris ====//
         if ( tri->m_SplitVec.size() )
         {
-            tri->m_IgnoreTriFlag = 1;
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
                 DeterIntExtTri( tri->m_SplitVec[s], meshVec );
@@ -815,16 +814,18 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
 
     vec3d dir( 1.0, 0.000001, 0.000001 );
 
+    int nmesh = meshVec.size();
+    tri->m_insideSurf.resize( nmesh, false );
+
     for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
     {
-        if ( meshVec[m] != this )
+        if ( meshVec[m] != this && meshVec[m]->m_SurfCfdType != vsp::CFD_TRANSPARENT )
         {
             vector<double > tParmVec;
             meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
             if ( tParmVec.size() % 2 )
             {
-                tri->m_IgnoreTriFlag = 1;
-                return ;
+                tri->m_insideSurf[m] = true;
             }
         }
     }
