@@ -4076,19 +4076,19 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen )
     // Mark any still open meshes for deletion.  Perhaps make this optional.
     if ( deleteopen )
     {
-    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-    {
-        if ( m_TMeshVec[i]->m_NonClosedTriVec.size() )
+        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
-            if ( !m_TMeshVec[i]->m_DeleteMeFlag )
+            if ( m_TMeshVec[i]->m_NonClosedTriVec.size() )
             {
-                info->m_NumOpenMeshedDeleted++;
-                info->m_DeletedMeshes.push_back( m_TMeshVec[i]->m_NameStr );
-            }
+                if ( !m_TMeshVec[i]->m_DeleteMeFlag )
+                {
+                    info->m_NumOpenMeshedDeleted++;
+                    info->m_DeletedMeshes.push_back( m_TMeshVec[i]->m_NameStr );
+                }
 
-            m_TMeshVec[i]->m_DeleteMeFlag = true;
+                m_TMeshVec[i]->m_DeleteMeFlag = true;
+            }
         }
-    }
     }
 
     //==== Remove Merged Meshes ====//
