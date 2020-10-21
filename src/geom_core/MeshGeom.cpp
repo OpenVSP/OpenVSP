@@ -4071,6 +4071,7 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen )
     }
 
     //==== Try to Merge Non Closed Meshes ====//
+    // Marks mesh un-used after merge for deletion
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         for ( j = i + 1 ; j < ( int )m_TMeshVec.size() ; j++ )
@@ -4078,6 +4079,7 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen )
             m_TMeshVec[i]->MergeNonClosed( m_TMeshVec[j] );
         }
     }
+    // Keep track of merged meshes in info.
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         if ( m_TMeshVec[i]->m_DeleteMeFlag )
@@ -4105,7 +4107,7 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen )
         }
     }
 
-    //==== Remove Merged Meshes ====//
+    //==== Remove meshes marked for deletion ====//
     vector< TMesh* > newTMeshVec;
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
