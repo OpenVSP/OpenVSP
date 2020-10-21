@@ -98,11 +98,11 @@ void CompGeomScreen::LoadSetChoice( Choice & choice, int selectedindex )
     choice.ClearItems();
 
     Vehicle* veh = m_ScreenMgr->GetVehiclePtr();
-    vector< string > set_name_vec = veh->GetSetNameVec();
+    vector< string > set_name_vec = veh->GetSetNameVec( true );
 
     for ( int i = 0 ; i < ( int )set_name_vec.size() ; ++i )
     {
-        choice.AddItem( set_name_vec[i].c_str() );
+        choice.AddItem( set_name_vec[i].c_str(), i - 1 );
     }
 
     choice.UpdateItems();
