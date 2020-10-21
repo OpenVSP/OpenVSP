@@ -449,6 +449,10 @@ public:
     bool CheckIntersect( TMesh* tm );
     double MinDistance( TMesh* tm, double curr_min_dist );
     void Split();
+
+    bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & aInB );
+    void SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & bTypes );
+
     void DeterIntExt( vector< TMesh* >& meshVec );
     void DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
     void MassDeterIntExt( vector< TMesh* >& meshVec );

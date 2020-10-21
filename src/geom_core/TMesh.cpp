@@ -784,6 +784,85 @@ void TMesh::Split()
     }
 }
 
+bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & aInB )
+{
+    for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
+    {
+        bool aInThisB = aInB[b];
+        int bType = bTypes[b];
+
+        // Can make absolute decisions about deleting a triangle or not in the cases below
+        if ( aInThisB )
+        {
+            // Normal(Positive) inside another Normal, or Negative inside another Negative
+            if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT ) )
+            {
+                return true;
+            }
+                // Always delete Normal tris inside Negative surfaces
+            else if ( aType == vsp::CFD_NORMAL && bType == vsp::CFD_NEGATIVE )
+            {
+                return true;
+            }
+                // Never delete Transparent tris inside Negative surfaces
+            else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NEGATIVE )
+            {
+                return false;
+            }
+        }
+    }
+
+    int ignoretri = false;
+    // Check non-absolute cases
+    for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
+    {
+        bool aInThisB = aInB[b];
+        int bType = bTypes[b];
+
+        if ( aInThisB )
+        {
+            if ( aType == vsp::CFD_NEGATIVE && bType == vsp::CFD_NORMAL )
+            {
+                return false;
+            }
+            else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NORMAL )
+            {
+                return true;
+            }
+        }
+        else
+        {
+            if ( aType == vsp::CFD_NEGATIVE )
+            {
+                ignoretri = true;
+            }
+        }
+    }
+
+    return ignoretri;
+}
+
+void TMesh::SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & bTypes )
+{
+    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
+    {
+        TTri* tri = m_TVec[t];
+
+        //==== Do Interior Tris ====//
+        if ( tri->m_SplitVec.size() )
+        {
+            tri->m_IgnoreTriFlag = 1;
+            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
+            {
+                tri->m_SplitVec[s]->m_IgnoreTriFlag = DecideIgnoreTri( m_SurfCfdType, bTypes, tri->m_SplitVec[s]->m_insideSurf );
+            }
+        }
+        else
+        {
+            tri->m_IgnoreTriFlag = DecideIgnoreTri( m_SurfCfdType, bTypes, tri->m_insideSurf );
+        }
+    }
+}
 
 void TMesh::DeterIntExt( vector< TMesh* >& meshVec )
 {

@@ -1979,6 +1979,20 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
         m_TMeshVec[i]->DeterIntExt( m_TMeshVec );
     }
 
+    // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
+    vector < int > bTypes( m_TMeshVec.size() );
+    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        bTypes[i] = m_TMeshVec[i]->m_SurfCfdType;
+        printf( "%d %d\n", i, bTypes[i] );
+    }
+
+    //==== Mark which triangles to ignore ====//
+    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        m_TMeshVec[i]->SetIgnoreTriFlag( m_TMeshVec, bTypes );
+    }
+
     // Only ever set to true for !degen case.
     // The code is harmless for a !halfFlag case (optimization).
     // So, both protections could be eliminated.
