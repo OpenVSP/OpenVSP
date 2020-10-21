@@ -160,7 +160,7 @@ public:
     virtual vector<vec3d> TessTriangles( vector<vec3d> &tri );
     virtual vector<vec3d> TessTri( vec3d t1, vec3d t2, vec3d t3, int iterations );
 
-    virtual void MergeRemoveOpenMeshes( MeshInfo* info );
+    virtual void MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen = true );
 
     virtual vec3d GetVertex3d( int surf, double x, double p, int r );
     //virtual void  getVertexVec(vector< VertexID > *vertVec);

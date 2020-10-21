@@ -1823,6 +1823,9 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
 {
     int i, j;
 
+    // Temporary variable -- likely pass up to top levels and make an option.
+    bool deleteopen = false;
+
     //==== Check For Open Meshes and Merge or Delete Them ====//
     MeshInfo info;
 
@@ -1830,7 +1833,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
     // Perhaps this can be moved down there to match.
     if ( degen )
     {
-        MergeRemoveOpenMeshes( &info );
+        MergeRemoveOpenMeshes( &info, deleteopen );
     }
 
     int numTris = 0;
@@ -1937,7 +1940,7 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
         // Tag meshes before regular intersection
         SubTagTris( (bool)intSubsFlag );
 
-        MergeRemoveOpenMeshes( &info );
+        MergeRemoveOpenMeshes( &info, deleteopen );
     }
 
     //==== Create Bnd Box for  Mesh Geoms ====//
@@ -4043,7 +4046,7 @@ void MeshGeom::WaterTightCheck( FILE* fid )
     m_TMeshVec.push_back( oneMesh );
 }
 
-void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info )
+void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen )
 {
     int i, j;
 
@@ -4070,6 +4073,9 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info )
         }
     }
 
+    // Mark any still open meshes for deletion.  Perhaps make this optional.
+    if ( deleteopen )
+    {
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         if ( m_TMeshVec[i]->m_NonClosedTriVec.size() )
@@ -4082,6 +4088,7 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info )
 
             m_TMeshVec[i]->m_DeleteMeFlag = true;
         }
+    }
     }
 
     //==== Remove Merged Meshes ====//
