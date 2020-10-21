@@ -455,7 +455,7 @@ void TMesh::CopyFlatten( TMesh* m )
             for ( int s = 0 ; s < ( int )orig_tri->m_SplitVec.size() ; s++ )
             {
                 TTri* s_tri = orig_tri->m_SplitVec[s];
-                if ( !s_tri->m_InteriorFlag )
+                if ( !s_tri->m_IgnoreTriFlag )
                 {
                     AddTri( s_tri->m_N0, s_tri->m_N1, s_tri->m_N2, s_tri->m_Norm );
                     m_TVec.back()->m_Tags = s_tri->m_Tags;
@@ -464,7 +464,7 @@ void TMesh::CopyFlatten( TMesh* m )
         }
         else
         {
-            if ( !orig_tri->m_InteriorFlag )
+            if ( !orig_tri->m_IgnoreTriFlag )
             {
                 AddTri( orig_tri->m_N0, orig_tri->m_N1, orig_tri->m_N2, orig_tri->m_Norm );
                 m_TVec.back()->m_Tags = orig_tri->m_Tags;
@@ -794,7 +794,7 @@ void TMesh::DeterIntExt( vector< TMesh* >& meshVec )
         //==== Do Interior Tris ====//
         if ( tri->m_SplitVec.size() )
         {
-            tri->m_InteriorFlag = 1;
+            tri->m_IgnoreTriFlag = 1;
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
                 DeterIntExtTri( tri->m_SplitVec[s], meshVec );
@@ -811,7 +811,7 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
 {
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
     orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
-    tri->m_InteriorFlag = 0;
+    tri->m_IgnoreTriFlag = 0;
 
     vec3d dir( 1.0, 0.000001, 0.000001 );
 
@@ -823,7 +823,7 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
             meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
             if ( tParmVec.size() % 2 )
             {
-                tri->m_InteriorFlag = 1;
+                tri->m_IgnoreTriFlag = 1;
                 return ;
             }
         }
@@ -839,7 +839,7 @@ void TMesh::MassDeterIntExt( vector< TMesh* >& meshVec )
         //==== Do Interior Tris ====//
         if ( tri->m_SplitVec.size() )
         {
-            tri->m_InteriorFlag = 1;
+            tri->m_IgnoreTriFlag = 1;
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
                 MassDeterIntExtTri( tri->m_SplitVec[s], meshVec );
@@ -857,7 +857,7 @@ void TMesh::MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
 {
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
     orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
-    tri->m_InteriorFlag = 1;
+    tri->m_IgnoreTriFlag = 1;
     int prior = -1;
 
     vec3d dir( 1.0, 0.000001, 0.000001 );
@@ -872,7 +872,7 @@ void TMesh::MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
             {
                 if ( meshVec[m]->m_MassPrior > prior )
                 {
-                    tri->m_InteriorFlag = 0;
+                    tri->m_IgnoreTriFlag = 0;
                     tri->m_ID = meshVec[m]->m_PtrID;
                     tri->m_Density = meshVec[m]->m_Density;
                     prior = meshVec[m]->m_MassPrior;
@@ -891,7 +891,7 @@ void TMesh::WaveDeterIntExt( vector< TMesh* >& meshVec )
         //==== Do Interior Tris ====//
         if ( tri->m_SplitVec.size() )
         {
-            tri->m_InteriorFlag = 1;
+            tri->m_IgnoreTriFlag = 1;
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
                 WaveDeterIntExtTri( tri->m_SplitVec[s], meshVec );
@@ -908,7 +908,7 @@ void TMesh::WaveDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
 {
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
     orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
-    tri->m_InteriorFlag = 0;
+    tri->m_IgnoreTriFlag = 0;
     int prior = -1;
 
     vec3d dir( 1.0, 0.000001, 0.000001 );
@@ -923,7 +923,7 @@ void TMesh::WaveDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
             {
                 if ( meshVec[m]->m_MassPrior > prior )
                 {
-                    tri->m_InteriorFlag = 1;
+                    tri->m_IgnoreTriFlag = 1;
                     tri->m_ID = meshVec[m]->m_PtrID;
                     prior = meshVec[m]->m_MassPrior;
                 }
@@ -982,7 +982,7 @@ double TMesh::ComputeWetArea()
         {
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
-                if ( !tri->m_SplitVec[s]->m_InteriorFlag )
+                if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
                 {
                     double area = tri->m_SplitVec[s]->ComputeArea();
                     m_AreaCenter = m_AreaCenter + tri->m_SplitVec[s]->ComputeCenter()*area;
@@ -995,7 +995,7 @@ double TMesh::ComputeWetArea()
                 }
             }
         }
-        else if ( !tri->m_InteriorFlag )
+        else if ( !tri->m_IgnoreTriFlag )
         {
             double area = tri->ComputeArea();
             m_AreaCenter = m_AreaCenter + tri->ComputeCenter()*area;
@@ -1026,7 +1026,7 @@ double TMesh::ComputeWaveDragArea( const std::map< string, int > &idmap )
         {
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
-                if ( !tri->m_SplitVec[s]->m_InteriorFlag )
+                if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
                 {
                     double area = tri->m_SplitVec[s]->ComputeYZArea();
                     m_AreaCenter = m_AreaCenter + tri->m_SplitVec[s]->ComputeCenter()*area;
@@ -1040,7 +1040,7 @@ double TMesh::ComputeWaveDragArea( const std::map< string, int > &idmap )
                 }
             }
         }
-        else if ( !tri->m_InteriorFlag )
+        else if ( !tri->m_IgnoreTriFlag )
         {
             double area = tri->ComputeYZArea();
             m_AreaCenter = m_AreaCenter + tri->ComputeCenter()*area;
@@ -1083,13 +1083,13 @@ double TMesh::ComputeTrimVol()
         {
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
-                if ( !tri->m_SplitVec[s]->m_InteriorFlag )
+                if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
                 {
                     trimVol += tetra_volume( tri->m_SplitVec[s]->m_N0->m_Pnt, tri->m_SplitVec[s]->m_N1->m_Pnt, tri->m_SplitVec[s]->m_N2->m_Pnt );
                 }
             }
         }
-        else if ( !tri->m_InteriorFlag )
+        else if ( !tri->m_IgnoreTriFlag )
         {
             trimVol += tetra_volume( tri->m_N0->m_Pnt, tri->m_N1->m_Pnt, tri->m_N2->m_Pnt );
         }
@@ -1266,7 +1266,7 @@ void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
         {
             for ( s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
-                if ( !tri->m_SplitVec[s]->m_InteriorFlag )
+                if ( !tri->m_SplitVec[s]->m_IgnoreTriFlag )
                 {
                     v0 = XFormMat.xform( tri->m_SplitVec[s]->m_N0->m_Pnt );
                     v1 = XFormMat.xform( tri->m_SplitVec[s]->m_N1->m_Pnt );
@@ -1292,7 +1292,7 @@ void TMesh::WriteSTLTris( FILE* file_id, Matrix4d XFormMat )
         }
         else
         {
-            if ( !tri->m_InteriorFlag )
+            if ( !tri->m_IgnoreTriFlag )
             {
                 v0 = XFormMat.xform( tri->m_N0->m_Pnt );
                 v1 = XFormMat.xform( tri->m_N1->m_Pnt );
@@ -1355,7 +1355,7 @@ TTri::TTri()
 //printf("Tri Construct Cnt = %d \n", cnt);
     m_E0 = m_E1 = m_E2 = 0;
     m_N0 = m_N1 = m_N2 = 0;
-    m_InteriorFlag = 0;
+    m_IgnoreTriFlag = 0;
     m_InvalidFlag  = 0;
     m_Density = 1.0;
     m_TMesh = NULL;
@@ -1417,7 +1417,7 @@ void TTri::CopyFrom( const TTri* tri )
     m_Tags = tri->m_Tags;
     m_ID = tri->m_ID;
     m_InvalidFlag = tri->m_InvalidFlag;
-    m_InteriorFlag = tri->m_InteriorFlag;
+    m_IgnoreTriFlag = tri->m_IgnoreTriFlag;
 }
 
 void TTri::BuildPermEdges()
