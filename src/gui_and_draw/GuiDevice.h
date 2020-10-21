@@ -519,10 +519,18 @@ public:
     virtual void ClearItems()
     {
         m_Items.clear();
+        m_Vals.clear();
     }
     virtual void AddItem( const string& item )
     {
         m_Items.push_back( item );
+        m_Vals.push_back( m_Vals.size() );
+    }
+
+    virtual void AddItem( const string& item, int val )
+    {
+        m_Items.push_back( item );
+        m_Vals.push_back( val );
     }
 
     virtual void SetFlag( int indx, int flag );
@@ -540,18 +548,16 @@ public:
         m_ParmButton.SetButtonNameUpdate( flag );
     }
     virtual void SetWidth( int w );
-    virtual void SetOffset( int o )
-    {
-        m_Offset = o;
-    }
 
     virtual Fl_Choice* GetFlChoice()
     {
         return m_Choice;
     }
 
-
 protected:
+
+    virtual int ValToIndex( int val );
+    virtual int IndexToVal( int indx );
 
     virtual void SetValAndLimits( Parm* parm_ptr );
 
@@ -562,9 +568,7 @@ protected:
 
     vector< string > m_Items;
     vector< int > m_Flags;
-
-    int m_Offset;
-
+    vector< int > m_Vals;
 };
 
 

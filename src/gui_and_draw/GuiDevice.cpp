@@ -1588,7 +1588,6 @@ Choice::Choice( ) : GuiDevice()
 {
     m_Type = GDEV_CHOICE;
     m_Choice = NULL;
-    m_Offset = 0;
 }
 
 //==== Init ====//
@@ -1630,7 +1629,7 @@ void Choice::SetValAndLimits( Parm* p )
 
     int val = iparm->Get();
 
-    m_Choice->value( val - m_Offset );
+    m_Choice->value( ValToIndex( val ) );
 
     if ( m_ParmButtonFlag )
     {
@@ -1643,14 +1642,14 @@ void Choice::SetValAndLimits( Parm* p )
 void Choice::SetVal( int val )
 {
     assert( m_Choice );
-    m_Choice->value( val - m_Offset );
+    m_Choice->value( ValToIndex( val ) );
 }
 
 //==== Get Current Choice Val ====//
 int Choice::GetVal()
 {
     assert( m_Choice );
-    return m_Choice->value() + m_Offset;
+    return IndexToVal( m_Choice->value() );
 }
 
 void Choice::SetFlag( int indx, int flag )
@@ -1694,6 +1693,7 @@ void Choice::UpdateItems( bool keepsetting )
         m_Flags.resize( m_Items.size(), 0 );
     }
 
+    // Store index.
     int savesetting = m_Choice->value();
 
     //==== Add Choice Text ===//
@@ -1705,10 +1705,12 @@ void Choice::UpdateItems( bool keepsetting )
 
     if( keepsetting )
     {
+        // Restore index.
         m_Choice->value( savesetting );
     }
     else
     {
+        // Reset to default index.
         m_Choice->value( 0 );
     }
 }
@@ -1721,7 +1723,7 @@ void Choice::DeviceCB( Fl_Widget* w )
 
     if ( w == m_Choice && parm_ptr )
     {
-        int new_val = m_Choice->value() + m_Offset;
+        int new_val = GetVal();
         parm_ptr->SetFromDevice( new_val );
     }
 
@@ -1743,6 +1745,26 @@ void Choice::SetWidth( int w )
     }
 }
 
+int Choice::ValToIndex( int val )
+{
+    for ( int i = 0; i < m_Vals.size(); i++ )
+    {
+        if ( m_Vals[i] == val )
+        {
+            return i;
+        }
+    }
+    return 0;
+}
+
+int Choice::IndexToVal( int indx )
+{
+    if ( indx >= 0 && indx < m_Vals.size() )
+    {
+        return m_Vals[indx];
+    }
+    return 0;
+}
 
 
 //=====================================================================//
