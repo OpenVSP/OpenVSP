@@ -558,11 +558,10 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
     m_ModifyLayout.AddYGap();
 
     m_ModifyLayout.AddDividerBox( "Leading Edge" );
-    m_LECapChoice.AddItem( "FLAT" );
-    m_LECapChoice.AddItem( "ROUND" );
-    m_LECapChoice.AddItem( "EDGE" );
-    m_LECapChoice.AddItem( "SHARP" );
-    m_LECapChoice.SetOffset( vsp::FLAT_END_CAP );
+    m_LECapChoice.AddItem( "FLAT", vsp::FLAT_END_CAP );
+    m_LECapChoice.AddItem( "ROUND", vsp::ROUND_END_CAP );
+    m_LECapChoice.AddItem( "EDGE", vsp::EDGE_END_CAP );
+    m_LECapChoice.AddItem( "SHARP", vsp::SHARP_END_CAP );
 
     m_ModifyLayout.AddChoice( m_LECapChoice, "Cap" );
 
@@ -637,11 +636,10 @@ BORScreen::BORScreen( ScreenMgr* mgr ) : GeomScreen( mgr, 300, 680, "BOR" )
     m_ModifyLayout.AddYGap();
 
     m_ModifyLayout.AddDividerBox( "Trailing Edge" );
-    m_TECapChoice.AddItem( "FLAT" );
-    m_TECapChoice.AddItem( "ROUND" );
-    m_TECapChoice.AddItem( "EDGE" );
-    m_TECapChoice.AddItem( "SHARP" );
-    m_TECapChoice.SetOffset( vsp::FLAT_END_CAP );
+    m_TECapChoice.AddItem( "FLAT", vsp::FLAT_END_CAP );
+    m_TECapChoice.AddItem( "ROUND", vsp::ROUND_END_CAP );
+    m_TECapChoice.AddItem( "EDGE", vsp::EDGE_END_CAP );
+    m_TECapChoice.AddItem( "SHARP", vsp::SHARP_END_CAP );
 
     m_ModifyLayout.AddChoice( m_TECapChoice, "Cap:" );
 
