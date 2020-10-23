@@ -4117,6 +4117,11 @@ void CreateTMeshVecFromPts( Geom * geom,
     TMeshVec[itmesh]->m_UWPnts = uw_pnts;
     TMeshVec[itmesh]->m_XYZPnts = pnts;
 
+    if ( cfdsurftype == vsp::CFD_NEGATIVE )
+    {
+        flipnormal = !flipnormal;
+    }
+
     vec3d norm;
     vec3d v0, v1, v2, v3;
     vec3d uw0, uw1, uw2, uw3;
