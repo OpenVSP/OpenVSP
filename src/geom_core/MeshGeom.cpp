@@ -2975,22 +2975,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         //==== Determine Which Triangles Are Interior/Exterior ====//
         tm->WaveDeterIntExt( m_TMeshVec );
 
-        //==== Flip Int/Ext Flags ====//
-        for ( int i = 0 ; i < ( int )tm->m_TVec.size() ; i++ )
-        {
-            TTri* tri = tm->m_TVec[i];
-            if ( tri->m_SplitVec.size() )
-            {
-                for ( int j = 0 ; j < ( int )tri->m_SplitVec.size() ; j++ )
-                {
-                    tri->m_SplitVec[j]->m_IgnoreTriFlag = !( tri->m_SplitVec[j]->m_IgnoreTriFlag );
-                }
-            }
-            else
-            {
-                tri->m_IgnoreTriFlag = !( tri->m_IgnoreTriFlag );
-            }
-        }
+        tm->FlipIgnoreTriFlag();
     }
 
     //==== Pushback slice and area results ====//

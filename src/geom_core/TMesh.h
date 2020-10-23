@@ -452,6 +452,8 @@ public:
     double MinDistance( TMesh* tm, double curr_min_dist );
     void Split();
 
+    void FlipIgnoreTriFlag();
+
     bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB );
     void SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & bTypes, const vector < bool > & thicksurf );
 
