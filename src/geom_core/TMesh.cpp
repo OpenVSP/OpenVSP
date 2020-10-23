@@ -800,7 +800,7 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
         if ( aInThisB )
         {
             // Normal(Positive) inside another Normal, or Negative inside another Negative
-            if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT ) )
+            if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT || aType != vsp::CFD_STRUCTURE ) )
             {
                 return true;
             }
@@ -813,6 +813,27 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
             else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NEGATIVE )
             {
                 return false;
+            }
+                // Always delete Structure tris inside Negative surfaces
+            else if ( aType == vsp::CFD_STRUCTURE && bType == vsp::CFD_NEGATIVE )
+            {
+                return true;
+            }
+                // Always delete Stiffener tris
+            else if ( aType == vsp::CFD_STIFFENER )
+            {
+                return true;
+            }
+        }
+        else  // Triangle is outside.
+        {
+            if ( aType == vsp::CFD_STRUCTURE && bType == vsp::CFD_NORMAL )
+            {
+                return true;
+            }
+            else if ( aType == vsp::CFD_STIFFENER && bType == vsp::CFD_NORMAL )
+            {
+                return true;
             }
         }
     }
