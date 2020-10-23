@@ -4254,8 +4254,9 @@ vector< TMesh* > Geom::CreateTMeshVec()
             UpdateTesselate( i, pnts, norms, uw_pnts, false );
             m_SurfVec[i].ResetUWSkip(); // Done with skip flags.
 
+            bool thicksurf = true;
             CreateTMeshVecFromPts( this, TMeshVec, pnts, norms, uw_pnts,
-                                   i, m_SurfVec[i].GetSurfType(), m_SurfVec[i].GetSurfCfdType(), m_SurfVec[i].GetFlipNormal(), m_SurfVec[i].GetWMax() );
+                                   i, m_SurfVec[i].GetSurfType(), m_SurfVec[i].GetSurfCfdType(), thicksurf, m_SurfVec[i].GetFlipNormal(), m_SurfVec[i].GetWMax() );
 
         }
     }

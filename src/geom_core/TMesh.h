@@ -427,6 +427,7 @@ public:
     int m_MaterialID;
     vec3d m_Color;
     int m_SurfCfdType;
+    int m_ThickSurf;
     int m_MassPrior;
     double m_Density;
     double m_ShellMassArea;
@@ -450,8 +451,8 @@ public:
     double MinDistance( TMesh* tm, double curr_min_dist );
     void Split();
 
-    bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & aInB );
-    void SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & bTypes );
+    bool DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB );
+    void SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & bTypes, const vector < bool > & thicksurf );
 
     void DeterIntExt( vector< TMesh* >& meshVec );
     void DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
@@ -548,6 +549,6 @@ void CreateTMeshVecFromPts( Geom * geom,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & norms,
                             const vector< vector<vec3d> > & uw_pnts,
-                            int indx, int surftype, int cfdsurftype, bool flipnormal, double wmax );
+                            int indx, int surftype, int cfdsurftype, bool thicksurf, bool flipnormal, double wmax );
 
 #endif

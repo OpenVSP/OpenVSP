@@ -378,6 +378,7 @@ TMesh::TMesh()
 {
     m_MaterialID = 0;
     m_SurfCfdType = vsp::CFD_NORMAL;
+    m_ThickSurf = true;
     m_MassPrior = 0;
     m_Density = 0;
     m_ShellMassArea = 0;
@@ -784,15 +785,16 @@ void TMesh::Split()
     }
 }
 
-bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & aInB )
+bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB )
 {
     for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
     {
         bool aInThisB = aInB[b];
         int bType = bTypes[b];
+        bool bThick = thicksurf[b];
 
         // Can make absolute decisions about deleting a triangle or not in the cases below
-        if ( aInThisB )
+        if ( bThick && aInThisB )
         {
             // Normal(Positive) inside another Normal, or Negative inside another Negative
             if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT ) )
@@ -818,8 +820,12 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
     {
         bool aInThisB = aInB[b];
         int bType = bTypes[b];
+        bool bThick = thicksurf[b];
 
-        if ( aInThisB )
+        if ( !bThick )
+        {
+        }
+        else if ( aInThisB )
         {
             if ( aType == vsp::CFD_NEGATIVE && bType == vsp::CFD_NORMAL )
             {
@@ -842,7 +848,7 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
     return ignoretri;
 }
 
-void TMesh::SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & bTypes )
+void TMesh::SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & bTypes, const vector < bool > & thicksurf )
 {
     for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
     {
@@ -854,12 +860,12 @@ void TMesh::SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & 
             tri->m_IgnoreTriFlag = 1;
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
-                tri->m_SplitVec[s]->m_IgnoreTriFlag = DecideIgnoreTri( m_SurfCfdType, bTypes, tri->m_SplitVec[s]->m_insideSurf );
+                tri->m_SplitVec[s]->m_IgnoreTriFlag = DecideIgnoreTri( m_SurfCfdType, bTypes, thicksurf, tri->m_SplitVec[s]->m_insideSurf );
             }
         }
         else
         {
-            tri->m_IgnoreTriFlag = DecideIgnoreTri( m_SurfCfdType, bTypes, tri->m_insideSurf );
+            tri->m_IgnoreTriFlag = DecideIgnoreTri( m_SurfCfdType, bTypes, thicksurf, tri->m_insideSurf );
         }
     }
 }
@@ -898,7 +904,7 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
 
     for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
     {
-        if ( meshVec[m] != this && meshVec[m]->m_SurfCfdType != vsp::CFD_TRANSPARENT )
+        if ( meshVec[m] != this && meshVec[m]->m_ThickSurf ) // && meshVec[m]->GetCfdSurfType() != vsp::CFD_TRANSPARENT
         {
             vector<double > tParmVec;
             meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
@@ -4104,7 +4110,7 @@ void CreateTMeshVecFromPts( Geom * geom,
                             const vector< vector<vec3d> > & pnts,
                             const vector< vector<vec3d> > & norms,
                             const vector< vector<vec3d> > & uw_pnts,
-                            int indx, int surftype, int cfdsurftype, bool flipnormal, double wmax )
+                            int indx, int surftype, int cfdsurftype, bool thicksurf, bool flipnormal, double wmax )
 {
     double tol=1.0e-12;
 
@@ -4112,6 +4118,7 @@ void CreateTMeshVecFromPts( Geom * geom,
     int itmesh = TMeshVec.size() - 1;
     TMeshVec[itmesh]->LoadGeomAttributes( geom );
     TMeshVec[itmesh]->m_SurfCfdType = cfdsurftype;
+    TMeshVec[itmesh]->m_ThickSurf = thicksurf;
     TMeshVec[itmesh]->m_SurfType = surftype;
     TMeshVec[itmesh]->m_SurfNum = indx;
     TMeshVec[itmesh]->m_UWPnts = uw_pnts;

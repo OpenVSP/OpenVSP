@@ -1981,16 +1981,17 @@ void MeshGeom::IntersectTrim( vector< DegenGeom > &degenGeom, bool degen, int ha
 
     // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
     vector < int > bTypes( m_TMeshVec.size() );
+    vector < bool > thicksurf( m_TMeshVec.size() );
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         bTypes[i] = m_TMeshVec[i]->m_SurfCfdType;
-        printf( "%d %d\n", i, bTypes[i] );
+        thicksurf[i] = m_TMeshVec[i]->m_ThickSurf;
     }
 
     //==== Mark which triangles to ignore ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
-        m_TMeshVec[i]->SetIgnoreTriFlag( m_TMeshVec, bTypes );
+        m_TMeshVec[i]->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
     }
 
     // Only ever set to true for !degen case.

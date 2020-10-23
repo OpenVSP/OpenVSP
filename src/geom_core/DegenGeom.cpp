@@ -1709,6 +1709,7 @@ void DegenGeom::write_degenHingeLineResultsManager( vector<string> &hinge_ids, c
 void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec )
 {
     int surftype = getType();
+    bool thicksurf = false;
 
     for (int i = 0; i < degenPlates.size(); i++ )
     {
@@ -1737,7 +1738,8 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec )
                                    uw_pnts,
                                    getSurfNum(),
                                    vsp::WING_SURF,
-                                   vsp::CFD_TRANSPARENT, // getCfdSurfType(),
+                                   getCfdSurfType(),
+                                   thicksurf,
                                    getFlipNormal(),
                                    4.0 );
         }
@@ -1754,7 +1756,8 @@ void DegenGeom::createTMeshVec( Geom * geom, vector< TMesh* > &tMeshVec )
                                    uw_pnts,
                                    getSurfNum(),
                                    vsp::NORMAL_SURF,
-                                   vsp::CFD_TRANSPARENT, // getCfdSurfType(),
+                                   getCfdSurfType(),
+                                   thicksurf,
                                    getFlipNormal(),
                                    4.0 );
         }
