@@ -804,22 +804,22 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
             {
                 return true;
             }
-                // Always delete Normal tris inside Negative surfaces
+            // Always delete Normal tris inside Negative surfaces
             else if ( aType == vsp::CFD_NORMAL && bType == vsp::CFD_NEGATIVE )
             {
                 return true;
             }
-                // Never delete Transparent tris inside Negative surfaces
+            // Never delete Transparent tris inside Negative surfaces
             else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NEGATIVE )
             {
                 return false;
             }
-                // Always delete Structure tris inside Negative surfaces
+            // Always delete Structure tris inside Negative surfaces
             else if ( aType == vsp::CFD_STRUCTURE && bType == vsp::CFD_NEGATIVE )
             {
                 return true;
             }
-                // Always delete Stiffener tris
+            // Always delete Stiffener tris
             else if ( aType == vsp::CFD_STIFFENER )
             {
                 return true;
