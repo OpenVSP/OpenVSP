@@ -446,6 +446,7 @@ public:
 
     void LoadGeomAttributes( Geom* geomPtr );
     int  RemoveDegenerate();
+    void RemoveIsectEdges();
     void Intersect( TMesh* tm, bool UWFlag = false );
     bool CheckIntersect( TMesh* tm );
     double MinDistance( TMesh* tm, double curr_min_dist );

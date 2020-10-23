@@ -2466,17 +2466,7 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
         {
             tm->Intersect( m_TMeshVec[i] );
 
-            for ( j = 0 ; j < ( int )m_TMeshVec[i]->m_TVec.size() ; j++ )
-            {
-                TTri* tri = m_TMeshVec[i]->m_TVec[j];
-                for ( int e = 0 ; e < ( int )tri->m_ISectEdgeVec.size() ; e++ )
-                {
-                    delete tri->m_ISectEdgeVec[e]->m_N0;
-                    delete tri->m_ISectEdgeVec[e]->m_N1;
-                    delete tri->m_ISectEdgeVec[e];
-                }
-                tri->m_ISectEdgeVec.erase( tri->m_ISectEdgeVec.begin(), tri->m_ISectEdgeVec.end() );
-            }
+            m_TMeshVec[i]->RemoveIsectEdges();
         }
 
         //==== Split Intersected Tri in Mesh ====//
@@ -2976,17 +2966,7 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         {
             tm->Intersect( m_TMeshVec[i] );
 
-            for ( int j = 0 ; j < ( int )m_TMeshVec[i]->m_TVec.size() ; j++ )
-            {
-                TTri* tri = m_TMeshVec[i]->m_TVec[j];
-                for ( int e = 0 ; e < ( int )tri->m_ISectEdgeVec.size() ; e++ )
-                {
-                    delete tri->m_ISectEdgeVec[e]->m_N0;
-                    delete tri->m_ISectEdgeVec[e]->m_N1;
-                    delete tri->m_ISectEdgeVec[e];
-                }
-                tri->m_ISectEdgeVec.erase( tri->m_ISectEdgeVec.begin(), tri->m_ISectEdgeVec.end() );
-            }
+            m_TMeshVec[i]->RemoveIsectEdges();
         }
 
         //==== Split Intersected Tri in Mesh ====//
@@ -3235,17 +3215,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
         {
             tm->Intersect( m_TMeshVec[i] );
 
-            for ( j = 0 ; j < ( int )m_TMeshVec[i]->m_TVec.size() ; j++ )
-            {
-                TTri* tri = m_TMeshVec[i]->m_TVec[j];
-                for ( int e = 0 ; e < ( int )tri->m_ISectEdgeVec.size() ; e++ )
-                {
-                    delete tri->m_ISectEdgeVec[e]->m_N0;
-                    delete tri->m_ISectEdgeVec[e]->m_N1;
-                    delete tri->m_ISectEdgeVec[e];
-                }
-                tri->m_ISectEdgeVec.erase( tri->m_ISectEdgeVec.begin(), tri->m_ISectEdgeVec.end() );
-            }
+            m_TMeshVec[i]->RemoveIsectEdges();
         }
 
         //==== Split Intersected Tri in Mesh ====//
@@ -3660,17 +3630,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
         {
             tm->Intersect( m_TMeshVec[i] );
 
-            for ( j = 0 ; j < ( int )m_TMeshVec[i]->m_TVec.size() ; j++ )
-            {
-                TTri* tri = m_TMeshVec[i]->m_TVec[j];
-                for ( int e = 0 ; e < ( int )tri->m_ISectEdgeVec.size() ; e++ )
-                {
-                    delete tri->m_ISectEdgeVec[e]->m_N0;
-                    delete tri->m_ISectEdgeVec[e]->m_N1;
-                    delete tri->m_ISectEdgeVec[e];
-                }
-                tri->m_ISectEdgeVec.erase( tri->m_ISectEdgeVec.begin(), tri->m_ISectEdgeVec.end() );
-            }
+            m_TMeshVec[i]->RemoveIsectEdges();
         }
 
         //==== Split Intersected Tri in Mesh ====//

@@ -612,6 +612,21 @@ void TMesh::LoadGeomAttributes( Geom* geomPtr )
 
 }
 
+void TMesh::RemoveIsectEdges()
+{
+    for ( int j = 0 ; j < ( int )m_TVec.size() ; j++ )
+    {
+        TTri* tri = m_TVec[j];
+        for ( int e = 0 ; e < ( int )tri->m_ISectEdgeVec.size() ; e++ )
+        {
+            delete tri->m_ISectEdgeVec[e]->m_N0;
+            delete tri->m_ISectEdgeVec[e]->m_N1;
+            delete tri->m_ISectEdgeVec[e];
+        }
+        tri->m_ISectEdgeVec.erase( tri->m_ISectEdgeVec.begin(), tri->m_ISectEdgeVec.end() );
+    }
+}
+
 int TMesh::RemoveDegenerate()
 {
     vector< TTri* > degTVec;
