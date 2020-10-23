@@ -482,6 +482,7 @@ void TMesh::CopyAttributes( TMesh* m )
     m_MaterialID = m->m_MaterialID;
     m_Color      = m->m_Color;
     m_SurfCfdType = m->m_SurfCfdType;
+    m_ThickSurf = m->m_ThickSurf;
 
     m_TheoArea   = m->m_TheoArea;
     m_WetArea    = m->m_WetArea;
