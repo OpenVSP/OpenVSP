@@ -4039,7 +4039,7 @@ vec3d TMesh::CompPnt( const vec3d & uw_pnt )
 {
     // Search through uw pnts to figure out which quad the uw_pnt is in
 
-    if ( m_UWPnts.size() == 0 )
+    if ( m_UWPnts.size() == 0 || m_XYZPnts.size() == 0 )
     {
         return vec3d();
     }
