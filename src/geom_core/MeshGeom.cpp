@@ -2421,6 +2421,9 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
         TMesh* tm = new TMesh();
         m_SliceVec.push_back( tm );
 
+        tm->m_ThickSurf = false;
+        tm->m_SurfCfdType = vsp::CFD_STRUCTURE;
+
         double x = xMin + ( ( double )s / ( double )( numSlices - 1 ) ) * ( xMax - xMin );
 
         double ydel = 1.02 * ( m_BBox.GetMax( 1 ) - m_BBox.GetMin( 1 ) );
@@ -2482,22 +2485,18 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
         //==== Determine Which Triangle Are Interior/Exterior ====//
         tm->DeterIntExt( m_TMeshVec );
 
-        //==== Flip Int/Ext Flags ====//
-        for ( i = 0 ; i < ( int )tm->m_TVec.size() ; i++ )
+        // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
+        vector < int > bTypes( m_TMeshVec.size() );
+        vector < bool > thicksurf( m_TMeshVec.size() );
+        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
         {
-            TTri* tri = tm->m_TVec[i];
-            if ( tri->m_SplitVec.size() )
-            {
-                for ( j = 0 ; j < ( int )tri->m_SplitVec.size() ; j++ )
-                {
-                    tri->m_SplitVec[j]->m_IgnoreTriFlag = !( tri->m_SplitVec[j]->m_IgnoreTriFlag );
-                }
-            }
-            else
-            {
-                tri->m_IgnoreTriFlag = !( tri->m_IgnoreTriFlag );
-            }
+            bTypes[i] = m_TMeshVec[i]->m_SurfCfdType;
+            thicksurf[i] = m_TMeshVec[i]->m_ThickSurf;
         }
+
+        //==== Mark which triangles to ignore ====//
+        tm->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
+
     }
 
     TransMat.affineInverse();
