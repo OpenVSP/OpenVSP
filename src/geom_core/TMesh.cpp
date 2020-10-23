@@ -4070,7 +4070,7 @@ vec3d TMesh::CompPnt( const vec3d & uw_pnt )
 void TMesh::FindIJ( const vec3d & uw_pnt, int &start_u, int &start_v )
 {
     // Search through uw pnts to figure out which quad the uw_pnt is in
-    start_u = start_v = -1;
+    start_u = start_v = 0;
 
     if ( m_UWPnts.size() == 0 )
     {
