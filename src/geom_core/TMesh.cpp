@@ -794,7 +794,10 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
         bool bThick = thicksurf[b];
 
         // Can make absolute decisions about deleting a triangle or not in the cases below
-        if ( bThick && aInThisB )
+        if ( !bThick )
+        {
+        }
+        if ( aInThisB )
         {
             // Normal(Positive) inside another Normal, or Negative inside another Negative
             if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT ) )
