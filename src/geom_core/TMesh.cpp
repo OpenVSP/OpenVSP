@@ -1548,12 +1548,15 @@ vec3d TTri::CompUW( const vec3d & pnt )
 {
     if ( m_TMesh )  // Do interpolation based on original regular grid
     {
-        int start_u, start_v;
-        vec3d center = ComputeCenterUW();
+        if ( m_TMesh->m_UWPnts.size() != 0 )
+        {
+            int start_u, start_v;
+            vec3d center = ComputeCenterUW();
 
-        m_TMesh->FindIJ( center, start_u, start_v );
+            m_TMesh->FindIJ( center, start_u, start_v );
 
-        return m_TMesh->CompUW( pnt, start_u, start_v );
+            return m_TMesh->CompUW( pnt, start_u, start_v );
+        }
     }
 
     vec3d w = BarycentricWeights( m_N0->m_Pnt, m_N1->m_Pnt, m_N2->m_Pnt, pnt );
