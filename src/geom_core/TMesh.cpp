@@ -2536,23 +2536,6 @@ void TBndBox::AddTri( TTri* t )
     m_Box.Update( t->m_N2->m_Pnt );
 }
 
-void  TBndBox::AddLeafNodes( vector< TBndBox* > & leafVec )
-{
-    int i;
-
-    if ( m_SBoxVec[0] )     // Keep Moving Down
-    {
-        for ( i = 0 ; i < 8 ; i++ )
-        {
-            m_SBoxVec[i]->AddLeafNodes( leafVec );
-        }
-    }
-    else
-    {
-        leafVec.push_back( this );
-    }
-}
-
 bool TBndBox::CheckIntersect( TBndBox* iBox  )
 {
     int i, j;
@@ -2791,66 +2774,6 @@ void TBndBox::Intersect( TBndBox* iBox, bool UWFlag )
         }
     }
 }
-void  TBndBox::NumCrossXRay( vec3d & orig, vector<double> & tParmVec )
-{
-    int i;
-
-    if ( orig.y() < m_Box.GetMin( 1 ) )
-    {
-        return;
-    }
-    if ( orig.y() > m_Box.GetMax( 1 ) )
-    {
-        return;
-    }
-    if ( orig.z() < m_Box.GetMin( 2 ) )
-    {
-        return;
-    }
-    if ( orig.z() > m_Box.GetMax( 2 ) )
-    {
-        return;
-    }
-
-    if ( m_SBoxVec[0] )
-    {
-        for ( i = 0 ; i < 8 ; i++ )
-        {
-            m_SBoxVec[i]->NumCrossXRay( orig, tParmVec );
-        }
-        return;
-    }
-
-    //==== Check All Tris In Box ====//
-    double tparm, uparm, vparm;
-    vec3d dir( 1.0, 0.0, 0.0 );
-    for ( i = 0 ; i < ( int )m_TriVec.size() ; i++ )
-    {
-        TTri* tri = m_TriVec[i];
-        int iFlag = intersect_triangle( orig.v, dir.v,
-                                        tri->m_N0->m_Pnt.v, tri->m_N1->m_Pnt.v, tri->m_N2->m_Pnt.v, &tparm, &uparm, &vparm );
-
-        if ( iFlag && tparm > 0.0 )
-        {
-            //==== Find If T is Already Included ====//
-            int dupFlag = 0;
-            for ( int j = 0 ; j < ( int )tParmVec.size() ; j++ )
-            {
-                if ( std::abs( tparm - tParmVec[j] ) < 0.0000001 )
-                {
-                    dupFlag = 1;
-                    break;
-                }
-            }
-
-            if ( !dupFlag )
-            {
-                tParmVec.push_back( tparm );
-            }
-        }
-    }
-
-}
 
 void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec )
 {
@@ -2898,43 +2821,6 @@ void  TBndBox::RayCast( vec3d & orig, vec3d & dir, vector<double> & tParmVec )
             {
                 tParmVec.push_back( tparm );
             }
-        }
-    }
-
-}
-
-void TBndBox::SegIntersect( vec3d & p0, vec3d & p1, vector< vec3d > & ipntVec )
-{
-    int i, t;
-
-    if ( !m_Box.CheckPnt( p0.x(), p0.y(), p0.z() ) && !m_Box.CheckPnt( p1.x(), p1.y(), p1.z() ) )
-    {
-        return;
-    }
-
-    if ( m_SBoxVec[0] )
-    {
-        for ( i = 0 ; i < 8 ; i++ )
-        {
-            m_SBoxVec[i]->SegIntersect( p0, p1, ipntVec );
-        }
-        return;
-    }
-
-    //==== Check All Tris In Box ====//
-    double tparm, uparm, vparm;
-    for ( t = 0 ; t < ( int )m_TriVec.size() ; t++ )
-    {
-        TTri* tri = m_TriVec[t];
-        vec3d n0pnt  = tri->m_N0->m_Pnt;
-        vec3d n10pnt = tri->m_N1->m_Pnt - tri->m_N0->m_Pnt;
-        vec3d n20pnt = tri->m_N2->m_Pnt - tri->m_N0->m_Pnt;
-        vec3d p10    = p1 - p0;
-        if ( tri_seg_intersect( n0pnt,  n10pnt, n20pnt,
-                                p0, p10, uparm, vparm, tparm ) )
-        {
-            vec3d pnt = p0 + ( p1 - p0 ) * tparm;
-            ipntVec.push_back( pnt );
         }
     }
 
