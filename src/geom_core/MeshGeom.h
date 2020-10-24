@@ -89,8 +89,6 @@ public:
     Matrix4d m_ScaleMatrix;
     Parm m_ScaleFromOrig;
 
-    virtual void load_hidden_surf();
-    virtual void load_normals();
     virtual void UpdateBBox();
     virtual void UpdateDrawObj();
 
@@ -157,13 +155,8 @@ public:
     virtual void WaveStartEnd( const double &sliceAngle, const vec3d &center );
     virtual void WaveDragSlice( int numSlices, double sliceAngle, int coneSections,
                              const vector <string> & Flow_vec, bool Symm = false );
-    virtual vector<vec3d> TessTriangles( vector<vec3d> &tri );
-    virtual vector<vec3d> TessTri( vec3d t1, vec3d t2, vec3d t3, int iterations );
 
     virtual void MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen = true );
-
-    virtual vec3d GetVertex3d( int surf, double x, double p, int r );
-    //virtual void  getVertexVec(vector< VertexID > *vertVec);
 
     virtual void CreatePrism( vector< TetraMassProp* >& tetraVec, TTri* tri, double len );
     virtual void createDegenGeomPrism( vector< DegenGeomTetraMassProp* >& tetraVec, TTri* tri, double len );
@@ -196,8 +189,6 @@ public:
     virtual set< string > GetTMeshPtrIDs();
 
     virtual void SubTagTris( bool tag_subs );
-
-    virtual void PreMerge();
 
     BoolParm m_ViewMeshFlag;
     BoolParm m_ViewSliceFlag;

@@ -1694,17 +1694,6 @@ void MeshGeom::CreatePtCloudGeom()
     }
 }
 
-//==== Compute And Load Normals ====//
-void MeshGeom::load_normals()
-{
-}
-
-//==== Draw Other Pnts XSecs====//
-void MeshGeom::load_hidden_surf()
-{
-}
-
-
 void MeshGeom::Scale()
 {
     double currentScale = m_Scale() / m_LastScale();
@@ -3013,94 +3002,6 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
     }
 }
 
-vector<vec3d> MeshGeom::TessTri( vec3d t1, vec3d t2, vec3d t3, int iterations )
-{
-    vector<vec3d> triangles;
-    triangles.push_back( t1 );
-    triangles.push_back( t2 );
-    triangles.push_back( t3 );
-
-    for ( int i = 0; i < iterations; i++ )
-    {
-        triangles = TessTriangles( triangles );
-    }
-    return triangles;
-}
-
-vector<vec3d> MeshGeom::TessTriangles( vector<vec3d> &tri )
-{
-    assert( ( tri.size() ) % 3 == 0 );
-    vector< vec3d > triangles;
-    for ( int i = 0; i < ( int )tri.size(); i += 3 )
-    {
-        vec3d t1 = tri[ i ];
-        vec3d t2 = tri[i + 1];
-        vec3d t3 = tri[i + 2];
-
-        vec3d c12 = ( t1 + t2 ) * 0.5;
-        vec3d c13 = ( t1 + t3 ) * 0.5;
-        vec3d c23 = ( t2 + t3 ) * 0.5;
-
-        triangles.push_back( t1 );
-        triangles.push_back( c12 );
-        triangles.push_back( c13 );
-
-        triangles.push_back( t2 );
-        triangles.push_back( c23 );
-        triangles.push_back( c12 );
-
-        triangles.push_back( t3 );
-        triangles.push_back( c13 );
-        triangles.push_back( c23 );
-
-        triangles.push_back( c23 );
-        triangles.push_back( c13 );
-        triangles.push_back( c12 );
-    }
-    return triangles;
-}
-
-vec3d MeshGeom::GetVertex3d( int surf, double x, double p, int r )
-{
-    if ( x < 0 )
-    {
-        x = 0;
-    }
-    if ( p < 0 )
-    {
-        p = 0;
-    }
-    if ( x > 1 )
-    {
-        x = 1;
-    }
-    if ( p > 1 )
-    {
-        p = 1;
-    }
-
-
-    if ( surf == 0 ) // tmesh
-    {
-        int t = ( int )( x * ( m_TMeshVec.size() - 1 ) + 0.5 );
-        int v = ( int )( p * ( m_TMeshVec[t]->NumVerts() - 1 ) + 0.5 );
-        return m_TMeshVec[t]->GetVertex( v );
-    }
-    else if ( surf == 1 ) //slice
-    {
-        int s = ( int )( x * ( m_SliceVec.size() - 1 ) + 0.5 );
-        int v = ( int )( p * ( m_SliceVec[s]->NumVerts() - 1 ) + 0.5 );
-        return m_SliceVec[s]->GetVertex( v );
-    }
-    return vec3d();
-}
-
-//void  MeshGeom::getVertexVec(vector< VertexID > *vertVec)
-//{
-//  buildVertexVec(&tMeshVec, 0, vertVec);
-//  buildVertexVec(&sliceVec, 1, vertVec);
-//}
-
 //==== Call After BndBoxes Have Been Create But Before Intersect ====//
 void MeshGeom::MassSliceX( int numSlices, bool writefile )
 {
@@ -4073,17 +3974,6 @@ void MeshGeom::MergeRemoveOpenMeshes( MeshInfo* info, bool deleteopen )
         info->m_NumDegenerateTriDeleted += m_TMeshVec[i]->RemoveDegenerate();
     }
 
-}
-
-void MeshGeom::PreMerge()
-{
-    // This method pre-merges each TMesh in the TMeshVec. This builds node and edge alias maps
-    // in order to perform an intersection between non-merged meshes in UW space
-
-    for ( int i = 0; i < ( int )m_TMeshVec.size(); i++ )
-    {
-        m_TMeshVec[i]->BuildMergeMaps();
-    }
 }
 
 void MeshGeom::AddHalfBox()
