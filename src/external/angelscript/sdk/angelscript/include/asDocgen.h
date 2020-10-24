@@ -195,6 +195,12 @@ namespace asDocgen
         globalPropertyGroups.clear();
     }
 
+    bool sortByVal( const std::pair<string, string> &a,
+        const std::pair<string, string> &b )
+    {
+        return ( a.second < b.second );
+    }
+
     void replaceSubStr( std::string& str, const std::string& from, const std::string& to )
     {
         size_t start_pos = 0;
@@ -372,12 +378,24 @@ The API functions are organized into the following groups:
 
 )";
 
-        std::map<std::string, std::string>::iterator git;
+        // Alphabetize by title
+        // create a empty vector of pairs
+        std::vector< std::pair < string, string > > sorted_group_title_vec;
 
-        for ( git = groupTitles.begin(); git != groupTitles.end(); ++git )
+        // copy key-value pairs from the map to the vector
+        std::map<std::string, std::string>::iterator git;
+        for( git = groupTitles.begin(); git != groupTitles.end(); git++ )
+        {
+            sorted_group_title_vec.push_back( std::make_pair( git->first, git->second ) );
+        }
+
+        // // sort the vector by increasing order of its pair's second value
+        sort( sorted_group_title_vec.begin(), sorted_group_title_vec.end(), sortByVal );
+
+        for ( size_t i_g = 0; i_g < sorted_group_title_vec.size(); i_g++ )
         {
             readme_str += "- [";
-            readme_str += git->second;
+            readme_str += sorted_group_title_vec[i_g].second;
             readme_str += "]";
 
             // Identify group HTML name
@@ -385,16 +403,16 @@ The API functions are organized into the following groups:
 
             // FIXME: asDocInfo group can't contain any underscores!
 
-            for ( size_t i = 0; i < git->first.size(); i++ )
+            for ( size_t i = 0; i < sorted_group_title_vec[i_g].first.size(); i++ )
             {
-                if ( isupper( git->first[i] ) )
+                if ( isupper( sorted_group_title_vec[i_g].first[i] ) )
                 {
                     readme_str += "_";
-                    readme_str += tolower( git->first[i] );
+                    readme_str += tolower( sorted_group_title_vec[i_g].first[i] );
                 }
                 else
                 {
-                    readme_str += git->first[i];
+                    readme_str += sorted_group_title_vec[i_g].first[i];
                 }
             }
 
@@ -443,23 +461,42 @@ A master page containing all groups, classes, enums, and un-documented functions
 - [Master API Documentation Link](openvsp__as_8h.html)
 
 ## Help
+### Overview
+OpenVSP includes an API written in C++ that exposes all of the functionality of the GUI to a programming interface. This allows
+OpenVSP modeling and analysis tools to be run on headless systems, directly integrated with external software programs, and 
+automated for trade studies and optimization purposes. The OpenVSP API & MATLAB/Python Integration presentation from 
+the [2020 OpenVSP Workshop](http://openvsp.org/wiki/doku.php?id=workshop2020) is a good resource to learn more about the API. 
+For specific API questions, the [OpenVSP Google Group](https://groups.google.com/forum/#!forum/openvsp) is available.
+
 ### Examples
 OpenVSP API examples are available in the **scripts** directory of the distribution. These example scripts are written in 
-AngelScript, but map very closely for the Python API. An example for using the Python API can be found in **python/openvsp/openvsp/tests**. 
-For specific requests, the [OpenVSP Google Group](https://groups.google.com/forum/#!forum/openvsp) is available.
+AngelScript, but map very closely for the Python API. CustomGeom examples, also written in Angelscipt, are available in the 
+**CustomScripts** directory. An example for using the Python API can be found in **python/openvsp/openvsp/tests**. The 
+matlab_api directory includes examples for the MATLAB API in the form of test suites. 
+
+### Angelscript 
+All OpenVSP C++ API functions are registered with Angelscript, a language that is virtually identical in syntax to C++. 
+API functions can be called from *.vspscript files and then run from either the GUI (File -> Run Script...) or through the 
+vspscript executable's command line interface. Custom Geom scripts, identified by the *.vsppart file extension, also call 
+API functions. These scripts are loaded automatically when OpenVSP is launched. Note, all models saved with a Custom Geom 
+will include the *.vsppart code in the *.vsp3 file. 
 
 ### Python API Instructions
-View the **README** file in the **python** directory of the distribution for instructions on Python API instructions. Note, the Python 
-and OpenVSP versions (32-bit or 64-bit) must match.
+View the **README** file in the **python** directory of the distribution for instructions on Python API installation. Note, the Python
+version must be the same as what OpenVSP was compiled with. For instance OpenVSP 3.21.2 Win64 requires Python 3.6-x64. If a different 
+verison of Python is desired, the user must compile OpenVSP themselves. 
 
 ### MATLAB API
-The MATLAB API is not included with the OpenVSP distribution and must be built by the user. A presentation with instructions is 
-available from the [2019 OpenVSP Workshop](http://openvsp.org/wiki/doku.php?id=workshop2019)
+The MATLAB API template (matlab_api) is included with the OpenVSP source code, but not the distributed binaries. This is because it requires
+an unreleased branch of SWIG and MATLAB with a valid license. Users are able to build the MATLAB API if they are willing
+to compile OpenVSP themselves. Presentations on compiling OpenVSP and building the MATLAB API are available from the 
+[2020 OpenVSP Workshop](http://openvsp.org/wiki/doku.php?id=workshop2020)
 
 ## Improvements
 ### Users
 Users are encouraged to make use of the [GitHub Issue Tracker](https://github.com/OpenVSP/OpenVSP) if they have a suggestions, 
-feature request, or bug report for the OpenVSP developers.
+feature request, or bug report for the OpenVSP developers. Please add an issue if an API function or capability is missing, 
+not working correctly, or poorly documented.
 
 ## Links
 
