@@ -228,15 +228,6 @@ private:
     vector< DrawObj > m_SSCapNormDO;
 };
 
-class FeaMeshAnalysis : public Analysis
-{
-public:
-
-    virtual void SetDefaults();
-    virtual string Execute();
-
-};
-
 #define FeaMeshMgr FeaMeshMgrSingleton::getInstance()
 
 #endif

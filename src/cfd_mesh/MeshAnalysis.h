@@ -13,6 +13,27 @@
 
 #include "AnalysisMgr.h"
 
+using std::string;
 
+class CfdMeshAnalysis : public Analysis
+{
+public:
+    virtual void SetDefaults();
+    virtual string Execute();
+};
+
+class FeaMeshAnalysis : public Analysis
+{
+public:
+    virtual void SetDefaults();
+    virtual string Execute();
+};
+
+class SurfaceIntersectionAnalysis : public Analysis
+{
+public:
+    virtual void SetDefaults();
+    virtual string Execute();
+};
 
 #endif // !defined(MESHANALYSIS__INCLUDED_)

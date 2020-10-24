@@ -432,15 +432,6 @@ private:
     vector < DrawObj > m_IPatchBDO;
 };
 
-class SurfaceIntersectionAnalysis : public Analysis
-{
-public:
-
-    virtual void SetDefaults();
-    virtual string Execute();
-
-};
-
 #define SurfaceIntersectionMgr SurfaceIntersectionSingleton::getInstance()
 
 #endif

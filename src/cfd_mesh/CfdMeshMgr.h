@@ -245,15 +245,6 @@ private:
 
 };
 
-class CfdMeshAnalysis : public Analysis
-{
-public:
-
-    virtual void SetDefaults();
-    virtual string Execute();
-
-};
-
 #define CfdMeshMgr CfdMeshMgrSingleton::getInstance()
 
 #endif
