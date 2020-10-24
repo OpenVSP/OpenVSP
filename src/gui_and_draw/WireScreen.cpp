@@ -8,7 +8,6 @@
 #include "WireScreen.h"
 #include "WireGeom.h"
 #include "ScreenMgr.h"
-#include "ParmMgr.h"
 
 
 //==== Constructor ====//

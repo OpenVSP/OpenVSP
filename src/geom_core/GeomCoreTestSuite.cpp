@@ -7,7 +7,6 @@
 
 #include "GeomCoreTestSuite.h"
 #include "MeshGeom.h"
-#include "StlHelper.h"
 
 
 //==== Test GeomXForm ====//

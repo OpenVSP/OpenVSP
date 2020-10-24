@@ -1,5 +1,4 @@
 #include <cassert>
-#include <cstddef>
 
 #include "ShaderRepo.h"
 #include "Shader.h"

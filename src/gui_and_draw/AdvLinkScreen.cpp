@@ -8,7 +8,6 @@
 #include "AdvLinkScreen.h"
 #include "AdvLinkMgr.h"
 #include "ScreenMgr.h"
-#include "LinkMgr.h"
 #include "ParmMgr.h"
 
 #include <FL/fl_ask.H>

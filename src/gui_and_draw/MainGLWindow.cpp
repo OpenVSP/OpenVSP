@@ -9,7 +9,6 @@
 #include "Viewport.h"
 #include "LayoutMgr.h"
 #include "Camera.h"
-#include "SceneObject.h"
 #include "Renderable.h"
 #include "Pickable.h"
 #include "PickablePnts.h"

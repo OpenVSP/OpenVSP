@@ -14,7 +14,6 @@
 
 #include "VspCurve.h"
 #include "APIDefines.h"
-#include "Cluster.h"
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"

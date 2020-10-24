@@ -13,8 +13,6 @@
 #include "StlHelper.h"
 #include <float.h>
 
-#include "Vehicle.h"
-
 using std::string;
 using namespace vsp;
 

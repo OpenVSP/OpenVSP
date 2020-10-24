@@ -9,7 +9,6 @@
 
 #include "FitModelMgr.h"
 #include "ParmMgr.h"
-#include "StlHelper.h"
 #include "PtCloudGeom.h"
 
 #define CMINPACK_NO_DLL

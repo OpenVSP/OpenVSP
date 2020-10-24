@@ -11,7 +11,6 @@
 #include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "AdvLinkMgr.h"
-#include "StringUtil.h"
 
 #include <FL/Fl_File_Chooser.H>
 

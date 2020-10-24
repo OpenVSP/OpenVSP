@@ -1,6 +1,4 @@
 #include "Atmosphere.h"
-#include "VehicleMgr.h"
-#include "Vehicle.h"
 
 Atmosphere::Atmosphere()
 {

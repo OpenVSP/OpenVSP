@@ -6,9 +6,7 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "StackGeom.h"
-#include "ParmMgr.h"
 #include "Vehicle.h"
-#include "StlHelper.h"
 
 using namespace vsp;
 

@@ -6,8 +6,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "PodGeom.h"
-#include "ParmMgr.h"
-#include "LinkMgr.h"
 #include "Vehicle.h"
 
 //==== Constructor ====//

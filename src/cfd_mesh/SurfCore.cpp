@@ -6,9 +6,6 @@
 #include "SurfCore.h"
 #include "BezierCurve.h"
 
-#include "eli/geom/surface/piecewise_body_of_revolution_creator.hpp"
-#include "eli/geom/surface/piecewise_capped_surface_creator.hpp"
-
 typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
 
 SurfCore::SurfCore()

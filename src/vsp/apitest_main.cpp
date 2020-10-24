@@ -18,7 +18,6 @@
 #include "APITestSuiteMassProp.h"
 #include "APITestSuiteVSPAERO.h"
 #include "APITestSuiteParasiteDrag.h"
-#include "cpptest.h"
 
 
 void vsp_exit()

@@ -1,10 +1,6 @@
 
 #include "VKTAirfoil.h"
 
-#include <complex>
-
-#include "Defines.h"
-
 doublec cmplx_potential( doublec zeta, double alpha, double beta, double a, doublec mu )
 {
     doublec i(0,1);

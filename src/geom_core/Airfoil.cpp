@@ -8,12 +8,10 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Airfoil.h"
-#include "Geom.h"
 #include "ParmMgr.h"
 #include "StringUtil.h"
 #include <float.h>
 #include "VKTAirfoil.h"
-#include "Vec2d.h"
 #include "Cluster.h"
 #include "StlHelper.h"
 #include "Util.h"

@@ -13,7 +13,6 @@
 #include "ISegChain.h"
 #include "tri_tri_intersect.h"
 #include "CfdMeshMgr.h"
-#include "StlHelper.h"
 #include "SubSurfaceMgr.h"
 #include "IntersectPatch.h"
 

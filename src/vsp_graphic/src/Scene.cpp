@@ -15,9 +15,6 @@
 #include "Clipping.h"
 #include "ByteOperationUtil.h"
 
-#include <cassert>
-#include <cstdlib>
-
 namespace VSPGraphic
 {
 Scene::Scene()

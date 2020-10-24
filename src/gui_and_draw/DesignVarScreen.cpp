@@ -9,7 +9,6 @@
 
 #include "DesignVarScreen.h"
 #include "ParmMgr.h"
-#include "APIDefines.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

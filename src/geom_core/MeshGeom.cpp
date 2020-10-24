@@ -15,7 +15,6 @@
 
 #include "MeshGeom.h"
 #include "PtCloudGeom.h"
-#include "ParmMgr.h"
 #include "LinkMgr.h"
 #include "Vehicle.h"
 #include "PntNodeMerge.h"

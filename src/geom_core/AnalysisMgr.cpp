@@ -17,8 +17,6 @@
 
 #include "VSP_Geom_API.h"
 
-#include <ctime>
-
 void RWCollection::Clear()
 {
     m_DataMap.clear();

@@ -8,17 +8,8 @@
 #include "APIDefines.h"
 #include "Util.h"
 #include "ConformalGeom.h"
-#include "FileUtil.h"
-#include "ParmMgr.h"
-#include "LinkMgr.h"
-#include "ScriptMgr.h"
-#include "VspSurf.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "VSP_Geom_API.h"
-#include "eli/geom/curve/bezier.hpp"
-#include "eli/geom/surface/piecewise.hpp"
-#include "eli/geom/surface/piecewise_connection_data.hpp"
 
 using namespace vsp;
 

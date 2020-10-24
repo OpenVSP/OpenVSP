@@ -8,10 +8,6 @@
 #include "ConformalScreen.h"
 #include "ScreenMgr.h"
 #include "ConformalGeom.h"
-#include "Vehicle.h"
-#include "ParmMgr.h"
-
-#include <assert.h>
 
 
 //==== Constructor ====//

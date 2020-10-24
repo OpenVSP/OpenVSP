@@ -8,8 +8,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "VSPAEROPlotScreen.h"
-#include "StringUtil.h"
-#include "FileUtil.h"
 #include "float.h"
 
 #include "Util.h"

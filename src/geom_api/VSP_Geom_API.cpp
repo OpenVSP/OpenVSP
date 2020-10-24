@@ -27,13 +27,10 @@
 #include "MeasureMgr.h"
 #include "SubSurfaceMgr.h"
 #include "VKTAirfoil.h"
-#include "FeaStructure.h"
 #include "StructureMgr.h"
 #include "FeaMeshMgr.h"
-#include "SurfaceIntersectionMgr.h"
 
 #include "eli/mutil/quad/simpson.hpp"
-#include "Eigen/src/Core/Matrix.h"
 
 #ifdef VSP_USE_FLTK
 #include "GuiInterface.h"

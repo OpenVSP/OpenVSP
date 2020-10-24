@@ -1,5 +1,3 @@
-#include <assert.h>
-
 #include "OpenGLHeaders.h"
 
 #include "Lighting.h"

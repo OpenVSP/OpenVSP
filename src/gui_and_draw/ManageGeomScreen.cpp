@@ -8,7 +8,6 @@
 #include "ManageGeomScreen.h"
 #include "ScreenMgr.h"
 #include "StlHelper.h"
-#include "StringUtil.h"
 
 using namespace vsp;
 

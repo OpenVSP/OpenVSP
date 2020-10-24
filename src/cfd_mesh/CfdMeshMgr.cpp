@@ -8,7 +8,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "CfdMeshMgr.h"
-#include "Util.h"
 #include "SubSurfaceMgr.h"
 #include "main.h"
 

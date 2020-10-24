@@ -10,7 +10,6 @@
 #include "SurfPatch.h"
 #include "Surf.h"
 
-#include "eli/geom/intersect/minimum_distance_surface.hpp"
 typedef piecewise_surface_type::bounding_box_type surface_bounding_box_type;
 
 //////////////////////////////////////////////////////////////////////

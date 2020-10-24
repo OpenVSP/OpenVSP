@@ -1,5 +1,4 @@
 #include "Selectable.h"
-#include "Renderable.h"
 
 namespace VSPGraphic
 {

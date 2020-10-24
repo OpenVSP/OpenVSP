@@ -8,11 +8,8 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "FeaMeshMgr.h"
-#include "Util.h"
-#include "APIDefines.h"
 #include "SubSurfaceMgr.h"
 #include "StructureMgr.h"
-#include "PntNodeMerge.h"
 #include "main.h"
 #include "StringUtil.h"
 

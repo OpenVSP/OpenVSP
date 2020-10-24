@@ -9,16 +9,8 @@
 
 #include "ParasiteDragScreen.h"
 #include "ParasiteDragMgr.h"
-#include "ParmMgr.h"
-#include "APIDefines.h"
-#include "StringUtil.h"
-#include "FileUtil.h"
 #include "StlHelper.h"
 
-#include <utility>
-#include <string>
-#include <sstream>
-#include <stdlib.h>
 #include <numeric>
 using namespace std;
 

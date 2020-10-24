@@ -11,8 +11,6 @@
 #include "StlHelper.h"
 #include "Cluster.h"
 
-#include "eli/geom/intersect/intersect_plane.hpp"
-
 using namespace vsp;
 
 typedef piecewise_surface_type::point_type surface_point_type;

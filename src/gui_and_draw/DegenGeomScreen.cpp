@@ -8,6 +8,7 @@
 #include "DegenGeomScreen.h"
 #include "CfdMeshMgr.h"
 #include "StringUtil.h"
+#include "MeshGeom.h"
 
 DegenGeomScreen::DegenGeomScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 375, 365, "Degen Geom - Compute Models, File IO" )
 {

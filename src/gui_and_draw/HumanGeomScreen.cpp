@@ -8,7 +8,6 @@
 #include "HumanGeomScreen.h"
 #include "ScreenMgr.h"
 #include "HumanGeom.h"
-#include "ParmMgr.h"
 
 
 //==== Constructor ====//

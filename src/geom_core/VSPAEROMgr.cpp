@@ -14,14 +14,10 @@
 #include "ParmMgr.h"
 #include "StlHelper.h"
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "VSPAEROMgr.h"
 #include "WingGeom.h"
 #include "PropGeom.h"
-#include "StringUtil.h"
 #include "FileUtil.h"
-
-#include <regex>
 
 //==== Constructor ====//
 VspAeroControlSurf::VspAeroControlSurf()

@@ -5,18 +5,13 @@
 //////////////////////////////////////////////////////////////////////
 
 #include <stdlib.h>
-#include <math.h>
 #include <stdio.h>
 #include <string.h>
-#include <sys/types.h>
 
 #ifndef WIN32
-#include <sys/wait.h>
-#include <unistd.h>
 #endif
 
 #include "VSP_Solver.H"
-#include "ControlSurfaceGroup.H"
 
 #define VER_MAJOR 6
 #define VER_MINOR 0

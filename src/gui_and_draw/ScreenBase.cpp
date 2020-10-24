@@ -9,7 +9,6 @@
 
 #include "ScreenBase.h"
 #include "ScreenMgr.h"
-#include "ParmMgr.h"
 #include "SubSurfaceMgr.h"
 #include "GraphicEngine.h"
 #include "Display.h"
@@ -19,8 +18,6 @@
 #include "Background.h"
 #include "GraphicSingletons.h"
 #include "StructureMgr.h"
-#include "StringUtil.h"
-#include "VSPWindow.h"
 #include "WingGeom.h"
 
 using namespace vsp;

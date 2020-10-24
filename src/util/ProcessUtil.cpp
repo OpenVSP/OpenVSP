@@ -5,8 +5,6 @@
 
 #include "ProcessUtil.h"
 
-#include <cstdlib>
-
 #ifdef __APPLE__
 
 #endif
@@ -14,9 +12,6 @@
 #ifdef WIN32
 
 #else
-#include <sys/wait.h>
-#include <sys/types.h>
-#include <unistd.h>
 
 #include <fcntl.h>
 #include <csignal>

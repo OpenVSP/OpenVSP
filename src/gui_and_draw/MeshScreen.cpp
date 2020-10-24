@@ -8,7 +8,6 @@
 #include "MeshScreen.h"
 #include "ScreenMgr.h"
 #include "MeshGeom.h"
-#include "ParmMgr.h"
 
 
 //==== Constructor ====//

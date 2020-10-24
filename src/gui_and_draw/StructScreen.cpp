@@ -9,15 +9,12 @@
 
 #include "StructScreen.h"
 #include "FeaMeshMgr.h"
-#include "APIDefines.h"
 #include "StructureMgr.h"
 #include "ManageViewScreen.h"
 #include "GraphicEngine.h"
 #include "Display.h"
 #include "Camera.h"
-#include "FeaPartEditScreen.h"
 #include "ParmMgr.h"
-#include "StringUtil.h"
 
 using namespace vsp;
 

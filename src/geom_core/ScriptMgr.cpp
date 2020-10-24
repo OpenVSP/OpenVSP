@@ -20,7 +20,6 @@
 #include "VSP_Geom_API.h"
 #include "CustomGeom.h"
 #include "AdvLinkMgr.h"
-#include "Vehicle.h"
 #include "StringUtil.h"
 #include "FileUtil.h"
 

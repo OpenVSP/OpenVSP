@@ -8,15 +8,10 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "Vehicle.h"
-#include "VehicleMgr.h"
 #include "ParmMgr.h"
 #include "StlHelper.h"
-#include "APIDefines.h"
 #include "WingGeom.h"
-#include "ResultsMgr.h"
 #include "ParasiteDragMgr.h"
-
-#include "eli/mutil/nls/newton_raphson_method.hpp"
 
 #include <numeric>
 

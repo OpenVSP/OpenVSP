@@ -8,7 +8,7 @@
 #include "FuselageScreen.h"
 #include "ScreenMgr.h"
 #include "FuselageGeom.h"
-#include "ParmMgr.h"
+
 using namespace vsp;
 
 

@@ -10,12 +10,9 @@
 #include "SurfaceIntersectionMgr.h"
 #include "Util.h"
 #include "SubSurfaceMgr.h"
-#include "main.h"
 #include "StringUtil.h"
 
 #include "eli/geom/intersect/intersect_surface.hpp"
-
-#include <chrono>
 
 #ifdef DEBUG_CFD_MESH
 #include <direct.h>

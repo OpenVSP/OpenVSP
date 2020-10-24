@@ -39,11 +39,8 @@
 #include "VarPresetMgr.h"
 #include "VSPAEROMgr.h"
 #include "WireGeom.h"
-#include "main.h"
 
 #include "ProjectionMgr.h"
-#include "DXFUtil.h"
-#include "DegenGeom.h"
 
 using namespace vsp;
 

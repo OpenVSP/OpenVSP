@@ -6,8 +6,6 @@
 //////////////////////////////////////////////////////////////////////
 
 #include "EllipsoidGeom.h"
-#include "ParmMgr.h"
-#include "LinkMgr.h"
 #include "Vehicle.h"
 
 typedef eli::geom::curve::piecewise_ellipse_creator<double, 3, curve_tolerance_type> piecewise_ellipse_creator;

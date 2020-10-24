@@ -5,10 +5,8 @@
 #include "Viewport.h"
 #include "Background.h"
 
-#include "OpenGLHeaders.h"
 #include "stb_image_write.h"
 #include "LayoutMgr.h"
-#include <string.h>
 
 #include <assert.h>
 

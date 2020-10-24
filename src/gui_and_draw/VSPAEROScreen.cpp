@@ -9,7 +9,6 @@
 
 #include "VSPAEROScreen.h"
 #include "VSPAEROPlotScreen.h"
-#include "StringUtil.h"
 #include "FileUtil.h"
 #include <FL/fl_ask.H>
 

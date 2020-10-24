@@ -9,7 +9,6 @@
 
 #include "FitModelScreen.h"
 #include "ParmMgr.h"
-#include "StringUtil.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

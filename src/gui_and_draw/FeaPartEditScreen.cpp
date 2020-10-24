@@ -10,7 +10,6 @@
 
 #include "FeaPartEditScreen.h"
 #include "StructureMgr.h"
-#include "SubSurface.h"
 #include "FeaMeshMgr.h"
 
 FeaPartEditScreen::FeaPartEditScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 340, 475, "FEA Part Edit" )

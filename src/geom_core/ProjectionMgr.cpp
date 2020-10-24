@@ -10,7 +10,6 @@
 #include "ProjectionMgr.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
-#include "StlHelper.h"
 #include "MeshGeom.h"
 
 #include "triangle.h"

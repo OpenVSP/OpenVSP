@@ -8,7 +8,6 @@
 #include "BORScreen.h"
 #include "ScreenMgr.h"
 #include "BORGeom.h"
-#include "ParmMgr.h"
 
 
 //==== Constructor ====//

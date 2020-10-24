@@ -12,7 +12,6 @@
 #include "LinkMgr.h"
 #include <cfloat>
 
-#include "StringUtil.h"
 #include "Combination.h"
 
 using std::string;

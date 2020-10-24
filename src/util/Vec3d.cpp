@@ -11,11 +11,8 @@
 //******************************************************************************
 
 #include "Defines.h"
-#include <cmath>
 #include <cfloat> //For DBL_EPSILON
-#include <cstdio>
 #include "Vec3d.h"
-#include <algorithm>
 
 using std::cout;
 using std::endl;

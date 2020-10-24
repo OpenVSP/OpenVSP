@@ -9,7 +9,6 @@
 
 #include "SurfaceIntersectionScreen.h"
 #include "SurfaceIntersectionMgr.h"
-#include "StringUtil.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

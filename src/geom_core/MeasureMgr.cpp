@@ -1,5 +1,4 @@
 #include "MeasureMgr.h"
-#include "Vehicle.h"
 
 MeasureMgrSingleton::MeasureMgrSingleton()
 {

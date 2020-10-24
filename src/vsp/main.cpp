@@ -8,9 +8,6 @@
 
 #include <cstdio>
 
-#include <sys/stat.h>
-#include <sys/types.h>
-
 #ifdef WIN32
 #include <windows.h>
 #else
@@ -31,10 +28,8 @@
 
 
 #include "main.h"
-#include "VSP_Geom_API.h"
 #include "VehicleMgr.h"
 #include "GuiInterface.h"
-#include "GeomCoreTestSuite.h"
 #include "common.h"
 
 using namespace vsp;

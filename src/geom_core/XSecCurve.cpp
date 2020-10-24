@@ -11,13 +11,10 @@
 #include "Geom.h"
 //#include "SuperEllipse.h"
 #include "ParmMgr.h"
-#include "StlHelper.h"
 #include "FuselageGeom.h"
 #include "BORGeom.h"
-#include "Vehicle.h"
 #include "Util.h"
 #include "eli/geom/curve/length.hpp"
-#include "Vec3d.h"
 
 typedef piecewise_curve_type::index_type curve_index_type;
 typedef piecewise_curve_type::point_type curve_point_type;

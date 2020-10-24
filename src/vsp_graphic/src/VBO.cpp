@@ -1,7 +1,5 @@
 #include <cassert>
-#include <vector>
 #include <string>
-#include <cstdlib>
 
 #include "VBO.h"
 

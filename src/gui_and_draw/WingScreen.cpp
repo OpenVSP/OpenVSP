@@ -7,8 +7,6 @@
 
 #include "WingScreen.h"
 #include "ScreenMgr.h"
-#include "ParmMgr.h"
-#include "StlHelper.h"
 
 using namespace vsp;
 

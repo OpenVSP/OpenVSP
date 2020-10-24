@@ -14,9 +14,7 @@
 #include "Display.h"
 #include "Viewport.h"
 #include "Background.h"
-#include "TextureRepo.h"
 #include "GraphicSingletons.h"
-#include "StringUtil.h"
 
 ManageBackgroundScreen::ManageBackgroundScreen( ScreenMgr* mgr ) : BasicScreen( mgr, 210, 347, "Background" )
 {

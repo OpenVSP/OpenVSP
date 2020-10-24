@@ -9,7 +9,6 @@
 
 #include "CfdMeshScreen.h"
 #include "CfdMeshMgr.h"
-#include "StringUtil.h"
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction

@@ -8,10 +8,8 @@
 #include "PropGeom.h"
 #include "ParmMgr.h"
 #include "Vehicle.h"
-#include "StlHelper.h"
 #include <float.h>
 #include "Cluster.h"
-#include "Util.h"
 
 using namespace vsp;
 

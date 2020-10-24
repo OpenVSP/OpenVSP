@@ -9,24 +9,13 @@
 
 #include "HumanGeom.h"
 #include "ParmMgr.h"
-#include "LinkMgr.h"
 #include "Vehicle.h"
 
-#include "PtCloudGeom.h"
-
 #include "PntNodeMerge.h"
-#include "APIDefines.h"
 
-#include "StringUtil.h"
-#include "StlHelper.h"
 #include "UnitConversion.h"
 
-#include "SubSurfaceMgr.h"
-
 // Pinocchio #includes
-#include "vector.h"
-#include "utils.h"
-#include "debugging.h"
 #include "pinocchioApi.h"
 
 #include "HumanGeomData.h"

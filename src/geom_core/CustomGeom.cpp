@@ -7,9 +7,7 @@
 
 #include "APIDefines.h"
 #include "CustomGeom.h"
-#include "FileUtil.h"
 #include "ParmMgr.h"
-#include "LinkMgr.h"
 #include "ScriptMgr.h"
 #include "Vehicle.h"
 #include "VSP_Geom_API.h"

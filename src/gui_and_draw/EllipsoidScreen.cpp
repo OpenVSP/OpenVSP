@@ -8,7 +8,6 @@
 #include "EllipsoidScreen.h"
 #include "ScreenMgr.h"
 #include "EllipsoidGeom.h"
-#include "ParmMgr.h"
 
 
 //==== Constructor ====//

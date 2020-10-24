@@ -1,6 +1,4 @@
 #include "TextureMgr.h"
-#include "StringUtil.h"
-#include "Vehicle.h"
 
 
 TextureMgr::TextureMgr()

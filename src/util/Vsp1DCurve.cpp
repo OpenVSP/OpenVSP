@@ -15,8 +15,6 @@
 
 #include "eli/geom/curve/length.hpp"
 #include "eli/geom/curve/piecewise_creator.hpp"
-#include "eli/geom/intersect/specified_distance_curve.hpp"
-#include "eli/geom/intersect/specified_thickness_curve.hpp"
 
 typedef oned_piecewise_curve_type::index_type oned_curve_index_type;
 typedef oned_piecewise_curve_type::point_type oned_curve_point_type;

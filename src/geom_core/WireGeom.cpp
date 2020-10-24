@@ -9,7 +9,6 @@
 #include "Vehicle.h"
 #include "StringUtil.h"
 #include "Util.h"
-#include "APIDefines.h"
 
 //==== Constructor ====//
 WireGeom::WireGeom( Vehicle* vehicle_ptr ) : Geom( vehicle_ptr )
