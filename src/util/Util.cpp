@@ -4,6 +4,7 @@
 //
 
 #include "Util.h"
+#include <ctime>
 
 //==== Generate A Unique Random String of Length =====//
 string GenerateRandomID( int length )

@@ -2,6 +2,7 @@
 #include <MultiImageLoader.h>
 
 #include "Image.h"
+#include <algorithm>
 
 namespace VSPGraphic
 {

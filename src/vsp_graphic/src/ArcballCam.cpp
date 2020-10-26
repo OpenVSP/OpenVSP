@@ -1,5 +1,7 @@
 #include "ArcballCam.h"
 
+#include <algorithm>
+
 #define GLM_FORCE_RADIANS
 
 #define TOLERANCE 0.00001
