@@ -50,6 +50,7 @@ public:
 
     //==== Copy Between Different Types ====//
     virtual xmlNodePtr EncodeXml( xmlNodePtr & node );
+    virtual xmlNodePtr DecodeXml( xmlNodePtr & node );
 
     virtual void CopyFrom( XSecCurve* from_crv );
 
@@ -143,6 +144,17 @@ public:
     Parm m_DeltaY;
     Parm m_ShiftLE;
 
+    // XSec Background Parms
+    BoolParm m_XSecImagePreserveAR;
+    BoolParm m_XSecImageFlag;
+    FractionParm m_XSecImageW;
+    FractionParm m_XSecImageH;
+    FractionParm m_XSecImageXOffset;
+    FractionParm m_XSecImageYOffset;
+
+    virtual void SetImageFile( const string & file ) { m_ImageFile = file; }
+    virtual string GetImageFile() { return m_ImageFile; }
+
 protected:
 
     bool m_UseFakeWidth;
@@ -158,6 +170,8 @@ protected:
 
     VspCurve m_Curve;
     VspCurve m_BaseEditCurve;
+
+    string m_ImageFile;
 };
 
 //==========================================================================//

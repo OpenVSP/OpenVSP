@@ -475,12 +475,6 @@ protected:
     SliderAdjRangeInput m_YOffset;
 
     TriggerButton m_ResetDefaults;
-
-    string m_ImageFile;
-    FractionParm m_WidthScaleValue;
-    FractionParm m_HeightScaleValue;
-    FractionParm m_XOffsetValue;
-    FractionParm m_YOffsetValue;
 };
 
 class FeaXSecScreen : public BasicScreen
