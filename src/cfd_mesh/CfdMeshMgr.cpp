@@ -2590,7 +2590,11 @@ void CfdMeshMgrSingleton::BuildMesh()
 // Determines if a triangle should be deleted based on its type and whether or not it is inside every other surface
 bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < bool > aInB )
 {
-    bool deleteTri = false;
+    // Always delete Stiffener tris
+    if ( aType == vsp::CFD_STIFFENER )
+    {
+        return true;
+    }
 
     for ( int b = 0 ; b < ( int )m_SurfVec.size() ; b++ )
     {
@@ -2611,7 +2615,7 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
                     return true;
                 }
                 // Normal(Positive) inside another Normal, or Negative inside another Negative
-                if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT || aType != vsp::CFD_STRUCTURE ) )
+                if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT && aType != vsp::CFD_STRUCTURE ) )
                 {
                     return true;
                 }
@@ -2630,24 +2634,23 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
                 {
                     return true;
                 }
-                // Always delete Stiffener tris
-                else if ( aType == vsp::CFD_STIFFENER )
-                {
-                    return true;
-                }
-            }
-            else  // Triangle is outside.
-            {
-                if ( aType == vsp::CFD_STRUCTURE && bType == vsp::CFD_NORMAL )
-                {
-                    return true;
-                }
-                else if ( aType == vsp::CFD_STIFFENER && bType == vsp::CFD_NORMAL )
-                {
-                    return true;
-                }
             }
         }
+    }
+
+    // Default condition for deleteTri.
+    // The default value is applied for a triangle that is not inside
+    // any other object.  I.e. an isolated thing in 'free space'.
+    //
+    // vsp::CFD_NORMAL, vsp::CFD_TRANSPARENT
+    bool deleteTri = false;
+
+    // Flip sense of default value.  These things do not exist in 'free space'.
+    if ( aType == vsp::CFD_NEGATIVE ||
+         aType == vsp::CFD_STRUCTURE ||
+         aType == vsp::CFD_STIFFENER )   // Stiffener is special case -- always true previously.
+    {
+        deleteTri = true;
     }
 
     // Check non-absolute cases
@@ -2661,20 +2664,13 @@ bool CfdMeshMgrSingleton::SetDeleteTriFlag( int aType, bool symPlane, vector < b
 
             if ( aInThisB )
             {
-                if ( aType == vsp::CFD_NEGATIVE && bType == vsp::CFD_NORMAL )
+                if ( ( aType == vsp::CFD_NEGATIVE || aType == vsp::CFD_STRUCTURE ) && bType == vsp::CFD_NORMAL )
                 {
                     return false;
                 }
                 else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NORMAL )
                 {
                     return true;
-                }
-            }
-            else
-            {
-                if ( aType == vsp::CFD_NEGATIVE )
-                {
-                    deleteTri = true;
                 }
             }
         }

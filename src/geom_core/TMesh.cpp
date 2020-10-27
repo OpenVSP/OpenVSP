@@ -823,6 +823,12 @@ void TMesh::FlipIgnoreTriFlag()
 
 bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB )
 {
+    // Always delete Stiffener tris
+    if ( aType == vsp::CFD_STIFFENER )
+    {
+        return true;
+    }
+
     for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
     {
         bool aInThisB = aInB[b];
@@ -830,13 +836,10 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
         bool bThick = thicksurf[b];
 
         // Can make absolute decisions about deleting a triangle or not in the cases below
-        if ( !bThick )
-        {
-        }
-        if ( aInThisB )
+        if ( aInThisB && bThick )
         {
             // Normal(Positive) inside another Normal, or Negative inside another Negative
-            if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT || aType != vsp::CFD_STRUCTURE ) )
+            if ( aType == bType && ( aType != vsp::CFD_TRANSPARENT && aType != vsp::CFD_STRUCTURE ) )
             {
                 return true;
             }
@@ -855,26 +858,24 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
             {
                 return true;
             }
-            // Always delete Stiffener tris
-            else if ( aType == vsp::CFD_STIFFENER )
-            {
-                return true;
-            }
-        }
-        else  // Triangle is outside.
-        {
-            if ( aType == vsp::CFD_STRUCTURE && bType == vsp::CFD_NORMAL )
-            {
-                return true;
-            }
-            else if ( aType == vsp::CFD_STIFFENER && bType == vsp::CFD_NORMAL )
-            {
-                return true;
-            }
         }
     }
 
+    // Default condition for ignoretri.
+    // The default value is applied for a triangle that is not inside
+    // any other object.  I.e. an isolated thing in 'free space'.
+    //
+    // vsp::CFD_NORMAL, vsp::CFD_TRANSPARENT
     int ignoretri = false;
+
+    // Flip sense of default value.  These things do not exist in 'free space'.
+    if ( aType == vsp::CFD_NEGATIVE ||
+         aType == vsp::CFD_STRUCTURE ||
+         aType == vsp::CFD_STIFFENER )   // Stiffener is special case -- always true previously.
+    {
+        ignoretri = true;
+    }
+
     // Check non-absolute cases
     for ( int b = 0 ; b < ( int )aInB.size() ; b++ )
     {
@@ -882,25 +883,15 @@ bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vec
         int bType = bTypes[b];
         bool bThick = thicksurf[b];
 
-        if ( !bThick )
+        if ( aInThisB && bThick )
         {
-        }
-        else if ( aInThisB )
-        {
-            if ( aType == vsp::CFD_NEGATIVE && bType == vsp::CFD_NORMAL )
+            if ( ( aType == vsp::CFD_NEGATIVE || aType == vsp::CFD_STRUCTURE ) && bType == vsp::CFD_NORMAL )
             {
                 return false;
             }
             else if ( aType == vsp::CFD_TRANSPARENT && bType == vsp::CFD_NORMAL )
             {
                 return true;
-            }
-        }
-        else
-        {
-            if ( aType == vsp::CFD_NEGATIVE )
-            {
-                ignoretri = true;
             }
         }
     }
