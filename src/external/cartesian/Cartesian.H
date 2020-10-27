@@ -123,7 +123,6 @@ class Ca_Axis_:public Fl_Box{
 protected:
     Fl_Widget * widget_;
     int scale_;
-    int next_tick(int &tick_index, double &tick_value, int &tick_order, double &interval_);
     bool valid_;
     double k_;
     double q_;
@@ -179,6 +178,8 @@ public:
     void maximum(double x);
     void clear(){valid_=0;};
     int cleared(){return !valid_;};
+
+    int next_tick(int &tick_index, double &tick_value, int &tick_order, double &interval_);
 
     void rescale(int when, double x);
     void rescale_move(int when, double  x);

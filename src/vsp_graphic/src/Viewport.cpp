@@ -256,26 +256,55 @@ void Viewport::drawGridOverlay()
     glColor4f( 0.8f, 0.8f, 0.8f, 1.0f );
     glLineWidth( 0.3f * _screenSizeDiffRatio);
 
-    glBegin( GL_LINES );
-    for ( float i = -5.0f; i <= 5.0f; i += 0.5f )
+    if( _xGridVec.size() > 0 && _yGridVec.size() > 0 )
     {
-        glVertex2f( -5, i );
-        glVertex2f( 5, i );
-    }
-    for ( float i = -5.0f; i <= 5.0f; i += 0.5f )
-    {
-        glVertex2f( i, -5 );
-        glVertex2f( i, 5 );
-    }
-    glEnd();
+        glm::vec2 pan = _camera->getPanValues();
 
-    glColor3f( 0.1f, 0.1f, 0.1f );
-    glBegin( GL_LINES );
-    glVertex2f( -5, 0 );
-    glVertex2f( 5, 0 );
-    glVertex2f( 0, -5 );
-    glVertex2f( 0, 5 );
-    glEnd();
+        glBegin( GL_LINES );
+        for( size_t i = 0; i < _yGridVec.size(); i++ )
+        {
+            glVertex2f( _xGridVec.front() + pan.x, _yGridVec[i] + pan.y );
+            glVertex2f( _xGridVec.back() + pan.x, _yGridVec[i] + pan.y );
+        }
+        for( size_t i = 0; i < _xGridVec.size(); i++ )
+        {
+            glVertex2f( _xGridVec[i] + pan.x, _yGridVec.front() + pan.y );
+            glVertex2f( _xGridVec[i] + pan.x, _yGridVec.back() + pan.y );
+        }
+        glEnd();
+
+        // center axis
+        glColor3f( 0.1f, 0.1f, 0.1f );
+        glBegin( GL_LINES );
+        glVertex2f( _xGridVec.front() + pan.x, pan.y );
+        glVertex2f( _xGridVec.back() + pan.x, pan.y );
+        glVertex2f( pan.x, _yGridVec.front() + pan.y );
+        glVertex2f( pan.x, _yGridVec.back() + pan.y );
+        glEnd();
+    }
+    else // default grid
+    {
+        glBegin( GL_LINES );
+        for( float i = -5.0f; i <= 5.0f; i += 0.5f )
+        {
+            glVertex2f( -5, i );
+            glVertex2f( 5, i );
+        }
+        for( float i = -5.0f; i <= 5.0f; i += 0.5f )
+        {
+            glVertex2f( i, -5 );
+            glVertex2f( i, 5 );
+        }
+        glEnd();
+
+        glColor3f( 0.1f, 0.1f, 0.1f );
+        glBegin( GL_LINES );
+        glVertex2f( -5, 0 );
+        glVertex2f( 5, 0 );
+        glVertex2f( 0, -5 );
+        glVertex2f( 0, 5 );
+        glEnd();
+    }
 }
 
 void Viewport::drawBackground()

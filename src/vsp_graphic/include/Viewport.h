@@ -4,6 +4,7 @@
 #include "OpenGLHeaders.h"
 #include "Common.h"
 #include "glm/glm.hpp"
+#include <vector>
 
 namespace VSPGraphic
 {
@@ -141,6 +142,16 @@ public:
     */
     void showGridOverlay( bool showFlag );
 
+    /*
+    * Define Values for Grid Overlay
+    * -5 to +5 spacing on default.
+    */
+    void setGridVals( std::vector < double > xGridVec, std::vector < double > yGridVec )
+    {
+        _xGridVec = xGridVec;
+        _yGridVec = yGridVec;
+    }
+
 private:
     int _x;
     int _y;
@@ -152,6 +163,9 @@ private:
     bool _showGrid;
 
     float _screenSizeDiffRatio;
+
+    std::vector < double > _xGridVec;
+    std::vector < double > _yGridVec;
 
     Camera* _camera;
     Background * _background;
