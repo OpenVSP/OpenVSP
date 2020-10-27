@@ -1891,6 +1891,9 @@ string VSPAEROMgrSingleton::ComputeSolverSingle( FILE * logFile )
                     // ==== MonitorSolverProcess ==== //
                     MonitorSolver( logFile );
 
+                    // Clear DegenGeom vec to prevent UpdateRotorDisks finding a 
+                    // disk that has been deleted from the Geom browser
+                    m_DegenGeomVec.clear();
 
                     // Check if the kill solver flag has been raised, if so clean up and return
                     //  note: we could have exited the IsRunning loop if the process was killed
@@ -2154,6 +2157,9 @@ string VSPAEROMgrSingleton::ComputeSolverBatch( FILE * logFile )
         // ==== MonitorSolverProcess ==== //
         MonitorSolver( logFile );
 
+        // Clear DegenGeom vec to prevent UpdateRotorDisks finding a 
+        // disk that has been deleted from the Geom browser
+        m_DegenGeomVec.clear();
 
         // Check if the kill solver flag has been raised, if so clean up and return
         //  note: we could have exited the IsRunning loop if the process was killed
