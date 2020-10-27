@@ -695,6 +695,18 @@ int PCurve::Split( const double & tsplit )
 
     vector < double > tvec = GetTVec();
 
+    for( size_t i = 0; i < tvec.size(); i++ )
+    {
+        if( abs( tsplit - tvec[i] ) < FLT_EPSILON )
+        {
+            return m_SelectPntID; // Do not split identical U values
+        }
+        else if( tsplit < tvec[i] )
+        {
+            break;
+        }
+    }
+
     if ( m_CurveType() == vsp::CEDIT )
     {
         int nseg = ( (int)tvec.size() - 1 ) / 3;

@@ -3802,13 +3802,24 @@ int EditCurveXSec::Split01()
 
 int EditCurveXSec::Split01( double u_split )
 {
-    // Note, the curve will not be split if a control point already exists at the split location. 
-    
-    // Identify the index of the new point
+    // Note, the curve will not be split if a control point already exists at the split location.
     m_SelectPntID = 0;
 
     vector < double > u_vec = GetUVec(); 
 
+    for( size_t i = 0; i < u_vec.size(); i++ )
+    {
+        if( abs( u_split - u_vec[i] ) < FLT_EPSILON )
+        {
+            return m_SelectPntID; // Do not split identical U values
+        }
+        else if( u_split < u_vec[i] )
+        {
+            break;
+        }
+    }
+    
+    // Identify the index of the new point
     if ( m_CurveType() == CEDIT )
     {
         int nseg = ( (int)u_vec.size() - 1 ) / 3;
