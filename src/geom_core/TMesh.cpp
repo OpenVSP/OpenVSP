@@ -947,6 +947,7 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
     orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
     tri->m_IgnoreTriFlag = 0;
+    int prior = -1;
 
     vec3d dir( 1.0, 0.000001, 0.000001 );
 
@@ -962,6 +963,13 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
             if ( tParmVec.size() % 2 )
             {
                 tri->m_insideSurf[m] = true;
+
+                // Priority assignment for wave drag.  Mass prop may need some adjustments.
+                if ( meshVec[m]->m_MassPrior > prior ) // Should possibly check that priority is only for vsp::CFD_NORMAL
+                {
+                    tri->m_ID = meshVec[m]->m_PtrID;
+                    prior = meshVec[m]->m_MassPrior;
+                }
             }
         }
     }
@@ -1012,56 +1020,6 @@ void TMesh::MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
                     tri->m_IgnoreTriFlag = 0;
                     tri->m_ID = meshVec[m]->m_PtrID;
                     tri->m_Density = meshVec[m]->m_Density;
-                    prior = meshVec[m]->m_MassPrior;
-                }
-            }
-        }
-    }
-}
-
-void TMesh::WaveDeterIntExt( vector< TMesh* >& meshVec )
-{
-    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
-    {
-        TTri* tri = m_TVec[t];
-
-        //==== Do Interior Tris ====//
-        if ( tri->m_SplitVec.size() )
-        {
-            tri->m_IgnoreTriFlag = 1;
-            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
-            {
-                WaveDeterIntExtTri( tri->m_SplitVec[s], meshVec );
-            }
-        }
-        else
-        {
-            WaveDeterIntExtTri( tri, meshVec );
-        }
-    }
-}
-
-void TMesh::WaveDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
-{
-    vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
-    orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
-    tri->m_IgnoreTriFlag = 0;
-    int prior = -1;
-
-    vec3d dir( 1.0, 0.000001, 0.000001 );
-
-    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
-    {
-        if ( meshVec[m] != this )
-        {
-            vector<double > tParmVec;
-            meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
-            if ( tParmVec.size() % 2 )
-            {
-                if ( meshVec[m]->m_MassPrior > prior )
-                {
-                    tri->m_IgnoreTriFlag = 1;
-                    tri->m_ID = meshVec[m]->m_PtrID;
                     prior = meshVec[m]->m_MassPrior;
                 }
             }

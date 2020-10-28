@@ -458,8 +458,6 @@ public:
     void DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
     void MassDeterIntExt( vector< TMesh* >& meshVec );
     void MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
-    void WaveDeterIntExt( vector< TMesh* >& meshVec );
-    void WaveDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
 
     void LoadBndBox();
 

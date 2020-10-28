@@ -2858,6 +2858,9 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
             TMesh* tm = new TMesh();
             m_SliceVec.push_back( tm );
 
+            tm->m_ThickSurf = false;
+            tm->m_SurfCfdType = vsp::CFD_STRUCTURE;
+
             // Location of theta slices on x-axis
             double xcenter = WaveDragMgr.m_StartX[itheta] + WaveDragMgr.m_XNorm[islice] * ( WaveDragMgr.m_EndX[itheta] - WaveDragMgr.m_StartX[itheta] );
 
@@ -2914,6 +2917,9 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         TMesh* tm = new TMesh();
         m_SliceVec.push_back( tm );
 
+        tm->m_ThickSurf = false;
+        tm->m_SurfCfdType = vsp::CFD_STRUCTURE;
+
         // Location of theta slices on x-axis
         double xcenter = (double)tubeslicesX[itube];
 
@@ -2962,9 +2968,19 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         tm->Split();
 
         //==== Determine Which Triangles Are Interior/Exterior ====//
-        tm->WaveDeterIntExt( m_TMeshVec );
+        tm->DeterIntExt( m_TMeshVec );
 
-        tm->FlipIgnoreTriFlag();
+        // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
+        vector < int > bTypes( m_TMeshVec.size() );
+        vector < bool > thicksurf( m_TMeshVec.size() );
+        for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+        {
+            bTypes[i] = m_TMeshVec[i]->m_SurfCfdType;
+            thicksurf[i] = m_TMeshVec[i]->m_ThickSurf;
+        }
+
+        //==== Mark which triangles to ignore ====//
+        tm->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
     }
 
     //==== Pushback slice and area results ====//
