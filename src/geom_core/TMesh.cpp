@@ -956,7 +956,7 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
 
     for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
     {
-        if ( meshVec[m] != this && meshVec[m]->m_ThickSurf ) // && meshVec[m]->GetCfdSurfType() != vsp::CFD_TRANSPARENT
+        if ( meshVec[m] != this && meshVec[m]->m_ThickSurf )
         {
             vector<double > tParmVec;
             meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
