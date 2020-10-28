@@ -2444,6 +2444,15 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
         }
     }
 
+    // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
+    vector < int > bTypes( m_TMeshVec.size() );
+    vector < bool > thicksurf( m_TMeshVec.size() );
+    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        bTypes[i] = m_TMeshVec[i]->m_SurfCfdType;
+        thicksurf[i] = m_TMeshVec[i]->m_ThickSurf;
+    }
+
     //==== Load Bnding Box ====//
     for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
     {
@@ -2463,15 +2472,6 @@ void MeshGeom::AreaSlice( int numSlices , vec3d norm_axis,
 
         //==== Determine Which Triangle Are Interior/Exterior ====//
         tm->DeterIntExt( m_TMeshVec );
-
-        // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
-        vector < int > bTypes( m_TMeshVec.size() );
-        vector < bool > thicksurf( m_TMeshVec.size() );
-        for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-        {
-            bTypes[i] = m_TMeshVec[i]->m_SurfCfdType;
-            thicksurf[i] = m_TMeshVec[i]->m_ThickSurf;
-        }
 
         //==== Mark which triangles to ignore ====//
         tm->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
@@ -2950,6 +2950,15 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
         tm->AddTri( gp[2], gp[0], gp[1], gpnorm );
     }
 
+    // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
+    vector < int > bTypes( m_TMeshVec.size() );
+    vector < bool > thicksurf( m_TMeshVec.size() );
+    for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        bTypes[i] = m_TMeshVec[i]->m_SurfCfdType;
+        thicksurf[i] = m_TMeshVec[i]->m_ThickSurf;
+    }
+
     //==== Load Bnding Box ====//
     for ( int islice = 0 ; islice < ( int )m_SliceVec.size() ; islice++ )
     {
@@ -2969,15 +2978,6 @@ void MeshGeom::WaveDragSlice( int numSlices, double sliceAngle, int coneSections
 
         //==== Determine Which Triangles Are Interior/Exterior ====//
         tm->DeterIntExt( m_TMeshVec );
-
-        // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
-        vector < int > bTypes( m_TMeshVec.size() );
-        vector < bool > thicksurf( m_TMeshVec.size() );
-        for ( int i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
-        {
-            bTypes[i] = m_TMeshVec[i]->m_SurfCfdType;
-            thicksurf[i] = m_TMeshVec[i]->m_ThickSurf;
-        }
 
         //==== Mark which triangles to ignore ====//
         tm->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
