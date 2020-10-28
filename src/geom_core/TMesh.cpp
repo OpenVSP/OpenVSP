@@ -948,6 +948,7 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
                 if ( meshVec[m]->m_MassPrior > prior ) // Should possibly check that priority is only for vsp::CFD_NORMAL
                 {
                     tri->m_ID = meshVec[m]->m_PtrID;
+                    tri->m_Density = meshVec[m]->m_Density;
                     prior = meshVec[m]->m_MassPrior;
                 }
             }
