@@ -352,7 +352,7 @@ public:
 
     virtual int WakeEdge();
 
-    int m_IgnoreTriFlag;
+    bool m_IgnoreTriFlag;
     vector< bool > m_insideSurf;
     string m_ID;
     vector<int> m_Tags;

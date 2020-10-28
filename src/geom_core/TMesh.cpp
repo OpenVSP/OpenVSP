@@ -888,7 +888,7 @@ void TMesh::SetIgnoreTriFlag( vector< TMesh* >& meshVec, const vector < int > & 
         //==== Do Interior Tris ====//
         if ( tri->m_SplitVec.size() )
         {
-            tri->m_IgnoreTriFlag = 1;
+            tri->m_IgnoreTriFlag = true;
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
                 tri->m_SplitVec[s]->m_IgnoreTriFlag = DecideIgnoreTri( m_SurfCfdType, bTypes, thicksurf, tri->m_SplitVec[s]->m_insideSurf );
@@ -926,7 +926,7 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
 {
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
     orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
-    tri->m_IgnoreTriFlag = 0;
+    tri->m_IgnoreTriFlag = false;
     int prior = -1;
 
     vec3d dir( 1.0, 0.000001, 0.000001 );
@@ -964,7 +964,7 @@ void TMesh::MassDeterIntExt( vector< TMesh* >& meshVec )
         //==== Do Interior Tris ====//
         if ( tri->m_SplitVec.size() )
         {
-            tri->m_IgnoreTriFlag = 1;
+            tri->m_IgnoreTriFlag = true;
             for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
             {
                 MassDeterIntExtTri( tri->m_SplitVec[s], meshVec );
@@ -982,7 +982,7 @@ void TMesh::MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
 {
     vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
     orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
-    tri->m_IgnoreTriFlag = 1;
+    tri->m_IgnoreTriFlag = true;
     int prior = -1;
 
     vec3d dir( 1.0, 0.000001, 0.000001 );
@@ -997,7 +997,7 @@ void TMesh::MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
             {
                 if ( meshVec[m]->m_MassPrior > prior )
                 {
-                    tri->m_IgnoreTriFlag = 0;
+                    tri->m_IgnoreTriFlag = false;
                     tri->m_ID = meshVec[m]->m_PtrID;
                     tri->m_Density = meshVec[m]->m_Density;
                     prior = meshVec[m]->m_MassPrior;
@@ -1430,7 +1430,7 @@ TTri::TTri()
 //printf("Tri Construct Cnt = %d \n", cnt);
     m_E0 = m_E1 = m_E2 = 0;
     m_N0 = m_N1 = m_N2 = 0;
-    m_IgnoreTriFlag = 0;
+    m_IgnoreTriFlag = false;
     m_InvalidFlag  = 0;
     m_Density = 1.0;
     m_TMesh = NULL;

@@ -302,7 +302,6 @@ int MeshGeom::ReadSTL( const char* file_name )
 
                 //==== Add Valid Facet ====//
                 tPtr = new TTri();
-                tPtr->m_IgnoreTriFlag = 0;
                 tPtr->m_Norm = vec3d( nx, ny, nz );
                 tMesh->m_TVec.push_back( tPtr );
 
@@ -371,7 +370,6 @@ int MeshGeom::ReadSTL( const char* file_name )
 
                 //==== Add Valid Facet ====//
                 tPtr = new TTri();
-                tPtr->m_IgnoreTriFlag = 0;
                 tPtr->m_Norm = vec3d( nx, ny, nz );
                 tMesh->m_TVec.push_back( tPtr );
 
@@ -3170,7 +3168,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
                 {
                     for ( j = 0 ; j < ( int )tri->m_SplitVec.size() ; j++ )
                     {
-                        if ( tri->m_SplitVec[j]->m_IgnoreTriFlag == 0 )
+                        if ( !tri->m_SplitVec[j]->m_IgnoreTriFlag )
                         {
                             TriShellMassProp* tsmp = new TriShellMassProp( tm->m_PtrID, tm->m_ShellMassArea,
                                     tri->m_SplitVec[j]->m_N0->m_Pnt,
@@ -3180,7 +3178,7 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
                         }
                     }
                 }
-                else if ( tri->m_IgnoreTriFlag == 0 )
+                else if ( !tri->m_IgnoreTriFlag )
                 {
                     TriShellMassProp* tsmp = new TriShellMassProp( tm->m_PtrID, tm->m_ShellMassArea,
                             tri->m_N0->m_Pnt, tri->m_N1->m_Pnt, tri->m_N2->m_Pnt );
@@ -3205,13 +3203,13 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
             {
                 for ( j = 0 ; j < ( int )tri->m_SplitVec.size() ; j++ )
                 {
-                    if ( tri->m_SplitVec[j]->m_IgnoreTriFlag == 0 )
+                    if ( !tri->m_SplitVec[j]->m_IgnoreTriFlag )
                     {
                         CreatePrism( tetraVec, tri->m_SplitVec[j], prismLength );
                     }
                 }
             }
-            else if ( tri->m_IgnoreTriFlag == 0 )
+            else if ( !tri->m_IgnoreTriFlag )
             {
                 CreatePrism( tetraVec, tri, prismLength );
             }
@@ -3576,7 +3574,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
             {
                 for ( j = 0 ; j < ( int )tri->m_SplitVec.size() ; j++ )
                 {
-                    if ( tri->m_SplitVec[j]->m_IgnoreTriFlag == 0 )
+                    if ( !tri->m_SplitVec[j]->m_IgnoreTriFlag )
                     {
                         DegenGeomTriShellMassProp* tsmp = new DegenGeomTriShellMassProp( tm->m_PtrID, tri->m_SplitVec[j]->m_N0->m_Pnt,
                                 tri->m_SplitVec[j]->m_N1->m_Pnt,
@@ -3585,7 +3583,7 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
                     }
                 }
             }
-            else if ( tri->m_IgnoreTriFlag == 0 )
+            else if ( !tri->m_IgnoreTriFlag )
             {
                 DegenGeomTriShellMassProp* tsmp = new DegenGeomTriShellMassProp( tm->m_PtrID, tri->m_N0->m_Pnt, tri->m_N1->m_Pnt, tri->m_N2->m_Pnt );
                 triShellVec.push_back( tsmp );
@@ -3608,13 +3606,13 @@ void MeshGeom::degenGeomMassSliceX( vector< DegenGeom > &degenGeom )
             {
                 for ( j = 0 ; j < ( int )tri->m_SplitVec.size() ; j++ )
                 {
-                    if ( tri->m_SplitVec[j]->m_IgnoreTriFlag == 0 )
+                    if ( !tri->m_SplitVec[j]->m_IgnoreTriFlag )
                     {
                         createDegenGeomPrism( tetraVec, tri->m_SplitVec[j], prismLength );
                     }
                 }
             }
-            else if ( tri->m_IgnoreTriFlag == 0 )
+            else if ( !tri->m_IgnoreTriFlag )
             {
                 createDegenGeomPrism( tetraVec, tri, prismLength );
             }
@@ -3892,14 +3890,14 @@ void MeshGeom::WaterTightCheck( FILE* fid )
             {
                 for ( i = 0 ; i < ( int )mesh->m_TVec[t]->m_SplitVec.size() ; i++ )
                 {
-                    if ( mesh->m_TVec[t]->m_SplitVec[i]->m_IgnoreTriFlag == 0 )
+                    if ( !mesh->m_TVec[t]->m_SplitVec[i]->m_IgnoreTriFlag )
                     {
                         TTri* tri = mesh->m_TVec[t]->m_SplitVec[i];
                         oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, mesh->m_TVec[t]->m_Norm );
                     }
                 }
             }
-            else if ( mesh->m_TVec[t]->m_IgnoreTriFlag == 0 )
+            else if ( !mesh->m_TVec[t]->m_IgnoreTriFlag )
             {
                 TTri* tri = mesh->m_TVec[t];
                 oneMesh->AddTri( tri->m_N0, tri->m_N1, tri->m_N2, tri->m_Norm );
