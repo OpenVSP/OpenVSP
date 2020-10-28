@@ -3081,6 +3081,9 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
         TMesh* tm = new TMesh();
         m_SliceVec.push_back( tm );
 
+        tm->m_ThickSurf = false;
+        tm->m_SurfCfdType = vsp::CFD_STRUCTURE;
+
         double x = xMin + ( double )s * sliceW + 0.5 * sliceW;
 
         double ydel = 1.02 * ( m_BBox.GetMax( 1 ) - m_BBox.GetMin( 1 ) );
@@ -3104,6 +3107,15 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
         }
     }
 
+    // Fill vector of cfdtypes so we don't have to pass TMeshVec all the way down.
+    vector < int > bTypes( m_TMeshVec.size() );
+    vector < bool > thicksurf( m_TMeshVec.size() );
+    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        bTypes[i] = m_TMeshVec[i]->m_SurfCfdType;
+        thicksurf[i] = m_TMeshVec[i]->m_ThickSurf;
+    }
+
     //==== Load Bnding Box ====//
     for ( s = 0 ; s < ( int )m_SliceVec.size() ; s++ )
     {
@@ -3122,17 +3134,13 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
         tm->Split();
 
         //==== Determine Which Triangle Are Interior/Exterior ====//
-        tm->MassDeterIntExt( m_TMeshVec );
+        tm->DeterIntExt( m_TMeshVec );
+
+        //==== Mark which triangles to ignore ====//
+        tm->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
 
     }
-    /**********
-        //==== Delete Mesh Geometry ====//
-        for ( i = 0 ; i < (int)tMeshVec.size() ; i++ )
-        {
-            delete tMeshVec[i];
-        }
-        tMeshVec.erase( tMeshVec.begin(), tMeshVec.end() );
-    *********/
+
     //==== Intersect All Mesh Geoms ====//
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
@@ -3152,6 +3160,12 @@ void MeshGeom::MassSliceX( int numSlices, bool writefile )
     for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
     {
         m_TMeshVec[i]->DeterIntExt( m_TMeshVec );
+    }
+
+    //==== Mark which triangles to ignore ====//
+    for ( i = 0 ; i < ( int )m_TMeshVec.size() ; i++ )
+    {
+        m_TMeshVec[i]->SetIgnoreTriFlag( m_TMeshVec, bTypes, thicksurf );
     }
 
     //==== Do Shell Calcs ====//
