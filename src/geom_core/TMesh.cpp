@@ -956,58 +956,6 @@ void TMesh::DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
     }
 }
 
-void TMesh::MassDeterIntExt( vector< TMesh* >& meshVec )
-{
-    for ( int t = 0 ; t < ( int )m_TVec.size() ; t++ )
-    {
-        TTri* tri = m_TVec[t];
-
-        //==== Do Interior Tris ====//
-        if ( tri->m_SplitVec.size() )
-        {
-            tri->m_IgnoreTriFlag = true;
-            for ( int s = 0 ; s < ( int )tri->m_SplitVec.size() ; s++ )
-            {
-                MassDeterIntExtTri( tri->m_SplitVec[s], meshVec );
-            }
-        }
-        else
-        {
-            MassDeterIntExtTri( tri, meshVec );
-        }
-    }
-}
-
-
-void TMesh::MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec )
-{
-    vec3d orig = ( tri->m_N0->m_Pnt + tri->m_N1->m_Pnt ) * 0.5;
-    orig = ( orig + tri->m_N2->m_Pnt ) * 0.5;
-    tri->m_IgnoreTriFlag = true;
-    int prior = -1;
-
-    vec3d dir( 1.0, 0.000001, 0.000001 );
-
-    for ( int m = 0 ; m < ( int )meshVec.size() ; m++ )
-    {
-        if ( meshVec[m] != this )
-        {
-            vector<double > tParmVec;
-            meshVec[m]->m_TBox.RayCast( orig, dir, tParmVec );
-            if ( tParmVec.size() % 2 )
-            {
-                if ( meshVec[m]->m_MassPrior > prior )
-                {
-                    tri->m_IgnoreTriFlag = false;
-                    tri->m_ID = meshVec[m]->m_PtrID;
-                    tri->m_Density = meshVec[m]->m_Density;
-                    prior = meshVec[m]->m_MassPrior;
-                }
-            }
-        }
-    }
-}
-
 double TMesh::ComputeTheoArea()
 {
     m_TheoArea = 0;

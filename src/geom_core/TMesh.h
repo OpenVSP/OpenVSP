@@ -454,8 +454,6 @@ public:
 
     void DeterIntExt( vector< TMesh* >& meshVec );
     void DeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
-    void MassDeterIntExt( vector< TMesh* >& meshVec );
-    void MassDeterIntExtTri( TTri* tri, vector< TMesh* >& meshVec );
 
     void LoadBndBox();
 
