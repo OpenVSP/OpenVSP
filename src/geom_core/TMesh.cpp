@@ -801,26 +801,6 @@ void TMesh::Split()
     }
 }
 
-void TMesh::FlipIgnoreTriFlag()
-{
-    //==== Flip Ignore Tri Flags ====//
-    for ( int i = 0 ; i < ( int )m_TVec.size() ; i++ )
-    {
-        TTri* tri = m_TVec[i];
-        if ( tri->m_SplitVec.size() )
-        {
-            for ( int j = 0 ; j < ( int )tri->m_SplitVec.size() ; j++ )
-            {
-                tri->m_SplitVec[j]->m_IgnoreTriFlag = !( tri->m_SplitVec[j]->m_IgnoreTriFlag );
-            }
-        }
-        else
-        {
-            tri->m_IgnoreTriFlag = !( tri->m_IgnoreTriFlag );
-        }
-    }
-}
-
 bool TMesh::DecideIgnoreTri( int aType, const vector < int > & bTypes, const vector < bool > & thicksurf, const vector < bool > & aInB )
 {
     // Always delete Stiffener tris
