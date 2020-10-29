@@ -1492,10 +1492,33 @@ void MeshGeom::UpdateDrawObj()
         m_WireShadeDrawObj_vec[i].m_GeomChanged = true;
     }
 
+
+    // Calculate constants for color sequence.
+    const int ncgrp = m_PolyVec.size(); // Number of basic colors
+    const int ncstep = 1;
+    const double nctodeg = 360.0/(ncgrp*ncstep);
+
     m_FeatureDrawObj_vec.resize( m_PolyVec.size() );
     for ( int i = 0; i < m_PolyVec.size(); i++ )
     {
+
+        // Color sequence -- go around color wheel ncstep times with slight
+        // offset from ncgrp basic colors.
+        // Note, (cnt/ncgrp) uses integer division resulting in floor.
+        double deg = m_StartColorDegree() + ( ( i % ncgrp ) * ncstep + ( i / ncgrp ) ) * nctodeg;
+
+        if ( deg > 360 )
+        {
+            deg = (int)deg % 360;
+        }
+
+        vec3d rgb = m_FeatureDrawObj_vec[i].ColorWheel( deg );
+        rgb.normalize();
+
         m_FeatureDrawObj_vec[i].m_PntVec.resize( m_PolyVec[i].size() );
+        m_FeatureDrawObj_vec[i].m_LineWidth = 5;
+        m_FeatureDrawObj_vec[i].m_LineColor = rgb;
+
         for ( int j = 0; j < m_PolyVec[i].size(); j++ )
         {
             m_FeatureDrawObj_vec[i].m_PntVec[j] = trans.xform( m_PolyVec[i][j] );
