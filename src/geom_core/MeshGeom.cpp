@@ -1116,21 +1116,21 @@ int MeshGeom::WriteVSPGeomWakes( FILE* file_id, int offset )
 
         if ( we > 0 )
         {
+            TEdge e;
             if ( we == 1 )
             {
-                wakeedges.push_back( TEdge( ttri->m_N0, ttri->m_N1, ttri ) );
-                wakeedges.back().SortNodesByU();
+                e = TEdge( ttri->m_N0, ttri->m_N1, ttri );
             }
             else if ( we == 2 )
             {
-                wakeedges.push_back( TEdge( ttri->m_N1, ttri->m_N2, ttri ) );
-                wakeedges.back().SortNodesByU();
+                e = TEdge( ttri->m_N1, ttri->m_N2, ttri );
             }
             else
             {
-                wakeedges.push_back( TEdge( ttri->m_N2, ttri->m_N0, ttri ) );
-                wakeedges.back().SortNodesByU();
+                e = TEdge( ttri->m_N2, ttri->m_N0, ttri );
             }
+            e.SortNodesByU();
+            wakeedges.push_back( e );
         }
     }
 
