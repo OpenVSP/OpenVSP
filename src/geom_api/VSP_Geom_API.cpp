@@ -4856,10 +4856,19 @@ void MoveEditXSecPnt( const std::string & xsec_id, const int & indx, const vec3d
     EditCurveXSec* edit_xs = dynamic_cast<EditCurveXSec*>( xs->GetXSecCurve() );
     assert( edit_xs );
 
+    if( indx < 0 || indx >= edit_xs->GetNumPts() )
+    {
+        ErrorMgr.AddError( VSP_INDEX_OUT_RANGE, "MoveEditXSecPnt::Invalid point index " + std::to_string( indx ) );
+        return;
+    }
+
+    // edit_xs->MovePnt also moves adjacent CEDIT points, so just set parm values directly
+    edit_xs->m_XParmVec[indx]->Set( new_pnt.x() );
+    edit_xs->m_YParmVec[indx]->Set( new_pnt.y() );
+
+    edit_xs->ParmChanged( NULL, Parm::SET_FROM_DEVICE ); // Force update
+
     ErrorMgr.NoError();
-
-    return edit_xs->MovePnt(  indx, new_pnt, true );
-
 }
 
 void ConvertXSecToEdit( const std::string & geom_id, const int & indx )
